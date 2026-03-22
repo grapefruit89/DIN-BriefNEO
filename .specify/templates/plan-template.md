@@ -31,7 +31,14 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **MANDATE-INJ**: Zero innerHTML? (textContent/DOM-API only)
+- [ ] **MANDATE-FREEZE**: Visual Freeze guaranteed? (No pixel shift)
+- [ ] **MANDATE-VEC**: Vector-only export? (Native Print Engine)
+- [ ] **MANDATE-NAT**: Native-first? (No Logic-Bloat, Chrome 147+ standards)
+- [ ] **MANDATE-PLN**: Plaintext-only? (contenteditable="plaintext-only")
+- [ ] **IMR-Sync**: Does the plan follow the Isomorphic Master Registry?
+- [ ] **NO-JS Doctrine**: JS limited to Logic/CMA? (No layout/toggle JS)
+- [ ] **AGENT SAFETY**: Plan includes a safe patching strategy?
 
 ## Project Structure
 

@@ -1,0 +1,391 @@
+/* ==========================================================================
+   DIN 5008 - Visual Freeze Layer (V14 Platinum)
+   ==========================================================================
+   SPEC-001 | SPEC-007 | CAA-008 | PLAN-010 | IMR 2.0 | ADR-008 | ADR-011
+   Baseline: Google Chrome 147.0+ (No Legacy, No Backport, No Mercy)
+   ========================================================================== */
+
+@layer latex.base, din.core, ui.theme, project.overrides;
+
+/* CMA Typisierung via @property (Chrome 147 Baseline) */
+@property --page-width { syntax: "<length>"; inherits: true; initial-value: 210mm; }
+@property --page-height { syntax: "<length>"; inherits: true; initial-value: 297mm; }
+@property --margin-left { syntax: "<length>"; inherits: true; initial-value: 25mm; }
+@property --margin-right { syntax: "<length>"; inherits: true; initial-value: 20mm; }
+@property --address-width { syntax: "<length>"; inherits: true; initial-value: 85mm; }
+@property --address-height { syntax: "<length>"; inherits: true; initial-value: 45mm; }
+@property --margin-top-a { syntax: "<length>"; inherits: true; initial-value: 27mm; }
+@property --margin-top-b { syntax: "<length>"; inherits: true; initial-value: 45mm; }
+@property --address-top { syntax: "<length>"; inherits: true; initial-value: 45mm; }
+@property --sender-zone-top { syntax: "<length>"; inherits: true; initial-value: 27mm; }
+@property --info-block-top { syntax: "<length>"; inherits: true; initial-value: 97.4mm; }
+@property --subject-top { syntax: "<length>"; inherits: true; initial-value: 103.4mm; }
+@property --footer-top { syntax: "<length>"; inherits: true; initial-value: 269mm; }
+@property --salutation-top { syntax: "<length>"; inherits: true; initial-value: 113mm; }
+@property --signature-gap { syntax: "<length>"; inherits: true; initial-value: 12.7mm; }
+@property --fold-mark-1 { syntax: "<length>"; inherits: true; initial-value: 105mm; }
+@property --punch-mark { syntax: "<length>"; inherits: true; initial-value: 148.5mm; }
+@property --fold-mark-2 { syntax: "<length>"; inherits: true; initial-value: 210mm; }
+@property --text-width { syntax: "<length>"; inherits: true; initial-value: 165mm; }
+@property --vermerk-height { syntax: "<length>"; inherits: true; initial-value: 17.7mm; }
+@property --info-col-right { syntax: "<length>"; inherits: true; initial-value: 120mm; }
+@property --info-col-width { syntax: "<length>"; inherits: true; initial-value: 75mm; }
+
+:root {
+  --page-width:        210mm;
+  --page-height:       297mm;
+  --margin-left:        25mm;
+  --margin-right:       20mm;
+  --address-width:      85mm;
+  --address-height:     45mm;
+  --margin-top-a:       27mm;
+  --margin-top-b:       45mm;
+  --address-top:        45mm;
+  --sender-zone-top:    27mm;
+  --info-block-top:   97.4mm;
+  --subject-top:     103.4mm;
+  --footer-top:        269mm;
+  --salutation-top:    113mm;
+  --signature-gap:    12.7mm;
+  --fold-mark-1:       105mm;
+  --punch-mark:      148.5mm;
+  --fold-mark-2:       210mm;
+  --text-width:        165mm;
+  --vermerk-height:   17.7mm;
+  --info-col-right:   120mm;
+  --info-col-width:    75mm;
+  --font-size-body:    11pt;
+  --line-height:       14pt;
+  --color-paper:    #ffffff;
+  --color-bg:       #f0f0f0;
+  --color-guide:    #cccccc;
+  --color-error:    #c0392b;
+  --color-ok:       #27ae60;
+  --color-focus:    #2980b9;
+  --layout:         form-b; /* Default */
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   @layer din.core — UNANTASTBAR
+   ========================================================================== */
+@layer din.core {
+
+  body {
+    background: var(--color-bg);
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @scope (#paper) {
+    :scope { view-transition-name: paper-layout; }
+    :scope {
+      background: var(--color-paper);
+      width:    var(--page-width);
+      height:   var(--page-height);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Alle din-* Tags: display:block als Basis ─────────────── */
+    din-sender, din-note, din-recipient, din-date, din-your-ref,
+    din-our-ref, din-subject, din-salutation, din-body,
+    din-greeting, din-signature {
+      display: block;
+      position: absolute;
+      font-size: var(--font-size-body);
+      line-height: var(--line-height);
+      outline: none;
+      min-height: var(--line-height);
+    }
+
+    /* ── SEKTION A: din-sender (27mm) ─────────────────────────── */
+    din-sender {
+      top:   var(--sender-zone-top);
+      left:  var(--margin-left);
+      width: var(--text-width);
+      height: var(--line-height);
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 8pt;
+    }
+
+    /* ── SEKTION B: Anschriftzone-Container ───────────────────── */
+    #anschriftzone {
+      position: absolute;
+      left:   var(--margin-left);
+      /* Chrome 148: Logic Prime via if() */
+      top: if(style(--layout: form-a): var(--margin-top-a); else: var(--margin-top-b));
+      width:  var(--address-width);
+      height: var(--address-height);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    din-note      { height: var(--vermerk-height); flex-shrink: 0; font-size: 8pt; position: relative; width: 100%; overflow: hidden; }
+    din-recipient { flex: 1; position: relative; width: 100%; overflow: hidden; }
+
+    /* ── SEKTION C: Informationsblock-Container ──────────────── */
+    #informationsblock {
+    position: absolute;
+    left: var(--margin-left);
+    /* Chrome 148: Logic Prime */
+    top: if(style(--layout: form-a): var(--info-block-top); else: var(--info-block-top));
+      width: var(--text-width);
+    }
+
+    din-date, din-your-ref, din-our-ref { position: absolute; top: 0; }
+    din-date    { left: var(--info-col-right); width: var(--info-col-width); text-align: right; }
+    din-your-ref{ left: 0;    width: 44mm; }
+    din-our-ref { left: 45mm; width: 44mm; }
+
+    /* ── SEKTION D: din-subject (103.4mm — Aviation Grade) ──── */
+    #betreff-zone {
+    position: absolute;
+    left: var(--margin-left);
+    /* Chrome 148: Logic Prime */
+    top: if(style(--layout: form-a): var(--subject-top); else: var(--subject-top));
+      width: var(--text-width);
+    }
+
+    din-subject {
+      position: relative;
+      width: 100%;
+      font-weight: bold;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* ── SEKTION E: Textbereich ──────────────────────────────── */
+    #textbereich {
+      position: absolute;
+      left:  var(--margin-left);
+      right: var(--margin-right);
+      top:   var(--salutation-top);
+    }
+
+    din-salutation, din-body, din-greeting, din-signature {
+      position: relative;
+      width: 100%;
+    }
+
+    
+    din-body-mirror {
+      display: block;
+      position: absolute;
+      width: 100%;
+      min-height: 60mm;
+      pointer-events: none;
+      user-select: none;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: transparent;
+      z-index: 1;
+    }
+    
+    din-body { z-index: 2; }
+
+    din-body { 
+      min-height: 60mm; 
+      /* Chrome 147: Scroll-State Query Readiness */
+      container-type: scroll-state; 
+    }
+
+    .signature-gap { display: block; height: var(--signature-gap); }
+
+    .fold-mark, .punch-mark { transition: top 0.25s ease;
+      position: absolute;
+      left: 0;
+      width: 8mm;
+      border: none;
+      border-top: 0.3pt dashed var(--color-guide);
+      pointer-events: none;
+    }
+    .fold-mark-1 { top: var(--fold-mark-1); }
+    .punch-mark  { top: var(--punch-mark); width: 4mm; left: 10mm; }
+    .fold-mark-2 { top: var(--fold-mark-2); }
+  }
+
+} /* end @layer din.core */
+
+/* ==========================================================================
+   @layer ui.theme — Aesthetik. Keine mm-Werte.
+   ========================================================================== */
+@layer ui.theme {
+
+  @scope (#paper) {
+    :scope { box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+    #anschriftzone { border: 1px dotted var(--color-guide); }
+
+    /* din-* Tags: Fokus-Indikator (subtle) */
+    din-sender:focus, din-recipient:focus, din-subject:focus,
+    din-salutation:focus, din-body:focus, din-greeting:focus,
+    din-signature:focus, din-date:focus, din-note:focus,
+    din-your-ref:focus, din-our-ref:focus {
+      outline: none;
+      background: rgba(41, 128, 185, 0.04);
+    }
+  }
+
+  /* Pico-Extract-1: aria-invalid */
+  input[aria-invalid="true"],  textarea[aria-invalid="true"]  { outline: 2px solid var(--color-error); outline-offset: 1px; }
+  input[aria-invalid="false"], textarea[aria-invalid="false"] { outline: 2px solid var(--color-ok);    outline-offset: 1px; }
+  input:invalid:not(:placeholder-shown)                       { outline: 2px solid var(--color-error); outline-offset: 1px; }
+
+  /* Pico-Extract-2: dialog & popover */
+  dialog, [popover] {
+    border: none; border-radius: 8px; padding: 2rem;
+    max-width: 480px; width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25); font-family: inherit;
+  }
+  dialog::backdrop, [popover]::backdrop {
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+  }
+
+} /* end @layer ui.theme */
+
+
+  /* --- Maschinenraum: Anchor Positioning --- */
+  din-sender     { anchor-name: --anchor-sender; }
+  din-recipient  { anchor-name: --anchor-recipient; }
+  din-date       { anchor-name: --anchor-date; }
+  din-subject    { anchor-name: --anchor-subject; }
+  din-body       { anchor-name: --anchor-body; }
+  din-signature  { anchor-name: --anchor-signature; }
+
+  #editor-toolbar {
+    position: fixed; /* Muss fixed oder absolute sein für Anchor */
+    position-anchor: --active-anchor;
+    /* Klebe die Toolbar über das aktive Element */
+    bottom: anchor(top);
+    left: anchor(left);
+    margin-bottom: 5px;
+    z-index: 1000;
+  }
+
+  /* Sichtbarkeits-Logik: Nur zeigen wenn Feld im Fokus */
+  #paper:not(:has(:focus-within)) #editor-toolbar {
+    display: none;
+  }
+
+  /* Native Labels (Unlöschbar) */
+  din-date::before     { content: "Datum: "; font-weight: normal; color: #888; }
+  din-your-ref::before { content: "Ihr Zeichen: "; font-weight: normal; color: #888; }
+  din-our-ref::before  { content: "Unser Zeichen: "; font-weight: normal; color: #888; }
+
+
+@layer project.overrides — State + Sichtbarkeit + Placeholder
+   ========================================================================== */
+@layer project.overrides {
+
+  /* Native Layout-Steuerung via :has() (Chrome 105+) */
+  #app-shell:has(#radio-layout-a:checked) { --layout: form-a; }
+  #app-shell:has(#radio-layout-b:checked) { --layout: form-b; }
+  
+  /* Native Hilfslinien-Steuerung */
+  #app-shell:has(#toggle-guides:checked) .fold-mark,
+  #app-shell:has(#toggle-guides:checked) .punch-mark { display: block; }
+
+  /* Chrome 147: Native View Transition Trigger bei State-Change */
+  input[name="din-layout"], #toggle-guides {
+    view-transition-trigger: checked;
+  }
+
+
+  /* Chrome 147: Zero-JS Overflow Indikator */
+  @container scroll-state(scrollable: true) {
+    #paper::after {
+      content: "⚠️ Brief läuft auf Seite 2 über";
+      position: absolute; bottom: 10mm; right: 10mm;
+      color: var(--color-error); font-size: 8pt;
+      z-index: 100;
+    }
+  }
+
+  /* Hilfslinien */
+  .fold-mark, .punch-mark { display: none; }
+  
+
+  /* Editor-Toolbar via :has(:focus-within) */
+  #editor-toolbar { transition: transform 0.2s ease, opacity 0.15s ease; }
+  #paper:has([contenteditable]:focus-within) #editor-toolbar { opacity: 1; pointer-events: auto; }
+
+  /* Generischer Placeholder via data-placeholder */
+  [data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-guide);
+    pointer-events: none;
+    font-style: italic;
+  }
+
+  /* Anrede-Placeholder via data-gender (kein JS fuer leere Felder) */
+  din-salutation:empty::before             { content: "Sehr geehrte Damen und Herren,"; color: var(--color-guide); pointer-events: none; }
+  din-salutation[data-gender="m"]:empty::before { content: "Sehr geehrter Herr \2026"; }
+  din-salutation[data-gender="f"]:empty::before { content: "Sehr geehrte Frau \2026"; }
+  din-salutation[data-gender="fam"]:empty::before { content: "Sehr geehrte Familie \2026"; }
+
+  /* Betreff Placeholder (nicht kursiv) */
+  din-subject:empty::before { content: "Betreff"; color: var(--color-guide); pointer-events: none; font-weight: bold; font-style: normal; }
+
+  /* Grussformel-Warnung */
+  din-greeting[aria-invalid="true"] { outline: 2px solid var(--color-error); outline-offset: 1px; }
+
+  /* Selection-Guard (ANTI-015) */
+  body > *:not(#paper) { user-select: none; -webkit-user-select: none; }
+
+}
+
+/* ==========================================================================
+   PRINT RESET (ausserhalb der Layer — gilt immer)
+   ========================================================================== */
+
+/* ==========================================================================
+   PRINT ENGINE (Aviation Grade Vector Output)
+   ========================================================================== */
+@media print {
+  @page { size: A4; margin: 0; }
+  
+  body { background: none; padding: 0; }
+  
+  #paper {
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 297mm !important;
+    overflow: visible !important;
+    width: 210mm !important;
+  }
+
+  /* Textbereich darf fließen */
+  #textbereich {
+    position: relative !important;
+    top: var(--salutation-top) !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  din-body {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    /* Umbruch-Schutz */
+    break-inside: auto;
+    widows: 3;
+    orphans: 3;
+  }
+
+  /* Listen und Absätze zusammenhalten */
+  p, li, blockquote {
+    break-inside: avoid;
+  }
+
+  /* UI Elemente ausblenden */
+  .fold-mark, .punch-mark, #editor-toolbar, [popover], dialog, aside {
+    display: none !important;
+  }
+}

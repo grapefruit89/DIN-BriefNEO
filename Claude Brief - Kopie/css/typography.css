@@ -1,0 +1,77 @@
+/**
+ * typography.css — Font Declarations & Text System
+ * Claude Brief · DIN 5008 Generator
+ * ─────────────────────────────────────────────────
+ * @font-face stubs: drop woff2 into assets/fonts/ and uncomment.
+ * Live fallback stack: Aptos → Inter → Segoe UI → system-ui
+ */
+
+/* ── @font-face stubs (uncomment after adding woff2 files) ──────── */
+/*
+@font-face {
+  font-family: 'Aptos';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Aptos'), url('../assets/fonts/aptos.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aptos';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Aptos Bold'), url('../assets/fonts/aptos-bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Aptos';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Aptos Italic'), url('../assets/fonts/aptos-italic.woff2') format('woff2');
+}
+*/
+
+/* ── CSS Custom Properties ────────────────────────────────────── */
+:root {
+  --font-paper: 'Aptos', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui:    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:  'Cascadia Code', 'Fira Code', 'SF Mono', 'Consolas', 'Courier New', monospace;
+
+  --paper-font-size:    11pt;
+  --paper-line-height:  1.45;
+  --paper-font-small:    8pt;
+
+  --ui-font-size:   13px;
+  --ui-line-height: 1.5;
+}
+
+/* ── Base reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: var(--font-ui);
+  font-size: var(--ui-font-size);
+  line-height: var(--ui-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Paper text ───────────────────────────────────────────────── */
+#paper, #paper * {
+  font-family: var(--font-paper) !important;
+  font-size:   var(--paper-font-size) !important;
+  line-height: var(--paper-line-height) !important;
+  color: #000 !important;
+}
+
+#f-subject                      { font-weight: 700 !important; }
+.ce-return, .ce-small,
+#f-sender-phone, #f-sender-email { font-size: var(--paper-font-small) !important; }
+
+@media print {
+  #paper, #paper * {
+    font-family: var(--font-paper) !important;
+    color: #000 !important;
+    background: transparent !important;
+  }
+}

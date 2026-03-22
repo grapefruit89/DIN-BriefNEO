@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="de" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIN-BriefNEO | Platinum V14</title>
+  <link rel="stylesheet" href="css/din5008-paper.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/devmode.css">
+
+  <!-- [ANTI-FOUC] Restore layout variable before first paint -->
+  <script>
+    (function() {
+      try {
+        const layout = localStorage.getItem('neo_layout') || 'form-b';
+        document.documentElement.style.setProperty('--layout', layout);
+      } catch(e) {}
+    })();
+  </script>
+
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP-SHELL | MANDATE-107 | ADR-003 | IMR 2.0
+     ═══════════════════════════════════════════════════════ -->
+<div id="app-shell">
+
+  <!-- ── LEFT SIDEBAR (300px, statisch) ──────────────────── -->
+  
+  <aside id="sidebar-left">
+    <header class="sidebar-header">
+      <span class="sidebar-brand">NEO</span>
+      <span class="sidebar-version">v14.0</span>
+    </header>
+
+    <section class="sidebar-section">
+      <p class="sidebar-label">Dokument</p>
+      <button onclick="window.print()" class="sidebar-btn primary">🖨 Drucken / PDF</button>
+      <label for="file-import" class="sidebar-btn" role="button">📂 Backup Import</label>
+    </section>
+
+    <section class="sidebar-section">
+      <p class="sidebar-label">Einstellungen</p>
+      <!-- Native Invoker: Zero-JS Modal-Steuerung -->
+      <button commandfor="dialog-profile" command="show-modal" class="sidebar-btn">👤 Absender-Profil</button>
+      <button commandfor="sidebar-right" command="toggle-popover" class="sidebar-btn">🔬 Debugger / KI</button>
+    </section>
+
+    <footer class="sidebar-footer">
+      <span id="statusbar">Bereit</span>
+    </footer>
+  </aside>
+<!-- /sidebar-left -->
+
+  <!-- ── PAPER VIEWPORT ──────────────────────────────────── -->
+  <main id="paper-viewport" aria-label="Briefdokument">
+
+    <!-- Das DIN-Blatt (Config-State via data-*) -->
+    <div id="paper" style="--layout: form-b"
+         data-formality="formal"
+         data-recipient-type="none"
+         data-date-format="de"
+         aria-label="DIN 5008 Brief">
+
+      <!--
+        SEKTION A: Absender (IMR 2.0)
+        Tag: din-sender | Key: sender | CMA: SENDER_ZONE_TOP 27mm
+        plaintext-only: verhindert HTML-Paste [MANDATE-INJ]
+      -->
+      <din-sender
+        contenteditable="plaintext-only"
+        spellcheck="false"
+        aria-label="Absenderzeile (Ruecksendeadresse)"
+        data-auto="true"></din-sender>
+
+      <!--
+        SEKTION B: Anschriftzone (85x45mm Hard Constraint)
+        Container bleibt div — kein inhaltstragendes Feld
+      -->
+      <div id="anschriftzone">
+        <!--
+          Tag: din-note | Key: note | CMA: ADDRESS_TOP (Vermerkzone 17.7mm)
+        -->
+        <din-note
+          contenteditable="plaintext-only"
+          aria-label="Zusatz- und Vermerkzone (5 Zeilen)"></din-note>
+
+        <!--
+          Tag: din-recipient | Key: recipient | CMA: ADDRESS_TOP (Anschrift 27.3mm)
+        -->
+        <din-recipient
+          contenteditable="plaintext-only"
+          aria-label="Empfaengeradresse (6 Zeilen)"></din-recipient>
+      </div>
+
+      <!--
+        SEKTION C: Informationsblock (Aviation Grade 97.4mm)
+        Container bleibt div
+      -->
+      <div id="informationsblock">
+        <!--
+          Tag: din-date | Key: date | CMA: INFO_BLOCK_TOP rechte Spalte
+        -->
+        <din-date
+          contenteditable="plaintext-only"
+          spellcheck="false"
+          data-placeholder="TT.MM.JJJJ"
+          aria-label="Datum"></din-date>
+
+        <!--
+          Tag: din-your-ref | Key: your_ref | CMA: INFO_BLOCK_TOP links
+        -->
+        <din-your-ref
+          contenteditable="plaintext-only"
+          spellcheck="false"
+          data-placeholder="Ihr Zeichen"
+          aria-label="Ihr Zeichen"></din-your-ref>
+
+        <!--
+          Tag: din-our-ref | Key: our_ref | CMA: INFO_BLOCK_TOP mitte
+        -->
+        <din-our-ref
+          contenteditable="plaintext-only"
+          spellcheck="false"
+          data-placeholder="Unser Zeichen"
+          aria-label="Unser Zeichen"></din-our-ref>
+      </div>
+
+      <!--
+        SEKTION D: Betreff (Aviation Grade 103.4mm)
+        Container bleibt div — enthält nur ein Tag
+      -->
+      <div id="betreff-zone">
+        <!--
+          Tag: din-subject | Key: subject | CMA: SUBJECT_TOP 103.4mm
+        -->
+        <din-subject
+          contenteditable="plaintext-only"
+          aria-label="Betreff"></din-subject>
+      </div>
+
+      <!--
+        SEKTION E: Textbereich
+        Container bleibt div
+      -->
+      <div id="textbereich">
+        <!--
+          Tag: din-salutation | Key: salutation
+          CSS rendert Placeholder via data-gender + :empty::before
+          data-auto="true" → Automatik aktiv bis manuelle Eingabe
+        -->
+        <din-salutation
+          contenteditable="plaintext-only"
+          data-gender="n"
+          data-formality="formal"
+          data-auto="true"
+          aria-label="Anrede"></din-salutation>
+
+        <!--
+          Tag: din-body | Key: body
+          AUSNAHME: contenteditable="true" (formatierter Text erlaubt)
+        -->
+        <din-body contenteditable="plaintext-only"
+          aria-multiline="true"
+          aria-label="Brieftext"></din-body>
+        <din-body-mirror aria-hidden="true"></din-body-mirror>
+
+        <!--
+          Tag: din-greeting | Key: greeting
+          Grussformel-Waechter: aria-invalid via JS bei Satzzeichen
+        -->
+        <din-greeting
+          contenteditable="plaintext-only"
+          aria-label="Grussformel"></din-greeting>
+
+        <!-- Unterschriften-Abstand: 12.7mm = 3 Leerzeilen (SPEC-002 FR-009) -->
+        <div class="signature-gap" aria-hidden="true"></div>
+
+        <!--
+          Tag: din-signature | Key: signature | CMA: FOOTER_TOP 269mm
+        -->
+        <din-signature
+          contenteditable="plaintext-only"
+          aria-label="Unterschrift maschinenschriftlich"></din-signature>
+      </div>
+
+      <!-- Hilfslinien (CSS data-guides="true" steuert Sichtbarkeit) -->
+      <div class="fold-mark fold-mark-1" aria-hidden="true"></div>
+      <div class="punch-mark"           aria-hidden="true"></div>
+      <div class="fold-mark fold-mark-2" aria-hidden="true"></div>
+
+      <!-- Editor-Toolbar (CSS :has(:focus-within) steuert Sichtbarkeit) -->
+      <div id="editor-toolbar" role="toolbar" aria-label="Formatierung">
+        <button data-cmd="bold"       title="Fett">B</button>
+        <button data-cmd="italic"     title="Kursiv">I</button>
+        <button data-cmd="underline"  title="Unterstrichen">U</button>
+        <button data-js="action:undo" title="Rueckgaengig">↩</button>
+        <button data-js="action:redo" title="Wiederholen">↪</button>
+      </div>
+
+    </div><!-- /paper -->
+  </main>
+</div><!-- /app-shell -->
+
+<!-- RIGHT SIDEBAR (Popover API — Zero-JS) -->
+<div id="sidebar-right" popover class="sidebar-right" aria-label="Debugger und KI">
+  <header class="sidebar-right-header">
+    <span>🔬 Debugger / KI-Terminal</span>
+    <button commandfor="sidebar-right" command="hide-popover" aria-label="Schliessen">✕</button>
+  </header>
+
+  <section class="debug-section">
+    <h3>Akinator-Engine (IMR 2.0)</h3>
+    <p class="debug-hint">Leer → Interview. Gefuellt → Optimierung.<br>
+      Tags: &lt;din-subject&gt;, &lt;din-body&gt;, etc.</p>
+    <button id="btn-akinator-export" class="sidebar-btn primary">
+      🤖 Prompt generieren &amp; kopieren
+    </button>
+    <textarea id="akinator-output" readonly rows="10"
+              aria-label="Generierter Prompt"
+              placeholder="IMR 2.0 Prompt erscheint hier…"></textarea>
+  </section>
+
+  <section class="debug-section dev-only">
+    <h3>Live Tag↔JSON Abgleich</h3>
+    <pre id="debug-state" aria-live="polite">Warte auf Dev-Mode…</pre>
+  </section>
+
+  <section class="debug-section dev-only">
+    <h3>API-Keys (Tier 2)</h3>
+    <label>GeoApify
+      <input type="password" id="key-geoapify" autocomplete="off">
+    </label>
+    <label>LanguageTool
+      <input type="password" id="key-languagetool" autocomplete="off">
+    </label>
+    <button id="btn-save-keys" class="sidebar-btn">💾 Keys speichern</button>
+  </section>
+</div><!-- /sidebar-right -->
+
+<!-- PROFIL-DIALOG (Popover API) -->
+<div id="dialog-profile" popover class="dialog-modal" aria-label="Absender-Profil">
+  <header class="modal-header">
+    <span>👤 Absender-Profil</span>
+    <button commandfor="dialog-profile" command="hide-popover" aria-label="Schliessen">✕</button>
+  </header>
+  <form id="form-profile" method="dialog">
+    <label>Firma / Organisation
+      <input type="text" id="p-company" autocomplete="organization">
+    </label>
+    <label>Name
+      <input type="text" id="p-name" autocomplete="name">
+    </label>
+    <label>Strasse
+      <input type="text" id="p-street" autocomplete="street-address">
+    </label>
+    <div class="form-row">
+      <label>PLZ
+        <input type="text" id="p-zip" pattern="[0-9]{5}" maxlength="5"
+               inputmode="numeric" autocomplete="postal-code">
+      </label>
+      <label>Ort
+        <input type="text" id="p-city" autocomplete="address-level2">
+      </label>
+    </div>
+    <label>Telefon
+      <input type="tel" id="p-phone" pattern="[\d\s\+\-\(\)]{7,20}" autocomplete="tel">
+    </label>
+    <label>E-Mail
+      <input type="email" id="p-email" autocomplete="email">
+    </label>
+    <label>IBAN
+      <div class="iban-wrapper">
+        <input type="text" id="p-iban" autocomplete="off" maxlength="32" aria-label="IBAN">
+        <span id="iban-ghost" aria-hidden="true"></span>
+      </div>
+    </label>
+    <footer class="modal-footer">
+      <button type="button" commandfor="dialog-profile" command="hide-popover" class="sidebar-btn ghost">Abbrechen</button>
+      <button type="button" id="btn-profile-save" class="sidebar-btn primary">Speichern</button>
+    </footer>
+  </form>
+</div><!-- /dialog-profile -->
+
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+<div id="toast-dev"       aria-live="assertive">🔓 Entwickler-Modus aktiviert</div>
+
+<script type="module" src="js/core/app.js"></script>
+</body>
+</html>

@@ -1,50 +1,81 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: 10.0.0 → 16.0.1
+- List of modified principles:
+  - Truth (v10) → I. TRUTH: The Brain-First Mandate (v16)
+  - Vanilla Purity (v10) → II. VANILLA PURITY: Zero Dependencies & MANDATE-NAT
+  - Visual Freeze (v10) → III. VISUAL FREEZE: DIN 5008 Geometry & MANDATE-VEC
+- Added sections:
+  - MANDATE-INJ (Security)
+  - MANDATE-PLN (Plaintext-Only Integrity)
+  - IMR: ISOMORPHIC MASTER REGISTRY 2.0
+  - NO-JS DOCTRINE [ADR-003]
+  - AGENT TOOL SAFETY — PFLICHTPROTOKOLL
+- Templates requiring updates (✅ updated):
+  - .specify/memory/constitution.md
+-->
 
-## Core Principles
+# Platinum DIN-BriefNEO Constitution
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+**Version**: 16.0.1 | **Last Amended**: 2026-03-22 | **Ratified**: 2026-03-19
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+## I. OBERSTE GESETZE (MANDATES)
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### [MANDATE-000] Nutzersouveraenitaet
+Co-Pilot, kein Vormund. Der Nutzer behält die endgültige Kontrolle über alle Inhalte und Layout-Entscheidungen.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### [MANDATE-INJ] Security First
+innerHTML für User-Content ist STRENGSTENS verboten. Nur textContent oder DOM-API verwenden, um XSS und Injektionen strukturell zu verhindern.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### [MANDATE-FREEZE] Visual Freeze
+Zero-Pixel-Shift nach der Initialisierung. Das Layout muss deterministisch und stabil sein. Keine dynamischen Layout-Sprünge durch nachladende Inhalte.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### [MANDATE-VEC] Vector-Only Print Policy
+Jeder Dokumenten-Export MUSS vektorbasiert sein (Native Print Engine). Pixel-basierte Hacks (Canvas, PNG, html2canvas) sind verboten, um die Druckqualität der DIN 5008 zu garantieren.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### [MANDATE-NAT] Native-First Doctrine
+Alles, was moderne Browser (Chrome 147+) nativ via HTML oder CSS lösen können, MUSS so umgesetzt werden. JS ist auf Datenhaltung und IMR-Sync beschränkt.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### [MANDATE-PLN] Plaintext-Only Doctrine
+ALLE <din-*> Tags müssen `contenteditable="plaintext-only"` tragen. Dies verhindert die "stille Datenvergiftung" durch HTML-Paste und garantiert Datenintegrität.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### [MANDATE-BANNED] Banned Tools Doctrine
+Die Nutzung von `head` und `tail` ist STRENGSTENS untersagt. Diese Tools fuehren zu Kontext-Fragmentierung und riskieren Datenverlust bei chirurgischen Edits. Nur `read_file` mit exakten Zeilenangaben ist zulaessig.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+---
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+## II. ISOMORPHIC MASTER REGISTRY 2.0 (IMR) [CAA-008]
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Das Drei-Einheits-Prinzip gilt ausnahmslos: `TAG = JSON-KEY = CMA-KOORDINATE`.
+- Kein `getElementById` für Inhaltsfelder; stattdessen `querySelector(entry.tag)`.
+- Die `TAG_MAP` wird automatisch aus der IMR generiert.
+- SSoT (Single Source of Truth) ist `js/core/constants.js`.
+
+---
+
+## III. NO-JS DOCTRINE [ADR-003]
+
+JS ist NUR erlaubt für: CMA-Bridge, Fachlogik, LocalStorage, Export/Print und contenteditable I/O.
+JS ist VERBOTEN für: Layout-Berechnungen, Dialog-Toggles (Popover API nutzen!), Toolbar-Visibility oder CSS-Klassen-Toggling (CSS `:has()` nutzen).
+
+---
+
+## IV. AGENT TOOL SAFETY — PFLICHTPROTOKOLL
+
+Um Datenverlust durch KI-Agenten zu verhindern:
+1. **READ**: Datei vor dem Schreiben vollständig lesen.
+2. **IDENT**: Exakten `old_string` für Patches identifizieren.
+3. **PATCH**: Chirurgische Eingriffe mit `replace` oder `edit_block` bevorzugen.
+Destruktives `write_file` ist nur für neue Dateien oder komplette Neufassungen zulässig.
+
+---
+
+## V. GOVERNANCE & SDD-WORKFLOW
+
+### Workflow-Gate
+Kein Code darf ohne zementierten Plan (`status: cemented`) erstellt werden.
+Reihenfolge: `SPEC → SPECIFY (WHAT) → PLAN (HOW) → CODE`.
+
+### Änderungsverfahren
+Änderungen an dieser Konstitution erfordern eine MAJOR-Versionserhöhung.
+Anpassungen der Mandate müssen in der `GEMINI.md` im Root gespiegelt werden.

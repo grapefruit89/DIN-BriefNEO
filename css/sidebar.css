@@ -1,0 +1,116 @@
+/* ==========================================================================
+   css/sidebar.css — Bare Metal Sidebar (Aviation Grade)
+   ========================================================================== */
+
+@layer ui.theme {
+  #app-shell {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  #sidebar-left {
+    width: 300px;
+    height: 100dvh;
+    background: #121212;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #222;
+    user-select: none;
+  }
+
+  .sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sidebar-brand { font-weight: 800; font-size: 1.2rem; color: #fff; }
+
+  .sidebar-section {
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #444;
+    letter-spacing: 0.1em;
+  }
+
+  /* Bare Metal Buttons */
+  .sidebar-btn {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #aaa;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-btn:hover { background: #222; color: #fff; border-color: #444; }
+  .sidebar-btn.primary { background: #005bb7; color: #fff; border: none; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 1rem;
+    font-size: 10px;
+    color: #333;
+    text-align: center;
+  }
+}
+
+  /* --- Sidebar & UI Polish (Mining) --- */
+  #sidebar-left::-webkit-scrollbar { width: 4px; }
+  #sidebar-left::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .sidebar-footer {
+    background: rgba(18, 18, 18, 0.8);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid #222;
+    padding: 1rem;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+  }
+
+  /* Toasts with Animation */
+  #toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 10000;
+  }
+
+  .toast {
+    background: #1a1a1a;
+    color: #eee;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    border-left: 4px solid #005bb7;
+    animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+
+  .toast.error { border-left-color: #c0392b; }
+  .toast.ok    { border-left-color: #27ae60; }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }

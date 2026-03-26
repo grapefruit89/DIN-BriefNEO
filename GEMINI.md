@@ -36,3 +36,9 @@ When working on this project, the following MCP servers are configured and trust
 - `js/`: Application logic using EditContext API.
 - `assets/`: Logos and visual resources.
 - `plans/`: Implementation roadmaps.
+
+## 🛡️ Hardware Intelligence & Auth
+- **Master SSH Identity:** Hardware-based (Motherboard/TPM) registered in GitHub as `grapefruit89`.
+- **Verified Status:** ✅ GitHub Auth successful (`Hi grapefruit89!`).
+- **Connection Protocol:** SSH preferred, HTTPS fallback active for CLI automation.
+- **System Config:** Uses `id_ed25519` hardware-bound key. The `ssh-agent` service on win32 is the gatekeeper for this identity.

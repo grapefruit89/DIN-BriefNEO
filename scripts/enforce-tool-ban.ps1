@@ -12,14 +12,18 @@ function Throw-MandateViolation {
     Write-Host "" -ForegroundColor Red
     Write-Host "!!! MANDATE VIOLATION [MANDATE-BANNED] !!!" -ForegroundColor Red
     Write-Host "The tool '$ToolName' is strictly forbidden in this project." -ForegroundColor Red
-    Write-Host "REASON: Legacy tools like head/tail lead to context fragmentation." -ForegroundColor Red
-    Write-Host "ACTION: Use 'read_file' with explicit start_line and end_line instead." -ForegroundColor Yellow
+    Write-Host "REASON: tail und head sind aufgrund von sicherheitsrisiken gesperrt, bitte benutze andere tools" -ForegroundColor Yellow
+    Write-Host "ACTION: Use 'read_file' with explicit start_line and end_line instead." -ForegroundColor Cyan
     Write-Host ""
-    exit 1
+    # In some contexts we might want to exit, but for a global profile we just return
+    # exit 1 
 }
 
-# Create aliases to overwrite any existing head/tail commands in the session
-Set-Alias -Name head -Value (New-Item -Path function:head -Value { Throw-MandateViolation "head" } -Force) -Option Constant -ErrorAction SilentlyContinue
-Set-Alias -Name tail -Value (New-Item -Path function:tail -Value { Throw-MandateViolation "tail" } -Force) -Option Constant -ErrorAction SilentlyContinue
+# Create aliases and functions to overwrite any existing head/tail commands in the session
+function head { Throw-MandateViolation "head" }
+function tail { Throw-MandateViolation "tail" }
+
+# Set-Alias can override existing commands, but functions have higher precedence in PowerShell than binaries.
+# By defining functions named 'head' and 'tail', they will be used instead of head.exe and tail.exe.
 
 Write-Host "MANDATE-BANNED: Tools 'head' and 'tail' have been disabled in this session." -ForegroundColor Green

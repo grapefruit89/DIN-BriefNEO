@@ -1,291 +1,443 @@
 /**
- * js/ui/ui.js — DOM Controller (V14 Platinum / IMR 2.0)
- * DIN-BriefNEO | SPEC-002, SPEC-007, ADR-003, CAA-008, PLAN-010
- * ─────────────────────────────────────────────────────────────────
- * IMR 2.0 MIGRATION:
- *   FIELD_MAP nutzt jetzt Tag-Selektoren statt HTML-IDs.
- *   _cacheFields() scannt via querySelector(tag).
- *   _deriveFields() nutzt tag-basierte Schlüssel.
- *   _bindGreetingGuard() reagiert auf <din-greeting> direkt.
- *
- * CEMETERY [TOMB-U001]:
- *   Alte IDs: 'f-date', 'f-subject', 'f-salut', 'f-body', etc.
- *   Ersatz: IMR-Tag-Selektoren 'din-date', 'din-subject', etc.
+ * js/ui/ui.js — Platinum DOM Controller (V20)
+ * [CMD-1] Ghost-Mirror Structural Integrity
+ * [CMD-2] Scoped View Transitions (Chrome 147)
+ * [CMD-4] EditContext Integration
+ * ─────────────────────────────────────────────────────────
  */
 
-import {
-  formatDate, todayISO, getTag,
-  parseRecipient, updateSalutationHint,
-  deriveReturnLine, readDOMasJSON, syncGhostMirror, validateIBAN, formatIBAN, ghostIBAN,
-} from '../logic/logic.js';
-
-import { IMR } from '../core/constants.js';
-
-/* ── TAG-MAP: Tag-Selektor → State-Key ──────────────────────── */
-// Gebaut automatisch aus IMR — kein Hardcoding
-const TAG_MAP = Object.fromEntries(IMR.map(e => [e.tag, e.key]));
-
-const debounce = (fn, ms) => {
-  let t;
-  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-};
+import * as Logic from '../logic/logic.js';
+import { EditContextController } from '../core/edit-context-controller.js';
+import { GhostMirror }           from './ghost-mirror.js';
+import { IMR, PLATINUM_SANITIZER } from '../core/constants.js';
 
 export class UIController {
-  constructor(stateManager) {
-    this.sm      = stateManager;
-    this._tags   = {};   // tag-selektor → Element (z.B. 'din-subject' → <din-subject>)
-  }
-
-
-  /* ── Data-IO Actions (Aviation Grade Event Delegation) ─────── */
-  _bindActions() {
-    document.addEventListener('click', e => {
-      const action = e.target.closest('[data-action]');
-      if (!action) return;
-      
-      switch (action.dataset.action) {
-        case 'export':    this._doExport(); break;
-        case 'reset':     this._doReset(); break;
-      }
-    });
-
-    document.getElementById('file-import')?.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        try { 
-          this.sm.load(JSON.parse(ev.target.result)); 
-          this._syncAllToDOM(); 
-          this._syncMirrors();
-          this._toast('✅ Backup geladen'); 
-        } catch { this._toast('❌ Ungültige Datei', 'error'); }
-      };
-      reader.readAsText(file);
-      e.target.value = '';
-    });
+  constructor(sm) {
+    this.sm = sm;
+    this._editors = {}; 
+    this._ghosts  = {}; 
   }
 
   init() {
-    this._cacheTags();
-    this._bindTagInputs();
-    this._bindProfileDialog();
-    this._bindKeyboard();
-    this._bindGreetingGuard();
-    this._bindActions();
-
-    this.sm.subscribe((path, value, scope) => {
-      if (scope === 'content') this._onContentChange(path, value);
-    });
-
+    this._initEditors();
+    this._bindNativeEvents();
+    this._bindUtilityActions();
+    this.sm.subscribe((path, val, scope, source) => this._onStateChange(path, val, scope, source));
     this._syncAllToDOM();
-    this._syncMirrors();
-    this._setStatus('✅ Bereit');
+    console.info("🚀 Platinum UI: Sanitizer & Ghost-Mirror Active");
   }
 
-  /* ── Tag-Cache via IMR ───────────────────────────────────────── */
-  _cacheTags() {
-    for (const entry of IMR) {
-      this._tags[entry.tag] = document.querySelector(entry.tag);
-    }
-  }
-
-  /* ── Cursor-Safety: schreibt nie in fokussiertes Element ────── */
-  _safeSet(el, text) {
-    if (!el || document.activeElement === el) return;
-    if (el.textContent !== text) el.textContent = text;
-  }
-
-  /* ── din-* Tags → State (input events) ─────────────────────── */
-  _bindTagInputs() {
-    const debouncedHistory = debounce(() => this.sm.pushHistory(), 800);
-    const debouncedSave    = debounce(() => this.sm.save(), 1200);
-
-
-    
-    // --- SMART AUTO-SAVE (Denkpausen-Logic) ---
-    const debouncedSave = this._debounce(() => {
-      this._syncDOMToState();
-      this._toast('💾 Auto-Save');
-    }, 1500);
-
-    document.getElementById('paper')?.addEventListener('input', e => {
-      if (e.target.tagName.toLowerCase().startsWith('din-')) {
-        debouncedSave();
-        if (e.target.tagName.toLowerCase() === 'din-body') this._syncMirrors();
-      }
-    });
-
-    // --- PASSIVE DOM-SSOT Logic ---
-    // JavaScript schläft während du tippst. Erst bei Fokus-Wechsel 
-    // oder Speichern wird das DOM gelesen und persistiert.
-    document.getElementById('paper')?.addEventListener('focusin', e => {
-      const tag = e.target.tagName.toLowerCase();
-      if (tag.startsWith('din-')) {
-        // Setze den CSS-Anchor für die Toolbar
-        e.target.style.setProperty('--active-anchor', `--anchor-${tag.slice(4)}`);
-      }
-    });
-
-    document.getElementById('paper')?.addEventListener('focusout', e => {
-      // Automatischer Sync beim Verlassen eines Feldes
-      if (e.target.tagName.toLowerCase().startsWith('din-')) {
-        this._syncDOMToState();
-        if (e.target.tagName.toLowerCase() === 'din-body') this._syncMirrors();
-      }
-    });
-
-}
-
-  /* ── Abgeleitete Felder ──────────────────────────────────────── */
-  _deriveFields(changedKey, sourceEl) {
-    const c = this.sm.state.content;
-
-    // Absenderzeile aus Profil-Daten ableiten
-    if (changedKey === 'sender') {
-      const senderEl = this._tags['din-sender'];
-      if (senderEl?.dataset.auto === 'true' || !c.sender) {
-        const derived = deriveReturnLine({
-          name:    c.senderName    || '',
-          street:  c.senderStreet  || '',
-          zipCity: c.senderZipCity || '',
+  _bindUtilityActions() {
+    // Export State
+    const btnExport = document.getElementById('btn-export');
+    if (btnExport) {
+        btnExport.addEventListener('click', () => {
+            const data = JSON.stringify(this.sm.serialize(), null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = `DIN-BriefNEO_Export_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            console.info("📥 State exported to JSON.");
         });
-        this._safeSet(senderEl, derived);
-        this.sm._raw.content.sender = derived;
-        if (senderEl) senderEl.dataset.auto = 'true';
-      }
     }
 
-    // Anrede: SPEC-002 — nur Attribute setzen, CSS rendert
-    if (changedKey === 'recipient') {
-      const salEl    = this._tags['din-salutation'];
-      const paper    = document.getElementById('paper');
-      const formality     = paper?.dataset.formality     || 'formal';
-      const recipientType = paper?.dataset.recipientType || 'none';
-      updateSalutationHint(salEl, parseRecipient(c.recipient || ''), formality, recipientType);
+    // Import State
+    const btnImport = document.getElementById('btn-import');
+    if (btnImport) {
+        btnImport.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                    try {
+                        const data = JSON.parse(re.target.result);
+                        this.sm.load(data);
+                        console.info("📤 State imported successfully.");
+                        location.reload(); // Refresh to ensure all controllers re-init with new state
+                    } catch (err) {
+                        console.error("❌ Import failed:", err);
+                        alert("Ungültige JSON-Datei.");
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        });
+    }
+
+    // Reset Confirm
+    const btnResetConfirm = document.getElementById('btn-reset-confirm');
+    if (btnResetConfirm) {
+        btnResetConfirm.addEventListener('click', () => {
+            localStorage.clear();
+            location.reload();
+        });
     }
   }
 
-    _doExport() {
-    const data = JSON.stringify(this.sm.serialize(), null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    Object.assign(document.createElement('a'), { href: url, download: `din-brief-${todayISO()}.json` }).click();
-    URL.revokeObjectURL(url);
-    this._toast('💾 Export gespeichert');
-  }
+  _initEditors() {
+    IMR.filter(e => e.editContext).forEach(entry => {
+      const el = document.querySelector(entry.tag);
+      if (el) {
+        // [CMD-4] EditContext for pure input
+        this._editors[entry.tag] = new EditContextController(el, (text) => {
+          this.sm.update(`content.${entry.key}`, text, 'editcontext');
+          
+          // [CMD-1] Sync Ghost-Mirror (Structural)
+          if (this._ghosts[entry.tag]) {
+              this._ghosts[entry.tag].update(text);
+          }
 
-  _doReset() {
-    this.sm.load(null);
-    this.sm.save();
-    this._syncAllToDOM();
-    this._toast('🗑 Neues Blatt');
-  }
+          // [CMD-5] Platinum Salutation Engine: Real-time update
+          if (entry.key === 'recipient') {
+              this._triggerSalutationUpdate(text);
+          }
+        });
 
-  /* ── Profil-Dialog ───────────────────────────────────────────── */
-  _bindProfileDialog() {
-    document.getElementById('p-iban')?.addEventListener('input', e => {
-      const formatted = formatIBAN(e.target.value);
-      e.target.value = formatted;
-      const ghost = document.getElementById('iban-ghost');
-      if (ghost) ghost.textContent = ghostIBAN(formatted);
-      if (formatted.replace(/\s/g,'').length >= 22) {
-        const ok = validateIBAN(formatted);
-        e.target.setAttribute('aria-invalid', ok ? 'false' : 'true');
-        this._toast(ok ? '✅ IBAN gültig' : '❌ IBAN ungültig', ok ? '' : 'error');
+        // [CMD-1] Ghost-Mirror for structural markdown rendering
+        if (entry.tag === 'din-body') {
+            this._ghosts[entry.tag] = new GhostMirror('din-body', 'din-body-mirror');
+        }
       }
     });
-
-    document.getElementById('btn-profile-save')?.addEventListener('click', () => {
-      ['company','name','street','zip','city','phone','email','iban'].forEach(k => {
-        const el = document.getElementById(`p-${k}`);
-        if (el) this.sm.state.profile[k] = el.value.trim();
-      });
-      this.sm.save();
-      document.getElementById('dialog-profile')?.hidePopover?.();
-      this._applyProfileToSender();
-      this._toast('👤 Profil gespeichert');
-    });
-
-    document.getElementById('btn-save-keys')?.addEventListener('click', () => {
-      const g = document.getElementById('key-geoapify')?.value?.trim();
-      const l = document.getElementById('key-languagetool')?.value?.trim();
-      if (g) localStorage.setItem('neo_key_geoapify', g);
-      if (l) localStorage.setItem('neo_key_languagetool', l);
-      this._toast('🔑 API-Keys gespeichert');
-    });
   }
 
-  _applyProfileToSender() {
-    const p = this.sm.state.profile;
-    const setIfEmpty = (key, val) => { if (!this.sm._raw.content[key]) this.sm._raw.content[key] = val; };
-    setIfEmpty('senderName',    p.name || p.company || '');
-    setIfEmpty('senderStreet',  p.street || '');
-    setIfEmpty('senderZipCity', [p.zip, p.city].filter(Boolean).join(' '));
-    this._syncAllToDOM();
+  /**
+   * [CMD-5] Platinum Salutation Engine: Orchestrates the reactive update.
+   */
+  _triggerSalutationUpdate(recipientText) {
+    const analysis = Logic.parseRecipient(recipientText);
+    const salutationEl = document.querySelector('din-salutation');
+    if (salutationEl) {
+        // Wir nutzen die State-Formality (Default: formal)
+        const formality = this.sm.state.content.formality || 'formal';
+        Logic.updateSalutationHint(salutationEl, analysis, formality, 'none', recipientText);
+        
+        // Sync das Ergebnis zurück in den State, falls gewünscht
+        const newSalutation = salutationEl.textContent;
+        this.sm.update('content.salutation', newSalutation, 'engine');
+    }
   }
 
-  /* ── Grussformel-Wächter (SPEC-002 FR-008) ───────────────────── */
-  _bindGreetingGuard() {
-    // Event Delegation am #paper — reagiert auf <din-greeting> direkt
-    document.getElementById('paper')?.addEventListener('input', e => {
-      if (e.target.tagName.toLowerCase() !== 'din-greeting') return;
-      const bad = /[,\.]$/.test(e.target.textContent.trim());
-      e.target.setAttribute('aria-invalid', bad ? 'true' : 'false');
-    });
-  }
-
-  /* ── Keyboard-Shortcuts ──────────────────────────────────────── */
-  _bindKeyboard() {
-    document.addEventListener('keydown', e => {
-      const ctrl = e.ctrlKey || e.metaKey;
-      if (ctrl && e.key === 's')                               { e.preventDefault(); this.sm.save(); this._toast('💾 Gespeichert'); }
-      if (ctrl && e.key === 'z' && !e.shiftKey)               { e.preventDefault(); if (this.sm.undo()) { this._syncAllToDOM(); this._toast('↩ Rückgängig'); } }
-      if (ctrl && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); if (this.sm.redo()) { this._syncAllToDOM(); this._toast('↪ Wiederhergestellt'); } }
-      if (ctrl && e.key === 'p')                               { e.preventDefault(); this._setStatus('🖨 Drucken…'); setTimeout(() => { window.print(); this._setStatus('✅ Bereit'); }, 120); }
-    });
-  }
-
-  /* ── State → DOM Sync ───────────────────────────────────────── */
-  _onContentChange(path, value) {
-    const key   = path.split('.').pop();
-    const entry = IMR.find(e => e.key === key);
-    if (!entry) return;
-    const el = this._tags[entry.tag];
+  _updateDOMSafe(el, value) {
     if (!el) return;
-    this._safeSet(el, value || '');
+
+    if (el.editContext) {
+        const text = value || "";
+        // Keep buffer in sync
+        if (typeof el.editContext.updateText === 'function') {
+            el.editContext.updateText(0, el.editContext.text.length, text);
+            el.editContext.updateSelection(0, 0);
+        }
+        el.textContent = text;
+
+        // [CMD-1] Mirror rehydration
+        const tag = el.tagName.toLowerCase();
+        if (this._ghosts[tag]) {
+            this._ghosts[tag].update(text);
+        }
+        return;
+    }
+    
+    if (el.setHTML && PLATINUM_SANITIZER) {
+        el.setHTML(value || "", { sanitizer: PLATINUM_SANITIZER });
+    } else {
+        el.textContent = value || "";
+    }
+  }
+
+  _onStateChange(path, value, scope, source) {
+    if (source === 'editcontext') return;
+
+    if (scope === 'opfs' || scope === 'load') {
+        this._syncAllToDOM();
+        return;
+    }
+
+    const key = path.split(".").pop();
+    const entry = IMR.find(e => e.key === key);
+    if (entry) {
+      const el = document.querySelector(entry.tag);
+      if (el && document.activeElement !== el) {
+        this._updateDOMSafe(el, value);
+      }
+    }
   }
 
   _syncAllToDOM() {
-    const c = this.sm.state.content;
-    for (const entry of IMR) {
-      const el = this._tags[entry.tag];
-      if (!el) continue;
-      this._safeSet(el, c[entry.key] || '');
+    IMR.forEach(entry => {
+      const el = document.querySelector(entry.tag);
+      if (el) {
+        this._updateDOMSafe(el, this.sm.state.content[entry.key]);
+      }
+    });
+  }
+
+  _bindNativeEvents() {
+    // [ADR-013] Invoker Polyfill: Dispatches "command" events for browsers without native support
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[commandfor], button[command]');
+        if (!btn) return;
+
+        const command = btn.getAttribute('command');
+        const targetId = btn.getAttribute('commandfor');
+        
+        // Dispatch custom command event for our central listener
+        const cmdEvent = new CustomEvent('command', { 
+            bubbles: true, 
+            detail: { command, targetId, invoker: btn } 
+        });
+        // We also attach properties directly to the event object to match native spec as close as possible
+        Object.defineProperty(cmdEvent, 'command', { value: command });
+        Object.defineProperty(cmdEvent, 'target', { value: btn }); // The button is the target of the click
+        
+        btn.dispatchEvent(cmdEvent);
+    });
+
+    // Central Command Listener
+    document.addEventListener("command", e => {
+      const command = e.command || e.detail?.command;
+      const targetId = e.target?.getAttribute('commandfor') || e.detail?.targetId;
+      
+      console.debug(`[UI] Command received: ${command} for ${targetId}`);
+      
+      if (command === "--print") {
+          window.print();
+      }
+
+      if (command === "show-modal") {
+          const dialog = document.getElementById(targetId);
+          if (dialog) dialog.showModal();
+      }
+
+      if (command === "close") {
+          const dialog = document.getElementById(targetId) || e.target.closest('dialog');
+          if (dialog) dialog.close();
+      }
+
+      if (command === "show-popover" || command === "hide-popover" || command === "toggle-popover") {
+          const popover = document.getElementById(targetId);
+          if (popover) {
+              if (command === "show-popover") popover.showPopover();
+              else if (command === "hide-popover") popover.hidePopover();
+              else popover.togglePopover();
+          }
+      }
+      
+      if (command === "--toggle-guides") {
+          const paper = document.getElementById('paper');
+          if (paper) {
+              const isGuidesOn = paper.dataset.guides === "true";
+              paper.dataset.guides = isGuidesOn ? "false" : "true";
+          }
+      }
+    });
+
+    // Fallback click listener for Print
+    const btnPrint = document.getElementById('btn-print');
+    if (btnPrint) {
+        btnPrint.addEventListener('click', () => {
+            console.info("[UI] Print button clicked. Triggering window.print()");
+            window.print();
+        });
     }
-    // Profil-Inputs sync
-    const p = this.sm.state.profile;
-    ['company','name','street','zip','city','phone','email','iban'].forEach(k => {
-      const el = document.getElementById(`p-${k}`);
-      if (el && document.activeElement !== el) el.value = p[k] || '';
+
+    // Profil-Management (Aviation Grade Popover Logic)
+    const modalProfile = document.getElementById('modal-profile');
+    if (modalProfile) {
+        const profileSelect = document.getElementById('profileSelect');
+        const btnSave = document.getElementById('btn-profile-save');
+        const ibanInput = document.getElementById('p-iban');
+
+        // [CMD-4] Native IBAN Formatting
+        if (ibanInput) {
+            ibanInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\s+/g, '').toUpperCase();
+                // Nur Alphanumerisch
+                value = value.replace(/[^A-Z0-9]/g, '');
+                let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+                
+                // Cursor position handling (simple)
+                const start = e.target.selectionStart;
+                e.target.value = formatted;
+                
+                const isValid = Logic.validateIBAN(value);
+                ibanInput.style.borderColor = value.length > 0 ? (isValid ? '#4CAF50' : '#f44336') : '#ddd';
+            });
+        }
+
+        // Mapping helper
+        const getProfileData = () => ({
+            name: document.getElementById('p-name').value,
+            co: document.getElementById('p-co').value,
+            street: document.getElementById('p-street').value,
+            city: document.getElementById('p-city').value,
+            iban: document.getElementById('p-iban').value
+        });
+
+        const setProfileData = (data) => {
+            document.getElementById('p-name').value = data.name || '';
+            document.getElementById('p-co').value = data.co || '';
+            document.getElementById('p-street').value = data.street || '';
+            document.getElementById('p-city').value = data.city || '';
+            document.getElementById('p-iban').value = data.iban || '';
+            // Trigger format
+            if (ibanInput) ibanInput.dispatchEvent(new Event('input'));
+        };
+
+        // Profile Selection
+        profileSelect.addEventListener('change', (e) => {
+            const key = e.target.value;
+            if (!key) return;
+            
+            const profiles = this.sm.state.config.profiles || {};
+            if (profiles[key]) {
+                setProfileData(profiles[key]);
+            }
+        });
+
+        // Profile Save & Apply
+        btnSave.addEventListener('click', () => {
+            const data = getProfileData();
+            const key = profileSelect.value || 'default';
+            
+            // Save to Config
+            if (!this.sm.state.config.profiles) this.sm.state.config.profiles = {};
+            this.sm.state.config.profiles[key] = data;
+
+            // Apply to Document (Aviation Grade Sync)
+            const nameLine = data.co ? `${data.name}, c/o ${data.co}` : data.name;
+            const senderDetails = `${nameLine}\n${data.street}\n${data.city}`;
+            const returnLine = Logic.deriveReturnLine({ 
+                name: data.name, 
+                co: data.co, 
+                street: data.street, 
+                zipCity: data.city 
+            });
+
+            this.sm.update('content.sender', senderDetails, 'profile');
+            this.sm.update('content.return_line', returnLine, 'profile');
+
+            // Sync to DOM
+            this._updateDOMSafe(document.querySelector('din-sender-details'), senderDetails);
+            this._updateDOMSafe(document.querySelector('din-return-line'), returnLine);
+
+            modalProfile.hidePopover();
+        });
+    }
+
+    // [CMD-2] Scoped View Transition for Sidebar layout switches
+    document.addEventListener('change', (e) => {
+        const paper = document.getElementById('paper');
+        
+        if (e.target.name === 'layout') {
+            const val = e.target.id === 'layout-a' ? 'form-a' : 'form-b';
+            console.info(`📐 Layout Switch Triggered: ${val}`);
+            
+            const updateLayout = () => {
+                if (paper) paper.dataset.form = val === 'form-a' ? 'A' : 'B';
+                document.body.dataset.layout = val;
+                this.sm.state.config.layout = val;
+            };
+
+            if (document.startViewTransition) document.startViewTransition(updateLayout);
+            else updateLayout();
+        }
+
+        if (e.target.name === 'guides') {
+            const isGuidesOn = e.target.value === 'true';
+            console.info(`📏 Guides Toggle: ${isGuidesOn}`);
+            if (paper) paper.dataset.guides = isGuidesOn ? "true" : "false";
+            this.sm.state.config.guides = isGuidesOn;
+        }
+
+        if (e.target.name === 'theme') {
+            const isNight = e.target.value === 'night';
+            console.info(`🌙 Theme Toggle: ${isNight ? 'Night' : 'Day'}`);
+            this.sm.state.config.theme = e.target.value;
+        }
+    });
+
+    const dialogReset = document.getElementById('dialog-reset');
+    if (dialogReset) {
+      dialogReset.addEventListener('command', (e) => {
+        if (e.command === '--reset-data') {
+          localStorage.clear(); 
+          location.reload();    
+        }
+      });
+    }
+
+    // [MANDATE-PASTE] The Radical Paste-Filter (Aviation Grade)
+    document.addEventListener('paste', (e) => {
+        const el = e.target;
+        const isContentEditable = el.hasAttribute('contenteditable') || el.editContext;
+        
+        if (isContentEditable) {
+            e.preventDefault();
+            // Nur Plaintext extrahieren (Atomic Filter)
+            const text = e.clipboardData.getData('text/plain').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+            
+            if (el.editContext) {
+                const ec = el.editContext;
+                const start = ec.selectionStart;
+                const end = ec.selectionEnd;
+                ec.updateText(start, end, text);
+                ec.updateSelection(start + text.length, start + text.length);
+                
+                const tag = el.tagName.toLowerCase();
+                const entry = IMR.find(et => et.tag === tag);
+                if (entry) {
+                    this.sm.update(`content.${entry.key}`, ec.text, 'editcontext');
+                    if (this._ghosts[tag]) this._ghosts[tag].update(ec.text);
+                }
+            } else {
+                // Fallback für non-EditContext Felder
+                document.execCommand('insertText', false, text);
+            }
+            console.info("🛡️ Paste Gatekeeper: HTML-Injection prevented. Plaintext only.");
+        }
+    });
+
+    document.addEventListener('input', (e) => {
+        const tag = e.target.tagName.toLowerCase();
+        const entry = IMR.find(et => et.tag === tag);
+        if (entry) {
+            let text = e.target.textContent;
+            
+            // [PLATINUM-GHOST] Force real emptiness for placeholders
+            if (text.trim() === "") {
+                e.target.innerHTML = "";
+                text = "";
+            }
+
+            if (!entry.editContext) {
+                this.sm.state.content[entry.key] = text;
+            }
+            // Trigger Greetings Matrix on recipient change
+            if (entry.key === 'recipient') {
+                this._triggerSalutationUpdate(text);
+            }
+        }
     });
   }
 
-  /* ── Toast ───────────────────────────────────────────────────── */
-  _toast(msg, type = '') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const el = Object.assign(document.createElement('div'), {
-      className: `toast ${type}`.trim(),
-      textContent: msg,
-    });
-    container.appendChild(el);
-    setTimeout(() => el.remove(), 3200);
+  updateComplianceStatus(key, status, label) {
+    const el = document.getElementById(key);
+    if (el) {
+        const statusClass = status === 'ok' ? 'status-ok' : (status === 'warn' ? 'status-warn' : 'status-err');
+        el.textContent = `${label}: `;
+        const span = document.createElement('span');
+        span.className = statusClass;
+        span.textContent = `[${status.toUpperCase()}]`;
+        el.appendChild(span);
+    }
   }
-
-  _setStatus(msg) {
-    const el = document.getElementById('statusbar');
-    if (el) el.textContent = msg;
-  }
-
-} // end UIController
+}

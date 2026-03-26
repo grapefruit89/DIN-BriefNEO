@@ -1,68 +1,81 @@
 /**
- * ==========================================================================
+ * js/core/constants.js — Platinum Audit V4.1.0 (IMR 3.1)
  * Central Measurement Authority (CMA) — Layer 1: JS Constants
- * ==========================================================================
- * SPEC-007 | CAA-008 | PLAN-010 | ADR-008 | IMR 2.0
- * Version:  3.1.0 | Status: CEMENTED | Criticality: CRITICAL
- *
- * IMR 2.0 (2026-03-20):
- *   tag:     HTML Custom Tag-Name (z.B. "din-subject")
- *   key:     JSON-Key = tag.slice(4).replace(/-/g,'_') automatisch ableitbar
- *   cmaProp: CMA-Konstanten-Key fuer die CMA-Bridge
- *
- * ADR-008 (2026-03-20):
- *   richText-Flag ENTFERNT (TOMB-L008).
- *   ALLE din-* Tags: contenteditable="plaintext-only".
- *   Formatierungen nur via Ghost-Mirror (GEMINI.md Sektion VII).
- *   readDOMasJSON() liest IMMER textContent, nie innerHTML.
- * ==========================================================================
+ * ─────────────────────────────────────────────────────────
  */
 
 export const CMA = Object.freeze({
   PAGE_WIDTH:          210.000, PAGE_HEIGHT:        297.000,
   MARGIN_LEFT:          25.000, MARGIN_RIGHT:        20.000,
   ADDRESS_WIDTH:        85.000, ADDRESS_HEIGHT:      45.000,
-  VERMERK_HEIGHT:       17.700, EMPFAENGER_HEIGHT:   27.300,
   FORM: Object.freeze({
-    A: Object.freeze({ ADDRESS_TOP: 27.000 }),
+    A: Object.freeze({ ADDRESS_TOP: 32.000 }),
     B: Object.freeze({ ADDRESS_TOP: 45.000 }),
   }),
-  SENDER_ZONE_TOP:      27.000,
-  INFO_BLOCK_TOP:       97.400,  // *** AVIATION GRADE ***
-  SUBJECT_TOP:         103.400,  // *** AVIATION GRADE ***
-  FOOTER_TOP:          269.000,  // *** AVIATION GRADE ***
-  SALUTATION_TOP:      113.000,
-  SIGNATURE_GAP:        12.700,
-  INFO_COL_RIGHT_LEFT: 120.000,
-  INFO_COL_RIGHT_WIDTH: 75.000,
-  TEXT_WIDTH:          165.000,
-  FOLD_MARK_1:         105.000,
-  PUNCH_MARK:          148.500,
-  FOLD_MARK_2:         210.000,
-  FONT_SIZE_BODY_PT:    11.000,
-  LINE_HEIGHT_PT:       14.000,
-  LINE_HEIGHT_MM:        5.080,
 });
 
 /**
- * IMR 2.0 — Isomorphic Master Registry
- * Tag-Name IS der Selektor. key = tag.slice(4).replace(/-/g,'_')
- *
- * [ADR-008] richText-Flag entfernt (TOMB-L008).
- * Alle Felder: contenteditable="plaintext-only" im HTML.
- * din-body: Formatierung via Ghost-Mirror, nicht via richText.
- * readDOMasJSON() → immer textContent.
+ * IMR 3.1 Matrix (Isomorphic Master Registry)
+ * Strenge Kopplung zwischen physischem HTML-Tag und JSON-Key.
  */
 export const IMR = Object.freeze([
-  { tag: 'din-sender',     key: 'sender',      cmaProp: 'SENDER_ZONE_TOP'    },
-  { tag: 'din-note',       key: 'note',         cmaProp: 'ADDRESS_HEIGHT'     },
-  { tag: 'din-recipient',  key: 'recipient',    cmaProp: 'ADDRESS_HEIGHT'     },
-  { tag: 'din-date',       key: 'date',         cmaProp: 'INFO_BLOCK_TOP'     },
-  { tag: 'din-your-ref',   key: 'your_ref',     cmaProp: 'INFO_BLOCK_TOP'     },
-  { tag: 'din-our-ref',    key: 'our_ref',      cmaProp: 'INFO_BLOCK_TOP'     },
-  { tag: 'din-subject',    key: 'subject',      cmaProp: 'SUBJECT_TOP'        },
-  { tag: 'din-salutation', key: 'salutation',   cmaProp: 'SALUTATION_TOP'     },
-  { tag: 'din-body',       key: 'body',         cmaProp: null                 },
-  { tag: 'din-greeting',   key: 'greeting',     cmaProp: null                 },
-  { tag: 'din-signature',  key: 'signature',    cmaProp: 'FOOTER_TOP'         },
+  // 1. Identität & Branding
+  { tag: "din-sender-details",  key: "sender_details" },
+
+  // 2. Anschriftzone (Platinum V4)
+  { tag: "din-return-line",     key: "return_line"  },
+  { tag: "din-supplement",      key: "supplement"   },
+  { tag: "din-recipient",       key: "recipient",   editContext: true },
+
+  // 3. Metadaten & Leitwörter
+  { tag: "din-ref-line",        key: "ref_line"  },
+  { tag: "din-date",            key: "date"      },
+
+  // 4. Brief-Kern (Blink-Direct)
+  { tag: "din-subject",         key: "subject"    },
+  { tag: "din-salutation",      key: "salutation" },
+  { tag: "din-body",            key: "body",        editContext: true },
+  { tag: "din-closing",         key: "closing"    },
+  { tag: "din-signature",       key: "signature"  },
+  { tag: "din-attachments",     key: "attachments"},
+
+  // 5. Compliance & Sicherheit
+  { tag: "din-bank-data",       key: "bank_data" },
+  { tag: "din-fiscal-data",     key: "fiscal_data" },
 ]);
+
+export const AI_INTENTS = Object.freeze({
+  PRINT: "action:print",
+  SAVE:  "action:save_local",
+  GHOST: "action:toggle_guides"
+});
+
+/**
+ * [ADR-014] Native Sanitizer (Aviation Grade Platinum)
+ * [CMD-3] Whitelist IMR 3.1 Custom Tags based on SSoT.
+ */
+export const SANITIZER_CONFIG = {
+  elements: [
+    "din-5008", "din-page", "din-cma-sensor",
+    "din-header", "din-logo", "din-sender-details", "din-vcard",
+    "din-address-zone", "din-return-line", "din-supplement", "din-recipient",
+    "din-infoblock", "din-ref-line", "din-date",
+    "din-subject", "din-salutation", "din-body", "din-closing", "din-signature", "din-attachments",
+    "din-amount", "din-bank-data", "din-fiscal-data", "din-footer",
+    "br", "div", "span", "b", "i", "strong", "em"
+  ],
+  attributes: [
+    { name: "data-placeholder", elements: ["*"] },
+    { name: "data-form", elements: ["*"] }
+  ]
+};
+
+let sanitizerInstance = null;
+if (globalThis.Sanitizer) {
+  try {
+    sanitizerInstance = new Sanitizer(SANITIZER_CONFIG);
+  } catch (e) {
+    console.warn('[Sanitizer] Failed to initialize with config, falling back to null.', e);
+  }
+}
+export const PLATINUM_SANITIZER = sanitizerInstance;

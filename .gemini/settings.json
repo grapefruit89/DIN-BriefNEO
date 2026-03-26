@@ -1,3 +1,45 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "trust": true
+    },
+    "prettier": {
+      "command": "npx",
+      "args": ["-y", "@prettier/mcp"],
+      "trust": true
+    },
+    "stylelint": {
+      "command": "npx",
+      "args": ["-y", "stylelint-mcp"],
+      "trust": true
+    },
+    "eslint": {
+      "command": "npx",
+      "args": ["-y", "@eslint/mcp@latest"],
+      "trust": true
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"],
+      "trust": true
+    },
+    "figma-official": {
+      "command": "https://mcp.figma.com/mcp",
+      "args": [],
+      "transport": "sse",
+      "trust": true
+    },
+    "accessibility": {
+      "command": "npx",
+      "args": ["-y", "a11y-mcp"],
+      "trust": true
+    },
+    "typst-mcp": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "ghcr.io/johannesbrandenburger/typst-mcp:latest"],
+      "trust": true
+    }
+  }
 }

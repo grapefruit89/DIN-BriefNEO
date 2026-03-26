@@ -1,0 +1,83 @@
+# Images and Screenshots
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Local Backups
+*.old
+*.backup
+
+# Project Metadata
+.gemini/
+.aider/
+.amp/
+.android/
+.antigravity/
+.arduinoIDE/
+.bun/
+.bundler/
+.cache/
+.chocolatey/
+.claude/
+.claude-server-commander/
+.claude-server-commander-logs/
+.cline/
+.codeintel/
+.codeium/
+.codex/
+.config/
+.cursor/
+.dbus-keyrings/
+.docker/
+.Epubor_Keys/
+.fairies/
+.fontconfig/
+.fop/
+.ftb/
+.gemini_CLI/
+.gemini-cli/
+.gradle/
+.local/
+.matplotlib/
+.ms-ad/
+.obs64/
+.ollama/
+.openjfx/
+.plasticity/
+.redhat/
+.ssh/
+.stacher/
+.swt/
+.tooluniverse/
+.VirtualBox/
+.void-editor/
+.vscode/
+.windsurf/
+.xmlresolver.org/
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# Temporary files
+C:/Users/morit/.gemini/tmp/
+Desktop/
+docs/
+Documents/
+Downloads/
+Exporte von Cahts/
+Favorites/
+GigaChaos/
+go/
+Koofr/
+Music/
+NixOS/
+npm-cache/
+Pictures/
+PortableApps/
+Recorded Calls/
+Saved Games/
+Searches/
+Videos/
+Zomboid/

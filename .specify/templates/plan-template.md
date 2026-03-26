@@ -40,6 +40,12 @@
 - [ ] **NO-JS Doctrine**: JS limited to Logic/CMA? (No layout/toggle JS)
 - [ ] **AGENT SAFETY**: Plan includes a safe patching strategy?
 
+### Security Architect Review (BMAD™ Phase)
+
+> **Architect Critique:** 
+> [Hier kritisiere ich den Plan aus Sicherheits- und Stabilitäts-Perspektive. 
+> Fokus: Daten-Integrität, Mandats-Konformität, potenzielle Regressions-Risiken.]
+
 ## Project Structure
 
 ### Documentation (this feature)

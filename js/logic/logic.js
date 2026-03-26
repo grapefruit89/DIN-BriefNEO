@@ -15,15 +15,25 @@
  *   Formatierungs-Visualisierung — sie wird hier nicht gelesen.
  */
 
-import { IMR } from '../core/constants.js';
+import { IMR, AI_INTENTS } from '../core/constants.js';
+export * from './greetings.js';
 
 /* ── Hilfsfunktion: Tag-Name → JSON-Key ──────────────────────── */
 // "din-your-ref" → "your_ref"  |  "din-body" → "body"
 const tagToKey = tag => tag.toLowerCase().slice(4).replace(/-/g, '_');
 
-/* ── Date ─────────────────────────────────────────────────────── */
+/* ── Date (TOMB-LEGACY-001: Temporal API Proof) ───────────────── */
 
 export { todayISO, formatDateTemporal as formatDate } from '../core/temporal-utils.js';
+
+/**
+ * Holt das aktuelle Datum deterministisch via Temporal API.
+ * [ADR-011] Baseline Chrome 147+.
+ */
+export function getTodayTemporal() {
+  // @ts-ignore
+  return Temporal.Now.plainDateISO();
+}
 
 const MONTHS_DE = [
   'Januar','Februar','März','April','Mai','Juni',
@@ -68,108 +78,138 @@ export function parseDate(input) {
   }
 }
 
-/* ── Recipient Parsing ────────────────────────────────────────── */
+/* ── Recipient Parsing (Platinum V4 — Intl.Segmenter) ────────── */
 
+/**
+ * [AVIATION GRADE] Recipient Parser 
+ * Nutzt Intl.Segmenter für robuste Tokenisierung ohne Regex-Hell.
+ */
 export function parseRecipient(text) {
   if (!text) return { gender:'n', name:'', firstName:'', title:'', fullName:'' };
+  
   const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
-  let gender = 'n', targetLine = lines[0] || '';
+  const firstLine = lines[0] || '';
+  
+  // Segmentierung der ersten Zeile
+  const segmenter = new Intl.Segmenter('de', { granularity: 'word' });
+  const segments = Array.from(segmenter.segment(firstLine));
+  const tokens = segments.filter(s => s.isWordLike).map(s => s.segment);
 
-  for (const line of lines) {
-    if (/(^|\s)(Herr|Herrn)\b/i.test(line)) { gender = 'm'; targetLine = line; break; }
-    if (/(^|\s)(Frau)\b/i.test(line))        { gender = 'f'; targetLine = line; break; }
-    if (/(^|\s)(Familie|Eheleute)\b/i.test(line)) { gender = 'fam'; targetLine = line; break; }
+  let gender = 'n';
+  let titles = [];
+  let nameParts = [];
+
+  const GENDER_MAP = { 'herr': 'm', 'herrn': 'm', 'frau': 'f', 'familie': 'fam', 'eheleute': 'fam' };
+  const TITLE_SET = new Set(['dr', 'prof', 'dipl', 'mag', 'ing', 'h.c', 'mult']);
+
+  for (const token of tokens) {
+    const lower = token.toLowerCase().replace(/\.$/, '');
+    
+    if (GENDER_MAP[lower]) {
+      gender = GENDER_MAP[lower];
+      continue;
+    }
+    
+    if (TITLE_SET.has(lower)) {
+      titles.push(token.endsWith('.') ? token : token + '.');
+      continue;
+    }
+
+    nameParts.push(token);
   }
 
-  const TITLE_RE = /(Prof\.|Dr\.|Dipl\.-[A-Za-z]+|Mag\.)/g;
-  let content = targetLine.replace(/^(Herr|Herrn|Frau|Familie|Eheleute)\s+/i, '').trim();
-  const titleMatches = content.match(TITLE_RE);
-  const title = titleMatches ? titleMatches.join(' ') : '';
-  content = content.replace(TITLE_RE, '').trim();
-  const parts = content.split(/\s+/).filter(Boolean);
-  const name      = parts.length ? parts[parts.length - 1] : '';
-  const firstName = parts.length > 1 ? parts.slice(0,-1).join(' ') : name;
-  const fullName  = [title, firstName, parts.length > 1 ? name : ''].filter(Boolean).join(' ').trim() || name;
+  const title = titles.join(' ');
+  const name = nameParts.length ? nameParts[nameParts.length - 1] : '';
+  const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : '';
+  const fullName = [title, firstName, name].filter(Boolean).join(' ');
+
   return { gender, name, firstName, title, fullName };
 }
 
-/* ── Salutation Engine ────────────────────────────────────────── */
-
-const SALUTATION_MATRIX = Object.freeze({
-  formal:  { m: n => `Sehr geehrter Herr ${n},`,  f: n => `Sehr geehrte Frau ${n},`,  fam: n => `Sehr geehrte Familie ${n},`, n: () => 'Sehr geehrte Damen und Herren,' },
-  polite:  { m: n => n ? `Guten Tag, Herr ${n},`  : 'Guten Tag,', f: n => n ? `Guten Tag, Frau ${n},`  : 'Guten Tag,', fam: n => n ? `Guten Tag, Familie ${n},` : 'Guten Tag,', n: () => 'Guten Tag,' },
-  casual:  { m: n => n ? `Hallo ${n},`             : 'Hallo,',     f: n => n ? `Hallo ${n},`             : 'Hallo,',     fam: n => n ? `Hallo ${n},`            : 'Hallo,',     n: () => 'Hallo zusammen,' },
-});
-
-const GREETING_MAP = Object.freeze({
-  formal: 'Mit freundlichen Grüßen',
-  polite: 'Freundliche Grüße',
-  casual: 'Viele Grüße',
-});
-
-export function deriveSalutation(analysis, formality = 'formal', recipientType = 'none') {
-  const matrix = SALUTATION_MATRIX[formality] || SALUTATION_MATRIX.formal;
-  let gender = analysis.gender;
-  if (recipientType === 'male')   gender = 'm';
-  if (recipientType === 'female') gender = 'f';
-  return (matrix[gender] || matrix.n)(analysis.fullName || analysis.name || '');
-}
-
-export function deriveGreeting(formality = 'formal') {
-  return GREETING_MAP[formality] || GREETING_MAP.formal;
-}
+/* ── Precision Math (Aviation Grade Guard) ────────────────────── */
 
 /**
- * SPEC-002 Hybrid-Adapter: JS setzt NUR Attribute.
- * CSS rendert via :empty::before + data-gender (ANTI-025).
+ * [CMD-3] Zero-Loss Financial Calculation
+ * Priority 1: Chrome 147+ Math.sumPrecise (Native LayoutNG Speed)
+ * Priority 2: Cent-Based Fallback (No Float Drift)
  */
-export function updateSalutationHint(el, analysis, formality, recipientType) {
-  if (!el || el.dataset.auto === 'false') return;
-  const sal = deriveSalutation(analysis, formality, recipientType);
-  el.dataset.gender      = analysis.gender;
-  el.dataset.formality   = formality;
-  el.dataset.placeholder = sal;
-  if (!el.textContent.trim()) el.textContent = sal;
+export const AviationMath = Object.freeze({
+  sum(values) {
+    if (!values || !Array.isArray(values)) return 0;
+    
+    // @ts-ignore - Chrome 147 Baseline
+    if (typeof Math.sumPrecise === 'function') {
+      return Math.sumPrecise(values);
+    }
+
+    // Fallback: Fixed-Point Math in Cents
+    const cents = values.reduce((acc, val) => acc + Math.round(val * 100), 0);
+    return cents / 100;
+  }
+});
+
+export function sumFinancials(values) {
+    return AviationMath.sum(values);
 }
 
-/* ── Return Address ───────────────────────────────────────────── */
+/* ── Return Address (Aviation Grade) ─────────────────────────── */
 
-export function deriveReturnLine({ name = '', street = '', zipCity = '' } = {}) {
+/**
+ * Leitet die Rücksende-Zeile (Einzeiler über dem Empfänger) ab.
+ * @param {Object} data — { name, co, street, zipCity }
+ */
+export function deriveReturnLine({ name = '', co = '', street = '', zipCity = '' } = {}) {
   const abbr = raw => {
+    if (!raw) return '';
     const clean = raw.replace(/^(Herr|Frau)\s+/i,'').trim();
     const parts = clean.split(/\s+/);
     return (parts.length > 1 && !parts[0].includes('.'))
       ? parts[0].charAt(0) + '. ' + parts.slice(1).join(' ')
       : clean;
   };
-  return [abbr(name), street, zipCity].filter(Boolean).join(' · ');
+
+  const namePart = co ? `${abbr(name)} (c/o ${co})` : abbr(name);
+  return [namePart, street, zipCity].filter(Boolean).join(' · ');
 }
 
-/* ── IBAN ─────────────────────────────────────────────────────── */
+/* ── IBAN (Aviation Grade BigInt) ────────────────────────────── */
 
+/**
+ * [AVIATION GRADE] IBAN Validation
+ * Verwendet BigInt für die Modulo-97 Berechnung (Aviation Grade Precision).
+ */
 export function validateIBAN(raw) {
   if (!raw) return false;
-  const clean = raw.replace(/\s+/g,'').toUpperCase();
+  const clean = raw.replace(/\s+/g, '').toUpperCase();
   if (clean.length < 15 || clean.length > 34) return false;
-  const rearranged = clean.slice(4) + clean.slice(0,4);
-  let numeric = '';
-  for (const ch of rearranged) {
-    const c = ch.charCodeAt(0);
-    numeric += (c >= 65 && c <= 90) ? (c - 55) : ch;
+  
+  const rearranged = clean.slice(4) + clean.slice(0, 4);
+  let numericStr = '';
+  for (const char of rearranged) {
+    const code = char.charCodeAt(0);
+    if (code >= 65 && code <= 90) { // A-Z
+      numericStr += (code - 55).toString();
+    } else if (code >= 48 && code <= 57) { // 0-9
+      numericStr += char;
+    } else {
+      return false; 
+    }
   }
-  try { return BigInt(numeric) % 97n === 1n; } catch { return false; }
+  
+  try {
+    return BigInt(numericStr) % 97n === 1n;
+  } catch {
+    return false;
+  }
 }
 
+/**
+ * Formatiert IBAN in 4er Blöcke.
+ */
 export function formatIBAN(raw) {
   if (!raw) return '';
-  return raw.replace(/[^A-Za-z0-9]/g,'').toUpperCase().match(/.{1,4}/g)?.join(' ') ?? '';
-}
-
-export function ghostIBAN(typed) {
-  const TEMPLATE = 'DE00 0000 0000 0000 0000 00';
-  const clean = typed.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  const formatted = clean.match(/.{1,4}/g)?.join(' ') ?? clean;
-  return formatted.length >= TEMPLATE.length ? formatted : formatted + TEMPLATE.slice(formatted.length);
+  const clean = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  return clean.match(/.{1,4}/g)?.join(' ') || clean;
 }
 
 /* ── Akinator Engine 2.0 (IMR Tag-Scanner) ───────────────────────
@@ -222,6 +262,74 @@ export function getTag(key) {
 }
 
 /**
+ * Orchestrator: Verarbeitet ein KI-generiertes JSON-Objekt.
+ * 1. Validiert Daten gegen IMR
+ * 2. Aktualisiert die entsprechenden <din-*> Tags
+ * 3. Fuehrt System-Intents aus (z.B. Print)
+ * 
+ * @param {Object} json — KI-Output (IMR-Schema + intent)
+ */
+export function executeAIResponse(json) {
+  if (!json || typeof json !== 'object') return;
+
+  console.group('🧠 AI-Native Orchestrator: Execute Response');
+  console.log('Input Protocol:', json);
+
+  const auditTrail = [];
+
+  // 1. Daten-Verteilung (Orchestration)
+  for (const entry of IMR) {
+    if (json.hasOwnProperty(entry.key)) {
+      const el = document.querySelector(entry.tag);
+      if (el) {
+        const val = json[entry.key];
+        if (val !== null) {
+          el.textContent = val;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          auditTrail.push(`Updated <${entry.tag}> with data.`);
+        }
+      }
+    }
+  }
+
+  // 2. Intent-Execution (Side Effects)
+  const intent = json.intent;
+  if (intent) {
+    console.log('Active Intent detected:', intent);
+
+    // Guard: Sovereign Control Check
+    const paper = document.getElementById('paper');
+    const isAutoConfigAllowed = paper?.dataset.autoConfig === 'true';
+
+    if (intent === AI_INTENTS.PRINT) {
+      auditTrail.push('Triggered System Intent: PRINT');
+      window.print();
+    } else if (intent === AI_INTENTS.GHOST) {
+      auditTrail.push('Triggered UI Intent: TOGGLE_GUIDES');
+      if (paper) {
+        paper.dataset.guides = (paper.dataset.guides === 'true') ? 'false' : 'true';
+      }
+    } 
+    // UI-Settings (Form A/B, Formal/Casual) — MANDATE-000 Guard
+    else if ([AI_INTENTS.LAYOUT_A, AI_INTENTS.LAYOUT_B, AI_INTENTS.FORMAL, AI_INTENTS.CASUAL].includes(intent)) {
+      if (isAutoConfigAllowed && paper) {
+        if (intent === AI_INTENTS.LAYOUT_A) { paper.style.setProperty('--layout', 'form-a'); auditTrail.push('Applied AI-Layout: Form A'); }
+        if (intent === AI_INTENTS.LAYOUT_B) { paper.style.setProperty('--layout', 'form-b'); auditTrail.push('Applied AI-Layout: Form B'); }
+        if (intent === AI_INTENTS.FORMAL)   { paper.dataset.formality = 'formal'; auditTrail.push('Applied AI-Formality: formal'); }
+        if (intent === AI_INTENTS.CASUAL)   { paper.dataset.formality = 'casual'; auditTrail.push('Applied AI-Formality: casual'); }
+      } else {
+        const msg = `AI suggested UI-Change (${intent}), but Auto-Config is DISABLED (Sovereignty Guard).`;
+        console.warn(msg);
+        auditTrail.push(msg);
+      }
+    }
+  }
+
+  console.log('Audit Trail:', auditTrail);
+  console.groupEnd();
+}
+
+/**
  * Baut den Interview-Prompt (leerer Brief).
  * Semantic-Emphasis: Benennt die <din-*> Tags explizit.
  * Few-Shot Beispiele aus .brain/12_akinator_logic.md Sektion B.
@@ -239,11 +347,18 @@ Dieses System ist Aviation Grade — jeder JSON-Key entspricht EXAKT einem
 physischen Millimeter-Feld auf dem DIN-A4-Blatt (Custom HTML-Tag).
 
 ## Kanonisches Schema (IMR 2.0 — EXAKT diese Keys)
-\`\`\`json
+\```json
 {
+  "intent":     null,   // [NEU] System-Aktion (z.B. "action:print", "action:save_local")
 ${tagAnnotated}
 }
-\`\`\`
+\```
+
+## System-Intents (Optional)
+Wenn du den Brief fertiggestellt hast, kannst du folgende Aktionen via "intent"-Key ausloesen:
+- "${AI_INTENTS.PRINT}": Oeffnet sofort den Druckdialog
+- "${AI_INTENTS.SAVE}":  Sichert den Stand im lokalen Speicher
+- "${AI_INTENTS.GHOST}": Schaltet Falzmarken-Hilfslinien ein/aus
 
 ## Pflicht-Regeln
 - ALLE Keys ausgeben — leere Felder als \`null\`, nicht weglassen
@@ -253,9 +368,9 @@ ${tagAnnotated}
 - \`sender\`: Einzeiler im Format "V. Nachname · Straße Nr. · PLZ Ort"
 
 ## Markdown-Verwendungsregel (STRIKT)
-ERLAUBT: Nur im "body"-Feld: *kursiv*, **fett**, ~~gestrichen~~, > Zitat, \`code\`, Listen, Tabellen
+ERLAUBT: Nur im "body"-Feld: *kursiv*, **fett**, ~~gestrichen**, > Zitat, \`code\`, Listen, Tabellen
 VERBOTEN: Markdown in sender, note, recipient, date, your_ref, our_ref,
-          subject, salutation, greeting, signature. Dort: reiner Plaintext.
+          subject, salutation, greeting, signature, footer. Dort: reiner Plaintext.
 
 ## Few-Shot Beispiel 1 — Impressum → sender
 Input: "Max Mustermann GmbH, Musterstr. 42, 12345 Berlin, USt-ID: DE123"
@@ -298,11 +413,17 @@ Optimiere den folgenden DIN 5008-Briefentwurf.
 Jeder Key ist direkt einem HTML-Tag auf dem Papier zugeordnet.
 
 ## Aktueller Stand (Tag ↔ JSON)
-\`\`\`json
+\```json
 {
+  "intent": null,
 ${rows}
 }
-\`\`\`
+\```
+
+## System-Intents (Optional)
+Du kannst folgende Aktionen via "intent"-Key auslösen:
+- "${AI_INTENTS.PRINT}": Öffnet sofort den Druckdialog
+- "${AI_INTENTS.SAVE}":  Sichert den Stand im lokalen Speicher
 
 ## Markdown-Regel
 NUR "body" darf Markdown enthalten. Alle anderen Felder: Plaintext.
@@ -312,47 +433,52 @@ NUR "body" darf Markdown enthalten. Alle anderen Felder: Plaintext.
 - Anrede (<din-salutation>): Korrekte DIN-Form
 - Brieftext (<din-body>): Struktur, Ton, Vollstaendigkeit, Rechtschreibung
 - Grussformel (<din-greeting>): Ohne Satzzeichen am Ende (DIN 5008)
+- Footer (<din-footer>): Geschaeftsangaben (Bank, USt-IdNr, Sitz). NUR wenn vom User gewuenscht.
 
 ## Ausgabe
-Vollstaendiges JSON mit ALLEN IMR-Keys. Kurze Begruendung (3 Saetze) danach.`;
-}
-
-/* ── Ghost-Mirror Logic (ADR-008 | PLAN-058) ─────────────────── */
-
-/**
- * Wandelt ein Subset von Markdown in HTML-Strings um.
- * Unterstützt: **fett**, *kursiv*, ~~del~~, > Zitat, Lists, Br
- */
-export function parseMarkdownToHTML(text) {
-  if (!text) return '';
-  return text
-    .replace(/\r\n/g, '\n')
-    .replace(/\n/g, '<br>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/~~(.*?)~~/g, '<del>$1</del>')
-    .replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>')
-    .replace(/^- (.*?)$/gm, '<li>$1</li>')
-    .replace(/^[0-9]+\. (.*?)$/gm, '<li>$1</li>');
+Vollstaendiges JSON mit ALLEN IMR-Keys. Kurze Begruendung (3 Saetze) danach.
+`;
 }
 
 /**
- * Synchronisiert den Plaintext-Inhalt mit dem Mirror unter Nutzung
- * der nativen Chrome 147 Sanitizer API (PLAN-058).
+ * Scannt Plaintext nach Markdown-Markern und liefert Ranges für das Highlighting.
+ * Chrome 147 Baseline: Nutzt native Range-Objekte für CSS Custom Highlight API.
  */
-export function syncGhostMirror(sourceEl, mirrorEl) {
-  if (!sourceEl || !mirrorEl) return;
-  const rawText = sourceEl.textContent;
-  const html = parseMarkdownToHTML(rawText);
+export function getMarkdownRanges(text, textNode) {
+  if (!text || !textNode) return { bold: [], italic: [], marker: [] };
   
-  // @ts-ignore — Chrome 147+ Native Sanitizer API
-  if (globalThis.Sanitizer && mirrorEl.setHTML) {
-    const sanitizer = new Sanitizer({
-      allowElements: ['strong', 'em', 'del', 'blockquote', 'li', 'br']
-    });
-    mirrorEl.setHTML(html, { sanitizer });
-  } else {
-    // Fallback für Browser < 147 (oder falls Sanitizer deaktiviert)
-    mirrorEl.innerHTML = html; // @pvp-ignore: innerHTML
-  }
+  const boldRanges = [];
+  const italicRanges = [];
+  const markerRanges = [];
+
+  const scan = (regex, type) => {
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const start = match.index;
+      const end = match.index + match[0].length;
+      const mLen = match[1].length;
+
+      try {
+        const range = new Range();
+        range.setStart(textNode, start);
+        range.setEnd(textNode, end);
+        if (type === 'bold') boldRanges.push(range);
+        if (type === 'italic') italicRanges.push(range);
+
+        // Marker (die Sternchen/Unterstriche selbst)
+        const m1 = new Range(); m1.setStart(textNode, start); m1.setEnd(textNode, start + mLen);
+        const m2 = new Range(); m2.setStart(textNode, end - mLen); m2.setEnd(textNode, end);
+        markerRanges.push(m1, m2);
+      } catch (e) { console.warn("Highlight Range Error:", e); }
+    }
+  };
+
+  // 1. Bold (**)
+  scan(/(\*\*)(.*?)\1/g, 'bold');
+  // 2. Italic (*)
+  scan(/(\*)(.*?)\1/g, 'italic');
+  // 3. Underline (__)
+  scan(/(__)(.*?)\1/g, 'bold'); // Wir mappen Underline auf Bold für DIN-Zwecke
+
+  return { bold: boldRanges, italic: italicRanges, marker: markerRanges };
 }

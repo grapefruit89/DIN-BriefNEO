@@ -1,116 +1,248 @@
-/* ==========================================================================
-   css/sidebar.css — Bare Metal Sidebar (Aviation Grade)
-   ========================================================================== */
+@layer ui.theme, ui.components, project.overrides, platinum.locked;
 
+/* ── Minimalist Sidebar Base (Overridden by Platinum) ──────────────────────── */
 @layer ui.theme {
-  #app-shell {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    height: 100dvh;
-    overflow: hidden;
-  }
-
   #sidebar-left {
-    width: 300px;
-    height: 100dvh;
-    background: #121212;
-    color: #e0e0e0;
+    background: #fcfcfc;
+    border-right: 1px solid #d0d0d0;
+    padding: 2rem 1rem 1rem 1rem;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #222;
-    user-select: none;
+    gap: 2.5rem;
   }
 
-  .sidebar-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid #222;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .sidebar-brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--c-primary, #4a90e2);
+    letter-spacing: 0.1rem;
   }
-
-  .sidebar-brand { font-weight: 800; font-size: 1.2rem; color: #fff; }
 
   .sidebar-section {
-    padding: 1rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    border-bottom: 1px solid #1a1a1a;
   }
 
   .sidebar-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    color: #444;
-    letter-spacing: 0.1em;
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 4px;
   }
 
-  /* Bare Metal Buttons */
   .sidebar-btn {
-    background: #1a1a1a;
-    border: 1px solid #333;
-    color: #aaa;
-    border-radius: 4px;
+    appearance: none;
+    background: #f5f5f5;
+    border: 1px solid #eee;
+    color: #333;
     padding: 10px;
-    font-size: 13px;
-    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.9rem;
     text-align: left;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     transition: all 0.2s ease;
   }
 
-  .sidebar-btn:hover { background: #222; color: #fff; border-color: #444; }
-  .sidebar-btn.primary { background: #005bb7; color: #fff; border: none; }
+  .sidebar-btn:hover {
+    background: #e0e0e0;
+    border-color: #ddd;
+  }
 
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 1rem;
-    font-size: 10px;
+  .sidebar-btn.primary {
+    background: var(--c-primary, #4a90e2);
+    color: #fff;
+    border-color: var(--c-primary, #4a90e2);
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .sidebar-btn.secondary {
+    background: #eee;
     color: #333;
-    text-align: center;
+  }
+
+  .sidebar-btn.big-btn {
+    padding: 12px !important;
+  }
+
+  .sidebar-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-radio-group {
+    display: flex;
+    background: #eee;
+    border-radius: 6px;
+    padding: 3px;
+    border: 1px solid #ddd;
+  }
+
+  .radio-option { flex: 1; position: relative; cursor: pointer; display: flex; }
+  .radio-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .radio-option span {
+    display: flex; width: 100%; align-items: center; justify-content: center;
+    padding: 6px 4px; font-size: 0.75rem; border-radius: 4px;
+    color: #666; transition: all 0.2s; user-select: none;
+  }
+  .radio-option input:checked + span { 
+    background: var(--c-primary, #4a90e2); 
+    color: white; 
+    font-weight: 600; 
+  }
+
+  .actions-footer {
+    padding: 20px 0 0 0;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
   }
 }
 
-  /* --- Sidebar & UI Polish (Mining) --- */
-  #sidebar-left::-webkit-scrollbar { width: 4px; }
-  #sidebar-left::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-  .sidebar-footer {
-    background: rgba(18, 18, 18, 0.8);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid #222;
-    padding: 1rem;
-    font-size: 11px;
-    color: #666;
-    text-align: center;
+/* ── Platinum Components (Popover & Dialogs) ─────────────────── */
+@layer ui.components {
+  .platinum-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    max-width: 90vw;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    margin: 0;
   }
 
-  /* Toasts with Animation */
-  #toast-container {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+  .platinum-dialog::backdrop {
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .close-btn {
+    appearance: none;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.25rem;
+  }
+
+  .form-section {
+    padding: 1.5rem;
+  }
+
+  .inline-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .inline-controls select {
+    flex-grow: 1;
+    padding: 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: white;
+  }
+
+  .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    z-index: 10000;
+    gap: 1rem;
   }
 
-  .toast {
-    background: #1a1a1a;
-    color: #eee;
-    padding: 0.75rem 1.25rem;
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .profile-field label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+  }
+
+  .profile-field input {
+    padding: 0.7rem;
+    border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 13px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    border-left: 4px solid #005bb7;
-    animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
   }
 
-  .toast.error { border-left-color: #c0392b; }
-  .toast.ok    { border-left-color: #27ae60; }
-
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to   { opacity: 1; transform: translateX(0); }
+  .profile-field input:focus {
+    border-color: #4a90e2;
+    outline: none;
   }
+
+  .profile-field:nth-child(5) {
+    grid-column: span 2;
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 0 0 12px 12px;
+  }
+
+  [popover] {
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s, overlay 0.3s allow-discrete, display 0.3s allow-discrete;
+  }
+
+  [popover]:popover-open {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  @starting-style {
+    [popover]:popover-open {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+  }
+}

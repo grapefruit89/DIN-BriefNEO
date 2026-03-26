@@ -20,6 +20,7 @@ const CLICK_TARGET = 5;
 export function checkDevMode() {
   if (localStorage.getItem(DEV_KEY) === 'true') {
     document.body.dataset.devmode = 'true';
+    document.body.classList.add('dev-mode');
   }
 }
 
@@ -35,17 +36,32 @@ export function initDevMode(sm) {
 function _bind5xClick() {
   const versionEl = document.getElementById('app-version');
   if (!versionEl) return;
-  let count = 0, timer = null;
+  let count = 0;
+  let lastClick = 0;
+
   versionEl.addEventListener('click', () => {
+    const now = Date.now();
+    if (now - lastClick > 2000) count = 0; // 2s Reset window
+    
     count++;
-    clearTimeout(timer);
-    timer = setTimeout(() => { count = 0; }, 2000);
+    lastClick = now;
+    console.debug(`[DevMode] Click ${count}/${CLICK_TARGET}`);
+
     if (count >= CLICK_TARGET) {
       count = 0;
-      localStorage.setItem(DEV_KEY, 'true');
-      document.body.dataset.devmode = 'true';
-      document.body.dataset.toast   = 'dev-unlocked';
-      setTimeout(() => { delete document.body.dataset.toast; }, 3200);
+      const isEnabled = localStorage.getItem(DEV_KEY) === 'true';
+      const newState = !isEnabled;
+      
+      localStorage.setItem(DEV_KEY, String(newState));
+      document.body.dataset.devmode = String(newState);
+      if (newState) {
+          document.body.classList.add('dev-mode');
+          document.body.dataset.toast = 'dev-unlocked';
+          _startLiveInspector(sm);
+      } else {
+          document.body.classList.remove('dev-mode');
+          location.reload(); // Hard reset to clear debug UI
+      }
     }
   });
 }
@@ -64,27 +80,22 @@ function _bindAkinatorTerminal(sm) {
     if (ta) ta.value = prompt;
     navigator.clipboard?.writeText(prompt).catch(() => {});
 
-    btn.dataset.copied = 'true';
-    setTimeout(() => delete btn.dataset.copied, 1800);
-
-    _renderTagInspector(json);   // Sofort-Refresh des Inspectors
+    btn.dataset.copied = 'true'; // CSS regelt den Reset der Anzeige via Animation
+    _renderTagInspector(json);
   });
 }
 
 /* ── Live Tag↔JSON Inspector ─────────────────────────────────── */
+export function refreshInspector() {
+  if (sessionStorage.getItem(DEV_KEY) === 'true') {
+    _renderTagInspector(readDOMasJSON());
+  }
+}
+
 function _startLiveInspector(sm) {
   _renderTagInspector(readDOMasJSON());
-
-  // State-Subscriber (Undo/Redo/Load)
-  sm.subscribe(() => requestAnimationFrame(() => _renderTagInspector(readDOMasJSON())));
-
-  // MutationObserver für contenteditable-Änderungen im Paper
-  const paper = document.getElementById('paper');
-  if (!paper) return;
-
-  new MutationObserver(() =>
-    requestAnimationFrame(() => _renderTagInspector(readDOMasJSON()))
-  ).observe(paper, { subtree: true, childList: true, characterData: true });
+  sm.subscribe(() => refreshInspector());
+  // MutationObserver gelöscht. Update erfolgt via UIController input-event.
 }
 
 /**
@@ -101,16 +112,24 @@ function _renderTagInspector(json) {
                + `  TAG               KEY              WERT\n`
                + `${'─'.repeat(52)}\n`;
 
+  const cmaTop = getComputedStyle(document.documentElement).getPropertyValue('--addr-top').trim();
+  const cmaStatus = `CMA: ${cmaTop} | Viewport: ${window.innerHeight}px\n`;
+
   const rows = IMR.map(({ tag, key }) => {
     const val     = json[key];
     const status  = val !== null ? '✓' : '○';
+    
+    // Check for EditContext
+    const el = document.querySelector(tag);
+    const hasEC = el?.editContext ? ' [EC]' : '';
+
     const preview = val
-      ? String(val).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 28)
+      ? String(val).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 24)
       : '—';
     const tagShort = `<${tag}>`.padEnd(20);
     const keyPad   = key.padEnd(16);
-    return `${status} ${tagShort} ${keyPad} ${preview}`;
+    return `${status}${hasEC} ${tagShort} ${keyPad} ${preview}`;
   }).join('\n');
 
-  el.textContent = header + rows;
+  el.textContent = header + cmaStatus + rows;
 }

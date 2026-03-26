@@ -1,0 +1,182 @@
+/**
+ * css/lockdown.css — [MANDATE-LOCKDOWN] Titanium Viewport Guard
+ * Aviation Grade Platinum | Baseline: Chrome 147+
+ * ─────────────────────────────────────────────────────────
+ * Erzwingt absolute Immobilität des Viewports und der Sidebar.
+ */
+
+@layer platinum.lockdown {
+  /* 1. Global Viewport Lockdown */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* GLOBALER SCROLL-STOPP */
+    display: flex;
+    background-color: #e0e0e0; /* Neutraler Kontrast-Hintergrund */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 2. Sidebar Titan (Feste Säule) */
+  #sidebar-left {
+    width: 300px !important;
+    height: 100vh !important;
+    flex-shrink: 0;
+    border-right: 1px solid #d0d0d0;
+    background: #fcfcfc;
+    overflow: hidden !important; /* Kein Scrollen in der Sidebar */
+    position: relative;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1rem 1rem 1rem;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  }
+
+  /* Compliance Bar (Cockpit Layout) */
+  .compliance-bar {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    font-family: monospace;
+    font-size: 10px;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .compliance-item {
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+  }
+
+  .status-ok { color: #4CAF50; font-weight: bold; }
+  .status-warn { color: #FF9800; font-weight: bold; }
+  .status-err { color: #f44336; font-weight: bold; }
+
+  .status-bar-text {
+    margin-top: 8px;
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  /* [ZERO-ACCORDION] Entferne jegliche Klapp-Elemente */
+  #sidebar-left details, 
+  #sidebar-left summary,
+  #sidebar-left .collapse {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  /* 3. Viewport Monolith (Papier-Zentrum) */
+  #paper-viewport {
+    flex-grow: 1;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Verhindert Jitter beim Zentrieren */
+    position: relative;
+    padding: 20mm;
+  }
+
+  /* 4. Papier-Monolith (Festgeklebt) */
+  din-5008 {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+    flex-shrink: 0; /* Verhindert Stauchung */
+    position: relative;
+    
+    /* [AVIATION-CHECK] Automatische Skalierung bei kleinen Screens */
+    transform-origin: center center;
+  }
+
+  /* Responsive Scaling (Aviation Grade) */
+  @media (max-height: 900px), (max-width: 1200px) {
+    din-5008 {
+        /* Nutzt CSS math für perfektes Einpassen ohne Scrollbalken */
+        scale: min(calc(100vh / 310mm), calc((100vw - 300px) / 220mm));
+    }
+  }
+
+  /* 5. UI-Cleanup */
+  #btn-sidebar-toggle {
+    display: none !important; /* Sidebar ist nun statisch */
+  }
+
+  /* [MANDATE-PAGINATION] Word-Push-Prinzip */
+  din-body-mirror {
+    max-height: 190mm; /* Hard Limit Seite 1 */
+    break-after: page;
+  }
+  
+  /* Sichtbarer Indikator im Editor, wenn Seite 2 droht */
+  din-cma-sensor {
+    display: block !important;
+    visibility: visible !important;
+    position: absolute;
+    top: 190mm;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 1px dashed rgba(255, 0, 0, 0.4);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  din-cma-sensor::after {
+    content: "PAGINATION LIMIT (190mm)";
+    position: absolute;
+    right: 5mm;
+    top: -12pt;
+    font-size: 7pt;
+    color: rgba(255, 0, 0, 0.6);
+    font-family: monospace;
+    font-weight: bold;
+  }
+
+  /* 6. HARD-PRINT-OVERRIDE (Aviation Grade) */
+  @media print {
+    @page {
+      margin: 0 !important;
+      size: A4 portrait;
+    }
+
+    html, body {
+      overflow: visible !important;
+      height: auto !important;
+      background: white !important;
+    }
+
+    #sidebar-left, .status-bar, .decoder-btn, #btn-sidebar-toggle {
+      display: none !important;
+    }
+
+    #paper-viewport {
+      padding: 0 !important;
+      margin: 0 !important;
+      display: block !important;
+    }
+
+    din-5008 {
+      box-shadow: none !important;
+      margin: 0 !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      scale: 1 !important;
+      transform: none !important;
+    }
+
+    /* Hilfslinien beim Druck ausblenden */
+    .mark, din-cma-sensor {
+      display: none !important;
+    }
+  }
+}

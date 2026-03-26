@@ -466,6 +466,15 @@ Chrome 118+ stabil. Kein Implementierungshindernis.
 
 ---
 
+### TOMB-V009 | CSS Preprocessors (SASS, SCSS, LESS, Stylus)
+
+- **ID:** TOMB-V009
+- **Deceased Pattern:** SASS/SCSS, LESS, Stylus, Mixins.
+- **Cause of Death:** Zero-Build-Step Doktrin. Chrome 147+ Baseline natively supports CSS Nesting, Custom Properties, `@layer`, `@scope`, and native math functions. Preprocessors introduce unnecessary dependencies, build steps, and maintenance overhead.
+- **The Successor:** Modern Native CSS Features (W3C Syntax).
+- **Status:** Officially banned.
+- **Epitaph:** `/* BANNED: See TOMB-V009 — Zero-Build-Step Doktrin: Native CSS is superior. */`
+
 ### TOMB-STATE-001 | DEFAULT_STATE Veraltete IMR v1 Keys
 
 - **ID:** TOMB-STATE-001

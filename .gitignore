@@ -8,7 +8,7 @@
 *.old
 *.backup
 
-# Project Metadata
+# System / Tool Metadata
 .gemini/
 .aider/
 .amp/
@@ -20,8 +20,6 @@
 .cache/
 .chocolatey/
 .claude/
-.claude-server-commander/
-.claude-server-commander-logs/
 .cline/
 .codeintel/
 .codeium/
@@ -56,28 +54,9 @@
 .windsurf/
 .xmlresolver.org/
 
-# Node modules (if any)
+# Node modules
 node_modules/
 package-lock.json
 
-# Temporary files
-C:/Users/morit/.gemini/tmp/
-Desktop/
-docs/
-Documents/
-Downloads/
-Exporte von Cahts/
-Favorites/
-GigaChaos/
-go/
-Koofr/
-Music/
-NixOS/
-npm-cache/
-Pictures/
-PortableApps/
-Recorded Calls/
-Saved Games/
-Searches/
-Videos/
-Zomboid/
+# DO NOT IGNORE PROJECT DIRECTORIES
+# (Removed Desktop/ and other root-level ignores that might conflict)

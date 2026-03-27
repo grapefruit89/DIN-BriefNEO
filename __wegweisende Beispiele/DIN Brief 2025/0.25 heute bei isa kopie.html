@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="de" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Brief Generator</title>
+ <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,300i,400,400i,500,500i,700,700i" rel="stylesheet">
+
+
+
+<style>
+/* Grundreset */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+
+html {
+  font-family: 'Fira Sans', 'Myriad Pro', sans-serif;
+  font-size: 10pt;
+  line-height: 14pt;
+  box-sizing: border-box;
+}
+
+/* Button für Speicher löschen */
+.clear-storage-btn {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  padding: 8px 20px;
+  font-size: 10pt;
+  line-height: 14pt;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  text-decoration: none;
+}
+.clear-storage-btn:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+.clear-storage-btn:active {
+  background: rgba(0, 0, 0, 0.7);
+}
+.clear-storage-btn.is-visible {
+  display: block;
+}
+
+
+
+
+
+
+/* ContentEditable-Grundstil mit aktivem Design */
+[contenteditable] {
+	outline: none;
+	cursor: text;
+	border: 1px dashed rgba(0, 0, 0, 0.2);
+	border-radius: .25rem;
+	min-width: 2rem;
+	min-height: 1.5rem;
+}
+
+/* Mouseover-Stil */
+[contenteditable]:hover {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: initial;
+}
+
+/* Aktiv (z. B. Fokus) */
+[contenteditable]:focus {
+  box-shadow: 0 2px 5px #007bff;
+  border: 1px solid rgba(0, 0, 0, 0.0);
+}
+
+/* Placeholder anzeigen, wenn wirklich leer (auch bei nur <br>) */
+[contenteditable]:empty::before,
+[contenteditable]:not(:empty):only-child:is(br)::before {
+  content: attr(placeholder);
+  color: #ababab;
+  pointer-events: none;
+  display: block;
+}
+
+/* Formatierung des Platzhalter-Blocks */
+[contenteditable]::before {
+  white-space: pre-line;
+}
+
+
+
+/* Medienanpassungen */
+@media screen {
+  .baseline-8pt:focus {
+    padding-top: 12.1pt;
+    margin-bottom: -12.1pt;
+  }
+
+  body {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+
+
+  .no-screen {
+    display: none !important;
+  }
+
+  .preview {
+    margin: 50px auto;
+    background: white;
+    height: 297mm;
+    box-shadow: 0 5px 50px rgba(0, 0, 0, 0.3);
+  }
+
+}
+
+@media print {
+  @page { size: A4; margin: 0; }
+
+  [contenteditable] {
+    caret-color: transparent;
+  }
+
+ 
+
+  [contenteditable]:empty::before {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .preview {
+    /* Optional: Anpassungen fürs Drucken */
+  }
+}
+</style>
+
+
+ 
+<link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'  viewBox='0 0 36 36'>
+  <path fill='%23CCD6DD' d='M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v18z'/>
+  <path fill='%2399aab5' d='M4 5a4 4 0 0 0-4 4v1.03l9.79 9.77-9.15 9.15-.06.09a4 4 0 0 0 1.38 1.38l.09-.06 9.15-9.15 3.32 3.3a4.88 4.88 0 0 0 6.88 0l3.36-3.33 9.18 9.18.09.06a3.98 3.98 0 0 0 1.38-1.38l-.06-.09-9.18-9.18 9.8-9.76V9a4 4 0 0 0-4-4h-28z'/>
+  <path fill='%23E1E8ED' d='M32 5H4A3.99 3.99 0 0 0 .4 7.28l14.8 14.8a4 4 0 0 0 5.66 0l14.8-14.8A3.99 3.99 0 0 0 32.06 5z'/>
+</svg>">
+
+
+</head>
+<body style="width: 100%; height: 100%; margin: 0; padding: 0;">
+<a href="" class="clear-storage-btn no-print" >Lokalen Entwurf im Browser löschen</a>
+<a href="" class="no-print" onclick="window.print();" style="
+ position: fixed; left: 0; bottom: 0; right: 0; z-index: 10; padding: 8px 20px;
+ font-size: 16pt; line-height: 20pt; text-align: center; background: rgb(183 36 36 / 67%); color: white; text-decoration: none;">Seite Drucken</a>
+ 
+ 
+<section class="preview"style="position: relative;width: 210mm;">
+
+<!-- SVG-Falzmarken -->
+		<svg style="position: absolute; left: 2mm; top: 87mm;" width="10mm" height="105.2mm" viewBox="0 0 10 105.2">
+			<line x1="0" y1="0.1" x2="10" y2="0.1" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.2" />
+			<line x1="0" y1="105.1" x2="10" y2="105.1" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.2" />
+		</svg>
+
+
+
+
+<!-- Adress Block-->  <!-- nach DIN 5008 top:27mm; -->
+<!-- <div class="address-overlay" style="position: absolute; left: 15mm;  top: 27mm;  width: 90mm;  height: 45mm;  border-radius: 4mm;  background: rgba(0, 0, 0, 0.05);  z-index: 0;"></div> -->
+<div class="address address-wrapper box"style="position:absolute;left:25mm;top:32mm;width:80mm;z-index:10;">
+		<div	contenteditable="true"placeholder="Name, Straße Nr., PLZ Ort"id="ruecksende"style="line-height:9px;display:inline-block;font-size:7pt;margin-bottom:6pt;"></div>
+	<br><div	contenteditable="true"placeholder="Firma GmbH"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Herrn Frau"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Vor Nachname"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Straße Haus Nr."style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="PLZ Ort"style="display:inline-block;"></div>
+</div>
+
+
+
+
+<!--AbsenderBlock-->
+<div class="sidebar-text"style="text-transform: capitalize;position:absolute;left:150mm;top:40mm;text-align:left;">
+		<div	contenteditable="true"placeholder="Name"id="Name"style="display:inline-block;font-weight:bold;margin-bottom:6pt;"></div>
+	<br><div	contenteditable="true"placeholder="Straße"id="Straße"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="PLZ Ort"id="Ort"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="eMail"style="display:inline-block;text-transform: lowercase;margin-top:6pt;"></div>		
+	<br><div	contenteditable="true"placeholder="Nummer"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Datum"id="Datum"style="display:inline-block;margin-top:14pt;"></div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<wrapper class="body body-subject" style=" position: absolute; left: 25mm; top: 90mm; right: 20mm;">
+<!-- Betreff -->	
+		<div	contenteditable="true"placeholder="Betreff"  id="Betreff"style="display:inline-block;font-weight: bold; margin-bottom: 10pt;"></div>
+<!-- Inhalt -->		
+		<div id="Inhalt" contenteditable="true" placeholder="Hier kommt dein Text rein!!!">
+		Sehr geehrte Damen und Herren,<br/>
+		<em>Kursiv STRG+I </em><br/>
+		<b>Fett STRG+B </b><br/>
+		<u>Unterstrichen STRG+U</u></div>
+<!-- Grußformel -->	
+		<div	contenteditable="true"placeholder="Mit freundlichen Grüßen"style="margin: 14pt 0pt 42pt;display:inline-block;">Mit freundlichen Grüßen</div><br>
+		<div	contenteditable="true"placeholder="Dein Name"id="yourname"style="display:inline-block;"></div>
+<!-- Anlagen -->
+	<br><div	contenteditable="true"placeholder="Anlagen"style="display:inline-block;font-size:8pt;line-height:12pt;margin-top:14pt;font-weight:bold;">Anlagen:</div>
+	<br><footer	contenteditable="true"placeholder="• Dokument 1"style="margin-left: 5pt;display:inline-block;">https://greatestview.de/ein-minimalistischer-brief-generator</footer>
+	<br><footer	contenteditable="true"placeholder="• Dokument 2"style="margin-left: 5pt;display:inline-block;"></footer>
+	<br><footer	contenteditable="true"placeholder="• Dokument 3"style="margin-left: 5pt;display:inline-block;"></footer>
+</wrapper>
+	
+	
+</section>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+ <!-- 1) Paste-Handler für reinen Text -->
+  <script>
+  "use strict";
+  const editorEle = document.getElementById("Inhalt");
+  if (editorEle) {
+    editorEle.addEventListener("paste", async e => {
+      e.preventDefault();
+      let text = "";
+      try {
+        if (navigator.clipboard?.readText) {
+          text = await navigator.clipboard.readText();
+        } else if (e.clipboardData) {
+          text = e.clipboardData.getData("text/plain");
+        } else if (window.clipboardData) {
+          text = window.clipboardData.getData("Text");
+        }
+      } catch (err) {
+        console.error("Clipboard-Fehler:", err);
+      }
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      const node = document.createTextNode(text);
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+  }
+  </script>
+
+  <!-- 2) Dein GV-Modul: Draft, Title, Storage, Events -->
+  <script>
+  "use strict";
+  ;(function() {
+    const gv = window.gv = window.gv || {};
+    const dataItems = [
+      "address-overline","address","sidebar-text",
+      "body-subject","body-text","attachments-bd"
+    ];
+    gv.createDateGerman = () =>
+      new Intl.DateTimeFormat("de-DE", {
+        day: "numeric", month: "long", year: "numeric"
+      }).format(new Date());
+    function truncate(str, maxLen, useWordBoundary = true) {
+      if (str.length <= maxLen) return str;
+      let s = str.slice(0, maxLen - 1);
+      if (useWordBoundary) {
+        const idx = s.lastIndexOf(" ");
+        if (idx > 0) s = s.slice(0, idx);
+      }
+      return s;
+    }
+    gv.setTitleFromSubject = () => {
+      const subj = document.getElementById("Betreff");
+      if (!subj) return;
+      document.title = 
+        new Date().toISOString().slice(0,10) 
+        + " " + truncate(subj.textContent, 60);
+    };
+    gv.updateAbsender = () => {
+      const getText = id => document.getElementById(id)?.textContent || "";
+      const [vor, nach] = getText("Name").split(" ");
+      const initiale = vor?.[0]?.toUpperCase()+".";
+      const fam = nach ? nach[0].toUpperCase()+nach.slice(1)+"," : "";
+      const street = getText("Straße").replace(/Strasse/i,"Straße");
+      const place  = getText("Ort").replace(/Sankt/i,"St.");
+      const fertig = [initiale,fam,street,place].filter(Boolean).join(" ");
+      document.getElementById("ruecksende").textContent = fertig;
+      document.getElementById("yourname").textContent = getText("Name");
+    };
+    gv.getDraft =    () => JSON.parse(localStorage.getItem("draft")||"null");
+    gv.saveDraft =   () => {
+      const draft = {};
+      dataItems.forEach(key => {
+        const el = document.querySelector(`.${key}`);
+        if (el) draft[key] = el.innerHTML;
+      });
+      localStorage.setItem("draft", JSON.stringify(draft));
+    };
+    gv.restoreDraft = () => {
+      const d = gv.getDraft();
+      if (!d) return false;
+      dataItems.forEach(key => {
+        const el = document.querySelector(`.${key}`);
+        if (el && d[key]!=null) el.innerHTML = d[key];
+      });
+      return true;
+    };
+    gv.deleteDraft = () => localStorage.removeItem("draft");
+    gv.updateStorageBtn = () => {
+      document.querySelectorAll(".clear-storage-btn")
+        .forEach(btn => btn.classList.toggle(
+          "is-visible", gv.getDraft()!==null
+        ));
+    };
+    document.addEventListener("input", evt => {
+      const t = evt.target;
+      if (t.isContentEditable) {
+        gv.saveDraft();
+        gv.updateStorageBtn();
+        if (t.id === "Betreff")    gv.setTitleFromSubject();
+        if (t.classList.contains("sidebar-text")) gv.updateAbsender();
+      }
+    });
+    document.addEventListener("click", evt => {
+      if (evt.target.matches(".clear-storage-btn")) {
+        evt.preventDefault();
+        if (confirm("Der Entwurf wird endgültig gelöscht. Bist du dir sicher?")) {
+          gv.deleteDraft();
+          gv.updateStorageBtn();
+          location.reload();
+        }
+      }
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!gv.restoreDraft()) {
+        document.getElementById("Datum").textContent = gv.createDateGerman();
+      }
+      gv.updateStorageBtn();
+      gv.setTitleFromSubject();
+    });
+  })();
+  </script>
+ </body>
+</html>
+

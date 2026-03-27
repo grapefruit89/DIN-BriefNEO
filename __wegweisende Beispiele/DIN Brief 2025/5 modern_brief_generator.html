@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="de" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brief Generator</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,300i,400,400i,500,500i,700,700i" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    * { margin: 0; padding: 0; }
+    
+    html {
+      font-family: 'Fira Sans', 'Myriad Pro', sans-serif;
+      font-size: 10pt;
+      line-height: 14pt;
+    }
+    
+    /* Navbar Styles */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      min-height: 4rem;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      margin: 0 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      background: #f0f0f0;
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    
+    /* ContentEditable Styles */
+    [contenteditable] {
+      outline: none;
+      cursor: text;
+      border: 1px dashed rgba(0, 0, 0, 0.2);
+      border-radius: .25rem;
+      min-width: 2rem;
+      min-height: 1.5rem;
+      padding: 2px 4px;
+    }
+    
+    [contenteditable]:hover {
+      border: 1px solid rgba(0, 0, 0, 0.4);
+    }
+    
+    [contenteditable]:focus {
+      box-shadow: 0 2px 5px #007bff;
+      border: 1px solid #007bff;
+    }
+    
+    [contenteditable]:empty::before {
+      content: attr(placeholder);
+      color: #ababab;
+      pointer-events: none;
+      display: block;
+      white-space: pre-line;
+    }
+    
+    /* Validation */
+    .invalid {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2;
+    }
+    
+    .valid {
+      border-color: #10b981 !important;
+      background-color: #f0fdf4;
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 1000;
+      background: #10b981;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-weight: 600;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .toast.error {
+      background: #ef4444;
+    }
+    
+    /* Print Styles */
+    @media print {
+      @page { size: A4; margin: 0; }
+      .no-print { display: none !important; }
+      [contenteditable] { caret-color: transparent; border: none !important; }
+      [contenteditable]:empty::before { display: none !important; }
+      .preview { box-shadow: none; margin: 0; background: white; }
+      body { background: white; }
+    }
+    
+    @media screen {
+      body { background-color: rgba(0, 0, 0, 0.3); }
+      .preview {
+        margin: 20px auto;
+        background: white;
+        height: 297mm;
+        width: 210mm;
+        box-shadow: 0 5px 50px rgba(0, 0, 0, 0.3);
+        position: relative;
+      }
+    }
+    
+    /* Dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      border-radius: 5px;
+      z-index: 1000;
+      top: 100%;
+      left: 0;
+    }
+    
+    .dropdown-content div {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .dropdown-content div:hover {
+      background-color: #f1f1f1;
+    }
+    
+    .dropdown-content div:last-child {
+      border-bottom: none;
+    }
+    
+    /* Fold marks */
+    .fold-mark {
+      position: absolute;
+      left: 2mm;
+      width: 10mm;
+      height: 0;
+      border-bottom: 0.2mm solid rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      user-select: none;
+    }
+    .fold-mark-1 { top: 105mm; }
+    .fold-mark-2 { top: 210mm; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<div class="navbar no-print">
+  <div>
+    <h1 style="font-size: 20px; font-weight: bold;">📝 Brief Generator</h1>
+  </div>
+  <div>
+    <button onclick="saveDraft()" class="btn">💾 Speichern</button>
+    <button onclick="exportToPDF()" class="btn btn-primary">📄 PDF Export</button>
+    <button onclick="printLetter()" class="btn btn-primary">🖨️ Drucken</button>
+    <div class="dropdown">
+      <button class="btn">📋 Verlauf ▼</button>
+      <div class="dropdown-content" id="historyDropdown">
+        <div style="color: #6b7280; font-size: 12px;">Keine gespeicherten Briefe</div>
+      </div>
+    </div>
+    <button onclick="clearDraft()" class="btn">🗑️ Löschen</button>
+    <button onclick="toggleHelp()" class="btn">❓ Hilfe</button>
+  </div>
+</div>
+
+<!-- Help Panel -->
+<div id="helpPanel" style="display:none; position:fixed; top:70px; right:20px; background:white; border:1px solid #e5e7eb; border-radius:8px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000; max-width:300px;" class="no-print">
+  <h3 style="font-weight:bold; margin-bottom:10px;">Tastaturkürzel</h3>
+  <div style="font-size:12px; line-height:1.5;">
+    <p><strong>Strg+S</strong> - Speichern</p>
+    <p><strong>Strg+P</strong> - Drucken</p>
+    <p><strong>Tab</strong> - Nächstes Feld</p>
+  </div>
+</div>
+
+<!-- Brief Vorlage - WYSIWYG Style -->
+<div class="preview" style="font-family: 'Fira Sans', 'Myriad Pro', sans-serif; font-size: 10pt; line-height: 14pt;">
+  
+  <!-- Faltmarken -->
+  <div class="fold-mark fold-mark-1"></div>
+  <div class="fold-mark fold-mark-2"></div>
+  
+  <!-- Absenderangabe (klein) -->
+  <div style="position: absolute; left: 25mm; top: 32mm; width: 80mm;">
+    <div contenteditable="true" id="returnAddress" placeholder="M. Mustermann, Musterstr. 1, 10115 Berlin" 
+         style="font-size: 7pt; line-height: 9pt; margin-bottom: 6pt;"></div>
+  </div>
+  
+  <!-- Empfängeradresse -->
+  <div style="position: absolute; left: 25mm; top: 44mm; width: 80mm;">
+    <div contenteditable="true" id="recipientAddress" 
+         placeholder="Muster GmbH&#10;Herrn/Frau&#10;Max Mustermann&#10;Musterstraße 1&#10;10115 Berlin"
+         style="white-space: pre-line; min-height: 40mm;" 
+         oninput="detectGender()"></div>
+  </div>
+  
+  <!-- Absender Info (rechts) -->
+  <div style="position: absolute; left: 125mm; top: 32mm; width: 60mm;">
+    <div contenteditable="true" id="senderName" placeholder="Max Mustermann" 
+         style="font-weight: bold; margin-bottom: 6pt;" oninput="updateSignature()"></div>
+    <div contenteditable="true" id="senderStreet" placeholder="Musterstraße 1" 
+         style="margin-bottom: 2pt;" oninput="updateReturnAddress()"></div>
+    <div contenteditable="true" id="senderCity" placeholder="10115 Berlin" 
+         style="margin-bottom: 6pt;" oninput="validatePostcode(this)"></div>
+    <div contenteditable="true" id="senderEmail" placeholder="max@mustermann.de" 
+         style="margin-bottom: 2pt;" oninput="validateEmail(this)"></div>
+    <div contenteditable="true" id="senderPhone" placeholder="+49 30 12345678" 
+         style="margin-bottom: 2pt;" oninput="validateAndFormatPhone(this)"></div>
+  </div>
+  
+  <!-- Datum -->
+  <div style="position: absolute; left: 125mm; top: 80mm; width: 60mm; text-align: right;">
+    <div contenteditable="true" id="currentDate" style="margin-top: 14pt;"></div>
+  </div>
+  
+  <!-- Betreff -->
+  <div style="position: absolute; left: 25mm; top: 98mm; right: 20mm;">
+    <div contenteditable="true" id="subject" placeholder="Betreff" 
+         style="font-weight: bold; margin-bottom: 14pt;" oninput="updateTitle()"></div>
+  </div>
+  
+  <!-- Anrede -->
+  <div style="position: absolute; left: 25mm; top: 115mm; right: 20mm;">
+    <div contenteditable="true" id="salutation" placeholder="Sehr geehrte Damen und Herren," 
+         style="margin-bottom: 14pt;"></div>
+  </div>
+  
+  <!-- Brieftext -->
+  <div style="position: absolute; left: 25mm; top: 135mm; right: 20mm;">
+    <div contenteditable="true" id="content" 
+         placeholder="Hier kommt Ihr Brieftext hin...&#10;&#10;Sie können hier formatieren:&#10;- Fett (Strg+B)&#10;- Kursiv (Strg+I)&#10;- Unterstrichen (Strg+U)"
+         style="white-space: pre-line; min-height: 80mm; max-height: 120mm; overflow-y: auto;"
+         oninput="adjustClosingPosition()"></div>
+  </div>
+  
+  <!-- Grußformel mit intelligenter Positionierung -->
+  <div id="closingSection" style="position: absolute; left: 25mm; top: 235mm; right: 20mm;">
+    <div class="dropdown" style="position: relative; display: inline-block; width: 100%;">
+      <div contenteditable="true" id="closing" placeholder="Mit freundlichen Grüßen" 
+           style="margin-bottom: 42pt; cursor: pointer;"
+           onmouseover="showClosingOptions()" onmouseout="hideClosingOptions()"></div>
+      <div id="closingOptions" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
+        <div onclick="setClosing('Mit freundlichen Grüßen')" title="Standard Geschäftsbrief">Mit freundlichen Grüßen</div>
+        <div onclick="setClosing('Mit besten Grüßen')" title="Etwas persönlicher">Mit besten Grüßen</div>
+        <div onclick="setClosing('Hochachtungsvoll')" title="Sehr förmlich, an Behörden">Hochachtungsvoll</div>
+        <div onclick="setClosing('Mit herzlichen Grüßen')" title="Persönlich, an Bekannte">Mit herzlichen Grüßen</div>
+        <div onclick="setClosing('Viele Grüße')" title="Informell, an Kollegen">Viele Grüße</div>
+      </div>
+    </div>
+    <div contenteditable="true" id="signature" placeholder="Ihr Name" 
+         style="margin-bottom: 14pt;"></div>
+  </div>
+  
+  <!-- Anlagen -->
+  <div style="position: absolute; left: 25mm; top: 270mm; right: 20mm;">
+    <div contenteditable="true" id="attachments" placeholder="Anlagen:&#10;• Dokument 1&#10;• Dokument 2" 
+         style="font-size: 8pt; line-height: 12pt; white-space: pre-line;"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<script>
+class ModernBriefGenerator {
+  constructor() {
+    this.currentDraft = null;
+    this.history = [];
+    this.loadHistory();
+    this.init();
+  }
+  
+  init() {
+    this.setCurrentDate();
+    this.loadDraft();
+    this.setupKeyboardShortcuts();
+    this.updateHistoryDropdown();
+  }
+  
+  loadHistory() {
+    try {
+      this.history = JSON.parse(localStorage.getItem('briefHistory') || '[]');
+    } catch (error) {
+      console.warn('localStorage nicht verfügbar, verwende In-Memory Storage');
+      this.history = [];
+    }
+  }
+  
+  setCurrentDate() {
+    const today = new Intl.DateTimeFormat('de-DE', {
+      day: 'numeric',
+      month: 'long', 
+      year: 'numeric'
+    }).format(new Date());
+    document.getElementById('currentDate').textContent = today;
+  }
+  
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 's':
+            e.preventDefault();
+            this.saveDraft();
+            break;
+          case 'p':
+            e.preventDefault();
+            window.print();
+            break;
+        }
+      }
+    });
+    
+    // Auto-save bei Änderungen (ohne Toast-Spam)
+    document.addEventListener('input', (e) => {
+      if (e.target.contentEditable === 'true') {
+        clearTimeout(this.autoSaveTimeout);
+        this.autoSaveTimeout = setTimeout(() => {
+          this.saveDraftSilent();
+        }, 2000);
+      }
+    });
+  }
+  
+  updateReturnAddress() {
+    const name = document.getElementById('senderName').textContent.trim();
+    const street = document.getElementById('senderStreet').textContent.trim();
+    const city = document.getElementById('senderCity').textContent.trim();
+    
+    if (name || street || city) {
+      let shortName = '';
+      if (name) {
+        const nameParts = name.split(/\s+/).filter(part => part.length > 0);
+        if (nameParts.length >= 2) {
+          // Vor- und Nachname: "Max Mustermann" → "M. Mustermann"
+          const firstName = nameParts[0];
+          const lastName = nameParts.slice(1).join(' ');
+          shortName = firstName.charAt(0).toUpperCase() + '. ' + lastName;
+        } else if (nameParts.length === 1) {
+          // Nur ein Name: "Mustermann" → "Mustermann"
+          shortName = nameParts[0];
+        }
+      }
+      
+      document.getElementById('returnAddress').textContent = 
+        [shortName, street, city].filter(Boolean).join(', ');
+    }
+  }
+  
+  detectGender() {
+    const recipient = document.getElementById('recipientAddress').textContent;
+    const lines = recipient.split('\n').map(line => line.trim()).filter(line => line);
+    
+    let gender = '';
+    let lastName = '';
+    
+    // Suche nach Geschlecht in allen Zeilen
+    for (const line of lines) {
+      const lowerLine = line.toLowerCase();
+      
+      if (lowerLine.includes('herrn') || lowerLine.includes('herr ')) {
+        gender = 'Herr';
+        lastName = this.extractLastName(line, lines);
+        break;
+      } else if (lowerLine.includes('frau')) {
+        gender = 'Frau';
+        lastName = this.extractLastName(line, lines);
+        break;
+      }
+    }
+    
+    // Aktualisiere Anrede
+    const salutation = document.getElementById('salutation');
+    if (gender && lastName) {
+      salutation.textContent = `Sehr geehrte${gender === 'Herr' ? 'r' : ''} ${gender} ${lastName},`;
+    } else if (gender) {
+      salutation.textContent = `Sehr geehrte${gender === 'Herr' ? 'r' : ''} ${gender} [Nachname],`;
+    }
+  }
+  
+  extractLastName(line, allLines) {
+    // Entferne Titel und Geschlechtsbezeichnungen
+    let cleanLine = line.replace(/\b(herrn?|frau|dr\.?|prof\.?|ing\.?)\b/gi, '').trim();
+    
+    // Falls die Zeile nur Titel enthielt, schaue in die nächste Zeile
+    if (!cleanLine) {
+      const currentIndex = allLines.indexOf(line);
+      if (currentIndex >= 0 && currentIndex < allLines.length - 1) {
+        cleanLine = allLines[currentIndex + 1].trim();
+      }
+    }
+    
+    // Extrahiere Namen (nimm das letzte Wort als Nachname)
+    const words = cleanLine.split(/\s+/).filter(word => word && !word.match(/^\d/));
+    
+    if (words.length >= 2) {
+      return words[words.length - 1];
+    } else if (words.length === 1) {
+      return words[0];
+    }
+    
+    return '';
+  }
+  
+  updateSignature() {
+    const name = document.getElementById('senderName').textContent;
+    document.getElementById('signature').textContent = name;
+    this.updateReturnAddress();
+  }
+  
+  validateEmail(element) {
+    const email = element.textContent.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    element.classList.remove('valid', 'invalid');
+    if (email) {
+      if (emailRegex.test(email)) {
+        element.classList.add('valid');
+      } else {
+        element.classList.add('invalid');
+      }
+    }
+  }
+  
+  validateAndFormatPhone(element) {
+    let phone = element.textContent.trim();
+    
+    // Nur Ziffern, +, Leerzeichen, -, () behalten
+    phone = phone.replace(/[^\d\+\s\-\(\)]/g, '');
+    
+    // Deutsche Handy/Festnetz Formatierung
+    if (phone.match(/^0\d{10}$/)) {
+      // 11-stellige deutsche Handynummer: 01601221445 → +49 160 1221445
+      const withoutLeadingZero = phone.substring(1);
+      phone = '+49 ' + withoutLeadingZero.substring(0, 3) + ' ' + withoutLeadingZero.substring(3);
+    } else if (phone.match(/^0\d{9,11}$/)) {
+      // Andere deutsche Nummern
+      const withoutLeadingZero = phone.substring(1);
+      if (withoutLeadingZero.length >= 9) {
+        phone = '+49 ' + withoutLeadingZero.substring(0, 2) + ' ' + withoutLeadingZero.substring(2);
+      }
+    }
+    
+    element.textContent = phone;
+    
+    // Validierung
+    element.classList.remove('valid', 'invalid');
+    if (phone.length > 5) {
+      const phoneRegex = /^\+49\s\d{2,4}\s\d{6,}$/;
+      if (phoneRegex.test(phone)) {
+        element.classList.add('valid');
+      } else {
+        element.classList.add('invalid');
+      }
+    }
+  }
+  
+  validatePostcode(element) {
+    const text = element.textContent;
+    const postcodeMatch = text.match(/\b\d{5}\b/);
+    
+    element.classList.remove('valid', 'invalid');
+    
+    if (postcodeMatch) {
+      element.classList.add('valid');
+    } else if (text.match(/\d/)) {
+      element.classList.add('invalid');
+    }
+    
+    this.updateReturnAddress();
+  }
+  
+  adjustClosingPosition() {
+    const content = document.getElementById('content');
+    const closingSection = document.getElementById('closingSection');
+    
+    // Berechne Zeilenhöhe des Inhalts
+    const contentHeight = content.scrollHeight;
+    const lineHeight = 14; // 14pt aus CSS
+    const lines = Math.ceil(contentHeight / lineHeight);
+    
+    // Neue Position berechnen (135mm Start + Inhalt + 1.5em Abstand)
+    const baseTop = 135; // mm
+    const additionalSpace = lines * (lineHeight * 0.352778); // pt zu mm conversion
+    const spacingAfterContent = 1.5 * (14 * 0.352778); // 1.5em in mm
+    
+    let newTop = baseTop + additionalSpace + spacingAfterContent;
+    
+    // Maximal 235mm (damit es auf die Seite passt)
+    if (newTop > 235) {
+      newTop = 235;
+    }
+    
+    closingSection.style.top = newTop + 'mm';
+  }
+  
+  updateTitle() {
+    const subject = document.getElementById('subject').textContent;
+    if (subject) {
+      document.title = `${new Date().toISOString().slice(0,10)} ${subject.slice(0,50)}`;
+    }
+  }
+  
+  saveDraftSilent() {
+    try {
+      const draft = this.getCurrentData();
+      localStorage.setItem('briefDraft', JSON.stringify(draft));
+      this.currentDraft = draft;
+    } catch (error) {
+      this.currentDraft = this.getCurrentData();
+    }
+  }
+  
+  saveDraft() {
+    try {
+      const draft = this.getCurrentData();
+      localStorage.setItem('briefDraft', JSON.stringify(draft));
+      this.currentDraft = draft;
+      this.showToast('Manuell gespeichert! 💾', 'success');
+    } catch (error) {
+      this.currentDraft = this.getCurrentData();
+      this.showToast('Temporär gespeichert (nur diese Sitzung)! 💾', 'success');
+    }
+  }
+  
+  loadDraft() {
+    try {
+      const draft = JSON.parse(localStorage.getItem('briefDraft') || '{}');
+      this.restoreData(draft);
+    } catch (error) {
+      if (this.currentDraft) {
+        this.restoreData(this.currentDraft);
+      }
+    }
+  }
+  
+  getCurrentData() {
+    const fields = [
+      'returnAddress', 'recipientAddress', 'senderName', 'senderStreet', 
+      'senderCity', 'senderEmail', 'senderPhone', 'subject', 'salutation', 
+      'content', 'closing', 'signature', 'attachments'
+    ];
+    
+    const data = {
+      timestamp: new Date().toISOString(),
+      title: document.getElementById('subject').textContent || 'Unbenannter Brief'
+    };
+    
+    fields.forEach(field => {
+      const element = document.getElementById(field);
+      if (element) {
+        data[field] = element.innerHTML;
+      }
+    });
+    
+    return data;
+  }
+  
+  restoreData(data) {
+    Object.keys(data).forEach(key => {
+      if (key !== 'timestamp' && key !== 'title') {
+        const element = document.getElementById(key);
+        if (element && data[key]) {
+          element.innerHTML = data[key];
+        }
+      }
+    });
+  }
+  
+  saveToHistory() {
+    const data = this.getCurrentData();
+    
+    try {
+      this.history.unshift(data);
+      if (this.history.length > 10) {
+        this.history = this.history.slice(0, 10);
+      }
+      localStorage.setItem('briefHistory', JSON.stringify(this.history));
+      this.updateHistoryDropdown();
+      this.showToast('Brief im Verlauf gespeichert! 📋', 'success');
+    } catch (error) {
+      this.history.unshift(data);
+      if (this.history.length > 10) {
+        this.history = this.history.slice(0, 10);
+      }
+      this.updateHistoryDropdown();
+      this.showToast('Brief temporär im Verlauf (nur diese Sitzung)! 📋', 'success');
+    }
+  }
+  
+  updateHistoryDropdown() {
+    const dropdown = document.getElementById('historyDropdown');
+    
+    if (this.history.length === 0) {
+      dropdown.innerHTML = '<div style="padding: 8px; color: #6b7280; font-size: 12px;">Keine gespeicherten Briefe</div>';
+      return;
+    }
+    
+    dropdown.innerHTML = this.history.map((item, index) => `
+      <div onclick="briefGenerator.loadFromHistory(${index})" style="cursor: pointer;">
+        <div style="font-weight: bold;">${item.title}</div>
+        <div style="color: #6b7280;">${new Date(item.timestamp).toLocaleDateString('de-DE')}</div>
+      </div>
+    `).join('');
+  }
+  
+  loadFromHistory(index) {
+    const data = this.history[index];
+    this.restoreData(data);
+    this.showToast(`
+

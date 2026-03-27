@@ -1,0 +1,29 @@
+/* din-5008.css - Copyright (C) 2022 Hannes Diercks, Licensed under MIT https://github.com/Xiphe/din-5008-css */
+
+
+ 
+ 
+ rucksendeangabe, vermerkzone, anschriftzone, datum, betreff, seitenangabe, fusszeile,textfeld {
+  outline: none;
+  cursor: text;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 0.25rem;
+  min-width: 2rem;
+  min-height: 1.5rem;
+  padding: 2px; /* Optional für besseres Erscheinungsbild */
+}
+rucksendeangabe:hover, vermerkzone:hover, anschriftzone:hover, datum:hover, textfeld:hover, seitenangabe:hover, fusszeile:hover {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: initial;
+}
+rucksendeangabe:focus, vermerkzone:focus, anschriftzone:focus, datum:focus, textfeld:focus, seitenangabe:focus, fusszeile:focus {
+  box-shadow: 0 2px 5px #007bff;
+  border: 1px solid rgba(0, 0, 0, 0);
+}
+
+
+
+
+
+
+

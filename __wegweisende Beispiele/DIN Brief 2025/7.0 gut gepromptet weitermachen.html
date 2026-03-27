@@ -1,0 +1,403 @@
+<!-- din-5008.css - Copyright (C) 2022 Hannes Diercks, Licensed under MIT https://github.com/Xiphe/din-5008-css -->
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Example Document in DIN 5008</title>
+
+		
+		<style>
+@page {
+  size: A4;
+  margin: 0;
+}
+
+html {
+  font-family: Aptos, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 10pt;
+  line-height: 1.5rem;
+  color: #000;
+  box-sizing: border-box;  
+}
+
+body {
+  margin: 0;
+}
+
+din-5008 {
+  box-sizing: border-box;
+  display: block;
+  height: 297mm;
+  margin: 0;
+  page-break-after: always;
+  position: relative;
+  width: 210mm;
+}
+
+.schriftfeld {
+  border-radius: 0.25rem;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  cursor: text;
+  display: block;
+  margin-bottom: 3pt;
+  max-width: 165mm;
+  min-height: 12pt;
+  min-width: 20mm;
+  outline: none;
+  height: 17pt;
+  width: fit-content;
+  overflow: hidden;  
+}
+
+.wrapper {
+  position: absolute;
+  left: 20mm;
+  display: block;
+ }
+
+.oneline {
+  max-height: 1.5rem; /* Begrenzt die Höhe auf eine Zeile */
+  line-height: 1.3rem; /* Stellt sicher, dass der Text vertikal zentriert ist */
+  white-space: nowrap; /* Verhindert Zeilenumbrüche innerhalb des Textes */
+  overflow: hidden; /* Schneidet überflüssigen Inhalt ab */
+ }
+
+
+
+
+.schriftfeld:hover,
+.schriftfeld:focus {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.25rem;
+}
+
+.schriftfeld:focus {
+  box-shadow: 0 2px 5px #007bff;
+  border: 1px solid transparent;
+}
+
+@media screen {
+  body {
+    background: #e0e0e0;
+    margin: 10mm;
+  }
+  din-5008 {
+    background: white;
+    height: 297mm;
+    box-shadow: 0 5px 50px rgba(0, 0, 0, 0.3);
+    margin: 50px auto;
+  }
+}
+
+@media print {
+  din-5008 {
+    width: 210mm;
+  }
+}
+		</style>
+<!-- Favicon # wird zu %23 -->
+		<link rel="shortcut icon" href="data:image/svg+xml,
+			<svg
+				xmlns='http://www.w3.org/2000/svg'  viewBox='0 0 36 36'>
+				<path fill='%23CCD6DD' d='M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v18z'/>
+				<path fill='%2399aab5' d='M4 5a4 4 0 0 0-4 4v1.03l9.79 9.77-9.15 9.15-.06.09a4 4 0 0 0 1.38 1.38l.09-.06 9.15-9.15 3.32 3.3a4.88 4.88 0 0 0 6.88 0l3.36-3.33 9.18 9.18.09.06a3.98 3.98 0 0 0 1.38-1.38l-.06-.09-9.18-9.18 9.8-9.76V9a4 4 0 0 0-4-4h-28z'/>
+				<path fill='%23E1E8ED' d='M32 5H4A3.99 3.99 0 0 0 .4 7.28l14.8 14.8a4 4 0 0 0 5.66 0l14.8-14.8A3.99 3.99 0 0 0 32.06 5z'/>
+			</svg>">
+		</head>
+		
+
+		<body>
+<din-5008>
+				<svg style="position: absolute; left: 2mm; top: 87mm;" width="10mm" height="105.2mm" viewBox="0 0 10 105.2">
+					<line x1="0" y1="0.1" x2="10" y2="0.1" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.2" />
+					<line x1="0" y1="105.1" x2="10" y2="105.1" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.2" />
+				</svg>
+				
+				<!-- <briefkopf></briefkopf> -->
+				
+<!-- EMPFÄNGER -->			
+				<wrapper class="wrapper" style="line-height: 1; top: 27mm;  display: flex; flex-direction: column;">
+					<rucksendeangabe class="schriftfeld oneline" style="width: 80mm; font-size: 7pt; height: 1.3rem;">Mustermann GmbH | Beispiel-Straße 12 | 12345 Beispielhausen</rucksendeangabe>
+					<vermerkzone class="schriftfeld oneline"  style="width: 80mm; min-height: 14pt; max-height: 2.5rem;">Nicht nachsenden!</vermerkzone>
+					<anschriftzone class="schriftfeld" style="width: 80mm; height: 7.5rem;">
+							  Firma
+						<br />Ansprechpartner
+						<br />Straße und Hausnummer
+						<br />Postleitzahl und Ort
+						<br />Straße und Hausnummer
+						<br />Postleitzahl und Ort
+					</anschriftzone>
+				</wrapper>
+				
+				
+<!-- ABSENDER -->
+				<wrapper class="wrapper" style=" left: 140mm; right: 20mm; top: 27mm;  display: flex; flex-direction: column;">
+					<absender class="schriftfeld oneline" style="max-width: 50mm;">Moritz Baumeister</absender>
+					<adresse class="schriftfeld"  style="height: fit-content; max-width: 50mm;  ">Kettelerstraße 2 <br>53844 Troisdorf</adresse>
+					<telefon class="schriftfeld oneline"  style="max-width: 50mm;" ">01601221445</telefon>
+				</wrapper>
+				
+<!-- DATUM -->			
+				<datum class="schriftfeld oneline" style="position: absolute; top: 75mm; right: 20mm; text-align: right; max-width: 75mm;"></datum>
+				
+			
+			
+<!-- HAUPTTEXT -->
+				<wrapper class="wrapper" style="display: block; top: 90mm; right: 20mm;">
+				<betreff class="schriftfeld oneline" style="font-weight: bold; margin-bottom: 2rem;">Example Document using din-5008-css</betreff>
+				<anrede class="schriftfeld oneline" style="margin-bottom: 1.5rem;">Sehr geehrte Damen und Herren,</anrede>
+					<textfeld class="schriftfeld"  style="width:100%; max-height: 150mm; height:auto;  margin-bottom: 1rem;">
+						<em>Kursiv STRG+I </em>
+						<br/>
+						<b>Fett STRG+B </b>
+						<br/>
+						<u>Unterstrichen STRG+U</u>
+					</textfeld>
+					<grussformel class="schriftfeld oneline" style="display:inline-block; margin-bottom: 3rem;">Mit freundlichen Grüßen</grussformel>
+					
+					<maschunterschrift class="schriftfeld oneline"	style="margin-bottom: 1rem;">Moritz Baumeister</maschunterschrift>
+					<anlagen class="schriftfeld "	style="height: fit-content;">Anlagen</anlagen>
+					</wrapper>
+<!-- FUßZEILE-->
+			<wrapper class="wrapper"  style=" bottom: 6.5mm; width: 165mm;">
+				<seitenangabe class="schriftfeld oneline" style="max-width: 30mm; text-align: right; margin-bottom: 4.23mm; float: right; ">Seite 1 von 4</seitenangabe>
+				<br/><fusszeile class="schriftfeld oneline" style="clear: both;">Fußzeile</fusszeile>
+			</wrapper> 
+</din-5008>
+				
+<script>	//Hauptskript
+document.addEventListener('DOMContentLoaded', () => {
+    // 1) .schriftfeld → editierbar
+    document.querySelectorAll('.schriftfeld').forEach(el => el.contentEditable = 'true');
+
+    // 2) <datum> → aktuelles deutsches Datum
+    const datumEl = document.querySelector('datum');
+    if (datumEl) {
+        datumEl.textContent = new Date().toLocaleDateString('de-DE', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    // 3) dynamischer Titel: YYYY-MM-DD_Betreff
+    const betreffEl = document.querySelector('betreff');
+    if (betreffEl) {
+        function setTitle() {
+            const text = betreffEl.textContent.trim() || 'Unbenannt';
+            document.title = `${text}`;
+        }
+        setTitle();
+        betreffEl.addEventListener('input', setTitle);
+    }
+});
+
+</script>
+  
+  
+  
+<script> //Paste‑Sanitizer mit Selection/Range‑API (future‑proof)
+document.addEventListener('DOMContentLoaded', () => {
+    // Sanitizer für .oneline Felder: entfernt Zeilenumbrüche und <br>
+    const sanitize = str => str.replace(/[\r\n]+/g, ' ').replace(/<br\s*\/?>/gi, ' ');
+
+    // Handler für Paste & Drop
+    function handleSanitizedInsert(e) {
+        // Nur für contenteditable Felder
+        const el = e.target;
+        if (!el.isContentEditable) return;
+
+        e.preventDefault();
+        let text = e.clipboardData?.getData("text/plain") ?? e.dataTransfer?.getData("text/plain") ?? "";
+
+        // Bei .oneline: Zeilenumbrüche entfernen
+        if (el.classList.contains('oneline')) {
+            text = sanitize(text);
+        }
+
+        insertTextAtCursor(text);
+    }
+
+    // Einfügen an Cursor-Position (Selection/Range API)
+    function insertTextAtCursor(text) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        const node = document.createTextNode(text);
+        range.insertNode(node);
+        // Cursor hinter den neuen Text setzen
+        range.setStartAfter(node);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
+    // Events für alle contenteditable Felder, aber nur wenn das Ziel ein contenteditable ist!
+    document.addEventListener('paste', handleSanitizedInsert, true);
+    document.addEventListener('drop', handleSanitizedInsert, true);
+
+    // Zusätzliche .oneline-Logik: Enter verhindern, input bereinigen, Formatierungen blocken
+    document.querySelectorAll('.oneline[contenteditable]').forEach(el => {
+        el.addEventListener('keydown', e => {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+
+        el.addEventListener('input', () => {
+            // Cursorposition merken
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0);
+            const preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(el);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            const caretOffset = preCaretRange.toString().length;
+
+            // Inhalt bereinigen
+            el.innerText = sanitize(el.innerText);
+
+            // Cursorposition wiederherstellen
+            setCaretPosition(el, caretOffset);
+        });
+
+        el.addEventListener('beforeinput', e => {
+            const blockedTypes = [
+                'insertParagraph', 'insertLineBreak', 'formatBold', 'formatItalic', 'formatUnderline'
+            ];
+            if (blockedTypes.includes(e.inputType)) e.preventDefault();
+        });
+    });
+
+    // Hilfsfunktion: Cursor an bestimmte Position setzen
+    function setCaretPosition(el, pos) {
+        let node = el.firstChild;
+        let chars = 0;
+        if (!node) return;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(true);
+
+        while (node) {
+            if (node.nodeType === 3) {
+                const nextChars = chars + node.length;
+                if (nextChars >= pos) {
+                    range.setStart(node, pos - chars);
+                    range.collapse(true);
+                    break;
+                }
+                chars = nextChars;
+            }
+            node = node.nextSibling;
+        }
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+});
+
+
+ </script>
+  
+  
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1) Automatische <br>-Einfügung im Adressfeld
+    const adresse = document.querySelector('adresse.schriftfeld[contenteditable]');
+    if (adresse) {
+        function formatAdresseBr() {
+            let text = adresse.innerText.replace(/\s+/g, ' ').trim();
+            // Regex: Straße/Hausnummer, 4/5-stellige PLZ, Ort
+            const match = text.match(/^(.*?\d[\w\s\*\-]*)\s(\d{4,5})\s(.+)$/);
+            if (match) {
+                const street = match[1].trim();
+                const plz = match[2];
+                const city = match[3].trim();
+                const htmlSoll = `${street}<br>${plz} ${city}`;
+                if (adresse.innerHTML.replace(/<div>/g, '<br>').replace(/<\/div>/g, '') !== htmlSoll) {
+                    adresse.innerHTML = htmlSoll;
+                    // Cursor ans Ende setzen
+                    setTimeout(() => {
+                        const range = document.createRange();
+                        const sel = window.getSelection();
+                        range.selectNodeContents(adresse);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }, 0);
+                }
+            }
+        }
+        adresse.addEventListener('input', formatAdresseBr);
+        adresse.addEventListener('blur', formatAdresseBr);
+    }
+
+    // 2) Rücksendeangabe & Maschinenschriftzeile automatisch aktualisieren
+    const absender = document.querySelector('absender');
+    const rucksendeangabe = document.querySelector('rucksendeangabe');
+    const maschunterschrift = document.querySelector('maschunterschrift');
+
+    // Hilfsfunktion: ersten Buchstaben jedes Wortes groß
+    function capitalizeWord(str) {
+        return str.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    }
+
+    // Name zu Initiale + Nachname
+    function formatRucksendeName(name) {
+        if (!name) return '';
+        const trimmed = name.trim();
+        const spaceIdx = trimmed.indexOf(' ');
+        if (spaceIdx === -1) return capitalizeWord(trimmed);
+        const initial = trimmed.charAt(0).toUpperCase() + '.';
+        const nachname = capitalizeWord(trimmed.slice(spaceIdx + 1));
+        return `${initial} ${nachname}`;
+    }
+
+    // Adresse: HTML (mit <br>) zu Fließtext mit " | " als Trenner
+    function formatAdresseForRucksendeangabe(adresseEl) {
+        if (!adresseEl) return '';
+        // Ersetze <br> und Zeilenumbrüche durch " | "
+        return adresseEl.innerHTML
+            .replace(/<br\s*\/?>/gi, ' | ')
+            .replace(/<div>/gi, ' | ')
+            .replace(/<\/div>/gi, '')
+            .replace(/[\r\n]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function updateRucksendeangabeUndUnterschrift() {
+        const absenderText = absender ? absender.innerText.trim() : '';
+        const nameFormatted = formatRucksendeName(absenderText);
+        const adresseText = adresse ? formatAdresseForRucksendeangabe(adresse) : '';
+        let rucksendeText = nameFormatted;
+        if (adresseText) {
+            rucksendeText += ' | ' + adresseText;
+        }
+        if (rucksendeangabe) {
+            rucksendeangabe.innerText = rucksendeText;
+        }
+        if (maschunterschrift) {
+            maschunterschrift.innerText = absenderText.charAt(0).toUpperCase() + absenderText.slice(1);
+        }
+    }
+
+    // Events für dynamische Aktualisierung
+    if (absender) absender.addEventListener('input', updateRucksendeangabeUndUnterschrift);
+    if (adresse) adresse.addEventListener('input', updateRucksendeangabeUndUnterschrift);
+
+    // Initiales Setzen beim Laden
+    updateRucksendeangabeUndUnterschrift();
+});
+</script>
+
+
+
+  
+  
+  
+			</body>
+		</html>
+

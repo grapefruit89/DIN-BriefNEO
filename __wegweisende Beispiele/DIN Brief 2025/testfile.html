@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geschäftsbrief Generator</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Geschäftsbrief Generator</h1>
+    <label for="salutation">Anrede:</label>
+    <select id="salutation"></select>
+    <br>
+    <input type="text" id="name" placeholder="Name" class="hidden">
+    <br>
+    <label for="closing">Grußformel:</label>
+    <select id="closing"></select>
+    <br>
+    <h2>Vorschau:</h2>
+    <div id="letter">
+        <div id="salutation-placeholder"></div>
+        <div id="body">Hier kommt der Brieftext hin.</div>
+        <div id="closing-placeholder"></div>
+    </div>
+    <script src="test.js"></script>
+</body>
+</html>
+

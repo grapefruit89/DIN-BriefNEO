@@ -1,0 +1,12 @@
+!/.gemini/
+!/.gemini/**
+!/.brain/
+!/.brain/**
+!/tasks/
+!/tasks/**
+!/plans/
+!/plans/**
+!/specify/
+!/specify/**
+!/scripts/
+!/scripts/**

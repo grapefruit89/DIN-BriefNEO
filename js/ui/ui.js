@@ -9,6 +9,8 @@
 import * as Logic from '../logic/logic.js';
 import { EditContextController } from '../core/edit-context-controller.js';
 import { GhostMirror }           from './ghost-mirror.js';
+import { AddressService }        from '../services/address-service.js';
+import { FlightRecorder }       from '../logic/flight-recorder.js';
 import { IMR, PLATINUM_SANITIZER } from '../core/constants.js';
 
 export class UIController {
@@ -16,14 +18,27 @@ export class UIController {
     this.sm = sm;
     this._editors = {}; 
     this._ghosts  = {}; 
+    this.addressService = new AddressService(sm, this);
+    this._overflowDebounce = null;
+    this._autocompleteDebounce = null;
   }
 
   init() {
     this._initEditors();
     this._bindNativeEvents();
     this._bindUtilityActions();
+    this.addressService.init();
+    
     this.sm.subscribe((path, val, scope, source) => this._onStateChange(path, val, scope, source));
     this._syncAllToDOM();
+
+    document.addEventListener('command', (e) => {
+      const { command } = e.detail || { command: e.command };
+      if (command === '--export') this._handleExport();
+      if (command === '--import') this._handleImport();
+      if (command === '--history') if (this.io) this.io.requestHistory();
+      if (command === '--export-logs') this._handleLogExport();
+    });
     console.info("🚀 Platinum UI: Sanitizer & Ghost-Mirror Active");
   }
 
@@ -427,6 +442,62 @@ export class UIController {
             }
         }
     });
+  }
+
+  /* ── 📍 AUTOCOMPLETE UI ─────────────────────────────────────── */
+  _renderSuggestions(features) {
+    this._closeAutocomplete();
+    if (!features || features.length === 0) return;
+    
+    const list = document.createElement('div');
+    list.className = 'autocomplete-suggestions';
+
+    features.forEach(feature => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-suggestion';
+      
+      const p = feature.properties;
+      const strong = document.createElement('strong');
+      strong.textContent = p.name || (p.formatted ? p.formatted.split(',')[0] : '');
+      item.appendChild(strong);
+      
+      const sub = document.createElement('span');
+      sub.textContent = p.street ? ` ${p.street} ${p.housenumber || ''}, ${p.postcode} ${p.city}` : ` ${p.formatted}`;
+      item.appendChild(sub);
+      
+      item.onclick = () => this._selectAddress(feature);
+      list.appendChild(item);
+    });
+    document.body.appendChild(list);
+  }
+
+  _selectAddress(feature) {
+    const p = feature.properties;
+    let text = '';
+    if (p.formatted) {
+        text = p.formatted.split(', ').join('\n');
+    } else {
+        text = `${p.name || ''}\n${p.street} ${p.housenumber || ''}\n${p.postcode} ${p.city}`.trim();
+    }
+    this.sm.update('content.recipient', text, 'ui');
+    this._syncAllToDOM();
+    this._closeAutocomplete();
+  }
+
+  _closeAutocomplete() {
+    const existing = document.querySelector('.autocomplete-suggestions');
+    if (existing) existing.remove();
+  }
+
+  _handleLogExport() {
+    const url = FlightRecorder.exportLogs();
+    if (url) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `incident_logs_${Logic.todayISO()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
   }
 
   updateComplianceStatus(key, status, label) {

@@ -80,6 +80,14 @@
     /* [CMD-8] Allow height:auto transitions */
     interpolate-size: allow-keywords;
 
+    /* [SPEC-090] 7px Platinum Grid System */
+    --space-unit:        7px;
+    --space-xs:          calc(var(--space-unit) * 0.5);
+    --space-sm:          var(--space-unit);
+    --space-md:          calc(var(--space-unit) * 2);
+    --space-lg:          calc(var(--space-unit) * 3);
+    --space-xl:          calc(var(--space-unit) * 4);
+
     /* [SPEC-080] Native Theme Support */
     color-scheme: light dark;
 

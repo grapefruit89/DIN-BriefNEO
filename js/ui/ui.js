@@ -44,6 +44,7 @@ export class UIController {
     );
     this._syncAllToDOM();
     this._startNightWatchdog(); // [SPEC-080] Start real-time observer
+    this._initKeyboardShortcuts(); // [SPEC-090] Platinum Productivity
 
     document.addEventListener("command", (e) => {
       const { command } = e.detail || { command: e.command };
@@ -694,7 +695,7 @@ export class UIController {
   }
 
   /**
-   * [SPEC-080] Precision Pulse Time Watchdog
+   * [SPEC-090] Precision Pulse Time Watchdog
    * Schedules exactly ONE timer for the next theme transition.
    * Efficient, precise, and battery-friendly.
    */
@@ -734,6 +735,37 @@ export class UIController {
     });
 
     scheduleNext();
+  }
+
+  /**
+   * [SPEC-090] Platinum Keyboard Productivity
+   */
+  _initKeyboardShortcuts() {
+    document.addEventListener("keydown", (e) => {
+      // Ctrl + S: Export
+      if (e.ctrlKey && e.key === "s") {
+        e.preventDefault();
+        this._handleExport();
+      }
+
+      // Ctrl + P: Print
+      if (e.ctrlKey && e.key === "p") {
+        e.preventDefault();
+        window.print();
+      }
+
+      // Alt + 1: Focus Subject
+      if (e.altKey && e.key === "1") {
+        e.preventDefault();
+        document.querySelector("din-subject")?.focus();
+      }
+
+      // Alt + 2: Focus Body
+      if (e.altKey && e.key === "2") {
+        e.preventDefault();
+        document.querySelector("din-text")?.focus();
+      }
+    });
   }
 }
 

@@ -1,222 +1,378 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DIN-BriefNEO | Platinum 2026</title>
-  
-  <link rel="stylesheet" href="css/din5008-paper.css">
-  <link rel="stylesheet" href="css/app-ui.css"> <!-- Consolidated SSoT CSS -->
-  <link rel="stylesheet" href="css/devmode.css">
-</head>
-<body data-layout="form-b">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DIN-BriefNEO | Platinum 2026</title>
 
-<div id="app-shell">
-
-  <!-- MASTER SIDEBAR (Aviation Grade Pillar) -->
-  <aside id="sidebar-left">
-    <header class="sidebar-header">
-      <div class="sidebar-brand">DIN-BriefNEO <span id="app-version" class="v-tag">V18</span></div>
-    </header>
-
-    <div id="sidebar-scroll-area">
-      <section class="sidebar-section">
-        <!-- 2. DIN-VARIANTE -->
-        <div class="sidebar-control-group">
-          <label class="sidebar-label">DIN-Variante</label>
-          <div class="segmented-control">
-            <label class="segment-option">
-              <input type="radio" name="layout" id="layout-a" value="form-a">
-              <span>Form A (Hoch)</span>
-            </label>
-            <label class="segment-option">
-              <input type="radio" name="layout" id="layout-b" value="form-b" checked>
-              <span>Form B (Standard)</span>
-            </label>
+    <link rel="stylesheet" href="css/din5008-paper.css" />
+    <link rel="stylesheet" href="css/app-ui.css" />
+    <!-- Consolidated SSoT CSS -->
+    <link rel="stylesheet" href="css/devmode.css" />
+    <link rel="stylesheet" href="css/platinum-locked.css" />
+  </head>
+  <body data-layout="form-b">
+    <div id="app-shell">
+      <!-- MASTER SIDEBAR (Aviation Grade Pillar) -->
+      <aside id="sidebar-left">
+        <header class="sidebar-header">
+          <div class="sidebar-brand">
+            DIN-BriefNEO <span id="app-version" class="v-tag">V18</span>
           </div>
-        </div>
+        </header>
 
-        <!-- 3. HILFSLINIEN -->
-        <div class="sidebar-control-group">
-          <label class="sidebar-label">Hilfslinien</label>
-          <div class="segmented-control">
-            <label class="segment-option">
-              <input type="radio" name="guides" id="guides-on" value="true" checked>
-              <span>Anzeigen</span>
-            </label>
-            <label class="segment-option">
-              <input type="radio" name="guides" id="guides-off" value="false">
-              <span>Verbergen</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- 4. NACHTMODUS -->
-        <div class="sidebar-control-group">
-          <label class="sidebar-label">Arbeitsmodus</label>
-          <div class="segmented-control">
-            <label class="segment-option">
-              <input type="radio" name="theme" id="theme-day" value="day" checked>
-              <span>☀️ Tag</span>
-            </label>
-            <label class="segment-option">
-              <input type="radio" name="theme" id="theme-night" value="night">
-              <span>🌙 Nacht</span>
-            </label>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <div class="actions-footer">
-      <!-- UTILITY ACTIONS (Export/Import/Reset) -->
-      <div class="utility-actions">
-        <button class="util-btn" title="Export" id="btn-export">📥 Export</button>
-        <button class="util-btn" title="Import" id="btn-import">📤 Import</button>
-        <button class="util-btn danger" title="Reset" id="btn-reset" commandfor="dialog-reset" command="show-modal">🗑️ Reset</button>
-      </div>
-
-      <!-- 1. IDENTITÄT -->
-      <button id="btn-profile" class="sidebar-btn secondary" commandfor="modal-profile" command="show-popover">👤 Absender-Profil</button>
-
-      <!-- 3. DRUCKEN -->
-      <button id="btn-print" class="sidebar-btn primary big-btn" commandfor="paper" command="--print">🖨 Drucken / PDF</button>
-      
-      <!-- COMPLIANCE BAR (Cockpit Layout) -->
-      <div class="compliance-bar">
-        <div id="integrity-status" class="compliance-item">Fiskale Integrität: <span class="status-ok">[OK]</span></div>
-        <div id="storage-status" class="compliance-item">Storage: <span class="status-ok">[OPFS-Journaling]</span></div>
-        <div id="math-engine-status" class="compliance-item">Math-Engine: [Initialisiere...]</div>
-        <div id="statusbar" class="status-bar-text">Bereit.</div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- THE AIRFRAME: Sovereign Semantic Matrix v3.1 -->
-  <main id="paper-viewport">
-    <din-5008 data-form="B" id="paper">
-      <din-page>
-        <!-- Faltmarken & Lochmarke -->
-        <div class="mark mark-fold-1"></div>
-        <div class="mark mark-loch"></div>
-        <div class="mark mark-fold-2"></div>
-
-        <!-- 2. Briefkopf & Identität -->
-        <din-header>
-          <din-logo></din-logo>
-          <din-sender-details contenteditable="plaintext-only" data-placeholder="Max Mustermann, Musterstraße 1, 12345 Musterstadt"></din-sender-details>
-          <din-vcard></din-vcard>
-        </din-header>
-
-        <!-- 3. Anschriftfeld (The Navigation Deck) -->
-        <din-address-zone>
-          <din-return-line contenteditable="plaintext-only" data-placeholder="Max Mustermann · Musterstraße 1 · 12345 Musterstadt"></din-return-line>
-          <din-supplement contenteditable="plaintext-only" data-placeholder="Einschreiben"></din-supplement>
-          <din-recipient contenteditable="plaintext-only" data-placeholder="Frau&#10;Erika Musterfrau&#10;Beispielweg 42&#10;54321 Beispielstadt"></din-recipient>
-        </din-address-zone>
-
-        <!-- 4. Metadaten & Leitwörter (The Metadata) -->
-        <din-infoblock>
-          <div class="info-row"><span>Unser Zeichen:</span><din-ref-line contenteditable="plaintext-only"></din-ref-line></div>
-          <div class="info-row"><span>Datum:</span><din-date contenteditable="plaintext-only" data-placeholder="TT.MM.JJJJ"></din-date></div>
-        </din-infoblock>
-
-        <!-- 5. Briefkern (The Payload) -->
-        <article id="brief-kern">
-          <din-subject contenteditable="plaintext-only" data-placeholder="Betreff: Ihr Anliegen"></din-subject>
-          <din-salutation contenteditable="plaintext-only" data-placeholder="Sehr geehrte Frau Musterfrau,"></din-salutation>
-          
-          <din-page-wrapper>
-            <div class="body-container">
-              <din-body contenteditable="plaintext-only" data-placeholder="Schreiben Sie hier den Text Ihres Briefes... Markdown wird nativ unterstützt."></din-body>
-              <din-body-mirror aria-hidden="true"></din-body-mirror>
+        <div id="sidebar-scroll-area">
+          <section class="sidebar-section">
+            <!-- 2. DIN-VARIANTE -->
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">DIN-Variante</label>
+              <div class="segmented-control">
+                <label class="segment-option">
+                  <input
+                    type="radio"
+                    name="layout"
+                    id="layout-a"
+                    value="form-a"
+                  />
+                  <span>Form A (Hoch)</span>
+                </label>
+                <label class="segment-option">
+                  <input
+                    type="radio"
+                    name="layout"
+                    id="layout-b"
+                    value="form-b"
+                    checked
+                  />
+                  <span>Form B (Standard)</span>
+                </label>
+              </div>
             </div>
-            <din-cma-sensor></din-cma-sensor>
-          </din-page-wrapper>
 
-          <din-closing contenteditable="plaintext-only" data-placeholder="Mit freundlichen Grüßen"></din-closing>
-          <din-signature contenteditable="plaintext-only" data-placeholder="Max Mustermann"></din-signature>
-          <din-attachments contenteditable="plaintext-only" data-placeholder="Anlagen"></din-attachments>
-        </article>
+            <!-- 3. HILFSLINIEN -->
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">Hilfslinien</label>
+              <div class="segmented-control">
+                <label class="segment-option">
+                  <input
+                    type="radio"
+                    name="guides"
+                    id="guides-on"
+                    value="true"
+                    checked
+                  />
+                  <span>Anzeigen</span>
+                </label>
+                <label class="segment-option">
+                  <input
+                    type="radio"
+                    name="guides"
+                    id="guides-off"
+                    value="false"
+                  />
+                  <span>Verbergen</span>
+                </label>
+              </div>
+            </div>
 
-        <!-- 6. Finanzen & Recht (The Compliance) -->
-        <din-footer>
-          <din-bank-data contenteditable="plaintext-only" data-placeholder="IBAN: DE00 0000 0000 0000 0000 00"></din-bank-data>
-          <din-fiscal-data contenteditable="plaintext-only" data-placeholder="USt-IdNr.: DE 123 456 789"></din-fiscal-data>
-        </din-footer>
+            <!-- 4. NACHTMODUS -->
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">Arbeitsmodus</label>
+              <div class="segmented-control">
+                <label class="segment-option">
+                  <input
+                    type="radio"
+                    name="theme"
+                    id="theme-day"
+                    value="day"
+                    checked
+                  />
+                  <span>☀️ Tag</span>
+                </label>
+                <label class="segment-option">
+                  <input
+                    type="radio"
+                    name="theme"
+                    id="theme-night"
+                    value="night"
+                  />
+                  <span>🌙 Nacht</span>
+                </label>
+              </div>
+            </div>
+          </section>
+        </div>
 
-      </din-page>
-    </din-5008>
+        <div class="actions-footer">
+          <!-- UTILITY ACTIONS (Export/Import/Reset) -->
+          <div class="utility-actions">
+            <button class="util-btn" title="Export" id="btn-export">
+              📥 Export
+            </button>
+            <button class="util-btn" title="Import" id="btn-import">
+              📤 Import
+            </button>
+            <button
+              class="util-btn danger"
+              title="Reset"
+              id="btn-reset"
+              commandfor="dialog-reset"
+              command="show-modal"
+            >
+              🗑️ Reset
+            </button>
+          </div>
 
-    <!-- Decoder Trigger (Aviation Grade Diagnostic) -->
-    <button id="btn-decoder-trigger" class="decoder-btn" commandfor="dialog-decoder" command="show-modal">🔍 Decoder</button>
+          <!-- 1. IDENTITÄT -->
+          <button
+            id="btn-profile"
+            class="sidebar-btn secondary"
+            commandfor="modal-profile"
+            command="show-popover"
+          >
+            👤 Absender-Profil
+          </button>
 
-    <div id="statusbar" class="status-bar">Initialisiere...</div>
-  </main>
-</div>
+          <!-- 3. DRUCKEN -->
+          <button
+            id="btn-print"
+            class="sidebar-btn primary big-btn"
+            commandfor="paper"
+            command="--print"
+          >
+            🖨 Drucken / PDF
+          </button>
 
-<!-- NATIVE POPOVERS & DIALOGS -->
-<div id="modal-profile" popover class="platinum-dialog">
-  <header class="modal-header">
-    <h3>👤 Absenderprofil</h3>
-    <button class="close-btn" commandfor="modal-profile" command="hide-popover">✕</button>
-  </header>
-  
-  <div class="form-section">
-    <div class="inline-controls">
-        <select id="profileSelect">
+          <!-- COMPLIANCE BAR (Cockpit Layout) -->
+          <div class="compliance-bar">
+            <div id="integrity-status" class="compliance-item">
+              Fiskale Integrität: <span class="status-ok">[OK]</span>
+            </div>
+            <div id="storage-status" class="compliance-item">
+              Storage: <span class="status-ok">[OPFS-Journaling]</span>
+            </div>
+            <div id="math-engine-status" class="compliance-item">
+              Math-Engine: [Initialisiere...]
+            </div>
+            <div id="statusbar" class="status-bar-text">Bereit.</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- THE AIRFRAME: Sovereign Semantic Matrix v3.1 -->
+      <main id="paper-viewport">
+        <din-5008 data-form="B" id="paper">
+          <din-page>
+            <!-- Faltmarken & Lochmarke -->
+            <div class="mark mark-fold-1"></div>
+            <div class="mark mark-loch"></div>
+            <div class="mark mark-fold-2"></div>
+
+            <!-- 2. Briefkopf & Identität -->
+            <din-header>
+              <din-logo></din-logo>
+              <din-sender-details
+                contenteditable="plaintext-only"
+                data-placeholder="Max Mustermann, Musterstraße 1, 12345 Musterstadt"
+              ></din-sender-details>
+              <din-vcard></din-vcard>
+            </din-header>
+
+            <!-- 3. Anschriftfeld (The Navigation Deck) -->
+            <din-address-zone>
+              <din-return-line
+                contenteditable="plaintext-only"
+                data-placeholder="Max Mustermann · Musterstraße 1 · 12345 Musterstadt"
+              ></din-return-line>
+              <din-supplement
+                contenteditable="plaintext-only"
+                data-placeholder="Einschreiben"
+              ></din-supplement>
+              <din-recipient
+                contenteditable="plaintext-only"
+                data-placeholder="Frau&#10;Erika Musterfrau&#10;Beispielweg 42&#10;54321 Beispielstadt"
+              ></din-recipient>
+            </din-address-zone>
+
+            <!-- 4. Metadaten & Leitwörter (The Metadata) -->
+            <din-infoblock>
+              <div class="info-row">
+                <span>Unser Zeichen:</span
+                ><din-ref-line contenteditable="plaintext-only"></din-ref-line>
+              </div>
+              <div class="info-row">
+                <span>Datum:</span
+                ><din-date
+                  contenteditable="plaintext-only"
+                  data-placeholder="TT.MM.JJJJ"
+                ></din-date>
+              </div>
+            </din-infoblock>
+
+            <!-- 5. Briefkern (The Payload) -->
+            <article id="brief-kern">
+              <din-subject
+                contenteditable="plaintext-only"
+                data-placeholder="Betreff: Ihr Anliegen"
+              ></din-subject>
+              <din-salutation
+                contenteditable="plaintext-only"
+                data-placeholder="Sehr geehrte Frau Musterfrau,"
+              ></din-salutation>
+
+              <din-page-wrapper>
+                <div class="body-container">
+                  <din-body
+                    contenteditable="plaintext-only"
+                    data-placeholder="Schreiben Sie hier den Text Ihres Briefes... Markdown wird nativ unterstützt."
+                  ></din-body>
+                  <din-body-mirror aria-hidden="true"></din-body-mirror>
+                </div>
+                <din-cma-sensor></din-cma-sensor>
+              </din-page-wrapper>
+
+              <din-closing
+                contenteditable="plaintext-only"
+                data-placeholder="Mit freundlichen Grüßen"
+              ></din-closing>
+              <din-signature
+                contenteditable="plaintext-only"
+                data-placeholder="Max Mustermann"
+              ></din-signature>
+              <din-attachments
+                contenteditable="plaintext-only"
+                data-placeholder="Anlagen"
+              ></din-attachments>
+            </article>
+
+            <!-- 6. Finanzen & Recht (The Compliance) -->
+            <din-footer>
+              <din-bank-data
+                contenteditable="plaintext-only"
+                data-placeholder="IBAN: DE00 0000 0000 0000 0000 00"
+              ></din-bank-data>
+              <din-fiscal-data
+                contenteditable="plaintext-only"
+                data-placeholder="USt-IdNr.: DE 123 456 789"
+              ></din-fiscal-data>
+            </din-footer>
+          </din-page>
+        </din-5008>
+
+        <!-- Decoder Trigger (Aviation Grade Diagnostic) -->
+        <button
+          id="btn-decoder-trigger"
+          class="decoder-btn"
+          commandfor="dialog-decoder"
+          command="show-modal"
+        >
+          🔍 Decoder
+        </button>
+
+        <div id="statusbar-viewport" class="status-bar">Initialisiere...</div>
+      </main>
+    </div>
+
+    <!-- NATIVE POPOVERS & DIALOGS -->
+    <div id="modal-profile" popover class="platinum-dialog">
+      <header class="modal-header">
+        <h3>👤 Absenderprofil</h3>
+        <button
+          class="close-btn"
+          commandfor="modal-profile"
+          command="hide-popover"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="form-section">
+        <div class="inline-controls">
+          <select id="profileSelect">
             <option value="">— Profil wählen —</option>
             <option value="privat">Privat</option>
             <option value="firma">Büro</option>
-        </select>
-        <button type="button" id="btn-profile-save" class="sidebar-btn primary" title="Speichern">💾 Sichern</button>
-    </div>
+          </select>
+          <button
+            type="button"
+            id="btn-profile-save"
+            class="sidebar-btn primary"
+            title="Speichern"
+          >
+            💾 Sichern
+          </button>
+        </div>
 
-    <div class="form-group profile-grid">
-        <div class="profile-field">
+        <div class="form-group profile-grid">
+          <div class="profile-field">
             <label>Name / Firma</label>
-            <input type="text" id="p-name" placeholder="Max Mustermann" data-profile="name">
-        </div>
-        <div class="profile-field">
+            <input
+              type="text"
+              id="p-name"
+              placeholder="Max Mustermann"
+              data-profile="name"
+            />
+          </div>
+          <div class="profile-field">
             <label>c/o (Optional)</label>
-            <input type="text" id="p-co" placeholder="c/o Erika Musterfrau" data-profile="co">
-        </div>
-        <div class="profile-field">
+            <input
+              type="text"
+              id="p-co"
+              placeholder="c/o Erika Musterfrau"
+              data-profile="co"
+            />
+          </div>
+          <div class="profile-field">
             <label>Straße & Hausnummer</label>
-            <input type="text" id="p-street" placeholder="Musterstraße 1" data-profile="street">
-        </div>
-        <div class="profile-field">
+            <input
+              type="text"
+              id="p-street"
+              placeholder="Musterstraße 1"
+              data-profile="street"
+            />
+          </div>
+          <div class="profile-field">
             <label>PLZ & Ort</label>
-            <input type="text" id="p-city" placeholder="12345 Musterstadt" data-profile="city">
-        </div>
-        <div class="profile-field" style="grid-column: span 2;">
+            <input
+              type="text"
+              id="p-city"
+              placeholder="12345 Musterstadt"
+              data-profile="city"
+            />
+          </div>
+          <div class="profile-field" style="grid-column: span 2">
             <label>IBAN (Sovereign Format)</label>
-            <input type="text" id="p-iban" placeholder="DE00 0000 0000 0000 0000 00" data-profile="iban">
+            <input
+              type="text"
+              id="p-iban"
+              placeholder="DE00 0000 0000 0000 0000 00"
+              data-profile="iban"
+            />
+          </div>
         </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<dialog id="dialog-reset" class="platinum-dialog">
-  <h3>Entwurf löschen?</h3>
-  <p>Alle ungespeicherten Änderungen gehen verloren.</p>
-  <div class="dialog-actions">
-    <button id="btn-reset-confirm" class="danger">Löschen</button>
-    <button commandfor="dialog-reset" command="close">Abbrechen</button>
-  </div>
-</dialog>
+    <dialog id="dialog-reset" class="platinum-dialog">
+      <h3>Entwurf löschen?</h3>
+      <p>Alle ungespeicherten Änderungen gehen verloren.</p>
+      <div class="dialog-actions">
+        <button id="btn-reset-confirm" class="danger">Löschen</button>
+        <button commandfor="dialog-reset" command="close">Abbrechen</button>
+      </div>
+    </dialog>
 
-<dialog id="dialog-decoder" class="platinum-dialog decoder-modal">
-  <h3>🗃️ Black Box Decoder — Flight Recorder</h3>
-  <div class="decoder-content">
-    <p>Telemetrie der letzten IMR-Zustandsänderungen:</p>
-    <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
-  </div>
-  <div class="dialog-actions">
-    <button commandfor="dialog-decoder" command="close">Schließen</button>
-  </div>
-</dialog>
+    <dialog id="dialog-decoder" class="platinum-dialog decoder-modal">
+      <h3>🗃️ Black Box Decoder — Flight Recorder</h3>
+      <div class="decoder-content">
+        <p>Telemetrie der letzten IMR-Zustandsänderungen:</p>
+        <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
+      </div>
+      <div class="dialog-actions">
+        <button commandfor="dialog-decoder" command="close">Schließen</button>
+      </div>
+    </dialog>
 
-<script type="module" src="js/core/app.js"></script>
-</body>
+    <script type="module" src="js/core/app.js"></script>
+  </body>
 </html>

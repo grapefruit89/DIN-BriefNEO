@@ -1,71 +1,61 @@
-﻿/**
- * css/din5008-paper.css â€” High-Integrity Pillar 1
+/**
+ * css/din5008-paper.css — High-Integrity Specification
  * [ADR-001] Strictly DIN 5008:2020-03 Dimensions (mm)
- * [ADR-002] CSS Anchor Positioning (Chrome 147 native)
- * [ADR-003] Zero-JS Geometry
  */
 
-@layer din.geometry {
-  /* Hilfslinien (Faltmarken) */
+@layer din.structure {
+  /* Guide Marks (Fold & Hole) */
   .mark {
     position: absolute;
     left: 0;
     width: 5mm;
-    border-top: 0.5pt solid #000;
+    border-top: 0.5pt solid oklch(0% 0 0);
     pointer-events: none;
-    z-index: 10;
   }
-  
-  .mark-fold-1 { top: 105mm; }
-  .mark-fold-2 { top: 210mm; }
-  .mark-loch { top: 148.5mm; width: 7mm; }
 
-  body[data-layout="form-a"] .mark-fold-1 { top: 87mm; }
-  body[data-layout="form-a"] .mark-fold-2 { top: 192mm; }
+  .mark-fold-1 {
+    top: var(--din-mark-fold-1) !important;
+  }
+  .mark-fold-2 {
+    top: var(--din-mark-fold-2) !important;
+  }
+  .mark-loch {
+    top: var(--din-mark-loch) !important;
+    width: 7mm !important;
+  }
 
+  /* Return Address Line */
   din-return-line {
     font-size: 8pt;
-    border-bottom: 0.5pt solid #ccc;
+    border-bottom: 0.5pt solid oklch(0% 0 0 / 0.2);
     margin-bottom: 2mm;
     white-space: nowrap;
     overflow: hidden;
-    height: 0;
-    transition: height 0.3s ease;
-  }
-  
-  din-return-line:not(:empty), din-return-line:focus {
-    height: calc-size(max-content, size);
+    height: 5mm;
+    display: block;
+    color: oklch(40% 0 0);
   }
 
-  /* Brief-Kern (FlieÃŸtext) */
+  /* Main Letter Article */
   #brief-kern {
-    margin-top: 103.4mm; /* Unterkante Infoblock / Betreff-Start */
+    position: absolute;
+    top: calc(var(--din-addr-top) + 58.4mm);
+    left: var(--din-margin-l);
+    right: var(--din-margin-r);
     display: flex;
     flex-direction: column;
   }
 
-  /* [CMD-1] Zero-Scroll Policy: Continuous Content Flow */
-  din-page-wrapper {
-    display: block;
-    overflow: visible; /* Forced visibility, no scrollbars allowed */
-  }
-
-  /* [CMD-2] Page Break Alert removed as it depends on scroll state */
-  .page-break-indicator {
-    display: none !important;
-  }
-
+  /* Body Container (Ghost-Mirror Architecture) */
   .body-container {
     position: relative;
     display: block;
     min-height: 50mm;
-    margin-bottom: 8.46mm; /* 2 Zeilen Abstand */
+    margin-bottom: 8.46mm;
   }
 
-  din-body, din-body-mirror {
-    position: absolute;
-    top: 0;
-    left: 0;
+  din-text,
+  din-text-mirror {
     width: 100%;
     min-height: 100%;
     white-space: pre-wrap;
@@ -78,128 +68,88 @@
     display: block;
   }
 
-  din-body {
+  din-text {
     z-index: 2;
-    color: inherit; /* Visible by default for No-JS fallback */
-    caret-color: #000;
+    color: inherit;
+    caret-color: oklch(0% 0 0);
     background: transparent;
     outline: none;
     field-sizing: content;
   }
 
-  /* When JS is active, hide the real input to show the markdown mirror */
-  body.js-active din-body {
-    color: transparent;
+  /* Focus Logic: Hide Source, Show Mirror */
+  din-text:not(:focus) {
+    opacity: 0;
   }
 
-  din-body-mirror {
+  din-text-mirror {
+    position: absolute;
+    top: 0;
+    left: 0;
     z-index: 1;
-    color: #000;
+    color: oklch(0% 0 0);
     pointer-events: none;
     user-select: none;
   }
 
-  din-body-mirror strong { font-weight: bold; }
-  din-body-mirror em { font-style: italic; }
-
-  /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   * PILLAR 9: NATIVE MULTI-PAGE & BLOCK FRAGMENTATION
-   * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   */
-
-  @page {
-    size: A4;
-    margin: 20mm var(--margin-r, 20mm) 25mm var(--margin-l, 25mm);
-
-    @bottom-center {
-      content: "Seite " counter(page) " von " counter(pages);
-      font-size: 9pt;
-      color: #666;
-    }
-
-    @bottom-left {
-      content: string(footer-data);
-      font-size: 8pt;
-      color: #999;
-    }
+  din-text-mirror strong {
+    font-weight: bold;
+  }
+  din-text-mirror em {
+    font-style: italic;
+  }
+  din-text-mirror blockquote {
+    border-left: 3px solid oklch(80% 0 0);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: oklch(40% 0 0);
   }
 
-  din-address-zone, din-infoblock, din-return-line, din-supplement, 
-  din-salutation, din-signature, din-attachments, .info-row {
-    break-inside: avoid;
-  }
-
-  @page :first {
-    margin-top: 0;
-    @bottom-left { content: none; }
-    @bottom-center { content: none; }
-  }
-
-  @media print {
-    din-page-wrapper {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-
-    .page-break-indicator, .status-bar, #inspector-overlay, #btn-decoder-trigger {
-      display: none !important;
-    }
-
-    din-body, din-return-line, din-supplement, din-subject, din-salutation {
-      width: auto !important;
-      display: inline-grid !important;
-      field-sizing: content;
-    }
-  }
-
-  din-footer {
-    string-set: footer-data content(text);
-  }
-
-  /* Diagnostic & Overlays */
-  .decoder-btn {
-    position: fixed;
-    bottom: 20mm;
-    right: 20mm;
-    z-index: 100;
-    padding: 10px 15px;
-    background: #222;
-    color: #0f0;
-    border: 1pt solid #0f0;
-    border-radius: 4px;
-    font-family: monospace;
-    cursor: pointer;
-  }
-
-  din-5008:has([data-violation="true"]) .decoder-btn {
-    display: block;
-    animation: pulse-red 2s infinite;
-  }
-
-  @keyframes pulse-red {
-    0% { border-color: #0f0; }
-    50% { border-color: #f00; }
-    100% { border-color: #0f0; }
-  }
-
+  /* Placeholder Specification */
   [contenteditable]:empty::before {
     content: attr(data-placeholder);
-    color: #aaa !important; /* Visible even if parent is transparent */
+    color: oklch(70% 0 0) !important;
     font-style: italic;
     pointer-events: none;
     display: block;
   }
 
-  /* Specific fix for din-body placeholder visibility */
-  din-body:empty::before {
-    color: #aaa !important;
-    -webkit-text-fill-color: #aaa !important; /* Fix for transparent text inheritance */
+  [contenteditable]:empty:focus::before {
+    opacity: 0.3;
   }
 
-  /* Placeholder remains visible on focus until typing starts */
-  [contenteditable]:empty:focus::before {
-    content: attr(data-placeholder);
-    opacity: 0.5;
+  /* ── Print Engine Specification ── */
+  @page {
+    size: A4;
+    margin: 20mm var(--din-margin-r) 25mm var(--din-margin-l);
+
+    @bottom-center {
+      content: "Seite " counter(page) " von " counter(pages);
+      font-size: 9pt;
+      color: oklch(50% 0 0);
+    }
+  }
+
+  @page :first {
+    margin-top: 0;
+    @bottom-center {
+      content: none;
+    }
+  }
+
+  @media print {
+    #paper-viewport {
+      background: white !important;
+      padding: 0 !important;
+    }
+    #paper {
+      box-shadow: none !important;
+      margin: 0 !important;
+    }
+    .status-bar,
+    .decoder-btn,
+    #btn-decoder-trigger {
+      display: none !important;
+    }
   }
 }
-

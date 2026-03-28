@@ -25,12 +25,6 @@
       "args": ["-y", "chrome-devtools-mcp@latest"],
       "trust": true
     },
-    "figma-official": {
-      "command": "https://mcp.figma.com/mcp",
-      "args": [],
-      "transport": "sse",
-      "trust": true
-    },
     "accessibility": {
       "command": "npx",
       "args": ["-y", "a11y-mcp"],

@@ -1,0 +1,113 @@
+/* ==========================================================================
+   platinum-locked.css – 100% deklarativ | Aviation Grade Write-Protected
+   Darf NIE von KI oder CLI verändert werden! [MANDATE-013]
+   ========================================================================== */
+
+@layer platinum.locked !important {
+
+  :root {
+    --c-sidebar-bg:        #0a0a0a;
+    --din-paper-shadow:    0 8px 32px rgba(0,0,0,0.45);
+    --din-guide-opacity:   0.18;
+    --din-placeholder-color: #aaaaaa;
+    --c-accent-blue:       #0066ff;
+  }
+
+  /* ── Sidebar exakt wie im Screenshot ─────────────────────────────── */
+  #sidebar-left {
+    background: var(--c-sidebar-bg);
+    padding: 2.4rem 1.8rem;
+    gap: 2.8rem;
+    border-right: 1px solid #1a1a1a;
+  }
+
+  .sidebar-header {
+    padding-bottom: 1.6rem;
+    border-bottom: 1px solid #222;
+  }
+
+  .sidebar-brand {
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    font-weight: 500;
+    color: #ccc;
+  }
+
+  .sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .sidebar-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #777;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Buttons exakt wie im Bild */
+  .sidebar-btn {
+    background: #111;
+    border: 1px solid #222;
+    color: #ddd;
+    padding: 0.85rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .sidebar-btn:hover,
+  .sidebar-btn[aria-pressed="true"] {
+    background: #1f1f1f;
+    border-color: #444;
+    color: white;
+  }
+
+  .sidebar-btn.primary {
+    background: var(--c-accent-blue);
+    border: none;
+    color: white;
+  }
+
+  /* ── Paper exakt wie im Screenshot ─────────────────────────────── */
+  #paper {
+    background: white;
+    box-shadow: var(--din-paper-shadow);
+    border: 1px solid #e8e8e8 !important;
+    margin: 3rem auto;
+    max-width: 210mm;
+    min-height: 297mm;
+  }
+
+  /* Platzhalter exakt wie im Bild */
+  [data-placeholder]::before,
+  din-body:empty::before,
+  din-salutation:empty::before,
+  din-greeting:empty::before {
+    content: attr(data-placeholder);
+    color: var(--din-placeholder-color);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  /* Hilfslinien – immer leicht sichtbar wie im Screenshot */
+  .fold-mark,
+  .punch-mark,
+  .guide-line,
+  .mark {
+    opacity: var(--din-guide-opacity) !important;
+    display: block !important;
+  }
+
+  /* Footer-Buttons unten zentriert */
+  #action-footer {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+  }
+}

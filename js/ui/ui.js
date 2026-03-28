@@ -694,25 +694,46 @@ export class UIController {
   }
 
   /**
-   * [SPEC-080] Real-time Time Watchdog
-   * Checks every minute if a theme transition (21:00 or 06:00) is needed.
+   * [SPEC-080] Precision Pulse Time Watchdog
+   * Schedules exactly ONE timer for the next theme transition.
+   * Efficient, precise, and battery-friendly.
    */
   _startNightWatchdog() {
-    const check = () => {
-      // If manually set, we don't interfere anymore for this session
+    const scheduleNext = () => {
       if (this.sm.state.config.theme_manually_set) return;
 
-      const isNight = Logic.isNightTime();
-      const targetTheme = isNight ? "night" : "day";
+      const msUntilNext = Logic.getMsUntilNextThemeTransition();
+      console.debug(`[Smart-Night] Next transition scheduled in ${Math.round(msUntilNext/1000/60)} minutes.`);
 
-      if (this.sm.state.config.theme !== targetTheme) {
-        console.info(`[Smart-Night] Auto-Transition to ${targetTheme}`);
-        this.sm.update("config.theme", targetTheme, "auto-night");
-        this._syncAllToDOM();
-      }
-      setTimeout(check, 60000); // Check once per minute
+      // Ein einziger, präziser Timer
+      this._nightTimer = setTimeout(() => {
+        const isNight = Logic.isNightTime();
+        const targetTheme = isNight ? "night" : "day";
+        
+        if (this.sm.state.config.theme !== targetTheme) {
+          console.info(`[Smart-Night] Precision Transition triggered: ${targetTheme}`);
+          this.sm.update("config.theme", targetTheme, "auto-night");
+          this._syncAllToDOM();
+        }
+        scheduleNext(); // Nächsten Zyklus planen (z.B. Morgen früh)
+      }, msUntilNext + 1000); // +1s Puffer für CPU-Drift
     };
-    setTimeout(check, 1000);
+
+    // [Resync on Wake-up] Falls der Rechner im Standby war
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        const isNight = Logic.isNightTime();
+        const targetTheme = isNight ? "night" : "day";
+        if (!this.sm.state.config.theme_manually_set && this.sm.state.config.theme !== targetTheme) {
+          this.sm.update("config.theme", targetTheme, "auto-night");
+          this._syncAllToDOM();
+          clearTimeout(this._nightTimer);
+          scheduleNext();
+        }
+      }
+    });
+
+    scheduleNext();
   }
 }
 

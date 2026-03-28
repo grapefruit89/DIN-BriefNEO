@@ -1,37 +1,60 @@
 /**
- * js/services/address-service.js — Pure Data Fetching Layer
- * [GEMINI.md] EISERNES GESETZ: 0% DOM-Zugriff. NUR fetch().
- * Baseline: Chrome 147+ (Async/Await).
+ * js/services/address-service.js — Data Fetching & Autocomplete Controller
+ * [ADR-008] Decoupled Data & View
+ * [CMD-6] CSS Anchor Positioning (Chrome 125+)
+ * ───────────────────────────────────────────────────────────────
  */
 
 export class AddressService {
-    constructor(config) {
-        this.config = config; // Needs access to provider and apiKey
-    }
+  constructor(sm, ui) {
+    this.sm = sm;
+    this.ui = ui;
+    this._debounce = null;
+  }
 
-    /**
-     * Holt Vorschläge von Photon oder Geoapify.
-     * @returns {Promise<Array>} Features array
-     */
-    async fetchSuggestions(query) {
-        if (!query || query.length < 3) return [];
+  init() {
+    const fields = [
+      { tag: "din-empfaenger-strasse", anchor: "--anchor-rect-st" },
+      { tag: "din-empfaenger-ort", anchor: "--anchor-rect-city" },
+    ];
 
-        try {
-            let url = '';
-            if (this.config.addressProvider === 'photon') {
-                url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=de&limit=5`;
-            } else {
-                if (!this.config.apiKey) return [];
-                url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${this.config.apiKey}&limit=5&lang=de`;
-            }
+    fields.forEach(({ tag, anchor }) => {
+      const el = document.querySelector(tag);
+      if (!el) return;
 
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
-            const data = await response.json();
-            return data.features || [];
-        } catch (err) {
-            console.error("[Service] Fetch failed:", err);
-            return [];
+      el.addEventListener("input", (e) => {
+        clearTimeout(this._debounce);
+        const query = e.target.textContent;
+
+        if (query.length < 3) {
+          this.ui._closeAutocomplete();
+          return;
         }
+
+        this._debounce = setTimeout(
+          () => this._performSearch(query, anchor),
+          300,
+        );
+      });
+
+      // Close on blur (delayed to allow clicks)
+      el.addEventListener("blur", () => {
+        setTimeout(() => this.ui._closeAutocomplete(), 200);
+      });
+    });
+  }
+
+  async _performSearch(query, anchor) {
+    try {
+      // Default to Photon (No Key required)
+      const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=de&limit=5`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`API Error: ${response.status}`);
+      const data = await response.json();
+
+      this.ui._renderSuggestions(data.features || [], anchor);
+    } catch (err) {
+      console.error("[Service] Autocomplete failed:", err);
     }
+  }
 }

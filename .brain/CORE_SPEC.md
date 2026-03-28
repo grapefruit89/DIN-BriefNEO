@@ -1,5 +1,20 @@
+---
+id: BRAIN-002-SPEC
+title: "Core Specification (IMR 4.0)"
+version: 4.0.0
+status: "active"
+geometry: "DIN 5008:2020-03"
+last_audit: 2026-03-28
+tags:
+  - specification
+  - din-5008
+  - imr-4-0
+related:
+  - "[[CONSTITUTION]]"
+  - "[[ANTI_PATTERN]]"
+---
+
 # Core Specification (IMR 4.0)
-**Status**: ACTIVE | **Geometry**: DIN 5008:2020-03
 
 ## 1. ATOMIC CUSTOM ELEMENTS
 The system implements a 19-atom model using native Custom Elements.

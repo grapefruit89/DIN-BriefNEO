@@ -1,5 +1,19 @@
+---
+id: BRAIN-003-APR
+title: "Anti-Pattern Registry (The Cemetery)"
+status: "cemented"
+enforcement: "AUTOMATED PVP"
+last_audit: 2026-03-28
+tags:
+  - anti-pattern
+  - technical-debt
+  - cemetery
+related:
+  - "[[CONSTITUTION]]"
+  - "[[CORE_SPEC]]"
+---
+
 # Anti-Pattern Registry (The Cemetery)
-**Status**: CEMENTED | **Enforcement**: AUTOMATED PVP
 
 ## 1. PERSISTENCE (APR-P)
 - **APR-P001:** `localStorage` for high-volume data (use OPFS/Batch instead).

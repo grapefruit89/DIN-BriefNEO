@@ -1,5 +1,24 @@
+---
+id: BRAIN-001-CONST
+title: "Architectural Constitution (SSoT)"
+version: 4.0.0
+status: "verified"
+compliance: "PLATINUM-2026"
+authority: "[[SUPREME]]"
+last_audit: 2026-03-28
+tags:
+  - architecture
+  - ssot
+  - mission-critical
+related:
+  - "[[CORE_SPEC]]"
+  - "[[ANTI_PATTERN]]"
+aliases:
+  - "Verfassung"
+  - "Architectural Law"
+---
+
 # Architectural Constitution (SSoT)
-**Status**: VERIFIED | **Compliance**: PLATINUM 2026 | **Authority**: SUPREME
 
 ## I. CORE ARCHITECTURAL PRINCIPLES
 
@@ -28,4 +47,4 @@ The document consists of 19 atomic fields defined in the `Isomorphic Master Regi
 Zero layout shift after initialization. Every pixel is deterministic.
 
 ## III. DATA SOVEREIGNTY
-The JSON data model is the single source of truth. HTML is strictly the presentation layer.
+The JSON data model is the single source of truth (SSoT). HTML is strictly the presentation layer.

@@ -1,26 +1,16 @@
 ﻿/**
  * js/logic/logic.js â€” Pure Business Logic Engine
- * DIN-BriefNEO Â· v4.0 V14 | SPEC-002, SPEC-007, CAA-008, PLAN-010, ADR-008
+ * v4.0 Standard Specification | IMR 4.0 | DIN 5008:2020-03
  * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * ZERO DOM. ZERO State-Imports. Pure Input â†’ Output.
  *
- * IMR 2.0 (2026-03-20 / PLAN-010):
- *   readDOMasJSON() scannt <din-*> Tags direkt.
- *   Kein domId-Lookup mehr â€” tag.slice(4) IS der Key.
- *   Normalisierung: "din-your-ref" â†’ "your_ref" (Bindestrichâ†’Unterstrich)
- *
- * ADR-008 (2026-03-20):
- *   readDOMasJSON() liest IMMER textContent, nie innerHTML (TOMB-L008).
- *   richText-Flag aus IMR entfernt. Ghost-Mirror ist die einzige
- *   Formatierungs-Visualisierung â€” sie wird hier nicht gelesen.
+ * IMR 4.0 (2026-03-28):
+ *   readDOMasJSON() scannt <din-*> Tags direkt basierend auf IMR-Registry.
+ *   textContent ist die alleinige Source of Truth (SSoT).
  */
 
 import { IMR, AI_INTENTS } from "../core/constants.js";
 export * from "./greetings.js";
-
-/* â”€â”€ Hilfsfunktion: Tag-Name â†’ JSON-Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-// "din-your-ref" â†’ "your_ref"  |  "din-body" â†’ "body"
-const tagToKey = (tag) => tag.toLowerCase().slice(4).replace(/-/g, "_");
 
 /* â”€â”€ Date (TOMB-LEGACY-001: Temporal API Proof) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
@@ -179,7 +169,7 @@ export function parseRecipient(text) {
  * Priority 1: Chrome 147+ Math.sumPrecise (Native LayoutNG Speed)
  * Priority 2: Cent-Based Fallback (No Float Drift)
  */
-export const AviationMath = Object.freeze({
+export const PrecisionMath = Object.freeze({
   sum(values) {
     if (!values || !Array.isArray(values)) return 0;
 
@@ -195,7 +185,7 @@ export const AviationMath = Object.freeze({
 });
 
 export function sumFinancials(values) {
-  return AviationMath.sum(values);
+  return PrecisionMath.sum(values);
 }
 
 /* â”€â”€ Return Address (High-Integrity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -447,65 +437,53 @@ export function executeAIResponse(json) {
 /**
  * Baut den Interview-Prompt (leerer Brief).
  * Semantic-Emphasis: Benennt die <din-*> Tags explizit.
- * Few-Shot Beispiele aus .brain/12_akinator_logic.md Sektion B.
  */
 export function buildInterviewPrompt() {
   const tagAnnotated = IMR.map(
     (e) => `  "${e.key}": null   // <${e.tag}>`,
   ).join(",\n");
 
-  return `# DIN-BriefNEO â€” High-Integrity Interview-Modus
-# Isomorphic Master Registry 2.0 | CAA-008 | ADR-008 | PLAN-010
+  return `# DIN-BriefNEO â€” High-Integrity Interview Mode
+# IMR 4.0 Specification | v4.0 Standard
 
-Du bist ein Assistent fuer professionelle Geschaeftskorrespondenz nach DIN 5008:2020-03.
-Dieses System ist High-Integrity â€” jeder JSON-Key entspricht EXAKT einem
-physischen Millimeter-Feld auf dem DIN-A4-Blatt (Custom HTML-Tag).
+You are an assistant for professional correspondence based on DIN 5008:2020-03.
+This system is High-Integrity â€” every JSON key corresponds EXACTLY to a 
+physical millimeter field on the A4 page (Custom HTML tag).
 
-## Kanonisches Schema (IMR 2.0 â€” EXAKT diese Keys)
+## Canonical Schema (IMR 4.0 â€” use EXACTLY these keys)
 \```json
 {
-  "intent":     null,   // [NEU] System-Aktion (z.B. "action:print", "action:save_local")
+  "intent":     null,   // System Action (e.g., "action:print", "action:save_local")
 ${tagAnnotated}
 }
 \```
 
 ## System-Intents (Optional)
-Wenn du den Brief fertiggestellt hast, kannst du folgende Aktionen via "intent"-Key ausloesen:
-- "${AI_INTENTS.PRINT}": Oeffnet sofort den Druckdialog
-- "${AI_INTENTS.SAVE}":  Sichert den Stand im lokalen Speicher
-- "${AI_INTENTS.GHOST}": Schaltet Falzmarken-Hilfslinien ein/aus
+Once the letter is complete, you can trigger actions via the "intent" key:
+- "${AI_INTENTS.PRINT}": Opens print dialog immediately
+- "${AI_INTENTS.SAVE}":  Persists state to local storage
+- "${AI_INTENTS.GHOST}": Toggles layout guide lines
 
-## Pflicht-Regeln
-- ALLE Keys ausgeben â€” leere Felder als \`null\`, nicht weglassen
-- \`salutation\`: Vollstaendige DIN-Anrede ("Sehr geehrter Herr Mustermann,")
-- \`greeting\`: KEIN Satzzeichen am Ende (DIN 5008 Â§6.3)
-- \`subject\`: Praegnant, max. 1 Zeile, keine Abkuerzungen
-- \`sender\`: Einzeiler im Format "V. Nachname Â· StraÃŸe Nr. Â· PLZ Ort"
+## Technical Rules
+- Output ALL keys â€” empty fields as \`null\`, do not omit
+- \`salutation\`: Full DIN salutation ("Sehr geehrter Herr Mustermann,")
+- \`greeting\`: NO punctuation at the end (DIN 5008 compliance)
+- \`subject\`: Concise, max 1 line
+- \`sender_*\`: Granular identity atoms (FirstName, LastName, Street, City)
+- \`rect_*\`: Granular recipient atoms (Company, Name, Street, City)
 
-## Markdown-Verwendungsregel (STRIKT)
-ERLAUBT: Nur im "body"-Feld: *kursiv*, **fett**, ~~gestrichen**, > Zitat, \`code\`, Listen, Tabellen
-VERBOTEN: Markdown in sender, note, recipient, date, your_ref, our_ref,
-          subject, salutation, greeting, signature, footer. Dort: reiner Plaintext.
+## Markdown Usage (STRICT)
+ALLOWED: Only in "body" field: *italic*, **bold**, > Blockquote, \`code\`, Lists
+FORBIDDEN: Markdown in all other fields. Use pure plaintext.
 
-## Few-Shot Beispiel 1 â€” Impressum â†’ sender
-Input: "Max Mustermann GmbH, Musterstr. 42, 12345 Berlin, USt-ID: DE123"
-Output sender: "M. Mustermann GmbH Â· MusterstraÃŸe 42 Â· 12345 Berlin"
-Regel: Einzeiler, Name abgekuerzt, kein Impressum-Overhead.
+## Example: Granular Identity
+Input: "Max Mustermann, Musterstr. 42, 12345 Berlin"
+Output: sender_fn="Max", sender_ln="Mustermann", sender_st="MusterstraÃŸe 42", sender_city="12345 Berlin"
 
-## Few-Shot Beispiel 2 â€” WhatsApp â†’ Formaler Brief
-Input: "hey ich brauch nen brief, mein vermieter soll kaution zurueckzahlen, 3 monate nichts gehÃ¶rt"
-Output: Vollstaendiges JSON mit Â§ 548 BGB Referenz, berechneter 14-Tage-Frist,
-        formaler Anrede, Markdown-Freiheit nur in body.
-
-## Few-Shot Beispiel 3 â€” Angebot mit Referenzzeilen
-Input: "Angebot Webdev fuer Berger AG, Unsere Ref: NX-044, Ihre Anfrage 15.03."
-Output: your_ref="Anfrage vom 15.03.2026", our_ref="NX-044", subject="Angebot Webentwicklung",
-        Markdown-Tabelle mit Preisen im body.
-
-## Aufgabe
-Stelle mir maximal 5 gezielte Fragen (Empfaenger, Anlass, Ton, Fristen, Anlagen).
-Danach generiere den vollstaendigen Brief als JSON.
-Beginne mit Frage 1.`;
+## Task
+Ask a maximum of 5 targeted questions (Recipient, Purpose, Tone, Deadlines, Attachments).
+Then generate the complete letter as JSON.
+Begin with Question 1.`;
 }
 
 /**
@@ -521,13 +499,13 @@ export function buildOptimizationPrompt() {
     return `  "${key}": ${display}   // <${tag}>`;
   }).join(",\n");
 
-  return `# DIN-BriefNEO â€” Optimierungs-Modus
-# IMR 2.0 | CAA-008 | ADR-008
+  return `# DIN-BriefNEO â€” Optimization Mode
+# IMR 4.0 Specification | v4.0 Standard
 
-Optimiere den folgenden DIN 5008-Briefentwurf.
-Jeder Key ist direkt einem HTML-Tag auf dem Papier zugeordnet.
+Optimize the following DIN 5008 draft.
+Every key is directly mapped to an HTML tag on the page.
 
-## Aktueller Stand (Tag â†” JSON)
+## Current State (Tag â†” JSON)
 \```json
 {
   "intent": null,
@@ -536,21 +514,21 @@ ${rows}
 \```
 
 ## System-Intents (Optional)
-Du kannst folgende Aktionen via "intent"-Key auslÃ¶sen:
-- "${AI_INTENTS.PRINT}": Ã–ffnet sofort den Druckdialog
-- "${AI_INTENTS.SAVE}":  Sichert den Stand im lokalen Speicher
+You can trigger actions via the "intent" key:
+- "${AI_INTENTS.PRINT}": Opens print dialog immediately
+- "${AI_INTENTS.SAVE}":  Persists state to local storage
 
-## Markdown-Regel
-NUR "body" darf Markdown enthalten. Alle anderen Felder: Plaintext.
+## Markdown Rule
+ONLY "body" may contain Markdown. All other fields: Plaintext only.
 
-## Pruefkriterien
-- Betreff (<din-subject>): Praegnant, klar, ohne Floskeln
-- Anrede (<din-salutation>): Korrekte DIN-Form
-- Brieftext (<din-body>): Struktur, Ton, Vollstaendigkeit, Rechtschreibung
-- Grussformel (<din-greeting>): Ohne Satzzeichen am Ende (DIN 5008)
-- Footer (<din-footer>): Geschaeftsangaben (Bank, USt-IdNr, Sitz). NUR wenn vom User gewuenscht.
+## Review Criteria
+- Subject (<din-subject>): Concise, clear
+- Salutation (<din-anrede>): Correct DIN form
+- Body (<din-text>): Structure, tone, completeness
+- Greeting (<din-grussformel>): NO punctuation at the end (DIN 5008)
+- Footer (<din-fusszeile>): Legal/Bank details if required.
 
-## Ausgabe
+## Output
 Vollstaendiges JSON mit ALLEN IMR-Keys. Kurze Begruendung (3 Saetze) danach.
 `;
 }

@@ -1,71 +1,70 @@
-﻿# ðŸ“œ SYSTEM_v4.0_SSOT.md
-# ðŸ’Ž v4.0_PROTOCOL_V3.LOCKED
-# Status: CEMENTED (LOCKED) | Version: 3.1.0 | Baseline: Chrome 147+
+# Architecture Specification: SYSTEM_SSOT.md
+# v4.0 Standard Protocol
+**Status**: VERIFIED | **Version**: 4.0.0 | **Baseline**: Chrome 147+
 
-Dieses Dokument ist die **Single Source of Truth (SSoT)** fÃ¼r die IMR 3.1 (Isomorphe Master-Registry). Es terminiert alle bisherigen Implementierungen und ist das absolute Gesetz fÃ¼r die maschinelle Isomorphie zwischen der DIN 5008:2020 und der Blink-Direct Architektur. Jede Abweichung ist eine **CMA_VIOLATION**.
-
----
-
-## 1. Autonomous SEMANTIC MATRIX V3.1
-
-### Layout & Struktur
-| DIN-Element | Custom-Tag | Chrome 147 Engine Binding |
-| :--- | :--- | :--- |
-| **Root-Container** | `<din-5008 data-form="A|B">` | Steuert das gesamte Layout-Grid (Form A oder B). |
-| **Papier-Monolith** | `<din-page>` | Absoluter A4-Monolith, zementierte Proportionen. |
-| **CMA-Sensor** | `<din-cma-sensor>` | IntersectionObserver fÃ¼r Overflow-Detection (280mm). |
-
-### IdentitÃ¤t & Branding
-| DIN-Element | Custom-Tag | Funktion |
-| :--- | :--- | :--- |
-| **Briefkopf** | `<din-header>` | Container fÃ¼r Logos und Absender-Stammdaten. |
-| **Logo** | `<din-logo>` | Firmenlogo-Platzhalter. |
-| **Absender-Details**| `<din-sender-details>`| Granulare Meta-Daten des Absenders. |
-| **V-Card / QR** | `<din-vcard>` | QR-Logik-Injektion. |
-
-### Anschrift (11-Zeilen-Modell)
-| DIN-Element | Custom-Tag | Constraint |
-| :--- | :--- | :--- |
-| **Gesamte Zone** | `<din-address-zone>` | 85x45mm Hard Constraint. |
-| **RÃ¼cksendeangabe** | `<din-return-line>` | Zeile 1-3 (Obere Zone). |
-| **Zusatz/Vermerk** | `<din-supplement>` | Zeile 4-5 (Obere Zone). |
-| **EmpfÃ¤nger** | `<din-recipient>` | Zeile 6-11 (Untere Zone). Ãœberwacht durch Greetings Matrix. |
-
-### Metadaten & LeitwÃ¶rter
-| DIN-Element | Custom-Tag | Binding / Engine |
-| :--- | :--- | :--- |
-| **Informationsblock** | `<din-infoblock>` | 75mm rechts positioniert. |
-| **LeitwÃ¶rter** | `<din-ref-line>` | "Ihr Zeichen", "Unser Zeichen". |
-| **Datum** | `<din-date>` | **Temporal API** (Strict ISO-Handling). |
-
-### Briefkern (Blink-Direct)
-| DIN-Element | Custom-Tag | Constraint & API |
-| :--- | :--- | :--- |
-| **Betreff** | `<din-subject>` | 2-Leerzeilen-Constraint. |
-| **Anrede** | `<din-salutation>` | Gesteuert durch Greetings Matrix basierend auf `<din-recipient>`. |
-| **Haupttext** | `<din-body>` | **EditContext API** (transparentes Eingabefeld, entkoppelt vom DOM). |
-| **Visueller Text** | `<din-body-mirror>` | **Sanitizer API** (`setHTML`), rendert das Ghost-Mirror SPEC-066. |
-| **GruÃŸformel** | `<din-closing>` | Gesteuert durch Greetings Matrix. |
-| **Unterschrift** | `<din-signature>` | Maschinenschriftliche Signatur. |
-| **Anlagen** | `<din-attachments>` | Anlagenvermerk am Briefende. |
-
-### Compliance & Sicherheit
-| DIN-Element | Custom-Tag | Sicherheits-Constraint |
-| :--- | :--- | :--- |
-| **Werte/BetrÃ¤ge** | `<din-amount>` | **AviationMath Cent-Fallback** (V8 Floating-Point PrÃ¤vention). |
-| **Bankdaten** | `<din-bank-data>` | IBAN Modulo-97 BigInt Validierung. |
-| **FuÃŸzeile** | `<din-footer>` | `@page` Margin-Box Bindung. |
+This document is the **Single Source of Truth (SSoT)** for the IMR 4.0 (Isomorphic Master Registry). It defines the machine-level isomorphism between DIN 5008:2020-03 standards and the native browser implementation. Any deviation is a **PRECISION_VIOLATION**.
 
 ---
 
-## 2. MANDATORY ARCHITECTURAL CONSTRAINTS
+## 1. High-Integrity SEMANTIC MATRIX v4.0
 
-*   **Constraint [MANDATE-TAG]:** Jedes HTML-Tag im Briefvordruck MUSS das PrÃ¤fix `din-` tragen. W3C-KonformitÃ¤t ist heilig; Tags ohne Bindestrich sind verboten.
-*   **Constraint [MANDATE-INJ]:** `innerHTML` ist global vaporisiert. Nutze fÃ¼r alle DOM-Injektionen ausnahmslos `setHTML(html, { sanitizer: v4.0_CONFIG })`.
-*   **Constraint [MANDATE-UI]:** Alle MaÃŸe werden zwingend als `@property` mit `inherits: false` registriert, um die Render-Performance der Blink-Engine zu maximieren.
-*   **Constraint [MANDATE-WYSIWYG]:** Die Bearbeitung erfolgt zu 100% WYSIWYG direkt auf dem Dokument. Der Textfluss wird vollstÃ¤ndig Ã¼ber die **EditContext API** gesteuert.
-*   **Constraint [MANDATE-SSOT]:** Jede Abweichung von dieser Tag-Struktur fÃ¼hrt zum sofortigen System-Halt der IMR-Validierung.
+### Layout & Structure
+| Element | Custom-Tag | Chrome 147 Engine Binding |
+| :--- | :--- | :--- |
+| **Root** | `<din-5008>` | Master container for DIN logic. |
+| **Paper** | `<din-A4>` | Fixed 210x297mm physical simulation. |
 
-**Gezeichnet:**
-*Der v4.0 Architect (Gemini CLI)*
+### Identity (Header Atoms)
+| DIN Element | Custom-Tag | IMR Key |
+| :--- | :--- | :--- |
+| **First Name**| `<din-absender-vorname>` | `sender_fn` |
+| **Last Name** | `<din-absender-nachname>`| `sender_ln` |
+| **Street**    | `<din-absender-strasse>` | `sender_st` |
+| **City/ZIP**  | `<din-absender-ort>`     | `sender_city` |
 
+### Address Zone (85x45mm Atoms)
+| DIN Element | Custom-Tag | IMR Key |
+| :--- | :--- | :--- |
+| **Return Line**| `<din-return-line>` | `return_line` |
+| **Supplement** | `<din-supplement>` | `supplement` |
+| **Company**    | `<din-empfaenger-firma>` | `rect_co` |
+| **Name**       | `<din-empfaenger-name>`  | `rect_name` |
+| **Street**     | `<din-empfaenger-strasse>`| `rect_st` |
+| **City/ZIP**   | `<din-empfaenger-ort>`   | `rect_city` |
+
+### Metadata & Metadata
+| DIN Element | Custom-Tag | IMR Key |
+| :--- | :--- | :--- |
+| **Info Block** | `<din-infoblock>` | Container (125mm Left) |
+| **Ref Ihr**    | `<din-ref-ihr>` | `ref_ihr` |
+| **Ref Unser**  | `<din-ref-unser>` | `ref_unser` |
+| **Date**       | `<din-date>` | `date` (50mm Top) |
+
+### Core Content
+| DIN Element | Custom-Tag | API / Binding |
+| :--- | :--- | :--- |
+| **Subject**    | `<din-subject>` | 2-line spacing constraint. |
+| **Salutation** | `<din-anrede>` | Reactive Matrix update. |
+| **Body (Source)**| `<din-text>` | **EditContext API**. |
+| **Body (View)**  | `<din-text-mirror>` | **Sanitizer API** (`setHTML`). |
+| **Greeting**   | `<din-grussformel>` | No trailing punctuation. |
+| **Signature**  | `<din-signature>` | `signature` key. |
+| **Attachments**| `<din-attachments>` | Optional end-matter. |
+
+### Legal & Financial
+| DIN Element | Custom-Tag | Enforcement |
+| :--- | :--- | :--- |
+| **Bank Data**  | `<din-bank-data>` | IBAN Modulo-97 BigInt. |
+| **Fiscal Data**| `<din-fiscal-data>` | `footer` container binding. |
+
+---
+
+## 2. MANDATORY CONSTRAINTS
+
+*   **[MANDATE-TAG]**: Every letter-specific HTML tag MUST use the `din-` prefix.
+*   **[MANDATE-INJ]**: `innerHTML` is strictly prohibited. Use `setHTML(html, { sanitizer: CORE_SANITIZER })`.
+*   **[MANDATE-UI]**: All geometric measurements are registered as `@property` via CSS.
+*   **[MANDATE-WYSIWYG]**: Input is handled via **EditContext API** to decouple data from DOM representation.
+
+**Lead Architect**
+*Gemini CLI*

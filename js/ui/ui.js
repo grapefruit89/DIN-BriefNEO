@@ -147,7 +147,7 @@ export class UIController {
     const salutationEl = document.querySelector("din-anrede");
     if (salutationEl) {
       // Wir nutzen die State-Formality (Default: formal)
-      const formality = this.sm.state.content.formality || "formal";
+      const formality = this.sm.state.config.formality || "formal";
       Logic.updateSalutationHint(
         salutationEl,
         analysis,
@@ -378,28 +378,25 @@ export class UIController {
         if (!this.sm.state.config.profiles) this.sm.state.config.profiles = {};
         this.sm.state.config.profiles[key] = data;
 
-        // Apply to Document (High-Integrity Sync)
-        const nameLine = data.co ? `${data.name}, c/o ${data.co}` : data.name;
-        const senderDetails = `${nameLine}\n${data.street}\n${data.city}`;
+        // Apply to Document (IMR 4.0 Granular Atoms)
+        const [firstName, ...lastNameParts] = (data.name || "").split(" ");
+        const lastName = lastNameParts.join(" ");
+
+        this.sm.update("content.sender_fn", firstName, "profile");
+        this.sm.update("content.sender_ln", lastName, "profile");
+        this.sm.update("content.sender_st", data.street, "profile");
+        this.sm.update("content.sender_city", data.city, "profile");
+
         const returnLine = Logic.deriveReturnLine({
           name: data.name,
           co: data.co,
           street: data.street,
           zipCity: data.city,
         });
-
-        this.sm.update("content.sender", senderDetails, "profile");
         this.sm.update("content.return_line", returnLine, "profile");
 
-        // Sync to DOM
-        this._updateDOMSafe(
-          document.querySelector("din-sender-details"),
-          senderDetails,
-        );
-        this._updateDOMSafe(
-          document.querySelector("din-return-line"),
-          returnLine,
-        );
+        // Sync to DOM via global re-sync
+        this._syncAllToDOM();
 
         modalProfile.hidePopover();
       });
@@ -500,7 +497,7 @@ export class UIController {
           this.sm.state.content[entry.key] = text;
         }
         // Trigger Greetings Matrix on recipient change
-        if (entry.key === "recipient") {
+        if (entry.key === "rect_name") {
           this._triggerSalutationUpdate(text);
         }
       }
@@ -539,16 +536,20 @@ export class UIController {
 
   _selectAddress(feature) {
     const p = feature.properties;
-    let text = "";
-    if (p.formatted) {
-      text = p.formatted.split(", ").join("\n");
-    } else {
-      text =
-        `${p.name || ""}\n${p.street} ${p.housenumber || ""}\n${p.postcode} ${p.city}`.trim();
-    }
-    this.sm.update("content.recipient", text, "ui");
+    
+    const name = p.name || (p.formatted ? p.formatted.split(",")[0] : "");
+    const street = p.street ? `${p.street} ${p.housenumber || ""}` : "";
+    const city = p.postcode ? `${p.postcode} ${p.city}` : p.city || "";
+
+    this.sm.update("content.rect_name", name, "ui");
+    this.sm.update("content.rect_st", street, "ui");
+    this.sm.update("content.rect_city", city, "ui");
+
     this._syncAllToDOM();
     this._closeAutocomplete();
+    
+    // Also trigger salutation
+    this._triggerSalutationUpdate(name);
   }
 
   _closeAutocomplete() {

@@ -40,11 +40,12 @@ export const DEFAULT_STATE = Object.freeze({
     footer:         '',
   },
   config: {
-    layout:     'form-b',
-    guides:     true,
-    theme:      'day',
+    layout: 'form-b',
+    guides: true,
+    theme: 'day',
+    formality: 'formal',
     dateFormat: 'de',
-    profiles:   {}
+    profiles: {},
   },
   profile: {
     fn: '', ln: '', street: '', city: '', iban: '',

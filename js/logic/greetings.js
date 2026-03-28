@@ -79,28 +79,40 @@ export const GreetingsMatrix = {
 /**
  * [SPEC-002] Hybrid-Adapter: Aktualisiert Placeholder/Content.
  */
-export function updateSalutationHint(el, analysis, formality, recipientType, currentText = null) {
-    if (!el || el.dataset.auto === 'false') return;
-    
-    const textToProcess = currentText !== null ? currentText : (document.querySelector('din-recipient')?.textContent || "");
-    const sal = GreetingsMatrix.process(textToProcess, formality);
-    
-    el.dataset.placeholder = sal;
-    
-    if (!el.textContent.trim()) {
-        el.textContent = sal;
-    }
+export function updateSalutationHint(
+  el,
+  analysis,
+  formality,
+  recipientType,
+  currentText = null,
+) {
+  if (!el || el.dataset.auto === "false") return;
+
+  const textToProcess =
+    currentText !== null
+      ? currentText
+      : document.querySelector("din-empfaenger-name")?.textContent || "";
+  const sal = GreetingsMatrix.process(textToProcess, formality);
+
+  el.dataset.placeholder = sal;
+
+  if (!el.textContent.trim()) {
+    el.textContent = sal;
+  }
 }
 
 export const GREETING_MAP = {
-    formal: 'Mit freundlichen GrÃ¼ÃŸen',
-    polite: 'Freundliche GrÃ¼ÃŸe',
-    casual: 'Viele GrÃ¼ÃŸe',
+  formal: "Mit freundlichen GrÃ¼ÃŸen",
+  polite: "Freundliche GrÃ¼ÃŸe",
+  casual: "Viele GrÃ¼ÃŸe",
 };
 
 export function deriveSalutation(analysis, formality, recipientType) {
-    const recipientEl = document.querySelector('din-recipient');
-    return GreetingsMatrix.process(recipientEl ? recipientEl.textContent : "", formality);
+  const recipientEl = document.querySelector("din-empfaenger-name");
+  return GreetingsMatrix.process(
+    recipientEl ? recipientEl.textContent : "",
+    formality,
+  );
 }
 
 export function deriveGreeting(formality = 'formal') {

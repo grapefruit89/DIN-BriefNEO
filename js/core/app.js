@@ -27,9 +27,9 @@ const ROOT  = 'DIN-BriefNEO';
 const VER   = '18.0.0';
 
 /**
- * â”€â”€ Aviation-Grade Console Telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * â”€â”€ Console Telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
-function logAviationTelemetry(sm, io, ui) {
+function logTelemetry(sm, io, ui) {
   const isFileProtocol = window.location.protocol === 'file:';
   const color = isFileProtocol ? '#f87171' : '#4ade80';
   
@@ -152,19 +152,24 @@ async function boot() {
     initZeroJSState(sm);
 
     // Watch for layout changes to log telemetry
-    document.addEventListener('change', (e) => {
-        if (e.target.name === 'layout') {
-            setTimeout(() => logAviationTelemetry(sm, io, ui), 100);
-        }
+    document.addEventListener("change", (e) => {
+      if (e.target.name === "layout") {
+        setTimeout(() => logTelemetry(sm, io, ui), 100);
+      }
     });
 
-    // â”€â”€ 8. [COMPLIANCE] AviationMath Self-Test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    const mathStatus = typeof Math.sumPrecise === 'function' ? 'ok' : 'warn';
-    const mathLabel  = typeof Math.sumPrecise === 'function' ? 'Blink-Native' : 'Integer-Fallback';
-    ui.updateComplianceStatus('math-engine-status', mathStatus, `Math-Engine: [${mathLabel}]`);
+    // â”€â”€ 8. [COMPLIANCE] PrecisionMath Self-Test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    const mathStatus = typeof Math.sumPrecise === "function" ? "ok" : "warn";
+    const mathLabel =
+      typeof Math.sumPrecise === "function" ? "Blink-Native" : "Integer-Fallback";
+    ui.updateComplianceStatus(
+      "math-engine-status",
+      mathStatus,
+      `Math-Engine: [${mathLabel}]`,
+    );
 
     // â”€â”€ 9. TELEMETRY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    logAviationTelemetry(sm, io, ui);
+    logTelemetry(sm, io, ui);
 
     // Lifecycle Events for Emergency Save
     window.addEventListener('pagehide', () => io.emergencySave());

@@ -7,7 +7,6 @@
 
     <link rel="stylesheet" href="css/din5008-paper.css" />
     <link rel="stylesheet" href="css/app-ui.css" />
-    <!-- Consolidated SSoT CSS -->
     <link rel="stylesheet" href="css/devmode.css" />
     <link rel="stylesheet" href="css/platinum-locked.css" />
   </head>
@@ -23,7 +22,7 @@
 
         <div id="sidebar-scroll-area">
           <section class="sidebar-section">
-            <!-- 2. DIN-VARIANTE -->
+            <!-- DIN-VARIANTE -->
             <div class="sidebar-control-group">
               <label class="sidebar-label">DIN-Variante</label>
               <div class="segmented-control">
@@ -49,7 +48,7 @@
               </div>
             </div>
 
-            <!-- 3. HILFSLINIEN -->
+            <!-- HILFSLINIEN -->
             <div class="sidebar-control-group">
               <label class="sidebar-label">Hilfslinien</label>
               <div class="segmented-control">
@@ -75,7 +74,7 @@
               </div>
             </div>
 
-            <!-- 4. NACHTMODUS -->
+            <!-- ARBEITSMODUS -->
             <div class="sidebar-control-group">
               <label class="sidebar-label">Arbeitsmodus</label>
               <div class="segmented-control">
@@ -112,38 +111,22 @@
             <button class="util-btn" title="Import" id="btn-import">
               📤 Import
             </button>
-            <button
-              class="util-btn danger"
-              title="Reset"
-              id="btn-reset"
-              commandfor="dialog-reset"
-              command="show-modal"
-            >
+            <button class="util-btn danger" title="Reset" id="btn-reset">
               🗑️ Reset
             </button>
           </div>
 
-          <!-- 1. IDENTITÄT -->
-          <button
-            id="btn-profile"
-            class="sidebar-btn secondary"
-            commandfor="modal-profile"
-            command="show-popover"
-          >
+          <!-- IDENTITÄT -->
+          <button id="btn-profile" class="sidebar-btn secondary">
             👤 Absender-Profil
           </button>
 
-          <!-- 3. DRUCKEN -->
-          <button
-            id="btn-print"
-            class="sidebar-btn primary big-btn"
-            commandfor="paper"
-            command="--print"
-          >
+          <!-- DRUCKEN -->
+          <button id="btn-print" class="sidebar-btn primary big-btn">
             🖨 Drucken / PDF
           </button>
 
-          <!-- COMPLIANCE BAR (Cockpit Layout) -->
+          <!-- COMPLIANCE BAR -->
           <div class="compliance-bar">
             <div id="integrity-status" class="compliance-item">
               Fiskale Integrität: <span class="status-ok">[OK]</span>
@@ -161,25 +144,23 @@
 
       <!-- THE AIRFRAME: Sovereign Semantic Matrix v3.1 -->
       <main id="paper-viewport">
-        <din-5008 data-form="B" id="paper">
+        <din-5008 id="paper">
           <din-page>
             <!-- Faltmarken & Lochmarke -->
             <div class="mark mark-fold-1"></div>
             <div class="mark mark-loch"></div>
             <div class="mark mark-fold-2"></div>
 
-            <!-- 2. Briefkopf & Identität -->
-            <din-header>
-              <din-logo></din-logo>
+            <!-- Briefkopf & Identität -->
+            <din-header class="paper-header">
               <din-sender-details
                 contenteditable="plaintext-only"
                 data-placeholder="Max Mustermann, Musterstraße 1, 12345 Musterstadt"
               ></din-sender-details>
-              <din-vcard></din-vcard>
             </din-header>
 
-            <!-- 3. Anschriftfeld (The Navigation Deck) -->
-            <din-address-zone>
+            <!-- Anschriftfeld -->
+            <din-address-zone class="paper-address-zone">
               <din-return-line
                 contenteditable="plaintext-only"
                 data-placeholder="Max Mustermann · Musterstraße 1 · 12345 Musterstadt"
@@ -194,22 +175,20 @@
               ></din-recipient>
             </din-address-zone>
 
-            <!-- 4. Metadaten & Leitwörter (The Metadata) -->
-            <din-infoblock>
+            <!-- Metadaten & Leitwörter -->
+            <din-infoblock class="paper-infoblock">
               <div class="info-row">
-                <span>Unser Zeichen:</span
-                ><din-ref-line contenteditable="plaintext-only"></din-ref-line>
+                <din-ref-line contenteditable="plaintext-only"></din-ref-line>
               </div>
               <div class="info-row">
-                <span>Datum:</span
-                ><din-date
+                <din-date
                   contenteditable="plaintext-only"
                   data-placeholder="TT.MM.JJJJ"
                 ></din-date>
               </div>
             </din-infoblock>
 
-            <!-- 5. Briefkern (The Payload) -->
+            <!-- Briefkern -->
             <article id="brief-kern">
               <din-subject
                 contenteditable="plaintext-only"
@@ -228,7 +207,6 @@
                   ></din-body>
                   <din-body-mirror aria-hidden="true"></din-body-mirror>
                 </div>
-                <din-cma-sensor></din-cma-sensor>
               </din-page-wrapper>
 
               <din-closing
@@ -245,8 +223,8 @@
               ></din-attachments>
             </article>
 
-            <!-- 6. Finanzen & Recht (The Compliance) -->
-            <din-footer>
+            <!-- Finanzen & Recht -->
+            <din-footer class="paper-footer">
               <din-bank-data
                 contenteditable="plaintext-only"
                 data-placeholder="IBAN: DE00 0000 0000 0000 0000 00"
@@ -260,14 +238,7 @@
         </din-5008>
 
         <!-- Decoder Trigger (Aviation Grade Diagnostic) -->
-        <button
-          id="btn-decoder-trigger"
-          class="decoder-btn"
-          commandfor="dialog-decoder"
-          command="show-modal"
-        >
-          🔍 Decoder
-        </button>
+        <button id="btn-decoder-trigger" class="decoder-btn">🔍 Decoder</button>
 
         <div id="statusbar-viewport" class="status-bar">Initialisiere...</div>
       </main>
@@ -277,13 +248,7 @@
     <div id="modal-profile" popover class="platinum-dialog">
       <header class="modal-header">
         <h3>👤 Absenderprofil</h3>
-        <button
-          class="close-btn"
-          commandfor="modal-profile"
-          command="hide-popover"
-        >
-          ✕
-        </button>
+        <button id="btn-profile-close" class="close-btn">✕</button>
       </header>
 
       <div class="form-section">
@@ -340,7 +305,7 @@
               data-profile="city"
             />
           </div>
-          <div class="profile-field" style="grid-column: span 2">
+          <div class="profile-field iban-field">
             <label>IBAN (Sovereign Format)</label>
             <input
               type="text"
@@ -358,7 +323,7 @@
       <p>Alle ungespeicherten Änderungen gehen verloren.</p>
       <div class="dialog-actions">
         <button id="btn-reset-confirm" class="danger">Löschen</button>
-        <button commandfor="dialog-reset" command="close">Abbrechen</button>
+        <button id="btn-reset-cancel">Abbrechen</button>
       </div>
     </dialog>
 
@@ -369,7 +334,7 @@
         <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
       </div>
       <div class="dialog-actions">
-        <button commandfor="dialog-decoder" command="close">Schließen</button>
+        <button id="btn-decoder-close">Schließen</button>
       </div>
     </dialog>
 

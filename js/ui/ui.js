@@ -217,25 +217,48 @@ export class UIController {
   }
 
   _bindNativeEvents() {
-    // [ADR-013] Invoker Polyfill: Dispatches "command" events for browsers without native support
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest("button[commandfor], button[command]");
-      if (!btn) return;
+    // ── Button Actions (Pure JS Logic separation) ───────────────────
 
-      const command = btn.getAttribute("command");
-      const targetId = btn.getAttribute("commandfor");
+    // Absender-Profil
+    const btnProfile = document.getElementById("btn-profile");
+    const modalProfile = document.getElementById("modal-profile");
+    if (btnProfile && modalProfile) {
+      btnProfile.addEventListener("click", () => modalProfile.showPopover());
+    }
+    const btnProfileClose = document.getElementById("btn-profile-close");
+    if (btnProfileClose && modalProfile) {
+      btnProfileClose.addEventListener("click", () =>
+        modalProfile.hidePopover(),
+      );
+    }
 
-      // Dispatch custom command event for our central listener
-      const cmdEvent = new CustomEvent("command", {
-        bubbles: true,
-        detail: { command, targetId, invoker: btn },
-      });
-      // We also attach properties directly to the event object to match native spec as close as possible
-      Object.defineProperty(cmdEvent, "command", { value: command });
-      Object.defineProperty(cmdEvent, "target", { value: btn }); // The button is the target of the click
+    // Reset Entwurf
+    const btnReset = document.getElementById("btn-reset");
+    const dialogReset = document.getElementById("dialog-reset");
+    if (btnReset && dialogReset) {
+      btnReset.addEventListener("click", () => dialogReset.showModal());
+    }
+    const btnResetCancel = document.getElementById("btn-reset-cancel");
+    if (btnResetCancel && dialogReset) {
+      btnResetCancel.addEventListener("click", () => dialogReset.close());
+    }
 
-      btn.dispatchEvent(cmdEvent);
-    });
+    // Print
+    const btnPrint = document.getElementById("btn-print");
+    if (btnPrint) {
+      btnPrint.addEventListener("click", () => window.print());
+    }
+
+    // Decoder
+    const btnDecoder = document.getElementById("btn-decoder-trigger");
+    const dialogDecoder = document.getElementById("dialog-decoder");
+    if (btnDecoder && dialogDecoder) {
+      btnDecoder.addEventListener("click", () => dialogDecoder.showModal());
+    }
+    const btnDecoderClose = document.getElementById("btn-decoder-close");
+    if (btnDecoderClose && dialogDecoder) {
+      btnDecoderClose.addEventListener("click", () => dialogDecoder.close());
+    }
 
     // Central Command Listener
     document.addEventListener("command", (e) => {

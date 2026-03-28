@@ -29,6 +29,13 @@ export class UIController {
     this._bindUtilityActions();
     this.addressService.init();
 
+    // [SPEC-080] Smart-Night Logic: Auto-Toggle at 21:00
+    // We only auto-toggle if the user hasn't made a choice yet or if they want auto-mode.
+    if (!this.sm.state.config.theme_manually_set) {
+      const isNight = Logic.isNightTime();
+      this.sm.state.config.theme = isNight ? "night" : "day";
+    }
+
     this.sm.subscribe((path, val, scope, source) =>
       this._onStateChange(path, val, scope, source),
     );
@@ -214,6 +221,25 @@ export class UIController {
         this._updateDOMSafe(el, this.sm.state.content[entry.key]);
       }
     });
+
+    // [SPEC-080] Sync UI Toggles (Theme, Layout, Guides) from State
+    const config = this.sm.state.config;
+    
+    // Theme
+    if (config.theme) {
+      const themeRadio = document.getElementById(`theme-${config.theme}`);
+      if (themeRadio) themeRadio.checked = true;
+    }
+
+    // Layout
+    if (config.layout) {
+      const layoutRadio = document.getElementById(config.layout === "form-a" ? "layout-a" : "layout-b");
+      if (layoutRadio) layoutRadio.checked = true;
+    }
+
+    // Guides
+    const guidesRadio = document.getElementById(config.guides ? "guides-on" : "guides-off");
+    if (guidesRadio) guidesRadio.checked = true;
   }
 
   _bindNativeEvents() {

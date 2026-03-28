@@ -503,9 +503,9 @@ export class UIController {
         if (!entry.editContext) {
           this.sm.state.content[entry.key] = text;
         }
-        // Trigger Greetings Matrix on recipient change
-        if (entry.key === "rect_name") {
-          this._triggerSalutationUpdate(text);
+        // [SPEC-002] v4.0 Salutation Engine Trigger
+        if (entry.key === "rect_ln" || entry.key === "rect_fn") {
+          this._triggerSalutationUpdate();
         }
 
         // [SPEC-075] Smart Deadlines Trigger

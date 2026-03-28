@@ -31,3 +31,13 @@ The system implements a 19-atom model using native Custom Elements.
 - **Form A (Small Header):** 27mm top offset for address zone.
 - **Form B (Standard Header):** 45mm top offset for address zone.
 - **Enforcement:** Zero-JS layout. Logic resides entirely in `app-ui.css` @layer geometry.
+
+## 4. NATIVE LAYOUT & RENDERING (Chrome 147+)
+- **Field Sizing:** `field-sizing: content` for all textfields (Zero-Scroll Mandate).
+- **Scope Isolation:** `@scope (#paper)` for all `din-*` selectors to prevent style leakage.
+- **Typed Properties:** `@property` for all 19 CMA-coordinates (Precise sub-pixel layout).
+- **Mirror Security:** `setHTML()` with Sanitizer API for `din-text-mirror` and ghosting.
+- **Input Handling:** EditContext API with `textupdate` events for Category B elements.
+- **Transitions:** Scoped View Transitions for Form A/B layout morphing.
+- **Reactivity (Future):** Native Signals API for zero-proxy state management.
+- **Conditionals (Future):** CSS `if()` logic for declarative Form A/B geometry.

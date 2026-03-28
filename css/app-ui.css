@@ -11,11 +11,24 @@
 
 @layer latex.base, ui.theme, din.structure, ui.floating, core.immutable;
 
+/* ── CMA TYPED PROPERTIES (Chrome 85+) ────────────────────────── */
+@property --din-paper-w { syntax: "<length>"; initial-value: 210mm; inherits: true; }
+@property --din-paper-h { syntax: "<length>"; initial-value: 297mm; inherits: true; }
+@property --din-margin-l { syntax: "<length>"; initial-value: 25mm; inherits: true; }
+@property --din-margin-r { syntax: "<length>"; initial-value: 20mm; inherits: true; }
+@property --din-addr-w { syntax: "<length>"; initial-value: 85mm; inherits: true; }
+@property --din-addr-h { syntax: "<length>"; initial-value: 45mm; inherits: true; }
+@property --din-addr-top { syntax: "<length>"; initial-value: 45mm; inherits: true; }
+@property --din-mark-fold-1 { syntax: "<length>"; initial-value: 105mm; inherits: true; }
+@property --din-mark-fold-2 { syntax: "<length>"; initial-value: 210mm; inherits: true; }
+@property --din-mark-loch { syntax: "<length>"; initial-value: 148.5mm; inherits: true; }
+
 @layer ui.floating {
   /* ── CSS ANCHOR POSITIONING (Chrome 125+) ──────────────────────── */
   din-absender-vorname  { anchor-name: --anchor-sender-fn; }
   din-absender-nachname { anchor-name: --anchor-sender-ln; }
-  din-empfaenger-name   { anchor-name: --anchor-recipient; }
+  din-empfaenger-vorname { anchor-name: --anchor-rect-fn; }
+  din-empfaenger-nachname { anchor-name: --anchor-rect-ln; }
   din-empfaenger-strasse { anchor-name: --anchor-rect-st; }
   din-empfaenger-ort     { anchor-name: --anchor-rect-city; }
   din-subject           { anchor-name: --anchor-subject; }
@@ -64,6 +77,9 @@
 
 @layer ui.theme {
   :root {
+    /* [CMD-8] Allow height:auto transitions */
+    interpolate-size: allow-keywords;
+
     /* ── OKLCH CORE PALETTE (Perceptual Uniformity) ───────────────── */
     --c-primary:         oklch(60% 0.15 250);
     --c-primary-hover:   oklch(from var(--c-primary) calc(l - 0.1) c h);
@@ -192,11 +208,78 @@
     flex-direction: column;
   }
 
+  /* [SPEC-080] Zero-JS UI State Management via :has() */
+  :root:has(#theme-night:checked) {
+    --c-bg:              oklch(12% 0.02 250);
+    --c-sidebar-bg:      oklch(8% 0.02 250);
+    --c-paper-bg:        oklch(15% 0 0);
+    --c-text-primary:    oklch(95% 0 0);
+  }
+
+  :root:has(#guides-off:checked) din-5008 {
+    --din-guides-opacity: 0;
+  }
+
+  :root:has(#layout-a:checked) {
+    --din-addr-top: 32mm;
+    --din-mark-fold-1: 87mm;
+  }
+
+  :root:has(#layout-b:checked) {
+    --din-addr-top: 45mm;
+    --din-mark-fold-1: 105mm;
+  }
+
+  /* [SPEC-080] JS-Free Placeholders (Robust 2026 Edition) */
+  /* Reagiert auf: absolut leer ODER nur ein einsames <br> (Browser-Leiche) */
+  [data-placeholder]:is(:empty, :has(> br:only-child))::before {
+    content: attr(data-placeholder);
+    color: oklch(0% 0 0 / 0.3);
+    pointer-events: none;
+    font-style: italic;
+    font-size: 0.9em;
+    display: block; /* Garantiert Sichtbarkeit */
+  }
+
   [contenteditable] {
     outline: none !important;
     border: 1px dashed oklch(0% 0 0 / 0.05);
     border-radius: 4px;
     padding: 0.5mm 1mm;
+  }
+
+  /* Single-Line Atoms (Fixed Height, No Growth) */
+  din-absender-vorname, din-absender-nachname, din-absender-strasse, din-absender-ort,
+  din-return-line, din-supplement, din-empfaenger-firma, 
+  din-empfaenger-vorname, din-empfaenger-nachname,
+  din-empfaenger-strasse, din-empfaenger-ort,
+  din-date, din-ref-ihr, din-ref-unser, din-grussformel, din-signature {
+    white-space: nowrap;
+    display: inline-block;
+    min-width: 10mm;
+    overflow: hidden;
+    height: 1.4em; /* Fixed height based on line-height */
+  }
+
+  /* Growing Zones */
+  din-subject, din-text {
+    display: block;
+    field-sizing: content;
+    text-wrap: balance; /* [CMD-7] schönerer Zeilenumbruch */
+  }
+
+  /* [CMD-6] Toast-Animation with @starting-style (Zero-JS Entry) */
+  .toast {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @starting-style {
+    .toast {
+      opacity: 0;
+      transform: translateY(20px);
+    }
   }
 
   [contenteditable]:focus {
@@ -214,6 +297,27 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: outline 0.3s ease;
+  }
+
+  /* [SPEC-031] Address Zone Integrity Guard */
+  .paper-address-zone[data-integrity="fail"] {
+    outline: 2px solid oklch(60% 0.15 25);
+    background: oklch(60% 0.15 25 / 0.05);
+  }
+
+  .paper-address-zone[data-integrity="fail"]::after {
+    content: "⚠️ DIN-VERSTOSS: > 6 ZEILEN";
+    position: absolute;
+    top: -20px;
+    right: 0;
+    font-size: 7pt;
+    font-weight: bold;
+    color: oklch(60% 0.15 25);
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px oklch(0% 0 0 / 0.1);
   }
 
   din-return-line {
@@ -338,6 +442,57 @@
 
   .compliance-bar, #btn-decoder-trigger, .status-bar { display: none !important; }
   body.dev-mode .compliance-bar, body.dev-mode #btn-decoder-trigger, body.dev-mode .status-bar { display: flex !important; }
+
+  /* [SPEC-075] Smart Deadline Popover */
+  .deadline-popover {
+    position: absolute;
+    position-anchor: --anchor-date;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin-top: 5px;
+    background: white;
+    border: 1px solid oklch(0% 0 0 / 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.1);
+    padding: 10px;
+    z-index: 1000;
+    min-width: 250px;
+  }
+
+  .deadline-popover header {
+    font-size: 7pt;
+    font-weight: bold;
+    color: var(--c-primary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .deadline-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .deadline-item {
+    background: oklch(98% 0 0);
+    border: 1px solid oklch(0% 0 0 / 0.05);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 9pt;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: black;
+  }
+
+  .deadline-item:hover {
+    background: var(--c-primary);
+    color: white;
+  }
+
+  .deadline-item.prominent {
+    border: 1.5px solid var(--c-primary);
+    background: oklch(0% 0 0 / 0.02);
+  }
 
   @media print {
     html, body { background: white !important; height: auto !important; overflow: visible !important; }

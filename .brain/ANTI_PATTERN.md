@@ -46,11 +46,24 @@ related:
 - **DEP-T002:** Environment-specific stream syntax (`cat <<EOF`).
 - **DEP-T003:** Manual file versioning via filename (`_v1.0.md`). Use Git.
 
-## 6. UPGRADE PATH (MODERN BASELINE)
+## 6. INPUT & SECURITY (APR-I)
+- **APR-I001:** `contenteditable="true"` ohne EditContext (Use `EditContext API` + `plaintext-only`).
+- **APR-I002:** Manuelle HTML-Sanitizer (Use `Sanitizer API` + `setHTML()`).
+- **APR-I003:** `requestIdleCallback` für Autosave (Use `IdleDetector API` or `scheduler.postTask()`).
+- **APR-I004:** `RegExp.$1-$9` / `RegExp.input` (Use modern named capture groups).
+- **APR-I005:** `document.execCommand()` (Use **EditContext API** or direct DOM manipulation).
+
+## 7. UI & ANIMATION (APR-U)
+- **APR-U001:** JS-Dialog-Handler (Use **Invoker Commands** + `popover`).
+- **APR-U002:** JS-Tooltip-Positionierung (Use **CSS Anchor Positioning**).
+- **APR-U003:** JS-Layout-Transitions (Use **Scoped View Transitions**).
+- **APR-U004:** Annex B String methods like `.fontsize()`, `.blink()` (Use modern CSS).
+
+## 8. UPGRADE PATH (MODERN BASELINE)
 
 | Area | Legacy Pattern (BANNED) | Modern API (TARGET) |
 | :--- | :--- | :--- |
-| **Date/Time** | `new Date()` | **Temporal API** (except parseDate) |
+| **Date/Time** | `new Date()` | **Temporal API** |
 | **Color** | `rgba()`, `hex` | `oklch()` |
 | **Theme** | `JS-Toggles` | `light-dark()` & RCS |
 | **Math** | `JS-rounding` | `round()`, `mod()` (CSS Math) |

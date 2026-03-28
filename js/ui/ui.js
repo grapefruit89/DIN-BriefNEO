@@ -45,61 +45,14 @@ export class UIController {
   }
 
   _bindUtilityActions() {
-    // Export State
-    const btnExport = document.getElementById("btn-export");
-    if (btnExport) {
-      btnExport.addEventListener("click", () => {
-        const data = JSON.stringify(this.sm.serialize(), null, 2);
-        const blob = new Blob([data], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        // [ANTI-016] Temporal migration for filename
-        const dateStr = Temporal.Now.plainDateISO().toString();
-        a.download = `DIN-BriefNEO_Export_${dateStr}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        console.info("ðŸ“¥ State exported to JSON.");
-      });
+    // [A-2] Native label for file-import handles the trigger. 
+    // We only need the change listener for the actual processing.
+    const fileImport = document.getElementById("file-import");
+    if (fileImport) {
+      fileImport.addEventListener("change", (e) => this._handleImportFile(e));
     }
 
-    // Import State
-    const btnImport = document.getElementById("btn-import");
-    if (btnImport) {
-      btnImport.addEventListener("click", () => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = ".json";
-        input.onchange = (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (re) => {
-            try {
-              const data = JSON.parse(re.target.result);
-
-              // [G-002] Strict Schema Gate (High-Integrity Security)
-              const isValid = this._validateImportSchema(data);
-              if (!isValid)
-                throw new Error(
-                  "Security Violation: Invalid JSON Schema detected.",
-                );
-
-              this.sm.load(data);
-              console.info("ðŸ“¤ State imported successfully.");
-              location.reload(); // Refresh to ensure all controllers re-init with new state
-            } catch (err) {
-              console.error("âŒ Import failed:", err);
-              alert(`Import fehlgeschlagen: ${err.message}`);
-            }
-          };
-          reader.readAsText(file);
-        };
-        input.click();
-      });
-    }
-
-    // Reset Confirm
+    // Reset Confirm (Legacy Fallback if command event fails)
     const btnResetConfirm = document.getElementById("btn-reset-confirm");
     if (btnResetConfirm) {
       btnResetConfirm.addEventListener("click", () => {
@@ -107,6 +60,41 @@ export class UIController {
         location.reload();
       });
     }
+  }
+
+  _handleExport() {
+    const data = JSON.stringify(this.sm.serialize(), null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    // [ANTI-016] Temporal migration for filename
+    const dateStr = Temporal.Now.plainDateISO(Temporal.Now.timeZoneId()).toString();
+    a.download = `DIN-BriefNEO_Export_${dateStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    console.info("💾 State exported to JSON via Command.");
+  }
+
+  _handleImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      try {
+        const data = JSON.parse(re.target.result);
+        if (!this._validateImportSchema(data)) {
+          throw new Error("Security Violation: Invalid JSON Schema detected.");
+        }
+        this.sm.load(data);
+        console.info("📥 State imported successfully.");
+        location.reload();
+      } catch (err) {
+        console.error("❌ Import failed:", err);
+        alert(`Import fehlgeschlagen: ${err.message}`);
+      }
+    };
+    reader.readAsText(file);
   }
 
   _initEditors() {
@@ -122,11 +110,21 @@ export class UIController {
             this._ghosts[entry.tag].update(text);
           }
 
-          // [CMD-5] v4.0 Salutation Engine: Real-time update
-          if (entry.key === "rect_name") {
-              this._triggerSalutationUpdate(text);
+          // [CMD-5] v4.0 Salutation Engine: Reactive update on Last Name change
+          if (entry.key === "rect_ln" || entry.key === "rect_fn") {
+              this._triggerSalutationUpdate();
           }
         });
+
+        // [SIGNAL-POC] Native Reativity: Subscribe to Signal updates
+        if (this.sm.signals[entry.key]) {
+          this.sm.signals[entry.key].subscribe((val) => {
+            // Update only if not focused to avoid cursor jumping
+            if (document.activeElement !== el) {
+              this._updateDOMSafe(el, val);
+            }
+          });
+        }
 
         // [CMD-1] Ghost-Mirror for structural markdown rendering
         if (entry.tag === "din-text") {
@@ -142,11 +140,14 @@ export class UIController {
   /**
    * [CMD-5] v4.0 Salutation Engine: Orchestrates the reactive update.
    */
-  _triggerSalutationUpdate(recipientText) {
+  _triggerSalutationUpdate() {
+    const fn = this.sm.state.content.rect_fn || "";
+    const ln = this.sm.state.content.rect_ln || "";
+    const recipientText = `${fn} ${ln}`.trim();
+
     const analysis = Logic.parseRecipient(recipientText);
     const salutationEl = document.querySelector("din-anrede");
     if (salutationEl) {
-      // Wir nutzen die State-Formality (Default: formal)
       const formality = this.sm.state.config.formality || "formal";
       Logic.updateSalutationHint(
         salutationEl,
@@ -156,7 +157,6 @@ export class UIController {
         recipientText,
       );
 
-      // Sync das Ergebnis zurÃ¼ck in den State, falls gewÃ¼nscht
       const newSalutation = salutationEl.textContent;
       this.sm.update("content.salutation", newSalutation, "engine");
     }
@@ -402,37 +402,11 @@ export class UIController {
       });
     }
 
-    // [CMD-2] Scoped View Transition for Sidebar layout switches
+    // [SPEC-080] UI State Persistency Bridge
     document.addEventListener("change", (e) => {
-      const paper = document.getElementById("paper");
-
-      if (e.target.name === "layout") {
-        const val = e.target.id === "layout-a" ? "form-a" : "form-b";
-        console.info(`ðŸ“ Layout Switch Triggered: ${val}`);
-
-        const updateLayout = () => {
-          if (paper) paper.dataset.form = val === "form-a" ? "A" : "B";
-          document.body.dataset.layout = val;
-          this.sm.state.config.layout = val;
-        };
-
-        if (document.startViewTransition)
-          document.startViewTransition(updateLayout);
-        else updateLayout();
-      }
-
-      if (e.target.name === "guides") {
-        const isGuidesOn = e.target.value === "true";
-        console.info(`ðŸ“ Guides Toggle: ${isGuidesOn}`);
-        if (paper) paper.dataset.guides = isGuidesOn ? "true" : "false";
-        this.sm.state.config.guides = isGuidesOn;
-      }
-
-      if (e.target.name === "theme") {
-        const isNight = e.target.value === "night";
-        console.info(`ðŸŒ™ Theme Toggle: ${isNight ? "Night" : "Day"}`);
-        this.sm.state.config.theme = e.target.value;
-      }
+      if (e.target.name === "layout") this.sm.state.config.layout = e.target.id === "layout-a" ? "form-a" : "form-b";
+      if (e.target.name === "guides") this.sm.state.config.guides = e.target.value === "true";
+      if (e.target.name === "theme") this.sm.state.config.theme = e.target.value;
     });
 
     const dialogReset = document.getElementById("dialog-reset");
@@ -492,12 +466,6 @@ export class UIController {
       if (entry) {
         let text = e.target.textContent;
 
-        // [v4.0-GHOST] Force real emptiness for placeholders
-        if (text.trim() === "") {
-          e.target.textContent = "";
-          text = "";
-        }
-
         if (!entry.editContext) {
           this.sm.state.content[entry.key] = text;
         }
@@ -505,9 +473,94 @@ export class UIController {
         if (entry.key === "rect_name") {
           this._triggerSalutationUpdate(text);
         }
+
+        // [SPEC-075] Smart Deadlines Trigger
+        if (entry.key === "body" || entry.key === "date") {
+          this._handleSmartDeadlines(el, entry.key, text);
+        }
+      }
+    });
+
+    // [SPEC-076] Escape key for popovers
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const popover = document.getElementById("popover-smart-deadlines");
+        if (popover) popover.hidePopover();
       }
     });
   }
+
+  _handleSmartDeadlines(el, key, text) {
+    const context = Logic.detectContext(this.sm.state.content.body);
+    const deadlines = Logic.calculateDeadlines();
+    const popover = document.getElementById("popover-smart-deadlines");
+    const list = document.getElementById("deadline-list");
+
+    if (!popover || !list) return;
+
+    // Show only for date field or if a specific context (like Widerspruch/Mahnung) is detected
+    if (key === "date" || (key === "body" && context !== "standard" && context !== "none")) {
+      list.innerHTML = "";
+      
+      const options = [
+        { label: "14 Tage", date: deadlines.in14Days, type: "14d" },
+        { label: "30 Tage", date: deadlines.in30Days, type: "30d" },
+        { label: "1 Monat", date: deadlines.nextMonth, type: "1m" }
+      ];
+
+      options.forEach(opt => {
+        const item = document.createElement("div");
+        item.className = "deadline-item";
+        
+        // Highlight logic based on detected context
+        if ((context === "widerspruch" && opt.type === "14d") || 
+            (context === "mahnung" && opt.type === "30d")) {
+          item.classList.add("prominent");
+        }
+
+        const dateStr = opt.date.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+        item.innerHTML = `<span class="label">${opt.label}</span> <span class="date">${dateStr}</span>`;
+        
+        item.onclick = (e) => {
+          e.stopPropagation();
+          if (key === "date") {
+            el.textContent = dateStr;
+            this.sm.update("content.date", dateStr, "ui");
+          } else {
+            const snippet = `\n📅 Frist: ${dateStr} (${opt.label})\n`;
+            this._insertTextAtCursor(el, snippet);
+          }
+          popover.hidePopover();
+        };
+        list.appendChild(item);
+      });
+
+      // Update position dynamically based on current field
+      popover.style.positionAnchor = key === "date" ? "--anchor-date" : "--anchor-text";
+      
+      try {
+        if (!popover.matches(":popover-open")) popover.showPopover();
+      } catch(e) {}
+    } else {
+      if (popover.matches(":popover-open")) popover.hidePopover();
+    }
+  }
+
+        _insertTextAtCursor(el, text) {
+        if (el.editContext) {
+        const ec = el.editContext;
+        const start = ec.selectionStart;
+        ec.updateText(start, start, text);
+        ec.updateSelection(start + text.length, start + text.length);
+        this.sm.update("content.body", ec.text, "editcontext");
+        } else {
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+        const range = sel.getRangeAt(0);
+        range.insertNode(document.createTextNode(text));
+        }
+        }
+        }
 
   /* â”€â”€ ðŸ“ AUTOCOMPLETE UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   _renderSuggestions(features, anchor) {

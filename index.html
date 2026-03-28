@@ -117,12 +117,21 @@
           </div>
 
           <!-- IDENTITÄT -->
-          <button id="btn-profile" class="sidebar-btn secondary">
+          <button 
+            id="btn-profile" 
+            class="sidebar-btn secondary"
+            commandfor="modal-profile"
+            command="show-popover"
+          >
             👤 Absender-Profil
           </button>
 
           <!-- DRUCKEN -->
-          <button id="btn-print" class="sidebar-btn primary big-btn">
+          <button 
+            id="btn-print" 
+            class="sidebar-btn primary big-btn"
+            command="--print"
+          >
             🖨 Drucken / PDF
           </button>
 
@@ -146,6 +155,10 @@
       <main id="paper-viewport">
         <din-5008 id="paper">
           <din-A4>
+            <!-- BRANDING LAYER -->
+            <din-branding-logo></din-branding-logo>
+            <din-branding-watermark></din-branding-watermark>
+
             <!-- Faltmarken & Lochmarke -->
             <div class="mark mark-fold-1"></div>
             <div class="mark mark-loch"></div>
@@ -185,10 +198,14 @@
                 contenteditable="plaintext-only"
                 data-placeholder="Firma (Optional)"
               ></din-empfaenger-firma>
-              <din-empfaenger-name
+              <din-empfaenger-vorname
                 contenteditable="plaintext-only"
-                data-placeholder="Name"
-              ></din-empfaenger-name>
+                data-placeholder="Vorname"
+              ></din-empfaenger-vorname>
+              <din-empfaenger-nachname
+                contenteditable="plaintext-only"
+                data-placeholder="Nachname"
+              ></din-empfaenger-nachname>
               <din-empfaenger-strasse
                 contenteditable="plaintext-only"
                 data-placeholder="Straße Nr."
@@ -327,8 +344,8 @@
       <h3>Entwurf löschen?</h3>
       <p>Alle ungespeicherten Änderungen gehen verloren.</p>
       <div class="dialog-actions">
-        <button id="btn-reset-confirm" class="danger">Löschen</button>
-        <button id="btn-reset-cancel">Abbrechen</button>
+        <button id="btn-reset-confirm" class="danger" command="--reset-data">Löschen</button>
+        <button commandfor="dialog-reset" command="close">Abbrechen</button>
       </div>
     </dialog>
 
@@ -338,9 +355,17 @@
         <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
       </div>
       <div class="dialog-actions">
-        <button id="btn-decoder-close">Schließen</button>
+        <button commandfor="dialog-decoder" command="close">Schließen</button>
       </div>
     </dialog>
+
+    <!-- SMART DEADLINE POPOVER -->
+    <div id="popover-smart-deadlines" popover class="deadline-popover">
+      <header>📅 Intelligente Fristen</header>
+      <div id="deadline-list" class="deadline-list">
+        <!-- Dynamisch befüllt -->
+      </div>
+    </div>
 
     <script type="module" src="js/core/app.js"></script>
   </body>

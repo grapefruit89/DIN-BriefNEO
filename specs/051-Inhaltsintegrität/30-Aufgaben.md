@@ -1,0 +1,25 @@
+---
+id: SPEC-051-TASK
+title: Content Integrity Execution Checklist
+status: in-progress
+version: 4.0.0
+---
+
+# 30 — Aufgaben: Implementierung & Validierung (Integrity)
+
+## 1. Implementation Tasks
+- [x] Refactoring `logic.js`: Implementierung `parseMarkdownToHTML`.
+- [x] Refactoring `ghost-mirror.js`: Umstellung auf `Logic.parseMarkdownToHTML`.
+- [x] Renaming `din-body` → `din-text` in JS/CSS Selektoren.
+- [x] EditContext Binding für `din-text` verifiziert.
+- [ ] **Offen:** Erweiterung des Parsers um Listen-Tokens (`-`, `1.`).
+- [ ] **Offen:** Integration `CSS Custom Highlight API` für Inline-Visualisierung.
+
+## 2. Validation
+- [x] Test: Word-Paste → Resultiert in Plaintext.
+- [x] Test: Markdown Rendering → Fett/Kursiv im Mirror sichtbar.
+- [ ] **Offen:** Test: Print-Output → Markdown Symbole unsichtbar.
+
+## 3. Akzeptanz
+- [x] Zero-innerHTML Policy enforced.
+- [x] SSoT: TextContent ist einzige Datenquelle.

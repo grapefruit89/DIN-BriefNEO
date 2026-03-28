@@ -142,51 +142,79 @@
         </div>
       </aside>
 
-      <!-- THE AIRFRAME: Sovereign Semantic Matrix v3.1 -->
+      <!-- THE AIRFRAME: Sovereign Semantic Matrix v4.0 -->
       <main id="paper-viewport">
         <din-5008 id="paper">
-          <din-page>
+          <din-A4>
             <!-- Faltmarken & Lochmarke -->
             <div class="mark mark-fold-1"></div>
             <div class="mark mark-loch"></div>
             <div class="mark mark-fold-2"></div>
 
-            <!-- Briefkopf & Identität -->
+            <!-- Briefkopf & Granularer Absender -->
             <din-header class="paper-header">
-              <din-sender-details
+              <din-absender-vorname
                 contenteditable="plaintext-only"
-                data-placeholder="Max Mustermann, Musterstraße 1, 12345 Musterstadt"
-              ></din-sender-details>
+                data-placeholder="Vorname"
+              ></din-absender-vorname>
+              <din-absender-nachname
+                contenteditable="plaintext-only"
+                data-placeholder="Nachname"
+              ></din-absender-nachname>
+              <din-absender-strasse
+                contenteditable="plaintext-only"
+                data-placeholder="Straße Nr."
+              ></din-absender-strasse>
+              <din-absender-ort
+                contenteditable="plaintext-only"
+                data-placeholder="PLZ Ort"
+              ></din-absender-ort>
             </din-header>
 
-            <!-- Anschriftfeld -->
-            <din-address-zone class="paper-address-zone">
+            <!-- Anschriftfeld (Granular) -->
+            <din-anschriftfeld class="paper-address-zone">
               <din-return-line
                 contenteditable="plaintext-only"
-                data-placeholder="Max Mustermann · Musterstraße 1 · 12345 Musterstadt"
+                data-placeholder="Vorname Nachname · Straße Nr. · PLZ Ort"
               ></din-return-line>
               <din-supplement
                 contenteditable="plaintext-only"
-                data-placeholder="Einschreiben"
+                data-placeholder="Zusatz / Vermerk"
               ></din-supplement>
-              <din-recipient
+              <din-empfaenger-firma
                 contenteditable="plaintext-only"
-                data-placeholder="Frau&#10;Erika Musterfrau&#10;Beispielweg 42&#10;54321 Beispielstadt"
-              ></din-recipient>
-            </din-address-zone>
+                data-placeholder="Firma (Optional)"
+              ></din-empfaenger-firma>
+              <din-empfaenger-name
+                contenteditable="plaintext-only"
+                data-placeholder="Name"
+              ></din-empfaenger-name>
+              <din-empfaenger-strasse
+                contenteditable="plaintext-only"
+                data-placeholder="Straße Nr."
+              ></din-empfaenger-strasse>
+              <din-empfaenger-ort
+                contenteditable="plaintext-only"
+                data-placeholder="PLZ Ort"
+              ></din-empfaenger-ort>
+            </din-anschriftfeld>
 
-            <!-- Metadaten & Leitwörter -->
+            <!-- Metadaten (Infoblock & Standalone Date) -->
             <din-infoblock class="paper-infoblock">
               <div class="info-row">
-                <din-ref-line contenteditable="plaintext-only"></din-ref-line>
+                <label>Ihr Zeichen</label>
+                <din-ref-ihr contenteditable="plaintext-only"></din-ref-ihr>
               </div>
               <div class="info-row">
-                <din-date
-                  contenteditable="plaintext-only"
-                  data-placeholder="TT.MM.JJJJ"
-                ></din-date>
+                <label>Unser Zeichen</label>
+                <din-ref-unser contenteditable="plaintext-only"></din-ref-unser>
               </div>
             </din-infoblock>
+
+            <din-date
+              contenteditable="plaintext-only"
+              data-placeholder="TT.MM.JJJJ"
+            ></din-date>
 
             <!-- Briefkern -->
             <article id="brief-kern">
@@ -194,28 +222,26 @@
                 contenteditable="plaintext-only"
                 data-placeholder="Betreff: Ihr Anliegen"
               ></din-subject>
-              <din-salutation
+              <din-anrede
                 contenteditable="plaintext-only"
-                data-placeholder="Sehr geehrte Frau Musterfrau,"
-              ></din-salutation>
+                data-placeholder="Sehr geehrte Damen und Herren,"
+              ></din-anrede>
 
-              <din-page-wrapper>
-                <div class="body-container">
-                  <din-body
-                    contenteditable="plaintext-only"
-                    data-placeholder="Schreiben Sie hier den Text Ihres Briefes... Markdown wird nativ unterstützt."
-                  ></din-body>
-                  <din-body-mirror aria-hidden="true"></din-body-mirror>
-                </div>
-              </din-page-wrapper>
+              <div class="body-container">
+                <din-text
+                  contenteditable="plaintext-only"
+                  data-placeholder="[BUFFER: PLAINTEXT-ONLY] Enter body content. Markdown syntax (**, *, >) enabled."
+                ></din-text>
+                <din-text-mirror aria-hidden="true"></din-text-mirror>
+              </div>
 
-              <din-closing
+              <din-grussformel
                 contenteditable="plaintext-only"
                 data-placeholder="Mit freundlichen Grüßen"
-              ></din-closing>
+              ></din-grussformel>
               <din-signature
                 contenteditable="plaintext-only"
-                data-placeholder="Max Mustermann"
+                data-placeholder="Vorname Nachname"
               ></din-signature>
               <din-attachments
                 contenteditable="plaintext-only"
@@ -223,21 +249,21 @@
               ></din-attachments>
             </article>
 
-            <!-- Finanzen & Recht -->
-            <din-footer class="paper-footer">
-              <din-bank-data
-                contenteditable="plaintext-only"
-                data-placeholder="IBAN: DE00 0000 0000 0000 0000 00"
-              ></din-bank-data>
-              <din-fiscal-data
-                contenteditable="plaintext-only"
-                data-placeholder="USt-IdNr.: DE 123 456 789"
-              ></din-fiscal-data>
-            </din-footer>
-          </din-page>
+            <!-- Abschluss -->
+            <din-fusszeile class="paper-footer">
+              <div class="footer-col">
+                <label>Bankdaten:</label>
+                <span contenteditable="plaintext-only">IBAN: DE00 0000 0000 0000 0000 00</span>
+              </div>
+              <div class="footer-col">
+                <label>Steuer:</label>
+                <span contenteditable="plaintext-only">USt-IdNr.: DE 123 456 789</span>
+              </div>
+            </din-fusszeile>
+          </din-A4>
         </din-5008>
 
-        <!-- Decoder Trigger (Aviation Grade Diagnostic) -->
+        <!-- Decoder Trigger -->
         <button id="btn-decoder-trigger" class="decoder-btn">🔍 Decoder</button>
 
         <div id="statusbar-viewport" class="status-bar">Initialisiere...</div>
@@ -270,48 +296,27 @@
 
         <div class="form-group profile-grid">
           <div class="profile-field">
-            <label>Name / Firma</label>
-            <input
-              type="text"
-              id="p-name"
-              placeholder="Max Mustermann"
-              data-profile="name"
-            />
+            <label>Vorname</label>
+            <input type="text" id="p-fn" placeholder="Max" />
           </div>
           <div class="profile-field">
-            <label>c/o (Optional)</label>
-            <input
-              type="text"
-              id="p-co"
-              placeholder="c/o Erika Musterfrau"
-              data-profile="co"
-            />
+            <label>Nachname</label>
+            <input type="text" id="p-ln" placeholder="Mustermann" />
           </div>
           <div class="profile-field">
             <label>Straße & Hausnummer</label>
-            <input
-              type="text"
-              id="p-street"
-              placeholder="Musterstraße 1"
-              data-profile="street"
-            />
+            <input type="text" id="p-street" placeholder="Musterstraße 1" />
           </div>
           <div class="profile-field">
             <label>PLZ & Ort</label>
-            <input
-              type="text"
-              id="p-city"
-              placeholder="12345 Musterstadt"
-              data-profile="city"
-            />
+            <input type="text" id="p-city" placeholder="12345 Musterstadt" />
           </div>
           <div class="profile-field iban-field">
-            <label>IBAN (Sovereign Format)</label>
+            <label>IBAN</label>
             <input
               type="text"
               id="p-iban"
               placeholder="DE00 0000 0000 0000 0000 00"
-              data-profile="iban"
             />
           </div>
         </div>
@@ -330,7 +335,6 @@
     <dialog id="dialog-decoder" class="platinum-dialog decoder-modal">
       <h3>🗃️ Black Box Decoder — Flight Recorder</h3>
       <div class="decoder-content">
-        <p>Telemetrie der letzten IMR-Zustandsänderungen:</p>
         <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
       </div>
       <div class="dialog-actions">

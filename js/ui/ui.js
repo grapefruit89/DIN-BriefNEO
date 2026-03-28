@@ -12,6 +12,7 @@ import { GhostMirror } from "./ghost-mirror.js";
 import { AddressService } from "../services/address-service.js";
 import { FlightRecorder } from "../logic/flight-recorder.js";
 import { IMR, CORE_SANITIZER } from "../core/constants.js";
+import { toast } from "./toast-manager.js";
 
 export class UIController {
   constructor(sm) {
@@ -30,9 +31,11 @@ export class UIController {
     this.addressService.init();
 
     // [SPEC-080] Smart-Night Logic: Auto-Toggle at 21:00
-    // We only auto-toggle if the user hasn't made a choice yet or if they want auto-mode.
     if (!this.sm.state.config.theme_manually_set) {
       const isNight = Logic.isNightTime();
+      if (isNight && this.sm.state.config.theme !== "night") {
+        toast.show("night_mode_auto");
+      }
       this.sm.state.config.theme = isNight ? "night" : "day";
     }
 
@@ -76,12 +79,11 @@ export class UIController {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    // [ANTI-016] Temporal migration for filename
     const dateStr = Temporal.Now.plainDateISO(Temporal.Now.timeZoneId()).toString();
     a.download = `DIN-BriefNEO_Export_${dateStr}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    console.info("💾 State exported to JSON via Command.");
+    toast.show("export_success");
   }
 
   _handleImportFile(e) {
@@ -91,15 +93,12 @@ export class UIController {
     reader.onload = (re) => {
       try {
         const data = JSON.parse(re.target.result);
-        if (!this._validateImportSchema(data)) {
-          throw new Error("Security Violation: Invalid JSON Schema detected.");
-        }
+        if (!this._validateImportSchema(data)) throw new Error("Schema Violation");
         this.sm.load(data);
-        console.info("📥 State imported successfully.");
-        location.reload();
+        toast.show("import_success");
+        setTimeout(() => location.reload(), 1500);
       } catch (err) {
-        console.error("❌ Import failed:", err);
-        alert(`Import fehlgeschlagen: ${err.message}`);
+        toast.show("import_error");
       }
     };
     reader.readAsText(file);
@@ -553,9 +552,11 @@ export class UIController {
           if (key === "date") {
             el.textContent = dateStr;
             this.sm.update("content.date", dateStr, "ui");
+            toast.show("deadline_set", { date: dateStr });
           } else {
             const snippet = `\n📅 Frist: ${dateStr} (${opt.label})\n`;
             this._insertTextAtCursor(el, snippet);
+            toast.show("deadline_set", { date: dateStr });
           }
           popover.hidePopover();
         };

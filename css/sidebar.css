@@ -1,20 +1,20 @@
-﻿@layer ui.theme, ui.components, project.overrides, v4.0.locked;
+@layer latex.base, ui.theme, ui.components, core.immutable;
 
-/* â”€â”€ Minimalist Sidebar Base (Overridden by v4.0) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Minimalist Sidebar Base (Aligned with v4.0 Standard) ────────── */
 @layer ui.theme {
   #sidebar-left {
-    background: #fcfcfc;
-    border-right: 1px solid #d0d0d0;
-    padding: 2rem 1rem 1rem 1rem;
+    background: oklch(98% 0.01 250);
+    border-right: 1px solid oklch(90% 0.01 250);
+    padding: 2.4rem 1.8rem;
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 2.8rem;
   }
 
   .sidebar-brand {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--c-primary, #4a90e2);
+    color: var(--c-primary);
     letter-spacing: 0.1rem;
   }
 
@@ -26,18 +26,20 @@
 
   .sidebar-label {
     font-size: 0.8rem;
-    color: #666;
+    color: oklch(40% 0.01 250);
     font-weight: 500;
     margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .sidebar-btn {
     appearance: none;
-    background: #f5f5f5;
-    border: 1px solid #eee;
-    color: #333;
-    padding: 10px;
-    border-radius: 8px;
+    background: oklch(96% 0.01 250);
+    border: 1px solid oklch(92% 0.01 250);
+    color: oklch(20% 0.01 250);
+    padding: 12px 16px;
+    border-radius: 10px;
     font-size: 0.9rem;
     text-align: left;
     cursor: pointer;
@@ -49,189 +51,148 @@
   }
 
   .sidebar-btn:hover {
-    background: #e0e0e0;
-    border-color: #ddd;
+    background: oklch(94% 0.02 250);
+    border-color: oklch(85% 0.02 250);
   }
 
   .sidebar-btn.primary {
-    background: var(--c-primary, #4a90e2);
-    color: #fff;
-    border-color: var(--c-primary, #4a90e2);
-    justify-content: center;
+    background: var(--c-primary);
+    color: contrast-color(var(--c-primary)) !important;
+    border: none;
     font-weight: 600;
   }
 
   .sidebar-btn.secondary {
-    background: #eee;
-    color: #333;
+    background: oklch(90% 0.02 250);
+    color: oklch(20% 0.02 250);
+    border: none;
   }
 
-  .sidebar-btn.big-btn {
-    padding: 12px !important;
+  /* ── Segmented Control (High-Integrity) ─────────────────────────── */
+  .segmented-control {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: oklch(94% 0.01 250);
+    padding: 4px;
+    border-radius: 10px;
+    gap: 4px;
   }
 
-  .sidebar-control-group {
+  .segment-option {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-
-  .sidebar-radio-group {
-    display: flex;
-    background: #eee;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
     border-radius: 6px;
-    padding: 3px;
-    border: 1px solid #ddd;
+    transition: all 0.2s ease;
+    color: oklch(40% 0.01 250);
   }
 
-  .radio-option { flex: 1; position: relative; cursor: pointer; display: flex; }
-  .radio-option input { position: absolute; opacity: 0; width: 0; height: 0; }
-  .radio-option span {
-    display: flex; width: 100%; align-items: center; justify-content: center;
-    padding: 6px 4px; font-size: 0.75rem; border-radius: 4px;
-    color: #666; transition: all 0.2s; user-select: none;
-  }
-  .radio-option input:checked + span { 
-    background: var(--c-primary, #4a90e2); 
-    color: white; 
-    font-weight: 600; 
+  .segment-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
   }
 
-  .actions-footer {
-    padding: 20px 0 0 0;
-    border-top: 1px solid #eee;
+  .segment-option:has(input:checked) {
+    background: white;
+    color: var(--c-primary);
+    box-shadow: 0 2px 8px oklch(0% 0 0 / 0.05);
+  }
+
+  /* ── Compliance Bar ── */
+  .compliance-bar {
+    margin-top: auto;
+    padding-top: 2rem;
+    border-top: 1px solid oklch(90% 0.01 250);
+    font-family: var(--c-font-mono);
+    font-size: 0.7rem;
+    color: oklch(50% 0.01 250);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: auto;
+    gap: 8px;
   }
+
+  .status-ok { color: oklch(60% 0.15 150); }
+  .status-warn { color: oklch(60% 0.15 40); }
 }
 
-/* â”€â”€ v4.0 Components (Popover & Dialogs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @layer ui.components {
+  /* ── Dialogs & Popovers ── */
   .standard-dialog {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 24px 64px oklch(0% 0 0 / 0.2);
+    padding: 2rem;
+    background: white;
+    max-width: 500px;
+    width: 90%;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 500px;
-    max-width: 90vw;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 0;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    margin: 0;
   }
 
   .standard-dialog::backdrop {
-    background: rgba(0,0,0,0.4);
+    background: oklch(0% 0 0 / 0.4);
     backdrop-filter: blur(4px);
   }
 
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #eee;
-    background: #f9f9f9;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .close-btn {
-    appearance: none;
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    color: #999;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0.25rem;
-  }
-
-  .form-section {
-    padding: 1.5rem;
-  }
-
-  .inline-controls {
-    display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .inline-controls select {
-    flex-grow: 1;
-    padding: 0.6rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    background: white;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
+  /* ── Profile Grid ── */
   .profile-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
   }
 
   .profile-field {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 6px;
   }
 
   .profile-field label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
+    color: oklch(40% 0.01 250);
   }
 
   .profile-field input {
-    padding: 0.7rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 0.95rem;
+    padding: 10px 12px;
+    border: 1px solid oklch(90% 0.01 250);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
     transition: border-color 0.2s;
   }
 
   .profile-field input:focus {
-    border-color: #4a90e2;
-    outline: none;
+    border-color: var(--c-primary);
   }
 
-  .profile-field:nth-child(5) {
-    grid-column: span 2;
+  /* ── Multi-Line Input (High-Integrity) ── */
+  textarea {
+    field-sizing: content;
+    min-height: 80px;
+    resize: none;
+    overflow: hidden;
   }
+}
 
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid #eee;
-    background: #f9f9f9;
-    border-radius: 0 0 12px 12px;
-  }
-
+/* ── Popover Animation ── */
+@layer project.overrides {
   [popover] {
     opacity: 0;
-    transition: opacity 0.3s, transform 0.3s, overlay 0.3s allow-discrete, display 0.3s allow-discrete;
+    transform: translate(-50%, -50%) scale(0.95);
+    transition:
+      opacity 0.3s,
+      transform 0.3s,
+      overlay 0.3s allow-discrete,
+      display 0.3s allow-discrete;
   }
 
   [popover]:popover-open {
@@ -246,4 +207,3 @@
     }
   }
 }
-

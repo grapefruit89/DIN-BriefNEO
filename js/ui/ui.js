@@ -493,6 +493,13 @@ export class UIController {
       if (entry) {
         let text = e.target.textContent;
 
+        // [SPEC-080] Robust Placeholder Recovery
+        // Ensure true emptiness for CSS :empty to trigger.
+        if (!text || text.trim() === "" || text === "\n") {
+          e.target.textContent = "";
+          text = "";
+        }
+
         if (!entry.editContext) {
           this.sm.state.content[entry.key] = text;
         }

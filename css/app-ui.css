@@ -249,42 +249,57 @@
     --din-mark-fold-1: 105mm;
   }
 
-  /* [SPEC-080] JS-Free Placeholders (Robust 2026 Edition) */
-  /* Reagiert auf: absolut leer ODER nur ein einsames <br> (Browser-Leiche) */
+  /* [SPEC-080] JS-Free Placeholders (Platinum 2026 Edition) */
   [data-placeholder]:is(:empty, :has(> br:only-child))::before {
     content: attr(data-placeholder);
-    color: oklch(0% 0 0 / 0.3);
+    color: oklch(40% 0.01 250 / 0.4); /* Etwas dunkler für bessere Lesbarkeit */
     pointer-events: none;
-    font-style: italic;
-    font-size: 0.9em;
-    display: block; /* Garantiert Sichtbarkeit */
+    font-style: normal;
+    font-size: 0.95em;
+    display: block;
+    position: absolute;
   }
 
-  [contenteditable] {
-    outline: none !important;
-    border: 1px dashed oklch(0% 0 0 / 0.05);
-    border-radius: 4px;
-    padding: 0.5mm 1mm;
-  }
+  /* ... existing single-line atoms ... */
 
-  /* Single-Line Atoms (Fixed Height, No Growth) */
-  din-absender-vorname, din-absender-nachname, din-absender-strasse, din-absender-ort,
-  din-return-line, din-supplement, din-empfaenger-firma, 
-  din-empfaenger-vorname, din-empfaenger-nachname,
-  din-empfaenger-strasse, din-empfaenger-ort,
-  din-date, din-ref-ihr, din-ref-unser, din-grussformel, din-signature {
-    white-space: nowrap;
-    display: inline-block;
-    min-width: 10mm;
-    overflow: hidden;
-    height: 1.4em; /* Fixed height based on line-height */
-  }
-
-  /* Growing Zones */
-  din-subject, din-text {
+  /* Growing Zones (Stabilized) */
+  din-subject {
+    font-weight: bold;
+    margin-bottom: 7mm; /* 7px raster match */
     display: block;
     field-sizing: content;
-    text-wrap: balance; /* [CMD-7] schönerer Zeilenumbruch */
+    text-wrap: balance;
+  }
+
+  din-text {
+    display: block;
+    min-height: 20mm;
+    field-sizing: content;
+    white-space: pre-wrap;
+  }
+
+  #brief-kern {
+    position: absolute;
+    top: calc(var(--din-addr-top) + 50mm); /* Korrigierter Offset */
+    left: var(--din-margin-l);
+    right: var(--din-margin-r);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Overflow Indicator Fix */
+  @container paper scroll-state(scrollable: block) {
+    #paper::after {
+      opacity: 1;
+      transform: translateY(0);
+      display: block; /* Nur zeigen wenn wirklich nötig */
+    }
+  }
+
+  #paper::after {
+    display: none; /* Default aus */
+    content: "⚠️ INHALT ÜBERLÄUFT SEITE 1";
+    /* ... existing styling ... */
   }
 
   /* [SPEC-085] Toast System */

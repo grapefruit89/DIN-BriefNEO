@@ -40,6 +40,7 @@ export class UIController {
       this._onStateChange(path, val, scope, source),
     );
     this._syncAllToDOM();
+    this._startNightWatchdog(); // [SPEC-080] Start real-time observer
 
     document.addEventListener("command", (e) => {
       const { command } = e.detail || { command: e.command };
@@ -689,6 +690,28 @@ export class UIController {
       span.textContent = `[${status.toUpperCase()}]`;
       el.appendChild(span);
     }
+  }
+
+  /**
+   * [SPEC-080] Real-time Time Watchdog
+   * Checks every minute if a theme transition (21:00 or 06:00) is needed.
+   */
+  _startNightWatchdog() {
+    const check = () => {
+      // If manually set, we don't interfere anymore for this session
+      if (this.sm.state.config.theme_manually_set) return;
+
+      const isNight = Logic.isNightTime();
+      const targetTheme = isNight ? "night" : "day";
+
+      if (this.sm.state.config.theme !== targetTheme) {
+        console.info(`[Smart-Night] Auto-Transition to ${targetTheme}`);
+        this.sm.update("config.theme", targetTheme, "auto-night");
+        this._syncAllToDOM();
+      }
+      setTimeout(check, 60000); // Check once per minute
+    };
+    setTimeout(check, 1000);
   }
 }
 

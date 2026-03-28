@@ -188,6 +188,34 @@ export function sumFinancials(values) {
   return PrecisionMath.sum(values);
 }
 /**
+ * Berechnet die Millisekunden bis zum nächsten Themenwechsel (21:00 oder 06:00).
+ */
+export function getMsUntilNextThemeTransition() {
+  // @ts-ignore
+  const now = Temporal.Now.zonedDateTimeISO();
+  const today = now.toPlainDate();
+  
+  const nightStart = today.toZonedDateTime({ plainTime: '21:00:00', timeZone: now.timeZoneId });
+  const nightEnd   = today.toZonedDateTime({ plainTime: '06:00:00', timeZone: now.timeZoneId });
+
+  // Mögliche Ziele finden (Heute oder Morgen)
+  const candidates = [
+    nightStart,
+    nightStart.add({ days: 1 }),
+    nightEnd,
+    nightEnd.add({ days: 1 })
+  ];
+
+  // Nur zukünftige Zeiten nehmen und sortieren
+  const future = candidates
+    .filter(c => Temporal.ZonedDateTime.compare(c, now) > 0)
+    .sort(Temporal.ZonedDateTime.compare);
+
+  // Differenz zum nächsten Zeitpunkt
+  return future[0].epochMilliseconds - now.epochMilliseconds;
+}
+
+/**
  * Prüft, ob die aktuelle Zeit im Nachtfenster (21:00 - 06:00) liegt.
  */
 export function isNightTime() {

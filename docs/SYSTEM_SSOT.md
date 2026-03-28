@@ -1,7 +1,10 @@
-﻿# Standard_PROTOCOL_V3.LOCKED
-**DOKTRIN:** Core GRADE Standard | **BASELINE:** CHROME 147+ | **SSoT**
+﻿# ðŸ“œ SYSTEM_v4.0_SSOT.md
+# ðŸ’Ž v4.0_PROTOCOL_V3.LOCKED
+# Status: CEMENTED (LOCKED) | Version: 3.1.0 | Baseline: Chrome 147+
 
-Dieses Dokument terminiert alle bisherigen "vibe-basierten" Implementierungen. Es ist die einzige Quelle der Wahrheit fÃ¼r die maschinelle Isomorphie zwischen der DIN 5008:2020 und der Blink-Direct Architektur. Jede Abweichung ist eine CMA_VIOLATION.
+Dieses Dokument ist die **Single Source of Truth (SSoT)** fÃ¼r die IMR 3.1 (Isomorphe Master-Registry). Es terminiert alle bisherigen Implementierungen und ist das absolute Gesetz fÃ¼r die maschinelle Isomorphie zwischen der DIN 5008:2020 und der Blink-Direct Architektur. Jede Abweichung ist eine **CMA_VIOLATION**.
+
+---
 
 ## 1. Autonomous SEMANTIC MATRIX V3.1
 
@@ -49,9 +52,8 @@ Dieses Dokument terminiert alle bisherigen "vibe-basierten" Implementierungen. E
 ### Compliance & Sicherheit
 | DIN-Element | Custom-Tag | Sicherheits-Constraint |
 | :--- | :--- | :--- |
-| **Werte/BetrÃ¤ge** | `<din-amount>` | **CoreMath Cent-Fallback** (V8 Floating-Point PrÃ¤vention). |
+| **Werte/BetrÃ¤ge** | `<din-amount>` | **AviationMath Cent-Fallback** (V8 Floating-Point PrÃ¤vention). |
 | **Bankdaten** | `<din-bank-data>` | IBAN Modulo-97 BigInt Validierung. |
-| **Steuern/Register**| `<din-fiscal-data>`| USt-IdNr / Handelsregister. |
 | **FuÃŸzeile** | `<din-footer>` | `@page` Margin-Box Bindung. |
 
 ---
@@ -59,7 +61,11 @@ Dieses Dokument terminiert alle bisherigen "vibe-basierten" Implementierungen. E
 ## 2. MANDATORY ARCHITECTURAL CONSTRAINTS
 
 *   **Constraint [MANDATE-TAG]:** Jedes HTML-Tag im Briefvordruck MUSS das PrÃ¤fix `din-` tragen. W3C-KonformitÃ¤t ist heilig; Tags ohne Bindestrich sind verboten.
-*   **Constraint [MANDATE-INJ]:** `innerHTML` ist global vaporisiert. Nutze fÃ¼r alle DOM-Injektionen ausnahmslos `setHTML(html, { sanitizer: Standard_CONFIG })`.
+*   **Constraint [MANDATE-INJ]:** `innerHTML` ist global vaporisiert. Nutze fÃ¼r alle DOM-Injektionen ausnahmslos `setHTML(html, { sanitizer: v4.0_CONFIG })`.
 *   **Constraint [MANDATE-UI]:** Alle MaÃŸe werden zwingend als `@property` mit `inherits: false` registriert, um die Render-Performance der Blink-Engine zu maximieren.
 *   **Constraint [MANDATE-WYSIWYG]:** Die Bearbeitung erfolgt zu 100% WYSIWYG direkt auf dem Dokument. Der Textfluss wird vollstÃ¤ndig Ã¼ber die **EditContext API** gesteuert.
+*   **Constraint [MANDATE-SSOT]:** Jede Abweichung von dieser Tag-Struktur fÃ¼hrt zum sofortigen System-Halt der IMR-Validierung.
+
+**Gezeichnet:**
+*Der v4.0 Architect (Gemini CLI)*
 

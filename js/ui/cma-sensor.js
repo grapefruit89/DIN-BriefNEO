@@ -1,7 +1,7 @@
-/**
- * js/ui/cma-sensor.js — Platinum CMA-Sensor (SPEC-031)
- * [MANDATE-PLATINUM] Overflow-Detection via IntersectionObserver
- * ─────────────────────────────────────────────────────────────
+﻿/**
+ * js/ui/cma-sensor.js â€” v4.0 CMA-Sensor (SPEC-031)
+ * [MANDATE-v4.0] Overflow-Detection via IntersectionObserver
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
 export class CMASensor {
@@ -14,13 +14,13 @@ export class CMASensor {
 
     init() {
         if (!this.sensor || !this.root) {
-            console.warn('⚠️ [CMA-Sensor] Required elements <din-cma-sensor> or <din-page-wrapper> not found.');
+            console.warn('âš ï¸ [CMA-Sensor] Required elements <din-cma-sensor> or <din-page-wrapper> not found.');
             return;
         }
 
         /**
          * The sensor is at the bottom of the content stream.
-         * The root (din-page-wrapper) has a max-height (Aviation Grade Threshold).
+         * The root (din-page-wrapper) has a max-height (High-Integrity Threshold).
          * If the sensor is NOT intersecting at 100%, it means it's pushed into the overflow zone.
          */
         this.observer = new IntersectionObserver((entries) => {
@@ -38,7 +38,7 @@ export class CMASensor {
                 this.sm.state.compliance.overflow = isOverflow;
 
                 if (isOverflow) {
-                    console.warn('⚠️ [CMA-Sensor] Layout Violation: Content exceeds page 1 threshold.');
+                    console.warn('âš ï¸ [CMA-Sensor] Layout Violation: Content exceeds page 1 threshold.');
                 }
             });
         }, {
@@ -47,6 +47,7 @@ export class CMASensor {
         });
 
         this.observer.observe(this.sensor);
-        console.info('🛡️ [CMA-Sensor] Active: Monitoring threshold at 280mm.');
+        console.info('ðŸ›¡ï¸ [CMA-Sensor] Active: Monitoring threshold at 280mm.');
     }
 }
+

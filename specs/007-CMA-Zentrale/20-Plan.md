@@ -1,11 +1,11 @@
----
+﻿---
 id: SPEC-007-PLAN
 title: CMA Technical Implementation
 status: cemented
 version: 4.0.0
 ---
 
-# 20 — Plan: Technische Realisierung (CMA)
+# 20 â€” Plan: Technische Realisierung (CMA)
 
 ## 1. Architektur-Layer
 
@@ -17,12 +17,13 @@ version: 4.0.0
 ### Layer 2: CSS-Level (`css/app-ui.css`)
 - Injection der CMA-Werte in CSS Custom Properties (`--din-*`).
 - Layout-Steuerung via CSS Variables.
-- **Chrome 147 Upgrade:** Nutzung von `@property` zur Typisierung der Maße (`syntax: '<length>'`).
+- **Chrome 147 Upgrade:** Nutzung von `@property` zur Typisierung der MaÃŸe (`syntax: '<length>'`).
 
 ## 2. Synchronisations-Strategie
-- **JS → DOM:** `UIController` liest `IMR` und setzt Initial-Werte.
-- **CSS → Render:** Millimeter-genaue Positionierung via `top`, `left`, `width` basierend auf `--din-*` Variablen.
+- **JS â†’ DOM:** `UIController` liest `IMR` und setzt Initial-Werte.
+- **CSS â†’ Render:** Millimeter-genaue Positionierung via `top`, `left`, `width` basierend auf `--din-*` Variablen.
 
 ## 3. APIs
 - **IMR 4.0 Registry:** Mapping zwischen `Key` und `Tag`.
-- **CMA Central Object:** SSoT für numerische Werte.
+- **CMA Central Object:** Single Source of Truth fÃ¼r numerische Werte.
+

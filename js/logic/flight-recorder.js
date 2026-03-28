@@ -1,9 +1,9 @@
-/**
- * js/logic/flight-recorder.js — Black Box Decoder Runtime
- * Platinum V16 | SPEC-047 | BRAIN-047-SPEC | PLAN-047
- * ─────────────────────────────────────────────────────────────────────────────
+﻿/**
+ * js/logic/flight-recorder.js â€” Black Box Decoder Runtime
+ * v4.0 V16 | SPEC-047 | BRAIN-047-SPEC | PLAN-047
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * DETERMINISTISCHE DIAGNOSE-ENGINE
- * Erfasst den vollständigen System-Zustand bei CMA-Verstößen oder Drifts.
+ * Erfasst den vollstÃ¤ndigen System-Zustand bei CMA-VerstÃ¶ÃŸen oder Drifts.
  */
 
 import { IMR } from '../core/constants.js';
@@ -13,7 +13,7 @@ export const FlightRecorder = {
   
   /**
    * Misst physische Abweichungen der IMR-Zonen vom DIN-Standard.
-   * Nutzt getBoundingClientRect() für Echtzeit-Telemetrie.
+   * Nutzt getBoundingClientRect() fÃ¼r Echtzeit-Telemetrie.
    */
   measureCMA: () => {
     return IMR.map(entry => {
@@ -35,14 +35,14 @@ export const FlightRecorder = {
   },
 
   /**
-   * Generiert die vollständige Payload für den Black Box Decoder (KI).
-   * @param {string} errorType — CMA_VIOLATION | DOM_DRIFT | MANUAL
-   * @param {string} message — Kurze Fehlerbeschreibung
+   * Generiert die vollstÃ¤ndige Payload fÃ¼r den Black Box Decoder (KI).
+   * @param {string} errorType â€” CMA_VIOLATION | DOM_DRIFT | MANUAL
+   * @param {string} message â€” Kurze Fehlerbeschreibung
    */
   record: (errorType = 'MANUAL_TRIGGER', message = '') => {
     return {
       header: {
-        app: "DIN-BriefNEO Platinum",
+        app: "DIN-BriefNEO v4.0",
         version: "16.0.0",
         timestamp: Temporal.Now.instant().toString(),
         incident_id: crypto.randomUUID()
@@ -54,7 +54,7 @@ export const FlightRecorder = {
       telemetry: {
         imr_state: readDOMasJSON(),
         cma_sensor: FlightRecorder.measureCMA(),
-        console_buffer: [] // Platzhalter für Log-Aggregation
+        console_buffer: [] // Platzhalter fÃ¼r Log-Aggregation
       },
       environment: {
         engine: "Chrome 147+",
@@ -64,3 +64,4 @@ export const FlightRecorder = {
     };
   }
 };
+

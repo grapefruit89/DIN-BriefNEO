@@ -1,5 +1,5 @@
 /**
- * js/core/constants.js — Platinum Audit V4.2.0 (IMR 4.0)
+ * js/core/constants.js — v4.2.0 Specification (IMR 4.0)
  * Central Measurement Authority (CMA) — Layer 1: JS Constants
  * ─────────────────────────────────────────────────────────
  */
@@ -57,7 +57,7 @@ export const AI_INTENTS = Object.freeze({
 });
 
 /**
- * [ADR-014] Native Sanitizer (Aviation Grade Platinum)
+ * [ADR-014] Native Sanitizer (Core Specification)
  * [CMD-3] Whitelist IMR 4.0 Custom Tags based on SSoT.
  */
 export const SANITIZER_CONFIG = {
@@ -84,4 +84,4 @@ if (globalThis.Sanitizer) {
     console.warn('[Sanitizer] Failed to initialize with config, falling back to null.', e);
   }
 }
-export const PLATINUM_SANITIZER = sanitizerInstance;
+export const CORE_SANITIZER = sanitizerInstance;

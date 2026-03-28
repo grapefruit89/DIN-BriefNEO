@@ -1,9 +1,9 @@
 /* ==========================================================================
-   platinum-locked.css – 100% deklarativ | Aviation Grade Write-Protected
-   Darf NIE von KI oder CLI verändert werden! [MANDATE-013]
+   core-immutable.css – Declarative Structural Layer | High-Precision
+   This file contains fixed geometry constraints. [MANDATE-NAT]
    ========================================================================== */
 
-@layer platinum.locked !important {
+@layer core.immutable !important {
 
   :root {
     /* ── OKLCH PERCEPTUAL PALETTE ──────────────────────────────────── */
@@ -14,7 +14,7 @@
     --c-accent-blue:       oklch(55% 0.25 260);
   }
 
-  /* ── Sidebar exakt wie im Screenshot ─────────────────────────────── */
+  /* ── Sidebar Structural Layout ──────────────────────────────────── */
   #sidebar-left {
     background: var(--c-sidebar-bg);
     padding: 2.4rem 1.8rem;
@@ -48,7 +48,7 @@
     margin-bottom: 0.3rem;
   }
 
-  /* Buttons exakt wie im Bild */
+  /* Standard Button Specification */
   .sidebar-btn {
     background: oklch(15% 0 0);
     border: 1px solid oklch(20% 0 0);
@@ -72,7 +72,7 @@
     color: white;
   }
 
-  /* ── Paper exakt wie im Screenshot ─────────────────────────────── */
+  /* ── DIN-A4 Physical Simulation ───────────────────────────────── */
   #paper {
     background: white;
     box-shadow: var(--din-paper-shadow);
@@ -82,7 +82,7 @@
     min-height: 297mm;
   }
 
-  /* Platzhalter exakt wie im Bild */
+  /* Placeholder Specification */
   [data-placeholder]::before,
   din-text:empty::before,
   din-anrede:empty::before,
@@ -93,7 +93,7 @@
     pointer-events: none;
   }
 
-  /* Hilfslinien – immer leicht sichtbar wie im Screenshot */
+  /* Guide Lines – 0.18 opacity per Specification */
   .fold-mark,
   .punch-mark,
   .guide-line,
@@ -102,7 +102,7 @@
     display: block !important;
   }
 
-  /* Footer-Buttons unten zentriert */
+  /* Global Action Footer */
   #action-footer {
     position: absolute;
     bottom: 2rem;

@@ -1,28 +1,28 @@
-/**
- * js/logic/logic.js — Pure Business Logic Engine
- * DIN-BriefNEO · Platinum V14 | SPEC-002, SPEC-007, CAA-008, PLAN-010, ADR-008
- * ─────────────────────────────────────────────────────────────────────────────
- * ZERO DOM. ZERO State-Imports. Pure Input → Output.
+﻿/**
+ * js/logic/logic.js â€” Pure Business Logic Engine
+ * DIN-BriefNEO Â· v4.0 V14 | SPEC-002, SPEC-007, CAA-008, PLAN-010, ADR-008
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * ZERO DOM. ZERO State-Imports. Pure Input â†’ Output.
  *
  * IMR 2.0 (2026-03-20 / PLAN-010):
  *   readDOMasJSON() scannt <din-*> Tags direkt.
- *   Kein domId-Lookup mehr — tag.slice(4) IS der Key.
- *   Normalisierung: "din-your-ref" → "your_ref" (Bindestrich→Unterstrich)
+ *   Kein domId-Lookup mehr â€” tag.slice(4) IS der Key.
+ *   Normalisierung: "din-your-ref" â†’ "your_ref" (Bindestrichâ†’Unterstrich)
  *
  * ADR-008 (2026-03-20):
  *   readDOMasJSON() liest IMMER textContent, nie innerHTML (TOMB-L008).
  *   richText-Flag aus IMR entfernt. Ghost-Mirror ist die einzige
- *   Formatierungs-Visualisierung — sie wird hier nicht gelesen.
+ *   Formatierungs-Visualisierung â€” sie wird hier nicht gelesen.
  */
 
 import { IMR, AI_INTENTS } from "../core/constants.js";
 export * from "./greetings.js";
 
-/* ── Hilfsfunktion: Tag-Name → JSON-Key ──────────────────────── */
-// "din-your-ref" → "your_ref"  |  "din-body" → "body"
+/* â”€â”€ Hilfsfunktion: Tag-Name â†’ JSON-Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+// "din-your-ref" â†’ "your_ref"  |  "din-body" â†’ "body"
 const tagToKey = (tag) => tag.toLowerCase().slice(4).replace(/-/g, "_");
 
-/* ── Date (TOMB-LEGACY-001: Temporal API Proof) ───────────────── */
+/* â”€â”€ Date (TOMB-LEGACY-001: Temporal API Proof) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export {
   todayISO,
@@ -42,7 +42,7 @@ export function getTodayTemporal() {
 const MONTHS_DE = [
   "Januar",
   "Februar",
-  "März",
+  "MÃ¤rz",
   "April",
   "Mai",
   "Juni",
@@ -105,11 +105,11 @@ export function parseDate(input) {
   }
 }
 
-/* ── Recipient Parsing (Platinum V4 — Intl.Segmenter) ────────── */
+/* â”€â”€ Recipient Parsing (v4.0 V4 â€” Intl.Segmenter) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * [AVIATION GRADE] Recipient Parser
- * Nutzt Intl.Segmenter für robuste Tokenisierung ohne Regex-Hell.
+ * [High-Integrity] Recipient Parser
+ * Nutzt Intl.Segmenter fÃ¼r robuste Tokenisierung ohne Regex-Hell.
  */
 export function parseRecipient(text) {
   if (!text)
@@ -172,7 +172,7 @@ export function parseRecipient(text) {
   return { gender, name, firstName, title, fullName };
 }
 
-/* ── Precision Math (Aviation Grade Guard) ────────────────────── */
+/* â”€â”€ Precision Math (High-Integrity Guard) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
  * [CMD-3] Zero-Loss Financial Calculation
@@ -198,11 +198,11 @@ export function sumFinancials(values) {
   return AviationMath.sum(values);
 }
 
-/* ── Return Address (Aviation Grade) ─────────────────────────── */
+/* â”€â”€ Return Address (High-Integrity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * Leitet die Rücksende-Zeile (Einzeiler über dem Empfänger) ab.
- * @param {Object} data — { name, co, street, zipCity }
+ * Leitet die RÃ¼cksende-Zeile (Einzeiler Ã¼ber dem EmpfÃ¤nger) ab.
+ * @param {Object} data â€” { name, co, street, zipCity }
  */
 export function deriveReturnLine({
   name = "",
@@ -220,14 +220,14 @@ export function deriveReturnLine({
   };
 
   const namePart = co ? `${abbr(name)} (c/o ${co})` : abbr(name);
-  return [namePart, street, zipCity].filter(Boolean).join(" · ");
+  return [namePart, street, zipCity].filter(Boolean).join(" Â· ");
 }
 
-/* ── IBAN (Aviation Grade BigInt) ────────────────────────────── */
+/* â”€â”€ IBAN (High-Integrity BigInt) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * [AVIATION GRADE] IBAN Validation
- * Verwendet BigInt für die Modulo-97 Berechnung (Aviation Grade Precision).
+ * [High-Integrity] IBAN Validation
+ * Verwendet BigInt fÃ¼r die Modulo-97 Berechnung (High-Integrity Precision).
  */
 export function validateIBAN(raw) {
   if (!raw) return false;
@@ -257,7 +257,7 @@ export function validateIBAN(raw) {
 }
 
 /**
- * Formatiert IBAN in 4er Blöcke.
+ * Formatiert IBAN in 4er BlÃ¶cke.
  */
 export function formatIBAN(raw) {
   if (!raw) return "";
@@ -265,11 +265,11 @@ export function formatIBAN(raw) {
   return clean.match(/.{1,4}/g)?.join(" ") || clean;
 }
 
-/* ── Markdown Engine (Aviation Grade Ghost-Mirror) ──────────── */
+/* â”€â”€ Markdown Engine (High-Integrity Ghost-Mirror) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /**
- * [CMD-1] Platinum Markdown Parser (V26)
- * Nutzt gepaarte Syntax ohne Escaping-Zwang für Einzelzeichen.
+ * [CMD-1] v4.0 Markdown Parser (V26)
+ * Nutzt gepaarte Syntax ohne Escaping-Zwang fÃ¼r Einzelzeichen.
  * @param {string} text - Plaintext Input
  * @returns {string} Sanitized HTML Output
  */
@@ -285,7 +285,7 @@ export function parseMarkdownToHTML(text) {
     .replace(/'/g, "&#039;");
 
   html = html
-    // Zeilenumbrüche: einzelnes \n = <br>, doppeltes \n\n = neuer Absatz
+    // ZeilenumbrÃ¼che: einzelnes \n = <br>, doppeltes \n\n = neuer Absatz
     .replace(/\n\n/g, "<br><br>")
     .replace(/\n/g, "<br>")
 
@@ -304,31 +304,31 @@ export function parseMarkdownToHTML(text) {
   return html;
 }
 
-/* ── Akinator Engine 2.0 (IMR Tag-Scanner) ───────────────────────
+/* â”€â”€ Akinator Engine 2.0 (IMR Tag-Scanner) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * SPEC-038 | CAA-008 | PLAN-010 | ADR-008
  *
  * TAG-SCAN PRINZIP:
  *   Kein getElementById(domId) mehr.
  *   DOM-Scan via document.querySelector(entry.tag).
- *   tag.slice(4).replace(/-/g,'_') → JSON-Key automatisch.
+ *   tag.slice(4).replace(/-/g,'_') â†’ JSON-Key automatisch.
  *
- * CEMETERY [TOMB-L007]: Alter Ansatz getElementById(entry.domId) → entfernt.
- * CEMETERY [TOMB-L008]: richText-Flag → entfernt. textContent ist IMMER SSoT.
+ * CEMETERY [TOMB-L007]: Alter Ansatz getElementById(entry.domId) â†’ entfernt.
+ * CEMETERY [TOMB-L008]: richText-Flag â†’ entfernt. textContent ist IMMER SSoT.
  */
 
 /**
  * Liest den aktuellen Brief-Inhalt aus dem DOM via IMR-Tag-Scan.
  *
- * [ADR-008] Liest IMMER textContent — nie innerHTML.
+ * [ADR-008] Liest IMMER textContent â€” nie innerHTML.
  * Begruendung (GEMINI.md Sektion XI):
  *   contenteditable="plaintext-only" garantiert, dass textContent === Nutzereingabe.
  *   innerHTML wuerde bei plaintext-only identisch sein, aber das Flag
  *   signalisiert explizit: "Kein HTML-Pfad". Ein richText-Flag ist
- *   nicht nur redundant — es ist eine Einladung zur Regression.
+ *   nicht nur redundant â€” es ist eine Einladung zur Regression.
  *   Ghost-Mirror (<din-body-mirror>) hat kein contenteditable und
  *   wird von diesem Scanner nicht gelesen.
  *
- * @returns {Object} Kanonisches JSON-Objekt (IMR-Schema), leere Felder → null
+ * @returns {Object} Kanonisches JSON-Objekt (IMR-Schema), leere Felder â†’ null
  */
 export function readDOMasJSON() {
   const result = {};
@@ -347,8 +347,8 @@ export function readDOMasJSON() {
 
 /**
  * Findet ein spezifisches DIN-Tag-Element.
- * Kurzform: getTag('subject') → document.querySelector('din-subject')
- * @param {string} key — IMR-Key (z.B. 'subject', 'your_ref')
+ * Kurzform: getTag('subject') â†’ document.querySelector('din-subject')
+ * @param {string} key â€” IMR-Key (z.B. 'subject', 'your_ref')
  * @returns {Element|null}
  */
 export function getTag(key) {
@@ -362,12 +362,12 @@ export function getTag(key) {
  * 2. Aktualisiert die entsprechenden <din-*> Tags
  * 3. Fuehrt System-Intents aus (z.B. Print)
  *
- * @param {Object} json — KI-Output (IMR-Schema + intent)
+ * @param {Object} json â€” KI-Output (IMR-Schema + intent)
  */
 export function executeAIResponse(json) {
   if (!json || typeof json !== "object") return;
 
-  console.group("🧠 AI-Native Orchestrator: Execute Response");
+  console.group("ðŸ§  AI-Native Orchestrator: Execute Response");
   console.log("Input Protocol:", json);
 
   const auditTrail = [];
@@ -392,7 +392,7 @@ export function executeAIResponse(json) {
   if (intent) {
     console.log("Active Intent detected:", intent);
 
-    // Guard: Sovereign Control Check
+    // Guard: Autonomous Control Check
     const paper = document.getElementById("paper");
     const isAutoConfigAllowed = paper?.dataset.autoConfig === "true";
 
@@ -406,7 +406,7 @@ export function executeAIResponse(json) {
           paper.dataset.guides === "true" ? "false" : "true";
       }
     }
-    // UI-Settings (Form A/B, Formal/Casual) — MANDATE-000 Guard
+    // UI-Settings (Form A/B, Formal/Casual) â€” MANDATE-000 Guard
     else if (
       [
         AI_INTENTS.LAYOUT_A,
@@ -433,7 +433,7 @@ export function executeAIResponse(json) {
           auditTrail.push("Applied AI-Formality: casual");
         }
       } else {
-        const msg = `AI suggested UI-Change (${intent}), but Auto-Config is DISABLED (Sovereignty Guard).`;
+        const msg = `AI suggested UI-Change (${intent}), but Auto-Config is DISABLED (Autonomousty Guard).`;
         console.warn(msg);
         auditTrail.push(msg);
       }
@@ -454,14 +454,14 @@ export function buildInterviewPrompt() {
     (e) => `  "${e.key}": null   // <${e.tag}>`,
   ).join(",\n");
 
-  return `# DIN-BriefNEO — Aviation Grade Interview-Modus
+  return `# DIN-BriefNEO â€” High-Integrity Interview-Modus
 # Isomorphic Master Registry 2.0 | CAA-008 | ADR-008 | PLAN-010
 
 Du bist ein Assistent fuer professionelle Geschaeftskorrespondenz nach DIN 5008:2020-03.
-Dieses System ist Aviation Grade — jeder JSON-Key entspricht EXAKT einem
+Dieses System ist High-Integrity â€” jeder JSON-Key entspricht EXAKT einem
 physischen Millimeter-Feld auf dem DIN-A4-Blatt (Custom HTML-Tag).
 
-## Kanonisches Schema (IMR 2.0 — EXAKT diese Keys)
+## Kanonisches Schema (IMR 2.0 â€” EXAKT diese Keys)
 \```json
 {
   "intent":     null,   // [NEU] System-Aktion (z.B. "action:print", "action:save_local")
@@ -476,28 +476,28 @@ Wenn du den Brief fertiggestellt hast, kannst du folgende Aktionen via "intent"-
 - "${AI_INTENTS.GHOST}": Schaltet Falzmarken-Hilfslinien ein/aus
 
 ## Pflicht-Regeln
-- ALLE Keys ausgeben — leere Felder als \`null\`, nicht weglassen
+- ALLE Keys ausgeben â€” leere Felder als \`null\`, nicht weglassen
 - \`salutation\`: Vollstaendige DIN-Anrede ("Sehr geehrter Herr Mustermann,")
-- \`greeting\`: KEIN Satzzeichen am Ende (DIN 5008 §6.3)
+- \`greeting\`: KEIN Satzzeichen am Ende (DIN 5008 Â§6.3)
 - \`subject\`: Praegnant, max. 1 Zeile, keine Abkuerzungen
-- \`sender\`: Einzeiler im Format "V. Nachname · Straße Nr. · PLZ Ort"
+- \`sender\`: Einzeiler im Format "V. Nachname Â· StraÃŸe Nr. Â· PLZ Ort"
 
 ## Markdown-Verwendungsregel (STRIKT)
 ERLAUBT: Nur im "body"-Feld: *kursiv*, **fett**, ~~gestrichen**, > Zitat, \`code\`, Listen, Tabellen
 VERBOTEN: Markdown in sender, note, recipient, date, your_ref, our_ref,
           subject, salutation, greeting, signature, footer. Dort: reiner Plaintext.
 
-## Few-Shot Beispiel 1 — Impressum → sender
+## Few-Shot Beispiel 1 â€” Impressum â†’ sender
 Input: "Max Mustermann GmbH, Musterstr. 42, 12345 Berlin, USt-ID: DE123"
-Output sender: "M. Mustermann GmbH · Musterstraße 42 · 12345 Berlin"
+Output sender: "M. Mustermann GmbH Â· MusterstraÃŸe 42 Â· 12345 Berlin"
 Regel: Einzeiler, Name abgekuerzt, kein Impressum-Overhead.
 
-## Few-Shot Beispiel 2 — WhatsApp → Formaler Brief
-Input: "hey ich brauch nen brief, mein vermieter soll kaution zurueckzahlen, 3 monate nichts gehört"
-Output: Vollstaendiges JSON mit § 548 BGB Referenz, berechneter 14-Tage-Frist,
+## Few-Shot Beispiel 2 â€” WhatsApp â†’ Formaler Brief
+Input: "hey ich brauch nen brief, mein vermieter soll kaution zurueckzahlen, 3 monate nichts gehÃ¶rt"
+Output: Vollstaendiges JSON mit Â§ 548 BGB Referenz, berechneter 14-Tage-Frist,
         formaler Anrede, Markdown-Freiheit nur in body.
 
-## Few-Shot Beispiel 3 — Angebot mit Referenzzeilen
+## Few-Shot Beispiel 3 â€” Angebot mit Referenzzeilen
 Input: "Angebot Webdev fuer Berger AG, Unsere Ref: NX-044, Ihre Anfrage 15.03."
 Output: your_ref="Anfrage vom 15.03.2026", our_ref="NX-044", subject="Angebot Webentwicklung",
         Markdown-Tabelle mit Preisen im body.
@@ -521,13 +521,13 @@ export function buildOptimizationPrompt() {
     return `  "${key}": ${display}   // <${tag}>`;
   }).join(",\n");
 
-  return `# DIN-BriefNEO — Optimierungs-Modus
+  return `# DIN-BriefNEO â€” Optimierungs-Modus
 # IMR 2.0 | CAA-008 | ADR-008
 
 Optimiere den folgenden DIN 5008-Briefentwurf.
 Jeder Key ist direkt einem HTML-Tag auf dem Papier zugeordnet.
 
-## Aktueller Stand (Tag ↔ JSON)
+## Aktueller Stand (Tag â†” JSON)
 \```json
 {
   "intent": null,
@@ -536,8 +536,8 @@ ${rows}
 \```
 
 ## System-Intents (Optional)
-Du kannst folgende Aktionen via "intent"-Key auslösen:
-- "${AI_INTENTS.PRINT}": Öffnet sofort den Druckdialog
+Du kannst folgende Aktionen via "intent"-Key auslÃ¶sen:
+- "${AI_INTENTS.PRINT}": Ã–ffnet sofort den Druckdialog
 - "${AI_INTENTS.SAVE}":  Sichert den Stand im lokalen Speicher
 
 ## Markdown-Regel
@@ -556,8 +556,8 @@ Vollstaendiges JSON mit ALLEN IMR-Keys. Kurze Begruendung (3 Saetze) danach.
 }
 
 /**
- * Scannt Plaintext nach Markdown-Markern und liefert Ranges für das Highlighting.
- * Chrome 147 Baseline: Nutzt native Range-Objekte für CSS Custom Highlight API.
+ * Scannt Plaintext nach Markdown-Markern und liefert Ranges fÃ¼r das Highlighting.
+ * Chrome 147 Baseline: Nutzt native Range-Objekte fÃ¼r CSS Custom Highlight API.
  */
 export function getMarkdownRanges(text, textNode) {
   if (!text || !textNode) return { bold: [], italic: [], marker: [] };
@@ -599,7 +599,8 @@ export function getMarkdownRanges(text, textNode) {
   // 2. Italic (*)
   scan(/(\*)(.*?)\1/g, "italic");
   // 3. Underline (__)
-  scan(/(__)(.*?)\1/g, "bold"); // Wir mappen Underline auf Bold für DIN-Zwecke
+  scan(/(__)(.*?)\1/g, "bold"); // Wir mappen Underline auf Bold fÃ¼r DIN-Zwecke
 
   return { bold: boldRanges, italic: italicRanges, marker: markerRanges };
 }
+

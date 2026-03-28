@@ -1,28 +1,28 @@
-/**
- * js/ui/model-blacklist.js — KI-Modell Blacklist Strategy
- * DIN-BriefNEO · Platinum V13 | SPEC-038
- * ─────────────────────────────────────────────────────────
+﻿/**
+ * js/ui/model-blacklist.js â€” KI-Modell Blacklist Strategy
+ * DIN-BriefNEO Â· v4.0 V13 | SPEC-038
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * PRINZIP: Blacklist statt Whitelist.
  *   Statt eine starre Liste erlaubter Modelle zu pflegen,
  *   werden VERALTETE Modelle gefiltert. Neue Modelle sind
- *   automatisch erlaubt — keine manuelle Freischaltung nötig.
+ *   automatisch erlaubt â€” keine manuelle Freischaltung nÃ¶tig.
  *
  * PATTERN:
  *   const models = await fetchAvailableModels(apiKey);
  *   const usable = filterModels(models);
- *   → renderModelSelect(usable);
+ *   â†’ renderModelSelect(usable);
  */
 
 /**
- * Blacklist-Einträge: Muster für veraltete/ungeeignete Modelle.
- * Regex-basiert → "enthält X" statt "ist exakt Y".
+ * Blacklist-EintrÃ¤ge: Muster fÃ¼r veraltete/ungeeignete Modelle.
+ * Regex-basiert â†’ "enthÃ¤lt X" statt "ist exakt Y".
  *
  * BLACKLIST PFLEGE-REGEL:
- *   Einträge werden NUR hinzugefügt (nie entfernt ohne Migration-Notiz).
+ *   EintrÃ¤ge werden NUR hinzugefÃ¼gt (nie entfernt ohne Migration-Notiz).
  *   Format: { pattern: /regex/, reason: 'Warum gesperrt', since: 'YYYY-MM' }
  */
 const MODEL_BLACKLIST = Object.freeze([
-  { pattern: /gpt-3\.5/i,         reason: 'Zu alt für DIN-Präzision',     since: '2024-01' },
+  { pattern: /gpt-3\.5/i,         reason: 'Zu alt fÃ¼r DIN-PrÃ¤zision',     since: '2024-01' },
   { pattern: /gpt-4-0314/i,       reason: 'Deprecated (OpenAI)',           since: '2024-06' },
   { pattern: /gpt-4-0613/i,       reason: 'Deprecated (OpenAI)',           since: '2024-06' },
   { pattern: /text-davinci/i,     reason: 'Legacy completions API',        since: '2023-01' },
@@ -35,8 +35,8 @@ const MODEL_BLACKLIST = Object.freeze([
 
 /**
  * Filtert eine Modellliste gegen die Blacklist.
- * @param {string[]} models — Liste der Modell-IDs vom Provider
- * @returns {string[]} — bereinigte Liste (Blacklist-Treffer entfernt)
+ * @param {string[]} models â€” Liste der Modell-IDs vom Provider
+ * @returns {string[]} â€” bereinigte Liste (Blacklist-Treffer entfernt)
  */
 export function filterModels(models) {
   if (!Array.isArray(models)) return [];
@@ -46,7 +46,7 @@ export function filterModels(models) {
 }
 
 /**
- * Erklärt warum ein Modell gesperrt ist (für Debug-Anzeige).
+ * ErklÃ¤rt warum ein Modell gesperrt ist (fÃ¼r Debug-Anzeige).
  * @param {string} modelId
  * @returns {{ blocked: boolean, reason?: string, since?: string }}
  */
@@ -57,10 +57,10 @@ export function explainBlock(modelId) {
 }
 
 /**
- * Rendert ein <select>-Element mit den verfügbaren Modellen.
- * Gesperrte Modelle werden als disabled-Option mit Erklärung angezeigt.
- * @param {string} selectId — ID des <select>-Elements
- * @param {string[]} allModels — alle verfügbaren Modell-IDs
+ * Rendert ein <select>-Element mit den verfÃ¼gbaren Modellen.
+ * Gesperrte Modelle werden als disabled-Option mit ErklÃ¤rung angezeigt.
+ * @param {string} selectId â€” ID des <select>-Elements
+ * @param {string[]} allModels â€” alle verfÃ¼gbaren Modell-IDs
  */
 export function renderModelSelect(selectId, allModels) {
   const el = document.getElementById(selectId);
@@ -74,9 +74,9 @@ export function renderModelSelect(selectId, allModels) {
     info.blocked ? grouped.blocked.push({ id: m, ...info }) : grouped.available.push(m);
   }
 
-  // Verfügbare Modelle
+  // VerfÃ¼gbare Modelle
   const grpOk = document.createElement('optgroup');
-  grpOk.label = '✓ Verfügbar';
+  grpOk.label = 'âœ“ VerfÃ¼gbar';
   grouped.available.forEach(m => {
     const opt = document.createElement('option');
     opt.value = m;
@@ -85,18 +85,19 @@ export function renderModelSelect(selectId, allModels) {
   });
   el.appendChild(grpOk);
 
-  // Gesperrte Modelle (sichtbar aber disabled — Transparenz für Nutzer)
+  // Gesperrte Modelle (sichtbar aber disabled â€” Transparenz fÃ¼r Nutzer)
   if (grouped.blocked.length > 0) {
     const grpBlocked = document.createElement('optgroup');
-    grpBlocked.label = '✗ Gesperrt (veraltet)';
+    grpBlocked.label = 'âœ— Gesperrt (veraltet)';
     grouped.blocked.forEach(({ id, reason }) => {
       const opt = document.createElement('option');
       opt.value = id;
-      opt.textContent = `${id} — ${reason}`;
+      opt.textContent = `${id} â€” ${reason}`;
       opt.disabled = true;
       grpBlocked.appendChild(opt);
     });
     el.appendChild(grpBlocked);
   }
 }
+
 

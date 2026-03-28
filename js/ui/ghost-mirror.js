@@ -1,11 +1,11 @@
-/**
- * js/ui/ghost-mirror.js — Ghost-Mirror Implementation (SPEC-066)
+﻿/**
+ * js/ui/ghost-mirror.js â€” Ghost-Mirror Implementation (SPEC-066)
  * [CMD-1] Structural Markdown via Sanitizer API & Mirror-Layer
  * [CMD-1] Syntax Coloring via CSS Custom Highlight API
- * ─────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
-import { PLATINUM_SANITIZER } from "../core/constants.js";
+import { CORE_SANITIZER } from "../core/constants.js";
 import * as Logic from "../logic/logic.js";
 
 export class GhostMirror {
@@ -35,12 +35,12 @@ export class GhostMirror {
   updateMirror(text) {
     if (!this.mirror) return;
 
-    // [CMD-1] Platinum Markdown Engine (Aviation Grade)
+    // [CMD-1] v4.0 Markdown Engine (High-Integrity)
     const html = Logic.parseMarkdownToHTML(text);
 
     // [CMD-1] Secure Rehydration via Blink Native Sanitizer
-    if (this.mirror.setHTML && PLATINUM_SANITIZER) {
-      this.mirror.setHTML(html, { sanitizer: PLATINUM_SANITIZER });
+    if (this.mirror.setHTML && CORE_SANITIZER) {
+      this.mirror.setHTML(html, { sanitizer: CORE_SANITIZER });
     } else {
       this.mirror.textContent = html;
     }
@@ -123,3 +123,4 @@ export class GhostMirror {
     CSS.highlights.set("din-marker", new Highlight(...this.markerRanges));
   }
 }
+

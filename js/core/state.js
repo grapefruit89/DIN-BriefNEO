@@ -1,6 +1,6 @@
 /**
- * C:\Users\morit\Desktop\DIN-BriefNEO\js\core\state.js
- * Central State Authority (V13 Platinum)
+ * js/core/state.js — Central State Authority (IMR 4.0)
+ * [ADR-013] Isomorphic State Mapping
  */
 
 import { temporalReviver } from './temporal-utils.js';
@@ -9,35 +9,34 @@ export const STORAGE_KEY = 'neo_brief_state_v14_master';
 
 export const DEFAULT_STATE = Object.freeze({
   content: {
-    // 1. Identität & Branding
-    header:         '',
-    logo:           '',
-    sender_details: '',
-    vcard:          '',
+    // 1. Identität (Atome)
+    sender_fn:      '',
+    sender_ln:      '',
+    sender_st:      '',
+    sender_city:    '',
 
-    // 2. Anschriftzone
-    address_zone:   '',
+    // 2. Anschriftzone (Atome)
     return_line:    '',
     supplement:     '',
-    recipient:      '',
+    rect_co:        '',
+    rect_name:      '',
+    rect_st:        '',
+    rect_city:      '',
 
-    // 3. Metadaten & Leitwörter
-    infoblock:      '',
-    ref_line:       '',
+    // 3. Metadaten
+    ref_ihr:        '',
+    ref_unser:      '',
     date:           '',
 
     // 4. Brief-Kern
     subject:        '',
     salutation:     '',
-    body:           '',
-    closing:        '',
+    body:           '', // Wir behalten 'body' als Key für Kompatibilität mit dem Markdown-Parser
+    greeting:       '',
     signature:      '',
     attachments:    '',
 
-    // 5. Compliance & Sicherheit
-    amount:         '',
-    bank_data:      '',
-    fiscal_data:    '',
+    // 5. Abschluss
     footer:         '',
   },
   config: {
@@ -48,9 +47,7 @@ export const DEFAULT_STATE = Object.freeze({
     profiles:   {}
   },
   profile: {
-    company: '', name:  '',  street: '',
-    zip:     '', city:  '',  phone:  '',
-    email:   '', iban:  '',
+    fn: '', ln: '', street: '', city: '', iban: '',
   },
 });
 
@@ -69,18 +66,13 @@ export class StateManager {
 
   serialize() { return clone(this._raw); }
   
-  /**
-   * [TOMB-L008] Debouncing via setTimeout/setInterval is strictly forbidden.
-   * Persistence is now handled via Phoenix Protocol (IOCoordinator) and Native IdleDetector API.
-   */
   save() { 
-    // No-op: IOCoordinator subscribes to changes and saves to OPFS.
-    console.debug('[StateManager] Save triggered (Storage Agnostic)');
+    // Passive Persistence: IOCoordinator handles this
+    console.debug('[StateManager] Internal State Updated.');
   }
 
   loadFromStorage() {
     try {
-      // Temporary Fallback: Check if we still have migration data in localStorage
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return false;
       this.load(JSON.parse(raw, temporalReviver));
@@ -95,29 +87,19 @@ export class StateManager {
     this._emit('root', this._raw, 'load');
   }
 
-  /**
-   * [AVIATION GRADE] Ingest data from OPFS
-   */
   updateFromOPFS(data) {
     if (!data) return;
-    
-    // Perform a deep merge without triggering recursive saves
-    // We update the _raw object directly and then emit a single 'opfs' scoped event
     Object.keys(data).forEach(section => {
       if (this._raw[section] && typeof data[section] === 'object') {
         Object.keys(data[section]).forEach(key => {
-            // [CMD-3] Revive Temporal objects from OPFS strings
             this._raw[section][key] = temporalReviver(key, data[section][key]);
         });
       } else {
         this._raw[section] = temporalReviver(section, data[section]);
       }
     });
-
     this._emit('root', this._raw, 'opfs');
-    console.info('[StateManager] Successfully merged OPFS state with Temporal Reviver.');
   }
-
 
   _makeProxy(target, path = []) {
     const self = this;

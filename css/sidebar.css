@@ -1,6 +1,6 @@
-@layer ui.theme, ui.components, project.overrides, platinum.locked;
+﻿@layer ui.theme, ui.components, project.overrides, v4.0.locked;
 
-/* ── Minimalist Sidebar Base (Overridden by Platinum) ──────────────────────── */
+/* â”€â”€ Minimalist Sidebar Base (Overridden by v4.0) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @layer ui.theme {
   #sidebar-left {
     background: #fcfcfc;
@@ -108,9 +108,9 @@
   }
 }
 
-/* ── Platinum Components (Popover & Dialogs) ─────────────────── */
+/* â”€â”€ v4.0 Components (Popover & Dialogs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @layer ui.components {
-  .platinum-dialog {
+  .standard-dialog {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -125,7 +125,7 @@
     margin: 0;
   }
 
-  .platinum-dialog::backdrop {
+  .standard-dialog::backdrop {
     background: rgba(0,0,0,0.4);
     backdrop-filter: blur(4px);
   }
@@ -246,3 +246,4 @@
     }
   }
 }
+

@@ -1,9 +1,9 @@
-/**
- * js/ui/devmode.js — Easter Egg, Developer Mode & Live Tag-Inspector
- * DIN-BriefNEO · Platinum V14 | SPEC-049 | CAA-008 | PLAN-010
- * ─────────────────────────────────────────────────────────────────
- * IMR 2.0: Live-Inspector zeigt <din-*> Tag ↔ JSON-Key Abgleich.
- * MutationObserver scannt querySelectorAll('[din-*]') — kein ID-Lookup.
+﻿/**
+ * js/ui/devmode.js â€” Easter Egg, Developer Mode & Live Tag-Inspector
+ * DIN-BriefNEO Â· v4.0 V14 | SPEC-049 | CAA-008 | PLAN-010
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * IMR 2.0: Live-Inspector zeigt <din-*> Tag â†” JSON-Key Abgleich.
+ * MutationObserver scannt querySelectorAll('[din-*]') â€” kein ID-Lookup.
  *
  * ACTIVATION: 5x Klick auf #app-version (2s Reset-Window)
  * STORAGE:    localStorage 'neo_dev_mode' = 'true'
@@ -35,7 +35,7 @@ export function initDevMode(sm) {
   }
 }
 
-/* ── 5x-Klick Easter Egg ─────────────────────────────────────── */
+/* â”€â”€ 5x-Klick Easter Egg â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function _bind5xClick() {
   const versionEl = document.getElementById("app-version");
   if (!versionEl) return;
@@ -43,7 +43,7 @@ function _bind5xClick() {
   let lastClick = 0;
 
   versionEl.addEventListener("click", () => {
-    // [ANTI-016] Temporal migration (Aviation Grade Determinism)
+    // [ANTI-016] Temporal migration (High-Integrity Determinism)
     const now = Temporal.Now.instant().epochMilliseconds;
     if (now - lastClick > 2000) count = 0; // 2s Reset window
 
@@ -70,7 +70,7 @@ function _bind5xClick() {
   });
 }
 
-/* ── Akinator Terminal ───────────────────────────────────────── */
+/* â”€â”€ Akinator Terminal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function _bindAkinatorTerminal(sm) {
   const btn = document.getElementById("btn-akinator-export");
   if (!btn) return;
@@ -93,7 +93,7 @@ function _bindAkinatorTerminal(sm) {
   });
 }
 
-/* ── Live Tag↔JSON Inspector ─────────────────────────────────── */
+/* â”€â”€ Live Tagâ†”JSON Inspector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function refreshInspector() {
   if (sessionStorage.getItem(DEV_KEY) === "true") {
     _renderTagInspector(readDOMasJSON());
@@ -103,11 +103,11 @@ export function refreshInspector() {
 function _startLiveInspector(sm) {
   _renderTagInspector(readDOMasJSON());
   sm.subscribe(() => refreshInspector());
-  // MutationObserver gelöscht. Update erfolgt via UIController input-event.
+  // MutationObserver gelÃ¶scht. Update erfolgt via UIController input-event.
 }
 
 /**
- * Rendert den <din-tag> ↔ JSON-Key Abgleich im #debug-state Panel.
+ * Rendert den <din-tag> â†” JSON-Key Abgleich im #debug-state Panel.
  * Format: STATUS  TAG           KEY           WERT (40 Zeichen)
  * Injection-Proof: textContent, kein innerHTML [MANDATE-INJ]
  */
@@ -116,10 +116,10 @@ function _renderTagInspector(json) {
   if (!el) return;
 
   const header =
-    `IMR 2.0 — Tag↔JSON Inspector  ${nowTimeISO()}\n` +
-    `${"─".repeat(52)}\n` +
+    `IMR 2.0 â€” Tagâ†”JSON Inspector  ${nowTimeISO()}\n` +
+    `${"â”€".repeat(52)}\n` +
     `  TAG               KEY              WERT\n` +
-    `${"─".repeat(52)}\n`;
+    `${"â”€".repeat(52)}\n`;
 
   const cmaTop = getComputedStyle(document.documentElement)
     .getPropertyValue("--addr-top")
@@ -128,7 +128,7 @@ function _renderTagInspector(json) {
 
   const rows = IMR.map(({ tag, key }) => {
     const val = json[key];
-    const status = val !== null ? "✓" : "○";
+    const status = val !== null ? "âœ“" : "â—‹";
 
     // Check for EditContext
     const el = document.querySelector(tag);
@@ -139,7 +139,7 @@ function _renderTagInspector(json) {
           .replace(/<[^>]+>/g, "")
           .replace(/\s+/g, " ")
           .substring(0, 24)
-      : "—";
+      : "â€”";
     const tagShort = `<${tag}>`.padEnd(20);
     const keyPad = key.padEnd(16);
     return `${status}${hasEC} ${tagShort} ${keyPad} ${preview}`;
@@ -147,3 +147,4 @@ function _renderTagInspector(json) {
 
   el.textContent = header + cmaStatus + rows;
 }
+

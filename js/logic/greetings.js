@@ -1,7 +1,7 @@
-/**
- * js/logic/greetings.js — Platinum Salutation Engine (Refined)
- * Aviation Grade Platinum | Chrome 147 Baseline
- * ─────────────────────────────────────────────────────────
+﻿/**
+ * js/logic/greetings.js â€” v4.0 Salutation Engine (Refined)
+ * High-Integrity v4.0 | Chrome 147 Baseline
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
 export const GreetingsMatrix = {
@@ -22,10 +22,10 @@ export const GreetingsMatrix = {
         const firstLine = lines[0];
         const lowerFirstLine = firstLine.toLowerCase();
         
-        // Titel-Filter (Aviation Grade Purge)
+        // Titel-Filter (High-Integrity Purge)
         const TITLES = ['dr.', 'dr', 'prof.', 'prof', 'dipl.', 'dipl', 'ing.', 'ing', 'habil', 'habil.'];
         
-        // Adelsprädikate und Namensbestandteile
+        // AdelsprÃ¤dikate und Namensbestandteile
         const NOBLE_PARTS = ['von', 'van', 'zu', 'der', 'die', 'de', 'do'];
 
         // Tokenisierung
@@ -93,9 +93,9 @@ export function updateSalutationHint(el, analysis, formality, recipientType, cur
 }
 
 export const GREETING_MAP = {
-    formal: 'Mit freundlichen Grüßen',
-    polite: 'Freundliche Grüße',
-    casual: 'Viele Grüße',
+    formal: 'Mit freundlichen GrÃ¼ÃŸen',
+    polite: 'Freundliche GrÃ¼ÃŸe',
+    casual: 'Viele GrÃ¼ÃŸe',
 };
 
 export function deriveSalutation(analysis, formality, recipientType) {
@@ -106,3 +106,4 @@ export function deriveSalutation(analysis, formality, recipientType) {
 export function deriveGreeting(formality = 'formal') {
     return GREETING_MAP[formality] || GREETING_MAP.formal;
 }
+

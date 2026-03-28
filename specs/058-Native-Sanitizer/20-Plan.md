@@ -12,15 +12,15 @@ Zentralisierung der Sicherheit durch eine globale Sanitizer-Instanz.
 
 ### Layer 1: Central Config (`js/core/constants.js`)
 - **Instanziierung:** `new Sanitizer(SANITIZER_CONFIG)`.
-- **Export:** `PLATINUM_SANITIZER`.
+- **Export:** `CORE_SANITIZER`.
 - **Fallback:** Graceful Degradation auf `textContent`, falls die API in Legacy-Umgebungen fehlt (obwohl Chrome 147 Baseline ist).
 
 ### Layer 2: Secure Injection Gate (`js/ui/ui.js`)
 - **Methode:** `_updateDOMSafe(el, html)`.
 - **Logic:**
   ```javascript
-  if (el.setHTML && PLATINUM_SANITIZER) {
-    el.setHTML(html, { sanitizer: PLATINUM_SANITIZER });
+  if (el.setHTML && CORE_SANITIZER) {
+    el.setHTML(html, { sanitizer: CORE_SANITIZER });
   } else {
     el.textContent = html; // Strip all HTML as fallback
   }

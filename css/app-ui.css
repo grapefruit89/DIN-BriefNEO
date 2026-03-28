@@ -1,12 +1,19 @@
 /* ==========================================================================
-   !!! NO-SCROLL DOKTRIN (ADR-004) - STRENGSTES MANDAT !!!
+   !!! ZERO-SCROLL SPECIFICATION (ADR-004) - HARD CONSTRAINT !!!
+   --------------------------------------------------------------------------
+   1. SCROLLBARS ARE PROHIBITED IN THIS PROJECT [BANNED].
+   2. Overflow MUSS either VISIBLE or HIDDEN.
+   3. 'overflow: auto', 'overflow: scroll' or 'max-height' with scroll intent
+      are violations of the Technical Specification.
+   4. A DIN letter is a static precision instrument. Scrolling indicates
+      structural failure.
    ========================================================================== */
 
-@layer ui.theme, din.structure, latex.base, platinum.locked;
+@layer latex.base, ui.theme, din.structure, core.immutable;
 
 @layer ui.theme {
   :root {
-    /* ── OKLCH CORE PALETTE (Aviation Grade) ──────────────────────── */
+    /* ── OKLCH CORE PALETTE (Perceptual Uniformity) ───────────────── */
     --c-primary:         oklch(60% 0.15 250);
     --c-primary-hover:   oklch(from var(--c-primary) calc(l - 0.1) c h);
     
@@ -25,7 +32,7 @@
     --c-text-primary:    oklch(15% 0.01 250);
     --c-text-secondary:  oklch(45% 0.02 250);
 
-    /* ── DIN GEOMETRY ─────────────────────────────────────────────── */
+    /* ── DIN GEOMETRY (0.001mm Precision) ─────────────────────────── */
     --din-paper-w:       210mm;
     --din-paper-h:       297mm;
     --din-margin-l:      25mm;
@@ -196,7 +203,7 @@
   }
 }
 
-@layer platinum.locked {
+@layer core.immutable {
   .mark {
     position: absolute;
     left: 0;
@@ -221,7 +228,7 @@
 
   .sidebar-btn {
     background: var(--c-sidebar-btn-bg) !important;
-    /* [AVIATION GRADE] Auto-Contrast via Chrome 147 contrast-color() */
+    /* [ACCESSIBILITY] Auto-Contrast via Chrome 147 contrast-color() */
     color: contrast-color(var(--c-sidebar-btn-bg)) !important;
     padding: 12px 16px;
     border-radius: 10px;

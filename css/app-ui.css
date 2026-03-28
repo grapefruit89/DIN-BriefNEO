@@ -12,38 +12,41 @@
 @layer ui.theme, din.structure, latex.base, platinum.locked;
 
 @layer ui.theme {
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
   :root {
-    --c-primary:         #4a90e2;
-    --c-primary-hover:   #357abd;
-    --c-sidebar-bg:      #1e2535;
-    --c-sidebar-btn-bg:  rgba(255, 255, 255, 0.08);
-    --c-sidebar-text:    #e2e8f0;
-    --c-sidebar-border:  rgba(255, 255, 255, 0.08);
-    --c-bg:              #f0f2f5;
-    --shadow-sheet:      0 12px 48px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05);
-    --radius-md:         8px;
-    --font-ui:           'Inter', system-ui, -apple-system, sans-serif;
-    --font-mono:         'JetBrains Mono', monospace;
-    --c-text-primary:    #1a1a1a;
-    --c-text-secondary:  #4a5568;
+    --c-primary: #4a90e2;
+    --c-primary-hover: #357abd;
+    --c-sidebar-bg: #1e2535;
+    --c-sidebar-btn-bg: rgba(255, 255, 255, 0.08);
+    --c-sidebar-text: #e2e8f0;
+    --c-sidebar-border: rgba(255, 255, 255, 0.08);
+    --c-bg: #f0f2f5;
+    --c-shadow-sheet:
+      0 12px 48px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05);
+    --c-radius-md: 8px;
+    --c-font-ui: "Inter", system-ui, -apple-system, sans-serif;
+    --c-font-mono: "JetBrains Mono", monospace;
+    --c-text-primary: #1a1a1a;
+    --c-text-secondary: #4a5568;
 
-    --paper-w:           210mm;
-    --paper-h:           297mm;
-    --margin-l:          25mm;
-    --margin-r:          20mm;
-    --addr-w:            85mm;
-    --addr-h:            45mm;
-    --addr-top:          45mm;
-    --mark-fold-1:       105mm;
-    --mark-fold-2:       210mm;
-    --mark-loch:         148.5mm;
+    --din-paper-w: 210mm;
+    --din-paper-h: 297mm;
+    --din-margin-l: 25mm;
+    --din-margin-r: 20mm;
+    --din-addr-w: 85mm;
+    --din-addr-h: 45mm;
+    --din-addr-top: 45mm;
+    --din-mark-fold-1: 105mm;
+    --din-mark-fold-2: 210mm;
+    --din-mark-loch: 148.5mm;
 
-    --c-bg-dark:         #0f141e;
-    --c-paper-dark:      #d1d1d1;
-    --c-text-dark:       #111111;
-    --c-dot-dark:        #1e2535;
+    --c-bg-dark: #0f141e;
+    --c-paper-dark: #d1d1d1;
+    --c-text-dark: #111111;
+    --c-dot-dark: #1e2535;
+  }
+
+  .iban-field {
+    grid-column: span 2;
   }
 
   body:has(#theme-night:checked) {
@@ -52,48 +55,51 @@
   }
 
   body:has(#theme-night:checked) #paper-viewport {
-    background-image: radial-gradient(var(--c-dot-dark) 1.5px, transparent 1.5px) !important;
+    background-image: radial-gradient(
+      var(--c-dot-dark) 1.5px,
+      transparent 1.5px
+    ) !important;
   }
 
-  body:has(#theme-night:checked) din-5008 {
+  body:has(#theme-night:checked) #paper {
     background: var(--c-paper-dark) !important;
     filter: brightness(0.85) contrast(1.1);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
   }
 
   body[data-layout="form-a"],
   body:has(#layout-a:checked) {
-    --addr-top: 27mm; 
-    --mark-fold-1: 87mm;
-    --mark-fold-2: 192mm;
+    --din-addr-top: 27mm;
+    --din-mark-fold-1: 87mm;
+    --din-mark-fold-2: 192mm;
   }
 
   body[data-layout="form-b"],
   body:has(#layout-b:checked) {
-    --addr-top: 45mm;
-    --mark-fold-1: 105mm;
-    --mark-fold-2: 210mm;
+    --din-addr-top: 45mm;
+    --din-mark-fold-1: 105mm;
+    --din-mark-fold-2: 210mm;
   }
 }
 
 @layer din.structure {
-  din-5008 {
+  #paper {
     display: block;
-    width: var(--paper-w);
-    height: var(--paper-h);
+    width: var(--din-paper-w);
+    height: var(--din-paper-h);
     background: white;
     position: relative;
-    box-shadow: var(--shadow-sheet);
-    font-family: 'Aptos', 'Segoe UI', system-ui, sans-serif;
+    box-shadow: var(--c-shadow-sheet);
+    font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
     font-size: 11pt;
     line-height: 1.4;
     overflow: hidden;
   }
 
-  din-header {
+  .paper-header {
     position: absolute;
     top: 20mm;
-    right: var(--margin-r);
+    right: var(--din-margin-r);
     width: 75mm;
     text-align: right;
     font-size: 10pt;
@@ -105,7 +111,6 @@
     border: 1px dashed rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     padding: 1mm 2mm;
-    transition: all 0.2s ease;
   }
 
   [contenteditable]:focus {
@@ -114,12 +119,12 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
-  din-address-zone {
+  .paper-address-zone {
     position: absolute;
-    top: var(--addr-top);
+    top: var(--din-addr-top);
     left: 20mm;
-    width: var(--addr-w);
-    height: var(--addr-h);
+    width: var(--din-addr-w);
+    height: var(--din-addr-h);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -133,7 +138,7 @@
     color: #666;
   }
 
-  din-infoblock {
+  .paper-infoblock {
     position: absolute;
     top: 97.4mm;
     left: 125mm;
@@ -145,19 +150,27 @@
 
   #brief-kern {
     position: absolute;
-    top: calc(var(--addr-top) + 58.4mm); 
-    left: var(--margin-l);
-    right: var(--margin-r);
+    top: calc(var(--din-addr-top) + 58.4mm);
+    left: var(--din-margin-l);
+    right: var(--din-margin-r);
   }
 
-  din-subject { font-weight: bold; margin-bottom: 12.7mm; display: block; }
-  din-body { display: block; min-height: 50mm; white-space: pre-wrap; }
+  din-subject {
+    font-weight: bold;
+    margin-bottom: 12.7mm;
+    display: block;
+  }
+  din-body {
+    display: block;
+    min-height: 50mm;
+    white-space: pre-wrap;
+  }
 
-  din-footer {
+  .paper-footer {
     position: absolute;
     bottom: 15mm;
-    left: var(--margin-l);
-    right: var(--margin-r);
+    left: var(--din-margin-l);
+    right: var(--din-margin-r);
     display: flex;
     justify-content: space-between;
     font-size: 8pt;
@@ -168,31 +181,43 @@
 }
 
 @layer latex.base {
-  html, body {
-    font-family: var(--font-ui);
+  html,
+  body {
+    font-family: var(--c-font-ui);
     margin: 0;
     padding: 0;
     width: 100% !important;
     height: 100dvh !important;
-    overflow: hidden !important; 
+    overflow: hidden !important;
   }
 }
 
 @layer platinum.locked {
   .mark {
-    position: absolute !absolute;
+    position: absolute;
     left: 0;
     width: 5mm;
     border-top: 0.5pt solid #000;
     pointer-events: none;
-    z-index: 10;
   }
-  
-  .mark-fold-1 { top: var(--mark-fold-1) !important; }
-  .mark-fold-2 { top: var(--mark-fold-2) !important; }
-  .mark-loch   { top: var(--mark-loch) !important; width: 7mm !important; }
 
-  #app-shell { display: flex; width: 100%; height: 100dvh; overflow: hidden; }
+  .mark-fold-1 {
+    top: var(--din-mark-fold-1) !important;
+  }
+  .mark-fold-2 {
+    top: var(--din-mark-fold-2) !important;
+  }
+  .mark-loch {
+    top: var(--din-mark-loch) !important;
+    width: 7mm !important;
+  }
+
+  #app-shell {
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
 
   #sidebar-left {
     width: 280px;
@@ -213,7 +238,10 @@
     border: none;
   }
 
-  .sidebar-btn.primary { background: var(--c-primary) !important; font-weight: 600; }
+  .sidebar-btn.primary {
+    background: var(--c-primary) !important;
+    font-weight: 600;
+  }
 
   #paper-viewport {
     flex-grow: 1;
@@ -224,13 +252,33 @@
     overflow: auto;
   }
 
-  .compliance-bar, #btn-decoder-trigger, .status-bar { display: none !important; }
-  body.dev-mode .compliance-bar, body.dev-mode #btn-decoder-trigger, body.dev-mode .status-bar { display: flex !important; }
+  .compliance-bar,
+  #btn-decoder-trigger,
+  .status-bar {
+    display: none !important;
+  }
+  body.dev-mode .compliance-bar,
+  body.dev-mode #btn-decoder-trigger,
+  body.dev-mode .status-bar {
+    display: flex !important;
+  }
 
   @media print {
-    @page { margin: 0; size: A4 portrait; }
-    html, body { background: white !important; height: auto !important; overflow: visible !important; }
-    #sidebar-left, .status-bar, .decoder-btn, #btn-decoder-trigger { display: none !important; }
-    din-5008 { box-shadow: none !important; margin: 0 !important; }
+    html,
+    body {
+      background: white !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+    #sidebar-left,
+    .status-bar,
+    .decoder-btn,
+    #btn-decoder-trigger {
+      display: none !important;
+    }
+    #paper {
+      box-shadow: none !important;
+      margin: 0 !important;
+    }
   }
 }

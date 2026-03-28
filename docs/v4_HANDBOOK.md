@@ -340,7 +340,7 @@ Die Eingabe erfolgt über die **EditContext API**. Das DOM-Element dient nur als
 4. Das Kopieren von formatiertem Text aus dem Editor resultiert in sauberem Plaintext in der Zwischenablage (Integritäts-Schutz).
 
 ## IV. Definition of Done
-- [ ] Keine `<b>`, `<i>` oder `<span>` Tags im `<din-body>`.
+- [ ] Keine `<b>`, `<i>` oder `<span>` Tags im `<din-text>`.
 - [ ] CSS `::highlight()` steuert die gesamte Optik.
 - [ ] EditContext fängt alle OS-Eingaben ab.
 
@@ -764,7 +764,7 @@ depends-on: [SPEC-007]
 - Die einzige Datenquelle für den Export MUSS `textContent` sein.
 
 ### FR-002: Markdown-Support im Briefkörper
-- Der Nutzer MUSS Formatierungen im Feld `<din-body>` mittels einfacher Markdown-Syntax vornehmen können:
+- Der Nutzer MUSS Formatierungen im Feld `<din-text>` mittels einfacher Markdown-Syntax vornehmen können:
   - `**fett**` -> <strong>
   - `*kursiv*` -> <em>
   - `~~durchgestrichen~~` -> <del>
@@ -785,7 +785,7 @@ depends-on: [SPEC-007]
 - URLs MÜSSEN im Druckmodus voll ausgeschrieben hinter dem Link-Text erscheinen.
 
 ## 3. Erfolgskriterien
-- **SC-001**: Ein Paste von formatiertem Text aus MS Word in `<din-body>` resultiert in REINEM TEXT ohne HTML-Tags.
+- **SC-001**: Ein Paste von formatiertem Text aus MS Word in `<din-text>` resultiert in REINEM TEXT ohne HTML-Tags.
 - **SC-002**: Die Markdown-Syntax `**Text**` wird im Mirror-Element visuell fett dargestellt.
 - **SC-003**: Im PDF-Export (Druck) ist die Markdown-Syntax unsichtbar, nur die Formatierung (Fett/Kursiv) ist zu sehen.
 - **SC-004**: Keine "einzelnen Zeilen" auf Folgeseiten bei langen Briefen.
@@ -815,7 +815,7 @@ depends-on: [SPEC-007]
 ## 1. CSS CORE ARCHITECTURE (din.core)
 Wir definieren die Ankerpunkte für alle IMR-Felder.
 ```css
-din-body { anchor-name: --anchor-body; }
+din-text { anchor-name: --anchor-body; }
 din-subject { anchor-name: --anchor-subject; }
 /* ... (weitere IMR Tags) */
 

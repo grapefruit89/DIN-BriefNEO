@@ -9,7 +9,58 @@
       structural failure.
    ========================================================================== */
 
-@layer latex.base, ui.theme, din.structure, core.immutable;
+@layer latex.base, ui.theme, din.structure, ui.floating, core.immutable;
+
+@layer ui.floating {
+  /* ── CSS ANCHOR POSITIONING (Chrome 125+) ──────────────────────── */
+  din-absender-vorname  { anchor-name: --anchor-sender-fn; }
+  din-absender-nachname { anchor-name: --anchor-sender-ln; }
+  din-empfaenger-name   { anchor-name: --anchor-recipient; }
+  din-empfaenger-strasse { anchor-name: --anchor-rect-st; }
+  din-empfaenger-ort     { anchor-name: --anchor-rect-city; }
+  din-subject           { anchor-name: --anchor-subject; }
+  din-text              { anchor-name: --anchor-text; }
+  din-date              { anchor-name: --anchor-date; }
+
+  .autocomplete-suggestions {
+    position: fixed;
+    position-anchor: var(--suggestions-anchor, --anchor-rect-st);
+    top: anchor(bottom);
+    left: anchor(left);
+    width: anchor-size(width);
+    
+    background: white;
+    border: 1px solid oklch(90% 0.01 250);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px oklch(0% 0 0 / 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+  }
+
+  .autocomplete-suggestion {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .autocomplete-suggestion:hover {
+    background: oklch(98% 0.01 250);
+  }
+
+  .autocomplete-suggestion strong {
+    color: var(--c-primary);
+  }
+
+  .autocomplete-suggestion span {
+    color: oklch(50% 0.01 250);
+    font-size: 0.75rem;
+  }
+}
 
 @layer ui.theme {
   :root {
@@ -95,6 +146,38 @@
     font-size: 11pt;
     line-height: 1.4;
     overflow: hidden;
+    
+    /* ── SCROLL-STATE CONTAINER (Chrome 147+) ────────────────────── */
+    container-name: paper;
+    container-type: size scroll-state;
+  }
+
+  /* ── OVERFLOW INDICATOR (Content Spiller) ─────────────────────── */
+  #paper::after {
+    content: "⚠️ INHALT ÜBERLÄUFT SEITE 1";
+    position: absolute;
+    bottom: 20mm;
+    right: var(--din-margin-r);
+    background: oklch(60% 0.15 40);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+
+  @container paper scroll-state(scrollable: block) {
+    #paper::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Automated multi-page preparation logic could go here */
   }
 
   .paper-header {

@@ -22,18 +22,18 @@ related:
 - **DEP-P004:** Hard-coded state keys (e.g., `signatureName`). Use IMR 4.0 keys (`signature`).
 
 ## 2. LAYOUT & STRUCTURE (DEP-L)
-- **DEP-L001:** `innerHTML` for user content (Security risk: XSS).
+- **DEP-L001:** `innerHTML` for user content (Security risk: XSS). Use `setHTML()`.
 - **DEP-L002:** `contenteditable="true"` (Use `plaintext-only` or `EditContext`).
 - **DEP-L003:** `execCommand` (Deprecated legacy API).
 - **DEP-L004:** External CSS frameworks (Tailwind/Bootstrap).
-- **DEP-L005:** `popovertarget` attribute in HTML (Use ID-based listeners in UIController for stability).
+- **DEP-L005:** `popovertarget` / `popovertargetaction` (Use `commandfor` + `command`).
 - **DEP-L006:** Inline `onchange` or `onclick` handlers in HTML.
 
 ## 3. LOGIC & APIS (DEP-C)
 - **DEP-C001:** Legacy `Date` object (Use `Temporal API`). Exceptions: `parseDate` input handling.
 - **DEP-C002:** Server-side dependencies for core logic (Client-Side-Only requirement).
 - **DEP-C003:** External utility libraries (Moment.js, jspdf).
-- **DEP-C004:** `setTimeout` for state debouncing (Use `requestIdleCallback`).
+- **DEP-C004:** `setTimeout` / `requestIdleCallback` for debouncing (Use **IdleDetector API**).
 
 ## 4. STYLING (DEP-S)
 - **DEP-S001:** Hex colors (`#ffffff`) or `rgba()` in CSS. Use `oklch()`.
@@ -45,3 +45,24 @@ related:
 - **DEP-T001:** Context-fragmenting tools (`head`/`tail`).
 - **DEP-T002:** Environment-specific stream syntax (`cat <<EOF`).
 - **DEP-T003:** Manual file versioning via filename (`_v1.0.md`). Use Git.
+
+## 6. UPGRADE PATH (MODERN BASELINE)
+
+| Area | Legacy Pattern (BANNED) | Modern API (TARGET) |
+| :--- | :--- | :--- |
+| **Date/Time** | `new Date()` | **Temporal API** (except parseDate) |
+| **Color** | `rgba()`, `hex` | `oklch()` |
+| **Theme** | `JS-Toggles` | `light-dark()` & RCS |
+| **Math** | `JS-rounding` | `round()`, `mod()` (CSS Math) |
+| **Typography** | `<br>` hacks | `text-wrap: balance / pretty` |
+| **Auto-Resize** | `scrollHeight` listeners | `field-sizing: content` |
+| **Animations** | `JS height calc` | `calc-size(auto)` / View Transitions |
+| **Modals** | `div` + Focus Trap JS | `<dialog>` + `popover` |
+| **Popovers** | `addEventListener` | **Invoker Commands** (`commandfor`) |
+| **Positioning** | `getBoundingClientRect()` | **CSS Anchor Positioning** |
+| **Input** | `contenteditable="true"` | `plaintext-only` + **EditContext API** |
+| **Security** | `innerHTML` | **Sanitizer API** + `setHTML()` |
+| **Reactivity** | `setTimeout` | **IdleDetector API** |
+| **Scheduling** | `requestIdleCallback` | `scheduler.postTask()` |
+| **Scrolling** | `JS Scroll-Listeners` | **Scroll-driven Animations** |
+| **Conditionals** | `Complex Selectors` | **CSS `if()` logic** |

@@ -10,7 +10,7 @@ version: 4.0.0
 ## 1. Implementation Tasks
 - [x] Refactoring `logic.js`: Implementierung `parseMarkdownToHTML`.
 - [x] Refactoring `ghost-mirror.js`: Umstellung auf `Logic.parseMarkdownToHTML`.
-- [x] Renaming `din-body` â†’ `din-text` in JS/CSS Selektoren.
+- [x] Renaming `din-text` (ehemals body) in JS/CSS Selektoren.
 - [x] EditContext Binding fÃ¼r `din-text` verifiziert.
 - [ ] **Offen:** Erweiterung des Parsers um Listen-Tokens (`-`, `1.`).
 - [ ] **Offen:** Integration `CSS Custom Highlight API` fÃ¼r Inline-Visualisierung.

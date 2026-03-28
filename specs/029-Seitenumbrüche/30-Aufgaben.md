@@ -9,7 +9,7 @@ version: 4.0.0
 
 ## 1. Implementierung
 - [x] Basis `@media print` Setup in `app-ui.css`.
-- [x] Renaming `din-body` zu `din-text` in Print-Selektoren.
+- [x] Renaming `din-text` (ehemals body) in Print-Selektoren.
 - [ ] **Offen:** Implementierung von `@page` Counter (Seitenzahlen).
 - [ ] **Offen:** CSS-Klasse für `break-inside: avoid` an Schlüsselstellen.
 

@@ -472,8 +472,13 @@ export class UIController {
             if (this._ghosts[tag]) this._ghosts[tag].update(ec.text);
           }
         } else {
-          // Fallback fÃ¼r non-EditContext Felder
-          document.execCommand("insertText", false, text);
+          // Manual Plaintext Insertion (execCommand replacement)
+          const selection = window.getSelection();
+          if (selection.rangeCount) {
+            selection.deleteFromDocument();
+            selection.getRangeAt(0).insertNode(document.createTextNode(text));
+            selection.collapseToEnd();
+          }
         }
         console.info(
           "ðŸ›¡ï¸ Paste Gatekeeper: HTML-Injection prevented. Plaintext only.",
@@ -489,7 +494,7 @@ export class UIController {
 
         // [v4.0-GHOST] Force real emptiness for placeholders
         if (text.trim() === "") {
-          e.target.innerHTML = "";
+          e.target.textContent = "";
           text = "";
         }
 
@@ -505,12 +510,15 @@ export class UIController {
   }
 
   /* â”€â”€ ðŸ“ AUTOCOMPLETE UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-  _renderSuggestions(features) {
+  _renderSuggestions(features, anchor) {
     this._closeAutocomplete();
     if (!features || features.length === 0) return;
 
     const list = document.createElement("div");
     list.className = "autocomplete-suggestions";
+    if (anchor) {
+      list.style.setProperty("--suggestions-anchor", anchor);
+    }
 
     features.forEach((feature) => {
       const item = document.createElement("div");

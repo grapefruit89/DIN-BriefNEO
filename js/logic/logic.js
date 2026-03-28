@@ -187,6 +187,61 @@ export const PrecisionMath = Object.freeze({
 export function sumFinancials(values) {
   return PrecisionMath.sum(values);
 }
+/**
+ * Berechnet Fristen basierend auf dem aktuellen Datum via Temporal API.
+ */
+export function calculateDeadlines() {
+  // @ts-ignore
+  const today = Temporal.Now.plainDateISO(Temporal.Now.timeZoneId());
+
+  return {
+    in14Days: today.add({ days: 14 }),
+    in30Days: today.add({ days: 30 }),
+    nextMonth: today.add({ months: 1 })
+  };
+}
+
+/**
+ * Erkennt den Kontext im Text für intelligente Vorschläge.
+ * @param {string} text - Der aktuelle Brieftext
+ */
+export function detectContext(text) {
+  if (!text) return 'none';
+  const lower = text.toLowerCase();
+  if (lower.includes('widerspruch') || lower.includes('einspruch')) return 'widerspruch';
+  if (lower.includes('mahnung') || lower.includes('zahlungserinnerung')) return 'mahnung';
+  if (lower.includes('kündigung')) return 'kuendigung';
+  return 'standard';
+}
+
+/**
+ * Validiert die Zeilenbelegung im Anschriftfeld (DIN 5008)
+ */
+ * @param {Object} content - Der aktuelle Content-State
+ * @returns {Object} - { isValid: boolean, lineCount: number }
+ */
+export function validateAddressZone(content) {
+  if (!content) return { isValid: true, lineCount: 0 };
+
+  // Relevante Felder für die 6-Zeilen-Regel
+  const recipientKeys = [
+    'supplement',
+    'rect_co',
+    'rect_fn', // Neu: Vorname
+    'rect_ln', // Neu: Nachname
+    'rect_st',
+    'rect_city'
+  ];
+  
+  const lineCount = recipientKeys.reduce((acc, key) => {
+    return acc + (content[key]?.trim() ? 1 : 0);
+  }, 0);
+
+  return {
+    isValid: lineCount <= 6,
+    lineCount
+  };
+}
 
 /* â”€â”€ Return Address (High-Integrity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 

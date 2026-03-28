@@ -123,9 +123,18 @@ export class IOCoordinator {
     save(state) {
         if (!this.isLeader || !this.worker) return;
         
-        // [ADR-016] Direct Dispatch: No redundant requestIdleCallback.
-        // The IdleDetector already ensures we save during low-activity phases.
-        this.worker.postMessage({ type: 'SAVE_DATA', data: state });
+        // [ADR-016] Modern Task Scheduling (Chrome 94+)
+        // Prioritize background saving to keep the Main Thread free for EditContext/IME.
+        if (globalThis.scheduler?.postTask) {
+            scheduler.postTask(() => {
+                this.worker.postMessage({ type: 'SAVE_DATA', data: state });
+            }, { priority: 'background' });
+        } else {
+            // Fallback: Legacy async dispatch
+            setTimeout(() => {
+                this.worker.postMessage({ type: 'SAVE_DATA', data: state });
+            }, 0);
+        }
     }
 
     /**

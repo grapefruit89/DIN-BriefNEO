@@ -32,10 +32,10 @@
     display: flex;
     flex-direction: column;
     padding: 2rem 1rem 1rem 1rem;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-  }
+    box-shadow: 2px 0 10px oklch(0% 0 0 / 0.05);
+    }
 
-  /* Compliance Bar (Cockpit Layout) */
+    /* Compliance Bar (Cockpit Layout) */
   .compliance-bar {
     margin-top: auto;
     padding-top: 1rem;
@@ -89,7 +89,7 @@
     width: 210mm;
     height: 297mm;
     background: white;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 50px oklch(0% 0 0 / 0.15);
     flex-shrink: 0; /* Verhindert Stauchung */
     position: relative;
     
@@ -125,7 +125,7 @@
     left: 0;
     right: 0;
     height: 0;
-    border-top: 1px dashed rgba(255, 0, 0, 0.4);
+    border-top: 1px dashed oklch(60% 0.15 25 / 0.4);
     pointer-events: none;
     z-index: 10;
   }
@@ -136,7 +136,7 @@
     right: 5mm;
     top: -12pt;
     font-size: 7pt;
-    color: rgba(255, 0, 0, 0.6);
+    color: oklch(60% 0.15 25 / 0.6);
     font-family: monospace;
     font-weight: bold;
   }
@@ -180,4 +180,6 @@
     }
   }
 }
+
+
 

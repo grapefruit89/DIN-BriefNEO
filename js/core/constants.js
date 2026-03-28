@@ -29,7 +29,8 @@ export const IMR = Object.freeze([
   { tag: "din-return-line",       key: "return_line", editContext: true },
   { tag: "din-supplement",        key: "supplement", editContext: true },
   { tag: "din-empfaenger-firma",  key: "rect_co", editContext: true },
-  { tag: "din-empfaenger-name",   key: "rect_name", editContext: true },
+  { tag: "din-empfaenger-vorname", key: "rect_fn", editContext: true },
+  { tag: "din-empfaenger-nachname", key: "rect_ln", editContext: true },
   { tag: "din-empfaenger-strasse", key: "rect_st", editContext: true },
   { tag: "din-empfaenger-ort",    key: "rect_city", editContext: true },
 
@@ -48,6 +49,10 @@ export const IMR = Object.freeze([
 
   // 5. Abschluss
   { tag: "din-fusszeile",         key: "footer" },
+
+  // 6. Branding (Aviation Grade Extension)
+  { tag: "din-branding-logo",     key: "brand_logo" },
+  { tag: "din-branding-watermark", key: "brand_watermark" },
 ]);
 
 export const AI_INTENTS = Object.freeze({
@@ -64,15 +69,16 @@ export const SANITIZER_CONFIG = {
   elements: [
     "din-5008", "din-A4", "din-header", "din-anschriftfeld", "din-infoblock",
     "din-absender-vorname", "din-absender-nachname", "din-absender-strasse", "din-absender-ort",
-    "din-return-line", "din-supplement", "din-empfaenger-firma", "din-empfaenger-name", "din-empfaenger-strasse", "din-empfaenger-ort",
+    "din-return-line", "din-supplement", "din-empfaenger-firma", "din-empfaenger-vorname", "din-empfaenger-nachname", "din-empfaenger-strasse", "din-empfaenger-ort",
     "din-ref-ihr", "din-ref-unser", "din-date",
     "din-subject", "din-anrede", "din-text", "din-text-mirror", "din-grussformel", "din-signature", "din-attachments",
-    "din-fusszeile",
-    "br", "div", "span", "b", "i", "strong", "em", "blockquote"
+    "din-fusszeile", "din-branding-logo", "din-branding-watermark",
+    "br", "div", "span", "b", "i", "strong", "em", "blockquote", "img"
   ],
   attributes: [
     { name: "data-placeholder", elements: ["*"] },
-    { name: "data-form", elements: ["*"] }
+    { name: "data-form", elements: ["*"] },
+    { name: "src", elements: ["img"] }
   ]
 };
 

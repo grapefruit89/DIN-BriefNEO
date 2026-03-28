@@ -19,7 +19,8 @@ export const DEFAULT_STATE = Object.freeze({
     return_line:    '',
     supplement:     '',
     rect_co:        '',
-    rect_name:      '',
+    rect_fn:        '',
+    rect_ln:        '',
     rect_st:        '',
     rect_city:      '',
 
@@ -38,6 +39,10 @@ export const DEFAULT_STATE = Object.freeze({
 
     // 5. Abschluss
     footer:         '',
+
+    // 6. Branding
+    brand_logo:      '',
+    brand_watermark: '',
   },
   config: {
     layout: 'form-b',
@@ -54,16 +59,55 @@ export const DEFAULT_STATE = Object.freeze({
 
 const clone = obj => JSON.parse(JSON.stringify(obj));
 
+/**
+ * Signal-API Shim (Chrome 147+ Proposal)
+ * Minimal implementation for high-integrity reactivity.
+ */
+class Signal {
+  constructor(initialValue) {
+    this._value = initialValue;
+    this._listeners = new Set();
+  }
+  get value() { return this._value; }
+  set value(v) {
+    if (this._value === v) return;
+    this._value = v;
+    this._listeners.forEach(fn => fn(v));
+  }
+  subscribe(fn) {
+    this._listeners.add(fn);
+    fn(this._value);
+    return () => this._listeners.delete(fn);
+  }
+}
+
 export class StateManager {
   constructor() {
     this._raw      = clone(DEFAULT_STATE);
     this._listeners = new Set();
+    this.signals = this._initSignals(this._raw.content);
     this.state = this._makeProxy(this._raw);
   }
 
-  subscribe(fn)   { this._listeners.add(fn); }
-  unsubscribe(fn) { this._listeners.delete(fn); }
-  _emit(path, value, scope) { this._listeners.forEach(fn => fn(path, value, scope)); }
+  _initSignals(content) {
+    const signals = {};
+    for (const key in content) {
+      signals[key] = new Signal(content[key]);
+    }
+    return signals;
+  }
+
+  _emit(path, value, scope) {
+    this._listeners.forEach(fn => fn(path, value, scope));
+    
+    // Sync to Signals
+    if (path.startsWith('content.')) {
+      const key = path.split('.')[1];
+      if (this.signals[key]) {
+        this.signals[key].value = value;
+      }
+    }
+  }
 
   serialize() { return clone(this._raw); }
   

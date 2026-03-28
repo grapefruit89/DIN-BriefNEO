@@ -39,8 +39,14 @@ The document consists of 19 atomic fields defined in the `Isomorphic Master Regi
 - **Category B (Flow):** The `<din-text>` element with EditContext support.
 
 ### §4 Chrome Baseline (147+)
-- No polyfills. No `@supports` guards for core APIs (Anchor Positioning, Sanitizer, Temporal).
-- The system evolves synchronously with the Blink engine.
+- **Layout:** CSS Anchor Positioning, CSS `if()`, `@scope`, `@property`, `field-sizing: content`.
+- **Interaktion:** Invoker Commands (`commandfor`/`command`), Popover API, Native `<select>` styling.
+- **Animation:** Scoped View Transitions, `@starting-style`, `interpolate-size: allow-keywords`.
+- **Accessibility:** `contrast-color()`, `light-dark()`, Color Level 5 (RCS).
+- **Security:** Sanitizer API, Trusted Types, Device Bound Session Credentials (DBSC).
+- **Input:** EditContext API, IdleDetector API, `scheduler.postTask()`.
+- **Time:** Temporal API (Full support).
+- **Enforcement:** No polyfills. No `@supports` guards for core APIs. The system evolves synchronously with the Blink engine.
 
 ## II. VISUAL STABILITY REQUIREMENT
 Zero layout shift after initialization. Every pixel is deterministic.

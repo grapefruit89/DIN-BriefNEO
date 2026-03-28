@@ -5,57 +5,56 @@
 
 @page {
     size: A4;
-    margin: 0; /* We handle margins via din-page for absolute precision */
+    margin: 0;
+}
+
+/* [SPEC-070] Duplex Recognition & Margin Mirroring */
+@page :left {
+    margin-left: 20mm;
+    margin-right: 25mm;
+}
+
+@page :right {
+    margin-left: 25mm;
+    margin-right: 20mm;
 }
 
 @media print {
-    /* Hide everything except the paper */
-    body {
-        background: white !important;
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        padding: 0;
-    }
-
-    #sidebar, 
-    #preview-header, 
-    .no-print, 
-    #toast-container,
-    dialog {
+    /* Hide UI Chrome */
+    #sidebar, #preview-header, .no-print, #toast-container, dialog, .actions-footer {
         display: none !important;
     }
 
-    #preview {
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
+    /* Branding Layer (High-Integrity Output) */
+    din-branding-logo {
+        position: absolute;
+        top: 10mm;
+        right: 20mm;
+        width: 45mm;
+        height: 20mm;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
     }
 
-    #sheet {
-        box-shadow: none !important;
-        width: 210mm !important;
-        min-height: 297mm !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: relative !important;
+    din-branding-logo img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
     }
 
-    /* Force DIN Elements to stay put */
-    din-5008 {
-        width: 210mm !important;
-        height: 297mm !important;
-        overflow: visible !important;
+    din-branding-watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 80pt;
+        font-weight: 900;
+        color: oklch(0% 0 0 / 0.05);
+        pointer-events: none;
+        user-select: none;
+        white-space: nowrap;
+        z-index: 0;
     }
 
-    /* Page Breaking Logic */
-    .page-break {
-        break-before: page;
-    }
-
-    /* Fix for modern browsers to prevent scaling issues */
-    html, body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-}
+    /* Force Colors and Layout integrity */

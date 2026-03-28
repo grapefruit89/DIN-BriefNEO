@@ -1,5 +1,5 @@
-/**
- * css/din5008-paper.css — Aviation Grade Pillar 1
+﻿/**
+ * css/din5008-paper.css â€” High-Integrity Pillar 1
  * [ADR-001] Strictly DIN 5008:2020-03 Dimensions (mm)
  * [ADR-002] CSS Anchor Positioning (Chrome 147 native)
  * [ADR-003] Zero-JS Geometry
@@ -37,7 +37,7 @@
     height: calc-size(max-content, size);
   }
 
-  /* Brief-Kern (Fließtext) */
+  /* Brief-Kern (FlieÃŸtext) */
   #brief-kern {
     margin-top: 103.4mm; /* Unterkante Infoblock / Betreff-Start */
     display: flex;
@@ -102,9 +102,9 @@
   din-body-mirror strong { font-weight: bold; }
   din-body-mirror em { font-style: italic; }
 
-  /* ─────────────────────────────────────────────────────────
+  /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    * PILLAR 9: NATIVE MULTI-PAGE & BLOCK FRAGMENTATION
-   * ─────────────────────────────────────────────────────────
+   * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    */
 
   @page {
@@ -202,3 +202,4 @@
     opacity: 0.5;
   }
 }
+

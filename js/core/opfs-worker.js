@@ -1,8 +1,8 @@
-/**
- * js/core/opfs-worker.js — Aviation-Grade Journaling Persistence
+﻿/**
+ * js/core/opfs-worker.js â€” Aviation-Grade Journaling Persistence
  * [SPEC-068] Shadow Paging & Journaling Protocol
- * ─────────────────────────────────────────────────────────
- * Operiert im Dedicated Worker Thread für blockierungsfreie I/O.
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * Operiert im Dedicated Worker Thread fÃ¼r blockierungsfreie I/O.
  */
 
 const FILE_NAME = 'din-brief-neo.draft';
@@ -22,8 +22,8 @@ self.onmessage = async (e) => {
 };
 
 /**
- * [AVIATION GRADE] Load with Recovery Protocol
- * Prüft Journal auf ungespeicherte Daten nach Absturz.
+ * [High-Integrity] Load with Recovery Protocol
+ * PrÃ¼ft Journal auf ungespeicherte Daten nach Absturz.
  */
 async function loadWithRecovery() {
   try {
@@ -39,7 +39,7 @@ async function loadWithRecovery() {
       console.warn('[OPFS] Main draft not found, starting fresh.');
     }
 
-    // 2. Prüfe Journal auf "Late-Arrival" Daten (Recovery)
+    // 2. PrÃ¼fe Journal auf "Late-Arrival" Daten (Recovery)
     try {
       const journalHandle = await root.getFileHandle(JOURNAL_NAME);
       const journalFile = await journalHandle.getFile();
@@ -58,13 +58,13 @@ async function loadWithRecovery() {
 }
 
 /**
- * [AVIATION GRADE] Journaling & Shadow Paging
- * Verhindert Datenverlust durch redundante Schreibvorgänge.
- * Nutzt Web Locks API (navigator.locks.request) für Concurrency-Schutz.
+ * [High-Integrity] Journaling & Shadow Paging
+ * Verhindert Datenverlust durch redundante SchreibvorgÃ¤nge.
+ * Nutzt Web Locks API (navigator.locks.request) fÃ¼r Concurrency-Schutz.
  */
 async function saveWithJournaling(data) {
   try {
-    // [ADR-015] Concurrency Guard: Exklusive Sperre für OPFS-Zugriff
+    // [ADR-015] Concurrency Guard: Exklusive Sperre fÃ¼r OPFS-Zugriff
     // Wir nutzen ifAvailable: true, um sofort zu scheitern, wenn ein anderer Tab schreibt.
     await navigator.locks.request('opfs-io-lock', { ifAvailable: true }, async (lock) => {
       if (!lock) {
@@ -116,3 +116,4 @@ async function saveWithJournaling(data) {
     self.postMessage({ type: 'SAVE_ERROR', error: err.message });
   }
 }
+

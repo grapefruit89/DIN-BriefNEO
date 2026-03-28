@@ -1,10 +1,10 @@
-/**
- * js/core/app.js — Application Orchestrator
- * DIN-BriefNEO · Platinum V13
- * ─────────────────────────────────────────────────────────
+﻿/**
+ * js/core/app.js â€” Application Orchestrator
+ * DIN-BriefNEO Â· v4.0 V13
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Boot sequence:
- *   1. Dev-Mode Detection → Easter Egg prüfen
- *   2. StateManager instantiieren → LocalStorage laden
+ *   1. Dev-Mode Detection â†’ Easter Egg prÃ¼fen
+ *   2. StateManager instantiieren â†’ LocalStorage laden
  *   3. UIController init()
  *   4. Auto-Save Subscription
  *
@@ -27,18 +27,18 @@ const ROOT  = 'DIN-BriefNEO';
 const VER   = '18.0.0';
 
 /**
- * ── Aviation-Grade Console Telemetry ────────────────────────
+ * â”€â”€ Aviation-Grade Console Telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 function logAviationTelemetry(sm, io, ui) {
   const isFileProtocol = window.location.protocol === 'file:';
   const color = isFileProtocol ? '#f87171' : '#4ade80';
   
-  console.group(`%c 💎 ${ROOT} PLATINUM ENGINE v${VER} `, `background: #1e2535; color: ${color}; padding: 5px; border-radius: 4px; font-weight: bold;`);
+  console.group(`%c ðŸ’Ž ${ROOT} v4.0 ENGINE v${VER} `, `background: #1e2535; color: ${color}; padding: 5px; border-radius: 4px; font-weight: bold;`);
   
   console.info(`%c[ORIGIN]%c ${window.location.protocol}//${window.location.host || 'local-filesystem'}`, "font-weight: bold; color: #4a90e2;", "");
   
   if (isFileProtocol) {
-    console.warn("%c⚠️ SECURITY ORIGIN WARNING: Running via file:// protocol. Local Storage and Service Workers may be restricted. %cTo fix: run 'npx serve' in this directory.", "color: #fbbf24; font-weight: bold;", "color: #ccc; font-style: italic;");
+    console.warn("%câš ï¸ SECURITY ORIGIN WARNING: Running via file:// protocol. Local Storage and Service Workers may be restricted. %cTo fix: run 'npx serve' in this directory.", "color: #fbbf24; font-weight: bold;", "color: #ccc; font-style: italic;");
   }
 
   console.info(`%c[STATE]%c  ${Object.keys(sm.state.content).length} IMR-Keys active. Sync: ${io ? 'OPFS-Journaling' : 'LocalStorage-Fallback'}`, "font-weight: bold; color: #4a90e2;", "");
@@ -60,7 +60,7 @@ function logAviationTelemetry(sm, io, ui) {
 }
 
 /**
- * ── 6. Zero-JS Persistence Logic (ADR-003) ────────────────────────
+ * â”€â”€ 6. Zero-JS Persistence Logic (ADR-003) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Note: Layout states are now managed via StateManager to ensure
  * synchronicity across tabs via Phoenix Protocol.
  */
@@ -97,13 +97,13 @@ async function boot() {
   const statusEl = document.getElementById('statusbar');
   const setStatus = msg => { if (statusEl) statusEl.textContent = msg; };
 
-  setStatus('⏳ Initialisiere…');
+  setStatus('â³ Initialisiereâ€¦');
 
   try {
-    // ── 1. Dev-Mode Easter Egg ───────────────────────────────────
+    // â”€â”€ 1. Dev-Mode Easter Egg â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     checkDevMode();
 
-    // ── 2. State ─────────────────────────────────────────────────
+    // â”€â”€ 2. State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const sm = new StateManager();
     const restored = sm.loadFromStorage();
     
@@ -111,31 +111,31 @@ async function boot() {
       sm.state.content.date = formatDateTemporal(todayISO());
     }
 
-    // ── 3. UI (Frühzeitige Init für Responsivität) ───────────────
+    // â”€â”€ 3. UI (FrÃ¼hzeitige Init fÃ¼r ResponsivitÃ¤t) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const ui = new UIController(sm);
     ui.init();
 
-    // ── 3a. CMA-Sensor (Layout Integrity) ────────────────────────
+    // â”€â”€ 3a. CMA-Sensor (Layout Integrity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const cma = new CMASensor(sm);
     cma.init();
 
-    // ── 4. Phoenix Protocol (Storage Sovereignty) ────────────────
+    // â”€â”€ 4. Phoenix Protocol (Storage Autonomousty) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const io = new IOCoordinator(sm);
     try {
         await io.init();
     } catch (e) {
-        console.warn("⚠️ Storage Engine limited on this origin. Falling back to LocalState.");
+        console.warn("âš ï¸ Storage Engine limited on this origin. Falling back to LocalState.");
     }
 
-    // ── 5. Worker Message Listener (Compliance) ──────────────────
+    // â”€â”€ 5. Worker Message Listener (Compliance) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (io.worker) {
         io.worker.addEventListener('message', (e) => {
             if (e.data.type === 'CONCURRENCY_CONFLICT') {
-                setStatus(`⚠️ ${e.data.message}`);
+                setStatus(`âš ï¸ ${e.data.message}`);
                 // Diskrete Warnung in der Compliance Bar
                 const integrityEl = document.querySelector('.compliance-item:first-child');
                 if (integrityEl) {
-                    integrityEl.textContent = 'Fiskale Integrität: ';
+                    integrityEl.textContent = 'Fiskale IntegritÃ¤t: ';
                     const span = document.createElement('span');
                     span.className = 'status-warn';
                     span.textContent = '[READ-ONLY]';
@@ -145,10 +145,10 @@ async function boot() {
         });
     }
 
-    // ── 6. Dev-Mode Sidebar-Registration ────────────────────────
+    // â”€â”€ 6. Dev-Mode Sidebar-Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     initDevMode(sm);
 
-    // ── 7. Zero-JS Persistence ───────────────────────────
+    // â”€â”€ 7. Zero-JS Persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     initZeroJSState(sm);
 
     // Watch for layout changes to log telemetry
@@ -158,12 +158,12 @@ async function boot() {
         }
     });
 
-    // ── 8. [COMPLIANCE] AviationMath Self-Test ────────────────────
+    // â”€â”€ 8. [COMPLIANCE] AviationMath Self-Test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const mathStatus = typeof Math.sumPrecise === 'function' ? 'ok' : 'warn';
     const mathLabel  = typeof Math.sumPrecise === 'function' ? 'Blink-Native' : 'Integer-Fallback';
     ui.updateComplianceStatus('math-engine-status', mathStatus, `Math-Engine: [${mathLabel}]`);
 
-    // ── 9. TELEMETRY ──────────────────────────────────────────────
+    // â”€â”€ 9. TELEMETRY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logAviationTelemetry(sm, io, ui);
 
     // Lifecycle Events for Emergency Save
@@ -177,11 +177,11 @@ async function boot() {
       window.__neo = { sm, ui, io, VER, ROOT };
     }
 
-    setStatus(`✅ ${ROOT} v${VER}`);
+    setStatus(`âœ… ${ROOT} v${VER}`);
 
   } catch (err) {
     console.error('[NEO Boot]', err);
-    setStatus('❌ Boot-Fehler — Konsole prüfen');
+    setStatus('âŒ Boot-Fehler â€” Konsole prÃ¼fen');
     const paper = document.getElementById('paper');
     if (paper) {
       const msg = document.createElement('div');
@@ -202,3 +202,4 @@ if (document.readyState === 'loading') {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(err => console.error('PWA Fail:', err));
 }
+

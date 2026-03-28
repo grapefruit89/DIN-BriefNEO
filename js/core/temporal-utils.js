@@ -1,8 +1,8 @@
-/**
- * js/core/temporal-utils.js — Pillar 6: Temporal API Engine
+﻿/**
+ * js/core/temporal-utils.js â€” Pillar 6: Temporal API Engine
  * [ADR-011] Chrome 147 Native Temporal Support
  * [TOMB-L001] Date object is strictly forbidden.
- * ─────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
 // [CMD-4] Intl.DateTimeFormat Singleton Performance Fix
@@ -24,9 +24,9 @@ export function todayISO() {
 }
 
 /**
- * Formatiert ein Temporal-Datum für die deutsche DIN-Norm
+ * Formatiert ein Temporal-Datum fÃ¼r die deutsche DIN-Norm
  * @param {string|Temporal.PlainDate} input 
- * @param {string} format — 'din' (16.03.2026), 'text' (16. März 2026)
+ * @param {string} format â€” 'din' (16.03.2026), 'text' (16. MÃ¤rz 2026)
  */
 export function formatDate(input, format = 'din') {
   if (!input) return '';
@@ -43,14 +43,14 @@ export function formatDate(input, format = 'din') {
 }
 
 /**
- * Alias für formatDate (Aviation Grade Compatibility)
+ * Alias fÃ¼r formatDate (High-Integrity Compatibility)
  */
 export function formatDateTemporal(isoString) {
   return formatDate(isoString || todayISO(), 'din');
 }
 
 /**
- * Berechnet ein Zieldatum (z.B. für Fristen)
+ * Berechnet ein Zieldatum (z.B. fÃ¼r Fristen)
  * @param {string} isoDate 
  * @param {number} daysToAdd 
  */
@@ -83,3 +83,4 @@ export function temporalReviver(key, value) {
   }
   return value;
 }
+

@@ -21,11 +21,11 @@
 - **REDUKTION:** Jede Aufgabe muss in unter 5 Minuten (nicht 40!) gelöst werden. Wenn ich loope: ABBRUCH und Nutzer fragen.
 
 ## RESTORE POINTS & PERSISTENCE
-- **MANDATE-COMMIT-OR-DIE:** Jede abgeschlossene Teilaufgabe (Mission) MUSS mit einem physischen `git commit` beendet werden.
+- **COMMIT-REQUIREMENT:** Jede abgeschlossene Teilaufgabe (Mission) MUSS mit einem physischen `git commit` beendet werden.
 - **VERSION-CONTROL-ONLY:** Manuelle Versionierung via Dateiname (z.B. `_v1.0.md`) ist STRENGSTENS UNTERSAGT. Git ist das einzige Werkzeug für Historie.
 - **RESTORE:** Niemals die Workspace in einem uncommitted Zustand hinterlassen.
 
-## TECHNICAL DOCTRINE (DIN-5008-NEO)
+## TECHNICAL SPECIFICATION (DIN-5008-NEO)
 - NO LEGACY DATE: Use Temporal API exclusively.
 - NO INNERHTML: Use textContent or Sanitizer API (setHTML).
 - NO JS UI TOGGLES: Use HTML Invoker Commands (commandfor) and CSS Anchor Positioning.

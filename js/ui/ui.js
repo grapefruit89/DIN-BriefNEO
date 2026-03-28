@@ -1,9 +1,9 @@
-/**
- * js/ui/ui.js — Platinum DOM Controller (V20)
+﻿/**
+ * js/ui/ui.js â€” v4.0 DOM Controller (V20)
  * [CMD-1] Ghost-Mirror Structural Integrity
  * [CMD-2] Scoped View Transitions (Chrome 147)
  * [CMD-4] EditContext Integration
- * ─────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
 import * as Logic from "../logic/logic.js";
@@ -11,7 +11,7 @@ import { EditContextController } from "../core/edit-context-controller.js";
 import { GhostMirror } from "./ghost-mirror.js";
 import { AddressService } from "../services/address-service.js";
 import { FlightRecorder } from "../logic/flight-recorder.js";
-import { IMR, PLATINUM_SANITIZER } from "../core/constants.js";
+import { IMR, CORE_SANITIZER } from "../core/constants.js";
 
 export class UIController {
   constructor(sm) {
@@ -41,7 +41,7 @@ export class UIController {
       if (command === "--history") if (this.io) this.io.requestHistory();
       if (command === "--export-logs") this._handleLogExport();
     });
-    console.info("🚀 Platinum UI: Sanitizer & Ghost-Mirror Active");
+    console.info("ðŸš€ v4.0 UI: Sanitizer & Ghost-Mirror Active");
   }
 
   _bindUtilityActions() {
@@ -59,7 +59,7 @@ export class UIController {
         a.download = `DIN-BriefNEO_Export_${dateStr}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        console.info("📥 State exported to JSON.");
+        console.info("ðŸ“¥ State exported to JSON.");
       });
     }
 
@@ -78,7 +78,7 @@ export class UIController {
             try {
               const data = JSON.parse(re.target.result);
 
-              // [G-002] Strict Schema Gate (Aviation Grade Security)
+              // [G-002] Strict Schema Gate (High-Integrity Security)
               const isValid = this._validateImportSchema(data);
               if (!isValid)
                 throw new Error(
@@ -86,10 +86,10 @@ export class UIController {
                 );
 
               this.sm.load(data);
-              console.info("📤 State imported successfully.");
+              console.info("ðŸ“¤ State imported successfully.");
               location.reload(); // Refresh to ensure all controllers re-init with new state
             } catch (err) {
-              console.error("❌ Import failed:", err);
+              console.error("âŒ Import failed:", err);
               alert(`Import fehlgeschlagen: ${err.message}`);
             }
           };
@@ -122,7 +122,7 @@ export class UIController {
             this._ghosts[entry.tag].update(text);
           }
 
-          // [CMD-5] Platinum Salutation Engine: Real-time update
+          // [CMD-5] v4.0 Salutation Engine: Real-time update
           if (entry.key === "rect_name") {
               this._triggerSalutationUpdate(text);
           }
@@ -140,7 +140,7 @@ export class UIController {
   }
 
   /**
-   * [CMD-5] Platinum Salutation Engine: Orchestrates the reactive update.
+   * [CMD-5] v4.0 Salutation Engine: Orchestrates the reactive update.
    */
   _triggerSalutationUpdate(recipientText) {
     const analysis = Logic.parseRecipient(recipientText);
@@ -156,7 +156,7 @@ export class UIController {
         recipientText,
       );
 
-      // Sync das Ergebnis zurück in den State, falls gewünscht
+      // Sync das Ergebnis zurÃ¼ck in den State, falls gewÃ¼nscht
       const newSalutation = salutationEl.textContent;
       this.sm.update("content.salutation", newSalutation, "engine");
     }
@@ -182,8 +182,8 @@ export class UIController {
       return;
     }
 
-    if (el.setHTML && PLATINUM_SANITIZER) {
-      el.setHTML(value || "", { sanitizer: PLATINUM_SANITIZER });
+    if (el.setHTML && CORE_SANITIZER) {
+      el.setHTML(value || "", { sanitizer: CORE_SANITIZER });
     } else {
       el.textContent = value || "";
     }
@@ -217,7 +217,7 @@ export class UIController {
   }
 
   _bindNativeEvents() {
-    // ── Button Actions (Pure JS Logic separation) ───────────────────
+    // â”€â”€ Button Actions (Pure JS Logic separation) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     // Absender-Profil
     const btnProfile = document.getElementById("btn-profile");
@@ -314,7 +314,7 @@ export class UIController {
       });
     }
 
-    // Profil-Management (Aviation Grade Popover Logic)
+    // Profil-Management (High-Integrity Popover Logic)
     const modalProfile = document.getElementById("modal-profile");
     if (modalProfile) {
       const profileSelect = document.getElementById("profileSelect");
@@ -378,7 +378,7 @@ export class UIController {
         if (!this.sm.state.config.profiles) this.sm.state.config.profiles = {};
         this.sm.state.config.profiles[key] = data;
 
-        // Apply to Document (Aviation Grade Sync)
+        // Apply to Document (High-Integrity Sync)
         const nameLine = data.co ? `${data.name}, c/o ${data.co}` : data.name;
         const senderDetails = `${nameLine}\n${data.street}\n${data.city}`;
         const returnLine = Logic.deriveReturnLine({
@@ -411,7 +411,7 @@ export class UIController {
 
       if (e.target.name === "layout") {
         const val = e.target.id === "layout-a" ? "form-a" : "form-b";
-        console.info(`📐 Layout Switch Triggered: ${val}`);
+        console.info(`ðŸ“ Layout Switch Triggered: ${val}`);
 
         const updateLayout = () => {
           if (paper) paper.dataset.form = val === "form-a" ? "A" : "B";
@@ -426,14 +426,14 @@ export class UIController {
 
       if (e.target.name === "guides") {
         const isGuidesOn = e.target.value === "true";
-        console.info(`📏 Guides Toggle: ${isGuidesOn}`);
+        console.info(`ðŸ“ Guides Toggle: ${isGuidesOn}`);
         if (paper) paper.dataset.guides = isGuidesOn ? "true" : "false";
         this.sm.state.config.guides = isGuidesOn;
       }
 
       if (e.target.name === "theme") {
         const isNight = e.target.value === "night";
-        console.info(`🌙 Theme Toggle: ${isNight ? "Night" : "Day"}`);
+        console.info(`ðŸŒ™ Theme Toggle: ${isNight ? "Night" : "Day"}`);
         this.sm.state.config.theme = e.target.value;
       }
     });
@@ -448,7 +448,7 @@ export class UIController {
       });
     }
 
-    // [MANDATE-PASTE] The Radical Paste-Filter (Aviation Grade)
+    // [MANDATE-PASTE] The Radical Paste-Filter (High-Integrity)
     document.addEventListener("paste", (e) => {
       const el = e.target;
       const isContentEditable =
@@ -475,11 +475,11 @@ export class UIController {
             if (this._ghosts[tag]) this._ghosts[tag].update(ec.text);
           }
         } else {
-          // Fallback für non-EditContext Felder
+          // Fallback fÃ¼r non-EditContext Felder
           document.execCommand("insertText", false, text);
         }
         console.info(
-          "🛡️ Paste Gatekeeper: HTML-Injection prevented. Plaintext only.",
+          "ðŸ›¡ï¸ Paste Gatekeeper: HTML-Injection prevented. Plaintext only.",
         );
       }
     });
@@ -490,7 +490,7 @@ export class UIController {
       if (entry) {
         let text = e.target.textContent;
 
-        // [PLATINUM-GHOST] Force real emptiness for placeholders
+        // [v4.0-GHOST] Force real emptiness for placeholders
         if (text.trim() === "") {
           e.target.innerHTML = "";
           text = "";
@@ -507,7 +507,7 @@ export class UIController {
     });
   }
 
-  /* ── 📍 AUTOCOMPLETE UI ─────────────────────────────────────── */
+  /* â”€â”€ ðŸ“ AUTOCOMPLETE UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   _renderSuggestions(features) {
     this._closeAutocomplete();
     if (!features || features.length === 0) return;
@@ -557,7 +557,7 @@ export class UIController {
   }
 
   /**
-   * [G-002] Strict Schema Gate (Aviation Grade Security)
+   * [G-002] Strict Schema Gate (High-Integrity Security)
    * Validates incoming JSON data against the Isomorphic Master Registry keys.
    */
   _validateImportSchema(data) {
@@ -603,3 +603,4 @@ export class UIController {
     }
   }
 }
+

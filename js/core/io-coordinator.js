@@ -1,7 +1,7 @@
-/**
- * js/core/io-coordinator.js — Phoenix Protocol Coordinator
- * [MANDATE-PLATINUM] Zero-Loss Persistence & Leader Election
- * ─────────────────────────────────────────────────────────
+﻿/**
+ * js/core/io-coordinator.js â€” Phoenix Protocol Coordinator
+ * [MANDATE-v4.0] Zero-Loss Persistence & Leader Election
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Architecture:
  *   1. Leader Election (Web Locks API)
  *   2. Broadcast Sync (BroadcastChannel API)
@@ -139,3 +139,4 @@ export class IOCoordinator {
         }
     }
 }
+

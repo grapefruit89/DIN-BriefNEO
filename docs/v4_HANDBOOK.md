@@ -1,4 +1,4 @@
-﻿# ðŸ’Ž PLATINUM DEVELOPER HANDBOOK (OMNIBUS EDITION)
+﻿# ðŸ’Ž v4.0 DEVELOPER HANDBOOK (OMNIBUS EDITION)
 # Stand: MÃ¤rz 2026 | Status: EXHAUSTIVE COMPILATION
 
 > **DOKTRIN-NOTIZ:** Dieses Handbuch ist absichtlich *nicht* zusammengefasst. Es enthÃ¤lt **alle** Spezifikationen, Architektur-Doktrinen, PlÃ¤ne, Protokolle und Verfassungsdokumente in ihrer vollstÃ¤ndigen, ungekÃ¼rzten Originalfassung. Es dient als ultimative, verlustfreie Single Source of Truth (SSoT) fÃ¼r die GitHub-Publikation.
@@ -14,14 +14,14 @@
 ## ðŸ„ Dokument: 00_REQUIREMENTS_MASTER_v1.0.0.md (Quelle: .brain)
 
 # 🧠 DIN-BriefNEO MASTER-MONOLITH (v1.0.0)
-## STATUS: ZEMENTIERT | DOKTRIN: AVIATION GRADE PLATINUM
+## STATUS: ZEMENTIERT | DOKTRIN: High-Integrity v4.0
 
 ### ⚖️ DIE VERFASSUNG (CHROME 147+ BASELINE)
 1. **IMR 3.0 (Isomorphe Master-Registry):** Absolutes Gesetz: TAG = KEY = CMA-KOORDINATE = ANKER. Ein Feld existiert nur, wenn es in der Registry, im HTML (Tag), im CSS (Koordinate) und im JSON-State identisch benannt ist.
 2. **NO-JS UI DOKTRIN:** Imperatives JS für UI-Effekte ist illegal. Tooltips, Popovers und Dialoge nutzen exklusiv **CSS Anchor Positioning** (`anchor-name`, `position-anchor`) und native **Invoker Commands** (`commandfor`).
 3. **SCROLL-LOGIK:** JS-Scroll-Listener sind durch native CSS `@container scroll-state()` ersetzt. Die Überlauf-Erkennung findet auf Render-Ebene statt.
 4. **DATA RESILIENCE:** Zero-Loss Save via **Origin Private File System (OPFS)** und **IdleDetector API**. State-Synchronisation erfolgt atomar.
-5. **PLAINTEXT-VERSIEGELUNG:** `contenteditable="true"` ist verboten. Nutzung der **EditContext API** in Kombination mit **CSS Custom Highlights** für den Ghost-Mirror (Aviation Grade Isolation).
+5. **PLAINTEXT-VERSIEGELUNG:** `contenteditable="true"` ist verboten. Nutzung der **EditContext API** in Kombination mit **CSS Custom Highlights** für den Ghost-Mirror (High-Integrity Isolation).
 
 ---
 
@@ -116,7 +116,7 @@ Als Anwender mchte ich zwischen den beiden Standard-Layouts (Form A mit kleinem 
 - **Information Block**: 97.4mm.
 - **Subject Line**: 103.4mm.
 - **Footer**: 269mm.
-- **Verification**: Diese Werte wurden gegen MehrCurry/briefversand abgeglichen und sind ab sofort als "Aviation Grade" zementiert.
+- **Verification**: Diese Werte wurden gegen MehrCurry/briefversand abgeglichen und sind ab sofort als "High-Integrity" zementiert.
 
 ---
 
@@ -137,7 +137,7 @@ traceability: [DIN-LOGIC-SALUT]
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-LOGIC-SALUT]`
 - **Lexicon Check**: "Anrede", "Empfngername", "Prfix".
-- **Principle Check**: **V. USER SOVEREIGNTY**: Automation NEVER overwrites manual user input.
+- **Principle Check**: **V. USER AutonomousTY**: Automation NEVER overwrites manual user input.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -262,7 +262,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-FEAT-SNIPPET]`
 - **Lexicon Check**: "Textbaustein", "Snippet", "Feld-Kontext", "Persistenz".
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: Snippets MUST be stored locally (LocalStorage). **V. USER SOVEREIGNTY**: Loading a snippet MUST be a conscious user action.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: Snippets MUST be stored locally (LocalStorage). **V. USER AutonomousTY**: Loading a snippet MUST be a conscious user action.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -320,7 +320,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-SYS-ASSET]`
 - **Lexicon Check**: "Base64", "Asset", "Logo", "Persistenz".
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: All assets MUST be local. **IX. SAFETY**: Credential masking does not apply here, but data size limits do.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: All assets MUST be local. **IX. SAFETY**: Credential masking does not apply here, but data size limits do.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -334,7 +334,7 @@ Als Anwender mchte ich mein Firmenlogo hochladen knnen, damit es im Briefkopf er
 ### User Story 2 - Offline-Verfgbarkeit des Logos (Priority: P1)
 Als Anwender mchte ich, dass mein hochgeladenes Logo auch dann vorhanden ist, wenn ich die Seite neu lade oder offline bin.
 
-**Why this priority**: Verhindert kaputte Bilder ("Broken Images") und wahrt die **OFFLINE SOVEREIGNTY**.
+**Why this priority**: Verhindert kaputte Bilder ("Broken Images") und wahrt die **OFFLINE AutonomousTY**.
 
 **Independent Test**: Logo hochladen -> Browser-Tab schlieen -> Internetverbindung trennen -> Seite ffnen -> Prfung, ob das Logo sofort wieder sichtbar ist.
 
@@ -378,7 +378,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-SYS-PWA]`
 - **Lexicon Check**: "PWA", "Manifest", "Service Worker", "Installable".
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: The app MUST be fully functional offline. **X. DESKTOP FIRST**: Focus on Desktop installation.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: The app MUST be fully functional offline. **X. DESKTOP FIRST**: Focus on Desktop installation.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -685,7 +685,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-SYS-SAVE]`
 - **Anti-Pattern Check**: Verhindert aktiv [ANTI-004] (Cookies).
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: Alles bleibt im Browser des Nutzers.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: Alles bleibt im Browser des Nutzers.
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 100 
@@ -840,7 +840,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-FEAT-SIGN]`
 - **Source Pattern**: `[PAT-MV-02]` (Unterschriften-Positionierung) & `[PAT-NK-02]` (Base64).
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: Scan wird als Base64 im Profil gespeichert.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: Scan wird als Base64 im Profil gespeichert.
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 70 
@@ -1055,7 +1055,7 @@ created: 2026-03-20
 
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-SYS-PROFILE]`
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: All profile data stays local. **II. HYBRID ARCHITECTURE**: Preserves fields even if hidden.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: All profile data stays local. **II. HYBRID ARCHITECTURE**: Preserves fields even if hidden.
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 90 
@@ -1250,7 +1250,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-LOGIC-MIRROR]`
 - **Lexicon Check**: "Rcksendezeile", "Absenderdaten", "Initialen".
-- **Principle Check**: **V. USER SOVEREIGNTY**: Automatische Spiegelung darf manuelle Korrekturen NICHT berschreiben (isDirty Flag).
+- **Principle Check**: **V. USER AutonomousTY**: Automatische Spiegelung darf manuelle Korrekturen NICHT berschreiben (isDirty Flag).
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 80 
@@ -1279,7 +1279,7 @@ Als Anwender mchte ich, dass mein Name und meine Adresse automatisch in der klei
 ## Success Criteria *(mandatory)*
 
 - **SC-001**: **Sync Speed**: Die Rcksendezeile aktualisiert sich in < 100ms nach Eingabe im Absenderfeld.
-- **SC-002**: **No Ghost Overwrite**: Manuelle nderungen an der Rcksendezeile bleiben dauerhaft erhalten (User Sovereignty).
+- **SC-002**: **No Ghost Overwrite**: Manuelle nderungen an der Rcksendezeile bleiben dauerhaft erhalten (User Autonomousty).
 
 ---
 
@@ -1433,7 +1433,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-FEAT-PORTABLE]`
 - **Anti-Pattern Check**: Verhindert hssliche, berlange URLs (Rejected SPEC-025).
-- **Principle Check**: **VII. OFFLINE SOVEREIGNTY**: The exported file is self-contained and works locally.
+- **Principle Check**: **VII. OFFLINE AutonomousTY**: The exported file is self-contained and works locally.
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 90 
@@ -1719,7 +1719,7 @@ created: 2026-03-20
 
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-FEAT-SNIPPET]`
-- **Principle Check**: **IV. VANILLA PURITY**: Logic via simple Arrays/Objects. **V. USER SOVEREIGNTY**: Snippets are suggestions, not forced.
+- **Principle Check**: **IV. VANILLA PURITY**: Logic via simple Arrays/Objects. **V. USER AutonomousTY**: Snippets are suggestions, not forced.
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 80 
@@ -1763,25 +1763,25 @@ created: 2026-03-20
 ## File: specs/037-din-formatter/spec.md
 ---
 id: SPEC-037
-title: DIN-Logic Formatter (Aviation Grade)
+title: DIN-Logic Formatter (High-Integrity)
 tags: [specification, din-5008, platin]
 status: cemented
 weight: 90
 criticality: HIGH
 created: 2026-03-20
 ---
-# Feature Specification: DIN-Logic Formatter (Aviation Grade)
+# Feature Specification: DIN-Logic Formatter (High-Integrity)
 
 
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-LOGIC-FORMAT]`
 - **Lexicon Check**: "Adaptive Visual Gap", "Durchwahl", "ISO-Datum", "Ortsnetzkennzahl".
-- **Principle Check**: **V. USER SOVEREIGNTY**: The formatter MUST NOT destroy user input but "beautify" it.
+- **Principle Check**: **V. USER AutonomousTY**: The formatter MUST NOT destroy user input but "beautify" it.
 
 ## Feature Weighting (Bedeutung)
 - **Importance (1-100)**: 90 
 - **Fulfillment Target**: 100% (Norm-Konformitt)
-- **Rationale**: Ein Platinum-Briefgenerator muss sicherstellen, dass Zahlen und Daten den hchsten professionellen Standards entsprechen.
+- **Rationale**: Ein v4.0-Briefgenerator muss sicherstellen, dass Zahlen und Daten den hchsten professionellen Standards entsprechen.
 
 ---
 
@@ -1884,7 +1884,7 @@ created: 2026-03-20
 ## ??? Implementation Rules
 1. **Tier-Separation**: Features MUST technisch so getrennt sein, dass Tier 0 immer funktioniert.
 2. **Key Privacy**: Alle Keys (Tier 2) und Login-Daten (Tier 3) MUST im `localStorage` verbleiben.
-3. **User Sovereignty**: Jede API-Abfrage MUST dezent sein. Der Nutzer hat das letzte Wort.
+3. **User Autonomousty**: Jede API-Abfrage MUST dezent sein. Der Nutzer hat das letzte Wort.
 
 ---
 
@@ -2156,7 +2156,7 @@ created: 2026-03-20
 
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-UI-TOGGLE]`
-- **Principle Check**: **V. USER SOVEREIGNTY**: Immediate feedback on layout change.
+- **Principle Check**: **V. USER AutonomousTY**: Immediate feedback on layout change.
 - **Visual Goal**: Clear distinction between Form A (27mm) and Form B (45mm).
 
 ---
@@ -2213,7 +2213,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-FEAT-RICHMETA]`
 - **Requirement**: Erweiterung der Profildaten um rechtliche Pflichtangaben und digitale Kontaktwege.
-- **Rationale**: Ein "Platinum" Brief-Generator muss auch die Anforderungen an Geschftsbriefe ( 80 AktG,  35a GmbHG) perfekt abbilden.
+- **Rationale**: Ein "v4.0" Brief-Generator muss auch die Anforderungen an Geschftsbriefe ( 80 AktG,  35a GmbHG) perfekt abbilden.
 
 ---
 
@@ -2388,7 +2388,7 @@ created: 2026-03-20
 ## ?? Brain-First Alignment *(mandatory)*
 - **Traceability ID**: `[DIN-LOGIC-LEKTOR]`
 - **Lexicon Check**: "Zustellungsempfnger", "Abkrzungs-Leerschritt", "Obsolet-Prfix".
-- **Principle Check**: **V. USER SOVEREIGNTY**: Silent corrections MUST be revertible (Undo). Warnings are preferred for stylistic choices.
+- **Principle Check**: **V. USER AutonomousTY**: Silent corrections MUST be revertible (Undo). Warnings are preferred for stylistic choices.
 
 ---
 
@@ -2759,7 +2759,7 @@ export const FlightRecorder = {
   record: (errorType = 'MANUAL_TRIGGER', message = '') => {
     return {
       header: {
-        app: "DIN-BriefNEO Platinum",
+        app: "DIN-BriefNEO v4.0",
         version: "16.0.0",
         timestamp: Temporal.Now.instant().toString(),
         incident_id: crypto.randomUUID()
@@ -2862,17 +2862,17 @@ export function parseMarkdownToHTML(text) {
 
 ---
 
-## File: plans/065-platinum-integrity/plan.md
+## File: plans/065-v4.0-integrity/plan.md
 ---
 id: PLAN-065
 spec: SPEC-053
-title: Aviation Grade Platinum Integrity — EditContext & A11y
+title: High-Integrity v4.0 Integrity — EditContext & A11y
 status: draft
 anti-patterns: [ANTI-023, ANTI-025]
 adr: [ADR-008, ADR-011]
 ---
 
-# Implementation Plan: PLAN-065 — Platinum Integrity
+# Implementation Plan: PLAN-065 — v4.0 Integrity
 
 ## Summary
 Hrtung des DIN-BriefNEO Systems durch Einfhrung der **EditContext API** fr den Haupttextbereich (`din-body`) und Implementierung von **A11y Skip-Links**. Ziel ist die vollstndige Entkoppelung von Eingabemodell und Darstellung bei gleichzeitiger Maximierung der Barrierefreiheit fr Screenreader und Keyboard-Nutzer.
@@ -2881,7 +2881,7 @@ Hrtung des DIN-BriefNEO Systems durch Einfhrung der **EditContext API** fr den H
 **Language/Version**: HTML5, CSS3 (Chrome 147 Baseline), Vanilla JS (ES2026)
 **Primary APIs**: EditContext API (Chrome 121+), Sanitizer API (Chrome 147+), Popover API
 **Storage**: LocalStorage (State Persistence via StateManager)
-**Target Platform**: Chrome 147+ (Aviation Grade Platinum)
+**Target Platform**: Chrome 147+ (High-Integrity v4.0)
 **Project Type**: Web Application (Static Frontend)
 **Performance Goals**: < 16ms Input Latency (60fps Mirror Sync)
 **Constraints**: Zero pixel shift, Zero innerHTML injection
@@ -2908,7 +2908,7 @@ Hrtung des DIN-BriefNEO Systems durch Einfhrung der **EditContext API** fr den H
 
 ### Documentation (this feature)
 ```text
-plans/065-platinum-integrity/
+plans/065-v4.0-integrity/
 ├── plan.md              # This file
 └── research.md          # EditContext Selection & IMI Handling
 ```
@@ -3345,7 +3345,7 @@ Wir nutzen `@media print`, um die physischen Grenzen des `#paper` aufzubrechen.
 ```css
 #paper {
   height: var(--page-height); /* 297mm */
-  overflow: hidden; /* Aviation Grade: kein Scrollen am Blatt */
+  overflow: hidden; /* High-Integrity: kein Scrollen am Blatt */
 }
 ```
 
@@ -3388,7 +3388,7 @@ adr: ADR-008
 
 # Plan: Ghost-Mirror & Plaintext Integrity (HOW)
 
-## 1. Constitution Check (Aviation Grade)
+## 1. Constitution Check (High-Integrity)
 | Gate | Status | Notiz |
 |---|---|---|
 | Vanilla Purity | OK | Nur nativ HTML/CSS/JS |
@@ -3514,7 +3514,7 @@ Anstatt JS-Werte in CSS-Variablen zu injizieren, liest das CSS die Werte direkt:
 
 ## 3. Nutzen
 - **Zero-JS Overhead**: Keine `cma-bridge.js`, kein Resize-Observer, kein Layout-Sync ntig.
-- **Aviation Grade**: Die physische Wahrheit liegt im HTML-Attribut (SSoT).
+- **High-Integrity**: Die physische Wahrheit liegt im HTML-Attribut (SSoT).
 
 ---
 
@@ -3683,17 +3683,17 @@ Wir erstellen zwei neue Core-Dateien:
 
 ---
 
-## File: plans/060-sovereign-akinator/plan.md
+## File: plans/060-Autonomous-akinator/plan.md
 ---
 id: PLAN-060
 spec: SPEC-056
-title: Sovereign Akinator 4.0  Local Gemini Nano Integration
+title: Autonomous Akinator 4.0  Local Gemini Nano Integration
 status: draft
 anti-patterns: [ANTI-025]
 adr: ADR-012
 ---
 
-# Plan: Sovereign Akinator (Local AI)
+# Plan: Autonomous Akinator (Local AI)
 
 ## 1. Zielsetzung
 Ersetzung aller externen KI-Aufrufe durch die native **Chrome Gemini Nano API**. Der Akinator wird zum lokalen Lektor, der ohne Internetverbindung und mit maximalem Datenschutz operiert.
@@ -3727,21 +3727,21 @@ async function runLocalAnalysis(content) {
 - **Cost Zero**: Keine API-Kosten, keine Abhngigkeit von Drittanbietern.
 
 ## 4. Constraint Check
-Der Akinator darf den Brief **niemals eigenmchtig ndern**. Er gibt nur Empfehlungen aus (Aviation Grade: Der Pilot/Nutzer behlt die Kontrolle).
+Der Akinator darf den Brief **niemals eigenmchtig ndern**. Er gibt nur Empfehlungen aus (High-Integrity: Der Pilot/Nutzer behlt die Kontrolle).
 
 ---
 
-## File: plans/061-platinum-pipeline/plan.md
+## File: plans/061-v4.0-pipeline/plan.md
 ---
 id: PLAN-061
 spec: SPEC-061
-title: Implementation of the Platinum Validation Pipeline (PVP)
+title: Implementation of the v4.0 Validation Pipeline (PVP)
 status: cemented
 anti-patterns: [ANTI-023, ANTI-025]
 adr: [ADR-003, ADR-008]
 ---
 
-# PLAN-061: Platinum Validation Pipeline (PVP)
+# PLAN-061: v4.0 Validation Pipeline (PVP)
 
 ## Constitution Check
 | Mandate | Status | Note |
@@ -3760,7 +3760,7 @@ node scripts/get-catalog.mjs
 ```
 
 ## 2. Erweiterung der Post-Session Verifikation
-Die Datei `scripts/post-session-verify.ps1` wird um die Sektion `PLATINUM MANDATE CHECK` erweitert.
+Die Datei `scripts/post-session-verify.ps1` wird um die Sektion `v4.0 MANDATE CHECK` erweitert.
 
 ### Prf-Logik (PowerShell)
 
@@ -3797,7 +3797,7 @@ if ($externalScripts) {
 ---
 
 ## File: plans/062-industry-intent/plan.md
-# Implementation Plan: 062-industry-intent-sovereignty
+# Implementation Plan: 062-industry-intent-Autonomousty
 
 **Branch**: `062-industry-intent` | **Date**: 2026-03-22 | **Spec**: SPEC-062 (Derived)
 **Input**: Fernando Alves AI-Native Principles + Thoughtworks BMAD
@@ -3930,7 +3930,7 @@ Integration eines professionellen Geschfts-Footers. Der Akinator validiert Pflic
 **CMA-Constraint**: `FOOTER_TOP` (269.000mm)
 **Constraints**: [MANDATE-PLN] Plaintext-only, [MANDATE-NAT] Native-First, [MANDATE-INJ] No innerHTML
 
-## Aviation Grade Pflichtfelder (Validation Logic)
+## High-Integrity Pflichtfelder (Validation Logic)
 - **Legal Entity**: Name + Rechtsform
 - **Registration**: Registergericht + Nummer (HRB/HRA)
 - **Tax**: USt-IdNr (Validierung: DE + 9 Ziffern)
@@ -3966,7 +3966,7 @@ Integration eines professionellen Geschfts-Footers. Der Akinator validiert Pflic
 ## ðŸ„ Dokument: 00_source_inventory_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, source-mapping, inventory]
+tags: [aviation-grade, v4.0-2026, source-mapping, inventory]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-23
@@ -4009,7 +4009,7 @@ Folgende Muster aus den Quellen wurden als **DO NOT ADAPT** markiert (Cemetery o
 ## ðŸ„ Dokument: 00_source_inventory_v1.1.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, source-mapping, inventory, deep-scan]
+tags: [aviation-grade, v4.0-2026, source-mapping, inventory, deep-scan]
 status: cemented
 version: 1.1.0
 last_audit: 2026-03-23
@@ -4065,7 +4065,7 @@ Alle weiteren Dateien im Verzeichnis `.\quellen` wurden auf architektonische Heb
 ## ðŸ„ Dokument: 01_constitution_v2.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, constitution]
+tags: [aviation-grade, v4.0-2026, architecture, constitution]
 status: cemented
 version: 2.0.0
 last_audit: 2026-03-23
@@ -4142,7 +4142,7 @@ Vollständiger Ersatz des mutierbaren `Date`-Objekts durch die native Temporal A
 ## ðŸ„ Dokument: 02_TECH_SPEC_v1.0.0.md (Quelle: .brain)
 
 # TECH-SPEC: THE NO-JS DOCTRINE & NATIVE BASELINE (v1.0.0)
-# Status: CEMENTED | Doctrine: Aviation Grade Platinum | Stand: März 2026
+# Status: CEMENTED | Doctrine: High-Integrity v4.0 | Stand: März 2026
 
 ## I. OBERSTES GEBOT: LOGIC-LITE ARCHITEKTUR
 JavaScript existiert ausschließlich als unsichtbare Fachlogik (Der Ghost). Der Browser (Chrome 147+ Engine) übernimmt das Rendering und Layout nativ (Der Mirror). Jede Form von DOM-Manipulation für Layoutzwecke ist ein fataler Architekturfehler.
@@ -4171,7 +4171,7 @@ JavaScript existiert ausschließlich als unsichtbare Fachlogik (Der Ghost). Der 
 
 ---
 **GEZ. LEAD SYSTEMS ARCHITECT**
-"Aviation Grade bedeutet: Fehler müssen strukturell unmöglich sein."
+"High-Integrity bedeutet: Fehler müssen strukturell unmöglich sein."
 
 ---
 
@@ -4212,7 +4212,7 @@ Dynamische UI-Elemente ohne JS-Observer.
 ## ðŸ„ Dokument: 03_SAFE_SPEC_v1.0.0.md (Quelle: .brain)
 
 # SAFE-SPEC: WEB LOCKS & OPFS DATA PERSISTENCE (v1.0.0)
-# Status: CEMENTED | Doctrine: Aviation Grade Platinum | Stand: März 2026
+# Status: CEMENTED | Doctrine: High-Integrity v4.0 | Stand: März 2026
 
 ## 1. LEADER ELECTION (Web Locks API)
 Multi-Tab Synchronisation ohne Datenkonflikte.
@@ -4242,7 +4242,7 @@ Blockierungsfreie, synchrone I/O-Operationen im Worker.
 
 ---
 **GEZ. LEAD SYSTEMS ARCHITECT**
-"Aviation Grade: Synchronized, isolated, and hardware-flushed."
+"High-Integrity: Synchronized, isolated, and hardware-flushed."
 
 ---
 
@@ -4250,7 +4250,7 @@ Blockierungsfreie, synchrone I/O-Operationen im Worker.
 ## ðŸ„ Dokument: 04_physical_constants_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, physical-constants, hardware-reference]
+tags: [aviation-grade, v4.0-2026, architecture, physical-constants, hardware-reference]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-23
@@ -4306,7 +4306,7 @@ Browser-native Validierungs-Muster für das `pattern`-Attribut:
 ## ðŸ„ Dokument: 05_anti_pattern_registry_v2.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, spec-kit, anti-patterns, cemetery]
+tags: [aviation-grade, v4.0-2026, spec-kit, anti-patterns, cemetery]
 status: cemented
 version: 2.0.0
 last_audit: 2026-03-23
@@ -4318,7 +4318,7 @@ supersedes: 05_anti_pattern_registry.md
 # 05 — Anti-Pattern Registry v2.0: The Cemetery of Legacy Sins (TOMB-L001..L075)
 
 ## I. DIE OBERSTE REGEL: STRUKTURELLE PRÄVENTION [MANDATE-PLN]
-Jede technische Entscheidung wird gegen dieses Register validiert. Ein Aviation Grade System repariert keine Fehler — es macht sie unmöglich.
+Jede technische Entscheidung wird gegen dieses Register validiert. Ein High-Integrity System repariert keine Fehler — es macht sie unmöglich.
 
 ## II. DER KERN-FRIEDHOF (Extraktion aus Dossier)
 
@@ -4353,7 +4353,7 @@ Jede technische Entscheidung wird gegen dieses Register validiert. Ein Aviation 
 | TOMB-M001 | Legacy Key Mapping (Tolerant) | Strict Schema Gate | Data Integrity |
 | TOMB-S001 | Mixed What/How Specs | Split `/specify/` & `/plans/` | Knowledge Shredder Workflow |
 | TOMB-S002 | Status "active" without Check | Constitution Quality-Gate | Reliability |
-| TOMB-S003 | Code-First Entwicklung | SPEC -> Specify -> Plan -> Code | Aviation Grade Process |
+| TOMB-S003 | Code-First Entwicklung | SPEC -> Specify -> Plan -> Code | High-Integrity Process |
 | ... | [L031-L039, L041, L043-L048, L050, L052-L055, L057-L059, L061-L064, L066-L069, L071-L074] | Consumed by Chrome 147 Native Engine | Redundancy Elimination |
 
 ## III. MANDATE-CHECK
@@ -4404,7 +4404,7 @@ Jede neue Spezifikation MUSS bestätigen: "Valide gegen Anti-Pattern Registry v2
 ## ðŸ„ Dokument: 06_SPEC_VALIDATION_ANCHOR_v1.0.0.md (Quelle: .brain)
 
 # SPEC: THE BLACK-BOX-DECODER (VALIDATION OVERLAYS) (v1.0.0)
-# Status: DRAFT | Doctrine: Aviation Grade Platinum | Stand: März 2026
+# Status: DRAFT | Doctrine: High-Integrity v4.0 | Stand: März 2026
 
 ## 1. NATIVE ANCHOR POSITIONING (Visual Tethering)
 Validierungsfehler müssen physisch an das fehlerhafte IMR-Feld gebunden sein, ohne JS-Berechnungen.
@@ -4442,7 +4442,7 @@ title: Isomorphic Master Registry (IMR) v3.0.0 — CORE-SPEC Monolith
 version: 3.0.0
 status: cemented
 last_audit: 2026-03-24
-tags: [aviation-grade, platinum-2026, ssot, imr, chrome-148, native-cma]
+tags: [aviation-grade, v4.0-2026, ssot, imr, chrome-148, native-cma]
 supersedes: [08_isomorphic_schema_v2.5.0.md, 08_isomorphic_schema_v2.2.0.md, 07_measurement_conflict_log.md]
 authority: SUPREME SSoT für Datenstruktur, Geometrie und Interoperabilität.
 ---
@@ -4457,7 +4457,7 @@ TAG (HTML) = KEY (JSON) = COORDINATE (CMA) = ANCHOR (CSS)
 ```
 
 ## II. DIE MASTER-MATRIX (11 KERNFELDER)
-Alle Koordinaten sind in Millimetern (mm) angegeben und basieren auf der **DIN 5008:2020-03** (Aviation Grade Validierung).
+Alle Koordinaten sind in Millimetern (mm) angegeben und basieren auf der **DIN 5008:2020-03** (High-Integrity Validierung).
 
 | TAG | JSON-KEY | CMA-TOP (mm) | CMA-LEFT (mm) | CSS-ANKER-NAME | DATA-CMA-ATTR |
 |:---|:---|:---|:---|:---|:---|
@@ -4524,7 +4524,7 @@ Zementierte Werte zur Beilegung aller Mess-Konflikte:
 ## ðŸ„ Dokument: 12_akinator_logic_v2.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, akinator, smart-paste, spec]
+tags: [aviation-grade, v4.0-2026, akinator, smart-paste, spec]
 status: cemented
 version: 2.0.0
 last_audit: 2026-03-23
@@ -4572,7 +4572,7 @@ Bevor die Daten in den DOM (die `din-*` Tags) fließen, erfolgt ein automatische
 ## ðŸ„ Dokument: 15_chrome145_todo_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, chrome-146, incremental]
+tags: [aviation-grade, v4.0-2026, architecture, chrome-146, incremental]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-21
@@ -4783,13 +4783,13 @@ Netto-Bilanz nach vollständiger Umsetzung:
 ## ðŸ„ Dokument: 17_architecture_integrity_report_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, chrome-146, incremental]
+tags: [aviation-grade, v4.0-2026, architecture, chrome-146, incremental]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-21
 id: BRAIN-017
 title: Architecture Integrity Report — Vollständiger System-Audit
-auditor: Lead Systems Auditor (Aviation Grade)
+auditor: Lead Systems Auditor (High-Integrity)
 scope: [08_isomorphic_schema_v2.2.0, 09_resilience_strategy_v4.0.0, 15_chrome145_todo_v1.0.0, 03_technical_blueprint, js/core/constants.js, js/logic/logic.js]
 ---
 
@@ -5271,7 +5271,7 @@ Nach Abarbeitung von Priorität 1 ist das Fundament versiegelt.
 ## ðŸ„ Dokument: 18_logic_migration_temporal_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, gap-healing, chrome-146]
+tags: [aviation-grade, v4.0-2026, architecture, gap-healing, chrome-146]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-21
@@ -5423,13 +5423,13 @@ die Strike-Grenzen jetzt korrekt an Mitternacht Ortszeit gesetzt, nicht Mitterna
 ## ðŸ„ Dokument: 19_final_cleanup_audit_and_cemetery_v3.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, legacy-purge, cemetery, guardrails]
+tags: [aviation-grade, v4.0-2026, architecture, legacy-purge, cemetery, guardrails]
 status: cemented-pending-approval
 version: 3.0.0
 last_audit: 2026-03-21
 id: BRAIN-019-TOMB
 traceability: [BRAIN-017, BRAIN-018, BRAIN-008, BRAIN-015, BRAIN-003, MANDATE-NO-LEGACY]
-holy_folder: "C:\\Users\\morit\\Documents\\antigravity\\DIN Brief\\Platinum_DIN_2026"
+holy_folder: "C:\\Users\\morit\\Documents\\antigravity\\DIN Brief\\v4.0_DIN_2026"
 scope: "js/core/*, js/logic/*, js/ui/*, index.html, css/*, .brain/*"
 ---
 
@@ -6143,7 +6143,7 @@ muss `setHTML()` der einzige Schreib-Pfad für Mirror-HTML sein.
 
 ```
 Datum:          2026-03-21
-Auditor:        Lead Systems Auditor (Aviation Grade)
+Auditor:        Lead Systems Auditor (High-Integrity)
 Scan-Methode:   Vollständige Dateilektüre aller relevanten Quellen
 Gefundene Bugs: 2 aktive (I-001 ADR-008-Verletzung, I-002 State-Schema)
 Dead Code:      4 identifizierte Blöcke (D-001 bis D-004)
@@ -6161,7 +6161,7 @@ Fazit:          System funktioniert korrekt trotz technischer Schulden.
 ## ðŸ„ Dokument: 20_integrity_audit_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, architecture, legacy-purge, cemetery, guardrails]
+tags: [aviation-grade, v4.0-2026, architecture, legacy-purge, cemetery, guardrails]
 status: cemented-pending-approval
 version: 1.0.0
 last_audit: 2026-03-21
@@ -6755,7 +6755,7 @@ FAZIT: System ist betriebsfähig. Kritischste Aktion ist I-001 (chirurgischer 1-
 ## ðŸ„ Dokument: 20_specify_chrome147_v1.2.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, logic, blueprint, chrome-147]
+tags: [aviation-grade, v4.0-2026, logic, blueprint, chrome-147]
 status: cemented
 version: 1.2.0
 last_audit: 2026-03-23
@@ -7161,7 +7161,7 @@ Marker setzen: `/* NATIVE REPLACE ME – See IMR v2.4.0 Sektion M: Strict Schema
 ## SIGNATURE
 
 ```
-Auditor:  Lead Native Purity Architect (Aviation Grade)
+Auditor:  Lead Native Purity Architect (High-Integrity)
 Datum:    2026-03-21
 Methode:  Vollständiger Zeilenscan aller JS/CSS/HTML Dateien
           Context7 für Chrome 150–160+ Horizon-Features
@@ -7186,11 +7186,11 @@ IMR Sektion L bereit für Anchor Positioning. 9 Horizon-Marker identifiziert.
 ---
 
 
-## ðŸ„ Dokument: 24_platinum_level_up_chrome147_v1.0.0.md (Quelle: .brain)
+## ðŸ„ Dokument: 24_v4.0_level_up_chrome147_v1.0.0.md (Quelle: .brain)
 
-# Platinum Level-Up (Chrome 147 Baseline)
+# v4.0 Level-Up (Chrome 147 Baseline)
 # Version: 1.0.0 | Date: 2026-03-21
-# Aviation Grade Platinum | Brain-First & Spec-Driven
+# High-Integrity v4.0 | Brain-First & Spec-Driven
 
 ## Executive Summary
 Das DIN-BriefNEO Projekt wurde vollständig auf die **Google Chrome 147.0+ Baseline** migriert. Jegliche Legacy-Workarounds, Polyfills (`@supports`) und veraltete JS-APIs wurden restlos eliminiert (No Legacy, No Backport, No Mercy). 
@@ -7252,14 +7252,14 @@ Um Regressionen zu verhindern, sollten folgende ESLint-Regeln in die CI/CD-Pipel
 - [x] Kein `new Date()` (außer Parsing), kein `execCommand`, kein `popovertarget`, kein `@supports`, kein `cma-bridge.js` mehr.
 - [x] Temporal API zentral in `temporal-utils.js`, Scoped View Transitions & Native Invokers aktiv.
 - [x] 148/149-Features (`@function`, `if()`, `position-try`) als Marker / Ready in CSS eingebaut.
-- [x] Neue `.brain/24_platinum_level_up_chrome147_v1.0.0.md` Datei existiert.
+- [x] Neue `.brain/24_v4.0_level_up_chrome147_v1.0.0.md` Datei existiert.
 - [x] Das Projekt ist ab sofort Chrome-147-native, spec-driven und aviation-grade.
 
 ---
 
 ### Constitution v1.0.0 Inhalt (Referenz)
 # Chrome 147 Baseline – No Legacy, No Backport, No Mercy
-# Aviation Grade Platinum | Brain-First & Spec-Driven
+# High-Integrity v4.0 | Brain-First & Spec-Driven
 
 **RULE ZERO**: Bestehende .brain-Dateien nie überschreiben → nur neue _vX.Y.Z.md anlegen.
 
@@ -7276,7 +7276,7 @@ Um Regressionen zu verhindern, sollten folgende ESLint-Regeln in die CI/CD-Pipel
 
 ## ðŸ„ Dokument: 25_environment_integrity_v1.0.0.md (Quelle: .brain)
 
-# 🏁 THE ULTIMATIVE PLATINUM ENGINE AUDIT (V5 - 2026)
+# 🏁 THE ULTIMATIVE v4.0 ENGINE AUDIT (V5 - 2026)
 # STATUS: IMMUTABLE EVIDENCE GEM
 # Erstellt: 23.03.2026 | User-Agent: Chrome/146.0.0.0 (Windows)
 
@@ -7297,7 +7297,7 @@ Wenn ein Feature hier auf ✅ steht, ist die Nutzung von JavaScript-Fallbacks ST
 | CSS Custom States (:state) | ❌ | Kapselung von UI-Zuständen |
 | CSS @scope | ✅ | Isolation von Styles |
 
-## 2. LAYOUT ENGINE (Aviation Grade Precision)
+## 2. LAYOUT ENGINE (High-Integrity Precision)
 | Feature | Status | Notiz |
 | :--- | :--- | :--- |
 | CSS Anchor Positioning | ✅ | Ersetzt JS-Toolbar-Positioning |
@@ -7325,7 +7325,7 @@ Wenn ein Feature hier auf ✅ steht, ist die Nutzung von JavaScript-Fallbacks ST
 | orphans / widows control | ✅ | Typografische Qualität |
 | printing-state (Queries) | ❌ | Live-Druckvorschau via CSS |
 
-## 5. MODERN APIs (Sovereign & Security)
+## 5. MODERN APIs (Autonomous & Security)
 | API | Status | Verwendungszweck |
 | :--- | :--- | :--- |
 | EditContext API | ✅ | Ersatz für contenteditable |
@@ -7333,7 +7333,7 @@ Wenn ein Feature hier auf ✅ steht, ist die Nutzung von JavaScript-Fallbacks ST
 | Sanitizer API (V2) | ✅ | Sicherer Ghost-Mirror |
 | Element.setHTML | ✅ | Nativer Sanitizer-Hook |
 | Navigation API | ✅ | SPA-Flow ohne Router-Code |
-| FileSystem Access (V2) | ✅ | Sovereign Data Storage |
+| FileSystem Access (V2) | ✅ | Autonomous Data Storage |
 | FileSystemObserver | ✅ | Externe Profil-Sync |
 | Trusted Types API | ✅ | System-weite XSS-Prävention |
 | Compression Streams | ✅ | Kompakter JSON-Export |
@@ -7370,7 +7370,7 @@ Wenn ein Feature hier auf ✅ steht, ist die Nutzung von JavaScript-Fallbacks ST
 
 # Meilenstein: Ghost-Mirror & Native Security (Chrome 147/148)
 # Version: 1.0.0 | Datum: 21.03.2026
-# Status: ZEMENTIERT | Aviation Grade Platinum
+# Status: ZEMENTIERT | High-Integrity v4.0
 
 ## 1. Executive Summary
 In dieser Session wurde das DIN-BriefNEO System auf die nächste Evolutionsstufe gehoben. Wir haben die Trennung von **Datenhaltung (Plaintext)** und **visueller Darstellung (Mirror)** durch das Ghost-Mirror Pattern vollzogen. Dabei wurden die neuesten nativen Features von Chrome 147 (Sanitizer API, Scroll-State) und Chrome 148 (CSS if-Logic) produktiv geschaltet.
@@ -7415,7 +7415,7 @@ In dieser Session wurde das DIN-BriefNEO System auf die nächste Evolutionsstufe
 
 # Mission Report: Cemetery Consolidation & Native Victory
 # Version: 1.0.0 | Datum: 21.03.2026
-# Status: ARCHIVIERT | Aviation Grade Platinum
+# Status: ARCHIVIERT | High-Integrity v4.0
 
 ## 1. Executive Summary
 Diese Session markiert den endgültigen Übergang von einer JS-gesteuerten Anwendung zu einer **Browser-nativen Engine**. Wir haben das Prinzip der "Deklarativen Souveränität" durchgesetzt. Das System nutzt nun physische Zustände (Radio/Checkbox) und native Logik (`:has`, `if`), anstatt diese mühsam über JavaScript zu simulieren.
@@ -7438,7 +7438,7 @@ Diese Session markiert den endgültigen Übergang von einer JS-gesteuerten Anwen
 - Das letzte `new Date()` wurde in `logic.js` durch `Temporal.PlainDate` ersetzt.
 - **Nutzen**: Absolute mathematische Sicherheit bei Datumsoperationen.
 
-## 3. Die neue Ordnung (Aviation Grade Standard)
+## 3. Die neue Ordnung (High-Integrity Standard)
 1.  **HTML**: Hält den Status (SSoT) über native Formularelemente.
 2.  **CSS**: Enthält die gesamte Logik für Geometrie, Sichtbarkeit und Animation.
 3.  **JS**: Dient ausschließlich als Daten-IO für Briefinhalte (IMR).
@@ -7453,7 +7453,7 @@ Diese Session markiert den endgültigen Übergang von einer JS-gesteuerten Anwen
 ## ðŸ„ Dokument: 29_specify_multipage_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, logic, multipage, css-147]
+tags: [aviation-grade, v4.0-2026, logic, multipage, css-147]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-23
@@ -7639,7 +7639,7 @@ Typed `attr()` und `CSS if()` verlagern domänenbasierte Design-Logik in die C++
 ## ðŸ„ Dokument: 47_specify_flight_recorder_v1.0.0.md (Quelle: .brain)
 
 ---
-tags: [aviation-grade, platinum-2026, flight-recorder, ki-native, spec]
+tags: [aviation-grade, v4.0-2026, flight-recorder, ki-native, spec]
 status: cemented
 version: 1.0.0
 last_audit: 2026-03-23
@@ -7659,7 +7659,7 @@ Jeder KI-Decoder-Request MUSS diese exakte JSON-Struktur einhalten:
 ```json
 {
   "header": {
-    "app": "DIN-BriefNEO Platinum",
+    "app": "DIN-BriefNEO v4.0",
     "version": "16.0.0",
     "timestamp": "Temporal.Now.instant()",
     "incident_id": "uuid-v7"
@@ -7698,11 +7698,11 @@ Die KI darf keine freien Texte senden. Die Antwort MUSS in eines dieser Muster f
 ---
 
 
-## ðŸ„ Dokument: 55_platinum_readiness_matrix_v1.0.0.md (Quelle: .brain)
+## ðŸ„ Dokument: 55_v4.0_readiness_matrix_v1.0.0.md (Quelle: .brain)
 
-# 💎 PLATINUM READINESS MATRIX V1.0.0
-# Baseline: Chrome 147.0+ (Platinum 2026 Engine)
-# Status: Aviation Grade Verified
+# 💎 v4.0 READINESS MATRIX V1.0.0
+# Baseline: Chrome 147.0+ (v4.0 2026 Engine)
+# Status: High-Integrity Verified
 
 Dieses Dokument dient als Single Source of Truth (SSoT) für alle genutzten und verfügbaren modernen Browser-APIs im DIN-BriefNEO Projekt. Es katalogisiert die technologische Überlegenheit der "Blink-Direct" Architektur.
 
@@ -7717,9 +7717,9 @@ Dieses Dokument dient als Single Source of Truth (SSoT) für alle genutzten und 
 | **Native Sanitizer** | Chrome 147+ | Sicherer Ghost-Mirror Export via `setHTML()`. | ✅ AKTIV |
 | **Math.sumPrecise** | Chrome 147+ | Fehlerfreie finanzielle Kalkulationen (0.1+0.2=0.3). | ✅ AKTIV |
 | **Scoped View Transitions** | Chrome 147+ | Morphing zwischen Form A/B via `Element.startViewTransition()`. | ✅ AKTIV |
-| **Web Locks API** | Chrome 69+ | Multi-Tab State Protection (Sovereign Data Storage). | ✅ AKTIV |
+| **Web Locks API** | Chrome 69+ | Multi-Tab State Protection (Autonomous Data Storage). | ✅ AKTIV |
 | **IdleDetector API** | Chrome 94+ | Zero-JS Autosave Trigger (keine Timer/Debouncer). | ✅ AKTIV |
-| **OPFS (FileSystem)** | Chrome 102+ | Hochperformante, lokale Datenspeicherung (Sovereign). | ✅ AKTIV |
+| **OPFS (FileSystem)** | Chrome 102+ | Hochperformante, lokale Datenspeicherung (Autonomous). | ✅ AKTIV |
 
 ---
 
@@ -7753,17 +7753,17 @@ Dieses Dokument dient als Single Source of Truth (SSoT) für alle genutzten und 
 3.  **Tomb-Vigilance**: Alle verbotenen Legacy-APIs (`new Date`, `setInterval`) werden bei jedem Audit markiert.
 
 **Gezeichnet:**
-*Der Platinum Architect (Gemini CLI)*
+*Der v4.0 Architect (Gemini CLI)*
 
 
 ---
 
 
-## ðŸ„ Dokument: 55_platinum_readiness_matrix_v1.1.0.md (Quelle: .brain)
+## ðŸ„ Dokument: 55_v4.0_readiness_matrix_v1.1.0.md (Quelle: .brain)
 
-# 💎 PLATINUM READINESS MATRIX V1.1.0
-# Baseline: Chrome 147.0+ (Platinum 2026 Engine)
-# Last Scan: 2026-03-25 | Status: Aviation Grade (With Exceptions)
+# 💎 v4.0 READINESS MATRIX V1.1.0
+# Baseline: Chrome 147.0+ (v4.0 2026 Engine)
+# Last Scan: 2026-03-25 | Status: High-Integrity (With Exceptions)
 
 Dieses Dokument katalogisiert die technologische Überlegenheit der "Blink-Direct" Architektur basierend auf physischen Engine-Audits.
 
@@ -7815,7 +7815,7 @@ Dieses Dokument katalogisiert die technologische Überlegenheit der "Blink-Direc
 Der Scan vom 25.03.2026 bestätigt eine **95% Native Compliance**. Die Architektur ist für den Einsatz der verifizierten "💎" APIs freigegeben.
 
 **Gezeichnet:**
-*Der Platinum Architect (Gemini CLI)*
+*Der v4.0 Architect (Gemini CLI)*
 
 
 ---
@@ -7824,7 +7824,7 @@ Der Scan vom 25.03.2026 bestätigt eine **95% Native Compliance**. Die Architekt
 ## ðŸ„ Dokument: constitution_v1.0.0.md (Quelle: .brain)
 
 # Chrome 147 Baseline – No Legacy, No Backport, No Mercy
-# Aviation Grade Platinum | Brain-First & Spec-Driven
+# High-Integrity v4.0 | Brain-First & Spec-Driven
 # Constitution v1.0.0
 
 ## RULE ZERO
@@ -7864,7 +7864,7 @@ Bestehende .brain-Dateien nie überschreiben → nur neue _vX.Y.Z.md anlegen.
 # 🧠 LEGACY_KNOWLEDGE_DUMP.md - Erhaltenes Wissen aus alten GEMINI.md Files
 # Status: ARCHIVED | Stand: März 2026
 
-Dieses Dokument sichert spezifische Architektur-Details und Workflows, die aus den veralteten GEMINI.md Dateien (V9 Platinum) extrahiert wurden, um den "Knowledge Shredder Protocol" zu erfüllen und Wissensverlust zu vermeiden.
+Dieses Dokument sichert spezifische Architektur-Details und Workflows, die aus den veralteten GEMINI.md Dateien (V9 v4.0) extrahiert wurden, um den "Knowledge Shredder Protocol" zu erfüllen und Wissensverlust zu vermeiden.
 
 ## 🏗️ Architektur-Details (Legacy V9)
 - **5-Layer Class System:** 
@@ -7888,7 +7888,7 @@ Dieses Dokument sichert spezifische Architektur-Details und Workflows, die aus d
 - **Vanilla Only:** Striktes Verbot von Frameworks (React, Vue, etc.), jQuery, Lodash oder jspdf.
 
 ---
-*Extrahiert am 26. März 2026 zur Integration in die Platinum v14 (DIN-BriefNEO) SSoT.*
+*Extrahiert am 26. März 2026 zur Integration in die v4.0 v14 (DIN-BriefNEO) SSoT.*
 
 
 ---
@@ -7984,11 +7984,11 @@ Die Anwendung muss sofort einsatzbereit wirken. Es darf kein visuelles Flackern 
 ---
 
 
-## ðŸ„ Dokument: specify.md (Quelle: 061-platinum-pipeline)
+## ðŸ„ Dokument: specify.md (Quelle: 061-v4.0-pipeline)
 
 ---
 id: SPEC-061
-title: Platinum Validation Pipeline (PVP)
+title: v4.0 Validation Pipeline (PVP)
 tags: [Validation, Security, Integrity, SDD, Aviation-Grade]
 status: cemented
 version: 1.0.0
@@ -7998,10 +7998,10 @@ depends-on: [SPEC-007, SPEC-051]
 required-by: []
 ---
 
-# SPEC-061: Platinum Validation Pipeline (PVP)
+# SPEC-061: v4.0 Validation Pipeline (PVP)
 
 ## 1. Zielsetzung
-Die Platinum Validation Pipeline (PVP) ist das "Aviation Grade" Sicherheitsnetz des Projekts. Sie stellt sicher, dass kein Agent (KI oder Mensch) die obersten Mandate des Projekts unbemerkt verletzt. Sie automatisiert die Einhaltung der Architektur-Integrität und eliminiert Agenten-Halluzinationen durch SSoT-basierte Kataloge.
+Die v4.0 Validation Pipeline (PVP) ist das "High-Integrity" Sicherheitsnetz des Projekts. Sie stellt sicher, dass kein Agent (KI oder Mensch) die obersten Mandate des Projekts unbemerkt verletzt. Sie automatisiert die Einhaltung der Architektur-Integrität und eliminiert Agenten-Halluzinationen durch SSoT-basierte Kataloge.
 
 ## 2. Kern-Komponenten
 
@@ -8054,12 +8054,12 @@ tags: [aviation-grade, chrome-147, highlight-api, edit-context]
 status: cemented
 version: 1.0.0
 traceability: [ADR-012, MANDATE-PLN]
-source: Platinum Audit 2026
+source: v4.0 Audit 2026
 ---
 
 # SPEC-069: Native Highlight Editor
 
-## I. Zielsetzung (Aviation Grade)
+## I. Zielsetzung (High-Integrity)
 Ermöglichung von WYSIWYG-Formatierungen (Fett, Kursiv), ohne die Plaintext-Integrität des DOM zu verletzen. Die Formatierung wird vollständig von der Datenstruktur entkoppelt.
 
 ## II. Fachliche Anforderungen (WHAT)
@@ -8097,16 +8097,16 @@ Die Eingabe erfolgt über die **EditContext API**. Das DOM-Element dient nur als
 ---
 id: SPEC-066
 title: Markdown-Shredder V2 — Zero-Width Ghosting
-tags: [aviation-grade, platinum-2026, wysiwyg, integrity, css]
+tags: [aviation-grade, v4.0-2026, wysiwyg, integrity, css]
 status: draft
 version: 1.0.0
 traceability: [ADR-008, ADR-011, MANDATE-FREEZE]
-source: Platinum Architecture Review 2026
+source: v4.0 Architecture Review 2026
 ---
 
 # SPEC-066: Markdown-Shredder V2 (Zero-Width Ghosting)
 
-## I. Zielsetzung (Aviation Grade)
+## I. Zielsetzung (High-Integrity)
 Gewährleistung einer 100%igen Übereinstimmung der Zeilenumbrüche zwischen dem Editor (Ghost-Mirror) und dem fertigen Dokument (Print/PDF). Dies wird durch die Erhaltung aller Markdown-Steuerzeichen im Mirror erreicht, wobei diese für die Layout-Engine "gewichtslos" (Breite = 0) gemacht werden.
 
 ## II. Fachliche Anforderungen (WHAT)
@@ -8157,9 +8157,9 @@ Um Überlappungen zu vermeiden, muss die Transformation in folgender Reihenfolge
 - **Ergebnis**: Parität = 100%. Der Cursor-Offset im `EditContext` entspricht exakt der Zeichenposition im Mirror, da der Browser HTML-Tags bei der `textContent`-Länge ignoriert.
 
 ## VII. Erweitertes Sanitizer-Gatekeeping
-`PLATINUM_SANITIZER_CONFIG` muss `span` und die spezifischen `md-*` Klassen erlauben:
+`v4.0_SANITIZER_CONFIG` muss `span` und die spezifischen `md-*` Klassen erlauben:
 ```javascript
-const PLATINUM_SANITIZER_CONFIG = {
+const v4.0_SANITIZER_CONFIG = {
   allowElements: ['strong', 'em', 'del', 'code', 'span', 'p', 'br', 'blockquote', 'li', 'ul', 'ol'],
   allowAttributes: {
     'class': ['md-marker', 'md-bold', 'md-italic', 'md-del', 'md-code']
@@ -8247,7 +8247,7 @@ diese eine Quelle — niemals eigene Werte.
 
 ## Fachliche Anforderungen (WHAT — keine Technik)
 
-### Datentabelle: Kanonische DIN 5008-Masse (Aviation Grade)
+### Datentabelle: Kanonische DIN 5008-Masse (High-Integrity)
 
 | ID    | Konstante        | Mass    | Einheit | Quelle            | Form |
 |-------|------------------|---------|---------|-------------------|------|
@@ -8280,7 +8280,7 @@ diese eine Quelle — niemals eigene Werte.
 | FR-007 | Widerspruechliche Masse MUESSEN im `.brain/07_measurement_conflict_log.md` dokumentiert werden |
 | FR-008 | Jedes Mass MUSS eine Traceability-Referenz (Quelle) besitzen                            |
 
-### Toleranzgrenzen (Aviation Grade)
+### Toleranzgrenzen (High-Integrity)
 
 | Metrik                            | Grenzwert  | Rationale                      |
 |-----------------------------------|------------|--------------------------------|
@@ -8523,7 +8523,7 @@ depends-on: [SPEC-007]
 - Der Mirror DARF NICHT fokussierbar oder editierbar sein.
 - Beim Tippen MUSS der Mirror ausgeblendet werden (Cursor-Fokus), in der Leseansicht (Blur) MUSS er eingeblendet werden.
 
-### FR-004: Typografische Integrität (Aviation Grade)
+### FR-004: Typografische Integrität (High-Integrity)
 - Das System MUSS sicherstellen, dass Absätze nicht durch unschöne Seitenumbrüche zerrissen werden.
 - Mindestens 3 Zeilen eines Absatzes MÜSSEN am Seitenende oder -anfang zusammengehalten werden (Widows/Orphans).
 - URLs MÜSSEN im Druckmodus voll ausgeschrieben hinter dem Link-Text erscheinen.
@@ -8547,7 +8547,7 @@ depends-on: [SPEC-007]
 
 # PLAN: BLACK-BOX-DECODER (CSS ANCHOR POSITIONING) (v1.0.0)
 # Spec: SPEC_VALIDATION_ANCHOR_v1.0.0
-# Status: DRAFT | Doctrine: Aviation Grade Platinum | Stand: März 2026
+# Status: DRAFT | Doctrine: High-Integrity v4.0 | Stand: März 2026
 
 ## CONSTITUTION CHECK
 | Gate | Status | Notiz |
@@ -8613,4 +8613,5 @@ paper.addEventListener("focusin", e => {
 "Zero-Pixel-Shift Layout. Natively Tethered Error UI."
 
 ---
+
 

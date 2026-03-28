@@ -1,42 +1,41 @@
 ---
 id: BRAIN-003-APR
-title: "Anti-Pattern Registry (The Cemetery)"
-status: "cemented"
-enforcement: "AUTOMATED PVP"
+title: "Anti-Pattern Registry (Deprecated Patterns)"
+status: "verified"
+enforcement: "AUTOMATED VALIDATION"
 last_audit: 2026-03-28
 tags:
   - anti-pattern
   - technical-debt
-  - cemetery
 related:
   - "[[CONSTITUTION]]"
   - "[[CORE_SPEC]]"
 ---
 
-# Anti-Pattern Registry (The Cemetery)
+# Anti-Pattern Registry (Deprecated Patterns)
 
-## 1. PERSISTENCE (APR-P)
-- **APR-P001:** `localStorage` for high-volume data (use OPFS/Batch instead).
-- **APR-P002:** External cloud sync for draft state (Violation of Local-First).
-- **APR-P003:** `JSON.stringify()` on typing (Performance risk).
+## 1. PERSISTENCE (DEP-P)
+- **DEP-P001:** `localStorage` for high-volume data (Use OPFS/Batch instead).
+- **DEP-P002:** External cloud sync for draft state (Violation of Local-First architecture).
+- **DEP-P003:** `JSON.stringify()` on primary input thread (Performance regression).
 
-## 2. LAYOUT (APR-L)
-- **APR-L001:** `innerHTML` for user content (Severe XSS risk).
-- **APR-L002:** `contenteditable="true"` (Use `plaintext-only` or `EditContext`).
-- **APR-L003:** `execCommand` (Deprecated legacy API).
-- **APR-L004:** External CSS frameworks (Tailwind/Bootstrap).
+## 2. LAYOUT (DEP-L)
+- **DEP-L001:** `innerHTML` for user content (Security risk: XSS).
+- **DEP-L002:** `contenteditable="true"` (DOM state inconsistency; use `plaintext-only` or `EditContext`).
+- **DEP-L003:** `execCommand` (Deprecated legacy API).
+- **DEP-L004:** External CSS frameworks (Tailwind/Bootstrap).
 
-## 3. LOGIC (APR-C)
-- **APR-C001:** Legacy `Date` object (Use `Temporal API`).
-- **APR-C002:** Python-based backend transactions (Client-Side-Only mandate).
-- **APR-C003:** Moment.js or jspdf (Use native APIs).
-- **APR-C004:** `setTimeout` for debouncing (Use `requestIdleCallback` or Idle Detection).
+## 3. LOGIC (DEP-C)
+- **DEP-C001:** Legacy `Date` object (Use `Temporal API`).
+- **DEP-C002:** Server-side dependencies for core logic (Client-Side-Only requirement).
+- **DEP-C003:** External utility libraries (Moment.js, jspdf; use native browser APIs).
+- **DEP-C004:** `setTimeout` for state debouncing (Use `requestIdleCallback` or `Idle Detection`).
 
-## 4. TOOLING (APR-T)
-- **APR-T001:** Terminal `head`/`tail` (Context fragmentation).
-- **APR-T002:** PowerShell `cat <<EOF` (Syntax corruption risk).
+## 4. TOOLING (DEP-T)
+- **DEP-T001:** Context-fragmenting tools (`head`/`tail`).
+- **DEP-T002:** Environment-specific stream syntax (`cat <<EOF` in PowerShell).
 
-## 5. ARCHITECTURE (APR-B)
-- **APR-B001:** SASS/SCSS (Native CSS Nesting & Math is SSoT).
-- **APR-B002:** SASS Mixins (Use Custom Properties).
-- **APR-B003:** JS-based scroll listeners (Use CSS `@container scroll-state`).
+## 5. ARCHITECTURE (DEP-B)
+- **DEP-B001:** Preprocessors (SASS/SCSS; native CSS nesting and math preferred).
+- **DEP-B002:** Preprocessor abstractions (Mixins; use native Custom Properties).
+- **DEP-B003:** JS-based event listeners for layout state (Use CSS `@container scroll-state`).

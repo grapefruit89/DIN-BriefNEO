@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DIN-BriefNEO | Platinum 2026</title>
+    <title>DIN-BriefNEO | v4.0 Standard</title>
 
     <link rel="stylesheet" href="css/din5008-paper.css" />
     <link rel="stylesheet" href="css/app-ui.css" />
     <link rel="stylesheet" href="css/devmode.css" />
-    <link rel="stylesheet" href="css/platinum-locked.css" />
+    <link rel="stylesheet" href="css/core-immutable.css" />
   </head>
   <body data-layout="form-b">
     <div id="app-shell">
-      <!-- MASTER SIDEBAR (Aviation Grade Pillar) -->
+      <!-- MASTER SIDEBAR (Navigation & Controls) -->
       <aside id="sidebar-left">
         <header class="sidebar-header">
           <div class="sidebar-brand">
@@ -142,7 +142,7 @@
         </div>
       </aside>
 
-      <!-- THE AIRFRAME: Sovereign Semantic Matrix v4.0 -->
+      <!-- THE AIRFRAME: Semantic Matrix v4.0 -->
       <main id="paper-viewport">
         <din-5008 id="paper">
           <din-A4>
@@ -199,7 +199,6 @@
               ></din-empfaenger-ort>
             </din-anschriftfeld>
 
-            <!-- Metadaten (Infoblock & Standalone Date) -->
             <din-infoblock class="paper-infoblock">
               <div class="info-row">
                 <label>Ihr Zeichen</label>
@@ -267,11 +266,12 @@
         <button id="btn-decoder-trigger" class="decoder-btn">🔍 Decoder</button>
 
         <div id="statusbar-viewport" class="status-bar">Initialisiere...</div>
-      </main>
-    </div>
+        </main>
+        </div>
 
-    <!-- NATIVE POPOVERS & DIALOGS -->
-    <div id="modal-profile" popover class="platinum-dialog">
+        <!-- NATIVE POPOVERS & DIALOGS -->
+        <div id="modal-profile" popover class="standard-dialog">
+
       <header class="modal-header">
         <h3>👤 Absenderprofil</h3>
         <button id="btn-profile-close" class="close-btn">✕</button>
@@ -323,7 +323,7 @@
       </div>
     </div>
 
-    <dialog id="dialog-reset" class="platinum-dialog">
+    <dialog id="dialog-reset" class="standard-dialog">
       <h3>Entwurf löschen?</h3>
       <p>Alle ungespeicherten Änderungen gehen verloren.</p>
       <div class="dialog-actions">
@@ -332,7 +332,7 @@
       </div>
     </dialog>
 
-    <dialog id="dialog-decoder" class="platinum-dialog decoder-modal">
+    <dialog id="dialog-decoder" class="standard-dialog decoder-modal">
       <h3>🗃️ Black Box Decoder — Flight Recorder</h3>
       <div class="decoder-content">
         <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>

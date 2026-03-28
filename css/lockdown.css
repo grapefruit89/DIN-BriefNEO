@@ -1,11 +1,11 @@
-/**
- * css/lockdown.css — [MANDATE-LOCKDOWN] Titanium Viewport Guard
- * Aviation Grade Platinum | Baseline: Chrome 147+
- * ─────────────────────────────────────────────────────────
- * Erzwingt absolute Immobilität des Viewports und der Sidebar.
+﻿/**
+ * css/lockdown.css â€” [MANDATE-LOCKDOWN] Titanium Viewport Guard
+ * High-Integrity v4.0 | Baseline: Chrome 147+
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * Erzwingt absolute ImmobilitÃ¤t des Viewports und der Sidebar.
  */
 
-@layer platinum.lockdown {
+@layer v4.0.lockdown {
   /* 1. Global Viewport Lockdown */
   html, body {
     margin: 0;
@@ -19,7 +19,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 2. Sidebar Titan (Feste Säule) */
+  /* 2. Sidebar Titan (Feste SÃ¤ule) */
   #sidebar-left {
     width: 300px !important;
     height: 100vh !important;
@@ -97,10 +97,10 @@
     transform-origin: center center;
   }
 
-  /* Responsive Scaling (Aviation Grade) */
+  /* Responsive Scaling (High-Integrity) */
   @media (max-height: 900px), (max-width: 1200px) {
     din-5008 {
-        /* Nutzt CSS math für perfektes Einpassen ohne Scrollbalken */
+        /* Nutzt CSS math fÃ¼r perfektes Einpassen ohne Scrollbalken */
         scale: min(calc(100vh / 310mm), calc((100vw - 300px) / 220mm));
     }
   }
@@ -141,7 +141,7 @@
     font-weight: bold;
   }
 
-  /* 6. HARD-PRINT-OVERRIDE (Aviation Grade) */
+  /* 6. HARD-PRINT-OVERRIDE (High-Integrity) */
   @media print {
     @page {
       margin: 0 !important;
@@ -180,3 +180,4 @@
     }
   }
 }
+

@@ -188,6 +188,21 @@ export function sumFinancials(values) {
   return PrecisionMath.sum(values);
 }
 /**
+ * Prüft, ob die aktuelle Zeit im Nachtfenster (21:00 - 06:00) liegt.
+ */
+export function isNightTime() {
+  // @ts-ignore
+  const now = Temporal.Now.plainTimeISO();
+  const nightStart = Temporal.PlainTime.from({ hour: 21 });
+  const nightEnd = Temporal.PlainTime.from({ hour: 6 });
+
+  // Da das Fenster über Mitternacht geht:
+  // Wahr wenn: Zeit >= 21:00 ODER Zeit < 06:00
+  return Temporal.PlainTime.compare(now, nightStart) >= 0 || 
+         Temporal.PlainTime.compare(now, nightEnd) < 0;
+}
+
+/**
  * Berechnet Fristen basierend auf dem aktuellen Datum via Temporal API.
  */
 export function calculateDeadlines() {

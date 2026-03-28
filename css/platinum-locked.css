@@ -6,11 +6,12 @@
 @layer platinum.locked !important {
 
   :root {
-    --c-sidebar-bg:        #0a0a0a;
-    --din-paper-shadow:    0 8px 32px rgba(0,0,0,0.45);
+    /* ── OKLCH PERCEPTUAL PALETTE ──────────────────────────────────── */
+    --c-sidebar-bg:        oklch(10% 0 0);
+    --din-paper-shadow:    0 8px 32px oklch(0% 0 0 / 0.45);
     --din-guide-opacity:   0.18;
-    --din-placeholder-color: #aaaaaa;
-    --c-accent-blue:       #0066ff;
+    --din-placeholder-color: oklch(75% 0 0);
+    --c-accent-blue:       oklch(55% 0.25 260);
   }
 
   /* ── Sidebar exakt wie im Screenshot ─────────────────────────────── */
@@ -18,19 +19,19 @@
     background: var(--c-sidebar-bg);
     padding: 2.4rem 1.8rem;
     gap: 2.8rem;
-    border-right: 1px solid #1a1a1a;
+    border-right: 1px solid oklch(20% 0 0);
   }
 
   .sidebar-header {
     padding-bottom: 1.6rem;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid oklch(20% 0 0);
   }
 
   .sidebar-brand {
     font-size: 1.1rem;
     letter-spacing: 0.15em;
     font-weight: 500;
-    color: #ccc;
+    color: oklch(85% 0 0);
   }
 
   .sidebar-section {
@@ -43,15 +44,15 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #777;
+    color: oklch(50% 0 0);
     margin-bottom: 0.3rem;
   }
 
   /* Buttons exakt wie im Bild */
   .sidebar-btn {
-    background: #111;
-    border: 1px solid #222;
-    color: #ddd;
+    background: oklch(15% 0 0);
+    border: 1px solid oklch(20% 0 0);
+    color: oklch(90% 0 0);
     padding: 0.85rem 1.1rem;
     border-radius: 6px;
     font-size: 0.9rem;
@@ -60,8 +61,8 @@
 
   .sidebar-btn:hover,
   .sidebar-btn[aria-pressed="true"] {
-    background: #1f1f1f;
-    border-color: #444;
+    background: oklch(25% 0 0);
+    border-color: oklch(35% 0 0);
     color: white;
   }
 
@@ -75,7 +76,7 @@
   #paper {
     background: white;
     box-shadow: var(--din-paper-shadow);
-    border: 1px solid #e8e8e8 !important;
+    border: 1px solid oklch(90% 0 0) !important;
     margin: 3rem auto;
     max-width: 210mm;
     min-height: 297mm;
@@ -83,9 +84,9 @@
 
   /* Platzhalter exakt wie im Bild */
   [data-placeholder]::before,
-  din-body:empty::before,
-  din-salutation:empty::before,
-  din-greeting:empty::before {
+  din-text:empty::before,
+  din-anrede:empty::before,
+  din-grussformel:empty::before {
     content: attr(data-placeholder);
     color: var(--din-placeholder-color);
     font-style: italic;

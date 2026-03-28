@@ -123,16 +123,16 @@ export class UIController {
           }
 
           // [CMD-5] Platinum Salutation Engine: Real-time update
-          if (entry.key === "recipient") {
-            this._triggerSalutationUpdate(text);
+          if (entry.key === "rect_name") {
+              this._triggerSalutationUpdate(text);
           }
         });
 
         // [CMD-1] Ghost-Mirror for structural markdown rendering
-        if (entry.tag === "din-body") {
+        if (entry.tag === "din-text") {
           this._ghosts[entry.tag] = new GhostMirror(
-            "din-body",
-            "din-body-mirror",
+            "din-text",
+            "din-text-mirror",
           );
         }
       }
@@ -144,7 +144,7 @@ export class UIController {
    */
   _triggerSalutationUpdate(recipientText) {
     const analysis = Logic.parseRecipient(recipientText);
-    const salutationEl = document.querySelector("din-salutation");
+    const salutationEl = document.querySelector("din-anrede");
     if (salutationEl) {
       // Wir nutzen die State-Formality (Default: formal)
       const formality = this.sm.state.content.formality || "formal";

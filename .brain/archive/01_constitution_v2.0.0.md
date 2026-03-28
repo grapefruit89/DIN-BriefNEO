@@ -1,5 +1,5 @@
 ---
-tags: [stable, production-ready, architecture, constitution]
+tags: [aviation-grade, platinum-2026, architecture, constitution]
 status: cemented
 version: 2.0.0
 last_audit: 2026-03-23
@@ -10,9 +10,9 @@ supersedes: constitution_v1.0.0.md
 
 # 01 — DIN-BriefNEO Constitution v2.0.0
 
-## I. DIE OBERSTE REGEL (SSoT)
+## I. DIE OBERSTEN GESETZE (SSoT)
 
-### §1 Technologische Hierarchie (Architektur-Hierarchie)
+### §1 Technologische Hierarchie (The Aviation Pyramid)
 Jedes Feature MUSS auf der niedrigstmöglichen Ebene implementiert werden:
 1. **Nativ HTML** (Struktur, Semantik, Interaktion via Popover/Commanders)
 2. **Nativ CSS** (Layout via `@layer`, Präzision via `mm`, Logik via `:has()`)
@@ -29,7 +29,7 @@ Das Dokument wird in zwei unverrückbare Kategorien unterteilt:
 - **Kategorie A (Starre Kopfdaten):** Alle `din-*` Tags außer Body. Millimeter-präzise, einzeilig, `plaintext-only`.
 - **Kategorie B (Flow-Zone Body):** Der `<din-body>`. Erlaubt dynamische Inhalte (Listen, Tabellen) und den Ghost-Mirror.
 
-### §4 Stable Baseline (Chrome 147+)
+### §4 No-Mercy Baseline (Chrome 147+)
 - Baseline: Google Chrome 147.0+.
 - Strikte Nutzung nativer Features (Anchor Positioning, Invoker Commands, Sanitizer API).
 - **VERBOT:** Keine Polyfills, keine `@supports` Guards, kein Backporting. Das System altert mit der Engine.
@@ -39,4 +39,3 @@ Jeder Pixel-Shift nach der Initialisierung gilt als kritischer Systemfehler. Das
 
 ## III. DATEN-SOUVERÄNITÄT
 Das JSON-Objekt ist die einzige Wahrheit der Daten. HTML ist nur das Gesicht. Wer das JSON kontrolliert, kontrolliert den Brief.
-

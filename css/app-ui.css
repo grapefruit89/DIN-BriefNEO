@@ -1,53 +1,50 @@
 /* ==========================================================================
    !!! NO-SCROLL DOKTRIN (ADR-004) - STRENGSTES MANDAT !!!
-   --------------------------------------------------------------------------
-   1. SCROLLBALKEN SIND IN DIESEM PROJEKT STRENGSTENS UNTERSAGT [BANNED].
-   2. Überlauf (Overflow) MUSS entweder VISIBLE (fließend) oder HIDDEN (hart).
-   3. 'overflow: auto', 'overflow: scroll' oder 'max-height' mit Scroll-Absicht
-      sind Verstöße gegen die Platinum-Compliance.
-   4. Ein DIN-Brief ist ein statisches Präzisionsinstrument. Scrollen ist
-      ein Zeichen von strukturellem Versagen.
    ========================================================================== */
 
 @layer ui.theme, din.structure, latex.base, platinum.locked;
 
 @layer ui.theme {
   :root {
-    --c-primary: #4a90e2;
-    --c-primary-hover: #357abd;
-    --c-sidebar-bg: #1e2535;
-    --c-sidebar-btn-bg: rgba(255, 255, 255, 0.08);
-    --c-sidebar-text: #e2e8f0;
-    --c-sidebar-border: rgba(255, 255, 255, 0.08);
-    --c-bg: #f0f2f5;
-    --c-shadow-sheet:
-      0 12px 48px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05);
-    --c-radius-md: 8px;
-    --c-font-ui: "Inter", system-ui, -apple-system, sans-serif;
-    --c-font-mono: "JetBrains Mono", monospace;
-    --c-text-primary: #1a1a1a;
-    --c-text-secondary: #4a5568;
+    /* ── OKLCH CORE PALETTE (Aviation Grade) ──────────────────────── */
+    --c-primary:         oklch(60% 0.15 250);
+    --c-primary-hover:   oklch(from var(--c-primary) calc(l - 0.1) c h);
+    
+    --c-sidebar-bg:      oklch(18% 0.03 250);
+    --c-sidebar-btn-bg:  oklch(from white 10% 0 0 / 0.08);
+    --c-sidebar-text:    oklch(90% 0.01 250);
+    --c-sidebar-border:  oklch(from white 10% 0 0 / 0.08);
+    
+    --c-bg:              oklch(96% 0.01 250);
+    --c-shadow-sheet:    0 12px 48px oklch(0% 0 0 / 0.15), 0 2px 8px oklch(0% 0 0 / 0.05);
+    
+    --c-radius-md:       8px;
+    --c-font-ui:         "Inter", system-ui, sans-serif;
+    --c-font-mono:       "JetBrains Mono", monospace;
+    
+    --c-text-primary:    oklch(15% 0.01 250);
+    --c-text-secondary:  oklch(45% 0.02 250);
 
-    --din-paper-w: 210mm;
-    --din-paper-h: 297mm;
-    --din-margin-l: 25mm;
-    --din-margin-r: 20mm;
-    --din-addr-w: 85mm;
-    --din-addr-h: 45mm;
-    --din-addr-top: 45mm;
-    --din-mark-fold-1: 105mm;
-    --din-mark-fold-2: 210mm;
-    --din-mark-loch: 148.5mm;
+    /* ── DIN GEOMETRY ─────────────────────────────────────────────── */
+    --din-paper-w:       210mm;
+    --din-paper-h:       297mm;
+    --din-margin-l:      25mm;
+    --din-margin-r:      20mm;
+    --din-addr-w:        85mm;
+    --din-addr-h:        45mm;
+    --din-addr-top:      45mm;
+    --din-mark-fold-1:   105mm;
+    --din-mark-fold-2:   210mm;
+    --din-mark-loch:     148.5mm;
 
-    --c-bg-dark: #0f141e;
-    --c-paper-dark: #d1d1d1;
-    --c-text-dark: #111111;
-    --c-dot-dark: #1e2535;
+    /* ── NIGHT MODE ───────────────────────────────────────────────── */
+    --c-bg-dark:         oklch(12% 0.02 250);
+    --c-paper-dark:      oklch(85% 0.01 250);
+    --c-text-dark:       oklch(10% 0.01 250);
+    --c-dot-dark:        oklch(20% 0.04 250);
   }
 
-  .iban-field {
-    grid-column: span 2;
-  }
+  .iban-field { grid-column: span 2; }
 
   body:has(#theme-night:checked) {
     --c-bg: var(--c-bg-dark);
@@ -55,16 +52,13 @@
   }
 
   body:has(#theme-night:checked) #paper-viewport {
-    background-image: radial-gradient(
-      var(--c-dot-dark) 1.5px,
-      transparent 1.5px
-    ) !important;
+    background-image: radial-gradient(var(--c-dot-dark) 1.5px, transparent 1.5px) !important;
   }
 
   body:has(#theme-night:checked) #paper {
     background: var(--c-paper-dark) !important;
     filter: brightness(0.85) contrast(1.1);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 20px 60px oklch(0% 0 0 / 0.5) !important;
   }
 
   body[data-layout="form-a"],
@@ -104,19 +98,21 @@
     text-align: right;
     font-size: 10pt;
     line-height: 1.2;
+    display: flex;
+    flex-direction: column;
   }
 
   [contenteditable] {
     outline: none !important;
-    border: 1px dashed rgba(0, 0, 0, 0.1);
+    border: 1px dashed oklch(0% 0 0 / 0.05);
     border-radius: 4px;
-    padding: 1mm 2mm;
+    padding: 0.5mm 1mm;
   }
 
   [contenteditable]:focus {
-    background-color: rgba(255, 255, 255, 0.9) !important;
+    background-color: oklch(100% 0 0 / 0.9) !important;
     border: 1px solid var(--c-primary) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px oklch(0% 0 0 / 0.05);
   }
 
   .paper-address-zone {
@@ -132,10 +128,10 @@
 
   din-return-line {
     font-size: 8pt;
-    border-bottom: 0.5pt solid #ccc;
+    border-bottom: 0.5pt solid oklch(0% 0 0 / 0.2);
     margin-bottom: 2mm;
     height: 5mm;
-    color: #666;
+    color: oklch(40% 0 0);
   }
 
   .paper-infoblock {
@@ -146,6 +142,14 @@
     display: flex;
     flex-direction: column;
     gap: 1.5mm;
+  }
+
+  din-date {
+    position: absolute;
+    top: 50mm;
+    left: 125mm;
+    width: 75mm;
+    text-align: left;
   }
 
   #brief-kern {
@@ -160,7 +164,7 @@
     margin-bottom: 12.7mm;
     display: block;
   }
-  din-body {
+  din-text {
     display: block;
     min-height: 50mm;
     white-space: pre-wrap;
@@ -174,8 +178,8 @@
     display: flex;
     justify-content: space-between;
     font-size: 8pt;
-    color: #666;
-    border-top: 0.5pt solid #ccc;
+    color: oklch(40% 0 0);
+    border-top: 0.5pt solid oklch(0% 0 0 / 0.2);
     padding-top: 2mm;
   }
 }
@@ -197,27 +201,15 @@
     position: absolute;
     left: 0;
     width: 5mm;
-    border-top: 0.5pt solid #000;
+    border-top: 0.5pt solid oklch(0% 0 0);
     pointer-events: none;
   }
 
-  .mark-fold-1 {
-    top: var(--din-mark-fold-1) !important;
-  }
-  .mark-fold-2 {
-    top: var(--din-mark-fold-2) !important;
-  }
-  .mark-loch {
-    top: var(--din-mark-loch) !important;
-    width: 7mm !important;
-  }
+  .mark-fold-1 { top: var(--din-mark-fold-1) !important; }
+  .mark-fold-2 { top: var(--din-mark-fold-2) !important; }
+  .mark-loch   { top: var(--din-mark-loch) !important; width: 7mm !important; }
 
-  #app-shell {
-    display: flex;
-    width: 100%;
-    height: 100dvh;
-    overflow: hidden;
-  }
+  #app-shell { display: flex; width: 100%; height: 100dvh; overflow: hidden; }
 
   #sidebar-left {
     width: 280px;
@@ -229,7 +221,8 @@
 
   .sidebar-btn {
     background: var(--c-sidebar-btn-bg) !important;
-    color: white !important;
+    /* [AVIATION GRADE] Auto-Contrast via Chrome 147 contrast-color() */
+    color: contrast-color(var(--c-sidebar-btn-bg)) !important;
     padding: 12px 16px;
     border-radius: 10px;
     cursor: pointer;
@@ -240,6 +233,7 @@
 
   .sidebar-btn.primary {
     background: var(--c-primary) !important;
+    color: contrast-color(var(--c-primary)) !important;
     font-weight: 600;
   }
 
@@ -252,33 +246,12 @@
     overflow: auto;
   }
 
-  .compliance-bar,
-  #btn-decoder-trigger,
-  .status-bar {
-    display: none !important;
-  }
-  body.dev-mode .compliance-bar,
-  body.dev-mode #btn-decoder-trigger,
-  body.dev-mode .status-bar {
-    display: flex !important;
-  }
+  .compliance-bar, #btn-decoder-trigger, .status-bar { display: none !important; }
+  body.dev-mode .compliance-bar, body.dev-mode #btn-decoder-trigger, body.dev-mode .status-bar { display: flex !important; }
 
   @media print {
-    html,
-    body {
-      background: white !important;
-      height: auto !important;
-      overflow: visible !important;
-    }
-    #sidebar-left,
-    .status-bar,
-    .decoder-btn,
-    #btn-decoder-trigger {
-      display: none !important;
-    }
-    #paper {
-      box-shadow: none !important;
-      margin: 0 !important;
-    }
+    html, body { background: white !important; height: auto !important; overflow: visible !important; }
+    #sidebar-left, .status-bar, .decoder-btn, #btn-decoder-trigger { display: none !important; }
+    #paper { box-shadow: none !important; margin: 0 !important; }
   }
 }

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brief Generator</title>
+  
+  <!-- Tailwind CSS + daisyUI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      plugins: [
+        function({ addBase, theme }) {
+          addBase({
+            ':root': {
+              '--fallback-p': 'oklch(69.71% 0.329 342.55)',
+              '--fallback-pc': 'oklch(98.71% 0.0106 342.55)',
+              '--fallback-s': 'oklch(69.71% 0.329 342.55)',
+              '--fallback-sc': 'oklch(98.71% 0.0106 342.55)',
+              '--fallback-a': 'oklch(76.76% 0.184 183.61)',
+              '--fallback-ac': 'oklch(16.76% 0.0684 183.61)',
+            }
+          })
+        }
+      ]
+    }
+  </script>
+  
+  <!-- daisyUI classes (inline) -->
+  <style>
+    .btn{display:inline-flex;height:3rem;min-height:3rem;flex-shrink:0;cursor:pointer;user-select:none;flex-wrap:wrap;align-items:center;justify-content:center;border-radius:0.5rem;border-width:1px;border-color:transparent;padding-left:1rem;padding-right:1rem;text-align:center;font-size:0.875rem;line-height:1em;gap:0.5rem;font-weight:600;text-decoration-line:none;transition-duration:200ms;transition-timing-function:cubic-bezier(0,0,0.2,1);border-color:oklch(var(--fallback-n,var(--n))/var(--tw-border-opacity));background-color:oklch(var(--fallback-n,var(--n))/var(--tw-bg-opacity));color:oklch(var(--fallback-nc,var(--nc))/var(--tw-text-opacity));outline-color:oklch(var(--fallback-n,var(--n))/1)}
+    .btn-primary{border-color:oklch(var(--fallback-p,var(--p))/var(--tw-border-opacity));background-color:oklch(var(--fallback-p,var(--p))/var(--tw-bg-opacity));color:oklch(var(--fallback-pc,var(--pc))/var(--tw-text-opacity));outline-color:oklch(var(--fallback-p,var(--p))/1)}
+    .btn-ghost{border-color:transparent;background-color:transparent;color:oklch(var(--fallback-bc,var(--bc))/var(--tw-text-opacity));outline-color:currentColor}
+    .btn-sm{height:2rem;min-height:2rem;padding-left:0.75rem;padding-right:0.75rem;font-size:0.875rem}
+    .card{position:relative;display:flex;flex-direction:column;border-radius:1rem}
+    .card-body{display:flex;flex:1 1 auto;flex-direction:column;padding:1.5rem;gap:0.5rem}
+    .card-title{display:flex;align-items:center;gap:0.5rem;font-size:1.25rem;font-weight:600;line-height:1.75rem}
+    .input{flex-shrink:1;height:3rem;padding-left:1rem;padding-right:1rem;font-size:1rem;line-height:2;border-width:1px;border-color:hsl(var(--b2)/var(--tw-border-opacity));background-color:hsl(var(--b1)/var(--tw-bg-opacity));border-radius:0.5rem}
+    .textarea{flex-shrink:1;min-height:3rem;padding-left:1rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-size:1rem;line-height:2;border-width:1px;border-color:hsl(var(--b2)/var(--tw-border-opacity));background-color:hsl(var(--b1)/var(--tw-bg-opacity));border-radius:0.5rem}
+    .label{display:flex;user-select:none;align-items:center;justify-content:space-between;padding-left:0.25rem;padding-right:0.25rem;padding-top:0.5rem;padding-bottom:0.5rem}
+    .label-text{color:hsl(var(--bc)/0.6);font-size:0.875rem;line-height:1.25rem;font-weight:600}
+    .navbar{display:flex;align-items:center;padding:0;min-height:4rem;width:100%}
+    .navbar-start{width:50%;justify-content:flex-start}
+    .navbar-center{flex-shrink:0;justify-content:center}
+    .navbar-end{width:50%;justify-content:flex-end}
+    .toast{position:fixed;z-index:50;display:flex;min-width:20rem;flex-direction:column;gap:0.5rem;padding:1rem}
+    .toast-top{inset-inline-end:0;top:0}
+    .alert{display:grid;width:100%;grid-auto-flow:row;align-content:flex-start;align-items:center;justify-items:start;gap:1rem;text-align:start;border-radius:0.5rem;border-width:1px;padding:1rem;border-color:transparent}
+    .alert-success{border-color:oklch(var(--su)/0.2);background-color:oklch(var(--su)/0.2);color:oklch(var(--suc,var(--su))))}
+    .shadow-lg{box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)}
+    .shadow-xl{box-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)}
+    
+    /* Custom print styles */
+    @media print {
+      @page { size: A4; margin: 0; }
+      .no-print { display: none !important; }
+      .preview { box-shadow: none; margin: 0; }
+      .print-container { height: 297mm; width: 210mm; }
+    }
+    
+    @media screen {
+      .preview {
+        margin: 2rem auto;
+        background: white;
+        height: 297mm;
+        width: 210mm;
+        box-shadow: 0 5px 50px rgba(0, 0, 0, 0.3);
+      }
+      body { background-color: rgba(0, 0, 0, 0.1); }
+    }
+    
+    /* DIN-5008 positioning */
+    .din-position-sender { position: absolute; left: 25mm; top: 32mm; width: 80mm; }
+    .din-position-date { position: absolute; left: 125mm; top: 50mm; width: 60mm; }
+    .din-position-subject { position: absolute; left: 25mm; top: 98mm; right: 20mm; }
+    .din-position-content { position: absolute; left: 25mm; top: 115mm; right: 20mm; bottom: 40mm; }
+    .din-position-sender-info { position: absolute; left: 125mm; top: 32mm; width: 60mm; }
+    
+    /* Fold marks */
+    .fold-mark {
+      position: absolute;
+      left: 5mm;
+      width: 10mm;
+      height: 0.2mm;
+      background: rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+    }
+    .fold-mark-1 { top: 105mm; }
+    .fold-mark-2 { top: 210mm; }
+    
+    /* Enhanced form styling */
+    .form-field {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    
+    .form-field input:focus,
+    .form-field textarea:focus {
+      outline: 2px solid oklch(var(--fallback-p,var(--p)));
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- Navigation -->
+<div class="navbar bg-base-100 shadow-lg no-print">
+  <div class="navbar-start">
+    <h1 class="text-xl font-bold">📝 Brief Generator</h1>
+  </div>
+  <div class="navbar-center">
+    <div class="join">
+      <button onclick="saveDraft()" class="btn btn-sm btn-ghost">💾 Speichern</button>
+      <button onclick="window.print()" class="btn btn-sm btn-primary">🖨️ Drucken</button>
+      <button onclick="clearDraft()" class="btn btn-sm btn-ghost">🗑️ Löschen</button>
+    </div>
+  </div>
+  <div class="navbar-end">
+    <button onclick="toggleHelp()" class="btn btn-sm btn-ghost">❓ Hilfe</button>
+  </div>
+</div>
+
+<!-- Help Toast -->
+<div id="helpToast" class="toast toast-top no-print hidden">
+  <div class="alert alert-info shadow-lg">
+    <div>
+      <h3 class="font-bold">Tastaturkürzel</h3>
+      <div class="text-sm">
+        <p><kbd class="kbd kbd-xs">Strg+P</kbd> Drucken</p>
+        <p><kbd class="kbd kbd-xs">Strg+S</kbd> Speichern</p>
+        <p><kbd class="kbd kbd-xs">Tab</kbd> Nächstes Feld</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="container mx-auto p-4 no-print">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Input Form -->
+    <div class="lg:col-span-1">
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">📨 Brief-Details</h2>
+          
+          <!-- Sender Information -->
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Ihr Name</span>
+            </label>
+            <input type="text" id="senderName" placeholder="Max Mustermann" class="input input-bordered w-full">
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Ihre Adresse</span>
+            </label>
+            <textarea id="senderAddress" placeholder="Musterstraße 1&#10;10115 Berlin" class="textarea textarea-bordered w-full h-20"></textarea>
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">E-Mail</span>
+            </label>
+            <input type="email" id="senderEmail" placeholder="max@mustermann.de" class="input input-bordered w-full">
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Telefon</span>
+            </label>
+            <input type="tel" id="senderPhone" placeholder="+49 30 12345678" class="input input-bordered w-full">
+          </div>
+          
+          <div class="divider">Empfänger</div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Empfänger Adresse</span>
+            </label>
+            <textarea id="recipientAddress" placeholder="Muster GmbH&#10;Herrn&#10;Max Mustermann&#10;Musterstraße 1&#10;10115 Berlin" class="textarea textarea-bordered w-full h-24"></textarea>
+          </div>
+          
+          <div class="divider">Brief</div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Betreff</span>
+            </label>
+            <input type="text" id="subject" placeholder="Bewerbung als..." class="input input-bordered w-full">
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Anrede</span>
+            </label>
+            <select id="salutation" class="select select-bordered w-full">
+              <option value="Sehr geehrte Damen und Herren,">Sehr geehrte Damen und Herren,</option>
+              <option value="Sehr geehrte Frau">Sehr geehrte Frau</option>
+              <option value="Sehr geehrter Herr">Sehr geehrter Herr</option>
+              <option value="Liebe">Liebe</option>
+              <option value="Lieber">Lieber</option>
+            </select>
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Brief-Text</span>
+            </label>
+            <textarea id="content" placeholder="hiermit bewerbe ich mich..." class="textarea textarea-bordered w-full h-32"></textarea>
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Grußformel</span>
+            </label>
+            <select id="closing" class="select select-bordered w-full">
+              <option value="Mit freundlichen Grüßen">Mit freundlichen Grüßen</option>
+              <option value="Mit besten Grüßen">Mit besten Grüßen</option>
+              <option value="Hochachtungsvoll">Hochachtungsvoll</option>
+              <option value="Viele Grüße">Viele Grüße</option>
+            </select>
+          </div>
+          
+          <div class="form-field">
+            <label class="label">
+              <span class="label-text">Anlagen</span>
+            </label>
+            <textarea id="attachments" placeholder="Lebenslauf&#10;Zeugnisse&#10;Zertifikate" class="textarea textarea-bordered w-full h-20"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Preview -->
+    <div class="lg:col-span-2">
+      <div class="preview print-container" style="font-family: Arial, sans-serif; font-size: 10pt; line-height: 14pt; position: relative;">
+        
+        <!-- Fold marks -->
+        <div class="fold-mark fold-mark-1"></div>
+        <div class="fold-mark fold-mark-2"></div>
+        
+        <!-- Return address (small) -->
+        <div class="din-position-sender" style="font-size: 7pt; line-height: 9pt; margin-bottom: 6pt;">
+          <div id="previewReturnAddress"></div>
+        </div>
+        
+        <!-- Recipient address -->
+        <div class="din-position-sender" style="margin-top: 12pt;">
+          <div id="previewRecipientAddress" style="white-space: pre-line;"></div>
+        </div>
+        
+        <!-- Sender info (right side) -->
+        <div class="din-position-sender-info" style="text-align: left;">
+          <div id="previewSenderInfo" style="white-space: pre-line;"></div>
+        </div>
+        
+        <!-- Date -->
+        <div class="din-position-date" style="text-align: right; margin-top: 14pt;">
+          <div id="previewDate"></div>
+        </div>
+        
+        <!-- Subject -->
+        <div class="din-position-subject">
+          <div id="previewSubject" style="font-weight: bold; margin-bottom: 14pt;"></div>
+        </div>
+        
+        <!-- Content -->
+        <div class="din-position-content">
+          <div id="previewSalutation" style="margin-bottom: 14pt;"></div>
+          <div id="previewContent" style="white-space: pre-line; margin-bottom: 14pt;"></div>
+          <div id="previewClosing" style="margin-bottom: 42pt;"></div>
+          <div id="previewSignature"></div>
+          
+          <!-- Attachments -->
+          <div style="margin-top: 28pt;">
+            <div id="previewAttachments" style="font-size: 8pt; line-height: 12pt;">
+              <div style="font-weight: bold; margin-bottom: 6pt;">Anlagen:</div>
+              <div id="previewAttachmentList" style="white-space: pre-line; margin-left: 10pt;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Modern JavaScript with proper error handling and accessibility
+class BriefGenerator {
+  constructor() {
+    this.fields = [
+      'senderName', 'senderAddress', 'senderEmail', 'senderPhone',
+      'recipientAddress', 'subject', 'salutation', 'content', 'closing', 'attachments'
+    ];
+    this.init();
+  }
+  
+  init() {
+    this.setupEventListeners();
+    this.loadDraft();
+    this.updatePreview();
+    this.setCurrentDate();
+    this.setupKeyboardShortcuts();
+  }
+  
+  setupEventListeners() {
+    this.fields.forEach(field => {
+      const element = document.getElementById(field);
+      if (element) {
+        element.addEventListener('input', () => {
+          this.updatePreview();
+          this.saveDraft();
+        });
+      }
+    });
+  }
+  
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 's':
+            e.preventDefault();
+            this.saveDraft();
+            this.showToast('Entwurf gespeichert! 💾');
+            break;
+          case 'p':
+            e.preventDefault();
+            window.print();
+            break;
+        }
+      }
+    });
+  }
+  
+  updatePreview() {
+    // Update return address
+    const name = document.getElementById('senderName').value;
+    const address = document.getElementById('senderAddress').value;
+    const returnAddr = `${name}, ${address.replace(/\n/g, ', ')}`;
+    document.getElementById('previewReturnAddress').textContent = returnAddr;
+    
+    // Update recipient
+    document.getElementById('previewRecipientAddress').textContent = 
+      document.getElementById('recipientAddress').value;
+    
+    // Update sender info
+    const senderInfo = [
+      document.getElementById('senderName').value,
+      document.getElementById('senderAddress').value,
+      document.getElementById('senderEmail').value,
+      document.getElementById('senderPhone').value
+    ].filter(Boolean).join('\n');
+    document.getElementById('previewSenderInfo').textContent = senderInfo;
+    
+    // Update subject
+    document.getElementById('previewSubject').textContent = 
+      document.getElementById('subject').value;
+    
+    // Update salutation
+    document.getElementById('previewSalutation').textContent = 
+      document.getElementById('salutation').value;
+    
+    // Update content
+    document.getElementById('previewContent').textContent = 
+      document.getElementById('content').value;
+    
+    // Update closing
+    document.getElementById('previewClosing').textContent = 
+      document.getElementById('closing').value;
+    
+    // Update signature
+    document.getElementById('previewSignature').textContent = 
+      document.getElementById('senderName').value;
+    
+    // Update attachments
+    const attachments = document.getElementById('attachments').value;
+    const attachmentDiv = document.getElementById('previewAttachments');
+    if (attachments.trim()) {
+      attachmentDiv.style.display = 'block';
+      document.getElementById('previewAttachmentList').textContent = attachments;
+    } else {
+      attachmentDiv.style.display = 'none';
+    }
+    
+    // Update document title
+    const subject = document.getElementById('subject').value;
+    if (subject) {
+      document.title = `${new Date().toISOString().slice(0,10)} ${subject.slice(0,50)}`;
+    }
+  }
+  
+  setCurrentDate() {
+    const today = new Intl.DateTimeFormat('de-DE', {
+      day: 'numeric',
+      month: 'long', 
+      year: 'numeric'
+    }).format(new Date());
+    document.getElementById('previewDate').textContent = today;
+  }
+  
+  saveDraft() {
+    const draft = {};
+    this.fields.forEach(field => {
+      const element = document.getElementById(field);
+      if (element) {
+        draft[field] = element.value;
+      }
+    });
+    localStorage.setItem('briefDraft', JSON.stringify(draft));
+  }
+  
+  loadDraft() {
+    try {
+      const draft = JSON.parse(localStorage.getItem('briefDraft') || '{}');
+      this.fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element && draft[field]) {
+          element.value = draft[field];
+        }
+      });
+    } catch (error) {
+      console.warn('Fehler beim Laden des Entwurfs:', error);
+    }
+  }
+  
+  clearDraft() {
+    if (confirm('Möchten Sie wirklich alle Daten löschen?')) {
+      localStorage.removeItem('briefDraft');
+      this.fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element) {
+          element.value = '';
+        }
+      });
+      this.updatePreview();
+      this.showToast('Entwurf gelöscht! 🗑️');
+    }
+  }
+  
+  showToast(message) {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-top';
+    toast.innerHTML = `
+      <div class="alert alert-success shadow-lg">
+        <span>${message}</span>
+      </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+}
+
+// Global functions for buttons
+function saveDraft() {
+  window.briefGenerator.saveDraft();
+  window.briefGenerator.showToast('Entwurf gespeichert! 💾');
+}
+
+function clearDraft() {
+  window.briefGenerator.clearDraft();
+}
+
+function toggleHelp() {
+  const helpToast = document.getElementById('helpToast');
+  helpToast.classList.toggle('hidden');
+  setTimeout(() => helpToast.classList.add('hidden'), 5000);
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  window.briefGenerator = new BriefGenerator();
+});
+</script>
+
+</body>
+</html>
+

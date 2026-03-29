@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de" class="no-js" manifest="letter.appcache">
+<head>
+ <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+ <title>Brief Generator</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+ <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,300i,400,400i,500,500i,700,700i" rel="stylesheet">
+ <style>
+{
+ margin: 0;
+ padding: 0;
+}
+html,
+html								{font-family: 'Fira Sans', 'Myriad Pro', sans-serif; font-size: 10pt; line-height: 14pt;}
+.clear-storage-btn {display: none; position: fixed; left: 0; top: 0; right: 0; z-index: 10; padding: 8px 20px; font-size: 10pt; line-height: 14pt; text-align: center; background: rgba(0, 0, 0, 0.3); color: white; text-decoration: none;}
+.clear-storage-btn:hover			{ background: rgba(0, 0, 0, 0.5);}
+.clear-storage-btn:active			{ background: rgba(0, 0, 0, 0.7);}
+.clear-storage-btn.is-visible		{display: block;}
+[contenteditable]:blank				{background-color:#b9b928;}
+[contenteditable]:empty::before		{ content: attr(placeholder); color: #ababab;}
+[contenteditable]					{outline: 0;cursor: text; }
+
+@media screen {
+*[contenteditable]:focus			{ background: #DEF; box-shadow: 0 0 1em 0.5em #DEF; }
+	.baseline-8pt:focus				{ padding-top: 12.1pt; margin-bottom: -12.1pt; } 
+	body 							{ background-color: rgba(0, 0, 0, 0.3); }
+	.no-screen 						{ display: none !important;}
+	.preview 						{ margin: 50px auto; background: white; height: 297mm; box-shadow: 0 5px 50px rgba(0, 0, 0, 0.3);}
+	footer::before 					{content: "• ";}
+	nav::before 					{content: "—";}
+}
+
+@media print {
+ @page								{ size: auto; /* auto is the current printer page size */ margin: 0mm; /* This affects the margin in the printer settings */}
+ *[contenteditable]					{caret-color: transparent;}
+ *[contenteditable]:empty::before	{display: none !important;}
+.no-print 							{display: none !important;}
+ .preview { }
+}
+</style>
+<!-- https://stackoverflow.com/questions/66935329/use-inline-svg-as-favicon   exchange "#" with "%23" -->
+<!-- https://commons.wikimedia.org/wiki/File:Twemoji_2709.svg -->
+
+<link rel="shortcut icon" href="data:image/svg+xml,<svg style='-ms-transform:rotate(360deg);-webkit-transform:rotate(360deg)' version='1.1' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'>
+ <path d='M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v18z' fill='%23CCD6DD'/>
+ <path d='m4 5a4 4 0 0 0-4 4v1.03l9.79 9.77-9.15 9.15c-0.027 0.028-0.0375 0.0618-0.0605 0.0898 0.34 0.57 0.815 1.04 1.38 1.38 0.029-0.023 0.0628-0.0335 0.0898-0.0605l9.15-9.15 3.32 3.31a4.88 4.88 0 0 0 6.88 0l3.36-3.34 9.18 9.18c0.026 0.026 0.0618 0.0375 0.0898 0.0605a3.98 3.98 0 0 0 1.38-1.38c-0.021-0.028-0.0335-0.0628-0.0605-0.0898l-9.18-9.18 9.81-9.76v-1.01a4 4 0 0 0-4-4h-28z' fill='%2399aab5'/>
+ <path d='m32 5h-28a3.99 3.99 0 0 0-3.6 2.28l14.8 14.8a4 4 0 0 0 5.66 0l14.8-14.8a3.99 3.99 0 0 0-3.6-2.28z' fill='%23E1E8ED'/>
+</svg>
+">
+
+</head>
+<body style="width: 100%; height: 100%; margin: 0; padding: 0;">
+
+<a href="" class="clear-storage-btn no-print" >Lokalen Entwurf im Browser löschen</a>
+<a href="" class="no-print" onclick="window.print();" style="
+ position: fixed; left: 0; bottom: 0; right: 0; z-index: 10; padding: 8px 20px;
+ font-size: 16pt; line-height: 20pt; text-align: center; background: rgb(183 36 36 / 67%); color: white; text-decoration: none;">Seite Drucken</a>
+ 
+<section class="preview"style="position: relative;width: 210mm;box-sizing: border-box;">
+
+	<nav style="position:absolute;top:87mm;left:4mm;"></nav>
+	<nav style="position:absolute;top:192mm;left:4mm;"></nav>
+
+<!-- Adress Block-->  <!-- nach DIN 5008 top:27mm; -->
+<!-- <div class="address-overlay" style="position: absolute; left: 15mm;  top: 27mm;  width: 90mm;  height: 45mm;  border-radius: 4mm;  background: rgba(0, 0, 0, 0.05);  z-index: 0;"></div> -->
+<div class="address address-wrapper box"style="position:absolute;left:25mm;top:32mm;width:80mm;z-index:10;box-sizing:border-box;">
+		<div	contenteditable="true"placeholder="Name, Straße Nr., PLZ Ort"id="ruecksende"style="line-height:9px;display:inline-block;font-size:7pt;margin-bottom:6pt;"></div>
+	<br><div	contenteditable="true"placeholder="Firma GmbH"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Herrn Frau"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Vor Nachname"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Straße Haus Nr."style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="PLZ Ort"style="display:inline-block;"></div>
+</div>
+
+
+<!--AbsenderBlock-->
+<div class="sidebar-text"style="text-transform: capitalize;position:absolute;left:150mm;top:40mm;text-align:left;">
+		<div	contenteditable="true"placeholder="Name"id="Name"style="display:inline-block;font-weight:bold;margin-bottom:6pt;"></div>
+	<br><div	contenteditable="true"placeholder="Straße"id="Straße"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="PLZ Ort"id="Ort"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="eMail"style="display:inline-block;text-transform: lowercase;margin-top:6pt;"></div>		
+	<br><div	contenteditable="true"placeholder="Nummer"style="display:inline-block;"></div>
+	<br><div	contenteditable="true"placeholder="Datum"id="Datum"style="display:inline-block;margin-top:14pt;"></div>
+</div>
+
+<div class="body body-subject" style=" position: absolute; left: 25mm; top: 90mm; right: 20mm;">
+<!-- Betreff -->	
+		<div	contenteditable="true"placeholder="Betreff"  id="Betreff"style="display:inline-block;font-weight: bold; margin-bottom: 10pt;"></div>
+<!-- Inhalt -->		
+		<div	contenteditable="true"placeholder="Hier kommt dein Text rein!!!"placeholder="Inhalt">Sehr geehrte Damen und Herren,<br/>
+		<em>Kursiv STRG+I </em><br/>
+		<b>Fett STRG+B </b><br/>
+		<u>Unterstrichen STRG+U</u></div>
+<!-- Grußformel -->	
+		<div	contenteditable="true"placeholder="Mit freundlichen Grüßen"style="margin: 14pt 0pt 42pt;display:inline-block;">Mit freundlichen Grüßen</div><br>
+		<div	contenteditable="true"placeholder="Dein Name"id="yourname"style="display:inline-block;"></div>
+<!-- Anlagen -->
+	<br><div	contenteditable="true"placeholder="Anlagen"style="display:inline-block;font-size:8pt;line-height:12pt;margin-top:14pt;font-weight:bold;">Anlagen:</div>
+	<br><footer	contenteditable="true"placeholder="• Dokument 1"style="margin-left: 5pt;display:inline-block;">https://greatestview.de/ein-minimalistischer-brief-generator</footer>
+	<br><footer	contenteditable="true"placeholder="• Dokument 2"style="margin-left: 5pt;display:inline-block;"></footer>
+	<br><footer	contenteditable="true"placeholder="• Dokument 3"style="margin-left: 5pt;display:inline-block;"></footer>
+</div>
+	
+	
+</section>
+<!-- Java Script -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+ <script>
+const editorEle = document.getElementById('Inhalt');
+
+// Handle the `paste` event
+editorEle.addEventListener('paste', function(e) {
+ // Prevent the default action
+ e.preventDefault();
+
+ // Get the copied text from the clipboard
+ const text = (e.clipboardData)
+ ? (e.originalEvent || e).clipboardData.getData('text/plain')
+ // For IE
+ : (window.clipboardData ? window.clipboardData.getData('Text') : '');
+
+ if (document.queryCommandSupported('insertText')) {
+ document.execCommand('insertText', false, text);
+ } else {
+ // Insert text at the current position of caret
+ const range = document.getSelection().getRangeAt(0);
+ range.deleteContents();
+
+ const textNode = document.createTextNode(text);
+ range.insertNode(textNode);
+ range.selectNodeContents(textNode);
+ range.collapse(false);
+
+ const selection = window.getSelection();
+ selection.removeAllRanges();
+ selection.addRange(range);
+ }
+});
+</script>
+
+<script>
+"use strict";
+
+;(function() {
+  // --- Modul-Namespace gv ---
+  const gv = window.gv = window.gv || {};
+
+  // 1) Datenfelder, die im LocalStorage liegen
+  const dataItems = [
+    "address-overline","address","sidebar-text",
+    "body-subject","body-text","attachments-bd"
+  ];
+
+  // 2) Datum auf Deutsch
+  gv.createDateGerman = () => {
+    return new Intl.DateTimeFormat("de-DE", {
+      day:   "numeric",
+      month: "long",
+      year:  "numeric"
+    }).format(new Date());
+  };
+
+  // 3) String-Kürzer (ohne Prototyp-Patch)
+  function truncate(str, maxLen, useWordBoundary = true) {
+    if (str.length <= maxLen) return str;
+    let s = str.slice(0, maxLen - 1);
+    if (useWordBoundary) {
+      const idx = s.lastIndexOf(" ");
+      if (idx > 0) s = s.slice(0, idx);
+    }
+    return s;
+  }
+
+  // 4) Titel setzen aus #Betreff
+  gv.setTitleFromSubject = () => {
+    const subj = document.getElementById("Betreff");
+    if (!subj) return;
+    const datePart = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    document.title = `${datePart} ${truncate(subj.textContent, 60)}`;
+  };
+
+  // 5) Absenderzeile updaten
+  gv.updateAbsender = () => {
+    const getText = id => document.getElementById(id)?.textContent || "";
+    const [vorname, nachname] = getText("Name").split(" ");
+    const initiale = vorname?.[0]?.toUpperCase() + ".";
+    const fam    = nachname ? nachname[0].toUpperCase() + nachname.slice(1) + "," : "";
+    const street = getText("Straße").replace(/Strasse/i, "Straße");
+    const place  = getText("Ort").replace(/Sankt/i, "St.");
+    const fertig = [initiale, fam, street, place].filter(Boolean).join(" ");
+    document.getElementById("ruecksende").textContent = fertig;
+    document.getElementById("yourname").textContent = getText("Name");
+  };
+
+  // 6) Draft-Storage (get, save, restore, delete)
+  gv.getDraft =    () => JSON.parse(localStorage.getItem("draft") || "null");
+  gv.saveDraft =   () => {
+    const draft = {};
+    dataItems.forEach(key => {
+      const el = document.querySelector(`.${key}`);
+      if (el) draft[key] = el.innerHTML;
+    });
+    localStorage.setItem("draft", JSON.stringify(draft));
+  };
+  gv.restoreDraft = () => {
+    const d = gv.getDraft();
+    if (!d) return false;
+    dataItems.forEach(key => {
+      const el = document.querySelector(`.${key}`);
+      if (el && d[key]!=null) el.innerHTML = d[key];
+    });
+    return true;
+  };
+  gv.deleteDraft = () => localStorage.removeItem("draft");
+
+  // 7) Sichtbarkeit des "Löschen"-Buttons
+  gv.updateStorageBtn = () => {
+    document.querySelectorAll(".clear-storage-btn").forEach(btn => {
+      btn.classList.toggle("is-visible", gv.getDraft() !== null);
+    });
+  };
+
+// 8) Einziger Event-Delegation-Listener, aktualisiert nur bei #Betreff bzw. .sidebar-text
+document.addEventListener("input", evt => {
+  const t = evt.target;
+  if (t.isContentEditable) {
+    gv.saveDraft();
+    gv.updateStorageBtn();
+
+    // Nur wenn wirklich im Betreff-Feld getippt wird:
+    if (t.id === "Betreff") {
+      gv.setTitleFromSubject();
+    }
+    // Nur bei Änderungen im Sidebar-Text:
+    if (t.classList.contains("sidebar-text")) {
+      gv.updateAbsender();
+    }
+  }
+});
+
+  // 9) Klick auf "Löschen"
+  document.addEventListener("click", evt => {
+    if (evt.target.matches(".clear-storage-btn")) {
+      evt.preventDefault();
+      if (confirm("Der Entwurf wird endgültig gelöscht. Bist du dir sicher?")) {
+        gv.deleteDraft();
+        gv.updateStorageBtn();
+        location.reload();
+      }
+    }
+  });
+
+  // 10) Initialisierung bei DOM ready
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!gv.restoreDraft()) {
+      document.getElementById("Datum").textContent = gv.createDateGerman();
+    }
+    gv.updateStorageBtn();
+    gv.setTitleFromSubject();
+  });
+
+})();  
+</script>
+
+ </body>
+</html>
+

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Example Document in DIN 5008</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    html {
+      font-family: Aptos, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      font-size: 10pt;
+      line-height: 1.5rem;
+      color: #000;
+      box-sizing: border-box;
+    }
+    body { margin: 0; }
+    din-5008 {
+      box-sizing: border-box;
+      display: block;
+      height: 297mm;
+      margin: 0;
+      page-break-after: always;
+      position: relative;
+      width: 210mm;
+    }
+    .schriftfeld {
+      border-radius: 0.25rem;
+      border: 1px dashed rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+      cursor: text;
+      display: block;
+      margin-bottom: 3pt;
+      max-width: 165mm;
+      min-height: 12pt;
+      min-width: 20mm;
+      outline: none;
+      height: 17pt;
+      width: fit-content;
+      overflow: hidden;
+      padding: 0 4px;
+      white-space: pre-wrap;
+    }
+    .wrapper {
+      position: absolute;
+      left: 20mm;
+      display: block;
+    }
+    .oneline {
+      max-height: 1.5rem;
+      line-height: 1.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .schriftfeld:hover,
+    .schriftfeld:focus {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+    .schriftfeld:focus {
+      box-shadow: 0 2px 5px #007bff;
+      border: 1px solid transparent;
+    }
+    sendungsvermerke {
+      position: relative;
+      display: block;
+    }
+    .sendungsvermerk-select {
+      position: absolute;
+      left: 0; top: 0; width: 100%; height: 100%;
+      opacity: 0;
+      z-index: 2;
+      cursor: pointer;
+    }
+    #sendungsvermerkText {
+      min-width: 5em;
+      display: inline-block;
+      vertical-align: middle;
+      color: #888;
+    }
+    #sendungsvermerkText.is-real {
+      color: #000;
+    }
+    @media screen {
+      body { background: #e0e0e0; margin: 10mm; }
+      din-5008 { background: white; height: 297mm; box-shadow: 0 5px 50px rgba(0, 0, 0, 0.3); margin: 50px auto; }
+    }
+    @media print {
+      .sendungsvermerk-select, .dropdown { display: none !important; }
+      #sendungsvermerkText.is-real { color: #000 !important; }
+      #sendungsvermerkText.placeholder { display: none !important; }
+      .anrede-dropbtn { border: none !important; box-shadow: none !important; background: none !important; }
+    }
+    
+    /* --- ANREDE-DROPDOWN & TOOLTIP-STIL --- */
+    .dropdown { position: relative; display: inline-block; }
+    .anrede-dropbtn { 
+      background: none; 
+      border: none; 
+      /* --- HIER IST DIE GEWÜNSCHTE ÄNDERUNG --- */
+      padding: 0 4px; 
+      margin: 0; 
+      cursor: pointer; 
+      min-width: 200px; 
+      text-align: left; 
+    }
+    .dropdown-content { display: none; position: absolute; background: #f9f9f9; min-width: 280px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 10; left: 0; border-radius: 4px; }
+    .dropdown.show .dropdown-content { display: block; }
+    .dropdown-content div { padding: 8px 16px; cursor: pointer; position: relative; }
+    .dropdown-content div:hover { background: #e0e0e0; }
+    
+    .dropdown-content div[data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #222;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: pre;
+      margin-left: 8px;
+      font-size: 9pt;
+      z-index: 100;
+    }
+    .anrede-editing { border: 1px solid #007bff !important; background: #f0f8ff; cursor: text; }
+  </style>
+  <link rel="shortcut icon" href="data:image/svg+xml,...">
+</head>
+<body>
+<din-5008>
+  <svg style="position: absolute; left: 2mm; top: 87mm;" width="10mm" height="105.2mm" viewBox="0 0 10 105.2">
+    <line x1="0" y1="0.1" x2="10" y2="0.1" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.2" />
+    <line x1="0" y1="105.1" x2="10" y2="105.1" stroke="rgba(0, 0, 0, 0.3)" stroke-width="0.2" />
+  </svg>
+  
+  <wrapper class="wrapper" style="top: 27mm; display: flex; flex-direction: column;">
+    <rucksendeangabe class="schriftfeld oneline" style="width: 80mm; font-size: 7pt; height: 1.3rem;">Mustermann GmbH | Beispiel-Straße 12 | 12345 Beispielhausen</rucksendeangabe>
+    <sendungsvermerke class="schriftfeld oneline" style="width: 80mm; min-height: 14pt; max-height: 2.5rem;">
+      <span id="sendungsvermerkText" class="placeholder">Sendungsvermerke auswählen…</span>
+      <select id="sendungsvermerkDropdown" class="sendungsvermerk-select">
+        <option value="">Sendungsvermerke auswählen…</option>
+        <option value="Einschreiben">Einschreiben</option>
+        <option value="Einschreiben/Rückschein">Einschreiben/Rückschein</option>
+        <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+        <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+        <option value="Luftpost">Luftpost</option>
+        <option value="Eigenhändig">Eigenhändig</option>
+        <option value="Zustellungsurkunde">Zustellungsurkunde</option>
+        <option value="Per Boten">Per Boten</option>
+      </select>
+    </sendungsvermerke>
+    <anschriftzone class="schriftfeld" id="anschriftzone" style="width: 80mm; height: 7.5rem;">Firma<br>Herr Moritz Baumeister<br>Straße und Hausnummer<br>Postleitzahl und Ort</anschriftzone>
+  </wrapper>
+
+  <wrapper class="wrapper" style="left: 130mm; right: 20mm; top: 27mm; display: flex; flex-direction: column;">
+    <absender class="schriftfeld oneline" style="max-width: 50mm;">Moritz Baumeister</absender>
+    <adresse class="schriftfeld" style="height: fit-content; max-width: 50mm;">Kettelerstraße 2<br>53844 Troisdorf</adresse>
+    <telefon class="schriftfeld oneline" style="max-width: 50mm;">01601221445</telefon>
+  </wrapper>
+  
+  <datum class="schriftfeld oneline" style="position: absolute; top: 75mm; right: 20mm; text-align: right; max-width: 75mm;"></datum>
+
+  <wrapper class="wrapper" style="display: block; top: 90mm; right: 20mm;">
+    <betreff class="schriftfeld oneline" style="font-weight: bold; margin-bottom: 1.5rem;">Example Document</betreff>
+	
+    
+    <div class="dropdown" id="anredeDropdown" style="display:inline-block; margin-bottom: 1rem; padding: 0 4px;">
+      <span class="anrede-dropbtn schriftfeld oneline" id="anredeBtn" contenteditable="false">Sehr geehrte Damen und Herren,</span>
+      <div class="dropdown-content" id="anredeOptions">
+          <div data-tooltip="Förmlicher Brief, Name bekannt" data-template="Sehr geehrte/r Herr/Frau [Nachname]">Sehr geehrte/r Herr/Frau [Nachname]</div>
+          <div data-tooltip="Informell, Vorname bekannt" data-template="Hallo [Vorname]">Hallo [Vorname]</div>
+          <div data-tooltip="Neutral, ohne Name" data-template="Guten Tag">Guten Tag</div>
+          <div data-tooltip="An ein Team, höflich" data-template="Liebes Team von [Firma]">Liebes Team von [Firma]</div>
+          <div data-tooltip="Sehr informell" data-template="Hi [Name]">Hi [Name]</div>
+          <div data-tooltip="Förmlich, Abteilung bekannt" data-template="An das Team der [Abteilung]">An das Team der [Abteilung]</div>
+      </div>
+    </div>
+    
+    <textfeld class="schriftfeld" style="width:100%; max-height: 150mm; height:auto; margin-bottom: 1rem;">
+      <em>Kursiv STRG+I</em><br>
+      <b>Fett STRG+B</b><br>
+      <u>Unterstrichen STRG+U</u>
+    </textfeld>
+    <grussformel class="schriftfeld oneline" style="display:inline-block; margin-bottom: 2rem;">Mit freundlichen Grüßen</grussformel>
+    <maschunterschrift class="schriftfeld oneline" style="margin-bottom: 1rem;">Moritz Baumeister</maschunterschrift>
+    <anlagen class="schriftfeld" style="height: fit-content;">Anlagen</anlagen>
+  </wrapper>
+
+  <wrapper class="wrapper" style="bottom: 6.5mm; width: 165mm;">
+    <seitenangabe class="schriftfeld oneline" style="max-width: 30mm; text-align: right; margin-bottom: 4.23mm; float: right;">Seite 1 von 1</seitenangabe>
+    <br/><fusszeile class="schriftfeld oneline" style="clear: both;">Fußzeile</fusszeile>
+  </wrapper>
+</din-5008>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  document.querySelectorAll('.schriftfeld:not(#anredeBtn)').forEach(el => el.contentEditable = 'true');
+
+  // Sendungsvermerk Logik
+  const sendungsvermerkDropdown = document.getElementById('sendungsvermerkDropdown');
+  const sendungsvermerkText = document.getElementById('sendungsvermerkText');
+  function updateSendungsvermerk() {
+    if (sendungsvermerkDropdown.value) {
+      sendungsvermerkText.textContent = sendungsvermerkDropdown.value;
+      sendungsvermerkText.classList.add('is-real');
+      sendungsvermerkText.classList.remove('placeholder');
+    } else {
+      sendungsvermerkText.textContent = 'Sendungsvermerke auswählen…';
+      sendungsvermerkText.classList.remove('is-real');
+      sendungsvermerkText.classList.add('placeholder');
+    }
+  }
+  sendungsvermerkDropdown.addEventListener('change', updateSendungsvermerk);
+  updateSendungsvermerk();
+
+  // Datum & Titel Logik
+  const datumEl = document.querySelector('datum');
+  datumEl.textContent = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const betreffEl = document.querySelector('betreff');
+  function setTitle() { document.title = betreffEl.textContent.trim() || 'Unbenannt'; }
+  setTitle();
+  betreffEl.addEventListener('input', setTitle);
+
+  // --- KOMPLETTE ANREDE-LOGIK ---
+  const anschriftzone = document.getElementById('anschriftzone');
+  const dropdown = document.getElementById('anredeDropdown');
+  const anredeBtn = document.getElementById('anredeBtn');
+  const anredeOptions = document.getElementById('anredeOptions');
+  let isEditing = false;
+
+  // Diese Funktion aktualisiert alles basierend auf dem Adressfeld
+  function updateAnredeDynamisch() {
+    const text = anschriftzone.innerText || anschriftzone.textContent || '';
+    const lines = text.split(/\n|<br\s*\/?>/i);
+    let finalGeschlecht = null, finalVorname = '', finalNachname = '', found = false;
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      const match = trimmedLine.match(/^(herr|herrn|frau)\b/i);
+      if (match) {
+        finalGeschlecht = match[0].toLowerCase() === 'herrn' ? 'herr' : match[0].toLowerCase();
+        const namePart = trimmedLine.substring(match[0].length).trim();
+        if (namePart) {
+          const nameWords = namePart.split(/\s+/).filter(Boolean);
+          if (nameWords.length === 1) finalNachname = nameWords[0];
+          else if (nameWords.length > 1) {
+            finalVorname = nameWords[0];
+            finalNachname = nameWords[nameWords.length - 1];
+          }
+        }
+        found = true;
+        break;
+      }
+    }
+
+    let hauptAnrede = 'Sehr geehrte Damen und Herren,';
+    if (found && finalNachname) {
+      hauptAnrede = (finalGeschlecht === 'herr') ? `Sehr geehrter Herr ${finalNachname}` : `Sehr geehrte Frau ${finalNachname}`;
+    }
+    if (!isEditing) anredeBtn.textContent = hauptAnrede.trim() + ',';
+
+    anredeOptions.querySelectorAll('div').forEach(option => {
+      const template = option.dataset.template;
+      let newText = template;
+      if (found) {
+        newText = template
+          .replace('[Vorname]', finalVorname || finalNachname)
+          .replace('[Nachname]', finalNachname)
+          .replace('[Name]', `${finalVorname} ${finalNachname}`.trim());
+        if (template.includes('Sehr geehrte/r')) {
+          newText = (finalGeschlecht === 'herr' && finalNachname) ? `Sehr geehrter Herr ${finalNachname}` : ((finalGeschlecht === 'frau' && finalNachname) ? `Sehr geehrte Frau ${finalNachname}` : template);
+        }
+      }
+      option.textContent = newText;
+    });
+  }
+  anschriftzone.addEventListener('input', updateAnredeDynamisch);
+  updateAnredeDynamisch();
+
+  // Dropdown-Verhalten aus Ihrer Vorlage
+  dropdown.addEventListener('mouseenter', () => !isEditing && dropdown.classList.add('show'));
+  dropdown.addEventListener('mouseleave', () => !isEditing && dropdown.classList.remove('show'));
+  
+  anredeBtn.addEventListener('click', (e) => {
+    if (!isEditing) {
+      isEditing = true;
+      anredeBtn.setAttribute('contenteditable', 'true');
+      anredeBtn.classList.add('anrede-editing');
+      dropdown.classList.remove('show');
+      anredeBtn.focus();
+      e.stopPropagation();
+    }
+  });
+
+  anredeBtn.addEventListener('blur', () => {
+    setTimeout(() => {
+      isEditing = false;
+      anredeBtn.setAttribute('contenteditable', 'false');
+      anredeBtn.classList.remove('anrede-editing');
+    }, 150);
+  });
+
+  anredeOptions.addEventListener('mousedown', (e) => {
+    if (e.target.closest('div[data-template]')) {
+      anredeBtn.textContent = e.target.closest('div[data-template]').textContent.trim() + ',';
+      isEditing = false;
+      anredeBtn.setAttribute('contenteditable', 'false');
+      anredeBtn.classList.remove('anrede-editing');
+      dropdown.classList.remove('show');
+      e.preventDefault();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
+

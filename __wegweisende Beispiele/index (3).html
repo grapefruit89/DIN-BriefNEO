@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIN 5008 Brief-Generator</title>
+    <style>
+        /* 
+         * ==========================================
+         * CORE VARIABLES & RESET
+         * ==========================================
+         */
+        :root {
+            --bg-app: #e9ecef;
+            --bg-sidebar: #2c3e50;
+            --text-sidebar: #ecf0f1;
+            --accent: #3498db;
+            --accent-hover: #2980b9;
+            --paper-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            
+            /* DIN 5008 MEASUREMENTS (MM) */
+            --paper-width: 210mm;
+            --paper-height: 297mm;
+            --margin-left: 25mm;
+            --margin-right: 20mm;
+            
+            /* Form B (Default) - 50mm header */
+            --pos-address-top: 50mm;
+            --pos-fold-1: 105mm;
+            
+            /* Font Sizes & Family */
+            --font-stack: 'Aptos', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+            --font-body: 11pt;
+            --font-zone1: 8pt;
+        }
+
+        /* Form A Override - 32mm header */
+        body.layout-form-a {
+            --pos-address-top: 32mm;
+            --pos-fold-1: 87mm;
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            font-family: var(--font-stack);
+            background-color: var(--bg-app); 
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* 
+         * ==========================================
+         * SIDEBAR UI
+         * ==========================================
+         */
+        #sidebar {
+            width: 320px;
+            background-color: var(--bg-sidebar);
+            color: var(--text-sidebar);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 200;
+        }
+        
+        #sidebar h1 { font-size: 1.2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 10px; }
+        #sidebar h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin-top: 2rem; border-bottom: 1px solid #34495e; padding-bottom: 5px; }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+            text-decoration: none;
+            justify-content: center;
+            font-family: var(--font-stack);
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 1px solid #7f8c8d; color: #bdc3c7; }
+        .btn-outline:hover { border-color: white; color: white; }
+
+        .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-item { 
+            background: #34495e; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            border-radius: 4px; 
+            font-size: 0.85rem; 
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+        .history-item:hover { border-left-color: var(--accent); background: #3e5871; }
+        .history-date { font-size: 0.7rem; color: #95a5a6; display: block; margin-bottom: 3px; }
+
+        /* 
+         * ==========================================
+         * MAIN PREVIEW AREA
+         * ==========================================
+         */
+        #preview {
+            flex-grow: 1;
+            overflow: auto;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* 
+         * ==========================================
+         * THE SHEET (WYSIWYG)
+         * ==========================================
+         */
+        #sheet {
+            width: var(--paper-width);
+            min-height: var(--paper-height); /* Allow growth */
+            height: auto;
+            background: white;
+            box-shadow: var(--paper-shadow);
+            position: relative;
+            padding-left: var(--margin-left);
+            padding-right: var(--margin-right);
+            /* Reset font for print precision */
+            font-size: var(--font-body);
+            font-family: var(--font-stack);
+            line-height: 1.4;
+            color: black;
+            /* Ensure long words break nicely */
+            word-wrap: break-word; 
+        }
+
+        /* Page Break Visual Marker (No Print) */
+        .page-break-marker {
+            position: absolute;
+            top: 297mm;
+            left: 0;
+            width: 100%;
+            border-bottom: 2px dashed #ff6b6b;
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: 50;
+        }
+        .page-break-marker::after {
+            content: "Seitenende (Seite 1)";
+            position: absolute;
+            right: 10px;
+            top: -20px;
+            color: #ff6b6b;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Helpers for contenteditable */
+        [contenteditable] { outline: none; }
+        [contenteditable]:hover { background: rgba(52, 152, 219, 0.05); }
+        [contenteditable]:focus { background: rgba(52, 152, 219, 0.1); }
+        [contenteditable][readonly] { cursor: default; background: transparent !important; }
+
+        /* --- DIN ELEMENTS --- */
+
+        /* 1. Fold Marks */
+        .mark { position: absolute; left: 8mm; width: 5mm; border-top: 1px solid #000; pointer-events: none; }
+        .mark-loch { top: 148.5mm; width: 7mm; } 
+        .mark-fold-1 { top: var(--pos-fold-1); } 
+        .mark-fold-2 { top: 210mm; } 
+
+        /* 2. Sender Block */
+        #sender-block {
+            position: absolute;
+            top: 20mm;
+            right: 20mm;
+            width: 75mm;
+            text-align: right;
+            font-size: 9pt;
+        }
+
+        /* 3. Address Window */
+        #address-window {
+            position: absolute;
+            top: var(--pos-address-top);
+            left: 20mm;
+            width: 85mm;
+            height: 45mm;
+        }
+
+        #zone-1 {
+            height: 5mm;
+            font-size: var(--font-zone1);
+            text-decoration: underline;
+            white-space: nowrap;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            color: #000;
+        }
+
+        #zone-2 {
+            margin-top: 2mm; 
+            height: 38mm;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        /* 4. Meta Block */
+        #meta-block {
+            position: absolute;
+            top: calc(var(--pos-address-top) + 45mm + 8.46mm); 
+            right: 20mm;
+            text-align: right;
+        }
+
+        /* 5. Content Area */
+        #content-area {
+            position: absolute;
+            top: calc(var(--pos-address-top) + 45mm + 25mm); 
+            left: var(--margin-left);
+            right: var(--margin-right);
+            bottom: 20mm; /* Initial bottom constraint, but flex allows overflow visually if sheet grows */
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
+
+        #subject { font-weight: bold; margin-bottom: 2em; }
+        #letter-body { min-height: 40mm; margin-bottom: 10mm; }
+        #letter-greeting { margin-bottom: 15mm; }
+        
+        /* 
+         * ==========================================
+         * AUTOCOMPLETE DROPDOWN
+         * ==========================================
+         */
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 999;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #d4d4d4;
+            font-size: 0.9rem;
+        }
+
+        .autocomplete-suggestion:hover { background-color: #e9e9e9; }
+        .autocomplete-suggestion strong { font-weight: bold; color: var(--accent); }
+
+        /* 
+         * ==========================================
+         * MODAL
+         * ==========================================
+         */
+        dialog {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 0;
+            width: 450px;
+            max-width: 90vw;
+            background: white;
+        }
+        dialog::backdrop { background: rgba(0,0,0,0.5); }
+        .modal-header { background: var(--bg-sidebar); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; color: #2c3e50; }
+        .radio-group { display: flex; gap: 15px; flex-wrap: wrap; }
+        .radio-group label { font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; background: white; }
+        .hint { font-size: 0.8rem; color: #7f8c8d; margin-top: 5px; }
+
+        /* 
+         * ==========================================
+         * PRINT
+         * ==========================================
+         */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            body { background: white; height: auto; display: block; }
+            #sidebar, .no-print, dialog, .page-break-marker, .autocomplete-suggestions { display: none !important; }
+            #preview { padding: 0; display: block; }
+            #sheet {
+                box-shadow: none;
+                width: 210mm;
+                /* Ensure multi-page print works if content overflows */
+                min-height: 296mm; 
+                margin: 0;
+                page-break-after: always;
+            }
+            [contenteditable] { background: transparent !important; }
+        }
+        
+        .icon { width: 18px; height: 18px; fill: currentColor; }
+    </style>
+</head>
+<body class="layout-form-b">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="no-print">
+        <h1>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M16,11V13H8V11H16M16,15V17H8V15H16M13,19V17H14V19H13M8,19V17H11V19H8Z"/></svg>
+            DIN 5008
+        </h1>
+
+        <button class="btn" onclick="window.print()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M18,3H6V7H18M19,12A1,1 0 0,1 18,11A1,1 0 0,1 19,10A1,1 0 0,1 20,11A1,1 0 0,1 19,12M16,19H8V14H16M19,8H5A3,3 0 0,0 2,11V17H6V21H18V17H22V11A3,3 0 0,0 19,8Z"/></svg>
+            Drucken / PDF
+        </button>
+
+        <button class="btn btn-outline" onclick="App.openSettings()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>
+            Einstellungen
+        </button>
+
+        <h2>Daten</h2>
+        <button class="btn btn-outline" onclick="App.exportData()">JSON Export</button>
+        <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">JSON Import</button>
+        <input type="file" id="importFile" style="display:none" onchange="App.importData(this)">
+
+        <h2>Verlauf</h2>
+        <ul id="history-list" class="history-list"></ul>
+    </aside>
+
+    <!-- PREVIEW AREA -->
+    <main id="preview">
+        <div id="sheet">
+            <!-- Layout Marker -->
+            <div class="page-break-marker"></div>
+
+            <!-- DIN Marks -->
+            <div class="mark mark-fold-1"></div>
+            <div class="mark mark-loch"></div>
+            <div class="mark mark-fold-2"></div>
+
+            <!-- Sender Block -->
+            <div id="sender-block" contenteditable="true">
+                <strong>Max Mustermann</strong><br>
+                Musterstraße 12<br>
+                12345 Musterstadt<br>
+                Tel: 0123 456789<br>
+                Email: max@example.com
+            </div>
+
+            <!-- Address Window -->
+            <div id="address-window">
+                <div id="zone-1" contenteditable="false" readonly></div>
+                <div id="zone-2" contenteditable="true" data-placeholder="Empfänger Adresse">
+                    Frau<br>
+                    Erika Mustermann<br>
+                    Musterweg 99<br>
+                    98765 Musterhausen
+                </div>
+            </div>
+
+            <!-- Meta Block -->
+            <div id="meta-block" contenteditable="true">
+                <span id="date-field">01.01.2024</span>
+            </div>
+
+            <!-- Content Area -->
+            <div id="content-area">
+                <div id="subject" contenteditable="true">Betreff: Ihr Schreiben vom...</div>
+                <div id="letter-body" contenteditable="true">
+                    <p>Sehr geehrte Frau Mustermann,</p>
+                    <p>dies ist ein Beispieltext. Klicken Sie hier, um den Inhalt zu bearbeiten. Der Textbereich passt sich automatisch an.</p>
+                </div>
+                <div id="letter-greeting" contenteditable="true">
+                    Mit freundlichen Grüßen
+                </div>
+                <div id="letter-signature" contenteditable="true">
+                    Max Mustermann
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SETTINGS MODAL -->
+    <dialog id="settings-modal">
+        <div class="modal-header">
+            <span>Einstellungen</span>
+            <button onclick="App.closeSettings()" style="background:none;border:none;color:white;cursor:pointer;font-size:1.2rem">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- 1. Layout -->
+            <div class="form-group">
+                <label>Papier Layout</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="layout" value="form-b" checked onchange="App.saveSetting('layout', 'form-b')"> 
+                        Form B (50mm Header)
+                    </label>
+                    <label>
+                        <input type="radio" name="layout" value="form-a" onchange="App.saveSetting('layout', 'form-a')"> 
+                        Form A (32mm Header)
+                    </label>
+                </div>
+            </div>
+
+            <!-- 2. Date Format -->
+            <div class="form-group">
+                <label>Datumsformat</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="dateFormat" value="de" checked onchange="App.saveSetting('dateFormat', 'de')"> 
+                        DE (dd.mm.yyyy)
+                    </label>
+                    <label>
+                        <input type="radio" name="dateFormat" value="iso" onchange="App.saveSetting('dateFormat', 'iso')"> 
+                        ISO (yyyy-mm-dd)
+                    </label>
+                </div>
+            </div>
+
+            <!-- 3. Address Provider -->
+            <div class="form-group">
+                <label>Adress-Autovervollständigung</label>
+                <select id="provider-select" onchange="App.updateProviderUI(this.value)">
+                    <option value="photon">Photon (OpenStreetMap) - Kostenlos</option>
+                    <option value="geoapify">Geoapify - API Key erforderlich</option>
+                </select>
+                <div class="hint">Photon ist open-source. Geoapify ist präziser für Hausnummern.</div>
+            </div>
+
+            <div class="form-group" id="api-key-group" style="display:none">
+                <label>Geoapify API Key</label>
+                <input type="text" id="api-key-input" placeholder="Ihr API Key..." onchange="App.saveSetting('apiKey', this.value)">
+                <div class="hint"><a href="https://www.geoapify.com/" target="_blank">Key hier erstellen</a></div>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        const App = {
+            config: {
+                layout: 'form-b',
+                dateFormat: 'de',
+                addressProvider: 'photon', // 'photon' or 'geoapify'
+                apiKey: ''
+            },
+            
+            elements: {},
+            autocompleteDebounce: null,
+
+            init() {
+                // DOM Elements
+                this.elements = {
+                    sender: document.getElementById('sender-block'),
+                    zone1: document.getElementById('zone-1'),
+                    zone2: document.getElementById('zone-2'),
+                    dateField: document.getElementById('date-field'),
+                    historyList: document.getElementById('history-list'),
+                    modal: document.getElementById('settings-modal'),
+                    subject: document.getElementById('subject'),
+                    body: document.getElementById('letter-body'),
+                    greeting: document.getElementById('letter-greeting'),
+                    signature: document.getElementById('letter-signature'),
+                    providerSelect: document.getElementById('provider-select'),
+                    apiKeyGroup: document.getElementById('api-key-group'),
+                    apiKeyInput: document.getElementById('api-key-input')
+                };
+
+                // Load Config
+                const savedConfig = localStorage.getItem('din5008_config');
+                if (savedConfig) {
+                    this.config = { ...this.config, ...JSON.parse(savedConfig) };
+                }
+                
+                // UI & State Init
+                this.applyConfigUI();
+                this.updateBackAddress();
+                this.updateDate();
+                this.renderHistory();
+
+                // Event Listeners
+                this.elements.sender.addEventListener('input', () => this.updateBackAddress());
+                this.elements.zone2.addEventListener('input', (e) => this.handleAddressInput(e));
+                
+                // Print Hook (Silent Save)
+                window.addEventListener('beforeprint', () => this.saveSnapshot(true));
+
+                // Click outside to close autocomplete
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.autocomplete-suggestions') && e.target !== this.elements.zone2) {
+                        this.closeAutocomplete();
+                    }
+                });
+            },
+
+            /* --- SETTINGS & CONFIG --- */
+            openSettings() { this.elements.modal.showModal(); },
+            closeSettings() { this.elements.modal.close(); },
+
+            saveSetting(key, value) {
+                this.config[key] = value;
+                this.saveConfig();
+                
+                if (key === 'layout') document.body.className = value === 'form-a' ? 'layout-form-a' : 'layout-form-b';
+                if (key === 'dateFormat') this.updateDate();
+            },
+
+            updateProviderUI(value) {
+                this.config.addressProvider = value;
+                this.saveConfig();
+                this.elements.apiKeyGroup.style.display = value === 'geoapify' ? 'block' : 'none';
+            },
+
+            saveConfig() {
+                localStorage.setItem('din5008_config', JSON.stringify(this.config));
+            },
+
+            applyConfigUI() {
+                // Radio buttons
+                const layoutBtn = document.querySelector(`input[name="layout"][value="${this.config.layout}"]`);
+                if(layoutBtn) layoutBtn.checked = true;
+                document.body.className = this.config.layout === 'form-a' ? 'layout-form-a' : 'layout-form-b';
+
+                const dateBtn = document.querySelector(`input[name="dateFormat"][value="${this.config.dateFormat}"]`);
+                if(dateBtn) dateBtn.checked = true;
+
+                // Address Provider
+                this.elements.providerSelect.value = this.config.addressProvider;
+                this.elements.apiKeyInput.value = this.config.apiKey;
+                this.elements.apiKeyGroup.style.display = this.config.addressProvider === 'geoapify' ? 'block' : 'none';
+            },
+
+            /* --- LOGIC: AUTOCOMPLETE --- */
+            handleAddressInput(e) {
+                const query = e.target.innerText;
+                // Only search if length > 3 and not currently processing command
+                if (query.length < 3) {
+                    this.closeAutocomplete();
+                    return;
+                }
+
+                clearTimeout(this.autocompleteDebounce);
+                this.autocompleteDebounce = setTimeout(() => this.fetchSuggestions(query), 400);
+            },
+
+            async fetchSuggestions(query) {
+                try {
+                    let url = '';
+                    if (this.config.addressProvider === 'photon') {
+                        // Photon (OSM)
+                        url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=de&limit=5`;
+                    } else {
+                        // Geoapify
+                        if (!this.config.apiKey) return;
+                        url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${this.config.apiKey}&limit=5&lang=de`;
+                    }
+
+                    const response = await fetch(url);
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    
+                    this.renderSuggestions(data.features);
+
+                } catch (err) {
+                    console.error("Address fetch error", err);
+                }
+            },
+
+            renderSuggestions(features) {
+                this.closeAutocomplete();
+                if (!features || features.length === 0) return;
+
+                const list = document.createElement('div');
+                list.className = 'autocomplete-suggestions';
+                
+                // Position logic
+                const rect = this.elements.zone2.getBoundingClientRect();
+                list.style.top = (rect.bottom + window.scrollY) + 'px';
+                list.style.left = (rect.left + window.scrollX) + 'px';
+                list.style.width = rect.width + 'px';
+
+                features.forEach(feature => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-suggestion';
+                    
+                    let displayHTML = '';
+                    let addressObj = {};
+
+                    if (this.config.addressProvider === 'photon') {
+                        const p = feature.properties;
+                        // Format: Name, Street Hnr, Zip City
+                        const name = p.name || '';
+                        const street = p.street || '';
+                        const hnr = p.housenumber || '';
+                        const zip = p.postcode || '';
+                        const city = p.city || '';
+                        
+                        displayHTML = `<strong>${name}</strong> ${street} ${hnr}, ${zip} ${city}`;
+                        addressObj = { name, street, hnr, zip, city };
+                    } else {
+                        // Geoapify
+                        const p = feature.properties;
+                        displayHTML = p.formatted;
+                        addressObj = {
+                            formatted: p.formatted,
+                            isGeoapify: true
+                        };
+                    }
+
+                    item.innerHTML = displayHTML;
+                    item.onclick = () => this.selectAddress(addressObj);
+                    list.appendChild(item);
+                });
+
+                document.body.appendChild(list);
+            },
+
+            selectAddress(addr) {
+                let textToInsert = '';
+                
+                if (addr.isGeoapify) {
+                    // Geoapify formatted usually has commas
+                    textToInsert = addr.formatted.split(', ').join('<br>');
+                } else {
+                    // Photon manual format construction
+                    const line1 = addr.name;
+                    const line2 = `${addr.street} ${addr.hnr}`.trim();
+                    const line3 = `${addr.zip} ${addr.city}`.trim();
+                    
+                    let parts = [];
+                    if(line1) parts.push(line1);
+                    if(line2) parts.push(line2);
+                    if(line3) parts.push(line3);
+                    
+                    textToInsert = parts.join('<br>');
+                }
+
+                // Focus zone2
+                this.elements.zone2.focus();
+                
+                // Native Undo Support: Select all and replace
+                // Note: contenteditable handling is tricky. We try to execute command.
+                document.execCommand('selectAll', false, null);
+                document.execCommand('insertHTML', false, textToInsert);
+                
+                this.closeAutocomplete();
+            },
+
+            closeAutocomplete() {
+                const existing = document.querySelector('.autocomplete-suggestions');
+                if (existing) existing.remove();
+            },
+
+            /* --- LOGIC: SMART BACK ADDRESS --- */
+            updateBackAddress() {
+                const fullText = this.elements.sender.innerText.trim();
+                if (!fullText) {
+                    this.elements.zone1.innerText = "";
+                    return;
+                }
+
+                let lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
+                // Filter out labels
+                lines = lines.filter(l => !/^(tel|fax|email|web)/i.test(l));
+
+                let singleLine = lines.join(' - ');
+
+                // Abbreviate if too long (approx 60 chars)
+                if (singleLine.length > 60) {
+                    singleLine = singleLine.replace(/Straße/g, 'Str.').replace(/straße/g, 'str.');
+                }
+                
+                // Safe Set
+                this.elements.zone1.innerText = singleLine;
+            },
+
+            /* --- HELPERS --- */
+            updateDate() {
+                const now = new Date();
+                let dateStr = "";
+                if (this.config.dateFormat === 'iso') {
+                    dateStr = now.toISOString().split('T')[0];
+                } else {
+                    dateStr = now.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                }
+                this.elements.dateField.innerText = dateStr;
+            },
+
+            /* --- HISTORY & IO --- */
+            saveSnapshot(silent = false) {
+                const history = JSON.parse(localStorage.getItem('din5008_history') || '[]');
+                const snapshot = {
+                    id: Date.now(),
+                    date: new Date().toLocaleString(),
+                    sender: this.elements.sender.innerHTML,
+                    recipient: this.elements.zone2.innerHTML,
+                    subject: this.elements.subject.innerHTML,
+                    body: this.elements.body.innerHTML,
+                    greeting: this.elements.greeting.innerHTML,
+                    signature: this.elements.signature.innerHTML
+                };
+                
+                history.unshift(snapshot);
+                if (history.length > 10) history.pop();
+                
+                localStorage.setItem('din5008_history', JSON.stringify(history));
+                if (!silent) this.renderHistory();
+            },
+
+            renderHistory() {
+                const history = JSON.parse(localStorage.getItem('din5008_history') || '[]');
+                this.elements.historyList.innerHTML = history.map(item => `
+                    <li class="history-item" onclick="App.loadHistoryItem(${item.id})">
+                        <span class="history-date">${item.date}</span>
+                        <strong>${this.stripTags(item.recipient).split('\n')[0] || 'Unbekannt'}</strong><br>
+                        ${this.stripTags(item.subject).substring(0, 20)}...
+                    </li>
+                `).join('');
+            },
+
+            loadHistoryItem(id) {
+                const history = JSON.parse(localStorage.getItem('din5008_history') || '[]');
+                const item = history.find(i => i.id === id);
+                if (item && confirm('Möchten Sie diesen Stand laden? Aktuelle Änderungen gehen verloren.')) {
+                    this.elements.sender.innerHTML = item.sender || '';
+                    this.elements.zone2.innerHTML = item.recipient || '';
+                    this.elements.subject.innerHTML = item.subject || '';
+                    this.elements.body.innerHTML = item.body || '';
+                    this.elements.greeting.innerHTML = item.greeting || '';
+                    this.elements.signature.innerHTML = item.signature || '';
+                    this.updateBackAddress();
+                }
+            },
+
+            exportData() {
+                const data = {
+                    config: this.config,
+                    history: JSON.parse(localStorage.getItem('din5008_history') || '[]'),
+                    current: {
+                        sender: this.elements.sender.innerHTML,
+                        recipient: this.elements.zone2.innerHTML,
+                        subject: this.elements.subject.innerHTML,
+                        body: this.elements.body.innerHTML,
+                        greeting: this.elements.greeting.innerHTML,
+                        signature: this.elements.signature.innerHTML
+                    }
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `brief_backup_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+            },
+
+            importData(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.config) {
+                            this.config = data.config;
+                            this.saveConfig();
+                            this.applyConfigUI();
+                        }
+                        if (data.history) localStorage.setItem('din5008_history', JSON.stringify(data.history));
+                        if (data.current) {
+                            this.elements.sender.innerHTML = data.current.sender || '';
+                            this.elements.zone2.innerHTML = data.current.recipient || '';
+                            this.elements.subject.innerHTML = data.current.subject || '';
+                            this.elements.body.innerHTML = data.current.body || '';
+                            this.elements.greeting.innerHTML = data.current.greeting || '';
+                            this.elements.signature.innerHTML = data.current.signature || '';
+                        }
+                        this.renderHistory();
+                        this.updateBackAddress();
+                        alert('Import erfolgreich!');
+                    } catch (err) { alert('Ungültige Datei.'); }
+                };
+                reader.readAsText(file);
+            },
+
+            stripTags(html) {
+                let tmp = document.createElement("DIV");
+                tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || "";
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+</html>

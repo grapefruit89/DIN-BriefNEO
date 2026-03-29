@@ -22,7 +22,7 @@ Fokussiere dich auf folgende "Wunden" und architektonische Risiken:
 1. HYPER-MODERNISMUS: Wir setzen auf eine Chrome 147+ Baseline (Temporal API, Math.sumPrecise, field-sizing: content, CSS :has(), Invoker Commands). Ist das technischer Purismus oder ein strategisches Himmelfahrtskommando bezüglich Browser-Kompatibilität?
 2. IMR 4.0 (Isomorphic Master Registry): Das gesamte System basiert auf einer strikten 1:1 Abbildung von Custom-HTML-Tags (<din-*>) auf JSON-Keys. Wo liegen die Grenzen dieser "Atomistischen" Architektur bei komplexen Layout-Sprüngen (Form A vs. B)?
 3. ZERO-JS DOCTRINE: Die UI-Logik wird fast vollständig in CSS (State-Management via :has() auf Radio-Buttons) ausgelagert. Wo bricht dieses Muster bei der Barrierefreiheit (A11y) und bei komplexen Form-Validierungen?
-4. GHOST-MIRROR & EDITCONTEXT: Für Markdown-Rendering nutzen wir eine Dual-Layer-Struktur (EditContext -> State -> GhostMirror). Ist diese Entkopplung "Aviation-Grade" Robustheit oder unnötige Komplexität?
+4. GHOST-MIRROR & EDITCONTEXT: Für Markdown-Rendering nutzen wir eine Dual-Layer-Struktur (EditContext -> State -> GhostMirror). Ist diese Entkopplung eine robuste Lösung oder unnötige Komplexität?
 
 Lege den Finger in die Wunde: Wo ist das Projekt über-engineered? Wo widerspricht die "Bleeding Edge"-Nutzung gängigen Best Practices der Web-Entwicklung?
 ```
@@ -158,7 +158,7 @@ Das ist die Antwort von Grok
 ## Response:
 Gedanken für 22s
 
-**High-Integrity Systems Engineering Review: DIN-BriefNEO v4.0** **Scope**: Pure conceptual analysis. No code references. Focus on architectural trade-offs under “aviation-grade” integrity mandates (zero data loss, zero pixel drift, zero injection, Chrome 147+ baseline).
+**High-Integrity Systems Engineering Review: DIN-BriefNEO v4.0** **Scope**: Pure conceptual analysis. No code references. Focus on architectural trade-offs under high-integrity mandates (zero data loss, zero pixel drift, zero injection, Chrome 147+ baseline).
 
 The architecture is a radical, uncompromising pursuit of **purity and determinism**. It treats a simple DIN-5008 letter generator like a safety-critical flight-control system: every decision is subordinated to the “High-Integrity” constitution (IMR 4.0 as SSoT, CMA as geometric single source of truth, plaintext-only + native APIs as security perimeter). This creates a remarkably coherent, low-bloat system — but it also introduces brittleness exactly where the mandates bite hardest.
 
@@ -256,7 +256,7 @@ STRIKTES CODE-VERBOT in der Antwort. Konzentriere dich auf die logische Konsiste
 Analysiere folgende Inkonsistenzen:
 
 1. STATE-DOM-DISSASOZIATION: Der UIController synchronisiert den Proxy-State via _syncAllToDOM() zurück in Datasets. Besteht hier ein Race-Condition-Risiko mit dem EditContext, der parallel den Buffer verwaltet?
-2. TERMINOLOGIE-DRIFT: Das Projekt nutzt Begriffe wie "IMR 4.0", "Aviation-Grade" und "Fiskale Integrität". Ist die technische Realität (einfaches Mapping von Strings) konsistent mit diesem hochtrabenden Vokabular oder ist das technisches Marketing-Bluffing?
+2. TERMINOLOGIE-DRIFT: Das Projekt nutzt Begriffe wie "IMR 4.0", "High-Integrity" und "Fiskale Integrität". Ist die technische Realität (einfaches Mapping von Strings) konsistent mit diesem hochtrabenden Vokabular oder ist das technisches Marketing-Bluffing?
 3. INVOKER COMMANDS: Die Nutzung von `commandfor` und `command` Attributen ist extrem früh (Bleeding Edge). Wie sicher ist das Error-Handling, wenn die Engine im Browser noch unvollständig implementiert ist? 
 4. ATOMIC IDENTITY: Die Aufteilung von Namen in FN (Firstname) und LN (Lastname) in der IMR Registry bei gleichzeitiger Nutzung einer "Salutation-Engine". Wo führt diese Granularität zu logischen Sackgassen bei internationalen Namensformaten?
 
@@ -301,14 +301,14 @@ Zeit t3: _syncAllToDOM() überschreibt möglicherweise gerade fokussierte Felder
 
 ---
 
-## 2. TERMINOLOGIE-DRIFT: "Aviation-Grade" vs. Realität
+## 2. TERMINOLOGIE-DRIFT: "High-Integrity" vs. Realität
 
 ### Die Behaupteten Prinzipien
 
 | Begriff | Versprochen | Technische Realität | Diskrepanz |
 |---------|-------------|---------------------|------------|
 | **IMR 4.0** | "Isomorphic Master Registry" – strikte 1:1-Isomorphie | Ein Array von 19 Einträgen mit `tag`, `key`, `editContext` | Keine echte Isomorphie – nur ein Lookup-Table. Ein "Isomorphismus" wäre ein mathematischer Beweis, nicht ein einfaches Mapping. |
-| **Aviation-Grade** | "Fehler müssen strukturell unmöglich sein" | Keine formalen Proofs, keine Model Checking, keine Runtime-Verifikation | Marketing. Aviation-Grade erfordert DO-178C-Level-Zertifizierung – kein Webprojekt erreicht das. |
+| **High-Integrity** | "Fehler müssen strukturell unmöglich sein" | Keine formalen Proofs, keine Model Checking, keine Runtime-Verifikation | Marketing. High-Integrity erfordert DO-178C-Level-Zertifizierung – kein Webprojekt erreicht das. |
 | **Fiskale Integrität** | "Zero-Loss Data Persistence" | OPFS-Journaling + BroadcastChannel + IdleDetector | Technisch solide, aber "Fiskale Integrität" ist ein enorm überladener Begriff für eine Browser-Storage-Lösung. |
 | **Zero-JS UI Doctrine** | "Kein JavaScript für UI-Toggles" | CSS `:has()` + Radio-Buttons | **Erfüllt.** Das ist tatsächlich beeindruckend und konsistent umgesetzt. |
 
@@ -412,7 +412,7 @@ const name = nameParts.length ? nameParts[nameParts.length - 1] : "";
 
 Das System **erzwingt** ein westliches Namensschema. Ein Nutzer aus Ungarn oder Japan kann nicht einfach die Feld-Reihenfolge tauschen. Die einzige Lösung wäre, beide Felder zusammenzuführen – was die Granularität ad absurdum führt.
 
-**Bewertung:** Die Granularität ist **technisch beeindruckend** aber **kulturell naiv**. Für ein deutsches DIN-Projekt ist das akzeptabel. Für "Aviation-Grade" (internationaler Einsatz) wäre eine Kultur-Konfiguration notwendig.
+Bewertung: Die Granularität ist technisch beeindruckend aber kulturell naiv. Für ein deutsches DIN-Projekt ist das akzeptabel. Für "High-Integrity" (internationaler Einsatz) wäre eine Kultur-Konfiguration notwendig.
 
 ---
 
@@ -433,7 +433,7 @@ Das System **erzwingt** ein westliches Namensschema. Ein Nutzer aus Ungarn oder 
 ### 3. Dokumentations-Overhead vs. Code-Simplicität
 - Die `.brain/`-Ordner enthalten **hunderte Seiten Spezifikation** für ein Projekt mit ~800 Zeilen JS
 - Das Verhältnis **Dokumentation:Code** ist extrem hoch (>5:1)
-- Ein neuer Contributor bräuchte Tage, um die "Aviation Grade"-Semantik zu verstehen
+- Ein neuer Entwickler bräuchte Tage, um die hochtrabende Semantik zu verstehen.
 
 ### 4. Die größte Inkonsistenz: "Zero-JS" vs. 800 Zeilen JS
 Das Projekt **behauptet** "Zero-JS UI Doctrine", hat aber:
@@ -453,8 +453,8 @@ Das Projekt **behauptet** "Zero-JS UI Doctrine", hat aber:
 |-----------|-----------|------------|
 | **Technische Qualität** | 8/10 | Sauberer Code, moderne APIs, gute Trennung |
 | **Architektur-Konsistenz** | 6/10 | Dualer State (Proxy + DOM) ist inkonsistent |
-| **Terminologie-Integrität** | 5/10 | "Aviation-Grade" überladen, "Zero-JS" irreführend |
+| **Terminologie-Integrität** | 5/10 | "High-Integrity" überladen, "Zero-JS" irreführend |
 | **Produktionsreife** | 7/10 | Funktioniert im Chrome-Kosmos, aber fragil |
 | **Wartbarkeit für Dritte** | 4/10 | Hohe Einstiegshürde durch exotische Tech-Stack-Wahl |
 
-**Das Projekt ist ein beeindruckendes technisches Kunststück, das an der Grenze des Möglichen operiert.** Aber es opfert Stabilität, Browser-Kompatibilität und Verständlichkeit für die Verwendung der neuesten Features. Es ist eher ein **Proof of Concept für Chrome 147+** als eine robuste "Aviation-Grade" Produktionsanwendung.
+**Das Projekt ist ein beeindruckendes technisches Kunststück, das an der Grenze des Möglichen operiert.** Aber es opfert Stabilität, Browser-Kompatibilität und Verständlichkeit für die Verwendung der neuesten Features. Es ist eher ein Proof of Concept für Chrome 147+ als eine robuste "High-Integrity" Produktionsanwendung.ung.

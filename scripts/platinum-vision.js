@@ -10,7 +10,7 @@ async function runVisionCheck() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1200, height: 1600 },
-    deviceScaleFactor: 2, // Hi-DPI für Aviation Grade Screenshots
+    deviceScaleFactor: 2, // Hi-DPI für High-Quality Screenshots
   });
 
   const page = await context.newPage();

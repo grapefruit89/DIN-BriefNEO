@@ -43,7 +43,7 @@ Dieses Dokument enthÃ¤lt das ultimative Audit-Skript zur Verifikation der "Hig
 
         // 3. PERSISTENZ & SYNC (Autonomous STORAGE)
         { name: 'Web Locks API', check: () => !!navigator.locks, test: () => typeof navigator.locks.request === 'function', desc: 'Multi-Tab State Protection' },
-        { name: 'IdleDetector API', check: () => !!globalThis.IdleDetector, test: () => true, desc: 'Aviation-Grade Autosave' },
+        { name: 'IdleDetector API', check: () => !!globalThis.IdleDetector, test: () => true, desc: 'Robust Autosave' },
         { name: 'OPFS (Native FS)', check: () => !!navigator.storage && !!navigator.storage.getDirectory, test: () => true, desc: 'Autonomous Data Storage' },
         { name: 'BroadcastChannel', check: () => !!globalThis.BroadcastChannel, test: () => true, desc: 'Real-Time Tab Sync' },
         { name: 'Compression Streams', check: () => !!globalThis.CompressionStream, test: () => true, desc: 'Native Daten-Export Kompression' },

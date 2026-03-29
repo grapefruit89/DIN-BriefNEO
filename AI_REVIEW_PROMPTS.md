@@ -86,7 +86,7 @@ Aber das Modell hat drei strukturelle Sollbruchstellen:
 
 ---
 
-### 4. GHOST-MIRROR & EDITCONTEXT: Aviation-Grade oder Over-Engineering?
+### 4. GHOST-MIRROR & EDITCONTEXT: Robuste Architektur oder Over-Engineering?
 
 **Ehrliche Antwort: Für den Kern-Use-Case over-engineered. Für die angestrebte Präzision notwendig.**
 
@@ -319,7 +319,7 @@ Das Projekt verwendet **militärisch/industrielle Terminologie** für grundlegen
 - "Content Spiller Protokoll" beschreibt **CSS Pagination** – existiert seit Jahren
 - "Phoenix Protocol" ist ein **BroadcastChannel + Web Locks** – solide, aber kein "Protokoll"
 
-**Bewertung:** Kein "Marketing-Bluffing" – die Technik ist solide. Aber die **Semantik überladt** die tatsächliche Komplexität. Ein neuer Entwickler würde Stunden brauchen, um zu erkennen, dass "Aviation-Grade" einfach "gut getestet" bedeutet.
+**Bewertung:** Kein "Marketing-Bluffing" – die Technik ist solide. Aber die **Semantik überladt** die tatsächliche Komplexität. Ein neuer Entwickler würde Stunden brauchen, um zu erkennen, dass "High-Integrity" einfach "gut getestet" bedeutet.
 
 ---
 

@@ -50,7 +50,7 @@ export const IMR = Object.freeze([
   // 5. Abschluss
   { tag: "din-fusszeile",         key: "footer" },
 
-  // 6. Branding (Aviation Grade Extension)
+  // 6. Branding Extension
   { tag: "din-branding-logo",     key: "brand_logo" },
   { tag: "din-branding-watermark", key: "brand_watermark" },
 ]);

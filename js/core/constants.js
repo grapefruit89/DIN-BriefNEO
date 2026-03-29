@@ -1,5 +1,5 @@
 /**
- * js/core/constants.js — v4.2.0 Specification (IMR 4.0)
+ * js/core/constants.js — v4.0.0 Specification (IMR 4.0)
  * Central Measurement Authority (CMA) — Layer 1: JS Constants
  * ─────────────────────────────────────────────────────────
  */

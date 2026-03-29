@@ -306,7 +306,7 @@ Die Pipeline muss nach jeder Änderung folgende Prüfungen automatisiert durchf�
 ---
 id: SPEC-069
 title: Native Highlight Editor — Paint-Time WYSIWYG
-tags: [aviation-grade, chrome-147, highlight-api, edit-context]
+tags: [chrome-147, highlight-api, edit-context]
 status: cemented
 version: 1.0.0
 traceability: [ADR-012, MANDATE-PLN]
@@ -353,7 +353,7 @@ Die Eingabe erfolgt über die **EditContext API**. Das DOM-Element dient nur als
 ---
 id: SPEC-066
 title: Markdown-Shredder V2 — Zero-Width Ghosting
-tags: [aviation-grade, v4.0-2026, wysiwyg, integrity, css]
+tags: [v4.0-2026, wysiwyg, integrity, css]
 status: draft
 version: 1.0.0
 traceability: [ADR-008, ADR-011, MANDATE-FREEZE]
@@ -432,7 +432,7 @@ const v4.0_SANITIZER_CONFIG = {
 ---
 id: SPEC-057
 title: DOM-First Integrity & Anchor Positioning
-tags: [chrome-147, anchor-positioning, zero-js, aviation-grade]
+tags: [chrome-147, anchor-positioning, zero-js]
 status: active
 version: 1.0.0
 traceability: [MANDATE-NAT, ANTI-026]
@@ -471,7 +471,7 @@ JavaScript soll vollständig von der Live-Synchronisation der Benutzereingaben e
 ---
 id: SPEC-007
 title: Central Measurement Authority (CMA)
-tags: [cma, din-5008, ssot, aviation-grade]
+tags: [cma, din-5008, ssot]
 status: cemented
 weight: 100
 criticality: CRITICAL

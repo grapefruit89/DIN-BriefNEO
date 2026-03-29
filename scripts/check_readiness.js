@@ -25,7 +25,7 @@
     f('CSS calc-size(auto)', CSS.supports('height: calc-size(auto, 100%)'), 'Chrome 129/Stable')
   ];
 
-  const header = `# 🛫 DIN-BriefNEO — Aviation Grade Readiness Report\n` +
+  const header = `# 🛫 DIN-BriefNEO — High-Integrity Readiness Report\n` +
                  `## Baseline: Chrome 147.0+ | Generiert: ${Temporal.Now.plainDateTimeISO().toString()}\n\n` +
                  `| Feature | Status | Baseline | Architektur-Nutzen |\n` +
                  `| :--- | :--- | :--- | :--- |\n`;

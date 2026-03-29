@@ -1,5 +1,5 @@
 ﻿/**
- * js/core/opfs-worker.js â€” Aviation-Grade Journaling Persistence
+ * js/core/opfs-worker.js — High-Integrity Journaling Persistence
  * [SPEC-068] Shadow Paging & Journaling Protocol
  * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Operiert im Dedicated Worker Thread fÃ¼r blockierungsfreie I/O.

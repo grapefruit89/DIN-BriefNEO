@@ -169,7 +169,7 @@ related:
 ---
 id: SPEC-059
 title: Persistence & Desktop PWA Readiness
-tags: [persistence, pwa, auto-save, aviation-grade]
+tags: [persistence, pwa, auto-save]
 status: cemented
 version: 1.0.0
 traceability: [MANDATE-NAT, USER-SOUVEREIGNTY]
@@ -206,7 +206,7 @@ Maximale Datensicherheit durch intelligente Hintergrund-Speicherung und Transfor
 ---
 id: SPEC-058
 title: Startup Performance & UI Polish
-tags: [performance, ux, polish, aviation-grade]
+tags: [performance, ux, polish]
 status: cemented
 version: 1.0.0
 traceability: [ANTI-FOUC, UX-FEEDBACK]
@@ -245,7 +245,7 @@ Die Anwendung muss sofort einsatzbereit wirken. Es darf kein visuelles Flackern 
 ---
 id: SPEC-061
 title: v4.0 Validation Pipeline (PVP)
-tags: [Validation, Security, Integrity, SDD, Aviation-Grade]
+tags: [Validation, Security, Integrity, SDD]
 status: cemented
 version: 1.0.0
 traceability: [MANDATE-INJ, MANDATE-NAT, MANDATE-PLN, MANDATE-FREEZE]
@@ -667,7 +667,7 @@ reserviert werden. Dieser Abstand ist ein DIN-Pflichtmass (Aufnahme in CMA).
 ---
 id: SPEC-029
 title: Multi-Page Pagination & Hybrid Height
-tags: [print, pagination, aviation-grade]
+tags: [print, pagination]
 status: cemented
 version: 2.0.0
 traceability: [DIN-5008-PRINT]
@@ -743,7 +743,7 @@ Klassische Web-Apps nutzen JavaScript, um UI-Zustände (z.B. Layout-Wechsel) zu 
 ---
 id: SPEC-051
 title: Content Integrity & Ghost-Mirror System
-tags: [integrity, markdown, ghost-mirror, aviation-grade]
+tags: [integrity, markdown, ghost-mirror]
 status: active
 version: 1.0.0
 traceability: [ADR-008, DIN-5008-TYPO]
@@ -867,5 +867,8 @@ paper.addEventListener("focusin", e => {
 ---
 **GEZ. LEAD SYSTEMS ARCHITECT**
 "Zero-Pixel-Shift Layout. Natively Tethered Error UI."
+
+---
+ror UI."
 
 ---

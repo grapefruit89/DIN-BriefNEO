@@ -1,4 +1,4 @@
-# SPEC-090-Plan: UI/UX Platinum Polish Implementation
+# SPEC-090-Plan: UI/UX Core Polish Implementation
 
 ## 1. Technisches Design
 Wir veredeln die bestehende CSS-Struktur und fügen eine zentrale Shortcut-Logik hinzu.

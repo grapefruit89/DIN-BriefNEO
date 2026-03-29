@@ -1,4 +1,4 @@
-# AI Architectural Review Prompts: DIN-BriefNEO v4.0 (Platinum)
+# AI Architectural Review Prompts: DIN-BriefNEO v4.0 Standard
 
 Dieses Dokument enthält spezialisierte Prompts für verschiedene KI-Modelle, um ein tiefgehendes, kritisches Architektur-Audit von **DIN-BriefNEO** durchzuführen.
 
@@ -12,7 +12,7 @@ Dieses Dokument enthält spezialisierte Prompts für verschiedene KI-Modelle, um
 ## 1. Claude (Fokus: Semantik, Strategie & Nachhaltigkeit)
 
 ```markdown
-### SYSTEM ARCHITECTURAL AUDIT: DIN-BriefNEO v4.0 (Platinum Edition)
+### SYSTEM ARCHITECTURAL AUDIT: DIN-BriefNEO v4.0 Standard Edition
 
 Führe eine kritische Architektur-Rezension für das Projekt "DIN-BriefNEO" durch. 
 HINWEIS: Poste keinen Code. Ich kenne den Code, du hast Zugriff auf den hochgeladenen Context oder kannst das Projekt-Schema (IMR 4.0) referenzieren.
@@ -133,7 +133,7 @@ Powered by [Claude Exporter](https://www.ai-chat-exporter.net)
 ## 2. Grok (Fokus: Performance, Systems-Engineering & Realitätscheck)
 
 ```markdown
-### CRITICAL SYSTEMS REVIEW: DIN-BriefNEO PLATINUM ENGINE
+### CRITICAL SYSTEMS REVIEW: DIN-BriefNEO v4 CORE ENGINE
 
 Analysiere die System-Architektur von DIN-BriefNEO v4.0 unter dem Aspekt "High-Integrity Systems Engineering". 
 KEIN CODE – nur technische Analyse der Konzepte.

@@ -1,5 +1,5 @@
-// sw.js — DIN-BriefNEO Platinum Service Worker
-const CACHE_NAME = 'neo-platinum-v1';
+// sw.js — DIN-BriefNEO v4 Core Service Worker
+const CACHE_NAME = 'neo-v4-core-v1';
 const ASSETS = [
   '/',
   'index.html',

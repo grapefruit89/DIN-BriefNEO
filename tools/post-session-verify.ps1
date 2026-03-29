@@ -80,11 +80,10 @@ try {
         }
     }
 
-    # -------------------------------------------------------------------------
-    # PLATINUM MANDATE CHECK (SPEC-061)
+    # v4 CORE MANDATE CHECK (SPEC-061)
     # -------------------------------------------------------------------------
     Write-Host ""
-    Write-Host "  [SHIELD] PLATINUM MANDATE CHECK (v16.0.1):" -ForegroundColor Cyan
+    Write-Host "  [SHIELD] v4 CORE MANDATE CHECK (v16.0.1):" -ForegroundColor Cyan
 
     # A. MANDATE-INJ (Zero innerHTML)
     # Ignoriere Zeilen mit // @pvp-ignore: innerHTML

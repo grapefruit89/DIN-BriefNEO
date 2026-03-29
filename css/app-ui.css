@@ -80,7 +80,7 @@
     /* [CMD-8] Allow height:auto transitions */
     interpolate-size: allow-keywords;
 
-    /* [SPEC-090] 7px Platinum Grid System */
+    /* [SPEC-090] 7px Core Grid System */
     --space-unit:        7px;
     --space-xs:          calc(var(--space-unit) * 0.5);
     --space-sm:          var(--space-unit);
@@ -249,7 +249,7 @@
     --din-mark-fold-1: 105mm;
   }
 
-  /* [SPEC-080] JS-Free Placeholders (Platinum 2026 Edition) */
+  /* [SPEC-080] JS-Free Placeholders (v4 Core 2026) */
   [data-placeholder]:is(:empty, :has(> br:only-child))::before {
     content: attr(data-placeholder);
     color: oklch(40% 0.01 250 / 0.4); /* Etwas dunkler für bessere Lesbarkeit */
@@ -565,4 +565,6 @@
     #sidebar-left, .status-bar, .decoder-btn, #btn-decoder-trigger { display: none !important; }
     #paper { box-shadow: none !important; margin: 0 !important; }
   }
+}
+
 }

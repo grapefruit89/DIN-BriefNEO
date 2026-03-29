@@ -1,5 +1,5 @@
 /**
- * js/ui/ui.js — v4.0 Platinum DOM Controller (Unified Fusion)
+ * js/ui/ui.js — v4.0 Core DOM Controller (Unified Fusion)
  * [CMD-1] Ghost-Mirror Structural Integrity (SPEC-066)
  * [CMD-4] EditContext Integration
  * [SPEC-075] Smart Deadlines & [SPEC-080] UI Persistency
@@ -45,7 +45,7 @@ export class UIController {
     this._startNightWatchdog();
     this._initKeyboardShortcuts();
 
-    console.info("🚀 v4.0 UI: Platinum Engine Active | SPEC-066 & 075 Enabled");
+    console.info("🚀 v4.0 UI: Core Engine Active | SPEC-066 & 075 Enabled");
   }
 
   _initEditors() {

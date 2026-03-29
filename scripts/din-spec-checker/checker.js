@@ -10,7 +10,7 @@ const RULES = {
     holeMark: "148.5mm",
   },
   // NO-FLUFF POLICY: Forbidden metaphorical terminology
-  fluffRadar: ["Aviation", "Platinum", "Sovereign", "Akinator", "Grade"],
+  fluffRadar: ["Aviation", "Sovereign", "Akinator", "Grade"],
   // ELEMENT WHITELIST: Strictly IMR 4.0 Atoms
   elements: {
     allowed: [

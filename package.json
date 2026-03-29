@@ -1,12 +1,12 @@
 {
   "name": "din-briefneo",
   "version": "4.0.0",
-  "description": "DIN-BriefNEO Platinum Edition",
+  "description": "DIN-BriefNEO v4 Core Edition",
   "main": "js/core/app.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "vision": "node scripts/platinum-vision.js"
+    "vision": "node scripts/v4-core-vision.js"
   },
   "keywords": [],
   "author": "",

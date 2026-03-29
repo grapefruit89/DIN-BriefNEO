@@ -1,6 +1,6 @@
 {
   "name": "din-briefneo",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "description": "DIN-BriefNEO Platinum Edition",
   "main": "js/core/app.js",
   "type": "module",

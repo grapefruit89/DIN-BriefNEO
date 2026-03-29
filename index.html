@@ -24,9 +24,9 @@
           <section class="sidebar-section">
             <!-- DIN-VARIANTE -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label">DIN-Variante</label>
-              <div class="segmented-control">
-                <label class="segment-option">
+              <label class="sidebar-label" id="label-layout">DIN-Variante</label>
+              <div class="segmented-control" role="radiogroup" aria-labelledby="label-layout">
+                <label class="segment-option" aria-label="Layout Form A wählen">
                   <input
                     type="radio"
                     name="layout"
@@ -35,7 +35,7 @@
                   />
                   <span>Form A (Hoch)</span>
                 </label>
-                <label class="segment-option">
+                <label class="segment-option" aria-label="Layout Form B wählen">
                   <input
                     type="radio"
                     name="layout"
@@ -50,9 +50,9 @@
 
             <!-- HILFSLINIEN -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label">Hilfslinien</label>
-              <div class="segmented-control">
-                <label class="segment-option">
+              <label class="sidebar-label" id="label-guides">Hilfslinien</label>
+              <div class="segmented-control" role="radiogroup" aria-labelledby="label-guides">
+                <label class="segment-option" aria-label="Hilfslinien einschalten">
                   <input
                     type="radio"
                     name="guides"
@@ -62,7 +62,7 @@
                   />
                   <span>Anzeigen</span>
                 </label>
-                <label class="segment-option">
+                <label class="segment-option" aria-label="Hilfslinien ausschalten">
                   <input
                     type="radio"
                     name="guides"
@@ -76,9 +76,9 @@
 
             <!-- ARBEITSMODUS -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label">Arbeitsmodus</label>
-              <div class="segmented-control">
-                <label class="segment-option">
+              <label class="sidebar-label" id="label-theme">Arbeitsmodus</label>
+              <div class="segmented-control" role="radiogroup" aria-labelledby="label-theme">
+                <label class="segment-option" aria-label="Tag-Modus aktivieren">
                   <input
                     type="radio"
                     name="theme"
@@ -88,7 +88,7 @@
                   />
                   <span>☀️ Tag</span>
                 </label>
-                <label class="segment-option">
+                <label class="segment-option" aria-label="Nacht-Modus aktivieren">
                   <input
                     type="radio"
                     name="theme"
@@ -154,18 +154,18 @@
       <!-- THE AIRFRAME: Semantic Matrix v4.0 -->
       <main id="paper-viewport">
         <din-5008 id="paper">
-          <din-A4>
+          <din-A4 style="--margin-l: 25mm; --margin-r: 20mm">
             <!-- BRANDING LAYER -->
             <din-branding-logo></din-branding-logo>
             <din-branding-watermark></din-branding-watermark>
 
             <!-- Faltmarken & Lochmarke -->
-            <div class="mark mark-fold-1"></div>
-            <div class="mark mark-loch"></div>
-            <div class="mark mark-fold-2"></div>
+            <div class="mark mark-fold-1" style="--pos: 105mm"></div>
+            <div class="mark mark-loch" style="--pos: 148.5mm"></div>
+            <div class="mark mark-fold-2" style="--pos: 210mm"></div>
 
             <!-- Briefkopf & Granularer Absender -->
-            <din-header class="paper-header">
+            <din-header class="paper-header" style="--top: 20mm; --right: 20mm; --width: 75mm">
               <din-absender-vorname
                 contenteditable="plaintext-only"
                 data-placeholder="Vorname"
@@ -185,7 +185,7 @@
             </din-header>
 
             <!-- Anschriftfeld (Granular) -->
-            <din-anschriftfeld class="paper-address-zone">
+            <din-anschriftfeld class="paper-address-zone" style="--top: 45mm; --left: 20mm; --width: 85mm; --height: 45mm">
               <din-return-line
                 contenteditable="plaintext-only"
                 data-placeholder="Vorname Nachname · Straße Nr. · PLZ Ort"
@@ -216,7 +216,7 @@
               ></din-empfaenger-ort>
             </din-anschriftfeld>
 
-            <din-infoblock class="paper-infoblock">
+            <din-infoblock class="paper-infoblock" style="--top: 97.4mm; --left: 125mm; --width: 75mm">
               <div class="info-row">
                 <label>Ihr Zeichen</label>
                 <din-ref-ihr contenteditable="plaintext-only"></din-ref-ihr>
@@ -230,10 +230,11 @@
             <din-date
               contenteditable="plaintext-only"
               data-placeholder="TT.MM.JJJJ"
+              style="--top: 50mm; --left: 125mm; --width: 75mm"
             ></din-date>
 
             <!-- Briefkern -->
-            <article id="brief-kern">
+            <article id="brief-kern" style="--top: calc(45mm + 58.4mm); --left: 25mm; --right: 20mm">
               <din-subject
                 contenteditable="plaintext-only"
                 data-placeholder="Betreff: Ihr Anliegen"
@@ -246,7 +247,7 @@
               <div class="body-container">
                 <din-text
                   contenteditable="plaintext-only"
-                  data-placeholder="Hier kÃ¶nnen Sie Ihren Brieftext schreiben... (Markdown wie **fett** oder *kursiv* wird unterstÃ¼tzt)"
+                  data-placeholder="Hier können Sie Ihren Brieftext schreiben... (Markdown wie **fett** oder *kursiv* wird unterstützt)"
                 ></din-text>
                 <din-text-mirror id="din-text-mirror" aria-hidden="true"></din-text-mirror>
               </div>
@@ -266,7 +267,7 @@
             </article>
 
             <!-- Abschluss -->
-            <din-fusszeile class="paper-footer">
+            <din-fusszeile class="paper-footer" style="--bottom: 15mm; --left: 25mm; --right: 20mm">
               <div class="footer-col">
                 <label>Bankdaten:</label>
                 <span contenteditable="plaintext-only">IBAN: DE00 0000 0000 0000 0000 00</span>
@@ -288,57 +289,43 @@
 
         <!-- NATIVE POPOVERS & DIALOGS -->
         <div id="modal-profile" popover class="standard-dialog">
-
-      <header class="modal-header">
-        <h3>👤 Absenderprofil</h3>
-        <button id="btn-profile-close" class="close-btn">✕</button>
-      </header>
-
-      <div class="form-section">
-        <div class="inline-controls">
-          <select id="profileSelect">
-            <option value="">— Profil wählen —</option>
-            <option value="privat">Privat</option>
-            <option value="firma">Büro</option>
-          </select>
-          <button
-            type="button"
-            id="btn-profile-save"
-            class="sidebar-btn primary"
-            title="Speichern"
-          >
-            💾 Sichern
-          </button>
-        </div>
-
-        <div class="form-group profile-grid">
-          <div class="profile-field">
-            <label>Vorname</label>
-            <input type="text" id="p-fn" placeholder="Max" />
-          </div>
-          <div class="profile-field">
-            <label>Nachname</label>
-            <input type="text" id="p-ln" placeholder="Mustermann" />
-          </div>
-          <div class="profile-field">
-            <label>Straße & Hausnummer</label>
-            <input type="text" id="p-street" placeholder="Musterstraße 1" />
-          </div>
-          <div class="profile-field">
-            <label>PLZ & Ort</label>
-            <input type="text" id="p-city" placeholder="12345 Musterstadt" />
-          </div>
-          <div class="profile-field iban-field">
-            <label>IBAN</label>
-            <input
-              type="text"
-              id="p-iban"
-              placeholder="DE00 0000 0000 0000 0000 00"
-            />
+          <header class="modal-header">
+            <h3>👤 Absenderprofil</h3>
+            <button id="btn-profile-close" class="close-btn">✕</button>
+          </header>
+          <div class="form-section">
+            <div class="inline-controls">
+              <select id="profileSelect">
+                <option value="">— Profil wählen —</option>
+                <option value="privat">Privat</option>
+                <option value="firma">Büro</option>
+              </select>
+              <button type="button" id="btn-profile-save" class="sidebar-btn primary" title="Speichern">💾 Sichern</button>
+            </div>
+            <div class="form-group profile-grid">
+              <div class="profile-field">
+                <label>Vorname</label>
+                <input type="text" id="p-fn" placeholder="Max" />
+              </div>
+              <div class="profile-field">
+                <label>Nachname</label>
+                <input type="text" id="p-ln" placeholder="Mustermann" />
+              </div>
+              <div class="profile-field">
+                <label>Straße & Hausnummer</label>
+                <input type="text" id="p-street" placeholder="Musterstraße 1" />
+              </div>
+              <div class="profile-field">
+                <label>PLZ & Ort</label>
+                <input type="text" id="p-city" placeholder="12345 Musterstadt" />
+              </div>
+              <div class="profile-field iban-field">
+                <label>IBAN</label>
+                <input type="text" id="p-iban" placeholder="DE00 0000 0000 0000 0000 00" />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
     <dialog id="dialog-reset" class="standard-dialog">
       <h3>Entwurf löschen?</h3>
@@ -367,6 +354,6 @@
       </div>
     </div>
 
-    <script type="module" src="js/core/app.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

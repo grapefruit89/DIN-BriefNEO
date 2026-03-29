@@ -1,15 +1,15 @@
 ﻿/**
- * js/logic/logic.js â€” Pure Business Logic Engine
+ * js/logic.js — Pure Business Logic Engine
  * v4.0 Standard Specification | IMR 4.0 | DIN 5008:2020-03
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- * ZERO DOM. ZERO State-Imports. Pure Input â†’ Output.
+ * ───────────────────────────────────────────────────────────────
+ * ZERO DOM. ZERO State-Imports. Pure Input → Output.
  *
  * IMR 4.0 (2026-03-28):
  *   readDOMasJSON() scannt <din-*> Tags direkt basierend auf IMR-Registry.
  *   textContent ist die alleinige Source of Truth (SSoT).
  */
 
-import { IMR, AI_INTENTS } from "../core/constants.js";
+import { IMR, AI_INTENTS } from "./constants.js";
 export * from "./greetings.js";
 
 /* â”€â”€ Date (TOMB-LEGACY-001: Temporal API Proof) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -17,7 +17,7 @@ export * from "./greetings.js";
 export {
   todayISO,
   formatDateTemporal as formatDate,
-} from "../core/temporal-utils.js";
+} from "./temporal-utils.js";
 
 /**
  * Holt das aktuelle Datum deterministisch via Temporal API.
@@ -194,21 +194,27 @@ export function getMsUntilNextThemeTransition() {
   // @ts-ignore
   const now = Temporal.Now.zonedDateTimeISO();
   const today = now.toPlainDate();
-  
-  const nightStart = today.toZonedDateTime({ plainTime: '21:00:00', timeZone: now.timeZoneId });
-  const nightEnd   = today.toZonedDateTime({ plainTime: '06:00:00', timeZone: now.timeZoneId });
+
+  const nightStart = today.toZonedDateTime({
+    plainTime: "21:00:00",
+    timeZone: now.timeZoneId,
+  });
+  const nightEnd = today.toZonedDateTime({
+    plainTime: "06:00:00",
+    timeZone: now.timeZoneId,
+  });
 
   // Mögliche Ziele finden (Heute oder Morgen)
   const candidates = [
     nightStart,
     nightStart.add({ days: 1 }),
     nightEnd,
-    nightEnd.add({ days: 1 })
+    nightEnd.add({ days: 1 }),
   ];
 
   // Nur zukünftige Zeiten nehmen und sortieren
   const future = candidates
-    .filter(c => Temporal.ZonedDateTime.compare(c, now) > 0)
+    .filter((c) => Temporal.ZonedDateTime.compare(c, now) > 0)
     .sort(Temporal.ZonedDateTime.compare);
 
   // Differenz zum nächsten Zeitpunkt
@@ -226,8 +232,10 @@ export function isNightTime() {
 
   // Da das Fenster über Mitternacht geht:
   // Wahr wenn: Zeit >= 21:00 ODER Zeit < 06:00
-  return Temporal.PlainTime.compare(now, nightStart) >= 0 || 
-         Temporal.PlainTime.compare(now, nightEnd) < 0;
+  return (
+    Temporal.PlainTime.compare(now, nightStart) >= 0 ||
+    Temporal.PlainTime.compare(now, nightEnd) < 0
+  );
 }
 
 /**
@@ -240,7 +248,7 @@ export function calculateDeadlines() {
   return {
     in14Days: today.add({ days: 14 }),
     in30Days: today.add({ days: 30 }),
-    nextMonth: today.add({ months: 1 })
+    nextMonth: today.add({ months: 1 }),
   };
 }
 
@@ -249,12 +257,14 @@ export function calculateDeadlines() {
  * @param {string} text - Der aktuelle Brieftext
  */
 export function detectContext(text) {
-  if (!text) return 'none';
+  if (!text) return "none";
   const lower = text.toLowerCase();
-  if (lower.includes('widerspruch') || lower.includes('einspruch')) return 'widerspruch';
-  if (lower.includes('mahnung') || lower.includes('zahlungserinnerung')) return 'mahnung';
-  if (lower.includes('kündigung')) return 'kuendigung';
-  return 'standard';
+  if (lower.includes("widerspruch") || lower.includes("einspruch"))
+    return "widerspruch";
+  if (lower.includes("mahnung") || lower.includes("zahlungserinnerung"))
+    return "mahnung";
+  if (lower.includes("kündigung")) return "kuendigung";
+  return "standard";
 }
 
 /**
@@ -267,21 +277,21 @@ export function validateAddressZone(content) {
 
   // Relevante Felder für die 6-Zeilen-Regel
   const recipientKeys = [
-    'supplement',
-    'rect_co',
-    'rect_fn', // Neu: Vorname
-    'rect_ln', // Neu: Nachname
-    'rect_st',
-    'rect_city'
+    "supplement",
+    "rect_co",
+    "rect_fn", // Neu: Vorname
+    "rect_ln", // Neu: Nachname
+    "rect_st",
+    "rect_city",
   ];
-  
+
   const lineCount = recipientKeys.reduce((acc, key) => {
     return acc + (content[key]?.trim() ? 1 : 0);
   }, 0);
 
   return {
     isValid: lineCount <= 6,
-    lineCount
+    lineCount,
   };
 }
 
@@ -376,37 +386,46 @@ export function parseMarkdownToHTML(text) {
   // Blockquote: Erkennt > am Zeilenanfang oder nach einem \n
   html = html.replace(/(?:^|\n)\s*&gt;\s*(.+?)(?=\n|$)/g, (match, p1) => {
     const prefix = match.startsWith("\n") ? "\n" : "";
-    return prefix + addToken(`<blockquote class="md-quote"><span class="md-marker">&gt;</span> ${p1}</blockquote>`);
+    return (
+      prefix +
+      addToken(
+        `<blockquote class="md-quote"><span class="md-marker">&gt;</span> ${p1}</blockquote>`,
+      )
+    );
   });
 
   // Bold **text**
-  html = html.replace(/\*\*(.+?)\*\*/g, (match, p1) => 
-    addToken(`<span class="md-marker">**</span><strong>${p1}</strong><span class="md-marker">**</span>`)
+  html = html.replace(/\*\*(.+?)\*\*/g, (match, p1) =>
+    addToken(
+      `<span class="md-marker">**</span><strong>${p1}</strong><span class="md-marker">**</span>`,
+    ),
   );
 
   // Underline __text__
-  html = html.replace(/__(.+?)__/g, (match, p1) => 
-    addToken(`<span class="md-marker">__</span><u>${p1}</u><span class="md-marker">__</span>`)
+  html = html.replace(/__(.+?)__/g, (match, p1) =>
+    addToken(
+      `<span class="md-marker">__</span><u>${p1}</u><span class="md-marker">__</span>`,
+    ),
   );
 
   // Italic *text*
-  html = html.replace(/\*(.+?)\*/g, (match, p1) => 
-    addToken(`<span class="md-marker">*</span><em>${p1}</em><span class="md-marker">*</span>`)
+  html = html.replace(/\*(.+?)\*/g, (match, p1) =>
+    addToken(
+      `<span class="md-marker">*</span><em>${p1}</em><span class="md-marker">*</span>`,
+    ),
   );
 
   // 3. Detokenize (Recursively to handle nesting)
   let iterations = 0;
   while (html.includes("__MD") && iterations < 10) {
-    tokens.forEach(t => {
+    tokens.forEach((t) => {
       html = html.replace(t.id, t.html);
     });
     iterations++;
   }
 
   // 4. Line Breaks (Final step for rendering)
-  html = html
-    .replace(/\n\n/g, "<br><br>")
-    .replace(/\n/g, "<br>");
+  html = html.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
 
   return html;
 }
@@ -648,54 +667,5 @@ ONLY "body" may contain Markdown. All other fields: Plaintext only.
 ## Output
 Vollstaendiges JSON mit ALLEN IMR-Keys. Kurze Begruendung (3 Saetze) danach.
 `;
-}
-
-/**
- * Scannt Plaintext nach Markdown-Markern und liefert Ranges fÃ¼r das Highlighting.
- * Chrome 147 Baseline: Nutzt native Range-Objekte fÃ¼r CSS Custom Highlight API.
- */
-export function getMarkdownRanges(text, textNode) {
-  if (!text || !textNode) return { bold: [], italic: [], marker: [] };
-
-  const boldRanges = [];
-  const italicRanges = [];
-  const markerRanges = [];
-
-  const scan = (regex, type) => {
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      const start = match.index;
-      const end = match.index + match[0].length;
-      const mLen = match[1].length;
-
-      try {
-        const range = new Range();
-        range.setStart(textNode, start);
-        range.setEnd(textNode, end);
-        if (type === "bold") boldRanges.push(range);
-        if (type === "italic") italicRanges.push(range);
-
-        // Marker (die Sternchen/Unterstriche selbst)
-        const m1 = new Range();
-        m1.setStart(textNode, start);
-        m1.setEnd(textNode, start + mLen);
-        const m2 = new Range();
-        m2.setStart(textNode, end - mLen);
-        m2.setEnd(textNode, end);
-        markerRanges.push(m1, m2);
-      } catch (e) {
-        console.warn("Highlight Range Error:", e);
-      }
-    }
-  };
-
-  // 1. Bold (**)
-  scan(/(\*\*)(.*?)\1/g, "bold");
-  // 2. Italic (*)
-  scan(/(\*)(.*?)\1/g, "italic");
-  // 3. Underline (__)
-  scan(/(__)(.*?)\1/g, "bold"); // Wir mappen Underline auf Bold fÃ¼r DIN-Zwecke
-
-  return { bold: boldRanges, italic: italicRanges, marker: markerRanges };
 }
 

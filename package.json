@@ -2,7 +2,7 @@
   "name": "din-briefneo",
   "version": "4.0.0",
   "description": "DIN-BriefNEO v4 Core Edition",
-  "main": "js/core/app.js",
+  "main": "js/app.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

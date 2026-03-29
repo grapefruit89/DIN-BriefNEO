@@ -1,11 +1,11 @@
 ﻿/**
- * js/ui/model-blacklist.js â€” KI-Modell Blacklist Strategy
- * DIN-BriefNEO Â· v4.0 V13 | SPEC-038
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * js/model-blacklist.js — KI-Modell Blacklist Strategy
+ * DIN-BriefNEO · v4.0 V13 | SPEC-038
+ * ─────────────────────────────────────────────────────
  * PRINZIP: Blacklist statt Whitelist.
  *   Statt eine starre Liste erlaubter Modelle zu pflegen,
  *   werden VERALTETE Modelle gefiltert. Neue Modelle sind
- *   automatisch erlaubt â€” keine manuelle Freischaltung nÃ¶tig.
+ *   automatisch erlaubt — keine manuelle Freischaltung nötig.
  *
  * PATTERN:
  *   const models = await fetchAvailableModels(apiKey);
@@ -22,15 +22,39 @@
  *   Format: { pattern: /regex/, reason: 'Warum gesperrt', since: 'YYYY-MM' }
  */
 const MODEL_BLACKLIST = Object.freeze([
-  { pattern: /gpt-3\.5/i,         reason: 'Zu alt fÃ¼r DIN-PrÃ¤zision',     since: '2024-01' },
-  { pattern: /gpt-4-0314/i,       reason: 'Deprecated (OpenAI)',           since: '2024-06' },
-  { pattern: /gpt-4-0613/i,       reason: 'Deprecated (OpenAI)',           since: '2024-06' },
-  { pattern: /text-davinci/i,     reason: 'Legacy completions API',        since: '2023-01' },
-  { pattern: /claude-1/i,         reason: 'Claude 1.x deprecated',         since: '2024-01' },
-  { pattern: /claude-2\.0$/i,     reason: 'Claude 2.0 deprecated',         since: '2024-03' },
-  { pattern: /-preview$/i,        reason: 'Preview-Modelle instabil',      since: '2024-01' },
-  { pattern: /instruct$/i,        reason: 'Instruct-only, kein Chat',      since: '2024-01' },
-  { pattern: /vision-preview/i,   reason: 'Deprecated Vision-Preview',     since: '2024-09' },
+  {
+    pattern: /gpt-3\.5/i,
+    reason: "Zu alt fÃ¼r DIN-PrÃ¤zision",
+    since: "2024-01",
+  },
+  { pattern: /gpt-4-0314/i, reason: "Deprecated (OpenAI)", since: "2024-06" },
+  { pattern: /gpt-4-0613/i, reason: "Deprecated (OpenAI)", since: "2024-06" },
+  {
+    pattern: /text-davinci/i,
+    reason: "Legacy completions API",
+    since: "2023-01",
+  },
+  { pattern: /claude-1/i, reason: "Claude 1.x deprecated", since: "2024-01" },
+  {
+    pattern: /claude-2\.0$/i,
+    reason: "Claude 2.0 deprecated",
+    since: "2024-03",
+  },
+  {
+    pattern: /-preview$/i,
+    reason: "Preview-Modelle instabil",
+    since: "2024-01",
+  },
+  {
+    pattern: /instruct$/i,
+    reason: "Instruct-only, kein Chat",
+    since: "2024-01",
+  },
+  {
+    pattern: /vision-preview/i,
+    reason: "Deprecated Vision-Preview",
+    since: "2024-09",
+  },
 ]);
 
 /**
@@ -40,8 +64,8 @@ const MODEL_BLACKLIST = Object.freeze([
  */
 export function filterModels(models) {
   if (!Array.isArray(models)) return [];
-  return models.filter(model =>
-    !MODEL_BLACKLIST.some(entry => entry.pattern.test(model))
+  return models.filter(
+    (model) => !MODEL_BLACKLIST.some((entry) => entry.pattern.test(model)),
   );
 }
 
@@ -51,7 +75,7 @@ export function filterModels(models) {
  * @returns {{ blocked: boolean, reason?: string, since?: string }}
  */
 export function explainBlock(modelId) {
-  const hit = MODEL_BLACKLIST.find(e => e.pattern.test(modelId));
+  const hit = MODEL_BLACKLIST.find((e) => e.pattern.test(modelId));
   if (!hit) return { blocked: false };
   return { blocked: true, reason: hit.reason, since: hit.since };
 }
@@ -66,19 +90,21 @@ export function renderModelSelect(selectId, allModels) {
   const el = document.getElementById(selectId);
   if (!el) return;
 
-  el.textContent = '';   // MANDATE-INJ: textContent statt innerHTML
+  el.textContent = ""; // MANDATE-INJ: textContent statt innerHTML
 
   const grouped = { available: [], blocked: [] };
   for (const m of allModels) {
     const info = explainBlock(m);
-    info.blocked ? grouped.blocked.push({ id: m, ...info }) : grouped.available.push(m);
+    info.blocked
+      ? grouped.blocked.push({ id: m, ...info })
+      : grouped.available.push(m);
   }
 
   // VerfÃ¼gbare Modelle
-  const grpOk = document.createElement('optgroup');
-  grpOk.label = 'âœ“ VerfÃ¼gbar';
-  grouped.available.forEach(m => {
-    const opt = document.createElement('option');
+  const grpOk = document.createElement("optgroup");
+  grpOk.label = "âœ“ VerfÃ¼gbar";
+  grouped.available.forEach((m) => {
+    const opt = document.createElement("option");
     opt.value = m;
     opt.textContent = m;
     grpOk.appendChild(opt);
@@ -87,10 +113,10 @@ export function renderModelSelect(selectId, allModels) {
 
   // Gesperrte Modelle (sichtbar aber disabled â€” Transparenz fÃ¼r Nutzer)
   if (grouped.blocked.length > 0) {
-    const grpBlocked = document.createElement('optgroup');
-    grpBlocked.label = 'âœ— Gesperrt (veraltet)';
+    const grpBlocked = document.createElement("optgroup");
+    grpBlocked.label = "âœ— Gesperrt (veraltet)";
     grouped.blocked.forEach(({ id, reason }) => {
-      const opt = document.createElement('option');
+      const opt = document.createElement("option");
       opt.value = id;
       opt.textContent = `${id} â€” ${reason}`;
       opt.disabled = true;
@@ -99,5 +125,3 @@ export function renderModelSelect(selectId, allModels) {
     el.appendChild(grpBlocked);
   }
 }
-
-

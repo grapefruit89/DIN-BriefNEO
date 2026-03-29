@@ -56,8 +56,8 @@ try {
 
     # Kritische Dateien explizit pruefen
     $criticalFiles = @(
-        "js/core/constants.js",
-        "js/logic/logic.js",
+        "js/constants.js",
+        "js/logic.js",
         "GEMINI.md",
         "index.html",
         ".brain/08_isomorphic_schema.md"
@@ -87,7 +87,7 @@ try {
 
     # A. MANDATE-INJ (Zero innerHTML)
     # Ignoriere Zeilen mit // @pvp-ignore: innerHTML
-    $innerHtmlMatches = Select-String -Path "js/**/*.js" -Pattern "\.innerHTML\s*=" -Exclude "js/logic/mirror-renderer.js" | Where-Object { $_.Line -notmatch "// @pvp-ignore: innerHTML" }
+    $innerHtmlMatches = Select-String -Path "js/**/*.js" -Pattern "\.innerHTML\s*=" -Exclude "js/mirror-renderer.js" | Where-Object { $_.Line -notmatch "// @pvp-ignore: innerHTML" }
     if ($innerHtmlMatches) {
         Write-Host "  [ERROR] MANDATE-INJ VERSTOSS: .innerHTML gefunden!" -ForegroundColor Red
         $innerHtmlMatches | ForEach-Object { Write-Host "      -> $($_.Path):$($_.LineNumber)" -ForegroundColor Gray }

@@ -23,18 +23,21 @@ async function runVisionCheck() {
 
     // 1. Geometrie-Check (DIN 5008)
     const metrics = await page.evaluate(() => {
-      const paper = document.querySelector('din-5008');
+      const paper = document.getElementById('paper');
       const fold1 = document.querySelector('.mark-fold-1');
       const fold2 = document.querySelector('.mark-fold-2');
-      const addr  = document.querySelector('din-address-zone');
+      const addr  = document.querySelector('din-anschriftfeld');
 
       const toMm = px => (px / 96) * 25.4;
+
+      if (!paper || !fold1 || !addr) {
+        throw new Error(`DOM Missing: paper=${!!paper}, fold1=${!!fold1}, addr=${!!addr}`);
+      }
 
       return {
         paper: {
           w: toMm(paper.offsetWidth).toFixed(1),
-          h: toMm(paper.offsetHeight).toFixed(1),
-          scale: getComputedStyle(paper).scale
+          h: toMm(paper.offsetHeight).toFixed(1)
         },
         fold1: { top: toMm(fold1.offsetTop).toFixed(1) + 'mm' },
         fold2: { top: toMm(fold2.offsetTop).toFixed(1) + 'mm' },

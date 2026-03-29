@@ -1,4 +1,4 @@
-import { TOASTS } from '../core/toast-registry.js';
+import { TOASTS } from "./toast-registry.js";
 
 /**
  * ToastManager - Handles single-toast queue logic.
@@ -13,8 +13,8 @@ class ToastManager {
 
   _getContainer() {
     if (!this.container) {
-      this.container = document.createElement('div');
-      this.container.id = 'toast-container';
+      this.container = document.createElement("div");
+      this.container.id = "toast-container";
       document.body.appendChild(this.container);
     }
     return this.container;
@@ -41,7 +41,7 @@ class ToastManager {
 
     if (this.activeToast) {
       // Avoid duplicate identical toasts in queue
-      if (this.queue.some(t => t.id === id)) return;
+      if (this.queue.some((t) => t.id === id)) return;
       this.queue.push(toast);
     } else {
       this._render(toast);
@@ -50,7 +50,7 @@ class ToastManager {
 
   _render(toast) {
     this.activeToast = toast;
-    const el = document.createElement('div');
+    const el = document.createElement("div");
     el.className = `toast toast-${toast.config.type}`;
     el.textContent = toast.text;
 
@@ -64,17 +64,21 @@ class ToastManager {
   _dismiss() {
     if (!this.activeToast) return;
     const container = this._getContainer();
-    const el = container.querySelector('.toast');
+    const el = container.querySelector(".toast");
 
     if (el) {
-      el.classList.add('toast-exit');
-      el.addEventListener('transitionend', () => {
-        el.remove();
-        this.activeToast = null;
-        if (this.queue.length > 0) {
-          this._render(this.queue.shift());
-        }
-      }, { once: true });
+      el.classList.add("toast-exit");
+      el.addEventListener(
+        "transitionend",
+        () => {
+          el.remove();
+          this.activeToast = null;
+          if (this.queue.length > 0) {
+            this._render(this.queue.shift());
+          }
+        },
+        { once: true },
+      );
     }
   }
 }

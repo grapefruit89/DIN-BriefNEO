@@ -3,7 +3,7 @@
  * Extract IMR (Isomorphic Master Registry) as JSON for AI Agent Guidance.
  * Part of the v4 Core Validation Pipeline (061).
  */
-import { IMR, CMA } from '../js/core/constants.js';
+import { IMR, CMA } from '../js/constants.js';
 
 const catalog = {
   version: '16.0.1',

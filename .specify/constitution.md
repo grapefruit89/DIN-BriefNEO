@@ -49,7 +49,7 @@ Die Nutzung von `head` und `tail` ist STRENGSTENS untersagt. Diese Tools fuehren
 Das Drei-Einheits-Prinzip gilt ausnahmslos: `TAG = JSON-KEY = CMA-KOORDINATE`.
 - Kein `getElementById` für Inhaltsfelder; stattdessen `querySelector(entry.tag)`.
 - Die `TAG_MAP` wird automatisch aus der IMR generiert.
-- SSoT (Single Source of Truth) ist `js/core/constants.js`.
+- SSoT (Single Source of Truth) is `js/constants.js`.
 
 ---
 

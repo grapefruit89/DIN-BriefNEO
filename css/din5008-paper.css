@@ -105,6 +105,18 @@
     color: oklch(40% 0 0);
   }
 
+  /* Markdown Ghosting Specification (SPEC-066) */
+  .md-marker {
+    display: inline-block;
+    width: 0;
+    overflow: hidden;
+    color: oklch(60% 0 0 / 0.5); /* Ghosting color */
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    vertical-align: top;
+  }
+
   /* Placeholder Specification */
   [contenteditable]:empty::before {
     content: attr(data-placeholder);

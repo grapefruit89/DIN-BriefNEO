@@ -105,13 +105,13 @@
         <div class="actions-footer">
           <!-- UTILITY ACTIONS (Export/Import/Reset) -->
           <div class="utility-actions">
-            <button class="util-btn" title="Export" id="btn-export">
+            <button class="util-btn" title="Export" id="btn-export" command="--export">
               📥 Export
             </button>
-            <button class="util-btn" title="Import" id="btn-import">
+            <button class="util-btn" title="Import" id="btn-import" command="--import">
               📤 Import
             </button>
-            <button class="util-btn danger" title="Reset" id="btn-reset">
+            <button class="util-btn danger" title="Reset" id="btn-reset" commandfor="dialog-reset" command="show-modal">
               🗑️ Reset
             </button>
           </div>
@@ -246,9 +246,9 @@
               <div class="body-container">
                 <din-text
                   contenteditable="plaintext-only"
-                  data-placeholder="Hier können Sie Ihren Brieftext schreiben... (Markdown wie **fett** oder *kursiv* wird unterstützt)"
+                  data-placeholder="Hier kÃ¶nnen Sie Ihren Brieftext schreiben... (Markdown wie **fett** oder *kursiv* wird unterstÃ¼tzt)"
                 ></din-text>
-                <din-text-mirror aria-hidden="true"></din-text-mirror>
+                <din-text-mirror id="din-text-mirror" aria-hidden="true"></din-text-mirror>
               </div>
 
               <din-grussformel

@@ -97,6 +97,11 @@ export class StateManager {
     return signals;
   }
 
+  subscribe(fn) {
+    this._listeners.add(fn);
+    return () => this._listeners.delete(fn);
+  }
+
   _emit(path, value, scope) {
     this._listeners.forEach(fn => fn(path, value, scope));
     
@@ -107,6 +112,19 @@ export class StateManager {
         this.signals[key].value = value;
       }
     }
+  }
+
+  update(path, value, source = 'ui') {
+    const parts = path.split('.');
+    let current = this._raw;
+    for (let i = 0; i < parts.length - 1; i++) {
+      current = current[parts[i]];
+    }
+    const lastKey = parts[parts.length - 1];
+    if (current[lastKey] === value) return;
+    
+    current[lastKey] = value;
+    this._emit(path, value, parts[0]);
   }
 
   serialize() { return clone(this._raw); }

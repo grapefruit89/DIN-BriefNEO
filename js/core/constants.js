@@ -66,7 +66,7 @@ export const AI_INTENTS = Object.freeze({
  * [CMD-3] Whitelist IMR 4.0 Custom Tags based on SSoT.
  */
 export const SANITIZER_CONFIG = {
-  elements: [
+  allowElements: [
     "din-5008", "din-A4", "din-header", "din-anschriftfeld", "din-infoblock",
     "din-absender-vorname", "din-absender-nachname", "din-absender-strasse", "din-absender-ort",
     "din-return-line", "din-supplement", "din-empfaenger-firma", "din-empfaenger-vorname", "din-empfaenger-nachname", "din-empfaenger-strasse", "din-empfaenger-ort",
@@ -75,11 +75,12 @@ export const SANITIZER_CONFIG = {
     "din-fusszeile", "din-branding-logo", "din-branding-watermark",
     "br", "div", "span", "b", "i", "strong", "em", "blockquote", "img"
   ],
-  attributes: [
-    { name: "data-placeholder", elements: ["*"] },
-    { name: "data-form", elements: ["*"] },
-    { name: "src", elements: ["img"] }
-  ]
+  allowAttributes: {
+    "data-placeholder": ["*"],
+    "data-form": ["*"],
+    "src": ["img"],
+    "class": ["*"]
+  }
 };
 
 let sanitizerInstance = null;

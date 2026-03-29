@@ -48,7 +48,7 @@ export class GhostMirror {
 
   /**
    * [CMD-1] Syntax Coloring (Markers only)
-   * We only highlight the ** and * markers. Weights are handled by the mirror.
+   * We only highlight the **, *, __ and > markers. Weights are handled by the mirror.
    */
   updateSyntaxHighlights(text) {
     this.markerRanges = [];
@@ -57,7 +57,8 @@ export class GhostMirror {
       return;
     }
 
-    const markerRegex = /(\*\*|\*)/g;
+    // [CMD-1] v4.0 Robust Marker Identification
+    const markerRegex = /(\*\*|\*|__|(?<=^|\n)&gt;)/g;
     let match;
     while ((match = markerRegex.exec(text)) !== null) {
       this.addHighlightRange(

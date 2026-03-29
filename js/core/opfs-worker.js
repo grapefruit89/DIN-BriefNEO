@@ -109,7 +109,7 @@ async function saveWithJournaling(data) {
         console.log('[OPFS] Checkpoint reached: Main draft updated.');
       }
       
-      self.postMessage({ type: 'SAVE_CONFIRMED', timestamp: Temporal.Now.instant().epochMilliseconds });
+      self.postMessage({ type: 'SAVE_CONFIRMED', timestamp: Date.now() });
     });
   } catch (err) {
     console.error('[OPFS Worker] Save Error:', err);

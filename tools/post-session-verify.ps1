@@ -100,7 +100,7 @@ try {
     # Liest das ganze File als String um Multiline-Tags zu finden
     $indexContent = Get-Content "index.html" -Raw
     # Regex sucht nach <din-TAG ... >, aber ignoriert din-body-mirror
-    $tags = [regex]::Matches($indexContent, '(?s)<din-(?!body-mirror)([\w-]+)([^>]*?)>')
+    $tags = [regex]::Matches($indexContent, '(?s)<din-(?!body-mirror|text-mirror)([\w-]+)([^>]*?)>')
     $missingPlaintext = @()
     foreach ($tag in $tags) {
         if ($tag.Value -notmatch 'contenteditable="plaintext-only"') {

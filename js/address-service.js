@@ -1,5 +1,5 @@
 /**
- * js/services/address-service.js — Data Fetching & Autocomplete Controller
+ * js/address-service.js — Data Fetching & Autocomplete Controller
  * [ADR-008] Decoupled Data & View
  * [CMD-6] CSS Anchor Positioning (Chrome 125+)
  * ───────────────────────────────────────────────────────────────

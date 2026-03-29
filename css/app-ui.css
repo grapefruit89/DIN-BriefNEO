@@ -95,43 +95,87 @@
     --c-primary:         oklch(60% 0.15 250);
     --c-primary-hover:   oklch(from var(--c-primary) calc(l - 0.1) c h);
     
-    --c-sidebar-bg:      light-dark(oklch(18% 0.03 250), oklch(8% 0.02 250));
-    --c-sidebar-btn-bg:  oklch(from white 10% 0 0 / 0.08);
-    --c-sidebar-text:    oklch(90% 0.01 250);
-    --c-sidebar-border:  oklch(from white 10% 0 0 / 0.08);
+    /* VORNEHMES DUNKELBLAU-ANTHRAZIT */
+    --c-sidebar-bg:      #1e293b; 
+    --c-sidebar-btn-bg:  rgba(255, 255, 255, 0.05);
+    --c-sidebar-text:    #f1f5f9;
+    --c-sidebar-border:  rgba(255, 255, 255, 0.15);
     
     --c-bg:              light-dark(oklch(96% 0.01 250), oklch(12% 0.02 250));
     --c-shadow-sheet:    0 12px 48px oklch(0% 0 0 / 0.15), 0 2px 8px oklch(0% 0 0 / 0.05);
     
-    --c-radius-md:       8px;
+    --c-radius-md:       10px;
     --c-font-ui:         "Inter", system-ui, sans-serif;
     --c-font-mono:       "JetBrains Mono", monospace;
     
     --c-text-primary:    light-dark(oklch(15% 0.01 250), oklch(95% 0 0));
     --c-text-secondary:  oklch(45% 0.02 250);
-
-    /* ── DIN GEOMETRY (0.001mm Precision) ─────────────────────────── */
-    --din-paper-w:       210mm;
-    --din-paper-h:       297mm;
-    --din-margin-l:      25mm;
-    --din-margin-r:      20mm;
-    --din-addr-w:        85mm;
-    --din-addr-h:        45mm;
-    --din-addr-top:      45mm;
-    --din-mark-fold-1:   105mm;
-    --din-mark-fold-2:   210mm;
-    --din-mark-loch:     148.5mm;
-
-    /* ── NIGHT MODE ───────────────────────────────────────────────── */
-    --c-bg-dark:         oklch(12% 0.02 250);
-    --c-paper-dark:      oklch(85% 0.01 250);
-    --c-text-dark:       oklch(10% 0.01 250);
-    --c-dot-dark:        oklch(20% 0.04 250);
   }
 
-  .iban-field { grid-column: span 2; }
+  /* ── MODERN SEGMENTED CONTROL (SLIDE EFFECT) ──────────────────── */
+  .segmented-control {
+    display: flex;
+    position: relative;
+    background: #0f172a;
+    border-radius: var(--c-radius-md);
+    padding: 2px;
+    margin-top: var(--space-xs);
+    border: 1px solid var(--c-sidebar-border);
+    isolation: isolate;
+    height: 36px;
+  }
 
-  /* [SPEC-080] Manual Overrides via UI-Buttons (JS-free states) */
+  .segmented-control::before {
+    content: "";
+    position: absolute;
+    top: 2px; bottom: 2px; left: 2px;
+    width: calc(50% - 2px);
+    background: var(--c-primary);
+    border-radius: calc(var(--c-radius-md) - 2px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .segmented-control:has(label:nth-child(2) input:checked)::before { transform: translateX(100%); }
+
+  .segment-option {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    transition: color 0.3s ease;
+    user-select: none;
+  }
+
+  .segment-option input { 
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    opacity: 0;
+  }
+
+  /* Accessibility: Visible Focus Ring for Keyboard Users */
+  .segment-option:has(input:focus-visible) {
+    outline: 2px solid white;
+    outline-offset: -4px;
+    border-radius: var(--c-radius-md);
+  }
+
+  .segment-option:has(input:checked) { color: white; }
+  .segment-option:hover:not(:has(input:checked)) { color: white; }
+
+  /* Night Mode Overrides */
   :root:has(#theme-night:checked) {
     --c-bg:              oklch(12% 0.02 250);
     --c-sidebar-bg:      oklch(8% 0.02 250);
@@ -140,7 +184,7 @@
 
   :root:has(#theme-day:checked) {
     --c-bg:              oklch(96% 0.01 250);
-    --c-sidebar-bg:      oklch(18% 0.03 250);
+    --c-sidebar-bg:      #1e293b;
     --c-text-primary:    oklch(15% 0.01 250);
   }
 
@@ -152,20 +196,6 @@
     background: oklch(85% 0.01 250) !important;
     filter: brightness(0.85) contrast(1.1);
     box-shadow: 0 20px 60px oklch(0% 0 0 / 0.5) !important;
-  }
-
-  body[data-layout="form-a"],
-  body:has(#layout-a:checked) {
-    --din-addr-top: 27mm;
-    --din-mark-fold-1: 87mm;
-    --din-mark-fold-2: 192mm;
-  }
-
-  body[data-layout="form-b"],
-  body:has(#layout-b:checked) {
-    --din-addr-top: 45mm;
-    --din-mark-fold-1: 105mm;
-    --din-mark-fold-2: 210mm;
   }
 }
 
@@ -181,14 +211,12 @@
     font-size: 11pt;
     line-height: 1.4;
     overflow: hidden;
-    
-    /* ── SCROLL-STATE CONTAINER (Chrome 147+) ────────────────────── */
     container-name: paper;
     container-type: size scroll-state;
   }
 
-  /* ── OVERFLOW INDICATOR (Content Spiller) ─────────────────────── */
   #paper::after {
+    display: none;
     content: "⚠️ INHALT ÜBERLÄUFT SEITE 1";
     position: absolute;
     bottom: 20mm;
@@ -203,23 +231,17 @@
     opacity: 0;
     transform: translateY(10px);
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    pointer-events: none;
   }
 
   @container paper scroll-state(scrollable: block) {
-    #paper::after {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    /* Automated multi-page preparation logic could go here */
+    #paper::after { display: block; opacity: 1; transform: translateY(0); }
   }
 
   .paper-header {
     position: absolute;
-    top: 20mm;
-    right: var(--din-margin-r);
-    width: 75mm;
+    top: var(--top, 20mm);
+    right: var(--right, var(--din-margin-r));
+    width: var(--width, 75mm);
     text-align: right;
     font-size: 10pt;
     line-height: 1.2;
@@ -227,163 +249,15 @@
     flex-direction: column;
   }
 
-  /* [SPEC-080] Zero-JS UI State Management via :has() */
-  :root:has(#theme-night:checked) {
-    --c-bg:              oklch(12% 0.02 250);
-    --c-sidebar-bg:      oklch(8% 0.02 250);
-    --c-paper-bg:        oklch(15% 0 0);
-    --c-text-primary:    oklch(95% 0 0);
-  }
-
-  :root:has(#guides-off:checked) din-5008 {
-    --din-guides-opacity: 0;
-  }
-
-  :root:has(#layout-a:checked) {
-    --din-addr-top: 32mm;
-    --din-mark-fold-1: 87mm;
-  }
-
-  :root:has(#layout-b:checked) {
-    --din-addr-top: 45mm;
-    --din-mark-fold-1: 105mm;
-  }
-
-  /* [SPEC-080] JS-Free Placeholders (v4 Core 2026) */
-  [data-placeholder]:is(:empty, :has(> br:only-child))::before {
-    content: attr(data-placeholder);
-    color: oklch(40% 0.01 250 / 0.4); /* Etwas dunkler für bessere Lesbarkeit */
-    pointer-events: none;
-    font-style: normal;
-    font-size: 0.95em;
-    display: block;
-    position: absolute;
-  }
-
-  /* ... existing single-line atoms ... */
-
-  /* Growing Zones (Stabilized) */
-  din-subject {
-    font-weight: bold;
-    margin-bottom: 7mm; /* 7px raster match */
-    display: block;
-    field-sizing: content;
-    text-wrap: balance;
-  }
-
-  din-text {
-    display: block;
-    min-height: 20mm;
-    field-sizing: content;
-    white-space: pre-wrap;
-  }
-
-  #brief-kern {
-    position: absolute;
-    top: calc(var(--din-addr-top) + 50mm); /* Korrigierter Offset */
-    left: var(--din-margin-l);
-    right: var(--din-margin-r);
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Overflow Indicator Fix */
-  @container paper scroll-state(scrollable: block) {
-    #paper::after {
-      opacity: 1;
-      transform: translateY(0);
-      display: block; /* Nur zeigen wenn wirklich nötig */
-    }
-  }
-
-  #paper::after {
-    display: none; /* Default aus */
-    content: "⚠️ INHALT ÜBERLÄUFT SEITE 1";
-    /* ... existing styling ... */
-  }
-
-  /* [SPEC-085] Toast System */
-  #toast-container {
-    position: fixed;
-    bottom: 20mm;
-    right: 20mm;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    pointer-events: none;
-  }
-
-  .toast {
-    pointer-events: auto;
-    background: oklch(20% 0.02 250);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 10pt;
-    margin-top: 8px;
-    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.2);
-    
-    /* Entry Animation (JS-free) */
-    opacity: 1;
-    transform: translateY(0);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @starting-style {
-    .toast {
-      opacity: 0;
-      transform: translateY(20px) scale(0.9);
-    }
-  }
-
-  .toast-exit {
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.3s ease-in;
-  }
-
-  .toast-success { border-left: 4px solid oklch(65% 0.2 145); }
-  .toast-error   { border-left: 4px solid oklch(55% 0.2 30); }
-  .toast-warning { border-left: 4px solid oklch(75% 0.2 85); }
-  .toast-info    { border-left: 4px solid oklch(65% 0.2 250); }
-
-@media print {
-    background-color: oklch(100% 0 0 / 0.9) !important;
-    border: 1px solid var(--c-primary) !important;
-    box-shadow: 0 2px 8px oklch(0% 0 0 / 0.05);
-  }
-
   .paper-address-zone {
     position: absolute;
-    top: var(--din-addr-top);
-    left: 20mm;
-    width: var(--din-addr-w);
-    height: var(--din-addr-h);
+    top: var(--top, 45mm);
+    left: var(--left, 20mm);
+    width: var(--width, var(--din-addr-w));
+    height: var(--height, var(--din-addr-h));
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: outline 0.3s ease;
-  }
-
-  /* [SPEC-031] Address Zone Integrity Guard */
-  .paper-address-zone[data-integrity="fail"] {
-    outline: 2px solid oklch(60% 0.15 25);
-    background: oklch(60% 0.15 25 / 0.05);
-  }
-
-  .paper-address-zone[data-integrity="fail"]::after {
-    content: "⚠️ DIN-VERSTOSS: > 6 ZEILEN";
-    position: absolute;
-    top: -20px;
-    right: 0;
-    font-size: 7pt;
-    font-weight: bold;
-    color: oklch(60% 0.15 25);
-    background: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px oklch(0% 0 0 / 0.1);
   }
 
   din-return-line {
@@ -396,9 +270,9 @@
 
   .paper-infoblock {
     position: absolute;
-    top: 97.4mm;
-    left: 125mm;
-    width: 75mm;
+    top: var(--top, 97.4mm);
+    left: var(--left, 125mm);
+    width: var(--width, 75mm);
     display: flex;
     flex-direction: column;
     gap: 1.5mm;
@@ -406,35 +280,27 @@
 
   din-date {
     position: absolute;
-    top: 50mm;
-    left: 125mm;
-    width: 75mm;
+    top: var(--top, 50mm);
+    left: var(--left, 125mm);
+    width: var(--width, 75mm);
     text-align: left;
   }
 
   #brief-kern {
     position: absolute;
-    top: calc(var(--din-addr-top) + 58.4mm);
-    left: var(--din-margin-l);
-    right: var(--din-margin-r);
+    top: var(--top, calc(var(--din-addr-top) + 58.4mm));
+    left: var(--left, var(--din-margin-l));
+    right: var(--right, var(--din-margin-r));
   }
 
-  din-subject {
-    font-weight: bold;
-    margin-bottom: 12.7mm;
-    display: block;
-  }
-  din-text {
-    display: block;
-    min-height: 50mm;
-    white-space: pre-wrap;
-  }
+  din-subject { font-weight: bold; margin-bottom: 12.7mm; display: block; field-sizing: content; }
+  din-text { display: block; min-height: 50mm; white-space: pre-wrap; field-sizing: content; }
 
   .paper-footer {
     position: absolute;
-    bottom: 15mm;
-    left: var(--din-margin-l);
-    right: var(--din-margin-r);
+    bottom: var(--bottom, 15mm);
+    left: var(--left, var(--din-margin-l));
+    right: var(--right, var(--din-margin-r));
     display: flex;
     justify-content: space-between;
     font-size: 8pt;
@@ -442,33 +308,16 @@
     border-top: 0.5pt solid oklch(0% 0 0 / 0.2);
     padding-top: 2mm;
   }
-}
 
-@layer latex.base {
-  html,
-  body {
-    font-family: var(--c-font-ui);
-    margin: 0;
-    padding: 0;
-    width: 100% !important;
-    height: 100dvh !important;
-    overflow: hidden !important;
+  [data-placeholder]:is(:empty, :has(> br:only-child))::before {
+    content: attr(data-placeholder);
+    color: oklch(40% 0.01 250 / 0.4);
+    pointer-events: none;
+    position: absolute;
   }
 }
 
 @layer core.immutable {
-  .mark {
-    position: absolute;
-    left: 0;
-    width: 5mm;
-    border-top: 0.5pt solid oklch(0% 0 0);
-    pointer-events: none;
-  }
-
-  .mark-fold-1 { top: var(--din-mark-fold-1) !important; }
-  .mark-fold-2 { top: var(--din-mark-fold-2) !important; }
-  .mark-loch   { top: var(--din-mark-loch) !important; width: 7mm !important; }
-
   #app-shell { display: flex; width: 100%; height: 100dvh; overflow: hidden; }
 
   #sidebar-left {
@@ -477,25 +326,16 @@
     color: var(--c-sidebar-text);
     display: flex;
     flex-direction: column;
+    border-right: 1px solid var(--c-sidebar-border);
+    padding: 20px;
   }
 
-  .sidebar-btn {
-    background: var(--c-sidebar-btn-bg) !important;
-    /* [ACCESSIBILITY] Auto-Contrast via Chrome 147 contrast-color() */
-    color: contrast-color(var(--c-sidebar-btn-bg)) !important;
-    padding: 12px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 5px;
-    border: none;
-  }
+  .sidebar-header { margin-bottom: 30px; }
+  .sidebar-brand { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+  .v-tag { font-size: 0.6rem; background: var(--c-primary); padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
 
-  .sidebar-btn.primary {
-    background: var(--c-primary) !important;
-    color: contrast-color(var(--c-primary)) !important;
-    font-weight: 600;
-  }
+  .sidebar-control-group { margin-bottom: 20px; }
+  .sidebar-label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px; letter-spacing: 0.05em; }
 
   #paper-viewport {
     flex-grow: 1;
@@ -506,10 +346,31 @@
     overflow: auto;
   }
 
-  .compliance-bar, #btn-decoder-trigger, .status-bar { display: none !important; }
-  body.dev-mode .compliance-bar, body.dev-mode #btn-decoder-trigger, body.dev-mode .status-bar { display: flex !important; }
+  .sidebar-btn {
+    background: var(--c-sidebar-btn-bg);
+    color: white;
+    padding: 12px 16px;
+    border-radius: var(--c-radius-md);
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 8px;
+    border: 1px solid var(--c-sidebar-border);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-align: left;
+  }
 
-  /* [SPEC-075] Smart Deadline Popover */
+  .sidebar-btn:hover { background: rgba(255, 255, 255, 0.1); }
+  .sidebar-btn.primary { background: var(--c-primary); border: none; text-align: center; }
+
+  .actions-footer { margin-top: auto; padding-top: 20px; }
+  .utility-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+  .util-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--c-sidebar-border); color: #94a3b8; padding: 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
+
+  .compliance-bar { margin-top: 20px; font-size: 0.65rem; color: #475569; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--c-sidebar-border); padding-top: 15px; }
+  .status-ok { color: #22c55e; }
+
   .deadline-popover {
     position: absolute;
     position-anchor: --anchor-date;
@@ -517,54 +378,24 @@
     left: anchor(left);
     margin-top: 5px;
     background: white;
-    border: 1px solid oklch(0% 0 0 / 0.1);
+    border: 1px solid rgba(0,0,0,0.1);
     border-radius: 8px;
-    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     padding: 10px;
     z-index: 1000;
     min-width: 250px;
   }
 
-  .deadline-popover header {
-    font-size: 7pt;
-    font-weight: bold;
-    color: var(--c-primary);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
   .deadline-list { display: flex; flex-direction: column; gap: 6px; }
+  .deadline-item { background: #f8fafc; border: 1px solid rgba(0,0,0,0.05); padding: 6px 10px; border-radius: 6px; font-size: 9pt; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: black; }
+  .deadline-item:hover { background: var(--c-primary); color: white; }
 
-  .deadline-item {
-    background: oklch(98% 0 0);
-    border: 1px solid oklch(0% 0 0 / 0.05);
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 9pt;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: black;
-  }
-
-  .deadline-item:hover {
-    background: var(--c-primary);
-    color: white;
-  }
-
-  .deadline-item.prominent {
-    border: 1.5px solid var(--c-primary);
-    background: oklch(0% 0 0 / 0.02);
-  }
-
-  @media print {
-    html, body { background: white !important; height: auto !important; overflow: visible !important; }
-    #sidebar-left, .status-bar, .decoder-btn, #btn-decoder-trigger { display: none !important; }
-    #paper { box-shadow: none !important; margin: 0 !important; }
-  }
+  .mark { position: absolute; left: 0; width: 5mm; border-top: 0.5pt solid black; pointer-events: none; }
+  .mark-fold-1 { top: var(--pos, 105mm) !important; }
+  .mark-fold-2 { top: var(--pos, 210mm) !important; }
+  .mark-loch   { top: var(--pos, 148.5mm) !important; width: 7mm !important; }
 }
 
+@layer latex.base {
+  html, body { font-family: var(--c-font-ui); margin: 0; padding: 0; width: 100%; height: 100dvh; overflow: hidden; }
 }

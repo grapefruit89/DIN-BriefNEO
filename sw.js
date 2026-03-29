@@ -9,15 +9,24 @@ const ASSETS = [
   'css/lockdown.css',
   'css/app-ui.css',
   'css/print.css',
-  'js/core/app.js',
-  'js/core/state.js',
-  'js/core/constants.js',
-  'js/core/temporal-utils.js',
-  'js/core/opfs-worker.js',
-  'js/logic/logic.js',
-  'js/ui/ui.js',
-  'js/ui/toast-manager.js',
-  'js/ui/ghost-mirror.js'
+  'js/address-service.js',
+  'js/app.js',
+  'js/cma-sensor.js',
+  'js/constants.js',
+  'js/devmode.js',
+  'js/edit-context-controller.js',
+  'js/flight-recorder.js',
+  'js/ghost-mirror.js',
+  'js/greetings.js',
+  'js/io-coordinator.js',
+  'js/logic.js',
+  'js/model-blacklist.js',
+  'js/opfs-worker.js',
+  'js/state.js',
+  'js/temporal-utils.js',
+  'js/toast-manager.js',
+  'js/toast-registry.js',
+  'js/ui.js'
 ];
 
 self.addEventListener('install', e => {

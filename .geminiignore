@@ -1,4 +1,8 @@
+!/assets/
+!/assets/**
 !/.gemini/
+!/assets/
+!/assets/**
 !/.gemini/**
 !/.brain/
 !/.brain/**

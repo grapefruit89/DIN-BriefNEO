@@ -1,12 +1,12 @@
 ﻿/**
- * js/ui/ghost-mirror.js â€” Ghost-Mirror Implementation (SPEC-066)
+ * js/ghost-mirror.js — Ghost-Mirror Implementation (SPEC-066)
  * [CMD-1] Structural Markdown via Sanitizer API & Mirror-Layer
  * [CMD-1] Syntax Coloring via CSS Custom Highlight API
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * ─────────────────────────────────────────────────────────────
  */
 
-import { CORE_SANITIZER } from "../core/constants.js";
-import * as Logic from "../logic/logic.js";
+import { CORE_SANITIZER } from "./constants.js";
+import * as Logic from "./logic.js";
 
 export class GhostMirror {
   constructor(elementId, mirrorId) {
@@ -124,4 +124,3 @@ export class GhostMirror {
     CSS.highlights.set("din-marker", new Highlight(...this.markerRanges));
   }
 }
-

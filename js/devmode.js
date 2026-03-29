@@ -1,9 +1,9 @@
 ﻿/**
- * js/ui/devmode.js â€” Easter Egg, Developer Mode & Live Tag-Inspector
- * DIN-BriefNEO Â· v4.0 V14 | SPEC-049 | CAA-008 | PLAN-010
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- * IMR 2.0: Live-Inspector zeigt <din-*> Tag â†” JSON-Key Abgleich.
- * MutationObserver scannt querySelectorAll('[din-*]') â€” kein ID-Lookup.
+ * js/devmode.js — Easter Egg, Developer Mode & Live Tag-Inspector
+ * DIN-BriefNEO · v4.0 V14 | SPEC-049 | CAA-008 | PLAN-010
+ * ───────────────────────────────────────────────────────────────
+ * IMR 2.0: Live-Inspector zeigt <din-*> Tag ↔ JSON-Key Abgleich.
+ * MutationObserver scannt querySelectorAll('[din-*]') — kein ID-Lookup.
  *
  * ACTIVATION: 5x Klick auf #app-version (2s Reset-Window)
  * STORAGE:    localStorage 'neo_dev_mode' = 'true'
@@ -13,9 +13,9 @@ import {
   buildInterviewPrompt,
   buildOptimizationPrompt,
   readDOMasJSON,
-} from "../logic/logic.js";
-import { IMR } from "../core/constants.js";
-import { nowTimeISO } from "../core/temporal-utils.js";
+} from "./logic.js";
+import { IMR } from "./constants.js";
+import { nowTimeISO } from "./temporal-utils.js";
 
 const DEV_KEY = "neo_dev_mode";
 const CLICK_TARGET = 5;
@@ -147,4 +147,3 @@ function _renderTagInspector(json) {
 
   el.textContent = header + cmaStatus + rows;
 }
-

@@ -262,7 +262,7 @@ Die v4.0 Validation Pipeline (PVP) ist das "High-Integrity" Sicherheitsnetz des 
 ## 2. Kern-Komponenten
 
 ### 2.1 IMR Component Catalog (Agent Guidance)
-- **Anforderung**: Ein Tool muss existieren, das die `Isomorphic Master Registry (IMR)` aus der SSoT (`js/core/constants.js`) in ein maschinenlesbares JSON-Format extrahiert.
+- **Anforderung**: Ein Tool muss existieren, das die `Isomorphic Master Registry (IMR)` aus der SSoT (`js/constants.js`) in ein maschinenlesbares JSON-Format extrahiert.
 - **Zweck**: Agenten nutzen diesen Katalog, um exakte Tag-Namen (z.B. `din-date`) statt Halluzinationen (z.B. `din-datum`) zu verwenden.
 - **Datenfelder**: Tag, JSON-Key, CMA-Koordinate (sofern vorhanden).
 
@@ -271,7 +271,7 @@ Die Pipeline muss nach jeder Änderung folgende Prüfungen automatisiert durchf�
 
 #### A. Security Check (MANDATE-INJ)
 - **Regel**: `innerHTML` Zuweisungen sind verboten.
-- **Toleranz**: 0 Verstöße erlaubt in `js/core/` und `js/ui/`.
+- **Toleranz**: 0 Verstöße erlaubt in `js/`.
 - **Ausnahme**: Nur in spezifisch markierten Render-Engines (z.B. Ghost-Mirror Renderer), sofern dort eine Sanitization stattfindet.
 
 #### B. Native Check (MANDATE-NAT)

@@ -41,33 +41,11 @@ export class UIController {
       this._onStateChange(path, val, scope, source),
     );
 
-    this._injectDNA();
     this._syncAllToDOM();
     this._startNightWatchdog();
     this._initKeyboardShortcuts();
 
-    console.info("🚀 v4.0 UI: Core Engine Active | DNA Injected | SPEC-066 & 075 Enabled");
-  }
-
-  _injectDNA() {
-    const dna = document.documentElement.style;
-    const { CMA } = Logic.CMA ? Logic : { CMA: { PAGE_WIDTH: 210, FORM: { A: { ADDRESS_TOP: 32 }, B: { ADDRESS_TOP: 45 } } } }; // Fallback to safe defaults if logic not yet loaded
-    
-    // Core Dimensions
-    dna.setProperty("--din-width", "210mm");
-    dna.setProperty("--din-height", "297mm");
-    dna.setProperty("--din-margin-l", "25mm");
-    dna.setProperty("--din-margin-r", "20mm");
-
-    // Dynamic Layout DNA
-    const layout = this.sm.state.config.layout || "form-b";
-    const addrTop = layout === "form-a" ? 32 : 45;
-    dna.setProperty("--din-addr-top", `${addrTop}mm`);
-    
-    // Fold Marks
-    dna.setProperty("--din-mark-fold-1", layout === "form-a" ? "87mm" : "105mm");
-    dna.setProperty("--din-mark-fold-2", layout === "form-a" ? "192mm" : "210mm");
-    dna.setProperty("--din-mark-loch", "148.5mm");
+    console.info("🚀 v4.0 UI: Core Engine Active | Zero-JS DNA | SPEC-066 & 075 Enabled");
   }
 
   _initEditors() {
@@ -213,12 +191,12 @@ export class UIController {
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, "");
       e.target.value = val.match(/.{1,4}/g)?.join(" ") || val;
-      e.target.style.borderColor =
-        val.length > 0
-          ? Logic.validateIBAN(val)
-            ? "#4CAF50"
-            : "#f44336"
-          : "#ddd";
+      
+      if (val.length > 0 && !Logic.validateIBAN(val)) {
+        e.target.setCustomValidity("Ungültige IBAN");
+      } else {
+        e.target.setCustomValidity("");
+      }
     });
 
     profileSelect?.addEventListener("change", (e) => {
@@ -330,14 +308,7 @@ export class UIController {
       this.sm.update("content.return_line", Logic.deriveReturnLine(data), "reactive");
     }
 
-    // 3. Layout Update
-    if (path === "config.layout") {
-      this._injectDNA();
-      const paper = document.getElementById("paper");
-      if (paper) paper.dataset.form = value === "form-a" ? "A" : "B";
-    }
-
-    // 4. Global Sync for heavy scopes
+    // 3. Global Sync for heavy scopes
     if (["opfs", "load", "config", "profile"].includes(scope)) {
       this._syncAllToDOM();
       return;

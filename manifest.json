@@ -1,6 +1,7 @@
 {
   "name": "DIN-BriefNEO",
   "short_name": "NEO",
+  "version": "4.0.0",
   "description": "High-Integrity DIN 5008 Brief-Editor",
   "start_url": "index.html",
   "display": "standalone",

@@ -203,18 +203,6 @@ async function boot() {
       }
     });
 
-    // â”€â”€ 8. [COMPLIANCE] PrecisionMath Self-Test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    const mathStatus = typeof Math.sumPrecise === "function" ? "ok" : "warn";
-    const mathLabel =
-      typeof Math.sumPrecise === "function"
-        ? "Blink-Native"
-        : "Integer-Fallback";
-    ui.updateComplianceStatus(
-      "math-engine-status",
-      mathStatus,
-      `Math-Engine: [${mathLabel}]`,
-    );
-
     // â”€â”€ 9. TELEMETRY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logTelemetry(sm, io, ui);
 

@@ -562,21 +562,6 @@ export class UIController {
     return Object.keys(data.content).every((k) => allowed.has(k));
   }
 
-  updateComplianceStatus(key, status, label) {
-    const el = document.getElementById(key);
-    if (!el) return;
-    el.textContent = `${label}: `;
-    const span = document.createElement("span");
-    span.className =
-      status === "ok"
-        ? "status-ok"
-        : status === "warn"
-          ? "status-warn"
-          : "status-err";
-    span.textContent = `[${status.toUpperCase()}]`;
-    el.appendChild(span);
-  }
-
   _startNightWatchdog() {
     const scheduleNext = () => {
       if (this.sm.state.config.theme_manually_set) return;

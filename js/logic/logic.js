@@ -259,7 +259,6 @@ export function detectContext(text) {
 
 /**
  * Validiert die Zeilenbelegung im Anschriftfeld (DIN 5008)
- */
  * @param {Object} content - Der aktuelle Content-State
  * @returns {Object} - { isValid: boolean, lineCount: number }
  */
@@ -355,16 +354,10 @@ export function formatIBAN(raw) {
 
 /* â”€â”€ Markdown Engine (High-Integrity Ghost-Mirror) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/**
- * [CMD-1] v4.0 Markdown Parser (V26)
- * Nutzt gepaarte Syntax ohne Escaping-Zwang fÃ¼r Einzelzeichen.
- * @param {string} text - Plaintext Input
- * @returns {string} Sanitized HTML Output
- */
 export function parseMarkdownToHTML(text) {
   if (!text) return "";
 
-  // Escaping basic HTML entities to prevent injection
+  // 1. Basic Escaping
   let html = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -372,22 +365,48 @@ export function parseMarkdownToHTML(text) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
+  const tokens = [];
+  const addToken = (htmlSnippet) => {
+    const id = `__MD${tokens.length}__`;
+    tokens.push({ id, html: htmlSnippet });
+    return id;
+  };
+
+  // 2. Tokenize Patterns (Order: Blockquote -> Bold -> Underline -> Italic)
+  // Blockquote: Erkennt > am Zeilenanfang oder nach einem \n
+  html = html.replace(/(?:^|\n)\s*&gt;\s*(.+?)(?=\n|$)/g, (match, p1) => {
+    const prefix = match.startsWith("\n") ? "\n" : "";
+    return prefix + addToken(`<blockquote class="md-quote"><span class="md-marker">&gt;</span> ${p1}</blockquote>`);
+  });
+
+  // Bold **text**
+  html = html.replace(/\*\*(.+?)\*\*/g, (match, p1) => 
+    addToken(`<span class="md-marker">**</span><strong>${p1}</strong><span class="md-marker">**</span>`)
+  );
+
+  // Underline __text__
+  html = html.replace(/__(.+?)__/g, (match, p1) => 
+    addToken(`<span class="md-marker">__</span><u>${p1}</u><span class="md-marker">__</span>`)
+  );
+
+  // Italic *text*
+  html = html.replace(/\*(.+?)\*/g, (match, p1) => 
+    addToken(`<span class="md-marker">*</span><em>${p1}</em><span class="md-marker">*</span>`)
+  );
+
+  // 3. Detokenize (Recursively to handle nesting)
+  let iterations = 0;
+  while (html.includes("__MD") && iterations < 10) {
+    tokens.forEach(t => {
+      html = html.replace(t.id, t.html);
+    });
+    iterations++;
+  }
+
+  // 4. Line Breaks (Final step for rendering)
   html = html
-    // ZeilenumbrÃ¼che: einzelnes \n = <br>, doppeltes \n\n = neuer Absatz
     .replace(/\n\n/g, "<br><br>")
-    .replace(/\n/g, "<br>")
-
-    // Blockzitat (muss zuerst, weil es Zeilen betrifft)
-    .replace(/^&gt;\s*(.+?)(?=<br>|$)/gm, "<blockquote>$1</blockquote>")
-
-    // Fett **text** (nur gepaart)
-    .replace(/\*\*([^\*]+?)\*\*/g, "<strong>$1</strong>")
-
-    // Kursiv *text* (nur wenn exakt ein einzelnes * Paar)
-    .replace(/\*([^\*]+?)\*/g, "<em>$1</em>")
-
-    // Unterstrichen __text__ (nur gepaart)
-    .replace(/__([^_]+?)__/g, "<u>$1</u>");
+    .replace(/\n/g, "<br>");
 
   return html;
 }

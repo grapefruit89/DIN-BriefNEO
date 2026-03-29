@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "ctx7@latest", "mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "ctx7sk-5d9fe13d-6578-4b0d-bcd6-eb7cc4b7c187"
+      },
+      "trust": true
+    },
     "puppeteer": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-puppeteer"],

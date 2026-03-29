@@ -1,8 +1,8 @@
 /**
- * js/ui/ui.js — v4.0 Platinum DOM Controller
+ * js/ui/ui.js — v4.0 Platinum DOM Controller (Unified Fusion)
  * [CMD-1] Ghost-Mirror Structural Integrity (SPEC-066)
  * [CMD-4] EditContext Integration
- * [SPEC-080] Zero-JS UI Persistency
+ * [SPEC-075] Smart Deadlines & [SPEC-080] UI Persistency
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -21,6 +21,8 @@ export class UIController {
     this._ghosts = {};
     this.addressService = new AddressService(sm, this);
     this._nightTimer = null;
+    this._overflowDebounce = null;
+    this._autocompleteDebounce = null;
   }
 
   init() {
@@ -29,7 +31,7 @@ export class UIController {
     this._bindUtilityActions();
     this.addressService.init();
 
-    // Theme Management
+    // [SPEC-080] Smart-Night Logic
     if (!this.sm.state.config.theme_manually_set) {
       const isNight = Logic.isNightTime();
       this.sm.state.config.theme = isNight ? "night" : "day";
@@ -43,14 +45,13 @@ export class UIController {
     this._startNightWatchdog();
     this._initKeyboardShortcuts();
 
-    console.info("🚀 v4.0 UI: Platinum Engine Active | SPEC-066 Enabled");
+    console.info("🚀 v4.0 UI: Platinum Engine Active | SPEC-066 & 075 Enabled");
   }
 
   _initEditors() {
     IMR.filter((e) => e.editContext).forEach((entry) => {
       const el = document.querySelector(entry.tag);
       if (el) {
-        // EditContext for pure input buffer
         this._editors[entry.tag] = new EditContextController(el, (text) => {
           this.sm.update(`content.${entry.key}`, text, "editcontext");
           if (this._ghosts[entry.tag]) {
@@ -59,9 +60,12 @@ export class UIController {
           if (entry.key === "rect_ln" || entry.key === "rect_fn") {
             this._triggerSalutationUpdate();
           }
+          // [SPEC-075] Smart Deadlines Trigger
+          if (entry.key === "body" || entry.key === "date") {
+            this._handleSmartDeadlines(el, entry.key, text);
+          }
         });
 
-        // Ghost-Mirror for structural rendering (SPEC-066)
         if (entry.tag === "din-text") {
           this._ghosts[entry.tag] = new GhostMirror("din-text", "din-text-mirror");
         }
@@ -72,7 +76,7 @@ export class UIController {
   _bindNativeEvents() {
     const paper = document.getElementById("paper");
 
-    // Central Command Listener (Native Invokers)
+    // Central Command Listener (Native Invokers & System Actions)
     document.addEventListener("command", (e) => {
       const command = e.command || e.detail?.command;
       const targetId = e.target?.getAttribute("commandfor") || e.detail?.targetId;
@@ -80,6 +84,8 @@ export class UIController {
       if (command === "--print") window.print();
       if (command === "--export") this._handleExport();
       if (command === "--import") this._handleImport();
+      if (command === "--export-logs") this._handleLogExport();
+      if (command === "--history") if (this.io) this.io.requestHistory();
       if (command === "--reset-data") { localStorage.clear(); location.reload(); }
       if (command === "--toggle-guides" && paper) {
         paper.dataset.guides = paper.dataset.guides === "true" ? "false" : "true";
@@ -89,7 +95,7 @@ export class UIController {
       if (command === "show-popover" && targetId) document.getElementById(targetId)?.showPopover();
     });
 
-    // UI State Persistency Bridge (Layout/Theme/Guides)
+    // UI State Persistency Bridge
     document.addEventListener("change", (e) => {
       if (e.target.name === "layout") this.sm.update("config.layout", e.target.id === "layout-a" ? "form-a" : "form-b", "ui");
       if (e.target.name === "guides") this.sm.update("config.guides", e.target.value === "true", "ui");
@@ -99,10 +105,10 @@ export class UIController {
       }
     });
 
-    // Profile Management
+    // Profile Management Logic
     this._initProfileManagement();
 
-    // Radical Paste-Filter (High-Integrity)
+    // Radical Paste-Filter
     document.addEventListener("paste", (e) => {
       const el = e.target;
       if (el.hasAttribute("contenteditable") || el.editContext) {
@@ -120,6 +126,28 @@ export class UIController {
         } else {
           document.execCommand("insertText", false, text);
         }
+      }
+    });
+
+    // Legacy Input Support (for fields without EditContext)
+    document.addEventListener("input", (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      const entry = IMR.find((et) => et.tag === tag);
+      if (entry && !entry.editContext) {
+        let text = e.target.textContent;
+        if (!text || text.trim() === "" || text === "\n") {
+          e.target.textContent = "";
+          text = "";
+        }
+        this.sm.update(`content.${entry.key}`, text, "ui");
+        if (entry.key === "rect_ln" || entry.key === "rect_fn") this._triggerSalutationUpdate();
+      }
+    });
+
+    // Escape Key Guard
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        document.getElementById("popover-smart-deadlines")?.hidePopover();
       }
     });
   }
@@ -142,7 +170,6 @@ export class UIController {
       const profiles = this.sm.state.config.profiles || {};
       const data = profiles[e.target.value];
       if (data) {
-        // [CMD-1] Fixed: Correct ID mapping for Profile Modal
         document.getElementById("p-fn").value = data.fn || "";
         document.getElementById("p-ln").value = data.ln || "";
         document.getElementById("p-co").value = data.co || "";
@@ -188,6 +215,7 @@ export class UIController {
       reader.onload = (re) => {
         try {
           const data = JSON.parse(re.target.result);
+          if (!this._validateImportSchema(data)) throw new Error("Schema Violation");
           this.sm.load(data);
           toast.show("import_success");
           setTimeout(() => location.reload(), 1000);
@@ -210,6 +238,17 @@ export class UIController {
   }
 
   _handleImport() { document.getElementById("file-import")?.click(); }
+
+  _handleLogExport() {
+    const url = FlightRecorder.exportLogs();
+    if (url) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `incident_logs_${Temporal.Now.plainDateISO().toString()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }
 
   _onStateChange(path, value, scope, source) {
     if (source === "editcontext") return;
@@ -277,8 +316,105 @@ export class UIController {
     }
   }
 
+  _handleSmartDeadlines(el, key, text) {
+    const context = Logic.detectContext(this.sm.state.content.body);
+    const deadlines = Logic.calculateDeadlines();
+    const popover = document.getElementById("popover-smart-deadlines");
+    const list = document.getElementById("deadline-list");
+    if (!popover || !list) return;
+
+    if (key === "date" || (key === "body" && context !== "standard" && context !== "none")) {
+      list.innerHTML = "";
+      const options = [
+        { label: "14 Tage", date: deadlines.in14Days, type: "14d" },
+        { label: "30 Tage", date: deadlines.in30Days, type: "30d" },
+        { label: "1 Monat", date: deadlines.nextMonth, type: "1m" }
+      ];
+      options.forEach(opt => {
+        const item = document.createElement("div");
+        item.className = "deadline-item";
+        if ((context === "widerspruch" && opt.type === "14d") || (context === "mahnung" && opt.type === "30d")) item.classList.add("prominent");
+        const dateStr = opt.date.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+        item.innerHTML = `<span class="label">${opt.label}</span> <span class="date">${dateStr}</span>`;
+        item.onclick = (e) => {
+          e.stopPropagation();
+          if (key === "date") {
+            el.textContent = dateStr;
+            this.sm.update("content.date", dateStr, "ui");
+          } else {
+            this._insertTextAtCursor(el, `\n📅 Frist: ${dateStr} (${opt.label})\n`);
+          }
+          popover.hidePopover();
+        };
+        list.appendChild(item);
+      });
+      popover.style.positionAnchor = key === "date" ? "--anchor-date" : "--anchor-text";
+      try { if (!popover.matches(":popover-open")) popover.showPopover(); } catch(e) {}
+    } else {
+      if (popover.matches(":popover-open")) popover.hidePopover();
+    }
+  }
+
+  _insertTextAtCursor(el, text) {
+    if (el.editContext) {
+      const ec = el.editContext;
+      ec.updateText(ec.selectionStart, ec.selectionStart, text);
+      ec.updateSelection(ec.selectionStart + text.length, ec.selectionStart + text.length);
+      this.sm.update("content.body", ec.text, "editcontext");
+    } else {
+      const sel = window.getSelection();
+      if (sel.rangeCount) sel.getRangeAt(0).insertNode(document.createTextNode(text));
+    }
+  }
+
+  _renderSuggestions(features, anchor) {
+    this._closeAutocomplete();
+    if (!features?.length) return;
+    const list = document.createElement("div");
+    list.className = "autocomplete-suggestions";
+    if (anchor) list.style.setProperty("--suggestions-anchor", anchor);
+    features.forEach((feature) => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-suggestion";
+      const p = feature.properties;
+      item.innerHTML = `<strong>${p.name || p.formatted?.split(",")[0] || ""}</strong><span>${p.street ? ` ${p.street} ${p.housenumber || ""}, ${p.postcode} ${p.city}` : ` ${p.formatted}`}</span>`;
+      item.onclick = () => this._selectAddress(feature);
+      list.appendChild(item);
+    });
+    document.body.appendChild(list);
+  }
+
+  _selectAddress(feature) {
+    const p = feature.properties;
+    const name = p.name || p.formatted?.split(",")[0] || "";
+    this.sm.update("content.rect_name", name, "ui");
+    this.sm.update("content.rect_st", p.street ? `${p.street} ${p.housenumber || ""}` : "", "ui");
+    this.sm.update("content.rect_city", p.postcode ? `${p.postcode} ${p.city}` : p.city || "", "ui");
+    this._syncAllToDOM();
+    this._closeAutocomplete();
+    this._triggerSalutationUpdate();
+  }
+
+  _closeAutocomplete() { document.querySelector(".autocomplete-suggestions")?.remove(); }
+
+  _validateImportSchema(data) {
+    if (!data?.content || !data?.config) return false;
+    const allowed = new Set(IMR.map(e => e.key));
+    return Object.keys(data.content).every(k => allowed.has(k));
+  }
+
+  updateComplianceStatus(key, status, label) {
+    const el = document.getElementById(key);
+    if (!el) return;
+    el.textContent = `${label}: `;
+    const span = document.createElement("span");
+    span.className = status === "ok" ? "status-ok" : status === "warn" ? "status-warn" : "status-err";
+    span.textContent = `[${status.toUpperCase()}]`;
+    el.appendChild(span);
+  }
+
   _startNightWatchdog() {
-    const schedule = () => {
+    const scheduleNext = () => {
       if (this.sm.state.config.theme_manually_set) return;
       const ms = Logic.getMsUntilNextThemeTransition();
       this._nightTimer = setTimeout(() => {
@@ -287,10 +423,21 @@ export class UIController {
           this.sm.update("config.theme", target, "auto-night");
           this._syncAllToDOM();
         }
-        schedule();
+        scheduleNext();
       }, ms + 1000);
     };
-    schedule();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        const target = Logic.isNightTime() ? "night" : "day";
+        if (!this.sm.state.config.theme_manually_set && this.sm.state.config.theme !== target) {
+          this.sm.update("config.theme", target, "auto-night");
+          this._syncAllToDOM();
+          clearTimeout(this._nightTimer);
+          scheduleNext();
+        }
+      }
+    });
+    scheduleNext();
   }
 
   _initKeyboardShortcuts() {

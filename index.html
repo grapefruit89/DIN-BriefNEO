@@ -135,19 +135,6 @@
             🖨 Drucken / PDF
           </button>
 
-          <!-- COMPLIANCE BAR -->
-          <div class="compliance-bar">
-            <div id="integrity-status" class="compliance-item">
-              Fiskale Integrität: <span class="status-ok">[OK]</span>
-            </div>
-            <div id="storage-status" class="compliance-item">
-              Storage: <span class="status-ok">[OPFS-Journaling]</span>
-            </div>
-            <div id="math-engine-status" class="compliance-item">
-              Math-Engine: [Initialisiere...]
-            </div>
-            <div id="statusbar" class="status-bar-text">Bereit.</div>
-          </div>
         </div>
       </aside>
 
@@ -280,10 +267,6 @@
           </din-A4>
         </din-5008>
 
-        <!-- Decoder Trigger -->
-        <button id="btn-decoder-trigger" class="decoder-btn">🔍 Decoder</button>
-
-        <div id="statusbar-viewport" class="status-bar">Initialisiere...</div>
         </main>
         </div>
 
@@ -340,6 +323,24 @@
       <h3>🗃️ Black Box Decoder — Flight Recorder</h3>
       <div class="decoder-content">
         <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
+      </div>
+      <div class="dialog-actions">
+        <button commandfor="dialog-decoder" command="close">Schließen</button>
+      </div>
+    </dialog>
+
+    <!-- SMART DEADLINE POPOVER -->
+    <div id="popover-smart-deadlines" popover class="deadline-popover">
+      <header>📅 Intelligente Fristen</header>
+      <div id="deadline-list" class="deadline-list">
+        <!-- Dynamisch befüllt -->
+      </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
+zeichnet.</pre>
       </div>
       <div class="dialog-actions">
         <button commandfor="dialog-decoder" command="close">Schließen</button>

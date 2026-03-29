@@ -1,4 +1,4 @@
-# SPEC-090: UI/UX Platinum Polish
+# SPEC-090: UI/UX Core Polish
 
 ## 1. Status Quo
 Das UI ist funktional, wirkt aber an einigen Stellen noch "statisch". Abstände sind nicht systemisch definiert, und die visuelle Hierarchie bei offenen Dialogen könnte klarer sein.

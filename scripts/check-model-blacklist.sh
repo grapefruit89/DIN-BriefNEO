@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # scripts/check-model-blacklist.sh — KI-Modell Blacklist Check
-# DIN-BriefNEO · Platinum V13 | SPEC-038
+# DIN-BriefNEO · v4 Core V13 | SPEC-038
 # =============================================================================
 # PRINZIP: Blacklist statt Whitelist.
 #   Neue Modelle brauchen keine manuelle Freischaltung.

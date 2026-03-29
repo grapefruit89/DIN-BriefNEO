@@ -15,7 +15,7 @@ Sync Impact Report:
   - .specify/memory/constitution.md
 -->
 
-# Platinum DIN-BriefNEO Constitution
+# v4 Core DIN-BriefNEO Constitution
 
 **Version**: 16.0.1 | **Last Amended**: 2026-03-22 | **Ratified**: 2026-03-19
 

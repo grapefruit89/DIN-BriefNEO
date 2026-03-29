@@ -1,7 +1,7 @@
 /**
  * DIN-BriefNEO Component Catalog Generator
  * Extract IMR (Isomorphic Master Registry) as JSON for AI Agent Guidance.
- * Part of the Platinum Validation Pipeline (061).
+ * Part of the v4 Core Validation Pipeline (061).
  */
 import { IMR, CMA } from '../js/core/constants.js';
 

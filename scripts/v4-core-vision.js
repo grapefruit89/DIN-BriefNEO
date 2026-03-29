@@ -16,7 +16,7 @@ async function runVisionCheck() {
   const page = await context.newPage();
   const filePath = `file://${path.join(projectRoot, 'index.html').replace(/\\/g, '/')}`;
 
-  console.log(`🚀 [VISION] Lade Platinum Engine: ${filePath}`);
+  console.log(`🚀 [VISION] Lade v4 Core Engine: ${filePath}`);
 
   try {
     await page.goto(filePath, { waitUntil: 'networkidle' });
@@ -48,7 +48,7 @@ async function runVisionCheck() {
     console.table(metrics);
 
     // 2. Screenshot-Analyse
-    const screenshotPath = path.join(projectRoot, 'platinum-vision-check.png');
+    const screenshotPath = path.join(projectRoot, 'v4-core-vision-check.png');
     await page.screenshot({ path: screenshotPath, fullPage: true });
     
     console.log(`✅ [VISION] Screenshot erstellt: ${screenshotPath}`);

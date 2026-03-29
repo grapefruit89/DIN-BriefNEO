@@ -7,11 +7,11 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 
 /**
- * DIN-BriefNEO Platinum Validation Suite
+ * DIN-BriefNEO v4 Core Validation Suite
  * Consolidates Geometry Check (DIN 5008) and Layout Switching.
  */
 async function runFullValidation() {
-  console.log('🚀 [VALIDATION] Starte Platinum Engine Check...');
+  console.log('🚀 [VALIDATION] Starte v4 Core Engine Check...');
   
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
@@ -101,7 +101,7 @@ async function runFullValidation() {
     }
 
     // --- FINAL: SCREENSHOT ---
-    const screenshotPath = path.join(projectRoot, 'assets/screenshots/platinum-validation-report.png');
+    const screenshotPath = path.join(projectRoot, 'assets/screenshots/v4-core-validation-report.png');
     await page.screenshot({ path: screenshotPath, fullPage: true });
     console.log(`\n📸 [REPORT] Screenshot erstellt: ${screenshotPath}`);
 

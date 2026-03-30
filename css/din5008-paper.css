@@ -4,24 +4,92 @@
  */
 
 @layer din.structure {
+  #paper {
+    display: block;
+    width: 210mm;
+    height: 297mm;
+    background: oklch(100% 0 0);
+    position: relative;
+    box-shadow: var(--c-shadow-sheet);
+    font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+
+  /* --- BLUEPRINT DYNAMICS (CMA Layer) --- */
+
+  /* Global logic: Default to Form B, switch to A if requested */
+  din-header,
+  din-anschriftfeld,
+  din-infoblock,
+  din-date,
+  din-kern {
+    position: absolute;
+    left: var(--x);
+    width: var(--w);
+    top: var(--y-b); /* Default: Form B */
+    transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Form A Override via Zero-JS Logic */
+  :root:has(#state-layout-a:checked) din-anschriftfeld {
+    top: var(--din-addr-top-a);
+  }
+  :root:has(#state-layout-a:checked) din-infoblock {
+    top: var(--din-info-top-a);
+  }
+  :root:has(#state-layout-a:checked) din-date {
+    top: var(--din-addr-top-a);
+  } /* Date is aligned with address top in Form A */
+  :root:has(#state-layout-a:checked) din-kern {
+    top: var(--din-subject-top-a);
+  }
+
+  /* Element-specific defaults (Form B) */
+  din-anschriftfeld {
+    top: var(--din-addr-top-b);
+  }
+  din-infoblock {
+    top: var(--din-info-top-b);
+  }
+  din-date {
+    top: var(--din-addr-top-b);
+  }
+  din-kern {
+    top: var(--din-subject-top-b);
+  }
+
+  /* Elements with static Y */
+  din-header {
+    top: var(--y, 20mm);
+  }
+  din-fusszeile {
+    position: absolute;
+    bottom: var(--din-footer-bottom);
+    left: var(--x, 25mm);
+    width: var(--w, 165mm);
+  }
+
   /* Guide Marks (Fold & Hole) */
   .mark {
     position: absolute;
     left: 0;
     width: 5mm;
-    border-top: 0.5pt solid oklch(0% 0 0);
+    border-top: 0.5pt solid oklch(0% 0 0 / 0.3);
     pointer-events: none;
+    z-index: 10;
   }
 
   .mark-fold-1 {
-    top: var(--din-mark-fold-1) !important;
+    top: var(--din-mark-fold-1);
   }
   .mark-fold-2 {
-    top: var(--din-mark-fold-2) !important;
+    top: var(--din-mark-fold-2);
   }
   .mark-loch {
-    top: var(--din-mark-loch) !important;
-    width: 7mm !important;
+    top: var(--din-mark-loch);
+    width: 7mm;
   }
 
   /* Return Address Line */
@@ -36,21 +104,11 @@
     color: oklch(40% 0 0);
   }
 
-  /* Main Letter Article */
-  #brief-kern {
-    position: absolute;
-    top: calc(var(--din-addr-top) + 58.4mm);
-    left: var(--din-margin-l);
-    right: var(--din-margin-r);
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Body Container (Ghost-Mirror Architecture) */
-  .body-container {
+  /* Body & Ghost Mirror */
+  din-text-container {
     position: relative;
     display: block;
-    min-height: 50mm;
+    min-height: var(--min-h, 50mm);
     margin-bottom: 8.46mm;
   }
 
@@ -69,16 +127,18 @@
   }
 
   din-text {
+    position: relative;
     z-index: 2;
     color: inherit;
     caret-color: oklch(0% 0 0);
     background: transparent;
     outline: none;
     field-sizing: content;
+    transition: opacity 0.2s;
   }
 
-  /* Focus Logic: Hide Source, Show Mirror */
-  din-text:not(:focus) {
+  /* Focus Logic: Hide Source Source, Show Mirror */
+  din-text:not(:focus):not(:empty) {
     opacity: 0;
   }
 
@@ -90,6 +150,19 @@
     color: oklch(0% 0 0);
     pointer-events: none;
     user-select: none;
+  }
+
+  /* LIST SUPPORT (Markdown Extension) */
+  .md-list-item {
+    display: block;
+    padding-left: 5mm;
+    text-indent: -5mm;
+  }
+  .md-list-item::before {
+    content: "â€¢";
+    display: inline-block;
+    width: 5mm;
+    text-align: center;
   }
 
   din-text-mirror strong {
@@ -105,29 +178,18 @@
     color: oklch(40% 0 0);
   }
 
-  /* Markdown Ghosting Specification (SPEC-066) */
+  /* [SPEC-066] Ghosting Color for Markers */
   .md-marker {
-    display: inline-block;
-    width: 0;
-    overflow: hidden;
-    color: oklch(60% 0 0 / 0.5); /* Ghosting color */
-    white-space: nowrap;
-    pointer-events: none;
-    user-select: none;
-    vertical-align: top;
+    color: oklch(60% 0 0 / 0.4);
   }
 
-  /* Placeholder Specification */
+  /* Placeholder Styling */
   [contenteditable]:empty::before {
     content: attr(data-placeholder);
-    color: oklch(70% 0 0) !important;
+    color: oklch(70% 0 0 / 0.5);
     font-style: italic;
     pointer-events: none;
     display: block;
-  }
-
-  [contenteditable]:empty:focus::before {
-    opacity: 0.3;
   }
 
   /* ── Print Engine Specification ── */

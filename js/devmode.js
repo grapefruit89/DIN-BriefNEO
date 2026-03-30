@@ -21,50 +21,47 @@ const DEV_KEY = "neo_dev_mode";
 const CLICK_TARGET = 5;
 
 export function checkDevMode() {
-  if (localStorage.getItem(DEV_KEY) === "true") {
-    document.body.dataset.devmode = "true";
-    document.body.classList.add("dev-mode");
-  }
+  const isEnabled = localStorage.getItem(DEV_KEY) === "true";
+  const toggle = document.getElementById("dev-toggle");
+  if (toggle) toggle.checked = isEnabled;
 }
 
 export function initDevMode(sm) {
-  _bind5xClick();
+  _bind5xClick(sm);
   _bindAkinatorTerminal(sm);
   if (localStorage.getItem(DEV_KEY) === "true") {
     _startLiveInspector(sm);
   }
 }
 
-/* â”€â”€ 5x-Klick Easter Egg â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function _bind5xClick() {
+/* ── 5x-Klick Easter Egg ────────────────────────────────────── */
+function _bind5xClick(sm) {
   const versionEl = document.getElementById("app-version");
   if (!versionEl) return;
   let count = 0;
   let lastClick = 0;
 
   versionEl.addEventListener("click", () => {
-    // [ANTI-016] Temporal migration (High-Integrity Determinism)
     const now = Temporal.Now.instant().epochMilliseconds;
-    if (now - lastClick > 2000) count = 0; // 2s Reset window
+    if (now - lastClick > 2000) count = 0;
 
     count++;
     lastClick = now;
-    console.debug(`[DevMode] Click ${count}/${CLICK_TARGET}`);
 
     if (count >= CLICK_TARGET) {
       count = 0;
-      const isEnabled = localStorage.getItem(DEV_KEY) === "true";
-      const newState = !isEnabled;
+      const toggle = document.getElementById("dev-toggle");
+      if (!toggle) return;
 
+      const newState = !toggle.checked;
+      toggle.checked = newState;
       localStorage.setItem(DEV_KEY, String(newState));
-      document.body.dataset.devmode = String(newState);
+
       if (newState) {
-        document.body.classList.add("dev-mode");
-        document.body.dataset.toast = "dev-unlocked";
         _startLiveInspector(sm);
+        console.info("🛠️ Dev-Mode Unlocked (Zero-JS DNA)");
       } else {
-        document.body.classList.remove("dev-mode");
-        location.reload(); // Hard reset to clear debug UI
+        location.reload();
       }
     }
   });

@@ -58,3 +58,8 @@
     }
 
     /* Force Colors and Layout integrity */
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

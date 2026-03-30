@@ -7,79 +7,62 @@ import { TOASTS } from "./toast-registry.js";
 class ToastManager {
   constructor() {
     this.queue = [];
-    this.activeToast = null;
+    this.isActive = false;
     this.container = null;
   }
 
   _getContainer() {
-    if (!this.container) {
-      this.container = document.createElement("div");
-      this.container.id = "toast-container";
-      document.body.appendChild(this.container);
-    }
-    return this.container;
+    return this.container || (this.container = document.getElementById("toast-v4"));
   }
 
-  /**
-   * Shows a toast by its registry ID.
-   * @param {string} id - The ID from TOASTS registry
-   * @param {Object} params - Placeholder replacements
-   */
   show(id, params = {}) {
     const config = TOASTS[id];
-    if (!config) {
-      console.warn(`[Toast] ID "${id}" not found in registry.`);
-      return;
-    }
+    if (!config) return;
 
     let text = config.text;
     for (const [key, val] of Object.entries(params)) {
       text = text.replace(`{${key}}`, val);
     }
 
-    const toast = { id, text, config };
-
-    if (this.activeToast) {
-      // Avoid duplicate identical toasts in queue
+    if (this.isActive) {
       if (this.queue.some((t) => t.id === id)) return;
-      this.queue.push(toast);
+      this.queue.push({ id, text, config });
     } else {
-      this._render(toast);
+      this._render(text, config);
     }
   }
 
-  _render(toast) {
-    this.activeToast = toast;
-    const el = document.createElement("div");
-    el.className = `toast toast-${toast.config.type}`;
-    el.textContent = toast.text;
+  _render(text, config) {
+    const el = this._getContainer();
+    if (!el) return;
 
-    const container = this._getContainer();
-    container.appendChild(el);
-
-    // Auto-dismiss
-    setTimeout(() => this._dismiss(), toast.config.duration);
+    this.isActive = true;
+    el.textContent = text;
+    el.className = `toast-container type-${config.type}`;
+    
+    try {
+      el.showPopover();
+      setTimeout(() => this._dismiss(), config.duration);
+    } catch (e) {
+      console.warn("[Toast] Popover API failed", e);
+      this.isActive = false;
+    }
   }
 
   _dismiss() {
-    if (!this.activeToast) return;
-    const container = this._getContainer();
-    const el = container.querySelector(".toast");
+    const el = this._getContainer();
+    if (!el) return;
 
-    if (el) {
-      el.classList.add("toast-exit");
-      el.addEventListener(
-        "transitionend",
-        () => {
-          el.remove();
-          this.activeToast = null;
-          if (this.queue.length > 0) {
-            this._render(this.queue.shift());
-          }
-        },
-        { once: true },
-      );
-    }
+    el.hidePopover();
+    
+    // Wait for CSS transition to finish before showing next
+    setTimeout(() => {
+      this.isActive = false;
+      if (this.queue.length > 0) {
+        const next = this.queue.shift();
+        this._render(next.text, next.config);
+      }
+    }, 400); // Matches CSS transition duration
   }
 }
 

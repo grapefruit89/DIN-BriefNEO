@@ -10,13 +10,43 @@
     <link rel="stylesheet" href="css/devmode.css" />
     <link rel="stylesheet" href="css/core-immutable.css" />
   </head>
-  <body data-layout="form-b">
+  <body>
+    <!-- ZERO-JS LAYOUT & DEV CONTROL -->
+    <input type="radio" name="layout-state" id="state-layout-a" hidden />
+    <input
+      type="radio"
+      name="layout-state"
+      id="state-layout-b"
+      checked
+      hidden
+    />
+
+    <input type="radio" name="dev-lock" id="dev-step-0" checked hidden />
+    <input type="radio" name="dev-lock" id="dev-step-1" hidden />
+    <input type="radio" name="dev-lock" id="dev-step-2" hidden />
+    <input type="radio" name="dev-lock" id="dev-step-3" hidden />
+    <input type="radio" name="dev-lock" id="dev-step-4" hidden />
+    <input type="radio" name="dev-lock" id="dev-step-5" hidden />
+
     <div id="app-shell">
       <!-- MASTER SIDEBAR (Navigation & Controls) -->
       <aside id="sidebar-left">
         <header class="sidebar-header">
           <div class="sidebar-brand">
-            DIN-BriefNEO <span id="app-version" class="v-tag">V18</span>
+            DIN-BriefNEO
+            <span class="version-trigger-wrapper">
+              <span id="app-version" class="v-tag">V18</span>
+              <label for="dev-step-1" class="dev-unlock-label step-1"></label>
+              <label for="dev-step-2" class="dev-unlock-label step-2"></label>
+              <label for="dev-step-3" class="dev-unlock-label step-3"></label>
+              <label for="dev-step-4" class="dev-unlock-label step-4"></label>
+              <label for="dev-step-5" class="dev-unlock-label step-5"></label>
+              <label
+                for="dev-step-0"
+                class="dev-unlock-label step-reset"
+                title="Sperren"
+              ></label>
+            </span>
           </div>
         </header>
 
@@ -24,25 +54,26 @@
           <section class="sidebar-section">
             <!-- DIN-VARIANTE -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label" id="label-layout">DIN-Variante</label>
-              <div class="segmented-control" role="radiogroup" aria-labelledby="label-layout">
-                <label class="segment-option" aria-label="Layout Form A wählen">
-                  <input
-                    type="radio"
-                    name="layout"
-                    id="layout-a"
-                    value="form-a"
-                  />
+              <label class="sidebar-label" id="label-layout"
+                >DIN-Variante</label
+              >
+              <div
+                class="segmented-control"
+                role="radiogroup"
+                aria-labelledby="label-layout"
+              >
+                <label
+                  class="segment-option"
+                  for="state-layout-a"
+                  aria-label="Layout Form A wählen"
+                >
                   <span>Form A (Hoch)</span>
                 </label>
-                <label class="segment-option" aria-label="Layout Form B wählen">
-                  <input
-                    type="radio"
-                    name="layout"
-                    id="layout-b"
-                    value="form-b"
-                    checked
-                  />
+                <label
+                  class="segment-option"
+                  for="state-layout-b"
+                  aria-label="Layout Form B wählen"
+                >
                   <span>Form B (Standard)</span>
                 </label>
               </div>
@@ -51,8 +82,15 @@
             <!-- HILFSLINIEN -->
             <div class="sidebar-control-group">
               <label class="sidebar-label" id="label-guides">Hilfslinien</label>
-              <div class="segmented-control" role="radiogroup" aria-labelledby="label-guides">
-                <label class="segment-option" aria-label="Hilfslinien einschalten">
+              <div
+                class="segmented-control"
+                role="radiogroup"
+                aria-labelledby="label-guides"
+              >
+                <label
+                  class="segment-option"
+                  aria-label="Hilfslinien einschalten"
+                >
                   <input
                     type="radio"
                     name="guides"
@@ -62,7 +100,10 @@
                   />
                   <span>Anzeigen</span>
                 </label>
-                <label class="segment-option" aria-label="Hilfslinien ausschalten">
+                <label
+                  class="segment-option"
+                  aria-label="Hilfslinien ausschalten"
+                >
                   <input
                     type="radio"
                     name="guides"
@@ -77,7 +118,11 @@
             <!-- ARBEITSMODUS -->
             <div class="sidebar-control-group">
               <label class="sidebar-label" id="label-theme">Arbeitsmodus</label>
-              <div class="segmented-control" role="radiogroup" aria-labelledby="label-theme">
+              <div
+                class="segmented-control"
+                role="radiogroup"
+                aria-labelledby="label-theme"
+              >
                 <label class="segment-option" aria-label="Tag-Modus aktivieren">
                   <input
                     type="radio"
@@ -88,7 +133,10 @@
                   />
                   <span>☀️ Tag</span>
                 </label>
-                <label class="segment-option" aria-label="Nacht-Modus aktivieren">
+                <label
+                  class="segment-option"
+                  aria-label="Nacht-Modus aktivieren"
+                >
                   <input
                     type="radio"
                     name="theme"
@@ -105,20 +153,36 @@
         <div class="actions-footer">
           <!-- UTILITY ACTIONS (Export/Import/Reset) -->
           <div class="utility-actions">
-            <button class="util-btn" title="Export" id="btn-export" command="--export">
+            <button
+              class="util-btn"
+              title="Export"
+              id="btn-export"
+              command="--export"
+            >
               📥 Export
             </button>
-            <button class="util-btn" title="Import" id="btn-import" command="--import">
+            <button
+              class="util-btn"
+              title="Import"
+              id="btn-import"
+              command="--import"
+            >
               📤 Import
             </button>
-            <button class="util-btn danger" title="Reset" id="btn-reset" commandfor="dialog-reset" command="show-modal">
+            <button
+              class="util-btn danger"
+              title="Reset"
+              id="btn-reset"
+              commandfor="dialog-reset"
+              command="show-modal"
+            >
               🗑️ Reset
             </button>
           </div>
 
           <!-- IDENTITÄT -->
-          <button 
-            id="btn-profile" 
+          <button
+            id="btn-profile"
             class="sidebar-btn secondary"
             commandfor="modal-profile"
             command="show-popover"
@@ -127,32 +191,36 @@
           </button>
 
           <!-- DRUCKEN -->
-          <button 
-            id="btn-print" 
+          <button
+            id="btn-print"
             class="sidebar-btn primary big-btn"
             command="--print"
           >
             🖨 Drucken / PDF
           </button>
-
         </div>
       </aside>
 
       <!-- THE AIRFRAME: Semantic Matrix v4.0 -->
       <main id="paper-viewport">
         <din-5008 id="paper">
-          <din-A4 style="--margin-l: 25mm; --margin-r: 20mm">
+          <din-A4
+            style="
+              --margin-l: var(--din-margin-l);
+              --margin-r: var(--din-margin-r);
+            "
+          >
             <!-- BRANDING LAYER -->
             <din-branding-logo></din-branding-logo>
             <din-branding-watermark></din-branding-watermark>
 
             <!-- Faltmarken & Lochmarke -->
-            <div class="mark mark-fold-1" style="--pos: 105mm"></div>
-            <div class="mark mark-loch" style="--pos: 148.5mm"></div>
-            <div class="mark mark-fold-2" style="--pos: 210mm"></div>
+            <div class="mark mark-fold-1"></div>
+            <div class="mark mark-loch"></div>
+            <div class="mark mark-fold-2"></div>
 
-            <!-- Briefkopf & Granularer Absender -->
-            <din-header class="paper-header" style="--top: 20mm; --right: 20mm; --width: 75mm">
+            <!-- [SSoT] Identität (Header) -->
+            <din-header style="--x: 125mm; --y: 20mm; --w: 75mm">
               <din-absender-vorname
                 contenteditable="plaintext-only"
                 data-placeholder="Vorname"
@@ -169,22 +237,40 @@
                 contenteditable="plaintext-only"
                 data-placeholder="PLZ Ort"
               ></din-absender-ort>
+              <din-absender-kontakt
+                contenteditable="plaintext-only"
+                data-placeholder="Kontakt"
+              ></din-absender-kontakt>
+              <din-absender-mail
+                contenteditable="plaintext-only"
+                data-placeholder="E-Mail"
+              ></din-absender-mail>
+              <din-absender-tel
+                contenteditable="plaintext-only"
+                data-placeholder="Telefon"
+              ></din-absender-tel>
             </din-header>
 
-            <!-- Anschriftfeld (Granular) -->
-            <din-anschriftfeld class="paper-address-zone" style="--top: 45mm; --left: 20mm; --width: 85mm; --height: 45mm">
+            <!-- Anschriftfeld -->
+            <din-anschriftfeld
+              style="--x: 20mm; --w: var(--din-addr-w); --h: var(--din-addr-h)"
+            >
               <din-return-line
                 contenteditable="plaintext-only"
-                data-placeholder="Vorname Nachname · Straße Nr. · PLZ Ort"
+                data-placeholder="Absender-Kleinstzeile"
               ></din-return-line>
               <din-supplement
                 contenteditable="plaintext-only"
-                data-placeholder="Zusatz / Vermerk"
+                data-placeholder="Zusatz (Optional)"
               ></din-supplement>
               <din-empfaenger-firma
                 contenteditable="plaintext-only"
                 data-placeholder="Firma (Optional)"
               ></din-empfaenger-firma>
+              <din-empfaenger-abteilung
+                contenteditable="plaintext-only"
+                data-placeholder="Abteilung"
+              ></din-empfaenger-abteilung>
               <din-empfaenger-vorname
                 contenteditable="plaintext-only"
                 data-placeholder="Vorname"
@@ -203,25 +289,46 @@
               ></din-empfaenger-ort>
             </din-anschriftfeld>
 
-            <din-infoblock class="paper-infoblock" style="--top: 97.4mm; --left: 125mm; --width: 75mm">
-              <div class="info-row">
-                <label>Ihr Zeichen</label>
-                <din-ref-ihr contenteditable="plaintext-only"></din-ref-ihr>
-              </div>
-              <div class="info-row">
-                <label>Unser Zeichen</label>
-                <din-ref-unser contenteditable="plaintext-only"></din-ref-unser>
-              </div>
+            <!-- Metadaten -->
+            <din-infoblock style="--x: 125mm; --w: 75mm">
+              <din-ref-ihr-zeichen
+                contenteditable="plaintext-only"
+                data-placeholder="Ihr Zeichen"
+              ></din-ref-ihr-zeichen>
+              <din-ref-ihr-schreiben
+                contenteditable="plaintext-only"
+                data-placeholder="Ihr Schreiben vom"
+              ></din-ref-ihr-schreiben>
+              <din-ref-unser-zeichen
+                contenteditable="plaintext-only"
+                data-placeholder="Unser Zeichen"
+              ></din-ref-unser-zeichen>
+              <din-ref-unser-schreiben
+                contenteditable="plaintext-only"
+                data-placeholder="Unser Schreiben vom"
+              ></din-ref-unser-schreiben>
+              <din-ref-telefon
+                contenteditable="plaintext-only"
+                data-placeholder="Telefon"
+              ></din-ref-telefon>
+              <din-ref-email
+                contenteditable="plaintext-only"
+                data-placeholder="E-Mail"
+              ></din-ref-email>
+              <din-ref-internet
+                contenteditable="plaintext-only"
+                data-placeholder="Internet"
+              ></din-ref-internet>
             </din-infoblock>
 
             <din-date
               contenteditable="plaintext-only"
               data-placeholder="TT.MM.JJJJ"
-              style="--top: 50mm; --left: 125mm; --width: 75mm"
+              style="--x: 125mm; --w: 75mm"
             ></din-date>
 
             <!-- Briefkern -->
-            <article id="brief-kern" style="--top: calc(45mm + 58.4mm); --left: 25mm; --right: 20mm">
+            <din-kern style="--x: var(--din-margin-l); --w: 165mm">
               <din-subject
                 contenteditable="plaintext-only"
                 data-placeholder="Betreff: Ihr Anliegen"
@@ -231,13 +338,51 @@
                 data-placeholder="Sehr geehrte Damen und Herren,"
               ></din-anrede>
 
-              <div class="body-container">
+              <div class="text-editor-toolbar">
+                <button
+                  class="toolbar-btn"
+                  command="style"
+                  data-style="bold"
+                  title="Fett (**text**)"
+                >
+                  <b>B</b>
+                </button>
+                <button
+                  class="toolbar-btn"
+                  command="style"
+                  data-style="underline"
+                  title="Unterstrichen (__text__)"
+                >
+                  <u>U</u>
+                </button>
+                <button
+                  class="toolbar-btn"
+                  command="style"
+                  data-style="quote"
+                  title="Zitat (> text)"
+                >
+                  <i>&gt;</i>
+                </button>
+                <button
+                  class="toolbar-btn"
+                  command="style"
+                  data-style="list"
+                  title="Liste (- text)"
+                >
+                  •
+                </button>
+              </div>
+
+              <din-text-container style="--min-h: 50mm">
                 <din-text
                   contenteditable="plaintext-only"
-                  data-placeholder="Hier können Sie Ihren Brieftext schreiben... (Markdown wie **fett** oder *kursiv* wird unterstützt)"
+                  data-placeholder="Brieftext schreiben... (**fett**, *kursiv*, - Liste)"
                 ></din-text>
-                <din-text-mirror id="din-text-mirror" aria-hidden="true"></din-text-mirror>
-              </div>
+                <din-text-mirror
+                  id="din-text-mirror"
+                  aria-hidden="true"
+                ></din-text-mirror>
+              </din-text-container>
 
               <din-grussformel
                 contenteditable="plaintext-only"
@@ -251,70 +396,141 @@
                 contenteditable="plaintext-only"
                 data-placeholder="Anlagen"
               ></din-attachments>
-            </article>
+            </din-kern>
 
             <!-- Abschluss -->
-            <din-fusszeile class="paper-footer" style="--bottom: 15mm; --left: 25mm; --right: 20mm">
-              <div class="footer-col">
-                <label>Bankdaten:</label>
-                <span contenteditable="plaintext-only">IBAN: DE00 0000 0000 0000 0000 00</span>
-              </div>
-              <div class="footer-col">
-                <label>Steuer:</label>
-                <span contenteditable="plaintext-only">USt-IdNr.: DE 123 456 789</span>
-              </div>
+            <din-fusszeile style="--x: 25mm; --y-bottom: 15mm; --w: 165mm">
+              <din-footer-firma
+                contenteditable="plaintext-only"
+                data-placeholder="Firma"
+              ></din-footer-firma>
+              <din-footer-sitz
+                contenteditable="plaintext-only"
+                data-placeholder="Sitz"
+              ></din-footer-sitz>
+              <din-footer-gericht
+                contenteditable="plaintext-only"
+                data-placeholder="Registergericht"
+              ></din-footer-gericht>
+              <din-footer-hrb
+                contenteditable="plaintext-only"
+                data-placeholder="HRB Nr."
+              ></din-footer-hrb>
+              <din-footer-vorstand
+                contenteditable="plaintext-only"
+                data-placeholder="Vorstand"
+              ></din-footer-vorstand>
+              <din-footer-gf
+                contenteditable="plaintext-only"
+                data-placeholder="Geschäftsführung"
+              ></din-footer-gf>
+              <din-footer-stnr
+                contenteditable="plaintext-only"
+                data-placeholder="Steuernummer"
+              ></din-footer-stnr>
+              <din-footer-ustid
+                contenteditable="plaintext-only"
+                data-placeholder="USt-IdNr."
+              ></din-footer-ustid>
+              <din-footer-bank-name
+                contenteditable="plaintext-only"
+                data-placeholder="Bank"
+              ></din-footer-bank-name>
+              <din-footer-iban
+                contenteditable="plaintext-only"
+                data-placeholder="IBAN"
+              ></din-footer-iban>
+              <din-footer-bic
+                contenteditable="plaintext-only"
+                data-placeholder="BIC"
+              ></din-footer-bic>
+              <din-footer-anschrift
+                contenteditable="plaintext-only"
+                data-placeholder="Hausanschrift"
+              ></din-footer-anschrift>
             </din-fusszeile>
           </din-A4>
         </din-5008>
+      </main>
+    </div>
 
-        </main>
+    <!-- NATIVE POPOVERS & DIALOGS -->
+    <div id="modal-profile" popover class="standard-dialog">
+      <header class="modal-header">
+        <h3>👤 Absenderprofil</h3>
+        <button
+          id="btn-profile-close"
+          class="close-btn"
+          commandfor="modal-profile"
+          command="close"
+        >
+          ✕
+        </button>
+      </header>
+      <div class="form-section">
+        <div class="inline-controls">
+          <select id="profileSelect">
+            <option value="">— Profil wählen —</option>
+            <option value="privat">Privat</option>
+            <option value="firma">Büro</option>
+          </select>
+          <button
+            type="button"
+            id="btn-profile-save"
+            class="sidebar-btn primary"
+            title="Speichern"
+          >
+            💾 Sichern
+          </button>
         </div>
-
-        <!-- NATIVE POPOVERS & DIALOGS -->
-        <div id="modal-profile" popover class="standard-dialog">
-          <header class="modal-header">
-            <h3>👤 Absenderprofil</h3>
-            <button id="btn-profile-close" class="close-btn">✕</button>
-          </header>
-          <div class="form-section">
-            <div class="inline-controls">
-              <select id="profileSelect">
-                <option value="">— Profil wählen —</option>
-                <option value="privat">Privat</option>
-                <option value="firma">Büro</option>
-              </select>
-              <button type="button" id="btn-profile-save" class="sidebar-btn primary" title="Speichern">💾 Sichern</button>
-            </div>
-            <div class="form-group profile-grid">
-              <div class="profile-field">
-                <label>Vorname</label>
-                <input type="text" id="p-fn" placeholder="Max" />
-              </div>
-              <div class="profile-field">
-                <label>Nachname</label>
-                <input type="text" id="p-ln" placeholder="Mustermann" />
-              </div>
-              <div class="profile-field">
-                <label>Straße & Hausnummer</label>
-                <input type="text" id="p-street" placeholder="Musterstraße 1" />
-              </div>
-              <div class="profile-field">
-                <label>PLZ & Ort</label>
-                <input type="text" id="p-city" placeholder="12345 Musterstadt" />
-              </div>
-              <div class="profile-field iban-field">
-                <label>IBAN</label>
-                <input type="text" id="p-iban" placeholder="DE00 0000 0000 0000 0000 00" />
-              </div>
-            </div>
+        <div class="form-group profile-grid">
+          <div class="profile-field">
+            <label>Vorname</label>
+            <input type="text" id="p-fn" placeholder="Max" />
+          </div>
+          <div class="profile-field">
+            <label>Nachname</label>
+            <input type="text" id="p-ln" placeholder="Mustermann" />
+          </div>
+          <div class="profile-field">
+            <label>Straße & Hausnummer</label>
+            <input type="text" id="p-street" placeholder="Musterstraße 1" />
+          </div>
+          <div class="profile-field">
+            <label>PLZ & Ort</label>
+            <input type="text" id="p-city" placeholder="12345 Musterstadt" />
+          </div>
+          <div class="profile-field">
+            <label>Kontakt</label>
+            <input type="text" id="p-contact" placeholder="Kontakt" />
+          </div>
+          <div class="profile-field">
+            <label>E-Mail</label>
+            <input type="text" id="p-mail" placeholder="email@example.com" />
+          </div>
+          <div class="profile-field">
+            <label>Telefon</label>
+            <input type="text" id="p-tel" placeholder="+49 123 456789" />
+          </div>
+          <div class="profile-field iban-field">
+            <label>IBAN</label>
+            <input
+              type="text"
+              id="p-iban"
+              placeholder="DE00 0000 0000 0000 0000 00"
+            />
           </div>
         </div>
+      </div>
+    </div>
 
     <dialog id="dialog-reset" class="standard-dialog">
       <h3>Entwurf löschen?</h3>
       <p>Alle ungespeicherten Änderungen gehen verloren.</p>
       <div class="dialog-actions">
-        <button id="btn-reset-confirm" class="danger" command="--reset-data">Löschen</button>
+        <button id="btn-reset-confirm" class="danger" command="--reset-data">
+          Löschen
+        </button>
         <button commandfor="dialog-reset" command="close">Abbrechen</button>
       </div>
     </dialog>
@@ -337,23 +553,8 @@
       </div>
     </div>
 
-    <script type="module" src="js/app.js"></script>
-  </body>
-</html>
-zeichnet.</pre>
-      </div>
-      <div class="dialog-actions">
-        <button commandfor="dialog-decoder" command="close">Schließen</button>
-      </div>
-    </dialog>
-
-    <!-- SMART DEADLINE POPOVER -->
-    <div id="popover-smart-deadlines" popover class="deadline-popover">
-      <header>📅 Intelligente Fristen</header>
-      <div id="deadline-list" class="deadline-list">
-        <!-- Dynamisch befüllt -->
-      </div>
-    </div>
+    <!-- NATIVE TOAST POPOVER -->
+    <div id="toast-v4" popover="manual" class="toast-container"></div>
 
     <script type="module" src="js/app.js"></script>
   </body>

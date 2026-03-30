@@ -45,7 +45,9 @@ export class UIController {
     this._startNightWatchdog();
     this._initKeyboardShortcuts();
 
-    console.info("🚀 v4.0 UI: Core Engine Active | Zero-JS DNA | SPEC-066 & 075 Enabled");
+    console.info(
+      "🚀 v4.0 UI: Core Engine Active | Zero-JS DNA | SPEC-066 & 075 Enabled",
+    );
   }
 
   _initEditors() {
@@ -98,14 +100,10 @@ export class UIController {
         paper.dataset.guides =
           paper.dataset.guides === "true" ? "false" : "true";
       }
-      if (command === "show-modal" && targetId)
-        document.getElementById(targetId)?.showModal();
-      if (command === "close")
-        (
-          document.getElementById(targetId) || e.target.closest("dialog")
-        )?.close();
-      if (command === "show-popover" && targetId)
-        document.getElementById(targetId)?.showPopover();
+
+      if (command === "style" && e.target.dataset.style) {
+        this._handleStyleCommand(e.target.dataset.style);
+      }
     });
 
     // UI State Persistency Bridge
@@ -148,7 +146,12 @@ export class UIController {
             this._ghosts[el.tagName.toLowerCase()]?.update(ec.text);
           }
         } else {
-          document.execCommand("insertText", false, text);
+          const sel = window.getSelection();
+          if (!sel.rangeCount) return;
+          sel.deleteFromDocument();
+          sel.getRangeAt(0).insertNode(document.createTextNode(text));
+          sel.collapseToEnd();
+          el.dispatchEvent(new Event("input", { bubbles: true }));
         }
       }
     });
@@ -191,7 +194,7 @@ export class UIController {
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, "");
       e.target.value = val.match(/.{1,4}/g)?.join(" ") || val;
-      
+
       if (val.length > 0 && !Logic.validateIBAN(val)) {
         e.target.setCustomValidity("Ungültige IBAN");
       } else {
@@ -208,6 +211,9 @@ export class UIController {
         document.getElementById("p-co").value = data.co || "";
         document.getElementById("p-street").value = data.street || "";
         document.getElementById("p-city").value = data.city || "";
+        document.getElementById("p-contact").value = data.contact || "";
+        document.getElementById("p-mail").value = data.mail || "";
+        document.getElementById("p-tel").value = data.tel || "";
         document.getElementById("p-iban").value = data.iban || "";
         ibanInput?.dispatchEvent(new Event("input"));
       }
@@ -223,6 +229,9 @@ export class UIController {
         co: document.getElementById("p-co")?.value,
         street: document.getElementById("p-street")?.value,
         city: document.getElementById("p-city")?.value,
+        contact: document.getElementById("p-contact")?.value,
+        mail: document.getElementById("p-mail")?.value,
+        tel: document.getElementById("p-tel")?.value,
         iban: document.getElementById("p-iban")?.value,
       };
       const key = profileSelect?.value || "default";
@@ -233,9 +242,18 @@ export class UIController {
       this.sm.update("content.sender_ln", data.ln, "profile");
       this.sm.update("content.sender_st", data.street, "profile");
       this.sm.update("content.sender_city", data.city, "profile");
+      this.sm.update("content.sender_contact", data.contact, "profile");
+      this.sm.update("content.sender_mail", data.mail, "profile");
+      this.sm.update("content.sender_tel", data.tel, "profile");
+
       this.sm.update(
         "content.return_line",
-        Logic.deriveReturnLine(data),
+        Logic.deriveReturnLine({
+          sender_fn: data.fn,
+          sender_ln: data.ln,
+          sender_st: data.street,
+          sender_city: data.city,
+        }),
         "profile",
       );
 
@@ -243,6 +261,57 @@ export class UIController {
       modal.hidePopover();
       toast.show("profile_saved");
     });
+  }
+
+  _handleStyleCommand(style) {
+    const el = document.querySelector("din-text");
+    if (!el) return;
+
+    const markers = {
+      bold: "**",
+      underline: "__",
+      quote: "> ",
+      list: "- ",
+    };
+
+    const marker = markers[style];
+    if (!marker) return;
+
+    if (el.editContext) {
+      const ec = el.editContext;
+      const start = ec.selectionStart;
+      const end = ec.selectionEnd;
+      const text = ec.text;
+
+      if (style === "bold" || style === "underline") {
+        const selectedText = text.substring(start, end);
+        const wrapped = `${marker}${selectedText}${marker}`;
+        ec.updateText(start, end, wrapped);
+        ec.updateSelection(start + marker.length, end + marker.length);
+      } else {
+        // Block-style (Quote, List)
+        const lineStart = text.lastIndexOf("\n", start - 1) + 1;
+        ec.updateText(lineStart, lineStart, marker);
+        ec.updateSelection(start + marker.length, end + marker.length);
+      }
+      this.sm.update("content.body", ec.text, "editcontext");
+    } else {
+      // Fallback for non-EditContext
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      const content = range.toString();
+
+      if (style === "bold" || style === "underline") {
+        range.deleteContents();
+        range.insertNode(
+          document.createTextNode(`${marker}${content}${marker}`),
+        );
+      } else {
+        range.insertNode(document.createTextNode(marker));
+      }
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    }
   }
 
   _bindUtilityActions() {
@@ -305,7 +374,11 @@ export class UIController {
         street: this.sm.state.content.sender_st,
         city: this.sm.state.content.sender_city,
       };
-      this.sm.update("content.return_line", Logic.deriveReturnLine(data), "reactive");
+      this.sm.update(
+        "content.return_line",
+        Logic.deriveReturnLine(data),
+        "reactive",
+      );
     }
 
     // 3. Global Sync for heavy scopes
@@ -327,8 +400,6 @@ export class UIController {
   }
 
   _syncAllToDOM() {
-    this._injectDNA();
-
     IMR.forEach((entry) => {
       const el = document.querySelector(entry.tag);
       if (el && document.activeElement !== el) {
@@ -343,11 +414,9 @@ export class UIController {
     }
     if (config.layout) {
       const rb = document.getElementById(
-        config.layout === "form-a" ? "layout-a" : "layout-b",
+        config.layout === "form-a" ? "state-layout-a" : "state-layout-b",
       );
       if (rb) rb.checked = true;
-      const paper = document.getElementById("paper");
-      if (paper) paper.dataset.form = config.layout === "form-a" ? "A" : "B";
     }
     const guidesRb = document.getElementById(
       config.guides ? "guides-on" : "guides-off",
@@ -418,13 +487,9 @@ export class UIController {
           (context === "widerspruch" && opt.type === "14d") ||
           (context === "mahnung" && opt.type === "30d")
         )
-          item.classList.add("prominent");
-        
-        const dateStr = opt.date.toLocaleString("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
+          item.dataset.prominent = "true";
+
+        const dateStr = Logic.formatDate(opt.date, "din");
 
         const labelSpan = document.createElement("span");
         labelSpan.className = "label";
@@ -482,18 +547,20 @@ export class UIController {
     const list = document.createElement("div");
     list.className = "autocomplete-suggestions";
     if (anchor) list.style.setProperty("--suggestions-anchor", anchor);
-    
+
     features.forEach((feature) => {
       const item = document.createElement("div");
       item.className = "autocomplete-suggestion";
       const p = feature.properties;
-      
+
       const name = p.name || p.formatted?.split(",")[0] || "";
-      const address = p.street ? ` ${p.street} ${p.housenumber || ""}, ${p.postcode} ${p.city}` : ` ${p.formatted}`;
+      const address = p.street
+        ? ` ${p.street} ${p.housenumber || ""}, ${p.postcode} ${p.city}`
+        : ` ${p.formatted}`;
 
       const nameStrong = document.createElement("strong");
       nameStrong.textContent = name;
-      
+
       const addressSpan = document.createElement("span");
       addressSpan.textContent = address;
 

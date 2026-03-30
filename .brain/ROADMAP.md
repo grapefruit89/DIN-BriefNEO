@@ -6,15 +6,17 @@
 - [x] **Cemetery Sweep:** Löschung des Archivs und Bereinigung der Specs.
 - [x] **API Baseline 2026:** Integration von CSS Anchor Positioning & Scroll-State Queries.
 
-## II. PHASE 2: VISUELLE INTEGRITÄT (TASK 6)
+## II. PHASE 2: VISUELLE & ARCHITEKTONISCHE INTEGRITÄT (AKTUELL)
+- [x] **Zero-JS UI Core:** Layout-Switch, Guides & Dev-Mode rein via CSS :has().
+- [x] **Native Toast System:** Migration auf Popover API & @starting-style.
+- [ ] **Sidebar Minimalism:** Reduktion des UI-Clutter für maximalen WYSIWYG-Fokus.
 - [ ] **Ghost Overlay:** Einblendung der DIN-Referenz-SVGs zur Millimeter-Kontrolle.
-- [ ] **Lokale Fonts:** 100% Autonomie durch WOFF2-Integration in `assets/fonts/`.
-- [ ] **Visual Regression:** Puppeteer-basierte Screenshot-Vergleiche gegen Drift.
+- [ ] **Visual Regression:** Automatisierte Screenshot-Audits (Puppeteer).
 
 ## III. PHASE 3: FEATURE-AUSBAU (NEXT)
-- [ ] **Content Spiller V2:** Automatisierter Mehrseiten-Fluss mit Seitenzahlen.
-- [ ] **Advanced Markdown:** Tabellen- und Listen-Support im Mirror.
-- [ ] **IBAN-Integrität:** Visuelle Validierung und "Ghosting" fehlerhafter Daten.
+- [ ] **Content Spiller V2:** Native Pagination via Container Queries (SPEC-029).
+- [ ] **Markdown Ghosting:** Non-destructive Zero-Width Marker Rendering (SPEC-066).
+- [ ] **IBAN-Härtung:** Constraint Validation API & CSS-Styling Finalisierung.
 
 ## IV. PHASE 4: ÖKOSYSTEM
 - [ ] **WebMCP:** Native Anbindung von KI-Agenten an den Dokumenten-Kontext.

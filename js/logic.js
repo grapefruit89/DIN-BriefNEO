@@ -275,12 +275,13 @@ export function detectContext(text) {
 export function validateAddressZone(content) {
   if (!content) return { isValid: true, lineCount: 0 };
 
-  // Relevante Felder für die 6-Zeilen-Regel
+  // Relevante Felder für die 6-Zeilen-Regel (DIN 5008:2020)
   const recipientKeys = [
     "supplement",
     "rect_co",
-    "rect_fn", // Neu: Vorname
-    "rect_ln", // Neu: Nachname
+    "rect_dept",
+    "rect_fn",
+    "rect_ln",
     "rect_st",
     "rect_city",
   ];
@@ -295,29 +296,28 @@ export function validateAddressZone(content) {
   };
 }
 
-/* â”€â”€ Return Address (High-Integrity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Return Address (High-Integrity) ─────────────────────────── */
 
 /**
- * Leitet die RÃ¼cksende-Zeile (Einzeiler Ã¼ber dem EmpfÃ¤nger) ab.
- * @param {Object} data â€” { name, co, street, zipCity }
+ * Leitet die Rücksende-Zeile (Einzeiler über dem Empfänger) ab.
+ * Nutzt die granularen IMR-Atome.
  */
-export function deriveReturnLine({
-  name = "",
-  co = "",
-  street = "",
-  zipCity = "",
-} = {}) {
-  const abbr = (raw) => {
-    if (!raw) return "";
-    const clean = raw.replace(/^(Herr|Frau)\s+/i, "").trim();
-    const parts = clean.split(/\s+/);
-    return parts.length > 1 && !parts[0].includes(".")
-      ? parts[0].charAt(0) + ". " + parts.slice(1).join(" ")
-      : clean;
-  };
+export function deriveReturnLine(data = {}) {
+  const {
+    sender_fn = "",
+    sender_ln = "",
+    sender_st = "",
+    sender_city = "",
+  } = data;
 
-  const namePart = co ? `${abbr(name)} (c/o ${co})` : abbr(name);
-  return [namePart, street, zipCity].filter(Boolean).join(" Â· ");
+  const initial = sender_fn.trim().charAt(0);
+  const namePart = initial
+    ? `${initial}. ${sender_ln.trim()}`
+    : sender_ln.trim();
+
+  return [namePart, sender_st.trim(), sender_city.trim()]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 /* â”€â”€ IBAN (High-Integrity BigInt) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -382,17 +382,20 @@ export function parseMarkdownToHTML(text) {
     return id;
   };
 
-  // 2. Tokenize Patterns (Order: Blockquote -> Bold -> Underline -> Italic)
-  // Blockquote: Erkennt > am Zeilenanfang oder nach einem \n
-  html = html.replace(/(?:^|\n)\s*&gt;\s*(.+?)(?=\n|$)/g, (match, p1) => {
+  // 2. Tokenize Patterns (Order: Blockquote -> List -> Bold -> Underline -> Italic)
+
+  // Lists: Erkennt Zeilen, die mit - beginnen
+  html = html.replace(/(?:^|\n)\s*-\s+(.+?)(?=\n|$)/g, (match, p1) => {
     const prefix = match.startsWith("\n") ? "\n" : "";
     return (
       prefix +
       addToken(
-        `<blockquote class="md-quote"><span class="md-marker">&gt;</span> ${p1}</blockquote>`,
+        `<div class="md-list-item"><span class="md-marker">-</span> ${p1}</div>`,
       )
     );
   });
+
+  // Blockquote: Erkennt > am Zeilenanfang oder nach einem \n
 
   // Bold **text**
   html = html.replace(/\*\*(.+?)\*\*/g, (match, p1) =>
@@ -668,4 +671,3 @@ ONLY "body" may contain Markdown. All other fields: Plaintext only.
 Vollstaendiges JSON mit ALLEN IMR-Keys. Kurze Begruendung (3 Saetze) danach.
 `;
 }
-

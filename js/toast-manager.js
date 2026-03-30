@@ -12,7 +12,9 @@ class ToastManager {
   }
 
   _getContainer() {
-    return this.container || (this.container = document.getElementById("toast-v4"));
+    return (
+      this.container || (this.container = document.getElementById("toast-v4"))
+    );
   }
 
   show(id, params = {}) {
@@ -39,7 +41,7 @@ class ToastManager {
     this.isActive = true;
     el.textContent = text;
     el.className = `toast-container type-${config.type}`;
-    
+
     try {
       el.showPopover();
       setTimeout(() => this._dismiss(), config.duration);
@@ -54,7 +56,7 @@ class ToastManager {
     if (!el) return;
 
     el.hidePopover();
-    
+
     // Wait for CSS transition to finish before showing next
     setTimeout(() => {
       this.isActive = false;

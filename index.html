@@ -3,15 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DIN-BriefNEO | v4.0 Standard</title>
-
+    <title>DIN-BriefNEO | Pure Edition</title>
     <link rel="stylesheet" href="css/din5008-paper.css" />
     <link rel="stylesheet" href="css/app-ui.css" />
     <link rel="stylesheet" href="css/devmode.css" />
     <link rel="stylesheet" href="css/core-immutable.css" />
   </head>
   <body>
-    <!-- ZERO-JS LAYOUT & DEV CONTROL -->
+    <!-- NATIVE LAYOUT CONTROL -->
     <input type="radio" name="layout-state" id="state-layout-a" hidden />
     <input
       type="radio"
@@ -21,166 +20,98 @@
       hidden
     />
 
-    <input type="radio" name="dev-lock" id="dev-step-0" checked hidden />
-    <input type="radio" name="dev-lock" id="dev-step-1" hidden />
-    <input type="radio" name="dev-lock" id="dev-step-2" hidden />
-    <input type="radio" name="dev-lock" id="dev-step-3" hidden />
-    <input type="radio" name="dev-lock" id="dev-step-4" hidden />
-    <input type="radio" name="dev-lock" id="dev-step-5" hidden />
-
     <div id="app-shell">
-      <!-- MASTER SIDEBAR (Navigation & Controls) -->
       <aside id="sidebar-left">
         <header class="sidebar-header">
           <div class="sidebar-brand">
             DIN-BriefNEO
-            <span class="version-trigger-wrapper">
-              <span id="app-version" class="v-tag">V18</span>
-              <label for="dev-step-1" class="dev-unlock-label step-1"></label>
-              <label for="dev-step-2" class="dev-unlock-label step-2"></label>
-              <label for="dev-step-3" class="dev-unlock-label step-3"></label>
-              <label for="dev-step-4" class="dev-unlock-label step-4"></label>
-              <label for="dev-step-5" class="dev-unlock-label step-5"></label>
-              <label
-                for="dev-step-0"
-                class="dev-unlock-label step-reset"
-                title="Sperren"
-              ></label>
-            </span>
+            <span id="app-version" class="v-tag" title="Entwicklermodus (Klick)"
+              >V18</span
+            >
           </div>
         </header>
 
         <div id="sidebar-scroll-area">
           <section class="sidebar-section">
-            <!-- DIN-VARIANTE -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label" id="label-layout"
-                >DIN-Variante</label
-              >
-              <div
-                class="segmented-control"
-                role="radiogroup"
-                aria-labelledby="label-layout"
-              >
-                <label
-                  class="segment-option"
-                  for="state-layout-a"
-                  aria-label="Layout Form A wählen"
+              <label class="sidebar-label">DIN-Variante</label>
+              <div class="segmented-control">
+                <label class="segment-option" for="state-layout-a"
+                  ><span>Form A (Hoch)</span></label
                 >
-                  <span>Form A (Hoch)</span>
-                </label>
-                <label
-                  class="segment-option"
-                  for="state-layout-b"
-                  aria-label="Layout Form B wählen"
+                <label class="segment-option" for="state-layout-b"
+                  ><span>Form B (Standard)</span></label
                 >
-                  <span>Form B (Standard)</span>
-                </label>
               </div>
             </div>
 
-            <!-- HILFSLINIEN -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label" id="label-guides">Hilfslinien</label>
-              <div
-                class="segmented-control"
-                role="radiogroup"
-                aria-labelledby="label-guides"
-              >
-                <label
-                  class="segment-option"
-                  aria-label="Hilfslinien einschalten"
-                >
-                  <input
+              <label class="sidebar-label">Hilfslinien</label>
+              <div class="segmented-control">
+                <label class="segment-option"
+                  ><input
                     type="radio"
                     name="guides"
                     id="guides-on"
                     value="true"
                     checked
-                  />
-                  <span>Anzeigen</span>
-                </label>
-                <label
-                  class="segment-option"
-                  aria-label="Hilfslinien ausschalten"
+                  /><span>Anzeigen</span></label
                 >
-                  <input
+                <label class="segment-option"
+                  ><input
                     type="radio"
                     name="guides"
                     id="guides-off"
                     value="false"
-                  />
-                  <span>Verbergen</span>
-                </label>
+                  /><span>Verbergen</span></label
+                >
               </div>
             </div>
 
-            <!-- ARBEITSMODUS -->
             <div class="sidebar-control-group">
-              <label class="sidebar-label" id="label-theme">Arbeitsmodus</label>
-              <div
-                class="segmented-control"
-                role="radiogroup"
-                aria-labelledby="label-theme"
-              >
-                <label class="segment-option" aria-label="Tag-Modus aktivieren">
-                  <input
+              <label class="sidebar-label">Arbeitsmodus</label>
+              <div class="segmented-control">
+                <label class="segment-option"
+                  ><input
                     type="radio"
                     name="theme"
                     id="theme-day"
                     value="day"
                     checked
-                  />
-                  <span>☀️ Tag</span>
-                </label>
-                <label
-                  class="segment-option"
-                  aria-label="Nacht-Modus aktivieren"
+                  /><span>☀️ Tag</span></label
                 >
-                  <input
+                <label class="segment-option"
+                  ><input
                     type="radio"
                     name="theme"
                     id="theme-night"
                     value="night"
-                  />
-                  <span>🌙 Nacht</span>
-                </label>
+                  /><span>🌙 Nacht</span></label
+                >
               </div>
             </div>
+          </section>
+
+          <!-- DEBUG PANEL (Nur sichtbar wenn DevMode aktiv) -->
+          <section id="dev-panel" class="sidebar-section dev-only">
+            <label class="sidebar-label">Developer State</label>
+            <pre id="debug-state" class="debug-console">Inaktiv</pre>
+            <input type="checkbox" id="dev-toggle" hidden />
           </section>
         </div>
 
         <div class="actions-footer">
-          <!-- UTILITY ACTIONS (Export/Import/Reset) -->
           <div class="utility-actions">
-            <button
-              class="util-btn"
-              title="Export"
-              id="btn-export"
-              command="--export"
-            >
-              📥 Export
-            </button>
-            <button
-              class="util-btn"
-              title="Import"
-              id="btn-import"
-              command="--import"
-            >
-              📤 Import
-            </button>
+            <button class="util-btn" command="--export">📥 Export</button>
+            <button class="util-btn" command="--import">📤 Import</button>
             <button
               class="util-btn danger"
-              title="Reset"
-              id="btn-reset"
               commandfor="dialog-reset"
               command="show-modal"
             >
               🗑️ Reset
             </button>
           </div>
-
-          <!-- IDENTITÄT -->
           <button
             id="btn-profile"
             class="sidebar-btn secondary"
@@ -189,8 +120,6 @@
           >
             👤 Absender-Profil
           </button>
-
-          <!-- DRUCKEN -->
           <button
             id="btn-print"
             class="sidebar-btn primary big-btn"
@@ -201,25 +130,14 @@
         </div>
       </aside>
 
-      <!-- THE AIRFRAME: Semantic Matrix v4.0 -->
       <main id="paper-viewport">
         <din-5008 id="paper">
-          <din-A4
-            style="
-              --margin-l: var(--din-margin-l);
-              --margin-r: var(--din-margin-r);
-            "
-          >
-            <!-- BRANDING LAYER -->
+          <din-A4>
             <din-branding-logo></din-branding-logo>
-            <din-branding-watermark></din-branding-watermark>
-
-            <!-- Faltmarken & Lochmarke -->
             <div class="mark mark-fold-1"></div>
             <div class="mark mark-loch"></div>
             <div class="mark mark-fold-2"></div>
 
-            <!-- [SSoT] Identität (Header) -->
             <din-header style="--x: 125mm; --y: 20mm; --w: 75mm">
               <din-absender-vorname
                 contenteditable="plaintext-only"
@@ -251,7 +169,6 @@
               ></din-absender-tel>
             </din-header>
 
-            <!-- Anschriftfeld -->
             <din-anschriftfeld
               style="--x: 20mm; --w: var(--din-addr-w); --h: var(--din-addr-h)"
             >
@@ -289,7 +206,6 @@
               ></din-empfaenger-ort>
             </din-anschriftfeld>
 
-            <!-- Metadaten -->
             <din-infoblock style="--x: 125mm; --w: 75mm">
               <din-ref-ihr-zeichen
                 contenteditable="plaintext-only"
@@ -327,7 +243,6 @@
               style="--x: 125mm; --w: 75mm"
             ></din-date>
 
-            <!-- Briefkern -->
             <din-kern style="--x: var(--din-margin-l); --w: 165mm">
               <din-subject
                 contenteditable="plaintext-only"
@@ -338,50 +253,12 @@
                 data-placeholder="Sehr geehrte Damen und Herren,"
               ></din-anrede>
 
-              <div class="text-editor-toolbar">
-                <button
-                  class="toolbar-btn"
-                  command="style"
-                  data-style="bold"
-                  title="Fett (**text**)"
-                >
-                  <b>B</b>
-                </button>
-                <button
-                  class="toolbar-btn"
-                  command="style"
-                  data-style="underline"
-                  title="Unterstrichen (__text__)"
-                >
-                  <u>U</u>
-                </button>
-                <button
-                  class="toolbar-btn"
-                  command="style"
-                  data-style="quote"
-                  title="Zitat (> text)"
-                >
-                  <i>&gt;</i>
-                </button>
-                <button
-                  class="toolbar-btn"
-                  command="style"
-                  data-style="list"
-                  title="Liste (- text)"
-                >
-                  •
-                </button>
-              </div>
-
-              <din-text-container style="--min-h: 50mm">
+              <din-text-container>
                 <din-text
                   contenteditable="plaintext-only"
                   data-placeholder="Brieftext schreiben... (**fett**, *kursiv*, - Liste)"
                 ></din-text>
-                <din-text-mirror
-                  id="din-text-mirror"
-                  aria-hidden="true"
-                ></din-text-mirror>
+                <din-text-mirror aria-hidden="true"></din-text-mirror>
               </din-text-container>
 
               <din-grussformel
@@ -398,40 +275,7 @@
               ></din-attachments>
             </din-kern>
 
-            <!-- Abschluss -->
-            <din-fusszeile style="--x: 25mm; --y-bottom: 15mm; --w: 165mm">
-              <din-footer-firma
-                contenteditable="plaintext-only"
-                data-placeholder="Firma"
-              ></din-footer-firma>
-              <din-footer-sitz
-                contenteditable="plaintext-only"
-                data-placeholder="Sitz"
-              ></din-footer-sitz>
-              <din-footer-gericht
-                contenteditable="plaintext-only"
-                data-placeholder="Registergericht"
-              ></din-footer-gericht>
-              <din-footer-hrb
-                contenteditable="plaintext-only"
-                data-placeholder="HRB Nr."
-              ></din-footer-hrb>
-              <din-footer-vorstand
-                contenteditable="plaintext-only"
-                data-placeholder="Vorstand"
-              ></din-footer-vorstand>
-              <din-footer-gf
-                contenteditable="plaintext-only"
-                data-placeholder="Geschäftsführung"
-              ></din-footer-gf>
-              <din-footer-stnr
-                contenteditable="plaintext-only"
-                data-placeholder="Steuernummer"
-              ></din-footer-stnr>
-              <din-footer-ustid
-                contenteditable="plaintext-only"
-                data-placeholder="USt-IdNr."
-              ></din-footer-ustid>
+            <din-fusszeile style="--x: 25mm; --w: 165mm">
               <din-footer-bank-name
                 contenteditable="plaintext-only"
                 data-placeholder="Bank"
@@ -454,16 +298,11 @@
       </main>
     </div>
 
-    <!-- NATIVE POPOVERS & DIALOGS -->
+    <!-- MODALS -->
     <div id="modal-profile" popover class="standard-dialog">
       <header class="modal-header">
         <h3>👤 Absenderprofil</h3>
-        <button
-          id="btn-profile-close"
-          class="close-btn"
-          commandfor="modal-profile"
-          command="close"
-        >
+        <button class="close-btn" commandfor="modal-profile" command="close">
           ✕
         </button>
       </header>
@@ -478,48 +317,24 @@
             type="button"
             id="btn-profile-save"
             class="sidebar-btn primary"
-            title="Speichern"
           >
             💾 Sichern
           </button>
         </div>
         <div class="form-group profile-grid">
-          <div class="profile-field">
-            <label>Vorname</label>
-            <input type="text" id="p-fn" placeholder="Max" />
-          </div>
-          <div class="profile-field">
-            <label>Nachname</label>
-            <input type="text" id="p-ln" placeholder="Mustermann" />
-          </div>
-          <div class="profile-field">
-            <label>Straße & Hausnummer</label>
-            <input type="text" id="p-street" placeholder="Musterstraße 1" />
-          </div>
-          <div class="profile-field">
-            <label>PLZ & Ort</label>
-            <input type="text" id="p-city" placeholder="12345 Musterstadt" />
-          </div>
-          <div class="profile-field">
-            <label>Kontakt</label>
-            <input type="text" id="p-contact" placeholder="Kontakt" />
-          </div>
-          <div class="profile-field">
-            <label>E-Mail</label>
-            <input type="text" id="p-mail" placeholder="email@example.com" />
-          </div>
-          <div class="profile-field">
-            <label>Telefon</label>
-            <input type="text" id="p-tel" placeholder="+49 123 456789" />
-          </div>
-          <div class="profile-field iban-field">
-            <label>IBAN</label>
-            <input
-              type="text"
-              id="p-iban"
-              placeholder="DE00 0000 0000 0000 0000 00"
-            />
-          </div>
+          <input type="text" id="p-fn" placeholder="Vorname" />
+          <input type="text" id="p-ln" placeholder="Nachname" />
+          <input type="text" id="p-street" placeholder="Straße Nr." />
+          <input type="text" id="p-city" placeholder="PLZ Ort" />
+          <input type="text" id="p-contact" placeholder="Kontakt" />
+          <input type="text" id="p-mail" placeholder="E-Mail" />
+          <input type="text" id="p-tel" placeholder="Telefon" />
+          <input
+            type="text"
+            id="p-iban"
+            placeholder="IBAN"
+            pattern="[A-Z]{2}[0-9]{20}"
+          />
         </div>
       </div>
     </div>
@@ -535,27 +350,7 @@
       </div>
     </dialog>
 
-    <dialog id="dialog-decoder" class="standard-dialog decoder-modal">
-      <h3>🗃️ Black Box Decoder — Flight Recorder</h3>
-      <div class="decoder-content">
-        <pre id="decoder-output">Keine Daten aufgezeichnet.</pre>
-      </div>
-      <div class="dialog-actions">
-        <button commandfor="dialog-decoder" command="close">Schließen</button>
-      </div>
-    </dialog>
-
-    <!-- SMART DEADLINE POPOVER -->
-    <div id="popover-smart-deadlines" popover class="deadline-popover">
-      <header>📅 Intelligente Fristen</header>
-      <div id="deadline-list" class="deadline-list">
-        <!-- Dynamisch befüllt -->
-      </div>
-    </div>
-
-    <!-- NATIVE TOAST POPOVER -->
     <div id="toast-v4" popover="manual" class="toast-container"></div>
-
     <script type="module" src="js/app.js"></script>
   </body>
 </html>

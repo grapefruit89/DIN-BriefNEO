@@ -10,18 +10,17 @@
    ========================================================================== */
 
 @layer project.overrides {
-
   /* ── Dev-Sektionen: versteckt bis Dev-Mode aktiv ──────────────── */
   .dev-only {
     display: none;
   }
 
   body[data-devmode="true"] .dev-only {
-    display: flex;   /* Sidebar-Section ist flex */
+    display: flex; /* Sidebar-Section ist flex */
   }
 
   .dev-label {
-    color: #7a4a00;   /* Warnorange im Dark-Theme */
+    color: #7a4a00; /* Warnorange im Dark-Theme */
   }
 
   body[data-devmode="true"] .dev-label {
@@ -43,7 +42,7 @@
      ─────────────────────────────────────────────────────────────── */
   #toast-dev {
     position: fixed;
-    bottom: -80px;   /* default: außerhalb des Viewports */
+    bottom: -80px; /* default: außerhalb des Viewports */
     left: 50%;
     transform: translateX(-50%);
     background: #1a3a1a;
@@ -54,20 +53,29 @@
     font-size: 14px;
     font-weight: 500;
     z-index: 9999;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     pointer-events: none;
     transition: bottom 0.3s ease;
   }
 
   body[data-toast="dev-unlocked"] #toast-dev {
-    bottom: 32px;   /* einfahren */
+    bottom: 32px; /* einfahren */
     animation: toast-stay 3.2s ease forwards;
   }
 
   @keyframes toast-stay {
-    0%   { bottom: 32px; opacity: 1; }
-    80%  { bottom: 32px; opacity: 1; }
-    100% { bottom: -80px; opacity: 0; }
+    0% {
+      bottom: 32px;
+      opacity: 1;
+    }
+    80% {
+      bottom: 32px;
+      opacity: 1;
+    }
+    100% {
+      bottom: -80px;
+      opacity: 0;
+    }
   }
 
   /* ── Generischer Toast-Container (JS-injizierte Toasts) ────────── */
@@ -100,10 +108,22 @@
   }
 
   @keyframes toast-in-out {
-    0%   { opacity: 0; transform: translateY(12px); }
-    10%  { opacity: 1; transform: translateY(0); }
-    80%  { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-4px); }
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    80% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
   }
 
   /* ── Dialog / Popover Modal Styles ─────────────────────────────── */
@@ -133,11 +153,16 @@
   }
 
   .modal-header button {
-    background: none; border: none;
-    color: #555; font-size: 18px;
-    cursor: pointer; padding: 0 4px;
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
   }
-  .modal-header button:hover { color: #ccc; }
+  .modal-header button:hover {
+    color: #ccc;
+  }
 
   #form-profile {
     padding: 1.25rem 1.5rem;
@@ -165,7 +190,9 @@
     transition: border-color 0.15s;
   }
 
-  #form-profile input:focus { border-color: #2a6aaa; }
+  #form-profile input:focus {
+    border-color: #2a6aaa;
+  }
 
   #form-profile input:invalid:not(:placeholder-shown) {
     border-color: #7a2a2a;
@@ -189,7 +216,11 @@
     position: relative;
   }
 
-  #p-iban { width: 100%; box-sizing: border-box; font-family: monospace; }
+  #p-iban {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: monospace;
+  }
 
   #iban-ghost {
     position: absolute;
@@ -201,5 +232,4 @@
     pointer-events: none;
     white-space: pre;
   }
-
 }

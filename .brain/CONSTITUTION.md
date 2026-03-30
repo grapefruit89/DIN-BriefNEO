@@ -22,23 +22,30 @@ aliases:
 ## I. CORE ARCHITECTURAL PRINCIPLES
 
 ### §1 Technological Hierarchy (Structural Layering)
+
 Each feature MUST be implemented at the lowest possible layer:
+
 1. **Native HTML** (Structure, Semantics, Popover API, Invokers)
 2. **Native CSS** (Layout @layer, 0.001mm-precision, OKLCH colors, contrast-color())
 3. **Vanilla JavaScript** (IMR Registry, EditContext, Persistence, Logic)
 4. **Public APIs** (Fault-tolerant external services — optional only)
 
 ### §2 Zero-Width Marker Strategy (WYSIWYG)
+
 The physical 1:1 print preview is the primary constraint.
+
 - Markdown control characters (`*`, `_`) visible in the editor MUST NOT affect text flow width.
 - Execution: `.md-marker { display: inline-block; width: 0; overflow: visible; }`
 
 ### §3 Structural Zoning (IMR 4.0)
+
 The document consists of 19 atomic fields defined in the `Isomorphic Master Registry`.
+
 - **Category A (Atoms):** Single-line, `plaintext-only` fields (e.g., `<din-absender-vorname>`).
 - **Category B (Flow):** The `<din-text>` element with EditContext support.
 
 ### §4 Chrome Baseline (147+)
+
 - **Layout:** CSS Anchor Positioning, CSS `if()`, `@scope`, `@property`, `field-sizing: content`.
 - **Interaktion:** Invoker Commands (`commandfor`/`command`), Popover API, Native `<select>` styling.
 - **Animation:** Scoped View Transitions, `@starting-style`, `interpolate-size: allow-keywords`.
@@ -49,7 +56,9 @@ The document consists of 19 atomic fields defined in the `Isomorphic Master Regi
 - **Enforcement:** No polyfills. No `@supports` guards for core APIs. The system evolves synchronously with the Blink engine.
 
 ## II. VISUAL STABILITY REQUIREMENT
+
 Zero layout shift after initialization. Every pixel is deterministic.
 
 ## III. UNIFIED DATA STATE
+
 The JSON data model is the single source of truth (SSoT). HTML is strictly the presentation layer.

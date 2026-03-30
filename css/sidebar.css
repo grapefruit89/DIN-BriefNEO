@@ -116,8 +116,12 @@
     gap: 8px;
   }
 
-  .status-ok { color: oklch(60% 0.15 150); }
-  .status-warn { color: oklch(60% 0.15 40); }
+  .status-ok {
+    color: oklch(60% 0.15 150);
+  }
+  .status-warn {
+    color: oklch(60% 0.15 40);
+  }
 }
 
 @layer ui.components {

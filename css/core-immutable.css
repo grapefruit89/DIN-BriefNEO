@@ -4,14 +4,13 @@
    ========================================================================== */
 
 @layer core.immutable !important {
-
   :root {
     /* ── OKLCH PERCEPTUAL PALETTE ──────────────────────────────────── */
-    --c-sidebar-bg:        oklch(10% 0 0);
-    --din-paper-shadow:    0 8px 32px oklch(0% 0 0 / 0.45);
-    --din-guide-opacity:   0.18;
+    --c-sidebar-bg: oklch(10% 0 0);
+    --din-paper-shadow: 0 8px 32px oklch(0% 0 0 / 0.45);
+    --din-guide-opacity: 0.18;
     --din-placeholder-color: oklch(75% 0 0);
-    --c-accent-blue:       oklch(55% 0.25 260);
+    --c-accent-blue: oklch(55% 0.25 260);
   }
 
   /* ── Sidebar Structural Layout ──────────────────────────────────── */

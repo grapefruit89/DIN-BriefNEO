@@ -104,7 +104,7 @@
     color: oklch(40% 0 0);
   }
 
-  /* Body & Ghost Mirror */
+  /* Body & Mirror Engine (Pure Edition) */
   din-text-container {
     position: relative;
     display: block;
@@ -114,68 +114,71 @@
 
   din-text,
   din-text-mirror {
+    font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
     width: 100%;
-    min-height: 100%;
+    display: block;
     white-space: pre-wrap;
     word-wrap: break-word;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
     padding: 0;
     margin: 0;
-    display: block;
   }
 
   din-text {
     position: relative;
     z-index: 2;
-    color: inherit;
-    caret-color: oklch(0% 0 0);
+    color: transparent; /* Text versteckt — Mirror zeigt ihn */
+    caret-color: oklch(0% 0 0); /* Cursor bleibt sichtbar */
     background: transparent;
     outline: none;
     field-sizing: content;
-    transition: opacity 0.2s;
   }
 
-  /* Focus Logic: Hide Source Source, Show Mirror */
-  din-text:not(:focus):not(:empty) {
-    opacity: 0;
+  din-text:focus {
+    color: oklch(15% 0.01 250); /* Beim Tippen: eigener Text sichtbar */
   }
 
   din-text-mirror {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     z-index: 1;
-    color: oklch(0% 0 0);
     pointer-events: none;
     user-select: none;
   }
 
-  /* LIST SUPPORT (Markdown Extension) */
-  .md-list-item {
-    display: block;
-    padding-left: 5mm;
-    text-indent: -5mm;
-  }
-  .md-list-item::before {
-    content: "â€¢";
-    display: inline-block;
-    width: 5mm;
-    text-align: center;
+  /* Formatierungen im Mirror */
+  din-text-mirror strong {
+    font-weight: 700;
   }
 
-  din-text-mirror strong {
-    font-weight: bold;
-  }
   din-text-mirror em {
     font-style: italic;
   }
+
+  din-text-mirror u {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Zitat — der "|"-Balken in fett/schön */
   din-text-mirror blockquote {
-    border-left: 3px solid oklch(80% 0 0);
-    padding-left: 1rem;
-    margin: 1rem 0;
-    color: oklch(40% 0 0);
+    margin: 0.4em 0 0.4em 0;
+    padding-left: 1em;
+    border-left: 3px solid oklch(40% 0.01 250);
+    font-weight: 600;
+    color: oklch(30% 0.01 250);
+  }
+
+  /* Druck: Mirror zeigt, din-text versteckt */
+  @media print {
+    din-text {
+      display: none !important;
+    }
+    din-text-mirror {
+      position: static !important;
+      display: block !important;
+    }
   }
 
   /* [SPEC-066] Ghosting Color for Markers */

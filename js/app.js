@@ -1,59 +1,34 @@
 /**
- * js/app.js — Application Orchestrator
- * DIN-BriefNEO · v4.0 V13
+ * js/app.js — Application Orchestrator (Pure Edition)
+ * DIN-BriefNEO · v4.1.0
  * ─────────────────────────────────────────────────────────
- * Boot sequence:
- *   1. Dev-Mode Detection → Easter Egg prüfen
- *   2. StateManager instantiieren → LocalStorage laden
- *   3. UIController init()
- *   4. Auto-Save Subscription
- *
- * NO-JS DOCTRINE [ADR-003]:
- *   Layout, Dialoge, Toolbar-Sichtbarkeit = CSS/HTML.
- *   Dieses File: nur Boot-Logik, kein DOM-Styling.
- *
- * TOMB-LEGACY-001: new Date() ersetzt durch Temporal.
- * TOMB-LEGACY-008: cma-bridge entfernt.
  */
 
 import { StateManager } from "./state.js";
 import { UIController } from "./ui.js";
 import { formatDateTemporal, todayISO } from "./temporal-utils.js";
 import { initDevMode, checkDevMode } from "./devmode.js";
-import { IOCoordinator } from "./io-coordinator.js";
+import { Storage } from "./storage.js";
+import { Capabilities } from "./capabilities.js";
 import { CMASensor } from "./cma-sensor.js";
 
 const ROOT = "DIN-BriefNEO";
-const VER = "18.0.0";
+const VER = "18.1.0";
 
 /**
- * â”€â”€ Console Telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * ── Console Telemetry ────────────────────────
  */
-function logTelemetry(sm, io, ui) {
-  const isFileProtocol = window.location.protocol === "file:";
-  const color = isFileProtocol ? "#f87171" : "#4ade80";
+function logTelemetry(sm, ui) {
+  Capabilities.logStatus();
+  const color = Capabilities.isLocalFile ? "#f87171" : "#4ade80";
 
   console.group(
-    `%c ðŸ’Ž ${ROOT} v4.0 ENGINE v${VER} `,
+    `%c 💎 ${ROOT} v4.1 ENGINE v${VER} `,
     `background: #1e2535; color: ${color}; padding: 5px; border-radius: 4px; font-weight: bold;`,
   );
 
   console.info(
-    `%c[ORIGIN]%c ${window.location.protocol}//${window.location.host || "local-filesystem"}`,
-    "font-weight: bold; color: #4a90e2;",
-    "",
-  );
-
-  if (isFileProtocol) {
-    console.warn(
-      "%câš ï¸ SECURITY ORIGIN WARNING: Running via file:// protocol. Local Storage and Service Workers may be restricted. %cTo fix: run 'npx serve' in this directory.",
-      "color: #fbbf24; font-weight: bold;",
-      "color: #ccc; font-style: italic;",
-    );
-  }
-
-  console.info(
-    `%c[STATE]%c  ${Object.keys(sm.state.content).length} IMR-Keys active. Sync: ${io ? "OPFS-Journaling" : "LocalStorage-Fallback"}`,
+    `%c[STATE]%c  ${Object.keys(sm.state.content).length} IMR-Keys active.`,
     "font-weight: bold; color: #4a90e2;",
     "",
   );
@@ -67,19 +42,14 @@ function logTelemetry(sm, io, ui) {
       "",
     );
   }
-
-  console.info(
-    `%c[BOOT]%c Sequence completed in ${performance.now().toFixed(2)}ms`,
-    "font-weight: bold; color: #4a90e2;",
-    "",
-  );
   console.groupEnd();
 
   // Global Debug Handle
   window.__neo = {
     sm,
     ui,
-    io,
+    Storage,
+    Capabilities,
     VER,
     ROOT,
     diagnostics: () => {
@@ -90,145 +60,84 @@ function logTelemetry(sm, io, ui) {
 }
 
 /**
- * â”€â”€ 6. Zero-JS Persistence Logic (ADR-003) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- * Note: Layout states are now managed via StateManager to ensure
- * synchronicity across tabs via Phoenix Protocol.
+ * ── Zero-JS Persistence Logic (ADR-003) ───────
  */
 function initZeroJSState(sm) {
   const paper = document.getElementById("paper");
   if (!paper) return;
 
-  // Restore Layout
   const layout = sm.state.config?.layout || "form-b";
   const radioLayout = document.querySelector(
     `input[name="layout"][value="${layout}"]`,
   );
   if (radioLayout) radioLayout.checked = true;
-  if (paper) paper.dataset.form = layout === "form-a" ? "A" : "B";
-  document.body.dataset.layout = layout;
+  paper.dataset.form = layout === "form-a" ? "A" : "B";
 
-  // Restore Guides
   const guides = sm.state.config?.guides !== false;
   const radioGuides = document.querySelector(
     `input[name="guides"][value="${guides}"]`,
   );
   if (radioGuides) radioGuides.checked = true;
-  if (paper) paper.dataset.guides = guides ? "true" : "false";
+  paper.dataset.guides = guides ? "true" : "false";
 
-  // Restore Theme
-  const hour = parseInt(
-    Temporal.Now.plainTimeISO().toString().split(":")[0],
-    10,
-  );
-  const isNightTime = hour >= 21 || hour < 6;
-  const defaultTheme = isNightTime ? "night" : "day";
-
-  const theme = sm.state.config?.theme || defaultTheme;
+  const theme = sm.state.config?.theme || "day";
   const radioTheme = document.querySelector(
     `input[name="theme"][value="${theme}"]`,
   );
   if (radioTheme) radioTheme.checked = true;
-  // State sync if it was defaulted
-  if (!sm.state.config.theme) sm.state.config.theme = theme;
 }
 
+/**
+ * ── Boot Sequence ────────────────────────────
+ */
 async function boot() {
   const statusEl = document.getElementById("statusbar");
   const setStatus = (msg) => {
     if (statusEl) statusEl.textContent = msg;
   };
 
-  setStatus("â³ Initialisiereâ€¦");
+  setStatus("⏳ Initialisiere...");
 
   try {
-    // â”€â”€ 1. Dev-Mode Easter Egg â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     checkDevMode();
 
-    // â”€â”€ 2. State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    const sm = new StateManager();
-    const restored = sm.loadFromStorage();
+    // 1. Load State via Hybrid Storage
+    const savedState = await Storage.load();
+    const sm = new StateManager(savedState);
 
-    if (!restored || !sm.state.content.date) {
+    // Ensure initial date
+    if (!sm.state.content.date) {
       sm.state.content.date = formatDateTemporal(todayISO());
     }
 
-    // â”€â”€ 3. UI (FrÃ¼hzeitige Init fÃ¼r ResponsivitÃ¤t) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // 2. UI & Sensor Init
     const ui = new UIController(sm);
     ui.init();
 
-    // â”€â”€ 3a. CMA-Sensor (Layout Integrity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const cma = new CMASensor(sm);
     cma.init();
 
-    // â”€â”€ 4. Phoenix Protocol (Storage Autonomousty) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    const io = new IOCoordinator(sm);
-    try {
-      await io.init();
-    } catch (e) {
-      console.warn(
-        "âš ï¸ Storage Engine limited on this origin. Falling back to LocalState.",
-      );
-    }
-
-    // â”€â”€ 5. Worker Message Listener (Compliance) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    if (io.worker) {
-      io.worker.addEventListener("message", (e) => {
-        if (e.data.type === "CONCURRENCY_CONFLICT") {
-          setStatus(`âš ï¸ ${e.data.message}`);
-          // Diskrete Warnung in der Compliance Bar
-          const integrityEl = document.querySelector(
-            ".compliance-item:first-child",
-          );
-          if (integrityEl) {
-            integrityEl.textContent = "Fiskale IntegritÃ¤t: ";
-            const span = document.createElement("span");
-            span.className = "status-warn";
-            span.textContent = "[READ-ONLY]";
-            integrityEl.appendChild(span);
-          }
-        }
-      });
-    }
-
-    // â”€â”€ 6. Dev-Mode Sidebar-Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     initDevMode(sm);
-
-    // â”€â”€ 7. Zero-JS Persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     initZeroJSState(sm);
 
-    // Watch for layout changes to log telemetry
-    document.addEventListener("change", (e) => {
-      if (e.target.name === "layout") {
-        setTimeout(() => logTelemetry(sm, io, ui), 100);
-      }
+    // 3. Persistence Subscription (Debounced)
+    let saveTimeout;
+    sm.subscribe((state) => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => Storage.save(state), 1000);
     });
 
-    // â”€â”€ 9. TELEMETRY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    logTelemetry(sm, io, ui);
+    logTelemetry(sm, ui);
+    setStatus(`✅ ${ROOT} v${VER}`);
 
-    // Lifecycle Events for Emergency Save
-    window.addEventListener("pagehide", () => io.emergencySave());
+    // Emergency Save
+    window.addEventListener("pagehide", () => Storage.save(sm.state));
     window.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") io.emergencySave();
+      if (document.visibilityState === "hidden") Storage.save(sm.state);
     });
-
-    // Debug-Handle (nur Dev-Mode)
-    if (localStorage.getItem("neo_dev_mode") === "true") {
-      window.__neo = { sm, ui, io, VER, ROOT };
-    }
-
-    setStatus(`âœ… ${ROOT} v${VER}`);
   } catch (err) {
     console.error("[NEO Boot]", err);
-    setStatus("âŒ Boot-Fehler â€” Konsole prÃ¼fen");
-    const paper = document.getElementById("paper");
-    if (paper) {
-      const msg = document.createElement("div");
-      msg.style.cssText =
-        "padding:20mm;color:red;font-family:monospace;font-size:11pt;";
-      msg.textContent = `Boot-Fehler: ${err.message}`;
-      paper.prepend(msg);
-    }
+    setStatus("❌ Boot-Fehler — Konsole prüfen");
   }
 }
 
@@ -238,9 +147,9 @@ if (document.readyState === "loading") {
   boot();
 }
 
-// Service Worker Registration
-if ("serviceWorker" in navigator) {
+// Service Worker (PWA)
+if (Capabilities.serviceWorker && !Capabilities.isLocalFile) {
   navigator.serviceWorker
     .register("sw.js")
-    .catch((err) => console.error("PWA Fail:", err));
+    .catch((e) => console.error("PWA Fail:", e));
 }

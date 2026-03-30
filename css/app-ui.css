@@ -235,12 +235,12 @@
     interpolate-size: allow-keywords;
 
     /* [SPEC-090] 7px Core Grid System */
-    --din-space-unit:        7px;
-    --din-space-xs:          calc(var(--din-space-unit) * 0.5);
-    --din-space-sm:          var(--din-space-unit);
-    --din-space-md:          calc(var(--din-space-unit) * 2);
-    --din-space-lg:          calc(var(--din-space-unit) * 3);
-    --din-space-xl:          calc(var(--din-space-unit) * 4);
+    --din-space-unit: 7px;
+    --din-space-xs: calc(var(--din-space-unit) * 0.5);
+    --din-space-sm: var(--din-space-unit);
+    --din-space-md: calc(var(--din-space-unit) * 2);
+    --din-space-lg: calc(var(--din-space-unit) * 3);
+    --din-space-xl: calc(var(--din-space-unit) * 4);
 
     /* [SPEC-080] Native Theme Support */
     color-scheme: light dark;

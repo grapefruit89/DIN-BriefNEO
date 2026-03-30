@@ -5,13 +5,29 @@
     "color-no-invalid-hex": true,
     "declaration-block-no-shorthand-property-overrides": true,
     "font-family-no-duplicate-names": true,
-    "unit-allowed-list": ["px", "rem", "em", "vh", "vw", "dvh", "%", "mm", "pt"],
+    "unit-allowed-list": [
+      "px",
+      "rem",
+      "em",
+      "vh",
+      "vw",
+      "dvh",
+      "%",
+      "mm",
+      "pt"
+    ],
     "declaration-property-value-disallowed-list": {
       "z-index": ["/.+/"],
       "mm": ["/.+/"]
     },
     "custom-property-pattern": "^din-|^c-",
-    "at-rule-allowed-list": ["layer", "font-face", "container", "media", "highlight"],
+    "at-rule-allowed-list": [
+      "layer",
+      "font-face",
+      "container",
+      "media",
+      "highlight"
+    ],
     "rule-selector-property-disallowed-list": {
       "/^#paper/": ["z-index", "mm"],
       "/^din-/": ["position", "top", "left"]

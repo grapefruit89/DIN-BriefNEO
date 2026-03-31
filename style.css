@@ -665,7 +665,7 @@
 
   #sidebar-scroll-area {
     flex-grow: 1;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 10px 0;
   }
   .sidebar-section {
@@ -676,33 +676,6 @@
     color: var(--c-sidebar-text-muted);
     font-weight: 600;
     margin-bottom: 0.5rem;
-  }
-
-  .segmented-control {
-    position: relative;
-    display: flex;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 3px;
-    border-radius: 6px;
-    border: 1px solid var(--c-sidebar-border);
-    margin-bottom: 12px;
-    isolation: isolate;
-  }
-  .segment-option {
-    flex: 1;
-    text-align: center;
-    padding: 6px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
-    z-index: 2;
-  }
-  .segment-option:has(input:checked) {
-    color: white;
-    font-weight: 600;
-  }
-  .segment-option input {
-    display: none;
   }
 
   .toggle-control {
@@ -730,24 +703,6 @@
     border-color: var(--c-primary);
     color: white;
     font-weight: 600;
-  }
-
-  .pill {
-    position: absolute;
-    top: 3px;
-    bottom: 3px;
-    left: 3px;
-    width: calc(50% - 3px);
-    background: var(--c-primary);
-    border-radius: 4px;
-    z-index: 1;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  :root:has(#state-layout-b:checked) #layout-switch .pill {
-    transform: translateX(100%);
-  }
-  :root:has(#theme-night:checked) #theme-switch .pill {
-    transform: translateX(100%);
   }
 
   .sidebar-btn {
@@ -787,7 +742,7 @@
     flex-direction: column;
     gap: 8px;
     max-height: 250px;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding-right: 5px;
   }
 
@@ -865,6 +820,97 @@
     flex-direction: column;
     gap: 12px;
   }
+  .utility-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .util-btn {
+    flex: 1;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--c-sidebar-border);
+    border-radius: 6px;
+    color: var(--c-sidebar-text-muted);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .util-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  .util-btn.danger {
+    color: var(--c-danger);
+  }
+
+  /* ── SIDEBAR CONTROLS (Platinum UI) ─────────────────────── */
+  .segmented-control {
+    position: relative;
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--c-sidebar-border);
+    margin-bottom: 12px;
+    isolation: isolate;
+  }
+
+  .segment-option {
+    flex: 1;
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+    transition: color 0.3s ease;
+  }
+
+  .segment-option:has(input:checked) {
+    color: white;
+    font-weight: 600;
+  }
+
+  .segment-option input {
+    display: none !important; /* WICHTIG: Radio-Buttons verstecken */
+  }
+
+  .segmented-control .pill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    background: var(--c-primary);
+    border-radius: 4px;
+    z-index: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Dynamische Positionierung der Pill via :has() */
+  /* Standard: 3er-Segmented (Recipient, Formality) */
+  .segmented-control:has(.segment-option:nth-child(1) input:checked) .pill {
+    left: 3px; width: calc(33.33% - 4px);
+  }
+  .segmented-control:has(.segment-option:nth-child(2) input:checked) .pill {
+    left: calc(33.33% + 1px); width: calc(33.33% - 4px);
+  }
+  .segmented-control:has(.segment-option:nth-child(3) input:checked) .pill {
+    left: calc(66.66% + 1px); width: calc(33.33% - 4px);
+  }
+
+  /* Spezielle 2er-Segmented (Layout A/B, Theme Tag/Nacht) */
+  :is(#layout-switch, #theme-switch):has(.segment-option:nth-child(1) input:checked) .pill {
+    left: 3px; width: calc(50% - 4px);
+  }
+  :is(#layout-switch, #theme-switch):has(.segment-option:nth-child(2) input:checked) .pill {
+    left: calc(50% + 1px); width: calc(50% - 4px);
+  }
+  :is(#layout-switch, #theme-switch):has(.segment-option:nth-child(3) input:checked) .pill {
+     display: none; /* Fallback für versehentliche 3. Option */
+  }
 
   #paper-viewport {
     position: absolute;
@@ -872,13 +918,12 @@
     right: 0;
     top: 0;
     bottom: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
     scroll-snap-type: x mandatory;
-    padding: 0;
+    padding: 60px; /* Mehr Platz für Schatten */
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    justify-content: center; /* Horizontale Zentrierung */
+    align-items: flex-start; /* Vertikal oben beginnen */
     background-image: radial-gradient(
       rgba(209, 216, 224, 0.2) 1.2px,
       transparent 1.2px
@@ -886,6 +931,15 @@
     background-size: 32px 32px;
     transition: background-color 0.3s;
   }
+
+
+  /* No-JS Fallback: Wenn Skripte blockiert sind, zeige Seite 1 scharf an */
+  :root.no-js din-A4 {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   :root:has(#theme-night:checked) #paper-viewport {
     background-image: radial-gradient(
       rgba(255, 255, 255, 0.05) 1.2px,

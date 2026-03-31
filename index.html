@@ -2,6 +2,8 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
+    <script>document.documentElement.classList.add('no-js');</script>
+    <script type="module">document.documentElement.classList.remove('no-js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIN-BriefNEO | Pure & Flat Edition</title>
     <link rel="manifest" href="manifest.json" />
@@ -165,7 +167,7 @@
 
       <main id="paper-viewport">
         <din-5008 id="paper">
-          <din-A4>
+          <din-A4 class="active">
             <din-branding-logo></din-branding-logo>
             <din-qr-code aria-hidden="true"></din-qr-code>
 
@@ -244,23 +246,23 @@
             <din-infoblock>
               <din-ihr-zeichen
                 contenteditable="plaintext-only"
-                style="--p: &quot;Ihr Zeichen&quot;"
+                style="--p: &quot;Ihr Ref.&quot;"
               ></din-ihr-zeichen>
               <din-ihr-schreiben
                 contenteditable="plaintext-only"
-                style="--p: &quot;Ihr Schreiben vom&quot;"
+                style="--p: &quot;Vom&quot;"
               ></din-ihr-schreiben>
               <din-unser-zeichen
                 contenteditable="plaintext-only"
-                style="--p: &quot;Unser Zeichen&quot;"
+                style="--p: &quot;Az.&quot;"
               ></din-unser-zeichen>
               <din-unser-schreiben
                 contenteditable="plaintext-only"
-                style="--p: &quot;Unser Schreiben vom&quot;"
+                style="--p: &quot;Vom&quot;"
               ></din-unser-schreiben>
               <din-durchwahl
                 contenteditable="plaintext-only"
-                style="--p: &quot;Durchwahl&quot;"
+                style="--p: &quot;Tel.&quot;"
               ></din-durchwahl>
               <din-email-direkt
                 contenteditable="plaintext-only"
@@ -274,7 +276,7 @@
 
             <din-datum
               contenteditable="plaintext-only"
-              style="--p: &quot;Datum&quot;"
+              style="--p: &quot;31. März 2026&quot;"
             ></din-datum>
 
             <!-- Multi-Page Flow: Header Spacer -->

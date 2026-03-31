@@ -12,7 +12,9 @@
 
 - Planned change removes more than 10 lines net (SHRINK-ALARM).
 - File would shrink more than 15% in size.
-- Operation would take more than 2 minutes.
+- Operation would take more than 30 seconds.
+- Stylelint, ESLint, Prettier output exceeds 1000 characters.
+- No user input after 30 seconds → abort and report.
 
 ## SDD-EXCELLENCE (SPEC-KIT FLOW)
 

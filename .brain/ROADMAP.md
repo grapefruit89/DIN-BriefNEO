@@ -1,31 +1,21 @@
-# 💎 DIN-BriefNEO Roadmap (v4.0+)
+# DIN-BriefNEO Roadmap
+[v4.1 Pure & Flat Edition]
 
-## I. PHASE 1: SANIERUNG & HÄRTUNG (AKTUELL)
+## Phase 1: Pure Foundation [DONE]
+- [x] Temporal API Integration
+- [x] CMA Variables as @property
+- [x] Native Invokers for Modals
 
-- [x] **IMR 4.0 Migration:** Umstellung auf 19 granulare Atome.
-- [x] **Temporal Migration:** Konsequenter Einsatz der Temporal API.
-- [x] **Cemetery Sweep:** Löschung des Archivs und Bereinigung der Specs.
-- [x] **API Baseline 2026:** Integration von CSS Anchor Positioning & Scroll-State Queries.
+## Phase 2: Markdown & Mirror [DONE]
+- [x] KISS Markdown Parser
+- [x] Mirror Engine for Printing
 
-## II. PHASE 2: VISUELLE & ARCHITEKTONISCHE INTEGRITÄT (AKTUELL)
+## Phase 3: Flat Architecture [DONE]
+- [x] Delete redundant infrastructure (Worker, IO-Coord)
+- [x] Flatten project structure (Level 1 depth)
+- [x] Security: Remove .env and exposed keys
 
-- [x] **Zero-JS UI Core:** Layout-Switch, Guides & Dev-Mode rein via CSS :has().
-- [x] **Native Toast System:** Migration auf Popover API & @starting-style.
-- [ ] **Sidebar Minimalism:** Reduktion des UI-Clutter für maximalen WYSIWYG-Fokus.
-- [ ] **Ghost Overlay:** Einblendung der DIN-Referenz-SVGs zur Millimeter-Kontrolle.
-- [ ] **Visual Regression:** Automatisierte Screenshot-Audits (Puppeteer).
-
-## III. PHASE 3: FEATURE-AUSBAU (NEXT)
-
-- [ ] **Content Spiller V2:** Native Pagination via Container Queries (SPEC-029).
-- [ ] **Markdown Ghosting:** Non-destructive Zero-Width Marker Rendering (SPEC-066).
-- [ ] **IBAN-Härtung:** Constraint Validation API & CSS-Styling Finalisierung.
-
-## IV. PHASE 4: ÖKOSYSTEM
-
-- [ ] **WebMCP:** Native Anbindung von KI-Agenten an den Dokumenten-Kontext.
-- [ ] **Offline-Sync:** Leader Election & OPFS-Journaling Härtung.
-
----
-
-_Zuletzt aktualisiert am 28. März 2026 durch den Lead Architect._
+## Phase 4: Stabilitiy & Polish [ACTIVE]
+- [ ] Offline-Sync: Leader Election & OPFS [DEPRECATED / Pure Edition skips this]
+- [ ] Accessibility Audit (A11y)
+- [ ] Multi-Page support (Experimental)

@@ -8,7 +8,13 @@
   </head>
   <body>
     <input type="radio" name="layout-state" id="state-layout-a" hidden />
-    <input type="radio" name="layout-state" id="state-layout-b" checked hidden />
+    <input
+      type="radio"
+      name="layout-state"
+      id="state-layout-b"
+      checked
+      hidden
+    />
 
     <div id="app-shell">
       <aside id="sidebar-left">
@@ -24,34 +30,77 @@
             <div class="sidebar-control-group">
               <label class="sidebar-label">DIN-Variante</label>
               <div class="segmented-control">
-                <label class="segment-option" for="state-layout-a"><span>Form A</span></label>
-                <label class="segment-option" for="state-layout-b"><span>Form B</span></label>
+                <label class="segment-option" for="state-layout-a"
+                  ><span>Form A</span></label
+                >
+                <label class="segment-option" for="state-layout-b"
+                  ><span>Form B</span></label
+                >
               </div>
             </div>
             <div class="sidebar-control-group">
               <label class="sidebar-label">Arbeitsmodus</label>
               <div class="segmented-control">
-                <label class="segment-option"><input type="radio" name="theme" id="theme-day" value="day" checked /><span>☀️ Tag</span></label>
-                <label class="segment-option"><input type="radio" name="theme" id="theme-night" value="night" /><span>🌙 Nacht</span></label>
+                <label class="segment-option"
+                  ><input
+                    type="radio"
+                    name="theme"
+                    id="theme-day"
+                    value="day"
+                    checked
+                  /><span>☀️ Tag</span></label
+                >
+                <label class="segment-option"
+                  ><input
+                    type="radio"
+                    name="theme"
+                    id="theme-night"
+                    value="night"
+                  /><span>🌙 Nacht</span></label
+                >
               </div>
             </div>
 
             <div class="sidebar-control-group">
               <label class="sidebar-label">Formatierung</label>
               <div class="format-toolbar">
-                <button class="util-btn" command="--format-bold" title="Fett (Strg+B)"><strong>F</strong></button>
-                <button class="util-btn" command="--format-underline" title="Unterstrichen (Strg+U)"><u>U</u></button>
-                <button class="util-btn" command="--format-quote" title="Zitat">❝</button>
+                <button
+                  class="util-btn"
+                  command="--format-bold"
+                  title="Fett (Strg+B)"
+                >
+                  <strong>F</strong>
+                </button>
+                <button
+                  class="util-btn"
+                  command="--format-underline"
+                  title="Unterstrichen (Strg+U)"
+                >
+                  <u>U</u>
+                </button>
+                <button class="util-btn" command="--format-quote" title="Zitat">
+                  ❝
+                </button>
               </div>
             </div>
           </section>
         </div>
 
         <div class="actions-footer">
-          <button class="sidebar-btn primary" command="--print">🖨 Drucken / PDF</button>
+          <button class="sidebar-btn primary" command="--print">
+            🖨 Drucken / PDF
+          </button>
           <div class="utility-actions">
             <button class="util-btn" command="--export">📥 Export</button>
-            <button class="util-btn danger" onclick="localStorage.clear();location.reload();">🗑️ Reset</button>
+            <button
+              class="util-btn danger"
+              onclick="
+                localStorage.clear();
+                location.reload();
+              "
+            >
+              🗑️ Reset
+            </button>
           </div>
         </div>
       </aside>
@@ -60,13 +109,13 @@
         <din-5008 id="paper">
           <din-A4>
             <din-branding-logo></din-branding-logo>
-            
+
             <div class="mark mark-fold-1"></div>
             <div class="mark mark-loch"></div>
             <div class="mark mark-fold-2"></div>
 
             <!-- Identität (Absender) -->
-            <din-absender style="--x: 125mm; --y-b: 20mm; --w: 75mm">
+            <din-absender>
               <din-absender-vorname contenteditable="plaintext-only" data-placeholder="Vorname"></din-absender-vorname>
               <din-absender-nachname contenteditable="plaintext-only" data-placeholder="Nachname"></din-absender-nachname>
               <din-absender-strasse contenteditable="plaintext-only" data-placeholder="Straße Nr."></din-absender-strasse>
@@ -77,7 +126,7 @@
             </din-absender>
 
             <!-- Anschriftfeld -->
-            <din-anschriftfeld style="--x: 20mm; --w: 85mm; --h: 45mm">
+            <din-anschriftfeld>
               <din-rucksendezeile contenteditable="plaintext-only" data-placeholder="Rücksendezeile"></din-rucksendezeile>
               <din-zusaetze contenteditable="plaintext-only" data-placeholder="Zusatz (z.B. Einschreiben)"></din-zusaetze>
               <din-empfaenger-firma contenteditable="plaintext-only" data-placeholder="Firma"></din-empfaenger-firma>
@@ -89,7 +138,7 @@
             </din-anschriftfeld>
 
             <!-- Infoblock & Datum -->
-            <din-infoblock style="--x: 125mm; --y-b: 97.4mm; --w: 75mm">
+            <din-infoblock>
               <din-ihr-zeichen contenteditable="plaintext-only" data-placeholder="Ihr Zeichen"></din-ihr-zeichen>
               <din-ihr-schreiben contenteditable="plaintext-only" data-placeholder="Ihr Schreiben vom"></din-ihr-schreiben>
               <din-unser-zeichen contenteditable="plaintext-only" data-placeholder="Unser Zeichen"></din-unser-zeichen>
@@ -99,10 +148,10 @@
               <din-internet contenteditable="plaintext-only" data-placeholder="Internet"></din-internet>
             </din-infoblock>
 
-            <din-datum contenteditable="plaintext-only" data-placeholder="Datum" style="--x: 125mm; --y-b: 45mm; --w: 75mm"></din-datum>
+            <din-datum contenteditable="plaintext-only" data-placeholder="Datum"></din-datum>
 
             <!-- Briefkern -->
-            <din-kern style="--x: 25mm; --y-b: 103.4mm; --w: 165mm">
+            <din-kern>
               <din-betreff contenteditable="plaintext-only" data-placeholder="Betreff"></din-betreff>
               <din-anrede contenteditable="plaintext-only" data-placeholder="Anrede"></din-anrede>
               <din-text-container>
@@ -115,19 +164,55 @@
             </din-kern>
 
             <!-- Fußzeile -->
-            <din-fuss style="--x: 25mm; --w: 165mm">
-              <din-fuss-firma contenteditable="plaintext-only" data-placeholder="Firmenname"></din-fuss-firma>
-              <din-fuss-sitz contenteditable="plaintext-only" data-placeholder="Firmensitz"></din-fuss-sitz>
-              <din-fuss-gericht contenteditable="plaintext-only" data-placeholder="Registergericht"></din-fuss-gericht>
-              <din-fuss-hrb contenteditable="plaintext-only" data-placeholder="HRB-Nummer"></din-fuss-hrb>
-              <din-fuss-vorstand contenteditable="plaintext-only" data-placeholder="Vorstand"></din-fuss-vorstand>
-              <din-fuss-gf contenteditable="plaintext-only" data-placeholder="Geschäftsführung"></din-fuss-gf>
-              <din-fuss-stnr contenteditable="plaintext-only" data-placeholder="Steuernummer"></din-fuss-stnr>
-              <din-fuss-ustid contenteditable="plaintext-only" data-placeholder="USt-IdNr."></din-fuss-ustid>
-              <din-fuss-bank contenteditable="plaintext-only" data-placeholder="Bank"></din-fuss-bank>
-              <din-fuss-iban contenteditable="plaintext-only" data-placeholder="IBAN"></din-fuss-iban>
-              <din-fuss-bic contenteditable="plaintext-only" data-placeholder="BIC"></din-fuss-bic>
-              <din-fuss-anschrift contenteditable="plaintext-only" data-placeholder="Hausanschrift"></din-fuss-anschrift>
+            <din-fuss>
+              <din-fuss-firma
+                contenteditable="plaintext-only"
+                data-placeholder="Firmenname"
+              ></din-fuss-firma>
+              <din-fuss-sitz
+                contenteditable="plaintext-only"
+                data-placeholder="Firmensitz"
+              ></din-fuss-sitz>
+              <din-fuss-gericht
+                contenteditable="plaintext-only"
+                data-placeholder="Registergericht"
+              ></din-fuss-gericht>
+              <din-fuss-hrb
+                contenteditable="plaintext-only"
+                data-placeholder="HRB-Nummer"
+              ></din-fuss-hrb>
+              <din-fuss-vorstand
+                contenteditable="plaintext-only"
+                data-placeholder="Vorstand"
+              ></din-fuss-vorstand>
+              <din-fuss-gf
+                contenteditable="plaintext-only"
+                data-placeholder="Geschäftsführung"
+              ></din-fuss-gf>
+              <din-fuss-stnr
+                contenteditable="plaintext-only"
+                data-placeholder="Steuernummer"
+              ></din-fuss-stnr>
+              <din-fuss-ustid
+                contenteditable="plaintext-only"
+                data-placeholder="USt-IdNr."
+              ></din-fuss-ustid>
+              <din-fuss-bank
+                contenteditable="plaintext-only"
+                data-placeholder="Bank"
+              ></din-fuss-bank>
+              <din-fuss-iban
+                contenteditable="plaintext-only"
+                data-placeholder="IBAN"
+              ></din-fuss-iban>
+              <din-fuss-bic
+                contenteditable="plaintext-only"
+                data-placeholder="BIC"
+              ></din-fuss-bic>
+              <din-fuss-anschrift
+                contenteditable="plaintext-only"
+                data-placeholder="Hausanschrift"
+              ></din-fuss-anschrift>
             </din-fuss>
           </din-A4>
         </din-5008>

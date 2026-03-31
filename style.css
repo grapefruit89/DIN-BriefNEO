@@ -47,25 +47,10 @@
 
 /* ── THEME LAYER ────────────────────────────────────────────── */
 @layer ui.theme {
-  @property --din-y-addr {
+  @property --din-y-abschnitt {
     syntax: "<length>";
     inherits: true;
     initial-value: 45mm;
-  }
-  @property --din-y-datum {
-    syntax: "<length>";
-    inherits: true;
-    initial-value: 45mm;
-  }
-  @property --din-y-kern {
-    syntax: "<length>";
-    inherits: true;
-    initial-value: 103.4mm;
-  }
-  @property --din-y-infoblock {
-    syntax: "<length>";
-    inherits: true;
-    initial-value: 97.4mm;
   }
 
   :root {
@@ -74,7 +59,7 @@
     --c-primary-hover: color-mix(in oklch, var(--c-primary), white 15%);
     --c-primary-active: color-mix(in oklch, var(--c-primary), black 10%);
 
-    /* Native Dynamic Colors using OKLCH */
+    /* Native Dynamic Colors */
     --c-sidebar-bg: light-dark(oklch(25% 0.05 250), oklch(15% 0.05 250));
     --c-sidebar-btn-bg: color-mix(in oklch, var(--c-sidebar-bg), white 5%);
     --c-sidebar-text: oklch(98% 0.01 250);
@@ -98,31 +83,34 @@
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
 
-    --din-y-addr: 45mm;
-    --din-y-datum: 45mm;
-    --din-y-kern: 103.4mm;
-    --din-y-infoblock: 97.4mm;
+    /* SSoT: Form B ist Default (45mm) */
+    --din-y-abschnitt: 45mm;
+  }
+
+  /* Form A Override */
+  :root:has(#state-layout-a:checked) {
+    --din-y-abschnitt: 27mm;
+  }
+
+  /* Derived Variables (calc-logic) */
+  :root {
+    --din-y-addr: var(--din-y-abschnitt);
+    --din-y-datum: var(--din-y-abschnitt);
+    --din-y-kern: calc(var(--din-y-abschnitt) + 58.4mm);
+    --din-y-infoblock: calc(var(--din-y-abschnitt) + 52.4mm);
+    --din-y-fold-1: calc(var(--din-y-abschnitt) + 60mm);
+    --din-y-fold-2: calc(var(--din-y-abschnitt) + 165mm);
   }
 
   /* Manual Theme Overrides (using :has) */
   :root:has(#theme-night:checked) {
     color-scheme: dark;
+    --c-bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #2d3436 100%);
+    --c-sidebar-bg: #0f111a;
   }
 
   :root:has(#theme-day:checked) {
     color-scheme: light;
-  }
-
-  :root:has(#state-layout-a:checked) {
-    --din-y-addr: 27mm;
-    --din-y-datum: 27mm;
-    --din-y-kern: 85.4mm;
-    --din-y-infoblock: 79.4mm;
-  }
-
-  :root:has(#theme-night:checked) {
-    --c-bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #2d3436 100%);
-    --c-sidebar-bg: #0f111a;
   }
 }
 
@@ -259,33 +247,19 @@
       );
     }
 
-    /* Form B (Standard) Positions: 105mm / 210mm from top */
     din-falz-oben {
-      top: 105mm;
+      top: var(--din-y-fold-1);
     }
     din-falz-unten {
-      top: 210mm;
+      top: var(--din-y-fold-2);
     }
-
-    /* Lochmarke: Absolute Blattmitte (148.5mm) */
     din-lochmarke {
       top: 148.5mm;
       width: 7mm;
-      height: 1px;
     }
   }
 
-  /* Form A Adjustments (Relativ-Positioning Logic) */
-  :root:has(#state-layout-a:checked) {
-    & din-falz-oben {
-      top: 87mm;
-    }
-    & din-falz-unten {
-      top: 192mm;
-    }
-  }
-
-  /* Toggle Logic & Print Override */
+  /* Toggle Logic & Print Override (Zero-JS UI State) */
   :root:has(#state-guides:checked) {
     & :is(din-falz-oben, din-falz-unten, din-lochmarke) {
       opacity: 1;

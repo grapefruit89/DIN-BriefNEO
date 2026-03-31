@@ -1,7 +1,7 @@
 /**
  * engine.js — Core Engine (State & Persistence)
  * [ADR-017] Flat & Pure Architecture
- * ─────────────────────────────────────────────────────────────
+ * @module engine
  */
 
 /* ── CAPABILITIES ─────────────────────────────────────────── */
@@ -22,6 +22,10 @@ export const Capabilities = Object.freeze({
 const STORE_KEY = "DIN-BriefNEO-State-v4.1";
 
 export const Storage = {
+  /**
+   * Speichert State – bevorzugt OPFS, fallback localStorage
+   * @param {Object} state - Zu speichernder Zustand
+   */
   async save(state) {
     const data = JSON.stringify(state);
     if (Capabilities.opfs && Capabilities.isSecureContext) {
@@ -32,11 +36,17 @@ export const Storage = {
         await writable.write(data);
         await writable.close();
         return;
-      } catch (e) {}
+      } catch (e) {
+        console.warn("[ENGINE] OPFS save failed, falling back to localStorage", e);
+      }
     }
     localStorage.setItem(STORE_KEY, data);
   },
 
+  /**
+   * Lädt State – bevorzugt OPFS, fallback localStorage
+   * @returns {Promise<Object|null>}
+   */
   async load() {
     if (Capabilities.opfs && Capabilities.isSecureContext) {
       try {
@@ -45,7 +55,9 @@ export const Storage = {
         const handle = await file.getFile();
         const content = await handle.text();
         return JSON.parse(content);
-      } catch (e) {}
+      } catch (e) {
+        console.warn("[ENGINE] OPFS load failed, falling back to localStorage", e);
+      }
     }
     const raw = localStorage.getItem(STORE_KEY);
     return raw ? JSON.parse(raw) : null;
@@ -65,6 +77,9 @@ export const Storage = {
 /* ── STATE MANAGEMENT ─────────────────────────────────────── */
 
 export class StateManager {
+  /**
+   * @param {Object} initialState - Initialer Zustand
+   */
   constructor(initialState = null) {
     this.state = initialState || {
       content: {},
@@ -73,11 +88,22 @@ export class StateManager {
     this._listeners = new Set();
   }
 
+  /**
+   * Abonniert State-Änderungen
+   * @param {Function} fn - Callback (path, value, domain, source)
+   * @returns {Function} Unsubscribe-Funktion
+   */
   subscribe(fn) {
     this._listeners.add(fn);
     return () => this._listeners.delete(fn);
   }
 
+  /**
+   * Aktualisiert einen State-Pfad
+   * @param {string} path - Dot-Notation Pfad (z.B. "config.theme")
+   * @param {any} value - Neuer Wert
+   * @param {string} source - Quelle der Änderung ("ui" | "system" | "sync")
+   */
   update(path, value, source = "ui") {
     const parts = path.split(".");
     let current = this.state;

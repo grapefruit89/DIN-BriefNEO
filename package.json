@@ -6,8 +6,13 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "vision": "node scripts/v4-core-vision.js"
+    "vision": "node scripts/v4-core-vision.js",
+    "lint:js": "eslint \"**/*.js\"",
+    "lint:css": "stylelint \"**/*.css\"",
+    "lint:md": "markdown-link-check \"**/*.md\"",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:md"
   },
+
   "keywords": [],
   "author": "",
   "license": "ISC",

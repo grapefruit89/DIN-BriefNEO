@@ -1,0 +1,34 @@
+# Auto-Label Configuration for DIN-BriefNEO
+engine:
+  - changed-files:
+      - any-glob-to-any-file: "engine.js"
+
+logic:
+  - changed-files:
+      - any-glob-to-any-file: "logic.js"
+
+salutation:
+  - changed-files:
+      - any-glob-to-any-file: "salutation.js"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: "docs/**/*"
+      - any-glob-to-any-file: "*.md"
+
+component:css:
+  - any: ['*.css']
+component:js:
+  - any: ['*.js']
+component:html:
+  - any: ['*.html']
+component:spec:
+  - any: ['*.md', '.brain/*.md']
+priority:high:
+  - any: ['SECURITY.md', 'FUNDING.yml']
+type:feature:
+  - head-branch: ['^feature/']
+type:refactor:
+  - head-branch: ['^refactor/']
+status:in-progress:
+  - head-branch: ['^dev/']

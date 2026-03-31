@@ -1,13 +1,16 @@
 /**
  * logic.js — Unified Business Logic & Constants (Pure Edition)
  * [ADR-017] Flat & Pure Architecture
- * ─────────────────────────────────────────────────────────────
+ * @module logic
  */
 
 /* ── CONSTANTS & REGISTRY ──────────────────────────────────── */
 
+/**
+ * IMR (Input Mapping Registry) – definiert die bidirektionale Bindung
+ * zwischen DOM-Elementen und State-Keys.
+ */
 export const IMR = Object.freeze([
-  // 1. Absender
   { tag: "din-branding-logo", key: "logo" },
   { tag: "din-branding-wasserzeichen", key: "wasserzeichen" },
   { tag: "din-absender-vorname", key: "abs_vorname" },
@@ -17,8 +20,6 @@ export const IMR = Object.freeze([
   { tag: "din-absender-zusatz", key: "abs_zusatz" },
   { tag: "din-absender-mail", key: "abs_mail" },
   { tag: "din-absender-tel", key: "abs_tel" },
-
-  // 2. Anschrift
   { tag: "din-rucksendezeile", key: "rucksendezeile" },
   { tag: "din-zusaetze", key: "zusaetze" },
   { tag: "din-empfaenger-firma", key: "empf_firma" },
@@ -27,8 +28,6 @@ export const IMR = Object.freeze([
   { tag: "din-empfaenger-nachname", key: "empf_nachname" },
   { tag: "din-empfaenger-strasse", key: "empf_strasse" },
   { tag: "din-empfaenger-ort", key: "empf_ort" },
-
-  // 3. Infoblock
   { tag: "din-ihr-zeichen", key: "ref_ihr_zeichen" },
   { tag: "din-ihr-schreiben", key: "ref_ihr_schreiben" },
   { tag: "din-unser-zeichen", key: "ref_unser_zeichen" },
@@ -37,8 +36,6 @@ export const IMR = Object.freeze([
   { tag: "din-email-direkt", key: "ref_email" },
   { tag: "din-internet", key: "ref_web" },
   { tag: "din-datum", key: "datum" },
-
-  // 4. Briefkern
   { tag: "din-betreff", key: "betreff" },
   { tag: "din-anrede", key: "anrede" },
   { tag: "din-text", key: "text" },
@@ -46,8 +43,6 @@ export const IMR = Object.freeze([
   { tag: "din-grussformel", key: "grussformel" },
   { tag: "din-unterschrift", key: "unterschrift" },
   { tag: "din-anlagen", key: "anlagen" },
-
-  // 5. Fusszeile
   { tag: "din-fuss-firma", key: "fuss_firma" },
   { tag: "din-fuss-sitz", key: "fuss_sitz" },
   { tag: "din-fuss-gericht", key: "fuss_gericht" },
@@ -60,107 +55,98 @@ export const IMR = Object.freeze([
   { tag: "din-fuss-iban", key: "fuss_iban" },
   { tag: "din-fuss-bic", key: "fuss_bic" },
   { tag: "din-fuss-anschrift", key: "fuss_anschrift" },
+  { tag: "din-falz-oben", key: "guides_fold_top", internal: true },
+  { tag: "din-falz-unten", key: "guides_fold_bottom", internal: true },
+  { tag: "din-lochmarke", key: "guides_hole", internal: true },
 ]);
 
 /* ── MARKDOWN PARSER ────────────────────────────────────────── */
 
+/**
+ * Parst Markdown in HTML mit Zero-Width Ghosting Pattern
+ * @param {string} raw - Roher Markdown-Text
+ * @returns {string} HTML mit Markern
+ */
 export function parseMarkdown(raw) {
-  if (!raw) return '';
+  if (!raw) return "";
 
-  // 1. XSS-Escape
-  let html = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let html = raw
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
-  const lines = html.split('\n');
+  const lines = html.split("\n");
   const out = [];
-  let inOrderedList = false;
-  let inUnorderedList = false;
+  let listActive = false;
 
   for (const line of lines) {
-    // Nummerierte Liste: "1. "
     const orderedMatch = line.match(/^(\d+)\.\s+(.+)$/);
     if (orderedMatch) {
-      inUnorderedList = false;
-      if (!inOrderedList) {
-        out.push('<div class="md-list md-list-ordered">');
-        inOrderedList = true;
-      }
       out.push(
         `<div class="md-list-item">` +
-        `<span class="md-marker">${orderedMatch[1]}.</span>` +
-        `<span class="md-num">${orderedMatch[1]}.</span>` +
-        `${applyInline(orderedMatch[2])}` +
-        `</div>`
+          `<span class="md-num"><span class="md-marker">${orderedMatch[1]}. </span>${orderedMatch[1]}.</span>` +
+          `<span>${applyInline(orderedMatch[2])}</span>` +
+          `</div>`,
       );
+      listActive = true;
       continue;
     }
 
-    // Bullet-Liste: "- "
-    const bulletMatch = line.match(/^- \s*(.+)$/);
+    const bulletMatch = line.match(/^([-*])\s+(.+)$/);
     if (bulletMatch) {
-      inOrderedList = false;
-      if (!inUnorderedList) {
-        out.push('<div class="md-list md-list-unordered">');
-        inUnorderedList = true;
+      const content = bulletMatch[2];
+
+      // Checkbox / Task-List Erkennung: "- [ ] " oder "- [x] "
+      const taskMatch = content.match(/^\[( |x)\]\s+(.*)$/i);
+      if (taskMatch) {
+        const checked = taskMatch[1].toLowerCase() === "x";
+        out.push(
+          `<div class="md-list-item md-task-list ${checked ? "is-checked" : ""}">` +
+            `<span class="md-checkbox"><span class="md-marker">${bulletMatch[1]} [${taskMatch[1]}] </span>${checked ? "☑" : "☐"}</span>` +
+            `<span>${applyInline(taskMatch[2])}</span>` +
+            `</div>`,
+        );
+      } else {
+        out.push(
+          `<div class="md-list-item">` +
+            `<span class="md-bullet"><span class="md-marker">${bulletMatch[1]} </span>•</span>` +
+            `<span>${applyInline(content)}</span>` +
+            `</div>`,
+        );
       }
-      out.push(
-        `<div class="md-list-item">` +
-        `<span class="md-marker">-</span>` +
-        `<span class="md-bullet">•</span>` +
-        `${applyInline(bulletMatch[1])}` +
-        `</div>`
-      );
+      listActive = true;
       continue;
     }
 
-    // Zitat: "> "
-    const quoteMatch = line.match(/^&gt;\s*(.*)$/);
+    const quoteMatch = line.match(/^&gt;\s?(.*)$/);
     if (quoteMatch) {
-      if (inOrderedList || inUnorderedList) out.push('</div>');
-      inOrderedList = inUnorderedList = false;
       out.push(
         `<blockquote class="md-quote">` +
-        `<span class="md-marker">&gt; </span>` +
-        `${applyInline(quoteMatch[1])}` +
-        `</blockquote>`
+          `<span class="md-marker">&gt; </span>` +
+          `${applyInline(quoteMatch[1])}` +
+          `</blockquote>`,
       );
+      listActive = false;
       continue;
-    }
-
-    // Liste schließen
-    if (inOrderedList || inUnorderedList) {
-      out.push('</div>');
-      inOrderedList = inUnorderedList = false;
     }
 
     out.push(applyInline(line));
   }
 
-  if (inOrderedList || inUnorderedList) out.push('</div>');
-
-  return out.join('\n').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+  return out.join("\n").replace(/\n/g, "<br>");
 }
 
 function applyInline(text) {
   return text
-    .replace(/\*\*(.+?)\*\*/g, '<span class="md-marker">**</span><strong>$1</strong><span class="md-marker">**</span>')
-    .replace(/__(.+?)__/g, '<span class="md-marker">__</span><u>$1</u><span class="md-marker">__</span>');
+    .replace(
+      /\*\*(.+?)\*\*/g,
+      '<span class="md-marker">**</span><strong>$1</strong><span class="md-marker">**</span>',
+    )
+    .replace(
+      /__(.+?)__/g,
+      '<span class="md-marker">__</span><u>$1</u><span class="md-marker">__</span>',
+    );
 }
-
-/* ── GREETINGS ENGINE ───────────────────────────────────────── */
-
-export const Greetings = {
-  process: (text, formality = "formal") => {
-    if (!text) return "Sehr geehrte Damen und Herren,";
-    const lower = text.toLowerCase();
-    const isHerr = lower.includes("herr");
-    const isFrau = lower.includes("frau");
-    const name = text.split(/\s+/).pop();
-    
-    if (isHerr) return `Sehr geehrter Herr ${name},`;
-    if (isFrau) return `Sehr geehrte Frau ${name},`;
-    return "Sehr geehrte Damen und Herren,";
-  }
-};
 
 /* ── TEMPORAL DATE LOGIC ────────────────────────────────────── */
 
@@ -171,27 +157,65 @@ export function todayISO() {
 export function formatDate(iso) {
   if (!iso) return "";
   const d = Temporal.PlainDate.from(iso);
-  return `${d.day.toString().padStart(2, '0')}.${d.month.toString().padStart(2, '0')}.${d.year}`;
+  return `${d.day.toString().padStart(2, "0")}.${d.month.toString().padStart(2, "0")}.${d.year}`;
 }
 
-/* ── BUSINESS LOGIC (IBAN, RETURN-LINE) ─────────────────────── */
+/* ── BUSINESS LOGIC ─────────────────────────────────────────── */
 
 export function deriveReturnLine(data) {
-  const { sender_fn = "", sender_ln = "", sender_st = "", sender_city = "" } = data;
-  const initial = sender_fn.trim().charAt(0);
-  const namePart = initial ? `${initial}. ${sender_ln.trim()}` : sender_ln.trim();
-  return [namePart, sender_st.trim(), sender_city.trim()].filter(Boolean).join(" · ");
+  const firstName = data.abs_vorname || "";
+  const lastName = data.abs_nachname || "";
+  const street = data.abs_strasse || "";
+  const city = data.abs_ort || "";
+
+  const initial = firstName.trim().charAt(0);
+  const namePart = initial ? `${initial}. ${lastName.trim()}` : lastName.trim();
+
+  return [namePart, street.trim(), city.trim()].filter(Boolean).join(" · ");
 }
 
-export function validateIBAN(raw) {
-  if (!raw) return false;
-  const clean = raw.replace(/\s+/g, "").toUpperCase();
-  return /[A-Z]{2}[0-9]{20}/.test(clean);
+export function validateIBAN(iban) {
+  if (!iban) return false;
+  const clean = iban.replace(/\s+/g, "").toUpperCase();
+  if (!/^[A-Z]{2}[0-9]{2,20}$/.test(clean)) return false;
+
+  const rearranged = clean.slice(4) + clean.slice(0, 4);
+  let numeric = "";
+  for (const char of rearranged) {
+    const code = char.charCodeAt(0);
+    if (code >= 65 && code <= 90) {
+      numeric += (code - 55).toString();
+    } else {
+      numeric += char;
+    }
+  }
+
+  try {
+    return BigInt(numeric) % 97n === 1n;
+  } catch (e) {
+    return false;
+  }
 }
 
-export function validateAddressZone(content) {
-  if (!content) return { isValid: true, lineCount: 0 };
-  const recipientKeys = ["supplement", "rect_co", "rect_fn", "rect_ln", "rect_st", "rect_city"];
-  const lineCount = recipientKeys.reduce((acc, key) => acc + (content[key]?.trim() ? 1 : 0), 0);
+/**
+ * Validiert die Adresszone nach DIN 5008 (max. 6 Zeilen).
+ * @param {Object} data - Aktueller Dokument-Zustand
+ * @returns {Object} { isValid, lineCount }
+ */
+export function validateAddressZone(data) {
+  if (!data) return { isValid: true, lineCount: 0 };
+  const recipientKeys = [
+    "zusaetze",
+    "empf_firma",
+    "empf_abteilung",
+    "empf_vorname",
+    "empf_nachname",
+    "empf_strasse",
+    "empf_ort",
+  ];
+  const lineCount = recipientKeys.reduce(
+    (acc, key) => acc + (data[key]?.trim() ? 1 : 0),
+    0,
+  );
   return { isValid: lineCount <= 6, lineCount };
 }

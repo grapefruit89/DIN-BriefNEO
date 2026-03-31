@@ -230,63 +230,71 @@
         "zero" on;
     }
 
-    /* ── [PLATINUM] Falt- & Lochmarken (ADR-017) ── */
-    .fold-mark {
+    /* ── [PLATINUM] Falt- & Lochmarken (ADR-017 / Relativ-Logic) ── */
+    din-falz-oben,
+    din-falz-unten,
+    din-lochmarke {
+      display: block;
       position: absolute;
       left: 0;
       width: 4mm;
       height: 1px;
-      background: oklch(0% 0 0 / 20%);
+      background: oklch(0% 0 0 / 25%);
       pointer-events: none;
-      transition: opacity 0.3s ease;
-      opacity: 0; /* Standard: Aus */
+      transition:
+        opacity 0.3s ease,
+        top 0.3s ease;
+      opacity: 0;
     }
 
-    .fold-mark--top {
+    /* Faltmarken: Gepunkteter Gradient */
+    :is(din-falz-oben, din-falz-unten) {
+      width: 4mm;
+      background: repeating-linear-gradient(
+        90deg,
+        oklch(0% 0 0 / 25%),
+        oklch(0% 0 0 / 25%) 1mm,
+        transparent 1mm,
+        transparent 2mm
+      );
+    }
+
+    /* Form B (Standard) Positions: 105mm / 210mm from top */
+    din-falz-oben {
       top: 105mm;
     }
-    .fold-mark--bottom {
+    din-falz-unten {
       top: 210mm;
     }
+
+    /* Lochmarke: Absolute Blattmitte (148.5mm) */
+    din-lochmarke {
+      top: 148.5mm;
+      width: 7mm;
+      height: 1px;
+    }
   }
 
-  /* Lochmarke via Pseudo-Element (Zero-DOM) */
-  #paper::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 148.5mm;
-    width: 7mm;
-    height: 1px;
-    background: oklch(0% 0 0 / 25%);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  /* Form A Adjustment (Precision mm) */
+  /* Form A Adjustments (Relativ-Positioning Logic) */
   :root:has(#state-layout-a:checked) {
-    & .fold-mark--top {
+    & din-falz-oben {
       top: 87mm;
     }
-    & .fold-mark--bottom {
+    & din-falz-unten {
       top: 192mm;
     }
   }
 
-  /* Toggle Logic (Zero-JS UI State) */
+  /* Toggle Logic & Print Override */
   :root:has(#state-guides:checked) {
-    & .fold-mark,
-    & #paper::before {
+    & :is(din-falz-oben, din-falz-unten, din-lochmarke) {
       opacity: 1;
     }
   }
 
-  /* Print Override: Hide marks in high-fidelity PDF unless active */
   @media print {
     :root:not(:has(#state-guides:checked)) {
-      & .fold-mark,
-      & #paper::before {
+      & :is(din-falz-oben, din-falz-unten, din-lochmarke) {
         display: none !important;
       }
     }

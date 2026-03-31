@@ -1,0 +1,130 @@
+/**
+ * style.css — DIN-BriefNEO Unified Stylesheet (Pure Edition)
+ * [ADR-017] Flat & Pure Architecture
+ * ─────────────────────────────────────────────────────────────
+ */
+
+@layer latex.base, ui.theme, din.structure, ui.floating, ui.components, project.overrides, core.immutable;
+
+/* ── BASE LAYER ────────────────────────────────────────────── */
+@layer latex.base {
+  html, body {
+    font-family: "Inter", system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    color-scheme: light dark;
+  }
+}
+
+/* ── THEME LAYER ────────────────────────────────────────────── */
+@layer ui.theme {
+  :root {
+    interpolate-size: allow-keywords;
+    --c-primary: oklch(60% 0.15 250);
+    --c-sidebar-bg: oklch(26.3% 0.04 254.1);
+    --c-sidebar-text: oklch(96.3% 0.01 254.1);
+    --c-sidebar-border: oklch(100% 0 0 / 0.15);
+    --c-bg: light-dark(oklch(96% 0.01 250), oklch(26.3% 0.04 254.1));
+    --c-shadow-sheet: 0 12px 48px oklch(0% 0 0 / 0.15);
+    --c-radius-md: 10px;
+  }
+
+  :root:has(#theme-night:checked) {
+    --c-bg: oklch(26.3% 0.04 254.1);
+  }
+}
+
+/* ── DIN STRUCTURE (High-Integrity mm-Dimensions) ──────────── */
+@layer din.structure {
+  #paper {
+    display: block;
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    position: relative;
+    box-shadow: var(--c-shadow-sheet);
+    font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    overflow: hidden;
+    margin: 3rem auto;
+  }
+
+  din-header, din-anschriftfeld, din-infoblock, din-date, din-kern {
+    position: absolute;
+    left: var(--x);
+    width: var(--w);
+    top: var(--y-b);
+    transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Form A/B Layout Logic */
+  :root:has(#state-layout-a:checked) din-anschriftfeld { top: var(--din-addr-top-a, 27mm); }
+  :root:has(#state-layout-b:checked) din-anschriftfeld { top: var(--din-addr-top-b, 45mm); }
+
+  /* Body & Mirror Engine */
+  din-text-container { position: relative; display: block; min-height: 50mm; }
+  din-text, din-text-mirror {
+    font-family: inherit; font-size: inherit; line-height: inherit;
+    width: 100%; display: block; white-space: pre-wrap; word-wrap: break-word;
+  }
+  din-text { color: transparent; caret-color: black; outline: none; z-index: 2; position: relative; }
+  din-text:focus { color: oklch(15% 0.01 250); }
+  din-text-mirror { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+  /* Markdown Mirror Styles */
+  din-text-mirror .md-marker {
+    display: inline-block; width: 0; overflow: visible;
+    color: oklch(70% 0 0 / 0.4); font-size: 0.85em;
+    pointer-events: none; user-select: none;
+  }
+
+  din-text-mirror strong { font-weight: 700; }
+  din-text-mirror u { text-decoration: underline; text-underline-offset: 2px; }
+
+  din-text-mirror .md-list { margin: 2mm 0; }
+  din-text-mirror .md-list-item {
+    display: grid; grid-template-columns: 6mm 1fr; gap: 0; line-height: 1.5;
+  }
+
+  din-text-mirror .md-num, din-text-mirror .md-bullet {
+    font-weight: 600; color: oklch(20% 0 0);
+  }
+
+  din-text-mirror .md-quote {
+    margin: 2mm 0 2mm 4mm; padding-left: 4mm;
+    border-left: 2.5pt solid oklch(30% 0.01 250);
+    font-weight: 600; color: oklch(25% 0.01 250);
+  }
+}
+
+/* ── UI COMPONENTS & SIDEBAR ────────────────────────────────── */
+@layer ui.components {
+  #app-shell { display: flex; width: 100%; height: 100dvh; }
+  #sidebar-left {
+    width: 280px; background: var(--c-sidebar-bg); color: var(--c-sidebar-text);
+    padding: 24px; display: flex; flex-direction: column; border-right: 1px solid var(--c-sidebar-border);
+  }
+  .sidebar-brand { font-weight: 800; font-size: 1.2rem; margin-bottom: 30px; }
+  
+  .segmented-control {
+    display: flex; background: oklch(100% 0 0 / 0.05); padding: 2px; border-radius: 8px; margin-bottom: 20px;
+  }
+  .segment-option { flex: 1; text-align: center; padding: 8px; cursor: pointer; font-size: 0.8rem; border-radius: 6px; }
+  .segment-option:has(input:checked) { background: var(--c-primary); color: white; }
+  .segment-option input { display: none; }
+
+  #paper-viewport { flex-grow: 1; background: var(--c-bg); display: grid; place-items: center; overflow: hidden; }
+}
+
+/* ── PRINT ENGINE ───────────────────────────────────────────── */
+@media print {
+  #sidebar-left, .no-print { display: none !important; }
+  #paper { margin: 0 !important; box-shadow: none !important; }
+  din-text { display: none !important; }
+  din-text-mirror { position: static !important; display: block !important; }
+  @page { size: A4; margin: 0; }
+}

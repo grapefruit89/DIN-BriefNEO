@@ -96,34 +96,46 @@
   }
 
   /* Growth Directions & Atomic Display (Platinum) */
-  din-absender > *, din-anschriftfeld > *, din-infoblock > *, din-kern > *, din-fuss > * {
+  din-absender > *,
+  din-anschriftfeld > *,
+  din-infoblock > *,
+  din-kern > *,
+  din-fuss > * {
     display: block;
     min-height: 1.2em;
     width: 100%;
     outline: none;
     position: relative;
+    border: 1px dotted transparent;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    padding: 1px 2px;
+    margin: -1px -2px; /* Ausgleich für Padding, damit Layout-Position exakt bleibt */
   }
 
-  /* Platinum Ghost Text Logic */
+  /* Smart Border Interaction */
+  [contenteditable]:hover {
+    border-color: oklch(0% 0 0 / 0.15);
+    background: oklch(0% 0 0 / 0.01);
+  }
+
+  [contenteditable]:focus {
+    border-color: oklch(25% 0.01 250);
+    border-style: solid;
+    background: transparent;
+  }
+
+  /* Robust Placeholder Logic (Platinum Ghost Text) */
   [style*="--p"]:empty::before {
     content: var(--p);
     color: oklch(0% 0 0 / 0.25);
     pointer-events: none;
     user-select: none;
     position: absolute;
+    left: 2px;
     display: block;
     font-style: italic;
     font-weight: 400;
-  }
-
-  /* Force visibility during editing even if whitespace is entered */
-  [style*="--p"]:focus::before {
-    content: none !important;
-  }
-
-  /* Interaction Feedback */
-  [contenteditable]:hover {
-    background: oklch(0% 0 0 / 0.02);
   }
   [contenteditable]:focus {
     background: oklch(0% 0 0 / 0.04);
@@ -258,12 +270,23 @@
 /* ── PRINT ENGINE ───────────────────────────────────────────── */
 @media print {
   #sidebar-left,
-  .no-print {
+  .no-print,
+  #platinum-debug-btn {
     display: none !important;
   }
   #paper {
     margin: 0 !important;
     box-shadow: none !important;
+  }
+  din-absender > *,
+  din-anschriftfeld > *,
+  din-infoblock > *,
+  din-kern > *,
+  din-fuss > * {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
   din-text {
     display: none !important;

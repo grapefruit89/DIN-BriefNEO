@@ -88,37 +88,27 @@
   din-text { text-align: justify; hyphens: auto; }
   din-text-spiegel { text-align: justify; hyphens: auto; }
 
-  /* Growth Directions (Top-Down Default) */
-  din-absender > *, din-anschriftfeld > *, din-infoblock > *, din-kern > * {
-    display: block;
-    min-height: 5mm;
-  }
-  din-text,
-  din-text-spiegel {
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    width: 100%;
-    display: block;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  din-text {
-    color: transparent;
-    caret-color: black;
-    outline: none;
-    z-index: 2;
-    position: relative;
-  }
-  din-text:focus {
-    color: oklch(15% 0.01 250);
-  }
-  din-text-spiegel {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
+  /* Placeholder Logic */
+  [data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: oklch(0% 0 0 / 0.3);
     pointer-events: none;
+    display: block;
   }
+
+  /* Default Text Color for all DIN Atoms */
+  din-absender *, din-anschriftfeld *, din-infoblock *, din-datum, din-kern *, din-fuss * {
+    color: oklch(0% 0 0);
+  }
+
+  /* Body & Mirror Engine */
+  din-text-container { position: relative; display: block; min-height: 50mm; }
+  din-text, din-text-spiegel {
+    font-family: inherit; font-size: inherit; line-height: inherit;
+    width: 100%; display: block; white-space: pre-wrap; word-wrap: break-word;
+  }
+  din-text { color: transparent !important; caret-color: black; outline: none; z-index: 2; position: relative; }
+  din-text-spiegel { position: absolute; inset: 0; z-index: 1; pointer-events: none; color: oklch(0% 0 0); }
 
   /* Markdown Mirror Styles */
   din-text-spiegel .md-marker {

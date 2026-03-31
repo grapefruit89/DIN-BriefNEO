@@ -66,20 +66,20 @@
             <div class="mark mark-fold-2"></div>
 
             <!-- Identität (Absender) -->
-            <din-header style="--x: 125mm; --y-b: 20mm; --w: 75mm">
+            <din-absender style="--x: 125mm; --y-b: 20mm; --w: 75mm">
               <din-absender-vorname contenteditable="plaintext-only" data-placeholder="Vorname"></din-absender-vorname>
               <din-absender-nachname contenteditable="plaintext-only" data-placeholder="Nachname"></din-absender-nachname>
               <din-absender-strasse contenteditable="plaintext-only" data-placeholder="Straße Nr."></din-absender-strasse>
               <din-absender-ort contenteditable="plaintext-only" data-placeholder="PLZ Ort"></din-absender-ort>
-              <din-absender-kontakt contenteditable="plaintext-only" data-placeholder="Zusatz/Abteilung"></din-absender-kontakt>
+              <din-absender-zusatz contenteditable="plaintext-only" data-placeholder="Zusatz/Abteilung"></din-absender-zusatz>
               <din-absender-mail contenteditable="plaintext-only" data-placeholder="E-Mail"></din-absender-mail>
               <din-absender-tel contenteditable="plaintext-only" data-placeholder="Telefon"></din-absender-tel>
-            </din-header>
+            </din-absender>
 
             <!-- Anschriftfeld -->
             <din-anschriftfeld style="--x: 20mm; --w: 85mm; --h: 45mm">
-              <din-return-line contenteditable="plaintext-only" data-placeholder="Rücksendezeile"></din-return-line>
-              <din-supplement contenteditable="plaintext-only" data-placeholder="Zusatz (z.B. Einschreiben)"></din-supplement>
+              <din-rucksendezeile contenteditable="plaintext-only" data-placeholder="Rücksendezeile"></din-rucksendezeile>
+              <din-zusaetze contenteditable="plaintext-only" data-placeholder="Zusatz (z.B. Einschreiben)"></din-zusaetze>
               <din-empfaenger-firma contenteditable="plaintext-only" data-placeholder="Firma"></din-empfaenger-firma>
               <din-empfaenger-abteilung contenteditable="plaintext-only" data-placeholder="Abteilung"></din-empfaenger-abteilung>
               <din-empfaenger-vorname contenteditable="plaintext-only" data-placeholder="Vorname"></din-empfaenger-vorname>
@@ -90,37 +90,45 @@
 
             <!-- Infoblock & Datum -->
             <din-infoblock style="--x: 125mm; --y-b: 97.4mm; --w: 75mm">
-              <din-ref-ihr-zeichen contenteditable="plaintext-only" data-placeholder="Ihr Zeichen"></din-ref-ihr-zeichen>
-              <din-ref-ihr-schreiben contenteditable="plaintext-only" data-placeholder="Ihr Schreiben vom"></din-ref-ihr-schreiben>
-              <din-ref-unser-zeichen contenteditable="plaintext-only" data-placeholder="Unser Zeichen"></din-ref-unser-zeichen>
-              <din-ref-unser-schreiben contenteditable="plaintext-only" data-placeholder="Unser Schreiben vom"></din-ref-unser-schreiben>
-              <din-ref-telefon contenteditable="plaintext-only" data-placeholder="Telefon"></din-ref-telefon>
-              <din-ref-email contenteditable="plaintext-only" data-placeholder="E-Mail"></din-ref-email>
-              <din-ref-internet contenteditable="plaintext-only" data-placeholder="Internet"></din-ref-internet>
+              <din-ihr-zeichen contenteditable="plaintext-only" data-placeholder="Ihr Zeichen"></din-ihr-zeichen>
+              <din-ihr-schreiben contenteditable="plaintext-only" data-placeholder="Ihr Schreiben vom"></din-ihr-schreiben>
+              <din-unser-zeichen contenteditable="plaintext-only" data-placeholder="Unser Zeichen"></din-unser-zeichen>
+              <din-unser-schreiben contenteditable="plaintext-only" data-placeholder="Unser Schreiben vom"></din-unser-schreiben>
+              <din-durchwahl contenteditable="plaintext-only" data-placeholder="Durchwahl"></din-durchwahl>
+              <din-email-direkt contenteditable="plaintext-only" data-placeholder="E-Mail"></din-email-direkt>
+              <din-internet contenteditable="plaintext-only" data-placeholder="Internet"></din-internet>
             </din-infoblock>
 
-            <din-date contenteditable="plaintext-only" data-placeholder="Datum" style="--x: 125mm; --y-b: 45mm; --w: 75mm"></din-date>
+            <din-datum contenteditable="plaintext-only" data-placeholder="Datum" style="--x: 125mm; --y-b: 45mm; --w: 75mm"></din-datum>
 
             <!-- Briefkern -->
             <din-kern style="--x: 25mm; --y-b: 103.4mm; --w: 165mm">
-              <din-subject contenteditable="plaintext-only" data-placeholder="Betreff"></din-subject>
+              <din-betreff contenteditable="plaintext-only" data-placeholder="Betreff"></din-betreff>
               <din-anrede contenteditable="plaintext-only" data-placeholder="Anrede"></din-anrede>
               <din-text-container>
                 <din-text contenteditable="plaintext-only" data-placeholder="Text schreiben..."></din-text>
-                <din-text-mirror aria-hidden="true"></din-text-mirror>
+                <din-text-spiegel aria-hidden="true"></din-text-spiegel>
               </din-text-container>
               <din-grussformel contenteditable="plaintext-only" data-placeholder="Grußformel"></din-grussformel>
-              <din-signature contenteditable="plaintext-only" data-placeholder="Unterschrift-Name"></din-signature>
-              <din-attachments contenteditable="plaintext-only" data-placeholder="Anlagen"></din-attachments>
+              <din-unterschrift contenteditable="plaintext-only" data-placeholder="Unterschrift-Name"></din-unterschrift>
+              <din-anlagen contenteditable="plaintext-only" data-placeholder="Anlagen"></din-anlagen>
             </din-kern>
 
             <!-- Fußzeile -->
-            <din-fusszeile style="--x: 25mm; --w: 165mm">
-              <din-footer-bank-name contenteditable="plaintext-only" data-placeholder="Bank"></din-footer-bank-name>
-              <din-footer-iban contenteditable="plaintext-only" data-placeholder="IBAN"></din-footer-iban>
-              <din-footer-bic contenteditable="plaintext-only" data-placeholder="BIC"></din-footer-bic>
-              <din-footer-anschrift contenteditable="plaintext-only" data-placeholder="Hausanschrift"></din-footer-anschrift>
-            </din-fusszeile>
+            <din-fuss style="--x: 25mm; --w: 165mm">
+              <din-fuss-firma contenteditable="plaintext-only" data-placeholder="Firmenname"></din-fuss-firma>
+              <din-fuss-sitz contenteditable="plaintext-only" data-placeholder="Firmensitz"></din-fuss-sitz>
+              <din-fuss-gericht contenteditable="plaintext-only" data-placeholder="Registergericht"></din-fuss-gericht>
+              <din-fuss-hrb contenteditable="plaintext-only" data-placeholder="HRB-Nummer"></din-fuss-hrb>
+              <din-fuss-vorstand contenteditable="plaintext-only" data-placeholder="Vorstand"></din-fuss-vorstand>
+              <din-fuss-gf contenteditable="plaintext-only" data-placeholder="Geschäftsführung"></din-fuss-gf>
+              <din-fuss-stnr contenteditable="plaintext-only" data-placeholder="Steuernummer"></din-fuss-stnr>
+              <din-fuss-ustid contenteditable="plaintext-only" data-placeholder="USt-IdNr."></din-fuss-ustid>
+              <din-fuss-bank contenteditable="plaintext-only" data-placeholder="Bank"></din-fuss-bank>
+              <din-fuss-iban contenteditable="plaintext-only" data-placeholder="IBAN"></din-fuss-iban>
+              <din-fuss-bic contenteditable="plaintext-only" data-placeholder="BIC"></din-fuss-bic>
+              <din-fuss-anschrift contenteditable="plaintext-only" data-placeholder="Hausanschrift"></din-fuss-anschrift>
+            </din-fuss>
           </din-A4>
         </din-5008>
       </main>

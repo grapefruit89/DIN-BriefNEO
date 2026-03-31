@@ -7,32 +7,28 @@ Wir wenden die **Chrome 146+ Baseline** konsequent an, um eine *Pure & Flat Arch
 
 ### 0. Platinum Basistechnologie (Universell)
 
-| Icon / Name            | Moderne API (**TARGET**)      | Strategie & Best Practice (inkl. Quellen) |
-|------------------------|-------------------------------|-------------------------------------------|
-| **Layering**           | `CSS @layer`                  | Hierarchie vor Spezifität – löst Kaskadenkonflikte ohne Hacks. |
-| **Typed Props**        | `@property`                   | Typsicherheit für animierbare CMA-Koordinaten. `/w3c/css-houdini-drafts` |
-| **CSS-Isolation**      | `@scope`                      | Isoliert Paper-CSS ohne Shadow-DOM-Nachteile. |
-| **Animations**         | `calc-size(auto)`             | Native Layout-Anims mit `@starting-style`. `/WICG/turtles` |
-| **Scroll-Anims**       | `animation-timeline`          | Scroll-getriebene UI-Feedback ohne JS-Listener. |
-| **Transitions**        | `view-transition`             | Sanfter Form‑A/B‑Wechsel ohne Pixel-Jank. |
-| **Auto-Resize**        | `field-sizing: content`       | Textfelder wachsen organisch mit dem Inhalt. |
-| **Farbe**              | `oklch()`                     | Hochauflösende Farben plus `contrast-color()` für Barrierefreiheit. |
-| **Overflow**           | Scroll-State Queries          | Native Schatten bei Scrollbedarf. `/WICG/container-queries` |
-| **Layout**             | Container Queries             | Komponenten reagieren auf A4‑Platz, nicht auf Fenstergröße. |
-| **Positioning**        | CSS Anchor                    | Popovers kleben ohne JS am Anker. `/WICG/anchor-positioning` |
-| **Overlays**           | `<dialog>` + `popover`        | Native Modals inkl. `closedby`-Mechanik. |
-| **Invokers**           | Invoker Commands              | Deklarative Button-Trigger ohne Event-Listener. `/open-ui/invokers` |
-| **Hover-Invoker**      | `interesttarget`              | Zero‑JS‑Tooltips (Chrome 147+ – experimentell). |
-| **Logik (Zeit)**       | Temporal API                  | Fehlerfreie Datumsberechnung. `/tc39/proposal-temporal` |
-| **Logik (Format)**     | Intl API                      | DIN-konforme Formatierung. `/tc39/ecma402` |
-| **Logik (CSS)**        | `CSS if()`                    | Bedingte Logik in CSS (Chrome 148+). Aktuell `:has()` als stabiler Ersatz. |
-| **Reaktivität**        | IdleDetector API              | Systemgestützter Autosave im Leerlauf. `/WICG/idle-detection` |
-| **Zustand**            | Proxy State                   | Reaktive Single Source of Truth mit `localStorage`. `/tc39/ecma262` |
-| **Sicherheit**         | Sanitizer API                 | XSS‑Schutz durch `setHTML()` statt `innerHTML`. `/WICG/sanitizer-api` |
-| **Typografie**         | `text-wrap: balance`          | Vermeidet Witwen & Waisen in Überschriften. |
-| **Tab‑Flow**           | `reading-flow`                | Fokus folgt visuellem Layout (z. B. Grid‑Rows). |
-| **Attr‑Config**        | `attr(data-* type)`           | Typisierte CSS‑Werte direkt aus HTML (Chrome 147+). |
-| **Validierung**        | Constraint API                | Browser‑eigene Formularvalidierung nutzen. |
+| Icon / Name            | Moderne API (**TARGET**)      | Strategie & Best Practice (inkl. Quellen) | Status |
+|------------------------|-------------------------------|-------------------------------------------|--------|
+| **Layering**           | `CSS @layer`                  | Hierarchie vor Spezifität – löst Kaskadenkonflikte. | ✅ Aktiv |
+| **Typed Props**        | `@property`                   | Typsicherheit für CMA-Koordinaten (mm-Präzision). | ✅ Aktiv |
+| **CSS-Isolation**      | `@scope`                      | Isoliert Paper-CSS ohne Shadow-DOM-Nachteile. | 📋 Geplant |
+| **Animations**         | `interpolate-size`            | Native Layout-Anims für `height: auto`. | ✅ Aktiv |
+| **Farbe**              | `oklch()`                     | Wahrnehmungsgetreue Farben & `color-mix()`. | ✅ Aktiv |
+| **Theming**            | `light-dark()`                | Zero-JS System-Farbschema-Umschaltung. | ✅ Aktiv |
+| **Overflow**           | `@container scroll-state`     | Native Überlauf-Warnung ohne JS-Listener. | ✅ Aktiv |
+| **Layout**             | Container Queries             | Komponenten reagieren auf A4‑Platz (`size`). | ✅ Aktiv |
+| **Logik (CSS)**        | `:has()`                      | Zero-JS State Management (Layout/Theme/Guides). | ✅ Aktiv |
+| **Typografie**         | `font-feature-settings`       | Tabellenziffern & Slashed-Zero für IBAN/Datum. | ✅ Aktiv |
+| **Auto-Resize**        | `field-sizing: content`       | Textfelder wachsen organisch mit dem Inhalt. | ✅ Aktiv |
+| **Positioning**        | CSS Anchor                    | Popovers kleben ohne JS am Anker. | 🔜 Roadmap |
+| **Overlays**           | `<dialog>` + `popover`        | Native Modals & Tooltips (ADR-017). | ✅ Aktiv |
+| **Invokers**           | Invoker Commands              | Deklarative Button-Trigger (`commandfor`). | 🔜 Roadmap |
+| **Hover-Invoker**      | `interesttarget`              | Zero‑JS‑Tooltips (Chrome 147+). | 🔜 Roadmap |
+| **Logik (Zeit)**       | Temporal API                  | Fehlerfreie Datumsberechnung (ADR-017). | ✅ Aktiv |
+| **Sicherheit**         | Sanitizer API                 | XSS‑Schutz durch `setHTML()` statt `innerHTML`. | ✅ Aktiv |
+| **Typografie**         | `text-wrap: balance / pretty` | Vermeidet Witwen & Waisen; optische Balance. | 📋 Geplant |
+| **Attr‑Config**        | `attr(data-* type)`           | Typisierte CSS‑Werte direkt aus HTML. | 📋 Geplant |
+| **Validierung**        | Constraint API                | Browser‑eigene Formularvalidierung nutzen. | ✅ Aktiv |
 
 ---
 

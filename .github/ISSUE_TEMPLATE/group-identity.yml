@@ -1,0 +1,31 @@
+name: "🆔 Identity & Address (Group 1)"
+description: "Bugs oder Features bezüglich Profilen, Adressen oder Autocomplete."
+labels: ["group:identity"]
+body:
+  - type: input
+    id: field
+    attributes:
+      label: Betroffenes IMR-Feld
+      placeholder: "z.B. din-empfaenger-ort"
+    validations:
+      required: true
+  - type: dropdown
+    id: country
+    attributes:
+      label: Länderspezifisch?
+      options:
+        - Deutschland (Standard)
+        - Österreich
+        - Schweiz
+        - International
+  - type: textarea
+    id: issue-desc
+    attributes:
+      label: Problembeschreibung / Feature-Wunsch
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduktions-Daten
+      description: Welche Adresse führt zum Fehler?

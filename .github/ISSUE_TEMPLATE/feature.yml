@@ -1,0 +1,23 @@
+name: ✨ Feature Request
+description: Neue Funktionalität für die Engine
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: Modul
+      options:
+        - engine.js
+        - logic.js
+        - salutation.js
+        - Andere
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung
+    validations:
+      required: true
+  - type: textarea
+    id: din-reference
+    attributes:
+      label: DIN 5008 Referenz (falls vorhanden)

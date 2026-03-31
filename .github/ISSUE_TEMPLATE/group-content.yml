@@ -1,0 +1,26 @@
+name: "✍️ Content & WYSIWYG (Group 2)"
+description: "Probleme mit Markdown, Salutation Engine oder dem Editor-Verhalten."
+labels: ["group:content"]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Modul
+      placeholder: salutation.js / logic.js (Markdown)
+  - type: textarea
+    id: raw-input
+    attributes:
+      label: Markdown Input
+      description: Der rohe Text, der den Fehler verursacht.
+    validations:
+      required: true
+  - type: textarea
+    id: output-expected
+    attributes:
+      label: Erwarteter Output
+    validations:
+      required: true
+  - type: textarea
+    id: output-actual
+    attributes:
+      label: Tatsächlicher Output

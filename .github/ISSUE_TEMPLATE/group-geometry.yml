@@ -1,0 +1,31 @@
+name: "📐 Geometry & Compliance (Group 3)"
+description: "Fehler bei Maßen, Falzmarken oder DIN 5008 Layout-Regeln."
+labels: ["group:geometry", "priority:high"]
+body:
+  - type: dropdown
+    id: din-form
+    attributes:
+      label: Betroffene DIN-Form
+      options:
+        - Form A (kurzer Kopf)
+        - Form B (langer Kopf)
+        - Beide
+    validations:
+      required: true
+  - type: input
+    id: dimension
+    attributes:
+      label: Betroffenes Maß (in mm)
+      placeholder: "z.B. 105mm"
+  - type: textarea
+    id: deviation
+    attributes:
+      label: Abweichung von DIN 5008
+      description: Was ist das Soll-Maß laut Norm?
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Visualisierung
+      description: Bitte beschreibe das visuelle Problem (oder füge einen Screenshot ein).

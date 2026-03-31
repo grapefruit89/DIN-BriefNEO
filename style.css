@@ -71,29 +71,62 @@
     margin: 3rem auto;
   }
 
-  din-absender { position: absolute; left: 125mm; width: 75mm; top: 20mm; transition: top 0.4s var(--e-in-out); }
-  din-anschriftfeld { position: absolute; left: 20mm; width: 85mm; top: var(--din-y-addr); transition: top 0.4s var(--e-in-out); }
-  din-infoblock { position: absolute; left: 125mm; width: 75mm; top: var(--din-y-infoblock); transition: top 0.4s var(--e-in-out); }
-  din-datum { position: absolute; left: 125mm; width: 75mm; top: var(--din-y-datum); transition: top 0.4s var(--e-in-out); }
-  din-kern { position: absolute; left: 25mm; width: 165mm; top: var(--din-y-kern); transition: top 0.4s var(--e-in-out); }
+  din-absender { position: absolute; left: 125mm; width: 75mm; top: 20mm; z-index: 10; transition: top 0.4s var(--e-in-out); }
+  din-anschriftfeld { position: absolute; left: 20mm; width: 85mm; top: var(--din-y-addr); z-index: 10; transition: top 0.4s var(--e-in-out); }
+  din-infoblock { position: absolute; left: 125mm; width: 75mm; top: var(--din-y-infoblock); z-index: 10; transition: top 0.4s var(--e-in-out); }
+  din-datum { position: absolute; left: 125mm; width: 75mm; top: var(--din-y-datum); z-index: 10; transition: top 0.4s var(--e-in-out); }
+  din-kern { position: absolute; left: 25mm; width: 165mm; top: var(--din-y-kern); z-index: 10; transition: top 0.4s var(--e-in-out); }
+  din-fuss { position: absolute; left: 25mm; width: 165mm; top: 241mm; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5mm; font-size: 8pt; line-height: 1.3; }
 
   :root {
     --e-in-out: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  /* Atomic Tag Layouts */
-  din-branding-logo { display: block; text-align: right; margin-bottom: 5mm; }
-  din-rucksendezeile { font-size: 8pt; border-bottom: 0.5pt solid oklch(0% 0 0 / 0.2); margin-bottom: 2mm; display: block; }
-  din-betreff { font-weight: 700; font-size: 12pt; margin-bottom: 5mm; display: block; }
-  din-text { text-align: justify; hyphens: auto; }
-  din-text-spiegel { text-align: justify; hyphens: auto; }
-
-  /* Placeholder Logic */
-  [data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: oklch(0% 0 0 / 0.3);
-    pointer-events: none;
+  din-A4 {
     display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Atomic Tag Layouts */
+  [contenteditable="plaintext-only"] {
+    color: black !important;
+    background: rgba(0,0,0,0.02);
+  }
+
+  /* Growth Directions & Atomic Display (Platinum) */
+  din-absender > *, din-anschriftfeld > *, din-infoblock > *, din-kern > *, din-fuss > * {
+    display: block;
+    min-height: 1.2em;
+    width: 100%;
+    outline: none;
+    position: relative;
+  }
+
+  /* Platinum Ghost Text Logic */
+  [style*="--p"]:empty::before {
+    content: var(--p);
+    color: oklch(0% 0 0 / 0.25);
+    pointer-events: none;
+    user-select: none;
+    position: absolute;
+    display: block;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* Force visibility during editing even if whitespace is entered */
+  [style*="--p"]:focus::before {
+    content: none !important;
+  }
+
+  /* Interaction Feedback */
+  [contenteditable]:hover {
+    background: oklch(0% 0 0 / 0.02);
+  }
+  [contenteditable]:focus {
+    background: oklch(0% 0 0 / 0.04);
   }
 
   /* Default Text Color for all DIN Atoms */

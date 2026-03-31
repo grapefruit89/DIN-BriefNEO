@@ -1,0 +1,25 @@
+name: "🏗️ Infrastructure & Data-IO (Group 4)"
+description: "Fehler beim PDF-Export, JSON-Import, PWA oder Storage."
+labels: ["group:infrastructure"]
+body:
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Betroffenes Subsystem
+      options:
+        - PDF-Export
+        - JSON Data-IO
+        - OPFS Storage
+        - PWA / Service Worker
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Browser-Umgebung
+      description: OS / Chrome-Version
+  - type: textarea
+    id: json-sample
+    attributes:
+      label: Fehlerhafter JSON-Zustand (falls zutreffend)
+      description: Bitte füge das exportierte JSON ein.

@@ -1,0 +1,25 @@
+name: 🐛 Bug Report
+description: Ein Fehler in der Salutation Engine
+labels: ["bug"]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Betroffenes Modul
+      placeholder: engine.js / logic.js / salutation.js
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduktion
+      description: Code-Snippet oder Steps
+    validations:
+      required: true
+  - type: dropdown
+    id: din-compliance
+    attributes:
+      label: DIN 5008 Compliance?
+      options:
+        - Ja, betroffen
+        - Nein, nicht betroffen

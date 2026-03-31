@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "❓ Fragen & Support"
+    url: "https://github.com/grapefruit89/DIN-BriefNEO/discussions/new?category=q-a"
+    about: "Nutzen Sie Discussions für Fragen zur Bedienung oder Hilfestellungen."
+  - name: "💡 Ideen & Brainstorming"
+    url: "https://github.com/grapefruit89/DIN-BriefNEO/discussions/new?category=ideas"
+    about: "Diskutieren Sie neue Konzepte, bevor sie zu einem konkreten Feature-Request werden."

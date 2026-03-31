@@ -1,0 +1,37 @@
+name: Context7 Validation
+on:
+  pull_request:
+    paths:
+      - '01_*.md'
+      - '02_*.md'
+      - '03_*.md'
+      - '04_*.md'
+      - '06_*.md'
+      - 'v4_HANDBOOK.md'
+  schedule:
+    - cron: '0 9 * * 1'  # Wöchentlich Montag 9:00
+
+jobs:
+  verify-context7:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install context7 CLI
+        run: npm install -g ctx7@latest
+      
+      - name: Validate Context7 Links
+        env:
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+        run: |
+          # Extrahiere Links und validiere Status (HTTP Head Check)
+          grep -rho 'https?://[^)]*' 0*.md v4_HANDBOOK.md | grep -E '(tc39|wicg|w3c|whatwg|mdn)' | sort -u | while read url; do
+            echo "Checking: $url"
+            curl --head --silent --fail "$url" || (echo "❌ FAILED: $url" && exit 1)
+          done
+          echo "✅ All specs are active and verified."

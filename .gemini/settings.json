@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "ctx7@latest", "mcp"],
       "env": {
-        "CONTEXT7_API_KEY": "ctx7sk-5d9fe13d-6578-4b0d-bcd6-eb7cc4b7c187"
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       },
       "trust": true
     },
@@ -36,11 +36,6 @@
     "accessibility": {
       "command": "npx",
       "args": ["-y", "a11y-mcp"],
-      "trust": true
-    },
-    "typst-mcp": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "ghcr.io/johannesbrandenburger/typst-mcp:latest"],
       "trust": true
     }
   }

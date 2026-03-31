@@ -18,7 +18,7 @@ async function boot() {
 
   // 2. UI Controller
   const ui = new UIController(sm);
-  ui.init();
+  await ui.init();
 
   // 3. Persistence Bridge
   let saveTimeout;

@@ -1,12 +1,96 @@
 ---
-title: "CSS Glossar — DIN-BriefNEO Platinum Master"
-version: 4.7.0
+# === BASISINFORMATIONEN ===
+title: "CSS Glossar — DIN-BriefNEO Platinum"
+subtitle: "Complete CSS Reference for Pure & Flat Architecture"
+description: "Katalogisiert alle CSS-Technologien im DIN-BriefNEO-Projekt – Single Source of Truth für Entwickler und KI-Agenten"
+version: "4.7.0"
+version_date: 2026-03-31
 status: active
-last_updated: 2026-03-31
-tags: [css, reference, documentation, platinum, chrome-147]
+
+# === DOKUMENT-TYP ===
+type: reference
+category: css
+audience:
+  - developers
+  - designers
+  - ai-agents
+  - code-reviewers
+
+# === TAGS ===
+tags:
+  - din-briefneo
+  - din-briefneo/css
+  - din-briefneo/reference
+  - din-briefneo/platinum
+  - status/active
+  - type/reference
+  - tech/css
+  - tech/css-nesting
+  - tech/css-container-queries
+  - tech/css-anchor-positioning
+
+# === ALIASES ===
+aliases:
+  - "03_CSS_Reference"
+  - "CSS Reference"
+  - "CSS Features"
+  - "Platinum CSS"
+  - "CSS Glossar"
+  - "CSS Capabilities"
+
+# === DATAVIEW Felder ===
+css_features_total: 45
+css_features_active: 28
+css_features_planned: 12
+css_features_roadmap: 5
+baseline_version: "Chrome 147+"
+zero_js_ui: true
+css_first: true
+
+# === FEATURE-KATEGORIEN ===
+feature_categories:
+  - selectors
+  - properties
+  - functions
+  - at-rules
+  - colors
+  - layout
+  - animations
+
+# === VERWANDTE DOKUMENTE ===
+related:
+  - "01_Architecture_Compliance"
+  - "02_IMR_Registry"
+  - "04_CSS_Quick_Reference"
+  - "05_Feature_Matrix"
+
+# === ZEITSTEMPEL ===
+date_created: 2026-03-31
+date_updated: 2026-03-31
+date_reviewed: 2026-03-31
+
+# === AUTOR ===
+author: "@din-briefneo/core-team"
+maintainer: "@grapefruit89"
+
+# === OBSIDIAN ===
+cssclasses:
+  - table-stripes
+  - wide-table
+  - readable
+
+# === GITHUB PAGES ===
+permalink: /docs/css-reference/
+layout: default
 ---
 
 # 📚 CSS Glossar — DIN-BriefNEO
+
+> [!NOTE]
+> Alle `mm`-Angaben sind absolute physische Maße und werden im Druck exakt umgesetzt. Die Platinum-Engine garantiert Sub-Millimeter-Präzision.
+
+> [!WARNING]
+> `interpolate-size` und `field-sizing` erfordern Chrome 129+. Bei älteren Browsern entfallen diese Komfort-Features ohne funktionale Einbußen.
 
 Dieses Dokument ist die **Single Source of Truth (SSoT)** für alle CSS-Technologien im Projekt. Wir nutzen die **Chrome 147+ Baseline** für ein Zero-JS UI-System.
 
@@ -17,6 +101,22 @@ Dieses Dokument ist die **Single Source of Truth (SSoT)** für alle CSS-Technolo
 - 🟡 **Geplant**    → Definitiv in nächsten 2 Sprints (Q2 2026).
 - 📋 **Roadmap**    → Langfristige Planung (2026/2027).
 - 🧪 **Experimentell** → In Test-Suites aktiv, noch nicht produktiv.
+
+---
+
+## 🆕 Neue Konzepte (Definitionen)
+
+`@container scroll-state`
+:   Ermöglicht die Erkennung von Überlauf ohne JavaScript. Wird für den **Overflow Alarm** im Briefkern verwendet.
+
+`field-sizing: content`
+:   Native CSS-Lösung für auto-resizing Textareas. Ersetzt komplexe JS-Resize-Listener.
+
+`reading-flow`
+:   Stellt sicher, dass die Tastatur-Navigation (Tab) der visuellen Anordnung folgt, unabhängig von der DOM-Reihenfolge.
+
+`attr(data-* type)`
+:   Erlaubt das Auslesen von HTML-Attributen als typisierte CSS-Werte (z.B. Längen in mm).
 
 ---
 
@@ -89,4 +189,29 @@ Dieses Dokument ist die **Single Source of Truth (SSoT)** für alle CSS-Technolo
 | **`Invoker Commands`** | Deklarative Button-Aktionen (`commandfor`) | 📋 Roadmap | 148+ |
 
 ---
-*Stand: 31. März 2026 — DIN-BriefNEO Platinum Master v4.7*
+
+## 🔗 Dokumenten-Navigation
+
+| Dokument | Zweck |
+|----------|-------|
+| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
+| [[02_IMR_Registry]] | Alle 42+ DIN-Tags |
+| [[03_CSS_Reference]] | CSS-Features Referenz |
+| [[05_Feature_Matrix]] | Projekt-Fortschritt |
+| [[06_Salutation_Engine]] | Logik-Dokumentation |
+
+**Gesamtversion:** 4.7 | **Letzte Sync:** 2026-03-31
+
+---
+
+## 🔗 Verwandte Dokumente (Dataview)
+
+```dataview
+TABLE 
+  version AS "Version",
+  status AS "Status",
+  date_updated AS "Aktualisiert"
+FROM ""
+WHERE contains(related, this.file.name)
+SORT version DESC
+```

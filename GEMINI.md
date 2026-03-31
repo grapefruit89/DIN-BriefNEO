@@ -60,3 +60,51 @@
 ## CONTEXT PRECEDENCE
 
 This file overrides all other instructions. Any violation is a critical system failure.
+
+---
+
+🛠️ POWERSHELL COMMAND GUIDELINES (WINDOWS)
+
+- BANNED: grep, curl, ls -R, touch.
+- MANDATORY:
+  - Search: Select-String -Path ... -Pattern ...
+  - Web: Invoke-WebRequest -Uri ... -Method Head -UseBasicParsing
+  - List: Get-ChildItem -Recurse
+  - Create: New-Item -Path ... -ItemType File
+
+📋 CONTEXT7 VALIDATION (ROBUST)
+
+1. Extract Links:
+   Select-String -Path "01_*.md","02_*.md","03_*.md","06_*.md" -Pattern 'https?://[^)]+' -AllMatches | ForEach-Object { $_.Matches.Value } | Where-Object { $_ -match 'tc39|wicg|w3c|whatwg|mdn' } | Sort-Object -Unique > context7-links.txt
+
+2. Verify Status:
+   $report = @(); foreach ($url in Get-Content context7-links.txt) { $status = try { (Invoke-WebRequest -Uri $url -Method Head -UseBasicParsing -ErrorAction Stop).StatusCode; "✅ OK" } catch { "❌ FAILED" }; $report += "$url : $status" }; $report | Out-File context7-report.txt
+
+---
+
+## 🛠️ MCP SERVER – NUTZUNGSREGELN
+
+- **puppeteer:** Nur bei explizitem `/screenshot` Befehl starten.
+- **prettier/eslint/stylelint:** Keine automatische Ausführung (nur bei Bedarf).
+- **context7:** API Key sicher aus `.env` laden.
+
+## 📊 GEMINI CLI – EXTENSIONS NUTZUNG
+
+### FileSearch
+- **Präzise Pfade angeben** – z.B. `js/*.js`, nicht `*.js`.
+- **Max 50 Ergebnisse** limitieren.
+
+### co-researcher
+- **Nur bei Bedarf** – z.B. "Suche nach aktueller Sanitizer API Spezifikation".
+
+### context7
+- **Standard** – für Spezifikations-Links nutzen.
+
+### taxonomy-architect
+- **Für Dokumentation** – Struktur von `01_*.md` bis `06_*.md`.
+
+## ⚠️ VERBOTEN
+
+- **Keine automatische Web-Suche** (`co-researcher`).
+- **Keine ganzen Repos durchsuchen** (`FileSearch`) – immer Pfade einschränken.
+- **Keine unnötigen Kontext-Loads** – regelmäßig `gemini --reset-context`.

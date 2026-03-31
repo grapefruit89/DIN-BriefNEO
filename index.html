@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIN-BriefNEO | Pure & Flat Edition</title>
+    <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -39,13 +40,66 @@
                 <div class="pill"></div>
               </div>
             </div>
+
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">Empfänger-Typ</label>
+              <div class="segmented-control" id="recipient-switch">
+                <label class="segment-option" for="type-none">
+                  <input type="radio" name="recipientType" id="type-none" value="none" checked />
+                  <span>Neutral</span>
+                </label>
+                <label class="segment-option" for="type-female">
+                  <input type="radio" name="recipientType" id="type-female" value="female" />
+                  <span>Frau</span>
+                </label>
+                <label class="segment-option" for="type-male">
+                  <input type="radio" name="recipientType" id="type-male" value="male" />
+                  <span>Herr</span>
+                </label>
+                <div class="pill"></div>
+              </div>
+            </div>
+
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">Anrede-Stil</label>
+              <div class="segmented-control" id="formality-switch">
+                <label class="segment-option" for="formal-style">
+                  <input type="radio" name="formality" id="formal-style" value="formal" checked />
+                  <span>Formal</span>
+                </label>
+                <label class="segment-option" for="polite-style">
+                  <input type="radio" name="formality" id="polite-style" value="polite" />
+                  <span>Höflich</span>
+                </label>
+                <label class="segment-option" for="casual-style">
+                  <input type="radio" name="formality" id="casual-style" value="casual" />
+                  <span>Locker</span>
+                </label>
+                <div class="pill"></div>
+              </div>
+            </div>
+
             <div class="sidebar-control-group">
               <label class="sidebar-label">Hilfsmittel</label>
-              <div class="toggle-control">
-                <input type="checkbox" id="state-guides" hidden checked />
-                <label class="toggle-btn" for="state-guides">
-                  <span>📐 Layout-Guides</span>
-                </label>
+              <div class="toggle-control-stack">
+                <div class="toggle-control">
+                  <input type="checkbox" id="state-guides" hidden checked />
+                  <label class="toggle-btn" for="state-guides">
+                    <span>📐 Layout-Guides</span>
+                  </label>
+                </div>
+                <div class="toggle-control">
+                  <input type="checkbox" id="state-reference" hidden />
+                  <label class="toggle-btn" for="state-reference">
+                    <span>📜 DIN-Referenz</span>
+                  </label>
+                </div>
+                <div class="toggle-control">
+                  <input type="checkbox" id="state-qr" hidden />
+                  <label class="toggle-btn" for="state-qr">
+                    <span>📱 vCard QR-Code</span>
+                  </label>
+                </div>
               </div>
             </div>
             <div class="sidebar-control-group">
@@ -71,6 +125,19 @@
                   <span>🌙 Nacht</span>
                 </label>
                 <div class="pill"></div>
+              </div>
+            </div>
+
+            <!-- ARCHIVE SECTION -->
+            <div class="sidebar-separator"></div>
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">🗄️ Brief-Archiv</label>
+              <button class="sidebar-btn secondary small" id="btn-save-archive">
+                💾 Aktuellen Brief sichern
+              </button>
+              <div id="archive-list" class="archive-list-container">
+                <!-- Dynamisch befüllt -->
+                <p class="empty-msg">Keine Briefe im Archiv</p>
               </div>
             </div>
           </section>
@@ -100,6 +167,7 @@
         <din-5008 id="paper">
           <din-A4>
             <din-branding-logo></din-branding-logo>
+            <din-qr-code aria-hidden="true"></din-qr-code>
 
             <din-falz-oben></din-falz-oben>
             <din-falz-unten></din-falz-unten>
@@ -209,6 +277,9 @@
               style="--p: &quot;Datum&quot;"
             ></din-datum>
 
+            <!-- Multi-Page Flow: Header Spacer -->
+            <din-header-spacer></din-header-spacer>
+
             <!-- Briefkern -->
             <din-kern>
               <din-betreff
@@ -291,12 +362,68 @@
                 style="--p: &quot;Hausanschrift&quot;"
               ></din-fuss-anschrift>
             </din-fuss>
+
+            <!-- Hidden Metadata for Paperless-ngx/Obsidian -->
+            <div id="din-metadata-bridge" aria-hidden="true"></div>
           </din-A4>
         </din-5008>
+
+        <!-- DIN-Referenz-Overlay (Form A) -->
+        <svg id="din-reference-overlay" viewBox="0 0 210 297" aria-hidden="true">
+          <!-- Falzmarken -->
+          <line x1="0" y1="87" x2="10" y2="87" stroke="var(--overlay-color-falz)" stroke-width="0.3" />
+          <line x1="0" y1="192" x2="10" y2="192" stroke="var(--overlay-color-falz)" stroke-width="0.3" />
+          <line x1="0" y1="148.5" x2="15" y2="148.5" stroke="var(--overlay-color-loch)" stroke-width="0.3" />
+
+          <!-- Anschriftfeld -->
+          <rect x="20" y="27" width="85" height="45" fill="none" stroke="var(--overlay-color-zone)" stroke-width="0.2" stroke-dasharray="1 1" />
+          <line x1="20" y1="44.7" x2="105" y2="44.7" stroke="var(--overlay-color-zone)" stroke-width="0.1" /> <!-- Zusatzbereich -->
+
+          <!-- Informationsblock (Form A) -->
+          <rect x="125" y="32" width="75" height="60" fill="none" stroke="var(--overlay-color-info)" stroke-width="0.2" stroke-dasharray="1 1" />
+
+          <!-- Satzspiegel & Ränder -->
+          <rect x="25" y="0" width="165" height="297" fill="none" stroke="var(--overlay-color-grid)" stroke-width="0.1" stroke-dasharray="0.5 0.5" />
+          
+          <!-- Fußzeile -->
+          <rect x="25" y="241" width="165" height="30" fill="none" stroke="var(--overlay-color-fuss)" stroke-width="0.2" stroke-dasharray="1 1" />
+
+          <!-- Beschriftungen -->
+          <text x="2" y="86" font-size="2.5" fill="var(--overlay-color-falz)">87mm</text>
+          <text x="2" y="191" font-size="2.5" fill="var(--overlay-color-falz)">192mm</text>
+          <text x="22" y="31" font-size="2.5" fill="var(--overlay-color-zone)">Anschriftfeld</text>
+        </svg>
       </main>
     </div>
 
     <div id="toast-v4" popover="manual" class="toast-container"></div>
+    <div id="autocomplete-portal" popover="manual"></div>
+
+    <!-- Multi-Page Template -->
+    <template id="tpl-din-page">
+      <din-A4>
+        <din-branding-logo></din-branding-logo>
+        <din-falz-oben></din-falz-oben>
+        <din-falz-unten></din-falz-unten>
+        
+        <!-- Header Elements (Hidden on follow-up pages via CSS) -->
+        <din-header-content>
+          <din-absender-placeholder></din-absender-content>
+        </din-header-content>
+
+        <din-header-spacer></din-header-spacer>
+        
+        <din-kern>
+          <din-text-container>
+            <din-text contenteditable="plaintext-only"></din-text>
+            <din-text-spiegel aria-hidden="true"></din-text-spiegel>
+          </din-text-container>
+        </din-kern>
+
+        <din-fuss-placeholder></din-fuss-placeholder>
+        <div id="din-metadata-bridge" aria-hidden="true"></div>
+      </din-A4>
+    </template>
 
     <!-- MODERN MODAL SYSTEM -->
     <dialog id="profile-dialog" aria-labelledby="profile-title">
@@ -465,6 +592,6 @@
       <button onclick="this.parentElement.hidePopover()">Close</button>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

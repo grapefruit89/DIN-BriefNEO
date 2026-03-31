@@ -75,7 +75,7 @@ export class UIController {
         const text = e.target.textContent;
         this.sm.update(`content.${entry.key}`, text, "ui");
         if (entry.tag === "din-text") {
-          const mirror = document.querySelector("din-text-mirror");
+          const mirror = document.querySelector("din-text-spiegel");
           if (mirror) mirror.innerHTML = Logic.parseMarkdown(text);
         }
       });
@@ -134,7 +134,7 @@ export class UIController {
       if (el && document.activeElement !== el) {
         el.textContent = this.sm.state.content[entry.key] || "";
         if (entry.tag === "din-text") {
-           const mirror = document.querySelector("din-text-mirror");
+           const mirror = document.querySelector("din-text-spiegel");
            if (mirror) mirror.innerHTML = Logic.parseMarkdown(el.textContent);
         }
       }

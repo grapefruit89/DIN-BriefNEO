@@ -53,7 +53,7 @@
     margin: 3rem auto;
   }
 
-  din-header, din-anschriftfeld, din-infoblock, din-date, din-kern {
+  din-absender, din-anschriftfeld, din-infoblock, din-datum, din-kern {
     position: absolute;
     left: var(--x);
     width: var(--w);
@@ -67,34 +67,34 @@
 
   /* Body & Mirror Engine */
   din-text-container { position: relative; display: block; min-height: 50mm; }
-  din-text, din-text-mirror {
+  din-text, din-text-spiegel {
     font-family: inherit; font-size: inherit; line-height: inherit;
     width: 100%; display: block; white-space: pre-wrap; word-wrap: break-word;
   }
   din-text { color: transparent; caret-color: black; outline: none; z-index: 2; position: relative; }
   din-text:focus { color: oklch(15% 0.01 250); }
-  din-text-mirror { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  din-text-spiegel { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 
   /* Markdown Mirror Styles */
-  din-text-mirror .md-marker {
+  din-text-spiegel .md-marker {
     display: inline-block; width: 0; overflow: visible;
     color: oklch(70% 0 0 / 0.4); font-size: 0.85em;
     pointer-events: none; user-select: none;
   }
 
-  din-text-mirror strong { font-weight: 700; }
-  din-text-mirror u { text-decoration: underline; text-underline-offset: 2px; }
+  din-text-spiegel strong { font-weight: 700; }
+  din-text-spiegel u { text-decoration: underline; text-underline-offset: 2px; }
 
-  din-text-mirror .md-list { margin: 2mm 0; }
-  din-text-mirror .md-list-item {
+  din-text-spiegel .md-list { margin: 2mm 0; }
+  din-text-spiegel .md-list-item {
     display: grid; grid-template-columns: 6mm 1fr; gap: 0; line-height: 1.5;
   }
 
-  din-text-mirror .md-num, din-text-mirror .md-bullet {
+  din-text-spiegel .md-num, din-text-spiegel .md-bullet {
     font-weight: 600; color: oklch(20% 0 0);
   }
 
-  din-text-mirror .md-quote {
+  din-text-spiegel .md-quote {
     margin: 2mm 0 2mm 4mm; padding-left: 4mm;
     border-left: 2.5pt solid oklch(30% 0.01 250);
     font-weight: 600; color: oklch(25% 0.01 250);
@@ -118,6 +118,9 @@
   .segment-option input { display: none; }
 
   #paper-viewport { flex-grow: 1; background: var(--c-bg); display: grid; place-items: center; overflow: hidden; }
+
+  /* Footer Position */
+  din-fuss { position: absolute; left: var(--x); width: var(--w); top: 241mm; }
 }
 
 /* ── PRINT ENGINE ───────────────────────────────────────────── */
@@ -125,6 +128,6 @@
   #sidebar-left, .no-print { display: none !important; }
   #paper { margin: 0 !important; box-shadow: none !important; }
   din-text { display: none !important; }
-  din-text-mirror { position: static !important; display: block !important; }
+  din-text-spiegel { position: static !important; display: block !important; }
   @page { size: A4; margin: 0; }
 }

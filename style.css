@@ -218,21 +218,15 @@
         "zero" on;
     }
 
-    /* ── [PLATINUM] Faltmarken (ADR-017 / Full-Width Guides) ── */
+    /* ── [PLATINUM] Faltmarken (ADR-017 / 4mm Standard) ── */
     din-falz-oben,
     din-falz-unten {
       display: block;
       position: absolute;
       left: 0;
-      width: 100%;
+      width: 4mm;
       height: 1px;
-      background: repeating-linear-gradient(
-        90deg,
-        oklch(0% 0 0 / 15%),
-        oklch(0% 0 0 / 15%) 4mm,
-        transparent 4mm,
-        transparent 8mm
-      );
+      background: oklch(0% 0 0 / 25%);
       pointer-events: none;
       transition:
         opacity 0.3s ease,

@@ -29,58 +29,48 @@
           <section class="sidebar-section">
             <div class="sidebar-control-group">
               <label class="sidebar-label">DIN-Variante</label>
-              <div class="segmented-control">
-                <label class="segment-option" for="state-layout-a"
-                  ><span>Form A</span></label
-                >
-                <label class="segment-option" for="state-layout-b"
-                  ><span>Form B</span></label
-                >
+              <div class="segmented-control" id="layout-switch">
+                <label class="segment-option" for="state-layout-a">
+                  <span>Form A</span>
+                </label>
+                <label class="segment-option" for="state-layout-b">
+                  <span>Form B</span>
+                </label>
+                <div class="pill"></div>
+              </div>
+            </div>
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">Hilfsmittel</label>
+              <div class="toggle-control">
+                <input type="checkbox" id="state-guides" hidden checked />
+                <label class="toggle-btn" for="state-guides">
+                  <span>📐 Layout-Guides</span>
+                </label>
               </div>
             </div>
             <div class="sidebar-control-group">
               <label class="sidebar-label">Arbeitsmodus</label>
-              <div class="segmented-control">
-                <label class="segment-option"
-                  ><input
+              <div class="segmented-control" id="theme-switch">
+                <label class="segment-option" for="theme-day">
+                  <input
                     type="radio"
                     name="theme"
                     id="theme-day"
                     value="day"
                     checked
-                  /><span>☀️ Tag</span></label
-                >
-                <label class="segment-option"
-                  ><input
+                  />
+                  <span>☀️ Tag</span>
+                </label>
+                <label class="segment-option" for="theme-night">
+                  <input
                     type="radio"
                     name="theme"
                     id="theme-night"
                     value="night"
-                  /><span>🌙 Nacht</span></label
-                >
-              </div>
-            </div>
-
-            <div class="sidebar-control-group">
-              <label class="sidebar-label">Formatierung</label>
-              <div class="format-toolbar">
-                <button
-                  class="util-btn"
-                  command="--format-bold"
-                  title="Fett (Strg+B)"
-                >
-                  <strong>F</strong>
-                </button>
-                <button
-                  class="util-btn"
-                  command="--format-underline"
-                  title="Unterstrichen (Strg+U)"
-                >
-                  <u>U</u>
-                </button>
-                <button class="util-btn" command="--format-quote" title="Zitat">
-                  ❝
-                </button>
+                  />
+                  <span>🌙 Nacht</span>
+                </label>
+                <div class="pill"></div>
               </div>
             </div>
           </section>
@@ -90,15 +80,16 @@
           <button class="sidebar-btn primary" command="--print">
             🖨 Drucken / PDF
           </button>
+          <button
+            class="sidebar-btn secondary"
+            id="btn-open-profile"
+            onclick="document.getElementById('profile-dialog').showModal()"
+          >
+            👤 Profil bearbeiten
+          </button>
           <div class="utility-actions">
             <button class="util-btn" command="--export">📥 Export</button>
-            <button
-              class="util-btn danger"
-              onclick="
-                localStorage.clear();
-                location.reload();
-              "
-            >
+            <button class="util-btn danger" id="btn-trigger-reset">
               🗑️ Reset
             </button>
           </div>
@@ -110,108 +101,194 @@
           <din-A4>
             <din-branding-logo></din-branding-logo>
 
-            <div class="mark mark-fold-1"></div>
-            <div class="mark mark-loch"></div>
-            <div class="mark mark-fold-2"></div>
+            <div class="fold-mark fold-mark--top"></div>
+            <div class="fold-mark fold-mark--bottom"></div>
 
             <!-- Identität (Absender) -->
             <din-absender>
-              <din-absender-vorname contenteditable="plaintext-only" style="--p: 'Vorname'"></din-absender-vorname>
-              <din-absender-nachname contenteditable="plaintext-only" style="--p: 'Nachname'"></din-absender-nachname>
-              <din-absender-strasse contenteditable="plaintext-only" style="--p: 'Straße Nr.'"></din-absender-strasse>
-              <din-absender-ort contenteditable="plaintext-only" style="--p: 'PLZ Ort'"></din-absender-ort>
-              <din-absender-zusatz contenteditable="plaintext-only" style="--p: 'Zusatz/Abteilung'"></din-absender-zusatz>
-              <din-absender-mail contenteditable="plaintext-only" style="--p: 'E-Mail'"></din-absender-mail>
-              <din-absender-tel contenteditable="plaintext-only" style="--p: 'Telefon'"></din-absender-tel>
+              <din-absender-vorname
+                contenteditable="plaintext-only"
+                style="--p: &quot;Vorname&quot;"
+              ></din-absender-vorname>
+              <din-absender-nachname
+                contenteditable="plaintext-only"
+                style="--p: &quot;Nachname&quot;"
+              ></din-absender-nachname>
+              <din-absender-strasse
+                contenteditable="plaintext-only"
+                style="--p: &quot;Straße Nr.&quot;"
+              ></din-absender-strasse>
+              <din-absender-ort
+                contenteditable="plaintext-only"
+                style="--p: &quot;PLZ Ort&quot;"
+              ></din-absender-ort>
+              <din-absender-zusatz
+                contenteditable="plaintext-only"
+                style="--p: &quot;Zusatz/Abteilung&quot;"
+              ></din-absender-zusatz>
+              <din-absender-mail
+                contenteditable="plaintext-only"
+                style="--p: &quot;E-Mail&quot;"
+              ></din-absender-mail>
+              <din-absender-tel
+                contenteditable="plaintext-only"
+                style="--p: &quot;Telefon&quot;"
+              ></din-absender-tel>
             </din-absender>
 
             <!-- Anschriftfeld -->
             <din-anschriftfeld>
-              <din-rucksendezeile contenteditable="plaintext-only" style="--p: 'Rücksendezeile'"></din-rucksendezeile>
-              <din-zusaetze contenteditable="plaintext-only" style="--p: 'Zusatz (z.B. Einschreiben)'"></din-zusaetze>
-              <din-empfaenger-firma contenteditable="plaintext-only" style="--p: 'Firma'"></din-empfaenger-firma>
-              <din-empfaenger-abteilung contenteditable="plaintext-only" style="--p: 'Abteilung'"></din-empfaenger-abteilung>
-              <din-empfaenger-vorname contenteditable="plaintext-only" style="--p: 'Vorname'"></din-empfaenger-vorname>
-              <din-empfaenger-nachname contenteditable="plaintext-only" style="--p: 'Nachname'"></din-empfaenger-nachname>
-              <din-empfaenger-strasse contenteditable="plaintext-only" style="--p: 'Straße Nr.'"></din-empfaenger-strasse>
-              <din-empfaenger-ort contenteditable="plaintext-only" style="--p: 'PLZ Ort'"></din-empfaenger-ort>
+              <din-rucksendezeile
+                contenteditable="plaintext-only"
+                style="--p: &quot;Rücksendezeile&quot;"
+              ></din-rucksendezeile>
+              <din-zusaetze
+                contenteditable="plaintext-only"
+                style="--p: &quot;Zusatz (z.B. Einschreiben)&quot;"
+              ></din-zusaetze>
+              <din-empfaenger-firma
+                contenteditable="plaintext-only"
+                style="--p: &quot;Firma&quot;"
+              ></din-empfaenger-firma>
+              <din-empfaenger-abteilung
+                contenteditable="plaintext-only"
+                style="--p: &quot;Abteilung&quot;"
+              ></din-empfaenger-abteilung>
+              <din-empfaenger-vorname
+                contenteditable="plaintext-only"
+                style="--p: &quot;Vorname&quot;"
+              ></din-empfaenger-vorname>
+              <din-empfaenger-nachname
+                contenteditable="plaintext-only"
+                style="--p: &quot;Nachname&quot;"
+              ></din-empfaenger-nachname>
+              <din-empfaenger-strasse
+                contenteditable="plaintext-only"
+                style="--p: &quot;Straße Nr.&quot;"
+              ></din-empfaenger-strasse>
+              <din-empfaenger-ort
+                contenteditable="plaintext-only"
+                style="--p: &quot;PLZ Ort&quot;"
+              ></din-empfaenger-ort>
             </din-anschriftfeld>
 
             <!-- Infoblock & Datum -->
             <din-infoblock>
-              <din-ihr-zeichen contenteditable="plaintext-only" style="--p: 'Ihr Zeichen'"></din-ihr-zeichen>
-              <din-ihr-schreiben contenteditable="plaintext-only" style="--p: 'Ihr Schreiben vom'"></din-ihr-schreiben>
-              <din-unser-zeichen contenteditable="plaintext-only" style="--p: 'Unser Zeichen'"></din-unser-zeichen>
-              <din-unser-schreiben contenteditable="plaintext-only" style="--p: 'Unser Schreiben vom'"></din-unser-schreiben>
-              <din-durchwahl contenteditable="plaintext-only" style="--p: 'Durchwahl'"></din-durchwahl>
-              <din-email-direkt contenteditable="plaintext-only" style="--p: 'E-Mail'"></din-email-direkt>
-              <din-internet contenteditable="plaintext-only" style="--p: 'Internet'"></din-internet>
+              <din-ihr-zeichen
+                contenteditable="plaintext-only"
+                style="--p: &quot;Ihr Zeichen&quot;"
+              ></din-ihr-zeichen>
+              <din-ihr-schreiben
+                contenteditable="plaintext-only"
+                style="--p: &quot;Ihr Schreiben vom&quot;"
+              ></din-ihr-schreiben>
+              <din-unser-zeichen
+                contenteditable="plaintext-only"
+                style="--p: &quot;Unser Zeichen&quot;"
+              ></din-unser-zeichen>
+              <din-unser-schreiben
+                contenteditable="plaintext-only"
+                style="--p: &quot;Unser Schreiben vom&quot;"
+              ></din-unser-schreiben>
+              <din-durchwahl
+                contenteditable="plaintext-only"
+                style="--p: &quot;Durchwahl&quot;"
+              ></din-durchwahl>
+              <din-email-direkt
+                contenteditable="plaintext-only"
+                style="--p: &quot;E-Mail&quot;"
+              ></din-email-direkt>
+              <din-internet
+                contenteditable="plaintext-only"
+                style="--p: &quot;Internet&quot;"
+              ></din-internet>
             </din-infoblock>
 
-            <din-datum contenteditable="plaintext-only" style="--p: 'Datum'"></din-datum>
+            <din-datum
+              contenteditable="plaintext-only"
+              style="--p: &quot;Datum&quot;"
+            ></din-datum>
 
             <!-- Briefkern -->
             <din-kern>
-              <din-betreff contenteditable="plaintext-only" style="--p: 'Betreff'"></din-betreff>
-              <din-anrede contenteditable="plaintext-only" style="--p: 'Anrede'"></din-anrede>
+              <din-betreff
+                contenteditable="plaintext-only"
+                style="--p: &quot;Betreff&quot;"
+              ></din-betreff>
+              <din-anrede
+                contenteditable="plaintext-only"
+                style="--p: &quot;Anrede&quot;"
+              ></din-anrede>
               <din-text-container>
-                <din-text contenteditable="plaintext-only" style="--p: 'Text schreiben...'"></din-text>
+                <din-text
+                  contenteditable="plaintext-only"
+                  style="--p: &quot;Text schreiben...&quot;"
+                ></din-text>
                 <din-text-spiegel aria-hidden="true"></din-text-spiegel>
               </din-text-container>
-              <din-grussformel contenteditable="plaintext-only" style="--p: 'Grußformel'"></din-grussformel>
-              <din-unterschrift contenteditable="plaintext-only" style="--p: 'Unterschrift-Name'"></din-unterschrift>
-              <din-anlagen contenteditable="plaintext-only" style="--p: 'Anlagen'"></din-anlagen>
+              <din-grussformel
+                contenteditable="plaintext-only"
+                style="--p: &quot;Grußformel&quot;"
+              ></din-grussformel>
+              <din-unterschrift
+                contenteditable="plaintext-only"
+                style="--p: &quot;Unterschrift-Name&quot;"
+              ></din-unterschrift>
+              <din-anlagen
+                contenteditable="plaintext-only"
+                style="--p: &quot;Anlagen&quot;"
+              ></din-anlagen>
             </din-kern>
 
             <!-- Fußzeile -->
             <din-fuss>
               <din-fuss-firma
                 contenteditable="plaintext-only"
-                style="--p: 'Firmenname'"
+                style="--p: &quot;Firmenname&quot;"
               ></din-fuss-firma>
               <din-fuss-sitz
                 contenteditable="plaintext-only"
-                style="--p: 'Firmensitz'"
+                style="--p: &quot;Firmensitz&quot;"
               ></din-fuss-sitz>
               <din-fuss-gericht
                 contenteditable="plaintext-only"
-                style="--p: 'Registergericht'"
+                style="--p: &quot;Registergericht&quot;"
               ></din-fuss-gericht>
               <din-fuss-hrb
                 contenteditable="plaintext-only"
-                style="--p: 'HRB-Nummer'"
+                style="--p: &quot;HRB-Nummer&quot;"
               ></din-fuss-hrb>
               <din-fuss-vorstand
                 contenteditable="plaintext-only"
-                style="--p: 'Vorstand'"
+                style="--p: &quot;Vorstand&quot;"
               ></din-fuss-vorstand>
               <din-fuss-gf
                 contenteditable="plaintext-only"
-                style="--p: 'Geschäftsführung'"
+                style="--p: &quot;Geschäftsführung&quot;"
               ></din-fuss-gf>
               <din-fuss-stnr
                 contenteditable="plaintext-only"
-                style="--p: 'Steuernummer'"
+                style="--p: &quot;Steuernummer&quot;"
               ></din-fuss-stnr>
               <din-fuss-ustid
                 contenteditable="plaintext-only"
-                style="--p: 'USt-IdNr.'"
+                style="--p: &quot;USt-IdNr.&quot;"
               ></din-fuss-ustid>
               <din-fuss-bank
                 contenteditable="plaintext-only"
-                style="--p: 'Bank'"
+                style="--p: &quot;Bank&quot;"
               ></din-fuss-bank>
               <din-fuss-iban
                 contenteditable="plaintext-only"
-                style="--p: 'IBAN'"
+                style="--p: &quot;IBAN&quot;"
               ></din-fuss-iban>
               <din-fuss-bic
                 contenteditable="plaintext-only"
-                style="--p: 'BIC'"
+                style="--p: &quot;BIC&quot;"
               ></din-fuss-bic>
               <din-fuss-anschrift
                 contenteditable="plaintext-only"
-                style="--p: 'Hausanschrift'"
+                style="--p: &quot;Hausanschrift&quot;"
               ></din-fuss-anschrift>
             </din-fuss>
           </din-A4>
@@ -220,6 +297,174 @@
     </div>
 
     <div id="toast-v4" popover="manual" class="toast-container"></div>
+
+    <!-- MODERN MODAL SYSTEM -->
+    <dialog id="profile-dialog" aria-labelledby="profile-title">
+      <button
+        type="button"
+        class="dialog-close-x"
+        onclick="this.closest('dialog').close()"
+        aria-label="Schließen"
+      >
+        ×
+      </button>
+      <form method="dialog">
+        <h2 id="profile-title">👤 Absender-Profil</h2>
+        <p class="subtitle">
+          Diese Daten werden bei einem Reset automatisch in den Briefkopf
+          geladen.
+        </p>
+        <div class="dialog-content-no-scroll">
+          <fieldset>
+            <legend>Identität & Adresse</legend>
+            <div class="form-group">
+              <label for="profile-name">Voller Name</label>
+              <input
+                type="text"
+                id="profile-name"
+                placeholder="Max Mustermann"
+                autocomplete="name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="profile-street">Straße & Hausnummer</label>
+              <input
+                type="text"
+                id="profile-street"
+                placeholder="Musterstraße 1"
+                autocomplete="street-address"
+              />
+            </div>
+            <div class="row">
+              <div class="form-group" style="flex: 1">
+                <label for="profile-zip">PLZ</label>
+                <input
+                  type="text"
+                  id="profile-zip"
+                  placeholder="12345"
+                  autocomplete="postal-code"
+                  inputmode="numeric"
+                  data-validation="zip"
+                />
+                <div class="platinum-tooltip">⚠️ PLZ muss 5-stellig sein</div>
+              </div>
+
+              <div class="form-group" style="flex: 2">
+                <label for="profile-city">Stadt</label>
+                <input
+                  type="text"
+                  id="profile-city"
+                  placeholder="Musterstadt"
+                  autocomplete="address-level2"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group">
+                <label for="profile-phone">Telefon</label>
+                <input
+                  type="tel"
+                  id="profile-phone"
+                  placeholder="0123 456789"
+                  autocomplete="tel"
+                />
+              </div>
+              <div class="form-group">
+                <label for="profile-email">E-Mail</label>
+                <input
+                  type="text"
+                  id="profile-email"
+                  placeholder="max@beispiel.de"
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="profile-iban"
+                >IBAN (für Fußzeile) - <small>Eingabehilfe aktiv</small></label
+              >
+              <div class="iban-wrapper">
+                <div id="iban-ghost" class="iban-text" aria-hidden="true">
+                  <span class="invisible"></span>DE00 0000 0000 0000 0000 00
+                </div>
+                <input
+                  type="text"
+                  id="profile-iban"
+                  class="iban-text"
+                  placeholder=""
+                  maxlength="34"
+                  autocomplete="off"
+                  spellcheck="false"
+                  data-validation="iban"
+                />
+                <div class="platinum-tooltip">⚠️ IBAN Format ungültig</div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="dialog-actions">
+          <button
+            type="button"
+            class="btn secondary"
+            onclick="this.closest('dialog').close()"
+          >
+            Abbrechen
+          </button>
+          <button type="button" class="btn primary" id="btn-profile-done">
+            Speichern & Schließen
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="confirmation-dialog" aria-labelledby="confirm-title">
+      <form method="dialog">
+        <div class="icon-wrapper">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#dc3545"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </div>
+        <h2 id="confirm-title">Dokument löschen?</h2>
+        <p id="confirm-message">
+          Bist du dir sicher, dass du den kompletten Briefinhalt löschen
+          möchtest?
+        </p>
+        <div class="dialog-actions">
+          <button
+            type="button"
+            class="btn secondary"
+            onclick="this.closest('dialog').close()"
+          >
+            Abbruch
+          </button>
+          <button type="button" class="btn primary danger" id="btn-confirm-ok">
+            Alles löschen
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="debug" class="dev-panel" popover="manual">
+      <h3>🛠️ Platinum Debug</h3>
+      <p>Current Theme: <span id="debug-theme">Auto</span></p>
+      <p>DIN-Layout: <span id="debug-layout">Form B</span></p>
+      <p>Salutation: <span id="debug-salutation">Generic</span></p>
+      <button onclick="this.parentElement.hidePopover()">Close</button>
+    </div>
+
     <script type="module" src="app.js"></script>
   </body>
 </html>

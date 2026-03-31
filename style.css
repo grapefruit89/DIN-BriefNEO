@@ -47,7 +47,7 @@
 
 /* ── THEME LAYER ────────────────────────────────────────────── */
 @layer ui.theme {
-  @property --din-y-abschnitt {
+  @property --din-y-header-start {
     syntax: "<length>";
     inherits: true;
     initial-value: 45mm;
@@ -218,33 +218,26 @@
         "zero" on;
     }
 
-    /* ── [PLATINUM] Falt- & Lochmarken (ADR-017 / Relativ-Logic) ── */
+    /* ── [PLATINUM] Faltmarken (ADR-017 / Full-Width Guides) ── */
     din-falz-oben,
-    din-falz-unten,
-    din-lochmarke {
+    din-falz-unten {
       display: block;
       position: absolute;
       left: 0;
-      width: 4mm;
+      width: 100%;
       height: 1px;
-      background: oklch(0% 0 0 / 25%);
+      background: repeating-linear-gradient(
+        90deg,
+        oklch(0% 0 0 / 15%),
+        oklch(0% 0 0 / 15%) 4mm,
+        transparent 4mm,
+        transparent 8mm
+      );
       pointer-events: none;
       transition:
         opacity 0.3s ease,
         top 0.3s ease;
       opacity: 0;
-    }
-
-    /* Faltmarken: Gepunkteter Gradient */
-    :is(din-falz-oben, din-falz-unten) {
-      width: 4mm;
-      background: repeating-linear-gradient(
-        90deg,
-        oklch(0% 0 0 / 25%),
-        oklch(0% 0 0 / 25%) 1mm,
-        transparent 1mm,
-        transparent 2mm
-      );
     }
 
     din-falz-oben {
@@ -253,22 +246,18 @@
     din-falz-unten {
       top: var(--din-y-fold-2);
     }
-    din-lochmarke {
-      top: 148.5mm;
-      width: 7mm;
-    }
   }
 
   /* Toggle Logic & Print Override (Zero-JS UI State) */
   :root:has(#state-guides:checked) {
-    & :is(din-falz-oben, din-falz-unten, din-lochmarke) {
+    & :is(din-falz-oben, din-falz-unten) {
       opacity: 1;
     }
   }
 
   @media print {
     :root:not(:has(#state-guides:checked)) {
-      & :is(din-falz-oben, din-falz-unten, din-lochmarke) {
+      & :is(din-falz-oben, din-falz-unten) {
         display: none !important;
       }
     }

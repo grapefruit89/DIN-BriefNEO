@@ -57,7 +57,6 @@ export const IMR = Object.freeze([
   { tag: "din-fuss-anschrift", key: "fuss_anschrift" },
   { tag: "din-falz-oben", key: "guides_fold_top", internal: true },
   { tag: "din-falz-unten", key: "guides_fold_bottom", internal: true },
-  { tag: "din-lochmarke", key: "guides_hole", internal: true },
 ]);
 
 /* ── MARKDOWN PARSER ────────────────────────────────────────── */

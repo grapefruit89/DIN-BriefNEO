@@ -1,0 +1,52 @@
+name: Platinum Validation Pipeline (PVP)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install CI Dependencies
+        run: npm install --include=dev --silent
+
+      - name: Lint JavaScript (ESLint)
+        run: npx eslint "**/*.js" --max-warnings 0
+
+      - name: Lint CSS (Stylelint)
+        run: npx stylelint "**/*.css" --max-warnings 0
+
+      - name: Check Markdown Links
+        run: |
+          npm install -g markdown-link-check
+          find . -name "*.md" -exec markdown-link-check {} \;
+
+      - name: Auto-Label Issues/PRs
+        if: github.event_name == 'pull_request'
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: 'Dieses Issue ist inaktiv und wird in 7 Tagen geschlossen.'
+          stale-pr-message: 'Dieser PR ist inaktiv und wird bald geschlossen.'
+          days-before-stale: 30
+          days-before-close: 7

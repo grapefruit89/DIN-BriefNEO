@@ -55,7 +55,7 @@ tag_categories:
 
 # === VERWANDTE DOKUMENTE ===
 related:
-  - "01_Architecture_Compliance"
+  - "issues/#2_Architecture_Compliance_Matrix"
   - "03_CSS_Reference"
   - "05_Feature_Matrix"
   - "06_Salutation_Engine"
@@ -327,7 +327,7 @@ Diese Tags dienen der internen Visualisierung und Compliance-Kontrolle.
 
 | Dokument | Zweck |
 |----------|-------|
-| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
 | [[03_CSS_Reference]] | CSS-Features Referenz |
 | [[05_Feature_Matrix]] | Projekt-Fortschritt |
 | [[06_Salutation_Engine]] | Logik-Dokumentation |

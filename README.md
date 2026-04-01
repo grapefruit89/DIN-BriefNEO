@@ -29,7 +29,7 @@ Dieses Diagramm visualisiert das Zusammenspiel der atomaren Komponenten gemäß 
 ```mermaid
 graph TD
     subgraph UI_Layer ["UI-Layer (Zero-JS State)"]
-        A[index.html] -- "Custom Elements" --> B[02_IMR_Registry]
+        A[index.html] -- "Custom Elements" --> B[#1 HTML Tag Glossar]
         B -- "CSS State :has" --> C[style.css]
     end
     
@@ -51,8 +51,8 @@ graph TD
 
 | Dok # | Dokument | Fokus | Zielgruppe |
 |-------|----------|-------|------------|
-| 01 | [[01_Architecture_Compliance]] | APIs, Chrome-Versionen, Leitplanken | Architekten |
-| 02 | [[issues/#1_IMR_Registry]] | Alle 45+ HTML-Tags & Positionen (SSoT) | Entwickler |
+| 01 | [[issues/#2_Architecture_Compliance_Matrix]] | APIs, Chrome-Versionen, Leitplanken | Architekten |
+| 02 | [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ HTML-Tags & Positionen (SSoT) | Entwickler |
 | 03 | [[03_CSS_Reference]] | Detaillierte CSS-Features & Beispiele | Entwickler |
 | 04 | [[04_CSS_Quick_Reference]] | Executive Summary der Tech-Highlights | Management |
 | 05 | [[05_Feature_Matrix]] | Roadmap, Sprint-Status & Issues | Alle |

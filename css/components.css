@@ -286,11 +286,12 @@
     background: var(--c-primary);
     border-radius: 4px;
     z-index: 1;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
   /* Dynamische Positionierung der Pill via :has() */
-  /* Standard: 3er-Segmented (Recipient, Formality) */
+  /* Standard: 3er-Segmented (Layout, Recipient-Type, Formality) */
   .segmented-control:has(.segment-option:nth-child(1) input:checked) .pill {
     left: 3px; width: calc(33.33% - 4px);
   }
@@ -301,14 +302,14 @@
     left: calc(66.66% + 1px); width: calc(33.33% - 4px);
   }
 
-  /* Spezielle 2er-Segmented (Theme Tag/Nacht, Provider-Switch) */
-  :is(#theme-switch, #provider-switch):has(.segment-option:nth-child(1) input:checked) .pill {
+  /* Spezielle 2er-Segmented (Theme, Provider, Salutation-Type) */
+  :is(#theme-switch, #provider-switch, #recipient-switch):has(.segment-option:nth-child(1) input:checked) .pill {
     left: 3px; width: calc(50% - 4px);
   }
-  :is(#theme-switch, #provider-switch):has(.segment-option:nth-child(2) input:checked) .pill {
+  :is(#theme-switch, #provider-switch, #recipient-switch):has(.segment-option:nth-child(2) input:checked) .pill {
     left: calc(50% + 1px); width: calc(50% - 4px);
   }
-  :is(#theme-switch, #provider-switch):has(.segment-option:nth-child(3) input:checked) .pill {
+  :is(#theme-switch, #provider-switch, #recipient-switch):has(.segment-option:nth-child(3) input:checked) .pill {
      display: none;
   }
 

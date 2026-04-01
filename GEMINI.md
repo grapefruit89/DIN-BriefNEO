@@ -84,7 +84,7 @@ This file overrides all other instructions. Any violation is a critical system f
 📋 CONTEXT7 VALIDATION (ROBUST)
 
 1. Extract Links:
-   Select-String -Path "01_*.md","02_*.md","03_*.md","06_*.md" -Pattern 'https?://[^)]+' -AllMatches | ForEach-Object { $_.Matches.Value } | Where-Object { $_ -match 'tc39|wicg|w3c|whatwg|mdn' } | Sort-Object -Unique > context7-links.txt
+   Select-String -Path "issues/#*.md" -Pattern 'https?://[^)]+' -AllMatches | ForEach-Object { $_.Matches.Value } | Where-Object { $_ -match 'tc39|wicg|w3c|whatwg|mdn' } | Sort-Object -Unique > context7-links.txt
 
 2. Verify Status:
    $report = @(); foreach ($url in Get-Content context7-links.txt) { $status = try { (Invoke-WebRequest -Uri $url -Method Head -UseBasicParsing -ErrorAction Stop).StatusCode; "✅ OK" } catch { "❌ FAILED" }; $report += "$url : $status" }; $report | Out-File context7-report.txt
@@ -110,7 +110,7 @@ This file overrides all other instructions. Any violation is a critical system f
 - **Standard** – für Spezifikations-Links nutzen.
 
 ### taxonomy-architect
-- **Für Dokumentation** – Struktur von `01_*.md` bis `06_*.md`.
+- **Für Dokumentation** – Struktur von `issues/#*.md`.
 
 ## ⚠️ VERBOTEN
 

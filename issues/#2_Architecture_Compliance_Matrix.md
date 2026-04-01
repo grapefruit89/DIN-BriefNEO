@@ -1,10 +1,10 @@
 ---
 # === BASISINFORMATIONEN ===
 title: "Architecture Compliance Matrix (IMR 4.0 Standard)"
-subtitle: "Pure & Flat Architecture Guidelines"
+subtitle: "Pure & Flat Architecture Guidelines — Platinum Edition"
 description: "Technologische Leitplanken für DIN-BriefNEO mit Chrome 147+ Baseline"
-version: "4.7.0"
-version_date: 2026-03-31
+version: "4.8.0"
+version_date: 2026-04-01
 status: active
 enforcement: "PVP (Platinum Validation Pipeline)"
 baseline: "Chrome 147+"
@@ -57,8 +57,8 @@ related:
 
 # === ZEITSTEMPEL ===
 date_created: 2025-12-01
-date_updated: 2026-03-31
-date_reviewed: 2026-03-31
+date_updated: 2026-04-01
+date_reviewed: 2026-04-01
 review_cycle: quarterly
 next_review: 2026-06-30
 
@@ -115,6 +115,12 @@ Wir wenden die **Chrome 147+ Baseline** konsequent an, um eine *Pure & Flat Arch
 | **Logik (CSS)**        | `:has()`                      | Zero-JS State Management (Layout/Theme/Guides). | ✅ Aktiv |
 | **Typografie**         | `font-feature-settings`       | Tabellenziffern & Slashed-Zero für IBAN/Datum. | ✅ Aktiv |
 | **Auto-Resize**        | `field-sizing: content`       | Textfelder wachsen organisch mit dem Inhalt. | ✅ Aktiv |
+| **3D-Carousel**        | `--position`, `--i` Vars      | Dynamische 3D-Transformationen ohne JS (v4.8.0). | ✅ Aktiv |
+| **Toast-System**       | CSS Keyframes + `popover`      | Vollständige CSS-Choreographie, kein `setTimeout`. | ✅ Aktiv |
+| **Form C Layout**      | `:has(#state-layout-c)`       | Flexbox-basiertes, gestapeltes Layout (v4.8.0). | ✅ Aktiv |
+| **Auto-Detection**     | `_updateSalutation()`         | Erkennung von "Frau/Herr/Ms/Mr" im Anschriftfeld. | ✅ Aktiv |
+| **Ghost-Text**         | `data-salutation`             | Platzhalter-Vorschläge via CSS `:empty::before`. | ✅ Aktiv |
+| **Footer Auto-Hide**   | `din-fuss > *:empty`          | Leere Fußzeilen-Elemente automatisch ausblenden. | ✅ Aktiv |
 | **Positioning**        | CSS Anchor                    | Popovers kleben ohne JS am Anker. | 📋 Roadmap |
 | **Overlays**           | `<dialog>` + `popover`        | Native Modals & Tooltips (ADR-017). | ✅ Aktiv |
 | **Invokers**           | Invoker Commands              | Deklarative Button-Trigger (`commandfor`). | 📋 Roadmap |
@@ -127,39 +133,7 @@ Wir wenden die **Chrome 147+ Baseline** konsequent an, um eine *Pure & Flat Arch
 
 ---
 
-## 🔗 Dokumenten-Navigation
-
-> [!NOTE]
-> Diese Matrix definiert die *Plattform*. Die konkrete Umsetzung der DIN-Vorgaben erfolgt in der [[02_IMR_Registry]] und der [[06_Salutation_Engine]].
-
-| Dokument | Zweck |
-|----------|-------|
-| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
-| [[02_IMR_Registry]] | Alle 42+ DIN-Tags |
-| [[03_CSS_Reference]] | CSS-Features Referenz |
-| [[05_Feature_Matrix]] | Projekt-Fortschritt |
-| [[06_Salutation_Engine]] | Logik-Dokumentation |
-
-**Gesamtversion:** 4.7 | **Letzte Sync:** 2026-03-31
-
----
-
-## 🔗 Verwandte Dokumente (Dataview)
-
-```dataview
-TABLE 
-  version AS "Version",
-  status AS "Status",
-  date_updated AS "Aktualisiert"
-FROM ""
-WHERE contains(related, this.file.name)
-SORT version DESC
-```
-
-
----
-
-### 🏗️ Implementierungspfade & High‑End APIs
+## 🏗️ Implementierungspfade & High‑End APIs
 
 | Icon / Name          | Pfad / API                     | Strategie & Best Practice |
 |----------------------|--------------------------------|---------------------------|
@@ -185,3 +159,37 @@ Die **Input Mapping Registry (IMR)** nutzt aktuell `document.querySelector()`, w
 ### 2. PDF-Metadaten (Print-to-PDF)
 XMP-Metadaten können über den nativen Browser-Druckdialog (`window.print()`) nicht in den PDF-Stream eingebettet werden.
 - **Strategie:** Wir nutzen die **OCR-Bridge** (unsichtbarer Textblock im Body) als Primärstrategie für Systeme wie Paperless-ngx. Dateinamen werden via `document.title` manipuliert.
+
+---
+
+## 🔗 Dokumenten-Navigation
+
+| Dokument | Zweck |
+|----------|-------|
+| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
+| [[issues/#1_IMR_Registry]] | Alle 45+ DIN-Tags |
+| [[03_CSS_Reference]] | CSS-Features Referenz |
+| [[05_Feature_Matrix]] | Projekt-Fortschritt |
+| [[06_Salutation_Engine]] | Logik-Dokumentation |
+
+**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
+
+---
+
+## 🔗 Verwandte Dokumente (Dataview)
+
+```dataview
+TABLE 
+  version AS "Version",
+  status AS "Status",
+  date_updated AS "Aktualisiert"
+FROM ""
+WHERE contains(related, this.file.name)
+SORT version DESC
+```
+
+---
+
+**Status:** ACTIVE  
+**Nächste Überprüfung:** 2026-06-30  
+**Verantwortlich:** Lead Systems Architect

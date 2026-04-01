@@ -59,8 +59,8 @@ feature_categories:
 
 # === VERWANDTE DOKUMENTE ===
 related:
-  - "01_Architecture_Compliance"
-  - "02_IMR_Registry"
+  - "issues/#2_Architecture_Compliance_Matrix"
+  - "issues/#1 DIN 5008 HTML Tag Glossar"
   - "04_CSS_Quick_Reference"
   - "05_Feature_Matrix"
 
@@ -194,8 +194,8 @@ Dieses Dokument ist die **Single Source of Truth (SSoT)** für alle CSS-Technolo
 
 | Dokument | Zweck |
 |----------|-------|
-| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
-| [[02_IMR_Registry]] | Alle 42+ DIN-Tags |
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
+| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
 | [[03_CSS_Reference]] | CSS-Features Referenz |
 | [[05_Feature_Matrix]] | Projekt-Fortschritt |
 | [[06_Salutation_Engine]] | Logik-Dokumentation |

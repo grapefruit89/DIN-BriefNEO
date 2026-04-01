@@ -50,7 +50,7 @@ css_first: true
 
 # === VERWANDTE DOKUMENTE ===
 related:
-  - "02_IMR_Registry"
+  - "issues/#1 DIN 5008 HTML Tag Glossar"
   - "03_CSS_Reference"
   - "05_Feature_Matrix"
   - "06_Salutation_Engine"
@@ -166,8 +166,8 @@ XMP-Metadaten können über den nativen Browser-Druckdialog (`window.print()`) n
 
 | Dokument | Zweck |
 |----------|-------|
-| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
-| [[issues/#1_IMR_Registry]] | Alle 45+ DIN-Tags |
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
+| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
 | [[03_CSS_Reference]] | CSS-Features Referenz |
 | [[05_Feature_Matrix]] | Projekt-Fortschritt |
 | [[06_Salutation_Engine]] | Logik-Dokumentation |

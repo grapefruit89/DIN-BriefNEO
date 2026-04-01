@@ -90,7 +90,7 @@ Tippe `/` in ein leeres Textfeld, um das Schnellmenü zu öffnen:
 ```mermaid
 graph TD
     subgraph UI_Layer ["UI-Layer (Zero-JS State)"]
-        A[index.html] -- "Custom Elements" --> B[IMR_Registry]
+        A[index.html] -- "Custom Elements" --> B[#1 HTML Tag Glossar]
     end
 ```
 

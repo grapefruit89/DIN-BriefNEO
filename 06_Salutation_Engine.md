@@ -54,8 +54,8 @@ performance_title_extract: "0.2ms"
 
 # === VERWANDTE DOKUMENTE ===
 related:
-  - "01_Architecture_Compliance"
-  - "02_IMR_Registry"
+  - "issues/#2_Architecture_Compliance_Matrix"
+  - "issues/#1 DIN 5008 HTML Tag Glossar"
   - "03_CSS_Reference"
   - "05_Feature_Matrix"
 
@@ -172,7 +172,7 @@ Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwi
 /* ── CONSTANTS & REGISTRY ──────────────────────────────────── */
 
 > [!NOTE]
-> Die IMR (Input Mapping Registry) wird zentral in der [[02_IMR_Registry]] gepflegt. Der folgende Code-Auszug dient der technischen Referenz innerhalb der Engine-Logik.
+> Die IMR (Input Mapping Registry) wird zentral in der [[issues/#1 DIN 5008 HTML Tag Glossar]] gepflegt. Der folgende Code-Auszug dient der technischen Referenz innerhalb der Engine-Logik.
 
 /**
  * IMR (Input Mapping Registry) – definiert die bidirektionale Bindung
@@ -186,8 +186,8 @@ Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwi
 
 | Dokument | Zweck |
 |----------|-------|
-| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
-| [[02_IMR_Registry]] | Alle 42+ DIN-Tags |
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
+| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
 | [[03_CSS_Reference]] | CSS-Features Referenz |
 | [[05_Feature_Matrix]] | Projekt-Fortschritt |
 | [[06_Salutation_Engine]] | Logik-Dokumentation |

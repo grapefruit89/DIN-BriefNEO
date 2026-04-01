@@ -55,8 +55,8 @@ groups:
 
 # === VERWANDTE DOKUMENTE ===
 related:
-  - "01_Architecture_Compliance"
-  - "02_IMR_Registry"
+  - "issues/#2_Architecture_Compliance_Matrix"
+  - "issues/#1 DIN 5008 HTML Tag Glossar"
   - "03_CSS_Reference"
   - "06_Salutation_Engine"
 
@@ -177,8 +177,8 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 
 | Dokument | Zweck |
 |----------|-------|
-| [[01_Architecture_Compliance]] | Technologie-Leitplanken |
-| [[02_IMR_Registry]] | Alle 42+ DIN-Tags |
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
+| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
 | [[03_CSS_Reference]] | CSS-Features Referenz |
 | [[05_Feature_Matrix]] | Projekt-Fortschritt |
 | [[06_Salutation_Engine]] | Logik-Dokumentation |

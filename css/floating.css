@@ -1,0 +1,245 @@
+@layer ui.floating {
+  /* 1. Anchor Positioning Fallbacks (Chrome 147+) */
+  @position-try --tooltip-bottom {
+    inset-block-start: anchor(bottom);
+    inset-block-end: auto;
+    margin-block-start: 8px;
+    justify-self: center;
+  }
+  @position-try --tooltip-top {
+    inset-block-end: anchor(top);
+    inset-block-start: auto;
+    margin-block-end: 8px;
+    justify-self: center;
+  }
+  @position-try --tooltip-right {
+    inset-inline-start: anchor(right);
+    inset-inline-end: auto;
+    margin-inline-start: 12px;
+    align-self: center;
+  }
+
+  /* 2. Platinum Validation Tooltips */
+  .platinum-tooltip {
+    position: fixed;
+    position-anchor: --anchor-field;
+    position-try: --tooltip-bottom, --tooltip-top, --tooltip-right;
+    position-try-order: normal;
+
+    background: oklch(25% 0.15 30 / 95%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    z-index: 2000;
+    box-shadow: 0 4px 15px oklch(0% 0 0 / 30%);
+    opacity: 0;
+    transform: translateY(5px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease,
+      display 0.3s allow-discrete;
+    white-space: nowrap;
+  }
+
+  /* Trigger Tooltip on Invalid State */
+  :is([aria-invalid="true"], .invalid):is(:hover, :focus) + .platinum-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  [aria-invalid="true"] {
+    anchor-name: --anchor-field;
+    border-color: oklch(60% 0.2 30) !important;
+  }
+
+  /* 3. DIN-Referenz-Overlay (Platinum Audit Tool) */
+  #din-reference-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 210mm;
+    height: 297mm;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    /* Semantic Overlay Colors */
+    --overlay-color-falz: oklch(60% 0.2 30);
+    --overlay-color-loch: oklch(70% 0.15 80);
+    --overlay-color-zone: oklch(50% 0.15 250);
+    --overlay-color-info: oklch(60% 0.15 140);
+    --overlay-color-grid: oklch(0% 0 0 / 20%);
+    --overlay-color-fuss: oklch(50% 0.15 300);
+  }
+
+  :root:has(#state-reference:checked) #din-reference-overlay {
+    opacity: 0.45;
+  }
+
+  @media print {
+    #din-reference-overlay {
+      display: none !important;
+    }
+  }
+
+  /* 4. Platinum Metadata Bridge (Paperless-ngx / Obsidian) */
+  #din-metadata-bridge {
+    position: absolute;
+    bottom: 5mm;
+    left: 25mm;
+    font-size: 4pt;
+    color: white; /* In PDF vorhanden, aber faktisch unsichtbar auf weißem Grund */
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* 5. vCard QR-Code (Digital Bridge) */
+  din-qr-code {
+    position: absolute;
+    top: 20mm;
+    right: 25mm;
+    width: 25mm;
+    height: 25mm;
+    z-index: 10;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+  }
+
+  :root:has(#state-qr:checked) din-qr-code {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  din-qr-code canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  [contenteditable] {
+    border: 1px dashed transparent;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: -3px -5px;
+    min-width: 2rem;
+    min-height: 1.5rem;
+    outline: none;
+    transition: all 0.1s ease-in-out;
+  }
+
+  [contenteditable]:hover {
+    border-color: oklch(0% 0 0 / 20%);
+  }
+  [contenteditable]:focus {
+    border-color: var(--c-primary) !important;
+    background: oklch(60% 0.15 250 / 5%);
+  }
+
+  /* Container Feedback */
+  :is(din-anschriftfeld, din-kern, din-infoblock):focus-within {
+    background: oklch(60% 0.15 250 / 2%);
+    outline: 1px dashed oklch(60% 0.15 250 / 30%);
+    transition: background 0.2s ease;
+  }
+
+  /* 3. Platinum Autocomplete (Anchor Positioning & Popover) */
+  #autocomplete-portal {
+    position: fixed;
+    position-anchor: --anchor-address;
+    top: anchor(bottom);
+    left: anchor(left);
+    width: anchor-size(width);
+    min-width: 250px;
+    
+    background: light-dark(white, oklch(20% 0.05 250));
+    border: 1px solid var(--c-sidebar-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--c-paper-shadow);
+    padding: 4px;
+    margin-top: 4px;
+    z-index: 3000;
+    
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .suggestion-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s ease;
+    color: light-dark(oklch(20% 0.05 250), white);
+  }
+
+  .suggestion-item:hover, .suggestion-item:focus {
+    background: var(--c-primary);
+    color: white;
+    outline: none;
+  }
+
+  .suggestion-icon {
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  /* Grouped Placeholder Logic with :is() */
+  :is([style*="--p"], [data-placeholder]):empty::before {
+    content: var(--p, attr(data-placeholder));
+    color: oklch(0% 0 0 / 30%);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  /* ── UI.FLOATING & TOASTS ──────────────────────────────────── */
+  #toast-v4 {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--c-sidebar-bg);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+
+  #toast-v4:popover-open {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    #toast-v4:popover-open {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+
+  #toast-v4.type-success {
+    border-left: 4px solid var(--c-success);
+  }
+  #toast-v4.type-error {
+    border-left: 4px solid var(--c-danger);
+  }
+  #toast-v4.type-info {
+    border-left: 4px solid var(--c-primary);
+  }
+}

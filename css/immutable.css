@@ -1,0 +1,23 @@
+@layer core.immutable {
+  @counter-style din-pages {
+    system: numeric;
+    symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+    suffix: " · ";
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+    @bottom-center {
+      content: "Seite " counter(page, din-pages) " von " counter(pages);
+      font-size: 9pt;
+      color: oklch(40% 0.01 250);
+    }
+  }
+
+  @page :first {
+    @bottom-center {
+      content: none;
+    }
+  }
+}

@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <input type="radio" name="layout-state" id="state-layout-a" hidden />
+    <input type="radio" name="layout-state" id="state-layout-a" value="form-a" hidden />
     <input
       type="radio"
       name="layout-state"
       id="state-layout-b"
+      value="form-b"
       checked
       hidden
     />
@@ -158,7 +159,7 @@
           </button>
           <div class="utility-actions">
             <button class="util-btn" command="--export">📥 Export</button>
-            <button class="util-btn danger" id="btn-trigger-reset">
+            <button class="util-btn danger" id="btn-trigger-reset" command="--reset">
               🗑️ Reset
             </button>
           </div>
@@ -446,14 +447,25 @@
         <div class="dialog-content-no-scroll">
           <fieldset>
             <legend>Identität & Adresse</legend>
-            <div class="form-group">
-              <label for="profile-name">Voller Name</label>
-              <input
-                type="text"
-                id="profile-name"
-                placeholder="Max Mustermann"
-                autocomplete="name"
-              />
+            <div class="row">
+              <div class="form-group">
+                <label for="profile-firstName">Vorname</label>
+                <input
+                  type="text"
+                  id="profile-firstName"
+                  placeholder="Max"
+                  autocomplete="given-name"
+                />
+              </div>
+              <div class="form-group">
+                <label for="profile-lastName">Nachname</label>
+                <input
+                  type="text"
+                  id="profile-lastName"
+                  placeholder="Mustermann"
+                  autocomplete="family-name"
+                />
+              </div>
             </div>
             <div class="form-group">
               <label for="profile-street">Straße & Hausnummer</label>

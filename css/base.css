@@ -1,0 +1,37 @@
+@layer latex.base {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  /* Platinum Typography: OpenType Features */
+  @font-feature-values "Inter", "system-ui", "Aptos" {
+    @styleset {
+      tabular-nums: 1;
+      slashed-zero: 2;
+    }
+  }
+
+  html,
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Accessibility: Focus only on keyboard navigation */
+  :focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 2px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--c-primary);
+    color: white;
+  }
+}

@@ -36,7 +36,11 @@ export class UIController {
     this._renderArchive();
 
     this.sm.subscribe((path, val, scope) => this._onStateChange(path, val, scope));
+    
+    // Initial Sync
     this._syncAll();
+    this._syncControls();
+    this._updateVisualState();
 
     // SW-14: Register Service Worker
     if ("serviceWorker" in navigator) {
@@ -76,34 +80,35 @@ export class UIController {
   }
 
   _initControls() {
-    // Theme Switch
-    const themeBtn = document.getElementById("theme-toggle");
-    if (themeBtn) {
-      themeBtn.addEventListener("click", () => {
-        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-        const newTheme = isDark ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", newTheme);
-        this.sm.update("config.theme", newTheme, "user");
+    // 1. Radio Controls (Segmented Switches)
+    const radioNames = ["layout-state", "recipientType", "formality", "theme"];
+    radioNames.forEach(name => {
+      const radios = document.querySelectorAll(`input[name="${name}"]`);
+      radios.forEach(radio => {
+        radio.addEventListener("change", (e) => {
+          const key = name === "layout-state" ? "layout" : name;
+          this.sm.update(`config.${key}`, e.target.value || e.target.id, "user");
+        });
       });
-    }
+    });
 
-    // Export JSON
-    const exportBtn = document.getElementById("btn-export");
-    if (exportBtn) {
-      exportBtn.addEventListener("click", () => {
-        this._handleExport();
-      });
-    }
-
-    // Global Command Listener
-    document.addEventListener("command", (e) => {
-      const cmd = e.command || e.detail?.command;
-      if (cmd === "--print") {
-        const oldTitle = MetadataService.prepare(this.sm.state);
-        window.print();
-        MetadataService.restore(oldTitle);
+    // 2. Toggle Controls (Checkboxes)
+    ["guides", "reference", "qr"].forEach(key => {
+      const el = document.getElementById(`state-${key}`);
+      if (el) {
+        el.addEventListener("change", (e) => {
+          this.sm.update(`config.${key}`, e.target.checked, "user");
+        });
       }
-      if (cmd === "--export") this._handleExport();
+    });
+
+    // 3. Command Listeners
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[command]");
+      if (btn) {
+        const cmd = btn.getAttribute("command");
+        this._executeCommand(cmd);
+      }
     });
 
     // Archive Save Trigger
@@ -142,7 +147,7 @@ export class UIController {
     });
 
     // Profile Trigger
-    const profileBtn = document.getElementById("btn-profile");
+    const profileBtn = document.getElementById("btn-open-profile");
     if (profileBtn) {
       profileBtn.addEventListener("click", () => {
         const dialog = document.getElementById("profile-dialog");
@@ -152,7 +157,7 @@ export class UIController {
     }
 
     // Save Profile
-    const saveProfileBtn = document.getElementById("btn-save-profile");
+    const saveProfileBtn = document.getElementById("btn-profile-done");
     if (saveProfileBtn) {
       saveProfileBtn.addEventListener("click", () => {
         this._saveProfileForm();
@@ -192,9 +197,9 @@ export class UIController {
   }
 
   _syncProfileForm() {
-    const profile = this.sm.state.profile;
+    const profile = this.sm.state.profile || {};
     Object.entries(profile).forEach(([key, val]) => {
-      const input = document.getElementById(`field-${key}`);
+      const input = document.getElementById(`profile-${key}`);
       if (input) input.value = val || "";
     });
   }
@@ -203,15 +208,66 @@ export class UIController {
     const profile = {};
     const inputs = document.querySelectorAll("#profile-dialog input");
     inputs.forEach((input) => {
-      const key = input.id.replace("field-", "");
+      const key = input.id.replace("profile-", "");
       profile[key] = input.value;
     });
     this.sm.update("profile", profile, "user");
     this._syncAll();
   }
 
+  _executeCommand(cmd) {
+    if (cmd === "--print") {
+      const metaContext = MetadataService.prepare(this.sm.state);
+      window.print();
+      MetadataService.restore(metaContext);
+    }
+    if (cmd === "--export") this._handleExport();
+    if (cmd === "--reset") this._handleReset();
+  }
+
+  _updateVisualState() {
+    const { qr } = this.sm.state.config || {};
+    if (qr) this._updateQRCode();
+  }
+
+  _handleReset() {
+    const dialog = document.getElementById("confirmation-dialog");
+    if (dialog) {
+      dialog.showModal();
+      const confirmBtn = dialog.querySelector("#btn-confirm-ok");
+      confirmBtn.onclick = () => {
+        this.sm.state.content = {};
+        this.sm.update("config.layout", "form-b", "system"); // Reset to Form B
+        this._syncAll();
+        dialog.close();
+        Toast.show("Dokument zurückgesetzt", "info");
+      };
+    }
+  }
+
+  _syncControls() {
+    const { theme, layout, guides, reference, qr, recipientType, formality } = this.sm.state.config || {};
+    
+    // Sync Radios
+    const configs = { "layout-state": layout, "recipientType": recipientType, "formality": formality, "theme": theme };
+    Object.entries(configs).forEach(([name, val]) => {
+      if (!val) return;
+      const radio = document.querySelector(`input[name="${name}"][value="${val}"]`) || document.getElementById(val);
+      if (radio) radio.checked = true;
+    });
+
+    // Sync Checkboxes
+    if (guides !== undefined) document.getElementById("state-guides").checked = !!guides;
+    if (reference !== undefined) document.getElementById("state-reference").checked = !!reference;
+    if (qr !== undefined) document.getElementById("state-qr").checked = !!qr;
+  }
+
   _onStateChange(path, val, scope) {
-    if (scope === "config") this._syncAll();
+    if (scope === "config" || scope === "archive") {
+      this._syncAll();
+      this._syncControls();
+      this._updateVisualState();
+    }
     if (path === "content.text") this.pages.checkFlow();
     if (scope === "profile") this._updateQRCode();
     this._updateSalutation();
@@ -239,15 +295,27 @@ export class UIController {
   }
 
   _updateSalutation() {
-    const { firstName, lastName, company, type, formality } = this.sm.state.profile;
-    const greeting = SalutationEngine.derive({ firstName, lastName, company, type, formality });
-    const closing = SalutationEngine.getClosing(formality);
+    const c = this.sm.state.content || {};
+    const cfg = this.sm.state.config || {};
+
+    const greeting = SalutationEngine.derive({
+      firstName: c.empf_vorname || "",
+      lastName: c.empf_nachname || "",
+      company: c.empf_firma || "",
+      type: cfg.recipientType || "none",
+      formality: cfg.formality || "formal"
+    });
+    const closing = SalutationEngine.getClosing(cfg.formality || "formal");
 
     const anredeEl = document.querySelector("din-anrede");
-    if (anredeEl) anredeEl.setAttribute("data-salutation", greeting);
+    if (anredeEl && !this.sm.state.content.anrede) {
+      anredeEl.textContent = greeting;
+    }
 
     const grussEl = document.querySelector("din-grussformel");
-    if (grussEl) grussEl.setAttribute("data-greeting", closing);
+    if (grussEl && !this.sm.state.content.grussformel) {
+      grussEl.textContent = closing;
+    }
   }
 
   _updateMirror(text, targetEl = null) {
@@ -274,18 +342,19 @@ export class UIController {
 
     container.innerHTML = ""; // Clear
     
-    // Sortiert nach Datum (neu nach alt)
-    letters.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Sortiert nach Datum (neu nach alt) via Temporal
+    letters.sort((a, b) => Temporal.Instant.compare(b.timestamp, a.timestamp));
 
     letters.forEach(letter => {
       const el = document.createElement("div");
       el.className = "archive-item";
-      const dateStr = new Date(letter.timestamp).toLocaleDateString("de-DE");
+      const inst = Temporal.Instant.from(letter.timestamp);
+      const dateStr = inst.toLocaleString("de-DE", { dateStyle: "medium" });
       
       el.innerHTML = `
-        <div class="title">${letter.title}</div>
+        <div class="title">${letter.title || "Unbenannt"}</div>
         <div class="meta">
-          <span>${letter.recipient}</span>
+          <span>${letter.recipient || "Unbekannt"}</span>
           <span>${dateStr}</span>
         </div>
         <div class="actions">

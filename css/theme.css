@@ -1,0 +1,82 @@
+@layer ui.theme {
+  @property --din-y-header-start {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 45mm;
+  }
+
+  :root {
+    color-scheme: light dark;
+    --c-primary: oklch(60% 0.15 250);
+    --c-primary-hover: color-mix(in oklch, var(--c-primary), white 15%);
+    --c-primary-active: color-mix(in oklch, var(--c-primary), black 10%);
+
+    /* Native Dynamic Colors */
+    --c-sidebar-bg: light-dark(oklch(25% 0.05 250), oklch(15% 0.05 250));
+    --c-sidebar-btn-bg: color-mix(in oklch, var(--c-sidebar-bg), white 5%);
+    --c-sidebar-text: oklch(98% 0.01 250);
+    --c-sidebar-text-muted: oklch(70% 0.05 250);
+    --c-sidebar-border: color-mix(
+      in oklch,
+      var(--c-sidebar-text),
+      transparent 90%
+    );
+
+    /* Semantic UI Colors */
+    --c-text-muted: oklch(55% 0.03 250);
+    --c-danger: oklch(55% 0.2 30);
+    --c-success: oklch(60% 0.2 145);
+
+    --c-bg-gradient: light-dark(
+      linear-gradient(135deg, oklch(65% 0.15 250) 0%, oklch(45% 0.2 280) 100%),
+      linear-gradient(135deg, oklch(20% 0.05 250) 0%, oklch(15% 0.05 280) 100%)
+    );
+
+    --c-paper-shadow:
+      0 30px 60px -12px oklch(0% 0 0 / 25%),
+      0 18px 36px -18px oklch(0% 0 0 / 30%);
+
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    /* SSoT: Form B ist Default (45mm) */
+    --din-y-abschnitt: 45mm;
+    --din-y-fold-1: 105mm;
+    --din-y-fold-2: 210mm;
+  }
+
+  /* Form A Override */
+  :root:has(#state-layout-a:checked) {
+    --din-y-abschnitt: 27mm;
+    --din-y-fold-1: 87mm;
+    --din-y-fold-2: 192mm;
+  }
+
+  /* QR-Code Visibility Toggle */
+  din-qr-code {
+    display: none;
+  }
+  :root:has(#state-qr:checked) din-qr-code {
+    display: block;
+  }
+
+  /* Derived Variables (calc-logic) */
+  :root {
+    --din-y-addr: var(--din-y-abschnitt);
+    --din-y-datum: var(--din-y-abschnitt);
+    --din-y-kern: calc(var(--din-y-abschnitt) + 58.4mm);
+    --din-y-infoblock: calc(var(--din-y-abschnitt) + 52.4mm);
+  }
+
+  /* Manual Theme Overrides (using :has) */
+  :root:has(#theme-night:checked) {
+    color-scheme: dark;
+    --c-bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #2d3436 100%);
+    --c-sidebar-bg: #0f111a;
+  }
+
+  :root:has(#theme-day:checked) {
+    color-scheme: light;
+  }
+}

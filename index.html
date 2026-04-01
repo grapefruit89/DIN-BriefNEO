@@ -19,6 +19,7 @@
       checked
       hidden
     />
+    <input type="radio" name="layout-state" id="state-layout-c" value="form-c" hidden />
 
     <div id="app-shell">
       <aside id="sidebar-left">
@@ -39,6 +40,9 @@
                 </label>
                 <label class="segment-option" for="state-layout-b">
                   <span>Form B</span>
+                </label>
+                <label class="segment-option" for="state-layout-c">
+                  <span>Form C</span>
                 </label>
                 <div class="pill"></div>
               </div>
@@ -128,6 +132,35 @@
                   <span>🌙 Nacht</span>
                 </label>
                 <div class="pill"></div>
+              </div>
+            </div>
+            
+            <div class="sidebar-control-group">
+              <label class="sidebar-label">Adress-Suche</label>
+              <div class="segmented-control" id="provider-switch">
+                <label class="segment-option" for="provider-photon">
+                  <input
+                    type="radio"
+                    name="address-provider"
+                    id="provider-photon"
+                    value="photon"
+                    checked
+                  />
+                  <span>Photon</span>
+                </label>
+                <label class="segment-option" for="provider-geoapify">
+                  <input
+                    type="radio"
+                    name="address-provider"
+                    id="provider-geoapify"
+                    value="geoapify"
+                  />
+                  <span>Geoapify</span>
+                </label>
+                <div class="pill"></div>
+              </div>
+              <div id="geoapify-key-container" style="display: none; margin-top: 10px;">
+                <input type="password" id="geoapify-api-key" placeholder="API-Key eingeben..." style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--c-sidebar-border); background: rgba(0,0,0,0.2); color: white; font-size: 0.75rem;" />
               </div>
             </div>
 
@@ -411,7 +444,7 @@
         
         <!-- Header Elements (Hidden on follow-up pages via CSS) -->
         <din-header-content>
-          <din-absender-placeholder></din-absender-content>
+          <din-absender-placeholder></din-absender-placeholder>
         </din-header-content>
 
         <din-header-spacer></din-header-spacer>

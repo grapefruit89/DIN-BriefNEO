@@ -110,3 +110,24 @@ This file overrides all other instructions. Any violation is a critical system f
 - **Keine automatische Web-Suche** (`co-researcher`).
 - **Keine ganzen Repos durchsuchen** (`FileSearch`) – immer Pfade einschränken.
 - **Keine unnötigen Kontext-Loads** – regelmäßig `gemini --reset-context`.
+
+---
+
+## 🏗️ Projekt-Struktur (LLM-optimiert)
+
+### CSS (Modular)
+- `css/base.css` – Base Layer (Reset, Typografie)
+- `css/theme.css` – Theme Layer (Variablen, Farben)
+- `css/structure.css` – DIN Structure (Geometrie, Falzmarken)
+- `css/floating.css` – UI Floating (Tooltips, Popover, Toast)
+- `css/components.css` – UI Components (Sidebar, Buttons, Archive)
+- `css/immutable.css` – Print Engine (Seitenzählung)
+
+### JavaScript (Modular)
+- `js/qr-engine.js` – QR-Mathematik (statisch, wird nie editiert)
+- `js/qrcode.js` – vCard + QR-Wrapper (nur UI-Logik)
+- `js/address.js` – Autocomplete + PLZ/City API
+
+### Maximale Dateigröße
+- Keine Datei >500 Zeilen
+- Keine Datei >20 KB

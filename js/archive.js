@@ -41,7 +41,7 @@ export class ArchiveService {
     if (!this.db) await this.init();
     
     const entry = {
-      timestamp: new Date().toISOString(),
+      timestamp: Temporal.Now.instant().toString(),
       title: state.content.betreff || "Unbenannter Brief",
       recipient: state.content.empf_nachname || state.content.empf_firma || "Unbekannt",
       data: JSON.parse(JSON.stringify(state)) // Deep Clone

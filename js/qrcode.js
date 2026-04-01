@@ -34,7 +34,7 @@ export const QRCodeEngine = {
    */
   render(el, data) {
     if (!el || !data) return;
-    el.innerHTML = "";
+    el.replaceChildren();
     const canvas = document.createElement("canvas");
     const size = 200;
     canvas.width = size;

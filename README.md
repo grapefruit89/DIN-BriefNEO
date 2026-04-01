@@ -53,11 +53,11 @@ graph TD
 |-------|----------|-------|------------|
 | 01 | [[issues/#2_Architecture_Compliance_Matrix]] | APIs, Chrome-Versionen, Leitplanken | Architekten |
 | 02 | [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ HTML-Tags & Positionen (SSoT) | Entwickler |
-| 03 | [[issues/#5_CSS_Glossar]] | Detaillierte CSS-Features & Beispiele | Entwickler |
-| 04 | [[issues/#5_CSS_Glossar]] | Executive Summary der Tech-Highlights | Management |
+| 03 | [[issues/#10_CSS_Glossar]] | Detaillierte CSS-Features & Beispiele | Entwickler |
+| 04 | [[issues/#10_CSS_Glossar]] | Executive Summary der Tech-Highlights | Management |
 | 05 | [[issues/#3_Feature_Matrix]] | Roadmap, Sprint-Status & Issues | Alle |
 | 06 | [[issues/#4_Salutation_Engine]] | Logik-Code & Business-Regeln | Entwickler |
-| 07 | [[issues/#71 Sidebar Aussehen]] | Sidebar Architektur & Defensive CSS | Entwickler |
+| 07 | [[issues/#11_Sidebar_Aussehen]] | Sidebar Architektur & Defensive CSS | Entwickler |
 
 ---
 

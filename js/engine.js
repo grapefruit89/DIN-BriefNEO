@@ -83,7 +83,18 @@ export class StateManager {
   constructor(initialState = null) {
     this.state = initialState || {
       content: {},
-      config: { layout: "form-b", theme: "day", guides: true }
+      profile: {},
+      config: { 
+        layout: "form-b", 
+        theme: "day", 
+        guides: false,
+        reference: true,
+        qr: false,
+        recipientType: "none",
+        formality: "formal",
+        addressProvider: "photon",
+        geoapifyKey: ""
+      }
     };
     this._listeners = new Set();
   }

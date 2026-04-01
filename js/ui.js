@@ -28,6 +28,7 @@ export class UIController {
     this._initControls();
     this._initModals();
     this._initCarousel();
+    this._initReset();
     this.address.init();
     this.pages.init();
     
@@ -132,7 +133,7 @@ export class UIController {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `brief_${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `brief_${Logic.todayISO()}.json`;
     a.click();
     Toast.show("Dokument exportiert", "success");
   }
@@ -225,6 +226,20 @@ export class UIController {
     if (cmd === "--reset") this._handleReset();
   }
 
+  _initReset() {
+    const btn = document.getElementById("btn-confirm-ok");
+    const dialog = document.getElementById("confirmation-dialog");
+    if (btn && dialog) {
+      btn.addEventListener("click", () => {
+        this.sm.state.content = {};
+        this.sm.update("config.layout", "form-b", "system");
+        this._syncAll();
+        dialog.close();
+        Toast.show("Dokument zurückgesetzt", "info");
+      });
+    }
+  }
+
   _updateVisualState() {
     const { qr } = this.sm.state.config || {};
     if (qr) this._updateQRCode();
@@ -232,17 +247,7 @@ export class UIController {
 
   _handleReset() {
     const dialog = document.getElementById("confirmation-dialog");
-    if (dialog) {
-      dialog.showModal();
-      const confirmBtn = dialog.querySelector("#btn-confirm-ok");
-      confirmBtn.onclick = () => {
-        this.sm.state.content = {};
-        this.sm.update("config.layout", "form-b", "system"); // Reset to Form B
-        this._syncAll();
-        dialog.close();
-        Toast.show("Dokument zurückgesetzt", "info");
-      };
-    }
+    if (dialog) dialog.showModal();
   }
 
   _syncControls() {
@@ -334,13 +339,15 @@ export class UIController {
     if (!container) return;
 
     const letters = await this.archive.getAll();
-    
+    container.replaceChildren();
+
     if (letters.length === 0) {
-      container.innerHTML = '<p class="empty-msg">Keine Briefe im Archiv</p>';
+      const msg = document.createElement("p");
+      msg.className = "empty-msg";
+      msg.textContent = "Keine Briefe im Archiv";
+      container.appendChild(msg);
       return;
     }
-
-    container.innerHTML = ""; // Clear
     
     // Sortiert nach Datum (neu nach alt) via Temporal
     letters.sort((a, b) => Temporal.Instant.compare(b.timestamp, a.timestamp));
@@ -351,25 +358,20 @@ export class UIController {
       const inst = Temporal.Instant.from(letter.timestamp);
       const dateStr = inst.toLocaleString("de-DE", { dateStyle: "medium" });
       
-      el.innerHTML = `
-        <div class="title">${letter.title || "Unbenannt"}</div>
-        <div class="meta">
-          <span>${letter.recipient || "Unbekannt"}</span>
-          <span>${dateStr}</span>
-        </div>
-        <div class="actions">
-          <button class="archive-btn-del" data-id="${letter.id}">Löschen</button>
-        </div>
-      `;
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = letter.title || "Unbenannt";
 
-      // Load on click (not on actions)
-      el.addEventListener("click", (e) => {
-        if (e.target.classList.contains("archive-btn-del")) return;
-        this._loadFromArchive(letter.id);
-      });
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `${letter.recipient || "Unbekannt"} · ${dateStr}`;
 
-      // Delete listener
-      el.querySelector(".archive-btn-del").onclick = async (e) => {
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      const delBtn = document.createElement("button");
+      delBtn.className = "archive-btn-del";
+      delBtn.textContent = "Löschen";
+      delBtn.onclick = async (e) => {
         e.stopPropagation();
         if (confirm("Diesen Brief wirklich aus dem Archiv löschen?")) {
           await this.archive.delete(letter.id);
@@ -378,6 +380,12 @@ export class UIController {
         }
       };
 
+      actions.appendChild(delBtn);
+      el.appendChild(title);
+      el.appendChild(meta);
+      el.appendChild(actions);
+
+      el.addEventListener("click", () => this._loadFromArchive(letter.id));
       container.appendChild(el);
     });
   }

@@ -13,9 +13,9 @@ export const MetadataService = {
     const p = profile || {};
     const c = content || {};
 
-    // 1. Datum & Zeit (Temporal/ISO)
-    const dateStr = c.datum || new Date().toISOString().split("T")[0];
-    const fullDate = new Date().toISOString();
+    // 1. Datum & Zeit (Temporal)
+    const dateStr = c.datum || Temporal.Now.plainDateISO().toString();
+    const fullDate = Temporal.Now.instant().toString();
 
     // 2. Obsidian-kompatibler Dateiname (Sanitierung)
     const senderName = (p.lastName || "Absender").replace(/\s/g, "");
@@ -32,7 +32,7 @@ export const MetadataService = {
     const metaData = {
       author: `${p.firstName || ""} ${p.lastName || ""}`.trim() || "Unbekannt",
       description: `DIN 5008 Brief an ${recipientName} - ${subjectClean}`,
-      keywords: `DIN-Brief, BriefNEO, ${recipientName}, ${new Date().getFullYear()}, Platinum`,
+      keywords: `DIN-Brief, BriefNEO, ${recipientName}, ${Temporal.Now.plainDateISO().year}, Platinum`,
       title: fileName
     };
 
@@ -54,9 +54,6 @@ export const MetadataService = {
       bridge.textContent = bridgeData;
     }
 
-    // 5. XMP-Metadata Block (für moderne Indexer wie Spotlight/Tracker)
-    this._injectXMP(metaData, fullDate);
-
     return { oldTitle, injectedTags };
   },
 
@@ -69,7 +66,7 @@ export const MetadataService = {
       "author": data.author,
       "description": data.description,
       "keywords": data.keywords,
-      "application-name": "DIN-BriefNEO v4 Platinum"
+      "application-name": "DIN-BriefNEO Platinum"
     };
 
     Object.entries(mapping).forEach(([name, content]) => {
@@ -84,38 +81,6 @@ export const MetadataService = {
   },
 
   /**
-   * Hilfsfunktion: XMP-Block injizieren
-   */
-  _injectXMP(data, date) {
-    const xmp = `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
-      <dc:title>${data.title}</dc:title>
-      <dc:creator>${data.author}</dc:creator>
-      <dc:subject>${data.description}</dc:subject>
-    </rdf:Description>
-    <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
-      <pdf:Keywords>${data.keywords}</pdf:Keywords>
-      <pdf:Producer>DIN-BriefNEO Platinum</pdf:Producer>
-    </rdf:Description>
-    <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
-      <xmp:CreateDate>${date}</xmp:CreateDate>
-      <xmp:ModifyDate>${date}</xmp:ModifyDate>
-      <xmp:CreatorTool>DIN-BriefNEO v4.0</xmp:CreatorTool>
-    </rdf:Description>
-  </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>`;
-
-    const xmpEl = document.createElement("script");
-    xmpEl.type = "application/x-xmp-meta";
-    xmpEl.id = "din-xmp-metadata";
-    xmpEl.textContent = xmp;
-    document.head.appendChild(xmpEl);
-  },
-
-  /**
    * Setzt den Titel und injizierte Tags nach dem Druck zurück
    */
   restore(context) {
@@ -124,7 +89,5 @@ export const MetadataService = {
     if (context.injectedTags) {
       context.injectedTags.forEach(tag => tag.remove());
     }
-    const xmp = document.getElementById("din-xmp-metadata");
-    if (xmp) xmp.remove();
   }
 };

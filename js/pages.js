@@ -8,6 +8,7 @@ export class PageManager {
     this.template = document.getElementById("tpl-din-page");
     this.maxHeight = 580; // Fallback
     this._isReflowing = false;
+    this._isDirty = false;
   }
 
   init() {
@@ -30,7 +31,6 @@ export class PageManager {
       // Verfügbarer Platz zwischen Header-Ende und Fußzeilen-Beginn
       const available = fuss.offsetTop - spacer.offsetTop - spacer.offsetHeight - 20;
       this.maxHeight = Math.max(available, 100); 
-      console.log(`[PAGE] Calibrated maxHeight: ${this.maxHeight}px`);
     }
   }
 
@@ -38,27 +38,28 @@ export class PageManager {
    * Prüft den Textfluss und verteilt Inhalte auf Seiten
    */
   async checkFlow() {
-    if (this._isReflowing) return;
+    if (this._isReflowing) {
+      this._isDirty = true;
+      return;
+    }
     this._isReflowing = true;
 
     this.calibrate();
 
     const pages = Array.from(this.paper.querySelectorAll("din-A4"));
-    const MAX_PAGES = 12; // Ein gutes Dutzend
+    const MAX_PAGES = 12;
     let fullText = this.ui.sm.state.content.text || "";
 
     let remainingText = fullText;
     let pageIdx = 0;
 
     while (remainingText.length > 0 || pageIdx === 0) {
-      // Hard Limit Check
       if (pageIdx >= MAX_PAGES) {
-        Toast.show(`Limit erreicht: Ein Brief darf maximal ${MAX_PAGES} Seiten umfassen.`, "warning");
+        Toast.show(`Limit erreicht: Max ${MAX_PAGES} Seiten.`, "warning");
         break;
       }
 
       let currentPage = pages[pageIdx];
-
       if (!currentPage) {
         currentPage = this.createNewPage(pageIdx + 1);
         pages.push(currentPage);
@@ -67,35 +68,33 @@ export class PageManager {
       const textEl = currentPage.querySelector("din-text");
       const mirrorEl = currentPage.querySelector("din-text-spiegel");
       
-      // Text setzen
       textEl.textContent = remainingText;
       this.ui._updateMirror(textEl.textContent, mirrorEl);
 
-      // Overflow prüfen
       const overflowResult = this.findSplitPoint(textEl);
-      
       if (overflowResult.overflow) {
         const splitIdx = overflowResult.splitIndex;
         const pageText = remainingText.substring(0, splitIdx);
         remainingText = remainingText.substring(splitIdx).trim();
-        
         textEl.textContent = pageText;
         this.ui._updateMirror(pageText, mirrorEl);
       } else {
         remainingText = "";
       }
-
       pageIdx++;
-      if (pageIdx > 10) break; // Safety break
     }
 
-    // Überflüssige Seiten löschen
     while (pages.length > pageIdx && pages.length > 1) {
-      const extra = pages.pop();
-      extra.remove();
+      pages.pop().remove();
     }
 
     this._isReflowing = false;
+    
+    // Re-trigger if dirty
+    if (this._isDirty) {
+      this._isDirty = false;
+      this.checkFlow();
+    }
   }
 
   createNewPage(num) {

@@ -301,15 +301,24 @@
     left: calc(66.66% + 1px); width: calc(33.33% - 4px);
   }
 
-  /* Spezielle 2er-Segmented (Layout A/B, Theme Tag/Nacht) */
-  :is(#layout-switch, #theme-switch):has(.segment-option:nth-child(1) input:checked) .pill {
+  /* Spezielle 2er-Segmented (Theme Tag/Nacht, Provider-Switch) */
+  :is(#theme-switch, #provider-switch):has(.segment-option:nth-child(1) input:checked) .pill {
     left: 3px; width: calc(50% - 4px);
   }
-  :is(#layout-switch, #theme-switch):has(.segment-option:nth-child(2) input:checked) .pill {
+  :is(#theme-switch, #provider-switch):has(.segment-option:nth-child(2) input:checked) .pill {
     left: calc(50% + 1px); width: calc(50% - 4px);
   }
-  :is(#layout-switch, #theme-switch):has(.segment-option:nth-child(3) input:checked) .pill {
-     display: none; /* Fallback für versehentliche 3. Option */
+  :is(#theme-switch, #provider-switch):has(.segment-option:nth-child(3) input:checked) .pill {
+     display: none;
+  }
+
+  #geoapify-key-container {
+    display: none;
+    margin-top: 10px;
+  }
+
+  :root:has(#provider-geoapify:checked) #geoapify-key-container {
+    display: block;
   }
 
   #paper-viewport {

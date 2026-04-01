@@ -1,4 +1,4 @@
-﻿---
+---
 # === BASISINFORMATIONEN ===
 title: "IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)"
 subtitle: "Complete HTML Tag Registry for DIN-BriefNEO"

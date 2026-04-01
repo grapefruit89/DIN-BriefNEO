@@ -1,36 +1,139 @@
 @layer din.structure {
-  #paper {
+  #paper-viewport {
+    position: absolute;
+    left: 300px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
     display: flex;
-    gap: 40px;
-    padding: 40px;
+    justify-content: center;
+    align-items: center;
+    background-image: radial-gradient(
+      rgba(209, 216, 224, 0.2) 1.2px,
+      transparent 1.2px
+    );
+    background-size: 32px 32px;
+    transition: background-color 0.3s;
+    perspective: 2000px;
+  }
+
+  #paper {
     position: relative;
-    color: oklch(25% 0.05 250);
-    container-name: paper;
-    container-type: size scroll-state;
+    width: 210mm;
+    height: 297mm;
+    transform-style: preserve-3d;
+    --position: 1; /* Gesteuert via JS */
+    transition: transform 0.5s ease;
   }
 
   din-A4 {
-    display: block;
+    position: absolute;
+    inset: 0;
     width: 210mm;
     height: 297mm;
     background: white;
-    position: relative;
-    box-shadow: var(--c-paper-shadow);
     font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
     font-size: 11pt;
     line-height: 1.5;
     overflow: hidden;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-    transition: filter 0.4s ease, opacity 0.4s ease, transform 0.4s ease;
-    will-change: filter, transform;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
+                box-shadow 0.4s ease,
+                filter 0.4s ease,
+                opacity 0.4s ease;
+    will-change: transform, box-shadow, filter;
+    
+    /* Standard-Schatten für Tiefe */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    
+    /* 3D-Berechnung basierend auf Index (--i) und Fokus-Position (--position) */
+    --r: calc(var(--position) - var(--i));
+    --abs-r: max(calc(var(--r) * -1), var(--r));
+    
+    transform: rotateY(calc(-25deg * var(--r))) 
+               translateX(calc(-350px * var(--r)))
+               translateZ(calc(-150px * var(--abs-r)))
+               scale(calc(1 - 0.12 * var(--abs-r)));
+    
+    opacity: calc(1 - 0.3 * var(--abs-r));
+    filter: blur(calc(2px * var(--abs-r)));
+    z-index: calc(100 - var(--abs-r));
+    pointer-events: none;
   }
 
-  /* Carousel: Inactive Pages Effect */
-  din-A4:not(.active) {
-    filter: blur(4px);
-    opacity: 0.6;
-    transform: scale(0.95);
+  /* Aktive Seite erhält Fokus und Platinum-Shadow */
+  din-A4.active {
+    opacity: 1 !important;
+    filter: blur(0) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(0, 0, 0, 0.03) !important;
+    z-index: 100 !important;
+    pointer-events: auto;
+  }
+
+  /* ── PAPER LIFTING EFFECT (Pseudo-Elements) ──────────────── */
+  din-A4.active::before,
+  din-A4.active::after {
+    content: "";
+    position: absolute;
+    bottom: 12px;
+    width: 45%;
+    height: 20px;
+    max-width: 300px;
+    box-shadow: 0 15px 12px rgba(0, 0, 0, 0.4);
+    z-index: -1;
+    transition: transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  din-A4.active::before {
+    left: 10px;
+    transform: rotate(-3deg);
+  }
+
+  din-A4.active::after {
+    right: 10px;
+    transform: rotate(3deg);
+  }
+
+  /* Inaktive Seiten bekommen keinen zusätzlichen Shadow */
+  din-A4:not(.active)::before,
+  din-A4:not(.active)::after {
+    display: none;
+  }
+
+  /* Carousel Navigation UI */
+  .carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .carousel-nav-btn:hover {
+    background: var(--c-primary);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .carousel-nav-btn.prev { left: 40px; }
+  .carousel-nav-btn.next { right: 40px; }
+
+  .carousel-nav-btn:disabled {
+    opacity: 0.1;
+    cursor: not-allowed;
   }
 
   @scope (din-A4) {
@@ -197,6 +300,7 @@
       filter: none !important;
       opacity: 1 !important;
       transform: none !important;
+      position: relative !important;
     }
 
     /* Hide header on follow-up pages */

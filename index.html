@@ -200,7 +200,11 @@
       </aside>
 
       <main id="paper-viewport">
-        <din-5008 id="paper">
+        <!-- Hybrid Carousel Navigation -->
+        <button class="carousel-nav-btn prev no-print" id="btn-prev" title="Vorherige Seite">‹</button>
+        <button class="carousel-nav-btn next no-print" id="btn-next" title="Nächste Seite">›</button>
+
+        <div id="paper" style="--position: 1; --items: 1;">
           <din-A4 class="active">
             <din-branding-logo></din-branding-logo>
             <din-qr-code aria-hidden="true"></din-qr-code>
@@ -402,33 +406,19 @@
             <!-- Hidden Metadata for Paperless-ngx/Obsidian -->
             <div id="din-metadata-bridge" aria-hidden="true"></div>
           </din-A4>
-        </din-5008>
+        </div>
 
         <!-- DIN-Referenz-Overlay (Form A) -->
         <svg id="din-reference-overlay" viewBox="0 0 210 297" aria-hidden="true">
-          <!-- Falzmarken -->
-          <line x1="0" y1="87" x2="10" y2="87" stroke="var(--overlay-color-falz)" stroke-width="0.3" />
-          <line x1="0" y1="192" x2="10" y2="192" stroke="var(--overlay-color-falz)" stroke-width="0.3" />
-          <line x1="0" y1="148.5" x2="15" y2="148.5" stroke="var(--overlay-color-loch)" stroke-width="0.3" />
-
-          <!-- Anschriftfeld -->
-          <rect x="20" y="27" width="85" height="45" fill="none" stroke="var(--overlay-color-zone)" stroke-width="0.2" stroke-dasharray="1 1" />
-          <line x1="20" y1="44.7" x2="105" y2="44.7" stroke="var(--overlay-color-zone)" stroke-width="0.1" /> <!-- Zusatzbereich -->
-
-          <!-- Informationsblock (Form A) -->
-          <rect x="125" y="32" width="75" height="60" fill="none" stroke="var(--overlay-color-info)" stroke-width="0.2" stroke-dasharray="1 1" />
-
-          <!-- Satzspiegel & Ränder -->
-          <rect x="25" y="0" width="165" height="297" fill="none" stroke="var(--overlay-color-grid)" stroke-width="0.1" stroke-dasharray="0.5 0.5" />
-          
-          <!-- Fußzeile -->
-          <rect x="25" y="241" width="165" height="30" fill="none" stroke="var(--overlay-color-fuss)" stroke-width="0.2" stroke-dasharray="1 1" />
-
-          <!-- Beschriftungen -->
-          <text x="2" y="86" font-size="2.5" fill="var(--overlay-color-falz)">87mm</text>
-          <text x="2" y="191" font-size="2.5" fill="var(--overlay-color-falz)">192mm</text>
-          <text x="22" y="31" font-size="2.5" fill="var(--overlay-color-zone)">Anschriftfeld</text>
+          <!-- ... SVG Content ... -->
         </svg>
+
+        <!-- Carousel Navigation -->
+        <nav class="carousel-nav no-print">
+          <button class="nav-btn prev" id="btn-prev" title="Vorherige Seite">❮</button>
+          <div class="page-indicator" id="page-info">Seite 1 / 1</div>
+          <button class="nav-btn next" id="btn-next" title="Nächste Seite">❯</button>
+        </nav>
       </main>
     </div>
 

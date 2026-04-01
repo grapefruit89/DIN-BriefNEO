@@ -10,33 +10,24 @@ export const Toast = {
     const el = document.getElementById("toast-v4");
     if (!el) return;
 
-    // Bestehenden Toast ggf. sofort schließen für schnellen Wechsel
-    if (el.matches(":popover-open")) {
-      el.hidePopover();
-    }
+    // Reset für schnellen Re-Trigger
+    if (el.matches(":popover-open")) el.hidePopover();
 
     el.textContent = message;
     el.className = `toast-container type-${type}`;
 
     try {
-      // Nutzt native Popover API (Chrome 114+)
       el.showPopover();
 
-      // Schließen per Klick für bessere UX
+      // Klick schließt sofort
       el.onclick = () => el.hidePopover();
       
-      // transitionend statt animationend (da CSS Transition genutzt wird)
+      // Cleanup: Nach Abschluss der CSS-Animation das Popover schließen
       const onEnd = () => {
         if (el.matches(":popover-open")) el.hidePopover();
       };
       
-      el.addEventListener("transitionend", onEnd, { once: true });
-
-      // Sicherheits-Fallback: Automatisches Schließen nach 4s
-      setTimeout(() => {
-        if (el.matches(":popover-open")) el.hidePopover();
-      }, 4000);
-
+      el.addEventListener("animationend", onEnd, { once: true });
     } catch (e) {
       console.warn("[Toast] Popover API failure:", e);
     }

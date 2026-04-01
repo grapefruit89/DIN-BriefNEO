@@ -368,44 +368,31 @@
     color: white;
     font-size: 0.85rem;
     font-weight: 600;
-    min-width: 80px;
+    min-width: 100px;
     text-align: center;
     font-variant-numeric: tabular-nums;
   }
 
-  #paper-viewport {
-    position: absolute;
-    left: 300px;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    overflow: hidden;
-    scroll-snap-type: x mandatory;
-    padding: 60px; /* Mehr Platz für Schatten */
-    display: flex;
-    justify-content: center; /* Horizontale Zentrierung */
-    align-items: flex-start; /* Vertikal oben beginnen */
-    background-image: radial-gradient(
-      rgba(209, 216, 224, 0.2) 1.2px,
-      transparent 1.2px
-    );
-    background-size: 32px 32px;
-    transition: background-color 0.3s;
+  /* Hilfsmittel-Toggle States (Einzeln schaltbar) */
+  :root:has(#state-guides:checked) .toggle-btn[for="state-guides"],
+  :root:has(#state-reference:checked) .toggle-btn[for="state-reference"],
+  :root:has(#state-qr:checked) .toggle-btn[for="state-qr"] {
+    background: color-mix(in oklch, var(--c-primary), transparent 80%);
+    border-color: var(--c-primary);
+    color: white;
+    font-weight: 600;
   }
 
+  /* Auto-Hide für leere Fußzeilen-Elemente (Problem #7) */
+  din-fuss > *:empty {
+    display: none;
+  }
 
   /* No-JS Fallback: Wenn Skripte blockiert sind, zeige Seite 1 scharf an */
   :root.no-js din-A4 {
     filter: none !important;
     opacity: 1 !important;
     transform: none !important;
-  }
-
-  :root:has(#theme-night:checked) #paper-viewport {
-    background-image: radial-gradient(
-      rgba(255, 255, 255, 0.05) 1.2px,
-      transparent 1.2px
-    );
   }
 }
 

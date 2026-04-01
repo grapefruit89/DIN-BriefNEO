@@ -72,8 +72,28 @@
   /* Manual Theme Overrides (using :has) */
   :root:has(#theme-night:checked) {
     color-scheme: dark;
-    --c-bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #2d3436 100%);
+    --c-bg-gradient: linear-gradient(135deg, #0f111a 0%, #1a1c2c 100%);
     --c-sidebar-bg: #0f111a;
+    --c-sidebar-btn-bg: #1e293b;
+  }
+
+  :root:has(#theme-night:checked) din-A4 {
+    background: #1e1e2a !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  :root:has(#theme-night:checked) din-A4 [contenteditable] {
+    color: #e2e8f0;
+  }
+
+  :root:has(#theme-night:checked) din-A4 [contenteditable]:focus {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  :root:has(#theme-night:checked) din-A4 .md-bullet,
+  :root:has(#theme-night:checked) din-A4 .md-num {
+    color: var(--c-primary);
   }
 
   :root:has(#theme-day:checked) {

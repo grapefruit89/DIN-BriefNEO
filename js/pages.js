@@ -22,9 +22,11 @@ export class PageManager {
   _initNavigation() {
     const prevBtn = document.getElementById("btn-prev");
     const nextBtn = document.getElementById("btn-next");
+    const addBtn = document.getElementById("btn-add-page");
 
     if (prevBtn) prevBtn.onclick = () => this.goToPage(this._currentIndex - 1);
     if (nextBtn) nextBtn.onclick = () => this.goToPage(this._currentIndex + 1);
+    if (addBtn) addBtn.onclick = () => this.addEmptyPage();
 
     // Keyboard-Support: Pfeiltasten (nur wenn kein Input fokussiert ist)
     window.addEventListener("keydown", (e) => {
@@ -158,5 +160,17 @@ export class PageManager {
     const lastSpace = text.lastIndexOf(" ", best);
     const lastNewline = text.lastIndexOf("\n", best);
     return { overflow: true, splitIndex: Math.max(lastSpace, lastNewline, 0) || best };
+  }
+
+  addEmptyPage() {
+    const total = this.paper.querySelectorAll("din-A4").length;
+    if (total >= 12) {
+      Toast.show("Maximal 12 Seiten erlaubt", "warning");
+      return;
+    }
+    this.createNewPage(total + 1);
+    this.paper.style.setProperty("--items", total + 1);
+    this.goToPage(total + 1);
+    Toast.show(`Seite ${total + 1} hinzugefügt`, "success");
   }
 }

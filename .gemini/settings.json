@@ -7,42 +7,6 @@
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       },
       "trust": true
-    },
-    "puppeteer": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
-      "trust": true,
-      "disabled": true
-    },
-    "prettier": {
-      "command": "npx",
-      "args": ["-y", "@prettier/mcp"],
-      "trust": true,
-      "disabled": true
-    },
-    "stylelint": {
-      "command": "npx",
-      "args": ["-y", "stylelint-mcp"],
-      "trust": true,
-      "disabled": true
-    },
-    "eslint": {
-      "command": "npx",
-      "args": ["-y", "@eslint/mcp@latest"],
-      "trust": true,
-      "disabled": true
-    },
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest"],
-      "trust": true,
-      "disabled": true
-    },
-    "accessibility": {
-      "command": "npx",
-      "args": ["-y", "a11y-mcp"],
-      "trust": true,
-      "disabled": true
     }
   }
 }

@@ -1,6 +1,6 @@
 ---
 title: "DIN-BriefNEO Platinum Master Index"
-version: "4.7.0"
+version: "4.8.0"
 status: active
 type: "index"
 tags:
@@ -13,10 +13,10 @@ aliases:
   - "Home"
   - "Master Index"
 date_created: 2026-03-31
-date_updated: 2026-03-31
+date_updated: 2026-04-01
 ---
 
-# 📄 DIN-BriefNEO Platinum (v4.7)
+# 📄 DIN-BriefNEO Platinum (v4.8)
 
 Zentrale Einstiegsseite für die technische Dokumentation und Architektur von DIN-BriefNEO.
 
@@ -28,17 +28,17 @@ Dieses Diagramm visualisiert das Zusammenspiel der atomaren Komponenten gemäß 
 
 ```mermaid
 graph TD
-    subgraph UI_Layer [UI-Layer (Zero-JS State)]
+    subgraph UI_Layer ["UI-Layer (Zero-JS State)"]
         A[index.html] -- "Custom Elements" --> B[02_IMR_Registry]
         B -- "CSS State :has" --> C[style.css]
     end
     
-    subgraph Logic_Layer [Logic-Layer (Pure ES Modules)]
+    subgraph Logic_Layer ["Logic-Layer (Pure ES Modules)"]
         D[logic.js] -- "Sanitize/Format" --> E[StateManager]
         F[salutation.js] -- "Etiquette" --> E
     end
     
-    subgraph Data_Layer [Data-Layer (Persistence)]
+    subgraph Data_Layer ["Data-Layer (Persistence)"]
         E -- "OPFS / LocalStorage" --> G[engine.js]
     end
     
@@ -77,4 +77,4 @@ SORT file.name ASC
 
 ---
 
-**Gesamtversion:** 4.7 | **Status:** ✅ Stabil | **Letzte Sync:** 2026-03-31
+**Gesamtversion:** 4.8 | **Status:** ✅ Stabil | **Letzte Sync:** 2026-04-01

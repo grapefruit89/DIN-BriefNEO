@@ -7,6 +7,7 @@
 # Local Backups
 *.old
 *.backup
+*.bak
 
 # System / Tool Metadata
 .gemini/

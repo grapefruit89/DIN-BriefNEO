@@ -10,17 +10,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <input type="radio" name="layout-state" id="state-layout-a" value="form-a" hidden />
-    <input
-      type="radio"
-      name="layout-state"
-      id="state-layout-b"
-      value="form-b"
-      checked
-      hidden
-    />
-    <input type="radio" name="layout-state" id="state-layout-c" value="form-c" hidden />
-
     <div id="app-shell">
       <aside id="sidebar-left">
         <header class="sidebar-header">
@@ -35,13 +24,16 @@
             <div class="sidebar-control-group">
               <label class="sidebar-label">DIN-Variante</label>
               <div class="segmented-control" id="layout-switch">
-                <label class="segment-option" for="state-layout-a">
+                <label class="segment-option">
+                  <input type="radio" name="layout-state" id="state-layout-a" value="form-a" />
                   <span>Form A</span>
                 </label>
-                <label class="segment-option" for="state-layout-b">
+                <label class="segment-option">
+                  <input type="radio" name="layout-state" id="state-layout-b" value="form-b" checked />
                   <span>Form B</span>
                 </label>
-                <label class="segment-option" for="state-layout-c">
+                <label class="segment-option">
+                  <input type="radio" name="layout-state" id="state-layout-c" value="form-c" />
                   <span>Form C</span>
                 </label>
                 <div class="pill"></div>

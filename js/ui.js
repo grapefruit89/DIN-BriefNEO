@@ -82,7 +82,7 @@ export class UIController {
 
   _initControls() {
     // 1. Radio Controls (Segmented Switches)
-    const radioNames = ["layout-state", "recipientType", "formality", "theme"];
+    const radioNames = ["layout-state", "formality", "theme"];
     radioNames.forEach(name => {
       const radios = document.querySelectorAll(`input[name="${name}"]`);
       radios.forEach(radio => {
@@ -273,10 +273,10 @@ export class UIController {
   }
 
   _syncControls() {
-    const { theme, layout, guides, reference, qr, recipientType, formality } = this.sm.state.config || {};
+    const { theme, layout, guides, reference, qr, formality } = this.sm.state.config || {};
     
     // Sync Radios
-    const configs = { "layout-state": layout, "recipientType": recipientType, "formality": formality, "theme": theme };
+    const configs = { "layout-state": layout, "formality": formality, "theme": theme };
     Object.entries(configs).forEach(([name, val]) => {
       if (!val) return;
       const radio = document.querySelector(`input[name="${name}"][value="${val}"]`) || document.getElementById(val);
@@ -295,9 +295,11 @@ export class UIController {
       this._syncControls();
       this._updateVisualState();
     }
-    if (path === "content.text") this.pages.checkFlow();
+    if (path.startsWith("content.")) {
+      if (path === "content.text") this.pages.checkFlow();
+      this._updateSalutation();
+    }
     if (scope === "profile") this._updateQRCode();
-    this._updateSalutation();
   }
 
   _updateQRCode() {
@@ -325,23 +327,41 @@ export class UIController {
     const c = this.sm.state.content || {};
     const cfg = this.sm.state.config || {};
 
+    // Problem #2: Auto-detect recipient type (Woman/Man) from input fields
+    let type = "none";
+    const scanText = `${c.zusaetze || ""} ${c.empf_vorname || ""} ${c.empf_nachname || ""}`.toLowerCase();
+    
+    if (scanText.includes("frau") || scanText.includes("ms") || scanText.includes("mrs") || scanText.includes("damen")) {
+      type = "female";
+    } else if (scanText.includes("herr") || scanText.includes("mr") || scanText.includes("sir")) {
+      type = "male";
+    }
+
     const greeting = SalutationEngine.derive({
       firstName: c.empf_vorname || "",
       lastName: c.empf_nachname || "",
       company: c.empf_firma || "",
-      type: cfg.recipientType || "none",
+      type: type,
       formality: cfg.formality || "formal"
     });
     const closing = SalutationEngine.getClosing(cfg.formality || "formal");
 
+    // Problem #3: Use data-attributes for Ghost-Text preview
     const anredeEl = document.querySelector("din-anrede");
-    if (anredeEl && !this.sm.state.content.anrede) {
-      anredeEl.textContent = greeting;
+    if (anredeEl) {
+      anredeEl.setAttribute("data-salutation", greeting);
+      // Sync only if empty and not active
+      if (!this.sm.state.content.anrede && document.activeElement !== anredeEl) {
+        anredeEl.textContent = "";
+      }
     }
 
     const grussEl = document.querySelector("din-grussformel");
-    if (grussEl && !this.sm.state.content.grussformel) {
-      grussEl.textContent = closing;
+    if (grussEl) {
+      grussEl.setAttribute("data-greeting", closing);
+      if (!this.sm.state.content.grussformel && document.activeElement !== grussEl) {
+        grussEl.textContent = "";
+      }
     }
   }
 

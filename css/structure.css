@@ -316,36 +316,73 @@
     }
   }
 
+  /* Toggle Logic (Zero-JS) */
+  :root:has(#state-guides:checked) :is(din-falz-oben, din-falz-unten) {
+    opacity: 1;
+  }
+
   /* ── FORM C (E-Mail / Modern) ─────────────────────────── */
+  :root:has(#state-layout-c:checked) din-A4 {
+    display: flex;
+    flex-direction: column;
+    padding: 20mm;
+    gap: 8mm;
+  }
+
+  :root:has(#state-layout-c:checked) din-absender {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    text-align: left !important;
+    order: 1;
+  }
+
   :root:has(#state-layout-c:checked) din-anschriftfeld {
     position: relative !important;
     left: auto !important;
     top: auto !important;
     width: 100% !important;
     height: auto !important;
-    margin-bottom: 1rem;
+    order: 2;
+    padding: 0;
+    margin: 0;
     border: none !important;
   }
 
-  :root:has(#state-layout-c:checked) din-absender {
+  :root:has(#state-layout-c:checked) din-datum {
     position: relative !important;
     left: auto !important;
-    right: auto !important;
     top: auto !important;
     width: 100% !important;
-    text-align: left !important;
-    margin-bottom: 1rem;
+    text-align: right !important;
+    order: 3;
   }
 
-  :root:has(#state-layout-c:checked) din-header-spacer {
-    display: none !important;
+  :root:has(#state-layout-c:checked) din-infoblock {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    order: 4;
   }
 
   :root:has(#state-layout-c:checked) din-kern {
-    margin-top: 0 !important;
+    position: relative !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    order: 5;
   }
 
-  :root:has(#state-layout-c:checked) :is(din-falz-oben, din-falz-unten, din-lochmarke) {
+  :root:has(#state-layout-c:checked) din-fuss {
+    position: relative !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    order: 6;
+    margin-top: auto;
+  }
+
+  :root:has(#state-layout-c:checked) :is(din-falz-oben, din-falz-unten, din-lochmarke, din-header-spacer) {
     display: none !important;
   }
 }

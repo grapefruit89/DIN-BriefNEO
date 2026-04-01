@@ -204,7 +204,7 @@
     pointer-events: none;
   }
 
-  /* ── UI.FLOATING & TOASTS ──────────────────────────────────── */
+  /* ── UI.FLOATING & TOASTS (CSS-Choreography) ──────────────── */
   #toast-v4 {
     position: fixed;
     top: 20px;
@@ -216,20 +216,28 @@
     color: white;
     font-weight: 600;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    
+    /* Initialer Zustand (unsichtbar oben) */
     opacity: 0;
     transform: translateY(-20px);
-    transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
     cursor: pointer;
-    z-index: 9999;
   }
 
   #toast-v4:popover-open {
-    opacity: 1;
-    transform: translateY(0);
+    /* Der gesamte Lebenszyklus in einer Animation (3s) */
+    animation: toast-platinum-cycle 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
   }
 
-  @starting-style {
-    #toast-v4:popover-open {
+  @keyframes toast-platinum-cycle {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    10%, 90% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
       opacity: 0;
       transform: translateY(-20px);
     }

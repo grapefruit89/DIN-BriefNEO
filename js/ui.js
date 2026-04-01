@@ -128,26 +128,48 @@ export class UIController {
     });
   }
 
+  _executeCommand(cmd) {
+    console.log("[UI] Executing command:", cmd);
+    switch (cmd) {
+      case "document-reset":
+        this._confirmReset();
+        break;
+      case "document-export":
+        this._handleExport();
+        break;
+      case "profile-open":
+        document.getElementById("profile-dialog").showModal();
+        break;
+      default:
+        console.warn("[UI] Unknown command:", cmd);
+    }
+  }
+
+  _confirmReset() {
+    const dialog = document.getElementById("confirmation-dialog");
+    const okBtn = document.getElementById("btn-confirm-ok");
+    
+    const onOk = () => {
+      this.sm.reset();
+      this.pages.goToPage(1); // Reset Carousel position
+      dialog.close();
+      Toast.show("Dokument zurückgesetzt", "info");
+      okBtn.removeEventListener("click", onOk);
+    };
+
+    okBtn.addEventListener("click", onOk);
+    dialog.showModal();
+  }
+
   _handleExport() {
     const blob = new Blob([JSON.stringify(this.sm.state, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `brief_${Logic.todayISO()}.json`;
+    a.download = `brief_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     Toast.show("Dokument exportiert", "success");
   }
-
-  _initModals() {
-    const dialogs = document.querySelectorAll("dialog");
-    dialogs.forEach((dialog) => {
-      const closeBtn = dialog.querySelector(".dialog-close-x, .btn-close");
-      if (closeBtn) {
-        closeBtn.addEventListener("click", () => dialog.close());
-      }
-    });
-
-    // Profile Trigger
     const profileBtn = document.getElementById("btn-open-profile");
     if (profileBtn) {
       profileBtn.addEventListener("click", () => {

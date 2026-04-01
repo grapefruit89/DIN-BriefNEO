@@ -3,15 +3,29 @@
  * [ADR-017] Flat & Pure Architecture | Offline Capability
  */
 
-const CACHE_NAME = 'din-briefneo-v4.1.2';
+const CACHE_NAME = 'din-briefneo-v4.8.0';
 const ASSETS = [
   '/',
   '/index.html',
   '/style.css',
-  '/logic.js',
-  '/engine.js',
-  '/ui.js',
-  '/app.js',
+  '/js/app.js',
+  '/js/ui.js',
+  '/js/engine.js',
+  '/js/logic.js',
+  '/js/salutation.js',
+  '/js/address.js',
+  '/js/archive.js',
+  '/js/pages.js',
+  '/js/qrcode.js',
+  '/js/qr-engine.js',
+  '/js/toast.js',
+  '/js/metadata.js',
+  '/css/base.css',
+  '/css/theme.css',
+  '/css/structure.css',
+  '/css/floating.css',
+  '/css/components.css',
+  '/css/immutable.css',
   '/manifest.json'
 ];
 

@@ -52,6 +52,24 @@ export class UIController {
           .catch((err) => console.warn("[PWA] SW failed:", err));
       });
     }
+
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById("btn-install-pwa");
+      if (installBtn) {
+        installBtn.style.display = "flex";
+        installBtn.onclick = async () => {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`[PWA] User choice: ${outcome}`);
+          deferredPrompt = null;
+          installBtn.style.display = "none";
+        };
+      }
+    });
   }
 
   _initInputs() {

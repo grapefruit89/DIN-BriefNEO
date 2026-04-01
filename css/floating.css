@@ -219,6 +219,8 @@
     opacity: 0;
     transform: translateY(-20px);
     transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    cursor: pointer;
+    z-index: 9999;
   }
 
   #toast-v4:popover-open {
@@ -235,11 +237,18 @@
 
   #toast-v4.type-success {
     border-left: 4px solid var(--c-success);
+    background: color-mix(in oklch, var(--c-sidebar-bg), var(--c-success) 10%);
   }
   #toast-v4.type-error {
     border-left: 4px solid var(--c-danger);
+    background: color-mix(in oklch, var(--c-sidebar-bg), var(--c-danger) 10%);
   }
   #toast-v4.type-info {
     border-left: 4px solid var(--c-primary);
+    background: color-mix(in oklch, var(--c-sidebar-bg), var(--c-primary) 10%);
+  }
+  #toast-v4.type-warning {
+    border-left: 4px solid oklch(70% 0.2 80);
+    background: color-mix(in oklch, var(--c-sidebar-bg), oklch(70% 0.2 80) 10%);
   }
 }

@@ -1,12 +1,12 @@
 ---
-# === BASISINFORMATIONEN ===
 title: "Salutation & Logic Engine Matrix (IMR 4.0 Standard)"
 subtitle: "Business Logic Architecture for DIN-BriefNEO"
 description: "Architektur der Geschäftslogik mit klarer Trennung zwischen Datenverarbeitung (Engine) und Darstellung (UI-Bridge)"
-version: "9.5.0"
-version_date: 2026-03-31
+version: "10.0.0"
+version_date: 2026-04-01
 status: active
 compliance: "100% DIN 5008:2020-03"
+github_issue: "#4"
 
 # === DOKUMENT-TYP ===
 type: implementation
@@ -32,7 +32,6 @@ tags:
 
 # === ALIASES ===
 aliases:
-  - "06_Salutation_Engine"
   - "Salutation Engine"
   - "Logic Engine"
   - "Business Logic"
@@ -56,13 +55,13 @@ performance_title_extract: "0.2ms"
 related:
   - "issues/#2_Architecture_Compliance_Matrix"
   - "issues/#1 DIN 5008 HTML Tag Glossar"
-  - "03_CSS_Reference"
-  - "05_Feature_Matrix"
+  - "issues/#5_CSS_Glossar"
+  - "issues/#3_Feature_Matrix"
 
 # === ZEITSTEMPEL ===
 date_created: 2025-10-01
-date_updated: 2026-03-31
-date_last_deployed: 2026-03-31
+date_updated: 2026-04-01
+date_last_deployed: 2026-04-01
 
 # === AUTOR ===
 author: "@din-briefneo/core-team"
@@ -105,13 +104,13 @@ Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwi
 | 🐛 **Issues** | [Issues](https://github.com/din-briefneo/salutation-engine/issues) |
 | 🔄 **CI/CD** | [Actions](https://github.com/din-briefneo/salutation-engine/actions) |
 | 📊 **Test Coverage** | [Coverage Report](https://din-briefneo.github.io/salutation-engine/coverage/) |
-| 📦 **npm Package** | [npm](https://www.npmjs.com/package/ @din-briefneo/salutation-engine) |
+| 📦 **npm Package** | [npm](https://www.npmjs.com/package/@din-briefneo/salutation-engine) |
 
 ---
 
 ## 🚦 Status Badges
 
-![Version](https://img.shields.io/badge/version-9.5--platinum-blue)
+![Version](https://img.shields.io/badge/version-10.0.0--platinum-blue)
 ![Build](https://img.shields.io/github/actions/workflow/status/din-briefneo/salutation-engine/ci.yml?branch=main)
 ![Coverage](https://img.shields.io/codecov/c/github/din-briefneo/salutation-engine)
 ![License](https://img.shields.io/github/license/din-briefneo/salutation-engine)
@@ -147,52 +146,27 @@ Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwi
 | Feature | Implementierung (**TARGET**) | Modul | DIN-Bezug / Regel |
 |---------|------------------------------|-------|-------------------|
 | **Titel-Scan** | Greedy Regex Matching (priorisiert Länge) | `salutation.js` | Erkennt "Prof. Dr." vor "Dr." – robust gegen Mehrfach-Titel |
+| **Auto-Erkennung** | Personentyp-Erkennung (Herr/Frau/Ms/Mr) | `salutation.js` | Automatische Auswahl der passenden Anrede-Logik |
 | **Anrede-Stil** | 3‑stufiger Formality‑Switch | `salutation.js` | Formal / Modern (Guten Tag) / Locker (Hallo) |
-| **Firmen-Fall** | Co‑Presence Detection | `salutation.js` | Erkennt "Firma ohne Person" → neutrale Anrede |
+| **Ghost-Text Anrede** | `data-salutation` Attribut-Bridge | `salutation.js` | Vorschläge via CSS `:empty::before` (Platinum v4.8) |
 | **Grußformel** | Smart‑Default Generator | `salutation.js` | Passende Abschlüsse (Beste Grüße vs. Mit freundlichen Grüßen) |
+| **Ghost-Text Gruß** | `data-greeting` Attribut-Bridge | `salutation.js` | Vorschläge via CSS `:empty::before` (Platinum v4.8) |
+| **Firmen-Fall** | Co‑Presence Detection | `salutation.js` | Erkennt "Firma ohne Person" → neutrale Anrede |
 | **DIN-Fehler** | Punctuation Validator | `salutation.js` | DIN 5008: Warnt bei Komma/Punkt nach Grußformel |
-
----
-
-## 💻 Source Code (Platinum Edition)
-
-### `engine.js` – State & Persistence
-
-...
-
-### `logic.js` – Business Logic & Constants
-
-```javascript
-/**
- * logic.js — Unified Business Logic & Constants (Pure Edition)
- * [ADR-017] Flat & Pure Architecture
- * @module logic
- */
-
-/* ── CONSTANTS & REGISTRY ──────────────────────────────────── */
-
-> [!NOTE]
-> Die IMR (Input Mapping Registry) wird zentral in der [[issues/#1 DIN 5008 HTML Tag Glossar]] gepflegt. Der folgende Code-Auszug dient der technischen Referenz innerhalb der Engine-Logik.
-
-/**
- * IMR (Input Mapping Registry) – definiert die bidirektionale Bindung
-...
-  { tag: "din-falz-unten", key: "guides_fold_bottom", internal: true },
-]);
 
 ---
 
 ## 🔗 Dokumenten-Navigation
 
-| Dokument | Zweck |
-|----------|-------|
-| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
-| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
-| [[03_CSS_Reference]] | CSS-Features Referenz |
-| [[05_Feature_Matrix]] | Projekt-Fortschritt |
-| [[06_Salutation_Engine]] | Logik-Dokumentation |
+| Issue | Dokument | Zweck |
+|-------|----------|-------|
+| [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1) | IMR 4.0 Registry | Alle 45+ DIN-Tags |
+| [#2](https://github.com/grapefruit89/DIN-BriefNEO/issues/2) | Architecture Compliance | Technologie-Leitplanken |
+| [#3](https://github.com/grapefruit89/DIN-BriefNEO/issues/3) | Feature Matrix | Projekt-Fortschritt |
+| [#4](https://github.com/grapefruit89/DIN-BriefNEO/issues/4) | Salutation Engine | Logik-Dokumentation |
+| [#5](https://github.com/grapefruit89/DIN-BriefNEO/issues/5) | CSS Glossar | CSS-Features Referenz |
 
-**Gesamtversion:** 4.7 | **Letzte Sync:** 2026-03-31
+**Gesamtversion:** 10.0 | **Letzte Sync:** 2026-04-01
 
 ---
 
@@ -208,6 +182,6 @@ WHERE contains(related, this.file.name)
 SORT version DESC
 ```
 
-
-/* ── MARKDOWN PARSER ────────────────────────────────────────── */
-...
+**Status:** ACTIVE  
+**Nächste Überprüfung:** 2026-06-30  
+**Verantwortlich:** Lead Logic Developer

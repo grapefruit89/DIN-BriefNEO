@@ -1,11 +1,11 @@
 ---
-# === BASISINFORMATIONEN ===
 title: "Logische Gruppen — Feature-Matrix (Platinum Master)"
 subtitle: "Project Progress, Roadmap & Sprint Planning"
 description: "Definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Roadmap für kommende Platinum-Sessionen"
-version: "4.7.0"
-version_date: 2026-03-31
+version: "4.8.0"
+version_date: 2026-04-01
 status: active
+github_issue: "#3"
 
 # === DOKUMENT-TYP ===
 type: roadmap
@@ -28,7 +28,6 @@ tags:
 
 # === ALIASES ===
 aliases:
-  - "05_Feature_Matrix"
   - "Feature Matrix"
   - "Roadmap"
   - "Project Status"
@@ -36,10 +35,10 @@ aliases:
   - "Feature Progress"
 
 # === DATAVIEW Felder ===
-total_features: 29
-completed_features: 21
+total_features: 34
+completed_features: 26
 open_features: 8
-completion_percentage: 72
+completion_percentage: 76
 sprint_current: "Sprint 1 (Q2 2026)"
 sprint_next: "Sprint 2 (Q3 2026)"
 next_milestone: "Q2 2026"
@@ -49,7 +48,7 @@ next_milestone_date: 2026-06-30
 groups:
   identity: 100
   content: 100
-  geometry: 80
+  geometry: 90
   infrastructure: 100
   future: 0
 
@@ -57,12 +56,12 @@ groups:
 related:
   - "issues/#2_Architecture_Compliance_Matrix"
   - "issues/#1 DIN 5008 HTML Tag Glossar"
-  - "03_CSS_Reference"
-  - "06_Salutation_Engine"
+  - "issues/#5_CSS_Glossar"
+  - "issues/#4_Salutation_Engine"
 
 # === ZEITSTEMPEL ===
 date_created: 2025-12-01
-date_updated: 2026-03-31
+date_updated: 2026-04-01
 date_next_review: 2026-04-30
 
 # === AUTOR ===
@@ -96,7 +95,8 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 
 - [x] Variable-First Form A/B Switching (#55)
 - [x] Refactor Fold Marks to 4mm Standard (#54)
-- [x] CSS Capability Matrix & Platinum Glossary
+- [x] CSS Capability Matrix & Platinum Glossary (v4.8.0)
+- [x] 3D-Carousel & Toast Animation System
 - [ ] Finalize Address-Autocomplete integration (#42)
 - [ ] Integrate DIN-Referenz-SVG Overlay (#57)
 - [ ] Implement CMA-Sensor for Page Breaks (#58)
@@ -116,8 +116,8 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 
 ## 🚦 Projekt-Status
 
-![Progress](https://img.shields.io/badge/Overall_Progress-72%25-blue)
-![Completed](https://img.shields.io/badge/Completed-21_of_29-green)
+![Progress](https://img.shields.io/badge/Overall_Progress-76%25-blue)
+![Completed](https://img.shields.io/badge/Completed-26_of_34-green)
 ![Open](https://img.shields.io/badge/Open-8-red)
 ![Platinum](https://img.shields.io/badge/Platinum_Session-2026-gold)
 
@@ -146,6 +146,7 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 | **Salutation Engine**   | Automatische Generierung der DIN-Anrede      | ✅ Aktiv | Firmen-Anrede – "Damen und Herren" Logik | [#51](https://github.com/din-briefneo/din-briefneo/issues/51) |
 | **Smart Deadlines**     | Kontextsensitive Termin-Vorschläge           | ✅ Aktiv | Feiertags-API – Regionale Prüfung        | [#52](https://github.com/din-briefneo/din-briefneo/issues/52) |
 | **Styling Buttons**     | Toolbar für Fett, Unterstrichen, Zitate      | ✅ Aktiv | Keyboard Shortcuts – Strg+B/I/U          | [#53](https://github.com/din-briefneo/din-briefneo/issues/53) |
+| **Ghost-Text Anrede**   | Platzhalter via `data-salutation`            | ✅ Aktiv | Individuelle Vorschläge pro Kontakt-Typ  | [#71](https://github.com/din-briefneo/din-briefneo/issues/71) |
 
 ---
 
@@ -155,8 +156,11 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 | ---------------------- | ---------------------------------------------- | ------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
 | **Faltmarken**         | Präzise Positionierung nach DIN 5008           | ✅ Aktiv | Toggle für Hilfslinien in der Sidebar | [#54](https://github.com/din-briefneo/din-briefneo/issues/54) |
 | **Form A/B Switch**    | Mechanische Umschaltung der Kopfhöhe via CSS   | ✅ Aktiv | Persistenz via LocalStorage           | [#55](https://github.com/din-briefneo/din-briefneo/issues/55) |
-| **IMR 4.0 Atome**      | Alle 42 DIN-Felder als eigenständige Objekte   | ✅ Aktiv | IMR-Catalog Generator für Agenten     | [#56](https://github.com/din-briefneo/din-briefneo/issues/56) |
+| **IMR 4.0 Atome**      | Alle 45 DIN-Felder als eigenständige Objekte   | ✅ Aktiv | IMR-Catalog Generator für Agenten     | [#56](https://github.com/din-briefneo/din-briefneo/issues/56) |
 | **Layout-Guides**      | Visuelle Hilfslinien zur Ausrichtungskontrolle | ✅ Aktiv | DIN-Referenz-SVG Overlay              | [#57](https://github.com/din-briefneo/din-briefneo/issues/57) |
+| **3D-Carousel**        | Native CSS-Variablen Transformation           | ✅ Aktiv | Hardware-Beschleunigung optimiert     | [#72](https://github.com/din-briefneo/din-briefneo/issues/72) |
+| **Form C Layout**      | Flexbox-basiertes gestapeltes Layout           | ✅ Aktiv | Responsive Breakpoints für Mobile     | [#73](https://github.com/din-briefneo/din-briefneo/issues/73) |
+| **Footer Auto-Hide**   | Leere Spalten via CSS ausblenden               | ✅ Aktiv | Zero-Layout-Shift Optimierung         | [#74](https://github.com/din-briefneo/din-briefneo/issues/74) |
 | **Seitenumbrüche**     | Native Unterstützung für mehrseitige Briefe    | ⏳ Offen | Duplex-Erkennung – Leerseiten-Logik   | [#58](https://github.com/din-briefneo/din-briefneo/issues/58) |
 
 ---
@@ -170,20 +174,21 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 | **Print CSS**       | Vektorscharfer PDF-Export via Print-Styles | ✅ Aktiv | PDF-Metadaten – Titel/Autor im PDF         | [#61](https://github.com/din-briefneo/din-briefneo/issues/61) |
 | **PWA Standalone**  | Offline-Fähigkeit und Installation als App | ✅ Aktiv | Update-Benachrichtigung via Service Worker | [#62](https://github.com/din-briefneo/din-briefneo/issues/62) |
 | **SSoT Constants**  | Zentrale Geometrie-Definition              | ✅ Aktiv | Typed CSS Properties (`@property`)         | [#63](https://github.com/din-briefneo/din-briefneo/issues/63) |
+| **Toast-System**    | Pure-CSS Benachrichtigungssystem           | ✅ Aktiv | `@starting-style` für flüssige Entries   | [#75](https://github.com/din-briefneo/din-briefneo/issues/75) |
 
 ---
 
 ## 🔗 Dokumenten-Navigation
 
-| Dokument | Zweck |
-|----------|-------|
-| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
-| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
-| [[03_CSS_Reference]] | CSS-Features Referenz |
-| [[05_Feature_Matrix]] | Projekt-Fortschritt |
-| [[06_Salutation_Engine]] | Logik-Dokumentation |
+| Issue | Dokument | Zweck |
+|-------|----------|-------|
+| [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1) | IMR 4.0 Registry | Alle 45+ DIN-Tags |
+| [#2](https://github.com/grapefruit89/DIN-BriefNEO/issues/2) | Architecture Compliance | Technologie-Leitplanken |
+| [#3](https://github.com/grapefruit89/DIN-BriefNEO/issues/3) | Feature Matrix | Projekt-Fortschritt |
+| [#4](https://github.com/grapefruit89/DIN-BriefNEO/issues/4) | Salutation Engine | Logik-Dokumentation |
+| [#5](https://github.com/grapefruit89/DIN-BriefNEO/issues/5) | CSS Glossar | CSS-Features Referenz |
 
-**Gesamtversion:** 4.7 | **Letzte Sync:** 2026-03-31
+**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
 
 ---
 
@@ -221,67 +226,14 @@ SORT version DESC
 | Gruppe                             | Gesamt | ✅ Erledigt | ⏳ Offen | Fortschritt                           | Status                                                             |
 | ---------------------------------- | ------ | ----------- | -------- | ------------------------------------- | ------------------------------------------------------------------ |
 | **Identität & Adress-Intelligenz** | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
-| **Inhalts-Engine & WYSIWYG**       | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
-| **Geometrie & Compliance**         | 5      | 4           | 1        | ![80%](https://progress-bar.dev/80)   | ![In Progress](https://img.shields.io/badge/In_Progress-⚡-yellow) |
-| **Infrastruktur & Daten-IO**       | 5      | 5           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
+| **Inhalts-Engine & WYSIWYG**       | 7      | 7           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
+| **Geometrie & Compliance**         | 8      | 7           | 1        | ![87%](https://progress-bar.dev/87)   | ![In Progress](https://img.shields.io/badge/In_Progress-⚡-yellow) |
+| **Infrastruktur & Daten-IO**       | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
 | **Zukunfts-Features**              | 7      | 0           | 7        | ![0%](https://progress-bar.dev/0)     | ![Roadmap](https://img.shields.io/badge/Roadmap-📅-blue)           |
-| **GESAMT**                         | **29** | **21**      | **8**    | ![72%](https://progress-bar.dev/72)   | —                                                                  |
-
----
-
-## 🎯 Platinum Sprint: Nächste Ziele
-
-### 🔴 Hochpriorität (Sprint 1)
-
-| Feature                         | Beschreibung                                     | Issue                                                         | Expected |
-| ------------------------------- | ------------------------------------------------ | ------------------------------------------------------------- | -------- |
-| **DIN-Referenz-SVG Overlay**    | Visuelle DIN-Referenzlinien als Overlay          | [#57](https://github.com/din-briefneo/din-briefneo/issues/57) | Q2 2026  |
-| **Seitenumbrüche & CMA-Sensor** | Native mehrseitige Briefe mit Overflow-Erkennung | [#58](https://github.com/din-briefneo/din-briefneo/issues/58) | Q2 2026  |
-
-### 🟡 Mittelpriorität (Sprint 2)
-
-| Feature                       | Beschreibung                             | Issue                                                         | Expected |
-| ----------------------------- | ---------------------------------------- | ------------------------------------------------------------- | -------- |
-| **PDF-Metadaten Integration** | Titel, Autor, Datum im generierten PDF   | [#61](https://github.com/din-briefneo/din-briefneo/issues/61) | Q3 2026  |
-| **Auto-Save Status-Anzeige**  | Visuelles Feedback bei Speichervorgängen | —                                                             | Q3 2026  |
-| **Feiertags-API**             | Regionale Feiertagsprüfung für Deadlines | [#52](https://github.com/din-briefneo/din-briefneo/issues/52) | Q3 2026  |
-
----
-
-## 📝 Release History
-
-| Version  | Datum   | Gruppe     | Änderungen                                     |
-| -------- | ------- | ---------- | ---------------------------------------------- |
-| **v4.0** | 2025-12 | Alle       | Initiale Platinum-Master Release               |
-| **v4.1** | 2026-01 | Gruppe 1-2 | Adress-Autocomplete & Ghost-Mirror finalisiert |
-| **v4.2** | 2026-02 | Gruppe 3   | Form A/B Switch & Layout-Guides implementiert  |
-| **v4.3** | 2026-03 | Gruppe 4   | PWA Standalone & JSON Data-IO stabilisiert     |
-| **v4.4** | Q2 2026 | Gruppe 3   | Seitenumbrüche & DIN-Overlay (geplant)         |
-
----
-
-## 🏷️ Tags & Labels für Issues
-
-Folgende Labels werden in GitHub verwendet:
-
-| Label                  | Bedeutung                      | Farbe     |
-| ---------------------- | ------------------------------ | --------- |
-| `group:identity`       | Identität & Adress-Intelligenz | `#1E88E5` |
-| `group:content`        | Inhalts-Engine & WYSIWYG       | `#43A047` |
-| `group:geometry`       | Geometrie & Compliance         | `#FB8C00` |
-| `group:infrastructure` | Infrastruktur & Daten-IO       | `#8E24AA` |
-| `group:future`         | Zukunfts-Features (Roadmap)    | `#757575` |
-| `priority:high`        | 🔴 Hoch                        | `#D32F2F` |
-| `priority:medium`      | 🟡 Mittel                      | `#FBC02D` |
-| `priority:low`         | 🟢 Niedrig                     | `#388E3C` |
-| `status:stable`        | ✅ Stabil und abgeschlossen    | `#2E7D32` |
-| `status:in-progress`   | ⏳ In Arbeit                   | `#ED6C02` |
-| `status:planned`       | 📅 Geplant                     | `#0288D1` |
-| `status:analysis`      | 🔍 Analysephase                | `#7B1FA2` |
+| **GESAMT**                         | **34** | **26**      | **8**    | ![76%](https://progress-bar.dev/76)   | —                                                                  |
 
 ---
 
 **Status:** ACTIVE  
-**Version:** Platinum Master v4.7  
-**Next Release:** Q2 2026 (v4.4)  
-**Maintainer:** @din-briefneo/core-team
+**Version:** Platinum Master v4.8  
+**Maintainer:** @grapefruit89

@@ -1,103 +1,65 @@
 /**
- * ui.js — Unified UI Controller (Pure Edition)
+ * ui.js — Kern UI Controller (Progressive Enhancement)
+ * Keine direkten Imports von optionalen Modulen.
  * [ADR-017] Flat & Pure Architecture
  * ─────────────────────────────────────────────────────────────
  */
 
 import * as Logic from "./logic.js";
-import { SalutationEngine } from "./salutation.js";
-import { Toast } from "./toast.js";
-import { AddressService } from "./address.js";
-import { PageManager } from "./pages.js";
-import { MetadataService } from "./metadata.js";
-import { QRCodeEngine } from "./qrcode.js";
-import { ArchiveService } from "./archive.js";
-
-/* ── UI CONTROLLER ────────────────────────────────────────── */
 
 export class UIController {
   constructor(sm) {
     this.sm = sm;
-    this.address = new AddressService(this);
-    this.pages = new PageManager(this);
-    this.archive = new ArchiveService();
+    // Optionale Services – werden von app.js injiziert
+    this.pages = { checkFlow: () => {}, goToPage: () => {} }; // Stub
+    this.archive = null;
+    this.address = null;
+    this.salutation = null;
+    this.qr = null;
+    this.metadata = null;
   }
 
   async init() {
     this._initInputs();
     this._initControls();
     this._initModals();
-    this._initCarousel();
     this._initReset();
-    this.address.init();
-    this.pages.init();
     
-    // Archive Init
-    await this.archive.init();
-    this._renderArchive();
-
     this.sm.subscribe((path, val, scope) => this._onStateChange(path, val, scope));
     
     // Initial Sync
     this._syncAll();
     this._syncControls();
-    this._updateVisualState();
-
-    // SW-14: Register Service Worker
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("./sw.js")
-          .then((reg) => console.log("[PWA] SW registered:", reg.scope))
-          .catch((err) => console.warn("[PWA] SW failed:", err));
-      });
-    }
-
-    // PWA Install Logic
-    let deferredPrompt;
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const installBtn = document.getElementById("btn-install-pwa");
-      if (installBtn) {
-        installBtn.style.display = "flex";
-        installBtn.onclick = async () => {
-          deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-          console.log(`[PWA] User choice: ${outcome}`);
-          deferredPrompt = null;
-          installBtn.style.display = "none";
-        };
-      }
-    });
   }
 
+  // ── INPUT BINDING (Kern) ──────────────────────────────────
   _initInputs() {
     Logic.IMR.forEach((entry) => {
       const el = document.querySelector(entry.tag);
-      if (!el) return;
+      if (!el || entry.internal) return;
 
       el.addEventListener("input", (e) => {
-        const text = e.target.textContent.trim();
+        const text = e.target.textContent;
         this.sm.update(`content.${entry.key}`, text);
 
-        // SW-09: IBAN Length Check (Hard Limit 22)
-        if (entry.key === "senderIban") {
-          if (text.length > 22) {
-            el.textContent = text.substring(0, 22);
-            el.setAttribute("data-warning", "IBAN zu lang");
-          } else {
-            el.removeAttribute("data-warning");
-          }
+        if (entry.tag === "din-text") {
+          this.pages.checkFlow(); // Stub oder echter PageManager
         }
 
-        if (entry.tag === "din-text") {
-          this.pages.checkFlow();
+        // Salutation nur wenn geladen
+        if (this.salutation && [
+          "din-empfaenger-vorname",
+          "din-empfaenger-nachname",
+          "din-empfaenger-firma",
+          "din-zusaetze"
+        ].includes(entry.tag)) {
+          this._updateSalutation();
         }
       });
     });
   }
 
+  // ── CONTROLS (Kern) ───────────────────────────────────────
   _initControls() {
     // 1. Radio Controls (Segmented Switches)
     const radioNames = ["layout-state", "formality", "theme"];
@@ -106,7 +68,7 @@ export class UIController {
       radios.forEach(radio => {
         radio.addEventListener("change", (e) => {
           const key = name === "layout-state" ? "layout" : name;
-          this.sm.update(`config.${key}`, e.target.value || e.target.id, "user");
+          this.sm.update(`config.${key}`, e.target.value);
         });
       });
     });
@@ -116,7 +78,7 @@ export class UIController {
       const el = document.getElementById(`state-${key}`);
       if (el) {
         el.addEventListener("change", (e) => {
-          this.sm.update(`config.${key}`, e.target.checked, "user");
+          this.sm.update(`config.${key}`, e.target.checked);
         });
       }
     });
@@ -130,10 +92,11 @@ export class UIController {
       }
     });
 
-    // Archive Save Trigger
+    // Archive Save Trigger (nur wenn Archive vorhanden)
     document.getElementById("btn-save-archive")?.addEventListener("click", async () => {
+      if (!this.archive) return;
       await this.archive.save(this.sm.state);
-      Toast.show("Im Archiv gespeichert", "success");
+      this._showToast("Im Archiv gespeichert", "success");
       this._renderArchive();
     });
 
@@ -141,59 +104,18 @@ export class UIController {
     document.getElementById("app-version")?.addEventListener("click", () => {
       document.body.classList.toggle("dev-mode");
       const isDev = document.body.classList.contains("dev-mode");
-      localStorage.setItem("neo_dev_mode", isDev);
-      Toast.show(isDev ? "Dev-Mode Aktiv" : "Dev-Mode Aus", "info");
+      this._showToast(isDev ? "Dev-Mode Aktiv" : "Dev-Mode Aus", "info");
     });
   }
 
-  _executeCommand(cmd) {
-    console.log("[UI] Executing command:", cmd);
-    switch (cmd) {
-      case "document-reset":
-        this._confirmReset();
-        break;
-      case "document-export":
-        this._handleExport();
-        break;
-      case "profile-open":
-        document.getElementById("profile-dialog").showModal();
-        break;
-      default:
-        console.warn("[UI] Unknown command:", cmd);
-    }
-  }
-
-  _confirmReset() {
-    const dialog = document.getElementById("confirmation-dialog");
-    const okBtn = document.getElementById("btn-confirm-ok");
-    
-    const onOk = () => {
-      this.sm.reset();
-      this.pages.goToPage(1); // Reset Carousel position
-      dialog.close();
-      Toast.show("Dokument zurückgesetzt", "info");
-      okBtn.removeEventListener("click", onOk);
-    };
-
-    okBtn.addEventListener("click", onOk);
-    dialog.showModal();
-  }
-
-  _handleExport() {
-    const blob = new Blob([JSON.stringify(this.sm.state, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `brief_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    Toast.show("Dokument exportiert", "success");
-  }
+  // ── MODALS (Kern) ─────────────────────────────────────────
+  _initModals() {
+    // Open Profile
     const profileBtn = document.getElementById("btn-open-profile");
     if (profileBtn) {
       profileBtn.addEventListener("click", () => {
-        const dialog = document.getElementById("profile-dialog");
         this._syncProfileForm();
-        if (dialog) dialog.showModal();
+        document.getElementById("profile-dialog")?.showModal();
       });
     }
 
@@ -203,40 +125,130 @@ export class UIController {
       saveProfileBtn.addEventListener("click", () => {
         this._saveProfileForm();
         document.getElementById("profile-dialog")?.close();
-        Toast.show("Profil gespeichert", "success");
+        this._showToast("Profil gespeichert", "success");
+        // QR updaten falls verfügbar
+        if (this.qr) this._updateQRCode();
       });
     }
   }
 
-  _initCarousel() {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("active");
-        } else {
-          entry.target.classList.remove("active");
-        }
+  // ── RESET (Kern) ──────────────────────────────────────────
+  _initReset() {
+    const btn = document.getElementById("btn-confirm-ok");
+    const dialog = document.getElementById("confirmation-dialog");
+    const triggerReset = document.getElementById("btn-trigger-reset");
+
+    if (triggerReset) {
+      triggerReset.addEventListener("click", () => {
+        dialog?.showModal();
       });
-    }, {
-      root: document.getElementById("paper-viewport"),
-      threshold: 0.6
+    }
+
+    if (btn && dialog) {
+      btn.addEventListener("click", () => {
+        this.sm.state.content = {};
+        this.sm.update("config.layout", "form-b", "system");
+        this._syncAll();
+        this._updateSalutation();
+        dialog.close();
+        this._showToast("Dokument zurückgesetzt", "info");
+      });
+    }
+  }
+
+  // ── COMMANDS ──────────────────────────────────────────────
+  _executeCommand(cmd) {
+    console.log("[UI] Executing command:", cmd);
+    switch (cmd) {
+      case "--print":
+        if (this.metadata) {
+          const ctx = this.metadata.prepare(this.sm.state);
+          window.print();
+          this.metadata.restore(ctx);
+        } else {
+          window.print();
+        }
+        break;
+      case "--export":
+        this._handleExport();
+        break;
+      case "--reset":
+        document.getElementById("confirmation-dialog")?.showModal();
+        break;
+      default:
+        console.warn("[UI] Unknown command:", cmd);
+    }
+  }
+
+  _handleExport() {
+    const iso = Logic.todayISO();
+    const blob = new Blob([JSON.stringify(this.sm.state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `brief_${iso}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this._showToast("Dokument exportiert", "success");
+  }
+
+  // ── STATE SYNC ────────────────────────────────────────────
+  _onStateChange(path, val, scope) {
+    if (scope === "config") {
+      this._syncAll();
+      this._syncControls();
+      if (this.qr && path === "config.qr" && val) this._updateQRCode();
+    }
+    if (scope === "content" || path.startsWith("content.")) {
+      if (path === "content.text") this.pages.checkFlow();
+      if (this.salutation) this._updateSalutation();
+    }
+    if (scope === "profile") {
+      if (this.qr) this._updateQRCode();
+    }
+    if (scope === "archive") {
+      this._syncAll();
+      this._renderArchive();
+    }
+  }
+
+  _syncAll() {
+    Logic.IMR.forEach((entry) => {
+      if (entry.internal) return;
+      const el = document.querySelector(entry.tag);
+      if (el && document.activeElement !== el) {
+        if (!["din-anrede", "din-grussformel"].includes(entry.tag) || this.sm.state.content[entry.key]) {
+          el.textContent = this.sm.state.content[entry.key] || "";
+        }
+        if (entry.tag === "din-text") {
+          this.pages.checkFlow();
+        }
+      }
+    });
+  }
+
+  _syncControls() {
+    const { theme, layout, guides, reference, qr, formality } = this.sm.state.config || {};
+    
+    // Sync Radios
+    const configs = { "layout-state": layout, "formality": formality, "theme": theme };
+    Object.entries(configs).forEach(([name, val]) => {
+      if (!val) return;
+      const radio = document.querySelector(`input[name="${name}"][value="${val}"]`);
+      if (radio) radio.checked = true;
     });
 
-    document.querySelectorAll("din-A4").forEach(page => observer.observe(page));
-    
-    const paper = document.getElementById("paper");
-    if (paper) {
-      const mutationObserver = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-          mutation.addedNodes.forEach(node => {
-            if (node.tagName === "DIN-A4") observer.observe(node);
-          });
-        });
-      });
-      mutationObserver.observe(paper, { childList: true });
-    }
+    // Sync Checkboxes
+    const cb = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined) el.checked = !!val;
+    };
+    cb("state-guides", guides);
+    cb("state-reference", reference);
+    cb("state-qr", qr);
   }
 
+  // ── PROFIL ────────────────────────────────────────────────
   _syncProfileForm() {
     const profile = this.sm.state.profile || {};
     Object.entries(profile).forEach(([key, val]) => {
@@ -253,122 +265,35 @@ export class UIController {
       profile[key] = input.value;
     });
     this.sm.update("profile", profile, "user");
-    this._syncAll();
   }
 
-  _executeCommand(cmd) {
-    if (cmd === "--print") {
-      const metaContext = MetadataService.prepare(this.sm.state);
-      window.print();
-      MetadataService.restore(metaContext);
-    }
-    if (cmd === "--export") this._handleExport();
-    if (cmd === "--reset") this._handleReset();
-  }
-
-  _initReset() {
-    const btn = document.getElementById("btn-confirm-ok");
-    const dialog = document.getElementById("confirmation-dialog");
-    if (btn && dialog) {
-      btn.addEventListener("click", () => {
-        this.sm.state.content = {};
-        this.sm.update("config.layout", "form-b", "system");
-        this._syncAll();
-        dialog.close();
-        Toast.show("Dokument zurückgesetzt", "info");
-      });
-    }
-  }
-
-  _updateVisualState() {
-    const { qr } = this.sm.state.config || {};
-    if (qr) this._updateQRCode();
-  }
-
-  _handleReset() {
-    const dialog = document.getElementById("confirmation-dialog");
-    if (dialog) dialog.showModal();
-  }
-
-  _syncControls() {
-    const { theme, layout, guides, reference, qr, formality } = this.sm.state.config || {};
-    
-    // Sync Radios
-    const configs = { "layout-state": layout, "formality": formality, "theme": theme };
-    Object.entries(configs).forEach(([name, val]) => {
-      if (!val) return;
-      const radio = document.querySelector(`input[name="${name}"][value="${val}"]`) || document.getElementById(val);
-      if (radio) radio.checked = true;
-    });
-
-    // Sync Checkboxes
-    if (guides !== undefined) document.getElementById("state-guides").checked = !!guides;
-    if (reference !== undefined) document.getElementById("state-reference").checked = !!reference;
-    if (qr !== undefined) document.getElementById("state-qr").checked = !!qr;
-  }
-
-  _onStateChange(path, val, scope) {
-    if (scope === "config" || scope === "archive") {
-      this._syncAll();
-      this._syncControls();
-      this._updateVisualState();
-    }
-    if (path.startsWith("content.")) {
-      if (path === "content.text") this.pages.checkFlow();
-      this._updateSalutation();
-    }
-    if (scope === "profile") this._updateQRCode();
-  }
-
-  _updateQRCode() {
-    const el = document.querySelector("din-qr-code");
-    if (!el) return;
-    const vCard = QRCodeEngine.generateVCard(this.sm.state.profile);
-    QRCodeEngine.render(el, vCard);
-  }
-
-  _syncAll() {
-    Logic.IMR.forEach((entry) => {
-      const el = document.querySelector(entry.tag);
-      if (el && document.activeElement !== el) {
-        if (!["din-anrede", "din-grussformel"].includes(entry.tag) || this.sm.state.content[entry.key]) {
-          el.textContent = this.sm.state.content[entry.key] || "";
-        }
-        if (entry.tag === "din-text") {
-          this.pages.checkFlow();
-        }
-      }
-    });
-  }
-
+  // ── SALUTATION (nur wenn Engine geladen) ──────────────────
   _updateSalutation() {
+    if (!this.salutation) return;
     const c = this.sm.state.content || {};
     const cfg = this.sm.state.config || {};
 
-    // Problem #2: Auto-detect recipient type (Woman/Man) from input fields
-    let type = "none";
     const scanText = `${c.zusaetze || ""} ${c.empf_vorname || ""} ${c.empf_nachname || ""}`.toLowerCase();
+    let type = "none";
     
-    if (scanText.includes("frau") || scanText.includes("ms") || scanText.includes("mrs") || scanText.includes("damen")) {
+    if (/frau|ms\.|mrs\.|damen/.test(scanText)) {
       type = "female";
-    } else if (scanText.includes("herr") || scanText.includes("mr") || scanText.includes("sir")) {
+    } else if (/herr|mr\.|sir/.test(scanText)) {
       type = "male";
     }
 
-    const greeting = SalutationEngine.derive({
+    const greeting = this.salutation.derive({
       firstName: c.empf_vorname || "",
       lastName: c.empf_nachname || "",
       company: c.empf_firma || "",
       type: type,
       formality: cfg.formality || "formal"
     });
-    const closing = SalutationEngine.getClosing(cfg.formality || "formal");
+    const closing = this.salutation.getClosing(cfg.formality || "formal");
 
-    // Problem #3: Use data-attributes for Ghost-Text preview
     const anredeEl = document.querySelector("din-anrede");
     if (anredeEl) {
       anredeEl.setAttribute("data-salutation", greeting);
-      // Sync only if empty and not active
       if (!this.sm.state.content.anrede && document.activeElement !== anredeEl) {
         anredeEl.textContent = "";
       }
@@ -383,18 +308,18 @@ export class UIController {
     }
   }
 
-  _updateMirror(text, targetEl = null) {
-    const mirror = targetEl || document.querySelector("din-text-spiegel");
-    if (!mirror) return;
-    const html = Logic.parseMarkdown(text);
-    if (mirror.setHTML) {
-      mirror.setHTML(html);
-    } else {
-      mirror.innerHTML = html;
-    }
+  // ── QR (nur wenn Engine geladen) ─────────────────────────
+  _updateQRCode() {
+    if (!this.qr) return;
+    const el = document.querySelector("din-qr-code");
+    if (!el) return;
+    const vCard = this.qr.generateVCard(this.sm.state.profile);
+    this.qr.render(el, vCard);
   }
 
+  // ── ARCHIV (nur wenn Service geladen) ────────────────────
   async _renderArchive() {
+    if (!this.archive) return;
     const container = document.getElementById("archive-list");
     if (!container) return;
 
@@ -409,14 +334,11 @@ export class UIController {
       return;
     }
     
-    // Sortiert nach Datum (neu nach alt) via Temporal
-    letters.sort((a, b) => Temporal.Instant.compare(b.timestamp, a.timestamp));
+    letters.sort((a, b) => Temporal.Instant.compare(Temporal.Instant.from(b.timestamp), Temporal.Instant.from(a.timestamp)));
 
     letters.forEach(letter => {
       const el = document.createElement("div");
       el.className = "archive-item";
-      const inst = Temporal.Instant.from(letter.timestamp);
-      const dateStr = inst.toLocaleString("de-DE", { dateStyle: "medium" });
       
       const title = document.createElement("div");
       title.className = "title";
@@ -424,10 +346,9 @@ export class UIController {
 
       const meta = document.createElement("div");
       meta.className = "meta";
-      meta.textContent = `${letter.recipient || "Unbekannt"} · ${dateStr}`;
+      const inst = Temporal.Instant.from(letter.timestamp);
+      meta.textContent = `${letter.recipient || "Unbekannt"} · ${inst.toLocaleString("de-DE", { dateStyle: "medium" })}`;
 
-      const actions = document.createElement("div");
-      actions.className = "actions";
       const delBtn = document.createElement("button");
       delBtn.className = "archive-btn-del";
       delBtn.textContent = "Löschen";
@@ -436,37 +357,67 @@ export class UIController {
         if (confirm("Diesen Brief wirklich aus dem Archiv löschen?")) {
           await this.archive.delete(letter.id);
           this._renderArchive();
-          Toast.show("Gelöscht", "info");
+          this._showToast("Gelöscht", "info");
         }
       };
 
-      actions.appendChild(delBtn);
-      el.appendChild(title);
-      el.appendChild(meta);
-      el.appendChild(actions);
-
-      el.addEventListener("click", () => this._loadFromArchive(letter.id));
+      el.append(title, meta, delBtn);
+      el.addEventListener("click", (e) => {
+        if (e.target === delBtn) return;
+        this._loadFromArchive(letter.id);
+      });
       container.appendChild(el);
     });
   }
 
   async _loadFromArchive(id) {
+    if (!this.archive) return;
     const letter = await this.archive.get(id);
     if (!letter) return;
 
-    // State updaten
     if (letter.data.content) {
       Object.entries(letter.data.content).forEach(([k, v]) => {
         this.sm.update(`content.${k}`, v, "archive");
       });
     }
-    
     if (letter.data.profile) {
       this.sm.update("profile", letter.data.profile, "archive");
     }
 
     this._syncAll();
     this.pages.checkFlow();
-    Toast.show("Brief geladen", "success");
+    this._showToast("Brief geladen", "success");
+  }
+
+  // ── MIRROR ────────────────────────────────────────────────
+  _updateMirror(text, targetEl = null) {
+    const mirror = targetEl || document.querySelector("din-text-spiegel");
+    if (!mirror) return;
+    const html = Logic.parseMarkdown(text);
+    if (mirror.setHTML) {
+      mirror.setHTML(html);
+    } else {
+      mirror.innerHTML = html;
+    }
+  }
+
+  // ── TOAST (intern) ────────────────────────────────────────
+  _showToast(msg, type = "info") {
+    const el = document.getElementById("toast-v4");
+    if (!el) return;
+    
+    if (el.matches(":popover-open")) el.hidePopover();
+    
+    el.textContent = msg;
+    el.className = `toast-container type-${type}`;
+    
+    try {
+      el.showPopover();
+      el.addEventListener("animationend", () => {
+        if (el.matches(":popover-open")) el.hidePopover();
+      }, { once: true });
+    } catch (e) {
+      console.warn("[Toast] Popover API not supported or failed:", e);
+    }
   }
 }

@@ -52,7 +52,7 @@ graph TD
 | Dok # | Dokument | Fokus | Zielgruppe |
 |-------|----------|-------|------------|
 | 01 | [[01_Architecture_Compliance]] | APIs, Chrome-Versionen, Leitplanken | Architekten |
-| 02 | [[02_IMR_Registry]] | Alle 45+ HTML-Tags & Positionen (SSoT) | Entwickler |
+| 02 | [[issues/#1_IMR_Registry]] | Alle 45+ HTML-Tags & Positionen (SSoT) | Entwickler |
 | 03 | [[03_CSS_Reference]] | Detaillierte CSS-Features & Beispiele | Entwickler |
 | 04 | [[04_CSS_Quick_Reference]] | Executive Summary der Tech-Highlights | Management |
 | 05 | [[05_Feature_Matrix]] | Roadmap, Sprint-Status & Issues | Alle |

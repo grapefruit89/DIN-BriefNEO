@@ -1,0 +1,59 @@
+# start.ps1
+# Einfacher, robuster Einstiegspunkt für DIN-Brief Neo (Light Mode by Default)
+# Macht den täglichen Build + Reconciliation so automatisch wie möglich.
+#
+# Kann von zwei Orten aufgerufen werden:
+# - Direkt aus aktueller_arbeitsordner/  (empfohlen)
+# - Vom übergeordneten "DIN-Brief Neo/" Ordner aus (wird automatisch in den aktiven Ordner wechseln)
+
+$ErrorActionPreference = "Stop"
+
+Write-Host "=== DIN-Brief Neo - Start / Build (Light Mode) ===" -ForegroundColor Cyan
+Write-Host "Ziel: Einfacher Einstieg mit Reconciliation + Fitness Gate (100% Score)" -ForegroundColor Gray
+Write-Host ""
+
+# Intelligentes Verzeichnis-Handling
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$targetDir = $scriptDir
+
+# Wenn wir im Parent-Ordner sind (der "DIN-Brief Neo" Ordner), wechsle in den aktiven Unterordner
+if ((Split-Path -Leaf $scriptDir) -ne "aktueller_arbeitsordner") {
+    $possibleActive = Join-Path $scriptDir "aktueller_arbeitsordner"
+    if (Test-Path $possibleActive) {
+        $targetDir = $possibleActive
+        Write-Host "  (Automatisch in aktueller_arbeitsordner/ gewechselt)" -ForegroundColor DarkGray
+    }
+}
+
+Set-Location $targetDir
+
+Write-Host "[1/3] Prüfe Node.js..." -ForegroundColor Yellow
+try {
+    $nodeVersion = node --version
+    Write-Host "    Node gefunden: $nodeVersion" -ForegroundColor Green
+} catch {
+    Write-Error "Node.js nicht gefunden. Bitte installieren (https://nodejs.org)."
+    exit 1
+}
+
+Write-Host "[2/3] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
+node tools/build_db.js
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
+    Write-Error "Build fehlgeschlagen (Fitness < 100% oder kritische Violations). Siehe Ausgabe oben."
+    exit 1
+}
+
+Write-Host ""
+Write-Host "[3/3] Fertig. Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
+Write-Host ""
+Write-Host "Nächste Schritte (Light Mode - der Default):"
+Write-Host "  - Änderungen machen (siehe AGENTS.md)"
+Write-Host "  - Erneut .\start.ps1 ausführen (Pre + Post Gate)"
+Write-Host "  - Wichtige Aktionen mit node tools/log_session.js loggen"
+Write-Host ""
+Write-Host "Tipp: Light Mode für die meisten Änderungen (Bugfixes, kleine Refactorings)."
+Write-Host "Full Mode (mit spec/plan/tasks) nur für bewusst wichtige Features (siehe AGENTS.md)." -ForegroundColor Gray
+Write-Host ""
+Write-Host "=== ENDE ===" -ForegroundColor Cyan

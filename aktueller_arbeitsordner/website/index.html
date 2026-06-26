@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DIN-BriefNEO | Pure Refactored</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/floating.css" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <div id="app-shell" class="form-b">
+      <!-- GLASSMORPHIC SIDEBAR -->
+      <aside class="no-print">
+        <div class="sidebar-header">
+          <h1 class="sidebar-title">DIN-BriefNEO</h1>
+          <span style="font-size: 0.7rem; opacity: 0.7; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Pure Refactored Edition</span>
+        </div>
+
+        <div class="sidebar-scroll">
+          <div class="sidebar-section">
+            <!-- LAYOUT OPTIONS -->
+            <div>
+              <div class="sidebar-label">DIN-Brief Layout</div>
+              <div class="segmented-control">
+                <button id="btn-form-a">Form A (Kompakt)</button>
+                <button id="btn-form-b" class="active">Form B (Standard)</button>
+              </div>
+            </div>
+
+            <!-- THEME SELECTION -->
+            <div>
+              <div class="sidebar-label">Farbschema (Theme)</div>
+              <div class="segmented-control">
+                <button id="btn-theme-light">☀️ Hell</button>
+                <button id="btn-theme-dark">🌙 Dunkel</button>
+                <button id="btn-theme-auto" class="active">💻 Auto</button>
+              </div>
+            </div>
+
+            <!-- VISUAL GUIDES TOGGLE -->
+            <div>
+              <div class="sidebar-label">Hilfslinien</div>
+              <button id="btn-toggle-guides" class="btn primary" style="width: 100%;">
+                📐 Guides ausblenden
+              </button>
+            </div>
+            
+            <!-- OFFLINE FONT UPLOADER & MANAGER -->
+            <div>
+              <div class="sidebar-label">Schriftarten-Manager</div>
+              
+              <!-- Built-in System Stacks -->
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
+                <div class="segmented-control" id="font-stack-select">
+                  <button id="btn-font-sans" class="active" title="Moderne serifenlose Systemschrift">Sans</button>
+                  <button id="btn-font-serif" title="Klassische Serifenschrift">Serif</button>
+                  <button id="btn-font-mono" title="Technische Schreibmaschinenschrift">Mono</button>
+                </div>
+              </div>
+              
+              <!-- Custom Upload -->
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Eigene Webfont (WOFF2):</span>
+                <button id="btn-upload-font-trigger" class="btn" style="width: 100%;">
+                  📤 Schrift hochladen
+                </button>
+                <button id="btn-reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                  🗑️ Schrift zurücksetzen
+                </button>
+                <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: Systemschrift</span>
+                
+                <!-- Font references for UX -->
+                <div style="margin-top: 4px; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.7rem; line-height: 1.35;">
+                  💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Manrope</a> herunter und lade sie hier offline in deine App.
+                </div>
+              </div>
+              <input type="file" id="font-uploader" accept=".woff2" style="display: none;" />
+            </div>
+            
+            <!-- DUAL-PROVIDER ADRESS-AUTOCOMPLETE -->
+            <div>
+              <div class="sidebar-label">Adress-Autocomplete</div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Provider Select -->
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px;">
+                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Provider wählen:</span>
+                  <div class="segmented-control" id="provider-select">
+                    <button id="btn-provider-photon" class="active" title="Kostenlose Suche via Komoot/OSM">Photon</button>
+                    <button id="btn-provider-geoapify" title="Premium Suche via Geoapify (API-Key benötigt)">Geoapify</button>
+                  </div>
+                </div>
+
+                <!-- API-Key Input Container -->
+                <div id="geoapify-key-container">
+                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Geoapify API-Key:</span>
+                  <input type="password" id="input-geoapify-key" class="input-field" placeholder="API-Key eintragen..." style="width: 100%;" />
+                </div>
+                
+                <!-- Autocomplete Input -->
+                <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
+                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Empfänger-Adresse suchen:</span>
+                  <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%;" />
+                  
+                  <!-- Suggestions Dropdown -->
+                  <ul id="address-suggestions" class="autocomplete-dropdown" style="display: none;"></ul>
+                </div>
+
+                <!-- Info/UX Helper Box -->
+                <div id="autocomplete-info-box" style="padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.7rem; line-height: 1.35;">
+                  📡 Photon aktiv (kostenlose OpenStreetMap-Suche, kein API-Key erforderlich).
+                </div>
+              </div>
+            </div>
+            
+            <!-- REF MATRIX SUMMARY -->
+            <div style="margin-top: 10px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); font-size: 0.75rem; line-height: 1.4;">
+              <span style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 4px;">CONSTRAINTS ACTIVE:</span>
+              🚫 <b>Keine Scrollbalken</b> (100% Viewport)<br>
+              🚫 <b>Keine Frameworks</b> (Vanilla Web)<br>
+              💾 <b>LocalStorage</b> Auto-Save<br>
+              ⚡ <b>Chrome 148+</b> Engine Active
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS FOOTER -->
+        <div class="sidebar-section" style="gap: 10px; margin-top: auto;">
+          <button id="btn-print" class="btn primary" style="width: 100%;">
+            🖨️ Drucken / PDF speichern
+          </button>
+          <button id="btn-reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+            🗑️ Brief zurücksetzen
+          </button>
+        </div>
+      </aside>
+
+      <!-- PAPER VIEWPORT (NO-SCROLL SCALER) -->
+      <main id="viewport">
+        <!-- THE DIN A4 SHEET -->
+        <din-a4>
+          <!-- FOLD & PUNCH MARKS (GUIDES) -->
+          <div class="din-mark din-fold-top"></div>
+          <div class="din-mark din-fold-bottom"></div>
+          <div class="din-mark din-punch"></div>
+
+          <!-- SENDER IN-LINE address (Rücksendezeile) -->
+          <din-absender id="absender" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt"></din-absender>
+
+          <!-- RECIPIENT ADDRESS ZONE -->
+          <din-anschriftfeld id="empfaenger">
+            <div id="empfaenger-firma" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
+            <div id="empfaenger-name" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>
+            <div id="empfaenger-strasse" contenteditable="plaintext-only" placeholder="Straße & Hausnummer"></div>
+            <div id="empfaenger-ort" contenteditable="plaintext-only" placeholder="PLZ & Ort"></div>
+          </din-anschriftfeld>
+
+          <!-- INFOBLOCK (Right side metadata block) -->
+          <din-infoblock id="infoblock">
+            <div style="font-weight: 600; color: oklch(35% 0 0);">Ihr Zeichen:</div>
+            <div id="info-ihrzeichen" contenteditable="plaintext-only" placeholder="-"></div>
+            <div style="font-weight: 600; color: oklch(35% 0 0); margin-top: 4px;">Unser Zeichen:</div>
+            <div id="info-unserzeichen" contenteditable="plaintext-only" placeholder="NEO-2026"></div>
+            <div style="font-weight: 600; color: oklch(35% 0 0); margin-top: 4px;">Telefon:</div>
+            <div id="info-tel" contenteditable="plaintext-only" placeholder="0123 / 456789"></div>
+          </din-infoblock>
+
+
+          <!-- DATE -->
+          <din-datum id="datum" contenteditable="plaintext-only" placeholder="24. Mai 2026"></din-datum>
+
+          <!-- CORE LETTER CONTENT -->
+          <din-kern id="briefkern">
+            <!-- Subject Line -->
+            <div id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben"></div>
+            
+            <!-- Salutation -->
+            <div id="anrede" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren,"></div>
+            
+            <!-- Core text body (Inline Formats supported + protected by paste filter) -->
+            <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..."></din-text>
+            
+            <!-- Greeting Form -->
+            <div id="grussformel" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen,"></div>
+            
+            <!-- Signature typing name -->
+            <div id="unterschrift" contenteditable="plaintext-only" placeholder="Ihr getippter Name"></div>
+          </din-kern>
+
+          <!-- THREE-COLUMN IMMUTABLE FOOTER -->
+          <din-fuss id="brief-fuss">
+            <div>
+              <b contenteditable="plaintext-only" placeholder="Firmenname"></b><br />
+              Sitz der Gesellschaft: <span contenteditable="plaintext-only" placeholder="Ort"></span><br />
+              Registergericht: <span contenteditable="plaintext-only" placeholder="Amtsgericht X"></span>
+            </div>
+            <div>
+              Geschäftsführung:<br />
+              <span contenteditable="plaintext-only" placeholder="Geschäftsführer 1"></span><br />
+              Ust-IdNr: <span contenteditable="plaintext-only" placeholder="DE 123456789"></span>
+            </div>
+            <div>
+              Bankverbindung:<br />
+              <span contenteditable="plaintext-only" placeholder="Musterbank"></span><br />
+              IBAN: <span contenteditable="plaintext-only" placeholder="DE89 5000 0000 1234 5678 90"></span>
+            </div>
+          </din-fuss>
+          
+          <!-- UX PAGE OVERFLOW INDICATOR -->
+          <div class="overflow-indicator-text">⚠️ TEXT-ÜBERLAUF: Bitte Text kürzen</div>
+        </din-a4>
+      </main>
+    </div>
+
+    <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
+    <div id="format-toolbar" popover="manual" class="no-print">
+      <button id="btn-bold" title="Fett"><b>B</b></button>
+      <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
+      <button id="btn-quote" title="Zitat">»</button>
+    </div>
+
+    <!-- NATIVE POPOVER TOAST FEEDBACK -->
+    <div id="toast-v4" popover="manual" class="toast-container"></div>
+
+    <!-- EXTERNAL CSS SELECTION ANCHOR -->
+    <div id="selection-anchor" class="no-print"></div>
+  </body>
+</html>

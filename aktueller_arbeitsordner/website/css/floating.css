@@ -1,0 +1,182 @@
+/* css/floating.css */
+
+/* --- 1. GLOBAL POPOVER TOAST (#toast-v4) --- */
+#toast-v4 {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-sidebar-glass);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 9999;
+  pointer-events: auto;
+  cursor: pointer;
+  
+  /* Initial state (Hidden and slid up) */
+  opacity: 0;
+  transform: translateY(-20px);
+  
+  /* Modern discrete transition handling exit and entrance */
+  transition: 
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
+    overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#toast-v4:popover-open {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #toast-v4:popover-open {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Toast Semantic Border Accents */
+#toast-v4.type-success {
+  border-left: 4px solid var(--c-success);
+}
+#toast-v4.type-error {
+  border-left: 4px solid var(--c-danger);
+}
+#toast-v4.type-info {
+  border-left: 4px solid var(--c-primary);
+}
+#toast-v4.type-warning {
+  border-left: 4px solid var(--c-warning);
+}
+
+/* --- 2. WHATSAPP-STYLE SELECTION TOOLBAR (#format-toolbar) --- */
+#selection-anchor {
+  anchor-name: --selection-anchor;
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+  overflow: hidden;
+}
+
+#format-toolbar {
+  position: absolute;
+  position-anchor: --selection-anchor;
+  position-area: top center;
+  position-try-options: flip-block;
+  margin-bottom: 8px;
+  background: var(--bg-sidebar-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  z-index: 8888;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  
+  /* Initial transition state */
+  opacity: 0;
+  transform: scale(0.9) translateY(5px);
+  
+  /* Modern discrete transition handling exit and entrance */
+  transition: 
+    opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.15s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
+    overlay 0.15s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#format-toolbar:popover-open {
+  display: flex;
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+@starting-style {
+  #format-toolbar:popover-open {
+    opacity: 0;
+    transform: scale(0.9) translateY(5px);
+  }
+}
+
+/* Buttons inside the toolbar */
+#format-toolbar button {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+#format-toolbar button:hover {
+  background: var(--border-color);
+  color: var(--accent-color);
+}
+
+#format-toolbar button.active {
+  background: var(--accent-color);
+  color: contrast-color(var(--accent-color));
+  font-weight: 600;
+}
+
+#format-toolbar button b {
+  font-weight: 800;
+}
+
+#format-toolbar button u {
+  text-underline-offset: 2px;
+}
+
+/* --- 3. INPUT FLOATING ERROR FEEDBACK --- */
+.input-feedback-msg {
+  position: absolute;
+  top: 102%;
+  left: 0;
+  background: var(--c-danger);
+  color: oklch(100% 0 0); /* OKLCH White */
+  padding: 4px 8px;
+
+  border-radius: 6px;
+  font-size: 0.725rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.input-feedback-msg.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.input-feedback-msg.warning {
+  background: var(--c-warning);
+  color: oklch(15% 0.01 240);
+}
+
+.input-feedback-msg.success {
+  background: var(--c-success);
+}

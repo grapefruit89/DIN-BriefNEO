@@ -1,0 +1,72 @@
+================================================================================
+CHROME RELEASE CHANGELOGS & CHROME 149/150+ BLEEDING-EDGE FEATURE TESTING
+================================================================================
+
+Hier ist die vollstaendige Uebersicht, wo du die originalen Google Chrome-Changelogs
+und Feature-Entwicklungen im Detail einsehen und nachschlagen kannst.
+
+--------------------------------------------------------------------------------
+1. DIE OFFIZIELLEN QUELLEN FUER CHROME-RELEASE-INFORMATIONEN
+--------------------------------------------------------------------------------
+
+A. Chrome for Developers Blog
+   - URL: https://developer.chrome.com/blog
+   - Inhalt: W3C-Standards, CSS-Features und API-Erweiterungen mit Code-Beispielen
+     fuer Webentwickler. Der von dir zitierte Beitrag ist dort direkt zu finden.
+
+B. ChromeStatus (Die offizielle Feature-Datenbank)
+   - URL: https://chromestatus.com/features
+   - Inhalt: Hier listet das Chrome-Entwicklungsteam jedes einzelne Feature,
+     jede API, jede Deprecation (Entfernung) und jeden Origin-Trial auf.
+     Du kannst nach Meilensteinen (z.B. "149", "150", "151") filtern.
+
+C. Chromium Git Repository & Commit-Logs
+   - URL: https://chromium.googlesource.com/chromium/src/+log
+   - Inhalt: Der absolute Quellcode-Commit-Verlauf von Google. Ueber die Tags
+     kannst du exakt sehen, welche Zeile Code in welchem Release geaendert wurde.
+
+D. Chromium Issue Tracker
+   - URL: https://issues.chromium.org/
+   - Inhalt: Alle Bugs, Sicherheitsberichte und Funktions-Design-Dokumente.
+
+--------------------------------------------------------------------------------
+2. UNSER DIAGNOSE-SYSTEM (JETZT v29.0 MIT 47 CHECKS)
+--------------------------------------------------------------------------------
+
+Warum waren vorhin so viele Features READY?
+Weil dein Browser (Chrome 148.0.7778) ein extrem moderner Entwickler-Build ist!
+Er unterstuetzt bereits einen Grossteil aller Spezifikationen aus den Jahren 
+2024, 2025 und Anfang 2026 nativ.
+
+Um dir zu zeigen, wo die absoluten technologischen Grenzen deines aktuellen Browsers
+liegen, habe ich das Skript auf die brandneue Version 29.0 erweitert. Es enthaelt
+jetzt 47 Checks, darunter auch hoch-experimentelle und zukuenftige Spezifikationen,
+die in aktuellen Stable-Browsern definitiv noch als PENDING (ausstehend) angezeigt werden!
+
+Folgende zukunftsweisende Features wurden integriert:
+
+A. Die neuen Chrome 149 Beta-Features:
+   - CSS Gap Decorations (row-rule, column-rule-break)
+   - CSS image-rendering: crisp-edges
+   - CSS shape-outside (rect/xywh)
+   - CSS shape-outside (path/shape)
+   - CSS path-length Eigenschaft (SVG-Mapping)
+   - Programmatic Scroll Promises (scrollTo returning Promise)
+   - Request.isReloadNavigation (Service-Worker / Fetch)
+   - Intl.Locale.prototype.variants (ECMA402)
+   - Permissions Policy: focus-without-user-activation
+   - Gamepad Raw Input Event
+
+B. Hoch-experimentelle & Kuenftige API-Entwuerfe (Chrome 150+ & Standards):
+   - CSS Mixins (@mixin / @apply): Native wiederverwendbare CSS-Bloecke.
+   - JS Signals API (Native): Native hochperformante Zustandsreaktivitaet.
+   - JS Observable API (Native): Native Stream-Verarbeitung in JS ohne RxJS-Bibliothek.
+   - Customizable Select Element: Native Dropdowns, die vollstaendig per CSS gestaltbar sind.
+   - CSS anchor-scope: Gekapselte Namensraeume fuer CSS-Anker.
+   - CSS scroll-start-target: Festlegung des Standard-Viewport-Scrolltargets.
+   - WebRTC Encoded Transform: Echtzeit-Videomanipulation direkt im Browser.
+
+Ort der Datei:
+C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\eigenequellen\DIN-BriefNEO\check_readiness.js
+
+================================================================================

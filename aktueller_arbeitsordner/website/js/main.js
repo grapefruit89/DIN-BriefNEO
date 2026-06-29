@@ -1,6 +1,8 @@
 /* js/main.js */
 import { StorageManager } from './storage.js';
 import { Constants } from './constants.js';
+import { SalutationFeature } from './salutation-engine.js';
+import { MetadataService } from './metadata.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
@@ -62,6 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
     attachFormattingToolbar();
     checkTextOverflow();
     initGeoapify();
+
+    // Init Salutation
+    const salutation = new SalutationFeature(saveDraftData);
+    salutation.init();
   }
 
   // --- OFFLINE FONT INJECTION (1-Font Limit for file://) ---
@@ -386,7 +392,24 @@ document.addEventListener('DOMContentLoaded', () => {
               const data = await res.json();
               if (data.places && data.places.length > 0) {
                 const city = data.places[0]["place name"];
-                empfOrtEl.textContent = `${zip} ${city}`;
+                const newText = `${zip} ${city}`;
+                
+                // Caret protection
+                if (document.activeElement === empfOrtEl) {
+                  const selection = window.getSelection();
+                  const offset = selection.focusOffset;
+                  empfOrtEl.textContent = newText;
+                  
+                  // Restore caret to end
+                  const range = document.createRange();
+                  range.selectNodeContents(empfOrtEl);
+                  range.collapse(false);
+                  selection.removeAllRanges();
+                  selection.addRange(range);
+                } else {
+                  empfOrtEl.textContent = newText;
+                }
+                
                 saveDraftData();
                 showToast(`Ort gefunden: ${city}`, "info");
               }
@@ -831,7 +854,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Print
     btnPrint.addEventListener('click', () => {
       showToast(Constants.TOASTS.PRINT_PENDING, 'info');
-      window.print();
+      const metaCtx = MetadataService.prepare();
+      
+      setTimeout(() => {
+        window.print();
+        MetadataService.restore(metaCtx);
+      }, 100);
     });
 
     // Reset

@@ -21,12 +21,28 @@
 
         <div class="sidebar-scroll">
           <div class="sidebar-section">
-            <!-- LAYOUT OPTIONS -->
             <div>
               <div class="sidebar-label">DIN-Brief Layout</div>
               <div class="segmented-control">
                 <button id="btn-form-a">Form A (Kompakt)</button>
                 <button id="btn-form-b" class="active">Form B (Standard)</button>
+              </div>
+            </div>
+
+            <!-- SALUTATION OPTIONS -->
+            <div>
+              <div class="sidebar-label">Brief-Stil & Anrede</div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="segmented-control">
+                  <button id="btn-style-formal" class="active" title="Förmlich (Sehr geehrte...)">Förmlich</button>
+                  <button id="btn-style-polite" title="Höflich (Guten Tag...)">Höflich</button>
+                  <button id="btn-style-casual" title="Modern (Hallo...)">Locker</button>
+                </div>
+                <div class="segmented-control">
+                  <button id="btn-gender-none" class="active" title="Neutral / Unbekannt">Neutral</button>
+                  <button id="btn-gender-female" title="Weiblich">Frau</button>
+                  <button id="btn-gender-male" title="Männlich">Herr</button>
+                </div>
               </div>
             </div>
 

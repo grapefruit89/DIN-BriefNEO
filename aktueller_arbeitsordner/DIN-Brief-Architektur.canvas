@@ -1,0 +1,876 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "file",
+      "file": ".specify/constitution.md",
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "2",
+      "type": "file",
+      "file": ".specify/templates/spec.md",
+      "x": 600,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "3",
+      "type": "file",
+      "file": "ADR/ADR-ANTIPATTERN.md",
+      "x": 1200,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "4",
+      "type": "file",
+      "file": "ADR/ADR-API.md",
+      "x": 1800,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "5",
+      "type": "file",
+      "file": "ADR/ADR-CSS.md",
+      "x": 2400,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "6",
+      "type": "file",
+      "file": "ADR/ADR-FEATURE.md",
+      "x": 0,
+      "y": 400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "7",
+      "type": "file",
+      "file": "ADR/ADR-HTML.md",
+      "x": 600,
+      "y": 400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "8",
+      "type": "file",
+      "file": "ADR/ADR-JS.md",
+      "x": 1200,
+      "y": 400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "9",
+      "type": "file",
+      "file": "ADR/ADR-TECH-STACK.md",
+      "x": 1800,
+      "y": 400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "10",
+      "type": "file",
+      "file": "ADR/ADR-TEMPLATE.md",
+      "x": 2400,
+      "y": 400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "11",
+      "type": "file",
+      "file": "ADR/Code-Referenzen.md",
+      "x": 0,
+      "y": 800,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "12",
+      "type": "file",
+      "file": "CHANGELOG.md",
+      "x": 600,
+      "y": 800,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "13",
+      "type": "file",
+      "file": "constitution.md",
+      "x": 1200,
+      "y": 800,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "14",
+      "type": "file",
+      "file": "DECISION-LOG.md",
+      "x": 1800,
+      "y": 800,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "15",
+      "type": "file",
+      "file": "DEV-INFO.md",
+      "x": 2400,
+      "y": 800,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "16",
+      "type": "file",
+      "file": "DRINGEND NOCH BEHEBEN.md",
+      "x": 0,
+      "y": 1200,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "17",
+      "type": "file",
+      "file": "FEATURE-INVENTORY.md",
+      "x": 600,
+      "y": 1200,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "18",
+      "type": "file",
+      "file": "Guides/chrome-modern-css.md",
+      "x": 1200,
+      "y": 1200,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "19",
+      "type": "file",
+      "file": "Guides/din-5008-geometry.md",
+      "x": 1800,
+      "y": 1200,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "20",
+      "type": "file",
+      "file": "Guides/din-5008-layout.md",
+      "x": 2400,
+      "y": 1200,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "21",
+      "type": "file",
+      "file": "Guides/glossary.md",
+      "x": 0,
+      "y": 1600,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "22",
+      "type": "file",
+      "file": "Guides/GUIDE-TEMPLATE.md",
+      "x": 600,
+      "y": 1600,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "23",
+      "type": "file",
+      "file": "Guides/longevity-guidelines.md",
+      "x": 1200,
+      "y": 1600,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "24",
+      "type": "file",
+      "file": "Guides/no-scroll-techniques.md",
+      "x": 1800,
+      "y": 1600,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "25",
+      "type": "file",
+      "file": "Guides/testing-guide.md",
+      "x": 2400,
+      "y": 1600,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "26",
+      "type": "file",
+      "file": "HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+      "x": 0,
+      "y": 2000,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "27",
+      "type": "file",
+      "file": "MASTER-DO-DONT-DEPRECATED.md",
+      "x": 600,
+      "y": 2000,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "28",
+      "type": "file",
+      "file": "MIGRATION-ROADMAP-TO-BOILERPLATE.md",
+      "x": 1200,
+      "y": 2000,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "29",
+      "type": "file",
+      "file": "MODERNIZATION-GUIDE.md",
+      "x": 1800,
+      "y": 2000,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "30",
+      "type": "file",
+      "file": "PHASE1-SQLITE-VEC-IMPLEMENTATION.md",
+      "x": 2400,
+      "y": 2000,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "31",
+      "type": "file",
+      "file": "README-DB.md",
+      "x": 0,
+      "y": 2400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "32",
+      "type": "file",
+      "file": "README.md",
+      "x": 600,
+      "y": 2400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "33",
+      "type": "file",
+      "file": "ROADMAP.md",
+      "x": 1200,
+      "y": 2400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "34",
+      "type": "file",
+      "file": "spec.md",
+      "x": 1800,
+      "y": 2400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "35",
+      "type": "file",
+      "file": "specs/001-hybrid-workflow-integration/spec.md",
+      "x": 2400,
+      "y": 2400,
+      "width": 400,
+      "height": 300
+    },
+    {
+      "id": "36",
+      "type": "file",
+      "file": "tasks.md",
+      "x": 0,
+      "y": 2800,
+      "width": 400,
+      "height": 300
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "3",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e2",
+      "fromNode": "3",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e3",
+      "fromNode": "3",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e4",
+      "fromNode": "3",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e5",
+      "fromNode": "3",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e6",
+      "fromNode": "3",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e7",
+      "fromNode": "4",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e8",
+      "fromNode": "4",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e9",
+      "fromNode": "4",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e10",
+      "fromNode": "4",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e11",
+      "fromNode": "4",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e12",
+      "fromNode": "5",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e13",
+      "fromNode": "5",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e14",
+      "fromNode": "5",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e15",
+      "fromNode": "5",
+      "fromSide": "right",
+      "toNode": "24",
+      "toSide": "left"
+    },
+    {
+      "id": "e16",
+      "fromNode": "5",
+      "fromSide": "right",
+      "toNode": "19",
+      "toSide": "left"
+    },
+    {
+      "id": "e17",
+      "fromNode": "5",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e18",
+      "fromNode": "6",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e19",
+      "fromNode": "6",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e20",
+      "fromNode": "6",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e21",
+      "fromNode": "6",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e22",
+      "fromNode": "6",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e23",
+      "fromNode": "7",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e24",
+      "fromNode": "7",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e25",
+      "fromNode": "7",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e26",
+      "fromNode": "7",
+      "fromSide": "right",
+      "toNode": "19",
+      "toSide": "left"
+    },
+    {
+      "id": "e27",
+      "fromNode": "7",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e28",
+      "fromNode": "8",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e29",
+      "fromNode": "8",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e30",
+      "fromNode": "8",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e31",
+      "fromNode": "8",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e32",
+      "fromNode": "8",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e33",
+      "fromNode": "8",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e34",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e35",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e36",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e37",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e38",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e39",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e40",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e41",
+      "fromNode": "9",
+      "fromSide": "right",
+      "toNode": "19",
+      "toSide": "left"
+    },
+    {
+      "id": "e42",
+      "fromNode": "10",
+      "fromSide": "right",
+      "toNode": "25",
+      "toSide": "left"
+    },
+    {
+      "id": "e43",
+      "fromNode": "10",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e44",
+      "fromNode": "11",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e45",
+      "fromNode": "11",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e46",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e47",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "32",
+      "toSide": "left"
+    },
+    {
+      "id": "e48",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e49",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e50",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e51",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e52",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e53",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "15",
+      "toSide": "left"
+    },
+    {
+      "id": "e54",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "35",
+      "toSide": "left"
+    },
+    {
+      "id": "e55",
+      "fromNode": "14",
+      "fromSide": "right",
+      "toNode": "31",
+      "toSide": "left"
+    },
+    {
+      "id": "e56",
+      "fromNode": "15",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e57",
+      "fromNode": "15",
+      "fromSide": "right",
+      "toNode": "27",
+      "toSide": "left"
+    },
+    {
+      "id": "e58",
+      "fromNode": "15",
+      "fromSide": "right",
+      "toNode": "29",
+      "toSide": "left"
+    },
+    {
+      "id": "e59",
+      "fromNode": "15",
+      "fromSide": "right",
+      "toNode": "35",
+      "toSide": "left"
+    },
+    {
+      "id": "e60",
+      "fromNode": "17",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e61",
+      "fromNode": "17",
+      "fromSide": "right",
+      "toNode": "9",
+      "toSide": "left"
+    },
+    {
+      "id": "e62",
+      "fromNode": "17",
+      "fromSide": "right",
+      "toNode": "35",
+      "toSide": "left"
+    },
+    {
+      "id": "e63",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e64",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e65",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e66",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "19",
+      "toSide": "left"
+    },
+    {
+      "id": "e67",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e68",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e69",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e70",
+      "fromNode": "21",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e71",
+      "fromNode": "23",
+      "fromSide": "right",
+      "toNode": "8",
+      "toSide": "left"
+    },
+    {
+      "id": "e72",
+      "fromNode": "23",
+      "fromSide": "right",
+      "toNode": "5",
+      "toSide": "left"
+    },
+    {
+      "id": "e73",
+      "fromNode": "23",
+      "fromSide": "right",
+      "toNode": "6",
+      "toSide": "left"
+    },
+    {
+      "id": "e74",
+      "fromNode": "23",
+      "fromSide": "right",
+      "toNode": "4",
+      "toSide": "left"
+    },
+    {
+      "id": "e75",
+      "fromNode": "23",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    },
+    {
+      "id": "e76",
+      "fromNode": "23",
+      "fromSide": "right",
+      "toNode": "7",
+      "toSide": "left"
+    },
+    {
+      "id": "e77",
+      "fromNode": "33",
+      "fromSide": "right",
+      "toNode": "23",
+      "toSide": "left"
+    },
+    {
+      "id": "e78",
+      "fromNode": "33",
+      "fromSide": "right",
+      "toNode": "3",
+      "toSide": "left"
+    }
+  ]
+}

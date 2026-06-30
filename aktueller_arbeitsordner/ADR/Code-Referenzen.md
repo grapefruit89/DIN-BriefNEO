@@ -1,0 +1,8 @@
+# Code-Referenzen
+
+Diese Datei wird automatisch von `build_db.js` generiert und listet alle Architektur-Verknüpfungen aus dem Quellcode auf.
+
+| Code Datei | Zeile | Architektur-Entscheidung |
+| :--- | :--- | :--- |
+| website/js/signature.js | 1 | [[ADR-JS]] |
+| website/css/layout.css | 1 | [[ADR-CSS]] |

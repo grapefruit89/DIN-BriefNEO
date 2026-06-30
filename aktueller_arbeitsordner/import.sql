@@ -817,6 +817,73 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'w3c');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-TEMPLATE.md',
+  'ADR-000: [Titel der Architektur-Entscheidung]',
+  'draft | proposed | accepted | rejected | deprecated',
+  '# Architectural Decision Record (ADR): [Titel]
+
+> [!info] Info-Block (Hintergrund)
+> Dies ist ein Template. Nutze diese Callouts (`> [!info]`, `> [!warning]`, `> [!danger]`, `> [!tip]`), um wichtige kontextuelle Informationen für andere Entwickler oder KI-Agenten hervorzuheben. Sie verbessern die Lesbarkeit enorm.
+
+## 1. Kontext & Problemstellung
+
+Beschreibe hier das Problem, das gelöst werden muss. Verlinke gerne auf andere Dokumente mit Wiki-Links, z. B. [[longevity-guidelines]].
+
+<details>
+<summary>Historischer Kontext (Klicken zum Ausklappen)</summary>
+Nutze das `<details>`-Tag, um sehr lange oder sekundäre Erklärungen zu verstecken, damit das Dokument beim ersten Überfliegen übersichtlich bleibt.
+</details>
+
+## 2. Betrachtete Optionen
+
+Nutze Tabellen, um verschiedene technische Lösungswege strukturiert gegenüberzustellen:
+
+| Option | Vorteil | Nachteil |
+| :--- | :--- | :--- |
+| **Option A** (Native API) | Zero Dependencies, rasend schnell | Braucht modernen Browser (Chrome 148+) |
+| **Option B** (npm Library) | Abwärtskompatibel | Bläht das Bundle auf, Sicherheitsrisiko |
+
+## 3. Die Entscheidung
+
+> [!success] Wir haben uns für **Option A** entschieden.
+
+### Begründung
+Nutze hier einfache Checklisten, um Argumente oder Anforderungen abzuhaken:
+- [x] Entspricht der Zero-JS-Philosophie
+- [x] Erfüllt den 100% Fitness Score
+- [ ] Unterstützt veraltete IE11-Browser (bewusst ignoriert)
+
+## 4. Architektur-Diagramm
+
+Nutze Mermaid-Diagramme, um Workflows oder Datenflüsse visuell darzustellen (anstatt sie nur in Textform zu erklären):
+
+```mermaid
+graph TD
+    A[Nutzer klickt] --> B{Hat Browser Feature X?}
+    B -- Ja --> C[Nutze native Web API]
+    B -- Nein --> D[Zeige sanften Fallback]
+```
+
+## 5. Feature Checks (Living Documentation)
+
+Falls diese Entscheidung auf modernen Browser-APIs basiert, deklariere den nativen Feature-Check hier. Der Compiler (`tools/build_healthcheck.js`) zieht diesen Block automatisch heraus und baut daraus die Test-Suite für die Website:
+
+```javascript feature-check
+// Erklärung: Dieser Block wird aus dem Markdown gelesen. Er darf keinen echten Code ausführen, 
+// sondern nur die ''f()''-Funktion für den Healthcheck aufrufen!
+// Beispiel: f("Feature Name", typeof globalThis.Feature !== "undefined", "Chrome 120", "Produktiv")
+```',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TEMPLATE.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TEMPLATE.md'), 'template');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TEMPLATE.md'), 'architektur');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'boilerplate.config.json',
   'boilerplate.config.json',
   'active',
@@ -2297,6 +2364,75 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'guide');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'manual');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'glossary');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'Guides/GUIDE-TEMPLATE.md',
+  'Guide: [Thema des Guides]',
+  'draft | active | deprecated',
+  '# Guide: [Titel]
+
+> [!tip] Was ist ein Guide?
+> Im Gegensatz zu einem ADR (das eine einmalige Entscheidung dokumentiert), ist ein Guide ein lebendes Handbuch. Hier erklären wir, *wie* Dinge in unserem Projekt umgesetzt werden (z. B. "Wie nutzen wir CSS?", "Wie testen wir?").
+
+## 1. Einleitung & Zielsetzung
+
+Kurze Einleitung, warum dieser Guide existiert. Verlinke verwandte Konzepte per [[Wiki-Link]].
+
+## 2. Best Practices
+
+Nutze verschachtelte Listen und Checklisten, um Richtlinien klar zu formulieren:
+- **Regel 1**: Schreibe klaren Code.
+  - [x] Überprüft durch Linter
+  - [ ] Noch nicht dokumentiert
+- **Regel 2**: Nutze native APIs.
+
+### Code-Beispiele (Vorher / Nachher)
+
+Nutze Diff-Blöcke (`diff`), um Verbesserungen oder Refactorings zu veranschaulichen:
+
+```diff
+- const elements = document.querySelectorAll(''.old-class'');
+- elements.forEach(el => el.style.display = ''none'');
++ // Neuer Zero-JS Ansatz via CSS
++ :root:has(#toggle:checked) .new-class { display: none; }
+```
+
+### Syntax Highlighting
+
+Nutze spezifische Code-Blöcke (`css`, `javascript`, `html`), um die Lesbarkeit zu garantieren:
+
+```css
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+```
+
+## 3. Komplexere Zusammenhänge
+
+Wenn ein Konzept schwer zu erklären ist, verstecke Randnotizen in einem Aufklapp-Menü:
+
+<details>
+<summary>Deep Dive: Wie funktioniert Backdrop-Filter? (Klicken)</summary>
+Backdrop-Filter wendet grafische Effekte (wie Unschärfe) auf den Bereich *hinter* einem Element an. Das Element selbst muss dafür teilweise transparent sein (z.B. durch `rgba`).
+</details>
+
+## 4. Feature Checks
+
+Gibt dieser Guide vor, bestimmte Web-APIs zu nutzen? Dann trage sie hier in das Compiler-System ein:
+
+```javascript feature-check
+// f("CSS backdrop-filter", CSS.supports("backdrop-filter: blur(10px)"), "Chrome 76", "Produktiv")
+```',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/GUIDE-TEMPLATE.md'), 'guide');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/GUIDE-TEMPLATE.md'), 'documentation');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/GUIDE-TEMPLATE.md'), 'template');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/longevity-guidelines.md',
@@ -4724,3 +4860,14 @@ INSERT INTO fitness_history (score, metadata_score, coherence_score, conformance
 );
 
 -- Current Reconciliation Diagnostics
+-- Code Links
+CREATE TABLE IF NOT EXISTS tbl_code_links (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  file_path TEXT NOT NULL,
+  line_number INTEGER NOT NULL,
+  adr_ref TEXT NOT NULL
+);
+
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
+

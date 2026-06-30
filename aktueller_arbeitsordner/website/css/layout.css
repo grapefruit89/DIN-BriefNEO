@@ -1,3 +1,4 @@
+/* @adr [[ADR-CSS]] */
 /* css/layout.css */
 
 /* --- APP SHELL --- */
@@ -543,3 +544,4 @@ din-anlagen, din-verteiler {
     page-break-after: always;
   }
 }
+

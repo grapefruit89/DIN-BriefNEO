@@ -1,3 +1,4 @@
+// @adr [[ADR-JS]]
 /* js/signature.js */
 export class SignatureFeature {
   constructor(uiContext) {
@@ -115,3 +116,4 @@ export class SignatureFeature {
     }
   }
 }
+

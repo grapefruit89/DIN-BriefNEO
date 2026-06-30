@@ -3,8 +3,9 @@ title: "Architectural Decision Record (ADR): Forbidden Practices & Antipatterns"
 status: accepted
 date: 2026-05-24
 deciders: morit, antigravity
-tags: [antipattern, rules, boundaries, security, local-context]
-related: [ADR-HTML.md, ADR-CSS.md, ADR-JS.md, ADR-API.md, ../Guides/longevity-guidelines.md]
+tags: [obsidian, adr, antipattern, rules, boundaries, security, local-context]
+aliases: ["Architectural Decision Record (ADR): Forbidden Practices & Antipatterns"]
+related: ["[[ADR-HTML]]", "[[ADR-CSS]]", "[[ADR-JS]]", "[[ADR-API]]", "[[longevity-guidelines]]"]
 ---
 
 # Architectural Decision Record (ADR): Forbidden Practices & Antipatterns
@@ -13,7 +14,9 @@ related: [ADR-HTML.md, ADR-CSS.md, ADR-JS.md, ADR-API.md, ../Guides/longevity-gu
 Akzeptiert
 
 ## Kontext & Problemstellung
-Um die Langlebigkeit, Wartungsfreiheit, extreme Performance und uneingeschränkte Offline-Lauffähigkeit von **DIN-BriefNEO** zu sichern, müssen bestimmte, im modernen Web oft übliche Praktiken strikt verboten werden. Dieses Dokument dient als unnachgiebige "Verfassung" zur Einhaltung der Projekt-Bedingungen.
+
+> [!info] Hintergrund
+> Um die Langlebigkeit, Wartungsfreiheit, extreme Performance und uneingeschränkte Offline-Lauffähigkeit von **DIN-BriefNEO** zu sichern, müssen bestimmte, im modernen Web oft übliche Praktiken strikt verboten werden. Dieses Dokument dient als unnachgiebige "Verfassung" zur Einhaltung der Projekt-Bedingungen.
 
 ---
 
@@ -26,7 +29,7 @@ Es dürfen **keine** Frameworks wie React, Vue, Svelte, Angular oder Bibliotheke
 ### 2. Externe CDNs & Google Web Fonts (Striktes Verbot)
 Es dürfen **keinerlei** externen Scripts, Stylesheets oder Webfonts über CDNs oder externe Server geladen werden (z. B. Google Fonts).
 *   **Begründung:** Verstößt gegen die DSGVO (IP-Abfluss) und zerstört die Offline-Lauffähigkeit der App. Alle Assets müssen zu 100 % lokal abgelegt und offline verfügbar sein.
-*   **Verweis:** Siehe [ADR-CSS.md](ADR-CSS.md) zur Typografie und [ADR-FEATURE.md](ADR-FEATURE.md) zum Schriftarten-Manager.
+*   **Verweis:** Siehe [[ADR-CSS|ADR-CSS.md]] zur Typografie und [[ADR-FEATURE|ADR-FEATURE.md]] zum Schriftarten-Manager.
 
 ### 3. Komplexere lokale Storage-APIs (OPFS, IndexedDB, File System API)
 Die Verwendung von IndexedDB, Origin Private File System (OPFS), File System Access API oder der Storage-API im weiteren Sinne ist untersagt.
@@ -36,12 +39,12 @@ Die Verwendung von IndexedDB, Origin Private File System (OPFS), File System Acc
 ### 4. Veraltetes document.execCommand (Striktes Verbot)
 Die Nutzung von `document.execCommand` für selbstentwickelte Editorelemente (wie Zitate) ist untersagt.
 *   **Begründung:** Die API ist *deprecated* (veraltet) und wird in modernen Browser-Engines schrittweise entfernt. Für die Toolbar-Formatierung nutzen wir ausschließlich native Browser-Shortcuts oder die zukunftssichere Selection & Range API.
-*   **Verweis:** Siehe [ADR-JS.md](ADR-JS.md) zur DOM-Baum-Durchquerung.
+*   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] zur DOM-Baum-Durchquerung.
 
 ### 5. Scrollbalken im Viewport (Striktes Verbot)
 Die Sichtbarkeit von Scrollbalken im normalen Anwendungsfenster (ausgenommen bewusster Browser-Zoom des Nutzers) ist verboten.
 *   **Begründung:** Stört die Ästhetik des Premium-Designs und beeinträchtigt das WYSIWYG-Konzept des Briefbogens.
-*   **Verweis:** Siehe [ADR-CSS.md](ADR-CSS.md) zur Viewport-Sperre.
+*   **Verweis:** Siehe [[ADR-CSS|ADR-CSS.md]] zur Viewport-Sperre.
 
 ### 6. Verwendung von Legacy-Datums-APIs (new Date(), moment.js, date-fns) (Striktes Verbot)
 Die Verwendung des klassischen JavaScript `Date`-Objekts (`new Date()`) sowie externer Datumsbibliotheken wie `moment.js`, `date-fns` oder `luxon` ist strikt untersagt.
@@ -84,9 +87,9 @@ Die Verwendung von inline `style="..."` Attributen für strukturelle oder gestal
 ---
 
 ## Verknüpfungen
-*   Siehe [ADR-HTML.md](ADR-HTML.md) zu `contenteditable` und Popover.
-*   Siehe [ADR-CSS.md](ADR-CSS.md) zum reinen CSS-Zoom.
-*   Siehe [ADR-JS.md](ADR-JS.md) zur JavaScript-Reglementierung.
-*   Siehe [ADR-API.md](ADR-API.md) zur Header-Sicherheit.
-*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+*   Siehe [[ADR-HTML|ADR-HTML.md]] zu `contenteditable` und Popover.
+*   Siehe [[ADR-CSS|ADR-CSS.md]] zum reinen CSS-Zoom.
+*   Siehe [[ADR-JS|ADR-JS.md]] zur JavaScript-Reglementierung.
+*   Siehe [[ADR-API|ADR-API.md]] zur Header-Sicherheit.
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
 

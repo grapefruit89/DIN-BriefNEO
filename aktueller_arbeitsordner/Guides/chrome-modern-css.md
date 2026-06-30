@@ -1,12 +1,14 @@
 ---
 title: Modern CSS Features ab Chrome 148+
 status: active
-tags: [documentation, guide, manual]
+tags: [obsidian, documentation, guide, manual, css]
+aliases: ["Chrome Modern CSS", "CSS Features"]
 ---
 
 # Modern CSS Features ab Chrome 148+
 
-Da die Anwendung exklusiv für moderne Browser-Installationen ab Chrome 148+ entwickelt wird, können wir modernste APIs einsetzen. Dieses Dokument dient als Entwicklungs-Referenz für die erlaubten und empfohlenen Features.
+> [!important] Chrome 148+ Exklusivität
+> Da die Anwendung exklusiv für moderne Browser-Installationen ab Chrome 148+ entwickelt wird, können wir modernste APIs einsetzen. Dieses Dokument dient als Entwicklungs-Referenz für die erlaubten und empfohlenen Features.
 
 ---
 
@@ -103,4 +105,13 @@ Einblenden und Schließen von Menüs und Dialogen ohne eine einzige Zeile JavaSc
   <h4>Entwickler-Werkzeuge</h4>
   <p>Status: Aktiv</p>
 </div>
+```
+
+
+## Feature Checks
+```javascript feature-check
+f("CSS @scope (Isolation)", typeof CSSScopeRule !== "undefined", "Chrome 118", "Future-Proof"),
+f("CSS Anchor Positioning", typeof CSS !== "undefined" && CSS.supports && CSS.supports("anchor-name: --foo"), "Chrome 125", "Future-Proof"),
+f("CSS light-dark()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: light-dark(black, white)"), "Chrome 123", "Produktiv"),
+f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: oklch(from red l c h)"), "Chrome 119", "Produktiv")
 ```

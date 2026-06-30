@@ -1,7 +1,8 @@
 ---
 title: Verfassung (Constitution) — DIN-BriefNEO
 status: active
-tags: [documentation]
+tags: [obsidian, core, documentation]
+aliases: ["constitution"]
 ---
 
 # Verfassung (Constitution) — DIN-BriefNEO

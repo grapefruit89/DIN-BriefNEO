@@ -1,7 +1,8 @@
 ---
 title: Zukunfts-Roadmap (Lose Zukunftsplanungen): ROADMAP.md
 status: active
-tags: [documentation, roadmap, future]
+tags: [obsidian, core, documentation, roadmap, future]
+aliases: ["ROADMAP"]
 ---
 
 # Zukunfts-Roadmap (Lose Zukunftsplanungen): ROADMAP.md
@@ -45,5 +46,5 @@ Dieses Dokument dient als offene Ideensammlung für zukünftige Erweiterungen vo
 ---
 
 ## 🔗 Verweise
-*   Siehe [longevity-guidelines.md](Guides/longevity-guidelines.md) zur Vermeidung von CDN- oder Drittanbieter-Bibliotheken bei diesen Ideen.
-*   Siehe [ADR-ANTIPATTERN.md](ADR/ADR-ANTIPATTERN.md) für das strikte Verbot von CDN-Verbindungen.
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] zur Vermeidung von CDN- oder Drittanbieter-Bibliotheken bei diesen Ideen.
+*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das strikte Verbot von CDN-Verbindungen.

@@ -3,8 +3,9 @@ title: "ADR: JavaScript Constraints & 'JS as a Crutch'"
 status: accepted
 date: 2026-05-24
 deciders: morit, antigravity
-tags: [js, scripting, event-handling, dom-selection, constraints]
-related: [ADR-HTML.md, ADR-CSS.md, ../Guides/longevity-guidelines.md]
+tags: [obsidian, adr, js, scripting, event-handling, dom-selection, constraints]
+aliases: ["JavaScript Constraints & 'JS as a Crutch'"]
+related: ["[[ADR-HTML]]", "[[ADR-CSS]]", "[[longevity-guidelines]]"]
 ---
 
 # Architectural Decision Record (ADR): JavaScript Constraints & "JS as a Crutch"
@@ -13,7 +14,9 @@ related: [ADR-HTML.md, ADR-CSS.md, ../Guides/longevity-guidelines.md]
 Akzeptiert
 
 ## Kontext & Problemstellung
-Moderne Webapplikationen neigen dazu, JavaScript für visuelle Effekte, Rendering-Operationen und Layout-Berechnungen einzusetzen. Dies erhöht die Fehleranfälligkeit, verschlechtert die Ladezeit und führt zu technischer Schuld. Im **DIN-BriefNEO**-Projekt soll JavaScript streng auf eine logische Begleitschicht reduziert werden.
+
+> [!info] Hintergrund
+> Moderne Webapplikationen neigen dazu, JavaScript für visuelle Effekte, Rendering-Operationen und Layout-Berechnungen einzusetzen. Dies erhöht die Fehleranfälligkeit, verschlechtert die Ladezeit und führt zu technischer Schuld. Im **DIN-BriefNEO**-Projekt soll JavaScript streng auf eine logische Begleitschicht reduziert werden.
 
 ---
 
@@ -58,9 +61,21 @@ Wir kapseln alle Benutzer-initiierten UI-Layoutänderungen (z. B. Umschalten zwi
 ---
 
 ## Verknüpfungen
-*   Siehe [ADR-HTML.md](ADR-HTML.md) für `contenteditable` und native Popover.
-*   Siehe [ADR-CSS.md](ADR-CSS.md) für die reinen CSS-Zoom-Techniken.
-*   Siehe [ADR-API.md](ADR-API.md) für API-Vorschriften.
-*   Siehe [ADR-FEATURE.md](ADR-FEATURE.md) für Details zur Toast-Queue und Toolbar.
-*   Siehe [ADR-ANTIPATTERN.md](ADR-ANTIPATTERN.md) für das Verbot von Frameworks.
-*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+*   Siehe [[ADR-HTML|ADR-HTML.md]] für `contenteditable` und native Popover.
+*   Siehe [[ADR-CSS|ADR-CSS.md]] für die reinen CSS-Zoom-Techniken.
+*   Siehe [[ADR-API|ADR-API.md]] für API-Vorschriften.
+*   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für Details zur Toast-Queue und Toolbar.
+*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Frameworks.
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+
+### 5. Canvas-Komprimierung fOr groYe Binrdaten
+Wir nutzen ein unsichtbares OffscreenCanvas oder regulres <canvas> (wie im SignatureFeature), um vom Nutzer hochgeladene Bilder clientseitig massiv zu komprimieren (max 400px), bevor sie als Base64 im localStorage gespeichert werden. Dies verhindert das schnelle Sprengen des 5MB Speicherlimits und zementiert die serverlose, offline-fhige Architektur der Anwendung.
+
+
+## Feature Checks
+```javascript feature-check
+f("Temporal API", typeof globalThis.Temporal !== "undefined", "Chrome 146", "Future-Proof"),
+f("View Transitions (Scoped)", typeof document.startViewTransition !== "undefined", "Chrome 146", "Future-Proof"),
+f("Sanitizer API (Native)", typeof globalThis.Sanitizer !== "undefined", "Chrome 147", "Future-Proof"),
+f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chrome 119", "Produktiv")
+```

@@ -24,8 +24,8 @@
             <div>
               <div class="sidebar-label">DIN-Brief Layout</div>
               <div class="segmented-control">
-                <button id="btn-form-a">Form A (Kompakt)</button>
-                <button id="btn-form-b" class="active">Form B (Standard)</button>
+                <button id="btn-form-a" data-js="form-a">Form A (Kompakt)</button>
+                <button id="btn-form-b" data-js="form-b" class="active">Form B (Standard)</button>
               </div>
             </div>
 
@@ -34,15 +34,31 @@
               <div class="sidebar-label">Brief-Stil & Anrede</div>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div class="segmented-control">
-                  <button id="btn-style-formal" class="active" title="Förmlich (Sehr geehrte...)">Förmlich</button>
-                  <button id="btn-style-polite" title="Höflich (Guten Tag...)">Höflich</button>
-                  <button id="btn-style-casual" title="Modern (Hallo...)">Locker</button>
+                  <button id="btn-style-formal" data-js="style-formal" class="active" title="Förmlich (Sehr geehrte...)">Förmlich</button>
+                  <button id="btn-style-polite" data-js="style-polite" title="Höflich (Guten Tag...)">Höflich</button>
+                  <button id="btn-style-casual" data-js="style-casual" title="Modern (Hallo...)">Locker</button>
                 </div>
                 <div class="segmented-control">
-                  <button id="btn-gender-none" class="active" title="Neutral / Unbekannt">Neutral</button>
-                  <button id="btn-gender-female" title="Weiblich">Frau</button>
-                  <button id="btn-gender-male" title="Männlich">Herr</button>
+                  <button id="btn-gender-none" data-js="gender-none" class="active" title="Neutral / Unbekannt">Neutral</button>
+                  <button id="btn-gender-female" data-js="gender-female" title="Weiblich">Frau</button>
+                  <button id="btn-gender-male" data-js="gender-male" title="Männlich">Herr</button>
                 </div>
+              </div>
+            </div>
+
+            <!-- OPTIONALE BLÖCKE -->
+            <div>
+              <div class="sidebar-label">Zusatz-Elemente (Optional)</div>
+              <div style="display: flex; gap: 10px; font-size: 0.75rem; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
+                  <input type="checkbox" id="toggle-postvermerk" data-js="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
+                  <input type="checkbox" id="toggle-anlagen" data-js="toggle-anlagen" style="cursor: pointer;"> Anlagen
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
+                  <input type="checkbox" id="toggle-verteiler" data-js="toggle-verteiler" style="cursor: pointer;"> Verteiler
+                </label>
               </div>
             </div>
 
@@ -50,16 +66,16 @@
             <div>
               <div class="sidebar-label">Farbschema (Theme)</div>
               <div class="segmented-control">
-                <button id="btn-theme-light">☀️ Hell</button>
-                <button id="btn-theme-dark">🌙 Dunkel</button>
-                <button id="btn-theme-auto" class="active">💻 Auto</button>
+                <button id="btn-theme-light" data-js="theme-light">☀️ Hell</button>
+                <button id="btn-theme-dark" data-js="theme-dark">🌙 Dunkel</button>
+                <button id="btn-theme-auto" data-js="theme-auto" class="active">💻 Auto</button>
               </div>
             </div>
 
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
               <div class="sidebar-label">Hilfslinien</div>
-              <button id="btn-toggle-guides" class="btn primary" style="width: 100%;">
+              <button id="btn-toggle-guides" data-js="toggle-guides" class="btn primary" style="width: 100%;">
                 📐 Guides ausblenden
               </button>
             </div>
@@ -72,19 +88,19 @@
               <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
                 <div class="segmented-control" id="font-stack-select">
-                  <button id="btn-font-sans" class="active" title="Moderne serifenlose Systemschrift">Sans</button>
-                  <button id="btn-font-serif" title="Klassische Serifenschrift">Serif</button>
-                  <button id="btn-font-mono" title="Technische Schreibmaschinenschrift">Mono</button>
+                  <button id="btn-font-sans" data-js="font-sans" class="active" title="Moderne serifenlose Systemschrift">Sans</button>
+                  <button id="btn-font-serif" data-js="font-serif" title="Klassische Serifenschrift">Serif</button>
+                  <button id="btn-font-mono" data-js="font-mono" title="Technische Schreibmaschinenschrift">Mono</button>
                 </div>
               </div>
               
               <!-- Custom Upload -->
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Eigene Webfont (WOFF2):</span>
-                <button id="btn-upload-font-trigger" class="btn" style="width: 100%;">
+                <button id="btn-upload-font-trigger" data-js="upload-font-trigger" class="btn" style="width: 100%;">
                   📤 Schrift hochladen
                 </button>
-                <button id="btn-reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                <button id="btn-reset-font" data-js="reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
                   🗑️ Schrift zurücksetzen
                 </button>
                 <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: Systemschrift</span>
@@ -96,6 +112,21 @@
               </div>
               <input type="file" id="font-uploader" accept=".woff2" style="display: none;" />
             </div>
+
+            <!-- SIGNATURE UPLOADER -->
+            <div>
+              <div class="sidebar-label">Unterschrift (Bild)</div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
+                <button id="btn-upload-sig-trigger" data-js="upload-sig-trigger" class="btn" style="width: 100%;">
+                  ✒️ Unterschrift laden
+                </button>
+                <button id="btn-reset-sig" data-js="reset-sig" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                  🗑️ Unterschrift löschen
+                </button>
+              </div>
+              <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" style="display: none;" />
+            </div>
             
             <!-- DUAL-PROVIDER ADRESS-AUTOCOMPLETE -->
             <div>
@@ -105,8 +136,8 @@
                 <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px;">
                   <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Provider wählen:</span>
                   <div class="segmented-control" id="provider-select">
-                    <button id="btn-provider-photon" class="active" title="Kostenlose Suche via Komoot/OSM">Photon</button>
-                    <button id="btn-provider-geoapify" title="Premium Suche via Geoapify (API-Key benötigt)">Geoapify</button>
+                    <button id="btn-provider-photon" data-js="provider-photon" class="active" title="Kostenlose Suche via Komoot/OSM">Photon</button>
+                    <button id="btn-provider-geoapify" data-js="provider-geoapify" title="Premium Suche via Geoapify (API-Key benötigt)">Geoapify</button>
                   </div>
                 </div>
 
@@ -145,10 +176,10 @@
 
         <!-- ACTIONS FOOTER -->
         <div class="sidebar-section" style="gap: 10px; margin-top: auto;">
-          <button id="btn-print" class="btn primary" style="width: 100%;">
+          <button id="btn-print" data-js="print" class="btn primary" style="width: 100%;">
             🖨️ Drucken / PDF speichern
           </button>
-          <button id="btn-reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+          <button id="btn-reset" data-js="reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
             🗑️ Brief zurücksetzen
           </button>
         </div>
@@ -168,6 +199,9 @@
 
           <!-- RECIPIENT ADDRESS ZONE -->
           <din-anschriftfeld id="empfaenger">
+            <!-- POSTVERMERK (OPTIONAL) -->
+            <din-postvermerk id="postvermerk" contenteditable="plaintext-only" placeholder="Zusatz- oder Vermerk (z.B. Einschreiben)"></din-postvermerk>
+            
             <div id="empfaenger-firma" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
             <div id="empfaenger-name" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>
             <div id="empfaenger-strasse" contenteditable="plaintext-only" placeholder="Straße & Hausnummer"></div>
@@ -203,7 +237,22 @@
             <div id="grussformel" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen,"></div>
             
             <!-- Signature typing name -->
-            <div id="unterschrift" contenteditable="plaintext-only" placeholder="Ihr getippter Name"></div>
+            <div style="position: relative; margin-top: 10px;">
+              <img id="signature-image" alt="Unterschrift" style="display: none;" />
+              <div id="unterschrift" contenteditable="plaintext-only" placeholder="Ihr getippter Name"></div>
+            </div>
+            
+            <!-- ANLAGEN (OPTIONAL) -->
+            <din-anlagen id="anlagen">
+              <div style="font-weight: 700; margin-bottom: 2px;">Anlagen</div>
+              <div id="anlagen-text" contenteditable="plaintext-only" placeholder="- Anlage 1&#10;- Anlage 2"></div>
+            </din-anlagen>
+            
+            <!-- VERTEILER (OPTIONAL) -->
+            <din-verteiler id="verteiler">
+              <div style="font-weight: 700; margin-bottom: 2px;">Verteiler</div>
+              <div id="verteiler-text" contenteditable="plaintext-only" placeholder="- Person A&#10;- Person B"></div>
+            </din-verteiler>
           </din-kern>
 
           <!-- THREE-COLUMN IMMUTABLE FOOTER -->
@@ -233,9 +282,10 @@
 
     <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
     <div id="format-toolbar" popover="manual" class="no-print">
-      <button id="btn-bold" title="Fett"><b>B</b></button>
-      <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
-      <button id="btn-quote" title="Zitat">»</button>
+      <button id="btn-bold" data-js="bold" title="Fett"><b>B</b></button>
+      <button id="btn-underline" data-js="underline" title="Unterstrichen"><u>U</u></button>
+      <button id="btn-quote" data-js="quote" title="Zitat">»</button>
+      <button id="btn-comment" data-js="comment" title="Kommentar">|</button>
     </div>
 
     <!-- NATIVE POPOVER TOAST FEEDBACK -->
@@ -245,3 +295,13 @@
     <div id="selection-anchor" class="no-print"></div>
   </body>
 </html>
+
+<!-- DEV MODE POPOVER -->
+<div id="dev-popover" popover="auto" class="no-print">
+  <h3>??? DIN-Brief Neo Diagnostics</h3>
+  <p>System-Zeit: <span id="diag-timestamp"></span></p>
+  <table>
+    <thead><tr><th>Feature</th><th>Status</th><th>Baseline</th><th>Empfehlung</th></tr></thead>
+    <tbody id="diag-results"></tbody>
+  </table>
+</div>

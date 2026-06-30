@@ -1,12 +1,14 @@
 ---
 title: DIN 5008 Layout-Richtlinien (SSoT)
 status: active
-tags: [documentation, guide, manual]
+tags: [obsidian, documentation, guide, manual]
+aliases: ["DIN 5008 Layout"]
 ---
 
 # DIN 5008 Layout-Richtlinien (SSoT)
 
-Dieses Dokument dient als Single Source of Truth (SSoT) für alle Abstände, Geometrien und Platzierungen auf dem virtuellen DIN A4 Briefblatt (210mm x 297mm).
+> [!important] Single Source of Truth
+> Dieses Dokument dient als Single Source of Truth (SSoT) für alle Abstände, Geometrien und Platzierungen auf dem virtuellen DIN A4 Briefblatt (210mm x 297mm).
 
 ---
 

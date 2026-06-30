@@ -1,12 +1,14 @@
 ---
 title: DIN 5008 Geometry Master Data (SSoT)
 status: active
-tags: [documentation, guide, manual]
+tags: [obsidian, documentation, guide, manual]
+aliases: ["DIN 5008 Geometry"]
 ---
 
 # DIN 5008 Geometry Master Data (SSoT)
 
-Dieses Dokument dient als das absolute und hochpräzise **Single Source of Truth (SSoT)** Regelwerk für alle physischen Abstände, Geometrien, Schriftgrößen und Positionen der Anwendung **DIN-BriefNEO**.
+> [!important] Single Source of Truth
+> Dieses Dokument dient als das absolute und hochpräzise **Single Source of Truth (SSoT)** Regelwerk für alle physischen Abstände, Geometrien, Schriftgrößen und Positionen der Anwendung **DIN-BriefNEO**.
 
 ---
 

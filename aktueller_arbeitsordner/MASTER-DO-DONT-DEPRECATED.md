@@ -1,7 +1,8 @@
 ---
 title: DIN‑BriefNEO — Immutable Architectural Law: MUST‑USE vs. ANTIPATTERN Catalog
 status: active
-tags: [documentation, rules, standards]
+tags: [obsidian, core, documentation, rules, standards]
+aliases: ["MASTER-DO-DONT-DEPRECATED"]
 ---
 
 # DIN‑BriefNEO — Immutable Architectural Law: MUST‑USE vs. ANTIPATTERN Catalog

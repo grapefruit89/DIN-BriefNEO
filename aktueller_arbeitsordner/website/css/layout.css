@@ -3,7 +3,7 @@
 /* --- APP SHELL --- */
 #app-shell {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: clamp(280px, 20vw, 360px) 1fr;
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
@@ -462,6 +462,55 @@ aside {
 .autocomplete-dropdown li:hover {
   background: var(--border-color);
   color: var(--accent-color);
+}
+
+/* --- COMMENT FORMAT --- */
+.din-comment {
+  border-left: 3px solid var(--border-color);
+  padding-left: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin: 4px 0;
+  width: 100%;
+}
+
+/* --- OPTIONAL BLOCKS TOGGLE (ZERO-JS) --- */
+din-postvermerk, din-anlagen, din-verteiler {
+  display: none;
+}
+
+:root:has(#toggle-postvermerk:checked) din-postvermerk,
+:root:has(#toggle-anlagen:checked) din-anlagen,
+:root:has(#toggle-verteiler:checked) din-verteiler {
+  display: block;
+}
+
+din-postvermerk {
+  font-size: 0.9em;
+  font-weight: 500;
+  margin-bottom: 2cqh; /* spacing before recipient */
+  color: var(--text-primary);
+}
+
+din-anlagen, din-verteiler {
+  margin-top: 3cqh;
+  font-size: 0.9em;
+  page-break-inside: avoid;
+}
+
+/* --- SIGNATURE IMAGE OVERLAY --- */
+#signature-image {
+  position: absolute;
+  bottom: 80%; /* Place it exactly above the typed text */
+  left: 0;
+  max-height: 80px;
+  max-width: 300px;
+  object-fit: contain;
+  pointer-events: none; /* Let clicks pass through to the text editable div */
+  z-index: 1;
+  opacity: 0.9;
+  mix-blend-mode: multiply; /* Gives a realistic ballpoint pen look by blending with the paper */
 }
 
 /* --- PRINT ENGINE (IMMUTABLE STYLE) --- */

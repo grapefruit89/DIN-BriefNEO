@@ -1,12 +1,14 @@
 ---
 title: Interaktiver Test-Leitfaden: testing-guide.md
 status: active
-tags: [documentation, guide, manual]
+tags: [obsidian, documentation, guide, manual, qa]
+aliases: ["Testing Guide", "QA Protokoll"]
 ---
 
 # Interaktiver Test-Leitfaden: testing-guide.md
 
-Dieser Testing-Guide beschreibt alle manuellen Testfälle, um die Refactored Baseline-Features (Feature 1 bis Feature 6) von **DIN-BriefNEO** systematisch und reproduzierbar auf Fehler zu überprüfen.
+> [!info] Testing Guide
+> Dieser Testing-Guide beschreibt alle manuellen Testfälle, um die Refactored Baseline-Features (Feature 1 bis Feature 6) von **DIN-BriefNEO** systematisch und reproduzierbar auf Fehler zu überprüfen.
 
 ---
 

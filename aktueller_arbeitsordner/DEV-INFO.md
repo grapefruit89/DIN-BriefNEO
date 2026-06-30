@@ -1,7 +1,8 @@
 ---
 title: Entwicklerbereich & Feature-Prüfung
 status: active
-tags: [dev-tools, feature-detection, chrome-baseline, diagnostics, easter-egg]
+tags: [obsidian, core, dev-tools, feature-detection, chrome-baseline, diagnostics, easter-egg]
+aliases: ["DEV-INFO"]
 created: 2026-05-24
 ---
 
@@ -15,7 +16,7 @@ Darüber hinaus spezifizieren wir hier das Konzept für ein **geheimes Easter-Eg
 
 ## 🧐 Rationale & Zweck
 
-Getreu **Säule 3 unserer [Longevity Guidelines](Guides/longevity-guidelines.md)** (W3C Living Standards & Native APIs) verzichtet dieses Projekt vollständig auf proprietäre Frameworks. Die Testergebnisse deines Chrome 148+ Browsers haben bewiesen, dass selbst hochinnovative Features wie die `Temporal API`, `CSS if() Logic` und native `Sanitizer` bereits vollständig einsatzbereit sind!
+Getreu **Säule 3 unserer [[longevity-guidelines|Longevity Guidelines]]** (W3C Living Standards & Native APIs) verzichtet dieses Projekt vollständig auf proprietäre Frameworks. Die Testergebnisse deines Chrome 148+ Browsers haben bewiesen, dass selbst hochinnovative Features wie die `Temporal API`, `CSS if() Logic` und native `Sanitizer` bereits vollständig einsatzbereit sind!
 
 Indem wir ein umfassendes Spektrum an Bleeding-Edge-Features scannen, ermitteln wir exakt, welche modernsten W3C-APIs wir nutzen können, um JavaScript einzusparen und die Codebasis noch schlanker, wartungsfreier und robuster zu gestalten.
 
@@ -27,7 +28,7 @@ Wir unterscheiden bei der Bewertung von Web-APIs drei klar definierte Zustände:
 
 1. **Aktiviert (Produktiv):** Vollständig abwärtskompatible, stabile W3C-Standards, die in allen modernen Browsern (Chrome, Safari, Firefox) nativ implementiert sind.
 2. **Future-Proof (Inaktiv):** Modernste W3C-Kandidaten, die bereits in Chromium-Engines bereitstehen, aber mangels breiter Cross-Browser-Stabilität oder aufgrund experimentellen Status noch nicht in den Produktiv-Code einfließen dürfen.
-3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[MASTER-DO-DONT-DEPRECATED.md](MASTER-DO-DONT-DEPRECATED.md)** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
+3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[[MASTER-DO-DONT-DEPRECATED|MASTER-DO-DONT-DEPRECATED.md]]** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
 
 ---
 
@@ -202,33 +203,13 @@ Das JavaScript führt die 25 Diagnosetests im Hintergrund aus, baut die Tabellen
   function runLiveDiagnostics() {
     const f = (name, supported, baseline, rec) => ({ name, supported, baseline, rec });
     
-    const features = [
-      f("Temporal API", typeof globalThis.Temporal !== "undefined", "Chrome 146", "Future-Proof"),
-      f("CSS @property (Typed OM)", typeof CSS !== "undefined" && CSS.supports && CSS.supports("--x: 1mm") && typeof window.CSSPropertyRule !== "undefined", "Chrome 146", "Future-Proof"),
-      f("CSS @scope (Isolation)", typeof CSSScopeRule !== "undefined", "Chrome 118", "Future-Proof"),
-      f("CSS if() Logic", typeof CSS !== "undefined" && CSS.supports && CSS.supports("top: if(style(--x: 1): 1px; else: 2px)"), "Chrome 148", "Future-Proof"),
-      f("Scroll-State Queries", typeof CSS !== "undefined" && CSS.supports && CSS.supports("container-type: scroll-state"), "Chrome 147", "Future-Proof"),
-      f("Native Invokers (commandfor)", "commandfor" in document.createElement("button"), "Chrome 147", "Future-Proof"),
-      f("Advanced attr() Typisierung", typeof CSS !== "undefined" && CSS.supports && CSS.supports("width: attr(data-x type(<length>))"), "Chrome 133/149", "Future-Proof"),
-      f("View Transitions (Scoped)", typeof document.startViewTransition !== "undefined", "Chrome 146", "Future-Proof"),
-      f("CSS contrast-color()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: contrast-color(white)"), "Chrome 147", "Future-Proof"),
-      f("CSS border-shape", typeof CSS !== "undefined" && CSS.supports && CSS.supports("border-shape: circle"), "Chrome 147", "Future-Proof"),
-      f("Math.sumPrecise", typeof Math.sumPrecise !== "undefined", "Chrome 147", "Future-Proof"),
-      f("Sanitizer API (Native)", typeof globalThis.Sanitizer !== "undefined", "Chrome 147", "Future-Proof"),
-      f("Element.setHTML()", typeof Element.prototype.setHTML !== "undefined", "Chrome 147", "Future-Proof"),
-      f("CSS calc-size(auto)", typeof CSS !== "undefined" && CSS.supports && CSS.supports("height: calc-size(auto, 100%)"), "Chrome 129", "Future-Proof"),
-      f("CSS Anchor Positioning", typeof CSS !== "undefined" && CSS.supports && CSS.supports("anchor-name: --foo"), "Chrome 125", "Future-Proof"),
-      f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv"),
-      f("CSS light-dark()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: light-dark(black, white)"), "Chrome 123", "Produktiv"),
-      f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: oklch(from red l c h)"), "Chrome 119", "Produktiv"),
-      f("CSS Scroll-driven Animations", typeof CSS !== "undefined" && CSS.supports && CSS.supports("animation-timeline: scroll()"), "Chrome 115", "Future-Proof"),
-      f("CSS Custom State Pseudo-Class", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:state(--foo))"), "Chrome 125", "Future-Proof"),
-      f("Navigation API", typeof globalThis.navigation !== "undefined", "Chrome 102", "Future-Proof"),
-      f("Speculation Rules API", typeof HTMLScriptElement !== "undefined" && HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules"), "Chrome 109", "Nicht empfohlen"),
-      f("Array toSorted / toReversed / with", typeof Array.prototype.toSorted !== "undefined", "Chrome 110", "Produktiv"),
-      f("Object.groupBy()", typeof Object.groupBy !== "undefined", "Chrome 117", "Produktiv"),
-      f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chrome 119", "Produktiv")
-    ];
+    // Die Feature-Liste wird nun automatisch per Compiler (tools/build_healthcheck.js) 
+    // aus den `javascript feature-check` Blöcken der ADRs und Guides generiert.
+    // Siehe website/js/healthcheck.js für die aggregierte Liste.
+    const features = [];
+    if (typeof window.DIN_FEATURES !== 'undefined') {
+      features.push(...window.DIN_FEATURES);
+    }
     
     // Zeitstempel setzen
     document.getElementById("diag-timestamp").textContent = new Date().toLocaleTimeString();
@@ -324,7 +305,7 @@ Kopiere diesen erweiterten Block und füge ihn in deine Browser-Konsole ein, um 
 ---
 
 ## 🔗 Verwandte Dokumente
-*   ⚖️ **[MASTER-DO-DONT-DEPRECATED.md](MASTER-DO-DONT-DEPRECATED.md):** Unser unumstößliches Gesetzbuch für technologische Verbote.
-*   📚 **[longevity-guidelines.md](Guides/longevity-guidelines.md):** Die W3C-Verfassung von DIN-BriefNEO.
-*   🧭 **[MODERNIZATION-GUIDE.md](MODERNIZATION-GUIDE.md):** Strategische Einschätzungen zu künftigen Technologiewechseln.
-*   📄 **[spec.md](spec.md):** System-Spezifikation für die Baseline-Features.
+*   ⚖️ **[[MASTER-DO-DONT-DEPRECATED|MASTER-DO-DONT-DEPRECATED.md]]:** Unser unumstößliches Gesetzbuch für technologische Verbote.
+*   📚 **[[longevity-guidelines|longevity-guidelines.md]]:** Die W3C-Verfassung von DIN-BriefNEO.
+*   🧭 **[[MODERNIZATION-GUIDE|MODERNIZATION-GUIDE.md]]:** Strategische Einschätzungen zu künftigen Technologiewechseln.
+*   📄 **[[spec|spec.md]]:** System-Spezifikation für die Baseline-Features.

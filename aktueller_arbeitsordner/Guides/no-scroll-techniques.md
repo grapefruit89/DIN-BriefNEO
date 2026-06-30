@@ -1,12 +1,14 @@
 ---
 title: Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)
 status: active
-tags: [documentation, guide, manual]
+tags: [obsidian, documentation, guide, manual, css, architecture]
+aliases: ["No-Scroll Techniques"]
 ---
 
 # Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)
 
-Dieses Dokument beschreibt die Design- und Implementierungsmuster, um ein ausnahmsloses Scroll-Verbot in der Anwendung durchzusetzen. Das Ziel ist eine Anwendung, die sich perfekt und elastisch in die Grenzen des Viewports einpasst.
+> [!important] Viewport-Perfect Layouts
+> Dieses Dokument beschreibt die Design- und Implementierungsmuster, um ein ausnahmsloses Scroll-Verbot in der Anwendung durchzusetzen. Das Ziel ist eine Anwendung, die sich perfekt und elastisch in die Grenzen des Viewports einpasst.
 
 ---
 

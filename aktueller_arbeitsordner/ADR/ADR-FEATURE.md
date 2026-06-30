@@ -3,8 +3,9 @@ title: "ADR: Feature Specifications & Premium UX"
 status: accepted
 date: 2026-05-24
 deciders: morit, antigravity
-tags: [features, popovers, selections, styling, highlights]
-related: [ADR-HTML.md, ADR-CSS.md, ADR-JS.md, ../Guides/longevity-guidelines.md]
+tags: [obsidian, adr, features, popovers, selections, styling, highlights]
+aliases: ["Feature Specifications & Premium UX"]
+related: ["[[ADR-HTML]]", "[[ADR-CSS]]", "[[ADR-JS]]", "[[longevity-guidelines]]"]
 ---
 
 # Architectural Decision Record (ADR): Feature Specifications & Premium UX
@@ -13,7 +14,9 @@ related: [ADR-HTML.md, ADR-CSS.md, ADR-JS.md, ../Guides/longevity-guidelines.md]
 Akzeptiert
 
 ## Kontext & Problemstellung
-Ein ansprechendes, premium-artiges Schreiberlebnis zeichnet sich durch flüssige Mikro-Animationen, native Interaktionselemente und intelligente Automationen aus. Für **DIN-BriefNEO** sollen spezifische Features definiert werden, die die Applikation von einer einfachen Webseite zu einem nativen Editor-Erlebnis erheben.
+
+> [!info] Hintergrund
+> Ein ansprechendes, premium-artiges Schreiberlebnis zeichnet sich durch flüssige Mikro-Animationen, native Interaktionselemente und intelligente Automationen aus. Für **DIN-BriefNEO** sollen spezifische Features definiert werden, die die Applikation von einer einfachen Webseite zu einem nativen Editor-Erlebnis erheben.
 
 ---
 
@@ -23,7 +26,7 @@ Ein ansprechendes, premium-artiges Schreiberlebnis zeichnet sich durch flüssige
 Anstelle eines unruhigen statischen Editors blenden wir eine schwebende Formatierungs-Toolbar (`#format-toolbar`) ein, sobald der Benutzer Text innerhalb des Brieftextes markiert.
 *   **Zustandserkennung:** Ein zukunftssicherer DOM-Traversal Algorithmus ermittelt, ob der ausgewählte Bereich fett, unterstrichen oder als Zitat formatiert ist. Ist dies der Fall, leuchtet der entsprechende Button smaragdgrün und erhält das Attribut `aria-pressed="true"`.
 *   **Viewport-Kollisionsprüfung:** Die Toolbar wird rein CSS-basiert über **CSS Anchor Positioning** direkt an die Textselektion verankert. Die Viewport-Kollision und Ausweichmanöver (z. B. nach unten klappen) werden nativ im Browser über `position-try-options` gesteuert, wodurch wir jeglichen JavaScript-Berechnungsoverhead eliminieren!
-*   **Verweis:** Siehe [ADR-JS.md](ADR-JS.md) zur Range-API und [ADR-HTML.md](ADR-HTML.md) zum Popover.
+*   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] zur Range-API und [[ADR-HTML|ADR-HTML.md]] zum Popover.
 
 ### 2. Toast-Queue mit nativem Ein-/Ausblende-Lifecycle
 Toast-Meldungen werden in einer zentralen Warteschlange (`toastQueue`) verarbeitet, um überlappende Einblendungen ("Stacking") zu verhindern.
@@ -47,13 +50,13 @@ stateDiagram-v2
 
 ### 3. Schriftarten-Manager & WOFF2-Uploader
 Der Editor bietet zwei Wege zur Typografie-Auswahl:
-*   **System-Schriftstapel:** Auswahl von Sans, Serif oder Mono (siehe [ADR-CSS.md](ADR-CSS.md)).
+*   **System-Schriftstapel:** Auswahl von Sans, Serif oder Mono (siehe [[ADR-CSS|ADR-CSS.md]]).
 *   **Offline-WOFF2-Uploader:** Der Benutzer kann eine eigene `.woff2`-Schrift hochladen. JS liest diese per `FileReader` ein, validiert die Dateigröße (< 60 KB) und speichert sie als Base64 im LocalStorage unter `din_custom_font`. Sie wird als `@font-face` mit Namen `'AptosCustom'` injiziert und überschreibt dank der CSS-Klasse `body.font-custom-active` alle System-Stapel.
 
 ### 4. Automatisches Proximity-Biasing
 Zur Regionalkontrolle der Adress-Autovervollständigung liest die Applikation PLZ-Codes direkt aus dem Eingabefeld **Absenderzeile** (`#absender`) aus.
 *   **Funktionsweise:** Findet der Scanner eine 5-stellige PLZ im Absenderbereich, wird sie asynchron via Zippopotam geocodiert. Die gefundenen Koordinaten (`latitude` & `longitude`) werden im Cache abgelegt. Zukünftige Suchen via Photon (`&lat=&lon`) und Geoapify (`&bias=proximity:`) werden automatisch auf die Region des Absenders fokussiert (NRW-Priorisierung).
-*   **Verweis:** Siehe [ADR-API.md](ADR-API.md) zur API-Verkabelung.
+*   **Verweis:** Siehe [[ADR-API|ADR-API.md]] zur API-Verkabelung.
 
 ### 5. A4-Überlauf-Warnung
 Sobald die Texthöhe von `#brieftext` das Druckbereichs-Limit von `120mm` (~450px) überschreitet, fügt JS dem Papier die CSS-Klasse `overflow-warn` hinzu. Dadurch färbt sich der Blattrand rot und ein roter Warnhinweis erscheint.
@@ -71,8 +74,8 @@ Sobald die Texthöhe von `#brieftext` das Druckbereichs-Limit von `120mm` (~450p
 ---
 
 ## Verknüpfungen
-*   Siehe [ADR-HTML.md](ADR-HTML.md) zu nativem Popover und `contenteditable`.
-*   Siehe [ADR-CSS.md](ADR-CSS.md) zur Typografie und Zoom-Einheiten.
-*   Siehe [ADR-JS.md](ADR-JS.md) zur Selection/Range-API.
-*   Siehe [ADR-API.md](ADR-API.md) zum Zippopotam PLZ Auto-Lookup.
-*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+*   Siehe [[ADR-HTML|ADR-HTML.md]] zu nativem Popover und `contenteditable`.
+*   Siehe [[ADR-CSS|ADR-CSS.md]] zur Typografie und Zoom-Einheiten.
+*   Siehe [[ADR-JS|ADR-JS.md]] zur Selection/Range-API.
+*   Siehe [[ADR-API|ADR-API.md]] zum Zippopotam PLZ Auto-Lookup.
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.

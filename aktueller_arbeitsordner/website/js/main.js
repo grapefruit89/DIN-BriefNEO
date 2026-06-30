@@ -1,8 +1,10 @@
+import { runLiveDiagnostics } from './healthcheck.js';
 /* js/main.js */
 import { StorageManager } from './storage.js';
 import { Constants } from './constants.js';
 import { SalutationFeature } from './salutation-engine.js';
 import { MetadataService } from './metadata.js';
+import { SignatureFeature } from './signature.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
@@ -68,6 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init Salutation
     const salutation = new SalutationFeature(saveDraftData);
     salutation.init();
+
+    // Init Signature Feature
+    const sigContext = {
+      settings: settings,
+      saveSettings: () => StorageManager.saveSettings(settings)
+    };
+    const signature = new SignatureFeature(sigContext);
+    signature.init();
   }
 
   // --- OFFLINE FONT INJECTION (1-Font Limit for file://) ---
@@ -544,12 +554,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const selection = window.getSelection();
       if (selection.rangeCount === 0) return false;
       
+      const isCustomComment = tagName === 'comment';
+      const actualTag = isCustomComment ? 'SPAN' : tagName;
+
       let node = selection.anchorNode;
       while (node && node !== brieftext) {
         const name = node.nodeName.toUpperCase();
-        if (name === tagName.toUpperCase() || 
-            (tagName.toUpperCase() === 'B' && name === 'STRONG')) {
-          return true;
+        if (name === actualTag.toUpperCase() || 
+            (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
+          if (isCustomComment && !node.classList.contains('din-comment')) {
+            // Keep searching upwards
+          } else {
+            return true;
+          }
         }
         node = node.parentNode;
       }
@@ -603,6 +620,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const isBold = isSelectionInsideTag('B');
       const isUnderline = isSelectionInsideTag('U');
       const isQuote = isSelectionInsideTag('BLOCKQUOTE');
+      const isComment = isSelectionInsideTag('comment');
+      const btnComment = document.getElementById('btn-comment');
 
       if (isBold) {
         btnBold.classList.add('active');
@@ -627,6 +646,16 @@ document.addEventListener('DOMContentLoaded', () => {
         btnQuote.classList.remove('active');
         btnQuote.setAttribute('aria-pressed', 'false');
       }
+
+      if (btnComment) {
+        if (isComment) {
+          btnComment.classList.add('active');
+          btnComment.setAttribute('aria-pressed', 'true');
+        } else {
+          btnComment.classList.remove('active');
+          btnComment.setAttribute('aria-pressed', 'false');
+        }
+      }
     }
 
     function hideToolbar() {
@@ -642,15 +671,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const range = selection.getRangeAt(0);
       
+      const isCustomComment = tagName === 'comment';
+      const actualTag = isCustomComment ? 'SPAN' : tagName;
+      
       if (isSelectionInsideTag(tagName)) {
         // UNWRAP
         let node = selection.anchorNode;
         let formatNode = null;
         while (node && node !== brieftext) {
           const name = node.nodeName.toUpperCase();
-          if (name === tagName.toUpperCase() || (tagName.toUpperCase() === 'B' && name === 'STRONG')) {
-            formatNode = node;
-            break;
+          if (name === actualTag.toUpperCase() || (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
+            if (isCustomComment && !node.classList.contains('din-comment')) {
+               // Keep searching
+            } else {
+              formatNode = node;
+              break;
+            }
           }
           node = node.parentNode;
         }
@@ -665,7 +701,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         // WRAP
-        const wrapper = document.createElement(tagName.toLowerCase());
+        const wrapper = document.createElement(actualTag.toLowerCase());
+        if (isCustomComment) wrapper.className = 'din-comment';
         try {
           wrapper.appendChild(range.extractContents());
           range.insertNode(wrapper);
@@ -719,6 +756,14 @@ document.addEventListener('DOMContentLoaded', () => {
       handleSelectionChange();
     });
 
+    const btnComment = document.getElementById('btn-comment');
+    if(btnComment) {
+      btnComment.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFormat('comment');
+      });
+    }
+
     // Custom non-standard shortcuts only (Standard Strg+B / Strg+U left to native browser)
     brieftext.addEventListener('keydown', (e) => {
       // Custom blockquote shortcut: Strg+Shift+9
@@ -728,20 +773,74 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Strikter HTML-Paste-Filter
+    // Strikter HTML-Paste-Filter (behält nur strong, b, u, s)
     brieftext.addEventListener('paste', (e) => {
       e.preventDefault();
+      const html = e.clipboardData.getData('text/html');
       const text = e.clipboardData.getData('text/plain');
 
-      // Insert clean plain text under cursor
       const selection = window.getSelection();
       if (!selection.rangeCount) return;
       
       const range = selection.getRangeAt(0);
       range.deleteContents();
-      range.insertNode(document.createTextNode(text));
       
-      selection.collapseToEnd();
+      if (html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        function sanitizeNode(node) {
+          const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
+          
+          if (node.nodeType === Node.TEXT_NODE) {
+            return document.createTextNode(node.textContent);
+          }
+          
+          if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
+          
+          let newNode;
+          if (allowedTags.includes(node.nodeName)) {
+             newNode = document.createElement(node.nodeName.toLowerCase());
+          } else if (node.nodeName === 'SPAN' && node.classList.contains('din-comment')) {
+             newNode = document.createElement('span');
+             newNode.className = 'din-comment';
+          } else {
+             const frag = document.createDocumentFragment();
+             node.childNodes.forEach(child => {
+               frag.appendChild(sanitizeNode(child));
+             });
+             return frag;
+          }
+          
+          node.childNodes.forEach(child => {
+            newNode.appendChild(sanitizeNode(child));
+          });
+          
+          return newNode;
+        }
+
+        const cleanFragment = document.createDocumentFragment();
+        doc.body.childNodes.forEach(child => {
+          cleanFragment.appendChild(sanitizeNode(child));
+        });
+
+        if (cleanFragment.childNodes.length === 0) {
+            range.insertNode(document.createTextNode(text));
+        } else {
+            const lastChild = cleanFragment.lastChild;
+            range.insertNode(cleanFragment);
+            if (lastChild) {
+                range.setStartAfter(lastChild);
+                range.collapse(true);
+            }
+        }
+      } else {
+        range.insertNode(document.createTextNode(text));
+        selection.collapseToEnd();
+      }
+      
+      selection.removeAllRanges();
+      selection.addRange(range);
       saveDraftData();
     });
 
@@ -1067,5 +1166,24 @@ document.addEventListener('DOMContentLoaded', () => {
     saveDraftData();
     checkTextOverflow();
     showToast(Constants.TOASTS.RESET_SUCCESS, 'success');
+  }
+});
+
+
+// Dev Mode Trigger: 3-Klick
+let clickCount = 0;
+let clickTimeout = null;
+document.addEventListener('click', (e) => {
+  clickCount++;
+  clearTimeout(clickTimeout);
+  clickTimeout = setTimeout(() => { clickCount = 0; }, 1000);
+  if (clickCount === 3) {
+    clickCount = 0;
+    clearTimeout(clickTimeout);
+    runLiveDiagnostics();
+    const popover = document.getElementById('dev-popover');
+    if (popover && !popover.matches(':popover-open')) {
+       popover.showPopover();
+    }
   }
 });

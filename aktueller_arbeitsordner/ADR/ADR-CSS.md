@@ -3,8 +3,9 @@ title: "ADR: CSS Architecture & Proportional Zoom"
 status: accepted
 date: 2026-05-24
 deciders: morit, antigravity
-tags: [css, layout, zoom, containers, theming]
-related: [ADR-HTML.md, ADR-JS.md, ../Guides/longevity-guidelines.md]
+tags: [obsidian, adr, css, layout, zoom, containers, theming]
+aliases: ["CSS Architecture & Proportional Zoom"]
+related: ["[[ADR-HTML]]", "[[ADR-JS]]", "[[longevity-guidelines]]"]
 ---
 
 # Architectural Decision Record (ADR): CSS Architecture & Proportional Zoom
@@ -13,7 +14,9 @@ related: [ADR-HTML.md, ADR-JS.md, ../Guides/longevity-guidelines.md]
 Akzeptiert
 
 ## Kontext & Problemstellung
-Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes Scrollen, verzerrte Proportionen bei Größenänderungen oder JavaScript-gesteuerte Element-Skalierungen. Der **DIN-BriefNEO**-Bogen muss unter allen Bedingungen pixelperfekt proportional skaliert und absolut ohne Scrollbalken im Anwendungsfenster dargestellt werden.
+
+> [!info] Hintergrund
+> Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes Scrollen, verzerrte Proportionen bei Größenänderungen oder JavaScript-gesteuerte Element-Skalierungen. Der **DIN-BriefNEO**-Bogen muss unter allen Bedingungen pixelperfekt proportional skaliert und absolut ohne Scrollbalken im Anwendungsfenster dargestellt werden.
 
 ---
 
@@ -22,13 +25,13 @@ Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes
 ### 1. Reiner CSS-Zoom & Aspect-Ratio (Kein JS-ResizeObserver)
 Der DIN-A4 Bogen `<din-a4>` wird deklarativ auf `height: 94vh` und `aspect-ratio: 210 / 297` fixiert.
 *   **Begründung:** Durch die Definition von `height: 94vh` passt sich das Briefpapier stufenlos und passgenau der Viewport-Höhe des Browsers an. Die Aspect-Ratio garantiert ein mathematisch exaktes A4-Verhältnis auf jedem Bildschirm – vollkommen ohne JavaScript-Hilfen.
-*   **Verweis:** Siehe [no-scroll-techniques.md](../Guides/no-scroll-techniques.md) für detaillierte No-Scroll-Strategien.
+*   **Verweis:** Siehe [[no-scroll-techniques|no-scroll-techniques.md]] für detaillierte No-Scroll-Strategien.
 
 ### 2. Container Queries & Proportionale Einheiten (`cqw` / `cqh`)
 Wir setzen auf dem `<din-a4>` Bogen `container-type: size` und berechnen alle inneren Abstände, Falzmarken, Margins und Schriftgrößen in Container-Breiten (`cqw`) und -Höhen (`cqh`).
 *   **Formeln:** 1 mm entspricht `calc(1 / 210 * 100cqw)` in der Breite und `calc(1 / 297 * 100cqh)` in der Höhe.
 *   **Begründung:** Schrumpft oder wächst das Papier durch Browser-Zoom, skaliert das gesamte Brief-Layout mitsamt Texten, Linien und Marken pixelperfekt mit, da sich alle Werte proportional auf die Größe des Eltern-Containers beziehen.
-*   **Verweis:** Siehe [din-5008-geometry.md](../Guides/din-5008-geometry.md) für alle normkonformen Umrechnungen.
+*   **Verweis:** Siehe [[din-5008-geometry|din-5008-geometry.md]] für alle normkonformen Umrechnungen.
 
 ### 3. Absolute Viewport-Sperre (`overflow: hidden`)
 Auf `html` und `body` wird ein ausnahmsloses vertikales und horizontales Scrollverbot (`overflow: hidden`) auferlegt.
@@ -73,7 +76,7 @@ Wir kapseln alle physischen Briefblatt-Stile (`din-a4` und dessen Nachfahren) de
 ### 10. Ausschließliches OKLCH-Farbmandat & Legacy-Farbverbot
 Wir verpflichten uns zur ausschließlichen Nutzung des W3C **OKLCH-Farbraums** (`oklch()`) für sämtliche Farbwerte, Verläufe und Schatten.
 *   **Begründung:** OKLCH ist ein wahrnehmungslinearer (perceptually uniform) Farbraum, der Helligkeit (`L`), Buntheit (`C`) und Farbton (`H`) mathematisch gleichmäßig trennt. Dies ist die absolute Voraussetzung für die fehlerfreie Funktion der CSS Relative Color Syntax (RCS), um harmonische, dynamische Kontraste abzuleiten (z. B. Hilfslinien im komplementären Triadic-Kontrast). HEX, RGB oder HSL verhalten sich bei mathematischer Manipulation unvorhersehbar und sind verboten.
-*   **Verweis:** Siehe [ADR-ANTIPATTERN.md](ADR-ANTIPATTERN.md) (Antipattern 7).
+*   **Verweis:** Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] (Antipattern 7).
 
 ---
 
@@ -96,9 +99,19 @@ Wir verpflichten uns zur ausschließlichen Nutzung des W3C **OKLCH-Farbraums** (
 ---
 
 ## Verknüpfungen
-*   Siehe [ADR-HTML.md](ADR-HTML.md) für die Struktur der Custom-Elements.
-*   Siehe [ADR-JS.md](ADR-JS.md) für das Blockieren von JS-basiertem Styling.
-*   Siehe [ADR-ANTIPATTERN.md](ADR-ANTIPATTERN.md) für das Verbot von Scrollbalken.
-*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+*   Siehe [[ADR-HTML|ADR-HTML.md]] für die Struktur der Custom-Elements.
+*   Siehe [[ADR-JS|ADR-JS.md]] für das Blockieren von JS-basiertem Styling.
+*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Scrollbalken.
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
 
 
+
+### 5. Zero-JS UI State Toggles (via :has() und Checkboxen)
+Komplexe Sichtbarkeitszust�nde von UI-Elementen (wie das Ein- und Ausblenden von optionalen Briefbl�cken wie Postvermerk, Anlagen, Verteiler) werden ausschlie�lich nativ �ber CSS abgebildet. Durch die Kombination von unsichtbaren <input type="checkbox"> in der Sidebar und :root:has(#id:checked) target-element { display: block; } im CSS eliminieren wir jeglichen JavaScript Event-Listener und State-Management Code f�r reines UI-Toggling.
+
+
+## Feature Checks
+```javascript feature-check
+f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
+f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv")
+```

@@ -3,8 +3,9 @@ title: "ADR: External API Integrations & Header Security"
 status: accepted
 date: 2026-05-24
 deciders: morit, antigravity
-tags: [api, autocomplete, security, photon, geoapify, zippopotam]
-related: [ADR-HTML.md, ADR-JS.md, ADR-FEATURE.md, ../Guides/longevity-guidelines.md]
+tags: [obsidian, adr, api, autocomplete, security, photon, geoapify, zippopotam]
+aliases: ["External API Integrations & Header Security"]
+related: ["[[ADR-HTML]]", "[[ADR-JS]]", "[[ADR-FEATURE]]", "[[longevity-guidelines]]"]
 ---
 
 # Architectural Decision Record (ADR): External API Integrations & Header Security
@@ -13,7 +14,9 @@ related: [ADR-HTML.md, ADR-JS.md, ADR-FEATURE.md, ../Guides/longevity-guidelines
 Akzeptiert
 
 ## Kontext & Problemstellung
-Eine effiziente, datenschutzkonforme und reibungsfreie Adress-Vervollständigung ist ein zentrales Komfortmerkmal. Viele gebräuchliche Autocomplete-Lösungen (wie die Google Places API) erfordern jedoch die Angabe von Kreditkarten bei der Registrierung und beeinträchtigen durch schwere SDKs die Performance und Offline-Fähigkeit. Das **DIN-BriefNEO**-Projekt benötigt ein schnelles, kostenloses und datenschutzkonformes API-Konzept, das vollständig unter lokalen Kontexten (`file:///`) operiert.
+
+> [!info] Hintergrund
+> Eine effiziente, datenschutzkonforme und reibungsfreie Adress-Vervollständigung ist ein zentrales Komfortmerkmal. Viele gebräuchliche Autocomplete-Lösungen (wie die Google Places API) erfordern jedoch die Angabe von Kreditkarten bei der Registrierung und beeinträchtigen durch schwere SDKs die Performance und Offline-Fähigkeit. Das **DIN-BriefNEO**-Projekt benötigt ein schnelles, kostenloses und datenschutzkonformes API-Konzept, das vollständig unter lokalen Kontexten (`file:///`) operiert.
 
 ---
 
@@ -77,8 +80,8 @@ Wir integrieren einen Listener auf das Feld *PLZ & Ort* (`#empfaenger-ort`). Gib
 ---
 
 ## Verknüpfungen
-*   Siehe [ADR-HTML.md](ADR-HTML.md) für die Einbettung des Widgets.
-*   Siehe [ADR-JS.md](ADR-JS.md) für Drosselung und Datenbindung.
-*   Siehe [ADR-FEATURE.md](ADR-FEATURE.md) für das Proximity-Biasing mit Absender-PLZ.
-*   Siehe [ADR-ANTIPATTERN.md](ADR-ANTIPATTERN.md) für das Verbot schwerer Google SDKs.
-*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+*   Siehe [[ADR-HTML|ADR-HTML.md]] für die Einbettung des Widgets.
+*   Siehe [[ADR-JS|ADR-JS.md]] für Drosselung und Datenbindung.
+*   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für das Proximity-Biasing mit Absender-PLZ.
+*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot schwerer Google SDKs.
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.

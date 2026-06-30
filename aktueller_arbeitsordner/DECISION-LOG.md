@@ -1,7 +1,8 @@
 ---
 title: Chronologisches Entscheidungs-Log: DECISION-LOG.md
 status: active
-tags: [documentation, decision-log, architecture]
+tags: [obsidian, core, documentation, decision-log, architecture]
+aliases: ["DECISION-LOG"]
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -15,7 +16,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Longevity-Verfassung deklariert
 *   **Entscheidung:** Etablierung des unbiegsamen W3C-Standard-Manifests und der 5 Säulen der Langlebigkeit (Zero-Dependency-Pakt, 100% Offline-Autarkie, W3C-Living-Standards, Build-Tool-Immunität, LocalStorage-Sovereignty).
 *   **Grund:** Sicherung einer wartungsfreien Überlebensdauer des Briefbogen-Editors von 10+ Jahren bei lokaler Ausführung.
-*   **Quelle:** [longevity-guidelines.md](Guides/longevity-guidelines.md)
+*   **Quelle:** [[longevity-guidelines|longevity-guidelines.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -31,7 +32,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Next-Level-Visualisierungen & Lifecycles
 *   **Entscheidung:** Integration standardisierter Mermaid-Flussdiagramme in README, Features und APIs zur visuellen Aufbereitung des Spec-Kit-Lifecycles und der Datenströme.
 *   **Grund:** Sofortiges, visuelles Erfassen komplexer Zusammenhänge für menschliche Entwickler und diagrammfähige LLMs.
-*   **Quelle:** [README.md](README.md), [ADR-FEATURE.md](ADR/ADR-FEATURE.md), [ADR-API.md](ADR/ADR-API.md)
+*   **Quelle:** [[README|README.md]], [[ADR-FEATURE|ADR-FEATURE.md]], [[ADR-API|ADR-API.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -39,7 +40,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Proportionaler CSS-Zoom statt ResizeObserver
 *   **Entscheidung:** Der DIN A4 Bogen wird rein CSS-basiert über `height: 94vh`, `aspect-ratio: 210/297` und Container Queries (`cqw`/`cqh`) skaliert.
 *   **Grund:** Vermeidung jeglichen JavaScript-Berechnungsoverheads, Beseitigung von ResizeObserver-Schleifen, perfekte Skalierungs-Sicherheit auf allen Displays.
-*   **Quelle:** [ADR-CSS.md](ADR/ADR-CSS.md)
+*   **Quelle:** [[ADR-CSS|ADR-CSS.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -47,7 +48,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – LocalStorage statt OPFS/IndexedDB
 *   **Entscheidung:** Persistent Auto-Save wird ausschließlich über die synchrone `localStorage` API abgewickelt. OPFS und IndexedDB werden explizit auf die Antipattern-Liste gesetzt.
 *   **Grund:** OPFS, IndexedDB und File System Access APIs werfen im lokalen Doppelklick-Sicherheitskontext (`file:///`) schwerwiegende CORS-Exceptions. LocalStorage ist die einzig verlässliche Option für serverlose Offline-Apps.
-*   **Quelle:** [ADR-JS.md](ADR/ADR-JS.md), [ADR-ANTIPATTERN.md](ADR/ADR-ANTIPATTERN.md)
+*   **Quelle:** [[ADR-JS|ADR-JS.md]], [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -55,7 +56,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – API-Header-Security & AbortController
 *   **Entscheidung:** Geoapify API-Schlüssel werden ausschließlich über HTTP-Header `X-Api-Key` übermittelt. Laufende Anfragen werden bei neuen Tastenanschlägen via `AbortController` abgebrochen.
 *   **Grund:** Schutz der API-Keys vor dem Leaken in Logfiles (Verhinderung von URL-Exponierung). Schutz der Anwendung vor Race Conditions bei schnellem Tippen.
-*   **Quelle:** [ADR-API.md](ADR/ADR-API.md)
+*   **Quelle:** [[ADR-API|ADR-API.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -63,7 +64,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Selection & Range API statt execCommand
 *   **Entscheidung:** Textformatierungen im Briefkern werden rein über die native Selection & Range API und DOM-Manipulationen gelöst. `document.execCommand` wird strikt verboten.
 *   **Grund:** `execCommand` ist veraltet (*deprecated*) und wird schrittweise aus modernen Browser-Engines entfernt. Wir nutzen zukunftssichere Standard-APIs.
-*   **Quelle:** [ADR-JS.md](ADR/ADR-JS.md), [ADR-ANTIPATTERN.md](ADR/ADR-ANTIPATTERN.md)
+*   **Quelle:** [[ADR-JS|ADR-JS.md]], [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -79,7 +80,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Etablierung des Entwicklerbereichs & Feature-Prüfung (DEV-INFO.md)
 *   **Entscheidung:** Schaffung einer dedizierten Diagnose-Referenz `DEV-INFO.md` zur systematischen Erkennung von 14 W3C-Living-Standards und experimentellen Features auf Basis von `check_readiness.js`.
 *   **Grund:** Bietet vollständige Transparenz über den Reifegrad modernster Web-APIs in der Chrome 147/148/149+ Zielumgebung und liefert ein robustes, kopierbares F12-Konsole-Skript.
-*   **Quelle:** [DEV-INFO.md](DEV-INFO.md), [index.json](index.json)
+*   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [index.json](index.json)
 *   **Status:** Aktiviert
 
 ---
@@ -87,7 +88,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Massive Expansion des Diagnose-Guides & Easter-Egg Panel Spezifikation
 *   **Entscheidung:** Erweiterung der Feature-Matrix in `DEV-INFO.md` von 14 auf 25 absolute Bleeding-Edge-Features der Web-Plattform und Spezifizierung eines 3-Klick-Easter-Eggs mit einem nativen HTML5 Popover-Overlay im Dokument `spec.md` (Feature 11).
 *   **Grund:** Reaktion auf die exzellenten Browser-Testergebnisse des Benutzers (Chrome 148+), die unerwartet breite Unterstützung modernster Standards zeigen. Ermöglicht maximale JS-Einsparungen durch Nutzung nativer HTML5/CSS-Mechanismen (z. B. Popover API) für das zukünftige Entwickler-Dashboard.
-*   **Quelle:** [DEV-INFO.md](DEV-INFO.md), [spec.md](spec.md)
+*   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [[spec|spec.md]]
 *   **Status:** Aktiviert
 
 ---
@@ -95,7 +96,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-25 – Einführung der LLM-First SQLite-Datenbank-Architektur & README-DB.md
 *   **Entscheidung:** Etablierung eines serverlosen Hybrid-Datenbankmodells zur KI-optimierten Aufbereitung des gesamten Projektwissens. Die Markdown-Dateien bleiben die Quell-Ebenen (Git-Master), während eine SQLite-Datenbank `docs.db` automatisch über ein Node.js-Kompilierskript `build_db.js` generiert und über einen Model Context Protocol (MCP) Server bereitgestellt wird. Spezifizierung der Architektur im Dokument `README-DB.md`.
 *   **Grund:** Beseitigt Token-Engpässe, überwindet fehlende Indexierungsstrukturen unstrukturierter Verzeichnisse und befähigt KIs (z. B. Claude via Desktop-MCP), relationale, hocheffiziente Suchen (inkl. FTS5-Volltextsuche) auf der Doku auszuführen, anstatt ganze Dateien einlesen zu müssen.
-*   **Quelle:** [README-DB.md](README-DB.md), [index.json](index.json), `build_db.js`, `github_action_workflow.txt`
+*   **Quelle:** [[README-DB|README-DB.md]], [index.json](index.json), `build_db.js`, `github_action_workflow.txt`
 *   **Status:** Aktiviert
 
 ---
@@ -103,7 +104,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 1: CSS Anchor Positioning für Adress-Vorschläge
 *   **Entscheidung:** Ablösung aller manuellen JavaScript-basierten Positions- und Breitenberechnungen für das Adress-Autocomplete-Dropdown `#address-suggestions` zugunsten der W3C CSS Anchor Positioning API unter Verwendung der standardisierten `position-area: bottom span-x` Syntax.
 *   **Grund:** Reduziert die Codekomplexität in `main.js` signifikant, überlässt die exakte Layoutplatzierung nativ der Browser-Engine auf Grafikkarten-Ebene und eliminiert Layout-Ruckeln oder asynchrone Offsets vollständig.
-*   **Quelle:** [ADR-CSS.md](ADR/ADR-CSS.md), `layout.css`, `main.js`
+*   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `layout.css`, `main.js`
 *   **Status:** Aktiviert
 
 ---
@@ -111,7 +112,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 2: CSS View Transitions API für flüssige Layout- & Theme-Wechsel
 *   **Entscheidung:** Kapselung aller UI-Layoutänderungen (Form A / Form B) und Theme-Umschaltungen (Hell / Dunkel / Auto) in der modernen W3C View Transitions API (`document.startViewTransition()`).
 *   **Grund:** Ermöglicht hardwarebeschleunigte, vollautomatische und optisch ansprechende Übergänge direkt über die Rendering-Engine des Browsers, ohne dass aufwändige CSS-Klassen oder zeitgesteuerte JavaScript-Fade-Operationen geschrieben werden müssen.
-*   **Quelle:** [ADR-JS.md](ADR/ADR-JS.md), `main.js`
+*   **Quelle:** [[ADR-JS|ADR-JS.md]], `main.js`
 *   **Status:** Aktiviert
 
 ---
@@ -119,7 +120,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 3: CSS @starting-style & Discrete Transitions für Popovers
 *   **Entscheidung:** Umstellung des Toast-Feedbacks (`#toast-v4`) und der Auswahl-Toolbar (`#format-toolbar`) auf native CSS discrete transitions unter Verwendung von `@starting-style` und `transition-behavior: allow-discrete` (für `display` und `overlay` Eigenschaften).
 *   **Grund:** Beseitigt komplexe `@keyframes` Animationen und macht das fehleranfällige JavaScript-seitige Lauschen auf `animationend`-Events sowie manuelle Transition-Klassen komplett überflüssig. JavaScript übernimmt rein die Statuskontrolle des Popovers, während der Browser Ein- und Ausblendungen flüssig steuert.
-*   **Quelle:** [ADR-FEATURE.md](ADR/ADR-FEATURE.md), `floating.css`, `main.js`
+*   **Quelle:** [[ADR-FEATURE|ADR-FEATURE.md]], `floating.css`, `main.js`
 *   **Status:** Aktiviert
 
 ---
@@ -127,7 +128,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 4: CSS @property & Guides-Fading
 *   **Entscheidung:** Registrierung der CSS-Custom-Property `--guide-opacity` als Typ `<number>` im CSS und Implementierung einer flüssigen Transition auf `:root`.
 *   **Grund:** Beseitigt jegliche JavaScript-Animationsschleifen oder Intervalle zum Ein-/Ausblenden der Hilfslinien. Der Browser interpoliert den Opacity-Übergang von `0.15` auf `0` vollkommen selbstständig und hardwarebeschleunigt auf GPU-Ebene, sobald JS den Variablenwert ändert.
-*   **Quelle:** [ADR-CSS.md](ADR/ADR-CSS.md), `variables.css`, `main.js`
+*   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `variables.css`, `main.js`
 *   **Status:** Aktiviert
 
 ---
@@ -135,7 +136,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 5: CSS Relative Color Syntax (RCS)
 *   **Entscheidung:** Umstellung aller funktionalen, abgeleiteten Farbtöne (z. B. `--accent-glow`, `--danger-hover` und `--guide-color`) auf die native W3C Relative Color Syntax (RCS) im OKLCH-Farbraum.
 *   **Grund:** Beseitigt statische Farbwert-Kopien und das JavaScript-seitige Errechnen von Farbkontrasten. Der Browser berechnet harmonische Schattierungen (z. B. 120-Grad-Farbwinkelverschiebung für kontrastreiche, aber perfekt harmonisierte Hilfslinien) völlig eigenständig. Das Farbschema bleibt dadurch mathematisch perfekt konsistent bei jeglichem Akzentfarbenwechsel.
-*   **Quelle:** [ADR-CSS.md](ADR/ADR-CSS.md), `variables.css`
+*   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `variables.css`
 *   **Status:** Aktiviert
 
 ---
@@ -143,7 +144,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 6: CSS interpolate-size für native Auto-Maß-Animationen
 *   **Entscheidung:** Globale Deklaration von `interpolate-size: allow-keywords` auf `:root` und Umstellung des API-Key-Eingabebereichs (`#geoapify-key-container`) auf native Höhen- und Deckkraft-Transitionen zwischen `height: 0` und `height: auto` unter Verwendung von CSS-Klassentoggles.
 *   **Grund:** Eliminiert alle JavaScript-Hacks, Intervalle oder `max-height`-Tricks zum Auf- und Zuklappen von Oberflächenmodulen. JavaScript steuert ausschließlich die Statusklasse (`.active`), während die Browser-Renderengine den stufenlosen Größenübergang performant auf GPU-Ebene berechnet.
-*   **Quelle:** [ADR-CSS.md](ADR/ADR-CSS.md), `layout.css`, `main.js`
+*   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `layout.css`, `main.js`
 *   **Status:** Aktiviert
 
 ---
@@ -151,7 +152,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-27 – Schritt 7: JS Temporal API Mandat & Datum-Autobefüllung
 *   **Entscheidung:** Strikter Ausschluss des klassischen JS `Date`-Objekts und externer Datumsbibliotheken (Prohibitiv-Eintrag in `ADR-ANTIPATTERN.md`). Einführung der W3C **Temporal API** (`Temporal.Now.plainDateISO()`) zur vollautomatischen Befüllung des Datumsfeldes (`#datum`) in DIN-5008-konformem deutschem Format beim ersten Laden.
 *   **Grund:** Beseitigt fehleranfälliges Datums-Parsing, Mutability-Risiken und CDNs. Die Temporal API liefert unveränderliche, normative und zeitzonensichere Datumsarithmetik direkt im Browser.
-*   **Quelle:** [ADR-ANTIPATTERN.md](ADR/ADR-ANTIPATTERN.md), `main.js`
+*   **Quelle:** [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]], `main.js`
 *   **Status:** Aktiviert
 
 ---
@@ -283,3 +284,9 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 
 
+
+- **2026-06-30 - PDF Re-Import entfernt (Simplicity First)**: Der fehleranf�llige und komplexe Ansatz, Daten-State als unsichtbaren Text in PDFs zu schmuggeln, wurde entfernt. metadata.js setzt nun nur noch <title> und Meta-Tags. Generalisierbarkeit: PDF-Export-Code sollte nie versuchen, Backups in die Druckausgabe zu hacken; saubere Trennung von Export und State-Save ist stabiler und wartbarer.
+
+- **2026-06-30 - Optionale Layout-Bl�cke (Zero-JS)**: Postvermerk, Anlagen und Verteiler wurden als CSS-only Toggle (via :has) in die Sidebar integriert. Generalisierbarkeit: Komplexe UI-Zust�nde lassen sich mit nativen CSS :has() und Checkboxen elegant und robust ohne JS abbilden, was die App-Logik extrem vereinfacht.
+
+- **2026-06-30 - Canvas Signature Compressor (Zero-JS/Offline)**: Ein neues Feature zum Einf�gen grafischer Unterschriften. Zur Schonung des 5MB localStorage Limits wird ein unsichtbarer Canvas-Kompressor genutzt. Generalisierbarkeit: Gro�e Bin�rdaten lassen sich im Browser per Canvas extrem ressourcenschonend f�r den localStorage aufbereiten (Zero-Server-Architektur).

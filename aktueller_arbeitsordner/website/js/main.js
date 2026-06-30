@@ -1187,3 +1187,34 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+
+// @adr [[ADR-JS]]
+// JSON Export (Dev Tool)
+document.getElementById('btn-copy-json')?.addEventListener('click', async (e) => {
+  const btn = e.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Kopiere...';
+  
+  const state = {
+    absender: document.getElementById('absender')?.innerHTML,
+    empfaengerName: document.getElementById('empfaenger-name')?.innerHTML,
+    empfaengerFirma: document.getElementById('empfaenger-firma')?.innerHTML,
+    empfaengerStrasse: document.getElementById('empfaenger-strasse')?.innerHTML,
+    empfaengerOrt: document.getElementById('empfaenger-ort')?.innerHTML,
+    betreff: document.getElementById('betreff')?.innerHTML,
+    anrede: document.getElementById('anrede')?.innerHTML,
+    brieftext: document.getElementById('brieftext')?.innerHTML,
+    grussformel: document.getElementById('grussformel')?.innerHTML,
+    unterschrift: document.getElementById('unterschrift')?.innerHTML,
+  };
+  
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
+    btn.textContent = '✅ Kopiert!';
+  } catch (err) {
+    btn.textContent = '❌ Fehler';
+  }
+  
+  setTimeout(() => { btn.textContent = originalText; }, 2000);
+});

@@ -48,3 +48,6 @@ Dieses Dokument dient als offene Ideensammlung für zukünftige Erweiterungen vo
 ## 🔗 Verweise
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] zur Vermeidung von CDN- oder Drittanbieter-Bibliotheken bei diesen Ideen.
 *   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das strikte Verbot von CDN-Verbindungen.
+
+- [ ] **Client-Side AI Integration**: API Key Eingabe via Settings-Modal (gespeichert in localStorage). Direkte Anbindung an OpenAI/Anthropic/Gemini via etch f�r Text-Expansion, Tonfall-�nderung und Rechtschreibkorrektur.
+

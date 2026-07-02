@@ -22,8 +22,8 @@ html, body {
   padding: 0;
   width: 100vw;
   height: 100dvh; /* Dynamische Viewport-Höhe (beachtet mobile Adressleisten) */
-  overflow: hidden; /* Scrollbalken komplett verbieten */
-  user-select: none; /* Unbeabsichtigtes Markieren von UI verhindern */
+  overflow: hidden; /* Scrollbalken auf Top-Level verbieten (interne Container wie Sidebar dürfen scrollen) */
+  /* user-select: none hier entfernt, da es global problematisch für Barrierefreiheit ist. Wird nur lokal auf UI-Elemente wie Toolbar angewendet. */
 }
 ```
 
@@ -114,3 +114,11 @@ din-text, [contenteditable] {
 - **Nutze `box-sizing: border-box`:** Jedes Element im Projekt muss diese Eigenschaft besitzen, damit Padding und Border die Gesamtbreite/-höhe nicht erhöhen.
 - **Vermeide absolute Pixelwerte bei Höhen:** Nutze relative Einheiten wie `rem`, `%`, `vh` oder `dvh` für Layout-Skelette.
 - **Umgang mit langen Wörtern:** Verwende `word-break: break-word` und `hyphens: auto`, um horizontalen Textüberlauf zu verhindern.
+
+
+## 4. Verhalten bei sehr kleinen Viewports (< 700px)
+Da wir ein hartes `min-height: 800px` und proportionale Skalierung erzwingen, würde das Dokument auf extrem kleinen Smartphones zwangsläufig aus dem Bildbereich ragen.
+Hier greift eine Medienabfrage, die entweder das No-Scroll-Konzept aufweicht (Scrollen erlauben) oder einen klaren Hinweis zeigt, dass die Desktop-Ansicht erforderlich ist.
+
+## 5. Warnung zu `field-sizing: content`
+Während `field-sizing` ein exzellentes CSS-Feature für Auto-Grow Inputs ist, funktioniert es in einigen Engines noch nicht absolut fehlerfrei oder verzögert. Als Fallback oder Alternative für sehr komplexe Felder kann ein `ResizeObserver` oder ein Set aus `min-height` und `max-height` herangezogen werden.

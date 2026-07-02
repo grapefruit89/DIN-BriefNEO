@@ -71,3 +71,16 @@ Da wir auf nativem `fetch` und modernem ES6 basieren:
 ```javascript feature-check
 // f("Geoapify Native Fetch", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv")
 ```
+
+
+## 3. Fehlerbehandlung & Fallback-Strategie
+Da externe APIs ausfallen können (Rate Limits, Offline-Szenarien, API-Downtime), muss die Fehlerbehandlung robust sein.
+Schlägt der Request an Geoapify fehl, werfen wir keinen UI-blockierenden Fehler, sondern fangen diesen ab und wechseln – sofern konfiguriert – sofort auf den kostenlosen Photon Fallback-Provider, oder stoppen die Autocomplete-Vorschläge einfach leise (Graceful Degradation).
+
+## 4. Rate Limiting & Performance
+Die Geoapify API hat in der kostenlosen Stufe strikte Limits (z.B. 3.000 Requests pro Tag).
+Das strenge Debouncing (300-500ms) und ein geplantes, lokales **Caching** von Suchbegriffen (aktuell noch in Planung / noch nicht implementiert) sind unsere primären Abwehrwerkzeuge gegen das Limit.
+
+## 5. Datenschutz (Privacy)
+Geoapify erhält den gesuchten Adressstring sowie die berechneten GPS-Koordinaten (für das Proximity Biasing).
+**WICHTIG:** Es werden **keine** persönlichen Absenderdaten, Namen oder Briefinhalte an den Dienst übertragen.

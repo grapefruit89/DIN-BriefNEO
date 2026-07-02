@@ -18,6 +18,16 @@ echo.
 cd /d "%~dp0\website"
 
 :: ============================================
+:: 0. Alte Prozesse auf Port 8088 aufräumen
+:: ============================================
+echo [INFO] Prüfe auf alte Prozesse (Port 8088)...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8088') do (
+    if not "%%a"=="0" (
+        taskkill /F /PID %%a >nul 2>&1
+    )
+)
+
+:: ============================================
 :: 1. Versuch: Python Webserver
 :: ============================================
 where python >nul 2>nul

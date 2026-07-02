@@ -966,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // KISS Max Length Check
-        const maxLength = singleLineIds.includes(id) ? 60 : 120;
+        const maxLength = singleLineIds.includes(id) ? 80 : 120;
         const currentText = el.textContent || '';
         
         if (currentText.length >= maxLength) {
@@ -993,7 +993,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Apply KISS Max Length to pasted text
-        const maxLength = singleLineIds.includes(id) ? 60 : 120;
+        const maxLength = singleLineIds.includes(id) ? 80 : 120;
         const currentText = el.textContent || '';
         const selection = window.getSelection();
         let selectionLength = 0;

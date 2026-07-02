@@ -184,12 +184,16 @@ aside {
     box-shadow: 0 16px 48px oklch(from var(--accent-color) calc(l - 0.05) c h / 18%);
   }
 
-  /* Hover-hints on editable areas */
   [contenteditable] {
     field-sizing: content;
     outline: none;
     border-radius: 2px;
     transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  /* Single Line / Max Length Felder leicht stauchen (KISS für 80 Zeichen Limit) */
+  [contenteditable="plaintext-only"] {
+    letter-spacing: -0.015em; /* kaum sichtbar, aber hilft beim Platz */
   }
 
   [contenteditable]:hover {

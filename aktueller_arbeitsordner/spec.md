@@ -156,7 +156,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 # Zukünftiges Backlog (Phase 3 Feature-Roadmap)
 
 > [!NOTE]
-> Die folgenden Features befinden sich im ruhenden Planungs-Backlog. Aufgrund des aktiven `.SPEC-ONLY-PHASE`-Schutzes sind für diese Features **keine** aktiven Entwicklungsaufgaben (Tasks) oder Implementierungspläne freigegeben. Sie dienen rein als Spezifikations-Vorschau.
+> Die folgenden Features befinden sich im ruhenden Planungs-Backlog und werden aktuell nicht aktiv verfolgt.
 
 ## 🟡 Backlog (Geplant / Zurückgestellt)
 

@@ -9,7 +9,7 @@ tags: [documentation, changelog, history]
 Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden in dieser Datei nach dem "Keep a Changelog"-Standard gepflegt.
 
 > [!NOTE]
-> Dieses Changelog trackt alle Änderungen an der Architektur, dem Quellcode (HTML, CSS, JS) und der Dokumentation von DIN-BriefNEO. Die SPEC-ONLY-PHASE wurde erfolgreich abgeschlossen, und alle W3C-Modernisierungsstufen sind produktiv implementiert.
+> Dieses Changelog trackt alle Änderungen an der Architektur, dem Quellcode (HTML, CSS, JS) und der Dokumentation von DIN-BriefNEO. Alle W3C-Modernisierungsstufen sind produktiv implementiert.
 
 ---
 
@@ -28,7 +28,7 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 *   **Reaktive :has() Fokusierung:** Einsatz des Parent Selectors `:has()` in `layout.css` zur automatischen Verstärkung des Ambient Glows auf dem Briefbogen, sobald ein editierbares Feld fokussiert wird.
 
 ### Changed
-*   **SPEC-ONLY-PHASE aufgehoben:** Offizielle Löschung der `.SPEC-ONLY-PHASE` Sperrdateien und Übergang in die aktive Code-Modernisierungsphase.
+
 *   **Entscheidungs-Log:** Die Entscheidungen für CSS Anchor Positioning, View Transitions, Discrete Transitions, @property, Relative Color Syntax, interpolate-size, Temporal API, `@scope` und OKLCH-Farbmandat in `ADR-CSS.md`, `ADR-JS.md`, `ADR-FEATURE.md`, `ADR-ANTIPATTERN.md` und `DECISION-LOG.md` dokumentiert.
 *   **Strikter Legacy-Date- & Farb-Ban:** Offizielle Ächtung von klassischem `new Date()`, externen Datums-Bibliotheken sowie allen klassischen Farbräumen (HEX, RGB, HSL) in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md`.
 *   **Proaktive Antipattern-Verfassung:** Ausweitung der Verbote um 5 neue Regeln (Ausschluss von CSS-Präprozessoren, Icon-CDNs, JS-Hilfsbibliotheken/TypeScript, JS-Animationsbibliotheken und gestalterischen Inline-Styles) in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` zum dauerhaften Schutz der Build-freien Offline-Architektur.

@@ -14,7 +14,13 @@ const CORE_FILES = [
     'spec.md'
 ];
 
-const PREAMBLE = `> [!IMPORTANT]
+const PREAMBLE = `---
+title: LLM Context Bundle
+status: active
+tags: [context, llm, prompt]
+---
+
+> [!IMPORTANT]
 > **SYSTEM-PROMPT / CORE CONTEXT**
 > Dieses Dokument ist eine automatisch generierte, aggregierte Landkarte der aktuellen Projektarchitektur.
 > Es enthält alle kritischen Verfassungen, Guidelines und Spezifikationen, die du als KI-Agent zwingend beachten musst.

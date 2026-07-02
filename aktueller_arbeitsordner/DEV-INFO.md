@@ -8,7 +8,7 @@ created: 2026-05-24
 
 # 🛠️ DIN-BriefNEO — Entwicklerbereich & Feature-Prüfung
 
-Dieses Dokument dient als zentrale Single Source of Truth (SSoT) für die Validierung moderner Webtechnologien im Kontext unserer **Chrome 147/148/149+ Baseline**. Es basiert auf der originalen `check_readiness.js` und wurde massiv erweitert, um **25 absolute Bleeding-Edge-Features** der modernen Web-Plattform systematisch zu erkennen. 
+Dieses Dokument dient als reines **Live-Diagnose-Tool** und Feature-Erkennungs-Matrix für die Validierung moderner Webtechnologien. Es ist keine Architektur-Vorgabe (diese finden sich in den ADRs) im Kontext unserer **Chrome 147/148/149+ Baseline**. Es basiert auf der originalen `check_readiness.js` und wurde massiv erweitert, um **25 absolute Bleeding-Edge-Features** der modernen Web-Plattform systematisch zu erkennen. 
 
 Darüber hinaus spezifizieren wir hier das Konzept für ein **geheimes Easter-Egg-Entwickler-Overlay**, das später mit minimalem JavaScript-Einsatz direkt in das Frontend integriert werden kann.
 
@@ -151,7 +151,7 @@ Der Text der Versionsnummer im Fußbereich dient als Klick-Trigger. Das Popover-
 }
 
 /* Tabelle stylen */
-.premium-dev-popover #diag-table {
+.premium-dev-popover #diag-table, #diag-table th {
   width: 100%;
   border-collapse: collapse;
   font-family: sans-serif;

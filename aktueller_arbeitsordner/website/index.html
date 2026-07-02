@@ -18,7 +18,17 @@
 
         <div class="sidebar-scroll">
           <div class="sidebar-section">
+              <!-- THEME SELECTION -->
             <div>
+              <div class="sidebar-label">Farbschema (Theme)</div>
+              <div class="segmented-control">
+                <button id="btn-theme-light" data-js="theme-light">☀️ Hell</button>
+                <button id="btn-theme-dark" data-js="theme-dark">🌙 Dunkel</button>
+                <button id="btn-theme-auto" data-js="theme-auto" class="active">💻 Auto</button>
+              </div>
+            </div>
+
+              <div>
               <div class="sidebar-label">DIN-Brief Layout</div>
               <div class="segmented-control">
                 <button id="btn-form-a" data-js="form-a">Form A (Kompakt)</button>
@@ -35,11 +45,7 @@
                   <button id="btn-style-polite" data-js="style-polite" title="Höflich (Guten Tag...)">Höflich</button>
                   <button id="btn-style-casual" data-js="style-casual" title="Modern (Hallo...)">Locker</button>
                 </div>
-                <div class="segmented-control">
-                  <button id="btn-gender-none" data-js="gender-none" class="active" title="Neutral / Unbekannt">Neutral</button>
-                  <button id="btn-gender-female" data-js="gender-female" title="Weiblich">Frau</button>
-                  <button id="btn-gender-male" data-js="gender-male" title="Männlich">Herr</button>
-                </div>
+                
               </div>
             </div>
 
@@ -53,21 +59,11 @@
                 <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
                   <input type="checkbox" id="toggle-anlagen" data-js="toggle-anlagen" style="cursor: pointer;"> Anlagen
                 </label>
-                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                  <input type="checkbox" id="toggle-verteiler" data-js="toggle-verteiler" style="cursor: pointer;"> Verteiler
-                </label>
+                
               </div>
             </div>
 
-            <!-- THEME SELECTION -->
-            <div>
-              <div class="sidebar-label">Farbschema (Theme)</div>
-              <div class="segmented-control">
-                <button id="btn-theme-light" data-js="theme-light">☀️ Hell</button>
-                <button id="btn-theme-dark" data-js="theme-dark">🌙 Dunkel</button>
-                <button id="btn-theme-auto" data-js="theme-auto" class="active">💻 Auto</button>
-              </div>
-            </div>
+            
 
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
@@ -150,14 +146,7 @@
               </div>
             </div>
             
-            <!-- REF MATRIX SUMMARY -->
-            <div style="margin-top: 10px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); font-size: 0.75rem; line-height: 1.4;">
-              <span style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 4px;">CONSTRAINTS ACTIVE:</span>
-              🚫 <b>Keine Scrollbalken</b> (100% Viewport)<br>
-              🚫 <b>Keine Frameworks</b> (Vanilla Web)<br>
-              💾 <b>LocalStorage</b> Auto-Save<br>
-              ⚡ <b>Chrome 148+</b> Engine Active
-            </div>
+            
           </div>
         </div>
 

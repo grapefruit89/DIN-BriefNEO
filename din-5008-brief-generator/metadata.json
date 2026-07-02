@@ -1,0 +1,6 @@
+{
+  "name": "DIN 5008 Brief-Generator",
+  "description": "Ein moderner, interaktiver Editor zur Erstellung von DIN-konformen Briefen nach DIN 5008 Form B und Form A.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -26,6 +26,13 @@ type: guide
 > 
 > Dies erreichen wir nicht durch Verzicht auf moderne Features, sondern durch das unnachgiebige Vertrauen in **native, standardisierte W3C/WHATWG Browser-Schnittstellen**.
 
+### 1.1. Sicherheit vor Kompatibilität (Chrome 149+ Baseline)
+
+> [!warning] Zero-Compromise Policy
+> Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
+> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur Injektion von Daten genutzt werden.
+> - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
+
 ---
 
 ## 2. Die 5 Säulen der Langlebigkeit (Longevity Pillars)

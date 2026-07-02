@@ -48,6 +48,7 @@ project: DIN-BriefNEO
 - **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
 - **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits.
 - **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
+- **Sichere DOM-Manipulation:** Die Verwendung von `innerHTML` ist als Antipattern eingestuft und strikt verboten (XSS-Gefahr). Es dürfen ausschließlich sichere Native-Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur DOM-Injektion genutzt werden.
 - **View Transitions API:** Native `document.startViewTransition()` wird für UI-Zustandswechsel verwendet, anstatt händisch via JS zu animieren.
 
 ## 4. Consequences

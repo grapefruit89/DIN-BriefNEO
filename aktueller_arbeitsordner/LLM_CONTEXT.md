@@ -12,7 +12,7 @@ tags: [context, llm, prompt]
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T10:32:27.620Z
+> Generiert am: 2026-07-02T13:13:41.244Z
 > ==============================================================================
 
 
@@ -140,11 +140,12 @@ Dieser Vertrag ist **nicht verhandelbar**. Verstöße führen zur Ablehnung der 
 
 **Light Mode (Standard für die meisten Änderungen: Bugfixes, kleine Refactorings, kleine Anpassungen)**
 
-1. Pre-Build ausführen.
-2. Änderung durchführen (Core Rules einhalten).
-3. Post-Build ausführen → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
-4. Mit `log_session.js` protokollieren.
-5. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
+1. Pre-Build ausführen (`.\start.ps1` generiert auch `LLM_CONTEXT.md`).
+2. Generierte `LLM_CONTEXT.md` lesen, um den aktuellen System-Prompt zu erhalten.
+3. Änderung durchführen (Core Rules einhalten).
+4. Post-Build ausführen (`.\start.ps1`) → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
+5. Mit `log_session.js` protokollieren.
+6. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
 
 **Beispiel Light Mode:**
 "Kleinen Bug im Adress-Autocomplete gefixt (textContent statt unsicherem innerHTML). Pre- und Post-Build waren 100%. Generalisierbarkeit: Die Regel ist bereits in web.json → keine Extraktion nötig."
@@ -289,10 +290,20 @@ Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängig
 # ==========================================
 
 ---
-title: Longevity & W3C Native Standards Guidelines (Longevity Guide)
+title: "Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)"
 status: active
-tags: [obsidian, documentation, guide, manual, architecture]
-aliases: ["Longevity Guidelines", "W3C Standards"]
+tags:
+  - obsidian
+  - documentation
+  - guide
+  - manual
+  - architecture
+aliases:
+  - "Longevity Guidelines"
+  - "W3C Standards"
+last-updated: 2026-07-02
+project: DIN-BriefNEO
+type: guide
 ---
 
 # Longevity & W3C Native Standards Guidelines (Longevity Guide)
@@ -305,6 +316,13 @@ aliases: ["Longevity Guidelines", "W3C Standards"]
 > **DIN-BriefNEO** bricht radikal mit diesem Zyklus. Ziel ist eine **möglichst lange Lebensdauer ohne Wartungsaufwand** (im Idealfall viele Jahre). Der Briefbogen muss im Jahr 2036 in jedem gängigen Webbrowser exakt so geladen, gerendert und bedient werden können wie heute.
 > 
 > Dies erreichen wir nicht durch Verzicht auf moderne Features, sondern durch das unnachgiebige Vertrauen in **native, standardisierte W3C/WHATWG Browser-Schnittstellen**.
+
+### 1.1. Sicherheit vor Kompatibilität (Chrome 149+ Baseline)
+
+> [!warning] Zero-Compromise Policy
+> Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
+> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur Injektion von Daten genutzt werden.
+> - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
 
 ---
 

@@ -142,17 +142,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    dropdown.innerHTML = '';
+    dropdown.replaceChildren();
     filtered.slice(0, 5).forEach(a => {
       const div = document.createElement('div');
       div.className = 'address-suggestion-item';
-      div.innerHTML = `<strong>${a.firma ? a.firma : a.name}</strong><br><small>${a.strasse}, ${a.ort}</small>`;
+      
+      const strong = document.createElement('strong');
+      strong.textContent = a.firma ? a.firma : a.name;
+      const br = document.createElement('br');
+      const small = document.createElement('small');
+      small.textContent = `${a.strasse}, ${a.ort}`;
+      
+      div.appendChild(strong);
+      div.appendChild(br);
+      div.appendChild(small);
+
       div.addEventListener('mousedown', (e) => {
         e.preventDefault(); // Prevent blur
-        document.getElementById('empfaenger-name').innerHTML = a.name;
-        document.getElementById('empfaenger-firma').innerHTML = a.firma;
-        document.getElementById('empfaenger-strasse').innerHTML = a.strasse;
-        document.getElementById('empfaenger-ort').innerHTML = a.ort;
+        document.getElementById('empfaenger-name').textContent = a.name;
+        document.getElementById('empfaenger-firma').textContent = a.firma;
+        document.getElementById('empfaenger-strasse').textContent = a.strasse;
+        document.getElementById('empfaenger-ort').textContent = a.ort;
         saveDraftData();
         try { dropdown.hidePopover(); } catch(e){}
         showToast("Kontakt geladen", "success");
@@ -205,14 +215,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPvDropdown() {
     if (!pvDropdown) return;
-    pvDropdown.innerHTML = '';
+    pvDropdown.replaceChildren();
+    
     pvOptions.forEach(opt => {
       const div = document.createElement('div');
       div.className = 'pv-item';
-      div.innerHTML = opt;
+      div.textContent = opt;
       div.addEventListener('mousedown', (e) => {
         e.preventDefault(); // Prevent blur
-        pvInput.innerHTML = opt;
+        pvInput.textContent = opt;
         saveDraftData();
         try { pvDropdown.hidePopover(); } catch(e){}
         showToast("Vermerk gesetzt", "success");
@@ -1164,16 +1175,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let dateStr = 'YYYY-MM-DD';
     try {
-      if (typeof Temporal !== 'undefined') {
-        dateStr = Temporal.Now.plainDateISO().toString();
-      } else {
-        const d = new Date();
-        const yy = d.getFullYear();
-        const mm = String(d.getMonth()+1).padStart(2,'0');
-        const dd = String(d.getDate()).padStart(2,'0');
-        dateStr = yy + '-' + mm + '-' + dd;
-      }
-    } catch(e) {}
+      dateStr = Temporal.Now.plainDateISO().toString();
+    } catch(e) {
+      console.warn("Temporal API missing, date string unavailable.");
+    }
 
     const sanitizedBetreff = betreff.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '');
     const sanitizedEmpfaenger = empfaenger.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '').replace(/ /g, '-');
@@ -1202,10 +1207,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const elem = document.getElementById(id);
         if (elem) {
           if (id === 'brieftext') {
-            if (elem.setHTML) {
+            if (elem.setHTMLUnsafe) {
+              elem.setHTMLUnsafe(draft[id]);
+            } else if (elem.setHTML) {
               elem.setHTML(draft[id]);
             } else {
-              elem.innerHTML = draft[id];
+              elem.textContent = draft[id]; // Strict Chrome 149 baseline: no innerHTML fallback
             }
           } else {
             elem.textContent = draft[id];
@@ -1240,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(elem => {
-      elem.innerHTML = '';
+      elem.replaceChildren(); // Fast, native way to clear content instead of innerHTML = ''
       elem.textContent = '';
     });
     saveDraftData();
@@ -1276,17 +1283,18 @@ document.getElementById('btn-copy-json')?.addEventListener('click', async (e) =>
   const originalText = btn.textContent;
   btn.textContent = 'Kopiere...';
   
+  // Note: Only brieftext supports HTML formatting natively
   const state = {
-    absender: document.getElementById('absender')?.innerHTML,
-    empfaengerName: document.getElementById('empfaenger-name')?.innerHTML,
-    empfaengerFirma: document.getElementById('empfaenger-firma')?.innerHTML,
-    empfaengerStrasse: document.getElementById('empfaenger-strasse')?.innerHTML,
-    empfaengerOrt: document.getElementById('empfaenger-ort')?.innerHTML,
-    betreff: document.getElementById('betreff')?.innerHTML,
-    anrede: document.getElementById('anrede')?.innerHTML,
-    brieftext: document.getElementById('brieftext')?.innerHTML,
-    grussformel: document.getElementById('grussformel')?.innerHTML,
-    unterschrift: document.getElementById('unterschrift')?.innerHTML,
+    absender: document.getElementById('absender')?.textContent,
+    empfaengerName: document.getElementById('empfaenger-name')?.textContent,
+    empfaengerFirma: document.getElementById('empfaenger-firma')?.textContent,
+    empfaengerStrasse: document.getElementById('empfaenger-strasse')?.textContent,
+    empfaengerOrt: document.getElementById('empfaenger-ort')?.textContent,
+    betreff: document.getElementById('betreff')?.textContent,
+    anrede: document.getElementById('anrede')?.textContent,
+    brieftext: document.getElementById('brieftext')?.innerHTML, // Keep HTML serialization
+    grussformel: document.getElementById('grussformel')?.textContent,
+    unterschrift: document.getElementById('unterschrift')?.textContent,
   };
   
   try {
@@ -1312,10 +1320,11 @@ document.getElementById('btn-paste-json')?.addEventListener('click', async (e) =
       const elem = document.getElementById(key);
       if (elem) {
         if (key === 'brieftext') {
-          if (elem.setHTML) elem.setHTML(state[key]);
-          else elem.innerHTML = state[key];
+          if (elem.setHTMLUnsafe) elem.setHTMLUnsafe(state[key]);
+          else if (elem.setHTML) elem.setHTML(state[key]);
+          else elem.textContent = state[key]; // Strict Chrome 149 baseline: no innerHTML
         } else {
-          elem.innerHTML = state[key];
+          elem.textContent = state[key];
         }
       }
     }

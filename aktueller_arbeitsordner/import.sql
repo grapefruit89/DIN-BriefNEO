@@ -79,7 +79,7 @@ CREATE TABLE reconciliation_log (
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-ANTIPATTERN.md',
-  'Architectural Decision Record (ADR): Forbidden Practices & Antipatterns',
+  'ADR-ANTIPATTERN: Forbidden Practices & Antipatterns',
   'accepted',
   '# Architectural Decision Record (ADR): Forbidden Practices & Antipatterns
 
@@ -94,6 +94,9 @@ Akzeptiert
 ---
 
 ## Verbotene Praktiken (Antipatterns)
+
+### 0. Chrome 149+ Baseline & Keine Legacy-Fallbacks (Striktes Verbot)
+Ab Version X des Projekts werden **keine Legacy-Fallbacks** mehr toleriert. Dies gilt insbesondere für unsichere DOM-Manipulationen (wie `innerHTML`) oder veraltete Native-APIs (wie `new Date()`). Das Projekt akzeptiert bewusst eine strikte Chrome 149+ Baseline. Sicherheit und Code-Sauberkeit haben absoluten Vorrang vor abwärtskompatibler Funktionalität für ältere Browser.
 
 ### 1. Verwendung von Frameworks & Build-Tools (Striktes Verbot)
 Es dürfen **keine** Frameworks wie React, Vue, Svelte, Angular oder Bibliotheken wie jQuery oder TailwindCSS eingebunden werden.
@@ -171,445 +174,196 @@ Die Verwendung von inline `style="..."` Attributen für strukturelle oder gestal
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'antipattern');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'rules');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'boundaries');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'security');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-ANTIPATTERN.md'), 'local-context');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-API.md',
-  'ADR: External API Integrations & Header Security',
+  'ADR-API: External API Integrations & Header Security',
   'accepted',
-  '# Architectural Decision Record (ADR): External API Integrations & Header Security
+  '# ADR-API: External API Integrations & Header Security
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**Sichere, serverlose Adress-Vervollständigung.**
+- Viele Autocomplete-Lösungen (wie Google Places) benötigen dicke SDKs und zwingen Nutzer zur Kreditkartenangabe.
+- DIN-BriefNEO benötigt ein schnelles, datenschutzkonformes API-Konzept, das vollständig im lokalen Kontext (`file:///`) läuft, ohne Backend-Server.
+- API-Keys dürfen nicht via URL-Parameter geleakt werden.
 
-> [!info] Hintergrund
-> Eine effiziente, datenschutzkonforme und reibungsfreie Adress-Vervollständigung ist ein zentrales Komfortmerkmal. Viele gebräuchliche Autocomplete-Lösungen (wie die Google Places API) erfordern jedoch die Angabe von Kreditkarten bei der Registrierung und beeinträchtigen durch schwere SDKs die Performance und Offline-Fähigkeit. Das **DIN-BriefNEO**-Projekt benötigt ein schnelles, kostenloses und datenschutzkonformes API-Konzept, das vollständig unter lokalen Kontexten (`file:///`) operiert.
+## 2. Considered Options
 
----
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Geoapify + Header-Auth) | Nutzung der REST-API via nativem `fetch()`, Key im Header (`X-Api-Key`) | Zero SDK, höchste Sicherheit vor Leaks, kostenloser Tier reicht | Benötigt eigenen API-Key | Keine | **Gewählt** |
+| **Option B** (Google SDK) | Google Places Library laden | Bekannt, hohe Datenqualität | Zwang zu Kreditkarte, schwergewichtiges JS | Datenschutz | Abgelehnt |
+| **Option C** (Photon API) | Kostenloses OSM-Backend | Kein Key nötig | Zu schlechte Datenqualität | Usability | Abgelehnt (Deprecated) |
 
-## Entscheidungen
+## 3. Decision
 
-### 1. Dual-Provider Autocomplete (Photon & Geoapify)
-Wir implementieren einen asynchronen Adressdienst in der Sidebar, der zwei separate Provider anbindet:
-*   **Photon (Komoot/OSM):** 100% kostenlos und **ohne API-Key** nutzbar. Die Abfragen werden standardmäßig auf eine Deutschland-Boundingbox (`bbox=5.0,45.0,16.0,56.0`) eingegrenzt, um präzise, inländische Vorschläge zu liefern.
-*   **Geoapify (Premium):** Erfordert einen API-Key. Das Eingabefeld wird dynamisch ein- und ausgeblendet.
+**Wir haben uns für Option A (Geoapify & Zippopotam REST APIs) entschieden.**
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Benutzer
-    participant Search as Autocomplete Input
-    participant JS as main.js (JS-Controller)
-    participant API as API Provider (Photon / Geoapify)
-    participant Zip as Zippopotam API
-    
-    User->{Search}: Tippt Empfängeradresse (>2 Zeichen)
-    JS->>API: fetch() Request mit AbortController-Signal
-    Note over API: Wenn neu getippt: AbortController bricht alten Request ab
-    API-->>JS: JSON Features
-    JS-->>Search: Render Dropdown-Liste
-    User->{Search}: Wählt Adresse aus
-    JS->>User: Füllt Empfänger-DOM aus
-    
-    Note over User: Ort & PLZ Eingabe
-    User->{Search}: Gibt 5-stellige PLZ in Ort-Feld ein
-    JS->>Zip: fetch() Zippopotam PLZ Lookup
-    Zip-->>JS: Ortsname
-    JS->>User: Ergänzt Ortsnamen automatisch
-```
+### Begründung
+- **Geoapify:** Einziger Provider für Adress-Autocomplete. Der API-Key wird **strikt per HTTP-Header** (`X-Api-Key`) gesendet, niemals in der URL.
+- **Heartbeat:** Eingegebene Keys werden per asynchronem Test (`limit=1`) sofort auf Validität geprüft.
+- **Zippopotam:** Die kostenfreie API (`api.zippopotam.us`) wird für das Auto-Ausfüllen von Ortsnamen bei 5-stelliger PLZ genutzt.
+- **Race-Condition-Schutz:** Alle API-Aufrufe (`fetch()`) werden durch `AbortController` abgebrochen, wenn eine neue Eingabe erfolgt.
 
+## 4. Consequences
 
-### 2. Header-Security für API-Keys
-Bei der Anbindung von Geoapify wird der API-Key **ausschließlich** über den sicheren HTTP-Header `X-Api-Key` an den Web-Service übermittelt – niemals als URL-Parameter!
-*   **Begründung:** Verhindert das Exponieren oder Leaken des Schlüssels in Netzwerk-Caches, Web-Proxys, DNS-Logs oder Browser-Verlaufseinträgen.
+### Positive Auswirkungen
+- **Hohe Sicherheit:** Keys leaken nicht in Server-Logs oder Proxys.
+- **Zero-Dependency:** Komplett nativ per `fetch()` gelöst, keine SDKs.
+- **Top Performance:** AbortController verhindert überflüssige Netzwerk-Requests.
 
-### 3. Key Heartbeat-Validierung
-Bei Eingabe eines Geoapify API-Keys wird dieser mit 500ms Debounce asynchron per echter Heartbeat-Anfrage (`text=Bonn&limit=1`) validiert.
-*   **Ablauf:** Liefert die API ein erfolgreiches `ok` (Status 200), wird der Key dauerhaft gespeichert und das Suchfeld freigeschaltet. Andernfalls wird der Key verworfen und ein Fehler-Toast ausgegeben.
+### Risiken & Negative Auswirkungen
+- Setzt aktive Internetverbindung voraus für Autocomplete (manuelle Eingabe geht weiterhin offline).
 
-### 4. Race-Condition-Schutz via AbortController
-Um unvollständige oder veraltete Netzwerkeingänge bei schnellem Tippen abzusichern, bricht JS laufende Fetch-Anfragen über die native `AbortController`-API (`signal`) sofort ab, sobald eine neue Tastatureingabe erfolgt.
+## 5. Implementation & Verification
 
-### 5. Zippopotam PLZ Auto-Lookup
-Wir integrieren einen Listener auf das Feld *PLZ & Ort* (`#empfaenger-ort`). Gibt der Benutzer eine 5-stellige deutsche Postleitzahl ein, fragt das System im Hintergrund die kostenlose **Zippopotam API** (`https://api.zippopotam.us/de/${zip}`) ab und ergänzt den Ortsnamen automatisch (z. B. *"93049 Regensburg"*).
+- Die Header-Security-Regel ist in `main.js` für jeden Geoapify-Aufruf verankert.
+- Photon wurde restlos als Antipattern deklariert und aus dem Projekt entfernt.
 
----
+## 6. Related Documents
 
-## Konsequenzen
-*   **Vorteile:**
-    *   Hundertprozentig datenschutzkonform und DSGVO-freundlich.
-    *   Keinerlei Kosten oder Kreditkartenzwang für den Anwender.
-    *   Vollständige `file:///`-Kompatibilität ohne CORS-Probleme.
-    *   Zuverlässiger Schutz vor veralteten Netzwerkeingängen dank Aborting.
-*   **Nachteile:**
-    *   Die Autovervollständigung setzt eine aktive Internetverbindung voraus (manuelle Eingaben auf dem Briefpapier sind jedoch jederzeit offline möglich).
-
----
-
-## Verknüpfungen
-*   Siehe [[ADR-HTML|ADR-HTML.md]] für die Einbettung des Widgets.
-*   Siehe [[ADR-JS|ADR-JS.md]] für Drosselung und Datenbindung.
-*   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für das Proximity-Biasing mit Absender-PLZ.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot schwerer Google SDKs.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-
-
-### [DEPRECATED / ANTIPATTERN] Photon API
-Photon wurde restlos aus dem Projekt gelöscht. Es ist ein Antipattern. Die Qualität der Ergebnisse war ungenügend. Geoapify ist der einzige zugelassene Provider. Provider-Toggles in der Sidebar sind verboten.',
+- [[ADR-HTML]]
+- [[ADR-JS]]
+- [[ADR-FEATURE]]
+- [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'api');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'autocomplete');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'security');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'photon');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'geoapify');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'zippopotam');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-BETREFF.md',
-  'ADR - Positionierung des Betrefffeldes',
-  'active',
-  '# ADR: Betreff-Logik, Falzmarken und dynamischer PDF-Titel
+  'ADR-BETREFF: Positionierung des Betrefffeldes & PDF-Export',
+  'accepted',
+  '# ADR-BETREFF: Betreff-Logik, Falzmarken und dynamischer PDF-Titel
 
-## Kontext und Problem
-1. **Falzmarken-Kollision:** Die Falzmarken (`.din-mark`) in `layout.css` waren versehentlich auf `width: 100%` gesetzt. Dadurch zogen sie sich als gestrichelte Linien quer über das gesamte Dokument und haben insbesondere den **[[Betreff]]** optisch durchschnitten.
-2. **PDF-Export Dateiname:** Wenn der Nutzer den Brief via `window.print()` als PDF speichert (STRG + P -> "Als PDF speichern"), war der Standarddateiname der generische Name der Webseite. Gewünscht war eine automatische und dynamische Benennung nach dem Muster `YYYY-MM-DD_{empfänger} {Betreff}.pdf`.
+## 1. Context & Problem
 
-## Entscheidung
+**Fehlerhafte Falzmarken und statische PDF-Exporte.**
+- Die Falzmarken (`.din-mark`) kollidierten optisch mit dem Betrefffeld, da sie als 100% breite Linien durch das Dokument schnitten.
+- Beim nativen PDF-Export (`window.print()`) fehlte ein dynamischer Dateiname. Der Standardname der Webseite wurde übernommen, was für abgelegte DIN-Briefe unzureichend ist.
+- Es wird eine Lösung benötigt, die sowohl die optischen DIN-Normen einhält als auch einen sauberen Datei-Workflow ohne zusätzliche Bibliotheken ermöglicht.
 
-### 1. Falzmarken (CSS)
-Die Falzmarken (`.din-mark`) wurden chirurgisch auf `width: calc(8 / 210 * 100cqw);` gekürzt. Sie ragen nun exakt 8mm vom linken Rand herein und schneiden den **[[Betreff]]** nicht mehr durch.
+## 2. Considered Options
 
-### 2. Dynamischer PDF-Titel (JavaScript)
-Es wurde eine zentrale Funktion `updateDocumentTitle()` in der `main.js` implementiert.
-*   **Trigger:** Sie wird bei jedem Aufruf von `saveDraftData()` (also asynchron beim Tippen) und `loadDraftData()` (beim Laden) ausgeführt.
-*   **Datenquellen:** Sie liest in Echtzeit `#betreff`, `#empfaenger-firma` und `#empfaenger-name` aus.
-*   **Datum:** Gemäß der strikten Regel in [[ADR-ANTIPATTERN]] wird nach Möglichkeit **niemals** das veraltete `Date()` Objekt verwendet, sondern streng die W3C **Temporal API** (`Temporal.Now.plainDateISO().toString()`) genutzt. Sollte Temporal (wie auf manchen iOS Geräten ohne Polyfill) nicht greifen, sichert ein Date() Fallback die Funktionalität.
-*   **Verhalten:** Das `<title>` Tag im HTML wird live manipuliert. Das zwingt den Chrome/Edge Print-Dialog beim "Als PDF speichern" dazu, diesen String als Standard-Dateinamen anzubieten.
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Native Print) | `document.title` live manipulieren für PDF-Namen | Zero JS-Libs, nutzt nativen Druckdialog | Nur beim direkten "Als PDF speichern" verfügbar | Keine | **Gewählt** |
+| **Option B** (Blob Download) | PDF über `html2pdf` o.ä. generieren und Blob herunterladen | Volle Kontrolle über Dateinamen | Erfordert JS-Libraries, bricht Zero-Dependency-Regel | Hohe Wartungskosten | Abgelehnt |
 
-## Konsequenzen
-Jede zukünftige Logik, die sich auf den **[[Betreff]]** oder den Print-Dialog bezieht, muss dieses ADR kennen. Jegliche Versuche, den Dateinamen anders zu erzwingen (etwa via komplizierter `Blob` Erzeugung und unsichtbaren Download-Links) sind strengstens untersagt, da wir dem einfachen WYSIWYG + Print Paradigma treu bleiben.',
+## 3. Decision
+
+**Wir haben uns für Option A (Native Print) und CSS-Kürzung entschieden.**
+
+### Begründung
+- Die Falzmarken (`.din-mark`) wurden im CSS auf exakt `8mm` (`width: calc(8 / 210 * 100cqw);`) gekürzt.
+- Für den PDF-Namen wird in `main.js` der `<title>` dynamisch generiert: `YYYY-MM-DD_{empfänger} {Betreff}`.
+- Zur Datumsgenerierung wird primär die W3C **Temporal API** genutzt (siehe [[ADR-ANTIPATTERN]]).
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Perfekte Optik:** Der Betreff wird nicht mehr durchschnitten.
+- **Beste UX:** Native Nutzung des Browser-Druckdialogs mit perfektem Dateinamen-Vorschlag.
+- **Zero-Dependency:** Komplett mit Standard-APIs gelöst.
+
+### Risiken & Negative Auswirkungen
+- Fallback-Pflicht: `Date()` muss als Fallback vorhanden sein, falls `Temporal` auf alten iOS-Geräten fehlt.
+
+### Langfristige Auswirkungen
+- **Architektur-Dogma:** Kein Einsatz von Blob-Libraries (`html2pdf` etc.) für PDF-Exporte gestattet.
+
+## 5. Implementation & Verification
+
+- **CSS:** Kürzung der Falzmarken in `layout.css` implementiert.
+- **JS:** `updateDocumentTitle()` läuft asynchron bei Eingaben und setzt `<title>`.
+- **Regeln:** Native API-Nutzung ist im Antipattern-Catalog manifestiert.
+
+## 6. Related Documents
+
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'ui');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'feature');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'betreff');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'print');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'pdf');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-CSS.md',
-  'ADR: CSS Architecture & Proportional Zoom',
+  'ADR-CSS: CSS Architecture & Proportional Zoom',
   'accepted',
-  '# Architectural Decision Record (ADR): CSS Architecture & Proportional Zoom
+  '# ADR-CSS: CSS Architecture & Proportional Zoom
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**WYSIWYG Skalierung ohne Scrollbalken.**
+- Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes Scrollen oder verzerrte Proportionen.
+- Der DIN-BriefNEO-Bogen muss unter allen Bedingungen pixelperfekt proportional skaliert und absolut ohne Scrollbalken im Fenster dargestellt werden.
+- Komplexe Layout-Aufgaben (Zoom, Theming, Positionierung) sollen ohne JavaScript gelöst werden, um die Langlebigkeit zu maximieren.
 
-> [!info] Hintergrund
-> Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes Scrollen, verzerrte Proportionen bei Größenänderungen oder JavaScript-gesteuerte Element-Skalierungen. Der **DIN-BriefNEO**-Bogen muss unter allen Bedingungen pixelperfekt proportional skaliert und absolut ohne Scrollbalken im Anwendungsfenster dargestellt werden.
+## 2. Considered Options
 
----
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Pure CSS) | `aspect-ratio`, Container Queries (`cqw`/`cqh`), native APIs (`light-dark`, Anchor Positioning) | 100% Zero-JS, maximale Performance | Erfordert Chrome 148+ | Text overflow bei zu viel Text | **Gewählt** |
+| **Option B** (JS-Driven) | ResizeObserver + `transform: scale()` | Abwärtskompatibel | Ruckeln, asynchrone Berechnungen | Hoher Wartungsaufwand | Abgelehnt |
 
-## Entscheidungen
+## 3. Decision
 
-### 1. Reiner CSS-Zoom & Aspect-Ratio (Kein JS-ResizeObserver)
-Der DIN-A4 Bogen `<din-a4>` wird deklarativ auf `height: 94vh` und `aspect-ratio: 210 / 297` fixiert.
-*   **Begründung:** Durch die Definition von `height: 94vh` passt sich das Briefpapier stufenlos und passgenau der Viewport-Höhe des Browsers an. Die Aspect-Ratio garantiert ein mathematisch exaktes A4-Verhältnis auf jedem Bildschirm – vollkommen ohne JavaScript-Hilfen.
-*   **Verweis:** Siehe [[no-scroll-techniques|no-scroll-techniques.md]] für detaillierte No-Scroll-Strategien.
-
-### 2. Container Queries & Proportionale Einheiten (`cqw` / `cqh`)
-Wir setzen auf dem `<din-a4>` Bogen `container-type: size` und berechnen alle inneren Abstände, Falzmarken, Margins und Schriftgrößen in Container-Breiten (`cqw`) und -Höhen (`cqh`).
-*   **Formeln:** 1 mm entspricht `calc(1 / 210 * 100cqw)` in der Breite und `calc(1 / 297 * 100cqh)` in der Höhe.
-*   **Begründung:** Schrumpft oder wächst das Papier durch Browser-Zoom, skaliert das gesamte Brief-Layout mitsamt Texten, Linien und Marken pixelperfekt mit, da sich alle Werte proportional auf die Größe des Eltern-Containers beziehen.
-*   **Verweis:** Siehe [[din-5008-geometry|din-5008-geometry.md]] für alle normkonformen Umrechnungen.
-
-### 3. Absolute Viewport-Sperre (`overflow: hidden`)
-Auf `html` und `body` wird ein ausnahmsloses vertikales und horizontales Scrollverbot (`overflow: hidden`) auferlegt.
-*   **Begründung:** Dies verhindert Doppel-Scrollbalken und garantiert ein echtes, premium-artiges Applikationsgefühl im Full-Screen-Modus.
-
-### 4. Natives Light/Dark-Mode Theme (`light-dark()`)
-Wir nutzen das native CSS-Farbschema-Feature `light-dark()` in Kombination mit OKLCH-Farbräumen für harmonische und augenfreundliche Kontraste.
-*   **Begründung:** Erlaubt eine vollkommen JS-freie Theme-Umschaltung direkt im CSS, indem der Browser je nach `color-scheme` automatisch die passenden Variablen rendert.
-
-### 5. CSS Anchor Positioning API für Floating-Elemente
-Wir nutzen die native W3C CSS Anchor Positioning API für das Adress-Autocomplete-Dropdown (`#address-suggestions`) und koppeln es direkt im CSS an sein Anker-Element (`#input-address-search`).
-*   **Begründung:** Durch die rein deklarative Verankerung im CSS entfallen sämtliche fehleranfälligen JavaScript-Positionsberechnungen, Resize-Listener und Scroll-Eventhandler. Der Browser führt die Layout-Platzierung hochoptimiert auf der Rendering-Ebene aus, was asynchrone Offsets und Layout-Ruckeln vollständig eliminiert.
-*   **Verweis:** Siehe [DEV-INFO.md](../DEV-INFO.md) zur Browserunterstützung ab Chrome 125/147 (inkl. position-area).
-
-### 6. CSS @property für animierbare Custom Properties
-Wir registrieren die CSS-Variable `--guide-opacity` über das native `@property`-Feature mit der Syntax `<number>`.
-*   **Begründung:** Ohne Typregistrierung behandelt der Browser CSS-Variablen als reinen Text, wodurch sie nicht flüssig interpoliert (animiert) werden können. Durch die Typisierung als `<number>` kann der Browser Werteübergänge von `0.15` auf `0` mathematisch berechnen. Wir deklarieren die Transition `--guide-opacity 0.25s` direkt auf `:root`, wodurch das Ein- und Ausblenden der Hilfslinien vollkommen stufenlos und nativ abläuft.
-*   **Verweis:** Siehe [DEV-INFO.md](../DEV-INFO.md) zur Browserunterstützung ab Chrome 146.
-
-### 7. CSS Relative Color Syntax (RCS)
-Wir nutzen die W3C Relative Color Syntax (RCS) im OKLCH-Farbraum, um funktionale Farbvarianten (z. B. `--accent-glow`, `--danger-hover` und `--guide-color`) dynamisch und mathematisch aus ihren jeweiligen Basisfarben zu berechnen.
-*   **Formeln:** `--accent-glow: oklch(from var(--accent-color) l c h / 15%)`, `--danger-hover: oklch(from var(--danger-color) calc(l - 0.06) c h)` und `--guide-color: oklch(from var(--accent-color) calc(l - 0.05) c calc(h + 120))`.
-*   **Begründung:** Anstatt Dutzende statische Farbtöne manuell zu deklarieren, berechnet der Browser alle harmonischen Schattierungen, Glanzeffekte und sogar farbliche Komplementärkontraste (z. B. Hilfslinien im triadisch verschobenen 120-Grad-Farbwinkel) vollautomatisch. Das garantiert perfekte ästhetische Konsistenz, selbst wenn die Primärfarbe dynamisch gewechselt wird.
-*   **Verweis:** Siehe [DEV-INFO.md](../DEV-INFO.md) zur Browserunterstützung ab Chrome 119.
-
----
-
-### 8. CSS interpolate-size: allow-keywords für native Transitionen auf "auto"-Maße
-Wir deklarieren `interpolate-size: allow-keywords` global auf `:root` (bzw. auf dem `html`-Element), um die Einschränkung aufzuheben, dass CSS-Transitionen und -Animationen nur auf feste Pixel- oder Prozentmaße angewendet werden können.
-*   **Begründung:** Bisher mussten expandierende oder kollabierende Layoutbereiche (wie das API-Key-Eingabefeld `#geoapify-key-container`) umständlich über JavaScript-Höhenberechnungen oder unschöne `max-height`-Hacks (mit festen Werten) animiert werden. Durch die Aktivierung von `interpolate-size` schaltet der Browser native Überblendungen und Größenänderungen von `0` auf `height: auto` völlig eigenständig frei. In Kombination mit discrete transitions (`display: allow-discrete`) gleitet der API-Key-Bereich bei Providerwechseln nun seidenweich und absolut flüssig auf- und zu.
-*   **Verweis:** Siehe [DEV-INFO.md](../DEV-INFO.md) zur Browserunterstützung ab Chrome 129.
-
----
-
-### 9. Native CSS @scope Isolation
-Wir kapseln alle physischen Briefblatt-Stile (`din-a4` und dessen Nachfahren) deklarativ über das native CSS `@scope (din-a4)`-Feature ein.
-*   **Begründung:** Bisher drohten globale CSS-Klassen (z.B. `.din-mark`, `#absender`, `#infoblock`) mit Styles der App-Shell oder Sidebar zu kollidieren. Die `@scope` API isoliert alle Briefblatt-Klassen und -Regeln vollständig, ohne dass ein aufwendiger Shadow DOM aufgebaut werden muss. Das sichert absolute Geometrie-Immunität für das Briefpapier.
-*   **Verweis:** Siehe [DEV-INFO.md](../DEV-INFO.md) zur Browserunterstützung ab Chrome 118.
-
----
-
-### 10. Ausschließliches OKLCH-Farbmandat & Legacy-Farbverbot
-Wir verpflichten uns zur ausschließlichen Nutzung des W3C **OKLCH-Farbraums** (`oklch()`) für sämtliche Farbwerte, Verläufe und Schatten.
-*   **Begründung:** OKLCH ist ein wahrnehmungslinearer (perceptually uniform) Farbraum, der Helligkeit (`L`), Buntheit (`C`) und Farbton (`H`) mathematisch gleichmäßig trennt. Dies ist die absolute Voraussetzung für die fehlerfreie Funktion der CSS Relative Color Syntax (RCS), um harmonische, dynamische Kontraste abzuleiten (z. B. Hilfslinien im komplementären Triadic-Kontrast). HEX, RGB oder HSL verhalten sich bei mathematischer Manipulation unvorhersehbar und sind verboten.
-*   **Verweis:** Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] (Antipattern 7).
-
----
-
-## Konsequenzen
-*   **Vorteile:**
-    *   Absolut flüssige, stufenlose Echtzeit-Skalierung auf allen Displays.
-    *   Hundertprozentig WYSIWYG-konform: Das Druckergebnis entspricht exakt der Bildschirmdarstellung.
-    *   Keine Performance-Einbußen durch JS-Resize-Listener.
-    *   JavaScript wird vollständig von Layout- und Positionsaufgaben entkoppelt (100% Trennung von Struktur und Stil).
-    *   Flüssige, stufenlose Überblendungen von UI-Elementen (wie Hilfslinien) direkt über CSS-Variablen-Interpolation.
-    *   Vollautomatische, mathematisch harmonisierte Farbschemata direkt über die W3C Relative Color Syntax.
-    *   Völlig native CSS-Größenanimationen auf Keywords (wie `height: auto`) ohne JS-Berechnungen oder `max-height`-Hacks.
-    *   Vollständige Kapselungs-Sicherheit der Briefbogen-Geometrie durch native CSS `@scope` Isolation.
-    *   Mathematisch perfekte Farbstimmigkeit und Ambient Contrast durch 100 % konsequente OKLCH-Farben.
-*   **Nachteile:**
-    *   Texte müssen in der Höhe begrenzt sein (z. B. auf 1 A4-Seite), da unkontrolliertes Hinausfließen zu einem Textüberlauf führt (siehe `ADR-FEATURE.md` zur Überlaufwarnung).
-    *   Setzt eine moderne Chromium-Engine voraus (Chrome 129+ für `interpolate-size` Unterstützung).
-
-
----
-
-## Verknüpfungen
-*   Siehe [[ADR-HTML|ADR-HTML.md]] für die Struktur der Custom-Elements.
-*   Siehe [[ADR-JS|ADR-JS.md]] für das Blockieren von JS-basiertem Styling.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Scrollbalken.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-
-
-
-### 5. Zero-JS UI State Toggles (via :has() und Checkboxen)
-Komplexe Sichtbarkeitszust�nde von UI-Elementen (wie das Ein- und Ausblenden von optionalen Briefbl�cken wie Postvermerk, Anlagen, Verteiler) werden ausschlie�lich nativ �ber CSS abgebildet. Durch die Kombination von unsichtbaren <input type="checkbox"> in der Sidebar und :root:has(#id:checked) target-element { display: block; } im CSS eliminieren wir jeglichen JavaScript Event-Listener und State-Management Code f�r reines UI-Toggling.
-
-
-## Feature Checks
-```javascript feature-check
-f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
-f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv")
-```
-
-
-### 4. Anchor Positioning für WYSIWYG Popovers
-
-Um der strikten WYSIWYG-Regel gerecht zu werden (Inhalte werden *nur* auf dem A4-Papier editiert, nicht in der Seitenleiste), verwenden wir moderne W3C CSS Anchor Positioning.
-
-*   **Vorteil:** Wir benötigen keine komplexen JavaScript-Berechnungen (`getBoundingClientRect`, `ResizeObserver`), um ein schwebendes Dropdown an einem `contenteditable`-Feld (wie dem Postvermerk) auszurichten.
-*   **Implementation:** Das HTML-Element (z.B. `<din-postvermerk style="anchor-name: --anchor-postvermerk;">`) definiert den Ankerpunkt. Das eigentliche Popover wird absolut über `position-anchor: --anchor-postvermerk;` und `position-area: bottom span-x;` ausgerichtet.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'css');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'layout');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'zoom');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'containers');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-CSS.md'), 'theming');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-FEATURE.md',
-  'ADR: Feature Specifications & Premium UX',
-  'accepted',
-  '# Architectural Decision Record (ADR): Feature Specifications & Premium UX
-
-## Status
-Akzeptiert
-
-## Kontext & Problemstellung
-
-> [!info] Hintergrund
-> Ein ansprechendes, premium-artiges Schreiberlebnis zeichnet sich durch flüssige Mikro-Animationen, native Interaktionselemente und intelligente Automationen aus. Für **DIN-BriefNEO** sollen spezifische Features definiert werden, die die Applikation von einer einfachen Webseite zu einem nativen Editor-Erlebnis erheben.
-
----
-
-## Entscheidungen
-
-### 1. WhatsApp-Style Selection Toolbar (Popover)
-Anstelle eines unruhigen statischen Editors blenden wir eine schwebende Formatierungs-Toolbar (`#format-toolbar`) ein, sobald der Benutzer Text innerhalb des Brieftextes markiert.
-*   **Zustandserkennung:** Ein zukunftssicherer DOM-Traversal Algorithmus ermittelt, ob der ausgewählte Bereich fett, unterstrichen oder als Zitat formatiert ist. Ist dies der Fall, leuchtet der entsprechende Button smaragdgrün und erhält das Attribut `aria-pressed="true"`.
-*   **Viewport-Kollisionsprüfung:** Die Toolbar wird rein CSS-basiert über **CSS Anchor Positioning** direkt an die Textselektion verankert. Die Viewport-Kollision und Ausweichmanöver (z. B. nach unten klappen) werden nativ im Browser über `position-try-options` gesteuert, wodurch wir jeglichen JavaScript-Berechnungsoverhead eliminieren!
-*   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] zur Range-API und [[ADR-HTML|ADR-HTML.md]] zum Popover.
-
-### 2. Toast-Queue mit nativem Ein-/Ausblende-Lifecycle
-Toast-Meldungen werden in einer zentralen Warteschlange (`toastQueue`) verarbeitet, um überlappende Einblendungen ("Stacking") zu verhindern.
-*   **Nativer Transitions-Lifecycle:** Anstelle von komplexen, manuellen JavaScript-Animationstriggern oder einer ununterbrechbaren 3-Sekunden-CSS-Keyframe-Animation nutzen wir die W3C-Standards `@starting-style` und `transition-behavior: allow-discrete` (für die CSS-Eigenschaften `display` und `overlay`). 
-*   **Vorteil:** JavaScript steuert ausschließlich die Öffnung und Schließung des Popovers (`showPopover()` / `hidePopover()`), während der Browser die Ein- und Ausblendungs-Animationen (Slipping & Fading) vollkommen autonom und sauber getrennt im CSS ausführt. Ein einfaches 3.000ms JavaScript-Timeout regelt die Verweildauer, was das fehleranfällige Lauschen auf `animationend`-Events vollständig überflüssig macht.
-
-
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    Idle --> EventTriggered : showToast(message, type)
-    EventTriggered --> QueueActive : In Toast-Queue geschoben
-    QueueActive --> ToastShowing : showPopover() gerufen
-    ToastShowing --> ToastShowing : Animation läuft
-    ToastShowing --> Closed : click / animationend / 3.2s Safety-Timeout
-    Closed --> QueueCheck : hidePopover()
-    QueueCheck --> Idle : Queue leer
-    QueueCheck --> QueueActive : Nächster Toast vorhanden
-```
-
-
-### 3. Schriftarten-Manager & WOFF2-Uploader
-Der Editor bietet zwei Wege zur Typografie-Auswahl:
-*   **System-Schriftstapel:** Auswahl von Sans, Serif oder Mono (siehe [[ADR-CSS|ADR-CSS.md]]).
-*   **Offline-WOFF2-Uploader:** Der Benutzer kann eine eigene `.woff2`-Schrift hochladen. JS liest diese per `FileReader` ein, validiert die Dateigröße (< 60 KB) und speichert sie als Base64 im LocalStorage unter `din_custom_font`. Sie wird als `@font-face` mit Namen `''AptosCustom''` injiziert und überschreibt dank der CSS-Klasse `body.font-custom-active` alle System-Stapel.
-
-### 4. Automatisches Proximity-Biasing
-Zur Regionalkontrolle der Adress-Autovervollständigung liest die Applikation PLZ-Codes direkt aus dem Eingabefeld **Absenderzeile** (`#absender`) aus.
-*   **Funktionsweise:** Findet der Scanner eine 5-stellige PLZ im Absenderbereich, wird sie asynchron via Zippopotam geocodiert. Die gefundenen Koordinaten (`latitude` & `longitude`) werden im Cache abgelegt. Zukünftige Suchen via Photon (`&lat=&lon`) und Geoapify (`&bias=proximity:`) werden automatisch auf die Region des Absenders fokussiert (NRW-Priorisierung).
-*   **Verweis:** Siehe [[ADR-API|ADR-API.md]] zur API-Verkabelung.
-
-### 5. A4-Überlauf-Warnung
-Sobald die Texthöhe von `#brieftext` das Druckbereichs-Limit von `120mm` (~450px) überschreitet, fügt JS dem Papier die CSS-Klasse `overflow-warn` hinzu. Dadurch färbt sich der Blattrand rot und ein roter Warnhinweis erscheint.
-
----
-
-## Konsequenzen
-*   **Vorteile:**
-    *   Herausragende Premium-UX: Die App fühlt sich extrem flüssig, nativ und durchdacht an.
-    *   Volle Kontrolle über Speicher limits und API-Ressourcen.
-    *   Automatisches Geocoding schont API-Kontingente und bietet Komfort ohne Setup.
-*   **Nachteile:**
-    *   Komplexes Zusammenspiel von APIs und DOM-Event-Handhabung.
-
----
-
-## Verknüpfungen
-*   Siehe [[ADR-HTML|ADR-HTML.md]] zu nativem Popover und `contenteditable`.
-*   Siehe [[ADR-CSS|ADR-CSS.md]] zur Typografie und Zoom-Einheiten.
-*   Siehe [[ADR-JS|ADR-JS.md]] zur Selection/Range-API.
-*   Siehe [[ADR-API|ADR-API.md]] zum Zippopotam PLZ Auto-Lookup.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-
-
-### Strict WYSIWYG Rule & CSS Anchor Popovers
-
-Das Projekt folgt einer unumstößlichen Architektur-Regel für die Nutzeroberfläche:
-1. **Seitenleiste (Sidebar):** Hier werden AUSSCHLIESSLICH globale Einstellungen vorgenommen und Funktionen an- und abgewählt (Toggles). **Es findet keinerlei Texteingabe oder Inhaltserstellung in der Seitenleiste statt.** Niemals.
-2. **Papier (A4-Blatt):** Der Brief selbst ist STRENG WYSIWYG. Alle inhaltlichen Eingaben passieren direkt auf dem Papier.
-
-**Technische Umsetzung durch CSS Anchor Positioning:**
-Um Dropdowns (wie das Adressbuch oder die DIN 5008 Postvermerke) WYSIWYG-konform direkt auf dem Papier bereitzustellen, ohne das DOM künstlich zu verschachteln, nutzen wir die `position-anchor` API.
-Das `<din-postvermerk>` Element auf dem Brief dient als Anker. Ein in HTML auf Top-Level platziertes Popover `<div popover="manual">` klinkt sich via CSS perfekt an dieses Element. Es erscheint bei Klick und verhält sich wie ein klassisches Dropdown, obwohl das zugrunde liegende Element ein druckfertiges `contenteditable`-Feld bleibt.
-
-
-### Betreff & PDF-Export
-Siehe [[ADR-BETREFF]] bezüglich Falzmarken-Kollision und dynamischem Generieren des PDF-Titel-Namens.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'features');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'popovers');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'selections');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'styling');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'highlights');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-GEOAPIFY.md',
-  'ADR-004: Adress-Autocomplete mit Geoapify',
-  'accepted',
-  '# Architectural Decision Record (ADR): Adress-Autocomplete mit Geoapify
-
-> [!info] Info-Block (Hintergrund)
-> Wir benötigen eine robuste, performante Lösung für das Autovervollständigen von Empfängeradressen im WYSIWYG-Editor. Ein Brainstorming schlug die offizielle Library `@geoapify/geocoder-autocomplete` mit hartcodiertem Proximity-Bias (Bonn) vor. Wir müssen evaluieren, inwieweit diese Vorschläge zu unserer Zero-JS/WYSIWYG-Philosophie passen.
-
-## 1. Kontext & Problemstellung
-
-Die Eingabe von Adressen im `<din-anschriftfeld>` soll den Nutzer bestmöglich unterstützen. Folgende Aspekte stehen im Fokus:
-- **Performance:** Minimierung von API-Calls.
-- **Relevanz:** Lokale Treffer sollen zuerst erscheinen.
-- **Architektur:** Strikte Einhaltung der [[ADR-ANTIPATTERN]] Regeln (keine NPM-Build-Steps, keine DOM-injizierenden Third-Party-Libraries).
-
-<details>
-<summary>Historischer Kontext (Klicken zum Ausklappen)</summary>
-Ursprünglich wurde Photon (komoot.io) evaluiert, aber wegen mangelhafter Suchergebnisse als Antipattern verworfen. Geoapify liefert exzellente Qualität, erfordert aber einen API-Key.
-</details>
-
-## 2. Betrachtete Optionen
-
-| Option | Vorteil | Nachteil |
-| :--- | :--- | :--- |
-| **Option A** (Offizielle Library `@geoapify/geocoder-autocomplete`) | Schnelle Implementierung, Caching eingebaut | Fügt ca. 30-50 KB Bundle-Size hinzu, verlässt die native Plattform, injiziert **eigene, schwer anpassbare DOM-Elemente** (zerstört 100% WYSIWYG-Anspruch). |
-| **Option B** (Custom Fetch + Native CSS Anchor Dropdown) | 100% WYSIWYG, keine Dependencies, native W3C CSS Anchor | Caching muss (falls gewünscht) selbst in einer `Map` verwaltet werden. |
-
-## 3. Die Entscheidung
-
-> [!success] Wir haben uns für **Option B (Custom Fetch + Native CSS Anchor)** entschieden.
+**Wir haben uns für Option A (Pure CSS Architecture) entschieden.**
 
 ### Begründung
-- [x] Entspricht der Zero-JS-Philosophie (kein Bundle, kein NPM).
-- [x] Integriert sich nahtlos in die native W3C CSS Anchor Positioning Logik des WYSIWYG-Papiers.
-- [x] Wir übernehmen **nur die konzeptionellen Optimierungen** aus dem Brainstorming:
-  - `limit=5` (statt 6, noch kompakter) für schnelleres Rendering.
-  - `debounce=300ms` (sehr nah am Brainstorm-Vorschlag von 280ms) reduziert API-Calls enorm.
-  - **Dynamischer Proximity Bias:** Statt einem statischen Fallback (z. B. Bonn), extrahiert unsere Logik dynamisch die PLZ des Absenders über Zippopotam.us und nutzt diese realen `lat`/`lon` Koordinaten für das Geoapify `bias=proximity` Argument. Das ist dem statischen Vorschlag massiv überlegen!
+- **Reiner CSS-Zoom:** `<din-a4>` wird auf `height: 94vh` und `aspect-ratio: 210 / 297` fixiert.
+- **Container Queries:** Alle inneren Maße verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren.
+- **Absolute Viewport-Sperre:** `overflow: hidden` auf `html` und `body` verhindert Scrollbalken.
+- **Natives Theming:** Nutzung von `light-dark()` und W3C Relative Color Syntax (RCS) im OKLCH-Farbraum.
+- **Anchor Positioning:** W3C CSS Anchor Positioning für Dropdowns (z.B. `#address-suggestions`).
+- **CSS @property & interpolate-size:** Für flüssige native Transitionen auf Custom Properties und `auto`-Maße.
+- **CSS @scope:** Vollständige Kapselung der Briefblatt-Stile (`@scope (din-a4)`).
+- **Zero-JS State Toggles:** Nutzung von `:has()` und Checkboxen für UI-State.
 
-## 4. Architektur-Diagramm
+## 4. Consequences
 
-```mermaid
-graph TD
-    A[Nutzer tippt im Empfängerfeld] -->|Debounce 300ms| B{Länge > 3?}
-    B -- Ja --> C[Check Absender-PLZ (Zippopotam)]
-    C --> D[Fetch Geoapify API mit dynamischem Bias]
-    D --> E[Render native CSS Anchor Popover]
-    B -- Nein --> F[Nichts tun]
-```
+### Positive Auswirkungen
+- Absolut flüssige, stufenlose Echtzeit-Skalierung auf allen Displays.
+- 100% WYSIWYG-konform: Druck = Bildschirm.
+- JavaScript wird von Layout-Aufgaben vollständig befreit.
+- Automatisch harmonisierte Farbschemata (RCS) im perceptually uniform OKLCH-Farbraum.
 
-## 5. Feature Checks (Living Documentation)
+### Risiken & Negative Auswirkungen
+- Texte müssen in der Höhe begrenzt sein (z. B. auf 1 A4-Seite), da Overflow-Scrolling deaktiviert ist.
+- Bindung an hochmoderne Chromium-Engines (Chrome 148+).
+
+### Langfristige Auswirkungen
+- **Architektur-Stabilität:** Die Codebasis bleibt extrem JS-arm und profitiert direkt von Engine-Optimierungen.
+
+## 5. Implementation & Verification
+
+- Alle CSS-Variablen sind in `layout.css` als OKLCH deklariert.
+- Container-Maße (`cqw`, `cqh`) sind in der CSS-Basis verankert.
+- `overflow: hidden` ist produktiv.
+- Einhaltung wird durch die Anti-Pattern-Linter-Regeln für JS-basiertes Styling überprüft.
+
+## 6. Related Documents
+
+- [[ADR-HTML]]
+- [[ADR-JS]]
+- [[longevity-guidelines]]
+- [[ADR-ANTIPATTERN]]
+
+---
+
+### Feature Checks
 
 ```javascript feature-check
-// f("Geoapify Autocomplete", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv")
-// f("CSS Anchor Positioning", CSS.supports("anchor-name: --test"), "Chrome 125", "Produktiv")
+// f("Feature Name", Bedingung, "Chrome XXX", "Status")
+f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
+f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv")
 ```',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -617,147 +371,304 @@ graph TD
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'geoapify');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'api');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'autocomplete');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-HTML.md',
-  'ADR: HTML Architecture & Semantic Structure',
+  'ADR/ADR-DATA-PERSISTENCE.md',
+  'ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling',
   'accepted',
-  '# Architectural Decision Record (ADR): HTML Architecture & Semantic Structure
+  '# ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**Zuverlässige, wartungsfreie lokale Datenspeicherung.**
+- Die Anwendung muss ihre Daten (Inhalte des Briefes, Absenderdaten) zuverlässig lokal speichern können.
+- Es gibt keinen Backend-Server und keine Datenbank (`file:///` Ausführung).
+- Die W3C `Date()` API ist bekanntermaßen fehleranfällig, asymmetrisch und schwer zu parsen, was besonders bei Brief-Daten zu Problemen führt.
 
-> [!info] Hintergrund
-> Klassische Texteditoren basieren oft auf riesigen, unübersichtlichen DOM-Bäumen und JavaScript-basierten Dialogen. Für den **DIN-BriefNEO**-Editor soll eine Struktur etabliert werden, die maximal wartbar, nativ barrierefrei, extrem performant und standardkonform ist. Die semantische Struktur soll den Browser-eigenen Dokumentenfluss respektieren und unnötige JavaScript-Krücken vermeiden.
+## 2. Considered Options
 
----
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (LocalStorage + Temporal) | `localStorage` für Daten, W3C `Temporal` API für Daten | Zero Dependencies, 100% lokal, persistiert über Sessions hinweg, exaktes Datumshandling | Speichergrenze ca. 5MB, Temporal braucht auf alten iOS Geräten Fallbacks | Keine | **Gewählt** |
+| **Option B** (IndexedDB + Moment.js) | `IndexedDB` für große Daten, `Moment.js` für Daten | Viel Speicherplatz | Asynchron (komplex), Library-Abhängigkeit (bricht Zero-Dependency-Regel) | Hohe Wartungskosten | Abgelehnt |
 
-## Entscheidungen
+## 3. Decision
 
-### 1. IMR 4.0 Custom Elements für Geometrie-Bereiche
-Wir nutzen semantische HTML5 Custom Elements (z. B. `<din-a4>`, `<din-absender>`, `<din-anschriftfeld>`, `<din-infoblock>`, `<din-kern>`, `<din-text>`, `<din-fuss>`).
-*   **Begründung:** Dies ermöglicht eine glasklare Trennung der DIN 5008 Geometriebereiche im CSS und erhöht die semantische Lesbarkeit des Dokuments drastisch.
-*   **Verweis:** Siehe [[din-5008-geometry|din-5008-geometry.md]] für die exakten Geometrie-Vorgaben.
+**Wir haben uns für Option A (LocalStorage + Temporal API) entschieden.**
 
-### 2. Native HTML Popover API & Dialogs
-Für alle Popups (wie die schwebende Textauswahl-Toolbar und Toasts) nutzen wir das native HTML-Attribut `popover="manual"`.
-*   **Begründung:** Native Popovers werden vom Browser automatisch im **Top-Layer** über allen anderen Elementen gerendert. Dies verhindert CSS-Z-Index-Kollisionen und macht Hilfsbibliotheken komplett überflüssig.
+### Begründung
+- `localStorage` (via `Storage-API`) ist die einfachste, stabilste und am längsten unterstützte Methode, Key-Value-Daten synchron lokal abzulegen.
+- Der aktuelle Briefzustand (Draft) wird in Echtzeit serialisiert und in `localStorage` abgelegt.
+- Zur Generierung von Zeitstempeln (z.B. für den PDF-Export oder das Datum-Feld) wird **ausschließlich** die moderne W3C `Temporal` API genutzt (z.B. `Temporal.Now.plainDateISO()`). Die fehleranfällige `Date()` API ist strikt verboten (außer als absolutes Fallback für alte Safari-Versionen).
 
-### 3. Strikte contenteditable-Reglementierung
-*   Alle einzeiligen Metadaten-Felder (Betreff, Anschrift, Ränder, Infoblock) nutzen `contenteditable="plaintext-only"`.
-*   Der Brieftext selbst (`#brieftext`) nutzt `contenteditable="true"`.
-*   **Begründung:** `plaintext-only` verhindert nativ, dass der Benutzer formatierten HTML-Müll (z. B. Schriftgrößen oder Webfarben) in strukturelle Briefbereiche einfügt, während `contenteditable="true"` im Brieftext gezieltes Fett-, Unterstreichungs- und Zitat-Styling erlaubt.
-*   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] für den dazugehörigen JavaScript Paste/Drop-Filter.
+## 4. Consequences
 
-### 4. Barrierefreiheit (A11y)
-*   Die Toolbar-Buttons erhalten bei aktiver Formatierung das Attribut `aria-pressed="true"`, andernfalls `aria-pressed="false"`.
-*   Alle interaktiven Steuerelemente besitzen eindeutige IDs für Web-Tests und Screenreader.
+### Positive Auswirkungen
+- **Wartungsfreiheit:** Keine Datenbanken, keine asynchronen Transactions, keine externen Libraries.
+- **Offline-First:** Funktioniert nahtlos ohne Internet.
+- **Präzision:** Die W3C Temporal API garantiert absolut exakte ISO-Strings und Datumsberechnungen ohne Zeitzonen-Fehler.
 
----
+### Risiken & Negative Auswirkungen
+- `localStorage` ist auf ca. 5-10 MB begrenzt (reicht für Millionen von Text-Briefen, aber nicht für massive Bildanhänge).
+- Die W3C Temporal API ist noch relativ neu (erfordert moderne Browser oder einen minimalen Polyfill/Fallback).
 
-## Konsequenzen
-*   **Vorteile:**
-    *   Glasklare, lesbare DOM-Struktur.
-    *   Hervorragende Barrierefreiheit ohne JavaScript-Bibliotheken.
-    *   Keine Z-Index-Kämpfe im Top-Layer.
-*   **Nachteile:**
-    *   `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge), was durch unsere Baseline-Festlegung abgedeckt ist.
+## 5. Implementation & Verification
 
----
+- Die gesamte Speicherlogik ist in `main.js` (`saveDraftData()`, `loadDraftData()`) implementiert.
+- Das W3C Temporal API-Mandat ist in den Anti-Pattern Linter-Regeln verankert.
+- Ein Fallback auf `Date()` ist für iOS Safari in `main.js` eingebaut.
 
-## Verknüpfungen
-*   Siehe [[ADR-CSS|ADR-CSS.md]] für das proportionale Styling der Custom Elements.
-*   Siehe [[ADR-JS|ADR-JS.md]] für die Validierung und Steuerung der Editables.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Frameworks.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.',
+## 6. Related Documents
+
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-HTML.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-HTML.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-HTML.md'), 'html');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-HTML.md'), 'semantics');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-HTML.md'), 'contenteditable');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-HTML.md'), 'popover');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-FEATURE.md',
+  'ADR-FEATURE: Feature Specifications & Premium UX',
+  'accepted',
+  '# ADR-FEATURE: Feature Specifications & Premium UX
+
+## 1. Context & Problem
+
+**Premium-UX ohne schwergewichtige Frameworks.**
+- Ein moderner Editor benötigt smarte Features wie Kontext-Toolbars, Toasts, Überlaufwarnungen und Dropdowns.
+- Klassische Herangehensweisen stützen sich hierfür auf schwere JS-Frameworks (React, Vue) und manuelle Berechnungen.
+- DIN-BriefNEO benötigt all diese Features 100% nativ, performant und absolut WYSIWYG-konform (kein Editieren in der Sidebar).
+
+## 2. Considered Options
+
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Native Web-APIs & Anchor Positioning) | CSS Anchor Positioning, `@starting-style`, Popovers | Zero-JS-Animation, WYSIWYG-Treue, native Performance | Benötigt sehr neue Chromium-Versionen | Keine | **Gewählt** |
+| **Option B** (JS-basierte Libraries) | Popper.js, React-Toasts, Framer Motion | Breite Browserunterstützung | Abhängigkeit, Aufblähen der Codebase | Wartung | Abgelehnt |
+
+## 3. Decision
+
+**Wir haben uns für Option A (Ausschließliche Nutzung modernster Web-Standards) entschieden.**
+
+### Begründung
+- **Strict WYSIWYG:** Eingaben passieren *ausschließlich* auf dem Blatt. Sidebar ist nur für Toggles. Dropdowns nutzen CSS Anchor Positioning am jeweiligen Papier-Element.
+- **WhatsApp-Style Toolbar:** Das Format-Popover verankert sich rein über CSS an der Textselektion. JS steuert nur die Sichtbarkeit und Format-Logik.
+- **Toasts:** Die Toast-Queue delegiert die Ein-/Ausblendeanimation komplett ans CSS (`@starting-style`, `transition-behavior: allow-discrete`). JS ruft nur `show/hidePopover()`.
+- **A4-Überlauf-Warnung:** JS prüft die Texthöhe (max 120mm) und fügt eine Warn-Klasse hinzu, ohne den Scroll zu behindern.
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Flüssige UX:** Native CSS-Animationen sind maximal hardwarebeschleunigt.
+- **Klarer Code:** Popover-Logik ohne JS-Rechnen (`getBoundingClientRect` entfällt).
+- **Zukunftssicherheit:** Nutzung von Features, die ab 2024 zum Standard gehören.
+
+### Risiken & Negative Auswirkungen
+- Setzt tiefes Wissen über modernste CSS-Standards voraus.
+
+## 5. Implementation & Verification
+
+- CSS Anchor Positioning und `@starting-style` sind in `layout.css` aktiv.
+- JavaScript ist strikt von Positionsberechnungen für Toolbars befreit.
+- Einhaltung von WYSIWYG ist durch die Antipattern-Verfassung garantiert.
+
+## 6. Related Documents
+
+- [[ADR-HTML]]
+- [[ADR-CSS]]
+- [[ADR-JS]]
+- [[longevity-guidelines]]',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-GEOAPIFY.md',
+  'ADR-GEOAPIFY: Adress-Autocomplete mit Geoapify',
+  'accepted',
+  '# ADR-GEOAPIFY: Adress-Autocomplete mit Geoapify
+
+## 1. Context & Problem
+
+**Performantes Autocomplete ohne DOM-Injektionen.**
+- Die Eingabe von Empfängeradressen im `<din-anschriftfeld>` soll den Nutzer bestmöglich unterstützen.
+- Lokale Treffer sollen zuerst erscheinen (Proximity Bias).
+- Die offizielle Geoapify-Library (`@geoapify/geocoder-autocomplete`) injiziert eigene schwer anpassbare DOM-Elemente und bricht damit unsere WYSIWYG-Regel.
+
+## 2. Considered Options
+
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Custom Fetch + CSS Anchor) | 100% nativ: Eigener Fetch + natives Popover mit CSS Anchor Positioning | Zero Dependencies, 100% WYSIWYG-Treue | Caching muss selbst programmiert werden | Keine | **Gewählt** |
+| **Option B** (Offizielle NPM Library) | Nutzung von `@geoapify/geocoder-autocomplete` | Schnell implementiert, Caching eingebaut | Zerstört WYSIWYG durch eigene DOM-Elemente, Bundle-Size +40KB | Wartung | Abgelehnt |
+
+## 3. Decision
+
+**Wir haben uns für Option A (Custom Fetch + Native CSS Anchor) entschieden.**
+
+### Begründung
+- **Keine Dependencies:** Der Verzicht auf NPM-Libraries entspricht der Zero-JS-Philosophie.
+- **Natives Dropdown:** Das Resultat-Popover verankert sich nahtlos über W3C CSS Anchor Positioning.
+- **Dynamischer Proximity Bias:** Statt einem statischen Fallback (z.B. Bonn) extrahiert die Logik die PLZ des Absenders, ermittelt via Zippopotam die `lat`/`lon` und nutzt diese für `bias=proximity` bei Geoapify.
+- **Performance:** Strenges Debouncing (`300ms`) und Limits (`limit=5`) halten die API-Calls minimal.
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Maximale Kontrolle:** Das DOM bleibt sauber, keine Fremd-Elemente.
+- **Hohe Relevanz:** Der dynamische Bias sorgt dafür, dass Adressen in der Nähe des Absenders priorisiert werden.
+
+### Risiken & Negative Auswirkungen
+- Caching muss bei Bedarf selbst in einer `Map` verwaltet werden (aktuell durch AbortController und Debouncing gut abgefangen).
+
+## 5. Implementation & Verification
+
+- Der Custom Fetch ist in `main.js` implementiert.
+- Das Dropdown ist als `popover="manual"` mit CSS Anchor an das Eingabefeld gebunden.
+
+## 6. Related Documents
+
+- [[ADR-API]]
+- [[ADR-ANTIPATTERN]]
+
+---
+
+### Feature Checks
+
+```javascript feature-check
+f("Geoapify Autocomplete", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv"),
+f("CSS Anchor Positioning", CSS.supports("anchor-name: --test"), "Chrome 125", "Produktiv")
+```',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-HTML.md',
+  'ADR-HTML: HTML Architecture & Semantic Structure',
+  'accepted',
+  '# ADR-HTML: HTML Architecture & Semantic Structure
+
+## 1. Context & Problem
+
+**Strukturierung des Brief-Editors ohne überladenes DOM.**
+- Klassische Texteditoren nutzen tiefe div-Suppen und komplexe JS-Dialoge.
+- Der DIN-BriefNEO-Editor muss leichtgewichtig, nativ barrierefrei, performant und extrem standardkonform aufgebaut sein.
+- Es muss verhindert werden, dass Nutzer versehentlich formatierte Inhalte in reine Datenfelder kopieren.
+
+## 2. Considered Options
+
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Native HTML5) | Custom Elements (`<din-*>`), `popover="manual"`, `contenteditable="plaintext-only"` | Zero Dependencies, semantic DOM, nativer Top-Layer | `plaintext-only` braucht moderne Browser | Keine | **Gewählt** |
+| **Option B** (Div-Suppe + JS) | Alles in `<div>`, Dialoge über z-index und JS gesteuert | Abwärtskompatibel | `z-index` Kämpfe, schwere Lesbarkeit, JS-Aufwand | Hoher Wartungsaufwand | Abgelehnt |
+
+## 3. Decision
+
+**Wir haben uns für Option A (Striktes HTML5 & Native APIs) entschieden.**
+
+### Begründung
+- **Custom Elements:** Wir nutzen semantische HTML5 Custom Elements (`<din-a4>`, `<din-absender>`, etc.), um Geometriebereiche im CSS klar zu trennen und die DOM-Lesbarkeit zu erhöhen.
+- **Native Popovers:** Dialoge & Toolbars nutzen `popover="manual"` für ein konfliktfreies Rendern im **Top-Layer** (ohne `z-index`-Hacks).
+- **Editierbarkeit:** Einzeilige Metadaten (Betreff, Anschrift) nutzen `contenteditable="plaintext-only"`. Nur der Briefkörper (`#brieftext`) nutzt `contenteditable="true"`.
+- **Barrierefreiheit:** ARIA-Attribute (`aria-pressed="true/false"`) werden nativ für Toolbar-Buttons gepflegt.
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Maximale Lesbarkeit:** Der DOM-Baum ist selbsterklärend und semantisch korrekt.
+- **Wartungsfreiheit:** Keine externen UI- oder Dialog-Libraries nötig.
+- **Sicherheit:** `plaintext-only` schützt Strukturfelder zuverlässig vor unerwünschten Formatierungen aus der Zwischenablage.
+
+### Risiken & Negative Auswirkungen
+- `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge).
+
+## 5. Implementation & Verification
+
+- Alle Brief-Elemente im `index.html` sind als `<din-*>` Tags deklariert.
+- Popovers und Toolbars nutzen das `popover`-Attribut.
+- Einhaltung wird durch die Anti-Pattern Linter-Regeln für JS-basiertes Styling überprüft.
+
+## 6. Related Documents
+
+- [[ADR-CSS]]
+- [[ADR-JS]]
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-JS.md',
-  'ADR: JavaScript Constraints & JS as a Crutch',
+  'ADR-JS: JavaScript Constraints & JS as a Crutch',
   'accepted',
-  '# Architectural Decision Record (ADR): JavaScript Constraints & "JS as a Crutch"
+  '# ADR-JS: JavaScript Constraints & "JS as a Crutch"
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**JS-Überladung und "JS as a Crutch".**
+- Webapplikationen nutzen oft JavaScript für visuelle Effekte und Layout-Berechnungen.
+- Das führt zu Performance-Einbußen, Rucklern und technischer Schuld.
+- In DIN-BriefNEO soll JS streng auf eine logische Begleitschicht reduziert werden.
 
-> [!info] Hintergrund
-> Moderne Webapplikationen neigen dazu, JavaScript für visuelle Effekte, Rendering-Operationen und Layout-Berechnungen einzusetzen. Dies erhöht die Fehleranfälligkeit, verschlechtert die Ladezeit und führt zu technischer Schuld. Im **DIN-BriefNEO**-Projekt soll JavaScript streng auf eine logische Begleitschicht reduziert werden.
+## 2. Considered Options
+
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Strikt reglementiertes JS) | JS nur für DOM-Range-Selektion, APIs, Persistenz, View Transitions | Maximale Stabilität, CSS übernimmt Layout (Anchor) | Höherer Lernaufwand bei CSS | Keine | **Gewählt** |
+| **Option B** (JS-Driven UI) | JS für ResizeObserver, `execCommand`, Toolbar-Position | Einfach, bekannt | Veraltete APIs, Ruckeln bei Repaints | Wartbarkeit | Abgelehnt |
+
+## 3. Decision
+
+**Wir haben uns für Option A (Striktes JS-Einsatzverbot für Rendering) entschieden.**
+
+### Begründung
+- **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
+- **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits.
+- **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
+- **Sichere DOM-Manipulation:** Die Verwendung von `innerHTML` ist als Antipattern eingestuft und strikt verboten (XSS-Gefahr). Es dürfen ausschließlich sichere Native-Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur DOM-Injektion genutzt werden.
+- **View Transitions API:** Native `document.startViewTransition()` wird für UI-Zustandswechsel verwendet, anstatt händisch via JS zu animieren.
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Schlanker Code:** JavaScript-Logik bleibt absolut minimiert (<18 KB).
+- **Robustheit:** Die App läuft layout-stabil, selbst wenn JS verzögert oder blockiert.
+- **Zukunftssicherheit:** Veraltete APIs wie `execCommand` werden nicht mehr verwendet.
+
+### Risiken & Negative Auswirkungen
+- Visuelle Statustoggles erfordern teilweise fortgeschrittenes CSS (z.B. Segmented Controls, `:has()`).
+
+## 5. Implementation & Verification
+
+- CSS Anchor Positioning ersetzt ehemalige JS-Koordinatenberechnung.
+- `execCommand` ist in den Anti-Pattern-Regeln verboten.
+- View Transitions sind in `main.js` für Formularwechsel und Theme-Toggles produktiv.
+
+## 6. Related Documents
+
+- [[ADR-HTML]]
+- [[ADR-CSS]]
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]
 
 ---
 
-## Entscheidungen
+### Feature Checks
 
-### 1. Striktes JS-Einsatzverbot für Styling & Rendering
-Jegliche JavaScript-gestützte Steuerung von visuellen Effekten, Layout-Rendern oder CSS-Styles ist verboten.
-*   **Keine Ausnahmen:** Da wir exklusiv für moderne Laufzeitumgebungen ab Chrome 148+ entwickeln, wird selbst die schwebende Textauswahl-Toolbar (`#format-toolbar`) rein CSS-basiert über **CSS Anchor Positioning** an die Selektion verankert. Es wird keinerlei JS zur Koordinaten-Berechnung benötigt.
-*   **Begründung:** Stabilität, Robustheit und eine saubere Codebasis. Das Layout bleibt stabil, selbst wenn JavaScript abstürzt oder im Browser blockiert wird.
-
-### 2. Reglementierte Aufgabenbereiche für JavaScript
-JavaScript darf ausschließlich für folgende sechs Aufgabenbereiche eingesetzt werden:
-1.  **Textauswahl & Format-Aktionen:** Ein gedrosselter `selectionchange`-Listener (50ms Debounce) steuert ausschließlich die Sichtbarkeit (Sichtbar-Zustand des Popovers) und setzt bei Klick Formatierungen über die Selection & Range API um. Die Positionierung der Toolbar erfolgt rein über CSS Anchor Positioning.
-2.  **Sicherer Paste/Drop-Schutz:** Abfangen von Paste- und Drop-Events auf `#brieftext`, um HTML-Formatmüll unnachgiebig zu entfernen und ausschließlich reinen Plaintext (`text/plain`) einzufügen.
-3.  **Daten-Synchronisation & Auto-Save:** Automatisches Speichern und Laden von Textinhalten in den LocalStorage bei jeder Eingabe.
-4.  **Externe API-Anfragen:** Abfragen an Photon, Geoapify (inklusive Heartbeat-Check) und Zippopotam.
-5.  **Toast-Queue & Popover-Lifecycle:** Verwaltung der Toast-Warteschlange zur Vermeidung von überlappenden Einblendungen.
-6.  **Datum-Autobefüllung:** Nativer Einsatz der **W3C Temporal API** (`Temporal.Now.plainDateISO()`) zur zeitzonensicheren, unveränderlichen und fehlerfreien Bestimmung des lokalen Systemdatums im normativem deutschen Format beim Erststart.
-
-
-### 3. Verbot von veraltetem `execCommand` für Custom-Formate
-Für Zitate (`<blockquote>`) nutzen wir die native Selection & Range API (`extractContents` / `insertNode`) zum sauberen Wrappen und Entpacken (Unwrap) des DOMs.
-*   **Zustandserkennung:** Wir ermitteln die aktiven Formate (Fett, Unterstrichen, Zitat) über eine zukunftssichere, native DOM-Baum-Traversierung nach oben bis zum Container `#brieftext`. Wir verzichten komplett auf veraltete APIs (wie `queryCommandState`).
-*   **Shortcuts:** Wir überlassen standardmäßige Shortcuts (`Strg+B` / `Strg+U`) dem nativen Standardverhalten des Browsers im `contenteditable`-Bereich. Es werden keine eigenen Keydown-Handler für diese Shortcuts geschrieben.
-
-### 4. Native View Transitions API für flüssige Zustandsübergänge
-Wir kapseln alle Benutzer-initiierten UI-Layoutänderungen (z. B. Umschalten zwischen Form A und Form B) sowie Theme-Wechsel (Hell/Dunkel/Auto) vollständig in der modernen W3C View Transitions API (`document.startViewTransition()`).
-*   **Begründung:** Durch die native Kapselung entfällt das Schreiben von manuellen CSS-Animationsklassen oder komplexen JavaScript-basierten Fade-Operationen. Der Browser erzeugt automatisch Vorher-Nachher-Snapshots und animiert die Layout-Elemente mit maximaler Hardware-Beschleunigung und seidenweichen Übergängen direkt auf der Render-Pipeline.
-*   **Fallback:** Sollte das Feature nicht unterstützt werden, wird die Zustandsänderung synchron als direkter Fallback ohne visuelle Übergänge ausgeführt, wodurch die App abwärtskompatibel bleibt.
-
-
----
-
-## Konsequenzen
-*   **Vorteile:**
-    *   Schlanker Code (<18 KB JavaScript insgesamt).
-    *   Zukunftssichere APIs (Selection/Range, Popover).
-    *   Hocheffizientes Drosseln verhindert Performance-Engpässe bei Mausbewegungen.
-*   **Nachteile:**
-    *   Erhöhter CSS-Einsatz für visuelle Statustoggles (z. B. Segmented Controls, Guides).
-
----
-
-## Verknüpfungen
-*   Siehe [[ADR-HTML|ADR-HTML.md]] für `contenteditable` und native Popover.
-*   Siehe [[ADR-CSS|ADR-CSS.md]] für die reinen CSS-Zoom-Techniken.
-*   Siehe [[ADR-API|ADR-API.md]] für API-Vorschriften.
-*   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für Details zur Toast-Queue und Toolbar.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Frameworks.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-
-### 5. Canvas-Komprimierung fOr groYe Binrdaten
-Wir nutzen ein unsichtbares OffscreenCanvas oder regulres <canvas> (wie im SignatureFeature), um vom Nutzer hochgeladene Bilder clientseitig massiv zu komprimieren (max 400px), bevor sie als Base64 im localStorage gespeichert werden. Dies verhindert das schnelle Sprengen des 5MB Speicherlimits und zementiert die serverlose, offline-fhige Architektur der Anwendung.
-
-
-## Feature Checks
 ```javascript feature-check
 f("Temporal API", typeof globalThis.Temporal !== "undefined", "Chrome 146", "Future-Proof"),
 f("View Transitions (Scoped)", typeof document.startViewTransition !== "undefined", "Chrome 146", "Future-Proof"),
@@ -770,17 +681,10 @@ f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chro
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'js');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'scripting');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'event-handling');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'dom-selection');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'constraints');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-MIGRATION.md',
-  'ADR - Extraktion zur llm_boilerplate',
+  'ADR-MIGRATION: Extraktion zur llm_boilerplate',
   'accepted',
   '# ADR: Architektur für Extraktion zur llm_boilerplate
 
@@ -807,166 +711,125 @@ Regeln, die nur für DIN-Brief Neo gelten, kommen in `project.json`.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'architecture');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'boilerplate');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'generalisierbarkeit');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-TECH-STACK.md',
-  'Architectural Decision Record (ADR): Unified Web Technology Stack & Rationales',
-  'accepted',
-  '# Architectural Decision Record (ADR): Unified Web Technology Stack & Rationales
+  'ADR/ADR-TEMPLATE.md',
+  'ADR-XXX: [Kurzer, präziser Titel der Entscheidung]',
+  'draft | proposed | accepted | deprecated | rejected',
+  '# ADR-XXX: [Kurzer, präziser Titel]
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**Kurze, präzise Beschreibung des Problems (max. 5–6 Sätze).**
 
-> [!info] Hintergrund
-> Für eine wartungsfreie, performante, datenschutzkonforme und vollständig offline-fähige Anwendung unter der strikten Prämisse der lokalen Kompatibilität (`file:///index.html` per Doppelklick öffnen) müssen alle eingesetzten Webtechnologien sorgfältig ausgewählt werden. Dieses Dokument zentralisiert alle genutzten HTML5-APIs, CSS3-Module und JavaScript-Konstrukte und begründet deren Wahl im Vergleich zu üblichen Alternativen.
+- Was ist das konkrete Problem?
+- Warum ist eine Entscheidung notwendig?
+- Welcher Kontext ist relevant?
 
----
+> [!info] Hintergrund (optional)
+> Nur bei Bedarf für zusätzlichen Kontext. Nicht übertreiben.
 
-## 📊 Der Technologie-Stack im Überblick
+## 2. Considered Options
 
-### 1. HTML (Struktur & Barrierefreiheit)
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** | ... | ... | ... | ... | ... |
+| **Option B** | ... | ... | ... | ... | ... |
+| **Option C** | ... | ... | ... | ... | ... |
 
-| Webtechnologie / API | Konkrete Verwendung | Rationale & Vorteile | Verweis |
-| :--- | :--- | :--- | :--- |
-| **`contenteditable="plaintext-only"`** | Einstellige Metadaten-Felder (Betreff, Anschrift, Datum) | Verhindert nativ (ohne JS-Filter), dass der Benutzer formatierten HTML-Müll aus Word oder Webseiten in DIN-Strukturfelder einfügt. | [[ADR-HTML|ADR-HTML.md]] |
-| **`contenteditable="true"`** | Hauptbrieftext (`#brieftext`) | Erlaubt kontrollierte, inline-formatierte Textstrukturen (Fett, Unterstrichen, Zitate). | [[ADR-HTML|ADR-HTML.md]] |
-| **Native Popover API (`popover="manual"`)** | Formatierungs-Toolbar und Popover-Toasts | Browser rendert diese Elemente automatisch im **Top-Layer**. Keine CSS `z-index`-Kollisionen mehr, keine Frameworks oder JS-Bibliotheken nötig. | [[ADR-HTML|ADR-HTML.md]], [[ADR-FEATURE|ADR-FEATURE.md]] |
-| **HTML5 Custom Elements** | `<din-a4>`, `<din-absender>`, `<din-anschriftfeld>` etc. | Ermöglicht eine glasklare Trennung der DIN 5008 Geometriebereiche im CSS und erhöht die semantische Lesbarkeit des DOM-Baums drastisch. | [[ADR-HTML|ADR-HTML.md]] |
-| **A11y ARIA Attributes** | `aria-pressed="true/false"` auf den Formatierungsbuttons | Gewährleistet native Barrierefreiheit und präzise Screenreader-Ansagen über den Format-Status des markierten Textes. | [[ADR-HTML|ADR-HTML.md]] |
+## 3. Decision
 
----
+**Wir haben uns für Option X entschieden.**
 
-### 2. CSS (Visuals, Layout & Proportionalität)
+### Begründung
 
-| Webtechnologie / API | Konkrete Verwendung | Rationale & Vorteile | Verweis |
-| :--- | :--- | :--- | :--- |
-| **`oklch()` Farbräume** | Gesamte Farbpalette der Anwendung | Wahrnehmungskonformer (perceptually uniform) Farbraum. Erlaubt präzise, mathematisch stimmige Helligkeitskontrollen und extrem harmonische, augenschonende Farbübergänge. | [[ADR-CSS|ADR-CSS.md]] |
-| **`light-dark()` Funktion** | Dynamische Theme-Farben in `variables.css` | Erlaubt eine vollkommen JS-freie Theme-Umschaltung direkt im CSS, indem der Browser je nach `color-scheme` automatisch die passenden Variablen rendert. | [[ADR-CSS|ADR-CSS.md]] |
-| **`container-type: size`** | Deklariert auf dem `<din-a4>`-Blatt | Kapselt die physischen A4-Proportionen in einen isolierten Container, um proportionale Layoutberechnungen für Kind-Elemente freizuschalten. | [[ADR-CSS|ADR-CSS.md]] |
-| **Container Query Units (`cqw` / `cqh`)** | Alle Margins, Paddings, Positionen & Schriftgrößen | 100% pixelperfektes Vektor-Skalieren! Wächst oder schrumpft das Papier durch Browser-Zoom, skaliert das gesamte DIN-Layout proportional mit. | [[ADR-CSS|ADR-CSS.md]], [[din-5008-geometry|din-5008-geometry.md]] |
-| **`aspect-ratio: 210 / 297`** | Größenberechnung des `<din-a4>`-Blatts | Garantiert das mathematisch exakte Seitenverhältnis von DIN A4 auf jedem Bildschirm – vollkommen ohne JavaScript-Hilfen. | [[ADR-CSS|ADR-CSS.md]] |
-| **`height: 94vh`** | Höhenlimitierung des Briefbogens | Verhindert, dass das Papier den vertikalen Viewport überschreitet, und passt sich stufenlos und passgenau der Bildschirmhöhe an. | [[ADR-CSS|ADR-CSS.md]] |
-| **`overflow: hidden` on Body** | Absolute Viewport-Sperre | Verhindert Doppel-Scrollbalken und garantiert ein echtes, premium-artiges Applikationsgefühl im Full-Screen-Modus. | [[ADR-CSS|ADR-CSS.md]], [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] |
-| **`@media print` Overrides** | Druck- und PDF-Erzeugung | Zwingt die Farben des Briefbogens beim Ausdrucken/Drucken in PDF bedingungslos auf einen reinweißen Hintergrund mit schwarzer Tinte (Druck-Souveränität). | [[ADR-CSS|ADR-CSS.md]], [[ADR-FEATURE|ADR-FEATURE.md]] |
-| **CSS Anchor Positioning** | Schwebende Formatierungs-Toolbar (`#format-toolbar`) | Ermöglicht das vollkommen JS-freie, rein CSS-basierte Verankern der schwebenden Toolbar direkt an die Textselektion. | [[ADR-CSS|ADR-CSS.md]], [[ADR-FEATURE|ADR-FEATURE.md]] |
+- Punkt 1 (kurz & präzise)
+- Punkt 2
+- Punkt 3
 
----
+## 4. Consequences
 
-### 3. JavaScript (Logische Begleitschicht)
+### Positive Auswirkungen
+- ...
+- ...
 
-| Webtechnologie / API | Konkrete Verwendung | Rationale & Vorteile | Verweis |
-| :--- | :--- | :--- | :--- |
-| **`localStorage` API** | Persistentes Speichern von Entwürfen, API-Schlüsseln, Profilen und Schriften | **Die einzige persistente Speicher-API, die unter `file://` (lokaler Doppelklick) uneingeschränkt funktioniert.** OPFS, IndexedDB und File System Access APIs werden mangels HTTPS/Server-Kontext blockiert. | [[ADR-JS|ADR-JS.md]], [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] |
-| **Selection & Range API** | Text-Formatierung (`#brieftext`) | Ermöglicht das präzise Einbetten von Zitat-Wrappern (`blockquote`) und die Handhabung von Textauswahlen ohne veraltete APIs (wie `execCommand`). | [[ADR-JS|ADR-JS.md]] |
-| **`AbortController` API** | Abbruch laufender Fetch-Anfragen | Verhindert Race Conditions und unnötige API-Verzögerungen beim schnellen Tippen in den Suchfeldern, indem veraltete Requests abgebrochen werden. | [[ADR-API|ADR-API.md]] |
-| **`fetch()` mit `Headers`** | Geoapify Premium Autocomplete Suchen | Übermittelt API-Schlüssel sicher im HTTP-Header (`X-Api-Key`) statt in der URL-Query. Verhindert Key-Leaks in Web-Proxys, DNS-Logs und Browser-Verläufen. | [[ADR-API|ADR-API.md]] |
-| **`FileReader` API** | Offline WOFF2-Font-Uploader | Liest die hochgeladene Schriftdatei asynchron als Base64-Data-URL ein, um sie persistent in den LocalStorage zu sichern. | [[ADR-FEATURE|ADR-FEATURE.md]] |
-| **Discrete Transitions & Simple JS Timer** | Popover Toast-Lebenszyklus | Nutzt native CSS Discrete Transitions (`transition-behavior: allow-discrete` und `@starting-style` in `floating.css`) und einen simplen 3.000ms JS-Timer (`setTimeout`) für symmetrisches Ein-/Ausblenden auf GPU-Ebene. | [[ADR-FEATURE|ADR-FEATURE.md]] |
-| **W3C Temporal API** (`Temporal.Now.plainDateISO()`) | Automatische Befüllung des Datumsfeldes (`#datum`) | Native, vollständig offline-fähige und unveränderliche (immutable) Kalender- und Datumsarithmetik ohne CDN-Abhängigkeiten. Beseitigt legacy Date-Mängel. | [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]], [[ADR-JS|ADR-JS.md]] |
-| **`Element.setHTML()`** (Sanitizer API) | XSS-sichere HTML-Eingaben | Sanitiert Rich-HTML-Zuweisungen im Browser nativ gegen Cross-Site-Scripting (XSS). | [[ADR-JS|ADR-JS.md]] |
-| **CSS `contrast-color()`** | Barrierefreier Textkontrast | Automatische, browserseitige Kontrastberechnung für primäre Buttons und aktive Steuerelemente. | [[ADR-CSS|ADR-CSS.md]] |
+### Risiken & Negative Auswirkungen
+- ...
+- ...
 
+### Langfristige Auswirkungen
+- ...
 
----
+## 5. Implementation & Verification
 
-## 🚫 Ausgeschlossene Technologien & Antipatterns
+- Was wurde konkret umgesetzt?
+- Wie wird die Einhaltung der Entscheidung sichergestellt? (z.B. durch Reconciliation, Code-Review, Tests, Antipattern-Regeln)
+- Gibt es offene Punkte?
 
-Um die kompromisslose Langlebigkeit und Offline-Fähigkeit zu sichern, wurden folgende, im Web oft gängigen Ansätze **explizit verboten**:
-1.  **SPA-Frameworks (React, Vue) & CSS-Utility-Frameworks (TailwindCSS):** Verhindert Abhängigkeiten, Build-Komplexität (Vite/Webpack) und garantiert, dass die Anwendung auch in Jahrzehnten ohne Wartung nativ in jedem Browser läuft.
-2.  **Externe CDNs (Google Fonts, CDNs):** Zerstört die Offline-Fähigkeit und verletzt die DSGVO (IP-Abfluss an Drittserver).
-3.  **IndexedDB / OPFS / File System Access API:** Werfen im lokalen Kontext (`file:///index.html`) schwerwiegende Sicherheits-Exceptions. LocalStorage ist der einzig sichere Weg.
-4.  **`document.execCommand`:** Veraltet (*deprecated*) und kurz vor der Entfernung aus modernen Engines. Wir nutzen stattdessen die zukunftssichere Selection & Range API.
+## 6. Related Documents
+
+- [[longevity-guidelines]]
+- [[ADR-YYY]]
+- [[constitution]]
 
 ---
 
-## Konsequenzen
-*   **Vorteile:**
-    *   Maximale Zukunftssicherheit durch die ausschließliche Nutzung stabiler, nativer W3C-Standards.
-    *   Hervorragende Performance (<18 KB JS, <10 KB CSS) ohne jeglichen Build-Overhead.
-    *   100% offline-kompatibel und sofort lauffähig (Doppelklick-Start).
-*   **Nachteile:**
-    *   Erfordert fundiertes Wissen über native Web-APIs anstelle von vorgefertigten Framework-Abstraktionen.
+### Feature Checks (falls relevant)
+
+```javascript feature-check
+// f("Feature Name", Bedingung, "Chrome XXX", "Status")
+```
 
 ---
 
-## Verknüpfungen
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.',
+## Hinweise zur Nutzung dieses Templates
+
+- **Frontmatter ist verpflichtend** und muss vollständig ausgefüllt werden.
+- Der Abschnitt **"Context & Problem"** soll kurz und fokussiert bleiben.
+- Die **Entscheidung** muss klar und unmissverständlich formuliert sein.
+- Redundanzen zu `longevity-guidelines.md` und `constitution.md` vermeiden — stattdessen verlinken.
+- Jede ADR sollte **eine klare Entscheidung** treffen, keine Essays schreiben.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'tech-stack');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'architecture');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'choices');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'rationales');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TECH-STACK.md'), 'w3c');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-TEMPLATE.md',
-  'ADR-000: [Titel der Architektur-Entscheidung]',
-  'draft | proposed | accepted | rejected | deprecated',
-  '# Architectural Decision Record (ADR): [Titel]
+  'ADR/ADR-ÜBERSICHT.md',
+  'ADR-Übersicht',
+  'active',
+  '# ADR-Übersicht (Dataview)
 
-> [!info] Info-Block (Hintergrund)
-> Dies ist ein Template. Nutze diese Callouts (`> [!info]`, `> [!warning]`, `> [!danger]`, `> [!tip]`), um wichtige kontextuelle Informationen für andere Entwickler oder KI-Agenten hervorzuheben. Sie verbessern die Lesbarkeit enorm.
+> [!info] Über dieses Dokument
+> Dieses Dashboard nutzt das **Obsidian Dataview-Plugin**, um alle Architectural Decision Records (ADRs) des Projekts `DIN-BriefNEO` automatisch aufzulisten.
 
-## 1. Kontext & Problemstellung
+## Aktive Entscheidungen
 
-Beschreibe hier das Problem, das gelöst werden muss. Verlinke gerne auf andere Dokumente mit Wiki-Links, z. B. [[longevity-guidelines]].
-
-<details>
-<summary>Historischer Kontext (Klicken zum Ausklappen)</summary>
-Nutze das `<details>`-Tag, um sehr lange oder sekundäre Erklärungen zu verstecken, damit das Dokument beim ersten Überfliegen übersichtlich bleibt.
-</details>
-
-## 2. Betrachtete Optionen
-
-Nutze Tabellen, um verschiedene technische Lösungswege strukturiert gegenüberzustellen:
-
-| Option | Vorteil | Nachteil |
-| :--- | :--- | :--- |
-| **Option A** (Native API) | Zero Dependencies, rasend schnell | Braucht modernen Browser (Chrome 148+) |
-| **Option B** (npm Library) | Abwärtskompatibel | Bläht das Bundle auf, Sicherheitsrisiko |
-
-## 3. Die Entscheidung
-
-> [!success] Wir haben uns für **Option A** entschieden.
-
-### Begründung
-Nutze hier einfache Checklisten, um Argumente oder Anforderungen abzuhaken:
-- [x] Entspricht der Zero-JS-Philosophie
-- [x] Erfüllt den 100% Fitness Score
-- [ ] Unterstützt veraltete IE11-Browser (bewusst ignoriert)
-
-## 4. Architektur-Diagramm
-
-Nutze Mermaid-Diagramme, um Workflows oder Datenflüsse visuell darzustellen (anstatt sie nur in Textform zu erklären):
-
-```mermaid
-graph TD
-    A[Nutzer klickt] --> B{Hat Browser Feature X?}
-    B -- Ja --> C[Nutze native Web API]
-    B -- Nein --> D[Zeige sanften Fallback]
+```dataview
+TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
+FROM "ADR"
+WHERE type = "adr" AND (status = "accepted" OR status = "proposed") AND project = "DIN-BriefNEO"
+SORT date DESC
 ```
 
-## 5. Feature Checks (Living Documentation)
+## Veraltet / Abgelehnt
 
-Falls diese Entscheidung auf modernen Browser-APIs basiert, deklariere den nativen Feature-Check hier. Der Compiler (`tools/build_healthcheck.js`) zieht diesen Block automatisch heraus und baut daraus die Test-Suite für die Website:
+```dataview
+TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
+FROM "ADR"
+WHERE type = "adr" AND (status = "deprecated" OR status = "rejected") AND project = "DIN-BriefNEO"
+SORT date DESC
+```
 
-```javascript feature-check
-// Erklärung: Dieser Block wird aus dem Markdown gelesen. Er darf keinen echten Code ausführen, 
-// sondern nur die ''f()''-Funktion für den Healthcheck aufrufen!
-// Beispiel: f("Feature Name", typeof globalThis.Feature !== "undefined", "Chrome 120", "Produktiv")
+## Entwürfe (Drafts)
+
+```dataview
+TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
+FROM "ADR"
+WHERE type = "adr" AND status = "draft" AND project = "DIN-BriefNEO"
+SORT date DESC
 ```',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -974,9 +837,6 @@ Falls diese Entscheidung auf modernen Browser-APIs basiert, deklariere den nativ
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TEMPLATE.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TEMPLATE.md'), 'template');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-TEMPLATE.md'), 'architektur');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/Code-Referenzen.md',
@@ -988,7 +848,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1272 | [[ADR-JS]] |
+| website/js/main.js | 1279 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
@@ -2540,7 +2400,7 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/chrome-modern-css.md',
-  'Modern CSS Features (Chrome 148+ Baseline)',
+  'Guide: Modern CSS Features (Chrome 148+ Baseline)',
   'active',
   '# Modern CSS Features (Chrome 148+ Baseline)
 
@@ -2602,13 +2462,10 @@ Da wir auf Engine-Version **Chrome 148+** (bzw. 149+) setzen, sind **alle oben g
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'css');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'modern');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/din-5008-geometry.md',
-  'DIN 5008 Geometry Master Data (SSoT)',
+  'Guide: DIN 5008 Geometry Master Data (SSoT)',
   'active',
   '# DIN 5008 Geometry Master Data (SSoT)
 
@@ -2808,14 +2665,10 @@ Jede Zahl in diesem Dokument wurde penibel mit den folgenden Originalquellen abg
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-geometry.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-geometry.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-geometry.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-geometry.md'), 'manual');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/din-5008-layout.md',
-  'DIN 5008 Layout-Richtlinien (SSoT)',
+  'Guide: DIN 5008 Layout-Richtlinien (SSoT)',
   'active',
   '# DIN 5008 Layout-Richtlinien (SSoT)
 
@@ -2882,10 +2735,6 @@ Der eigentliche Textbereich (Briefkern) beginnt unterhalb des Anschriftfelds:
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'manual');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/geoapify-autocomplete.md',
@@ -2975,14 +2824,10 @@ Geoapify erhält den gesuchten Adressstring sowie die berechneten GPS-Koordinate
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'geoapify');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'autocomplete');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/glossary.md',
-  'Fachbegriff-Glossar: glossary.md',
+  'Guide: Fachbegriff-Glossar: glossary.md',
   'active',
   '# Fachbegriff-Glossar: glossary.md
 
@@ -3095,84 +2940,89 @@ Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) 
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'manual');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/glossary.md'), 'glossary');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/GUIDE-TEMPLATE.md',
   'Guide: [Thema des Guides]',
-  'draft | active | deprecated',
+  'active | draft | deprecated',
   '# Guide: [Titel]
 
-> [!tip] Was ist ein Guide?
-> Im Gegensatz zu einem ADR (das eine einmalige Entscheidung dokumentiert), ist ein Guide ein lebendes Handbuch. Hier erklären wir, *wie* Dinge in unserem Projekt umgesetzt werden (z. B. "Wie nutzen wir CSS?", "Wie testen wir?").
+> [!tip] Was ist dieser Guide?
+> Kurze Erklärung, warum dieser Guide existiert und für wen er gedacht ist.  
+> Im Gegensatz zu einem ADR dokumentiert ein Guide *wie* etwas umgesetzt wird (Best Practices, Techniken, Workflows).
 
 ## 1. Einleitung & Zielsetzung
 
-Kurze Einleitung, warum dieser Guide existiert. Verlinke verwandte Konzepte per [[Wiki-Link]].
+Kurze Einleitung:
+- Was ist das Ziel dieses Guides?
+- Welches Problem löst er?
+- Welche Annahmen gibt es?
 
-## 2. Best Practices
+## 2. Best Practices & Regeln
 
-Nutze verschachtelte Listen und Checklisten, um Richtlinien klar zu formulieren:
-- **Regel 1**: Schreibe klaren Code.
-  - [x] Überprüft durch Linter
-  - [ ] Noch nicht dokumentiert
-- **Regel 2**: Nutze native APIs.
+Hier kommen die konkreten Richtlinien. Nutze Checklisten oder nummerierte Listen:
 
-### Code-Beispiele (Vorher / Nachher)
+- **Regel 1**: ...
+  - [x] Wird bereits umgesetzt
+  - [ ] Noch ausstehend
+- **Regel 2**: ...
 
-Nutze Diff-Blöcke (`diff`), um Verbesserungen oder Refactorings zu veranschaulichen:
+### Vorher / Nachher Beispiele
+
+Nutze `diff` Blöcke, wenn es um Code-Verbesserungen geht:
 
 ```diff
-- const elements = document.querySelectorAll(''.old-class'');
-- elements.forEach(el => el.style.display = ''none'');
-+ // Neuer Zero-JS Ansatz via CSS
-+ :root:has(#toggle:checked) .new-class { display: none; }
-```
+- // Alter Ansatz
+- element.style.top = calculatedTop + ''px'';
 
-### Syntax Highlighting
-
-Nutze spezifische Code-Blöcke (`css`, `javascript`, `html`), um die Lesbarkeit zu garantieren:
-
-```css
-.glassmorphism {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
++ // Neuer deklarativer Ansatz
++ element.style.positionAnchor = ''--selection-anchor'';
 ```
 
 ## 3. Komplexere Zusammenhänge
 
-Wenn ein Konzept schwer zu erklären ist, verstecke Randnotizen in einem Aufklapp-Menü:
+Falls ein Thema tiefergehend erklärt werden muss:
 
 <details>
-<summary>Deep Dive: Wie funktioniert Backdrop-Filter? (Klicken)</summary>
-Backdrop-Filter wendet grafische Effekte (wie Unschärfe) auf den Bereich *hinter* einem Element an. Das Element selbst muss dafür teilweise transparent sein (z.B. durch `rgba`).
+<summary>Deep Dive: [Thema] (Klicken zum Ausklappen)</summary>
+
+Hier können längere Erklärungen, Diagramme oder Hintergrundwissen stehen.
+
 </details>
 
-## 4. Feature Checks
+## 4. Feature Checks (falls relevant)
 
-Gibt dieser Guide vor, bestimmte Web-APIs zu nutzen? Dann trage sie hier in das Compiler-System ein:
+Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 
 ```javascript feature-check
-// f("CSS backdrop-filter", CSS.supports("backdrop-filter: blur(10px)"), "Chrome 76", "Produktiv")
-```',
+// f("Feature Name", typeof globalThis.Feature !== "undefined", "Chrome XXX", "Produktiv")
+```
+
+## 5. Verwandte Dokumente
+
+- [[longevity-guidelines]]
+- [[ADR-XXX]]
+- [[glossary]]
+
+---
+
+## Hinweise zur Nutzung dieses Templates
+
+- **Frontmatter ist verpflichtend**
+- Der Guide soll **praktisch** und **umsetzbar** sein (keine reinen Theorie-Texte)
+- Nutze `diff`-Blöcke und `<details>` für bessere Lesbarkeit
+- Halte den Guide möglichst **kurz und fokussiert** (max. 1–2 Bildschirmseiten ideal)
+- Verlinke stark auf ADRs und andere Guides statt Inhalte zu duplizieren',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/GUIDE-TEMPLATE.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/GUIDE-TEMPLATE.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/GUIDE-TEMPLATE.md'), 'template');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/longevity-guidelines.md',
-  'Longevity & W3C Native Standards Guidelines (Longevity Guide)',
+  'Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)',
   'active',
   '# Longevity & W3C Native Standards Guidelines (Longevity Guide)
 
@@ -3184,6 +3034,13 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > **DIN-BriefNEO** bricht radikal mit diesem Zyklus. Ziel ist eine **möglichst lange Lebensdauer ohne Wartungsaufwand** (im Idealfall viele Jahre). Der Briefbogen muss im Jahr 2036 in jedem gängigen Webbrowser exakt so geladen, gerendert und bedient werden können wie heute.
 > 
 > Dies erreichen wir nicht durch Verzicht auf moderne Features, sondern durch das unnachgiebige Vertrauen in **native, standardisierte W3C/WHATWG Browser-Schnittstellen**.
+
+### 1.1. Sicherheit vor Kompatibilität (Chrome 149+ Baseline)
+
+> [!warning] Zero-Compromise Policy
+> Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
+> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur Injektion von Daten genutzt werden.
+> - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
 
 ---
 
@@ -3287,15 +3144,10 @@ Da Web-Standards stetig weiterentwickelt werden, empfehlen wir eine Überprüfun
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/longevity-guidelines.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/longevity-guidelines.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/longevity-guidelines.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/longevity-guidelines.md'), 'manual');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/longevity-guidelines.md'), 'architecture');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/no-scroll-techniques.md',
-  'Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)',
+  'Guide: Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)',
   'active',
   '# Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)
 
@@ -3420,16 +3272,10 @@ Während `field-sizing` ein exzellentes CSS-Feature für Auto-Grow Inputs ist, f
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/no-scroll-techniques.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/no-scroll-techniques.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/no-scroll-techniques.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/no-scroll-techniques.md'), 'manual');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/no-scroll-techniques.md'), 'css');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/no-scroll-techniques.md'), 'architecture');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/testing-guide.md',
-  'Interaktiver Test-Leitfaden: testing-guide.md',
+  'Guide: Interaktiver Test-Leitfaden: testing-guide.md',
   'active',
   '# Interaktiver Test-Leitfaden: testing-guide.md
 
@@ -3572,11 +3418,6 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/testing-guide.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/testing-guide.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/testing-guide.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/testing-guide.md'), 'manual');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/testing-guide.md'), 'qa');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'HYBRID-SPEC-DRIVEN-WORKFLOW.md',
@@ -3834,7 +3675,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T10:32:27.620Z
+> Generiert am: 2026-07-02T13:13:41.244Z
 > ==============================================================================
 
 
@@ -3962,11 +3803,12 @@ Dieser Vertrag ist **nicht verhandelbar**. Verstöße führen zur Ablehnung der 
 
 **Light Mode (Standard für die meisten Änderungen: Bugfixes, kleine Refactorings, kleine Anpassungen)**
 
-1. Pre-Build ausführen.
-2. Änderung durchführen (Core Rules einhalten).
-3. Post-Build ausführen → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
-4. Mit `log_session.js` protokollieren.
-5. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
+1. Pre-Build ausführen (`.\start.ps1` generiert auch `LLM_CONTEXT.md`).
+2. Generierte `LLM_CONTEXT.md` lesen, um den aktuellen System-Prompt zu erhalten.
+3. Änderung durchführen (Core Rules einhalten).
+4. Post-Build ausführen (`.\start.ps1`) → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
+5. Mit `log_session.js` protokollieren.
+6. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
 
 **Beispiel Light Mode:**
 "Kleinen Bug im Adress-Autocomplete gefixt (textContent statt unsicherem innerHTML). Pre- und Post-Build waren 100%. Generalisierbarkeit: Die Regel ist bereits in web.json → keine Extraktion nötig."
@@ -4111,10 +3953,20 @@ Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängig
 # ==========================================
 
 ---
-title: Longevity & W3C Native Standards Guidelines (Longevity Guide)
+title: "Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)"
 status: active
-tags: [obsidian, documentation, guide, manual, architecture]
-aliases: ["Longevity Guidelines", "W3C Standards"]
+tags:
+  - obsidian
+  - documentation
+  - guide
+  - manual
+  - architecture
+aliases:
+  - "Longevity Guidelines"
+  - "W3C Standards"
+last-updated: 2026-07-02
+project: DIN-BriefNEO
+type: guide
 ---
 
 # Longevity & W3C Native Standards Guidelines (Longevity Guide)
@@ -4127,6 +3979,13 @@ aliases: ["Longevity Guidelines", "W3C Standards"]
 > **DIN-BriefNEO** bricht radikal mit diesem Zyklus. Ziel ist eine **möglichst lange Lebensdauer ohne Wartungsaufwand** (im Idealfall viele Jahre). Der Briefbogen muss im Jahr 2036 in jedem gängigen Webbrowser exakt so geladen, gerendert und bedient werden können wie heute.
 > 
 > Dies erreichen wir nicht durch Verzicht auf moderne Features, sondern durch das unnachgiebige Vertrauen in **native, standardisierte W3C/WHATWG Browser-Schnittstellen**.
+
+### 1.1. Sicherheit vor Kompatibilität (Chrome 149+ Baseline)
+
+> [!warning] Zero-Compromise Policy
+> Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
+> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur Injektion von Daten genutzt werden.
+> - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
 
 ---
 
@@ -5468,41 +5327,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   "version": "1.0.0",
   "layer": "project",
   "description": "DIN-Brief Neo specific rules and overrides. These are not intended for the generic boilerplate.",
-  "rules": [
-    {
-      "id": "W3",
-      "severity": "high",
-      "category": "javascript",
-      "description": "Unsanitized innerHTML assignments are unsafe. Use textContent or Sanitizer API where possible. (DIN-specific exemption for contenteditable draft handling.)",
-      "graveyard_ref": "A4",
-      "pattern": "\\.innerHTML\\s*=",
-      "file_patterns": [
-        "*.js"
-      ],
-      "exemptions": [
-        {
-          "file": "website/js/main.js",
-          "reason": "Draft recovery loading/saving innerHTML and clearing contenteditable elements. Project-specific for now."
-        }
-      ]
-    },
-    {
-      "id": "B2",
-      "severity": "high",
-      "category": "javascript",
-      "description": "Legacy Date API exemption for JSON Export fallback.",
-      "pattern": "new\\s+Date\\(",
-      "file_patterns": [
-        "*.js"
-      ],
-      "exemptions": [
-        {
-          "file": "website/js/main.js",
-          "reason": "Fallback to new Date() if Temporal is not available, specifically for JSON export file naming."
-        }
-      ]
-    }
-  ]
+  "rules": []
 }',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -5729,13 +5554,13 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 -- Antipattern Definitions
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
   'B2',
-  'high',
+  'critical',
   'javascript',
-  'Legacy Date API exemption for JSON Export fallback.',
-  NULL,
-  'new\s+Date\(',
+  'Legacy Date API (new Date, Date.now, Date.parse) is forbidden. Use Temporal API instead.',
+  'A1',
+  '\bnew\s+Date\(|\bDate\.now\(|\bDate\.parse\(',
   '["*.js"]',
-  '[{"file":"website/js/main.js","reason":"Fallback to new Date() if Temporal is not available, specifically for JSON export file naming."}]'
+  '[]'
 );
 
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
@@ -5764,11 +5589,11 @@ INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, descript
   'W3',
   'high',
   'javascript',
-  'Unsanitized innerHTML assignments are unsafe. Use textContent or Sanitizer API where possible. (DIN-specific exemption for contenteditable draft handling.)',
+  'Unsanitized innerHTML assignments are unsafe. Use textContent or Sanitizer API where possible.',
   'A4',
   '\.innerHTML\s*=',
   '["*.js"]',
-  '[{"file":"website/js/main.js","reason":"Draft recovery loading/saving innerHTML and clearing contenteditable elements. Project-specific for now."}]'
+  '[]'
 );
 
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
@@ -5846,7 +5671,7 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
   adr_ref TEXT NOT NULL
 );
 
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1272, 'ADR-JS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1279, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
 

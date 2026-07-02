@@ -40,6 +40,9 @@ Akzeptiert
 
 ## Verbotene Praktiken (Antipatterns)
 
+### 0. Chrome 149+ Baseline & Keine Legacy-Fallbacks (Striktes Verbot)
+Ab Version X des Projekts werden **keine Legacy-Fallbacks** mehr toleriert. Dies gilt insbesondere für unsichere DOM-Manipulationen (wie `innerHTML`) oder veraltete Native-APIs (wie `new Date()`). Das Projekt akzeptiert bewusst eine strikte Chrome 149+ Baseline. Sicherheit und Code-Sauberkeit haben absoluten Vorrang vor abwärtskompatibler Funktionalität für ältere Browser.
+
 ### 1. Verwendung von Frameworks & Build-Tools (Striktes Verbot)
 Es dürfen **keine** Frameworks wie React, Vue, Svelte, Angular oder Bibliotheken wie jQuery oder TailwindCSS eingebunden werden.
 *   **Begründung:** Frameworks führen zu massiver Komplexität, Abhängigkeiten und erfordern Build-Systeme (Vite, Webpack). Die Applikation MUSS reines Vanilla HTML5, Vanilla CSS3 und reines Vanilla JS ES-Modules verwenden, damit sie für den Endanwender für Jahrzehnte wartungsfrei bleibt.

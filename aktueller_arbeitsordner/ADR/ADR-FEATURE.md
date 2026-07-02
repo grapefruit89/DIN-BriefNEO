@@ -90,3 +90,7 @@ Das Projekt folgt einer unumstößlichen Architektur-Regel für die Nutzeroberfl
 **Technische Umsetzung durch CSS Anchor Positioning:**
 Um Dropdowns (wie das Adressbuch oder die DIN 5008 Postvermerke) WYSIWYG-konform direkt auf dem Papier bereitzustellen, ohne das DOM künstlich zu verschachteln, nutzen wir die `position-anchor` API.
 Das `<din-postvermerk>` Element auf dem Brief dient als Anker. Ein in HTML auf Top-Level platziertes Popover `<div popover="manual">` klinkt sich via CSS perfekt an dieses Element. Es erscheint bei Klick und verhält sich wie ein klassisches Dropdown, obwohl das zugrunde liegende Element ein druckfertiges `contenteditable`-Feld bleibt.
+
+
+### Betreff & PDF-Export
+Siehe [[ADR-BETREFF]] bezüglich Falzmarken-Kollision und dynamischem Generieren des PDF-Titel-Namens.

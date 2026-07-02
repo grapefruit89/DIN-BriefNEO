@@ -1155,6 +1155,32 @@ document.addEventListener('DOMContentLoaded', () => {
     applySettings();
   }
 
+  
+  function updateDocumentTitle() {
+    const betreff = document.getElementById('betreff')?.textContent.trim() || 'Unbenannt';
+    const firma = document.getElementById('empfaenger-firma')?.textContent.trim();
+    const name = document.getElementById('empfaenger-name')?.textContent.trim();
+    const empfaenger = firma ? firma : (name ? name : 'Unbekannt');
+    
+    let dateStr = 'YYYY-MM-DD';
+    try {
+      if (typeof Temporal !== 'undefined') {
+        dateStr = Temporal.Now.plainDateISO().toString();
+      } else {
+        const d = new Date();
+        const yy = d.getFullYear();
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
+        dateStr = yy + '-' + mm + '-' + dd;
+      }
+    } catch(e) {}
+
+    const sanitizedBetreff = betreff.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '');
+    const sanitizedEmpfaenger = empfaenger.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '').replace(/ /g, '-');
+    
+    document.title = dateStr + '_' + sanitizedEmpfaenger + ' ' + sanitizedBetreff;
+  }
+
   function saveDraftData() {
     const draft = {};
     document.querySelectorAll('[contenteditable]').forEach(elem => {
@@ -1166,6 +1192,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     StorageManager.saveDraft('current', draft);
+    updateDocumentTitle();
   }
 
   function loadDraftData() {
@@ -1188,6 +1215,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Auto-fill today's date via native W3C Temporal API if datum element is empty
+    updateDocumentTitle();
+
     const datumEl = document.getElementById('datum');
     if (datumEl && !datumEl.textContent.trim()) {
       /* 

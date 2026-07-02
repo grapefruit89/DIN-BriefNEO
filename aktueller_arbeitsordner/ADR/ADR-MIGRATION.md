@@ -1,7 +1,11 @@
 ---
 title: ADR - Extraktion zur llm_boilerplate
 status: accepted
-tags: [adr, architecture, boilerplate, generalisierbarkeit]
+tags:
+  - adr
+  - architecture
+  - boilerplate
+  - generalisierbarkeit
 ---
 
 # ADR: Architektur für Extraktion zur llm_boilerplate

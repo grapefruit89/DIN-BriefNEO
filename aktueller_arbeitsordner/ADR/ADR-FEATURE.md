@@ -3,10 +3,20 @@ title: "ADR-FEATURE: Feature Specifications & Premium UX"
 status: accepted
 date: 2026-05-24
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, features, popovers, selections, styling, highlights]
-aliases: ["Feature Specifications", "Premium UX"]
+tags:
+  - adr
+  - features
+  - popovers
+  - selections
+  - styling
+  - highlights
+aliases:
+  - "Feature Specifications"
+  - "Premium UX"
 related: 
   - "[[ADR-HTML]]"
   - "[[ADR-CSS]]"

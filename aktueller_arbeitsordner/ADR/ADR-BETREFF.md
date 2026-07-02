@@ -3,10 +3,21 @@ title: "ADR-BETREFF: Positionierung des Betrefffeldes & PDF-Export"
 status: accepted
 date: 2026-07-02
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, ui, feature, betreff, print, pdf]
-aliases: ["Betreff", "Falzmarken", "PDF-Export"]
+tags:
+  - adr
+  - ui
+  - feature
+  - betreff
+  - print
+  - pdf
+aliases:
+  - "Betreff"
+  - "Falzmarken"
+  - "PDF-Export"
 related: 
   - "[[ADR-ANTIPATTERN]]"
   - "[[longevity-guidelines]]"

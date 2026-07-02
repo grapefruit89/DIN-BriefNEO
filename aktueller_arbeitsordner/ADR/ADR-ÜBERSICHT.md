@@ -2,7 +2,10 @@
 title: ADR-Übersicht
 status: active
 type: overview
-tags: [adr, dataview, dashboard]
+tags:
+  - adr
+  - dataview
+  - dashboard
 project: DIN-BriefNEO
 ---
 

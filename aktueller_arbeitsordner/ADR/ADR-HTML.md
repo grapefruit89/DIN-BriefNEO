@@ -3,10 +3,18 @@ title: "ADR-HTML: HTML Architecture & Semantic Structure"
 status: accepted
 date: 2026-05-24
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, html, semantics, contenteditable, popover]
-aliases: ["HTML Architecture & Semantic Structure"]
+tags:
+  - adr
+  - html
+  - semantics
+  - contenteditable
+  - popover
+aliases:
+  - "HTML Architecture & Semantic Structure"
 related: 
   - "[[ADR-CSS]]"
   - "[[ADR-JS]]"

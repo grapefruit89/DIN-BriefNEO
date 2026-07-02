@@ -3,10 +3,18 @@ title: "ADR-GEOAPIFY: Adress-Autocomplete mit Geoapify"
 status: accepted
 date: 2026-07-02
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, geoapify, api, autocomplete]
-aliases: ["Adress API", "Geoapify Autocomplete"]
+tags:
+  - adr
+  - geoapify
+  - api
+  - autocomplete
+aliases:
+  - "Adress API"
+  - "Geoapify Autocomplete"
 related: 
   - "[[ADR-ANTIPATTERN]]"
   - "[[ADR-API]]"

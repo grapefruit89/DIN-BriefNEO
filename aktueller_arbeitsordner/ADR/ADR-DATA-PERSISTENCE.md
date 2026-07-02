@@ -3,10 +3,21 @@ title: "ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling"
 status: accepted
 date: 2026-07-02
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, data, persistence, localstorage, temporal, datetime]
-aliases: ["Data Persistence", "Speicherung", "Local Storage"]
+tags:
+  - adr
+  - data
+  - persistence
+  - localstorage
+  - temporal
+  - datetime
+aliases:
+  - "Data Persistence"
+  - "Speicherung"
+  - "Local Storage"
 related: 
   - "[[ADR-ANTIPATTERN]]"
   - "[[longevity-guidelines]]"

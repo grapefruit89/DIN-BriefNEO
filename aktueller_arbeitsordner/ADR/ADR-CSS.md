@@ -3,10 +3,19 @@ title: "ADR-CSS: CSS Architecture & Proportional Zoom"
 status: accepted
 date: 2026-05-24
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, css, layout, zoom, containers, theming]
-aliases: ["CSS Architecture & Proportional Zoom"]
+tags:
+  - adr
+  - css
+  - layout
+  - zoom
+  - containers
+  - theming
+aliases:
+  - "CSS Architecture & Proportional Zoom"
 related: 
   - "[[ADR-HTML]]"
   - "[[ADR-JS]]"

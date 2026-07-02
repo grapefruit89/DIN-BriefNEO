@@ -3,10 +3,20 @@ title: "ADR-ANTIPATTERN: Forbidden Practices & Antipatterns"
 status: accepted
 date: 2026-05-24
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, antipattern, rules, boundaries, security, local-context]
-aliases: ["Architectural Decision Record (ADR): Forbidden Practices & Antipatterns", "ADR-ANTIPATTERN"]
+tags:
+  - adr
+  - antipattern
+  - rules
+  - boundaries
+  - security
+  - local-context
+aliases:
+  - "Architectural Decision Record (ADR): Forbidden Practices & Antipatterns"
+  - "ADR-ANTIPATTERN"
 related: 
   - "[[ADR-HTML]]"
   - "[[ADR-CSS]]"

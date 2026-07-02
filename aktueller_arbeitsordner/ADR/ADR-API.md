@@ -3,10 +3,20 @@ title: "ADR-API: External API Integrations & Header Security"
 status: accepted
 date: 2026-05-24
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, api, autocomplete, security, geoapify, zippopotam]
-aliases: ["External API Integrations", "Header Security"]
+tags:
+  - adr
+  - api
+  - autocomplete
+  - security
+  - geoapify
+  - zippopotam
+aliases:
+  - "External API Integrations"
+  - "Header Security"
 related: 
   - "[[ADR-HTML]]"
   - "[[ADR-JS]]"

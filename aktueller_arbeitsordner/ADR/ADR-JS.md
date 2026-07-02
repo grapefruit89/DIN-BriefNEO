@@ -3,10 +3,20 @@ title: "ADR-JS: JavaScript Constraints & 'JS as a Crutch'"
 status: accepted
 date: 2026-05-24
 last-reviewed: 2026-07-02
-deciders: [morit, antigravity]
+deciders:
+  - morit
+  - antigravity
 type: adr
-tags: [adr, js, scripting, event-handling, dom-selection, constraints]
-aliases: ["JavaScript Constraints", "JS as a Crutch"]
+tags:
+  - adr
+  - js
+  - scripting
+  - event-handling
+  - dom-selection
+  - constraints
+aliases:
+  - "JavaScript Constraints"
+  - "JS as a Crutch"
 related: 
   - "[[ADR-HTML]]"
   - "[[ADR-CSS]]"

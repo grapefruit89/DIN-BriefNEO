@@ -38,7 +38,7 @@ Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir
 
 Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern einen perfekten Einstieg zu bieten.
 
-👉 **Zur vollständigen [Dokumenten-Landkarte (DOCUMENTATION-MAP.md)](DOCUMENTATION-MAP.md)**
+👉 **Zur vollständigen [Dokumenten-Landkarte (DOCUMENTATION-MAP.md)](docs/core/DOCUMENTATION-MAP.md)**
 
 Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
@@ -53,4 +53,4 @@ Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
 | **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100% Fitness Pflicht!) → Logging (`log_session.js`) |
 | **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
 
-Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](Guides/longevity-guidelines.md) geprüft werden.
+Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](docs/Guides/longevity-guidelines.md) geprüft werden.

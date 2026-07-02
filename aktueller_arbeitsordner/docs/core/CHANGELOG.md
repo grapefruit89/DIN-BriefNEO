@@ -49,10 +49,10 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 *   **Zustandsdiagramm:** Toast-Queue-Lifecycle in `ADR-FEATURE.md` verankert.
 *   **Netzwerkdiagramm:** Asynchroner Ablauf des Dual-Provider Adressdienstes in `ADR-API.md` integriert.
 *   **YAML Frontmatter:** Obsidian- und KI-kompatible Metadaten-Blöcke an den Anfang aller 7 ADR-Dateien gestellt.
-*   **Guides:** Das zentrale Fachbegriff-Glossar **[glossary.md](Guides/glossary.md)** mit integrierten CSS-Container-Skizzen angelegt.
-*   **Guides:** Der interaktive manuelle QA-Testleitfaden **[testing-guide.md](Guides/testing-guide.md)** für alle Baseline-Features 1 bis 6 erstellt.
+*   **Guides:** Das zentrale Fachbegriff-Glossar **[glossary.md](../Guides/glossary.md)** mit integrierten CSS-Container-Skizzen angelegt.
+*   **Guides:** Der interaktive manuelle QA-Testleitfaden **[testing-guide.md](../Guides/testing-guide.md)** für alle Baseline-Features 1 bis 6 erstellt.
 *   **Entscheidungs-Log:** Das chronologische Logbuch **[DECISION-LOG.md](DECISION-LOG.md)** zur historischen Nachverfolgbarkeit aller Systementscheidungen angelegt.
-*   **Maschinen-Index:** Die Datei **[index.json](index.json)** als maschinenlesbarer Index aller Dokumente angelegt.
+*   **Maschinen-Index:** Die Datei **[index.json](../../build/index.json)** als maschinenlesbarer Index aller Dokumente angelegt.
 
 ### Changed
 *   **README.md:** Zum zentralen Master-Portal und Dokumenten-Wegweiser ausgebaut und Links zu den neuen Guides `DEV-INFO.md` und `README-DB.md` unter den Status & Spezifikationen ergänzt.

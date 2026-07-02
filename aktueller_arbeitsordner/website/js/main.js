@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachGlobalListeners();
     attachFormattingToolbar();
     checkTextOverflow();
+    enforceLineLimits();
     initAddressServices({ onToast: showToast, onSaveDraft: saveDraftData });
 
     // Init Salutation
@@ -243,8 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 200);
     });
   }
-
-
 
   // --- CENTRAL TOAST QUEUE MANAGER (Stacking Prevention with Symmetrical Native Transitions) ---
   const toastQueue = [];
@@ -929,6 +928,93 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     StorageManager.saveDraft('current', draft);
     updateDocumentTitle();
+  }
+
+  // --- HTML LINE LIMITS ENFORCER (Single Line / Max 2 Lines) ---
+  function enforceLineLimits() {
+    const singleLineIds = [
+      'info-name', 'info-street', 'info-city', 'info-tel', 'info-email',
+      'datum', 'anrede', 'grussformel', 'unterschrift',
+      'empfaenger-name', 'empfaenger-firma', 'empfaenger-strasse', 'empfaenger-ort',
+      'absender'
+    ];
+    const maxTwoLinesIds = ['betreff'];
+    const allFields = [...singleLineIds, ...maxTwoLinesIds];
+
+    allFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      // 1. Prevent Enter key and enforce max length
+      el.addEventListener('keydown', (e) => {
+        // Erlaube Navigation, Löschen und Shortcuts
+        const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
+        if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return;
+
+        if (e.key === 'Enter') {
+          if (singleLineIds.includes(id)) {
+            e.preventDefault(); // Never allow Enter
+          } else if (maxTwoLinesIds.includes(id)) {
+            // Allow max 1 newline
+            const text = el.innerText || el.textContent;
+            const newlines = (text.match(/\n/g) || []).length;
+            if (newlines >= 1) {
+              e.preventDefault();
+            }
+          }
+          return;
+        }
+
+        // KISS Max Length Check
+        const maxLength = singleLineIds.includes(id) ? 60 : 120;
+        const currentText = el.textContent || '';
+        
+        if (currentText.length >= maxLength) {
+          const selection = window.getSelection();
+          // Nur blockieren, wenn nicht gerade Text markiert ist (denn der würde ja überschrieben werden)
+          if (!selection.rangeCount || selection.getRangeAt(0).collapsed) {
+            e.preventDefault();
+          }
+        }
+      });
+
+      // 2. Filter Paste (override default contenteditable behavior)
+      el.addEventListener('paste', (e) => {
+        e.preventDefault();
+        let pasteText = (e.originalEvent || e).clipboardData.getData('text/plain');
+        
+        if (singleLineIds.includes(id)) {
+          // Replace all newlines with a space
+          pasteText = pasteText.replace(/[\r\n]+/g, ' ').trim();
+        } else if (maxTwoLinesIds.includes(id)) {
+          // Keep at most 2 lines
+          const lines = pasteText.split(/[\r\n]+/).filter(l => l.trim().length > 0);
+          pasteText = lines.slice(0, 2).join('\n');
+        }
+
+        // Apply KISS Max Length to pasted text
+        const maxLength = singleLineIds.includes(id) ? 60 : 120;
+        const currentText = el.textContent || '';
+        const selection = window.getSelection();
+        let selectionLength = 0;
+        if (selection.rangeCount) {
+          selectionLength = selection.toString().length;
+        }
+        
+        const availableSpace = maxLength - (currentText.length - selectionLength);
+        if (availableSpace <= 0) return; // Kein Platz mehr
+        if (pasteText.length > availableSpace) {
+          pasteText = pasteText.substring(0, availableSpace);
+        }
+
+        // Use modern selection API if possible
+        if (selection.rangeCount) {
+          selection.deleteFromDocument();
+          selection.getRangeAt(0).insertNode(document.createTextNode(pasteText));
+          selection.collapseToEnd();
+        }
+      });
+    });
   }
 
   function loadDraftData() {

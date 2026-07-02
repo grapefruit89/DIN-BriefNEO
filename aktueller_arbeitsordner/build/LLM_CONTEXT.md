@@ -12,7 +12,7 @@ tags: [context, llm, prompt]
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T14:29:28.648Z
+> Generiert am: 2026-07-02T14:42:01.213Z
 > ==============================================================================
 
 
@@ -61,7 +61,7 @@ Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir
 
 Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern einen perfekten Einstieg zu bieten.
 
-👉 **Zur vollständigen [Dokumenten-Landkarte (DOCUMENTATION-MAP.md)](DOCUMENTATION-MAP.md)**
+👉 **Zur vollständigen [Dokumenten-Landkarte (DOCUMENTATION-MAP.md)](docs/core/DOCUMENTATION-MAP.md)**
 
 Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
@@ -76,11 +76,11 @@ Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
 | **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100% Fitness Pflicht!) → Logging (`log_session.js`) |
 | **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
 
-Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](Guides/longevity-guidelines.md) geprüft werden.
+Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](docs/Guides/longevity-guidelines.md) geprüft werden.
 
 
 # ==========================================
-# FILE: DOCUMENTATION-MAP.md
+# FILE: docs/core/DOCUMENTATION-MAP.md
 # ==========================================
 
 ---
@@ -94,28 +94,28 @@ tags: [documentation, map]
 Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Dokumentation in modular verlinkte Single Sources of Truth (SSoTs) gegliedert.
 
 ## 🏛️ Philosophie & Gesetzgebung
-* **[Longevity Guidelines](Guides/longevity-guidelines.md):** Die unverrückbare "Verfassung" für Wartungsfreiheit (Zero-Dependency, 100% Offline-Autarkie).
+* **[Longevity Guidelines](../Guides/longevity-guidelines.md):** Die unverrückbare "Verfassung" für Wartungsfreiheit (Zero-Dependency, 100% Offline-Autarkie).
 * **[Master Lawbook](MASTER-DO-DONT-DEPRECATED.md):** Die zentrale Referenz für alle technologischen Entscheidungen, Verbote und Ersatzstrategien.
-* **[AGENTS.md](../AGENTS.md):** Bindender Vertrag für alle KI-Agenten (Reconciliation, 100% Fitness, Logging).
+* **[AGENTS.md](../../../AGENTS.md):** Bindender Vertrag für alle KI-Agenten (Reconciliation, 100% Fitness, Logging).
 * **[DEV-INFO.md](DEV-INFO.md):** Entwicklerbereich & Feature-Prüfungs-Matrix.
 
 ## 🗺️ Status, Spezifikationen & Guides
 * **[Spezifikation (spec.md)](spec.md):** Die Kernanforderungen der Features und Backlog.
-* **[No-Scroll Techniken](Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
-* **[Testing Guide](Guides/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
+* **[No-Scroll Techniken](../Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
+* **[Testing Guide](../Guides/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
 * **[LLM-First Datenbank-Guide (README-DB.md)](README-DB.md):** Spezifikation der SQLite-DB und MCP-Architektur.
-* **[DIN 5008 Master Data](Guides/din-5008-geometry.md):** SSoT für alle physischen Abstände des Briefs.
+* **[DIN 5008 Master Data](../Guides/din-5008-geometry.md):** SSoT für alle physischen Abstände des Briefs.
 
 ## 🏗️ Architektur-Entscheidungen (ADRs)
-Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](ADR/)** dokumentiert:
-* **[ADR-HTML](ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
-* **[ADR-CSS](ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
-* **[ADR-JS](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
-* **[ADR-API](ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
-* **[ADR-DATA-PERSISTENCE](ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
+Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../ADR/)** dokumentiert:
+* **[ADR-HTML](../ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
+* **[ADR-CSS](../ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
+* **[ADR-JS](../ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
+* **[ADR-API](../ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
+* **[ADR-DATA-PERSISTENCE](../ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
 
 ## 📦 Implementierungsdetails
-* **[SQLite-Vec Integration](docs/implementation/sqlite-vec.md):** Plan für Vektor-Suche.
+* **[SQLite-Vec Integration](../implementation/sqlite-vec.md):** Plan für Vektor-Suche.
 
 
 # ==========================================
@@ -219,7 +219,7 @@ Um die bestmöglichen Ergebnisse zu erzielen, gelten für alle KI-Agenten in die
 
 
 # ==========================================
-# FILE: constitution.md
+# FILE: docs/core/constitution.md
 # ==========================================
 
 ---
@@ -287,7 +287,7 @@ Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängig
 
 
 # ==========================================
-# FILE: Guides/longevity-guidelines.md
+# FILE: docs/Guides/longevity-guidelines.md
 # ==========================================
 
 ---
@@ -423,7 +423,7 @@ Jede Code-Modifikation wird im Code-Review unnachgiebig auf diese Richtlinien ge
 Da Web-Standards stetig weiterentwickelt werden, empfehlen wir eine Überprüfung dieser Richtlinien in regelmäßigen Abständen (z. B. alle 2 Jahre), um neue, stabile W3C-Standards in das Projekt aufzunehmen.
 
 # ==========================================
-# FILE: MASTER-DO-DONT-DEPRECATED.md
+# FILE: docs/core/MASTER-DO-DONT-DEPRECATED.md
 # ==========================================
 
 ---
@@ -678,7 +678,7 @@ No change takes effect until all five steps are complete.
 
 
 # ==========================================
-# FILE: spec.md
+# FILE: docs/core/spec.md
 # ==========================================
 
 ---
@@ -690,7 +690,7 @@ tags: [documentation, spec, requirements]
 # Spezifikation (Spec) — DIN-BriefNEO Baseline Features
 
 > [!NOTE]
-> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen [DIN 5008 Geometry Master Data Guide](file:///c:/Users/morit/Documents/Obsidian_Main/Websites%20&%20Software/DIN-Brief%20Neo/aktueller_arbeitsordner/Guides/din-5008-geometry.md). Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
+> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen [DIN 5008 Geometry Master Data Guide](../Guides/din-5008-geometry.md). Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
 
 Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Feature ist nach dem **Spec-Kit-Modell** in Anforderung (`Specify`), Plan (`Plan`) und Aufgaben (`Tasks`) unterteilt.
 

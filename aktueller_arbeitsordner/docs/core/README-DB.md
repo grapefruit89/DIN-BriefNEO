@@ -120,11 +120,11 @@ Das Skript löscht die alte DB-Datei zur Konsistenzsicherung und kompiliert die 
 
 ## 🔗 Verweise
 *   ⚖️ **[MASTER-DO-DONT-DEPRECATED.md](MASTER-DO-DONT-DEPRECATED.md):** Unser unumstößliches Gesetzbuch für technologische Verbote.
-*   📚 **[longevity-guidelines.md](Guides/longevity-guidelines.md):** Die übergeordnete W3C-Verfassung.
+*   📚 **[longevity-guidelines.md](../Guides/longevity-guidelines.md):** Die übergeordnete W3C-Verfassung.
 *   🛠️ **[DEV-INFO.md](DEV-INFO.md):** Unsere 25-Feature Diagnose- und Feature-Erkennungs-Matrix.
 
 
 ## 🔍 Aktueller Status der Vektor-Suche (Semantic Search)
 Es ist geplant, die reine FTS5-Volltextsuche durch eine **Hybrid Search (Volltext + semantische Suche)** zu ersetzen.
 Dazu soll die Erweiterung `sqlite-vec` integriert werden, welche die Speicherung von Embeddings und Vektor-Distanzen nativ in SQLite erlaubt.
-Der detaillierte Implementierungsplan liegt unter: **[docs/implementation/sqlite-vec.md](docs/implementation/sqlite-vec.md)**.
+Der detaillierte Implementierungsplan liegt unter: **[docs/implementation/sqlite-vec.md](../implementation/sqlite-vec.md)**.

@@ -24,7 +24,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Thematische ADR-Struktur eingeführt
 *   **Entscheidung:** Aufteilung der Architektur-Entscheidungen in sieben hochgradig modulare, thematisch sortierte Dokumente (HTML, CSS, JS, API, Antipattern, Feature, Tech-Stack) mit gegenseitiger bidirektionaler Verknüpfung.
 *   **Grund:** Bessere Übersichtlichkeit, Vermeidung eines unlesbaren Riesen-Dokuments, hervorragende Maschinenlesbarkeit für LLMs.
-*   **Quelle:** Ordner `[ADR/](ADR/)`
+*   **Quelle:** Ordner `[ADR/](../ADR/)`
 *   **Status:** Aktiviert
 
 ---
@@ -72,7 +72,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – YAML Frontmatter & JSON-Index
 *   **Entscheidung:** Ausstatten aller Architektur-Dateien mit standardisiertem YAML Frontmatter und Anlage eines zentralen Maschinen-Index `index.json`.
 *   **Grund:** Ermöglicht die automatische, blitzschnelle Indexierung des gesamten Repositories für Obsidian-Notes und AI-LLM-Ingestion mit einem einzigen Lesevorgang.
-*   **Quelle:** [ADR/](ADR/), [index.json](index.json)
+*   **Quelle:** [ADR/](../ADR/), [index.json](../../build/index.json)
 *   **Status:** Aktiviert
 
 ---
@@ -80,7 +80,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-24 – Etablierung des Entwicklerbereichs & Feature-Prüfung (DEV-INFO.md)
 *   **Entscheidung:** Schaffung einer dedizierten Diagnose-Referenz `DEV-INFO.md` zur systematischen Erkennung von 14 W3C-Living-Standards und experimentellen Features auf Basis von `check_readiness.js`.
 *   **Grund:** Bietet vollständige Transparenz über den Reifegrad modernster Web-APIs in der Chrome 147/148/149+ Zielumgebung und liefert ein robustes, kopierbares F12-Konsole-Skript.
-*   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [index.json](index.json)
+*   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [index.json](../../build/index.json)
 *   **Status:** Aktiviert
 
 ---
@@ -96,7 +96,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ### 2026-05-25 – Einführung der LLM-First SQLite-Datenbank-Architektur & README-DB.md
 *   **Entscheidung:** Etablierung eines serverlosen Hybrid-Datenbankmodells zur KI-optimierten Aufbereitung des gesamten Projektwissens. Die Markdown-Dateien bleiben die Quell-Ebenen (Git-Master), während eine SQLite-Datenbank `docs.db` automatisch über ein Node.js-Kompilierskript `build_db.js` generiert und über einen Model Context Protocol (MCP) Server bereitgestellt wird. Spezifizierung der Architektur im Dokument `README-DB.md`.
 *   **Grund:** Beseitigt Token-Engpässe, überwindet fehlende Indexierungsstrukturen unstrukturierter Verzeichnisse und befähigt KIs (z. B. Claude via Desktop-MCP), relationale, hocheffiziente Suchen (inkl. FTS5-Volltextsuche) auf der Doku auszuführen, anstatt ganze Dateien einlesen zu müssen.
-*   **Quelle:** [[README-DB|README-DB.md]], [index.json](index.json), `build_db.js`, `github_action_workflow.txt`
+*   **Quelle:** [[README-DB|README-DB.md]], [index.json](../../build/index.json), `build_db.js`, `github_action_workflow.txt`
 *   **Status:** Aktiviert
 
 ---
@@ -289,4 +289,4 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 - **2026-06-30 - Optionale Layout-Bl�cke (Zero-JS)**: Postvermerk, Anlagen und Verteiler wurden als CSS-only Toggle (via :has) in die Sidebar integriert. Generalisierbarkeit: Komplexe UI-Zust�nde lassen sich mit nativen CSS :has() und Checkboxen elegant und robust ohne JS abbilden, was die App-Logik extrem vereinfacht.
 
-- **2026-06-30 - Canvas Signature Compressor (Zero-JS/Offline)**: Ein neues Feature zum Einf�gen grafischer Unterschriften. Zur Schonung des 5MB localStorage Limits wird ein unsichtbarer Canvas-Kompressor genutzt. Generalisierbarkeit: Gro�e Bin�rdaten lassen sich im Browser per Canvas extrem ressourcenschonend f�r den localStorage aufbereiten (Zero-Server-Architektur).
+- **2026-06-30 - Canvas Signature Compressor (Zero-JS/Offline)**: Ein neues Feature zum Einf�gen grafischer Unterschriften. Zur Schonung des 5MB localStorage Limits wird ein unsichtbarer Canvas-Kompressor genutzt. Generalisierbarkeit: Gro�e Bin�rdaten lassen sich im Browser per Canvas extrem ressourcenschonend f�r den localStorage aufbereiten (Zero-Server-Architektur).

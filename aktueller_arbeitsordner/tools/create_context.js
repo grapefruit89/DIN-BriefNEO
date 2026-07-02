@@ -1,17 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT_FILE = 'LLM_CONTEXT.md';
+const OUTPUT_FILE = 'build/LLM_CONTEXT.md';
 
 // Liste der absolut kritischen Kern-Dokumente für LLMs
 const CORE_FILES = [
     'README.md',
-    'DOCUMENTATION-MAP.md',
+    'docs/core/DOCUMENTATION-MAP.md',
     '../AGENTS.md',
-    'constitution.md',
-    'Guides/longevity-guidelines.md',
-    'MASTER-DO-DONT-DEPRECATED.md',
-    'spec.md'
+    'docs/core/constitution.md',
+    'docs/Guides/longevity-guidelines.md',
+    'docs/core/MASTER-DO-DONT-DEPRECATED.md',
+    'docs/core/spec.md'
 ];
 
 const PREAMBLE = `---

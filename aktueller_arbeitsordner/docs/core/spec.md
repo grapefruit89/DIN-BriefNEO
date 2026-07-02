@@ -7,7 +7,7 @@ tags: [documentation, spec, requirements]
 # Spezifikation (Spec) — DIN-BriefNEO Baseline Features
 
 > [!NOTE]
-> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen [DIN 5008 Geometry Master Data Guide](file:///c:/Users/morit/Documents/Obsidian_Main/Websites%20&%20Software/DIN-Brief%20Neo/aktueller_arbeitsordner/Guides/din-5008-geometry.md). Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
+> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen [DIN 5008 Geometry Master Data Guide](../Guides/din-5008-geometry.md). Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
 
 Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Feature ist nach dem **Spec-Kit-Modell** in Anforderung (`Specify`), Plan (`Plan`) und Aufgaben (`Tasks`) unterteilt.
 

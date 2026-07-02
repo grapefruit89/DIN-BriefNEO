@@ -1,27 +1,60 @@
 ---
-title: ADR - Positionierung des Betrefffeldes
-status: active
-tags: [obsidian, adr, ui, feature, betreff, print, pdf]
+title: "ADR-BETREFF: Positionierung des Betrefffeldes & PDF-Export"
+status: accepted
+date: 2026-07-02
+deciders: [morit, antigravity]
+tags: [adr, ui, feature, betreff, print, pdf]
 aliases: ["Betreff", "Falzmarken", "PDF-Export"]
+related: 
+  - "[[ADR-ANTIPATTERN]]"
+  - "[[longevity-guidelines]]"
 ---
 
-# ADR: Betreff-Logik, Falzmarken und dynamischer PDF-Titel
+# ADR-BETREFF: Betreff-Logik, Falzmarken und dynamischer PDF-Titel
 
-## Kontext und Problem
-1. **Falzmarken-Kollision:** Die Falzmarken (`.din-mark`) in `layout.css` waren versehentlich auf `width: 100%` gesetzt. Dadurch zogen sie sich als gestrichelte Linien quer über das gesamte Dokument und haben insbesondere den **[[Betreff]]** optisch durchschnitten.
-2. **PDF-Export Dateiname:** Wenn der Nutzer den Brief via `window.print()` als PDF speichert (STRG + P -> "Als PDF speichern"), war der Standarddateiname der generische Name der Webseite. Gewünscht war eine automatische und dynamische Benennung nach dem Muster `YYYY-MM-DD_{empfänger} {Betreff}.pdf`.
+## 1. Context & Problem
 
-## Entscheidung
+**Fehlerhafte Falzmarken und statische PDF-Exporte.**
+- Die Falzmarken (`.din-mark`) kollidierten optisch mit dem Betrefffeld, da sie als 100% breite Linien durch das Dokument schnitten.
+- Beim nativen PDF-Export (`window.print()`) fehlte ein dynamischer Dateiname. Der Standardname der Webseite wurde übernommen, was für abgelegte DIN-Briefe unzureichend ist.
+- Es wird eine Lösung benötigt, die sowohl die optischen DIN-Normen einhält als auch einen sauberen Datei-Workflow ohne zusätzliche Bibliotheken ermöglicht.
 
-### 1. Falzmarken (CSS)
-Die Falzmarken (`.din-mark`) wurden chirurgisch auf `width: calc(8 / 210 * 100cqw);` gekürzt. Sie ragen nun exakt 8mm vom linken Rand herein und schneiden den **[[Betreff]]** nicht mehr durch.
+## 2. Considered Options
 
-### 2. Dynamischer PDF-Titel (JavaScript)
-Es wurde eine zentrale Funktion `updateDocumentTitle()` in der `main.js` implementiert.
-*   **Trigger:** Sie wird bei jedem Aufruf von `saveDraftData()` (also asynchron beim Tippen) und `loadDraftData()` (beim Laden) ausgeführt.
-*   **Datenquellen:** Sie liest in Echtzeit `#betreff`, `#empfaenger-firma` und `#empfaenger-name` aus.
-*   **Datum:** Gemäß der strikten Regel in [[ADR-ANTIPATTERN]] wird nach Möglichkeit **niemals** das veraltete `Date()` Objekt verwendet, sondern streng die W3C **Temporal API** (`Temporal.Now.plainDateISO().toString()`) genutzt. Sollte Temporal (wie auf manchen iOS Geräten ohne Polyfill) nicht greifen, sichert ein Date() Fallback die Funktionalität.
-*   **Verhalten:** Das `<title>` Tag im HTML wird live manipuliert. Das zwingt den Chrome/Edge Print-Dialog beim "Als PDF speichern" dazu, diesen String als Standard-Dateinamen anzubieten.
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Native Print) | `document.title` live manipulieren für PDF-Namen | Zero JS-Libs, nutzt nativen Druckdialog | Nur beim direkten "Als PDF speichern" verfügbar | Keine | **Gewählt** |
+| **Option B** (Blob Download) | PDF über `html2pdf` o.ä. generieren und Blob herunterladen | Volle Kontrolle über Dateinamen | Erfordert JS-Libraries, bricht Zero-Dependency-Regel | Hohe Wartungskosten | Abgelehnt |
 
-## Konsequenzen
-Jede zukünftige Logik, die sich auf den **[[Betreff]]** oder den Print-Dialog bezieht, muss dieses ADR kennen. Jegliche Versuche, den Dateinamen anders zu erzwingen (etwa via komplizierter `Blob` Erzeugung und unsichtbaren Download-Links) sind strengstens untersagt, da wir dem einfachen WYSIWYG + Print Paradigma treu bleiben.
+## 3. Decision
+
+**Wir haben uns für Option A (Native Print) und CSS-Kürzung entschieden.**
+
+### Begründung
+- Die Falzmarken (`.din-mark`) wurden im CSS auf exakt `8mm` (`width: calc(8 / 210 * 100cqw);`) gekürzt.
+- Für den PDF-Namen wird in `main.js` der `<title>` dynamisch generiert: `YYYY-MM-DD_{empfänger} {Betreff}`.
+- Zur Datumsgenerierung wird primär die W3C **Temporal API** genutzt (siehe [[ADR-ANTIPATTERN]]).
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Perfekte Optik:** Der Betreff wird nicht mehr durchschnitten.
+- **Beste UX:** Native Nutzung des Browser-Druckdialogs mit perfektem Dateinamen-Vorschlag.
+- **Zero-Dependency:** Komplett mit Standard-APIs gelöst.
+
+### Risiken & Negative Auswirkungen
+- Fallback-Pflicht: `Date()` muss als Fallback vorhanden sein, falls `Temporal` auf alten iOS-Geräten fehlt.
+
+### Langfristige Auswirkungen
+- **Architektur-Dogma:** Kein Einsatz von Blob-Libraries (`html2pdf` etc.) für PDF-Exporte gestattet.
+
+## 5. Implementation & Verification
+
+- **CSS:** Kürzung der Falzmarken in `layout.css` implementiert.
+- **JS:** `updateDocumentTitle()` läuft asynchron bei Eingaben und setzt `<title>`.
+- **Regeln:** Native API-Nutzung ist im Antipattern-Catalog manifestiert.
+
+## 6. Related Documents
+
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]

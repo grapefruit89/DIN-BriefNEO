@@ -1,63 +1,86 @@
 ---
-title: "ADR-000: [Titel der Architektur-Entscheidung]"
-status: draft | proposed | accepted | rejected | deprecated
+title: "ADR-XXX: [Kurzer, präziser Titel der Entscheidung]"
+status: draft | proposed | accepted | deprecated | rejected
 date: YYYY-MM-DD
-deciders: [Name 1, Name 2]
-tags: [adr, template, architektur]
-aliases: ["ADR Template", "Architektur Vorlage"]
-related: ["[[ADR-001]]", "[[testing-guide]]"]
+deciders: [morit, antigravity]
+tags: [adr, css, js, architecture, feature, ...]
+aliases: ["Kurzer Alias", "Weiterer Alias"]
+related: 
+  - "[[ADR-YYY]]"
+  - "[[longevity-guidelines]]"
+  - "[[constitution]]"
 ---
 
-# Architectural Decision Record (ADR): [Titel]
+# ADR-XXX: [Kurzer, präziser Titel]
 
-> [!info] Info-Block (Hintergrund)
-> Dies ist ein Template. Nutze diese Callouts (`> [!info]`, `> [!warning]`, `> [!danger]`, `> [!tip]`), um wichtige kontextuelle Informationen für andere Entwickler oder KI-Agenten hervorzuheben. Sie verbessern die Lesbarkeit enorm.
+## 1. Context & Problem
 
-## 1. Kontext & Problemstellung
+**Kurze, präzise Beschreibung des Problems (max. 5–6 Sätze).**
 
-Beschreibe hier das Problem, das gelöst werden muss. Verlinke gerne auf andere Dokumente mit Wiki-Links, z. B. [[longevity-guidelines]].
+- Was ist das konkrete Problem?
+- Warum ist eine Entscheidung notwendig?
+- Welcher Kontext ist relevant?
 
-<details>
-<summary>Historischer Kontext (Klicken zum Ausklappen)</summary>
-Nutze das `<details>`-Tag, um sehr lange oder sekundäre Erklärungen zu verstecken, damit das Dokument beim ersten Überfliegen übersichtlich bleibt.
-</details>
+> [!info] Hintergrund (optional)
+> Nur bei Bedarf für zusätzlichen Kontext. Nicht übertreiben.
 
-## 2. Betrachtete Optionen
+## 2. Considered Options
 
-Nutze Tabellen, um verschiedene technische Lösungswege strukturiert gegenüberzustellen:
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** | ... | ... | ... | ... | ... |
+| **Option B** | ... | ... | ... | ... | ... |
+| **Option C** | ... | ... | ... | ... | ... |
 
-| Option | Vorteil | Nachteil |
-| :--- | :--- | :--- |
-| **Option A** (Native API) | Zero Dependencies, rasend schnell | Braucht modernen Browser (Chrome 148+) |
-| **Option B** (npm Library) | Abwärtskompatibel | Bläht das Bundle auf, Sicherheitsrisiko |
+## 3. Decision
 
-## 3. Die Entscheidung
-
-> [!success] Wir haben uns für **Option A** entschieden.
+**Wir haben uns für Option X entschieden.**
 
 ### Begründung
-Nutze hier einfache Checklisten, um Argumente oder Anforderungen abzuhaken:
-- [x] Entspricht der Zero-JS-Philosophie
-- [x] Erfüllt den 100% Fitness Score
-- [ ] Unterstützt veraltete IE11-Browser (bewusst ignoriert)
 
-## 4. Architektur-Diagramm
+- Punkt 1 (kurz & präzise)
+- Punkt 2
+- Punkt 3
 
-Nutze Mermaid-Diagramme, um Workflows oder Datenflüsse visuell darzustellen (anstatt sie nur in Textform zu erklären):
+## 4. Consequences
 
-```mermaid
-graph TD
-    A[Nutzer klickt] --> B{Hat Browser Feature X?}
-    B -- Ja --> C[Nutze native Web API]
-    B -- Nein --> D[Zeige sanften Fallback]
-```
+### Positive Auswirkungen
+- ...
+- ...
 
-## 5. Feature Checks (Living Documentation)
+### Risiken & Negative Auswirkungen
+- ...
+- ...
 
-Falls diese Entscheidung auf modernen Browser-APIs basiert, deklariere den nativen Feature-Check hier. Der Compiler (`tools/build_healthcheck.js`) zieht diesen Block automatisch heraus und baut daraus die Test-Suite für die Website:
+### Langfristige Auswirkungen
+- ...
+
+## 5. Implementation & Verification
+
+- Was wurde konkret umgesetzt?
+- Wie wird die Einhaltung der Entscheidung sichergestellt? (z.B. durch Reconciliation, Code-Review, Tests, Antipattern-Regeln)
+- Gibt es offene Punkte?
+
+## 6. Related Documents
+
+- [[longevity-guidelines]]
+- [[ADR-YYY]]
+- [[constitution]]
+
+---
+
+### Feature Checks (falls relevant)
 
 ```javascript feature-check
-// Erklärung: Dieser Block wird aus dem Markdown gelesen. Er darf keinen echten Code ausführen, 
-// sondern nur die 'f()'-Funktion für den Healthcheck aufrufen!
-// Beispiel: f("Feature Name", typeof globalThis.Feature !== "undefined", "Chrome 120", "Produktiv")
+// f("Feature Name", Bedingung, "Chrome XXX", "Status")
 ```
+
+---
+
+## Hinweise zur Nutzung dieses Templates
+
+- **Frontmatter ist verpflichtend** und muss vollständig ausgefüllt werden.
+- Der Abschnitt **"Context & Problem"** soll kurz und fokussiert bleiben.
+- Die **Entscheidung** muss klar und unmissverständlich formuliert sein.
+- Redundanzen zu `longevity-guidelines.md` und `constitution.md` vermeiden — stattdessen verlinken.
+- Jede ADR sollte **eine klare Entscheidung** treffen, keine Essays schreiben.

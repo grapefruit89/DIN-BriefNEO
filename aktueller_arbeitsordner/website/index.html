@@ -190,14 +190,13 @@
             <div id="empfaenger-ort" contenteditable="plaintext-only" placeholder="PLZ & Ort"></div>
           </din-anschriftfeld>
 
-          <!-- INFOBLOCK (Right side metadata block) -->
-          <din-infoblock id="infoblock">
-            <div style="font-weight: 600; color: oklch(35% 0 0);">Ihr Zeichen:</div>
-            <div id="info-ihrzeichen" contenteditable="plaintext-only" placeholder="-"></div>
-            <div style="font-weight: 600; color: oklch(35% 0 0); margin-top: 4px;">Unser Zeichen:</div>
-            <div id="info-unserzeichen" contenteditable="plaintext-only" placeholder="NEO-2026"></div>
-            <div style="font-weight: 600; color: oklch(35% 0 0); margin-top: 4px;">Telefon:</div>
-            <div id="info-tel" contenteditable="plaintext-only" placeholder="0123 / 456789"></div>
+          <!-- INFOBLOCK (Right side metadata block - Privatbrief Standard) -->
+          <din-infoblock id="infoblock" style="line-height: 1.5; color: var(--text-primary);">
+            <div id="info-name" contenteditable="plaintext-only" placeholder="Vor- und Nachname"></div>
+            <div id="info-street" contenteditable="plaintext-only" placeholder="Straße und Hausnummer"></div>
+            <div id="info-city" contenteditable="plaintext-only" placeholder="PLZ und Ort"></div>
+            <div style="margin-top: 8px;" id="info-tel" contenteditable="plaintext-only" placeholder="Telefon (optional)"></div>
+            <div id="info-email" contenteditable="plaintext-only" placeholder="E-Mail (optional)"></div>
           </din-infoblock>
 
 

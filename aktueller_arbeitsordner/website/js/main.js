@@ -1224,3 +1224,30 @@ document.getElementById('btn-copy-json')?.addEventListener('click', async (e) =>
   setTimeout(() => { btn.textContent = originalText; }, 2000);
 });
 
+
+// JSON Import (Dev Tool)
+document.getElementById('btn-paste-json')?.addEventListener('click', async (e) => {
+  const btn = e.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Füge ein...';
+  try {
+    const text = await navigator.clipboard.readText();
+    const state = JSON.parse(text);
+    for (const key of Object.keys(state)) {
+      const elem = document.getElementById(key);
+      if (elem) {
+        if (key === 'brieftext') {
+          if (elem.setHTML) elem.setHTML(state[key]);
+          else elem.innerHTML = state[key];
+        } else {
+          elem.innerHTML = state[key];
+        }
+      }
+    }
+    btn.textContent = '✅ Eingefügt!';
+  } catch (err) {
+    btn.textContent = '❌ Fehler';
+    console.error(err);
+  }
+  setTimeout(() => { btn.textContent = originalText; }, 2000);
+});

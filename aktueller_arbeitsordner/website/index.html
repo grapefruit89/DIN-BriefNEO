@@ -2,7 +2,7 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/variables.css" />
@@ -298,7 +298,7 @@
 
 <!-- DEV MODE POPOVER -->
 <div id="dev-popover" popover="auto" class="no-print">
-  <button id="btn-copy-json" class="btn" style="width: 100%; margin-bottom: 10px;">Zustand als JSON kopieren</button>
+  <div style="display: flex; gap: 8px; margin-bottom: 10px;"><button id="btn-copy-json" class="btn" style="flex: 1;">JSON Kopieren</button><button id="btn-paste-json" class="btn primary" style="flex: 1;">JSON Einfügen</button></div>
   <h3>??? DIN-Brief Neo Diagnostics</h3>
   <p>System-Zeit: <span id="diag-timestamp"></span></p>
   <table>
@@ -306,4 +306,6 @@
     <tbody id="diag-results"></tbody>
   </table>
 </div>
+
+
 

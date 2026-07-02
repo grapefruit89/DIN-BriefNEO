@@ -1,117 +1,54 @@
----
-title: Modern CSS Features ab Chrome 148+
-status: active
-tags: [obsidian, documentation, guide, manual, css]
-aliases: ["Chrome Modern CSS", "CSS Features"]
----
+# Modern CSS Features (Chrome 148+ Baseline)
 
-# Modern CSS Features ab Chrome 148+
+Dieses Dokument listet die modernen CSS-Features auf, die im Projekt **DIN-Brief Neo** verwendet werden. Da die App eine strikte Chrome 148+ (Edge/Opera äquivalent) Engine voraussetzt, können wir auf Polyfills und Fallbacks verzichten und hochmoderne Web-Plattform-Features nativ nutzen.
 
-> [!important] Chrome 148+ Exklusivität
-> Da die Anwendung exklusiv für moderne Browser-Installationen ab Chrome 148+ entwickelt wird, können wir modernste APIs einsetzen. Dieses Dokument dient als Entwicklungs-Referenz für die erlaubten und empfohlenen Features.
+## 1. Farbthemen & Design Tokens
 
----
+### 1.1 `light-dark()` Funktion
+Eine CSS-Funktion, die abhängig vom berechneten `color-scheme` des Elements entweder einen hellen oder dunklen Farbwert zurückgibt.
 
-## 1. Hell-/Dunkelmodus mit `light-dark()`
-Keine JavaScript-Klassen-Toggles oder doppelte CSS-Regelsätze mehr. Wir definieren unsere Themes nativ über Custom Properties:
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Wir nutzen dies intensiv für unseren nativen Dark Mode ohne JavaScript-Klassen-Toggling auf jedem Element.
 
-```css
-:root {
-  /* Browser anweisen, beide Farbschemen zu unterstützen */
-  color-scheme: light dark;
+### 1.2 `oklch()` Farbraum
+Ein wahrnehmungsgerechter Farbraum, der konsistente Helligkeitsstufen (Lightness) und Sättigungen (Chroma) über alle Farbtöne (Hue) hinweg bietet.
 
-  /* Farbräume dynamisch zuweisen */
-  --bg-primary: light-dark(#ffffff, #121212);
-  --text-primary: light-dark(#111111, #eeeeee);
-  --border-color: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.15));
-}
-```
+> **Relevanz für DIN-BriefNEO:** **Mittel**. Wird vereinzelt für extrem präzise Schatten und sanfte Grauabstufungen in der Sidebar genutzt, um ein Premium-Gefühl zu erzeugen.
 
 ---
 
-## 2. Der `oklch()` Farbraum
-Für moderne Farbverläufe und barrierefreie Kontraste nutzen wir OKLCH. Es bietet im Vergleich zu HEX oder RGB einen wahrnehmungsbasierten Farbraum, in dem Helligkeitsänderungen konsistent wirken.
+## 2. Layout & Responsiveness
 
-```css
-:root {
-  /* oklch(Luminanz Chroma Farbton) */
-  --accent-color: oklch(65% 0.25 140); /* Leuchtendes, sattes Grün */
-  --accent-hover: oklch(60% 0.23 140);
-  --danger-color: oklch(62% 0.22 28);  /* Sattes Signalrot */
-}
-```
+### 2.1 `container-type: size` + Container-Einheiten (`cqw` / `cqh`)
+Container Queries erlauben es, dass sich Elemente an der Größe ihres *Containers* anstatt des Viewports orientieren. `cqw` und `cqh` sind prozentuale Einheiten bezogen auf diesen Container.
 
----
+> **Relevanz für DIN-BriefNEO:** **Extrem Hoch**. Das ist das Herzstück unseres No-Scroll-Layouts! Der Briefbogen (`<din-a4>`) skaliert sich dynamisch in den verfügbaren Platz. Alle DIN 5008 Abstände (wie Falzmarken) werden in `cqh` und `cqw` berechnet, damit das Blatt stufenlos zoombar ist, ohne dass die Maßstäbe brechen.
 
-## 3. CSS Anchor Positioning
-Tooltips und Dropdown-Menüs können im Markup frei platziert (z. B. am Ende des Bodys) und über CSS relativ an ein anderes Element verankert werden, ohne JavaScript zu bemühen:
+### 2.2 `field-sizing: content`
+Erlaubt Input-Feldern und Textareas, ohne JavaScript-Hacks automatisch mit ihrem Inhalt mitzuwachsen.
 
-```css
-/* Der Auslöser */
-#btn-open-menu {
-  anchor-name: --menu-trigger;
-}
-
-/* Das Popover / Tooltip */
-#dropdown-menu {
-  position: absolute;
-  position-anchor: --menu-trigger;
-  top: anchor(bottom);
-  left: anchor(left);
-  margin-top: 4px;
-}
-```
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Perfekt für kleine, editierbare Bereiche (wie den Betreff), bei denen wir kein `contenteditable` nutzen, aber trotzdem ein Auto-Grow-Verhalten brauchen.
 
 ---
 
-## 4. `field-sizing: content`
-Ideal für editierbare Formulare oder den Fließtext des Briefes. Eingabefelder passen ihre Größe dynamisch der Textmenge an, ohne dass das Layout springt.
+## 3. Interaktion & UI
 
-```css
-textarea, input[type="text"], [contenteditable] {
-  field-sizing: content;
-  min-width: 100px;
-}
-```
+### 3.1 `:has()` Pseudo-Klasse
+Der CSS-Parent-Selector. Erlaubt es, ein Elternelement basierend auf seinem Inhalt (Kinder) zu stylen.
 
----
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Wird genutzt, um z.B. Warn-Rahmen um den Briefkern zu zeichnen, falls eines der inneren Kinder (wie der Text) einen Überlauf (`overflow`) erzeugt.
 
-## 5. Die `:has()` Pseudo-Klasse (Parent Selector)
-Die mächtigste CSS-Erweiterung der letzten Jahre. Sie ermöglicht es uns, übergeordnete Elemente basierend auf dem Zustand ihrer Kinder zu stylen:
+### 3.2 Popover API (`popover`)
+Ein nativer Weg, um UI-Elemente über den Rest der Seite zu legen (Top-Layer), inklusive Light-Dismiss (Schließen durch Klick daneben) und ESC-Taste-Support, völlig ohne z-index-Kämpfe.
 
-```css
-/* Ändert die Hintergrundfarbe des Viewports, wenn die Guides-Checkbox ausgewählt ist */
-#paper-viewport:has(#state-guides:checked) din-a4 {
-  --guide-opacity: 0.15;
-}
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Wird für die schwebende "WhatsApp-Style" Formatierungsleiste (Fett, Kursiv) genutzt, die über dem Text auftaucht.
 
-/* Sidebar verkleinern, wenn ein Toggle aktiv ist */
-#app-shell:has(#sidebar-collapse:checked) {
-  grid-template-columns: 80px 1fr;
-}
-```
+### 3.3 CSS Anchor Positioning
+Ermöglicht das absolute Positionieren eines Elements (z.B. ein Tooltip) *relativ* zu einem anderen "Anker"-Element, ohne dass sie im DOM verschachtelt sein müssen.
+
+> **Relevanz für DIN-BriefNEO:** **Niedrig (Aktuell)**. Zukünftig extrem spannend, um Dropdowns (wie bei der Adress-Autovervollständigung) präzise an ein `contenteditable`-Feld zu heften, ohne den Layout-Flow des DIN-Briefs zu stören.
 
 ---
 
-## 6. HTML Popover API & Invoker Commands
-Einblenden und Schließen von Menüs und Dialogen ohne eine einzige Zeile JavaScript-EventListener:
+## Feature-Stabilität & Prüfung
 
-```html
-<!-- Der Auslöser -->
-<button popovertarget="debug-menu">🛠️ Debug-Menü</button>
-
-<!-- Das Popover-Element -->
-<div id="debug-menu" popover>
-  <h4>Entwickler-Werkzeuge</h4>
-  <p>Status: Aktiv</p>
-</div>
-```
-
-
-## Feature Checks
-```javascript feature-check
-f("CSS @scope (Isolation)", typeof CSSScopeRule !== "undefined", "Chrome 118", "Future-Proof"),
-f("CSS Anchor Positioning", typeof CSS !== "undefined" && CSS.supports && CSS.supports("anchor-name: --foo"), "Chrome 125", "Future-Proof"),
-f("CSS light-dark()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: light-dark(black, white)"), "Chrome 123", "Produktiv"),
-f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: oklch(from red l c h)"), "Chrome 119", "Produktiv")
-```
+Da wir auf Engine-Version **Chrome 148+** (bzw. 149+) setzen, sind **alle oben genannten Features stabil verfügbar** und benötigen keine Prefix-Hacks oder Polyfills. Ein manueller Feature-Check per JavaScript (wie in alten Versionen dieses Dokuments) ist unnötig und entfernt worden, da wir eine harte Engine-Grenze als Vorbedingung für die Nutzung der Applikation definieren.

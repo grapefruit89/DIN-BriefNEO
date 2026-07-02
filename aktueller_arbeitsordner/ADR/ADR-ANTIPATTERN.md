@@ -1,11 +1,19 @@
 ---
-title: "Architectural Decision Record (ADR): Forbidden Practices & Antipatterns"
+title: "ADR-ANTIPATTERN: Forbidden Practices & Antipatterns"
 status: accepted
 date: 2026-05-24
-deciders: morit, antigravity
-tags: [obsidian, adr, antipattern, rules, boundaries, security, local-context]
-aliases: ["Architectural Decision Record (ADR): Forbidden Practices & Antipatterns"]
-related: ["[[ADR-HTML]]", "[[ADR-CSS]]", "[[ADR-JS]]", "[[ADR-API]]", "[[longevity-guidelines]]"]
+last-reviewed: 2026-07-02
+deciders: [morit, antigravity]
+type: adr
+tags: [adr, antipattern, rules, boundaries, security, local-context]
+aliases: ["Architectural Decision Record (ADR): Forbidden Practices & Antipatterns", "ADR-ANTIPATTERN"]
+related: 
+  - "[[ADR-HTML]]"
+  - "[[ADR-CSS]]"
+  - "[[ADR-JS]]"
+  - "[[ADR-API]]"
+  - "[[longevity-guidelines]]"
+project: DIN-BriefNEO
 ---
 
 # Architectural Decision Record (ADR): Forbidden Practices & Antipatterns

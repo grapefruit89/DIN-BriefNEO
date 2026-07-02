@@ -1,91 +1,65 @@
 ---
-title: "ADR: External API Integrations & Header Security"
+title: "ADR-API: External API Integrations & Header Security"
 status: accepted
 date: 2026-05-24
-deciders: morit, antigravity
-tags: [obsidian, adr, api, autocomplete, security, photon, geoapify, zippopotam]
-aliases: ["External API Integrations & Header Security"]
-related: ["[[ADR-HTML]]", "[[ADR-JS]]", "[[ADR-FEATURE]]", "[[longevity-guidelines]]"]
+last-reviewed: 2026-07-02
+deciders: [morit, antigravity]
+type: adr
+tags: [adr, api, autocomplete, security, geoapify, zippopotam]
+aliases: ["External API Integrations", "Header Security"]
+related: 
+  - "[[ADR-HTML]]"
+  - "[[ADR-JS]]"
+  - "[[ADR-FEATURE]]"
+  - "[[longevity-guidelines]]"
+project: DIN-BriefNEO
 ---
 
-# Architectural Decision Record (ADR): External API Integrations & Header Security
+# ADR-API: External API Integrations & Header Security
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**Sichere, serverlose Adress-Vervollständigung.**
+- Viele Autocomplete-Lösungen (wie Google Places) benötigen dicke SDKs und zwingen Nutzer zur Kreditkartenangabe.
+- DIN-BriefNEO benötigt ein schnelles, datenschutzkonformes API-Konzept, das vollständig im lokalen Kontext (`file:///`) läuft, ohne Backend-Server.
+- API-Keys dürfen nicht via URL-Parameter geleakt werden.
 
-> [!info] Hintergrund
-> Eine effiziente, datenschutzkonforme und reibungsfreie Adress-Vervollständigung ist ein zentrales Komfortmerkmal. Viele gebräuchliche Autocomplete-Lösungen (wie die Google Places API) erfordern jedoch die Angabe von Kreditkarten bei der Registrierung und beeinträchtigen durch schwere SDKs die Performance und Offline-Fähigkeit. Das **DIN-BriefNEO**-Projekt benötigt ein schnelles, kostenloses und datenschutzkonformes API-Konzept, das vollständig unter lokalen Kontexten (`file:///`) operiert.
+## 2. Considered Options
 
----
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Geoapify + Header-Auth) | Nutzung der REST-API via nativem `fetch()`, Key im Header (`X-Api-Key`) | Zero SDK, höchste Sicherheit vor Leaks, kostenloser Tier reicht | Benötigt eigenen API-Key | Keine | **Gewählt** |
+| **Option B** (Google SDK) | Google Places Library laden | Bekannt, hohe Datenqualität | Zwang zu Kreditkarte, schwergewichtiges JS | Datenschutz | Abgelehnt |
+| **Option C** (Photon API) | Kostenloses OSM-Backend | Kein Key nötig | Zu schlechte Datenqualität | Usability | Abgelehnt (Deprecated) |
 
-## Entscheidungen
+## 3. Decision
 
-### 1. Dual-Provider Autocomplete (Photon & Geoapify)
-Wir implementieren einen asynchronen Adressdienst in der Sidebar, der zwei separate Provider anbindet:
-*   **Photon (Komoot/OSM):** 100% kostenlos und **ohne API-Key** nutzbar. Die Abfragen werden standardmäßig auf eine Deutschland-Boundingbox (`bbox=5.0,45.0,16.0,56.0`) eingegrenzt, um präzise, inländische Vorschläge zu liefern.
-*   **Geoapify (Premium):** Erfordert einen API-Key. Das Eingabefeld wird dynamisch ein- und ausgeblendet.
+**Wir haben uns für Option A (Geoapify & Zippopotam REST APIs) entschieden.**
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Benutzer
-    participant Search as Autocomplete Input
-    participant JS as main.js (JS-Controller)
-    participant API as API Provider (Photon / Geoapify)
-    participant Zip as Zippopotam API
-    
-    User->{Search}: Tippt Empfängeradresse (>2 Zeichen)
-    JS->>API: fetch() Request mit AbortController-Signal
-    Note over API: Wenn neu getippt: AbortController bricht alten Request ab
-    API-->>JS: JSON Features
-    JS-->>Search: Render Dropdown-Liste
-    User->{Search}: Wählt Adresse aus
-    JS->>User: Füllt Empfänger-DOM aus
-    
-    Note over User: Ort & PLZ Eingabe
-    User->{Search}: Gibt 5-stellige PLZ in Ort-Feld ein
-    JS->>Zip: fetch() Zippopotam PLZ Lookup
-    Zip-->>JS: Ortsname
-    JS->>User: Ergänzt Ortsnamen automatisch
-```
+### Begründung
+- **Geoapify:** Einziger Provider für Adress-Autocomplete. Der API-Key wird **strikt per HTTP-Header** (`X-Api-Key`) gesendet, niemals in der URL.
+- **Heartbeat:** Eingegebene Keys werden per asynchronem Test (`limit=1`) sofort auf Validität geprüft.
+- **Zippopotam:** Die kostenfreie API (`api.zippopotam.us`) wird für das Auto-Ausfüllen von Ortsnamen bei 5-stelliger PLZ genutzt.
+- **Race-Condition-Schutz:** Alle API-Aufrufe (`fetch()`) werden durch `AbortController` abgebrochen, wenn eine neue Eingabe erfolgt.
 
+## 4. Consequences
 
-### 2. Header-Security für API-Keys
-Bei der Anbindung von Geoapify wird der API-Key **ausschließlich** über den sicheren HTTP-Header `X-Api-Key` an den Web-Service übermittelt – niemals als URL-Parameter!
-*   **Begründung:** Verhindert das Exponieren oder Leaken des Schlüssels in Netzwerk-Caches, Web-Proxys, DNS-Logs oder Browser-Verlaufseinträgen.
+### Positive Auswirkungen
+- **Hohe Sicherheit:** Keys leaken nicht in Server-Logs oder Proxys.
+- **Zero-Dependency:** Komplett nativ per `fetch()` gelöst, keine SDKs.
+- **Top Performance:** AbortController verhindert überflüssige Netzwerk-Requests.
 
-### 3. Key Heartbeat-Validierung
-Bei Eingabe eines Geoapify API-Keys wird dieser mit 500ms Debounce asynchron per echter Heartbeat-Anfrage (`text=Bonn&limit=1`) validiert.
-*   **Ablauf:** Liefert die API ein erfolgreiches `ok` (Status 200), wird der Key dauerhaft gespeichert und das Suchfeld freigeschaltet. Andernfalls wird der Key verworfen und ein Fehler-Toast ausgegeben.
+### Risiken & Negative Auswirkungen
+- Setzt aktive Internetverbindung voraus für Autocomplete (manuelle Eingabe geht weiterhin offline).
 
-### 4. Race-Condition-Schutz via AbortController
-Um unvollständige oder veraltete Netzwerkeingänge bei schnellem Tippen abzusichern, bricht JS laufende Fetch-Anfragen über die native `AbortController`-API (`signal`) sofort ab, sobald eine neue Tastatureingabe erfolgt.
+## 5. Implementation & Verification
 
-### 5. Zippopotam PLZ Auto-Lookup
-Wir integrieren einen Listener auf das Feld *PLZ & Ort* (`#empfaenger-ort`). Gibt der Benutzer eine 5-stellige deutsche Postleitzahl ein, fragt das System im Hintergrund die kostenlose **Zippopotam API** (`https://api.zippopotam.us/de/${zip}`) ab und ergänzt den Ortsnamen automatisch (z. B. *"93049 Regensburg"*).
+- Die Header-Security-Regel ist in `main.js` für jeden Geoapify-Aufruf verankert.
+- Photon wurde restlos als Antipattern deklariert und aus dem Projekt entfernt.
 
----
+## 6. Related Documents
 
-## Konsequenzen
-*   **Vorteile:**
-    *   Hundertprozentig datenschutzkonform und DSGVO-freundlich.
-    *   Keinerlei Kosten oder Kreditkartenzwang für den Anwender.
-    *   Vollständige `file:///`-Kompatibilität ohne CORS-Probleme.
-    *   Zuverlässiger Schutz vor veralteten Netzwerkeingängen dank Aborting.
-*   **Nachteile:**
-    *   Die Autovervollständigung setzt eine aktive Internetverbindung voraus (manuelle Eingaben auf dem Briefpapier sind jedoch jederzeit offline möglich).
-
----
-
-## Verknüpfungen
-*   Siehe [[ADR-HTML|ADR-HTML.md]] für die Einbettung des Widgets.
-*   Siehe [[ADR-JS|ADR-JS.md]] für Drosselung und Datenbindung.
-*   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für das Proximity-Biasing mit Absender-PLZ.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot schwerer Google SDKs.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-
-
-### [DEPRECATED / ANTIPATTERN] Photon API
-Photon wurde restlos aus dem Projekt gelöscht. Es ist ein Antipattern. Die Qualität der Ergebnisse war ungenügend. Geoapify ist der einzige zugelassene Provider. Provider-Toggles in der Sidebar sind verboten.
+- [[ADR-HTML]]
+- [[ADR-JS]]
+- [[ADR-FEATURE]]
+- [[longevity-guidelines]]

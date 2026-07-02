@@ -1,60 +1,64 @@
 ---
-title: "ADR: HTML Architecture & Semantic Structure"
+title: "ADR-HTML: HTML Architecture & Semantic Structure"
 status: accepted
 date: 2026-05-24
-deciders: morit, antigravity
-tags: [obsidian, adr, html, semantics, contenteditable, popover]
+last-reviewed: 2026-07-02
+deciders: [morit, antigravity]
+type: adr
+tags: [adr, html, semantics, contenteditable, popover]
 aliases: ["HTML Architecture & Semantic Structure"]
-related: ["[[ADR-CSS]]", "[[ADR-JS]]", "[[longevity-guidelines]]"]
+related: 
+  - "[[ADR-CSS]]"
+  - "[[ADR-JS]]"
+  - "[[longevity-guidelines]]"
+project: DIN-BriefNEO
 ---
 
-# Architectural Decision Record (ADR): HTML Architecture & Semantic Structure
+# ADR-HTML: HTML Architecture & Semantic Structure
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**Strukturierung des Brief-Editors ohne überladenes DOM.**
+- Klassische Texteditoren nutzen tiefe div-Suppen und komplexe JS-Dialoge.
+- Der DIN-BriefNEO-Editor muss leichtgewichtig, nativ barrierefrei, performant und extrem standardkonform aufgebaut sein.
+- Es muss verhindert werden, dass Nutzer versehentlich formatierte Inhalte in reine Datenfelder kopieren.
 
-> [!info] Hintergrund
-> Klassische Texteditoren basieren oft auf riesigen, unübersichtlichen DOM-Bäumen und JavaScript-basierten Dialogen. Für den **DIN-BriefNEO**-Editor soll eine Struktur etabliert werden, die maximal wartbar, nativ barrierefrei, extrem performant und standardkonform ist. Die semantische Struktur soll den Browser-eigenen Dokumentenfluss respektieren und unnötige JavaScript-Krücken vermeiden.
+## 2. Considered Options
 
----
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Native HTML5) | Custom Elements (`<din-*>`), `popover="manual"`, `contenteditable="plaintext-only"` | Zero Dependencies, semantic DOM, nativer Top-Layer | `plaintext-only` braucht moderne Browser | Keine | **Gewählt** |
+| **Option B** (Div-Suppe + JS) | Alles in `<div>`, Dialoge über z-index und JS gesteuert | Abwärtskompatibel | `z-index` Kämpfe, schwere Lesbarkeit, JS-Aufwand | Hoher Wartungsaufwand | Abgelehnt |
 
-## Entscheidungen
+## 3. Decision
 
-### 1. IMR 4.0 Custom Elements für Geometrie-Bereiche
-Wir nutzen semantische HTML5 Custom Elements (z. B. `<din-a4>`, `<din-absender>`, `<din-anschriftfeld>`, `<din-infoblock>`, `<din-kern>`, `<din-text>`, `<din-fuss>`).
-*   **Begründung:** Dies ermöglicht eine glasklare Trennung der DIN 5008 Geometriebereiche im CSS und erhöht die semantische Lesbarkeit des Dokuments drastisch.
-*   **Verweis:** Siehe [[din-5008-geometry|din-5008-geometry.md]] für die exakten Geometrie-Vorgaben.
+**Wir haben uns für Option A (Striktes HTML5 & Native APIs) entschieden.**
 
-### 2. Native HTML Popover API & Dialogs
-Für alle Popups (wie die schwebende Textauswahl-Toolbar und Toasts) nutzen wir das native HTML-Attribut `popover="manual"`.
-*   **Begründung:** Native Popovers werden vom Browser automatisch im **Top-Layer** über allen anderen Elementen gerendert. Dies verhindert CSS-Z-Index-Kollisionen und macht Hilfsbibliotheken komplett überflüssig.
+### Begründung
+- **Custom Elements:** Wir nutzen semantische HTML5 Custom Elements (`<din-a4>`, `<din-absender>`, etc.), um Geometriebereiche im CSS klar zu trennen und die DOM-Lesbarkeit zu erhöhen.
+- **Native Popovers:** Dialoge & Toolbars nutzen `popover="manual"` für ein konfliktfreies Rendern im **Top-Layer** (ohne `z-index`-Hacks).
+- **Editierbarkeit:** Einzeilige Metadaten (Betreff, Anschrift) nutzen `contenteditable="plaintext-only"`. Nur der Briefkörper (`#brieftext`) nutzt `contenteditable="true"`.
+- **Barrierefreiheit:** ARIA-Attribute (`aria-pressed="true/false"`) werden nativ für Toolbar-Buttons gepflegt.
 
-### 3. Strikte contenteditable-Reglementierung
-*   Alle einzeiligen Metadaten-Felder (Betreff, Anschrift, Ränder, Infoblock) nutzen `contenteditable="plaintext-only"`.
-*   Der Brieftext selbst (`#brieftext`) nutzt `contenteditable="true"`.
-*   **Begründung:** `plaintext-only` verhindert nativ, dass der Benutzer formatierten HTML-Müll (z. B. Schriftgrößen oder Webfarben) in strukturelle Briefbereiche einfügt, während `contenteditable="true"` im Brieftext gezieltes Fett-, Unterstreichungs- und Zitat-Styling erlaubt.
-*   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] für den dazugehörigen JavaScript Paste/Drop-Filter.
+## 4. Consequences
 
-### 4. Barrierefreiheit (A11y)
-*   Die Toolbar-Buttons erhalten bei aktiver Formatierung das Attribut `aria-pressed="true"`, andernfalls `aria-pressed="false"`.
-*   Alle interaktiven Steuerelemente besitzen eindeutige IDs für Web-Tests und Screenreader.
+### Positive Auswirkungen
+- **Maximale Lesbarkeit:** Der DOM-Baum ist selbsterklärend und semantisch korrekt.
+- **Wartungsfreiheit:** Keine externen UI- oder Dialog-Libraries nötig.
+- **Sicherheit:** `plaintext-only` schützt Strukturfelder zuverlässig vor unerwünschten Formatierungen aus der Zwischenablage.
 
----
+### Risiken & Negative Auswirkungen
+- `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge).
 
-## Konsequenzen
-*   **Vorteile:**
-    *   Glasklare, lesbare DOM-Struktur.
-    *   Hervorragende Barrierefreiheit ohne JavaScript-Bibliotheken.
-    *   Keine Z-Index-Kämpfe im Top-Layer.
-*   **Nachteile:**
-    *   `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge), was durch unsere Baseline-Festlegung abgedeckt ist.
+## 5. Implementation & Verification
 
----
+- Alle Brief-Elemente im `index.html` sind als `<din-*>` Tags deklariert.
+- Popovers und Toolbars nutzen das `popover`-Attribut.
+- Einhaltung wird durch die Anti-Pattern Linter-Regeln für JS-basiertes Styling überprüft.
 
-## Verknüpfungen
-*   Siehe [[ADR-CSS|ADR-CSS.md]] für das proportionale Styling der Custom Elements.
-*   Siehe [[ADR-JS|ADR-JS.md]] für die Validierung und Steuerung der Editables.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Frameworks.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+## 6. Related Documents
+
+- [[ADR-CSS]]
+- [[ADR-JS]]
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]

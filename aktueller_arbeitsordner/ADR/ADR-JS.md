@@ -1,78 +1,72 @@
 ---
-title: "ADR: JavaScript Constraints & 'JS as a Crutch'"
+title: "ADR-JS: JavaScript Constraints & 'JS as a Crutch'"
 status: accepted
 date: 2026-05-24
-deciders: morit, antigravity
-tags: [obsidian, adr, js, scripting, event-handling, dom-selection, constraints]
-aliases: ["JavaScript Constraints & 'JS as a Crutch'"]
-related: ["[[ADR-HTML]]", "[[ADR-CSS]]", "[[longevity-guidelines]]"]
+last-reviewed: 2026-07-02
+deciders: [morit, antigravity]
+type: adr
+tags: [adr, js, scripting, event-handling, dom-selection, constraints]
+aliases: ["JavaScript Constraints", "JS as a Crutch"]
+related: 
+  - "[[ADR-HTML]]"
+  - "[[ADR-CSS]]"
+  - "[[longevity-guidelines]]"
+project: DIN-BriefNEO
 ---
 
-# Architectural Decision Record (ADR): JavaScript Constraints & "JS as a Crutch"
+# ADR-JS: JavaScript Constraints & "JS as a Crutch"
 
-## Status
-Akzeptiert
+## 1. Context & Problem
 
-## Kontext & Problemstellung
+**JS-Überladung und "JS as a Crutch".**
+- Webapplikationen nutzen oft JavaScript für visuelle Effekte und Layout-Berechnungen.
+- Das führt zu Performance-Einbußen, Rucklern und technischer Schuld.
+- In DIN-BriefNEO soll JS streng auf eine logische Begleitschicht reduziert werden.
 
-> [!info] Hintergrund
-> Moderne Webapplikationen neigen dazu, JavaScript für visuelle Effekte, Rendering-Operationen und Layout-Berechnungen einzusetzen. Dies erhöht die Fehleranfälligkeit, verschlechtert die Ladezeit und führt zu technischer Schuld. Im **DIN-BriefNEO**-Projekt soll JavaScript streng auf eine logische Begleitschicht reduziert werden.
+## 2. Considered Options
+
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Strikt reglementiertes JS) | JS nur für DOM-Range-Selektion, APIs, Persistenz, View Transitions | Maximale Stabilität, CSS übernimmt Layout (Anchor) | Höherer Lernaufwand bei CSS | Keine | **Gewählt** |
+| **Option B** (JS-Driven UI) | JS für ResizeObserver, `execCommand`, Toolbar-Position | Einfach, bekannt | Veraltete APIs, Ruckeln bei Repaints | Wartbarkeit | Abgelehnt |
+
+## 3. Decision
+
+**Wir haben uns für Option A (Striktes JS-Einsatzverbot für Rendering) entschieden.**
+
+### Begründung
+- **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
+- **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits.
+- **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
+- **View Transitions API:** Native `document.startViewTransition()` wird für UI-Zustandswechsel verwendet, anstatt händisch via JS zu animieren.
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **Schlanker Code:** JavaScript-Logik bleibt absolut minimiert (<18 KB).
+- **Robustheit:** Die App läuft layout-stabil, selbst wenn JS verzögert oder blockiert.
+- **Zukunftssicherheit:** Veraltete APIs wie `execCommand` werden nicht mehr verwendet.
+
+### Risiken & Negative Auswirkungen
+- Visuelle Statustoggles erfordern teilweise fortgeschrittenes CSS (z.B. Segmented Controls, `:has()`).
+
+## 5. Implementation & Verification
+
+- CSS Anchor Positioning ersetzt ehemalige JS-Koordinatenberechnung.
+- `execCommand` ist in den Anti-Pattern-Regeln verboten.
+- View Transitions sind in `main.js` für Formularwechsel und Theme-Toggles produktiv.
+
+## 6. Related Documents
+
+- [[ADR-HTML]]
+- [[ADR-CSS]]
+- [[ADR-ANTIPATTERN]]
+- [[longevity-guidelines]]
 
 ---
 
-## Entscheidungen
+### Feature Checks
 
-### 1. Striktes JS-Einsatzverbot für Styling & Rendering
-Jegliche JavaScript-gestützte Steuerung von visuellen Effekten, Layout-Rendern oder CSS-Styles ist verboten.
-*   **Keine Ausnahmen:** Da wir exklusiv für moderne Laufzeitumgebungen ab Chrome 148+ entwickeln, wird selbst die schwebende Textauswahl-Toolbar (`#format-toolbar`) rein CSS-basiert über **CSS Anchor Positioning** an die Selektion verankert. Es wird keinerlei JS zur Koordinaten-Berechnung benötigt.
-*   **Begründung:** Stabilität, Robustheit und eine saubere Codebasis. Das Layout bleibt stabil, selbst wenn JavaScript abstürzt oder im Browser blockiert wird.
-
-### 2. Reglementierte Aufgabenbereiche für JavaScript
-JavaScript darf ausschließlich für folgende sechs Aufgabenbereiche eingesetzt werden:
-1.  **Textauswahl & Format-Aktionen:** Ein gedrosselter `selectionchange`-Listener (50ms Debounce) steuert ausschließlich die Sichtbarkeit (Sichtbar-Zustand des Popovers) und setzt bei Klick Formatierungen über die Selection & Range API um. Die Positionierung der Toolbar erfolgt rein über CSS Anchor Positioning.
-2.  **Sicherer Paste/Drop-Schutz:** Abfangen von Paste- und Drop-Events auf `#brieftext`, um HTML-Formatmüll unnachgiebig zu entfernen und ausschließlich reinen Plaintext (`text/plain`) einzufügen.
-3.  **Daten-Synchronisation & Auto-Save:** Automatisches Speichern und Laden von Textinhalten in den LocalStorage bei jeder Eingabe.
-4.  **Externe API-Anfragen:** Abfragen an Photon, Geoapify (inklusive Heartbeat-Check) und Zippopotam.
-5.  **Toast-Queue & Popover-Lifecycle:** Verwaltung der Toast-Warteschlange zur Vermeidung von überlappenden Einblendungen.
-6.  **Datum-Autobefüllung:** Nativer Einsatz der **W3C Temporal API** (`Temporal.Now.plainDateISO()`) zur zeitzonensicheren, unveränderlichen und fehlerfreien Bestimmung des lokalen Systemdatums im normativem deutschen Format beim Erststart.
-
-
-### 3. Verbot von veraltetem `execCommand` für Custom-Formate
-Für Zitate (`<blockquote>`) nutzen wir die native Selection & Range API (`extractContents` / `insertNode`) zum sauberen Wrappen und Entpacken (Unwrap) des DOMs.
-*   **Zustandserkennung:** Wir ermitteln die aktiven Formate (Fett, Unterstrichen, Zitat) über eine zukunftssichere, native DOM-Baum-Traversierung nach oben bis zum Container `#brieftext`. Wir verzichten komplett auf veraltete APIs (wie `queryCommandState`).
-*   **Shortcuts:** Wir überlassen standardmäßige Shortcuts (`Strg+B` / `Strg+U`) dem nativen Standardverhalten des Browsers im `contenteditable`-Bereich. Es werden keine eigenen Keydown-Handler für diese Shortcuts geschrieben.
-
-### 4. Native View Transitions API für flüssige Zustandsübergänge
-Wir kapseln alle Benutzer-initiierten UI-Layoutänderungen (z. B. Umschalten zwischen Form A und Form B) sowie Theme-Wechsel (Hell/Dunkel/Auto) vollständig in der modernen W3C View Transitions API (`document.startViewTransition()`).
-*   **Begründung:** Durch die native Kapselung entfällt das Schreiben von manuellen CSS-Animationsklassen oder komplexen JavaScript-basierten Fade-Operationen. Der Browser erzeugt automatisch Vorher-Nachher-Snapshots und animiert die Layout-Elemente mit maximaler Hardware-Beschleunigung und seidenweichen Übergängen direkt auf der Render-Pipeline.
-*   **Fallback:** Sollte das Feature nicht unterstützt werden, wird die Zustandsänderung synchron als direkter Fallback ohne visuelle Übergänge ausgeführt, wodurch die App abwärtskompatibel bleibt.
-
-
----
-
-## Konsequenzen
-*   **Vorteile:**
-    *   Schlanker Code (<18 KB JavaScript insgesamt).
-    *   Zukunftssichere APIs (Selection/Range, Popover).
-    *   Hocheffizientes Drosseln verhindert Performance-Engpässe bei Mausbewegungen.
-*   **Nachteile:**
-    *   Erhöhter CSS-Einsatz für visuelle Statustoggles (z. B. Segmented Controls, Guides).
-
----
-
-## Verknüpfungen
-*   Siehe [[ADR-HTML|ADR-HTML.md]] für `contenteditable` und native Popover.
-*   Siehe [[ADR-CSS|ADR-CSS.md]] für die reinen CSS-Zoom-Techniken.
-*   Siehe [[ADR-API|ADR-API.md]] für API-Vorschriften.
-*   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für Details zur Toast-Queue und Toolbar.
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot von Frameworks.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-
-### 5. Canvas-Komprimierung fOr groYe Binrdaten
-Wir nutzen ein unsichtbares OffscreenCanvas oder regulres <canvas> (wie im SignatureFeature), um vom Nutzer hochgeladene Bilder clientseitig massiv zu komprimieren (max 400px), bevor sie als Base64 im localStorage gespeichert werden. Dies verhindert das schnelle Sprengen des 5MB Speicherlimits und zementiert die serverlose, offline-fhige Architektur der Anwendung.
-
-
-## Feature Checks
 ```javascript feature-check
 f("Temporal API", typeof globalThis.Temporal !== "undefined", "Chrome 146", "Future-Proof"),
 f("View Transitions (Scoped)", typeof document.startViewTransition !== "undefined", "Chrome 146", "Future-Proof"),

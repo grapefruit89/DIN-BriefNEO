@@ -2,12 +2,15 @@
 title: "ADR-BETREFF: Positionierung des Betrefffeldes & PDF-Export"
 status: accepted
 date: 2026-07-02
+last-reviewed: 2026-07-02
 deciders: [morit, antigravity]
+type: adr
 tags: [adr, ui, feature, betreff, print, pdf]
 aliases: ["Betreff", "Falzmarken", "PDF-Export"]
 related: 
   - "[[ADR-ANTIPATTERN]]"
   - "[[longevity-guidelines]]"
+project: DIN-BriefNEO
 ---
 
 # ADR-BETREFF: Betreff-Logik, Falzmarken und dynamischer PDF-Titel

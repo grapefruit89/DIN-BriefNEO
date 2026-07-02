@@ -2,13 +2,16 @@
 title: "ADR-XXX: [Kurzer, präziser Titel der Entscheidung]"
 status: draft | proposed | accepted | deprecated | rejected
 date: YYYY-MM-DD
+last-reviewed: YYYY-MM-DD
 deciders: [morit, antigravity]
+type: adr
 tags: [adr, css, js, architecture, feature, ...]
 aliases: ["Kurzer Alias", "Weiterer Alias"]
 related: 
   - "[[ADR-YYY]]"
   - "[[longevity-guidelines]]"
   - "[[constitution]]"
+project: DIN-BriefNEO
 ---
 
 # ADR-XXX: [Kurzer, präziser Titel]

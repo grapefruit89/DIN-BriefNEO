@@ -29,7 +29,7 @@ Ursprünglich wurde Photon (komoot.io) evaluiert, aber wegen mangelhafter Sucher
 
 | Option | Vorteil | Nachteil |
 | :--- | :--- | :--- |
-| **Option A** (Offizielle Library `@geoapify/geocoder-autocomplete`) | Schnelle Implementierung, Caching eingebaut | Verletzt Zero-Dependency Regel, injiziert eigene nicht-WYSIWYG DOM-Elemente. |
+| **Option A** (Offizielle Library `@geoapify/geocoder-autocomplete`) | Schnelle Implementierung, Caching eingebaut | Fügt ca. 30-50 KB Bundle-Size hinzu, verlässt die native Plattform, injiziert **eigene, schwer anpassbare DOM-Elemente** (zerstört 100% WYSIWYG-Anspruch). |
 | **Option B** (Custom Fetch + Native CSS Anchor Dropdown) | 100% WYSIWYG, keine Dependencies, native W3C CSS Anchor | Caching muss (falls gewünscht) selbst in einer `Map` verwaltet werden. |
 
 ## 3. Die Entscheidung

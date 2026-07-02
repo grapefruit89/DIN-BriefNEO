@@ -26,8 +26,8 @@ Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](ADR/
 * **[ADR-HTML](ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
 * **[ADR-CSS](ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
 * **[ADR-JS](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
-* **[ADR-GEOAPIFY](ADR/ADR-GEOAPIFY.md):** Zero-Dependency Adress-Autocomplete.
-* **[ADR-MIGRATION](ADR/ADR-MIGRATION.md):** Extraktion zur `llm_boilerplate`.
+* **[ADR-API](ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
+* **[ADR-DATA-PERSISTENCE](ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
 
 ## 📦 Implementierungsdetails
 * **[SQLite-Vec Integration](docs/implementation/sqlite-vec.md):** Plan für Vektor-Suche.

@@ -4,6 +4,10 @@ status: active
 tags: [documentation, tasks, todo]
 ---
 
+> [!WARNING]
+> **ARCHIVIERT**: Veraltete Taskliste aus Phase 2. Nur zu historischen Zwecken hier abgelegt.
+
+
 # Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)
 
 Dieses Dokument dient als abarbeitbare Taskliste für die anstehenden Code-Modifikationen im Workspace.

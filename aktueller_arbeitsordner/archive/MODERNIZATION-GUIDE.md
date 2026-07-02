@@ -4,6 +4,10 @@ status: active
 tags: [documentation]
 ---
 
+> [!WARNING]
+> **ARCHIVIERT**: Historisches Dokument. Einige der hier genannten Empfehlungen widersprechen der aktuellen `longevity-guidelines.md` (z.B. Temporal API).
+
+
 # Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md
 
 Dieses Dokument analysiert die aktuell verwendeten Webtechnologien des **DIN-BriefNEO**-Baseline-Projekts und vergleicht sie mit zukünftigen, potenziellen W3C-Standardkandidaten. Es dient als strategischer Wegweiser für zukünftige Modernisierungen – **ohne sofortige Umsetzung** und unter strikter Wahrung der Longevity-Verfassung.

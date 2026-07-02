@@ -8,6 +8,19 @@
 
 $ErrorActionPreference = "Stop"
 
+param (
+    [switch]$Help
+)
+
+if ($Help) {
+    Write-Host "=== DIN-Brief Neo Start-Skript ===" -ForegroundColor Cyan
+    Write-Host "Nutzung: .start.ps1"
+    Write-Host "Dieses Skript wechselt automatisch in das richtige Verzeichnis,"
+    Write-Host "prüft ob Node.js installiert ist und startet den Reconciliation/Build-Prozess."
+    Write-Host "Es muss zwingend ein Fitness Score von 100% erreicht werden."
+    exit 0
+}
+
 Write-Host "=== DIN-Brief Neo - Start / Build (Light Mode) ===" -ForegroundColor Cyan
 Write-Host "Ziel: Einfacher Einstieg mit Reconciliation + Fitness Gate (100% Score)" -ForegroundColor Gray
 Write-Host ""
@@ -46,7 +59,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "[3/3] Fertig. Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
+Write-Host "[3/3] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
 Write-Host ""
 Write-Host "Nächste Schritte (Light Mode - der Default):"
 Write-Host "  - Änderungen machen (siehe AGENTS.md)"

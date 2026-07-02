@@ -13,7 +13,9 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 1: Elastischer Viewport (No-Scroll Auto-Zoom)
+## 🟢 Baseline Features (Umgesetzt)
+
+#### Feature 1: Elastischer Viewport (No-Scroll Auto-Zoom)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Anwender möchte ich den virtuellen DIN A4 Briefbogen auf jedem Bildschirm (Desktop, Laptop, Tablet) vollständig und ohne Scrollbalken im Blick haben, damit ich das Brief-Layout direkt bearbeiten kann.
@@ -37,7 +39,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 2: DIN Layout-Wechsler (Form A vs. Form B)
+### Feature 2: DIN Layout-Wechsler (Form A vs. Form B)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Briefschreiber möchte ich zwischen den offiziellen DIN 5008 Layouts "Form A" (Kopfhöhe 27mm) und "Form B" (Kopfhöhe 45mm) wechseln können, um verschiedene Briefbogen-Standards zu bedienen.
@@ -58,7 +60,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 3: Native Color Schemes (Light- & Dark-Mode)
+### Feature 3: Native Color Schemes (Light- & Dark-Mode)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Anwender möchte ich die App in einem hellen, dunklen oder sich automatisch an das System anpassenden Modus nutzen, um ermüdungsfrei arbeiten zu können.
@@ -79,7 +81,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 4: LocalStorage Auto-Save & Draft-Management
+### Feature 4: LocalStorage Auto-Save & Draft-Management
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Briefschreiber möchte ich, dass jeder geschriebene Buchstabe im Briefbogen sofort lokal gesichert wird, damit ich bei einem versehentlichen Tab-Schließen oder Browser-Absturz keine Daten verliere.
@@ -102,7 +104,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 5: Scroll-freier Multipage-Wechsler (Karussell)
+### Feature 5: Scroll-freier Multipage-Wechsler (Karussell)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Briefschreiber möchte ich lange Briefe verfassen können, die über eine Seite hinausgehen, ohne dass Scrollbalken entstehen oder Text abgeschnitten wird, indem der Brief nahtlos auf neue, separat navigierbare Seiten paginiert wird.
@@ -130,7 +132,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 6: Zentralisierung aller Konstanten und Feedback-Meldungen (Toasts)
+### Feature 6: Zentralisierung aller Konstanten und Feedback-Meldungen (Toasts)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Entwickler möchte ich alle Systemgrenzen (z. B. Undo/Redo Limits, Dateigrößen, API-Debounce) und alle Systemrückmeldungen (Erfolgsmeldungen, Warnungen, Validierungsfehler) an einem zentralen Ort pflegen können, um den Code übersichtlich zu halten und spätere Übersetzungen (Lokalisierung) zu vereinfachen.
@@ -156,7 +158,12 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 > [!NOTE]
 > Die folgenden Features befinden sich im ruhenden Planungs-Backlog. Aufgrund des aktiven `.SPEC-ONLY-PHASE`-Schutzes sind für diese Features **keine** aktiven Entwicklungsaufgaben (Tasks) oder Implementierungspläne freigegeben. Sie dienen rein als Spezifikations-Vorschau.
 
-## Feature 7: Auto-Kompakt Layout-Modus (Form A/B Auto-Switch)
+## 🟡 Backlog (Geplant / Zurückgestellt)
+
+> [!WARNING]
+> Die folgenden Features befinden sich im Backlog und werden aktuell nicht aktiv verfolgt, da sie teilweise den strikten Zero-Dependency und Wartungsfreiheits-Regeln widersprechen könnten.
+
+#### Feature 7: Auto-Kompakt Layout-Modus (Form A/B Auto-Switch)
 * **Specify (Das "Was"):** Als Briefschreiber möchte ich, dass die Anwendung bei langem Brieftext automatisch von Form B auf Form A wechselt, falls dadurch der Text gerade so auf eine einzige Seite passt, um Zeit und Papier zu sparen.
 * **Akzeptanzkriterien:**
   - Option "Automatisch" in der Sidebar unter "DIN-Brief Layout".
@@ -164,21 +171,21 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
   - Wenn Text in Form B überläuft, aber in Form A passt, erfolgt ein flüssiger Wechsel zu Form A.
   - Bei Textkürzung erfolgt der automatische Rückwechsel zu Form B.
 
-## Feature 8: Anrede-Stil & Auto-Gender Engine
+### Feature 8: Anrede-Stil & Auto-Gender Engine
 * **Specify (Das "Was"):** Als Briefschreiber möchte ich den Stil der Anrede (Förmlich, Höflich, Modern) in der Sidebar wählen können, und die Anwendung soll basierend auf dem Empfängernamen automatisch das Geschlecht ermitteln und die passende Anrede und Grußformel vorschlagen.
 * **Akzeptanzkriterien:**
   - Segmented Control in der Sidebar für "Anrede-Stil" (Förmlich, Höflich, Modern).
   - Automatisches Scannen des Empfängernamens auf Titel (Dr., Prof.) und Geschlechtsmerkmale via RegExp.
   - Auto-Generierung von Anrede und Grußformel über "Ghost-Sync", solange der Benutzer diese nicht manuell editiert hat. Manual Overrides haben absolute Priorität.
 
-## Feature 9: Integriertes Absender-Profil (Persönliche Daten)
+### Feature 9: Integriertes Absender-Profil (Persönliche Daten)
 * **Specify (Das "Was"):** Als regelmäßiger Briefschreiber möchte ich meine persönlichen Kontaktdaten, Bankdaten und Footer-Zusätze dauerhaft in der Sidebar speichern können, damit diese bei jedem neuen Brief automatisch in den Briefkopf und die Fußzeile eingepflegt werden.
 * **Akzeptanzkriterien:**
   - Einklappbares Formular "Absender-Profil" in der Sidebar.
   - Persistent gespeicherte Profildaten unter `din_profile` im LocalStorage.
   - Automatisches Befüllen von `#absender`, `#info-tel` und Brieffooter beim Speichern und beim Systemstart.
 
-## Feature 10: Premium Ambient Dark Mode (Time- & System-based)
+### Feature 10: Premium Ambient Dark Mode (Time- & System-based)
 * **Specify (Das "Was"):** Als Benutzer möchte ich abends und nachts dezent und ohne grelles Licht Briefe schreiben, ohne dass eine fehlerhafte Farbinversion die Brief-Ästhetik ruiniert. Der Nachtmodus soll sich abends automatisch aktivieren.
 * **Akzeptanzkriterien:**
   - Segmented Control für "Theme" (Hell, Dunkel, Auto).
@@ -186,7 +193,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
   - Keine Inversions-Filter! Das Briefpapier wird im Dark Mode in edles, warmes Dunkelgrau (`oklch(28% 0.01 250)`) gefärbt, das die Augen schont.
   - Beim Drucken wird das Papier ausnahmslos reinweiß mit schwarzem Text ausgegeben (Druck-Souveränität).
 
-## Feature 11: Easter-Egg High-Integrity Dev-Panel (Popover-based)
+### Feature 11: Easter-Egg High-Integrity Dev-Panel (Popover-based)
 * **Specify (Das "Was"):** Als Entwickler möchte ich ein verstecktes Diagnose-Panel direkt in der Web-App aufrufen können, indem ich 3-mal schnell hintereinander auf das Versions-Badge im Fußbereich klicke, um den Bereitschaftsbericht aller 25 Bleeding-Edge-Features live einzusehen.
 * **Akzeptanzkriterien:**
   - 3-Klick-Easter-Egg auf `#dev-easter-egg` im Footer (1000ms Timeout-Fenster).

@@ -6,6 +6,11 @@ tags: [phase1, sqlite-vec, hybrid-search, embedding, build, generalisierbarkeit,
 
 # Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung
 
+> [!NOTE]
+> **Status:** In Planung / Teilweise umgesetzt
+> **Zweck:** Detaillierter Implementierungsplan für die semantische Vektor-Suche via sqlite-vec.
+
+
 **Ziel:** Die bestehende `DIN-Brief_docs.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
 
 **Leitplanken (aus Research + Projektprinzipien):**

@@ -325,17 +325,14 @@ aside {
 }
 
 /* --- DYNAMISCHE POSITIONEN FÜR FORM A (SCOPED ISOLATION) --- */
-.form-a {
-  @scope (din-a4) {
-    .din-fold-top { top: calc(87 / 297 * 100cqh); }
-    .din-fold-bottom { top: calc(181 / 297 * 100cqh); }
-    #absender { top: calc(27 / 297 * 100cqh); }
-    #empfaenger { top: calc(32 / 297 * 100cqh); }
-    #infoblock { top: calc(32 / 297 * 100cqh); }
-    #datum { top: calc(74 / 297 * 100cqh); }
-    #briefkern { top: calc(85.4 / 297 * 100cqh); }
-  }
-}
+  /* --- DYNAMISCHE POSITIONEN FUER FORM A --- */
+  .form-a din-a4 .din-fold-top { top: calc(87 / 297 * 100cqh); }
+  .form-a din-a4 .din-fold-bottom { top: calc(181 / 297 * 100cqh); }
+  .form-a din-a4 #absender { top: calc(27 / 297 * 100cqh); }
+  .form-a din-a4 #empfaenger { top: calc(32 / 297 * 100cqh); }
+  .form-a din-a4 #infoblock { top: calc(32 / 297 * 100cqh); }
+  .form-a din-a4 #datum { top: calc(74 / 297 * 100cqh); }
+  .form-a din-a4 #briefkern { top: calc(85.4 / 297 * 100cqh); }
 
 @keyframes pulse-alert {
   0%, 100% { opacity: 0.9; }

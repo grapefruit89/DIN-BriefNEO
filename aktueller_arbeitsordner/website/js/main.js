@@ -1016,10 +1016,15 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.readAsDataURL(file);
     });
 
-    // Auto-Save editables
+    // Auto-Save editables (Global State & Debouncing)
+    let debounceSaveTimer = null;
     document.querySelectorAll('[contenteditable]').forEach(elem => {
       elem.addEventListener('input', () => {
-        saveDraftData();
+        clearTimeout(debounceSaveTimer);
+        debounceSaveTimer = setTimeout(() => {
+          saveDraftData();
+          console.log('[Store] Global State auto-saved (debounced 400ms).');
+        }, 400);
         if (elem.id === 'brieftext') {
           checkTextOverflow();
         }
@@ -1218,3 +1223,4 @@ document.getElementById('btn-copy-json')?.addEventListener('click', async (e) =>
   
   setTimeout(() => { btn.textContent = originalText; }, 2000);
 });
+

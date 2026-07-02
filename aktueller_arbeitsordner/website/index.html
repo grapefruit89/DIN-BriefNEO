@@ -129,14 +129,7 @@
             <div>
               <div class="sidebar-label">Adress-Autocomplete</div>
               <div style="display: flex; flex-direction: column; gap: 8px;">
-                <!-- Provider Select -->
-                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px;">
-                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Provider wählen:</span>
-                  <div class="segmented-control" id="provider-select">
-                    <button id="btn-provider-photon" data-js="provider-photon" class="active" title="Kostenlose Suche via Komoot/OSM">Photon</button>
-                    <button id="btn-provider-geoapify" data-js="provider-geoapify" title="Premium Suche via Geoapify (API-Key benötigt)">Geoapify</button>
-                  </div>
-                </div>
+                
 
                 <!-- API-Key Input Container -->
                 <div id="geoapify-key-container">
@@ -153,10 +146,7 @@
                   <ul id="address-suggestions" class="autocomplete-dropdown" style="display: none;"></ul>
                 </div>
 
-                <!-- Info/UX Helper Box -->
-                <div id="autocomplete-info-box" style="padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.7rem; line-height: 1.35;">
-                  📡 Photon aktiv (kostenlose OpenStreetMap-Suche, kein API-Key erforderlich).
-                </div>
+                
               </div>
             </div>
             
@@ -191,6 +181,9 @@
           <div class="din-mark din-fold-bottom"></div>
           <div class="din-mark din-punch"></div>
           
+          
+          <!-- CSS Anchor Positioned Dropdown for Postvermerke -->
+          <div id="postvermerk-dropdown" popover="manual" class="no-print"></div>
           <!-- CSS Anchor Positioned Dropdown for Local Address Book -->
           <div id="local-address-dropdown" popover="manual" class="no-print"></div>
 
@@ -200,7 +193,7 @@
           <!-- RECIPIENT ADDRESS ZONE -->
           <din-anschriftfeld id="empfaenger">
             <!-- POSTVERMERK (OPTIONAL) -->
-            <din-postvermerk id="postvermerk" contenteditable="plaintext-only" placeholder="Zusatz- oder Vermerk (z.B. Einschreiben)"></din-postvermerk>
+            <din-postvermerk id="postvermerk" contenteditable="plaintext-only" placeholder="Zusatz- oder Vermerk (z.B. Einschreiben)" style="anchor-name: --anchor-postvermerk;"></din-postvermerk>
             
             <div id="empfaenger-firma" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
             <div id="empfaenger-name" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>

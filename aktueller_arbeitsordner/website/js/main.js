@@ -182,6 +182,55 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
+
+  // --- WYSIWYG POSTVERMERK (CSS Anchor Positioning) ---
+  const pvDropdown = document.getElementById('postvermerk-dropdown');
+  const pvInput = document.getElementById('postvermerk');
+  let pvHideTimeout;
+
+  const pvOptions = [
+    "Einschreiben",
+    "Einschreiben Einwurf",
+    "Einschreiben / Rückschein",
+    "Persönlich",
+    "Einschreiben <br> Persönlich",
+    "Nicht nachsenden!",
+    "Büchersendung",
+    "Warensendung"
+  ];
+
+  function renderPvDropdown() {
+    if (!pvDropdown) return;
+    pvDropdown.innerHTML = '';
+    pvOptions.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'pv-item';
+      div.innerHTML = opt;
+      div.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevent blur
+        pvInput.innerHTML = opt;
+        saveDraftData();
+        try { pvDropdown.hidePopover(); } catch(e){}
+        showToast("Vermerk gesetzt", "success");
+      });
+      pvDropdown.appendChild(div);
+    });
+    try { pvDropdown.showPopover(); } catch(e){}
+  }
+
+  if (pvInput) {
+    pvInput.addEventListener('focus', () => {
+      clearTimeout(pvHideTimeout);
+      renderPvDropdown();
+    });
+    pvInput.addEventListener('blur', () => {
+      pvHideTimeout = setTimeout(() => {
+        try { pvDropdown.hidePopover(); } catch(e){}
+      }, 200);
+    });
+  }
+
+
   function initGeoapify() {
     if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !autocompleteInfoBox || !geoapifyKeyContainer || !btnProviderPhoton || !btnProviderGeoapify) return;
 

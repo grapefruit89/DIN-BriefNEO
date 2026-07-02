@@ -491,10 +491,15 @@ din-postvermerk, din-anlagen, din-verteiler {
 }
 
 din-postvermerk {
-  font-size: 0.9em;
+  font-size: calc(8 * 0.168cqw);
+  font-family: var(--font-stack-sans);
   font-weight: 500;
-  margin-bottom: 1cqh; /* spacing before recipient */
+  line-height: 1.2;
+  margin-bottom: 0.5cqh;
   color: var(--text-primary);
+  white-space: pre-wrap;
+  display: flex;
+  flex-direction: column-reverse; /* Stacks bottom-up */
 }
 
 din-anlagen, din-verteiler {
@@ -582,3 +587,35 @@ din-anlagen, din-verteiler {
 }
 .address-suggestion-item:last-child { border-bottom: none; }
 .address-suggestion-item:hover { background: var(--bg-viewport); }
+
+#postvermerk-dropdown {
+  position: absolute;
+  position-anchor: --anchor-postvermerk;
+  top: anchor(bottom 4px);
+  left: anchor(left);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  display: none;
+  width: max-content;
+}
+
+#postvermerk-dropdown:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+
+.pv-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-stack-sans);
+  font-size: 13px;
+}
+.pv-item:last-child { border-bottom: none; }
+.pv-item:hover { background: var(--bg-viewport); }

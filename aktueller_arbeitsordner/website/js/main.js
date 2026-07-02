@@ -1,4 +1,194 @@
-import { runLiveDiagnostics } from './healthcheck.js';\n/* js/main.js */\nimport { StorageManager } from './storage.js';\nimport { Constants } from './constants.js';\nimport { SalutationFeature } from './salutation-engine.js';\nimport { MetadataService } from './metadata.js';\nimport { SignatureFeature } from './signature.js';\n\ndocument.addEventListener('DOMContentLoaded', () => {\n  // --- DOM ELEMENTS ---\n  const shell = document.getElementById('app-shell');\n  const paper = document.querySelector('din-a4');\n  const viewport = document.getElementById('viewport');\n  const btnPrint = document.getElementById('btn-print');\n  const btnReset = document.getElementById('btn-reset');\n  \n  // Sidebar UI elements\n  const btnFormA = document.getElementById('btn-form-a');\n  const btnFormB = document.getElementById('btn-form-b');\n  const btnThemeLight = document.getElementById('btn-theme-light');\n  const btnThemeDark = document.getElementById('btn-theme-dark');\n  const btnThemeAuto = document.getElementById('btn-theme-auto');\n  const btnToggleGuides = document.getElementById('btn-toggle-guides');\n  \n  // Font upload & manager elements\n  const btnFontUploadTrigger = document.getElementById('btn-upload-font-trigger');\n  const btnResetFont = document.getElementById('btn-reset-font');\n  const fontStatusLabel = document.getElementById('font-status-label');\n  const fontUploader = document.getElementById('font-uploader');\n  \n  // Font stack segmented control buttons\n  const btnFontSans = document.getElementById('btn-font-sans');\n  const btnFontSerif = document.getElementById('btn-font-serif');\n  const btnFontMono = document.getElementById('btn-font-mono');\n\n  // Text selection & formatting elements\n  const formatToolbar = document.getElementById('format-toolbar');\n  const btnBold = document.getElementById('btn-bold');\n  const btnUnderline = document.getElementById('btn-underline');\n  const btnQuote = document.getElementById('btn-quote');\n  const brieftext = document.getElementById('brieftext');\n\n  // Popover Toast Element\n  const globalToast = document.getElementById('toast-v4');\n\n  // Address Autocomplete UI elements\n  const inputGeoapifyKey = document.getElementById('input-geoapify-key');\n  const inputAddressSearch = document.getElementById('input-address-search');\n  const addressSuggestions = document.getElementById('address-suggestions');\n  const autocompleteInfoBox = document.getElementById('autocomplete-info-box');\n  const geoapifyKeyContainer = document.getElementById('geoapify-key-container');\n  const btnProviderPhoton = document.getElementById('btn-provider-photon');\n  const btnProviderGeoapify = document.getElementById('btn-provider-geoapify');\n\n  // Load baseline settings\n  let settings = StorageManager.loadSettings();\n\n  // --- Initialize App ---\n  initApp();\n\n  function initApp() {\n    applySettings();\n    loadDraftData();\n    initFontInjection();\n    attachGlobalListeners();\n    attachFormattingToolbar();\n    checkTextOverflow();\n    initGeoapify();\n\n    // Init Salutation\n    const salutation = new SalutationFeature(saveDraftData);\n    salutation.init();\n\n    // Init Signature Feature\n    const sigContext = {\n      settings: settings,\n      saveSettings: () => StorageManager.saveSettings(settings)\n    };\n    const signature = new SignatureFeature(sigContext);\n    signature.init();\n  }\n\n  // --- OFFLINE FONT INJECTION (1-Font Limit for file://) ---\n  function initFontInjection() {\n    const savedFont = StorageManager.loadCustomFont();\n    if (savedFont) {\n      injectFont(savedFont);\n      updateFontStatusUI(true);\n    } else {\n      updateFontStatusUI(false);\n    }\n  }\n\n  function injectFont(base64Font) {\n    let fontStyle = document.getElementById('din-custom-font-style');\n    if (!fontStyle) {\n      fontStyle = document.createElement('style');\n      fontStyle.id = 'din-custom-font-style';\n      document.head.appendChild(fontStyle);\n    }\n    fontStyle.textContent = `\n      @font-face {\n        font-family: 'AptosCustom';\n        src: url('${base64Font}') format('woff2');\n      }\n    `;\n  }\n\n  function updateFontStatusUI(hasCustomFont) {\n    if (!fontStatusLabel || !btnResetFont) return;\n    if (hasCustomFont) {\n      fontStatusLabel.textContent = "Aktiv: Eigene WOFF2 Schrift";\n      btnResetFont.style.display = "block";\n      document.body.classList.add('font-custom-active');\n    } else {\n      fontStatusLabel.textContent = "Aktiv: System-UI Standardschrift";\n      btnResetFont.style.display = "none";\n      document.body.classList.remove('font-custom-active');\n    }\n  }\n\n  // --- DUAL-PROVIDER ADDRESS SERVICE (Photon / Geoapify / Zippopotam) ---\n  \n  // --- LOKALES AUTO-ADRESSBUCH (CSS Anchor Positioning) ---\n  const dropdown = document.getElementById('local-address-dropdown');\n  const empfName = document.getElementById('empfaenger-name');\n  const empfFirma = document.getElementById('empfaenger-firma');\n  let hideTimeout;\n\n  function renderAddressDropdown(query = '') {\n    if (!dropdown) return;\n    const book = StorageManager.getAddressBook();\n    const q = query.toLowerCase().replace(/<[^>]*>?/gm, "").trim();\n    \n    const filtered = book.filter(a => {\n      const txt = (a.name + " " + a.firma + " " + a.strasse + " " + a.ort).toLowerCase();\n      return txt.includes(q);\n    });\n\n    if (filtered.length === 0) {\n      try { dropdown.hidePopover(); } catch(e){}\n      return;\n    }\n\n    dropdown.innerHTML = '';\n    filtered.slice(0, 5).forEach(a => {\n      const div = document.createElement('div');\n      div.className = 'address-suggestion-item';\n      div.innerHTML = `<strong>${a.firma ? a.firma : a.name}</strong><br><small>${a.strasse}, ${a.ort}</small>`;\n      div.addEventListener('mousedown', (e) => {\n        e.preventDefault(); // Prevent blur\n        document.getElementById('empfaenger-name').innerHTML = a.name;\n        document.getElementById('empfaenger-firma').innerHTML = a.firma;\n        document.getElementById('empfaenger-strasse').innerHTML = a.strasse;\n        document.getElementById('empfaenger-ort').innerHTML = a.ort;\n        saveDraftData();\n        try { dropdown.hidePopover(); } catch(e){}\n        showToast("Kontakt geladen", "success");\n      });\n      dropdown.appendChild(div);\n    });\n\n    try {\n      dropdown.showPopover();\n    } catch(e){}\n  }\n\n  [empfName, empfFirma].forEach(elem => {\n    if(!elem) return;\n    elem.addEventListener('focus', () => {\n      clearTimeout(hideTimeout);\n      renderAddressDropdown(elem.textContent);\n    });\n    elem.addEventListener('input', () => {\n      renderAddressDropdown(elem.textContent);\n    });\n    elem.addEventListener('blur', () => {\n      hideTimeout = setTimeout(() => {\n        try { dropdown.hidePopover(); } catch(e){}\n      }, 200);\n    });\n  });\n\n\n\n  // --- WYSIWYG POSTVERMERK (CSS Anchor Positioning) ---\n  const pvDropdown = document.getElementById('postvermerk-dropdown');\n  const pvInput = document.getElementById('postvermerk');\n  let pvHideTimeout;\n\n  const pvOptions = [
+import { runLiveDiagnostics } from './healthcheck.js';
+/* js/main.js */
+import { StorageManager } from './storage.js';
+import { Constants } from './constants.js';
+import { SalutationFeature } from './salutation-engine.js';
+import { MetadataService } from './metadata.js';
+import { SignatureFeature } from './signature.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  // --- DOM ELEMENTS ---
+  const shell = document.getElementById('app-shell');
+  const paper = document.querySelector('din-a4');
+  const viewport = document.getElementById('viewport');
+  const btnPrint = document.getElementById('btn-print');
+  const btnReset = document.getElementById('btn-reset');
+  
+  // Sidebar UI elements
+  const btnFormA = document.getElementById('btn-form-a');
+  const btnFormB = document.getElementById('btn-form-b');
+  const btnThemeLight = document.getElementById('btn-theme-light');
+  const btnThemeDark = document.getElementById('btn-theme-dark');
+  const btnThemeAuto = document.getElementById('btn-theme-auto');
+  const btnToggleGuides = document.getElementById('btn-toggle-guides');
+  
+  // Font upload & manager elements
+  const btnFontUploadTrigger = document.getElementById('btn-upload-font-trigger');
+  const btnResetFont = document.getElementById('btn-reset-font');
+  const fontStatusLabel = document.getElementById('font-status-label');
+  const fontUploader = document.getElementById('font-uploader');
+  
+  // Font stack segmented control buttons
+  const btnFontSans = document.getElementById('btn-font-sans');
+  const btnFontSerif = document.getElementById('btn-font-serif');
+  const btnFontMono = document.getElementById('btn-font-mono');
+
+  // Text selection & formatting elements
+  const formatToolbar = document.getElementById('format-toolbar');
+  const btnBold = document.getElementById('btn-bold');
+  const btnUnderline = document.getElementById('btn-underline');
+  const btnQuote = document.getElementById('btn-quote');
+  const brieftext = document.getElementById('brieftext');
+
+  // Popover Toast Element
+  const globalToast = document.getElementById('toast-v4');
+
+  // Address Autocomplete UI elements
+  const inputGeoapifyKey = document.getElementById('input-geoapify-key');
+  const inputAddressSearch = document.getElementById('input-address-search');
+  const addressSuggestions = document.getElementById('address-suggestions');
+  const autocompleteInfoBox = document.getElementById('autocomplete-info-box');
+  const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
+  const btnProviderPhoton = document.getElementById('btn-provider-photon');
+  const btnProviderGeoapify = document.getElementById('btn-provider-geoapify');
+
+  // Load baseline settings
+  let settings = StorageManager.loadSettings();
+
+  // --- Initialize App ---
+  initApp();
+
+  function initApp() {
+    applySettings();
+    loadDraftData();
+    initFontInjection();
+    attachGlobalListeners();
+    attachFormattingToolbar();
+    checkTextOverflow();
+    initGeoapify();
+
+    // Init Salutation
+    const salutation = new SalutationFeature(saveDraftData);
+    salutation.init();
+
+    // Init Signature Feature
+    const sigContext = {
+      settings: settings,
+      saveSettings: () => StorageManager.saveSettings(settings)
+    };
+    const signature = new SignatureFeature(sigContext);
+    signature.init();
+  }
+
+  // --- OFFLINE FONT INJECTION (1-Font Limit for file://) ---
+  function initFontInjection() {
+    const savedFont = StorageManager.loadCustomFont();
+    if (savedFont) {
+      injectFont(savedFont);
+      updateFontStatusUI(true);
+    } else {
+      updateFontStatusUI(false);
+    }
+  }
+
+  function injectFont(base64Font) {
+    let fontStyle = document.getElementById('din-custom-font-style');
+    if (!fontStyle) {
+      fontStyle = document.createElement('style');
+      fontStyle.id = 'din-custom-font-style';
+      document.head.appendChild(fontStyle);
+    }
+    fontStyle.textContent = `
+      @font-face {
+        font-family: 'AptosCustom';
+        src: url('${base64Font}') format('woff2');
+      }
+    `;
+  }
+
+  function updateFontStatusUI(hasCustomFont) {
+    if (!fontStatusLabel || !btnResetFont) return;
+    if (hasCustomFont) {
+      fontStatusLabel.textContent = "Aktiv: Eigene WOFF2 Schrift";
+      btnResetFont.style.display = "block";
+      document.body.classList.add('font-custom-active');
+    } else {
+      fontStatusLabel.textContent = "Aktiv: System-UI Standardschrift";
+      btnResetFont.style.display = "none";
+      document.body.classList.remove('font-custom-active');
+    }
+  }
+
+  // --- DUAL-PROVIDER ADDRESS SERVICE (Photon / Geoapify / Zippopotam) ---
+  
+  // --- LOKALES AUTO-ADRESSBUCH (CSS Anchor Positioning) ---
+  const dropdown = document.getElementById('local-address-dropdown');
+  const empfName = document.getElementById('empfaenger-name');
+  const empfFirma = document.getElementById('empfaenger-firma');
+  let hideTimeout;
+
+  function renderAddressDropdown(query = '') {
+    if (!dropdown) return;
+    const book = StorageManager.getAddressBook();
+    const q = query.toLowerCase().replace(/<[^>]*>?/gm, "").trim();
+    
+    const filtered = book.filter(a => {
+      const txt = (a.name + " " + a.firma + " " + a.strasse + " " + a.ort).toLowerCase();
+      return txt.includes(q);
+    });
+
+    if (filtered.length === 0) {
+      try { dropdown.hidePopover(); } catch(e){}
+      return;
+    }
+
+    dropdown.innerHTML = '';
+    filtered.slice(0, 5).forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'address-suggestion-item';
+      div.innerHTML = `<strong>${a.firma ? a.firma : a.name}</strong><br><small>${a.strasse}, ${a.ort}</small>`;
+      div.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevent blur
+        document.getElementById('empfaenger-name').innerHTML = a.name;
+        document.getElementById('empfaenger-firma').innerHTML = a.firma;
+        document.getElementById('empfaenger-strasse').innerHTML = a.strasse;
+        document.getElementById('empfaenger-ort').innerHTML = a.ort;
+        saveDraftData();
+        try { dropdown.hidePopover(); } catch(e){}
+        showToast("Kontakt geladen", "success");
+      });
+      dropdown.appendChild(div);
+    });
+
+    try {
+      dropdown.showPopover();
+    } catch(e){}
+  }
+
+  [empfName, empfFirma].forEach(elem => {
+    if(!elem) return;
+    elem.addEventListener('focus', () => {
+      clearTimeout(hideTimeout);
+      renderAddressDropdown(elem.textContent);
+    });
+    elem.addEventListener('input', () => {
+      renderAddressDropdown(elem.textContent);
+    });
+    elem.addEventListener('blur', () => {
+      hideTimeout = setTimeout(() => {
+        try { dropdown.hidePopover(); } catch(e){}
+      }, 200);
+    });
+  });
+
+
+
+  // --- WYSIWYG POSTVERMERK (CSS Anchor Positioning) ---
+  const pvDropdown = document.getElementById('postvermerk-dropdown');
+  const pvInput = document.getElementById('postvermerk');
+  let pvHideTimeout;
+
+  const pvOptions = [
     "Einschreiben",
     "Einschreiben Einwurf",
     "Einschreiben Rückschein",
@@ -11,7 +201,45 @@ import { runLiveDiagnostics } from './healthcheck.js';\n/* js/main.js */\nimpo
     "Warensendung",
     "Büchersendung",
     "Einschreiben / Rückschein <br> Persönlich"
-  ];\n\n  function renderPvDropdown() {\n    if (!pvDropdown) return;\n    pvDropdown.innerHTML = '';\n    pvOptions.forEach(opt => {\n      const div = document.createElement('div');\n      div.className = 'pv-item';\n      div.innerHTML = opt;\n      div.addEventListener('mousedown', (e) => {\n        e.preventDefault(); // Prevent blur\n        pvInput.innerHTML = opt;\n        saveDraftData();\n        try { pvDropdown.hidePopover(); } catch(e){}\n        showToast("Vermerk gesetzt", "success");\n      });\n      pvDropdown.appendChild(div);\n    });\n    try { pvDropdown.showPopover(); } catch(e){}\n  }\n\n  if (pvInput) {\n    pvInput.addEventListener('focus', () => {\n      clearTimeout(pvHideTimeout);\n      renderPvDropdown();\n    });\n    pvInput.addEventListener('blur', () => {\n      pvHideTimeout = setTimeout(() => {\n        try { pvDropdown.hidePopover(); } catch(e){}\n      }, 200);\n    });\n  }\n\n\n  function initGeoapify() {
+  ];
+
+  function renderPvDropdown() {
+    if (!pvDropdown) return;
+    pvDropdown.innerHTML = '';
+    pvOptions.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'pv-item';
+      div.innerHTML = opt;
+      div.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevent blur
+        pvInput.innerHTML = opt;
+        saveDraftData();
+        try { pvDropdown.hidePopover(); } catch(e){}
+        showToast("Vermerk gesetzt", "success");
+      });
+      pvDropdown.appendChild(div);
+    });
+    try { pvDropdown.showPopover(); } catch(e){}
+  }
+
+  if (pvInput) {
+    pvInput.addEventListener('click', () => {
+      clearTimeout(pvHideTimeout);
+      renderPvDropdown();
+    });
+    pvInput.addEventListener('focus', () => {
+      clearTimeout(pvHideTimeout);
+      renderPvDropdown();
+    });
+    pvInput.addEventListener('blur', () => {
+      pvHideTimeout = setTimeout(() => {
+        try { pvDropdown.hidePopover(); } catch(e){}
+      }, 200);
+    });
+  }
+
+
+  function initGeoapify() {
     if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !geoapifyKeyContainer || !document.getElementById('address-search-container')) return;
 
     let activeAbortController = null;
@@ -203,4 +431,869 @@ import { runLiveDiagnostics } from './healthcheck.js';\n/* js/main.js */\nimpo
       if (e.target !== inputAddressSearch && e.target !== addressSuggestions) {
         addressSuggestions.style.display = 'none';
       }
-    });\n    // --- ZIPPOPOTAM PLZ AUTO-LOOKUP ---\n    const empfOrtEl = document.getElementById('empfaenger-ort');\n    if (empfOrtEl) {\n      empfOrtEl.addEventListener('input', () => {\n        const text = empfOrtEl.textContent.trim();\n        const zipMatch = text.match(/^(\d{5})/);\n        if (zipMatch) {\n          const zip = zipMatch[1];\n          clearTimeout(empfOrtEl._zipDebounce);\n          empfOrtEl._zipDebounce = setTimeout(async () => {\n            try {\n              const res = await fetch(`https://api.zippopotam.us/de/${zip}`);\n              if (!res.ok) return;\n              const data = await res.json();\n              if (data.places && data.places.length > 0) {\n                const city = data.places[0]["place name"];\n                const newText = `${zip} ${city}`;\n                \n                // Caret protection\n                if (document.activeElement === empfOrtEl) {\n                  const selection = window.getSelection();\n                  const offset = selection.focusOffset;\n                  empfOrtEl.textContent = newText;\n                  \n                  // Restore caret to end\n                  const range = document.createRange();\n                  range.selectNodeContents(empfOrtEl);\n                  range.collapse(false);\n                  selection.removeAllRanges();\n                  selection.addRange(range);\n                } else {\n                  empfOrtEl.textContent = newText;\n                }\n                \n                saveDraftData();\n                showToast(`Ort gefunden: ${city}`, "info");\n              }\n            } catch (err) {\n              console.warn('[ZIP] Zippopotam Lookup failed:', err);\n            }\n          }, 300);\n        }\n      });\n    }\n\n    // --- AUTOMATIC SENDER COORDINATES LOOKUP FOR PROXIMITY BIASING ---\n    const absenderEl = document.getElementById('absender');\n    if (absenderEl) {\n      const checkSenderPLZ = () => {\n        const text = absenderEl.textContent.trim();\n        const zipMatch = text.match(/\b\d{5}\b/);\n        if (zipMatch) {\n          const zip = zipMatch[0];\n          \n          // Load cached coords to prevent duplicate API hits\n          let cached = {};\n          try {\n            cached = JSON.parse(localStorage.getItem('din_sender_coords') || '{}');\n          } catch(e){}\n\n          if (cached.zip === zip) return; // Already cached!\n\n          // Fetch coordinates\n          clearTimeout(absenderEl._zipDebounce);\n          absenderEl._zipDebounce = setTimeout(async () => {\n            try {\n              const res = await fetch(`https://api.zippopotam.us/de/${zip}`);\n              if (!res.ok) return;\n              const data = await res.json();\n              if (data.places && data.places.length > 0) {\n                const place = data.places[0];\n                const coords = {\n                  lat: parseFloat(place.latitude),\n                  lon: parseFloat(place.longitude),\n                  zip: zip,\n                  city: place["place name"]\n                };\n                localStorage.setItem('din_sender_coords', JSON.stringify(coords));\n                console.log('[Proximity] Geocoded sender coords cached:', coords);\n              }\n            } catch (err) {\n              console.warn('[Proximity] Sender ZIP lookup failed:', err);\n            }\n          }, 1000); // 1s delay during active typing\n        }\n      };\n\n      absenderEl.addEventListener('input', checkSenderPLZ);\n      // Run once on boot to extract initial PLZ from loaded draft absender\n      setTimeout(checkSenderPLZ, 500);\n    }\n  }\n\n  // --- CENTRAL TOAST QUEUE MANAGER (Stacking Prevention with Symmetrical Native Transitions) ---\n  const toastQueue = [];\n  let isToastActive = false;\n\n  function showToast(message, type = 'info') {\n    toastQueue.push({ message, type });\n    processToastQueue();\n  }\n\n  function processToastQueue() {\n    if (isToastActive || toastQueue.length === 0 || !globalToast) return;\n\n    isToastActive = true;\n    const { message, type } = toastQueue.shift();\n\n    globalToast.textContent = message;\n    globalToast.className = `toast-container type-${type}`;\n\n    try {\n      globalToast.showPopover();\n\n      /* \n       * 🚨 OBSOLETE JS CODE REMOVED & REPLACED BY MODERN CSS:\n       * Durch 'transition-behavior: allow-discrete' und '@starting-style' in floating.css\n       * ist das komplexe Lauschen auf 'animationend' in JS vollkommen ueberfluessig geworden!\n       * Der Browser steuert die symmetrische Ein-/Ausblend-Animation vollkommen autonom.\n       * JS triggert nach 3s einfach hidePopover(), den Rest macht die Engine auf GPU-Ebene.\n       */\n      let cleanedUp = false;\n      const cleanupPopover = () => {\n        if (cleanedUp) return;\n        cleanedUp = true;\n\n        if (globalToast.matches(':popover-open')) {\n          globalToast.hidePopover();\n        }\n        \n        // Warte, bis die native CSS-Austritts-Animation (250ms) vollstaendig beendet ist\n        setTimeout(() => {\n          isToastActive = false;\n          processToastQueue();\n        }, 300);\n      };\n\n      const displayTimeout = setTimeout(cleanupPopover, 3000);\n      \n      globalToast.onclick = () => {\n        clearTimeout(displayTimeout);\n        cleanupPopover();\n      };\n    } catch (e) {\n      console.warn('[Toast] Popover API failure:', e);\n      isToastActive = false;\n      setTimeout(processToastQueue, 200);\n    }\n  }\n\n  // --- WHATSAPP-STYLE FORMATTING TOOLBAR & SHORTCUTS ---\n  function attachFormattingToolbar() {\n    if (!formatToolbar || !brieftext) return;\n\n    const selectionAnchor = document.getElementById('selection-anchor');\n\n    // Debounced Selection Change listener for performance (50ms)\n    let selectionTimeout;\n    document.addEventListener('selectionchange', () => {\n      clearTimeout(selectionTimeout);\n      selectionTimeout = setTimeout(handleSelectionChange, 50);\n    });\n\n    // Native-like DOM Tree Traversal to find formatting states zukunftsfähig\n    function isSelectionInsideTag(tagName) {\n      const selection = window.getSelection();\n      if (selection.rangeCount === 0) return false;\n      \n      const isCustomComment = tagName === 'comment';\n      const actualTag = isCustomComment ? 'SPAN' : tagName;\n\n      let node = selection.anchorNode;\n      while (node && node !== brieftext) {\n        const name = node.nodeName.toUpperCase();\n        if (name === actualTag.toUpperCase() || \n            (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {\n          if (isCustomComment && !node.classList.contains('din-comment')) {\n            // Keep searching upwards\n          } else {\n            return true;\n          }\n        }\n        node = node.parentNode;\n      }\n      return false;\n    }\n\n    function getBlockquoteAncestor(anchorNode) {\n      let node = anchorNode;\n      while (node && node !== brieftext) {\n        if (node.nodeName === 'BLOCKQUOTE') return node;\n        node = node.parentNode;\n      }\n      return null;\n    }\n\n    function handleSelectionChange() {\n      const selection = window.getSelection();\n\n      // Vorfilter: Is something selected?\n      if (selection.isCollapsed || selection.toString().trim().length === 0) {\n        hideToolbar();\n        return;\n      }\n\n      // Scope-Filter: Is selection strictly inside brieftext?\n      if (!brieftext.contains(selection.anchorNode)) {\n        hideToolbar();\n        return;\n      }\n\n      // Read Range coordinates\n      const range = selection.getRangeAt(0);\n      const rect = range.getBoundingClientRect();\n\n      // Position the external anchor exactly at the start of the selection relative to the body\n      if (selectionAnchor) {\n        selectionAnchor.style.top = `${rect.top}px`;\n        selectionAnchor.style.left = `${rect.left}px`;\n      }\n\n      // Open Popover first so offsetHeight/offsetWidth are calculated by browser\n      if (!formatToolbar.matches(':popover-open')) {\n        try {\n          formatToolbar.showPopover();\n        } catch (e) {\n          console.warn('[Toolbar] showPopover failed:', e);\n        }\n      }\n\n      // Zustandserkennung & A11y\n      const isBold = isSelectionInsideTag('B');\n      const isUnderline = isSelectionInsideTag('U');\n      const isQuote = isSelectionInsideTag('BLOCKQUOTE');\n      const isComment = isSelectionInsideTag('comment');\n      const btnComment = document.getElementById('btn-comment');\n\n      if (isBold) {\n        btnBold.classList.add('active');\n        btnBold.setAttribute('aria-pressed', 'true');\n      } else {\n        btnBold.classList.remove('active');\n        btnBold.setAttribute('aria-pressed', 'false');\n      }\n\n      if (isUnderline) {\n        btnUnderline.classList.add('active');\n        btnUnderline.setAttribute('aria-pressed', 'true');\n      } else {\n        btnUnderline.classList.remove('active');\n        btnUnderline.setAttribute('aria-pressed', 'false');\n      }\n\n      if (isQuote) {\n        btnQuote.classList.add('active');\n        btnQuote.setAttribute('aria-pressed', 'true');\n      } else {\n        btnQuote.classList.remove('active');\n        btnQuote.setAttribute('aria-pressed', 'false');\n      }\n\n      if (btnComment) {\n        if (isComment) {\n          btnComment.classList.add('active');\n          btnComment.setAttribute('aria-pressed', 'true');\n        } else {\n          btnComment.classList.remove('active');\n          btnComment.setAttribute('aria-pressed', 'false');\n        }\n      }\n    }\n\n    function hideToolbar() {\n      if (formatToolbar.matches(':popover-open')) {\n        formatToolbar.hidePopover();\n      }\n    }\n\n    // Custom pure DOM selection formatting implementation replacing deprecated execCommand\n    function toggleFormat(tagName) {\n      const selection = window.getSelection();\n      if (selection.isCollapsed || !brieftext.contains(selection.anchorNode)) return;\n\n      const range = selection.getRangeAt(0);\n      \n      const isCustomComment = tagName === 'comment';\n      const actualTag = isCustomComment ? 'SPAN' : tagName;\n      \n      if (isSelectionInsideTag(tagName)) {\n        // UNWRAP\n        let node = selection.anchorNode;\n        let formatNode = null;\n        while (node && node !== brieftext) {\n          const name = node.nodeName.toUpperCase();\n          if (name === actualTag.toUpperCase() || (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {\n            if (isCustomComment && !node.classList.contains('din-comment')) {\n               // Keep searching\n            } else {\n              formatNode = node;\n              break;\n            }\n          }\n          node = node.parentNode;\n        }\n        \n        if (formatNode) {\n          const parent = formatNode.parentNode;\n          const fragment = document.createDocumentFragment();\n          while (formatNode.firstChild) {\n            fragment.appendChild(formatNode.firstChild);\n          }\n          parent.replaceChild(fragment, formatNode);\n        }\n      } else {\n        // WRAP\n        const wrapper = document.createElement(actualTag.toLowerCase());\n        if (isCustomComment) wrapper.className = 'din-comment';\n        try {\n          wrapper.appendChild(range.extractContents());\n          range.insertNode(wrapper);\n          selection.selectAllChildren(wrapper);\n        } catch (err) {\n          console.warn('[Format] Failed to wrap range:', err);\n        }\n      }\n      \n      // Clean up empty tags and merge adjacent text nodes\n      brieftext.normalize();\n      \n      saveDraftData();\n      handleSelectionChange();\n    }\n\n    // Button Click Formatting Logic with immediate UI updating\n    btnBold.addEventListener('click', (e) => {\n      e.preventDefault();\n      toggleFormat('B');\n    });\n\n    btnUnderline.addEventListener('click', (e) => {\n      e.preventDefault();\n      toggleFormat('U');\n    });\n\n    btnQuote.addEventListener('click', (e) => {\n      e.preventDefault();\n      const selection = window.getSelection();\n      if (selection.isCollapsed || !brieftext.contains(selection.anchorNode)) return;\n\n      const range = selection.getRangeAt(0);\n      const bq = getBlockquoteAncestor(selection.anchorNode);\n\n      if (bq) {\n        // UNWRAP: Replace blockquote with its children\n        const parent = bq.parentNode;\n        while (bq.firstChild) {\n          parent.insertBefore(bq.firstChild, bq);\n        }\n        parent.removeChild(bq);\n      } else {\n        // WRAP: Wrap range contents in a blockquote\n        const quote = document.createElement('blockquote');\n        quote.appendChild(range.extractContents());\n        range.insertNode(quote);\n      }\n\n      saveDraftData();\n      handleSelectionChange();\n    });\n\n    const btnComment = document.getElementById('btn-comment');\n    if(btnComment) {\n      btnComment.addEventListener('click', (e) => {\n        e.preventDefault();\n        toggleFormat('comment');\n      });\n    }\n\n    // Custom non-standard shortcuts only (Standard Strg+B / Strg+U left to native browser)\n    brieftext.addEventListener('keydown', (e) => {\n      // Custom blockquote shortcut: Strg+Shift+9\n      if (e.ctrlKey && e.shiftKey && e.key === '9') {\n        e.preventDefault();\n        btnQuote.click();\n      }\n    });\n\n    // Strikter HTML-Paste-Filter (behält nur strong, b, u, s)\n    brieftext.addEventListener('paste', (e) => {\n      e.preventDefault();\n      const html = e.clipboardData.getData('text/html');\n      const text = e.clipboardData.getData('text/plain');\n\n      const selection = window.getSelection();\n      if (!selection.rangeCount) return;\n      \n      const range = selection.getRangeAt(0);\n      range.deleteContents();\n      \n      if (html) {\n        const parser = new DOMParser();\n        const doc = parser.parseFromString(html, 'text/html');\n        \n        function sanitizeNode(node) {\n          const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];\n          \n          if (node.nodeType === Node.TEXT_NODE) {\n            return document.createTextNode(node.textContent);\n          }\n          \n          if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');\n          \n          let newNode;\n          if (allowedTags.includes(node.nodeName)) {\n             newNode = document.createElement(node.nodeName.toLowerCase());\n          } else if (node.nodeName === 'SPAN' && node.classList.contains('din-comment')) {\n             newNode = document.createElement('span');\n             newNode.className = 'din-comment';\n          } else {\n             const frag = document.createDocumentFragment();\n             node.childNodes.forEach(child => {\n               frag.appendChild(sanitizeNode(child));\n             });\n             return frag;\n          }\n          \n          node.childNodes.forEach(child => {\n            newNode.appendChild(sanitizeNode(child));\n          });\n          \n          return newNode;\n        }\n\n        const cleanFragment = document.createDocumentFragment();\n        doc.body.childNodes.forEach(child => {\n          cleanFragment.appendChild(sanitizeNode(child));\n        });\n\n        if (cleanFragment.childNodes.length === 0) {\n            range.insertNode(document.createTextNode(text));\n        } else {\n            const lastChild = cleanFragment.lastChild;\n            range.insertNode(cleanFragment);\n            if (lastChild) {\n                range.setStartAfter(lastChild);\n                range.collapse(true);\n            }\n        }\n      } else {\n        range.insertNode(document.createTextNode(text));\n        selection.collapseToEnd();\n      }\n      \n      selection.removeAllRanges();\n      selection.addRange(range);\n      saveDraftData();\n    });\n\n    // Drag-and-Drop HTML Filter\n    brieftext.addEventListener('drop', (e) => {\n      e.preventDefault();\n      const text = e.dataTransfer.getData('text/plain');\n\n      // Find drop coordinate range\n      const range = document.caretRangeFromPoint(e.clientX, e.clientY);\n      if (range) {\n        range.deleteContents();\n        range.insertNode(document.createTextNode(text));\n      }\n      saveDraftData();\n    });\n  }\n\n  // --- TEXT HEIGHT OVERFLOW WARNING ---\n  function checkTextOverflow() {\n    if (!brieftext) return;\n    \n    // Printable core area maximum height is ~120mm on scale, which is roughly 450px inside 94vh container\n    const maxTextHeight = 450;\n    \n    if (brieftext.scrollHeight > maxTextHeight) {\n      paper.classList.add('overflow-warn');\n    } else {\n      paper.classList.remove('overflow-warn');\n    }\n  }\n\n  // --- GLOBAL EVENT LISTENERS & TRIGGERS ---\n  function attachGlobalListeners() {\n    // Helper for safe native W3C View Transitions\n    function transitionState(updateFn) {\n      if (document.startViewTransition) {\n        document.startViewTransition(updateFn);\n      } else {\n        updateFn();\n      }\n    }\n\n    // Font Stack Toggles\n    if (btnFontSans) {\n      btnFontSans.addEventListener('click', () => {\n        settings.systemFont = 'sans';\n        updateSettings();\n        showToast("🔤 Systemschrift: Sans-Serif aktiv", "info");\n      });\n    }\n    if (btnFontSerif) {\n      btnFontSerif.addEventListener('click', () => {\n        settings.systemFont = 'serif';\n        updateSettings();\n        showToast("🔤 Systemschrift: Serif aktiv", "info");\n      });\n    }\n    if (btnFontMono) {\n      btnFontMono.addEventListener('click', () => {\n        settings.systemFont = 'mono';\n        updateSettings();\n        showToast("🔤 Systemschrift: Monospace aktiv", "info");\n      });\n    }\n\n    // Layout Form switches\n    btnFormA.addEventListener('click', () => {\n      transitionState(() => {\n        settings.layout = 'form-a';\n        updateSettings();\n      });\n    });\n    \n    btnFormB.addEventListener('click', () => {\n      transitionState(() => {\n        settings.layout = 'form-b';\n        updateSettings();\n      });\n    });\n\n    // Theme select toggles\n    btnThemeLight.addEventListener('click', () => {\n      transitionState(() => {\n        settings.theme = 'light';\n        updateSettings();\n      });\n    });\n\n    btnThemeDark.addEventListener('click', () => {\n      transitionState(() => {\n        settings.theme = 'dark';\n        updateSettings();\n      });\n    });\n\n    btnThemeAuto.addEventListener('click', () => {\n      transitionState(() => {\n        settings.theme = 'auto';\n        updateSettings();\n      });\n    });\n\n    // Guides\n    btnToggleGuides.addEventListener('click', () => {\n      settings.guides = !settings.guides;\n      updateSettings();\n    });\n\n    // Print\n    btnPrint.addEventListener('click', () => {\n      showToast(Constants.TOASTS.PRINT_PENDING, 'info');\n      const metaCtx = MetadataService.prepare();\n      \n      setTimeout(() => {\n        window.print();\n        MetadataService.restore(metaCtx);\n      }, 100);\n    });\n\n    // Reset\n    btnReset.addEventListener('click', () => {\n      if (confirm('Möchtest du alle Texte wirklich zurücksetzen?')) {\n        resetDraft();\n      }\n    });\n\n    // Font upload trigger click\n    btnFontUploadTrigger.addEventListener('click', () => {\n      fontUploader.click();\n    });\n\n    // Font reset click listener\n    btnResetFont.addEventListener('click', () => {\n      localStorage.removeItem("din_custom_font");\n      const fontStyle = document.getElementById('din-custom-font-style');\n      if (fontStyle) fontStyle.remove();\n      updateFontStatusUI(false);\n      showToast("🗑️ Eigene Schriftart entfernt", "success");\n    });\n\n    // Font file uploader change listener\n    fontUploader.addEventListener('change', (e) => {\n      const file = e.target.files[0];\n      if (!file) return;\n\n      // Check format\n      if (!file.name.endsWith('.woff2')) {\n        showToast(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');\n        return;\n      }\n\n      // Check file size (60 KB limit)\n      const maxSizeInBytes = Constants.LIMITS.FONT_SIZE_MAX_KB * 1024;\n      if (file.size > maxSizeInBytes) {\n        showToast(Constants.TOASTS.FONT_SIZE_ERROR, 'error');\n        return;\n      }\n\n      // Convert to base64\n      const reader = new FileReader();\n      reader.onload = (event) => {\n        const base64Font = event.target.result;\n        const success = StorageManager.saveCustomFont(base64Font);\n        if (success) {\n          injectFont(base64Font);\n          updateFontStatusUI(true);\n          showToast(Constants.TOASTS.FONT_UPLOAD_SUCCESS, 'success');\n        } else {\n          showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');\n        }\n      };\n      reader.readAsDataURL(file);\n    });\n\n    // Auto-Save editables (Global State & Debouncing)\n    let debounceSaveTimer = null;\n    document.querySelectorAll('[contenteditable]').forEach(elem => {\n      elem.addEventListener('input', () => {\n        clearTimeout(debounceSaveTimer);\n        debounceSaveTimer = setTimeout(() => {\n          saveDraftData();\n          console.log('[Store] Global State auto-saved (debounced 400ms).');\n        }, 400);\n        if (elem.id === 'brieftext') {\n          checkTextOverflow();\n        }\n      });\n    });\n  }\n\n  // --- SAVE & DRAFT MANAGEMENT ---\n  function applySettings() {\n    // 1. Layout Mode A/B\n    if (settings.layout === 'form-a') {\n      shell.classList.remove('form-b');\n      shell.classList.add('form-a');\n      btnFormA.classList.add('active');\n      btnFormB.classList.remove('active');\n    } else {\n      shell.classList.remove('form-a');\n      shell.classList.add('form-b');\n      btnFormB.classList.add('active');\n      btnFormA.classList.remove('active');\n    }\n\n    // 2. Color Schemes (Theme light-dark supported)\n    if (settings.theme === 'light') {\n      document.documentElement.style.colorScheme = 'light';\n      btnThemeLight.classList.add('active');\n      btnThemeDark.classList.remove('active');\n      btnThemeAuto.classList.remove('active');\n    } else if (settings.theme === 'dark') {\n      document.documentElement.style.colorScheme = 'dark';\n      btnThemeDark.classList.add('active');\n      btnThemeLight.classList.remove('active');\n      btnThemeAuto.classList.remove('active');\n    } else {\n      document.documentElement.removeAttribute('style'); // Inherits system color scheme\n      btnThemeAuto.classList.add('active');\n      btnThemeLight.classList.remove('active');\n      btnThemeDark.classList.remove('active');\n    }\n\n    // 3. Layout Guides overlay\n    /* \n     * 🚨 LLM ARCHITECTURE NOTE & JS REDUCTION COMMENT:\n     * Dank '@property --guide-opacity' in variables.css ist JavaScript komplett \n     * entlastet von jeglichen Animationsschleifen, Intervallen oder CSS-Klassen-Fading-Hacks!\n     * JS setzt den Variablenwert direkt als pure Zahl (0.15 oder 0), und der Browser \n     * animiert die Sichtbarkeit der Loch- und Falzmarken stufenlos und nativ auf GPU-Ebene.\n     */\n    if (settings.guides) {\n      document.documentElement.style.setProperty('--guide-opacity', '0.15');\n      btnToggleGuides.textContent = '📐 Guides ausblenden';\n      btnToggleGuides.classList.add('primary');\n    } else {\n      document.documentElement.style.setProperty('--guide-opacity', '0');\n      btnToggleGuides.textContent = '📐 Guides einblenden';\n      btnToggleGuides.classList.remove('primary');\n    }\n\n    // 4. System Font Stacks\n    if (btnFontSans && btnFontSerif && btnFontMono) {\n      document.body.classList.remove('font-stack-sans', 'font-stack-serif', 'font-stack-mono');\n      \n      btnFontSans.classList.remove('active');\n      btnFontSerif.classList.remove('active');\n      btnFontMono.classList.remove('active');\n\n      if (settings.systemFont === 'serif') {\n        document.body.classList.add('font-stack-serif');\n        btnFontSerif.classList.add('active');\n      } else if (settings.systemFont === 'mono') {\n        document.body.classList.add('font-stack-mono');\n        btnFontMono.classList.add('active');\n      } else {\n        document.body.classList.add('font-stack-sans');\n        btnFontSans.classList.add('active');\n      }\n    }\n  }\n\n  function updateSettings() {\n    StorageManager.saveSettings(settings);\n    applySettings();\n  }\n\n  function saveDraftData() {\n    const draft = {};\n    document.querySelectorAll('[contenteditable]').forEach(elem => {\n      // Save innerHTML for brieftext to persist formatting tags, textContent for others\n      if (elem.id === 'brieftext') {\n        draft[elem.id] = elem.innerHTML;\n      } else {\n        draft[elem.id] = elem.textContent;\n      }\n    });\n    StorageManager.saveDraft('current', draft);\n  }\n\n  function loadDraftData() {\n    const draft = StorageManager.loadDraft('current');\n    if (draft) {\n      Object.keys(draft).forEach(id => {\n        const elem = document.getElementById(id);\n        if (elem) {\n          if (id === 'brieftext') {\n            if (elem.setHTML) {\n              elem.setHTML(draft[id]);\n            } else {\n              elem.innerHTML = draft[id];\n            }\n          } else {\n            elem.textContent = draft[id];\n          }\n        }\n      });\n    }\n\n    // Auto-fill today's date via native W3C Temporal API if datum element is empty\n    const datumEl = document.getElementById('datum');\n    if (datumEl && !datumEl.textContent.trim()) {\n      /* \n       * 🚨 LEGACY DATE API BAN & JS REPLACEMENT COMMENT:\n       * Jegliche Verwendung von legacy Date() oder externen Moment/Date-Fns CDNs \n       * ist gemaess ADR-ANTIPATTERN.md Punkt 6 absolut verboten!\n       * Wir nutzen stattdessen ausschliesslich die native W3C Temporal API.\n       * Sie ist vollkommen zeitzonensicher, unveraenderlich (immutable) und\n       * liefert hier das exakte lokale Systemdatum normgerecht formatiert.\n       */\n      try {\n        const today = Temporal.Now.plainDateISO();\n        const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];\n        datumEl.textContent = `${today.day}. ${months[today.month - 1]} ${today.year}`;\n        saveDraftData();\n      } catch (e) {\n        console.warn('[Temporal] Failed to auto-fill date via Temporal API:', e);\n      }\n    }\n  }\n\n  function resetDraft() {\n    document.querySelectorAll('[contenteditable]').forEach(elem => {\n      elem.innerHTML = '';\n      elem.textContent = '';\n    });\n    saveDraftData();\n    checkTextOverflow();\n    showToast(Constants.TOASTS.RESET_SUCCESS, 'success');\n  }\n});\n\n\n// Dev Mode Trigger: 3-Klick\nlet clickCount = 0;\nlet clickTimeout = null;\ndocument.addEventListener('click', (e) => {\n  clickCount++;\n  clearTimeout(clickTimeout);\n  clickTimeout = setTimeout(() => { clickCount = 0; }, 1000);\n  if (clickCount === 3) {\n    clickCount = 0;\n    clearTimeout(clickTimeout);\n    runLiveDiagnostics();\n    const popover = document.getElementById('dev-popover');\n    if (popover && !popover.matches(':popover-open')) {\n       popover.showPopover();\n    }\n  }\n});\n\n\n// @adr [[ADR-JS]]\n// JSON Export (Dev Tool)\ndocument.getElementById('btn-copy-json')?.addEventListener('click', async (e) => {\n  const btn = e.target;\n  const originalText = btn.textContent;\n  btn.textContent = 'Kopiere...';\n  \n  const state = {\n    absender: document.getElementById('absender')?.innerHTML,\n    empfaengerName: document.getElementById('empfaenger-name')?.innerHTML,\n    empfaengerFirma: document.getElementById('empfaenger-firma')?.innerHTML,\n    empfaengerStrasse: document.getElementById('empfaenger-strasse')?.innerHTML,\n    empfaengerOrt: document.getElementById('empfaenger-ort')?.innerHTML,\n    betreff: document.getElementById('betreff')?.innerHTML,\n    anrede: document.getElementById('anrede')?.innerHTML,\n    brieftext: document.getElementById('brieftext')?.innerHTML,\n    grussformel: document.getElementById('grussformel')?.innerHTML,\n    unterschrift: document.getElementById('unterschrift')?.innerHTML,\n  };\n  \n  try {\n    await navigator.clipboard.writeText(JSON.stringify(state, null, 2));\n    btn.textContent = '✅ Kopiert!';\n  } catch (err) {\n    btn.textContent = '❌ Fehler';\n  }\n  \n  setTimeout(() => { btn.textContent = originalText; }, 2000);\n});\n\n\n// JSON Import (Dev Tool)\ndocument.getElementById('btn-paste-json')?.addEventListener('click', async (e) => {\n  const btn = e.target;\n  const originalText = btn.textContent;\n  btn.textContent = 'Füge ein...';\n  try {\n    const text = await navigator.clipboard.readText();\n    const state = JSON.parse(text);\n    for (const key of Object.keys(state)) {\n      const elem = document.getElementById(key);\n      if (elem) {\n        if (key === 'brieftext') {\n          if (elem.setHTML) elem.setHTML(state[key]);\n          else elem.innerHTML = state[key];\n        } else {\n          elem.innerHTML = state[key];\n        }\n      }\n    }\n    btn.textContent = '✅ Eingefügt!';\n  } catch (err) {\n    btn.textContent = '❌ Fehler';\n    console.error(err);\n  }\n  setTimeout(() => { btn.textContent = originalText; }, 2000);\n});\n
+    });
+    // --- ZIPPOPOTAM PLZ AUTO-LOOKUP ---
+    const empfOrtEl = document.getElementById('empfaenger-ort');
+    if (empfOrtEl) {
+      empfOrtEl.addEventListener('input', () => {
+        const text = empfOrtEl.textContent.trim();
+        const zipMatch = text.match(/^(\d{5})/);
+        if (zipMatch) {
+          const zip = zipMatch[1];
+          clearTimeout(empfOrtEl._zipDebounce);
+          empfOrtEl._zipDebounce = setTimeout(async () => {
+            try {
+              const res = await fetch(`https://api.zippopotam.us/de/${zip}`);
+              if (!res.ok) return;
+              const data = await res.json();
+              if (data.places && data.places.length > 0) {
+                const city = data.places[0]["place name"];
+                const newText = `${zip} ${city}`;
+                
+                // Caret protection
+                if (document.activeElement === empfOrtEl) {
+                  const selection = window.getSelection();
+                  const offset = selection.focusOffset;
+                  empfOrtEl.textContent = newText;
+                  
+                  // Restore caret to end
+                  const range = document.createRange();
+                  range.selectNodeContents(empfOrtEl);
+                  range.collapse(false);
+                  selection.removeAllRanges();
+                  selection.addRange(range);
+                } else {
+                  empfOrtEl.textContent = newText;
+                }
+                
+                saveDraftData();
+                showToast(`Ort gefunden: ${city}`, "info");
+              }
+            } catch (err) {
+              console.warn('[ZIP] Zippopotam Lookup failed:', err);
+            }
+          }, 300);
+        }
+      });
+    }
+
+    // --- AUTOMATIC SENDER COORDINATES LOOKUP FOR PROXIMITY BIASING ---
+    const absenderEl = document.getElementById('absender');
+    if (absenderEl) {
+      const checkSenderPLZ = () => {
+        const text = absenderEl.textContent.trim();
+        const zipMatch = text.match(/\b\d{5}\b/);
+        if (zipMatch) {
+          const zip = zipMatch[0];
+          
+          // Load cached coords to prevent duplicate API hits
+          let cached = {};
+          try {
+            cached = JSON.parse(localStorage.getItem('din_sender_coords') || '{}');
+          } catch(e){}
+
+          if (cached.zip === zip) return; // Already cached!
+
+          // Fetch coordinates
+          clearTimeout(absenderEl._zipDebounce);
+          absenderEl._zipDebounce = setTimeout(async () => {
+            try {
+              const res = await fetch(`https://api.zippopotam.us/de/${zip}`);
+              if (!res.ok) return;
+              const data = await res.json();
+              if (data.places && data.places.length > 0) {
+                const place = data.places[0];
+                const coords = {
+                  lat: parseFloat(place.latitude),
+                  lon: parseFloat(place.longitude),
+                  zip: zip,
+                  city: place["place name"]
+                };
+                localStorage.setItem('din_sender_coords', JSON.stringify(coords));
+                console.log('[Proximity] Geocoded sender coords cached:', coords);
+              }
+            } catch (err) {
+              console.warn('[Proximity] Sender ZIP lookup failed:', err);
+            }
+          }, 1000); // 1s delay during active typing
+        }
+      };
+
+      absenderEl.addEventListener('input', checkSenderPLZ);
+      // Run once on boot to extract initial PLZ from loaded draft absender
+      setTimeout(checkSenderPLZ, 500);
+    }
+  }
+
+  // --- CENTRAL TOAST QUEUE MANAGER (Stacking Prevention with Symmetrical Native Transitions) ---
+  const toastQueue = [];
+  let isToastActive = false;
+
+  function showToast(message, type = 'info') {
+    toastQueue.push({ message, type });
+    processToastQueue();
+  }
+
+  function processToastQueue() {
+    if (isToastActive || toastQueue.length === 0 || !globalToast) return;
+
+    isToastActive = true;
+    const { message, type } = toastQueue.shift();
+
+    globalToast.textContent = message;
+    globalToast.className = `toast-container type-${type}`;
+
+    try {
+      globalToast.showPopover();
+
+      /* 
+       * 🚨 OBSOLETE JS CODE REMOVED & REPLACED BY MODERN CSS:
+       * Durch 'transition-behavior: allow-discrete' und '@starting-style' in floating.css
+       * ist das komplexe Lauschen auf 'animationend' in JS vollkommen ueberfluessig geworden!
+       * Der Browser steuert die symmetrische Ein-/Ausblend-Animation vollkommen autonom.
+       * JS triggert nach 3s einfach hidePopover(), den Rest macht die Engine auf GPU-Ebene.
+       */
+      let cleanedUp = false;
+      const cleanupPopover = () => {
+        if (cleanedUp) return;
+        cleanedUp = true;
+
+        if (globalToast.matches(':popover-open')) {
+          globalToast.hidePopover();
+        }
+        
+        // Warte, bis die native CSS-Austritts-Animation (250ms) vollstaendig beendet ist
+        setTimeout(() => {
+          isToastActive = false;
+          processToastQueue();
+        }, 300);
+      };
+
+      const displayTimeout = setTimeout(cleanupPopover, 3000);
+      
+      globalToast.onclick = () => {
+        clearTimeout(displayTimeout);
+        cleanupPopover();
+      };
+    } catch (e) {
+      console.warn('[Toast] Popover API failure:', e);
+      isToastActive = false;
+      setTimeout(processToastQueue, 200);
+    }
+  }
+
+  // --- WHATSAPP-STYLE FORMATTING TOOLBAR & SHORTCUTS ---
+  function attachFormattingToolbar() {
+    if (!formatToolbar || !brieftext) return;
+
+    const selectionAnchor = document.getElementById('selection-anchor');
+
+    // Debounced Selection Change listener for performance (50ms)
+    let selectionTimeout;
+    document.addEventListener('selectionchange', () => {
+      clearTimeout(selectionTimeout);
+      selectionTimeout = setTimeout(handleSelectionChange, 50);
+    });
+
+    // Native-like DOM Tree Traversal to find formatting states zukunftsfähig
+    function isSelectionInsideTag(tagName) {
+      const selection = window.getSelection();
+      if (selection.rangeCount === 0) return false;
+      
+      const isCustomComment = tagName === 'comment';
+      const actualTag = isCustomComment ? 'SPAN' : tagName;
+
+      let node = selection.anchorNode;
+      while (node && node !== brieftext) {
+        const name = node.nodeName.toUpperCase();
+        if (name === actualTag.toUpperCase() || 
+            (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
+          if (isCustomComment && !node.classList.contains('din-comment')) {
+            // Keep searching upwards
+          } else {
+            return true;
+          }
+        }
+        node = node.parentNode;
+      }
+      return false;
+    }
+
+    function getBlockquoteAncestor(anchorNode) {
+      let node = anchorNode;
+      while (node && node !== brieftext) {
+        if (node.nodeName === 'BLOCKQUOTE') return node;
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    function handleSelectionChange() {
+      const selection = window.getSelection();
+
+      // Vorfilter: Is something selected?
+      if (selection.isCollapsed || selection.toString().trim().length === 0) {
+        hideToolbar();
+        return;
+      }
+
+      // Scope-Filter: Is selection strictly inside brieftext?
+      if (!brieftext.contains(selection.anchorNode)) {
+        hideToolbar();
+        return;
+      }
+
+      // Read Range coordinates
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      // Position the external anchor exactly at the start of the selection relative to the body
+      if (selectionAnchor) {
+        selectionAnchor.style.top = `${rect.top}px`;
+        selectionAnchor.style.left = `${rect.left}px`;
+      }
+
+      // Open Popover first so offsetHeight/offsetWidth are calculated by browser
+      if (!formatToolbar.matches(':popover-open')) {
+        try {
+          formatToolbar.showPopover();
+        } catch (e) {
+          console.warn('[Toolbar] showPopover failed:', e);
+        }
+      }
+
+      // Zustandserkennung & A11y
+      const isBold = isSelectionInsideTag('B');
+      const isUnderline = isSelectionInsideTag('U');
+      const isQuote = isSelectionInsideTag('BLOCKQUOTE');
+      const isComment = isSelectionInsideTag('comment');
+      const btnComment = document.getElementById('btn-comment');
+
+      if (isBold) {
+        btnBold.classList.add('active');
+        btnBold.setAttribute('aria-pressed', 'true');
+      } else {
+        btnBold.classList.remove('active');
+        btnBold.setAttribute('aria-pressed', 'false');
+      }
+
+      if (isUnderline) {
+        btnUnderline.classList.add('active');
+        btnUnderline.setAttribute('aria-pressed', 'true');
+      } else {
+        btnUnderline.classList.remove('active');
+        btnUnderline.setAttribute('aria-pressed', 'false');
+      }
+
+      if (isQuote) {
+        btnQuote.classList.add('active');
+        btnQuote.setAttribute('aria-pressed', 'true');
+      } else {
+        btnQuote.classList.remove('active');
+        btnQuote.setAttribute('aria-pressed', 'false');
+      }
+
+      if (btnComment) {
+        if (isComment) {
+          btnComment.classList.add('active');
+          btnComment.setAttribute('aria-pressed', 'true');
+        } else {
+          btnComment.classList.remove('active');
+          btnComment.setAttribute('aria-pressed', 'false');
+        }
+      }
+    }
+
+    function hideToolbar() {
+      if (formatToolbar.matches(':popover-open')) {
+        formatToolbar.hidePopover();
+      }
+    }
+
+    // Custom pure DOM selection formatting implementation replacing deprecated execCommand
+    function toggleFormat(tagName) {
+      const selection = window.getSelection();
+      if (selection.isCollapsed || !brieftext.contains(selection.anchorNode)) return;
+
+      const range = selection.getRangeAt(0);
+      
+      const isCustomComment = tagName === 'comment';
+      const actualTag = isCustomComment ? 'SPAN' : tagName;
+      
+      if (isSelectionInsideTag(tagName)) {
+        // UNWRAP
+        let node = selection.anchorNode;
+        let formatNode = null;
+        while (node && node !== brieftext) {
+          const name = node.nodeName.toUpperCase();
+          if (name === actualTag.toUpperCase() || (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
+            if (isCustomComment && !node.classList.contains('din-comment')) {
+               // Keep searching
+            } else {
+              formatNode = node;
+              break;
+            }
+          }
+          node = node.parentNode;
+        }
+        
+        if (formatNode) {
+          const parent = formatNode.parentNode;
+          const fragment = document.createDocumentFragment();
+          while (formatNode.firstChild) {
+            fragment.appendChild(formatNode.firstChild);
+          }
+          parent.replaceChild(fragment, formatNode);
+        }
+      } else {
+        // WRAP
+        const wrapper = document.createElement(actualTag.toLowerCase());
+        if (isCustomComment) wrapper.className = 'din-comment';
+        try {
+          wrapper.appendChild(range.extractContents());
+          range.insertNode(wrapper);
+          selection.selectAllChildren(wrapper);
+        } catch (err) {
+          console.warn('[Format] Failed to wrap range:', err);
+        }
+      }
+      
+      // Clean up empty tags and merge adjacent text nodes
+      brieftext.normalize();
+      
+      saveDraftData();
+      handleSelectionChange();
+    }
+
+    // Button Click Formatting Logic with immediate UI updating
+    btnBold.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleFormat('B');
+    });
+
+    btnUnderline.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleFormat('U');
+    });
+
+    btnQuote.addEventListener('click', (e) => {
+      e.preventDefault();
+      const selection = window.getSelection();
+      if (selection.isCollapsed || !brieftext.contains(selection.anchorNode)) return;
+
+      const range = selection.getRangeAt(0);
+      const bq = getBlockquoteAncestor(selection.anchorNode);
+
+      if (bq) {
+        // UNWRAP: Replace blockquote with its children
+        const parent = bq.parentNode;
+        while (bq.firstChild) {
+          parent.insertBefore(bq.firstChild, bq);
+        }
+        parent.removeChild(bq);
+      } else {
+        // WRAP: Wrap range contents in a blockquote
+        const quote = document.createElement('blockquote');
+        quote.appendChild(range.extractContents());
+        range.insertNode(quote);
+      }
+
+      saveDraftData();
+      handleSelectionChange();
+    });
+
+    const btnComment = document.getElementById('btn-comment');
+    if(btnComment) {
+      btnComment.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFormat('comment');
+      });
+    }
+
+    // Custom non-standard shortcuts only (Standard Strg+B / Strg+U left to native browser)
+    brieftext.addEventListener('keydown', (e) => {
+      // Custom blockquote shortcut: Strg+Shift+9
+      if (e.ctrlKey && e.shiftKey && e.key === '9') {
+        e.preventDefault();
+        btnQuote.click();
+      }
+    });
+
+    // Strikter HTML-Paste-Filter (behält nur strong, b, u, s)
+    brieftext.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const html = e.clipboardData.getData('text/html');
+      const text = e.clipboardData.getData('text/plain');
+
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      
+      if (html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        function sanitizeNode(node) {
+          const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
+          
+          if (node.nodeType === Node.TEXT_NODE) {
+            return document.createTextNode(node.textContent);
+          }
+          
+          if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
+          
+          let newNode;
+          if (allowedTags.includes(node.nodeName)) {
+             newNode = document.createElement(node.nodeName.toLowerCase());
+          } else if (node.nodeName === 'SPAN' && node.classList.contains('din-comment')) {
+             newNode = document.createElement('span');
+             newNode.className = 'din-comment';
+          } else {
+             const frag = document.createDocumentFragment();
+             node.childNodes.forEach(child => {
+               frag.appendChild(sanitizeNode(child));
+             });
+             return frag;
+          }
+          
+          node.childNodes.forEach(child => {
+            newNode.appendChild(sanitizeNode(child));
+          });
+          
+          return newNode;
+        }
+
+        const cleanFragment = document.createDocumentFragment();
+        doc.body.childNodes.forEach(child => {
+          cleanFragment.appendChild(sanitizeNode(child));
+        });
+
+        if (cleanFragment.childNodes.length === 0) {
+            range.insertNode(document.createTextNode(text));
+        } else {
+            const lastChild = cleanFragment.lastChild;
+            range.insertNode(cleanFragment);
+            if (lastChild) {
+                range.setStartAfter(lastChild);
+                range.collapse(true);
+            }
+        }
+      } else {
+        range.insertNode(document.createTextNode(text));
+        selection.collapseToEnd();
+      }
+      
+      selection.removeAllRanges();
+      selection.addRange(range);
+      saveDraftData();
+    });
+
+    // Drag-and-Drop HTML Filter
+    brieftext.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const text = e.dataTransfer.getData('text/plain');
+
+      // Find drop coordinate range
+      const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+      if (range) {
+        range.deleteContents();
+        range.insertNode(document.createTextNode(text));
+      }
+      saveDraftData();
+    });
+  }
+
+  // --- TEXT HEIGHT OVERFLOW WARNING ---
+  function checkTextOverflow() {
+    if (!brieftext) return;
+    
+    // Printable core area maximum height is ~120mm on scale, which is roughly 450px inside 94vh container
+    const maxTextHeight = 450;
+    
+    if (brieftext.scrollHeight > maxTextHeight) {
+      paper.classList.add('overflow-warn');
+    } else {
+      paper.classList.remove('overflow-warn');
+    }
+  }
+
+  // --- GLOBAL EVENT LISTENERS & TRIGGERS ---
+  function attachGlobalListeners() {
+    // Helper for safe native W3C View Transitions
+    function transitionState(updateFn) {
+      if (document.startViewTransition) {
+        document.startViewTransition(updateFn);
+      } else {
+        updateFn();
+      }
+    }
+
+    // Font Stack Toggles
+    if (btnFontSans) {
+      btnFontSans.addEventListener('click', () => {
+        settings.systemFont = 'sans';
+        updateSettings();
+        showToast("🔤 Systemschrift: Sans-Serif aktiv", "info");
+      });
+    }
+    if (btnFontSerif) {
+      btnFontSerif.addEventListener('click', () => {
+        settings.systemFont = 'serif';
+        updateSettings();
+        showToast("🔤 Systemschrift: Serif aktiv", "info");
+      });
+    }
+    if (btnFontMono) {
+      btnFontMono.addEventListener('click', () => {
+        settings.systemFont = 'mono';
+        updateSettings();
+        showToast("🔤 Systemschrift: Monospace aktiv", "info");
+      });
+    }
+
+    // Layout Form switches
+    btnFormA.addEventListener('click', () => {
+      transitionState(() => {
+        settings.layout = 'form-a';
+        updateSettings();
+      });
+    });
+    
+    btnFormB.addEventListener('click', () => {
+      transitionState(() => {
+        settings.layout = 'form-b';
+        updateSettings();
+      });
+    });
+
+    // Theme select toggles
+    btnThemeLight.addEventListener('click', () => {
+      transitionState(() => {
+        settings.theme = 'light';
+        updateSettings();
+      });
+    });
+
+    btnThemeDark.addEventListener('click', () => {
+      transitionState(() => {
+        settings.theme = 'dark';
+        updateSettings();
+      });
+    });
+
+    btnThemeAuto.addEventListener('click', () => {
+      transitionState(() => {
+        settings.theme = 'auto';
+        updateSettings();
+      });
+    });
+
+    // Guides
+    btnToggleGuides.addEventListener('click', () => {
+      settings.guides = !settings.guides;
+      updateSettings();
+    });
+
+    // Print
+    btnPrint.addEventListener('click', () => {
+      showToast(Constants.TOASTS.PRINT_PENDING, 'info');
+      const metaCtx = MetadataService.prepare();
+      
+      setTimeout(() => {
+        window.print();
+        MetadataService.restore(metaCtx);
+      }, 100);
+    });
+
+    // Reset
+    btnReset.addEventListener('click', () => {
+      if (confirm('Möchtest du alle Texte wirklich zurücksetzen?')) {
+        resetDraft();
+      }
+    });
+
+    // Font upload trigger click
+    btnFontUploadTrigger.addEventListener('click', () => {
+      fontUploader.click();
+    });
+
+    // Font reset click listener
+    btnResetFont.addEventListener('click', () => {
+      localStorage.removeItem("din_custom_font");
+      const fontStyle = document.getElementById('din-custom-font-style');
+      if (fontStyle) fontStyle.remove();
+      updateFontStatusUI(false);
+      showToast("🗑️ Eigene Schriftart entfernt", "success");
+    });
+
+    // Font file uploader change listener
+    fontUploader.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check format
+      if (!file.name.endsWith('.woff2')) {
+        showToast(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+        return;
+      }
+
+      // Check file size (60 KB limit)
+      const maxSizeInBytes = Constants.LIMITS.FONT_SIZE_MAX_KB * 1024;
+      if (file.size > maxSizeInBytes) {
+        showToast(Constants.TOASTS.FONT_SIZE_ERROR, 'error');
+        return;
+      }
+
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Font = event.target.result;
+        const success = StorageManager.saveCustomFont(base64Font);
+        if (success) {
+          injectFont(base64Font);
+          updateFontStatusUI(true);
+          showToast(Constants.TOASTS.FONT_UPLOAD_SUCCESS, 'success');
+        } else {
+          showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Auto-Save editables (Global State & Debouncing)
+    let debounceSaveTimer = null;
+    document.querySelectorAll('[contenteditable]').forEach(elem => {
+      elem.addEventListener('input', () => {
+        clearTimeout(debounceSaveTimer);
+        debounceSaveTimer = setTimeout(() => {
+          saveDraftData();
+          console.log('[Store] Global State auto-saved (debounced 400ms).');
+        }, 400);
+        if (elem.id === 'brieftext') {
+          checkTextOverflow();
+        }
+      });
+    });
+  }
+
+  // --- SAVE & DRAFT MANAGEMENT ---
+  function applySettings() {
+    // 1. Layout Mode A/B
+    if (settings.layout === 'form-a') {
+      shell.classList.remove('form-b');
+      shell.classList.add('form-a');
+      btnFormA.classList.add('active');
+      btnFormB.classList.remove('active');
+    } else {
+      shell.classList.remove('form-a');
+      shell.classList.add('form-b');
+      btnFormB.classList.add('active');
+      btnFormA.classList.remove('active');
+    }
+
+    // 2. Color Schemes (Theme light-dark supported)
+    if (settings.theme === 'light') {
+      document.documentElement.style.colorScheme = 'light';
+      btnThemeLight.classList.add('active');
+      btnThemeDark.classList.remove('active');
+      btnThemeAuto.classList.remove('active');
+    } else if (settings.theme === 'dark') {
+      document.documentElement.style.colorScheme = 'dark';
+      btnThemeDark.classList.add('active');
+      btnThemeLight.classList.remove('active');
+      btnThemeAuto.classList.remove('active');
+    } else {
+      document.documentElement.removeAttribute('style'); // Inherits system color scheme
+      btnThemeAuto.classList.add('active');
+      btnThemeLight.classList.remove('active');
+      btnThemeDark.classList.remove('active');
+    }
+
+    // 3. Layout Guides overlay
+    /* 
+     * 🚨 LLM ARCHITECTURE NOTE & JS REDUCTION COMMENT:
+     * Dank '@property --guide-opacity' in variables.css ist JavaScript komplett 
+     * entlastet von jeglichen Animationsschleifen, Intervallen oder CSS-Klassen-Fading-Hacks!
+     * JS setzt den Variablenwert direkt als pure Zahl (0.15 oder 0), und der Browser 
+     * animiert die Sichtbarkeit der Loch- und Falzmarken stufenlos und nativ auf GPU-Ebene.
+     */
+    if (settings.guides) {
+      document.documentElement.style.setProperty('--guide-opacity', '0.15');
+      btnToggleGuides.textContent = '📐 Guides ausblenden';
+      btnToggleGuides.classList.add('primary');
+    } else {
+      document.documentElement.style.setProperty('--guide-opacity', '0');
+      btnToggleGuides.textContent = '📐 Guides einblenden';
+      btnToggleGuides.classList.remove('primary');
+    }
+
+    // 4. System Font Stacks
+    if (btnFontSans && btnFontSerif && btnFontMono) {
+      document.body.classList.remove('font-stack-sans', 'font-stack-serif', 'font-stack-mono');
+      
+      btnFontSans.classList.remove('active');
+      btnFontSerif.classList.remove('active');
+      btnFontMono.classList.remove('active');
+
+      if (settings.systemFont === 'serif') {
+        document.body.classList.add('font-stack-serif');
+        btnFontSerif.classList.add('active');
+      } else if (settings.systemFont === 'mono') {
+        document.body.classList.add('font-stack-mono');
+        btnFontMono.classList.add('active');
+      } else {
+        document.body.classList.add('font-stack-sans');
+        btnFontSans.classList.add('active');
+      }
+    }
+  }
+
+  function updateSettings() {
+    StorageManager.saveSettings(settings);
+    applySettings();
+  }
+
+  function saveDraftData() {
+    const draft = {};
+    document.querySelectorAll('[contenteditable]').forEach(elem => {
+      // Save innerHTML for brieftext to persist formatting tags, textContent for others
+      if (elem.id === 'brieftext') {
+        draft[elem.id] = elem.innerHTML;
+      } else {
+        draft[elem.id] = elem.textContent;
+      }
+    });
+    StorageManager.saveDraft('current', draft);
+  }
+
+  function loadDraftData() {
+    const draft = StorageManager.loadDraft('current');
+    if (draft) {
+      Object.keys(draft).forEach(id => {
+        const elem = document.getElementById(id);
+        if (elem) {
+          if (id === 'brieftext') {
+            if (elem.setHTML) {
+              elem.setHTML(draft[id]);
+            } else {
+              elem.innerHTML = draft[id];
+            }
+          } else {
+            elem.textContent = draft[id];
+          }
+        }
+      });
+    }
+
+    // Auto-fill today's date via native W3C Temporal API if datum element is empty
+    const datumEl = document.getElementById('datum');
+    if (datumEl && !datumEl.textContent.trim()) {
+      /* 
+       * 🚨 LEGACY DATE API BAN & JS REPLACEMENT COMMENT:
+       * Jegliche Verwendung von legacy Date() oder externen Moment/Date-Fns CDNs 
+       * ist gemaess ADR-ANTIPATTERN.md Punkt 6 absolut verboten!
+       * Wir nutzen stattdessen ausschliesslich die native W3C Temporal API.
+       * Sie ist vollkommen zeitzonensicher, unveraenderlich (immutable) und
+       * liefert hier das exakte lokale Systemdatum normgerecht formatiert.
+       */
+      try {
+        const today = Temporal.Now.plainDateISO();
+        const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        datumEl.textContent = `${today.day}. ${months[today.month - 1]} ${today.year}`;
+        saveDraftData();
+      } catch (e) {
+        console.warn('[Temporal] Failed to auto-fill date via Temporal API:', e);
+      }
+    }
+  }
+
+  function resetDraft() {
+    document.querySelectorAll('[contenteditable]').forEach(elem => {
+      elem.innerHTML = '';
+      elem.textContent = '';
+    });
+    saveDraftData();
+    checkTextOverflow();
+    showToast(Constants.TOASTS.RESET_SUCCESS, 'success');
+  }
+});
+
+
+// Dev Mode Trigger: 3-Klick
+let clickCount = 0;
+let clickTimeout = null;
+document.addEventListener('click', (e) => {
+  clickCount++;
+  clearTimeout(clickTimeout);
+  clickTimeout = setTimeout(() => { clickCount = 0; }, 1000);
+  if (clickCount === 3) {
+    clickCount = 0;
+    clearTimeout(clickTimeout);
+    runLiveDiagnostics();
+    const popover = document.getElementById('dev-popover');
+    if (popover && !popover.matches(':popover-open')) {
+       popover.showPopover();
+    }
+  }
+});
+
+
+// @adr [[ADR-JS]]
+// JSON Export (Dev Tool)
+document.getElementById('btn-copy-json')?.addEventListener('click', async (e) => {
+  const btn = e.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Kopiere...';
+  
+  const state = {
+    absender: document.getElementById('absender')?.innerHTML,
+    empfaengerName: document.getElementById('empfaenger-name')?.innerHTML,
+    empfaengerFirma: document.getElementById('empfaenger-firma')?.innerHTML,
+    empfaengerStrasse: document.getElementById('empfaenger-strasse')?.innerHTML,
+    empfaengerOrt: document.getElementById('empfaenger-ort')?.innerHTML,
+    betreff: document.getElementById('betreff')?.innerHTML,
+    anrede: document.getElementById('anrede')?.innerHTML,
+    brieftext: document.getElementById('brieftext')?.innerHTML,
+    grussformel: document.getElementById('grussformel')?.innerHTML,
+    unterschrift: document.getElementById('unterschrift')?.innerHTML,
+  };
+  
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
+    btn.textContent = '✅ Kopiert!';
+  } catch (err) {
+    btn.textContent = '❌ Fehler';
+  }
+  
+  setTimeout(() => { btn.textContent = originalText; }, 2000);
+});
+
+
+// JSON Import (Dev Tool)
+document.getElementById('btn-paste-json')?.addEventListener('click', async (e) => {
+  const btn = e.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Füge ein...';
+  try {
+    const text = await navigator.clipboard.readText();
+    const state = JSON.parse(text);
+    for (const key of Object.keys(state)) {
+      const elem = document.getElementById(key);
+      if (elem) {
+        if (key === 'brieftext') {
+          if (elem.setHTML) elem.setHTML(state[key]);
+          else elem.innerHTML = state[key];
+        } else {
+          elem.innerHTML = state[key];
+        }
+      }
+    }
+    btn.textContent = '✅ Eingefügt!';
+  } catch (err) {
+    btn.textContent = '❌ Fehler';
+    console.error(err);
+  }
+  setTimeout(() => { btn.textContent = originalText; }, 2000);
+});

@@ -1137,7 +1137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btnThemeLight.classList.remove('active');
       btnThemeAuto.classList.remove('active');
     } else {
-      document.documentElement.removeAttribute('style'); // Inherits system color scheme
+      document.documentElement.style.removeProperty('color-scheme'); // Inherits system color scheme
       btnThemeAuto.classList.add('active');
       btnThemeLight.classList.remove('active');
       btnThemeDark.classList.remove('active');

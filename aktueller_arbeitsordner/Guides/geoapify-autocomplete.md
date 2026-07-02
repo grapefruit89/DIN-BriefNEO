@@ -1,9 +1,18 @@
 ---
 title: "Guide: Geoapify Autocomplete Implementierung"
 status: active
-tags: [guide, documentation, geoapify, autocomplete]
-aliases: ["Geoapify Guide"]
-related: ["[[ADR-GEOAPIFY]]", "[[ADR-ANTIPATTERN]]"]
+tags:
+  - guide
+  - documentation
+  - geoapify
+  - autocomplete
+aliases:
+  - "Geoapify Guide"
+related:
+  - "[[ADR-GEOAPIFY"
+last-updated: 2026-07-02
+project: DIN-BriefNEO
+type: guide
 ---
 
 # Guide: Geoapify Autocomplete Implementierung

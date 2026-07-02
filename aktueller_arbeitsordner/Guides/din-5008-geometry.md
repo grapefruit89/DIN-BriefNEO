@@ -1,8 +1,16 @@
 ---
-title: DIN 5008 Geometry Master Data (SSoT)
+title: "Guide: DIN 5008 Geometry Master Data (SSoT)"
 status: active
-tags: [obsidian, documentation, guide, manual]
-aliases: ["DIN 5008 Geometry"]
+tags:
+  - obsidian
+  - documentation
+  - guide
+  - manual
+aliases:
+  - "DIN 5008 Geometry"
+last-updated: 2026-07-02
+project: DIN-BriefNEO
+type: guide
 ---
 
 # DIN 5008 Geometry Master Data (SSoT)

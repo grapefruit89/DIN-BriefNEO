@@ -1,8 +1,16 @@
 ---
-title: DIN 5008 Layout-Richtlinien (SSoT)
+title: "Guide: DIN 5008 Layout-Richtlinien (SSoT)"
 status: active
-tags: [obsidian, documentation, guide, manual]
-aliases: ["DIN 5008 Layout"]
+tags:
+  - obsidian
+  - documentation
+  - guide
+  - manual
+aliases:
+  - "DIN 5008 Layout"
+last-updated: 2026-07-02
+project: DIN-BriefNEO
+type: guide
 ---
 
 # DIN 5008 Layout-Richtlinien (SSoT)

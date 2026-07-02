@@ -1,8 +1,18 @@
 ---
-title: Longevity & W3C Native Standards Guidelines (Longevity Guide)
+title: "Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)"
 status: active
-tags: [obsidian, documentation, guide, manual, architecture]
-aliases: ["Longevity Guidelines", "W3C Standards"]
+tags:
+  - obsidian
+  - documentation
+  - guide
+  - manual
+  - architecture
+aliases:
+  - "Longevity Guidelines"
+  - "W3C Standards"
+last-updated: 2026-07-02
+project: DIN-BriefNEO
+type: guide
 ---
 
 # Longevity & W3C Native Standards Guidelines (Longevity Guide)

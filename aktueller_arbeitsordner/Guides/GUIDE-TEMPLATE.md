@@ -1,63 +1,88 @@
 ---
 title: "Guide: [Thema des Guides]"
-status: draft | active | deprecated
-tags: [guide, documentation, template]
-aliases: ["Thema Guide"]
-related: ["[[ADR-000]]"]
+status: active | draft | deprecated
+tags: 
+  - guide
+  - css
+  - js
+  - documentation
+  - testing
+aliases: 
+  - "Kurzer Alias"
+  - "Weiterer Alias"
+related:
+  - "[[ADR-XXX]]"
+  - "[[longevity-guidelines]]"
+last-updated: YYYY-MM-DD
+project: DIN-BriefNEO
+type: guide
 ---
 
 # Guide: [Titel]
 
-> [!tip] Was ist ein Guide?
-> Im Gegensatz zu einem ADR (das eine einmalige Entscheidung dokumentiert), ist ein Guide ein lebendes Handbuch. Hier erklären wir, *wie* Dinge in unserem Projekt umgesetzt werden (z. B. "Wie nutzen wir CSS?", "Wie testen wir?").
+> [!tip] Was ist dieser Guide?
+> Kurze Erklärung, warum dieser Guide existiert und für wen er gedacht ist.  
+> Im Gegensatz zu einem ADR dokumentiert ein Guide *wie* etwas umgesetzt wird (Best Practices, Techniken, Workflows).
 
 ## 1. Einleitung & Zielsetzung
 
-Kurze Einleitung, warum dieser Guide existiert. Verlinke verwandte Konzepte per [[Wiki-Link]].
+Kurze Einleitung:
+- Was ist das Ziel dieses Guides?
+- Welches Problem löst er?
+- Welche Annahmen gibt es?
 
-## 2. Best Practices
+## 2. Best Practices & Regeln
 
-Nutze verschachtelte Listen und Checklisten, um Richtlinien klar zu formulieren:
-- **Regel 1**: Schreibe klaren Code.
-  - [x] Überprüft durch Linter
-  - [ ] Noch nicht dokumentiert
-- **Regel 2**: Nutze native APIs.
+Hier kommen die konkreten Richtlinien. Nutze Checklisten oder nummerierte Listen:
 
-### Code-Beispiele (Vorher / Nachher)
+- **Regel 1**: ...
+  - [x] Wird bereits umgesetzt
+  - [ ] Noch ausstehend
+- **Regel 2**: ...
 
-Nutze Diff-Blöcke (`diff`), um Verbesserungen oder Refactorings zu veranschaulichen:
+### Vorher / Nachher Beispiele
+
+Nutze `diff` Blöcke, wenn es um Code-Verbesserungen geht:
 
 ```diff
-- const elements = document.querySelectorAll('.old-class');
-- elements.forEach(el => el.style.display = 'none');
-+ // Neuer Zero-JS Ansatz via CSS
-+ :root:has(#toggle:checked) .new-class { display: none; }
-```
+- // Alter Ansatz
+- element.style.top = calculatedTop + 'px';
 
-### Syntax Highlighting
-
-Nutze spezifische Code-Blöcke (`css`, `javascript`, `html`), um die Lesbarkeit zu garantieren:
-
-```css
-.glassmorphism {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
++ // Neuer deklarativer Ansatz
++ element.style.positionAnchor = '--selection-anchor';
 ```
 
 ## 3. Komplexere Zusammenhänge
 
-Wenn ein Konzept schwer zu erklären ist, verstecke Randnotizen in einem Aufklapp-Menü:
+Falls ein Thema tiefergehend erklärt werden muss:
 
 <details>
-<summary>Deep Dive: Wie funktioniert Backdrop-Filter? (Klicken)</summary>
-Backdrop-Filter wendet grafische Effekte (wie Unschärfe) auf den Bereich *hinter* einem Element an. Das Element selbst muss dafür teilweise transparent sein (z.B. durch `rgba`).
+<summary>Deep Dive: [Thema] (Klicken zum Ausklappen)</summary>
+
+Hier können längere Erklärungen, Diagramme oder Hintergrundwissen stehen.
+
 </details>
 
-## 4. Feature Checks
+## 4. Feature Checks (falls relevant)
 
-Gibt dieser Guide vor, bestimmte Web-APIs zu nutzen? Dann trage sie hier in das Compiler-System ein:
+Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 
 ```javascript feature-check
-// f("CSS backdrop-filter", CSS.supports("backdrop-filter: blur(10px)"), "Chrome 76", "Produktiv")
+// f("Feature Name", typeof globalThis.Feature !== "undefined", "Chrome XXX", "Produktiv")
 ```
+
+## 5. Verwandte Dokumente
+
+- [[longevity-guidelines]]
+- [[ADR-XXX]]
+- [[glossary]]
+
+---
+
+## Hinweise zur Nutzung dieses Templates
+
+- **Frontmatter ist verpflichtend**
+- Der Guide soll **praktisch** und **umsetzbar** sein (keine reinen Theorie-Texte)
+- Nutze `diff`-Blöcke und `<details>` für bessere Lesbarkeit
+- Halte den Guide möglichst **kurz und fokussiert** (max. 1–2 Bildschirmseiten ideal)
+- Verlinke stark auf ADRs und andere Guides statt Inhalte zu duplizieren

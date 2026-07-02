@@ -31,7 +31,7 @@ Der Hauptunterschied liegt in der Höhe des Briefkopfs, was die Position aller d
 | **Infoblock (Beginn)** | 32 mm | 50 mm |
 | **Fluchtlinie (links)** | 50 mm | 50 mm |
 | **Falzmarke 1 (oben)** | 87 mm | 105 mm |
-| **Falzmarke 2 (unten)** | 181 mm | 199 mm |
+| **Falzmarke 2 (unten)** | 181 mm | **210 mm** |
 | **Lochmarke (Mitte)** | 148,5 mm | 148,5 mm |
 
 ---
@@ -56,7 +56,7 @@ Der Informationsblock befindet sich rechts oben und enthält Metadaten wie Akten
 
 ## 5. Briefkern (Betreff, Anrede, Text)
 Der eigentliche Textbereich (Briefkern) beginnt unterhalb des Anschriftfelds:
-- **Betreff:** Beginnt bei **103,4 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende.
+- **Betreff:** Beginnt bei **109 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende.
 - **Abstand zur Anrede:** 2 Leerzeilen (ca. 8,46 mm) unter dem Betreff.
 - **Anrede:** Standard-Anredeformel ("Sehr geehrte Damen und Herren,", "Lieber Herr...").
 - **Abstand zum Text:** 1 Leerzeile unter der Anrede.

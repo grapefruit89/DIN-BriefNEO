@@ -72,11 +72,11 @@ Der Kernbereich enthält Betreff, Anrede, Text, Grußformel und Unterschrift.
 
 | Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
 | :--- | :--- | :--- | :--- | :--- |
-| **Beginn Briefkern (Y)** | **85.4 mm** | **103.4 mm** | — | DIN 5008, Abs. 18 & 19 |
+| **Beginn Briefkern (Y)** | **85.4 mm** | **109 mm** | — | DIN 5008, Abs. 18 & 19 |
 | **Linke Fluchtlinie (X)** | 25 mm | 25 mm | — | DIN 5008, Abs. 6.1 |
 | **Rechte Begrenzung (X)** | 190 mm | 190 mm | — | DIN 5008, Abs. 6.2 (210mm - 20mm) |
 | **Maximal-Breite** | 165 mm | 165 mm | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Betreffzeile (Y)** | 85.4 mm | 103.4 mm | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 (Max. 2 Zeilen) |
+| **Betreffzeile (Y)** | 85.4 mm | **109 mm** | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 (Max. 2 Zeilen) |
 | **Abstand Betreff zu Anrede** | 2 Leerzeilen (**8.46 mm**) | 2 Leerzeilen (**8.46 mm**) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
 | **Anredezeile (Y)** | 100.4 mm | 118.4 mm | 10.5 pt (**3.70 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
 | **Abstand Anrede zu Text** | 1 Leerzeile (**4.23 mm**) | 1 Leerzeile (**4.23 mm**) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
@@ -93,7 +93,7 @@ Die Hilfsmarken dienen der physischen Faltung und Lochung. Die Y-Werte beziehen 
 | Hilfsmarke | Form A | Form B | Breite / Stil | Quelle |
 | :--- | :--- | :--- | :--- | :--- |
 | **Falzmarke 1 (oben)** | **87 mm** | **105 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 60mm) |
-| **Falzmarke 2 (unten)** | **181 mm** | **199 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 154mm) |
+| **Falzmarke 2 (unten)** | **181 mm** | **210 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 154mm) |
 | **Lochmarke (Mitte)** | **148.5 mm** | **148.5 mm** | 5 mm (horizontal) | DIN 5008, Abs. 25 (exakt Blatthöhe / 2) |
 
 ---

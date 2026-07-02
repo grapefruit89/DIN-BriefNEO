@@ -195,7 +195,7 @@ aside {
 
   /* Falzmarken & Lochmarken proportionale Koordinaten */
   .din-fold-top { top: calc(105 / 297 * 100cqh); } /* Form B default: 105mm */
-  .din-fold-bottom { top: calc(199 / 297 * 100cqh); } /* Form B default: 199mm */
+  .din-fold-bottom { top: calc(210 / 297 * 100cqh); } /* Form B default: 210mm */
   .din-punch { 
     top: calc(148.5 / 297 * 100cqh); /* Lochmarke: exakt in der Mitte bei 148.5mm */
     width: calc(12 / 210 * 100cqw); /* Breite: 12mm */
@@ -256,7 +256,7 @@ aside {
   /* Briefkern */
   #briefkern {
     position: absolute;
-    top: calc(103.4 / 297 * 100cqh); /* Standard Form B */
+    top: calc(109 / 297 * 100cqh); /* Standard Form B: 109mm (unter Falz 1) */
     left: calc(25 / 210 * 100cqw);  /* Linker Fluchtrand: 25mm */
     right: calc(20 / 210 * 100cqw); /* Rechter Rand: 20mm */
     bottom: calc(30 / 297 * 100cqh); /* Abstand nach unten für Footer */

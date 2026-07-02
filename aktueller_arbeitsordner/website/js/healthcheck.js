@@ -8,16 +8,18 @@ export function runLiveDiagnostics() {
   const f = (name, supported, baseline, rec) => ({ name, supported, baseline, rec });
 
   const features = [
-    f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
+    // f("Feature Name", Bedingung, "Chrome XXX", "Status")
+f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
 f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv"),
+    f("Geoapify Autocomplete", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv"),
+f("CSS Anchor Positioning", CSS.supports("anchor-name: --test"), "Chrome 125", "Produktiv"),
     f("Temporal API", typeof globalThis.Temporal !== "undefined", "Chrome 146", "Future-Proof"),
 f("View Transitions (Scoped)", typeof document.startViewTransition !== "undefined", "Chrome 146", "Future-Proof"),
 f("Sanitizer API (Native)", typeof globalThis.Sanitizer !== "undefined", "Chrome 147", "Future-Proof"),
 f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chrome 119", "Produktiv"),
-    f("CSS @scope (Isolation)", typeof CSSScopeRule !== "undefined", "Chrome 118", "Future-Proof"),
-f("CSS Anchor Positioning", typeof CSS !== "undefined" && CSS.supports && CSS.supports("anchor-name: --foo"), "Chrome 125", "Future-Proof"),
-f("CSS light-dark()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: light-dark(black, white)"), "Chrome 123", "Produktiv"),
-f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: oklch(from red l c h)"), "Chrome 119", "Produktiv")
+    // f("Feature Name", Bedingung, "Chrome XXX", "Status"),
+    // f("Geoapify Native Fetch", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv"),
+    // f("Feature Name", typeof globalThis.Feature !== "undefined", "Chrome XXX", "Produktiv")
   ];
 
   const tbody = document.getElementById("diag-results");
@@ -28,7 +30,7 @@ f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS
   }
 
   if (tbody) {
-    tbody.setHTMLUnsafe( features.map(feat => {
+    const htmlStr = features.map(feat => {
       const statusIcon = feat.supported ? "🟢 READY" : "🔴 PENDING";
       const statusClass = feat.supported ? "ready" : "pending";
       return `
@@ -39,7 +41,14 @@ f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS
           <td><em>${feat.rec}</em></td>
         </tr>
       `;
-    }).join(""));
+    }).join("");
+    if (tbody.setHTML) {
+       tbody.setHTML(htmlStr);
+    } else if (tbody.setHTMLUnsafe) {
+       tbody.setHTMLUnsafe(htmlStr);
+    } else {
+       tbody.innerHTML = htmlStr;
+    }
   }
   
   return features;

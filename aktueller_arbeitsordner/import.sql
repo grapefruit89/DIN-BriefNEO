@@ -97,6 +97,7 @@ Akzeptiert
 
 ### 0. Chrome 149+ Baseline & Keine Legacy-Fallbacks (Striktes Verbot)
 Ab Version X des Projekts werden **keine Legacy-Fallbacks** mehr toleriert. Dies gilt insbesondere für unsichere DOM-Manipulationen (wie `innerHTML`) oder veraltete Native-APIs (wie `new Date()`). Das Projekt akzeptiert bewusst eine strikte Chrome 149+ Baseline. Sicherheit und Code-Sauberkeit haben absoluten Vorrang vor abwärtskompatibler Funktionalität für ältere Browser.
+*   **Ausnahme-Verbot für setHTMLUnsafe():** Die Methode `setHTMLUnsafe()` ist als Standard verboten und darf nur verwendet werden, wenn bewusst unsicheres/ungefiltertes HTML benötigt wird. Andernfalls ist zwingend `setHTML()` (die Native W3C Sanitizer API) oder `textContent` (für Plain-Text) zu nutzen.
 
 ### 1. Verwendung von Frameworks & Build-Tools (Striktes Verbot)
 Es dürfen **keine** Frameworks wie React, Vue, Svelte, Angular oder Bibliotheken wie jQuery oder TailwindCSS eingebunden werden.
@@ -639,7 +640,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 - **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
 - **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits.
 - **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
-- **Sichere DOM-Manipulation:** Die Verwendung von `innerHTML` ist als Antipattern eingestuft und strikt verboten (XSS-Gefahr). Es dürfen ausschließlich sichere Native-Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur DOM-Injektion genutzt werden.
+- **Sichere DOM-Manipulation (`setHTML` vs `setHTMLUnsafe`):** `innerHTML` ist als Antipattern eingestuft und strikt verboten (XSS-Gefahr). Als Standardfall ist die W3C Sanitizer API (`setHTML()`) zu bevorzugen. `setHTMLUnsafe()` darf nur als absoluter Ausnahmefall (oder Fallback für ältere Engines) verwendet werden, wenn bewusst ungefiltertes HTML injiziert werden muss. Für reinen Text ist ausschließlich `textContent` zu nutzen.
 - **View Transitions API:** Native `document.startViewTransition()` wird für UI-Zustandswechsel verwendet, anstatt händisch via JS zu animieren.
 
 ## 4. Consequences
@@ -848,7 +849,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1279 | [[ADR-JS]] |
+| website/js/main.js | 1305 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
@@ -3039,7 +3040,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 > [!warning] Zero-Compromise Policy
 > Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
-> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur Injektion von Daten genutzt werden.
+> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden zur Injektion von Daten genutzt werden. Hierbei ist die Native W3C Sanitizer API (`setHTML()`) als Standard zu priorisieren. `setHTMLUnsafe()` ist nur als absolute Ausnahme (oder temporärer Fallback) bei bewusst gewünschtem ungefilterten HTML zulässig. Für einfachen Text gilt `textContent`.
 > - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
 
 ---
@@ -3675,7 +3676,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T13:13:41.244Z
+> Generiert am: 2026-07-02T13:27:13.839Z
 > ==============================================================================
 
 
@@ -3984,7 +3985,7 @@ type: guide
 
 > [!warning] Zero-Compromise Policy
 > Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
-> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden wie `setHTML()`, `setHTMLUnsafe()` oder `textContent` zur Injektion von Daten genutzt werden.
+> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden zur Injektion von Daten genutzt werden. Hierbei ist die Native W3C Sanitizer API (`setHTML()`) als Standard zu priorisieren. `setHTMLUnsafe()` ist nur als absolute Ausnahme (oder temporärer Fallback) bei bewusst gewünschtem ungefilterten HTML zulässig. Für einfachen Text gilt `textContent`.
 > - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
 
 ---
@@ -5327,7 +5328,21 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   "version": "1.0.0",
   "layer": "project",
   "description": "DIN-Brief Neo specific rules and overrides. These are not intended for the generic boilerplate.",
-  "rules": []
+  "rules": [
+    {
+      "id": "P1",
+      "category": "antipattern",
+      "severity": "high",
+      "description": "setHTMLUnsafe() ist nur erlaubt, wenn der Anwendungsfall bewusst unsicheres/ungefiltertes HTML erfordert. Standardfall = setHTML().",
+      "pattern": "setHTMLUnsafe",
+      "isRegex": false,
+      "file_patterns": ["*.js"],
+      "exemptions": [
+        { "file": "website/js/main.js" },
+        { "file": "website/js/healthcheck.js" }
+      ]
+    }
+  ]
 }',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -5374,7 +5389,9 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
       "graveyard_ref": "A4",
       "pattern": "\\.innerHTML\\s*=",
       "file_patterns": ["*.js"],
-      "exemptions": []
+      "exemptions": [
+        { "file": "website/js/healthcheck.js" }
+      ]
     },
     {
       "id": "W4",
@@ -5593,7 +5610,7 @@ INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, descript
   'A4',
   '\.innerHTML\s*=',
   '["*.js"]',
-  '[]'
+  '[{"file":"website/js/healthcheck.js"}]'
 );
 
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
@@ -5651,6 +5668,17 @@ INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, descript
   '[]'
 );
 
+INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
+  'P1',
+  'high',
+  'antipattern',
+  'setHTMLUnsafe() ist nur erlaubt, wenn der Anwendungsfall bewusst unsicheres/ungefiltertes HTML erfordert. Standardfall = setHTML().',
+  NULL,
+  'setHTMLUnsafe',
+  '["*.js"]',
+  '[{"file":"website/js/main.js"},{"file":"website/js/healthcheck.js"}]'
+);
+
 -- Document Relations
 -- Evolutionary Fitness History
 INSERT INTO fitness_history (score, metadata_score, coherence_score, conformance_score, features_score, details_json) VALUES (
@@ -5671,7 +5699,7 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
   adr_ref TEXT NOT NULL
 );
 
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1279, 'ADR-JS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1305, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
 

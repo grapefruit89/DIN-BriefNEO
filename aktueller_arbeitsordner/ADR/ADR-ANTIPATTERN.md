@@ -42,6 +42,7 @@ Akzeptiert
 
 ### 0. Chrome 149+ Baseline & Keine Legacy-Fallbacks (Striktes Verbot)
 Ab Version X des Projekts werden **keine Legacy-Fallbacks** mehr toleriert. Dies gilt insbesondere für unsichere DOM-Manipulationen (wie `innerHTML`) oder veraltete Native-APIs (wie `new Date()`). Das Projekt akzeptiert bewusst eine strikte Chrome 149+ Baseline. Sicherheit und Code-Sauberkeit haben absoluten Vorrang vor abwärtskompatibler Funktionalität für ältere Browser.
+*   **Ausnahme-Verbot für setHTMLUnsafe():** Die Methode `setHTMLUnsafe()` ist als Standard verboten und darf nur verwendet werden, wenn bewusst unsicheres/ungefiltertes HTML benötigt wird. Andernfalls ist zwingend `setHTML()` (die Native W3C Sanitizer API) oder `textContent` (für Plain-Text) zu nutzen.
 
 ### 1. Verwendung von Frameworks & Build-Tools (Striktes Verbot)
 Es dürfen **keine** Frameworks wie React, Vue, Svelte, Angular oder Bibliotheken wie jQuery oder TailwindCSS eingebunden werden.

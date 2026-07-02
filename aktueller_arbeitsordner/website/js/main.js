@@ -843,43 +843,64 @@ document.addEventListener('DOMContentLoaded', () => {
       range.deleteContents();
       
       if (html) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        let cleanFragment = document.createDocumentFragment();
+        let useFallback = true;
         
-        function sanitizeNode(node) {
-          const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
-          
-          if (node.nodeType === Node.TEXT_NODE) {
-            return document.createTextNode(node.textContent);
+        // Try native W3C Sanitizer API first (Chrome 119+)
+        const dummyDiv = document.createElement('div');
+        if (dummyDiv.setHTML) {
+          try {
+            dummyDiv.setHTML(html, { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'], attributes: {'span': ['class']} });
+            // Wenn der Parser durchläuft, extrahieren wir die bereinigten Nodes
+            while (dummyDiv.firstChild) {
+              cleanFragment.appendChild(dummyDiv.firstChild);
+            }
+            useFallback = false;
+          } catch(e) {
+            // Falls die Sanitizer Config noch nicht vom Browser unterstützt wird,
+            // (z.B. weil die Spec noch draft ist), fallen wir auf den manuellen Filter zurück.
+            console.warn('[Paste] Native setHTML Sanitizer failed, using fallback.');
           }
-          
-          if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
-          
-          let newNode;
-          if (allowedTags.includes(node.nodeName)) {
-             newNode = document.createElement(node.nodeName.toLowerCase());
-          } else if (node.nodeName === 'SPAN' && node.classList.contains('din-comment')) {
-             newNode = document.createElement('span');
-             newNode.className = 'din-comment';
-          } else {
-             const frag = document.createDocumentFragment();
-             node.childNodes.forEach(child => {
-               frag.appendChild(sanitizeNode(child));
-             });
-             return frag;
-          }
-          
-          node.childNodes.forEach(child => {
-            newNode.appendChild(sanitizeNode(child));
-          });
-          
-          return newNode;
         }
+        
+        if (useFallback) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          
+          function sanitizeNode(node) {
+            const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
+            
+            if (node.nodeType === Node.TEXT_NODE) {
+              return document.createTextNode(node.textContent);
+            }
+            
+            if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
+            
+            let newNode;
+            if (allowedTags.includes(node.nodeName)) {
+               newNode = document.createElement(node.nodeName.toLowerCase());
+            } else if (node.nodeName === 'SPAN' && node.classList.contains('din-comment')) {
+               newNode = document.createElement('span');
+               newNode.className = 'din-comment';
+            } else {
+               const frag = document.createDocumentFragment();
+               node.childNodes.forEach(child => {
+                 frag.appendChild(sanitizeNode(child));
+               });
+               return frag;
+            }
+            
+            node.childNodes.forEach(child => {
+              newNode.appendChild(sanitizeNode(child));
+            });
+            
+            return newNode;
+          }
 
-        const cleanFragment = document.createDocumentFragment();
-        doc.body.childNodes.forEach(child => {
-          cleanFragment.appendChild(sanitizeNode(child));
-        });
+          doc.body.childNodes.forEach(child => {
+            cleanFragment.appendChild(sanitizeNode(child));
+          });
+        }
 
         if (cleanFragment.childNodes.length === 0) {
             range.insertNode(document.createTextNode(text));
@@ -1207,10 +1228,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const elem = document.getElementById(id);
         if (elem) {
           if (id === 'brieftext') {
-            if (elem.setHTMLUnsafe) {
+            if (elem.setHTML) {
+              // Sanitizer API config if supported (experimental in Chrome)
+              try {
+                elem.setHTML(draft[id], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] });
+              } catch(e) {
+                elem.setHTML(draft[id]);
+              }
+            } else if (elem.setHTMLUnsafe) {
               elem.setHTMLUnsafe(draft[id]);
-            } else if (elem.setHTML) {
-              elem.setHTML(draft[id]);
             } else {
               elem.textContent = draft[id]; // Strict Chrome 149 baseline: no innerHTML fallback
             }
@@ -1320,8 +1346,11 @@ document.getElementById('btn-paste-json')?.addEventListener('click', async (e) =
       const elem = document.getElementById(key);
       if (elem) {
         if (key === 'brieftext') {
-          if (elem.setHTMLUnsafe) elem.setHTMLUnsafe(state[key]);
-          else if (elem.setHTML) elem.setHTML(state[key]);
+          if (elem.setHTML) {
+            try { elem.setHTML(state[key], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] }); }
+            catch(e) { elem.setHTML(state[key]); }
+          }
+          else if (elem.setHTMLUnsafe) elem.setHTMLUnsafe(state[key]);
           else elem.textContent = state[key]; // Strict Chrome 149 baseline: no innerHTML
         } else {
           elem.textContent = state[key];

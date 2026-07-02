@@ -15,7 +15,7 @@ echo   DIN-BriefNEO wird gestartet...
 echo ============================================
 echo.
 
-cd /d "%~dp0"
+cd /d "%~dp0\website"
 
 :: ============================================
 :: 1. Versuch: Python Webserver
@@ -51,7 +51,7 @@ echo [OK] Python gefunden. Starte Server mit Python...
 start "" /B python -m http.server 8000
 :: Nutze ping als robusten Timeout
 ping 127.0.0.1 -n 2 >nul
-start http://localhost:8000/website/index.html
+start http://localhost:8000/index.html
 
 echo.
 echo [ERFOLG] Server läuft auf http://localhost:8000
@@ -65,7 +65,7 @@ echo [INFO] Python nicht gefunden. Versuche Node.js Fallback...
 echo [INFO] Starte Server mit npx serve...
 start "" /B npx serve -p 8000
 ping 127.0.0.1 -n 3 >nul
-start http://localhost:8000/website/index.html
+start http://localhost:8000/index.html
 
 echo.
 echo [ERFOLG] Server läuft auf http://localhost:8000

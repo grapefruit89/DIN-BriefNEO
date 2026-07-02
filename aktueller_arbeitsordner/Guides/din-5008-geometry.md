@@ -95,6 +95,8 @@ WICHTIG: Technisch (im HTML/CSS) befinden sich diese Elemente innerhalb eines ge
 
 Der Betreff ist das erste Element. Er wird fett formatiert und erhält keinen Punkt am Ende.
 
+> **WICHTIG:** Der Betreff muss **unterhalb** der oberen Falzmarke (105 mm) positioniert werden, damit er beim Falten in den DL-Umschlag nicht geknickt wird.
+
 | Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
 | :--- | :--- | :--- | :--- | :--- |
 | **Startposition (Y)** | **85.4 mm** | **109 mm** | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 & 19 |
@@ -109,7 +111,7 @@ Die Anrede steht mit festem Abstand unter dem Betreff. Da die Betreffzeile in ih
 | Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
 | :--- | :--- | :--- | :--- | :--- |
 | **Abstand zum Betreff** | 2 Leerzeilen (8.46 mm) | 2 Leerzeilen (8.46 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
-| **Erwartete Y-Position** | 100.4 mm | 118.4 mm | 10.5 pt (**3.70 mm**) | Bei einzeiligem Betreff |
+| **Erwartete Y-Position** | ~98 mm | ~122 mm | 10.5 pt (**3.70 mm**) | Beispiel bei einzeiligem Betreff |
 
 ### 5.3 Brieftext (Fließtext)
 
@@ -118,7 +120,7 @@ Der eigentliche Briefinhalt beginnt eine Leerzeile unter der Anrede.
 | Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
 | :--- | :--- | :--- | :--- | :--- |
 | **Abstand zur Anrede** | 1 Leerzeile (4.23 mm) | 1 Leerzeile (4.23 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
-| **Erwartete Y-Position** | 110.4 mm | 128.4 mm | 10.5 pt (**3.70 mm**) | Bei einzeiligem Betreff |
+| **Erwartete Y-Position** | ~106 mm | ~130 mm | 10.5 pt (**3.70 mm**) | Beispiel bei einzeiligem Betreff |
 | **Zeilenabstand** | 1.4 (ca. 5.18 mm) | 1.4 (ca. 5.18 mm) | — | DIN 5008, Abs. 20 |
 | **Grußformel (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 1 Leerzeile unter Textende |
 | **Unterschrift (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 3 Leerzeilen für Unterschrift |
@@ -130,8 +132,8 @@ Die Hilfsmarken dienen der physischen Faltung und Lochung. Die Y-Werte beziehen 
 
 | Hilfsmarke | Form A | Form B | Breite / Stil | Quelle |
 | :--- | :--- | :--- | :--- | :--- |
-| **Falzmarke 1 (oben)** | **87 mm** | **105 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 60mm) |
-| **Falzmarke 2 (unten)** | **181 mm** | **210 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 154mm) |
+| **Falzmarke 1 (oben)** | **87 mm** | **105 mm** | 3 mm (horizontal) | Fixe Position nach DIN 5008 Form B. Nicht veränderbar, da relevant für Fensterumschlag. |
+| **Falzmarke 2 (unten)** | **181 mm** | **210 mm** | 3 mm (horizontal) | Angepasste Position für mehr Freiraum. |
 | **Lochmarke (Mitte)** | **148.5 mm** | **148.5 mm** | 5 mm (horizontal) | DIN 5008, Abs. 25 (exakt Blatthöhe / 2) |
 
 ---

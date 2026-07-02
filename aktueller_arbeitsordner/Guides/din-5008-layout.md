@@ -56,7 +56,7 @@ Der Informationsblock befindet sich rechts oben und enthält Metadaten wie Akten
 
 ## 5. Briefkern (Betreff, Anrede, Text)
 Der eigentliche Textbereich (Briefkern) beginnt unterhalb des Anschriftfelds:
-- **Betreff:** Beginnt bei **109 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende.
+- **Betreff:** Beginnt bei **109 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende. *Der Betreff wird bewusst nach der oberen Falzmarke (105 mm) platziert, um ein Knicken beim Falten zu vermeiden.*
 - **Abstand zur Anrede:** 2 Leerzeilen (ca. 8,46 mm) unter dem Betreff.
 - **Anrede:** Standard-Anredeformel ("Sehr geehrte Damen und Herren,", "Lieber Herr...").
 - **Abstand zum Text:** 1 Leerzeile unter der Anrede.

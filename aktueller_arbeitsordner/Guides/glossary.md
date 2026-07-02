@@ -97,3 +97,16 @@ aliases: ["Fachbegriff-Glossar", "Glossary"]
 *   **Kurzdefinition:** Eine extrem schlanke, freie und globale API zur Geocodierung und Validierung von Postleitzahlen.
 *   **Nutzen im Projekt:** Löst 5-stellige deutsche PLZs im Empfängerfeld im Hintergrund auf, um den Ortsnamen automatisch hinzuzufügen.
 *   **Verweis:** Siehe [[ADR-API#5-zippopotam-plz-auto-lookup|ADR-API.md]].
+
+
+### Falzmarke / Faltmarke
+Kleine Hilfslinien am linken Blattrand (oft 105 mm und 210 mm von oben bei Form B). Sie markieren die genauen Stellen, an denen das Blatt horizontal geknickt werden muss, damit die Adresse perfekt im Sichtfenster des Briefumschlags erscheint.
+
+### Fensterumschlag / DL-Umschlag
+Ein Standard-Briefumschlag (Format DIN lang / DL) mit einem transparenten Sichtfenster auf der linken Seite. Die DIN 5008 stellt sicher, dass das Anschriftfeld genau in diesem Fenster sichtbar ist.
+
+### No-Scroll-Layout
+Ein Web-Design-Konzept, bei dem die Anwendung (wie dieser Brief-Editor) immer exakt in den sichtbaren Viewport (100vh / 100vw) passt, ohne dass der Benutzer scrollen muss. Alle Bedienelemente sind stets sichtbar.
+
+### Single Source of Truth (SSoT)
+Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) existiert nur an **einem einzigen, zentralen Ort** im Code (z.B. als CSS Custom Property `--fold-1-y`). Alle anderen Komponenten lesen diesen Wert nur aus. Es gibt keine redundanten Kopien des Wertes, was Fehler bei Updates verhindert.

@@ -228,7 +228,7 @@ aside {
     line-height: 1.4;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Nach unten ausrichten laut Norm */
+    justify-content: flex-start; /* Kompakte Ausrichtung nach oben */
   }
 
   /* Info block (Rechte Spalte) */
@@ -493,7 +493,7 @@ din-postvermerk, din-anlagen, din-verteiler {
 din-postvermerk {
   font-size: 0.9em;
   font-weight: 500;
-  margin-bottom: 2cqh; /* spacing before recipient */
+  margin-bottom: 1cqh; /* spacing before recipient */
   color: var(--text-primary);
 }
 

@@ -57,7 +57,7 @@ Bei der Anbindung von Geoapify wird der API-Key **ausschließlich** über den si
 *   **Begründung:** Verhindert das Exponieren oder Leaken des Schlüssels in Netzwerk-Caches, Web-Proxys, DNS-Logs oder Browser-Verlaufseinträgen.
 
 ### 3. Key Heartbeat-Validierung
-Bei Eingabe eines Geoapify API-Keys wird dieser mit 500ms Debounce asynchron per Heartbeat-Anfrage (`text=Bonn&limit=1`) validiert.
+Bei Eingabe eines Geoapify API-Keys wird dieser mit 500ms Debounce asynchron per echter Heartbeat-Anfrage (`text=Bonn&limit=1`) validiert.
 *   **Ablauf:** Liefert die API ein erfolgreiches `ok` (Status 200), wird der Key dauerhaft gespeichert und das Suchfeld freigeschaltet. Andernfalls wird der Key verworfen und ein Fehler-Toast ausgegeben.
 
 ### 4. Race-Condition-Schutz via AbortController

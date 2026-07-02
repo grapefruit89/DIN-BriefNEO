@@ -79,3 +79,14 @@ Sobald die Texthöhe von `#brieftext` das Druckbereichs-Limit von `120mm` (~450p
 *   Siehe [[ADR-JS|ADR-JS.md]] zur Selection/Range-API.
 *   Siehe [[ADR-API|ADR-API.md]] zum Zippopotam PLZ Auto-Lookup.
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+
+
+### Strict WYSIWYG Rule & CSS Anchor Popovers
+
+Das Projekt folgt einer unumstößlichen Architektur-Regel für die Nutzeroberfläche:
+1. **Seitenleiste (Sidebar):** Hier werden AUSSCHLIESSLICH globale Einstellungen vorgenommen und Funktionen an- und abgewählt (Toggles). **Es findet keinerlei Texteingabe oder Inhaltserstellung in der Seitenleiste statt.** Niemals.
+2. **Papier (A4-Blatt):** Der Brief selbst ist STRENG WYSIWYG. Alle inhaltlichen Eingaben passieren direkt auf dem Papier.
+
+**Technische Umsetzung durch CSS Anchor Positioning:**
+Um Dropdowns (wie das Adressbuch oder die DIN 5008 Postvermerke) WYSIWYG-konform direkt auf dem Papier bereitzustellen, ohne das DOM künstlich zu verschachteln, nutzen wir die `position-anchor` API.
+Das `<din-postvermerk>` Element auf dem Brief dient als Anker. Ein in HTML auf Top-Level platziertes Popover `<div popover="manual">` klinkt sich via CSS perfekt an dieses Element. Es erscheint bei Klick und verhält sich wie ein klassisches Dropdown, obwohl das zugrunde liegende Element ein druckfertiges `contenteditable`-Feld bleibt.

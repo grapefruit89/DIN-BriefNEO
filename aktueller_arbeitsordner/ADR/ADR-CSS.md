@@ -115,3 +115,11 @@ Komplexe Sichtbarkeitszust�nde von UI-Elementen (wie das Ein- und Ausblenden v
 f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
 f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv")
 ```
+
+
+### 4. Anchor Positioning für WYSIWYG Popovers
+
+Um der strikten WYSIWYG-Regel gerecht zu werden (Inhalte werden *nur* auf dem A4-Papier editiert, nicht in der Seitenleiste), verwenden wir moderne W3C CSS Anchor Positioning.
+
+*   **Vorteil:** Wir benötigen keine komplexen JavaScript-Berechnungen (`getBoundingClientRect`, `ResizeObserver`), um ein schwebendes Dropdown an einem `contenteditable`-Feld (wie dem Postvermerk) auszurichten.
+*   **Implementation:** Das HTML-Element (z.B. `<din-postvermerk style="anchor-name: --anchor-postvermerk;">`) definiert den Ankerpunkt. Das eigentliche Popover wird absolut über `position-anchor: --anchor-postvermerk;` und `position-area: bottom span-x;` ausgerichtet.

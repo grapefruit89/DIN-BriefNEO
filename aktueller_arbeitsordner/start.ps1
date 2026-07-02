@@ -6,11 +6,11 @@
 # - Direkt aus aktueller_arbeitsordner/  (empfohlen)
 # - Vom übergeordneten "DIN-Brief Neo/" Ordner aus (wird automatisch in den aktiven Ordner wechseln)
 
-$ErrorActionPreference = "Stop"
-
 param (
     [switch]$Help
 )
+
+$ErrorActionPreference = "Stop"
 
 if ($Help) {
     Write-Host "=== DIN-Brief Neo Start-Skript ===" -ForegroundColor Cyan
@@ -49,7 +49,11 @@ try {
     exit 1
 }
 
-Write-Host "[2/3] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
+Write-Host "[2/4] Generiere aktuellen LLM-System-Prompt..." -ForegroundColor Yellow
+node tools/create_context.js
+
+Write-Host ""
+Write-Host "[3/4] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
 node tools/build_db.js
 
 if ($LASTEXITCODE -ne 0) {
@@ -59,14 +63,14 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "[3/3] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
+Write-Host "[4/4] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
 Write-Host ""
 Write-Host "Nächste Schritte (Light Mode - der Default):"
-Write-Host "  - Änderungen machen (siehe AGENTS.md)"
-Write-Host "  - Erneut .\start.ps1 ausführen (Pre + Post Gate)"
+Write-Host "  - Aenderungen machen (siehe AGENTS.md)"
+Write-Host "  - Erneut .\start.ps1 ausfuehren (Pre + Post Gate)"
 Write-Host "  - Wichtige Aktionen mit node tools/log_session.js loggen"
 Write-Host ""
-Write-Host "Tipp: Light Mode für die meisten Änderungen (Bugfixes, kleine Refactorings)."
+Write-Host "Tipp: Light Mode fuer die meisten Aenderungen (Bugfixes, kleine Refactorings)."
 Write-Host "Full Mode (mit spec/plan/tasks) nur für bewusst wichtige Features (siehe AGENTS.md)." -ForegroundColor Gray
 Write-Host ""
 Write-Host "=== ENDE ===" -ForegroundColor Cyan

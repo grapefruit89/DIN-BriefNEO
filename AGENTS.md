@@ -17,11 +17,12 @@ Dieser Vertrag ist **nicht verhandelbar**. Verstöße führen zur Ablehnung der 
 
 **Light Mode (Standard für die meisten Änderungen: Bugfixes, kleine Refactorings, kleine Anpassungen)**
 
-1. Pre-Build ausführen.
-2. Änderung durchführen (Core Rules einhalten).
-3. Post-Build ausführen → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
-4. Mit `log_session.js` protokollieren.
-5. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
+1. Pre-Build ausführen (`.\start.ps1` generiert auch `LLM_CONTEXT.md`).
+2. Generierte `LLM_CONTEXT.md` lesen, um den aktuellen System-Prompt zu erhalten.
+3. Änderung durchführen (Core Rules einhalten).
+4. Post-Build ausführen (`.\start.ps1`) → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
+5. Mit `log_session.js` protokollieren.
+6. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
 
 **Beispiel Light Mode:**
 "Kleinen Bug im Adress-Autocomplete gefixt (textContent statt unsicherem innerHTML). Pre- und Post-Build waren 100%. Generalisierbarkeit: Die Regel ist bereits in web.json → keine Extraktion nötig."

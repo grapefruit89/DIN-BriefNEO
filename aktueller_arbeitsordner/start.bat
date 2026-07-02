@@ -9,39 +9,58 @@ echo   DIN-BriefNEO wird gestartet...
 echo ============================================
 echo.
 
-:: Ins Verzeichnis der .bat-Datei wechseln
 cd /d "%~dp0"
 
-:: Prüfen, ob Python verfügbar ist
+:: ============================================
+:: 1. Versuch: Python Webserver
+:: ============================================
 where python >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [FEHLER] Python wurde nicht gefunden!
+if %errorlevel% equ 0 (
+    echo [OK] Python gefunden. Starte Server mit Python...
+    start "" /B python -m http.server 8000
+    timeout /t 1 /nobreak >nul
+    start http://localhost:8000/website/index.html
+    
     echo.
-    echo Bitte installiere Python von https://www.python.org/downloads/
-    echo und aktiviere beim Installieren die Option "Add Python to PATH".
+    echo [ERFOLG] Server läuft auf http://localhost:8000
+    echo Du kannst dieses Fenster jetzt schließen.
     echo.
-    pause
+    timeout /t 3 >nul
     exit /b
 )
 
-echo [OK] Python gefunden.
-echo [INFO] Starte lokalen Webserver auf Port 8000...
+:: ============================================
+:: 2. Versuch: Node.js (npx serve) als Fallback
+:: ============================================
+where node >nul 2>nul
+if %errorlevel% equ 0 (
+    echo [INFO] Python nicht gefunden. Versuche Node.js Fallback...
+    echo [INFO] Starte Server mit npx serve...
+    start "" /B npx serve -p 8000
+    timeout /t 2 /nobreak >nul
+    start http://localhost:8000/website/index.html
+
+    echo.
+    echo [ERFOLG] Server läuft auf http://localhost:8000
+    echo Du kannst dieses Fenster jetzt schließen.
+    echo.
+    timeout /t 3 >nul
+    exit /b
+)
+
+:: ============================================
+:: Kein Python und kein Node.js gefunden
+:: ============================================
+echo [FEHLER] Weder Python noch Node.js wurden gefunden!
 echo.
-
-:: Webserver im Hintergrund starten (ohne extra Fenster)
-start "" /B python -m http.server 8000
-
-:: Kurze Wartezeit, damit der Server hochfährt
-timeout /t 1 /nobreak >nul
-
-:: Browser öffnen
-echo [INFO] Öffne Browser...
-start http://localhost:8000/website/index.html
-
+echo Bitte installiere eines der beiden Programme:
 echo.
-echo ============================================
-echo   Server läuft unter: http://localhost:8000
-echo   Du kannst dieses Fenster jetzt schließen.
-echo ============================================
+echo   Python: https://www.python.org/downloads/
+echo           ^(Wichtig: "Add Python to PATH" anhaken!^)
 echo.
-timeout /t 3 >nul
+echo   Node.js: https://nodejs.org/
+echo.
+echo Nach der Installation diese Datei erneut starten.
+echo.
+pause
+exit /b

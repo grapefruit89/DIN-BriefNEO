@@ -131,6 +131,7 @@ aside {
   overflow: auto; /* Nativer Zoom-Scroll-Fallback */
   background: var(--bg-viewport);
   padding: 3vh; /* Harmonischer Rand */
+  container-type: size; /* NEU: Der Viewport ist der Maßstab für das Blatt */
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -138,7 +139,9 @@ aside {
   :scope {
     display: block;
     position: relative;
-    height: 94vh; /* Passt sich perfekt dem Viewport an */
+    /* NEU: Das Blatt nimmt maximal die Breite oder Höhe des Viewports an, ohne zu scrollen */
+      width: min(100cqw, calc(100cqh * 210 / 297));
+      height: min(100cqh, calc(100cqw * 297 / 210));
     aspect-ratio: 210 / 297; /* Exaktes DIN A4 SeitenverhÃ¤ltnis */
     background: oklch(100% 0 0); /* Pure OKLCH White */
     box-shadow: var(--shadow-lg);
@@ -544,4 +547,5 @@ din-anlagen, din-verteiler {
     page-break-after: always;
   }
 }
+
 

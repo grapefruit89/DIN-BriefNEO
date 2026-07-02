@@ -131,7 +131,7 @@ aside {
   overflow: auto; /* Nativer Zoom-Scroll-Fallback */
   background: var(--bg-viewport);
   padding: 3vh; /* Harmonischer Rand */
-  container-type: size; /* NEU: Der Viewport ist der Maßstab für das Blatt */
+  container-type: size; /* NEU: Der Viewport ist der Maï¿½stab fï¿½r das Blatt */
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -139,7 +139,7 @@ aside {
   :scope {
     display: block;
     position: relative;
-    /* NEU: Das Blatt nimmt maximal die Breite oder Höhe des Viewports an, ohne zu scrollen */
+    /* NEU: Das Blatt nimmt maximal die Breite oder Hï¿½he des Viewports an, ohne zu scrollen */
       width: min(100cqw, calc(100cqh * 210 / 297));
       height: min(100cqh, calc(100cqw * 297 / 210));
     aspect-ratio: 210 / 297; /* Exaktes DIN A4 SeitenverhÃ¤ltnis */
@@ -549,3 +549,36 @@ din-anlagen, din-verteiler {
 }
 
 
+
+#local-address-dropdown {
+  position: absolute;
+  position-anchor: --anchor-empfaenger;
+  top: anchor(bottom 4px);
+  left: anchor(left);
+  width: anchor-size(width);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  display: none;
+}
+
+#local-address-dropdown:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-stack-sans);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.address-suggestion-item:last-child { border-bottom: none; }
+.address-suggestion-item:hover { background: var(--bg-viewport); }

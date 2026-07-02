@@ -1,6 +1,41 @@
 /* js/storage.js */
 
 export const StorageManager = {
+  // Load local address book
+  getAddressBook() {
+    try {
+      const list = localStorage.getItem("din_brief_addressbook");
+      return list ? JSON.parse(list) : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  // Save an address to the local address book (max 100)
+  saveToAddressBook(addressObj) {
+    if (!addressObj.name && !addressObj.firma) return false;
+    try {
+      let book = this.getAddressBook();
+      const cleanStr = (s) => (s || "").replace(/<[^>]*>?/gm, "").trim();
+      const name = cleanStr(addressObj.name);
+      const firma = cleanStr(addressObj.firma);
+      const strasse = cleanStr(addressObj.strasse);
+      const ort = cleanStr(addressObj.ort);
+      if (!name && !firma) return false;
+      
+      // Remove duplicate if exists (to move it to top)
+      book = book.filter(a => !(cleanStr(a.name) === name && cleanStr(a.firma) === firma && cleanStr(a.strasse) === strasse && cleanStr(a.ort) === ort));
+      
+      book.unshift({ name, firma, strasse, ort });
+      if (book.length > 100) book = book.slice(0, 100);
+      localStorage.setItem("din_brief_addressbook", JSON.stringify(book));
+      return true;
+    } catch (e) {
+      console.error("Fehler beim Speichern im Adressbuch:", e);
+      return false;
+    }
+  },
+
   // Save specific draft data
   saveDraft(key, data) {
     try {

@@ -193,6 +193,9 @@
           <div class="din-mark din-fold-top"></div>
           <div class="din-mark din-fold-bottom"></div>
           <div class="din-mark din-punch"></div>
+          
+          <!-- CSS Anchor Positioned Dropdown for Local Address Book -->
+          <div id="local-address-dropdown" popover="manual" class="no-print"></div>
 
           <!-- SENDER IN-LINE address (Rücksendezeile) -->
           <din-absender id="absender" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt"></din-absender>
@@ -298,7 +301,7 @@
 
 <!-- DEV MODE POPOVER -->
 <div id="dev-popover" popover="auto" class="no-print">
-  <div style="display: flex; gap: 8px; margin-bottom: 10px;"><button id="btn-copy-json" class="btn" style="flex: 1;">JSON Kopieren</button><button id="btn-paste-json" class="btn primary" style="flex: 1;">JSON Einf�gen</button></div>
+  <div style="display: flex; gap: 8px; margin-bottom: 10px;"><button id="btn-copy-json" class="btn" style="flex: 1;">JSON Kopieren</button><button id="btn-paste-json" class="btn primary" style="flex: 1;">JSON Einf�gen</button></div>
   <h3>??? DIN-Brief Neo Diagnostics</h3>
   <p>System-Zeit: <span id="diag-timestamp"></span></p>
   <table>

@@ -10,6 +10,6 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1197 | [[ADR-JS]] |
+| website/js/main.js | 1259 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] |

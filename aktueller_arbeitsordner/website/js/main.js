@@ -120,6 +120,68 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- DUAL-PROVIDER ADDRESS SERVICE (Photon / Geoapify / Zippopotam) ---
+  
+  // --- LOKALES AUTO-ADRESSBUCH (CSS Anchor Positioning) ---
+  const dropdown = document.getElementById('local-address-dropdown');
+  const empfName = document.getElementById('empfaenger-name');
+  const empfFirma = document.getElementById('empfaenger-firma');
+  let hideTimeout;
+
+  function renderAddressDropdown(query = '') {
+    if (!dropdown) return;
+    const book = StorageManager.getAddressBook();
+    const q = query.toLowerCase().replace(/<[^>]*>?/gm, "").trim();
+    
+    const filtered = book.filter(a => {
+      const txt = (a.name + " " + a.firma + " " + a.strasse + " " + a.ort).toLowerCase();
+      return txt.includes(q);
+    });
+
+    if (filtered.length === 0) {
+      try { dropdown.hidePopover(); } catch(e){}
+      return;
+    }
+
+    dropdown.innerHTML = '';
+    filtered.slice(0, 5).forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'address-suggestion-item';
+      div.innerHTML = `<strong>${a.firma ? a.firma : a.name}</strong><br><small>${a.strasse}, ${a.ort}</small>`;
+      div.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Prevent blur
+        document.getElementById('empfaenger-name').innerHTML = a.name;
+        document.getElementById('empfaenger-firma').innerHTML = a.firma;
+        document.getElementById('empfaenger-strasse').innerHTML = a.strasse;
+        document.getElementById('empfaenger-ort').innerHTML = a.ort;
+        saveDraftData();
+        try { dropdown.hidePopover(); } catch(e){}
+        showToast("Kontakt geladen", "success");
+      });
+      dropdown.appendChild(div);
+    });
+
+    try {
+      dropdown.showPopover();
+    } catch(e){}
+  }
+
+  [empfName, empfFirma].forEach(elem => {
+    if(!elem) return;
+    elem.addEventListener('focus', () => {
+      clearTimeout(hideTimeout);
+      renderAddressDropdown(elem.textContent);
+    });
+    elem.addEventListener('input', () => {
+      renderAddressDropdown(elem.textContent);
+    });
+    elem.addEventListener('blur', () => {
+      hideTimeout = setTimeout(() => {
+        try { dropdown.hidePopover(); } catch(e){}
+      }, 200);
+    });
+  });
+
+
   function initGeoapify() {
     if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !autocompleteInfoBox || !geoapifyKeyContainer || !btnProviderPhoton || !btnProviderGeoapify) return;
 

@@ -1283,21 +1283,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Dev Mode Trigger: 3-Klick
-let clickCount = 0;
-let clickTimeout = null;
-document.addEventListener('click', (e) => {
-  clickCount++;
-  clearTimeout(clickTimeout);
-  clickTimeout = setTimeout(() => { clickCount = 0; }, 1000);
-  if (clickCount === 3) {
-    clickCount = 0;
-    clearTimeout(clickTimeout);
-    runLiveDiagnostics();
-    const popover = document.getElementById('dev-popover');
-    if (popover && !popover.matches(':popover-open')) {
-       popover.showPopover();
-    }
+// Dev Mode Trigger: Button Click
+document.getElementById('btn-dev-popover')?.addEventListener('click', () => {
+  runLiveDiagnostics();
+  const popover = document.getElementById('dev-popover');
+  if (popover && !popover.matches(':popover-open')) {
+     popover.showPopover();
   }
 });
 

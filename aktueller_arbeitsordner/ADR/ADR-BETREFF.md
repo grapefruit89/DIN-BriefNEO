@@ -15,9 +15,9 @@ tags:
   - print
   - pdf
 aliases:
-  - "Betreff"
-  - "Falzmarken"
-  - "PDF-Export"
+  - "Betreff Logik"
+  - "Falzmarken Kollision"
+  - "PDF Dateiname dynamisch"
 related: 
   - "[[ADR-ANTIPATTERN]]"
   - "[[longevity-guidelines]]"

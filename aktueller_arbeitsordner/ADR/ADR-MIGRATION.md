@@ -1,11 +1,22 @@
 ---
-title: ADR - Extraktion zur llm_boilerplate
+title: "ADR-MIGRATION: Extraktion zur llm_boilerplate"
 status: accepted
+date: 2026-07-02
+last-reviewed: 2026-07-02
+deciders:
+  - morit
+  - antigravity
+type: adr
 tags:
   - adr
   - architecture
   - boilerplate
   - generalisierbarkeit
+aliases:
+  - "Extraktion llm_boilerplate"
+related:
+  - "[[ADR-ANTIPATTERN]]"
+project: DIN-BriefNEO
 ---
 
 # ADR: Architektur für Extraktion zur llm_boilerplate

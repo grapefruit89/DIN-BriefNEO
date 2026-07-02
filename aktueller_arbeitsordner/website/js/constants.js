@@ -1,3 +1,6 @@
+// @adr [[ADR-JS]] 
+// @guide [[glossary]] 
+
 /* js/constants.js */
 
 export const Constants = {

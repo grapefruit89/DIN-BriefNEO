@@ -1,4 +1,6 @@
-// @adr [[ADR-JS]]
+// @adr [[ADR-JS]] 
+// @guide [[glossary]] 
+
 /* js/signature.js */
 export class SignatureFeature {
   constructor(uiContext) {

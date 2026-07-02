@@ -1,4 +1,6 @@
-/* @adr [[ADR-CSS]] */
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-geometry]]  */
+
 /* css/layout.css */
 
 
@@ -192,7 +194,7 @@ aside {
   }
 
   /* Single Line / Max Length Felder leicht stauchen (KISS für 80 Zeichen Limit) */
-  [contenteditable="plaintext-only"] {
+  [contenteditable="plaintext-only"].squeezed {
     letter-spacing: -0.015em; /* kaum sichtbar, aber hilft beim Platz */
   }
 

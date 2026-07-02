@@ -745,9 +745,19 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1092 | [[ADR-JS]] |
+| website/js/constants.js | 1 | [[ADR-JS]] |
+| website/js/geoapify.js | 1 | [[ADR-API]] |
+| website/js/healthcheck.js | 1 | [[ADR-JS]] |
+| website/js/main.js | 1 | [[ADR-JS]] |
+| website/js/main.js | 1108 | [[ADR-JS]] |
+| website/js/metadata.js | 1 | [[ADR-JS]] |
+| website/js/salutation-engine.js | 1 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
-| website/css/layout.css | 1 | [[ADR-CSS]] |',
+| website/js/storage.js | 1 | [[ADR-DATA-PERSISTENCE]] |
+| website/css/floating.css | 1 | [[ADR-CSS]] |
+| website/css/layout.css | 1 | [[ADR-CSS]] |
+| website/css/reset.css | 1 | [[ADR-CSS]] |
+| website/css/variables.css | 1 | [[ADR-CSS]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -4358,10 +4368,35 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   file_path TEXT NOT NULL,
   line_number INTEGER NOT NULL,
-  adr_ref TEXT NOT NULL
+  adr_ref TEXT,
+  guide_ref TEXT
 );
 
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1092, 'ADR-JS');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/index.html', 1, 'ADR-HTML', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/index.html', 2, '', 'din-5008-layout');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/constants.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/constants.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 1, 'ADR-API', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 2, '', 'geoapify-autocomplete');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/healthcheck.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/healthcheck.js', 2, '', 'testing-guide');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1108, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 1, 'ADR-DATA-PERSISTENCE', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 1, 'ADR-CSS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 2, '', 'chrome-modern-css');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/layout.css', 2, '', 'din-5008-geometry');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/reset.css', 1, 'ADR-CSS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/reset.css', 2, '', 'chrome-modern-css');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/variables.css', 1, 'ADR-CSS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/variables.css', 2, '', 'chrome-modern-css');
 

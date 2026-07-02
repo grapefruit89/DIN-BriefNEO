@@ -1,3 +1,6 @@
+// @adr [[ADR-DATA-PERSISTENCE]] 
+// @guide [[glossary]] 
+
 /* js/storage.js */
 
 export const StorageManager = {

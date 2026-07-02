@@ -1,3 +1,6 @@
+/* @adr [[ADR-CSS]]  */
+/* @guide [[chrome-modern-css]]  */
+
 /* css/variables.css */
 @layer reset, tokens, layout, floating;
 

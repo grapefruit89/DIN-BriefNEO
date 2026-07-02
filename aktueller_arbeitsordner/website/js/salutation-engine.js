@@ -1,3 +1,6 @@
+// @adr [[ADR-JS]] 
+// @guide [[glossary]] 
+
 import { StorageManager } from './storage.js';
 
 export const SALUTATION = Object.freeze({

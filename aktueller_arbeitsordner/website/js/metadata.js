@@ -1,3 +1,6 @@
+// @adr [[ADR-JS]] 
+// @guide [[glossary]] 
+
 /**
  * metadata.js — Platinum Metadata Bridge for V5+
  * Optimiert für Paperless-ngx, Obsidian, Notion & System-Suche

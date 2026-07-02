@@ -1,3 +1,6 @@
+// @adr [[ADR-JS]] 
+// @guide [[no-scroll-techniques]] 
+
 import { runLiveDiagnostics } from './healthcheck.js';
 /* js/main.js */
 import { StorageManager } from './storage.js';
@@ -1012,6 +1015,19 @@ document.addEventListener('DOMContentLoaded', () => {
           selection.deleteFromDocument();
           selection.getRangeAt(0).insertNode(document.createTextNode(pasteText));
           selection.collapseToEnd();
+        }
+        
+        // Trigger input event manually so that dynamic squeezing updates
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      // 3. Dynamic Squeezing (only squeeze when getting full)
+      el.addEventListener('input', () => {
+        const currentText = el.textContent || '';
+        if (currentText.length > 60) {
+          el.classList.add('squeezed');
+        } else {
+          el.classList.remove('squeezed');
         }
       });
     });

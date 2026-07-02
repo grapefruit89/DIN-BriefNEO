@@ -67,23 +67,43 @@ Der Informationsblock befindet sich rechts oben und wächst von oben nach unten.
 
 ---
 
-## 5. Briefkern (Kernbereich)
-Der Kernbereich enthält Betreff, Anrede, Text, Grußformel und Unterschrift.
+## 5. Hauptinhalte (Betreff, Anrede, Brieftext)
+
+Der Inhaltsbereich beginnt immer unterhalb des Informationsblocks und ist in strikte Abschnitte unterteilt. 
+
+WICHTIG: Technisch (im HTML/CSS) befinden sich diese Elemente innerhalb eines gemeinsamen Flow-Containers (`#briefkern`), da sie sich gegenseitig nach unten schieben müssen (z. B. wenn der Betreff 2-zeilig wird). Hier sind die geometrischen Startpunkte:
+
+### 5.1 Betreffzeile
+
+Der Betreff ist das erste Element. Er wird fett formatiert und erhält keinen Punkt am Ende.
 
 | Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
 | :--- | :--- | :--- | :--- | :--- |
-| **Beginn Briefkern (Y)** | **85.4 mm** | **109 mm** | — | DIN 5008, Abs. 18 & 19 |
+| **Startposition (Y)** | **85.4 mm** | **109 mm** | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 & 19 |
 | **Linke Fluchtlinie (X)** | 25 mm | 25 mm | — | DIN 5008, Abs. 6.1 |
-| **Rechte Begrenzung (X)** | 190 mm | 190 mm | — | DIN 5008, Abs. 6.2 (210mm - 20mm) |
-| **Maximal-Breite** | 165 mm | 165 mm | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Betreffzeile (Y)** | 85.4 mm | **109 mm** | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 (Max. 2 Zeilen) |
-| **Abstand Betreff zu Anrede** | 2 Leerzeilen (**8.46 mm**) | 2 Leerzeilen (**8.46 mm**) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
-| **Anredezeile (Y)** | 100.4 mm | 118.4 mm | 10.5 pt (**3.70 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Abstand Anrede zu Text** | 1 Leerzeile (**4.23 mm**) | 1 Leerzeile (**4.23 mm**) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
-| **Brieftext Start (Y)** | **110.4 mm** | **128.4 mm** | 10.5 pt (**3.70 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Zeilenabstand** | **1.4** (ca. 5.18 mm) | **1.4** (ca. 5.18 mm) | — | DIN 5008, Abs. 20 |
-| **Grußformel (Y)** | Dynamisch (Ende) | Dynamisch (Ende) | 10.5 pt (**3.70 mm**) | 1 Leerzeile Abstand zum Text |
-| **Unterschrift (Y)** | Dynamisch (Ende) | Dynamisch (Ende) | 10.5 pt (**3.70 mm**) | 3 Leerzeilen für Unterschrift |
+| **Rechte Begrenzung (X)** | 190 mm | 190 mm | — | DIN 5008, Abs. 6.2 |
+| **Maximal-Zeilen** | 2 Zeilen | 2 Zeilen | — | DIN 5008, Abs. 18 |
+
+### 5.2 Anrede
+
+Die Anrede steht mit festem Abstand unter dem Betreff. Da die Betreffzeile in ihrer Höhe variieren kann (1 oder 2 Zeilen), wird die absolute Y-Position der Anredezeile oft dynamisch vom Betreff nach unten geschoben. Die unten genannten Y-Werte gelten für einen einzeiligen Betreff.
+
+| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
+| :--- | :--- | :--- | :--- | :--- |
+| **Abstand zum Betreff** | 2 Leerzeilen (8.46 mm) | 2 Leerzeilen (8.46 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
+| **Erwartete Y-Position** | 100.4 mm | 118.4 mm | 10.5 pt (**3.70 mm**) | Bei einzeiligem Betreff |
+
+### 5.3 Brieftext (Fließtext)
+
+Der eigentliche Briefinhalt beginnt eine Leerzeile unter der Anrede.
+
+| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
+| :--- | :--- | :--- | :--- | :--- |
+| **Abstand zur Anrede** | 1 Leerzeile (4.23 mm) | 1 Leerzeile (4.23 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
+| **Erwartete Y-Position** | 110.4 mm | 128.4 mm | 10.5 pt (**3.70 mm**) | Bei einzeiligem Betreff |
+| **Zeilenabstand** | 1.4 (ca. 5.18 mm) | 1.4 (ca. 5.18 mm) | — | DIN 5008, Abs. 20 |
+| **Grußformel (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 1 Leerzeile unter Textende |
+| **Unterschrift (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 3 Leerzeilen für Unterschrift |
 
 ---
 

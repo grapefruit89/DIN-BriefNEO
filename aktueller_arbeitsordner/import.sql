@@ -78,78 +78,6 @@ CREATE TABLE reconciliation_log (
 );
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  '.specify/constitution.md',
-  'Agent Constitution Reference (spec-kit style)',
-  'active',
-  '# Constitution Reference for Agents
-
-This is the agent-focused view in `.specify/constitution.md` (inspired by spec-kit).
-
-**Full authoritative version:** See `../constitution.md` + `../MASTER-DO-DONT-DEPRECATED.md` in the aktueller_arbeitsordner root.
-
-## Key Points Agents Must Internalize
-
-- DIN-Brief Neo is a **Testballon** for the generic llm_boilerplate.
-- Strict longevity: Vanilla web tech only, no frameworks, 10+ year maintainability.
-- Reconciliation + 100% Fitness Score is **mandatory** before/after changes (see AGENTS.md).
-- Generalisierungs-Pflicht: Every solution must be evaluated for extraction to the boilerplate.
-- Layered antipatterns: base / web / project (see tools/antipatterns/).
-- Full audit: Every action logged via log_session.js.
-
-## Workflow Integration
-
-Use the hybrid phases documented in `../HYBRID-SPEC-DRIVEN-WORKFLOW.md`:
-Constitution (this) → Specify (specs/NNN-xxx/spec.md) → Plan → Tasks → Implement → **Reconcile + Log** (our addition).
-
-Update this file only when the main constitution changes, with Pre/Post build and logging.
-
-This separation (.specify/ for agent artifacts) makes extraction to llm_boilerplate cleaner.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = '.specify/constitution.md'), 'constitution');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = '.specify/constitution.md'), 'agents');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = '.specify/constitution.md'), 'spec-driven');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  '.specify/templates/spec.md',
-  '[NNN-Short-Name] Feature Title',
-  'draft',
-  '# Spec: [NNN-Short-Name] Feature Title
-
-## Context / Background
-(Why now? Links to existing ADRs, constitution, MASTER-DO-DONT, or previous specs.)
-
-## Requirements
-- Must ...
-- Should ...
-
-## Acceptance Criteria
-- [ ] Criterion 1 (measurable)
-- [ ] ...
-
-## Generalisierbarkeit Check (mandatory per AGENTS.md)
-- Can this be extracted to llm_boilerplate? (base/web rules, generic tool, template?)
-- Proposed extraction steps:
-- Risks of project-specific coupling:
-
-## Related
-- ADR/...
-- Guides/...
-- specs/previous/...',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = '.specify/templates/spec.md'), 'feature');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = '.specify/templates/spec.md'), 'spec');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-ANTIPATTERN.md',
   'Architectural Decision Record (ADR): Forbidden Practices & Antipatterns',
   'accepted',
@@ -304,7 +232,7 @@ Bei der Anbindung von Geoapify wird der API-Key **ausschließlich** über den si
 *   **Begründung:** Verhindert das Exponieren oder Leaken des Schlüssels in Netzwerk-Caches, Web-Proxys, DNS-Logs oder Browser-Verlaufseinträgen.
 
 ### 3. Key Heartbeat-Validierung
-Bei Eingabe eines Geoapify API-Keys wird dieser mit 500ms Debounce asynchron per Heartbeat-Anfrage (`text=Bonn&limit=1`) validiert.
+Bei Eingabe eines Geoapify API-Keys wird dieser mit 500ms Debounce asynchron per echter Heartbeat-Anfrage (`text=Bonn&limit=1`) validiert.
 *   **Ablauf:** Liefert die API ein erfolgreiches `ok` (Status 200), wird der Key dauerhaft gespeichert und das Suchfeld freigeschaltet. Andernfalls wird der Key verworfen und ein Fehler-Toast ausgegeben.
 
 ### 4. Race-Condition-Schutz via AbortController
@@ -350,6 +278,44 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'photon');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'geoapify');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-API.md'), 'zippopotam');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-BETREFF.md',
+  'ADR - Positionierung des Betrefffeldes',
+  'active',
+  '# ADR: Betreff-Logik, Falzmarken und dynamischer PDF-Titel
+
+## Kontext und Problem
+1. **Falzmarken-Kollision:** Die Falzmarken (`.din-mark`) in `layout.css` waren versehentlich auf `width: 100%` gesetzt. Dadurch zogen sie sich als gestrichelte Linien quer über das gesamte Dokument und haben insbesondere den **[[Betreff]]** optisch durchschnitten.
+2. **PDF-Export Dateiname:** Wenn der Nutzer den Brief via `window.print()` als PDF speichert (STRG + P -> "Als PDF speichern"), war der Standarddateiname der generische Name der Webseite. Gewünscht war eine automatische und dynamische Benennung nach dem Muster `YYYY-MM-DD_{empfänger} {Betreff}.pdf`.
+
+## Entscheidung
+
+### 1. Falzmarken (CSS)
+Die Falzmarken (`.din-mark`) wurden chirurgisch auf `width: calc(8 / 210 * 100cqw);` gekürzt. Sie ragen nun exakt 8mm vom linken Rand herein und schneiden den **[[Betreff]]** nicht mehr durch.
+
+### 2. Dynamischer PDF-Titel (JavaScript)
+Es wurde eine zentrale Funktion `updateDocumentTitle()` in der `main.js` implementiert.
+*   **Trigger:** Sie wird bei jedem Aufruf von `saveDraftData()` (also asynchron beim Tippen) und `loadDraftData()` (beim Laden) ausgeführt.
+*   **Datenquellen:** Sie liest in Echtzeit `#betreff`, `#empfaenger-firma` und `#empfaenger-name` aus.
+*   **Datum:** Gemäß der strikten Regel in [[ADR-ANTIPATTERN]] wird nach Möglichkeit **niemals** das veraltete `Date()` Objekt verwendet, sondern streng die W3C **Temporal API** (`Temporal.Now.plainDateISO().toString()`) genutzt. Sollte Temporal (wie auf manchen iOS Geräten ohne Polyfill) nicht greifen, sichert ein Date() Fallback die Funktionalität.
+*   **Verhalten:** Das `<title>` Tag im HTML wird live manipuliert. Das zwingt den Chrome/Edge Print-Dialog beim "Als PDF speichern" dazu, diesen String als Standard-Dateinamen anzubieten.
+
+## Konsequenzen
+Jede zukünftige Logik, die sich auf den **[[Betreff]]** oder den Print-Dialog bezieht, muss dieses ADR kennen. Jegliche Versuche, den Dateinamen anders zu erzwingen (etwa via komplizierter `Blob` Erzeugung und unsichtbaren Download-Links) sind strengstens untersagt, da wir dem einfachen WYSIWYG + Print Paradigma treu bleiben.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'obsidian');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'ui');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'feature');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'betreff');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'print');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-BETREFF.md'), 'pdf');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-CSS.md',
@@ -461,7 +427,15 @@ Komplexe Sichtbarkeitszust�nde von UI-Elementen (wie das Ein- und Ausblenden v
 ```javascript feature-check
 f("CSS :has() Selektor", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:has(div))"), "Chrome 105", "Produktiv"),
 f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Produktiv")
-```',
+```
+
+
+### 4. Anchor Positioning für WYSIWYG Popovers
+
+Um der strikten WYSIWYG-Regel gerecht zu werden (Inhalte werden *nur* auf dem A4-Papier editiert, nicht in der Seitenleiste), verwenden wir moderne W3C CSS Anchor Positioning.
+
+*   **Vorteil:** Wir benötigen keine komplexen JavaScript-Berechnungen (`getBoundingClientRect`, `ResizeObserver`), um ein schwebendes Dropdown an einem `contenteditable`-Feld (wie dem Postvermerk) auszurichten.
+*   **Implementation:** Das HTML-Element (z.B. `<din-postvermerk style="anchor-name: --anchor-postvermerk;">`) definiert den Ankerpunkt. Das eigentliche Popover wird absolut über `position-anchor: --anchor-postvermerk;` und `position-area: bottom span-x;` ausgerichtet.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -550,7 +524,22 @@ Sobald die Texthöhe von `#brieftext` das Druckbereichs-Limit von `120mm` (~450p
 *   Siehe [[ADR-CSS|ADR-CSS.md]] zur Typografie und Zoom-Einheiten.
 *   Siehe [[ADR-JS|ADR-JS.md]] zur Selection/Range-API.
 *   Siehe [[ADR-API|ADR-API.md]] zum Zippopotam PLZ Auto-Lookup.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.',
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+
+
+### Strict WYSIWYG Rule & CSS Anchor Popovers
+
+Das Projekt folgt einer unumstößlichen Architektur-Regel für die Nutzeroberfläche:
+1. **Seitenleiste (Sidebar):** Hier werden AUSSCHLIESSLICH globale Einstellungen vorgenommen und Funktionen an- und abgewählt (Toggles). **Es findet keinerlei Texteingabe oder Inhaltserstellung in der Seitenleiste statt.** Niemals.
+2. **Papier (A4-Blatt):** Der Brief selbst ist STRENG WYSIWYG. Alle inhaltlichen Eingaben passieren direkt auf dem Papier.
+
+**Technische Umsetzung durch CSS Anchor Positioning:**
+Um Dropdowns (wie das Adressbuch oder die DIN 5008 Postvermerke) WYSIWYG-konform direkt auf dem Papier bereitzustellen, ohne das DOM künstlich zu verschachteln, nutzen wir die `position-anchor` API.
+Das `<din-postvermerk>` Element auf dem Brief dient als Anker. Ein in HTML auf Top-Level platziertes Popover `<div popover="manual">` klinkt sich via CSS perfekt an dieses Element. Es erscheint bei Klick und verhält sich wie ein klassisches Dropdown, obwohl das zugrunde liegende Element ein druckfertiges `contenteditable`-Feld bleibt.
+
+
+### Betreff & PDF-Export
+Siehe [[ADR-BETREFF]] bezüglich Falzmarken-Kollision und dynamischem Generieren des PDF-Titel-Namens.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -564,6 +553,74 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'selections');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'styling');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-FEATURE.md'), 'highlights');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-GEOAPIFY.md',
+  'ADR-004: Adress-Autocomplete mit Geoapify',
+  'accepted',
+  '# Architectural Decision Record (ADR): Adress-Autocomplete mit Geoapify
+
+> [!info] Info-Block (Hintergrund)
+> Wir benötigen eine robuste, performante Lösung für das Autovervollständigen von Empfängeradressen im WYSIWYG-Editor. Ein Brainstorming schlug die offizielle Library `@geoapify/geocoder-autocomplete` mit hartcodiertem Proximity-Bias (Bonn) vor. Wir müssen evaluieren, inwieweit diese Vorschläge zu unserer Zero-JS/WYSIWYG-Philosophie passen.
+
+## 1. Kontext & Problemstellung
+
+Die Eingabe von Adressen im `<din-anschriftfeld>` soll den Nutzer bestmöglich unterstützen. Folgende Aspekte stehen im Fokus:
+- **Performance:** Minimierung von API-Calls.
+- **Relevanz:** Lokale Treffer sollen zuerst erscheinen.
+- **Architektur:** Strikte Einhaltung der [[ADR-ANTIPATTERN]] Regeln (keine NPM-Build-Steps, keine DOM-injizierenden Third-Party-Libraries).
+
+<details>
+<summary>Historischer Kontext (Klicken zum Ausklappen)</summary>
+Ursprünglich wurde Photon (komoot.io) evaluiert, aber wegen mangelhafter Suchergebnisse als Antipattern verworfen. Geoapify liefert exzellente Qualität, erfordert aber einen API-Key.
+</details>
+
+## 2. Betrachtete Optionen
+
+| Option | Vorteil | Nachteil |
+| :--- | :--- | :--- |
+| **Option A** (Offizielle Library `@geoapify/geocoder-autocomplete`) | Schnelle Implementierung, Caching eingebaut | Fügt ca. 30-50 KB Bundle-Size hinzu, verlässt die native Plattform, injiziert **eigene, schwer anpassbare DOM-Elemente** (zerstört 100% WYSIWYG-Anspruch). |
+| **Option B** (Custom Fetch + Native CSS Anchor Dropdown) | 100% WYSIWYG, keine Dependencies, native W3C CSS Anchor | Caching muss (falls gewünscht) selbst in einer `Map` verwaltet werden. |
+
+## 3. Die Entscheidung
+
+> [!success] Wir haben uns für **Option B (Custom Fetch + Native CSS Anchor)** entschieden.
+
+### Begründung
+- [x] Entspricht der Zero-JS-Philosophie (kein Bundle, kein NPM).
+- [x] Integriert sich nahtlos in die native W3C CSS Anchor Positioning Logik des WYSIWYG-Papiers.
+- [x] Wir übernehmen **nur die konzeptionellen Optimierungen** aus dem Brainstorming:
+  - `limit=5` (statt 6, noch kompakter) für schnelleres Rendering.
+  - `debounce=300ms` (sehr nah am Brainstorm-Vorschlag von 280ms) reduziert API-Calls enorm.
+  - **Dynamischer Proximity Bias:** Statt einem statischen Fallback (z. B. Bonn), extrahiert unsere Logik dynamisch die PLZ des Absenders über Zippopotam.us und nutzt diese realen `lat`/`lon` Koordinaten für das Geoapify `bias=proximity` Argument. Das ist dem statischen Vorschlag massiv überlegen!
+
+## 4. Architektur-Diagramm
+
+```mermaid
+graph TD
+    A[Nutzer tippt im Empfängerfeld] -->|Debounce 300ms| B{Länge > 3?}
+    B -- Ja --> C[Check Absender-PLZ (Zippopotam)]
+    C --> D[Fetch Geoapify API mit dynamischem Bias]
+    D --> E[Render native CSS Anchor Popover]
+    B -- Nein --> F[Nichts tun]
+```
+
+## 5. Feature Checks (Living Documentation)
+
+```javascript feature-check
+// f("Geoapify Autocomplete", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv")
+// f("CSS Anchor Positioning", CSS.supports("anchor-name: --test"), "Chrome 125", "Produktiv")
+```',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'geoapify');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'api');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-GEOAPIFY.md'), 'autocomplete');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-HTML.md',
@@ -720,6 +777,40 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'event-handling');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'dom-selection');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-JS.md'), 'constraints');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/ADR-MIGRATION.md',
+  'ADR - Extraktion zur llm_boilerplate',
+  'accepted',
+  '# ADR: Architektur für Extraktion zur llm_boilerplate
+
+## Kontext
+DIN-Brief Neo dient als Testballon für KI-gestützte Entwicklungsmuster, die später in einer generischen `llm_boilerplate` wiederverwendet werden sollen. Um dies zu ermöglichen, muss das Projekt strikt in generische und projektspezifische Bestandteile getrennt sein.
+
+## Entscheidung
+Wir haben uns für eine **geschichtete Architektur** entschieden, bei der Tools und Regeln physisch vom Website-Code separiert sind:
+
+1. **Website-Code (`website/`)**: Enthält die reine Anwendung (DIN-Brief spezifisch). Wird nicht extrahiert.
+2. **Tools (`tools/`)**: Enthält Node.js-Skripte wie `build_db.js`, `log_session.js` und `reconciliation.js`. Diese Skripte sind generisch und konfigurierbar.
+3. **Antipatterns (`tools/antipatterns/`)**: Die KI-Regeln sind in Layer unterteilt:
+   - `base.json`: Universelle Regeln (z.B. Temporal/Date API)
+   - `web.json`: Allgemeine Web-Regeln (execCommand, XHR, innerHTML, etc.)
+   - `project.json`: Nur DIN-Brief spezifisch
+
+## Konsequenzen
+Diese Architektur ist als "fait accompli" (bereits umgesetzt) zu betrachten.
+Zukünftige KI-Regeln, die nicht ausschließlich DIN-Brief betreffen, **müssen zwingend** in `base.json` oder `web.json` eingetragen werden, damit sie automatisch in die `llm_boilerplate` übernommen werden können.
+Regeln, die nur für DIN-Brief Neo gelten, kommen in `project.json`.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'architecture');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'boilerplate');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/ADR-MIGRATION.md'), 'generalisierbarkeit');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-TECH-STACK.md',
@@ -897,7 +988,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1308 | [[ADR-JS]] |
+| website/js/main.js | 206 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
@@ -909,6 +1000,128 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'autogenerated');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'adr');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'code');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'archive/MODERNIZATION-GUIDE.md',
+  'Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md',
+  'active',
+  '> [!WARNING]
+> **ARCHIVIERT**: Historisches Dokument. Einige der hier genannten Empfehlungen widersprechen der aktuellen `longevity-guidelines.md` (z.B. Temporal API).
+
+
+# Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md
+
+Dieses Dokument analysiert die aktuell verwendeten Webtechnologien des **DIN-BriefNEO**-Baseline-Projekts und vergleicht sie mit zukünftigen, potenziellen W3C-Standardkandidaten. Es dient als strategischer Wegweiser für zukünftige Modernisierungen – **ohne sofortige Umsetzung** und unter strikter Wahrung der Longevity-Verfassung.
+
+---
+
+## 🧭 Modernisierungs-Matrix (Tech-Debt Roadmap)
+
+| Aktuelle Technik | Potenzielle modernere Alternative | Status der Alternative | Empfehlung | Begründung & Longevity-Verweis |
+| :--- | :--- | :--- | :--- | :--- |
+| **Selection/Range API** (zur Y/X-Positionierung der Toolbar) | **CSS Anchor Positioning API** | In Chrome 148+ vollständig stabil. | **Jetzt nutzen** | Da Chrome 148+ unsere exklusive Target-Plattform ist, nutzen wir CSS Anchor Positioning ohne jegliche Rücksicht auf veraltete Safari/Firefox-Stände. Dies eliminiert JavaScript-Positionierungscode vollständig. |
+| **`document.execCommand`** (Fett/Unterstreichen nativ) | **Custom Selection & Range DOM-Operationen** | W3C-Standard (Living Standard). | **Jetzt nutzen** | `execCommand` ist veraltet (*deprecated*). Wir haben dies für blockquotes bereits gelöst. Standard-Shortcuts überlassen wir dem Browser, was absolut stabil ist. |
+| **Natives JS `Date`-Objekt** | **Temporal API** | In Chrome 148+ nativ und vollständig einsatzbereit. | **Jetzt nutzen** | Die `Temporal` API ist in Chrome 148+ fehlerfrei und nativ implementiert. Wir nutzen sie direkt zur präzisen Datumsberechnung und für Zeitstempel bei Entwürfen. |
+| **`localStorage`** (für Base64 Custom Fonts & Drafts) | **Origin Private File System (OPFS)** / **IndexedDB** | W3C-Standard. | **Nie** | OPFS/IndexedDB setzen zwingend HTTPS voraus. Unter `file://` (Doppelklick) stürzen sie mit Security-Exceptions ab. `localStorage` ist laut [Säule 5 der Longevity-Guidelines](../Guides/longevity-guidelines.md) die einzig stabile Option für Doppelklick-Apps. |
+| **`@import`** in CSS-Dateien | Native **`link`-Tags** im HTML | W3C-Standard. | **Jetzt nutzen** | `@import` blockiert das parallele Laden von Stylesheets im Browser. Native `<link>`-Tags laden Stylesheets parallel und performanter. |
+| **`console.log()`** (für Debugging im Quellcode) | Deaktivierbarer **Custom Logging Wrapper** | Standard JavaScript. | **Jetzt nutzen** | Verhindert, dass sensible Anwendungsdaten in der Produktionskonsole exponiert werden und schont CPU-Ressourcen bei der DOM-Verarbeitung. |
+| **`var()` ohne Fallback** in CSS | **`var(--prop, fallback)`** | W3C-Standard. | **Jetzt nutzen** | Redundante Absicherung. Verhindert, dass UI-Elemente bei fehlenden Custom Properties visuell zerreißen. |
+| **`innerHTML`** (für Autocomplete- dropdown) | **`textContent`** oder **`createTextNode`** | W3C-Standard. | **Bereits umgesetzt** | Verhindert Cross-Site Scripting (XSS) auf Browserebene. Alle APIs und Benutzereingaben werden strikt als Plaintext behandelt. |
+
+---
+
+## 🔗 Verweise
+*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) zur Einhaltung der abwärtskompatiblen W3C-Schnittstellen.
+*   Siehe [ADR-ANTIPATTERN.md](../ADR/ADR-ANTIPATTERN.md) für die expliziten Dateispeicher- und CDN-Ausschlüsse.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/MODERNIZATION-GUIDE.md'), 'documentation');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'archive/tasks.md',
+  'Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)',
+  'active',
+  '> [!WARNING]
+> **ARCHIVIERT**: Veraltete Taskliste aus Phase 2. Nur zu historischen Zwecken hier abgelegt.
+
+
+# Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)
+
+Dieses Dokument dient als abarbeitbare Taskliste für die anstehenden Code-Modifikationen im Workspace.
+
+---
+
+- [x] **⚙️ Schritt 1: constants.js (Zentralisierung aller UI-Meldungen & Toasts)**
+  - [x] Alle systemweiten Toast-Meldungen (Erfolg, Info, Warnung, Fehler) aus `Constants` importieren
+  - [x] Systemgrenzen (z. B. Dateigröße 60 KB, 1-Font-Limit) festlegen
+  
+- [x] **🎨 Schritt 2: reset.css & variables.css (Offline-Schriften & Themes)**
+  - [x] Google Fonts entfernen
+  - [x] Serifenlosen, DIN-konformen cross-plattform Font-Stack deklarieren (AptosCustom, Aptos, Segoe UI, Roboto, Helvetica, Arial)
+  - [x] OKLCH-Farbräume für Light-/Dark-Mode mit `light-dark()` einpflegen
+  
+- [x] **📐 Schritt 3: layout.css (Elastischer Viewport & Proportionales Container-Modell)**
+  - [x] `#viewport` auf `overflow: auto` einstellen und Zoom-Faktoren entfernen
+  - [x] `<din-a4>` auf `height: 94vh; aspect-ratio: 210/297; container-type: size;` umstellen
+  - [x] Alle physischen mm-Werte in relative Container-Query-Einheiten (`cqw`/`cqh`) überführen
+  - [x] Brieftext-Editor `<din-text>` (oder `#brieftext`) mit Inline-Formatierungs-Unterstützung stylen
+  - [x] Druck-Overrides (`@media print`) deklarieren (ausgeblendete Ränder/Sidebar, exakte A4-Skalierung)
+  
+- [x] **🔔 Schritt 4: floating.css (Popovers, Toasts & Text-Selection Toolbar)**
+  - [x] Premium-Toast-Styles für `#toast-v4` mit `toast-platinum-cycle` Keyframes anlegen
+  - [x] CSS-Styles für das Textauswahl-Formatting-Popover `#format-toolbar` entwerfen
+  
+- [x] **📄 Schritt 5: index.html (Custom Elements, Popovers & Toolbar)**
+  - [x] Custom Elements (`<din-absender>`, `<din-anschriftfeld>`, `<din-infoblock>`, `<din-fuss>`) anlegen
+  - [x] Textauswahl-Formatierungs-Toolbar `#format-toolbar` als Popover-Element (`popover="manual"`) deklarieren
+  - [x] Offline-Font-Uploader-Schaltflächen in die Sidebar einfügen
+  - [x] Popover-Toast `<div id="toast-v4" popover="manual">` einbetten
+  
+- [x] **⚡ Schritt 6: storage.js & main.js (Logik, Paste-Filter, Font-Uploader & Popover-Toolbar)**
+  - [x] `storage.js` um Speicherfunktionen für Custom Fonts (1-Font-Limit Überschreiben) erweitern
+  - [x] `main.js` Bootloader für Font-Injektion und Draft-Recovery schreiben
+  - [x] Offline-Font-Uploader Logik implementieren (Base64-Konvertierung, Validation < 60 KB, localStorage-Sync)
+  - [x] HTML-Paste-Filter zur Plaintext-Bereinigung einbauen
+  - [x] Drag-and-Drop Filter zur Plaintext-Bereinigung einbauen
+  - [x] Selection-Event-Listener zur dynamischen Zuweisung des externen Selection-Anchors im DOM programmieren
+  - [x] Deklarative Toolbar-Positionierung über CSS Anchor Positioning an --selection-anchor anbinden
+  - [x] Textformatierung über Selection und Range API (Wrap/Unwrap in `<b>`/`<u>` / Zitat-Shortcut) implementieren
+  - [x] Standard-Browser-Shortcuts (`Strg+B`, `Strg+U`) nativ wirken lassen (kein preventDefault)
+  - [x] Toast-Popover mit discrete transition (@starting-style, transition-behavior) und nativem JS-Timer ausstatten
+
+- [x] **📅 Schritt 7: JS Temporal API Mandat & Datum-Autobefüllung**
+  - [x] Strikten Legacy Date API Ban in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` deklarieren
+  - [x] W3C Temporal API in `ADR-TECH-STACK.md` und `ADR-JS.md` als exklusive Datums-Engine dokumentieren
+  - [x] Nativer Temporal API Code in `loadDraftData()` zur zeitzonensicheren, unveränderlichen und fehlerfreien Bestimmung des lokalen Systemdatums im normativem deutschen Format implementieren
+  - [x] Alle Dokumentations- und Code-Änderungen in `DIN-Brief_docs.db` kompilieren
+
+- [x] **🎨 Schritt 8: CSS @scope Isolation & OKLCH Farbmandat**
+  - [x] Briefblatt-Stile in `layout.css` innerhalb von `@scope (din-a4)` kapseln
+  - [x] Alle HEX, RGBA und Named Colors im CSS und HTML in pure OKLCH-Farben konvertieren
+  - [x] Reaktiven Parent Selector `:has()` für Briefbogen-Fokusierungen in `layout.css` implementieren
+  - [x] Striktes OKLCH-Farbmandat und Verbot klassischer Farbräume in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` verankern
+  - [x] Alle neuen Änderungen in `DIN-Brief_docs.db` kompilieren
+
+- [x] **🔒 Proaktive Verfassungs-Ausweitung (Antipatterns 8 bis 12)**
+  - [x] Sass/Less/CSS-in-JS Verbot (Antipattern 8) in Doku verankern
+  - [x] Icon-CDNs & Icon-Fonts Verbot (Antipattern 9) in Doku verankern
+  - [x] Lodash & TS-Transpiler Verbot (Antipattern 10) in Doku verankern
+  - [x] GSAP & JS-Animations-Libs Verbot (Antipattern 11) in Doku verankern
+  - [x] Inline-Styles Verbot für Farben/Layouts (Antipattern 12) in Doku verankern
+  - [x] Re-Kompilierung der SQLite-Wissensdatenbank durchführen',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/tasks.md'), 'documentation');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/tasks.md'), 'tasks');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/tasks.md'), 'todo');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'boilerplate.config.json',
@@ -1704,6 +1917,414 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'DEV-INFO.md'), 'easter-egg');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/implementation/sqlite-vec.md',
+  'Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung',
+  'active',
+  '# Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung
+
+> [!NOTE]
+> **Status:** In Planung / Teilweise umgesetzt
+> **Zweck:** Detaillierter Implementierungsplan für die semantische Vektor-Suche via sqlite-vec.
+
+
+**Ziel:** Die bestehende `DIN-Brief_docs.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
+
+**Leitplanken (aus Research + Projektprinzipien):**
+- Bleib bei **Single-File SQLite** (kein externes DB-System).
+- Nutze **sqlite-vec** (offizielle leichtgewichtige Extension, 384-Dim Embeddings mit all-MiniLM-L6-v2).
+- Content-Hash-Caching: Nur bei geändertem Inhalt neu embedden (Performance + Determinismus).
+- Alles passiert **im Build** (`node tools/build_db.js`).
+- Keine schweren neuen Abhängigkeiten wo möglich; Extension muss separat bereitgestellt werden.
+- Generalisierbarkeit: Die Erweiterung soll später sauber in die `llm_boilerplate` übernehmbar sein.
+
+**Voraussetzungen für diese Phase:**
+- Node.js (aktuell verwendetes `node:sqlite` / `DatabaseSync`).
+- Die `sqlite-vec` Extension Datei (z.B. `vec0.dll` auf Windows, `vec0.so` auf Linux, `vec0.dylib` auf macOS). Download von https://github.com/asg017/sqlite-vec/releases (passend zu deiner Plattform und SQLite-Version).
+- Optional später: Lokaler Embedding-Generator (z.B. via `@xenova/transformers` für reines JS, offline).
+
+---
+
+## Arbeitspaket 1: Schema-Erweiterung (Priorität 1, klein)
+
+**Ziel:** Die `documents` Tabelle und verwandte Tabellen um Spalten für Embeddings und Caching erweitern.
+
+**Änderungen in `tools/build_db.js` (im SQL-Generierungs-Teil):**
+
+Finde den Abschnitt wo Tabellen gedroppt und neu erstellt werden (ca. nach `console.log(''Compiling documentation database...'');`).
+
+**Ersetze/Ergänze die CREATE TABLE documents um:**
+
+```sql
+CREATE TABLE documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  path TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  status TEXT,
+  content TEXT NOT NULL,
+  content_hash TEXT,                    -- NEU: SHA-256 des Inhalts für Caching
+  embedding BLOB,                       -- NEU: Vektor als BLOB (für sqlite-vec)
+  embedding_model TEXT DEFAULT ''all-MiniLM-L6-v2'',  -- NEU: Modell-Info
+  embedding_dim INTEGER DEFAULT 384     -- NEU: Dimension
+);
+```
+
+**Zusätzlich neue Tabelle für die Vektor-Suche (virtuell via sqlite-vec):**
+
+```sql
+-- Wird später mit sqlite-vec Extension geladen
+CREATE VIRTUAL TABLE IF NOT EXISTS vec_documents USING vec0(
+  embedding FLOAT[384]  -- Muss zur embedding_dim passen
+);
+```
+
+**Hinweis:** Da Tabellen jedes Mal gedroppt werden (`DROP TABLE IF EXISTS documents;`), ist das Adden der Spalten unkritisch. Die virtuellen Tabellen werden nach dem Laden der Extension erstellt.
+
+Aktualisiere auch die INSERT-Statements später (siehe AP 3).
+
+---
+
+## Arbeitspaket 2: Content-Hash-Caching (Priorität 2, mittel)
+
+**Ziel:** Vor dem Embedden prüfen, ob sich der Dokumentinhalt geändert hat. Nur dann neu berechnen und speichern.
+
+**Implementierung in `tools/build_db.js`:**
+
+Füge am Anfang der `main()` oder als Helper hinzu:
+
+```js
+const crypto = require(''crypto'');
+
+function computeContentHash(content) {
+  return crypto.createHash(''sha256'').update(content, ''utf8'').digest(''hex'');
+}
+```
+
+Im Schleifen-Teil, wo Dokumente verarbeitet werden (nach dem Parsen von YAML und Inhalt):
+
+```js
+const contentHash = computeContentHash(doc.content);
+
+// Später beim INSERT oder Update:
+if (existingHash !== contentHash || !existingEmbedding) {
+  // Nur dann Embedding generieren (siehe AP 3)
+  const embedding = await generateEmbedding(doc.content);  // Platzhalter
+  // Speichern
+}
+```
+
+**Im SQL-INSERT für documents** (im String-Building):
+
+Erweitere die VALUES um die neuen Spalten:
+
+```js
+sql += `INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  ''${escapeSql(doc.path)}'',
+  ''${escapeSql(doc.title)}'',
+  ''${escapeSql(doc.status)}'',
+  ''${escapeSql(doc.content)}'',
+  ''${contentHash}'',
+  ?,  -- BLOB für Embedding (später binden)
+  ''all-MiniLM-L6-v2'',
+  384
+);`;
+```
+
+**Wichtig für Caching:** Lade vor dem Verarbeiten die bestehenden Hashes aus der DB (oder aus vorherigem Run). Da der Build die DB dropt, speichere Hashes temporär oder verarbeite in-memory zuerst.
+
+**Empfehlung für sauberes Caching:**
+- Lese zuerst alle existierenden `path` + `content_hash` + `embedding` aus der alten DB (bevor DROP).
+- Vergleiche Hashes im JS-Code.
+- Nur geänderte/neue Dokumente bekommen ein frisches Embedding.
+
+---
+
+## Arbeitspaket 3: sqlite-vec Integration (Priorität 3, mittel)
+
+**Ziel:** Die Extension laden, virtuelle Tabelle anlegen und Embeddings befüllen.
+
+**Voraussetzung:** Die Extension-Datei muss verfügbar sein (z.B. im Projekt-Root oder in einem `extensions/` Ordner).
+
+**In `tools/build_db.js` (am Anfang der main(), vor Reconciliation oder DB-Erstellung):**
+
+```js
+const Database = require(''node:sqlite'').DatabaseSync;  // Bestehender Import anpassen falls nötig
+
+// Extension laden (Node 22+ unterstützt loadExtension in vielen Builds)
+const db = new Database('':memory:'');  // Oder die finale DB
+try {
+  db.loadExtension(''./vec0'');  // Pfad anpassen, z.B. ''extensions/vec0'' oder absoluter Pfad
+  console.log(''sqlite-vec Extension erfolgreich geladen.'');
+} catch (err) {
+  console.warn(''Warnung: sqlite-vec Extension konnte nicht geladen werden. Vektor-Suche deaktiviert für diesen Build.'');
+  console.warn(err.message);
+  // Fallback: Build läuft weiter ohne Vektoren (Fitness-Score anpassen)
+}
+```
+
+**Nach dem Erstellen der documents Tabelle:**
+
+```sql
+CREATE VIRTUAL TABLE IF NOT EXISTS vec_documents USING vec0(embedding FLOAT[384]);
+```
+
+**Befüllen der Vektor-Tabelle (nachdem Embeddings berechnet wurden):**
+
+Für jedes Dokument mit Embedding:
+
+```js
+// Nach dem INSERT in documents (mit lastInsertRowid oder separater Query für ID)
+const docId = ...;  // ID des Dokuments
+// Embeddings als Float32Array oder Buffer
+const embeddingBuffer = Buffer.from(new Float32Array(embedding).buffer);
+
+sql += `INSERT INTO vec_documents (rowid, embedding) VALUES (${docId}, ?);`;
+// Binde den Buffer beim Ausführen
+```
+
+**Embedding-Generierung (Platzhalter – implementiere hier):**
+
+```js
+async function generateEmbedding(text) {
+  // TODO Phase 1: Lokales Modell einbinden
+  // Beispiel mit @xenova/transformers (offline, JS-only):
+  // const { pipeline } = await import(''@xenova/transformers'');
+  // const extractor = await pipeline(''feature-extraction'', ''Xenova/all-MiniLM-L6-v2'');
+  // const output = await extractor(text, { pooling: ''mean'', normalize: true });
+  // return Array.from(output.data);  // 384-dim Float Array
+
+  // Für ersten Test: Zufalls-Vektor (später ersetzen!)
+  return Array.from({ length: 384 }, () => Math.random() - 0.5);
+}
+```
+
+**Wichtig:** Da der aktuelle Code synchron ist, passe auf Async/await auf oder mache den Build async.
+
+**Update der Reconciliation (siehe AP 5).**
+
+---
+
+## Arbeitspaket 4: Hybrid Search Funktion (Priorität 4, mittel)
+
+**Ziel:** Eine wiederverwendbare Query-Funktion/Query, die Keyword (FTS5) + Vector + RRF kombiniert.
+
+**Erstelle eine neue Datei oder erweitere `tools/build_db.js` (besser: neue Datei `tools/hybrid_search.js` für Generalisierbarkeit):**
+
+```js
+// tools/hybrid_search.js
+const Database = require(''node:sqlite'').DatabaseSync;
+
+function hybridSearch(dbPath, queryText, limit = 10) {
+  const db = new Database(dbPath);
+
+  // Lade Extension falls nötig (wie in build)
+  try { db.loadExtension(''./vec0''); } catch (e) {}
+
+  // 1. FTS5 Matches
+  const ftsQuery = `
+    SELECT documents.id, documents.path, documents.title, rank
+    FROM documents 
+    JOIN documents_fts ON documents.id = documents_fts.rowid
+    WHERE documents_fts MATCH ?
+    ORDER BY rank
+    LIMIT ?
+  `;
+  // (Hinweis: Du brauchst eine FTS5 Tabelle – siehe unten)
+
+  // 2. Vector Search (angenommen Embedding für Query generiert)
+  const queryEmbedding = /* generateEmbedding(queryText) */;
+  const vecQuery = `
+    SELECT documents.id, documents.path, documents.title, 
+           distance
+    FROM vec_documents 
+    JOIN documents ON vec_documents.rowid = documents.id
+    WHERE embedding MATCH ? AND k = ?
+    ORDER BY distance
+  `;
+
+  // 3. RRF Fusion (Reciprocal Rank Fusion)
+  const hybridSQL = `
+    WITH fts AS (
+      -- FTS5 subquery mit Ranks
+    ),
+    vec AS (
+      -- Vector subquery
+    ),
+    combined AS (
+      SELECT id, path, title,
+             (1.0 / (60 + fts_rank)) + (1.0 / (60 + vec_rank)) as rrf_score
+      FROM ...
+    )
+    SELECT * FROM combined ORDER BY rrf_score DESC LIMIT ?;
+  `;
+
+  return db.prepare(hybridSQL).all(queryText, queryEmbedding /*, limit */);
+}
+
+module.exports = { hybridSearch };
+```
+
+**FTS5 Tabelle anlegen (im build_db.js SQL):**
+
+Falls noch nicht vorhanden (aus aktuellem Code erweitern):
+
+```sql
+CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(content, path, title);
+-- Trigger oder manuelles Befüllen beim Build
+```
+
+**Empfehlung:** Im Build alle Dokumente in FTS5 + vec_documents befüllen.
+
+**Test-Query Beispiel:**
+
+```sql
+-- Nach Build in sqlite3 CLI oder Node:
+SELECT * FROM hybrid_search(''dein suchbegriff'', 5);
+```
+
+---
+
+## Arbeitspaket 5: Reconciliation-Erweiterung (Priorität 5, klein)
+
+**Ziel:** Neuen Check: "Alle Dokumente haben aktuelle Embeddings?"
+
+**In `tools/reconciliation.js` (im FEATURE_CHECKS oder neuen Check):**
+
+```js
+// Erweitere den Report
+const embeddingCheck = {
+  name: ''Embeddings present and up-to-date'',
+  passed: true,
+  details: []
+};
+
+files.forEach(file => {
+  if (/* Markdown file */) {
+    const hash = computeContentHash(content);
+    // Query DB: SELECT content_hash, embedding FROM documents WHERE path = ?
+    if (!row.embedding || row.content_hash !== hash) {
+      embeddingCheck.passed = false;
+      embeddingCheck.details.push(`Missing/outdated embedding for ${path}`);
+    }
+  }
+});
+
+report.dimensions.features = ... ; // Anpassen falls nötig
+report.logs.push(...);
+```
+
+**Update `build_db.js`:** Rufe den erweiterten Check auf und integriere in den Fitness Score.
+
+**Im Score:** Wenn Embeddings fehlen, z.B. leichte Abzug auf "Features Score" (nicht critical, damit Build nicht sofort bricht während Migration).
+
+---
+
+## Arbeitspaket 6: Dokumentation (Priorität 6, klein)
+
+**Erstelle / aktualisiere eine Datei:**
+
+`aktueller_arbeitsordner/tools/README-VECTOR-SEARCH.md` (oder in `Guides/`):
+
+- Kurze Anleitung: Wie Hybrid Search aufrufen (Beispiel-Code + SQL).
+- Hinweis auf Caching und wann neu embeddet wird.
+- Beispiel-Queries für Agenten (z.B. "Finde ähnliche ADRs zu Farbthemen").
+- Link zum Reconciliation (Fitness Score prüft Embeddings).
+
+**Minimal-Beispiel in der Doku:**
+
+```js
+const { hybridSearch } = require(''./tools/hybrid_search'');
+const results = hybridSearch(''DIN-Brief_docs.db'', ''Faltmarken und DIN 5008'', 5);
+```
+
+---
+
+## Nächste Schritte nach dieser Anleitung
+
+1. **Vorbereitung:** Lade `sqlite-vec` Extension herunter und lege sie neben dem Projekt (oder in `tools/extensions/`).
+2. **Test-Implementierung:** Starte mit AP 1 + 2 (Schema + Hash) – das ist risikoarm.
+3. **Danach AP 3** (Extension + Vektoren).
+4. Teste die Hybrid Search.
+5. Erweitere Reconciliation.
+6. Dokumentiere.
+7. **Post-Build + Log** nach jedem größeren Schritt (per AGENTS.md).
+8. Prüfe Fitness Score – bei Problemen (z.B. fehlende Extension) graceful degrade (Build läuft, aber ohne Vektoren + Warnung im Score).
+
+**Risiken & Hinweise:**
+- `node:sqlite` + `loadExtension` funktioniert nicht auf allen Node-Builds (manchmal braucht man `better-sqlite3` mit `unsafeLoadExtension`). Teste früh.
+- Embedding-Generierung: Für echte lokale Nutzung `@xenova/transformers` hinzufügen (kleine Abhängigkeit, aber offline-fähig).
+- Performance: Bei vielen Docs (>1000) Caching + batching wichtig.
+- Generalisierbarkeit: Die neuen Funktionen (`hybrid_search.js`) sollten später 1:1 in die `llm_boilerplate/tools/` wandern können.
+
+---
+
+**Wie weiter?**
+
+Diese Anleitung ist bewusst detailliert, damit du (oder ein Agent) sie Schritt für Schritt abarbeiten kannst.
+
+Möchtest du, dass ich als Nächstes:
+- Den Code für eines der Arbeitspakete (z.B. AP 1+2) direkt in die Dateien schreibe (mit search_replace)?
+- Ein separates `tools/hybrid_search.js` Gerüst anlege?
+- Die Anleitung noch kürzer mache (nur die Top 3 Pakete)?
+- Oder direkt mit der Implementierung von AP 1 (Schema) starte und dann build + log?
+
+Sag mir den nächsten konkreten Schritt – ich führe ihn aus (inkl. Pre/Post-Build + Logging per Vertrag). 
+
+Phase 1 ist machbar in 1–3 Sitzungen, wenn wir fokussiert bleiben.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'phase1');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'sqlite-vec');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'hybrid-search');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'embedding');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'build');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'generalisierbarkeit');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'tools');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'DOCUMENTATION-MAP.md',
+  'Dokumenten-Landkarte & Wegweiser',
+  'active',
+  '# Dokumenten-Landkarte & Wegweiser
+
+Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Dokumentation in modular verlinkte Single Sources of Truth (SSoTs) gegliedert.
+
+## 🏛️ Philosophie & Gesetzgebung
+* **[Longevity Guidelines](Guides/longevity-guidelines.md):** Die unverrückbare "Verfassung" für Wartungsfreiheit (Zero-Dependency, 100% Offline-Autarkie).
+* **[Master Lawbook](MASTER-DO-DONT-DEPRECATED.md):** Die zentrale Referenz für alle technologischen Entscheidungen, Verbote und Ersatzstrategien.
+* **[AGENTS.md](../AGENTS.md):** Bindender Vertrag für alle KI-Agenten (Reconciliation, 100% Fitness, Logging).
+* **[DEV-INFO.md](DEV-INFO.md):** Entwicklerbereich & Feature-Prüfungs-Matrix.
+
+## 🗺️ Status, Spezifikationen & Guides
+* **[Spezifikation (spec.md)](spec.md):** Die Kernanforderungen der Features und Backlog.
+* **[No-Scroll Techniken](Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
+* **[Testing Guide](Guides/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
+* **[LLM-First Datenbank-Guide (README-DB.md)](README-DB.md):** Spezifikation der SQLite-DB und MCP-Architektur.
+* **[DIN 5008 Master Data](Guides/din-5008-geometry.md):** SSoT für alle physischen Abstände des Briefs.
+
+## 🏗️ Architektur-Entscheidungen (ADRs)
+Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](ADR/)** dokumentiert:
+* **[ADR-HTML](ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
+* **[ADR-CSS](ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
+* **[ADR-JS](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
+* **[ADR-GEOAPIFY](ADR/ADR-GEOAPIFY.md):** Zero-Dependency Adress-Autocomplete.
+* **[ADR-MIGRATION](ADR/ADR-MIGRATION.md):** Extraktion zur `llm_boilerplate`.
+
+## 📦 Implementierungsdetails
+* **[SQLite-Vec Integration](docs/implementation/sqlite-vec.md):** Plan für Vektor-Suche.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'DOCUMENTATION-MAP.md'), 'documentation');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'DOCUMENTATION-MAP.md'), 'map');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'DRINGEND NOCH BEHEBEN.md',
   'DRINGEND NOCH BEHEBEN',
   'active',
@@ -1919,129 +2540,71 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/chrome-modern-css.md',
-  'Modern CSS Features ab Chrome 148+',
+  'Modern CSS Features (Chrome 148+ Baseline)',
   'active',
-  '# Modern CSS Features ab Chrome 148+
+  '# Modern CSS Features (Chrome 148+ Baseline)
 
-> [!important] Chrome 148+ Exklusivität
-> Da die Anwendung exklusiv für moderne Browser-Installationen ab Chrome 148+ entwickelt wird, können wir modernste APIs einsetzen. Dieses Dokument dient als Entwicklungs-Referenz für die erlaubten und empfohlenen Features.
+Dieses Dokument listet die modernen CSS-Features auf, die im Projekt **DIN-Brief Neo** verwendet werden. Da die App eine strikte Chrome 148+ (Edge/Opera äquivalent) Engine voraussetzt, können wir auf Polyfills und Fallbacks verzichten und hochmoderne Web-Plattform-Features nativ nutzen.
 
----
+## 1. Farbthemen & Design Tokens
 
-## 1. Hell-/Dunkelmodus mit `light-dark()`
-Keine JavaScript-Klassen-Toggles oder doppelte CSS-Regelsätze mehr. Wir definieren unsere Themes nativ über Custom Properties:
+### 1.1 `light-dark()` Funktion
+Eine CSS-Funktion, die abhängig vom berechneten `color-scheme` des Elements entweder einen hellen oder dunklen Farbwert zurückgibt.
 
-```css
-:root {
-  /* Browser anweisen, beide Farbschemen zu unterstützen */
-  color-scheme: light dark;
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Wir nutzen dies intensiv für unseren nativen Dark Mode ohne JavaScript-Klassen-Toggling auf jedem Element.
 
-  /* Farbräume dynamisch zuweisen */
-  --bg-primary: light-dark(#ffffff, #121212);
-  --text-primary: light-dark(#111111, #eeeeee);
-  --border-color: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.15));
-}
-```
+### 1.2 `oklch()` Farbraum
+Ein wahrnehmungsgerechter Farbraum, der konsistente Helligkeitsstufen (Lightness) und Sättigungen (Chroma) über alle Farbtöne (Hue) hinweg bietet.
+
+> **Relevanz für DIN-BriefNEO:** **Mittel**. Wird vereinzelt für extrem präzise Schatten und sanfte Grauabstufungen in der Sidebar genutzt, um ein Premium-Gefühl zu erzeugen.
 
 ---
 
-## 2. Der `oklch()` Farbraum
-Für moderne Farbverläufe und barrierefreie Kontraste nutzen wir OKLCH. Es bietet im Vergleich zu HEX oder RGB einen wahrnehmungsbasierten Farbraum, in dem Helligkeitsänderungen konsistent wirken.
+## 2. Layout & Responsiveness
 
-```css
-:root {
-  /* oklch(Luminanz Chroma Farbton) */
-  --accent-color: oklch(65% 0.25 140); /* Leuchtendes, sattes Grün */
-  --accent-hover: oklch(60% 0.23 140);
-  --danger-color: oklch(62% 0.22 28);  /* Sattes Signalrot */
-}
-```
+### 2.1 `container-type: size` + Container-Einheiten (`cqw` / `cqh`)
+Container Queries erlauben es, dass sich Elemente an der Größe ihres *Containers* anstatt des Viewports orientieren. `cqw` und `cqh` sind prozentuale Einheiten bezogen auf diesen Container.
 
----
+> **Relevanz für DIN-BriefNEO:** **Extrem Hoch**. Das ist das Herzstück unseres No-Scroll-Layouts! Der Briefbogen (`<din-a4>`) skaliert sich dynamisch in den verfügbaren Platz. Alle DIN 5008 Abstände (wie Falzmarken) werden in `cqh` und `cqw` berechnet, damit das Blatt stufenlos zoombar ist, ohne dass die Maßstäbe brechen.
 
-## 3. CSS Anchor Positioning
-Tooltips und Dropdown-Menüs können im Markup frei platziert (z. B. am Ende des Bodys) und über CSS relativ an ein anderes Element verankert werden, ohne JavaScript zu bemühen:
+### 2.2 `field-sizing: content`
+Erlaubt Input-Feldern und Textareas, ohne JavaScript-Hacks automatisch mit ihrem Inhalt mitzuwachsen.
 
-```css
-/* Der Auslöser */
-#btn-open-menu {
-  anchor-name: --menu-trigger;
-}
-
-/* Das Popover / Tooltip */
-#dropdown-menu {
-  position: absolute;
-  position-anchor: --menu-trigger;
-  top: anchor(bottom);
-  left: anchor(left);
-  margin-top: 4px;
-}
-```
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Perfekt für kleine, editierbare Bereiche (wie den Betreff), bei denen wir kein `contenteditable` nutzen, aber trotzdem ein Auto-Grow-Verhalten brauchen.
 
 ---
 
-## 4. `field-sizing: content`
-Ideal für editierbare Formulare oder den Fließtext des Briefes. Eingabefelder passen ihre Größe dynamisch der Textmenge an, ohne dass das Layout springt.
+## 3. Interaktion & UI
 
-```css
-textarea, input[type="text"], [contenteditable] {
-  field-sizing: content;
-  min-width: 100px;
-}
-```
+### 3.1 `:has()` Pseudo-Klasse
+Der CSS-Parent-Selector. Erlaubt es, ein Elternelement basierend auf seinem Inhalt (Kinder) zu stylen.
 
----
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Wird genutzt, um z.B. Warn-Rahmen um den Briefkern zu zeichnen, falls eines der inneren Kinder (wie der Text) einen Überlauf (`overflow`) erzeugt.
 
-## 5. Die `:has()` Pseudo-Klasse (Parent Selector)
-Die mächtigste CSS-Erweiterung der letzten Jahre. Sie ermöglicht es uns, übergeordnete Elemente basierend auf dem Zustand ihrer Kinder zu stylen:
+### 3.2 Popover API (`popover`)
+Ein nativer Weg, um UI-Elemente über den Rest der Seite zu legen (Top-Layer), inklusive Light-Dismiss (Schließen durch Klick daneben) und ESC-Taste-Support, völlig ohne z-index-Kämpfe.
 
-```css
-/* Ändert die Hintergrundfarbe des Viewports, wenn die Guides-Checkbox ausgewählt ist */
-#paper-viewport:has(#state-guides:checked) din-a4 {
-  --guide-opacity: 0.15;
-}
+> **Relevanz für DIN-BriefNEO:** **Hoch**. Wird für die schwebende "WhatsApp-Style" Formatierungsleiste (Fett, Kursiv) genutzt, die über dem Text auftaucht.
 
-/* Sidebar verkleinern, wenn ein Toggle aktiv ist */
-#app-shell:has(#sidebar-collapse:checked) {
-  grid-template-columns: 80px 1fr;
-}
-```
+### 3.3 CSS Anchor Positioning
+Ermöglicht das absolute Positionieren eines Elements (z.B. ein Tooltip) *relativ* zu einem anderen "Anker"-Element, ohne dass sie im DOM verschachtelt sein müssen.
+
+> **Relevanz für DIN-BriefNEO:** **Niedrig (Aktuell)**. Zukünftig extrem spannend, um Dropdowns (wie bei der Adress-Autovervollständigung) präzise an ein `contenteditable`-Feld zu heften, ohne den Layout-Flow des DIN-Briefs zu stören.
 
 ---
 
-## 6. HTML Popover API & Invoker Commands
-Einblenden und Schließen von Menüs und Dialogen ohne eine einzige Zeile JavaScript-EventListener:
+## Feature-Stabilität & Prüfung
 
-```html
-<!-- Der Auslöser -->
-<button popovertarget="debug-menu">🛠️ Debug-Menü</button>
-
-<!-- Das Popover-Element -->
-<div id="debug-menu" popover>
-  <h4>Entwickler-Werkzeuge</h4>
-  <p>Status: Aktiv</p>
-</div>
-```
-
-
-## Feature Checks
-```javascript feature-check
-f("CSS @scope (Isolation)", typeof CSSScopeRule !== "undefined", "Chrome 118", "Future-Proof"),
-f("CSS Anchor Positioning", typeof CSS !== "undefined" && CSS.supports && CSS.supports("anchor-name: --foo"), "Chrome 125", "Future-Proof"),
-f("CSS light-dark()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: light-dark(black, white)"), "Chrome 123", "Produktiv"),
-f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: oklch(from red l c h)"), "Chrome 119", "Produktiv")
-```',
+Da wir auf Engine-Version **Chrome 148+** (bzw. 149+) setzen, sind **alle oben genannten Features stabil verfügbar** und benötigen keine Prefix-Hacks oder Polyfills. Ein manueller Feature-Check per JavaScript (wie in alten Versionen dieses Dokuments) ist unnötig und entfernt worden, da wir eine harte Engine-Grenze als Vorbedingung für die Nutzung der Applikation definieren.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'manual');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'css');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'guide');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/chrome-modern-css.md'), 'modern');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/din-5008-geometry.md',
@@ -2096,36 +2659,76 @@ Die Absender-Zone nimmt den oberen Briefkopf (Branding-Bereich) ein.
 ---
 
 ## 4. Informationsblock & Datum
-Der Informationsblock befindet sich rechts oben und wächst von oben nach unten.
+
+Der Informationsblock befindet sich rechts oben und wächst von oben nach unten. Je nach Einsatzzweck unterscheidet die DIN 5008 zwischen geschäftlichen und privaten Briefen.
+
+### 4.1 Geschäftsbrief (Kompletter Infoblock)
+
+Der klassische Geschäftsbrief nutzt den vollen, strukturierten Informationsblock für Geschäftszeichen, Ansprechpartner, Telefon und Datum.
 
 | Parameter | Form A | Form B | Ausrichtung | Quelle |
 | :--- | :--- | :--- | :--- | :--- |
 | **Infoblock Beginn (X)** | 125 mm | 125 mm | Linksbündig | DIN 5008, Abs. 17.1 |
 | **Infoblock Breite** | 75 mm | 75 mm | — | DIN 5008, Abs. 17.1 |
-| **Infoblock Beginn (Y)** | **32 mm** | **50 mm** | Linksbündig | DIN 5008, Abs. 17.1 |
-| **Schriftgröße Infoblock** | 8.5 pt (**3.00 mm**) | 8.5 pt (**3.00 mm**) | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
+| **Infoblock Beginn (Y)** | 32 mm | 50 mm | Linksbündig | DIN 5008, Abs. 17.1 |
+| **Schriftgröße Infoblock** | 8.5 pt (3.00 mm) | 8.5 pt (3.00 mm) | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
 | **Briefdatum (X)** | 125 mm | 125 mm | Linksbündig | DIN 5008, Abs. 17.2 |
-| **Briefdatum (Y)** | **74 mm** | **92 mm** | Linksbündig (10 pt / **3.53 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
+| **Briefdatum (Y)** | 74 mm | 92 mm | Linksbündig (10 pt / 3.53 mm) | `eigenequellen/DIN-BriefNEO/issues/#1` |
+
+### 4.2 Privatbrief (Reduzierter Infoblock)
+
+Für Privatbriefe entfallen die komplexen Geschäftszeichen. Der Informationsblock wird stark reduziert und enthält üblicherweise nur die Absender-Kontaktdaten.
+
+**Beispielhafter Aufbau (rechtsbündig oder im Infoblock linksbündig platziert):**
+- Moritz Baumeister
+- Kettelerstraße 2
+- 53844 Troisdorf
+- Telefonnummer (optional)
+- E-Mail-Adresse (optional)
+
+*Geometrie:* Die Startpositionen (X: 125 mm, Y: 32/50 mm) gelten in der Regel weiterhin, um das einheitliche DIN-Fenster-Layout nicht zu brechen, jedoch ist der Inhalt freier formatierbar. Das Datum bildet meist den Abschluss.
 
 ---
 
-## 5. Briefkern (Kernbereich)
-Der Kernbereich enthält Betreff, Anrede, Text, Grußformel und Unterschrift.
+## 5. Hauptinhalte (Betreff, Anrede, Brieftext)
+
+Der Inhaltsbereich beginnt immer unterhalb des Informationsblocks und ist in strikte Abschnitte unterteilt. 
+
+WICHTIG: Technisch (im HTML/CSS) befinden sich diese Elemente innerhalb eines gemeinsamen Flow-Containers (`#briefkern`), da sie sich gegenseitig nach unten schieben müssen (z. B. wenn der Betreff 2-zeilig wird). Hier sind die geometrischen Startpunkte:
+
+### 5.1 Betreffzeile
+
+Der Betreff ist das erste Element. Er wird fett formatiert und erhält keinen Punkt am Ende.
+
+> **WICHTIG:** Der Betreff muss **unterhalb** der oberen Falzmarke (105 mm) positioniert werden, damit er beim Falten in den DL-Umschlag nicht geknickt wird.
 
 | Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
 | :--- | :--- | :--- | :--- | :--- |
-| **Beginn Briefkern (Y)** | **85.4 mm** | **103.4 mm** | — | DIN 5008, Abs. 18 & 19 |
+| **Startposition (Y)** | **85.4 mm** | **109 mm** | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 & 19 |
 | **Linke Fluchtlinie (X)** | 25 mm | 25 mm | — | DIN 5008, Abs. 6.1 |
-| **Rechte Begrenzung (X)** | 190 mm | 190 mm | — | DIN 5008, Abs. 6.2 (210mm - 20mm) |
-| **Maximal-Breite** | 165 mm | 165 mm | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Betreffzeile (Y)** | 85.4 mm | 103.4 mm | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 (Max. 2 Zeilen) |
-| **Abstand Betreff zu Anrede** | 2 Leerzeilen (**8.46 mm**) | 2 Leerzeilen (**8.46 mm**) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
-| **Anredezeile (Y)** | 100.4 mm | 118.4 mm | 10.5 pt (**3.70 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Abstand Anrede zu Text** | 1 Leerzeile (**4.23 mm**) | 1 Leerzeile (**4.23 mm**) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
-| **Brieftext Start (Y)** | **110.4 mm** | **128.4 mm** | 10.5 pt (**3.70 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Zeilenabstand** | **1.4** (ca. 5.18 mm) | **1.4** (ca. 5.18 mm) | — | DIN 5008, Abs. 20 |
-| **Grußformel (Y)** | Dynamisch (Ende) | Dynamisch (Ende) | 10.5 pt (**3.70 mm**) | 1 Leerzeile Abstand zum Text |
-| **Unterschrift (Y)** | Dynamisch (Ende) | Dynamisch (Ende) | 10.5 pt (**3.70 mm**) | 3 Leerzeilen für Unterschrift |
+| **Rechte Begrenzung (X)** | 190 mm | 190 mm | — | DIN 5008, Abs. 6.2 |
+| **Maximal-Zeilen** | 2 Zeilen | 2 Zeilen | — | DIN 5008, Abs. 18 |
+
+### 5.2 Anrede
+
+Die Anrede steht mit festem Abstand unter dem Betreff. Da die Betreffzeile in ihrer Höhe variieren kann (1 oder 2 Zeilen), wird die absolute Y-Position der Anredezeile oft dynamisch vom Betreff nach unten geschoben. Die unten genannten Y-Werte gelten für einen einzeiligen Betreff.
+
+| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
+| :--- | :--- | :--- | :--- | :--- |
+| **Abstand zum Betreff** | 2 Leerzeilen (8.46 mm) | 2 Leerzeilen (8.46 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
+| **Erwartete Y-Position** | ~98 mm | ~122 mm | 10.5 pt (**3.70 mm**) | Beispiel bei einzeiligem Betreff |
+
+### 5.3 Brieftext (Fließtext)
+
+Der eigentliche Briefinhalt beginnt eine Leerzeile unter der Anrede.
+
+| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
+| :--- | :--- | :--- | :--- | :--- |
+| **Abstand zur Anrede** | 1 Leerzeile (4.23 mm) | 1 Leerzeile (4.23 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
+| **Erwartete Y-Position** | ~106 mm | ~130 mm | 10.5 pt (**3.70 mm**) | Beispiel bei einzeiligem Betreff |
+| **Zeilenabstand** | 1.4 (ca. 5.18 mm) | 1.4 (ca. 5.18 mm) | — | DIN 5008, Abs. 20 |
+| **Grußformel (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 1 Leerzeile unter Textende |
+| **Unterschrift (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 3 Leerzeilen für Unterschrift |
 
 ---
 
@@ -2134,8 +2737,8 @@ Die Hilfsmarken dienen der physischen Faltung und Lochung. Die Y-Werte beziehen 
 
 | Hilfsmarke | Form A | Form B | Breite / Stil | Quelle |
 | :--- | :--- | :--- | :--- | :--- |
-| **Falzmarke 1 (oben)** | **87 mm** | **105 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 60mm) |
-| **Falzmarke 2 (unten)** | **181 mm** | **199 mm** | 3 mm (horizontal) | DIN 5008, Abs. 25 (var(--start) + 154mm) |
+| **Falzmarke 1 (oben)** | **87 mm** | **105 mm** | 3 mm (horizontal) | Fixe Position nach DIN 5008 Form B. Nicht veränderbar, da relevant für Fensterumschlag. |
+| **Falzmarke 2 (unten)** | **181 mm** | **210 mm** | 3 mm (horizontal) | Angepasste Position für mehr Freiraum. |
 | **Lochmarke (Mitte)** | **148.5 mm** | **148.5 mm** | 5 mm (horizontal) | DIN 5008, Abs. 25 (exakt Blatthöhe / 2) |
 
 ---
@@ -2240,7 +2843,7 @@ Der Hauptunterschied liegt in der Höhe des Briefkopfs, was die Position aller d
 | **Infoblock (Beginn)** | 32 mm | 50 mm |
 | **Fluchtlinie (links)** | 50 mm | 50 mm |
 | **Falzmarke 1 (oben)** | 87 mm | 105 mm |
-| **Falzmarke 2 (unten)** | 181 mm | 199 mm |
+| **Falzmarke 2 (unten)** | 181 mm | **210 mm** |
 | **Lochmarke (Mitte)** | 148,5 mm | 148,5 mm |
 
 ---
@@ -2265,7 +2868,7 @@ Der Informationsblock befindet sich rechts oben und enthält Metadaten wie Akten
 
 ## 5. Briefkern (Betreff, Anrede, Text)
 Der eigentliche Textbereich (Briefkern) beginnt unterhalb des Anschriftfelds:
-- **Betreff:** Beginnt bei **103,4 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende.
+- **Betreff:** Beginnt bei **109 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende. *Der Betreff wird bewusst nach der oberen Falzmarke (105 mm) platziert, um ein Knicken beim Falten zu vermeiden.*
 - **Abstand zur Anrede:** 2 Leerzeilen (ca. 8,46 mm) unter dem Betreff.
 - **Anrede:** Standard-Anredeformel ("Sehr geehrte Damen und Herren,", "Lieber Herr...").
 - **Abstand zum Text:** 1 Leerzeile unter der Anrede.
@@ -2283,6 +2886,99 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'documentation');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'guide');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/din-5008-layout.md'), 'manual');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'Guides/geoapify-autocomplete.md',
+  'Guide: Geoapify Autocomplete Implementierung',
+  'active',
+  '# Guide: Geoapify Autocomplete Implementierung
+
+> [!tip] Was ist dieser Guide?
+> Dieser Guide beschreibt, wie wir die Geoapify Autocomplete API in DIN-Brief Neo einsetzen, **ohne** externe Bibliotheken (wie `@geoapify/geocoder-autocomplete`) zu laden, um strikt WYSIWYG und Zero-Dependencies zu wahren.
+
+## 1. Einleitung & Zielsetzung
+
+Um die Empfängeradresse im DIN-Brief autovervollständigen zu können, nutzen wir die REST API von Geoapify. Ein externes Brainstorming hat aufgezeigt, dass Debouncing, Limitierungen und "Proximity Biasing" (Bevorzugen von lokalen Adressen) extrem wichtig für Performance und User Experience sind.
+
+## 2. Best Practices der Implementierung
+
+Wir haben die folgenden Best Practices direkt in unserem Custom Fetch-Wrapper in `main.js` umgesetzt:
+
+- **Regel 1: Debouncing (300ms)**
+  - Wir senden nicht bei jedem Tastendruck einen Request. Stattdessen warten wir 300ms, bis der Nutzer aufhört zu tippen. Das schont das API-Limit massiv.
+- **Regel 2: Strikte Limits (`limit=5`)**
+  - Wir rufen maximal 5 Ergebnisse ab. Ein zu langes Dropdown bricht das Layout und verschlechtert die Performance.
+- **Regel 3: Dynamischer Proximity Bias**
+  - Statt hartcodierten Koordinaten (z. B. Bonn) lesen wir dynamisch die PLZ des **Absenders** aus. Die API liefert dann zuerst Ergebnisse in der Nähe des Absenders.
+
+### Code-Beispiele (Custom Fetch vs. Library)
+
+Nutze Diff-Blöcke (`diff`), um zu veranschaulichen, warum wir die offizielle Library meiden:
+
+```diff
+- import { GeocoderAutocomplete } from ''@geoapify/geocoder-autocomplete'';
+- const autocomplete = new GeocoderAutocomplete(container, ''API_KEY'');
++ // Neuer Zero-JS/WYSIWYG Ansatz via native fetch()
++ let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&lang=de&limit=5`;
++ if (coords) url += `&bias=proximity:${coords.lon},${coords.lat}`;
++ const res = await fetch(url, { headers: { "X-Api-Key": key } });
+```
+
+### Syntax Highlighting: Das Caching
+
+Langfristig kann (wie im Brainstorming vorgeschlagen) ein In-Memory-Cache implementiert werden, um doppelte Abfragen (z.B. wenn der User Rücktaste drückt) abzufangen:
+
+```javascript
+// Geplantes In-Memory-Cache (zukünftige Optimierung)
+const geoCache = new Map();
+
+async function cachedGeoFetch(query, coords) {
+  const cacheKey = query + (coords ? coords.lat : '''');
+  if (geoCache.has(cacheKey)) return geoCache.get(cacheKey);
+  
+  // fetch...
+  geoCache.set(cacheKey, data);
+  return data;
+}
+```
+
+## 3. Komplexere Zusammenhänge
+
+<details>
+<summary>Deep Dive: Woher kommen die Bias-Koordinaten? (Klicken)</summary>
+Die Geoapify API erfordert für das `bias=proximity` Argument Breiten- und Längengrade (Latitude/Longitude). Da der Nutzer in einem DIN-Brief oft seinen eigenen Wohnort eingibt (z.B. "53111 Bonn"), haben wir einen separaten Hook eingebaut: Sobald der Nutzer seine PLZ im Absenderfeld tippt, fragen wir im Hintergrund die freie API `zippopotam.us` ab. Diese liefert uns die Lat/Lon-Koordinaten der Absender-PLZ zurück. Diese Koordinaten speichern wir im `localStorage` (`din_sender_coords`) und hängen sie als dynamischen Bias an jeden Geoapify-Request an. Das führt dazu, dass jemand aus Hamburg primär Hamburger Adressen vorgeschlagen bekommt.
+</details>
+
+## 4. Feature Checks
+
+Da wir auf nativem `fetch` und modernem ES6 basieren:
+
+```javascript feature-check
+// f("Geoapify Native Fetch", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv")
+```
+
+
+## 3. Fehlerbehandlung & Fallback-Strategie
+Da externe APIs ausfallen können (Rate Limits, Offline-Szenarien, API-Downtime), muss die Fehlerbehandlung robust sein.
+Schlägt der Request an Geoapify fehl, werfen wir keinen UI-blockierenden Fehler, sondern fangen diesen ab und wechseln – sofern konfiguriert – sofort auf den kostenlosen Photon Fallback-Provider, oder stoppen die Autocomplete-Vorschläge einfach leise (Graceful Degradation).
+
+## 4. Rate Limiting & Performance
+Die Geoapify API hat in der kostenlosen Stufe strikte Limits (z.B. 3.000 Requests pro Tag).
+Das strenge Debouncing (300-500ms) und ein geplantes, lokales **Caching** von Suchbegriffen (aktuell noch in Planung / noch nicht implementiert) sind unsere primären Abwehrwerkzeuge gegen das Limit.
+
+## 5. Datenschutz (Privacy)
+Geoapify erhält den gesuchten Adressstring sowie die berechneten GPS-Koordinaten (für das Proximity Biasing).
+**WICHTIG:** Es werden **keine** persönlichen Absenderdaten, Namen oder Briefinhalte an den Dienst übertragen.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'guide');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'documentation');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'geoapify');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'Guides/geoapify-autocomplete.md'), 'autocomplete');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'Guides/glossary.md',
@@ -2379,7 +3075,20 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ### `Zippopotam`
 *   **Kurzdefinition:** Eine extrem schlanke, freie und globale API zur Geocodierung und Validierung von Postleitzahlen.
 *   **Nutzen im Projekt:** Löst 5-stellige deutsche PLZs im Empfängerfeld im Hintergrund auf, um den Ortsnamen automatisch hinzuzufügen.
-*   **Verweis:** Siehe [[ADR-API#5-zippopotam-plz-auto-lookup|ADR-API.md]].',
+*   **Verweis:** Siehe [[ADR-API#5-zippopotam-plz-auto-lookup|ADR-API.md]].
+
+
+### Falzmarke / Faltmarke
+Kleine Hilfslinien am linken Blattrand (oft 105 mm und 210 mm von oben bei Form B). Sie markieren die genauen Stellen, an denen das Blatt horizontal geknickt werden muss, damit die Adresse perfekt im Sichtfenster des Briefumschlags erscheint.
+
+### Fensterumschlag / DL-Umschlag
+Ein Standard-Briefumschlag (Format DIN lang / DL) mit einem transparenten Sichtfenster auf der linken Seite. Die DIN 5008 stellt sicher, dass das Anschriftfeld genau in diesem Fenster sichtbar ist.
+
+### No-Scroll-Layout
+Ein Web-Design-Konzept, bei dem die Anwendung (wie dieser Brief-Editor) immer exakt in den sichtbaren Viewport (100vh / 100vw) passt, ohne dass der Benutzer scrollen muss. Alle Bedienelemente sind stets sichtbar.
+
+### Single Source of Truth (SSoT)
+Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) existiert nur an **einem einzigen, zentralen Ort** im Code (z.B. als CSS Custom Property `--fold-1-y`). Alle anderen Komponenten lesen diesen Wert nur aus. Es gibt keine redundanten Kopien des Wertes, was Fehler bei Updates verhindert.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -2472,7 +3181,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > [!important] 10+ Jahre Wartungsfreiheit
 > Moderne Webentwicklung leidet unter massiver Kurzlebigkeit. Frameworks veralten in wenigen Jahren, Build-Tools brechen durch Node.js-Versionswechsel, und externe CDNs verschwinden oder ändern ihre Pfade. 
 > 
-> **DIN-BriefNEO** bricht radikal mit diesem Zyklus. Das Ziel ist eine **Überlebensdauer von 10+ Jahren** ohne eine einzige Code-Änderung oder Wartungsarbeit. Der Briefbogen muss im Jahr 2036 in jedem gängigen Webbrowser exakt so geladen, gerendert und bedient werden können wie heute.
+> **DIN-BriefNEO** bricht radikal mit diesem Zyklus. Ziel ist eine **möglichst lange Lebensdauer ohne Wartungsaufwand** (im Idealfall viele Jahre). Der Briefbogen muss im Jahr 2036 in jedem gängigen Webbrowser exakt so geladen, gerendert und bedient werden können wie heute.
 > 
 > Dies erreichen wir nicht durch Verzicht auf moderne Features, sondern durch das unnachgiebige Vertrauen in **native, standardisierte W3C/WHATWG Browser-Schnittstellen**.
 
@@ -2496,7 +3205,7 @@ Es werden ausschließlich Features genutzt, die im offiziellen HTML-, CSS- und J
 *   **Konkret:** Wir nutzen die native **Popover API** für Toolbars und Toasts, **Container Queries** (`cqw`/`cqh`) für die proportionale Skalierung und die **Selection/Range-API** für Textformatierungen.
 
 ### Säule 4: Build-Tool-Immunität (Kein Compiler)
-Die Anwendung nutzt **keinen** Compiler, keinen Bundler und kein Transpilier-Werkzeug (kein Webpack, kein Vite, kein Babel, kein Sass-Compiler).
+Die Anwendung nutzt **keinen** Compiler, keinen Bundler und kein Transpilier-Werkzeug (kein Webpack, kein Vite, kein Babel, kein Sass-Compiler). Wir akzeptieren nur dann einen Bundler, wenn er optional und ohne Breaking Changes bleibt.
 *   **Warum?** Build-Tools sind die häufigste Ursache, warum alte Webprojekte nach Jahren nicht mehr gebaut werden können. Node.js-Updates brechen alte Konfigurationen, Abhängigkeiten blockieren sich gegenseitig.
 *   **Konkret:** Das JavaScript ist reines, natives **ES-Modules (ESM)** mit expliziten Dateiendungen (z. B. `import { x } from ''./y.js''`). Der Browser selbst ist der Laufzeit-Compiler. Das CSS ist reines CSS3 mit nativen CSS-Variablen und CSS Nesting.
 
@@ -2554,6 +3263,7 @@ Für Entwickler und KIs gilt diese Tabelle als striktes Verbot veralteter Techni
 | `user-select: none` (alleinstehend) | **`user-select: none`** + **`aria-hidden="true"`** | Um unbeabsichtigte Auswahlen auf Steuerelementen (z. B. der Toolbar) zu unterbinden, ist `user-select: none` erlaubt, muss aber aus Barrierefreiheitsgründen mit `aria-hidden` gekoppelt werden. | [[ADR-HTML]] |
 | `console.log` in Produktion | Deaktivierbares **Custom Logging** oder Löschen | Debug-Logs in Produktion verlangsamen die Performance und können sensible Anwendungsdaten exponieren. Sie müssen vor Release entfernt oder global stummgeschaltet werden. | [[ADR-JS]] |
 | `innerHTML` / `insertAdjacentHTML` für unsichere Inhalte | **`textContent`** oder **`createTextNode`** | Verhindert XSS-Sicherheitslücken beim Einfügen externer Daten (z. B. aus der Adress-API). Textinhalte werden als reiner Plaintext verarbeitet. | [[ADR-JS]] |
+| `document.write` / `eval` | **Moderne DOM APIs** | Komplett veraltete und unsichere Methoden. Dürfen unter keinen Umständen in der Applikation vorkommen. | [[ADR-JS]] |
 
 > [!TIP]
 > **Nutzung von CSS Anchor Positioning ab Chrome 148+:**
@@ -2565,7 +3275,12 @@ Für Entwickler und KIs gilt diese Tabelle als striktes Verbot veralteter Techni
 
 Jede Code-Modifikation wird im Code-Review unnachgiebig auf diese Richtlinien geprüft. Ein Feature, das eine externe Abhängigkeit einführt, die Offline-Kompatibilität beeinträchtigt oder auf nicht-standardisierten APIs aufbaut, wird bedingungslos abgelehnt. 
 
-**Wir bauen kein kurzlebiges MVP – wir bauen ein digitales Denkmal.**',
+**Wir bauen kein kurzlebiges MVP – wir bauen ein digitales Denkmal.**
+
+
+
+## 6. Regelmäßige Review
+Da Web-Standards stetig weiterentwickelt werden, empfehlen wir eine Überprüfung dieser Richtlinien in regelmäßigen Abständen (z. B. alle 2 Jahre), um neue, stabile W3C-Standards in das Projekt aufzunehmen.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -2599,8 +3314,8 @@ html, body {
   padding: 0;
   width: 100vw;
   height: 100dvh; /* Dynamische Viewport-Höhe (beachtet mobile Adressleisten) */
-  overflow: hidden; /* Scrollbalken komplett verbieten */
-  user-select: none; /* Unbeabsichtigtes Markieren von UI verhindern */
+  overflow: hidden; /* Scrollbalken auf Top-Level verbieten (interne Container wie Sidebar dürfen scrollen) */
+  /* user-select: none hier entfernt, da es global problematisch für Barrierefreiheit ist. Wird nur lokal auf UI-Elemente wie Toolbar angewendet. */
 }
 ```
 
@@ -2690,7 +3405,15 @@ din-text, [contenteditable] {
 ## 5. Defensive CSS-Techniken zur Vermeidung von Layout-Sprengungen
 - **Nutze `box-sizing: border-box`:** Jedes Element im Projekt muss diese Eigenschaft besitzen, damit Padding und Border die Gesamtbreite/-höhe nicht erhöhen.
 - **Vermeide absolute Pixelwerte bei Höhen:** Nutze relative Einheiten wie `rem`, `%`, `vh` oder `dvh` für Layout-Skelette.
-- **Umgang mit langen Wörtern:** Verwende `word-break: break-word` und `hyphens: auto`, um horizontalen Textüberlauf zu verhindern.',
+- **Umgang mit langen Wörtern:** Verwende `word-break: break-word` und `hyphens: auto`, um horizontalen Textüberlauf zu verhindern.
+
+
+## 4. Verhalten bei sehr kleinen Viewports (< 700px)
+Da wir ein hartes `min-height: 800px` und proportionale Skalierung erzwingen, würde das Dokument auf extrem kleinen Smartphones zwangsläufig aus dem Bildbereich ragen.
+Hier greift eine Medienabfrage, die entweder das No-Scroll-Konzept aufweicht (Scrollen erlauben) oder einen klaren Hinweis zeigt, dass die Desktop-Ansicht erforderlich ist.
+
+## 5. Warnung zu `field-sizing: content`
+Während `field-sizing` ein exzellentes CSS-Feature für Auto-Grow Inputs ist, funktioniert es in einigen Engines noch nicht absolut fehlerfrei oder verzögert. Als Fallback oder Alternative für sehr komplexe Felder kann ein `ResizeObserver` oder ein Set aus `min-height` und `max-height` herangezogen werden.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -2711,148 +3434,138 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '# Interaktiver Test-Leitfaden: testing-guide.md
 
 > [!info] Testing Guide
-> Dieser Testing-Guide beschreibt alle manuellen Testfälle, um die Refactored Baseline-Features (Feature 1 bis Feature 6) von **DIN-BriefNEO** systematisch und reproduzierbar auf Fehler zu überprüfen.
+> Dieser Testing-Guide beschreibt alle manuellen Testfälle, um die Refactored Baseline-Features von **DIN-BriefNEO** systematisch und reproduzierbar auf Fehler zu überprüfen.
 
 ---
 
 ## 🧪 Manuelle Testfälle (QA-Protokoll)
 
-### Testfall 1: Plaintext-Paste-Filter
-*   **Kategorie:** Text-Eingabe & Formatierung
+### 1. Textverarbeitung & Formatierung
+
+#### Testfall 1: Plaintext-Paste-Filter
 *   **Ausgangssituation:** Das Feld „Brieftext“ (`#brieftext`) ist leer oder befüllt.
-*   **Aktion:** 
-    1. Öffne eine beliebige Webseite oder ein Word-Dokument.
-    2. Markiere einen Absatz mit verschiedenen Schriftgrößen, bunten Farben und HTML-Links und kopiere diesen in die Zwischenablage (`Strg+C`).
-    3. Setze den Cursor in das Brieftext-Feld und füge den Text mit `Strg+V` ein.
-*   **Erwartetes Ergebnis:** 
-    - Der Text wird eingefügt, aber **bedingungslos von allen Formatierungen, Farben, fremden Schriften und Links befreit**.
-    - Es erscheint reiner Plaintext, der sich nahtlos an die Typografie des Briefbogens anpasst.
-*   **Status:** `- [ ] (ungetestet)`
+*   **Aktion:** Einen formatierten Text kopieren und einfügen.
+*   **Erwartetes Ergebnis:** Bedingungslose Befreiung von Formatierungen, Farben, fremden Schriften und Links. Reiner Plaintext.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
----
-
-### Testfall 2: Plaintext-Drag-and-Drop-Filter
-*   **Kategorie:** Text-Eingabe & Formatierung
+#### Testfall 2: Plaintext-Drag-and-Drop-Filter
 *   **Ausgangssituation:** Das Feld „Brieftext“ (`#brieftext`) ist aktiv.
-*   **Aktion:** 
-    1. Markiere einen formatierten Textbereich in einem separaten Browser-Tab oder Word-Dokument.
-    2. Ziehe diesen Text per Drag-and-Drop direkt mit der Maus in das Brieftext-Feld.
-*   **Erwartetes Ergebnis:** 
-    - Der Text wird an der Position des Mauszeigers eingefügt.
-    - Alle HTML-Stile, Farben und Format-Reste sind rückstandslos entfernt. Nur reiner Text wird im Brief abgelegt.
-*   **Status:** `- [ ] (ungetestet)`
+*   **Aktion:** Formatierten Text via Drag-and-Drop in das Feld ziehen.
+*   **Erwartetes Ergebnis:** Reiner Text, alle Format-Reste rückstandslos entfernt.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
----
-
-### Testfall 3: WhatsApp-Style Selection Popover Toolbar
-*   **Kategorie:** Text-Eingabe & Formatierung
+#### Testfall 3: WhatsApp-Style Selection Popover Toolbar
 *   **Ausgangssituation:** Der Brieftext enthält Text.
-*   **Aktion:** 
-    1. Markiere ein oder mehrere Wörter im Brieftext mit der Maus oder Tastatur.
-    2. Achte auf das Erscheinen der schwebenden Toolbar (`#format-toolbar`).
-    3. Klicke auf den Button **B** (Fett) oder **U** (Unterstrichen).
-    4. Hebe die Markierung auf und markiere den formatierten Bereich erneut.
-*   **Erwartetes Ergebnis:** 
-    - Die Toolbar schwebt präzise zentriert über der Textauswahl im globalen Top-Layer.
-    - Bei Klick auf **B** wird der Text fett; bei Klick auf **U** unterstrichen.
-    - Beim erneuten Markieren leuchtet der entsprechende Button im Popover smaragdgrün auf und signalisiert den aktiven Status.
-*   **Status:** `- [ ] (ungetestet)`
+*   **Aktion:** Text markieren. Auf B (Fett) oder U (Unterstrichen) klicken. Erneut markieren.
+*   **Erwartetes Ergebnis:** Toolbar schwebt im Top-Layer. Buttons leuchten auf bei aktivem Status.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
----
-
-### Testfall 4: Blockquote-Toggling (Range API Unwrap)
-*   **Kategorie:** Text-Eingabe & Formatierung
+#### Testfall 4: Blockquote-Toggling (Range API Unwrap)
 *   **Ausgangssituation:** Ein Absatz im Brieftext ist markiert.
-*   **Aktion:** 
-    1. Klicke in der schwebenden Toolbar auf das Zitat-Symbol **»**.
-    2. Markiere denselben Zitatbereich erneut und klicke nochmals auf **»**.
-*   **Erwartetes Ergebnis:** 
-    - Beim ersten Klick wird der markierte Bereich in ein graues, eingerücktes `<blockquote>` (Zitat) gewrappt.
-    - Beim zweiten Klick wird das Zitat aufgelöst (Unwrap) und wieder in normalen Fließtext überführt – ohne den Text zu verdoppeln oder zu beschädigen.
-*   **Status:** `- [ ] (ungetestet)`
+*   **Aktion:** Zitat-Symbol klicken. Erneut klicken.
+*   **Erwartetes Ergebnis:** Zitat wird zum `<blockquote>`. Beim zweiten Klick wird der `<blockquote>`-Tag sicher entfernt, der Text bleibt als normaler Fließtext erhalten (Unwrap ohne Textverdopplung).
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
+
+#### Testfall 13: Keyboard-only Bedienung der Toolbar
+*   **Ausgangssituation:** Der Brieftext ist aktiv.
+*   **Aktion:** Text mit Umschalt+Pfeiltasten markieren, Toolbar muss per Tabulator/Tastatur-Shortcuts nutzbar sein.
+*   **Erwartetes Ergebnis:** Barrierefreie Nutzung ohne Maus möglich.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
 ---
 
-### Testfall 5: Toast-Notification Queue (Stacking-Schutz)
-*   **Kategorie:** UI-Komponenten
-*   **Ausgangssituation:** Die Sidebar ist geöffnet.
-*   **Aktion:** 
-    1. Klicke in der Sidebar extrem schnell hintereinander (5- bis 10-mal) auf den Layout-Button **Form A** und **Form B**.
-*   **Erwartetes Ergebnis:** 
-    - Es kommt zu **keinem hässlichen Übereinanderstapeln (Stacking)** der Toast-Meldungen im Top-Layer.
-    - Jede Statusmeldung erscheint nacheinander, verweilt kurz, animiert heraus und macht Platz für die nächste Meldung in der Warteschlange.
-*   **Status:** `- [ ] (ungetestet)`
+### 2. Layout & Interaktion
+
+#### Testfall 5: Toast-Notification Queue (Stacking-Schutz)
+*   **Aktion:** 5- bis 10-mal sehr schnell auf Sidebar-Buttons klicken.
+*   **Erwartetes Ergebnis:** Kein hässliches Übereinanderstapeln. Meldungen erscheinen sauber nacheinander.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
+
+#### Testfall 10: A4-Überlaufwarnung **[Prio 1]**
+*   **Aktion:** Viel Text einfügen, bis das Seitenende berührt wird.
+*   **Erwartetes Ergebnis:** Gestrichelter roter Rahmen, Warn-Badge, Toast-Meldung.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
+
+#### Testfall 11: Sehr langer Betreff (Überlauf) **[Prio 1]**
+*   **Aktion:** Betreff über 2 Zeilen füllen und Enter drücken.
+*   **Erwartetes Ergebnis:** Blockiert Eingabe, roter Warnrahmen bei Zeile 3.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
+
+#### Testfall 14: Form A vs Form B Wechsel mit Inhalt
+*   **Aktion:** Brief füllen, dann in Sidebar Form wechseln.
+*   **Erwartetes Ergebnis:** Inhalt bleibt exakt erhalten, Positionen (Falzmarken, Fenster) wechseln nahtlos per CSS-Variable.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
 ---
 
-### Testfall 6: Schriftarten-Wechsel (System Stacks)
-*   **Kategorie:** Schriftarten-Manager
-*   **Ausgangssituation:** Der Briefbogen enthält Text.
-*   **Aktion:** 
-    1. Klicke in der Sidebar unter „Schriftarten-Manager“ nacheinander auf **Sans**, **Serif** und **Mono**.
-*   **Erwartetes Ergebnis:** 
-    - Die Schriftart des gesamten Briefbogens (inkl. Metadaten und Fließtext) ändert sich augenblicklich.
-    - Sans nutzt moderne serifenlose Typografie, Serif klassische Buchschrift und Mono eine technische Schreibmaschinenschrift.
-*   **Status:** `- [ ] (ungetestet)`
+### 3. Schriften & APIs
 
----
+#### Testfall 6: Schriftarten-Wechsel (System Stacks)
+*   **Aktion:** Zwischen Sans, Serif, Mono wechseln.
+*   **Erwartetes Ergebnis:** Schriftart des gesamten Briefs ändert sich synchron.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
-### Testfall 7: WOFF2-Uploader (Base64 LocalStorage Persistenz)
-*   **Kategorie:** Schriftarten-Manager
-*   **Ausgangssituation:** Eine gültige `.woff2`-Schriftdatei (< 60 KB) liegt auf deinem Rechner bereit (z. B. *Inter-Regular.woff2*).
-*   **Aktion:** 
-    1. Klicke in der Sidebar auf „Schrift hochladen“ und wähle die Datei aus.
-    2. Überprüfe die Änderung der Schriftart auf dem Briefpapier.
-    3. Lade die Seite neu (`F5`).
-*   **Erwartetes Ergebnis:** 
-    - Nach dem Upload wird die Schriftart sofort auf das Briefpapier angewendet. Ein grüner Toast bestätigt den Erfolg.
-    - Ein roter „Schrift zurücksetzen“-Button erscheint in der Sidebar.
-    - Nach dem Neuladen der Seite bleibt die hochgeladene Schriftart dank des Base64-Speichers im `localStorage` erhalten.
-*   **Status:** `- [ ] (ungetestet)`
+#### Testfall 7: WOFF2-Uploader
+*   **Aktion:** Lokale Schrift hochladen, F5 drücken.
+*   **Erwartetes Ergebnis:** Schrift wird sofort angewendet und überlebt einen Reload via Base64 LocalStorage.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
----
+#### Testfall 8: Dual-Provider Adress-Autocomplete **[Prio 1]**
+*   **Aktion:** API testen, Keys eintragen.
+*   **Erwartetes Ergebnis:** Wechsel funktioniert, fehlender Key blockiert Suche sauber.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
-### Testfall 8: Dual-Provider Adress-Autocomplete
-*   **Kategorie:** Externe APIs
-*   **Ausgangssituation:** Die Internetverbindung ist aktiv.
-*   **Aktion:** 
-    1. Wähle **Photon** in der Sidebar. Tippe „Berliner Str.“ in die Suche.
-    2. Wähle eine Adresse im Dropdown aus.
-    3. Wähle **Geoapify** in der Sidebar. Trage einen ungültigen API-Key ein. Warte auf die Validierung.
-    4. Trage einen gültigen API-Key ein, warte auf den grünen Toast und führe dieselbe Suche aus.
-*   **Erwartetes Ergebnis:** 
-    - Unter Photon erscheint sofort eine Liste von Adressvorschlägen. Bei Auswahl werden Straße, PLZ und Ort im Brief ausgefüllt.
-    - Unter Geoapify mit falschem Key blockiert das Suchfeld und meldet einen Fehler.
-    - Mit gültigem Key schaltet sich das Feld frei und liefert hochpräzise Vorschläge.
-*   **Status:** `- [ ] (ungetestet)`
+#### Testfall 9: PLZ-Proximity-Biasing & Zippopotam
+*   **Aktion:** Absender-PLZ eintragen und dann Empfänger suchen.
+*   **Erwartetes Ergebnis:** Lokale Adressen werden präferiert; Zippopotam löst PLZ korrekt auf.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |
 
----
-
-### Testfall 9: PLZ-Proximity-Biasing & Zippopotam
-*   **Kategorie:** Externe APIs
-*   **Ausgangssituation:** Das Absenderfeld ist leer.
-*   **Aktion:** 
-    1. Schreibe eine Postleitzahl aus NRW (z. B. `40210 Düsseldorf`) in das Absenderfeld.
-    2. Suche im Empfänger-Suchfeld nach einer generischen Straße (z. B. „Hauptstraße“).
-    3. Gib im Empfängerort-Feld `#empfaenger-ort` manuell eine PLZ ein (z. B. `80331`).
-*   **Erwartetes Ergebnis:** 
-    - Durch die Absender-PLZ geocodiert das System im Hintergrund deine Koordinaten. Die Autocomplete-Suche priorisiert nun Hauptstraßen aus NRW (Proximity Biasing).
-    - Bei manueller Eingabe von `80331` im Empfängerort fragt das System Zippopotam ab und vervollständigt das Feld automatisch zu `80331 München`.
-*   **Status:** `- [ ] (ungetestet)`
-
----
-
-### Testfall 10: A4-Überlaufwarnung
-*   **Kategorie:** Layout & CSS
-*   **Ausgangssituation:** Der Brieftext enthält Text.
-*   **Aktion:** 
-    1. Schreibe oder füge extrem viel Text in das Brieftext-Feld ein, bis der Text das untere Ende (Y: 230mm) berührt.
-*   **Erwartetes Ergebnis:** 
-    - Sobald das Limit überschritten wird, färbt sich der Rand des Briefbogens dezent gestrichelt rot.
-    - Ein rotes Warn-Badge „TEXT-ÜBERLAUF“ erscheint am Blattrand.
-    - Ein Warn-Toast meldet, dass die Seite voll ist.
-    - Löschen des Texts entfernt den Warnzustand sofort.
-*   **Status:** `- [ ] (ungetestet)`',
+#### Testfall 12: Sonderzeichen in Adresse
+*   **Aktion:** Adresse mit Umlauten (ä,ö,ü) und "ß" in die Suche eingeben.
+*   **Erwartetes Ergebnis:** Adress-API verarbeitet und rendert Sonderzeichen korrekt im DOM ohne Encoding-Fehler.
+*   **Status:**
+    | Status | Getestet am | Tester | Ergebnis |
+    | :--- | :--- | :--- | :--- |
+    | ⏳ Offen | - | - | - |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -3368,493 +4081,6 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MASTER-DO-DONT-DEPRECATED.md'), 'standards');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'MIGRATION-ROADMAP-TO-BOILERPLATE.md',
-  'Migrations-Roadmap DIN-Brief Neo zu Vanilla llm_boilerplate',
-  'active',
-  '# Migrations-Roadmap: DIN-Brief Neo → Vanilla llm_boilerplate
-
-**Ziel:** Struktur so gestalten, dass nicht-projektspezifische Teile (vor allem Regeln, Tools, generische Dokumentation) später sauber und mit minimalem Aufwand in die generische `llm_boilerplate` übernommen werden können.
-
-## Empfohlene Ziel-Struktur (bereits teilweise umgesetzt)
-
-```
-aktueller_arbeitsordner/
-├── website/                    # Reine Anwendung – stark projektspezifisch, nicht extrahieren
-│   ├── js/
-│   ├── css/
-│   └── index.html
-│
-├── tools/                      # ★ Kern für Extraktion
-│   ├── antipatterns/           # Layered Rules – der wichtigste Teil für Generalisierbarkeit
-│   │   ├── base.json           # Universell (Date API etc.)
-│   │   ├── web.json            # HTML/CSS/JS – fast überall nutzbar
-│   │   ├── nix.json            # (falls relevant) Linux/NixOS
-│   │   └── project.json        # Nur DIN-Brief-spezifisch (Exemptions, eigene Regeln)
-│   │
-│   ├── reconciliation.js       # Generisch
-│   ├── build_db.js             # Generisch
-│   ├── log_session.js          # Generisch
-│   ├── inject_yaml.js          # Generisch
-│   └── ...
-│
-└── boilerplate.config.json     # Steuert active layers etc. – generisch nutzbar
-```
-
-## Migrations-Schritte (priorisiert)
-
-### Phase 1: Layered Antipatterns (Hoch – Kern der Wiederverwendbarkeit)
-1. `tools/antipatterns/` Verzeichnis anlegen (erledigt).
-2. Aktuelle `antipatterns.json` in Schichten aufteilen:
-   - `base.json`: universelle Regeln (z.B. Temporal/Date API).
-   - `web.json`: allgemeine Web-Regeln (execCommand, XHR, innerHTML, Farben, externe Verbindungen).
-   - `project.json`: DIN-spezifische Regeln + Exemptions (z.B. innerHTML im main.js).
-3. `boilerplate.config.json` anlegen (mit `activeAntipatterns: ["base", "web", "project"]`).
-4. `reconciliation.js` anpassen, damit es die Layer lädt und merged (erledigt – nutzt Map by ID, später layers können project.json überschreiben).
-5. Alte `antipatterns.json` als Backup behalten oder entfernen, sobald stabil.
-
-### Phase 2: Tools generisch machen
-- Sicherstellen, dass `reconciliation.js`, `build_db.js`, `log_session.js`, `inject_yaml.js` keine harten DIN-spezifischen Annahmen enthalten (außer über Config).
-- `log_session.js` und `reconciliation.js` ggf. aus `llm_boilerplate/tools/` nachziehen/angleichen, wenn Unterschiede bestehen.
-- CUSTOM_CHECKS / FEATURE_CHECKS wo möglich in die JSON-Regeln oder Config auslagern.
-
-### Phase 3: Dokumentation & Vertrag
-- `AGENTS.md` finalisieren (bereits weitgehend generisch).
-- Generische Teile aus `constitution.md`, `MASTER-DO-DONT-DEPRECATED.md`, Guides in die Boilerplate übernehmen (oder als Vorlage verwenden).
-- Projektspezifische ADRs und website/ bleiben im Projekt.
-
-### Phase 4: Aufräumen & Extraktion
-- `project.json` als "Mülleimer" für alles DIN-spezifische pflegen.
-- Test: Nach Änderungen immer Pre/Post-Build + 100% Fitness + Log.
-- Wenn stabil: Die generischen Teile (`tools/antipatterns/{base,web}.json`, Tools, Config, Teile von AGENTS) in die `llm_boilerplate` kopieren/übernehmen.
-
-## Aktueller Status (2026-06-12)
-
-- `tools/antipatterns/{base,web,project}.json` angelegt und befüllt.
-- `boilerplate.config.json` angelegt.
-- `reconciliation.js` auf layered Loading umgestellt (Merge per ID, Project überschreibt).
-- Fitness nach Anpassung wieder 100% (Exemption korrekt über Override).
-- Entscheidung im DECISION-LOG dokumentiert.
-- Nächste Schritte: ggf. weitere Tools angleichen, alte flat file aufräumen, Dokumentation prüfen.
-
-## Prinzipien (aus AGENTS.md)
-
-- Generalisierbarkeit bei **jeder** Lösung prüfen und vorschlagen.
-- `project.json` für DIN-spezifisches.
-- Alles andere so generisch wie möglich halten.
-
-Diese Roadmap stellt sicher, dass die Extraktion später mechanisch und mit wenig manuellem Aufwand möglich ist.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MIGRATION-ROADMAP-TO-BOILERPLATE.md'), 'migration');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MIGRATION-ROADMAP-TO-BOILERPLATE.md'), 'boilerplate');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MIGRATION-ROADMAP-TO-BOILERPLATE.md'), 'antipatterns');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MIGRATION-ROADMAP-TO-BOILERPLATE.md'), 'generalisierbarkeit');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MIGRATION-ROADMAP-TO-BOILERPLATE.md'), 'tools');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'MODERNIZATION-GUIDE.md',
-  'Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md',
-  'active',
-  '# Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md
-
-Dieses Dokument analysiert die aktuell verwendeten Webtechnologien des **DIN-BriefNEO**-Baseline-Projekts und vergleicht sie mit zukünftigen, potenziellen W3C-Standardkandidaten. Es dient als strategischer Wegweiser für zukünftige Modernisierungen – **ohne sofortige Umsetzung** und unter strikter Wahrung der Longevity-Verfassung.
-
----
-
-## 🧭 Modernisierungs-Matrix (Tech-Debt Roadmap)
-
-| Aktuelle Technik | Potenzielle modernere Alternative | Status der Alternative | Empfehlung | Begründung & Longevity-Verweis |
-| :--- | :--- | :--- | :--- | :--- |
-| **Selection/Range API** (zur Y/X-Positionierung der Toolbar) | **CSS Anchor Positioning API** | In Chrome 148+ vollständig stabil. | **Jetzt nutzen** | Da Chrome 148+ unsere exklusive Target-Plattform ist, nutzen wir CSS Anchor Positioning ohne jegliche Rücksicht auf veraltete Safari/Firefox-Stände. Dies eliminiert JavaScript-Positionierungscode vollständig. |
-| **`document.execCommand`** (Fett/Unterstreichen nativ) | **Custom Selection & Range DOM-Operationen** | W3C-Standard (Living Standard). | **Jetzt nutzen** | `execCommand` ist veraltet (*deprecated*). Wir haben dies für blockquotes bereits gelöst. Standard-Shortcuts überlassen wir dem Browser, was absolut stabil ist. |
-| **Natives JS `Date`-Objekt** | **Temporal API** | In Chrome 148+ nativ und vollständig einsatzbereit. | **Jetzt nutzen** | Die `Temporal` API ist in Chrome 148+ fehlerfrei und nativ implementiert. Wir nutzen sie direkt zur präzisen Datumsberechnung und für Zeitstempel bei Entwürfen. |
-| **`localStorage`** (für Base64 Custom Fonts & Drafts) | **Origin Private File System (OPFS)** / **IndexedDB** | W3C-Standard. | **Nie** | OPFS/IndexedDB setzen zwingend HTTPS voraus. Unter `file://` (Doppelklick) stürzen sie mit Security-Exceptions ab. `localStorage` ist laut [Säule 5 der Longevity-Guidelines](Guides/longevity-guidelines.md) die einzig stabile Option für Doppelklick-Apps. |
-| **`@import`** in CSS-Dateien | Native **`link`-Tags** im HTML | W3C-Standard. | **Jetzt nutzen** | `@import` blockiert das parallele Laden von Stylesheets im Browser. Native `<link>`-Tags laden Stylesheets parallel und performanter. |
-| **`console.log()`** (für Debugging im Quellcode) | Deaktivierbarer **Custom Logging Wrapper** | Standard JavaScript. | **Jetzt nutzen** | Verhindert, dass sensible Anwendungsdaten in der Produktionskonsole exponiert werden und schont CPU-Ressourcen bei der DOM-Verarbeitung. |
-| **`var()` ohne Fallback** in CSS | **`var(--prop, fallback)`** | W3C-Standard. | **Jetzt nutzen** | Redundante Absicherung. Verhindert, dass UI-Elemente bei fehlenden Custom Properties visuell zerreißen. |
-| **`innerHTML`** (für Autocomplete- dropdown) | **`textContent`** oder **`createTextNode`** | W3C-Standard. | **Bereits umgesetzt** | Verhindert Cross-Site Scripting (XSS) auf Browserebene. Alle APIs und Benutzereingaben werden strikt als Plaintext behandelt. |
-
----
-
-## 🔗 Verweise
-*   Siehe [longevity-guidelines.md](Guides/longevity-guidelines.md) zur Einhaltung der abwärtskompatiblen W3C-Schnittstellen.
-*   Siehe [ADR-ANTIPATTERN.md](ADR/ADR-ANTIPATTERN.md) für die expliziten Dateispeicher- und CDN-Ausschlüsse.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'MODERNIZATION-GUIDE.md'), 'documentation');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'PHASE1-SQLITE-VEC-IMPLEMENTATION.md',
-  'Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung',
-  'active',
-  '# Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung
-
-**Ziel:** Die bestehende `DIN-Brief_docs.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
-
-**Leitplanken (aus Research + Projektprinzipien):**
-- Bleib bei **Single-File SQLite** (kein externes DB-System).
-- Nutze **sqlite-vec** (offizielle leichtgewichtige Extension, 384-Dim Embeddings mit all-MiniLM-L6-v2).
-- Content-Hash-Caching: Nur bei geändertem Inhalt neu embedden (Performance + Determinismus).
-- Alles passiert **im Build** (`node tools/build_db.js`).
-- Keine schweren neuen Abhängigkeiten wo möglich; Extension muss separat bereitgestellt werden.
-- Generalisierbarkeit: Die Erweiterung soll später sauber in die `llm_boilerplate` übernehmbar sein.
-
-**Voraussetzungen für diese Phase:**
-- Node.js (aktuell verwendetes `node:sqlite` / `DatabaseSync`).
-- Die `sqlite-vec` Extension Datei (z.B. `vec0.dll` auf Windows, `vec0.so` auf Linux, `vec0.dylib` auf macOS). Download von https://github.com/asg017/sqlite-vec/releases (passend zu deiner Plattform und SQLite-Version).
-- Optional später: Lokaler Embedding-Generator (z.B. via `@xenova/transformers` für reines JS, offline).
-
----
-
-## Arbeitspaket 1: Schema-Erweiterung (Priorität 1, klein)
-
-**Ziel:** Die `documents` Tabelle und verwandte Tabellen um Spalten für Embeddings und Caching erweitern.
-
-**Änderungen in `tools/build_db.js` (im SQL-Generierungs-Teil):**
-
-Finde den Abschnitt wo Tabellen gedroppt und neu erstellt werden (ca. nach `console.log(''Compiling documentation database...'');`).
-
-**Ersetze/Ergänze die CREATE TABLE documents um:**
-
-```sql
-CREATE TABLE documents (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  path TEXT UNIQUE NOT NULL,
-  title TEXT NOT NULL,
-  status TEXT,
-  content TEXT NOT NULL,
-  content_hash TEXT,                    -- NEU: SHA-256 des Inhalts für Caching
-  embedding BLOB,                       -- NEU: Vektor als BLOB (für sqlite-vec)
-  embedding_model TEXT DEFAULT ''all-MiniLM-L6-v2'',  -- NEU: Modell-Info
-  embedding_dim INTEGER DEFAULT 384     -- NEU: Dimension
-);
-```
-
-**Zusätzlich neue Tabelle für die Vektor-Suche (virtuell via sqlite-vec):**
-
-```sql
--- Wird später mit sqlite-vec Extension geladen
-CREATE VIRTUAL TABLE IF NOT EXISTS vec_documents USING vec0(
-  embedding FLOAT[384]  -- Muss zur embedding_dim passen
-);
-```
-
-**Hinweis:** Da Tabellen jedes Mal gedroppt werden (`DROP TABLE IF EXISTS documents;`), ist das Adden der Spalten unkritisch. Die virtuellen Tabellen werden nach dem Laden der Extension erstellt.
-
-Aktualisiere auch die INSERT-Statements später (siehe AP 3).
-
----
-
-## Arbeitspaket 2: Content-Hash-Caching (Priorität 2, mittel)
-
-**Ziel:** Vor dem Embedden prüfen, ob sich der Dokumentinhalt geändert hat. Nur dann neu berechnen und speichern.
-
-**Implementierung in `tools/build_db.js`:**
-
-Füge am Anfang der `main()` oder als Helper hinzu:
-
-```js
-const crypto = require(''crypto'');
-
-function computeContentHash(content) {
-  return crypto.createHash(''sha256'').update(content, ''utf8'').digest(''hex'');
-}
-```
-
-Im Schleifen-Teil, wo Dokumente verarbeitet werden (nach dem Parsen von YAML und Inhalt):
-
-```js
-const contentHash = computeContentHash(doc.content);
-
-// Später beim INSERT oder Update:
-if (existingHash !== contentHash || !existingEmbedding) {
-  // Nur dann Embedding generieren (siehe AP 3)
-  const embedding = await generateEmbedding(doc.content);  // Platzhalter
-  // Speichern
-}
-```
-
-**Im SQL-INSERT für documents** (im String-Building):
-
-Erweitere die VALUES um die neuen Spalten:
-
-```js
-sql += `INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  ''${escapeSql(doc.path)}'',
-  ''${escapeSql(doc.title)}'',
-  ''${escapeSql(doc.status)}'',
-  ''${escapeSql(doc.content)}'',
-  ''${contentHash}'',
-  ?,  -- BLOB für Embedding (später binden)
-  ''all-MiniLM-L6-v2'',
-  384
-);`;
-```
-
-**Wichtig für Caching:** Lade vor dem Verarbeiten die bestehenden Hashes aus der DB (oder aus vorherigem Run). Da der Build die DB dropt, speichere Hashes temporär oder verarbeite in-memory zuerst.
-
-**Empfehlung für sauberes Caching:**
-- Lese zuerst alle existierenden `path` + `content_hash` + `embedding` aus der alten DB (bevor DROP).
-- Vergleiche Hashes im JS-Code.
-- Nur geänderte/neue Dokumente bekommen ein frisches Embedding.
-
----
-
-## Arbeitspaket 3: sqlite-vec Integration (Priorität 3, mittel)
-
-**Ziel:** Die Extension laden, virtuelle Tabelle anlegen und Embeddings befüllen.
-
-**Voraussetzung:** Die Extension-Datei muss verfügbar sein (z.B. im Projekt-Root oder in einem `extensions/` Ordner).
-
-**In `tools/build_db.js` (am Anfang der main(), vor Reconciliation oder DB-Erstellung):**
-
-```js
-const Database = require(''node:sqlite'').DatabaseSync;  // Bestehender Import anpassen falls nötig
-
-// Extension laden (Node 22+ unterstützt loadExtension in vielen Builds)
-const db = new Database('':memory:'');  // Oder die finale DB
-try {
-  db.loadExtension(''./vec0'');  // Pfad anpassen, z.B. ''extensions/vec0'' oder absoluter Pfad
-  console.log(''sqlite-vec Extension erfolgreich geladen.'');
-} catch (err) {
-  console.warn(''Warnung: sqlite-vec Extension konnte nicht geladen werden. Vektor-Suche deaktiviert für diesen Build.'');
-  console.warn(err.message);
-  // Fallback: Build läuft weiter ohne Vektoren (Fitness-Score anpassen)
-}
-```
-
-**Nach dem Erstellen der documents Tabelle:**
-
-```sql
-CREATE VIRTUAL TABLE IF NOT EXISTS vec_documents USING vec0(embedding FLOAT[384]);
-```
-
-**Befüllen der Vektor-Tabelle (nachdem Embeddings berechnet wurden):**
-
-Für jedes Dokument mit Embedding:
-
-```js
-// Nach dem INSERT in documents (mit lastInsertRowid oder separater Query für ID)
-const docId = ...;  // ID des Dokuments
-// Embeddings als Float32Array oder Buffer
-const embeddingBuffer = Buffer.from(new Float32Array(embedding).buffer);
-
-sql += `INSERT INTO vec_documents (rowid, embedding) VALUES (${docId}, ?);`;
-// Binde den Buffer beim Ausführen
-```
-
-**Embedding-Generierung (Platzhalter – implementiere hier):**
-
-```js
-async function generateEmbedding(text) {
-  // TODO Phase 1: Lokales Modell einbinden
-  // Beispiel mit @xenova/transformers (offline, JS-only):
-  // const { pipeline } = await import(''@xenova/transformers'');
-  // const extractor = await pipeline(''feature-extraction'', ''Xenova/all-MiniLM-L6-v2'');
-  // const output = await extractor(text, { pooling: ''mean'', normalize: true });
-  // return Array.from(output.data);  // 384-dim Float Array
-
-  // Für ersten Test: Zufalls-Vektor (später ersetzen!)
-  return Array.from({ length: 384 }, () => Math.random() - 0.5);
-}
-```
-
-**Wichtig:** Da der aktuelle Code synchron ist, passe auf Async/await auf oder mache den Build async.
-
-**Update der Reconciliation (siehe AP 5).**
-
----
-
-## Arbeitspaket 4: Hybrid Search Funktion (Priorität 4, mittel)
-
-**Ziel:** Eine wiederverwendbare Query-Funktion/Query, die Keyword (FTS5) + Vector + RRF kombiniert.
-
-**Erstelle eine neue Datei oder erweitere `tools/build_db.js` (besser: neue Datei `tools/hybrid_search.js` für Generalisierbarkeit):**
-
-```js
-// tools/hybrid_search.js
-const Database = require(''node:sqlite'').DatabaseSync;
-
-function hybridSearch(dbPath, queryText, limit = 10) {
-  const db = new Database(dbPath);
-
-  // Lade Extension falls nötig (wie in build)
-  try { db.loadExtension(''./vec0''); } catch (e) {}
-
-  // 1. FTS5 Matches
-  const ftsQuery = `
-    SELECT documents.id, documents.path, documents.title, rank
-    FROM documents 
-    JOIN documents_fts ON documents.id = documents_fts.rowid
-    WHERE documents_fts MATCH ?
-    ORDER BY rank
-    LIMIT ?
-  `;
-  // (Hinweis: Du brauchst eine FTS5 Tabelle – siehe unten)
-
-  // 2. Vector Search (angenommen Embedding für Query generiert)
-  const queryEmbedding = /* generateEmbedding(queryText) */;
-  const vecQuery = `
-    SELECT documents.id, documents.path, documents.title, 
-           distance
-    FROM vec_documents 
-    JOIN documents ON vec_documents.rowid = documents.id
-    WHERE embedding MATCH ? AND k = ?
-    ORDER BY distance
-  `;
-
-  // 3. RRF Fusion (Reciprocal Rank Fusion)
-  const hybridSQL = `
-    WITH fts AS (
-      -- FTS5 subquery mit Ranks
-    ),
-    vec AS (
-      -- Vector subquery
-    ),
-    combined AS (
-      SELECT id, path, title,
-             (1.0 / (60 + fts_rank)) + (1.0 / (60 + vec_rank)) as rrf_score
-      FROM ...
-    )
-    SELECT * FROM combined ORDER BY rrf_score DESC LIMIT ?;
-  `;
-
-  return db.prepare(hybridSQL).all(queryText, queryEmbedding /*, limit */);
-}
-
-module.exports = { hybridSearch };
-```
-
-**FTS5 Tabelle anlegen (im build_db.js SQL):**
-
-Falls noch nicht vorhanden (aus aktuellem Code erweitern):
-
-```sql
-CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(content, path, title);
--- Trigger oder manuelles Befüllen beim Build
-```
-
-**Empfehlung:** Im Build alle Dokumente in FTS5 + vec_documents befüllen.
-
-**Test-Query Beispiel:**
-
-```sql
--- Nach Build in sqlite3 CLI oder Node:
-SELECT * FROM hybrid_search(''dein suchbegriff'', 5);
-```
-
----
-
-## Arbeitspaket 5: Reconciliation-Erweiterung (Priorität 5, klein)
-
-**Ziel:** Neuen Check: "Alle Dokumente haben aktuelle Embeddings?"
-
-**In `tools/reconciliation.js` (im FEATURE_CHECKS oder neuen Check):**
-
-```js
-// Erweitere den Report
-const embeddingCheck = {
-  name: ''Embeddings present and up-to-date'',
-  passed: true,
-  details: []
-};
-
-files.forEach(file => {
-  if (/* Markdown file */) {
-    const hash = computeContentHash(content);
-    // Query DB: SELECT content_hash, embedding FROM documents WHERE path = ?
-    if (!row.embedding || row.content_hash !== hash) {
-      embeddingCheck.passed = false;
-      embeddingCheck.details.push(`Missing/outdated embedding for ${path}`);
-    }
-  }
-});
-
-report.dimensions.features = ... ; // Anpassen falls nötig
-report.logs.push(...);
-```
-
-**Update `build_db.js`:** Rufe den erweiterten Check auf und integriere in den Fitness Score.
-
-**Im Score:** Wenn Embeddings fehlen, z.B. leichte Abzug auf "Features Score" (nicht critical, damit Build nicht sofort bricht während Migration).
-
----
-
-## Arbeitspaket 6: Dokumentation (Priorität 6, klein)
-
-**Erstelle / aktualisiere eine Datei:**
-
-`aktueller_arbeitsordner/tools/README-VECTOR-SEARCH.md` (oder in `Guides/`):
-
-- Kurze Anleitung: Wie Hybrid Search aufrufen (Beispiel-Code + SQL).
-- Hinweis auf Caching und wann neu embeddet wird.
-- Beispiel-Queries für Agenten (z.B. "Finde ähnliche ADRs zu Farbthemen").
-- Link zum Reconciliation (Fitness Score prüft Embeddings).
-
-**Minimal-Beispiel in der Doku:**
-
-```js
-const { hybridSearch } = require(''./tools/hybrid_search'');
-const results = hybridSearch(''DIN-Brief_docs.db'', ''Faltmarken und DIN 5008'', 5);
-```
-
----
-
-## Nächste Schritte nach dieser Anleitung
-
-1. **Vorbereitung:** Lade `sqlite-vec` Extension herunter und lege sie neben dem Projekt (oder in `tools/extensions/`).
-2. **Test-Implementierung:** Starte mit AP 1 + 2 (Schema + Hash) – das ist risikoarm.
-3. **Danach AP 3** (Extension + Vektoren).
-4. Teste die Hybrid Search.
-5. Erweitere Reconciliation.
-6. Dokumentiere.
-7. **Post-Build + Log** nach jedem größeren Schritt (per AGENTS.md).
-8. Prüfe Fitness Score – bei Problemen (z.B. fehlende Extension) graceful degrade (Build läuft, aber ohne Vektoren + Warnung im Score).
-
-**Risiken & Hinweise:**
-- `node:sqlite` + `loadExtension` funktioniert nicht auf allen Node-Builds (manchmal braucht man `better-sqlite3` mit `unsafeLoadExtension`). Teste früh.
-- Embedding-Generierung: Für echte lokale Nutzung `@xenova/transformers` hinzufügen (kleine Abhängigkeit, aber offline-fähig).
-- Performance: Bei vielen Docs (>1000) Caching + batching wichtig.
-- Generalisierbarkeit: Die neuen Funktionen (`hybrid_search.js`) sollten später 1:1 in die `llm_boilerplate/tools/` wandern können.
-
----
-
-**Wie weiter?**
-
-Diese Anleitung ist bewusst detailliert, damit du (oder ein Agent) sie Schritt für Schritt abarbeiten kannst.
-
-Möchtest du, dass ich als Nächstes:
-- Den Code für eines der Arbeitspakete (z.B. AP 1+2) direkt in die Dateien schreibe (mit search_replace)?
-- Ein separates `tools/hybrid_search.js` Gerüst anlege?
-- Die Anleitung noch kürzer mache (nur die Top 3 Pakete)?
-- Oder direkt mit der Implementierung von AP 1 (Schema) starte und dann build + log?
-
-Sag mir den nächsten konkreten Schritt – ich führe ihn aus (inkl. Pre/Post-Build + Logging per Vertrag). 
-
-Phase 1 ist machbar in 1–3 Sitzungen, wenn wir fokussiert bleiben.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'phase1');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'sqlite-vec');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'hybrid-search');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'embedding');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'build');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'generalisierbarkeit');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'PHASE1-SQLITE-VEC-IMPLEMENTATION.md'), 'tools');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'README-DB.md',
   'LLM-First Dokumenten-Datenbank & MCP-Architektur',
   'active',
@@ -3974,7 +4200,13 @@ Das Skript löscht die alte DB-Datei zur Konsistenzsicherung und kompiliert die 
 ## 🔗 Verweise
 *   ⚖️ **[MASTER-DO-DONT-DEPRECATED.md](MASTER-DO-DONT-DEPRECATED.md):** Unser unumstößliches Gesetzbuch für technologische Verbote.
 *   📚 **[longevity-guidelines.md](Guides/longevity-guidelines.md):** Die übergeordnete W3C-Verfassung.
-*   🛠️ **[DEV-INFO.md](DEV-INFO.md):** Unsere 25-Feature Diagnose- und Feature-Erkennungs-Matrix.',
+*   🛠️ **[DEV-INFO.md](DEV-INFO.md):** Unsere 25-Feature Diagnose- und Feature-Erkennungs-Matrix.
+
+
+## 🔍 Aktueller Status der Vektor-Suche (Semantic Search)
+Es ist geplant, die reine FTS5-Volltextsuche durch eine **Hybrid Search (Volltext + semantische Suche)** zu ersetzen.
+Dazu soll die Erweiterung `sqlite-vec` integriert werden, welche die Speicherung von Embeddings und Vektor-Distanzen nativ in SQLite erlaubt.
+Der detaillierte Implementierungsplan liegt unter: **[docs/implementation/sqlite-vec.md](docs/implementation/sqlite-vec.md)**.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -3999,105 +4231,47 @@ Dieses Projekt ist eine datenschutzkonforme, 100% offline-fähige und wartungsfr
 
 ---
 
-## 🏛️ Die unbiegsame W3C-Verfassung (Longevity Covenant)
+## ⚡ Quick Start
 
-Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir vertrauen zu 100% auf native, standardisierte W3C/WHATWG-Schnittstellen. Unser Ziel ist eine **Überlebensspanne von 10+ Jahren ohne eine einzige Zeile Wartungsaufwand**.
+Das Projekt nutzt keinen Build-Prozess und keinen Entwicklungsserver. Es ist ein "Zero-Dependency" Projekt.
 
-*   📚 **[Longevity Guidelines (longevity-guidelines.md)](Guides/longevity-guidelines.md):** Die unverrückbare „Verfassung“ dieses Repositories. Sie deklariert die 5 Säulen der Langlebigkeit (Zero-Dependency-Pakt, 100% Offline-Autarkie, W3C-Living-Standards, Build-Tool-Immunität, LocalStorage-Sovereignty) und tabelliert alle verbotenen Legacy-Techniken (wie `document.execCommand` oder OPFS/IndexedDB unter `file://`) samt deren modernen Alternativen.
-*   ⚖️ **[Master Lawbook (MASTER-DO-DONT-DEPRECATED.md)](MASTER-DO-DONT-DEPRECATED.md):** Die zentrale, erschöpfende Referenz für alle technologischen Entscheidungen, Verbote und legacy-freie Ersatzstrategien. Es dient als SSoT-Gesetzbuch für Entwickler und KIs.
-
----
-
-## 📂 Dokumenten-Landkarte & Wegweiser
-
-Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Dokumentation in modular verlinkte Single Sources of Truth (SSoTs) gegliedert:
-
-### 🌟 Status & Spezifikationen
-*   📄 **[System-Spezifikation (spec.md)](spec.md):** Beschreibt die Kernanforderungen und Akzeptanzkriterien der Baseline-Features (1 bis 6) sowie die ruhende Feature-Roadmap für Phase 3 im Backlog.
-*   📋 **[Aktive Taskliste (tasks.md)](tasks.md):** Unser detaillierter Abarbeitungs-Fahrplan zur Verfolgung aller Planungs- und Refactoring-Schritte.
-*   🛠️ **[Entwicklerbereich & Feature-Prüfung (DEV-INFO.md)](DEV-INFO.md):** Die zentrale Diagnose-Ansicht und Feature-Erkennungs-Matrix basierend auf dem Chrome 147+ Baseline-Check. Enthält ein kopierbares F12-Konferenz-Skript zur Bereitschaftsprüfung.
-*   🗄️ **[LLM-First Datenbank-Guide (README-DB.md)](README-DB.md):** Die Spezifikation unserer serverlosen, hybrid-kompilierten SQLite-Dokumenten-Datenbank und der MCP-Architektur für KI-Assistenten.
-*   📜 **[AGENTS.md (Verhaltensvertrag für KI-Agenten)](../AGENTS.md):** Bindender Vertrag für alle KI-gestützten Arbeiten. Definiert Reconciliation Loop, Evolutionary Fitness Score (Ziel 100 %), zwingende Pre-/Post-Builds, Session-Logging mit `log_session.js` sowie die explizite Rolle von DIN-Brief Neo als Testballon für die generische llm_boilerplate („Testen → Verfeinern → Generalisieren“).
-
-### ⚡ Aktueller Entwicklungsansatz (Light Mode vs. Full Mode)
-
-Um Komplexität und Fehleranfälligkeit zu minimieren, nutzen wir einen **gestuften Workflow**:
-
-| Modus       | Wann?                              | Schritte (immer: Pre-Build → Änderung → Post-Build 100% → Log) | Zusätzlich                                                                 | Dokumentation                          |
-|-------------|------------------------------------|----------------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------|
-| **Light Mode** (Default) | Bugfixes, kleine Refactorings, kleine Anpassungen (~70-80% der Arbeit) | Pre + Änderung + Post (100%) + Log                             | Kurzer Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md`          | Minimal, im DECISION-LOG              |
-| **Full Mode**     | Wichtige Features, Architektur, boilerplate-relevante Arbeit     | Wie Light + strukturierter Prozess                             | `specs/NNN-name/spec.md` (mit ausführlichem Generalisierungs-Check), optional plan.md/tasks.md + vollen Hybrid-Workflow | Explizit im Spec + DECISION-LOG + Roadmap |
-
-Core Rules (Builds, 100% Fitness, Logging, Generalisierungs-Pflicht) gelten **immer**. Siehe `AGENTS.md` und `HYBRID-SPEC-DRIVEN-WORKFLOW.md` für Details.
-
-### 📐 Architektur-Entscheidungen (ADR)
-Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **`[ADR/](ADR/)`** modular dokumentiert und untereinander vernetzt:
-*   🌐 **[ADR-HTML.md](ADR/ADR-HTML.md):** Custom Elements (IMR 4.0), native Popover API, striktes `contenteditable="plaintext-only"`-Sicherheitskonzept und Barrierefreiheit.
-*   🎨 **[ADR-CSS.md](ADR/ADR-CSS.md):** Proportionaler Zoom (`94vh`), Container Queries (`cqw`/`cqh`) und native Farbthematisierung via `light-dark()`.
-*   ⚡ **[ADR-JS.md](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection & Range API Formatierungen und XSS-Paste-Filter.
-*   📡 **[ADR-API.md](ADR/ADR-API.md):** Dual-Provider Autocomplete (Photon keyless / Geoapify secure), API-Header-Security, PLZ-Lookups und Race-Condition-Aborting via AbortController.
-*   🚫 **[ADR-ANTIPATTERN.md](ADR/ADR-ANTIPATTERN.md):** Das strikte Verbot von Frameworks, externen CDNs, Google Fonts, OPFS/IndexedDB unter `file://` und Scrollbalken.
-*   🛠️ **[ADR-FEATURE.md](ADR/ADR-FEATURE.md):** WhatsApp-Selection-Popover, Toast-Queue-Lifecycles, Offline-Schriften-Manager und Proximity-Biasing.
-*   📊 **[ADR-TECH-STACK.md](ADR/ADR-TECH-STACK.md):** Die zentrale tabellarische Übersicht über alle verwendeten modernen Webtechnologien und deren Rationale.
-
-### 🔍 Bestandsaufnahmen & Roadmaps
-*   📋 **[Feature-Bestandsaufnahme (FEATURE-INVENTORY.md)](FEATURE-INVENTORY.md):** Ein vollständiges, tabellarisches Inventar aller fertig implementierten Baseline-Funktionen und der dahinterstehenden W3C-Techniken.
-*   🧭 **[Modernisierungs-Leitfaden (MODERNIZATION-GUIDE.md)](MODERNIZATION-GUIDE.md):** Eine strategische Gegenüberstellung aktueller Techniken mit zukünftigen W3C-Kandidaten (z. B. *CSS Anchor Positioning* oder *Temporal API*) zur Vermeidung von technischer Schuld.
-*   💡 **[Zukunfts-Roadmap (ROADMAP.md)](ROADMAP.md):** Eine unverbindliche Ideensammlung für Zukunftsplanungen außerhalb des Spezifikations-Umfangs (z. B. Mehrseiten-Karussell, dictation).
+1. **Starten:** Führe das Skript `start.ps1` im Root-Verzeichnis aus.
+2. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
+3. Danach kannst du einfach die `website/index.html` per Doppelklick in Chrome 148+ (oder Edge/Opera) öffnen. Keine Installation, kein `npm install`.
 
 ---
 
-## 📊 System-Visualisierungen & Lifecycles
+## 🏛️ Die Philosophie (Wartungsfreiheit auf Lebenszeit)
 
-Die folgenden Diagramme veranschaulichen die Architektur und unseren Entwicklungs-Lifecycle:
+Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir vertrauen zu 100% auf native, standardisierte W3C/WHATWG-Schnittstellen. Unser Ziel ist eine **Überlebensspanne von vielen Jahren ohne eine einzige Zeile Wartungsaufwand**.
 
-### A. Systemarchitektur-Übersicht
-Zeigt, wie der Webbrowser als alleinige Laufzeitumgebung direkt auf nativen W3C-Standards aufbaut und wie sich die Dokumentationsstruktur darum spannt:
-
-```mermaid
-flowchart TD
-    Browser[Webbrowser / Runtime] --> HTML[HTML5 Custom Elements]
-    Browser --> CSS[CSS3 Container Queries / OKLCH]
-    Browser --> JS[Vanilla ES-Modules / Web-APIs]
-    HTML -.-> ADR_HTML[ADR-HTML.md]
-    CSS -.-> ADR_CSS[ADR-CSS.md]
-    JS -.-> ADR_JS[ADR-JS.md]
-    ADR_HTML & ADR_CSS & ADR_JS -.-> TechStack[ADR-TECH-STACK.md]
-    TechStack --> Verfassung[longevity-guidelines.md]
-```
-
-### B. Der Spec-First-Planungs-Lifecycle
-Zeigt unseren disziplinierten Ablauf für nachhaltiges Refactoring:
-
-```mermaid
-flowchart TD
-    Specify[Specify: User Story & Akzeptanzkriterien] --> Plan[Plan: Technische Rationale & ADRs]
-    Plan --> Tasks[Tasks: Detaillierte Checklist]
-    Tasks --> Implement[Implement: Code-Erstellung]
-    Implement --> Verify[Verify: QA & Walkthrough]
-```
+* **Keine Frameworks:** Weder React, noch Vue, noch Svelte.
+* **Keine Compiler:** Weder Webpack, noch Babel, noch Sass.
+* **Keine externen Abhängigkeiten:** Keine CDNs, keine Google Fonts, vollständige Offline-Autarkie (Privacy-first).
+* **Native Standards:** Wir nutzen Container Queries, Popover API, CSS `light-dark()` und die Selection/Range API.
 
 ---
 
-## ⚡ Lokaler Schnellstart (Doppelklick-Kompatibel)
+## 🗺️ Dokumentation
 
-Dank der radikalen Build-Tool-Immunität benötigt dieses Projekt **kein NPM, kein Node.js, keine Server und keine Installation**.
+Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern einen perfekten Einstieg zu bieten.
 
-1.  Klone oder lade dieses Repository herunter.
-2.  Navigiere in den Ordner **`[website/](website/)`**.
-3.  Öffne die Datei **`index.html`** per einfachem Doppelklick in deinem Chrome- oder Edge-Browser (`file:///index.html`).
-4.  Der Briefbogen ist sofort einsatzbereit, speichert deinen Entwurf lokal auf deinem Rechner und ist zu 100% offline-fähig!
+👉 **Zur vollständigen [Dokumenten-Landkarte (DOCUMENTATION-MAP.md)](DOCUMENTATION-MAP.md)**
 
----
-
-## 📐 Physische DIN-Abstandsdaten
-
-Die hochpräzisen, physischen DIN-Abstände für Locher, Faltmarken, Anschriftfeld und Briefkern gemäß der offiziellen DIN 5008 Norm findest du in unserem Master-Guide:
-*   📘 **[DIN 5008 Geometry Master Data (Guides/din-5008-geometry.md)](Guides/din-5008-geometry.md)**
+Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
 ---
 
-**Wir bauen kein kurzlebiges MVP – wir bauen ein digitales Denkmal.**',
+## 🤖 KI-Entwicklung (Light Mode vs. Full Mode)
+
+Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
+
+| Modus | Wann? | Schritte |
+|---|---|---|
+| **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100% Fitness Pflicht!) → Logging (`log_session.js`) |
+| **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
+
+Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](Guides/longevity-guidelines.md) geprüft werden.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -4105,6 +4279,7 @@ Die hochpräzisen, physischen DIN-Abstände für Locher, Faltmarken, Anschriftfe
 );
 
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'README.md'), 'documentation');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'README.md'), 'readme');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ROADMAP.md',
@@ -4180,7 +4355,9 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 1: Elastischer Viewport (No-Scroll Auto-Zoom)
+## 🟢 Baseline Features (Umgesetzt)
+
+#### Feature 1: Elastischer Viewport (No-Scroll Auto-Zoom)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Anwender möchte ich den virtuellen DIN A4 Briefbogen auf jedem Bildschirm (Desktop, Laptop, Tablet) vollständig und ohne Scrollbalken im Blick haben, damit ich das Brief-Layout direkt bearbeiten kann.
@@ -4204,7 +4381,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 2: DIN Layout-Wechsler (Form A vs. Form B)
+### Feature 2: DIN Layout-Wechsler (Form A vs. Form B)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Briefschreiber möchte ich zwischen den offiziellen DIN 5008 Layouts "Form A" (Kopfhöhe 27mm) und "Form B" (Kopfhöhe 45mm) wechseln können, um verschiedene Briefbogen-Standards zu bedienen.
@@ -4225,7 +4402,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 3: Native Color Schemes (Light- & Dark-Mode)
+### Feature 3: Native Color Schemes (Light- & Dark-Mode)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Anwender möchte ich die App in einem hellen, dunklen oder sich automatisch an das System anpassenden Modus nutzen, um ermüdungsfrei arbeiten zu können.
@@ -4246,7 +4423,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 4: LocalStorage Auto-Save & Draft-Management
+### Feature 4: LocalStorage Auto-Save & Draft-Management
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Briefschreiber möchte ich, dass jeder geschriebene Buchstabe im Briefbogen sofort lokal gesichert wird, damit ich bei einem versehentlichen Tab-Schließen oder Browser-Absturz keine Daten verliere.
@@ -4269,7 +4446,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 5: Scroll-freier Multipage-Wechsler (Karussell)
+### Feature 5: Scroll-freier Multipage-Wechsler (Karussell)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Briefschreiber möchte ich lange Briefe verfassen können, die über eine Seite hinausgehen, ohne dass Scrollbalken entstehen oder Text abgeschnitten wird, indem der Brief nahtlos auf neue, separat navigierbare Seiten paginiert wird.
@@ -4297,7 +4474,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 
 ---
 
-## Feature 6: Zentralisierung aller Konstanten und Feedback-Meldungen (Toasts)
+### Feature 6: Zentralisierung aller Konstanten und Feedback-Meldungen (Toasts)
 
 ### 1. Specify (Das "Was")
 * **User Story:** Als Entwickler möchte ich alle Systemgrenzen (z. B. Undo/Redo Limits, Dateigrößen, API-Debounce) und alle Systemrückmeldungen (Erfolgsmeldungen, Warnungen, Validierungsfehler) an einem zentralen Ort pflegen können, um den Code übersichtlich zu halten und spätere Übersetzungen (Lokalisierung) zu vereinfachen.
@@ -4323,7 +4500,12 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 > [!NOTE]
 > Die folgenden Features befinden sich im ruhenden Planungs-Backlog. Aufgrund des aktiven `.SPEC-ONLY-PHASE`-Schutzes sind für diese Features **keine** aktiven Entwicklungsaufgaben (Tasks) oder Implementierungspläne freigegeben. Sie dienen rein als Spezifikations-Vorschau.
 
-## Feature 7: Auto-Kompakt Layout-Modus (Form A/B Auto-Switch)
+## 🟡 Backlog (Geplant / Zurückgestellt)
+
+> [!WARNING]
+> Die folgenden Features befinden sich im Backlog und werden aktuell nicht aktiv verfolgt, da sie teilweise den strikten Zero-Dependency und Wartungsfreiheits-Regeln widersprechen könnten.
+
+#### Feature 7: Auto-Kompakt Layout-Modus (Form A/B Auto-Switch)
 * **Specify (Das "Was"):** Als Briefschreiber möchte ich, dass die Anwendung bei langem Brieftext automatisch von Form B auf Form A wechselt, falls dadurch der Text gerade so auf eine einzige Seite passt, um Zeit und Papier zu sparen.
 * **Akzeptanzkriterien:**
   - Option "Automatisch" in der Sidebar unter "DIN-Brief Layout".
@@ -4331,21 +4513,21 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
   - Wenn Text in Form B überläuft, aber in Form A passt, erfolgt ein flüssiger Wechsel zu Form A.
   - Bei Textkürzung erfolgt der automatische Rückwechsel zu Form B.
 
-## Feature 8: Anrede-Stil & Auto-Gender Engine
+### Feature 8: Anrede-Stil & Auto-Gender Engine
 * **Specify (Das "Was"):** Als Briefschreiber möchte ich den Stil der Anrede (Förmlich, Höflich, Modern) in der Sidebar wählen können, und die Anwendung soll basierend auf dem Empfängernamen automatisch das Geschlecht ermitteln und die passende Anrede und Grußformel vorschlagen.
 * **Akzeptanzkriterien:**
   - Segmented Control in der Sidebar für "Anrede-Stil" (Förmlich, Höflich, Modern).
   - Automatisches Scannen des Empfängernamens auf Titel (Dr., Prof.) und Geschlechtsmerkmale via RegExp.
   - Auto-Generierung von Anrede und Grußformel über "Ghost-Sync", solange der Benutzer diese nicht manuell editiert hat. Manual Overrides haben absolute Priorität.
 
-## Feature 9: Integriertes Absender-Profil (Persönliche Daten)
+### Feature 9: Integriertes Absender-Profil (Persönliche Daten)
 * **Specify (Das "Was"):** Als regelmäßiger Briefschreiber möchte ich meine persönlichen Kontaktdaten, Bankdaten und Footer-Zusätze dauerhaft in der Sidebar speichern können, damit diese bei jedem neuen Brief automatisch in den Briefkopf und die Fußzeile eingepflegt werden.
 * **Akzeptanzkriterien:**
   - Einklappbares Formular "Absender-Profil" in der Sidebar.
   - Persistent gespeicherte Profildaten unter `din_profile` im LocalStorage.
   - Automatisches Befüllen von `#absender`, `#info-tel` und Brieffooter beim Speichern und beim Systemstart.
 
-## Feature 10: Premium Ambient Dark Mode (Time- & System-based)
+### Feature 10: Premium Ambient Dark Mode (Time- & System-based)
 * **Specify (Das "Was"):** Als Benutzer möchte ich abends und nachts dezent und ohne grelles Licht Briefe schreiben, ohne dass eine fehlerhafte Farbinversion die Brief-Ästhetik ruiniert. Der Nachtmodus soll sich abends automatisch aktivieren.
 * **Akzeptanzkriterien:**
   - Segmented Control für "Theme" (Hell, Dunkel, Auto).
@@ -4353,7 +4535,7 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
   - Keine Inversions-Filter! Das Briefpapier wird im Dark Mode in edles, warmes Dunkelgrau (`oklch(28% 0.01 250)`) gefärbt, das die Augen schont.
   - Beim Drucken wird das Papier ausnahmslos reinweiß mit schwarzem Text ausgegeben (Druck-Souveränität).
 
-## Feature 11: Easter-Egg High-Integrity Dev-Panel (Popover-based)
+### Feature 11: Easter-Egg High-Integrity Dev-Panel (Popover-based)
 * **Specify (Das "Was"):** Als Entwickler möchte ich ein verstecktes Diagnose-Panel direkt in der Web-App aufrufen können, indem ich 3-mal schnell hintereinander auf das Versions-Badge im Fußbereich klicke, um den Bereitschaftsbericht aller 25 Bleeding-Edge-Features live einzusehen.
 * **Akzeptanzkriterien:**
   - 3-Klick-Easter-Egg auf `#dev-easter-egg` im Footer (1000ms Timeout-Fenster).
@@ -4371,132 +4553,6 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'spec.md'), 'documentation');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'spec.md'), 'spec');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'spec.md'), 'requirements');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'specs/001-hybrid-workflow-integration/spec.md',
-  '001 - Hybrid Spec-Driven Workflow Integration (spec-kit + Reconciliation)',
-  'active',
-  '# Spec: 001 - Hybrid Spec-Driven Workflow Integration
-
-## Context / Background
-We evaluated GitHub spec-kit for its clear phased Spec-Driven Development approach with AI agents. While lighter than our Reconciliation + Fitness system, it offers good ideas for structure and workflow clarity (numbered specs, .specify/ separation, explicit phases).
-
-This spec defines how we integrate the useful parts without losing our strengths (Fitness Score, layered antipatterns, audit trail, Generalisierungs-Pflicht).
-
-## Requirements
-- Adopt .specify/ for agent-specific artifacts (constitution, templates, memory) to improve extractability to llm_boilerplate.
-- Introduce numbered specs/NNN-name/ for better traceability and history (like spec-kit).
-- Define a hybrid workflow that combines spec-kit phases with our mandatory Reconciliation gates.
-- Keep all changes documented and logged per AGENTS.md.
-- Maintain 100% Fitness Score throughout.
-
-## Acceptance Criteria
-- [x] .specify/ directory created with constitution.md and templates/.
-- [x] specs/ directory with at least one example (001-...).
-- [x] HYBRID-SPEC-DRIVEN-WORKFLOW.md created explaining the combined process.
-- [x] Changes follow Pre/Post build + log_session + DECISION-LOG.
-- [ ] Future features use the new numbered spec format.
-- Generalisierbarkeit: The .specify/ + specs/ pattern itself is designed to be extractable as a boilerplate convention.
-
-## Generalisierbarkeit Check (mandatory)
-- The .specify/ structure and numbered specs/ approach can be directly reused in llm_boilerplate.
-- Proposed extraction: Copy the folder layout and HYBRID-WORKFLOW doc (or parts) as recommended patterns.
-- Risks: None major; this enhances rather than couples to DIN specifics.
-
-## Related
-- AGENTS.md (Core Rules, Generalisierungs-Pflicht)
-- MIGRATION-ROADMAP-TO-BOILERPLATE.md
-- .specify/constitution.md
-- aktueller_arbeitsordner/constitution.md',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'specs/001-hybrid-workflow-integration/spec.md'), 'spec');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'specs/001-hybrid-workflow-integration/spec.md'), 'workflow');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'specs/001-hybrid-workflow-integration/spec.md'), 'integration');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'specs/001-hybrid-workflow-integration/spec.md'), 'spec-kit');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'specs/001-hybrid-workflow-integration/spec.md'), 'generalisierbarkeit');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'tasks.md',
-  'Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)',
-  'active',
-  '# Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)
-
-Dieses Dokument dient als abarbeitbare Taskliste für die anstehenden Code-Modifikationen im Workspace.
-
----
-
-- [x] **⚙️ Schritt 1: constants.js (Zentralisierung aller UI-Meldungen & Toasts)**
-  - [x] Alle systemweiten Toast-Meldungen (Erfolg, Info, Warnung, Fehler) aus `Constants` importieren
-  - [x] Systemgrenzen (z. B. Dateigröße 60 KB, 1-Font-Limit) festlegen
-  
-- [x] **🎨 Schritt 2: reset.css & variables.css (Offline-Schriften & Themes)**
-  - [x] Google Fonts entfernen
-  - [x] Serifenlosen, DIN-konformen cross-plattform Font-Stack deklarieren (AptosCustom, Aptos, Segoe UI, Roboto, Helvetica, Arial)
-  - [x] OKLCH-Farbräume für Light-/Dark-Mode mit `light-dark()` einpflegen
-  
-- [x] **📐 Schritt 3: layout.css (Elastischer Viewport & Proportionales Container-Modell)**
-  - [x] `#viewport` auf `overflow: auto` einstellen und Zoom-Faktoren entfernen
-  - [x] `<din-a4>` auf `height: 94vh; aspect-ratio: 210/297; container-type: size;` umstellen
-  - [x] Alle physischen mm-Werte in relative Container-Query-Einheiten (`cqw`/`cqh`) überführen
-  - [x] Brieftext-Editor `<din-text>` (oder `#brieftext`) mit Inline-Formatierungs-Unterstützung stylen
-  - [x] Druck-Overrides (`@media print`) deklarieren (ausgeblendete Ränder/Sidebar, exakte A4-Skalierung)
-  
-- [x] **🔔 Schritt 4: floating.css (Popovers, Toasts & Text-Selection Toolbar)**
-  - [x] Premium-Toast-Styles für `#toast-v4` mit `toast-platinum-cycle` Keyframes anlegen
-  - [x] CSS-Styles für das Textauswahl-Formatting-Popover `#format-toolbar` entwerfen
-  
-- [x] **📄 Schritt 5: index.html (Custom Elements, Popovers & Toolbar)**
-  - [x] Custom Elements (`<din-absender>`, `<din-anschriftfeld>`, `<din-infoblock>`, `<din-fuss>`) anlegen
-  - [x] Textauswahl-Formatierungs-Toolbar `#format-toolbar` als Popover-Element (`popover="manual"`) deklarieren
-  - [x] Offline-Font-Uploader-Schaltflächen in die Sidebar einfügen
-  - [x] Popover-Toast `<div id="toast-v4" popover="manual">` einbetten
-  
-- [x] **⚡ Schritt 6: storage.js & main.js (Logik, Paste-Filter, Font-Uploader & Popover-Toolbar)**
-  - [x] `storage.js` um Speicherfunktionen für Custom Fonts (1-Font-Limit Überschreiben) erweitern
-  - [x] `main.js` Bootloader für Font-Injektion und Draft-Recovery schreiben
-  - [x] Offline-Font-Uploader Logik implementieren (Base64-Konvertierung, Validation < 60 KB, localStorage-Sync)
-  - [x] HTML-Paste-Filter zur Plaintext-Bereinigung einbauen
-  - [x] Drag-and-Drop Filter zur Plaintext-Bereinigung einbauen
-  - [x] Selection-Event-Listener zur dynamischen Zuweisung des externen Selection-Anchors im DOM programmieren
-  - [x] Deklarative Toolbar-Positionierung über CSS Anchor Positioning an --selection-anchor anbinden
-  - [x] Textformatierung über Selection und Range API (Wrap/Unwrap in `<b>`/`<u>` / Zitat-Shortcut) implementieren
-  - [x] Standard-Browser-Shortcuts (`Strg+B`, `Strg+U`) nativ wirken lassen (kein preventDefault)
-  - [x] Toast-Popover mit discrete transition (@starting-style, transition-behavior) und nativem JS-Timer ausstatten
-
-- [x] **📅 Schritt 7: JS Temporal API Mandat & Datum-Autobefüllung**
-  - [x] Strikten Legacy Date API Ban in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` deklarieren
-  - [x] W3C Temporal API in `ADR-TECH-STACK.md` und `ADR-JS.md` als exklusive Datums-Engine dokumentieren
-  - [x] Nativer Temporal API Code in `loadDraftData()` zur zeitzonensicheren, unveränderlichen und fehlerfreien Bestimmung des lokalen Systemdatums im normativem deutschen Format implementieren
-  - [x] Alle Dokumentations- und Code-Änderungen in `DIN-Brief_docs.db` kompilieren
-
-- [x] **🎨 Schritt 8: CSS @scope Isolation & OKLCH Farbmandat**
-  - [x] Briefblatt-Stile in `layout.css` innerhalb von `@scope (din-a4)` kapseln
-  - [x] Alle HEX, RGBA und Named Colors im CSS und HTML in pure OKLCH-Farben konvertieren
-  - [x] Reaktiven Parent Selector `:has()` für Briefbogen-Fokusierungen in `layout.css` implementieren
-  - [x] Striktes OKLCH-Farbmandat und Verbot klassischer Farbräume in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` verankern
-  - [x] Alle neuen Änderungen in `DIN-Brief_docs.db` kompilieren
-
-- [x] **🔒 Proaktive Verfassungs-Ausweitung (Antipatterns 8 bis 12)**
-  - [x] Sass/Less/CSS-in-JS Verbot (Antipattern 8) in Doku verankern
-  - [x] Icon-CDNs & Icon-Fonts Verbot (Antipattern 9) in Doku verankern
-  - [x] Lodash & TS-Transpiler Verbot (Antipattern 10) in Doku verankern
-  - [x] GSAP & JS-Animations-Libs Verbot (Antipattern 11) in Doku verankern
-  - [x] Inline-Styles Verbot für Farben/Layouts (Antipattern 12) in Doku verankern
-  - [x] Re-Kompilierung der SQLite-Wissensdatenbank durchführen',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tasks.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tasks.md'), 'tasks');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tasks.md'), 'todo');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'tools/antipatterns/base.json',
@@ -4544,17 +4600,34 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
       "description": "Unsanitized innerHTML assignments are unsafe. Use textContent or Sanitizer API where possible. (DIN-specific exemption for contenteditable draft handling.)",
       "graveyard_ref": "A4",
       "pattern": "\\.innerHTML\\s*=",
-      "file_patterns": ["*.js"],
+      "file_patterns": [
+        "*.js"
+      ],
       "exemptions": [
         {
           "file": "website/js/main.js",
           "reason": "Draft recovery loading/saving innerHTML and clearing contenteditable elements. Project-specific for now."
         }
       ]
+    },
+    {
+      "id": "B2",
+      "severity": "high",
+      "category": "javascript",
+      "description": "Legacy Date API exemption for JSON Export fallback.",
+      "pattern": "new\\s+Date\\(",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": [
+        {
+          "file": "website/js/main.js",
+          "reason": "Fallback to new Date() if Temporal is not available, specifically for JSON export file naming."
+        }
+      ]
     }
   ]
-}
-',
+}',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -4780,13 +4853,13 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 -- Antipattern Definitions
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
   'B2',
-  'critical',
+  'high',
   'javascript',
-  'Legacy Date API (new Date, Date.now, Date.parse) is forbidden. Use Temporal API instead.',
-  'A1',
-  '\bnew\s+Date\(|\bDate\.now\(|\bDate\.parse\(',
+  'Legacy Date API exemption for JSON Export fallback.',
+  NULL,
+  'new\s+Date\(',
   '["*.js"]',
-  '[]'
+  '[{"file":"website/js/main.js","reason":"Fallback to new Date() if Temporal is not available, specifically for JSON export file naming."}]'
 );
 
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
@@ -4897,7 +4970,7 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
   adr_ref TEXT NOT NULL
 );
 
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 206, 'ADR-JS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1272, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
 

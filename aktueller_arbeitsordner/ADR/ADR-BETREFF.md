@@ -1,4 +1,6 @@
 ---
+title: ADR - Positionierung des Betrefffeldes
+status: active
 tags: [obsidian, adr, ui, feature, betreff, print, pdf]
 aliases: ["Betreff", "Falzmarken", "PDF-Export"]
 ---

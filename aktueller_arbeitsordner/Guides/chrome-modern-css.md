@@ -1,3 +1,9 @@
+---
+title: Modern CSS Features (Chrome 148+ Baseline)
+status: active
+tags: [css, guide, modern]
+---
+
 # Modern CSS Features (Chrome 148+ Baseline)
 
 Dieses Dokument listet die modernen CSS-Features auf, die im Projekt **DIN-Brief Neo** verwendet werden. Da die App eine strikte Chrome 148+ (Edge/Opera äquivalent) Engine voraussetzt, können wir auf Polyfills und Fallbacks verzichten und hochmoderne Web-Plattform-Features nativ nutzen.

@@ -1,6 +1,4 @@
 @echo off
-setlocal enabledelayedexpansion
-
 title DIN-BriefNEO - Server starten
 
 echo.
@@ -15,38 +13,13 @@ cd /d "%~dp0"
 :: 1. Versuch: Python Webserver
 :: ============================================
 where python >nul 2>nul
-if %errorlevel% equ 0 (
-    echo [OK] Python gefunden. Starte Server mit Python...
-    start "" /B python -m http.server 8000
-    timeout /t 1 /nobreak >nul
-    start http://localhost:8000/website/index.html
-    
-    echo.
-    echo [ERFOLG] Server läuft auf http://localhost:8000
-    echo Du kannst dieses Fenster jetzt schließen.
-    echo.
-    timeout /t 3 >nul
-    exit /b
-)
+if not errorlevel 1 goto run_python
 
 :: ============================================
 :: 2. Versuch: Node.js (npx serve) als Fallback
 :: ============================================
 where node >nul 2>nul
-if %errorlevel% equ 0 (
-    echo [INFO] Python nicht gefunden. Versuche Node.js Fallback...
-    echo [INFO] Starte Server mit npx serve...
-    start "" /B npx serve -p 8000
-    timeout /t 2 /nobreak >nul
-    start http://localhost:8000/website/index.html
-
-    echo.
-    echo [ERFOLG] Server läuft auf http://localhost:8000
-    echo Du kannst dieses Fenster jetzt schließen.
-    echo.
-    timeout /t 3 >nul
-    exit /b
-)
+if not errorlevel 1 goto run_node
 
 :: ============================================
 :: Kein Python und kein Node.js gefunden
@@ -56,11 +29,39 @@ echo.
 echo Bitte installiere eines der beiden Programme:
 echo.
 echo   Python: https://www.python.org/downloads/
-echo           ^(Wichtig: "Add Python to PATH" anhaken!^)
+echo           (Wichtig: "Add Python to PATH" anhaken!)
 echo.
 echo   Node.js: https://nodejs.org/
 echo.
 echo Nach der Installation diese Datei erneut starten.
 echo.
 pause
+exit /b
+
+:run_python
+echo [OK] Python gefunden. Starte Server mit Python...
+start "" /B python -m http.server 8000
+:: Nutze ping als robusten Timeout
+ping 127.0.0.1 -n 2 >nul
+start http://localhost:8000/website/index.html
+
+echo.
+echo [ERFOLG] Server läuft auf http://localhost:8000
+echo Du kannst dieses Fenster jetzt schließen.
+echo.
+ping 127.0.0.1 -n 4 >nul
+exit /b
+
+:run_node
+echo [INFO] Python nicht gefunden. Versuche Node.js Fallback...
+echo [INFO] Starte Server mit npx serve...
+start "" /B npx serve -p 8000
+ping 127.0.0.1 -n 3 >nul
+start http://localhost:8000/website/index.html
+
+echo.
+echo [ERFOLG] Server läuft auf http://localhost:8000
+echo Du kannst dieses Fenster jetzt schließen.
+echo.
+ping 127.0.0.1 -n 4 >nul
 exit /b

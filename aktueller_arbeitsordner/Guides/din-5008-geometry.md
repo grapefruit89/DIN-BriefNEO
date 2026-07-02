@@ -54,16 +54,34 @@ Die Absender-Zone nimmt den oberen Briefkopf (Branding-Bereich) ein.
 ---
 
 ## 4. Informationsblock & Datum
-Der Informationsblock befindet sich rechts oben und wächst von oben nach unten.
+
+Der Informationsblock befindet sich rechts oben und wächst von oben nach unten. Je nach Einsatzzweck unterscheidet die DIN 5008 zwischen geschäftlichen und privaten Briefen.
+
+### 4.1 Geschäftsbrief (Kompletter Infoblock)
+
+Der klassische Geschäftsbrief nutzt den vollen, strukturierten Informationsblock für Geschäftszeichen, Ansprechpartner, Telefon und Datum.
 
 | Parameter | Form A | Form B | Ausrichtung | Quelle |
 | :--- | :--- | :--- | :--- | :--- |
 | **Infoblock Beginn (X)** | 125 mm | 125 mm | Linksbündig | DIN 5008, Abs. 17.1 |
 | **Infoblock Breite** | 75 mm | 75 mm | — | DIN 5008, Abs. 17.1 |
-| **Infoblock Beginn (Y)** | **32 mm** | **50 mm** | Linksbündig | DIN 5008, Abs. 17.1 |
-| **Schriftgröße Infoblock** | 8.5 pt (**3.00 mm**) | 8.5 pt (**3.00 mm**) | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
+| **Infoblock Beginn (Y)** | 32 mm | 50 mm | Linksbündig | DIN 5008, Abs. 17.1 |
+| **Schriftgröße Infoblock** | 8.5 pt (3.00 mm) | 8.5 pt (3.00 mm) | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
 | **Briefdatum (X)** | 125 mm | 125 mm | Linksbündig | DIN 5008, Abs. 17.2 |
-| **Briefdatum (Y)** | **74 mm** | **92 mm** | Linksbündig (10 pt / **3.53 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
+| **Briefdatum (Y)** | 74 mm | 92 mm | Linksbündig (10 pt / 3.53 mm) | `eigenequellen/DIN-BriefNEO/issues/#1` |
+
+### 4.2 Privatbrief (Reduzierter Infoblock)
+
+Für Privatbriefe entfallen die komplexen Geschäftszeichen. Der Informationsblock wird stark reduziert und enthält üblicherweise nur die Absender-Kontaktdaten.
+
+**Beispielhafter Aufbau (rechtsbündig oder im Infoblock linksbündig platziert):**
+- Moritz Baumeister
+- Kettelerstraße 2
+- 53844 Troisdorf
+- Telefonnummer (optional)
+- E-Mail-Adresse (optional)
+
+*Geometrie:* Die Startpositionen (X: 125 mm, Y: 32/50 mm) gelten in der Regel weiterhin, um das einheitliche DIN-Fenster-Layout nicht zu brechen, jedoch ist der Inhalt freier formatierbar. Das Datum bildet meist den Abschluss.
 
 ---
 

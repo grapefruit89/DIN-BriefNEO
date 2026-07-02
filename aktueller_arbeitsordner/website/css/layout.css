@@ -1,6 +1,33 @@
 /* @adr [[ADR-CSS]] */
 /* css/layout.css */
 
+
+:root {
+  /* DIN 5008 Geometrie-Variablen (Form B = Default) */
+  --din-width: 210;
+  --din-height: 297;
+  
+  --absender-y: calc(45 / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(50 / var(--din-height) * 100cqh);
+  --infoblock-y: calc(50 / var(--din-height) * 100cqh);
+  --datum-y: calc(92 / var(--din-height) * 100cqh);
+  --briefkern-y: calc(109 / var(--din-height) * 100cqh);
+  
+  --fold-1-y: calc(105 / var(--din-height) * 100cqh);
+  --fold-2-y: calc(210 / var(--din-height) * 100cqh);
+  --punch-y: calc(148.5 / var(--din-height) * 100cqh);
+}
+
+.form-a {
+  --absender-y: calc(27 / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(32 / var(--din-height) * 100cqh);
+  --infoblock-y: calc(32 / var(--din-height) * 100cqh);
+  --datum-y: calc(74 / var(--din-height) * 100cqh);
+  --briefkern-y: calc(85.4 / var(--din-height) * 100cqh);
+  --fold-1-y: calc(87 / var(--din-height) * 100cqh);
+  --fold-2-y: calc(181 / var(--din-height) * 100cqh);
+}
+
 /* --- APP SHELL --- */
 #app-shell {
   display: grid;
@@ -194,10 +221,10 @@ aside {
   }
 
   /* Falzmarken & Lochmarken proportionale Koordinaten */
-  .din-fold-top { top: calc(105 / 297 * 100cqh); } /* Form B default: 105mm */
-  .din-fold-bottom { top: calc(210 / 297 * 100cqh); } /* Form B default: 210mm */
+  .din-fold-top { top: var(--fold-1-y); } /* Form B default: 105mm */
+  .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: 210mm */
   .din-punch { 
-    top: calc(148.5 / 297 * 100cqh); /* Lochmarke: exakt in der Mitte bei 148.5mm */
+    top: var(--punch-y);
     width: calc(12 / 210 * 100cqw); /* Breite: 12mm */
     border-bottom-style: solid; 
   }
@@ -206,7 +233,7 @@ aside {
   /* Rücksendezeile */
   #absender {
     position: absolute;
-    top: calc(45 / 297 * 100cqh);
+    top: var(--absender-y);
     left: calc(20 / 210 * 100cqw);
     width: calc(85 / 210 * 100cqw);
     height: calc(5 / 297 * 100cqh);
@@ -220,7 +247,7 @@ aside {
   /* Anschriftfeld */
   #empfaenger {
     position: absolute;
-    top: calc(50 / 297 * 100cqh);
+    top: var(--empfaenger-y);
     left: calc(20 / 210 * 100cqw);
     width: calc(85 / 210 * 100cqw);
     height: calc(40 / 297 * 100cqh);
@@ -234,7 +261,7 @@ aside {
   /* Info block (Rechte Spalte) */
   #infoblock {
     position: absolute;
-    top: calc(50 / 297 * 100cqh);
+    top: var(--infoblock-y);
     left: calc(125 / 210 * 100cqw);
     width: calc(75 / 210 * 100cqw);
     font-size: calc(8.5 * 0.168cqw); /* 8.5pt in cqw */
@@ -246,7 +273,7 @@ aside {
 
   #datum {
     position: absolute;
-    top: calc(92 / 297 * 100cqh);
+    top: var(--datum-y);
     left: calc(125 / 210 * 100cqw);
     width: calc(75 / 210 * 100cqw);
     font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
@@ -256,7 +283,7 @@ aside {
   /* Briefkern */
   #briefkern {
     position: absolute;
-    top: calc(109 / 297 * 100cqh); /* Standard Form B: 109mm (unter Falz 1) */
+    top: var(--briefkern-y);
     left: calc(25 / 210 * 100cqw);  /* Linker Fluchtrand: 25mm */
     right: calc(20 / 210 * 100cqw); /* Rechter Rand: 20mm */
     bottom: calc(30 / 297 * 100cqh); /* Abstand nach unten für Footer */
@@ -325,14 +352,6 @@ aside {
 }
 
 /* --- DYNAMISCHE POSITIONEN FÜR FORM A (SCOPED ISOLATION) --- */
-  /* --- DYNAMISCHE POSITIONEN FUER FORM A --- */
-  .form-a din-a4 .din-fold-top { top: calc(87 / 297 * 100cqh); }
-  .form-a din-a4 .din-fold-bottom { top: calc(181 / 297 * 100cqh); }
-  .form-a din-a4 #absender { top: calc(27 / 297 * 100cqh); }
-  .form-a din-a4 #empfaenger { top: calc(32 / 297 * 100cqh); }
-  .form-a din-a4 #infoblock { top: calc(32 / 297 * 100cqh); }
-  .form-a din-a4 #datum { top: calc(74 / 297 * 100cqh); }
-  .form-a din-a4 #briefkern { top: calc(85.4 / 297 * 100cqh); }
 
 @keyframes pulse-alert {
   0%, 100% { opacity: 0.9; }

@@ -70,3 +70,24 @@ Wer das nicht einhält, arbeitet nicht konform mit diesem Vertrag.
 ---
 
 **Hinweis:** Komplexe Konzepte (Capability Contracts, DCP, Adaptive Context Synthesis, etc.) sind eingefroren in FUTURE_IDEAS.md. Konzentriere dich auf den KISS-Ansatz und die Core Rules oben.
+
+## Andrej Karpathy LLM Coding Principles
+
+Um die bestmöglichen Ergebnisse zu erzielen, gelten für alle KI-Agenten in diesem Projekt zusätzlich die folgenden Kernprinzipien:
+
+1. **Thinking Before Coding:**
+   - Erstelle bei komplexeren Aufgaben erst einen `implementation_plan.md` und bitte um Freigabe (Planning Mode).
+   - Analysiere den existierenden Code gründlich, bevor du Änderungen machst.
+
+2. **Simplicity First (KISS):**
+   - Bevorzuge einfache, native Lösungen (CSS statt JS, Vanilla JS statt Frameworks).
+   - Vermeide "Overengineering" und komplizierte Architektur-Abstraktionen.
+
+3. **Surgical Changes:**
+   - Mache präzise, minimale Code-Änderungen.
+   - Ändere nichts, was für das aktuelle Feature nicht strikt erforderlich ist.
+   - Erhalte bestehende Kommentare und Formatierungen.
+
+4. **Goal-Driven Execution:**
+   - Behalte das Endziel im Fokus und verstricke dich nicht in Nebenproblemen, es sei denn, sie blockieren den Fortschritt.
+   - Verifiziere das Ergebnis nach der Umsetzung.

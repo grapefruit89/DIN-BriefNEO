@@ -1,0 +1,118 @@
+<!--
+ > File: index.html
+ > Role: Application Entry Point & DOM Root
+ > Spec: [DIN.UI.SHELL.BIND]
+ > Dep:  css/theme.css, js/core/app.js, sw.js
+-->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIN 5008 Brief-Generator</title>
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="Professioneller Brief-Editor nach DIN 5008.">
+    <!-- Main Entry Point -->
+    <script type="module" src="/src/main.ts"></script>
+</head>
+<body class="bg-slate-950 text-slate-50 font-sans overflow-hidden flex flex-col h-screen" data-layout="form-b">
+
+    <!-- Top Navigation -->
+    <header class="flex items-center justify-between px-6 py-3 border-b border-slate-800 bg-slate-900 shadow-sm flex-shrink-0 z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-500/50 flex items-center justify-center text-teal-400">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold tracking-wider text-slate-100 uppercase flex items-center gap-2">
+                    DIN BriefNEO
+                    <span id="version-badge" class="px-1.5 py-0.5 rounded bg-teal-900/50 text-teal-400 text-[9px] border border-teal-800 font-mono cursor-pointer select-none" title="Klick für Developer Mode">v5.0 (Vanilla)</span>
+                </h1>
+                <p class="text-[10px] text-slate-400">Normgerechter Editor nach DIN 5008</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btn-print" class="px-4 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs select-none cursor-pointer transition-all flex items-center gap-2">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                Drucken / PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden w-full h-full relative" id="workspace_split">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-[380px] min-w-[380px] overflow-y-auto p-5 space-y-6 border-r bg-slate-900 border-slate-800 flex flex-col justify-between hidden lg:flex z-10" id="sidebar">
+            
+            <div class="space-y-6">
+                <!-- Sync Section -->
+                <div class="p-4 rounded-xl border bg-slate-850/60 border-slate-800">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-teal-500 mb-3 flex items-center gap-2">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                        Geräte-Synchronisation
+                    </h2>
+                    <p class="text-[11px] text-slate-400 leading-relaxed mb-3">
+                        Melden Sie sich an, um Entwürfe sicher zu speichern.
+                    </p>
+                    <div class="space-y-2">
+                        <input type="email" placeholder="E-Mail-Adresse" class="w-full text-xs px-2.5 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-teal-500 bg-slate-800 text-white border border-slate-700" />
+                        <input type="password" placeholder="Passwort" class="w-full text-xs px-2.5 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-teal-500 bg-slate-800 text-white border border-slate-700" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        <button class="px-3 py-1.5 rounded bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold transition-all">Einloggen</button>
+                        <button class="px-3 py-1.5 rounded text-xs font-bold transition-all border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750">Registrieren</button>
+                    </div>
+                </div>
+
+                <!-- API Keys & Address Lookup -->
+                <div class="p-4 rounded-xl border bg-slate-850/60 border-slate-800">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-teal-500 mb-3 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-3 h-3"></i>
+                        Adress-Suche
+                    </h2>
+                    <address-autocomplete></address-autocomplete>
+                </div>
+
+                <!-- Date Swiper Web Component -->
+                <div class="space-y-2 pt-2 border-t border-slate-800">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-3 h-3"></i>
+                        Datums-Swiper
+                    </h2>
+                    <date-swiper></date-swiper>
+                </div>
+
+                <!-- Layout Settings -->
+                <div class="space-y-4 pt-2 border-t border-slate-800">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-3 h-3"></i>
+                        Layout & Normierung
+                    </h2>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-semibold text-slate-350">DIN-Format Variante</label>
+                        <select id="layout-mode-select" class="w-full text-[11px] px-2.5 py-2 rounded focus:outline-none transition-all cursor-pointer bg-slate-850 border border-slate-750 text-white focus:border-teal-500">
+                            <option value="form-b">Form B (50mm Kopf, tiefes Sichtfenster)</option>
+                            <option value="form-a">Form A (32mm Kopf, hohes Sichtfenster)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Canvas Area -->
+        <main class="flex-1 bg-transparent relative overflow-hidden" id="a4_canvas">
+            <div id="brief-container" class="absolute inset-0 select-text">
+                <!-- DIN 5008 Paper Wrapper Component -->
+                <din-paper class="block w-full h-full">
+                    <!-- The paper is rendered dynamically or initialized via shadow DOM -->
+                </din-paper>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Developer Panel (Web Component) -->
+    <dev-panel></dev-panel>
+
+</body>
+</html>

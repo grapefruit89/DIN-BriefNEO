@@ -4,10 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIN-BriefNEO | Pure Refactored</title>
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/variables.css" />
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/floating.css" />
+    <style>
+      /* CSS Layer Architektur (Prioritaet aufsteigend) */
+      @layer reset, tokens, layout, floating;
+
+      @import url("css/reset.css") layer(reset);
+      @import url("css/variables.css") layer(tokens);
+      @import url("css/layout.css") layer(layout);
+      @import url("css/floating.css") layer(floating);
+    </style>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>

@@ -3676,7 +3676,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T13:34:46.615Z
+> Generiert am: 2026-07-02T13:43:14.126Z
 > ==============================================================================
 
 

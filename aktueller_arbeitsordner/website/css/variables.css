@@ -1,4 +1,6 @@
 /* css/variables.css */
+@layer reset, tokens, layout, floating;
+
 @property --guide-opacity {
   syntax: '<number>';
   inherits: true;

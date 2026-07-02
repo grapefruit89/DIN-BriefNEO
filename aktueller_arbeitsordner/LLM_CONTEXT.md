@@ -12,7 +12,7 @@ tags: [context, llm, prompt]
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T13:43:14.126Z
+> Generiert am: 2026-07-02T14:29:28.648Z
 > ==============================================================================
 
 
@@ -37,11 +37,12 @@ Dieses Projekt ist eine datenschutzkonforme, 100% offline-fähige und wartungsfr
 
 ## ⚡ Quick Start
 
-Das Projekt nutzt keinen Build-Prozess und keinen Entwicklungsserver. Es ist ein "Zero-Dependency" Projekt.
+Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgrund von Browser-Sicherheitsrichtlinien (CORS) muss die App zwingend über einen lokalen Webserver gestartet werden, anstatt per `file://`-Protokoll.
 
-1. **Starten:** Führe das Skript `start.ps1` im Root-Verzeichnis aus.
-2. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
-3. Danach kannst du einfach die `website/index.html` per Doppelklick in Chrome 148+ (oder Edge/Opera) öffnen. Keine Installation, kein `npm install`.
+1. **App starten (Nutzer):** Ein Doppelklick auf die `start.bat` im Hauptverzeichnis reicht aus. Es startet ein lokaler Python-Server (auf Port 8000) im Hintergrund und öffnet die App automatisch im Browser.
+2. **Entwickler-Check (Agenten):** Führe das Skript `.\start.ps1` aus.
+3. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
+
 
 ---
 
@@ -110,8 +111,8 @@ Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](ADR/
 * **[ADR-HTML](ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
 * **[ADR-CSS](ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
 * **[ADR-JS](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
-* **[ADR-GEOAPIFY](ADR/ADR-GEOAPIFY.md):** Zero-Dependency Adress-Autocomplete.
-* **[ADR-MIGRATION](ADR/ADR-MIGRATION.md):** Extraktion zur `llm_boilerplate`.
+* **[ADR-API](ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
+* **[ADR-DATA-PERSISTENCE](ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
 
 ## 📦 Implementierungsdetails
 * **[SQLite-Vec Integration](docs/implementation/sqlite-vec.md):** Plan für Vektor-Suche.

@@ -178,56 +178,70 @@ Die Verwendung von inline `style="..."` Attributen für strukturelle oder gestal
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-API.md',
-  'ADR-API: External API Integrations & Header Security',
+  'ADR-API: External Services & APIs (Geoapify, Zippopotam & Header Security)',
   'accepted',
-  '# ADR-API: External API Integrations & Header Security
+  '# ADR-API: External Services & APIs
 
 ## 1. Context & Problem
 
-**Sichere, serverlose Adress-Vervollständigung.**
-- Viele Autocomplete-Lösungen (wie Google Places) benötigen dicke SDKs und zwingen Nutzer zur Kreditkartenangabe.
-- DIN-BriefNEO benötigt ein schnelles, datenschutzkonformes API-Konzept, das vollständig im lokalen Kontext (`file:///`) läuft, ohne Backend-Server.
+**Sichere, serverlose Adress-Vervollständigung und externe Datenabfragen.**
+- Viele Autocomplete-Lösungen (wie Google Places) benötigen dicke SDKs und zwingen Nutzer zur Kreditkartenangabe. Offizielle Libraries (z.B. `@geoapify/geocoder-autocomplete`) injizieren schwer anpassbare DOM-Elemente und brechen unsere WYSIWYG-Regel.
+- DIN-BriefNEO benötigt ein schnelles, datenschutzkonformes API-Konzept, das vollständig im lokalen Kontext (`file:///` oder lokaler Webserver) läuft, ohne Backend-Server.
 - API-Keys dürfen nicht via URL-Parameter geleakt werden.
+- Lokale Treffer (beim Geo-Autocomplete) sollen per Proximity Bias zuerst erscheinen.
 
 ## 2. Considered Options
 
 | Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
 |--------|--------------|----------|-----------|---------|---------|
-| **Option A** (Geoapify + Header-Auth) | Nutzung der REST-API via nativem `fetch()`, Key im Header (`X-Api-Key`) | Zero SDK, höchste Sicherheit vor Leaks, kostenloser Tier reicht | Benötigt eigenen API-Key | Keine | **Gewählt** |
+| **Option A** (Geoapify + Header-Auth + Custom Fetch) | Native Nutzung per `fetch()`, Key im Header (`X-Api-Key`), natives CSS-Anchor-Popover für Resultate | Zero SDK, höchste Sicherheit vor Leaks, 100% WYSIWYG-Treue | Caching muss selbst programmiert werden | Keine | **Gewählt** |
 | **Option B** (Google SDK) | Google Places Library laden | Bekannt, hohe Datenqualität | Zwang zu Kreditkarte, schwergewichtiges JS | Datenschutz | Abgelehnt |
-| **Option C** (Photon API) | Kostenloses OSM-Backend | Kein Key nötig | Zu schlechte Datenqualität | Usability | Abgelehnt (Deprecated) |
+| **Option C** (Offizielle NPM Library) | `@geoapify/geocoder-autocomplete` nutzen | Schnell implementiert | Zerstört WYSIWYG durch eigene DOM-Elemente | Bundle-Size | Abgelehnt |
+| **Option D** (Photon API) | Kostenloses OSM-Backend | Kein Key nötig | Zu schlechte Datenqualität | Usability | Abgelehnt (Deprecated) |
 
 ## 3. Decision
 
-**Wir haben uns für Option A (Geoapify & Zippopotam REST APIs) entschieden.**
+**Wir haben uns für Option A (Geoapify & Zippopotam REST APIs via Custom Fetch) entschieden.**
 
 ### Begründung
-- **Geoapify:** Einziger Provider für Adress-Autocomplete. Der API-Key wird **strikt per HTTP-Header** (`X-Api-Key`) gesendet, niemals in der URL.
-- **Heartbeat:** Eingegebene Keys werden per asynchronem Test (`limit=1`) sofort auf Validität geprüft.
-- **Zippopotam:** Die kostenfreie API (`api.zippopotam.us`) wird für das Auto-Ausfüllen von Ortsnamen bei 5-stelliger PLZ genutzt.
-- **Race-Condition-Schutz:** Alle API-Aufrufe (`fetch()`) werden durch `AbortController` abgebrochen, wenn eine neue Eingabe erfolgt.
+- **Zero-Dependency:** Der Verzicht auf NPM-Libraries entspricht der Zero-JS-Philosophie.
+- **Header-Security:** Der API-Key wird **strikt per HTTP-Header** (`X-Api-Key`) gesendet, niemals in der URL. Das verhindert Leaks.
+- **Natives UI:** Das Resultat-Popover verankert sich nahtlos über W3C CSS Anchor Positioning, das DOM bleibt sauber von Fremdelementen.
+- **Dynamischer Proximity Bias:** Statt eines statischen Fallbacks ermittelt die Logik via Zippopotam (`api.zippopotam.us`) die `lat`/`lon` der eingegebenen 5-stelligen Absender-PLZ und nutzt diese für `bias=proximity` bei Geoapify.
+- **Performance:** Strenges Debouncing (`300ms`), Limits (`limit=5`) und `AbortController` halten API-Calls minimal und verhindern Race Conditions.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+- **Maximale Kontrolle & WYSIWYG-Treue:** Das DOM bleibt zu 100% in unserer Hand.
 - **Hohe Sicherheit:** Keys leaken nicht in Server-Logs oder Proxys.
-- **Zero-Dependency:** Komplett nativ per `fetch()` gelöst, keine SDKs.
-- **Top Performance:** AbortController verhindert überflüssige Netzwerk-Requests.
+- **Top Performance & Relevanz:** Adressen in der Nähe des Absenders werden priorisiert. Überflüssige Requests werden abgebrochen.
 
 ### Risiken & Negative Auswirkungen
 - Setzt aktive Internetverbindung voraus für Autocomplete (manuelle Eingabe geht weiterhin offline).
+- Caching muss bei Bedarf selbst (oder durch AbortController/Debouncing) verwaltet werden.
 
 ## 5. Implementation & Verification
 
 - Die Header-Security-Regel ist in `main.js` für jeden Geoapify-Aufruf verankert.
-- Photon wurde restlos als Antipattern deklariert und aus dem Projekt entfernt.
+- Photon wurde restlos als Antipattern deklariert.
+- Das Dropdown ist als `popover="manual"` mit CSS Anchor an das Eingabefeld gebunden.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
 - [[ADR-JS]]
 - [[ADR-FEATURE]]
-- [[longevity-guidelines]]',
+- [[longevity-guidelines]]
+
+---
+
+### Feature Checks
+
+```javascript feature-check
+f("Geoapify Autocomplete", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv"),
+f("CSS Anchor Positioning", CSS.supports("anchor-name: --test"), "Chrome 125", "Produktiv")
+```',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -490,70 +504,6 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-GEOAPIFY.md',
-  'ADR-GEOAPIFY: Adress-Autocomplete mit Geoapify',
-  'accepted',
-  '# ADR-GEOAPIFY: Adress-Autocomplete mit Geoapify
-
-## 1. Context & Problem
-
-**Performantes Autocomplete ohne DOM-Injektionen.**
-- Die Eingabe von Empfängeradressen im `<din-anschriftfeld>` soll den Nutzer bestmöglich unterstützen.
-- Lokale Treffer sollen zuerst erscheinen (Proximity Bias).
-- Die offizielle Geoapify-Library (`@geoapify/geocoder-autocomplete`) injiziert eigene schwer anpassbare DOM-Elemente und bricht damit unsere WYSIWYG-Regel.
-
-## 2. Considered Options
-
-| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
-|--------|--------------|----------|-----------|---------|---------|
-| **Option A** (Custom Fetch + CSS Anchor) | 100% nativ: Eigener Fetch + natives Popover mit CSS Anchor Positioning | Zero Dependencies, 100% WYSIWYG-Treue | Caching muss selbst programmiert werden | Keine | **Gewählt** |
-| **Option B** (Offizielle NPM Library) | Nutzung von `@geoapify/geocoder-autocomplete` | Schnell implementiert, Caching eingebaut | Zerstört WYSIWYG durch eigene DOM-Elemente, Bundle-Size +40KB | Wartung | Abgelehnt |
-
-## 3. Decision
-
-**Wir haben uns für Option A (Custom Fetch + Native CSS Anchor) entschieden.**
-
-### Begründung
-- **Keine Dependencies:** Der Verzicht auf NPM-Libraries entspricht der Zero-JS-Philosophie.
-- **Natives Dropdown:** Das Resultat-Popover verankert sich nahtlos über W3C CSS Anchor Positioning.
-- **Dynamischer Proximity Bias:** Statt einem statischen Fallback (z.B. Bonn) extrahiert die Logik die PLZ des Absenders, ermittelt via Zippopotam die `lat`/`lon` und nutzt diese für `bias=proximity` bei Geoapify.
-- **Performance:** Strenges Debouncing (`300ms`) und Limits (`limit=5`) halten die API-Calls minimal.
-
-## 4. Consequences
-
-### Positive Auswirkungen
-- **Maximale Kontrolle:** Das DOM bleibt sauber, keine Fremd-Elemente.
-- **Hohe Relevanz:** Der dynamische Bias sorgt dafür, dass Adressen in der Nähe des Absenders priorisiert werden.
-
-### Risiken & Negative Auswirkungen
-- Caching muss bei Bedarf selbst in einer `Map` verwaltet werden (aktuell durch AbortController und Debouncing gut abgefangen).
-
-## 5. Implementation & Verification
-
-- Der Custom Fetch ist in `main.js` implementiert.
-- Das Dropdown ist als `popover="manual"` mit CSS Anchor an das Eingabefeld gebunden.
-
-## 6. Related Documents
-
-- [[ADR-API]]
-- [[ADR-ANTIPATTERN]]
-
----
-
-### Feature Checks
-
-```javascript feature-check
-f("Geoapify Autocomplete", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv"),
-f("CSS Anchor Positioning", CSS.supports("anchor-name: --test"), "Chrome 125", "Produktiv")
-```',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'ADR/ADR-HTML.md',
   'ADR-HTML: HTML Architecture & Semantic Structure',
   'accepted',
@@ -684,7 +634,49 @@ f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chro
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-MIGRATION.md',
+  'ADR/ADR-ÜBERSICHT.md',
+  'ADR-Übersicht',
+  'active',
+  '# ADR-Übersicht (Dataview)
+
+> [!info] Über dieses Dokument
+> Dieses Dashboard nutzt das **Obsidian Dataview-Plugin**, um alle Architectural Decision Records (ADRs) des Projekts `DIN-BriefNEO` automatisch aufzulisten.
+
+## Aktive Entscheidungen
+
+```dataview
+TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
+FROM "ADR"
+WHERE type = "adr" AND (status = "accepted" OR status = "proposed") AND project = "DIN-BriefNEO"
+SORT date DESC
+```
+
+## Veraltet / Abgelehnt
+
+```dataview
+TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
+FROM "ADR"
+WHERE type = "adr" AND (status = "deprecated" OR status = "rejected") AND project = "DIN-BriefNEO"
+SORT date DESC
+```
+
+## Entwürfe (Drafts)
+
+```dataview
+TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
+FROM "ADR"
+WHERE type = "adr" AND status = "draft" AND project = "DIN-BriefNEO"
+SORT date DESC
+```',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/Archive/ADR-MIGRATION.md',
   'ADR-MIGRATION: Extraktion zur llm_boilerplate',
   'accepted',
   '# ADR: Architektur für Extraktion zur llm_boilerplate
@@ -714,7 +706,30 @@ Regeln, die nur für DIN-Brief Neo gelten, kommen in `project.json`.',
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-TEMPLATE.md',
+  'ADR/Code-Referenzen.md',
+  'Code-Referenzen',
+  'active',
+  '# Code-Referenzen
+
+Diese Datei wird automatisch von `build_db.js` generiert und listet alle Architektur-Verknüpfungen aus dem Quellcode auf.
+
+| Code Datei | Zeile | Architektur-Entscheidung |
+| :--- | :--- | :--- |
+| website/js/main.js | 1296 | [[ADR-JS]] |
+| website/js/signature.js | 1 | [[ADR-JS]] |
+| website/css/layout.css | 1 | [[ADR-CSS]] |',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'autogenerated');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'code');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'ADR/Support/ADR-TEMPLATE.md',
   'ADR-XXX: [Kurzer, präziser Titel der Entscheidung]',
   'draft | proposed | accepted | deprecated | rejected',
   '# ADR-XXX: [Kurzer, präziser Titel]
@@ -798,49 +813,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/ADR-ÜBERSICHT.md',
-  'ADR-Übersicht',
-  'active',
-  '# ADR-Übersicht (Dataview)
-
-> [!info] Über dieses Dokument
-> Dieses Dashboard nutzt das **Obsidian Dataview-Plugin**, um alle Architectural Decision Records (ADRs) des Projekts `DIN-BriefNEO` automatisch aufzulisten.
-
-## Aktive Entscheidungen
-
-```dataview
-TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
-FROM "ADR"
-WHERE type = "adr" AND (status = "accepted" OR status = "proposed") AND project = "DIN-BriefNEO"
-SORT date DESC
-```
-
-## Veraltet / Abgelehnt
-
-```dataview
-TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
-FROM "ADR"
-WHERE type = "adr" AND (status = "deprecated" OR status = "rejected") AND project = "DIN-BriefNEO"
-SORT date DESC
-```
-
-## Entwürfe (Drafts)
-
-```dataview
-TABLE status, date as Datum, last-reviewed as "Zuletzt geprüft", deciders as Entscheider
-FROM "ADR"
-WHERE type = "adr" AND status = "draft" AND project = "DIN-BriefNEO"
-SORT date DESC
-```',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'ADR/Code-Referenzen.md',
+  'ADR/Support/Code-Referenzen.md',
   'Code-Referenzen',
   'active',
   '# Code-Referenzen
@@ -849,7 +822,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1305 | [[ADR-JS]] |
+| website/js/main.js | 1296 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
@@ -858,296 +831,9 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'autogenerated');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Code-Referenzen.md'), 'code');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'archive/DRINGEND-NOCH-BEHEBEN.md',
-  'DRINGEND NOCH BEHEBEN',
-  'active',
-  'Danke, dass du diesen sehr detaillierten System-Prompt teilst. Du möchtest wissen, ob hier alles stimmig ist oder ob es Unstimmigkeiten gibt. Da ich als strenger Architekturbewerter agiere, habe ich ihn genau analysiert.
-
-Die kurze Antwort: Der Prompt ist eine extrem wertvolle und strukturierte Momentaufnahme des Projekts, aber er enthält mehrere **schwerwiegende innere Widersprüche und Sync-Fehler**, die einen neuen KI-Assistenten sofort in architektonische Fallen laufen lassen würden. Diese müssen bereinigt werden, bevor der Prompt als verlässliches SSoT dienen kann.
-
-Hier ist die detaillierte Fehleranalyse:
-
----
-
-### Kritische Unstimmigkeiten (Müssen behoben werden)
-
-#### 1. Gravierender Widerspruch im Changelog (`[F-001]`)
-*   **Das Problem:** Die Präambel des Changelogs behauptet fälschlicherweise: *"Dieses Changelog trackt **ausschließlich** Dokumentations-, Planungs- und Verifikationsänderungen. Aufgrund der aktiven `.SPEC-ONLY-PHASE` wurden im aktuellen Release **keine** Änderungen am produktiven Programmquellcode (HTML, CSS, JS) vorgenommen."*
-*   **Die Wirklichkeit im selben Dokument:** Genau dieses Changelog listet *danach* detailliert massive produktive Code-Änderungen auf (CSS Anchor Positioning, View Transitions API, OKLCH-Mandat, @scope-Isolation etc.).
-*   **Die Folge:** Ein neuer KI-Assistent liest die Präambel und hält jegliche Diskussion über die gelisteten Code-Upgrades für einen Irrtum. Die `.SPEC-ONLY-PHASE` wird zudem im Changelog selbst als beendet erklärt, was dem einleitenden Satz doppelt widerspricht. Diese Inkonsistenz macht das gesamte Dokument als SSoT unglaubwürdig.
-
-#### 2. Kategoriale Fehlbewertung in `DEV-INFO.md` (`[F-004]`)
-*   **Das Problem:** Die Einleitung beschreibt korrekt die Philosophie, dass auf Basis von Chrome 148+ auch modernste Standards "Aktiviert (Produktiv)" sein können. Die darauf folgende Feature-Tabelle (`Field-Sizing`, `light-dark`, etc. sind als "Produktiv" markiert) setzt das aber inkonsequent um.
-*   **Die Inkonsistenz:** Für das Projekt hochrelevante Features, die nachweislich in Chrome 148 funktionieren und teilweise bereits implementiert sind, werden in der Tabelle als **"Future-Proof (Inaktiv)"** geführt. Die krassesten Beispiele sind:
-    *   **CSS Anchor Positioning:** Laut Changelog das Herzstück der Dropdown-Modernisierung. In `DEV-INFO` als "Inaktiv" markiert. Eine neue KI würde versuchen, diesen JS-Code zu "schützen", den es längst nicht mehr gibt.
-    *   **View Transitions API:** Laut Changelog für Form-/Theme-Wechsel implementiert. In `DEV-INFO` als "Inaktiv" markiert.
-    *   **CSS @scope:** Ebenfalls als "Inaktiv" markiert, obwohl für das Briefblatt implementiert.
-*   **Die Folge:** Diese Tabelle ist das zentrale Bewertungsraster für Technologie-Entscheidungen. Ihre Fehlklassifizierungen führen zu fundamental falschen Architekturentscheidungen.
-
-#### 3. Phantom-Phase: Der `.SPEC-ONLY-PHASE`-Widerspruch
-*   **Das Problem:** Der Prompt beginnt mit einem scharfen Hinweis auf die `.SPEC-ONLY-PHASE`. Die Dateien `CHANGELOG.md` und `DECISION-LOG.md` im Prompt-Kontext dokumentieren aber bereits deren Aufhebung und die erfolgte Implementierung.
-*   **Die Folge:** Eine neue KI könnte auf Basis dieses Prompts jegliche Code-Arbeit verweigern, weil die offizielle SSoT immer noch das Gegenteil behauptet. Die Systemdokumentation hängt in diesem Punkt der Realität hinterher.
-
-#### 4. Technischer Anzeigefehler
-*   **Das Problem:** Im CSS-Codebeispiel des Easter-Egg-Popovers in `DEV-INFO.md` (`[F-004]`) gibt es einen strukturellen Fehler. Zwei CSS-Selektoren (`#diag-table` und `#diag-table th`) wurden ohne den vorangestellten Selektor notiert. Beim Kopieren und Einfügen entsteht so ungültiges CSS.
-*   **Die Folge:** Ein Nebenschauplatz, aber symptomatisch für kleine Unachtsamkeiten in einem ansonsten hochpräzisen Dokument.
-
-### Bewertung und nächster Schritt
-
-Die Basis des Prompts ist exzellent: Die Datei-Landkarte, die semantischen Tags und die Einbettung der Inhalte ergeben ein mächtiges Werkzeug. Aber die aufgezeigten Widersprüche zwischen den deklarierten Prinzipien und den dokumentierten Fakten sind gravierend. Sie machen den Prompt in seiner jetzigen Form unzuverlässig.
-
-Die dringendste Aufgabe ist es, eine eindeutige, nachvollziehbare Wahrheit in den drei zentralen Dokumenten herzustellen:
-1.  **`CHANGELOG.md`:** Die obsolete Präambel muss den aktuellen Gegebenheiten angepasst werden.
-2.  **`DEV-INFO.md`:** Die Feature-Tabelle muss akribisch mit den tatsächlich implementierten Technologien abgeglichen und die Status-Labels korrigiert werden.
-3.  **`MASTER-DO-DONT-DEPRECATED.md`:** Der Hinweis auf die `.SPEC-ONLY-PHASE` muss entfernt werden.
-
-Soll ich für diese drei Punkte eine detaillierte, auf den Punkt genaue Korrekturanweisung erstellen, damit du die Änderungen selbst vornehmen kannst? Das wäre der letzte Schliff, um aus einem guten SSoT ein unerschütterliches Fundament zu machen.
-
-
-Ich habe den zweiten Block des PLATINUM AI CONTEXT BUNDLE (F-010 bis F-025) genauso akribisch durchgearbeitet wie den ersten. Erneut zeigen sich mehrere **schwerwiegende Widersprüche zwischen dem dokumentierten Planungsstand und der tatsächlich bereits umgesetzten, hochmodernen Architektur**. Diese Unstimmigkeiten machen den System Prompt auch hier unzuverlässig.
-
-Hier die detaillierte Analyse jedes relevanten Dokuments:
-
----
-
-### Kritische Unstimmigkeiten im zweiten Block
-
-#### 1. `README.md` (`F-011`) – Veralteter Phase-Lock und Mermaid-Diagramm
-
-*   **Das Problem:** Das Master-Portal behauptet weiterhin, das Projekt befinde sich in einer reinen Planungsphase:
-    *   *".SPEC-ONLY-PHASE Lockfile: Zeigt an, dass der produktive Quellcode derzeit eingefroren ist und sich das Projekt in einem reinen Planungs-, Dokumentations- und Verifikations-Lifecycle befindet."*
-    *   Das zugehörige Mermaid-Diagramm („Spec-Kit-Lifecycle“) enthält den Knoten `LockCheck{Sperrdatei .SPEC-ONLY-PHASE aktiv?}` und blockiert die Implementierung.
-*   **Die Wirklichkeit:** Die `.SPEC-ONLY-PHASE` wurde längst aufgehoben, und es wurden massive produktive Code-Upgrades (CSS Anchor Positioning, View Transitions, @scope etc.) implementiert, wie das Changelog und die ADRs dokumentieren.
-*   **Die Folge:** Das zentrale Einstiegsdokument vermittelt einer neuen KI einen komplett falschen Projektzustand. Sie könnte sich weigern, über Code-Änderungen zu diskutieren, weil das „Gesetz“ noch aktiv zu sein scheint.
-
-#### 2. `ROADMAP.md` (`F-012`) – Überholter Schutzstatus
-
-*   **Das Problem:** Der Warnhinweis zu Beginn ist identisch veraltet:
-    *   *"> [!WARNING] Aktueller Status: Keine Umsetzung in absehbarer Zeit geplant. Der Code verbleibt unter dem Schutz der `.SPEC-ONLY-PHASE` stabil eingefroren."*
-*   **Die Wirklichkeit:** Der Code ist alles andere als eingefroren. Die Roadmap-Ideen können nun im Lichte der neuen Baseline (View Transitions API, Temporal API) neu bewertet werden, auch wenn sie weiterhin nur Brainstorming sind. Die Aussage ist sachlich falsch.
-*   **Die Folge:** Die KI wird die Roadmap als absolut irrelevant einstufen, da sie unter dem Deckmantel eines nicht existenten Locks steht.
-
-#### 3. `spec.md` (`F-013`) – Fundamentaler Architekturfehler in der Kernspezifikation
-
-*   **Das Problem:** Die Spezifikation für das Kernfeature **Proportionaler CSS-Zoom** beschreibt eine veraltete, verworfene Implementierung:
-    *   *"Ein `ResizeObserver` überwacht das Eltern-Element... Das Script berechnet das Skalierungsverhältnis... Der berechnete Zoom-Faktor wird als CSS Custom Property `--paper-zoom` geschrieben... Das Briefblatt nutzt `transform: scale(var(--paper-zoom))`"*
-*   **Die Wirklichkeit:** Diese gesamte JS-basierte Skalierungslogik (ResizeObserver, `--paper-zoom`, `transform`) wurde in der tatsächlichen Architektur durch eine **rein deklarative, performantere CSS-Lösung** ersetzt: `height: 94vh; aspect-ratio: 210/297; container-type: size;` mit `cqw`/`cqh`-Einheiten. Die `spec.md` beschreibt also ein Phantom-Feature, das so nie gebaut wurde.
-*   **Die Folge:** Dies ist ein schwerer SSoT-Bruch. Eine KI, die die Spezifikation als Bauplan nimmt, würde versuchen, das falsche, JS-lastige System zu implementieren oder zu "schützen".
-
-#### 4. `tasks.md` (`F-014`) – Erfolgreich abgehakte, aber verworfene Aufgaben
-
-*   **Das Problem:** Die Taskliste markiert mehrere Aufgaben als `[x]` (erledigt), deren Ergebnisse im finalen Code entweder nie existierten oder bewusst wieder entfernt wurden. Die gravierendsten Beispiele:
-    *   `"Selection-Event-Listener zur Positionsberechnung mit 50ms Debouncing... programmieren"`
-    *   `"Toolbar-Positionierung mit Viewport-Kollisionsprüfung... integrieren"`
-    *   `"Toast-Popover mit animationend Kopplung für JS-Lifecycle-Cleanups (hidePopover) ausstatten"`
-*   **Die Wirklichkeit:** Das JS-Debouncing und die manuelle Toolbar-Positionierung wurden durch **CSS Anchor Positioning** eliminiert. Der `animationend`-Listener für Toasts wurde durch eine Kombination aus `@starting-style`, `transition-behavior: allow-discrete` und einem simplen `setTimeout` ersetzt.
-*   **Die Folge:** Die Taskliste dokumentiert Arbeitspakete, die nicht mehr zum System gehören. Das ist irreführend und suggeriert, der Code enthalte noch diese komplexe, fragile JS-Logik.
-
-#### 5. `ADR-TECH-STACK.md` (`F-021`) – Veraltete Technik im Technologie-Stack
-
-*   **Das Problem:** Die Tabelle der verwendeten Technologien listet noch die obsolete Toast-Steuerung:
-    *   *"`animationend` Event + JS Safety Net | Popover Toast-Lebenszyklus | Fängt das Ende der CSS-Toast-Animationen ab... Ein paralleles 3.200ms Safety Timeout..."*
-*   **Die Wirklichkeit:** Wie in Punkt 4 beschrieben, wurde der `animationend`-Listener vollständig aus dem Code entfernt. Der Toast-Lebenszyklus wird jetzt komplett über CSS-Transitions und einen einfachen JS-Timer gesteuert.
-*   **Die Folge:** Der Tech-Stack behauptet, eine Technik zu nutzen, die aktiv aus dem Projekt verbannt wurde. Das ist ein direkter Widerspruch zur Architektur-Entscheidung.
-
-#### 6. Zusätzliche kleinere Unstimmigkeiten
-
-*   **`README-DB.md` (`F-010`):** Die Beispiel-SQL-Abfragen referenzieren die Tabelle `documents`. Das ist korrekt. Der Dateiname `DIN-Brief_docs.db` wird konsistent verwendet. **Kein Fehler.**
-*   **`ADR-ANTIPATTERN.md` (`F-015`):** Alle neuen Antipatterns (Temporal, OKLCH) sind korrekt dokumentiert. **Kein Fehler.**
-*   **`ADR-CSS.md` (`F-017`)** und **`ADR-FEATURE.md` (`F-018`):** Die Entscheidungen zu Anchor Positioning, @property, @scope und diskreten Transitions sind aktuell. **Keine Fehler.**
-
----
-
-### Zusammenfassung der Befunde
-
-Die Dateien aus dem zweiten Block sind zwar inhaltlich detailreich und auf einem hohen architektonischen Niveau, aber sie sind nicht als System synchron. Der Bruch zwischen dem alten Planungsstand (der `spec.md`, `tasks.md`, `ROADMAP.md` und `README.md`) und der neuen, bereits umgesetzten W3C-Architektur (der `ADR-CSS.md`, `ADR-FEATURE.md` und `ADR-JS.md`) ist eklatant.
-
-Ein KI-Assistent, der diesen Prompt als SSoT nutzt, würde zwangsläufig fehlerhafte Entscheidungen treffen, weil er z. B. versuchen würde, die aufwändige JS-Zoom-Logik aus der `spec.md` zu bauen, während der reale Code eine viel modernere CSS-Lösung verwendet. Ebenso würde er den `animationend`-Listener als gültiges Pattern ansehen, das längst entfernt wurde.
-
-Die dringendsten Korrekturen sind:
-1.  **`spec.md`:** Muss von der alten JS-basierten Skalierung auf die neue CSS-Container-Lösung umgeschrieben werden.
-2.  **`README.md` und `ROADMAP.md`:** Die Hinweise auf die aktive `.SPEC-ONLY-PHASE` müssen entfernt werden.
-3.  **`tasks.md`:** Die überholten Tasks müssen entweder als "deprecated" markiert oder durch die tatsächlich umgesetzten Schritte ersetzt werden.
-4.  **`ADR-TECH-STACK.md`:** Der Eintrag "`animationend` Event" muss durch die neue, CSS-getriebene Toast-Steuerung ersetzt werden.
-
-Soll ich für diese spezifischen Punkte die präzisen Korrekturanweisungen formulieren, damit du die Dokumente selbst auf den neuesten Stand bringen kannst? Damit wäre der SSoT endlich wieder ein verlässliches Abbild der Realität.Ich habe den dritten und letzten Block des System-Prompts gescannt. Erneut tritt dasselbe Grundproblem auf: Die hochmoderne Architektur-Dokumentation hat die reale Codebasis in einigen entscheidenden Punkten überholt, ohne dass der Code angepasst wurde. Das führt zu einer gefährlichen Diskrepanz zwischen der Soll- und Ist-Architektur. Hier die detaillierte Analyse:
-
----
-
-### **Graveierende Funde: Die Dokumentation verbietet, was der Code noch tut**
-
-#### **1. Verbotene `execCommand`-Nutzung in `main.js` (`[F-036]`)**
-
-*   **Das Verbot:** Die `longevity-guidelines.md` (`[F-026]`) und `ADR-ANTIPATTERN.md` (`[F-015]`) erklären `document.execCommand` für **strikt verboten und deprecated**. Die ADR schreibt die exklusive Nutzung der Selection & Range API vor.
-*   **Die Realität im Code:** In `main.js` (`[F-036]`) wird `execCommand` **weiterhin aktiv verwendet**:
-    *   `document.execCommand(''bold'', false, null);` (im `btnBold`-Handler)
-    *   `document.execCommand(''underline'', false, null);` (im `btnUnderline`-Handler)
-*   **Die Folge:** Das Herzstück der Textformatierung basiert auf einer verbannten Technologie. Jede KI, die den Architektur-Leitlinien folgt und eine moderne Lösung vorschlägt, würde mit Code kollidieren, der noch auf einem Antipattern beruht.
-
-#### **2. Fehlende CSS Anchor Positioning in `main.js`**
-
-*   **Die Spezifikation:** `ADR-CSS.md` (`[F-017]`) und `ADR-FEATURE.md` (`[F-018]`) beschreiben detailliert, dass die Positionierung der Formatierungs-Toolbar **vollständig deklarativ über CSS Anchor Positioning** erfolgt und jegliche JavaScript-Koordinatenberechnung eliminiert wurde.
-*   **Die Realität im Code:** In `main.js` (`[F-036]`) berechnet die Funktion `handleSelectionChange` die Position der Toolbar **immer noch vollständig manuell in JavaScript**:
-    *   Sie liest `rect.top`, `rect.left`, `formatToolbar.offsetHeight`, `window.innerWidth`.
-    *   Sie berechnet die horizontale Zentrierung (`rect.left + rect.width / 2 - formatToolbar.offsetWidth / 2`).
-    *   Sie wendet die Positionen über `formatToolbar.style.top` und `formatToolbar.style.left` an.
-*   **Die Folge:** Das Kernstück der Modernisierung – die Entlastung von JS-Layout-Berechnungen – wurde nie in den Code überführt. Der Code tut genau das, was die ADR als veraltete Methode beschreibt. Das ist ein eklatanter Widerspruch.
-
-#### **3. Veraltetes Skalierungskonzept in `no-scroll-techniques.md` (`[F-027]`)**
-
-*   **Das Problem:** Der Guide präsentiert die **veraltete, verworfene Skalierungsmethode** für das DIN-A4-Blatt als aktuellen Standard:
-    *   `transform: scale(var(--zoom-factor, 1));`
-    *   Ein JavaScript-ResizeObserver, der `--paper-zoom` setzt.
-*   **Die Wirklichkeit:** Wie bereits in der Analyse von `spec.md` festgestellt, ist diese JS-basierte Skalierung längst durch eine **rein deklarative CSS-Lösung** (`height: 94vh; aspect-ratio: 210/297; container-type: size;`) in `layout.css` ersetzt worden.
-*   **Die Folge:** Das Dokument zur Scroll-Verhinderung empfiehlt eine Skalierungstechnik, die nicht mehr Teil der Architektur ist. Eine KI, die diesen Guide befolgt, würde das Projekt auf eine veraltete und problematische Codebasis zurückwerfen.
-
----
-
-### **Zusammenfassung und Empfehlung**
-
-Die Diskrepanz ist nun glasklar: Die System-Dokumentation (ADRs, Specs, Guides) beschreibt ein **hochmodernes, aufgeräumtes und JS-armes Zielsystem**, das auf den neuesten W3C-Standards basiert. Der eigentliche Quellcode (`main.js`) hinkt dieser Vision jedoch an zwei entscheidenden Stellen hinterher: Er verwendet noch die verbannten Methoden `execCommand` für die Textformatierung und eine manuelle JavaScript-Positionierung für die Toolbar, die laut Doku durch CSS Anchor Positioning ersetzt sein sollte.
-
-Der Prompt ist daher als SSoT nur dann verlässlich, wenn er entweder den aktuellen (veralteten) Code-Stand widerspiegelt oder wenn der Code an die dokumentierte Architektur angeglichen wird. Die jetzige Mischung ist irreführend und macht eine konsistente KI-Unterstützung unmöglich, da die "Wahrheit" der ADRs mit der "Wahrheit" des Codes im Konflikt steht.
-
-**Die dringendsten Maßnahmen zur Bereinigung sind:**
-1.  **`main.js`** (`[F-036]`) muss an die dokumentierte Architektur angeglichen werden: Ersatz von `execCommand` durch die Selection/Range API und Entfernung der manuellen Toolbar-Positionierung zugunsten von CSS Anchor Positioning.
-2.  **`no-scroll-techniques.md`** (`[F-027]`) muss von der alten `transform: scale()`-Methode auf die aktuelle CSS-Container-Lösung aktualisiert werden.
-
-Erst wenn diese Code- und Dokumentationslücken geschlossen sind, ist das Projekt ein echtes, in sich geschlossenes "digitales Denkmal". Soll ich die detaillierte Korrektur der `main.js` als reinen Text ausformulieren, damit du die Änderungen selbst vornehmen kannst?',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/DRINGEND-NOCH-BEHEBEN.md'), 'documentation');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'archive/MODERNIZATION-GUIDE.md',
-  'Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md',
-  'active',
-  '> [!WARNING]
-> **ARCHIVIERT**: Historisches Dokument. Einige der hier genannten Empfehlungen widersprechen der aktuellen `longevity-guidelines.md` (z.B. Temporal API).
-
-
-# Modernisierungs-Leitfaden: MODERNIZATION-GUIDE.md
-
-Dieses Dokument analysiert die aktuell verwendeten Webtechnologien des **DIN-BriefNEO**-Baseline-Projekts und vergleicht sie mit zukünftigen, potenziellen W3C-Standardkandidaten. Es dient als strategischer Wegweiser für zukünftige Modernisierungen – **ohne sofortige Umsetzung** und unter strikter Wahrung der Longevity-Verfassung.
-
----
-
-## 🧭 Modernisierungs-Matrix (Tech-Debt Roadmap)
-
-| Aktuelle Technik | Potenzielle modernere Alternative | Status der Alternative | Empfehlung | Begründung & Longevity-Verweis |
-| :--- | :--- | :--- | :--- | :--- |
-| **Selection/Range API** (zur Y/X-Positionierung der Toolbar) | **CSS Anchor Positioning API** | In Chrome 148+ vollständig stabil. | **Jetzt nutzen** | Da Chrome 148+ unsere exklusive Target-Plattform ist, nutzen wir CSS Anchor Positioning ohne jegliche Rücksicht auf veraltete Safari/Firefox-Stände. Dies eliminiert JavaScript-Positionierungscode vollständig. |
-| **`document.execCommand`** (Fett/Unterstreichen nativ) | **Custom Selection & Range DOM-Operationen** | W3C-Standard (Living Standard). | **Jetzt nutzen** | `execCommand` ist veraltet (*deprecated*). Wir haben dies für blockquotes bereits gelöst. Standard-Shortcuts überlassen wir dem Browser, was absolut stabil ist. |
-| **Natives JS `Date`-Objekt** | **Temporal API** | In Chrome 148+ nativ und vollständig einsatzbereit. | **Jetzt nutzen** | Die `Temporal` API ist in Chrome 148+ fehlerfrei und nativ implementiert. Wir nutzen sie direkt zur präzisen Datumsberechnung und für Zeitstempel bei Entwürfen. |
-| **`localStorage`** (für Base64 Custom Fonts & Drafts) | **Origin Private File System (OPFS)** / **IndexedDB** | W3C-Standard. | **Nie** | OPFS/IndexedDB setzen zwingend HTTPS voraus. Unter `file://` (Doppelklick) stürzen sie mit Security-Exceptions ab. `localStorage` ist laut [Säule 5 der Longevity-Guidelines](../Guides/longevity-guidelines.md) die einzig stabile Option für Doppelklick-Apps. |
-| **`@import`** in CSS-Dateien | Native **`link`-Tags** im HTML | W3C-Standard. | **Jetzt nutzen** | `@import` blockiert das parallele Laden von Stylesheets im Browser. Native `<link>`-Tags laden Stylesheets parallel und performanter. |
-| **`console.log()`** (für Debugging im Quellcode) | Deaktivierbarer **Custom Logging Wrapper** | Standard JavaScript. | **Jetzt nutzen** | Verhindert, dass sensible Anwendungsdaten in der Produktionskonsole exponiert werden und schont CPU-Ressourcen bei der DOM-Verarbeitung. |
-| **`var()` ohne Fallback** in CSS | **`var(--prop, fallback)`** | W3C-Standard. | **Jetzt nutzen** | Redundante Absicherung. Verhindert, dass UI-Elemente bei fehlenden Custom Properties visuell zerreißen. |
-| **`innerHTML`** (für Autocomplete- dropdown) | **`textContent`** oder **`createTextNode`** | W3C-Standard. | **Bereits umgesetzt** | Verhindert Cross-Site Scripting (XSS) auf Browserebene. Alle APIs und Benutzereingaben werden strikt als Plaintext behandelt. |
-
----
-
-## 🔗 Verweise
-*   Siehe [longevity-guidelines.md](../Guides/longevity-guidelines.md) zur Einhaltung der abwärtskompatiblen W3C-Schnittstellen.
-*   Siehe [ADR-ANTIPATTERN.md](../ADR/ADR-ANTIPATTERN.md) für die expliziten Dateispeicher- und CDN-Ausschlüsse.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/MODERNIZATION-GUIDE.md'), 'documentation');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'archive/tasks.md',
-  'Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)',
-  'active',
-  '> [!WARNING]
-> **ARCHIVIERT**: Veraltete Taskliste aus Phase 2. Nur zu historischen Zwecken hier abgelegt.
-
-
-# Taskliste: Phase 2 (Code-Refactoring & WhatsApp-Style Editor)
-
-Dieses Dokument dient als abarbeitbare Taskliste für die anstehenden Code-Modifikationen im Workspace.
-
----
-
-- [x] **⚙️ Schritt 1: constants.js (Zentralisierung aller UI-Meldungen & Toasts)**
-  - [x] Alle systemweiten Toast-Meldungen (Erfolg, Info, Warnung, Fehler) aus `Constants` importieren
-  - [x] Systemgrenzen (z. B. Dateigröße 60 KB, 1-Font-Limit) festlegen
-  
-- [x] **🎨 Schritt 2: reset.css & variables.css (Offline-Schriften & Themes)**
-  - [x] Google Fonts entfernen
-  - [x] Serifenlosen, DIN-konformen cross-plattform Font-Stack deklarieren (AptosCustom, Aptos, Segoe UI, Roboto, Helvetica, Arial)
-  - [x] OKLCH-Farbräume für Light-/Dark-Mode mit `light-dark()` einpflegen
-  
-- [x] **📐 Schritt 3: layout.css (Elastischer Viewport & Proportionales Container-Modell)**
-  - [x] `#viewport` auf `overflow: auto` einstellen und Zoom-Faktoren entfernen
-  - [x] `<din-a4>` auf `height: 94vh; aspect-ratio: 210/297; container-type: size;` umstellen
-  - [x] Alle physischen mm-Werte in relative Container-Query-Einheiten (`cqw`/`cqh`) überführen
-  - [x] Brieftext-Editor `<din-text>` (oder `#brieftext`) mit Inline-Formatierungs-Unterstützung stylen
-  - [x] Druck-Overrides (`@media print`) deklarieren (ausgeblendete Ränder/Sidebar, exakte A4-Skalierung)
-  
-- [x] **🔔 Schritt 4: floating.css (Popovers, Toasts & Text-Selection Toolbar)**
-  - [x] Premium-Toast-Styles für `#toast-v4` mit `toast-platinum-cycle` Keyframes anlegen
-  - [x] CSS-Styles für das Textauswahl-Formatting-Popover `#format-toolbar` entwerfen
-  
-- [x] **📄 Schritt 5: index.html (Custom Elements, Popovers & Toolbar)**
-  - [x] Custom Elements (`<din-absender>`, `<din-anschriftfeld>`, `<din-infoblock>`, `<din-fuss>`) anlegen
-  - [x] Textauswahl-Formatierungs-Toolbar `#format-toolbar` als Popover-Element (`popover="manual"`) deklarieren
-  - [x] Offline-Font-Uploader-Schaltflächen in die Sidebar einfügen
-  - [x] Popover-Toast `<div id="toast-v4" popover="manual">` einbetten
-  
-- [x] **⚡ Schritt 6: storage.js & main.js (Logik, Paste-Filter, Font-Uploader & Popover-Toolbar)**
-  - [x] `storage.js` um Speicherfunktionen für Custom Fonts (1-Font-Limit Überschreiben) erweitern
-  - [x] `main.js` Bootloader für Font-Injektion und Draft-Recovery schreiben
-  - [x] Offline-Font-Uploader Logik implementieren (Base64-Konvertierung, Validation < 60 KB, localStorage-Sync)
-  - [x] HTML-Paste-Filter zur Plaintext-Bereinigung einbauen
-  - [x] Drag-and-Drop Filter zur Plaintext-Bereinigung einbauen
-  - [x] Selection-Event-Listener zur dynamischen Zuweisung des externen Selection-Anchors im DOM programmieren
-  - [x] Deklarative Toolbar-Positionierung über CSS Anchor Positioning an --selection-anchor anbinden
-  - [x] Textformatierung über Selection und Range API (Wrap/Unwrap in `<b>`/`<u>` / Zitat-Shortcut) implementieren
-  - [x] Standard-Browser-Shortcuts (`Strg+B`, `Strg+U`) nativ wirken lassen (kein preventDefault)
-  - [x] Toast-Popover mit discrete transition (@starting-style, transition-behavior) und nativem JS-Timer ausstatten
-
-- [x] **📅 Schritt 7: JS Temporal API Mandat & Datum-Autobefüllung**
-  - [x] Strikten Legacy Date API Ban in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` deklarieren
-  - [x] W3C Temporal API in `ADR-TECH-STACK.md` und `ADR-JS.md` als exklusive Datums-Engine dokumentieren
-  - [x] Nativer Temporal API Code in `loadDraftData()` zur zeitzonensicheren, unveränderlichen und fehlerfreien Bestimmung des lokalen Systemdatums im normativem deutschen Format implementieren
-  - [x] Alle Dokumentations- und Code-Änderungen in `DIN-Brief_docs.db` kompilieren
-
-- [x] **🎨 Schritt 8: CSS @scope Isolation & OKLCH Farbmandat**
-  - [x] Briefblatt-Stile in `layout.css` innerhalb von `@scope (din-a4)` kapseln
-  - [x] Alle HEX, RGBA und Named Colors im CSS und HTML in pure OKLCH-Farben konvertieren
-  - [x] Reaktiven Parent Selector `:has()` für Briefbogen-Fokusierungen in `layout.css` implementieren
-  - [x] Striktes OKLCH-Farbmandat und Verbot klassischer Farbräume in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` verankern
-  - [x] Alle neuen Änderungen in `DIN-Brief_docs.db` kompilieren
-
-- [x] **🔒 Proaktive Verfassungs-Ausweitung (Antipatterns 8 bis 12)**
-  - [x] Sass/Less/CSS-in-JS Verbot (Antipattern 8) in Doku verankern
-  - [x] Icon-CDNs & Icon-Fonts Verbot (Antipattern 9) in Doku verankern
-  - [x] Lodash & TS-Transpiler Verbot (Antipattern 10) in Doku verankern
-  - [x] GSAP & JS-Animations-Libs Verbot (Antipattern 11) in Doku verankern
-  - [x] Inline-Styles Verbot für Farben/Layouts (Antipattern 12) in Doku verankern
-  - [x] Re-Kompilierung der SQLite-Wissensdatenbank durchführen',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/tasks.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/tasks.md'), 'tasks');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'archive/tasks.md'), 'todo');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Support/Code-Referenzen.md'), 'autogenerated');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Support/Code-Referenzen.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'ADR/Support/Code-Referenzen.md'), 'code');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'boilerplate.config.json',
@@ -2336,8 +2022,8 @@ Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](ADR/
 * **[ADR-HTML](ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
 * **[ADR-CSS](ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
 * **[ADR-JS](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
-* **[ADR-GEOAPIFY](ADR/ADR-GEOAPIFY.md):** Zero-Dependency Adress-Autocomplete.
-* **[ADR-MIGRATION](ADR/ADR-MIGRATION.md):** Extraktion zur `llm_boilerplate`.
+* **[ADR-API](ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
+* **[ADR-DATA-PERSISTENCE](ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
 
 ## 📦 Implementierungsdetails
 * **[SQLite-Vec Integration](docs/implementation/sqlite-vec.md):** Plan für Vektor-Suche.',
@@ -3676,7 +3362,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T13:43:14.126Z
+> Generiert am: 2026-07-02T14:29:28.648Z
 > ==============================================================================
 
 
@@ -3701,11 +3387,12 @@ Dieses Projekt ist eine datenschutzkonforme, 100% offline-fähige und wartungsfr
 
 ## ⚡ Quick Start
 
-Das Projekt nutzt keinen Build-Prozess und keinen Entwicklungsserver. Es ist ein "Zero-Dependency" Projekt.
+Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgrund von Browser-Sicherheitsrichtlinien (CORS) muss die App zwingend über einen lokalen Webserver gestartet werden, anstatt per `file://`-Protokoll.
 
-1. **Starten:** Führe das Skript `start.ps1` im Root-Verzeichnis aus.
-2. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
-3. Danach kannst du einfach die `website/index.html` per Doppelklick in Chrome 148+ (oder Edge/Opera) öffnen. Keine Installation, kein `npm install`.
+1. **App starten (Nutzer):** Ein Doppelklick auf die `start.bat` im Hauptverzeichnis reicht aus. Es startet ein lokaler Python-Server (auf Port 8000) im Hintergrund und öffnet die App automatisch im Browser.
+2. **Entwickler-Check (Agenten):** Führe das Skript `.\start.ps1` aus.
+3. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
+
 
 ---
 
@@ -3774,8 +3461,8 @@ Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](ADR/
 * **[ADR-HTML](ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
 * **[ADR-CSS](ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
 * **[ADR-JS](ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
-* **[ADR-GEOAPIFY](ADR/ADR-GEOAPIFY.md):** Zero-Dependency Adress-Autocomplete.
-* **[ADR-MIGRATION](ADR/ADR-MIGRATION.md):** Extraktion zur `llm_boilerplate`.
+* **[ADR-API](ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
+* **[ADR-DATA-PERSISTENCE](ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
 
 ## 📦 Implementierungsdetails
 * **[SQLite-Vec Integration](docs/implementation/sqlite-vec.md):** Plan für Vektor-Suche.
@@ -4969,11 +4656,12 @@ Dieses Projekt ist eine datenschutzkonforme, 100% offline-fähige und wartungsfr
 
 ## ⚡ Quick Start
 
-Das Projekt nutzt keinen Build-Prozess und keinen Entwicklungsserver. Es ist ein "Zero-Dependency" Projekt.
+Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgrund von Browser-Sicherheitsrichtlinien (CORS) muss die App zwingend über einen lokalen Webserver gestartet werden, anstatt per `file://`-Protokoll.
 
-1. **Starten:** Führe das Skript `start.ps1` im Root-Verzeichnis aus.
-2. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
-3. Danach kannst du einfach die `website/index.html` per Doppelklick in Chrome 148+ (oder Edge/Opera) öffnen. Keine Installation, kein `npm install`.
+1. **App starten (Nutzer):** Ein Doppelklick auf die `start.bat` im Hauptverzeichnis reicht aus. Es startet ein lokaler Python-Server (auf Port 8000) im Hintergrund und öffnet die App automatisch im Browser.
+2. **Entwickler-Check (Agenten):** Führe das Skript `.\start.ps1` aus.
+3. Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
+
 
 ---
 
@@ -5699,7 +5387,7 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
   adr_ref TEXT NOT NULL
 );
 
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1305, 'ADR-JS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1006, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
 

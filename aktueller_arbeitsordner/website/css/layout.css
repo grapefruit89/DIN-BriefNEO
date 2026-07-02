@@ -122,7 +122,7 @@ aside {
 
 .segmented-control {
   display: flex;
-  background: var(--border-color);
+  background: var(--segment-bg);
   padding: 4px;
   border-radius: 10px;
   gap: 2px;
@@ -143,9 +143,9 @@ aside {
 }
 
 .segmented-control button.active {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
 }
 
 /* --- VIEWPORT --- */

@@ -331,7 +331,11 @@ Wir integrieren einen Listener auf das Feld *PLZ & Ort* (`#empfaenger-ort`). Gib
 *   Siehe [[ADR-JS|ADR-JS.md]] für Drosselung und Datenbindung.
 *   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für das Proximity-Biasing mit Absender-PLZ.
 *   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot schwerer Google SDKs.
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.',
+*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+
+
+### [DEPRECATED / ANTIPATTERN] Photon API
+Photon wurde restlos aus dem Projekt gelöscht. Es ist ein Antipattern. Die Qualität der Ergebnisse war ungenügend. Geoapify ist der einzige zugelassene Provider. Provider-Toggles in der Sidebar sind verboten.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -893,7 +897,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 | Code Datei | Zeile | Architektur-Entscheidung |
 | :--- | :--- | :--- |
-| website/js/main.js | 1259 | [[ADR-JS]] |
+| website/js/main.js | 1308 | [[ADR-JS]] |
 | website/js/signature.js | 1 | [[ADR-JS]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)

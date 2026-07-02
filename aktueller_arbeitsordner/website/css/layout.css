@@ -484,10 +484,14 @@ din-postvermerk, din-anlagen, din-verteiler {
   display: none;
 }
 
-:root:has(#toggle-postvermerk:checked) din-postvermerk,
 :root:has(#toggle-anlagen:checked) din-anlagen,
 :root:has(#toggle-verteiler:checked) din-verteiler {
   display: block;
+}
+
+:root:has(#toggle-postvermerk:checked) din-postvermerk {
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 din-postvermerk {
@@ -498,8 +502,7 @@ din-postvermerk {
   margin-bottom: 0.5cqh;
   color: var(--text-primary);
   white-space: pre-wrap;
-  display: flex;
-  flex-direction: column-reverse; /* Stacks bottom-up */
+  display: none;
 }
 
 din-anlagen, din-verteiler {

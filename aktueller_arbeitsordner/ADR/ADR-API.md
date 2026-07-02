@@ -85,3 +85,7 @@ Wir integrieren einen Listener auf das Feld *PLZ & Ort* (`#empfaenger-ort`). Gib
 *   Siehe [[ADR-FEATURE|ADR-FEATURE.md]] für das Proximity-Biasing mit Absender-PLZ.
 *   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] für das Verbot schwerer Google SDKs.
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+
+
+### [DEPRECATED / ANTIPATTERN] Photon API
+Photon wurde restlos aus dem Projekt gelöscht. Es ist ein Antipattern. Die Qualität der Ergebnisse war ungenügend. Geoapify ist der einzige zugelassene Provider. Provider-Toggles in der Sidebar sind verboten.

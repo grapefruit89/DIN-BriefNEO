@@ -4897,7 +4897,7 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
   adr_ref TEXT NOT NULL
 );
 
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 1308, 'ADR-JS');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/main.js', 206, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS');
 

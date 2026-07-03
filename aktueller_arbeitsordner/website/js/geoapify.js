@@ -80,8 +80,38 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       addressSearchContainer.style.display = 'none';
       inputAddressSearch.disabled = true;
       inputAddressSearch.value = '';
-      addressSuggestions.style.display = 'none';
+      try { addressSuggestions.hidePopover(); } catch(e) {}
     }
+  }
+
+  // --- LOCAL ADDRESS BOOK FEATURE ---
+  function getLocalAddressBook() {
+    try {
+      return JSON.parse(localStorage.getItem('din_local_addresses')) || [];
+    } catch(e) { return []; }
+  }
+
+  function saveToLocalAddressBook(item) {
+    const book = getLocalAddressBook();
+    // Check if already exists (by formatted string)
+    if (!book.find(entry => entry.formatted === item.formatted)) {
+      book.unshift(item); // Add to top
+      if (book.length > 50) book.pop(); // Keep max 50
+      localStorage.setItem('din_local_addresses', JSON.stringify(book));
+    }
+  }
+
+  function fuzzySearchLocal(query) {
+    const book = getLocalAddressBook();
+    const q = query.toLowerCase();
+    return book.filter(item => item.formatted.toLowerCase().includes(q)).slice(0, 5);
+  }
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    return text.replace(regex, '<b>$1</b>');
   }
 
   // Debounced Search input handler (300ms)
@@ -103,8 +133,15 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     if (activeAbortController) activeAbortController.abort();
     activeAbortController = new AbortController();
 
+    const localMatches = fuzzySearchLocal(query);
+    localMatches.forEach(m => m.source = 'local');
+
     const key = StorageManager.loadGeoapifyKey();
-    if (!key) return;
+    if (!key) {
+      // Nur lokale Suche rendern, wenn kein Key
+      renderSuggestions(localMatches, query);
+      return;
+    }
 
     let fetchOptions = { 
       signal: activeAbortController.signal,
@@ -134,11 +171,20 @@ export function initAddressServices({ onToast, onSaveDraft }) {
           housenumber: p.housenumber || "",
           postcode: p.postcode || "",
           city: p.city || "",
-          formatted: [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(", ")
+          formatted: [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(", "),
+          source: 'geoapify'
         };
       }).filter(s => s.street && s.city);
 
-      renderSuggestions(parsedSuggestions);
+      // Merge local and geoapify, avoiding exact duplicates
+      const combined = [...localMatches];
+      parsedSuggestions.forEach(ps => {
+        if (!combined.find(c => c.formatted === ps.formatted)) {
+          combined.push(ps);
+        }
+      });
+
+      renderSuggestions(combined.slice(0, 6), query);
     } catch (err) {
       if (err.name !== 'AbortError') {
         console.warn('[Address] Autocomplete search failed:', err);
@@ -149,22 +195,30 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         setUIMode('no_key');
         if (onToast) onToast("❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.", 'error');
         
-        addressSuggestions.style.display = 'none';
+        try { addressSuggestions.hidePopover(); } catch(e) {}
       }
     }
   }
 
-  function renderSuggestions(suggestions) {
+  function renderSuggestions(suggestions, query) {
     addressSuggestions.replaceChildren();
 
     if (suggestions.length === 0) {
-      addressSuggestions.style.display = 'none';
+      try { addressSuggestions.hidePopover(); } catch(e) {}
       return;
     }
 
     suggestions.forEach(item => {
       const li = document.createElement('li');
-      li.textContent = item.formatted;
+      // Highlight the matched substring
+      li.innerHTML = highlightMatch(item.formatted, query);
+      
+      if (item.source === 'local') {
+         const badge = document.createElement('span');
+         badge.textContent = "⭐ Lokal";
+         badge.style.cssText = "float:right; font-size: 0.65rem; color: var(--accent-color); background: var(--segment-bg); padding: 2px 4px; border-radius: 4px;";
+         li.appendChild(badge);
+      }
       
       li.addEventListener('click', () => {
         selectSuggestion(item);
@@ -173,7 +227,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       addressSuggestions.appendChild(li);
     });
 
-    addressSuggestions.style.display = 'block';
+    try { addressSuggestions.showPopover(); } catch(e) {}
   }
 
   function selectSuggestion(item) {
@@ -187,19 +241,17 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       empfOrt.textContent = `${item.postcode} ${item.city}`.trim();
     }
 
-    addressSuggestions.style.display = 'none';
+    try { addressSuggestions.hidePopover(); } catch(e) {}
     inputAddressSearch.value = '';
 
+    // Save selected address to local address book for future offline usage
+    saveToLocalAddressBook(item);
+
     if (onSaveDraft) onSaveDraft();
-    if (onToast) onToast("Adresse übernommen", 'success');
+    if (onToast) onToast("Adresse übernommen & gespeichert", 'success');
   }
 
-  // Close suggestions dropdown on outside clicks
-  document.addEventListener('click', (e) => {
-    if (e.target !== inputAddressSearch && e.target !== addressSuggestions) {
-      addressSuggestions.style.display = 'none';
-    }
-  });
+  // NOTE: document click listener removed because popover="auto" natively handles outside clicks!
 
   // --- ZIPPOPOTAM PLZ AUTO-LOOKUP ---
   const empfOrtEl = document.getElementById('empfaenger-ort');

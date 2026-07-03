@@ -1,21 +1,15 @@
 ---
+id: guide-[kurz-id]
 title: "Guide: [Thema des Guides]"
-status: active | draft | deprecated
-tags: 
-  - guide
-  - css
-  - js
-  - documentation
-  - testing
-aliases: 
-  - "Kurzer Alias"
-  - "Weiterer Alias"
-related:
+type: guide
+status: draft | active | deprecated
+doc_links:
   - "[[ADR-XXX]]"
   - "[[longevity-guidelines]]"
-last-updated: YYYY-MM-DD
-project: DIN-BriefNEO
-type: guide
+code_links: []
+tags: 
+  - guide
+  - documentation
 ---
 
 # Guide: [Titel]

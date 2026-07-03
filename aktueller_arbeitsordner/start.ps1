@@ -53,7 +53,7 @@ Write-Host "[2/4] Generiere aktuellen LLM-System-Prompt..." -ForegroundColor Yel
 node tools/create_context.js
 
 Write-Host ""
-Write-Host "[3/4] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
+Write-Host "[3/5] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
 node tools/build_db.js
 
 if ($LASTEXITCODE -ne 0) {
@@ -63,7 +63,17 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "[4/4] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
+Write-Host "[4/5] Starte Python SQLite OmniTraceability Parser (Phase 1)..." -ForegroundColor Yellow
+& .\venv\Scripts\python.exe tools/build_db.py
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
+    Write-Error "Python OmniTraceability Build fehlgeschlagen."
+    exit 1
+}
+
+Write-Host ""
+Write-Host "[5/5] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
 Write-Host ""
 Write-Host "Nächste Schritte (Light Mode - der Default):"
 Write-Host "  - Aenderungen machen (siehe AGENTS.md)"

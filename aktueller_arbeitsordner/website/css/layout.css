@@ -25,7 +25,7 @@
   --empfaenger-y: calc(32 / var(--din-height) * 100cqh);
   --infoblock-y: calc(32 / var(--din-height) * 100cqh);
   --datum-y: calc(74 / var(--din-height) * 100cqh);
-  --briefkern-y: calc(85.4 / var(--din-height) * 100cqh);
+  --briefkern-y: calc(91 / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
   --fold-1-y: calc(87 / var(--din-height) * 100cqh);
   --fold-2-y: calc(181 / var(--din-height) * 100cqh);
 }
@@ -302,6 +302,7 @@ aside {
     font-size: calc(12 * 0.168cqw); /* 12pt in cqw */
     font-weight: 700;
     margin-bottom: calc(8.46 / 297 * 100cqh); /* 2 Leerzeilen */
+    text-wrap: pretty; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht */
   }
 
   #anrede {

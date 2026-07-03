@@ -146,12 +146,12 @@
                 </div>
                 
                 <!-- Autocomplete Input -->
-                <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
                   <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Empfänger-Adresse suchen:</span>
-                  <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%;" />
+                  <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%; anchor-name: --anchor-address-search;" />
                   
-                  <!-- Suggestions Dropdown -->
-                  <ul id="address-suggestions" class="autocomplete-dropdown" style="display: none;"></ul>
+                  <!-- Suggestions Dropdown (Modern CSS Anchor Popover) -->
+                  <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
                 </div>
 
                 
@@ -266,7 +266,12 @@
     </div>
 
     <!-- NATIVE POPOVER TOAST FEEDBACK -->
-    <div id="toast-v4" popover="manual" class="toast-container"></div>
+    <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
+      <span id="toast-message"></span>
+      <span id="toast-badge" class="toast-badge" style="display: none;"></span>
+      <button id="toast-action" class="toast-action-btn" style="display: none;"></button>
+      <button id="toast-close" class="btn-icon" aria-label="Schließen">×</button>
+    </div>
 
     <!-- EXTERNAL CSS SELECTION ANCHOR -->
     <div id="selection-anchor" class="no-print"></div>

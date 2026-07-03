@@ -1,26 +1,26 @@
 ---
+id: adr-[xxx]
 title: "ADR-XXX: [Kurzer, präziser Titel der Entscheidung]"
-status: draft | proposed | accepted | deprecated | rejected
-date: YYYY-MM-DD
-last-reviewed: YYYY-MM-DD
-deciders: 
-  - morit
-  - antigravity
 type: adr
-tags: 
-  - adr
-  - css
-  - js
-  - architecture
-  - feature
-aliases: 
-  - "Kurzer Alias"
-  - "Weiterer Alias"
-related: 
+status: draft | proposed | accepted | deprecated | rejected
+chosen_option: "[option-id]"
+
+decision_options:
+  - id: "option-a"
+    label: "[Beschreibung Option A]"
+    status: chosen
+  - id: "option-b"
+    label: "[Beschreibung Option B]"
+    status: rejected
+
+doc_links:
   - "[[ADR-YYY]]"
   - "[[longevity-guidelines]]"
   - "[[constitution]]"
-project: DIN-BriefNEO
+code_links: []
+tags: 
+  - adr
+  - architecture
 ---
 
 # ADR-XXX: [Kurzer, präziser Titel]

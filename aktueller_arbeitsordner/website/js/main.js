@@ -9,6 +9,7 @@ import { SalutationFeature } from './salutation-engine.js';
 import { MetadataService } from './metadata.js';
 import { SignatureFeature } from './signature.js';
 import { initAddressServices } from './geoapify.js';
+import { showToast, initToastSystem } from './toast.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
@@ -64,8 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     attachFormattingToolbar();
     checkTextOverflow();
     enforceLineLimits();
+    // --- MODULE INITIALIZATION ---
+    // Note: showToast is imported directly
+    initToastSystem();
     initAddressServices({ onToast: showToast, onSaveDraft: saveDraftData });
-
+    
     // Init Salutation
     const salutation = new SalutationFeature(saveDraftData);
     salutation.init();
@@ -248,62 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- CENTRAL TOAST QUEUE MANAGER (Stacking Prevention with Symmetrical Native Transitions) ---
-  const toastQueue = [];
-  let isToastActive = false;
-
-  function showToast(message, type = 'info') {
-    toastQueue.push({ message, type });
-    processToastQueue();
-  }
-
-  function processToastQueue() {
-    if (isToastActive || toastQueue.length === 0 || !globalToast) return;
-
-    isToastActive = true;
-    const { message, type } = toastQueue.shift();
-
-    globalToast.textContent = message;
-    globalToast.className = `toast-container type-${type}`;
-
-    try {
-      globalToast.showPopover();
-
-      /* 
-       * 🚨 OBSOLETE JS CODE REMOVED & REPLACED BY MODERN CSS:
-       * Durch 'transition-behavior: allow-discrete' und '@starting-style' in floating.css
-       * ist das komplexe Lauschen auf 'animationend' in JS vollkommen ueberfluessig geworden!
-       * Der Browser steuert die symmetrische Ein-/Ausblend-Animation vollkommen autonom.
-       * JS triggert nach 3s einfach hidePopover(), den Rest macht die Engine auf GPU-Ebene.
-       */
-      let cleanedUp = false;
-      const cleanupPopover = () => {
-        if (cleanedUp) return;
-        cleanedUp = true;
-
-        if (globalToast.matches(':popover-open')) {
-          globalToast.hidePopover();
-        }
-        
-        // Warte, bis die native CSS-Austritts-Animation (250ms) vollstaendig beendet ist
-        setTimeout(() => {
-          isToastActive = false;
-          processToastQueue();
-        }, 300);
-      };
-
-      const displayTimeout = setTimeout(cleanupPopover, 3000);
-      
-      globalToast.onclick = () => {
-        clearTimeout(displayTimeout);
-        cleanupPopover();
-      };
-    } catch (e) {
-      console.warn('[Toast] Popover API failure:', e);
-      isToastActive = false;
-      setTimeout(processToastQueue, 200);
-    }
-  }
 
   // --- WHATSAPP-STYLE FORMATTING TOOLBAR & SHORTCUTS ---
   function attachFormattingToolbar() {
@@ -1024,10 +972,35 @@ document.addEventListener('DOMContentLoaded', () => {
       // 3. Dynamic Squeezing (only squeeze when getting full)
       el.addEventListener('input', () => {
         const currentText = el.textContent || '';
-        if (currentText.length > 60) {
-          el.classList.add('squeezed');
-        } else {
+        
+        // Smart Squeezing for the Subject line (Betreff)
+        if (el.id === 'betreff') {
+          // Reset classes to measure natural height
           el.classList.remove('squeezed');
+          
+          // Get the computed line-height to determine if it wrapped
+          const style = window.getComputedStyle(el);
+          const lineH = parseFloat(style.lineHeight) || (parseFloat(style.fontSize) * 1.2);
+          
+          // If it naturally wraps to 2 lines
+          if (el.offsetHeight > lineH * 1.5) {
+            // Try subtle squeeze
+            el.classList.add('squeezed'); 
+            
+            // FALL 2: If it STILL wraps to 2 lines even with the squeeze,
+            // the squeeze didn't help to make it single-line. So we remove it!
+            if (el.offsetHeight > lineH * 1.5) {
+               el.classList.remove('squeezed');
+            }
+          }
+        } 
+        // Standard length-based squeezing for other fields
+        else {
+          if (currentText.length > 60) {
+            el.classList.add('squeezed');
+          } else {
+            el.classList.remove('squeezed');
+          }
         }
       });
     });

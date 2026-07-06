@@ -1,19 +1,11 @@
-# Datenbanken
+venv/
+node_modules/
+.agents/
+.claude/
+__pycache__/
 *.db
-*.db-shm
-*.db-wal
-
-# Archiv-Repos (Inhalt lokal vorhanden, nicht im Repo — siehe QUELLEN-UND-LERNGESCHICHTE.md)
-archiv/external-references/GerLaTeXLetter/
-archiv/external-references/din-5008-css/
-archiv/external-references/din5008-generator/
-archiv/external-references/letter/
-archiv/old-project-snapshots/DIN-BriefNEO/
-archiv/old-project-snapshots/din-5008-css-forked-for-later/
-
-# Lokale Tools-Binaries
-aktueller_arbeitsordner/tools/
-
-# OS
+*.db-journal
+build/
+.env
+LLM_CONTEXT.md
 .DS_Store
-Thumbs.db

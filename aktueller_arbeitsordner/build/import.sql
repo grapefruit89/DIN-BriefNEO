@@ -78,6 +78,67 @@ CREATE TABLE reconciliation_log (
 );
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'Anleitung.md',
+  'Anleitung',
+  'active',
+  '# 🚨 CRITICAL DIRECTIVE FOR ALL AI AGENTS 🚨
+
+**WARNING: DO NOT MODIFY ANYTHING IN THIS REPOSITORY!**
+This is a reference project only. You are strictly forbidden from altering, deleting, creating, oder compiling ANY files within this absolute path:
+`C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\aktueller_arbeitsordner\`
+
+Your ONLY permitted action in this directory is to **READ** files to understand the architectural principles. Look, learn, and apply the principles to your own target repository (whether it''s Web or NixOS).
+
+---
+
+# Das "Next-Level" Agentic-Workflow Blueprint
+
+Dieses Projekt ist das perfekte Blueprint für unsere hochstrukturierte Arbeitsweise. Egal ob wir an einer Web-App oder an **NixOS-Systemkonfigurationen** arbeiten – die Herangehensweise, wie wir Wissen konservieren, planen und Architekturen aufbauen, bleibt identisch.
+
+## 1. Das Mindset: Vanilla & Zero-Dependency (Web & NixOS)
+Wir meiden Komplexität und "Magie" von drittanbietern.
+- **Im Web:** 100% Vanilla JS/CSS. Keine Frameworks wie React, keine Build-Tools. Die native Engine (Popover API, CSS Anchors) erledigt die Arbeit.
+- **In NixOS:** Analog dazu nutzen wir native Nix-Flakes, saubere Module und vermeiden unnötige Abstraktionen oder fremde "Wrapper", wenn die nativen NixOS-Optionen ausreichen. "Keep it simple and robust."
+
+## 2. Der Agentic Workflow (Wie wir planen)
+Wir arbeiten hochstrukturiert, bevor auch nur eine Zeile Code geschrieben wird:
+1. **Analysieren:** Wir lesen den aktuellen Zustand (z.B. Nix-Config oder JS-Files) und konsultieren die Wissens-Datenbank.
+2. **Implementation Plan:** Wir erstellen einen detaillierten `.md` Plan. Der Nutzer muss diesem Plan mit einem expliziten *Go* zustimmen. Offene Fragen oder Warnungen heben wir mit GitHub-Alerts (`> [!IMPORTANT]`) hervor.
+3. **Task-Checkliste:** Wir tracken den Fortschritt in einer atomaren `task.md`.
+4. **Walkthrough:** Nach getaner Arbeit fassen wir das Ergebnis und den Mehrwert zusammen. Kein ungefragtes "Verschlimmbessern" bestehender, funktionierender Logik.
+
+---
+
+# 🧠 Knowledge Management & Single Source of Truth
+
+Das Herzstück unserer perfekten Zusammenarbeit ist, dass das KI-System nichts vergisst und Entscheidungen Monate später noch nachvollziehen kann. Dies erreichen wir durch ein stark vernetztes Doku- und Datenbank-System.
+
+## A. ADRs (Architecture Decision Records)
+Sobald eine fundamentale Entscheidung getroffen wird (z.B. "Wir nutzen jetzt das native Toast Popover" oder "Wir strukturieren NixOS-Home-Manager Module nach Topics"), schreiben wir ein kurzes ADR.
+- **Wo:** `docs/ADR/`
+- **Warum:** Damit zukünftige Agenten lesen können, *warum* etwas so gebaut wurde und es nicht aus Unwissenheit "weg-refactoren".
+
+## B. Guides & Traceability
+- **Guides:** Für komplexe Systeme (wie das Toast-System oder ein spezielles NixOS-Deployment) schreiben wir `docs/Guides/`.
+- **Verknüpfung im Code:** In den Quellcode-Dateien platzieren wir Meta-Tags (z.B. `// @adr [[ADR-Toast-Architecture]]` oder `# @guide [[nixos-deployment]]`). Das triggert den Agenten, diese Dateien bei Änderungen als Kontext zu laden.
+
+## C. Die MCP-Datenbanken (MemDB & SQLite)
+Das ist der absolute "Next-Level" Trick: Wir verlassen uns nicht nur auf Markdown-Dateien! 
+Wir nutzen unsere **Model Context Protocol (MCP)** Tools (wie `din_brief_sqlite` oder `nixos_sqlite`), um High-Level-Erkenntnisse ("Insights") permanent ins Langzeitgedächtnis zu pushen.
+- **Der Befehl:** Wenn wir eine Architektur verabschieden, nutzen wir z.B. das Tool `append_insight` und schreiben die Essenz der Entscheidung in die SQLite Datenbank.
+- **Der Effekt:** Wenn der Nutzer Monate später in einem völlig neuen Chat etwas fragt, kann das Modell über `read_query` oder semantische Suche in der Datenbank sofort die alten Insights und Architektur-Präferenzen abrufen. Das System lernt physisch mit.
+
+---
+**An den Agenten, der das liest:**
+Nutze exakt diese 3 Säulen (ADRs, Guides, Datenbank-Insights) und den strukturierten Planning-Workflow für das Projekt, in dem du *eigentlich* arbeitest (z.B. dein NixOS-Projekt). Lese die `docs/` hier als Referenz, aber verändere in diesem Ordner *niemals* etwas!',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'boilerplate.config.json',
   'boilerplate.config.json',
   'active',
@@ -664,6 +725,111 @@ f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chro
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/ADR/ADR-OMNITRACEABILITY.md',
+  'ADR-OMNI: OmniTraceability System',
+  'rejected',
+  '# ADR-OMNI: OmniTraceability System
+
+## 1. Context & Problem
+
+**Nachvollziehbarkeit und Langlebigkeit**
+- Das DIN-BriefNEO Projekt zielt darauf ab, maximale Langlebigkeit und Nachvollziehbarkeit zu garantieren.
+- Bisherige Systeme wiesen Inkonsistenzen auf, da Dokumentations-Metadaten (wie Frontmatter) nicht standardisiert und maschinell auslesbar waren.
+- Das Crawlen von `venv` und `node_modules` führte zu Build-Failures (Fitness Violations), da externe Dateien gescannt wurden.
+- Die Function-Traceability Matrix wurde manuell gepflegt, was extrem fehleranfällig war.
+
+## 2. Considered Options
+
+| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
+|--------|--------------|----------|-----------|---------|---------|
+| **Option A** (Python & V6) | Strikte Nutzung des Schema V6 Frontmatters und Auslagerung der Matrix-Generierung in `build_db.py` (Zukunfts-Standard). | Erlaubt SQLite-Integration, saubere Trennung von Crawler-Ausnahmen, maschinenlesbar. | Erfordert Migration aller Alt-Dokumente. | Python-Abhängigkeit im Build-Prozess. | **Gewählt** |
+| **Option B** (JS-Only) | Beibehalten von `build_db.js` als primärem Generator und lockere Frontmatter-Regeln. | Keine Migration nötig. | Schlechte Integration mit Vektor-DBs und LLMs, anfällig für manuelle Fehler. | Veraltet schnell, nicht zukunftssicher. | Abgelehnt |
+
+## 3. Decision
+
+**Wir haben uns für Option A (Python-Based Matrix Generation & Strict Frontmatter V6) entschieden.**
+
+### Begründung
+- **Frontmatter Schema V6:** Jede Markdown-Datei in `docs/ADR` und `docs/Guides` muss nun standardisierte Felder wie `created`, `updated`, und `depends_on` enthalten. Dies bildet die Grundlage für den SQLite-Import und Obsidian Graph-Views.
+- **Python-basierte Traceability Matrix:** Die Function-Traceability Matrix (`Function-Traceability.md`) wird nun vollautomatisiert durch `tools/build_db.py` generiert. Das Skript extrahiert `@adr` und `@guide` Metadaten aus dem Source Code und fügt sie zwischen die `<!-- BEGIN AUTOMATED MATRIX -->` Blöcke ein.
+- **Crawler Exclusions:** Die JS-Tools (`reconciliation.js` und `build_db.js`) wurden aktualisiert, um zwingend virtuelle Umgebungen (`venv/`, `node_modules/`, `.agents/`, `.claude/`) zu ignorieren. Dies eliminiert False-Positives im *Evolutionary Fitness Score*.
+- **Branchless Workflow:** Um den Overhead zu minimieren, arbeiten alle KI-Agenten streng auf dem `main`-Branch (Solo-Entwickler-Paradigma).
+
+## 4. Consequences
+
+### Positive Auswirkungen
+- **100% SSoT (Single Source of Truth):** Code und Dokumentation sind nun bidirektional gekoppelt. 
+- **Automatisierte Abhängigkeiten:** Durch `depends_on` und die Matrix ist immer klar, welcher Code von welcher Architektur-Entscheidung abhängig ist ("Source" und "Sink").
+- **Sauberer Build-Prozess:** Keine fehlschlagenden CI-Pipelines durch Drittanbieter-Code in `venv`.
+
+### Langfristige Auswirkungen
+- **Zukunftssichere Vektorisierung:** Durch das strikte Schema V6 sind alle Markdown-Dateien optimal für RAG (Retrieval-Augmented Generation) und Vektor-Datenbanken (`sqlite-vec`) vorbereitet.
+
+## 5. Phase 2: Semantik, Chunking & Bundling (Roadmap)
+
+Um das OmniTraceability-System zukunftssicher und LLM-freundlich zu machen, wurden folgende architektonische Entscheidungen für **Phase 2** getroffen:
+
+### 5.1 Robuster Markdown-Parser (`markdown-it-py`)
+Die Regex-basierte Extraktion in `build_db.py` wird durch `markdown-it-py` (inkl. `markdown-it-wikilink` Plugin) ersetzt. Dies verhindert Parsing-Fehler und ermöglicht das verlässliche Extrahieren von Headings und Links.
+
+### 5.2 Semantisches Chunking (`tbl_concept_chunks`)
+Anstatt ganze Dokumente in die Vektor-Datenbank (`sqlite-vec`) zu laden, werden Dokumente an `##` Markdown-Headings aufgespalten (Chunking). Dies erhöht die Präzision der semantischen Suche drastisch.
+
+### 5.3 Inkrementeller Build (`content_hash`)
+`build_db.py` wird die Felder `updated` und (sofern eingeführt) `content_hash` auslesen. Unveränderte Dateien werden beim Build übersprungen, was die Performance beim Vektorisieren schützt.
+
+### 5.4 Wiki Bundler / Context Pack Generator
+Ein neues Skript `wiki_bundler.py` wird eingeführt. 
+- **Zweck:** Es aggregiert den Architektur-Kontext für KI-Agenten in ein einziges, riesiges Artefakt (`Wiki-Bundle-Template.md`).
+- **Parameterisierung:** Das Skript kann Parameter annehmen (z.B. `--scope Geoapify`), um einen *Context Pack* zu generieren, der nur die exakt relevanten ADRs, Guides und Code-Snippets für dieses spezifische Feature bündelt.
+
+## 6. Implementation & Verification
+- `tools/migrate_frontmatter.py` wurde erfolgreich angewandt, um Altlasten sicher in Schema V6 zu überführen.
+- `start.ps1` garantiert durch die Reality Reconciliation einen *Evolutionary Fitness Score* von 100%.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/ADR/ADR-Toast-Architecture.md',
+  'ADR - Toast Architecture (Next Level)',
+  'accepted',
+  '# Architecture Decision Record: Next-Level Toast System
+
+## Context
+The application required a robust notification system (Toasts). Previous implementations relied on complex `display: none` toggles, manual event listeners for outside clicks, and simplistic JavaScript timeouts that often resulted in "notification spam" when users triggered rapid events (e.g., clicking save repeatedly).
+We needed a system that is robust, visually appealing, accessible (a11y), and dependency-free (Vanilla JS/CSS).
+
+## Decision
+We decided to completely overhaul the Toast architecture with a "Next Level" approach based purely on modern W3C standards:
+
+1. **Native Popover API (`popover="manual"`)**:
+   Instead of using `z-index` wars, the Toast is hoisted to the native Top-Layer of the browser.
+2. **CSS `@starting-style` & Discrete Transitions**:
+   We eliminated JS-based animation listeners. The browser natively handles symmetric enter/exit animations via `allow-discrete` transitions on the `display` property.
+3. **Multi-Stacking (Spam Prevention)**:
+   Instead of queuing 10 identical messages, the system deduplicates. If the exact same message is triggered while active, it increments a visual badge (`x2`, `x3`) and triggers a CSS `@keyframes shake` animation to provide feedback without visual clutter.
+4. **Actionable & Sticky Toasts**:
+   The API allows passing an `action` object (e.g., "Undo" button) and supports a `sticky` mode for progress indicators that do not automatically expire.
+5. **W3C Accessibility (ARIA)**:
+   The Toast container is strictly marked with `role="alert"`, `aria-live="assertive"`, and `aria-atomic="true"`, ensuring Screenreaders announce notifications immediately.
+6. **Swipe-to-Dismiss**:
+   Using `PointerEvents`, the Toast can be swiped horizontally to dismiss it intuitively, mimicking native mobile OS behavior.
+
+## Consequences
+- **Positive**: Zero external dependencies. Extremely performant. Best-in-class UX and Accessibility. The codebase (`js/toast.js`) is fully decoupled from `main.js`.
+- **Negative**: Relies on modern browser features (Popover API, `@starting-style`). Browsers older than ~late 2023 will not render the enter/exit animations gracefully, though the logic degrades safely.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/ADR/ADR-ÜBERSICHT.md',
   'ADR-Übersicht',
   'active',
@@ -741,23 +907,46 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   'active',
   '# Code-Referenzen
 
-Diese Datei wird automatisch von `build_db.js` generiert und listet alle Architektur-Verknüpfungen aus dem Quellcode auf.
+Diese Datei wird automatisch von `build_db.js` generiert und listet alle Architektur- und Guide-Verknüpfungen aus dem Quellcode auf.
 
-| Code Datei | Zeile | Architektur-Entscheidung |
-| :--- | :--- | :--- |
-| website/js/constants.js | 1 | [[ADR-JS]] |
-| website/js/geoapify.js | 1 | [[ADR-API]] |
-| website/js/healthcheck.js | 1 | [[ADR-JS]] |
-| website/js/main.js | 1 | [[ADR-JS]] |
-| website/js/main.js | 1108 | [[ADR-JS]] |
-| website/js/metadata.js | 1 | [[ADR-JS]] |
-| website/js/salutation-engine.js | 1 | [[ADR-JS]] |
-| website/js/signature.js | 1 | [[ADR-JS]] |
-| website/js/storage.js | 1 | [[ADR-DATA-PERSISTENCE]] |
-| website/css/floating.css | 1 | [[ADR-CSS]] |
-| website/css/layout.css | 1 | [[ADR-CSS]] |
-| website/css/reset.css | 1 | [[ADR-CSS]] |
-| website/css/variables.css | 1 | [[ADR-CSS]] |',
+| Code Datei | Zeile | ADR | Guide |
+| :--- | :--- | :--- | :--- |
+| website/index.html | 1 | [[ADR-HTML]] | - |
+| website/index.html | 2 | - | [[din-5008-layout]] |
+| website/js/constants.js | 1 | [[ADR-JS]] | - |
+| website/js/constants.js | 2 | - | [[glossary]] |
+| website/js/geoapify.js | 1 | [[ADR-API]] | - |
+| website/js/geoapify.js | 2 | - | [[geoapify-autocomplete]] |
+| website/js/geoapify.js | 6 | [[ADR-API]] | - |
+| website/js/healthcheck.js | 1 | [[ADR-JS]] | - |
+| website/js/healthcheck.js | 2 | - | [[testing-guide]] |
+| website/js/main.js | 1 | [[ADR-JS]] | - |
+| website/js/main.js | 2 | - | [[no-scroll-techniques]] |
+| website/js/main.js | 976 | [[ADR-JS]] | - |
+| website/js/main.js | 1082 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/metadata.js | 1 | [[ADR-JS]] | - |
+| website/js/metadata.js | 2 | - | [[glossary]] |
+| website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |
+| website/js/salutation-engine.js | 2 | - | [[glossary]] |
+| website/js/salutation-engine.js | 19 | [[ADR-JS]] | - |
+| website/js/salutation-engine.js | 87 | [[ADR-JS]] | - |
+| website/js/signature.js | 1 | [[ADR-JS]] | - |
+| website/js/signature.js | 2 | - | [[glossary]] |
+| website/js/signature.js | 5 | [[ADR-JS]] | - |
+| website/js/storage.js | 1 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/storage.js | 2 | - | [[glossary]] |
+| website/js/storage.js | 6 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/toast.js | 1 | [[ADR-JS]] | - |
+| website/js/toast.js | 2 | - | [[chrome-modern-css]] |
+| website/js/toast.js | 4 | [[ADR-JS]] | - |
+| website/css/floating.css | 1 | [[ADR-CSS]] | - |
+| website/css/floating.css | 2 | - | [[chrome-modern-css]] |
+| website/css/layout.css | 1 | [[ADR-CSS]] | - |
+| website/css/layout.css | 2 | - | [[din-5008-geometry]] |
+| website/css/reset.css | 1 | [[ADR-CSS]] | - |
+| website/css/reset.css | 2 | - | [[chrome-modern-css]] |
+| website/css/variables.css | 1 | [[ADR-CSS]] | - |
+| website/css/variables.css | 2 | - | [[chrome-modern-css]] |',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -766,12 +955,13 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Code-Referenzen.md'), 'autogenerated');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Code-Referenzen.md'), 'adr');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Code-Referenzen.md'), 'guide');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Code-Referenzen.md'), 'code');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/ADR/Support/ADR-TEMPLATE.md',
   'ADR-XXX: [Kurzer, präziser Titel der Entscheidung]',
-  'draft | proposed | accepted | deprecated | rejected',
+  'chosen',
   '# ADR-XXX: [Kurzer, präziser Titel]
 
 ## 1. Context & Problem
@@ -871,9 +1061,131 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Support/Code-Referenzen.md'), 'autogenerated');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Support/Code-Referenzen.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/ADR/Support/Code-Referenzen.md'), 'code');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/core/Architecture-Compliance-Matrix.md',
+  'Architecture Compliance Matrix (IMR 4.0 Standard)',
+  'active',
+  '# 🛠 Architecture Compliance Matrix (IMR 4.0 Standard)
+
+> [!IMPORTANT]
+> **Baseline:** Chrome 147+ ist die verbindliche Plattform. Die Platinum Validation Pipeline (PVP) prüft alle Commits gegen diese Baseline. Ältere Browser werden explizit nicht unterstützt.
+
+Diese Matrix definiert die technologischen Leitplanken für DIN-BriefNEO.  
+Wir wenden die **Chrome 147+ Baseline** konsequent an, um eine *Pure & Flat Architecture* ohne Legacy-Ballast zu garantieren.
+
+---
+
+### 🚦 Status-System
+- ✅ **Aktiv**      → Im Code implementiert und aktiv genutzt.
+- 🟡 **Geplant**    → Definitiv in nächsten 2 Sprints (Q2 2026).
+- 📋 **Roadmap**    → Langfristige Planung (2026/2027).
+- 🧪 **Experimentell** → In Test-Suites aktiv, noch nicht produktiv.
+
+> [!TIP]
+> Nutze `npm run check:compliance`, um die Einhaltung dieser Matrix in deinem lokalen Workspace zu verifizieren.
+
+---
+
+### 0. Platinum Basistechnologie (Universell)
+
+| Icon / Name            | Moderne API (**TARGET**)      | Strategie & Best Practice (inkl. Quellen) | Status |
+|------------------------|-------------------------------|-------------------------------------------|--------|
+| **Layering**           | `CSS @layer`                  | Hierarchie vor Spezifität – löst Kaskadenkonflikte. | ✅ Aktiv |
+| **Typed Props**        | `@property`                   | Typsicherheit für CMA-Koordinaten (mm-Präzision). | ✅ Aktiv |
+| **CSS-Isolation**      | `@scope`                      | Isoliert Paper-CSS ohne Shadow-DOM-Nachteile. | ✅ Aktiv |
+| **Animations**         | `interpolate-size`            | Native Layout-Anims für `height: auto`. | ✅ Aktiv |
+| **Farbe**              | `oklch()`                     | Wahrnehmungsgetreue Farben & `color-mix()`. | ✅ Aktiv |
+| **Theming**            | `light-dark()`                | Zero-JS System-Farbschema-Umschaltung. | ✅ Aktiv |
+| **Overflow**           | `@container scroll-state`     | Native Überlauf-Warnung ohne JS-Listener. | ✅ Aktiv |
+| **Layout**             | Container Queries             | Komponenten reagieren auf A4‑Platz (`size`). | ✅ Aktiv |
+| **Logik (CSS)**        | `:has()`                      | Zero-JS State Management (Layout/Theme/Guides). | ✅ Aktiv |
+| **Typografie**         | `font-feature-settings`       | Tabellenziffern & Slashed-Zero für IBAN/Datum. | ✅ Aktiv |
+| **Auto-Resize**        | `field-sizing: content`       | Textfelder wachsen organisch mit dem Inhalt. | ✅ Aktiv |
+| **3D-Carousel**        | `--position`, `--i` Vars      | Dynamische 3D-Transformationen ohne JS (v4.8.0). | ✅ Aktiv |
+| **Toast-System**       | CSS Keyframes + `popover`      | Vollständige CSS-Choreographie, kein `setTimeout`. | ✅ Aktiv |
+| **Form C Layout**      | `:has(#state-layout-c)`       | Flexbox-basiertes, gestapeltes Layout (v4.8.0). | ✅ Aktiv |
+| **Auto-Detection**     | `_updateSalutation()`         | Erkennung von "Frau/Herr/Ms/Mr" im Anschriftfeld. | ✅ Aktiv |
+| **Ghost-Text**         | `data-salutation`             | Platzhalter-Vorschläge via CSS `:empty::before`. | ✅ Aktiv |
+| **Footer Auto-Hide**   | `din-fuss > *:empty`          | Leere Fußzeilen-Elemente automatisch ausblenden. | ✅ Aktiv |
+| **Positioning**        | CSS Anchor                    | Popovers kleben ohne JS am Anker. | 📋 Roadmap |
+| **Overlays**           | `<dialog>` + `popover`        | Native Modals & Tooltips (ADR-017). | ✅ Aktiv |
+| **Invokers**           | Invoker Commands              | Deklarative Button-Trigger (`commandfor`). | 📋 Roadmap |
+| **Hover-Invoker**      | `interesttarget`              | Zero‑JS‑Tooltips (Chrome 147+). | 📋 Roadmap |
+| **Logik (Zeit)**       | Temporal API                  | Fehlerfreie Datumsberechnung (ADR-017). | ✅ Aktiv |
+| **Sicherheit**         | Sanitizer API                 | XSS‑Schutz durch `setHTML()` statt `innerHTML`. | ✅ Aktiv |
+| **Typografie**         | `text-wrap: balance / pretty` | Vermeidet Witwen & Waisen; optische Balance. | 🟡 Geplant |
+| **Attr‑Config**        | `attr(data-* type)`           | Typisierte CSS‑Werte direkt aus HTML. | 🟡 Geplant |
+| **Validierung**        | Constraint API                | Browser‑eigene Formularvalidierung nutzen. | ✅ Aktiv |
+
+---
+
+## 🏗️ Implementierungspfade & High‑End APIs
+
+| Icon / Name          | Pfad / API                     | Strategie & Best Practice |
+|----------------------|--------------------------------|---------------------------|
+| **Dateisystem**      | FileSystem Access              | Server‑Only: direktes Schreiben auf Disk. `/WICG/file-system-access` |
+| **Persistenz**       | OPFS                           | Origin Private File System für High‑Perf State. `/WICG/file-system-access` |
+| **Reaktivität**      | `Proxy` Objects                | SSoT (Single Source of Truth) via Proxy Traps. `/tc39/ecma262` |
+| **Grafik**           | SVG (inline)                   | Vektorscharfe Logos & Wasserzeichen. `/W3C/SVG2` |
+| **Performance**      | `scheduler.postTask()`         | Priorisierung von UI‑Updates. `/WICG/scheduling-apis` |
+| **Events**           | Custom Events                  | Kommunikation zwischen Entitäten. `/whatwg/html` |
+| **Sanitization**     | Sanitizer API                  | Standardisierte HTML‑Säuberung. `/WICG/sanitizer-api` |
+| **Edit Context**     | `EditContext API`              | Direkte Kontrolle über den Input-Stream. `/WICG/edit-context` |
+| **Print Logic**      | `@media print`                 | Optimierung für PDF-Export. `/W3C/css-break-3` |
+
+---
+
+## ⚠️ Bekannte Architektur-Einschränkungen
+
+### 1. IMR & Multi-Page Synchronisation
+Die **Input Mapping Registry (IMR)** nutzt aktuell `document.querySelector()`, was konzeptionell nur das **erste Vorkommen** eines DIN-Tags im DOM synchronisiert. 
+- **Auswirkung:** Auf Folgeseiten (`din-A4` Instanzen > 1) werden IMR-Daten (wie Kopfzeilen oder Absenderdaten) nicht automatisch aktualisiert, wenn sie dort erneut vorkommen.
+- **Strategie:** Für die aktuelle Phase ist dies akzeptabel, da Kopfdaten nur auf Seite 1 gedruckt werden. Eine zukünftige Erweiterung auf `querySelectorAll()` mit Page-Index-Mapping ist für das Backlog (v5.0) geplant.
+
+### 2. PDF-Metadaten (Print-to-PDF)
+XMP-Metadaten können über den nativen Browser-Druckdialog (`window.print()`) nicht in den PDF-Stream eingebettet werden.
+- **Strategie:** Wir nutzen die **OCR-Bridge** (unsichtbarer Textblock im Body) als Primärstrategie für Systeme wie Paperless-ngx. Dateinamen werden via `document.title` manipuliert.
+
+---
+
+## 🔗 Dokumenten-Navigation
+
+| Dokument | Zweck |
+|----------|-------|
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
+| [[issues/#1 DIN 5008 HTML Tag Glossar]] | Alle 45+ DIN-Tags |
+| [[03_CSS_Reference]] | CSS-Features Referenz |
+| [[05_Feature_Matrix]] | Projekt-Fortschritt |
+| [[06_Salutation_Engine]] | Logik-Dokumentation |
+
+**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
+
+---
+
+## 🔗 Verwandte Dokumente (Dataview)
+
+```dataview
+TABLE 
+  version AS "Version",
+  status AS "Status",
+  date_updated AS "Aktualisiert"
+FROM ""
+WHERE contains(related, this.file.name)
+SORT version DESC
+```
+
+---
+
+**Status:** ACTIVE  
+**Nächste Überprüfung:** 2026-06-30  
+**Verantwortlich:** Lead Systems Architect',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/core/CHANGELOG.md',
@@ -1657,7 +1969,6 @@ Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Doku
 * **[No-Scroll Techniken](../Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
 * **[Testing Guide](../Guides/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
 * **[LLM-First Datenbank-Guide (README-DB.md)](README-DB.md):** Spezifikation der SQLite-DB und MCP-Architektur.
-* **[DIN 5008 Master Data](../Guides/din-5008-geometry.md):** SSoT für alle physischen Abstände des Briefs.
 
 ## 🏗️ Architektur-Entscheidungen (ADRs)
 Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../ADR/)** dokumentiert:
@@ -1839,6 +2150,355 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'reconciliation');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'agents');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'generalisierbarkeit');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/core/IMR-Registry.md',
+  'IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)',
+  'active',
+  '# IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)
+
+> [!NOTE]
+> Das Anschriftfeld hat eine feste Höhe von 45mm[^1]. Überlaufender Text wird durch den Overflow-Alarm (`@container scroll-state`) visuell markiert.
+
+> **Single Source of Truth (SSoT)** für die Platinum Validation Pipeline (PVP).  
+> Diese Liste definiert alle **45 atomaren Daten-Tags** (inkl. Guides) mit Positionierung, Ausrichtung und Wachstumsverhalten.
+
+**Version:** 4.8.0 | **Letzte Aktualisierung:** 2026-04-01 | **GitHub Issue:** [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1)
+
+---
+
+## 📊 **Übersicht**
+
+<details>
+<summary>📋 Bereichs-Übersicht & Container-Struktur</summary>
+
+| Bereich | Tags | Container | Wuchs-Verhalten |
+|---------|------|-----------|-----------------|
+| **Absender-Zone** | 8 | `<din-absender>` | Top-Down |
+| **Anschriftfeld** | 8 | `<din-anschriftfeld>` | Top-Down (Fix 45mm) |
+| **Metadaten & Infoblock** | 8 | `<din-infoblock>` | Top-Down |
+| **Briefkern** | 6 | `<din-kern>` | Dynamisch |
+| **Fußzeile** | 12 | `<din-fuss>` | Spalten-basiert |
+| **Systemkomponenten** | 3 | – | – |
+
+</details>
+
+---
+
+## 🗺️ **Architektur-Übersicht**
+
+```mermaid
+graph TD
+    subgraph Input
+        A[User Input]
+    end
+    
+    subgraph Container
+        B[din-absender]
+        C[din-anschriftfeld]
+        D[din-infoblock]
+        E[din-kern]
+        F[din-fuss]
+    end
+    
+    subgraph Output
+        G[HTML Rendering]
+        H[CSS Positioning]
+        I[JSON State]
+    end
+    
+    A --> B
+    A --> C
+    A --> D
+    A --> E
+    A --> F
+    
+    B --> G
+    B --> H
+    B --> I
+    
+    C --> G
+    C --> H
+    C --> I
+    
+    D --> G
+    D --> H
+    D --> I
+    
+    E --> G
+    E --> H
+    E --> I
+    
+    F --> G
+    F --> H
+    F --> I
+```
+
+---
+
+## 🏢 1. Absender-Zone (Branding)
+
+**Container:** `<din-absender>`  
+**Position:** X: `25mm` | Y: `var(--din-y-header-start)`  
+**Standard:** Form A: `27mm` | Form B: `45mm`
+
+| Tag | Beschreibung | Ausrichtung | Validierung | DIN / Context7 |
+|:---|:---|:---:|:---|:---|
+| `<din-branding-logo>` | Firmenlogo (SVG/Base64) | Rechts | — | [`/whatwg/html`](https://html.spec.whatwg.org/) |
+| `<din-absender-vorname>` | Vorname Absender | Links | `plaintext` | DIN 5008: 16.1 |
+| `<din-absender-nachname>` | Nachname Absender | Links | `plaintext` | DIN 5008: 16.1 |
+| `<din-absender-strasse>` | Straße & Hausnr. | Links | `plaintext` | DIN 5008: 16.1 |
+| `<din-absender-ort>` | PLZ & Ort | Links | `plaintext` | DIN 5008: 16.1 |
+| `<din-absender-zusatz>` | Adresszusatz | Links | `plaintext` | DIN 5008: 16.1 |
+| `<din-absender-mail>` | E-Mail Adresse | Links | `type="email"` | `mailto:` |
+| `<din-absender-tel>` | Telefonnummer | Links | `type="tel"` | `tel:` |
+
+---
+
+## ✉️ 2. Anschriftfeld (Empfänger)
+
+**Container:** `<din-anschriftfeld>`  
+**Position:** X: `25mm` | Y: Form A: `32mm` | Form B: `50mm`  
+**Max-Breite:** `85mm` | **Höhe:** `45mm` (Fix)
+
+| Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 |
+|:---|:---|:---:|:---:|:---|:---|
+| `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 |
+| `<din-zusaetze>` | Vermerke/Zusätze | 2-4 | Links | — | DIN 5008: 16.1.3 |
+| `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| `<din-empfaenger-nachname>` | Nachname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| `<din-empfaenger-strasse>` | Straße & Hausnr. | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| `<din-empfaenger-ort>` | PLZ & Ort | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+
+> ⚠️ **Wichtig:** Das Anschriftfeld hat eine **feste Höhe von 45mm**. Überlaufender Text wird abgeschnitten (DIN 5008 Konformität).
+
+---
+
+## 📅 3. Metadaten & Infoblock
+
+**Container:** `<din-infoblock>`  
+**Position:** X: `125mm` | Y (A): `32mm` | Y (B): `50mm`  
+**Wuchs:** Top-Down
+
+| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Validierung | DIN / Context7 |
+|:---|:---|:---:|:---:|:---:|:---|:---|
+| `<din-datum>` | Briefdatum | 74 | 92 | Links | `Temporal.PlainDate` | DIN 5008: 17.2 |
+| `<din-ihr-zeichen>` | Ihr Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 |
+| `<din-ihr-schreiben>` | Ihr Schreiben vom | Flow | Flow | Links | `ISO-8601` | [`/tc39/proposal-temporal`](https://tc39.es/proposal-temporal/) |
+| `<din-unser-zeichen>` | Unser Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 |
+| `<din-unser-schreiben>` | Bezugsdatum | Flow | Flow | Links | `ISO-8601` | [`/tc39/ecma262`](https://tc39.es/ecma262/) |
+| `<din-durchwahl>` | Direkte Telefonnr. | Flow | Flow | Links | `type="tel"` | `tel:` |
+| `<din-email-direkt>` | Direkte E-Mail | Flow | Flow | Links | `type="email"` | `mailto:` |
+| `<din-internet>` | Web-URL | Flow | Flow | Links | `type="url"` | [`/whatwg/html`](https://html.spec.whwg.org/) |
+
+---
+
+## 📝 4. Briefkern (Dynamischer Inhalt)
+
+**Container:** `<din-kern>`  
+**Position:** X: `25mm` | Y (A): `91mm` | Y (B): `109mm`  
+**Max-Breite:** `165mm` | **Wuchs:** Top-Down (dynamisch, triggert Paginierung)
+
+| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Zeilen | Validierung | DIN / Context7 |
+|:---|:---|:---:|:---:|:---:|:---:|:---|:---|
+| `<din-betreff>` | Betreff (fett) | Flow | Flow | Links | **Einzeilig*** | Max 2 Zeilen | DIN 5008: 18 |
+| `<din-anrede>` | Anredeformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 19 |
+| `<din-text>` | Haupt-Inhalt | Flow | Flow | Blocksatz* | **Mehrzeilig** | Sanitizer API | DIN 5008: 20 |
+| `<din-grussformel>` | Grußformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 21 |
+| `<din-unterschrift>` | Unterzeichner | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 22 |
+| `<din-anlagen>` | Anlagenverzeichnis | Flow | Flow | Links | **Mehrzeilig** | — | DIN 5008: 23 |
+
+> ℹ️ *Betreff: Startet zwingend UNTER der ersten Falzmarke (105mm/87mm). Smart-Squeezing versucht ihn einzeilig zu halten.*
+
+> ℹ️ **Blocksatz mit Silbentrennung** wird für DIN-Briefe empfohlen:  
+> `text-align: justify; text-justify: inter-word; hyphens: auto;`
+
+
+---
+
+## 📄 5. Fußzeile (Footer) – 4 Spalten
+
+**Container:** `<din-fuss>`  
+**Position:** X: `25mm` | Y: `241mm`  
+**Max-Breite:** `165mm` | **Wuchs:** Spalten-basiert  
+**Layout:** 4 Spalten (je 25% Breite)
+
+| Tag | Beschreibung | Spalte | Y | Ausrichtung | Zeilen | Validierung | DIN / Context7 |
+|:---|:---|:---:|:---:|:---:|:---:|:---|:---|
+| `<din-fuss-firma>` | Firmenbezeichnung | 1 | 241 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-sitz>` | Firmensitz | 1 | 246 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-gericht>` | Registergericht | 1 | 251 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-hrb>` | Handelsregister-Nr. | 1 | 256 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-vorstand>` | Vorstand / Inhaber | 2 | 241 | Links | **Mehrzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-gf>` | Geschäftsführer | 2 | 251 | Links | **Mehrzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-stnr>` | Steuernummer | 3 | 241 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-ustid>` | USt-IdNr. | 3 | 246 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-bank>` | Name der Bank | 4 | 241 | Links | **Einzeilig** | — | DIN 5008: 24 |
+| `<din-fuss-iban>` | IBAN | 4 | 246 | Links | **Einzeilig** | `BigInt` Mod-97 | ISO 13616 |
+| `<din-fuss-bic>` | BIC | 4 | 251 | Links | **Einzeilig** | `regex` | ISO 9362 |
+| `<din-fuss-anschrift>` | Hausanschrift | 4 | 256 | Links | **Einzeilig** | — | DIN 5008: 24 |
+
+---
+
+## 🛠️ 6. Systemkomponenten (Guides)
+
+Diese Tags dienen der internen Visualisierung und Compliance-Kontrolle.
+
+`<din-falz-oben>`
+:   Obere Faltmarke (DIN 5008 SSO Fixpunkt). Positioniert sich fix bei Form A: `87mm` | Form B: `105mm`.
+
+`<din-falz-unten>`
+:   Untere Faltmarke (DIN 5008 SSO Fixpunkt). Positioniert sich fix bei Form A: `181mm` | Form B: `210mm`.
+
+`<din-lochmarke>`
+:   Lochmarke (DIN 5008 Mitte). Positioniert sich absolut fix bei `148.5mm`.
+
+`<din-overlay>`
+:   SVG-Referenz-Overlay für den visuellen Layout-Audit (Platinum Feature).
+
+---
+
+## ✨ 7. Auto-Detection & Intelligente Vorschläge (v4.8.0)
+
+| Feature | Implementierung | Beschreibung |
+|---------|-----------------|--------------|
+| **Empfänger-Typ Auto-Erkennung** | `js/ui.js` → `_updateSalutation()` | Scannt Anschriftfeld nach "Frau", "Herr", "Ms", "Mr". Setzt `recipientType` dynamisch. |
+| **Ghost-Text Anrede** | `data-salutation` Attribut | Vorschlag basierend auf Stil und Empfänger. Sichtbar solange Feld leer ist. |
+| **Ghost-Text Grußformel** | `data-greeting` Attribut | Vorschlag basierend auf Stil. Sichtbar solange Feld leer ist. |
+
+---
+
+## 🎠 8. 3D-Carousel Systemvariablen (v4.8.0)
+
+| Variable / Selektor | Beschreibung | Verwendung |
+|---------------------|--------------|------------|
+| `--position` | Aktive Seite im Carousel | 1-basiert, steuert 3D-Transformation |
+| `--i` | Individueller Seiten-Index | Pro `din-A4` Element, für Distanzberechnung |
+| `din-fuss > *:empty` | Automatisches Ausblenden | Leere Footer-Elemente werden nicht gerendert |
+
+---
+
+## 📐 9. Layout-Varianten (Form C)
+
+| Modus | CSS-Selektor | Beschreibung |
+|-------|--------------|--------------|
+| **Form C (Modern)** | `:root:has(#state-layout-c:checked)` | Flexbox-basiertes, fließendes Layout ohne absolute Positionierung. Alle Elemente gestapelt. |
+
+---
+
+[^1]: DIN 5008:2020-03, Abschnitt 16.1.4 – Maße des Anschriftfeldes für Fensterbriefe.
+
+## 📝 Changelog
+
+| Datum | Version | Änderung | Autor |
+|-------|---------|----------|-------|
+| 2026-04-01 | 4.8.0 | Auto-Erkennung Empfänger-Typ hinzugefügt | [@grapefruit89](https://github.com/grapefruit89) |
+| 2026-04-01 | 4.8.0 | Ghost-Text für Anrede/Grußformel dokumentiert | [@grapefruit89](https://github.com/grapefruit89) |
+| 2026-04-01 | 4.8.0 | 3D-Carousel CSS-Variablen (`--position`, `--i`) ergänzt | [@grapefruit89](https://github.com/grapefruit89) |
+| 2026-04-01 | 4.8.0 | Form C Layout dokumentiert | [@grapefruit89](https://github.com/grapefruit89) |
+| 2026-04-01 | 4.8.0 | Footer leere Elemente Auto-Hide dokumentiert | [@grapefruit89](https://github.com/grapefruit89) |
+| 2026-03-31 | 4.7.0 | Initiale Version | [@grapefruit89](https://github.com/grapefruit89) |
+
+---
+
+## 🔗 Dokumenten-Navigation
+
+| Dokument | Zweck |
+|----------|-------|
+| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
+| [[03_CSS_Reference]] | CSS-Features Referenz |
+| [[05_Feature_Matrix]] | Projekt-Fortschritt |
+| [[06_Salutation_Engine]] | Logik-Dokumentation |
+
+**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
+
+---
+
+## 🔗 Verwandte Dokumente (Dataview)
+
+```dataview
+TABLE 
+  version AS "Version",
+  status AS "Status",
+  date_updated AS "Aktualisiert"
+FROM ""
+WHERE contains(related, this.file.name)
+SORT version DESC
+```
+
+---
+
+**Status:** ACTIVE  
+**Nächste Überprüfung:** 2026-04-30  
+**Verantwortlich:** Lead Systems Architect',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/core/IMR-Toast-Registry.md',
+  'IMR Toast Registry',
+  'active',
+  '# IMR Toast Registry
+
+Dieses Dokument ist die **Single Source of Truth** für alle System-Benachrichtigungen (Toasts), die über das native Popover-System in der Anwendung ausgegeben werden.
+
+Das Toast-System (`js/toast.js`) nutzt eine dynamische Laufzeit (`2000ms + 30ms pro Zeichen`, maximal `5000ms`) und verfügt über eine Deduplizierungs-Warteschlange ("Spam-Schutz") sowie Hover-to-Pause Mechaniken.
+
+## Toast Level & Styling
+
+Alle Toasts verwenden native CSS-Transitions (`@starting-style`) und definieren ihre Farb-Akzente über die Semantik-Klasse `.type-{level}`.
+
+| Level | CSS Klasse | Accent Color | Einsatzgebiet |
+| :--- | :--- | :--- | :--- |
+| **Info** | `.type-info` | `var(--c-primary)` | Neutrale System-Hinweise (Standard). |
+| **Success** | `.type-success` | `var(--c-success)` | Erfolgreiche Aktionen (Speichern, Key validiert). |
+| **Warning** | `.type-warning` | `var(--c-warning)` | Nicht-kritische Fehler (z.B. API Limit erreicht). |
+| **Error** | `.type-error` | `var(--c-danger)` | Kritische Systemfehler (API Key ungültig). |
+
+---
+
+## Registrierte System-Toasts
+
+Hier werden die exakten Wording-Strings definiert, die vom System getriggert werden.
+
+> [!NOTE]
+> Die Icons (Emojis) sind harter Bestandteil des Strings und werden im JavaScript (`showToast`) mit übergeben.
+
+### 💾 Storage & Persistence
+- **Draft gesichert:** `💾 Entwurf automatisch gespeichert` (Level: `info`)
+- **Manuell gesichert:** `💾 Entwurf gespeichert` (Level: `success`)
+- **Reset:** `🗑️ Alle Eingaben gelöscht` (Level: `warning`)
+
+### 🔑 Geoapify & Address API
+- **Key gültig:** `🔑 Geoapify Key gültig!` (Level: `success`)
+- **Key ungültig:** `❌ Geoapify Key ungültig` (Level: `error`)
+- **Key Error:** `❌ Fehler bei der Key-Validierung` (Level: `error`)
+- **API Offline/Limit:** `❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.` (Level: `error`)
+- **Adresse übernommen:** `Adresse übernommen & gespeichert` (Level: `success`)
+
+### 🔤 Font Manager
+- **Upload erfolgreich:** `Font erfolgreich geladen` (Level: `success`)
+- **Upload Fehler:** `Fehler beim Lesen der Schriftart` (Level: `error`)
+
+### ⚙️ Healthcheck / Diagnostics
+- **Plausibility Error:** Wird dynamisch mit dem betroffenen DOM-Element generiert, z.B. `[Architektur-Warnung] Element #xyz fehlt!` (Level: `warning`)
+
+---',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/IMR-Toast-Registry.md'), 'din-briefneo/registry');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/IMR-Toast-Registry.md'), 'tech/ui');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/IMR-Toast-Registry.md'), 'components/toast');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/core/MASTER-DO-DONT-DEPRECATED.md',
@@ -2299,13 +2959,126 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/ROADMAP.md'), 'future');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/core/Salutation-Engine.md',
+  'Salutation & Logic Engine Matrix (IMR 4.0 Standard)',
+  'active',
+  '# Salutation & Logic Engine Matrix (IMR 4.0 Standard)
+
+> [!NOTE]
+> Die Salutation Engine ist vollständig von der UI entkoppelt (ADR-017). Änderungen in `salutation.js` haben keinen Einfluss auf das visuelle Rendering.
+
+> [!TIP]
+> Für neue Anrede-Formate: Erweitere einfach die `TITLES`-Liste in `salutation.js` – die Engine priorisiert automatisch längere Titel.
+
+Diese Matrix definiert die Architektur der Geschäftslogik für DIN-BriefNEO.  
+Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwischen Datenverarbeitung (Engine) und Darstellung (UI-Bridge).
+
+---
+
+## 📌 Quick Links
+
+| Bereich | Link |
+|---------|------|
+| 📖 **Dokumentation** | [Wiki](https://github.com/din-briefneo/salutation-engine/wiki) |
+| 🐛 **Issues** | [Issues](https://github.com/din-briefneo/salutation-engine/issues) |
+| 🔄 **CI/CD** | [Actions](https://github.com/din-briefneo/salutation-engine/actions) |
+| 📊 **Test Coverage** | [Coverage Report](https://din-briefneo.github.io/salutation-engine/coverage/) |
+| 📦 **npm Package** | [npm](https://www.npmjs.com/package/@din-briefneo/salutation-engine) |
+
+---
+
+## 🚦 Status Badges
+
+![Version](https://img.shields.io/badge/version-10.0.0--platinum-blue)
+![Build](https://img.shields.io/github/actions/workflow/status/din-briefneo/salutation-engine/ci.yml?branch=main)
+![Coverage](https://img.shields.io/codecov/c/github/din-briefneo/salutation-engine)
+![License](https://img.shields.io/github/license/din-briefneo/salutation-engine)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+
+---
+
+## 🧠 Engine Architecture (The Core Three)
+
+
+| Modul | Rolle | Fokus-Technologie | Strategischer Vorteil |
+|-------|-------|-------------------|----------------------|
+| **`engine.js`** | Der Verwalter | `Proxy` State + `localStorage` / `OPFS` | Reaktive SSoT mit Zero-Setup-Persistenz |
+| **`logic.js`** | Der Handwerker | `Temporal` API + `Sanitizer` API | Robuste Date-Arithmetik und sicheres Markdown |
+| **`salutation.js`** | Der Etikette-Experte | Pattern Matching & Sorting | Intelligente Anreden mit automatischer Titel-Priorisierung |
+
+---
+
+## 📋 Logik- & Validierungs-Matrix
+
+| Feature | Implementierung (**TARGET**) | Modul | DIN-Bezug / Regel |
+|---------|------------------------------|-------|-------------------|
+| **Markdown** | Zero-Width Ghosting Pattern | `logic.js` | Erhält Markdown-Marker für Editierbarkeit ohne Layout-Shift |
+| **Zeit/Datum** | `Temporal.Now.plainDateISO()` | `logic.js` | Eliminiert Legacy `Date()`-Bugs bei Zeitzonen |
+| **Adress-Check** | 6-Zeilen-Validierung | `logic.js` | DIN 5008: max. 6 Zeilen im Anschriftfeld |
+| **IBAN-Check** | Modulo-97 (`BigInt`) | `logic.js` | Mathematisch korrekte Prüfziffernvalidierung |
+| **Rücksendung** | Interpunktion-Generator | `logic.js` | DIN 5008: Einzeilige Rücksendezeile mit Mittelpunkten |
+
+---
+
+## 🎩 Salutation & Etiquette Matrix
+
+| Feature | Implementierung (**TARGET**) | Modul | DIN-Bezug / Regel |
+|---------|------------------------------|-------|-------------------|
+| **Titel-Scan** | Greedy Regex Matching (priorisiert Länge) | `salutation.js` | Erkennt "Prof. Dr." vor "Dr." – robust gegen Mehrfach-Titel |
+| **Auto-Erkennung** | Personentyp-Erkennung (Herr/Frau/Ms/Mr) | `salutation.js` | Automatische Auswahl der passenden Anrede-Logik |
+| **Anrede-Stil** | 3‑stufiger Formality‑Switch | `salutation.js` | Formal / Modern (Guten Tag) / Locker (Hallo) |
+| **Ghost-Text Anrede** | `data-salutation` Attribut-Bridge | `salutation.js` | Vorschläge via CSS `:empty::before` (Platinum v4.8) |
+| **Grußformel** | Smart‑Default Generator | `salutation.js` | Passende Abschlüsse (Beste Grüße vs. Mit freundlichen Grüßen) |
+| **Ghost-Text Gruß** | `data-greeting` Attribut-Bridge | `salutation.js` | Vorschläge via CSS `:empty::before` (Platinum v4.8) |
+| **Firmen-Fall** | Co‑Presence Detection | `salutation.js` | Erkennt "Firma ohne Person" → neutrale Anrede |
+| **DIN-Fehler** | Punctuation Validator | `salutation.js` | DIN 5008: Warnt bei Komma/Punkt nach Grußformel |
+
+---
+
+## 🔗 Dokumenten-Navigation
+
+| Issue | Dokument | Zweck |
+|-------|----------|-------|
+| [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1) | IMR 4.0 Registry | Alle 45+ DIN-Tags |
+| [#2](https://github.com/grapefruit89/DIN-BriefNEO/issues/2) | Architecture Compliance | Technologie-Leitplanken |
+| [#3](https://github.com/grapefruit89/DIN-BriefNEO/issues/3) | Feature Matrix | Projekt-Fortschritt |
+| [#4](https://github.com/grapefruit89/DIN-BriefNEO/issues/4) | Salutation Engine | Logik-Dokumentation |
+| [#5](https://github.com/grapefruit89/DIN-BriefNEO/issues/5) | CSS Glossar | CSS-Features Referenz |
+
+**Gesamtversion:** 10.0 | **Letzte Sync:** 2026-04-01
+
+---
+
+## 🔗 Verwandte Dokumente (Dataview)
+
+```dataview
+TABLE 
+  version AS "Version",
+  status AS "Status",
+  date_updated AS "Aktualisiert"
+FROM ""
+WHERE contains(related, this.file.name)
+SORT version DESC
+```
+
+**Status:** ACTIVE  
+**Nächste Überprüfung:** 2026-06-30  
+**Verantwortlich:** Lead Logic Developer',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/core/spec.md',
   'Spezifikation (Spec) — DIN-BriefNEO Baseline Features',
   'active',
   '# Spezifikation (Spec) — DIN-BriefNEO Baseline Features
 
 > [!NOTE]
-> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen [DIN 5008 Geometry Master Data Guide](../Guides/din-5008-geometry.md). Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
+> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen Dokument. Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
 
 Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Feature ist nach dem **Spec-Kit-Modell** in Anforderung (`Specify`), Plan (`Plan`) und Aufgaben (`Tasks`) unterteilt.
 
@@ -2511,6 +3284,88 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/core/spec.md'), 'requirements');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/Function-Traceability.md',
+  'Function Traceability Matrix',
+  'active',
+  '# Function Traceability Matrix
+
+Die Function Traceability Matrix ist das Herzstück unseres Compliance-Systems. Sie beweist, dass jede Zeile Logik in `website/` durch eine Spezifikation oder Architektur-Entscheidung legitimiert ist.
+
+## 📖 Wie man dieses Dokument liest
+Dieses Dokument aggregiert die bidirektionalen Verbindungen zwischen Code und Dokumentation.
+- **Funktion / Modul:** Der funktionale Name der Logik (oft abgeleitet vom Dateinamen).
+- **Code Datei:** Die physische Datei im Dateisystem (`website/`).
+- **Architektur-Record (ADR):** Die Architektur-Entscheidung, die begründet, *warum* der Code existiert und *wie* er sich in das Gesamtsystem einfügt.
+- **Implementierungs-Guide:** Die konkrete Anleitung, *wie* der Code zu schreiben und zu warten ist (Best Practices).
+
+## 🤖 Automatisierte Mapping-Tabelle
+
+> [!WARNING]
+> **Manuelle Eingriffe in der Tabelle verboten!**
+> Die Tabelle innerhalb der HTML-Kommentare unten wird zu 100% maschinell durch `tools/build_db.py` (früher `tools/build_db.js`) erzeugt. Bitte trage hier keine neuen Zeilen manuell ein, da sie beim nächsten Build überschrieben werden.
+
+Das Python-Skript `tools/build_db.py` liest die `@adr`- und `@guide`-Tags aus den Quellcode-Dateien (`website/`) aus und generiert diese Tabelle beim Build-Prozess (`start.ps1`) neu. 
+Das stellt sicher, dass unsere Datenbank (SQLite) und das Obsidian-Frontend immer synchron sind.
+
+Um einen neuen Knotenpunkt hinzuzufügen:
+1. Schreibe die neue Code-Datei.
+2. Füge den Header-Kommentar `/* @adr [[ADR-Name]] */` in die Code-Datei ein (bei CSS auch `/* @guide [[Guide-Name]] */`).
+3. Führe `start.ps1` aus.
+
+<!-- BEGIN AUTOMATED MATRIX -->
+| Funktion / Modul | Code Datei | Architektur-Record (ADR) | Implementierungs-Guide |
+| :--- | :--- | :--- | :--- |
+| **Floating** | `website/css/floating.css` | [[ADR-CSS]] | [[chrome-modern-css]] |
+| **Layout** | `website/css/layout.css` | [[ADR-CSS]] | [[din-5008-geometry]] |
+| **Reset** | `website/css/reset.css` | [[ADR-CSS]] | [[chrome-modern-css]] |
+| **Variables** | `website/css/variables.css` | [[ADR-CSS]] | [[chrome-modern-css]] |
+| **Index** | `website/index.html` | [[ADR-HTML]] | [[din-5008-layout]] |
+| **Constants** | `website/js/constants.js` | [[ADR-JS]] | [[glossary]] |
+| **Geoapify** | `website/js/geoapify.js` | [[ADR-API]] | [[geoapify-autocomplete]] |
+| **initAddressServices** | `website/js/geoapify.js` | [[ADR-API]] |  |
+| **Healthcheck** | `website/js/healthcheck.js` | [[ADR-JS]] | [[testing-guide]] |
+| **Main** | `website/js/main.js` | [[ADR-JS]] | [[no-scroll-techniques]] |
+| **Dynamic Squeezing** | `website/js/main.js` | [[ADR-JS]] |  |
+| **JSON Data-IO** | `website/js/main.js` | [[ADR-DATA-PERSISTENCE]] |  |
+| **Metadata** | `website/js/metadata.js` | [[ADR-JS]] | [[glossary]] |
+| **Salutation-engine** | `website/js/salutation-engine.js` | [[ADR-JS]] | [[glossary]] |
+| **SalutationEngine** | `website/js/salutation-engine.js` | [[ADR-JS]] |  |
+| **SalutationFeature** | `website/js/salutation-engine.js` | [[ADR-JS]] |  |
+| **Signature** | `website/js/signature.js` | [[ADR-JS]] | [[glossary]] |
+| **SignatureFeature** | `website/js/signature.js` | [[ADR-JS]] |  |
+| **Storage** | `website/js/storage.js` | [[ADR-DATA-PERSISTENCE]] | [[glossary]] |
+| **StorageModule** | `website/js/storage.js` | [[ADR-DATA-PERSISTENCE]] |  |
+| **Toast** | `website/js/toast.js` | [[ADR-JS]] | [[chrome-modern-css]] |
+| **ToastSystem** | `website/js/toast.js` | [[ADR-JS]] |  |
+<!-- END AUTOMATED MATRIX -->
+
+---
+
+## 📝 Manuelle Notizen & Ausnahmen
+
+Alles außerhalb der automatisierten HTML-Kommentare ist für **manuelle Notizen** vorgesehen. Hier dokumentieren wir Architektur-Ausnahmen, globale Infrastruktur oder Legacy-Vermerke, die durch das automatisierte Code-Tagging nicht sinnvoll erfasst werden können.
+
+### 📌 Regeln für manuelle Einträge
+1. **Nur für echte Ausnahmen:** Wenn eine Datei ein @adr oder @guide Tag enthalten kann, dann nutze die automatisierte Matrix!
+2. **Klarer Grund:** Begründe, warum diese Datei manuell dokumentiert wird.
+3. **Lebende Dokumentation:** Halte diese Sektion sauber.
+
+### 🛡️ Bekannte Infrastruktur-Ausnahmen
+
+| Funktion / Modul | Code Datei | Grund für Ausnahme |
+| :--- | :--- | :--- |
+| **CSS Reset** | `website/css/reset.css` | Globales CSS-Reset. Ändert sich nicht, keine spezifische ADR-Verknüpfung notwendig. |
+| **CSS Variables** | `website/css/variables.css` | Deklariert Basis-Tokens. Die Architektur-Entscheidung liegt bei den nutzenden CSS-Dateien. |
+| **Start-Skript** | `start.ps1` | Build-Skript & Fitness-Gate. Läuft außerhalb des Web-Kontexts (PowerShell). |
+| **Log-Session** | `tools/log_session.js` | Teil der Tooling-Infrastruktur für KI-Agenten, nicht Teil der Geschäftslogik. |',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/Guides/chrome-modern-css.md',
   'Guide: Modern CSS Features (Chrome 148+ Baseline)',
   'active',
@@ -2568,279 +3423,6 @@ Ermöglicht das absolute Positionieren eines Elements (z.B. ein Tooltip) *relati
 ## Feature-Stabilität & Prüfung
 
 Da wir auf Engine-Version **Chrome 148+** (bzw. 149+) setzen, sind **alle oben genannten Features stabil verfügbar** und benötigen keine Prefix-Hacks oder Polyfills. Ein manueller Feature-Check per JavaScript (wie in alten Versionen dieses Dokuments) ist unnötig und entfernt worden, da wir eine harte Engine-Grenze als Vorbedingung für die Nutzung der Applikation definieren.',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'docs/Guides/din-5008-geometry.md',
-  'Guide: DIN 5008 Geometry Master Data (SSoT)',
-  'active',
-  '# DIN 5008 Geometry Master Data (SSoT)
-
-> [!important] Single Source of Truth
-> Dieses Dokument dient als das absolute und hochpräzise **Single Source of Truth (SSoT)** Regelwerk für alle physischen Abstände, Geometrien, Schriftgrößen und Positionen der Anwendung **DIN-BriefNEO**.
-
----
-
-## 1. Physische Blattgeometrie & Ränder
-Ein DIN A4 Blatt hat die festen physischen Maße **210 mm Breite × 297 mm Höhe**.
-
-| Parameter | Standard-Maß (DIN 5008) | Implementierungs-Maß (SSoT) | Quelle |
-| :--- | :--- | :--- | :--- |
-| **Blattbreite** | 210 mm | `100cqw` | DIN A4 Standard |
-| **Blatthöhe** | 297 mm | `100cqh` | DIN A4 Standard |
-| **Linker Seitenrand** | 25 mm | `11.905cqw` (25/210) | DIN 5008, Abs. 6.1 (Lochrand) |
-| **Rechter Seitenrand** | 20 mm (Min: 8.1 mm) | `9.524cqw` (20/210) | DIN 5008, Abs. 6.2 |
-| **Oberer Seitenrand (Form A)** | 27 mm | `9.091cqh` (27/297) | DIN 5008, Abs. 6.3 (Header-Start A) |
-| **Oberer Seitenrand (Form B)** | 45 mm | `15.152cqh` (45/297) | DIN 5008, Abs. 6.3 (Header-Start B) |
-| **Unterer Seitenrand** | 20 mm (Min: 10 mm) | `6.734cqh` (20/297) | DIN 5008, Abs. 6.4 |
-
----
-
-## 2. Das Anschriftfeld (Empfängeradresse)
-Das Anschriftfeld hat die festen Maße **85 mm Breite × 45 mm Höhe** und befindet sich linksbündig an der Fluchtlinie (`25 mm` vom linken Blattrand).
-
-| Parameter / Zone | Form A | Form B | Schriftgröße | Max. Zeilen | Quelle |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Beginn Anschriftfeld (Y)** | **27 mm** | **45 mm** | — | — | DIN 5008, Abs. 16.1.4 |
-| **Breite Anschriftfeld** | 85 mm | 85 mm | — | — | DIN 5008, Abs. 16.1.4 |
-| **Höhe Anschriftfeld** | 45 mm | 45 mm | — | — | DIN 5008, Abs. 16.1.4 |
-| **1. Zone: Rücksendezeile** | Y: 27 – 32 mm | Y: 45 – 50 mm | max. 8 pt (**2.82 mm**) | 1 Zeile (fix) | DIN 5008, Abs. 16.1.2 |
-| **2. Zone: Zusatz/Vermerk** | Y: 32 – 44.7 mm | Y: 50 – 62.7 mm | 10 – 11 pt (**3.53 – 3.88 mm**) | 3 Zeilen | DIN 5008, Abs. 16.1.3 |
-| **3. Zone: Empfängeranschrift**| Y: 44.7 – 72 mm | Y: 62.7 – 90 mm | 10 – 11 pt (**3.53 – 3.88 mm**) | 6 Zeilen | DIN 5008, Abs. 16.1.4 |
-
----
-
-## 3. Absender-Zone (Branding / Header)
-Die Absender-Zone nimmt den oberen Briefkopf (Branding-Bereich) ein.
-
-| Parameter | Form A | Form B | Schriftgröße | Quelle |
-| :--- | :--- | :--- | :--- | :--- |
-| **Branding-Bereich (Y-Spanne)** | 0 mm bis 27 mm | 0 mm bis 45 mm | — | DIN 5008, Abs. 16.1 |
-| **Absender-Zustelladresse (X)** | 25 mm | 25 mm | 10 pt (**3.53 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Absender-Zustelladresse (Y)** | ab 27 mm | ab 45 mm | 10 pt (**3.53 mm**) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Firmenlogo (SVG/Base64)** | Rechtsbündig | Rechtsbündig | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
-
----
-
-## 4. Informationsblock & Datum
-
-Der Informationsblock befindet sich rechts oben und wächst von oben nach unten. Je nach Einsatzzweck unterscheidet die DIN 5008 zwischen geschäftlichen und privaten Briefen.
-
-### 4.1 Geschäftsbrief (Kompletter Infoblock)
-
-Der klassische Geschäftsbrief nutzt den vollen, strukturierten Informationsblock für Geschäftszeichen, Ansprechpartner, Telefon und Datum.
-
-| Parameter | Form A | Form B | Ausrichtung | Quelle |
-| :--- | :--- | :--- | :--- | :--- |
-| **Infoblock Beginn (X)** | 125 mm | 125 mm | Linksbündig | DIN 5008, Abs. 17.1 |
-| **Infoblock Breite** | 75 mm | 75 mm | — | DIN 5008, Abs. 17.1 |
-| **Infoblock Beginn (Y)** | 32 mm | 50 mm | Linksbündig | DIN 5008, Abs. 17.1 |
-| **Schriftgröße Infoblock** | 8.5 pt (3.00 mm) | 8.5 pt (3.00 mm) | — | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Briefdatum (X)** | 125 mm | 125 mm | Linksbündig | DIN 5008, Abs. 17.2 |
-| **Briefdatum (Y)** | 74 mm | 92 mm | Linksbündig (10 pt / 3.53 mm) | `eigenequellen/DIN-BriefNEO/issues/#1` |
-
-### 4.2 Privatbrief (Reduzierter Infoblock)
-
-Für Privatbriefe entfallen die komplexen Geschäftszeichen. Der Informationsblock wird stark reduziert und enthält üblicherweise nur die Absender-Kontaktdaten.
-
-**Beispielhafter Aufbau (rechtsbündig oder im Infoblock linksbündig platziert):**
-- Moritz Baumeister
-- Kettelerstraße 2
-- 53844 Troisdorf
-- Telefonnummer (optional)
-- E-Mail-Adresse (optional)
-
-*Geometrie:* Die Startpositionen (X: 125 mm, Y: 32/50 mm) gelten in der Regel weiterhin, um das einheitliche DIN-Fenster-Layout nicht zu brechen, jedoch ist der Inhalt freier formatierbar. Das Datum bildet meist den Abschluss.
-
----
-
-## 5. Hauptinhalte (Betreff, Anrede, Brieftext)
-
-Der Inhaltsbereich beginnt immer unterhalb des Informationsblocks und ist in strikte Abschnitte unterteilt. 
-
-WICHTIG: Technisch (im HTML/CSS) befinden sich diese Elemente innerhalb eines gemeinsamen Flow-Containers (`#briefkern`), da sie sich gegenseitig nach unten schieben müssen (z. B. wenn der Betreff 2-zeilig wird). Hier sind die geometrischen Startpunkte:
-
-### 5.1 Betreffzeile
-
-Der Betreff ist das erste Element. Er wird fett formatiert und erhält keinen Punkt am Ende.
-
-> **WICHTIG:** Der Betreff muss **unterhalb** der oberen Falzmarke (105 mm) positioniert werden, damit er beim Falten in den DL-Umschlag nicht geknickt wird.
-
-| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
-| :--- | :--- | :--- | :--- | :--- |
-| **Startposition (Y)** | **85.4 mm** | **109 mm** | 12 pt (**4.23 mm**, fett) | DIN 5008, Abs. 18 & 19 |
-| **Linke Fluchtlinie (X)** | 25 mm | 25 mm | — | DIN 5008, Abs. 6.1 |
-| **Rechte Begrenzung (X)** | 190 mm | 190 mm | — | DIN 5008, Abs. 6.2 |
-| **Maximal-Zeilen** | 2 Zeilen | 2 Zeilen | — | DIN 5008, Abs. 18 |
-
-### 5.2 Anrede
-
-Die Anrede steht mit festem Abstand unter dem Betreff. Da die Betreffzeile in ihrer Höhe variieren kann (1 oder 2 Zeilen), wird die absolute Y-Position der Anredezeile oft dynamisch vom Betreff nach unten geschoben. Die unten genannten Y-Werte gelten für einen einzeiligen Betreff.
-
-| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
-| :--- | :--- | :--- | :--- | :--- |
-| **Abstand zum Betreff** | 2 Leerzeilen (8.46 mm) | 2 Leerzeilen (8.46 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 19 |
-| **Erwartete Y-Position** | ~98 mm | ~122 mm | 10.5 pt (**3.70 mm**) | Beispiel bei einzeiligem Betreff |
-
-### 5.3 Brieftext (Fließtext)
-
-Der eigentliche Briefinhalt beginnt eine Leerzeile unter der Anrede.
-
-| Parameter | Form A | Form B | Schriftgröße | Quelle / Detail |
-| :--- | :--- | :--- | :--- | :--- |
-| **Abstand zur Anrede** | 1 Leerzeile (4.23 mm) | 1 Leerzeile (4.23 mm) | 10.5 pt (**3.70 mm**) | DIN 5008, Abs. 20 |
-| **Erwartete Y-Position** | ~106 mm | ~130 mm | 10.5 pt (**3.70 mm**) | Beispiel bei einzeiligem Betreff |
-| **Zeilenabstand** | 1.4 (ca. 5.18 mm) | 1.4 (ca. 5.18 mm) | — | DIN 5008, Abs. 20 |
-| **Grußformel (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 1 Leerzeile unter Textende |
-| **Unterschrift (Y)** | Dynamisch | Dynamisch | 10.5 pt (**3.70 mm**) | 3 Leerzeilen für Unterschrift |
-
----
-
-## 6. Faltmarken & Lochmarke
-Die Hilfsmarken dienen der physischen Faltung und Lochung. Die Y-Werte beziehen sich auf den Abstand vom oberen Blattrand.
-
-| Hilfsmarke | Form A | Form B | Breite / Stil | Quelle |
-| :--- | :--- | :--- | :--- | :--- |
-| **Falzmarke 1 (oben)** | **87 mm** | **105 mm** | 3 mm (horizontal) | Fixe Position nach DIN 5008 Form B. Nicht veränderbar, da relevant für Fensterumschlag. |
-| **Falzmarke 2 (unten)** | **181 mm** | **210 mm** | 3 mm (horizontal) | Angepasste Position für mehr Freiraum. |
-| **Lochmarke (Mitte)** | **148.5 mm** | **148.5 mm** | 5 mm (horizontal) | DIN 5008, Abs. 25 (exakt Blatthöhe / 2) |
-
----
-
-## 7. Fußzeile (Footer)
-Die Fußzeile ist vier-spaltig aufgebaut und schließt das Blatt nach unten ab.
-
-| Parameter | Form A & B | Details | Quelle |
-| :--- | :--- | :--- | :--- |
-| **Beginn Fußzeile (Y)** | **241 mm** | Feste vertikale Position | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Fußzeilen-Breite** | 165 mm | X: 25 mm bis X: 190 mm | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Spaltenanzahl** | 4 Spalten | Je 25 % Breite | `eigenequellen/DIN-BriefNEO/issues/#1` |
-| **Schriftgröße** | 7.5 pt (**2.65 mm**) | Kleine, serifenlose Schrift | `eigenequellen/DIN-BriefNEO/issues/#1` |
-
----
-
-## 8. Verhalten von Kopf- und Fußzeilen auf Folgeseiten
-Gemäß dem DIN 5008 Standard für mehrseitige Briefe gelten für alle Folgeseiten (Seite 2+) folgende strikte Ausblendregeln:
-
-- **Briefkopf (Absender & Branding):** Wird auf Folgeseiten vollständig **ausgeblendet**.
-- **Anschriftfeld (Empfängeradresse):** Wird auf Folgeseiten vollständig **ausgeblendet**.
-- **Informationsblock & Datum:** Werden vollständig **ausgeblendet**.
-- **Faltmarken & Lochmarke:** Die Falzmarken (Falz oben, Falz unten) entfallen auf Folgeseiten, um das Druckbild rein zu halten. Die mittlere Lochmarke bleibt optional erhalten.
-- **Seitenkopf-Zeile (Folgeseiten-Header):** Erhält eine dezente Zeile am oberen Rand (Y: 20 mm) mit der Paginierung (z. B. "Brief vom [Datum], Seite [X]") in 9 pt.
-- **Fußzeile (Footer):** Bleibt auf allen Folgeseiten einheitlich zur Primärseite bei Y: 241 mm eingeblendet.
-
----
-
-## 9. Überlauf- und Validierungsregeln (Checkliste weiche Anforderungen)
-Um Layout-Sprengungen und unkontrolliertes Fließen (unter der No-Scroll-Bedingung) zu verhindern, gelten folgende Interaktions-Sperren:
-
-### A. Empfängerfeld (Anschriftfeld)
-- **Limit:** Maximal **6 Zeilen** Text in der Anschriftzone.
-- **Verhalten bei Überlauf:** Wenn der eingegebene Text 6 Zeilen überschreitet (bzw. die Zone aus ihrer Begrenzung von 27.3 mm überfließt), erhält der Container einen **visuellen Warnrahmen** (rote gestrichelte Linie), und die Eingabe weiterer Zeilenumbrüche (Enter) wird blockiert. Das Löschen von Text hebt den Warnzustand wieder auf.
-
-### B. Betreffzeile
-- **Limit:** Maximal **2 Zeilen** Text.
-- **Verhalten bei Überlauf:** Ähnlich dem Anschriftfeld blockiert das Keydown-Event ein weiteres Eingeben von Enter-Zeilenumbrüchen, sobald 2 Zeilen gefüllt sind. Visuelle Warnmarkierung wird aktiv.
-
-### C. Brieftext & Paginierungs-Schnittstelle
-- **Verhalten bei Überlauf:** Da Scrollen verboten ist, muss verhindert werden, dass Text über das untere Ende des Briefkerns hinausgeschrieben wird.
-- **Implementierung:** 
-  1. Sobald der geschriebene Text im `<din-text>`-Element die maximale vertikale Begrenzung (Y: 230 mm, also kurz vor Beginn der Fußzeile) berührt, färbt sich der Rand des Briefblatts dezent rot, und ein Toast-Hinweis meldet: *"Seite voll. Bitte neue Seite anlegen."*
-  2. Der Anwender kann nun über den Navigationsknopf `+` eine Folgeseite anlegen. Der Cursor springt automatisch in das Textfeld der Folgeseite.
-  3. *Langfristiger Ausblick:* Der Text wird später bei Erreichen des Seitenendes automatisch gesplittet und der Rest auf die Folgeseite verschoben (Auto-Pagination).
-
----
-
-## 10. Dokumenten-Quellen-Verzeichnis (Citations)
-Jede Zahl in diesem Dokument wurde penibel mit den folgenden Originalquellen abgeglichen und verifiziert:
-
-1. **DIN 5008:2020-03 (Offizieller Standard):**
-   - Ränder (Lochrand 25mm, rechter Rand 20mm, Unterkanten-Abstände).
-   - Einteilung und Maße des Anschriftfeldes (85mm x 45mm, Zonenaufteilung: 5mm Rücksendezeile, 12.7mm Vermerke, 27.3mm Empfänger).
-   - Positionierung des Informationsblocks (X: 125mm, Y: 32mm / 50mm).
-2. **`alterarbeitsordner/issues/#1 DIN 5008 HTML Tag Glossar.md`:**
-   - Positionen des Datums (Y: 74mm / 92mm) und des Briefkern-Starts (Y: 85.4mm / 103.4mm).
-   - Vier-spaltiges Layout der Fußzeile bei Y: 241mm.
-   - Proportionale CSS-Werte (`var(--din-y-header-start) + 60mm` bzw. `+ 154mm`) für die Faltmarken.
-3. **`eigenequellen/din-5008-css-forked-for-later/index.html`:**
-   - Geometrischer Randabstand der Linien-Markierungen (left: 2mm / 5mm, top: 87mm / 105mm).
-4. **`fremdquellen/letter/css/style.css`:**
-   - Genaue CSS-Pixel-Übersetzungen und Faltmarkierungs-Positionen (line-1 bei 105mm, line-2 bei 148.5mm, line-3 bei 210mm [Form A Alternative]).',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'docs/Guides/din-5008-layout.md',
-  'Guide: DIN 5008 Layout-Richtlinien (SSoT)',
-  'active',
-  '# DIN 5008 Layout-Richtlinien (SSoT)
-
-> [!important] Single Source of Truth
-> Dieses Dokument dient als Single Source of Truth (SSoT) für alle Abstände, Geometrien und Platzierungen auf dem virtuellen DIN A4 Briefblatt (210mm x 297mm).
-
----
-
-## 1. Blattgeometrie & Ränder
-Ein DIN A4 Blatt hat die Maße **210 mm Breite** und **297 mm Höhe**.
-Die Ränder sind wie folgt festgelegt:
-- **Linker Rand:** 25 mm (für Lochung und Abheftung)
-- **Rechter Rand:** 20 mm (Standard) oder mindestens 8,1 mm (absolutes Minimum für Textüberläufe)
-- **Oberer Rand:** 27 mm (Form A) oder 45 mm (Form B) für den Beginn des Briefkopfs / Anschriftfelds.
-
----
-
-## 2. Die beiden Varianten (Form A vs. Form B)
-Der Hauptunterschied liegt in der Höhe des Briefkopfs, was die Position aller darunter liegenden Elemente verschiebt.
-
-| Element | Form A (Kleiner Kopf) | Form B (Großer Kopf) |
-| :--- | :--- | :--- |
-| **Höhe des Briefkopfs** | 27 mm | 45 mm |
-| **Anschriftfeld (Beginn)** | 27 mm | 45 mm |
-| **Infoblock (Beginn)** | 32 mm | 50 mm |
-| **Fluchtlinie (links)** | 50 mm | 50 mm |
-| **Falzmarke 1 (oben)** | 87 mm | 105 mm |
-| **Falzmarke 2 (unten)** | 181 mm | **210 mm** |
-| **Lochmarke (Mitte)** | 148,5 mm | 148,5 mm |
-
----
-
-## 3. Das Anschriftfeld (Zoneneinteilung)
-Das Anschriftfeld ist exakt **85 mm breit** und **45 mm hoch**. Es ist links 20 mm vom Rand positioniert.
-
-Das Feld unterteilt sich in:
-- **Rücksendezeile (Absenderadresse):** 5 mm hoch, Schriftgröße max. 8pt. (Position: Ganz oben im Anschriftfeld).
-- **Zusatz- und Vermerkzone:** 17,7 mm hoch (3 Zeilen für Einschreiben, Postzustellungsurkunden, etc.).
-- **Anschriftzone (Empfängeradresse):** 27,3 mm hoch (6 Zeilen für Name, Straße, PLZ/Ort).
-
----
-
-## 4. Der Informationsblock
-Der Informationsblock befindet sich rechts oben und enthält Metadaten wie Aktenzeichen, Ansprechpartner, Durchwahl und das Datum.
-- **Position (Standard):** Beginnt bei 125 mm von links.
-- **Breite:** 75 mm.
-- **Datum:** Steht standardmäßig in der letzten Zeile des Informationsblocks oder alternativ als alleinstehende Zeile mit 8,46 mm Abstand über dem Betreff.
-
----
-
-## 5. Briefkern (Betreff, Anrede, Text)
-Der eigentliche Textbereich (Briefkern) beginnt unterhalb des Anschriftfelds:
-- **Betreff:** Beginnt bei **109 mm** von oben (Form B) bzw. **85,4 mm** (Form A). Der Betreff wird fett formatiert und erhält keinen Punkt am Ende. *Der Betreff wird bewusst nach der oberen Falzmarke (105 mm) platziert, um ein Knicken beim Falten zu vermeiden.*
-- **Abstand zur Anrede:** 2 Leerzeilen (ca. 8,46 mm) unter dem Betreff.
-- **Anrede:** Standard-Anredeformel ("Sehr geehrte Damen und Herren,", "Lieber Herr...").
-- **Abstand zum Text:** 1 Leerzeile unter der Anrede.
-- **Brieftext:** Fließtext in einer gut lesbaren Schriftgröße (10pt bis 12pt). Zeilenabstand einfach oder 1.2.
-- **Grußformel:** 1 Leerzeile Abstand zum Brieftext.
-- **Unterschrift:** Unter der Grußformel (oder Firmenname) folgen 3 Leerzeilen für die handschriftliche Unterschrift, gefolgt vom getippten Namen.
-- **Anlagenvermerk:** Beginnt 1 Leerzeile unter dem getippten Namen.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
   'all-MiniLM-L6-v2',
@@ -3056,7 +3638,7 @@ Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/Guides/GUIDE-TEMPLATE.md',
   'Guide: [Thema des Guides]',
-  'active | draft | deprecated',
+  'draft | active | deprecated',
   '# Guide: [Titel]
 
 > [!tip] Was ist dieser Guide?
@@ -3532,6 +4114,93 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/Guides/toast-system.md',
+  'Guide: Toast Notifications System',
+  'active',
+  '# Guide: Using the Next-Level Toast System
+
+The Toast system is a decoupled, highly advanced UI module located at `js/toast.js`. It leverages modern native W3C specifications (Popover API, Discrete Transitions, ARIA-Live Regions) to provide accessible and smooth notifications.
+
+## Basic Usage
+
+To show a simple notification, import the `showToast` function and pass your message:
+
+```javascript
+import { showToast } from ''./toast.js'';
+
+// Info (Default)
+showToast(''Dies ist eine Info'');
+
+// Success
+showToast(''Speichern erfolgreich!'', ''success'');
+
+// Warning
+showToast(''Verbindung langsam...'', ''warning'');
+
+// Error
+showToast(''API Key abgelaufen!'', ''error'');
+```
+
+The system will automatically calculate the display duration based on the text length (up to a maximum of 5 seconds) and handle deduplication for you.
+
+## Advanced Features
+
+### 1. Actionable Toasts (Buttons)
+You can attach an interactive button to the Toast by passing an `action` object in the options parameter:
+
+```javascript
+showToast(''Entwurf gelöscht.'', ''warning'', {
+  action: {
+    label: ''Rückgängig'',
+    callback: () => {
+      console.log(''Rückgängig ausgeführt!'');
+      // ... restore logic ...
+    }
+  }
+});
+```
+
+### 2. Sticky Toasts & Updatable Progress
+For background tasks (like PDF generation or bulk sending), you can make a Toast "sticky" so it never automatically disappears. You can then update its content via `updateToast`.
+
+```javascript
+import { showToast, updateToast } from ''./toast.js'';
+
+const taskId = ''pdf-gen-123'';
+
+// Start a sticky toast
+showToast(''Generiere 500 PDFs... [░░░░░░] 0%'', ''info'', {
+  sticky: true,
+  id: taskId
+});
+
+// Later, update it as progress continues
+setTimeout(() => {
+  updateToast(taskId, ''Generiere 500 PDFs... [████░░] 60%'', ''info'');
+}, 2000);
+
+// Finally, convert it to a success message and let it close naturally or keep it sticky
+setTimeout(() => {
+  // If you call showToast with the exact same message, it increments the badge.
+  // To replace a sticky toast completely with an auto-closing one, you could close it and spawn a new one,
+  // or just update it manually. Currently, updateToast just updates the DOM.
+  updateToast(taskId, ''✅ 500 PDFs fertig!'', ''success'');
+}, 4000);
+```
+
+### 3. Built-in User Interactions
+You do not need to code anything for these features, they are built-in:
+- **Swipe-to-Dismiss**: Users can mouse-drag or touch-swipe the toast to the right to throw it off the screen.
+- **Hover-to-Pause**: Hovering the mouse over the toast stops the timeout countdown.
+- **Counter Badges (x2, x3)**: Triggering the exact same message while it is already visible will shake the toast and increment a small counter badge, preventing visual spam.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/implementation/sqlite-vec.md',
   'Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung',
   'active',
@@ -3900,6 +4569,319 @@ INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM d
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/implementation/sqlite-vec.md'), 'tools');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/index.md',
+  'DIN-BriefNEO OmniTraceability',
+  'active',
+  '# 🚀 DIN-BriefNEO: OmniTraceability Hub
+
+Willkommen in der Single Source of Truth (SSoT) des DIN-BriefNEO Projekts. 
+Dieses Wiki dient als maschinenlesbarer Navigator durch die Architektur, Spezifikationen und Entscheidungen des Projekts. Es ist das Fundament für unsere kompromisslose Traceability und die Schnittstelle zwischen Mensch (Obsidian) und Maschine (LLM & SQLite).
+
+## 🧭 Kernnavigation
+
+### Das Fundament
+- **[[OmniTraceability]]**: Die Systemarchitektur der lückenlosen Nachverfolgbarkeit. Hier erfährst du, wie der Lebenszyklus unserer Software funktioniert und wie du das System langfristig wartest.
+- **[[Function-Traceability]]**: Das automatisierte Code-zu-Dokumentation Mapping. Die Matrix, die unsere Code-Base zusammenhält.
+
+### Die Umsetzung
+- **[Architektur-Entscheidungen (ADRs)](ADR/ADR-ÜBERSICHT.md)**: Alle verbindlichen Architektur-Regeln. Das "Warum".
+- **[Guides & Manuals](Guides/GUIDE-TEMPLATE.md)**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
+- **[[core/spec]]**: Die unumstößlichen funktionalen und fachlichen Anforderungen an die DIN 5008. Das "Was".
+
+---
+
+## 🧠 Für KI-Agenten (System-Prompt)
+
+> [!TIP]
+> Dieses System nutzt bidirektionale Traceability. Es ist dir als KI-Agent **strikt untersagt**, Feature-Branches zu erstellen. Wir arbeiten **branchless auf `main`**.
+> 
+> Wenn du Code-Dateien in `website/` modifizierst, konsultiere **zwingend** die in der Datei verlinkten ADRs und Guides über die `[[Wikilinks]]` in den Header-Kommentaren. Das Frontmatter dieses Wikis wird nächtlich in eine SQLite-Vektordatenbank kompiliert und muss streng formatiert bleiben. Niemals das Frontmatter-Schema verändern!',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/Meta/Feature-Matrix.md',
+  'Logische Gruppen — Feature-Matrix (Platinum Master)',
+  'active',
+  '# Logische Gruppen — Feature-Matrix (Platinum Master)
+
+> [!IMPORTANT]
+> **Nächster Sprint:** Seitenumbrüche (#58) und DIN-Overlay (#57) sind priorisiert. Das @din-briefneo/core-team überwacht die Compliance.
+
+> [!TIP]
+> Alle Issues sind mit GitHub-Labels versehen. Filtere nach `group:geometry` für Geometrie-spezifische Aufgaben.
+
+Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Roadmap für die kommenden Platinum-Sessionen.
+
+---
+
+## 🎯 Platinum Sprint Q2 2026 (Current Focus)
+
+- [x] Variable-First Form A/B Switching (#55)
+- [x] Refactor Fold Marks to 4mm Standard (#54)
+- [x] CSS Capability Matrix & Platinum Glossary (v4.8.0)
+- [x] 3D-Carousel & Toast Animation System
+- [ ] Finalize Address-Autocomplete integration (#42)
+- [ ] Integrate DIN-Referenz-SVG Overlay (#57)
+- [ ] Implement CMA-Sensor for Page Breaks (#58)
+
+---
+
+## 📌 Quick Links
+
+| Bereich                    | Link                                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| 🗺️ **Roadmap**             | [GitHub Projects](https://github.com/din-briefneo/din-briefneo/projects)                            |
+| 🐛 **Bug melden**          | [New Issue](https://github.com/din-briefneo/din-briefneo/issues/new?template=bug_report.yml)        |
+| ✨ **Feature vorschlagen** | [New Feature](https://github.com/din-briefneo/din-briefneo/issues/new?template=feature_request.yml) |
+| 📊 **Milestones**          | [Milestones](https://github.com/din-briefneo/din-briefneo/milestones)                               |
+
+---
+
+## 🚦 Projekt-Status
+
+![Progress](https://img.shields.io/badge/Overall_Progress-76%25-blue)
+![Completed](https://img.shields.io/badge/Completed-26_of_34-green)
+![Open](https://img.shields.io/badge/Open-8-red)
+![Platinum](https://img.shields.io/badge/Platinum_Session-2026-gold)
+
+---
+
+## Gruppe 1: Identität & Adress-Intelligenz
+
+| Funktion                | Beschreibung                                    | Status                                                  | Upgrade-Potenzial                           | 🔗 Issue / PR                                                 |
+| ----------------------- | ----------------------------------------------- | ------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| **Adress-Autocomplete** | API-Anbindung für schnelle Empfänger-Eingabe    | ✅ Aktiv | Geoapify Premium – aktuell Photon (OSM)     | [#42](https://github.com/din-briefneo/din-briefneo/issues/42) |
+| **Adress-Validierung**  | Prüfung der 6-Zeilen-Regel nach DIN 5008        | ✅ Aktiv | Länder-spezifische PLZ-Validierung          | [#43](https://github.com/din-briefneo/din-briefneo/issues/43) |
+| **Branding-Atome**      | Native Unterstützung für Logo und Wasserzeichen | ✅ Aktiv | Base64-Optimierung – localStorage-Effizienz | [#44](https://github.com/din-briefneo/din-briefneo/issues/44) |
+| **Empfänger-Parser**    | Automatisches Erkennen von Geschlecht/Titeln    | ✅ Aktiv | Firmen-Erkennung – "GmbH/AG" Erkennung      | [#45](https://github.com/din-briefneo/din-briefneo/issues/45) |
+| **Profil-Management**   | Granulare Speicherung von Kontakt- & Bankdaten  | ✅ Aktiv | Mehrere Profile – Privat/Büro Wechsel       | [#46](https://github.com/din-briefneo/din-briefneo/issues/46) |
+| **Rücksendezeile**      | Automatische Generierung der Kleinstzeile       | ✅ Aktiv | Internationales Format – c/o Anpassungen    | [#47](https://github.com/din-briefneo/din-briefneo/issues/47) |
+
+---
+
+## Gruppe 2: Inhalts-Engine & WYSIWYG
+
+| Funktion                | Beschreibung                                 | Status                                                  | Upgrade-Potenzial                        | 🔗 Issue / PR                                                 |
+| ----------------------- | -------------------------------------------- | ------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| **Ghost-Mirror**        | Echtzeit-Markdown-Vorschau ohne Verschiebung | ✅ Aktiv | Syntax-Highlighting für Markdown-Marker  | [#48](https://github.com/din-briefneo/din-briefneo/issues/48) |
+| **Native Sanitization** | XSS-Schutz via Browser-native Sanitizer API  | ✅ Aktiv | CSP-Header – Trusted Types Integration   | [#49](https://github.com/din-briefneo/din-briefneo/issues/49) |
+| **Plaintext-Only**      | Striktes Plaintext-Handling in allen Feldern | ✅ Aktiv | Paste-Filter mit Whitelist für `<br>`    | [#50](https://github.com/din-briefneo/din-briefneo/issues/50) |
+| **Salutation Engine**   | Automatische Generierung der DIN-Anrede      | ✅ Aktiv | Firmen-Anrede – "Damen und Herren" Logik | [#51](https://github.com/din-briefneo/din-briefneo/issues/51) |
+| **Smart Deadlines**     | Kontextsensitive Termin-Vorschläge           | ✅ Aktiv | Feiertags-API – Regionale Prüfung        | [#52](https://github.com/din-briefneo/din-briefneo/issues/52) |
+| **Styling Buttons**     | Toolbar für Fett, Unterstrichen, Zitate      | ✅ Aktiv | Keyboard Shortcuts – Strg+B/I/U          | [#53](https://github.com/din-briefneo/din-briefneo/issues/53) |
+| **Ghost-Text Anrede**   | Platzhalter via `data-salutation`            | ✅ Aktiv | Individuelle Vorschläge pro Kontakt-Typ  | [#71](https://github.com/din-briefneo/din-briefneo/issues/71) |
+
+---
+
+## Gruppe 3: Geometrie & Compliance
+
+| Funktion               | Beschreibung                                   | Status                                                  | Upgrade-Potenzial                     | 🔗 Issue / PR                                                 |
+| ---------------------- | ---------------------------------------------- | ------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
+| **Faltmarken**         | Präzise Positionierung nach DIN 5008           | ✅ Aktiv | Toggle für Hilfslinien in der Sidebar | [#54](https://github.com/din-briefneo/din-briefneo/issues/54) |
+| **Form A/B Switch**    | Mechanische Umschaltung der Kopfhöhe via CSS   | ✅ Aktiv | Persistenz via LocalStorage           | [#55](https://github.com/din-briefneo/din-briefneo/issues/55) |
+| **IMR 4.0 Atome**      | Alle 45 DIN-Felder als eigenständige Objekte   | ✅ Aktiv | IMR-Catalog Generator für Agenten     | [#56](https://github.com/din-briefneo/din-briefneo/issues/56) |
+| **Layout-Guides**      | Visuelle Hilfslinien zur Ausrichtungskontrolle | ✅ Aktiv | DIN-Referenz-SVG Overlay              | [#57](https://github.com/din-briefneo/din-briefneo/issues/57) |
+| **3D-Carousel**        | Native CSS-Variablen Transformation           | ✅ Aktiv | Hardware-Beschleunigung optimiert     | [#72](https://github.com/din-briefneo/din-briefneo/issues/72) |
+| **Form C Layout**      | Flexbox-basiertes gestapeltes Layout           | ✅ Aktiv | Responsive Breakpoints für Mobile     | [#73](https://github.com/din-briefneo/din-briefneo/issues/73) |
+| **Footer Auto-Hide**   | Leere Spalten via CSS ausblenden               | ✅ Aktiv | Zero-Layout-Shift Optimierung         | [#74](https://github.com/din-briefneo/din-briefneo/issues/74) |
+| **Seitenumbrüche**     | Native Unterstützung für mehrseitige Briefe    | ⏳ Offen | Duplex-Erkennung – Leerseiten-Logik   | [#58](https://github.com/din-briefneo/din-briefneo/issues/58) |
+
+---
+
+## Gruppe 4: Infrastruktur & Daten-IO
+
+| Funktion            | Beschreibung                               | Status                                                  | Upgrade-Potenzial                          | 🔗 Issue / PR                                                 |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| **Flight Recorder** | Telemetrie und Notfall-Wiederherstellung   | ✅ Aktiv | Log-Export als JSON für Bug-Reports        | [#59](https://github.com/din-briefneo/din-briefneo/issues/59) |
+| **JSON Data-IO**    | Import/Export des kompletten Briefzustands | ✅ Aktiv | Schema-Validator gegen IMR 4.0             | [#60](https://github.com/din-briefneo/din-briefneo/issues/60) |
+| **Print CSS**       | Vektorscharfer PDF-Export via Print-Styles | ✅ Aktiv | PDF-Metadaten – Titel/Autor im PDF         | [#61](https://github.com/din-briefneo/din-briefneo/issues/61) |
+| **PWA Standalone**  | Offline-Fähigkeit und Installation als App | ✅ Aktiv | Update-Benachrichtigung via Service Worker | [#62](https://github.com/din-briefneo/din-briefneo/issues/62) |
+| **SSoT Constants**  | Zentrale Geometrie-Definition              | ✅ Aktiv | Typed CSS Properties (`@property`)         | [#63](https://github.com/din-briefneo/din-briefneo/issues/63) |
+| **Toast-System**    | Pure-CSS Benachrichtigungssystem           | ✅ Aktiv | `@starting-style` für flüssige Entries   | [#75](https://github.com/din-briefneo/din-briefneo/issues/75) |
+
+---
+
+## 🔗 Dokumenten-Navigation
+
+| Issue | Dokument | Zweck |
+|-------|----------|-------|
+| [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1) | IMR 4.0 Registry | Alle 45+ DIN-Tags |
+| [#2](https://github.com/grapefruit89/DIN-BriefNEO/issues/2) | Architecture Compliance | Technologie-Leitplanken |
+| [#3](https://github.com/grapefruit89/DIN-BriefNEO/issues/3) | Feature Matrix | Projekt-Fortschritt |
+| [#4](https://github.com/grapefruit89/DIN-BriefNEO/issues/4) | Salutation Engine | Logik-Dokumentation |
+| [#5](https://github.com/grapefruit89/DIN-BriefNEO/issues/5) | CSS Glossar | CSS-Features Referenz |
+
+**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
+
+---
+
+## 🔗 Verwandte Dokumente (Dataview)
+
+```dataview
+TABLE 
+  version AS "Version",
+  status AS "Status",
+  date_updated AS "Aktualisiert"
+FROM ""
+WHERE contains(related, this.file.name)
+SORT version DESC
+```
+
+
+---
+
+## Gruppe 5: Zukunfts-Features (Roadmap 2026/2027)
+
+| Funktion            | Beschreibung                               | Status     | Technologie                   | 🔗 Issue / PR                                                 | Priorität                                                |
+| ------------------- | ------------------------------------------ | ---------- | ----------------------------- | ------------------------------------------------------------- | -------------------------------------------------------- |
+| **Brief-Archiv**    | IndexedDB für hunderte gespeicherte Briefe | 🔴 Geplant | IndexedDB + Volltextsuche     | [#64](https://github.com/din-briefneo/din-briefneo/issues/64) | ![High](https://img.shields.io/badge/🔴-Hoch-red)        |
+| **Serienbrief**     | CSV-Import → Batch-Generierung             | 🔴 Geplant | CSV-Parser + Batch-Logic      | [#65](https://github.com/din-briefneo/din-briefneo/issues/65) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
+| **Poststempel**     | Internetmarke via Deutsche Post API        | 🔴 Geplant | Deutsche Post Direkt API      | [#66](https://github.com/din-briefneo/din-briefneo/issues/66) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
+| **Fristen-Rechner** | Automatische Berechnung nach BGB           | 🟡 Analyse | Temporal API + Feiertags-API  | [#67](https://github.com/din-briefneo/din-briefneo/issues/67) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
+| **Sprachsteuerung** | Diktat via Web Speech API                  | 🔴 Geplant | Web Speech API                | [#68](https://github.com/din-briefneo/din-briefneo/issues/68) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
+| **vCard QR-Code**   | Kontaktdaten als QR im Briefkopf           | 🔴 Geplant | QR-Code Generator             | [#69](https://github.com/din-briefneo/din-briefneo/issues/69) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
+| **Lokale KI**       | Grammatik- und Stilprüfung offline         | 🔴 Geplant | Gemini Nano (Chrome Built-in) | [#70](https://github.com/din-briefneo/din-briefneo/issues/70) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
+
+---
+
+## 📊 Platinum Fortschritts-Matrix
+
+| Gruppe                             | Gesamt | ✅ Erledigt | ⏳ Offen | Fortschritt                           | Status                                                             |
+| ---------------------------------- | ------ | ----------- | -------- | ------------------------------------- | ------------------------------------------------------------------ |
+| **Identität & Adress-Intelligenz** | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
+| **Inhalts-Engine & WYSIWYG**       | 7      | 7           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
+| **Geometrie & Compliance**         | 8      | 7           | 1        | ![87%](https://progress-bar.dev/87)   | ![In Progress](https://img.shields.io/badge/In_Progress-⚡-yellow) |
+| **Infrastruktur & Daten-IO**       | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
+| **Zukunfts-Features**              | 7      | 0           | 7        | ![0%](https://progress-bar.dev/0)     | ![Roadmap](https://img.shields.io/badge/Roadmap-📅-blue)           |
+| **GESAMT**                         | **34** | **26**      | **8**    | ![76%](https://progress-bar.dev/76)   | —                                                                  |
+
+---
+
+**Status:** ACTIVE  
+**Version:** Platinum Master v4.8  
+**Maintainer:** @grapefruit89',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/Meta/Wiki-Bundle-Template.md',
+  'Wiki Bundle & Context Pack Template',
+  'active',
+  '# 📚 OmniTraceability Wiki Bundle
+
+> **Generiert am:** {{ GENERATION_DATE }}
+> **Scope:** {{ BUNDLE_SCOPE }} (Z.B. "Full Project" oder "Feature: Geoapify")
+
+## 🤖 System Prompt (LLM Anweisungen)
+
+Du bist ein KI-Agent, der im Projekt **DIN-Brief Neo** arbeitet.
+Dieses Dokument enthält den gebündelten Architektur- und Implementierungskontext für deinen zugewiesenen Scope.
+
+**Wichtigste Regeln:**
+1. Beachte strikt die Vorgaben in `AGENTS.md` (Branchless Workflow, 100% Fitness Score, Logging).
+2. Nutze Vanilla CSS und Vanilla JS (keine Build-Tools im Frontend, kein Tailwind, kein React).
+3. Halte dich an das KISS-Prinzip (Keep It Simple, Stupid).
+4. Wenn du Quellcode schreibst, verknüpfe ihn durch Header-Tags `/* @adr [[ADR-Name]] {FunctionName} */` mit den unten aufgeführten Architektur-Dokumenten.
+
+---
+
+## 🗺️ OmniTraceability Matrix (Auszug)
+
+Die folgende Matrix zeigt, wie der Code mit der Dokumentation verknüpft ist. 
+
+{{ TRACEABILITY_MATRIX_CONTENT }}
+
+---
+
+## 🏛️ Architektur-Entscheidungen (ADRs)
+
+{{ ADR_CONTENT_CHUNKS }}
+
+---
+
+## 📖 Implementierungs-Guides
+
+{{ GUIDE_CONTENT_CHUNKS }}
+
+---
+
+## 🛠️ Code Snippets & Referenzen
+
+{{ RELEVANT_CODE_SNIPPETS }}
+
+---
+*End of Wiki Bundle*',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/OmniTraceability.md',
+  'OmniTraceability Systemarchitektur',
+  'active',
+  '# OmniTraceability Systemarchitektur
+
+Das OmniTraceability-System garantiert, dass Quellcode und Dokumentation niemals asynchron laufen. Es schlägt die Brücke zwischen dem Quellcode (`website/`) und der Dokumentation (`docs/`), sodass jede logische Entität immer zweifelsfrei auf ihre architektonischen Entscheidungen (ADRs) und Implementierungs-Richtlinien (Guides) zurückgeführt werden kann.
+
+## 🔄 Langfristige Wartungsanleitung (How-To)
+
+Dieses System ist auf 3-5 Jahre Wartbarkeit ausgelegt. Im Gegensatz zu freitextlichen Wikis wird dieses System aktiv am Quellcode verankert. So gehst du in der Praxis damit um:
+
+### Szenario A: Ein neues Feature wird entwickelt
+1. **Entscheidung fällen:** Erstelle ein neues ADR aus dem `docs/ADR/Support/ADR-TEMPLATE.md`. Fülle die `decision_options` im Frontmatter aus und wähle die beste Option (`chosen_option`).
+2. **Code schreiben:** Erstelle die neue Code-Datei, z.B. `website/js/feature.js`.
+3. **Traceability herstellen:** Setze in Zeile 1 der Code-Datei den Header-Kommentar: 
+   ```javascript
+   /* @adr [[ADR-NEUES-FEATURE]] */
+   ```
+4. **Build:** Führe `start.ps1` aus. Das Feature erscheint automatisch im Build-Prozess und in der Matrix.
+
+### Szenario B: Eine Architektur wird verworfen (Refactoring)
+1. **Code löschen:** Lösche oder überschreibe den nicht mehr benötigten Code in `website/`.
+2. **ADR archivieren:** Öffne das zugehörige ADR und ändere das Frontmatter auf `status: deprecated`.
+3. **Kontext bewahren:** Füge im ADR unter "Consequences" einen kurzen Satz hinzu, warum das Konzept verworfen wurde. Das Wissen bleibt somit als Lektion erhalten.
+
+### Szenario C: Ein globaler CSS-Bug wird behoben
+1. **Kein neues ADR nötig:** Wenn es sich nur um die Korrektur einer bestehenden Logik handelt, ohne eine architektonische Entscheidung zu fällen, schreibe den Code einfach. Die Verknüpfung bleibt bestehen.
+2. **Matrix manuell annotieren:** Falls die Datei eine spezielle Ausnahme darstellt (z.B. ein externes Polyfill), trage es unter "Manuelle Notizen" in der [[Function-Traceability]] ein.
+
+## 🗄️ Relationales Architekturmodell (SQLite)
+
+Das System ist nicht nur für Menschen (Obsidian), sondern explizit für eine spätere SQLite-Datenbank konzipiert.
+Das Frontmatter aller `docs/` Dateien sowie die Header-Kommentare der `website/` Dateien bilden ein klares SQL-Schema ab:
+
+1. **`tbl_concepts`**: Wird aus dem YAML Frontmatter extrahiert (`id`, `title`, `type`, `status`).
+2. **`tbl_code_entities`**: Wird aus den Dateien im Ordner `website/` extrahiert.
+3. **`tbl_concept_links`**: Die Mapping-Tabelle. Wird aus den Arrays `doc_links` und `code_links` sowie aus den `@adr` und `@guide` Code-Tags generiert.
+
+Dadurch kann das Wissen später mit SQL-Abfragen durchsucht werden, z.B.:
+```sql
+SELECT title FROM tbl_concepts WHERE type = ''adr'' AND status = ''active'';
+```
+
+## 🛡️ Verbindliche Regeln (AGENTS.md)
+
+Kein Feature darf den `main`-Branch erreichen, wenn seine Traceability-Kette gebrochen ist. Dies wird durch das automatisierte Fitness-Gate beim Ausführen von `start.ps1` verifiziert. Wenn eine Datei keine Verknüpfung aufweist, blockiert das Skript den Release-Prozess.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'README.md',
   'DIN-BriefNEO: Pure Refactored Edition',
   'active',
@@ -3961,284 +4943,6 @@ Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](docs/
 
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'README.md'), 'documentation');
 INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'README.md'), 'readme');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'tools/antipatterns/base.json',
-  'tools/antipatterns/base.json',
-  'active',
-  '{
-  "version": "1.0.0",
-  "layer": "base",
-  "description": "Base rules for all projects (migrated and generalized from DIN-Brief Neo).",
-  "rules": [
-    {
-      "id": "B2",
-      "severity": "critical",
-      "category": "javascript",
-      "description": "Legacy Date API (new Date, Date.now, Date.parse) is forbidden. Use Temporal API instead.",
-      "graveyard_ref": "A1",
-      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    }
-  ]
-}
-',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tools/antipatterns/base.json'), 'json');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'tools/antipatterns/project.json',
-  'tools/antipatterns/project.json',
-  'active',
-  '{
-  "version": "1.0.0",
-  "layer": "project",
-  "description": "DIN-Brief Neo specific rules and overrides. These are not intended for the generic boilerplate.",
-  "rules": [
-    {
-      "id": "P1",
-      "category": "antipattern",
-      "severity": "high",
-      "description": "setHTMLUnsafe() ist nur erlaubt, wenn der Anwendungsfall bewusst unsicheres/ungefiltertes HTML erfordert. Standardfall = setHTML().",
-      "pattern": "setHTMLUnsafe",
-      "isRegex": false,
-      "file_patterns": ["*.js"],
-      "exemptions": [
-        { "file": "website/js/main.js" },
-        { "file": "website/js/healthcheck.js" }
-      ]
-    }
-  ]
-}',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tools/antipatterns/project.json'), 'json');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'tools/antipatterns/web.json',
-  'tools/antipatterns/web.json',
-  'active',
-  '{
-  "version": "1.0.0",
-  "layer": "web",
-  "description": "Rules for HTML, JS, and CSS frontend development (migrated from DIN-Brief Neo, made more general).",
-  "rules": [
-    {
-      "id": "W1",
-      "severity": "critical",
-      "category": "javascript",
-      "description": "document.execCommand is deprecated and forbidden. Use Selection & Range API.",
-      "graveyard_ref": "A2",
-      "pattern": "\\bexecCommand\\(|\\bqueryCommandState\\(",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "W2",
-      "severity": "high",
-      "category": "javascript",
-      "description": "XMLHttpRequest (XHR) is deprecated. Use fetch() API.",
-      "graveyard_ref": "A3",
-      "pattern": "\\bXMLHttpRequest\\b",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "W3",
-      "severity": "high",
-      "category": "javascript",
-      "description": "Unsanitized innerHTML assignments are unsafe. Use textContent or Sanitizer API where possible.",
-      "graveyard_ref": "A4",
-      "pattern": "\\.innerHTML\\s*=",
-      "file_patterns": ["*.js"],
-      "exemptions": [
-        { "file": "website/js/healthcheck.js" }
-      ]
-    },
-    {
-      "id": "W4",
-      "severity": "high",
-      "category": "css",
-      "description": "Hex colors (#RRGGBB, #RGB) are forbidden. Use oklch().",
-      "graveyard_ref": "A16",
-      "pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
-      "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "W5",
-      "severity": "high",
-      "category": "css",
-      "description": "rgb/rgba colors are forbidden. Use oklch().",
-      "graveyard_ref": "A17",
-      "pattern": "\\brgba?\\(.*?\\)",
-      "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "W6",
-      "severity": "high",
-      "category": "css",
-      "description": "hsl/hsla colors are forbidden. Use oklch().",
-      "graveyard_ref": "A18",
-      "pattern": "\\bhsla?\\(.*?\\)",
-      "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "A38",
-      "severity": "critical",
-      "category": "general",
-      "description": "External connections (CDNs, scripts, stylesheets) are forbidden except for allowed autocomplete and reference APIs.",
-      "graveyard_ref": "A38",
-      "pattern": "https?:\\/\\/(?!(?:photon\\.komoot\\.io|api\\.geoapify\\.com|api\\.zippopotam\\.us|myprojects\\.geoapify\\.com|www\\.w3\\.org))[a-zA-Z0-9.-]+",
-      "file_patterns": ["*.html", "*.css", "*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "W7",
-      "severity": "critical",
-      "category": "general",
-      "description": "Google Fonts are forbidden for DSGVO and offline security reasons.",
-      "graveyard_ref": "A41",
-      "pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com",
-      "file_patterns": ["*.html", "*.css"],
-      "exemptions": []
-    }
-  ]
-}
-',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tools/antipatterns/web.json'), 'json');
-
-INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
-  'tools/antipatterns.json',
-  'tools/antipatterns.json',
-  'active',
-  '{
-  "version": "1.0.0",
-  "description": "Antipattern-Regeln fuer DIN-BriefNEO. Basierend auf MASTER-DO-DONT-DEPRECATED.md.",
-  "rules": [
-    {
-      "id": "A1",
-      "severity": "critical",
-      "category": "javascript",
-      "description": "Legacy Date API (new Date, Date.now, Date.parse) ist verboten. Verwende stattdessen die Temporal API.",
-      "graveyard_ref": "A1",
-      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "A2",
-      "severity": "critical",
-      "category": "javascript",
-      "description": "document.execCommand is veraltet und verboten. Nutze die Selection & Range API.",
-      "graveyard_ref": "A2",
-      "pattern": "\\bexecCommand\\(|\\bqueryCommandState\\(",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "A3",
-      "severity": "high",
-      "category": "javascript",
-      "description": "XMLHttpRequest (XHR) ist veraltet. Verwende stattdessen die fetch() API.",
-      "graveyard_ref": "A3",
-      "pattern": "\\bXMLHttpRequest\\b",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "A4",
-      "severity": "high",
-      "category": "javascript",
-      "description": "Ungepruefte innerHTML-Zuweisungen sind unsicher. Erlaubt sind nur Zuweisungen mit statischem, vertrauenswuerdigem Inhalt.",
-      "graveyard_ref": "A4",
-      "pattern": "\\.innerHTML\\s*=",
-      "file_patterns": ["*.js"],
-      "exemptions": [
-        {
-          "file": "website/js/main.js",
-          "reason": "Draft recovery loading/saving innerHTML and clearing contenteditable elements."
-        }
-      ]
-    },
-    {
-      "id": "A16",
-      "severity": "high",
-      "category": "css",
-      "description": "Hex-Farben (#RRGGBB, #RGB) sind verboten. Verwende oklch().",
-      "graveyard_ref": "A16",
-      "pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
-      "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "A17",
-      "severity": "high",
-      "category": "css",
-      "description": "rgb/rgba-Farben sind verboten. Verwende oklch().",
-      "graveyard_ref": "A17",
-      "pattern": "\\brgba?\\(.*?\\)",
-      "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "A18",
-      "severity": "high",
-      "category": "css",
-      "description": "hsl/hsla-Farben sind verboten. Verwende oklch().",
-      "graveyard_ref": "A18",
-      "pattern": "\\bhsla?\\(.*?\\)",
-      "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "A38",
-      "severity": "critical",
-      "category": "general",
-      "description": "Externe Verbindungen (CDNs, Skripte, Stylesheets) sind verboten. Erlaubt sind nur Autocomplete-APIs.",
-      "graveyard_ref": "A38",
-      "pattern": "https?:\\/\\/(?!(?:photon\\.komoot\\.io|api\\.geoapify\\.com|api\\.zippopotam\\.us|myprojects\\.geoapify\\.com|www\\.w3\\.org))[a-zA-Z0-9.-]+",
-      "file_patterns": ["*.html", "*.css", "*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "A41",
-      "severity": "critical",
-      "category": "general",
-      "description": "Google Fonts sind wegen DSGVO und Offline-Sicherheit verboten.",
-      "graveyard_ref": "A41",
-      "pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com",
-      "file_patterns": ["*.html", "*.css"],
-      "exemptions": []
-    }
-  ]
-}
-',
-  NULL,  -- content_hash (wird in Paket 2 gesetzt)
-  NULL,  -- embedding (wird in Paket 3 gesetzt)
-  'all-MiniLM-L6-v2',
-  384
-);
-
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'tools/antipatterns.json'), 'json');
 
 -- Antipattern Definitions
 INSERT OR REPLACE INTO antipattern_definitions (id, severity, category, description, graveyard_ref, pattern, file_patterns, exemptions) VALUES (
@@ -4378,19 +5082,28 @@ INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES (
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/constants.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 1, 'ADR-API', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 2, '', 'geoapify-autocomplete');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 6, 'ADR-API', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/healthcheck.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/healthcheck.js', 2, '', 'testing-guide');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1108, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 976, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1082, 'ADR-DATA-PERSISTENCE', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 19, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 87, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 5, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 1, 'ADR-DATA-PERSISTENCE', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 2, '', 'glossary');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 6, 'ADR-DATA-PERSISTENCE', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/toast.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/toast.js', 2, '', 'chrome-modern-css');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/toast.js', 4, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 1, 'ADR-CSS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 2, '', 'chrome-modern-css');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS', '');

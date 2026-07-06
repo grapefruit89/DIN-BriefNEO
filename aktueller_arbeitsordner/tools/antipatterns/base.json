@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "layer": "base",
+  "description": "Base rules for all projects (migrated and generalized from DIN-Brief Neo).",
+  "rules": [
+    {
+      "id": "B2",
+      "severity": "critical",
+      "category": "javascript",
+      "description": "Legacy Date API (new Date, Date.now, Date.parse) is forbidden. Use Temporal API instead.",
+      "graveyard_ref": "A1",
+      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(",
+      "file_patterns": ["*.js"],
+      "exemptions": []
+    }
+  ]
+}

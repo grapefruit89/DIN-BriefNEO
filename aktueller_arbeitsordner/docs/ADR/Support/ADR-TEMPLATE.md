@@ -2,25 +2,28 @@
 id: adr-[xxx]
 title: "ADR-XXX: [Kurzer, präziser Titel der Entscheidung]"
 type: adr
-status: draft | proposed | accepted | deprecated | rejected
+status: draft | proposed | accepted | deprecated | superseded
 chosen_option: "[option-id]"
 
 decision_options:
   - id: "option-a"
     label: "[Beschreibung Option A]"
-    status: chosen
+    status: considered | chosen | rejected
   - id: "option-b"
     label: "[Beschreibung Option B]"
-    status: rejected
+    status: chosen
 
 doc_links:
   - "[[ADR-YYY]]"
   - "[[longevity-guidelines]]"
   - "[[constitution]]"
 code_links: []
+depends_on: []
 tags: 
   - adr
   - architecture
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
 ---
 
 # ADR-XXX: [Kurzer, präziser Titel]

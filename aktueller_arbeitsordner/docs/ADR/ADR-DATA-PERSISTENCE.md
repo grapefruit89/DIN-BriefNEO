@@ -1,27 +1,32 @@
 ---
-title: "ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling"
-status: accepted
-date: 2026-07-02
-last-reviewed: 2026-07-02
-deciders:
-  - morit
-  - antigravity
-type: adr
-tags:
-  - adr
-  - data
-  - persistence
-  - localstorage
-  - temporal
-  - datetime
 aliases:
-  - "Data Persistence"
-  - "Speicherung"
-  - "Local Storage"
-related: 
-  - "[[ADR-ANTIPATTERN]]"
-  - "[[longevity-guidelines]]"
+- Data Persistence
+- Speicherung
+- Local Storage
+chosen_option: ''
+created: '2026-07-06'
+date: 2026-07-02
+deciders:
+- morit
+- antigravity
+decision_options: []
+depends_on: []
+last-reviewed: 2026-07-02
 project: DIN-BriefNEO
+related:
+- '[[ADR-ANTIPATTERN]]'
+- '[[longevity-guidelines]]'
+status: accepted
+tags:
+- adr
+- data
+- persistence
+- localstorage
+- temporal
+- datetime
+title: 'ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling'
+type: adr
+updated: '2026-07-06'
 ---
 
 # ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling

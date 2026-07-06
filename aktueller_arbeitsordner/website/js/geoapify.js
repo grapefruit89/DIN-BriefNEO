@@ -3,6 +3,7 @@
 
 import { StorageManager } from './storage.js';
 
+/* @adr [[ADR-API]] {initAddressServices} */
 export function initAddressServices({ onToast, onSaveDraft }) {
   const inputGeoapifyKey = document.getElementById('input-geoapify-key');
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
@@ -210,8 +211,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
     suggestions.forEach(item => {
       const li = document.createElement('li');
-      // Highlight the matched substring
-      li.innerHTML = highlightMatch(item.formatted, query);
+      // Use textContent to avoid innerHTML vulnerabilities (Antipattern Fix)
+      li.textContent = item.formatted;
       
       if (item.source === 'local') {
          const badge = document.createElement('span');

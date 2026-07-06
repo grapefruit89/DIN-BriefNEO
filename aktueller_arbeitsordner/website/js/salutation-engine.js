@@ -16,6 +16,7 @@ function normalizeFormality(f) {
   return map[(f || "").toLowerCase()] || "formal";
 }
 
+/* @adr [[ADR-JS]] {SalutationEngine} */
 export const SalutationEngine = {
   splitTitles(name) {
     let rest = (name || "").trim();
@@ -83,6 +84,7 @@ export const SalutationEngine = {
   }
 };
 
+/* @adr [[ADR-JS]] {SalutationFeature} */
 export class SalutationFeature {
   constructor(saveDraftDataCallback) {
     this.saveDraftData = saveDraftDataCallback;

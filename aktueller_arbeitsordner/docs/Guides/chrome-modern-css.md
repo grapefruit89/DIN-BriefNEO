@@ -1,13 +1,16 @@
 ---
-title: "Guide: Modern CSS Features (Chrome 148+ Baseline)"
-status: active
-tags:
-  - css
-  - guide
-  - modern
+created: '2026-07-06'
+depends_on: []
 last-updated: 2026-07-02
 project: DIN-BriefNEO
+status: active
+tags:
+- css
+- guide
+- modern
+title: 'Guide: Modern CSS Features (Chrome 148+ Baseline)'
 type: guide
+updated: '2026-07-06'
 ---
 
 # Modern CSS Features (Chrome 148+ Baseline)

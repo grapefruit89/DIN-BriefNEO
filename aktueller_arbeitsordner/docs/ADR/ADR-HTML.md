@@ -1,25 +1,30 @@
 ---
-title: "ADR-HTML: HTML Architecture & Semantic Structure"
-status: accepted
-date: 2026-05-24
-last-reviewed: 2026-07-02
-deciders:
-  - morit
-  - antigravity
-type: adr
-tags:
-  - adr
-  - html
-  - semantics
-  - contenteditable
-  - popover
 aliases:
-  - "HTML Architecture & Semantic Structure"
-related: 
-  - "[[ADR-CSS]]"
-  - "[[ADR-JS]]"
-  - "[[longevity-guidelines]]"
+- HTML Architecture & Semantic Structure
+chosen_option: ''
+created: '2026-07-06'
+date: 2026-05-24
+deciders:
+- morit
+- antigravity
+decision_options: []
+depends_on: []
+last-reviewed: 2026-07-02
 project: DIN-BriefNEO
+related:
+- '[[ADR-CSS]]'
+- '[[ADR-JS]]'
+- '[[longevity-guidelines]]'
+status: accepted
+tags:
+- adr
+- html
+- semantics
+- contenteditable
+- popover
+title: 'ADR-HTML: HTML Architecture & Semantic Structure'
+type: adr
+updated: '2026-07-06'
 ---
 
 # ADR-HTML: HTML Architecture & Semantic Structure

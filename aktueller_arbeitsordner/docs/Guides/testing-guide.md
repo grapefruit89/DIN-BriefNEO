@@ -1,18 +1,21 @@
 ---
-title: "Guide: Interaktiver Test-Leitfaden: testing-guide.md"
-status: active
-tags:
-  - obsidian
-  - documentation
-  - guide
-  - manual
-  - qa
 aliases:
-  - "Testing Guide"
-  - "QA Protokoll"
+- Testing Guide
+- QA Protokoll
+created: '2026-07-06'
+depends_on: []
 last-updated: 2026-07-02
 project: DIN-BriefNEO
+status: active
+tags:
+- obsidian
+- documentation
+- guide
+- manual
+- qa
+title: 'Guide: Interaktiver Test-Leitfaden: testing-guide.md'
 type: guide
+updated: '2026-07-06'
 ---
 
 # Interaktiver Test-Leitfaden: testing-guide.md

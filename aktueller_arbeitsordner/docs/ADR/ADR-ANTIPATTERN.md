@@ -1,29 +1,34 @@
 ---
-title: "ADR-ANTIPATTERN: Forbidden Practices & Antipatterns"
-status: accepted
-date: 2026-05-24
-last-reviewed: 2026-07-02
-deciders:
-  - morit
-  - antigravity
-type: adr
-tags:
-  - adr
-  - antipattern
-  - rules
-  - boundaries
-  - security
-  - local-context
 aliases:
-  - "Architectural Decision Record (ADR): Forbidden Practices & Antipatterns"
-  - "ADR-ANTIPATTERN"
-related: 
-  - "[[ADR-HTML]]"
-  - "[[ADR-CSS]]"
-  - "[[ADR-JS]]"
-  - "[[ADR-API]]"
-  - "[[longevity-guidelines]]"
+- 'Architectural Decision Record (ADR): Forbidden Practices & Antipatterns'
+- ADR-ANTIPATTERN
+chosen_option: ''
+created: '2026-07-06'
+date: 2026-05-24
+deciders:
+- morit
+- antigravity
+decision_options: []
+depends_on: []
+last-reviewed: 2026-07-02
 project: DIN-BriefNEO
+related:
+- '[[ADR-HTML]]'
+- '[[ADR-CSS]]'
+- '[[ADR-JS]]'
+- '[[ADR-API]]'
+- '[[longevity-guidelines]]'
+status: accepted
+tags:
+- adr
+- antipattern
+- rules
+- boundaries
+- security
+- local-context
+title: 'ADR-ANTIPATTERN: Forbidden Practices & Antipatterns'
+type: adr
+updated: '2026-07-06'
 ---
 
 # Architectural Decision Record (ADR): Forbidden Practices & Antipatterns
@@ -114,4 +119,3 @@ Die Verwendung von inline `style="..."` Attributen für strukturelle oder gestal
 *   Siehe [[ADR-JS|ADR-JS.md]] zur JavaScript-Reglementierung.
 *   Siehe [[ADR-API|ADR-API.md]] zur Header-Sicherheit.
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
-

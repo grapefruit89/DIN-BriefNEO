@@ -7,9 +7,12 @@ doc_links:
   - "[[ADR-XXX]]"
   - "[[longevity-guidelines]]"
 code_links: []
+depends_on: []
 tags: 
   - guide
   - documentation
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
 ---
 
 # Guide: [Titel]

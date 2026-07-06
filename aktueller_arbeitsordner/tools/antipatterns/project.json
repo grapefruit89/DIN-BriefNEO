@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "layer": "project",
+  "description": "DIN-Brief Neo specific rules and overrides. These are not intended for the generic boilerplate.",
+  "rules": [
+    {
+      "id": "P1",
+      "category": "antipattern",
+      "severity": "high",
+      "description": "setHTMLUnsafe() ist nur erlaubt, wenn der Anwendungsfall bewusst unsicheres/ungefiltertes HTML erfordert. Standardfall = setHTML().",
+      "pattern": "setHTMLUnsafe",
+      "isRegex": false,
+      "file_patterns": ["*.js"],
+      "exemptions": [
+        { "file": "website/js/main.js" },
+        { "file": "website/js/healthcheck.js" }
+      ]
+    }
+  ]
+}

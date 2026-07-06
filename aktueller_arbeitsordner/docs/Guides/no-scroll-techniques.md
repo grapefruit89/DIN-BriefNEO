@@ -1,18 +1,21 @@
 ---
-title: "Guide: Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)"
-status: active
-tags:
-  - obsidian
-  - documentation
-  - guide
-  - manual
-  - css
-  - architecture
 aliases:
-  - "No-Scroll Techniques"
+- No-Scroll Techniques
+created: '2026-07-06'
+depends_on: []
 last-updated: 2026-07-02
 project: DIN-BriefNEO
+status: active
+tags:
+- obsidian
+- documentation
+- guide
+- manual
+- css
+- architecture
+title: 'Guide: Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)'
 type: guide
+updated: '2026-07-06'
 ---
 
 # Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)

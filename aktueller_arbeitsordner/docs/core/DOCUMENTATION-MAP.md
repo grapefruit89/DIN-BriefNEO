@@ -19,7 +19,6 @@ Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Doku
 * **[No-Scroll Techniken](../Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
 * **[Testing Guide](../Guides/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
 * **[LLM-First Datenbank-Guide (README-DB.md)](README-DB.md):** Spezifikation der SQLite-DB und MCP-Architektur.
-* **[DIN 5008 Master Data](../Guides/din-5008-geometry.md):** SSoT für alle physischen Abstände des Briefs.
 
 ## 🏗️ Architektur-Entscheidungen (ADRs)
 Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../ADR/)** dokumentiert:

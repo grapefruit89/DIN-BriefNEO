@@ -1,26 +1,31 @@
 ---
-title: "ADR-CSS: CSS Architecture & Proportional Zoom"
-status: accepted
-date: 2026-05-24
-last-reviewed: 2026-07-02
-deciders:
-  - morit
-  - antigravity
-type: adr
-tags:
-  - adr
-  - css
-  - layout
-  - zoom
-  - containers
-  - theming
 aliases:
-  - "CSS Architecture & Proportional Zoom"
-related: 
-  - "[[ADR-HTML]]"
-  - "[[ADR-JS]]"
-  - "[[longevity-guidelines]]"
+- CSS Architecture & Proportional Zoom
+chosen_option: ''
+created: '2026-07-06'
+date: 2026-05-24
+deciders:
+- morit
+- antigravity
+decision_options: []
+depends_on: []
+last-reviewed: 2026-07-02
 project: DIN-BriefNEO
+related:
+- '[[ADR-HTML]]'
+- '[[ADR-JS]]'
+- '[[longevity-guidelines]]'
+status: accepted
+tags:
+- adr
+- css
+- layout
+- zoom
+- containers
+- theming
+title: 'ADR-CSS: CSS Architecture & Proportional Zoom'
+type: adr
+updated: '2026-07-06'
 ---
 
 # ADR-CSS: CSS Architecture & Proportional Zoom

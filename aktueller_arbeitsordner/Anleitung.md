@@ -1,3 +1,15 @@
+---
+id: doc-anleitung
+title: Anleitung
+type: meta
+status: active
+doc_links: []
+code_links: []
+tags: []
+created: 2026-07-06
+updated: 2026-07-06
+---
+
 # 🚨 CRITICAL DIRECTIVE FOR ALL AI AGENTS 🚨
 
 **WARNING: DO NOT MODIFY ANYTHING IN THIS REPOSITORY!**

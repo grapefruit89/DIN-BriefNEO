@@ -12,7 +12,7 @@ tags: [context, llm, prompt]
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-02T14:54:23.505Z
+> Generiert am: 2026-07-06T21:05:23.655Z
 > ==============================================================================
 
 
@@ -104,7 +104,6 @@ Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Doku
 * **[No-Scroll Techniken](../Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
 * **[Testing Guide](../Guides/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
 * **[LLM-First Datenbank-Guide (README-DB.md)](README-DB.md):** Spezifikation der SQLite-DB und MCP-Architektur.
-* **[DIN 5008 Master Data](../Guides/din-5008-geometry.md):** SSoT für alle physischen Abstände des Briefs.
 
 ## 🏗️ Architektur-Entscheidungen (ADRs)
 Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../ADR/)** dokumentiert:
@@ -122,46 +121,46 @@ Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../A
 # FILE: ../AGENTS.md
 # ==========================================
 
-# AGENTS.md — DIN-Brief Neo (Testballon für LLM-Boilerplate)
+# AGENTS.md â€” DIN-Brief Neo (Testballon fÃ¼r LLM-Boilerplate)
 
-**BINDENDER VERHALTENSVERTRAG FÜR ALLE KI-AGENTEN**
+**BINDENDER VERHALTENSVERTRAG FÃœR ALLE KI-AGENTEN**
 
-Dieser Vertrag ist **nicht verhandelbar**. Verstöße führen zur Ablehnung der Änderung.
+Dieser Vertrag ist **nicht verhandelbar**. VerstÃ¶ÃŸe fÃ¼hren zur Ablehnung der Ã„nderung.
 
-## CORE RULES (TL;DR – diese gelten immer)
+## CORE RULES (TL;DR â€“ diese gelten immer)
 
 - Reconciliation Loop + **Evolutionary Fitness Score 100%** sind nicht verhandelbar.
-- **Build vor jeder relevanten Änderung** (Pre-Flight) und **danach** (Post-Flight).
+- **Build vor jeder relevanten Ã„nderung** (Pre-Flight) und **danach** (Post-Flight).
 - Jede KI-Aktion **muss** sofort mit `log_session.js` protokolliert werden.
-- **Generalisierbarkeit** muss bei jeder neuen Lösung/Regel geprüft und als Vorschlag dokumentiert werden.
-- `constitution.md` und `MASTER-DO-DONT-DEPRECATED.md` müssen respektiert werden.
-- DIN-Brief Neo ist Testballon – gute Patterns müssen aktiv in die `llm_boilerplate` überführt werden.
+- **Generalisierbarkeit** muss bei jeder neuen LÃ¶sung/Regel geprÃ¼ft und als Vorschlag dokumentiert werden.
+- `constitution.md` und `MASTER-DO-DONT-DEPRECATED.md` mÃ¼ssen respektiert werden.
+- DIN-Brief Neo ist Testballon â€“ gute Patterns mÃ¼ssen aktiv in die `llm_boilerplate` Ã¼berfÃ¼hrt werden.
 
 ## Light Mode vs Full Mode (gestufter Workflow)
 
-**Light Mode (Standard für die meisten Änderungen: Bugfixes, kleine Refactorings, kleine Anpassungen)**
+**Light Mode (Standard fÃ¼r die meisten Ã„nderungen: Bugfixes, kleine Refactorings, kleine Anpassungen)**
 
-1. Pre-Build ausführen (`.\start.ps1` generiert auch `LLM_CONTEXT.md`).
+1. Pre-Build ausfÃ¼hren (`.\start.ps1` generiert auch `LLM_CONTEXT.md`).
 2. Generierte `LLM_CONTEXT.md` lesen, um den aktuellen System-Prompt zu erhalten.
-3. Änderung durchführen (Core Rules einhalten).
-4. Post-Build ausführen (`.\start.ps1`) → **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
+3. Ã„nderung durchfÃ¼hren (Core Rules einhalten).
+4. Post-Build ausfÃ¼hren (`.\start.ps1`) â†’ **muss EVOLUTIONARY FITNESS SCORE: 100%** ergeben.
 5. Mit `log_session.js` protokollieren.
-6. Kurzen Generalisierungs-Vermerk (1-2 Sätze) im `DECISION-LOG.md` schreiben.
+6. Kurzen Generalisierungs-Vermerk (1-2 SÃ¤tze) im `DECISION-LOG.md` schreiben.
 
 **Beispiel Light Mode:**
-"Kleinen Bug im Adress-Autocomplete gefixt (textContent statt unsicherem innerHTML). Pre- und Post-Build waren 100%. Generalisierbarkeit: Die Regel ist bereits in web.json → keine Extraktion nötig."
+"Kleinen Bug im Adress-Autocomplete gefixt (textContent statt unsicherem innerHTML). Pre- und Post-Build waren 100%. Generalisierbarkeit: Die Regel ist bereits in web.json â†’ keine Extraktion nÃ¶tig."
 
-**Full Mode (nur für wichtige Features, Architektur-Änderungen, boilerplate-relevante Arbeit)**
+**Full Mode (nur fÃ¼r wichtige Features, Architektur-Ã„nderungen, boilerplate-relevante Arbeit)**
 
-Zusätzlich:
+ZusÃ¤tzlich:
 - `specs/NNN-kurzname/` Ordner anlegen.
-- `spec.md` mit Anforderungen, Akzeptanzkriterien und ausführlichem Generalisierungs-Check erstellen.
+- `spec.md` mit Anforderungen, Akzeptanzkriterien und ausfÃ¼hrlichem Generalisierungs-Check erstellen.
 - Optional `plan.md` und `tasks.md`.
 - Den vollen Hybrid-Workflow aus HYBRID-SPEC-DRIVEN-WORKFLOW.md befolgen.
 
 **Wann welchen Modus?**
-- Light Mode als Default für schnelle, sichere Fortschritte.
-- Full Mode bewusst wählen für große/wichtige Dinge.
+- Light Mode als Default fÃ¼r schnelle, sichere Fortschritte.
+- Full Mode bewusst wÃ¤hlen fÃ¼r groÃŸe/wichtige Dinge.
 
 Die Core Rules gelten immer.
 
@@ -169,9 +168,9 @@ Die Core Rules gelten immer.
 
 - Reconciliation Engine + Fitness Score (hartes Gate, 100% Pflicht).
 - Layered Antipatterns (`tools/antipatterns/base.json`, `web.json`, `project.json`).
-- `log_session.js` (Audit Trail für alle KI-Aktionen).
-- `build_db.js` + Reconciliation als Qualitätsfundament.
-- `constitution.md` und `MASTER-DO-DONT-DEPRECATED.md` als primäre Quellen.
+- `log_session.js` (Audit Trail fÃ¼r alle KI-Aktionen).
+- `build_db.js` + Reconciliation als QualitÃ¤tsfundament.
+- `constitution.md` und `MASTER-DO-DONT-DEPRECATED.md` als primÃ¤re Quellen.
 
 ## Protokollierung (Pflicht)
 
@@ -182,15 +181,15 @@ Jede relevante Aktion muss direkt nach erfolgreichem Post-Build geloggt werden.
 node tools/log_session.js --agent "GrokBuild" --action "<kurz>" --file "<pfad>" --desc "<was + warum + generalisierbarkeit>"
 ```
 
-## Zusammenfassung – die harten Regeln (kurz & bündig)
+## Zusammenfassung â€“ die harten Regeln (kurz & bÃ¼ndig)
 
-- Build **vor jeder** relevanten Änderung (Pre-Flight) und **danach** (Post-Flight) → **100% Score** oder Änderung abgelehnt.
+- Build **vor jeder** relevanten Ã„nderung (Pre-Flight) und **danach** (Post-Flight) â†’ **100% Score** oder Ã„nderung abgelehnt.
 - Sofort loggen (mit aktuellem korrektem Pfad).
-- Generalisierbarkeit bei **jeder** Lösung prüfen, vorschlagen und dokumentieren.
+- Generalisierbarkeit bei **jeder** LÃ¶sung prÃ¼fen, vorschlagen und dokumentieren.
 - Core Files und Tools respektieren.
 
-Vertragsverletzung = Änderung wird abgelehnt.  
-Wer das nicht einhält, arbeitet nicht konform mit diesem Vertrag.
+Vertragsverletzung = Ã„nderung wird abgelehnt.  
+Wer das nicht einhÃ¤lt, arbeitet nicht konform mit diesem Vertrag.
 
 ---
 
@@ -198,24 +197,60 @@ Wer das nicht einhält, arbeitet nicht konform mit diesem Vertrag.
 
 ## Andrej Karpathy LLM Coding Principles
 
-Um die bestmöglichen Ergebnisse zu erzielen, gelten für alle KI-Agenten in diesem Projekt zusätzlich die folgenden Kernprinzipien:
+Um die bestmÃ¶glichen Ergebnisse zu erzielen, gelten fÃ¼r alle KI-Agenten in diesem Projekt zusÃ¤tzlich die folgenden Kernprinzipien:
 
 1. **Thinking Before Coding:**
    - Erstelle bei komplexeren Aufgaben erst einen `implementation_plan.md` und bitte um Freigabe (Planning Mode).
-   - Analysiere den existierenden Code gründlich, bevor du Änderungen machst.
+   - Analysiere den existierenden Code grÃ¼ndlich, bevor du Ã„nderungen machst.
 
 2. **Simplicity First (KISS):**
-   - Bevorzuge einfache, native Lösungen (CSS statt JS, Vanilla JS statt Frameworks).
+   - Bevorzuge einfache, native LÃ¶sungen (CSS statt JS, Vanilla JS statt Frameworks).
    - Vermeide "Overengineering" und komplizierte Architektur-Abstraktionen.
 
 3. **Surgical Changes:**
-   - Mache präzise, minimale Code-Änderungen.
-   - Ändere nichts, was für das aktuelle Feature nicht strikt erforderlich ist.
+   - Mache prÃ¤zise, minimale Code-Ã„nderungen.
+   - Ã„ndere nichts, was fÃ¼r das aktuelle Feature nicht strikt erforderlich ist.
    - Erhalte bestehende Kommentare und Formatierungen.
 
 4. **Goal-Driven Execution:**
    - Behalte das Endziel im Fokus und verstricke dich nicht in Nebenproblemen, es sei denn, sie blockieren den Fortschritt.
    - Verifiziere das Ergebnis nach der Umsetzung.
+
+## BRANCHLESS WORKFLOW (NEU)
+
+Der Entwickler arbeitet als Solo-Entwickler **streng branchless**.
+Es gibt nur den `main` Branch (und `legacy` als reines Archiv).
+- **Normale Entwicklung:** Alles fließt direkt in `main` (mit `git add .`, `git commit`, `git push`).
+- **Niemals Feature-Branches:** Erstelle keine Feature- oder Fix-Branches!
+- **Experimente:** Für temporäre oder unsichere Änderungen wird ausschließlich `git stash` genutzt (`git stash push -m "Experiment: ..."`, `git stash pop`).
+- **Sicherheitsnetz:** Ein datiertes Backup (`backup-before-cleanup-YYYYMMDD`) ist nur vor destruktiven Aufräumaktionen erlaubt. 
+- Für extrem große, tagelange Refactorings darf als absolute Ausnahme ein kurzlebiger Branch erstellt werden. Dieser muss nach Abschluss sofort über `--no-ff` in `main` gemerged und gelöscht werden.
+
+## Dokumentations-Workflow (verbindlich)
+
+- Neue **ADRs** werden immer im Ordner `docs/ADR/` angelegt.
+- Neue **Guides** werden immer im Ordner `docs/Guides/` angelegt.
+- Beim Erstellen einer neuen Datei **muss** zwingend das jeweilige Template als Basis dienen:
+  - `docs/ADR/Support/ADR-TEMPLATE.md`
+  - `docs/Guides/GUIDE-TEMPLATE.md`
+- Jede neue Datei muss das **vollständige, SQLite-ready Frontmatter (Schema V6)** enthalten:
+  - Zwingende Felder: `id`, `type`, `status`, `doc_links`, `code_links`, `created`, `updated`, `depends_on`.
+  - Die Verknüpfung von Abhängigkeiten geschieht vorrangig über Wikilinks im `depends_on` Feld (für Obsidian/Mermaid Graphen).
+- Für ADRs sind die strukturierten Felder `decision_options` (mit den Statuswerten `considered`, `chosen`, `rejected`) und `chosen_option` Pflicht.
+- Bevor Code geschrieben wird, der neue architektonische Konzepte einführt, muss geprüft werden, ob eine neue ADR oder ein neuer Guide notwendig ist.
+
+## Build-Tools & Crawler-Ausschlüsse
+- Die Dokumentations- und Build-Skripte (sowohl `build_db.js` als auch Python-Parser) durchsuchen das Dateisystem. Hierbei **müssen** zwingend virtuelle Umgebungen (`venv/`, `node_modules/`, `.git/`, `.agents/`, `.claude/`) vom Crawling ausgeschlossen werden, um False-Positives in externen Bibliotheken zu vermeiden.
+- Die Function-Traceability Matrix wird von `build_db.py` automatisch anhand von `@adr` und `@guide` Tags im Code befüllt. Manueller Inhalt ist nur außerhalb der `<!-- BEGIN AUTOMATED MATRIX -->` Markierungen gestattet. Die generierte Tabelle darf **niemals manuell bearbeitet** werden.
+- Neue Funktionen müssen ihre Traceability durch entsprechende Kommentare im Code sicherstellen (z.B. `/* @adr [[ADR-Name]] {FunctionName} */`).
+- In Zukunft (Phase 2) werden Dokumente anhand von `##` Markdown-Headings aufgeteilt (Chunking), um semantische Suche (Embeddings) zu ermöglichen.
+
+## Anti-Patterns (Verbotene Tech-Stacks)
+
+Aus historischen Fehlern (siehe din-5008-brief-generator) lernen wir, dass folgende Technologien für DIN-Brief Neo **strengstens verboten** sind:
+- **Build-Tools für Frontend:** Kein Node.js, Vite, Webpack oder TypeScript-Kompilierung für die Web-App. Das Frontend läuft komplett build-free im Browser (index.html via Live-Server).
+- **Heavy Frameworks:** React, Vue oder selbst native Web Components (Shadow DOM) sind verboten, da sie das Print-to-PDF und Vanilla-DOM-Prinzip verkomplizieren.
+- **Utility-First CSS (Tailwind):** Verboten. Wir nutzen reines Vanilla CSS (@layer, Container Queries, --vars).
 
 
 # ==========================================
@@ -291,20 +326,23 @@ Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängig
 # ==========================================
 
 ---
-title: "Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)"
-status: active
-tags:
-  - obsidian
-  - documentation
-  - guide
-  - manual
-  - architecture
 aliases:
-  - "Longevity Guidelines"
-  - "W3C Standards"
+- Longevity Guidelines
+- W3C Standards
+created: '2026-07-06'
+depends_on: []
 last-updated: 2026-07-02
 project: DIN-BriefNEO
+status: active
+tags:
+- obsidian
+- documentation
+- guide
+- manual
+- architecture
+title: 'Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)'
 type: guide
+updated: '2026-07-06'
 ---
 
 # Longevity & W3C Native Standards Guidelines (Longevity Guide)
@@ -690,7 +728,7 @@ tags: [documentation, spec, requirements]
 # Spezifikation (Spec) — DIN-BriefNEO Baseline Features
 
 > [!NOTE]
-> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen [DIN 5008 Geometry Master Data Guide](../Guides/din-5008-geometry.md). Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
+> Die exakten Maße und Geometriedaten gemäß dem DIN 5008 Standard findest du in unserem hochpräzisen Dokument. Dieses Dokument dient als Single Source of Truth (SSoT) für alle physischen Abstände.
 
 Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Feature ist nach dem **Spec-Kit-Modell** in Anforderung (`Specify`), Plan (`Plan`) und Aufgaben (`Tasks`) unterteilt.
 

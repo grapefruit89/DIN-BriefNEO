@@ -1,29 +1,34 @@
 ---
-title: "ADR-API: External Services & APIs (Geoapify, Zippopotam & Header Security)"
-status: accepted
-date: 2026-05-24
-last-reviewed: 2026-07-02
-deciders:
-  - morit
-  - antigravity
-type: adr
-tags:
-  - adr
-  - api
-  - autocomplete
-  - security
-  - geoapify
-  - zippopotam
 aliases:
-  - "External API Integrations"
-  - "Header Security"
-  - "Geoapify Autocomplete"
-related: 
-  - "[[ADR-HTML]]"
-  - "[[ADR-JS]]"
-  - "[[ADR-FEATURE]]"
-  - "[[longevity-guidelines]]"
+- External API Integrations
+- Header Security
+- Geoapify Autocomplete
+chosen_option: ''
+created: '2026-07-06'
+date: 2026-05-24
+deciders:
+- morit
+- antigravity
+decision_options: []
+depends_on: []
+last-reviewed: 2026-07-02
 project: DIN-BriefNEO
+related:
+- '[[ADR-HTML]]'
+- '[[ADR-JS]]'
+- '[[ADR-FEATURE]]'
+- '[[longevity-guidelines]]'
+status: accepted
+tags:
+- adr
+- api
+- autocomplete
+- security
+- geoapify
+- zippopotam
+title: 'ADR-API: External Services & APIs (Geoapify, Zippopotam & Header Security)'
+type: adr
+updated: '2026-07-06'
 ---
 
 # ADR-API: External Services & APIs

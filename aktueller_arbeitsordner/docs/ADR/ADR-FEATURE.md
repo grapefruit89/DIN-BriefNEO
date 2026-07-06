@@ -1,28 +1,33 @@
 ---
-title: "ADR-FEATURE: Feature Specifications & Premium UX"
-status: accepted
-date: 2026-05-24
-last-reviewed: 2026-07-02
-deciders:
-  - morit
-  - antigravity
-type: adr
-tags:
-  - adr
-  - features
-  - popovers
-  - selections
-  - styling
-  - highlights
 aliases:
-  - "Feature Specifications"
-  - "Premium UX"
-related: 
-  - "[[ADR-HTML]]"
-  - "[[ADR-CSS]]"
-  - "[[ADR-JS]]"
-  - "[[longevity-guidelines]]"
+- Feature Specifications
+- Premium UX
+chosen_option: ''
+created: '2026-07-06'
+date: 2026-05-24
+deciders:
+- morit
+- antigravity
+decision_options: []
+depends_on: []
+last-reviewed: 2026-07-02
 project: DIN-BriefNEO
+related:
+- '[[ADR-HTML]]'
+- '[[ADR-CSS]]'
+- '[[ADR-JS]]'
+- '[[longevity-guidelines]]'
+status: accepted
+tags:
+- adr
+- features
+- popovers
+- selections
+- styling
+- highlights
+title: 'ADR-FEATURE: Feature Specifications & Premium UX'
+type: adr
+updated: '2026-07-06'
 ---
 
 # ADR-FEATURE: Feature Specifications & Premium UX

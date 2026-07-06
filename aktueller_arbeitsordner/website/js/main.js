@@ -973,6 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
       el.addEventListener('input', () => {
         const currentText = el.textContent || '';
         
+        // /* @adr [[ADR-JS]] {Dynamic Squeezing} */
         // Smart Squeezing for the Subject line (Betreff)
         if (el.id === 'betreff') {
           // Reset classes to measure natural height
@@ -1078,7 +1079,7 @@ document.getElementById('btn-dev-popover')?.addEventListener('click', () => {
 });
 
 
-// @adr [[ADR-JS]]
+// /* @adr [[ADR-DATA-PERSISTENCE]] {JSON Data-IO} */
 // JSON Export (Dev Tool)
 document.getElementById('btn-copy-json')?.addEventListener('click', async (e) => {
   const btn = e.target;

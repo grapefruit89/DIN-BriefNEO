@@ -2,6 +2,7 @@
 // @guide [[glossary]] 
 
 /* js/signature.js */
+/* @adr [[ADR-JS]] {SignatureFeature} */
 export class SignatureFeature {
   constructor(uiContext) {
     this.ui = uiContext;

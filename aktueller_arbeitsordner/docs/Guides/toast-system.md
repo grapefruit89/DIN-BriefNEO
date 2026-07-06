@@ -1,7 +1,16 @@
 ---
-title: Guide - Using the Toast System
+created: '2026-07-06'
+depends_on: []
 description: How to trigger and manage Next-Level Toasts in the application
-tags: [guide, ui, toast, javascript]
+tags:
+- guide
+- ui
+- toast
+- javascript
+title: "Guide: Toast Notifications System"
+type: guide
+status: active
+updated: '2026-07-06'
 ---
 
 # Guide: Using the Next-Level Toast System

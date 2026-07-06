@@ -3,6 +3,7 @@
 
 /* js/storage.js */
 
+/* @adr [[ADR-DATA-PERSISTENCE]] {StorageModule} */
 export const StorageManager = {
   // Load local address book
   getAddressBook() {

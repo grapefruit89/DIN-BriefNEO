@@ -1,12 +1,15 @@
 ---
-title: ADR-Übersicht
-status: active
-type: overview
-tags:
-  - adr
-  - dataview
-  - dashboard
+created: '2026-07-06'
+depends_on: []
 project: DIN-BriefNEO
+status: active
+tags:
+- adr
+- dataview
+- dashboard
+title: ADR-Übersicht
+type: overview
+updated: '2026-07-06'
 ---
 
 # ADR-Übersicht (Dataview)

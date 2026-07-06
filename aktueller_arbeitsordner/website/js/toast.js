@@ -1,6 +1,7 @@
 // @adr [[ADR-JS]]
 // @guide [[chrome-modern-css]]
 
+/* @adr [[ADR-JS]] {ToastSystem} */
 export class ToastSystem {
   constructor() {
     this.queue = [];
@@ -178,7 +179,7 @@ export class ToastSystem {
     if (sticky) return; // Sticky toasts don't auto-close
 
     this.timeRemaining = duration;
-    this.startTime = Date.now();
+    this.startTime = Temporal.Now.instant().epochMilliseconds;
     this.displayTimeout = setTimeout(() => this.cleanupPopover(), this.timeRemaining);
   }
 
@@ -187,7 +188,7 @@ export class ToastSystem {
     this.isPaused = true;
     clearTimeout(this.displayTimeout);
     
-    const elapsed = Date.now() - this.startTime;
+    const elapsed = Temporal.Now.instant().epochMilliseconds - this.startTime;
     this.timeRemaining = Math.max(0, this.timeRemaining - elapsed);
   }
 
@@ -196,7 +197,7 @@ export class ToastSystem {
     this.isPaused = false;
     
     // We restart the timer with the remaining time
-    this.startTime = Date.now();
+    this.startTime = Temporal.Now.instant().epochMilliseconds;
     this.displayTimeout = setTimeout(() => this.cleanupPopover(), this.timeRemaining);
   }
 

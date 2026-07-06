@@ -1,8 +1,16 @@
 ---
-title: ADR - Toast Architecture (Next Level)
+created: '2026-07-06'
 date: 2026-07-03
+depends_on: []
 status: accepted
-tags: [architecture, ui, components, popover, a11y]
+tags:
+- architecture
+- ui
+- components
+- popover
+- a11y
+title: ADR - Toast Architecture (Next Level)
+updated: '2026-07-06'
 ---
 
 # Architecture Decision Record: Next-Level Toast System

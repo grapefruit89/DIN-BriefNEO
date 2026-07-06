@@ -1,18 +1,21 @@
 ---
-title: "Guide: Fachbegriff-Glossar: glossary.md"
-status: active
-tags:
-  - obsidian
-  - documentation
-  - guide
-  - manual
-  - glossary
 aliases:
-  - "Fachbegriff-Glossar"
-  - "Glossary"
+- Fachbegriff-Glossar
+- Glossary
+created: '2026-07-06'
+depends_on: []
 last-updated: 2026-07-02
 project: DIN-BriefNEO
+status: active
+tags:
+- obsidian
+- documentation
+- guide
+- manual
+- glossary
+title: 'Guide: Fachbegriff-Glossar: glossary.md'
 type: guide
+updated: '2026-07-06'
 ---
 
 # Fachbegriff-Glossar: glossary.md

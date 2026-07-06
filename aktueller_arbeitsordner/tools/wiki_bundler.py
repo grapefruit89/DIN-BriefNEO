@@ -103,7 +103,7 @@ def generate_bundle(template_path, output_path, db_path, scope):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Wiki Bundler & Context Pack Generator")
     parser.add_argument('--scope', type=str, help="Filter scope for the context pack (e.g. 'Geoapify')", default=None)
-    parser.add_argument('--template', type=str, default='docs/Meta/Wiki-Bundle-Template.md')
+    parser.add_argument('--template', type=str, default='docs/40-tooling/Wiki-Bundler.md')
     parser.add_argument('--db', type=str, default='DIN-Brief_docs.db')
     parser.add_argument('--out', type=str, default='build/Context-Pack.md')
     args = parser.parse_args()

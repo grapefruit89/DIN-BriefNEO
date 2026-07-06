@@ -44,11 +44,11 @@ Das Herzstück unserer perfekten Zusammenarbeit ist, dass das KI-System nichts v
 
 ## A. ADRs (Architecture Decision Records)
 Sobald eine fundamentale Entscheidung getroffen wird (z.B. "Wir nutzen jetzt das native Toast Popover" oder "Wir strukturieren NixOS-Home-Manager Module nach Topics"), schreiben wir ein kurzes ADR.
-- **Wo:** `docs/ADR/`
+- **Wo:** `docs/10-architecture/ADR/`
 - **Warum:** Damit zukünftige Agenten lesen können, *warum* etwas so gebaut wurde und es nicht aus Unwissenheit "weg-refactoren".
 
 ## B. Guides & Traceability
-- **Guides:** Für komplexe Systeme (wie das Toast-System oder ein spezielles NixOS-Deployment) schreiben wir `docs/Guides/`.
+- **Guides:** Für komplexe Systeme (wie das Toast-System oder ein spezielles NixOS-Deployment) schreiben wir `docs/20-implementation/Guides/`.
 - **Verknüpfung im Code:** In den Quellcode-Dateien platzieren wir Meta-Tags (z.B. `// @adr [[ADR-Toast-Architecture]]` oder `# @guide [[nixos-deployment]]`). Das triggert den Agenten, diese Dateien bei Änderungen als Kontext zu laden.
 
 ## C. Die MCP-Datenbanken (MemDB & SQLite)

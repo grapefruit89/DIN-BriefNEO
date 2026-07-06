@@ -4,7 +4,7 @@ from datetime import datetime
 
 def migrate():
     # Run from aktueller_arbeitsordner
-    docs_dirs = ['docs/ADR', 'docs/Guides']
+    docs_dirs = ['docs/10-architecture/ADR', 'docs/20-implementation/Guides']
     today = datetime.now().strftime('%Y-%m-%d')
 
     for d in docs_dirs:

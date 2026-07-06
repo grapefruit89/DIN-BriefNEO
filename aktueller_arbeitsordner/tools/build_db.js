@@ -290,7 +290,7 @@ function main() {
        const guideStr = link.guide ? `[[${link.guide}]]` : '-';
        md += `| ${link.file} | ${link.line} | ${adrStr} | ${guideStr} |\n`;
     });
-    fs.writeFileSync(path.join(targetDir, 'docs', 'ADR', 'Code-Referenzen.md'), md, 'utf8');
+    fs.writeFileSync(path.join(targetDir, 'docs', '10-architecture', 'ADR', 'Code-Referenzen.md'), md, 'utf8');
   }
 
   fs.writeFileSync(outputSqlFile, sql, 'utf-8');

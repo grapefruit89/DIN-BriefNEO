@@ -150,7 +150,7 @@ function getFilesRecursively(dir, fileList = []) {
 
 function parseYamlFrontmatter(content) {
   const meta = { title: '', status: '', tags: [], relations: [] };
-  const match = content.match(/^---\r?\n([\s\S]+?)\r?\n---/);
+  const match = content.match(/^\uFEFF?---\r?\n([\s\S]+?)\r?\n---/);
   if (match) {
     const yamlLines = match[1].split(/\r?\n/);
     let inRelations = false;

@@ -6,12 +6,12 @@ const OUTPUT_FILE = 'build/LLM_CONTEXT.md';
 // Liste der absolut kritischen Kern-Dokumente für LLMs
 const CORE_FILES = [
     'README.md',
-    'docs/core/DOCUMENTATION-MAP.md',
+    'docs/30-meta/DOCUMENTATION-MAP.md',
     '../AGENTS.md',
-    'docs/core/constitution.md',
-    'docs/Guides/longevity-guidelines.md',
-    'docs/core/MASTER-DO-DONT-DEPRECATED.md',
-    'docs/core/spec.md'
+    'docs/00-foundation/constitution.md',
+    'docs/00-foundation/longevity-guidelines.md',
+    'docs/00-foundation/Immutable-Law-Catalog.md',
+    'docs/00-foundation/spec.md'
 ];
 
 const PREAMBLE = `---

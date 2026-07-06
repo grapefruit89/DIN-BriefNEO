@@ -64,7 +64,7 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "[4/5] Starte Python SQLite OmniTraceability Parser (Phase 1)..." -ForegroundColor Yellow
-& .\venv\Scripts\python.exe tools/build_db.py
+& ..\.venv\Scripts\python.exe tools/build_db.py
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host ""

@@ -25,8 +25,8 @@ Dieses Wiki dient als maschinenlesbarer Navigator durch die Architektur, Spezifi
 - **[[Function-Traceability]]**: Das automatisierte Code-zu-Dokumentation Mapping. Die Matrix, die unsere Code-Base zusammenhält.
 
 ### Die Umsetzung
-- **[Architektur-Entscheidungen (ADRs)](ADR/ADR-ÜBERSICHT.md)**: Alle verbindlichen Architektur-Regeln. Das "Warum".
-- **[Guides & Manuals](Guides/GUIDE-TEMPLATE.md)**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
+- **[Architektur-Entscheidungen (ADRs)](10-architecture/ADR/ADR-ÜBERSICHT.md)**: Alle verbindlichen Architektur-Regeln. Das "Warum".
+- **[Guides & Manuals](20-implementation/Guides/GUIDE-TEMPLATE.md)**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
 - **[[core/spec]]**: Die unumstößlichen funktionalen und fachlichen Anforderungen an die DIN 5008. Das "Was".
 
 ---

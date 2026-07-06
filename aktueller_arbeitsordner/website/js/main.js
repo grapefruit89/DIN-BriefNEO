@@ -48,8 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Popover Toast Element
   const globalToast = document.getElementById('toast-v4');
 
-  // Popover Toast Element
-  const globalToast = document.getElementById('toast-v4');
+
 
   // Load baseline settings
   let settings = StorageManager.loadSettings();

@@ -3,7 +3,8 @@ import { StorageManager } from '../30-utils/02-storage.js';
 export class DraftManager {
   #undoStack = [];
   #redoStack = [];
-  #currentStateString = null;
+  #currentDraftString = null;
+  #currentStateObjStr = null;
   #isRestoring = false;
 
   constructor(onSaveCallback = null) {
@@ -46,15 +47,28 @@ export class DraftManager {
     StorageManager.saveDraft('current', draft);
     this._updateDocumentTitle();
 
-    // History Logic (Undo/Redo)
-    const stateStr = JSON.stringify(draft);
-    if (!this.#isRestoring && stateStr !== this.#currentStateString) {
-      if (this.#currentStateString !== null) {
-        this.#undoStack.push(this.#currentStateString);
-        if (this.#undoStack.length > 50) this.#undoStack.shift(); // Max 50 states
+    // History Logic (Undo/Redo with Caret Preservation)
+    const draftStr = JSON.stringify(draft);
+    
+    if (!this.#isRestoring) {
+      let caretInfo = null;
+      const activeElem = document.activeElement;
+      if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id) {
+        caretInfo = { id: activeElem.id, offset: this.#getCaretCharacterOffsetWithin(activeElem) };
       }
-      this.#currentStateString = stateStr;
-      this.#redoStack = []; // Clear redo on new input
+
+      if (draftStr !== this.#currentDraftString) {
+        if (this.#currentStateObjStr !== null) {
+          this.#undoStack.push(this.#currentStateObjStr);
+          if (this.#undoStack.length > 50) this.#undoStack.shift(); // Max 50 states
+        }
+        this.#currentDraftString = draftStr;
+        this.#currentStateObjStr = JSON.stringify({ draft, caretInfo });
+        this.#redoStack = []; // Clear redo on new input
+      } else {
+        // Update caret position without pushing to undo stack (if only cursor moved)
+        this.#currentStateObjStr = JSON.stringify({ draft, caretInfo });
+      }
     }
 
     // Optionaler Callback (für Abwärtskompatibilität)
@@ -70,7 +84,8 @@ export class DraftManager {
     const draft = StorageManager.loadDraft('current');
     if (!draft) return false;
     
-    this.#currentStateString = JSON.stringify(draft);
+    this.#currentDraftString = JSON.stringify(draft);
+    this.#currentStateObjStr = JSON.stringify({ draft, caretInfo: null });
     this.#restoreState(draft);
     return true;
   }
@@ -106,20 +121,93 @@ export class DraftManager {
 
   undo() {
     if (this.#undoStack.length === 0) return;
-    this.#redoStack.push(this.#currentStateString);
-    this.#currentStateString = this.#undoStack.pop();
-    this.#restoreState(JSON.parse(this.#currentStateString));
-    StorageManager.saveDraft('current', JSON.parse(this.#currentStateString));
-    if (this.onSaveCallback) this.onSaveCallback();
+    this.#redoStack.push(this.#currentStateObjStr);
+    this.#currentStateObjStr = this.#undoStack.pop();
+    this.#applyHistoryState(this.#currentStateObjStr);
   }
 
   redo() {
     if (this.#redoStack.length === 0) return;
-    this.#undoStack.push(this.#currentStateString);
-    this.#currentStateString = this.#redoStack.pop();
-    this.#restoreState(JSON.parse(this.#currentStateString));
-    StorageManager.saveDraft('current', JSON.parse(this.#currentStateString));
+    this.#undoStack.push(this.#currentStateObjStr);
+    this.#currentStateObjStr = this.#redoStack.pop();
+    this.#applyHistoryState(this.#currentStateObjStr);
+  }
+
+  #applyHistoryState(stateObjStr) {
+    const stateObj = JSON.parse(stateObjStr);
+    this.#currentDraftString = JSON.stringify(stateObj.draft);
+    this.#restoreState(stateObj.draft);
+    StorageManager.saveDraft('current', stateObj.draft);
+    
+    // Restore Caret
+    if (stateObj.caretInfo) {
+      const elem = document.getElementById(stateObj.caretInfo.id);
+      if (elem) {
+        elem.focus();
+        this.#setCaretPosition(elem, stateObj.caretInfo.offset);
+      }
+    }
+    
     if (this.onSaveCallback) this.onSaveCallback();
+  }
+
+  #getCaretCharacterOffsetWithin(element) {
+    let caretOffset = 0;
+    const doc = element.ownerDocument || element.document;
+    const win = doc.defaultView || doc.parentWindow;
+    if (typeof win.getSelection !== "undefined") {
+      const sel = win.getSelection();
+      if (sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(element);
+        preCaretRange.setEnd(range.endContainer, range.endOffset);
+        caretOffset = preCaretRange.toString().length;
+      }
+    }
+    return caretOffset;
+  }
+
+  #setCaretPosition(elem, caretPos) {
+    if (caretPos === 0) {
+      elem.focus();
+      return;
+    }
+    const doc = elem.ownerDocument || elem.document;
+    const win = doc.defaultView || doc.parentWindow;
+    const sel = win.getSelection();
+    const range = doc.createRange();
+    
+    let charIndex = 0;
+    let found = false;
+
+    function traverseNodes(node) {
+      if (found) return;
+      if (node.nodeType === 3) {
+        const nextCharIndex = charIndex + node.length;
+        if (caretPos >= charIndex && caretPos <= nextCharIndex) {
+          range.setStart(node, caretPos - charIndex);
+          range.collapse(true);
+          found = true;
+        }
+        charIndex = nextCharIndex;
+      } else {
+        let child = node.firstChild;
+        while (child) {
+          traverseNodes(child);
+          child = child.nextSibling;
+        }
+      }
+    }
+
+    traverseNodes(elem);
+
+    if (found) {
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      elem.focus();
+    }
   }
 
   /**

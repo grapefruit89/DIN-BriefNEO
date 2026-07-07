@@ -48,12 +48,10 @@ export class DraftManager {
           try {
             elem.setHTML(draft[id], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] });
           } catch {
-            elem.innerHTML = draft[id];
+            elem.setHTML(draft[id]);
           }
-        } else if (elem.setHTMLUnsafe) {
-          elem.setHTMLUnsafe(draft[id]);
         } else {
-          // Strict fallback without innerHTML
+          // Strict Chrome 149 baseline: no innerHTML fallback
           elem.textContent = draft[id];
         }
       } else {

@@ -1042,6 +1042,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(elem => {
+      if (elem.id === 'unterschrift') {
+        // Keep the image, clear text nodes
+        const img = elem.querySelector('#signature-image');
+        elem.replaceChildren();
+        if (img) elem.appendChild(img);
+        return;
+      }
       elem.replaceChildren(); // Fast, native way to clear content instead of innerHTML = ''
       elem.textContent = '';
     });

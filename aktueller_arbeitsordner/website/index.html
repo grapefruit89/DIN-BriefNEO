@@ -44,7 +44,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 12:03</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 13:35</span>
             </div>
             
             <div>
@@ -204,31 +204,31 @@
           <div id="local-address-dropdown" popover="manual" class="no-print"></div>
 
           <!-- SENDER IN-LINE address (Rücksendezeile) -->
-          <din-absender id="absender" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt"></din-absender>
+          <din-absender id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt"></din-absender>
 
           <!-- RECIPIENT ADDRESS ZONE -->
           <din-anschriftfeld id="empfaenger">
             <!-- POSTVERMERK (OPTIONAL) -->
-            <din-postvermerk id="postvermerk" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" style="anchor-name: --anchor-postvermerk;"></din-postvermerk>
+            <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" style="anchor-name: --anchor-postvermerk;"></din-postvermerk>
             
-            <div id="empfaenger-firma" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
-            <div id="empfaenger-name" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>
-            <div id="empfaenger-strasse" contenteditable="plaintext-only" placeholder="Straße & Hausnummer"></div>
-            <div id="empfaenger-ort" contenteditable="plaintext-only" placeholder="PLZ & Ort"></div>
+            <div id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
+            <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>
+            <div id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer"></div>
+            <div id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort"></div>
           </din-anschriftfeld>
 
           <!-- INFOBLOCK (Right side metadata block - Privatbrief Standard) -->
           <din-infoblock id="infoblock" style="line-height: 1.5; ">
-            <div id="info-name" contenteditable="plaintext-only" placeholder="Vor- und Nachname"></div>
-            <div id="info-street" contenteditable="plaintext-only" placeholder="Straße und Hausnummer"></div>
-            <div id="info-city" contenteditable="plaintext-only" placeholder="PLZ und Ort"></div>
-            <div style="margin-top: 8px;" id="info-tel" contenteditable="plaintext-only" placeholder="Telefon (optional)"></div>
-            <div id="info-email" contenteditable="plaintext-only" placeholder="E-Mail (optional)"></div>
+            <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname"></div>
+            <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer"></div>
+            <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort"></div>
+            <div style="margin-top: 8px;" id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)"></div>
+            <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)"></div>
           </din-infoblock>
 
 
           <!-- DATE -->
-          <din-datum id="datum" contenteditable="plaintext-only" placeholder="24. Mai 2026"></din-datum>
+          <din-datum id="datum" class="single-line" contenteditable="plaintext-only" placeholder="24. Mai 2026"></din-datum>
 
           <!-- CORE LETTER CONTENT -->
           <din-kern id="briefkern">
@@ -236,13 +236,13 @@
             <div id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben"></div>
             
             <!-- Salutation -->
-            <div id="anrede" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren,"></div>
+            <div id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren,"></div>
             
             <!-- Core text body (Inline Formats supported + protected by paste filter) -->
             <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..."></din-text>
             
             <!-- Greeting Form -->
-            <div id="grussformel" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen,"></div>
+            <div id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen,"></div>
             
             <!-- Signature typing name -->
             <div style="position: relative; margin-top: 10px;">

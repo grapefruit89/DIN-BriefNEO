@@ -51,8 +51,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Für das Papier sind exklusive Variablen (`--paper-bg`, `--paper-text`) oder hartkodierte `oklch`-Farbwerte zu verwenden. Das UI-Theme darf nur die Sidebar und den Viewport-Hintergrund um das Blatt herum beeinflussen.
 
 ## 8. Print CSS Safety
-- **Niemals** page-break-before: always; auf das Haupt-Container-Element (z.B. din-a4) anwenden. 
+- **Niemals** `page-break-before: always;` auf das Haupt-Container-Element (z.B. `din-a4`) anwenden. 
 - Dies führt beim Drucken oder PDF-Export zwingend dazu, dass der Drucker vor dem eigentlichen Inhalt einen Seitenumbruch einfügt. Das Resultat ist ein katastrophaler Bug: Eine komplett leere erste Seite (oder leere PDF).
+- Wenn die App den Viewport mit `overflow: hidden` und `height: 100vh` sperrt (um Scrollbars zu vermeiden), **muss** im `@media print` zwingend `html, body { overflow: visible !important; height: auto !important; }` gesetzt werden. Andernfalls schneidet der Drucker die PDF gnadenlos ab oder sie bleibt komplett leer.
 
 ## 9. Contenteditable DOM Integrity
 - Wichtige DOM-Elemente (wie UI-Bilder, z.B. <img id="signature-image">) dürfen niemals direkt als Children in ein contenteditable="true" Element gelegt werden, wenn der Nutzer dort Text eingeben soll. 
@@ -66,5 +67,19 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## 11. Directory Boundaries & Workspace Integrity
 - Niemals wilde Ordner oder Dateien auf Root-Ebene (wie z.B. einen \docs\-Ordner direkt im Projektverzeichnis) erstellen.
-- Alles hat seinen vordefinierten Platz! Sämtliche aktive Entwicklung, Dokumentation (ADRs, Guides) und Code-Dateien befinden sich STRIKT innerhalb des \ktueller_arbeitsordner/\ Verzeichnisses. 
-- Das bedeutet: Neue Dokumente, wie z.B. ADRs, gehören ausnahmslos in \ktueller_arbeitsordner/docs/...\ und NICHT in \docs/...\ auf der obersten Projektebene.
+- Alles hat seinen vordefinierten Platz! Sämtliche aktive Entwicklung, Dokumentation (ADRs, Guides) und Code-Dateien befinden sich STRIKT innerhalb des \ ktueller_arbeitsordner/\ Verzeichnisses. 
+- Das bedeutet: Neue Dokumente, wie z.B. ADRs, gehören ausnahmslos in \ ktueller_arbeitsordner/docs/...\ und NICHT in \docs/...\ auf der obersten Projektebene.
+
+## 12. Atomic Line Limits (Jede Zeile ist ein Atom)
+- Alle `contenteditable`-Felder im DIN-Brief sind standardmäßig strikt einzeilig (wie Atome).
+- Die *Enter*-Taste muss für sie blockiert und Zeilenumbrüche beim Paste-Event herausgefiltert werden.
+- Es gibt exakt drei Ausnahmen, die ein Whitelisting benötigen: `betreff` (max 2 Zeilen), `brieftext` (unbegrenzt) und `anlagen-text` (unbegrenzt).
+
+## 13. Contenteditable Lists & Draft Serialization
+- Strukturierte Inhalts-Elemente wie das Anlagen-Feld (`<ul>`) dürfen **niemals** über `.textContent = ''` gelöscht werden, da sonst die `<li>`-Struktur verloren geht (und damit die Bulletpoints verschwinden).
+- Reset: Immer mit `replaceChildren()` und Neuerstellung der DOM-Knoten (z.B. `document.createElement('li')`).
+- Speichern/Laden: Muss zwingend über `.innerHTML` serialisiert und per `.setHTML()` / `.setHTMLUnsafe()` deserialisiert werden.
+
+## 14. Strict Paste Handling (No execCommand)
+- Zum Einfügen von gefiltertem Text (z.B. nach dem Entfernen von Zeilenumbrüchen beim Paste) darf **nicht** `document.execCommand('insertText')` verwendet werden. Dies ist veraltet und wirft einen Linter-Error.
+- Es muss ausschließlich die native `Selection` und `Range` API genutzt werden (z.B. `selection.deleteFromDocument()` gefolgt von `range.insertNode()`).

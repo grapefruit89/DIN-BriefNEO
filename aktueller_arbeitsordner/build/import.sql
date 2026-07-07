@@ -427,6 +427,8 @@ Every technology, API, pattern, and practice that is eternally banned. Each entr
 | A43  | Scrollbars anywhere in the viewport | `overflow: hidden` on `html`/`body`; internal `overflow‑y: auto` with hidden scrollbar for sidebars | Destroys premium app‑shell aesthetics; violates DIN 5008 WYSIWYG proportionality |
 | A44  | Non‑semantic `<div>`/`<span>` overuse | Semantic Custom Elements from the IMR 4.0 catalog | Impaired readability for developers and LLMs; no structural meaning; harder to style with `@scope` |
 | A45  | Project‑crossing references (e.g., NixOS paths in DIN‑Brief configuration) | Hermetic project isolation; strict directory boundaries; MCP server scope enforcement | Hallucination risk; context contamination; corrupted audits |
+| A46  | `page-break-before: always;` on layout roots | `page-break-after: avoid;` or controlled printing | Results in a completely blank first page during PDF generation |
+| A47  | Complex UI components inside `contenteditable="true"` | Isolate text and visual components as siblings within a non-editable wrapper | Browser wipes inner HTML structure completely when user types |
 
 ------
 
@@ -1124,6 +1126,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ### Risiken & Negative Auswirkungen
 - Texte müssen in der Höhe begrenzt sein (z. B. auf 1 A4-Seite), da Overflow-Scrolling deaktiviert ist.
 - Bindung an hochmoderne Chromium-Engines (Chrome 148+).
+- **Print CSS Saftey:** Strenge Vorgaben im `@media print` erforderlich (`height: auto !important`, `overflow: visible !important`). Die Nutzung von `page-break-before: always;` auf Container-Ebene führt zwingend zu leeren PDFs (siehe Law Catalog A46).
 
 ### Langfristige Auswirkungen
 - **Architektur-Stabilität:** Die Codebasis bleibt extrem JS-arm und profitiert direkt von Engine-Optimierungen.
@@ -1313,6 +1316,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 ### Risiken & Negative Auswirkungen
 - `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge).
+- **Contenteditable Integrity Risk:** Das direkte Verschachteln von strukturellen oder interaktiven Elementen (wie z.B. `<img id="signature-image">`) als Kind-Elemente von `contenteditable="true"` führt bei Texteingabe zwingend zum Verlust der Struktur, da der Browser den inneren DOM-Baum rigoros überschreibt. Lösung: Immer als Geschwister-Elemente in einem isolierten Wrapper kapseln (Siehe Law Catalog A47).
 
 ## 5. Implementation & Verification
 
@@ -1378,6 +1382,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 - CSS Anchor Positioning ersetzt ehemalige JS-Koordinatenberechnung.
 - `execCommand` ist in den Anti-Pattern-Regeln verboten.
+- Die reine DOM-basierte Datenkopplung (wie in `sender-sync.js`) demonstriert den Verzicht auf globale State-Stores zugunsten reaktiver DOM-Updates für das Ausfüllen des Absenders.
 - View Transitions sind in `main.js` für Formularwechsel und Theme-Toggles produktiv.
 
 ## 6. Related Documents
@@ -1600,8 +1605,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | website/js/geoapify.js | 6 | [[ADR-API]] | - |
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
-| website/js/main.js | 959 | [[ADR-JS]] | - |
-| website/js/main.js | 1057 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/main.js | 976 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/metadata.js | 1 | [[ADR-JS]] | - |
 | website/js/metadata.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |

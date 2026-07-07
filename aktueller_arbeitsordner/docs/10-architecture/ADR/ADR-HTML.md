@@ -62,6 +62,7 @@ updated: '2026-07-06'
 
 ### Risiken & Negative Auswirkungen
 - `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge).
+- **Contenteditable Integrity Risk:** Das direkte Verschachteln von strukturellen oder interaktiven Elementen (wie z.B. `<img id="signature-image">`) als Kind-Elemente von `contenteditable="true"` führt bei Texteingabe zwingend zum Verlust der Struktur, da der Browser den inneren DOM-Baum rigoros überschreibt. Lösung: Immer als Geschwister-Elemente in einem isolierten Wrapper kapseln (Siehe Law Catalog A47).
 
 ## 5. Implementation & Verification
 

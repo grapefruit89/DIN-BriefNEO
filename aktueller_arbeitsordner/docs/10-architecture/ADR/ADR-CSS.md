@@ -69,6 +69,7 @@ updated: '2026-07-06'
 ### Risiken & Negative Auswirkungen
 - Texte müssen in der Höhe begrenzt sein (z. B. auf 1 A4-Seite), da Overflow-Scrolling deaktiviert ist.
 - Bindung an hochmoderne Chromium-Engines (Chrome 148+).
+- **Print CSS Saftey:** Strenge Vorgaben im `@media print` erforderlich (`height: auto !important`, `overflow: visible !important`). Die Nutzung von `page-break-before: always;` auf Container-Ebene führt zwingend zu leeren PDFs (siehe Law Catalog A46).
 
 ### Langfristige Auswirkungen
 - **Architektur-Stabilität:** Die Codebasis bleibt extrem JS-arm und profitiert direkt von Engine-Optimierungen.

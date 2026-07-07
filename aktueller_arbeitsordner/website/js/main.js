@@ -967,7 +967,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     saveDraftData();
     checkTextOverflow();
-    showToast(Constants.TOASTS.RESET_SUCCESS, 'success');
+
   }
 });
 

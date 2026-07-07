@@ -70,6 +70,7 @@ updated: '2026-07-06'
 
 - CSS Anchor Positioning ersetzt ehemalige JS-Koordinatenberechnung.
 - `execCommand` ist in den Anti-Pattern-Regeln verboten.
+- Die reine DOM-basierte Datenkopplung (wie in `sender-sync.js`) demonstriert den Verzicht auf globale State-Stores zugunsten reaktiver DOM-Updates für das Ausfüllen des Absenders.
 - View Transitions sind in `main.js` für Formularwechsel und Theme-Toggles produktiv.
 
 ## 6. Related Documents

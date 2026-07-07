@@ -12,7 +12,7 @@ tags: [context, llm, prompt]
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-07T08:56:54.016Z
+> Generiert am: 2026-07-07T09:19:15.459Z
 > ==============================================================================
 
 
@@ -645,6 +645,8 @@ Every technology, API, pattern, and practice that is eternally banned. Each entr
 | A43  | Scrollbars anywhere in the viewport | `overflow: hidden` on `html`/`body`; internal `overflow‑y: auto` with hidden scrollbar for sidebars | Destroys premium app‑shell aesthetics; violates DIN 5008 WYSIWYG proportionality |
 | A44  | Non‑semantic `<div>`/`<span>` overuse | Semantic Custom Elements from the IMR 4.0 catalog | Impaired readability for developers and LLMs; no structural meaning; harder to style with `@scope` |
 | A45  | Project‑crossing references (e.g., NixOS paths in DIN‑Brief configuration) | Hermetic project isolation; strict directory boundaries; MCP server scope enforcement | Hallucination risk; context contamination; corrupted audits |
+| A46  | `page-break-before: always;` on layout roots | `page-break-after: avoid;` or controlled printing | Results in a completely blank first page during PDF generation |
+| A47  | Complex UI components inside `contenteditable="true"` | Isolate text and visual components as siblings within a non-editable wrapper | Browser wipes inner HTML structure completely when user types |
 
 ------
 

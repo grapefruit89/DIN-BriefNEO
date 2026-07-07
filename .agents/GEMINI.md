@@ -73,6 +73,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## 12. Atomic Line Limits (Jede Zeile ist ein Atom)
 - Alle `contenteditable`-Felder im DIN-Brief sind standardmäßig strikt einzeilig (wie Atome).
 - Die *Enter*-Taste muss für sie blockiert und Zeilenumbrüche beim Paste-Event herausgefiltert werden.
+- Zusätzlich müssen sie die `.single-line` CSS-Utility erhalten. Diese sorgt mit `text-overflow: ellipsis` für visuelle Stabilität im Layout, wechselt aber bei `:focus` intelligent auf `overflow: visible`, damit der Text beim Tippen vollständig sichtbar bleibt.
 - Es gibt exakt drei Ausnahmen, die ein Whitelisting benötigen: `betreff` (max 2 Zeilen), `brieftext` (unbegrenzt) und `anlagen-text` (unbegrenzt).
 
 ## 13. Contenteditable Lists & Draft Serialization
@@ -112,7 +113,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Das native Browser-Undo (`document.execCommand('undo')`) ist fehleranfällig und darf nicht verwendet werden.
 - Die App nutzt einen komplett eigenen History-Stack im `DraftManager`, der den globalen Zustand über `localStorage`-Snapshots verwaltet. 
 - Wenn neue textliche oder visuelle Zustände gespeichert werden sollen, muss dies über den etablierten `saveDraft()` Flow gehen, damit das Custom-Undo (`Strg+Z` / `Strg+Y`) sauber durch die Zeitlinie navigieren kann.
+- **Caret Preservation:** Ein Snapshot darf niemals nur den HTML-Text speichern, sondern muss zwingend auch den exakten Character-Offset des Cursors (`caretInfo`) erfassen. Beide Werte (`draftStr` und `caretInfo`) sind in einem einzigen, sauberen Status-Objekt (`#currentState`) zu bündeln, um Redundanzen und Synchronisationsfehler zu vermeiden.
 
 ## 20. CSS Anchor Positioning in Contenteditable (Selection Ranges)
 - Wenn Popovers oder Toolbars relativ zu einer Textmarkierung (Selection Range) positioniert werden müssen, darf **nicht** versucht werden, dies durch reines CSS Anchor Positioning zu lösen, da eine Selection Range keinen `anchor-name` haben kann.
 - Es **muss** zwingend ein unsichtbares Proxy-Element (z.B. `#selection-anchor`) verwendet werden, welches per JavaScript (`getBoundingClientRect()`) über die Selection gelegt wird. Das Popover ankert dann per CSS an diesem Proxy.
+
+## 21. Semantic UI States (Aria-Attributes)
+- Zur Steuerung von aktiven UI-Zuständen (z.B. aktivierte Buttons in der FormatToolbar) ist die Nutzung von `classList.add('active')` zu vermeiden.
+- Stattdessen muss zwingend das native Accessibility-Attribut verwendet werden: `element.setAttribute('aria-pressed', 'true' | 'false')`.
+- Das CSS-Styling erfolgt ausschließlich über den Attribut-Selektor (z.B. `button[aria-pressed="true"]`). Das garantiert perfekte Trennung von Semantik und Styling.
+
+## 22. Standard Keyboard Shortcuts
+- International etablierte Tastaturkürzel (wie `Strg+B` für Bold, `Strg+I` für Italic, `Strg+U` für Underline) sind unantastbar und dürfen niemals für andere Funktionen zweckentfremdet werden.
+- Bei der Vergabe von neuen Custom-Shortcuts (z.B. für Blockquote) ist zwingend auf konfliktfreie Tasten (wie `Strg+Q`) auszuweichen.

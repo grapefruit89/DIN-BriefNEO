@@ -37,7 +37,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <h3 class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</h3>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 16:07</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 16:09</span>
             </div>
             
             <div>
@@ -102,7 +102,7 @@
               
               <!-- Built-in System Stacks -->
               <div class="sidebar-options-group">
-                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
+                <span class="sidebar-sub-label">System-Schriftart:</span>
                 <div class="segmented-control" id="font-stack-select">
                   <button id="btn-font-sans" aria-pressed="true" title="Moderne serifenlose Systemschrift">Sans</button>
                   <button id="btn-font-serif" title="Klassische Serifenschrift">Serif</button>
@@ -131,7 +131,7 @@
             <div>
               <h3 class="sidebar-label">Unterschrift (Bild)</h3>
               <div class="sidebar-options-group">
-                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
+                <span class="sidebar-sub-label">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
                 <button id="btn-upload-sig-trigger" class="btn" style="width: 100%;">
                   ✒️ Unterschrift laden
                 </button>
@@ -212,11 +212,11 @@
 
           <!-- INFOBLOCK (Right side metadata block - Privatbrief Standard) -->
           <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen" style="line-height: 1.5;">
-            <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Ihr Name"></div>
-            <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Ihre Straße und Hausnummer"></div>
-            <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Ihre Postleitzahl und Ort"></div>
-            <div style="margin-top: 8px;" id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Ihre Telefonnummer"></div>
-            <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="Ihre E-Mail-Adresse"></div>
+            <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Name"></div>
+            <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></div>
+            <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></div>
+            <div style="margin-top: 8px;" id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></div>
+            <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></div>
           </din-infoblock>
 
 

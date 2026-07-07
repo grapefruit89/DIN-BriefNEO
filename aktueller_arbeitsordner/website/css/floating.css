@@ -203,7 +203,7 @@
   color: var(--accent-color);
 }
 
-#format-toolbar button.active {
+#format-toolbar button[aria-pressed="true"] {
   background: var(--accent-color);
   color: contrast-color(var(--accent-color));
   font-weight: 600;

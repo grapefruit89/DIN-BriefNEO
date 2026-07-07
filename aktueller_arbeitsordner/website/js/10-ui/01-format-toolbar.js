@@ -110,40 +110,32 @@ export class FormatToolbar {
 
     if (this.#btnBold) {
       if (isBold) {
-        this.#btnBold.classList.add('active');
         this.#btnBold.setAttribute('aria-pressed', 'true');
       } else {
-        this.#btnBold.classList.remove('active');
         this.#btnBold.setAttribute('aria-pressed', 'false');
       }
     }
 
     if (this.#btnUnderline) {
       if (isUnderline) {
-        this.#btnUnderline.classList.add('active');
         this.#btnUnderline.setAttribute('aria-pressed', 'true');
       } else {
-        this.#btnUnderline.classList.remove('active');
         this.#btnUnderline.setAttribute('aria-pressed', 'false');
       }
     }
 
     if (this.#btnQuote) {
       if (isQuote) {
-        this.#btnQuote.classList.add('active');
         this.#btnQuote.setAttribute('aria-pressed', 'true');
       } else {
-        this.#btnQuote.classList.remove('active');
         this.#btnQuote.setAttribute('aria-pressed', 'false');
       }
     }
 
     if (this.#btnComment) {
       if (isComment) {
-        this.#btnComment.classList.add('active');
         this.#btnComment.setAttribute('aria-pressed', 'true');
       } else {
-        this.#btnComment.classList.remove('active');
         this.#btnComment.setAttribute('aria-pressed', 'false');
       }
     }
@@ -221,8 +213,8 @@ export class FormatToolbar {
         if (this.#btnUnderline) this.#btnUnderline.click();
       }
       
-      // Custom blockquote shortcut: Strg+I
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+      // Custom blockquote shortcut: Strg+Q
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'q') {
         e.preventDefault();
         if (this.#btnQuote) this.#btnQuote.click();
       }

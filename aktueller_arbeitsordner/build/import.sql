@@ -1598,31 +1598,8 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | :--- | :--- | :--- | :--- |
 | website/index.html | 1 | [[ADR-HTML]] | - |
 | website/index.html | 2 | - | [[din-5008-layout]] |
-| website/js/constants.js | 1 | [[ADR-JS]] | - |
-| website/js/constants.js | 2 | - | [[glossary]] |
-| website/js/dev-tools.js | 1 | [[ADR-DATA-PERSISTENCE]] | - |
-| website/js/geoapify.js | 1 | [[ADR-API]] | - |
-| website/js/geoapify.js | 2 | - | [[geoapify-autocomplete]] |
-| website/js/geoapify.js | 6 | [[ADR-API]] | - |
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
-| website/js/metadata.js | 1 | [[ADR-JS]] | - |
-| website/js/metadata.js | 2 | - | [[glossary]] |
-| website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |
-| website/js/salutation-engine.js | 2 | - | [[glossary]] |
-| website/js/salutation-engine.js | 19 | [[ADR-JS]] | - |
-| website/js/salutation-engine.js | 87 | [[ADR-JS]] | - |
-| website/js/sender-sync.js | 1 | [[ADR-JS]] | - |
-| website/js/sender-sync.js | 2 | - | [[glossary]] |
-| website/js/signature.js | 1 | [[ADR-JS]] | - |
-| website/js/signature.js | 2 | - | [[glossary]] |
-| website/js/signature.js | 5 | [[ADR-JS]] | - |
-| website/js/storage.js | 1 | [[ADR-DATA-PERSISTENCE]] | - |
-| website/js/storage.js | 2 | - | [[glossary]] |
-| website/js/storage.js | 6 | [[ADR-DATA-PERSISTENCE]] | - |
-| website/js/toast.js | 1 | [[ADR-JS]] | - |
-| website/js/toast.js | 2 | - | [[chrome-modern-css]] |
-| website/js/toast.js | 4 | [[ADR-JS]] | - |
 | website/css/floating.css | 1 | [[ADR-CSS]] | - |
 | website/css/floating.css | 2 | - | [[chrome-modern-css]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] | - |
@@ -2075,41 +2052,53 @@ graph TD
 
 ---
 
+## 📄 0. Haupt-Container (Dokument)
+
+**Container:** `<din-a4>`  
+**Rolle:** Root-Element für das Druck-Layout  
+**Verhalten:** Skaliert dynamisch über CSS-Transforms im Viewport, wird beim Drucken exakt als DIN A4 Seite (210x297mm) behandelt.
+
+| Tag | Beschreibung | Erlaubter Inhalt | ARIA-Rolle | Verhalten | CSS-Klasse |
+|:---|:---|:---|:---|:---|:---|
+| `<din-a4>` | Das Briefpapier (View) | Alle DIN-Zonen | `article` | Skaliert im Viewport, fixt beim Druck | — |
+
+---
+
 ## 🏢 1. Absender-Zone (Branding)
 
 **Container:** `<din-absender>`  
 **Position:** X: `25mm` | Y: `var(--din-y-header-start)`  
 **Standard:** Form A: `27mm` | Form B: `45mm`
 
-| Tag | Beschreibung | Ausrichtung | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---|:---|
-| `<din-branding-logo>` | Firmenlogo (SVG/Base64) | Rechts | — | [`/whatwg/html`](https://html.spec.whatwg.org/) |
-| `<din-absender-vorname>` | Vorname Absender | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-nachname>` | Nachname Absender | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-strasse>` | Straße & Hausnr. | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-ort>` | PLZ & Ort | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-zusatz>` | Adresszusatz | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-mail>` | E-Mail Adresse | Links | `type="email"` | `mailto:` |
-| `<din-absender-tel>` | Telefonnummer | Links | `type="tel"` | `tel:` |
+| Tag | Beschreibung | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---|:---|:---|:---|
+| `<din-branding-logo>` | Firmenlogo (SVG/Base64) | Rechts | — | [`/whatwg/html`](https://html.spec.whatwg.org/) | — | — |
+| `<din-absender-vorname>` | Vorname Absender | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-nachname>` | Nachname Absender | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-strasse>` | Straße & Hausnr. | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-ort>` | PLZ & Ort | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-zusatz>` | Adresszusatz | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-mail>` | E-Mail Adresse | Links | `type="email"` | `mailto:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-tel>` | Telefonnummer | Links | `type="tel"` | `tel:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 
 ---
 
 ## ✉️ 2. Anschriftfeld (Empfänger)
 
-**Container:** `<din-anschriftfeld>`  
+**Container:** `<din-anschriftfeld>` | **ARIA-Rolle:** `group`  
 **Position:** X: `25mm` | Y: Form A: `32mm` | Form B: `50mm`  
 **Max-Breite:** `85mm` | **Höhe:** `45mm` (Fix)
 
-| Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---|:---|
-| `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 |
-| `<din-zusaetze>` | Vermerke/Zusätze | 2-4 | Links | — | DIN 5008: 16.1.3 |
-| `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-nachname>` | Nachname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-strasse>` | Straße & Hausnr. | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-ort>` | PLZ & Ort | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---:|:---|:---|:---|:---|
+| `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-postvermerk>` | Postvermerk / Zusatz | 1-4 | Links | `plaintext` | DIN 5008: 16.1.3 | Smart Single-Line (ellipsis) | `.single-line` |
+| `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-nachname>` | Nachname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-strasse>` | Straße & Hausnr. | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-ort>` | PLZ & Ort | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 
 > ⚠️ **Wichtig:** Das Anschriftfeld hat eine **feste Höhe von 45mm**. Überlaufender Text wird abgeschnitten (DIN 5008 Konformität).
 
@@ -2117,37 +2106,37 @@ graph TD
 
 ## 📅 3. Metadaten & Infoblock
 
-**Container:** `<din-infoblock>`  
+**Container:** `<din-infoblock>` | **ARIA-Rolle:** `group`  
 **Position:** X: `125mm` | Y (A): `32mm` | Y (B): `50mm`  
 **Wuchs:** Top-Down
 
-| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---:|:---|:---|
-| `<din-datum>` | Briefdatum | 74 | 92 | Links | `Temporal.PlainDate` | DIN 5008: 17.2 |
-| `<din-ihr-zeichen>` | Ihr Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 |
-| `<din-ihr-schreiben>` | Ihr Schreiben vom | Flow | Flow | Links | `ISO-8601` | [`/tc39/proposal-temporal`](https://tc39.es/proposal-temporal/) |
-| `<din-unser-zeichen>` | Unser Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 |
-| `<din-unser-schreiben>` | Bezugsdatum | Flow | Flow | Links | `ISO-8601` | [`/tc39/ecma262`](https://tc39.es/ecma262/) |
-| `<din-durchwahl>` | Direkte Telefonnr. | Flow | Flow | Links | `type="tel"` | `tel:` |
-| `<din-email-direkt>` | Direkte E-Mail | Flow | Flow | Links | `type="email"` | `mailto:` |
-| `<din-internet>` | Web-URL | Flow | Flow | Links | `type="url"` | [`/whatwg/html`](https://html.spec.whwg.org/) |
+| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---:|:---:|:---|:---|:---|:---|
+| `<din-datum>` | Briefdatum | 74 | 92 | Links | `Temporal.PlainDate` | DIN 5008: 17.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-ihr-zeichen>` | Ihr Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-ihr-schreiben>` | Ihr Schreiben vom | Flow | Flow | Links | `ISO-8601` | [`/tc39/proposal-temporal`](https://tc39.es/proposal-temporal/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-unser-zeichen>` | Unser Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-unser-schreiben>` | Bezugsdatum | Flow | Flow | Links | `ISO-8601` | [`/tc39/ecma262`](https://tc39.es/ecma262/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-durchwahl>` | Direkte Telefonnr. | Flow | Flow | Links | `type="tel"` | `tel:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-email-direkt>` | Direkte E-Mail | Flow | Flow | Links | `type="email"` | `mailto:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-internet>` | Web-URL | Flow | Flow | Links | `type="url"` | [`/whatwg/html`](https://html.spec.whwg.org/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 
 ---
 
 ## 📝 4. Briefkern (Dynamischer Inhalt)
 
-**Container:** `<din-kern>`  
+**Container:** `<din-kern>` | **ARIA-Rolle:** `article`  
 **Position:** X: `25mm` | Y (A): `91mm` | Y (B): `109mm`  
 **Max-Breite:** `165mm` | **Wuchs:** Top-Down (dynamisch, triggert Paginierung)
 
-| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Zeilen | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---:|:---:|:---|:---|
-| `<din-betreff>` | Betreff (fett) | Flow | Flow | Links | **Einzeilig*** | Max 2 Zeilen | DIN 5008: 18 |
-| `<din-anrede>` | Anredeformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 19 |
-| `<din-text>` | Haupt-Inhalt | Flow | Flow | Blocksatz* | **Mehrzeilig** | Sanitizer API | DIN 5008: 20 |
-| `<din-grussformel>` | Grußformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 21 |
-| `<din-unterschrift>` | Unterzeichner | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 22 |
-| `<din-anlagen>` | Anlagenverzeichnis | Flow | Flow | Links | **Mehrzeilig** | — | DIN 5008: 23 |
+| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Zeilen | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---:|:---:|:---:|:---|:---|:---|:---|
+| `<din-betreff>` | Betreff (fett) | Flow | Flow | Links | **Einzeilig*** | Max 2 Zeilen | DIN 5008: 18 | Max 2 Zeilen | — |
+| `<din-anrede>` | Anredeformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 19 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-text>` | Haupt-Inhalt | Flow | Flow | Blocksatz* | **Mehrzeilig** | Sanitizer API | DIN 5008: 20 | Vollständig editierbar | — |
+| `<din-grussformel>` | Grußformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 21 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-unterschrift>` | Unterzeichner | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 22 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-anlagen>` | Anlagenverzeichnis | Flow | Flow | Links | **Mehrzeilig** | — | DIN 5008: 23 | Vollständig editierbar | — |
 
 > ℹ️ *Betreff: Startet zwingend UNTER der ersten Falzmarke (105mm/87mm). Smart-Squeezing versucht ihn einzeilig zu halten.*
 
@@ -2159,7 +2148,7 @@ graph TD
 
 ## 📄 5. Fußzeile (Footer) – 4 Spalten
 
-**Container:** `<din-fuss>`  
+**Container:** `<din-fuss>` | **ARIA-Rolle:** `contentinfo`  
 **Position:** X: `25mm` | Y: `241mm`  
 **Max-Breite:** `165mm` | **Wuchs:** Spalten-basiert  
 **Layout:** 4 Spalten (je 25% Breite)
@@ -5392,31 +5381,8 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
 
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/index.html', 1, 'ADR-HTML', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/index.html', 2, '', 'din-5008-layout');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/constants.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/constants.js', 2, '', 'glossary');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/dev-tools.js', 1, 'ADR-DATA-PERSISTENCE', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 1, 'ADR-API', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 2, '', 'geoapify-autocomplete');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 6, 'ADR-API', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 2, '', 'glossary');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 2, '', 'glossary');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 19, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 87, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/sender-sync.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/sender-sync.js', 2, '', 'glossary');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 2, '', 'glossary');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 5, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 1, 'ADR-DATA-PERSISTENCE', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 2, '', 'glossary');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/storage.js', 6, 'ADR-DATA-PERSISTENCE', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/toast.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/toast.js', 2, '', 'chrome-modern-css');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/toast.js', 4, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 1, 'ADR-CSS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 2, '', 'chrome-modern-css');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS', '');

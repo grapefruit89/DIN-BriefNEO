@@ -98,18 +98,12 @@ export class SignatureFeature {
 
   applyImage(base64) {
     this.imgElement.src = base64;
-    this.imgElement.style.display = 'block';
-    
-    this.btnReset.style.display = 'block';
-    this.btnTrigger.style.display = 'none';
+    document.body.toggleAttribute('data-has-signature', true);
   }
 
   resetImage() {
     this.imgElement.src = '';
-    this.imgElement.style.display = 'none';
-    
-    this.btnReset.style.display = 'none';
-    this.btnTrigger.style.display = 'block';
+    document.body.toggleAttribute('data-has-signature', false);
 
     if (this.ui.settings) {
       delete this.ui.settings.signatureImage;

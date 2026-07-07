@@ -4,10 +4,13 @@ export class UIProtections {
     this.brieftext = document.getElementById('brieftext');
     this.multiLineIds = ['brieftext', 'anlagen-text'];
     this.maxTwoLinesIds = ['betreff'];
+    this.initialized = false;
   }
 
   init() {
+    if (this.initialized) return;
     this.enforceLineLimits();
+    this.initialized = true;
   }
 
   checkTextOverflow() {

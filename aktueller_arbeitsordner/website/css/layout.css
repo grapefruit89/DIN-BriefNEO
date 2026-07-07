@@ -555,36 +555,7 @@ din-anlagen, din-verteiler {
   mix-blend-mode: multiply; /* Gives a realistic ballpoint pen look by blending with the paper */
 }
 
-/* --- PRINT ENGINE (IMMUTABLE STYLE) --- */
-@media print {
-  body {
-    background: oklch(100% 0 0) !important;
-  }
 
-  
-  #app-shell {
-    display: block;
-    width: auto;
-    height: auto;
-  }
-  
-  aside, .no-print {
-    display: none !important;
-  }
-  
-  #viewport {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-  
-  din-a4 {
-    transform: none !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-    page-break-before: always;
-    page-break-after: always;
-  }
-}
 
 
 

@@ -670,3 +670,15 @@ din-anlagen, din-verteiler {
   display: block;
   margin-bottom: 4px;
 }
+
+/* --- SIGNATURE UI STATES --- */
+#signature-image, #btn-reset-sig {
+  display: none !important;
+}
+body[data-has-signature] #signature-image,
+body[data-has-signature] #btn-reset-sig {
+  display: block !important;
+}
+body[data-has-signature] #btn-upload-sig-trigger {
+  display: none !important;
+}

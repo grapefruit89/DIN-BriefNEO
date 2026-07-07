@@ -1,0 +1,6 @@
+/* Print overrides for maximum specificity */
+body { background: oklch(100% 0 0) !important; }
+#app-shell { display: block; width: auto; height: auto; }
+aside, .no-print, [popover], #toast-v4, #font-uploader { display: none !important; }
+#viewport { padding: 0 !important; background: transparent !important; }
+din-a4 { transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; }

@@ -23,14 +23,7 @@
       @import url("css/layout.css") layer(layout);
       @import url("css/floating.css") layer(floating);
     </style>
-    <style media="print">
-      /* Print overrides outside layers for maximum specificity */
-      body { background: oklch(100% 0 0) !important; }
-      #app-shell { display: block; width: auto; height: auto; }
-      aside, .no-print, [popover], #toast-v4, #font-uploader { display: none !important; }
-      #viewport { padding: 0 !important; background: transparent !important; }
-      din-a4 { transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; }
-    </style>
+    <link rel="stylesheet" href="css/print.css" media="print">
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
@@ -44,22 +37,22 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 15:32</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 15:54</span>
             </div>
             
             <div>
               <div class="segmented-control">
-                <button id="btn-theme-light" data-js="theme-light">☀️ Hell</button>
-                <button id="btn-theme-dark" data-js="theme-dark">🌙 Dunkel</button>
-                <button id="btn-theme-auto" data-js="theme-auto" aria-pressed="true">💻 Auto</button>
+                <button id="btn-theme-light">☀️ Hell</button>
+                <button id="btn-theme-dark">🌙 Dunkel</button>
+                <button id="btn-theme-auto" aria-pressed="true">💻 Auto</button>
               </div>
             </div>
 
               <div>
               <div class="sidebar-label">DIN-Brief Layout</div>
               <div class="segmented-control">
-                <button id="btn-form-a" data-js="form-a">Form A (Kompakt)</button>
-                <button id="btn-form-b" data-js="form-b" aria-pressed="true">Form B (Standard)</button>
+                <button id="btn-form-a">Form A (Kompakt)</button>
+                <button id="btn-form-b" aria-pressed="true">Form B (Standard)</button>
               </div>
             </div>
 
@@ -68,9 +61,9 @@
               <div class="sidebar-label">Brief-Stil & Anrede</div>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div class="segmented-control">
-                  <button id="btn-style-formal" data-js="style-formal" aria-pressed="true" title="Förmlich (Sehr geehrte...)">Förmlich</button>
-                  <button id="btn-style-polite" data-js="style-polite" title="Höflich (Guten Tag...)">Höflich</button>
-                  <button id="btn-style-casual" data-js="style-casual" title="Modern (Hallo...)">Locker</button>
+                  <button id="btn-style-formal" aria-pressed="true" title="Förmlich (Sehr geehrte...)">Förmlich</button>
+                  <button id="btn-style-polite" title="Höflich (Guten Tag...)">Höflich</button>
+                  <button id="btn-style-casual" title="Modern (Hallo...)">Locker</button>
                 </div>
                 
               </div>
@@ -82,10 +75,10 @@
               <div style="display: flex; gap: 10px; font-size: 0.75rem; flex-wrap: wrap; flex-direction: column;">
                 <div style="display: flex; gap: 10px;">
                   <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                    <input type="checkbox" id="toggle-postvermerk" data-js="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
+                    <input type="checkbox" id="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
                   </label>
                   <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                    <input type="checkbox" id="toggle-anlagen" data-js="toggle-anlagen" style="cursor: pointer;"> Anlagen
+                    <input type="checkbox" id="toggle-anlagen" style="cursor: pointer;"> Anlagen
                   </label>
                 </div>
                 <!-- SIDEBAR POSTVERMERK DROPDOWN -->
@@ -98,7 +91,7 @@
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
               <div class="sidebar-label">Hilfslinien</div>
-              <button id="btn-toggle-guides" data-js="toggle-guides" class="btn primary" style="width: 100%;">
+              <button id="btn-toggle-guides" class="btn primary" style="width: 100%;">
                 📐 Falz- & Lochmarken ausblenden
               </button>
             </div>
@@ -111,17 +104,17 @@
               <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
                 <div class="segmented-control" id="font-stack-select">
-                  <button id="btn-font-sans" data-js="font-sans" aria-pressed="true" title="Moderne serifenlose Systemschrift">Sans</button>
-                  <button id="btn-font-serif" data-js="font-serif" title="Klassische Serifenschrift">Serif</button>
+                  <button id="btn-font-sans" aria-pressed="true" title="Moderne serifenlose Systemschrift">Sans</button>
+                  <button id="btn-font-serif" title="Klassische Serifenschrift">Serif</button>
                 </div>
               </div>
               
               <!-- Custom Upload -->
               <div style="display: flex; flex-direction: column; gap: 8px;">
-                <button id="btn-upload-font-trigger" data-js="upload-font-trigger" class="btn" style="width: 100%;">
+                <button id="btn-upload-font-trigger" class="btn" style="width: 100%;">
                   📤 Schrift hochladen
                 </button>
-                <button id="btn-reset-font" data-js="reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                <button id="btn-reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
                   🗑️ Schrift zurücksetzen
                 </button>
                 <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: System-UI Standardschrift</span>
@@ -139,10 +132,10 @@
               <div class="sidebar-label">Unterschrift (Bild)</div>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
-                <button id="btn-upload-sig-trigger" data-js="upload-sig-trigger" class="btn" style="width: 100%;">
+                <button id="btn-upload-sig-trigger" class="btn" style="width: 100%;">
                   ✒️ Unterschrift laden
                 </button>
-                <button id="btn-reset-sig" data-js="reset-sig" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                <button id="btn-reset-sig" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
                   🗑️ Unterschrift löschen
                 </button>
               </div>
@@ -180,10 +173,10 @@
 
         <!-- ACTIONS FOOTER -->
         <div class="sidebar-section" style="gap: 10px; margin-top: auto;">
-          <button id="btn-print" data-js="print" class="btn primary" style="width: 100%;">
+          <button id="btn-print" class="btn primary" style="width: 100%;">
             🖨️ Als PDF speichern / Drucken
           </button>
-          <button id="btn-reset" data-js="reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+          <button id="btn-reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
             🗑️ Brief zurücksetzen
           </button>
         </div>
@@ -269,10 +262,10 @@
 
     <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
     <div id="format-toolbar" popover="manual" class="no-print">
-      <button id="btn-bold" data-js="bold" title="Fett"><b>B</b></button>
-      <button id="btn-underline" data-js="underline" title="Unterstrichen"><u>U</u></button>
-      <button id="btn-quote" data-js="quote" title="Zitat">»</button>
-      <button id="btn-comment" data-js="comment" title="Kommentar">|</button>
+      <button id="btn-bold" title="Fett"><b>B</b></button>
+      <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
+      <button id="btn-quote" title="Zitat">»</button>
+      <button id="btn-comment" title="Kommentar">|</button>
     </div>
 
     <!-- NATIVE POPOVER TOAST FEEDBACK -->

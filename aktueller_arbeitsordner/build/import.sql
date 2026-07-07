@@ -1603,7 +1603,7 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
 | website/js/main.js | 975 | [[ADR-JS]] | - |
-| website/js/main.js | 1081 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/main.js | 1072 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/metadata.js | 1 | [[ADR-JS]] | - |
 | website/js/metadata.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |
@@ -5356,12 +5356,10 @@ INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES (
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 1, 'ADR-API', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 2, '', 'geoapify-autocomplete');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 6, 'ADR-API', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/healthcheck.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/healthcheck.js', 2, '', 'testing-guide');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 975, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1072, 'ADR-DATA-PERSISTENCE', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 974, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1071, 'ADR-DATA-PERSISTENCE', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 1, 'ADR-JS', '');

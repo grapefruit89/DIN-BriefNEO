@@ -1,7 +1,7 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
-import { runLiveDiagnostics } from './healthcheck.js';
+
 /* js/main.js */
 import { StorageManager } from './storage.js';
 import { Constants } from './constants.js';
@@ -615,9 +615,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper for safe native W3C View Transitions
     function transitionState(updateFn) {
       if (document.startViewTransition) {
-        document.startViewTransition(updateFn);
+        try {
+          document.startViewTransition(updateFn);
+        } catch(e) {
+          updateFn(); // Fallback if transition is already running or crashes
+        }
       } else {
-        updateFn();
+        updateFn(); // Fallback for unsupported browsers
       }
     }
 
@@ -853,12 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = document.getElementById('empfaenger-name')?.textContent.trim();
     const empfaenger = firma ? firma : (name ? name : 'Unbekannt');
     
-    let dateStr = 'YYYY-MM-DD';
-    try {
-      dateStr = Temporal.Now.plainDateISO().toString();
-    } catch(e) {
-      console.warn("Temporal API missing, date string unavailable.");
-    }
+    let dateStr = Temporal.Now.plainDateISO().toString();
 
     const sanitizedBetreff = betreff.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '');
     const sanitizedEmpfaenger = empfaenger.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '').replace(/ /g, '-');

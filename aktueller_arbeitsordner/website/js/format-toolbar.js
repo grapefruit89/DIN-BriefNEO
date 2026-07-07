@@ -206,8 +206,20 @@ export class FormatToolbar {
 
   #initKeyboardShortcuts() {
     this.#brieftext.addEventListener('keydown', (e) => {
+      // Bold shortcut: Strg+B
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        if (this.#btnBold) this.#btnBold.click();
+      }
+      
+      // Underline shortcut: Strg+U
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+        if (this.#btnUnderline) this.#btnUnderline.click();
+      }
+      
       // Custom blockquote shortcut: Strg+Shift+9
-      if (e.ctrlKey && e.shiftKey && e.key === '9') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === '9') {
         e.preventDefault();
         if (this.#btnQuote) this.#btnQuote.click();
       }

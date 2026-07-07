@@ -317,6 +317,7 @@ aside {
     min-height: calc(40 / 297 * 100cqh);
     text-align: justify;
     hyphens: auto;
+    text-wrap: pretty;
   }
 
   #grussformel {

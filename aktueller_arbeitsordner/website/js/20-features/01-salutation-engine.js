@@ -1,7 +1,7 @@
 // @adr [[ADR-JS]] 
 // @guide [[glossary]] 
 
-import { StorageManager } from './storage.js';
+import { StorageManager } from '../30-utils/02-storage.js';
 
 export const SALUTATION = Object.freeze({
   TITLES: ["Prof. Dr.", "Dipl.-Ing.", "Prof.", "Dr.", "Mag."],

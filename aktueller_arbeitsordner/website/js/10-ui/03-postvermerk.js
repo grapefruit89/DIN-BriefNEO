@@ -1,4 +1,4 @@
-import { showToast } from './toast.js';
+import { showToast } from './02-toast.js';
 
 export function initPostvermerk(onSaveDraft) {
   const sidebarPvSelect = document.getElementById('sidebar-pv-select');

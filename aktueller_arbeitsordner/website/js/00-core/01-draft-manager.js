@@ -1,4 +1,4 @@
-import { StorageManager } from './storage.js';
+import { StorageManager } from '../30-utils/02-storage.js';
 
 export class DraftManager {
   #undoStack = [];

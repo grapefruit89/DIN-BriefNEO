@@ -1,6 +1,6 @@
-import { StorageManager } from './storage.js';
-import { Constants } from './constants.js';
-import { showToast } from './toast.js';
+import { StorageManager } from '../30-utils/02-storage.js';
+import { Constants } from '../30-utils/01-constants.js';
+import { showToast } from '../10-ui/02-toast.js';
 
 export class SettingsManager {
   constructor() {

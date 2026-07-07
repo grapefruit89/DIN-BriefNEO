@@ -1,4 +1,4 @@
-import { showToast } from './toast.js';
+import { showToast } from '../10-ui/02-toast.js';
 
 export function initAddressBookSaveButton() {
   const container = document.getElementById('empfaenger');

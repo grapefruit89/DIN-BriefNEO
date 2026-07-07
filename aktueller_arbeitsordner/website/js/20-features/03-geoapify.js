@@ -1,7 +1,7 @@
 // @adr [[ADR-API]] 
 // @guide [[geoapify-autocomplete]] 
 
-import { StorageManager } from './storage.js';
+import { StorageManager } from '../30-utils/02-storage.js';
 
 /* @adr [[ADR-API]] {initAddressServices} */
 export function initAddressServices({ onToast, onSaveDraft }) {

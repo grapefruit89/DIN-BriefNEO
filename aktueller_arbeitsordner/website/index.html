@@ -29,7 +29,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 09:13</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 09:20</span>
             </div>
             
             <div>
@@ -64,24 +64,27 @@
             <!-- OPTIONALE BLÖCKE -->
             <div>
               <div class="sidebar-label">Zusatz-Elemente (Optional)</div>
-              <div style="display: flex; gap: 10px; font-size: 0.75rem; flex-wrap: wrap;">
-                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                  <input type="checkbox" id="toggle-postvermerk" data-js="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
-                </label>
-                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                  <input type="checkbox" id="toggle-anlagen" data-js="toggle-anlagen" style="cursor: pointer;"> Anlagen
-                </label>
-                
+              <div style="display: flex; gap: 10px; font-size: 0.75rem; flex-wrap: wrap; flex-direction: column;">
+                <div style="display: flex; gap: 10px;">
+                  <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
+                    <input type="checkbox" id="toggle-postvermerk" data-js="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
+                    <input type="checkbox" id="toggle-anlagen" data-js="toggle-anlagen" style="cursor: pointer;"> Anlagen
+                  </label>
+                </div>
+                <!-- SIDEBAR POSTVERMERK DROPDOWN -->
+                <select id="sidebar-pv-select" class="input-field" style="width: 100%; font-size: 0.75rem; padding: 4px; margin-top: 4px;">
+                  <option value="" disabled selected>Zusatz auswählen...</option>
+                </select>
               </div>
             </div>
-
-            
 
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
               <div class="sidebar-label">Hilfslinien</div>
               <button id="btn-toggle-guides" data-js="toggle-guides" class="btn primary" style="width: 100%;">
-                📐 Guides ausblenden
+                📐 Falz- & Lochmarken ausblenden
               </button>
             </div>
             
@@ -183,8 +186,7 @@
           <div class="din-mark din-punch"></div>
           
           
-          <!-- CSS Anchor Positioned Dropdown for Postvermerke -->
-          <div id="postvermerk-dropdown" popover="manual" class="no-print"></div>
+          <!-- CSS Anchor Positioned Dropdown for Postvermerke (REMOVED) -->
           <!-- CSS Anchor Positioned Dropdown for Local Address Book -->
           <div id="local-address-dropdown" popover="manual" class="no-print"></div>
 
@@ -376,8 +378,7 @@
           <div class="din-mark din-punch"></div>
           
           
-          <!-- CSS Anchor Positioned Dropdown for Postvermerke -->
-          <div id="postvermerk-dropdown" popover="manual" class="no-print"></div>
+          <!-- CSS Anchor Positioned Dropdown for Postvermerke (REMOVED) -->
           <!-- CSS Anchor Positioned Dropdown for Local Address Book -->
           <div id="local-address-dropdown" popover="manual" class="no-print"></div>
 

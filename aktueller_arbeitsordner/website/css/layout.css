@@ -517,6 +517,13 @@ din-postvermerk, din-anlagen, din-verteiler {
   flex-direction: column-reverse;
 }
 
+#sidebar-pv-select {
+  display: none;
+}
+:root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
+  display: block;
+}
+
 din-postvermerk {
   font-size: calc(8 * 0.168cqw);
   font-family: var(--font-stack-sans);

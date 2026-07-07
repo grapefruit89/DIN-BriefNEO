@@ -195,10 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // --- WYSIWYG POSTVERMERK (CSS Anchor Positioning) ---
-  const pvDropdown = document.getElementById('postvermerk-dropdown');
+  // --- WYSIWYG POSTVERMERK (Sidebar Select) ---
+  const sidebarPvSelect = document.getElementById('sidebar-pv-select');
   const pvInput = document.getElementById('postvermerk');
-  let pvHideTimeout;
 
   const pvOptions = [
     "Einschreiben",
@@ -215,39 +214,28 @@ document.addEventListener('DOMContentLoaded', () => {
     "Einschreiben / Rückschein <br> Persönlich"
   ];
 
-  function renderPvDropdown() {
-    if (!pvDropdown) return;
-    pvDropdown.replaceChildren();
-    
+  if (sidebarPvSelect && pvInput) {
     pvOptions.forEach(opt => {
-      const div = document.createElement('div');
-      div.className = 'pv-item';
-      div.textContent = opt;
-      div.addEventListener('mousedown', (e) => {
-        e.preventDefault(); // Prevent blur
-        pvInput.textContent = opt;
-        saveDraftData();
-        try { pvDropdown.hidePopover(); } catch(e){}
-        showToast("Vermerk gesetzt", "success");
-      });
-      pvDropdown.appendChild(div);
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = opt.replace('<br>', '/'); // visually strip <br> in select
+      sidebarPvSelect.appendChild(option);
     });
-    try { pvDropdown.showPopover(); } catch(e){}
-  }
 
-  if (pvInput) {
-    pvInput.addEventListener('click', () => {
-      clearTimeout(pvHideTimeout);
-      renderPvDropdown();
-    });
-    pvInput.addEventListener('focus', () => {
-      clearTimeout(pvHideTimeout);
-      renderPvDropdown();
-    });
-    pvInput.addEventListener('blur', () => {
-      pvHideTimeout = setTimeout(() => {
-        try { pvDropdown.hidePopover(); } catch(e){}
-      }, 200);
+    sidebarPvSelect.addEventListener('change', (e) => {
+      if (!e.target.value) return;
+      
+      const val = e.target.value;
+      pvInput.replaceChildren();
+      const parts = val.split('<br>');
+      parts.forEach((part, index) => {
+        if (index > 0) pvInput.appendChild(document.createElement('br'));
+        pvInput.appendChild(document.createTextNode(part.trim()));
+      });
+      
+      saveDraftData();
+      showToast("Vermerk gesetzt", "success");
+      sidebarPvSelect.value = ""; // Reset to placeholder
     });
   }
 
@@ -819,11 +807,11 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     if (settings.guides) {
       document.documentElement.style.setProperty('--guide-opacity', '0.15');
-      btnToggleGuides.textContent = '📐 Guides ausblenden';
+      btnToggleGuides.textContent = '📐 Falz- & Lochmarken ausblenden';
       btnToggleGuides.classList.add('primary');
     } else {
       document.documentElement.style.setProperty('--guide-opacity', '0');
-      btnToggleGuides.textContent = '📐 Guides einblenden';
+      btnToggleGuides.textContent = '📐 Falz- & Lochmarken einblenden';
       btnToggleGuides.classList.remove('primary');
     }
 

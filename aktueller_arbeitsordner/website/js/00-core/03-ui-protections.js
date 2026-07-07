@@ -79,13 +79,9 @@ export class UIProtections {
         if (allowedPasteLength <= 0) return;
         
         if (isTwoLine) {
-            pastedText = pastedText.split('
-').slice(0, 2).join('
-');
+            pastedText = pastedText.split('\n').slice(0, 2).join('\n');
         } else {
-            pastedText = pastedText.replace(/[
-
-]+/g, ' ');
+            pastedText = pastedText.replace(/[\r\n]+/g, ' ');
         }
         
         if (pastedText.length > allowedPasteLength) {

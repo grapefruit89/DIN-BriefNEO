@@ -40,7 +40,7 @@ aliases:
   - "45 DIN Fields"
 
 # === DATAVIEW Felder ===
-total_tags: 45
+total_tags: 46
 single_line_tags: 40
 multi_line_tags: 5
 validation_enabled: true
@@ -161,6 +161,18 @@ graph TD
 
 ---
 
+## 📄 0. Haupt-Container (Dokument)
+
+**Container:** `<din-a4>`  
+**Rolle:** Root-Element für das Druck-Layout  
+**Verhalten:** Skaliert dynamisch über CSS-Transforms im Viewport, wird beim Drucken exakt als DIN A4 Seite (210x297mm) behandelt.
+
+| Tag | Beschreibung | Erlaubter Inhalt | ARIA-Rolle | Verhalten | CSS-Klasse |
+|:---|:---|:---|:---|:---|:---|
+| `<din-a4>` | Das Briefpapier (View) | Alle DIN-Zonen | `article` | Skaliert im Viewport, fixt beim Druck | — |
+
+---
+
 ## 🏢 1. Absender-Zone (Branding)
 
 **Container:** `<din-absender>`  
@@ -182,14 +194,14 @@ graph TD
 
 ## ✉️ 2. Anschriftfeld (Empfänger)
 
-**Container:** `<din-anschriftfeld>`  
+**Container:** `<din-anschriftfeld>` | **ARIA-Rolle:** `group`  
 **Position:** X: `25mm` | Y: Form A: `32mm` | Form B: `50mm`  
 **Max-Breite:** `85mm` | **Höhe:** `45mm` (Fix)
 
 | Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
 |:---|:---|:---:|:---:|:---|:---|:---|:---|
 | `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-zusaetze>` | Vermerke/Zusätze | 2-4 | Links | — | DIN 5008: 16.1.3 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-postvermerk>` | Postvermerk / Zusatz | 1-4 | Links | `plaintext` | DIN 5008: 16.1.3 | Smart Single-Line (ellipsis) | `.single-line` |
 | `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 | `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 | `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
@@ -203,7 +215,7 @@ graph TD
 
 ## 📅 3. Metadaten & Infoblock
 
-**Container:** `<din-infoblock>`  
+**Container:** `<din-infoblock>` | **ARIA-Rolle:** `group`  
 **Position:** X: `125mm` | Y (A): `32mm` | Y (B): `50mm`  
 **Wuchs:** Top-Down
 
@@ -222,7 +234,7 @@ graph TD
 
 ## 📝 4. Briefkern (Dynamischer Inhalt)
 
-**Container:** `<din-kern>`  
+**Container:** `<din-kern>` | **ARIA-Rolle:** `article`  
 **Position:** X: `25mm` | Y (A): `91mm` | Y (B): `109mm`  
 **Max-Breite:** `165mm` | **Wuchs:** Top-Down (dynamisch, triggert Paginierung)
 
@@ -245,7 +257,7 @@ graph TD
 
 ## 📄 5. Fußzeile (Footer) – 4 Spalten
 
-**Container:** `<din-fuss>`  
+**Container:** `<din-fuss>` | **ARIA-Rolle:** `contentinfo`  
 **Position:** X: `25mm` | Y: `241mm`  
 **Max-Breite:** `165mm` | **Wuchs:** Spalten-basiert  
 **Layout:** 4 Spalten (je 25% Breite)

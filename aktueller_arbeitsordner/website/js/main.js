@@ -1068,15 +1068,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Dev Mode Trigger: Button Click
-document.getElementById('btn-dev-popover')?.addEventListener('click', () => {
-  runLiveDiagnostics();
-  const popover = document.getElementById('dev-popover');
-  if (popover && !popover.matches(':popover-open')) {
-     popover.showPopover();
-  }
-});
-
 
 // /* @adr [[ADR-DATA-PERSISTENCE]] {JSON Data-IO} */
 // JSON Export (Dev Tool)

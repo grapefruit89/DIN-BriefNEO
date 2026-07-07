@@ -1602,8 +1602,8 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | website/js/healthcheck.js | 2 | - | [[testing-guide]] |
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
-| website/js/main.js | 1041 | [[ADR-JS]] | - |
-| website/js/main.js | 1151 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/main.js | 975 | [[ADR-JS]] | - |
+| website/js/main.js | 1081 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/metadata.js | 1 | [[ADR-JS]] | - |
 | website/js/metadata.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |
@@ -5361,7 +5361,7 @@ INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES (
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 975, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1081, 'ADR-DATA-PERSISTENCE', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1072, 'ADR-DATA-PERSISTENCE', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 1, 'ADR-JS', '');

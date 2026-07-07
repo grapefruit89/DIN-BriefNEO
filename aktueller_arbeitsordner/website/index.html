@@ -29,7 +29,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <button id="btn-dev-popover" style="background: none; border: none; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; padding: 0;">v1.0.4</button>
+              <span style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">v1.0.4</span>
             </div>
             
             <div>
@@ -277,18 +277,3 @@
     <div id="selection-anchor" class="no-print"></div>
   </body>
 </html>
-
-<!-- DEV MODE POPOVER -->
-<div id="dev-popover" popover="auto" class="no-print">
-  <div style="display: flex; gap: 8px; margin-bottom: 10px;"><button id="btn-copy-json" class="btn" style="flex: 1;">JSON Kopieren</button><button id="btn-paste-json" class="btn primary" style="flex: 1;">JSON Einf�gen</button></div>
-  <h3>??? DIN-Brief Neo Diagnostics</h3>
-  <p>System-Zeit: <span id="diag-timestamp"></span></p>
-  <table>
-    <thead><tr><th>Feature</th><th>Status</th><th>Baseline</th><th>Empfehlung</th></tr></thead>
-    <tbody id="diag-results"></tbody>
-  </table>
-</div>
-
-
-
-

@@ -22,7 +22,7 @@
       #app-shell { display: block; width: auto; height: auto; }
       aside, .no-print, [popover], #toast-v4, #font-uploader { display: none !important; }
       #viewport { padding: 0 !important; background: transparent !important; }
-      din-a4 { transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-before: always; page-break-after: avoid; }
+      din-a4 { transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; }
     </style>
     <script type="module" src="js/main.js"></script>
   </head>
@@ -37,7 +37,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 10:20</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 10:33</span>
             </div>
             
             <div>
@@ -111,7 +111,6 @@
               
               <!-- Custom Upload -->
               <div style="display: flex; flex-direction: column; gap: 8px;">
-                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Eigene Webfont (WOFF2):</span>
                 <button id="btn-upload-font-trigger" data-js="upload-font-trigger" class="btn" style="width: 100%;">
                   📤 Schrift hochladen
                 </button>
@@ -121,7 +120,7 @@
                 <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: System-UI Standardschrift</span>
                 
                 <!-- Font references for UX -->
-                <div style="margin-top: 4px; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.7rem; line-height: 1.35;">
+                <div style="margin-top: 4px; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.75rem; line-height: 1.45;">
                   💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Manrope</a> herunter und lade sie hier offline in deine App.
                 </div>
               </div>
@@ -240,9 +239,7 @@
             
             <!-- Signature typing name -->
             <div style="position: relative; margin-top: 10px;">
-              <div id="unterschrift" contenteditable="true" placeholder="Ihr getippter Name">
-                  <img id="signature-image" alt="Unterschrift" style="display: none; max-width: 200px; height: auto; cursor: move;" />
-                </div>
+              <div id="signature-container" style="min-height: 20px;"><img id="signature-image" alt="Unterschrift" style="display: none; max-width: 200px; height: auto; cursor: move;" /></div><div id="unterschrift" contenteditable="true" placeholder="Ihr getippter Name"></div>
             </div>
             
             <!-- ANLAGEN (OPTIONAL) -->
@@ -374,6 +371,9 @@
     </script>
   </body>
 </html>
+
+
+
 
 
 

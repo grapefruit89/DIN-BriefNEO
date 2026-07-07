@@ -10,6 +10,7 @@ import { MetadataService } from './metadata.js';
 import { SignatureFeature } from './signature.js';
 import { initAddressServices } from './geoapify.js';
 import { showToast, initToastSystem } from './toast.js';
+import { initSenderSync } from './sender-sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- MODULE INITIALIZATION ---
     // Note: showToast is imported directly
     initToastSystem();
+    initSenderSync();
     initAddressServices({ onToast: showToast, onSaveDraft: saveDraftData });
     
     // Init Salutation
@@ -1040,13 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(elem => {
-      if (elem.id === 'unterschrift') {
-        // Keep the image, clear text nodes
-        const img = elem.querySelector('#signature-image');
-        elem.replaceChildren();
-        if (img) elem.appendChild(img);
-        return;
-      }
+      
       elem.replaceChildren(); // Fast, native way to clear content instead of innerHTML = ''
       elem.textContent = '';
     });
@@ -1120,4 +1116,5 @@ document.getElementById('btn-paste-json')?.addEventListener('click', async (e) =
   }
   setTimeout(() => { btn.textContent = originalText; }, 2000);
 });
+
 

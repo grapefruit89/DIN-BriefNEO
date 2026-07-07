@@ -10,6 +10,7 @@ export class UIProtections {
   init() {
     if (this.initialized) return;
     this.enforceLineLimits();
+    this.protectAnlagenList();
     this.initialized = true;
   }
 
@@ -82,7 +83,8 @@ export class UIProtections {
 ').slice(0, 2).join('
 ');
         } else {
-            pastedText = pastedText.replace(/[
+            pastedText = pastedText.replace(/[
+
 ]+/g, ' ');
         }
         
@@ -97,4 +99,64 @@ export class UIProtections {
       });
     });
   }
+
+  protectAnlagenList() {
+    const anlagen = document.getElementById('anlagen-text');
+    if (!anlagen) return;
+    
+    // Ensure the structure is correct initially
+    this.ensureListStructure(anlagen);
+    
+    anlagen.addEventListener('input', () => {
+      this.ensureListStructure(anlagen);
+    });
+    
+    anlagen.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        const lis = anlagen.querySelectorAll('li');
+        if (lis.length === 1 && lis[0].textContent.trim() === '') {
+          // Don't delete the last empty li
+          e.preventDefault();
+        }
+      }
+      
+      // If user presses enter in an empty li, browser might do weird things
+      // The browser's native enter key in a list usually creates a new li, which is fine
+    });
+  }
+  
+  ensureListStructure(anlagen) {
+    if (anlagen.children.length === 0 || anlagen.innerHTML.trim() === '' || anlagen.innerHTML.trim() === '<br>') {
+      const li = document.createElement('li');
+      anlagen.replaceChildren(li);
+      
+      // Move cursor into the new li if focused
+      if (document.activeElement === anlagen) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.setStart(li, 0);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    } else {
+      // Sometimes browsers insert raw text nodes or divs, wrap them in li
+      let hasTextNodes = false;
+      for (const node of anlagen.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+          hasTextNodes = true;
+          break;
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'LI') {
+          hasTextNodes = true;
+          break;
+        }
+      }
+      
+      if (hasTextNodes) {
+        // Native contenteditable can be messy, we just wrap all raw content into a new li
+        // or just let it be unless it's completely broken. For now, simple check is enough.
+      }
+    }
+  }
+
 }

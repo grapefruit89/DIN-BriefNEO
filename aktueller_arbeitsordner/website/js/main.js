@@ -618,14 +618,12 @@ document.addEventListener('DOMContentLoaded', () => {
       btnFontSans.addEventListener('click', () => {
         settings.systemFont = 'sans';
         updateSettings();
-        showToast("🔤 Systemschrift: Sans-Serif aktiv", "info");
       });
     }
     if (btnFontSerif) {
       btnFontSerif.addEventListener('click', () => {
         settings.systemFont = 'serif';
         updateSettings();
-        showToast("🔤 Systemschrift: Serif aktiv", "info");
       });
     }
 
@@ -1122,3 +1120,4 @@ document.getElementById('btn-paste-json')?.addEventListener('click', async (e) =
   }
   setTimeout(() => { btn.textContent = originalText; }, 2000);
 });
+

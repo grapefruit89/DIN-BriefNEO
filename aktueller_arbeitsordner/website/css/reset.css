@@ -26,6 +26,8 @@ body.font-stack-serif {
 }
 
 /* Custom Font Overrides applied to din-a4 */
+
+din-a4 { font-family: var(--font-active-stack); }
 body.font-custom-active din-a4 {
   font-family: 'AptosCustom', var(--font-active-stack);
 }
@@ -40,3 +42,4 @@ body {
   color: var(--text-primary);
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+

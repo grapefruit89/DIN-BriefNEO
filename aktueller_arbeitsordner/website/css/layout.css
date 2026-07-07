@@ -96,7 +96,7 @@ aside {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  color: var(--text-primary);
+  
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -211,7 +211,7 @@ aside {
   /* Placeholder support for contenteditable */
   [contenteditable]:empty::before {
     content: attr(placeholder);
-    color: oklch(65% 0 0);
+    color: oklch(45% 0 0);
     font-style: italic;
     pointer-events: none;
   }
@@ -370,7 +370,7 @@ aside {
   /* --- WHATSAPP-STYLE INLINE FORMATS --- */
   #brieftext b, #brieftext strong {
     font-weight: 700;
-    color: var(--text-primary);
+    
   }
 
   #brieftext u {
@@ -412,7 +412,7 @@ aside {
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  color: var(--text-primary);
+  
   outline: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -478,7 +478,7 @@ aside {
   padding: 8px 12px;
   font-size: 0.725rem;
   border-radius: 6px;
-  color: var(--text-primary);
+  
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -530,7 +530,7 @@ din-postvermerk {
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0.5cqh;
-  color: var(--text-primary);
+  
   white-space: pre-wrap;
   display: none;
 }
@@ -585,7 +585,7 @@ din-anlagen, din-verteiler {
   padding: 8px 12px;
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
+  
   font-family: var(--font-stack-sans);
   font-size: 13px;
   line-height: 1.4;
@@ -618,12 +618,13 @@ din-anlagen, din-verteiler {
   padding: 8px 12px;
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
+  
   font-family: var(--font-stack-sans);
   font-size: 13px;
 }
 .pv-item:last-child { border-bottom: none; }
 .pv-item:hover { background: var(--bg-viewport); }
 
-#postvermerk:empty::before { color: var(--text-primary); opacity: 0.9; }
+#postvermerk:empty::before {  opacity: 0.9; }
+
 

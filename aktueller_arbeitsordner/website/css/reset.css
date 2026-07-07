@@ -11,25 +11,22 @@ html, body {
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
-  font-family: var(--font-active-stack);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Isolated UI Font */
   color-scheme: light dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Schriftstapel-Klassen fuer den body */
+/* Schriftstapel-Klassen fuer den Brief */
 body.font-stack-sans {
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 body.font-stack-serif {
   --font-active-stack: Georgia, "Times New Roman", Times, serif;
 }
-body.font-stack-mono {
-  --font-active-stack: ui-monospace, Consolas, "Courier New", monospace;
-}
 
-/* Custom Font Overrides */
-body.font-custom-active {
+/* Custom Font Overrides applied to din-a4 */
+body.font-custom-active din-a4 {
   font-family: 'AptosCustom', var(--font-active-stack);
 }
 

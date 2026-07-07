@@ -628,13 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast("🔤 Systemschrift: Serif aktiv", "info");
       });
     }
-    if (btnFontMono) {
-      btnFontMono.addEventListener('click', () => {
-        settings.systemFont = 'mono';
-        updateSettings();
-        showToast("🔤 Systemschrift: Monospace aktiv", "info");
-      });
-    }
 
     // Layout Form switches
     btnFormA.addEventListener('click', () => {
@@ -816,19 +809,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 4. System Font Stacks
-    if (btnFontSans && btnFontSerif && btnFontMono) {
-      document.body.classList.remove('font-stack-sans', 'font-stack-serif', 'font-stack-mono');
+    if (btnFontSans && btnFontSerif) {
+      document.body.classList.remove('font-stack-sans', 'font-stack-serif');
       
       btnFontSans.classList.remove('active');
       btnFontSerif.classList.remove('active');
-      btnFontMono.classList.remove('active');
 
       if (settings.systemFont === 'serif') {
         document.body.classList.add('font-stack-serif');
         btnFontSerif.classList.add('active');
-      } else if (settings.systemFont === 'mono') {
-        document.body.classList.add('font-stack-mono');
-        btnFontMono.classList.add('active');
       } else {
         document.body.classList.add('font-stack-sans');
         btnFontSans.classList.add('active');

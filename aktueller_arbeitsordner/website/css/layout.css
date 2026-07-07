@@ -172,11 +172,11 @@ aside {
       width: min(100cqw, calc(100cqh * 210 / 297));
       height: min(100cqh, calc(100cqw * 297 / 210));
     aspect-ratio: 210 / 297; /* Exaktes DIN A4 Seitenverhältnis */
-    background: light-dark(oklch(100% 0 0), oklch(0.88 0.01 263)); /* Pure OKLCH White in light, soft grey in dark */
+    background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
     container-type: size; /* Ermöglicht proportionale cqw/cqh Maße */
-    color: oklch(15% 0 0); /* Pure OKLCH Ink Black */
+    color: var(--paper-text); /* Pure OKLCH Ink Black */
     box-sizing: border-box;
     transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -211,7 +211,7 @@ aside {
   /* Placeholder support for contenteditable */
   [contenteditable]:empty::before {
     content: attr(placeholder);
-    color: oklch(45% 0 0);
+    color: var(--paper-ghost);
     font-style: italic;
     pointer-events: none;
   }
@@ -394,7 +394,7 @@ aside {
     right: calc(20 / 210 * 100cqw); /* 20mm */
     height: calc(15 / 297 * 100cqh); /* 15mm */
     font-size: calc(7.5 * 0.168cqw); /* 7.5pt in cqw */
-    color: oklch(45% 0 0); /* OKLCH Slate Gray */
+    color: var(--paper-ghost); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
     padding-top: calc(2 / 297 * 100cqh);
     display: grid;
@@ -626,5 +626,6 @@ din-anlagen, din-verteiler {
 .pv-item:hover { background: var(--bg-viewport); }
 
 #postvermerk:empty::before {  opacity: 0.9; }
+
 
 

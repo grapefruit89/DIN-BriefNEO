@@ -651,3 +651,22 @@ din-anlagen, din-verteiler {
 
 /* Accessibility / Visibility */
 .hidden { display: none !important; }
+
+/* --- SIDEBAR UTILITIES --- */
+.sidebar-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-options-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.sidebar-sub-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}

@@ -37,7 +37,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <h3 class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</h3>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 16:06</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 16:07</span>
             </div>
             
             <div>
@@ -59,7 +59,7 @@
             <!-- SALUTATION OPTIONS -->
             <div>
               <h3 class="sidebar-label">Brief-Stil & Anrede</h3>
-              <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="sidebar-options-group">
                 <div class="segmented-control">
                   <button id="btn-style-formal" aria-pressed="true" title="Förmlich (Sehr geehrte...)">Förmlich</button>
                   <button id="btn-style-polite" title="Höflich (Guten Tag...)">Höflich</button>
@@ -72,8 +72,8 @@
             <!-- OPTIONALE BLÖCKE -->
             <div>
               <h3 class="sidebar-label">Zusatz-Elemente (Optional)</h3>
-              <div style="display: flex; gap: 10px; font-size: 0.75rem; flex-wrap: wrap; flex-direction: column;">
-                <div style="display: flex; gap: 10px;">
+              <div class="sidebar-options-group">
+                <div class="sidebar-options-row">
                   <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
                     <input type="checkbox" id="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
                   </label>
@@ -101,7 +101,7 @@
               <h3 class="sidebar-label">Schriftarten-Manager</h3>
               
               <!-- Built-in System Stacks -->
-              <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+              <div class="sidebar-options-group">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
                 <div class="segmented-control" id="font-stack-select">
                   <button id="btn-font-sans" aria-pressed="true" title="Moderne serifenlose Systemschrift">Sans</button>
@@ -110,7 +110,7 @@
               </div>
               
               <!-- Custom Upload -->
-              <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="sidebar-options-group">
                 <button id="btn-upload-font-trigger" class="btn" style="width: 100%;">
                   📤 Schrift hochladen
                 </button>
@@ -130,7 +130,7 @@
             <!-- SIGNATURE UPLOADER -->
             <div>
               <h3 class="sidebar-label">Unterschrift (Bild)</h3>
-              <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="sidebar-options-group">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
                 <button id="btn-upload-sig-trigger" class="btn" style="width: 100%;">
                   ✒️ Unterschrift laden
@@ -145,18 +145,18 @@
             <!-- DUAL-PROVIDER ADRESS-AUTOCOMPLETE -->
             <div>
               <h3 class="sidebar-label">Adress-Autocomplete</h3>
-              <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="sidebar-options-group">
                 
 
                 <!-- API-Key Input Container -->
                 <div id="geoapify-key-container">
-                  <label for="input-geoapify-key" style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 4px;">Geoapify API-Key:</label>
+                  <label for="input-geoapify-key" class="sidebar-sub-label">Geoapify API-Key:</label>
                   <input type="password" id="input-geoapify-key" class="input-field" placeholder="API-Key eintragen..." style="width: 100%;" />
                 </div>
                 
                 <!-- Autocomplete Input -->
-                <div id="address-search-container" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label for="input-address-search" style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 4px;">Empfänger-Adresse suchen:</label>
+                <div id="address-search-container" class="sidebar-options-group">
+                  <label for="input-address-search" class="sidebar-sub-label">Empfänger-Adresse suchen:</label>
                   <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%; anchor-name: --anchor-address-search;" />
                   
                   <!-- Suggestions Dropdown (Modern CSS Anchor Popover) -->
@@ -185,7 +185,7 @@
       <!-- PAPER VIEWPORT (NO-SCROLL SCALER) -->
       <main id="viewport">
         <!-- THE DIN A4 SHEET -->
-        <din-a4>
+        <din-a4 id="brief-dokument" role="article" aria-label="DIN 5008 Brief">
           <!-- FOLD & PUNCH MARKS (GUIDES) -->
           <div class="din-mark din-fold-top"></div>
           <div class="din-mark din-fold-bottom"></div>
@@ -197,49 +197,49 @@
           <div id="local-address-dropdown" popover="manual" class="no-print"></div>
 
           <!-- SENDER IN-LINE address (Rücksendezeile) -->
-          <din-absender id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt"></din-absender>
+          <din-absender id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-absender>
 
           <!-- RECIPIENT ADDRESS ZONE -->
-          <din-anschriftfeld id="empfaenger">
+          <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
             <!-- POSTVERMERK (OPTIONAL) -->
-            <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" style="anchor-name: --anchor-postvermerk;"></din-postvermerk>
+            <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" style="anchor-name: --anchor-postvermerk;" aria-label="Postvermerk"></din-postvermerk>
             
-            <div id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
-            <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>
-            <div id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer"></div>
-            <div id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort"></div>
+            <div id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></div>
+            <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+            <div id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></div>
+            <div id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></div>
           </din-anschriftfeld>
 
           <!-- INFOBLOCK (Right side metadata block - Privatbrief Standard) -->
-          <din-infoblock id="infoblock" style="line-height: 1.5; ">
-            <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname"></div>
-            <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer"></div>
-            <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort"></div>
-            <div style="margin-top: 8px;" id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)"></div>
-            <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)"></div>
+          <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen" style="line-height: 1.5;">
+            <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Ihr Name"></div>
+            <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Ihre Straße und Hausnummer"></div>
+            <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Ihre Postleitzahl und Ort"></div>
+            <div style="margin-top: 8px;" id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Ihre Telefonnummer"></div>
+            <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="Ihre E-Mail-Adresse"></div>
           </din-infoblock>
 
 
           <!-- DATE -->
-          <din-datum id="datum" class="single-line" contenteditable="plaintext-only" placeholder="24. Mai 2026"></din-datum>
+          <din-datum id="datum" class="single-line" contenteditable="plaintext-only" placeholder="24. Mai 2026" aria-label="Datum"></din-datum>
 
           <!-- CORE LETTER CONTENT -->
-          <din-kern id="briefkern">
+          <din-kern id="briefkern" role="article" aria-label="Briefinhalt">
             <!-- Subject Line -->
-            <div id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben"></div>
+            <div id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></div>
             
             <!-- Salutation -->
-            <div id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren,"></div>
+            <div id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></div>
             
             <!-- Core text body (Inline Formats supported + protected by paste filter) -->
-            <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..."></din-text>
+            <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
             
             <!-- Greeting Form -->
-            <div id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen,"></div>
+            <div id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen," aria-label="Grußformel"></div>
             
             <!-- Signature typing name -->
             <div style="position: relative; margin-top: 10px;">
-              <div id="signature-container" style="min-height: 20px;"><img id="signature-image" alt="Unterschrift" style="display: none; max-width: 200px; height: auto; cursor: move;" /></div><div id="unterschrift" contenteditable="true" placeholder="Ihr getippter Name"></div>
+              <div id="signature-container" style="min-height: 20px;"><img id="signature-image" alt="Unterschrift" style="display: none; max-width: 200px; height: auto; cursor: move;" /></div><div id="unterschrift" contenteditable="true" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></div>
             </div>
             
             <!-- ANLAGEN (OPTIONAL) -->
@@ -252,7 +252,7 @@
           </din-kern>
 
           <!-- THREE-COLUMN IMMUTABLE FOOTER -->
-          <din-fuss id="brief-fuss"></din-fuss>
+          <din-fuss id="brief-fuss" role="contentinfo"></din-fuss>
           
           <!-- UX PAGE OVERFLOW INDICATOR -->
           <div class="overflow-indicator-text">⚠️ TEXT-ÜBERLAUF: Bitte Text kürzen</div>

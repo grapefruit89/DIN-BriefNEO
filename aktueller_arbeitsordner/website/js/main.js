@@ -857,7 +857,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = document.getElementById('empfaenger-name')?.textContent.trim();
     const empfaenger = firma ? firma : (name ? name : 'Unbekannt');
     
-    let dateStr = Temporal.Now.plainDateISO().toString();
+    let dateStr = 'YYYY-MM-DD';
+    try {
+      dateStr = Temporal.Now.plainDateISO().toString();
+    } catch(e) {
+      console.warn("Temporal API missing, fallback used.");
+    }
 
     const sanitizedBetreff = betreff.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '');
     const sanitizedEmpfaenger = empfaenger.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '').replace(/ /g, '-');

@@ -50,7 +50,7 @@ export class UIProtections {
           
           if (isSingleLine || isTwoLine) {
             const text = el.innerText || el.textContent;
-            const maxChars = isSingleLine ? 75 : 150;
+            const maxChars = isSingleLine ? 60 : 130;
             const selection = window.getSelection();
             // Only prevent if trying to type a character and we're at/over limit, 
             // and no text is selected to be replaced
@@ -61,23 +61,38 @@ export class UIProtections {
         }
       });
       
-      el.addEventListener('paste', (e) => {
+            el.addEventListener('paste', (e) => {
         if (this.multiLineIds.includes(el.id)) return;
         
         e.preventDefault();
-        let text = (e.originalEvent || e).clipboardData.getData('text/plain');
-        if (this.maxTwoLinesIds.includes(el.id)) {
-            text = text.split('\n').slice(0, 2).join('\n');
-            if (text.length > 150) text = text.substring(0, 150);
-        } else {
-            text = text.replace(/[\r\n]+/g, ' ');
-            if (text.length > 75) text = text.substring(0, 75);
-        }
+        let pastedText = (e.originalEvent || e).clipboardData.getData('text/plain');
+        const isTwoLine = this.maxTwoLinesIds.includes(el.id);
+        const maxChars = isTwoLine ? 130 : 60;
         
         const selection = window.getSelection();
+        const selectedLength = selection.toString().length;
+        const currentText = el.innerText || el.textContent;
+        const currentLength = currentText.length - selectedLength;
+        
+        let allowedPasteLength = maxChars - currentLength;
+        if (allowedPasteLength <= 0) return;
+        
+        if (isTwoLine) {
+            pastedText = pastedText.split('
+').slice(0, 2).join('
+');
+        } else {
+            pastedText = pastedText.replace(/[
+]+/g, ' ');
+        }
+        
+        if (pastedText.length > allowedPasteLength) {
+            pastedText = pastedText.substring(0, allowedPasteLength);
+        }
+        
         if (!selection.rangeCount) return;
         selection.deleteFromDocument();
-        selection.getRangeAt(0).insertNode(document.createTextNode(text));
+        selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
         selection.collapseToEnd();
       });
     });

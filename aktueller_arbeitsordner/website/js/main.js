@@ -18,6 +18,7 @@ import { UIProtections } from './00-core/03-ui-protections.js';
 import { initPostvermerk } from './10-ui/03-postvermerk.js';
 import { initDevTools } from './30-utils/04-dev-tools.js';
 
+import { DateFormatter } from './20-features/07-date-format.js';
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
   const btnPrint = document.getElementById('btn-print');
@@ -46,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {}
     }
 
+        const dateFormatter = new DateFormatter(window.UI_CONTEXT);
+    dateFormatter.init();
     const settingsManager = new SettingsManager();
     // Feature Trace: document.startViewTransition is now handled inside settingsManager._transitionState
     settingsManager.init();

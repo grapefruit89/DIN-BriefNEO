@@ -40,7 +40,7 @@ export function initPostvermerk(onSaveDraft) {
       
       if (onSaveDraft) onSaveDraft();
       showToast("Vermerk gesetzt", "success");
-      sidebarPvSelect.value = ""; // Reset to placeholder
+      sidebarPvSelect.selectedIndex = -1; // Reset selection so any option can be clicked again
     });
   }
 }

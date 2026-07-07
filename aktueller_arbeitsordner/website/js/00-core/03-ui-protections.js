@@ -3,7 +3,7 @@ export class UIProtections {
     this.paper = document.querySelector('din-a4');
     this.brieftext = document.getElementById('brieftext');
     this.multiLineIds = ['brieftext', 'anlagen-text'];
-    this.maxTwoLinesIds = ['betreff'];
+    this.maxTwoLinesIds = ['betreff', 'postvermerk'];
     this.initialized = false;
   }
 

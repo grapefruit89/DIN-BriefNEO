@@ -20,16 +20,16 @@
   /* === 1. SURFACES & NEUTRALS === */
   /* Der kühle Dark Mode bleibt erhalten (Hue 263). Light mode erhält einen feinen Blaustich. */
   --bg-viewport: light-dark(oklch(0.96 0.005 263), oklch(0.28 0.06 263));
-  --bg-sidebar: light-dark(oklch(0.98 0.002 263), oklch(0.24 0.06 263));
-  --bg-sidebar-glass: light-dark(oklch(0.98 0.002 263 / 75%), oklch(0.24 0.06 263 / 75%));
+  --bg-sidebar: light-dark(oklch(0.94 0.005 263), oklch(0.24 0.06 263));
+  --bg-sidebar-glass: light-dark(oklch(0.94 0.005 263 / 75%), oklch(0.24 0.06 263 / 75%));
   --bg-card: light-dark(oklch(1 0 0), oklch(0.20 0.04 263));
   
-  --border-color: light-dark(oklch(0.90 0.01 263), oklch(0.30 0.04 263));
+  --border-color: oklch(0 0 0);
   --border-color-focus: var(--accent-color);
 
   /* === 2. TEXT === */
-  --text-primary: light-dark(CanvasText, oklch(0.95 0.01 263));
-  --text-muted: light-dark(oklch(0.50 0.01 263), oklch(0.70 0.02 263));
+  --text-primary: oklch(0 0 0);
+  --text-muted: oklch(0 0 0);
 
   /* === 3. ACCENT === */
   /* Nutzung der nativen System-Akzentfarbe für maximale Professionalität. Fallback für ältere Browser. */
@@ -78,3 +78,4 @@
 [popover] {
   color-scheme: inherit;
 }
+

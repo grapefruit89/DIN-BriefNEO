@@ -21,3 +21,7 @@
 **5. Bleeding-Edge API Safety**
 - Obwohl modernste Web-APIs (wie `Temporal` oder `document.startViewTransition`) aktiv gefordert werden, müssen diese **zwingend** in `try/catch`-Blöcken oder durch Feature-Detection mit sanften Fallbacks abgesichert werden.
 - Insbesondere im kritischen Initialisierungspfad (`DOMContentLoaded`) darf ein Fehler oder Fehlen dieser experimentellen APIs niemals die Ausführung nachfolgender Event-Listener blockieren (sonst friert die UI ein).
+
+**6. Anti-Flicker & Sync Hydration**
+- Bei Vanilla-JS-Apps führt das späte Laden von `localStorage`-Daten (z.B. über `<script type="module">`) unweigerlich zu UI-Flackern, wenn HTML-Platzhalter erst nach dem ersten Paint überschrieben werden.
+- Um dies zu verhindern, muss stets ein winziges, synchrones `<script>` direkt vor `</body>` (für DOM-Inhalte) oder im `<head>` (für CSS-Themes) platziert werden. Dieses liest den `localStorage` aus und bereitet den DOM synchron vor, bevor der Browser den ersten Frame zeichnet.

@@ -14,12 +14,12 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | website/index.html | 2 | - | [[din-5008-layout]] |
 | website/js/constants.js | 1 | [[ADR-JS]] | - |
 | website/js/constants.js | 2 | - | [[glossary]] |
+| website/js/dev-tools.js | 1 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/geoapify.js | 1 | [[ADR-API]] | - |
 | website/js/geoapify.js | 2 | - | [[geoapify-autocomplete]] |
 | website/js/geoapify.js | 6 | [[ADR-API]] | - |
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
-| website/js/main.js | 170 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/metadata.js | 1 | [[ADR-JS]] | - |
 | website/js/metadata.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |

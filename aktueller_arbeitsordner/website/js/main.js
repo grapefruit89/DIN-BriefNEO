@@ -11,6 +11,7 @@ import { SignatureFeature } from './signature.js';
 import { initAddressServices } from './geoapify.js';
 import { showToast, initToastSystem } from './toast.js';
 import { initSenderSync } from './sender-sync.js';
+import { initAddressBookSaveButton } from './address-book-helper.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
@@ -65,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachFormattingToolbar();
     checkTextOverflow();
     enforceLineLimits();
+    initAddressBookSaveButton();
     // --- MODULE INITIALIZATION ---
     // Note: showToast is imported directly
     initToastSystem();

@@ -634,12 +634,16 @@ din-anlagen, din-verteiler {
   overflow: hidden;
   text-overflow: ellipsis;
   field-sizing: content;
-  max-height: 1.45em; /* verhindert optisch 2 Zeilen */
+  max-height: 1.5em; /* verhindert optisch 2 Zeilen */
+  line-height: 1.4;
 }
 
 /* Bessere visuelle Begrenzung ohne JS */
 .single-line[contenteditable]:focus {
   outline: 1px solid var(--accent-color);
   background: oklch(62% 0.19 148 / 3%);
+  overflow: visible; /* beim Editieren darf es temporär umbrechen */
+  text-overflow: unset;
+  max-height: none;
 }
 

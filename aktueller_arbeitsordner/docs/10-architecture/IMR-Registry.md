@@ -167,16 +167,16 @@ graph TD
 **Position:** X: `25mm` | Y: `var(--din-y-header-start)`  
 **Standard:** Form A: `27mm` | Form B: `45mm`
 
-| Tag | Beschreibung | Ausrichtung | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---|:---|
-| `<din-branding-logo>` | Firmenlogo (SVG/Base64) | Rechts | — | [`/whatwg/html`](https://html.spec.whatwg.org/) |
-| `<din-absender-vorname>` | Vorname Absender | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-nachname>` | Nachname Absender | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-strasse>` | Straße & Hausnr. | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-ort>` | PLZ & Ort | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-zusatz>` | Adresszusatz | Links | `plaintext` | DIN 5008: 16.1 |
-| `<din-absender-mail>` | E-Mail Adresse | Links | `type="email"` | `mailto:` |
-| `<din-absender-tel>` | Telefonnummer | Links | `type="tel"` | `tel:` |
+| Tag | Beschreibung | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---|:---|:---|:---|
+| `<din-branding-logo>` | Firmenlogo (SVG/Base64) | Rechts | — | [`/whatwg/html`](https://html.spec.whatwg.org/) | — | — |
+| `<din-absender-vorname>` | Vorname Absender | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-nachname>` | Nachname Absender | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-strasse>` | Straße & Hausnr. | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-ort>` | PLZ & Ort | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-zusatz>` | Adresszusatz | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-mail>` | E-Mail Adresse | Links | `type="email"` | `mailto:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-absender-tel>` | Telefonnummer | Links | `type="tel"` | `tel:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 
 ---
 
@@ -186,16 +186,16 @@ graph TD
 **Position:** X: `25mm` | Y: Form A: `32mm` | Form B: `50mm`  
 **Max-Breite:** `85mm` | **Höhe:** `45mm` (Fix)
 
-| Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---|:---|
-| `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 |
-| `<din-zusaetze>` | Vermerke/Zusätze | 2-4 | Links | — | DIN 5008: 16.1.3 |
-| `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-nachname>` | Nachname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-strasse>` | Straße & Hausnr. | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
-| `<din-empfaenger-ort>` | PLZ & Ort | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 |
+| Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---:|:---|:---|:---|:---|
+| `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-zusaetze>` | Vermerke/Zusätze | 2-4 | Links | — | DIN 5008: 16.1.3 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-nachname>` | Nachname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-strasse>` | Straße & Hausnr. | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-empfaenger-ort>` | PLZ & Ort | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 
 > ⚠️ **Wichtig:** Das Anschriftfeld hat eine **feste Höhe von 45mm**. Überlaufender Text wird abgeschnitten (DIN 5008 Konformität).
 
@@ -207,16 +207,16 @@ graph TD
 **Position:** X: `125mm` | Y (A): `32mm` | Y (B): `50mm`  
 **Wuchs:** Top-Down
 
-| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---:|:---|:---|
-| `<din-datum>` | Briefdatum | 74 | 92 | Links | `Temporal.PlainDate` | DIN 5008: 17.2 |
-| `<din-ihr-zeichen>` | Ihr Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 |
-| `<din-ihr-schreiben>` | Ihr Schreiben vom | Flow | Flow | Links | `ISO-8601` | [`/tc39/proposal-temporal`](https://tc39.es/proposal-temporal/) |
-| `<din-unser-zeichen>` | Unser Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 |
-| `<din-unser-schreiben>` | Bezugsdatum | Flow | Flow | Links | `ISO-8601` | [`/tc39/ecma262`](https://tc39.es/ecma262/) |
-| `<din-durchwahl>` | Direkte Telefonnr. | Flow | Flow | Links | `type="tel"` | `tel:` |
-| `<din-email-direkt>` | Direkte E-Mail | Flow | Flow | Links | `type="email"` | `mailto:` |
-| `<din-internet>` | Web-URL | Flow | Flow | Links | `type="url"` | [`/whatwg/html`](https://html.spec.whwg.org/) |
+| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---:|:---:|:---|:---|:---|:---|
+| `<din-datum>` | Briefdatum | 74 | 92 | Links | `Temporal.PlainDate` | DIN 5008: 17.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-ihr-zeichen>` | Ihr Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-ihr-schreiben>` | Ihr Schreiben vom | Flow | Flow | Links | `ISO-8601` | [`/tc39/proposal-temporal`](https://tc39.es/proposal-temporal/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-unser-zeichen>` | Unser Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-unser-schreiben>` | Bezugsdatum | Flow | Flow | Links | `ISO-8601` | [`/tc39/ecma262`](https://tc39.es/ecma262/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-durchwahl>` | Direkte Telefonnr. | Flow | Flow | Links | `type="tel"` | `tel:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-email-direkt>` | Direkte E-Mail | Flow | Flow | Links | `type="email"` | `mailto:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-internet>` | Web-URL | Flow | Flow | Links | `type="url"` | [`/whatwg/html`](https://html.spec.whwg.org/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
 
 ---
 
@@ -226,14 +226,14 @@ graph TD
 **Position:** X: `25mm` | Y (A): `91mm` | Y (B): `109mm`  
 **Max-Breite:** `165mm` | **Wuchs:** Top-Down (dynamisch, triggert Paginierung)
 
-| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Zeilen | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---:|:---:|:---|:---|
-| `<din-betreff>` | Betreff (fett) | Flow | Flow | Links | **Einzeilig*** | Max 2 Zeilen | DIN 5008: 18 |
-| `<din-anrede>` | Anredeformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 19 |
-| `<din-text>` | Haupt-Inhalt | Flow | Flow | Blocksatz* | **Mehrzeilig** | Sanitizer API | DIN 5008: 20 |
-| `<din-grussformel>` | Grußformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 21 |
-| `<din-unterschrift>` | Unterzeichner | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 22 |
-| `<din-anlagen>` | Anlagenverzeichnis | Flow | Flow | Links | **Mehrzeilig** | — | DIN 5008: 23 |
+| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Zeilen | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
+|:---|:---|:---:|:---:|:---:|:---:|:---|:---|:---|:---|
+| `<din-betreff>` | Betreff (fett) | Flow | Flow | Links | **Einzeilig*** | Max 2 Zeilen | DIN 5008: 18 | Max 2 Zeilen | — |
+| `<din-anrede>` | Anredeformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 19 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-text>` | Haupt-Inhalt | Flow | Flow | Blocksatz* | **Mehrzeilig** | Sanitizer API | DIN 5008: 20 | Vollständig editierbar | — |
+| `<din-grussformel>` | Grußformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 21 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-unterschrift>` | Unterzeichner | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 22 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| `<din-anlagen>` | Anlagenverzeichnis | Flow | Flow | Links | **Mehrzeilig** | — | DIN 5008: 23 | Vollständig editierbar | — |
 
 > ℹ️ *Betreff: Startet zwingend UNTER der ersten Falzmarke (105mm/87mm). Smart-Squeezing versucht ihn einzeilig zu halten.*
 

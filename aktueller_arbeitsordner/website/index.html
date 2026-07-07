@@ -44,14 +44,14 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 14:45</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 15:32</span>
             </div>
             
             <div>
               <div class="segmented-control">
                 <button id="btn-theme-light" data-js="theme-light">☀️ Hell</button>
                 <button id="btn-theme-dark" data-js="theme-dark">🌙 Dunkel</button>
-                <button id="btn-theme-auto" data-js="theme-auto" class="active">💻 Auto</button>
+                <button id="btn-theme-auto" data-js="theme-auto" aria-pressed="true">💻 Auto</button>
               </div>
             </div>
 
@@ -59,7 +59,7 @@
               <div class="sidebar-label">DIN-Brief Layout</div>
               <div class="segmented-control">
                 <button id="btn-form-a" data-js="form-a">Form A (Kompakt)</button>
-                <button id="btn-form-b" data-js="form-b" class="active">Form B (Standard)</button>
+                <button id="btn-form-b" data-js="form-b" aria-pressed="true">Form B (Standard)</button>
               </div>
             </div>
 
@@ -68,7 +68,7 @@
               <div class="sidebar-label">Brief-Stil & Anrede</div>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div class="segmented-control">
-                  <button id="btn-style-formal" data-js="style-formal" class="active" title="Förmlich (Sehr geehrte...)">Förmlich</button>
+                  <button id="btn-style-formal" data-js="style-formal" aria-pressed="true" title="Förmlich (Sehr geehrte...)">Förmlich</button>
                   <button id="btn-style-polite" data-js="style-polite" title="Höflich (Guten Tag...)">Höflich</button>
                   <button id="btn-style-casual" data-js="style-casual" title="Modern (Hallo...)">Locker</button>
                 </div>
@@ -111,7 +111,7 @@
               <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
                 <div class="segmented-control" id="font-stack-select">
-                  <button id="btn-font-sans" data-js="font-sans" class="active" title="Moderne serifenlose Systemschrift">Sans</button>
+                  <button id="btn-font-sans" data-js="font-sans" aria-pressed="true" title="Moderne serifenlose Systemschrift">Sans</button>
                   <button id="btn-font-serif" data-js="font-serif" title="Klassische Serifenschrift">Serif</button>
                 </div>
               </div>
@@ -308,20 +308,20 @@
           if (settings.theme === 'light') {
             document.documentElement.style.colorScheme = 'light';
             document.documentElement.dataset.theme = 'light';
-            document.getElementById('btn-theme-auto')?.classList.remove('active');
-            document.getElementById('btn-theme-light')?.classList.add('active');
+            document.getElementById('btn-theme-auto')?.setAttribute('aria-pressed', 'false');
+            document.getElementById('btn-theme-light')?.setAttribute('aria-pressed', 'true');
           } else if (settings.theme === 'dark') {
             document.documentElement.style.colorScheme = 'dark';
             document.documentElement.dataset.theme = 'dark';
-            document.getElementById('btn-theme-auto')?.classList.remove('active');
-            document.getElementById('btn-theme-dark')?.classList.add('active');
+            document.getElementById('btn-theme-auto')?.setAttribute('aria-pressed', 'false');
+            document.getElementById('btn-theme-dark')?.setAttribute('aria-pressed', 'true');
           }
           
           // Layout
           if (settings.layout === 'form-a') {
             document.getElementById('app-shell')?.classList.replace('form-b', 'form-a');
-            document.getElementById('btn-form-b')?.classList.remove('active');
-            document.getElementById('btn-form-a')?.classList.add('active');
+            document.getElementById('btn-form-b')?.setAttribute('aria-pressed', 'false');
+            document.getElementById('btn-form-a')?.setAttribute('aria-pressed', 'true');
           }
           
           // Guides
@@ -344,8 +344,8 @@
           // System Font
           if (settings.systemFont === 'serif') {
              document.body.classList.add('font-stack-serif');
-             document.getElementById('btn-font-sans')?.classList.remove('active');
-             document.getElementById('btn-font-serif')?.classList.add('active');
+             document.getElementById('btn-font-sans')?.setAttribute('aria-pressed', 'false');
+             document.getElementById('btn-font-serif')?.setAttribute('aria-pressed', 'true');
           } else {
              document.body.classList.add('font-stack-sans');
           }
@@ -366,9 +366,9 @@
               const btn = document.getElementById('btn-style-' + style);
               if (btn) {
                 if (settings.formality === style) {
-                  btn.classList.add('active');
+                  btn.setAttribute('aria-pressed', 'true');
                 } else {
-                  btn.classList.remove('active');
+                  btn.setAttribute('aria-pressed', 'false');
                 }
               }
             });

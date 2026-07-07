@@ -50,34 +50,34 @@ export class SettingsManager {
     if (this.settings.layout === 'form-a') {
       this.shell?.classList.remove('form-b');
       this.shell?.classList.add('form-a');
-      this.btnFormA?.classList.add('active');
-      this.btnFormB?.classList.remove('active');
+      this.btnFormA?.setAttribute('aria-pressed', 'true');
+      this.btnFormB?.setAttribute('aria-pressed', 'false');
     } else {
       this.shell?.classList.remove('form-a');
       this.shell?.classList.add('form-b');
-      this.btnFormB?.classList.add('active');
-      this.btnFormA?.classList.remove('active');
+      this.btnFormB?.setAttribute('aria-pressed', 'true');
+      this.btnFormA?.setAttribute('aria-pressed', 'false');
     }
 
     // 2. Color Schemes (Theme light-dark supported)
     if (this.settings.theme === 'light') {
       document.documentElement.style.colorScheme = 'light';
       document.documentElement.dataset.theme = 'light';
-      this.btnThemeLight?.classList.add('active');
-      this.btnThemeDark?.classList.remove('active');
-      this.btnThemeAuto?.classList.remove('active');
+      this.btnThemeLight?.setAttribute('aria-pressed', 'true');
+      this.btnThemeDark?.setAttribute('aria-pressed', 'false');
+      this.btnThemeAuto?.setAttribute('aria-pressed', 'false');
     } else if (this.settings.theme === 'dark') {
       document.documentElement.style.colorScheme = 'dark';
       document.documentElement.dataset.theme = 'dark';
-      this.btnThemeDark?.classList.add('active');
-      this.btnThemeLight?.classList.remove('active');
-      this.btnThemeAuto?.classList.remove('active');
+      this.btnThemeDark?.setAttribute('aria-pressed', 'true');
+      this.btnThemeLight?.setAttribute('aria-pressed', 'false');
+      this.btnThemeAuto?.setAttribute('aria-pressed', 'false');
     } else {
       document.documentElement.style.removeProperty('color-scheme');
       delete document.documentElement.dataset.theme;
-      this.btnThemeAuto?.classList.add('active');
-      this.btnThemeLight?.classList.remove('active');
-      this.btnThemeDark?.classList.remove('active');
+      this.btnThemeAuto?.setAttribute('aria-pressed', 'true');
+      this.btnThemeLight?.setAttribute('aria-pressed', 'false');
+      this.btnThemeDark?.setAttribute('aria-pressed', 'false');
     }
 
     // 3. Layout Guides overlay
@@ -99,15 +99,15 @@ export class SettingsManager {
     if (this.btnFontSans && this.btnFontSerif) {
       document.body.classList.remove('font-stack-sans', 'font-stack-serif');
       
-      this.btnFontSans.classList.remove('active');
-      this.btnFontSerif.classList.remove('active');
+      this.btnFontSans.setAttribute('aria-pressed', 'false');
+      this.btnFontSerif.setAttribute('aria-pressed', 'false');
 
       if (this.settings.systemFont === 'serif') {
         document.body.classList.add('font-stack-serif');
-        this.btnFontSerif.classList.add('active');
+        this.btnFontSerif.setAttribute('aria-pressed', 'true');
       } else {
         document.body.classList.add('font-stack-sans');
-        this.btnFontSans.classList.add('active');
+        this.btnFontSans.setAttribute('aria-pressed', 'true');
       }
     }
   }

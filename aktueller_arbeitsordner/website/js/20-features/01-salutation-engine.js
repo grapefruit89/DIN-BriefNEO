@@ -107,12 +107,12 @@ export class SalutationFeature {
   _applyUIState() {
     ['formal', 'polite', 'casual'].forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
-      if (btn) btn.classList.toggle('active', this.settings.formality === style);
+      if (btn) btn.setAttribute('aria-pressed', this.settings.formality === style ? 'true' : 'false');
     });
 
     ['none', 'female', 'male'].forEach(gender => {
       const btn = document.getElementById(`btn-gender-${gender}`);
-      if (btn) btn.classList.toggle('active', this.settings.recipientType === gender);
+      if (btn) btn.setAttribute('aria-pressed', this.settings.recipientType === gender ? 'true' : 'false');
     });
   }
 

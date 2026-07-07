@@ -144,7 +144,7 @@ aside {
   transition: all 0.2s ease;
 }
 
-.segmented-control button.active {
+.segmented-control button[aria-pressed="true"] {
   background: var(--segment-active-bg);
   color: var(--segment-active-text);
   box-shadow: var(--segment-active-shadow);

@@ -791,16 +791,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Color Schemes (Theme light-dark supported)
     if (settings.theme === 'light') {
       document.documentElement.style.colorScheme = 'light';
+      document.documentElement.dataset.theme = 'light';
       btnThemeLight.classList.add('active');
       btnThemeDark.classList.remove('active');
       btnThemeAuto.classList.remove('active');
     } else if (settings.theme === 'dark') {
       document.documentElement.style.colorScheme = 'dark';
+      document.documentElement.dataset.theme = 'dark';
       btnThemeDark.classList.add('active');
       btnThemeLight.classList.remove('active');
       btnThemeAuto.classList.remove('active');
     } else {
       document.documentElement.style.removeProperty('color-scheme'); // Inherits system color scheme
+      delete document.documentElement.dataset.theme;
       btnThemeAuto.classList.add('active');
       btnThemeLight.classList.remove('active');
       btnThemeDark.classList.remove('active');

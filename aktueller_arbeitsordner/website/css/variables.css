@@ -22,7 +22,16 @@
   --bg-viewport: light-dark(oklch(0.96 0.005 263), oklch(0.28 0.06 263));
   --bg-sidebar: light-dark(oklch(0.98 0.002 263), oklch(0.24 0.06 263));
   --bg-sidebar-glass: light-dark(oklch(0.98 0.002 263 / 75%), oklch(0.24 0.06 263 / 75%));
-  --bg-card: light-dark(oklch(1 0 0), oklch(0.77 0.012 263));
+  --bg-card: light-dark(oklch(1 0 0), oklch(0.20 0.04 263));
+
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+[popover] {
+  color-scheme: inherit;
+}
   
   --border-color: light-dark(oklch(0.90 0.01 263), oklch(0.30 0.04 263));
   --border-color-focus: var(--accent-color);

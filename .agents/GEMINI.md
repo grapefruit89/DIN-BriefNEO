@@ -132,3 +132,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Jede JavaScript-Datei hat genau **eine primäre Verantwortung** (z.B. eine Klasse oder ein fachlicher Modul-Fokus). Dateinamen spiegeln diese Verantwortung exakt wider (z.B. `draft-manager.js`).
 - Kleine interne Helper-Funktionen innerhalb der Datei sind erlaubt, aber fachfremde Logik muss ausgelagert werden.
 - Ausnahmen: `main.js` (reiner Orchestrator, der viele Module importiert und initialisiert) und Utils-Dateien (z.B. `storage.js`), die funktional verwandte, aber eigenständige Helper bündeln dürfen.
+
+## 24. Pragmatic HTML Semantics & Accessibility
+- **Strictly No Inline Styles**: Inline `style="..."` attributes are forbidden for static layout or typography. Always use semantic CSS classes (e.g., `.sidebar-options-group`, `.hidden`) defined in `layout.css` or `floating.css`. Only use inline styles for dynamically calculated JS values (like positioning offsets).
+- **Native HTML5 Semantics**: Always prefer native semantic tags (`<label for="...">`, `<h3>`, `<ul>`) over generic `<div class="label">` or `<span>` wrappers. 
+- **Concise Accessibility**: Every `contenteditable` block and custom `<din-...>` container must have appropriate `aria-label`s and `role`s (e.g., `role="group"`, `role="article"`). Keep aria-labels concise and non-redundant (e.g., "Straße und Hausnummer" instead of "Ihre Straße und Hausnummer").

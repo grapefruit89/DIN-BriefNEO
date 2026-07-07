@@ -1,6 +1,6 @@
 import { showToast } from './toast.js';
 
-export function initPostvermerk() {
+export function initPostvermerk(onSaveDraft) {
   const sidebarPvSelect = document.getElementById('sidebar-pv-select');
   const pvInput = document.getElementById('postvermerk');
 
@@ -38,7 +38,7 @@ export function initPostvermerk() {
         pvInput.appendChild(document.createTextNode(part.trim()));
       });
       
-      if (window.draftManager) window.draftManager.saveDraft();
+      if (onSaveDraft) onSaveDraft();
       showToast("Vermerk gesetzt", "success");
       sidebarPvSelect.value = ""; // Reset to placeholder
     });

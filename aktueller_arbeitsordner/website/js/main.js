@@ -28,12 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initApp() {
     const draftManager = new DraftManager();
-    window.draftManager = draftManager; // Keep for legacy/cross-module access for now
     draftManager.loadDraft();
     draftManager.enableEventMode();
     
     const uiProtections = new UIProtections();
-    window.uiProtections = uiProtections; // Keep for legacy access
     uiProtections.init();
 
     document.querySelectorAll('[contenteditable]').forEach(el => {
@@ -63,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const formatToolbarInstance = new FormatToolbar(
       document.getElementById('brieftext'),
-      document.getElementById('format-toolbar')
+      document.getElementById('format-toolbar'),
+      () => draftManager.saveDraft()
     );
     formatToolbarInstance.init();
     
@@ -74,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initToastSystem();
     initSenderSync();
     initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
-    initPostvermerk();
+    initPostvermerk(() => draftManager.saveDraft());
     initDevTools();
     
     const salutation = new SalutationFeature(() => draftManager.saveDraft());

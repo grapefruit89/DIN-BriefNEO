@@ -1,16 +1,19 @@
 export class FormatToolbar {
   #brieftext;
   #toolbar;
+  #onSaveDraft;
   #selectionAnchor;
   #selectionTimeout;
+  #currentRange = null;
   #btnBold;
   #btnUnderline;
   #btnQuote;
   #btnComment;
 
-  constructor(brieftextEl, toolbarEl) {
+  constructor(brieftextEl, toolbarEl, onSaveDraft = null) {
     this.#brieftext = brieftextEl;
     this.#toolbar = toolbarEl;
+    this.#onSaveDraft = onSaveDraft;
     this.#selectionAnchor = document.getElementById('selection-anchor');
     this.#selectionTimeout = null;
   }
@@ -332,8 +335,8 @@ export class FormatToolbar {
   }
 
   #triggerSave() {
-    if (window.draftManager) {
-      window.draftManager.saveDraft();
+    if (this.#onSaveDraft) {
+      this.#onSaveDraft();
     }
   }
 

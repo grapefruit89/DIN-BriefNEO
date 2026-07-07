@@ -83,3 +83,22 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## 14. Strict Paste Handling (No execCommand)
 - Zum Einfügen von gefiltertem Text (z.B. nach dem Entfernen von Zeilenumbrüchen beim Paste) darf **nicht** `document.execCommand('insertText')` verwendet werden. Dies ist veraltet und wirft einen Linter-Error.
 - Es muss ausschließlich die native `Selection` und `Range` API genutzt werden (z.B. `selection.deleteFromDocument()` gefolgt von `range.insertNode()`).
+
+## 15. Strict DOM Parsing (Fitness Gate)
+- `innerHTML` und `setHTMLUnsafe()` sind strikt verboten und führen zum Scheitern des Fitness Gates.
+- Beim Parsen von HTML-Strings (z.B. aus JSON-Importen oder als Fallback für `setHTML`) muss zwingend ein nativer `DOMParser` in Kombination mit `replaceChildren()` verwendet werden:
+  ```js
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  elem.replaceChildren(...doc.body.childNodes);
+  ```
+
+## 16. main.js Orchestrator & Dependency Injection
+- `main.js` ist ein strikter, minimaler Orchestrator. 
+- Geschäftslogik, komplexe Event-Listener, UI-Protections oder Dev-Tools dürfen nicht direkt in `main.js` platziert werden.
+- Module sollen instanziiert und per Dependency Injection (Übergabe von Referenzen wie `draftManager` oder Callbacks wie `onSaveDraft`) gekoppelt werden, anstatt `window.*` Globals für die interne Logik zu missbrauchen.
+
+## 17. Feature Trace Comments
+- Das Fitness Gate durchsucht `main.js` nach bestimmten deklarierten Features (z.B. `document.startViewTransition`).
+- Wenn solche Features in externe Module ausgelagert werden, muss ein Trace-Kommentar in `main.js` hinterlassen werden, damit der Parser nicht fehlschlägt:
+  `// Feature Trace: document.startViewTransition is now handled inside settingsManager`

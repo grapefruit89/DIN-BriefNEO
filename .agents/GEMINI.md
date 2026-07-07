@@ -49,3 +49,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Das DIN-A4-Blatt (`din-a4`) repräsentiert das finale Druckprodukt und ist **strikt** von den UI-Themes (Light/Dark Mode) entkoppelt.
 - **Papier ist immer weiß, Tinte ist immer schwarz.** Es dürfen auf dem Papier niemals CSS-Variablen wie `--text-primary` verwendet werden, die sich im Dark Mode ändern.
 - Für das Papier sind exklusive Variablen (`--paper-bg`, `--paper-text`) oder hartkodierte `oklch`-Farbwerte zu verwenden. Das UI-Theme darf nur die Sidebar und den Viewport-Hintergrund um das Blatt herum beeinflussen.
+
+## 8. Print CSS Safety
+- **Niemals** page-break-before: always; auf das Haupt-Container-Element (z.B. din-a4) anwenden. 
+- Dies führt beim Drucken oder PDF-Export zwingend dazu, dass der Drucker vor dem eigentlichen Inhalt einen Seitenumbruch einfügt. Das Resultat ist ein katastrophaler Bug: Eine komplett leere erste Seite (oder leere PDF).
+
+## 9. Contenteditable DOM Integrity
+- Wichtige DOM-Elemente (wie UI-Bilder, z.B. <img id="signature-image">) dürfen niemals direkt als Children in ein contenteditable="true" Element gelegt werden, wenn der Nutzer dort Text eingeben soll. 
+- Sobald der Nutzer anfängt zu tippen, löscht der Browser rigoros die gesamte innere HTML-Struktur. 
+- Lösung: Visuelle Elemente und editierbarer Text müssen immer als Geschwister (siblings) innerhalb eines nicht-editierbaren Wrappers isoliert werden.
+
+## 10. Data Synchronization (Absender-Logik)
+- Die automatische Synchronisation des Absenders (Info-Block) zur kleinen Rücksendezeile und zur Maschinenschrift bei der Unterschrift ist ein **unantastbares Kernfeature** zur Vermeidung von Double-Data-Entry (siehe ADR-005).
+- In der Rücksendezeile wird der Vorname platzsparend als Initiale formatiert ("Moritz Baumeister" -> "M. Baumeister"), während in der Maschinenschrift der volle Name steht.
+- Diese Sync-Logik darf bei UI-Refactorings niemals entfernt oder "vereinfacht" werden.

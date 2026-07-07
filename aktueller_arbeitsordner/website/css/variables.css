@@ -68,7 +68,7 @@
   /* DIN Paper layout configurations */
   --paper-zoom: 1;
   --guide-opacity: 0.15;
-  --guide-color: var(--paper-text); 
+  --guide-color: oklch(from var(--paper-text) l c h);
   
   /* Active Font Stack variable */
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

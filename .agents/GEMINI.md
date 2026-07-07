@@ -102,3 +102,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Das Fitness Gate durchsucht `main.js` nach bestimmten deklarierten Features (z.B. `document.startViewTransition`).
 - Wenn solche Features in externe Module ausgelagert werden, muss ein Trace-Kommentar in `main.js` hinterlassen werden, damit der Parser nicht fehlschlägt:
   `// Feature Trace: document.startViewTransition is now handled inside settingsManager`
+
+## 18. Numbered Domain Architecture (JS Folder)
+- Neue JavaScript-Dateien dürfen **niemals** direkt im `js/`-Root-Ordner abgelegt werden (einzige Ausnahme ist `main.js`).
+- Jede neue Datei muss in die passende Domäne einsortiert werden: `00-core/`, `10-ui/`, `20-features/` oder `30-utils/`.
+- Dateinamen erhalten zwingend einen fortlaufenden Nummern-Präfix (z.B. `04-neues-feature.js`), um die visuelle Ordnung zu wahren.
+
+## 19. Custom Undo/Redo History (DraftManager)
+- Das native Browser-Undo (`document.execCommand('undo')`) ist fehleranfällig und darf nicht verwendet werden.
+- Die App nutzt einen komplett eigenen History-Stack im `DraftManager`, der den globalen Zustand über `localStorage`-Snapshots verwaltet. 
+- Wenn neue textliche oder visuelle Zustände gespeichert werden sollen, muss dies über den etablierten `saveDraft()` Flow gehen, damit das Custom-Undo (`Strg+Z` / `Strg+Y`) sauber durch die Zeitlinie navigieren kann.
+
+## 20. CSS Anchor Positioning in Contenteditable (Selection Ranges)
+- Wenn Popovers oder Toolbars relativ zu einer Textmarkierung (Selection Range) positioniert werden müssen, darf **nicht** versucht werden, dies durch reines CSS Anchor Positioning zu lösen, da eine Selection Range keinen `anchor-name` haben kann.
+- Es **muss** zwingend ein unsichtbares Proxy-Element (z.B. `#selection-anchor`) verwendet werden, welches per JavaScript (`getBoundingClientRect()`) über die Selection gelegt wird. Das Popover ankert dann per CSS an diesem Proxy.

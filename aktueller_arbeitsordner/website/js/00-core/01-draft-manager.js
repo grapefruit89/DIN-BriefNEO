@@ -3,8 +3,7 @@ import { StorageManager } from '../30-utils/02-storage.js';
 export class DraftManager {
   #undoStack = [];
   #redoStack = [];
-  #currentDraftString = null;
-  #currentStateObjStr = null;
+  #currentState = null; // Object holding { draftStr, caretInfo }
   #isRestoring = false;
 
   constructor(onSaveCallback = null) {
@@ -36,7 +35,6 @@ export class DraftManager {
 
     document.querySelectorAll('[contenteditable]').forEach(elem => {
       if (!elem.id) return;
-
       if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {
         draft[elem.id] = elem.innerHTML;
       } else {
@@ -47,31 +45,30 @@ export class DraftManager {
     StorageManager.saveDraft('current', draft);
     this._updateDocumentTitle();
 
+    if (this.#isRestoring) return;
+
     // History Logic (Undo/Redo with Caret Preservation)
     const draftStr = JSON.stringify(draft);
+    let caretInfo = null;
     
-    if (!this.#isRestoring) {
-      let caretInfo = null;
-      const activeElem = document.activeElement;
-      if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id) {
-        caretInfo = { id: activeElem.id, offset: this.#getCaretCharacterOffsetWithin(activeElem) };
-      }
-
-      if (draftStr !== this.#currentDraftString) {
-        if (this.#currentStateObjStr !== null) {
-          this.#undoStack.push(this.#currentStateObjStr);
-          if (this.#undoStack.length > 50) this.#undoStack.shift(); // Max 50 states
-        }
-        this.#currentDraftString = draftStr;
-        this.#currentStateObjStr = JSON.stringify({ draft, caretInfo });
-        this.#redoStack = []; // Clear redo on new input
-      } else {
-        // Update caret position without pushing to undo stack (if only cursor moved)
-        this.#currentStateObjStr = JSON.stringify({ draft, caretInfo });
-      }
+    const activeElem = document.activeElement;
+    if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id) {
+      caretInfo = { id: activeElem.id, offset: this.#getCaretCharacterOffsetWithin(activeElem) };
     }
 
-    // Optionaler Callback (für Abwärtskompatibilität)
+    if (!this.#currentState) {
+      this.#currentState = { draftStr, caretInfo };
+    } else if (draftStr !== this.#currentState.draftStr) {
+      // Text changed: push old state to undo stack, set new state
+      this.#undoStack.push(this.#currentState);
+      if (this.#undoStack.length > 50) this.#undoStack.shift(); // Max 50 states
+      this.#currentState = { draftStr, caretInfo };
+      this.#redoStack = []; // Clear redo on new input
+    } else {
+      // Only cursor moved: update caret position of current state
+      this.#currentState.caretInfo = caretInfo;
+    }
+
     if (this.onSaveCallback) {
       this.onSaveCallback();
     }
@@ -84,8 +81,7 @@ export class DraftManager {
     const draft = StorageManager.loadDraft('current');
     if (!draft) return false;
     
-    this.#currentDraftString = JSON.stringify(draft);
-    this.#currentStateObjStr = JSON.stringify({ draft, caretInfo: null });
+    this.#currentState = { draftStr: JSON.stringify(draft), caretInfo: null };
     this.#restoreState(draft);
     return true;
   }
@@ -121,23 +117,22 @@ export class DraftManager {
 
   undo() {
     if (this.#undoStack.length === 0) return;
-    this.#redoStack.push(this.#currentStateObjStr);
-    this.#currentStateObjStr = this.#undoStack.pop();
-    this.#applyHistoryState(this.#currentStateObjStr);
+    this.#redoStack.push(this.#currentState);
+    this.#currentState = this.#undoStack.pop();
+    this.#applyHistoryState(this.#currentState);
   }
 
   redo() {
     if (this.#redoStack.length === 0) return;
-    this.#undoStack.push(this.#currentStateObjStr);
-    this.#currentStateObjStr = this.#redoStack.pop();
-    this.#applyHistoryState(this.#currentStateObjStr);
+    this.#undoStack.push(this.#currentState);
+    this.#currentState = this.#redoStack.pop();
+    this.#applyHistoryState(this.#currentState);
   }
 
-  #applyHistoryState(stateObjStr) {
-    const stateObj = JSON.parse(stateObjStr);
-    this.#currentDraftString = JSON.stringify(stateObj.draft);
-    this.#restoreState(stateObj.draft);
-    StorageManager.saveDraft('current', stateObj.draft);
+  #applyHistoryState(stateObj) {
+    const draft = JSON.parse(stateObj.draftStr);
+    this.#restoreState(draft);
+    StorageManager.saveDraft('current', draft);
     
     // Restore Caret
     if (stateObj.caretInfo) {

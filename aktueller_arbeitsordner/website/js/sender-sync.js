@@ -4,6 +4,18 @@
 /* js/sender-sync.js */
 
 /**
+ * Abbreviates the first name (e.g., "Moritz Baumeister" -> "M. Baumeister")
+ */
+function abbreviateName(fullName) {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length < 2) return fullName;
+    const firstName = parts[0];
+    const rest = parts.slice(1).join(' ');
+    return firstName.charAt(0).toUpperCase() + '. ' + rest;
+}
+
+/**
  * Synchronizes the sender information from the info block to the return address line
  * and the signature name. This restores the logic from the original project.
  */
@@ -21,13 +33,12 @@ export function initSenderSync() {
         const street = infoStreet.textContent.trim();
         const city = infoCity.textContent.trim();
 
-        // 1. Sync to Rücksendezeile (absender)
-        const parts = [name, street, city].filter(p => p.length > 0);
+        // 1. Sync to Rücksendezeile (absender) with abbreviated name
+        const shortName = abbreviateName(name);
+        const parts = [shortName, street, city].filter(p => p.length > 0);
         absender.textContent = parts.join(' • ');
 
-        // 2. Sync to Maschinenschrift (unterschrift)
-        // Only if the user hasn't heavily modified it manually, or just aggressively sync it
-        // The original repo aggressively synced it.
+        // 2. Sync to Maschinenschrift (unterschrift) with full name
         unterschrift.textContent = name;
         
         // Dispatch input events so saveDraftData triggers if needed

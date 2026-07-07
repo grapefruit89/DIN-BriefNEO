@@ -63,3 +63,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Die automatische Synchronisation des Absenders (Info-Block) zur kleinen Rücksendezeile und zur Maschinenschrift bei der Unterschrift ist ein **unantastbares Kernfeature** zur Vermeidung von Double-Data-Entry (siehe ADR-005).
 - In der Rücksendezeile wird der Vorname platzsparend als Initiale formatiert ("Moritz Baumeister" -> "M. Baumeister"), während in der Maschinenschrift der volle Name steht.
 - Diese Sync-Logik darf bei UI-Refactorings niemals entfernt oder "vereinfacht" werden.
+
+## 11. Directory Boundaries & Workspace Integrity
+- Niemals wilde Ordner oder Dateien auf Root-Ebene (wie z.B. einen \docs\-Ordner direkt im Projektverzeichnis) erstellen.
+- Alles hat seinen vordefinierten Platz! Sämtliche aktive Entwicklung, Dokumentation (ADRs, Guides) und Code-Dateien befinden sich STRIKT innerhalb des \ktueller_arbeitsordner/\ Verzeichnisses. 
+- Das bedeutet: Neue Dokumente, wie z.B. ADRs, gehören ausnahmslos in \ktueller_arbeitsordner/docs/...\ und NICHT in \docs/...\ auf der obersten Projektebene.

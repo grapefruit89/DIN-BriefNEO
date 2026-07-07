@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const settingsManager = new SettingsManager();
+    // Feature Trace: document.startViewTransition is now handled inside settingsManager._transitionState
     settingsManager.init();
 
     attachGlobalListeners();

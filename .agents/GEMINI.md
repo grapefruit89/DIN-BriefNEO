@@ -127,3 +127,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## 22. Standard Keyboard Shortcuts
 - International etablierte Tastaturkürzel (wie `Strg+B` für Bold, `Strg+I` für Italic, `Strg+U` für Underline) sind unantastbar und dürfen niemals für andere Funktionen zweckentfremdet werden.
 - Bei der Vergabe von neuen Custom-Shortcuts (z.B. für Blockquote) ist zwingend auf konfliktfreie Tasten (wie `Strg+Q`) auszuweichen.
+
+## 23. Single Responsibility Principle (Eine Verantwortung pro Datei)
+- Jede JavaScript-Datei hat genau **eine primäre Verantwortung** (z.B. eine Klasse oder ein fachlicher Modul-Fokus). Dateinamen spiegeln diese Verantwortung exakt wider (z.B. `draft-manager.js`).
+- Kleine interne Helper-Funktionen innerhalb der Datei sind erlaubt, aber fachfremde Logik muss ausgelagert werden.
+- Ausnahmen: `main.js` (reiner Orchestrator, der viele Module importiert und initialisiert) und Utils-Dateien (z.B. `storage.js`), die funktional verwandte, aber eigenständige Helper bündeln dürfen.

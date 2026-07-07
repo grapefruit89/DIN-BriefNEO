@@ -647,3 +647,7 @@ din-anlagen, din-verteiler {
   max-height: none;
 }
 
+
+
+/* Accessibility / Visibility */
+.hidden { display: none !important; }

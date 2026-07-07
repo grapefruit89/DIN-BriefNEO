@@ -36,8 +36,8 @@
           <div class="sidebar-section">
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-              <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 15:54</span>
+              <h3 class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</h3>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 16:06</span>
             </div>
             
             <div>
@@ -49,7 +49,7 @@
             </div>
 
               <div>
-              <div class="sidebar-label">DIN-Brief Layout</div>
+              <h3 class="sidebar-label">DIN-Brief Layout</h3>
               <div class="segmented-control">
                 <button id="btn-form-a">Form A (Kompakt)</button>
                 <button id="btn-form-b" aria-pressed="true">Form B (Standard)</button>
@@ -58,7 +58,7 @@
 
             <!-- SALUTATION OPTIONS -->
             <div>
-              <div class="sidebar-label">Brief-Stil & Anrede</div>
+              <h3 class="sidebar-label">Brief-Stil & Anrede</h3>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div class="segmented-control">
                   <button id="btn-style-formal" aria-pressed="true" title="Förmlich (Sehr geehrte...)">Förmlich</button>
@@ -71,7 +71,7 @@
 
             <!-- OPTIONALE BLÖCKE -->
             <div>
-              <div class="sidebar-label">Zusatz-Elemente (Optional)</div>
+              <h3 class="sidebar-label">Zusatz-Elemente (Optional)</h3>
               <div style="display: flex; gap: 10px; font-size: 0.75rem; flex-wrap: wrap; flex-direction: column;">
                 <div style="display: flex; gap: 10px;">
                   <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
@@ -90,7 +90,7 @@
 
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
-              <div class="sidebar-label">Hilfslinien</div>
+              <h3 class="sidebar-label">Hilfslinien</h3>
               <button id="btn-toggle-guides" class="btn primary" style="width: 100%;">
                 📐 Falz- & Lochmarken ausblenden
               </button>
@@ -98,7 +98,7 @@
             
             <!-- OFFLINE FONT UPLOADER & MANAGER -->
             <div>
-              <div class="sidebar-label">Schriftarten-Manager</div>
+              <h3 class="sidebar-label">Schriftarten-Manager</h3>
               
               <!-- Built-in System Stacks -->
               <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
@@ -124,12 +124,12 @@
                   💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Manrope</a> herunter und lade sie hier offline in deine App.
                 </div>
               </div>
-              <input type="file" id="font-uploader" accept=".woff2" style="display: none;" />
+              <input type="file" id="font-uploader" accept=".woff2" class="hidden" />
             </div>
 
             <!-- SIGNATURE UPLOADER -->
             <div>
-              <div class="sidebar-label">Unterschrift (Bild)</div>
+              <h3 class="sidebar-label">Unterschrift (Bild)</h3>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
                 <button id="btn-upload-sig-trigger" class="btn" style="width: 100%;">
@@ -139,24 +139,24 @@
                   🗑️ Unterschrift löschen
                 </button>
               </div>
-              <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" style="display: none;" />
+              <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" class="hidden" />
             </div>
             
             <!-- DUAL-PROVIDER ADRESS-AUTOCOMPLETE -->
             <div>
-              <div class="sidebar-label">Adress-Autocomplete</div>
+              <h3 class="sidebar-label">Adress-Autocomplete</h3>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 
 
                 <!-- API-Key Input Container -->
                 <div id="geoapify-key-container">
-                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Geoapify API-Key:</span>
+                  <label for="input-geoapify-key" style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 4px;">Geoapify API-Key:</label>
                   <input type="password" id="input-geoapify-key" class="input-field" placeholder="API-Key eintragen..." style="width: 100%;" />
                 </div>
                 
                 <!-- Autocomplete Input -->
                 <div id="address-search-container" style="display: flex; flex-direction: column; gap: 4px;">
-                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Empfänger-Adresse suchen:</span>
+                  <label for="input-address-search" style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 4px;">Empfänger-Adresse suchen:</label>
                   <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%; anchor-name: --anchor-address-search;" />
                   
                   <!-- Suggestions Dropdown (Modern CSS Anchor Popover) -->
@@ -261,7 +261,7 @@
     </div>
 
     <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
-    <div id="format-toolbar" popover="manual" class="no-print">
+    <div id="format-toolbar" popover="manual" class="no-print" role="toolbar" aria-label="Textformatierung">
       <button id="btn-bold" title="Fett"><b>B</b></button>
       <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
       <button id="btn-quote" title="Zitat">»</button>
@@ -271,8 +271,8 @@
     <!-- NATIVE POPOVER TOAST FEEDBACK -->
     <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
       <span id="toast-message"></span>
-      <span id="toast-badge" class="toast-badge" style="display: none;"></span>
-      <button id="toast-action" class="toast-action-btn" style="display: none;"></button>
+      <span id="toast-badge" class="toast-badge" class="hidden"></span>
+      <button id="toast-action" class="toast-action-btn" class="hidden"></button>
       <button id="toast-close" class="btn-icon" aria-label="Schließen">×</button>
     </div>
 

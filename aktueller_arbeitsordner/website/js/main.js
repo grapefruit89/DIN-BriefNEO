@@ -110,20 +110,5 @@ document.addEventListener('DOMContentLoaded', () => {
         uiProtections.checkTextOverflow();
       }
     });
-
-    // Auto-Save editables (Global State & Debouncing)
-    let debounceSaveTimer = null;
-    document.querySelectorAll('[contenteditable]').forEach(elem => {
-      elem.addEventListener('input', () => {
-        clearTimeout(debounceSaveTimer);
-        debounceSaveTimer = setTimeout(() => {
-          draftManager.saveDraft();
-          console.log('[Store] Global State auto-saved (debounced 400ms).');
-        }, 400);
-        if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {
-          uiProtections.checkTextOverflow();
-        }
-      });
-    });
   }
 });

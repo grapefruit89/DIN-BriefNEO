@@ -221,7 +221,7 @@ aside {
   position: absolute;
   left: 0;
   width: calc(8 / 210 * 100cqw); /* Kurz, nicht durch den Text schneidend */
-    border-bottom: 0.5px dashed var(--guide-color);
+    border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     opacity: var(--guide-opacity);
     pointer-events: none;
   }

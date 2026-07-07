@@ -168,11 +168,11 @@ aside {
   :scope {
     display: block;
     position: relative;
-    /* NEU: Das Blatt nimmt maximal die Breite oder H�he des Viewports an, ohne zu scrollen */
+    /* NEU: Das Blatt nimmt maximal die Breite oder Hhe des Viewports an, ohne zu scrollen */
       width: min(100cqw, calc(100cqh * 210 / 297));
       height: min(100cqh, calc(100cqw * 297 / 210));
     aspect-ratio: 210 / 297; /* Exaktes DIN A4 Seitenverhältnis */
-    background: oklch(100% 0 0); /* Pure OKLCH White */
+    background: light-dark(oklch(100% 0 0), oklch(0.88 0.01 263)); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
     container-type: size; /* Ermöglicht proportionale cqw/cqh Maße */

@@ -19,7 +19,7 @@
 
   /* === 1. SURFACES & NEUTRALS === */
   /* Der kühle Dark Mode bleibt erhalten (Hue 263). Light mode erhält einen feinen Blaustich. */
-  --bg-viewport: light-dark(oklch(0.96 0.005 263), oklch(0.2147 0.0863 263.02));
+  --bg-viewport: light-dark(oklch(0.96 0.005 263), oklch(0.28 0.06 263));
   --bg-sidebar: light-dark(oklch(0.98 0.002 263), oklch(0.24 0.06 263));
   --bg-sidebar-glass: light-dark(oklch(0.98 0.002 263 / 75%), oklch(0.24 0.06 263 / 75%));
   --bg-card: light-dark(oklch(1 0 0), oklch(0.77 0.012 263));

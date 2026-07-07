@@ -99,10 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Note: showToast is imported directly
     initToastSystem();
     initSenderSync();
-    initAddressServices({ onToast: showToast, onSaveDraft: saveDraftData });
+    initAddressServices({ onToast: showToast, onSaveDraft: () => window.draftManager?.saveDraft() });
     
     // Init Salutation
-    const salutation = new SalutationFeature(saveDraftData);
+    const salutation = new SalutationFeature(() => window.draftManager?.saveDraft());
     salutation.init();
 
     // Init Signature Feature
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pvInput.appendChild(document.createTextNode(part.trim()));
       });
       
-      saveDraftData();
+      if (window.draftManager) window.draftManager.saveDraft();
       showToast("Vermerk gesetzt", "success");
       sidebarPvSelect.value = ""; // Reset to placeholder
     });
@@ -303,7 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset
     btnReset.addEventListener('click', () => {
       if (confirm('Möchtest du alle Texte wirklich zurücksetzen?')) {
-        resetDraft();
+        window.draftManager?.resetDraft();
+        if (typeof checkTextOverflow === 'function') checkTextOverflow();
       }
     });
 
@@ -361,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
       elem.addEventListener('input', () => {
         clearTimeout(debounceSaveTimer);
         debounceSaveTimer = setTimeout(() => {
-          saveDraftData();
+          if (window.draftManager) window.draftManager.saveDraft();
           console.log('[Store] Global State auto-saved (debounced 400ms).');
         }, 400);
         if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {

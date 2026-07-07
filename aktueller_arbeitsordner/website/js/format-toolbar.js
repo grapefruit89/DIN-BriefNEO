@@ -1,30 +1,39 @@
 export class FormatToolbar {
-  constructor(brieftextEl, toolbarEl) {
-    this.brieftext = brieftextEl;
-    this.toolbar = toolbarEl;
-    this.selectionAnchor = document.getElementById('selection-anchor');
-    this.selectionTimeout = null;
+  #brieftext;
+  #toolbar;
+  #selectionAnchor;
+  #selectionTimeout;
+  #btnBold;
+  #btnUnderline;
+  #btnQuote;
+  #btnComment;
 
-    // Buttons
-    this.btnBold = document.getElementById('btn-bold');
-    this.btnUnderline = document.getElementById('btn-underline');
-    this.btnQuote = document.getElementById('btn-quote');
-    this.btnComment = document.getElementById('btn-comment');
+  constructor(brieftextEl, toolbarEl) {
+    this.#brieftext = brieftextEl;
+    this.#toolbar = toolbarEl;
+    this.#selectionAnchor = document.getElementById('selection-anchor');
+    this.#selectionTimeout = null;
   }
 
   init() {
-    if (!this.brieftext || !this.toolbar) return;
+    if (!this.#brieftext || !this.#toolbar) return;
+    
+    // We fetch the buttons here internally
+    this.#btnBold = document.getElementById('btn-bold');
+    this.#btnUnderline = document.getElementById('btn-underline');
+    this.#btnQuote = document.getElementById('btn-quote');
+    this.#btnComment = document.getElementById('btn-comment');
 
-    this._initSelectionListener();
-    this._initButtonListeners();
-    this._initPasteSanitizer();
-    this._initDropHandler();
-    this._initKeyboardShortcuts();
+    this.#initSelectionListener();
+    this.#initButtonListeners();
+    this.#initPasteSanitizer();
+    this.#initDropHandler();
+    this.#initKeyboardShortcuts();
   }
 
   // --- Private Methoden ---
 
-  _isSelectionInsideTag(tagName) {
+  #isSelectionInsideTag(tagName) {
     const selection = window.getSelection();
     if (selection.rangeCount === 0) return false;
     
@@ -32,7 +41,7 @@ export class FormatToolbar {
     const actualTag = isCustomComment ? 'SPAN' : tagName;
 
     let node = selection.anchorNode;
-    while (node && node !== this.brieftext) {
+    while (node && node !== this.#brieftext) {
       const name = node.nodeName.toUpperCase();
       if (name === actualTag.toUpperCase() || 
           (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
@@ -47,27 +56,27 @@ export class FormatToolbar {
     return false;
   }
 
-  _getBlockquoteAncestor(anchorNode) {
+  #getBlockquoteAncestor(anchorNode) {
     let node = anchorNode;
-    while (node && node !== this.brieftext) {
+    while (node && node !== this.#brieftext) {
       if (node.nodeName === 'BLOCKQUOTE') return node;
       node = node.parentNode;
     }
     return null;
   }
 
-  _handleSelectionChange() {
+  #handleSelectionChange() {
     const selection = window.getSelection();
 
     // Vorfilter: Is something selected?
     if (selection.isCollapsed || selection.toString().trim().length === 0) {
-      this.hideToolbar();
+      this.#hideToolbar();
       return;
     }
 
     // Scope-Filter: Is selection strictly inside brieftext?
-    if (!this.brieftext.contains(selection.anchorNode)) {
-      this.hideToolbar();
+    if (!this.#brieftext.contains(selection.anchorNode)) {
+      this.#hideToolbar();
       return;
     }
 
@@ -76,97 +85,97 @@ export class FormatToolbar {
     const rect = range.getBoundingClientRect();
 
     // Position the external anchor exactly at the start of the selection relative to the body
-    if (this.selectionAnchor) {
-      this.selectionAnchor.style.top = `${rect.top}px`;
-      this.selectionAnchor.style.left = `${rect.left}px`;
+    if (this.#selectionAnchor) {
+      this.#selectionAnchor.style.top = `${rect.top}px`;
+      this.#selectionAnchor.style.left = `${rect.left}px`;
     }
 
     // Open Popover first so offsetHeight/offsetWidth are calculated by browser
-    if (!this.toolbar.matches(':popover-open')) {
+    if (!this.#toolbar.matches(':popover-open')) {
       try {
-        this.toolbar.showPopover();
+        this.#toolbar.showPopover();
       } catch (e) {
         console.warn('[Toolbar] showPopover failed:', e);
       }
     }
 
     // Zustandserkennung & A11y
-    const isBold = this._isSelectionInsideTag('B');
-    const isUnderline = this._isSelectionInsideTag('U');
-    const isQuote = this._isSelectionInsideTag('BLOCKQUOTE');
-    const isComment = this._isSelectionInsideTag('comment');
+    const isBold = this.#isSelectionInsideTag('B');
+    const isUnderline = this.#isSelectionInsideTag('U');
+    const isQuote = this.#isSelectionInsideTag('BLOCKQUOTE');
+    const isComment = this.#isSelectionInsideTag('comment');
 
-    if (this.btnBold) {
+    if (this.#btnBold) {
       if (isBold) {
-        this.btnBold.classList.add('active');
-        this.btnBold.setAttribute('aria-pressed', 'true');
+        this.#btnBold.classList.add('active');
+        this.#btnBold.setAttribute('aria-pressed', 'true');
       } else {
-        this.btnBold.classList.remove('active');
-        this.btnBold.setAttribute('aria-pressed', 'false');
+        this.#btnBold.classList.remove('active');
+        this.#btnBold.setAttribute('aria-pressed', 'false');
       }
     }
 
-    if (this.btnUnderline) {
+    if (this.#btnUnderline) {
       if (isUnderline) {
-        this.btnUnderline.classList.add('active');
-        this.btnUnderline.setAttribute('aria-pressed', 'true');
+        this.#btnUnderline.classList.add('active');
+        this.#btnUnderline.setAttribute('aria-pressed', 'true');
       } else {
-        this.btnUnderline.classList.remove('active');
-        this.btnUnderline.setAttribute('aria-pressed', 'false');
+        this.#btnUnderline.classList.remove('active');
+        this.#btnUnderline.setAttribute('aria-pressed', 'false');
       }
     }
 
-    if (this.btnQuote) {
+    if (this.#btnQuote) {
       if (isQuote) {
-        this.btnQuote.classList.add('active');
-        this.btnQuote.setAttribute('aria-pressed', 'true');
+        this.#btnQuote.classList.add('active');
+        this.#btnQuote.setAttribute('aria-pressed', 'true');
       } else {
-        this.btnQuote.classList.remove('active');
-        this.btnQuote.setAttribute('aria-pressed', 'false');
+        this.#btnQuote.classList.remove('active');
+        this.#btnQuote.setAttribute('aria-pressed', 'false');
       }
     }
 
-    if (this.btnComment) {
+    if (this.#btnComment) {
       if (isComment) {
-        this.btnComment.classList.add('active');
-        this.btnComment.setAttribute('aria-pressed', 'true');
+        this.#btnComment.classList.add('active');
+        this.#btnComment.setAttribute('aria-pressed', 'true');
       } else {
-        this.btnComment.classList.remove('active');
-        this.btnComment.setAttribute('aria-pressed', 'false');
+        this.#btnComment.classList.remove('active');
+        this.#btnComment.setAttribute('aria-pressed', 'false');
       }
     }
   }
 
-  _initSelectionListener() {
+  #initSelectionListener() {
     document.addEventListener('selectionchange', () => {
-      clearTimeout(this.selectionTimeout);
-      this.selectionTimeout = setTimeout(() => this._handleSelectionChange(), 50);
+      clearTimeout(this.#selectionTimeout);
+      this.#selectionTimeout = setTimeout(() => this.#handleSelectionChange(), 50);
     });
   }
 
-  _initButtonListeners() {
-    if (this.btnBold) {
-      this.btnBold.addEventListener('click', (e) => {
+  #initButtonListeners() {
+    if (this.#btnBold) {
+      this.#btnBold.addEventListener('click', (e) => {
         e.preventDefault();
         this.toggleFormat('B');
       });
     }
 
-    if (this.btnUnderline) {
-      this.btnUnderline.addEventListener('click', (e) => {
+    if (this.#btnUnderline) {
+      this.#btnUnderline.addEventListener('click', (e) => {
         e.preventDefault();
         this.toggleFormat('U');
       });
     }
 
-    if (this.btnQuote) {
-      this.btnQuote.addEventListener('click', (e) => {
+    if (this.#btnQuote) {
+      this.#btnQuote.addEventListener('click', (e) => {
         e.preventDefault();
         const selection = window.getSelection();
-        if (selection.isCollapsed || !this.brieftext.contains(selection.anchorNode)) return;
+        if (selection.isCollapsed || !this.#brieftext.contains(selection.anchorNode)) return;
 
         const range = selection.getRangeAt(0);
-        const bq = this._getBlockquoteAncestor(selection.anchorNode);
+        const bq = this.#getBlockquoteAncestor(selection.anchorNode);
 
         if (bq) {
           // UNWRAP: Replace blockquote with its children
@@ -182,32 +191,32 @@ export class FormatToolbar {
           range.insertNode(quote);
         }
 
-        this._triggerSave();
-        this._handleSelectionChange();
+        this.#triggerSave();
+        this.#handleSelectionChange();
       });
     }
 
-    if (this.btnComment) {
-      this.btnComment.addEventListener('click', (e) => {
+    if (this.#btnComment) {
+      this.#btnComment.addEventListener('click', (e) => {
         e.preventDefault();
         this.toggleFormat('comment');
       });
     }
   }
 
-  _initKeyboardShortcuts() {
-    this.brieftext.addEventListener('keydown', (e) => {
+  #initKeyboardShortcuts() {
+    this.#brieftext.addEventListener('keydown', (e) => {
       // Custom blockquote shortcut: Strg+Shift+9
       if (e.ctrlKey && e.shiftKey && e.key === '9') {
         e.preventDefault();
-        if (this.btnQuote) this.btnQuote.click();
+        if (this.#btnQuote) this.#btnQuote.click();
       }
     });
   }
 
-  _initPasteSanitizer() {
+  #initPasteSanitizer() {
     // Strikter HTML-Paste-Filter (behält nur strong, b, u, s, blockquote, und din-comment spans)
-    this.brieftext.addEventListener('paste', (e) => {
+    this.#brieftext.addEventListener('paste', (e) => {
       e.preventDefault();
       const html = e.clipboardData.getData('text/html');
       const text = e.clipboardData.getData('text/plain');
@@ -231,7 +240,7 @@ export class FormatToolbar {
               cleanFragment.appendChild(dummyDiv.firstChild);
             }
             useFallback = false;
-          } catch(e) {
+          } catch(err) {
             console.warn('[Paste] Native setHTML Sanitizer failed, using fallback.');
           }
         }
@@ -292,12 +301,12 @@ export class FormatToolbar {
       
       selection.removeAllRanges();
       selection.addRange(range);
-      this._triggerSave();
+      this.#triggerSave();
     });
   }
 
-  _initDropHandler() {
-    this.brieftext.addEventListener('drop', (e) => {
+  #initDropHandler() {
+    this.#brieftext.addEventListener('drop', (e) => {
       e.preventDefault();
       const text = e.dataTransfer.getData('text/plain');
 
@@ -306,38 +315,38 @@ export class FormatToolbar {
         range.deleteContents();
         range.insertNode(document.createTextNode(text));
       }
-      this._triggerSave();
+      this.#triggerSave();
     });
   }
 
-  _triggerSave() {
+  #triggerSave() {
     if (window.draftManager) {
       window.draftManager.saveDraft();
     }
   }
 
-  // --- Öffentliche Methoden ---
-
-  hideToolbar() {
-    if (this.toolbar.matches(':popover-open')) {
-      this.toolbar.hidePopover();
+  #hideToolbar() {
+    if (this.#toolbar.matches(':popover-open')) {
+      this.#toolbar.hidePopover();
     }
   }
 
+  // --- Öffentliche Methoden ---
+
   toggleFormat(tagName) {
     const selection = window.getSelection();
-    if (selection.isCollapsed || !this.brieftext.contains(selection.anchorNode)) return;
+    if (selection.isCollapsed || !this.#brieftext.contains(selection.anchorNode)) return;
 
     const range = selection.getRangeAt(0);
     
     const isCustomComment = tagName === 'comment';
     const actualTag = isCustomComment ? 'SPAN' : tagName;
     
-    if (this._isSelectionInsideTag(tagName)) {
+    if (this.#isSelectionInsideTag(tagName)) {
       // UNWRAP
       let node = selection.anchorNode;
       let formatNode = null;
-      while (node && node !== this.brieftext) {
+      while (node && node !== this.#brieftext) {
         const name = node.nodeName.toUpperCase();
         if (name === actualTag.toUpperCase() || (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
           if (isCustomComment && !node.classList.contains('din-comment')) {
@@ -371,8 +380,8 @@ export class FormatToolbar {
       }
     }
     
-    this.brieftext.normalize();
-    this._triggerSave();
-    this._handleSelectionChange();
+    this.#brieftext.normalize();
+    this.#triggerSave();
+    this.#handleSelectionChange();
   }
 }

@@ -1,8 +1,16 @@
 export class DateFormatter {
   constructor(uiContext) {
     this.ui = uiContext;
-    this.selectEl = document.getElementById('sidebar-date-select');
     this.datumEl = document.getElementById('datum');
+    
+    this.btnDin = document.getElementById('btn-date-din');
+    this.btnIso = document.getElementById('btn-date-iso');
+    this.btnLong = document.getElementById('btn-date-long');
+    this.buttons = {
+      'din': this.btnDin,
+      'iso': this.btnIso,
+      'long': this.btnLong
+    };
     
     this.months = [
       'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
@@ -11,17 +19,29 @@ export class DateFormatter {
   }
 
   init() {
-    if (!this.selectEl || !this.datumEl) return;
+    if (!this.datumEl || !this.btnDin) return;
     
     // Load from settings if exists
+    let activeFormat = 'din';
     if (this.ui.settings?.dateFormat) {
-      this.selectEl.value = this.ui.settings.dateFormat;
+      activeFormat = this.ui.settings.dateFormat;
     }
+    this.updateActiveButton(activeFormat);
     
-    this.selectEl.addEventListener('change', (e) => {
-      this.formatDate(e.target.value);
-      this.saveSetting(e.target.value);
+    Object.entries(this.buttons).forEach(([formatType, btn]) => {
+      btn.addEventListener('click', () => {
+        this.updateActiveButton(formatType);
+        this.formatDate(formatType);
+        this.saveSetting(formatType);
+      });
     });
+  }
+  
+  updateActiveButton(activeFormat) {
+    Object.values(this.buttons).forEach(btn => btn.setAttribute('aria-pressed', 'false'));
+    if (this.buttons[activeFormat]) {
+      this.buttons[activeFormat].setAttribute('aria-pressed', 'true');
+    }
   }
   
   formatDate(formatType) {

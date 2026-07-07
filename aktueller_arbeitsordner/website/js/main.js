@@ -34,14 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const uiProtections = new UIProtections();
     uiProtections.init();
 
-    document.querySelectorAll('[contenteditable]').forEach(el => {
-      el.addEventListener('input', () => {
-        draftManager.scheduleAutoSave();
-        if (el.id === 'brieftext' || el.id === 'anlagen-text') {
-          uiProtections.checkTextOverflow();
-        }
-      });
-    });
+
 
     const datumEl = document.getElementById('datum');
     if (datumEl && !datumEl.textContent.trim()) {
@@ -109,6 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
         draftManager.resetDraft();
         uiProtections.checkTextOverflow();
       }
+    });
+
+    // Auto-Save & Overflow Check on Input
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.addEventListener('input', () => {
+        draftManager.scheduleAutoSave();
+        if (el.id === 'brieftext' || el.id === 'anlagen-text') {
+          uiProtections.checkTextOverflow();
+        }
+      });
     });
   }
 });

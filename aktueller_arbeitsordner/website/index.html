@@ -108,7 +108,200 @@
                 <button id="btn-reset-font" data-js="reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
                   🗑️ Schrift zurücksetzen
                 </button>
-                <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: Systemschrift</span>
+                <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: System-UI Standardschrift</span>
+                
+                <!-- Font references for UX -->
+                <div style="margin-top: 4px; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.7rem; line-height: 1.35;">
+                  💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Manrope</a> herunter und lade sie hier offline in deine App.
+                </div>
+              </div>
+              <input type="file" id="font-uploader" accept=".woff2" style="display: none;" />
+            </div>
+
+            <!-- SIGNATURE UPLOADER -->
+            <div>
+              <div class="sidebar-label">Unterschrift (Bild)</div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
+                <button id="btn-upload-sig-trigger" data-js="upload-sig-trigger" class="btn" style="width: 100%;">
+                  ✒️ Unterschrift laden
+                </button>
+                <button id="btn-reset-sig" data-js="reset-sig" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                  🗑️ Unterschrift löschen
+                </button>
+              </div>
+              <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" style="display: none;" />
+            </div>
+            
+            <!-- DUAL-PROVIDER ADRESS-AUTOCOMPLETE -->
+            <div>
+              <div class="sidebar-label">Adress-Autocomplete</div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                
+
+                <!-- API-Key Input Container -->
+                <div id="geoapify-key-container">
+                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Geoapify API-Key:</span>
+                  <input type="password" id="input-geoapify-key" class="input-field" placeholder="API-Key eintragen..." style="width: 100%;" />
+                </div>
+                
+                <!-- Autocomplete Input -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Empfänger-Adresse suchen:</span>
+                  <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%; anchor-name: --anchor-address-search;" />
+                  
+                  <!-- Suggestions Dropdown (Modern CSS Anchor Popover) -->
+                  <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
+                </div>
+
+                
+              </div>
+            </div>
+            
+            
+          </div>
+        </div>
+
+        <!-- ACTIONS FOOTER -->
+        <div class="sidebar-section" style="gap: 10px; margin-top: auto;">
+          <button id="btn-print" data-js="print" class="btn primary" style="width: 100%;">
+            🖨️ Drucken / PDF speichern
+          </button>
+          <button id="btn-reset" data-js="reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+            🗑️ Brief zurücksetzen
+          </button>
+        </div>
+      </aside>
+
+      <!-- PAPER VIEWPORT (NO-SCROLL SCALER) -->
+      <main id="viewport">
+        <!-- THE DIN A4 SHEET -->
+        <din-a4>
+          <!-- FOLD & PUNCH MARKS (GUIDES) -->
+          <div class="din-mark din-fold-top"></div>
+          <div class="din-mark din-fold-bottom"></div>
+          <div class="din-mark din-punch"></div>
+          
+          
+          <!-- CSS Anchor Positioned Dropdown for Postvermerke -->
+          <div id="postvermerk-dropdown" popover="manual" class="no-print"></div>
+          <!-- CSS Anchor Positioned Dropdown for Local Address Book -->
+          <div id="local-address-dropdown" popover="manual" class="no-print"></div>
+
+          <!-- SENDER IN-LINE address (Rücksendezeile) -->
+          <din-absender id="absender" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt"></din-absender>
+
+          <!-- RECIPIENT ADDRESS ZONE -->
+          <din-anschriftfeld id="empfaenger">
+            <!-- POSTVERMERK (OPTIONAL) -->
+            <din-postvermerk id="postvermerk" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" style="anchor-name: --anchor-postvermerk;"></din-postvermerk>
+            
+            <div id="empfaenger-firma" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)"></div>
+            <div id="empfaenger-name" contenteditable="plaintext-only" placeholder="Empfänger Name"></div>
+            <div id="empfaenger-strasse" contenteditable="plaintext-only" placeholder="Straße & Hausnummer"></div>
+            <div id="empfaenger-ort" contenteditable="plaintext-only" placeholder="PLZ & Ort"></div>
+          </din-anschriftfeld>
+
+          <!-- INFOBLOCK (Right side metadata block - Privatbrief Standard) -->
+          <din-infoblock id="infoblock" style="line-height: 1.5; color: var(--text-primary);">
+            <div id="info-name" contenteditable="plaintext-only" placeholder="Vor- und Nachname"></div>
+            <div id="info-street" contenteditable="plaintext-only" placeholder="Straße und Hausnummer"></div>
+            <div id="info-city" contenteditable="plaintext-only" placeholder="PLZ und Ort"></div>
+            <div style="margin-top: 8px;" id="info-tel" contenteditable="plaintext-only" placeholder="Telefon (optional)"></div>
+            <div id="info-email" contenteditable="plaintext-only" placeholder="E-Mail (optional)"></div>
+          </din-infoblock>
+
+
+          <!-- DATE -->
+          <din-datum id="datum" contenteditable="plaintext-only" placeholder="24. Mai 2026"></din-datum>
+
+          <!-- CORE LETTER CONTENT -->
+          <din-kern id="briefkern">
+            <!-- Subject Line -->
+            <div id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben"></div>
+            
+            <!-- Salutation -->
+            <div id="anrede" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren,"></div>
+            
+            <!-- Core text body (Inline Formats supported + protected by paste filter) -->
+            <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..."></din-text>
+            
+            <!-- Greeting Form -->
+            <div id="grussformel" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen,"></div>
+            
+            <!-- Signature typing name -->
+            <div style="position: relative; margin-top: 10px;">
+              <img id="signature-image" alt="Unterschrift" style="display: none;" />
+              <div id="unterschrift" contenteditable="plaintext-only" placeholder="Ihr getippter Name"></div>
+            </div>
+            
+            <!-- ANLAGEN (OPTIONAL) -->
+            <din-anlagen id="anlagen">
+              <div style="font-weight: 700; margin-bottom: 2px;">Anlagen</div>
+              <div id="anlagen-text" contenteditable="plaintext-only" placeholder="- Anlage 1&#10;- Anlage 2"></div>
+            </din-anlagen>
+            
+            <!-- VERTEILER (OPTIONAL) -->
+            <din-verteiler id="verteiler">
+              <div style="font-weight: 700; margin-bottom: 2px;">Verteiler</div>
+              <div id="verteiler-text" contenteditable="plaintext-only" placeholder="- Person A&#10;- Person B"></div>
+            </din-verteiler>
+          </din-kern>
+
+          <!-- THREE-COLUMN IMMUTABLE FOOTER -->
+          <din-fuss id="brief-fuss"></din-fuss>
+          
+          <!-- UX PAGE OVERFLOW INDICATOR -->
+          <div class="overflow-indicator-text">⚠️ TEXT-ÜBERLAUF: Bitte Text kürzen</div>
+        </din-a4>
+      </main>
+    </div>
+
+    <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
+    <div id="format-toolbar" popover="manual" class="no-print">
+      <button id="btn-bold" data-js="bold" title="Fett"><b>B</b></button>
+      <button id="btn-underline" data-js="underline" title="Unterstrichen"><u>U</u></button>
+      <button id="btn-quote" data-js="quote" title="Zitat">»</button>
+      <button id="btn-comment" data-js="comment" title="Kommentar">|</button>
+    </div>
+
+    <!-- NATIVE POPOVER TOAST FEEDBACK -->
+    <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
+      <span id="toast-message"></span>
+            </div>
+
+            <!-- VISUAL GUIDES TOGGLE -->
+            <div>
+              <div class="sidebar-label">Hilfslinien</div>
+              <button id="btn-toggle-guides" data-js="toggle-guides" class="btn primary" style="width: 100%;">
+                📐 Guides ausblenden
+              </button>
+            </div>
+            
+            <!-- OFFLINE FONT UPLOADER & MANAGER -->
+            <div>
+              <div class="sidebar-label">Schriftarten-Manager</div>
+              
+              <!-- Built-in System Stacks -->
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">System-Schriftart:</span>
+                <div class="segmented-control" id="font-stack-select">
+                  <button id="btn-font-sans" data-js="font-sans" class="active" title="Moderne serifenlose Systemschrift">Sans</button>
+                  <button id="btn-font-serif" data-js="font-serif" title="Klassische Serifenschrift">Serif</button>
+                  <button id="btn-font-mono" data-js="font-mono" title="Technische Schreibmaschinenschrift">Mono</button>
+                </div>
+              </div>
+              
+              <!-- Custom Upload -->
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">Eigene Webfont (WOFF2):</span>
+                <button id="btn-upload-font-trigger" data-js="upload-font-trigger" class="btn" style="width: 100%;">
+                  📤 Schrift hochladen
+                </button>
+                <button id="btn-reset-font" data-js="reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color); display: none;">
+                  🗑️ Schrift zurücksetzen
+                </button>
+                <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: System-UI Standardschrift</span>
                 
                 <!-- Font references for UX -->
                 <div style="margin-top: 4px; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.1); border: 1px dashed var(--border-color); font-size: 0.7rem; line-height: 1.35;">
@@ -275,5 +468,19 @@
 
     <!-- EXTERNAL CSS SELECTION ANCHOR -->
     <div id="selection-anchor" class="no-print"></div>
+
+    <!-- Anti-Flicker Hydration Script -->
+    <script>
+      try {
+        const draftStr = localStorage.getItem('din_brief_draft_current');
+        if (draftStr) {
+          const draft = JSON.parse(draftStr);
+          for (const id in draft) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = draft[id];
+          }
+        }
+      } catch(e) {}
+    </script>
   </body>
 </html>

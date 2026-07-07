@@ -395,7 +395,7 @@ aside {
     height: calc(15 / 297 * 100cqh); /* 15mm */
     font-size: calc(7.5 * 0.168cqw); /* 7.5pt in cqw */
     color: oklch(45% 0 0); /* OKLCH Slate Gray */
-    border-top: 0.5px solid oklch(90% 0 0); /* OKLCH Light Gray */
+    /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
     padding-top: calc(2 / 297 * 100cqh);
     display: grid;
     grid-template-columns: repeat(3, 1fr);

@@ -221,8 +221,8 @@ export class FormatToolbar {
         if (this.#btnUnderline) this.#btnUnderline.click();
       }
       
-      // Custom blockquote shortcut: Strg+Shift+9
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === '9') {
+      // Custom blockquote shortcut: Strg+I
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
         e.preventDefault();
         if (this.#btnQuote) this.#btnQuote.click();
       }

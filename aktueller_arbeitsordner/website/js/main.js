@@ -14,13 +14,12 @@ import { initAddressBookSaveButton } from './address-book-helper.js';
 import { DraftManager } from './draft-manager.js';
 import { FormatToolbar } from './format-toolbar.js';
 import { SettingsManager } from './settings-manager.js';
+import { UIProtections } from './ui-protections.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
-  const paper = document.querySelector('din-a4');
   const btnPrint = document.getElementById('btn-print');
   const btnReset = document.getElementById('btn-reset');
-  const brieftext = document.getElementById('brieftext');
 
   // --- Initialize App ---
   initApp();
@@ -29,12 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.draftManager = new DraftManager();
     window.draftManager.loadDraft();
     window.draftManager.enableEventMode();
+    
+    window.uiProtections = new UIProtections();
+    window.uiProtections.init();
 
     document.querySelectorAll('[contenteditable]').forEach(el => {
       el.addEventListener('input', () => {
         window.draftManager.scheduleAutoSave();
         if (el.id === 'brieftext' || el.id === 'anlagen-text') {
-          if (typeof checkTextOverflow === 'function') checkTextOverflow();
+          if (window.uiProtections) window.uiProtections.checkTextOverflow();
         }
       });
     });
@@ -61,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     formatToolbarInstance.init();
     
-    checkTextOverflow();
-    enforceLineLimits();
+    window.uiProtections.checkTextOverflow();
     initAddressBookSaveButton();
     
     // --- MODULE INITIALIZATION ---
@@ -128,19 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- TEXT HEIGHT OVERFLOW WARNING ---
-  function checkTextOverflow() {
-    if (!brieftext) return;
-    
-    const maxTextHeight = 450;
-    
-    if (brieftext.scrollHeight > maxTextHeight) {
-      paper.classList.add('overflow-warn');
-    } else {
-      paper.classList.remove('overflow-warn');
-    }
-  }
-
   // --- GLOBAL EVENT LISTENERS & TRIGGERS ---
   function attachGlobalListeners() {
     // Print
@@ -158,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnReset.addEventListener('click', () => {
       if (confirm('Möchtest du alle Texte wirklich zurücksetzen?')) {
         window.draftManager?.resetDraft();
-        if (typeof checkTextOverflow === 'function') checkTextOverflow();
+        if (window.uiProtections) window.uiProtections.checkTextOverflow();
       }
     });
 
@@ -172,52 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('[Store] Global State auto-saved (debounced 400ms).');
         }, 400);
         if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {
-          checkTextOverflow();
+          if (window.uiProtections) window.uiProtections.checkTextOverflow();
         }
-      });
-    });
-  }
-
-  // --- HTML LINE LIMITS ENFORCER (Single Line / Max 2 Lines) ---
-  function enforceLineLimits() {
-    const multiLineIds = ['brieftext', 'anlagen-text'];
-    const maxTwoLinesIds = ['betreff'];
-    
-    document.querySelectorAll('[contenteditable]').forEach(el => {
-      el.addEventListener('keydown', (e) => {
-        const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
-        if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return;
-        
-        if (e.key === 'Enter') {
-          if (multiLineIds.includes(el.id)) {
-            return;
-          } else if (maxTwoLinesIds.includes(el.id)) {
-            const text = el.innerText || el.textContent;
-            if (text.split('\n').length >= 2) {
-              e.preventDefault();
-            }
-          } else {
-            e.preventDefault();
-          }
-        }
-      });
-      
-      el.addEventListener('paste', (e) => {
-        if (multiLineIds.includes(el.id)) return;
-        
-        e.preventDefault();
-        let text = (e.originalEvent || e).clipboardData.getData('text/plain');
-        if (maxTwoLinesIds.includes(el.id)) {
-            text = text.split('\n').slice(0, 2).join('\n');
-        } else {
-            text = text.replace(/[\r\n]+/g, ' ');
-        }
-        
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return;
-        selection.deleteFromDocument();
-        selection.getRangeAt(0).insertNode(document.createTextNode(text));
-        selection.collapseToEnd();
       });
     });
   }

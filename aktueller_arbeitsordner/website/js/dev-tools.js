@@ -44,10 +44,16 @@ export function initDevTools() {
           if (key === 'brieftext') {
             if (elem.setHTML) {
               try { elem.setHTML(state[key], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] }); }
-              catch(e) { elem.innerHTML = state[key]; } // Fallback
+              catch(e) { 
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(state[key], 'text/html');
+                elem.replaceChildren(...doc.body.childNodes);
+              }
             }
             else {
-              elem.innerHTML = state[key];
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(state[key], 'text/html');
+              elem.replaceChildren(...doc.body.childNodes);
             }
           } else {
             elem.textContent = state[key];

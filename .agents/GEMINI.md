@@ -1,4 +1,4 @@
-﻿# Andrej Karpathy LLM Coding Principles
+# Andrej Karpathy LLM Coding Principles
 
 **1. Think Before Coding**
 - Triff keine stillschweigenden Annahmen. Wenn Anforderungen unklar sind, frage nach!
@@ -17,3 +17,7 @@
 
 **4. Goal-Driven Execution**
 - Behalte das Endziel im Fokus und verliere dich nicht in Nebenproblemen.
+
+**5. Bleeding-Edge API Safety**
+- Obwohl modernste Web-APIs (wie `Temporal` oder `document.startViewTransition`) aktiv gefordert werden, müssen diese **zwingend** in `try/catch`-Blöcken oder durch Feature-Detection mit sanften Fallbacks abgesichert werden.
+- Insbesondere im kritischen Initialisierungspfad (`DOMContentLoaded`) darf ein Fehler oder Fehlen dieser experimentellen APIs niemals die Ausführung nachfolgender Event-Listener blockieren (sonst friert die UI ein).

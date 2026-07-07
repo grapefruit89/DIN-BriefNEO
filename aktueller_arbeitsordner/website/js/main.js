@@ -12,6 +12,7 @@ import { initAddressServices } from './geoapify.js';
 import { showToast, initToastSystem } from './toast.js';
 import { initSenderSync } from './sender-sync.js';
 import { initAddressBookSaveButton } from './address-book-helper.js';
+import { DraftManager } from './draft-manager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
@@ -59,8 +60,30 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 
   function initApp() {
+    window.draftManager = new DraftManager();
+    window.draftManager.loadDraft();
+    window.draftManager.enableEventMode();
+
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.addEventListener('input', () => {
+        window.draftManager.scheduleAutoSave();
+        if (el.id === 'brieftext' || el.id === 'anlagen-text') {
+          if (typeof checkTextOverflow === 'function') checkTextOverflow();
+        }
+      });
+    });
+
+    const datumEl = document.getElementById('datum');
+    if (datumEl && !datumEl.textContent.trim()) {
+      try {
+        const today = Temporal.Now.plainDateISO();
+        const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        datumEl.textContent = `${today.day}. ${months[today.month - 1]} ${today.year}`;
+        window.draftManager.saveDraft();
+      } catch (e) {}
+    }
+
     applySettings();
-    loadDraftData();
     initFontInjection();
     attachGlobalListeners();
     attachFormattingToolbar();
@@ -834,36 +857,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   
   function updateDocumentTitle() {
-    const betreff = document.getElementById('betreff')?.textContent.trim() || 'Unbenannt';
-    const firma = document.getElementById('empfaenger-firma')?.textContent.trim();
-    const name = document.getElementById('empfaenger-name')?.textContent.trim();
-    const empfaenger = firma ? firma : (name ? name : 'Unbekannt');
-    
-    let dateStr = 'YYYY-MM-DD';
-    try {
-      dateStr = Temporal.Now.plainDateISO().toString();
-    } catch(e) {
-      console.warn("Temporal API missing, fallback used.");
-    }
-
-    const sanitizedBetreff = betreff.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '');
-    const sanitizedEmpfaenger = empfaenger.replace(/[^a-zA-Z0-9äöüÄÖÜß \-_]/g, '').replace(/ /g, '-');
-    
-    document.title = dateStr + '_' + sanitizedEmpfaenger + ' ' + sanitizedBetreff;
+    if (window.draftManager) window.draftManager._updateDocumentTitle();
   }
 
   function saveDraftData() {
-    const draft = {};
-    document.querySelectorAll('[contenteditable]').forEach(elem => {
-      // Save innerHTML for brieftext to persist formatting tags, textContent for others
-      if (elem.id === 'brieftext') {
-        draft[elem.id] = elem.innerHTML;
-      } else {
-        draft[elem.id] = elem.textContent;
-      }
-    });
-    StorageManager.saveDraft('current', draft);
-    updateDocumentTitle();
+    if (window.draftManager) window.draftManager.saveDraft();
   }
 
   // --- HTML LINE LIMITS ENFORCER (Single Line / Max 2 Lines) ---
@@ -911,65 +909,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   }
 
-  function loadDraftData() {
-    const draft = StorageManager.loadDraft('current');
-    if (draft) {
-      Object.keys(draft).forEach(id => {
-        const elem = document.getElementById(id);
-        if (elem) {
-          if (id === 'brieftext' || id === 'anlagen-text') {
-            if (elem.setHTML) {
-              // Sanitizer API config if supported (experimental in Chrome)
-              try {
-                elem.setHTML(draft[id], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] });
-              } catch(e) {
-                elem.setHTML(draft[id]);
-              }
-            } else if (elem.setHTMLUnsafe) {
-              elem.setHTMLUnsafe(draft[id]);
-            } else {
-              elem.textContent = draft[id]; // Strict Chrome 149 baseline: no innerHTML fallback
-            }
-          } else {
-            elem.textContent = draft[id];
-          }
-        }
-      });
-    }
-
-    // Auto-fill today's date via native W3C Temporal API if datum element is empty
-    updateDocumentTitle();
-
-    const datumEl = document.getElementById('datum');
-    if (datumEl && !datumEl.textContent.trim()) {
-      /* 
-       * 🚨 LEGACY DATE API BAN & JS REPLACEMENT COMMENT:
-       * Jegliche Verwendung von legacy Date() oder externen Moment/Date-Fns CDNs 
-       * ist gemaess ADR-ANTIPATTERN.md Punkt 6 absolut verboten!
-       * Wir nutzen stattdessen ausschliesslich die native W3C Temporal API.
-       * Sie ist vollkommen zeitzonensicher, unveraenderlich (immutable) und
-       * liefert hier das exakte lokale Systemdatum normgerecht formatiert.
-       */
-      try {
-        const today = Temporal.Now.plainDateISO();
-        const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-        datumEl.textContent = `${today.day}. ${months[today.month - 1]} ${today.year}`;
-        saveDraftData();
-      } catch (e) {
-        console.warn('[Temporal] Failed to auto-fill date via Temporal API:', e);
-      }
-    }
-  }
-
   function resetDraft() {
-    document.querySelectorAll('[contenteditable]').forEach(elem => {
-      
-      elem.replaceChildren(); // Fast, native way to clear content instead of innerHTML = ''
-      elem.textContent = '';
-    });
-    saveDraftData();
-    checkTextOverflow();
-
+    if (window.draftManager) {
+      window.draftManager.resetDraft();
+      if (typeof checkTextOverflow === 'function') checkTextOverflow();
+    }
   }
 });
 

@@ -37,7 +37,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
               <div class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</div>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 10:17</span>
+              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 10:20</span>
             </div>
             
             <div>
@@ -282,7 +282,7 @@
     <!-- EXTERNAL CSS SELECTION ANCHOR -->
     <div id="selection-anchor" class="no-print"></div>
 
-        <!-- Anti-Flicker Hydration Script -->
+            <!-- Anti-Flicker Hydration Script -->
     <script>
       try {
         // Hydrate Draft
@@ -355,11 +355,26 @@
              if (status) status.innerHTML = "Aktiv: Eigene Schrift (WOFF2)";
              if (btnReset) btnReset.style.display = 'block';
           }
+          
+          // Formality (Brief-Stil)
+          if (settings.formality) {
+            ['formal', 'polite', 'casual'].forEach(style => {
+              const btn = document.getElementById('btn-style-' + style);
+              if (btn) {
+                if (settings.formality === style) {
+                  btn.classList.add('active');
+                } else {
+                  btn.classList.remove('active');
+                }
+              }
+            });
+          }
         }
       } catch(e) {}
     </script>
   </body>
 </html>
+
 
 
 

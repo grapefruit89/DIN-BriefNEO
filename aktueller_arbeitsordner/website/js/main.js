@@ -747,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
           saveDraftData();
           console.log('[Store] Global State auto-saved (debounced 400ms).');
         }, 400);
-        if (elem.id === 'brieftext') {
+        if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {
           checkTextOverflow();
         }
       });
@@ -866,128 +866,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- HTML LINE LIMITS ENFORCER (Single Line / Max 2 Lines) ---
   function enforceLineLimits() {
-    const singleLineIds = [
-      'info-name', 'info-street', 'info-city', 'info-tel', 'info-email',
-      'datum', 'anrede', 'grussformel', 'unterschrift',
-      'empfaenger-name', 'empfaenger-firma', 'empfaenger-strasse', 'empfaenger-ort',
-      'absender'
-    ];
+    const multiLineIds = ['brieftext', 'anlagen-text'];
     const maxTwoLinesIds = ['betreff'];
-    const allFields = [...singleLineIds, ...maxTwoLinesIds];
-
-    allFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      // 1. Prevent Enter key and enforce max length
+    
+    document.querySelectorAll('[contenteditable]').forEach(el => {
       el.addEventListener('keydown', (e) => {
-        // Erlaube Navigation, Löschen und Shortcuts
         const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
         if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return;
-
+        
         if (e.key === 'Enter') {
-          if (singleLineIds.includes(id)) {
-            e.preventDefault(); // Never allow Enter
-          } else if (maxTwoLinesIds.includes(id)) {
-            // Allow max 1 newline
+          if (multiLineIds.includes(el.id)) {
+            return;
+          } else if (maxTwoLinesIds.includes(el.id)) {
             const text = el.innerText || el.textContent;
-            const newlines = (text.match(/\n/g) || []).length;
-            if (newlines >= 1) {
+            if (text.split('\n').length >= 2) {
               e.preventDefault();
             }
-          }
-          return;
-        }
-
-        // KISS Max Length Check
-        const maxLength = singleLineIds.includes(id) ? 80 : 120;
-        const currentText = el.textContent || '';
-        
-        if (currentText.length >= maxLength) {
-          const selection = window.getSelection();
-          // Nur blockieren, wenn nicht gerade Text markiert ist (denn der würde ja überschrieben werden)
-          if (!selection.rangeCount || selection.getRangeAt(0).collapsed) {
+          } else {
             e.preventDefault();
           }
         }
       });
-
-      // 2. Filter Paste (override default contenteditable behavior)
+      
       el.addEventListener('paste', (e) => {
+        if (multiLineIds.includes(el.id)) return;
+        
         e.preventDefault();
-        let pasteText = (e.originalEvent || e).clipboardData.getData('text/plain');
-        
-        if (singleLineIds.includes(id)) {
-          // Replace all newlines with a space
-          pasteText = pasteText.replace(/[\r\n]+/g, ' ').trim();
-        } else if (maxTwoLinesIds.includes(id)) {
-          // Keep at most 2 lines
-          const lines = pasteText.split(/[\r\n]+/).filter(l => l.trim().length > 0);
-          pasteText = lines.slice(0, 2).join('\n');
+        let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+        if (maxTwoLinesIds.includes(el.id)) {
+            text = text.split('\n').slice(0, 2).join('\n');
+        } else {
+            text = text.replace(/[\r\n]+/g, ' ');
         }
-
-        // Apply KISS Max Length to pasted text
-        const maxLength = singleLineIds.includes(id) ? 80 : 120;
-        const currentText = el.textContent || '';
+        
         const selection = window.getSelection();
-        let selectionLength = 0;
-        if (selection.rangeCount) {
-          selectionLength = selection.toString().length;
-        }
-        
-        const availableSpace = maxLength - (currentText.length - selectionLength);
-        if (availableSpace <= 0) return; // Kein Platz mehr
-        if (pasteText.length > availableSpace) {
-          pasteText = pasteText.substring(0, availableSpace);
-        }
-
-        // Use modern selection API if possible
-        if (selection.rangeCount) {
-          selection.deleteFromDocument();
-          selection.getRangeAt(0).insertNode(document.createTextNode(pasteText));
-          selection.collapseToEnd();
-        }
-        
-        // Trigger input event manually so that dynamic squeezing updates
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-
-      // 3. Dynamic Squeezing (only squeeze when getting full)
-      el.addEventListener('input', () => {
-        const currentText = el.textContent || '';
-        
-        // /* @adr [[ADR-JS]] {Dynamic Squeezing} */
-        // Smart Squeezing for the Subject line (Betreff)
-        if (el.id === 'betreff') {
-          // Reset classes to measure natural height
-          el.classList.remove('squeezed');
-          
-          // Get the computed line-height to determine if it wrapped
-          const style = window.getComputedStyle(el);
-          const lineH = parseFloat(style.lineHeight) || (parseFloat(style.fontSize) * 1.2);
-          
-          // If it naturally wraps to 2 lines
-          if (el.offsetHeight > lineH * 1.5) {
-            // Try subtle squeeze
-            el.classList.add('squeezed'); 
-            
-            // FALL 2: If it STILL wraps to 2 lines even with the squeeze,
-            // the squeeze didn't help to make it single-line. So we remove it!
-            if (el.offsetHeight > lineH * 1.5) {
-               el.classList.remove('squeezed');
-            }
-          }
-        } 
-        // Standard length-based squeezing for other fields
-        else {
-          if (currentText.length > 60) {
-            el.classList.add('squeezed');
-          } else {
-            el.classList.remove('squeezed');
-          }
-        }
+        if (!selection.rangeCount) return;
+        selection.deleteFromDocument();
+        selection.getRangeAt(0).insertNode(document.createTextNode(text));
+        selection.collapseToEnd();
       });
     });
+  });
   }
 
   function loadDraftData() {
@@ -996,7 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
       Object.keys(draft).forEach(id => {
         const elem = document.getElementById(id);
         if (elem) {
-          if (id === 'brieftext') {
+          if (id === 'brieftext' || id === 'anlagen-text') {
             if (elem.setHTML) {
               // Sanitizer API config if supported (experimental in Chrome)
               try {

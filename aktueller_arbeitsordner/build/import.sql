@@ -1600,14 +1600,16 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | website/js/geoapify.js | 6 | [[ADR-API]] | - |
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
-| website/js/main.js | 979 | [[ADR-JS]] | - |
-| website/js/main.js | 1076 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/main.js | 959 | [[ADR-JS]] | - |
+| website/js/main.js | 1057 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/metadata.js | 1 | [[ADR-JS]] | - |
 | website/js/metadata.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |
 | website/js/salutation-engine.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 19 | [[ADR-JS]] | - |
 | website/js/salutation-engine.js | 87 | [[ADR-JS]] | - |
+| website/js/sender-sync.js | 1 | [[ADR-JS]] | - |
+| website/js/sender-sync.js | 2 | - | [[glossary]] |
 | website/js/signature.js | 1 | [[ADR-JS]] | - |
 | website/js/signature.js | 2 | - | [[glossary]] |
 | website/js/signature.js | 5 | [[ADR-JS]] | - |
@@ -1739,6 +1741,43 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
   384
 );
 
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/10-architecture/ADR-005-Sender-Synchronization.md',
+  'Sender Synchronization Logic (Absenderblock -> Rücksendezeile)',
+  'accepted',
+  '# ADR-005: Sender Synchronization Logic
+
+## Context
+In previous iterations of the DIN-BriefNEO project, the "Informationsblock" (metadata block on the right side of the letter) was removed in an attempt to simplify the UI for private letters. This inadvertently destroyed a core UX feature of the original `din-5008-css` template: The automatic synchronization of the sender''s name and address into the `Rücksendezeile` (the tiny return address line above the recipient) and the `Maschinenschrift` (the typed name below the signature).
+
+The user firmly requested this logic to be restored and declared it an invariant principle for the project: Changes to the sender metadata must seamlessly and automatically mirror into the respective letter elements to prevent double data entry.
+
+## Decision
+We restore the `<din-infoblock>` (or sender input fields) and introduce a dedicated synchronization script (`sender-sync.js`) that enforces the following data flow:
+1. `info-name`, `info-street`, and `info-city` are the single source of truth for the sender''s address.
+2. An `input` event listener continuously concatenates these fields with a separator (e.g., ` • `) and injects the result into the `<din-absender id="absender">` element (Rücksendezeile).
+3. The `info-name` field is additionally mirrored into the `<div id="unterschrift">` (Maschinenschrift) element.
+
+## Consequences
+- **Positive:** Restores the beloved "magic" synchronization from the original template, drastically improving UX.
+- **Positive:** Prevents the return address line and the signature name from going out of sync with the main sender block.
+- **Negative:** Requires strict DOM structure. The `unterschrift` element must be carefully managed so that `contenteditable` does not destroy sibling elements (like the signature image).
+
+## Implementation Rules
+- **Rule 1:** The signature image (`#signature-image`) MUST reside in a separate DOM container outside of the `contenteditable` `#unterschrift` element.
+- **Rule 2:** The `sender-sync.js` module MUST be loaded during the initial application setup in `main.js`.
+- **Rule 3:** This logic is considered **core functionality** and MUST NOT be removed in future refactoring attempts.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'architecture');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'ui');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'ux');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'sync');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/10-architecture/Architecture-Compliance-Matrix.md',
@@ -5356,14 +5395,15 @@ INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES (
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/geoapify.js', 6, 'ADR-API', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 979, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1076, 'ADR-DATA-PERSISTENCE', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 976, 'ADR-DATA-PERSISTENCE', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/metadata.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 19, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/salutation-engine.js', 87, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/sender-sync.js', 1, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/sender-sync.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 1, 'ADR-JS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 2, '', 'glossary');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/signature.js', 5, 'ADR-JS', '');

@@ -19,14 +19,15 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | website/js/geoapify.js | 6 | [[ADR-API]] | - |
 | website/js/main.js | 1 | [[ADR-JS]] | - |
 | website/js/main.js | 2 | - | [[no-scroll-techniques]] |
-| website/js/main.js | 979 | [[ADR-JS]] | - |
-| website/js/main.js | 1076 | [[ADR-DATA-PERSISTENCE]] | - |
+| website/js/main.js | 976 | [[ADR-DATA-PERSISTENCE]] | - |
 | website/js/metadata.js | 1 | [[ADR-JS]] | - |
 | website/js/metadata.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 1 | [[ADR-JS]] | - |
 | website/js/salutation-engine.js | 2 | - | [[glossary]] |
 | website/js/salutation-engine.js | 19 | [[ADR-JS]] | - |
 | website/js/salutation-engine.js | 87 | [[ADR-JS]] | - |
+| website/js/sender-sync.js | 1 | [[ADR-JS]] | - |
+| website/js/sender-sync.js | 2 | - | [[glossary]] |
 | website/js/signature.js | 1 | [[ADR-JS]] | - |
 | website/js/signature.js | 2 | - | [[glossary]] |
 | website/js/signature.js | 5 | [[ADR-JS]] | - |

@@ -35,9 +35,9 @@
         <div class="sidebar-scroll">
           <div class="sidebar-section">
             
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-              <h3 class="sidebar-label" style="margin-bottom: 0;">Farbschema (Theme)</h3>
-              <span id="build-version" style="font-size: 0.7rem; color: var(--text-muted); padding: 0;">Build: 07.07.2026 16:14</span>
+            <div class="sidebar-header-row">
+              <h3 class="sidebar-label mb-0">Farbschema (Theme)</h3>
+              <span id="build-version" class="sidebar-build-info">Build: 07.07.2026 16:17</span>
             </div>
             
             <div>
@@ -74,15 +74,15 @@
               <h3 class="sidebar-label">Zusatz-Elemente (Optional)</h3>
               <div class="sidebar-options-group">
                 <div class="sidebar-options-row">
-                  <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                    <input type="checkbox" id="toggle-postvermerk" style="cursor: pointer;"> Postvermerk
+                  <label class="sidebar-checkbox-label">
+                    <input type="checkbox" id="toggle-postvermerk" > Postvermerk
                   </label>
-                  <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-muted);">
-                    <input type="checkbox" id="toggle-anlagen" style="cursor: pointer;"> Anlagen
+                  <label class="sidebar-checkbox-label">
+                    <input type="checkbox" id="toggle-anlagen" > Anlagen
                   </label>
                 </div>
                 <!-- SIDEBAR POSTVERMERK DROPDOWN -->
-                <select id="sidebar-pv-select" class="input-field" style="width: 100%; font-size: 0.75rem; padding: 4px; margin-top: 4px;">
+                <select id="sidebar-pv-select" class="input-field" class="sidebar-select w-full">
                   <option value="" disabled selected>Zusatz auswählen...</option>
                 </select>
               </div>
@@ -91,7 +91,7 @@
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
               <h3 class="sidebar-label">Hilfslinien</h3>
-              <button id="btn-toggle-guides" class="btn primary" style="width: 100%;">
+              <button id="btn-toggle-guides" class="btn primary" class="w-full">
                 📐 Falz- & Lochmarken ausblenden
               </button>
             </div>
@@ -111,17 +111,17 @@
               
               <!-- Custom Upload -->
               <div class="sidebar-options-group">
-                <button id="btn-upload-font-trigger" class="btn" style="width: 100%;">
+                <button id="btn-upload-font-trigger" class="btn" class="w-full">
                   📤 Schrift hochladen
                 </button>
-                <button id="btn-reset-font" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+                <button id="btn-reset-font" class="btn btn-danger w-full">
                   🗑️ Schrift zurücksetzen
                 </button>
-                <span id="font-status-label" style="font-size: 0.7rem; opacity: 0.6; text-align: center; display: block; margin-top: 2px;">Aktiv: System-UI Standardschrift</span>
+                <span id="font-status-label" class="sidebar-status-label">Aktiv: System-UI Standardschrift</span>
                 
                 <!-- Font references for UX -->
-                <div style="margin-top: 4px; padding: 10px; border-radius: 8px; background: color-mix(in oklch, var(--text-primary) 10%, transparent); border: 1px dashed var(--border-color); font-size: 0.75rem; line-height: 1.45;">
-                  💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" style="color: var(--accent-color); text-decoration: underline; pointer-events: auto;">Manrope</a> herunter und lade sie hier offline in deine App.
+                <div class="sidebar-ux-tip">
+                  💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" class="sidebar-link">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" class="sidebar-link">Manrope</a> herunter und lade sie hier offline in deine App.
                 </div>
               </div>
               <input type="file" id="font-uploader" accept=".woff2" class="hidden" />
@@ -132,10 +132,10 @@
               <h3 class="sidebar-label">Unterschrift (Bild)</h3>
               <div class="sidebar-options-group">
                 <span class="sidebar-sub-label">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
-                <button id="btn-upload-sig-trigger" class="btn" style="width: 100%;">
+                <button id="btn-upload-sig-trigger" class="btn" class="w-full">
                   ✒️ Unterschrift laden
                 </button>
-                <button id="btn-reset-sig" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+                <button id="btn-reset-sig" class="btn btn-danger w-full">
                   🗑️ Unterschrift löschen
                 </button>
               </div>
@@ -151,13 +151,13 @@
                 <!-- API-Key Input Container -->
                 <div id="geoapify-key-container">
                   <label for="input-geoapify-key" class="sidebar-sub-label">Geoapify API-Key:</label>
-                  <input type="password" id="input-geoapify-key" class="input-field" placeholder="API-Key eintragen..." style="width: 100%;" />
+                  <input type="password" id="input-geoapify-key" class="input-field" placeholder="API-Key eintragen..." class="w-full" />
                 </div>
                 
                 <!-- Autocomplete Input -->
                 <div id="address-search-container" class="sidebar-options-group">
                   <label for="input-address-search" class="sidebar-sub-label">Empfänger-Adresse suchen:</label>
-                  <input type="text" id="input-address-search" class="input-field" placeholder="Straße, PLZ, Ort..." style="width: 100%; anchor-name: --anchor-address-search;" />
+                  <input type="text" id="input-address-search" class="input-field w-full" placeholder="Straße, PLZ, Ort..." style="anchor-name: --anchor-address-search;" />
                   
                   <!-- Suggestions Dropdown (Modern CSS Anchor Popover) -->
                   <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
@@ -172,11 +172,11 @@
         </div>
 
         <!-- ACTIONS FOOTER -->
-        <div class="sidebar-section" style="gap: 10px; margin-top: auto;">
-          <button id="btn-print" class="btn primary" style="width: 100%;">
+        <div class="sidebar-section sidebar-footer">
+          <button id="btn-print" class="btn primary" class="w-full">
             🖨️ Als PDF speichern / Drucken
           </button>
-          <button id="btn-reset" class="btn" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">
+          <button id="btn-reset" class="btn btn-danger w-full">
             🗑️ Brief zurücksetzen
           </button>
         </div>
@@ -202,7 +202,7 @@
           <!-- RECIPIENT ADDRESS ZONE -->
           <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
             <!-- POSTVERMERK (OPTIONAL) -->
-            <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" style="anchor-name: --anchor-postvermerk;" aria-label="Postvermerk"></din-postvermerk>
+            <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼"  aria-label="Postvermerk"></din-postvermerk>
             
             <div id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></div>
             <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
@@ -211,11 +211,11 @@
           </din-anschriftfeld>
 
           <!-- INFOBLOCK (Right side metadata block - Privatbrief Standard) -->
-          <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen" style="line-height: 1.5;">
+          <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen" >
             <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Name"></div>
             <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></div>
             <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></div>
-            <div style="margin-top: 8px;" id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></div>
+            <div  id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></div>
             <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></div>
           </din-infoblock>
 
@@ -238,14 +238,14 @@
             <div id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen," aria-label="Grußformel"></div>
             
             <!-- Signature typing name -->
-            <div style="position: relative; margin-top: 10px;">
-              <div id="signature-container" style="min-height: 20px;"><img id="signature-image" alt="Unterschrift" style="max-width: 200px; height: auto; cursor: move;" /></div><div id="unterschrift" contenteditable="true" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></div>
+            <div class="signature-wrapper">
+              <div id="signature-container" ><img id="signature-image" alt="Unterschrift"  /></div><div id="unterschrift" contenteditable="true" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></div>
             </div>
             
             <!-- ANLAGEN (OPTIONAL) -->
             <din-anlagen id="anlagen">
-              <div style="font-weight: 700; margin-bottom: 2px;">Anlagen</div>
-              <ul id="anlagen-text" contenteditable="true" style="margin: 0; padding-left: 1.5rem;"><li>Anlage 1</li></ul>
+              <div class="anlagen-heading">Anlagen</div>
+              <ul id="anlagen-text" contenteditable="true" ><li>Anlage 1</li></ul>
             </din-anlagen>
             
 

@@ -682,3 +682,74 @@ body[data-has-signature] #btn-reset-sig {
 body[data-has-signature] #btn-upload-sig-trigger {
   display: none !important;
 }
+
+/* --- CLEANUP UTILITIES --- */
+.w-full { width: 100%; }
+.mb-0 { margin-bottom: 0 !important; }
+
+.btn-danger {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+.btn-danger:hover {
+  background: color-mix(in oklch, var(--danger-color) 10%, transparent);
+}
+
+.sidebar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.sidebar-build-info {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  padding: 0;
+}
+.sidebar-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.sidebar-select {
+  font-size: 0.75rem;
+  padding: 4px;
+  margin-top: 4px;
+}
+.sidebar-status-label {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  text-align: center;
+  display: block;
+  margin-top: 2px;
+}
+.sidebar-ux-tip {
+  margin-top: 4px;
+  padding: 10px;
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--text-primary) 10%, transparent);
+  border: 1px dashed var(--border-color);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.sidebar-link {
+  color: var(--accent-color);
+  text-decoration: underline;
+  pointer-events: auto;
+}
+.sidebar-footer {
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* Paper Elements */
+#postvermerk { anchor-name: --anchor-postvermerk; }
+#infoblock { line-height: 1.5; }
+#info-tel { margin-top: 8px; }
+.signature-wrapper { position: relative; margin-top: 10px; }
+#signature-container { min-height: 20px; }
+#signature-image { max-width: 200px; height: auto; cursor: move; }
+.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
+#anlagen-text { margin: 0; padding-left: 1.5rem; }

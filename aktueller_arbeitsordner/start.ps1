@@ -49,6 +49,14 @@ try {
     exit 1
 }
 
+Write-Host "[X] Injiziere Build-Timestamp in index.html..." -ForegroundColor Yellow
+$timestamp = Get-Date -Format "dd.MM.yyyy HH:mm"
+$indexPath = Join-Path $targetDir "website\index.html"
+$indexContent = [IO.File]::ReadAllText($indexPath)
+$indexContent = $indexContent -replace '(?<=<span id="build-version"[^>]*>).*?(?=</span>)', "Build: $timestamp"
+[IO.File]::WriteAllText($indexPath, $indexContent)
+Write-Host "    Version aktualisiert auf: Build: $timestamp" -ForegroundColor Green
+
 Write-Host "[2/4] Generiere aktuellen LLM-System-Prompt..." -ForegroundColor Yellow
 node tools/create_context.js
 

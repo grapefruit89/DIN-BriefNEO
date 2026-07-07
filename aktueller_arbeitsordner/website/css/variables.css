@@ -1,1 +1,82 @@
-$newVars
+/* @adr [[ADR-CSS]]  */
+/* @guide [[chrome-modern-css]]  */
+
+/* css/variables.css */
+@layer reset, tokens, layout, floating;
+
+@property --guide-opacity {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.15;
+}
+
+:root {
+  color-scheme: light dark;
+  interpolate-size: allow-keywords;
+
+  transition: --guide-opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* === 1. SURFACES & NEUTRALS === */
+  /* Premium Dark Mode: Deep, sleek midnight blue/charcoal. Light Mode: Clean, airy pearl/slate. */
+  --bg-viewport: light-dark(oklch(0.96 0.01 250), oklch(0.16 0.015 250));
+  --bg-sidebar: light-dark(oklch(0.98 0.005 250), oklch(0.20 0.015 250));
+  --bg-sidebar-glass: light-dark(oklch(0.98 0.005 250 / 80%), oklch(0.20 0.015 250 / 80%));
+  --bg-card: light-dark(oklch(1 0 0), oklch(0.25 0.02 250));
+  
+  --border-color: light-dark(oklch(0.90 0.01 250), oklch(0.28 0.02 250));
+  --border-color-focus: var(--accent-color);
+
+  /* === 2. TEXT (UI ONLY) === */
+  --text-primary: light-dark(oklch(0.15 0.02 250), oklch(0.96 0.01 250));
+  --text-muted: light-dark(oklch(0.45 0.02 250), oklch(0.75 0.01 250));
+
+  /* === 3. PAPER (ISOLATED) === */
+  /* Das Blatt Papier und die Tinte bleiben IMMER identisch, egal welches UI-Theme aktiv ist. WYSIWYG! */
+  --paper-bg: oklch(100% 0 0); /* Strahlend weiss */
+  --paper-text: oklch(0% 0 0); /* Pechschwarz */
+  --paper-ghost: oklch(50% 0 0); /* Anthrazit fuer Platzhalter */
+
+  /* === 4. ACCENT === */
+  --accent-color: var(--sys-accent, AccentColor);
+  @supports not (color: AccentColor) {
+    --accent-color: light-dark(oklch(0.55 0.14 260), oklch(0.65 0.14 260));
+  }
+  --accent-muted: light-dark(oklch(0.95 0.03 260), oklch(0.35 0.08 260));
+  
+  /* Robust color-mix for hover & glow states (works natively with AccentColor) */
+  --accent-hover: color-mix(in srgb, var(--accent-color), black 10%);
+  --accent-glow: color-mix(in srgb, var(--accent-color), transparent 85%);
+
+  /* === 5. INTERACTIVE & SEGMENTED CONTROLS === */
+  --segment-bg: light-dark(oklch(0.92 0.01 250), oklch(0.14 0.01 250));
+  --segment-active-bg: light-dark(oklch(1 0 0), oklch(0.28 0.02 250));
+  --segment-active-text: var(--text-primary);
+  --segment-active-shadow: light-dark(0 1px 3px oklch(0 0 0 / 8%), 0 2px 6px oklch(0 0 0 / 50%));
+  
+  /* === 6. FEEDBACK === */
+  --c-primary: var(--accent-color);
+  --c-success: light-dark(oklch(0.65 0.12 150), oklch(0.70 0.10 150));
+  --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
+  --c-danger: light-dark(oklch(0.60 0.15 25), oklch(0.65 0.13 25));
+
+  /* Shadow & Blur tokens */
+  --shadow-sm: 0 2px 8px oklch(0% 0 0 / 5%);
+  --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
+
+  --glass-blur: blur(20px);
+  
+  /* DIN Paper layout configurations */
+  --paper-zoom: 1;
+  --guide-opacity: 0.15;
+  --guide-color: var(--paper-text); 
+  
+  /* Active Font Stack variable */
+  --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+[popover] {
+  color-scheme: inherit;
+}

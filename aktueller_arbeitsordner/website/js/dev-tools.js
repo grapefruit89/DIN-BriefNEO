@@ -44,10 +44,11 @@ export function initDevTools() {
           if (key === 'brieftext') {
             if (elem.setHTML) {
               try { elem.setHTML(state[key], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] }); }
-              catch(e) { elem.setHTML(state[key]); }
+              catch(e) { elem.innerHTML = state[key]; } // Fallback
             }
-            else if (elem.setHTMLUnsafe) elem.setHTMLUnsafe(state[key]);
-            else elem.textContent = state[key]; // Strict Chrome 149 baseline: no innerHTML
+            else {
+              elem.innerHTML = state[key];
+            }
           } else {
             elem.textContent = state[key];
           }

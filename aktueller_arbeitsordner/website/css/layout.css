@@ -917,3 +917,72 @@ html.theme-transition::view-transition-new(root) {
   color: var(--text-muted);
   margin-top: 2px;
 }
+
+/* --- WYSIWYG SIGNATURE EDITOR --- */
+.draggable-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sig-bounding-box {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  /* Transform values applied via JS inline styles/vars */
+  transform: translate(var(--x, 0), var(--y, 0)) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.sig-bounding-box.active {
+  outline: 2px dashed var(--accent-color);
+}
+
+.sig-bounding-box:active {
+  cursor: grabbing;
+}
+
+.sig-handle, .sig-rotate-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--paper-bg);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.sig-bounding-box.active .sig-handle,
+.sig-bounding-box.active .sig-rotate-handle {
+  display: block;
+}
+
+.sig-rotate-handle {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+.sig-rotate-handle::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.sig-handle.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+.sig-handle.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+.sig-handle.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.sig-handle.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#signature-image {
+  pointer-events: none;
+  max-width: 100%;
+  display: block;
+}

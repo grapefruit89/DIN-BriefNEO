@@ -27,6 +27,8 @@ export class DateFormatter {
   init() {
     if (!this.datumEl || !this.btnDin) return;
     
+    this.isReady = false;
+
     // Load from settings if exists
     let activeFormat = 'din';
     if (this.ui.settings?.dateFormat) {
@@ -36,12 +38,15 @@ export class DateFormatter {
     
     Object.entries(this.buttons).forEach(([formatType, btn]) => {
       if (btn) {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('change', () => {
+          if (!this.isReady) return;
           this.formatDate(formatType);
           this.saveSetting(formatType);
         });
       }
     });
+    
+    this.isReady = true;
   }
   
   /**

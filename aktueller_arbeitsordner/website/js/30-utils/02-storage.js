@@ -62,7 +62,8 @@ export const StorageManager = {
       layout: "form-b",
       guides: true,
       systemFont: "sans",
-      addressProvider: "photon"
+      addressProvider: "photon",
+      postvermerkActive: false
     };
     try {
       const settings = localStorage.getItem("din_settings");

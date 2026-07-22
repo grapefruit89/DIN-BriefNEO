@@ -11,7 +11,6 @@ import { SignatureFeature } from './20-features/02-signature.js';
 import { initAddressServices } from './20-features/03-geoapify.js';
 import { showToast, initToastSystem } from './10-ui/02-toast.js';
 import { initSenderSync } from './20-features/04-sender-sync.js';
-import { initAddressBookSaveButton } from './20-features/05-address-book-helper.js';
 import { DraftManager } from './00-core/01-draft-manager.js';
 import { FormatToolbar } from './10-ui/01-format-toolbar.js';
 import { SettingsManager } from './00-core/02-settings-manager.js';
@@ -75,13 +74,18 @@ document.addEventListener('DOMContentLoaded', () => {
       formatToolbarInstance.init();
     }
     
-    initAddressBookSaveButton();
-    
     // --- MODULE INITIALIZATION ---
     initToastSystem();
     initSenderSync();
     initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
-    initPostvermerk(() => draftManager.saveDraft());
+    initPostvermerk({ 
+      onSaveDraft: () => draftManager.saveDraft(),
+      settings: settingsManager.settings,
+      saveSettings: () => {
+        StorageManager.saveSettings(settingsManager.settings);
+        settingsManager.applySettings();
+      }
+    });
     initDevTools();
     
     const salutation = new SalutationFeature(() => draftManager.saveDraft());
@@ -136,3 +140,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+

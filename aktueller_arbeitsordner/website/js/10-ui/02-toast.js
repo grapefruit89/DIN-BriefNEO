@@ -77,6 +77,13 @@ export class ToastSystem {
    */
   onPointerDown(e) {
     if (!this.isActive || !this.globalToast) return;
+    
+    // Ignore swipe capture if clicking interactive buttons
+    const target = /** @type {HTMLElement} */ (e.target);
+    if (target && (target.closest('#toast-close') || target.closest('#toast-action'))) {
+      return;
+    }
+
     this.isSwiping = true;
     this.startX = e.clientX;
     this.currentX = 0;

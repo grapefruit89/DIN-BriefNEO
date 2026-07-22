@@ -114,6 +114,10 @@ export class SalutationFeature {
   }
 
   init() {
+    this.settings = StorageManager.loadSettings();
+    this.isReady = false;
+    
+    // UI Wirings
     this._wireFormality();
     this._wireGender();
     this._wireRecipientName();
@@ -122,6 +126,8 @@ export class SalutationFeature {
     this._applyUIState();
     this._regenerateSalutation({ onlyIfEmpty: true });
     this._regenerateClosing({ onlyIfEmpty: true });
+    
+    this.isReady = true;
   }
 
   _applyUIState() {
@@ -136,7 +142,8 @@ export class SalutationFeature {
     ['formal', 'polite', 'casual'].forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
       if (btn) {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('change', () => {
+          if (!this.isReady) return;
           this.settings.formality = style;
           this.settings.salutationDirty = false;
           this.settings.closingDirty = false;
@@ -152,7 +159,8 @@ export class SalutationFeature {
     ['none', 'female', 'male'].forEach(gender => {
       const btn = document.getElementById(`btn-gender-${gender}`);
       if (btn) {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('change', () => {
+          if (!this.isReady) return;
           this.settings.recipientType = gender;
           StorageManager.saveSettings(this.settings);
           this._regenerateSalutation();
@@ -183,14 +191,35 @@ export class SalutationFeature {
   }
 
   _readDOMState() {
-    const nameStr = (document.getElementById('empfaenger-name')?.textContent || "").trim();
-    const parts = nameStr.split(' ');
-    const lastName = parts.length > 1 ? parts.pop() : nameStr;
-    const firstName = parts.length > 0 ? parts.join(' ') : "";
+    let nameStr = (document.getElementById('empfaenger-name')?.textContent || "").trim();
     const company = (document.getElementById('empfaenger-firma')?.textContent || "").trim();
 
+    // 1. Auto-detect and strip explicit Anrede like "Herr" or "Frau"
+    const lowerName = nameStr.toLowerCase();
+    if (lowerName.startsWith("herr ") || lowerName.startsWith("herrn ")) {
+      nameStr = nameStr.replace(/^(Herrn|Herr)\s+/i, '');
+      if (this.settings.recipientType === 'none') {
+        this.settings.recipientType = 'male';
+        this._applyUIState();
+      }
+    } else if (lowerName.startsWith("frau ")) {
+      nameStr = nameStr.replace(/^Frau\s+/i, '');
+      if (this.settings.recipientType === 'none') {
+        this.settings.recipientType = 'female';
+        this._applyUIState();
+      }
+    }
+
+    // 2. Extract titles BEFORE splitting first/last name
+    const { titles, name: nameWithoutTitles } = SalutationEngine.splitTitles(nameStr);
+
+    // 3. Split remaining string into first and last name
+    const parts = nameWithoutTitles.split(' ');
+    const lastName = parts.length > 1 ? parts.pop() : nameWithoutTitles;
+    const firstName = parts.length > 0 ? parts.join(' ') : "";
+
     return {
-      firstName,
+      firstName: titles ? `${titles} ${firstName}`.trim() : firstName, // Pass titles down in firstName so derive can find them
       lastName,
       company,
       type: this.settings.recipientType,

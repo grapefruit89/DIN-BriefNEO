@@ -38,18 +38,15 @@ export class SettingsManager {
     this.fontStatusLabel = document.getElementById('font-status-label');
     /** @type {HTMLElement | null} */
     this.fontUploader = document.getElementById('font-uploader');
+
+    this.isReady = false;
   }
 
   init() {
     this.applySettings();
     this.initFontInjection();
-    
-    // Defeat Chrome's aggressive form restoration by re-applying settings 
-    // and attaching listeners after the restorer has finished (approx 100ms).
-    setTimeout(() => {
-      this.applySettings();
-      this.attachListeners();
-    }, 150);
+    this.attachListeners();
+    this.isReady = true;
   }
 
   /**
@@ -155,13 +152,15 @@ export class SettingsManager {
   attachListeners() {
     // Font Stack Toggles
     if (this.btnFontSans) {
-      this.btnFontSans.addEventListener('click', () => {
+      this.btnFontSans.addEventListener('change', () => {
+        if (!this.isReady) return;
         this.settings.systemFont = 'sans';
         this.updateSettings();
       });
     }
     if (this.btnFontSerif) {
-      this.btnFontSerif.addEventListener('click', () => {
+      this.btnFontSerif.addEventListener('change', () => {
+        if (!this.isReady) return;
         this.settings.systemFont = 'serif';
         this.updateSettings();
       });
@@ -169,7 +168,8 @@ export class SettingsManager {
 
     // Layout Form switches
     if (this.btnFormA) {
-      this.btnFormA.addEventListener('click', () => {
+      this.btnFormA.addEventListener('change', () => {
+        if (!this.isReady) return;
         this._transitionState(() => {
           this.settings.layout = 'form-a';
           this.updateSettings();
@@ -178,7 +178,8 @@ export class SettingsManager {
     }
     
     if (this.btnFormB) {
-      this.btnFormB.addEventListener('click', () => {
+      this.btnFormB.addEventListener('change', () => {
+        if (!this.isReady) return;
         this._transitionState(() => {
           this.settings.layout = 'form-b';
           this.updateSettings();
@@ -188,7 +189,8 @@ export class SettingsManager {
 
     // Theme select toggles
     if (this.btnThemeLight) {
-      this.btnThemeLight.addEventListener('click', () => {
+      this.btnThemeLight.addEventListener('change', () => {
+        if (!this.isReady) return;
         this._transitionState(() => {
           this.settings.theme = 'light';
           this.updateSettings();
@@ -197,7 +199,8 @@ export class SettingsManager {
     }
 
     if (this.btnThemeDark) {
-      this.btnThemeDark.addEventListener('click', () => {
+      this.btnThemeDark.addEventListener('change', () => {
+        if (!this.isReady) return;
         this._transitionState(() => {
           this.settings.theme = 'dark';
           this.updateSettings();
@@ -207,8 +210,8 @@ export class SettingsManager {
 
     // Guides
     if (this.btnToggleGuides) {
-      this.btnToggleGuides.addEventListener('change', (e) => {
-        if (!e.isTrusted) return; // Ignore synthetic events on checkboxes
+      this.btnToggleGuides.addEventListener('change', () => {
+        if (!this.isReady) return;
         this.settings.guides = /** @type {HTMLInputElement} */ (this.btnToggleGuides).checked;
         this.updateSettings();
       });

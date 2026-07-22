@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>CSS attr() Test</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; }
+    .box {
+      background: oklch(0.7 0.1 200);
+      /* Das neue CSS Level 5 attr() feature */
+      height: attr(data-height type(<length>), 50px);
+      width: attr(data-width type(<length>), 200px);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Test: Native CSS attr() für Geometrie</h2>
+  <p>Wenn die Box unten 100mm hoch und 85mm breit ist, funktioniert es! Wenn sie schmal (200px) und flach (50px) ist, zieht der Fallback.</p>
+  
+  <div class="box" data-height="100mm" data-width="85mm">
+    data-height="100mm"
+  </div>
+</body>
+</html>
+  <br>
+  <div class="box2" data-height="100mm" data-width="85mm" style="background: oklch(0.6 0.2 20); color: white; display: flex; align-items: center; justify-content: center; height: attr(data-height length, 50px); width: attr(data-width length, 200px); margin-bottom: 20px;">
+    Syntax 2: attr(data-height length)
+  </div>

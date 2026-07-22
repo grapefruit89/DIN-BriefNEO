@@ -67,6 +67,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
    * @param {string} key
    */
   async function validateKeyWithHeartbeat(key) {
+    if (typeof window !== 'undefined' && window.location.protocol === 'file:') return;
     try {
       const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1`, {
         headers: { "X-Api-Key": key }
@@ -154,6 +155,16 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
     const localMatches = fuzzySearchLocal(query);
     localMatches.forEach(m => m.source = 'local');
+
+    if (typeof window !== 'undefined' && window.location.protocol === 'file:') {
+      renderSuggestions(localMatches, query);
+      return;
+    }
+
+    if (!navigator.onLine) {
+      renderSuggestions(localMatches, query);
+      return;
+    }
 
     const key = StorageManager.loadGeoapifyKey();
     if (!key) {
@@ -288,6 +299,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   const empfOrtEl = document.getElementById('empfaenger-ort');
   if (empfOrtEl) {
     empfOrtEl.addEventListener('input', () => {
+      if (window.location.protocol === 'file:' || !navigator.onLine) return;
       const text = empfOrtEl.textContent ? empfOrtEl.textContent.trim() : '';
       const plzMatch = text.match(/^(\d{5})$/);
       if (plzMatch) {
@@ -320,11 +332,12 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   }
 
   // Zippopotam für Absender PLZ -> speichert Lat/Lon für Geoapify Proximity Bias
-  const absenderPlzOrtEl = document.getElementById('absender-plz-ort');
+  const absenderPlzOrtEl = document.getElementById('info-city') || document.getElementById('absender');
   if (absenderPlzOrtEl) {
     /** @type {any} */
     let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
+      if (window.location.protocol === 'file:' || !navigator.onLine) return;
       clearTimeout(absenderTimeout);
       absenderTimeout = setTimeout(() => {
         const text = absenderPlzOrtEl.textContent ? absenderPlzOrtEl.textContent.trim() : '';

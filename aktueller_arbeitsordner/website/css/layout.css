@@ -9,6 +9,14 @@
   /* Die Werte werden jetzt direkt als Single Source of Truth aus dem HTML <din-a4> geladen! */
 }
 
+/* Globales Scrollbar-Verbot */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
 din-a4 {
   --din-width: attr(data-width-mm type(<number>), 210);
   --din-height: attr(data-height-mm type(<number>), 297);
@@ -228,23 +236,26 @@ aside {
   overflow: auto; /* Nativer Zoom-Scroll-Fallback */
   background: var(--bg-viewport);
   padding: 3vh; /* Harmonischer Rand */
-  container-type: size; /* NEU: Der Viewport ist der Maßstab für das Blatt */
+  
+  container-type: size; /* Der Viewport ist der Massstab fuer das Blatt */
   container-name: viewport;
 }
+
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
 @scope (din-a4) {
   :scope {
     display: block;
     position: relative;
-    /* NEU: Das Blatt nimmt maximal die Breite oder Hhe des Viewports an, ohne zu scrollen */
-      width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
-      height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
-    aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhältnis */
+    
+    /* Das Blatt nimmt maximal die Breite oder Hoehe des Viewports an, ohne zu scrollen */
+    width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
+    height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
+    aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhaeltnis */
     background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
-    container-type: size; /* Ermöglicht proportionale cqw/cqh Maße */
+    container-type: size; /* Ermglicht proportionale cqw/cqh Mae FR INNERE ELEMENTE */
     container-name: paper;
     color: var(--paper-text); /* Pure OKLCH Ink Black */
     box-sizing: border-box;

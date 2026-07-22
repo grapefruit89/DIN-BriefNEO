@@ -8,7 +8,10 @@ tags: [documentation, readme]
 
 Willkommen im offiziellen Arbeitsverzeichnis von **DIN-BriefNEO (Pure Refactored Edition)**. 
 
-Dieses Projekt ist eine datenschutzkonforme, **100% offline-fähige** und wartungsfreie Web-Applikation zur pixelperfekten Erstellung normkonformer Briefe nach dem offiziellen deutschen Standard **DIN 5008 (Form A und Form B)**.
+Die wartungsfreie, **100% offline-fähige** Web-App für normkonforme DIN-Briefe.
+Keine Frameworks. Keine npm-Abhängigkeiten. Purer nativer W3C-Standard.
+
+👉 **[Jetzt losschreiben!](https://grapefruit89.github.io/DIN-BriefNEO/)**
 
 ---
 

@@ -37,7 +37,7 @@
             
             <div class="sidebar-header-row">
               <h3 class="sidebar-label mb-0">Farbschema (Theme)</h3>
-              <span id="build-version" class="sidebar-build-info">Build: 22.07.2026 09:32</span>
+              <span id="build-version" class="sidebar-build-info">Build: 22.07.2026 09:49</span>
             </div>
             
             <div>
@@ -218,8 +218,28 @@
 
       <!-- PAPER VIEWPORT (NO-SCROLL SCALER) -->
       <main id="viewport">
-        <!-- THE DIN A4 SHEET -->
-        <din-a4 id="brief-dokument" role="article" aria-label="DIN 5008 Brief">
+        <!-- THE PAPER ENVELOPE (Viewport constraint) -->
+        <div id="din-a4-viewport" class="scrollable">
+          <!-- THE ACTUAL PAPER -->
+          <din-a4 class="paper-theme page-1"
+            data-width-mm="210"
+            data-height-mm="297"
+            data-punch-y="148.5"
+            data-absender-y-b="45"
+            data-empfaenger-y-b="50"
+            data-infoblock-y-b="50"
+            data-datum-y-b="92"
+            data-kern-y-b="109"
+            data-fold-1-b="105"
+            data-fold-2-b="210"
+            data-absender-y-a="27"
+            data-empfaenger-y-a="32"
+            data-infoblock-y-a="32"
+            data-datum-y-a="74"
+            data-kern-y-a="91"
+            data-fold-1-a="87"
+            data-fold-2-a="181"
+           role="article" aria-label="DIN 5008 Brief">
           <!-- FOLD & PUNCH MARKS (GUIDES) -->
           <div class="din-mark din-fold-top"></div>
           <div class="din-mark din-fold-bottom"></div>

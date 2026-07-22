@@ -6,28 +6,32 @@
 
 :root {
   /* DIN 5008 Geometrie-Variablen (Form B = Default) */
-  --din-width: 210;
-  --din-height: 297;
-  
-  --absender-y: calc(45 / var(--din-height) * 100cqh);
-  --empfaenger-y: calc(50 / var(--din-height) * 100cqh);
-  --infoblock-y: calc(50 / var(--din-height) * 100cqh);
-  --datum-y: calc(92 / var(--din-height) * 100cqh);
-  --briefkern-y: calc(109 / var(--din-height) * 100cqh);
-  
-  --fold-1-y: calc(105 / var(--din-height) * 100cqh);
-  --fold-2-y: calc(210 / var(--din-height) * 100cqh);
-  --punch-y: calc(148.5 / var(--din-height) * 100cqh);
+  /* Die Werte werden jetzt direkt als Single Source of Truth aus dem HTML <din-a4> geladen! */
 }
 
-body:has(#btn-form-a:checked) {
-  --absender-y: calc(27 / var(--din-height) * 100cqh);
-  --empfaenger-y: calc(32 / var(--din-height) * 100cqh);
-  --infoblock-y: calc(32 / var(--din-height) * 100cqh);
-  --datum-y: calc(74 / var(--din-height) * 100cqh);
-  --briefkern-y: calc(91 / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
-  --fold-1-y: calc(87 / var(--din-height) * 100cqh);
-  --fold-2-y: calc(181 / var(--din-height) * 100cqh);
+din-a4 {
+  --din-width: attr(data-width-mm type(<number>), 210);
+  --din-height: attr(data-height-mm type(<number>), 297);
+  
+  --absender-y: calc(attr(data-absender-y-b type(<number>), 45) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-b type(<number>), 92) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-b type(<number>), 109) / var(--din-height) * 100cqh);
+  
+  --fold-1-y: calc(attr(data-fold-1-b type(<number>), 105) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-b type(<number>), var(--din-width)) / var(--din-height) * 100cqh);
+  --punch-y: calc(attr(data-punch-y type(<number>), 148.5) / var(--din-height) * 100cqh);
+}
+
+body:has(#btn-form-a:checked) din-a4 {
+  --absender-y: calc(attr(data-absender-y-a type(<number>), 27) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-a type(<number>), 74) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-a type(<number>), 91) / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --fold-1-y: calc(attr(data-fold-1-a type(<number>), 87) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-a type(<number>), 181) / var(--din-height) * 100cqh);
 }
 
 /* --- APP SHELL --- */
@@ -175,9 +179,9 @@ aside {
     display: block;
     position: relative;
     /* NEU: Das Blatt nimmt maximal die Breite oder Hhe des Viewports an, ohne zu scrollen */
-      width: min(100cqw, calc(100cqh * 210 / 297));
-      height: min(100cqh, calc(100cqw * 297 / 210));
-    aspect-ratio: 210 / 297; /* Exaktes DIN A4 Seitenverhältnis */
+      width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
+      height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
+    aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhältnis */
     background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
@@ -227,7 +231,7 @@ aside {
   .din-mark {
   position: absolute;
   left: 0;
-  width: calc(8 / 210 * 100cqw); /* Kurz, nicht durch den Text schneidend */
+  width: calc(8 / var(--din-width) * 100cqw); /* Kurz, nicht durch den Text schneidend */
     border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     opacity: var(--guide-opacity);
     pointer-events: none;
@@ -235,10 +239,10 @@ aside {
 
   /* Falzmarken & Lochmarken proportionale Koordinaten */
   .din-fold-top { top: var(--fold-1-y); } /* Form B default: 105mm */
-  .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: 210mm */
+  .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: var(--din-width)mm */
   .din-punch { 
     top: var(--punch-y);
-    width: calc(12 / 210 * 100cqw); /* Breite: 12mm */
+    width: calc(12 / var(--din-width) * 100cqw); /* Breite: 12mm */
     border-bottom-style: solid; 
   }
 
@@ -247,9 +251,9 @@ aside {
   #absender {
     position: absolute;
     top: var(--absender-y);
-    left: calc(20 / 210 * 100cqw);
-    width: calc(85 / 210 * 100cqw);
-    height: calc(5 / 297 * 100cqh);
+    left: calc(20 / var(--din-width) * 100cqw);
+    width: calc(85 / var(--din-width) * 100cqw);
+    height: calc(5 / var(--din-height) * 100cqh);
     font-size: calc(8 * 0.168cqw); /* 8pt in cqw */
     border-bottom: 0.5px solid oklch(90% 0 0);
     padding-bottom: 2px;
@@ -261,9 +265,9 @@ aside {
   #empfaenger {
     position: absolute;
     top: var(--empfaenger-y);
-    left: calc(20 / 210 * 100cqw);
-    width: calc(85 / 210 * 100cqw);
-    height: calc(40 / 297 * 100cqh);
+    left: calc(20 / var(--din-width) * 100cqw);
+    width: calc(85 / var(--din-width) * 100cqw);
+    height: calc(40 / var(--din-height) * 100cqh);
     font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
     line-height: 1.4;
     display: flex;
@@ -275,8 +279,8 @@ aside {
   #infoblock {
     position: absolute;
     top: var(--infoblock-y);
-    left: calc(125 / 210 * 100cqw);
-    width: calc(75 / 210 * 100cqw);
+    left: calc(125 / var(--din-width) * 100cqw);
+    width: calc(75 / var(--din-width) * 100cqw);
     font-size: calc(8.5 * 0.168cqw); /* 8.5pt in cqw */
     line-height: 1.5;
     display: flex;
@@ -287,8 +291,8 @@ aside {
   #datum {
     position: absolute;
     top: var(--datum-y);
-    left: calc(125 / 210 * 100cqw);
-    width: calc(75 / 210 * 100cqw);
+    left: calc(125 / var(--din-width) * 100cqw);
+    width: calc(75 / var(--din-width) * 100cqw);
     font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
     text-align: left;
   }
@@ -297,9 +301,9 @@ aside {
   #briefkern {
     position: absolute;
     top: var(--briefkern-y);
-    left: calc(25 / 210 * 100cqw);  /* Linker Fluchtrand: 25mm */
-    right: calc(20 / 210 * 100cqw); /* Rechter Rand: 20mm */
-    bottom: calc(30 / 297 * 100cqh); /* Abstand nach unten für Footer */
+    left: calc(25 / var(--din-width) * 100cqw);  /* Linker Fluchtrand: 25mm */
+    right: calc(20 / var(--din-width) * 100cqw); /* Rechter Rand: 20mm */
+    bottom: calc(30 / var(--din-height) * 100cqh); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
     overflow-y: auto; /* Required for scroll-state query */
@@ -311,20 +315,20 @@ aside {
   #betreff {
     font-size: calc(12 * 0.168cqw); /* 12pt in cqw */
     font-weight: 700;
-    margin-bottom: calc(8.46 / 297 * 100cqh); /* 2 Leerzeilen */
+    margin-bottom: calc(8.46 / var(--din-height) * 100cqh); /* 2 Leerzeilen */
     text-fit: contain; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht */
   }
 
   #anrede {
     font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
-    margin-bottom: calc(4.23 / 297 * 100cqh); /* 1 Leerzeile */
+    margin-bottom: calc(4.23 / var(--din-height) * 100cqh); /* 1 Leerzeile */
   }
 
   #brieftext {
     font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
     line-height: 1.4;
     outline: none;
-    min-height: calc(40 / 297 * 100cqh);
+    min-height: calc(40 / var(--din-height) * 100cqh);
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
@@ -332,8 +336,8 @@ aside {
 
   #grussformel {
     font-size: calc(10.5 * 0.168cqw);
-    margin-top: calc(4.23 / 297 * 100cqh);
-    margin-bottom: calc(12.69 / 297 * 100cqh); /* 3 Leerzeilen für Unterschrift */
+    margin-top: calc(4.23 / var(--din-height) * 100cqh);
+    margin-bottom: calc(12.69 / var(--din-height) * 100cqh); /* 3 Leerzeilen für Unterschrift */
   }
 
   #unterschrift {
@@ -402,17 +406,17 @@ aside {
   /* --- FOOTER --- */
   #brief-fuss {
     position: absolute;
-    bottom: calc(10 / 297 * 100cqh); /* 10mm */
-    left: calc(25 / 210 * 100cqw); /* 25mm */
-    right: calc(20 / 210 * 100cqw); /* 20mm */
-    height: calc(15 / 297 * 100cqh); /* 15mm */
+    bottom: calc(10 / var(--din-height) * 100cqh); /* 10mm */
+    left: calc(25 / var(--din-width) * 100cqw); /* 25mm */
+    right: calc(20 / var(--din-width) * 100cqw); /* 20mm */
+    height: calc(15 / var(--din-height) * 100cqh); /* 15mm */
     font-size: calc(7.5 * 0.168cqw); /* 7.5pt in cqw */
     color: var(--paper-ghost); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
-    padding-top: calc(2 / 297 * 100cqh);
+    padding-top: calc(2 / var(--din-height) * 100cqh);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: calc(10 / 210 * 100cqw);
+    gap: calc(10 / var(--din-width) * 100cqw);
     column-rule: 0.5px solid var(--paper-ghost);
     column-rule-inset: 2px;
   }

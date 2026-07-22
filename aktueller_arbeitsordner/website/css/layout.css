@@ -592,19 +592,7 @@ din-anlagen, din-verteiler {
   page-break-inside: avoid;
 }
 
-/* --- SIGNATURE IMAGE OVERLAY --- */
-#signature-image {
-  position: absolute;
-  bottom: 80%; /* Place it exactly above the typed text */
-  left: 0;
-  max-height: 80px;
-  max-width: 300px;
-  object-fit: contain;
-  pointer-events: none; /* Let clicks pass through to the text editable div */
-  z-index: 1;
-  opacity: 0.9;
-  mix-blend-mode: multiply; /* Gives a realistic ballpoint pen look by blending with the paper */
-}
+
 
 
 
@@ -985,4 +973,6 @@ html.theme-transition::view-transition-new(root) {
   pointer-events: none;
   max-width: 100%;
   display: block;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
 }

@@ -125,15 +125,11 @@ export class SalutationFeature {
   }
 
   _applyUIState() {
-    ['formal', 'polite', 'casual'].forEach(style => {
-      const btn = document.getElementById(`btn-style-${style}`);
-      if (btn) /** @type {HTMLInputElement} */ (btn).checked = this.settings.formality === style;
-    });
+    const formalBtn = document.getElementById(`btn-style-${this.settings.formality}`);
+    if (formalBtn) /** @type {HTMLInputElement} */ (formalBtn).checked = true;
 
-    ['none', 'female', 'male'].forEach(gender => {
-      const btn = document.getElementById(`btn-gender-${gender}`);
-      if (btn) /** @type {HTMLInputElement} */ (btn).checked = this.settings.recipientType === gender;
-    });
+    const genderBtn = document.getElementById(`btn-gender-${this.settings.recipientType}`);
+    if (genderBtn) /** @type {HTMLInputElement} */ (genderBtn).checked = true;
   }
 
   _wireFormality() {
@@ -145,7 +141,6 @@ export class SalutationFeature {
           this.settings.salutationDirty = false;
           this.settings.closingDirty = false;
           StorageManager.saveSettings(this.settings);
-          this._applyUIState();
           this._regenerateSalutation({ force: true });
           this._regenerateClosing({ force: true });
         });
@@ -160,7 +155,6 @@ export class SalutationFeature {
         btn.addEventListener('change', () => {
           this.settings.recipientType = gender;
           StorageManager.saveSettings(this.settings);
-          this._applyUIState();
           this._regenerateSalutation();
         });
       }

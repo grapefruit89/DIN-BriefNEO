@@ -37,7 +37,7 @@
             
             <div class="sidebar-header-row">
               <h3 class="sidebar-label mb-0">Farbschema (Theme)</h3>
-              <span id="build-version" class="sidebar-build-info">Build: 21.07.2026 21:09</span>
+              <span id="build-version" class="sidebar-build-info">Build: 22.07.2026 09:32</span>
             </div>
             
             <div>
@@ -90,9 +90,21 @@
                   </label>
                 </div>
                 <!-- SIDEBAR POSTVERMERK DROPDOWN -->
-                <select id="sidebar-pv-select" class="input-field" class="sidebar-select w-full">
-                  
-                                </select>
+                <select id="sidebar-pv-select" class="input-field sidebar-select w-full">
+                  <option value="" disabled selected>Zusatz- / Postvermerk einfügen</option>
+                  <option value="Einschreiben">Einschreiben</option>
+                  <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                  <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                  <option value="Einschreiben Wert">Einschreiben Wert</option>
+                  <option value="Persönlich">Persönlich</option>
+                  <option value="Vertraulich">Vertraulich</option>
+                  <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                  <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                  <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                  <option value="Warensendung">Warensendung</option>
+                  <option value="Büchersendung">Büchersendung</option>
+                  <option value="Einschreiben / Rückschein <br> Persönlich">Einschreiben / Rückschein / Persönlich</option>
+                </select>
               </div>
             </div>
             
@@ -112,9 +124,8 @@
             <!-- VISUAL GUIDES TOGGLE -->
             <div>
               <h3 class="sidebar-label">Hilfslinien</h3>
-              <button id="btn-toggle-guides" class="btn primary" class="w-full">
-                📐 Falz- & Lochmarken ausblenden
-              </button>
+              <input type="checkbox" id="btn-toggle-guides" class="sr-only">
+              <label for="btn-toggle-guides" class="btn primary btn-guides w-full"></label>
             </div>
             
             <!-- OFFLINE FONT UPLOADER & MANAGER -->
@@ -199,7 +210,7 @@
           <button id="btn-print" class="btn primary" class="w-full">
             🖨️ Als PDF speichern / Drucken
           </button>
-          <button id="btn-reset" class="btn btn-danger w-full">
+          <button id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal">
             🗑️ Brief zurücksetzen
           </button>
         </div>

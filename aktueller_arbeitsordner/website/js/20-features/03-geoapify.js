@@ -39,8 +39,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   // Initial validation check if we have a key
   if (savedKey.trim()) {
     validateKeyWithHeartbeat(savedKey.trim());
-  } else {
-    setUIMode('no_key');
   }
 
   // Key input handler with Heartbeat Validation
@@ -51,7 +49,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     keyDebounceTimeout = setTimeout(async () => {
       if (!val) {
         StorageManager.saveGeoapifyKey('');
-        setUIMode('no_key');
         return;
       }
       validateKeyWithHeartbeat(val);
@@ -63,7 +60,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     if(confirm("Geoapify API-Key ändern?")) {
       StorageManager.saveGeoapifyKey('');
       inputGeoapifyKey.value = '';
-      setUIMode('no_key');
     }
   });
 
@@ -77,35 +73,16 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       });
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
-        setUIMode('has_key');
         if (onToast) onToast("🔑 Geoapify Key gültig!", "success");
       } else {
-        setUIMode('invalid_key');
         if (onToast) onToast("❌ Geoapify Key ungültig", "error");
       }
     } catch (err) {
-      setUIMode('invalid_key');
       if (onToast) onToast("❌ Fehler bei der Key-Validierung", "error");
     }
   }
 
-  /**
-   * @param {string} mode
-   */
-  function setUIMode(mode) {
-    const wrapper = document.getElementById('geoapify-wrapper');
-    if (!wrapper || !inputAddressSearch || !addressSuggestions) return;
-    
-    wrapper.classList.toggle('has-api-key', mode === 'has_key');
-    
-    if (mode === 'has_key') {
-      inputAddressSearch.disabled = false;
-    } else {
-      inputAddressSearch.disabled = true;
-      inputAddressSearch.value = '';
-      try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
-    }
-  }
+
 
   // --- LOCAL ADDRESS BOOK FEATURE ---
   /**
@@ -159,7 +136,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     const query = inputAddressSearch.value.trim();
 
     if (query.length < 3) {
-      addressSuggestions.style.display = 'none';
+      try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
       return;
     }
 
@@ -239,7 +216,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         StorageManager.saveGeoapifyKey('');
         const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
         if (keyEl) keyEl.value = '';
-        setUIMode('no_key');
         if (onToast) onToast("❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.", 'error');
         
         try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
@@ -268,7 +244,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       if (item.source === 'local') {
          const badge = document.createElement('span');
          badge.textContent = "⭐ Lokal";
-         badge.style.cssText = "float:right; font-size: 0.65rem; color: var(--accent-color); background: var(--segment-bg); padding: 2px 4px; border-radius: 4px;";
+         badge.className = "badge-local";
          li.appendChild(badge);
       }
       

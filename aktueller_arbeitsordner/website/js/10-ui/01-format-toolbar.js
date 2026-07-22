@@ -47,7 +47,6 @@ export class FormatToolbar {
     this.#initButtonListeners();
     this.#initPasteSanitizer();
     this.#initDropHandler();
-    this.#initKeyboardShortcuts();
   }
 
   // --- Private Methoden ---
@@ -139,37 +138,10 @@ export class FormatToolbar {
     const isQuote = this.#isSelectionInsideTag('BLOCKQUOTE');
     const isComment = this.#isSelectionInsideTag('comment');
 
-    if (this.#btnBold) {
-      if (isBold) {
-        this.#btnBold.setAttribute('aria-pressed', 'true');
-      } else {
-        this.#btnBold.setAttribute('aria-pressed', 'false');
-      }
-    }
-
-    if (this.#btnUnderline) {
-      if (isUnderline) {
-        this.#btnUnderline.setAttribute('aria-pressed', 'true');
-      } else {
-        this.#btnUnderline.setAttribute('aria-pressed', 'false');
-      }
-    }
-
-    if (this.#btnQuote) {
-      if (isQuote) {
-        this.#btnQuote.setAttribute('aria-pressed', 'true');
-      } else {
-        this.#btnQuote.setAttribute('aria-pressed', 'false');
-      }
-    }
-
-    if (this.#btnComment) {
-      if (isComment) {
-        this.#btnComment.setAttribute('aria-pressed', 'true');
-      } else {
-        this.#btnComment.setAttribute('aria-pressed', 'false');
-      }
-    }
+    if (this.#btnBold) this.#btnBold.setAttribute('aria-pressed', String(isBold));
+    if (this.#btnUnderline) this.#btnUnderline.setAttribute('aria-pressed', String(isUnderline));
+    if (this.#btnQuote) this.#btnQuote.setAttribute('aria-pressed', String(isQuote));
+    if (this.#btnComment) this.#btnComment.setAttribute('aria-pressed', String(isComment));
   }
 
   #initSelectionListener() {
@@ -232,28 +204,7 @@ export class FormatToolbar {
     }
   }
 
-  #initKeyboardShortcuts() {
-    this.#brieftext.addEventListener('keydown', (e) => {
-      const keyboardEvent = /** @type {KeyboardEvent} */ (e);
-      // Bold shortcut: Strg+B
-      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'b') {
-        keyboardEvent.preventDefault();
-        if (this.#btnBold) this.#btnBold.click();
-      }
-      
-      // Underline shortcut: Strg+U
-      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'u') {
-        keyboardEvent.preventDefault();
-        if (this.#btnUnderline) this.#btnUnderline.click();
-      }
-      
-      // Custom blockquote shortcut: Strg+Q
-      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
-        keyboardEvent.preventDefault();
-        if (this.#btnQuote) this.#btnQuote.click();
-      }
-    });
-  }
+
 
   #initPasteSanitizer() {
     // Strikter HTML-Paste-Filter (behält nur strong, b, u, s, blockquote, und din-comment spans)

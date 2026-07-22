@@ -692,6 +692,7 @@ din-anlagen, din-verteiler {
   align-items: center;
   flex-wrap: balance;
 }
+
 .sidebar-sub-label {
   font-size: 0.7rem;
   color: var(--text-muted);
@@ -701,21 +702,16 @@ din-anlagen, din-verteiler {
 }
 
 /* --- SIGNATURE UI STATES --- */
-#signature-image, #btn-reset-sig {
-  display: none !important;
-}
-body[data-has-signature] #signature-image,
-body[data-has-signature] #btn-reset-sig {
-  display: block !important;
-}
-body[data-has-signature] #btn-upload-sig-trigger {
-  display: none !important;
-}
+#signature-container { container-type: size; }
+#signature-image { width: 100%; height: 100%; object-fit: contain; }
+#signature-image:empty, #signature-image[src=""] { display: none !important; }
+#btn-reset-sig { display: none !important; }
+body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
+body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }
 
 /* --- CLEANUP UTILITIES --- */
 .w-full { width: 100%; }
 .mb-0 { margin-bottom: 0 !important; }
-
 .btn-danger {
   border-color: var(--danger-color);
   color: var(--danger-color);
@@ -804,5 +800,25 @@ body[data-has-signature] #btn-upload-sig-trigger {
 /* Geoapify State Toggles */
 #geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
 #geoapify-wrapper #address-search-container { display: none; }
-#geoapify-wrapper.has-api-key #geoapify-key-container { display: none; }
-#geoapify-wrapper.has-api-key #address-search-container { display: flex; flex-direction: column; }
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
+:root:has(#btn-toggle-guides:checked) {
+  --guide-opacity: 0.15;
+}
+.btn-guides::before {
+  content: '📐 Falz- & Lochmarken einblenden';
+}
+:root:has(#btn-toggle-guides:checked) .btn-guides::before {
+  content: '📐 Falz- & Lochmarken ausblenden';
+}
+.badge-local {
+  float: right;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  background: var(--segment-bg);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+#input-address-search {
+  anchor-name: --anchor-address-search;
+}

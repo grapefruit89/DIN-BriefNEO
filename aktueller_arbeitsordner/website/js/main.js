@@ -120,10 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset
     const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
     if (btnReset && resetDialog) {
-      btnReset.addEventListener('click', () => {
-        resetDialog.showModal();
-      });
-      
+
       resetDialog.addEventListener('close', () => {
         if (resetDialog.returnValue === 'confirm') {
           draftManager.resetDraft();

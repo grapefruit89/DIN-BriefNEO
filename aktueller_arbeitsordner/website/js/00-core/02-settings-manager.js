@@ -85,18 +85,8 @@ export class SettingsManager {
     }
 
     // 3. Layout Guides overlay
-    if (this.settings.guides) {
-      document.documentElement.style.setProperty('--guide-opacity', '0.15');
-      if (this.btnToggleGuides) {
-        this.btnToggleGuides.textContent = '📐 Falz- & Lochmarken ausblenden';
-        this.btnToggleGuides.classList.add('primary');
-      }
-    } else {
-      document.documentElement.style.setProperty('--guide-opacity', '0');
-      if (this.btnToggleGuides) {
-        this.btnToggleGuides.textContent = '📐 Falz- & Lochmarken einblenden';
-        this.btnToggleGuides.classList.remove('primary');
-      }
+    if (this.btnToggleGuides) {
+      /** @type {HTMLInputElement} */ (this.btnToggleGuides).checked = this.settings.guides;
     }
 
     // 4. System Font Stacks
@@ -222,8 +212,8 @@ export class SettingsManager {
 
     // Guides
     if (this.btnToggleGuides) {
-      this.btnToggleGuides.addEventListener('click', () => {
-        this.settings.guides = !this.settings.guides;
+      this.btnToggleGuides.addEventListener('change', () => {
+        this.settings.guides = /** @type {HTMLInputElement} */ (this.btnToggleGuides).checked;
         this.updateSettings();
       });
     }

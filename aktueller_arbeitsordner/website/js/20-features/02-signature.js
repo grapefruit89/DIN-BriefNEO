@@ -73,15 +73,7 @@ export class SignatureFeature {
     let width = img.width;
     let height = img.height;
 
-    // Scale maintaining aspect ratio
-    if (width > this.MAX_WIDTH) {
-      height *= this.MAX_WIDTH / width;
-      width = this.MAX_WIDTH;
-    }
-    if (height > this.MAX_HEIGHT) {
-      width *= this.MAX_HEIGHT / height;
-      height = this.MAX_HEIGHT;
-    }
+    // Aspect ratio preservation delegated to modern CSS object-fit
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -119,12 +111,10 @@ export class SignatureFeature {
    */
   applyImage(base64) {
     if (this.imgElement) this.imgElement.src = base64;
-    document.body.toggleAttribute('data-has-signature', true);
   }
 
   resetImage() {
     if (this.imgElement) this.imgElement.src = '';
-    document.body.toggleAttribute('data-has-signature', false);
 
     if (this.ui.settings) {
       delete this.ui.settings.signatureImage;

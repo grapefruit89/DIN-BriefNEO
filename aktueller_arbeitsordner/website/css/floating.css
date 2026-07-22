@@ -20,7 +20,7 @@
   box-shadow: var(--shadow-lg);
   z-index: 9999;
   pointer-events: auto;
-  touch-action: pan-y; /* For horizontal swipe-to-dismiss */
+  touch-action: pan-x; /* For horizontal swipe-to-dismiss */
   
   /* Flex Layout for Message and Close Button */
   display: flex;
@@ -29,7 +29,7 @@
   
   /* Initial state (Hidden and slid up) */
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(-20px) translateX(var(--swipe-x, 0px));
   
   /* Modern discrete transition handling exit and entrance */
   transition: 
@@ -41,8 +41,15 @@
 
 #toast-v4:popover-open {
   display: flex;
-  opacity: 1;
-  transform: translateY(0);
+  opacity: calc(1 - (var(--swipe-x-abs, 0) / 150));
+  transform: translateY(0) translateX(var(--swipe-x, 0px));
+}
+
+@starting-style {
+  #toast-v4:popover-open {
+    opacity: 0;
+    transform: translateY(-20px) translateX(var(--swipe-x, 0px));
+  }
 }
 
 @starting-style {
@@ -53,6 +60,10 @@
 }
 
 /* Stacking Counter Badge */
+.toast-badge:empty, .toast-action-btn:empty {
+  display: none !important;
+}
+
 .toast-badge {
   background: var(--text-primary);
   color: var(--bg-sidebar-glass);
@@ -94,7 +105,7 @@
   100% { transform: translateX(0); }
 }
 
-#toast-v4.shake {
+#toast-v4[data-shake="true"] {
   animation: shakeToast 0.3s ease-in-out;
 }
 

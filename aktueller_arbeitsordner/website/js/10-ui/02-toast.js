@@ -95,8 +95,8 @@ export class ToastSystem {
     if (deltaX > 0) {
       e.preventDefault(); // Prevent scrolling while swiping
       this.currentX = deltaX;
-      this.globalToast.style.transform = `translateX(${deltaX}px)`;
-      this.globalToast.style.opacity = String(Math.max(0, 1 - (deltaX / 150)));
+      this.globalToast.style.setProperty('--swipe-x', `${deltaX}px`);
+      this.globalToast.style.setProperty('--swipe-x-abs', `${Math.abs(deltaX)}`);
     }
   }
 
@@ -116,8 +116,8 @@ export class ToastSystem {
       this.cleanupPopover();
     } else {
       // Snap back to 0
-      this.globalToast.style.transform = '';
-      this.globalToast.style.opacity = '';
+      this.globalToast.style.removeProperty('--swipe-x');
+      this.globalToast.style.removeProperty('--swipe-x-abs');
     }
     this.currentX = 0;
   }
@@ -140,14 +140,13 @@ export class ToastSystem {
       this.toastCount++;
       if (this.toastBadge) {
         this.toastBadge.textContent = `x${this.toastCount}`;
-        this.toastBadge.style.display = 'inline-flex';
       }
       
       if (this.globalToast) {
-        // Trigger CSS Shake
-        this.globalToast.classList.remove('shake');
-        void this.globalToast.offsetWidth; // trigger reflow
-        this.globalToast.classList.add('shake');
+        this.globalToast.dataset.shake = 'false';
+        requestAnimationFrame(() => {
+          if (this.globalToast) this.globalToast.dataset.shake = 'true';
+        });
       }
       
       // Reset Timer
@@ -175,8 +174,8 @@ export class ToastSystem {
       if (this.toastMessage) this.toastMessage.textContent = message;
       if (this.globalToast) {
         this.globalToast.className = `toast-container type-${type}`;
-        this.globalToast.style.transform = ''; // Reset swipe
-        this.globalToast.style.opacity = '';
+        this.globalToast.style.removeProperty('--swipe-x'); // Reset swipe
+        this.globalToast.style.removeProperty('--swipe-x-abs');
       }
     }
   }
@@ -194,10 +193,10 @@ export class ToastSystem {
     }
 
     // Reset styles
-    if (this.toastBadge) this.toastBadge.style.display = 'none';
-    this.globalToast.classList.remove('shake');
-    this.globalToast.style.transform = '';
-    this.globalToast.style.opacity = '';
+    if (this.toastBadge) this.toastBadge.textContent = '';
+    this.globalToast.dataset.shake = 'false';
+    this.globalToast.style.removeProperty('--swipe-x');
+    this.globalToast.style.removeProperty('--swipe-x-abs');
 
     // Set Text and Type
     if (this.toastMessage) this.toastMessage.textContent = this.currentToast.message;

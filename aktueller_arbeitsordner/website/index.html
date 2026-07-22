@@ -36,12 +36,12 @@
           <div class="sidebar-section">
             
             <div class="sidebar-header-row" style="justify-content: flex-end;">
-              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 10:10</button>
+              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 10:18</button>
             </div>
             
             <div>
               <div class="segmented-control" focusgroup="horizontal wrap">
-                <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only" checked>
+                <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only">
                 <label for="btn-theme-light">☀️ Hell</label>
                 <input type="radio" name="theme" id="btn-theme-dark" value="dark" class="sr-only">
                 <label for="btn-theme-dark">🌙 Dunkel</label>
@@ -364,6 +364,11 @@
           
           // Theme
           let currentTheme = settings.theme || 'light';
+          if (currentTheme === 'auto') {
+            currentTheme = 'light';
+            settings.theme = 'light';
+            try { localStorage.setItem('din_settings', JSON.stringify(settings)); } catch(e){}
+          }
           if (currentTheme === 'light') {
             const btn = document.getElementById('btn-theme-light');
             if (btn) btn.checked = true;

@@ -856,13 +856,13 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 #geoapify-wrapper #address-search-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
-:root:has(#btn-toggle-guides:checked) {
+:root:has(#btn-guides-on:checked) {
   --guide-opacity: 0.15;
 }
 .btn-guides::before {
   content: '📐 Falz- & Lochmarken einblenden';
 }
-:root:has(#btn-toggle-guides:checked) .btn-guides::before {
+:root:has(#btn-guides-on:checked) .btn-guides::before {
   content: '📐 Falz- & Lochmarken ausblenden';
 }
 .badge-local {
@@ -881,4 +881,39 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 html.theme-transition::view-transition-old(root),
 html.theme-transition::view-transition-new(root) {
   animation-duration: 2s;
+}
+
+/* --- VERTICAL RADIO MENU --- */
+.radio-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.radio-menu label {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  background: var(--segment-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+.radio-menu label:hover {
+  border-color: var(--border-color-focus);
+}
+.radio-menu input[type="radio"]:checked + label {
+  background: var(--bg-card);
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+.radio-menu .rm-title {
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+.radio-menu .rm-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }

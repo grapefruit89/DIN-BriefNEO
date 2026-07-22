@@ -56,7 +56,7 @@
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
                 GitHub
               </a>
-              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 20:36</button>
+              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 20:53</button>
             </div>
             
             <div>
@@ -93,15 +93,17 @@
             </div>
 
             <!-- Toggles (Guides) -->
-            <div class="mt-4">
-              <label class="toggle-switch">
-                <input type="checkbox" id="btn-toggle-guides" class="sr-only" checked>
-                <div class="toggle-slider"></div>
-                <span class="text-xs fw-500">Hilfslinien anzeigen</span>
-              </label>
+            <div>
+              <h3 class="sidebar-label">Hilfslinien</h3>
+              <div class="segmented-control" focusgroup="horizontal wrap">
+                <input type="radio" name="guides" id="btn-guides-on" value="on" class="sr-only" checked autocomplete="off">
+                <label for="btn-guides-on">EIN</label>
+                <input type="radio" name="guides" id="btn-guides-off" value="off" class="sr-only" autocomplete="off">
+                <label for="btn-guides-off">AUS</label>
+              </div>
             </div>
             
-            <hr class="mt-4 mb-4" style="border:0; border-top:1px solid var(--border-color); opacity: 0.5;">
+
             
 
 
@@ -111,7 +113,7 @@
 
             <!-- OPTIONALE BLÖCKE -->
             <div>
-              <h3 class="sidebar-label">Zusatz-Elemente (Optional)</h3>
+              <h3 class="sidebar-label">Zusatz-Elemente</h3>
               <div class="sidebar-options-group">
                 <div class="sidebar-options-row">
                   <label class="sidebar-checkbox-label">
@@ -140,13 +142,22 @@
                       <!-- DATUMSFORMAT -->
             <div>
               <h3 class="sidebar-label">Datumsformat</h3>
-              <div class="segmented-control" focusgroup="horizontal wrap">
+              <div class="radio-menu" focusgroup="vertical wrap">
                 <input type="radio" name="date-format" id="btn-date-din" value="din" class="sr-only" checked autocomplete="off">
-                <label for="btn-date-din">31.12.2026</label>
+                <label for="btn-date-din">
+                  <div id="lbl-date-din" class="rm-title">22.07.2026</div>
+                  <div class="rm-sub">Deutsches Datum</div>
+                </label>
                 <input type="radio" name="date-format" id="btn-date-iso" value="iso" class="sr-only" autocomplete="off">
-                <label for="btn-date-iso">2026-12-31</label>
+                <label for="btn-date-iso">
+                  <div id="lbl-date-iso" class="rm-title">2026-07-22</div>
+                  <div class="rm-sub">ISO-Datum</div>
+                </label>
                 <input type="radio" name="date-format" id="btn-date-long" value="long" class="sr-only" autocomplete="off">
-                <label for="btn-date-long">31. Dezember 2026</label>
+                <label for="btn-date-long">
+                  <div id="lbl-date-long" class="rm-title">22. Juli 2026</div>
+                  <div class="rm-sub">Langform</div>
+                </label>
               </div>
             </div>
 

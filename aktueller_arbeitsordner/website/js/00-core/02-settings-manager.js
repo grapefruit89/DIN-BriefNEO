@@ -21,7 +21,8 @@ export class SettingsManager {
     /** @type {HTMLElement | null} */
     this.btnThemeAuto = document.getElementById('btn-theme-auto');
     /** @type {HTMLElement | null} */
-    this.btnToggleGuides = document.getElementById('btn-toggle-guides');
+    this.btnGuidesOn = document.getElementById('btn-guides-on');
+    this.btnGuidesOff = document.getElementById('btn-guides-off');
     
     // Font stack elements
     /** @type {HTMLElement | null} */
@@ -93,8 +94,12 @@ export class SettingsManager {
     }
 
     // 3. Layout Guides overlay
-    if (this.btnToggleGuides) {
-      /** @type {HTMLInputElement} */ (this.btnToggleGuides).checked = this.settings.guides;
+    if (this.btnGuidesOn && this.btnGuidesOff) {
+      if (this.settings.guides) {
+        /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked = true;
+      } else {
+        /** @type {HTMLInputElement} */ (this.btnGuidesOff).checked = true;
+      }
     }
 
     // 4. System Font Stacks
@@ -221,13 +226,13 @@ export class SettingsManager {
     }
 
     // Guides
-    if (this.btnToggleGuides) {
-      this.btnToggleGuides.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.guides = /** @type {HTMLInputElement} */ (this.btnToggleGuides).checked;
-        this.updateSettings();
-      });
-    }
+    const handleGuidesToggle = () => {
+      if (!this.isReady) return;
+      this.settings.guides = /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked;
+      this.updateSettings();
+    };
+    if (this.btnGuidesOn) this.btnGuidesOn.addEventListener('change', handleGuidesToggle);
+    if (this.btnGuidesOff) this.btnGuidesOff.addEventListener('change', handleGuidesToggle);
 
 
     // Font reset click listener

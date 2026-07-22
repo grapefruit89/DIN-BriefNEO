@@ -18,7 +18,7 @@
 
   /* === 1. SURFACES & NEUTRALS === */
   /* Premium Dark Mode: Deep, sleek midnight blue/charcoal. Light Mode: Clean, airy pearl/slate. */
-  --bg-viewport: light-dark(oklch(0.96 0.01 250), oklch(0.18 0.04 260));
+  --bg-viewport: light-dark(oklch(0.96 0.01 250), oklch(0.2735 0.0179 251.92));
   --bg-sidebar: light-dark(oklch(0.98 0.005 250), oklch(0.21 0.04 260));
   /* @todo(chrome-152): Refactor with CSS Color 5 alpha() function e.g. alpha(var(--bg-sidebar) 80%) */
   --bg-sidebar-glass: light-dark(oklch(0.98 0.005 250 / 80%), oklch(0.21 0.04 260 / 80%));

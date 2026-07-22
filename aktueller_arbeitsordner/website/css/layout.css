@@ -746,7 +746,7 @@ din-anlagen, din-verteiler {
 /* --- SIGNATURE UI STATES --- */
 
 
-#signature-image:empty, #signature-image[src=""] { display: none !important; }
+#signature-image[src=""] { display: none !important; }
 #btn-reset-sig { display: none !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }

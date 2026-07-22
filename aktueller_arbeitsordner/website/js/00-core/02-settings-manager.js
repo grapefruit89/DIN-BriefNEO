@@ -43,7 +43,13 @@ export class SettingsManager {
   init() {
     this.applySettings();
     this.initFontInjection();
-    this.attachListeners();
+    
+    // Defeat Chrome's aggressive form restoration by re-applying settings 
+    // and attaching listeners after the restorer has finished (approx 100ms).
+    setTimeout(() => {
+      this.applySettings();
+      this.attachListeners();
+    }, 150);
   }
 
   /**
@@ -149,13 +155,13 @@ export class SettingsManager {
   attachListeners() {
     // Font Stack Toggles
     if (this.btnFontSans) {
-      this.btnFontSans.addEventListener('change', () => {
+      this.btnFontSans.addEventListener('click', () => {
         this.settings.systemFont = 'sans';
         this.updateSettings();
       });
     }
     if (this.btnFontSerif) {
-      this.btnFontSerif.addEventListener('change', () => {
+      this.btnFontSerif.addEventListener('click', () => {
         this.settings.systemFont = 'serif';
         this.updateSettings();
       });
@@ -163,7 +169,7 @@ export class SettingsManager {
 
     // Layout Form switches
     if (this.btnFormA) {
-      this.btnFormA.addEventListener('change', () => {
+      this.btnFormA.addEventListener('click', () => {
         this._transitionState(() => {
           this.settings.layout = 'form-a';
           this.updateSettings();
@@ -172,7 +178,7 @@ export class SettingsManager {
     }
     
     if (this.btnFormB) {
-      this.btnFormB.addEventListener('change', () => {
+      this.btnFormB.addEventListener('click', () => {
         this._transitionState(() => {
           this.settings.layout = 'form-b';
           this.updateSettings();
@@ -182,7 +188,7 @@ export class SettingsManager {
 
     // Theme select toggles
     if (this.btnThemeLight) {
-      this.btnThemeLight.addEventListener('change', () => {
+      this.btnThemeLight.addEventListener('click', () => {
         this._transitionState(() => {
           this.settings.theme = 'light';
           this.updateSettings();
@@ -191,7 +197,7 @@ export class SettingsManager {
     }
 
     if (this.btnThemeDark) {
-      this.btnThemeDark.addEventListener('change', () => {
+      this.btnThemeDark.addEventListener('click', () => {
         this._transitionState(() => {
           this.settings.theme = 'dark';
           this.updateSettings();
@@ -201,7 +207,8 @@ export class SettingsManager {
 
     // Guides
     if (this.btnToggleGuides) {
-      this.btnToggleGuides.addEventListener('change', () => {
+      this.btnToggleGuides.addEventListener('change', (e) => {
+        if (!e.isTrusted) return; // Ignore synthetic events on checkboxes
         this.settings.guides = /** @type {HTMLInputElement} */ (this.btnToggleGuides).checked;
         this.updateSettings();
       });

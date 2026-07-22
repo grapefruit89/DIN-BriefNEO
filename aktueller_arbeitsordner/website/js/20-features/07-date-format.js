@@ -36,7 +36,7 @@ export class DateFormatter {
     
     Object.entries(this.buttons).forEach(([formatType, btn]) => {
       if (btn) {
-        btn.addEventListener('change', () => {
+        btn.addEventListener('click', () => {
           this.formatDate(formatType);
           this.saveSetting(formatType);
         });

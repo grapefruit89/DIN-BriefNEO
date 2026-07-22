@@ -136,7 +136,7 @@ export class SalutationFeature {
     ['formal', 'polite', 'casual'].forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
       if (btn) {
-        btn.addEventListener('change', () => {
+        btn.addEventListener('click', () => {
           this.settings.formality = style;
           this.settings.salutationDirty = false;
           this.settings.closingDirty = false;
@@ -152,7 +152,7 @@ export class SalutationFeature {
     ['none', 'female', 'male'].forEach(gender => {
       const btn = document.getElementById(`btn-gender-${gender}`);
       if (btn) {
-        btn.addEventListener('change', () => {
+        btn.addEventListener('click', () => {
           this.settings.recipientType = gender;
           StorageManager.saveSettings(this.settings);
           this._regenerateSalutation();

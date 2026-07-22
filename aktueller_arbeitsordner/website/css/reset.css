@@ -32,10 +32,7 @@ body.font-custom-active din-a4 {
   font-family: 'AptosCustom', var(--font-active-stack);
 }
 
-/* Scrollbars completely disabled globally */
-::-webkit-scrollbar {
-  display: none;
-}
+
 
 body {
   background-color: var(--bg-viewport);

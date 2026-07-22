@@ -9,13 +9,8 @@
   /* Die Werte werden jetzt direkt als Single Source of Truth aus dem HTML <din-a4> geladen! */
 }
 
-/* Globales Scrollbar-Verbot */
-* {
-  scrollbar-width: none;
-}
-*::-webkit-scrollbar {
-  display: none;
-}
+
+
 
 din-a4 {
   --din-width: 210;
@@ -78,11 +73,7 @@ aside {
   -webkit-text-fill-color: transparent;
 }
 
-.sidebar-scroll {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 12px;
-}
+
 
 .sidebar-section {
   display: flex;
@@ -233,7 +224,6 @@ aside {
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: auto; /* Nativer Zoom-Scroll-Fallback */
   background: var(--bg-viewport);
   padding: 3vh; /* Harmonischer Rand */
   
@@ -248,7 +238,7 @@ aside {
     display: block;
     position: relative;
     
-    /* Das Blatt nimmt maximal die Breite oder Hoehe des Viewports an, ohne zu scrollen */
+    /* Das Blatt nimmt maximal die Breite oder Hoehe des Viewports an, ohne ueberzulaufen */
     width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
     height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
     aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhaeltnis */
@@ -376,9 +366,7 @@ aside {
     bottom: calc(30 / var(--din-height) * 100cqh); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* Required for scroll-state query */
     overflow-x: hidden;
-    container-type: scroll-state;
     container-name: briefkern;
   }
 
@@ -415,33 +403,7 @@ aside {
     font-weight: 500;
   }
 
-  /* --- SEITENÜBERLAUF-WARNUNG (UX) via SCROLL-STATE --- */
-  .overflow-indicator-text {
-    display: none;
-    position: sticky;
-    bottom: 0;
-    margin-top: auto;
-    align-self: flex-end;
-    background: var(--c-danger);
-    color: oklch(100% 0 0);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: calc(7.5 * 0.168cqw);
-    font-weight: bold;
-    box-shadow: 0 4px 12px oklch(0% 0 0 / 15%);
-    pointer-events: none;
-    z-index: 100;
-    animation: pulse-alert 2s infinite;
-  }
-
-  @container briefkern scroll-state(overflow-y: true) {
-    /* Zeigt die rote Strichlierung um das überlaufende Element an */
-    outline: 2px dashed var(--c-danger) !important;
-    outline-offset: -4px;
-    
-    .overflow-indicator-text {
-      display: block;
-    }
+  
   }
 }
 

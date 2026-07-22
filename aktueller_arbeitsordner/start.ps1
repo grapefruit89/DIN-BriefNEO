@@ -57,6 +57,18 @@ $indexContent = $indexContent -replace '(?<=<button id="btn-dev-mode"[^>]*>).*?(
 [IO.File]::WriteAllText($indexPath, $indexContent)
 Write-Host "    Version aktualisiert auf: Build: $timestamp" -ForegroundColor Green
 
+Write-Host "[X] Prüfe auf verbotene 'scroll' Begriffe in HTML und CSS..." -ForegroundColor Yellow
+$scrollMatches = Select-String -Path "$targetDir\website\*.html", "$targetDir\website\css\*.css" -Pattern "scroll" -AllMatches -SimpleMatch
+if ($scrollMatches) {
+    Write-Host "GEFAHR: Verbotener Begriff 'scroll' in UI-Dateien gefunden!" -ForegroundColor Red
+    foreach ($match in $scrollMatches) {
+        Write-Host "  $($match.Filename):$($match.LineNumber) - $($match.Line.Trim())" -ForegroundColor Red
+    }
+    Write-Error "Scroll-Elemente (Klassen, Attribute, Kommentare) sind in diesem Projekt absolut verboten! Bitte entfernen."
+    exit 1
+}
+Write-Host "    Keine Scroll-Begriffe gefunden. Sauber!" -ForegroundColor Green
+
 Write-Host "[2/4] Generiere aktuellen LLM-System-Prompt..." -ForegroundColor Yellow
 node tools/create_context.js
 

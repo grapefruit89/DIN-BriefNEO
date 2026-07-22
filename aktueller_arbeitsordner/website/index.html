@@ -36,7 +36,7 @@
           <div class="sidebar-section">
             
             <div class="sidebar-header-row" style="justify-content: flex-end;">
-              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 10:26</button>
+              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 10:34</button>
             </div>
             
             <div>
@@ -405,80 +405,59 @@
           }
         }
 
-        // Hydrate Settings (UI state and Theme)
+        // Hydrate Settings (UI state and Theme) Robustly
+        let settings = { theme: 'light', layout: 'form-b', guides: true, systemFont: 'sans', formality: 'formal' };
         const settingsStr = localStorage.getItem('din_settings');
         if (settingsStr) {
-          const settings = JSON.parse(settingsStr);
-          
-          // Theme
-          let currentTheme = settings.theme || 'light';
-          if (currentTheme === 'auto') {
-            currentTheme = 'light';
-            settings.theme = 'light';
-            try { localStorage.setItem('din_settings', JSON.stringify(settings)); } catch(e){}
-          }
-          if (currentTheme === 'light') {
-            const btn = document.getElementById('btn-theme-light');
-            if (btn) btn.checked = true;
-          } else if (currentTheme === 'dark') {
-            const btn = document.getElementById('btn-theme-dark');
-            if (btn) btn.checked = true;
-          }
-          
-          // Layout (CSS-First Refactoring)
-          if (settings.layout === 'form-a') {
-            const btnFormA = document.getElementById('btn-form-a');
-            if (btnFormA) btnFormA.checked = true;
-          }
-          
-          // Guides
+          try { Object.assign(settings, JSON.parse(settingsStr)); } catch(e){}
+        }
+        
+        // Scrub legacy
+        if (settings.theme === 'auto') {
+          settings.theme = 'light';
+          try { localStorage.setItem('din_settings', JSON.stringify(settings)); } catch(e){}
+        }
+
+        // Apply robustly to DOM so Chrome form restore doesn't override JS
+        function setRadio(name, val) {
+          document.querySelectorAll(`input[type="radio"][name="${name}"]`).forEach(b => {
+            if (b.value === val) { 
+              b.checked = true; 
+              b.setAttribute('checked', 'true'); 
+            } else { 
+              b.checked = false; 
+              b.removeAttribute('checked'); 
+            }
+          });
+        }
+
+        setRadio('theme', settings.theme);
+        setRadio('layout-form', settings.layout);
+        setRadio('salutation', settings.formality);
+        setRadio('font-stack', settings.systemFont);
+        
+        if (settings.systemFont !== 'serif') document.body.classList.add('font-stack-sans');
+
+        const guidesBtn = document.getElementById('btn-toggle-guides');
+        if (guidesBtn) {
+          guidesBtn.checked = settings.guides;
           if (settings.guides) {
+            guidesBtn.setAttribute('checked', 'true');
             document.documentElement.style.setProperty('--guide-opacity', '0.15');
-            const btn = document.getElementById('btn-toggle-guides');
-            if (btn) {
-              btn.textContent = '📐 Falz- & Lochmarken ausblenden';
-              btn.classList.add('primary');
-            }
           } else {
+            guidesBtn.removeAttribute('checked');
             document.documentElement.style.setProperty('--guide-opacity', '0');
-            const btn = document.getElementById('btn-toggle-guides');
-            if (btn) {
-              btn.textContent = '📐 Falz- & Lochmarken einblenden';
-              btn.classList.remove('primary');
-            }
           }
+        }
 
-          // System Font
-          if (settings.systemFont === 'serif') {
-            const btn = document.getElementById('btn-font-serif');
-            if (btn) btn.checked = true;
-          } else {
-             document.body.classList.add('font-stack-sans');
-          }
-
-          // Custom Font (AptosCustom)
-          const customFont = localStorage.getItem('din_brief_custom_font');
-          if (customFont) {
-             document.body.classList.add('font-custom-active');
-             const status = document.getElementById('font-status-label');
-             const btnReset = document.getElementById('btn-reset-font');
-             if (status) status.textContent = "Aktiv: Eigene Schrift (WOFF2)";
-             if (btnReset) btnReset.style.display = 'block';
-          }
-          
-          // Formality (Brief-Stil)
-          if (settings.formality) {
-            ['formal', 'polite', 'casual'].forEach(style => {
-              const btn = document.getElementById('btn-style-' + style);
-              if (btn) {
-                if (settings.formality === style) {
-                  btn.setAttribute('aria-pressed', 'true');
-                } else {
-                  btn.setAttribute('aria-pressed', 'false');
-                }
-              }
-            });
-          }
+        // Custom Font (AptosCustom)
+        const customFont = localStorage.getItem('din_brief_custom_font');
+        if (customFont) {
+           document.body.classList.add('font-custom-active');
+           const status = document.getElementById('font-status-label');
+           const btnReset = document.getElementById('btn-reset-font');
+           if (status) status.textContent = "Aktiv: Eigene Schrift (WOFF2)";
+           if (btnReset) btnReset.style.display = 'block';
         }
       } catch(e) {}
     </script>

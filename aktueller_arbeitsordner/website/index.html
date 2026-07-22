@@ -36,17 +36,15 @@
           <div class="sidebar-section">
             
             <div class="sidebar-header-row" style="justify-content: flex-end;">
-              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 10:03</button>
+              <button id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren">22.07.2026 10:10</button>
             </div>
             
             <div>
               <div class="segmented-control" focusgroup="horizontal wrap">
-                <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only">
+                <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only" checked>
                 <label for="btn-theme-light">☀️ Hell</label>
                 <input type="radio" name="theme" id="btn-theme-dark" value="dark" class="sr-only">
                 <label for="btn-theme-dark">🌙 Dunkel</label>
-                <input type="radio" name="theme" id="btn-theme-auto" value="auto" class="sr-only" checked>
-                <label for="btn-theme-auto">💻 Auto</label>
               </div>
             </div>
 
@@ -365,31 +363,13 @@
           const settings = JSON.parse(settingsStr);
           
           // Theme
-          let currentTheme = settings.theme || 'auto';
+          let currentTheme = settings.theme || 'light';
           if (currentTheme === 'light') {
             const btn = document.getElementById('btn-theme-light');
             if (btn) btn.checked = true;
           } else if (currentTheme === 'dark') {
             const btn = document.getElementById('btn-theme-dark');
             if (btn) btn.checked = true;
-          } else {
-            // AUTO Mode (Time-based sunrise/sunset Bonn approx)
-            const btn = document.getElementById('btn-theme-auto');
-            if (btn) btn.checked = true;
-          }
-
-          // Apply Auto Mode Date Calculation if needed
-          if (currentTheme === 'auto') {
-            try {
-              const now = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
-              const h = now.hour;
-              const m = now.month - 1;
-              const sunsets = [16,17,18,20,21,21,21,20,19,18,16,16];
-              const isDark = (h >= sunsets[m] || h < 7);
-              document.body.dataset.autoTheme = isDark ? 'dark' : 'light';
-            } catch(e) {
-              document.body.dataset.autoTheme = 'light';
-            }
           }
           
           // Layout (CSS-First Refactoring)

@@ -63,23 +63,7 @@ export class SettingsManager {
     }
   }
 
-  _applyAutoThemeTime() {
-    if (this.settings.theme !== 'auto') return;
-    try {
-      const now = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
-      const h = now.hour;
-      const m = now.month - 1;
-      // Ungefähre Sonnenuntergangszeiten in Bonn pro Monat (Januar=0)
-      const sunsets = [16,17,18,20,21,21,21,20,19,18,16,16];
-      const isDark = (h >= sunsets[m] || h < 7);
-      document.body.dataset.autoTheme = isDark ? 'dark' : 'light';
-    } catch(e) {
-      document.body.dataset.autoTheme = 'light';
-    }
-  }
-
   applySettings() {
-    this._applyAutoThemeTime();
     // 1. Layout Mode A/B (CSS-First Refactoring)
     if (this.btnFormA && this.btnFormB) {
       if (this.settings.layout === 'form-a') {
@@ -90,13 +74,11 @@ export class SettingsManager {
     }
 
     // 2. Color Schemes (Theme light-dark supported)
-    if (this.btnThemeLight && this.btnThemeDark && this.btnThemeAuto) {
+    if (this.btnThemeLight && this.btnThemeDark) {
       if (this.settings.theme === 'light') {
         /** @type {HTMLInputElement} */ (this.btnThemeLight).checked = true;
       } else if (this.settings.theme === 'dark') {
         /** @type {HTMLInputElement} */ (this.btnThemeDark).checked = true;
-      } else {
-        /** @type {HTMLInputElement} */ (this.btnThemeAuto).checked = true;
       }
     }
 
@@ -212,15 +194,6 @@ export class SettingsManager {
       this.btnThemeDark.addEventListener('change', () => {
         this._transitionState(() => {
           this.settings.theme = 'dark';
-          this.updateSettings();
-        });
-      });
-    }
-
-    if (this.btnThemeAuto) {
-      this.btnThemeAuto.addEventListener('change', () => {
-        this._transitionState(() => {
-          this.settings.theme = 'auto';
           this.updateSettings();
         });
       });

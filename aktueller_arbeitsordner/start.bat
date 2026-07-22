@@ -1,11 +1,6 @@
 @echo off
 
-:: Self-Minimize Trick: Startet das Skript sofort minimiert neu, falls nicht schon minimiert
-if not "%MINIMIZED%"=="1" (
-    set MINIMIZED=1
-    start /min cmd /c "%~f0" %*
-    exit /b
-)
+
 
 title DIN-BriefNEO - Server starten
 

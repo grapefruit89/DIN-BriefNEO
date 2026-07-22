@@ -52,13 +52,20 @@ export class SettingsManager {
   /**
    * Helper for safe native W3C View Transitions
    * @param {() => void} updateFn
+   * @param {string|null} customClass
    */
-  _transitionState(updateFn) {
+  _transitionState(updateFn, customClass = null) {
     const doc = /** @type {any} */ (document);
     if (doc.startViewTransition) {
       try {
-        doc.startViewTransition(updateFn);
+        if (customClass) document.documentElement.classList.add(customClass);
+        const t = doc.startViewTransition(updateFn);
+        if (customClass) {
+          t.finished.finally(() => document.documentElement.classList.remove(customClass));
+        }
+        return t;
       } catch(e) {
+        if (customClass) document.documentElement.classList.remove(customClass);
         updateFn();
       }
     } else {
@@ -188,24 +195,29 @@ export class SettingsManager {
     }
 
     // Theme select toggles
+    /**
+     * @param {Event} e
+     * @param {string} theme
+     */
+    const handleThemeToggle = (e, theme) => {
+      if (!this.isReady) return;
+      if (this.settings.theme === theme) return;
+      e.preventDefault(); // Prevent native CSS radio `:has()` toggle from instantly snapping
+      
+      this._transitionState(() => {
+        const radio = theme === 'light' ? this.btnThemeLight : this.btnThemeDark;
+        if (radio) /** @type {HTMLInputElement} */ (radio).checked = true;
+        this.settings.theme = theme;
+        this.updateSettings();
+      }, 'theme-transition');
+    };
+
     if (this.btnThemeLight) {
-      this.btnThemeLight.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this._transitionState(() => {
-          this.settings.theme = 'light';
-          this.updateSettings();
-        });
-      });
+      this.btnThemeLight.addEventListener('click', (e) => handleThemeToggle(e, 'light'));
     }
 
     if (this.btnThemeDark) {
-      this.btnThemeDark.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this._transitionState(() => {
-          this.settings.theme = 'dark';
-          this.updateSettings();
-        });
-      });
+      this.btnThemeDark.addEventListener('click', (e) => handleThemeToggle(e, 'dark'));
     }
 
     // Guides

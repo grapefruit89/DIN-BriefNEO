@@ -876,3 +876,9 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 #input-address-search {
   anchor-name: --anchor-address-search;
 }
+
+/* --- 2-SECOND THEME VIEW TRANSITION --- */
+html.theme-transition::view-transition-old(root),
+html.theme-transition::view-transition-new(root) {
+  animation-duration: 2s;
+}

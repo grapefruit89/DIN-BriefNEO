@@ -12,7 +12,7 @@ tags: [context, llm, prompt]
 > Nutze KEINE veralteten APIs (z.B. execCommand) und KEINE Frameworks.
 > 
 > Dies ist dein maßgeblicher System-Prompt.
-> Generiert am: 2026-07-22T12:48:03.825Z
+> Generiert am: 2026-07-22T12:52:05.474Z
 > ==============================================================================
 
 

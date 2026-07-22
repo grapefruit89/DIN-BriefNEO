@@ -1,6 +1,9 @@
 ---
-created: '2026-07-06'
+code_links: []
+created: '2026-07-02'
 depends_on: []
+doc_links: []
+id: adr-bersicht
 project: DIN-BriefNEO
 status: active
 tags:
@@ -9,7 +12,7 @@ tags:
 - dashboard
 title: ADR-Übersicht
 type: overview
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # ADR-Übersicht (Dataview)

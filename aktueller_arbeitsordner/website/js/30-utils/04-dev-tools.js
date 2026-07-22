@@ -1,10 +1,12 @@
+// @ts-check
 // /* @adr [[ADR-DATA-PERSISTENCE]] {JSON Data-IO} */
 
 export function initDevTools() {
   // JSON Export (Dev Tool)
   document.getElementById('btn-copy-json')?.addEventListener('click', async (e) => {
-    const btn = e.target;
-    const originalText = btn.textContent;
+    const btn = /** @type {HTMLElement | null} */ (e.target);
+    if (!btn) return;
+    const originalText = btn.textContent || '';
     btn.textContent = 'Kopiere...';
     
     const state = {
@@ -32,8 +34,9 @@ export function initDevTools() {
 
   // JSON Import (Dev Tool)
   document.getElementById('btn-paste-json')?.addEventListener('click', async (e) => {
-    const btn = e.target;
-    const originalText = btn.textContent;
+    const btn = /** @type {HTMLElement | null} */ (e.target);
+    if (!btn) return;
+    const originalText = btn.textContent || '';
     btn.textContent = 'Füge ein...';
     try {
       const text = await navigator.clipboard.readText();
@@ -42,8 +45,9 @@ export function initDevTools() {
         const elem = document.getElementById(key);
         if (elem) {
           if (key === 'brieftext') {
-            if (elem.setHTML) {
-              try { elem.setHTML(state[key], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] }); }
+            const elWithSetHTML = /** @type {any} */ (elem);
+            if (elWithSetHTML.setHTML) {
+              try { elWithSetHTML.setHTML(state[key], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] }); }
               catch(e) { 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(state[key], 'text/html');

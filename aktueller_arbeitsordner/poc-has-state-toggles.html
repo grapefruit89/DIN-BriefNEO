@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PoC 3 — State Toggles & Form Sync</title>
+  <link rel="stylesheet" href="poc-has-state-toggles.css">
+  <!-- 
+    PoC 3: State Toggles & Form Synchronizations
+    Demonstrates Chrome 140-150 Bleeding Edge Primitives:
+    1. CSS :has(#input-geoapify-key:not(:placeholder-shown)) for API key state detection
+    2. CSS :has(#signature-image[src]:not([src=""])) for signature presence toggles
+    3. HTML Radio Inputs + CSS :checked / :has() for Salutation & Date format state sync
+  -->
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PoC 3 — State Toggles & Declarative Sync</h1>
+      <p class="description">
+        Demonstrates pure CSS detection of form input states, image source availability, and radio button sync without imperative JS event loops.
+      </p>
+    </header>
+
+    <!-- Section 1: Geoapify API Key Status via CSS :has() -->
+    <section class="card">
+      <h2>1. Geoapify API Key State via CSS <code>:has()</code></h2>
+      <p>Type any API key into the input field. The UI status indicator and search box activate purely via CSS pseudo-class selection.</p>
+
+      <div class="geoapify-wrapper">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <label for="input-geoapify-key" style="font-weight: 600;">Geoapify API-Schlüssel:</label>
+          <input type="text" id="input-geoapify-key" placeholder="API-Key hier eingeben..." value="">
+        </div>
+
+        <div>
+          <!-- Dynamic status badge driven by CSS :has() -->
+          <span class="key-status-indicator"></span>
+        </div>
+
+        <div id="address-search-container" style="display: flex; flex-direction: column; gap: 0.5rem; transition: opacity 0.25s ease;">
+          <label for="input-address-search" style="font-weight: 600;">Adress-Suche (Geoapify Autocomplete):</label>
+          <input type="text" id="input-address-search" placeholder="Straße, PLZ oder Ort suchen...">
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Signature Image Presence via CSS :has() -->
+    <section class="card">
+      <h2>2. Signature Image Presence via CSS <code>:has()</code></h2>
+      <p>Simulate uploading or resetting a signature image. Button visibility and preview boxes adjust declaratively in CSS.</p>
+
+      <div class="signature-section">
+        <div class="signature-preview-box">
+          <span id="empty-sig-notice" style="font-size: 0.85rem; opacity: 0.6;">Keine Unterschrift</span>
+          <!-- Signature image src checked via CSS :has(#signature-image[src]:not([src=""])) -->
+          <img id="signature-image" src="" alt="Unterschrift">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button id="btn-simulate-upload" class="btn" style="background: var(--primary); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+            🖋️ Unterschrift hochladen
+          </button>
+          
+          <!-- Button display managed purely in CSS by :has() -->
+          <button id="btn-reset-signature" class="btn" style="background: var(--danger); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+            🗑️ Entfernen
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Radio Input Salutation & Date Format State Sync -->
+    <section class="card">
+      <h2>3. Salutation & Date Format Sync (HTML State & CSS <code>:checked</code>)</h2>
+      <p>Segmented controls update active styling natively in CSS without requiring JS loops.</p>
+
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0;">Anrede-Stil (Salutation Engine):</h4>
+          <div class="segmented-control">
+            <input type="radio" id="btn-style-formal" name="formality" value="formal" class="sr-only" checked>
+            <label for="btn-style-formal">Förmlich</label>
+
+            <input type="radio" id="btn-style-polite" name="formality" value="polite" class="sr-only">
+            <label for="btn-style-polite">Höflich</label>
+
+            <input type="radio" id="btn-style-casual" name="formality" value="casual" class="sr-only">
+            <label for="btn-style-casual">Locker</label>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0;">Datums-Format:</h4>
+          <div class="segmented-control">
+            <input type="radio" id="btn-date-din" name="dateformat" value="din" class="sr-only" checked>
+            <label for="btn-date-din">DIN (TT.MM.JJJJ)</label>
+
+            <input type="radio" id="btn-date-iso" name="dateformat" value="iso" class="sr-only">
+            <label for="btn-date-iso">ISO (JJJJ-MM-TT)</label>
+
+            <input type="radio" id="btn-date-long" name="dateformat" value="long" class="sr-only">
+            <label for="btn-date-long">Ausschreiben</label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Minimal JS script only to handle signature image simulation buttons
+    const sigImg = document.getElementById('signature-image');
+    const uploadBtn = document.getElementById('btn-simulate-upload');
+    const resetBtn = document.getElementById('btn-reset-signature');
+
+    // 1px SVG placeholder image representing a signature line
+    const sampleSigBase64 = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='50'><path d='M 10 40 Q 30 10, 60 30 T 110 20' stroke='black' stroke-width='3' fill='none'/></svg>";
+
+    uploadBtn.addEventListener('click', () => {
+      sigImg.src = sampleSigBase64;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      sigImg.src = ""; // Setting src to empty string triggers CSS :has() rule!
+    });
+  </script>
+</body>
+</html>

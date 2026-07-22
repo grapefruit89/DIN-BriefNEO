@@ -1,17 +1,17 @@
 ---
+code_links: []
+created: '2026-07-06'
+depends_on: []
+doc_links: []
 id: doc-wiki-bundle-template
+status: active
+tags:
+- template
+- wiki-bundle
+- llm-context
 title: Wiki Bundle & Context Pack Template
 type: concept
-status: active
-doc_links: []
-code_links: []
-tags:
-  - template
-  - wiki-bundle
-  - llm-context
-created: 2026-07-06
-updated: 2026-07-06
-depends_on: []
+updated: '2026-07-07'
 ---
 
 # 📚 OmniTraceability Wiki Bundle
@@ -25,9 +25,11 @@ Du bist ein KI-Agent, der im Projekt **DIN-Brief Neo** arbeitet.
 Dieses Dokument enthält den gebündelten Architektur- und Implementierungskontext für deinen zugewiesenen Scope.
 
 **Wichtigste Regeln:**
+
 1. Beachte strikt die Vorgaben in `AGENTS.md` (Branchless Workflow, 100% Fitness Score, Logging).
-2. Nutze Vanilla CSS und Vanilla JS (keine Build-Tools im Frontend, kein Tailwind, kein React).
+
 3. Halte dich an das KISS-Prinzip (Keep It Simple, Stupid).
+
 4. Wenn du Quellcode schreibst, verknüpfe ihn durch Header-Tags `/* @adr [[ADR-Name]] {FunctionName} */` mit den unten aufgeführten Architektur-Dokumenten.
 
 ---

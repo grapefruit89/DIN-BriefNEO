@@ -1,18 +1,18 @@
 ---
-id: guide-[kurz-id]
-title: "Guide: [Thema des Guides]"
-type: guide
-status: draft | active | deprecated
-doc_links:
-  - "[[ADR-XXX]]"
-  - "[[longevity-guidelines]]"
 code_links: []
+created: '2026-06-30'
 depends_on: []
-tags: 
-  - guide
-  - documentation
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
+doc_links:
+- '[[ADR-XXX]]'
+- '[[longevity-guidelines]]'
+id: guide-[kurz-id]
+status: draft | active | deprecated
+tags:
+- guide
+- documentation
+title: 'Guide: [Thema des Guides]'
+type: guide
+updated: '2026-07-07'
 ---
 
 # Guide: [Titel]
@@ -24,8 +24,11 @@ updated: YYYY-MM-DD
 ## 1. Einleitung & Zielsetzung
 
 Kurze Einleitung:
+
 - Was ist das Ziel dieses Guides?
+
 - Welches Problem löst er?
+
 - Welche Annahmen gibt es?
 
 ## 2. Best Practices & Regeln
@@ -33,8 +36,11 @@ Kurze Einleitung:
 Hier kommen die konkreten Richtlinien. Nutze Checklisten oder nummerierte Listen:
 
 - **Regel 1**: ...
+
   - [x] Wird bereits umgesetzt
+
   - [ ] Noch ausstehend
+
 - **Regel 2**: ...
 
 ### Vorher / Nachher Beispiele
@@ -71,7 +77,9 @@ Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 ## 5. Verwandte Dokumente
 
 - [[longevity-guidelines]]
+
 - [[ADR-XXX]]
+
 - [[glossary]]
 
 ---
@@ -79,7 +87,11 @@ Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 ## Hinweise zur Nutzung dieses Templates
 
 - **Frontmatter ist verpflichtend**
+
 - Der Guide soll **praktisch** und **umsetzbar** sein (keine reinen Theorie-Texte)
+
 - Nutze `diff`-Blöcke und `<details>` für bessere Lesbarkeit
+
 - Halte den Guide möglichst **kurz und fokussiert** (max. 1–2 Bildschirmseiten ideal)
+
 - Verlinke stark auf ADRs und andere Guides statt Inhalte zu duplizieren

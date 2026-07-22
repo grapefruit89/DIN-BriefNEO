@@ -1,20 +1,35 @@
-// @adr [[ADR-API]] 
+// @ts-check
 // @guide [[geoapify-autocomplete]] 
 
 import { StorageManager } from '../30-utils/02-storage.js';
 
-/* @adr [[ADR-API]] {initAddressServices} */
+/**
+ * @typedef {object} AddressEntry
+ * @property {string} street
+ * @property {string} housenumber
+ * @property {string} postcode
+ * @property {string} city
+ * @property {string} formatted
+ * @property {string} [source]
+ */
+
+/**
+ * @param {{ onToast: ((msg: string, type?: string) => void) | null, onSaveDraft: (() => void) | null }} params
+ */
 export function initAddressServices({ onToast, onSaveDraft }) {
-  const inputGeoapifyKey = document.getElementById('input-geoapify-key');
+  const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
-  const inputAddressSearch = document.getElementById('input-address-search');
+  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-address-search'));
   const addressSuggestions = document.getElementById('address-suggestions');
   const addressSearchContainer = document.getElementById('address-search-container');
 
   if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !geoapifyKeyContainer || !addressSearchContainer) return;
 
+  /** @type {AbortController | null} */
   let activeAbortController = null;
+  /** @type {any} */
   let debounceSearchTimeout = null;
+  /** @type {any} */
   let keyDebounceTimeout = null;
 
   // Load initial settings
@@ -52,6 +67,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     }
   });
 
+  /**
+   * @param {string} key
+   */
   async function validateKeyWithHeartbeat(key) {
     try {
       const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1`, {
@@ -71,27 +89,38 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     }
   }
 
+  /**
+   * @param {string} mode
+   */
   function setUIMode(mode) {
+    const wrapper = document.getElementById('geoapify-wrapper');
+    if (!wrapper || !inputAddressSearch || !addressSuggestions) return;
+    
+    wrapper.classList.toggle('has-api-key', mode === 'has_key');
+    
     if (mode === 'has_key') {
-      geoapifyKeyContainer.style.display = 'none';
-      addressSearchContainer.style.display = 'flex';
       inputAddressSearch.disabled = false;
     } else {
-      geoapifyKeyContainer.style.display = 'flex';
-      addressSearchContainer.style.display = 'none';
       inputAddressSearch.disabled = true;
       inputAddressSearch.value = '';
-      try { addressSuggestions.hidePopover(); } catch(e) {}
+      try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
     }
   }
 
   // --- LOCAL ADDRESS BOOK FEATURE ---
+  /**
+   * @returns {AddressEntry[]}
+   */
   function getLocalAddressBook() {
     try {
-      return JSON.parse(localStorage.getItem('din_local_addresses')) || [];
+      const saved = localStorage.getItem('din_local_addresses');
+      return saved ? JSON.parse(saved) : [];
     } catch(e) { return []; }
   }
 
+  /**
+   * @param {AddressEntry} item
+   */
   function saveToLocalAddressBook(item) {
     const book = getLocalAddressBook();
     // Check if already exists (by formatted string)
@@ -102,12 +131,21 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     }
   }
 
+  /**
+   * @param {string} query
+   * @returns {AddressEntry[]}
+   */
   function fuzzySearchLocal(query) {
     const book = getLocalAddressBook();
     const q = query.toLowerCase();
     return book.filter(item => item.formatted.toLowerCase().includes(q)).slice(0, 5);
   }
 
+  /**
+   * @param {string} text
+   * @param {string} query
+   * @returns {string}
+   */
   function highlightMatch(text, query) {
     if (!query) return text;
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -130,6 +168,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     }, 300);
   });
 
+  /**
+   * @param {string} query
+   */
   async function performAddressSearch(query) {
     if (activeAbortController) activeAbortController.abort();
     activeAbortController = new AbortController();
@@ -152,7 +193,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     // Load cached sender coordinates for Proximity-Biasing
     let coords = null;
     try {
-      coords = JSON.parse(localStorage.getItem('din_sender_coords'));
+      const savedCoords = localStorage.getItem('din_sender_coords');
+      coords = savedCoords ? JSON.parse(savedCoords) : null;
     } catch (e) {}
 
     let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&lang=de&limit=5`;
@@ -165,7 +207,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       if (!response.ok) throw new Error('API Request failed');
       const data = await response.json();
 
-      const parsedSuggestions = (data.features || []).map(f => {
+      /** @type {AddressEntry[]} */
+      const parsedSuggestions = (data.features || []).map((/** @type {any} */ f) => {
         const p = f.properties;
         return {
           street: p.street || "",
@@ -175,9 +218,10 @@ export function initAddressServices({ onToast, onSaveDraft }) {
           formatted: [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(", "),
           source: 'geoapify'
         };
-      }).filter(s => s.street && s.city);
+      }).filter((/** @type {AddressEntry} */ s) => s.street && s.city);
 
       // Merge local and geoapify, avoiding exact duplicates
+      /** @type {AddressEntry[]} */
       const combined = [...localMatches];
       parsedSuggestions.forEach(ps => {
         if (!combined.find(c => c.formatted === ps.formatted)) {
@@ -187,25 +231,32 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
       renderSuggestions(combined.slice(0, 6), query);
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.warn('[Address] Autocomplete search failed:', err);
+      const error = /** @type {any} */ (err);
+      if (error.name !== 'AbortError') {
+        console.warn('[Address] Autocomplete search failed:', error);
         
         // Wenn der API Call fehlschlägt, ist der Key vermutlich tot
         StorageManager.saveGeoapifyKey('');
-        document.getElementById('input-geoapify-key').value = '';
+        const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
+        if (keyEl) keyEl.value = '';
         setUIMode('no_key');
         if (onToast) onToast("❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.", 'error');
         
-        try { addressSuggestions.hidePopover(); } catch(e) {}
+        try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
       }
     }
   }
 
+  /**
+   * @param {AddressEntry[]} suggestions
+   * @param {string} query
+   */
   function renderSuggestions(suggestions, query) {
+    if (!addressSuggestions) return;
     addressSuggestions.replaceChildren();
 
     if (suggestions.length === 0) {
-      try { addressSuggestions.hidePopover(); } catch(e) {}
+      try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
       return;
     }
 
@@ -228,9 +279,12 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       addressSuggestions.appendChild(li);
     });
 
-    try { addressSuggestions.showPopover(); } catch(e) {}
+    try { /** @type {any} */ (addressSuggestions).showPopover(); } catch(e) {}
   }
 
+  /**
+   * @param {AddressEntry} item
+   */
   function selectSuggestion(item) {
     const empfStrasse = document.getElementById('empfaenger-strasse');
     const empfOrt = document.getElementById('empfaenger-ort');
@@ -242,8 +296,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       empfOrt.textContent = `${item.postcode} ${item.city}`.trim();
     }
 
-    try { addressSuggestions.hidePopover(); } catch(e) {}
-    inputAddressSearch.value = '';
+    try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
+    if (inputAddressSearch) inputAddressSearch.value = '';
 
     // Save selected address to local address book for future offline usage
     saveToLocalAddressBook(item);
@@ -258,7 +312,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   const empfOrtEl = document.getElementById('empfaenger-ort');
   if (empfOrtEl) {
     empfOrtEl.addEventListener('input', () => {
-      const text = empfOrtEl.textContent.trim();
+      const text = empfOrtEl.textContent ? empfOrtEl.textContent.trim() : '';
       const plzMatch = text.match(/^(\d{5})$/);
       if (plzMatch) {
         const plz = plzMatch[1];
@@ -273,11 +327,13 @@ export function initAddressServices({ onToast, onSaveDraft }) {
                 
                 // Cursor ans Ende setzen
                 const selection = window.getSelection();
-                const range = document.createRange();
-                range.selectNodeContents(empfOrtEl);
-                range.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(range);
+                if (selection) {
+                  const range = document.createRange();
+                  range.selectNodeContents(empfOrtEl);
+                  range.collapse(false);
+                  selection.removeAllRanges();
+                  selection.addRange(range);
+                }
 
                 if (onSaveDraft) onSaveDraft();
               }
@@ -290,11 +346,12 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   // Zippopotam für Absender PLZ -> speichert Lat/Lon für Geoapify Proximity Bias
   const absenderPlzOrtEl = document.getElementById('absender-plz-ort');
   if (absenderPlzOrtEl) {
+    /** @type {any} */
     let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
       clearTimeout(absenderTimeout);
       absenderTimeout = setTimeout(() => {
-        const text = absenderPlzOrtEl.textContent.trim();
+        const text = absenderPlzOrtEl.textContent ? absenderPlzOrtEl.textContent.trim() : '';
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];

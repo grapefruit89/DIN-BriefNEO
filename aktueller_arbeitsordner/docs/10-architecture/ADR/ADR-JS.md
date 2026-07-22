@@ -3,13 +3,16 @@ aliases:
 - JavaScript Constraints
 - JS as a Crutch
 chosen_option: ''
-created: '2026-07-06'
+code_links: []
+created: '2026-06-26'
 date: 2026-05-24
 deciders:
 - morit
 - antigravity
 decision_options: []
 depends_on: []
+doc_links: []
+id: adr-js
 last-reviewed: 2026-07-02
 project: DIN-BriefNEO
 related:
@@ -26,7 +29,7 @@ tags:
 - constraints
 title: 'ADR-JS: JavaScript Constraints & ''JS as a Crutch'''
 type: adr
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # ADR-JS: JavaScript Constraints & "JS as a Crutch"
@@ -34,8 +37,11 @@ updated: '2026-07-06'
 ## 1. Context & Problem
 
 **JS-Überladung und "JS as a Crutch".**
+
 - Webapplikationen nutzen oft JavaScript für visuelle Effekte und Layout-Berechnungen.
+
 - Das führt zu Performance-Einbußen, Rucklern und technischer Schuld.
+
 - In DIN-BriefNEO soll JS streng auf eine logische Begleitschicht reduziert werden.
 
 ## 2. Considered Options
@@ -50,34 +56,47 @@ updated: '2026-07-06'
 **Wir haben uns für Option A (Striktes JS-Einsatzverbot für Rendering) entschieden.**
 
 ### Begründung
+
 - **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
+
 - **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits.
+
 - **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
-- **Sichere DOM-Manipulation (`setHTML` vs `setHTMLUnsafe`):** `innerHTML` ist als Antipattern eingestuft und strikt verboten (XSS-Gefahr). Als Standardfall ist die W3C Sanitizer API (`setHTML()`) zu bevorzugen. `setHTMLUnsafe()` darf nur als absoluter Ausnahmefall (oder Fallback für ältere Engines) verwendet werden, wenn bewusst ungefiltertes HTML injiziert werden muss. Für reinen Text ist ausschließlich `textContent` zu nutzen.
+
 - **View Transitions API:** Native `document.startViewTransition()` wird für UI-Zustandswechsel verwendet, anstatt händisch via JS zu animieren.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Schlanker Code:** JavaScript-Logik bleibt absolut minimiert (<18 KB).
+
 - **Robustheit:** Die App läuft layout-stabil, selbst wenn JS verzögert oder blockiert.
+
 - **Zukunftssicherheit:** Veraltete APIs wie `execCommand` werden nicht mehr verwendet.
 
 ### Risiken & Negative Auswirkungen
+
 - Visuelle Statustoggles erfordern teilweise fortgeschrittenes CSS (z.B. Segmented Controls, `:has()`).
 
 ## 5. Implementation & Verification
 
 - CSS Anchor Positioning ersetzt ehemalige JS-Koordinatenberechnung.
+
 - `execCommand` ist in den Anti-Pattern-Regeln verboten.
+
 - Die reine DOM-basierte Datenkopplung (wie in `sender-sync.js`) demonstriert den Verzicht auf globale State-Stores zugunsten reaktiver DOM-Updates für das Ausfüllen des Absenders.
+
 - View Transitions sind in `main.js` für Formularwechsel und Theme-Toggles produktiv.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-CSS]]
+
 - [[ADR-ANTIPATTERN]]
+
 - [[longevity-guidelines]]
 
 ---

@@ -1,8 +1,19 @@
 ---
-title: "Feature-Bestandsaufnahme: FEATURE-INVENTORY.md"
+aliases:
+- FEATURE-INVENTORY
+code_links: []
+created: '2026-06-26'
+depends_on: []
+doc_links: []
+id: feature-inventory
 status: active
-tags: [obsidian, core, documentation]
-aliases: ["FEATURE-INVENTORY"]
+tags:
+- obsidian
+- core
+- documentation
+title: 'Feature-Bestandsaufnahme: FEATURE-INVENTORY.md'
+type: concept
+updated: '2026-07-07'
 ---
 
 # Feature-Bestandsaufnahme: FEATURE-INVENTORY.md
@@ -37,6 +48,9 @@ Dieses Dokument bietet eine vollständige, tabellarische Bestandsaufnahme aller 
 ---
 
 ## 🔗 Verweise
+
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die verbotenen Praktiken dieser Features.
+
 *   Siehe [[ADR-TECH-STACK|ADR-TECH-STACK.md]] für die detaillierten Erläuterungen der Webtechniken.
+
 *   Siehe [[spec|spec.md]] für die ursprünglichen Baseline-Anforderungen.

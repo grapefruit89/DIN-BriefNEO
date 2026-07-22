@@ -1,10 +1,12 @@
-// @adr [[ADR-JS]] 
+// @ts-check
 // @guide [[glossary]] 
 
 /* js/sender-sync.js */
 
 /**
  * Abbreviates the first name (e.g., "Moritz Baumeister" -> "M. Baumeister")
+ * @param {string} fullName
+ * @returns {string}
  */
 function abbreviateName(fullName) {
     if (!fullName) return '';
@@ -29,9 +31,10 @@ export function initSenderSync() {
     if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
 
     function sync() {
-        const name = infoName.textContent.trim();
-        const street = infoStreet.textContent.trim();
-        const city = infoCity.textContent.trim();
+        if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
+        const name = (infoName.textContent || '').trim();
+        const street = (infoStreet.textContent || '').trim();
+        const city = (infoCity.textContent || '').trim();
 
         // 1. Sync to Rücksendezeile (absender) with abbreviated name
         const shortName = abbreviateName(name);

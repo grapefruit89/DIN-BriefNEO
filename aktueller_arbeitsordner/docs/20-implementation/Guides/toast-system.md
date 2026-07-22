@@ -1,16 +1,19 @@
 ---
-created: '2026-07-06'
+code_links: []
+created: '2026-07-03'
 depends_on: []
 description: How to trigger and manage Next-Level Toasts in the application
+doc_links: []
+id: guide-toast-system
+status: active
 tags:
 - guide
 - ui
 - toast
 - javascript
-title: "Guide: Toast Notifications System"
+title: 'Guide: Toast Notifications System'
 type: guide
-status: active
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # Guide: Using the Next-Level Toast System
@@ -42,6 +45,7 @@ The system will automatically calculate the display duration based on the text l
 ## Advanced Features
 
 ### 1. Actionable Toasts (Buttons)
+
 You can attach an interactive button to the Toast by passing an `action` object in the options parameter:
 
 ```javascript
@@ -57,6 +61,7 @@ showToast('Entwurf gelöscht.', 'warning', {
 ```
 
 ### 2. Sticky Toasts & Updatable Progress
+
 For background tasks (like PDF generation or bulk sending), you can make a Toast "sticky" so it never automatically disappears. You can then update its content via `updateToast`.
 
 ```javascript
@@ -85,7 +90,11 @@ setTimeout(() => {
 ```
 
 ### 3. Built-in User Interactions
+
 You do not need to code anything for these features, they are built-in:
+
 - **Swipe-to-Dismiss**: Users can mouse-drag or touch-swipe the toast to the right to throw it off the screen.
+
 - **Hover-to-Pause**: Hovering the mouse over the toast stops the timeout countdown.
+
 - **Counter Badges (x2, x3)**: Triggering the exact same message while it is already visible will shake the toast and increment a small counter badge, preventing visual spam.

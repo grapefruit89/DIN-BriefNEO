@@ -1,83 +1,71 @@
 ---
-# === BASISINFORMATIONEN ===
-title: "IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)"
-subtitle: "Complete HTML Tag Registry for DIN-BriefNEO"
-description: "Alle 45+ atomaren Daten-Tags mit Positionierung, Ausrichtung und Wachstumsverhalten nach DIN 5008"
-version: "4.8.0"
-version_date: 2026-04-01
-status: active
-type: "registry"
-github_issue: "#1"
-
-# === DOKUMENT-TYP ===
-category: reference
-audience:
-  - developers
-  - implementers
-  - testers
-  - ai-agents
-
-# === TAGS ===
-tags:
-  - din-briefneo
-  - din-briefneo/imr
-  - din-briefneo/html
-  - din-briefneo/registry
-  - status/active
-  - type/registry
-  - tech/html
-  - tech/custom-elements
-  - standard/din-5008
-
-# === ALIASES ===
 aliases:
-  - "02_IMR_Registry"
-  - "IMR Registry"
-  - "DIN 5008 Tags"
-  - "HTML Tag List"
-  - "Custom Elements Registry"
-  - "Atomic Tags"
-  - "45 DIN Fields"
-
-# === DATAVIEW Felder ===
-total_tags: 46
-single_line_tags: 40
-multi_line_tags: 5
-validation_enabled: true
-din_compliance: "100% DIN 5008:2020-03"
-tag_categories:
-  - "Absender-Zone"
-  - "Anschriftfeld"
-  - "Metadaten & Infoblock"
-  - "Briefkern"
-  - "Fußzeile"
-  - "Systemkomponenten"
-
-# === VERWANDTE DOKUMENTE ===
-related:
-  - "issues/#2_Architecture_Compliance_Matrix"
-  - "03_CSS_Reference"
-  - "05_Feature_Matrix"
-  - "06_Salutation_Engine"
-
-# === ZEITSTEMPEL ===
+- 02_IMR_Registry
+- IMR Registry
+- DIN 5008 Tags
+- HTML Tag List
+- Custom Elements Registry
+- Atomic Tags
+- 45 DIN Fields
+audience:
+- developers
+- implementers
+- testers
+- ai-agents
+author: '@grapefruit89'
+category: reference
+code_links: []
+created: '2026-07-03'
+cssclasses:
+- wide-table
+- table-stripes
+- no-wrap
 date_created: 2026-03-31
 date_updated: 2026-04-01
 date_validated: 2026-04-01
-
-# === AUTOR ===
-author: "@grapefruit89"
-maintainer: "@grapefruit89"
-
-# === OBSIDIAN ===
-cssclasses:
-  - wide-table
-  - table-stripes
-  - no-wrap
-
-# === GITHUB PAGES ===
-permalink: /docs/imr-registry/
+depends_on: []
+description: Alle 45+ atomaren Daten-Tags mit Positionierung, Ausrichtung und Wachstumsverhalten
+  nach DIN 5008
+din_compliance: 100% DIN 5008:2020-03
+doc_links: []
+github_issue: '#1'
+id: imr-registry
 layout: default
+maintainer: '@grapefruit89'
+multi_line_tags: 5
+permalink: /docs/imr-registry/
+related:
+- issues/#2_Architecture_Compliance_Matrix
+- 03_CSS_Reference
+- 05_Feature_Matrix
+- 06_Salutation_Engine
+single_line_tags: 40
+status: active
+subtitle: Complete HTML Tag Registry for DIN-BriefNEO
+tag_categories:
+- Absender-Zone
+- Anschriftfeld
+- Metadaten & Infoblock
+- Briefkern
+- Fußzeile
+- Systemkomponenten
+tags:
+- din-briefneo
+- din-briefneo/imr
+- din-briefneo/html
+- din-briefneo/registry
+- status/active
+- type/registry
+- tech/html
+- tech/custom-elements
+- standard/din-5008
+title: IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)
+total_tags: 46
+type: registry
+updated: '2026-07-07'
+validation_enabled: true
+version: 4.8.0
+version_date: 2026-04-01
 ---
 
 # IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)
@@ -251,7 +239,6 @@ graph TD
 
 > ℹ️ **Blocksatz mit Silbentrennung** wird für DIN-Briefe empfohlen:  
 > `text-align: justify; text-justify: inter-word; hyphens: auto;`
-
 
 ---
 

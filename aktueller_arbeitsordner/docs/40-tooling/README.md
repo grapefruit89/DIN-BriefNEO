@@ -1,10 +1,19 @@
 ---
+code_links: []
+created: '2026-07-07'
+depends_on: []
+doc_links: []
 id: doc-readme-4
-type: README
-title: 40-tooling README
 status: active
-tags: [readme, documentation]
+tags:
+- readme
+- documentation
+title: 40-tooling README
+type: README
+updated: '2026-07-07'
 ---
+
 # 40 Tooling
+
 Dokumentation der Build- und Infrastruktur-Scripte.
 Hinweis: Diese Schicht ist noch im Aufbau.

@@ -1,0 +1,188 @@
+/* ==========================================================================
+   PoC 2: Postvermerk & Toast System CSS
+   Demonstrates:
+   - Static HTML <option> elements with CSS white-space: pre-line
+   - Toast badge hiding via CSS :empty pseudo-class
+   - Native @starting-style entry slide-in/fade animation for toasts
+   - CSS custom property --swipe-x for touch gesture interactivity
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+  --bg-viewport: light-dark(oklch(0.97 0.01 240), oklch(0.18 0.02 240));
+  --text-main: light-dark(oklch(0.20 0.02 240), oklch(0.95 0.01 240));
+  --card-bg: light-dark(oklch(1.0 0 0), oklch(0.24 0.02 240));
+  --card-border: light-dark(oklch(0.88 0.01 240), oklch(0.32 0.02 240));
+  --primary: oklch(0.55 0.18 250);
+  --primary-hover: oklch(0.48 0.20 250);
+  --success: oklch(0.60 0.18 145);
+  --paper-bg: oklch(1.0 0 0);
+  --paper-text: oklch(0.15 0 0);
+}
+
+body {
+  margin: 0;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-viewport);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+header {
+  border-bottom: 2px solid var(--card-border);
+  padding-bottom: 1rem;
+}
+
+h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Feature 1: Postvermerk & CSS white-space: pre-line */
+select {
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  cursor: pointer;
+  width: 100%;
+  max-width: 400px;
+}
+
+.envelope-window {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--paper-bg);
+  color: var(--paper-text);
+  border: 1px solid oklch(0.85 0 0);
+  border-radius: 4px;
+  width: 300px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.postvermerk-box {
+  font-size: 0.85rem;
+  font-family: Arial, sans-serif;
+  color: oklch(0.25 0 0);
+  min-height: 2.4em;
+
+  /* Key Feature: white-space: pre-line preserves newlines without dynamic <br> DOM nodes! */
+  white-space: pre-line;
+  border-bottom: 1px dashed oklch(0.80 0 0);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.address-box {
+  font-size: 0.95rem;
+  font-family: Arial, sans-serif;
+  line-height: 1.3;
+}
+
+/* Feature 2: Toast Notification Styling */
+.btn-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--primary);
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+.btn:hover { background-color: var(--primary-hover); }
+
+/* Toast Container with CSS @starting-style and Popover API */
+#toast-v4[popover] {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  left: auto;
+  top: auto;
+  margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: light-dark(oklch(0.22 0.02 240), oklch(0.12 0.02 240));
+  color: #ffffff;
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  border-left: 4px solid var(--success);
+  touch-action: pan-x;
+  
+  /* Touch Swipe CSS Custom Property Transformation */
+  transform: translateX(var(--swipe-x, 0px));
+  opacity: calc(1 - (var(--swipe-x-abs, 0) / 150));
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease;
+}
+
+/* Entry Animation using CSS @starting-style (Chrome 117+) */
+#toast-v4:popover-open .toast-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #toast-v4:popover-open .toast-content {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Feature: Toast Badge hiding via CSS :empty pseudo-class */
+.toast-badge {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.toast-badge:empty {
+  display: none !important;
+}
+
+.toast-action-btn:empty {
+  display: none !important;
+}

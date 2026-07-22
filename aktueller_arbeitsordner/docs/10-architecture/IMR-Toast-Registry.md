@@ -1,11 +1,22 @@
 ---
-title: IMR Toast Registry
+aliases:
+- Toast Registry
+- System Toasts
+code_links: []
+created: '2026-07-03'
+depends_on: []
 description: Zentrale Single Source of Truth für alle System-Popups (Toasts)
-version: 1.0.0
+doc_links: []
+id: imr-toast-registry
 status: active
+tags:
+- din-briefneo/registry
+- tech/ui
+- components/toast
+title: IMR Toast Registry
 type: registry
-tags: [din-briefneo/registry, tech/ui, components/toast]
-aliases: ["Toast Registry", "System Toasts"]
+updated: '2026-07-07'
+version: 1.0.0
 ---
 
 # IMR Toast Registry
@@ -35,22 +46,33 @@ Hier werden die exakten Wording-Strings definiert, die vom System getriggert wer
 > Die Icons (Emojis) sind harter Bestandteil des Strings und werden im JavaScript (`showToast`) mit übergeben.
 
 ### 💾 Storage & Persistence
+
 - **Draft gesichert:** `💾 Entwurf automatisch gespeichert` (Level: `info`)
+
 - **Manuell gesichert:** `💾 Entwurf gespeichert` (Level: `success`)
+
 - **Reset:** `🗑️ Alle Eingaben gelöscht` (Level: `warning`)
 
 ### 🔑 Geoapify & Address API
+
 - **Key gültig:** `🔑 Geoapify Key gültig!` (Level: `success`)
+
 - **Key ungültig:** `❌ Geoapify Key ungültig` (Level: `error`)
+
 - **Key Error:** `❌ Fehler bei der Key-Validierung` (Level: `error`)
+
 - **API Offline/Limit:** `❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.` (Level: `error`)
+
 - **Adresse übernommen:** `Adresse übernommen & gespeichert` (Level: `success`)
 
 ### 🔤 Font Manager
+
 - **Upload erfolgreich:** `Font erfolgreich geladen` (Level: `success`)
+
 - **Upload Fehler:** `Fehler beim Lesen der Schriftart` (Level: `error`)
 
 ### ⚙️ Healthcheck / Diagnostics
+
 - **Plausibility Error:** Wird dynamisch mit dem betroffenen DOM-Element generiert, z.B. `[Architektur-Warnung] Element #xyz fehlt!` (Level: `warning`)
 
 ---

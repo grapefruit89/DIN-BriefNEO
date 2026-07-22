@@ -1,7 +1,21 @@
 ---
-title: "Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung"
+code_links: []
+created: '2026-06-26'
+depends_on: []
+doc_links: []
+id: sqlite-vec
 status: active
-tags: [phase1, sqlite-vec, hybrid-search, embedding, build, generalisierbarkeit, tools]
+tags:
+- phase1
+- sqlite-vec
+- hybrid-search
+- embedding
+- build
+- generalisierbarkeit
+- tools
+title: 'Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung'
+type: concept
+updated: '2026-07-07'
 ---
 
 # Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung
@@ -10,20 +24,28 @@ tags: [phase1, sqlite-vec, hybrid-search, embedding, build, generalisierbarkeit,
 > **Status:** In Planung / Teilweise umgesetzt
 > **Zweck:** Detaillierter Implementierungsplan für die semantische Vektor-Suche via sqlite-vec.
 
-
 **Ziel:** Die bestehende `DIN-Brief_docs.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
 
 **Leitplanken (aus Research + Projektprinzipien):**
+
 - Bleib bei **Single-File SQLite** (kein externes DB-System).
+
 - Nutze **sqlite-vec** (offizielle leichtgewichtige Extension, 384-Dim Embeddings mit all-MiniLM-L6-v2).
+
 - Content-Hash-Caching: Nur bei geändertem Inhalt neu embedden (Performance + Determinismus).
+
 - Alles passiert **im Build** (`node tools/build_db.js`).
+
 - Keine schweren neuen Abhängigkeiten wo möglich; Extension muss separat bereitgestellt werden.
+
 - Generalisierbarkeit: Die Erweiterung soll später sauber in die `llm_boilerplate` übernehmbar sein.
 
 **Voraussetzungen für diese Phase:**
+
 - Node.js (aktuell verwendetes `node:sqlite` / `DatabaseSync`).
+
 - Die `sqlite-vec` Extension Datei (z.B. `vec0.dll` auf Windows, `vec0.so` auf Linux, `vec0.dylib` auf macOS). Download von https://github.com/asg017/sqlite-vec/releases (passend zu deiner Plattform und SQLite-Version).
+
 - Optional später: Lokaler Embedding-Generator (z.B. via `@xenova/transformers` für reines JS, offline).
 
 ---
@@ -116,8 +138,11 @@ sql += `INSERT INTO documents (path, title, status, content, content_hash, embed
 **Wichtig für Caching:** Lade vor dem Verarbeiten die bestehenden Hashes aus der DB (oder aus vorherigem Run). Da der Build die DB dropt, speichere Hashes temporär oder verarbeite in-memory zuerst.
 
 **Empfehlung für sauberes Caching:**
+
 - Lese zuerst alle existierenden `path` + `content_hash` + `embedding` aus der alten DB (bevor DROP).
+
 - Vergleiche Hashes im JS-Code.
+
 - Nur geänderte/neue Dokumente bekommen ein frisches Embedding.
 
 ---
@@ -309,8 +334,11 @@ report.logs.push(...);
 `aktueller_arbeitsordner/tools/README-VECTOR-SEARCH.md` (oder in `Guides/`):
 
 - Kurze Anleitung: Wie Hybrid Search aufrufen (Beispiel-Code + SQL).
+
 - Hinweis auf Caching und wann neu embeddet wird.
+
 - Beispiel-Queries für Agenten (z.B. "Finde ähnliche ADRs zu Farbthemen").
+
 - Link zum Reconciliation (Fitness Score prüft Embeddings).
 
 **Minimal-Beispiel in der Doku:**
@@ -325,18 +353,29 @@ const results = hybridSearch('DIN-Brief_docs.db', 'Faltmarken und DIN 5008', 5);
 ## Nächste Schritte nach dieser Anleitung
 
 1. **Vorbereitung:** Lade `sqlite-vec` Extension herunter und lege sie neben dem Projekt (oder in `tools/extensions/`).
+
 2. **Test-Implementierung:** Starte mit AP 1 + 2 (Schema + Hash) – das ist risikoarm.
+
 3. **Danach AP 3** (Extension + Vektoren).
+
 4. Teste die Hybrid Search.
+
 5. Erweitere Reconciliation.
+
 6. Dokumentiere.
+
 7. **Post-Build + Log** nach jedem größeren Schritt (per AGENTS.md).
+
 8. Prüfe Fitness Score – bei Problemen (z.B. fehlende Extension) graceful degrade (Build läuft, aber ohne Vektoren + Warnung im Score).
 
 **Risiken & Hinweise:**
+
 - `node:sqlite` + `loadExtension` funktioniert nicht auf allen Node-Builds (manchmal braucht man `better-sqlite3` mit `unsafeLoadExtension`). Teste früh.
+
 - Embedding-Generierung: Für echte lokale Nutzung `@xenova/transformers` hinzufügen (kleine Abhängigkeit, aber offline-fähig).
+
 - Performance: Bei vielen Docs (>1000) Caching + batching wichtig.
+
 - Generalisierbarkeit: Die neuen Funktionen (`hybrid_search.js`) sollten später 1:1 in die `llm_boilerplate/tools/` wandern können.
 
 ---
@@ -346,9 +385,13 @@ const results = hybridSearch('DIN-Brief_docs.db', 'Faltmarken und DIN 5008', 5);
 Diese Anleitung ist bewusst detailliert, damit du (oder ein Agent) sie Schritt für Schritt abarbeiten kannst.
 
 Möchtest du, dass ich als Nächstes:
+
 - Den Code für eines der Arbeitspakete (z.B. AP 1+2) direkt in die Dateien schreibe (mit search_replace)?
+
 - Ein separates `tools/hybrid_search.js` Gerüst anlege?
+
 - Die Anleitung noch kürzer mache (nur die Top 3 Pakete)?
+
 - Oder direkt mit der Implementierung von AP 1 (Schema) starte und dann build + log?
 
 Sag mir den nächsten konkreten Schritt – ich führe ihn aus (inkl. Pre/Post-Build + Logging per Vertrag). 

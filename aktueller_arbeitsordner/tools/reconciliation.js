@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const targetDir = path.resolve(__dirname, '..');
 const websiteDir = path.join(targetDir, 'website');
@@ -149,7 +150,7 @@ function getFilesRecursively(dir, fileList = []) {
 }
 
 function parseYamlFrontmatter(content) {
-  const meta = { title: '', status: '', tags: [], relations: [] };
+  const meta = { title: '', status: '', tags: [], relations: [], _rawKeys: [] };
   const match = content.match(/^\uFEFF?---\r?\n([\s\S]+?)\r?\n---/);
   if (match) {
     const yamlLines = match[1].split(/\r?\n/);
@@ -162,6 +163,7 @@ function parseYamlFrontmatter(content) {
         const parts = line.split(':');
         if (parts.length >= 2) {
           const key = parts[0].trim().toLowerCase();
+          meta._rawKeys.push(key);
           let value = parts.slice(1).join(':').trim();
           if (value.startsWith('[') && value.endsWith(']')) {
             value = value.slice(1, -1).split(',').map(s => s.trim().replace(/['"]/g, ''));
@@ -248,6 +250,52 @@ function runReconciliation() {
   const logs = [];
   const relations = [];
   
+  // 0. JSDoc Type-Safety Verification
+  let tscSuccess = true;
+  let tscOutput = '';
+  try {
+    tscOutput = execSync('npx -p typescript tsc -p jsconfig.json', { cwd: targetDir, encoding: 'utf8', stdio: 'pipe' });
+  } catch (error) {
+    tscSuccess = false;
+    tscOutput = error.stdout || error.message;
+  }
+
+  if (!tscSuccess) {
+    const tscLines = tscOutput.split('\n').filter(l => l.trim().length > 0);
+    let parsedErrors = 0;
+    tscLines.forEach(line => {
+      const match = line.match(/^(.+?):(\d+):(\d+)\s+-\s+error\s+(TS\d+):\s+(.+)$/);
+      if (match) {
+        parsedErrors++;
+        logs.push({
+          file_path: match[1].replace(/\\/g, '/'),
+          check_type: 'type-safety',
+          severity: 'high',
+          message: `TypeScript Error ${match[4]}: ${match[5]} (Line ${match[2]})`
+        });
+      }
+    });
+    if (parsedErrors === 0) {
+      logs.push({
+        file_path: 'jsconfig.json',
+        check_type: 'type-safety',
+        severity: 'high',
+        message: `TypeScript Compilation failed: ${tscOutput.substring(0, 200)}...`
+      });
+    }
+  }
+
+  // We need conformance variables earlier so we can increment them for TS/Scrub checks
+  let conformanceChecked = 0;
+  let conformancePassed = 0;
+
+  if (!tscSuccess) {
+     conformanceChecked += 1; // Mark as failed TS check
+  } else {
+     conformanceChecked += 1;
+     conformancePassed += 1; // Mark as passed TS check
+  }
+
   const docFiles = getFilesRecursively(targetDir);
   let metadataChecked = 0;
   let metadataPassed = 0;
@@ -261,20 +309,36 @@ function runReconciliation() {
     if (file.endsWith('.md')) {
       const meta = parseYamlFrontmatter(content);
       
-      const fields = ['title', 'status', 'tags'];
-      fields.forEach(f => {
-        metadataChecked++;
-        if (meta[f] && meta[f].length > 0) {
-          metadataPassed++;
-        } else {
-          logs.push({
-            file_path: relPath,
-            check_type: 'metadata',
-            severity: 'medium',
-            message: `Pflicht-Metadatenfeld "${f}" fehlt im YAML-Header.`
-          });
-        }
-      });
+      if (relPath.startsWith('docs/')) {
+        const v6RequiredFields = ['id', 'created', 'updated', 'title', 'type', 'status', 'doc_links', 'code_links', 'depends_on', 'tags'];
+        v6RequiredFields.forEach(f => {
+          metadataChecked++;
+          if (meta._rawKeys && meta._rawKeys.includes(f)) {
+            metadataPassed++;
+          } else {
+            logs.push({
+              file_path: relPath,
+              check_type: 'metadata',
+              severity: 'high',
+              message: `Pflicht-Metadatenfeld "${f}" (V6) fehlt im YAML-Header.`
+            });
+          }
+        });
+
+        // Scrub Check for banned terms
+        const lines = content.split(/\r?\n/);
+        lines.forEach((line, index) => {
+          if (/\b(?:React|Vue|innerHTML)\b/.test(line)) {
+            conformanceChecked++; // Failed scrub check
+            logs.push({
+              file_path: relPath,
+              check_type: 'scrub-check',
+              severity: 'high',
+              message: `Banned technology term (React/Vue/innerHTML) found in docs: "${line.trim()}" (Line ${index + 1})`
+            });
+          }
+        });
+      }
 
       if (meta.relations) {
         meta.relations.forEach(rel => {
@@ -349,9 +413,6 @@ function runReconciliation() {
 
   const metadataScore = metadataChecked > 0 ? (metadataPassed / metadataChecked) * 100 : 100;
   const coherenceScore = linksChecked > 0 ? (linksPassed / linksChecked) * 100 : 100;
-
-  let conformanceChecked = 0;
-  let conformancePassed = 0;
   
   const scanCodeFiles = (dir) => {
     let results = [];

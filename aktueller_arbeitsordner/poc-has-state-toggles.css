@@ -1,0 +1,215 @@
+/* ==========================================================================
+   PoC 3: State Toggles & Form Synchronizations CSS
+   Demonstrates:
+   - CSS :has(#input-geoapify-key:not(:placeholder-shown)) for API key status styling
+   - CSS :has(#signature-image[src]:not([src=""])) for signature presence detection
+   - HTML radio inputs + CSS :checked / :has() for salutation and date format sync
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+  --bg-viewport: light-dark(oklch(0.97 0.01 240), oklch(0.18 0.02 240));
+  --text-main: light-dark(oklch(0.20 0.02 240), oklch(0.95 0.01 240));
+  --card-bg: light-dark(oklch(1.0 0 0), oklch(0.24 0.02 240));
+  --card-border: light-dark(oklch(0.88 0.01 240), oklch(0.32 0.02 240));
+  --primary: oklch(0.55 0.18 250);
+  --primary-hover: oklch(0.48 0.20 250);
+  --accent: oklch(0.62 0.19 160);
+  --danger: oklch(0.58 0.22 25);
+  --success: oklch(0.60 0.18 145);
+}
+
+body {
+  margin: 0;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-viewport);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+header {
+  border-bottom: 2px solid var(--card-border);
+  padding-bottom: 1rem;
+}
+
+h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-0: 0;
+}
+
+/* Feature 1: Geoapify API Key Status via CSS :has() */
+.geoapify-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.key-status-indicator {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Key empty state */
+.geoapify-wrapper:has(#input-geoapify-key:placeholder-shown) .key-status-indicator {
+  background-color: light-dark(oklch(0.92 0.05 30), oklch(0.28 0.06 30));
+  color: var(--danger);
+}
+.geoapify-wrapper:has(#input-geoapify-key:placeholder-shown) .key-status-indicator::before {
+  content: "⚠️ Keine API-Key eingegeben — Autocomplete inaktiv";
+}
+.geoapify-wrapper:has(#input-geoapify-key:placeholder-shown) #address-search-container {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Key entered state via :not(:placeholder-shown) */
+.geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) .key-status-indicator {
+  background-color: light-dark(oklch(0.92 0.05 145), oklch(0.28 0.06 145));
+  color: var(--success);
+}
+.geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) .key-status-indicator::before {
+  content: "✅ API-Key Aktiv — Autocomplete Betriebsbereit";
+}
+.geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+input[type="text"] {
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+/* Feature 2: Signature Presence Detection via CSS :has() */
+.signature-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.signature-preview-box {
+  width: 240px;
+  height: 100px;
+  border: 2px dashed var(--card-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: light-dark(oklch(0.98 0 0), oklch(0.20 0 0));
+}
+
+#signature-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Hide image and reset button when signature src is missing or empty string */
+.signature-section:has(#signature-image:not([src])),
+.signature-section:has(#signature-image[src=""]) {
+  /* No signature present */
+}
+
+.signature-section:has(#signature-image:not([src])) #signature-image,
+.signature-section:has(#signature-image[src=""]) #signature-image,
+.signature-section:has(#signature-image:not([src])) #btn-reset-signature,
+.signature-section:has(#signature-image[src=""]) #btn-reset-signature {
+  display: none !important;
+}
+
+.signature-section:has(#signature-image:not([src])) #empty-sig-notice,
+.signature-section:has(#signature-image[src=""]) #empty-sig-notice {
+  display: block;
+}
+
+/* Show signature preview and reset button when src is valid string via CSS :has() */
+.signature-section:has(#signature-image[src]:not([src=""])) #signature-image,
+.signature-section:has(#signature-image[src]:not([src=""])) #btn-reset-signature {
+  display: inline-flex !important;
+}
+
+.signature-section:has(#signature-image[src]:not([src=""])) #empty-sig-notice {
+  display: none !important;
+}
+
+/* Feature 3: Segmented Controls (Salutation & Date Format) */
+.segmented-control {
+  display: inline-flex;
+  background: light-dark(oklch(0.92 0.01 240), oklch(0.28 0.02 240));
+  padding: 4px;
+  border-radius: 8px;
+  gap: 4px;
+  border: 1px solid var(--card-border);
+}
+
+.segmented-control label {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.segmented-control input[type="radio"]:checked + label {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.output-preview {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: light-dark(oklch(0.95 0.02 240), oklch(0.20 0.02 240));
+  font-family: monospace;
+  font-size: 0.95rem;
+}

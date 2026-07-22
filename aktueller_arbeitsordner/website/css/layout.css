@@ -20,7 +20,7 @@
   --punch-y: calc(148.5 / var(--din-height) * 100cqh);
 }
 
-.form-a {
+body:has(#btn-form-a:checked) {
   --absender-y: calc(27 / var(--din-height) * 100cqh);
   --empfaenger-y: calc(32 / var(--din-height) * 100cqh);
   --infoblock-y: calc(32 / var(--din-height) * 100cqh);
@@ -128,9 +128,12 @@ aside {
   padding: 4px;
   border-radius: 10px;
   gap: 2px;
+  column-rule: 1px solid var(--border-color);
+  column-rule-inset: 4px;
 }
 
-.segmented-control button {
+.segmented-control button,
+.segmented-control label {
   flex: 1;
   border: none;
   background: transparent;
@@ -142,9 +145,11 @@ aside {
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
-.segmented-control button[aria-pressed="true"] {
+.segmented-control button[aria-pressed="true"],
+.segmented-control input[type="radio"]:checked + label {
   background: var(--segment-active-bg);
   color: var(--segment-active-text);
   box-shadow: var(--segment-active-shadow);
@@ -160,7 +165,8 @@ aside {
   overflow: auto; /* Nativer Zoom-Scroll-Fallback */
   background: var(--bg-viewport);
   padding: 3vh; /* Harmonischer Rand */
-  container-type: size; /* NEU: Der Viewport ist der Ma�stab f�r das Blatt */
+  container-type: size; /* NEU: Der Viewport ist der Maßstab für das Blatt */
+  container-name: viewport;
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -176,6 +182,7 @@ aside {
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
     container-type: size; /* Ermöglicht proportionale cqw/cqh Maße */
+    container-name: paper;
     color: var(--paper-text); /* Pure OKLCH Ink Black */
     box-sizing: border-box;
     transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -247,7 +254,7 @@ aside {
     border-bottom: 0.5px solid oklch(90% 0 0);
     padding-bottom: 2px;
     white-space: nowrap;
-    overflow: hidden;
+    text-fit: contain;
   }
 
   /* Anschriftfeld */
@@ -295,14 +302,17 @@ aside {
     bottom: calc(30 / 297 * 100cqh); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
-    overflow: visible; /* Text über das A4 Blatt hinauslassen (UX-Warnung greift) */
+    overflow-y: auto; /* Required for scroll-state query */
+    overflow-x: hidden;
+    container-type: scroll-state;
+    container-name: briefkern;
   }
 
   #betreff {
     font-size: calc(12 * 0.168cqw); /* 12pt in cqw */
     font-weight: 700;
     margin-bottom: calc(8.46 / 297 * 100cqh); /* 2 Leerzeilen */
-    text-wrap: pretty; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht */
+    text-fit: contain; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht */
   }
 
   #anrede {
@@ -331,19 +341,15 @@ aside {
     font-weight: 500;
   }
 
-  /* --- SEITENÜBERLAUF-WARNUNG (UX) --- */
-  &.overflow-warn {
-    outline: 2px dashed var(--c-danger) !important;
-    outline-offset: 4px;
-  }
-
+  /* --- SEITENÜBERLAUF-WARNUNG (UX) via SCROLL-STATE --- */
   .overflow-indicator-text {
     display: none;
-    position: absolute;
-    bottom: calc(32 / 297 * 100cqh);
-    right: calc(20 / 210 * 100cqw);
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    align-self: flex-end;
     background: var(--c-danger);
-    color: oklch(100% 0 0); /* OKLCH White */
+    color: oklch(100% 0 0);
     padding: 4px 10px;
     border-radius: 20px;
     font-size: calc(7.5 * 0.168cqw);
@@ -354,8 +360,14 @@ aside {
     animation: pulse-alert 2s infinite;
   }
 
-  &.overflow-warn .overflow-indicator-text {
-    display: block;
+  @container briefkern scroll-state(overflow-y: true) {
+    /* Zeigt die rote Strichlierung um das überlaufende Element an */
+    outline: 2px dashed var(--c-danger) !important;
+    outline-offset: -4px;
+    
+    .overflow-indicator-text {
+      display: block;
+    }
   }
 }
 
@@ -401,6 +413,8 @@ aside {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: calc(10 / 210 * 100cqw);
+    column-rule: 0.5px solid var(--paper-ghost);
+    column-rule-inset: 2px;
   }
 }
 
@@ -631,8 +645,7 @@ din-anlagen, din-verteiler {
 /* Neue Utility für echte Single-Line Felder */
 .single-line {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-fit: contain;
   field-sizing: content;
   max-height: 1.5em; /* verhindert optisch 2 Zeilen */
   line-height: 1.4;
@@ -640,8 +653,12 @@ din-anlagen, din-verteiler {
 
 /* Bessere visuelle Begrenzung ohne JS */
 .single-line[contenteditable]:focus {
-  outline: 1px solid var(--accent-color);
-  background: oklch(62% 0.19 148 / 3%);
+  border: 2px solid transparent;
+  margin: -2px;
+  background-clip: padding-box, border-area;
+  background-image: 
+    linear-gradient(oklch(62% 0.19 148 / 3%), oklch(62% 0.19 148 / 3%)),
+    linear-gradient(135deg, var(--accent-color), var(--c-success));
   overflow: visible; /* beim Editieren darf es temporär umbrechen */
   text-overflow: unset;
   max-height: none;
@@ -651,6 +668,17 @@ din-anlagen, din-verteiler {
 
 /* Accessibility / Visibility */
 .hidden { display: none !important; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* --- SIDEBAR UTILITIES --- */
 .sidebar-options-group {
@@ -662,6 +690,7 @@ din-anlagen, din-verteiler {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: balance;
 }
 .sidebar-sub-label {
   font-size: 0.7rem;
@@ -753,3 +782,27 @@ body[data-has-signature] #btn-upload-sig-trigger {
 #signature-image { max-width: 200px; height: auto; cursor: move; }
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
 #anlagen-text { margin: 0; padding-left: 1.5rem; }
+
+/* --- CSS-FIRST REFACTORING --- */
+/* Address Book Save Button */
+.address-save-btn {
+  position: absolute;
+  top: 0;
+  right: -30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+.address-save-btn:hover {
+  opacity: 1;
+}
+
+/* Geoapify State Toggles */
+#geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
+#geoapify-wrapper #address-search-container { display: none; }
+#geoapify-wrapper.has-api-key #geoapify-key-container { display: none; }
+#geoapify-wrapper.has-api-key #address-search-container { display: flex; flex-direction: column; }

@@ -1,7 +1,11 @@
+// @ts-check
 import { showToast } from './02-toast.js';
 
+/**
+ * @param {(() => void) | null} onSaveDraft
+ */
 export function initPostvermerk(onSaveDraft) {
-  const sidebarPvSelect = document.getElementById('sidebar-pv-select');
+  const sidebarPvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
   const pvInput = document.getElementById('postvermerk');
 
   const pvOptions = [
@@ -28,11 +32,16 @@ export function initPostvermerk(onSaveDraft) {
     });
 
     sidebarPvSelect.addEventListener('change', (e) => {
-      if (!e.target.value) return;
+      const target = /** @type {HTMLSelectElement} */ (e.target);
+      if (!target || !target.value) return;
       
-      const val = e.target.value;
+      const val = target.value;
       pvInput.replaceChildren();
       const parts = val.split('<br>');
+      /**
+       * @param {string} part
+       * @param {number} index
+       */
       parts.forEach((part, index) => {
         if (index > 0) pvInput.appendChild(document.createElement('br'));
         pvInput.appendChild(document.createTextNode(part.trim()));

@@ -1,82 +1,69 @@
 ---
-title: "Logische Gruppen — Feature-Matrix (Platinum Master)"
-subtitle: "Project Progress, Roadmap & Sprint Planning"
-description: "Definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Roadmap für kommende Platinum-Sessionen"
-version: "4.8.0"
-version_date: 2026-04-01
-status: active
-github_issue: "#3"
-
-# === DOKUMENT-TYP ===
-type: roadmap
-category: project-management
-audience:
-  - all
-  - management
-  - developers
-  - stakeholders
-
-# === TAGS ===
-tags:
-  - din-briefneo
-  - din-briefneo/roadmap
-  - din-briefneo/features
-  - din-briefneo/progress
-  - status/active
-  - type/roadmap
-  - project/sprint
-
-# === ALIASES ===
 aliases:
-  - "Feature Matrix"
-  - "Roadmap"
-  - "Project Status"
-  - "Platinum Roadmap"
-  - "Feature Progress"
-
-# === DATAVIEW Felder ===
-total_features: 34
+- Feature Matrix
+- Roadmap
+- Project Status
+- Platinum Roadmap
+- Feature Progress
+audience:
+- all
+- management
+- developers
+- stakeholders
+author: '@din-briefneo/core-team'
+category: project-management
+code_links: []
 completed_features: 26
-open_features: 8
 completion_percentage: 76
-sprint_current: "Sprint 1 (Q2 2026)"
-sprint_next: "Sprint 2 (Q3 2026)"
-next_milestone: "Q2 2026"
-next_milestone_date: 2026-06-30
-
-# === GRUPPEN-STATUS ===
-groups:
-  identity: 100
-  content: 100
-  geometry: 90
-  infrastructure: 100
-  future: 0
-
-# === VERWANDTE DOKUMENTE ===
-related:
-  - "issues/#2_Architecture_Compliance_Matrix"
-  - "issues/#1 DIN 5008 HTML Tag Glossar"
-  - "issues/#5_CSS_Glossar"
-  - "issues/#4_Salutation_Engine"
-
-# === ZEITSTEMPEL ===
-date_created: 2025-12-01
-date_updated: 2026-04-01
-date_next_review: 2026-04-30
-
-# === AUTOR ===
-author: "@din-briefneo/core-team"
-maintainer: "@grapefruit89"
-
-# === OBSIDIAN ===
+created: '2026-07-03'
 cssclasses:
-  - table-stripes
-  - wide-table
-  - progress-bars
-
-# === GITHUB PAGES ===
-permalink: /docs/feature-matrix/
+- table-stripes
+- wide-table
+- progress-bars
+date_created: 2025-12-01
+date_next_review: 2026-04-30
+date_updated: 2026-04-01
+depends_on: []
+description: Definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Roadmap
+  für kommende Platinum-Sessionen
+doc_links: []
+github_issue: '#3'
+groups:
+  content: 100
+  future: 0
+  geometry: 90
+  identity: 100
+  infrastructure: 100
+id: feature-matrix
 layout: default
+maintainer: '@grapefruit89'
+next_milestone: Q2 2026
+next_milestone_date: 2026-06-30
+open_features: 8
+permalink: /docs/feature-matrix/
+related:
+- issues/#2_Architecture_Compliance_Matrix
+- issues/#1 DIN 5008 HTML Tag Glossar
+- issues/#5_CSS_Glossar
+- issues/#4_Salutation_Engine
+sprint_current: Sprint 1 (Q2 2026)
+sprint_next: Sprint 2 (Q3 2026)
+status: active
+subtitle: Project Progress, Roadmap & Sprint Planning
+tags:
+- din-briefneo
+- din-briefneo/roadmap
+- din-briefneo/features
+- din-briefneo/progress
+- status/active
+- type/roadmap
+- project/sprint
+title: Logische Gruppen — Feature-Matrix (Platinum Master)
+total_features: 34
+type: roadmap
+updated: '2026-07-07'
+version: 4.8.0
+version_date: 2026-04-01
 ---
 
 # Logische Gruppen — Feature-Matrix (Platinum Master)
@@ -94,11 +81,17 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 ## 🎯 Platinum Sprint Q2 2026 (Current Focus)
 
 - [x] Variable-First Form A/B Switching (#55)
+
 - [x] Refactor Fold Marks to 4mm Standard (#54)
+
 - [x] CSS Capability Matrix & Platinum Glossary (v4.8.0)
+
 - [x] 3D-Carousel & Toast Animation System
+
 - [ ] Finalize Address-Autocomplete integration (#42)
+
 - [ ] Integrate DIN-Referenz-SVG Overlay (#57)
+
 - [ ] Implement CMA-Sensor for Page Breaks (#58)
 
 ---
@@ -203,7 +196,6 @@ FROM ""
 WHERE contains(related, this.file.name)
 SORT version DESC
 ```
-
 
 ---
 

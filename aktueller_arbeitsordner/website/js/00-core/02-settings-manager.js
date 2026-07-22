@@ -1,3 +1,4 @@
+// @ts-check
 import { StorageManager } from '../30-utils/02-storage.js';
 import { Constants } from '../30-utils/01-constants.js';
 import { showToast } from '../10-ui/02-toast.js';
@@ -7,22 +8,35 @@ export class SettingsManager {
     this.settings = StorageManager.loadSettings();
 
     // Elements
+    /** @type {HTMLElement | null} */
     this.shell = document.getElementById('app-shell');
+    /** @type {HTMLElement | null} */
     this.btnFormA = document.getElementById('btn-form-a');
+    /** @type {HTMLElement | null} */
     this.btnFormB = document.getElementById('btn-form-b');
+    /** @type {HTMLElement | null} */
     this.btnThemeLight = document.getElementById('btn-theme-light');
+    /** @type {HTMLElement | null} */
     this.btnThemeDark = document.getElementById('btn-theme-dark');
+    /** @type {HTMLElement | null} */
     this.btnThemeAuto = document.getElementById('btn-theme-auto');
+    /** @type {HTMLElement | null} */
     this.btnToggleGuides = document.getElementById('btn-toggle-guides');
     
     // Font stack elements
+    /** @type {HTMLElement | null} */
     this.btnFontSans = document.getElementById('btn-font-sans');
+    /** @type {HTMLElement | null} */
     this.btnFontSerif = document.getElementById('btn-font-serif');
     
     // Custom font upload elements
+    /** @type {HTMLElement | null} */
     this.btnFontUploadTrigger = document.getElementById('btn-upload-font-trigger');
+    /** @type {HTMLElement | null} */
     this.btnResetFont = document.getElementById('btn-reset-font');
+    /** @type {HTMLElement | null} */
     this.fontStatusLabel = document.getElementById('font-status-label');
+    /** @type {HTMLElement | null} */
     this.fontUploader = document.getElementById('font-uploader');
   }
 
@@ -32,11 +46,15 @@ export class SettingsManager {
     this.attachListeners();
   }
 
-  // Helper for safe native W3C View Transitions
+  /**
+   * Helper for safe native W3C View Transitions
+   * @param {() => void} updateFn
+   */
   _transitionState(updateFn) {
-    if (document.startViewTransition) {
+    const doc = /** @type {any} */ (document);
+    if (doc.startViewTransition) {
       try {
-        document.startViewTransition(updateFn);
+        doc.startViewTransition(updateFn);
       } catch(e) {
         updateFn();
       }
@@ -46,38 +64,24 @@ export class SettingsManager {
   }
 
   applySettings() {
-    // 1. Layout Mode A/B
-    if (this.settings.layout === 'form-a') {
-      this.shell?.classList.remove('form-b');
-      this.shell?.classList.add('form-a');
-      this.btnFormA?.setAttribute('aria-pressed', 'true');
-      this.btnFormB?.setAttribute('aria-pressed', 'false');
-    } else {
-      this.shell?.classList.remove('form-a');
-      this.shell?.classList.add('form-b');
-      this.btnFormB?.setAttribute('aria-pressed', 'true');
-      this.btnFormA?.setAttribute('aria-pressed', 'false');
+    // 1. Layout Mode A/B (CSS-First Refactoring)
+    if (this.btnFormA && this.btnFormB) {
+      if (this.settings.layout === 'form-a') {
+        /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;
+      } else {
+        /** @type {HTMLInputElement} */ (this.btnFormB).checked = true;
+      }
     }
 
     // 2. Color Schemes (Theme light-dark supported)
-    if (this.settings.theme === 'light') {
-      document.documentElement.style.colorScheme = 'light';
-      document.documentElement.dataset.theme = 'light';
-      this.btnThemeLight?.setAttribute('aria-pressed', 'true');
-      this.btnThemeDark?.setAttribute('aria-pressed', 'false');
-      this.btnThemeAuto?.setAttribute('aria-pressed', 'false');
-    } else if (this.settings.theme === 'dark') {
-      document.documentElement.style.colorScheme = 'dark';
-      document.documentElement.dataset.theme = 'dark';
-      this.btnThemeDark?.setAttribute('aria-pressed', 'true');
-      this.btnThemeLight?.setAttribute('aria-pressed', 'false');
-      this.btnThemeAuto?.setAttribute('aria-pressed', 'false');
-    } else {
-      document.documentElement.style.removeProperty('color-scheme');
-      delete document.documentElement.dataset.theme;
-      this.btnThemeAuto?.setAttribute('aria-pressed', 'true');
-      this.btnThemeLight?.setAttribute('aria-pressed', 'false');
-      this.btnThemeDark?.setAttribute('aria-pressed', 'false');
+    if (this.btnThemeLight && this.btnThemeDark && this.btnThemeAuto) {
+      if (this.settings.theme === 'light') {
+        /** @type {HTMLInputElement} */ (this.btnThemeLight).checked = true;
+      } else if (this.settings.theme === 'dark') {
+        /** @type {HTMLInputElement} */ (this.btnThemeDark).checked = true;
+      } else {
+        /** @type {HTMLInputElement} */ (this.btnThemeAuto).checked = true;
+      }
     }
 
     // 3. Layout Guides overlay
@@ -97,17 +101,10 @@ export class SettingsManager {
 
     // 4. System Font Stacks
     if (this.btnFontSans && this.btnFontSerif) {
-      document.body.classList.remove('font-stack-sans', 'font-stack-serif');
-      
-      this.btnFontSans.setAttribute('aria-pressed', 'false');
-      this.btnFontSerif.setAttribute('aria-pressed', 'false');
-
       if (this.settings.systemFont === 'serif') {
-        document.body.classList.add('font-stack-serif');
-        this.btnFontSerif.setAttribute('aria-pressed', 'true');
+        /** @type {HTMLInputElement} */ (this.btnFontSerif).checked = true;
       } else {
-        document.body.classList.add('font-stack-sans');
-        this.btnFontSans.setAttribute('aria-pressed', 'true');
+        /** @type {HTMLInputElement} */ (this.btnFontSans).checked = true;
       }
     }
   }
@@ -127,6 +124,9 @@ export class SettingsManager {
     }
   }
 
+  /**
+   * @param {string} base64Font
+   */
   injectFont(base64Font) {
     let fontStyle = document.getElementById('din-custom-font-style');
     if (!fontStyle) {
@@ -142,6 +142,9 @@ export class SettingsManager {
     `;
   }
 
+  /**
+   * @param {boolean} hasCustomFont
+   */
   updateFontStatusUI(hasCustomFont) {
     if (!this.fontStatusLabel || !this.btnResetFont) return;
     if (hasCustomFont) {
@@ -158,13 +161,13 @@ export class SettingsManager {
   attachListeners() {
     // Font Stack Toggles
     if (this.btnFontSans) {
-      this.btnFontSans.addEventListener('click', () => {
+      this.btnFontSans.addEventListener('change', () => {
         this.settings.systemFont = 'sans';
         this.updateSettings();
       });
     }
     if (this.btnFontSerif) {
-      this.btnFontSerif.addEventListener('click', () => {
+      this.btnFontSerif.addEventListener('change', () => {
         this.settings.systemFont = 'serif';
         this.updateSettings();
       });
@@ -172,7 +175,7 @@ export class SettingsManager {
 
     // Layout Form switches
     if (this.btnFormA) {
-      this.btnFormA.addEventListener('click', () => {
+      this.btnFormA.addEventListener('change', () => {
         this._transitionState(() => {
           this.settings.layout = 'form-a';
           this.updateSettings();
@@ -181,7 +184,7 @@ export class SettingsManager {
     }
     
     if (this.btnFormB) {
-      this.btnFormB.addEventListener('click', () => {
+      this.btnFormB.addEventListener('change', () => {
         this._transitionState(() => {
           this.settings.layout = 'form-b';
           this.updateSettings();
@@ -191,7 +194,7 @@ export class SettingsManager {
 
     // Theme select toggles
     if (this.btnThemeLight) {
-      this.btnThemeLight.addEventListener('click', () => {
+      this.btnThemeLight.addEventListener('change', () => {
         this._transitionState(() => {
           this.settings.theme = 'light';
           this.updateSettings();
@@ -200,7 +203,7 @@ export class SettingsManager {
     }
 
     if (this.btnThemeDark) {
-      this.btnThemeDark.addEventListener('click', () => {
+      this.btnThemeDark.addEventListener('change', () => {
         this._transitionState(() => {
           this.settings.theme = 'dark';
           this.updateSettings();
@@ -209,7 +212,7 @@ export class SettingsManager {
     }
 
     if (this.btnThemeAuto) {
-      this.btnThemeAuto.addEventListener('click', () => {
+      this.btnThemeAuto.addEventListener('change', () => {
         this._transitionState(() => {
           this.settings.theme = 'auto';
           this.updateSettings();
@@ -225,12 +228,6 @@ export class SettingsManager {
       });
     }
 
-    // Font upload trigger click
-    if (this.btnFontUploadTrigger && this.fontUploader) {
-      this.btnFontUploadTrigger.addEventListener('click', () => {
-        this.fontUploader.click();
-      });
-    }
 
     // Font reset click listener
     if (this.btnResetFont) {
@@ -246,7 +243,8 @@ export class SettingsManager {
     // Font file uploader change listener
     if (this.fontUploader) {
       this.fontUploader.addEventListener('change', (e) => {
-        const file = e.target.files[0];
+        const target = /** @type {HTMLInputElement} */ (e.target);
+        const file = target && target.files ? target.files[0] : null;
         if (!file) return;
 
         if (!file.name.endsWith('.woff2')) {
@@ -262,7 +260,12 @@ export class SettingsManager {
 
         const reader = new FileReader();
         reader.onload = (event) => {
-          const base64Font = event.target.result;
+          const readerTarget = /** @type {FileReader} */ (event.target);
+          const base64Font = readerTarget ? readerTarget.result : null;
+          if (typeof base64Font !== 'string') {
+            showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+            return;
+          }
           const success = StorageManager.saveCustomFont(base64Font);
           if (success) {
             this.injectFont(base64Font);

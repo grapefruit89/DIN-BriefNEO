@@ -1,13 +1,16 @@
-// @adr [[ADR-JS]] 
+// @ts-check
 // @guide [[glossary]] 
 
 /* js/signature.js */
 /* @adr [[ADR-JS]] {SignatureFeature} */
 export class SignatureFeature {
+  /**
+   * @param {{ settings: any, saveSettings: () => void }} uiContext
+   */
   constructor(uiContext) {
     this.ui = uiContext;
-    this.imgElement = document.getElementById('signature-image');
-    this.uploader = document.getElementById('sig-uploader');
+    this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('signature-image'));
+    this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('sig-uploader'));
     this.btnTrigger = document.getElementById('btn-upload-sig-trigger');
     this.btnReset = document.getElementById('btn-reset-sig');
     
@@ -25,37 +28,47 @@ export class SignatureFeature {
     }
 
     // Event Listeners
-    this.btnTrigger.addEventListener('click', () => {
-      this.uploader.click();
-    });
 
     this.uploader.addEventListener('change', (e) => {
-      const file = e.target.files[0];
+      const target = /** @type {HTMLInputElement} */ (e.target);
+      const file = target && target.files ? target.files[0] : null;
       if (file) {
         this.processFile(file);
       }
       // Reset input so the same file can be uploaded again if needed
-      e.target.value = '';
+      if (target) target.value = '';
     });
 
-    this.btnReset.addEventListener('click', () => {
-      this.resetImage();
-    });
+    if (this.btnReset) {
+      this.btnReset.addEventListener('click', () => {
+        this.resetImage();
+      });
+    }
   }
 
+  /**
+   * @param {File} file
+   */
   processFile(file) {
     const reader = new FileReader();
     reader.onload = (event) => {
+      const target = /** @type {FileReader} */ (event.target);
+      const result = target ? target.result : null;
+      if (typeof result !== 'string') return;
       const img = new Image();
       img.onload = () => {
         const compressedBase64 = this.compressImage(img);
         this.saveAndApply(compressedBase64);
       };
-      img.src = event.target.result;
+      img.src = result;
     };
     reader.readAsDataURL(file);
   }
 
+  /**
+   * @param {HTMLImageElement} img
+   * @returns {string}
+   */
   compressImage(img) {
     let width = img.width;
     let height = img.height;
@@ -75,14 +88,19 @@ export class SignatureFeature {
     canvas.height = height;
 
     const ctx = canvas.getContext('2d');
-    // Draw the image
-    ctx.drawImage(img, 0, 0, width, height);
+    if (ctx) {
+      // Draw the image
+      ctx.drawImage(img, 0, 0, width, height);
+    }
 
     // Export as PNG to preserve transparency. 
     // Since it's scaled down, the base64 will be tiny (usually < 20KB).
     return canvas.toDataURL('image/png');
   }
 
+  /**
+   * @param {string} base64
+   */
   saveAndApply(base64) {
     this.applyImage(base64);
     
@@ -96,13 +114,16 @@ export class SignatureFeature {
     }
   }
 
+  /**
+   * @param {string} base64
+   */
   applyImage(base64) {
-    this.imgElement.src = base64;
+    if (this.imgElement) this.imgElement.src = base64;
     document.body.toggleAttribute('data-has-signature', true);
   }
 
   resetImage() {
-    this.imgElement.src = '';
+    if (this.imgElement) this.imgElement.src = '';
     document.body.toggleAttribute('data-has-signature', false);
 
     if (this.ui.settings) {
@@ -113,4 +134,3 @@ export class SignatureFeature {
     }
   }
 }
-

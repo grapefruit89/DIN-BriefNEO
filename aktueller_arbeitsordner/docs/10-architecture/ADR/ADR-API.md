@@ -4,13 +4,16 @@ aliases:
 - Header Security
 - Geoapify Autocomplete
 chosen_option: ''
-created: '2026-07-06'
+code_links: []
+created: '2026-06-26'
 date: 2026-05-24
 deciders:
 - morit
 - antigravity
 decision_options: []
 depends_on: []
+doc_links: []
+id: adr-api
 last-reviewed: 2026-07-02
 project: DIN-BriefNEO
 related:
@@ -28,7 +31,7 @@ tags:
 - zippopotam
 title: 'ADR-API: External Services & APIs (Geoapify, Zippopotam & Header Security)'
 type: adr
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # ADR-API: External Services & APIs
@@ -36,9 +39,13 @@ updated: '2026-07-06'
 ## 1. Context & Problem
 
 **Sichere, serverlose Adress-Vervollständigung und externe Datenabfragen.**
+
 - Viele Autocomplete-Lösungen (wie Google Places) benötigen dicke SDKs und zwingen Nutzer zur Kreditkartenangabe. Offizielle Libraries (z.B. `@geoapify/geocoder-autocomplete`) injizieren schwer anpassbare DOM-Elemente und brechen unsere WYSIWYG-Regel.
+
 - DIN-BriefNEO benötigt ein schnelles, datenschutzkonformes API-Konzept, das vollständig im lokalen Kontext (`file:///` oder lokaler Webserver) läuft, ohne Backend-Server.
+
 - API-Keys dürfen nicht via URL-Parameter geleakt werden.
+
 - Lokale Treffer (beim Geo-Autocomplete) sollen per Proximity Bias zuerst erscheinen.
 
 ## 2. Considered Options
@@ -55,34 +62,49 @@ updated: '2026-07-06'
 **Wir haben uns für Option A (Geoapify & Zippopotam REST APIs via Custom Fetch) entschieden.**
 
 ### Begründung
+
 - **Zero-Dependency:** Der Verzicht auf NPM-Libraries entspricht der Zero-JS-Philosophie.
+
 - **Header-Security:** Der API-Key wird **strikt per HTTP-Header** (`X-Api-Key`) gesendet, niemals in der URL. Das verhindert Leaks.
+
 - **Natives UI:** Das Resultat-Popover verankert sich nahtlos über W3C CSS Anchor Positioning, das DOM bleibt sauber von Fremdelementen.
+
 - **Dynamischer Proximity Bias:** Statt eines statischen Fallbacks ermittelt die Logik via Zippopotam (`api.zippopotam.us`) die `lat`/`lon` der eingegebenen 5-stelligen Absender-PLZ und nutzt diese für `bias=proximity` bei Geoapify.
+
 - **Performance:** Strenges Debouncing (`300ms`), Limits (`limit=5`) und `AbortController` halten API-Calls minimal und verhindern Race Conditions.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Maximale Kontrolle & WYSIWYG-Treue:** Das DOM bleibt zu 100% in unserer Hand.
+
 - **Hohe Sicherheit:** Keys leaken nicht in Server-Logs oder Proxys.
+
 - **Top Performance & Relevanz:** Adressen in der Nähe des Absenders werden priorisiert. Überflüssige Requests werden abgebrochen.
 
 ### Risiken & Negative Auswirkungen
+
 - Setzt aktive Internetverbindung voraus für Autocomplete (manuelle Eingabe geht weiterhin offline).
+
 - Caching muss bei Bedarf selbst (oder durch AbortController/Debouncing) verwaltet werden.
 
 ## 5. Implementation & Verification
 
 - Die Header-Security-Regel ist in `main.js` für jeden Geoapify-Aufruf verankert.
+
 - Photon wurde restlos als Antipattern deklariert.
+
 - Das Dropdown ist als `popover="manual"` mit CSS Anchor an das Eingabefeld gebunden.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-JS]]
+
 - [[ADR-FEATURE]]
+
 - [[longevity-guidelines]]
 
 ---

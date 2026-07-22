@@ -1,22 +1,45 @@
-// @adr [[ADR-JS]]
+// @ts-check
 // @guide [[chrome-modern-css]]
 
 /* @adr [[ADR-JS]] {ToastSystem} */
 export class ToastSystem {
   constructor() {
+    /** @type {Array<{message: string, type: string, options: any, duration: number}>} */
     this.queue = [];
+    /** @type {boolean} */
     this.isActive = false;
+    /** @type {any} */
     this.displayTimeout = null;
+    /** @type {number} */
     this.timeRemaining = 0;
+    /** @type {number} */
     this.startTime = 0;
+    /** @type {boolean} */
     this.isPaused = false;
+    /** @type {{message: string, type: string, options: any, duration: number} | null} */
     this.currentToast = null;
+    /** @type {number} */
     this.toastCount = 1;
     
     // Swipe state
+    /** @type {number} */
     this.startX = 0;
+    /** @type {number} */
     this.currentX = 0;
+    /** @type {boolean} */
     this.isSwiping = false;
+
+    // DOM elements
+    /** @type {HTMLElement | null} */
+    this.globalToast = null;
+    /** @type {HTMLElement | null} */
+    this.toastMessage = null;
+    /** @type {HTMLElement | null} */
+    this.toastBadge = null;
+    /** @type {HTMLElement | null} */
+    this.toastAction = null;
+    /** @type {HTMLElement | null} */
+    this.toastClose = null;
   }
 
   initDOM() {
@@ -48,9 +71,12 @@ export class ToastSystem {
     document.addEventListener('pointercancel', this.onPointerUp.bind(this));
   }
 
-  // Swipe Handlers
+  /**
+   * Swipe Handlers
+   * @param {PointerEvent} e
+   */
   onPointerDown(e) {
-    if (!this.isActive) return;
+    if (!this.isActive || !this.globalToast) return;
     this.isSwiping = true;
     this.startX = e.clientX;
     this.currentX = 0;
@@ -58,8 +84,11 @@ export class ToastSystem {
     this.globalToast.setPointerCapture(e.pointerId);
   }
 
+  /**
+   * @param {PointerEvent} e
+   */
   onPointerMove(e) {
-    if (!this.isSwiping) return;
+    if (!this.isSwiping || !this.globalToast) return;
     
     const deltaX = e.clientX - this.startX;
     // Only allow swipe to the right (positive deltaX)
@@ -67,12 +96,15 @@ export class ToastSystem {
       e.preventDefault(); // Prevent scrolling while swiping
       this.currentX = deltaX;
       this.globalToast.style.transform = `translateX(${deltaX}px)`;
-      this.globalToast.style.opacity = Math.max(0, 1 - (deltaX / 150));
+      this.globalToast.style.opacity = String(Math.max(0, 1 - (deltaX / 150)));
     }
   }
 
+  /**
+   * @param {PointerEvent} e
+   */
   onPointerUp(e) {
-    if (!this.isSwiping) return;
+    if (!this.isSwiping || !this.globalToast) return;
     this.isSwiping = false;
     
     // Restore CSS transition for snap-back or exit animation
@@ -96,17 +128,27 @@ export class ToastSystem {
    * @param {string} type - 'info', 'success', 'warning', 'error'
    * @param {Object} options - { action: { label, callback }, sticky: boolean, id: string }
    */
+  /**
+   * show()
+   * @param {string} message - The text to display
+   * @param {string} type - 'info', 'success', 'warning', 'error'
+   * @param {any} [options] - { action: { label, callback }, sticky: boolean, id: string }
+   */
   show(message, type = 'info', options = {}) {
     // Multi-Stacking / Counter Logic
     if (this.currentToast && this.currentToast.message === message) {
       this.toastCount++;
-      this.toastBadge.textContent = `x${this.toastCount}`;
-      this.toastBadge.style.display = 'inline-flex';
+      if (this.toastBadge) {
+        this.toastBadge.textContent = `x${this.toastCount}`;
+        this.toastBadge.style.display = 'inline-flex';
+      }
       
-      // Trigger CSS Shake
-      this.globalToast.classList.remove('shake');
-      void this.globalToast.offsetWidth; // trigger reflow
-      this.globalToast.classList.add('shake');
+      if (this.globalToast) {
+        // Trigger CSS Shake
+        this.globalToast.classList.remove('shake');
+        void this.globalToast.offsetWidth; // trigger reflow
+        this.globalToast.classList.add('shake');
+      }
       
       // Reset Timer
       this.startTimer(this.currentToast.duration, this.currentToast.options.sticky);
@@ -123,12 +165,19 @@ export class ToastSystem {
     this.processQueue();
   }
 
+  /**
+   * @param {string} id
+   * @param {string} message
+   * @param {string} type
+   */
   update(id, message, type = 'info') {
     if (this.currentToast && this.currentToast.options.id === id) {
-      this.toastMessage.textContent = message;
-      this.globalToast.className = `toast-container type-${type}`;
-      this.globalToast.style.transform = ''; // Reset swipe
-      this.globalToast.style.opacity = '';
+      if (this.toastMessage) this.toastMessage.textContent = message;
+      if (this.globalToast) {
+        this.globalToast.className = `toast-container type-${type}`;
+        this.globalToast.style.transform = ''; // Reset swipe
+        this.globalToast.style.opacity = '';
+      }
     }
   }
 
@@ -138,33 +187,40 @@ export class ToastSystem {
     this.isActive = true;
     this.isPaused = false;
     this.toastCount = 1;
-    this.currentToast = this.queue.shift();
+    this.currentToast = this.queue.shift() || null;
+    if (!this.currentToast) {
+      this.isActive = false;
+      return;
+    }
 
     // Reset styles
-    this.toastBadge.style.display = 'none';
+    if (this.toastBadge) this.toastBadge.style.display = 'none';
     this.globalToast.classList.remove('shake');
     this.globalToast.style.transform = '';
     this.globalToast.style.opacity = '';
 
     // Set Text and Type
-    this.toastMessage.textContent = this.currentToast.message;
+    if (this.toastMessage) this.toastMessage.textContent = this.currentToast.message;
     this.globalToast.className = `toast-container type-${this.currentToast.type}`;
 
     // Handle Action Button
-    if (this.currentToast.options.action) {
+    if (this.currentToast.options.action && this.toastAction) {
       this.toastAction.textContent = this.currentToast.options.action.label;
       this.toastAction.style.display = 'inline-block';
       this.toastAction.onclick = () => {
-        this.currentToast.options.action.callback();
+        if (this.currentToast && this.currentToast.options.action) {
+          this.currentToast.options.action.callback();
+        }
         this.clearCurrentToast();
         this.cleanupPopover();
       };
-    } else {
+    } else if (this.toastAction) {
       this.toastAction.style.display = 'none';
       this.toastAction.onclick = null;
     }
 
     try {
+      // @ts-ignore
       this.globalToast.showPopover();
       this.startTimer(this.currentToast.duration, this.currentToast.options.sticky);
     } catch (e) {
@@ -174,6 +230,10 @@ export class ToastSystem {
     }
   }
 
+  /**
+   * @param {number} duration
+   * @param {boolean} sticky
+   */
   startTimer(duration, sticky) {
     this.clearCurrentToast(); // Clear previous timeout
     if (sticky) return; // Sticky toasts don't auto-close
@@ -186,7 +246,7 @@ export class ToastSystem {
   pauseTimer() {
     if (!this.isActive || this.isPaused || !this.currentToast || this.currentToast.options.sticky) return;
     this.isPaused = true;
-    clearTimeout(this.displayTimeout);
+    if (this.displayTimeout) clearTimeout(this.displayTimeout);
     
     const elapsed = Temporal.Now.instant().epochMilliseconds - this.startTime;
     this.timeRemaining = Math.max(0, this.timeRemaining - elapsed);
@@ -202,14 +262,16 @@ export class ToastSystem {
   }
 
   clearCurrentToast() {
-    clearTimeout(this.displayTimeout);
+    if (this.displayTimeout) clearTimeout(this.displayTimeout);
   }
 
   cleanupPopover() {
     this.clearCurrentToast();
     this.currentToast = null;
 
+    // @ts-ignore
     if (this.globalToast && this.globalToast.matches(':popover-open')) {
+      // @ts-ignore
       this.globalToast.hidePopover();
     }
     
@@ -224,10 +286,20 @@ export class ToastSystem {
 // Singleton instance
 export const toastSystem = new ToastSystem();
 
+/**
+ * @param {string} message
+ * @param {string} type
+ * @param {any} [options]
+ */
 export function showToast(message, type = 'info', options = {}) {
   toastSystem.show(message, type, options);
 }
 
+/**
+ * @param {string} id
+ * @param {string} message
+ * @param {string} type
+ */
 export function updateToast(id, message, type = 'info') {
   toastSystem.update(id, message, type);
 }

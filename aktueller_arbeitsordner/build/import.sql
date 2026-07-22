@@ -139,6 +139,770 @@ Nutze exakt diese 3 Säulen (ADRs, Guides, Datenbank-Insights) und den strukturi
 
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'architecture_opportunities.md',
+  'architecture_opportunities.md',
+  'active',
+  '# Chrome 148-151 Roadmap Architecture Opportunities Audit Report
+**Project:** DIN-Brief Neo  
+**Target Codebase:** `aktueller_arbeitsordner/website/` (`index.html`, `css/`, `js/`)  
+**Audit Date:** July 2026  
+**Chrome Version Target Baseline:** Chrome 148–151 (Default Enabled Baseline in Chrome 150/151)  
+**Status:** Architectural Recommendations (Strict Read-Only Audit)
+
+---
+
+## Executive Summary
+
+This architecture audit evaluates the DIN-Brief Neo web application against bleeding-edge **Chrome 148–151 web platform primitives**. DIN-Brief Neo already demonstrates strong modern standards compliance (utilizing OKLCH colors, CSS Container Queries, CSS Anchor Positioning, and `@scope`). 
+
+Our systematic audit of `index.html`, `website/css/` (`variables.css`, `layout.css`, `floating.css`, `reset.css`, `print.css`, `poc-features.css`), and `website/js/` (`00-core/`, `10-ui/`, `20-features/`, `30-utils/`, `main.js`) has identified **15 concrete modernization opportunities** across 8 key Chrome 148–151 roadmap feature areas.
+
+Adopting these native Chrome features will yield:
+- **Net Reduction of ~153 Lines of Imperative JavaScript Code**.
+- **Complete Elimination of Layout-Trashing `.scrollHeight` Measurements and Keystroke Polling**.
+- **100% Declarative Arrow-Key Focus Management (`focusgroup`)** without writing keyboard event listeners.
+- **Zero-Jank Selection & Hover Tooltips (`popover="hint"` + CSS Anchor Positioning)**.
+- **Declarative Theme & UI Mode State Management via HTML Radio Inputs & CSS `:has()`**.
+- **Native Non-Blocking Modal Dialogs (`<dialog>`) replacing legacy blocking `window.confirm()` popups**.
+
+All recommended features are **enabled by default in Chrome 150/151** without requiring experimental browser flags.
+
+---
+
+## Detailed Opportunities by Feature Area
+
+### 1. CSS `text-fit` / Native Font Auto-Scaling
+
+#### Opportunity 1.1: DIN 5008 Envelope Window Sender Line (`#absender`)
+- **Target File & Lines:** `website/css/layout.css`, lines 247–258 (`#absender`)
+- **Current JS/CSS Workaround:**
+  ```css
+  #absender {
+    font-size: calc(8 * 0.168cqw);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  ```
+  The small sender address line (Rücksendezeile) in the 85mm x 5mm DIN 5008 address window relies on fixed container query font sizing. Long addresses are either truncated with `text-overflow: ellipsis` or require manual JS squeezing logic (`.squeezed` class).
+- **Proposed Native Solution (Chrome 150/151):**
+  Apply native `text-fit: contain;`:
+  ```css
+  #absender {
+    text-fit: contain;
+    white-space: nowrap;
+  }
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 150/151.
+- **Net Benefits:** Long sender address strings automatically scale down font size to fit inside the fixed 85mm x 5mm envelope window without text truncation or JS character count measurement.
+
+#### Opportunity 1.2: Subject Line Overflow Prevention (`#betreff`)
+- **Target File & Lines:** `website/css/layout.css`, lines 308–313 (`#betreff`)
+- **Current JS/CSS Workaround:**
+  ```css
+  #betreff {
+    font-size: calc(12 * 0.168cqw);
+    font-weight: 700;
+    text-wrap: pretty;
+  }
+  ```
+  Long subjects risk overflowing into the greeting line (`#anrede`), creating layout collisions on page 1 of the DIN letter.
+- **Proposed Native Solution (Chrome 150/151):**
+  ```css
+  #betreff {
+    font-size: calc(12 * 0.168cqw);
+    font-weight: 700;
+    text-fit: contain;
+  }
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 150/151.
+- **Net Benefits:** Subject titles auto-adjust font scaling dynamically to guarantee the subject line never overlaps subsequent letter elements.
+
+#### Opportunity 1.3: Single-Line Input Fields (`.single-line`)
+- **Target File & Lines:** `website/css/layout.css`, lines 639–646 (`.single-line`)
+- **Current JS/CSS Workaround:**
+  ```css
+  .single-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    field-sizing: content;
+  }
+  ```
+- **Proposed Native Solution (Chrome 150/151):**
+  ```css
+  .single-line {
+    white-space: nowrap;
+    text-fit: contain;
+    field-sizing: content;
+  }
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 150/151.
+- **Net Benefits:** Prevents user input from hiding behind ellipsis (`...`) while maintaining single-line structural layout stability.
+
+---
+
+### 2. HTML `focusgroup` Attribute for Declarative Focus Management
+
+#### Opportunity 2.1: Segmented Control Roving Focus Navigation
+- **Target File & Lines:** `index.html`, lines 44–48, 53–59, 96–100, 118–121
+- **Current JS/CSS Workaround:**
+  Segmented control containers currently rely on manual `tabindex="0"` on `<label>` elements or standard document tab stops. Moving between items requires repeated `Tab` key presses instead of arrow keys.
+- **Proposed Native Solution (Chrome 150/151):**
+  Add `focusgroup="horizontal wrap"` to all segmented control button containers:
+  ```html
+  <div class="segmented-control" focusgroup="horizontal wrap">
+    <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+    <label for="btn-form-a">Form A (Kompakt)</label>
+    <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+    <label for="btn-form-b">Form B (Standard)</label>
+  </div>
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 150/151 (Chrome 150 Baseline).
+- **Net Benefits:** Provides native, browser-driven `ArrowLeft` / `ArrowRight` roving focus management without writing a single line of JavaScript event listener code.
+
+#### Opportunity 2.2: Sidebar Actions & Button Group Focus
+- **Target File & Lines:** `index.html`, lines 187–194 (Actions Footer), lines 125–132 (Font Manager Actions), lines 145–153 (Signature Actions)
+- **Current JS/CSS Workaround:**
+  Vertical action groups require users to tab sequentially through every button.
+- **Proposed Native Solution (Chrome 150/151):**
+  ```html
+  <div class="sidebar-section sidebar-footer" focusgroup="vertical wrap">
+    <button id="btn-print" class="btn primary w-full">🖨️ Als PDF speichern / Drucken</button>
+    <button id="btn-reset" class="btn btn-danger w-full">🗑️ Brief zurücksetzen</button>
+  </div>
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 150/151.
+- **Net Benefits:** Enables intuitive vertical arrow-key (`ArrowUp` / `ArrowDown`) navigation through sidebar action buttons natively.
+
+---
+
+### 3. CSS `light-dark()` Functions for Theme Adaptation
+
+#### Opportunity 3.1: Theme-Adaptive Background Assets & Icons
+- **Target File & Lines:** `website/css/variables.css`, lines 21–25 & `website/css/layout.css`, lines 553–565 (`#signature-image`)
+- **Current JS/CSS Workaround:**
+  Uses CSS `mix-blend-mode` hacks or JS `src` swapping when switching between Light and Dark modes.
+- **Proposed Native Solution (Chrome 149/150):**
+  Define theme-adaptive images directly in CSS:
+  ```css
+  .theme-adaptive-watermark {
+    background-image: light-dark(url(''../assets/watermark-light.svg''), url(''../assets/watermark-dark.svg''));
+  }
+  ```
+- **Viability & Chrome Verification:** Supported in Chrome 149+.
+- **Net Benefits:** Eliminates JS theme-toggle image swapping listeners and `.dark-mode img` selector overrides.
+
+#### Opportunity 3.2: Focus Gradient Border Adaptability
+- **Target File & Lines:** `website/css/layout.css`, lines 648–660 (`.single-line[contenteditable]:focus`)
+- **Current JS/CSS Workaround:**
+  ```css
+  .single-line[contenteditable]:focus {
+    background-image: 
+      linear-gradient(oklch(62% 0.19 148 / 3%), oklch(62% 0.19 148 / 3%)),
+      linear-gradient(135deg, var(--accent-color), var(--c-success));
+  }
+  ```
+- **Proposed Native Solution (Chrome 149/150):**
+  ```css
+  .single-line[contenteditable]:focus {
+    background-image: 
+      light-dark(
+        linear-gradient(oklch(0.95 0.02 250 / 40%), oklch(0.95 0.02 250 / 40%)),
+        linear-gradient(oklch(0.20 0.02 250 / 40%), oklch(0.20 0.02 250 / 40%))
+      ),
+      linear-gradient(135deg, var(--accent-color), var(--c-success));
+  }
+  ```
+- **Viability & Chrome Verification:** Supported in Chrome 149+.
+- **Net Benefits:** Focus border tints dynamically adapt to system or user color schemes without redundant CSS rules.
+
+---
+
+### 4. CSS Gap Decorations (`column-rule-inset`, `row-rule-*`)
+
+#### Opportunity 4.1: Segmented Control Divider Lines
+- **Target File & Lines:** `website/css/layout.css`, lines 125–134 (`.segmented-control`)
+- **Current JS/CSS Workaround:**
+  ```css
+  .segmented-control {
+    display: flex;
+    background: var(--segment-bg);
+    padding: 4px;
+    border-radius: 10px;
+    gap: 2px;
+  }
+  ```
+  Relies on button border hacks or pseudo-elements (`::after`) to render thin vertical dividers between segmented options.
+- **Proposed Native Solution (Chrome 150):**
+  Apply native Flex Gap Decorations:
+  ```css
+  .segmented-control {
+    display: flex;
+    gap: 2px;
+    column-rule: 1px solid var(--border-color);
+    column-rule-inset: 4px;
+  }
+  ```
+- **Viability & Chrome Verification:** Supported by default in Chrome 150+.
+- **Net Benefits:** Clean vertical dividers between flex items without `:last-child` reset rules or pseudo-element hacks.
+
+#### Opportunity 4.2: Three-Column Footer Divider Lines (`#brief-fuss`)
+- **Target File & Lines:** `website/css/layout.css`, lines 398–412 (`#brief-fuss`)
+- **Current JS/CSS Workaround:**
+  ```css
+  #brief-fuss {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(10 / 210 * 100cqw);
+  }
+  ```
+- **Proposed Native Solution (Chrome 150):**
+  ```css
+  #brief-fuss {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(10 / 210 * 100cqw);
+    column-rule: 0.5px solid var(--paper-ghost);
+    column-rule-inset: 2px;
+  }
+  ```
+- **Viability & Chrome Verification:** Supported by default in Chrome 150+.
+- **Net Benefits:** Renders vertical dividers between grid columns natively without extra wrapper divs or cell border logic.
+
+---
+
+### 5. Name-Only Container Queries (`@container myName`)
+
+#### Opportunity 5.1: Scoped Paper Canvas Container Scoping (`din-a4`)
+- **Target File & Lines:** `website/css/layout.css`, lines 173–189 & lines 347–366 (`.overflow-indicator-text`)
+- **Current JS/CSS Workaround:**
+  ```css
+  din-a4 {
+    container-type: size;
+    container-name: paper;
+  }
+  ```
+  Sub-components query viewport dimensions or use explicit container queries requiring size parameters (`@container paper (min-width: 0px)`).
+- **Proposed Native Solution (Chrome 150/151):**
+  Modernize using Name-Only Container Queries:
+  ```css
+  @container paper {
+    .overflow-indicator-text {
+      position: absolute;
+      bottom: calc(32 / 297 * 100cqh);
+      right: calc(20 / 210 * 100cqw);
+      font-size: calc(7.5 * 0.168cqw);
+    }
+  }
+  ```
+- **Viability & Chrome Verification:** Supported by default in Chrome 150/151.
+- **Net Benefits:** Removes dummy dimension query conditions, scoping rules cleanly to named containers.
+
+---
+
+### 6. CSS Anchor Positioning (`position-area`) + `popover="hint"`
+
+#### Opportunity 6.1: Zero-JS Text Selection Formatting Toolbar
+- **Target File & Lines:** `website/js/10-ui/01-format-toolbar.js` (lines 9–10, 117–134, 175–180) & `index.html` (lines 276–281)
+- **Current JS/CSS Workaround:**
+  ```javascript
+  // format-toolbar.js lines 117-126
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  if (this.#selectionAnchor) {
+    this.#selectionAnchor.style.top = `${rect.top}px`;
+    this.#selectionAnchor.style.left = `${rect.left}px`;
+  }
+  ```
+  Requires JS event listeners for `selectionchange`, manual top/left pixel coordinate math, and debounced timers.
+- **Proposed Native Solution (Chrome 148-151):**
+  Combine CSS Anchor Positioning (`position-area`) with `popover="manual"` / `popover="hint"`:
+  ```css
+  #format-toolbar {
+    position-anchor: --selection-anchor;
+    position-area: top center;
+    position-try-options: flip-block, flip-inline;
+  }
+  ```
+- **Viability & Chrome Verification:** Supported by default in Chrome 150/151.
+- **Net Benefits:** **-25 LOC in JS**. Browser compositor thread handles toolbar positioning natively with zero layout thrashing or lag.
+
+#### Opportunity 6.2: Dropdown Position Area Modernization
+- **Target File & Lines:** `website/css/layout.css`, lines 571–590 (`#local-address-dropdown`) & lines 604–623 (`#postvermerk-dropdown`)
+- **Current JS/CSS Workaround:**
+  Uses legacy coordinate syntax: `top: calc(anchor(bottom) + 4px); left: anchor(left);`.
+- **Proposed Native Solution (Chrome 150):**
+  ```css
+  #local-address-dropdown {
+    position-anchor: --anchor-empfaenger;
+    position-area: bottom span-x;
+    margin-top: 4px;
+    width: anchor-size(width);
+    position-try-options: flip-block;
+  }
+  ```
+- **Viability & Chrome Verification:** Supported in Chrome 150+.
+- **Net Benefits:** Declarative dropdown placement with automatic viewport collision flipping (`flip-block`).
+
+#### Opportunity 6.3: Declarative Tooltips with Shortcut Badges via `popover="hint"`
+- **Target File & Lines:** `index.html`, lines 276–281 (`#format-toolbar` buttons)
+- **Current JS/CSS Workaround:**
+  Uses plain, unstyled browser `title` attributes (`title="Fett"`). Browser `title` tooltips cannot be styled, have display delays, and cannot show shortcut badges.
+- **Proposed Native Solution (Chrome 150/151):**
+  Use `popover="hint"` and `interesttarget`:
+  ```html
+  <button id="btn-bold" interesttarget="tooltip-bold"><b>B</b></button>
+  <div id="tooltip-bold" popover="hint" class="tooltip-popover">Fett <kbd>Strg+B</kbd></div>
+  ```
+  ```css
+  .tooltip-popover {
+    position-anchor: --btn-bold;
+    position-area: top center;
+    background: var(--bg-sidebar-glass);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-color);
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 150/151. `popover="hint"` allows nested tooltips to display over existing active popovers without closing the parent popover.
+- **Net Benefits:** Rich, styled tooltips with zero JS event listeners.
+
+---
+
+### 7. HTML State & CSS `:has()` Toggle Patterns
+
+#### Opportunity 7.1: Theme Light / Dark / Auto Switcher
+- **Target File & Lines:** `js/00-core/02-settings-manager.js` (lines 76–95, 212–238) & `index.html` (lines 44–48)
+- **Current JS/CSS Workaround:**
+  ```javascript
+  // SettingsManager.js:
+  if (this.settings.theme === ''light'') {
+    document.documentElement.style.colorScheme = ''light'';
+    document.documentElement.dataset.theme = ''light'';
+    this.btnThemeLight?.setAttribute(''aria-pressed'', ''true'');
+    this.btnThemeDark?.setAttribute(''aria-pressed'', ''false'');
+    this.btnThemeAuto?.setAttribute(''aria-pressed'', ''false'');
+  }
+  ```
+  JS manually mutates DOM datasets, style properties, and iterates calling `setAttribute(''aria-pressed'')`.
+- **Proposed Native Solution (Chrome 148-151):**
+  Convert buttons to native visually hidden radio inputs:
+  ```html
+  <div class="segmented-control" focusgroup="horizontal wrap">
+    <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only">
+    <label for="btn-theme-light">☀️ Hell</label>
+    <input type="radio" name="theme" id="btn-theme-dark" value="dark" class="sr-only">
+    <label for="btn-theme-dark">🌙 Dunkel</label>
+    <input type="radio" name="theme" id="btn-theme-auto" value="auto" class="sr-only" checked>
+    <label for="btn-theme-auto">💻 Auto</label>
+  </div>
+  ```
+  ```css
+  :root:has(#btn-theme-light:checked) { color-scheme: light; }
+  :root:has(#btn-theme-dark:checked) { color-scheme: dark; }
+  :root:has(#btn-theme-auto:checked) { color-scheme: light dark; }
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 105+, optimized in Chrome 148-151.
+- **Net Benefits:** **-35 LOC in JS**. Fully compliant with AGENTS.md Mandate 28. Active state and color scheme application become 100% declarative in CSS. JS only reads/writes `localStorage` on `change` events.
+
+#### Opportunity 7.2: Font Stack Selector (Sans / Serif)
+- **Target File & Lines:** `js/00-core/02-settings-manager.js` (lines 113–126) & `index.html` (lines 118–121)
+- **Current JS/CSS Workaround:**
+  JS calls `document.body.classList.remove(''font-stack-sans'', ''font-stack-serif'')` and `classList.add()`.
+- **Proposed Native Solution (Chrome 148-151):**
+  ```html
+  <div class="segmented-control" id="font-stack-select" focusgroup="horizontal wrap">
+    <input type="radio" name="font-stack" id="btn-font-sans" value="sans" class="sr-only" checked>
+    <label for="btn-font-sans">Sans</label>
+    <input type="radio" name="font-stack" id="btn-font-serif" value="serif" class="sr-only">
+    <label for="btn-font-serif">Serif</label>
+  </div>
+  ```
+  ```css
+  body:has(#btn-font-serif:checked) { font-family: var(--font-stack-serif); }
+  body:has(#btn-font-sans:checked) { font-family: var(--font-stack-sans); }
+  ```
+- **Viability & Chrome Verification:** Enabled in Chrome 148-151.
+- **Net Benefits:** **-45 LOC in JS** (combined with guides toggle refactoring). Removes all `classList` modifications in JS.
+
+#### Opportunity 7.3: Formality & Date Format Selectors
+- **Target File & Lines:** `js/20-features/01-salutation-engine.js` (lines 127–153) & `js/20-features/07-date-format.js` (lines 37–60)
+- **Current JS/CSS Workaround:**
+  JS helper functions `_applyUIState()` and `updateActiveButton()` manually iterate over button references to update `aria-pressed`.
+- **Proposed Native Solution (Chrome 148-151):**
+  Replace buttons with `<input type="radio">` controls. Active selection styling is driven natively via CSS `.segmented-control input:checked + label`.
+- **Viability & Chrome Verification:** Enabled in Chrome 148-151.
+- **Net Benefits:** **-30 LOC in JS**. Browser natively manages radio checked states and accessibility trees.
+
+#### Opportunity 7.4: Zero-JS Signature Presence Detection
+- **Target File & Lines:** `js/20-features/02-signature.js` (lines 122, 127) & `website/css/layout.css` (lines 698–707)
+- **Current JS/CSS Workaround:**
+  JS calls `document.body.toggleAttribute(''data-has-signature'', true|false)` on image upload or reset.
+- **Proposed Native Solution (Chrome 148-151):**
+  Use CSS `:has()` selector matching directly against `#signature-image`:
+  ```css
+  :root:has(#signature-image[src]:not([src=""])) #btn-reset-sig,
+  :root:has(#signature-image[src]:not([src=""])) #signature-image {
+    display: block !important;
+  }
+  :root:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger {
+    display: none !important;
+  }
+  ```
+- **Viability & Chrome Verification:** Enabled in Chrome 148-151.
+- **Net Benefits:** Eliminates `document.body.toggleAttribute(''data-has-signature'')` logic in JS.
+
+---
+
+### 8. Native HTML5 `<dialog>` Modal Integration
+
+#### Opportunity 8.1: Reset Brief Confirmation Modal Dialog
+- **Target File & Lines:** `website/js/main.js`, lines 123–129
+- **Current JS/CSS Workaround:**
+  ```javascript
+  btnReset.addEventListener(''click'', () => {
+    if (confirm(''Möchtest du alle Texte wirklich zurücksetzen?'')) {
+      draftManager.resetDraft();
+      uiProtections.checkTextOverflow();
+    }
+  });
+  ```
+  Uses legacy blocking `window.confirm()`. Synchronously halts JS execution, cannot adopt glassmorphism styling or dark/light themes, and freezes user interaction.
+- **Proposed Native Solution (Chrome 148-151):**
+  Implement a declarative HTML5 `<dialog>` element with `.showModal()`:
+  ```html
+  <dialog id="reset-confirm-dialog" class="glass-dialog no-print">
+    <form method="dialog" class="dialog-content">
+      <h3>Brief zurücksetzen?</h3>
+      <p>Möchtest du alle eingegebenen Texte und Daten wirklich unwiderruflich löschen?</p>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn">Abbrechen</button>
+        <button value="confirm" class="btn btn-danger">Ja, zurücksetzen</button>
+      </div>
+    </form>
+  </dialog>
+  ```
+  ```javascript
+  const dialog = document.getElementById(''reset-confirm-dialog'');
+  btnReset.addEventListener(''click'', () => dialog.showModal());
+  dialog.addEventListener(''close'', () => {
+    if (dialog.returnValue === ''confirm'') {
+      draftManager.resetDraft();
+      uiProtections.checkTextOverflow();
+    }
+  });
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 97+, with `:modal` and `@starting-style` backdrop animations refined in Chrome 148-151.
+- **Net Benefits:** Non-blocking top-layer modal with automatic focus trapping, ESC key dismissal, backdrop blur filtering (`::backdrop { backdrop-filter: blur(8px); }`), and full theme integration.
+
+#### Opportunity 8.2: Page Overflow Warning Detection via Container Scroll-State Query
+- **Target File & Lines:** `js/00-core/03-ui-protections.js` (lines 22–33) & `js/main.js` (line 136)
+- **Current JS/CSS Workaround:**
+  ```javascript
+  checkTextOverflow() {
+    if (this.brieftext.scrollHeight > 450) {
+      this.paper.classList.add(''overflow-warn'');
+    }
+  }
+  ```
+  JS attaches an `input` event listener in `main.js` executing `checkTextOverflow()` on every keystroke, reading `.scrollHeight` and causing layout trashing.
+- **Proposed Native Solution (Chrome 148-150):**
+  Utilize Container Scroll-State Queries (`@container scroll-state(overflow-y: true)`):
+  ```css
+  din-text#brieftext {
+    container-type: scroll-state;
+  }
+  @container scroll-state(overflow-y: true) {
+    din-a4 .overflow-indicator-text {
+      display: block;
+    }
+  }
+  ```
+- **Viability & Chrome Verification:** Enabled by default in Chrome 148-150.
+- **Net Benefits:** **-18 LOC in JS**. Completely removes `checkTextOverflow()`, `.scrollHeight` reading, and keystroke event polling in `main.js`.
+
+---
+
+## Summary Comparison Matrix
+
+| # | Feature Area | Target Location | Current Workaround | Proposed Native Solution | Chrome Baseline | Net Benefit |
+|---|---|---|---|---|---|---|
+| 1.1 | `text-fit` | `layout.css:247` (`#absender`) | Fixed font size + truncation | `text-fit: contain; white-space: nowrap;` | Chrome 150/151 | Auto-fit sender address line |
+| 1.2 | `text-fit` | `layout.css:308` (`#betreff`) | Fixed font size + `text-wrap` | `text-fit: contain;` | Chrome 150/151 | Prevent subject line overflow |
+| 1.3 | `text-fit` | `layout.css:639` (`.single-line`) | `text-overflow: ellipsis` | `text-fit: contain;` | Chrome 150/151 | Prevent input truncation |
+| 2.1 | `focusgroup` | `index.html:44,53` (Segmented controls) | Manual `tabindex` / tab stops | `focusgroup="horizontal wrap"` | Chrome 150/151 | Native arrow-key navigation |
+| 2.2 | `focusgroup` | `index.html:187` (Footer actions) | Sequential tabbing | `focusgroup="vertical wrap"` | Chrome 150/151 | Vertical arrow-key navigation |
+| 3.1 | `light-dark()` | `variables.css:21`, `layout.css:553` | JS `src` swapping / blend mode | `light-dark(url(''light''), url(''dark''))` | Chrome 149/150 | Zero-JS theme images |
+| 3.2 | `light-dark()` | `layout.css:648` (Focus border) | Fixed gradient tint | `light-dark(linear-gradient, linear-gradient)` | Chrome 149/150 | Theme-adaptive focus borders |
+| 4.1 | Gap Decorations | `layout.css:125` (`.segmented-control`)| Button border hacks / `::after` | `column-rule: 1px solid; column-rule-inset: 4px;` | Chrome 150 | Native flex gap dividers |
+| 4.2 | Gap Decorations | `layout.css:398` (`#brief-fuss`) | Grid gap without dividers | `column-rule: 0.5px solid var(--paper-ghost);` | Chrome 150 | Native 3-column grid dividers |
+| 5.1 | Name-Only Containers | `layout.css:173,347` (`din-a4`) | `@container paper (min-width: 0px)` | `@container paper { ... }` | Chrome 150/151 | Simplified container scoping |
+| 6.1 | Anchor Positioning | `format-toolbar.js:117`, `index.html:276` | `getBoundingClientRect()` + JS listeners | `position-anchor`, `position-area: top center` | Chrome 150/151 | **-25 LOC JS**, 0-jank toolbar |
+| 6.2 | Anchor Positioning | `layout.css:571,604` (Dropdowns) | Coordinate syntax `top: calc(anchor())` | `position-area: bottom span-x;` | Chrome 150 | Declarative dropdown alignment |
+| 6.3 | `popover="hint"` | `index.html:276` (`#format-toolbar`) | Unstyled browser `title` | `popover="hint"` + `interesttarget` | Chrome 150/151 | Rich tooltips with shortcut badges |
+| 7.1 | CSS `:has()` | `02-settings-manager.js:76`, `index.html:44` | JS DOM dataset / colorScheme mutation | Radio inputs + `:root:has(#theme:checked)` | Chrome 148-151 | **-35 LOC JS**, Mandate 28 compliant |
+| 7.2 | CSS `:has()` | `02-settings-manager.js:113` | JS `classList.add/remove` | Radio inputs + `body:has(#font:checked)` | Chrome 148-151 | **-45 LOC JS**, 0 JS class toggling |
+| 7.3 | CSS `:has()` | `01-salutation-engine.js:127`, `07-date-format.js:37` | JS `aria-pressed` loop functions | Radio inputs + CSS `input:checked + label` | Chrome 148-151 | **-30 LOC JS**, native form state |
+| 7.4 | CSS `:has()` | `02-signature.js:122` | JS `body.toggleAttribute(''data-has-signature'')` | CSS `:root:has(#signature-image[src]:not([src=""]))` | Chrome 148-151 | Zero-JS signature state |
+| 8.1 | `<dialog>` | `main.js:123` | Blocking `window.confirm()` | `<dialog id="reset-dialog">` + `.showModal()` | Chrome 148-151 | Non-blocking, glassmorphic modal |
+| 8.2 | Container Scroll-State| `ui-protections.js:22`, `main.js:136` | JS `.scrollHeight` checks & keystroke listener | `@container scroll-state(overflow-y: true)` | Chrome 148-150 | **-18 LOC JS**, 0 layout thrashing |
+
+---
+
+## Architectural Conclusion & Implementation Roadmap
+
+The audit confirms that DIN-Brief Neo can eliminate **~153 lines of JavaScript** and transition all UI state management, popover positioning, font auto-scaling, keyboard navigation, and theme adaptation to native HTML5 and CSS primitives available in **Chrome 148–151**.
+
+### Recommended Migration Sequence:
+1. **Phase 1 (HTML State & CSS `:has()` Refactoring):**
+   Replace `SettingsManager` imperative DOM dataset mutations with native radio inputs and `:has()` selectors (compliant with AGENTS.md Mandate 28).
+2. **Phase 2 (`focusgroup` & Keyboard Accessibility):**
+   Add `focusgroup="horizontal wrap"` and `focusgroup="vertical wrap"` attributes to segmented controls, toolbars, and sidebar action footers.
+3. **Phase 3 (CSS Anchor Positioning & `popover="hint"`):**
+   Migrate text selection toolbar positioning from JS `getBoundingClientRect()` to native CSS Anchor Positioning (`position-area: top center`) and add rich hover tooltips via `popover="hint"`.
+4. **Phase 4 (`text-fit` & Gap Decorations):**
+   Apply `text-fit: contain;` to `#absender`, `#betreff`, and `.single-line` fields to prevent text truncation, and add `column-rule-inset` for clean flex/grid dividers.
+5. **Phase 5 (Native `<dialog>` Modals):**
+   Replace legacy blocking `window.confirm()` alerts with declarative `<dialog>` modals featuring glassmorphism backdrops.
+
+---
+*Report generated by Project Orchestrator (Chrome 148-151 Audit). All source files in target directory remained untouched (Strict Read-Only Policy).*',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'audit_report.md',
+  'audit_report.md',
+  'active',
+  '# DIN-Brief Neo — CSS-First Refactoring Audit Report
+
+**Project Codebase Directory**: `c:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\aktueller_arbeitsordner`  
+**Audit Date**: 2026-07-21  
+**Auditor**: Worker Subagent (Milestone 2 - Report Generation & Fitness Check)  
+**Target Architecture**: CSS-First Layout Switching for DIN 5008 Form A / Form B  
+
+---
+
+## 1. Executive Summary
+
+This audit report verifies the successful refactoring of the DIN 5008 Form A / Form B layout switching in DIN-Brief Neo to a **CSS-First Architecture**. 
+
+Previously, layout switching relied on JavaScript imperatively toggling CSS classes (`.form-a` / `.form-b`) or modifying inline styles on `#app-shell`. The refactored solution decouples layout styling completely from JavaScript, relying instead on HTML standard `<input type="radio">` controls and modern CSS parent selectors (`:has()`).
+
+### Key Audit Outcomes
+- **Requirement R1 (JavaScript Audit)**: **100% PASS**. `website/js/00-core/02-settings-manager.js` contains no direct DOM class or style manipulation for layout mode. JS solely manages state persistence (`localStorage`) and input element checked state (`radioA.checked = true`).
+- **Requirement R2 (CSS & HTML Audit)**: **100% PASS**. `website/css/layout.css` utilizes `:root` CSS custom variables for Form B (Standard) default geometry, and `body:has(#btn-form-a:checked)` to declaratively override geometry variables for Form A (Kompakt). `website/index.html` declares accessibility-compliant `<input type="radio" name="layout-form" class="sr-only">` controls.
+- **Requirement R3 (Inline Script Cleanup & Anti-Flicker)**: **100% PASS**. The inline Anti-Flicker script in `website/index.html` (lines 329–334) was cleaned up to eliminate obsolete `classList.replace(''form-b'', ''form-a'')` and `setAttribute(''aria-pressed'', ...)` calls. State restoration synchronously sets `btn-form-a.checked = true` during initial paint. Obsolete `class="form-b"` on `<div id="app-shell">` was removed.
+- **Architectural Rule Compliance**: **100% PASS**. The architectural mandate "CSS-First / No JS Styling" is strictly satisfied for Form A/B layout switching.
+- **Fitness Score**: **100% PASS**. Executing `.\start.ps1` yields an Evolutionary Fitness Score of **100%** (Metadata: 100%, Coherence: 100%, Conformance: 100%, Features: 100%).
+
+---
+
+## 2. Requirement R1 Check — JavaScript Audit (`02-settings-manager.js`)
+
+**Target File**: `website/js/00-core/02-settings-manager.js`
+
+### 2.1 Verification of DOM Manipulation Removal
+The audit verified that `02-settings-manager.js` contains **zero** direct DOM style overrides (`element.style.display`, `element.style.*`) or class manipulations (`classList.add(''form-a'')`, `classList.remove(...)`) for layout switching.
+
+**Source Inspection (`02-settings-manager.js` lines 67–74)**:
+```javascript
+// 1. Layout Mode A/B (CSS-First Refactoring)
+if (this.btnFormA && this.btnFormB) {
+  if (this.settings.layout === ''form-a'') {
+    /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;
+  } else {
+    /** @type {HTMLInputElement} */ (this.btnFormB).checked = true;
+  }
+}
+```
+
+### 2.2 Event Handling & Persistence
+When a user changes the layout form selection via the UI radio inputs, the event listener records the updated setting state and persists it to `localStorage` via `StorageManager.saveSettings()`.
+
+**Source Inspection (`02-settings-manager.js` lines 193–210)**:
+```javascript
+// Layout Form switches
+if (this.btnFormA) {
+  this.btnFormA.addEventListener(''change'', () => {
+    this._transitionState(() => {
+      this.settings.layout = ''form-a'';
+      this.updateSettings();
+    });
+  });
+}
+
+if (this.btnFormB) {
+  this.btnFormB.addEventListener(''change'', () => {
+    this._transitionState(() => {
+      this.settings.layout = ''form-b'';
+      this.updateSettings();
+    });
+  });
+}
+```
+
+### R1 Audit Verdict: **PASS**
+
+---
+
+## 3. Requirement R2 Check — CSS `:has()` Selector & HTML Radio Audit
+
+### 3.1 CSS Custom Variable Architecture (`website/css/layout.css`)
+Layout geometry for DIN 5008 Form A and Form B is specified entirely using CSS custom properties on `:root` and overridden via `body:has(#btn-form-a:checked)`.
+
+**Default Layout Geometry — Form B (`website/css/layout.css` lines 7–21)**:
+```css
+:root {
+  /* DIN 5008 Geometrie-Variablen (Form B = Default) */
+  --din-width: 210;
+  --din-height: 297;
+  
+  --absender-y: calc(45 / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(50 / var(--din-height) * 100cqh);
+  --infoblock-y: calc(50 / var(--din-height) * 100cqh);
+  --datum-y: calc(92 / var(--din-height) * 100cqh);
+  --briefkern-y: calc(109 / var(--din-height) * 100cqh);
+  
+  --fold-1-y: calc(105 / var(--din-height) * 100cqh);
+  --fold-2-y: calc(210 / var(--din-height) * 100cqh);
+  --punch-y: calc(148.5 / var(--din-height) * 100cqh);
+}
+```
+
+**Form A Declarative Overrides via `:has()` (`website/css/layout.css` lines 23–31)**:
+```css
+body:has(#btn-form-a:checked) {
+  --absender-y: calc(27 / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(32 / var(--din-height) * 100cqh);
+  --infoblock-y: calc(32 / var(--din-height) * 100cqh);
+  --datum-y: calc(74 / var(--din-height) * 100cqh);
+  --briefkern-y: calc(91 / var(--din-height) * 100cqh);
+  --fold-1-y: calc(87 / var(--din-height) * 100cqh);
+  --fold-2-y: calc(181 / var(--din-height) * 100cqh);
+}
+```
+
+### 3.2 HTML Radio Controls (`website/index.html`)
+The layout controls are implemented as standard, accessible `<input type="radio">` controls hidden with `.sr-only` and bound to styled labels.
+
+**HTML Markup (`website/index.html` lines 52–59)**:
+```html
+<div>
+  <h3 class="sidebar-label">DIN-Brief Layout</h3>
+  <div class="segmented-control">
+    <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+    <label for="btn-form-a" tabindex="0">Form A (Kompakt)</label>
+    <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+    <label for="btn-form-b" tabindex="0">Form B (Standard)</label>
+  </div>
+</div>
+```
+
+### 3.3 Segmented Control CSS (`website/css/layout.css` lines 152–156)
+```css
+.segmented-control button[aria-pressed="true"],
+.segmented-control input[type="radio"]:checked + label {
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
+}
+```
+
+### R2 Audit Verdict: **PASS**
+
+---
+
+## 4. Requirement R3 Check — Inline Script Cleanup & State Restoration
+
+### 4.1 Cleanup of `#app-shell` Element
+- **File**: `website/index.html` (line 30)
+- **Previous State**: `<div id="app-shell" class="form-b">`
+- **Updated State**: `<div id="app-shell">`
+- **Rationale**: The class `form-b` was an obsolete artifact from the pre-refactored architecture. Removing it ensures clean DOM semantics.
+
+### 4.2 Anti-Flicker Hydration Script Optimization
+- **File**: `website/index.html` (lines 329–334)
+- **Previous State**:
+  ```javascript
+  if (settings.layout === ''form-a'') {
+    document.getElementById(''app-shell'')?.classList.replace(''form-b'', ''form-a'');
+    document.getElementById(''btn-form-b'')?.setAttribute(''aria-pressed'', ''false'');
+    document.getElementById(''btn-form-a'')?.setAttribute(''aria-pressed'', ''true'');
+  }
+  ```
+- **Updated State**:
+  ```javascript
+  // Layout (CSS-First Refactoring)
+  if (settings.layout === ''form-a'') {
+    const btnFormA = document.getElementById(''btn-form-a'');
+    if (btnFormA) btnFormA.checked = true;
+  }
+  ```
+- **Rationale**: Setting `btnFormA.checked = true` synchronously during initial paint activates `body:has(#btn-form-a:checked)` prior to first render frame, preventing any visual layout flickering without invoking imperative class manipulation.
+
+### R3 Audit Verdict: **PASS**
+
+---
+
+## 5. Architectural Rule Compliance Confirmation
+
+| Architectural Rule | Standard | Audit Finding | Compliance Status |
+|---|---|---|---|
+| **CSS-First Styling** | Layout styling must be driven strictly by CSS custom properties and CSS selectors. | Geometry variables (`--absender-y`, etc.) change dynamically via `:has(#btn-form-a:checked)`. | **100% COMPLIANT** |
+| **No JS Styling** | JavaScript must not set inline styles or toggle layout classes on DOM elements. | JS only sets `radio.checked = true` and updates `localStorage`. | **100% COMPLIANT** |
+| **Anti-Flicker Sync Hydration** | Initial state must be restored synchronously before first paint. | Inline script in `<head>`/`body` sets input `.checked = true` synchronously. | **100% COMPLIANT** |
+| **Accessibility (ARIA / HTML)** | Native semantic elements must be used with accessible labels. | `<input type="radio">` with `.sr-only` and `<label for="...">` with `tabindex="0"`. | **100% COMPLIANT** |
+
+---
+
+## 6. Fitness Check & Reconciliation Results
+
+### 6.1 Fitness Check Execution Command
+```powershell
+c:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\aktueller_arbeitsordner> powershell -ExecutionPolicy Bypass -File .\start.ps1
+```
+
+### 6.2 Fitness Score Output Verification
+```text
+==================================================
+EVOLUTIONARY FITNESS SCORE: 100%
+--------------------------------------------------
+- Metadata Score:    100%
+- Coherence Score:   100%
+- Conformance Score: 100%
+- Features Score:    100%
+==================================================
+```
+
+### 6.3 Verification Summary Matrix
+
+| Metric | Target | Result | Status |
+|---|---|---|---|
+| **Metadata Score** | 100% | 100% | ✅ PASS |
+| **Coherence Score** | 100% | 100% | ✅ PASS |
+| **Conformance Score** | 100% | 100% | ✅ PASS |
+| **Features Score** | 100% | 100% | ✅ PASS |
+| **Overall Fitness Score** | **100%** | **100%** | ✅ **PASS** |
+
+---
+
+## 7. Conclusion
+
+The refactoring of the Form A/B layout switching mechanism in DIN-Brief Neo fully meets all criteria for a **CSS-First Architecture**. The implementation is robust, clean, free of legacy style manipulations, and achieves a **100% Evolutionary Fitness Score**.',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'boilerplate.config.json',
   'boilerplate.config.json',
   'active',
@@ -179,6 +943,7 @@ Dieses Dokument ist das unverrückbare und absolut bindende Regelwerk (Rulebook)
 ---
 
 ## 1. Mission & Vision
+
 DIN-BriefNEO ist eine minimalistische, hochperformante und vollkommen autarke Webanwendung zur Erstellung und zum PDF-Druck formaler Briefe nach der deutschen Norm **DIN 5008 (Form A & B)**. 
 Das Projekt ist extrem langlebig konzipiert: Es läuft vollständig lokal im Browser, ohne Server und ohne Build-Systeme, und bleibt über Jahrzehnte hinweg direkt ausführbar.
 
@@ -187,18 +952,21 @@ Das Projekt ist extrem langlebig konzipiert: Es läuft vollständig lokal im Bro
 ## 2. Die fundamentalen Verbote (DONT''s)
 
 ### ❌ Fette Frameworks & Build-Tools
-Es dürfen **keine** Frontend-Frameworks (React, Vue, Angular, Svelte, Next.js etc.) verwendet werden. Ebenso sind CSS-Utility-Frameworks (wie TailwindCSS) und Build-Tools (webpack, Vite, esbuild, Babel) verboten. Die Ausführung erfolgt über standardkonforme, pure ES-Module.
 
 ### ❌ Absolutes Scroll-Verbot
+
 In der gesamten Anwendung darf **kein einziger Scrollbalken** auftauchen – weder vertikal noch horizontal. Jedes UI-Element, jede Sidebar und das Briefblatt selbst müssen sich elastisch und ohne Überlauf innerhalb der exakten Grenzen des Viewports bewegen.
 
 ### ❌ Keine Native App & Keine Browser-Erweiterung
+
 DIN-BriefNEO wird ausschließlich als responsive, standardkonforme **Webseite / Web App (PWA)** entwickelt. Es werden unter keinen Umständen native Apps (Electron, Capacitor) oder Browser-Erweiterungen (WebExtensions) gebaut.
 
 ### ❌ Keine komplexen Server-Datenbanken
+
 Wir verzichten auf serverseitige Datenbanken oder Speicher-APIs, die einen aktiven Serverkontext zwingend voraussetzen (wie OPFS ohne Service Worker).
 
 ### ❌ Keine externen Abhängigkeiten & CDNs (Absolute Dependency Purity)
+
 Es dürfen keine externen CDNs, Bibliotheken, Web-Fonts (z. B. Google Fonts) oder Skripte über das Netzwerk geladen werden. Die Anwendung muss vollkommen autark und isoliert im Offline-Zustand funktionieren. Alle Ressourcen (Schriften, CSS, JS) müssen lokal im Verzeichnis liegen.
 
 ---
@@ -206,26 +974,38 @@ Es dürfen keine externen CDNs, Bibliotheken, Web-Fonts (z. B. Google Fonts) ode
 ## 3. Die fundamentalen Gebote (DO''s)
 
 ### ✅ HTML > CSS > JavaScript
+
 Entwickelt wird streng nach dem Prinzip der absteigenden Komplexität:
+
 1. **HTML First:** Verwendung nativer, semantischer HTML5-Elemente (z. B. `<dialog>`, `<popover>`, `contenteditable="plaintext-only"`).
+
 2. **CSS Second:** Layouts (CSS Grid, Flexbox), Interaktionen (Checked-Tricks, native Popover-Events) und Themes werden vorrangig über CSS gelöst.
+
 3. **JavaScript Last:** JS fungiert ausschließlich als deklarative Logik-Schicht (API-Abfragen, LocalStorage-Sync, Berechnungen).
 
 ### ✅ Lokale Persistenz rein über LocalStorage
+
 Alle Briefentwürfe, Profileinstellungen und API-Schlüssel werden ausschließlich über die native **Web Storage API (LocalStorage)** des Browsers gesichert. Dies garantiert maximale Offline-Fähigkeit ohne Server.
 
 ### ✅ Nutzung moderner CSS-Features (Chrome 148+ Baseline)
+
 Da die Ziel-Laufzeitumgebung Google Chrome v148+ ist, nutzen wir modernste native CSS-APIs:
+
 - `light-dark()` zur automatischen Theme-Steuerung.
+
 - `oklch()` für exakte, harmonische Farbräume.
+
 - **CSS Anchor Positioning** für Tooltips und Menüs ohne JS.
+
 - `field-sizing: content` für automatisch wachsende Eingaben ohne Scrollbars.
 
 ### ✅ Spec-First Workflow
+
 Keine Codeänderung ohne Spezifikation. Jedes neue Feature durchläuft die Stufen:
 `Specify` (Anforderung klären) ➔ `Plan` (Technologie wählen) ➔ `Tasks` (Tickets schreiben) ➔ `Implement` (Code schreiben).
 
 ### ✅ Technische Schuldenfreiheit
+
 Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängigkeit muss zwingend über eine MADR-konforme ADR begründet, dokumentiert und freigegeben werden. Technische Schulden sind ausgeschlossen.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -233,9 +1013,6 @@ Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängig
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/constitution.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/constitution.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/constitution.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/00-foundation/Immutable-Law-Catalog.md',
@@ -271,50 +1048,7 @@ Every technology, API, pattern, and practice that MUST be used exclusively. No a
 
 ### CSS Layer
 
-| #    | MUST‑USE | Specification / Standard | Chrome | Architectural Purpose |
-| :--- | :--- | :--- | :--- | :--- |
-| C1   | `oklch()` color space (EXCLUSIVELY) | CSS Color Level 4 §10.2 OKLCH | 111 | Perceptually uniform; mathematically precise contrast/lightness manipulation; enables Relative Color Syntax |
-| C2   | `light‑dark()` function | CSS Color Level 5 §4.1 | 123 | JS‑free theme switching; browser automatically selects correct value based on `color‑scheme` |
-| C3   | CSS Anchor Positioning (`anchor‑name`, `position‑anchor`, `position‑area`, `position‑try‑options`, `anchor‑scope`) | CSS Anchor Positioning Level 1 | 125 | JS‑free positioning of popovers/tooltips relative to anchor elements; eliminates all manual coordinate calculations |
-| C4   | View Transitions API (`document.startViewTransition()`) | CSS View Transitions Level 1 | 126 | Hardware‑accelerated, browser‑optimized cross‑fades for form A/B switching, theme changes, navigation |
-| C5   | `@scope` at‑rule | CSS Cascading Level 6 §6.3 | 118 | Hermetic style isolation for DIN‑a4 components; no Shadow DOM complexity needed |
-| C6   | `@property` with typed custom properties | CSS Properties and Values API Level 1 | 146 | Enables animated, typed CSS custom properties (e.g., `‑‑guide‑opacity` as `<number>`) |
-| C7   | Relative Color Syntax (`oklch(from …)`) | CSS Color Level 5 §4.2 | 119 | Dynamically computes color variants (hover, glow, complementary) from base colors; no static color copies |
-| C8   | `interpolate‑size: allow‑keywords` | CSS Values Level 4 | 129 | Enables native transitions to/from `height: auto`; no JS `max‑height` hacks |
-| C9   | `calc‑size(auto, …)` | CSS Values Level 4 | 129 | Smooth transitions for expanding/collapsing sidebar modules |
-| C10  | `field‑sizing: content` | CSS Basic User Interface Level 4 | 123 | Auto‑growing input fields without JS ResizeObserver; scroll‑free text areas |
-| C11  | `contrast‑color()` | CSS Color Level 6 | 147 | Automatic, browser‑calculated accessible text color on accent backgrounds; WCAG 2.2 compliant |
-| C12  | Scroll‑driven Animations (`animation‑timeline: scroll()`) | CSS Scroll‑driven Animations Level 1 | 115 | Render‑loop‑free animations tied to scroll position |
-| C13  | `:has()` parent selector | CSS Selectors Level 4 §6.6 | 105 | Reactive UI states without JS: e.g., `:root:has(#layout‑a:checked)` for form switching |
-| C14  | Container Queries (`container‑type: size`, `cqw`, `cqh`) | CSS Containment Level 3 | 105 | Proportional DIN 5008 scaling; all dimensions in relative units; pixel‑perfect WYSIWYG |
-| C15  | Discrete Transitions (`@starting‑style`, `transition‑behavior: allow‑discrete`) | CSS Transitions Level 2 / CSS Positioned Layout Level 4 | 117 | Smooth entry/exit animations for popovers and toasts; no JS animation libraries |
-| C16  | Native CSS Nesting | CSS Nesting Level 1 | 120 | Hierarchical style organization without preprocessors |
-| C17  | No vendor prefixes (`‑webkit‑`, `‑moz‑`, etc.) | CSS Snapshot 2026 | 148 | All used features are standardized; prefixes are dead weight |
-| C18  | `var()` ALWAYS with fallback (`var(‑‑prop, fallback)`) | CSS Custom Properties Level 1 | 49 | Prevents silent rendering failures when a custom property is missing |
-| C19  | `overflow: hidden` on `html` and `body` | CSS Overflow Level 3 | 1 | Absolute scroll‑bar prohibition; app‑shell feel |
-| C20  | `@media print` with dedicated print styles | CSS Conditional Rules Level 3 | 1 | Print sovereignty: white paper, black text, no sidebars, no guides |
-| C21  | `text‑overflow: ellipsis` | CSS Overflow Level 3 | 1 | Clean truncation of overflowing text in constrained areas |
-| C22  | `hyphens: auto` with `lang="de"` | CSS Text Level 3 | 55 | Correct German hyphenation in the letter body |
-
 ### JavaScript Layer
-
-| #    | MUST‑USE | Specification / Standard | Chrome | Architectural Purpose |
-| :--- | :--- | :--- | :--- | :--- |
-| J1   | Temporal API (`Temporal.Now.plainDateISO()`) | ECMAScript 2025 §Temporal | 146 | Immutable, timezone‑safe, offline‑capable date handling; replaces all legacy Date usage |
-| J2   | EditContext API | HTML Living Standard §7.6 The EditContext API | 121 | High‑performance, low‑level text input for contenteditable areas; superior to raw contenteditable for letter body |
-| J3   | Sanitizer API + `element.setHTML()` | HTML Sanitizer API | 147 | Native XSS protection for dynamic HTML insertion; replaces unsanitized innerHTML |
-| J4   | `replaceChildren()` for clearing containers | DOM Living Standard §4.2.6 Interface ParentNode | 86 | Modern, spec‑conformant alternative to `innerHTML = ''''`; no parser invocation |
-| J5   | `AbortController` for all `fetch()` calls | Fetch Living Standard §5.1 | 66 | Cancels in‑flight requests; prevents race conditions during rapid typing |
-| J6   | `fetch()` API exclusively (no XHR) | Fetch Living Standard | 42 | Promise‑based, cleaner, standard‑conformant network requests |
-| J7   | ES Modules with explicit `.js` extensions | ECMAScript 2025 §Modules | 61 | Native dependency graph; file:/// compatible; no bundler needed |
-| J8   | Selection & Range API for ALL text formatting | HTML Living Standard §7.4 The Selection API / DOM Living Standard §4.3 Interface Range | 1 | Wraps/unwraps text in `<b>`, `<u>`, `<blockquote>` without deprecated execCommand |
-| J9   | `Promise.withResolvers()` | ECMAScript 2025 §Promise | 119 | Cleaner async control flow; external resolve/reject assignment |
-| J10  | `Array.prototype.toSorted()`, `.toReversed()`, `.with()` | ECMAScript 2025 §Array | 110 | Immutable array operations; no unintended side effects |
-| J11  | `Object.groupBy()` | ECMAScript 2025 §Object | 117 | Native data grouping; replaces complex `reduce()` loops |
-| J12  | `Math.sumPrecise()` | ECMAScript 2025 §Math | 147 | Lossless floating‑point summation for DIN geometry calculations |
-| J13  | `Navigation` API | Navigation API Living Standard | 102 | Modern, event‑driven routing for single‑page app navigation |
-| J14  | Debounced `selectionchange` listener (50ms) | HTML Living Standard §7.4 | 1 | Toggles popover visibility only; does NOT calculate positions (CSS Anchor Positioning handles that) |
-| J15  | External `<div id="selection‑anchor">` for CSS Anchor Positioning bridge | Project Architectural Decision | 125 | Temporary, tolerated JS coordinate assignment to a DOM‑external anchor; the ONLY exception to the "no JS for layout" rule |
 
 ### Storage & Persistence Layer
 
@@ -355,24 +1089,6 @@ Every technology, API, pattern, and practice that is eternally banned. Each entr
 
 ### Legacy JavaScript APIs
 
-| #    | ANTIPATTERN | MUST‑USE Replacement | Reason for Banishment |
-| :--- | :--- | :--- | :--- |
-| A1   | `new Date()` / `Date.now()` / `Date.parse()` | Temporal API (`Temporal.Now.plainDateISO()`) | Mutability, 0‑based months, unreliable timezone handling, flawed design recognized by TC39 |
-| A2   | `document.execCommand()` / `document.queryCommandState()` | Selection & Range API with DOM traversal | Deprecated; being removed from browser engines; unpredictable behavior across versions |
-| A3   | `XMLHttpRequest` (XHR) | `fetch()` API | Outdated, non‑Promise, blocking‑prone; fetch is the modern standard |
-| A4   | `innerHTML` for dynamic content (unsanitized) | `element.setHTML()` with Sanitizer API, or `textContent` | XSS vulnerability; unsanitized HTML injection from user input or API responses |
-| A5   | `element.innerHTML = ''''` (for clearing) | `element.replaceChildren()` | Invokes HTML parser unnecessarily; performance and security anti‑pattern |
-| A6   | `event.returnValue` / `event.cancelBubble` | `event.preventDefault()` / `event.stopPropagation()` | Deprecated; proprietary Microsoft relics |
-| A7   | `document.all` | `document.getElementById()` / `document.querySelector()` | Deprecated proprietary Microsoft relic; kept only for legacy compatibility |
-| A8   | `document.clear()` | Standard DOM manipulation (`replaceChildren()`) | Removed from the standard |
-| A9   | `document.createEvent()` | `new Event()` constructor | Deprecated; replaced by standard Event constructor |
-| A10  | `window.showModalDialog()` | `<dialog>` element + `.showModal()` | Removed from Chrome since version 37; blocking, non‑accessible |
-| A11  | `HTMLInputElement.align` / `HTMLElement.style.pixelLeft` | Standard CSS (Flexbox, Grid, absolute positioning) | Removed; proprietary IE‑era pixel values |
-| A12  | `setTimeout` / `setInterval` for UI animations | CSS `@keyframes`, `transition`, `animation` | JS‑driven animations block the main thread; CSS animations are hardware‑accelerated and compositor‑friendly; JS timers ONLY as safety nets (e.g., 3000ms toast timeout) |
-| A13  | Vendor prefixes (`‑webkit‑`, `‑moz‑`, `‑ms‑`, `‑o‑`) | Standardized, prefix‑free CSS | Dead weight in Chrome 148+; all used features are standardized |
-| A14  | `webkitRequestAnimationFrame` / `mozRequestAnimationFrame` | `requestAnimationFrame` | Prefixes removed; standard API is cross‑browser stable |
-| A15  | `console.log()` in production code | Deactivated custom logging wrapper | Exposes sensitive data, slows DOM processing; must be stripped or globally muted |
-
 ### Legacy Color Spaces & Styling
 
 | #    | ANTIPATTERN | MUST‑USE Replacement | Reason for Banishment |
@@ -390,16 +1106,6 @@ Every technology, API, pattern, and practice that is eternally banned. Each entr
 | A26  | `filter: invert(1)` for dark mode | `light‑dark()` with OKLCH | Destroys color integrity, especially on the letter paper; inaccessible |
 
 ### External Dependencies & Frameworks
-
-| #    | ANTIPATTERN | MUST‑USE Replacement | Reason for Banishment |
-| :--- | :--- | :--- | :--- |
-| A27  | Any SPA framework (React, Vue, Svelte, Angular, etc.) | Vanilla HTML/CSS/JS ES Modules | Massive dependency chains; build‑system requirement; rapid obsolescence; incompatible with file:/// |
-| A28  | jQuery | Native DOM APIs (`querySelector`, `fetch`, `classList`, etc.) | Obsolete; all functionality is now native, faster, and standards‑compliant |
-| A29  | CSS utility frameworks (TailwindCSS, Bootstrap) | Native CSS with `@scope`, `@property`, and semantic classes | Destroys semantic CSS architecture; requires build tools; Tailwind generates massive unused class bloat |
-| A30  | TypeScript / Babel / any JS transpiler | Vanilla ES Modules with JSDoc for type hints | Build‑step dependency; breaks file:/// double‑click; native ESM suffices |
-| A31  | Build tools (Webpack, Vite, esbuild, Rollup) | Native ESM `<script type="module">` | Unnecessary complexity; browser is the runtime compiler; build tools break over time |
-| A32  | JS utility libraries (Lodash, Underscore, Ramda) | Native ES6+ Array/Object methods (`map`, `filter`, `reduce`, `find`, etc.) | Bloat; native methods are faster, standardized, and always available |
-| A33  | JS animation libraries (GSAP, Anime.js, jQuery.animate) | CSS `@keyframes`, `transition`, `animation`, View Transitions API | Main‑thread blocking; CSS animations are hardware‑accelerated, compositor‑friendly, and JS‑free |
 
 ### Storage & Networking
 
@@ -463,9 +1169,13 @@ The catalog (both MUST‑USE and ANTIPATTERN lists) shall be embedded, in whole 
 This catalog is immutable. Any proposed change—addition, removal, or modification—must follow this protocol:
 
 1. A formal ADR must be written, explicitly referencing this document.
+
 2. The ADR must justify the change with technical evidence (not opinion).
+
 3. The ADR must be reviewed and approved by all active project architects.
+
 4. Upon approval, the ADR itself becomes part of the catalog, and all redundant embeddings (E1–E15) must be updated synchronously.
+
 5. The SQLite knowledge base must be re‑compiled and the affected views refreshed.
 
 No change takes effect until all five steps are complete.
@@ -478,8 +1188,6 @@ No change takes effect until all five steps are complete.
 
 **AI Agents:** Every AI assistant receives this catalog as a system prompt or rules file. Any suggestion violating the catalog must be immediately retracted. AI agents may NOT suggest workarounds or exceptions.
 
-**CI/CD:** A linting pipeline (if introduced) must include: OKLCH‑only color validation, Temporal API usage checker, execCommand/Date()/innerHTML detectors, and duplicate ID validator.
-
 **Build‑Time:** The Node.js build script (`build_db.js`) validates the catalog''s presence in the database and logs a warning if the `v_law_catalog` view is missing or empty.
 
 ------
@@ -491,12 +1199,6 @@ No change takes effect until all five steps are complete.
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/Immutable-Law-Catalog.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/Immutable-Law-Catalog.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/Immutable-Law-Catalog.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/Immutable-Law-Catalog.md'), 'rules');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/Immutable-Law-Catalog.md'), 'standards');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/Immutable-Law-Catalog.md'), 'law');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/00-foundation/longevity-guidelines.md',
@@ -515,37 +1217,44 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 
 ### 1.1. Sicherheit vor Kompatibilität (Chrome 149+ Baseline)
 
-> [!warning] Zero-Compromise Policy
-> Ab Version X dieses Projekts gilt eine strikte, gnadenlose Null-Toleranz-Politik gegenüber Legacy-Fallbacks. Wir akzeptieren bewusst, dass das Projekt auf älteren Browsern bricht (Chrome 149+ Baseline), anstatt unsichere oder veraltete Praktiken beizubehalten.
-> - **DOM-Manipulation:** `innerHTML` ist strengstens untersagt. Es dürfen ausschließlich sichere, native Methoden zur Injektion von Daten genutzt werden. Hierbei ist die Native W3C Sanitizer API (`setHTML()`) als Standard zu priorisieren. `setHTMLUnsafe()` ist nur als absolute Ausnahme (oder temporärer Fallback) bei bewusst gewünschtem ungefilterten HTML zulässig. Für einfachen Text gilt `textContent`.
-> - **Datums-APIs:** Das veraltete `new Date()` Objekt wird nicht mehr toleriert. Wir setzen kompromisslos auf die W3C `Temporal` API, ohne Polyfills und ohne Fallbacks.
-
 ---
 
 ## 2. Die 5 Säulen der Langlebigkeit (Longevity Pillars)
 
 ### Säule 1: Der "Zero-Dependency" Pakt
+
 Es dürfen **keinerlei externe Bibliotheken** (weder npm-Packages noch Skripte über CDN) in das Projekt integriert werden.
-*   **Warum?** Bibliotheken wie React, Vue, jQuery oder Lodash ändern ihre APIs oder werden nicht mehr gepflegt. Native JavaScript-Standards hingegen brechen niemals abwärtskompatibel. Der Code, den wir schreiben, ist so nah an der Browser-Engine, dass er immun gegen Veraltung ist.
+
 *   **Konkret:** DOM-Manipulation erfolgt über native Methoden (`querySelector`, `append`), Datumsformatierung über die native `Intl`-API und Netzwerkanfragen über `fetch`.
 
 ### Säule 2: 100%ige Autarkie (Offline-by-Default)
+
 Die Anwendung muss vollständig autark funktionieren und lauffähig sein, wenn sie lokal als `file:///index.html` per Doppelklick geöffnet wird – selbst ohne Internetverbindung.
+
 *   **Warum?** Wenn die Anwendung externe Ressourcen (z. B. Google Fonts oder CDN-Skripte) lädt, bricht sie zusammen, sobald der Benutzer offline ist oder die Server der Drittanbieter nicht erreichbar sind. Zudem verstößt jeder ungefragte IP-Abfluss an Dritte gegen die DSGVO.
+
 *   **Konkret:** Alle Stylesheets, SVG-Bilder und Schriften werden lokal abgelegt oder im Bedarfsfall (Schriften-Manager) als Base64-Strings direkt im LocalStorage gesichert.
 
 ### Säule 3: W3C / WHATWG "Living Standards" Vorrang
+
 Es werden ausschließlich Features genutzt, die im offiziellen HTML-, CSS- und JS-Standard als stabile "Living Standards" verankert sind und breite Browser-Unterstützung genießen.
+
 *   **Warum?** Experimentelle Browser-Features (z. B. Vendor-Präfixe wie `-webkit-` oder proprietäre APIs) können jederzeit entfernt werden. Standardisierte Schnittstellen sind durch die W3C-Garantie der Abwärtskompatibilität geschützt.
+
 *   **Konkret:** Wir nutzen die native **Popover API** für Toolbars und Toasts, **Container Queries** (`cqw`/`cqh`) für die proportionale Skalierung und die **Selection/Range-API** für Textformatierungen.
 
 ### Säule 4: Build-Tool-Immunität (Kein Compiler)
+
 Die Anwendung nutzt **keinen** Compiler, keinen Bundler und kein Transpilier-Werkzeug (kein Webpack, kein Vite, kein Babel, kein Sass-Compiler). Wir akzeptieren nur dann einen Bundler, wenn er optional und ohne Breaking Changes bleibt.
+
 *   **Warum?** Build-Tools sind die häufigste Ursache, warum alte Webprojekte nach Jahren nicht mehr gebaut werden können. Node.js-Updates brechen alte Konfigurationen, Abhängigkeiten blockieren sich gegenseitig.
+
 *   **Konkret:** Das JavaScript ist reines, natives **ES-Modules (ESM)** mit expliziten Dateiendungen (z. B. `import { x } from ''./y.js''`). Der Browser selbst ist der Laufzeit-Compiler. Das CSS ist reines CSS3 mit nativen CSS-Variablen und CSS Nesting.
 
 ### Säule 5: LocalStorage als einziger Datenspeicher
+
 Alle persistenten Daten (Entwürfe, Profilvorlagen, Schriften) werden ausschließlich im **LocalStorage** gesichert.
+
 *   **Warum?** Moderne APIs wie IndexedDB, OPFS (Origin Private File System) oder die File System Access API setzen aus Sicherheitsgründen einen sicheren Server-Kontext (HTTPS oder `localhost`) voraus. Im lokalen Kontext (`file:///`) werfen sie Sicherheitsfehler. LocalStorage ist seit Chrome 4 (2010) die stabilste, CORS-freie und universellste Speicher-API der Web-Geschichte.
 
 ---
@@ -553,9 +1262,13 @@ Alle persistenten Daten (Entwürfe, Profilvorlagen, Schriften) werden ausschlie�
 ## 3. Richtlinien für zukunftssicheres Schreiben von Code
 
 ### A. JavaScript: Deklarativ & Sicher vor "deprecation"
+
 *   **Vermeide deprecated APIs:** Nutze niemals veraltete Methoden wie `document.execCommand` oder `document.queryCommandState` zur Textmanipulation. Nutze stattdessen die zukunftssichere **Selection & Range API**, um Textknoten im DOM-Baum sauber zu traversieren und zu verändern.
+
 *   **Standard-Shortcuts respektieren:** Schreibe keine eigenen Keydown-Handler für Standard-Shortcuts wie `Strg+B` oder `Strg+U`. Überlasse diese dem Standardverhalten des Webbrowsers im `contenteditable`-Bereich.
+
 *   **Explizite ESM-Importe:** Importiere Module immer mit ihrer vollständigen Dateiendung `.js`.
+
     ```javascript
     // Richtig
     import { StorageManager } from ''./storage.js'';
@@ -565,9 +1278,13 @@ Alle persistenten Daten (Entwürfe, Profilvorlagen, Schriften) werden ausschlie�
     ```
 
 ### B. CSS: Proportional & Deklarativ statt JS-Berechnung
+
 *   **Layout über CSS, nicht JS:** Berechne Schriftgrößen oder Abstände niemals mit JavaScript `ResizeObserver`-Schleifen. Nutze stattdessen **CSS Container Queries** (`container-type: size` auf `<din-a4>`) und proportionale Einheiten (`cqw` und `cqh`).
+
 *   **Keine JS-Farbinversionen:** Nutze für den Dark Mode niemals globale Filter (`filter: invert(1)`). Definiere stattdessen saubere, kontraststarke Farbvariablen über die native CSS-Funktion `light-dark()` mit standardisierten **OKLCH-Farbräumen**.
+
 *   **Natives CSS Nesting:** Nutze die moderne native CSS-Verschachtelung statt CSS-Preprozessoren (wie SCSS oder Less).
+
     ```css
     /* Richtig & Nativ */
     din-a4 {
@@ -584,22 +1301,6 @@ Alle persistenten Daten (Entwürfe, Profilvorlagen, Schriften) werden ausschlie�
 
 Für Entwickler und KIs gilt diese Tabelle als striktes Verbot veralteter Techniken und als Richtlinie für deren modernen Ersatz:
 
-| Deprecated / Veraltet / Blockiert | Moderne Alternative (stabil, Chrome 148+) | Erläuterung & Rationale | Verweis |
-| :--- | :--- | :--- | :--- |
-| `document.execCommand` | **Selection & Range API** + `contenteditable` | `execCommand` ist veraltet und wird schrittweise aus den Browser-Engines gelöscht. Für die Toolbar-Formatierung nutzen wir die präzise Selection & Range API mit DOM-Manipulationen (`insertNode` / `extractContents`). | [[ADR-JS]] |
-| `document.queryCommandState` | **Eigene DOM-Traversierung** (z. B. `isSelectionInsideTag`) | Da `queryCommandState` veraltet ist, prüfen wir den Formatierungszustand zukunftssicher über eine rekursive DOM-Baum-Suche nach oben bis zum Container `#brieftext`. | [[ADR-JS]] |
-| `RGB` / `HSL` (für CSS-Farben) | **`oklch()` Farbräume** | RGB/HSL leiden unter ungleichmäßiger wahrgenommener Helligkeit. `oklch()` ist mathematisch präzise, wahrnehmungsgleichmäßig und ab Chrome 111+ voll etabliert. | [[ADR-CSS]] |
-| `setTimeout` / `setInterval` für UI-Animationen | **CSS `@keyframes`, `transition`, `animation`** | Native CSS-Animationen sind hardwarebeschleunigt, stabiler und ressourcenschonender. JS-Timer werden ausschließlich als minimales Safety-Net (z. B. 3200ms bei Toasts) genutzt. | [[ADR-FEATURE]] |
-| `XMLHttpRequest` (XHR) | **`fetch()` API** | `fetch()` ist der moderne, Promise-basierte, native Webstandard für asynchrone HTTP-Netzwerkanfragen und vollständig CORS-kompatibel. | [[ADR-API]] |
-| `IndexedDB` / `OPFS` / `File System Access API` (unter `file://`) | **`localStorage` API** | Komplexe Speicher-APIs setzen zwingend HTTPS voraus. Unter `file:///` werfen sie Browser-Sicherheitsfehler. `localStorage` ist die einzig stabile, synchrone Offline-Speicherlösung für Doppelklick-Apps. | [[ADR-JS]], [[ADR-ANTIPATTERN]] |
-| Externe CDNs / Google Web Fonts | **Lokaler System-Font-Stack** + optionaler **WOFF2-Uploader** | Externe Verbindungen zerstören die Offline-Lauffähigkeit und verstoßen gegen die DSGVO (IP-Abfluss). Schriften werden lokal deklariert oder per Base64 offline gesichert. | [[ADR-CSS]], [[ADR-FEATURE]] |
-| `@import` in CSS-Dateien | Native **`link`-Tags** im HTML | `@import` in CSS blockiert das parallele Laden von Stylesheets im Browser. Mehrere native `<link>`-Tags laden Stylesheets parallel und performanter. | [[ADR-CSS]] |
-| `var()` ohne Fallback | **`var(--prop, fallback)`** mit Standard-Redundanz | Um Darstellungsfehler bei unvorhergesehenen CSS-Definitionen zu vermeiden, müssen CSS-Variablen immer mit einem sinnvollen Fallback-Wert deklariert werden. | [[ADR-CSS]] |
-| `user-select: none` (alleinstehend) | **`user-select: none`** + **`aria-hidden="true"`** | Um unbeabsichtigte Auswahlen auf Steuerelementen (z. B. der Toolbar) zu unterbinden, ist `user-select: none` erlaubt, muss aber aus Barrierefreiheitsgründen mit `aria-hidden` gekoppelt werden. | [[ADR-HTML]] |
-| `console.log` in Produktion | Deaktivierbares **Custom Logging** oder Löschen | Debug-Logs in Produktion verlangsamen die Performance und können sensible Anwendungsdaten exponieren. Sie müssen vor Release entfernt oder global stummgeschaltet werden. | [[ADR-JS]] |
-| `innerHTML` / `insertAdjacentHTML` für unsichere Inhalte | **`textContent`** oder **`createTextNode`** | Verhindert XSS-Sicherheitslücken beim Einfügen externer Daten (z. B. aus der Adress-API). Textinhalte werden als reiner Plaintext verarbeitet. | [[ADR-JS]] |
-| `document.write` / `eval` | **Moderne DOM APIs** | Komplett veraltete und unsichere Methoden. Dürfen unter keinen Umständen in der Applikation vorkommen. | [[ADR-JS]] |
-
 > [!TIP]
 > **Nutzung von CSS Anchor Positioning ab Chrome 148+:**
 > Da dieses Projekt exklusiv für moderne Laufzeitumgebungen ab Chrome 148+ entwickelt wird, nutzen wir das native **CSS Anchor Positioning** ohne Vorbehalte und ohne künstlichen JavaScript-Berechnungsoverhead! Dies vereinfacht die Positionierung von schwebenden Elementen (wie dem Format-Popover `#format-toolbar` oder Toasts) radikal, da sie rein deklarativ im CSS an ihren Anker gekoppelt werden. Ewiggestrige Browser-Engines ohne Support werden konsequent ignoriert (keine Rücksichtnahme für Plattformen, die hinterherhinken!).
@@ -612,9 +1313,8 @@ Jede Code-Modifikation wird im Code-Review unnachgiebig auf diese Richtlinien ge
 
 **Wir bauen kein kurzlebiges MVP – wir bauen ein digitales Denkmal.**
 
-
-
 ## 6. Regelmäßige Review
+
 Da Web-Standards stetig weiterentwickelt werden, empfehlen wir eine Überprüfung dieser Richtlinien in regelmäßigen Abständen (z. B. alle 2 Jahre), um neue, stabile W3C-Standards in das Projekt aufzunehmen.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -628,6 +1328,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '00-foundation README',
   'active',
   '# 00 Foundation
+
 Das unveränderliche Fundament des Projekts.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -635,8 +1336,6 @@ Das unveränderliche Fundament des Projekts.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/README.md'), 'readme');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/README.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/00-foundation/spec.md',
@@ -656,23 +1355,37 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 #### Feature 1: Elastischer Viewport (No-Scroll Auto-Zoom)
 
 ### 1. Specify (Das "Was")
+
 * **User Story:** Als Anwender möchte ich den virtuellen DIN A4 Briefbogen auf jedem Bildschirm (Desktop, Laptop, Tablet) vollständig und ohne Scrollbalken im Blick haben, damit ich das Brief-Layout direkt bearbeiten kann.
+
 * **Akzeptanzkriterien:**
+
   - Das Briefblatt behält das exakte Seitenverhältnis von 210:297 (DIN A4).
+
   - Es entstehen weder vertikale noch horizontale Scrollbalken im Browserfenster.
+
   - Bei Größenänderung des Browserfensters skaliert das Blatt flüssig.
 
 ### 2. Plan (Das "Wie")
+
 * **Technischer Ansatz:** 
+
   - Wir verzichten vollständig auf JavaScript-basierte Resize-Listener und transform-Skalierungen.
+
   - Das `<din-a4>` Element erhält eine feste, viewport-relative Höhe (`height: 94vh`) und ein exaktes DIN A4 Seitenverhältnis (`aspect-ratio: 210 / 297`).
+
   - Wir deklarieren `<din-a4>` als Container (`container-type: size`).
+
   - Alle Kind-Elemente, Schriftgrößen, Abstände und Positionen auf dem Briefbogen werden über relative Container Query Units (`cqw` und `cqh`) proportional skaliert. Bei Skalierung des Viewports skaliert das gesamte Brief-Layout pixelperfekt mit.
 
 ### 3. Tasks (Die Aufgaben)
+
 - [x] `#viewport` und `din-a4` im HTML-Markup anlegen.
+
 - [x] Globales `overflow: hidden` auf `html` und `body` setzen.
+
 - [x] Container Query Units (`cqw`/`cqh`) und container-type deklarieren.
+
 - [x] CSS-Sizing und proportionale Abstände in `css/layout.css` verankern.
 
 ---
@@ -680,20 +1393,31 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 ### Feature 2: DIN Layout-Wechsler (Form A vs. Form B)
 
 ### 1. Specify (Das "Was")
+
 * **User Story:** Als Briefschreiber möchte ich zwischen den offiziellen DIN 5008 Layouts "Form A" (Kopfhöhe 27mm) und "Form B" (Kopfhöhe 45mm) wechseln können, um verschiedene Briefbogen-Standards zu bedienen.
+
 * **Akzeptanzkriterien:**
+
   - Der Wechsel erfolgt über eine Schaltfläche in der Sidebar.
+
   - Die Abstände von Absender, Empfänger, Infoblock, Faltmarken und Briefkern passen sich augenblicklich an die DIN-Vorgaben an.
 
 ### 2. Plan (Das "Wie")
+
 * **Technischer Ansatz:**
+
   - Die Sidebar enthält Buttons für "Form A" und "Form B".
+
   - Das Script fügt bei Klick dem App-Shell-Element die Klasse `.form-a` oder `.form-b` hinzu.
+
   - Im CSS (`css/layout.css`) sind alle Positionen (z. B. Falzmarken, Top-Positionen des Briefkerns) in Abhängigkeit von dieser Klasse deklariert.
 
 ### 3. Tasks (Die Aufgaben)
+
 - [x] Layout-Buttons im HTML-Sidebar-Bereich erstellen.
+
 - [x] CSS-Positionierungsklassen für `.form-a` und `.form-b` schreiben.
+
 - [x] Klick-Listener in `js/main.js` registrieren, der Klassen toggelt und die Einstellungen speichert.
 
 ---
@@ -701,20 +1425,31 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 ### Feature 3: Native Color Schemes (Light- & Dark-Mode)
 
 ### 1. Specify (Das "Was")
+
 * **User Story:** Als Anwender möchte ich die App in einem hellen, dunklen oder sich automatisch an das System anpassenden Modus nutzen, um ermüdungsfrei arbeiten zu können.
+
 * **Akzeptanzkriterien:**
+
   - Umschalter in der Sidebar für "Hell", "Dunkel" und "System".
+
   - Die Farben passen sich harmonisch an. Das Briefpapier selbst bleibt für die Bearbeitungs-Klarheit weiß (analog zum physischen Druck).
 
 ### 2. Plan (Das "Wie")
+
 * **Technischer Ansatz:**
+
   - Nutzung des nativen CSS-Features `color-scheme: light dark` und `light-dark(hell, dunkel)`.
+
   - Farbzuweisung über OKLCH Custom Properties in `css/variables.css`.
+
   - JS manipuliert ausschließlich das Attribut `style.colorScheme` des HTML-Elements für manuelles Überschreiben.
 
 ### 3. Tasks (Die Aufgaben)
+
 - [x] Theme-Variablen in `css/variables.css` mit `light-dark()` deklarieren.
+
 - [x] Segmented Control in der Sidebar für Themes einrichten.
+
 - [x] Theme-Anwendungslogik in `js/main.js` einbauen.
 
 ---
@@ -722,22 +1457,35 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 ### Feature 4: LocalStorage Auto-Save & Draft-Management
 
 ### 1. Specify (Das "Was")
+
 * **User Story:** Als Briefschreiber möchte ich, dass jeder geschriebene Buchstabe im Briefbogen sofort lokal gesichert wird, damit ich bei einem versehentlichen Tab-Schließen oder Browser-Absturz keine Daten verliere.
+
 * **Akzeptanzkriterien:**
+
   - Automatisches lautloses Speichern im Hintergrund bei Tastatureingaben.
+
   - Automatisches Wiederherstellen des letzten Entwurfs beim Öffnen der Webseite.
 
 ### 2. Plan (Das "Wie")
+
 * **Technischer Ansatz:**
+
   - Briefelemente nutzen `contenteditable="plaintext-only"`.
+
   - Jedes editierbare Element erhält eine eindeutige `id`.
+
   - Bei jedem `input`-Event auf einem Editier-Feld liest das Script alle Texte aus, baut ein JSON-Objekt und speichert es unter `din_draft_current` im LocalStorage.
+
   - Beim Laden der Seite (`DOMContentLoaded`) wird das Objekt eingelesen und die Felder befüllt.
 
 ### 3. Tasks (Die Aufgaben)
+
 - [x] Eindeutige IDs und `contenteditable="plaintext-only"` im HTML vergeben.
+
 - [x] Hilfsmodul `js/storage.js` für LocalStorage-Verwaltung anlegen.
+
 - [x] Auto-Save Event-Listener in `js/main.js` verknüpfen.
+
 - [x] Lade-Logik beim Systemstart implementieren.
 
 ---
@@ -745,27 +1493,45 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 ### Feature 5: Scroll-freier Multipage-Wechsler (Karussell)
 
 ### 1. Specify (Das "Was")
+
 * **User Story:** Als Briefschreiber möchte ich lange Briefe verfassen können, die über eine Seite hinausgehen, ohne dass Scrollbalken entstehen oder Text abgeschnitten wird, indem der Brief nahtlos auf neue, separat navigierbare Seiten paginiert wird.
+
 * **Akzeptanzkriterien:**
+
   - Der Anwender kann über Navigationsbuttons im Viewport (Zurück, Weiter, Neue Seite) zwischen den Seiten wechseln.
+
   - Das Briefblatt scrollt nicht, sondern wird horizontal verschoben (Karussell-Effekt).
+
   - Ein Page-Indicator zeigt die aktuelle Seite und die Gesamtseitenanzahl an (z. B. "Seite 1 / 2").
+
   - Beim Drucken werden alle Seiten untereinander als reguläre Einzelseiten gedruckt.
 
 ### 2. Plan (Das "Wie")
+
 * **Technischer Ansatz:**
+
   - Wir fügen einen horizontalen Flexbox-Träger (`#paper`) ein, der mehrere `<din-a4>`-Blätter nebeneinander enthält.
+
   - Die Navigation erfolgt über ein CSS-Translation-Attribut auf dem `#paper`-Element: `transform: translateX(calc(-100% * (var(--page-current, 1) - 1)))`.
+
   - JS manipuliert die CSS Variable `--page-current` und die Anzahl der Kind-Elemente.
+
   - Neue Seiten werden aus einem `<template id="tpl-din-page">` instanziiert und dem DOM hinzugefügt.
+
   - Für den Druck wird das Karussell per CSS aufgehoben (`transform: none`, `display: block` unter `@media print`).
 
 ### 3. Tasks (Die Aufgaben)
+
 - [ ] Multipage-Träger `#paper` in `index.html` einbetten und Navigation-Controls ergänzen.
+
 - [ ] HTML `<template id="tpl-din-page">` für neue Blätter definieren.
+
 - [ ] CSS-Karussell-Transformation und Karussell-Button-Styles in `css/layout.css` implementieren.
+
 - [ ] Druck-Layout in `css/layout.css` anpassen, um alle Seiten untereinander zu drucken.
+
 - [ ] Paginierungs-, Navigations- und Add-Page-Logik in `js/main.js` integrieren.
+
 - [ ] LocalStorage-Sicherungsmodul in `js/main.js` und `js/storage.js` anpassen, um mehrseitige Inhalte zu speichern.
 
 ---
@@ -773,20 +1539,31 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 ### Feature 6: Zentralisierung aller Konstanten und Feedback-Meldungen (Toasts)
 
 ### 1. Specify (Das "Was")
+
 * **User Story:** Als Entwickler möchte ich alle Systemgrenzen (z. B. Undo/Redo Limits, Dateigrößen, API-Debounce) und alle Systemrückmeldungen (Erfolgsmeldungen, Warnungen, Validierungsfehler) an einem zentralen Ort pflegen können, um den Code übersichtlich zu halten und spätere Übersetzungen (Lokalisierung) zu vereinfachen.
+
 * **Akzeptanzkriterien:**
+
   - Keine hartcodierten Strings für Erfolgsmeldungen, Warnungen oder Fehler in den JavaScript-Dateien.
+
   - Alle Texte und Fehlermeldungen sind in einem zentralen Objekt gekapselt.
+
   - Systemkonstanten (wie Speicher-Keys oder Dateigrößenbegrenzungen) werden aus derselben SSoT bezogen.
 
 ### 2. Plan (Das "Wie")
+
 * **Technischer Ansatz:**
+
   - Wir erstellen eine eigenständige ES-Moduldatei `js/constants.js`.
+
   - Alle UI-bezogenen Meldungen (Toasts), Storage-Keys und Grenzwerte werden als exportierbares `Constants`-Objekt bereitgestellt.
+
   - JS-Module (`js/main.js`, `js/storage.js` etc.) importieren dieses Modul und greifen dynamisch auf die Strings zu (z. B. `Constants.TOASTS.PROFILE_SAVED`).
 
 ### 3. Tasks (Die Aufgaben)
+
 - [x] Zentrales Constants-Modul `js/constants.js` anlegen und befüllen.
+
 - [x] JS-Logikdateien umschreiben, um hartcodierte Texte durch Importe aus `constants.js` zu ersetzen.
 
 ---
@@ -802,43 +1579,73 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
 > Die folgenden Features befinden sich im Backlog und werden aktuell nicht aktiv verfolgt, da sie teilweise den strikten Zero-Dependency und Wartungsfreiheits-Regeln widersprechen könnten.
 
 #### Feature 7: Auto-Kompakt Layout-Modus (Form A/B Auto-Switch)
+
 * **Specify (Das "Was"):** Als Briefschreiber möchte ich, dass die Anwendung bei langem Brieftext automatisch von Form B auf Form A wechselt, falls dadurch der Text gerade so auf eine einzige Seite passt, um Zeit und Papier zu sparen.
+
 * **Akzeptanzkriterien:**
+
   - Option "Automatisch" in der Sidebar unter "DIN-Brief Layout".
+
   - Echtzeit-Berechnung des vertikalen Textüberlaufs über relative Ratios (Grenze: Y: 235mm, Ratio `0.791`).
+
   - Wenn Text in Form B überläuft, aber in Form A passt, erfolgt ein flüssiger Wechsel zu Form A.
+
   - Bei Textkürzung erfolgt der automatische Rückwechsel zu Form B.
 
 ### Feature 8: Anrede-Stil & Auto-Gender Engine
+
 * **Specify (Das "Was"):** Als Briefschreiber möchte ich den Stil der Anrede (Förmlich, Höflich, Modern) in der Sidebar wählen können, und die Anwendung soll basierend auf dem Empfängernamen automatisch das Geschlecht ermitteln und die passende Anrede und Grußformel vorschlagen.
+
 * **Akzeptanzkriterien:**
+
   - Segmented Control in der Sidebar für "Anrede-Stil" (Förmlich, Höflich, Modern).
+
   - Automatisches Scannen des Empfängernamens auf Titel (Dr., Prof.) und Geschlechtsmerkmale via RegExp.
+
   - Auto-Generierung von Anrede und Grußformel über "Ghost-Sync", solange der Benutzer diese nicht manuell editiert hat. Manual Overrides haben absolute Priorität.
 
 ### Feature 9: Integriertes Absender-Profil (Persönliche Daten)
+
 * **Specify (Das "Was"):** Als regelmäßiger Briefschreiber möchte ich meine persönlichen Kontaktdaten, Bankdaten und Footer-Zusätze dauerhaft in der Sidebar speichern können, damit diese bei jedem neuen Brief automatisch in den Briefkopf und die Fußzeile eingepflegt werden.
+
 * **Akzeptanzkriterien:**
+
   - Einklappbares Formular "Absender-Profil" in der Sidebar.
+
   - Persistent gespeicherte Profildaten unter `din_profile` im LocalStorage.
+
   - Automatisches Befüllen von `#absender`, `#info-tel` und Brieffooter beim Speichern und beim Systemstart.
 
 ### Feature 10: Premium Ambient Dark Mode (Time- & System-based)
+
 * **Specify (Das "Was"):** Als Benutzer möchte ich abends und nachts dezent und ohne grelles Licht Briefe schreiben, ohne dass eine fehlerhafte Farbinversion die Brief-Ästhetik ruiniert. Der Nachtmodus soll sich abends automatisch aktivieren.
+
 * **Akzeptanzkriterien:**
+
   - Segmented Control für "Theme" (Hell, Dunkel, Auto).
+
   - Modus "Auto" schaltet abends/nachts (18:00 - 06:00 Uhr) oder bei System-Dark-Preference automatisch in den Dark Mode um (30s clock interval check).
+
   - Keine Inversions-Filter! Das Briefpapier wird im Dark Mode in edles, warmes Dunkelgrau (`oklch(28% 0.01 250)`) gefärbt, das die Augen schont.
+
   - Beim Drucken wird das Papier ausnahmslos reinweiß mit schwarzem Text ausgegeben (Druck-Souveränität).
 
 ### Feature 11: Easter-Egg High-Integrity Dev-Panel (Popover-based)
+
 * **Specify (Das "Was"):** Als Entwickler möchte ich ein verstecktes Diagnose-Panel direkt in der Web-App aufrufen können, indem ich 3-mal schnell hintereinander auf das Versions-Badge im Fußbereich klicke, um den Bereitschaftsbericht aller 25 Bleeding-Edge-Features live einzusehen.
+
 * **Akzeptanzkriterien:**
+
   - 3-Klick-Easter-Egg auf `#dev-easter-egg` im Footer (1000ms Timeout-Fenster).
+
   - Einblendung über ein natives HTML5 Popover `#dev-popover` (`popover="manual"`) ohne zusätzliche Bibliotheken.
+
   - Dynamisches Ausführen der 25 Diagnosetests bei jedem Öffnen und Befüllen der Tabelle.
+
   - Schließen-Button (`&times;`) und ein Button zum manuellen Leeren der Browser-Konsole im Overlay.
+
   - Perfekte Scrollbarkeit der Tabelle im Overlay ohne Beeinträchtigung des Haupt-Layouts.
+
   - Vollständig produktiv implementiert und einsatzbereit.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -846,9 +1653,6 @@ Dieses Dokument beschreibt die Kernfunktionen des Refactored Prototyps. Jedes Fe
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/spec.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/spec.md'), 'spec');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/00-foundation/spec.md'), 'requirements');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/10-architecture/ADR/ADR-ANTIPATTERN.md',
@@ -857,6 +1661,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '# Architectural Decision Record (ADR): Forbidden Practices & Antipatterns
 
 ## Status
+
 Akzeptiert
 
 ## Kontext & Problemstellung
@@ -869,78 +1674,111 @@ Akzeptiert
 ## Verbotene Praktiken (Antipatterns)
 
 ### 0. Chrome 149+ Baseline & Keine Legacy-Fallbacks (Striktes Verbot)
-Ab Version X des Projekts werden **keine Legacy-Fallbacks** mehr toleriert. Dies gilt insbesondere für unsichere DOM-Manipulationen (wie `innerHTML`) oder veraltete Native-APIs (wie `new Date()`). Das Projekt akzeptiert bewusst eine strikte Chrome 149+ Baseline. Sicherheit und Code-Sauberkeit haben absoluten Vorrang vor abwärtskompatibler Funktionalität für ältere Browser.
+
 *   **Ausnahme-Verbot für setHTMLUnsafe():** Die Methode `setHTMLUnsafe()` ist als Standard verboten und darf nur verwendet werden, wenn bewusst unsicheres/ungefiltertes HTML benötigt wird. Andernfalls ist zwingend `setHTML()` (die Native W3C Sanitizer API) oder `textContent` (für Plain-Text) zu nutzen.
 
 ### 1. Verwendung von Frameworks & Build-Tools (Striktes Verbot)
-Es dürfen **keine** Frameworks wie React, Vue, Svelte, Angular oder Bibliotheken wie jQuery oder TailwindCSS eingebunden werden.
+
 *   **Begründung:** Frameworks führen zu massiver Komplexität, Abhängigkeiten und erfordern Build-Systeme (Vite, Webpack). Die Applikation MUSS reines Vanilla HTML5, Vanilla CSS3 und reines Vanilla JS ES-Modules verwenden, damit sie für den Endanwender für Jahrzehnte wartungsfrei bleibt.
 
 ### 2. Externe CDNs & Google Web Fonts (Striktes Verbot)
+
 Es dürfen **keinerlei** externen Scripts, Stylesheets oder Webfonts über CDNs oder externe Server geladen werden (z. B. Google Fonts).
+
 *   **Begründung:** Verstößt gegen die DSGVO (IP-Abfluss) und zerstört die Offline-Lauffähigkeit der App. Alle Assets müssen zu 100 % lokal abgelegt und offline verfügbar sein.
+
 *   **Verweis:** Siehe [[ADR-CSS|ADR-CSS.md]] zur Typografie und [[ADR-FEATURE|ADR-FEATURE.md]] zum Schriftarten-Manager.
 
 ### 3. Komplexere lokale Storage-APIs (OPFS, IndexedDB, File System API)
+
 Die Verwendung von IndexedDB, Origin Private File System (OPFS), File System Access API oder der Storage-API im weiteren Sinne ist untersagt.
+
 *   **Begründung:** Diese APIs erfordern zwingend einen sicheren Kontext (HTTPS oder `localhost`). Wird die `index.html` als lokale Datei per Doppelklick geöffnet (`file:///`), werfen diese APIs im Browser Sicherheits-Exceptions und blockieren den Ladezyklus.
+
 *   **Entscheidung:** **LocalStorage** ist die einzige persistente Speicher-API, die unter `file://` garantiert stabil und ausnahmslos in Chrome 148+ funktioniert.
 
 ### 4. Veraltetes document.execCommand (Striktes Verbot)
+
 Die Nutzung von `document.execCommand` für selbstentwickelte Editorelemente (wie Zitate) ist untersagt.
+
 *   **Begründung:** Die API ist *deprecated* (veraltet) und wird in modernen Browser-Engines schrittweise entfernt. Für die Toolbar-Formatierung nutzen wir ausschließlich native Browser-Shortcuts oder die zukunftssichere Selection & Range API.
+
 *   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] zur DOM-Baum-Durchquerung.
 
 ### 5. Scrollbalken im Viewport (Striktes Verbot)
+
 Die Sichtbarkeit von Scrollbalken im normalen Anwendungsfenster (ausgenommen bewusster Browser-Zoom des Nutzers) ist verboten.
+
 *   **Begründung:** Stört die Ästhetik des Premium-Designs und beeinträchtigt das WYSIWYG-Konzept des Briefbogens.
+
 *   **Verweis:** Siehe [[ADR-CSS|ADR-CSS.md]] zur Viewport-Sperre.
 
 ### 6. Verwendung von Legacy-Datums-APIs (new Date(), moment.js, date-fns) (Striktes Verbot)
+
 Die Verwendung des klassischen JavaScript `Date`-Objekts (`new Date()`) sowie externer Datumsbibliotheken wie `moment.js`, `date-fns` oder `luxon` ist strikt untersagt.
+
 *   **Begründung:** Das klassische `Date`-Objekt gilt in W3C-Standardisierungskreisen als historisch fehlkonstruiert (Veränderbarkeit / Mutability, unzuverlässige Zeitzonenberechnungen, 0-basierte Monatsindizes, fehleranfällige Schaltjahrlogik). Moment.js und Co. blähen die Codebasis auf und verletzen den Zero-Dependency-Pakt.
+
 *   **Entscheidung:** Die zukunftsweisende W3C **Temporal API** (`globalThis.Temporal`) ist die exklusive Datums-Engine der Anwendung. Sie ist vollkommen fehlerfrei, immutable, unterstützt Zeitzonen und deutsche Kalenderformate nativ und läuft vollständig offline ohne eine einzige Library.
 
 ### 7. Verwendung von Nicht-OKLCH Farbräumen (HEX, RGB, RGBA, HSL, HSLA, Named Colors) (Striktes Verbot)
+
 Die Verwendung jeglicher klassischer Farbräume wie HEX-Codes (`#HEX`), RGB/RGBA, HSL/HSLA oder Named CSS Colors (`white`, `black`, `red`, `gray` etc.) in Stylesheets oder inline-Styles ist strikt untersagt.
+
 *   **Begründung:** Der moderne OKLCH-Farbraum ist wahrnehmungslinear (perceptually uniform) und ermöglicht im Gegensatz zu klassischen Modellen mathematisch exakte Helligkeits-, Sättigungs- und Kontrastberechnungen (wichtig für harmonische Relative Color Syntax Formeln). HEX und Co. verhalten sich bei Skalierungen unvorhersehbar und verhindern ein mathematisch konsistentes Themes-Design.
+
 *   **Entscheidung:** Sämtliche Farbdeklarationen dürfen **ausschließlich** im `oklch()` Format deklariert werden. Die einzige Ausnahme bildet das pure CSS-Schlüsselwort `transparent` (welches bevorzugt durch `oklch(0% 0 0 / 0%)` ersetzt wird).
 
 ### 8. Verwendung von CSS-Präprozessoren (Sass, Less) oder CSS-in-JS (Striktes Verbot)
+
 Die Verwendung von Sass, Less, Stylus oder JavaScript-basierten Stylesystemen (z. B. Styled Components, Emotion) ist verboten.
+
 *   **Begründung:** CSS Nesting und CSS Custom Properties sind mittlerweile native W3C Living Standards und werden vollumfänglich von der Browser-Engine unterstützt. Präprozessoren erfordern Build-Systeme, und CSS-in-JS erzeugt massiven JS-Laufzeit-Overhead, was unsere Säulen der Einfachheit und Wartungsfreiheit verletzt.
 
 ### 9. Externe Icon-CDNs (FontAwesome, Lucide) oder massive Webfonts-Icons (Striktes Verbot)
+
 Die Einbindung von Icon-Fonts (z. B. Material Icons) oder externen Scripts/Stylesheets von Icon-Providern ist strikt untersagt.
+
 *   **Begründung:** Verletzt das DSGVO-Datenschutzprinzip (IP-Abfluss an externe Server) und bricht die Offline-Lauffähigkeit. Icon-Schriften laden oft Hunderte ungenutzte Grafiken und blähen die Ladezeit auf. Icons müssen stattdessen sauber als Inline-SVGs oder hochkomprimierte lokale SVG-Einzeldateien realisiert werden.
 
 ### 10. Schwere JS-Hilfsbibliotheken (Lodash, Underscore) & JS-Transpiler (TypeScript, Babel) (Striktes Verbot)
+
 Die Einbindung externer JS-Utility-Suites oder das Erzwingen von TypeScript-Kompilierungsschleifen für den Web-Code ist verboten.
+
 *   **Begründung:** Vanilla ES6+ verfügt über hervorragende native Methoden (`map`, `filter`, `reduce`, `find` etc.), die Bibliotheken wie Lodash komplett obsolet machen. TypeScript-Kompilierer zerstören den unmittelbaren "Doppelklick-Start" der unveränderten lokalen Quelldateien. Wir schreiben reines Vanilla JS ES-Modules.
 
 ### 11. JS-gestützte Animationsbibliotheken (GSAP, Anime.js) (Striktes Verbot)
+
 Die Verwendung von Animationsbibliotheken (GSAP, Anime.js, jQuery animate) ist untersagt.
+
 *   **Begründung:** JS-gesteuerte Animationen belasten den Haupt-Thread des Browsers. CSS Transitions, `@starting-style`, `@keyframes` und die native View Transitions API laufen hochoptimiert und hardwarebeschleunigt asynchron auf dem Compositor Thread (Grafikkarte), was flüssige 120Hz-Animationen garantiert.
 
 ### 12. Inline-CSS-Styles für Layout, Farben und Positionen (Striktes Verbot)
+
 Die Verwendung von inline `style="..."` Attributen für strukturelle oder gestalterische Zwecke (ausgenommen Koordinaten-Offsets bei Selektionen) ist verboten.
+
 *   **Begründung:** Inline-Styles hebeln die `@scope (din-a4)` Geometrie-Kapselung aus und stören die Wiederverwendbarkeit von CSS OKLCH design tokens. Alle visuellen Anweisungen müssen strikt in den entsprechenden Stylesheets deklariert werden.
 
 ---
 
 ## Konsequenzen
-*   Jede Code-Änderung, die gegen eines dieser zwölf Antipatterns verstößt, wird im Code-Review sofort verworfen.
 
+*   Jede Code-Änderung, die gegen eines dieser zwölf Antipatterns verstößt, wird im Code-Review sofort verworfen.
 
 *   Die Lauffähigkeit unter `file:///index.html` ist die oberste QA-Voraussetzung.
 
 ---
 
 ## Verknüpfungen
+
 *   Siehe [[ADR-HTML|ADR-HTML.md]] zu `contenteditable` und Popover.
+
 *   Siehe [[ADR-CSS|ADR-CSS.md]] zum reinen CSS-Zoom.
+
 *   Siehe [[ADR-JS|ADR-JS.md]] zur JavaScript-Reglementierung.
+
 *   Siehe [[ADR-API|ADR-API.md]] zur Header-Sicherheit.
+
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -958,9 +1796,13 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **Sichere, serverlose Adress-Vervollständigung und externe Datenabfragen.**
+
 - Viele Autocomplete-Lösungen (wie Google Places) benötigen dicke SDKs und zwingen Nutzer zur Kreditkartenangabe. Offizielle Libraries (z.B. `@geoapify/geocoder-autocomplete`) injizieren schwer anpassbare DOM-Elemente und brechen unsere WYSIWYG-Regel.
+
 - DIN-BriefNEO benötigt ein schnelles, datenschutzkonformes API-Konzept, das vollständig im lokalen Kontext (`file:///` oder lokaler Webserver) läuft, ohne Backend-Server.
+
 - API-Keys dürfen nicht via URL-Parameter geleakt werden.
+
 - Lokale Treffer (beim Geo-Autocomplete) sollen per Proximity Bias zuerst erscheinen.
 
 ## 2. Considered Options
@@ -977,34 +1819,49 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (Geoapify & Zippopotam REST APIs via Custom Fetch) entschieden.**
 
 ### Begründung
+
 - **Zero-Dependency:** Der Verzicht auf NPM-Libraries entspricht der Zero-JS-Philosophie.
+
 - **Header-Security:** Der API-Key wird **strikt per HTTP-Header** (`X-Api-Key`) gesendet, niemals in der URL. Das verhindert Leaks.
+
 - **Natives UI:** Das Resultat-Popover verankert sich nahtlos über W3C CSS Anchor Positioning, das DOM bleibt sauber von Fremdelementen.
+
 - **Dynamischer Proximity Bias:** Statt eines statischen Fallbacks ermittelt die Logik via Zippopotam (`api.zippopotam.us`) die `lat`/`lon` der eingegebenen 5-stelligen Absender-PLZ und nutzt diese für `bias=proximity` bei Geoapify.
+
 - **Performance:** Strenges Debouncing (`300ms`), Limits (`limit=5`) und `AbortController` halten API-Calls minimal und verhindern Race Conditions.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Maximale Kontrolle & WYSIWYG-Treue:** Das DOM bleibt zu 100% in unserer Hand.
+
 - **Hohe Sicherheit:** Keys leaken nicht in Server-Logs oder Proxys.
+
 - **Top Performance & Relevanz:** Adressen in der Nähe des Absenders werden priorisiert. Überflüssige Requests werden abgebrochen.
 
 ### Risiken & Negative Auswirkungen
+
 - Setzt aktive Internetverbindung voraus für Autocomplete (manuelle Eingabe geht weiterhin offline).
+
 - Caching muss bei Bedarf selbst (oder durch AbortController/Debouncing) verwaltet werden.
 
 ## 5. Implementation & Verification
 
 - Die Header-Security-Regel ist in `main.js` für jeden Geoapify-Aufruf verankert.
+
 - Photon wurde restlos als Antipattern deklariert.
+
 - Das Dropdown ist als `popover="manual"` mit CSS Anchor an das Eingabefeld gebunden.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-JS]]
+
 - [[ADR-FEATURE]]
+
 - [[longevity-guidelines]]
 
 ---
@@ -1031,8 +1888,11 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **Fehlerhafte Falzmarken und statische PDF-Exporte.**
+
 - Die Falzmarken (`.din-mark`) kollidierten optisch mit dem Betrefffeld, da sie als 100% breite Linien durch das Dokument schnitten.
+
 - Beim nativen PDF-Export (`window.print()`) fehlte ein dynamischer Dateiname. Der Standardname der Webseite wurde übernommen, was für abgelegte DIN-Briefe unzureichend ist.
+
 - Es wird eine Lösung benötigt, die sowohl die optischen DIN-Normen einhält als auch einen sauberen Datei-Workflow ohne zusätzliche Bibliotheken ermöglicht.
 
 ## 2. Considered Options
@@ -1047,32 +1907,43 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (Native Print) und CSS-Kürzung entschieden.**
 
 ### Begründung
+
 - Die Falzmarken (`.din-mark`) wurden im CSS auf exakt `8mm` (`width: calc(8 / 210 * 100cqw);`) gekürzt.
+
 - Für den PDF-Namen wird in `main.js` der `<title>` dynamisch generiert: `YYYY-MM-DD_{empfänger} {Betreff}`.
+
 - Zur Datumsgenerierung wird primär die W3C **Temporal API** genutzt (siehe [[ADR-ANTIPATTERN]]).
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Perfekte Optik:** Der Betreff wird nicht mehr durchschnitten.
+
 - **Beste UX:** Native Nutzung des Browser-Druckdialogs mit perfektem Dateinamen-Vorschlag.
+
 - **Zero-Dependency:** Komplett mit Standard-APIs gelöst.
 
 ### Risiken & Negative Auswirkungen
+
 - Fallback-Pflicht: `Date()` muss als Fallback vorhanden sein, falls `Temporal` auf alten iOS-Geräten fehlt.
 
 ### Langfristige Auswirkungen
+
 - **Architektur-Dogma:** Kein Einsatz von Blob-Libraries (`html2pdf` etc.) für PDF-Exporte gestattet.
 
 ## 5. Implementation & Verification
 
 - **CSS:** Kürzung der Falzmarken in `layout.css` implementiert.
+
 - **JS:** `updateDocumentTitle()` läuft asynchron bei Eingaben und setzt `<title>`.
+
 - **Regeln:** Native API-Nutzung ist im Antipattern-Catalog manifestiert.
 
 ## 6. Related Documents
 
 - [[ADR-ANTIPATTERN]]
+
 - [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1090,8 +1961,11 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **WYSIWYG Skalierung ohne Scrollbalken.**
+
 - Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes Scrollen oder verzerrte Proportionen.
+
 - Der DIN-BriefNEO-Bogen muss unter allen Bedingungen pixelperfekt proportional skaliert und absolut ohne Scrollbalken im Fenster dargestellt werden.
+
 - Komplexe Layout-Aufgaben (Zoom, Theming, Positionierung) sollen ohne JavaScript gelöst werden, um die Langlebigkeit zu maximieren.
 
 ## 2. Considered Options
@@ -1106,43 +1980,65 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (Pure CSS Architecture) entschieden.**
 
 ### Begründung
+
 - **Reiner CSS-Zoom:** `<din-a4>` wird auf `height: 94vh` und `aspect-ratio: 210 / 297` fixiert.
+
 - **Container Queries:** Alle inneren Maße verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren.
+
 - **Absolute Viewport-Sperre:** `overflow: hidden` auf `html` und `body` verhindert Scrollbalken.
+
 - **Natives Theming:** Nutzung von `light-dark()` und W3C Relative Color Syntax (RCS) im OKLCH-Farbraum.
+
 - **Anchor Positioning:** W3C CSS Anchor Positioning für Dropdowns (z.B. `#address-suggestions`).
+
 - **CSS @property & interpolate-size:** Für flüssige native Transitionen auf Custom Properties und `auto`-Maße.
+
 - **CSS @scope:** Vollständige Kapselung der Briefblatt-Stile (`@scope (din-a4)`).
+
 - **Zero-JS State Toggles:** Nutzung von `:has()` und Checkboxen für UI-State.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - Absolut flüssige, stufenlose Echtzeit-Skalierung auf allen Displays.
+
 - 100% WYSIWYG-konform: Druck = Bildschirm.
+
 - JavaScript wird von Layout-Aufgaben vollständig befreit.
+
 - Automatisch harmonisierte Farbschemata (RCS) im perceptually uniform OKLCH-Farbraum.
 
 ### Risiken & Negative Auswirkungen
+
 - Texte müssen in der Höhe begrenzt sein (z. B. auf 1 A4-Seite), da Overflow-Scrolling deaktiviert ist.
+
 - Bindung an hochmoderne Chromium-Engines (Chrome 148+).
+
 - **Print CSS Saftey:** Strenge Vorgaben im `@media print` erforderlich (`height: auto !important`, `overflow: visible !important`). Die Nutzung von `page-break-before: always;` auf Container-Ebene führt zwingend zu leeren PDFs (siehe Law Catalog A46).
 
 ### Langfristige Auswirkungen
+
 - **Architektur-Stabilität:** Die Codebasis bleibt extrem JS-arm und profitiert direkt von Engine-Optimierungen.
 
 ## 5. Implementation & Verification
 
 - Alle CSS-Variablen sind in `layout.css` als OKLCH deklariert.
+
 - Container-Maße (`cqw`, `cqh`) sind in der CSS-Basis verankert.
+
 - `overflow: hidden` ist produktiv.
+
 - Einhaltung wird durch die Anti-Pattern-Linter-Regeln für JS-basiertes Styling überprüft.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-JS]]
+
 - [[longevity-guidelines]]
+
 - [[ADR-ANTIPATTERN]]
 
 ---
@@ -1170,8 +2066,11 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **Zuverlässige, wartungsfreie lokale Datenspeicherung.**
+
 - Die Anwendung muss ihre Daten (Inhalte des Briefes, Absenderdaten) zuverlässig lokal speichern können.
+
 - Es gibt keinen Backend-Server und keine Datenbank (`file:///` Ausführung).
+
 - Die W3C `Date()` API ist bekanntermaßen fehleranfällig, asymmetrisch und schwer zu parsen, was besonders bei Brief-Daten zu Problemen führt.
 
 ## 2. Considered Options
@@ -1186,30 +2085,41 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (LocalStorage + Temporal API) entschieden.**
 
 ### Begründung
+
 - `localStorage` (via `Storage-API`) ist die einfachste, stabilste und am längsten unterstützte Methode, Key-Value-Daten synchron lokal abzulegen.
+
 - Der aktuelle Briefzustand (Draft) wird in Echtzeit serialisiert und in `localStorage` abgelegt.
+
 - Zur Generierung von Zeitstempeln (z.B. für den PDF-Export oder das Datum-Feld) wird **ausschließlich** die moderne W3C `Temporal` API genutzt (z.B. `Temporal.Now.plainDateISO()`). Die fehleranfällige `Date()` API ist strikt verboten (außer als absolutes Fallback für alte Safari-Versionen).
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Wartungsfreiheit:** Keine Datenbanken, keine asynchronen Transactions, keine externen Libraries.
+
 - **Offline-First:** Funktioniert nahtlos ohne Internet.
+
 - **Präzision:** Die W3C Temporal API garantiert absolut exakte ISO-Strings und Datumsberechnungen ohne Zeitzonen-Fehler.
 
 ### Risiken & Negative Auswirkungen
+
 - `localStorage` ist auf ca. 5-10 MB begrenzt (reicht für Millionen von Text-Briefen, aber nicht für massive Bildanhänge).
+
 - Die W3C Temporal API ist noch relativ neu (erfordert moderne Browser oder einen minimalen Polyfill/Fallback).
 
 ## 5. Implementation & Verification
 
 - Die gesamte Speicherlogik ist in `main.js` (`saveDraftData()`, `loadDraftData()`) implementiert.
+
 - Das W3C Temporal API-Mandat ist in den Anti-Pattern Linter-Regeln verankert.
+
 - Ein Fallback auf `Date()` ist für iOS Safari in `main.js` eingebaut.
 
 ## 6. Related Documents
 
 - [[ADR-ANTIPATTERN]]
+
 - [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1227,48 +2137,57 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **Premium-UX ohne schwergewichtige Frameworks.**
+
 - Ein moderner Editor benötigt smarte Features wie Kontext-Toolbars, Toasts, Überlaufwarnungen und Dropdowns.
-- Klassische Herangehensweisen stützen sich hierfür auf schwere JS-Frameworks (React, Vue) und manuelle Berechnungen.
+
 - DIN-BriefNEO benötigt all diese Features 100% nativ, performant und absolut WYSIWYG-konform (kein Editieren in der Sidebar).
 
 ## 2. Considered Options
-
-| Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
-|--------|--------------|----------|-----------|---------|---------|
-| **Option A** (Native Web-APIs & Anchor Positioning) | CSS Anchor Positioning, `@starting-style`, Popovers | Zero-JS-Animation, WYSIWYG-Treue, native Performance | Benötigt sehr neue Chromium-Versionen | Keine | **Gewählt** |
-| **Option B** (JS-basierte Libraries) | Popper.js, React-Toasts, Framer Motion | Breite Browserunterstützung | Abhängigkeit, Aufblähen der Codebase | Wartung | Abgelehnt |
 
 ## 3. Decision
 
 **Wir haben uns für Option A (Ausschließliche Nutzung modernster Web-Standards) entschieden.**
 
 ### Begründung
+
 - **Strict WYSIWYG:** Eingaben passieren *ausschließlich* auf dem Blatt. Sidebar ist nur für Toggles. Dropdowns nutzen CSS Anchor Positioning am jeweiligen Papier-Element.
+
 - **WhatsApp-Style Toolbar:** Das Format-Popover verankert sich rein über CSS an der Textselektion. JS steuert nur die Sichtbarkeit und Format-Logik.
+
 - **Toasts:** Die Toast-Queue delegiert die Ein-/Ausblendeanimation komplett ans CSS (`@starting-style`, `transition-behavior: allow-discrete`). JS ruft nur `show/hidePopover()`.
+
 - **A4-Überlauf-Warnung:** JS prüft die Texthöhe (max 120mm) und fügt eine Warn-Klasse hinzu, ohne den Scroll zu behindern.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Flüssige UX:** Native CSS-Animationen sind maximal hardwarebeschleunigt.
+
 - **Klarer Code:** Popover-Logik ohne JS-Rechnen (`getBoundingClientRect` entfällt).
+
 - **Zukunftssicherheit:** Nutzung von Features, die ab 2024 zum Standard gehören.
 
 ### Risiken & Negative Auswirkungen
+
 - Setzt tiefes Wissen über modernste CSS-Standards voraus.
 
 ## 5. Implementation & Verification
 
 - CSS Anchor Positioning und `@starting-style` sind in `layout.css` aktiv.
+
 - JavaScript ist strikt von Positionsberechnungen für Toolbars befreit.
+
 - Einhaltung von WYSIWYG ist durch die Antipattern-Verfassung garantiert.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-CSS]]
+
 - [[ADR-JS]]
+
 - [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1286,8 +2205,11 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **Strukturierung des Brief-Editors ohne überladenes DOM.**
+
 - Klassische Texteditoren nutzen tiefe div-Suppen und komplexe JS-Dialoge.
+
 - Der DIN-BriefNEO-Editor muss leichtgewichtig, nativ barrierefrei, performant und extrem standardkonform aufgebaut sein.
+
 - Es muss verhindert werden, dass Nutzer versehentlich formatierte Inhalte in reine Datenfelder kopieren.
 
 ## 2. Considered Options
@@ -1302,33 +2224,47 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (Striktes HTML5 & Native APIs) entschieden.**
 
 ### Begründung
+
 - **Custom Elements:** Wir nutzen semantische HTML5 Custom Elements (`<din-a4>`, `<din-absender>`, etc.), um Geometriebereiche im CSS klar zu trennen und die DOM-Lesbarkeit zu erhöhen.
+
 - **Native Popovers:** Dialoge & Toolbars nutzen `popover="manual"` für ein konfliktfreies Rendern im **Top-Layer** (ohne `z-index`-Hacks).
+
 - **Editierbarkeit:** Einzeilige Metadaten (Betreff, Anschrift) nutzen `contenteditable="plaintext-only"`. Nur der Briefkörper (`#brieftext`) nutzt `contenteditable="true"`.
+
 - **Barrierefreiheit:** ARIA-Attribute (`aria-pressed="true/false"`) werden nativ für Toolbar-Buttons gepflegt.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Maximale Lesbarkeit:** Der DOM-Baum ist selbsterklärend und semantisch korrekt.
+
 - **Wartungsfreiheit:** Keine externen UI- oder Dialog-Libraries nötig.
+
 - **Sicherheit:** `plaintext-only` schützt Strukturfelder zuverlässig vor unerwünschten Formatierungen aus der Zwischenablage.
 
 ### Risiken & Negative Auswirkungen
+
 - `contenteditable="plaintext-only"` erfordert Chromium-basierte Browser (Chrome 148+, Edge).
+
 - **Contenteditable Integrity Risk:** Das direkte Verschachteln von strukturellen oder interaktiven Elementen (wie z.B. `<img id="signature-image">`) als Kind-Elemente von `contenteditable="true"` führt bei Texteingabe zwingend zum Verlust der Struktur, da der Browser den inneren DOM-Baum rigoros überschreibt. Lösung: Immer als Geschwister-Elemente in einem isolierten Wrapper kapseln (Siehe Law Catalog A47).
 
 ## 5. Implementation & Verification
 
 - Alle Brief-Elemente im `index.html` sind als `<din-*>` Tags deklariert.
+
 - Popovers und Toolbars nutzen das `popover`-Attribut.
+
 - Einhaltung wird durch die Anti-Pattern Linter-Regeln für JS-basiertes Styling überprüft.
 
 ## 6. Related Documents
 
 - [[ADR-CSS]]
+
 - [[ADR-JS]]
+
 - [[ADR-ANTIPATTERN]]
+
 - [[longevity-guidelines]]',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1346,8 +2282,11 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Context & Problem
 
 **JS-Überladung und "JS as a Crutch".**
+
 - Webapplikationen nutzen oft JavaScript für visuelle Effekte und Layout-Berechnungen.
+
 - Das führt zu Performance-Einbußen, Rucklern und technischer Schuld.
+
 - In DIN-BriefNEO soll JS streng auf eine logische Begleitschicht reduziert werden.
 
 ## 2. Considered Options
@@ -1362,34 +2301,47 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (Striktes JS-Einsatzverbot für Rendering) entschieden.**
 
 ### Begründung
+
 - **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
+
 - **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits.
+
 - **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
-- **Sichere DOM-Manipulation (`setHTML` vs `setHTMLUnsafe`):** `innerHTML` ist als Antipattern eingestuft und strikt verboten (XSS-Gefahr). Als Standardfall ist die W3C Sanitizer API (`setHTML()`) zu bevorzugen. `setHTMLUnsafe()` darf nur als absoluter Ausnahmefall (oder Fallback für ältere Engines) verwendet werden, wenn bewusst ungefiltertes HTML injiziert werden muss. Für reinen Text ist ausschließlich `textContent` zu nutzen.
+
 - **View Transitions API:** Native `document.startViewTransition()` wird für UI-Zustandswechsel verwendet, anstatt händisch via JS zu animieren.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **Schlanker Code:** JavaScript-Logik bleibt absolut minimiert (<18 KB).
+
 - **Robustheit:** Die App läuft layout-stabil, selbst wenn JS verzögert oder blockiert.
+
 - **Zukunftssicherheit:** Veraltete APIs wie `execCommand` werden nicht mehr verwendet.
 
 ### Risiken & Negative Auswirkungen
+
 - Visuelle Statustoggles erfordern teilweise fortgeschrittenes CSS (z.B. Segmented Controls, `:has()`).
 
 ## 5. Implementation & Verification
 
 - CSS Anchor Positioning ersetzt ehemalige JS-Koordinatenberechnung.
+
 - `execCommand` ist in den Anti-Pattern-Regeln verboten.
+
 - Die reine DOM-basierte Datenkopplung (wie in `sender-sync.js`) demonstriert den Verzicht auf globale State-Stores zugunsten reaktiver DOM-Updates für das Ausfüllen des Absenders.
+
 - View Transitions sind in `main.js` für Formularwechsel und Theme-Toggles produktiv.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-CSS]]
+
 - [[ADR-ANTIPATTERN]]
+
 - [[longevity-guidelines]]
 
 ---
@@ -1412,15 +2364,19 @@ f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chro
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/10-architecture/ADR/ADR-OMNITRACEABILITY.md',
   'ADR-OMNI: OmniTraceability System',
-  'rejected',
+  'accepted',
   '# ADR-OMNI: OmniTraceability System
 
 ## 1. Context & Problem
 
 **Nachvollziehbarkeit und Langlebigkeit**
+
 - Das DIN-BriefNEO Projekt zielt darauf ab, maximale Langlebigkeit und Nachvollziehbarkeit zu garantieren.
+
 - Bisherige Systeme wiesen Inkonsistenzen auf, da Dokumentations-Metadaten (wie Frontmatter) nicht standardisiert und maschinell auslesbar waren.
+
 - Das Crawlen von `venv` und `node_modules` führte zu Build-Failures (Fitness Violations), da externe Dateien gescannt wurden.
+
 - Die Function-Traceability Matrix wurde manuell gepflegt, was extrem fehleranfällig war.
 
 ## 2. Considered Options
@@ -1435,19 +2391,27 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Wir haben uns für Option A (Python-Based Matrix Generation & Strict Frontmatter V6) entschieden.**
 
 ### Begründung
+
 - **Frontmatter Schema V6:** Jede Markdown-Datei in `docs/10-architecture/ADR` und `docs/20-implementation/Guides` muss nun standardisierte Felder wie `created`, `updated`, und `depends_on` enthalten. Dies bildet die Grundlage für den SQLite-Import und Obsidian Graph-Views.
+
 - **Python-basierte Traceability Matrix:** Die Function-Traceability Matrix (`Function-Traceability.md`) wird nun vollautomatisiert durch `tools/build_db.py` generiert. Das Skript extrahiert `@adr` und `@guide` Metadaten aus dem Source Code und fügt sie zwischen die `<!-- BEGIN AUTOMATED MATRIX -->` Blöcke ein.
+
 - **Crawler Exclusions:** Die JS-Tools (`reconciliation.js` und `build_db.js`) wurden aktualisiert, um zwingend virtuelle Umgebungen (`venv/`, `node_modules/`, `.agents/`, `.claude/`) zu ignorieren. Dies eliminiert False-Positives im *Evolutionary Fitness Score*.
+
 - **Branchless Workflow:** Um den Overhead zu minimieren, arbeiten alle KI-Agenten streng auf dem `main`-Branch (Solo-Entwickler-Paradigma).
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - **100% SSoT (Single Source of Truth):** Code und Dokumentation sind nun bidirektional gekoppelt. 
+
 - **Automatisierte Abhängigkeiten:** Durch `depends_on` und die Matrix ist immer klar, welcher Code von welcher Architektur-Entscheidung abhängig ist ("Source" und "Sink").
+
 - **Sauberer Build-Prozess:** Keine fehlschlagenden CI-Pipelines durch Drittanbieter-Code in `venv`.
 
 ### Langfristige Auswirkungen
+
 - **Zukunftssichere Vektorisierung:** Durch das strikte Schema V6 sind alle Markdown-Dateien optimal für RAG (Retrieval-Augmented Generation) und Vektor-Datenbanken (`sqlite-vec`) vorbereitet.
 
 ## 5. Phase 2: Semantik, Chunking & Bundling (Roadmap)
@@ -1455,21 +2419,29 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 Um das OmniTraceability-System zukunftssicher und LLM-freundlich zu machen, wurden folgende architektonische Entscheidungen für **Phase 2** getroffen:
 
 ### 5.1 Robuster Markdown-Parser (`markdown-it-py`)
+
 Die Regex-basierte Extraktion in `build_db.py` wird durch `markdown-it-py` (inkl. `markdown-it-wikilink` Plugin) ersetzt. Dies verhindert Parsing-Fehler und ermöglicht das verlässliche Extrahieren von Headings und Links.
 
 ### 5.2 Semantisches Chunking (`tbl_concept_chunks`)
+
 Anstatt ganze Dokumente in die Vektor-Datenbank (`sqlite-vec`) zu laden, werden Dokumente an `##` Markdown-Headings aufgespalten (Chunking). Dies erhöht die Präzision der semantischen Suche drastisch.
 
 ### 5.3 Inkrementeller Build (`content_hash`)
+
 `build_db.py` wird die Felder `updated` und (sofern eingeführt) `content_hash` auslesen. Unveränderte Dateien werden beim Build übersprungen, was die Performance beim Vektorisieren schützt.
 
 ### 5.4 Wiki Bundler / Context Pack Generator
+
 Ein neues Skript `wiki_bundler.py` wird eingeführt. 
+
 - **Zweck:** Es aggregiert den Architektur-Kontext für KI-Agenten in ein einziges, riesiges Artefakt (`Wiki-Bundle-Template.md`).
+
 - **Parameterisierung:** Das Skript kann Parameter annehmen (z.B. `--scope Geoapify`), um einen *Context Pack* zu generieren, der nur die exakt relevanten ADRs, Guides und Code-Snippets für dieses spezifische Feature bündelt.
 
 ## 6. Implementation & Verification
+
 - `tools/migrate_frontmatter.py` wurde erfolgreich angewandt, um Altlasten sicher in Schema V6 zu überführen.
+
 - `start.ps1` garantiert durch die Reality Reconciliation einen *Evolutionary Fitness Score* von 100%.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1485,27 +2457,42 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '# Architecture Decision Record: Next-Level Toast System
 
 ## Context
+
 The application required a robust notification system (Toasts). Previous implementations relied on complex `display: none` toggles, manual event listeners for outside clicks, and simplistic JavaScript timeouts that often resulted in "notification spam" when users triggered rapid events (e.g., clicking save repeatedly).
 We needed a system that is robust, visually appealing, accessible (a11y), and dependency-free (Vanilla JS/CSS).
 
 ## Decision
+
 We decided to completely overhaul the Toast architecture with a "Next Level" approach based purely on modern W3C standards:
 
 1. **Native Popover API (`popover="manual"`)**:
+
    Instead of using `z-index` wars, the Toast is hoisted to the native Top-Layer of the browser.
+
 2. **CSS `@starting-style` & Discrete Transitions**:
+
    We eliminated JS-based animation listeners. The browser natively handles symmetric enter/exit animations via `allow-discrete` transitions on the `display` property.
+
 3. **Multi-Stacking (Spam Prevention)**:
+
    Instead of queuing 10 identical messages, the system deduplicates. If the exact same message is triggered while active, it increments a visual badge (`x2`, `x3`) and triggers a CSS `@keyframes shake` animation to provide feedback without visual clutter.
+
 4. **Actionable & Sticky Toasts**:
+
    The API allows passing an `action` object (e.g., "Undo" button) and supports a `sticky` mode for progress indicators that do not automatically expire.
+
 5. **W3C Accessibility (ARIA)**:
+
    The Toast container is strictly marked with `role="alert"`, `aria-live="assertive"`, and `aria-atomic="true"`, ensuring Screenreaders announce notifications immediately.
+
 6. **Swipe-to-Dismiss**:
+
    Using `PointerEvents`, the Toast can be swiped horizontally to dismiss it intuitively, mimicking native mobile OS behavior.
 
 ## Consequences
+
 - **Positive**: Zero external dependencies. Extremely performant. Best-in-class UX and Accessibility. The codebase (`js/toast.js`) is fully decoupled from `main.js`.
+
 - **Negative**: Relies on modern browser features (Popover API, `@starting-style`). Browsers older than ~late 2023 will not render the enter/exit animations gracefully, though the logic degrades safely.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1563,19 +2550,25 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '# ADR: Architektur für Extraktion zur llm_boilerplate
 
 ## Kontext
+
 DIN-Brief Neo dient als Testballon für KI-gestützte Entwicklungsmuster, die später in einer generischen `llm_boilerplate` wiederverwendet werden sollen. Um dies zu ermöglichen, muss das Projekt strikt in generische und projektspezifische Bestandteile getrennt sein.
 
 ## Entscheidung
+
 Wir haben uns für eine **geschichtete Architektur** entschieden, bei der Tools und Regeln physisch vom Website-Code separiert sind:
 
 1. **Website-Code (`website/`)**: Enthält die reine Anwendung (DIN-Brief spezifisch). Wird nicht extrahiert.
+
 2. **Tools (`tools/`)**: Enthält Node.js-Skripte wie `build_db.js`, `log_session.js` und `reconciliation.js`. Diese Skripte sind generisch und konfigurierbar.
+
 3. **Antipatterns (`tools/antipatterns/`)**: Die KI-Regeln sind in Layer unterteilt:
+
    - `base.json`: Universelle Regeln (z.B. Temporal/Date API)
-   - `web.json`: Allgemeine Web-Regeln (execCommand, XHR, innerHTML, etc.)
+
    - `project.json`: Nur DIN-Brief spezifisch
 
 ## Konsequenzen
+
 Diese Architektur ist als "fait accompli" (bereits umgesetzt) zu betrachten.
 Zukünftige KI-Regeln, die nicht ausschließlich DIN-Brief betreffen, **müssen zwingend** in `base.json` oder `web.json` eingetragen werden, damit sie automatisch in die `llm_boilerplate` übernommen werden können.
 Regeln, die nur für DIN-Brief Neo gelten, kommen in `project.json`.',
@@ -1598,8 +2591,8 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
 | :--- | :--- | :--- | :--- |
 | website/index.html | 1 | [[ADR-HTML]] | - |
 | website/index.html | 2 | - | [[din-5008-layout]] |
-| website/js/main.js | 1 | [[ADR-JS]] | - |
-| website/js/main.js | 2 | - | [[no-scroll-techniques]] |
+| website/js/main.js | 2 | [[ADR-JS]] | - |
+| website/js/main.js | 3 | - | [[no-scroll-techniques]] |
 | website/css/floating.css | 1 | [[ADR-CSS]] | - |
 | website/css/floating.css | 2 | - | [[chrome-modern-css]] |
 | website/css/layout.css | 1 | [[ADR-CSS]] | - |
@@ -1614,15 +2607,11 @@ Diese Datei wird automatisch von `build_db.js` generiert und listet alle Archite
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR/Code-Referenzen.md'), 'autogenerated');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR/Code-Referenzen.md'), 'adr');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR/Code-Referenzen.md'), 'guide');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR/Code-Referenzen.md'), 'code');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/10-architecture/ADR/Support/ADR-TEMPLATE.md',
   'ADR-XXX: [Kurzer, präziser Titel der Entscheidung]',
-  'chosen',
+  'draft | proposed | accepted | deprecated | superseded',
   '# ADR-XXX: [Kurzer, präziser Titel]
 
 ## 1. Context & Problem
@@ -1630,7 +2619,9 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 **Kurze, präzise Beschreibung des Problems (max. 5–6 Sätze).**
 
 - Was ist das konkrete Problem?
+
 - Warum ist eine Entscheidung notwendig?
+
 - Welcher Kontext ist relevant?
 
 > [!info] Hintergrund (optional)
@@ -1651,32 +2642,43 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ### Begründung
 
 - Punkt 1 (kurz & präzise)
+
 - Punkt 2
+
 - Punkt 3
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - ...
+
 - ...
 
 ### Risiken & Negative Auswirkungen
+
 - ...
+
 - ...
 
 ### Langfristige Auswirkungen
+
 - ...
 
 ## 5. Implementation & Verification
 
 - Was wurde konkret umgesetzt?
+
 - Wie wird die Einhaltung der Entscheidung sichergestellt? (z.B. durch Reconciliation, Code-Review, Tests, Antipattern-Regeln)
+
 - Gibt es offene Punkte?
 
 ## 6. Related Documents
 
 - [[longevity-guidelines]]
+
 - [[ADR-YYY]]
+
 - [[constitution]]
 
 ---
@@ -1692,9 +2694,13 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## Hinweise zur Nutzung dieses Templates
 
 - **Frontmatter ist verpflichtend** und muss vollständig ausgefüllt werden.
+
 - Der Abschnitt **"Context & Problem"** soll kurz und fokussiert bleiben.
+
 - Die **Entscheidung** muss klar und unmissverständlich formuliert sein.
+
 - Redundanzen zu `longevity-guidelines.md` und `constitution.md` vermeiden — stattdessen verlinken.
+
 - Jede ADR sollte **eine klare Entscheidung** treffen, keine Essays schreiben.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1730,24 +2736,35 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '# ADR-005: Sender Synchronization Logic
 
 ## Context
+
 In previous iterations of the DIN-BriefNEO project, the "Informationsblock" (metadata block on the right side of the letter) was removed in an attempt to simplify the UI for private letters. This inadvertently destroyed a core UX feature of the original `din-5008-css` template: The automatic synchronization of the sender''s name and address into the `Rücksendezeile` (the tiny return address line above the recipient) and the `Maschinenschrift` (the typed name below the signature).
 
 The user firmly requested this logic to be restored and declared it an invariant principle for the project: Changes to the sender metadata must seamlessly and automatically mirror into the respective letter elements to prevent double data entry.
 
 ## Decision
+
 We restore the `<din-infoblock>` (or sender input fields) and introduce a dedicated synchronization script (`sender-sync.js`) that enforces the following data flow:
+
 1. `info-name`, `info-street`, and `info-city` are the single source of truth for the sender''s address.
+
 2. An `input` event listener continuously concatenates these fields with a separator (e.g., ` • `) and injects the result into the `<din-absender id="absender">` element (Rücksendezeile).
+
 3. The `info-name` field is additionally mirrored into the `<div id="unterschrift">` (Maschinenschrift) element.
 
 ## Consequences
+
 - **Positive:** Restores the beloved "magic" synchronization from the original template, drastically improving UX.
+
 - **Positive:** Prevents the return address line and the signature name from going out of sync with the main sender block.
+
 - **Negative:** Requires strict DOM structure. The `unterschrift` element must be carefully managed so that `contenteditable` does not destroy sibling elements (like the signature image).
 
 ## Implementation Rules
+
 - **Rule 1:** The signature image (`#signature-image`) MUST reside in a separate DOM container outside of the `contenteditable` `#unterschrift` element.
+
 - **Rule 2:** The `sender-sync.js` module MUST be loaded during the initial application setup in `main.js`.
+
 - **Rule 3:** This logic is considered **core functionality** and MUST NOT be removed in future refactoring attempts.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -1755,10 +2772,6 @@ We restore the `<din-infoblock>` (or sender input fields) and introduce a dedica
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'architecture');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'ui');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'ux');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/ADR-005-Sender-Synchronization.md'), 'sync');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/10-architecture/Architecture-Compliance-Matrix.md',
@@ -1775,9 +2788,13 @@ Wir wenden die **Chrome 147+ Baseline** konsequent an, um eine *Pure & Flat Arch
 ---
 
 ### 🚦 Status-System
+
 - ✅ **Aktiv**      → Im Code implementiert und aktiv genutzt.
+
 - 🟡 **Geplant**    → Definitiv in nächsten 2 Sprints (Q2 2026).
+
 - 📋 **Roadmap**    → Langfristige Planung (2026/2027).
+
 - 🧪 **Experimentell** → In Test-Suites aktiv, noch nicht produktiv.
 
 > [!TIP]
@@ -1786,35 +2803,6 @@ Wir wenden die **Chrome 147+ Baseline** konsequent an, um eine *Pure & Flat Arch
 ---
 
 ### 0. Platinum Basistechnologie (Universell)
-
-| Icon / Name            | Moderne API (**TARGET**)      | Strategie & Best Practice (inkl. Quellen) | Status |
-|------------------------|-------------------------------|-------------------------------------------|--------|
-| **Layering**           | `CSS @layer`                  | Hierarchie vor Spezifität – löst Kaskadenkonflikte. | ✅ Aktiv |
-| **Typed Props**        | `@property`                   | Typsicherheit für CMA-Koordinaten (mm-Präzision). | ✅ Aktiv |
-| **CSS-Isolation**      | `@scope`                      | Isoliert Paper-CSS ohne Shadow-DOM-Nachteile. | ✅ Aktiv |
-| **Animations**         | `interpolate-size`            | Native Layout-Anims für `height: auto`. | ✅ Aktiv |
-| **Farbe**              | `oklch()`                     | Wahrnehmungsgetreue Farben & `color-mix()`. | ✅ Aktiv |
-| **Theming**            | `light-dark()`                | Zero-JS System-Farbschema-Umschaltung. | ✅ Aktiv |
-| **Overflow**           | `@container scroll-state`     | Native Überlauf-Warnung ohne JS-Listener. | ✅ Aktiv |
-| **Layout**             | Container Queries             | Komponenten reagieren auf A4‑Platz (`size`). | ✅ Aktiv |
-| **Logik (CSS)**        | `:has()`                      | Zero-JS State Management (Layout/Theme/Guides). | ✅ Aktiv |
-| **Typografie**         | `font-feature-settings`       | Tabellenziffern & Slashed-Zero für IBAN/Datum. | ✅ Aktiv |
-| **Auto-Resize**        | `field-sizing: content`       | Textfelder wachsen organisch mit dem Inhalt. | ✅ Aktiv |
-| **3D-Carousel**        | `--position`, `--i` Vars      | Dynamische 3D-Transformationen ohne JS (v4.8.0). | ✅ Aktiv |
-| **Toast-System**       | CSS Keyframes + `popover`      | Vollständige CSS-Choreographie, kein `setTimeout`. | ✅ Aktiv |
-| **Form C Layout**      | `:has(#state-layout-c)`       | Flexbox-basiertes, gestapeltes Layout (v4.8.0). | ✅ Aktiv |
-| **Auto-Detection**     | `_updateSalutation()`         | Erkennung von "Frau/Herr/Ms/Mr" im Anschriftfeld. | ✅ Aktiv |
-| **Ghost-Text**         | `data-salutation`             | Platzhalter-Vorschläge via CSS `:empty::before`. | ✅ Aktiv |
-| **Footer Auto-Hide**   | `din-fuss > *:empty`          | Leere Fußzeilen-Elemente automatisch ausblenden. | ✅ Aktiv |
-| **Positioning**        | CSS Anchor                    | Popovers kleben ohne JS am Anker. | 📋 Roadmap |
-| **Overlays**           | `<dialog>` + `popover`        | Native Modals & Tooltips (ADR-017). | ✅ Aktiv |
-| **Invokers**           | Invoker Commands              | Deklarative Button-Trigger (`commandfor`). | 📋 Roadmap |
-| **Hover-Invoker**      | `interesttarget`              | Zero‑JS‑Tooltips (Chrome 147+). | 📋 Roadmap |
-| **Logik (Zeit)**       | Temporal API                  | Fehlerfreie Datumsberechnung (ADR-017). | ✅ Aktiv |
-| **Sicherheit**         | Sanitizer API                 | XSS‑Schutz durch `setHTML()` statt `innerHTML`. | ✅ Aktiv |
-| **Typografie**         | `text-wrap: balance / pretty` | Vermeidet Witwen & Waisen; optische Balance. | 🟡 Geplant |
-| **Attr‑Config**        | `attr(data-* type)`           | Typisierte CSS‑Werte direkt aus HTML. | 🟡 Geplant |
-| **Validierung**        | Constraint API                | Browser‑eigene Formularvalidierung nutzen. | ✅ Aktiv |
 
 ---
 
@@ -1837,12 +2825,17 @@ Wir wenden die **Chrome 147+ Baseline** konsequent an, um eine *Pure & Flat Arch
 ## ⚠️ Bekannte Architektur-Einschränkungen
 
 ### 1. IMR & Multi-Page Synchronisation
+
 Die **Input Mapping Registry (IMR)** nutzt aktuell `document.querySelector()`, was konzeptionell nur das **erste Vorkommen** eines DIN-Tags im DOM synchronisiert. 
+
 - **Auswirkung:** Auf Folgeseiten (`din-A4` Instanzen > 1) werden IMR-Daten (wie Kopfzeilen oder Absenderdaten) nicht automatisch aktualisiert, wenn sie dort erneut vorkommen.
+
 - **Strategie:** Für die aktuelle Phase ist dies akzeptabel, da Kopfdaten nur auf Seite 1 gedruckt werden. Eine zukünftige Erweiterung auf `querySelectorAll()` mit Page-Index-Mapping ist für das Backlog (v5.0) geplant.
 
 ### 2. PDF-Metadaten (Print-to-PDF)
+
 XMP-Metadaten können über den nativen Browser-Druckdialog (`window.print()`) nicht in den PDF-Stream eingebettet werden.
+
 - **Strategie:** Wir nutzen die **OCR-Bridge** (unsichtbarer Textblock im Body) als Primärstrategie für Systeme wie Paperless-ngx. Dateinamen werden via `document.title` manipuliert.
 
 ---
@@ -1894,10 +2887,15 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 Die Function Traceability Matrix ist das Herzstück unseres Compliance-Systems. Sie beweist, dass jede Zeile Logik in `website/` durch eine Spezifikation oder Architektur-Entscheidung legitimiert ist.
 
 ## 📖 Wie man dieses Dokument liest
+
 Dieses Dokument aggregiert die bidirektionalen Verbindungen zwischen Code und Dokumentation.
+
 - **Funktion / Modul:** Der funktionale Name der Logik (oft abgeleitet vom Dateinamen).
+
 - **Code Datei:** Die physische Datei im Dateisystem (`website/`).
+
 - **Architektur-Record (ADR):** Die Architektur-Entscheidung, die begründet, *warum* der Code existiert und *wie* er sich in das Gesamtsystem einfügt.
+
 - **Implementierungs-Guide:** Die konkrete Anleitung, *wie* der Code zu schreiben und zu warten ist (Best Practices).
 
 ## 🤖 Automatisierte Mapping-Tabelle
@@ -1910,8 +2908,11 @@ Das Python-Skript `tools/build_db.py` liest die `@adr`- und `@guide`-Tags aus de
 Das stellt sicher, dass unsere Datenbank (SQLite) und das Obsidian-Frontend immer synchron sind.
 
 Um einen neuen Knotenpunkt hinzuzufügen:
+
 1. Schreibe die neue Code-Datei.
+
 2. Füge den Header-Kommentar `/* @adr [[ADR-Name]] */` in die Code-Datei ein (bei CSS auch `/* @guide [[Guide-Name]] */`).
+
 3. Führe `start.ps1` aus.
 
 <!-- BEGIN AUTOMATED MATRIX -->
@@ -1948,8 +2949,11 @@ Um einen neuen Knotenpunkt hinzuzufügen:
 Alles außerhalb der automatisierten HTML-Kommentare ist für **manuelle Notizen** vorgesehen. Hier dokumentieren wir Architektur-Ausnahmen, globale Infrastruktur oder Legacy-Vermerke, die durch das automatisierte Code-Tagging nicht sinnvoll erfasst werden können.
 
 ### 📌 Regeln für manuelle Einträge
+
 1. **Nur für echte Ausnahmen:** Wenn eine Datei ein @adr oder @guide Tag enthalten kann, dann nutze die automatisierte Matrix!
+
 2. **Klarer Grund:** Begründe, warum diese Datei manuell dokumentiert wird.
+
 3. **Lebende Dokumentation:** Halte diese Sektion sauber.
 
 ### 🛡️ Bekannte Infrastruktur-Ausnahmen
@@ -2143,7 +3147,6 @@ graph TD
 > ℹ️ **Blocksatz mit Silbentrennung** wird für DIN-Briefe empfohlen:  
 > `text-align: justify; text-justify: inter-word; hyphens: auto;`
 
-
 ---
 
 ## 📄 5. Fußzeile (Footer) – 4 Spalten
@@ -2299,22 +3302,33 @@ Hier werden die exakten Wording-Strings definiert, die vom System getriggert wer
 > Die Icons (Emojis) sind harter Bestandteil des Strings und werden im JavaScript (`showToast`) mit übergeben.
 
 ### 💾 Storage & Persistence
+
 - **Draft gesichert:** `💾 Entwurf automatisch gespeichert` (Level: `info`)
+
 - **Manuell gesichert:** `💾 Entwurf gespeichert` (Level: `success`)
+
 - **Reset:** `🗑️ Alle Eingaben gelöscht` (Level: `warning`)
 
 ### 🔑 Geoapify & Address API
+
 - **Key gültig:** `🔑 Geoapify Key gültig!` (Level: `success`)
+
 - **Key ungültig:** `❌ Geoapify Key ungültig` (Level: `error`)
+
 - **Key Error:** `❌ Fehler bei der Key-Validierung` (Level: `error`)
+
 - **API Offline/Limit:** `❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.` (Level: `error`)
+
 - **Adresse übernommen:** `Adresse übernommen & gespeichert` (Level: `success`)
 
 ### 🔤 Font Manager
+
 - **Upload erfolgreich:** `Font erfolgreich geladen` (Level: `success`)
+
 - **Upload Fehler:** `Fehler beim Lesen der Schriftart` (Level: `error`)
 
 ### ⚙️ Healthcheck / Diagnostics
+
 - **Plausibility Error:** Wird dynamisch mit dem betroffenen DOM-Element generiert, z.B. `[Architektur-Warnung] Element #xyz fehlt!` (Level: `warning`)
 
 ---',
@@ -2324,9 +3338,6 @@ Hier werden die exakten Wording-Strings definiert, die vom System getriggert wer
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/IMR-Toast-Registry.md'), 'din-briefneo/registry');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/IMR-Toast-Registry.md'), 'tech/ui');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/IMR-Toast-Registry.md'), 'components/toast');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/10-architecture/OmniTraceability.md',
@@ -2341,21 +3352,31 @@ Das OmniTraceability-System garantiert, dass Quellcode und Dokumentation niemals
 Dieses System ist auf 3-5 Jahre Wartbarkeit ausgelegt. Im Gegensatz zu freitextlichen Wikis wird dieses System aktiv am Quellcode verankert. So gehst du in der Praxis damit um:
 
 ### Szenario A: Ein neues Feature wird entwickelt
+
 1. **Entscheidung fällen:** Erstelle ein neues ADR aus dem `docs/10-architecture/ADR/Support/ADR-TEMPLATE.md`. Fülle die `decision_options` im Frontmatter aus und wähle die beste Option (`chosen_option`).
+
 2. **Code schreiben:** Erstelle die neue Code-Datei, z.B. `website/js/feature.js`.
+
 3. **Traceability herstellen:** Setze in Zeile 1 der Code-Datei den Header-Kommentar: 
+
    ```javascript
    /* @adr [[ADR-NEUES-FEATURE]] */
    ```
+
 4. **Build:** Führe `start.ps1` aus. Das Feature erscheint automatisch im Build-Prozess und in der Matrix.
 
 ### Szenario B: Eine Architektur wird verworfen (Refactoring)
+
 1. **Code löschen:** Lösche oder überschreibe den nicht mehr benötigten Code in `website/`.
+
 2. **ADR archivieren:** Öffne das zugehörige ADR und ändere das Frontmatter auf `status: deprecated`.
+
 3. **Kontext bewahren:** Füge im ADR unter "Consequences" einen kurzen Satz hinzu, warum das Konzept verworfen wurde. Das Wissen bleibt somit als Lektion erhalten.
 
 ### Szenario C: Ein globaler CSS-Bug wird behoben
+
 1. **Kein neues ADR nötig:** Wenn es sich nur um die Korrektur einer bestehenden Logik handelt, ohne eine architektonische Entscheidung zu fällen, schreibe den Code einfach. Die Verknüpfung bleibt bestehen.
+
 2. **Matrix manuell annotieren:** Falls die Datei eine spezielle Ausnahme darstellt (z.B. ein externes Polyfill), trage es unter "Manuelle Notizen" in der [[Function-Traceability]] ein.
 
 ## 🗄️ Relationales Architekturmodell (SQLite)
@@ -2364,10 +3385,13 @@ Das System ist nicht nur für Menschen (Obsidian), sondern explizit für eine sp
 Das Frontmatter aller `docs/` Dateien sowie die Header-Kommentare der `website/` Dateien bilden ein klares SQL-Schema ab:
 
 1. **`tbl_concepts`**: Wird aus dem YAML Frontmatter extrahiert (`id`, `title`, `type`, `status`).
+
 2. **`tbl_code_entities`**: Wird aus den Dateien im Ordner `website/` extrahiert.
+
 3. **`tbl_concept_links`**: Die Mapping-Tabelle. Wird aus den Arrays `doc_links` und `code_links` sowie aus den `@adr` und `@guide` Code-Tags generiert.
 
 Dadurch kann das Wissen später mit SQL-Abfragen durchsucht werden, z.B.:
+
 ```sql
 SELECT title FROM tbl_concepts WHERE type = ''adr'' AND status = ''active'';
 ```
@@ -2387,6 +3411,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
   '10-architecture README',
   'active',
   '# 10 Architecture
+
 Architektur-Entscheidungen und Traceability.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -2394,8 +3419,6 @@ Architektur-Entscheidungen und Traceability.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/README.md'), 'readme');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/10-architecture/README.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/20-implementation/glossary.md',
@@ -2421,19 +3444,29 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 🔤 Begriffslexikon
 
 ### `AbortController`
+
 *   **Kurzdefinition:** Eine native JavaScript-API, mit der eine oder mehrere Webanfragen (z. B. `fetch`) vorzeitig abgebrochen werden können.
+
 *   **Nutzen im Projekt:** Schützt vor Race Conditions bei der Adress-Autovervollständigung, indem alte Netzwerk-Requests sofort abgebrochen werden, wenn der Benutzer einen neuen Buchstaben eintippt.
+
 *   **Verweis:** Siehe [[ADR-API#4-race-condition-schutz-via-abortcontroller|ADR-API.md]] und [[longevity-guidelines|longevity-guidelines.md]].
 
 ### `container-type: size`
+
 *   **Kurzdefinition:** Eine CSS-Eigenschaft, die ein HTML-Element als Container deklariert, dessen Abmessungen (Breite und Höhe) isoliert überwacht werden, um relationale Abfragen für Kind-Elemente zu ermöglichen.
+
 *   **Nutzen im Projekt:** Deklariert auf dem `<din-a4>`-Blatt, um proportionale CSS-Layoutberechnungen unabhängig von der Skalierung des übergeordneten Fensters durchzuführen.
+
 *   **Verweis:** Siehe [[ADR-CSS#2-container-queries--proportionale-einheiten-cqw--cqh|ADR-CSS.md]] und [[din-5008-geometry|din-5008-geometry.md]].
 
 ### `cqw` / `cqh` (CSS Container Query Units)
+
 *   **Kurzdefinition:** Proportionale CSS-Maßeinheiten, die sich auf genau 1 % der Breite (`cqw`) oder Höhe (`cqh`) des nächsten übergeordneten Containers beziehen.
+
 *   **Nutzen im Projekt:** Alle Ränder, Abstände und Schriftgrößen des DIN-Briefs sind in `cqw` deklariert. Dadurch wächst und schrumpft das gesamte Layout pixelperfekt proportional mit, wenn das Blatt skaliert wird (Vektor-Skalierung).
+
 *   **Veranschaulichung:**
+
     ```mermaid
     flowchart LR
         A["Blatt &lt;din-a4&gt;<br/>(container-type: size)"]
@@ -2442,69 +3475,103 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
         B -.->|Beispiel: 25mm Lochrand| D["11.905 cqw"]
         C -.->|Beispiel: 45mm Kopfhöhe| E["15.152 cqh"]
     ```
+
 *   **Verweis:** Siehe [[ADR-CSS#2-container-queries--proportionale-einheiten-cqw--cqh|ADR-CSS.md]] und [[din-5008-geometry|din-5008-geometry.md]].
 
 ### `fetch()` API
+
 *   **Kurzdefinition:** Die moderne, Promise-basierte JavaScript-Schnittstelle zum asynchronen Laden und Senden von Netzwerkressourcen.
+
 *   **Nutzen im Projekt:** Führt die asynchronen Adresssuchen über Photon und Geoapify im Hintergrund aus und validiert den API-Key per Heartbeat.
+
 *   **Verweis:** Siehe [[ADR-API#1-dual-provider-autocomplete-photon--geoapify|ADR-API.md]].
 
 ### `Geoapify API`
+
 *   **Kurzdefinition:** Ein kommerzieller, hochperformanter Premium-Geocoding-Dienst zur Adress-Vervollständigung und Validierung.
+
 *   **Nutzen im Projekt:** Dient als optionaler Premium-Adress-Provider in der Sidebar (erfordert Key, geschützt über Header-Security).
+
 *   **Verweis:** Siehe [[ADR-API#1-dual-provider-autocomplete-photon--geoapify|ADR-API.md]] und [[ADR-FEATURE#4-automatisches-proximity-biasing|ADR-FEATURE.md]].
 
 ### `IMR 4.0` (Input Mapping Registry)
+
 *   **Kurzdefinition:** Die zentrale Architektur-Registry, die eine bidirektionale Verbindung zwischen Custom HTML5 Elements und Daten-Objektstrukturen deklariert.
+
 *   **Nutzen im Projekt:** Synchronisiert die `contenteditable`-Felder lautlos mit dem internen Zustand für das Auto-Saving im LocalStorage.
+
 *   **Verweis:** Siehe [[ADR-HTML#1-imr-40-custom-elements-fur-geometrie-bereiche|ADR-HTML.md]] und [[ADR-JS#2-reglementierte-aufgabenbereiche-fur-javascript|ADR-JS.md]].
 
 ### `light-dark()`
+
 *   **Kurzdefinition:** Eine native CSS-Funktion, die automatisch den ersten übergebenen Farbwert wählt, wenn Light Mode aktiv ist, und den zweiten Wert, wenn Dark Mode aktiv ist.
+
 *   **Nutzen im Projekt:** Ermöglicht die komplett JS-freie, flüssige Echtzeit-Themeumschaltung aller UI-Elemente direkt im CSS.
+
 *   **Verweis:** Siehe [[ADR-CSS#4-natives-lightdark-mode-theme-light-dark|ADR-CSS.md]] und [variables.css](../../website/css/variables.css).
 
 ### `localStorage` API
+
 *   **Kurzdefinition:** Die stabilste und universellste Offline-Speicher-API im Browser zur persistenten Speicherung von Zeichenketten.
+
 *   **Nutzen im Projekt:** Sichert Entwürfe, Einstellungen, API-Keys und Base64-Schriftarten lokal ab – **die einzige persistente API, die unter dem Doppelklick-Kontext `file:///` fehlerfrei funktioniert.**
+
 *   **Verweis:** Siehe [[ADR-JS#2-reglementierte-aufgabenbereiche-fur-javascript|ADR-JS.md]] und [[ADR-ANTIPATTERN#3-komplexere-lokale-storage-apis-opfs-indexeddb-file-system-api|ADR-ANTIPATTERN.md]].
 
 ### `oklch()` Farbraum
+
 *   **Kurzdefinition:** Ein zukunftsweisender, wahrnehmungsgleichmäßiger (perceptually uniform) CSS-Farbraum, basierend auf Helligkeit (L), Buntheit (C) und Farbton (H).
+
 *   **Nutzen im Projekt:** Garantiert präzise Kontraststufen, fehlerfreie Grauabstufungen und ein absolut premium-artiges Dark-Paper-Theme ohne Farbverzerrungen.
+
 *   **Verweis:** Siehe [[ADR-CSS#4-natives-lightdark-mode-theme-light-dark|ADR-CSS.md]] und [variables.css](../../website/css/variables.css).
 
 ### `Photon API`
+
 *   **Kurzdefinition:** Ein komplett kostenfreier, OpenStreetMap-basierter Geocoding-Suchdienst (betrieben von Komoot).
+
 *   **Nutzen im Projekt:** Dient als Standard-Adress-Provider in der Sidebar. Funktioniert keyless und ohne Kreditkartenregistrierung.
+
 *   **Verweis:** Siehe [[ADR-API#1-dual-provider-autocomplete-photon--geoapify|ADR-API.md]].
 
 ### Popover API (`popover="manual"`)
+
 *   **Kurzdefinition:** Der native HTML5-Standard zur Platzierung von Overlay-Elementen im globalen Top-Layer des Webbrowsers.
+
 *   **Nutzen im Projekt:** Steuert die schwebende WhatsApp-Toolbar und die Popover-Toasts nativ auf Browserebene. Verhindert jegliche Z-Index-Kollisionen im CSS.
+
 *   **Verweis:** Siehe [[ADR-HTML#2-native-html-popover-api--dialogs|ADR-HTML.md]] und [[ADR-FEATURE#1-whatsapp-style-selection-toolbar-popover|ADR-FEATURE.md]].
 
 ### Selection & Range API
+
 *   **Kurzdefinition:** Native Browser-APIs zur präzisen Manipulation und Positionsberechnung von markierten Textbereichen im DOM-Baum.
+
 *   **Nutzen im Projekt:** Platziert die Formatierungs-Toolbar pixelgenau über dem Cursor und formatiert Textbereiche (B, U, Blockquote) zukunftssicher ohne veraltete JavaScript-Befehle.
+
 *   **Verweis:** Siehe [[ADR-JS#3-verbot-von-verarbeitetem-execcommand-fur-custom-formate|ADR-JS.md]].
 
 ### `Zippopotam`
+
 *   **Kurzdefinition:** Eine extrem schlanke, freie und globale API zur Geocodierung und Validierung von Postleitzahlen.
+
 *   **Nutzen im Projekt:** Löst 5-stellige deutsche PLZs im Empfängerfeld im Hintergrund auf, um den Ortsnamen automatisch hinzuzufügen.
+
 *   **Verweis:** Siehe [[ADR-API#5-zippopotam-plz-auto-lookup|ADR-API.md]].
 
-
 ### Falzmarke / Faltmarke
+
 Kleine Hilfslinien am linken Blattrand (oft 105 mm und 210 mm von oben bei Form B). Sie markieren die genauen Stellen, an denen das Blatt horizontal geknickt werden muss, damit die Adresse perfekt im Sichtfenster des Briefumschlags erscheint.
 
 ### Fensterumschlag / DL-Umschlag
+
 Ein Standard-Briefumschlag (Format DIN lang / DL) mit einem transparenten Sichtfenster auf der linken Seite. Die DIN 5008 stellt sicher, dass das Anschriftfeld genau in diesem Fenster sichtbar ist.
 
 ### No-Scroll-Layout
+
 Ein Web-Design-Konzept, bei dem die Anwendung (wie dieser Brief-Editor) immer exakt in den sichtbaren Viewport (100vh / 100vw) passt, ohne dass der Benutzer scrollen muss. Alle Bedienelemente sind stets sichtbar.
 
 ### Single Source of Truth (SSoT)
+
 Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) existiert nur an **einem einzigen, zentralen Ort** im Code (z.B. als CSS Custom Property `--fold-1-y`). Alle anderen Komponenten lesen diesen Wert nur aus. Es gibt keine redundanten Kopien des Wertes, was Fehler bei Updates verhindert.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -2524,11 +3591,13 @@ Dieses Dokument listet die modernen CSS-Features auf, die im Projekt **DIN-Brief
 ## 1. Farbthemen & Design Tokens
 
 ### 1.1 `light-dark()` Funktion
+
 Eine CSS-Funktion, die abhängig vom berechneten `color-scheme` des Elements entweder einen hellen oder dunklen Farbwert zurückgibt.
 
 > **Relevanz für DIN-BriefNEO:** **Hoch**. Wir nutzen dies intensiv für unseren nativen Dark Mode ohne JavaScript-Klassen-Toggling auf jedem Element.
 
 ### 1.2 `oklch()` Farbraum
+
 Ein wahrnehmungsgerechter Farbraum, der konsistente Helligkeitsstufen (Lightness) und Sättigungen (Chroma) über alle Farbtöne (Hue) hinweg bietet.
 
 > **Relevanz für DIN-BriefNEO:** **Mittel**. Wird vereinzelt für extrem präzise Schatten und sanfte Grauabstufungen in der Sidebar genutzt, um ein Premium-Gefühl zu erzeugen.
@@ -2538,11 +3607,13 @@ Ein wahrnehmungsgerechter Farbraum, der konsistente Helligkeitsstufen (Lightness
 ## 2. Layout & Responsiveness
 
 ### 2.1 `container-type: size` + Container-Einheiten (`cqw` / `cqh`)
+
 Container Queries erlauben es, dass sich Elemente an der Größe ihres *Containers* anstatt des Viewports orientieren. `cqw` und `cqh` sind prozentuale Einheiten bezogen auf diesen Container.
 
 > **Relevanz für DIN-BriefNEO:** **Extrem Hoch**. Das ist das Herzstück unseres No-Scroll-Layouts! Der Briefbogen (`<din-a4>`) skaliert sich dynamisch in den verfügbaren Platz. Alle DIN 5008 Abstände (wie Falzmarken) werden in `cqh` und `cqw` berechnet, damit das Blatt stufenlos zoombar ist, ohne dass die Maßstäbe brechen.
 
 ### 2.2 `field-sizing: content`
+
 Erlaubt Input-Feldern und Textareas, ohne JavaScript-Hacks automatisch mit ihrem Inhalt mitzuwachsen.
 
 > **Relevanz für DIN-BriefNEO:** **Hoch**. Perfekt für kleine, editierbare Bereiche (wie den Betreff), bei denen wir kein `contenteditable` nutzen, aber trotzdem ein Auto-Grow-Verhalten brauchen.
@@ -2552,16 +3623,19 @@ Erlaubt Input-Feldern und Textareas, ohne JavaScript-Hacks automatisch mit ihrem
 ## 3. Interaktion & UI
 
 ### 3.1 `:has()` Pseudo-Klasse
+
 Der CSS-Parent-Selector. Erlaubt es, ein Elternelement basierend auf seinem Inhalt (Kinder) zu stylen.
 
 > **Relevanz für DIN-BriefNEO:** **Hoch**. Wird genutzt, um z.B. Warn-Rahmen um den Briefkern zu zeichnen, falls eines der inneren Kinder (wie der Text) einen Überlauf (`overflow`) erzeugt.
 
 ### 3.2 Popover API (`popover`)
+
 Ein nativer Weg, um UI-Elemente über den Rest der Seite zu legen (Top-Layer), inklusive Light-Dismiss (Schließen durch Klick daneben) und ESC-Taste-Support, völlig ohne z-index-Kämpfe.
 
 > **Relevanz für DIN-BriefNEO:** **Hoch**. Wird für die schwebende "WhatsApp-Style" Formatierungsleiste (Fett, Kursiv) genutzt, die über dem Text auftaucht.
 
 ### 3.3 CSS Anchor Positioning
+
 Ermöglicht das absolute Positionieren eines Elements (z.B. ein Tooltip) *relativ* zu einem anderen "Anker"-Element, ohne dass sie im DOM verschachtelt sein müssen.
 
 > **Relevanz für DIN-BriefNEO:** **Niedrig (Aktuell)**. Zukünftig extrem spannend, um Dropdowns (wie bei der Adress-Autovervollständigung) präzise an ein `contenteditable`-Feld zu heften, ohne den Layout-Flow des DIN-Briefs zu stören.
@@ -2587,31 +3661,40 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 In der frühen Explorationsphase von DIN-Brief NEO haben wir das LaTeX-Paket `GerLaTeXLetter` tiefgehend analysiert. Während LaTeX für eine reine Web-Applikation (Vanilla JS, offline-first) ungeeignet ist, lieferte es entscheidende konzeptionelle Erkenntnisse ("Lessons Learned"), die direkt in unsere CSS-Architektur eingeflossen sind.
 
 ## 1. Absolute Koordinaten statt relativer Abstände
+
 **Die LaTeX-Philosophie:** Ein LaTeX-Brief definiert das Layout nicht über relative Margins (z. B. "mach den Abstand nach oben etwas größer"), sondern über absolute Koordinaten auf einem A4-Gitter (z. B. `\setplength{toaddrvpos}{45mm}`).
 
 **Unsere Übernahme ins Web:** 
 Wir haben das Box-Model-Denken (Margins, Paddings, relative Prozentwerte) für das Seitenlayout verworfen. Stattdessen nutzen wir in `layout.css`:
+
 - **CSS Custom Properties (Typed)**: `--pos-y-address: 45mm;`
+
 - **Absolute Positionierung**: Alle semantischen Zonen (`<din-address-zone>`, `<din-infoblock>`) werden absolut innerhalb der `<din-page>` positioniert.
+
 - Dadurch garantieren wir pixel- und millimetergenaue PDF-Ausgaben, die exakt in ein DIN-Fensterkuvert passen.
 
 ## 2. Strikte Trennung von Form A und Form B
+
 **Die LaTeX-Philosophie:** LaTeX-Klassen bieten harte Schalter für Form A (hoher Briefkopf) und Form B (niedriger Briefkopf), wodurch sich das gesamte Y-Koordinatensystem verschiebt.
 
 **Unsere Übernahme ins Web:**
 Wir spiegeln diese Binärlogik über CSS-Variablen-Scopes. Ein simpler Toggle auf dem Root-Element (`<html data-form="A">`) überschreibt die Y-Koordinaten der Variablen. Kein JavaScript muss die Zonen berechnen; das CSS-Grid adaptiert sich nahtlos.
 
 ## 3. Falz- und Lochmarken (Fold & Punch Marks)
+
 **Die LaTeX-Philosophie:** Millimetergenaue Linien am linken Blattrand, um das Lochen und Falten für Kuverts zu erleichtern.
 
 **Unsere Übernahme ins Web:**
 Wir zeichnen diese Marken rein mit CSS (`::before` und `::after` Pseudo-Elementen) an fixen Y-Koordinaten (z.B. 87mm, 105mm, 148.5mm, 192mm, 210mm). Diese Marken sind im `print`-Stylesheet deaktivierbar, falls der Nutzer Blanko-Briefpapier verwendet.
 
 ## 4. Semantische Datenstruktur
+
 **Die LaTeX-Philosophie:** Trennung von Daten (`\setkomavar{fromname}{Max Mustermann}`) und Repräsentation (dem finalen Layout).
 
 **Unsere Übernahme ins Web:**
+
 - Wir verwenden semantische Custom Elements (`<din-sender>`, `<din-recipient>`).
+
 - Wir trennen visuelle Struktur (CSS) strikt von den Inhalten. 
 
 ---
@@ -2623,11 +3706,6 @@ Wir zeichnen diese Marken rein mit CSS (`::before` und `::after` Pseudo-Elemente
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/Guides/din-5008-precise-layout-lessons.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/Guides/din-5008-precise-layout-lessons.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/Guides/din-5008-precise-layout-lessons.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/Guides/din-5008-precise-layout-lessons.md'), 'rules');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/Guides/din-5008-precise-layout-lessons.md'), 'layout');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/20-implementation/Guides/geoapify-autocomplete.md',
@@ -2647,10 +3725,15 @@ Um die Empfängeradresse im DIN-Brief autovervollständigen zu können, nutzen w
 Wir haben die folgenden Best Practices direkt in unserem Custom Fetch-Wrapper in `main.js` umgesetzt:
 
 - **Regel 1: Debouncing (300ms)**
+
   - Wir senden nicht bei jedem Tastendruck einen Request. Stattdessen warten wir 300ms, bis der Nutzer aufhört zu tippen. Das schont das API-Limit massiv.
+
 - **Regel 2: Strikte Limits (`limit=5`)**
+
   - Wir rufen maximal 5 Ergebnisse ab. Ein zu langes Dropdown bricht das Layout und verschlechtert die Performance.
+
 - **Regel 3: Dynamischer Proximity Bias**
+
   - Statt hartcodierten Koordinaten (z. B. Bonn) lesen wir dynamisch die PLZ des **Absenders** aus. Die API liefert dann zuerst Ergebnisse in der Nähe des Absenders.
 
 ### Code-Beispiele (Custom Fetch vs. Library)
@@ -2699,16 +3782,18 @@ Da wir auf nativem `fetch` und modernem ES6 basieren:
 // f("Geoapify Native Fetch", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv")
 ```
 
-
 ## 3. Fehlerbehandlung & Fallback-Strategie
+
 Da externe APIs ausfallen können (Rate Limits, Offline-Szenarien, API-Downtime), muss die Fehlerbehandlung robust sein.
 Schlägt der Request an Geoapify fehl, werfen wir keinen UI-blockierenden Fehler, sondern fangen diesen ab und wechseln – sofern konfiguriert – sofort auf den kostenlosen Photon Fallback-Provider, oder stoppen die Autocomplete-Vorschläge einfach leise (Graceful Degradation).
 
 ## 4. Rate Limiting & Performance
+
 Die Geoapify API hat in der kostenlosen Stufe strikte Limits (z.B. 3.000 Requests pro Tag).
 Das strenge Debouncing (300-500ms) und ein geplantes, lokales **Caching** von Suchbegriffen (aktuell noch in Planung / noch nicht implementiert) sind unsere primären Abwehrwerkzeuge gegen das Limit.
 
 ## 5. Datenschutz (Privacy)
+
 Geoapify erhält den gesuchten Adressstring sowie die berechneten GPS-Koordinaten (für das Proximity Biasing).
 **WICHTIG:** Es werden **keine** persönlichen Absenderdaten, Namen oder Briefinhalte an den Dienst übertragen.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
@@ -2731,8 +3816,11 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ## 1. Einleitung & Zielsetzung
 
 Kurze Einleitung:
+
 - Was ist das Ziel dieses Guides?
+
 - Welches Problem löst er?
+
 - Welche Annahmen gibt es?
 
 ## 2. Best Practices & Regeln
@@ -2740,8 +3828,11 @@ Kurze Einleitung:
 Hier kommen die konkreten Richtlinien. Nutze Checklisten oder nummerierte Listen:
 
 - **Regel 1**: ...
+
   - [x] Wird bereits umgesetzt
+
   - [ ] Noch ausstehend
+
 - **Regel 2**: ...
 
 ### Vorher / Nachher Beispiele
@@ -2778,7 +3869,9 @@ Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 ## 5. Verwandte Dokumente
 
 - [[longevity-guidelines]]
+
 - [[ADR-XXX]]
+
 - [[glossary]]
 
 ---
@@ -2786,9 +3879,13 @@ Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 ## Hinweise zur Nutzung dieses Templates
 
 - **Frontmatter ist verpflichtend**
+
 - Der Guide soll **praktisch** und **umsetzbar** sein (keine reinen Theorie-Texte)
+
 - Nutze `diff`-Blöcke und `<details>` für bessere Lesbarkeit
+
 - Halte den Guide möglichst **kurz und fokussiert** (max. 1–2 Bildschirmseiten ideal)
+
 - Verlinke stark auf ADRs und andere Guides statt Inhalte zu duplizieren',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -2809,6 +3906,7 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ---
 
 ## 1. Das globale Sicherheitsnetz
+
 Um jegliches versehentliche Scrollen im Keim zu ersticken, erhält die oberste Ebene des HTML-Dokuments eine absolute Sperre:
 
 ```css
@@ -2826,6 +3924,7 @@ html, body {
 ---
 
 ## 2. Die Flexbox- & Grid-Kaskade
+
 Die Benutzeroberfläche wird mit einem App-Shell-Layout strukturiert. Alle Container müssen die Höhe ihrer Eltern-Elemente erben und dürfen diese niemals überschreiten.
 
 ```css
@@ -2838,6 +3937,7 @@ Die Benutzeroberfläche wird mit einem App-Shell-Layout strukturiert. Alle Conta
 ```
 
 ### Die Sidebar (Links)
+
 Die Sidebar erhält eine eigene Höhenbegrenzung. Wenn Steuerelemente den Platz überschreiten, muss ein elastischer Scrollbereich *nur* für diese Kontrollgruppe eingerichtet werden, wobei der äußere Scrollbalken ausgeblendet wird:
 
 ```css
@@ -2863,36 +3963,21 @@ aside {
 ---
 
 ## 3. Der Brief-Viewport (Rechts)
+
 Der Briefbereich (Paper Viewport) muss das Briefblatt (A4) elegant skalieren, anstatt zu scrollen. 
 
 ### Skalierung statt Scrollen (Dynamic Zooming)
+
 Anstatt das A4-Blatt (210mm x 297mm) auf kleineren Bildschirmen überstehen zu lassen, nutzen wir CSS-Skalierung, damit es immer komplett sichtbar bleibt:
-
-```css
-#paper-viewport {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background-color: var(--viewport-bg);
-}
-
-din-a4 {
-  height: 94vh; /* Passt sich perfekt dem Viewport an */
-  aspect-ratio: 210 / 297; /* Exaktes DIN A4 Seitenverhältnis */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  background: white;
-  container-type: size; /* Ermöglicht proportionale cqw/cqh Maße */
-}
-```
 
 ---
 
 ## 4. Auto-Resizing ohne Scroll-Auslöser
+
 Wenn Text in ein Feld eingegeben wird, darf sich dieses nicht vergrößern und das Layout sprengen.
 
 ### Das `field-sizing` Wunder
+
 Wir nutzen `field-sizing: content` auf unseren Texteingaben. Dies passt die Größe des Elements automatisch an den Inhalt an, verhindert aber in Verbindung mit `max-height` ein unbegrenztes Wachstum:
 
 ```css
@@ -2907,16 +3992,20 @@ din-text, [contenteditable] {
 ---
 
 ## 5. Defensive CSS-Techniken zur Vermeidung von Layout-Sprengungen
+
 - **Nutze `box-sizing: border-box`:** Jedes Element im Projekt muss diese Eigenschaft besitzen, damit Padding und Border die Gesamtbreite/-höhe nicht erhöhen.
+
 - **Vermeide absolute Pixelwerte bei Höhen:** Nutze relative Einheiten wie `rem`, `%`, `vh` oder `dvh` für Layout-Skelette.
+
 - **Umgang mit langen Wörtern:** Verwende `word-break: break-word` und `hyphens: auto`, um horizontalen Textüberlauf zu verhindern.
 
-
 ## 4. Verhalten bei sehr kleinen Viewports (< 700px)
+
 Da wir ein hartes `min-height: 800px` und proportionale Skalierung erzwingen, würde das Dokument auf extrem kleinen Smartphones zwangsläufig aus dem Bildbereich ragen.
 Hier greift eine Medienabfrage, die entweder das No-Scroll-Konzept aufweicht (Scrollen erlauben) oder einen klaren Hinweis zeigt, dass die Desktop-Ansicht erforderlich ist.
 
 ## 5. Warnung zu `field-sizing: content`
+
 Während `field-sizing` ein exzellentes CSS-Feature für Auto-Grow Inputs ist, funktioniert es in einigen Engines noch nicht absolut fehlerfrei oder verzögert. Als Fallback oder Alternative für sehr komplexe Felder kann ein `ResizeObserver` oder ein Set aus `min-height` und `max-height` herangezogen werden.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -2958,6 +4047,7 @@ The system will automatically calculate the display duration based on the text l
 ## Advanced Features
 
 ### 1. Actionable Toasts (Buttons)
+
 You can attach an interactive button to the Toast by passing an `action` object in the options parameter:
 
 ```javascript
@@ -2973,6 +4063,7 @@ showToast(''Entwurf gelöscht.'', ''warning'', {
 ```
 
 ### 2. Sticky Toasts & Updatable Progress
+
 For background tasks (like PDF generation or bulk sending), you can make a Toast "sticky" so it never automatically disappears. You can then update its content via `updateToast`.
 
 ```javascript
@@ -3001,9 +4092,13 @@ setTimeout(() => {
 ```
 
 ### 3. Built-in User Interactions
+
 You do not need to code anything for these features, they are built-in:
+
 - **Swipe-to-Dismiss**: Users can mouse-drag or touch-swipe the toast to the right to throw it off the screen.
+
 - **Hover-to-Pause**: Hovering the mouse over the toast stops the timeout countdown.
+
 - **Counter Badges (x2, x3)**: Triggering the exact same message while it is already visible will shake the toast and increment a small counter badge, preventing visual spam.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -3022,20 +4117,28 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 > **Status:** In Planung / Teilweise umgesetzt
 > **Zweck:** Detaillierter Implementierungsplan für die semantische Vektor-Suche via sqlite-vec.
 
-
 **Ziel:** Die bestehende `DIN-Brief_docs.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
 
 **Leitplanken (aus Research + Projektprinzipien):**
+
 - Bleib bei **Single-File SQLite** (kein externes DB-System).
+
 - Nutze **sqlite-vec** (offizielle leichtgewichtige Extension, 384-Dim Embeddings mit all-MiniLM-L6-v2).
+
 - Content-Hash-Caching: Nur bei geändertem Inhalt neu embedden (Performance + Determinismus).
+
 - Alles passiert **im Build** (`node tools/build_db.js`).
+
 - Keine schweren neuen Abhängigkeiten wo möglich; Extension muss separat bereitgestellt werden.
+
 - Generalisierbarkeit: Die Erweiterung soll später sauber in die `llm_boilerplate` übernehmbar sein.
 
 **Voraussetzungen für diese Phase:**
+
 - Node.js (aktuell verwendetes `node:sqlite` / `DatabaseSync`).
+
 - Die `sqlite-vec` Extension Datei (z.B. `vec0.dll` auf Windows, `vec0.so` auf Linux, `vec0.dylib` auf macOS). Download von https://github.com/asg017/sqlite-vec/releases (passend zu deiner Plattform und SQLite-Version).
+
 - Optional später: Lokaler Embedding-Generator (z.B. via `@xenova/transformers` für reines JS, offline).
 
 ---
@@ -3128,8 +4231,11 @@ sql += `INSERT INTO documents (path, title, status, content, content_hash, embed
 **Wichtig für Caching:** Lade vor dem Verarbeiten die bestehenden Hashes aus der DB (oder aus vorherigem Run). Da der Build die DB dropt, speichere Hashes temporär oder verarbeite in-memory zuerst.
 
 **Empfehlung für sauberes Caching:**
+
 - Lese zuerst alle existierenden `path` + `content_hash` + `embedding` aus der alten DB (bevor DROP).
+
 - Vergleiche Hashes im JS-Code.
+
 - Nur geänderte/neue Dokumente bekommen ein frisches Embedding.
 
 ---
@@ -3321,8 +4427,11 @@ report.logs.push(...);
 `aktueller_arbeitsordner/tools/README-VECTOR-SEARCH.md` (oder in `Guides/`):
 
 - Kurze Anleitung: Wie Hybrid Search aufrufen (Beispiel-Code + SQL).
+
 - Hinweis auf Caching und wann neu embeddet wird.
+
 - Beispiel-Queries für Agenten (z.B. "Finde ähnliche ADRs zu Farbthemen").
+
 - Link zum Reconciliation (Fitness Score prüft Embeddings).
 
 **Minimal-Beispiel in der Doku:**
@@ -3337,18 +4446,29 @@ const results = hybridSearch(''DIN-Brief_docs.db'', ''Faltmarken und DIN 5008'',
 ## Nächste Schritte nach dieser Anleitung
 
 1. **Vorbereitung:** Lade `sqlite-vec` Extension herunter und lege sie neben dem Projekt (oder in `tools/extensions/`).
+
 2. **Test-Implementierung:** Starte mit AP 1 + 2 (Schema + Hash) – das ist risikoarm.
+
 3. **Danach AP 3** (Extension + Vektoren).
+
 4. Teste die Hybrid Search.
+
 5. Erweitere Reconciliation.
+
 6. Dokumentiere.
+
 7. **Post-Build + Log** nach jedem größeren Schritt (per AGENTS.md).
+
 8. Prüfe Fitness Score – bei Problemen (z.B. fehlende Extension) graceful degrade (Build läuft, aber ohne Vektoren + Warnung im Score).
 
 **Risiken & Hinweise:**
+
 - `node:sqlite` + `loadExtension` funktioniert nicht auf allen Node-Builds (manchmal braucht man `better-sqlite3` mit `unsafeLoadExtension`). Teste früh.
+
 - Embedding-Generierung: Für echte lokale Nutzung `@xenova/transformers` hinzufügen (kleine Abhängigkeit, aber offline-fähig).
+
 - Performance: Bei vielen Docs (>1000) Caching + batching wichtig.
+
 - Generalisierbarkeit: Die neuen Funktionen (`hybrid_search.js`) sollten später 1:1 in die `llm_boilerplate/tools/` wandern können.
 
 ---
@@ -3358,9 +4478,13 @@ const results = hybridSearch(''DIN-Brief_docs.db'', ''Faltmarken und DIN 5008'',
 Diese Anleitung ist bewusst detailliert, damit du (oder ein Agent) sie Schritt für Schritt abarbeiten kannst.
 
 Möchtest du, dass ich als Nächstes:
+
 - Den Code für eines der Arbeitspakete (z.B. AP 1+2) direkt in die Dateien schreibe (mit search_replace)?
+
 - Ein separates `tools/hybrid_search.js` Gerüst anlege?
+
 - Die Anleitung noch kürzer mache (nur die Top 3 Pakete)?
+
 - Oder direkt mit der Implementierung von AP 1 (Schema) starte und dann build + log?
 
 Sag mir den nächsten konkreten Schritt – ich führe ihn aus (inkl. Pre/Post-Build + Logging per Vertrag). 
@@ -3372,19 +4496,13 @@ Phase 1 ist machbar in 1–3 Sitzungen, wenn wir fokussiert bleiben.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'phase1');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'sqlite-vec');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'hybrid-search');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'embedding');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'build');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'generalisierbarkeit');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/implementation/sqlite-vec.md'), 'tools');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/20-implementation/README.md',
   '20-implementation README',
   'active',
   '# 20 Implementation
+
 Praktische Anleitungen und How-Tos.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -3392,8 +4510,6 @@ Praktische Anleitungen und How-Tos.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/README.md'), 'readme');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/20-implementation/README.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/20-implementation/Salutation-Engine.md',
@@ -3435,7 +4551,6 @@ Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwi
 ---
 
 ## 🧠 Engine Architecture (The Core Three)
-
 
 | Modul | Rolle | Fokus-Technologie | Strategischer Vorteil |
 |-------|-------|-------------------|----------------------|
@@ -3524,46 +4639,71 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ### 1. Textverarbeitung & Formatierung
 
 #### Testfall 1: Plaintext-Paste-Filter
+
 *   **Ausgangssituation:** Das Feld „Brieftext“ (`#brieftext`) ist leer oder befüllt.
+
 *   **Aktion:** Einen formatierten Text kopieren und einfügen.
+
 *   **Erwartetes Ergebnis:** Bedingungslose Befreiung von Formatierungen, Farben, fremden Schriften und Links. Reiner Plaintext.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 2: Plaintext-Drag-and-Drop-Filter
+
 *   **Ausgangssituation:** Das Feld „Brieftext“ (`#brieftext`) ist aktiv.
+
 *   **Aktion:** Formatierten Text via Drag-and-Drop in das Feld ziehen.
+
 *   **Erwartetes Ergebnis:** Reiner Text, alle Format-Reste rückstandslos entfernt.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 3: WhatsApp-Style Selection Popover Toolbar
+
 *   **Ausgangssituation:** Der Brieftext enthält Text.
+
 *   **Aktion:** Text markieren. Auf B (Fett) oder U (Unterstrichen) klicken. Erneut markieren.
+
 *   **Erwartetes Ergebnis:** Toolbar schwebt im Top-Layer. Buttons leuchten auf bei aktivem Status.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 4: Blockquote-Toggling (Range API Unwrap)
+
 *   **Ausgangssituation:** Ein Absatz im Brieftext ist markiert.
+
 *   **Aktion:** Zitat-Symbol klicken. Erneut klicken.
+
 *   **Erwartetes Ergebnis:** Zitat wird zum `<blockquote>`. Beim zweiten Klick wird der `<blockquote>`-Tag sicher entfernt, der Text bleibt als normaler Fließtext erhalten (Unwrap ohne Textverdopplung).
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 13: Keyboard-only Bedienung der Toolbar
+
 *   **Ausgangssituation:** Der Brieftext ist aktiv.
+
 *   **Aktion:** Text mit Umschalt+Pfeiltasten markieren, Toolbar muss per Tabulator/Tastatur-Shortcuts nutzbar sein.
+
 *   **Erwartetes Ergebnis:** Barrierefreie Nutzung ohne Maus möglich.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
@@ -3573,33 +4713,49 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ### 2. Layout & Interaktion
 
 #### Testfall 5: Toast-Notification Queue (Stacking-Schutz)
+
 *   **Aktion:** 5- bis 10-mal sehr schnell auf Sidebar-Buttons klicken.
+
 *   **Erwartetes Ergebnis:** Kein hässliches Übereinanderstapeln. Meldungen erscheinen sauber nacheinander.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 10: A4-Überlaufwarnung **[Prio 1]**
+
 *   **Aktion:** Viel Text einfügen, bis das Seitenende berührt wird.
+
 *   **Erwartetes Ergebnis:** Gestrichelter roter Rahmen, Warn-Badge, Toast-Meldung.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 11: Sehr langer Betreff (Überlauf) **[Prio 1]**
+
 *   **Aktion:** Betreff über 2 Zeilen füllen und Enter drücken.
+
 *   **Erwartetes Ergebnis:** Blockiert Eingabe, roter Warnrahmen bei Zeile 3.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 14: Form A vs Form B Wechsel mit Inhalt
+
 *   **Aktion:** Brief füllen, dann in Sidebar Form wechseln.
+
 *   **Erwartetes Ergebnis:** Inhalt bleibt exakt erhalten, Positionen (Falzmarken, Fenster) wechseln nahtlos per CSS-Variable.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
@@ -3609,41 +4765,61 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 ### 3. Schriften & APIs
 
 #### Testfall 6: Schriftarten-Wechsel (System Stacks)
+
 *   **Aktion:** Zwischen Sans, Serif, Mono wechseln.
+
 *   **Erwartetes Ergebnis:** Schriftart des gesamten Briefs ändert sich synchron.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 7: WOFF2-Uploader
+
 *   **Aktion:** Lokale Schrift hochladen, F5 drücken.
+
 *   **Erwartetes Ergebnis:** Schrift wird sofort angewendet und überlebt einen Reload via Base64 LocalStorage.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 8: Dual-Provider Adress-Autocomplete **[Prio 1]**
+
 *   **Aktion:** API testen, Keys eintragen.
+
 *   **Erwartetes Ergebnis:** Wechsel funktioniert, fehlender Key blockiert Suche sauber.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 9: PLZ-Proximity-Biasing & Zippopotam
+
 *   **Aktion:** Absender-PLZ eintragen und dann Empfänger suchen.
+
 *   **Erwartetes Ergebnis:** Lokale Adressen werden präferiert; Zippopotam löst PLZ korrekt auf.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |
 
 #### Testfall 12: Sonderzeichen in Adresse
+
 *   **Aktion:** Adresse mit Umlauten (ä,ö,ü) und "ß" in die Suche eingeben.
+
 *   **Erwartetes Ergebnis:** Adress-API verarbeitet und rendert Sonderzeichen korrekt im DOM ohne Encoding-Fehler.
+
 *   **Status:**
+
     | Status | Getestet am | Tester | Ergebnis |
     | :--- | :--- | :--- | :--- |
     | ⏳ Offen | - | - | - |',
@@ -3666,33 +4842,44 @@ Es soll neuen Agenten (und Entwicklern) helfen, die Gründe hinter dem strengen 
 
 ---
 
-## 1. Warum kein React, Vue oder Svelte?
 **Die Ausgangslage:** Moderne Frontend-Entwicklung nutzt fast ausschließlich reaktive Frameworks, da sie State-Management und Komponenten-Architekturen vereinfachen.
 **Das Problem:**
-- **Kurzlebigkeit:** Framework-APIs (z.B. React Hooks vs. Class Components) ändern sich alle paar Jahre.
+
 - **Abhängigkeiten:** Tausende npm-Pakete werden benötigt. Eines veraltet, und das Projekt bricht beim Build.
+
 - **Komplexität beim Drucken:** Virtuelle DOMs (VDOM) machen es extrem schwer, die Millimeter-Präzision für den Druck (PDF via Browser) zu kontrollieren, da der echte DOM asynchron aktualisiert wird.
+
 **Die Lösung:** Wir nutzen **Vanilla JS + Web Components** (Custom Elements). Die nativen Schnittstellen des Browsers bleiben stabil (Rückwärtskompatibilität des Webs).
 
 ## 2. Warum LocalStorage statt OPFS (Origin Private File System)?
+
 **Die Ausgangslage:** Das OPFS gilt als die moderne, performante Lösung für Dateioperationen im Browser.
 **Das Problem:** 
+
 - OPFS ist stark an **Origin-Sicherheitskonzepte (CORS/HTTPS)** gebunden. 
+
 - Da das oberste Ziel von DIN-Brief NEO ist, **100% offline aus dem `file:///` Protokoll** heraus ausführbar zu sein (für maximale Privatsphäre und Dauerhaftigkeit), schlagen OPFS-Aufrufe ohne lokalen Webserver oft fehl oder werfen Security Errors.
+
 **Die Lösung:** `localStorage` funktioniert selbst beim Doppelklick auf die `.html` Datei auf der lokalen Festplatte. Es ist synchron, überall unterstützt und völlig ausreichend für Textdokumente.
 
 ## 3. Warum wir so streng geworden sind (Der "Immutable Law Catalog")
+
 **Die Ausgangslage:** In frühen Versionen (v4.8 und früher) durften LLMs relativ frei entscheiden, wie sie Features implementieren. 
 **Das Problem:** 
-- Jeder Agent brachte seine eigenen Präferenzen mit (Agent A nutzte `innerHTML`, Agent B nutzte externe CDNs für Icons, Agent C fügte ein Build-Tool hinzu). 
+
 - Das Projekt verlor seine Kernidentität und die "Zero-Dependency" Regel wurde schleichend gebrochen.
+
 **Die Lösung:** Die Einführung eines extrem strengen, nicht verhandelbaren Regelwerks (der Immutable Law Catalog) und der **Evolutionary Fitness Score**. Agenten werden programmatisch gezwungen (`.\start.ps1`), sich an die Vanilla-JS und Privacy-First-Regeln zu halten. 
 
 ## 4. Warum kein Tailwind CSS?
+
 **Die Ausgangslage:** Tailwind ist Branchenstandard für schnelles Styling.
 **Das Problem:**
+
 - Tailwind erfordert einen Build-Step (PostCSS), um nicht gebrauchte Klassen herauszufiltern.
+
 - Die Klassen überschwemmen den DOM, was spätere DOM-Auswertungen (z.B. durch LLMs oder für PDF-Generierung) erschwert.
+
 **Die Lösung:** Native CSS-Features sind mächtig genug. Mit **CSS `@layer`** für Kapselung, **Container Queries (`@container`)** für relative Skalierung auf dem A4-Blatt und **CSS Variables (`--var`)** bauen wir ein sauberes, rein semantisches Layout ohne Build-Tool.
 
 ---
@@ -3704,10 +4891,6 @@ Es soll neuen Agenten (und Entwicklern) helfen, die Gründe hinter dem strengen 
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/Architecture-Evolution.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/Architecture-Evolution.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/Architecture-Evolution.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/Architecture-Evolution.md'), 'architecture');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/CHANGELOG.md',
@@ -3725,51 +4908,81 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 ## [15.0.0] - 2026-05-27
 
 ### Added
+
 *   **CSS Anchor Positioning:** Vollständige Umstellung des Adress-Vorschlags-Dropdowns (`#address-suggestions`) auf die native W3C CSS Anchor Positioning API im Stylesheet (`layout.css`). Es koppelt sich nun absolut ruckelfrei und performant an das Eingabefeld (`#input-address-search`) und nutzt `position-area: bottom span-x` mit automatischer Umklappung (`flip-block`).
+
 *   **CSS View Transitions API:** Kapselung aller Benutzer-initiierten Layout-Wechsel (Form A / Form B) und Farbschema-Wechsel (Hell / Dunkel / Auto) in `document.startViewTransition()` für butterweiche, hardwarebeschleunigte und native Seitenüberblendungen direkt über die Browser-Engine.
+
 *   **CSS @starting-style & Discrete Transitions:** Umstellung der WhatsApp-Style Auswahl-Toolbar (`#format-toolbar`) und des Toast-Feedbacks (`#toast-v4`) auf native CSS discrete transitions unter Verwendung von `transition-behavior: allow-discrete` und `@starting-style` in `floating.css`. 
+
 *   **CSS @property & Guides-Fading:** Registrierung der CSS-Variablen `--guide-opacity` als Typ `<number>` in `variables.css` und Aktivierung einer flüssigen Transition auf `:root`. Hilfslinien blenden sich nun absolut stufenlos ein und aus.
+
 *   **CSS Relative Color Syntax (RCS):** Dynamische Farbberechnung für `--accent-glow`, `--accent-hover`, `--danger-hover` und die Hilfslinien-Farbe (`--guide-color`) direkt im CSS abgeleitet von ihren Basisfarben im OKLCH-Farbraum. Die Hilfslinien nutzen nun eine triadisch verschobene 120-Grad-Farbton-Formel für automatischen, perfekt harmonisierten Kontrast.
+
 *   **CSS interpolate-size (height: auto Transitions):** Globale Deklaration von `interpolate-size: allow-keywords` auf `:root` in `variables.css`. Umstellung des API-Key-Eingabebereichs (`#geoapify-key-container`) auf native Höhen- und Deckkraft-Übergänge zwischen `height: 0` und `height: auto` in `layout.css`.
+
 *   **W3C Temporal API Datum-Autobefüllung:** Nativer Einsatz der ultra-modernen W3C Temporal API (`Temporal.Now.plainDateISO()`) zur vollautomatischen Befüllung des Datum-Textfeldes (`#datum`) in DIN-5008-konformem deutschem Format beim ersten Systemstart.
+
 *   **CSS @scope Isolation & Nesting:** Deklarative Kapselung aller physischen Briefbogen-Stile (`din-a4` und Nachfahren) über `@scope (din-a4)` in `layout.css`. Schützt die Briefgeometrie vollständig vor globalen Kollisionen.
-*   **Ausschließliches OKLCH-Farbmandat:** Kompromisslose Umstellung sämtlicher Stylesheets und inline-Styles (HEX `#HEX`, RGB, RGBA, named colors) auf den modernen, wahrnehmungslinearen OKLCH-Farbraum (`oklch()`).
+
 *   **Reaktive :has() Fokusierung:** Einsatz des Parent Selectors `:has()` in `layout.css` zur automatischen Verstärkung des Ambient Glows auf dem Briefbogen, sobald ein editierbares Feld fokussiert wird.
 
 ### Changed
 
 *   **Entscheidungs-Log:** Die Entscheidungen für CSS Anchor Positioning, View Transitions, Discrete Transitions, @property, Relative Color Syntax, interpolate-size, Temporal API, `@scope` und OKLCH-Farbmandat in `ADR-CSS.md`, `ADR-JS.md`, `ADR-FEATURE.md`, `ADR-ANTIPATTERN.md` und `DECISION-LOG.md` dokumentiert.
+
 *   **Strikter Legacy-Date- & Farb-Ban:** Offizielle Ächtung von klassischem `new Date()`, externen Datums-Bibliotheken sowie allen klassischen Farbräumen (HEX, RGB, HSL) in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md`.
+
 *   **Proaktive Antipattern-Verfassung:** Ausweitung der Verbote um 5 neue Regeln (Ausschluss von CSS-Präprozessoren, Icon-CDNs, JS-Hilfsbibliotheken/TypeScript, JS-Animationsbibliotheken und gestalterischen Inline-Styles) in `ADR-ANTIPATTERN.md` und `MASTER-DO-DONT-DEPRECATED.md` zum dauerhaften Schutz der Build-freien Offline-Architektur.
+
 *   **JS-Bereinigungs-Dokumentation:** Ausführliche Architekturkommentare wurden in `main.js` (`renderSuggestions`, `processToastQueue`, `applySettings`, `applyProviderUIState` und `loadDraftData`) integriert, um den bewussten Verzicht auf JavaScript-Positions-, Keyframe-, Kontrast-, Fading-, Größen-Animations- und legacy Datums-Steuerungen zugunsten nativer W3C-Standards zu dokumentieren.
+
 *   **Toast-Queue Vereinfachung:** Entfernung von obsoleten `@keyframes` aus `floating.css` und Vereinfachung des JS-Toast-Lifecycles in `main.js` (Ersatz von fehleranfälligen `animationend`-Listenern durch eine native, CSS-gesteuerte Austritts-Animation).
+
 *   **API-Key-Steuerung:** Entfernung von unschönen inline-Styles in `index.html` und Ablösung von manuellen JavaScript-Größen-Animationsversuchen durch einfaches `.classList` Toggling.
-
-
 
 ## [Unreleased] - 2026-05-25
 
 ### Added
+
 *   **Datenbank-Architektur:** Spezifikation der LLM-first SQLite-Dokumenten-Datenbank in **[../40-tooling/README-DB.md](../40-tooling/README-DB.md)** verankert.
+
 *   **Datenbank-Compiler:** Das zero-dependency Node.js-Skript `build_db.js` zur vollautomatischen Generierung der SQLite-Datenbank aus den Markdown-Dateien angelegt.
+
 *   **GitHub-Automatisierung:** Die Workflow-Vorlage `github_action_workflow.txt` für die vollautomatische Datenbank-Aktualisierung bei jedem Push erstellt.
+
 *   **Entwicklerbereich:** Die Diagnose-Ansicht und Feature-Erkennungs-Matrix **[DEV-INFO.md](DEV-INFO.md)** zur Validierung von 25 absoluten Bleeding-Edge-Features der Web-Plattform angelegt und das Easter-Egg High-Integrity Dev-Panel (Feature 11) spezifiziert.
+
 *   **Mermaid-Diagramme:** Visuelle Systemarchitektur und Spec-Kit-Lifecycle in `README.md` eingebettet.
+
 *   **Zustandsdiagramm:** Toast-Queue-Lifecycle in `ADR-FEATURE.md` verankert.
+
 *   **Netzwerkdiagramm:** Asynchroner Ablauf des Dual-Provider Adressdienstes in `ADR-API.md` integriert.
+
 *   **YAML Frontmatter:** Obsidian- und KI-kompatible Metadaten-Blöcke an den Anfang aller 7 ADR-Dateien gestellt.
+
 *   **Guides:** Das zentrale Fachbegriff-Glossar **[glossary.md](../20-implementation/glossary.md)** mit integrierten CSS-Container-Skizzen angelegt.
+
 *   **Guides:** Der interaktive manuelle QA-Testleitfaden **[testing-guide.md](../20-implementation/testing-guide.md)** für alle Baseline-Features 1 bis 6 erstellt.
+
 *   **Entscheidungs-Log:** Das chronologische Logbuch **[DECISION-LOG.md](DECISION-LOG.md)** zur historischen Nachverfolgbarkeit aller Systementscheidungen angelegt.
+
 *   **Maschinen-Index:** Die Datei **[index.json](../../build/index.json)** als maschinenlesbarer Index aller Dokumente angelegt.
 
 ### Changed
+
 *   **README.md:** Zum zentralen Master-Portal und Dokumenten-Wegweiser ausgebaut und Links zu den neuen Guides `DEV-INFO.md` und `../40-tooling/README-DB.md` unter den Status & Spezifikationen ergänzt.
+
 *   **index.json:** Um Metadaten-Einträge für `DEV-INFO.md` und `../40-tooling/README-DB.md` erweitert.
+
 *   **DECISION-LOG.md:** Neue architektonische Entscheidungen zur Feature-Prüfungs-Matrix, zum Easter-Egg Popover-Dashboard und zur LLM-first SQLite-Architektur dokumentiert.
+
 *   **longevity-guidelines.md:** Pfadkorrekturen der ADR-Links auf relative `../ADR/`-Pfade korrigiert und plattformübergreifende CSS-Anchor-Positioning Warnungen integriert.
+
 *   **spec.md:** Phase 3 Zukunftsplanung um Spezifikation für Easter-Egg High-Integrity Dev-Panel (Feature 11) erweitert.
+
 *   **tasks.md & task.md:** Planungs-Checklisten bereinigt und an den rein dokumentationsfokussierten Baseline-Stand angepasst.
+
 *   **ADR-HTML/CSS/JS/API/FEATURE/ANTIPATTERN/TECH-STACK.md:** Verlinkungen zur unbiegsamen Verfassung `longevity-guidelines.md` in den Verknüpfungs-Abschnitten bidirektional verankert.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -3777,9 +4990,6 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/CHANGELOG.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/CHANGELOG.md'), 'changelog');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/CHANGELOG.md'), 'history');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/DECISION-LOG.md',
@@ -3794,276 +5004,412 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 ## 📅 Chronologie der Entscheidungen
 
 ### 2026-05-24 – Longevity-Verfassung deklariert
+
 *   **Entscheidung:** Etablierung des unbiegsamen W3C-Standard-Manifests und der 5 Säulen der Langlebigkeit (Zero-Dependency-Pakt, 100% Offline-Autarkie, W3C-Living-Standards, Build-Tool-Immunität, LocalStorage-Sovereignty).
+
 *   **Grund:** Sicherung einer wartungsfreien Überlebensdauer des Briefbogen-Editors von 10+ Jahren bei lokaler Ausführung.
+
 *   **Quelle:** [[longevity-guidelines|longevity-guidelines.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – Thematische ADR-Struktur eingeführt
+
 *   **Entscheidung:** Aufteilung der Architektur-Entscheidungen in sieben hochgradig modulare, thematisch sortierte Dokumente (HTML, CSS, JS, API, Antipattern, Feature, Tech-Stack) mit gegenseitiger bidirektionaler Verknüpfung.
+
 *   **Grund:** Bessere Übersichtlichkeit, Vermeidung eines unlesbaren Riesen-Dokuments, hervorragende Maschinenlesbarkeit für LLMs.
+
 *   **Quelle:** Ordner `[ADR/](../10-architecture/ADR/)`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – Next-Level-Visualisierungen & Lifecycles
+
 *   **Entscheidung:** Integration standardisierter Mermaid-Flussdiagramme in README, Features und APIs zur visuellen Aufbereitung des Spec-Kit-Lifecycles und der Datenströme.
+
 *   **Grund:** Sofortiges, visuelles Erfassen komplexer Zusammenhänge für menschliche Entwickler und diagrammfähige LLMs.
+
 *   **Quelle:** [[README|README.md]], [[ADR-FEATURE|ADR-FEATURE.md]], [[ADR-API|ADR-API.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – Proportionaler CSS-Zoom statt ResizeObserver
+
 *   **Entscheidung:** Der DIN A4 Bogen wird rein CSS-basiert über `height: 94vh`, `aspect-ratio: 210/297` und Container Queries (`cqw`/`cqh`) skaliert.
+
 *   **Grund:** Vermeidung jeglichen JavaScript-Berechnungsoverheads, Beseitigung von ResizeObserver-Schleifen, perfekte Skalierungs-Sicherheit auf allen Displays.
+
 *   **Quelle:** [[ADR-CSS|ADR-CSS.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – LocalStorage statt OPFS/IndexedDB
+
 *   **Entscheidung:** Persistent Auto-Save wird ausschließlich über die synchrone `localStorage` API abgewickelt. OPFS und IndexedDB werden explizit auf die Antipattern-Liste gesetzt.
+
 *   **Grund:** OPFS, IndexedDB und File System Access APIs werfen im lokalen Doppelklick-Sicherheitskontext (`file:///`) schwerwiegende CORS-Exceptions. LocalStorage ist die einzig verlässliche Option für serverlose Offline-Apps.
+
 *   **Quelle:** [[ADR-JS|ADR-JS.md]], [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – API-Header-Security & AbortController
+
 *   **Entscheidung:** Geoapify API-Schlüssel werden ausschließlich über HTTP-Header `X-Api-Key` übermittelt. Laufende Anfragen werden bei neuen Tastenanschlägen via `AbortController` abgebrochen.
+
 *   **Grund:** Schutz der API-Keys vor dem Leaken in Logfiles (Verhinderung von URL-Exponierung). Schutz der Anwendung vor Race Conditions bei schnellem Tippen.
+
 *   **Quelle:** [[ADR-API|ADR-API.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – Selection & Range API statt execCommand
+
 *   **Entscheidung:** Textformatierungen im Briefkern werden rein über die native Selection & Range API und DOM-Manipulationen gelöst. `document.execCommand` wird strikt verboten.
+
 *   **Grund:** `execCommand` ist veraltet (*deprecated*) und wird schrittweise aus modernen Browser-Engines entfernt. Wir nutzen zukunftssichere Standard-APIs.
+
 *   **Quelle:** [[ADR-JS|ADR-JS.md]], [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – YAML Frontmatter & JSON-Index
+
 *   **Entscheidung:** Ausstatten aller Architektur-Dateien mit standardisiertem YAML Frontmatter und Anlage eines zentralen Maschinen-Index `index.json`.
+
 *   **Grund:** Ermöglicht die automatische, blitzschnelle Indexierung des gesamten Repositories für Obsidian-Notes und AI-LLM-Ingestion mit einem einzigen Lesevorgang.
+
 *   **Quelle:** [ADR/](../10-architecture/ADR/), [index.json](../../build/index.json)
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – Etablierung des Entwicklerbereichs & Feature-Prüfung (DEV-INFO.md)
+
 *   **Entscheidung:** Schaffung einer dedizierten Diagnose-Referenz `DEV-INFO.md` zur systematischen Erkennung von 14 W3C-Living-Standards und experimentellen Features auf Basis von `check_readiness.js`.
+
 *   **Grund:** Bietet vollständige Transparenz über den Reifegrad modernster Web-APIs in der Chrome 147/148/149+ Zielumgebung und liefert ein robustes, kopierbares F12-Konsole-Skript.
+
 *   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [index.json](../../build/index.json)
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-24 – Massive Expansion des Diagnose-Guides & Easter-Egg Panel Spezifikation
+
 *   **Entscheidung:** Erweiterung der Feature-Matrix in `DEV-INFO.md` von 14 auf 25 absolute Bleeding-Edge-Features der Web-Plattform und Spezifizierung eines 3-Klick-Easter-Eggs mit einem nativen HTML5 Popover-Overlay im Dokument `spec.md` (Feature 11).
+
 *   **Grund:** Reaktion auf die exzellenten Browser-Testergebnisse des Benutzers (Chrome 148+), die unerwartet breite Unterstützung modernster Standards zeigen. Ermöglicht maximale JS-Einsparungen durch Nutzung nativer HTML5/CSS-Mechanismen (z. B. Popover API) für das zukünftige Entwickler-Dashboard.
+
 *   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [[spec|spec.md]]
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-25 – Einführung der LLM-First SQLite-Datenbank-Architektur & README-DB.md
+
 *   **Entscheidung:** Etablierung eines serverlosen Hybrid-Datenbankmodells zur KI-optimierten Aufbereitung des gesamten Projektwissens. Die Markdown-Dateien bleiben die Quell-Ebenen (Git-Master), während eine SQLite-Datenbank `docs.db` automatisch über ein Node.js-Kompilierskript `build_db.js` generiert und über einen Model Context Protocol (MCP) Server bereitgestellt wird. Spezifizierung der Architektur im Dokument `README-DB.md`.
+
 *   **Grund:** Beseitigt Token-Engpässe, überwindet fehlende Indexierungsstrukturen unstrukturierter Verzeichnisse und befähigt KIs (z. B. Claude via Desktop-MCP), relationale, hocheffiziente Suchen (inkl. FTS5-Volltextsuche) auf der Doku auszuführen, anstatt ganze Dateien einlesen zu müssen.
+
 *   **Quelle:** [[README-DB|README-DB.md]], [index.json](../../build/index.json), `build_db.js`, `github_action_workflow.txt`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 1: CSS Anchor Positioning für Adress-Vorschläge
+
 *   **Entscheidung:** Ablösung aller manuellen JavaScript-basierten Positions- und Breitenberechnungen für das Adress-Autocomplete-Dropdown `#address-suggestions` zugunsten der W3C CSS Anchor Positioning API unter Verwendung der standardisierten `position-area: bottom span-x` Syntax.
+
 *   **Grund:** Reduziert die Codekomplexität in `main.js` signifikant, überlässt die exakte Layoutplatzierung nativ der Browser-Engine auf Grafikkarten-Ebene und eliminiert Layout-Ruckeln oder asynchrone Offsets vollständig.
+
 *   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `layout.css`, `main.js`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 2: CSS View Transitions API für flüssige Layout- & Theme-Wechsel
+
 *   **Entscheidung:** Kapselung aller UI-Layoutänderungen (Form A / Form B) und Theme-Umschaltungen (Hell / Dunkel / Auto) in der modernen W3C View Transitions API (`document.startViewTransition()`).
+
 *   **Grund:** Ermöglicht hardwarebeschleunigte, vollautomatische und optisch ansprechende Übergänge direkt über die Rendering-Engine des Browsers, ohne dass aufwändige CSS-Klassen oder zeitgesteuerte JavaScript-Fade-Operationen geschrieben werden müssen.
+
 *   **Quelle:** [[ADR-JS|ADR-JS.md]], `main.js`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 3: CSS @starting-style & Discrete Transitions für Popovers
+
 *   **Entscheidung:** Umstellung des Toast-Feedbacks (`#toast-v4`) und der Auswahl-Toolbar (`#format-toolbar`) auf native CSS discrete transitions unter Verwendung von `@starting-style` und `transition-behavior: allow-discrete` (für `display` und `overlay` Eigenschaften).
+
 *   **Grund:** Beseitigt komplexe `@keyframes` Animationen und macht das fehleranfällige JavaScript-seitige Lauschen auf `animationend`-Events sowie manuelle Transition-Klassen komplett überflüssig. JavaScript übernimmt rein die Statuskontrolle des Popovers, während der Browser Ein- und Ausblendungen flüssig steuert.
+
 *   **Quelle:** [[ADR-FEATURE|ADR-FEATURE.md]], `floating.css`, `main.js`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 4: CSS @property & Guides-Fading
+
 *   **Entscheidung:** Registrierung der CSS-Custom-Property `--guide-opacity` als Typ `<number>` im CSS und Implementierung einer flüssigen Transition auf `:root`.
+
 *   **Grund:** Beseitigt jegliche JavaScript-Animationsschleifen oder Intervalle zum Ein-/Ausblenden der Hilfslinien. Der Browser interpoliert den Opacity-Übergang von `0.15` auf `0` vollkommen selbstständig und hardwarebeschleunigt auf GPU-Ebene, sobald JS den Variablenwert ändert.
+
 *   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `variables.css`, `main.js`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 5: CSS Relative Color Syntax (RCS)
+
 *   **Entscheidung:** Umstellung aller funktionalen, abgeleiteten Farbtöne (z. B. `--accent-glow`, `--danger-hover` und `--guide-color`) auf die native W3C Relative Color Syntax (RCS) im OKLCH-Farbraum.
+
 *   **Grund:** Beseitigt statische Farbwert-Kopien und das JavaScript-seitige Errechnen von Farbkontrasten. Der Browser berechnet harmonische Schattierungen (z. B. 120-Grad-Farbwinkelverschiebung für kontrastreiche, aber perfekt harmonisierte Hilfslinien) völlig eigenständig. Das Farbschema bleibt dadurch mathematisch perfekt konsistent bei jeglichem Akzentfarbenwechsel.
+
 *   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `variables.css`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 6: CSS interpolate-size für native Auto-Maß-Animationen
+
 *   **Entscheidung:** Globale Deklaration von `interpolate-size: allow-keywords` auf `:root` und Umstellung des API-Key-Eingabebereichs (`#geoapify-key-container`) auf native Höhen- und Deckkraft-Transitionen zwischen `height: 0` und `height: auto` unter Verwendung von CSS-Klassentoggles.
+
 *   **Grund:** Eliminiert alle JavaScript-Hacks, Intervalle oder `max-height`-Tricks zum Auf- und Zuklappen von Oberflächenmodulen. JavaScript steuert ausschließlich die Statusklasse (`.active`), während die Browser-Renderengine den stufenlosen Größenübergang performant auf GPU-Ebene berechnet.
+
 *   **Quelle:** [[ADR-CSS|ADR-CSS.md]], `layout.css`, `main.js`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-05-27 – Schritt 7: JS Temporal API Mandat & Datum-Autobefüllung
+
 *   **Entscheidung:** Strikter Ausschluss des klassischen JS `Date`-Objekts und externer Datumsbibliotheken (Prohibitiv-Eintrag in `ADR-ANTIPATTERN.md`). Einführung der W3C **Temporal API** (`Temporal.Now.plainDateISO()`) zur vollautomatischen Befüllung des Datumsfeldes (`#datum`) in DIN-5008-konformem deutschem Format beim ersten Laden.
+
 *   **Grund:** Beseitigt fehleranfälliges Datums-Parsing, Mutability-Risiken und CDNs. Die Temporal API liefert unveränderliche, normative und zeitzonensichere Datumsarithmetik direkt im Browser.
+
 *   **Quelle:** [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]], `main.js`
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Korrektur + Platzierung: AGENTS.md im korrekten Root (Obsidian_Main) + Verhaltensvertrag für KI-Agenten
+
 *   **Entscheidung:** AGENTS.md mit dem bereitgestellten Testballon-Vertrag wurde zunächst versehentlich im duplizierten Baum unter `Other_Projects\DIN-Brief Neo` angelegt (mit neuerarbeitsordner). Korrigiert und neu platziert direkt im aktiven Root: `Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\AGENTS.md`. Zusätzlich Eintrag in diesem DECISION-LOG und Pointer im aktueller_arbeitsordner/README.md hinzugefügt. Pre- und Post-Build mit vollem Reconciliation & Fitness Check (100 %) durchgeführt.
+
 *   **Grund:** Der echte aktive Arbeitsordner (`aktueller_arbeitsordner/`, mit reconciliation.js, log_session.js, vollem Fitness-Score etc.) liegt hier unter Obsidian_Main, direkt neben der generischen llm_boilerplate. Der Other_Projects-Ordner war eine ältere Kopie. Der Vertrag macht Reconciliation Loop, 100% Fitness, Pre/Post-Builds, Session-Logging und Generalisierbarkeits-Priorisierung verbindlich und positioniert DIN-Brief Neo explizit als Testballon.
+
 *   **Quelle:** User-Korrektur-Hinweis (korrekter Pfad), genehmigter Plan, lokale tools/build_db.js + reconciliation (Fitness 100%), aktueller_arbeitsordner/tools/log_session.js
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – AGENTS.md massiv geschärft (Verhaltensvertrag v2)
+
 *   **Entscheidung:** Die ursprüngliche AGENTS.md wurde auf Basis detaillierten User-Feedbacks deutlich nachgeschärft: harte "MUSS" / "DARF NICHT"-Sprache statt weicher "sollst", Workflow mit expliziten Triggern ("vor jeder relevanten Änderung"), Generalisierungs-Pflicht als eigene zentrale Kernregel mit ADR/Migrationspfad-Anforderung, Logging-Befehl realistisch an die aktuelle Struktur (`aktueller_arbeitsordner/tools/log_session.js`) angepasst, Dokument kürzer, direkter und weniger erklärend gehalten. Zusätzlich Referenzen zu reconciliation.js, Fitness-Score-Output und boilerplate-Mustern ergänzt.
+
 *   **Grund:** Die erste Version war als Entwurf brauchbar, aber als bindender Vertrag für Grok Build und zukünftige Agenten zu weich, vage und zu lang. Schärfere Formulierung stellt sicher, dass Regeln nicht weich interpretiert werden können. Pre- und Post-Build mit 100% Fitness Score durchgeführt.
+
 *   **Quelle:** User-Feedback (Kritikpunkte zu Sprache, Workflow, Logging-Pfad, Generalisierbarkeit), aktuelle AGENTS.md, lokale tools (build_db.js + reconciliation, log_session.js)
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – AGENTS.md finale polierte Version
+
 *   **Entscheidung:** Letzte Feinschliff-Version der AGENTS.md: Logging-Pfad mit explizitem Hinweis auf den aktuellen Stand (Datei liegt in `aktueller_arbeitsordner/tools/`, Fallback auf `../llm_boilerplate/tools/` falls temporär nicht vorhanden) ergänzt. Zusammenfassung am Ende knackiger und bündiger formuliert. Konsequenzen bei Vertragsverletzung noch deutlicher gemacht ("Vertragsverletzung = Änderung wird abgelehnt. Punkt."). Pre- und Post-Build mit 100% Fitness Score.
+
 *   **Grund:** Praktische Umsetzbarkeit verbessern (realistischer Logging-Befehl) und die Verbindlichkeit noch einmal unterstreichen, bevor Grok Build vollständig unter diesem Vertrag arbeitet.
+
 *   **Quelle:** User-Feedback zur finalen Version, aktuelle AGENTS.md, lokale tools (build_db.js + reconciliation + log_session.js)
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – AGENTS.md finale optimierte Version (User-Feedback Iteration)
+
 *   **Entscheidung:** Vollständig überarbeitete finale Version mit folgenden Verbesserungen: Kurze harte "Core Rules"-Zusammenfassung (TL;DR) ganz oben, Logging-Abschnitt praktikabel gemacht mit klarem Hinweis auf aktuellen Stand + Fallback auf llm_boilerplate, Generalisierungs-Pflicht noch präziser (bei jedem Feature/Regel + explizite Vorschlagspflicht), Sprache überall auf "muss / darf nicht / ist verboten" verschärft, explizite Erwähnung von constitution.md + MASTER-DO-DONT-DEPRECATED.md als zu respektierende Quellen, klarer Eskalationsmechanismus bei wiederholten Verstößen, kurzer Abschnitt zur Beziehung DIN-Brief Neo ↔ llm_boilerplate (kopieren vs. referenzieren), Regelung für Änderungen an AGENTS.md selbst hinzugefügt. Pre- und Post-Build mit 100% Fitness Score durchgeführt.
+
 *   **Grund:** Die vorherige Version war bereits gut, aber noch nicht optimal in Struktur (TL;DR fehlte), praktischer Umsetzbarkeit (Logging) und Präzision einzelner Formulierungen. Ziel: maximale Eignung für Grok Build und den Testballon-Use-Case.
+
 *   **Quelle:** Detailliertes User-Feedback (Struktur, Logging-Schwachstelle, Generalisierungs-Pflicht, fehlende Themen, Konsequenzen), aktuelle AGENTS.md, lokale tools (build_db.js + reconciliation + log_session.js)
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Layered Antipatterns + Migrations-Roadmap für Boilerplate-Extraktion
+
 *   **Entscheidung:** Einführung der vom User empfohlenen Struktur unter `aktueller_arbeitsordner/tools/antipatterns/{base.json, web.json, project.json}` (statt flachem antipatterns.json). Regeln migriert und geschichtet (DIN-spezifische Exemptions in project.json). `boilerplate.config.json` angelegt. `reconciliation.js` auf layered Loading mit ID-basiertem Merge umgestellt (project überschreibt web/base korrekt, inkl. Exemptions). Zusätzlich `MIGRATION-ROADMAP-TO-BOILERPLATE.md` mit priorisierter Schritt-für-Schritt-Roadmap erstellt (Phase 1: Layered Antipatterns, Phase 2: Tools generisch, Phase 3: Doku, Phase 4: Extraktion). Pre/Post-Builds durchgeführt (Fitness nach Override-Fix wieder 100%).
+
 *   **Grund:** Ermöglicht später saubere, mechanische Extraktion der generischen Teile (base/web Rules + Tools) in die llm_boilerplate mit minimalem manuellem Aufräumen. Entspricht direkt der Generalisierungs-Pflicht aus AGENTS.md (jede Lösung auf Generalisierbarkeit prüfen und aktiv überführen). Klare Trennung project.json als "Mülleimer" für DIN-spezifisches.
+
 *   **Quelle:** User-Vorschlag zur Ordnerstruktur + Roadmap, aktuelle llm_boilerplate/tools/antipatterns/ als Referenz, DIN flat antipatterns.json + reconciliation.js, AGENTS.md Core Rules.
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Hybrid Spec-Driven Workflow Integration (spec-kit + our strengths)
+
 *   **Entscheidung:** Adopted useful elements from GitHub spec-kit into our system without adopting the whole thing: 
+
   - Created `aktueller_arbeitsordner/.specify/` (hidden, for agent-specific artifacts like constitution reference and templates – highly extractable).
+
   - Created `specs/` with numbered structure (001-hybrid-workflow-integration/spec.md as first example) for traceability.
+
   - Created `HYBRID-SPEC-DRIVEN-WORKFLOW.md` defining the combined process (spec-kit phases Constitution→Spec→Plan→Tasks→Implement + our mandatory Reconciliation/Fitness/Log/Generalisierungs gates at the end).
+
   - Added `.specify/templates/spec.md` and `.specify/constitution.md` (reference).
+
   - All changes followed Pre/Post build (100%), log_session, and this DECISION-LOG entry.
+
 *   **Grund:** spec-kit excels at lightweight, structured, agent-friendly workflow and organization. Our system is superior in quality enforcement and antifragility. Hybrid gives us the best of both for the Testballon goal (easy extraction of generic patterns to llm_boilerplate).
+
 *   **Quelle:** Detailed user comparison of spec-kit vs our DIN + Boilerplate system, AGENTS.md Generalisierungs-Pflicht and Core Rules, existing MIGRATION-ROADMAP.
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Light Mode vs Full Mode eingeführt (Vereinfachung zur Reduktion von Fehleranfälligkeit)
+
 *   **Entscheidung:** Gestuften Workflow in AGENTS.md und HYBRID-SPEC-DRIVEN-WORKFLOW.md etabliert: 
+
   - **Light Mode** (Default für die meisten Änderungen): Pre-Build → Änderung → Post-Build (muss 100% Fitness) → Loggen + kurzer (1-2 Sätze) Generalisierungs-Vermerk im DECISION-LOG.md. Kein zwingendes spec.md/plan/tasks.
+
   - **Full Mode** (nur für wichtige Features/Architektur/boilerplate-relevante Arbeit): Zusätzlich spec/plan/tasks Struktur + expliziter ausführlicher Generalisierungs-Check.
+
   - Core Rules (Builds vor/nach, 100% Score, Logging, Respektierung der Verfassung) gelten **immer**.
+
   - AGENTS.md um dedizierten Abschnitt "Light Mode vs Full Mode" erweitert (nach Core Rules) und Workflow-Sektion angepasst.
+
   - Pre/Post-Build 100%, mit log_session.js geloggt.
+
 *   **Grund:** Vereinfachung reduziert Einstiegshürde und Fehleranfälligkeit erheblich (weniger manuelle Schritte bei Alltags-Änderungen), ohne die Kernstärken (Reconciliation, Fitness Score, Generalisierungs-Pflicht, Audit) zu verlieren. 70-80% der Arbeit kann nun im leichten Modus laufen.
+
 *   **Quelle:** User-Feedback zur hohen Komplexität des Hybrid-Workflows, AGENTS.md Vertrag, vorherige Integration von spec-kit-Ideen.
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – start.ps1 hinzugefügt (einfache Ein-Klick Automatisierung für Light Mode)
+
 *   **Entscheidung:** Einfaches `start.ps1` Skript im Root von `aktueller_arbeitsordner` erstellt. Es:
+
   - Prüft Node.js
+
   - Wechselt automatisch ins korrekte Verzeichnis
+
   - Führt den vollen Build (Reconciliation + Fitness + DB) aus
+
   - Gibt klare Hinweise für Light Mode Nutzung
+
 *   **Grund:** Der größte aktuelle Pain Point war die manuelle Einrichtung und der "wo bin ich und was muss ich tippen"-Aufwand. Mit `.\start.ps1` wird der Light Mode Alltag extrem einfach (ein Befehl). Folgt strikt dem AGENTS.md Light Mode Prinzip und dem User-Wunsch nach automatischer Einrichtung.
+
 *   **Quelle:** User-Feedback ("einrichtung sollte einigermassen automatisch gehen... den rest soll sowieso die ki machen"), aktuelle Komplexitäts-Diskussion, vorheriger Status-Überblick.
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Phase 1 Ausarbeitung: Detaillierte Umsetzungsanleitung für sqlite-vec Integration
+
 *   **Entscheidung:** Umfassende, priorisierte Implementierungsanleitung für Phase 1 (Fundament stärken mit sqlite-vec) als `PHASE1-SQLITE-VEC-IMPLEMENTATION.md` im `aktueller_arbeitsordner/` abgelegt. Enthält exakte Arbeitspakete 1–6 mit konkreten Code-Snippets (Schema-Erweiterung, Content-Hash-Caching, Extension-Loading, Hybrid Search via RRF, Reconciliation-Check-Erweiterung, Dokumentation), Leitplanken, Risiken und nächsten Schritten. Folgt dem User-Vorschlag für pragmatische, fokussierte Phase 1 (keine neuen Visionen, nur das technische Fundament für Hybrid Search / Embedded Knowledge Graph).
+
 *   **Grund:** Der User bat explizit um eine "klare, konkrete Ausarbeitung für Phase 1" statt weiterer hoher Visionen. Die Datei dient als direkt ausführbare Anleitung für den nächsten technischen Schritt (Single-File SQLite + FTS5 + sqlite-vec + RRF), während Reconciliation/Fitness/Logging/Generalisierbarkeit erhalten bleiben. Pre/Post-Build 100% + Session-Log durchgeführt.
+
 *   **Quelle:** User-Message mit Phasen-Vorschlag + detaillierter Research (sqlite-vec statt Chroma etc.), aktuelle Projektstruktur (build_db.js, reconciliation.js, bestehende DB-Schema), AGENTS.md (Generalisierungs-Pflicht + Build-Gates).
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Archiv-Restrukturierung (vorsichtige, dokumentierte Variante des Aufräum-Auftrags)
+
 *   **Entscheidung:** Den vorgeschlagenen Aufräum-Auftrag in der vorsichtigen Variante ausgeführt (Restrukturieren + Dokumentieren statt Massenlöschung, wie in der Bewertung empfohlen). 
+
   - Archiv neu strukturiert in:
+
     - `archiv/old-project-snapshots/` (DIN-BriefNEO und din-5008-css-forked-for-later)
+
     - `archiv/external-references/` (die vier fremden Forks: din-5008-css, din5008-generator, GerLaTeXLetter, letter)
+
     - `archiv/deprecated-agent-artifacts/` (loose files + alte Agent-Artefakte)
+
   - Eigene_quellen/ und fremde_quellen/ aufgelöst.
+
   - Loose Dateien von der Root-Ebene (Claude-..., deepseek.md, alte .db Kopien) in deprecated-agent-artifacts/ verschoben.
+
   - Für jeden Unterordner und den gesamten archiv/ eine klare README.md angelegt mit Herkunft, Archivierungsgrund und möglichem Nutzen.
+
   - Keine .git etc. aus Snapshots entfernt (Teil der historischen Aufzeichnung); nur Struktur bereinigt.
+
 *   **Grund:** Reduziert kognitive Last für neue Agenten massiv, ohne historischen Referenzwert zu zerstören (wichtig im Testballon-Kontext). Passt zu AGENTS.md Ziel der Einfachheit und zur Forderung nach dokumentierter Generalisierbarkeit. Der aktive `aktueller_arbeitsordner/` war bereits weitgehend clean.
+
 *   **Quelle:** Der detaillierte Aufräum-Auftrag im Handover-Dokument (Desktop), eigene vorherige Bewertung (vorsichtiger Ansatz), aktuelle Struktur-Analyse (viele alte .git/.brain in Snapshots).
+
 *   **Status:** Aktiviert
+
 *   **Auswirkung auf Fitness:** Pre- und Post-Build beide 100%. Keine Auswirkung auf gescannte Docs (archiv wird nicht vom Build erfasst).
 
 ---
 
 ### 2026-06-12 – start.ps1 weiter verbessert (Usability für Light Mode)
+
 *   **Entscheidung:** start.ps1 erweitert, sodass es jetzt auch direkt aus dem übergeordneten "DIN-Brief Neo/" Ordner aufgerufen werden kann (automatisches Wechseln in aktueller_arbeitsordner/). Macht den täglichen Light Mode Einstieg noch robuster und einfacher.
+
 *   **Grund:** Teil von Schritt 2 (AGENTS.md & Usability) nach dem Aufräumen. Ziel: "die einrichtung sollte einigermaßen automatisch gehen".
+
 *   **Quelle:** AGENTS.md (Light Mode als Default), User-Wunsch nach einfacher Nutzung.
+
 *   **Status:** Aktiviert
 
 ---
 
 ### 2026-06-12 – Phase 1, Arbeitspaket 1: Schema-Erweiterung für sqlite-vec
+
 *   **Entscheidung:** In `tools/build_db.js` das Schema der `documents` Tabelle um die Spalten `content_hash`, `embedding` (BLOB), `embedding_model` und `embedding_dim` erweitert. Zusätzlich die virtuelle Tabelle `vec_documents USING vec0(embedding FLOAT[384])` für sqlite-vec angelegt. Der INSERT-Befehl wurde angepasst (neue Felder zunächst mit NULL-Platzhaltern, da die eigentliche Befüllung in Paket 2/3 erfolgt).
+
 *   **Grund:** Erster Schritt von Phase 1 (siehe PHASE1-SQLITE-VEC-IMPLEMENTATION.md). Vorbereitung für Content-Hash-Caching und Vektor-Embeddings, um später Hybrid Search (FTS5 + vec + RRF) zu ermöglichen. Änderung ist bewusst generisch gehalten, damit sie später sauber in die llm_boilerplate übernommen werden kann.
+
 *   **Quelle:** PHASE1-SQLITE-VEC-IMPLEMENTATION.md (Arbeitspaket 1), bestehendes Build-Schema, AGENTS.md (Generalisierungs-Pflicht).
+
 *   **Status:** Aktiviert
+
 *   **Auswirkung:** Pre- und Post-Build beide 100% Fitness Score. Keine kritischen Violations. Der Build funktioniert weiterhin (neue Spalten nullable bzw. mit Defaults).
 
 ---
-
-
-
-
-
-
-
-
 
 - **2026-06-30 - PDF Re-Import entfernt (Simplicity First)**: Der fehleranf�llige und komplexe Ansatz, Daten-State als unsichtbaren Text in PDFs zu schmuggeln, wurde entfernt. metadata.js setzt nun nur noch <title> und Meta-Tags. Generalisierbarkeit: PDF-Export-Code sollte nie versuchen, Backups in die Druckausgabe zu hacken; saubere Trennung von Export und State-Save ist stabiler und wartbarer.
 
@@ -4076,11 +5422,6 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DECISION-LOG.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DECISION-LOG.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DECISION-LOG.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DECISION-LOG.md'), 'decision-log');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DECISION-LOG.md'), 'architecture');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/DEV-INFO.md',
@@ -4107,7 +5448,9 @@ Indem wir ein umfassendes Spektrum an Bleeding-Edge-Features scannen, ermitteln 
 Wir unterscheiden bei der Bewertung von Web-APIs drei klar definierte Zustände:
 
 1. **Aktiviert (Produktiv):** Vollständig abwärtskompatible, stabile W3C-Standards, die in allen modernen Browsern (Chrome, Safari, Firefox) nativ implementiert sind.
+
 2. **Future-Proof (Inaktiv):** Modernste W3C-Kandidaten, die bereits in Chromium-Engines bereitstehen, aber mangels breiter Cross-Browser-Stabilität oder aufgrund experimentellen Status noch nicht in den Produktiv-Code einfließen dürfen.
+
 3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[[MASTER-DO-DONT-DEPRECATED|MASTER-DO-DONT-DEPRECATED.md]]** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
 
 ---
@@ -4151,6 +5494,7 @@ Die folgende Tabelle listet alle 25 Kernfeatures auf, die wir zur Validierung de
 Um diese detaillierten Infos direkt in deiner Web-App abrufbar zu machen, implementieren wir ein **Easter-Egg-Konzept**, das die Einhaltung unserer W3C-Verfassung perfekt wahrt: Es nutzt die native **HTML5 Popover API** zur Darstellung des Overlays, wodurch wir komplexe UI-Modul-Bibliotheken einsparen und mit minimalem JavaScript-Kleber auskommen.
 
 ### 📐 Das HTML-Markup (In der Sidebar oder im Fußbereich)
+
 Der Text der Versionsnummer im Fußbereich dient als Klick-Trigger. Das Popover-Element selbst liegt unauffällig am Ende des HTML-Bodys:
 
 ```html
@@ -4196,121 +5540,10 @@ Der Text der Versionsnummer im Fußbereich dient als Klick-Trigger. Das Popover-
 ```
 
 ### 🎨 Das Styling (Strikte CSS-Kapselung in `floating.css`)
-```css
-/* Der Trigger als interaktives Element */
-.version-badge {
-  cursor: pointer;
-  user-select: none;
-  font-family: monospace;
-}
-
-/* Das Popover: Nutzt den nativen :popover-open Zustand */
-.premium-dev-popover {
-  border: 1px solid var(--border-color);
-  background: light-dark(#ffffff, #1a1a1a);
-  color: light-dark(#111111, #eeeeee);
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  padding: 24px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
-  margin: auto; /* Perfekt zentriert im Viewport */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Scrollbarer Tabellenbereich */
-.table-scroll-container {
-  flex: 1;
-  overflow-y: auto;
-  margin: 16px 0;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-}
-
-/* Tabelle stylen */
-.premium-dev-popover #diag-table, #diag-table th {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: sans-serif;
-  font-size: 0.9rem;
-}
-
-.premium-dev-popover #diag-table th, .premium-dev-popover #diag-table td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.premium-dev-popover #diag-table th {
-  background: light-dark(#f4f4f4, #2d2d2d);
-  font-weight: bold;
-}
-```
 
 ### ⚡ Die Logik (Ultra-schlanker, performanter JS-Code in `main.js`)
-Das JavaScript führt die 25 Diagnosetests im Hintergrund aus, baut die Tabellenzeilen dynamisch auf und verwaltet den 3-Klick-Zustand des Ostereis:
 
-```javascript
-(function initDevEasterEgg() {
-  const trigger = document.getElementById("dev-easter-egg");
-  const popover = document.getElementById("dev-popover");
-  
-  if (!trigger || !popover) return;
-  
-  let clickCount = 0;
-  let clickTimeout = null;
-  
-  trigger.addEventListener("click", () => {
-    clickCount++;
-    
-    // Timeout zurücksetzen, um langsame Klicks nicht als Serie zu werten
-    clearTimeout(clickTimeout);
-    clickTimeout = setTimeout(() => { clickCount = 0; }, 1000);
-    
-    if (clickCount === 3) {
-      clickCount = 0;
-      clearTimeout(clickTimeout);
-      
-      // Live-Diagnose ausführen und Popover öffnen
-      runLiveDiagnostics();
-      popover.showPopover();
-    }
-  });
-  
-  function runLiveDiagnostics() {
-    const f = (name, supported, baseline, rec) => ({ name, supported, baseline, rec });
-    
-    // Die Feature-Liste wird nun automatisch per Compiler (tools/build_healthcheck.js) 
-    // aus den `javascript feature-check` Blöcken der ADRs und Guides generiert.
-    // Siehe website/js/healthcheck.js für die aggregierte Liste.
-    const features = [];
-    if (typeof window.DIN_FEATURES !== ''undefined'') {
-      features.push(...window.DIN_FEATURES);
-    }
-    
-    // Zeitstempel setzen
-    document.getElementById("diag-timestamp").textContent = new Date().toLocaleTimeString();
-    
-    // Tabellen-Inhalt aufbauen
-    const tbody = document.getElementById("diag-results");
-    tbody.innerHTML = features.map(feat => {
-      const statusIcon = feat.supported ? "🟢 READY" : "🔴 PENDING";
-      const statusClass = feat.supported ? "ready" : "pending";
-      return `
-        <tr>
-          <td><strong>${feat.name}</strong></td>
-          <td class="status-cell ${statusClass}">${statusIcon}</td>
-          <td><code>${feat.baseline}</code></td>
-          <td><em>${feat.rec}</em></td>
-        </tr>
-      `;
-    }).join("");
-  }
-})();
-```
+Das JavaScript führt die 25 Diagnosetests im Hintergrund aus, baut die Tabellenzeilen dynamisch auf und verwaltet den 3-Klick-Zustand des Ostereis:
 
 ---
 
@@ -4318,76 +5551,16 @@ Das JavaScript führt die 25 Diagnosetests im Hintergrund aus, baut die Tabellen
 
 Kopiere diesen erweiterten Block und füge ihn in deine Browser-Konsole ein, um das **vollständige 25-Feature-Ergebnis** direkt auszugeben:
 
-```javascript
-/**
- * 🛫 DIN-BriefNEO — High-Integrity Bleeding-Edge Report (v26.1)
- * ──────────────────────────────────────────────────────────────
- * Kopiere diesen Code und führe ihn in deiner F12-Konsole aus.
- */
-(function checkBleedingEdgeReadiness() {
-  const f = (name, supported, baseline, benefit) => ({ name, supported, baseline, benefit });
-
-  const features = [
-    f("Temporal API", typeof globalThis.Temporal !== "undefined", "Chrome 146", "Fehlerfreie Datumsarithmetik & Zeitzonen"),
-    f("CSS @property (Typed OM)", typeof CSS !== "undefined" && CSS.supports && CSS.supports("--x: 1mm") && typeof window.CSSPropertyRule !== "undefined", "Chrome 146", "Typisierte Custom Properties für CSS-Transitionen"),
-    f("CSS @scope (Isolation)", typeof CSSScopeRule !== "undefined", "Chrome 118", "Native Stil-Kapselung ohne Shadow-DOM-Kopfschmerz"),
-    f("CSS if() Logic", typeof CSS !== "undefined" && CSS.supports && CSS.supports("top: if(style(--x: 1): 1px; else: 2px)"), "Chrome 148", "Deklarative logische Weichen direkt im Stylesheet"),
-    f("Scroll-State Queries", typeof CSS !== "undefined" && CSS.supports && CSS.supports("container-type: scroll-state"), "Chrome 147", "Container Queries basierend auf dem Scroll-Zustand"),
-    f("Native Invokers (commandfor)", "commandfor" in document.createElement("button"), "Chrome 147", "Natives Triggern von Popovers ohne JS-Eventlistener"),
-    f("Advanced attr() Typisierung", typeof CSS !== "undefined" && CSS.supports && CSS.supports("width: attr(data-x type(<length>))"), "Chrome 133/149", "Attribute direkt als typisierte CSS-Werte einlesen"),
-    f("View Transitions (Scoped)", typeof document.startViewTransition !== "undefined", "Chrome 146", "Flüssige, native Animationswechsel bei Seiten-Transitions"),
-    f("CSS contrast-color()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: contrast-color(white)"), "Chrome 147", "Browser-generierter barrierefreier Textkontrast"),
-    f("CSS border-shape", typeof CSS !== "undefined" && CSS.supports && CSS.supports("border-shape: circle"), "Chrome 147", "Nicht-rechteckige Elementgrenzen rein über CSS"),
-    f("Math.sumPrecise", typeof Math.sumPrecise !== "undefined", "Chrome 147", "Verlustfreie Gleitkomma-Summierung in JS"),
-    f("Sanitizer API (Native)", typeof globalThis.Sanitizer !== "undefined", "Chrome 147", "Browser-nativer XSS-Schutz für dynamische HTML-Strings"),
-    f("Element.setHTML()", typeof Element.prototype.setHTML !== "undefined", "Chrome 147", "Sicheres HTML-Einfügen über den nativen Sanitizer"),
-    f("CSS calc-size(auto)", typeof CSS !== "undefined" && CSS.supports && CSS.supports("height: calc-size(auto, 100%)"), "Chrome 129", "Verlässliche CSS-Transitionen auf die Höhe ''auto''"),
-    f("CSS Anchor Positioning", typeof CSS !== "undefined" && CSS.supports && CSS.supports("anchor-name: --foo"), "Chrome 125", "Natives Verankern von Popovers ohne JS-Berechnungen"),
-    f("CSS field-sizing: content", typeof CSS !== "undefined" && CSS.supports && CSS.supports("field-sizing: content"), "Chrome 123", "Automatisch mitwachsende Textfelder ohne JS-Listener"),
-    f("CSS light-dark()", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: light-dark(black, white)"), "Chrome 123", "Nativer Hell-/Dunkelmodus ohne JS-Klassenspielereien"),
-    f("CSS Relative Color Syntax", typeof CSS !== "undefined" && CSS.supports && CSS.supports("color: oklch(from red l c h)"), "Chrome 119", "Farben relativ von Custom-Property-Basen berechnen"),
-    f("CSS Scroll-driven Animations", typeof CSS !== "undefined" && CSS.supports && CSS.supports("animation-timeline: scroll()"), "Chrome 115", "Flüssige, rendering-effiziente Scroll-Animationen"),
-    f("CSS Custom State Pseudo-Class", typeof CSS !== "undefined" && CSS.supports && CSS.supports("selector(:state(--foo))"), "Chrome 125", "Custom Elements direkt über native Pseudo-Klassen stylen"),
-    f("Navigation API", typeof globalThis.navigation !== "undefined", "Chrome 102", "Ersetzt die fehleranfällige History API im Single-Page-Routing"),
-    f("Speculation Rules API", typeof HTMLScriptElement !== "undefined" && HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules"), "Chrome 109", "Nicht empfohlen (Verbraucht massive RAM/CPU-Ressourcen im Hintergrund)"),
-    f("Array.prototype.toSorted", typeof Array.prototype.toSorted !== "undefined", "Chrome 110", "Mutationsfreie, kopierende Array-Sortierung in JS"),
-    f("Object.groupBy()", typeof Object.groupBy !== "undefined", "Chrome 117", "Natives Gruppieren von Daten-Arrays ohne reduce-Kopfstände"),
-    f("Promise.withResolvers()", typeof Promise.withResolvers !== "undefined", "Chrome 119", "Promise-Auflösungen von außerhalb der Instanziierung steuern")
-  ];
-
-  let timestamp = new Date().toISOString();
-  try {
-    if (typeof globalThis.Temporal !== "undefined") {
-      timestamp = Temporal.Now.plainDateTimeISO().toString();
-    }
-  } catch (e) {}
-
-  const header =
-    `# 🛫 DIN-BriefNEO — Bleeding-Edge W3C Diagnostics\n` +
-    `## Live-Diagnose: ${timestamp}\n\n` +
-    `| Nr. | Feature / API | Status | Baseline | Architektur-Nutzen (Soll) |\n` +
-    `| :--- | :--- | :--- | :--- | :--- |\n`;
-
-  const rows = features
-    .map((feat, i) => {
-      const icon = feat.supported ? "✅ **READY**" : "⏳ *PENDING*";
-      return `| ${(i+1).toString().padStart(2)} | ${feat.name.padEnd(30)} | ${icon.padEnd(12)} | ${feat.baseline.padEnd(14)} | ${feat.benefit} |`;
-    })
-    .join("\n");
-
-  const footer = `\n\n---\n**Diagnose abgeschlossen.** Dein Chrome 148+ macht dich zum Web-Entwickler der Zukunft.`;
-
-  console.clear();
-  console.log(header + rows + footer);
-})();
-```
-
 ---
 
 ## 🔗 Verwandte Dokumente
+
 *   ⚖️ **[[MASTER-DO-DONT-DEPRECATED|MASTER-DO-DONT-DEPRECATED.md]]:** Unser unumstößliches Gesetzbuch für technologische Verbote.
+
 *   📚 **[[longevity-guidelines|longevity-guidelines.md]]:** Die W3C-Verfassung von DIN-BriefNEO.
+
 *   🧭 **[[MODERNIZATION-GUIDE|MODERNIZATION-GUIDE.md]]:** Strategische Einschätzungen zu künftigen Technologiewechseln.
+
 *   📄 **[[spec|spec.md]]:** System-Spezifikation für die Baseline-Features.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -4395,13 +5568,6 @@ Kopiere diesen erweiterten Block und füge ihn in deine Browser-Konsole ein, um 
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'dev-tools');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'feature-detection');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'chrome-baseline');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'diagnostics');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DEV-INFO.md'), 'easter-egg');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/DOCUMENTATION-MAP.md',
@@ -4412,26 +5578,41 @@ INSERT INTO documents (path, title, status, content, content_hash, embedding, em
 Um das Projekt übersichtlich und hochgradig transparent zu halten, ist die Dokumentation in modular verlinkte Single Sources of Truth (SSoTs) gegliedert.
 
 ## 🏛️ Philosophie & Gesetzgebung
+
 * **[Longevity Guidelines](../00-foundation/longevity-guidelines.md):** Die unverrückbare "Verfassung" für Wartungsfreiheit (Zero-Dependency, 100% Offline-Autarkie).
+
 * **[Master Lawbook](../00-foundation/Immutable-Law-Catalog.md):** Die zentrale Referenz für alle technologischen Entscheidungen, Verbote und Ersatzstrategien.
+
 * **[AGENTS.md](../../../AGENTS.md):** Bindender Vertrag für alle KI-Agenten (Reconciliation, 100% Fitness, Logging).
+
 * **[DEV-INFO.md](DEV-INFO.md):** Entwicklerbereich & Feature-Prüfungs-Matrix.
 
 ## 🗺️ Status, Spezifikationen & Guides
+
 * **[Spezifikation (spec.md)](../00-foundation/spec.md):** Die Kernanforderungen der Features und Backlog.
+
 * **[No-Scroll Techniken](../20-implementation/Guides/no-scroll-techniques.md):** Anleitung für Viewport-Perfect Layouts.
+
 * **[Testing Guide](../20-implementation/testing-guide.md):** Interaktives QA-Protokoll und Testfälle.
+
 * **[LLM-First Datenbank-Guide (README-DB.md)](../40-tooling/README-DB.md):** Spezifikation der SQLite-DB und MCP-Architektur.
 
 ## 🏗️ Architektur-Entscheidungen (ADRs)
+
 Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../10-architecture/ADR/)** dokumentiert:
+
 * **[ADR-HTML](../10-architecture/ADR/ADR-HTML.md):** Custom Elements, Popover API, `contenteditable`.
+
 * **[ADR-CSS](../10-architecture/ADR/ADR-CSS.md):** Proportionaler Zoom, Container Queries, `light-dark()`.
+
 * **[ADR-JS](../10-architecture/ADR/ADR-JS.md):** JavaScript-Reglementierung, Selection API.
+
 * **[ADR-API](../10-architecture/ADR/ADR-API.md):** External Services & APIs (Geoapify, Zippopotam & Header Security).
+
 * **[ADR-DATA-PERSISTENCE](../10-architecture/ADR/ADR-DATA-PERSISTENCE.md):** Lokale Speicherstrategien.
 
 ## 📦 Implementierungsdetails
+
 * **[SQLite-Vec Integration](../20-implementation/implementation/sqlite-vec.md):** Plan für Vektor-Suche.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -4439,8 +5620,6 @@ Alle grundlegenden Design-Entscheidungen sind thematisch im Ordner **[ADR/](../1
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DOCUMENTATION-MAP.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/DOCUMENTATION-MAP.md'), 'map');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/FEATURE-INVENTORY.md',
@@ -4478,8 +5657,11 @@ Dieses Dokument bietet eine vollständige, tabellarische Bestandsaufnahme aller 
 ---
 
 ## 🔗 Verweise
+
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die verbotenen Praktiken dieser Features.
+
 *   Siehe [[ADR-TECH-STACK|ADR-TECH-STACK.md]] für die detaillierten Erläuterungen der Webtechniken.
+
 *   Siehe [[spec|spec.md]] für die ursprünglichen Baseline-Anforderungen.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -4487,9 +5669,6 @@ Dieses Dokument bietet eine vollständige, tabellarische Bestandsaufnahme aller 
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/FEATURE-INVENTORY.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/FEATURE-INVENTORY.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/FEATURE-INVENTORY.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/Feature-Matrix.md',
@@ -4510,11 +5689,17 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 ## 🎯 Platinum Sprint Q2 2026 (Current Focus)
 
 - [x] Variable-First Form A/B Switching (#55)
+
 - [x] Refactor Fold Marks to 4mm Standard (#54)
+
 - [x] CSS Capability Matrix & Platinum Glossary (v4.8.0)
+
 - [x] 3D-Carousel & Toast Animation System
+
 - [ ] Finalize Address-Autocomplete integration (#42)
+
 - [ ] Integrate DIN-Referenz-SVG Overlay (#57)
+
 - [ ] Implement CMA-Sensor for Page Breaks (#58)
 
 ---
@@ -4620,7 +5805,6 @@ WHERE contains(related, this.file.name)
 SORT version DESC
 ```
 
-
 ---
 
 ## Gruppe 5: Zukunfts-Features (Roadmap 2026/2027)
@@ -4671,12 +5855,17 @@ Dieses Dokument dokumentiert die Historie und die wichtigsten externen Referenze
 ## 🏛️ Evolution zur Vanilla-JS Architektur
 
 DIN-Brief NEO hat eine lange Reise hinter sich:
+
 - **Frühe Phasen:** Primitive `<textarea>`-basierte UIs, die keine Geometrie-Kontrolle erlaubten.
+
 - **V4.8 Ära:** Viele JavaScript-Module (11+), die zuständigkeitsübergreifend arbeiteten. Externe Abhängigkeiten wie QR-Code Generatoren brachen das Zero-Dependency-Versprechen.
-- **Pure Refactored Edition (Jetzt):** Wir haben uns für den **harten Vanilla-JS-Weg** entschieden. Kein React, keine Build-Tools. Die aktuelle Architektur setzt zu 100% auf native Web-Standards:
+
   - `contenteditable="true"` kombiniert mit der Selection & Range API
+
   - CSS Layers (`@layer`) und Scoping (`@scope`) für isoliertes Styling
+
   - Native Popover API
+
   - Keine externen CDNs. Alles funktioniert lokal unter `file:///` oder einem simplen `localhost:8000`.
 
 ---
@@ -4684,25 +5873,37 @@ DIN-Brief NEO hat eine lange Reise hinter sich:
 ## 📚 Externe Referenzen
 
 ### `din-5008-css`
+
 - **Herkunft:** Externe CSS-Bibliothek für DIN-5008-konformes Layout
+
 - **Was wir gelernt haben:** Wie andere das DIN-5008-Layout in reinem CSS angehen — vor allem Abstände und Zonen. Unser Ansatz ist deutlich präziser und nutzt moderne CSS-Features (`@layer`, `@scope`, Container Queries) statt älterer Hacks.
+
 - **Was wir übernommen haben:** Konzept der festen mm-Abstände als CSS-Custom-Properties — bei uns konsequent umgesetzt, um exakte DIN-Maße zu garantieren.
 
 ### `din-5008-css-forked-for-later`
+
 - **Herkunft:** Fork der obigen Bibliothek für frühe Experimente
+
 - **Was wir gelernt haben:** Was passiert, wenn man externe Abhängigkeiten forkt statt selbst zu bauen — Drift, Wartungsaufwand, Versionskonflikte. Das hat unsere Zero-Dependency-Entscheidung final bestätigt.
 
 ### `din5008-generator`
+
 - **Herkunft:** Externes Projekt zur dokumentenbasierten DIN-5008-Generierung
+
 - **Was wir gelernt haben:** Generatoransätze (HTML-Template + Daten -> Dokument) funktionieren nicht gut für interaktive Live-Editoren. Bestätigt unseren WYSIWYG-im-Browser-Ansatz.
 
 ### `letter`
+
 - **Herkunft:** Einfaches HTML/JS Brief-UI aus der frühen Explorationsphase
+
 - **Was wir gelernt haben:** Primitive `<textarea>`-basierte Letter-UIs verlieren sofort DIN-Geometrie-Kontrolle. Hat den Weg für strukturierte DOM-Manipulation geebnet.
 
 ### `GerLaTeXLetter`
+
 - **Herkunft:** LaTeX-basiertes Briefvorlagen-System für deutsche Geschäftsbriefe
+
 - **Was wir gelernt haben:** LaTeX beherrscht DIN 5008 präzise (mm-genaue Satzspiegelkontrolle), ist aber kein Webformat. Hat unsere Überzeugung gestärkt, dass pixelgenaues Layout im Browser möglich ist — ohne LaTeX oder PDF-Umwege.
+
 - **Was wir übernommen haben:** Die Denkweise, Layout-Zonen als absolute mm-Koordinaten zu definieren statt als relative Abstände. *(Detaillierter beschrieben in `docs/20-implementation/Guides/din-5008-precise-layout-lessons.md`)*.
 
 ---
@@ -4710,14 +5911,23 @@ DIN-Brief NEO hat eine lange Reise hinter sich:
 ## 🗄️ Eigene Projektsnapshots
 
 ### `DIN-BriefNEO` (V4.8, Stand ~April 2026)
+
 - **Was es war:** Die komplette alte Codebasis vor dem großen Refactoring — mit 11 JS-Modulen und 6 CSS-Dateien.
+
 - **Warum ersetzt:** Zu viele Zuständigkeiten pro Datei, keine klare Longevity-Strategie, noch kein Fitness-Score-System.
+
 - **Was wir übernommen haben:**
+
   - Grundprinzip der strukturierten HTML-Elemente
+
   - Salutation-Engine-Logik als Referenz für die neue `main.js`
+
   - Die DIN-5008-Referenz-SVGs (`assets/reference-DIN_5008_Form_A.svg` / `Form_B.svg`)
+
 - **Was wir bewusst weggelassen haben:**
+
   - Externe Bibliotheken (z. B. `qrcode.js`), da sie gegen unser Zero-Dependency-Pakt verstoßen.
+
   - Komplexe LocalStorage-Archive in separaten Dateien — stattdessen setzen wir auf eine minimalistische Draft-Speicherung.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -4725,16 +5935,13 @@ DIN-Brief NEO hat eine lange Reise hinter sich:
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/QUELLEN-UND-LERNGESCHICHTE.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/QUELLEN-UND-LERNGESCHICHTE.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/QUELLEN-UND-LERNGESCHICHTE.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/QUELLEN-UND-LERNGESCHICHTE.md'), 'history');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/README.md',
   '30-meta README',
   'active',
   '# 30 Meta
+
 Projekt-Kontext, Geschichte und Status.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -4742,8 +5949,6 @@ Projekt-Kontext, Geschichte und Status.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/README.md'), 'readme');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/README.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/30-meta/ROADMAP.md',
@@ -4758,47 +5963,71 @@ Dieses Dokument dient als offene Ideensammlung fÃ¼r zukÃ¼nftige Erweiterunge
 ## ðŸ’¡ Ideensammlung & Brainstorming
 
 ### 1. Mehrseitiges Horizontal-Karussell
+
 *   **Beschreibung:** ErmÃ¶glicht das Schreiben von mehrseitigen Briefen, die im Editor horizontal verschoben werden (Karussell-Effekt), um vertikales Scrollen im Viewport komplett zu vermeiden.
+
 *   **Status:** **ZurÃ¼ckgestellt** (Aufgeschoben in Phase 1 / Backlog).
+
 *   **Herausforderung:** Hohe JS-KomplexitÃ¤t bei der Paginierung und automatischen Text-Schnittstelle. Niedrige PrioritÃ¤t, da 95% aller DIN 5008 Briefe auf eine Seite passen.
 
 ### 2. Nativer PDF-Export (Client-side)
+
 *   **Beschreibung:** Erzeugung eines echten PDF-Downloads direkt im Browser (z. B. via `pdf-lib` oder `jspdf`), anstatt den System-Druckdialog nutzen zu mÃ¼ssen.
+
 *   **Status:** **Brainstorming**.
+
 *   **Herausforderung:** GrÃ¶ÃŸeres Datenvolumen durch Bibliotheken. Verletzt die W3C-First und Zero-Dependency SÃ¤ulen, da Client-Side PDF-Erzeugung im Browser extrem komplex ist. Bevorzugt bleibt der native, wartungsfreie Druckdialog (`window.print()`) mit optimiertem CSS.
 
 ### 3. Google Places API (Adress-Autocomplete Alternative)
+
 *   **Beschreibung:** Einbindung der Google Places API als dritter Adress-Provider in der Sidebar fÃ¼r weltweite Premium-Ergebnisse.
+
 *   **Status:** **ZurÃ¼ckgestellt** (Antipattern).
+
 *   **Herausforderung:** Erfordert zwingend das Laden des Google Maps JS SDKs Ã¼ber CDN (verletzt SÃ¤ule 2 und SÃ¤ule 4) sowie eine Kreditkarte bei der Registrierung. Da Geoapify und Photon kostenfrei und rein REST-basiert Ã¼ber `fetch` laufen, bietet Google Places keinen architektonischen Benefit.
 
 ### 4. Erweiterte Formatierungsoptionen im Markdown-Parser
+
 *   **Beschreibung:** Ausbau des `parseMarkdown`-Moduls in `logic.js` zur nativen UnterstÃ¼tzung von geordneten/ungeordneten Listen, Ãœberschriften (`#`, `##`) und Tabellen im Briefkern.
+
 *   **Status:** **Brainstorming**.
+
 *   **Herausforderung:** Muss penibel mit dem WhatsApp-Selection-Popover synchronisiert werden, damit sich Formatierungen nicht gegenseitig blockieren.
 
 ### 5. Offline-Service-Worker (PWA)
+
 *   **Beschreibung:** Integration eines Service Workers (`sw.js`) zum Caching aller lokalen Assets, um die Anwendung als installierbare Progressive Web App (PWA) auf dem Desktop zu betreiben.
+
 *   **Status:** **ZurÃ¼ckgestellt**.
+
 *   **Herausforderung:** Service Worker setzen zwingend HTTPS voraus. Unter `file:///` werfen sie Browser-Sicherheitsfehler. Da das Ã–ffnen der lokalen `index.html` per Doppelklick auch ohne Service Worker offline perfekt funktioniert (da alle Assets lokal liegen), ist der Nutzen im Vergleich zum Risiko minimal.
 
 ### 6. Sprachsteuerung & Diktat (Web Speech API)
+
 *   **Beschreibung:** Integration der nativen `webkitSpeechRecognition`-Schnittstelle in der Sidebar, um Brieftexte per Stimme einzudiktieren.
+
 *   **Status:** **Brainstorming**.
+
 *   **Herausforderung:** Web Speech ist derzeit noch plattformspezifisch (funktioniert hervorragend in Chrome/Safari, gar nicht in Firefox). Zudem erfordert es eine aktive Internetverbindung zur Google/Apple-Cloud zur Spracherkennung.
 
 ---
 
 ## ðŸ”— Verweise
+
 *   Siehe [[longevity-guidelines|longevity-guidelines.md]] zur Vermeidung von CDN- oder Drittanbieter-Bibliotheken bei diesen Ideen.
+
 *   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] fÃ¼r das strikte Verbot von CDN-Verbindungen.
 
-- [ ] **Client-Side AI Integration**: API Key Eingabe via Settings-Modal (gespeichert in localStorage). Direkte Anbindung an OpenAI/Anthropic/Gemini via etch für Text-Expansion, Tonfall-Änderung und Rechtschreibkorrektur.
+- [ ] **Client-Side AI Integration**: API Key Eingabe via Settings-Modal (gespeichert in localStorage). Direkte Anbindung an OpenAI/Anthropic/Gemini via 
 
+etch für Text-Expansion, Tonfall-Änderung und Rechtschreibkorrektur.
 
 ### 4. LLM-Features in der App (Zauberstab / Roter Faden)
+
 *   **Beschreibung:** API-Keys im LocalStorage speichern und direkt im Dev-Sidebar oder im UI Buttons anbieten, um den Text per Knopfdruck ''frmlich zu formulieren'' oder ''Fllwrter zu entfernen''.
+
 *   **Status:** **Geplant** (Auf Wunsch von Moritz fr zuknftige Diskussion aufgenommen).
+
 *   **Herausforderung:** LLM-Client (OpenAI/Gemini) in Vanilla JS schreiben, ohne dass die Bundle-Size explodiert oder npm-Pakete ntig werden. Sichere Aufbewahrung der API-Keys im Browser.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -4806,11 +6035,66 @@ Dieses Dokument dient als offene Ideensammlung fÃ¼r zukÃ¼nftige Erweiterunge
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/ROADMAP.md'), 'obsidian');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/ROADMAP.md'), 'core');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/ROADMAP.md'), 'documentation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/ROADMAP.md'), 'roadmap');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/ROADMAP.md'), 'future');
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'docs/30-meta/web-standards-tracking.md',
+  'Web Standards Tracking & Testing',
+  'Active',
+  '# Web Standards Tracking & Testing
+
+Dieses Dokument dient als zentrales Nachschlagewerk (Sammelbecken) für unsere Recherchen zu neuen W3C-Standards und Chrome-Features. Da DIN-Brief Neo auf einer "Vanilla Web Standards" Architektur aufbaut, ist es entscheidend, die neuesten Browser-APIs frühzeitig zu erkennen und zu nutzen, um JavaScript-Workarounds zu eliminieren.
+
+## 1. Informationsquellen (W3C & Google)
+
+Um zu wissen, was das W3C plant und was Google bereits umsetzt, greifen wir auf folgende primäre Quellen zurück:
+
+* **W3C News Feed (`https://www.w3.org/news/feed/`)**
+  * Liefert die offiziellen Status-Updates zu Standards (z.B. von *First Public Working Draft* bis zur *W3C Recommendation*).
+* **GitHub: `w3c/browser-specs` & `w3c/webref`**
+  * Maschinenlesbare, tagesaktuelle JSON-Listen aller existierenden Spezifikationen und Web-APIs.
+* **Chrome Status (`chromestatus.com`)**
+  * Die wichtigste Seite, um zu sehen, *wann* Google einen W3C-Standard in Chrome einbaut. Hier steht exakt, ob ein Feature in Chrome 149, 150 oder 151 kommt.
+* **Context7 (MCP Server)**
+  * Wir nutzen den Context7 KI-Agenten, um tagesaktuelle Dokumentationen (wie MDN Web Docs oder Chrome Developers) direkt in unseren Projekt-Kontext zu laden.
+
+## 2. Wie testen wir neue Features? (Proof-of-Concepts)
+
+Bevor wir ein Feature in den `main` Branch des DIN-Briefs mergen, durchläuft es diesen Test-Prozess:
+
+1. **Feature Detection & Flags:**
+   * Wir prüfen auf `chromestatus.com`, ob das Feature bereits hinter einem Flag versteckt ist.
+   * Falls ja, aktivieren wir es lokal in `chrome://flags` oder über unser `Chrome Pro (Dev)` Shortcut.
+2. **Isolierte PoCs (Proof of Concepts):**
+   * Neue APIs werden **niemals** direkt im komplexen `din-a4` DOM getestet.
+   * Wir erstellen isolierte Test-Dateien (z.B. `scratch/test-focusgroup.html`), um das isolierte Verhalten des Browsers ohne CSS-Interferenzen zu verstehen.
+3. **Fitness Gate (`.\start.ps1`):**
+   * Erst wenn der PoC erfolgreich war, wird das Feature in `layout.css` oder `main.js` integriert. Danach muss das Fitness Gate zwingend 100% Score anzeigen, um sicherzustellen, dass keine verbotenen Polyfills oder Frameworks eingeschmuggelt wurden.
+
+## 3. Aktuelle Beobachtungen (Stand: Juli 2026)
+
+### WebAuthn Level 3 (Passkeys)
+Obwohl Passkeys bereits genutzt werden, formalisiert "Level 3" diese Technologie endgültig als globalen W3C-Standard.
+* **Was verbessert sich?**
+  * **Conditional UI:** Passkeys integrieren sich nun nahtlos in das AutoFill-Menü des Browsers (direkt im Benutzernamen-Feld), ohne dass sofort ein störendes Betriebssystem-Popup aufspringt.
+  * **Cross-Device Authentication (CDA):** Die Synchronisation von Passkeys über Cloud-Provider (iCloud, Google Password Manager) wird fest standardisiert, sodass der Wechsel zwischen Handy und PC reibungslos funktioniert.
+  * **Device Public Key (DPK):** Erweiterte Sicherheit für Enterprise-Umgebungen, um das physische Gerät kryptografisch an den Login zu binden.
+
+### CSS & HTML (Chrome 148-150+)
+* `focusgroup` (Tastatur-Navigation ohne JS)
+* `column-rule` (Native Gap-Trennlinien)
+* `background-clip: border-area` (Native CSS-Gradients auf Borders)
+* *Window AI / Prompt API* (Lokales LLM direkt im Browser)',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/web-standards-tracking.md'), 'meta');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/web-standards-tracking.md'), 'w3c');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/web-standards-tracking.md'), 'chrome');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/web-standards-tracking.md'), 'standards');
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/30-meta/web-standards-tracking.md'), 'testing');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/40-tooling/README-DB.md',
@@ -4840,7 +6124,9 @@ flowchart TD
 ```
 
 1. **Master Source of Truth (Markdown):** Alle ADRs, Guides und Spezifikationen werden als menschenlesbare, hervorragend in Git versionierbare `.md`-Dateien gepflegt.
+
 2. **Direkter Node-Compiler (Zero-Dependency):** Über das moderne, in Node.js eingebaute native Modul `node:sqlite` wird die SQLite-Datei `DIN-Brief_docs.db` direkt und performant in einer Transaktion generiert, ohne auf externe Binaries (`sqlite3.exe`) oder schwere npm-Pakete (`better-sqlite3`) angewiesen zu sein.
+
 3. **Schnittstelle (MCP):** Das LLM kommuniziert nicht mit Rohdateien, sondern stellt über standardisierte Werkzeuge des SQLite-MCP-Servers präzise relationale Abfragen an die Datenbank.
 
 ---
@@ -4850,36 +6136,55 @@ flowchart TD
 Die Datenbank `DIN-Brief_docs.db` ist relational normalisiert und gleichzeitig für ultraschnelles Retrieval denormalisiert aufgebaut:
 
 ### 1. Tabelle: `documents`
+
 Enthält die Kerninformationen aller Systemdokumente.
 
 *   `id` (INTEGER, Primary Key, Auto-Increment)
+
 *   `path` (TEXT, Unique, Not Null) — Der relative Pfad zum Dokument (z. B. `ADR/ADR-CSS.md`)
+
 *   `title` (TEXT, Not Null) — Der aus dem YAML Frontmatter extrahierte Titel
+
 *   `status` (TEXT) — Der aktuelle Status des Dokuments (z. B. `accepted`, `active`)
+
 *   `content` (TEXT, Not Null) — Der bereinigte Markdown-Inhalt (ohne YAML-Header)
+
 *   `tags` (TEXT) — Alle Schlagworte als leerzeichengetrennter Plaintext (z. B. `''css layout containers''`), benötigt für den FTS5 External Content Sync.
 
 ### 2. Tabelle: `document_tags`
+
 Ermöglicht eine 1:n Verknüpfung von Schlagworten für eine hochpräzise relationale Filterung.
 
 *   `document_id` (INTEGER, Foreign Key referencing `documents(id)` on delete cascade)
+
 *   `tag` (TEXT, Not Null) — Das Schlagwort (z. B. `css`, `popover`, `security`)
+
 *   *Composite Primary Key:* `(document_id, tag)`
+
 *   *Sekundärindex:* `idx_document_tags_tag` auf die Spalte `tag` zur Beschleunigung von relationalen Schlagwortabfragen.
 
 ### 3. Virtuelle Tabelle: `documents_fts` (Full-Text Search 5)
+
 Die hochoptimierte FTS5-Such-Engine für hybride Volltext- und Schlagwortabfragen.
 
 *   *Engine:* SQLite FTS5 (Volltextsuche)
+
 *   *Spalten:* `content`, `title`, `path`, `tags`
+
 *   *Externe Inhaltstabelle:* Gekoppelt mit `documents` über `content=''documents''` und `content_rowid=''id''`. Dies vermeidet Daten-Redundanz und hält die FTS-Abfragen extrem speichereffizient.
+
 *   *Tokenizer:* `unicode61` (Speziell für deutsche Inhalte optimiert; diakritika-resistent für Umlaute `ä`, `ö`, `ü`, `ß` und frei von englischen Stemming-Verzerrungen).
+
 *   *Prefix-Indizes:* Konfiguriert mit `prefix=''2 3''`, um blitzschnelle Autovervollständigungen und Präfix-Suchen (z. B. `anch*`) zu unterstützen.
 
 #### 🔄 Automatische Synchronisations-Trigger
+
 Die FTS5-Volltexttabelle wird durch drei integrierte SQLite-Trigger vollautomatisch mit der Quelltabelle `documents` synchron gehalten:
+
 *   `tbl_ai` (AFTER INSERT)
+
 *   `tbl_ad` (AFTER DELETE)
+
 *   `tbl_au` (AFTER UPDATE)
 
 ---
@@ -4889,25 +6194,33 @@ Die FTS5-Volltexttabelle wird durch drei integrierte SQLite-Trigger vollautomati
 KIs können direkt auf vordefinierte, hochperformante Views zugreifen, die komplexe Abfragen kapseln:
 
 ### 1. View: `v_accepted_adrs`
+
 Gibt alle akzeptierten ADRs mit ihren Tags zurück (Filterung in $O(1)$ über das `documents.tags` Feld):
+
 ```sql
 SELECT id, path, title, status, tags FROM v_accepted_adrs;
 ```
 
 ### 2. View: `v_active_docs`
+
 Gibt alle aktiven Systemdokumente zurück (perfekt für das globale RAG-Retrieval):
+
 ```sql
 SELECT id, path, title, status, tags FROM v_active_docs;
 ```
 
 ### 3. View: `v_document_index`
+
 Ein schlanker Index aller erfassten Dokumente:
+
 ```sql
 SELECT id, path, title, status, tags FROM v_document_index;
 ```
 
 ### 4. Hybride Volltext- & Schlagwortsuche via FTS5 MATCH
+
 Findet alle Dokumente mit dem Tag `css`, die das Wort `popover` im Inhalt oder Titel besitzen:
+
 ```sql
 SELECT title, path 
 FROM documents_fts 
@@ -4919,6 +6232,7 @@ WHERE documents_fts MATCH ''tags:css AND popover'';
 ## ⚙️ Generierung & Kompilierung
 
 ### A. Lokale Generierung (Entwickler-Befehl)
+
 Führe im Hauptverzeichnis des Projekts einfach folgendes PowerShell-Skript aus, um die Datenbank aus den aktuellen Markdown-Dateien zu kompilieren:
 
 ```powershell
@@ -4930,12 +6244,15 @@ Das Skript löscht die alte DB-Datei zur Konsistenzsicherung und kompiliert die 
 ---
 
 ## 🔗 Verweise
+
 *   ⚖️ **[Immutable Law Catalog](../00-foundation/Immutable-Law-Catalog.md):** Unser unumstößliches Gesetzbuch für technologische Verbote.
+
 *   📚 **[longevity-guidelines.md](../00-foundation/longevity-guidelines.md):** Die übergeordnete W3C-Verfassung.
+
 *   🛠️ **[DEV-INFO.md](../30-meta/DEV-INFO.md):** Unsere 25-Feature Diagnose- und Feature-Erkennungs-Matrix.
 
-
 ## 🔍 Aktueller Status der Vektor-Suche (Semantic Search)
+
 Es ist geplant, die reine FTS5-Volltextsuche durch eine **Hybrid Search (Volltext + semantische Suche)** zu ersetzen.
 Dazu soll die Erweiterung `sqlite-vec` integriert werden, welche die Speicherung von Embeddings und Vektor-Distanzen nativ in SQLite erlaubt.
 Der detaillierte Implementierungsplan liegt unter: **[docs/implementation/sqlite-vec.md](../20-implementation/implementation/sqlite-vec.md)**.',
@@ -4945,17 +6262,13 @@ Der detaillierte Implementierungsplan liegt unter: **[docs/implementation/sqlite
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README-DB.md'), 'database');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README-DB.md'), 'sqlite');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README-DB.md'), 'mcp');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README-DB.md'), 'llm-first');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README-DB.md'), 'tooling');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/40-tooling/README.md',
   '40-tooling README',
   'active',
   '# 40 Tooling
+
 Dokumentation der Build- und Infrastruktur-Scripte.
 Hinweis: Diese Schicht ist noch im Aufbau.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
@@ -4964,8 +6277,6 @@ Hinweis: Diese Schicht ist noch im Aufbau.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README.md'), 'readme');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/40-tooling/README.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/40-tooling/Wiki-Bundler.md',
@@ -4982,9 +6293,11 @@ Du bist ein KI-Agent, der im Projekt **DIN-Brief Neo** arbeitet.
 Dieses Dokument enthält den gebündelten Architektur- und Implementierungskontext für deinen zugewiesenen Scope.
 
 **Wichtigste Regeln:**
+
 1. Beachte strikt die Vorgaben in `AGENTS.md` (Branchless Workflow, 100% Fitness Score, Logging).
-2. Nutze Vanilla CSS und Vanilla JS (keine Build-Tools im Frontend, kein Tailwind, kein React).
+
 3. Halte dich an das KISS-Prinzip (Keep It Simple, Stupid).
+
 4. Wenn du Quellcode schreibst, verknüpfe ihn durch Header-Tags `/* @adr [[ADR-Name]] {FunctionName} */` mit den unten aufgeführten Architektur-Dokumenten.
 
 ---
@@ -5033,6 +6346,7 @@ This combines the best of GitHub spec-kit (clear phased development with AI) wit
 ## Why Hybrid?
 
 - spec-kit strength: Simple, agent-friendly phases (Constitution → Spec → Plan → Tasks → Implement).
+
 - Our strength: Mandatory quality gates (Pre/Post Build with Evolutionary Fitness Score), Generalisierungs-Pflicht for boilerplate extraction, full KI audit (log_session.js), antifragile antipattern layering.
 
 We keep .specify/ for agent-specific artifacts (easy to extract for llm_boilerplate) and specs/ for numbered, traceable features.
@@ -5040,8 +6354,11 @@ We keep .specify/ for agent-specific artifacts (easy to extract for llm_boilerpl
 ## Core Principles (from AGENTS.md)
 
 - Build **before** and **after** every relevant change.
+
 - Fitness Score **MUST** be 100%.
+
 - Log every action.
+
 - Check Generalisierbarkeit for every solution and propose extraction to llm_boilerplate.
 
 ## The Hybrid Phases + Light / Full Mode
@@ -5053,75 +6370,121 @@ We keep .specify/ for agent-specific artifacts (easy to extract for llm_boilerpl
 - **Full Mode** (wichtige Features, Architektur, boilerplate-relevante Arbeit): Der komplette unten beschriebene Prozess mit spec/plan/tasks + explizitem Generalisierungs-Check.
 
 1. **Constitution** (setup / major updates)
+
    - Location: `.specify/constitution.md` (or reference to `constitution.md` + `MASTER-DO-DONT-DEPRECATED.md`).
+
    - Defines project philosophy, longevity rules, what must be respected (no frameworks, DIN 5008, etc.).
+
    - Agent must read this first.
+
    - Update only with Pre/Post build + log + DECISION-LOG entry.
 
 2. **Specify** (feature or major change – Full Mode)
+
    - Create `specs/NNN-short-name/spec.md` (numbered for history and traceability, like spec-kit).
+
    - Content: Requirements, acceptance criteria, context, links to existing ADRs/Guides.
+
    - Use templates from `.specify/templates/spec.md`.
+
    - Pre-build, then create the spec file.
+
    - Document Generalisierbarkeit potential here (Full Mode: ausführlich).
 
 3. **Plan** (Full Mode)
+
    - In the same `specs/NNN-.../plan.md` or linked ADR.
+
    - Technical design, architecture decisions, which layers of antipatterns are affected.
+
    - Identify what can be generalized to llm_boilerplate.
+
    - Pre/Post build required if code/docs change.
 
 4. **Tasks** (Full Mode)
+
    - `specs/NNN-.../tasks.md` (checklist, like spec-kit).
+
    - Break down into small, verifiable steps.
+
    - Each task should note if it touches generic (base/web) vs project-specific.
 
 5. **Implement**
+
    - Code / docs changes.
+
    - Strictly follow constitution, MASTER-DO-DONT, AGENTS.md, and the spec (if Full Mode).
+
    - Use layered antipatterns (base/web/project.json) for rules.
+
    - Light Mode: Direkt nach kurzer Beschreibung im DECISION-LOG.
 
 6. **Reconcile & Verify** (mandatory – immer)
+
    - **Always** run `node tools/build_db.js` (or the wrapper) **before** starting implementation and **after** completing.
+
    - Must achieve **EVOLUTIONARY FITNESS SCORE: 100%**.
+
    - Fix all critical/high violations.
+
    - Log the entire session/action with `log_session.js` (include what was generalized).
 
 7. **Generalize & Extract** (Testballon duty)
+
    - For every completed feature: Explicitly decide and document:
+
      - Stays project-specific (in project.json or website/)?
+
      - Can move to base/web in antipatterns?
+
      - Can become a generic tool / template / guide for llm_boilerplate?
+
    - Light Mode: 1-2 Sätze im DECISION-LOG.
+
    - Full Mode: Ausführlich im spec.md + Vorschläge.
+
    - Propose concrete pull/extraction steps.
+
    - Update MIGRATION-ROADMAP-TO-BOILERPLATE.md or DECISION-LOG.md.
 
 ## Folder Usage for Easy Extraction
 
 - `.specify/` : Agent instructions, constitution, templates, memory. Highly extractable to llm_boilerplate.
+
 - `specs/` : Numbered feature work. Mostly project-specific, but plans can note generalizable parts.
+
 - `tools/antipatterns/{base,web,project}.json` : The layered rules are the #1 extraction target.
+
 - `tools/` (reconciliation, build_db, log_session, etc.): Generic by design.
+
 - `website/` : Pure application code – do not extract.
+
 - `constitution.md` / `MASTER-DO-DONT-DEPRECATED.md` : Core philosophy – parts can be generalized.
 
 ## How to Start a New Feature (Agent Instructions)
 
 1. Read `.specify/constitution.md`, AGENTS.md, and relevant specs/ADRs.
+
 2. Pre-build.
+
 3. Create `specs/NNN-new-thing/spec.md` (copy template if available).
+
 4. Create plan and tasks.
+
 5. Implement + reconcile (Post-build 100%).
+
 6. Log.
+
 7. Document generalization proposal.
 
 This keeps the lightweight, structured flow from spec-kit while enforcing our quality and generalizability gates.
 
 See also:
+
 - AGENTS.md (Core Rules and Logging)
+
 - MIGRATION-ROADMAP-TO-BOILERPLATE.md
+
 - aktueller_arbeitsordner/constitution.md',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -5129,17 +6492,13 @@ See also:
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'workflow');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'spec-driven');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'reconciliation');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'agents');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md'), 'generalisierbarkeit');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/90-policy/README.md',
   '90-policy README',
   'active',
   '# 90 Policy
+
 Globale Regeln, Workflows und Strukturvorgaben.',
   NULL,  -- content_hash (wird in Paket 2 gesetzt)
   NULL,  -- embedding (wird in Paket 3 gesetzt)
@@ -5147,8 +6506,6 @@ Globale Regeln, Workflows und Strukturvorgaben.',
   384
 );
 
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/README.md'), 'readme');
-INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'docs/90-policy/README.md'), 'documentation');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'docs/index.md',
@@ -5162,12 +6519,17 @@ Dieses Wiki dient als maschinenlesbarer Navigator durch die Architektur, Spezifi
 ## 🧭 Kernnavigation
 
 ### Das Fundament
+
 - **[[OmniTraceability]]**: Die Systemarchitektur der lückenlosen Nachverfolgbarkeit. Hier erfährst du, wie der Lebenszyklus unserer Software funktioniert und wie du das System langfristig wartest.
+
 - **[[Function-Traceability]]**: Das automatisierte Code-zu-Dokumentation Mapping. Die Matrix, die unsere Code-Base zusammenhält.
 
 ### Die Umsetzung
+
 - **[Architektur-Entscheidungen (ADRs)](10-architecture/ADR/ADR-ÜBERSICHT.md)**: Alle verbindlichen Architektur-Regeln. Das "Warum".
+
 - **[Guides & Manuals](20-implementation/Guides/GUIDE-TEMPLATE.md)**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
+
 - **[[core/spec]]**: Die unumstößlichen funktionalen und fachlichen Anforderungen an die DIN 5008. Das "Was".
 
 ---
@@ -5184,6 +6546,31 @@ Dieses Wiki dient als maschinenlesbarer Navigator durch die Architektur, Spezifi
   384
 );
 
+
+INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
+  'jsconfig.json',
+  'jsconfig.json',
+  'active',
+  '{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "ignoreDeprecations": "6.0",
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "ESNext.Temporal"]
+  },
+  "exclude": ["node_modules", "venv", ".agents", "build", "tools"]
+}
+',
+  NULL,  -- content_hash (wird in Paket 2 gesetzt)
+  NULL,  -- embedding (wird in Paket 3 gesetzt)
+  'all-MiniLM-L6-v2',
+  384
+);
+
+INSERT OR IGNORE INTO document_tags (document_id, tag) VALUES ((SELECT id FROM documents WHERE path = 'jsconfig.json'), 'json');
 
 INSERT INTO documents (path, title, status, content, content_hash, embedding, embedding_model, embedding_dim) VALUES (
   'README.md',
@@ -5381,8 +6768,8 @@ CREATE TABLE IF NOT EXISTS tbl_code_links (
 
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/index.html', 1, 'ADR-HTML', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/index.html', 2, '', 'din-5008-layout');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 1, 'ADR-JS', '');
-INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, '', 'no-scroll-techniques');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 2, 'ADR-JS', '');
+INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/js/main.js', 3, '', 'no-scroll-techniques');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 1, 'ADR-CSS', '');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/floating.css', 2, '', 'chrome-modern-css');
 INSERT INTO tbl_code_links (file_path, line_number, adr_ref, guide_ref) VALUES ('website/css/layout.css', 1, 'ADR-CSS', '');

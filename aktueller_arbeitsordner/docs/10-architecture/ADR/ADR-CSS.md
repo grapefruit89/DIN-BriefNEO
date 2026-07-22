@@ -2,13 +2,16 @@
 aliases:
 - CSS Architecture & Proportional Zoom
 chosen_option: ''
-created: '2026-07-06'
+code_links: []
+created: '2026-06-26'
 date: 2026-05-24
 deciders:
 - morit
 - antigravity
 decision_options: []
 depends_on: []
+doc_links: []
+id: adr-css
 last-reviewed: 2026-07-02
 project: DIN-BriefNEO
 related:
@@ -25,7 +28,7 @@ tags:
 - theming
 title: 'ADR-CSS: CSS Architecture & Proportional Zoom'
 type: adr
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # ADR-CSS: CSS Architecture & Proportional Zoom
@@ -33,8 +36,11 @@ updated: '2026-07-06'
 ## 1. Context & Problem
 
 **WYSIWYG Skalierung ohne Scrollbalken.**
+
 - Klassische Webanwendungen brechen oft das WYSIWYG-Prinzip durch unkontrolliertes Scrollen oder verzerrte Proportionen.
+
 - Der DIN-BriefNEO-Bogen muss unter allen Bedingungen pixelperfekt proportional skaliert und absolut ohne Scrollbalken im Fenster dargestellt werden.
+
 - Komplexe Layout-Aufgaben (Zoom, Theming, Positionierung) sollen ohne JavaScript gelöst werden, um die Langlebigkeit zu maximieren.
 
 ## 2. Considered Options
@@ -49,43 +55,65 @@ updated: '2026-07-06'
 **Wir haben uns für Option A (Pure CSS Architecture) entschieden.**
 
 ### Begründung
+
 - **Reiner CSS-Zoom:** `<din-a4>` wird auf `height: 94vh` und `aspect-ratio: 210 / 297` fixiert.
+
 - **Container Queries:** Alle inneren Maße verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren.
+
 - **Absolute Viewport-Sperre:** `overflow: hidden` auf `html` und `body` verhindert Scrollbalken.
+
 - **Natives Theming:** Nutzung von `light-dark()` und W3C Relative Color Syntax (RCS) im OKLCH-Farbraum.
+
 - **Anchor Positioning:** W3C CSS Anchor Positioning für Dropdowns (z.B. `#address-suggestions`).
+
 - **CSS @property & interpolate-size:** Für flüssige native Transitionen auf Custom Properties und `auto`-Maße.
+
 - **CSS @scope:** Vollständige Kapselung der Briefblatt-Stile (`@scope (din-a4)`).
+
 - **Zero-JS State Toggles:** Nutzung von `:has()` und Checkboxen für UI-State.
 
 ## 4. Consequences
 
 ### Positive Auswirkungen
+
 - Absolut flüssige, stufenlose Echtzeit-Skalierung auf allen Displays.
+
 - 100% WYSIWYG-konform: Druck = Bildschirm.
+
 - JavaScript wird von Layout-Aufgaben vollständig befreit.
+
 - Automatisch harmonisierte Farbschemata (RCS) im perceptually uniform OKLCH-Farbraum.
 
 ### Risiken & Negative Auswirkungen
+
 - Texte müssen in der Höhe begrenzt sein (z. B. auf 1 A4-Seite), da Overflow-Scrolling deaktiviert ist.
+
 - Bindung an hochmoderne Chromium-Engines (Chrome 148+).
+
 - **Print CSS Saftey:** Strenge Vorgaben im `@media print` erforderlich (`height: auto !important`, `overflow: visible !important`). Die Nutzung von `page-break-before: always;` auf Container-Ebene führt zwingend zu leeren PDFs (siehe Law Catalog A46).
 
 ### Langfristige Auswirkungen
+
 - **Architektur-Stabilität:** Die Codebasis bleibt extrem JS-arm und profitiert direkt von Engine-Optimierungen.
 
 ## 5. Implementation & Verification
 
 - Alle CSS-Variablen sind in `layout.css` als OKLCH deklariert.
+
 - Container-Maße (`cqw`, `cqh`) sind in der CSS-Basis verankert.
+
 - `overflow: hidden` ist produktiv.
+
 - Einhaltung wird durch die Anti-Pattern-Linter-Regeln für JS-basiertes Styling überprüft.
 
 ## 6. Related Documents
 
 - [[ADR-HTML]]
+
 - [[ADR-JS]]
+
 - [[longevity-guidelines]]
+
 - [[ADR-ANTIPATTERN]]
 
 ---

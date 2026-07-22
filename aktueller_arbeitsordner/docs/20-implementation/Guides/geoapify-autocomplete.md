@@ -1,8 +1,11 @@
 ---
 aliases:
 - Geoapify Guide
-created: '2026-07-06'
+code_links: []
+created: '2026-07-02'
 depends_on: []
+doc_links: []
+id: guide-geoapify-autocomplete
 last-updated: 2026-07-02
 project: DIN-BriefNEO
 related:
@@ -15,7 +18,7 @@ tags:
 - autocomplete
 title: 'Guide: Geoapify Autocomplete Implementierung'
 type: guide
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # Guide: Geoapify Autocomplete Implementierung
@@ -32,10 +35,15 @@ Um die Empfängeradresse im DIN-Brief autovervollständigen zu können, nutzen w
 Wir haben die folgenden Best Practices direkt in unserem Custom Fetch-Wrapper in `main.js` umgesetzt:
 
 - **Regel 1: Debouncing (300ms)**
+
   - Wir senden nicht bei jedem Tastendruck einen Request. Stattdessen warten wir 300ms, bis der Nutzer aufhört zu tippen. Das schont das API-Limit massiv.
+
 - **Regel 2: Strikte Limits (`limit=5`)**
+
   - Wir rufen maximal 5 Ergebnisse ab. Ein zu langes Dropdown bricht das Layout und verschlechtert die Performance.
+
 - **Regel 3: Dynamischer Proximity Bias**
+
   - Statt hartcodierten Koordinaten (z. B. Bonn) lesen wir dynamisch die PLZ des **Absenders** aus. Die API liefert dann zuerst Ergebnisse in der Nähe des Absenders.
 
 ### Code-Beispiele (Custom Fetch vs. Library)
@@ -84,15 +92,17 @@ Da wir auf nativem `fetch` und modernem ES6 basieren:
 // f("Geoapify Native Fetch", typeof globalThis.fetch === "function", "Chrome 42", "Produktiv")
 ```
 
-
 ## 3. Fehlerbehandlung & Fallback-Strategie
+
 Da externe APIs ausfallen können (Rate Limits, Offline-Szenarien, API-Downtime), muss die Fehlerbehandlung robust sein.
 Schlägt der Request an Geoapify fehl, werfen wir keinen UI-blockierenden Fehler, sondern fangen diesen ab und wechseln – sofern konfiguriert – sofort auf den kostenlosen Photon Fallback-Provider, oder stoppen die Autocomplete-Vorschläge einfach leise (Graceful Degradation).
 
 ## 4. Rate Limiting & Performance
+
 Die Geoapify API hat in der kostenlosen Stufe strikte Limits (z.B. 3.000 Requests pro Tag).
 Das strenge Debouncing (300-500ms) und ein geplantes, lokales **Caching** von Suchbegriffen (aktuell noch in Planung / noch nicht implementiert) sind unsere primären Abwehrwerkzeuge gegen das Limit.
 
 ## 5. Datenschutz (Privacy)
+
 Geoapify erhält den gesuchten Adressstring sowie die berechneten GPS-Koordinaten (für das Proximity Biasing).
 **WICHTIG:** Es werden **keine** persönlichen Absenderdaten, Namen oder Briefinhalte an den Dienst übertragen.

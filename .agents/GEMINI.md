@@ -137,3 +137,29 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - **Strictly No Inline Styles**: Inline `style="..."` attributes are forbidden for static layout or typography. Always use semantic CSS classes (e.g., `.sidebar-options-group`, `.hidden`) defined in `layout.css` or `floating.css`. Only use inline styles for dynamically calculated JS values (like positioning offsets).
 - **Native HTML5 Semantics**: Always prefer native semantic tags (`<label for="...">`, `<h3>`, `<ul>`) over generic `<div class="label">` or `<span>` wrappers. 
 - **Concise Accessibility**: Every `contenteditable` block and custom `<din-...>` container must have appropriate `aria-label`s and `role`s (e.g., `role="group"`, `role="article"`). Keep aria-labels concise and non-redundant (e.g., "Straße und Hausnummer" instead of "Ihre Straße und Hausnummer").
+
+## 25. Omnipresent Traceability Database (MCP)
+- Die SQLite-Projektdatenbank (`DIN-Brief_docs.db`) wird bei jedem Build (`.\start.ps1`) neu generiert und enthält die absolut aktuellste "Ground Truth" aller Architekturentscheidungen, ADRs, Guides und Code-Metadaten.
+- Da diese Datenbank über den `din_brief_sqlite` MCP-Server live angebunden ist, **muss** sie bei allen Architektur-, Dokumentations- und Code-Struktur-Fragen konsequent per SQL abgefragt werden (`tbl_concepts`, `tbl_code_entities`, etc.).
+- Verlasse dich niemals nur auf veraltetes Kontextwissen oder Caching, sondern nutze die MCP-SQL-Tools, um die aktuellsten Projektrichtlinien präzise zu extrahieren.
+
+## 26. Chrome 140-150 Bleeding-Edge Mandate (MUST-USE)
+- Diese modernen Features **MÜSSEN** ab sofort als primäre Werkzeuge betrachtet und priorisiert werden (Chrome 150 Baseline):
+  - **`focusgroup` (HTML)**: Für deklarative Tastaturnavigation (Pfeiltasten) in Menüs/Toolbars komplett ohne JS.
+  - **`light-dark()` mit Bildern (CSS)**: Für Theme-abhängige Hintergrundbilder.
+  - **CSS Gap Decorations (`column-rule-inset`, etc.)**: Zum direkten Stylen von Lücken in Grid/Flexbox (ersetzt `::before`/`::after` Hacks).
+  - **`background-clip: border-area` (CSS)**: Für native Farbverlaufs- und Bild-Rahmen.
+  - **`flex-wrap: balance` (CSS)**: Für das automatische Ausbalancieren von umbrechenden Flex-Items.
+  - **Name-Only Container Queries (CSS)**: Für kompaktes Schreiben von `@container myName` Queries.
+- Bevor du eine UI-Komponente mit JavaScript interaktiv machst (wie z.B. Pfeiltasten-Navigation), prüfe zwingend, ob eines dieser nativen HTML/CSS-Features das Problem bereits deklarativ löst!
+
+## 27. ChromeStatus First Mandate
+- Bei der Recherche nach neuen Web-Standards, CSS-Features oder HTML-APIs ist **immer als erstes chromestatus.com** zu prüfen!
+- Die absolute Wahrheit für Google Chrome steht immer auf chromestatus.com. Dort muss gezielt gesucht werden: "Wann kommt das W3C Feature X?". 
+- Als Antwort muss immer die exakte Version genannt werden, z.B. "Shipping in Chrome 151" oder "Behind a flag in Chrome 149".
+
+## 28. HTML State & CSS :has() Toggle Pattern (No JS Class Toggling)
+- Für globale Layout-Umschalter (z.B. Form A vs. Form B) oder das Ein-/Ausblenden von UI-Sektionen darf **niemals** Javascript verwendet werden, um CSS-Klassen (wie `classList.add('active')`) auf Wrapper-Elemente zu setzen.
+- **Lösung:** Nutze native, visuell versteckte HTML-Schalter (`<input type="radio" class="sr-only">` oder `<input type="checkbox">`). Das CSS liest den Zustand nativ über den `:has()` Selektor aus (z.B. `body:has(#btn-form-a:checked) .my-element { ... }`).
+- Die Schalter lassen sich nativ mit den Pfeiltasten bedienen.
+- **Die einzige Rolle von Javascript** ist es, beim initialen Seitenaufbau (Anti-Flicker) den letzten Zustand aus dem `localStorage` auszulesen und den Schalter per `element.checked = true` zu setzen, sowie beim `change`-Event den neuen Zustand abzuspeichern.

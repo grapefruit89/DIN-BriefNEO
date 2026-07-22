@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PoC 2 — Postvermerk & Toast System</title>
+  <link rel="stylesheet" href="poc-postvermerk-toast.css">
+  <!-- 
+    PoC 2: Postvermerk & Toast System
+    Demonstrates Chrome 140-150 Bleeding Edge Primitives:
+    1. Static HTML <option> elements + CSS white-space: pre-line for multi-line Postvermerk
+    2. Toast Badge hiding via CSS :empty pseudo-class rule
+    3. CSS @starting-style slide-in entrance animation for popovers
+    4. CSS custom property --swipe-x for drag-to-dismiss touch feedback
+  -->
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PoC 2 — Postvermerk & Toast System</h1>
+      <p class="description">
+        Demonstrates multi-line text formatting without dynamic DOM element creation, and popover toast notifications styled via CSS <code>:empty</code> and <code>@starting-style</code>.
+      </p>
+    </header>
+
+    <!-- Section 1: Postvermerk Static Options & CSS white-space: pre-line -->
+    <section class="card">
+      <h2>1. Postvermerk Formatter (Static Options & CSS <code>white-space: pre-line</code>)</h2>
+      <p>Select a Postal Note format. Newline characters (<code>\n</code>) format into multi-line breaks natively in CSS without creating <code>&lt;br&gt;</code> elements in JavaScript.</p>
+
+      <select id="postvermerk-select">
+        <option value="">-- Postvermerk auswählen --</option>
+        <option value="PRIXPAYÉ&#10;75003 PARIS">PRIX PAYÉ / 75003 PARIS</option>
+        <option value="EINSCHREIBEN&#10;RÜCKSCHEIN">EINSCHREIBEN / RÜCKSCHEIN</option>
+        <option value="PRIORITAIRE&#10;LUFTPOST">PRIORITAIRE / LUFTPOST</option>
+        <option value="BÜCHER- UND WARENSENDUNG">BÜCHER- UND WARENSENDUNG</option>
+        <option value="PERSÖNLICH / VERTRAULICH">PERSÖNLICH / VERTRAULICH</option>
+      </select>
+
+      <div class="envelope-window">
+        <!-- Postvermerk target element styled with white-space: pre-line -->
+        <div id="postvermerk-field" class="postvermerk-box">EINSCHREIBEN&#10;RÜCKSCHEIN</div>
+        <div class="address-box">
+          Max Mustermann<br>
+          Musterstraße 123<br>
+          12345 Musterstadt
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Toast Notification with CSS :empty and @starting-style -->
+    <section class="card">
+      <h2>2. Toast Notification System</h2>
+      <p>Trigger toasts with different configurations. Badges hide automatically via CSS <code>:empty</code> when empty.</p>
+
+      <div class="btn-group">
+        <button class="btn" id="btn-toast-normal">Standard Toast</button>
+        <button class="btn" id="btn-toast-badge">Toast mit Badge</button>
+        <button class="btn" id="btn-toast-swipe">Simuliere Swipe Gesture</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast Popover Structure -->
+  <div id="toast-v4" popover="manual">
+    <div id="toast-content-wrapper" class="toast-content">
+      <span id="toast-message">Meldung erfolgreich gespeichert</span>
+      <!-- Badge element styled with .toast-badge:empty { display: none; } -->
+      <span id="toast-badge-elem" class="toast-badge">NEU</span>
+    </div>
+  </div>
+
+  <script>
+    // Minimal JS script strictly for handling trigger clicks and value assignments
+    const selectElem = document.getElementById('postvermerk-select');
+    const pvField = document.getElementById('postvermerk-field');
+    const toastElem = document.getElementById('toast-v4');
+    const toastMsg = document.getElementById('toast-message');
+    const toastBadge = document.getElementById('toast-badge-elem');
+
+    selectElem.addEventListener('change', () => {
+      if (selectElem.value) {
+        pvField.textContent = selectElem.value;
+        showToast('Postvermerk aktualisiert', 'SUCCESS');
+      }
+    });
+
+    function showToast(msg, badgeText = '') {
+      toastMsg.textContent = msg;
+      toastBadge.textContent = badgeText; // Emptying text causes CSS :empty rule to hide it!
+      toastElem.style.setProperty('--swipe-x', '0px');
+      toastElem.style.setProperty('--swipe-x-abs', '0');
+      
+      try {
+        toastElem.showPopover();
+      } catch(e) {}
+
+      setTimeout(() => {
+        try { toastElem.hidePopover(); } catch(e) {}
+      }, 3000);
+    }
+
+    document.getElementById('btn-toast-normal').addEventListener('click', () => {
+      showToast('Standard Benachrichtigung', '');
+    });
+
+    document.getElementById('btn-toast-badge').addEventListener('click', () => {
+      showToast('Status Update', 'WICHTIG');
+    });
+
+    document.getElementById('btn-toast-swipe').addEventListener('click', () => {
+      showToast('Wische nach rechts zum Schließen...', 'GESTURE');
+      let x = 0;
+      const interval = setInterval(() => {
+        x += 15;
+        toastElem.style.setProperty('--swipe-x', `${x}px`);
+        toastElem.style.setProperty('--swipe-x-abs', `${Math.abs(x)}`);
+        if (x > 150) {
+          clearInterval(interval);
+          try { toastElem.hidePopover(); } catch(e) {}
+        }
+      }, 30);
+    });
+  </script>
+</body>
+</html>

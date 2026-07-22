@@ -1,23 +1,31 @@
 // @adr [[ADR-JS]] 
 // @guide [[glossary]] 
 
+// @ts-check
 import { StorageManager } from '../30-utils/02-storage.js';
 
 export const SALUTATION = Object.freeze({
   TITLES: ["Prof. Dr.", "Dipl.-Ing.", "Prof.", "Dr.", "Mag."],
 });
 
+/**
+ * @param {string} f
+ * @returns {string}
+ */
 function normalizeFormality(f) {
   const map = {
     formal: "formal", förmlich: "formal", foermlich: "formal",
     polite: "polite", höflich: "polite", hoeflich: "polite",
     casual: "casual", modern: "casual", locker: "casual",
   };
-  return map[(f || "").toLowerCase()] || "formal";
+  return map[/** @type {keyof typeof map} */ ((f || "").toLowerCase())] || "formal";
 }
 
 /* @adr [[ADR-JS]] {SalutationEngine} */
 export const SalutationEngine = {
+  /**
+   * @param {string} name
+   */
   splitTitles(name) {
     let rest = (name || "").trim();
     const sorted = [...SALUTATION.TITLES].sort((a, b) => b.length - a.length);
@@ -39,6 +47,9 @@ export const SalutationEngine = {
     return { titles: found.join(" "), name: rest };
   },
 
+  /**
+   * @param {{ firstName?: string, lastName?: string, company?: string, type?: string, formality?: string }} [param0]
+   */
   derive({ firstName = "", lastName = "", company = "", type = "none", formality = "formal" } = {}) {
     const style = normalizeFormality(formality);
     const fn = firstName.trim();
@@ -69,6 +80,9 @@ export const SalutationEngine = {
     return `Hallo ${fn || surname},`;
   },
 
+  /**
+   * @param {string} [formality]
+   */
   getClosing(formality = "formal") {
     const style = normalizeFormality(formality);
     if (style === "casual") return "Beste Grüße";
@@ -76,6 +90,9 @@ export const SalutationEngine = {
     return "Mit freundlichen Grüßen";
   },
 
+  /**
+   * @param {string} [formality]
+   */
   getFallback(formality = "formal") {
     const style = normalizeFormality(formality);
     if (style === "casual") return "Hallo zusammen,";
@@ -86,6 +103,9 @@ export const SalutationEngine = {
 
 /* @adr [[ADR-JS]] {SalutationFeature} */
 export class SalutationFeature {
+  /**
+   * @param {(() => void) | null} saveDraftDataCallback
+   */
   constructor(saveDraftDataCallback) {
     this.saveDraftData = saveDraftDataCallback;
     this.settings = StorageManager.loadSettings();
@@ -107,12 +127,12 @@ export class SalutationFeature {
   _applyUIState() {
     ['formal', 'polite', 'casual'].forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
-      if (btn) btn.setAttribute('aria-pressed', this.settings.formality === style ? 'true' : 'false');
+      if (btn) /** @type {HTMLInputElement} */ (btn).checked = this.settings.formality === style;
     });
 
     ['none', 'female', 'male'].forEach(gender => {
       const btn = document.getElementById(`btn-gender-${gender}`);
-      if (btn) btn.setAttribute('aria-pressed', this.settings.recipientType === gender ? 'true' : 'false');
+      if (btn) /** @type {HTMLInputElement} */ (btn).checked = this.settings.recipientType === gender;
     });
   }
 
@@ -120,7 +140,7 @@ export class SalutationFeature {
     ['formal', 'polite', 'casual'].forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
       if (btn) {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('change', () => {
           this.settings.formality = style;
           this.settings.salutationDirty = false;
           this.settings.closingDirty = false;
@@ -137,7 +157,7 @@ export class SalutationFeature {
     ['none', 'female', 'male'].forEach(gender => {
       const btn = document.getElementById(`btn-gender-${gender}`);
       if (btn) {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('change', () => {
           this.settings.recipientType = gender;
           StorageManager.saveSettings(this.settings);
           this._applyUIState();
@@ -210,6 +230,10 @@ export class SalutationFeature {
     this._setField(el, value);
   }
 
+  /**
+   * @param {HTMLElement} el
+   * @param {string} value
+   */
   _setField(el, value) {
     if (document.activeElement === el) return; 
     el.textContent = value;

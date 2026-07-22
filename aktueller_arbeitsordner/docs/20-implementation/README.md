@@ -1,9 +1,18 @@
 ---
+code_links: []
+created: '2026-07-07'
+depends_on: []
+doc_links: []
 id: doc-readme-2
-type: README
-title: 20-implementation README
 status: active
-tags: [readme, documentation]
+tags:
+- readme
+- documentation
+title: 20-implementation README
+type: README
+updated: '2026-07-07'
 ---
+
 # 20 Implementation
+
 Praktische Anleitungen und How-Tos.

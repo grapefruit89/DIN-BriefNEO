@@ -1,15 +1,31 @@
+// @ts-check
 export class FormatToolbar {
+  /** @type {HTMLElement} */
   #brieftext;
+  /** @type {HTMLElement} */
   #toolbar;
+  /** @type {(() => void) | null} */
   #onSaveDraft;
+  /** @type {HTMLElement | null} */
   #selectionAnchor;
+  /** @type {any} */
   #selectionTimeout;
+  /** @type {Range | null} */
   #currentRange = null;
-  #btnBold;
-  #btnUnderline;
-  #btnQuote;
-  #btnComment;
+  /** @type {HTMLElement | null} */
+  #btnBold = null;
+  /** @type {HTMLElement | null} */
+  #btnUnderline = null;
+  /** @type {HTMLElement | null} */
+  #btnQuote = null;
+  /** @type {HTMLElement | null} */
+  #btnComment = null;
 
+  /**
+   * @param {HTMLElement} brieftextEl
+   * @param {HTMLElement} toolbarEl
+   * @param {(() => void) | null} onSaveDraft
+   */
   constructor(brieftextEl, toolbarEl, onSaveDraft = null) {
     this.#brieftext = brieftextEl;
     this.#toolbar = toolbarEl;
@@ -36,22 +52,29 @@ export class FormatToolbar {
 
   // --- Private Methoden ---
 
+  /**
+   * @param {string} tagName
+   * @returns {boolean}
+   */
   #isSelectionInsideTag(tagName) {
     const selection = window.getSelection();
-    if (selection.rangeCount === 0) return false;
+    if (!selection || selection.rangeCount === 0) return false;
     
     const isCustomComment = tagName === 'comment';
     const actualTag = isCustomComment ? 'SPAN' : tagName;
 
     let node = selection.anchorNode;
     while (node && node !== this.#brieftext) {
-      const name = node.nodeName.toUpperCase();
-      if (name === actualTag.toUpperCase() || 
-          (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
-        if (isCustomComment && !node.classList.contains('din-comment')) {
-          // Keep searching upwards
-        } else {
-          return true;
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = /** @type {HTMLElement} */ (node);
+        const name = element.nodeName.toUpperCase();
+        if (name === actualTag.toUpperCase() || 
+            (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
+          if (isCustomComment && !element.classList.contains('din-comment')) {
+            // Keep searching upwards
+          } else {
+            return true;
+          }
         }
       }
       node = node.parentNode;
@@ -59,10 +82,17 @@ export class FormatToolbar {
     return false;
   }
 
+  /**
+   * @param {Node | null} anchorNode
+   * @returns {Element | null}
+   */
   #getBlockquoteAncestor(anchorNode) {
     let node = anchorNode;
     while (node && node !== this.#brieftext) {
-      if (node.nodeName === 'BLOCKQUOTE') return node;
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = /** @type {Element} */ (node);
+        if (element.nodeName === 'BLOCKQUOTE') return element;
+      }
       node = node.parentNode;
     }
     return null;
@@ -70,6 +100,7 @@ export class FormatToolbar {
 
   #handleSelectionChange() {
     const selection = window.getSelection();
+    if (!selection) return;
 
     // Vorfilter: Is something selected?
     if (selection.isCollapsed || selection.toString().trim().length === 0) {
@@ -78,7 +109,7 @@ export class FormatToolbar {
     }
 
     // Scope-Filter: Is selection strictly inside brieftext?
-    if (!this.#brieftext.contains(selection.anchorNode)) {
+    if (!selection.anchorNode || !this.#brieftext.contains(selection.anchorNode)) {
       this.#hideToolbar();
       return;
     }
@@ -167,7 +198,7 @@ export class FormatToolbar {
       this.#btnQuote.addEventListener('click', (e) => {
         e.preventDefault();
         const selection = window.getSelection();
-        if (selection.isCollapsed || !this.#brieftext.contains(selection.anchorNode)) return;
+        if (!selection || selection.isCollapsed || !selection.anchorNode || !this.#brieftext.contains(selection.anchorNode)) return;
 
         const range = selection.getRangeAt(0);
         const bq = this.#getBlockquoteAncestor(selection.anchorNode);
@@ -175,10 +206,12 @@ export class FormatToolbar {
         if (bq) {
           // UNWRAP: Replace blockquote with its children
           const parent = bq.parentNode;
-          while (bq.firstChild) {
-            parent.insertBefore(bq.firstChild, bq);
+          if (parent) {
+            while (bq.firstChild) {
+              parent.insertBefore(bq.firstChild, bq);
+            }
+            parent.removeChild(bq);
           }
-          parent.removeChild(bq);
         } else {
           // WRAP: Wrap range contents in a blockquote
           const quote = document.createElement('blockquote');
@@ -201,21 +234,22 @@ export class FormatToolbar {
 
   #initKeyboardShortcuts() {
     this.#brieftext.addEventListener('keydown', (e) => {
+      const keyboardEvent = /** @type {KeyboardEvent} */ (e);
       // Bold shortcut: Strg+B
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-        e.preventDefault();
+      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'b') {
+        keyboardEvent.preventDefault();
         if (this.#btnBold) this.#btnBold.click();
       }
       
       // Underline shortcut: Strg+U
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
-        e.preventDefault();
+      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'u') {
+        keyboardEvent.preventDefault();
         if (this.#btnUnderline) this.#btnUnderline.click();
       }
       
       // Custom blockquote shortcut: Strg+Q
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'q') {
-        e.preventDefault();
+      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
+        keyboardEvent.preventDefault();
         if (this.#btnQuote) this.#btnQuote.click();
       }
     });
@@ -224,12 +258,15 @@ export class FormatToolbar {
   #initPasteSanitizer() {
     // Strikter HTML-Paste-Filter (behält nur strong, b, u, s, blockquote, und din-comment spans)
     this.#brieftext.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const html = e.clipboardData.getData('text/html');
-      const text = e.clipboardData.getData('text/plain');
+      const clipboardEvent = /** @type {ClipboardEvent} */ (e);
+      clipboardEvent.preventDefault();
+      const clipboardData = clipboardEvent.clipboardData;
+      if (!clipboardData) return;
+      const html = clipboardData.getData('text/html');
+      const text = clipboardData.getData('text/plain');
 
       const selection = window.getSelection();
-      if (!selection.rangeCount) return;
+      if (!selection || !selection.rangeCount) return;
       
       const range = selection.getRangeAt(0);
       range.deleteContents();
@@ -240,9 +277,10 @@ export class FormatToolbar {
         
         // Try native W3C Sanitizer API first (Chrome 119+)
         const dummyDiv = document.createElement('div');
-        if (dummyDiv.setHTML) {
+        const divWithSetHTML = /** @type {any} */ (dummyDiv);
+        if (divWithSetHTML.setHTML) {
           try {
-            dummyDiv.setHTML(html, { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'], attributes: {'span': ['class']} });
+            divWithSetHTML.setHTML(html, { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'], attributes: {'span': ['class']} });
             while (dummyDiv.firstChild) {
               cleanFragment.appendChild(dummyDiv.firstChild);
             }
@@ -256,35 +294,40 @@ export class FormatToolbar {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
           
-          function sanitizeNode(node) {
+          /**
+           * @param {Node} node
+           * @returns {Node}
+           */
+          const sanitizeNode = (node) => {
             const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
             
             if (node.nodeType === Node.TEXT_NODE) {
-              return document.createTextNode(node.textContent);
+              return document.createTextNode(node.textContent || '');
             }
             
             if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
             
+            const element = /** @type {Element} */ (node);
             let newNode;
-            if (allowedTags.includes(node.nodeName)) {
-               newNode = document.createElement(node.nodeName.toLowerCase());
-            } else if (node.nodeName === 'SPAN' && node.classList.contains('din-comment')) {
+            if (allowedTags.includes(element.nodeName)) {
+               newNode = document.createElement(element.nodeName.toLowerCase());
+            } else if (element.nodeName === 'SPAN' && element.classList.contains('din-comment')) {
                newNode = document.createElement('span');
                newNode.className = 'din-comment';
             } else {
                const frag = document.createDocumentFragment();
-               node.childNodes.forEach(child => {
+               element.childNodes.forEach(child => {
                  frag.appendChild(sanitizeNode(child));
                });
                return frag;
             }
             
-            node.childNodes.forEach(child => {
+            element.childNodes.forEach(child => {
               newNode.appendChild(sanitizeNode(child));
             });
             
             return newNode;
-          }
+          };
 
           doc.body.childNodes.forEach(child => {
             cleanFragment.appendChild(sanitizeNode(child));
@@ -314,10 +357,14 @@ export class FormatToolbar {
 
   #initDropHandler() {
     this.#brieftext.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const text = e.dataTransfer.getData('text/plain');
+      const dragEvent = /** @type {DragEvent} */ (e);
+      dragEvent.preventDefault();
+      const dataTransfer = dragEvent.dataTransfer;
+      if (!dataTransfer) return;
+      const text = dataTransfer.getData('text/plain');
 
-      const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+      // @ts-ignore
+      const range = document.caretRangeFromPoint(dragEvent.clientX, dragEvent.clientY);
       if (range) {
         range.deleteContents();
         range.insertNode(document.createTextNode(text));
@@ -340,9 +387,12 @@ export class FormatToolbar {
 
   // --- Öffentliche Methoden ---
 
+  /**
+   * @param {string} tagName
+   */
   toggleFormat(tagName) {
     const selection = window.getSelection();
-    if (selection.isCollapsed || !this.#brieftext.contains(selection.anchorNode)) return;
+    if (!selection || selection.isCollapsed || !selection.anchorNode || !this.#brieftext.contains(selection.anchorNode)) return;
 
     const range = selection.getRangeAt(0);
     
@@ -351,28 +401,34 @@ export class FormatToolbar {
     
     if (this.#isSelectionInsideTag(tagName)) {
       // UNWRAP
+      /** @type {Node | null} */
       let node = selection.anchorNode;
       let formatNode = null;
       while (node && node !== this.#brieftext) {
-        const name = node.nodeName.toUpperCase();
-        if (name === actualTag.toUpperCase() || (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
-          if (isCustomComment && !node.classList.contains('din-comment')) {
-             // Keep searching
-          } else {
-            formatNode = node;
-            break;
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = /** @type {HTMLElement} */ (node);
+          const name = element.nodeName.toUpperCase();
+          if (name === actualTag.toUpperCase() || (actualTag.toUpperCase() === 'B' && name === 'STRONG')) {
+            if (isCustomComment && !element.classList.contains('din-comment')) {
+               // Keep searching
+            } else {
+              formatNode = element;
+              break;
+            }
           }
         }
-        node = node.parentNode;
+        node = /** @type {Node | null} */ (node.parentNode);
       }
       
       if (formatNode) {
-        const parent = formatNode.parentNode;
-        const fragment = document.createDocumentFragment();
-        while (formatNode.firstChild) {
-          fragment.appendChild(formatNode.firstChild);
+        const parent = /** @type {Node} */ (formatNode.parentNode);
+        if (parent) {
+          const fragment = document.createDocumentFragment();
+          while (formatNode.firstChild) {
+            fragment.appendChild(formatNode.firstChild);
+          }
+          parent.replaceChild(fragment, formatNode);
         }
-        parent.replaceChild(fragment, formatNode);
       }
     } else {
       // WRAP

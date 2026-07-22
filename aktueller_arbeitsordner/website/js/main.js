@@ -1,3 +1,4 @@
+// @ts-check
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
@@ -47,22 +48,33 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {}
     }
 
-        const dateFormatter = new DateFormatter(window.UI_CONTEXT);
-    dateFormatter.init();
     const settingsManager = new SettingsManager();
     // Feature Trace: document.startViewTransition is now handled inside settingsManager._transitionState
     settingsManager.init();
 
+    const dateContext = {
+      settings: settingsManager.settings,
+      saveSettings: () => {
+        StorageManager.saveSettings(settingsManager.settings);
+        settingsManager.applySettings();
+      }
+    };
+    const dateFormatter = new DateFormatter(dateContext);
+    dateFormatter.init();
+
     attachGlobalListeners(draftManager, uiProtections);
     
-    const formatToolbarInstance = new FormatToolbar(
-      document.getElementById('brieftext'),
-      document.getElementById('format-toolbar'),
-      () => draftManager.saveDraft()
-    );
-    formatToolbarInstance.init();
+    const brieftextEl = document.getElementById('brieftext');
+    const formatToolbarEl = document.getElementById('format-toolbar');
+    if (brieftextEl && formatToolbarEl) {
+      const formatToolbarInstance = new FormatToolbar(
+        brieftextEl,
+        formatToolbarEl,
+        () => draftManager.saveDraft()
+      );
+      formatToolbarInstance.init();
+    }
     
-    uiProtections.checkTextOverflow();
     initAddressBookSaveButton();
     
     // --- MODULE INITIALIZATION ---
@@ -87,33 +99,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- GLOBAL EVENT LISTENERS & TRIGGERS ---
+  /**
+   * @param {DraftManager} draftManager
+   * @param {UIProtections} uiProtections
+   */
   function attachGlobalListeners(draftManager, uiProtections) {
     // Print
-    btnPrint.addEventListener('click', () => {
-      showToast(Constants.TOASTS.PRINT_PENDING, 'info');
-      const metaCtx = MetadataService.prepare();
-      
-      setTimeout(() => {
-        window.print();
-        MetadataService.restore(metaCtx);
-      }, 100);
-    });
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        showToast(Constants.TOASTS.PRINT_PENDING, 'info');
+        const metaCtx = MetadataService.prepare();
+        
+        setTimeout(() => {
+          window.print();
+          MetadataService.restore(metaCtx);
+        }, 100);
+      });
+    }
 
     // Reset
-    btnReset.addEventListener('click', () => {
-      if (confirm('Möchtest du alle Texte wirklich zurücksetzen?')) {
-        draftManager.resetDraft();
-        uiProtections.checkTextOverflow();
-      }
-    });
+    const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
+    if (btnReset && resetDialog) {
+      btnReset.addEventListener('click', () => {
+        resetDialog.showModal();
+      });
+      
+      resetDialog.addEventListener('close', () => {
+        if (resetDialog.returnValue === 'confirm') {
+          draftManager.resetDraft();
+        }
+      });
+    }
 
-    // Auto-Save & Overflow Check on Input
+    // Auto-Save on Input
     document.querySelectorAll('[contenteditable]').forEach(el => {
       el.addEventListener('input', () => {
         draftManager.scheduleAutoSave();
-        if (el.id === 'brieftext' || el.id === 'anlagen-text') {
-          uiProtections.checkTextOverflow();
-        }
       });
     });
   }

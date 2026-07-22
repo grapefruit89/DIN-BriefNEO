@@ -1,8 +1,11 @@
 ---
 aliases:
 - No-Scroll Techniques
-created: '2026-07-06'
+code_links: []
+created: '2026-06-26'
 depends_on: []
+doc_links: []
+id: guide-no-scroll-techniques
 last-updated: 2026-07-02
 project: DIN-BriefNEO
 status: active
@@ -15,7 +18,7 @@ tags:
 - architecture
 title: 'Guide: Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)'
 type: guide
-updated: '2026-07-06'
+updated: '2026-07-07'
 ---
 
 # Technischer Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)
@@ -26,6 +29,7 @@ updated: '2026-07-06'
 ---
 
 ## 1. Das globale Sicherheitsnetz
+
 Um jegliches versehentliche Scrollen im Keim zu ersticken, erhält die oberste Ebene des HTML-Dokuments eine absolute Sperre:
 
 ```css
@@ -43,6 +47,7 @@ html, body {
 ---
 
 ## 2. Die Flexbox- & Grid-Kaskade
+
 Die Benutzeroberfläche wird mit einem App-Shell-Layout strukturiert. Alle Container müssen die Höhe ihrer Eltern-Elemente erben und dürfen diese niemals überschreiten.
 
 ```css
@@ -55,6 +60,7 @@ Die Benutzeroberfläche wird mit einem App-Shell-Layout strukturiert. Alle Conta
 ```
 
 ### Die Sidebar (Links)
+
 Die Sidebar erhält eine eigene Höhenbegrenzung. Wenn Steuerelemente den Platz überschreiten, muss ein elastischer Scrollbereich *nur* für diese Kontrollgruppe eingerichtet werden, wobei der äußere Scrollbalken ausgeblendet wird:
 
 ```css
@@ -80,36 +86,21 @@ aside {
 ---
 
 ## 3. Der Brief-Viewport (Rechts)
+
 Der Briefbereich (Paper Viewport) muss das Briefblatt (A4) elegant skalieren, anstatt zu scrollen. 
 
 ### Skalierung statt Scrollen (Dynamic Zooming)
+
 Anstatt das A4-Blatt (210mm x 297mm) auf kleineren Bildschirmen überstehen zu lassen, nutzen wir CSS-Skalierung, damit es immer komplett sichtbar bleibt:
-
-```css
-#paper-viewport {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background-color: var(--viewport-bg);
-}
-
-din-a4 {
-  height: 94vh; /* Passt sich perfekt dem Viewport an */
-  aspect-ratio: 210 / 297; /* Exaktes DIN A4 Seitenverhältnis */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  background: white;
-  container-type: size; /* Ermöglicht proportionale cqw/cqh Maße */
-}
-```
 
 ---
 
 ## 4. Auto-Resizing ohne Scroll-Auslöser
+
 Wenn Text in ein Feld eingegeben wird, darf sich dieses nicht vergrößern und das Layout sprengen.
 
 ### Das `field-sizing` Wunder
+
 Wir nutzen `field-sizing: content` auf unseren Texteingaben. Dies passt die Größe des Elements automatisch an den Inhalt an, verhindert aber in Verbindung mit `max-height` ein unbegrenztes Wachstum:
 
 ```css
@@ -124,14 +115,18 @@ din-text, [contenteditable] {
 ---
 
 ## 5. Defensive CSS-Techniken zur Vermeidung von Layout-Sprengungen
+
 - **Nutze `box-sizing: border-box`:** Jedes Element im Projekt muss diese Eigenschaft besitzen, damit Padding und Border die Gesamtbreite/-höhe nicht erhöhen.
+
 - **Vermeide absolute Pixelwerte bei Höhen:** Nutze relative Einheiten wie `rem`, `%`, `vh` oder `dvh` für Layout-Skelette.
+
 - **Umgang mit langen Wörtern:** Verwende `word-break: break-word` und `hyphens: auto`, um horizontalen Textüberlauf zu verhindern.
 
-
 ## 4. Verhalten bei sehr kleinen Viewports (< 700px)
+
 Da wir ein hartes `min-height: 800px` und proportionale Skalierung erzwingen, würde das Dokument auf extrem kleinen Smartphones zwangsläufig aus dem Bildbereich ragen.
 Hier greift eine Medienabfrage, die entweder das No-Scroll-Konzept aufweicht (Scrollen erlauben) oder einen klaren Hinweis zeigt, dass die Desktop-Ansicht erforderlich ist.
 
 ## 5. Warnung zu `field-sizing: content`
+
 Während `field-sizing` ein exzellentes CSS-Feature für Auto-Grow Inputs ist, funktioniert es in einigen Engines noch nicht absolut fehlerfrei oder verzögert. Als Fallback oder Alternative für sehr komplexe Felder kann ein `ResizeObserver` oder ein Set aus `min-height` und `max-height` herangezogen werden.

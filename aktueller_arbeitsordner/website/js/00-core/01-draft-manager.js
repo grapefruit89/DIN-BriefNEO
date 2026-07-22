@@ -1,13 +1,23 @@
+// @ts-check
 import { StorageManager } from '../30-utils/02-storage.js';
 
 export class DraftManager {
+  /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #undoStack = [];
+  /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #redoStack = [];
+  /** @type {{draftStr: string, caretInfo: {id: string, offset: number} | null} | null} */
   #currentState = null; // Object holding { draftStr, caretInfo }
+  /** @type {boolean} */
   #isRestoring = false;
 
+  /**
+   * @param {(() => void) | null} onSaveCallback
+   */
   constructor(onSaveCallback = null) {
+    /** @type {(() => void) | null} */
     this.onSaveCallback = onSaveCallback;
+    /** @type {any} */
     this.debounceTimer = null;
     this.DEBOUNCE_DELAY = 500; // 500ms ist ein guter Mittelweg
     this.#initShortcuts();
@@ -31,6 +41,7 @@ export class DraftManager {
    * Speichert den aktuellen Zustand
    */
   saveDraft() {
+    /** @type {Record<string, string>} */
     const draft = {};
 
     document.querySelectorAll('[contenteditable]').forEach(elem => {
@@ -86,6 +97,9 @@ export class DraftManager {
     return true;
   }
 
+  /**
+   * @param {Record<string, string>} draft
+   */
   #restoreState(draft) {
     this.#isRestoring = true;
     Object.keys(draft).forEach(id => {
@@ -93,9 +107,10 @@ export class DraftManager {
       if (!elem) return;
 
       if (id === 'brieftext' || id === 'anlagen-text') {
-        if (elem.setHTML) {
+        const elWithSetHTML = /** @type {any} */ (elem);
+        if (elWithSetHTML.setHTML) {
           try {
-            elem.setHTML(draft[id], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] });
+            elWithSetHTML.setHTML(draft[id], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] });
           } catch {
             this.#safeFallbackParse(elem, draft[id]);
           }
@@ -109,27 +124,36 @@ export class DraftManager {
     this.#isRestoring = false;
   }
 
+  /**
+   * @param {HTMLElement} elem
+   * @param {string} htmlString
+   */
   #safeFallbackParse(elem, htmlString) {
+    // @todo(chrome-153): Replace DOMParser with Renewed HTML insertion methods
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
     elem.replaceChildren(...doc.body.childNodes);
   }
 
   undo() {
-    if (this.#undoStack.length === 0) return;
+    if (this.#undoStack.length === 0 || !this.#currentState) return;
     this.#redoStack.push(this.#currentState);
-    this.#currentState = this.#undoStack.pop();
+    this.#currentState = this.#undoStack.pop() || null;
     this.#applyHistoryState(this.#currentState);
   }
 
   redo() {
-    if (this.#redoStack.length === 0) return;
+    if (this.#redoStack.length === 0 || !this.#currentState) return;
     this.#undoStack.push(this.#currentState);
-    this.#currentState = this.#redoStack.pop();
+    this.#currentState = this.#redoStack.pop() || null;
     this.#applyHistoryState(this.#currentState);
   }
 
+  /**
+   * @param {{draftStr: string, caretInfo: {id: string, offset: number} | null} | null} stateObj
+   */
   #applyHistoryState(stateObj) {
+    if (!stateObj) return;
     const draft = JSON.parse(stateObj.draftStr);
     this.#restoreState(draft);
     StorageManager.saveDraft('current', draft);
@@ -146,13 +170,18 @@ export class DraftManager {
     if (this.onSaveCallback) this.onSaveCallback();
   }
 
+  /**
+   * @param {Element} element
+   * @returns {number}
+   */
   #getCaretCharacterOffsetWithin(element) {
     let caretOffset = 0;
-    const doc = element.ownerDocument || element.document;
-    const win = doc.defaultView || doc.parentWindow;
-    if (typeof win.getSelection !== "undefined") {
+    const doc = element.ownerDocument;
+    if (!doc) return 0;
+    const win = doc.defaultView;
+    if (win && typeof win.getSelection !== "undefined") {
       const sel = win.getSelection();
-      if (sel.rangeCount > 0) {
+      if (sel && sel.rangeCount > 0) {
         const range = sel.getRangeAt(0);
         const preCaretRange = range.cloneRange();
         preCaretRange.selectNodeContents(element);
@@ -163,23 +192,34 @@ export class DraftManager {
     return caretOffset;
   }
 
+  /**
+   * @param {HTMLElement} elem
+   * @param {number} caretPos
+   */
   #setCaretPosition(elem, caretPos) {
     if (caretPos === 0) {
       elem.focus();
       return;
     }
-    const doc = elem.ownerDocument || elem.document;
-    const win = doc.defaultView || doc.parentWindow;
+    const doc = elem.ownerDocument;
+    if (!doc) return;
+    const win = doc.defaultView;
+    if (!win) return;
     const sel = win.getSelection();
+    if (!sel) return;
     const range = doc.createRange();
     
     let charIndex = 0;
     let found = false;
 
-    function traverseNodes(node) {
+    /**
+     * @param {Node} node
+     */
+    const traverseNodes = (node) => {
       if (found) return;
       if (node.nodeType === 3) {
-        const nextCharIndex = charIndex + node.length;
+        const length = node.textContent ? node.textContent.length : 0;
+        const nextCharIndex = charIndex + length;
         if (caretPos >= charIndex && caretPos <= nextCharIndex) {
           range.setStart(node, caretPos - charIndex);
           range.collapse(true);
@@ -193,7 +233,7 @@ export class DraftManager {
           child = child.nextSibling;
         }
       }
-    }
+    };
 
     traverseNodes(elem);
 

@@ -1,3 +1,4 @@
+// @ts-check
 import { showToast } from '../10-ui/02-toast.js';
 
 export function initAddressBookSaveButton() {
@@ -8,21 +9,7 @@ export function initAddressBookSaveButton() {
   const saveBtn = document.createElement('button');
   saveBtn.textContent = '💾';
   saveBtn.title = 'Aktuelle Adresse ins Adressbuch speichern';
-  Object.assign(saveBtn.style, {
-    position: 'absolute',
-    top: '0',
-    right: '-30px',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.2rem',
-    opacity: '0.3',
-    transition: 'opacity 0.2s',
-    zIndex: '10'
-  });
-
-  saveBtn.addEventListener('mouseenter', () => saveBtn.style.opacity = '1');
-  saveBtn.addEventListener('mouseleave', () => saveBtn.style.opacity = '0.3');
+  saveBtn.classList.add('address-save-btn');
 
   saveBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -45,7 +32,8 @@ export function initAddressBookSaveButton() {
       strasse,
       ort,
       plz: ort.split(' ')[0] || '',
-      city: ort.split(' ').slice(1).join(' ') || ''
+      city: ort.split(' ').slice(1).join(' ') || '',
+      formatted: ''
     };
 
     // Construct the formatted string for the dropdown label
@@ -62,7 +50,7 @@ export function initAddressBookSaveButton() {
       let book = existingStr ? JSON.parse(existingStr) : [];
       
       // Prevent exact duplicates
-      const isDuplicate = book.some(entry => entry.formatted === newItem.formatted);
+      const isDuplicate = book.some((/** @type {any} */ entry) => entry.formatted === newItem.formatted);
       if (isDuplicate) {
         showToast('ℹ️ Adresse ist bereits im Adressbuch', 'info');
         return;

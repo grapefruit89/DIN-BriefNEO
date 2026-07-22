@@ -1,3 +1,4 @@
+// @ts-check
 // @adr [[ADR-JS]] 
 // @guide [[glossary]] 
 
@@ -38,7 +39,12 @@ export const MetadataService = {
     return { oldTitle, injectedTags };
   },
 
+  /**
+   * @param {{ author: string, description: string, keywords: string, title: string }} data
+   * @returns {HTMLMetaElement[]}
+   */
   _injectMetaTags(data) {
+    /** @type {HTMLMetaElement[]} */
     const tags = [];
     const mapping = {
       "author": data.author,
@@ -58,6 +64,9 @@ export const MetadataService = {
     return tags;
   },
 
+  /**
+   * @param {{ oldTitle: string, injectedTags: HTMLMetaElement[] } | null} context
+   */
   restore(context) {
     if (!context) return;
     document.title = context.oldTitle;

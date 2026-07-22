@@ -1,86 +1,73 @@
 ---
-title: "Salutation & Logic Engine Matrix (IMR 4.0 Standard)"
-subtitle: "Business Logic Architecture for DIN-BriefNEO"
-description: "Architektur der Geschäftslogik mit klarer Trennung zwischen Datenverarbeitung (Engine) und Darstellung (UI-Bridge)"
-version: "10.0.0"
-version_date: 2026-04-01
-status: active
-compliance: "100% DIN 5008:2020-03"
-github_issue: "#4"
-
-# === DOKUMENT-TYP ===
-type: implementation
-category: business-logic
-audience:
-  - developers
-  - implementers
-  - testers
-  - ai-agents
-
-# === TAGS ===
-tags:
-  - din-briefneo
-  - din-briefneo/engine
-  - din-briefneo/logic
-  - din-briefneo/salutation
-  - status/active
-  - type/implementation
-  - tech/temporal
-  - tech/sanitizer-api
-  - tech/proxy
-  - tech/opfs
-
-# === ALIASES ===
 aliases:
-  - "Salutation Engine"
-  - "Logic Engine"
-  - "Business Logic"
-  - "Engine Matrix"
-  - "IMR 4.0 Engine"
-
-# === DATAVIEW Felder ===
+- Salutation Engine
+- Logic Engine
+- Business Logic
+- Engine Matrix
+- IMR 4.0 Engine
+audience:
+- developers
+- implementers
+- testers
+- ai-agents
+author: '@din-briefneo/core-team'
+category: business-logic
+ci_status: passing
+code_links: []
+compliance: 100% DIN 5008:2020-03
+created: '2026-07-03'
+cssclasses:
+- table-stripes
+- wide-table
+- code-wrap
+date_created: 2025-10-01
+date_last_deployed: 2026-04-01
+date_updated: 2026-04-01
+depends_on: []
+description: Architektur der Geschäftslogik mit klarer Trennung zwischen Datenverarbeitung
+  (Engine) und Darstellung (UI-Bridge)
+doc_links: []
+github_issue: '#4'
+github_repo: din-briefneo/salutation-engine
+id: salutation-engine
+layout: default
+maintainer: '@grapefruit89'
 modules:
-  engine: "State & Persistence"
-  logic: "Business Logic & Markdown"
-  salutation: "Etiquette & Anrede"
+  engine: State & Persistence
+  logic: Business Logic & Markdown
+  salutation: Etiquette & Anrede
+npm_package: '@din-briefneo/salutation-engine'
+performance_iban_validate: 0.3ms
+performance_markdown_parse: 28ms
+performance_state_update: 2.1ms
+performance_title_extract: 0.2ms
+permalink: /docs/salutation-engine/
+related:
+- issues/#2_Architecture_Compliance_Matrix
+- issues/#1 DIN 5008 HTML Tag Glossar
+- issues/#5_CSS_Glossar
+- issues/#3_Feature_Matrix
+status: active
+subtitle: Business Logic Architecture for DIN-BriefNEO
+tags:
+- din-briefneo
+- din-briefneo/engine
+- din-briefneo/logic
+- din-briefneo/salutation
+- status/active
+- type/implementation
+- tech/temporal
+- tech/sanitizer-api
+- tech/proxy
+- tech/opfs
 test_coverage_engine: 85
 test_coverage_logic: 90
 test_coverage_salutation: 95
-performance_state_update: "2.1ms"
-performance_markdown_parse: "28ms"
-performance_iban_validate: "0.3ms"
-performance_title_extract: "0.2ms"
-
-# === VERWANDTE DOKUMENTE ===
-related:
-  - "issues/#2_Architecture_Compliance_Matrix"
-  - "issues/#1 DIN 5008 HTML Tag Glossar"
-  - "issues/#5_CSS_Glossar"
-  - "issues/#3_Feature_Matrix"
-
-# === ZEITSTEMPEL ===
-date_created: 2025-10-01
-date_updated: 2026-04-01
-date_last_deployed: 2026-04-01
-
-# === AUTOR ===
-author: "@din-briefneo/core-team"
-maintainer: "@grapefruit89"
-
-# === GITHUB ===
-npm_package: "@din-briefneo/salutation-engine"
-github_repo: "din-briefneo/salutation-engine"
-ci_status: "passing"
-
-# === OBSIDIAN ===
-cssclasses:
-  - table-stripes
-  - wide-table
-  - code-wrap
-
-# === GITHUB PAGES ===
-permalink: /docs/salutation-engine/
-layout: default
+title: Salutation & Logic Engine Matrix (IMR 4.0 Standard)
+type: implementation
+updated: '2026-07-07'
+version: 10.0.0
+version_date: 2026-04-01
 ---
 
 # Salutation & Logic Engine Matrix (IMR 4.0 Standard)
@@ -119,7 +106,6 @@ Sie folgt dem **Flat & Pure Architecture [ADR-017]** Prinzip: Klare Trennung zwi
 ---
 
 ## 🧠 Engine Architecture (The Core Three)
-
 
 | Modul | Rolle | Fokus-Technologie | Strategischer Vorteil |
 |-------|-------|-------------------|----------------------|

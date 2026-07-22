@@ -1,8 +1,13 @@
+// @ts-check
 export class UIProtections {
   constructor() {
+    /** @type {HTMLElement | null} */
     this.paper = document.querySelector('din-a4');
+    /** @type {HTMLElement | null} */
     this.brieftext = document.getElementById('brieftext');
+    /** @type {string[]} */
     this.multiLineIds = ['brieftext', 'anlagen-text'];
+    /** @type {string[]} */
     this.maxTwoLinesIds = ['betreff', 'postvermerk'];
     this.initialized = false;
   }
@@ -14,35 +19,25 @@ export class UIProtections {
     this.initialized = true;
   }
 
-  checkTextOverflow() {
-    if (!this.brieftext || !this.paper) return;
-    
-    // Printable core area maximum height is ~120mm on scale, which is roughly 450px inside 94vh container
-    const maxTextHeight = 450;
-    
-    if (this.brieftext.scrollHeight > maxTextHeight) {
-      this.paper.classList.add('overflow-warn');
-    } else {
-      this.paper.classList.remove('overflow-warn');
-    }
-  }
 
   enforceLineLimits() {
-    document.querySelectorAll('[contenteditable]').forEach(el => {
+    document.querySelectorAll('[contenteditable]').forEach(elem => {
+      const el = /** @type {HTMLElement} */ (elem);
       el.addEventListener('keydown', (e) => {
+        const keyboardEvent = /** @type {KeyboardEvent} */ (e);
         const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
-        if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return;
+        if (allowedKeys.includes(keyboardEvent.key) || keyboardEvent.ctrlKey || keyboardEvent.metaKey) return;
         
-        if (e.key === 'Enter') {
+        if (keyboardEvent.key === 'Enter') {
           if (this.multiLineIds.includes(el.id)) {
             return;
           } else if (this.maxTwoLinesIds.includes(el.id)) {
-            const text = el.innerText || el.textContent;
+            const text = el.innerText || el.textContent || '';
             if (text.split('\n').length >= 2) {
-              e.preventDefault();
+              keyboardEvent.preventDefault();
             }
           } else {
-            e.preventDefault();
+            keyboardEvent.preventDefault();
           }
         } else {
           // Character limit to prevent flooding
@@ -50,29 +45,33 @@ export class UIProtections {
           const isTwoLine = this.maxTwoLinesIds.includes(el.id);
           
           if (isSingleLine || isTwoLine) {
-            const text = el.innerText || el.textContent;
+            const text = el.innerText || el.textContent || '';
             const maxChars = isSingleLine ? 60 : 130;
             const selection = window.getSelection();
+            const selectionLength = selection ? selection.toString().length : 0;
             // Only prevent if trying to type a character and we're at/over limit, 
             // and no text is selected to be replaced
-            if (text.length - selection.toString().length >= maxChars && e.key.length === 1) {
-              e.preventDefault();
+            if (text.length - selectionLength >= maxChars && keyboardEvent.key.length === 1) {
+              keyboardEvent.preventDefault();
             }
           }
         }
       });
       
-            el.addEventListener('paste', (e) => {
+      el.addEventListener('paste', (e) => {
+        const clipboardEvent = /** @type {ClipboardEvent} */ (e);
         if (this.multiLineIds.includes(el.id)) return;
         
-        e.preventDefault();
-        let pastedText = (e.originalEvent || e).clipboardData.getData('text/plain');
+        clipboardEvent.preventDefault();
+        const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
+        let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
         const isTwoLine = this.maxTwoLinesIds.includes(el.id);
         const maxChars = isTwoLine ? 130 : 60;
         
         const selection = window.getSelection();
+        if (!selection) return;
         const selectedLength = selection.toString().length;
-        const currentText = el.innerText || el.textContent;
+        const currentText = el.innerText || el.textContent || '';
         const currentLength = currentText.length - selectedLength;
         
         let allowedPasteLength = maxChars - currentLength;
@@ -108,11 +107,12 @@ export class UIProtections {
     });
     
     anlagen.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' || e.key === 'Delete') {
+      const keyboardEvent = /** @type {KeyboardEvent} */ (e);
+      if (keyboardEvent.key === 'Backspace' || keyboardEvent.key === 'Delete') {
         const lis = anlagen.querySelectorAll('li');
-        if (lis.length === 1 && lis[0].textContent.trim() === '') {
+        if (lis.length === 1 && lis[0].textContent && lis[0].textContent.trim() === '') {
           // Don't delete the last empty li
-          e.preventDefault();
+          keyboardEvent.preventDefault();
         }
       }
       
@@ -121,6 +121,9 @@ export class UIProtections {
     });
   }
   
+  /**
+   * @param {HTMLElement} anlagen
+   */
   ensureListStructure(anlagen) {
     if (anlagen.children.length === 0 || anlagen.innerHTML.trim() === '' || anlagen.innerHTML.trim() === '<br>') {
       const li = document.createElement('li');
@@ -129,20 +132,22 @@ export class UIProtections {
       // Move cursor into the new li if focused
       if (document.activeElement === anlagen) {
         const selection = window.getSelection();
-        const range = document.createRange();
-        range.setStart(li, 0);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        if (selection) {
+          const range = document.createRange();
+          range.setStart(li, 0);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
       }
     } else {
       // Sometimes browsers insert raw text nodes or divs, wrap them in li
       let hasTextNodes = false;
       for (const node of anlagen.childNodes) {
-        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim() !== '') {
           hasTextNodes = true;
           break;
-        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'LI') {
+        } else if (node.nodeType === Node.ELEMENT_NODE && /** @type {Element} */ (node).tagName !== 'LI') {
           hasTextNodes = true;
           break;
         }

@@ -1,3 +1,4 @@
+// @ts-check
 // @adr [[ADR-JS]] 
 // @guide [[glossary]] 
 

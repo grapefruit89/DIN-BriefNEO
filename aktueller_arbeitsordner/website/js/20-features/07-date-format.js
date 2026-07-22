@@ -1,4 +1,8 @@
+// @ts-check
 export class DateFormatter {
+  /**
+   * @param {{ settings: any, saveSettings: () => void }} uiContext
+   */
   constructor(uiContext) {
     this.ui = uiContext;
     this.datumEl = document.getElementById('datum');
@@ -6,6 +10,8 @@ export class DateFormatter {
     this.btnDin = document.getElementById('btn-date-din');
     this.btnIso = document.getElementById('btn-date-iso');
     this.btnLong = document.getElementById('btn-date-long');
+    
+    /** @type {Record<string, HTMLElement | null>} */
     this.buttons = {
       'din': this.btnDin,
       'iso': this.btnIso,
@@ -29,21 +35,29 @@ export class DateFormatter {
     this.updateActiveButton(activeFormat);
     
     Object.entries(this.buttons).forEach(([formatType, btn]) => {
-      btn.addEventListener('click', () => {
-        this.updateActiveButton(formatType);
-        this.formatDate(formatType);
-        this.saveSetting(formatType);
-      });
+      if (btn) {
+        btn.addEventListener('change', () => {
+          this.updateActiveButton(formatType);
+          this.formatDate(formatType);
+          this.saveSetting(formatType);
+        });
+      }
     });
   }
   
+  /**
+   * @param {string} activeFormat
+   */
   updateActiveButton(activeFormat) {
-    Object.values(this.buttons).forEach(btn => btn.setAttribute('aria-pressed', 'false'));
-    if (this.buttons[activeFormat]) {
-      this.buttons[activeFormat].setAttribute('aria-pressed', 'true');
+    const btn = this.buttons[activeFormat];
+    if (btn) {
+      /** @type {HTMLInputElement} */ (btn).checked = true;
     }
   }
   
+  /**
+   * @param {string} formatType
+   */
   formatDate(formatType) {
     // Use Temporal API as mandated by Immutable Law Catalog (A1)
     const now = Temporal.Now.plainDateISO();
@@ -62,8 +76,9 @@ export class DateFormatter {
       formattedDate = `${d}.${m}.${y}`;
     }
     
+    if (!this.datumEl) return;
     // Preserve prefix like "München, den "
-    let currentText = this.datumEl.innerText.trim();
+    let currentText = this.datumEl.innerText ? this.datumEl.innerText.trim() : '';
     if (currentText.includes(', den ')) {
        const parts = currentText.split(', den ');
        this.datumEl.innerText = `${parts[0]}, den ${formattedDate}`;
@@ -72,6 +87,9 @@ export class DateFormatter {
     }
   }
 
+  /**
+   * @param {string} formatType
+   */
   saveSetting(formatType) {
     if (!this.ui.settings) this.ui.settings = {};
     this.ui.settings.dateFormat = formatType;

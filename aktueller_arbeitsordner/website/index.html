@@ -27,7 +27,7 @@
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
-    <div id="app-shell" class="form-b">
+    <div id="app-shell">
       <!-- GLASSMORPHIC SIDEBAR -->
       <aside class="no-print">
         
@@ -37,22 +37,27 @@
             
             <div class="sidebar-header-row">
               <h3 class="sidebar-label mb-0">Farbschema (Theme)</h3>
-              <span id="build-version" class="sidebar-build-info">Build: 07.07.2026 21:34</span>
+              <span id="build-version" class="sidebar-build-info">Build: 21.07.2026 21:09</span>
             </div>
             
             <div>
-              <div class="segmented-control">
-                <button id="btn-theme-light">☀️ Hell</button>
-                <button id="btn-theme-dark">🌙 Dunkel</button>
-                <button id="btn-theme-auto" aria-pressed="true">💻 Auto</button>
+              <div class="segmented-control" focusgroup="horizontal wrap">
+                <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only">
+                <label for="btn-theme-light">☀️ Hell</label>
+                <input type="radio" name="theme" id="btn-theme-dark" value="dark" class="sr-only">
+                <label for="btn-theme-dark">🌙 Dunkel</label>
+                <input type="radio" name="theme" id="btn-theme-auto" value="auto" class="sr-only" checked>
+                <label for="btn-theme-auto">💻 Auto</label>
               </div>
             </div>
 
               <div>
               <h3 class="sidebar-label">DIN-Brief Layout</h3>
-              <div class="segmented-control">
-                <button id="btn-form-a">Form A (Kompakt)</button>
-                <button id="btn-form-b" aria-pressed="true">Form B (Standard)</button>
+              <div class="segmented-control" focusgroup="horizontal wrap">
+                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+                <label for="btn-form-a">Form A (Kompakt)</label>
+                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+                <label for="btn-form-b">Form B (Standard)</label>
               </div>
             </div>
 
@@ -60,10 +65,13 @@
             <div>
               <h3 class="sidebar-label">Brief-Stil & Anrede</h3>
               <div class="sidebar-options-group">
-                <div class="segmented-control">
-                  <button id="btn-style-formal" aria-pressed="true" title="Förmlich (Sehr geehrte...)">Förmlich</button>
-                  <button id="btn-style-polite" title="Höflich (Guten Tag...)">Höflich</button>
-                  <button id="btn-style-casual" title="Modern (Hallo...)">Locker</button>
+                <div class="segmented-control" focusgroup="horizontal wrap">
+                  <input type="radio" name="salutation" id="btn-style-formal" value="formal" class="sr-only" checked>
+                  <label for="btn-style-formal" title="Förmlich (Sehr geehrte...)">Förmlich</label>
+                  <input type="radio" name="salutation" id="btn-style-polite" value="polite" class="sr-only">
+                  <label for="btn-style-polite" title="Höflich (Guten Tag...)">Höflich</label>
+                  <input type="radio" name="salutation" id="btn-style-casual" value="casual" class="sr-only">
+                  <label for="btn-style-casual" title="Modern (Hallo...)">Locker</label>
                 </div>
                 
               </div>
@@ -91,10 +99,13 @@
             <!-- DATUMSFORMAT -->
             <div>
               <h3 class="sidebar-label">Datumsformat</h3>
-              <div class="segmented-control">
-                <button id="btn-date-din" aria-pressed="true">31.12.2026</button>
-                <button id="btn-date-iso">2026-12-31</button>
-                <button id="btn-date-long">31. Dezember 2026</button>
+              <div class="segmented-control" focusgroup="horizontal wrap">
+                <input type="radio" name="date-format" id="btn-date-din" value="din" class="sr-only" checked>
+                <label for="btn-date-din">31.12.2026</label>
+                <input type="radio" name="date-format" id="btn-date-iso" value="iso" class="sr-only">
+                <label for="btn-date-iso">2026-12-31</label>
+                <input type="radio" name="date-format" id="btn-date-long" value="long" class="sr-only">
+                <label for="btn-date-long">31. Dezember 2026</label>
               </div>
             </div>
 
@@ -113,17 +124,19 @@
               <!-- Built-in System Stacks -->
               <div class="sidebar-options-group">
                 <span class="sidebar-sub-label">System-Schriftart:</span>
-                <div class="segmented-control" id="font-stack-select">
-                  <button id="btn-font-sans" aria-pressed="true" title="Moderne serifenlose Systemschrift">Sans</button>
-                  <button id="btn-font-serif" title="Klassische Serifenschrift">Serif</button>
+                <div class="segmented-control" id="font-stack-select" focusgroup="horizontal wrap">
+                  <input type="radio" name="font-stack" id="btn-font-sans" value="sans" class="sr-only" checked>
+                  <label for="btn-font-sans" title="Moderne serifenlose Systemschrift">Sans</label>
+                  <input type="radio" name="font-stack" id="btn-font-serif" value="serif" class="sr-only">
+                  <label for="btn-font-serif" title="Klassische Serifenschrift">Serif</label>
                 </div>
               </div>
               
               <!-- Custom Upload -->
               <div class="sidebar-options-group">
-                <button id="btn-upload-font-trigger" class="btn" class="w-full">
+                <label id="btn-upload-font-trigger" for="font-uploader" class="btn w-full">
                   📤 Schrift hochladen
-                </button>
+                </label>
                 <button id="btn-reset-font" class="btn btn-danger w-full">
                   🗑️ Schrift zurücksetzen
                 </button>
@@ -142,9 +155,9 @@
               <h3 class="sidebar-label">Unterschrift (Bild)</h3>
               <div class="sidebar-options-group">
                 <span class="sidebar-sub-label">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
-                <button id="btn-upload-sig-trigger" class="btn" class="w-full">
+                <label id="btn-upload-sig-trigger" for="sig-uploader" class="btn w-full">
                   ✒️ Unterschrift laden
-                </button>
+                </label>
                 <button id="btn-reset-sig" class="btn btn-danger w-full">
                   🗑️ Unterschrift löschen
                 </button>
@@ -153,7 +166,7 @@
             </div>
             
             <!-- DUAL-PROVIDER ADRESS-AUTOCOMPLETE -->
-            <div>
+            <div id="geoapify-wrapper">
               <h3 class="sidebar-label">Adress-Autocomplete</h3>
               <div class="sidebar-options-group">
                 
@@ -258,20 +271,19 @@
               <ul id="anlagen-text" contenteditable="true" ><li>Anlage 1</li></ul>
             </din-anlagen>
             
-
+            <!-- UX PAGE OVERFLOW INDICATOR -->
+            <div class="overflow-indicator-text">⚠️ TEXT-ÜBERLAUF: Bitte Text kürzen</div>
           </din-kern>
 
           <!-- THREE-COLUMN IMMUTABLE FOOTER -->
           <din-fuss id="brief-fuss" role="contentinfo"></din-fuss>
           
-          <!-- UX PAGE OVERFLOW INDICATOR -->
-          <div class="overflow-indicator-text">⚠️ TEXT-ÜBERLAUF: Bitte Text kürzen</div>
         </din-a4>
       </main>
     </div>
 
     <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
-    <div id="format-toolbar" popover="manual" class="no-print" role="toolbar" aria-label="Textformatierung">
+    <div id="format-toolbar" popover="manual" class="no-print" role="toolbar" aria-label="Textformatierung" focusgroup="horizontal wrap">
       <button id="btn-bold" title="Fett"><b>B</b></button>
       <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
       <button id="btn-quote" title="Zitat">»</button>
@@ -286,6 +298,17 @@
       <button id="toast-close" class="btn-icon" aria-label="Schließen">×</button>
     </div>
 
+    <!-- NATIVE RESET DIALOG -->
+    <dialog id="reset-dialog" class="glass-dialog no-print">
+      <form method="dialog">
+        <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn danger" id="btn-confirm-reset">Zurücksetzen</button>
+        </div>
+      </form>
+    </dialog>
+
     <!-- EXTERNAL CSS SELECTION ANCHOR -->
     <div id="selection-anchor" class="no-print"></div>
 
@@ -298,7 +321,11 @@
           const draft = JSON.parse(draftStr);
           for (const id in draft) {
             const el = document.getElementById(id);
-            if (el) el.innerHTML = draft[id];
+            if (el) {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(draft[id], 'text/html');
+              el.replaceChildren(...doc.body.childNodes);
+            }
           }
         }
 
@@ -309,22 +336,17 @@
           
           // Theme
           if (settings.theme === 'light') {
-            document.documentElement.style.colorScheme = 'light';
-            document.documentElement.dataset.theme = 'light';
-            document.getElementById('btn-theme-auto')?.setAttribute('aria-pressed', 'false');
-            document.getElementById('btn-theme-light')?.setAttribute('aria-pressed', 'true');
+            const btn = document.getElementById('btn-theme-light');
+            if (btn) btn.checked = true;
           } else if (settings.theme === 'dark') {
-            document.documentElement.style.colorScheme = 'dark';
-            document.documentElement.dataset.theme = 'dark';
-            document.getElementById('btn-theme-auto')?.setAttribute('aria-pressed', 'false');
-            document.getElementById('btn-theme-dark')?.setAttribute('aria-pressed', 'true');
+            const btn = document.getElementById('btn-theme-dark');
+            if (btn) btn.checked = true;
           }
           
-          // Layout
+          // Layout (CSS-First Refactoring)
           if (settings.layout === 'form-a') {
-            document.getElementById('app-shell')?.classList.replace('form-b', 'form-a');
-            document.getElementById('btn-form-b')?.setAttribute('aria-pressed', 'false');
-            document.getElementById('btn-form-a')?.setAttribute('aria-pressed', 'true');
+            const btnFormA = document.getElementById('btn-form-a');
+            if (btnFormA) btnFormA.checked = true;
           }
           
           // Guides
@@ -346,9 +368,8 @@
 
           // System Font
           if (settings.systemFont === 'serif') {
-             document.body.classList.add('font-stack-serif');
-             document.getElementById('btn-font-sans')?.setAttribute('aria-pressed', 'false');
-             document.getElementById('btn-font-serif')?.setAttribute('aria-pressed', 'true');
+            const btn = document.getElementById('btn-font-serif');
+            if (btn) btn.checked = true;
           } else {
              document.body.classList.add('font-stack-sans');
           }
@@ -359,7 +380,7 @@
              document.body.classList.add('font-custom-active');
              const status = document.getElementById('font-status-label');
              const btnReset = document.getElementById('btn-reset-font');
-             if (status) status.innerHTML = "Aktiv: Eigene Schrift (WOFF2)";
+             if (status) status.textContent = "Aktiv: Eigene Schrift (WOFF2)";
              if (btnReset) btnReset.style.display = 'block';
           }
           

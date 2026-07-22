@@ -1,3 +1,4 @@
+// @ts-check
 // @adr [[ADR-DATA-PERSISTENCE]] 
 // @guide [[glossary]] 
 
@@ -5,7 +6,12 @@
 
 /* @adr [[ADR-DATA-PERSISTENCE]] {StorageModule} */
 export const StorageManager = {
-  // Save specific draft data
+  /**
+   * Save specific draft data
+   * @param {string} key
+   * @param {any} data
+   * @returns {boolean}
+   */
   saveDraft(key, data) {
     try {
       localStorage.setItem(`din_draft_${key}`, JSON.stringify(data));
@@ -16,7 +22,11 @@ export const StorageManager = {
     }
   },
 
-  // Load draft data
+  /**
+   * Load draft data
+   * @param {string} key
+   * @returns {any}
+   */
   loadDraft(key) {
     try {
       const item = localStorage.getItem(`din_draft_${key}`);
@@ -27,7 +37,11 @@ export const StorageManager = {
     }
   },
 
-  // Save settings (Theme, Form, Guides status)
+  /**
+   * Save settings (Theme, Form, Guides status)
+   * @param {any} settings
+   * @returns {boolean}
+   */
   saveSettings(settings) {
     try {
       localStorage.setItem("din_settings", JSON.stringify(settings));
@@ -38,7 +52,10 @@ export const StorageManager = {
     }
   },
 
-  // Load settings
+  /**
+   * Load settings
+   * @returns {any}
+   */
   loadSettings() {
     const defaultSettings = {
       theme: "auto",
@@ -56,7 +73,11 @@ export const StorageManager = {
     }
   },
 
-  // Save base64 encoded custom font (1-Font Limit for file:// compatibility)
+  /**
+   * Save base64 encoded custom font (1-Font Limit for file:// compatibility)
+   * @param {string} base64Font
+   * @returns {boolean}
+   */
   saveCustomFont(base64Font) {
     try {
       localStorage.setItem("din_custom_font", base64Font);
@@ -67,7 +88,10 @@ export const StorageManager = {
     }
   },
 
-  // Load base64 encoded custom font
+  /**
+   * Load base64 encoded custom font
+   * @returns {string | null}
+   */
   loadCustomFont() {
     try {
       return localStorage.getItem("din_custom_font");
@@ -77,7 +101,11 @@ export const StorageManager = {
     }
   },
 
-  // Save Geoapify API key
+  /**
+   * Save Geoapify API key
+   * @param {string} key
+   * @returns {boolean}
+   */
   saveGeoapifyKey(key) {
     try {
       localStorage.setItem("din_geoapify_key", key);
@@ -88,7 +116,10 @@ export const StorageManager = {
     }
   },
 
-  // Load Geoapify API key
+  /**
+   * Load Geoapify API key
+   * @returns {string}
+   */
   loadGeoapifyKey() {
     try {
       return localStorage.getItem("din_geoapify_key") || "";

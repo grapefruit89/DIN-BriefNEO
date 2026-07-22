@@ -19,6 +19,8 @@ import { initPostvermerk } from './10-ui/03-postvermerk.js';
 import { initDevTools } from './30-utils/04-dev-tools.js';
 
 import { DateFormatter } from './20-features/07-date-format.js';
+import { TextFitEngine } from './20-features/08-text-fit.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---
   const btnPrint = document.getElementById('btn-print');
@@ -34,6 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const uiProtections = new UIProtections();
     uiProtections.init();
+
+    const textFitEngine = new TextFitEngine({
+      onToast: (msg, type) => showToast(msg, type || 'warning'),
+      onSaveDraft: () => draftManager.saveDraft()
+    });
+    // Feature Trace: TextFitEngine is handled inside textFitEngine
+    textFitEngine.init();
 
 
 

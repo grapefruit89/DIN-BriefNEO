@@ -40,17 +40,13 @@ export class UIProtections {
             keyboardEvent.preventDefault();
           }
         } else {
-          // Character limit to prevent flooding
-          const isSingleLine = !this.multiLineIds.includes(el.id) && !this.maxTwoLinesIds.includes(el.id);
+          // Line limit protection: maxTwoLinesIds prevent flooding (> 130 chars)
           const isTwoLine = this.maxTwoLinesIds.includes(el.id);
-          
-          if (isSingleLine || isTwoLine) {
+          if (isTwoLine) {
             const text = el.innerText || el.textContent || '';
-            const maxChars = isSingleLine ? 60 : 130;
+            const maxChars = 130;
             const selection = window.getSelection();
             const selectionLength = selection ? selection.toString().length : 0;
-            // Only prevent if trying to type a character and we're at/over limit, 
-            // and no text is selected to be replaced
             if (text.length - selectionLength >= maxChars && keyboardEvent.key.length === 1) {
               keyboardEvent.preventDefault();
             }
@@ -66,31 +62,30 @@ export class UIProtections {
         const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
         let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
         const isTwoLine = this.maxTwoLinesIds.includes(el.id);
-        const maxChars = isTwoLine ? 130 : 60;
         
         const selection = window.getSelection();
         if (!selection) return;
-        const selectedLength = selection.toString().length;
-        const currentText = el.innerText || el.textContent || '';
-        const currentLength = currentText.length - selectedLength;
-        
-        let allowedPasteLength = maxChars - currentLength;
-        if (allowedPasteLength <= 0) return;
-        
+
         if (isTwoLine) {
-            pastedText = pastedText.split('\n').slice(0, 2).join('\n');
-        } else {
-            pastedText = pastedText.replace(/[\r\n]+/g, ' ');
-        }
-        
-        if (pastedText.length > allowedPasteLength) {
+          const maxChars = 130;
+          const selectedLength = selection.toString().length;
+          const currentText = el.innerText || el.textContent || '';
+          const currentLength = currentText.length - selectedLength;
+          let allowedPasteLength = maxChars - currentLength;
+          if (allowedPasteLength <= 0) return;
+          pastedText = pastedText.split('\n').slice(0, 2).join('\n');
+          if (pastedText.length > allowedPasteLength) {
             pastedText = pastedText.substring(0, allowedPasteLength);
+          }
+        } else {
+          pastedText = pastedText.replace(/[\r\n]+/g, ' ');
         }
         
         if (!selection.rangeCount) return;
         selection.deleteFromDocument();
         selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
         selection.collapseToEnd();
+        el.dispatchEvent(new Event('input', { bubbles: true }));
       });
     });
   }

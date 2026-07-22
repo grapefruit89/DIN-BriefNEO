@@ -1,19 +1,30 @@
-# Project: DIN-Brief Neo Anti-Flicker & Synchronous Hydration
+# Project: DIN-Brief Neo Text-Fit Algorithm
 
 ## Architecture
-- Anti-Flicker & Layout State Hydration Architecture
-- Form A / Form B HTML State & CSS `:has()` toggle pattern (no JS class toggling for layout)
-- Anti-flicker synchronous inline script in `<head>` and/or before `</body>` reading `localStorage` synchronously before first paint
+- Single-line contenteditable text-fit monitoring and escalation architecture.
+- Group-synchronized CSS states (`data-text-fit="condensed"`, `data-text-fit="shrink"`) on parent containers (e.g. `#empfaenger`, `#infoblock`).
+- Pixel-based width measurement (`scrollWidth` vs `clientWidth`) for `.single-line` contenteditable elements.
+- Input blocking (keypress/paste prevention & rollback) + Toast warning ("Maximalbreite erreicht") on Level 2 overflow.
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| 1 | M1: FOUC & Layout Shift Audit | Audit initial load, Form A/B toggle, CSS/JS hydration, identifying all flickering causes | none | DONE |
-| 2 | M2: Synchronous Hydration Implementation | Fix inline script SyntaxError, key mismatches, CSS @import, remove setTimeout delays, enforce 100% fitness score | M1 | DONE |
-| 3 | M3: Comprehensive Verification & Audit Gate | Multi-agent review, verification of zero FOUC/layout shift, 100% fitness gate, Forensic Auditor check | M2 | DONE |
+| 1 | M1: FOUC & Layout Shift Audit | Audit initial load, Form A/B toggle | none | DONE |
+| 2 | M2: Synchronous Hydration Implementation | Fix inline script & storage | M1 | DONE |
+| 3 | M3: Comprehensive Verification & Audit Gate | Multi-agent review & fitness gate | M2 | DONE |
+| 4 | M4: Single-Line Text-Fit Algorithm | Pixel measurement, group escalation, input blocking & toast | M3 | IN_PROGRESS |
 
 ## Interface Contracts & Guidelines
-- Must strictly follow `AGENTS.md` and `Immutable-Law-Catalog.md`.
+- Must strictly follow `AGENTS.md` and `docs/Meta/MASTER-DO-DONT-DEPRECATED.md`.
+- Numbered Domain Architecture: JS files in `website/js/20-features/` or `10-ui/`.
 - No raw `innerHTML` without `DOMParser`.
-- No `setTimeout` / `requestAnimationFrame` for initial layout state hydration.
 - Verification command: `.\start.ps1` (must yield 100% Evolutionary Fitness Score).
+
+## Code Layout
+- `website/index.html`
+- `website/css/`
+- `website/js/main.js` (orchestrator)
+- `website/js/00-core/`
+- `website/js/10-ui/`
+- `website/js/20-features/`
+- `website/js/30-utils/`

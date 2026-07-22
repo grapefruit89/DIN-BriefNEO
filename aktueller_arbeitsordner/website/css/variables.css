@@ -38,19 +38,17 @@
   --paper-ghost: oklch(50% 0 0); /* Anthrazit fuer Platzhalter */
 
   /* === 4. ACCENT === */
-  --accent-color: var(--sys-accent, AccentColor);
-  @supports not (color: AccentColor) {
-    --accent-color: light-dark(oklch(0.55 0.14 260), oklch(0.65 0.14 260));
-  }
+  /* Eigene edle Akzentfarbe statt OS-Default, passend zum royalen Blau */
+  --accent-color: light-dark(oklch(0.40 0.14 260), oklch(0.85 0.05 260));
   --accent-muted: light-dark(oklch(0.95 0.03 260), oklch(0.35 0.08 260));
   
-  /* Robust color-mix for hover & glow states (works natively with AccentColor) */
+  /* Robust color-mix for hover & glow states */
   --accent-hover: color-mix(in srgb, var(--accent-color), black 10%);
   --accent-glow: color-mix(in srgb, var(--accent-color), transparent 85%);
 
   /* === 5. INTERACTIVE & SEGMENTED CONTROLS === */
-  --segment-bg: light-dark(oklch(0.92 0.01 250), oklch(0.25 0.10 265));
-  --segment-active-bg: light-dark(oklch(1 0 0), oklch(0.38 0.14 265));
+  --segment-bg: light-dark(oklch(0.92 0.01 250), oklch(0.32 0.12 265));
+  --segment-active-bg: light-dark(oklch(1 0 0), oklch(0.40 0.14 265));
   --segment-active-text: var(--text-primary);
   --segment-active-shadow: light-dark(0 1px 3px oklch(0 0 0 / 8%), 0 2px 6px oklch(0 0 0 / 50%));
   

@@ -114,6 +114,20 @@ aside {
   transform: translateY(-1px);
 }
 
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in srgb, var(--text-muted), transparent 90%);
+  color: var(--text-primary);
+}
+
 .btn.primary {
   background: var(--accent-color);
   border-color: var(--accent-color);

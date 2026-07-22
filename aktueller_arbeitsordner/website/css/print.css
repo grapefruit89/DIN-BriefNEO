@@ -1,4 +1,5 @@
 /* Print overrides for maximum specificity */
+html, body { overflow: visible !important; height: auto !important; }
 body { background: oklch(100% 0 0) !important; }
 #app-shell { display: block; width: auto; height: auto; }
 aside, .no-print, [popover], #toast-v4, #font-uploader { display: none !important; }

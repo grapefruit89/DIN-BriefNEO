@@ -217,11 +217,17 @@ export class SignatureFeature {
    * @param {string} base64
    */
   applyImage(base64) {
-    if (this.imgElement) this.imgElement.src = base64;
+    if (this.imgElement) {
+      this.imgElement.src = base64;
+      this.imgElement.setAttribute('src', base64);
+    }
   }
 
   resetImage() {
-    if (this.imgElement) this.imgElement.src = '';
+    if (this.imgElement) {
+      this.imgElement.src = '';
+      this.imgElement.setAttribute('src', '');
+    }
 
     if (this.ui.settings) {
       delete this.ui.settings.signatureImage;

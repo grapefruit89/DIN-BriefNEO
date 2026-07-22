@@ -53,7 +53,7 @@ Write-Host "[X] Injiziere Build-Timestamp in index.html..." -ForegroundColor Yel
 $timestamp = Get-Date -Format "dd.MM.yyyy HH:mm"
 $indexPath = Join-Path $targetDir "website\index.html"
 $indexContent = [IO.File]::ReadAllText($indexPath)
-$indexContent = $indexContent -replace '(?<=<span id="build-version"[^>]*>).*?(?=</span>)', "Build: $timestamp"
+$indexContent = $indexContent -replace '(?<=<button id="btn-dev-mode"[^>]*>).*?(?=</button>)', "$timestamp"
 [IO.File]::WriteAllText($indexPath, $indexContent)
 Write-Host "    Version aktualisiert auf: Build: $timestamp" -ForegroundColor Green
 

@@ -63,7 +63,23 @@ export class SettingsManager {
     }
   }
 
+  _applyAutoThemeTime() {
+    if (this.settings.theme !== 'auto') return;
+    try {
+      const now = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
+      const h = now.hour;
+      const m = now.month - 1;
+      // Ungefähre Sonnenuntergangszeiten in Bonn pro Monat (Januar=0)
+      const sunsets = [16,17,18,20,21,21,21,20,19,18,16,16];
+      const isDark = (h >= sunsets[m] || h < 7);
+      document.body.dataset.autoTheme = isDark ? 'dark' : 'light';
+    } catch(e) {
+      document.body.dataset.autoTheme = 'light';
+    }
+  }
+
   applySettings() {
+    this._applyAutoThemeTime();
     // 1. Layout Mode A/B (CSS-First Refactoring)
     if (this.btnFormA && this.btnFormB) {
       if (this.settings.layout === 'form-a') {

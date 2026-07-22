@@ -1,7 +1,14 @@
 /* Print overrides for maximum specificity */
 html, body { overflow: visible !important; height: auto !important; }
 body { background: oklch(100% 0 0) !important; }
-#app-shell { display: block; width: auto; height: auto; }
+#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }
 aside, .no-print, [popover], #toast-v4, #font-uploader { display: none !important; }
-#viewport { padding: 0 !important; background: transparent !important; }
-din-a4 { transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; }
+#viewport { padding: 0 !important; background: transparent !important; container-type: normal !important; height: auto !important; overflow: visible !important; }
+din-a4 { 
+    transform: none !important; 
+    box-shadow: none !important; 
+    margin: 0 !important; 
+    page-break-after: avoid; 
+    width: 210mm !important; 
+    height: 297mm !important; 
+}

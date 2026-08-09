@@ -1,22 +1,28 @@
 ---
-aliases:
-- MASTER-DO-DONT-DEPRECATED
-code_links: []
-created: '2026-06-26'
-depends_on: []
-doc_links: []
-id: Immutable-Law-Catalog
+id: immutable-law-catalog
+title: 'Immutable Law Catalog (MUST-USE vs FORBIDDEN)'
+type: reference
 status: active
-tags:
-- obsidian
-- core
-- documentation
-- rules
-- standards
-- law
-title: Immutable Law Catalog (MUST-USE vs FORBIDDEN)
-type: policy
+created: '2026-06-26'
 updated: '2026-07-07'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/reference
+doc_links:
+  - constitution
+  - longevity-guidelines
+code_links: []
+error_patterns:
+  - must-use
+  - antipattern
+  - forbidden
+  - law catalog
+  - technology catalog
+  - banned
+  - must-use replacement
+supersedes: []
 ---
 
 # DIN‑BriefNEO — Immutable Architectural Law: MUST‑USE vs. ANTIPATTERN Catalog

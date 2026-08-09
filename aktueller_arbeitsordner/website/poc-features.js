@@ -121,8 +121,9 @@ function simulateMockAI(prompt, outputElement) {
 // 2. CSS Gap Decorations
 // ==========================================
 function initGapDecorations() {
-  const isGapRuleSupported = CSS.supports('column-gap-rule', '1px dashed red') || 
-                             CSS.supports('gap-rule', '1px dashed red');
+  // row-rule ist eine komplett neue Property (kein Legacy-Multi-Column-Fallback wie column-rule) —
+  // deshalb ein eindeutigeres Support-Signal als column-rule, das schon lange vor Gap Decorations existierte.
+  const isGapRuleSupported = CSS.supports('row-rule', '1px dashed red');
   
   updateStatus('status-gap-decorations', isGapRuleSupported);
 

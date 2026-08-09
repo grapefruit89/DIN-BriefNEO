@@ -1,71 +1,34 @@
 ---
-aliases:
-- 02_IMR_Registry
-- IMR Registry
-- DIN 5008 Tags
-- HTML Tag List
-- Custom Elements Registry
-- Atomic Tags
-- 45 DIN Fields
-audience:
-- developers
-- implementers
-- testers
-- ai-agents
-author: '@grapefruit89'
-category: reference
-code_links: []
-created: '2026-07-03'
-cssclasses:
-- wide-table
-- table-stripes
-- no-wrap
-date_created: 2026-03-31
-date_updated: 2026-04-01
-date_validated: 2026-04-01
-depends_on: []
-description: Alle 45+ atomaren Daten-Tags mit Positionierung, Ausrichtung und Wachstumsverhalten
-  nach DIN 5008
-din_compliance: 100% DIN 5008:2020-03
-doc_links: []
-github_issue: '#1'
 id: imr-registry
-layout: default
-maintainer: '@grapefruit89'
-multi_line_tags: 5
-permalink: /docs/imr-registry/
-related:
-- issues/#2_Architecture_Compliance_Matrix
-- 03_CSS_Reference
-- 05_Feature_Matrix
-- 06_Salutation_Engine
-single_line_tags: 40
+title: 'IMR 4.0 — DIN 5008 Tag-Registry (Platinum Master)'
+type: reference
 status: active
-subtitle: Complete HTML Tag Registry for DIN-BriefNEO
-tag_categories:
-- Absender-Zone
-- Anschriftfeld
-- Metadaten & Infoblock
-- Briefkern
-- Fußzeile
-- Systemkomponenten
-tags:
-- din-briefneo
-- din-briefneo/imr
-- din-briefneo/html
-- din-briefneo/registry
-- status/active
-- type/registry
-- tech/html
-- tech/custom-elements
-- standard/din-5008
-title: IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)
-total_tags: 46
-type: registry
+created: '2026-07-03'
 updated: '2026-07-07'
-validation_enabled: true
-version: 4.8.0
-version_date: 2026-04-01
+tags:
+  - din-briefneo
+  - din-briefneo/architecture
+  - status/active
+  - type/reference
+  - tech/html
+  - standard/din-5008
+doc_links:
+  - constitution
+  - ADR-HTML
+  - ADR-CSS
+code_links:
+  - website/index.html
+error_patterns:
+  - imr registry
+  - din tags
+  - custom elements
+  - atomare tags
+  - din-absender
+  - din-anschriftfeld
+  - din-kern
+  - din-fuss
+  - falzmarke
+supersedes: []
 ---
 
 # IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)
@@ -75,8 +38,6 @@ version_date: 2026-04-01
 
 > **Single Source of Truth (SSoT)** für die Platinum Validation Pipeline (PVP).  
 > Diese Liste definiert alle **45 atomaren Daten-Tags** (inkl. Guides) mit Positionierung, Ausrichtung und Wachstumsverhalten.
-
-**Version:** 4.8.0 | **Letzte Aktualisierung:** 2026-04-01 | **GitHub Issue:** [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1)
 
 ---
 
@@ -326,34 +287,3 @@ Diese Tags dienen der internen Visualisierung und Compliance-Kontrolle.
 | 2026-03-31 | 4.7.0 | Initiale Version | [@grapefruit89](https://github.com/grapefruit89) |
 
 ---
-
-## 🔗 Dokumenten-Navigation
-
-| Dokument | Zweck |
-|----------|-------|
-| [[issues/#2_Architecture_Compliance_Matrix]] | Technologie-Leitplanken |
-| [[03_CSS_Reference]] | CSS-Features Referenz |
-| [[05_Feature_Matrix]] | Projekt-Fortschritt |
-| [[06_Salutation_Engine]] | Logik-Dokumentation |
-
-**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
-
----
-
-## 🔗 Verwandte Dokumente (Dataview)
-
-```dataview
-TABLE 
-  version AS "Version",
-  status AS "Status",
-  date_updated AS "Aktualisiert"
-FROM ""
-WHERE contains(related, this.file.name)
-SORT version DESC
-```
-
----
-
-**Status:** ACTIVE  
-**Nächste Überprüfung:** 2026-04-30  
-**Verantwortlich:** Lead Systems Architect

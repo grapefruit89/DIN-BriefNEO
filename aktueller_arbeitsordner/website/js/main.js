@@ -3,23 +3,23 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { StorageManager } from './30-utils/02-storage.js';
-import { Constants } from './30-utils/01-constants.js';
-import { SalutationFeature } from './20-features/01-salutation-engine.js';
-import { MetadataService } from './30-utils/03-metadata.js';
-import { SignatureFeature } from './20-features/02-signature.js';
-import { initAddressServices } from './20-features/03-geoapify.js';
-import { showToast, initToastSystem } from './10-ui/02-toast.js';
-import { initSenderSync } from './20-features/04-sender-sync.js';
-import { DraftManager } from './00-core/01-draft-manager.js';
-import { FormatToolbar } from './10-ui/01-format-toolbar.js';
-import { SettingsManager } from './00-core/02-settings-manager.js';
-import { UIProtections } from './00-core/03-ui-protections.js';
-import { initPostvermerk } from './10-ui/03-postvermerk.js';
-import { initDevTools } from './30-utils/04-dev-tools.js';
+import { StorageManager } from './52-storage.js';
+import { Constants } from './51-constants.js';
+import { SalutationFeature } from './41-salutation-engine.js';
+import { MetadataService } from './53-metadata.js';
+import { SignatureFeature } from './42-signature.js';
+import { initAddressServices } from './43-geoapify.js';
+import { showToast, initToastSystem } from './32-toast.js';
+import { initSenderSync } from './44-sender-sync.js';
+import { DraftManager } from './01-draft-manager.js';
+import { FormatToolbar } from './31-format-toolbar.js';
+import { SettingsManager } from './02-settings-manager.js';
+import { UIProtections } from './03-ui-protections.js';
+import { initPostvermerk } from './33-postvermerk.js';
+import { initDevTools } from './54-dev-tools.js';
 
-import { DateFormatter } from './20-features/07-date-format.js';
-import { TextFitEngine } from './20-features/08-text-fit.js';
+import { DateFormatter } from './47-date-format.js';
+import { TextFitEngine } from './48-text-fit.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM ELEMENTS ---

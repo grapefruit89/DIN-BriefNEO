@@ -1,69 +1,32 @@
 ---
-aliases:
-- Feature Matrix
-- Roadmap
-- Project Status
-- Platinum Roadmap
-- Feature Progress
-audience:
-- all
-- management
-- developers
-- stakeholders
-author: '@din-briefneo/core-team'
-category: project-management
-code_links: []
-completed_features: 26
-completion_percentage: 76
-created: '2026-07-03'
-cssclasses:
-- table-stripes
-- wide-table
-- progress-bars
-date_created: 2025-12-01
-date_next_review: 2026-04-30
-date_updated: 2026-04-01
-depends_on: []
-description: Definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Roadmap
-  für kommende Platinum-Sessionen
-doc_links: []
-github_issue: '#3'
-groups:
-  content: 100
-  future: 0
-  geometry: 90
-  identity: 100
-  infrastructure: 100
 id: feature-matrix
-layout: default
-maintainer: '@grapefruit89'
-next_milestone: Q2 2026
-next_milestone_date: 2026-06-30
-open_features: 8
-permalink: /docs/feature-matrix/
-related:
-- issues/#2_Architecture_Compliance_Matrix
-- issues/#1 DIN 5008 HTML Tag Glossar
-- issues/#5_CSS_Glossar
-- issues/#4_Salutation_Engine
-sprint_current: Sprint 1 (Q2 2026)
-sprint_next: Sprint 2 (Q3 2026)
-status: active
-subtitle: Project Progress, Roadmap & Sprint Planning
-tags:
-- din-briefneo
-- din-briefneo/roadmap
-- din-briefneo/features
-- din-briefneo/progress
-- status/active
-- type/roadmap
-- project/sprint
-title: Logische Gruppen — Feature-Matrix (Platinum Master)
-total_features: 34
+title: 'Feature-Matrix (Platinum Master)'
 type: roadmap
+status: active
+created: '2026-07-03'
 updated: '2026-07-07'
-version: 4.8.0
-version_date: 2026-04-01
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/active
+  - type/roadmap
+doc_links:
+  - spec
+  - CHANGELOG
+  - ROADMAP
+  - Salutation-Engine
+code_links: []
+error_patterns:
+  - feature matrix
+  - feature status
+  - platinum master
+  - completion percentage
+  - sprint
+  - logische gruppen
+  - fortschritt
+  - feature progress
+supersedes:
+  - FEATURE-INVENTORY
 ---
 
 # Logische Gruppen — Feature-Matrix (Platinum Master)
@@ -124,7 +87,7 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 | **Adress-Validierung**  | Prüfung der 6-Zeilen-Regel nach DIN 5008        | ✅ Aktiv | Länder-spezifische PLZ-Validierung          | [#43](https://github.com/din-briefneo/din-briefneo/issues/43) |
 | **Branding-Atome**      | Native Unterstützung für Logo und Wasserzeichen | ✅ Aktiv | Base64-Optimierung – localStorage-Effizienz | [#44](https://github.com/din-briefneo/din-briefneo/issues/44) |
 | **Empfänger-Parser**    | Automatisches Erkennen von Geschlecht/Titeln    | ✅ Aktiv | Firmen-Erkennung – "GmbH/AG" Erkennung      | [#45](https://github.com/din-briefneo/din-briefneo/issues/45) |
-| **Profil-Management**   | Granulare Speicherung von Kontakt- & Bankdaten  | ✅ Aktiv | Mehrere Profile – Privat/Büro Wechsel       | [#46](https://github.com/din-briefneo/din-briefneo/issues/46) |
+| **Profil-Management**   | Granulare Speicherung von Kontakt- & Bankdaten  | ❌ Nicht implementiert (siehe [[ADR-PROFILE-MANAGEMENT]]) | Mehrere Profile – Privat/Büro Wechsel       | [#46](https://github.com/din-briefneo/din-briefneo/issues/46) |
 | **Rücksendezeile**      | Automatische Generierung der Kleinstzeile       | ✅ Aktiv | Internationales Format – c/o Anpassungen    | [#47](https://github.com/din-briefneo/din-briefneo/issues/47) |
 
 ---

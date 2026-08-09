@@ -1,17 +1,30 @@
 ---
-code_links: []
-created: '2026-06-26'
-depends_on: []
-doc_links: []
 id: spec
+title: 'Spezifikation (Spec) — DIN-BriefNEO Baseline Features'
+type: spec
 status: active
-tags:
-- documentation
-- spec
-- requirements
-title: Spezifikation (Spec) — DIN-BriefNEO Baseline Features
-type: specification
+created: '2026-06-26'
 updated: '2026-07-07'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/spec
+doc_links:
+  - constitution
+  - Immutable-Law-Catalog
+  - HYBRID-SPEC-DRIVEN-WORKFLOW
+code_links: []
+error_patterns:
+  - spec
+  - baseline features
+  - user story
+  - akzeptanzkriterien
+  - no-scroll auto-zoom
+  - auto-save
+  - multipage karussell
+  - toasts
+supersedes: []
 ---
 
 # Spezifikation (Spec) — DIN-BriefNEO Baseline Features

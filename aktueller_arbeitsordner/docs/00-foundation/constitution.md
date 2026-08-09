@@ -1,19 +1,29 @@
 ---
-aliases:
-- constitution
-code_links: []
-created: '2026-06-26'
-depends_on: []
-doc_links: []
 id: constitution
+title: 'Verfassung (Constitution) — DIN-BriefNEO'
+type: reference
 status: active
-tags:
-- obsidian
-- core
-- documentation
-title: Verfassung (Constitution) — DIN-BriefNEO
-type: policy
+created: '2026-06-26'
 updated: '2026-07-07'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/reference
+doc_links:
+  - Immutable-Law-Catalog
+  - spec
+  - HYBRID-SPEC-DRIVEN-WORKFLOW
+  - longevity-guidelines
+code_links: []
+error_patterns:
+  - constitution
+  - verfassung
+  - regelwerk
+  - fundamental verbote
+  - zero-dependency
+  - offline-first
+supersedes: []
 ---
 
 # Verfassung (Constitution) — DIN-BriefNEO

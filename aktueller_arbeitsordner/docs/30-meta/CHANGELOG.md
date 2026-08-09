@@ -33,7 +33,7 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 
 *   **CSS @starting-style & Discrete Transitions:** Umstellung der WhatsApp-Style Auswahl-Toolbar (`#format-toolbar`) und des Toast-Feedbacks (`#toast-v4`) auf native CSS discrete transitions unter Verwendung von `transition-behavior: allow-discrete` und `@starting-style` in `floating.css`. 
 
-*   **CSS @property & Guides-Fading:** Registrierung der CSS-Variablen `--guide-opacity` als Typ `<number>` in `variables.css` und Aktivierung einer flüssigen Transition auf `:root`. Hilfslinien blenden sich nun absolut stufenlos ein und aus.
+*   **CSS @property & Guides-Fading:** Registrierung der CSS-Variablen `--guide-opacity` als Typ `<number>`<number>` in `variables.css` und Aktivierung einer flüssigen Transition auf `:root`. Hilfslinien blenden sich nun absolut stufenlos ein und aus.
 
 *   **CSS Relative Color Syntax (RCS):** Dynamische Farbberechnung für `--accent-glow`, `--accent-hover`, `--danger-hover` und die Hilfslinien-Farbe (`--guide-color`) direkt im CSS abgeleitet von ihren Basisfarben im OKLCH-Farbraum. Die Hilfslinien nutzen nun eine triadisch verschobene 120-Grad-Farbton-Formel für automatischen, perfekt harmonisierten Kontrast.
 
@@ -89,15 +89,15 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 
 ### Changed
 
-*   **README.md:** Zum zentralen Master-Portal und Dokumenten-Wegweiser ausgebaut und Links zu den neuen Guides `DEV-INFO.md` und `../40-tooling/README-DB.md` unter den Status & Spezifikationen ergänzt.
+*   **[[README]]:** Zum zentralen Master-Portal und Dokumenten-Wegweiser ausgebaut und Links zu den neuen Guides `DEV-INFO.md` und `../40-tooling/README-DB.md` unter den Status & Spezifikationen ergänzt.
 
 *   **index.json:** Um Metadaten-Einträge für `DEV-INFO.md` und `../40-tooling/README-DB.md` erweitert.
 
-*   **DECISION-LOG.md:** Neue architektonische Entscheidungen zur Feature-Prüfungs-Matrix, zum Easter-Egg Popover-Dashboard und zur LLM-first SQLite-Architektur dokumentiert.
+*   **[[DECISION-LOG]]:** Neue architektonische Entscheidungen zur Feature-Prüfungs-Matrix, zum Easter-Egg Popover-Dashboard und zur LLM-first SQLite-Architektur dokumentiert.
 
-*   **longevity-guidelines.md:** Pfadkorrekturen der ADR-Links auf relative `../ADR/`-Pfade korrigiert und plattformübergreifende CSS-Anchor-Positioning Warnungen integriert.
+*   **[[longevity-guidelines]]:** Pfadkorrekturen der ADR-Links auf relative `../ADR/`-Pfade korrigiert und plattformübergreifende CSS-Anchor-Positioning Warnungen integriert.
 
-*   **spec.md:** Phase 3 Zukunftsplanung um Spezifikation für Easter-Egg High-Integrity Dev-Panel (Feature 11) erweitert.
+*   **[[spec]]:** Phase 3 Zukunftsplanung um Spezifikation für Easter-Egg High-Integrity Dev-Panel (Feature 11) erweitert.
 
 *   **tasks.md & task.md:** Planungs-Checklisten bereinigt und an den rein dokumentationsfokussierten Baseline-Stand angepasst.
 

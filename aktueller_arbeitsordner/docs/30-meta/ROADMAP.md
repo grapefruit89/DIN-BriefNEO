@@ -1,95 +1,136 @@
 ---
-aliases:
-- ROADMAP
-code_links: []
-created: '2026-07-07'
-depends_on: []
-doc_links: []
 id: roadmap
-status: active
-tags:
-- obsidian
-- core
-- documentation
-- roadmap
-- future
-title: 'Zukunfts-Roadmap (Lose Zukunftsplanungen): ROADMAP.md'
+title: 'Zukunfts-Roadmap — Ideen & Chrome-Modernisierungschancen'
 type: roadmap
-updated: '2026-07-07'
+status: active
+created: '2026-07-07'
+updated: '2026-08-07'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/active
+  - type/roadmap
+doc_links:
+  - longevity-guidelines
+  - ADR-ANTIPATTERN
+  - web-standards-tracking
+error_patterns:
+  - roadmap
+  - zukunft
+  - ideen
+  - brainstorming
+  - chrome features
+  - modernisierung
+supersedes: []
 ---
 
-# Zukunfts-Roadmap (Lose Zukunftsplanungen): ROADMAP.md
+# Zukunfts-Roadmap — Ideen & Chrome-Modernisierungschancen
 
-Dieses Dokument dient als offene Ideensammlung fÃ¼r zukÃ¼nftige Erweiterungen von **DIN-BriefNEO**. Alle EintrÃ¤ge sind **unverbindlich** und befinden sich im Status des reinen Brainstormings oder wurden aufgrund architektonischer HÃ¼rden zurÃ¼ckgestellt. 
+Alle Einträge sind **unverbindlich** — Brainstorming oder architektonisch zurückgestellt. Kein Commit ohne expliziten Beschluss.
 
 ---
 
-## ðŸ’¡ Ideensammlung & Brainstorming
+## Ideen & Brainstorming
 
 ### 1. Mehrseitiges Horizontal-Karussell
 
-*   **Beschreibung:** ErmÃ¶glicht das Schreiben von mehrseitigen Briefen, die im Editor horizontal verschoben werden (Karussell-Effekt), um vertikales Scrollen im Viewport komplett zu vermeiden.
+Mehrseitige Briefe, die im Editor horizontal gescrollt werden, um vertikales Scrollen im Viewport zu vermeiden.
 
-*   **Status:** **ZurÃ¼ckgestellt** (Aufgeschoben in Phase 1 / Backlog).
-
-*   **Herausforderung:** Hohe JS-KomplexitÃ¤t bei der Paginierung und automatischen Text-Schnittstelle. Niedrige PrioritÃ¤t, da 95% aller DIN 5008 Briefe auf eine Seite passen.
+**Status:** Zurückgestellt (Phase 1 / Backlog). Hohe JS-Komplexität bei der Paginierung. 95% aller DIN 5008 Briefe passen auf eine Seite.
 
 ### 2. Nativer PDF-Export (Client-side)
 
-*   **Beschreibung:** Erzeugung eines echten PDF-Downloads direkt im Browser (z. B. via `pdf-lib` oder `jspdf`), anstatt den System-Druckdialog nutzen zu mÃ¼ssen.
+Erzeugung eines echten PDF-Downloads direkt im Browser via `pdf-lib` oder `jspdf`.
 
-*   **Status:** **Brainstorming**.
+**Status:** Brainstorming. Verletzt W3C-First und Zero-Dependency. Bevorzugt bleibt `window.print()` mit optimiertem CSS.
 
-*   **Herausforderung:** GrÃ¶ÃŸeres Datenvolumen durch Bibliotheken. Verletzt die W3C-First und Zero-Dependency SÃ¤ulen, da Client-Side PDF-Erzeugung im Browser extrem komplex ist. Bevorzugt bleibt der native, wartungsfreie Druckdialog (`window.print()`) mit optimiertem CSS.
+### 3. Erweiterte Formatierungsoptionen im Markdown-Parser
 
-### 3. Google Places API (Adress-Autocomplete Alternative)
+Ausbau des `parseMarkdown`-Moduls zur nativen Unterstützung von geordneten/ungeordneten Listen, Überschriften und Tabellen im Briefkern.
 
-*   **Beschreibung:** Einbindung der Google Places API als dritter Adress-Provider in der Sidebar fÃ¼r weltweite Premium-Ergebnisse.
+**Status:** Brainstorming. Muss mit dem Selection-Popover synchronisiert werden.
 
-*   **Status:** **ZurÃ¼ckgestellt** (Antipattern).
+### 4. LLM-Features in der App (Zauberstab)
 
-*   **Herausforderung:** Erfordert zwingend das Laden des Google Maps JS SDKs Ã¼ber CDN (verletzt SÃ¤ule 2 und SÃ¤ule 4) sowie eine Kreditkarte bei der Registrierung. Da Geoapify und Photon kostenfrei und rein REST-basiert Ã¼ber `fetch` laufen, bietet Google Places keinen architektonischen Benefit.
+API-Keys im LocalStorage speichern, Buttons im UI für Textformatierung (förmlich, Füllwörter entfernen) per LLM-Aufruf.
 
-### 4. Erweiterte Formatierungsoptionen im Markdown-Parser
-
-*   **Beschreibung:** Ausbau des `parseMarkdown`-Moduls in `logic.js` zur nativen UnterstÃ¼tzung von geordneten/ungeordneten Listen, Ãœberschriften (`#`, `##`) und Tabellen im Briefkern.
-
-*   **Status:** **Brainstorming**.
-
-*   **Herausforderung:** Muss penibel mit dem WhatsApp-Selection-Popover synchronisiert werden, damit sich Formatierungen nicht gegenseitig blockieren.
+**Status:** Geplant (auf Wunsch). LLM-Client in Vanilla JS ohne npm oder Bundle-Size-Explosion.
 
 ### 5. Offline-Service-Worker (PWA)
 
-*   **Beschreibung:** Integration eines Service Workers (`sw.js`) zum Caching aller lokalen Assets, um die Anwendung als installierbare Progressive Web App (PWA) auf dem Desktop zu betreiben.
+Service Worker für Cache-basiertes PWA-Erlebnis.
 
-*   **Status:** **ZurÃ¼ckgestellt**.
-
-*   **Herausforderung:** Service Worker setzen zwingend HTTPS voraus. Unter `file:///` werfen sie Browser-Sicherheitsfehler. Da das Ã–ffnen der lokalen `index.html` per Doppelklick auch ohne Service Worker offline perfekt funktioniert (da alle Assets lokal liegen), ist der Nutzen im Vergleich zum Risiko minimal.
+**Status:** Zurückgestellt. Service Worker setzen HTTPS voraus — unter `file:///` werfen sie Security Errors. `index.html` per Doppelklick funktioniert offline ohne SW.
 
 ### 6. Sprachsteuerung & Diktat (Web Speech API)
 
-*   **Beschreibung:** Integration der nativen `webkitSpeechRecognition`-Schnittstelle in der Sidebar, um Brieftexte per Stimme einzudiktieren.
+Native `webkitSpeechRecognition` für Diktat von Brieftexten.
 
-*   **Status:** **Brainstorming**.
+**Status:** Brainstorming. Plattformspezifisch (Chrome/Safari OK, Firefox nicht). Erfordert Cloud-Verbindung.
 
-*   **Herausforderung:** Web Speech ist derzeit noch plattformspezifisch (funktioniert hervorragend in Chrome/Safari, gar nicht in Firefox). Zudem erfordert es eine aktive Internetverbindung zur Google/Apple-Cloud zur Spracherkennung.
+### 7. LanguageTool API — Rechtschreib-/Grammatikprüfung
+
+Externe API-Anbindung zur Prüfung des Brieftexts auf Rechtschreib- und Grammatikfehler direkt im Editor.
+
+**Status:** Geplant (2026-08-08 festgehalten). Passt zum Editor-Zweck, optionale Enhancement-Schicht (kein Offline-Bruch, da nur bei aktiver Internetverbindung genutzt).
+
+### 8. bzst.de Behördenwegweiser — Finanzamt-Adress-Lookup
+
+Automatisches Auffinden der zuständigen Finanzamt-Adresse für den Empfänger, analog zum bestehenden Adress-Autocomplete (Geoapify/Photon).
+
+**Status:** Geplant (2026-08-08 festgehalten). Nischen-Feature, aber spart Nutzern manuelle Suche bei Behördenbriefen.
+
+**Zurückgestellt/verworfen aus derselben Ideen-Liste** (Chat-Audit 2026-08-08, zu nischig für einen allgemeinen Briefeditor): Justizadressen.nrw.de, gerichtsstand.net, insolvenzbekanntmachungen.de, Bundesbank-Webservice (Basiszinssatz/Verzugszins — nur relevant für Mahnschreiben), EZB-Referenzkurse, OpenThesaurus.de, OffeneRegister/OpenCorporates, Wikidata SPARQL, Open Legal Data.
 
 ---
 
-## ðŸ”— Verweise
+## Chrome 148-151 Modernisierungschancen
 
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] zur Vermeidung von CDN- oder Drittanbieter-Bibliotheken bei diesen Ideen.
+Audit vom Juli 2026: **15 konkrete Opportunities** — netto -153 Zeilen imperativen JS. Alle Features seit Chrome 150/151 default-enabled.
 
-*   Siehe [[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]] fÃ¼r das strikte Verbot von CDN-Verbindungen.
+### Bereich 1: CSS `text-fit` / Native Font Auto-Scaling (Chrome 150/151)
 
-- [ ] **Client-Side AI Integration**: API Key Eingabe via Settings-Modal (gespeichert in localStorage). Direkte Anbindung an OpenAI/Anthropic/Gemini via 
+- **Opportunity 1.1** `#absender` Envelope Window — JS-Zeichenzählung durch natives `text-fit` ersetzen. Absenderzeile skaliert automatisch auf 85mm × 5mm.
+- **Opportunity 1.2** `#betreff` Subject Line Overflow — dynamisches Font-Scaling ohne JS.
+- **Opportunity 1.3** `.single-line` Input Fields — Overflow-Prävention ohne JS-Polling.
 
-etch für Text-Expansion, Tonfall-Änderung und Rechtschreibkorrektur.
+### Bereich 2: HTML `focusgroup` (Chrome 150/151)
 
-### 4. LLM-Features in der App (Zauberstab / Roter Faden)
+- **Opportunity 2.1** Segmented Controls — native ArrowLeft/Right-Navigation ohne JS-Event-Listener.
+- **Opportunity 2.2** Sidebar Buttons — ArrowUp/Down-Navigation ohne JS.
 
-*   **Beschreibung:** API-Keys im LocalStorage speichern und direkt im Dev-Sidebar oder im UI Buttons anbieten, um den Text per Knopfdruck 'frmlich zu formulieren' oder 'Fllwrter zu entfernen'.
+### Bereich 3: CSS `light-dark()` Erweiterungen (Chrome 149+)
 
-*   **Status:** **Geplant** (Auf Wunsch von Moritz fr zuknftige Diskussion aufgenommen).
+- **Opportunity 3.1** Theme-adaptive Bilder & Icons — eliminiert JS-Theme-Toggle-Listener.
+- **Opportunity 3.2** Focus-Border Adaptability — `oklch()` + `light-dark()` statt doppelter CSS-Regeln.
 
-*   **Herausforderung:** LLM-Client (OpenAI/Gemini) in Vanilla JS schreiben, ohne dass die Bundle-Size explodiert oder npm-Pakete ntig werden. Sichere Aufbewahrung der API-Keys im Browser.
+### Bereich 4: CSS Gap Decorations (`column-rule-inset`, `row-rule-*`) (Chrome 150+)
+
+- Dekorative Trennlinien zwischen Sidebar-Sektionen rein per CSS ohne `<hr>`-Elemente.
+
+### Bereich 5: Name-Only Container Queries (Chrome 149+)
+
+- `@container sidebar` statt size-basierter Queries für semantisch klarere Stylesheet-Logik.
+
+### Bereich 6: CSS Anchor Positioning (`position-area`) + `popover="hint"` (Chrome 150+)
+
+- **Opportunity 6.1** Format Toolbar Anchor — präziseres Anchoring der Formatierungsleiste.
+- **Opportunity 6.2** Adress-Autocomplete Dropdown — `popover="hint"` + `position-area` statt JS-Positionsberechnungen.
+- **Opportunity 6.3** Hover Tooltips — native `popover="hint"` ohne JS-Listener.
+
+### Bereich 7: HTML State & CSS `:has()` Toggle Patterns (Chrome 148+)
+
+- **Opportunity 7.1** Form A/B Toggle — `<input type="radio">` + `:has()` statt JS-Klassen-Toggle.
+- **Opportunity 7.2** Theme-Switcher — gleiches Pattern für Hell/Dunkel/Auto.
+
+### Bereich 8: Native HTML5 `<dialog>` Modal (Chrome 148+)
+
+- **Opportunity 8.1** Bestätigungs-Dialoge — `<dialog>` statt `window.confirm()`. Nicht-blockierend, stylebar, barrierefrei.
+
+---
+
+## Verweise
+
+- [[longevity-guidelines]] — Verbote für CDN und Drittanbieter-Bibliotheken
+- [[ADR-ANTIPATTERN]] — Strikte Verbote (CDN, npm, Polyfills)
+- [[web-standards-tracking]] — Aktuelle W3C/Chrome-Feature-Tracking

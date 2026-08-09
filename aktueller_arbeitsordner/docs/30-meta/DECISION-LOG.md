@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-07-07'
+updated: '2026-08-08'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -44,7 +44,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 *   **Grund:** Bessere Übersichtlichkeit, Vermeidung eines unlesbaren Riesen-Dokuments, hervorragende Maschinenlesbarkeit für LLMs.
 
-*   **Quelle:** Ordner `[ADR/](../10-architecture/ADR/)`
+*   **Quelle:** Ordner `[ADR/](../10-architecture/ADR/)`[ADR/](../10-architecture/ADR/)`
 
 *   **Status:** Aktiviert
 
@@ -122,13 +122,13 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 ---
 
-### 2026-05-24 – Etablierung des Entwicklerbereichs & Feature-Prüfung (DEV-INFO.md)
+### 2026-05-24 – Etablierung des Entwicklerbereichs & Feature-Prüfung ([[DEV-INFO]])
 
 *   **Entscheidung:** Schaffung einer dedizierten Diagnose-Referenz `DEV-INFO.md` zur systematischen Erkennung von 14 W3C-Living-Standards und experimentellen Features auf Basis von `check_readiness.js`.
 
 *   **Grund:** Bietet vollständige Transparenz über den Reifegrad modernster Web-APIs in der Chrome 147/148/149+ Zielumgebung und liefert ein robustes, kopierbares F12-Konsole-Skript.
 
-*   **Quelle:** [[DEV-INFO|DEV-INFO.md]], [index.json](../../build/index.json)
+*   **Quelle:** [[DEV-INFO|DEV-INFO.md]][[DEV-INFO|DEV-INFO.md]], [index.json](../../build/index.json)
 
 *   **Status:** Aktiviert
 
@@ -146,13 +146,13 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 ---
 
-### 2026-05-25 – Einführung der LLM-First SQLite-Datenbank-Architektur & README-DB.md
+### 2026-05-25 – Einführung der LLM-First SQLite-Datenbank-Architektur & [[README-DB]]
 
 *   **Entscheidung:** Etablierung eines serverlosen Hybrid-Datenbankmodells zur KI-optimierten Aufbereitung des gesamten Projektwissens. Die Markdown-Dateien bleiben die Quell-Ebenen (Git-Master), während eine SQLite-Datenbank `docs.db` automatisch über ein Node.js-Kompilierskript `build_db.js` generiert und über einen Model Context Protocol (MCP) Server bereitgestellt wird. Spezifizierung der Architektur im Dokument `README-DB.md`.
 
 *   **Grund:** Beseitigt Token-Engpässe, überwindet fehlende Indexierungsstrukturen unstrukturierter Verzeichnisse und befähigt KIs (z. B. Claude via Desktop-MCP), relationale, hocheffiziente Suchen (inkl. FTS5-Volltextsuche) auf der Doku auszuführen, anstatt ganze Dateien einlesen zu müssen.
 
-*   **Quelle:** [[README-DB|README-DB.md]], [index.json](../../build/index.json), `build_db.js`, `github_action_workflow.txt`
+*   **Quelle:** [[README-DB|README-DB.md]][[README-DB|README-DB.md]], [index.json](../../build/index.json), `build_db.js`, `github_action_workflow.txt`
 
 *   **Status:** Aktiviert
 
@@ -196,7 +196,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 ### 2026-05-27 – Schritt 4: CSS @property & Guides-Fading
 
-*   **Entscheidung:** Registrierung der CSS-Custom-Property `--guide-opacity` als Typ `<number>` im CSS und Implementierung einer flüssigen Transition auf `:root`.
+*   **Entscheidung:** Registrierung der CSS-Custom-Property `--guide-opacity` als Typ `<number>`<number>` im CSS und Implementierung einer flüssigen Transition auf `:root`.
 
 *   **Grund:** Beseitigt jegliche JavaScript-Animationsschleifen oder Intervalle zum Ein-/Ausblenden der Hilfslinien. Der Browser interpoliert den Opacity-Übergang von `0.15` auf `0` vollkommen selbstständig und hardwarebeschleunigt auf GPU-Ebene, sobald JS den Variablenwert ändert.
 
@@ -244,7 +244,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 ### 2026-06-12 – Korrektur + Platzierung: AGENTS.md im korrekten Root (Obsidian_Main) + Verhaltensvertrag für KI-Agenten
 
-*   **Entscheidung:** AGENTS.md mit dem bereitgestellten Testballon-Vertrag wurde zunächst versehentlich im duplizierten Baum unter `Other_Projects\DIN-Brief Neo` angelegt (mit neuerarbeitsordner). Korrigiert und neu platziert direkt im aktiven Root: `Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\AGENTS.md`. Zusätzlich Eintrag in diesem DECISION-LOG und Pointer im aktueller_arbeitsordner/README.md hinzugefügt. Pre- und Post-Build mit vollem Reconciliation & Fitness Check (100 %) durchgeführt.
+*   **Entscheidung:** AGENTS.md mit dem bereitgestellten Testballon-Vertrag wurde zunächst versehentlich im duplizierten Baum unter `Other_Projects\DIN-Brief Neo` angelegt (mit neuerarbeitsordner). Korrigiert und neu platziert direkt im aktiven Root: `Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\AGENTS.md`. Zusätzlich Eintrag in diesem DECISION-LOG und Pointer im aktueller_arbeitsordner/[[README]] hinzugefügt. Pre- und Post-Build mit vollem Reconciliation & Fitness Check (100 %) durchgeführt.
 
 *   **Grund:** Der echte aktive Arbeitsordner (`aktueller_arbeitsordner/`, mit reconciliation.js, log_session.js, vollem Fitness-Score etc.) liegt hier unter Obsidian_Main, direkt neben der generischen llm_boilerplate. Der Other_Projects-Ordner war eine ältere Kopie. Der Vertrag macht Reconciliation Loop, 100% Fitness, Pre/Post-Builds, Session-Logging und Generalisierbarkeits-Priorisierung verbindlich und positioniert DIN-Brief Neo explizit als Testballon.
 
@@ -280,7 +280,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 ### 2026-06-12 – AGENTS.md finale optimierte Version (User-Feedback Iteration)
 
-*   **Entscheidung:** Vollständig überarbeitete finale Version mit folgenden Verbesserungen: Kurze harte "Core Rules"-Zusammenfassung (TL;DR) ganz oben, Logging-Abschnitt praktikabel gemacht mit klarem Hinweis auf aktuellen Stand + Fallback auf llm_boilerplate, Generalisierungs-Pflicht noch präziser (bei jedem Feature/Regel + explizite Vorschlagspflicht), Sprache überall auf "muss / darf nicht / ist verboten" verschärft, explizite Erwähnung von constitution.md + MASTER-DO-DONT-DEPRECATED.md als zu respektierende Quellen, klarer Eskalationsmechanismus bei wiederholten Verstößen, kurzer Abschnitt zur Beziehung DIN-Brief Neo ↔ llm_boilerplate (kopieren vs. referenzieren), Regelung für Änderungen an AGENTS.md selbst hinzugefügt. Pre- und Post-Build mit 100% Fitness Score durchgeführt.
+*   **Entscheidung:** Vollständig überarbeitete finale Version mit folgenden Verbesserungen: Kurze harte "Core Rules"-Zusammenfassung (TL;DR) ganz oben, Logging-Abschnitt praktikabel gemacht mit klarem Hinweis auf aktuellen Stand + Fallback auf llm_boilerplate, Generalisierungs-Pflicht noch präziser (bei jedem Feature/Regel + explizite Vorschlagspflicht), Sprache überall auf "muss / darf nicht / ist verboten" verschärft, explizite Erwähnung von [[constitution]] + MASTER-DO-DONT-DEPRECATED.md als zu respektierende Quellen, klarer Eskalationsmechanismus bei wiederholten Verstößen, kurzer Abschnitt zur Beziehung DIN-Brief Neo ↔ llm_boilerplate (kopieren vs. referenzieren), Regelung für Änderungen an AGENTS.md selbst hinzugefügt. Pre- und Post-Build mit 100% Fitness Score durchgeführt.
 
 *   **Grund:** Die vorherige Version war bereits gut, aber noch nicht optimal in Struktur (TL;DR fehlte), praktischer Umsetzbarkeit (Logging) und Präzision einzelner Formulierungen. Ziel: maximale Eignung für Grok Build und den Testballon-Use-Case.
 
@@ -308,7 +308,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
   - Created `aktueller_arbeitsordner/.specify/` (hidden, for agent-specific artifacts like constitution reference and templates – highly extractable).
 
-  - Created `specs/` with numbered structure (001-hybrid-workflow-integration/spec.md as first example) for traceability.
+  - Created `specs/` with numbered structure (001-hybrid-workflow-integration/[[spec]] as first example) for traceability.
 
   - Created `HYBRID-SPEC-DRIVEN-WORKFLOW.md` defining the combined process (spec-kit phases Constitution→Spec→Plan→Tasks→Implement + our mandatory Reconciliation/Fitness/Log/Generalisierungs gates at the end).
 
@@ -326,9 +326,9 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
 ### 2026-06-12 – Light Mode vs Full Mode eingeführt (Vereinfachung zur Reduktion von Fehleranfälligkeit)
 
-*   **Entscheidung:** Gestuften Workflow in AGENTS.md und HYBRID-SPEC-DRIVEN-WORKFLOW.md etabliert: 
+*   **Entscheidung:** Gestuften Workflow in AGENTS.md und [[HYBRID-SPEC-DRIVEN-WORKFLOW]] etabliert: 
 
-  - **Light Mode** (Default für die meisten Änderungen): Pre-Build → Änderung → Post-Build (muss 100% Fitness) → Loggen + kurzer (1-2 Sätze) Generalisierungs-Vermerk im DECISION-LOG.md. Kein zwingendes spec.md/plan/tasks.
+  - **Light Mode** (Default für die meisten Änderungen): Pre-Build → Änderung → Post-Build (muss 100% Fitness) → Loggen + kurzer (1-2 Sätze) Generalisierungs-Vermerk im DECISION-LOG.md. Kein zwingendes [[spec]]/plan/tasks.
 
   - **Full Mode** (nur für wichtige Features/Architektur/boilerplate-relevante Arbeit): Zusätzlich spec/plan/tasks Struktur + expliziter ausführlicher Generalisierungs-Check.
 
@@ -394,7 +394,7 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 
   - Loose Dateien von der Root-Ebene (Claude-..., deepseek.md, alte .db Kopien) in deprecated-agent-artifacts/ verschoben.
 
-  - Für jeden Unterordner und den gesamten archiv/ eine klare README.md angelegt mit Herkunft, Archivierungsgrund und möglichem Nutzen.
+  - Für jeden Unterordner und den gesamten archiv/ eine klare [[README]] angelegt mit Herkunft, Archivierungsgrund und möglichem Nutzen.
 
   - Keine .git etc. aus Snapshots entfernt (Teil der historischen Aufzeichnung); nur Struktur bereinigt.
 
@@ -439,3 +439,31 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 - **2026-06-30 - Optionale Layout-Bl�cke (Zero-JS)**: Postvermerk, Anlagen und Verteiler wurden als CSS-only Toggle (via :has) in die Sidebar integriert. Generalisierbarkeit: Komplexe UI-Zust�nde lassen sich mit nativen CSS :has() und Checkboxen elegant und robust ohne JS abbilden, was die App-Logik extrem vereinfacht.
 
 - **2026-06-30 - Canvas Signature Compressor (Zero-JS/Offline)**: Ein neues Feature zum Einf�gen grafischer Unterschriften. Zur Schonung des 5MB localStorage Limits wird ein unsichtbarer Canvas-Kompressor genutzt. Generalisierbarkeit: Gro�e Bin�rdaten lassen sich im Browser per Canvas extrem ressourcenschonend f�r den localStorage aufbereiten (Zero-Server-Architektur).
+
+---
+
+### 2026-08-08 – Memory-Audit: claude.ai Projekt-Erinnerung gegen Code/Docs abgeglichen
+
+*   **Entscheidung:** Die automatisch von claude.ai gepflegte Projekt-Memory wurde gegen den aktuellen Produktivcode (`website/js/`) und die Obsidian-Docs geprüft. Ergebnis: Sechs dort als "offen" gelistete Bugs existieren im aktuellen Code nicht mehr (SPEC-066/Ghost-Mirror bereits umgesetzt, `din-body`-Verstoß obsolet weil `din-body` durch `din-text`/`din-kern` ersetzt wurde, `data-layout`-Attribut obsolet durch CSS-`:has()`-Form-Switching, OPFS-Worker-Bug obsolet weil OPFS komplett zugunsten LocalStorage aufgegeben wurde, STORAGE_KEY-Versionsmismatch und CSS.highlights-Dead-Code nicht im Code auffindbar). Dagegen wurde ein bislang unentdeckter echter Fehler gefunden: `Feature-Matrix.md` führte "Profil-Management" als ✅ Aktiv, obwohl im Produktivcode keine Implementierung existiert (siehe [[ADR-PROFILE-MANAGEMENT]]).
+
+*   **Grund:** Mo bat um eine Durchsicht vergangener Chats auf Findings/Verbesserungspotenzial. Da einzelne Chat-Transkripte nicht zugänglich sind, wurde stattdessen die claude.ai-Memory (als Cross-Chat-Zusammenfassung) gegen den verifizierbaren Ist-Zustand geprüft.
+
+*   **Quelle:** `DIN-BriefNEO_memory_konsolidiert.md` (hatte dieselbe Diskrepanz bereits am 2026-08-07 vermerkt, ohne dass die claude.ai-Memory seither korrigiert wurde), Code-Grep über `website/js/`, [[ADR-PROFILE-MANAGEMENT]], [[Feature-Matrix]].
+
+*   **Status:** Aktiviert — Feature-Matrix korrigiert, ADR-PROFILE-MANAGEMENT als offenes Backlog-Item angelegt.
+
+*   **Offener Punkt:** Die claude.ai-Projekt-Memory selbst kann von hier aus nicht editiert werden (kein Dateizugriff darauf) — Mo müsste sie manuell in den claude.ai-Projekteinstellungen aktualisieren oder auf `DIN-BriefNEO_memory_konsolidiert.md` verweisen lassen.
+
+---
+
+### 2026-08-08 – Memory-Audit Teil 2: restliche offene CLAUDE.md-Punkte geklärt
+
+*   **Entscheidung:** Die vier verbleibenden offenen Punkte aus `CLAUDE.md` ("Offene Punkte, Stand 2026-08-07") wurden im Code verifiziert. Ergebnis: (1) Salutation Engine SPEC-002 nur teilweise abgedeckt — Ghost-Text-Pattern und Punctuation-Validator fehlen, `Salutation-Engine.md` referenzierte zudem falsche Dateinamen (korrigiert auf `41-salutation-engine.js`). (2) IBAN Ghost-Text existiert nicht (deckt sich mit ADR-PROFILE-MANAGEMENT). (3) `--c-danger`/`--c-success` sind definiert, `--c-text-muted` ist eine tote Doku-Referenz ohne Code-Bezug. (4) History Stack Limit ist im Code `50`, nicht 20 oder 60 wie in beiden alten Doku-Versionen behauptet. Zusätzlich wurde ein toter Wikilink (`ADR-ÜBERSICHT`, Datei existiert nicht mehr) aus `10-architecture/README.md` entfernt.
+
+*   **Grund:** Fortsetzung des Memory-Audits auf Mo's Wunsch, alle offenen Punkte durchzugehen statt nur den Profil-Management-Fund stehen zu lassen.
+
+*   **Quelle:** Code-Grep über `website/js/`, `website/css/variables.css`, `docs/00-foundation/spec.md`, [[Salutation-Engine]], [[ADR-PROFILE-MANAGEMENT]].
+
+*   **Status:** Aktiviert — `CLAUDE.md`, `Salutation-Engine.md`, `DIN-BriefNEO_memory_konsolidiert.md` und `10-architecture/README.md` entsprechend korrigiert.
+
+*   **Offener Punkt:** History-Stack-Limit-Diskrepanz ist nur doku-seitig korrigiert markiert, nicht im Code geändert (50 ist der bestehende, funktionierende Wert — keine Code-Änderung nötig, nur Doku-Korrektur ausstehend an den Stellen, die noch 20/60 nennen).

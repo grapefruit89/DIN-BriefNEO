@@ -1,24 +1,30 @@
 ---
-aliases:
-- Fachbegriff-Glossar
-- Glossary
-code_links: []
-created: '2026-06-26'
-depends_on: []
-doc_links: []
-id: guide-glossary
-last-updated: 2026-07-02
-project: DIN-BriefNEO
+id: glossary
+title: 'Fachbegriff-Glossar — DIN-BriefNEO'
+type: reference
 status: active
-tags:
-- obsidian
-- documentation
-- guide
-- manual
-- glossary
-title: 'Guide: Fachbegriff-Glossar: glossary.md'
-type: guide
+created: '2026-06-26'
 updated: '2026-07-07'
+tags:
+  - din-briefneo
+  - din-briefneo/implementation
+  - status/active
+  - type/reference
+doc_links:
+  - longevity-guidelines
+  - constitution
+code_links: []
+error_patterns:
+  - glossar
+  - begriffe
+  - definitionen
+  - abortcontroller
+  - container queries
+  - cqw cqh
+  - localstorage
+  - oklch farbraum
+  - no-scroll-layout
+supersedes: []
 ---
 
 # Fachbegriff-Glossar: glossary.md

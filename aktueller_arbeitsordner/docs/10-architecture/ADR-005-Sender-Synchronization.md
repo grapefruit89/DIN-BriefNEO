@@ -1,23 +1,28 @@
 ---
-authors:
-- Agent
-chosen_option: ''
-code_links: []
-created: '2026-07-07'
-date: 2026-07-07
-decision_options: []
-depends_on: []
-doc_links: []
 id: ADR-005
-status: accepted
-tags:
-- architecture
-- ui
-- ux
-- sync
-title: Sender Synchronization Logic (Absenderblock -> Rücksendezeile)
+title: 'ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile)'
 type: adr
-updated: '2026-07-07'
+status: active
+created: '2026-07-07'
+updated: '2026-08-08'
+tags:
+  - din-briefneo
+  - din-briefneo/architecture
+  - status/active
+  - type/adr
+doc_links:
+  - ADR-HTML
+  - ADR-JS
+code_links:
+  - website/js/44-sender-sync.js
+error_patterns:
+  - sender synchronization
+  - rücksendezeile
+  - absenderblock
+  - unterschrift
+  - sender-sync
+  - maschinenschrift
+supersedes: []
 ---
 
 # ADR-005: Sender Synchronization Logic
@@ -53,3 +58,6 @@ We restore the `<din-infoblock>` (or sender input fields) and introduce a dedica
 - **Rule 2:** The `sender-sync.js` module MUST be loaded during the initial application setup in `main.js`.
 
 - **Rule 3:** This logic is considered **core functionality** and MUST NOT be removed in future refactoring attempts.
+
+> [!WARNING] Stille Abhängigkeit (ergänzt 2026-08-08)
+> Es gibt **keinen automatischen Check**, der greift, wenn `info-name`/`info-street`/`info-city` umbenannt oder `44-sender-sync.js` verändert wird — die Rücksendezeile (`#absender`) und `#unterschrift` würden dann stillschweigend aufhören zu synchronisieren, ohne Fehlermeldung. Kein akuter Bug, nur ein Hinweis für den nächsten, der an dieser Datei arbeitet: die drei Feld-IDs oben sind ein informeller Vertrag, kein technisch erzwungener.

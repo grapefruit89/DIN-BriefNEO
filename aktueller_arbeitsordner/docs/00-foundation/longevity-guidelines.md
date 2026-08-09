@@ -1,24 +1,28 @@
 ---
-aliases:
-- Longevity Guidelines
-- W3C Standards
-code_links: []
-created: '2026-06-26'
-depends_on: []
-doc_links: []
-id: guide-longevity-guidelines
-last-updated: 2026-07-02
-project: DIN-BriefNEO
-status: active
-tags:
-- obsidian
-- documentation
-- guide
-- manual
-- architecture
-title: 'Guide: Longevity & W3C Native Standards Guidelines (Longevity Guide)'
+id: longevity-guidelines
+title: 'Guide: Longevity & W3C Native Standards Guidelines'
 type: guide
+status: active
+created: '2026-06-26'
 updated: '2026-07-07'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/guide
+doc_links:
+  - constitution
+  - Immutable-Law-Catalog
+code_links: []
+error_patterns:
+  - longevity
+  - wartungsfreiheit
+  - w3c living standards
+  - zero-dependency
+  - deprecated apis
+  - langlebigkeit
+  - 10 jahre
+supersedes: []
 ---
 
 # Longevity & W3C Native Standards Guidelines (Longevity Guide)

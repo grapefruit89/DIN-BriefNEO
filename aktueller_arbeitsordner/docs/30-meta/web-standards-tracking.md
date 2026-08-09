@@ -1,14 +1,31 @@
 ---
-id: GUIDE-002
-created: "2026-07-21"
-updated: "2026-07-21"
-title: "Web Standards Tracking & Testing"
-type: Guide
-status: Active
-doc_links: []
-code_links: []
-depends_on: []
-tags: [meta, w3c, chrome, standards, testing]
+id: web-standards-tracking
+title: 'Web Standards Tracking & Testing'
+type: guide
+status: active
+created: '2026-07-21'
+updated: '2026-08-07'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/active
+  - type/guide
+  - tech/w3c
+  - tech/chrome
+doc_links:
+  - Architecture-Evolution
+  - constitution
+code_links:
+  - tools/build_db.js
+error_patterns:
+  - web standards tracking
+  - w3c
+  - chrome status
+  - chromestatus
+  - browser features
+  - fitness gate
+  - proof of concept
+supersedes: []
 ---
 
 # Web Standards Tracking & Testing

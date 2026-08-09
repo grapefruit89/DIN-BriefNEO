@@ -13,28 +13,31 @@
 
 
 din-a4 {
-  --din-width: 210;
-  --din-height: 297;
-  
-  --absender-y: calc(45 / var(--din-height) * 100cqh);
-  --empfaenger-y: calc(50 / var(--din-height) * 100cqh);
-  --infoblock-y: calc(50 / var(--din-height) * 100cqh);
-  --datum-y: calc(92 / var(--din-height) * 100cqh);
-  --briefkern-y: calc(109 / var(--din-height) * 100cqh);
-  
-  --fold-1-y: calc(105 / var(--din-height) * 100cqh);
-  --fold-2-y: calc(210 / var(--din-height) * 100cqh);
-  --punch-y: calc(148.5 / var(--din-height) * 100cqh);
+  /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
+     am <din-a4>-Element (siehe index.html). Fallback-Zahl = bisheriger Hardcode-Wert,
+     greift nur, falls das Attribut fehlt oder attr()/type() nicht unterstützt wird. */
+  --din-width: attr(data-width-mm type(<number>), 210);
+  --din-height: attr(data-height-mm type(<number>), 297);
+
+  --absender-y: calc(attr(data-absender-y-b type(<number>), 45) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-b type(<number>), 92) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-b type(<number>), 109) / var(--din-height) * 100cqh);
+
+  --fold-1-y: calc(attr(data-fold-1-b type(<number>), 105) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-b type(<number>), 210) / var(--din-height) * 100cqh);
+  --punch-y: calc(attr(data-punch-y type(<number>), 148.5) / var(--din-height) * 100cqh);
 }
 
 body:has(#btn-form-a:checked) din-a4 {
-  --absender-y: calc(27 / var(--din-height) * 100cqh);
-  --empfaenger-y: calc(32 / var(--din-height) * 100cqh);
-  --infoblock-y: calc(32 / var(--din-height) * 100cqh);
-  --datum-y: calc(74 / var(--din-height) * 100cqh);
-  --briefkern-y: calc(91 / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
-  --fold-1-y: calc(87 / var(--din-height) * 100cqh);
-  --fold-2-y: calc(181 / var(--din-height) * 100cqh);
+  --absender-y: calc(attr(data-absender-y-a type(<number>), 27) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-a type(<number>), 74) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-a type(<number>), 91) / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --fold-1-y: calc(attr(data-fold-1-a type(<number>), 87) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-a type(<number>), 181) / var(--din-height) * 100cqh);
 }
 
 /* --- APP SHELL --- */

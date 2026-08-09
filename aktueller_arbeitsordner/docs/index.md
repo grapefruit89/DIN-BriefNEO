@@ -1,19 +1,25 @@
 ---
-code_links: []
-created: '2026-07-03'
-depends_on: []
-doc_links:
-- '[[OmniTraceability]]'
-- '[[Function-Traceability]]'
-- '[[core/spec]]'
 id: index
+title: 'DIN-BriefNEO — OmniTraceability Hub'
+type: meta
 status: active
+created: '2026-07-03'
+updated: '2026-08-07'
 tags:
-- root
-- wiki
-title: DIN-BriefNEO OmniTraceability
-type: root
-updated: '2026-07-07'
+  - din-briefneo
+  - status/active
+  - type/meta
+doc_links:
+  - OmniTraceability
+  - Function-Traceability
+  - spec
+error_patterns:
+  - hub
+  - navigation
+  - omnitraceability
+  - einstieg
+  - übersicht
+supersedes: []
 ---
 
 # 🚀 DIN-BriefNEO: OmniTraceability Hub
@@ -31,11 +37,11 @@ Dieses Wiki dient als maschinenlesbarer Navigator durch die Architektur, Spezifi
 
 ### Die Umsetzung
 
-- **[Architektur-Entscheidungen (ADRs)](10-architecture/ADR/ADR-ÜBERSICHT.md)**: Alle verbindlichen Architektur-Regeln. Das "Warum".
+- **[[ADR-ÜBERSICHT]]**: Alle verbindlichen Architektur-Regeln. Das "Warum".
 
-- **[Guides & Manuals](20-implementation/Guides/GUIDE-TEMPLATE.md)**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
+- **[[GUIDE-TEMPLATE]]**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
 
-- **[[core/spec]]**: Die unumstößlichen funktionalen und fachlichen Anforderungen an die DIN 5008. Das "Was".
+- **[[spec]]**: Die unumstößlichen funktionalen und fachlichen Anforderungen an die DIN 5008. Das "Was".
 
 ---
 

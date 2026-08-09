@@ -86,46 +86,24 @@ Automatisches Auffinden der zuständigen Finanzamt-Adresse für den Empfänger, 
 
 ## Chrome 148-151 Modernisierungschancen
 
-Audit vom Juli 2026: **15 konkrete Opportunities** — netto -153 Zeilen imperativen JS. Alle Features seit Chrome 150/151 default-enabled.
+Audit vom Juli 2026 (ursprünglich `architecture_opportunities.md`, 19 Einzel-Opportunities in 8 Bereichen). **Verifiziert gegen den Code, 2026-08-09:** der Großteil ist bereits umgesetzt — nur noch 4 Punkte offen. Die Detaildatei wurde daher gelöscht, dieser Abschnitt ersetzt sie.
 
-### Bereich 1: CSS `text-fit` / Native Font Auto-Scaling (Chrome 150/151)
+### Noch offen (4)
 
-- **Opportunity 1.1** `#absender` Envelope Window — JS-Zeichenzählung durch natives `text-fit` ersetzen. Absenderzeile skaliert automatisch auf 85mm × 5mm.
-- **Opportunity 1.2** `#betreff` Subject Line Overflow — dynamisches Font-Scaling ohne JS.
-- **Opportunity 1.3** `.single-line` Input Fields — Overflow-Prävention ohne JS-Polling.
+- **`focusgroup="vertical wrap"`** auf der Sidebar-Footer-Aktionsgruppe (`#btn-print`/`#btn-reset`) — ArrowUp/Down-Navigation ohne JS.
+- **Name-Only Container Queries** (`@container paper { ... }`) statt size-basierter Queries — bisher nirgends im CSS verwendet.
+- **`popover="hint"` + `interesttarget`** für reichhaltige, stylebare Tooltips statt nativer `title`-Attribute.
+- **Container Scroll-State Query** (`@container scroll-state(overflow-y: true)`) für eine Text-Overflow-Warnung im Briefkern. Die alte JS-Variante (`checkTextOverflow`, `.scrollHeight`-Polling) wurde als buggy entfernt, nie migriert.
 
-### Bereich 2: HTML `focusgroup` (Chrome 150/151)
+**Status:** Brainstorming / Nice-to-have, keine Bugs. Kein Zeitdruck.
 
-- **Opportunity 2.1** Segmented Controls — native ArrowLeft/Right-Navigation ohne JS-Event-Listener.
-- **Opportunity 2.2** Sidebar Buttons — ArrowUp/Down-Navigation ohne JS.
+### Bereits umgesetzt (verifiziert 2026-08-09)
 
-### Bereich 3: CSS `light-dark()` Erweiterungen (Chrome 149+)
+`text-fit` auf Absender/Betreff/`.single-line` · `focusgroup="horizontal wrap"` auf allen Segmented Controls · `light-dark()` durchgängig in `variables.css` · Gap Decorations (`column-rule`/`column-rule-inset`) im Footer · CSS Anchor Positioning für alle Dropdowns und die Format-Toolbar · `:has()`-Radio-Pattern für Theme/Schriftart/Anrede/Datum/Unterschrift · natives `<dialog>` für die Reset-Bestätigung (sogar mit `command="show-modal"`, moderner als im Audit vorgeschlagen).
 
-- **Opportunity 3.1** Theme-adaptive Bilder & Icons — eliminiert JS-Theme-Toggle-Listener.
-- **Opportunity 3.2** Focus-Border Adaptability — `oklch()` + `light-dark()` statt doppelter CSS-Regeln.
+### Bewusst anders gelöst
 
-### Bereich 4: CSS Gap Decorations (`column-rule-inset`, `row-rule-*`) (Chrome 150+)
-
-- Dekorative Trennlinien zwischen Sidebar-Sektionen rein per CSS ohne `<hr>`-Elemente.
-
-### Bereich 5: Name-Only Container Queries (Chrome 149+)
-
-- `@container sidebar` statt size-basierter Queries für semantisch klarere Stylesheet-Logik.
-
-### Bereich 6: CSS Anchor Positioning (`position-area`) + `popover="hint"` (Chrome 150+)
-
-- **Opportunity 6.1** Format Toolbar Anchor — präziseres Anchoring der Formatierungsleiste.
-- **Opportunity 6.2** Adress-Autocomplete Dropdown — `popover="hint"` + `position-area` statt JS-Positionsberechnungen.
-- **Opportunity 6.3** Hover Tooltips — native `popover="hint"` ohne JS-Listener.
-
-### Bereich 7: HTML State & CSS `:has()` Toggle Patterns (Chrome 148+)
-
-- **Opportunity 7.1** Form A/B Toggle — `<input type="radio">` + `:has()` statt JS-Klassen-Toggle.
-- **Opportunity 7.2** Theme-Switcher — gleiches Pattern für Hell/Dunkel/Auto.
-
-### Bereich 8: Native HTML5 `<dialog>` Modal (Chrome 148+)
-
-- **Opportunity 8.1** Bestätigungs-Dialoge — `<dialog>` statt `window.confirm()`. Nicht-blockierend, stylebar, barrierefrei.
+Trennlinien in den Segmented Controls: statt der vorgeschlagenen `column-rule` wurde ein gleitendes Pill-Element (`::before`) gewählt.
 
 ---
 

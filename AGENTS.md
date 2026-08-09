@@ -1,3 +1,27 @@
+---
+id: agents-contract
+title: AGENTS.md — Bindender KI-Verhaltensvertrag
+type: ai-context
+status: active
+created: '2026-07-01'
+updated: '2026-08-07'
+tags:
+- din-briefneo
+- meta
+- ai-context
+- governance
+- gemini
+- agents
+doc_links:
+- '[[CLAUDE]]'
+- '[[Immutable-Law-Catalog]]'
+- '[[ADR-ANTIPATTERN]]'
+- '[[DECISION-LOG]]'
+- '[[longevity-guidelines]]'
+code_links:
+- 'tools/log_session.js'
+---
+
 # AGENTS.md — DIN-BriefNEO
 
 **BINDENDER VERHALTENSVERTRAG FÜR ALLE KI-AGENTEN**  
@@ -7,7 +31,7 @@ Dieser Vertrag ist nicht verhandelbar. Verstöße führen zur Ablehnung der Änd
 
 ## 1. Höchste Autorität: Immutable Law Catalog
 
-Das Dokument `docs/Meta/MASTER-DO-DONT-DEPRECATED.md` (Immutable Law Catalog) ist die **höchste autoritative Quelle** dieses Projekts.
+Das Dokument `docs/00-foundation/Immutable-Law-Catalog.md` (Immutable Law Catalog) ist die **höchste autoritative Quelle** dieses Projekts.
 
 - Es definiert verbindlich, welche Technologien und Patterns **MUST-USE** und welche **FORBIDDEN** sind.
 - Bei Konflikten zwischen diesem Dokument (`AGENTS.md`) und dem Immutable Law Catalog hat **letzteres Vorrang**.
@@ -82,7 +106,7 @@ Erkenntnisse sind im `DECISION-LOG.md` festzuhalten.
 
 ## 7. Verbotene Technologien
 
-Es gelten die Regeln des **Immutable Law Catalogs** (`docs/Meta/MASTER-DO-DONT-DEPRECATED.md`). 
+Es gelten die Regeln des **Immutable Law Catalogs** (`docs/00-foundation/Immutable-Law-Catalog.md`). 
 
 Besonders streng verboten sind unter anderem:
 - Frameworks und Build-Tools für das Frontend

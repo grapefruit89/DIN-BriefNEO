@@ -105,9 +105,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
   `// Feature Trace: document.startViewTransition is now handled inside settingsManager`
 
 ## 18. Numbered Domain Architecture (JS Folder)
-- Neue JavaScript-Dateien dürfen **niemals** direkt im `js/`-Root-Ordner abgelegt werden (einzige Ausnahme ist `main.js`).
-- Jede neue Datei muss in die passende Domäne einsortiert werden: `00-core/`, `10-ui/`, `20-features/` oder `30-utils/`.
-- Dateinamen erhalten zwingend einen fortlaufenden Nummern-Präfix (z.B. `04-neues-feature.js`), um die visuelle Ordnung zu wahren.
+- Alle JavaScript-Dateien liegen **zwingend flach** im `js/`-Root-Ordner. Es gibt keine tiefen Unterordner mehr (`ui/`, `features/` etc. sind verboten).
+- Jede neue Datei muss stattdessen durch einen zweistelligen Präfix in die passende Domäne gruppiert werden (Dezimalrahmen-Prinzip): `0x-` für Core, `3x-` für UI, `4x-` für Features, `5x-` für Utils.
+- Beispiel: Anstatt `30-ui/01-format-toolbar.js` heißt die Datei nun `31-format-toolbar.js`.
 
 ## 19. Custom Undo/Redo History (DraftManager)
 - Das native Browser-Undo (`document.execCommand('undo')`) ist fehleranfällig und darf nicht verwendet werden.

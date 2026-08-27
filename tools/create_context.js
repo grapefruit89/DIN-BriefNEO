@@ -4,6 +4,10 @@ const path = require('path');
 const OUTPUT_FILE = 'build/LLM_CONTEXT.md';
 
 // Liste der absolut kritischen Kern-Dokumente für LLMs
+// repository.yaml und SKILL.md ergaenzt (Architecture Drift Audit,
+// 2026-08-27): vorher fehlte der Agent Contract im generierten Kontext --
+// ein frisch gestarteter Agent kannte repository.yaml/den Skill nicht,
+// ohne sie separat zu suchen.
 const CORE_FILES = [
     'README.md',
     'docs/index.md',
@@ -11,7 +15,9 @@ const CORE_FILES = [
     'docs/00-foundation/constitution.md',
     'docs/00-foundation/longevity-guidelines.md',
     'docs/00-foundation/Immutable-Law-Catalog.md',
-    'docs/00-foundation/spec.md'
+    'docs/00-foundation/spec.md',
+    'repository.yaml',
+    'agent/skills/repository-operations/SKILL.md'
 ];
 
 const PREAMBLE = `---

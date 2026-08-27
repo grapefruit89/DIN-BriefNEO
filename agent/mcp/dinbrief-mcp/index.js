@@ -43,6 +43,19 @@
  * nicht abgelaufen, gleiche Aktion, Datei-Hash unveraendert seit dem Plan.
  * Nur bei allen vier Bedingungen wird ausgefuehrt.
  *
+ * Intent-Verification (Nachbesserung nach Architecture Drift Audit,
+ * 2026-08-27): Verify pruefte bisher AUSSCHLIESSLICH den Fitness Score --
+ * nicht ob die Aktion ihr eigentliches Ziel erreicht hat (z.B. wurde
+ * build/LLM_CONTEXT.md bei "regenerate-llm-context" tatsaechlich neu
+ * geschrieben?). Jede ACTIONS-Aktion hat jetzt ein outputPath-Feld; vor
+ * und nach run() wird dessen Hash verglichen. Nur wenn sich der Output
+ * tatsaechlich geaendert hat (oder die Aktion als nicht-output-aendernd
+ * markiert ist), gilt der Intent als erreicht -- das Ergebnis landet in
+ * data.verify.intent, zusaetzlich zum weiterhin gepruefeten Fitness Score.
+ * Der erzeugte/veraenderte Output-Pfad wird ausserdem in artifacts
+ * eingetragen (vorher immer leer, siehe "Ephemer vs. persistent" in
+ * docs/30-meta/tool-result-vocabulary.md).
+ *
  * Result-Schema und Vokabular: siehe docs/30-meta/tool-result-vocabulary.md
  */
 
@@ -154,12 +167,21 @@ function repositoryValidate() {
 // unten) -- bewusst NICHT das ganze Repo, sonst wuerde jede beliebige
 // Aenderung irgendwo im Projekt jeden offenen Plan ungueltig machen, auch
 // wenn sie mit der Aktion nichts zu tun hat.
+// outputPath: die Datei, die diese Aktion erzeugt/aktualisiert -- wird
+// (a) nach erfolgreicher Ausfuehrung in data.artifacts eingetragen und
+// (b) fuer die Intent-Verification vor/nach run() gehasht (siehe oben).
+// run-fitness-gate schreibt zwei Dateien (import.sql, Code-Referenzen.md);
+// import.sql als Haupt-Output gewaehlt, da es das direkte, unmittelbare
+// Ergebnis von build_db.js ist (Code-Referenzen.md wird nur bei
+// vorhandenen code_links-Frontmatter-Eintraegen aktualisiert, ist also
+// nicht bei jedem Lauf garantiert unterschiedlich).
 const ACTIONS = {
   'run-fitness-gate': {
     description: 'Fuehrt tools/build_db.js aus (Fitness Gate + Traceability-Build). Entspricht Schritt [3/5] in start.ps1.',
     risk: 'WRITE',
     idempotent: true,
     affectedPaths: ['docs', 'website', 'tools/antipatterns', 'tools/reconciliation.js', 'tools/build_db.js', 'docs/30-meta/schema-v6.json'],
+    outputPath: 'build/import.sql',
     run: () => {
       execFileSync('node', ['tools/build_db.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
     }
@@ -169,6 +191,7 @@ const ACTIONS = {
     risk: 'WRITE',
     idempotent: true,
     affectedPaths: ['README.md', 'docs/index.md', 'AGENTS.md', 'docs/00-foundation', 'tools/create_context.js'],
+    outputPath: 'build/LLM_CONTEXT.md',
     run: () => {
       execFileSync('node', ['tools/create_context.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
     }
@@ -210,6 +233,18 @@ function hashPaths(relativePaths) {
     hasher.update(f);
     hasher.update(fs.readFileSync(f));
   }
+  return hasher.digest('hex');
+}
+
+// Hash einer einzelnen Datei fuer die Intent-Verification. Getrennt von
+// hashPaths() (das ist fuer die Plan-Bindung ueber mehrere Pfade gedacht) --
+// hier reicht ein einfacher Hash oder "missing", wenn die Datei (noch)
+// nicht existiert, z.B. vor dem allerersten Lauf einer Aktion.
+function hashSingleFile(relativePath) {
+  const abs = path.join(REPO_ROOT, relativePath);
+  if (!fs.existsSync(abs)) return null;
+  const hasher = crypto.createHash('sha256');
+  hasher.update(fs.readFileSync(abs));
   return hasher.digest('hex');
 }
 
@@ -330,6 +365,10 @@ function repositoryExecute({ action, plan, planId }) {
     });
   }
 
+  // Hash des erwarteten Outputs VOR der Ausfuehrung -- Grundlage fuer die
+  // Intent-Verification unten (hat sich der Output tatsaechlich geaendert?).
+  const outputHashBefore = actionDef.outputPath ? hashSingleFile(actionDef.outputPath) : null;
+
   // Execute-Schritt: fuehrt die Aktion tatsaechlich aus.
   try {
     actionDef.run();
@@ -344,18 +383,53 @@ function repositoryExecute({ action, plan, planId }) {
     });
   }
 
+  // Intent-Verification: hat die Aktion ihr eigentliches Ziel erreicht,
+  // nicht nur "Fitness Score ist 100%"? Bei Aktionen mit outputPath wird
+  // geprueft, ob sich der Output-Hash tatsaechlich geaendert hat (oder neu
+  // entstanden ist, falls er vorher fehlte). Das ist ein Minimal-Check --
+  // beweist nur "etwas hat sich geaendert", nicht "die Aenderung ist
+  // inhaltlich korrekt" (das bleibt weiterhin Aufgabe des Fitness Gate).
+  let intentResult = null;
+  if (actionDef.outputPath) {
+    const outputHashAfter = hashSingleFile(actionDef.outputPath);
+    const changed = outputHashAfter !== null && outputHashAfter !== outputHashBefore;
+    intentResult = {
+      output_path: actionDef.outputPath,
+      changed,
+      summary: changed
+        ? `${actionDef.outputPath} wurde tatsaechlich veraendert.`
+        : outputHashAfter === null
+          ? `${actionDef.outputPath} existiert auch nach der Ausfuehrung nicht -- Aktion hat ihr Ziel nicht erreicht.`
+          : `${actionDef.outputPath} ist nach der Ausfuehrung UNVERAENDERT -- Aktion hat inhaltlich nichts bewirkt (Hash identisch zu vorher).`
+    };
+  }
+
   // Verify-Schritt: IMMER direkt nach execute, automatisch, nicht optional.
   // Das Ergebnis wird mit zurueckgegeben, damit ein Aufrufer nie eine
-  // Ausfuehrung ohne Verifikationsergebnis erhaelt.
+  // Ausfuehrung ohne Verifikationsergebnis erhaelt. Fitness Score UND (wo
+  // anwendbar) Intent-Verification muessen beide stimmen, damit status
+  // "changed" wird -- ein unveraenderter Output bei WRITE-Risikoklasse ist
+  // ein Warnsignal, auch wenn der Fitness Score weiterhin 100% ist.
   const verifyResult = repositoryValidate();
-  const status = verifyResult.status === 'ok' ? 'changed' : 'warning';
+  const fitnessOk = verifyResult.status === 'ok';
+  const intentOk = intentResult === null || intentResult.changed;
+  const status = (fitnessOk && intentOk) ? 'changed' : 'warning';
+
+  const warnings = [];
+  if (!fitnessOk) {
+    warnings.push(`Verify nach Ausfuehrung meldet Status "${verifyResult.status}" statt "ok" -- pruefen vor weiteren Aenderungen.`);
+  }
+  if (intentResult && !intentResult.changed) {
+    warnings.push(`Intent-Verification: ${intentResult.summary}`);
+  }
 
   return makeResult({
     operation: 'execute',
     status,
-    summary: `Aktion "${action}" ausgefuehrt. Verify (Fitness Gate): ${verifyResult.summary}`,
-    data: { action, verify: verifyResult },
-    warnings: verifyResult.status !== 'ok' ? [`Verify nach Ausfuehrung meldet Status "${verifyResult.status}" statt "ok" -- pruefen vor weiteren Aenderungen.`] : [],
+    summary: `Aktion "${action}" ausgefuehrt. Verify (Fitness Gate): ${verifyResult.summary}${intentResult ? ` | Intent: ${intentResult.summary}` : ''}`,
+    data: { action, verify: { ...verifyResult, intent: intentResult } },
+    artifacts: (intentResult && intentResult.changed) ? [actionDef.outputPath] : [],
+    warnings,
     startedAt
   });
 }
@@ -408,7 +482,7 @@ function main() {
 
 // Exportiert fuer Tests / direkten Aufruf aus anderen Skripten,
 // startet die STDIO-Schleife nur wenn direkt ausgefuehrt.
-module.exports = { repositoryInspect, repositoryValidate, repositoryExecute, ACTIONS, hashPaths, PLAN_DIR };
+module.exports = { repositoryInspect, repositoryValidate, repositoryExecute, ACTIONS, hashPaths, hashSingleFile, PLAN_DIR };
 
 if (require.main === module) {
   main();

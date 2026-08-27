@@ -18,6 +18,7 @@ code_links:
 - 'tools/build_db.js'
 - 'tools/build_db.py'
 - 'tools/create_context.js'
+- 'tools/pipeline-cache.ps1'
 - 'tools/log_session.js'
 - 'tools/add_wikilinks.py'
 - 'tools/build_canvas.js'
@@ -98,6 +99,23 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Risikoklasse**: WRITE (nur generiertes Artefakt, kein Quellcode)
 - **Idempotenz**: IDEMPOTENT
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline, wird von AGENTS.md Light Mode Schritt 2 vorausgesetzt
+
+## pipeline-cache.ps1
+
+- **Zweck**: Hash-basierte Skip-Logik fuer `start.ps1`. Berechnet SHA256 ueber
+  die Inputs eines Pipeline-Schritts (`create_context.js`, `build_db.py`) und
+  entscheidet anhand eines gespeicherten Vergleichswerts, ob der Schritt
+  erneut laufen muss oder uebersprungen werden kann. `reconciliation.js`/
+  `build_db.js` (Fitness Gate) ist davon bewusst ausgenommen -- laeuft immer.
+- **Input**: Datei-/Verzeichnispfade des jeweiligen Pipeline-Schritts (von
+  `start.ps1` uebergeben), bestehender Cache-Inhalt aus `.agents/cache/pipeline-hashes.json`
+- **Output**: `.agents/cache/pipeline-hashes.json` (gitignored, da `.agents/`
+  bereits in `.gitignore` steht) -- kein versioniertes Artefakt
+- **Abhaengigkeiten**: keine, reines PowerShell Core (`System.Security.Cryptography.SHA256`)
+- **Aufrufer**: `start.ps1` (dot-sourced vor den Pipeline-Schritten, Zeile 36)
+- **Risikoklasse**: WRITE (schreibt nur die lokale, gitignorete Cache-Datei, keine Quell- oder Build-Artefakte)
+- **Idempotenz**: IDEMPOTENT (gleicher Eingabe-Hash -> gleiches Skip/Run-Ergebnis)
+- **Safe-to-delete**: NEIN -- Teil der aktiven Build-Pipeline seit Commit 753681c
 
 ## log_session.js
 

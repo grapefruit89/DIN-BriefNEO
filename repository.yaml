@@ -87,4 +87,17 @@ open_items:
   # abschliessend loest, weil sie ausserhalb des Scopes von Lauf 1+2 liegen.
   - id: agenten-infrastruktur-entschlacken
     description: start.ps1-Pipeline laeuft weiterhin komplett bei jedem Aufruf, wurde nicht hinterfragt (siehe Antwort 5).
-    status: deferred
+    status: done
+    resolved_note: >
+      Hash-basiertes Caching fuer create_context.js und build_db.py
+      implementiert (tools/pipeline-cache.ps1, Commit 753681c). Fitness Gate
+      (build_db.js/reconciliation.js) bewusst weiterhin ungecacht, siehe
+      AGENTS.md Paragraph 2.
+  - id: plan-execute-verify-zustandslos
+    description: >
+      repository.execute erzwingt Plan->Execute->Verify nicht technisch --
+      ein execute-Aufruf ohne vorherigen plan:true-Aufruf wird nicht
+      abgelehnt, es gibt keine Bindung (plan_id/Repo-Hash) zwischen einem
+      Plan-Aufruf und dem nachfolgenden echten Execute. Gefunden bei
+      externem Review (ChatGPT, 2026-08-27, Ist-Pruefung gegen Antwort 9).
+    status: open

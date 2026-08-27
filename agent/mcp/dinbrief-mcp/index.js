@@ -22,21 +22,40 @@
  * Plan -> Execute -> Verify (siehe docs/30-meta/tool-result-vocabulary.md):
  * repository.execute verlangt IMMER zuerst einen Aufruf mit {"plan": true},
  * der nur eine Vorschau liefert und NICHTS veraendert (status: "unchanged").
- * Erst ein zweiter Aufruf ohne plan:true fuehrt die Aktion wirklich aus,
- * und ruft danach automatisch repository.validate auf (verify-Schritt) --
+ * Diese Vorschau liefert eine plan_id zurueck, gebunden an einen Hash der
+ * von der Aktion betroffenen Dateien. Erst ein zweiter Aufruf MIT dieser
+ * plan_id fuehrt die Aktion wirklich aus -- und nur, wenn der Hash seither
+ * unveraendert ist (siehe "Plan-Bindung" unten). Ein execute-Aufruf OHNE
+ * gueltige plan_id wird abgelehnt (status: "blocked"). Nach Ausfuehrung
+ * ruft der Server automatisch repository.validate auf (verify-Schritt) --
  * das Ergebnis der Ausfuehrung enthaelt den Fitness Score direkt mit,
  * damit nie eine Ausfuehrung ohne Verifikation zurueckgegeben wird.
+ *
+ * Plan-Bindung (seit Lauf 2, Nachbesserung nach externem Review):
+ * Vorher konnte "execute" ohne vorherigen "plan"-Aufruf ausgefuehrt werden
+ * -- die Doku sagte "zwingend", der Code erzwang es nicht. Gefunden bei
+ * einer externen Ist-Pruefung (ChatGPT, 2026-08-27, siehe repository.yaml
+ * open_items "plan-execute-verify-zustandslos"). Jetzt: plan_id + Hash der
+ * betroffenen Dateien werden unter .agents/cache/plans/<plan_id>.json
+ * abgelegt (Ablage ausserhalb von git, siehe .gitignore), TTL 10 Minuten,
+ * Single-Use (Plan wird nach erfolgreicher Pruefung geloescht -- kein
+ * Replay eines alten Plans moeglich). execute prueft: Plan existiert,
+ * nicht abgelaufen, gleiche Aktion, Datei-Hash unveraendert seit dem Plan.
+ * Nur bei allen vier Bedingungen wird ausgefuehrt.
  *
  * Result-Schema und Vokabular: siehe docs/30-meta/tool-result-vocabulary.md
  */
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const readline = require('readline');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const REPOSITORY_YAML = path.join(REPO_ROOT, 'repository.yaml');
+const PLAN_DIR = path.join(REPO_ROOT, '.agents', 'cache', 'plans');
+const PLAN_TTL_MS = 10 * 60 * 1000; // 10 Minuten -- lang genug zum Nachdenken, kurz genug gegen veraltete Plaene
 
 // --- Minimaler YAML-Reader ---------------------------------------------
 // repository.yaml ist absichtlich einfach strukturiert (kein Multi-Doc,
@@ -129,11 +148,18 @@ function repositoryValidate() {
 // Codeausfuehrung -- jede Aktion ruft ein Tool auf, das es in tools/ schon
 // gibt (siehe docs/30-meta/tooling-overview.md). Neue Aktionen werden hier
 // bewusst manuell ergaenzt, nie dynamisch aus Nutzereingaben konstruiert.
+//
+// affectedPaths: Dateien/Ordner, die diese Aktion liest bzw. deren Inhalt
+// das Ergebnis beeinflusst. Wird fuer die Plan-Bindung gehasht (siehe
+// unten) -- bewusst NICHT das ganze Repo, sonst wuerde jede beliebige
+// Aenderung irgendwo im Projekt jeden offenen Plan ungueltig machen, auch
+// wenn sie mit der Aktion nichts zu tun hat.
 const ACTIONS = {
   'run-fitness-gate': {
     description: 'Fuehrt tools/build_db.js aus (Fitness Gate + Traceability-Build). Entspricht Schritt [3/5] in start.ps1.',
     risk: 'WRITE',
     idempotent: true,
+    affectedPaths: ['docs', 'website', 'tools/antipatterns', 'tools/reconciliation.js', 'tools/build_db.js', 'docs/30-meta/schema-v6.json'],
     run: () => {
       execFileSync('node', ['tools/build_db.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
     }
@@ -142,13 +168,111 @@ const ACTIONS = {
     description: 'Fuehrt tools/create_context.js aus, erzeugt build/LLM_CONTEXT.md neu.',
     risk: 'WRITE',
     idempotent: true,
+    affectedPaths: ['README.md', 'docs/index.md', 'AGENTS.md', 'docs/00-foundation', 'tools/create_context.js'],
     run: () => {
       execFileSync('node', ['tools/create_context.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
     }
   }
 };
 
-function repositoryExecute({ action, plan }) {
+// --- Plan-Bindung ----------------------------------------------------------
+// Dateibasiert statt In-Memory: der Server wird pro Aufruf typischerweise
+// als neuer Prozess gestartet (siehe README-Beispiele, zwei separate
+// `echo ... | node index.js`-Aufrufe) -- ein In-Memory-Store wuerde also
+// nichts zwischen plan- und execute-Aufruf binden. Ablage unter
+// .agents/cache/plans/ (bereits gitignored, da .agents/ schon in
+// .gitignore steht). TTL + Single-Use halten die Datei-Ablage klein und
+// verhindern das Ausfuehren veralteter oder bereits verbrauchter Plaene.
+
+function hashPaths(relativePaths) {
+  const hasher = crypto.createHash('sha256');
+  const files = [];
+
+  for (const rel of relativePaths.slice().sort()) {
+    const abs = path.join(REPO_ROOT, rel);
+    if (!fs.existsSync(abs)) continue; // fehlender optionaler Pfad aendert den Hash bewusst nicht
+    const stat = fs.statSync(abs);
+    if (stat.isDirectory()) {
+      const walk = (dir) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) walk(full);
+          else if (entry.isFile()) files.push(full);
+        }
+      };
+      walk(abs);
+    } else if (stat.isFile()) {
+      files.push(abs);
+    }
+  }
+
+  for (const f of files.sort()) {
+    hasher.update(f);
+    hasher.update(fs.readFileSync(f));
+  }
+  return hasher.digest('hex');
+}
+
+function ensurePlanDir() {
+  if (!fs.existsSync(PLAN_DIR)) {
+    fs.mkdirSync(PLAN_DIR, { recursive: true });
+  }
+}
+
+function createPlan(action, actionDef) {
+  ensurePlanDir();
+  const planId = crypto.randomBytes(16).toString('hex');
+  const record = {
+    planId,
+    action,
+    repoHash: hashPaths(actionDef.affectedPaths || []),
+    createdAt: Date.now(),
+    expiresAt: Date.now() + PLAN_TTL_MS
+  };
+  fs.writeFileSync(path.join(PLAN_DIR, `${planId}.json`), JSON.stringify(record), 'utf-8');
+  return record;
+}
+
+// Gibt entweder { ok: true, record } oder { ok: false, reason } zurueck --
+// nie wirft, damit repositoryExecute jeden Ablehnungsgrund als klare
+// summary/error zurueckgeben kann statt einer rohen Exception.
+function consumePlan(planId, action) {
+  const planPath = path.join(PLAN_DIR, `${planId}.json`);
+  if (!fs.existsSync(planPath)) {
+    return { ok: false, reason: `Kein Plan mit dieser plan_id gefunden (unbekannt, bereits verbraucht, oder abgelaufen und aufgeraeumt).` };
+  }
+
+  let record;
+  try {
+    record = JSON.parse(fs.readFileSync(planPath, 'utf-8'));
+  } catch (err) {
+    fs.unlinkSync(planPath);
+    return { ok: false, reason: `Plan-Datei war korrupt und wurde entfernt: ${err.message}` };
+  }
+
+  // Single-Use: Plan-Datei wird in jedem Fall entfernt, sobald sie gelesen
+  // wurde -- unabhaengig davon, ob die Pruefung unten erfolgreich ist. Ein
+  // fehlgeschlagener Versuch verbraucht den Plan bewusst mit (kein Retry
+  // mit derselben plan_id gegen einen mittlerweile veralteten Hash).
+  fs.unlinkSync(planPath);
+
+  if (Date.now() > record.expiresAt) {
+    return { ok: false, reason: `Plan ist abgelaufen (TTL ${PLAN_TTL_MS / 1000}s). Neuen Plan mit plan:true anfordern.` };
+  }
+  if (record.action !== action) {
+    return { ok: false, reason: `Plan wurde fuer Aktion "${record.action}" erstellt, execute wurde aber fuer "${action}" aufgerufen.` };
+  }
+
+  const actionDef = ACTIONS[action];
+  const currentHash = hashPaths(actionDef.affectedPaths || []);
+  if (currentHash !== record.repoHash) {
+    return { ok: false, reason: `Repository-Zustand hat sich seit dem Plan geaendert (Hash weicht ab). Neuen Plan anfordern, damit die Vorschau wieder zum aktuellen Stand passt.` };
+  }
+
+  return { ok: true, record };
+}
+
+function repositoryExecute({ action, plan, planId }) {
   const startedAt = Date.now();
 
   if (!action || !ACTIONS[action]) {
@@ -165,13 +289,43 @@ function repositoryExecute({ action, plan }) {
 
   // Plan-Schritt: NUR Vorschau, veraendert nichts. Siehe "Plan -> Execute ->
   // Verify" in docs/30-meta/tool-result-vocabulary.md -- eine plan-Anfrage
-  // darf niemals gleichzeitig ausfuehren.
+  // darf niemals gleichzeitig ausfuehren. Liefert eine plan_id zurueck, die
+  // an den aktuellen Hash der betroffenen Dateien gebunden ist.
   if (plan) {
+    const record = createPlan(action, actionDef);
     return makeResult({
       operation: 'execute',
       status: 'unchanged',
-      summary: `Plan-Vorschau fuer "${action}": ${actionDef.description} (Risikoklasse: ${actionDef.risk}, idempotent: ${actionDef.idempotent}). Nichts wurde ausgefuehrt -- fuer die echte Ausfuehrung erneut ohne plan:true aufrufen.`,
-      data: { action, description: actionDef.description, risk: actionDef.risk, idempotent: actionDef.idempotent, wouldExecute: true },
+      summary: `Plan-Vorschau fuer "${action}": ${actionDef.description} (Risikoklasse: ${actionDef.risk}, idempotent: ${actionDef.idempotent}). Nichts wurde ausgefuehrt -- fuer die echte Ausfuehrung erneut MIT dieser plan_id aufrufen (gueltig ${PLAN_TTL_MS / 1000}s, einmalig verwendbar).`,
+      data: { action, description: actionDef.description, risk: actionDef.risk, idempotent: actionDef.idempotent, wouldExecute: true, plan_id: record.planId, expires_in_seconds: PLAN_TTL_MS / 1000 },
+      startedAt
+    });
+  }
+
+  // Execute-Schritt: verlangt zwingend eine gueltige plan_id aus einem
+  // vorherigen plan:true-Aufruf fuer GENAU diese Aktion und GENAU diesen
+  // Repo-Zustand. Ohne plan_id oder mit ungueltiger/abgelaufener/
+  // nicht-passender plan_id wird abgelehnt -- das ist die technische
+  // Haerte, die vorher fehlte (siehe Kommentar am Dateianfang).
+  if (!planId) {
+    return makeResult({
+      operation: 'execute',
+      status: 'blocked',
+      summary: `Aktion "${action}" abgelehnt: keine plan_id angegeben. Zuerst mit {"operation":"execute","action":"${action}","plan":true} planen, dann die zurueckgegebene plan_id hier mitgeben.`,
+      data: { action },
+      errors: ['plan_id fehlt -- execute ohne vorherigen plan-Aufruf ist nicht erlaubt.'],
+      startedAt
+    });
+  }
+
+  const planCheck = consumePlan(planId, action);
+  if (!planCheck.ok) {
+    return makeResult({
+      operation: 'execute',
+      status: 'blocked',
+      summary: `Aktion "${action}" abgelehnt: ${planCheck.reason}`,
+      data: { action, plan_id: planId },
+      errors: [planCheck.reason],
       startedAt
     });
   }
@@ -237,7 +391,7 @@ function main() {
         result = repositoryValidate();
         break;
       case 'execute':
-        result = repositoryExecute({ action: request.action, plan: request.plan === true });
+        result = repositoryExecute({ action: request.action, plan: request.plan === true, planId: request.plan_id });
         break;
       default:
         result = {
@@ -254,7 +408,7 @@ function main() {
 
 // Exportiert fuer Tests / direkten Aufruf aus anderen Skripten,
 // startet die STDIO-Schleife nur wenn direkt ausgefuehrt.
-module.exports = { repositoryInspect, repositoryValidate, repositoryExecute, ACTIONS };
+module.exports = { repositoryInspect, repositoryValidate, repositoryExecute, ACTIONS, hashPaths, PLAN_DIR };
 
 if (require.main === module) {
   main();

@@ -56,6 +56,7 @@ function generateContext() {
     }
 
     const outPath = path.join(__dirname, '..', OUTPUT_FILE);
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, outputContent, 'utf8');
     
     console.log(`\n🎉 Erfolgreich generiert: ${OUTPUT_FILE} (${(outputContent.length / 1024).toFixed(2)} KB)`);

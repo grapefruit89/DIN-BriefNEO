@@ -1,0 +1,90 @@
+# repository.yaml — Machine-readable Repository Contract (Source of Truth)
+#
+# Zweck: Eine einzige Datei, die beschreibt WAS dieses Repository ist,
+# woraus es besteht und welche Regeln gelten — maschinenlesbar, damit
+# Skills/MCP-Server/Tools sich hieran orientieren koennen statt Wissen
+# zu erraten oder zu duplizieren.
+#
+# Quelle der Wahrheit bleibt weiterhin AGENTS.md fuer Verhaltensregeln
+# und docs/00-foundation/Immutable-Law-Catalog.md fuer Technologie-Regeln.
+# repository.yaml verweist auf diese, statt sie zu duplizieren.
+#
+# Stand: Lauf 2 (2026-08-27). Herkunft: ChatGPT-Brainstorm
+# "Repo Struktur Refactoring" (siehe ChatGPT-Repo Struktur Refactoring-*.json,
+# Antwort 9 — repository.yaml / Source of Truth war Prioritaet 1 von 5).
+
+schema_version: 1
+
+project:
+  name: DIN-BriefNEO
+  description: >
+    Vanilla-JS/HTML/CSS Webanwendung zur Erstellung DIN-5008-konformer
+    Geschaeftsbriefe. Kein Build-Step, keine npm-Abhaengigkeiten,
+    Deployment ueber GitHub Pages.
+  governance_contract: AGENTS.md
+  law_catalog: docs/00-foundation/Immutable-Law-Catalog.md
+  workflow_modes: [light, full]
+  branching: branchless-on-main
+  fitness_gate:
+    required_score: 100
+    entrypoint: start.ps1
+    engine: tools/reconciliation.js
+
+structure:
+  website/:
+    purpose: Ausgelieferte Anwendung (das eigentliche Produkt)
+    subpaths:
+      website/js/: Numerisch praefixierte JS-Module, Ladereihenfolge ueber Praefix (01-, 02-, ... 51-, main.js zuletzt)
+      website/css/: Layered CSS (reset, variables, layout, floating, print)
+      website/index.html: Einstiegspunkt
+
+  tools/:
+    purpose: Build-, Validierungs- und Wartungsskripte (Node.js + Python, kein Build-Framework)
+    subpaths:
+      tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
+      tools/archive/: Historische/abgeloeste Einmal-Skripte, nicht Teil des aktiven Build-Pfads
+    inventory_doc: docs/30-meta/tooling-overview.md
+
+  docs/:
+    purpose: Dokumentation nach Schema V6 (YAML-Frontmatter-Pflicht)
+    subpaths:
+      docs/00-foundation/: Verfassung, Gesetzeskatalog, Grundprinzipien
+      docs/10-architecture/: ADRs, Architektur-Matrizen, Code-Referenzen
+      docs/20-implementation/: Feature-spezifische Implementierungs-Guides
+      docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates)
+    schema: docs/30-meta/schema-v6.json
+
+  agent/:
+    purpose: >
+      Agenten-Infrastruktur (Lauf 2). Getrennt von tools/, weil tools/
+      deterministische Skripte sind (das WIE) waehrend agent/ Entscheidungslogik
+      und Capability-Exposition beschreibt (das WANN und WAS).
+    subpaths:
+      agent/skills/: Skill-Definitionen (Entscheidungslogik, siehe agent/skills/repository-operations/SKILL.md)
+      agent/mcp/dinbrief-mcp/: Duenner MCP-Server, exponiert repository.inspect / repository.validate
+    status: in Aufbau seit Lauf 2 (2026-08-27)
+    decided_over: tools/skills/ (siehe ChatGPT-Brainstorm Antwort 13 — agent/{skills,mcp} war der zuletzt favorisierte Vorschlag)
+
+  build/:
+    purpose: Generierte Artefakte (SQLite-DB-Import, Index-JSON). Bewusst NICHT versioniert (.gitignore).
+    regenerate_with: tools/build_db.js, tools/build_db.py
+
+  sandbox/:
+    purpose: Proof-of-Concept-Dateien, nicht Teil der ausgelieferten Anwendung
+
+entrypoints:
+  build: start.ps1
+  serve: serve.ps1
+  session_log: tools/log_session.js
+  context_bundle: tools/create_context.js
+
+vocabulary_ref: docs/30-meta/tool-result-vocabulary.md
+
+tool_inventory_ref: docs/30-meta/tooling-overview.md
+
+open_items:
+  # Punkte aus dem ChatGPT-Brainstorm, die repository.yaml bewusst NICHT
+  # abschliessend loest, weil sie ausserhalb des Scopes von Lauf 1+2 liegen.
+  - id: agenten-infrastruktur-entschlacken
+    description: start.ps1-Pipeline laeuft weiterhin komplett bei jedem Aufruf, wurde nicht hinterfragt (siehe Antwort 5).
+    status: deferred

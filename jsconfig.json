@@ -8,5 +8,5 @@
     "ignoreDeprecations": "6.0",
     "lib": ["ES2022", "DOM", "DOM.Iterable", "ESNext.Temporal"]
   },
-  "exclude": ["node_modules", "venv", ".agents", "build", "tools"]
+  "exclude": ["node_modules", "venv", ".agents", "build", "tools", "agent"]
 }

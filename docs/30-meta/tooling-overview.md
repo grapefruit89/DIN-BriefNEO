@@ -57,7 +57,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Output**: Score-Objekt `{score, dimensions: {metadata, coherence, conformance, features}, success, logs, relations, rules}`,
   wird von `build_db.js` importiert (nicht nur ueber CLI aufgerufen)
 - **Abhaengigkeiten**: keine externen npm-Pakete, reines Node core (`fs`, `path`, `child_process`)
-- **Aufrufer**: `tools/build_db.js` (per `require('./reconciliation.js')`), `start.ps1` (Zeile 65, indirekt ueber build_db.js)
+- **Aufrufer**: `tools/build_db.js` (per `require('./reconciliation.js')`), `start.ps1` (Zeile 89, indirekt ueber build_db.js, ungecacht -- Fitness Gate laeuft immer)
 - **Risikoklasse**: READ (liest nur, schreibt nichts)
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand -> gleiches Ergebnis)
 - **Safe-to-delete**: NEIN — zentrales Gate, von AGENTS.md als verbindlich vorausgesetzt
@@ -70,7 +70,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: Ergebnis von `runReconciliation()`, `docs/**/*.md` Frontmatter (`code_links`)
 - **Output**: `build/import.sql`, `docs/10-architecture/Code-Referenzen.md`
 - **Abhaengigkeiten**: `tools/reconciliation.js` (intern), Node core
-- **Aufrufer**: `start.ps1` (Zeile 65)
+- **Aufrufer**: `start.ps1` (Zeile 89, ungecacht -- Fitness Gate laeuft immer)
 - **Risikoklasse**: WRITE (erzeugt/ueberschreibt generierte Artefakte, keine Quelldateien)
 - **Idempotenz**: IDEMPOTENT (deterministische Neuerzeugung aus demselben Repo-Stand)
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline
@@ -82,7 +82,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: `docs/**/*.md` (via `frontmatter`-Package geparst), Markdown-Rendering via `markdown-it`
 - **Output**: `DIN-Brief_docs.db` (SQLite mit `sqlite_vec`-Erweiterung)
 - **Abhaengigkeiten**: externe Python-Pakete `frontmatter`, `markdown-it` (`markdown_it`), `sqlite_vec`, `sentence_transformers` (PyTorch-basiert, schwergewichtig)
-- **Aufrufer**: `start.ps1` (Zeile 85, mit Fallback auf System-Python falls keine `.venv/` existiert)
+- **Aufrufer**: `start.ps1` (Zeile 116, mit Fallback auf System-Python falls keine `.venv/` existiert; gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs in `docs/` oder `website/`)
 - **Risikoklasse**: WRITE (ueberschreibt `DIN-Brief_docs.db`)
 - **Idempotenz**: NON_IDEMPOTENT (Embedding-Modelle koennen bei Versionswechsel leicht abweichende Vektoren liefern)
 - **Safe-to-delete**: NEIN — einzige Quelle fuer semantische Doku-Suche
@@ -94,7 +94,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: `README.md`, `docs/index.md`, `AGENTS.md`, `docs/00-foundation/{constitution,longevity-guidelines,Immutable-Law-Catalog,spec}.md`
 - **Output**: `build/LLM_CONTEXT.md`
 - **Abhaengigkeiten**: keine, reines Node core
-- **Aufrufer**: `start.ps1` (Zeile 61)
+- **Aufrufer**: `start.ps1` (Zeile 80, gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs)
 - **Risikoklasse**: WRITE (nur generiertes Artefakt, kein Quellcode)
 - **Idempotenz**: IDEMPOTENT
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline, wird von AGENTS.md Light Mode Schritt 2 vorausgesetzt
@@ -164,14 +164,24 @@ kuenftigen Schema-Wechsel als Vorlage dienen koennte.
 
 ## Zusammenfassung: Pipeline-Reihenfolge (start.ps1)
 
-1. `tools/create_context.js` (Zeile 61)
-2. `tools/build_db.js` (Zeile 65) — ruft intern `tools/reconciliation.js` auf
-3. `tools/build_db.py` (Zeile 85)
+1. `tools/create_context.js` (Zeile 80) — **gecacht**: laeuft nur, wenn sich
+   `README.md`, `docs/index.md`, `AGENTS.md` oder `docs/00-foundation/`
+   seit dem letzten Lauf geaendert haben (SHA256-Hash-Vergleich, siehe
+   `tools/pipeline-cache.ps1`).
+2. `tools/build_db.js` (Zeile 89) — ruft intern `tools/reconciliation.js`
+   auf. **Ungecacht, laeuft bei jedem Aufruf** — bewusst, weil dies der
+   Fitness Gate ist und AGENTS.md Paragraph 2 den Score vor UND nach jeder
+   Aenderung verlangt, ungecacht.
+3. `tools/build_db.py` (Zeile 116) — **gecacht**: laeuft nur, wenn sich
+   `docs/` oder `website/` seit dem letzten Lauf geaendert haben.
 
-Alle drei laufen bei **jedem** `start.ps1`-Aufruf komplett durch — das ist der
-in Antwort 5 des ChatGPT-Brainstorms als "Agenten-Infrastruktur entschlacken"
-bezeichnete, bislang nicht angegangene Punkt (siehe `repository.yaml`,
-Abschnitt `open_items`).
+Seit Commit 753681c (Lauf 2, "start.ps1 Caching + repository.execute")
+laufen Schritt 1 und 3 also nicht mehr bei jedem Aufruf komplett durch,
+sondern nur bei tatsaechlich geaenderten Inputs. `-Force` erzwingt den
+vollen Durchlauf ungeachtet der Caches. Der vormals hier dokumentierte
+Punkt "laeuft immer komplett durch" (Antwort 5 des ChatGPT-Brainstorms,
+"Agenten-Infrastruktur entschlacken") ist damit erledigt — der zugehoerige
+`open_items`-Eintrag in `repository.yaml` wurde entsprechend aktualisiert.
 
 ## Fitness Gate
 

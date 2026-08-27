@@ -1,0 +1,981 @@
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-geometry]]  */
+
+/* css/layout.css */
+
+
+:root {
+  /* DIN 5008 Geometrie-Variablen (Form B = Default) */
+  /* Die Werte werden jetzt direkt als Single Source of Truth aus dem HTML <din-a4> geladen! */
+}
+
+
+
+
+din-a4 {
+  /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
+     am <din-a4>-Element (siehe index.html). Fallback-Zahl = bisheriger Hardcode-Wert,
+     greift nur, falls das Attribut fehlt oder attr()/type() nicht unterstützt wird. */
+  --din-width: attr(data-width-mm type(<number>), 210);
+  --din-height: attr(data-height-mm type(<number>), 297);
+
+  --absender-y: calc(attr(data-absender-y-b type(<number>), 45) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-b type(<number>), 92) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-b type(<number>), 109) / var(--din-height) * 100cqh);
+
+  --fold-1-y: calc(attr(data-fold-1-b type(<number>), 105) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-b type(<number>), 210) / var(--din-height) * 100cqh);
+  --punch-y: calc(attr(data-punch-y type(<number>), 148.5) / var(--din-height) * 100cqh);
+}
+
+body:has(#btn-form-a:checked) din-a4 {
+  --absender-y: calc(attr(data-absender-y-a type(<number>), 27) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-a type(<number>), 74) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-a type(<number>), 91) / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --fold-1-y: calc(attr(data-fold-1-a type(<number>), 87) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-a type(<number>), 181) / var(--din-height) * 100cqh);
+}
+
+/* --- APP SHELL --- */
+#app-shell {
+  display: grid;
+  grid-template-columns: clamp(280px, 20vw, 360px) 1fr;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* --- SIDEBAR --- */
+aside {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-sidebar-glass);
+  backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  justify-content: space-between;
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  margin-bottom: 24px;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Premium Segmented Controls & Buttons */
+.btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in srgb, var(--text-muted), transparent 90%);
+  color: var(--text-primary);
+}
+
+.btn.primary {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: contrast-color(var(--accent-color));
+  font-weight: 600;
+}
+
+.btn.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.segmented-control {
+  display: flex;
+  background: var(--segment-bg);
+  padding: 4px;
+  border-radius: 10px;
+  gap: 0; /* Remove gap for perfect math */
+  position: relative;
+  isolation: isolate;
+
+  /* Dynamically calculated items and active index */
+  --items: 2;
+  --active-idx: 0;
+}
+
+/* Count items */
+.segmented-control:has(input[type="radio"]:nth-of-type(3)) { --items: 3; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4)) { --items: 4; }
+.segmented-control:not(:has(input)):has(button:nth-of-type(3)) { --items: 3; }
+.segmented-control:not(:has(input)):has(button:nth-of-type(4)) { --items: 4; }
+
+/* Active index tracking */
+.segmented-control:has(input[type="radio"]:nth-of-type(1):checked) { --active-idx: 0; }
+.segmented-control:has(input[type="radio"]:nth-of-type(2):checked) { --active-idx: 1; }
+.segmented-control:has(input[type="radio"]:nth-of-type(3):checked) { --active-idx: 2; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4):checked) { --active-idx: 3; }
+
+.segmented-control:has(button:nth-of-type(1)[aria-pressed="true"]) { --active-idx: 0; }
+.segmented-control:has(button:nth-of-type(2)[aria-pressed="true"]) { --active-idx: 1; }
+.segmented-control:has(button:nth-of-type(3)[aria-pressed="true"]) { --active-idx: 2; }
+.segmented-control:has(button:nth-of-type(4)[aria-pressed="true"]) { --active-idx: 3; }
+
+/* The sliding pill */
+.segmented-control::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--items));
+  transform: translateX(calc(var(--active-idx) * 100%));
+  
+  background: var(--segment-active-bg);
+  border-radius: 8px;
+  box-shadow: var(--segment-active-shadow);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+  z-index: -1;
+  opacity: 1;
+}
+
+/* Hide pill if nothing is selected (during hydration) */
+.segmented-control:not(:has(:checked)):not(:has([aria-pressed="true"]))::before {
+  opacity: 0;
+}
+
+.segmented-control button,
+.segmented-control label {
+  flex: 1;
+  border: none;
+  background: transparent !important; /* Force transparent to let pill show */
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.segmented-control button[aria-pressed="true"],
+.segmented-control input[type="radio"]:checked + label {
+  color: var(--segment-active-text);
+  /* Box-shadow and background are now handled by ::before */
+}
+
+/* --- VIEWPORT --- */
+#viewport {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--bg-viewport);
+  padding: 3vh; /* Harmonischer Rand */
+  
+  container-type: size; /* Der Viewport ist der Massstab fuer das Blatt */
+  container-name: viewport;
+}
+
+
+/* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
+@scope (din-a4) {
+  :scope {
+    display: block;
+    position: relative;
+    
+    /* Das Blatt nimmt maximal die Breite oder Hoehe des Viewports an, ohne ueberzulaufen */
+    width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
+    height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
+    aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhaeltnis */
+    background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
+    box-shadow: var(--shadow-lg);
+    border-radius: 4px;
+    container-type: size; /* Ermglicht proportionale cqw/cqh Mae FR INNERE ELEMENTE */
+    container-name: paper;
+    color: var(--paper-text); /* Pure OKLCH Ink Black */
+    box-sizing: border-box;
+    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Parent selector :has() to highlight sheet focus states dynamically */
+  &:has([contenteditable]:focus) {
+    box-shadow: 0 16px 48px oklch(from var(--accent-color) calc(l - 0.05) c h / 18%);
+  }
+
+  [contenteditable] {
+    field-sizing: content;
+    outline: none;
+    border-radius: 2px;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  /* Single Line / Max Length Felder leicht stauchen (KISS für 80 Zeichen Limit) */
+  [contenteditable="plaintext-only"].squeezed {
+    letter-spacing: -0.015em; /* kaum sichtbar, aber hilft beim Platz */
+  }
+
+  [contenteditable]:hover {
+    background: oklch(62% 0.19 148 / 2%);
+    box-shadow: 0 0 0 1px oklch(62% 0.19 148 / 8%);
+  }
+
+  [contenteditable]:focus {
+    background: oklch(62% 0.19 148 / 4%);
+    box-shadow: 0 0 0 1px var(--accent-color);
+  }
+
+  /* Placeholder support for contenteditable */
+  [contenteditable]:empty::before {
+    content: attr(placeholder);
+    color: var(--paper-ghost);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  /* --- DIN MARKS (Guides) --- */
+  .din-mark {
+  position: absolute;
+  left: 0;
+  width: calc(8 / var(--din-width) * 100cqw); /* Kurz, nicht durch den Text schneidend */
+    border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
+    opacity: var(--guide-opacity);
+    pointer-events: none;
+  }
+
+  /* Falzmarken & Lochmarken proportionale Koordinaten */
+  .din-fold-top { top: var(--fold-1-y); } /* Form B default: 105mm */
+  .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: var(--din-width)mm */
+  .din-punch { 
+    top: var(--punch-y);
+    width: calc(12 / var(--din-width) * 100cqw); /* Breite: 12mm */
+    border-bottom-style: solid; 
+  }
+
+  /* --- DIN COMPONENT PLACEMENTS (Form B Default) --- */
+  /* Rücksendezeile */
+  #absender {
+    position: absolute;
+    top: var(--absender-y);
+    left: calc(20 / var(--din-width) * 100cqw);
+    width: calc(85 / var(--din-width) * 100cqw);
+    height: calc(5 / var(--din-height) * 100cqh);
+    font-size: calc(8 * 0.168cqw); /* 8pt in cqw */
+    border-bottom: 0.5px solid oklch(90% 0 0);
+    padding-bottom: 2px;
+    white-space: nowrap;
+    text-fit: contain;
+  }
+
+  /* Anschriftfeld */
+  #empfaenger {
+    position: absolute;
+    top: var(--empfaenger-y);
+    left: calc(20 / var(--din-width) * 100cqw);
+    width: calc(85 / var(--din-width) * 100cqw);
+    height: calc(40 / var(--din-height) * 100cqh);
+    font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Kompakte Ausrichtung nach oben */
+  }
+
+  /* Info block (Rechte Spalte) */
+  #infoblock {
+    position: absolute;
+    top: var(--infoblock-y);
+    left: calc(125 / var(--din-width) * 100cqw);
+    width: calc(75 / var(--din-width) * 100cqw);
+    font-size: calc(8.5 * 0.168cqw); /* 8.5pt in cqw */
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #datum {
+    position: absolute;
+    top: var(--datum-y);
+    left: calc(125 / var(--din-width) * 100cqw);
+    width: calc(75 / var(--din-width) * 100cqw);
+    font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
+    text-align: left;
+  }
+
+  /* Briefkern */
+  #briefkern {
+    position: absolute;
+    top: var(--briefkern-y);
+    left: calc(25 / var(--din-width) * 100cqw);  /* Linker Fluchtrand: 25mm */
+    right: calc(20 / var(--din-width) * 100cqw); /* Rechter Rand: 20mm */
+    bottom: calc(30 / var(--din-height) * 100cqh); /* Abstand nach unten für Footer */
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    container-name: briefkern;
+  }
+
+  #betreff {
+    font-size: calc(12 * 0.168cqw); /* 12pt in cqw */
+    font-weight: 700;
+    margin-bottom: calc(8.46 / var(--din-height) * 100cqh); /* 2 Leerzeilen */
+    text-fit: contain; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht */
+  }
+
+  #anrede {
+    font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
+    margin-bottom: calc(4.23 / var(--din-height) * 100cqh); /* 1 Leerzeile */
+  }
+
+  #brieftext {
+    font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
+    line-height: 1.4;
+    outline: none;
+    min-height: calc(40 / var(--din-height) * 100cqh);
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+
+  #grussformel {
+    font-size: calc(10.5 * 0.168cqw);
+    margin-top: calc(4.23 / var(--din-height) * 100cqh);
+    margin-bottom: calc(12.69 / var(--din-height) * 100cqh); /* 3 Leerzeilen für Unterschrift */
+  }
+
+  #unterschrift {
+    font-size: calc(10.5 * 0.168cqw);
+    font-weight: 500;
+  }
+
+  
+  }
+}
+
+/* --- DYNAMISCHE POSITIONEN FÜR FORM A (SCOPED ISOLATION) --- */
+
+@keyframes pulse-alert {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.5; }
+}
+
+
+@scope (din-a4) {
+  /* --- WHATSAPP-STYLE INLINE FORMATS --- */
+  #brieftext b, #brieftext strong {
+    font-weight: 700;
+    
+  }
+
+  #brieftext u {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  #brieftext blockquote {
+    margin: 8px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--border-color);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* --- FOOTER --- */
+  #brief-fuss {
+    position: absolute;
+    bottom: calc(10 / var(--din-height) * 100cqh); /* 10mm */
+    left: calc(25 / var(--din-width) * 100cqw); /* 25mm */
+    right: calc(20 / var(--din-width) * 100cqw); /* 20mm */
+    height: calc(15 / var(--din-height) * 100cqh); /* 15mm */
+    font-size: calc(7.5 * 0.168cqw); /* 7.5pt in cqw */
+    color: var(--paper-ghost); /* OKLCH Slate Gray */
+    /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
+    padding-top: calc(2 / var(--din-height) * 100cqh);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(10 / var(--din-width) * 100cqw);
+    column-rule: 0.5px solid var(--paper-ghost);
+    column-rule-inset: 2px;
+  }
+}
+
+
+/* --- SIDEBAR CUSTOM INPUTS & AUTOCOMPLETE --- */
+.input-field {
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-field:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.input-field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#geoapify-key-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  /* Smooth collapse/expand transition natively! */
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  
+  transition: 
+    height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#geoapify-key-container.active {
+  height: auto;
+  opacity: 1;
+}
+
+#input-address-search {
+  anchor-name: --address-input;
+}
+
+/* Glassmorphic Dropdown for Geoapify address suggestions */
+.autocomplete-dropdown {
+  position: absolute;
+  position-anchor: --address-input;
+  position-area: bottom span-x;
+  position-try-options: flip-block;
+  top: auto;
+  left: auto;
+  width: anchor-size(width);
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 4px 0 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-sidebar-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 10000;
+}
+
+.autocomplete-dropdown li {
+  padding: 8px 12px;
+  font-size: 0.725rem;
+  border-radius: 6px;
+  
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.autocomplete-dropdown li:hover {
+  background: var(--border-color);
+  color: var(--accent-color);
+}
+
+/* --- COMMENT FORMAT --- */
+.din-comment {
+  border-left: 3px solid var(--border-color);
+  padding-left: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin: 4px 0;
+  width: 100%;
+}
+
+/* --- OPTIONAL BLOCKS TOGGLE (ZERO-JS) --- */
+din-postvermerk, din-anlagen, din-verteiler {
+  display: none;
+}
+
+:root:has(#toggle-anlagen:checked) din-anlagen,
+:root:has(#toggle-verteiler:checked) din-verteiler {
+  display: block;
+}
+
+:root:has(#toggle-postvermerk:checked) din-postvermerk {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+#sidebar-pv-select {
+  display: none;
+}
+:root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
+  display: block;
+}
+
+din-postvermerk {
+  font-size: calc(8 * 0.168cqw);
+  font-family: var(--font-stack-sans);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0.5cqh;
+  
+  white-space: pre-wrap;
+  display: none;
+}
+
+din-anlagen, din-verteiler {
+  margin-top: 3cqh;
+  font-size: 0.9em;
+  page-break-inside: avoid;
+}
+
+
+
+
+
+
+
+
+#local-address-dropdown {
+  position: absolute;
+  position-anchor: --anchor-empfaenger;
+  top: calc(anchor(bottom) + 4px);
+  left: anchor(left);
+  width: anchor-size(width);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  display: none;
+}
+
+#local-address-dropdown:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  
+  font-family: var(--font-stack-sans);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.address-suggestion-item:last-child { border-bottom: none; }
+.address-suggestion-item:hover { background: var(--bg-viewport); }
+
+#postvermerk-dropdown {
+  position: absolute;
+  position-anchor: --anchor-postvermerk;
+  top: calc(anchor(bottom) + 4px);
+  left: anchor(left);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  display: none;
+  width: max-content;
+}
+
+#postvermerk-dropdown:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+
+.pv-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  
+  font-family: var(--font-stack-sans);
+  font-size: 13px;
+}
+.pv-item:last-child { border-bottom: none; }
+.pv-item:hover { background: var(--bg-viewport); }
+
+#postvermerk:empty::before {  opacity: 0.9; }
+
+/* Neue Utility für echte Single-Line Felder */
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-fit: contain;
+  field-sizing: content;
+  max-height: 1.5em; /* verhindert optisch 2 Zeilen */
+  line-height: 1.4;
+}
+
+/* Bessere visuelle Begrenzung ohne JS */
+.single-line[contenteditable]:focus {
+  border: 2px solid transparent;
+  margin: -2px;
+  background-clip: padding-box, border-area;
+  background-image: 
+    linear-gradient(oklch(62% 0.19 148 / 3%), oklch(62% 0.19 148 / 3%)),
+    linear-gradient(135deg, var(--accent-color), var(--c-success));
+  overflow: visible; /* beim Editieren darf es temporär umbrechen */
+  text-overflow: unset;
+  max-height: none;
+}
+
+/* --- TEXT-FIT ENGINE STATES --- */
+[data-text-fit="condensed"],
+[data-text-fit="condensed"] .single-line {
+  letter-spacing: -0.03em;
+}
+
+[data-text-fit="shrink"],
+[data-text-fit="shrink"] .single-line,
+[data-text-fit="shrink"] #anrede,
+[data-text-fit="shrink"] #grussformel,
+[data-text-fit="shrink"] #unterschrift {
+  font-size: 0.9em;
+  letter-spacing: -0.03em;
+}
+
+
+
+
+/* Accessibility / Visibility */
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* --- SIDEBAR UTILITIES --- */
+.sidebar-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-options-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: balance;
+}
+
+.sidebar-sub-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* --- SIGNATURE UI STATES --- */
+
+
+#signature-image[src=""] { display: none !important; }
+#btn-reset-sig { display: none !important; }
+body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
+body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }
+
+/* --- CLEANUP UTILITIES --- */
+.w-full { width: 100%; }
+.mb-0 { margin-bottom: 0 !important; }
+.btn-danger {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+.btn-danger:hover {
+  background: color-mix(in oklch, var(--danger-color) 10%, transparent);
+}
+
+.sidebar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.sidebar-build-info {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  padding: 0;
+}
+.sidebar-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.sidebar-select {
+  font-size: 0.75rem;
+  padding: 4px;
+  margin-top: 4px;
+}
+.sidebar-status-label {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  text-align: center;
+  display: block;
+  margin-top: 2px;
+}
+.sidebar-ux-tip {
+  margin-top: 4px;
+  padding: 10px;
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--text-primary) 10%, transparent);
+  border: 1px dashed var(--border-color);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.sidebar-link {
+  color: var(--accent-color);
+  text-decoration: underline;
+  pointer-events: auto;
+}
+.sidebar-footer {
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* Paper Elements */
+#postvermerk { anchor-name: --anchor-postvermerk; }
+#infoblock { line-height: 1.5; }
+#info-tel { margin-top: 8px; }
+.signature-wrapper { position: relative; margin-top: 10px; }
+#signature-container { min-height: 20px; }
+
+.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
+#anlagen-text { margin: 0; padding-left: 1.5rem; }
+
+/* --- CSS-FIRST REFACTORING --- */
+/* Address Book Save Button */
+.address-save-btn {
+  position: absolute;
+  top: 0;
+  right: -30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+.address-save-btn:hover {
+  opacity: 1;
+}
+
+/* Geoapify State Toggles */
+#geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
+#geoapify-wrapper #address-search-container { display: none; }
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
+:root:has(#btn-guides-on:checked) {
+  --guide-opacity: 0.15;
+}
+.btn-guides::before {
+  content: '📐 Falz- & Lochmarken einblenden';
+}
+:root:has(#btn-guides-on:checked) .btn-guides::before {
+  content: '📐 Falz- & Lochmarken ausblenden';
+}
+.badge-local {
+  float: right;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  background: var(--segment-bg);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+#input-address-search {
+  anchor-name: --anchor-address-search;
+}
+
+/* --- 2-SECOND THEME VIEW TRANSITION --- */
+html.theme-transition::view-transition-old(root),
+html.theme-transition::view-transition-new(root) {
+  animation-duration: 2s;
+}
+
+/* --- VERTICAL RADIO MENU --- */
+.radio-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.radio-menu label {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  background: var(--segment-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+.radio-menu label:hover {
+  border-color: var(--border-color-focus);
+}
+.radio-menu input[type="radio"]:checked + label {
+  background: var(--bg-card);
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+.radio-menu .rm-title {
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+.radio-menu .rm-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* --- WYSIWYG SIGNATURE EDITOR --- */
+.draggable-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sig-bounding-box {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  /* Transform values applied via JS inline styles/vars */
+  transform: translate(var(--x, 0), var(--y, 0)) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.sig-bounding-box.active {
+  outline: 2px dashed var(--accent-color);
+}
+
+.sig-bounding-box:active {
+  cursor: grabbing;
+}
+
+.sig-handle, .sig-rotate-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--paper-bg);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.sig-bounding-box.active .sig-handle,
+.sig-bounding-box.active .sig-rotate-handle {
+  display: block;
+}
+
+.sig-rotate-handle {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+.sig-rotate-handle::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.sig-handle.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+.sig-handle.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+.sig-handle.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.sig-handle.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#signature-image {
+  pointer-events: none;
+  max-width: 100%;
+  display: block;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+}

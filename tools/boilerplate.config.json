@@ -1,0 +1,17 @@
+{
+  "projectName": "DIN-Brief Neo",
+  "boilerplateVersion": "1.0.0",
+  "activeAntipatterns": [
+    "base",
+    "web",
+    "project"
+  ],
+  "paths": {
+    "docsDir": "./docs",
+    "codeDir": "./website"
+  },
+  "featureChecks": {
+    "strictMetadata": true,
+    "strictLinks": true
+  }
+}

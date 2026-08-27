@@ -1,0 +1,101 @@
+{
+  "version": "1.0.0",
+  "description": "Antipattern-Regeln fuer DIN-BriefNEO. Basierend auf MASTER-DO-DONT-DEPRECATED.md.",
+  "rules": [
+    {
+      "id": "A1",
+      "severity": "critical",
+      "category": "javascript",
+      "description": "Legacy Date API (new Date, Date.now, Date.parse) ist verboten. Verwende stattdessen die Temporal API.",
+      "graveyard_ref": "A1",
+      "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(",
+      "file_patterns": ["*.js"],
+      "exemptions": []
+    },
+    {
+      "id": "A2",
+      "severity": "critical",
+      "category": "javascript",
+      "description": "document.execCommand is veraltet und verboten. Nutze die Selection & Range API.",
+      "graveyard_ref": "A2",
+      "pattern": "\\bexecCommand\\(|\\bqueryCommandState\\(",
+      "file_patterns": ["*.js"],
+      "exemptions": []
+    },
+    {
+      "id": "A3",
+      "severity": "high",
+      "category": "javascript",
+      "description": "XMLHttpRequest (XHR) ist veraltet. Verwende stattdessen die fetch() API.",
+      "graveyard_ref": "A3",
+      "pattern": "\\bXMLHttpRequest\\b",
+      "file_patterns": ["*.js"],
+      "exemptions": []
+    },
+    {
+      "id": "A4",
+      "severity": "high",
+      "category": "javascript",
+      "description": "Ungepruefte innerHTML-Zuweisungen sind unsicher. Erlaubt sind nur Zuweisungen mit statischem, vertrauenswuerdigem Inhalt.",
+      "graveyard_ref": "A4",
+      "pattern": "\\.innerHTML\\s*=",
+      "file_patterns": ["*.js"],
+      "exemptions": [
+        {
+          "file": "website/js/main.js",
+          "reason": "Draft recovery loading/saving innerHTML and clearing contenteditable elements."
+        }
+      ]
+    },
+    {
+      "id": "A16",
+      "severity": "high",
+      "category": "css",
+      "description": "Hex-Farben (#RRGGBB, #RGB) sind verboten. Verwende oklch().",
+      "graveyard_ref": "A16",
+      "pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
+      "file_patterns": ["*.css"],
+      "exemptions": []
+    },
+    {
+      "id": "A17",
+      "severity": "high",
+      "category": "css",
+      "description": "rgb/rgba-Farben sind verboten. Verwende oklch().",
+      "graveyard_ref": "A17",
+      "pattern": "\\brgba?\\(.*?\\)",
+      "file_patterns": ["*.css"],
+      "exemptions": []
+    },
+    {
+      "id": "A18",
+      "severity": "high",
+      "category": "css",
+      "description": "hsl/hsla-Farben sind verboten. Verwende oklch().",
+      "graveyard_ref": "A18",
+      "pattern": "\\bhsla?\\(.*?\\)",
+      "file_patterns": ["*.css"],
+      "exemptions": []
+    },
+    {
+      "id": "A38",
+      "severity": "critical",
+      "category": "general",
+      "description": "Externe Verbindungen (CDNs, Skripte, Stylesheets) sind verboten. Erlaubt sind nur Autocomplete-APIs.",
+      "graveyard_ref": "A38",
+      "pattern": "https?:\\/\\/(?!(?:photon\\.komoot\\.io|api\\.geoapify\\.com|api\\.zippopotam\\.us|myprojects\\.geoapify\\.com|www\\.w3\\.org))[a-zA-Z0-9.-]+",
+      "file_patterns": ["*.html", "*.css", "*.js"],
+      "exemptions": []
+    },
+    {
+      "id": "A41",
+      "severity": "critical",
+      "category": "general",
+      "description": "Google Fonts sind wegen DSGVO und Offline-Sicherheit verboten.",
+      "graveyard_ref": "A41",
+      "pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com",
+      "file_patterns": ["*.html", "*.css"],
+      "exemptions": []
+    }
+  ]
+}

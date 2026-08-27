@@ -60,8 +60,9 @@ structure:
       deterministische Skripte sind (das WIE) waehrend agent/ Entscheidungslogik
       und Capability-Exposition beschreibt (das WANN und WAS).
     subpaths:
-      agent/skills/: Skill-Definitionen (Entscheidungslogik, siehe agent/skills/repository-operations/SKILL.md)
-      agent/mcp/dinbrief-mcp/: Duenner MCP-Server, exponiert repository.inspect / repository.validate
+      agent/skills/repository-operations/: Entscheidungslogik fuer Repository-Arbeit (5-Schritt-Workflow, Forschungs-Quellenpyramide)
+      agent/skills/architecture-drift-audit/: Periodischer Soll/Ist-Abgleich der Architektur (siehe docs/30-meta/architecture-drift-audit-2026-08-27.md fuer den ersten Durchlauf)
+      agent/mcp/dinbrief-mcp/: Duenner MCP-artiger STDIO-Server, exponiert repository.inspect / repository.validate / repository.execute (plan_id-gebunden, Intent-Verification)
     status: in Aufbau seit Lauf 2 (2026-08-27)
     decided_over: tools/skills/ (siehe ChatGPT-Brainstorm Antwort 13 — agent/{skills,mcp} war der zuletzt favorisierte Vorschlag)
 
@@ -100,4 +101,18 @@ open_items:
       abgelehnt, es gibt keine Bindung (plan_id/Repo-Hash) zwischen einem
       Plan-Aufruf und dem nachfolgenden echten Execute. Gefunden bei
       externem Review (ChatGPT, 2026-08-27, Ist-Pruefung gegen Antwort 9).
-    status: open
+    status: done
+    resolved_note: >
+      plan_id + SHA256-Hash der von der Aktion betroffenen Dateien
+      technisch erzwungen, dateibasiert unter .agents/cache/plans/,
+      TTL 600s, Single-Use (Commit 60ff87a). Live gegen den echten Server
+      verifiziert (kein Plan -> blocked, falsche plan_id -> blocked,
+      geaenderter Repo-Zustand zwischen Plan und Execute -> blocked).
+  - id: intent-verification-minimal
+    description: >
+      Verify nach repository.execute prueft per Hash-Vergleich nur OB sich
+      der outputPath einer Aktion geaendert hat, nicht OB die Aenderung
+      inhaltlich korrekt ist. Bewusste, dokumentierte Grenze -- inhaltliche
+      Korrektheit bleibt Aufgabe des Fitness Gate (tools/reconciliation.js),
+      nicht des MCP-Servers. Siehe docs/30-meta/architecture-drift-audit-2026-08-27.md.
+    status: accepted_limitation

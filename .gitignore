@@ -1,12 +1,24 @@
+# Dependencies & environments
 venv/
 node_modules/
+
+# Agent / editor local state (nicht Teil des Produktivrepos)
 .agents/
 .claude/
+chat-exports/
+
+# Python
 __pycache__/
+*.pyc
+
+# Datenbanken (lokal generiert, nicht versioniert)
 *.db
 *.db-journal
+
+# Build-Artefakte
 build/
-.env
 LLM_CONTEXT.md
+
+# OS / Editor
 .DS_Store
-chat-exports/
+Thumbs.db

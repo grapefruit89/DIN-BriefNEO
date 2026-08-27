@@ -1,0 +1,41 @@
+# Erzwingt konsistentes Encoding/Line-Endings unabhängig vom OS.
+# Löst das wiederkehrende Windows/Linux-Problem strukturell statt einmalig.
+
+# Default: Git entscheidet selbst per Inhalt (Binärdateien bleiben unangetastet)
+* text=auto
+
+# Text-Dateien: immer LF im Repo, egal was das lokale OS/Editor beim Checkout macht.
+# (core.autocrlf ist damit für dieses Repo irrelevant — .gitattributes gewinnt immer.)
+*.md      text eol=lf
+*.txt     text eol=lf
+*.js      text eol=lf
+*.mjs     text eol=lf
+*.cjs     text eol=lf
+*.py      text eol=lf
+*.json    text eol=lf
+*.jsonc   text eol=lf
+*.html    text eol=lf
+*.css     text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.canvas  text eol=lf
+.gitignore     text eol=lf
+.gitattributes text eol=lf
+
+# Windows-Skripte brauchen tatsächlich CRLF (sonst mault manch alte cmd.exe/PowerShell-Version) —
+# bewusste Ausnahme, kein Versehen.
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binärdateien nie als Text anfassen (kein Diff, keine EOL-Normalisierung)
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.svg  binary
+*.ico  binary
+*.db   binary
+*.woff binary
+*.woff2 binary
+*.pdf  binary

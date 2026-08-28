@@ -48,7 +48,7 @@ depends_on: []
 - Must strictly follow `AGENTS.md` and [[Immutable-Law-Catalog]].
 - Flat JS Architecture: Domain encoded in tens digit (`0x`=core, `3x`=ui, `4x`=features, `5x`=utils).
 - No raw `innerHTML` without `DOMParser`.
-- Verification command: `.\start.ps1` (must yield 100% Evolutionary Fitness Score).
+- Verification command: `.\scripts\start.ps1` (must yield 100% Evolutionary Fitness Score).
 
 ## Code Layout
 - `website/index.html`

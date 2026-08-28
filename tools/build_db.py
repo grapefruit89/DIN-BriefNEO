@@ -332,7 +332,8 @@ def update_traceability_matrix(code_entities, docs_dir):
     print("Updated Function-Traceability.md")
 
 def main():
-    db_path = 'DIN-Brief_docs.db'
+    os.makedirs('build', exist_ok=True)
+    db_path = 'build/DIN-Brief_docs.db'
     docs_dir = 'docs'
     website_dir = 'website'
     

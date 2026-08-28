@@ -27,7 +27,7 @@ project:
   branching: branchless-on-main
   fitness_gate:
     required_score: 100
-    entrypoint: start.ps1
+    entrypoint: scripts/start.ps1
     engine: tools/reconciliation.js
 
 structure:
@@ -72,8 +72,12 @@ structure:
     purpose: Generierte Artefakte (SQLite-DB-Import, Index-JSON). Bewusst NICHT versioniert (.gitignore).
     regenerate_with: tools/build_db.js, tools/build_db.py
 
-  sandbox/:
-    purpose: Proof-of-Concept-Dateien, nicht Teil der ausgelieferten Anwendung
+  scripts/:
+    purpose: Repo-weite Einstiegspunkte (Build/Fitness-Pipeline + lokaler Webserver)
+    subpaths:
+      scripts/start.ps1: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
+      scripts/start.bat: Windows-Doppelklick-Wrapper, startet dev_server.ps1 + oeffnet Chrome
+      scripts/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
 
   .github/:
     purpose: GitHub Actions Workflows
@@ -81,8 +85,8 @@ structure:
       .github/workflows/deploy.yml: GitHub Pages Deployment
 
 entrypoints:
-  build: start.ps1
-  serve: serve.ps1
+  build: scripts/start.ps1
+  serve: scripts/start.bat
   session_log: tools/log_session.js
   context_bundle: tools/create_context.js
 

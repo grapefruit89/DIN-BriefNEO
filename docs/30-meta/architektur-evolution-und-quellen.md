@@ -58,7 +58,7 @@ Zwei Perspektiven auf die gleiche Geschichte: **Warum** wir die radikalen Archit
 
 In frühen Versionen (v4.8 und früher) durften KI-Agenten relativ frei entscheiden, wie sie Features implementieren. Das Projekt verlor seine Kernidentität, Zero-Dependency wurde schleichend gebrochen.
 
-**Die Lösung:** Extrem striktes, nicht verhandelbares Regelwerk + Evolutionary Fitness Score. Agenten werden programmatisch gezwungen (`.\start.ps1`), sich an die Vanilla-JS und Privacy-First-Regeln zu halten.
+**Die Lösung:** Extrem striktes, nicht verhandelbares Regelwerk + Evolutionary Fitness Score. Agenten werden programmatisch gezwungen (`.\scripts\start.ps1`), sich an die Vanilla-JS und Privacy-First-Regeln zu halten.
 
 ### Warum kein Tailwind CSS?
 

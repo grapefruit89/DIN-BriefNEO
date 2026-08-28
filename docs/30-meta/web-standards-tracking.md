@@ -56,7 +56,7 @@ Bevor wir ein Feature in den `main` Branch des DIN-Briefs mergen, durchläuft es
 2. **Isolierte PoCs (Proof of Concepts):**
    * Neue APIs werden **niemals** direkt im komplexen `din-a4` DOM getestet.
    * Wir erstellen isolierte Test-Dateien (z.B. `scratch/test-focusgroup.html`), um das isolierte Verhalten des Browsers ohne CSS-Interferenzen zu verstehen.
-3. **Fitness Gate (`.\start.ps1`):**
+3. **Fitness Gate (`.\scripts\start.ps1`):**
    * Erst wenn der PoC erfolgreich war, wird das Feature in `layout.css` oder `main.js` integriert. Danach muss das Fitness Gate zwingend 100% Score anzeigen, um sicherzustellen, dass keine verbotenen Polyfills oder Frameworks eingeschmuggelt wurden.
 
 ## 3. Aktuelle Beobachtungen (Stand: Juli 2026)

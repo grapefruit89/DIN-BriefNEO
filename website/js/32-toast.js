@@ -135,11 +135,11 @@ export class ToastSystem {
    * @param {string} type - 'info', 'success', 'warning', 'error'
    * @param {Object} options - { action: { label, callback }, sticky: boolean, id: string }
    */
-  /**
+    /**
    * show()
    * @param {string} message - The text to display
    * @param {string} type - 'info', 'success', 'warning', 'error'
-   * @param {any} [options] - { action: { label, callback }, sticky: boolean, id: string }
+   * @param {ToastOptions} [options]
    */
   show(message, type = 'info', options = {}) {
     // Multi-Stacking / Counter Logic
@@ -313,4 +313,5 @@ export function updateToast(id, message, type = 'info') {
 export function initToastSystem() {
   toastSystem.initDOM();
 }
+
 

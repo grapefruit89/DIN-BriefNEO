@@ -135,7 +135,7 @@ avigator.sendBeacon(). Garantiert, dass Telemetrie oder Auto-Saves noch gesendet
 ## Auswertung Chrome 152 (Kategorisiert)
 
 ### 1. Neues Feature, das ein altes gut ersetzen kann
-* **OpaqueRange (Chrome 152):** Eine neue API für contenteditable-Elemente. Erlaubt es, einen Live-Bereich von Text abzufragen (z.B. mit getBoundingClientRect()), um Popovers oder CSS-Highlights direkt an Textstellen zu verankern. Ersetzt extrem wackelige Javascript-Range-Hacks, die wir sonst für Textmarkierungen bräuchten!
+* **OpaqueRange:** (Korrektur 2026: Gilt NUR für <textarea> und form-based inputs! Nicht für unser contenteditable). Damit lassen sich Bounding-Boxen für Markierungen in simplen Textfeldern auslesen. Für uns bedeutet das: Wir müssen für unseren Editor weiterhin den DOM-Proxy #selection-anchor nutzen.
 
 ### 2. Feature, das Javascript verdrängt (KISS & Vanilla)
 * **Klickbares ::backdrop Pseudo-Element (Chrome 152):** Bisher war es in JS schwer zu unterscheiden, ob ein Nutzer *auf* den Dialog oder *auf den Hintergrund (Backdrop)* geklickt hat (man brauchte komplexe Koordinaten-Berechnungen). Jetzt wird das nativ vom Browser aufgelöst! (Ergänzt sich perfekt mit dem <dialog closedby=ny> aus Chrome 134).
@@ -222,3 +222,4 @@ avigator.sendBeacon(). Garantiert, dass Telemetrie oder Auto-Saves noch gesendet
 
 ### 3. Feature, von dem das Projekt massiv profitiert
 * **contrast-color():** (Hatten wir schon gesichtet, steht hier aber nochmal stolz). Berechnet eigenständig, ob der Text auf einem Element weiß oder schwarz sein muss.
+

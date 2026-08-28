@@ -380,12 +380,24 @@
     </div>
 
     <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
-    <div id="format-toolbar" popover="manual" class="no-print" role="toolbar" aria-label="Textformatierung" focusgroup="horizontal wrap">
-      <button id="btn-bold" title="Fett"><b>B</b></button>
-      <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
-      <button id="btn-quote" title="Zitat">»</button>
-      <button id="btn-comment" title="Kommentar">|</button>
+    <div id="format-command-target" hidden></div>
+    <div id="format-toolbar" popover="hint" class="no-print" role="toolbar" aria-label="Textformatierung" focusgroup="horizontal wrap">
+      <button type="button" commandfor="format-command-target" command="--bold" title="Fett" aria-label="Fett">
+        <b>B</b>
+      </button>
+      <button type="button" commandfor="format-command-target" command="--underline" title="Unterstrichen" aria-label="Unterstrichen">
+        <u>U</u>
+      </button>
+      <button type="button" commandfor="format-command-target" command="--quote" title="Zitat" aria-label="Zitat">
+        »
+      </button>
+      <button type="button" commandfor="format-command-target" command="--comment" title="Kommentar" aria-label="Kommentar">
+        |
+      </button>
     </div>
+
+    <!-- EXTERNAL CSS SELECTION ANCHOR -->
+    <div id="selection-anchor" class="no-print"></div>
 
     <!-- NATIVE POPOVER TOAST FEEDBACK -->
     <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
@@ -469,6 +481,7 @@
     </script>
   </body>
 </html>
+
 
 
 

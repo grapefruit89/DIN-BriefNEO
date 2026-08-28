@@ -3,7 +3,7 @@ venv/
 node_modules/
 
 # Agent / editor local state (nicht Teil des Produktivrepos)
-.agents/
+agent/cache/
 .claude/
 chat-exports/
 

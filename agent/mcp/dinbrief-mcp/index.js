@@ -36,7 +36,7 @@
  * -- die Doku sagte "zwingend", der Code erzwang es nicht. Gefunden bei
  * einer externen Ist-Pruefung (ChatGPT, 2026-08-27, siehe repository.yaml
  * open_items "plan-execute-verify-zustandslos"). Jetzt: plan_id + Hash der
- * betroffenen Dateien werden unter .agents/cache/plans/<plan_id>.json
+ * betroffenen Dateien werden unter agent/cache/plans/<plan_id>.json
  * abgelegt (Ablage ausserhalb von git, siehe .gitignore), TTL 10 Minuten,
  * Single-Use (Plan wird nach erfolgreicher Pruefung geloescht -- kein
  * Replay eines alten Plans moeglich). execute prueft: Plan existiert,
@@ -67,7 +67,7 @@ const readline = require('readline');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const REPOSITORY_YAML = path.join(REPO_ROOT, 'repository.yaml');
-const PLAN_DIR = path.join(REPO_ROOT, '.agents', 'cache', 'plans');
+const PLAN_DIR = path.join(REPO_ROOT, 'agent', 'cache', 'plans');
 const PLAN_TTL_MS = 10 * 60 * 1000; // 10 Minuten -- lang genug zum Nachdenken, kurz genug gegen veraltete Plaene
 
 // --- Minimaler YAML-Reader ---------------------------------------------
@@ -203,7 +203,7 @@ const ACTIONS = {
 // als neuer Prozess gestartet (siehe README-Beispiele, zwei separate
 // `echo ... | node index.js`-Aufrufe) -- ein In-Memory-Store wuerde also
 // nichts zwischen plan- und execute-Aufruf binden. Ablage unter
-// .agents/cache/plans/ (bereits gitignored, da .agents/ schon in
+// agent/cache/plans/ (bereits gitignored, da agent/cache/ schon in
 // .gitignore steht). TTL + Single-Use halten die Datei-Ablage klein und
 // verhindern das Ausfuehren veralteter oder bereits verbrauchter Plaene.
 

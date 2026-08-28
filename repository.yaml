@@ -106,7 +106,7 @@ open_items:
     status: done
     resolved_note: >
       plan_id + SHA256-Hash der von der Aktion betroffenen Dateien
-      technisch erzwungen, dateibasiert unter .agents/cache/plans/,
+      technisch erzwungen, dateibasiert unter agent/cache/plans/,
       TTL 600s, Single-Use (Commit 60ff87a). Live gegen den echten Server
       verifiziert (kein Plan -> blocked, falsche plan_id -> blocked,
       geaenderter Repo-Zustand zwischen Plan und Execute -> blocked).

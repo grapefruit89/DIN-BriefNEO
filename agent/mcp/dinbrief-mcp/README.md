@@ -87,7 +87,7 @@ Begruendung in `errors`):
 | `Repository-Zustand hat sich seit dem Plan geaendert` | eine von der Aktion betroffene Datei (`affectedPaths` in `index.js`) wurde seit dem Plan geaendert |
 
 **Ablage**: Plaene liegen als einzelne JSON-Dateien unter
-`.agents/cache/plans/<plan_id>.json` (bereits gitignored, da `.agents/`
+`agent/cache/plans/<plan_id>.json` (bereits gitignored, da `agent/cache/`
 schon in `.gitignore` steht). Jeder Plan ist Single-Use -- die Datei wird
 beim ersten `execute`-Versuch geloescht, egal ob er erfolgreich war oder
 nicht (kein Retry mit derselben, mittlerweile veralteten `plan_id`).

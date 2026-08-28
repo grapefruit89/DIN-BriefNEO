@@ -382,7 +382,8 @@
     </div>
 
     <!-- WHATSAPP-STYLE FLOATING SELECTION TOOLBAR -->
-    <!-- OPTIMIERUNG: Toolbar als popover="hint" (Chrome 133). Positionierung an markiertem Text nativ via Anchor-API (nchor()) und @position-try (Fallbacks ohne JS-Kollisionsabfrage). Buttons erhalten commandfor (Chrome 135) fr formatierung ohne EventListener. -->
+    <!-- OPTIMIERUNG: Toolbar als popover="hint". Buttons erhalten commandfor="format-command-target" command="--bold" etc., um Click-Listener abzulsen. -->
+    <div id="format-command-target" hidden></div>
     <div id="format-toolbar" popover="manual" class="no-print" role="toolbar" aria-label="Textformatierung" focusgroup="horizontal wrap">
       <button id="btn-bold" title="Fett"><b>B</b></button>
       <button id="btn-underline" title="Unterstrichen"><u>U</u></button>
@@ -474,6 +475,7 @@
     </script>
   </body>
 </html>
+
 
 
 

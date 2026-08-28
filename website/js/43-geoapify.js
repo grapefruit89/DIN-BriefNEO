@@ -27,8 +27,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
   /** @type {AbortController | null} */
   let activeAbortController = null;
-  /** @type {any} */
-  let debounceSearchTimeout = null;
+  /** @type {number | null} */`n  let debounceSearchTimeout = null;
   /** @type {any} */
   let keyDebounceTimeout = null;
 
@@ -137,7 +136,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     const query = inputAddressSearch.value.trim();
 
     if (query.length < 3) {
-      try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
+      try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
       return;
     }
 
@@ -216,7 +215,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
       renderSuggestions(combined.slice(0, 6), query);
     } catch (err) {
-      const error = /** @type {any} */ (err);
+      const error = /** @type {Error} */ (err);
       if (error.name !== 'AbortError') {
         console.warn('[Address] Autocomplete search failed:', error);
         
@@ -226,7 +225,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         if (keyEl) keyEl.value = '';
         if (onToast) onToast("❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.", 'error');
         
-        try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
+        try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
       }
     }
   }
@@ -240,7 +239,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     addressSuggestions.replaceChildren();
 
     if (suggestions.length === 0) {
-      try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
+      try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
       return;
     }
 
@@ -263,7 +262,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       addressSuggestions.appendChild(li);
     });
 
-    try { /** @type {any} */ (addressSuggestions).showPopover(); } catch(e) {}
+    try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch(e) {}
   }
 
   /**
@@ -280,7 +279,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       empfOrt.textContent = `${item.postcode} ${item.city}`.trim();
     }
 
-    try { /** @type {any} */ (addressSuggestions).hidePopover(); } catch(e) {}
+    try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
     if (inputAddressSearch) inputAddressSearch.value = '';
 
     // Save selected address to local address book for future offline usage
@@ -331,8 +330,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   // Zippopotam für Absender PLZ -> speichert Lat/Lon für Geoapify Proximity Bias
   const absenderPlzOrtEl = document.getElementById('info-city') || document.getElementById('absender');
   if (absenderPlzOrtEl) {
-    /** @type {any} */
-    let absenderTimeout = null;
+    /** @type {number | null} */`n    let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
       if (window.location.protocol === 'file:' || !navigator.onLine) return;
       clearTimeout(absenderTimeout);
@@ -356,4 +354,5 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     });
   }
 }
+
 

@@ -1,3 +1,4 @@
+// @ts-check
 // @adr [[ADR-JS]] 
 // @guide [[glossary]] 
 
@@ -296,3 +297,4 @@ export class SalutationFeature {
     if (this.saveDraftData) this.saveDraftData();
   }
 }
+

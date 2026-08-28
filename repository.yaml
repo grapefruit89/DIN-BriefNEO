@@ -75,6 +75,11 @@ structure:
   sandbox/:
     purpose: Proof-of-Concept-Dateien, nicht Teil der ausgelieferten Anwendung
 
+  .github/:
+    purpose: GitHub Actions Workflows
+    subpaths:
+      .github/workflows/deploy.yml: GitHub Pages Deployment
+
 entrypoints:
   build: start.ps1
   serve: serve.ps1

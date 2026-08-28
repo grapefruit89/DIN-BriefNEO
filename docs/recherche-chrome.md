@@ -223,3 +223,7 @@ avigator.sendBeacon(). Garantiert, dass Telemetrie oder Auto-Saves noch gesendet
 ### 3. Feature, von dem das Projekt massiv profitiert
 * **contrast-color():** (Hatten wir schon gesichtet, steht hier aber nochmal stolz). Berechnet eigenständig, ob der Text auf einem Element weiß oder schwarz sein muss.
 
+
+### Address Autocomplete APIs (Stand Sommer 2026)
+* **Geoapify:** 3.000 Requests/Tag dauerhaft kostenlos. Perfekt für Open-Source und client-side Apps, da keine Kreditkarte benötigt wird. Authentifizierung erfolgt zwingend über den URL-Parameter &apiKey=... (nicht per X-Api-Key Header, da dies CORS-Preflights erzwingt).
+* **Google Maps Places API:** Bietet zwar 200$ Free-Tier (reicht für ca. 70.000 Autocomplete-Requests/Monat), erfordert aber zwingend eine hinterlegte Kreditkarte. Bei Scraping-Angriffen oder Überschreitung des Limits drohen sofortige Kosten. Für ein lokales "Bring Your Own Key"-Modell wie in DIN-BriefNEO ist Google Maps daher riskant und nutzerunfreundlich.

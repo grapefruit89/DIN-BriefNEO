@@ -69,8 +69,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   async function validateKeyWithHeartbeat(key) {
     if (typeof window !== 'undefined' && window.location.protocol === 'file:') return;
     try {
-      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1`, {
-        headers: { "X-Api-Key": key }
+      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`); //
+        
       });
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
@@ -173,10 +173,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       return;
     }
 
-    let fetchOptions = { 
-      signal: activeAbortController.signal,
-      headers: { "X-Api-Key": key }
-    };
+    let fetchOptions = { signal: activeAbortController.signal };
 
     // Load cached sender coordinates for Proximity-Biasing
     let coords = null;
@@ -185,7 +182,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       coords = savedCoords ? JSON.parse(savedCoords) : null;
     } catch (e) {}
 
-    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&lang=de&limit=5`;
+    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${key}&lang=de&limit=5`;
     if (coords && coords.lat && coords.lon) {
       url += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
@@ -359,3 +356,4 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     });
   }
 }
+

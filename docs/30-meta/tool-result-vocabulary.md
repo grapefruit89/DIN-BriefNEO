@@ -4,7 +4,7 @@ title: Tool Result Schema & Vokabular
 status: active
 type: guide
 created: '2026-08-27'
-updated: '2026-08-27'
+updated: '2026-08-28'
 tags:
 - din-briefneo
 - meta
@@ -120,6 +120,35 @@ Zum Vergleich: Der bestehende Fitness Gate kennt nur `success: true/false`
 plus die vier Severity-Stufen. Das reicht fuer den engen Zweck des Gates.
 Das Statusvokabular hier ist bewusst reicher, weil kuenftige Tools (Skills,
 MCP-Operationen) mehr Zwischenzustaende brauchen als ein reines Pass/Fail.
+
+## Evidence-Level bei Recherche-Behauptungen
+
+Wenn eine Operation (typischerweise `discover`, `analyze`, `audit`) eine
+faktische Behauptung ueber Web-Standards, Browser-Verhalten oder externe
+Bibliotheken trifft, wird sie mit einem Evidence-Level aus der
+Forschungs-Quellenpyramide belegt (`agent/skills/web-research/SKILL.md`) —
+als direkter Verweis auf die dortige Tier-Nummer, kein eigenes Vokabular:
+
+```json
+{
+  "claim": "Popover-API wird von allen evergreen Browsern unterstuetzt",
+  "evidence_tier": 2,
+  "source": "https://caniuse.com/mdn-api_htmlelement_popover",
+  "confidence": "high"
+}
+```
+
+Felder:
+
+- `evidence_tier`: Zahl 0-5, direkter Verweis auf die Pyramide-Tier aus `web-research`
+- `source`: konkrete Fundstelle (URL, oder Datei:Zeile bei Tier 0)
+- `confidence`: `high` | `medium` | `low` — subjektive Einschaetzung, WIE eindeutig die Quelle die Behauptung stuetzt (eine Spec-Zeile ist typischerweise `high`, eine undatierte Blog-Notiz ist `low`, selbst wenn sie technisch Tier 4 ist)
+
+Das Feld ist optional und lebt im `data`-Feld des kanonischen Tool-Result-
+Schemas (z. B. `data.claims: [...]` bei mehreren Behauptungen). Nur bei
+Behauptungen mit tatsaechlicher Unsicherheit relevant — nicht bei jeder
+Ausgabe verpflichtend, das waere Overengineering fuer triviale Faelle wie
+`status: ok` ohne strittigen Inhalt.
 
 ## Ephemer vs. persistent
 

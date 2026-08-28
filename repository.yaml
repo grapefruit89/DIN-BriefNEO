@@ -60,7 +60,8 @@ structure:
       deterministische Skripte sind (das WIE) waehrend agent/ Entscheidungslogik
       und Capability-Exposition beschreibt (das WANN und WAS).
     subpaths:
-      agent/skills/repository-operations/: Entscheidungslogik fuer Repository-Arbeit (5-Schritt-Workflow, Forschungs-Quellenpyramide)
+      agent/skills/repository-operations/: Entscheidungslogik fuer Repository-Arbeit (5-Schritt-Workflow, Discipline/Economy Layer)
+      agent/skills/web-research/: Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche (Schritt 2 von repository-operations)
       agent/skills/architecture-drift-audit/: Periodischer Soll/Ist-Abgleich der Architektur (siehe docs/30-meta/architecture-drift-audit-2026-08-27.md fuer den ersten Durchlauf)
       agent/mcp/dinbrief-mcp/: Duenner MCP-artiger STDIO-Server, exponiert repository.inspect / repository.validate / repository.execute (plan_id-gebunden, Intent-Verification)
     status: in Aufbau seit Lauf 2 (2026-08-27)

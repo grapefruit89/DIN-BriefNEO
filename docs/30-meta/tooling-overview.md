@@ -108,8 +108,8 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
   erneut laufen muss oder uebersprungen werden kann. `reconciliation.js`/
   `build_db.js` (Fitness Gate) ist davon bewusst ausgenommen -- laeuft immer.
 - **Input**: Datei-/Verzeichnispfade des jeweiligen Pipeline-Schritts (von
-  `start.ps1` uebergeben), bestehender Cache-Inhalt aus `.agents/cache/pipeline-hashes.json`
-- **Output**: `.agents/cache/pipeline-hashes.json` (gitignored, da `.agents/`
+  `start.ps1` uebergeben), bestehender Cache-Inhalt aus `agent/cache/pipeline-hashes.json`
+- **Output**: `agent/cache/pipeline-hashes.json` (gitignored, da `agent/cache/`
   bereits in `.gitignore` steht) -- kein versioniertes Artefakt
 - **Abhaengigkeiten**: keine, reines PowerShell Core (`System.Security.Cryptography.SHA256`)
 - **Aufrufer**: `start.ps1` (dot-sourced vor den Pipeline-Schritten, Zeile 36)

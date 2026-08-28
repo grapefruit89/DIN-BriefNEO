@@ -61,30 +61,20 @@ Web-APIs ausreichen") und erweitert es auf Tooling-Entscheidungen generell.
 Fuer jede nicht-triviale Aenderung:
 
 1. **Discover/Inspect**: Was existiert bereits, das relevant ist? (`repository.yaml`, `docs/30-meta/tooling-overview.md` konsultieren)
-2. **Think/Research**: Bei technischer Unsicherheit die Forschungs-Quellenpyramide nutzen (siehe unten). Context7 ist bei Web-API-Unsicherheit laut AGENTS.md Paragraph 4 verbindlich.
+2. **Think/Research**: Bei technischer Unsicherheit den `web-research`-Skill nutzen (Forschungs-Quellenpyramide, Fragetyp-Routing, Evidence-Level). Context7 ist bei Web-API-Unsicherheit laut AGENTS.md Paragraph 4 verbindlich.
 3. **Validate/Plan**: Vorgehen festlegen, bevor Code geschrieben wird. `plan`-Operation im Sinne von [[tool-result-vocabulary]] — noch keine Ausfuehrung.
 4. **Execute**: Aenderung vornehmen. Surgical, nicht mehr als noetig.
 5. **Verify**: Fitness Gate (`start.ps1`) auf 100% pruefen, UND das Ergebnis gegen die urspruengliche Absicht aus Schritt 3 gegenpruefen — nicht nur "Build ist gruen".
 
-**Wichtig**: "Context7 first" heisst nicht "Context7 immer". Context7 wird
-gezielt bei tatsaechlicher Unsicherheit ueber Web-Standards eingesetzt
-(Schritt 2), nicht routinemaessig bei jeder Aenderung.
+## Recherche
 
-## Forschungs-Quellenpyramide
-
-Bei technischer Recherche (Schritt 2), Reihenfolge nach Autoritaet, hoechste zuerst:
-
-| Tier | Quelle | Beispiele |
-|------|--------|-----------|
-| 0 | Project Truth | Dieses Repository selbst — `AGENTS.md`, `docs/00-foundation/Immutable-Law-Catalog.md`, `repository.yaml` |
-| 1 | Normative Standards | WHATWG, W3C, TC39 |
-| 2 | Kompatibilitaet | Baseline, MDN, caniuse.com |
-| 3 | Technische Dokumentation | Context7 |
-| 4 | Praxis/Expertenwissen | CSS-Tricks, web.dev, Smashing Magazine, A List Apart |
-| 5 | Allgemeines Web | Nie allein als Quelle ausreichend, nur zur Orientierung |
-
-Tier 0 sticht immer — wenn das Repository selbst eine Regel festlegt (z. B.
-"nur OKLCH-Farben"), gewinnt diese Regel gegen jede externe Empfehlung.
+Schritt 2 (Think/Research) nutzt bei tatsaechlicher Unsicherheit ueber
+Web-Standards den eigenstaendigen `web-research`-Skill
+(`agent/skills/web-research/SKILL.md`) — Forschungs-Quellenpyramide,
+Fragetyp-Routing und Evidence-Level sind dort definiert, nicht hier
+dupliziert. "Context7 first" heisst nicht "Context7 immer": Context7 wird
+gezielt bei tatsaechlicher Unsicherheit eingesetzt (siehe AGENTS.md
+Paragraph 4), nicht routinemaessig bei jeder Aenderung.
 
 ## Plan -> Execute -> Verify als harte Grenze
 

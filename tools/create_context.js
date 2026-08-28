@@ -17,7 +17,9 @@ const CORE_FILES = [
     'docs/00-foundation/Immutable-Law-Catalog.md',
     'docs/00-foundation/spec.md',
     'repository.yaml',
-    'agent/skills/repository-operations/SKILL.md'
+    'agent/skills/repository-operations/SKILL.md',
+    'agent/skills/architecture-drift-audit/SKILL.md',
+    'agent/skills/web-research/SKILL.md'
 ];
 
 const PREAMBLE = `---

@@ -53,6 +53,7 @@ Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezi
 - **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
   - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
   - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche.
+  - `agent/skills/implement-with-economy/SKILL.md` — HTML-vor-CSS-vor-JS-Entscheidungsleiter fuer Feature-Implementierung, keine externen Abhaengigkeiten ausser den erlaubten A38-Ausnahmen.
   - `agent/skills/architecture-drift-audit/SKILL.md` — periodischer Soll/Ist-Abgleich der Architektur gegen den tatsächlichen Code.
   - `agent/mcp/dinbrief-mcp/` — dünner MCP-artiger STDIO-Server, exponiert `repository.inspect`, `repository.validate` und `repository.execute` (feste Allowlist, keine freie Codeausführung). `execute` verlangt zwingend einen vorherigen Plan-Aufruf, technisch erzwungen über eine an den Repository-Zustand gebundene `plan_id`.
 

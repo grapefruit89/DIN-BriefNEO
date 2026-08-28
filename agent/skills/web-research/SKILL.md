@@ -56,7 +56,7 @@ Bei technischer Recherche, Reihenfolge nach Autoritaet, hoechste zuerst:
 |------|--------|-----------|
 | 0 | Project Truth | Dieses Repository selbst — `AGENTS.md`, `docs/00-foundation/Immutable-Law-Catalog.md`, `repository.yaml` |
 | 1 | Normative Standards | WHATWG, W3C, TC39 |
-| 2 | Kompatibilitaet | Baseline, MDN, caniuse.com. Bei Unklarheit ueber eine einzelne Engine (nicht nur Chrome) zusaetzlich die Vendor-Status-Seiten pruefen: Firefox Platform Status (platform-status.mozilla.org), WebKit Feature Status (webkit.org/status), Chrome Platform Status (chromestatus.com) |
+| 2 | Kompatibilitaet | Baseline, MDN, caniuse.com fuer Chrome 148+ (das Projekt ist bewusst chrome-only, siehe Immutable Law Catalog H11 / Baseline-Deklaration). Firefox Platform Status (platform-status.mozilla.org) und WebKit Feature Status (webkit.org/status) sind nur relevant, falls sich diese Baseline-Entscheidung jemals aendert -- kein Standardschritt fuer die aktuelle Chrome-only-Architektur |
 | 3 | Technische Dokumentation | Context7 |
 | 4 | Praxis/Expertenwissen | CSS-Tricks, web.dev, Smashing Magazine, A List Apart |
 | 5 | Allgemeines Web | Nie allein als Quelle ausreichend, nur zur Orientierung |

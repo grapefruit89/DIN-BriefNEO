@@ -583,6 +583,28 @@ din-postvermerk, din-anlagen, din-verteiler {
 
 #sidebar-pv-select {
   display: none;
+  /* Grok Audit: Native customizable select opt-in */
+  appearance: base-select;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: var(--bg-sidebar-glass);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+#sidebar-pv-select::picker(select) {
+  appearance: base-select;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: var(--shadow-lg);
+}
+#sidebar-pv-select::picker-icon {
+  color: var(--text-muted);
 }
 :root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
   display: block;
@@ -989,3 +1011,4 @@ html.theme-transition::view-transition-new(root) {
   opacity: 0.9;
   mix-blend-mode: multiply;
 }
+

@@ -313,3 +313,4 @@ export function updateToast(id, message, type = 'info') {
 export function initToastSystem() {
   toastSystem.initDOM();
 }
+

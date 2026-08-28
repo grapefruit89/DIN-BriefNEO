@@ -155,7 +155,7 @@
   position: absolute;
   position-anchor: --selection-anchor;
   position-area: top center;
-  position-try-options: flip-block;
+  position-try-fallbacks: flip-block;
   margin-bottom: 8px;
   background: var(--bg-sidebar-glass);
   backdrop-filter: var(--glass-blur);
@@ -268,7 +268,7 @@
   position: absolute;
   position-anchor: --anchor-address-search;
   position-area: bottom span-right;
-  position-try-options: flip-block;
+  position-try-fallbacks: flip-block;
   
   margin-top: 4px;
   width: anchor-size(width); /* Same width as input */
@@ -329,5 +329,6 @@
   color: var(--accent-color);
   font-weight: 700;
 }
+
 
 

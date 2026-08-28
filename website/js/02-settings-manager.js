@@ -50,30 +50,6 @@ export class SettingsManager {
     this.isReady = true;
   }
 
-  /**
-   * Helper for safe native W3C View Transitions
-   * @param {() => void} updateFn
-   * @param {string|null} customClass
-   */
-  _transitionState(updateFn, customClass = null) {
-    const doc = /** @type {any} */ (document);
-    if (doc.startViewTransition) {
-      try {
-        if (customClass) document.documentElement.classList.add(customClass);
-        const t = doc.startViewTransition(updateFn);
-        if (customClass) {
-          t.finished.finally(() => document.documentElement.classList.remove(customClass));
-        }
-        return t;
-      } catch(e) {
-        if (customClass) document.documentElement.classList.remove(customClass);
-        updateFn();
-      }
-    } else {
-      updateFn();
-    }
-  }
-
   applySettings() {
     // 1. Layout Mode A/B (CSS-First Refactoring)
     if (this.btnFormA && this.btnFormB) {
@@ -178,51 +154,39 @@ export class SettingsManager {
       });
     }
 
-    // Layout Form switches
+    // Layout Form switches (Grok Audit: Pure Storage Binding without preventDefault/JS hijacking)
     if (this.btnFormA) {
       this.btnFormA.addEventListener('change', () => {
         if (!this.isReady) return;
-        this._transitionState(() => {
-          this.settings.layout = 'form-a';
-          this.updateSettings();
-        });
+        this.settings.layout = 'form-a';
+        this.updateSettings();
       });
     }
     
     if (this.btnFormB) {
       this.btnFormB.addEventListener('change', () => {
         if (!this.isReady) return;
-        this._transitionState(() => {
-          this.settings.layout = 'form-b';
-          this.updateSettings();
-        });
+        this.settings.layout = 'form-b';
+        this.updateSettings();
       });
     }
 
-    // Theme select toggles
+    // Theme select toggles (Grok Audit: Pure Storage Binding without preventDefault/JS hijacking)
     /**
-     * @param {Event} e
      * @param {string} theme
      */
-    const handleThemeToggle = (e, theme) => {
+    const handleThemeChange = (theme) => {
       if (!this.isReady) return;
-      if (this.settings.theme === theme) return;
-      e.preventDefault(); // Prevent native CSS radio `:has()` toggle from instantly snapping
-      
-      this._transitionState(() => {
-        const radio = theme === 'light' ? this.btnThemeLight : this.btnThemeDark;
-        if (radio) /** @type {HTMLInputElement} */ (radio).checked = true;
-        this.settings.theme = theme;
-        this.updateSettings();
-      }, 'theme-transition');
+      this.settings.theme = theme;
+      this.updateSettings();
     };
 
     if (this.btnThemeLight) {
-      this.btnThemeLight.addEventListener('click', (e) => handleThemeToggle(e, 'light'));
+      this.btnThemeLight.addEventListener('change', () => handleThemeChange('light'));
     }
 
     if (this.btnThemeDark) {
-      this.btnThemeDark.addEventListener('click', (e) => handleThemeToggle(e, 'dark'));
+      this.btnThemeDark.addEventListener('change', () => handleThemeChange('dark'));
     }
 
     // Guides
@@ -286,3 +250,7 @@ export class SettingsManager {
     }
   }
 }
+
+
+
+

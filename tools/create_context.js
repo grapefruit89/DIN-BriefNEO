@@ -19,7 +19,8 @@ const CORE_FILES = [
     'repository.yaml',
     'agent/skills/repository-operations/SKILL.md',
     'agent/skills/architecture-drift-audit/SKILL.md',
-    'agent/skills/web-research/SKILL.md'
+    'agent/skills/web-research/SKILL.md',
+    'agent/skills/implement-with-economy/SKILL.md'
 ];
 
 const PREAMBLE = `---

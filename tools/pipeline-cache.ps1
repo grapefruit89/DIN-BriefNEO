@@ -12,7 +12,7 @@
 # "Agenten-Infrastruktur entschlacken", start.ps1-Pipeline laeuft bislang
 # immer komplett durch.
 
-$CacheDir = Join-Path $PSScriptRoot "..\.agents\cache"
+$CacheDir = Join-Path $PSScriptRoot "..\agent\cache"
 $CacheFile = Join-Path $CacheDir "pipeline-hashes.json"
 
 function Get-PathsHash {

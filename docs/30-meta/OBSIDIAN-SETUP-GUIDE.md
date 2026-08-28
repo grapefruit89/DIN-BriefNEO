@@ -52,6 +52,7 @@ Bevor dieses Schema angewendet wird, muss das Projekt korrekt in Obsidian geöff
 5. **Ausschlüsse konfigurieren:** Unter *Settings → Files & Links → Excluded files* folgende Muster ausschließen, damit Build-Artefakte und Agent-Logs nicht in den Graph fließen:
    ```
    .agents/
+   agent/cache/
    .git/
    .venv/
    build/
@@ -346,7 +347,7 @@ In Obsidian → Graph View → Groups: Tags als Farb-Gruppen zuweisen.
 2. **Core Plugin: Backlinks** → aktiviert — zeigt wer auf ein Dokument linkt
 3. **Settings → Files & Links → Use `[[Wikilinks]]`** → eingeschaltet ← **kritisch, zuerst**
 4. **Settings → Files & Links → Default location for new attachments** → `docs/assets/`
-5. **Settings → Files & Links → Excluded files** → `.agents/, .git/, .venv/, build/, node_modules/`
+5. **Settings → Files & Links → Excluded files** → `.agents/, agent/cache/, .git/, .venv/, build/, node_modules/`
 6. **Graph View → Filters:** `tag:#<project-id>` um nur Projektdocs zu sehen
 7. **Graph View → Groups:** Tags als Farben zuweisen für thematische Cluster
 

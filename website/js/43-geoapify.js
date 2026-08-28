@@ -130,7 +130,12 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     return text.replace(regex, '<b>$1</b>');
   }
 
-  // Debounced Search input handler (300ms)
+  
+  // Geoapify In-Memory Cache (verhindert doppelte API-Calls für dieselben Strings)
+  /** @type {Map<string, AddressEntry[]>} */
+  const apiCache = new Map();
+
+  // Optimierter Input Handler
   inputAddressSearch.addEventListener('input', () => {
     clearTimeout(debounceSearchTimeout);
     const query = inputAddressSearch.value.trim();
@@ -140,50 +145,48 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       return;
     }
 
+    // 1. INSTANT LOCAL SEARCH: Ohne Debounce sofort anzeigen! (0ms Latenz)
+    const localMatches = fuzzySearchLocal(query);
+    localMatches.forEach(m => m.source = 'local');
+    renderSuggestions(localMatches, query);
+
+    // 2. REMOTE SEARCH (Debounced)
     debounceSearchTimeout = setTimeout(() => {
-      performAddressSearch(query);
-    }, 300);
+      performAddressSearch(query, localMatches);
+    }, 200); // Reduziert von 300ms auf 200ms für ein "snappier" Gefühl
   });
 
   /**
    * @param {string} query
+   * @param {AddressEntry[]} localMatches
    */
-  async function performAddressSearch(query) {
+  async function performAddressSearch(query, localMatches) {
     if (activeAbortController) activeAbortController.abort();
     activeAbortController = new AbortController();
 
-    const localMatches = fuzzySearchLocal(query);
-    localMatches.forEach(m => m.source = 'local');
-
-    if (typeof window !== 'undefined' && window.location.protocol === 'file:') {
-      renderSuggestions(localMatches, query);
-      return;
-    }
-
-    if (!navigator.onLine) {
-      renderSuggestions(localMatches, query);
-      return;
-    }
+    if (typeof window !== 'undefined' && window.location.protocol === 'file:') return;
+    if (!navigator.onLine) return;
 
     const key = StorageManager.loadGeoapifyKey();
-    if (!key) {
-      // Nur lokale Suche rendern, wenn kein Key
-      renderSuggestions(localMatches, query);
+    if (!key) return;
+
+    // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
+    const cacheKey = query.toLowerCase();
+    if (apiCache.has(cacheKey)) {
+      mergeAndRender(localMatches, apiCache.get(cacheKey) || [], query);
       return;
     }
 
     let fetchOptions = { signal: activeAbortController.signal };
-
-    // Load cached sender coordinates for Proximity-Biasing
     let coords = null;
     try {
       const savedCoords = localStorage.getItem('din_sender_coords');
       coords = savedCoords ? JSON.parse(savedCoords) : null;
     } catch (e) {}
 
-    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${key}&lang=de&limit=5`;
+    let url = https://api.geoapify.com/v1/geocode/autocomplete?text=&apiKey=&lang=de&limit=5;
     if (coords && coords.lat && coords.lon) {
-      url += `&bias=proximity:${coords.lon},${coords.lat}`;
+      url += &bias=proximity:,;
     }
 
     try {
@@ -204,30 +207,36 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         };
       }).filter((/** @type {AddressEntry} */ s) => s.street && s.city);
 
-      // Merge local and geoapify, avoiding exact duplicates
-      /** @type {AddressEntry[]} */
-      const combined = [...localMatches];
-      parsedSuggestions.forEach(ps => {
-        if (!combined.find(c => c.formatted === ps.formatted)) {
-          combined.push(ps);
-        }
-      });
+      // Speichere die Remote-Antwort im Cache
+      apiCache.set(cacheKey, parsedSuggestions);
 
-      renderSuggestions(combined.slice(0, 6), query);
+      mergeAndRender(localMatches, parsedSuggestions, query);
     } catch (err) {
       const error = /** @type {Error} */ (err);
       if (error.name !== 'AbortError') {
         console.warn('[Address] Autocomplete search failed:', error);
-        
-        // Wenn der API Call fehlschlägt, ist der Key vermutlich tot
         StorageManager.saveGeoapifyKey('');
         const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
         if (keyEl) keyEl.value = '';
         if (onToast) onToast("❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.", 'error');
-        
-        try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
       }
     }
+  }
+
+  /**
+   * @param {AddressEntry[]} localMatches 
+   * @param {AddressEntry[]} remoteMatches 
+   * @param {string} query 
+   */
+  function mergeAndRender(localMatches, remoteMatches, query) {
+    /** @type {AddressEntry[]} */
+    const combined = [...localMatches];
+    remoteMatches.forEach(ps => {
+      if (!combined.find(c => c.formatted === ps.formatted)) {
+        combined.push(ps);
+      }
+    });
+    renderSuggestions(combined.slice(0, 6), query);
   }
 
   /**

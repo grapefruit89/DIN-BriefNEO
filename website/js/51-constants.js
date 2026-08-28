@@ -49,6 +49,8 @@ export const Constants = {
     RECIPIENT_LIMIT: '⚠️ Maximale Zeilenlänge im Empfängerfeld erreicht (6 Zeilen)',
     SUBJECT_LIMIT: '⚠️ Maximale Zeilenlänge im Betreff erreicht (2 Zeilen)',
     PAGE_OVERFLOW: '⚠️ Seite voll! Bitte neue Seite (+) anlegen',
-    ADDRESS_ERROR: '❌ Fehler bei der Adress-Suche. Bitte Internetverbindung & API-Key prüfen.'
+    ADDRESS_ERROR: '❌ Fehler bei der Adress-Suche. Bitte Internetverbindung & API-Key prüfen.',
+    SALUTATION_PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
+    CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)'
   }
 };

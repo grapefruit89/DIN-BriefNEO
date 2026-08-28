@@ -290,6 +290,16 @@ aside {
     pointer-events: none;
   }
 
+  /* Salutation-Engine: KI-generierter Vorschlag optisch als unbestaetigt markieren
+     (data-generated wird von 41-salutation-engine.js gesetzt und beim ersten
+     manuellen Edit wieder entfernt). Bewusst echter Text, kein ::before-Ghost --
+     sonst wuerde print.css ihn beim Drucken ausblenden. */
+  #anrede[data-generated],
+  #grussformel[data-generated] {
+    color: var(--paper-ghost);
+    font-style: italic;
+  }
+
   /* --- DIN MARKS (Guides) --- */
   .din-mark {
   position: absolute;

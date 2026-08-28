@@ -4,7 +4,7 @@ title: CLAUDE.md — KI-Kontext für Claude & Claude Code
 type: ai-context
 status: active
 created: '2026-08-07'
-updated: '2026-08-07'
+updated: '2026-08-28'
 tags:
 - din-briefneo
 - meta
@@ -22,7 +22,7 @@ code_links: []
 # CLAUDE.md — DIN-BriefNEO Projekt-Kontext
 
 > Automatisch gelesen von Claude/Gemini beim Session-Start.  
-> Stand: 2026-08-07 | Projekt-Version: IMR 4.8.0 | Fitness: 100% (Audit 2026-07-21)
+> Stand: 2026-08-28 | Projekt-Version: IMR 4.8.0 | Fitness: 100% (Audit 2026-07-21)
 
 ---
 
@@ -258,10 +258,15 @@ color: #336699; /* Hard Bug! */
 - History Stack Limit korrigieren: Code nutzt tatsächlich 50 (`#undoStack` in `01-draft-manager.js`), nicht 20 oder 60 — Doku-Referenzen auf 20/60 sind falsch
 
 ### Verifiziert (2026-08-08, Memory-Audit)
-- ✅ **Salutation Engine SPEC-002:** teilweise abgedeckt. Titel-Scan, Auto-Gender-Erkennung, 3-stufiger Formality-Switch und Grußformel-Generator sind in `41-salutation-engine.js` implementiert. **Nicht implementiert:** Ghost-Text-Pattern (`data-salutation`/`data-greeting` + CSS `:empty::before`) — Code schreibt Werte direkt per `textContent`; DIN-Fehler-Punktuation-Validator (Komma/Punkt nach Grußformel) fehlt komplett. `Salutation-Engine.md` beschreibt zudem eine veraltete Zieldatei-Struktur (`salutation.js`/`logic.js`/`engine.js`) statt der echten `41-salutation-engine.js`.
+- ✅ **Salutation Engine SPEC-002:** Titel-Scan, Auto-Gender-Erkennung, 3-stufiger Formality-Switch und Grußformel-Generator sind in `41-salutation-engine.js` implementiert. Ghost-Text-Pattern und DIN-Punktuations-Validator waren zum Audit-Zeitpunkt nicht implementiert — siehe "Erledigt (2026-08-28)" unten, wo beides nachgezogen wurde. `Salutation-Engine.md` beschrieb zudem eine veraltete Zieldatei-Struktur (`salutation.js`/`logic.js`/`engine.js`) — im selben Zug korrigiert.
 - ✅ **IBAN Ghost-Text:** existiert nicht — weder das Sicherheitsproblem noch das Feature selbst sind im Produktivcode vorhanden (siehe [[ADR-PROFILE-MANAGEMENT]]).
 - ✅ **CSS Custom Properties:** `--c-danger` und `--c-success` sind in `variables.css` definiert. `--c-text-muted` existiert nirgends (weder Definition noch Verwendung) — kein aktiver Bug, nur eine veraltete Doku-Erwähnung.
 - ✅ **History Stack Limit:** Code verwendet `50` (nicht 20 oder 60) — siehe oben unter "Offen", da die Doku-Werte selbst noch zu korrigieren sind.
+
+### Erledigt (2026-08-28)
+- ✅ Salutation Engine: Ghost-Text-Markierung für Engine-Vorschläge ergänzt — `data-generated="true"` auf `#anrede`/`#grussformel` (echter, druckbarer `textContent`, nur optisch gedämpft via `--paper-ghost`; im Druck via `print.css` neutralisiert; entfernt beim ersten manuellen Edit). Bewusst kein reines `:empty::before`, da `print.css` das beim Drucken ausgeblendet hätte.
+- ✅ Salutation Engine: DIN-Punktuations-Validator ergänzt — `_validatePunctuation()` warnt per Toast bei `blur`, wenn eine manuell editierte Anrede nicht mit Komma endet oder eine manuell editierte Grußformel mit Komma/Punkt endet. Dabei auch einen echten Bestandsfehler behoben: der statische `placeholder` von `#grussformel` in `index.html` hatte fälschlich ein Komma ("Mit freundlichen Grüßen,") — entfernt, DIN 5008 sieht dort keine Interpunktion vor.
+- ✅ `Salutation-Engine.md` auf aktuellen Stand gebracht: veraltete Ziel-Dateistruktur (`salutation.js`/`logic.js`/`engine.js`) explizit als historisch/aspirativ markiert, Matrix-Zeilen für Anrede-Einfügung und DIN-Fehler beschreiben jetzt die echte Implementierung.
 
 ### Erledigt (2026-08-07)
 - ✅ DB-Duplikate bereinigt (`DIN-Brief_docs.db`, `memdb.db` nur noch in `build/`)

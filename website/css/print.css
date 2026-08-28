@@ -18,3 +18,11 @@ din-a4 {
 [placeholder]:empty::before {
     display: none !important;
 }
+
+/* Unbestaetigte Engine-Vorschlaege (data-generated) sollen beim Druck wie
+   normaler Text erscheinen -- anders als die :empty::before Platzhalter oben,
+   handelt es sich um echten textContent, der auch gedruckt werden soll. */
+[data-generated] {
+    color: inherit !important;
+    font-style: normal !important;
+}

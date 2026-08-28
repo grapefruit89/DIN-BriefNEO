@@ -113,7 +113,7 @@ Dieses System ist auf 3–5 Jahre Wartbarkeit ausgelegt. Aktiv am Quellcode vera
    ```javascript
    /* @adr [[ADR-NEUES-FEATURE]] */
    ```
-4. **Build:** Führe `start.ps1` aus. Das Feature erscheint automatisch in der Matrix.
+4. **Build:** Führe `scripts/start.ps1` aus. Das Feature erscheint automatisch in der Matrix.
 
 ### Szenario B: Architektur verworfen (Refactoring)
 
@@ -144,6 +144,6 @@ Siehe [[README-DB]] für vollständiges Schema und Build-Befehle.
 
 - `tools/migrate_frontmatter.py` wurde erfolgreich angewandt, um Altlasten in Schema V6 zu überführen.
 
-- `start.ps1` garantiert durch Reality Reconciliation einen Evolutionary Fitness Score von 100%.
+- `scripts/start.ps1` garantiert durch Reality Reconciliation einen Evolutionary Fitness Score von 100%.
 
 - Kein Feature darf `main` erreichen, wenn seine Traceability-Kette gebrochen ist — das Fitness Gate blockiert den Release-Prozess automatisch.

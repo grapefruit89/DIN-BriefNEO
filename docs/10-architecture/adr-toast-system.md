@@ -71,7 +71,7 @@ depends_on: []
 - CSS Anchor Positioning und `@starting-style` sind in `layout.css` aktiv.
 - JavaScript steuert ausschließlich `show/hidePopover()` — keine Positions- oder Animationsberechnungen.
 - Laufzeit: `2000ms + 30ms × Zeichenanzahl`, max. `5000ms`.
-- Fitness Gate (`start.ps1`) verifiziert Traceability automatisch.
+- Fitness Gate (`scripts/start.ps1`) verifiziert Traceability automatisch.
 
 ---
 

@@ -19,8 +19,8 @@ Keine Frameworks. Keine npm-Abhängigkeiten. Purer nativer W3C-Standard.
 
 Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgrund von Browser-Sicherheitsrichtlinien (CORS) muss die App zwingend über einen lokalen Webserver gestartet werden, anstatt per `file://`-Protokoll.
 
-1. **App starten (Nutzer):** Ein Doppelklick auf die `start.bat` im Hauptverzeichnis reicht aus. Es startet ein lokaler Python-Server (auf Port 8000) im Hintergrund und öffnet die App automatisch im Browser.
-2. **Entwickler-Check (Agenten):** Führe das Skript `.\start.ps1` aus.
+1. **App starten (Nutzer):** Ein Doppelklick auf `scripts/start.bat` reicht aus. Es startet ein lokaler Python-Server (auf Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
+2. **Entwickler-Check (Agenten):** Führe das Skript `.\scripts\start.ps1` aus.
    - Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
    - Generierte Artefakte (LLM-Kontext, Doku-Datenbank) werden gecacht: sie laufen nur neu, wenn sich ihre Quelldateien seit dem letzten Lauf geändert haben. Der Fitness Gate selbst läuft immer ungecacht. Mit `-Force` lässt sich der volle Durchlauf erzwingen.
 

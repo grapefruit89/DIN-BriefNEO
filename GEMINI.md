@@ -66,7 +66,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Diese Sync-Logik darf bei UI-Refactorings niemals entfernt oder "vereinfacht" werden.
 
 ## 11. Directory Boundaries & Workspace Integrity
-- Niemals wilde Ordner oder Dateien auf Root-Ebene (wie z.B. einen \docs\-Ordner direkt im Projektverzeichnis) erstellen.
+- Strikte Ordner-Grenzen wahren und nicht wild außerhalb des Projekt-Roots arbeiten.
 - Alles hat seinen vordefinierten Platz! Sämtliche aktive Entwicklung, Dokumentation (ADRs, Guides) und Code-Dateien befinden sich STRIKT innerhalb des \ ktueller_arbeitsordner/\ Verzeichnisses. 
 - Das bedeutet: Neue Dokumente, wie z.B. ADRs, gehören ausnahmslos in \ ktueller_arbeitsordner/docs/...\ und NICHT in \docs/...\ auf der obersten Projektebene.
 
@@ -139,7 +139,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - **Concise Accessibility**: Every `contenteditable` block and custom `<din-...>` container must have appropriate `aria-label`s and `role`s (e.g., `role="group"`, `role="article"`). Keep aria-labels concise and non-redundant (e.g., "Straße und Hausnummer" instead of "Ihre Straße und Hausnummer").
 
 ## 25. Omnipresent Traceability Database (MCP)
-- Die SQLite-Projektdatenbank (`DIN-Brief_docs.db`) wird bei jedem Build (`.\start.ps1`) neu generiert und enthält die absolut aktuellste "Ground Truth" aller Architekturentscheidungen, ADRs, Guides und Code-Metadaten.
+- Die SQLite-Projektdatenbank (`DIN-Brief_docs.db`) wird bei jedem Build (`.\scripts\start.ps1`) neu generiert und enthält die absolut aktuellste "Ground Truth" aller Architekturentscheidungen, ADRs, Guides und Code-Metadaten.
 - Da diese Datenbank über den `din_brief_sqlite` MCP-Server live angebunden ist, **muss** sie bei allen Architektur-, Dokumentations- und Code-Struktur-Fragen konsequent per SQL abgefragt werden (`tbl_concepts`, `tbl_code_entities`, etc.).
 - Verlasse dich niemals nur auf veraltetes Kontextwissen oder Caching, sondern nutze die MCP-SQL-Tools, um die aktuellsten Projektrichtlinien präzise zu extrahieren.
 
@@ -163,3 +163,4 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - **Lösung:** Nutze native, visuell versteckte HTML-Schalter (`<input type="radio" class="sr-only">` oder `<input type="checkbox">`). Das CSS liest den Zustand nativ über den `:has()` Selektor aus (z.B. `body:has(#btn-form-a:checked) .my-element { ... }`).
 - Die Schalter lassen sich nativ mit den Pfeiltasten bedienen.
 - **Die einzige Rolle von Javascript** ist es, beim initialen Seitenaufbau (Anti-Flicker) den letzten Zustand aus dem `localStorage` auszulesen und den Schalter per `element.checked = true` zu setzen, sowie beim `change`-Event den neuen Zustand abzuspeichern.
+

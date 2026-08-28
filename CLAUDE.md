@@ -147,59 +147,73 @@ docs/30-meta/ (zusätzlich)
   tooling-overview.md          # Build-Skripte & Wiki-Bundler Template
 ```
 
+### `scripts/` — ⭐⭐⭐ EINSTIEGSPUNKTE (Build/Fitness-Pipeline + lokaler Webserver)
+```
+start.ps1                      # ⭐ Fitness-Check + Build (Pflicht vor/nach Änderungen)
+start.bat                      # Windows-Doppelklick-Wrapper: startet dev_server.ps1, oeffnet Chrome
+dev_server.ps1                 # Live-Reload-Webserver (Port 8088, reines PowerShell/.NET,
+                                # kein Python/Node.js noetig) -- pollt alle ~0,7s, laedt Browser
+                                # automatisch neu bei Aenderungen in website/
+```
+> `sandbox/` wurde entfernt (6 Dateien, git-getrackt aber von nichts referenziert --
+> Recherche-/Prototyp-Material, siehe Commit-History). `serve.ps1` (Alt-Duplikat von
+> start.bat auf Port 8000, ohne Cache-Busting) und `dev_server.py` (Python-Vorgaenger
+> von `dev_server.ps1`, abgeloest wegen der Python-Installationspflicht) liegen jetzt
+> in `tools/archive/`.
+
 ### `tools/` — ⭐⭐ WICHTIG (Build & Validierung)
 ```
+reconciliation.js              # ⭐⭐⭐ Der echte Fitness Gate -- laeuft bei jedem scripts/start.ps1
 build_db.js / build_db.py      # Generiert SQLite-Wissensbasis aus Markdown
-wiki_bundler.py                # Bündelt Docs für LLM-Konsum
-verify_compliance.py           # Fitness-Check (Metadata/Coherence/Conformance/Features)
-verify_compliance_gen3.py      # Gen3 Compliance-Checker
 add_wikilinks.py               # ⭐ Obsidian Wikilink-Generator (dry-run / --apply)
-create_context.js              # Context-Bundle Generierung
+create_context.js              # Context-Bundle Generierung -> build/LLM_CONTEXT.md
 log_session.js                 # Session-Logging
-inject_yaml.js                 # YAML-Frontmatter Injektion
-migrate_frontmatter.py         # Frontmatter-Migration
-migrate_and_scrub*.py          # Daten-Bereinigung
-packer.js                      # Packer-Tool
-reconciliation.js              # Reconciliation-Tool
 build_canvas.js                # Obsidian-Canvas Generator
-antipatterns/                  # Anti-Pattern-Registry (JSON)
+test_text_fit_harness.js       # Test-Harness fuer die Text-Fit Engine
+pipeline-cache.ps1             # Hash-Cache fuer scripts/start.ps1 Step-Skip-Logik
+antipatterns/                  # Aktive, geschichtete Anti-Pattern-Registry (JSON)
   base.json                    # Basis-Antipatterns
-  project.json                 # Projektspezifische Antipatterns
+  project.json                 # Projektspezifische Antipatterns (ueberschreibt base/web)
   web.json                     # Web-Antipatterns
-antipatterns.json              # Kombinierte Antipattern-Registry
 boilerplate.config.json        # Boilerplate-Konfiguration
+
+archive/                       # Abgeloeste/superseded Skripte, bewusst stillgelegt
+  serve.ps1                    # Alt-Duplikat von scripts/start.bat (Port 8000, kein Cache-Busting)
+  dev_server.py                # Python-Vorgaenger von scripts/dev_server.ps1 -- abgeloest,
+                                # da Python-Installation noetig war (scripts/dev_server.ps1 braucht keine)
+  verify_compliance.py         # Vorgaenger-Fitness-Check -- abgeloest durch reconciliation.js
+  verify_compliance_gen3.py    # Gen3-Nachfolger, ebenfalls abgeloest
+  antipatterns.json            # Alte, flache Registry -- abgeloest durch antipatterns/{base,project,web}.json
+  wiki_bundler.py, packer.js, inject_yaml.js, migrate_frontmatter.py,
+  migrate_and_scrub*.py, fix_frontmatter_oneoff.py,
+  validate_foundation_frontmatter.py   # Einmalige Migrations-/Cleanup-Skripte
 ```
 
-### `build/` — ⭐ GENERIERT (kann neu erzeugt werden)
+### `build/` — ⭐ GENERIERT (kann neu erzeugt werden, komplett gitignored)
 ```
-din-brief-offline.html         # Offline-Bundle (generiert)
-DIN-Brief_docs.db              # SQLite-Wissensbasis (generiert via build_db)
-Context-Pack-Main.md           # Gebündelter Context für LLMs (generiert)
-index.json                     # Such-Index (generiert)
-memdb.db                       # Memory-DB (generiert)
+LLM_CONTEXT.md                 # generiert von create_context.js
+import.sql                     # generiert beim Build (Inhalt variiert je nach letztem Lauf)
+DIN-Brief_docs.db              # SQLite-Wissensbasis, generiert von build_db.py (seit 2026-08-28 hier statt im Root)
+README.md                      # Diese Erklaerung -- einzige Ausnahme von der gitignore (siehe .gitignore)
 ```
+> Jederzeit gefahrlos leerbar (bis auf README.md), regeneriert sich beim naechsten `scripts/start.ps1`-Lauf.
 
-### Stamm-Dateien (`aktueller_arbeitsordner/`)
+### Stamm-Dateien (Repo-Root, seit Commit 7edaf19 flach -- kein `aktueller_arbeitsordner/` mehr)
 ```
 CLAUDE.md                      # Diese Datei — Claude/AI Session-Kontext
-AGENTS.md                      # KI-Verhaltensvertrag (root-Ebene, für Gemini CLI)
-DIN-BriefNEO_memory_konsolidiert.md  # ⭐ Konsolidierter Projekt-Memory (2026-08-07)
-PROJECT.md                     # Text-Fit Meilenstein-Tracking
+AGENTS.md                      # KI-Verhaltensvertrag (für Gemini CLI)
+GEMINI.md                      # Gemini-spezifischer Kontext
 README.md                      # Projekt-Übersicht
-Anleitung.md                   # Benutzer-Anleitung
+repository.yaml                # Struktur-Landkarte mit Verweisen (kein Regelinhalt)
 jsconfig.json                  # JS-Konfiguration
 .gitignore                     # Git-Ignorier-Liste
-start.ps1                      # ⭐ Fitness-Check + Build (Pflicht vor/nach Änderungen)
-start.bat                      # Windows-Starter-Wrapper
-serve.ps1                      # Dev-Server (optional)
-audit_report.md                # CSS-First Audit (2026-07-21, Fitness 100%)
-architecture_opportunities.md  # Architektur-Chancen (Recherche-Artefakt, archivierbar)
-audit_extra_js_reduction.md    # JS-Reduktions-Audit (Archiv-Kandidat)
-poc-declarative-controls.*     # POC: Deklarative Controls (Archiv-Kandidat)
-poc-postvermerk-toast.*        # POC: Postvermerk Toast (Archiv-Kandidat)
-poc-has-state-toggles.*        # POC: :has() State Toggles (Archiv-Kandidat)
-poc-attr.html                  # POC: attr() (Archiv-Kandidat)
 ```
+> `start.ps1`, `start.bat` und `serve.ps1` liegen nicht mehr im Root, siehe `scripts/`
+> und `tools/archive/` oben. `PROJECT.md` und `DIN-BriefNEO_memory_konsolidiert.md`
+> leben inzwischen unter `docs/30-meta/` (siehe oben), nicht mehr im Root.
+> `Anleitung.md`, `audit_report.md`, `architecture_opportunities.md`,
+> `audit_extra_js_reduction.md`, `poc-postvermerk-toast.*`, `poc-has-state-toggles.*`,
+> `poc-attr.html` und `sandbox/` existieren nicht mehr -- bereits gelöscht.
 
 ---
 
@@ -252,7 +266,9 @@ color: #336699; /* Hard Bug! */
 ## 🔧 Offene Punkte (Stand: 2026-08-07)
 
 ### Offen
-- POC-Dateien im Stamm: `poc-declarative-controls.*`, `poc-postvermerk-toast.*`, `poc-has-state-toggles.*`, `poc-attr.html` — archivieren oder löschen
+- `sandbox/` (6 Dateien, u.a. `poc-declarative-controls.*`) — archivieren oder löschen? Nichts referenziert sie
+- `_to_delete/aktueller_arbeitsordner/` — leerer Stub, der am 2026-08-28 unerklärt wieder aufgetaucht ist (Ordner war seit Commit 7edaf19 am 2026-08-27 eigentlich aufgelöst; kein aktuelles Skript referenziert den alten Pfad mehr, vermutlich Sync-Artefakt). Liegt zum Löschen bereit, da Delete-Permission in dieser Session verweigert wurde
+- Loser `agents/` Ordner (Plural, ungetrackt) + `ChatGPT-Repo Struktur Refactoring-*.json` (123 KB) im Root — beides Altlasten, siehe DECISION-LOG
 - Feature-Matrix neu messen (aktueller Stand >> 76%)
 - Profil-Management: bauen oder streichen? (Produktentscheidung offen, siehe [[ADR-PROFILE-MANAGEMENT]])
 - History Stack Limit korrigieren: Code nutzt tatsächlich 50 (`#undoStack` in `01-draft-manager.js`), nicht 20 oder 60 — Doku-Referenzen auf 20/60 sind falsch
@@ -286,4 +302,4 @@ color: #336699; /* Hard Bug! */
 - **NotebookLM (Mission Control v4.0):** Source-Analyse, CLI-Output-Verifikation
 - **Gemini CLI:** Code-Ausführung, Implementation
 
-**Fitness-Check:** `powershell -ExecutionPolicy Bypass -File .\start.ps1`
+**Fitness-Check:** `powershell -ExecutionPolicy Bypass -File .\scripts\start.ps1`

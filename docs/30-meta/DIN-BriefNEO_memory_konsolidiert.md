@@ -190,7 +190,7 @@ Diese Bugs aus der alten Memory existieren in der neuen Architektur nicht mehr:
 | **NotebookLM** (Mission Control v4.0) | Source-Analyse, CLI-Output-Verifikation |
 
 **Handoff-Protokoll:** CLI Execution Override Blocks mit `CMD / RESEARCH / NEXT-STEP` Taxonomie  
-**Fitness-Check:** `powershell -ExecutionPolicy Bypass -File .\start.ps1` → muss 100% ergeben
+**Fitness-Check:** `powershell -ExecutionPolicy Bypass -File .\scripts\start.ps1` → muss 100% ergeben
 
 ---
 

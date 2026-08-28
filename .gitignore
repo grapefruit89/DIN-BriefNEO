@@ -15,8 +15,10 @@ __pycache__/
 *.db
 *.db-journal
 
-# Build-Artefakte
-build/
+# Build-Artefakte (Inhalt ignoriert, aber build/README.md bleibt getrackt --
+# git kann eine Datei nur ausnehmen, wenn der Ordner selbst nicht ausgeschlossen ist)
+build/*
+!build/README.md
 LLM_CONTEXT.md
 
 # OS / Editor

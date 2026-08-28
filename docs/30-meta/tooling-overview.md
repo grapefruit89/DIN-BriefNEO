@@ -58,7 +58,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Output**: Score-Objekt `{score, dimensions: {metadata, coherence, conformance, features}, success, logs, relations, rules}`,
   wird von `build_db.js` importiert (nicht nur ueber CLI aufgerufen)
 - **Abhaengigkeiten**: keine externen npm-Pakete, reines Node core (`fs`, `path`, `child_process`)
-- **Aufrufer**: `tools/build_db.js` (per `require('./reconciliation.js')`), `start.ps1` (Zeile 89, indirekt ueber build_db.js, ungecacht -- Fitness Gate laeuft immer)
+- **Aufrufer**: `tools/build_db.js` (per `require('./reconciliation.js')`), `scripts/start.ps1` (Zeile 89, indirekt ueber build_db.js, ungecacht -- Fitness Gate laeuft immer)
 - **Risikoklasse**: READ (liest nur, schreibt nichts)
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand -> gleiches Ergebnis)
 - **Safe-to-delete**: NEIN — zentrales Gate, von AGENTS.md als verbindlich vorausgesetzt
@@ -71,7 +71,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: Ergebnis von `runReconciliation()`, `docs/**/*.md` Frontmatter (`code_links`)
 - **Output**: `build/import.sql`, `docs/10-architecture/Code-Referenzen.md`
 - **Abhaengigkeiten**: `tools/reconciliation.js` (intern), Node core
-- **Aufrufer**: `start.ps1` (Zeile 89, ungecacht -- Fitness Gate laeuft immer)
+- **Aufrufer**: `scripts/start.ps1` (Zeile 89, ungecacht -- Fitness Gate laeuft immer)
 - **Risikoklasse**: WRITE (erzeugt/ueberschreibt generierte Artefakte, keine Quelldateien)
 - **Idempotenz**: IDEMPOTENT (deterministische Neuerzeugung aus demselben Repo-Stand)
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline
@@ -83,7 +83,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: `docs/**/*.md` (via `frontmatter`-Package geparst), Markdown-Rendering via `markdown-it`
 - **Output**: `DIN-Brief_docs.db` (SQLite mit `sqlite_vec`-Erweiterung)
 - **Abhaengigkeiten**: externe Python-Pakete `frontmatter`, `markdown-it` (`markdown_it`), `sqlite_vec`, `sentence_transformers` (PyTorch-basiert, schwergewichtig)
-- **Aufrufer**: `start.ps1` (Zeile 116, mit Fallback auf System-Python falls keine `.venv/` existiert; gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs in `docs/` oder `website/`)
+- **Aufrufer**: `scripts/start.ps1` (Zeile 116, mit Fallback auf System-Python falls keine `.venv/` existiert; gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs in `docs/` oder `website/`)
 - **Risikoklasse**: WRITE (ueberschreibt `DIN-Brief_docs.db`)
 - **Idempotenz**: NON_IDEMPOTENT (Embedding-Modelle koennen bei Versionswechsel leicht abweichende Vektoren liefern)
 - **Safe-to-delete**: NEIN — einzige Quelle fuer semantische Doku-Suche
@@ -95,24 +95,24 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: `README.md`, `docs/index.md`, `AGENTS.md`, `docs/00-foundation/{constitution,longevity-guidelines,Immutable-Law-Catalog,spec}.md`
 - **Output**: `build/LLM_CONTEXT.md`
 - **Abhaengigkeiten**: keine, reines Node core
-- **Aufrufer**: `start.ps1` (Zeile 80, gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs)
+- **Aufrufer**: `scripts/start.ps1` (Zeile 80, gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs)
 - **Risikoklasse**: WRITE (nur generiertes Artefakt, kein Quellcode)
 - **Idempotenz**: IDEMPOTENT
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline, wird von AGENTS.md Light Mode Schritt 2 vorausgesetzt
 
 ## pipeline-cache.ps1
 
-- **Zweck**: Hash-basierte Skip-Logik fuer `start.ps1`. Berechnet SHA256 ueber
+- **Zweck**: Hash-basierte Skip-Logik fuer `scripts/start.ps1`. Berechnet SHA256 ueber
   die Inputs eines Pipeline-Schritts (`create_context.js`, `build_db.py`) und
   entscheidet anhand eines gespeicherten Vergleichswerts, ob der Schritt
   erneut laufen muss oder uebersprungen werden kann. `reconciliation.js`/
   `build_db.js` (Fitness Gate) ist davon bewusst ausgenommen -- laeuft immer.
 - **Input**: Datei-/Verzeichnispfade des jeweiligen Pipeline-Schritts (von
-  `start.ps1` uebergeben), bestehender Cache-Inhalt aus `agent/cache/pipeline-hashes.json`
+  `scripts/start.ps1` uebergeben), bestehender Cache-Inhalt aus `agent/cache/pipeline-hashes.json`
 - **Output**: `agent/cache/pipeline-hashes.json` (gitignored, da `agent/cache/`
   bereits in `.gitignore` steht) -- kein versioniertes Artefakt
 - **Abhaengigkeiten**: keine, reines PowerShell Core (`System.Security.Cryptography.SHA256`)
-- **Aufrufer**: `start.ps1` (dot-sourced vor den Pipeline-Schritten, Zeile 36)
+- **Aufrufer**: `scripts/start.ps1` (dot-sourced vor den Pipeline-Schritten, Zeile 36)
 - **Risikoklasse**: WRITE (schreibt nur die lokale, gitignorete Cache-Datei, keine Quell- oder Build-Artefakte)
 - **Idempotenz**: IDEMPOTENT (gleicher Eingabe-Hash -> gleiches Skip/Run-Ergebnis)
 - **Safe-to-delete**: NEIN -- Teil der aktiven Build-Pipeline seit Commit 753681c
@@ -138,7 +138,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: `docs/**/*.md`
 - **Output**: modifizierte `.md`-Dateien (mit `--dry-run`-Option zur Vorschau ohne Schreiben)
 - **Abhaengigkeiten**: Python-Standardbibliothek
-- **Aufrufer**: NICHT Teil von `start.ps1` oder `deploy.yml` — manuelles Wartungstool, nur bei Bedarf von Hand aufgerufen
+- **Aufrufer**: NICHT Teil von `scripts/start.ps1` oder `deploy.yml` — manuelles Wartungstool, nur bei Bedarf von Hand aufgerufen
 - **Risikoklasse**: WRITE (aendert Quelldateien; hat aber einen Dry-Run-Modus)
 - **Idempotenz**: IDEMPOTENT (bereits verlinkte Mentions werden uebersprungen)
 - **Safe-to-delete**: Kandidat fuer spaeteren Review — nuetzlich, aber nicht in der Pipeline verankert; vor einer Loeschung pruefen ob es noch aktiv genutzt wird
@@ -151,7 +151,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: alle `.md`-Dateien im Repo (ausserhalb der ausgeschlossenen Ordner)
 - **Output**: `.canvas`-Datei (Pfad im Skript zu verifizieren, nicht Teil dieser Inventur-Pruefung)
 - **Abhaengigkeiten**: keine, reines Node core
-- **Aufrufer**: NICHT Teil von `start.ps1` oder `deploy.yml` — manuelles Tool
+- **Aufrufer**: NICHT Teil von `scripts/start.ps1` oder `deploy.yml` — manuelles Tool
 - **Risikoklasse**: WRITE (schreibt eine generierte Datei)
 - **Idempotenz**: IDEMPOTENT (deterministisch aus demselben Dateibestand)
 - **Safe-to-delete**: Kandidat fuer spaeteren Review — Nutzen haengt davon ab, ob Obsidian-Canvas-Ansicht noch aktiv genutzt wird
@@ -164,7 +164,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Input**: keine externen Dateien, Testfaelle sind im Skript selbst definiert
 - **Output**: Konsolen-Testergebnisse (Pass/Fail)
 - **Abhaengigkeiten**: keine, reines Node core mit selbstgebauten Mocks
-- **Aufrufer**: NICHT Teil von `start.ps1` oder `deploy.yml` — manuell bei Aenderungen an `48-text-fit.js` auszufuehren
+- **Aufrufer**: NICHT Teil von `scripts/start.ps1` oder `deploy.yml` — manuell bei Aenderungen an `48-text-fit.js` auszufuehren
 - **Risikoklasse**: READ (fuehrt nur Tests aus, schreibt nichts)
 - **Idempotenz**: IDEMPOTENT
 - **Safe-to-delete**: NEIN — einziger automatisierter Test fuer eine funktional komplexe Komponente (Textumbruch-Erkennung)
@@ -180,7 +180,7 @@ erfuellen und laut Namenskonvention (`archive/`) als abgeschlossen gelten.
 Vor einer endgueltigen Loeschung: pruefen ob eine der Migrationen bei einem
 kuenftigen Schema-Wechsel als Vorlage dienen koennte.
 
-## Zusammenfassung: Pipeline-Reihenfolge (start.ps1)
+## Zusammenfassung: Pipeline-Reihenfolge (scripts/start.ps1)
 
 1. `tools/create_context.js` (Zeile 80) — **gecacht**: laeuft nur, wenn sich
    `README.md`, `docs/index.md`, `AGENTS.md` oder `docs/00-foundation/`
@@ -193,7 +193,7 @@ kuenftigen Schema-Wechsel als Vorlage dienen koennte.
 3. `tools/build_db.py` (Zeile 116) — **gecacht**: laeuft nur, wenn sich
    `docs/` oder `website/` seit dem letzten Lauf geaendert haben.
 
-Seit Commit 753681c (Lauf 2, "start.ps1 Caching + repository.execute")
+Seit Commit 753681c (Lauf 2, "scripts/start.ps1 Caching + repository.execute")
 laufen Schritt 1 und 3 also nicht mehr bei jedem Aufruf komplett durch,
 sondern nur bei tatsaechlich geaenderten Inputs. `-Force` erzwingt den
 vollen Durchlauf ungeachtet der Caches. Der vormals hier dokumentierte
@@ -203,6 +203,6 @@ Punkt "laeuft immer komplett durch" (Antwort 5 des ChatGPT-Brainstorms,
 
 ## Fitness Gate
 
-Nach jeder Aenderung: `.\start.ps1` muss **100% Evolutionary Fitness Score**
+Nach jeder Aenderung: `.\scripts\start.ps1` muss **100% Evolutionary Fitness Score**
 liefern. Kein Merge ohne gruenes Gate (aus der vorherigen Fassung dieses
 Dokuments uebernommen — weiterhin gueltig, siehe AGENTS.md Paragraph 2).

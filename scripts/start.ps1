@@ -1,4 +1,4 @@
-# start.ps1
+# scripts/start.ps1
 # Einfacher, robuster Einstiegspunkt für DIN-Brief Neo (Light Mode by Default)
 # Macht den täglichen Build + Reconciliation so automatisch wie möglich.
 #
@@ -19,7 +19,7 @@ $ErrorActionPreference = "Stop"
 
 if ($Help) {
     Write-Host "=== DIN-Brief Neo Start-Skript ===" -ForegroundColor Cyan
-    Write-Host "Nutzung: .\start.ps1 [-Force]"
+    Write-Host "Nutzung: .\scripts\start.ps1 [-Force]"
     Write-Host "Prüft ob Node.js installiert ist und startet den Reconciliation/Build-Prozess."
     Write-Host "Es muss zwingend ein Fitness Score von 100% erreicht werden."
     Write-Host "-Force: ignoriert alle Caches, führt die komplette Pipeline aus."
@@ -30,7 +30,7 @@ Write-Host "=== DIN-Brief Neo - Start / Build (Light Mode) ===" -ForegroundColor
 Write-Host "Ziel: Einfacher Einstieg mit Reconciliation + Fitness Gate (100% Score)" -ForegroundColor Gray
 Write-Host ""
 
-$targetDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$targetDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)  # scripts/ -> Repo-Root
 Set-Location $targetDir
 
 . (Join-Path $targetDir "tools\pipeline-cache.ps1")
@@ -111,7 +111,7 @@ $dbInputs = @(
     (Join-Path $targetDir "docs"),
     (Join-Path $targetDir "website")
 )
-$dbOutput = Join-Path $targetDir "DIN-Brief_docs.db"
+$dbOutput = Join-Path $targetDir "build\DIN-Brief_docs.db"
 if ($Force -or (Test-StepNeedsRun -StepName "build_db_py" -InputPaths $dbInputs -OutputPath $dbOutput)) {
     & $pythonExe tools/build_db.py
 
@@ -130,7 +130,7 @@ Write-Host "[5/5] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erf
 Write-Host ""
 Write-Host "Nächste Schritte (Light Mode - der Default):"
 Write-Host "  - Aenderungen machen (siehe AGENTS.md)"
-Write-Host "  - Erneut .\start.ps1 ausfuehren (Pre + Post Gate)"
+Write-Host "  - Erneut .\scripts\start.ps1 ausfuehren (Pre + Post Gate)"
 Write-Host "  - Wichtige Aktionen mit node tools/log_session.js loggen"
 Write-Host ""
 Write-Host "Tipp: Light Mode fuer die meisten Aenderungen (Bugfixes, kleine Refactorings)."

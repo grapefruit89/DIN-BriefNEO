@@ -177,7 +177,7 @@ function repositoryValidate() {
 // nicht bei jedem Lauf garantiert unterschiedlich).
 const ACTIONS = {
   'run-fitness-gate': {
-    description: 'Fuehrt tools/build_db.js aus (Fitness Gate + Traceability-Build). Entspricht Schritt [3/5] in start.ps1.',
+    description: 'Fuehrt tools/build_db.js aus (Fitness Gate + Traceability-Build). Entspricht Schritt [3/5] in scripts/start.ps1.',
     risk: 'WRITE',
     idempotent: true,
     affectedPaths: ['docs', 'website', 'tools/antipatterns', 'tools/reconciliation.js', 'tools/build_db.js', 'docs/30-meta/schema-v6.json'],

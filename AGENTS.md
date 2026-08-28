@@ -43,7 +43,7 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 
 ## 2. Unverhandelbare Kernprinzipien
 
-- **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `.\start.ps1` ausgeführt werden. Der Fitness Score **muss 100 %** betragen.
+- **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `.\scripts\start.ps1` ausgeführt werden. Der Fitness Score **muss 100 %** betragen.
 - **Branchless Workflow**: Nur `main`-Branch. Feature-Branches sind verboten. Experimente erfolgen ausschließlich über `git stash`.
 - **Surgical Changes & KISS**: Nur das ändern, was für die aktuelle Aufgabe strikt notwendig ist. Bevor JavaScript geschrieben wird, muss geprüft werden, ob moderne CSS- oder native Web-APIs ausreichen.
 - **Generalisierbarkeit**: Jede neue Lösung ist auf ihre Übertragbarkeit in die `llm_boilerplate` zu prüfen und zu dokumentieren.
@@ -53,10 +53,10 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 ## 3. Workflow-Modi
 
 ### Light Mode (Default)
-1. `.\start.ps1` ausführen (Pre-Build)
+1. `.\scripts\start.ps1` ausführen (Pre-Build)
 2. `LLM_CONTEXT.md` lesen
 3. Änderung durchführen
-4. `.\start.ps1` ausführen → **Fitness Score muss 100 %** sein
+4. `.\scripts\start.ps1` ausführen → **Fitness Score muss 100 %** sein
 5. Mit `node tools/log_session.js` protokollieren
 6. Generalisierungs-Vermerk in `DECISION-LOG.md` schreiben
 

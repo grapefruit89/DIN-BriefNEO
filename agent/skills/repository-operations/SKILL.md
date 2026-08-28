@@ -64,7 +64,7 @@ Fuer jede nicht-triviale Aenderung:
 2. **Think/Research**: Bei technischer Unsicherheit den `web-research`-Skill nutzen (Forschungs-Quellenpyramide, Fragetyp-Routing, Evidence-Level). Context7 ist bei Web-API-Unsicherheit laut AGENTS.md Paragraph 4 verbindlich.
 3. **Validate/Plan**: Vorgehen festlegen, bevor Code geschrieben wird. `plan`-Operation im Sinne von [[tool-result-vocabulary]] — noch keine Ausfuehrung.
 4. **Execute**: Aenderung vornehmen. Surgical, nicht mehr als noetig.
-5. **Verify**: Fitness Gate (`start.ps1`) auf 100% pruefen, UND das Ergebnis gegen die urspruengliche Absicht aus Schritt 3 gegenpruefen — nicht nur "Build ist gruen".
+5. **Verify**: Fitness Gate (`scripts/start.ps1`) auf 100% pruefen, UND das Ergebnis gegen die urspruengliche Absicht aus Schritt 3 gegenpruefen — nicht nur "Build ist gruen".
 
 ## Recherche
 

@@ -49,7 +49,7 @@ Dieses Dokument aggregiert die bidirektionalen Verbindungen zwischen Code und Do
 > **Manuelle Eingriffe in der Tabelle verboten!**
 > Die Tabelle innerhalb der HTML-Kommentare unten wird zu 100% maschinell durch `tools/build_db.py` (früher `tools/build_db.js`) erzeugt. Bitte trage hier keine neuen Zeilen manuell ein, da sie beim nächsten Build überschrieben werden.
 
-Das Python-Skript `tools/build_db.py` liest die `@adr`- und `@guide`-Tags aus den Quellcode-Dateien (`website/`) aus und generiert diese Tabelle beim Build-Prozess (`start.ps1`) neu. 
+Das Python-Skript `tools/build_db.py` liest die `@adr`- und `@guide`-Tags aus den Quellcode-Dateien (`website/`) aus und generiert diese Tabelle beim Build-Prozess (`scripts/start.ps1`) neu. 
 Das stellt sicher, dass unsere Datenbank (SQLite) und das Obsidian-Frontend immer synchron sind.
 
 Um einen neuen Knotenpunkt hinzuzufügen:
@@ -58,7 +58,7 @@ Um einen neuen Knotenpunkt hinzuzufügen:
 
 2. Füge den Header-Kommentar `/* @adr [[ADR-Name]] */` in die Code-Datei ein (bei CSS auch `/* @guide [[Guide-Name]] */`).
 
-3. Führe `start.ps1` aus.
+3. Führe `scripts/start.ps1` aus.
 
 <!-- BEGIN AUTOMATED MATRIX -->
 | Funktion / Modul | Code Datei | Architektur-Record (ADR) | Implementierungs-Guide |
@@ -107,5 +107,5 @@ Alles außerhalb der automatisierten HTML-Kommentare ist für **manuelle Notizen
 | :--- | :--- | :--- |
 | **CSS Reset** | `website/css/reset.css` | Globales CSS-Reset. Ändert sich nicht, keine spezifische ADR-Verknüpfung notwendig. |
 | **CSS Variables** | `website/css/variables.css` | Deklariert Basis-Tokens. Die Architektur-Entscheidung liegt bei den nutzenden CSS-Dateien. |
-| **Start-Skript** | `start.ps1` | Build-Skript & Fitness-Gate. Läuft außerhalb des Web-Kontexts (PowerShell). |
+| **Start-Skript** | `scripts/start.ps1` | Build-Skript & Fitness-Gate. Läuft außerhalb des Web-Kontexts (PowerShell). |
 | **Log-Session** | `tools/log_session.js` | Teil der Tooling-Infrastruktur für KI-Agenten, nicht Teil der Geschäftslogik. |

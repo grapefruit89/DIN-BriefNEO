@@ -51,7 +51,9 @@ Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezi
 
 - **[`repository.yaml`](repository.yaml)** beschreibt maschinenlesbar, woraus das Repository besteht (Struktur, Entrypoints, offene Punkte). Verbindliche Quelle für Verhaltensregeln bleibt `AGENTS.md`, für Technologie-Regeln der [Immutable Law Catalog](docs/00-foundation/Immutable-Law-Catalog.md) — `repository.yaml` verweist bewusst darauf, statt sie zu duplizieren.
 - **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
-  - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Forschungs-Quellenpyramide, Plan → Execute → Verify).
+  - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
+  - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche.
+  - `agent/skills/architecture-drift-audit/SKILL.md` — periodischer Soll/Ist-Abgleich der Architektur gegen den tatsächlichen Code.
   - `agent/mcp/dinbrief-mcp/` — dünner MCP-artiger STDIO-Server, exponiert `repository.inspect`, `repository.validate` und `repository.execute` (feste Allowlist, keine freie Codeausführung). `execute` verlangt zwingend einen vorherigen Plan-Aufruf, technisch erzwungen über eine an den Repository-Zustand gebundene `plan_id`.
 
 ---

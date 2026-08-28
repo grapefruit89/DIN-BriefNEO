@@ -3,6 +3,8 @@
 
 // @ts-check
 import { StorageManager } from './52-storage.js';
+import { Constants } from './51-constants.js';
+import { showToast } from './32-toast.js';
 
 export const SALUTATION = Object.freeze({
   TITLES: ["Prof. Dr.", "Dipl.-Ing.", "Prof.", "Dr.", "Mag."],
@@ -180,14 +182,44 @@ export class SalutationFeature {
   _wireManualEdits() {
     const anrede = document.getElementById('anrede');
     const gruss = document.getElementById('grussformel');
-    if (anrede) anrede.addEventListener('input', () => {
-      this.settings.salutationDirty = true;
-      StorageManager.saveSettings(this.settings);
-    });
-    if (gruss) gruss.addEventListener('input', () => {
-      this.settings.closingDirty = true;
-      StorageManager.saveSettings(this.settings);
-    });
+    if (anrede) {
+      anrede.addEventListener('input', () => {
+        this.settings.salutationDirty = true;
+        delete anrede.dataset.generated;
+        StorageManager.saveSettings(this.settings);
+      });
+      anrede.addEventListener('blur', () => this._validatePunctuation(anrede, 'anrede'));
+    }
+    if (gruss) {
+      gruss.addEventListener('input', () => {
+        this.settings.closingDirty = true;
+        delete gruss.dataset.generated;
+        StorageManager.saveSettings(this.settings);
+      });
+      gruss.addEventListener('blur', () => this._validatePunctuation(gruss, 'grussformel'));
+    }
+  }
+
+  /**
+   * DIN 5008: Anrede endet mit Komma ("Sehr geehrte Frau Mueller,"),
+   * Gruszformel endet OHNE Komma/Punkt ("Mit freundlichen Gruessen").
+   * Validiert nur manuell editierten Text -- Engine-generierte Vorschlaege
+   * sind per Konstruktion korrekt (siehe SalutationEngine.derive/getClosing).
+   * @param {HTMLElement} el
+   * @param {'anrede'|'grussformel'} kind
+   */
+  _validatePunctuation(el, kind) {
+    const dirty = kind === 'anrede' ? this.settings.salutationDirty : this.settings.closingDirty;
+    if (!dirty) return;
+
+    const text = (el.textContent || "").trim();
+    if (!text) return;
+
+    if (kind === 'anrede' && !text.endsWith(',')) {
+      showToast(Constants.TOASTS.SALUTATION_PUNCTUATION, 'warning');
+    } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
+      showToast(Constants.TOASTS.CLOSING_PUNCTUATION, 'warning');
+    }
   }
 
   _readDOMState() {
@@ -260,6 +292,7 @@ export class SalutationFeature {
   _setField(el, value) {
     if (document.activeElement === el) return; 
     el.textContent = value;
+    el.dataset.generated = "true"; // Ghost-Markierung: Engine-Vorschlag, kein Nutzertext -- siehe layout.css/print.css
     if (this.saveDraftData) this.saveDraftData();
   }
 }

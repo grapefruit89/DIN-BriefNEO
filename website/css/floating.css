@@ -283,7 +283,6 @@
   font-weight: 700;
 }
 
-/* Phase-1 UI state that CSS can own */
 #btn-reset-font { display: none; }
 body.font-custom-active #btn-reset-font { display: flex; }
 .sidebar-header-row { align-items: center; gap: 8px; }
@@ -295,31 +294,24 @@ a.sidebar-github-link {
   padding-inline: 0;
 }
 
-/* --- Viewport fit + sidebar scroll + guide toggle --- */
-#app-shell {
-  min-height: 0;
-}
-
+#app-shell { min-height: 0; }
 aside {
   min-height: 0;
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
 }
-
 aside > .sidebar-section:first-of-type {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-
 #viewport {
   min-height: 0;
   padding: 2vh 1.5vw;
   box-sizing: border-box;
 }
-
 #din-a4-viewport {
   width: 100%;
   height: 100%;
@@ -330,21 +322,13 @@ aside > .sidebar-section:first-of-type {
   container-type: size;
   container-name: sheet-stage;
 }
-
 din-a4 {
   max-width: 100%;
   max-height: 100%;
 }
-
-:root {
-  --guide-opacity: 0;
-}
-:root:has(#btn-guides-on:checked) {
-  --guide-opacity: 0.55;
-}
-:root:has(#btn-guides-off:checked) {
-  --guide-opacity: 0;
-}
+:root { --guide-opacity: 0; }
+:root:has(#btn-guides-on:checked) { --guide-opacity: 0.55; }
+:root:has(#btn-guides-off:checked) { --guide-opacity: 0; }
 
 aside input[type="text"],
 aside input[type="password"],
@@ -354,62 +338,43 @@ aside select {
   -webkit-user-select: text;
   user-select: text;
 }
-
-aside [data-ui]::before {
-  content: attr(data-ui);
-}
-
+aside [data-ui]::before { content: attr(data-ui); }
 aside .sidebar-checkbox-label {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-aside .sidebar-checkbox-label::before {
-  content: none;
-}
-aside .sidebar-checkbox-label::after {
-  content: attr(data-ui);
-}
-
-aside .sidebar-github-link::before {
-  content: none;
-}
-aside .sidebar-github-link::after {
-  content: attr(data-ui);
-}
+aside .sidebar-checkbox-label::before { content: none; }
+aside .sidebar-checkbox-label::after { content: attr(data-ui); }
+aside .sidebar-github-link::before { content: none; }
+aside .sidebar-github-link::after { content: attr(data-ui); }
 
 :root:has(#toggle-postvermerk:checked) din-postvermerk,
 :root:has(#toggle-postvermerk:checked) #postvermerk {
   display: block !important;
+  flex-direction: unset;
   visibility: visible !important;
   opacity: 1;
   color: var(--paper-text);
 }
 
-.pv-select {
+#sidebar-pv-select {
   appearance: base-select;
-  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-weight: 600;
+  gap: 8px;
+  white-space: nowrap;
 }
-.pv-select::picker-icon {
+#sidebar-pv-select::picker-icon {
   margin-inline-start: auto;
   flex: 0 0 auto;
   align-self: center;
 }
+:root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
+  display: flex !important;
+}
 
-/* Undefined custom tags default to inline — keep letter fields as blocks */
 din-rucksendezeile,
 din-empfaenger-firma,
 din-empfaenger-strasse,
@@ -426,22 +391,4 @@ din-falz-oben,
 din-falz-unten,
 din-lochmarke {
   display: block;
-}
-
-/* Theme dimmer */
-.dimmer-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0 8px;
-}
-#theme-dimmer {
-  width: 100%;
-  accent-color: var(--accent-color, oklch(0.40 0.14 260));
-}
-#theme-dimmer-value {
-  font-size: 0.75rem;
-  color: var(--text-muted, oklch(0.45 0.02 250));
-  min-width: 3ch;
-  text-align: right;
 }

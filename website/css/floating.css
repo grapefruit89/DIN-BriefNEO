@@ -408,3 +408,22 @@ aside .sidebar-github-link::after {
   flex: 0 0 auto;
   align-self: center;
 }
+
+/* Undefined custom tags default to inline — keep letter fields as blocks */
+din-rucksendezeile,
+din-empfaenger-firma,
+din-empfaenger-strasse,
+din-empfaenger-ort,
+din-absender-strasse,
+din-absender-ort,
+din-absender-tel,
+din-absender-mail,
+din-betreff,
+din-anrede,
+din-grussformel,
+din-unterschrift,
+din-falz-oben,
+din-falz-unten,
+din-lochmarke {
+  display: block;
+}

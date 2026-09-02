@@ -71,16 +71,16 @@ $contextInputs = @(
     (Join-Path $targetDir "AGENTS.md"),
     (Join-Path $targetDir "docs\00-foundation")
 )
-$contextOutput = Join-Path $targetDir "build\LLM_CONTEXT.md"
-$buildDir = Join-Path $targetDir "build"
-if (-not (Test-Path $buildDir)) {
-    New-Item -ItemType Directory -Path $buildDir -Force | Out-Null
+$contextOutput = Join-Path $targetDir "agent\cache\LLM_CONTEXT.md"
+$cacheDir = Join-Path $targetDir "agent\cache"
+if (-not (Test-Path $cacheDir)) {
+    New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null
 }
 if ($Force -or (Test-StepNeedsRun -StepName "create_context" -InputPaths $contextInputs -OutputPath $contextOutput)) {
     node tools/create_context.js
     Update-StepCache -StepName "create_context" -InputPaths $contextInputs
 } else {
-    Write-Host "    Uebersprungen (keine Aenderung seit letztem Lauf, build/LLM_CONTEXT.md ist aktuell)." -ForegroundColor DarkGray
+    Write-Host "    Uebersprungen (keine Aenderung seit letztem Lauf, agent/cache/LLM_CONTEXT.md ist aktuell)." -ForegroundColor DarkGray
 }
 
 Write-Host ""
@@ -111,7 +111,7 @@ $dbInputs = @(
     (Join-Path $targetDir "docs"),
     (Join-Path $targetDir "website")
 )
-$dbOutput = Join-Path $targetDir "build\DIN-Brief_docs.db"
+$dbOutput = Join-Path $targetDir "agent\cache\DIN-Brief_docs.db"
 if ($Force -or (Test-StepNeedsRun -StepName "build_db_py" -InputPaths $dbInputs -OutputPath $dbOutput)) {
     & $pythonExe tools/build_db.py
 

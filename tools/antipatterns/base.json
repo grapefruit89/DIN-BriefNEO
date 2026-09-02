@@ -1,6 +1,7 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "layer": "base",
+  "id_space": "JSON-IDs (B*/W*) bleiben. Normative IDs nur in catalog_ref.",
   "description": "Übertragbare HARD-BAN-Sonden. Normative SSoT: docs/00-foundation/Immutable-Law-Catalog.md",
   "rules": [
     {
@@ -10,19 +11,19 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Legacy Date API and date libraries are forbidden. Use Temporal.",
+      "description": "Legacy Date API in website/. Catalog TM1/A48. Tooling exempt.",
       "pattern": "\\bnew\\s+Date\\(|\\bDate\\.now\\(|\\bDate\\.parse\\(|\\bmoment\\(|\\bdate-fns\\b|\\bluxon\\b|from ['\"]moment['\"]|from ['\"]date-fns['\"]|from ['\"]luxon['\"]",
       "file_patterns": ["*.js"],
       "exemptions": []
     },
     {
       "id": "W1",
-      "catalog_ref": ["ADR-ANTIPATTERN §4"],
+      "catalog_ref": [],
       "class": "hard-ban",
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "document.execCommand and queryCommandState are forbidden. Use Selection & Range.",
+      "description": "document.execCommand and queryCommandState are forbidden. Use Selection & Range. No Catalog-A-ID; ADR-ANTIPATTERN.",
       "pattern": "\\bexecCommand\\(|\\bqueryCommandState\\(",
       "file_patterns": ["*.js"],
       "exemptions": []
@@ -34,7 +35,7 @@
       "severity": "critical",
       "check": "regex",
       "category": "general",
-      "description": "Google Fonts are forbidden (DSGVO, offline).",
+      "description": "Google Fonts are forbidden (DSGVO, offline). Catalog A41.",
       "pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com",
       "file_patterns": ["*.html", "*.css", "*.js"],
       "exemptions": []
@@ -46,7 +47,7 @@
       "severity": "critical",
       "check": "regex",
       "category": "general",
-      "description": "External script/style/font CDNs are forbidden. This is an asset ban, not a ban on every HTTP URL.",
+      "description": "External script/style/font CDNs are forbidden. Asset ban, not a ban on allowlisted APIs. Catalog A38/T2.",
       "pattern": "cdn\\.jsdelivr\\.net|unpkg\\.com|cdnjs\\.cloudflare\\.com|ajax\\.googleapis\\.com",
       "file_patterns": ["*.html", "*.css", "*.js"],
       "exemptions": []

@@ -377,3 +377,16 @@ aside .sidebar-github-link::before {
 aside .sidebar-github-link::after {
   content: attr(data-ui);
 }
+
+/* Native Postvermerk select — base-select picker was broken / unselectable */
+#sidebar-pv-select {
+  appearance: auto;
+  -webkit-appearance: menulist;
+  pointer-events: auto;
+  width: 100%;
+  max-width: 100%;
+  min-height: 36px;
+}
+#sidebar-pv-select::picker(select) {
+  appearance: auto;
+}

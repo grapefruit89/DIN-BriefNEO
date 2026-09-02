@@ -378,15 +378,39 @@ aside .sidebar-github-link::after {
   content: attr(data-ui);
 }
 
-/* Native Postvermerk select — base-select picker was broken / unselectable */
+/* Postvermerk select: icon RIGHT of text, not under it */
 #sidebar-pv-select {
-  appearance: auto;
-  -webkit-appearance: menulist;
+  appearance: base-select;
+  -webkit-appearance: auto;
   pointer-events: auto;
   width: 100%;
   max-width: 100%;
   min-height: 36px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
-#sidebar-pv-select::picker(select) {
-  appearance: auto;
+:root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+}
+#sidebar-pv-select::picker-icon {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  align-self: center;
+}
+#sidebar-pv-select option {
+  display: block;
+}
+
+/* Paper field must stay visible while toggle is on.
+   layout.css later resets din-postvermerk { display:none } — override here. */
+:root:has(#toggle-postvermerk:checked) din-postvermerk,
+:root:has(#toggle-postvermerk:checked) #postvermerk {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1;
+  color: var(--paper-text);
 }

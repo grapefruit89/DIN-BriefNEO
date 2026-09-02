@@ -1,1 +1,319 @@
-<!-- patched: see artifacts; content uploaded from local index.html -->
+<!-- @adr [[ADR-HTML]]  -->
+<!-- @guide [[din-5008-layout]]  -->
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DIN-BriefNEO | Pure Refactored</title>
+    <link rel="shortcut icon" href="data:image/svg+xml,
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'>
+        <path fill='%23CCD6DD' d='M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v18z'/>
+        <path fill='%2399aab5' d='M4 5a4 4 0 0 0-4 4v1.03l9.79 9.77-9.15 9.15-.06.09a4 4 0 0 0 1.38 1.38l.09-.06 9.15-9.15 3.32 3.3a4.88 4.88 0 0 0 6.88 0l3.36-3.33 9.18 9.18.09.06a3.98 3.98 0 0 0 1.38-1.38l-.06-.09-9.18-9.18 9.8-9.76V9a4 4 0 0 0-4-4h-28z'/>
+        <path fill='%23E1E8ED' d='M32 5H4A3.99 3.99 0 0 0 .4 7.28l14.8 14.8a4 4 0 0 0 5.66 0l14.8-14.8A3.99 3.99 0 0 0 32.06 5z'/>
+      </svg>">
+    <style>
+      @layer reset, tokens, layout, floating;
+    </style>
+    <link rel="stylesheet" href="css/reset.css" layer="reset">
+    <link rel="stylesheet" href="css/variables.css" layer="tokens">
+    <link rel="stylesheet" href="css/layout.css" layer="layout">
+    <link rel="stylesheet" href="css/floating.css" layer="floating">
+    <link rel="stylesheet" href="css/print.css" media="print">
+    <script>
+      try {
+        const defaults = { theme: 'light' };
+        const raw = localStorage.getItem('din_settings');
+        const settings = raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
+        document.documentElement.style.colorScheme = settings.theme === 'dark' ? 'dark' : 'light';
+        const customFont = localStorage.getItem('din_custom_font');
+        if (customFont) {
+          const fontStyle = document.createElement('style');
+          fontStyle.id = 'din-custom-font-style';
+          fontStyle.textContent = `@font-face { font-family: 'AptosCustom'; src: url('${customFont}') format('woff2'); }`;
+          document.head.appendChild(fontStyle);
+        }
+      } catch (e) {}
+    </script>
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <div id="app-shell">
+      <aside class="no-print">
+        <div class="sidebar-section">
+          <div class="sidebar-header-row">
+            <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="sidebar-build-info btn-ghost sidebar-github-link" aria-label="GitHub Repository" data-ui="GitHub">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+            </a>
+            <button type="button" id="btn-dev-mode" class="sidebar-build-info btn-ghost" aria-label="Developer Mode aktivieren" data-ui="07.08.2026 21:55"></button>
+          </div>
+          <div class="segmented-control" focusgroup="horizontal wrap" role="group" aria-label="Theme">
+            <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only" autocomplete="off">
+            <label for="btn-theme-light" data-ui="☀️ Hell"></label>
+            <input type="radio" name="theme" id="btn-theme-dark" value="dark" class="sr-only" autocomplete="off">
+            <label for="btn-theme-dark" data-ui="🌙 Dunkel"></label>
+          </div>
+          <div>
+            <h3 class="sidebar-label" data-ui="DIN-Brief Layout"></h3>
+            <div class="segmented-control" focusgroup="horizontal wrap">
+              <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only" autocomplete="off">
+              <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)" data-ui="Form A"></label>
+              <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked autocomplete="off">
+              <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)" data-ui="Form B"></label>
+            </div>
+          </div>
+          <div>
+            <h3 class="sidebar-label" data-ui="Brief-Stil & Anrede"></h3>
+            <div class="segmented-control" focusgroup="horizontal wrap">
+              <input type="radio" name="salutation" id="btn-style-formal" value="formal" class="sr-only" checked autocomplete="off">
+              <label for="btn-style-formal" title="Sehr geehrte(r) ..." data-ui="Förmlich"></label>
+              <input type="radio" name="salutation" id="btn-style-polite" value="polite" class="sr-only" autocomplete="off">
+              <label for="btn-style-polite" title="Guten Tag ..." data-ui="Höflich"></label>
+              <input type="radio" name="salutation" id="btn-style-casual" value="casual" class="sr-only" autocomplete="off">
+              <label for="btn-style-casual" title="Hallo ..." data-ui="Locker"></label>
+            </div>
+          </div>
+          <div>
+            <h3 class="sidebar-label" data-ui="Hilfslinien"></h3>
+            <div class="segmented-control" focusgroup="horizontal wrap">
+              <input type="radio" name="guides" id="btn-guides-on" value="on" class="sr-only" checked autocomplete="off">
+              <label for="btn-guides-on" data-ui="EIN"></label>
+              <input type="radio" name="guides" id="btn-guides-off" value="off" class="sr-only" autocomplete="off">
+              <label for="btn-guides-off" data-ui="AUS"></label>
+            </div>
+          </div>
+          <div>
+            <h3 class="sidebar-label" data-ui="Zusatz-Elemente"></h3>
+            <div class="sidebar-options-group">
+              <div class="sidebar-options-row">
+                <label class="sidebar-checkbox-label" data-ui="Postvermerk">
+                  <input type="checkbox" id="toggle-postvermerk">
+                </label>
+                <label class="sidebar-checkbox-label" data-ui="Anlagen">
+                  <input type="checkbox" id="toggle-anlagen">
+                </label>
+              </div>
+              <select id="sidebar-pv-select" class="sidebar-select" data-persist aria-label="Postvermerk wählen">
+                <option value="Einschreiben" selected>Einschreiben</option>
+                <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                <option value="Einschreiben Wert">Einschreiben Wert</option>
+                <option value="Persönlich">Persönlich</option>
+                <option value="Vertraulich">Vertraulich</option>
+                <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                <option value="Warensendung">Warensendung</option>
+                <option value="Büchersendung">Büchersendung</option>
+                <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <h3 class="sidebar-label" data-ui="Schriftarten-Manager"></h3>
+            <div class="sidebar-options-group">
+              <span class="sidebar-sub-label" data-ui="System-Schriftart:"></span>
+              <div class="segmented-control" id="font-stack-select" focusgroup="horizontal wrap">
+                <input type="radio" name="font-stack" id="btn-font-sans" value="sans" class="sr-only" checked autocomplete="off">
+                <label for="btn-font-sans" title="Moderne serifenlose Systemschrift" data-ui="Sans"></label>
+                <input type="radio" name="font-stack" id="btn-font-serif" value="serif" class="sr-only" autocomplete="off">
+                <label for="btn-font-serif" title="Klassische Serifenschrift" data-ui="Serif"></label>
+              </div>
+            </div>
+            <div class="sidebar-options-group">
+              <label id="btn-upload-font-trigger" for="font-uploader" class="btn w-full" data-ui="📤 Schrift hochladen"></label>
+              <button type="button" id="btn-reset-font" class="btn btn-danger w-full" data-ui="🗑️ Schrift zurücksetzen"></button>
+              <span id="font-status-label" class="sidebar-status-label">Aktiv: System-UI Standardschrift</span>
+              <div class="sidebar-ux-tip">
+                💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" rel="noopener noreferrer" class="sidebar-link">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" rel="noopener noreferrer" class="sidebar-link">Manrope</a> herunter und lade sie hier offline in deine App.
+              </div>
+            </div>
+            <input type="file" id="font-uploader" accept=".woff2" class="hidden">
+          </div>
+          <div>
+            <h3 class="sidebar-label" data-ui="Unterschrift (Bild)"></h3>
+            <div class="sidebar-options-group">
+              <span class="sidebar-sub-label" data-ui="Scanne deine Unterschrift als Bild mit transparentem Hintergrund."></span>
+              <label id="btn-upload-sig-trigger" for="sig-uploader" class="btn w-full" data-ui="✒️ Unterschrift laden"></label>
+              <button type="button" id="btn-reset-sig" class="btn btn-danger w-full" data-ui="🗑️ Unterschrift löschen"></button>
+            </div>
+            <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" class="hidden">
+          </div>
+          <div id="geoapify-wrapper">
+            <h3 class="sidebar-label" data-ui="Adress-Autocomplete"></h3>
+            <div class="sidebar-options-group">
+              <div id="geoapify-key-container">
+                <label for="input-geoapify-key" class="sidebar-sub-label" data-ui="Geoapify API-Key:"></label>
+                <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+              </div>
+              <div id="address-search-container" class="sidebar-options-group">
+                <label for="input-address-search" class="sidebar-sub-label" data-ui="Empfänger-Adresse suchen:"></label>
+                <input type="text" id="input-address-search" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
+                <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-section sidebar-footer">
+          <button type="button" id="btn-print" class="btn primary w-full" data-ui="🖨️ Als PDF speichern / Drucken"></button>
+          <button type="button" id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal" data-ui="🗑️ Brief zurücksetzen"></button>
+        </div>
+      </aside>
+      <main id="viewport">
+        <div id="din-a4-viewport">
+          <din-a4 class="paper-theme page-1"
+            data-width-mm="210"
+            data-height-mm="297"
+            data-punch-y="148.5"
+            data-absender-y-b="45"
+            data-empfaenger-y-b="50"
+            data-infoblock-y-b="50"
+            data-datum-y-b="92"
+            data-kern-y-b="109"
+            data-fold-1-b="105"
+            data-fold-2-b="210"
+            data-absender-y-a="27"
+            data-empfaenger-y-a="32"
+            data-infoblock-y-a="32"
+            data-datum-y-a="74"
+            data-kern-y-a="91"
+            data-fold-1-a="87"
+            data-fold-2-a="181"
+            role="article"
+            aria-label="DIN 5008 Brief">
+            <din-falz-oben class="din-mark din-fold-top"></din-falz-oben>
+            <din-falz-unten class="din-mark din-fold-bottom"></din-falz-unten>
+            <din-lochmarke class="din-mark din-punch"></din-lochmarke>
+            <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
+              <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk" aria-label="Postvermerk"></din-postvermerk>
+              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
+              <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
+              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
+            </din-anschriftfeld>
+            <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen">
+              <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Name"></div>
+              <din-absender-strasse id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+            </din-infoblock>
+            <din-datum id="datum" class="single-line" contenteditable="plaintext-only" placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-kern id="briefkern" aria-label="Briefinhalt">
+              <din-betreff id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
+              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+              <div class="signature-wrapper">
+                <div id="signature-container" class="draggable-container">
+                  <div class="sig-bounding-box" id="sig-bbox">
+                    <div class="sig-handle top-left" data-action="resize" data-dir="tl"></div>
+                    <div class="sig-handle top-right" data-action="resize" data-dir="tr"></div>
+                    <div class="sig-handle bottom-left" data-action="resize" data-dir="bl"></div>
+                    <div class="sig-handle bottom-right" data-action="resize" data-dir="br"></div>
+                    <div class="sig-rotate-handle" data-action="rotate"></div>
+                    <img id="signature-image" alt="Unterschrift" draggable="false">
+                  </div>
+                </div>
+                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+              </div>
+              <din-anlagen id="anlagen">
+                <div class="anlagen-heading">Anlagen</div>
+                <ul id="anlagen-text" contenteditable="true"><li>Anlage 1</li></ul>
+              </din-anlagen>
+            </din-kern>
+            <din-fuss id="brief-fuss" role="contentinfo"></din-fuss>
+          </din-a4>
+        </div>
+      </main>
+    </div>
+    <div id="format-command-target" hidden></div>
+    <div id="format-toolbar" popover="hint" class="no-print" role="toolbar" aria-label="Textformatierung" focusgroup="horizontal wrap">
+      <button type="button" commandfor="format-command-target" command="--bold" title="Fett" aria-label="Fett"><b>B</b></button>
+      <button type="button" commandfor="format-command-target" command="--underline" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button>
+      <button type="button" commandfor="format-command-target" command="--quote" title="Zitat" aria-label="Zitat">»</button>
+      <button type="button" commandfor="format-command-target" command="--comment" title="Kommentar" aria-label="Kommentar">|</button>
+    </div>
+    <div id="selection-anchor" class="no-print"></div>
+    <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
+      <span id="toast-message"></span>
+      <span id="toast-badge" class="toast-badge hidden"></span>
+      <button type="button" id="toast-action" class="toast-action-btn hidden"></button>
+      <button type="button" id="toast-close" class="btn-icon" aria-label="Schließen">×</button>
+    </div>
+    <dialog id="reset-dialog" class="glass-dialog no-print">
+      <form method="dialog">
+        <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn danger" id="btn-confirm-reset">Zurücksetzen</button>
+        </div>
+      </form>
+    </dialog>
+    <script>
+      try {
+        const defaults = {
+          theme: 'light',
+          layout: 'form-b',
+          guides: true,
+          systemFont: 'sans',
+          formality: 'formal',
+          postvermerkActive: false
+        };
+        const raw = localStorage.getItem('din_settings');
+        const settings = raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
+        function setRadioSync(name, val) {
+          document.querySelectorAll(`input[type="radio"][name="${name}"]`).forEach((b) => {
+            const on = b.value === val;
+            b.checked = on;
+            if (on) b.setAttribute('checked', '');
+            else b.removeAttribute('checked');
+          });
+        }
+        setRadioSync('theme', settings.theme === 'dark' ? 'dark' : 'light');
+        setRadioSync('layout-form', settings.layout);
+        setRadioSync('salutation', settings.formality);
+        setRadioSync('font-stack', settings.systemFont);
+        setRadioSync('guides', settings.guides ? 'on' : 'off');
+        const pvToggleBtn = document.getElementById('toggle-postvermerk');
+        if (pvToggleBtn) {
+          pvToggleBtn.checked = !!settings.postvermerkActive;
+          if (settings.postvermerkActive) pvToggleBtn.setAttribute('checked', '');
+          else pvToggleBtn.removeAttribute('checked');
+        }
+        const draftStr = localStorage.getItem('din_draft_current');
+        if (draftStr) {
+          const draft = JSON.parse(draftStr);
+          const parser = new DOMParser();
+          for (const id in draft) {
+            const el = document.getElementById(id);
+            if (!el || !draft[id]) continue;
+            if (el.tagName === 'SELECT') { el.value = draft[id]; continue; }
+            const nested = el.querySelector && el.querySelector('select[data-persist]');
+            if (nested) { nested.value = draft[id]; continue; }
+            const doc = parser.parseFromString(draft[id], 'text/html');
+            el.replaceChildren(...doc.body.childNodes);
+          }
+        }
+        const pvSel = document.getElementById('sidebar-pv-select');
+        const pvField = document.getElementById('postvermerk');
+        const applyPv = () => {
+          if (pvSel && pvField && pvSel.value) pvField.textContent = pvSel.value;
+        };
+        if (pvSel) {
+          pvSel.addEventListener('input', applyPv);
+          pvSel.addEventListener('change', applyPv);
+        }
+        if (pvToggleBtn) pvToggleBtn.addEventListener('change', applyPv);
+        applyPv();
+        if (localStorage.getItem('din_custom_font')) {
+          document.body.classList.add('font-custom-active');
+          const status = document.getElementById('font-status-label');
+          if (status) status.textContent = 'Aktiv: Eigene Schrift (WOFF2)';
+        }
+      } catch (e) {}
+    </script>
+  </body>
+</html>

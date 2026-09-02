@@ -94,6 +94,20 @@
                   <input type="checkbox" id="toggle-anlagen">
                 </label>
               </div>
+              <select id="sidebar-pv-select" class="sidebar-select" data-persist aria-label="Postvermerk wählen">
+                <option value="Einschreiben" selected>Einschreiben</option>
+                <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                <option value="Einschreiben Wert">Einschreiben Wert</option>
+                <option value="Persönlich">Persönlich</option>
+                <option value="Vertraulich">Vertraulich</option>
+                <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                <option value="Warensendung">Warensendung</option>
+                <option value="Büchersendung">Büchersendung</option>
+                <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+              </select>
             </div>
           </div>
           <div>
@@ -193,22 +207,7 @@
             <din-lochmarke class="din-mark din-punch"></din-lochmarke>
             <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
-              <din-postvermerk id="postvermerk" aria-label="Postvermerk">
-                <select id="postvermerk-select" class="pv-select" data-persist aria-label="Postvermerk">
-                  <option value="Einschreiben" selected>Einschreiben</option>
-                  <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
-                  <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
-                  <option value="Einschreiben Wert">Einschreiben Wert</option>
-                  <option value="Persönlich">Persönlich</option>
-                  <option value="Vertraulich">Vertraulich</option>
-                  <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
-                  <option value="Nicht nachsenden!">Nicht nachsenden!</option>
-                  <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
-                  <option value="Warensendung">Warensendung</option>
-                  <option value="Büchersendung">Büchersendung</option>
-                  <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
-                </select>
-              </din-postvermerk>
+              <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk" aria-label="Postvermerk"></din-postvermerk>
               <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
               <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>

@@ -16,7 +16,7 @@ import { FormatToolbar } from './31-format-toolbar.js';
 import { SettingsManager } from './02-settings-manager.js';
 import { UIProtections } from './03-ui-protections.js';
 
-import { DateFormatter } from './47-date-format.js';
+import { applyLetterDate } from './47-date-format.js';
 import { TextFitEngine } from './48-text-fit.js';
 
 function syncPostvermerkFromSidebar() {
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     draftManager.loadDraft();
     draftManager.enableEventMode();
     syncPostvermerkFromSidebar();
+    applyLetterDate();
 
     const uiProtections = new UIProtections();
     uiProtections.init();
@@ -47,28 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     textFitEngine.init();
 
-    const datumEl = document.getElementById('datum');
-    if (datumEl && !datumEl.textContent.trim()) {
-      try {
-        const today = Temporal.Now.plainDateISO();
-        const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-        datumEl.textContent = `${today.day}. ${months[today.month - 1]} ${today.year}`;
-        draftManager.saveDraft();
-      } catch (e) {}
-    }
-
     const settingsManager = new SettingsManager();
     settingsManager.init();
-
-    const dateContext = {
-      settings: settingsManager.settings,
-      saveSettings: () => {
-        StorageManager.saveSettings(settingsManager.settings);
-        settingsManager.applySettings();
-      }
-    };
-    const dateFormatter = new DateFormatter(dateContext);
-    dateFormatter.init();
 
     attachGlobalListeners(draftManager, uiProtections);
 
@@ -122,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resetDialog.addEventListener('close', () => {
         if (resetDialog.returnValue === 'confirm') {
           draftManager.resetDraft();
+          applyLetterDate();
         }
       });
     }

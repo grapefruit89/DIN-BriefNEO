@@ -10,66 +10,81 @@
   initial-value: 0;
 }
 
+@property --theme-dim {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
 :root {
   color-scheme: light dark;
   interpolate-size: allow-keywords;
 
-  transition: --guide-opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: --guide-opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              --theme-dim 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* === 1. SURFACES & NEUTRALS === */
-  /* Premium Dark Mode: Deep, sleek midnight blue/charcoal. Light Mode: Clean, airy pearl/slate. */
-  --bg-viewport: light-dark(oklch(0.96 0.01 250), oklch(0.2735 0.0179 251.92));
-  --bg-sidebar: light-dark(oklch(0.98 0.005 250), oklch(0.21 0.04 260));
-  /* @todo(chrome-152): Refactor with CSS Color 5 alpha() function e.g. alpha(var(--bg-sidebar) 80%) */
-  --bg-sidebar-glass: light-dark(oklch(0.98 0.005 250 / 80%), oklch(0.21 0.04 260 / 80%));
-  --bg-card: light-dark(oklch(1 0 0), oklch(0.24 0.04 260));
-  
-  --border-color: light-dark(oklch(0.90 0.01 250), oklch(0.30 0.03 260));
-  --border-color-focus: var(--accent-color);
+  --theme-dim: 0;
 
-  /* === 2. TEXT (UI ONLY) === */
-  --text-primary: light-dark(oklch(0.15 0.02 250), oklch(0.96 0.01 260));
-  --text-muted: light-dark(oklch(0.45 0.02 250), oklch(0.70 0.02 260));
+  --c-viewport-day: oklch(0.96 0.01 250);
+  --c-viewport-night: oklch(0.2735 0.0179 251.92);
+  --c-sidebar-day: oklch(0.98 0.005 250);
+  --c-sidebar-night: oklch(0.21 0.04 260);
+  --c-card-day: oklch(1 0 0);
+  --c-card-night: oklch(0.24 0.04 260);
+  --c-border-day: oklch(0.90 0.01 250);
+  --c-border-night: oklch(0.30 0.03 260);
+  --c-text-day: oklch(0.15 0.02 250);
+  --c-text-night: oklch(0.96 0.01 260);
+  --c-muted-day: oklch(0.45 0.02 250);
+  --c-muted-night: oklch(0.70 0.02 260);
+  --c-accent-day: oklch(0.40 0.14 260);
+  --c-accent-night: oklch(0.85 0.05 260);
+  --c-accent-muted-day: oklch(0.95 0.03 260);
+  --c-accent-muted-night: oklch(0.35 0.08 260);
+  --c-segment-day: oklch(0.92 0.01 250);
+  --c-segment-night: oklch(0.24 0.03 260);
+  --c-paper-day: oklch(100% 0 0);
+  --c-paper-night: oklch(0.18 0.02 260);
+  --c-ink-day: oklch(0% 0 0);
+  --c-ink-night: oklch(0.96 0.01 260);
+  --c-ghost-day: oklch(50% 0 0);
+  --c-ghost-night: oklch(0.62 0.01 260);
 
-  /* === 3. PAPER (ISOLATED) === */
-  /* Das Blatt Papier und die Tinte bleiben IMMER identisch, egal welches UI-Theme aktiv ist. WYSIWYG! */
-  --paper-bg: oklch(100% 0 0); /* Strahlend weiss */
-  --paper-text: oklch(0% 0 0); /* Pechschwarz */
-  --paper-ghost: oklch(50% 0 0); /* Anthrazit fuer Platzhalter */
+  --bg-viewport: color-mix(in oklch, var(--c-viewport-day, oklch(0.96 0.01 250)), var(--c-viewport-night, oklch(0.27 0.02 252)) calc(var(--theme-dim, 0) * 100%));
+  --bg-sidebar: color-mix(in oklch, var(--c-sidebar-day, oklch(0.98 0.005 250)), var(--c-sidebar-night, oklch(0.21 0.04 260)) calc(var(--theme-dim, 0) * 100%));
+  --bg-sidebar-glass: color-mix(in oklch, var(--c-sidebar-day, oklch(0.98 0.005 250)) 80%, transparent);
+  --bg-card: color-mix(in oklch, var(--c-card-day, oklch(1 0 0)), var(--c-card-night, oklch(0.24 0.04 260)) calc(var(--theme-dim, 0) * 100%));
+  --border-color: color-mix(in oklch, var(--c-border-day, oklch(0.90 0.01 250)), var(--c-border-night, oklch(0.30 0.03 260)) calc(var(--theme-dim, 0) * 100%));
+  --text-primary: color-mix(in oklch, var(--c-text-day, oklch(0.15 0.02 250)), var(--c-text-night, oklch(0.96 0.01 260)) calc(var(--theme-dim, 0) * 100%));
+  --text-muted: color-mix(in oklch, var(--c-muted-day, oklch(0.45 0.02 250)), var(--c-muted-night, oklch(0.70 0.02 260)) calc(var(--theme-dim, 0) * 100%));
 
-  /* === 4. ACCENT === */
-  /* Eigene edle Akzentfarbe statt OS-Default, passend zum royalen Blau */
-  --accent-color: light-dark(oklch(0.40 0.14 260), oklch(0.85 0.05 260));
-  --accent-muted: light-dark(oklch(0.95 0.03 260), oklch(0.35 0.08 260));
-  
-  /* Robust color-mix for hover & glow states */
-  --accent-hover: color-mix(in srgb, var(--accent-color), black 10%);
-  --accent-glow: color-mix(in srgb, var(--accent-color), transparent 85%);
+  --paper-bg: color-mix(in oklch, var(--c-paper-day, oklch(100% 0 0)), var(--c-paper-night, oklch(0.18 0.02 260)) calc(var(--theme-dim, 0) * 100%));
+  --paper-text: color-mix(in oklch, var(--c-ink-day, oklch(0% 0 0)), var(--c-ink-night, oklch(0.96 0.01 260)) calc(var(--theme-dim, 0) * 100%));
+  --paper-ghost: color-mix(in oklch, var(--c-ghost-day, oklch(50% 0 0)), var(--c-ghost-night, oklch(0.62 0.01 260)) calc(var(--theme-dim, 0) * 100%));
 
-  /* === 5. INTERACTIVE & SEGMENTED CONTROLS === */
-  --segment-bg: light-dark(oklch(0.92 0.01 250), oklch(0.24 0.03 260));
-  --segment-active-bg: light-dark(oklch(1 0 0), oklch(0.30 0.03 260));
-  --segment-active-text: var(--text-primary);
-  --segment-active-shadow: light-dark(0 1px 3px oklch(0 0 0 / 8%), 0 2px 6px oklch(0 0 0 / 50%));
-  
-  /* === 6. FEEDBACK === */
-  --c-primary: var(--accent-color);
-  --c-success: light-dark(oklch(0.65 0.12 150), oklch(0.70 0.10 150));
-  --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
-  --c-danger: light-dark(oklch(0.60 0.15 25), oklch(0.65 0.13 25));
+  --accent-color: color-mix(in oklch, var(--c-accent-day, oklch(0.40 0.14 260)), var(--c-accent-night, oklch(0.85 0.05 260)) calc(var(--theme-dim, 0) * 100%));
+  --accent-muted: color-mix(in oklch, var(--c-accent-muted-day, oklch(0.95 0.03 260)), var(--c-accent-muted-night, oklch(0.35 0.08 260)) calc(var(--theme-dim, 0) * 100%));
+  --border-color-focus: var(--accent-color, oklch(0.40 0.14 260));
+  --accent-hover: color-mix(in oklch, var(--accent-color, oklch(0.40 0.14 260)) 90%, oklch(0% 0 0));
+  --accent-glow: color-mix(in oklch, var(--accent-color, oklch(0.40 0.14 260)) 15%, transparent);
 
-  /* Shadow & Blur tokens */
+  --segment-bg: color-mix(in oklch, var(--c-segment-day, oklch(0.92 0.01 250)), var(--c-segment-night, oklch(0.24 0.03 260)) calc(var(--theme-dim, 0) * 100%));
+  --segment-active-bg: color-mix(in oklch, var(--c-card-day, oklch(1 0 0)), oklch(0.30 0.03 260) calc(var(--theme-dim, 0) * 100%));
+  --segment-active-text: var(--text-primary, oklch(0.15 0.02 250));
+  --segment-active-shadow: 0 1px 3px oklch(0 0 0 / 8%);
+
+  --c-primary: var(--accent-color, oklch(0.40 0.14 260));
+  --c-success: color-mix(in oklch, oklch(0.65 0.12 150), oklch(0.70 0.10 150) calc(var(--theme-dim, 0) * 100%));
+  --c-warning: color-mix(in oklch, oklch(0.75 0.14 75), oklch(0.80 0.12 75) calc(var(--theme-dim, 0) * 100%));
+  --c-danger: color-mix(in oklch, oklch(0.60 0.15 25), oklch(0.65 0.13 25) calc(var(--theme-dim, 0) * 100%));
+
   --shadow-sm: 0 2px 8px oklch(0% 0 0 / 5%);
   --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
-
   --glass-blur: blur(20px);
-  
-  /* DIN Paper layout configurations */
+
   --paper-zoom: 1;
   --guide-opacity: 0;
-  --guide-color: oklch(from var(--paper-text) l c h);
-  
-  /* Active Font Stack variable */
+  --guide-color: oklch(from var(--paper-text, oklch(0% 0 0)) l c h);
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 

@@ -57,7 +57,7 @@ async function main() {
     process.exit(1);
   }
 
-  const dbPath = path.resolve(__dirname, '../build/DIN-Brief_docs.db');
+  const dbPath = path.resolve(__dirname, '../agent/cache/DIN-Brief_docs.db');
   const db = new Database(dbPath);
 
   try {

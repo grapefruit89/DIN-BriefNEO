@@ -128,11 +128,9 @@ export class SettingsManager {
     if (!this.fontStatusLabel || !this.btnResetFont) return;
     if (hasCustomFont) {
       this.fontStatusLabel.textContent = "Aktiv: Eigene WOFF2 Schrift";
-      this.btnResetFont.style.display = "block";
       document.body.classList.add('font-custom-active');
     } else {
       this.fontStatusLabel.textContent = "Aktiv: System-UI Standardschrift";
-      this.btnResetFont.style.display = "none";
       document.body.classList.remove('font-custom-active');
     }
   }
@@ -198,7 +196,6 @@ export class SettingsManager {
     if (this.btnGuidesOn) this.btnGuidesOn.addEventListener('change', handleGuidesToggle);
     if (this.btnGuidesOff) this.btnGuidesOff.addEventListener('change', handleGuidesToggle);
 
-
     // Font reset click listener
     if (this.btnResetFont) {
       this.btnResetFont.addEventListener('click', () => {
@@ -250,7 +247,3 @@ export class SettingsManager {
     }
   }
 }
-
-
-
-

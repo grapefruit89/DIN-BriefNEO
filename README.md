@@ -1,9 +1,3 @@
----
-title: "DIN-BriefNEO: Pure Refactored Edition"
-status: active
-tags: [documentation, readme]
----
-
 # ✉️ DIN-BriefNEO: Pure Refactored Edition
 
 Willkommen im offiziellen Arbeitsverzeichnis von **DIN-BriefNEO (Pure Refactored Edition)**. 

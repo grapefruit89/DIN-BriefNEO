@@ -134,6 +134,26 @@ graph TD
 **Rolle:** Dokumentwurzel, nicht Teil der 45.  
 **Normative Fläche:** Breite 210 mm, Höhe 297 mm.
 
+### Form A und Form B
+
+Dasselbe Blatt, dieselben Zonen und Atome. Form A und Form B unterscheiden sich nur durch belegte **Y-Lagen**. Es ist keine zweite Dokumentart und kein drittes Layout.
+
+Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
+
+| Objekt | Y Form A | Y Form B |
+|---|---|---|
+| Zone `din-absender` | 27 mm | 45 mm |
+| Zone `din-anschriftfeld` | 32 mm | 50 mm |
+| Zone `din-infoblock` | 32 mm | 50 mm |
+| Atom `din-datum` | 74 mm | 92 mm |
+| Zone `din-kern` | 91 mm | 109 mm |
+| Atom `din-falz-oben` | 87 mm | 105 mm |
+| Atom `din-falz-unten` | 181 mm | 210 mm |
+
+Unverändert zwischen den Formen, soweit belegt: Blatt 210 × 297, Anschrift W 85 H 45, Infoblock X 125, Kern X 25 W 165, Fuß X 25 Y 241 W 165, Lochung Y 148,5 mm.
+
+Wie HTML den Form-Schalter speichert und wie CSS die Y-Werte umsetzt, ist Rendering, nicht Teil dieses Modells.
+
 ---
 
 ## 1. Zone Absender (Briefkopf)
@@ -268,5 +288,5 @@ Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört nicht zu d
 
 | Datum | Änderung |
 |---|---|
-| 2026-09-02 | Master-Modell: Zonen, Komposition, Kontakt-Platzierung, Overlay außerhalb der 45, Geometrie klassifiziert |
+| 2026-09-02 | Master-Modell: Zonen, Komposition, Kontakt-Platzierung, Overlay außerhalb der 45, Geometrie klassifiziert, Form A/B am Dokumentrahmen |
 | 2026-03-31 | Initiale Version |

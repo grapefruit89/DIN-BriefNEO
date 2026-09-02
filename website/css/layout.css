@@ -584,7 +584,6 @@ din-postvermerk, din-anlagen, din-verteiler {
   /* Grok Audit: Native customizable select opt-in */
   appearance: base-select;
   width: 100%;
-  margin-bottom: 12px;
   padding: 8px;
   background: var(--bg-sidebar-glass);
   color: var(--text-primary);
@@ -592,6 +591,9 @@ din-postvermerk, din-anlagen, din-verteiler {
   border-radius: 6px;
   font-family: inherit;
   font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 #sidebar-pv-select::picker(select) {
   appearance: base-select;
@@ -616,21 +618,22 @@ din-postvermerk, din-anlagen, din-verteiler {
 }
 .sidebar-addon-btn {
   flex: 1 1 50%;
-  padding: 4px 8px;
-  border: 1px solid oklch(0.7 0 0);
-  border-radius: 6px;
-  background: transparent;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--segment-bg);
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.75rem;
-  line-height: 1.4;
+  font-weight: 500;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  text-align: center;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
 .sidebar-addon-btn[aria-pressed="true"] {
-  background: var(--segment-pill);
+  background: var(--segment-active-bg);
   color: var(--segment-active-text);
-  border-color: transparent;
+  box-shadow: var(--segment-active-shadow);
 }
 
 din-postvermerk {
@@ -805,6 +808,8 @@ din-anlagen, din-verteiler {
 
 
 #signature-image[src=""] { display: none !important; }
+#signature-container { display: none; }
+body:has(#signature-image[src]:not([src=""])) #signature-container { display: block; }
 #btn-reset-sig { display: none !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }
@@ -874,7 +879,6 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 #infoblock { line-height: 1.5; }
 #info-tel { margin-top: 8px; }
 .signature-wrapper { position: relative; margin-top: 10px; }
-#signature-container { min-height: 20px; }
 
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
 #anlagen-text { margin: 0; padding-left: 1.5rem; }

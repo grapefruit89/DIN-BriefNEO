@@ -191,16 +191,6 @@
               <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
               <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="signature-wrapper">
-                <div id="signature-container" class="draggable-container">
-                  <div class="sig-bounding-box" id="sig-bbox">
-                    <div class="sig-handle top-left" data-action="resize" data-dir="tl"></div>
-                    <div class="sig-handle top-right" data-action="resize" data-dir="tr"></div>
-                    <div class="sig-handle bottom-left" data-action="resize" data-dir="bl"></div>
-                    <div class="sig-handle bottom-right" data-action="resize" data-dir="br"></div>
-                    <div class="sig-rotate-handle" data-action="rotate"></div>
-                    <img id="signature-image" alt="Unterschrift" draggable="false">
-                  </div>
-                </div>
                 <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
@@ -209,6 +199,16 @@
               </din-anlagen>
             </din-kern>
             <din-fuss id="brief-fuss" role="contentinfo"></din-fuss>
+            <div id="signature-container">
+              <div class="sig-bounding-box" id="sig-bbox">
+                <div class="sig-handle top-left" data-action="resize" data-dir="tl"></div>
+                <div class="sig-handle top-right" data-action="resize" data-dir="tr"></div>
+                <div class="sig-handle bottom-left" data-action="resize" data-dir="bl"></div>
+                <div class="sig-handle bottom-right" data-action="resize" data-dir="br"></div>
+                <div class="sig-rotate-handle" data-action="rotate"></div>
+                <img id="signature-image" alt="Unterschrift" draggable="false">
+              </div>
+            </div>
           </din-a4>
         </div>
       </main>

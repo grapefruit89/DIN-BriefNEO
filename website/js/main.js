@@ -16,7 +16,6 @@ import { FormatToolbar } from './31-format-toolbar.js';
 import { SettingsManager } from './02-settings-manager.js';
 import { UIProtections } from './03-ui-protections.js';
 import { initPostvermerk } from './33-postvermerk.js';
-import { initDevTools } from './54-dev-tools.js';
 
 import { DateFormatter } from './47-date-format.js';
 import { TextFitEngine } from './48-text-fit.js';
@@ -43,8 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Feature Trace: TextFitEngine is handled inside textFitEngine
     textFitEngine.init();
-
-
 
     const datumEl = document.getElementById('datum');
     if (datumEl && !datumEl.textContent.trim()) {
@@ -95,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsManager.applySettings();
       }
     });
-    initDevTools();
     
     const salutation = new SalutationFeature(() => draftManager.saveDraft());
     salutation.init();
@@ -149,4 +145,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-

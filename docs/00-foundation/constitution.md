@@ -60,13 +60,14 @@ Ausschließlich eine standardkonforme Webseite / Web App. Kein Electron, Capacit
 
 Die Anwendung selbst hängt an keinem Server und keiner Server-DB.
 
-### ❌ Keine externen Abhängigkeiten & CDNs
+### ❌ Keine fremden Assets & CDNs
 
-Keine CDNs, keine Laufzeit-Bibliotheken, keine Web-Fonts über das Netz. Ressourcen liegen lokal.
+Keine CDNs, keine Laufzeit-Bibliotheken, keine Web-Fonts und keine fremden Script-/CSS-Hosts. Produkt-Assets liegen lokal.
+Optionale Fach-APIs (reiner Datenabruf) sind davon zu unterscheiden und zulässig, sofern der [[Immutable-Law-Catalog]] sie allowlistet (A38). Sie dürfen kein Script, keine Schrift und kein Stylesheet liefern.
 
-### ❌ Kein `Date` als Zeitquelle
+### ❌ Kein `Date` als Zeitquelle im Produkt
 
-`Date` und Legacy-Date-Libraries sind im Projekt nicht zulässig. Zeitmodell: [[Immutable-Law-Catalog]] TM1.
+`Date` ist in `website/` nicht zulässig. Tooling (`tools/`, `agent/`, `scripts/`) ist ausgenommen. `moment.js`, `date-fns` und `luxon` bleiben überall verboten. Zeitmodell: [[Immutable-Law-Catalog]] TM1 / A48.
 
 ---
 

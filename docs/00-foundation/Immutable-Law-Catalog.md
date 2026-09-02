@@ -82,7 +82,7 @@ Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu 
 
 | # | Stufe | MUST-USE | Zweck |
 | :--- | :--- | :--- | :--- |
-| TM1 | HARD BAN `Date` und Legacy-Date-Libraries | `Temporal` für sämtliche Datums-/Zeitoperationen | eine Abstraktion; `Date`, `moment.js`, `date-fns`, `luxon` sind im Projekt nicht zulässig |
+| TM1 | HARD BAN im Produkt | `Temporal` für alle Datums-/Zeitoperationen in `website/` | `Date` ist in `website/` unzulässig. Tooling (`tools/`, `agent/`, `scripts/`) ist ausgenommen. `moment.js`, `date-fns`, `luxon` bleiben überall verboten. |
 
 ### Tooling & Dependencies
 
@@ -118,12 +118,12 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
-| A48 | `new Date()`, `Date.parse`, `Date.now` als fachliche oder technische Zeitquelle; `moment.js`, `date-fns`, `luxon` | `Temporal` | HARD BAN. Temporal ist verbindlich. `Date` ist im Projekt nicht zulässig. |
+| A48 | `new Date()`, `Date.parse`, `Date.now` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/`, `scripts/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
 
 ### Color, CSS, Struktur
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- | :--- |
 | A16–A20 | FALLBACK-Politik | Farbe **oberhalb** der benötigten Kettenstufe ohne Vorteil erzwingen oder die Kette ignorieren | C1: OKLCH → Lab/LCH → HSL → RGB → HEX → Named | OKLCH bleibt Standard #1; Hex/RGB/HSL/Named sind nicht kategorisch verboten |
 | A21 | HARD BAN | CSS-Preprozessoren | natives Nesting + Custom Properties | kein Build |
 | A22 | HARD BAN | CSS-in-JS | Stylesheets | JS-Overhead, `file://` |
@@ -141,7 +141,7 @@ Soweit nicht anders markiert: HARD BAN.
 ### Storage & Netz
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- | :--- |
 | A34 | HARD BAN in diesem Produkt | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Entscheidung für `file://`, kein generelles Verdikt über IndexedDB |
 | A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | unzuverlässig unter `file://` im Zielkontext |
 | A36 | HARD BAN in diesem Produkt | File System Access API als Pflicht-Speicher | `localStorage` | braucht sicheren Kontext |
@@ -151,7 +151,7 @@ Soweit nicht anders markiert: HARD BAN.
 ### Icons & Fonts
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- | :--- |
 | A39 | HARD BAN | Icon-CDNs | Inline-SVG | Offline / DSGVO |
 | A40 | HARD BAN | Icon-Fonts | Inline-SVG | unnötige Last |
 | A41 | HARD BAN | Google Fonts / Font-Dienste | Systemfonts + optionale lokale WOFF2 | Offline / DSGVO |

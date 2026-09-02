@@ -4,7 +4,7 @@ title: 'DIN-BriefNEO — OmniTraceability Hub'
 type: meta
 status: active
 created: '2026-07-03'
-updated: '2026-08-07'
+updated: '2026-09-02'
 tags:
   - din-briefneo
   - status/active
@@ -13,6 +13,7 @@ doc_links:
   - OmniTraceability
   - Function-Traceability
   - spec
+  - constitution
 error_patterns:
   - hub
   - navigation
@@ -24,32 +25,36 @@ depends_on: []
 code_links: []
 ---
 
-# 🚀 DIN-BriefNEO: OmniTraceability Hub
+# DIN-BriefNEO: OmniTraceability Hub
 
-Willkommen in der Single Source of Truth (SSoT) des DIN-BriefNEO Projekts. 
-Dieses Wiki dient als maschinenlesbarer Navigator durch die Architektur, Spezifikationen und Entscheidungen des Projekts. Es ist das Fundament für unsere kompromisslose Traceability und die Schnittstelle zwischen Mensch (Obsidian) und Maschine (LLM & SQLite).
+Navigator durch Architektur, Spezifikationen und Entscheidungen.
 
-## 🧭 Kernnavigation
+Foundation-Hierarchie: [[constitution]] → [[Immutable-Law-Catalog]] → [[spec]] → [[longevity-guidelines]]. Workflow ist Prozess, nicht Gesetz.
+
+Die Spec ist Anforderung, nicht Geometrie-SSoT. Millimeter stehen im HTML.
+
+## Kernnavigation
 
 ### Das Fundament
 
-- **[[OmniTraceability]]**: Die Systemarchitektur der lückenlosen Nachverfolgbarkeit. Hier erfährst du, wie der Lebenszyklus unserer Software funktioniert und wie du das System langfristig wartest.
-
-- **[[Function-Traceability]]**: Das automatisierte Code-zu-Dokumentation Mapping. Die Matrix, die unsere Code-Base zusammenhält.
+- **[[constitution]]**: Prinzipien.
+- **[[Immutable-Law-Catalog]]**: Verbote und Plattformprinzipien.
+- **[[spec]]**: Baseline-Verhalten.
+- **[[OmniTraceability]]**: Nachverfolgbarkeit.
+- **[[Function-Traceability]]**: Code-zu-Dokumentation.
 
 ### Die Umsetzung
 
-- **[[Architecture-Compliance-Matrix]]**: Alle verbindlichen Architektur-Regeln. Das "Warum".
-
-- **[[GUIDE-TEMPLATE]]**: Technische Leitfäden zur Umsetzung (z.B. CSS, Geometry). Das "Wie".
-
-- **[[spec]]**: Die unumstößlichen funktionalen und fachlichen Anforderungen an die DIN 5008. Das "Was".
+- **[[Architecture-Compliance-Matrix]]**: Architektur-Regeln.
+- **[[IMR-Registry]]**: 45er fachliches Vokabular (Architecture, nicht Foundation).
+- **[[GUIDE-TEMPLATE]]**: Leitfäden.
 
 ---
 
-## 🧠 Für KI-Agenten (System-Prompt)
+## Für KI-Agenten
 
-> [!TIP]
-> Dieses System nutzt bidirektionale Traceability. Es ist dir als KI-Agent **strikt untersagt**, Feature-Branches zu erstellen. Wir arbeiten **branchless auf `main`**.
-> 
-> Wenn du Code-Dateien in `website/` modifizierst, konsultiere **zwingend** die in der Datei verlinkten ADRs und Guides über die `[[Wikilinks]]` in den Header-Kommentaren. Das Frontmatter dieses Wikis wird nächtlich in eine SQLite-Vektordatenbank kompiliert und muss streng formatiert bleiben. Niemals das Frontmatter-Schema verändern!
+Feature-Branches sind untersagt. Arbeit auf `main`.
+
+Agenten **referenzieren** Foundation-Dokumente; sie spiegeln sie nicht.
+
+Wenn Dateien in `website/` geändert werden, gelten die in den Dateien verlinkten ADRs und Guides. Instantiierte Registry-Atome werden als `<din-…>` geführt, ohne `customElements.define()`.

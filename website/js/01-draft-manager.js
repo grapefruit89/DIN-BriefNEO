@@ -42,7 +42,7 @@ export class DraftManager {
     const draft = {};
 
     document.querySelectorAll('[contenteditable]').forEach(elem => {
-      if (!elem.id) return;
+      if (!elem.id || elem.id === 'datum') return;
       if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {
         draft[elem.id] = elem.innerHTML;
       } else {
@@ -63,7 +63,7 @@ export class DraftManager {
     let caretInfo = null;
 
     const activeElem = document.activeElement;
-    if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id) {
+    if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id && activeElem.id !== 'datum') {
       caretInfo = { id: activeElem.id, offset: this.#getCaretCharacterOffsetWithin(activeElem) };
     }
 
@@ -98,6 +98,7 @@ export class DraftManager {
   #restoreState(draft) {
     this.#isRestoring = true;
     Object.keys(draft).forEach(id => {
+      if (id === 'datum') return;
       const elem = document.getElementById(id);
       if (!elem) return;
 
@@ -245,6 +246,7 @@ export class DraftManager {
 
   resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(el => {
+      if (el.id === 'datum') return;
       el.replaceChildren();
       el.textContent = '';
     });

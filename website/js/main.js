@@ -22,8 +22,15 @@ import { TextFitEngine } from './48-text-fit.js';
 function syncPostvermerkFromSidebar() {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
   const field = document.getElementById('postvermerk');
-  if (!sel || !field || !sel.value) return;
-  field.textContent = sel.value;
+  const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-postvermerk'));
+  if (!sel || !field) return;
+  if (sel.value) {
+    field.textContent = sel.value;
+    if (toggle) toggle.checked = true;
+  } else {
+    field.textContent = '';
+    if (toggle) toggle.checked = false;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -119,5 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
         draftManager.scheduleAutoSave();
       });
     });
+    const btnAnlagen = document.getElementById('btn-anlagen-toggle');
+    if (btnAnlagen) {
+      btnAnlagen.addEventListener('click', () => {
+        const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+        const pressed = btnAnlagen.getAttribute('aria-pressed') === 'true';
+        btnAnlagen.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+        if (toggle) toggle.checked = !pressed;
+        draftManager.scheduleAutoSave();
+      });
+    }
   }
 });

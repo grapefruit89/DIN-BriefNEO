@@ -27,7 +27,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
   /** @type {AbortController | null} */
   let activeAbortController = null;
-  /** @type {number | null} */`n  let debounceSearchTimeout = null;
+  /** @type {number | null} */
+  let debounceSearchTimeout = null;
   /** @type {any} */
   let keyDebounceTimeout = null;
 
@@ -68,9 +69,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   async function validateKeyWithHeartbeat(key) {
     if (typeof window !== 'undefined' && window.location.protocol === 'file:') return;
     try {
-      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`); //
-        
-      });
+      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`);
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
         if (onToast) onToast("🔑 Geoapify Key gültig!", "success");
@@ -184,9 +183,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       coords = savedCoords ? JSON.parse(savedCoords) : null;
     } catch (e) {}
 
-    let url = https://api.geoapify.com/v1/geocode/autocomplete?text=&apiKey=&lang=de&limit=5;
+    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${key}&lang=de&limit=5&format=json&filter=countrycode:de`;
     if (coords && coords.lat && coords.lon) {
-      url += &bias=proximity:,;
+      url += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
 
     try {
@@ -195,14 +194,13 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       const data = await response.json();
 
       /** @type {AddressEntry[]} */
-      const parsedSuggestions = (data.features || []).map((/** @type {any} */ f) => {
-        const p = f.properties;
+      const parsedSuggestions = (data.results || []).map((/** @type {any} */ p) => {
         return {
           street: p.street || "",
           housenumber: p.housenumber || "",
           postcode: p.postcode || "",
           city: p.city || "",
-          formatted: [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(", "),
+          formatted: p.formatted || [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(", "),
           source: 'geoapify'
         };
       }).filter((/** @type {AddressEntry} */ s) => s.street && s.city);
@@ -336,26 +334,29 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     });
   }
 
-  // Zippopotam für Absender PLZ -> speichert Lat/Lon für Geoapify Proximity Bias
+  // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias (kein zweiter Host nötig)
   const absenderPlzOrtEl = document.getElementById('info-city') || document.getElementById('absender');
   if (absenderPlzOrtEl) {
-    /** @type {number | null} */`n    let absenderTimeout = null;
+    /** @type {number | null} */
+    let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
       if (window.location.protocol === 'file:' || !navigator.onLine) return;
       clearTimeout(absenderTimeout);
       absenderTimeout = setTimeout(() => {
+        const key = StorageManager.loadGeoapifyKey();
+        if (!key) return;
         const text = absenderPlzOrtEl.textContent ? absenderPlzOrtEl.textContent.trim() : '';
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];
-          fetch(`https://api.zippopotam.us/de/${plz}`)
+          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${plz}&type=postcode&filter=countrycode:de&format=json&apiKey=${key}&limit=1`)
             .then(r => r.json())
             .then(data => {
-              if (data && data.places && data.places.length > 0) {
-                const place = data.places[0];
-                const lat = place.latitude;
-                const lon = place.longitude;
-                localStorage.setItem('din_sender_coords', JSON.stringify({ lat, lon }));
+              if (data && data.results && data.results.length > 0) {
+                const result = data.results[0];
+                if (result.lat && result.lon) {
+                  localStorage.setItem('din_sender_coords', JSON.stringify({ lat: result.lat, lon: result.lon }));
+                }
               }
             }).catch(() => {});
         }

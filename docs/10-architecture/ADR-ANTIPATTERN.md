@@ -4,19 +4,19 @@ title: 'ADR-ANTIPATTERN: Forbidden Practices & Antipatterns'
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-02'
 tags:
   - din-briefneo
   - din-briefneo/architecture
   - status/active
   - type/adr
 doc_links:
+  - Immutable-Law-Catalog
+  - longevity-guidelines
   - ADR-HTML
   - ADR-CSS
   - ADR-JS
   - ADR-API
-  - longevity-guidelines
-  - Immutable-Law-Catalog
 code_links: []
 error_patterns:
   - antipattern
@@ -39,119 +39,107 @@ depends_on: []
 
 Akzeptiert
 
+## Rolle
+
+Die **Klassifikation** (HARD BAN / PREFERRED / FALLBACK) steht im [[Immutable-Law-Catalog]].
+
+Dieses ADR begründet die gewählten Verbote und Alternativen. Es ist keine zweite Verfassung und führt keine eigene Browser-Baseline.
+
+Baseline: ausschließlich [[longevity-guidelines]] — **Chrome 148+**.
+
 ## Kontext & Problemstellung
 
 > [!info] Hintergrund
-> Um die Langlebigkeit, Wartungsfreiheit, extreme Performance und uneingeschränkte Offline-Lauffähigkeit von **DIN-BriefNEO** zu sichern, müssen bestimmte, im modernen Web oft übliche Praktiken strikt verboten werden. Dieses Dokument dient als unnachgiebige "Verfassung" zur Einhaltung der Projekt-Bedingungen.
+> Um Offline-`file://`-Betrieb, Zero Runtime-Dependencies und eine moderne Chrome-148+-Plattform zu halten, sind bestimmte übliche Web-Praktiken ausgeschlossen. Neue Verbote entstehen nur über das Amendment-Protokoll des Catalogs.
 
 ---
 
-## Verbotene Praktiken (Antipatterns)
+## Entschiedene Praktiken
 
-### 0. Chrome 149+ Baseline & Keine Legacy-Fallbacks (Striktes Verbot)
+Die Stufen unten folgen dem Catalog. Inhaltlich bleiben die bisherigen zwölf Themen erhalten.
 
-*   **Ausnahme-Verbot für setHTMLUnsafe():** Die Methode `setHTMLUnsafe()` ist als Standard verboten und darf nur verwendet werden, wenn bewusst unsicheres/ungefiltertes HTML benötigt wird. Andernfalls ist zwingend `setHTML()` (die Native W3C Sanitizer API) oder `textContent` (für Plain-Text) zu nutzen.
+### 0. Sanitizer statt `setHTMLUnsafe()` als Default
 
-### 1. Verwendung von Frameworks & Build-Tools (Striktes Verbot)
+*   **Catalog:** PREFERRED `setHTML()` / `textContent`; `setHTMLUnsafe()` nur bei bewusst ungefiltertem HTML.
+*   **Begründung:** Ungefiltertes HTML ist der XSS-Pfad. Die native Sanitizer API ist auf der Baseline verfügbar.
+*   **Keine eigene Versionszahl** in diesem ADR.
 
-*   **Begründung:** Frameworks führen zu massiver Komplexität, Abhängigkeiten und erfordern Build-Systeme (Vite, Webpack). Die Applikation MUSS reines Vanilla HTML5, Vanilla CSS3 und reines Vanilla JS ES-Modules verwenden, damit sie für den Endanwender für Jahrzehnte wartungsfrei bleibt.
+### 1. Frameworks & Build-Tools — HARD BAN
 
-### 2. Externe CDNs & Google Web Fonts (Striktes Verbot)
+*   **Begründung:** Frameworks erzeugen Abhängigkeiten und Build-Systeme. Das Produkt bleibt Vanilla HTML, CSS und JS-ESM, damit `index.html` per Doppelklick startet.
 
-Es dürfen **keinerlei** externen Scripts, Stylesheets oder Webfonts über CDNs oder externe Server geladen werden (z. B. Google Fonts).
+### 2. Externe CDNs & Google Web Fonts — HARD BAN
 
-*   **Begründung:** Verstößt gegen die DSGVO (IP-Abfluss) und zerstört die Offline-Lauffähigkeit der App. Alle Assets müssen zu 100 % lokal abgelegt und offline verfügbar sein.
+Es dürfen **keinerlei** externe Scripts, Stylesheets oder Webfonts über CDNs geladen werden.
 
-*   **Verweis:** Siehe [[ADR-CSS|ADR-CSS.md]] zur Typografie und [[ADR-FEATURE|ADR-FEATURE.md]] zum Schriftarten-Manager.
+*   **Begründung:** DSGVO (IP-Abfluss) und Offline-Bruch. Assets lokal.
+*   **Verweis:** [[ADR-CSS]], [[ADR-FEATURE]] zum Schriftarten-Manager. Catalog A38, A41.
 
-### 3. Komplexere lokale Storage-APIs (OPFS, IndexedDB, File System API)
+### 3. IndexedDB, OPFS, File System Access als Produktspeicher — HARD BAN in diesem Produkt
 
-Die Verwendung von IndexedDB, Origin Private File System (OPFS), File System Access API oder der Storage-API im weiteren Sinne ist untersagt.
+*   **Begründung:** Unter `file://` werfen diese APIs Sicherheits-Exceptions.
+*   **Entscheidung:** `localStorage` ist der Produktspeicher (Catalog S1, A34–A36). Das ist keine Aussage über den Wert dieser APIs außerhalb dieses Produkts.
 
-*   **Begründung:** Diese APIs erfordern zwingend einen sicheren Kontext (HTTPS oder `localhost`). Wird die `index.html` als lokale Datei per Doppelklick geöffnet (`file:///`), werfen diese APIs im Browser Sicherheits-Exceptions und blockieren den Ladezyklus.
+### 4. `document.execCommand` — HARD BAN
 
-*   **Entscheidung:** **LocalStorage** ist die einzige persistente Speicher-API, die unter `file://` garantiert stabil und ausnahmslos in Chrome 148+ funktioniert.
+*   **Begründung:** Deprecated. Toolbar und Edit nutzen Selection & Range bzw. native Shortcuts.
+*   **Verweis:** [[ADR-JS]].
 
-### 4. Veraltetes document.execCommand (Striktes Verbot)
+### 5. Unkontrollierte Viewport-Scrollbalken — HARD BAN
 
-Die Nutzung von `document.execCommand` für selbstentwickelte Editorelemente (wie Zitate) ist untersagt.
+*   **Begründung:** Der Viewport ist die Brief-Arbeitsfläche (Catalog A43). Internes Scrollen in abgegrenzter UI bleibt zulässig.
+*   **Verweis:** [[ADR-CSS]].
 
-*   **Begründung:** Die API ist *deprecated* (veraltet) und wird in modernen Browser-Engines schrittweise entfernt. Für die Toolbar-Formatierung nutzen wir ausschließlich native Browser-Shortcuts oder die zukunftssichere Selection & Range API.
+### 6. Legacy-Datums-APIs — HARD BAN
 
-*   **Verweis:** Siehe [[ADR-JS|ADR-JS.md]] zur DOM-Baum-Durchquerung.
+`new Date()`, `Date.parse`, `Date.now` als Zeitquelle sowie `moment.js`, `date-fns`, `luxon` sind im Projekt nicht zulässig.
 
-### 5. Scrollbalken im Viewport (Striktes Verbot)
+*   **Begründung:** Temporal ist die verbindliche Datums-/Zeitabstraktion des Projekts. `Date` wird nicht verwendet. Externe Date-Libraries verletzen Zero-Dependency.
+*   **Catalog:** TM1, A48.
 
-Die Sichtbarkeit von Scrollbalken im normalen Anwendungsfenster (ausgenommen bewusster Browser-Zoom des Nutzers) ist verboten.
+### 7. Farbe — PREFERRED / FALLBACK, kein Hex-Verbot
 
-*   **Begründung:** Stört die Ästhetik des Premium-Designs und beeinträchtigt das WYSIWYG-Konzept des Briefbogens.
+Verbindliche Kette (Catalog C1, A16–A20):
 
-*   **Verweis:** Siehe [[ADR-CSS|ADR-CSS.md]] zur Viewport-Sperre.
+**OKLCH → Lab/LCH → HSL → RGB → HEX → Named**
 
-### 6. Verwendung von Legacy-Datums-APIs (new Date(), moment.js, date-fns) (Striktes Verbot)
+*   OKLCH bleibt Stufe 1 (wahrnehmungsnah, Relative Color).
+*   Eine niedrigere Stufe nur, wenn die höhere für den Fall keinen sinnvollen Vorteil bietet oder ungeeignet ist.
+*   `#fff` und vergleichbare Tokens sind damit kein Gesetzesbruch.
 
-Die Verwendung des klassischen JavaScript `Date`-Objekts (`new Date()`) sowie externer Datumsbibliotheken wie `moment.js`, `date-fns` oder `luxon` ist strikt untersagt.
+### 8. CSS-Präprozessoren und CSS-in-JS — HARD BAN
 
-*   **Begründung:** Das klassische `Date`-Objekt gilt in W3C-Standardisierungskreisen als historisch fehlkonstruiert (Veränderbarkeit / Mutability, unzuverlässige Zeitzonenberechnungen, 0-basierte Monatsindizes, fehleranfällige Schaltjahrlogik). Moment.js und Co. blähen die Codebasis auf und verletzen den Zero-Dependency-Pakt.
+*   **Begründung:** Nesting und Custom Properties sind nativ. Präprozessoren brauchen einen Build; CSS-in-JS erzeugt Laufzeitkosten. Catalog A21, A22.
 
-*   **Entscheidung:** Die zukunftsweisende W3C **Temporal API** (`globalThis.Temporal`) ist die exklusive Datums-Engine der Anwendung. Sie ist vollkommen fehlerfrei, immutable, unterstützt Zeitzonen und deutsche Kalenderformate nativ und läuft vollständig offline ohne eine einzige Library.
+### 9. Icon-CDNs und Icon-Fonts — HARD BAN
 
-### 7. Verwendung von Nicht-OKLCH Farbräumen (HEX, RGB, RGBA, HSL, HSLA, Named Colors) (Striktes Verbot)
+*   **Begründung:** DSGVO und Offline. Ersatz: Inline-SVG oder lokale SVG-Dateien. Catalog A39, A40.
 
-Die Verwendung jeglicher klassischer Farbräume wie HEX-Codes (`#HEX`), RGB/RGBA, HSL/HSLA oder Named CSS Colors (`white`, `black`, `red`, `gray` etc.) in Stylesheets oder inline-Styles ist strikt untersagt.
+### 10. Lodash/Underscore und Produkt-Transpiler (TypeScript, Babel) — HARD BAN
 
-*   **Begründung:** Der moderne OKLCH-Farbraum ist wahrnehmungslinear (perceptually uniform) und ermöglicht im Gegensatz zu klassischen Modellen mathematisch exakte Helligkeits-, Sättigungs- und Kontrastberechnungen (wichtig für harmonische Relative Color Syntax Formeln). HEX und Co. verhalten sich bei Skalierungen unvorhersehbar und verhindern ein mathematisch konsistentes Themes-Design.
+*   **Begründung:** ES-Module und native Array-/Objektmethoden reichen. Ein Pflicht-Compile-Schritt zerstört den Doppelklick-Start.
 
-*   **Entscheidung:** Sämtliche Farbdeklarationen dürfen **ausschließlich** im `oklch()` Format deklariert werden. Die einzige Ausnahme bildet das pure CSS-Schlüsselwort `transparent` (welches bevorzugt durch `oklch(0% 0 0 / 0%)` ersetzt wird).
+### 11. JS-Animationsbibliotheken (GSAP, Anime.js) — HARD BAN
 
-### 8. Verwendung von CSS-Präprozessoren (Sass, Less) oder CSS-in-JS (Striktes Verbot)
+*   **Begründung:** Animation über CSS Transitions, `@starting-style`, `@keyframes` und View Transitions auf dem Compositor.
 
-Die Verwendung von Sass, Less, Stylus oder JavaScript-basierten Stylesystemen (z. B. Styled Components, Emotion) ist verboten.
+### 12. Inline-CSS für Layout, Farbe, Position — HARD BAN
 
-*   **Begründung:** CSS Nesting und CSS Custom Properties sind mittlerweile native W3C Living Standards und werden vollumfänglich von der Browser-Engine unterstützt. Präprozessoren erfordern Build-Systeme, und CSS-in-JS erzeugt massiven JS-Laufzeit-Overhead, was unsere Säulen der Einfachheit und Wartungsfreiheit verletzt.
-
-### 9. Externe Icon-CDNs (FontAwesome, Lucide) oder massive Webfonts-Icons (Striktes Verbot)
-
-Die Einbindung von Icon-Fonts (z. B. Material Icons) oder externen Scripts/Stylesheets von Icon-Providern ist strikt untersagt.
-
-*   **Begründung:** Verletzt das DSGVO-Datenschutzprinzip (IP-Abfluss an externe Server) und bricht die Offline-Lauffähigkeit. Icon-Schriften laden oft Hunderte ungenutzte Grafiken und blähen die Ladezeit auf. Icons müssen stattdessen sauber als Inline-SVGs oder hochkomprimierte lokale SVG-Einzeldateien realisiert werden.
-
-### 10. Schwere JS-Hilfsbibliotheken (Lodash, Underscore) & JS-Transpiler (TypeScript, Babel) (Striktes Verbot)
-
-Die Einbindung externer JS-Utility-Suites oder das Erzwingen von TypeScript-Kompilierungsschleifen für den Web-Code ist verboten.
-
-*   **Begründung:** Vanilla ES6+ verfügt über hervorragende native Methoden (`map`, `filter`, `reduce`, `find` etc.), die Bibliotheken wie Lodash komplett obsolet machen. TypeScript-Kompilierer zerstören den unmittelbaren "Doppelklick-Start" der unveränderten lokalen Quelldateien. Wir schreiben reines Vanilla JS ES-Modules.
-
-### 11. JS-gestützte Animationsbibliotheken (GSAP, Anime.js) (Striktes Verbot)
-
-Die Verwendung von Animationsbibliotheken (GSAP, Anime.js, jQuery animate) ist untersagt.
-
-*   **Begründung:** JS-gesteuerte Animationen belasten den Haupt-Thread des Browsers. CSS Transitions, `@starting-style`, `@keyframes` und die native View Transitions API laufen hochoptimiert und hardwarebeschleunigt asynchron auf dem Compositor Thread (Grafikkarte), was flüssige 120Hz-Animationen garantiert.
-
-### 12. Inline-CSS-Styles für Layout, Farben und Positionen (Striktes Verbot)
-
-Die Verwendung von inline `style="..."` Attributen für strukturelle oder gestalterische Zwecke (ausgenommen Koordinaten-Offsets bei Selektionen) ist verboten.
-
-*   **Begründung:** Inline-Styles hebeln die `@scope (din-a4)` Geometrie-Kapselung aus und stören die Wiederverwendbarkeit von CSS OKLCH design tokens. Alle visuellen Anweisungen müssen strikt in den entsprechenden Stylesheets deklariert werden.
+*   **Begründung:** Hebelt Stylesheets und Token aus. Ausnahme bleibt kurzlebige Selektions-Koordinaten (Catalog A25).
 
 ---
 
 ## Konsequenzen
 
-*   Jede Code-Änderung, die gegen eines dieser zwölf Antipatterns verstößt, wird im Code-Review sofort verworfen.
-
-*   Die Lauffähigkeit unter `file:///index.html` ist die oberste QA-Voraussetzung.
-
----
+*   Verstöße gegen Catalog-HARD-BANs werden im Review zurückgewiesen.
+*   Lauffähigkeit unter `file:///index.html` bleibt QA-Voraussetzung.
+*   Baseline-Änderungen nur über Longevity plus ADR, nicht in diesem Dokument.
 
 ## Verknüpfungen
 
-*   Siehe [[ADR-HTML|ADR-HTML.md]] zu `contenteditable` und Popover.
-
-*   Siehe [[ADR-CSS|ADR-CSS.md]] zum reinen CSS-Zoom.
-
-*   Siehe [[ADR-JS|ADR-JS.md]] zur JavaScript-Reglementierung.
-
-*   Siehe [[ADR-API|ADR-API.md]] zur Header-Sicherheit.
-
-*   Siehe [[longevity-guidelines|longevity-guidelines.md]] für die übergeordnete W3C-Verfassung zur Wartungsfreiheit.
+*   [[Immutable-Law-Catalog]] — Stufen und Verbote
+*   [[longevity-guidelines]] — Chrome 148+
+*   [[ADR-HTML]] — `contenteditable`, Popover
+*   [[ADR-CSS]] — Viewport, Typografie
+*   [[ADR-JS]] — DOM, Selection
+*   [[ADR-API]] — Header-Sicherheit

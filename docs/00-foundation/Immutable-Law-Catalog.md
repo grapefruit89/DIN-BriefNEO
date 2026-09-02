@@ -34,96 +34,127 @@ depends_on: []
 
 Dieses Dokument ist die autoritative Quelle für Verbote und Plattformprinzipien. Es wird **referenziert**, nicht an fünfzehn Stellen kopiert. Es enthält nicht die 45 Atomnamen und nicht die DIN-Millimeter.
 
-Die Browser-Baseline steht nur in [[longevity-guidelines]].
+Die Browser-Baseline steht nur in [[longevity-guidelines]]: **Chrome 148+**.
+
+------
+
+## Klassifikation
+
+| Stufe | Bedeutung |
+| :--- | :--- |
+| HARD BAN | Darf nicht eingeführt oder weiterverwendet werden. |
+| PREFERRED | Verbindlich bevorzugte moderne Lösung. |
+| FALLBACK | Zulässig, wenn Preferred für den konkreten Fall keinen Vorteil hat oder ungeeignet ist. |
+| INFO | Begründung oder Verweis, keine eigene Norm. |
+
+Plattform-APIs in den MUST-USE-Tabellen sind PREFERRED native Lösungen. Eine neuere, stabile native Alternative darf sie nach Longevity-Check ersetzen. Das ist kein Gesetzesbruch.
 
 ------
 
 ## PART I — MUST-USE PRINCIPLES
 
-Plattform-APIs in den Tabellen sind die **bevorzugte native Lösung**. Eine neuere, stabile native Alternative darf sie nach Longevity-Check ersetzen. Das ist kein Gesetzesbruch.
-
 ### HTML Layer
 
-| # | MUST-USE | Zweck |
-| :--- | :--- | :--- |
-| H1 | Semantische `<din-…>`-Tags für **instantierte** Atome der 45er Registry. Zonen sind Container, keine Atome. `customElements.define()` ist dafür nicht erforderlich. Implementierungs-Wrapper ohne Fachbedeutung sind verboten. Die Atomliste steht in der Architecture-Registry. | Eine Semantik, keine 15er Pflichtliste, keine 45 JS-Klassen |
-| H2 | Native Popover API wo Overlay/Toolbar/Toast gebraucht wird | Browser-Top-Layer statt z-index-JS |
-| H3 | `contenteditable="plaintext-only"` für Metadatenfelder | XSS- und Struktur-Schutz |
-| H4 | `contenteditable="true"` nur im Briefkern | kontrollierte Inline-Formatierung |
-| H5 | Invoker Commands (`commandfor`, `command`) wo nativ tragfähig | weniger Listener |
-| H6 | `<dialog>` für destruktive/modale Aktionen | Fokusfalle, Semantik |
-| H7 | `<script type="module">` | kein Bundler |
-| H8 | Kein Inline-JS außer anti-FOUC / Hydration | Trennung der Schichten |
-| H9 | Eindeutige `id`-Attribute | definiertes Targeting |
-| H10 | ARIA nur wo native Semantik nicht reicht | Zugänglichkeit |
+| # | Stufe | MUST-USE | Zweck |
+| :--- | :--- | :--- | :--- |
+| H1 | HARD BAN Gegenteil | Semantische `<din-…>`-Tags für **instantierte** Atome der 45er Registry. Zonen sind Container, keine Atome. `customElements.define()` ist dafür nicht erforderlich. Implementierungs-Wrapper ohne Fachbedeutung sind verboten. Die Atomliste steht in der Architecture-Registry. | Eine Semantik, keine 15er Pflichtliste, keine 45 JS-Klassen |
+| H2 | PREFERRED | Native Popover API wo Overlay/Toolbar/Toast gebraucht wird | Browser-Top-Layer statt z-index-JS |
+| H3 | HARD BAN Gegenteil | `contenteditable="plaintext-only"` für Metadatenfelder | XSS- und Struktur-Schutz |
+| H4 | PREFERRED | `contenteditable="true"` nur im Briefkern | kontrollierte Inline-Formatierung |
+| H5 | PREFERRED | Invoker Commands (`commandfor`, `command`) wo nativ tragfähig | weniger Listener |
+| H6 | PREFERRED | `<dialog>` für destruktive/modale Aktionen | Fokusfalle, Semantik |
+| H7 | HARD BAN Gegenteil | `<script type="module">` | kein Bundler |
+| H8 | HARD BAN Gegenteil | Kein Inline-JS außer anti-FOUC / Hydration | Trennung der Schichten |
+| H9 | HARD BAN Gegenteil | Eindeutige `id`-Attribute | definiertes Targeting |
+| H10 | PREFERRED | ARIA nur wo native Semantik nicht reicht | Zugänglichkeit |
 
 Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu führen. Die Baseline steht in den Longevity-Guidelines.
 
 ### Storage & Persistence Layer
 
-| # | MUST-USE | Zweck |
-| :--- | :--- | :--- |
-| S1 | `localStorage` für Produktdaten | Offline / `file://`. Andere Speicher-APIs sind nicht „unbrauchbar“, sondern für diesen Kontext nicht gewählt |
-| S2 | JSON für gespeicherte Strukturen | prüfbares Format |
-| S3 | Base64 nur für optionale lokale WOFF2-Schriften | kein Font-CDN |
+| # | Stufe | MUST-USE | Zweck |
+| :--- | :--- | :--- | :--- |
+| S1 | HARD BAN anderer Produktspeicher | `localStorage` für Produktdaten | Offline / `file://`. Andere Speicher-APIs sind nicht „unbrauchbar“, sondern für diesen Kontext nicht gewählt |
+| S2 | PREFERRED | JSON für gespeicherte Strukturen | prüfbares Format |
+| S3 | PREFERRED | Base64 nur für optionale lokale WOFF2-Schriften | kein Font-CDN |
+
+### Time
+
+| # | Stufe | MUST-USE | Zweck |
+| :--- | :--- | :--- | :--- |
+| TM1 | HARD BAN `Date` und Legacy-Date-Libraries | `Temporal` für sämtliche Datums-/Zeitoperationen | eine Abstraktion; `Date`, `moment.js`, `date-fns`, `luxon` sind im Projekt nicht zulässig |
 
 ### Tooling & Dependencies
 
-| # | MUST-USE | Zweck |
-| :--- | :--- | :--- |
-| T1 | Zero Runtime-Dependencies | Doppelklick auf die HTML-Datei |
-| T2 | Keine CDNs im Produkt | DSGVO, Offline |
-| T3 | System-Font-Stacks, optionale lokale WOFF2 | Offline-Typografie |
-| T4 | Inline-SVG für Icons | keine Icon-Fonts |
-| T5 | Node-Werkzeuge nur Entwicklung, nicht Auslieferung | Grenze Produkt / Tooling |
+| # | Stufe | MUST-USE | Zweck |
+| :--- | :--- | :--- | :--- |
+| T1 | HARD BAN Gegenteil | Zero Runtime-Dependencies | Doppelklick auf die HTML-Datei |
+| T2 | HARD BAN Gegenteil | Keine CDNs im Produkt | DSGVO, Offline |
+| T3 | PREFERRED | System-Font-Stacks, optionale lokale WOFF2 | Offline-Typografie |
+| T4 | PREFERRED | Inline-SVG für Icons | keine Icon-Fonts |
+| T5 | HARD BAN Gegenteil | Node-Werkzeuge nur Entwicklung, nicht Auslieferung | Grenze Produkt / Tooling |
+
+### Color
+
+| # | Stufe | Regel | Zweck |
+| :--- | :--- | :--- | :--- |
+| C1 | PREFERRED / FALLBACK | Farbkette **OKLCH → Lab/LCH → HSL → RGB → HEX → Named**. OKLCH ist Stufe 1. Eine niedrigere Stufe nur, wenn die höhere für den Fall keinen sinnvollen Vorteil bietet oder ungeeignet ist. | moderne Farbe ohne Verbot sinnvoller Tokens wie `#fff` |
 
 ### Documentation
 
-| # | MUST-USE | Zweck |
-| :--- | :--- | :--- |
-| D1 | Markdown + YAML-Frontmatter für Specs, ADRs, Guides | diff- und maschinenlesbar |
-| D2 | Agenten **referenzieren** Constitution, Catalog und Spec per ID | keine Volltext-Spiegelung |
-| D3 | Entwicklungs-Wissensbasis darf den Catalog **indexieren**, nicht als zweite Gesetzesschrift führen | eine SSoT |
+| # | Stufe | MUST-USE | Zweck |
+| :--- | :--- | :--- | :--- |
+| D1 | PREFERRED | Markdown + YAML-Frontmatter für Specs, ADRs, Guides | diff- und maschinenlesbar |
+| D2 | HARD BAN Gegenteil | Agenten **referenzieren** Constitution, Catalog und Spec per ID | keine Volltext-Spiegelung |
+| D3 | HARD BAN Gegenteil | Entwicklungs-Wissensbasis darf den Catalog **indexieren**, nicht als zweite Gesetzesschrift führen | eine SSoT |
 
 ------
 
 ## PART II — FORBIDDEN ANTIPATTERNS
 
-### Color, CSS, Struktur
+Soweit nicht anders markiert: HARD BAN.
+
+### Time
 
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
-| A16–A20 | Hex / rgb / hsl / Named Colors / `transparent` als Design-Tokens | `oklch()` bzw. `oklch(… / 0)` | einheitlicher Farbraum |
-| A21 | CSS-Preprozessoren | natives Nesting + Custom Properties | kein Build |
-| A22 | CSS-in-JS | Stylesheets | JS-Overhead, `file://` |
-| A23 | `@import` in CSS-Dateien | `<link>` | Ladeblockade |
-| A24 | `var()` ohne Fallback | `var(--prop, fallback)` | stilles Versagen |
-| A25 | Inline `style` für Farbe/Layout | CSS | Ausnahme: kurzlebige JS-Koordinaten für Selektionsanker |
-| A26 | `filter: invert(1)` für Dark Mode | `light-dark()` | zerstört Papierfarbe |
-| A42 | doppelte `id` | eindeutige `id` | undefiniertes DOM |
-| A43 | unkontrolliertes Dokument-/Seiten-Scrolling | `overflow` am Dokument begrenzen; internes Scrollen MAY in abgegrenzter UI | Viewport bleibt Brief-Arbeitsfläche |
-| A44 | generisches `div`/`span` **für ein instantiiertes Registry-Atom** | kanonisches `<din-…>` | Kompositionsflächen (gemeinsame Namenszeile) und reine UI dürfen generisch bleiben |
-| A45 | projektfremde Pfade/Kontexte in der App | hermetische Grenzen | Kontamination |
-| A46 | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite |
-| A47 | komplexe UI in `contenteditable="true"` | Geschwister außerhalb des Edit-Roots | Browser löscht Innenstruktur |
+| A48 | `new Date()`, `Date.parse`, `Date.now` als fachliche oder technische Zeitquelle; `moment.js`, `date-fns`, `luxon` | `Temporal` | HARD BAN. Temporal ist verbindlich. `Date` ist im Projekt nicht zulässig. |
+
+### Color, CSS, Struktur
+
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A16–A20 | FALLBACK-Politik | Farbe **oberhalb** der benötigten Kettenstufe ohne Vorteil erzwingen oder die Kette ignorieren | C1: OKLCH → Lab/LCH → HSL → RGB → HEX → Named | OKLCH bleibt Standard #1; Hex/RGB/HSL/Named sind nicht kategorisch verboten |
+| A21 | HARD BAN | CSS-Preprozessoren | natives Nesting + Custom Properties | kein Build |
+| A22 | HARD BAN | CSS-in-JS | Stylesheets | JS-Overhead, `file://` |
+| A23 | HARD BAN | `@import` in CSS-Dateien | `<link>` | Ladeblockade |
+| A24 | HARD BAN | `var()` ohne Fallback | `var(--prop, fallback)` | stilles Versagen |
+| A25 | HARD BAN | Inline `style` für Farbe/Layout | CSS | Ausnahme: kurzlebige JS-Koordinaten für Selektionsanker |
+| A26 | HARD BAN | `filter: invert(1)` für Dark Mode | `light-dark()` | zerstört Papierfarbe |
+| A42 | HARD BAN | doppelte `id` | eindeutige `id` | undefiniertes DOM |
+| A43 | HARD BAN | unkontrolliertes Dokument-/Seiten-Scrolling | `overflow` am Dokument begrenzen; internes Scrollen MAY in abgegrenzter UI | Viewport bleibt Brief-Arbeitsfläche |
+| A44 | HARD BAN | generisches `div`/`span` **für ein instantiiertes Registry-Atom** | kanonisches `<din-…>` | Kompositionsflächen (gemeinsame Namenszeile) und reine UI dürfen generisch bleiben |
+| A45 | HARD BAN | projektfremde Pfade/Kontexte in der App | hermetische Grenzen | Kontamination |
+| A46 | HARD BAN | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite |
+| A47 | HARD BAN | komplexe UI in `contenteditable="true"` | Geschwister außerhalb des Edit-Roots | Browser löscht Innenstruktur |
 
 ### Storage & Netz
 
-| # | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- |
-| A34 | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Entscheidung für `file://`, kein generelles Verdikt über IndexedDB |
-| A35 | OPFS als Produktspeicher | `localStorage` | unzuverlässig unter `file://` im Zielkontext |
-| A36 | File System Access API als Pflicht-Speicher | `localStorage` | braucht sicheren Kontext |
-| A37 | Service Worker unter `file://` | relative lokale Pfade | Registration scheitert unter `file://` |
-| A38 | externe CDNs | lokale Ressourcen | Offline / DSGVO |
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A34 | HARD BAN in diesem Produkt | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Entscheidung für `file://`, kein generelles Verdikt über IndexedDB |
+| A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | unzuverlässig unter `file://` im Zielkontext |
+| A36 | HARD BAN in diesem Produkt | File System Access API als Pflicht-Speicher | `localStorage` | braucht sicheren Kontext |
+| A37 | HARD BAN in diesem Produkt | Service Worker unter `file://` | relative lokale Pfade | Registration scheitert unter `file://` |
+| A38 | HARD BAN | externe CDNs | lokale Ressourcen | Offline / DSGVO |
 
 ### Icons & Fonts
 
-| # | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- |
-| A39 | Icon-CDNs | Inline-SVG | Offline / DSGVO |
-| A40 | Icon-Fonts | Inline-SVG | unnötige Last |
-| A41 | Google Fonts / Font-Dienste | Systemfonts + optionale lokale WOFF2 | Offline / DSGVO |
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A39 | HARD BAN | Icon-CDNs | Inline-SVG | Offline / DSGVO |
+| A40 | HARD BAN | Icon-Fonts | Inline-SVG | unnötige Last |
+| A41 | HARD BAN | Google Fonts / Font-Dienste | Systemfonts + optionale lokale WOFF2 | Offline / DSGVO |
 
 ------
 
@@ -150,7 +181,9 @@ Keine Änderung gilt, bevor 1–4 erledigt sind.
 
 ## PART V — ENFORCEMENT
 
-Code und Vorschläge, die ein ANTIPATTERN einführen, werden zurückgewiesen.
+Code und Vorschläge, die ein HARD BAN einführen, werden zurückgewiesen.
+PREFERRED darf nur zugunsten einer nach Longevity geprüften neueren nativen API weichen.
+FALLBACK darf die höhere Kettenstufe nicht ohne konkreten Grund unterlaufen.
 Agenten lesen dieses Dokument; sie kopieren es nicht in jedes Prompt.
 
 **Dieses Dokument gilt ab sofort und ersetzt frühere MUST-USE-Listen mit festen Custom-Element-Katalogen und das Redundant-Embedding-Mandat E1–E15.**

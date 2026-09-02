@@ -188,10 +188,10 @@
             data-fold-2-a="181"
             role="article"
             aria-label="DIN 5008 Brief">
-            <div class="din-mark din-fold-top"></div>
-            <div class="din-mark din-fold-bottom"></div>
-            <div class="din-mark din-punch"></div>
-            <din-absender id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-absender>
+            <din-falz-oben class="din-mark din-fold-top"></din-falz-oben>
+            <din-falz-unten class="din-mark din-fold-bottom"></din-falz-unten>
+            <din-lochmarke class="din-mark din-punch"></din-lochmarke>
+            <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
               <din-postvermerk id="postvermerk" aria-label="Postvermerk">
                 <select id="postvermerk-select" class="pv-select" data-persist aria-label="Postvermerk">
@@ -209,24 +209,24 @@
                   <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
                 </select>
               </din-postvermerk>
-              <div id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></div>
+              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
               <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
-              <div id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></div>
-              <div id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></div>
+              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
+              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen">
               <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Name"></div>
-              <div id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></div>
-              <div id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></div>
-              <div id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></div>
-              <div id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></div>
+              <din-absender-strasse id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
             <din-datum id="datum" class="single-line" contenteditable="plaintext-only" placeholder="24. Mai 2026" aria-label="Datum"></din-datum>
             <din-kern id="briefkern" aria-label="Briefinhalt">
-              <div id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></div>
-              <div id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></div>
+              <din-betreff id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
               <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
-              <div id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></div>
+              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="signature-wrapper">
                 <div id="signature-container" class="draggable-container">
                   <div class="sig-bounding-box" id="sig-bbox">
@@ -238,7 +238,7 @@
                     <img id="signature-image" alt="Unterschrift" draggable="false">
                   </div>
                 </div>
-                <div id="unterschrift" class="single-line" contenteditable="true" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></div>
+                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>

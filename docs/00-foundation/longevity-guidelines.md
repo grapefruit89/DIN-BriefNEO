@@ -4,7 +4,7 @@ title: 'Guide: Longevity & W3C Native Standards Guidelines'
 type: guide
 status: active
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-02'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -26,115 +26,74 @@ supersedes: []
 depends_on: []
 ---
 
-# Longevity & W3C Native Standards Guidelines (Longevity Guide)
+# Longevity & Native Standards Guidelines
 
-## 1. Die Philosophie der "Wartungsfreiheit auf Lebenszeit"
+## 1. Wartungsarme Lebensdauer
 
-> [!important] 10+ Jahre Wartungsfreiheit
-> Moderne Webentwicklung leidet unter massiver Kurzlebigkeit. Frameworks veralten in wenigen Jahren, Build-Tools brechen durch Node.js-Versionswechsel, und externe CDNs verschwinden oder ändern ihre Pfade. 
-> 
-> **DIN-BriefNEO** bricht radikal mit diesem Zyklus. Ziel ist eine **möglichst lange Lebensdauer ohne Wartungsaufwand** (im Idealfall viele Jahre). Der Briefbogen muss im Jahr 2036 in jedem gängigen Webbrowser exakt so geladen, gerendert und bedient werden können wie heute.
-> 
-> Dies erreichen wir nicht durch Verzicht auf moderne Features, sondern durch das unnachgiebige Vertrauen in **native, standardisierte W3C/WHATWG Browser-Schnittstellen**.
+Frameworks, Bundler und CDNs sind die häufigste Todesursache alter Webprojekte. DIN-BriefNEO setzt auf native HTML-, CSS- und JS-Schnittstellen und Zero Runtime-Dependencies, damit dieselbe Datei in Jahren noch öffnet.
 
-### 1.1. Sicherheit vor Kompatibilität (Chrome 149+ Baseline)
+Das ist ein Ziel, keine mythische „W3C-Garantie der Abwärtskompatibilität“. Living Standards können sich ändern. Deshalb gilt ein Entscheidungsmodell, nicht ein Ewigkeitsversprechen.
 
----
+### 1.1 Projekt-Baseline
 
-## 2. Die 5 Säulen der Langlebigkeit (Longevity Pillars)
+**Einzige projektweite Baseline: Chrome 148+.**
 
-### Säule 1: Der "Zero-Dependency" Pakt
+Andere Foundation-Dokumente nennen keine zweite Zahl. Eine Anhebung der Baseline ist eine Longevity-Entscheidung plus ADR, kein stilles Editieren verstreuter „149+“-Sätze.
 
-Es dürfen **keinerlei externe Bibliotheken** (weder npm-Packages noch Skripte über CDN) in das Projekt integriert werden.
+Entscheidungsmodell für Features:
 
-*   **Konkret:** DOM-Manipulation erfolgt über native Methoden (`querySelector`, `append`), Datumsformatierung über die native `Intl`-API und Netzwerkanfragen über `fetch`.
-
-### Säule 2: 100%ige Autarkie (Offline-by-Default)
-
-Die Anwendung muss vollständig autark funktionieren und lauffähig sein, wenn sie lokal als `file:///index.html` per Doppelklick geöffnet wird – selbst ohne Internetverbindung.
-
-*   **Warum?** Wenn die Anwendung externe Ressourcen (z. B. Google Fonts oder CDN-Skripte) lädt, bricht sie zusammen, sobald der Benutzer offline ist oder die Server der Drittanbieter nicht erreichbar sind. Zudem verstößt jeder ungefragte IP-Abfluss an Dritte gegen die DSGVO.
-
-*   **Konkret:** Alle Stylesheets, SVG-Bilder und Schriften werden lokal abgelegt oder im Bedarfsfall (Schriften-Manager) als Base64-Strings direkt im LocalStorage gesichert.
-
-### Säule 3: W3C / WHATWG "Living Standards" Vorrang
-
-Es werden ausschließlich Features genutzt, die im offiziellen HTML-, CSS- und JS-Standard als stabile "Living Standards" verankert sind und breite Browser-Unterstützung genießen.
-
-*   **Warum?** Experimentelle Browser-Features (z. B. Vendor-Präfixe wie `-webkit-` oder proprietäre APIs) können jederzeit entfernt werden. Standardisierte Schnittstellen sind durch die W3C-Garantie der Abwärtskompatibilität geschützt.
-
-*   **Konkret:** Wir nutzen die native **Popover API** für Toolbars und Toasts, **Container Queries** (`cqw`/`cqh`) für die proportionale Skalierung und die **Selection/Range-API** für Textformatierungen.
-
-### Säule 4: Build-Tool-Immunität (Kein Compiler)
-
-Die Anwendung nutzt **keinen** Compiler, keinen Bundler und kein Transpilier-Werkzeug (kein Webpack, kein Vite, kein Babel, kein Sass-Compiler). Wir akzeptieren nur dann einen Bundler, wenn er optional und ohne Breaking Changes bleibt.
-
-*   **Warum?** Build-Tools sind die häufigste Ursache, warum alte Webprojekte nach Jahren nicht mehr gebaut werden können. Node.js-Updates brechen alte Konfigurationen, Abhängigkeiten blockieren sich gegenseitig.
-
-*   **Konkret:** Das JavaScript ist reines, natives **ES-Modules (ESM)** mit expliziten Dateiendungen (z. B. `import { x } from './y.js'`). Der Browser selbst ist der Laufzeit-Compiler. Das CSS ist reines CSS3 mit nativen CSS-Variablen und CSS Nesting.
-
-### Säule 5: LocalStorage als einziger Datenspeicher
-
-Alle persistenten Daten (Entwürfe, Profilvorlagen, Schriften) werden ausschließlich im **LocalStorage** gesichert.
-
-*   **Warum?** Moderne APIs wie IndexedDB, OPFS (Origin Private File System) oder die File System Access API setzen aus Sicherheitsgründen einen sicheren Server-Kontext (HTTPS oder `localhost`) voraus. Im lokalen Kontext (`file:///`) werfen sie Sicherheitsfehler. LocalStorage ist seit Chrome 4 (2010) die stabilste, CORS-freie und universellste Speicher-API der Web-Geschichte.
+1. Standardstatus (Living Standard / REC / Draft)
+2. diese Baseline
+3. Feature-Reife
+4. Fallback-Politik (CSS-Fallback ja; JS-Polyfill für Layout nein)
 
 ---
 
-## 3. Richtlinien für zukunftssicheres Schreiben von Code
+## 2. Fünf Säulen
 
-### A. JavaScript: Deklarativ & Sicher vor "deprecation"
+### Säule 1: Zero Runtime-Dependency
 
-*   **Vermeide deprecated APIs:** Nutze niemals veraltete Methoden wie `document.execCommand` oder `document.queryCommandState` zur Textmanipulation. Nutze stattdessen die zukunftssichere **Selection & Range API**, um Textknoten im DOM-Baum sauber zu traversieren und zu verändern.
+Keine npm-Pakete und keine CDN-Skripte im Produkt. DOM nativ, Datum über `Intl`, Netz nur wo ein explizites optionales Feature es braucht (`fetch`).
 
-*   **Standard-Shortcuts respektieren:** Schreibe keine eigenen Keydown-Handler für Standard-Shortcuts wie `Strg+B` oder `Strg+U`. Überlasse diese dem Standardverhalten des Webbrowsers im `contenteditable`-Bereich.
+### Säule 2: Offline / `file://`
 
-*   **Explizite ESM-Importe:** Importiere Module immer mit ihrer vollständigen Dateiendung `.js`.
+Die Anwendung muss als lokale HTML-Datei funktionieren. Keine Pflicht auf HTTPS-only-APIs für Kernfunktionen.
 
-    ```javascript
-    // Richtig
-    import { StorageManager } from './storage.js';
-    
-    // Falsch
-    import { StorageManager } from './storage';
-    ```
+### Säule 3: Native Standards vor Experimenten
 
-### B. CSS: Proportional & Deklarativ statt JS-Berechnung
+Vendor-Präfixe und unstabile Experimente sind kein Fundament. Neue native APIs dürfen nach Abschnitt 1.1 nachziehen — genau deshalb ist der Law Catalog keine ewige API-Pflichtliste.
 
-*   **Layout über CSS, nicht JS:** Berechne Schriftgrößen oder Abstände niemals mit JavaScript `ResizeObserver`-Schleifen. Nutze stattdessen **CSS Container Queries** (`container-type: size` auf `<din-a4>`) und proportionale Einheiten (`cqw` und `cqh`).
+Konkret heute tragfähig: Popover, Container Queries für die Blatt-Skala, Selection/Range statt `execCommand`, Anchor Positioning ab der Baseline.
 
-*   **Keine JS-Farbinversionen:** Nutze für den Dark Mode niemals globale Filter (`filter: invert(1)`). Definiere stattdessen saubere, kontraststarke Farbvariablen über die native CSS-Funktion `light-dark()` mit standardisierten **OKLCH-Farbräumen**.
+### Säule 4: Kein Compiler für das Produkt
 
-*   **Natives CSS Nesting:** Nutze die moderne native CSS-Verschachtelung statt CSS-Preprozessoren (wie SCSS oder Less).
+Kein Webpack/Vite/Babel/Sass als Voraussetzung. ESM mit Dateiendung `.js`. CSS mit Nesting und Custom Properties.
 
-    ```css
-    /* Richtig & Nativ */
-    din-a4 {
-      background: white;
-      &.overflow-warn {
-        outline: 2px dashed red;
-      }
-    }
-    ```
+### Säule 5: localStorage als gewählter Speicher
+
+Produktdaten liegen in localStorage, weil das unter `file://` zuverlässig ist. Das disqualifiziert IndexedDB nicht weltweit; es ist hier nicht der Produktspeicher.
 
 ---
 
-## 4. Deprecated Web-APIs & ihre modernen, stabilen Alternativen (Chrome 148+ / W3C Living Standard)
+## 3. Schreibregeln
 
-Für Entwickler und KIs gilt diese Tabelle als striktes Verbot veralteter Techniken und als Richtlinie für deren modernen Ersatz:
+### JavaScript
 
-> [!TIP]
-> **Nutzung von CSS Anchor Positioning ab Chrome 148+:**
-> Da dieses Projekt exklusiv für moderne Laufzeitumgebungen ab Chrome 148+ entwickelt wird, nutzen wir das native **CSS Anchor Positioning** ohne Vorbehalte und ohne künstlichen JavaScript-Berechnungsoverhead! Dies vereinfacht die Positionierung von schwebenden Elementen (wie dem Format-Popover `#format-toolbar` oder Toasts) radikal, da sie rein deklarativ im CSS an ihren Anker gekoppelt werden. Ewiggestrige Browser-Engines ohne Support werden konsequent ignoriert (keine Rücksichtnahme für Plattformen, die hinterherhinken!).
+- Keine deprecated Editing-APIs (`execCommand`).
+- Keine eigenen Handler für Standard-Shortcuts im `contenteditable`, die der Browser schon liefert.
+- ESM-Importe mit `.js`.
+- Keine JS-Klasse und kein `customElements.define()`, nur weil ein `<din-…>`-Tag Semantik trägt.
+- Keine parallelen DIN-Millimeter in JS.
+
+### CSS
+
+- Layout und Blatt-Skala in CSS, nicht in `ResizeObserver`-Schleifen.
+- Kein `filter: invert(1)` für Themes.
+- `var(--x, fallback)`.
+- Geometrie aus HTML-`data-*` ableiten, nicht als zweite Wertetabelle führen.
 
 ---
 
-## 5. Konsequenz
+## 4. Review
 
-Jede Code-Modifikation wird im Code-Review unnachgiebig auf diese Richtlinien geprüft. Ein Feature, das eine externe Abhängigkeit einführt, die Offline-Kompatibilität beeinträchtigt oder auf nicht-standardisierten APIs aufbaut, wird bedingungslos abgelehnt. 
-
-**Wir bauen kein kurzlebiges MVP – wir bauen ein digitales Denkmal.**
-
-## 6. Regelmäßige Review
-
-Da Web-Standards stetig weiterentwickelt werden, empfehlen wir eine Überprüfung dieser Richtlinien in regelmäßigen Abständen (z. B. alle 2 Jahre), um neue, stabile W3C-Standards in das Projekt aufzunehmen.
+Diese Richtlinien alle zwei Jahre oder bei Baseline-Wechsel prüfen. Neue stabile native APIs dürfen bevorzugte MUST-USE-Einträge im Catalog ersetzen, sobald das Modell in 1.1 erfüllt ist.

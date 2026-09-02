@@ -1,40 +1,38 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "layer": "project",
+  "id_space": "JSON-IDs (P*) bleiben. Normative IDs nur in catalog_ref.",
   "description": "DIN-BriefNEO-only Sonden. Keine generische Boilerplate.",
   "rules": [
     {
       "id": "P1",
-      "catalog_ref": ["ADR-ANTIPATTERN §0"],
+      "catalog_ref": [],
       "class": "preferred",
       "severity": "high",
       "check": "regex",
       "category": "javascript",
-      "description": "setHTMLUnsafe() only when unfiltered HTML is an explicit requirement. Default: setHTML() or textContent.",
+      "description": "setHTMLUnsafe() only when unfiltered HTML is an explicit requirement. Default: setHTML() or textContent. No Catalog-A-ID.",
       "pattern": "setHTMLUnsafe",
-      "isRegex": false,
       "file_patterns": ["*.js"],
       "exemptions": [
         {
           "file": "website/js/main.js",
-          "reason": "Existing call sites pending review; not a blanket permit to add new uses.",
-          "reference": "ADR-ANTIPATTERN §0"
+          "reason": "Existing call sites pending review."
         },
         {
           "file": "website/js/healthcheck.js",
-          "reason": "Diagnostics may need raw markup; not a product-path default.",
-          "reference": "ADR-ANTIPATTERN §0"
+          "reason": "Diagnostics may need raw markup."
         }
       ]
     },
     {
       "id": "P2",
-      "catalog_ref": ["A38"],
+      "catalog_ref": ["A38", "T2"],
       "class": "info",
       "severity": "info",
       "check": "review",
       "category": "network",
-      "description": "CDN/asset loading is a Catalog HARD BAN (see base B5, W7). Optional product APIs are not CDNs. Current intended fetch hosts: photon.komoot.io, api.geoapify.com, api.zippopotam.us, myprojects.geoapify.com. www.w3.org is a spec URL, not an API allowlist entry.",
+      "description": "CDN/asset loading is Catalog HARD BAN A38. Optional product APIs are not CDNs. Allowlist: api.geoapify.com, api.zippopotam.us.",
       "pattern": "",
       "file_patterns": ["*.js", "*.html"],
       "exemptions": []

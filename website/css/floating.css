@@ -20,18 +20,12 @@
   box-shadow: var(--shadow-lg);
   z-index: 9999;
   pointer-events: auto;
-  touch-action: pan-x; /* For horizontal swipe-to-dismiss */
-  
-  /* Flex Layout for Message and Close Button */
+  touch-action: pan-x;
   display: flex;
   align-items: center;
   gap: 12px;
-  
-  /* Initial state (Hidden and slid up) */
   opacity: 0;
   transform: translateY(-20px) translateX(var(--swipe-x, 0px));
-  
-  /* Modern discrete transition handling exit and entrance */
   transition: 
     opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
@@ -52,14 +46,6 @@
   }
 }
 
-@starting-style {
-  #toast-v4:popover-open {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-}
-
-/* Stacking Counter Badge */
 .toast-badge:empty, .toast-action-btn:empty {
   display: none !important;
 }
@@ -76,7 +62,6 @@
   justify-content: center;
 }
 
-/* Action Button */
 .toast-action-btn {
   background: var(--border-color);
   color: var(--text-primary);
@@ -96,7 +81,6 @@
   color: var(--bg-sidebar);
 }
 
-/* Shake Animation for Updates */
 @keyframes shakeToast {
   0% { transform: translateX(0); }
   25% { transform: translateX(-4px) translateY(0); }
@@ -123,24 +107,14 @@
 
 #toast-close:hover {
   color: var(--c-danger);
-  background: oklch(50% 0.2 20 / 10%); /* Slight red tint on hover */
+  background: oklch(50% 0.2 20 / 10%);
 }
 
-/* Toast Semantic Border Accents */
-#toast-v4.type-success {
-  border-left: 4px solid var(--c-success);
-}
-#toast-v4.type-error {
-  border-left: 4px solid var(--c-danger);
-}
-#toast-v4.type-info {
-  border-left: 4px solid var(--c-primary);
-}
-#toast-v4.type-warning {
-  border-left: 4px solid var(--c-warning);
-}
+#toast-v4.type-success { border-left: 4px solid var(--c-success); }
+#toast-v4.type-error { border-left: 4px solid var(--c-danger); }
+#toast-v4.type-info { border-left: 4px solid var(--c-primary); }
+#toast-v4.type-warning { border-left: 4px solid var(--c-warning); }
 
-/* --- 2. WHATSAPP-STYLE SELECTION TOOLBAR (#format-toolbar) --- */
 #selection-anchor {
   anchor-name: --selection-anchor;
   position: absolute;
@@ -166,12 +140,8 @@
   z-index: 8888;
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
-  
-  /* Initial transition state */
   opacity: 0;
   transform: scale(0.9) translateY(5px);
-  
-  /* Modern discrete transition handling exit and entrance */
   transition: 
     opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
@@ -192,7 +162,6 @@
   }
 }
 
-/* Buttons inside the toolbar */
 #format-toolbar button {
   background: transparent;
   border: none;
@@ -220,23 +189,16 @@
   font-weight: 600;
 }
 
-#format-toolbar button b {
-  font-weight: 800;
-}
+#format-toolbar button b { font-weight: 800; }
+#format-toolbar button u { text-underline-offset: 2px; }
 
-#format-toolbar button u {
-  text-underline-offset: 2px;
-}
-
-/* --- 3. INPUT FLOATING ERROR FEEDBACK --- */
 .input-feedback-msg {
   position: absolute;
   top: 102%;
   left: 0;
   background: var(--c-danger);
-  color: oklch(100% 0 0); /* OKLCH White */
+  color: oklch(100% 0 0);
   padding: 4px 8px;
-
   border-radius: 6px;
   font-size: 0.725rem;
   font-weight: 600;
@@ -263,32 +225,25 @@
   background: var(--c-success);
 }
 
-/* --- 4. ADDRESS SUGGESTIONS POPOVER --- */
 #address-suggestions {
   position: absolute;
   position-anchor: --anchor-address-search;
   position-area: bottom span-right;
   position-try-fallbacks: flip-block;
-  
   margin-top: 4px;
-  width: anchor-size(width); /* Same width as input */
+  width: anchor-size(width);
   max-height: 250px;
   overflow-y: auto;
-  
   background: var(--bg-sidebar-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: var(--shadow-lg);
   z-index: 9000;
-  
   padding: 4px;
   list-style: none;
-  
-  /* Initial transition state */
   opacity: 0;
   transform: translateY(-5px);
-  
   transition: 
     opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
@@ -309,7 +264,6 @@
   }
 }
 
-/* Styling the individual list items inside the popover */
 #address-suggestions li {
   padding: 8px 12px;
   font-size: 0.8rem;
@@ -324,11 +278,19 @@
   background: var(--segment-bg);
 }
 
-/* Fuzzy Search Match Highlighting */
 #address-suggestions li b {
   color: var(--accent-color);
   font-weight: 700;
 }
 
-
-
+/* Phase-1 UI state that CSS can own */
+#btn-reset-font { display: none; }
+body.font-custom-active #btn-reset-font { display: flex; }
+.sidebar-header-row { align-items: center; gap: 8px; }
+a.sidebar-github-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline: 0;
+}

@@ -123,13 +123,13 @@ Soweit nicht anders markiert: HARD BAN.
 ### Color, CSS, Struktur
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- |
 | A16–A20 | FALLBACK-Politik | Farbe **oberhalb** der benötigten Kettenstufe ohne Vorteil erzwingen oder die Kette ignorieren | C1: OKLCH → Lab/LCH → HSL → RGB → HEX → Named | OKLCH bleibt Standard #1; Hex/RGB/HSL/Named sind nicht kategorisch verboten |
 | A21 | HARD BAN | CSS-Preprozessoren | natives Nesting + Custom Properties | kein Build |
 | A22 | HARD BAN | CSS-in-JS | Stylesheets | JS-Overhead, `file://` |
 | A23 | HARD BAN | `@import` in CSS-Dateien | `<link>` | Ladeblockade |
-| A24 | HARD BAN | `var()` ohne Fallback | `var(--prop, fallback)` | stilles Versagen |
-| A25 | HARD BAN | Inline `style` für Farbe/Layout | CSS | Ausnahme: kurzlebige JS-Koordinaten für Selektionsanker |
+| A24 | HARD BAN | Produkt-Token ohne Definition in `:root` | Token in `:root` als Literal oder `var(--x, literal)` anlegen. Verbraucher dürfen `var(--token)` nutzen, wenn `--token` in `:root` steht. Rohe `var(--undeclared)` ohne Fallback bleiben verboten. | stilles Versagen |
+| A25 | HARD BAN | Inline `style` für Farbe/Layout (`style.color`, `style.background`, `style.display`) | CSS | Ausnahme: kurzlebige Koordinaten am Selektionsanker; CSS Custom Properties für UI-Zustand (Dimmer, Signatur-Transform, Swipe) dürfen per JS gesetzt werden |
 | A26 | HARD BAN | `filter: invert(1)` für Dark Mode | `light-dark()` | zerstört Papierfarbe |
 | A42 | HARD BAN | doppelte `id` | eindeutige `id` | undefiniertes DOM |
 | A43 | HARD BAN | unkontrolliertes Dokument-/Seiten-Scrolling | `overflow` am Dokument begrenzen; internes Scrollen MAY in abgegrenzter UI | Viewport bleibt Brief-Arbeitsfläche |
@@ -141,17 +141,17 @@ Soweit nicht anders markiert: HARD BAN.
 ### Storage & Netz
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- |
 | A34 | HARD BAN in diesem Produkt | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Entscheidung für `file://`, kein generelles Verdikt über IndexedDB |
 | A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | unzuverlässig unter `file://` im Zielkontext |
 | A36 | HARD BAN in diesem Produkt | File System Access API als Pflicht-Speicher | `localStorage` | braucht sicheren Kontext |
 | A37 | HARD BAN in diesem Produkt | Service Worker unter `file://` | relative lokale Pfade | Registration scheitert unter `file://` |
-| A38 | HARD BAN | externe CDNs | lokale Ressourcen | Offline / DSGVO |
+| A38 | HARD BAN | externe CDNs und fremde Script-/CSS-Assets | lokale Ressourcen | Offline / DSGVO. Optionale Fach-APIs sind keine CDNs. Allowlist: Geoapify Geocoding, zippopotam.us. Ohne Key bleibt das Feature tot. Kein Host darf Script, Font oder Stylesheet liefern. |
 
 ### Icons & Fonts
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
-| :--- | :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :--- |
 | A39 | HARD BAN | Icon-CDNs | Inline-SVG | Offline / DSGVO |
 | A40 | HARD BAN | Icon-Fonts | Inline-SVG | unnötige Last |
 | A41 | HARD BAN | Google Fonts / Font-Dienste | Systemfonts + optionale lokale WOFF2 | Offline / DSGVO |

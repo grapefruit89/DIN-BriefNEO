@@ -71,7 +71,7 @@ export const SalutationEngine = {
     if (style === "formal") {
       if (type === "female") return `Sehr geehrte Frau ${tp}${surname},`;
       if (type === "male") return `Sehr geehrter Herr ${tp}${surname},`;
-      return "Sehr geehrte Damen und Herren,"; 
+      return "Sehr geehrte Damen und Herren,";
     }
 
     if (style === "polite") {
@@ -119,42 +119,37 @@ export class SalutationFeature {
   init() {
     this.settings = StorageManager.loadSettings();
     this.isReady = false;
-    
-    // UI Wirings
     this._wireFormality();
     this._wireGender();
     this._wireRecipientName();
     this._wireManualEdits();
-
     this._applyUIState();
     this._regenerateSalutation({ onlyIfEmpty: true });
     this._regenerateClosing({ onlyIfEmpty: true });
-    
     this.isReady = true;
   }
 
   _applyUIState() {
     const formalBtn = document.getElementById(`btn-style-${this.settings.formality}`);
     if (formalBtn) /** @type {HTMLInputElement} */ (formalBtn).checked = true;
-
     const genderBtn = document.getElementById(`btn-gender-${this.settings.recipientType}`);
     if (genderBtn) /** @type {HTMLInputElement} */ (genderBtn).checked = true;
   }
 
   _wireFormality() {
+    const apply = (style) => {
+      if (!this.isReady) return;
+      this.settings.formality = style;
+      this.settings.salutationDirty = false;
+      this.settings.closingDirty = false;
+      StorageManager.saveSettings(this.settings);
+      this._regenerateSalutation({ force: true });
+      this._regenerateClosing({ force: true });
+    };
     ['formal', 'polite', 'casual'].forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
-      if (btn) {
-        btn.addEventListener('change', () => {
-          if (!this.isReady) return;
-          this.settings.formality = style;
-          this.settings.salutationDirty = false;
-          this.settings.closingDirty = false;
-          StorageManager.saveSettings(this.settings);
-          this._regenerateSalutation({ force: true });
-          this._regenerateClosing({ force: true });
-        });
-      }
+      if (!btn) return;
+      btn.addEventListener('change', () => apply(style));
     });
   }
 
@@ -166,7 +161,7 @@ export class SalutationFeature {
           if (!this.isReady) return;
           this.settings.recipientType = gender;
           StorageManager.saveSettings(this.settings);
-          this._regenerateSalutation();
+          this._regenerateSalutation({ force: true });
         });
       }
     });
@@ -202,20 +197,14 @@ export class SalutationFeature {
   }
 
   /**
-   * DIN 5008: Anrede endet mit Komma ("Sehr geehrte Frau Mueller,"),
-   * Gruszformel endet OHNE Komma/Punkt ("Mit freundlichen Gruessen").
-   * Validiert nur manuell editierten Text -- Engine-generierte Vorschlaege
-   * sind per Konstruktion korrekt (siehe SalutationEngine.derive/getClosing).
    * @param {HTMLElement} el
    * @param {'anrede'|'grussformel'} kind
    */
   _validatePunctuation(el, kind) {
     const dirty = kind === 'anrede' ? this.settings.salutationDirty : this.settings.closingDirty;
     if (!dirty) return;
-
     const text = (el.textContent || "").trim();
     if (!text) return;
-
     if (kind === 'anrede' && !text.endsWith(',')) {
       showToast(Constants.TOASTS.SALUTATION_PUNCTUATION, 'warning');
     } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
@@ -226,8 +215,6 @@ export class SalutationFeature {
   _readDOMState() {
     let nameStr = (document.getElementById('empfaenger-name')?.textContent || "").trim();
     const company = (document.getElementById('empfaenger-firma')?.textContent || "").trim();
-
-    // 1. Auto-detect and strip explicit Anrede like "Herr" or "Frau"
     const lowerName = nameStr.toLowerCase();
     if (lowerName.startsWith("herr ") || lowerName.startsWith("herrn ")) {
       nameStr = nameStr.replace(/^(Herrn|Herr)\s+/i, '');
@@ -242,17 +229,12 @@ export class SalutationFeature {
         this._applyUIState();
       }
     }
-
-    // 2. Extract titles BEFORE splitting first/last name
     const { titles, name: nameWithoutTitles } = SalutationEngine.splitTitles(nameStr);
-
-    // 3. Split remaining string into first and last name
     const parts = nameWithoutTitles.split(' ');
     const lastName = parts.length > 1 ? parts.pop() : nameWithoutTitles;
     const firstName = parts.length > 0 ? parts.join(' ') : "";
-
     return {
-      firstName: titles ? `${titles} ${firstName}`.trim() : firstName, // Pass titles down in firstName so derive can find them
+      firstName: titles ? `${titles} ${firstName}`.trim() : firstName,
       lastName,
       company,
       type: this.settings.recipientType,
@@ -262,39 +244,33 @@ export class SalutationFeature {
 
   _regenerateSalutation({ force = false, onlyIfEmpty = false } = {}) {
     if (!force && this.settings.salutationDirty) return;
-
     const el = document.getElementById('anrede');
     if (!el) return;
-    
     const current = el.textContent || "";
     if (onlyIfEmpty && current.trim()) return;
-
     const value = SalutationEngine.derive(this._readDOMState());
-    this._setField(el, value);
+    this._setField(el, value, { force });
   }
 
   _regenerateClosing({ force = false, onlyIfEmpty = false } = {}) {
     if (!force && this.settings.closingDirty) return;
-
     const el = document.getElementById('grussformel');
     if (!el) return;
-
     const current = el.textContent || "";
     if (onlyIfEmpty && current.trim()) return;
-
     const value = SalutationEngine.getClosing(this._readDOMState().formality);
-    this._setField(el, value);
+    this._setField(el, value, { force });
   }
 
   /**
    * @param {HTMLElement} el
    * @param {string} value
+   * @param {{ force?: boolean }} [opts]
    */
-  _setField(el, value) {
-    if (document.activeElement === el) return; 
+  _setField(el, value, opts = {}) {
+    if (!opts.force && document.activeElement === el) return;
     el.textContent = value;
-    el.dataset.generated = "true"; // Ghost-Markierung: Engine-Vorschlag, kein Nutzertext -- siehe layout.css/print.css
+    el.dataset.generated = "true";
     if (this.saveDraftData) this.saveDraftData();
   }
 }
-

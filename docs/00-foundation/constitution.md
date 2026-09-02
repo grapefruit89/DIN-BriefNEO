@@ -31,7 +31,7 @@ depends_on: []
 
 Dieses Dokument ist das bindende Regelwerk von **DIN-BriefNEO**. Technische Entscheidungen und Code müssen damit im Einklang stehen.
 
-Es enthält Prinzipien, keine Millimeter, keine Atomlisten und keine Kopie des aktuellen `website/index.html`.
+Es enthält Prinzipien, keine Millimeter, keine Atomlisten und keine Kopie des aktuellen `website/index.html`. Verbote und Stufen (HARD BAN / PREFERRED / FALLBACK) stehen im [[Immutable-Law-Catalog]]. Die Browser-Baseline steht nur in [[longevity-guidelines]].
 
 ---
 
@@ -64,6 +64,10 @@ Die Anwendung selbst hängt an keinem Server und keiner Server-DB.
 
 Keine CDNs, keine Laufzeit-Bibliotheken, keine Web-Fonts über das Netz. Ressourcen liegen lokal.
 
+### ❌ Kein `Date` als Zeitquelle
+
+`Date` und Legacy-Date-Libraries sind im Projekt nicht zulässig. Zeitmodell: [[Immutable-Law-Catalog]] TM1.
+
 ---
 
 ## 3. Die fundamentalen Gebote (DO's)
@@ -71,7 +75,7 @@ Keine CDNs, keine Laufzeit-Bibliotheken, keine Web-Fonts über das Netz. Ressour
 ### ✅ HTML > CSS > JavaScript
 
 1. **HTML First:** Native Semantik und die kanonischen `<din-…>`-Tags für instantierte Fachatome. Native Elemente (`<dialog>`, Popover, `contenteditable`) vor Nachbau.
-2. **CSS Second:** Layout, Zustand, Print und Theme in CSS.
+2. **CSS Second:** Layout, Zustand, Print und Theme in CSS. CSS rendert das IMR-Modell, es erfindet keine zweite Normtabelle.
 3. **JavaScript Last:** JS ist die imperative Schicht für echte Dynamik (Persistenz, externe APIs, Verhalten, das HTML/CSS nicht tragen). JS ist nicht „deklarativ“ und definiert keine parallelen DIN-Werte.
 
 Semantisches HTML-Element ≠ JavaScript Custom Element. `customElements.define()` ist für Semantik nicht erforderlich.
@@ -81,9 +85,10 @@ Semantisches HTML-Element ≠ JavaScript Custom Element. `customElements.define(
 - Fachliches Vokabular: 45er Registry in der Architecture (Baukasten, keine Pflichtmenge im aktuellen Brief).
 - Instantiiertes Atom: kanonisches `<din-…>` ohne JS-Klasse.
 - Zonen (`din-a4`, `din-absender`, `din-anschriftfeld`, `din-infoblock`, `din-kern`, `din-fuss`) sind Container, keine der 45 Atome.
-- Normative Geometrie: ausschließlich HTML-`data-*` am Dokument-Root.
-- CSS interpretiert diese Fakten.
-- JS verändert und dupliziert sie nicht.
+- Normatives DIN-Brief-Modell inklusive belegter Geometrie: [[IMR-Registry]] in `docs/10-architecture/`.
+- HTML implementiert dieses Modell (aktuell unter anderem über `data-*` am Dokument-Root). Das ist Implementierung, nicht eine zweite Normquelle.
+- CSS interpretiert die Implementierung.
+- JS verändert und dupliziert die Normwerte nicht.
 
 Vorname und Nachname dürfen als gemeinsame Namenszeile in der zuständigen Zone erscheinen. Das erzeugt kein weiteres Atom.
 
@@ -93,7 +98,7 @@ Entwürfe, Einstellungen und optionale API-Schlüssel liegen in der **Web Storag
 
 ### ✅ Native Plattform gemäß Longevity-Baseline
 
-Die einzige projektweite Browser-Baseline steht in [[longevity-guidelines]]. Constitution wiederholt keine zweite Versionszahl. Bevorzugt werden stabile native CSS/HTML-APIs (`light-dark()`, `oklch()`, Anchor Positioning, Container Queries), sofern die Longevity-Prüfung sie trägt.
+Die einzige projektweite Browser-Baseline steht in [[longevity-guidelines]] (**Chrome 148+**). Constitution wiederholt keine zweite Versionszahl. Bevorzugt werden stabile native CSS/HTML-APIs, sofern die Longevity-Prüfung sie trägt. Farbe folgt der Kette im Catalog (OKLCH zuerst).
 
 ### ✅ Anforderung vor Code
 

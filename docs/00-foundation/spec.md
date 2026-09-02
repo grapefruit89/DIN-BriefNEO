@@ -28,11 +28,11 @@ depends_on: []
 
 Dieses Dokument beschreibt **erforderliches Verhalten**. Es ist nicht die Quelle der Millimeter, nicht der Implementierungsplan und nicht die Roadmap.
 
-Ausführbare DIN-Geometrie liegt am Dokument-Root in HTML (`<din-a4 data-*>`). CSS interpretiert sie. JS verändert sie nicht.
+Das normative DIN-Brief-Modell inklusive belegter Geometrie steht in der IMR-Registry. HTML implementiert dieses Modell. CSS rendert es. JS erzeugt keine konkurrierende Normquelle.
 
 Ein Brief instantiiert aus der 45er Registry nur die fachlich nötige Teilmenge. Nicht-Vorkommen ist kein Spec-Verstoß. Instantiierte Atome werden als `<din-…>` repräsentiert, ohne `customElements.define()`.
 
-Umsetzung (CSS-Einheiten, Dateinamen, Karussell-Rezepte) gehört nach Architecture / Implementation.
+Umsetzung (CSS-Einheiten, Dateinamen, konkrete `data-*`-Attribute) gehört nach Architecture / Implementation.
 
 ---
 
@@ -42,7 +42,7 @@ Umsetzung (CSS-Einheiten, Dateinamen, Karussell-Rezepte) gehört nach Architectu
 
 Akzeptanz:
 
-- Das Blatt behält das Seitenverhältnis von DIN A4 (210:297 als Proportion, Zahlen im HTML).
+- Das Blatt behält das Seitenverhältnis von DIN A4 (Proportion 210:297 laut IMR-Dokumentrahmen).
 - Das Browser-Dokument scrollt nicht.
 - Bei Größenänderung des Fensters bleibt der Bogen vollständig sichtbar und proportional.
 
@@ -54,7 +54,7 @@ Akzeptanz:
 
 - Der Wechsel ist in der UI erreichbar.
 - Absenderzone, Anschrift, Infoblock, Falz, Lochung und Briefkern folgen der gewählten Form.
-- Die konkreten Y-Werte stehen nur in HTML-`data-*`, nicht in dieser Spec.
+- Die belegten Y-Paare stehen in der IMR-Registry. HTML setzt sie um. Diese Spec wiederholt keine Millimeter.
 
 ## Feature 3: Hell- und Dunkelmodus
 

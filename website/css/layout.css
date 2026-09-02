@@ -43,7 +43,7 @@ body:has(#btn-form-a:checked) din-a4 {
 /* --- APP SHELL --- */
 #app-shell {
   display: grid;
-  grid-template-columns: clamp(280px, 20vw, 360px) 1fr;
+  grid-template-columns: clamp(200px, 20dvw, 280px) 1fr;
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
@@ -581,19 +581,25 @@ din-postvermerk, din-anlagen, din-verteiler {
 
 #sidebar-pv-select {
   display: block;
-  /* Grok Audit: Native customizable select opt-in */
   appearance: base-select;
   width: 100%;
-  padding: 8px;
-  background: var(--bg-sidebar-glass);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--segment-bg);
+  color: var(--text-muted);
+  border: none;
+  border-radius: 8px;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+#sidebar-pv-select:has(option:checked:not([value=""])) {
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
 }
 #sidebar-pv-select::picker(select) {
   appearance: base-select;
@@ -813,6 +819,22 @@ body:has(#signature-image[src]:not([src=""])) #signature-container { display: bl
 #btn-reset-sig { display: none !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }
+
+/* Font action button — segmented look with upload/reset states */
+#btn-font-action {
+  background: var(--segment-bg);
+  color: var(--text-muted);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+#btn-font-action[data-font-mode="reset"] {
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
+}
 
 /* --- CLEANUP UTILITIES --- */
 .w-full { width: 100%; }

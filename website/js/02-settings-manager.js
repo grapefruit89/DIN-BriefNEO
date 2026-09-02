@@ -6,40 +6,23 @@ import { showToast } from './32-toast.js';
 export class SettingsManager {
   constructor() {
     this.settings = StorageManager.loadSettings();
-
-    // Elements
-    /** @type {HTMLElement | null} */
     this.shell = document.getElementById('app-shell');
-    /** @type {HTMLElement | null} */
     this.btnFormA = document.getElementById('btn-form-a');
-    /** @type {HTMLElement | null} */
     this.btnFormB = document.getElementById('btn-form-b');
-    /** @type {HTMLElement | null} */
     this.btnThemeLight = document.getElementById('btn-theme-light');
-    /** @type {HTMLElement | null} */
     this.btnThemeDark = document.getElementById('btn-theme-dark');
-    /** @type {HTMLElement | null} */
     this.btnThemeAuto = document.getElementById('btn-theme-auto');
-    /** @type {HTMLElement | null} */
     this.btnGuidesOn = document.getElementById('btn-guides-on');
     this.btnGuidesOff = document.getElementById('btn-guides-off');
-    
-    // Font stack elements
-    /** @type {HTMLElement | null} */
     this.btnFontSans = document.getElementById('btn-font-sans');
-    /** @type {HTMLElement | null} */
     this.btnFontSerif = document.getElementById('btn-font-serif');
-    
-    // Custom font upload elements
-    /** @type {HTMLElement | null} */
     this.btnFontUploadTrigger = document.getElementById('btn-upload-font-trigger');
-    /** @type {HTMLElement | null} */
     this.btnResetFont = document.getElementById('btn-reset-font');
-    /** @type {HTMLElement | null} */
     this.fontStatusLabel = document.getElementById('font-status-label');
-    /** @type {HTMLElement | null} */
     this.fontUploader = document.getElementById('font-uploader');
-
+    this.themeDimmer = document.getElementById('theme-dimmer');
+    this.themeDimmerValue = document.getElementById('theme-dimmer-value');
+    this.btnCopyThemeTokens = document.getElementById('btn-copy-theme-tokens');
     this.isReady = false;
   }
 
@@ -51,7 +34,6 @@ export class SettingsManager {
   }
 
   applySettings() {
-    // 1. Layout Mode A/B (CSS-First Refactoring)
     if (this.btnFormA && this.btnFormB) {
       if (this.settings.layout === 'form-a') {
         /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;
@@ -60,16 +42,17 @@ export class SettingsManager {
       }
     }
 
-    // 2. Color Schemes (Theme light-dark supported)
+    const dim = Number(this.settings.themeDim);
+    const themeDim = Number.isFinite(dim) ? Math.min(1, Math.max(0, dim)) : (this.settings.theme === 'dark' ? 1 : 0);
+    this.applyThemeDim(themeDim);
     if (this.btnThemeLight && this.btnThemeDark) {
-      if (this.settings.theme === 'light') {
-        /** @type {HTMLInputElement} */ (this.btnThemeLight).checked = true;
-      } else if (this.settings.theme === 'dark') {
+      if (themeDim >= 0.5) {
         /** @type {HTMLInputElement} */ (this.btnThemeDark).checked = true;
+      } else {
+        /** @type {HTMLInputElement} */ (this.btnThemeLight).checked = true;
       }
     }
 
-    // 3. Layout Guides overlay
     if (this.btnGuidesOn && this.btnGuidesOff) {
       if (this.settings.guides) {
         /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked = true;
@@ -78,7 +61,6 @@ export class SettingsManager {
       }
     }
 
-    // 4. System Font Stacks
     if (this.btnFontSans && this.btnFontSerif) {
       if (this.settings.systemFont === 'serif') {
         /** @type {HTMLInputElement} */ (this.btnFontSerif).checked = true;
@@ -86,6 +68,16 @@ export class SettingsManager {
         /** @type {HTMLInputElement} */ (this.btnFontSans).checked = true;
       }
     }
+  }
+
+  /**
+   * @param {number} dim 0 = Tag, 1 = Nacht
+   */
+  applyThemeDim(dim) {
+    const v = Math.min(1, Math.max(0, Number(dim) || 0));
+    document.documentElement.style.setProperty('--theme-dim', String(v));
+    if (this.themeDimmer) /** @type {HTMLInputElement} */ (this.themeDimmer).value = String(Math.round(v * 100));
+    if (this.themeDimmerValue) this.themeDimmerValue.textContent = String(Math.round(v * 100));
   }
 
   updateSettings() {
@@ -113,12 +105,7 @@ export class SettingsManager {
       fontStyle.id = 'din-custom-font-style';
       document.head.appendChild(fontStyle);
     }
-    fontStyle.textContent = `
-      @font-face {
-        font-family: 'AptosCustom';
-        src: url('${base64Font}') format('woff2');
-      }
-    `;
+    fontStyle.textContent = `@font-face { font-family: 'AptosCustom'; src: url('${base64Font}') format('woff2'); }`;
   }
 
   /**
@@ -136,7 +123,6 @@ export class SettingsManager {
   }
 
   attachListeners() {
-    // Font Stack Toggles
     if (this.btnFontSans) {
       this.btnFontSans.addEventListener('change', () => {
         if (!this.isReady) return;
@@ -151,8 +137,6 @@ export class SettingsManager {
         this.updateSettings();
       });
     }
-
-    // Layout Form switches (Grok Audit: Pure Storage Binding without preventDefault/JS hijacking)
     if (this.btnFormA) {
       this.btnFormA.addEventListener('change', () => {
         if (!this.isReady) return;
@@ -160,7 +144,6 @@ export class SettingsManager {
         this.updateSettings();
       });
     }
-    
     if (this.btnFormB) {
       this.btnFormB.addEventListener('change', () => {
         if (!this.isReady) return;
@@ -169,25 +152,40 @@ export class SettingsManager {
       });
     }
 
-    // Theme select toggles (Grok Audit: Pure Storage Binding without preventDefault/JS hijacking)
-    /**
-     * @param {string} theme
-     */
     const handleThemeChange = (theme) => {
       if (!this.isReady) return;
       this.settings.theme = theme;
+      this.settings.themeDim = theme === 'dark' ? 1 : 0;
+      this.applyThemeDim(this.settings.themeDim);
       this.updateSettings();
     };
+    if (this.btnThemeLight) this.btnThemeLight.addEventListener('change', () => handleThemeChange('light'));
+    if (this.btnThemeDark) this.btnThemeDark.addEventListener('change', () => handleThemeChange('dark'));
 
-    if (this.btnThemeLight) {
-      this.btnThemeLight.addEventListener('change', () => handleThemeChange('light'));
+    if (this.themeDimmer) {
+      this.themeDimmer.addEventListener('input', () => {
+        const v = Number(/** @type {HTMLInputElement} */ (this.themeDimmer).value) / 100;
+        this.applyThemeDim(v);
+        this.settings.themeDim = v;
+        this.settings.theme = v >= 0.5 ? 'dark' : 'light';
+        if (this.isReady) StorageManager.saveSettings(this.settings);
+      });
     }
 
-    if (this.btnThemeDark) {
-      this.btnThemeDark.addEventListener('change', () => handleThemeChange('dark'));
+    if (this.btnCopyThemeTokens) {
+      this.btnCopyThemeTokens.addEventListener('click', async () => {
+        const cs = getComputedStyle(document.documentElement);
+        const keys = ['--theme-dim', '--paper-bg', '--paper-text', '--paper-ghost', '--bg-viewport', '--bg-sidebar', '--bg-card', '--border-color', '--text-primary', '--text-muted', '--accent-color'];
+        const text = keys.map((k) => `${k}: ${cs.getPropertyValue(k).trim()};`).join('\n');
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('Theme-Werte kopiert', 'success');
+        } catch {
+          showToast('Kopieren nicht möglich', 'error');
+        }
+      });
     }
 
-    // Guides
     const handleGuidesToggle = () => {
       if (!this.isReady) return;
       this.settings.guides = /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked;
@@ -196,7 +194,6 @@ export class SettingsManager {
     if (this.btnGuidesOn) this.btnGuidesOn.addEventListener('change', handleGuidesToggle);
     if (this.btnGuidesOff) this.btnGuidesOff.addEventListener('change', handleGuidesToggle);
 
-    // Font reset click listener
     if (this.btnResetFont) {
       this.btnResetFont.addEventListener('click', () => {
         localStorage.removeItem("din_custom_font");
@@ -207,24 +204,20 @@ export class SettingsManager {
       });
     }
 
-    // Font file uploader change listener
     if (this.fontUploader) {
       this.fontUploader.addEventListener('change', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
         const file = target && target.files ? target.files[0] : null;
         if (!file) return;
-
         if (!file.name.endsWith('.woff2')) {
           showToast(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
           return;
         }
-
         const maxSizeInBytes = Constants.LIMITS.FONT_SIZE_MAX_KB * 1024;
         if (file.size > maxSizeInBytes) {
           showToast(Constants.TOASTS.FONT_SIZE_ERROR, 'error');
           return;
         }
-
         const reader = new FileReader();
         reader.onload = (event) => {
           const readerTarget = /** @type {FileReader} */ (event.target);

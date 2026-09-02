@@ -1,14 +1,16 @@
 // @ts-check
-import { showToast } from './32-toast.js';
 
 /**
- * @param {string} val
+ * @param {HTMLSelectElement} select
  * @returns {string}
  */
-function normalizePvValue(val) {
-  return String(val || '')
+function selectedPvText(select) {
+  const opt = select.selectedOptions[0];
+  const raw = (opt && (opt.textContent || opt.value)) || select.value || '';
+  return String(raw)
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/\s+\n/g, '\n')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
@@ -22,15 +24,13 @@ export function initPostvermerk({ onSaveDraft, settings, saveSettings }) {
 
   if (!sidebarPvSelect || !pvInput) return;
 
-  /**
-   * @param {string} [raw]
-   */
-  const applyValue = (raw) => {
-    const val = normalizePvValue(raw ?? sidebarPvSelect.value);
+  const applyValue = () => {
+    const val = selectedPvText(sidebarPvSelect);
     pvInput.textContent = val;
+    pvInput.replaceChildren(document.createTextNode(val));
+
     if (val && pvToggle && !pvToggle.checked) {
       pvToggle.checked = true;
-      if (settings) settings.postvermerkActive = true;
     }
     if (settings && saveSettings) {
       settings.postvermerkActive = !!(pvToggle && pvToggle.checked);
@@ -39,15 +39,21 @@ export function initPostvermerk({ onSaveDraft, settings, saveSettings }) {
     if (onSaveDraft) onSaveDraft();
   };
 
-  sidebarPvSelect.addEventListener('input', () => applyValue());
-  sidebarPvSelect.addEventListener('change', () => applyValue());
+  sidebarPvSelect.addEventListener('input', applyValue);
+  sidebarPvSelect.addEventListener('change', applyValue);
+  sidebarPvSelect.addEventListener('click', (e) => {
+    const opt = /** @type {HTMLElement} */ (e.target)?.closest?.('option');
+    if (!opt) return;
+    const value = opt.getAttribute('value') || opt.textContent || '';
+    if (value) sidebarPvSelect.value = value;
+    applyValue();
+  });
 
   if (pvToggle) {
     pvToggle.addEventListener('change', () => {
-      if (pvToggle.checked) {
-        if (!pvInput.textContent?.trim()) applyValue();
-      } else if (settings && saveSettings) {
-        settings.postvermerkActive = false;
+      if (pvToggle.checked && !pvInput.textContent?.trim()) applyValue();
+      else if (settings && saveSettings) {
+        settings.postvermerkActive = pvToggle.checked;
         saveSettings();
         if (onSaveDraft) onSaveDraft();
       }

@@ -317,6 +317,17 @@
             el.replaceChildren(...doc.body.childNodes);
           }
         }
+        const pvSel = document.getElementById('sidebar-pv-select');
+        const pvField = document.getElementById('postvermerk');
+        const applyPv = () => {
+          if (pvSel && pvField && pvSel.value) pvField.textContent = pvSel.value;
+        };
+        if (pvSel) {
+          pvSel.addEventListener('input', applyPv);
+          pvSel.addEventListener('change', applyPv);
+        }
+        if (pvToggleBtn) pvToggleBtn.addEventListener('change', applyPv);
+        applyPv();
         if (localStorage.getItem('din_custom_font')) {
           document.body.classList.add('font-custom-active');
           const status = document.getElementById('font-status-label');

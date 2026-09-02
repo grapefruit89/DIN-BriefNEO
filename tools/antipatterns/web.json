@@ -1,88 +1,72 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "layer": "web",
-  "description": "Rules for HTML, JS, and CSS frontend development (migrated from DIN-Brief Neo, made more general).",
+  "description": "Web-Mechanik-Sonden. Farbe ist Policy-Warnung, kein Hex-Verbot. Norm: Immutable-Law-Catalog.",
   "rules": [
     {
-      "id": "W1",
-      "severity": "critical",
-      "category": "javascript",
-      "description": "document.execCommand is deprecated and forbidden. Use Selection & Range API.",
-      "graveyard_ref": "A2",
-      "pattern": "\\bexecCommand\\(|\\bqueryCommandState\\(",
-      "file_patterns": ["*.js"],
-      "exemptions": []
-    },
-    {
       "id": "W2",
-      "severity": "high",
+      "catalog_ref": [],
+      "class": "preferred",
+      "severity": "info",
+      "check": "regex",
       "category": "javascript",
-      "description": "XMLHttpRequest (XHR) is deprecated. Use fetch() API.",
-      "graveyard_ref": "A3",
+      "description": "XMLHttpRequest is not a Catalog HARD BAN. Prefer fetch() on the target platform.",
       "pattern": "\\bXMLHttpRequest\\b",
       "file_patterns": ["*.js"],
       "exemptions": []
     },
     {
       "id": "W3",
+      "catalog_ref": ["ADR-ANTIPATTERN §0"],
+      "class": "hard-ban",
       "severity": "high",
+      "check": "regex",
       "category": "javascript",
-      "description": "Unsanitized innerHTML assignments are unsafe. Use textContent or Sanitizer API where possible.",
-      "graveyard_ref": "A4",
+      "description": "Unsanitized innerHTML assignment is unsafe. Prefer textContent or setHTML(). Regex cannot see the data source; hits need review.",
       "pattern": "\\.innerHTML\\s*=",
       "file_patterns": ["*.js"],
       "exemptions": [
-        { "file": "website/js/healthcheck.js" }
+        {
+          "file": "website/js/healthcheck.js",
+          "reason": "Healthcheck may inject controlled markup for diagnostics.",
+          "reference": "ADR-ANTIPATTERN §0"
+        }
       ]
     },
     {
       "id": "W4",
-      "severity": "high",
+      "catalog_ref": ["C1", "A16-A20"],
+      "class": "fallback-policy",
+      "severity": "warning",
+      "check": "regex",
       "category": "css",
-      "description": "Hex colors (#RRGGBB, #RGB) are forbidden. Use oklch().",
-      "graveyard_ref": "A16",
+      "description": "HEX found. Catalog chain OKLCH → Lab/LCH → HSL → RGB → HEX → Named. Warn only; HEX is allowed when a higher step has no useful advantage.",
       "pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
       "file_patterns": ["*.css"],
       "exemptions": []
     },
     {
       "id": "W5",
-      "severity": "high",
+      "catalog_ref": ["C1", "A16-A20"],
+      "class": "fallback-policy",
+      "severity": "warning",
+      "check": "regex",
       "category": "css",
-      "description": "rgb/rgba colors are forbidden. Use oklch().",
-      "graveyard_ref": "A17",
+      "description": "rgb/rgba found. Catalog color chain: treat as fallback-policy warning, not a ban.",
       "pattern": "\\brgba?\\(.*?\\)",
       "file_patterns": ["*.css"],
       "exemptions": []
     },
     {
       "id": "W6",
-      "severity": "high",
+      "catalog_ref": ["C1", "A16-A20"],
+      "class": "fallback-policy",
+      "severity": "warning",
+      "check": "regex",
       "category": "css",
-      "description": "hsl/hsla colors are forbidden. Use oklch().",
-      "graveyard_ref": "A18",
+      "description": "hsl/hsla found. Catalog color chain: treat as fallback-policy warning, not a ban.",
       "pattern": "\\bhsla?\\(.*?\\)",
       "file_patterns": ["*.css"],
-      "exemptions": []
-    },
-    {
-      "id": "A38",
-      "severity": "critical",
-      "category": "general",
-      "description": "External connections (CDNs, scripts, stylesheets) are forbidden except for allowed autocomplete and reference APIs.",
-      "graveyard_ref": "A38",
-      "pattern": "https?:\\/\\/(?!(?:photon\\.komoot\\.io|api\\.geoapify\\.com|api\\.zippopotam\\.us|myprojects\\.geoapify\\.com|www\\.w3\\.org))[a-zA-Z0-9.-]+",
-      "file_patterns": ["*.html", "*.css", "*.js"],
-      "exemptions": []
-    },
-    {
-      "id": "W7",
-      "severity": "critical",
-      "category": "general",
-      "description": "Google Fonts are forbidden for DSGVO and offline security reasons.",
-      "graveyard_ref": "A41",
-      "pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com",
-      "file_patterns": ["*.html", "*.css"],
       "exemptions": []
     }
   ]

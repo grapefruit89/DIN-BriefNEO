@@ -328,8 +328,6 @@ aside {
     width: calc(85 / var(--din-width) * 100cqw);
     height: calc(5 / var(--din-height) * 100cqh);
     font-size: calc(8 * 0.168cqw); /* 8pt in cqw */
-    border-bottom: 0.5px solid oklch(90% 0 0);
-    padding-bottom: 2px;
     white-space: nowrap;
     text-fit: contain;
   }

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT_FILE = 'build/LLM_CONTEXT.md';
+const OUTPUT_FILE = 'agent/cache/LLM_CONTEXT.md';
 
 // Liste der absolut kritischen Kern-Dokumente für LLMs
 // repository.yaml und SKILL.md ergaenzt (Architecture Drift Audit,

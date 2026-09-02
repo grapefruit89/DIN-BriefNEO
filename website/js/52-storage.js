@@ -64,6 +64,7 @@ export const StorageManager = {
   loadSettings() {
     const defaultSettings = {
       theme: "light",
+      themeDim: 0,
       layout: "form-b",
       guides: true,
       systemFont: "sans",
@@ -72,8 +73,6 @@ export const StorageManager = {
       dateFormat: "din",
       addressProvider: "photon",
       postvermerkActive: false
-      // TODO(profile-management): hier käme z.B. `activeProfileId` + `profiles: []`
-      // (IBAN, Bankname, Profilname) hin — siehe [[ADR-PROFILE-MANAGEMENT]]. Nicht gebaut.
     };
     try {
       const settings = localStorage.getItem("din_settings");

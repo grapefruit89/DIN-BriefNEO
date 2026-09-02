@@ -67,6 +67,9 @@ export const StorageManager = {
       layout: "form-b",
       guides: true,
       systemFont: "sans",
+      formality: "formal",
+      recipientType: "none",
+      dateFormat: "din",
       addressProvider: "photon",
       postvermerkActive: false
       // TODO(profile-management): hier käme z.B. `activeProfileId` + `profiles: []`
@@ -74,7 +77,7 @@ export const StorageManager = {
     };
     try {
       const settings = localStorage.getItem("din_settings");
-      return settings ? JSON.parse(settings) : defaultSettings;
+      return settings ? { ...defaultSettings, ...JSON.parse(settings) } : defaultSettings;
     } catch (e) {
       console.error("Fehler beim Laden der Einstellungen:", e);
       return defaultSettings;

@@ -19,6 +19,13 @@ import { UIProtections } from './03-ui-protections.js';
 import { DateFormatter } from './47-date-format.js';
 import { TextFitEngine } from './48-text-fit.js';
 
+function syncPostvermerkFromSidebar() {
+  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
+  const field = document.getElementById('postvermerk');
+  if (!sel || !field || !sel.value) return;
+  field.textContent = sel.value;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const btnPrint = document.getElementById('btn-print');
   const btnReset = document.getElementById('btn-reset');
@@ -29,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const draftManager = new DraftManager();
     draftManager.loadDraft();
     draftManager.enableEventMode();
+    syncPostvermerkFromSidebar();
 
     const uiProtections = new UIProtections();
     uiProtections.init();
@@ -124,7 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     document.querySelectorAll('select[data-persist]').forEach(el => {
-      el.addEventListener('change', () => draftManager.scheduleAutoSave());
+      el.addEventListener('change', () => {
+        if (el.id === 'sidebar-pv-select') syncPostvermerkFromSidebar();
+        draftManager.scheduleAutoSave();
+      });
     });
   }
 });

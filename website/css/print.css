@@ -13,16 +13,24 @@ din-a4 {
     height: calc(attr(data-height-mm type(<number>), 297) * 1mm) !important; 
 }
 
-/* Hide ghost text placeholders in print */
 [contenteditable]:empty::before,
 [placeholder]:empty::before {
     display: none !important;
 }
 
-/* Unbestaetigte Engine-Vorschlaege (data-generated) sollen beim Druck wie
-   normaler Text erscheinen -- anders als die :empty::before Platzhalter oben,
-   handelt es sich um echten textContent, der auch gedruckt werden soll. */
 [data-generated] {
     color: inherit !important;
     font-style: normal !important;
+}
+
+.pv-select {
+  appearance: none !important;
+  border: none !important;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit !important;
+  padding: 0 !important;
+}
+.pv-select::picker-icon {
+  display: none !important;
 }

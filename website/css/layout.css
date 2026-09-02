@@ -613,11 +613,11 @@ din-postvermerk, din-anlagen, din-verteiler {
   align-items: center;
 }
 .sidebar-pv-select {
-  flex: 1;
+  flex: 1 1 50%;
   min-width: 0;
 }
 .sidebar-addon-btn {
-  flex-shrink: 0;
+  flex: 1 1 50%;
   padding: 4px 8px;
   border: 1px solid oklch(0.7 0 0);
   border-radius: 6px;

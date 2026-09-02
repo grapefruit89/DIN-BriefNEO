@@ -94,20 +94,6 @@
                   <input type="checkbox" id="toggle-anlagen">
                 </label>
               </div>
-              <select id="sidebar-pv-select" class="input-field sidebar-select w-full">
-                <option value="Einschreiben" selected>Einschreiben</option>
-                <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
-                <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
-                <option value="Einschreiben Wert">Einschreiben Wert</option>
-                <option value="Persönlich">Persönlich</option>
-                <option value="Vertraulich">Vertraulich</option>
-                <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
-                <option value="Nicht nachsenden!">Nicht nachsenden!</option>
-                <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
-                <option value="Warensendung">Warensendung</option>
-                <option value="Büchersendung">Büchersendung</option>
-                <option value="Einschreiben / Rückschein <br> Persönlich">Einschreiben / Rückschein / Persönlich</option>
-              </select>
             </div>
           </div>
           <div>
@@ -207,7 +193,22 @@
             <div class="din-mark din-punch"></div>
             <din-absender id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-absender>
             <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
-              <din-postvermerk id="postvermerk" contenteditable="plaintext-only" placeholder="Postvermerk / Zusatz ▼" aria-label="Postvermerk"></din-postvermerk>
+              <din-postvermerk id="postvermerk" aria-label="Postvermerk">
+                <select id="postvermerk-select" class="pv-select" data-persist aria-label="Postvermerk">
+                  <option value="Einschreiben" selected>Einschreiben</option>
+                  <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                  <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                  <option value="Einschreiben Wert">Einschreiben Wert</option>
+                  <option value="Persönlich">Persönlich</option>
+                  <option value="Vertraulich">Vertraulich</option>
+                  <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                  <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                  <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                  <option value="Warensendung">Warensendung</option>
+                  <option value="Büchersendung">Büchersendung</option>
+                  <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+                </select>
+              </din-postvermerk>
               <div id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></div>
               <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <div id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></div>
@@ -309,10 +310,12 @@
           const parser = new DOMParser();
           for (const id in draft) {
             const el = document.getElementById(id);
-            if (el && draft[id]) {
-              const doc = parser.parseFromString(draft[id], 'text/html');
-              el.replaceChildren(...doc.body.childNodes);
-            }
+            if (!el || !draft[id]) continue;
+            if (el.tagName === 'SELECT') { el.value = draft[id]; continue; }
+            const nested = el.querySelector && el.querySelector('select[data-persist]');
+            if (nested) { nested.value = draft[id]; continue; }
+            const doc = parser.parseFromString(draft[id], 'text/html');
+            el.replaceChildren(...doc.body.childNodes);
           }
         }
         if (localStorage.getItem('din_custom_font')) {

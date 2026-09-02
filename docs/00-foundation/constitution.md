@@ -4,7 +4,7 @@ title: 'Verfassung (Constitution) — DIN-BriefNEO'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-02'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -13,8 +13,8 @@ tags:
 doc_links:
   - Immutable-Law-Catalog
   - spec
-  - HYBRID-SPEC-DRIVEN-WORKFLOW
   - longevity-guidelines
+  - HYBRID-SPEC-DRIVEN-WORKFLOW
 code_links: []
 error_patterns:
   - constitution
@@ -29,14 +29,16 @@ depends_on: []
 
 # Verfassung (Constitution) — DIN-BriefNEO
 
-Dieses Dokument ist das unverrückbare und absolut bindende Regelwerk (Rulebook) des Projekts **DIN-BriefNEO**. Jede technische Entscheidung und Code-Implementierung muss bedingungslos mit dieser Verfassung im Einklang stehen.
+Dieses Dokument ist das bindende Regelwerk von **DIN-BriefNEO**. Technische Entscheidungen und Code müssen damit im Einklang stehen.
+
+Es enthält Prinzipien, keine Millimeter, keine Atomlisten und keine Kopie des aktuellen `website/index.html`.
 
 ---
 
 ## 1. Mission & Vision
 
-DIN-BriefNEO ist eine minimalistische, hochperformante und vollkommen autarke Webanwendung zur Erstellung und zum PDF-Druck formaler Briefe nach der deutschen Norm **DIN 5008 (Form A & B)**. 
-Das Projekt ist extrem langlebig konzipiert: Es läuft vollständig lokal im Browser, ohne Server und ohne Build-Systeme, und bleibt über Jahrzehnte hinweg direkt ausführbar.
+DIN-BriefNEO ist eine minimalistische, autarke Webanwendung zur Erstellung und zum PDF-Druck formaler Briefe nach **DIN 5008 (Form A & B)**.
+Sie läuft lokal im Browser, ohne Server und ohne Build-System, und soll über Jahre hinweg direkt ausführbar bleiben.
 
 ---
 
@@ -44,21 +46,23 @@ Das Projekt ist extrem langlebig konzipiert: Es läuft vollständig lokal im Bro
 
 ### ❌ Fette Frameworks & Build-Tools
 
-### ❌ Absolutes Scroll-Verbot
+Keine Runtime-Frameworks, keine Bundler, keine Transpiler als Voraussetzung für die Anwendung.
 
-In der gesamten Anwendung darf **kein einziger Scrollbalken** auftauchen – weder vertikal noch horizontal. Jedes UI-Element, jede Sidebar und das Briefblatt selbst müssen sich elastisch und ohne Überlauf innerhalb der exakten Grenzen des Viewports bewegen.
+### ❌ Kein unkontrolliertes Dokument-Scrolling
+
+Das Dokument und das Briefblatt dürfen nicht als Seite scrollen. Kontrolliertes internes Scrollen in abgegrenzter UI (Dialog, Overlay, lange Hilfsliste) MAY existieren. Ein allgemeines „nirgendswo ein Scrollbalken“ ist kein Gesetz.
 
 ### ❌ Keine Native App & Keine Browser-Erweiterung
 
-DIN-BriefNEO wird ausschließlich als responsive, standardkonforme **Webseite / Web App (PWA)** entwickelt. Es werden unter keinen Umständen native Apps (Electron, Capacitor) oder Browser-Erweiterungen (WebExtensions) gebaut.
+Ausschließlich eine standardkonforme Webseite / Web App. Kein Electron, Capacitor oder WebExtension.
 
-### ❌ Keine komplexen Server-Datenbanken
+### ❌ Keine serverseitigen Datenbanken für das Produkt
 
-Wir verzichten auf serverseitige Datenbanken oder Speicher-APIs, die einen aktiven Serverkontext zwingend voraussetzen (wie OPFS ohne Service Worker).
+Die Anwendung selbst hängt an keinem Server und keiner Server-DB.
 
-### ❌ Keine externen Abhängigkeiten & CDNs (Absolute Dependency Purity)
+### ❌ Keine externen Abhängigkeiten & CDNs
 
-Es dürfen keine externen CDNs, Bibliotheken, Web-Fonts (z. B. Google Fonts) oder Skripte über das Netzwerk geladen werden. Die Anwendung muss vollkommen autark und isoliert im Offline-Zustand funktionieren. Alle Ressourcen (Schriften, CSS, JS) müssen lokal im Verzeichnis liegen.
+Keine CDNs, keine Laufzeit-Bibliotheken, keine Web-Fonts über das Netz. Ressourcen liegen lokal.
 
 ---
 
@@ -66,35 +70,35 @@ Es dürfen keine externen CDNs, Bibliotheken, Web-Fonts (z. B. Google Fonts) ode
 
 ### ✅ HTML > CSS > JavaScript
 
-Entwickelt wird streng nach dem Prinzip der absteigenden Komplexität:
+1. **HTML First:** Native Semantik und die kanonischen `<din-…>`-Tags für instantierte Fachatome. Native Elemente (`<dialog>`, Popover, `contenteditable`) vor Nachbau.
+2. **CSS Second:** Layout, Zustand, Print und Theme in CSS.
+3. **JavaScript Last:** JS ist die imperative Schicht für echte Dynamik (Persistenz, externe APIs, Verhalten, das HTML/CSS nicht tragen). JS ist nicht „deklarativ“ und definiert keine parallelen DIN-Werte.
 
-1. **HTML First:** Verwendung nativer, semantischer HTML5-Elemente (z. B. `<dialog>`, `<popover>`, `contenteditable="plaintext-only"`).
+Semantisches HTML-Element ≠ JavaScript Custom Element. `customElements.define()` ist für Semantik nicht erforderlich.
 
-2. **CSS Second:** Layouts (CSS Grid, Flexbox), Interaktionen (Checked-Tricks, native Popover-Events) und Themes werden vorrangig über CSS gelöst.
+### ✅ Eine Wahrheit je Fakt
 
-3. **JavaScript Last:** JS fungiert ausschließlich als deklarative Logik-Schicht (API-Abfragen, LocalStorage-Sync, Berechnungen).
+- Fachliches Vokabular: 45er Registry in der Architecture (Baukasten, keine Pflichtmenge im aktuellen Brief).
+- Instantiiertes Atom: kanonisches `<din-…>` ohne JS-Klasse.
+- Zonen (`din-a4`, `din-absender`, `din-anschriftfeld`, `din-infoblock`, `din-kern`, `din-fuss`) sind Container, keine der 45 Atome.
+- Normative Geometrie: ausschließlich HTML-`data-*` am Dokument-Root.
+- CSS interpretiert diese Fakten.
+- JS verändert und dupliziert sie nicht.
 
-### ✅ Lokale Persistenz rein über LocalStorage
+Vorname und Nachname dürfen als gemeinsame Namenszeile in der zuständigen Zone erscheinen. Das erzeugt kein weiteres Atom.
 
-Alle Briefentwürfe, Profileinstellungen und API-Schlüssel werden ausschließlich über die native **Web Storage API (LocalStorage)** des Browsers gesichert. Dies garantiert maximale Offline-Fähigkeit ohne Server.
+### ✅ Lokale Persistenz über LocalStorage
 
-### ✅ Nutzung moderner CSS-Features (Chrome 148+ Baseline)
+Entwürfe, Einstellungen und optionale API-Schlüssel liegen in der **Web Storage API (localStorage)**. Das ist eine bewusste Entscheidung für Offline- und `file://`-Betrieb, kein Urteil über IndexedDB an sich.
 
-Da die Ziel-Laufzeitumgebung Google Chrome v148+ ist, nutzen wir modernste native CSS-APIs:
+### ✅ Native Plattform gemäß Longevity-Baseline
 
-- `light-dark()` zur automatischen Theme-Steuerung.
+Die einzige projektweite Browser-Baseline steht in [[longevity-guidelines]]. Constitution wiederholt keine zweite Versionszahl. Bevorzugt werden stabile native CSS/HTML-APIs (`light-dark()`, `oklch()`, Anchor Positioning, Container Queries), sofern die Longevity-Prüfung sie trägt.
 
-- `oklch()` für exakte, harmonische Farbräume.
+### ✅ Anforderung vor Code
 
-- **CSS Anchor Positioning** für Tooltips und Menüs ohne JS.
+Keine wesentliche Änderung ohne geklärte Anforderung. Das Verfahren (Light/Full Mode, Fitness-Gate) beschreibt [[HYBRID-SPEC-DRIVEN-WORKFLOW]] — das ist Prozess, nicht Verfassungsartikel.
 
-- `field-sizing: content` für automatisch wachsende Eingaben ohne Scrollbars.
+### ✅ Technische Schulden nur über ADR
 
-### ✅ Spec-First Workflow
-
-Keine Codeänderung ohne Spezifikation. Jedes neue Feature durchläuft die Stufen:
-`Specify` (Anforderung klären) ➔ `Plan` (Technologie wählen) ➔ `Tasks` (Tickets schreiben) ➔ `Implement` (Code schreiben).
-
-### ✅ Technische Schuldenfreiheit
-
-Jede Abweichung von den Kernprinzipien oder jede optionale Erweiterung/Abhängigkeit muss zwingend über eine MADR-konforme ADR begründet, dokumentiert und freigegeben werden. Technische Schulden sind ausgeschlossen.
+Jede Abweichung von diesen Prinzipien braucht eine MADR-konforme ADR.

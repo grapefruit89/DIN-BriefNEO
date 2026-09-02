@@ -107,17 +107,7 @@
           <div>
             <h3 class="sidebar-label" data-ui="Schriftarten-Manager"></h3>
             <div class="sidebar-options-group">
-              <span class="sidebar-sub-label" data-ui="System-Schriftart:"></span>
-              <div class="segmented-control" id="font-stack-select" focusgroup="horizontal wrap">
-                <input type="radio" name="font-stack" id="btn-font-sans" value="sans" class="sr-only" checked autocomplete="off">
-                <label for="btn-font-sans" title="Moderne serifenlose Systemschrift" data-ui="Sans"></label>
-                <input type="radio" name="font-stack" id="btn-font-serif" value="serif" class="sr-only" autocomplete="off">
-                <label for="btn-font-serif" title="Klassische Serifenschrift" data-ui="Serif"></label>
-              </div>
-            </div>
-            <div class="sidebar-options-group">
-              <label id="btn-upload-font-trigger" for="font-uploader" class="btn w-full" data-ui="📤 Schrift hochladen"></label>
-              <button type="button" id="btn-reset-font" class="btn btn-danger w-full" data-ui="🗑️ Schrift zurücksetzen"></button>
+              <button type="button" id="btn-font-action" class="btn w-full" data-font-mode="upload" data-ui="📤 Schrift hochladen"></button>
               <span id="font-status-label" class="sidebar-status-label">Aktiv: System-UI Standardschrift</span>
               <div class="sidebar-ux-tip">
                 💡 <b>UX-Tipp:</b> Lade freie WOFF2-Fonts wie <a href="https://github.com/rsms/inter/releases" target="_blank" rel="noopener noreferrer" class="sidebar-link">Inter</a> oder <a href="https://github.com/Manrope-Font/Manrope" target="_blank" rel="noopener noreferrer" class="sidebar-link">Manrope</a> herunter und lade sie hier offline in deine App.

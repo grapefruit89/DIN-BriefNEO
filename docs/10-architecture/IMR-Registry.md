@@ -268,6 +268,5 @@ Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört nicht zu d
 
 | Datum | Änderung |
 |---|---|
-| 2026-09-02 | Master-Modell, Zonen ≠ Atome, Komposition, Kontakt-Platzierung, Overlay aus den 45, Kap. 7–9 entfernt, Geometrie ehrlich klassifiziert, vorhandene mm unverändert |
-| 2026-04-01 | Historische Einträge zu Auto-Erkennung, Carousel und Form C — nicht mehr Teil dieses Modells |
+| 2026-09-02 | Master-Modell: Zonen, Komposition, Kontakt-Platzierung, Overlay außerhalb der 45, Geometrie klassifiziert |
 | 2026-03-31 | Initiale Version |

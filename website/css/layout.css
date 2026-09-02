@@ -582,7 +582,7 @@ din-postvermerk, din-anlagen, din-verteiler {
 }
 
 #sidebar-pv-select {
-  display: none;
+  display: block;
   /* Grok Audit: Native customizable select opt-in */
   appearance: base-select;
   width: 100%;
@@ -606,8 +606,33 @@ din-postvermerk, din-anlagen, din-verteiler {
 #sidebar-pv-select::picker-icon {
   color: var(--text-muted);
 }
-:root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
-  display: block;
+.sidebar-zusatz-row {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+.sidebar-pv-select {
+  flex: 1;
+  min-width: 0;
+}
+.sidebar-addon-btn {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border: 1px solid oklch(0.7 0 0);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.sidebar-addon-btn[aria-pressed="true"] {
+  background: var(--segment-pill);
+  color: var(--segment-active-text);
+  border-color: transparent;
 }
 
 din-postvermerk {

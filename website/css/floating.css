@@ -371,8 +371,8 @@ aside .sidebar-github-link::after { content: attr(data-ui); }
   flex: 0 0 auto;
   align-self: center;
 }
-:root:has(#toggle-postvermerk:checked) #sidebar-pv-select {
-  display: flex !important;
+#sidebar-pv-select {
+  display: flex;
 }
 
 din-rucksendezeile,

@@ -83,32 +83,26 @@
               <label for="btn-guides-off" data-ui="AUS"></label>
             </div>
           </div>
-          <div>
-            <h3 class="sidebar-label" data-ui="Zusatz-Elemente"></h3>
-            <div class="sidebar-options-group">
-              <div class="sidebar-options-row">
-                <label class="sidebar-checkbox-label" data-ui="Postvermerk">
-                  <input type="checkbox" id="toggle-postvermerk">
-                </label>
-                <label class="sidebar-checkbox-label" data-ui="Anlagen">
-                  <input type="checkbox" id="toggle-anlagen">
-                </label>
-              </div>
-              <select id="sidebar-pv-select" class="sidebar-select" data-persist aria-label="Postvermerk wählen">
-                <option value="Einschreiben" selected>Einschreiben</option>
-                <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
-                <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
-                <option value="Einschreiben Wert">Einschreiben Wert</option>
-                <option value="Persönlich">Persönlich</option>
-                <option value="Vertraulich">Vertraulich</option>
-                <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
-                <option value="Nicht nachsenden!">Nicht nachsenden!</option>
-                <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
-                <option value="Warensendung">Warensendung</option>
-                <option value="Büchersendung">Büchersendung</option>
-                <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
-              </select>
-            </div>
+          <div class="sidebar-zusatz-row">
+            <!-- Hidden checkboxes — CSS :has() rules stay unchanged -->
+            <input type="checkbox" id="toggle-postvermerk" class="sr-only" autocomplete="off">
+            <input type="checkbox" id="toggle-anlagen" class="sr-only" autocomplete="off">
+            <select id="sidebar-pv-select" class="sidebar-select sidebar-pv-select" data-persist aria-label="Postvermerk wählen">
+              <option value="">— kein —</option>
+              <option value="Einschreiben">Einschreiben</option>
+              <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+              <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+              <option value="Einschreiben Wert">Einschreiben Wert</option>
+              <option value="Persönlich">Persönlich</option>
+              <option value="Vertraulich">Vertraulich</option>
+              <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+              <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+              <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+              <option value="Warensendung">Warensendung</option>
+              <option value="Büchersendung">Büchersendung</option>
+              <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+            </select>
+            <button type="button" id="btn-anlagen-toggle" class="sidebar-addon-btn" aria-pressed="false">Anlagen</button>
           </div>
           <div>
             <h3 class="sidebar-label" data-ui="Schriftarten-Manager"></h3>

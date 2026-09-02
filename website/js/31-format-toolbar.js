@@ -1,4 +1,4 @@
-// @ts-check
+﻿// @ts-check
 
 export class FormatToolbar {
   /** @type {HTMLElement} */
@@ -130,8 +130,8 @@ export class FormatToolbar {
     const rect = range.getBoundingClientRect();
 
     if (this.#selectionAnchor) {
-      this.#selectionAnchor.style.top = ${rect.top}px;
-      this.#selectionAnchor.style.left = ${rect.left}px;
+      this.#selectionAnchor.style.top = `${rect.top}px`;
+      this.#selectionAnchor.style.left = `${rect.left}px`;
     }
 
     /*
@@ -209,7 +209,7 @@ export class FormatToolbar {
    * @param {boolean} pressed
    */
   #setCommandState(command, pressed) {
-    const button = this.#toolbar.querySelector(utton[command=" + command + "]);
+    const button = this.#toolbar.querySelector(`button[command="${command}"]`);
     if (!button) return;
     button.setAttribute('aria-pressed', String(pressed));
   }

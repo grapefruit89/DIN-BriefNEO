@@ -38,7 +38,9 @@ Das ist ein Ziel, keine mythische „W3C-Garantie der Abwärtskompatibilität“
 
 **Einzige projektweite Baseline: Chrome 148+.**
 
-Andere Foundation-Dokumente nennen keine zweite Zahl. Eine Anhebung der Baseline ist eine Longevity-Entscheidung plus ADR, kein stilles Editieren verstreuter „149+“-Sätze.
+Andere Dokumente nennen keine zweite Zahl. Eine Anhebung der Baseline ist eine Longevity-Entscheidung plus ADR, kein stilles Editieren verstreuter Versionszahlen.
+
+Chrome 150–152 darf aktueller Entwicklungsfokus sein. Das ändert diese Baseline nicht.
 
 Entscheidungsmodell für Features:
 
@@ -53,7 +55,7 @@ Entscheidungsmodell für Features:
 
 ### Säule 1: Zero Runtime-Dependency
 
-Keine npm-Pakete und keine CDN-Skripte im Produkt. DOM nativ, Datum über `Intl`, Netz nur wo ein explizites optionales Feature es braucht (`fetch`).
+Keine npm-Pakete und keine CDN-Skripte im Produkt. DOM nativ, Datum über `Temporal`, Netz nur wo ein explizites optionales Feature es braucht (`fetch`). `Date` ist im Projekt nicht zulässig (Catalog TM1).
 
 ### Säule 2: Offline / `file://`
 
@@ -84,13 +86,19 @@ Produktdaten liegen in localStorage, weil das unter `file://` zuverlässig ist. 
 - ESM-Importe mit `.js`.
 - Keine JS-Klasse und kein `customElements.define()`, nur weil ein `<din-…>`-Tag Semantik trägt.
 - Keine parallelen DIN-Millimeter in JS.
+- Kein `Date` als Zeitquelle.
 
 ### CSS
 
 - Layout und Blatt-Skala in CSS, nicht in `ResizeObserver`-Schleifen.
 - Kein `filter: invert(1)` für Themes.
 - `var(--x, fallback)`.
-- Geometrie aus HTML-`data-*` ableiten, nicht als zweite Wertetabelle führen.
+- Farbe nach Catalog-Kette (OKLCH zuerst).
+- CSS setzt das IMR-Modell um. Es führt keine eigene normative Millimetertabelle.
+
+### Geometrie
+
+Normative belegte Geometrie steht in der IMR-Registry. HTML implementiert sie. CSS rendert sie. JS erzeugt keine konkurrierende Normquelle.
 
 ---
 

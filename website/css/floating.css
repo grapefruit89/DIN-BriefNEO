@@ -295,8 +295,7 @@ a.sidebar-github-link {
   padding-inline: 0;
 }
 
-/* --- Viewport fit + sidebar scroll + guide toggle ---
-   Overrides layout.css without rewriting the geometry file. */
+/* --- Viewport fit + sidebar scroll + guide toggle --- */
 #app-shell {
   min-height: 0;
 }
@@ -304,6 +303,8 @@ a.sidebar-github-link {
 aside {
   min-height: 0;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 aside > .sidebar-section:first-of-type {
@@ -343,4 +344,36 @@ din-a4 {
 }
 :root:has(#btn-guides-off:checked) {
   --guide-opacity: 0;
+}
+
+aside input[type="text"],
+aside input[type="password"],
+aside input[type="search"],
+aside textarea,
+aside select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+aside [data-ui]::before {
+  content: attr(data-ui);
+}
+
+aside .sidebar-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+aside .sidebar-checkbox-label::before {
+  content: none;
+}
+aside .sidebar-checkbox-label::after {
+  content: attr(data-ui);
+}
+
+aside .sidebar-github-link::before {
+  content: none;
+}
+aside .sidebar-github-link::after {
+  content: attr(data-ui);
 }

@@ -14,10 +14,7 @@ export class SettingsManager {
     this.btnThemeAuto = document.getElementById('btn-theme-auto');
     this.btnGuidesOn = document.getElementById('btn-guides-on');
     this.btnGuidesOff = document.getElementById('btn-guides-off');
-    this.btnFontSans = document.getElementById('btn-font-sans');
-    this.btnFontSerif = document.getElementById('btn-font-serif');
-    this.btnFontUploadTrigger = document.getElementById('btn-upload-font-trigger');
-    this.btnResetFont = document.getElementById('btn-reset-font');
+    this.btnFontAction = document.getElementById('btn-font-action');
     this.fontStatusLabel = document.getElementById('font-status-label');
     this.fontUploader = document.getElementById('font-uploader');
     this.themeDimmer = document.getElementById('theme-dimmer');
@@ -61,13 +58,6 @@ export class SettingsManager {
       }
     }
 
-    if (this.btnFontSans && this.btnFontSerif) {
-      if (this.settings.systemFont === 'serif') {
-        /** @type {HTMLInputElement} */ (this.btnFontSerif).checked = true;
-      } else {
-        /** @type {HTMLInputElement} */ (this.btnFontSans).checked = true;
-      }
-    }
   }
 
   /**
@@ -112,31 +102,20 @@ export class SettingsManager {
    * @param {boolean} hasCustomFont
    */
   updateFontStatusUI(hasCustomFont) {
-    if (!this.fontStatusLabel || !this.btnResetFont) return;
+    if (!this.fontStatusLabel) return;
+    const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
     if (hasCustomFont) {
       this.fontStatusLabel.textContent = "Aktiv: Eigene WOFF2 Schrift";
       document.body.classList.add('font-custom-active');
+      if (btn) { btn.dataset.fontMode = 'reset'; btn.dataset.ui = '🗑️ Schrift zurücksetzen'; }
     } else {
       this.fontStatusLabel.textContent = "Aktiv: System-UI Standardschrift";
       document.body.classList.remove('font-custom-active');
+      if (btn) { btn.dataset.fontMode = 'upload'; btn.dataset.ui = '📤 Schrift hochladen'; }
     }
   }
 
   attachListeners() {
-    if (this.btnFontSans) {
-      this.btnFontSans.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.systemFont = 'sans';
-        this.updateSettings();
-      });
-    }
-    if (this.btnFontSerif) {
-      this.btnFontSerif.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.systemFont = 'serif';
-        this.updateSettings();
-      });
-    }
     if (this.btnFormA) {
       this.btnFormA.addEventListener('change', () => {
         if (!this.isReady) return;
@@ -194,13 +173,18 @@ export class SettingsManager {
     if (this.btnGuidesOn) this.btnGuidesOn.addEventListener('change', handleGuidesToggle);
     if (this.btnGuidesOff) this.btnGuidesOff.addEventListener('change', handleGuidesToggle);
 
-    if (this.btnResetFont) {
-      this.btnResetFont.addEventListener('click', () => {
-        localStorage.removeItem("din_custom_font");
-        const fontStyle = document.getElementById('din-custom-font-style');
-        if (fontStyle) fontStyle.remove();
-        this.updateFontStatusUI(false);
-        showToast("🗑️ Eigene Schriftart entfernt", "success");
+    if (this.btnFontAction) {
+      this.btnFontAction.addEventListener('click', () => {
+        const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
+        if (btn.dataset.fontMode === 'reset') {
+          localStorage.removeItem("din_custom_font");
+          const fontStyle = document.getElementById('din-custom-font-style');
+          if (fontStyle) fontStyle.remove();
+          this.updateFontStatusUI(false);
+          showToast("🗑️ Eigene Schriftart entfernt", "success");
+        } else {
+          /** @type {HTMLInputElement | null} */ (this.fontUploader)?.click();
+        }
       });
     }
 

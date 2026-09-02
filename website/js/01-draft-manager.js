@@ -7,7 +7,7 @@ export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #redoStack = [];
   /** @type {{draftStr: string, caretInfo: {id: string, offset: number} | null} | null} */
-  #currentState = null; // Object holding { draftStr, caretInfo }
+  #currentState = null;
   /** @type {boolean} */
   #isRestoring = false;
 
@@ -19,7 +19,7 @@ export class DraftManager {
     this.onSaveCallback = onSaveCallback;
     /** @type {any} */
     this.debounceTimer = null;
-    this.DEBOUNCE_DELAY = 500; // 500ms ist ein guter Mittelweg
+    this.DEBOUNCE_DELAY = 500;
     this.#initShortcuts();
   }
 
@@ -37,9 +37,6 @@ export class DraftManager {
     });
   }
 
-  /**
-   * Speichert den aktuellen Zustand
-   */
   saveDraft() {
     /** @type {Record<string, string>} */
     const draft = {};
@@ -52,16 +49,19 @@ export class DraftManager {
         draft[elem.id] = elem.textContent;
       }
     });
+    document.querySelectorAll('select[data-persist]').forEach(elem => {
+      const sel = /** @type {HTMLSelectElement} */ (elem);
+      if (sel.id) draft[sel.id] = sel.value;
+    });
 
     StorageManager.saveDraft('current', draft);
     this._updateDocumentTitle();
 
     if (this.#isRestoring) return;
 
-    // History Logic (Undo/Redo with Caret Preservation)
     const draftStr = JSON.stringify(draft);
     let caretInfo = null;
-    
+
     const activeElem = document.activeElement;
     if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id) {
       caretInfo = { id: activeElem.id, offset: this.#getCaretCharacterOffsetWithin(activeElem) };
@@ -70,13 +70,11 @@ export class DraftManager {
     if (!this.#currentState) {
       this.#currentState = { draftStr, caretInfo };
     } else if (draftStr !== this.#currentState.draftStr) {
-      // Text changed: push old state to undo stack, set new state
       this.#undoStack.push(this.#currentState);
-      if (this.#undoStack.length > 50) this.#undoStack.shift(); // Max 50 states
+      if (this.#undoStack.length > 50) this.#undoStack.shift();
       this.#currentState = { draftStr, caretInfo };
-      this.#redoStack = []; // Clear redo on new input
+      this.#redoStack = [];
     } else {
-      // Only cursor moved: update caret position of current state
       this.#currentState.caretInfo = caretInfo;
     }
 
@@ -85,13 +83,10 @@ export class DraftManager {
     }
   }
 
-  /**
-   * Lädt den Draft
-   */
   loadDraft() {
     const draft = StorageManager.loadDraft('current');
     if (!draft) return false;
-    
+
     this.#currentState = { draftStr: JSON.stringify(draft), caretInfo: null };
     this.#restoreState(draft);
     return true;
@@ -106,6 +101,11 @@ export class DraftManager {
       const elem = document.getElementById(id);
       if (!elem) return;
 
+      if (elem instanceof HTMLSelectElement) {
+        elem.value = draft[id];
+        return;
+      }
+
       if (id === 'brieftext' || id === 'anlagen-text') {
         const elWithSetHTML = /** @type {any} */ (elem);
         if (elWithSetHTML.setHTML) {
@@ -117,7 +117,7 @@ export class DraftManager {
         } else {
           this.#safeFallbackParse(elem, draft[id]);
         }
-      } else {
+      } else if (!elem.querySelector('select[data-persist]')) {
         elem.textContent = draft[id];
       }
     });
@@ -129,7 +129,6 @@ export class DraftManager {
    * @param {string} htmlString
    */
   #safeFallbackParse(elem, htmlString) {
-    // @todo(chrome-153): Replace DOMParser with Renewed HTML insertion methods
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
     elem.replaceChildren(...doc.body.childNodes);
@@ -157,8 +156,7 @@ export class DraftManager {
     const draft = JSON.parse(stateObj.draftStr);
     this.#restoreState(draft);
     StorageManager.saveDraft('current', draft);
-    
-    // Restore Caret
+
     if (stateObj.caretInfo) {
       const elem = document.getElementById(stateObj.caretInfo.id);
       if (elem) {
@@ -166,7 +164,7 @@ export class DraftManager {
         this.#setCaretPosition(elem, stateObj.caretInfo.offset);
       }
     }
-    
+
     if (this.onSaveCallback) this.onSaveCallback();
   }
 
@@ -208,7 +206,7 @@ export class DraftManager {
     const sel = win.getSelection();
     if (!sel) return;
     const range = doc.createRange();
-    
+
     let charIndex = 0;
     let found = false;
 
@@ -245,20 +243,18 @@ export class DraftManager {
     }
   }
 
-  /**
-   * Setzt den Brief zurück
-   */
   resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(el => {
-      el.replaceChildren(); // Fast, native way to clear content instead of innerHTML = ''
+      el.replaceChildren();
       el.textContent = '';
+    });
+    document.querySelectorAll('select[data-persist]').forEach(el => {
+      const sel = /** @type {HTMLSelectElement} */ (el);
+      sel.selectedIndex = 0;
     });
     this.saveDraft();
   }
 
-  /**
-   * Debounced Auto-Save
-   */
   scheduleAutoSave() {
     clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
@@ -271,9 +267,6 @@ export class DraftManager {
     document.title = betreff;
   }
 
-  /**
-   * Erlaubt späteres Umschalten auf Event-basiert
-   */
   enableEventMode() {
     document.addEventListener('draft:save-request', () => {
       this.saveDraft();

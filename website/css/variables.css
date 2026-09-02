@@ -7,7 +7,7 @@
 @property --guide-opacity {
   syntax: '<number>';
   inherits: true;
-  initial-value: 0.15;
+  initial-value: 0;
 }
 
 :root {
@@ -66,7 +66,7 @@
   
   /* DIN Paper layout configurations */
   --paper-zoom: 1;
-  --guide-opacity: 0.15;
+  --guide-opacity: 0;
   --guide-color: oklch(from var(--paper-text) l c h);
   
   /* Active Font Stack variable */

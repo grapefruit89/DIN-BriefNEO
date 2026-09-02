@@ -34,3 +34,9 @@ din-a4 {
 .pv-select::picker-icon {
   display: none !important;
 }
+
+/* DIN 5008: Trennlinie unter Rücksendezeile nur im Druck */
+#absender {
+  border-bottom: 0.5pt solid oklch(0% 0 0) !important;
+  padding-bottom: 2px !important;
+}

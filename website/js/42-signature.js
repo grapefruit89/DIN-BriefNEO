@@ -203,11 +203,22 @@ export class SignatureFeature {
    */
   saveAndApply(base64) {
     this.applyImage(base64);
-    
+
+    // On first upload (no saved position), place signature in the typical DIN 5008 signing area
+    if (!this.ui.settings?.signatureState) {
+      const dinA4 = document.querySelector('din-a4');
+      if (dinA4) {
+        const rect = dinA4.getBoundingClientRect();
+        // ~left margin (8%), ~70% down the sheet, half-size
+        this.state = { x: rect.width * 0.08, y: rect.height * 0.70, scale: 0.5, rot: 0 };
+        this.applyTransform();
+      }
+    }
+
     // Save to settings
     if (!this.ui.settings) this.ui.settings = {};
     this.ui.settings.signatureImage = base64;
-    
+
     if (typeof this.ui.saveSettings === 'function') {
       this.ui.saveSettings();
     }

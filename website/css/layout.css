@@ -814,7 +814,20 @@ din-anlagen, din-verteiler {
 
 
 #signature-image[src=""] { display: none !important; }
-#signature-container { display: none; }
+
+/* Container is a zero-size overlay anchored at top-left of din-a4.
+   The sig-bounding-box uses translate() to position the image freely over the entire sheet. */
+#signature-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 100;
+  pointer-events: none;
+  display: none;
+}
 body:has(#signature-image[src]:not([src=""])) #signature-container { display: block; }
 #btn-reset-sig { display: none !important; }
 body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
@@ -995,17 +1008,13 @@ html.theme-transition::view-transition-new(root) {
 }
 
 /* --- WYSIWYG SIGNATURE EDITOR --- */
-.draggable-container {
-  position: relative;
-  display: inline-block;
-}
-
 .sig-bounding-box {
   position: relative;
   display: inline-block;
   cursor: grab;
+  pointer-events: auto;
   /* Transform values applied via JS inline styles/vars */
-  transform: translate(var(--x, 0), var(--y, 0)) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+  transform: translate(var(--x, 0px), var(--y, 0px)) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
   transform-origin: center center;
   touch-action: none;
 }

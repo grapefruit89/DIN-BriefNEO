@@ -1,10 +1,10 @@
 ---
 id: imr-registry
-title: 'IMR 4.0 — DIN 5008 Tag-Registry (Platinum Master)'
+title: 'IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-07-07'
+updated: '2026-09-02'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -32,259 +32,242 @@ supersedes: []
 depends_on: []
 ---
 
-# IMR 4.0 — Die Definitive DIN 5008 Registry (Platinum Master)
+# IMR 4.0 — DIN 5008 Registry
+
+Die IMR-Registry ist das normative Master-Modell des DIN-Briefes. Sie definiert Vokabular, kanonische Tags, Zonen, Beziehungen und belegte normative Geometrie. HTML implementiert dieses Modell, CSS rendert es, JavaScript erzeugt keine konkurrierende normative Geometriequelle.
+
+Die 45 Atome (`8+8+8+6+12+3`) sind das vollständige fachliche Vokabular. Ein konkreter Brief instantiiert nur die benötigte Teilmenge. Nicht-Vorkommen ist kein Fehler. Ein instantiiertes Atom wird als kanonisches `<din-…>`-Element repräsentiert. Das verlangt keine JavaScript-Registrierung und keine Custom-Element-Klasse.
+
+Es gibt keine Atome 46 oder 47. Overlay ist keine der 45.
 
 > [!NOTE]
-> Das Anschriftfeld hat eine feste Höhe von 45mm[^1]. Überlaufender Text wird durch den Overflow-Alarm (`@container scroll-state`) visuell markiert.
-
-> **Single Source of Truth (SSoT)** für die Platinum Validation Pipeline (PVP).  
-> Diese Liste definiert alle **45 atomaren Daten-Tags** (inkl. Guides) mit Positionierung, Ausrichtung und Wachstumsverhalten.
+> Das Anschriftfeld hat eine feste Höhe von 45 mm. Überlaufender Text wird durch den Overflow-Alarm visuell markiert. Das Overflow-Verhalten selbst ist Rendering, nicht zusätzliche Atom-Geometrie.
 
 ---
 
-## 📊 **Übersicht**
+## Geometrieklassen
 
-<details>
-<summary>📋 Bereichs-Übersicht & Container-Struktur</summary>
+Koordinatensystem: DIN-A4-Blatt, 210 mm × 297 mm, Ursprung oben links, Einheit Millimeter. Form A und Form B sind Y-Varianten desselben Modells.
 
-| Bereich | Tags | Container | Wuchs-Verhalten |
-|---------|------|-----------|-----------------|
-| **Absender-Zone** | 8 | `<din-absender>` | Top-Down |
-| **Anschriftfeld** | 8 | `<din-anschriftfeld>` | Top-Down (Fix 45mm) |
-| **Metadaten & Infoblock** | 8 | `<din-infoblock>` | Top-Down |
-| **Briefkern** | 6 | `<din-kern>` | Dynamisch |
-| **Fußzeile** | 12 | `<din-fuss>` | Spalten-basiert |
-| **Systemkomponenten** | 3 | – | – |
+| Klasse | Bedeutung | In dieser Registry |
+|---|---|---|
+| 1 Absolute Atom-Geometrie | X / Y / W / H in mm, nur wenn belegt | nur die bereits belegten Werte |
+| 2 Zonen-Geometrie | Begrenzung der Zone | nur belegte Zonenmaße |
+| 3 Flow- / Reihenmodell | Lage in Zone, Zeile oder Spaltenindex ohne eigene Box | explizite Regel, keine abgeleiteten mm |
+| 4 Rendering | CSS, `%`, Custom Properties, Ellipsis, Zeilenhöhe als Technik | nicht normativ |
 
-</details>
+Fehlt eine belastbare absolute Atom-Box:
+
+`absolute geometry: not independently specified`
+
+Vorhandene Millimeterwerte werden nicht gelöscht und nicht durch Rechnung ergänzt.
 
 ---
 
-## 🗺️ **Architektur-Übersicht**
+## Komposition
+
+`din-empfaenger-vorname` und `din-empfaenger-nachname` dürfen in einem Brief als gemeinsame Namenszeile in der Anschriftzone erscheinen. Das erzeugt kein Atom `din-empfaenger-name`. Die Split-Tags werden nur instantiiert, wenn Vor- und Nachname getrennt geführt werden.
+
+Dasselbe gilt für `din-absender-vorname` und `din-absender-nachname` in der Zone, in der der Absenderkontakt tatsächlich liegt.
+
+Ein optionales Unterschriftsbild ist Satellit von `din-unterschrift`, kein eigenes Atom.
+
+---
+
+## Platzierung Kontakt
+
+Die acht Absender-Atome haben die Default-Zone `din-absender` (Briefkopf).
+
+Sie MAY in `din-infoblock` liegen, wenn der konkrete Brief den Kontakt rechts führt.
+
+Dieselbe Angabe darf nicht parallel in Briefkopf und Infoblock instantiiert werden.
+
+---
+
+## Ebenen
+
+```
+din-a4                         Dokumentrahmen 210 × 297, kein Atom
+├── din-absender               ZONE Briefkopf (optional)
+├── din-anschriftfeld          ZONE Fenster
+├── din-infoblock              ZONE rechts
+├── din-datum                  Atom (Metadaten-Gruppe; DOM-Kindschaft nicht zwingend)
+├── din-kern                   ZONE Briefkörper
+├── din-fuss                   ZONE Fuß
+├── din-falz-oben              SYSTEM-Atom
+├── din-falz-unten             SYSTEM-Atom
+└── din-lochmarke              SYSTEM-Atom
+```
+
+Zonen sind keine der 45 Atome.
 
 ```mermaid
 graph TD
-    subgraph Input
-        A[User Input]
-    end
-    
-    subgraph Container
-        B[din-absender]
-        C[din-anschriftfeld]
-        D[din-infoblock]
-        E[din-kern]
-        F[din-fuss]
-    end
-    
-    subgraph Output
-        G[HTML Rendering]
-        H[CSS Positioning]
-        I[JSON State]
-    end
-    
-    A --> B
-    A --> C
-    A --> D
-    A --> E
-    A --> F
-    
-    B --> G
-    B --> H
-    B --> I
-    
-    C --> G
-    C --> H
-    C --> I
-    
-    D --> G
-    D --> H
-    D --> I
-    
-    E --> G
-    E --> H
-    E --> I
-    
-    F --> G
-    F --> H
-    F --> I
+    R[din-a4]
+    R --> B[din-absender]
+    R --> C[din-anschriftfeld]
+    R --> D[din-infoblock]
+    R --> E[din-kern]
+    R --> F[din-fuss]
+    R --> S[System: Falz / Loch]
 ```
 
 ---
 
-## 📄 0. Haupt-Container (Dokument)
+## Übersicht 45 Atome
 
-**Container:** `<din-a4>`  
-**Rolle:** Root-Element für das Druck-Layout  
-**Verhalten:** Skaliert dynamisch über CSS-Transforms im Viewport, wird beim Drucken exakt als DIN A4 Seite (210x297mm) behandelt.
-
-| Tag | Beschreibung | Erlaubter Inhalt | ARIA-Rolle | Verhalten | CSS-Klasse |
-|:---|:---|:---|:---|:---|:---|
-| `<din-a4>` | Das Briefpapier (View) | Alle DIN-Zonen | `article` | Skaliert im Viewport, fixt beim Druck | — |
-
----
-
-## 🏢 1. Absender-Zone (Branding)
-
-**Container:** `<din-absender>`  
-**Position:** X: `25mm` | Y: `var(--din-y-header-start)`  
-**Standard:** Form A: `27mm` | Form B: `45mm`
-
-| Tag | Beschreibung | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
-|:---|:---|:---:|:---|:---|:---|:---|
-| `<din-branding-logo>` | Firmenlogo (SVG/Base64) | Rechts | — | [`/whatwg/html`](https://html.spec.whatwg.org/) | — | — |
-| `<din-absender-vorname>` | Vorname Absender | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-absender-nachname>` | Nachname Absender | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-absender-strasse>` | Straße & Hausnr. | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-absender-ort>` | PLZ & Ort | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-absender-zusatz>` | Adresszusatz | Links | `plaintext` | DIN 5008: 16.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-absender-mail>` | E-Mail Adresse | Links | `type="email"` | `mailto:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-absender-tel>` | Telefonnummer | Links | `type="tel"` | `tel:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| Bereich | Anzahl | Zone / Gruppe |
+|---|---|---|
+| Absender | 8 | `<din-absender>` Default; MAY Infoblock |
+| Anschrift | 8 | `<din-anschriftfeld>` |
+| Infoblock | 8 | `<din-infoblock>` / Datum eigene Y |
+| Kern | 6 | `<din-kern>` |
+| Fuß | 12 | `<din-fuss>` |
+| System | 3 | Blatt, keine Inhaltszone |
+| **Summe** | **45** | |
 
 ---
 
-## ✉️ 2. Anschriftfeld (Empfänger)
+## 0. Dokumentrahmen
 
-**Container:** `<din-anschriftfeld>` | **ARIA-Rolle:** `group`  
-**Position:** X: `25mm` | Y: Form A: `32mm` | Form B: `50mm`  
-**Max-Breite:** `85mm` | **Höhe:** `45mm` (Fix)
-
-| Tag | Beschreibung | Zeile | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
-|:---|:---|:---:|:---:|:---|:---|:---|:---|
-| `<din-rucksendezeile>` | Kleinstzeile | 1 (fix) | Links | `font-size: 8pt` | DIN 5008: 16.1.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-postvermerk>` | Postvermerk / Zusatz | 1-4 | Links | `plaintext` | DIN 5008: 16.1.3 | Smart Single-Line (ellipsis) | `.single-line` |
-| `<din-empfaenger-firma>` | Firmenname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-empfaenger-abteilung>` | Abteilung | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-empfaenger-vorname>` | Vorname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-empfaenger-nachname>` | Nachname | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-empfaenger-strasse>` | Straße & Hausnr. | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-empfaenger-ort>` | PLZ & Ort | 5-9 | Links | `plaintext` | DIN 5008: 16.1.4 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-
-> ⚠️ **Wichtig:** Das Anschriftfeld hat eine **feste Höhe von 45mm**. Überlaufender Text wird abgeschnitten (DIN 5008 Konformität).
+**Element:** `<din-a4>`  
+**Rolle:** Dokumentwurzel, nicht Teil der 45.  
+**Normative Fläche:** Breite 210 mm, Höhe 297 mm.
 
 ---
 
-## 📅 3. Metadaten & Infoblock
+## 1. Zone Absender (Briefkopf)
 
-**Container:** `<din-infoblock>` | **ARIA-Rolle:** `group`  
-**Position:** X: `125mm` | Y (A): `32mm` | Y (B): `50mm`  
-**Wuchs:** Top-Down
+**Zone:** `<din-absender>`  
+**Rolle:** optionaler Briefkopf. Keine Pflicht, alle acht Atome zu instantiieren.  
+**Zonen-Geometrie:** X 25 mm. Y Form A 27 mm, Form B 45 mm. Breite und Höhe der Zone: `absolute geometry: not independently specified`.
 
-| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
-|:---|:---|:---:|:---:|:---:|:---|:---|:---|:---|
-| `<din-datum>` | Briefdatum | 74 | 92 | Links | `Temporal.PlainDate` | DIN 5008: 17.2 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-ihr-zeichen>` | Ihr Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-ihr-schreiben>` | Ihr Schreiben vom | Flow | Flow | Links | `ISO-8601` | [`/tc39/proposal-temporal`](https://tc39.es/proposal-temporal/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-unser-zeichen>` | Unser Zeichen | Flow | Flow | Links | — | DIN 5008: 17.1 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-unser-schreiben>` | Bezugsdatum | Flow | Flow | Links | `ISO-8601` | [`/tc39/ecma262`](https://tc39.es/ecma262/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-durchwahl>` | Direkte Telefonnr. | Flow | Flow | Links | `type="tel"` | `tel:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-email-direkt>` | Direkte E-Mail | Flow | Flow | Links | `type="email"` | `mailto:` | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-internet>` | Web-URL | Flow | Flow | Links | `type="url"` | [`/whatwg/html`](https://html.spec.whwg.org/) | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
+| Atom | Tag | Ausrichtung | Atom-Geometrie | Modell |
+|---|---|---|---|---|
+| din-branding-logo | `<din-branding-logo>` | rechts | not independently specified | available |
+| din-absender-vorname | `<din-absender-vorname>` | links | not independently specified | Flow in Zonenbox; Komposition mit Nachname zulässig |
+| din-absender-nachname | `<din-absender-nachname>` | links | not independently specified | Flow in Zonenbox; Komposition mit Vorname zulässig |
+| din-absender-strasse | `<din-absender-strasse>` | links | not independently specified | Flow in Zonenbox |
+| din-absender-ort | `<din-absender-ort>` | links | not independently specified | Flow in Zonenbox |
+| din-absender-zusatz | `<din-absender-zusatz>` | links | not independently specified | Flow in Zonenbox |
+| din-absender-mail | `<din-absender-mail>` | links | not independently specified | Flow in Zonenbox; MAY Infoblock |
+| din-absender-tel | `<din-absender-tel>` | links | not independently specified | Flow in Zonenbox; MAY Infoblock |
 
----
-
-## 📝 4. Briefkern (Dynamischer Inhalt)
-
-**Container:** `<din-kern>` | **ARIA-Rolle:** `article`  
-**Position:** X: `25mm` | Y (A): `91mm` | Y (B): `109mm`  
-**Max-Breite:** `165mm` | **Wuchs:** Top-Down (dynamisch, triggert Paginierung)
-
-| Tag | Beschreibung | Y (A) | Y (B) | Ausrichtung | Zeilen | Validierung | DIN / Context7 | Verhalten | CSS-Klasse |
-|:---|:---|:---:|:---:|:---:|:---:|:---|:---|:---|:---|
-| `<din-betreff>` | Betreff (fett) | Flow | Flow | Links | **Einzeilig*** | Max 2 Zeilen | DIN 5008: 18 | Max 2 Zeilen | — |
-| `<din-anrede>` | Anredeformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 19 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-text>` | Haupt-Inhalt | Flow | Flow | Blocksatz* | **Mehrzeilig** | Sanitizer API | DIN 5008: 20 | Vollständig editierbar | — |
-| `<din-grussformel>` | Grußformel | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 21 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-unterschrift>` | Unterzeichner | Flow | Flow | Links | **Einzeilig** | — | DIN 5008: 22 | Smart Single-Line (ellipsis + Focus-Edit) | `.single-line` |
-| `<din-anlagen>` | Anlagenverzeichnis | Flow | Flow | Links | **Mehrzeilig** | — | DIN 5008: 23 | Vollständig editierbar | — |
-
-> ℹ️ *Betreff: Startet zwingend UNTER der ersten Falzmarke (105mm/87mm). Smart-Squeezing versucht ihn einzeilig zu halten.*
-
-> ℹ️ **Blocksatz mit Silbentrennung** wird für DIN-Briefe empfohlen:  
-> `text-align: justify; text-justify: inter-word; hyphens: auto;`
+Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil dieser Normwerte.
 
 ---
 
-## 📄 5. Fußzeile (Footer) – 4 Spalten
+## 2. Zone Anschriftfeld
 
-**Container:** `<din-fuss>` | **ARIA-Rolle:** `contentinfo`  
-**Position:** X: `25mm` | Y: `241mm`  
-**Max-Breite:** `165mm` | **Wuchs:** Spalten-basiert  
-**Layout:** 4 Spalten (je 25% Breite)
+**Zone:** `<din-anschriftfeld>`  
+**ARIA:** `group`  
+**Zonen-Geometrie:** X 25 mm. Y Form A 32 mm, Form B 50 mm. Breite 85 mm. Höhe 45 mm (fix).
 
-| Tag | Beschreibung | Spalte | Y | Ausrichtung | Zeilen | Validierung | DIN / Context7 |
-|:---|:---|:---:|:---:|:---:|:---:|:---|:---|
-| `<din-fuss-firma>` | Firmenbezeichnung | 1 | 241 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-sitz>` | Firmensitz | 1 | 246 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-gericht>` | Registergericht | 1 | 251 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-hrb>` | Handelsregister-Nr. | 1 | 256 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-vorstand>` | Vorstand / Inhaber | 2 | 241 | Links | **Mehrzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-gf>` | Geschäftsführer | 2 | 251 | Links | **Mehrzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-stnr>` | Steuernummer | 3 | 241 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-ustid>` | USt-IdNr. | 3 | 246 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-bank>` | Name der Bank | 4 | 241 | Links | **Einzeilig** | — | DIN 5008: 24 |
-| `<din-fuss-iban>` | IBAN | 4 | 246 | Links | **Einzeilig** | `BigInt` Mod-97 | ISO 13616 |
-| `<din-fuss-bic>` | BIC | 4 | 251 | Links | **Einzeilig** | `regex` | ISO 9362 |
-| `<din-fuss-anschrift>` | Hausanschrift | 4 | 256 | Links | **Einzeilig** | — | DIN 5008: 24 |
+Die Höhe 45 mm ist Zonenmaß, keine Atom-Box.
 
----
+| Atom | Tag | Reihenmodell | Atom-Geometrie | Modell |
+|---|---|---|---|---|
+| din-rucksendezeile | `<din-rucksendezeile>` | Zeile 1 | not independently specified | Kleinstzeile im Fenster; nicht identisch mit Zone `din-absender` |
+| din-postvermerk | `<din-postvermerk>` | Zeile 1–4 | not independently specified | optional |
+| din-empfaenger-firma | `<din-empfaenger-firma>` | Zeile 5–9 | not independently specified | optional |
+| din-empfaenger-abteilung | `<din-empfaenger-abteilung>` | Zeile 5–9 | not independently specified | optional |
+| din-empfaenger-vorname | `<din-empfaenger-vorname>` | Zeile 5–9 | not independently specified | Komposition mit Nachname zulässig |
+| din-empfaenger-nachname | `<din-empfaenger-nachname>` | Zeile 5–9 | not independently specified | Komposition mit Vorname zulässig |
+| din-empfaenger-strasse | `<din-empfaenger-strasse>` | Zeile 5–9 | not independently specified | |
+| din-empfaenger-ort | `<din-empfaenger-ort>` | Zeile 5–9 | not independently specified | |
 
-## 🛠️ 6. Systemkomponenten (Guides)
-
-Diese Tags dienen der internen Visualisierung und Compliance-Kontrolle.
-
-`<din-falz-oben>`
-:   Obere Faltmarke (DIN 5008 SSO Fixpunkt). Positioniert sich fix bei Form A: `87mm` | Form B: `105mm`.
-
-`<din-falz-unten>`
-:   Untere Faltmarke (DIN 5008 SSO Fixpunkt). Positioniert sich fix bei Form A: `181mm` | Form B: `210mm`.
-
-`<din-lochmarke>`
-:   Lochmarke (DIN 5008 Mitte). Positioniert sich absolut fix bei `148.5mm`.
-
-`<din-overlay>`
-:   SVG-Referenz-Overlay für den visuellen Layout-Audit (Platinum Feature).
+Schriftgröße 8 pt der Rücksendezeile ist ein typografischer Parameter, keine Millimeter-Box.
 
 ---
 
-## ✨ 7. Auto-Detection & Intelligente Vorschläge (v4.8.0)
+## 3. Zone Infoblock (Metadaten)
 
-| Feature | Implementierung | Beschreibung |
-|---------|-----------------|--------------|
-| **Empfänger-Typ Auto-Erkennung** | `js/ui.js` → `_updateSalutation()` | Scannt Anschriftfeld nach "Frau", "Herr", "Ms", "Mr". Setzt `recipientType` dynamisch. |
-| **Ghost-Text Anrede** | `data-salutation` Attribut | Vorschlag basierend auf Stil und Empfänger. Sichtbar solange Feld leer ist. |
-| **Ghost-Text Grußformel** | `data-greeting` Attribut | Vorschlag basierend auf Stil. Sichtbar solange Feld leer ist. |
+**Zone:** `<din-infoblock>`  
+**ARIA:** `group`  
+**Zonen-Geometrie:** X 125 mm. Y Form A 32 mm, Form B 50 mm. Breite und Höhe der Zone: `absolute geometry: not independently specified`.
 
----
+Kontakt-Atome der Absendergruppe MAY hier instantiiert werden (siehe Platzierung).
 
-## 🎠 8. 3D-Carousel Systemvariablen (v4.8.0)
-
-| Variable / Selektor | Beschreibung | Verwendung |
-|---------------------|--------------|------------|
-| `--position` | Aktive Seite im Carousel | 1-basiert, steuert 3D-Transformation |
-| `--i` | Individueller Seiten-Index | Pro `din-A4` Element, für Distanzberechnung |
-| `din-fuss > *:empty` | Automatisches Ausblenden | Leere Footer-Elemente werden nicht gerendert |
-
----
-
-## 📐 9. Layout-Varianten (Form C)
-
-| Modus | CSS-Selektor | Beschreibung |
-|-------|--------------|--------------|
-| **Form C (Modern)** | `:root:has(#state-layout-c:checked)` | Flexbox-basiertes, fließendes Layout ohne absolute Positionierung. Alle Elemente gestapelt. |
+| Atom | Tag | Lage | Atom-Geometrie | Modell |
+|---|---|---|---|---|
+| din-datum | `<din-datum>` | Y Form A 74 mm, Form B 92 mm | Y belegt; X/W/H not independently specified | Metadaten-Gruppe; muss nicht DOM-Kind von `din-infoblock` sein |
+| din-ihr-zeichen | `<din-ihr-zeichen>` | Flow in der Zone | not independently specified | available |
+| din-ihr-schreiben | `<din-ihr-schreiben>` | Flow in der Zone | not independently specified | available |
+| din-unser-zeichen | `<din-unser-zeichen>` | Flow in der Zone | not independently specified | available |
+| din-unser-schreiben | `<din-unser-schreiben>` | Flow in der Zone | not independently specified | available |
+| din-durchwahl | `<din-durchwahl>` | Flow in der Zone | not independently specified | nicht identisch mit `din-absender-tel` |
+| din-email-direkt | `<din-email-direkt>` | Flow in der Zone | not independently specified | nicht identisch mit `din-absender-mail` |
+| din-internet | `<din-internet>` | Flow in der Zone | not independently specified | available |
 
 ---
 
-[^1]: DIN 5008:2020-03, Abschnitt 16.1.4 – Maße des Anschriftfeldes für Fensterbriefe.
+## 4. Zone Briefkern
 
-## 📝 Changelog
+**Zone:** `<din-kern>`  
+**Zonen-Geometrie:** X 25 mm. Y Form A 91 mm, Form B 109 mm. Breite 165 mm. Höhe der Zone: `absolute geometry: not independently specified`.
 
-| Datum | Version | Änderung | Autor |
-|-------|---------|----------|-------|
-| 2026-04-01 | 4.8.0 | Auto-Erkennung Empfänger-Typ hinzugefügt | [@grapefruit89](https://github.com/grapefruit89) |
-| 2026-04-01 | 4.8.0 | Ghost-Text für Anrede/Grußformel dokumentiert | [@grapefruit89](https://github.com/grapefruit89) |
-| 2026-04-01 | 4.8.0 | 3D-Carousel CSS-Variablen (`--position`, `--i`) ergänzt | [@grapefruit89](https://github.com/grapefruit89) |
-| 2026-04-01 | 4.8.0 | Form C Layout dokumentiert | [@grapefruit89](https://github.com/grapefruit89) |
-| 2026-04-01 | 4.8.0 | Footer leere Elemente Auto-Hide dokumentiert | [@grapefruit89](https://github.com/grapefruit89) |
-| 2026-03-31 | 4.7.0 | Initiale Version | [@grapefruit89](https://github.com/grapefruit89) |
+Der Betreff beginnt fachlich unter der ersten Falzmarke. Die Falz-Y-Werte stehen nur bei den System-Atomen.
+
+| Atom | Tag | Modell | Atom-Geometrie |
+|---|---|---|---|
+| din-betreff | `<din-betreff>` | Flow in der Zone; höchstens zwei Zeilen als fachliche Empfehlung | not independently specified |
+| din-anrede | `<din-anrede>` | Flow in der Zone | not independently specified |
+| din-text | `<din-text>` | mehrzeilig, wächst in der Zone | not independently specified |
+| din-grussformel | `<din-grussformel>` | Flow in der Zone | not independently specified |
+| din-unterschrift | `<din-unterschrift>` | Flow in der Zone; Bild optional als Satellit | not independently specified |
+| din-anlagen | `<din-anlagen>` | mehrzeilig, optional | not independently specified |
+
+Blocksatz und Silbentrennung sind Rendering.
 
 ---
+
+## 5. Zone Fuß
+
+**Zone:** `<din-fuss>`  
+**ARIA:** `contentinfo`  
+**Zonen-Geometrie:** X 25 mm. Y 241 mm. Breite 165 mm. Höhe der Zone: `absolute geometry: not independently specified`.
+
+Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der Spaltenindex, nicht die Millimeter-X/W der einzelnen Atome.
+
+| Atom | Tag | Spalte | Y (mm) | Atom-X/W/H |
+|---|---|---|---|---|
+| din-fuss-firma | `<din-fuss-firma>` | 1 | 241 | not independently specified |
+| din-fuss-sitz | `<din-fuss-sitz>` | 1 | 246 | not independently specified |
+| din-fuss-gericht | `<din-fuss-gericht>` | 1 | 251 | not independently specified |
+| din-fuss-hrb | `<din-fuss-hrb>` | 1 | 256 | not independently specified |
+| din-fuss-vorstand | `<din-fuss-vorstand>` | 2 | 241 | not independently specified |
+| din-fuss-gf | `<din-fuss-gf>` | 2 | 251 | not independently specified |
+| din-fuss-stnr | `<din-fuss-stnr>` | 3 | 241 | not independently specified |
+| din-fuss-ustid | `<din-fuss-ustid>` | 3 | 246 | not independently specified |
+| din-fuss-bank | `<din-fuss-bank>` | 4 | 241 | not independently specified |
+| din-fuss-iban | `<din-fuss-iban>` | 4 | 246 | not independently specified |
+| din-fuss-bic | `<din-fuss-bic>` | 4 | 251 | not independently specified |
+| din-fuss-anschrift | `<din-fuss-anschrift>` | 4 | 256 | not independently specified |
+
+Spalte 2 hat in diesem Modell keine belegte Zeile bei Y 246. Das bleibt eine Lücke, kein neuer Wert.
+
+---
+
+## 6. System
+
+Genau drei Atome. Sie liegen auf dem Blatt, nicht in einer Inhaltszone.
+
+| Atom | Tag | Belegte Geometrie | Nicht belegt |
+|---|---|---|---|
+| din-falz-oben | `<din-falz-oben>` | Y Form A 87 mm, Form B 105 mm | X, W, H |
+| din-falz-unten | `<din-falz-unten>` | Y Form A 181 mm, Form B 210 mm | X, W, H |
+| din-lochmarke | `<din-lochmarke>` | Y 148,5 mm | X, W, H |
+
+### Overlay (kein Atom)
+
+Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört nicht zu den 45 Atomen und hat keine normative Atom-Geometrie in diesem Modell.
+
+---
+
+## Changelog
+
+| Datum | Änderung |
+|---|---|
+| 2026-09-02 | Master-Modell, Zonen ≠ Atome, Komposition, Kontakt-Platzierung, Overlay aus den 45, Kap. 7–9 entfernt, Geometrie ehrlich klassifiziert, vorhandene mm unverändert |
+| 2026-04-01 | Historische Einträge zu Auto-Erkennung, Carousel und Form C — nicht mehr Teil dieses Modells |
+| 2026-03-31 | Initiale Version |

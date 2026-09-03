@@ -268,10 +268,4 @@ export class DraftManager {
     const betreff = document.getElementById('betreff')?.textContent.trim() || 'Unbenannt';
     document.title = betreff;
   }
-
-  enableEventMode() {
-    document.addEventListener('draft:save-request', () => {
-      this.saveDraft();
-    });
-  }
 }

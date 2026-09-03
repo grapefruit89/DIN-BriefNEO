@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function initApp() {
     const draftManager = new DraftManager();
     draftManager.loadDraft();
-    draftManager.enableEventMode();
     syncPostvermerkFromSidebar();
     applyLetterDate();
 

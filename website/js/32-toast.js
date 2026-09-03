@@ -1,68 +1,75 @@
 // @ts-check
 // @guide [[chrome-modern-css]]
 
+/**
+ * @typedef {{message: string, type: string, options: any, duration: number}} ToastEntry
+ */
+
 /* @adr [[ADR-JS]] {ToastSystem} */
 export class ToastSystem {
   constructor() {
-    /** @type {Array<{message: string, type: string, options: any, duration: number}>} */
-    this.queue = [];
-    /** @type {boolean} */
-    this.isActive = false;
-    /** @type {any} */
-    this.displayTimeout = null;
-    /** @type {number} */
-    this.timeRemaining = 0;
-    /** @type {number} */
-    this.startTime = 0;
-    /** @type {boolean} */
-    this.isPaused = false;
-    /** @type {{message: string, type: string, options: any, duration: number} | null} */
-    this.currentToast = null;
-    /** @type {number} */
-    this.toastCount = 1;
-    
-    // Swipe state
-    /** @type {number} */
-    this.startX = 0;
-    /** @type {number} */
-    this.currentX = 0;
-    /** @type {boolean} */
-    this.isSwiping = false;
+    this.state = {
+      toast: {
+        /** @type {ToastEntry[]} */
+        queue: [],
+        /** @type {ToastEntry | null} */
+        current: null,
+        count: 1
+      },
 
-    // DOM elements
-    /** @type {HTMLElement | null} */
-    this.globalToast = null;
-    /** @type {HTMLElement | null} */
-    this.toastMessage = null;
-    /** @type {HTMLElement | null} */
-    this.toastBadge = null;
-    /** @type {HTMLElement | null} */
-    this.toastAction = null;
-    /** @type {HTMLElement | null} */
-    this.toastClose = null;
+      timer: {
+        /** @type {ReturnType<typeof setTimeout> | null} */
+        id: null,
+        remaining: 0,
+        start: 0,
+        paused: false
+      },
+
+      swipe: {
+        startX: 0,
+        currentX: 0,
+        active: false
+      },
+
+      dom: {
+        /** @type {HTMLElement | null} */
+        global: null,
+        /** @type {HTMLElement | null} */
+        message: null,
+        /** @type {HTMLElement | null} */
+        badge: null,
+        /** @type {HTMLElement | null} */
+        action: null,
+        /** @type {HTMLElement | null} */
+        close: null
+      },
+
+      active: false
+    };
   }
 
   initDOM() {
-    this.globalToast = document.getElementById('toast-v4');
-    this.toastMessage = document.getElementById('toast-message');
-    this.toastBadge = document.getElementById('toast-badge');
-    this.toastAction = document.getElementById('toast-action');
-    this.toastClose = document.getElementById('toast-close');
+    const dom = this.state.dom;
+    dom.global = document.getElementById('toast-v4');
+    dom.message = document.getElementById('toast-message');
+    dom.badge = document.getElementById('toast-badge');
+    dom.action = document.getElementById('toast-action');
+    dom.close = document.getElementById('toast-close');
 
-    if (!this.globalToast || !this.toastMessage || !this.toastClose) {
+    if (!dom.global || !dom.message || !dom.close) {
       console.warn('[Toast] DOM elements missing.');
       return;
     }
 
-    this.globalToast.addEventListener('mouseenter', () => this.pauseTimer());
-    this.globalToast.addEventListener('mouseleave', () => this.resumeTimer());
+    dom.global.addEventListener('mouseenter', () => this.pauseTimer());
+    dom.global.addEventListener('mouseleave', () => this.resumeTimer());
 
-    this.toastClose.addEventListener('click', () => {
-      this.clearCurrentToast();
+    dom.close.addEventListener('click', () => {
+      this.clearTimer();
       this.cleanupPopover();
     });
 
-    this.globalToast.addEventListener('pointerdown', this.onPointerDown.bind(this));
+    dom.global.addEventListener('pointerdown', this.onPointerDown.bind(this));
     document.addEventListener('pointermove', this.onPointerMove.bind(this), { passive: false });
     document.addEventListener('pointerup', this.onPointerUp.bind(this));
     document.addEventListener('pointercancel', this.onPointerUp.bind(this));
@@ -72,29 +79,31 @@ export class ToastSystem {
    * @param {PointerEvent} e
    */
   onPointerDown(e) {
-    if (!this.isActive || !this.globalToast) return;
+    const { active, dom, swipe } = this.state;
+    if (!active || !dom.global) return;
     const target = /** @type {HTMLElement} */ (e.target);
     if (target && (target.closest('#toast-close') || target.closest('#toast-action'))) {
       return;
     }
-    this.isSwiping = true;
-    this.startX = e.clientX;
-    this.currentX = 0;
-    this.globalToast.style.transition = 'none';
-    this.globalToast.setPointerCapture(e.pointerId);
+    swipe.active = true;
+    swipe.startX = e.clientX;
+    swipe.currentX = 0;
+    dom.global.style.transition = 'none';
+    dom.global.setPointerCapture(e.pointerId);
   }
 
   /**
    * @param {PointerEvent} e
    */
   onPointerMove(e) {
-    if (!this.isSwiping || !this.globalToast) return;
-    const deltaX = e.clientX - this.startX;
+    const { dom, swipe } = this.state;
+    if (!swipe.active || !dom.global) return;
+    const deltaX = e.clientX - swipe.startX;
     if (deltaX > 0) {
       e.preventDefault();
-      this.currentX = deltaX;
-      this.globalToast.style.setProperty('--swipe-x', `${deltaX}px`);
-      this.globalToast.style.setProperty('--swipe-x-abs', `${Math.abs(deltaX)}`);
+      swipe.currentX = deltaX;
+      dom.global.style.setProperty('--swipe-x', `${deltaX}px`);
+      dom.global.style.setProperty('--swipe-x-abs', `${Math.abs(deltaX)}`);
     }
   }
 
@@ -102,17 +111,18 @@ export class ToastSystem {
    * @param {PointerEvent} e
    */
   onPointerUp(e) {
-    if (!this.isSwiping || !this.globalToast) return;
-    this.isSwiping = false;
-    this.globalToast.style.transition = '';
-    if (this.currentX > 80) {
-      this.clearCurrentToast();
+    const { dom, swipe } = this.state;
+    if (!swipe.active || !dom.global) return;
+    swipe.active = false;
+    dom.global.style.transition = '';
+    if (swipe.currentX > 80) {
+      this.clearTimer();
       this.cleanupPopover();
     } else {
-      this.globalToast.style.removeProperty('--swipe-x');
-      this.globalToast.style.removeProperty('--swipe-x-abs');
+      dom.global.style.removeProperty('--swipe-x');
+      dom.global.style.removeProperty('--swipe-x-abs');
     }
-    this.currentX = 0;
+    swipe.currentX = 0;
   }
 
   /**
@@ -121,21 +131,22 @@ export class ToastSystem {
    * @param {Object} [options]
    */
   show(message, type = 'info', options = {}) {
-    if (this.currentToast && this.currentToast.message === message) {
-      this.toastCount++;
-      if (this.toastBadge) this.toastBadge.textContent = `x${this.toastCount}`;
-      if (this.globalToast) {
-        this.globalToast.dataset.shake = 'false';
+    const { toast, dom } = this.state;
+    if (toast.current && toast.current.message === message) {
+      toast.count++;
+      if (dom.badge) dom.badge.textContent = `x${toast.count}`;
+      if (dom.global) {
+        dom.global.dataset.shake = 'false';
         requestAnimationFrame(() => {
-          if (this.globalToast) this.globalToast.dataset.shake = 'true';
+          if (dom.global) dom.global.dataset.shake = 'true';
         });
       }
-      this.startTimer(this.currentToast.duration, this.currentToast.options.sticky);
+      this.startTimer(toast.current.duration, toast.current.options.sticky);
       return;
     }
-    if (this.queue.some(t => t.message === message)) return;
+    if (toast.queue.some(t => t.message === message)) return;
     const duration = Math.min(5000, 2000 + (message.length * 30));
-    this.queue.push({ message, type, options, duration });
+    toast.queue.push({ message, type, options, duration });
     this.processQueue();
   }
 
@@ -145,52 +156,54 @@ export class ToastSystem {
    * @param {string} type
    */
   update(id, message, type = 'info') {
-    if (this.currentToast && this.currentToast.options.id === id) {
-      if (this.toastMessage) this.toastMessage.textContent = message;
-      if (this.globalToast) {
-        this.globalToast.className = `toast-container type-${type}`;
-        this.globalToast.style.removeProperty('--swipe-x');
-        this.globalToast.style.removeProperty('--swipe-x-abs');
+    const { toast, dom } = this.state;
+    if (toast.current && toast.current.options.id === id) {
+      if (dom.message) dom.message.textContent = message;
+      if (dom.global) {
+        dom.global.className = `toast-container type-${type}`;
+        dom.global.style.removeProperty('--swipe-x');
+        dom.global.style.removeProperty('--swipe-x-abs');
       }
     }
   }
 
   processQueue() {
-    if (this.isActive || this.queue.length === 0 || !this.globalToast) return;
-    this.isActive = true;
-    this.isPaused = false;
-    this.toastCount = 1;
-    this.currentToast = this.queue.shift() || null;
-    if (!this.currentToast) {
-      this.isActive = false;
+    const { toast, dom } = this.state;
+    if (this.state.active || toast.queue.length === 0 || !dom.global) return;
+    this.state.active = true;
+    this.state.timer.paused = false;
+    toast.count = 1;
+    toast.current = toast.queue.shift() || null;
+    if (!toast.current) {
+      this.state.active = false;
       return;
     }
-    if (this.toastBadge) this.toastBadge.textContent = '';
-    this.globalToast.dataset.shake = 'false';
-    this.globalToast.style.removeProperty('--swipe-x');
-    this.globalToast.style.removeProperty('--swipe-x-abs');
-    if (this.toastMessage) this.toastMessage.textContent = this.currentToast.message;
-    this.globalToast.className = `toast-container type-${this.currentToast.type}`;
+    if (dom.badge) dom.badge.textContent = '';
+    dom.global.dataset.shake = 'false';
+    dom.global.style.removeProperty('--swipe-x');
+    dom.global.style.removeProperty('--swipe-x-abs');
+    if (dom.message) dom.message.textContent = toast.current.message;
+    dom.global.className = `toast-container type-${toast.current.type}`;
     // Visibility is CSS-native: .toast-action-btn:empty { display: none }
-    if (this.currentToast.options.action && this.toastAction) {
-      this.toastAction.textContent = this.currentToast.options.action.label;
-      this.toastAction.onclick = () => {
-        if (this.currentToast && this.currentToast.options.action) {
-          this.currentToast.options.action.callback();
+    if (toast.current.options.action && dom.action) {
+      dom.action.textContent = toast.current.options.action.label;
+      dom.action.onclick = () => {
+        if (toast.current && toast.current.options.action) {
+          toast.current.options.action.callback();
         }
-        this.clearCurrentToast();
+        this.clearTimer();
         this.cleanupPopover();
       };
-    } else if (this.toastAction) {
-      this.toastAction.textContent = '';
-      this.toastAction.onclick = null;
+    } else if (dom.action) {
+      dom.action.textContent = '';
+      dom.action.onclick = null;
     }
     try {
-      this.globalToast.showPopover();
-      this.startTimer(this.currentToast.duration, this.currentToast.options.sticky);
+      dom.global.showPopover();
+      this.startTimer(toast.current.duration, toast.current.options.sticky);
     } catch (e) {
       console.warn('[Toast] Popover API failure:', e);
-      this.clearCurrentToast();
+      this.clearTimer();
       setTimeout(() => this.processQueue(), 200);
     }
   }
@@ -200,40 +213,48 @@ export class ToastSystem {
    * @param {boolean} sticky
    */
   startTimer(duration, sticky) {
-    this.clearCurrentToast();
+    this.clearTimer();
     if (sticky) return;
-    this.timeRemaining = duration;
-    this.startTime = Temporal.Now.instant().epochMilliseconds;
-    this.displayTimeout = setTimeout(() => this.cleanupPopover(), this.timeRemaining);
+    const timer = this.state.timer;
+    timer.remaining = duration;
+    timer.start = performance.now();
+    timer.id = setTimeout(() => this.cleanupPopover(), timer.remaining);
   }
 
   pauseTimer() {
-    if (!this.isActive || this.isPaused || !this.currentToast || this.currentToast.options.sticky) return;
-    this.isPaused = true;
-    if (this.displayTimeout) clearTimeout(this.displayTimeout);
-    const elapsed = Temporal.Now.instant().epochMilliseconds - this.startTime;
-    this.timeRemaining = Math.max(0, this.timeRemaining - elapsed);
+    const { toast, timer } = this.state;
+    if (!this.state.active || timer.paused || !toast.current || toast.current.options.sticky) return;
+    timer.paused = true;
+    if (timer.id) clearTimeout(timer.id);
+    const elapsed = performance.now() - timer.start;
+    timer.remaining = Math.max(0, timer.remaining - elapsed);
   }
 
   resumeTimer() {
-    if (!this.isActive || !this.isPaused || !this.currentToast || this.currentToast.options.sticky) return;
-    this.isPaused = false;
-    this.startTime = Temporal.Now.instant().epochMilliseconds;
-    this.displayTimeout = setTimeout(() => this.cleanupPopover(), this.timeRemaining);
+    const { toast, timer } = this.state;
+    if (!this.state.active || !timer.paused || !toast.current || toast.current.options.sticky) return;
+    timer.paused = false;
+    timer.start = performance.now();
+    timer.id = setTimeout(() => this.cleanupPopover(), timer.remaining);
   }
 
-  clearCurrentToast() {
-    if (this.displayTimeout) clearTimeout(this.displayTimeout);
+  clearTimer() {
+    const timer = this.state.timer;
+    if (timer.id) {
+      clearTimeout(timer.id);
+      timer.id = null;
+    }
   }
 
   cleanupPopover() {
-    this.clearCurrentToast();
-    this.currentToast = null;
-    if (this.globalToast && this.globalToast.matches(':popover-open')) {
-      this.globalToast.hidePopover();
+    this.clearTimer();
+    this.state.toast.current = null;
+    const dom = this.state.dom;
+    if (dom.global && dom.global.matches(':popover-open')) {
+      dom.global.hidePopover();
     }
     setTimeout(() => {
-      this.isActive = false;
+      this.state.active = false;
       this.processQueue();
     }, 300);
   }

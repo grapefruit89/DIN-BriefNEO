@@ -76,7 +76,6 @@ website/js/                    # Flat — Domain in Zehnerstelle kodiert
   51-constants.js              # 5x=utils: Projektweite Konstanten
   52-storage.js                # 5x=utils: StorageManager
   53-metadata.js               # 5x=utils: Metadaten-Handling
-  54-dev-tools.js              # 5x=utils: Dev-Panel Utilities
   main.js                      # Entry Point (lädt alle Module)
 ```
 

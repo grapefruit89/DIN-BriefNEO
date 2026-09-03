@@ -757,19 +757,18 @@ din-anlagen, din-verteiler {
   max-height: none;
 }
 
-/* --- TEXT-FIT ENGINE STATES --- */
-[data-text-fit="condensed"],
-[data-text-fit="condensed"] .single-line {
-  letter-spacing: -0.03em;
-}
-
-[data-text-fit="shrink"],
-[data-text-fit="shrink"] .single-line,
-[data-text-fit="shrink"] #anrede,
-[data-text-fit="shrink"] #grussformel,
-[data-text-fit="shrink"] #unterschrift {
-  font-size: 0.9em;
-  letter-spacing: -0.03em;
+/* --- TEXT-FIT: nativ via CSS text-fit (Chrome 150+), ersetzt die vorherige
+   JS-getriebene 3-Stufen-Eskalation (condensed/shrink). Untergrenze 60% ist
+   ein Startwert -- noch nicht live im Browser verifiziert, ggf. anpassen.
+   JS (48-text-fit.js) prueft nur noch, ob selbst bei dieser Untergrenze
+   noch echter Ueberlauf besteht, und blockiert dann weitere Eingabe. */
+#empfaenger,
+#infoblock,
+#briefkern,
+#anrede,
+#grussformel,
+#unterschrift {
+  text-fit: shrink 60%;
 }
 
 

@@ -11,7 +11,6 @@ export class SettingsManager {
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeLight = document.getElementById('btn-theme-light');
     this.btnThemeDark = document.getElementById('btn-theme-dark');
-    this.btnThemeAuto = document.getElementById('btn-theme-auto');
     this.btnGuidesOn = document.getElementById('btn-guides-on');
     this.btnGuidesOff = document.getElementById('btn-guides-off');
     this.btnFontAction = document.getElementById('btn-font-action');

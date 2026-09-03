@@ -21,6 +21,9 @@ export class UIProtections {
 
 
   enforceLineLimits() {
+    const beforeInputFormatTypes = ['formatBold', 'formatItalic', 'formatUnderline'];
+    const beforeInputParagraphTypes = ['insertParagraph', 'insertLineBreak'];
+
     document.querySelectorAll('[contenteditable]').forEach(elem => {
       const el = /** @type {HTMLElement} */ (elem);
       el.addEventListener('keydown', (e) => {
@@ -53,7 +56,28 @@ export class UIProtections {
           }
         }
       });
-      
+
+      // Ergaenzt die keydown-Logik oben um beforeinput: faengt Eingabewege ab,
+      // die keinen normalen Enter-Keydown ausloesen (z.B. IME-Komposition,
+      // manche mobile Tastaturen).
+      el.addEventListener('beforeinput', (e) => {
+        const inputEvent = /** @type {InputEvent} */ (e);
+
+        if (beforeInputFormatTypes.includes(inputEvent.inputType)) {
+          inputEvent.preventDefault();
+          return;
+        }
+
+        if (beforeInputParagraphTypes.includes(inputEvent.inputType)) {
+          if (this.multiLineIds.includes(el.id)) return;
+          if (this.maxTwoLinesIds.includes(el.id)) {
+            const text = el.innerText || el.textContent || '';
+            if (text.split('\n').length < 2) return;
+          }
+          inputEvent.preventDefault();
+        }
+      });
+
       el.addEventListener('paste', (e) => {
         const clipboardEvent = /** @type {ClipboardEvent} */ (e);
         if (this.multiLineIds.includes(el.id)) return;

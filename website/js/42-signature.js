@@ -74,73 +74,75 @@ export class SignatureFeature {
       }
     });
 
-    /** @type {string | null} */
-    let activeAction = null;
-    let startX = 0, startY = 0;
-    /** @type {{x: number, y: number, scale: number, rot: number} | null} */
-    let initialState = null;
-    let startAngle = 0;
-    let startDist = 0;
+    /** @type {{
+     *   action: string | null,
+     *   startX: number, startY: number,
+     *   centerX: number, centerY: number,
+     *   startAngle: number, startDistance: number,
+     *   initial: {x: number, y: number, scale: number, rot: number} | null
+     * }} */
+    const interaction = {
+      action: null,
+      startX: 0, startY: 0,
+      centerX: 0, centerY: 0,
+      startAngle: 0, startDistance: 0,
+      initial: null
+    };
 
     bbox.addEventListener('pointerdown', (e) => {
       if (!bbox.classList.contains('active')) return;
       e.preventDefault();
-      
+
       const target = /** @type {HTMLElement} */ (e.target);
-      activeAction = target.dataset.action || 'drag';
-      
-      startX = e.clientX;
-      startY = e.clientY;
-      initialState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
+      interaction.action = target.dataset.action || 'drag';
 
+      interaction.startX = e.clientX;
+      interaction.startY = e.clientY;
+      interaction.initial = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
+
+      // Center is captured once per gesture and reused in pointermove --
+      // recomputing it live would read a rect already shifted by the
+      // in-progress transform, making rotate/resize maths inconsistent.
       const rect = bbox.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
+      interaction.centerX = rect.left + rect.width / 2;
+      interaction.centerY = rect.top + rect.height / 2;
 
-      startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-      startDist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+      interaction.startAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
+      interaction.startDistance = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
 
       bbox.setPointerCapture(e.pointerId);
     });
 
     bbox.addEventListener('pointermove', (e) => {
-      if (!activeAction || !initialState) return;
+      if (!interaction.action || !interaction.initial) return;
       e.preventDefault();
 
-      if (activeAction === 'drag') {
-        this.state.x = initialState.x + (e.clientX - startX);
-        this.state.y = initialState.y + (e.clientY - startY);
-      } else if (activeAction === 'rotate') {
-        const rect = bbox.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-        
-        let deltaRot = (currentAngle - startAngle) * (180 / Math.PI);
-        this.state.rot = initialState.rot + deltaRot;
-      } else if (activeAction === 'resize') {
-        const rect = bbox.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const currentDist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
-        
-        let scaleFactor = currentDist / startDist;
-        this.state.scale = Math.max(0.1, Math.min(5, initialState.scale * scaleFactor));
+      if (interaction.action === 'drag') {
+        this.state.x = interaction.initial.x + (e.clientX - interaction.startX);
+        this.state.y = interaction.initial.y + (e.clientY - interaction.startY);
+      } else if (interaction.action === 'rotate') {
+        const currentAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
+        const deltaRot = (currentAngle - interaction.startAngle) * (180 / Math.PI);
+        this.state.rot = interaction.initial.rot + deltaRot;
+      } else if (interaction.action === 'resize') {
+        const currentDist = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
+        const scaleFactor = currentDist / interaction.startDistance;
+        this.state.scale = Math.max(0.1, Math.min(5, interaction.initial.scale * scaleFactor));
       }
       this.applyTransform();
     });
 
     bbox.addEventListener('pointerup', (e) => {
-      if (activeAction) {
+      if (interaction.action) {
         bbox.releasePointerCapture(e.pointerId);
-        activeAction = null;
+        interaction.action = null;
         this.saveState();
       }
     });
     bbox.addEventListener('pointercancel', (e) => {
-      if (activeAction) {
+      if (interaction.action) {
         bbox.releasePointerCapture(e.pointerId);
-        activeAction = null;
+        interaction.action = null;
       }
     });
   }
@@ -165,35 +167,36 @@ export class SignatureFeature {
   /**
    * @param {File} file
    */
-  processFile(file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const target = /** @type {FileReader} */ (event.target);
-      const result = target ? target.result : null;
-      if (typeof result !== 'string') return;
-      const img = new Image();
-      img.onload = () => {
-        const compressedBase64 = this.compressImage(img);
-        this.saveAndApply(compressedBase64);
-      };
-      img.src = result;
-    };
-    reader.readAsDataURL(file);
+  async processFile(file) {
+    /** @type {ImageBitmap} */
+    let bitmap;
+    try {
+      bitmap = await createImageBitmap(file);
+    } catch (error) {
+      console.warn('[Signature] createImageBitmap failed:', error);
+      return;
+    }
+    const compressedBase64 = this.compressImage(bitmap);
+    bitmap.close();
+    this.saveAndApply(compressedBase64);
   }
 
   /**
-   * @param {HTMLImageElement} img
+   * Scales down to fit within MAX_WIDTH x MAX_HEIGHT (aspect ratio kept,
+   * never upscales a smaller image). PNG to keep transparency.
+   * @param {ImageBitmap} bitmap
    * @returns {string}
    */
-  compressImage(img) {
-    let width = img.width;
-    let height = img.height;
+  compressImage(bitmap) {
+    const scale = Math.min(1, this.MAX_WIDTH / bitmap.width, this.MAX_HEIGHT / bitmap.height);
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(bitmap, 0, 0, width, height);
     }
     return canvas.toDataURL('image/png');
   }
@@ -230,7 +233,6 @@ export class SignatureFeature {
   applyImage(base64) {
     if (this.imgElement) {
       this.imgElement.src = base64;
-      this.imgElement.setAttribute('src', base64);
     }
   }
 

@@ -2,6 +2,7 @@
 // @guide [[geoapify-autocomplete]] 
 
 import { StorageManager } from './52-storage.js';
+import { AddressIntelligence } from './45-address-intelligence.js';
 
 /**
  * @typedef {object} AddressEntry
@@ -27,7 +28,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
   /** @type {AbortController | null} */
   let activeAbortController = null;
-  /** @type {number | null} */
+  /** @type {any} */
   let debounceSearchTimeout = null;
   /** @type {any} */
   let keyDebounceTimeout = null;
@@ -184,7 +185,10 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     } catch (e) {}
 
     let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${key}&lang=de&limit=5&format=json&filter=countrycode:de`;
-    if (coords && coords.lat && coords.lon) {
+    if (AddressIntelligence.targetLock) {
+      // Dynamic Target Lock: Lock search to destination PLZ/City, deactivating default Bonn bias
+      url += `&filter=postcode:${AddressIntelligence.targetLock.plz}`;
+    } else if (coords && coords.lat && coords.lon) {
       url += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
 
@@ -298,46 +302,15 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
   // NOTE: document click listener removed because popover="auto" natively handles outside clicks!
 
-  // --- ZIPPOPOTAM PLZ AUTO-LOOKUP ---
-  const empfOrtEl = document.getElementById('empfaenger-ort');
-  if (empfOrtEl) {
-    empfOrtEl.addEventListener('input', () => {
-      if (window.location.protocol === 'file:' || !navigator.onLine) return;
-      const text = empfOrtEl.textContent ? empfOrtEl.textContent.trim() : '';
-      const plzMatch = text.match(/^(\d{5})$/);
-      if (plzMatch) {
-        const plz = plzMatch[1];
-        fetch(`https://api.zippopotam.us/de/${plz}`)
-          .then(r => r.json())
-          .then(data => {
-            if (data && data.places && data.places.length > 0) {
-              const ort = data.places[0]["place name"];
-              const neu = `${plz} ${ort}`;
-              if (text !== neu) {
-                empfOrtEl.textContent = neu;
-                
-                // Cursor ans Ende setzen
-                const selection = window.getSelection();
-                if (selection) {
-                  const range = document.createRange();
-                  range.selectNodeContents(empfOrtEl);
-                  range.collapse(false);
-                  selection.removeAllRanges();
-                  selection.addRange(range);
-                }
-
-                if (onSaveDraft) onSaveDraft();
-              }
-            }
-          }).catch(() => {});
-      }
-    });
-  }
+  // --- TIER 1: OFFLINE ADDRESS INTELLIGENCE (72 KB BROTLI ENGINE) ---
+  AddressIntelligence.init().then(() => {
+    AddressIntelligence.wireDOM({ onToast, onSaveDraft });
+  });
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias (kein zweiter Host nötig)
   const absenderPlzOrtEl = document.getElementById('info-city') || document.getElementById('absender');
   if (absenderPlzOrtEl) {
-    /** @type {number | null} */
+    /** @type {any} */
     let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
       if (window.location.protocol === 'file:' || !navigator.onLine) return;

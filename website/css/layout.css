@@ -911,6 +911,7 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 
 /* Paper Elements */
 #postvermerk { anchor-name: --anchor-postvermerk; }
+#empfaenger-ort { anchor-name: --anchor-empfaenger-ort; }
 #infoblock { line-height: 1.5; }
 #info-tel { margin-top: 8px; }
 .signature-wrapper { position: relative; margin-top: 10px; }

@@ -16,7 +16,6 @@ doc_links:
   - ADR-HTML
   - ADR-CSS
   - ADR-JS
-  - ADR-API
 code_links: []
 error_patterns:
   - antipattern
@@ -73,7 +72,7 @@ Die Stufen unten folgen dem Catalog. Inhaltlich bleiben die bisherigen zwölf Th
 Es dürfen **keinerlei** externe Scripts, Stylesheets oder Webfonts über CDNs geladen werden.
 
 *   **Begründung:** DSGVO (IP-Abfluss) und Offline-Bruch. Assets lokal.
-*   **Verweis:** [[ADR-CSS]], [[ADR-FEATURE]] zum Schriftarten-Manager. Catalog A38, A41.
+*   **Verweis:** [[ADR-CSS]], [[ADR-HTML]] zum Schriftarten-Manager. Catalog A38, A41.
 
 ### 3. IndexedDB, OPFS, File System Access als Produktspeicher — HARD BAN in diesem Produkt
 
@@ -142,4 +141,3 @@ Verbindliche Kette (Catalog C1, A16–A20):
 *   [[ADR-HTML]] — `contenteditable`, Popover
 *   [[ADR-CSS]] — Viewport, Typografie
 *   [[ADR-JS]] — DOM, Selection
-*   [[ADR-API]] — Header-Sicherheit

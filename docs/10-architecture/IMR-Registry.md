@@ -28,7 +28,9 @@ error_patterns:
   - din-kern
   - din-fuss
   - falzmarke
-supersedes: []
+  - betreff
+supersedes:
+  - adr-betreff
 depends_on: []
 ---
 
@@ -227,10 +229,11 @@ Kontakt-Atome der Absendergruppe MAY hier instantiiert werden (siehe Platzierung
 **Zonen-Geometrie:** X 25 mm. Y Form A 91 mm, Form B 109 mm. Breite 165 mm. Höhe der Zone: `absolute geometry: not independently specified`.
 
 Der Betreff beginnt fachlich unter der ersten Falzmarke. Die Falz-Y-Werte stehen nur bei den System-Atomen.
+Normative Kollisionsvermeidung (ehemals ADR-BETREFF): Falzmarken dürfen nicht in die Zone `din-kern` hineinragen oder den Betreff optisch durchschneiden. Sie werden am linken Blattrand auf eine funktionale Markierungslänge von 8 mm beschränkt.
 
 | Atom | Tag | Modell | Atom-Geometrie |
 |---|---|---|---|
-| din-betreff | `<din-betreff>` | Flow in der Zone; höchstens zwei Zeilen als fachliche Empfehlung | not independently specified |
+| din-betreff | `<din-betreff>` | Flow in der Zone; höchstens zwei Zeilen als fachliche Empfehlung; dynamischer Dateinamen-Anker | not independently specified |
 | din-anrede | `<din-anrede>` | Flow in der Zone | not independently specified |
 | din-text | `<din-text>` | mehrzeilig, wächst in der Zone | not independently specified |
 | din-grussformel | `<din-grussformel>` | Flow in der Zone | not independently specified |
@@ -274,9 +277,11 @@ Genau drei Atome. Sie liegen auf dem Blatt, nicht in einer Inhaltszone.
 
 | Atom | Tag | Belegte Geometrie | Nicht belegt |
 |---|---|---|---|
-| din-falz-oben | `<din-falz-oben>` | Y Form A 87 mm, Form B 105 mm | X, W, H |
-| din-falz-unten | `<din-falz-unten>` | Y Form A 181 mm, Form B 210 mm | X, W, H |
-| din-lochmarke | `<din-lochmarke>` | Y 148,5 mm | X, W, H |
+| din-falz-oben | `<din-falz-oben>` | Y Form A 87 mm, Form B 105 mm, X 0 mm, W 8 mm | H |
+| din-falz-unten | `<din-falz-unten>` | Y Form A 181 mm, Form B 210 mm, X 0 mm, W 8 mm | H |
+| din-lochmarke | `<din-lochmarke>` | Y 148,5 mm, X 0 mm, W 8 mm | H |
+
+Die Breite von exakt 8 mm am linken Papierrand verhindert jede optische Kollision mit dem Betreff- oder Textbereich (ehemals ADR-BETREFF).
 
 ### Overlay (kein Atom)
 

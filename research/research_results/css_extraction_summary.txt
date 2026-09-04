@@ -1,0 +1,38 @@
+================================================================================
+CSS STRUKTUR-ZUSAMMENFASSUNG & ARCHITEKTUR
+Projekt: DIN-Brief Neo
+================================================================================
+
+1. DATEI-AUFTEILUNG & ROLLENVERTEILUNG
+--------------------------------------------------------------------------------
+• variables.css   :   99 Zeilen |   2 Selektoren |  57 Vars | 5170 Bytes
+• reset.css       :   42 Zeilen |   6 Selektoren |   2 Vars | 1070 Bytes
+• layout.css      : 1075 Zeilen | 116 Selektoren |  32 Vars | 28239 Bytes
+• floating.css    :  394 Zeilen |  40 Selektoren |   3 Vars | 8981 Bytes
+• print.css       :   42 Zeilen |   6 Selektoren |   0 Vars | 1423 Bytes
+
+
+2. ANALYSIERTE TECHNIKEN & PATTERNS
+--------------------------------------------------------------------------------
+• Theming & Variablen (variables.css):
+  - Nutzt CSS Custom Properties (--*) für DIN 5008 Maße, Schriften, Farben und Dark-Mode.
+  - Farbanpassung erfolgt derzeit noch über Klassen wie .theme-dark oder [data-theme].
+
+• DIN-Layout & Maßhaltigkeit (layout.css):
+  - Exakte Millimeter-Maße (z.B. mm, cm, pt) für Anschriftfeld, Falzmarken, Lochmarken und Randabstände.
+  - Absolute Positionierungen für Hilfslinien und Markierungen.
+  - Flexbox / Grid für Briefkopf, Absenderzeile und Fließtextbereiche.
+
+• UI-Overlays & Popups (floating.css):
+  - Schwebende Toolbar, Toasts, Dropdowns und Hilfsdialoge.
+  - Nutzt z-Index-Schichtung (z-index: 1000+), position: fixed/absolute.
+  - Keyframe-Animationen (@keyframes) für Ein- und Ausblendeffekte.
+
+• Drucklayout (print.css):
+  - @media print mit @page { size: A4 portrait; margin: 0; }.
+  - Ausblenden interaktiver UI-Elemente, Bereinigung von Rändern für den Druck.
+  - Schutz vor unschönen Seitenumbrüchen (break-inside: avoid).
+
+• CSS-Reset (reset.css):
+  - Box-Sizing: border-box, Standard-Margin/Padding-Bereinigung, Font-Smoothing.
+================================================================================

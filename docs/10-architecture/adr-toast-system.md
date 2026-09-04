@@ -13,10 +13,10 @@ tags:
   - tech/ui
   - tech/css
 doc_links:
-  - ADR-FEATURE
+  - ADR-HTML
   - ADR-CSS
 code_links:
-  - website/js/toast.js
+  - website/js/32-toast.js
 error_patterns:
   - toast
   - popover

@@ -1,0 +1,24 @@
+================================================================================
+HTML ARCHITEKTUR-ZUSAMMENFASSUNG
+Projekt: DIN-Brief Neo
+================================================================================
+
+1. DOM-STRUKTUR & SEMANTIK
+--------------------------------------------------------------------------------
+• App-Shell: Zweigeteilter Aufbau mit <aside class="no-print"> (Sidebar) und <main id="viewport">.
+• DIN-Brief Modell: Semantische Custom Elements (<din-a4>, <din-anschriftfeld>, <din-infoblock>,
+  <din-betreff>, <din-text>, etc.) mit millimetergenauen data-Attributen für Form A und Form B.
+
+2. EINGABEKONZEPT & EDITIERBARKEIT
+--------------------------------------------------------------------------------
+• Insgesamt 18 editierbare Bereiche.
+• Fast alle einzeiligen Felder nutzen bereits 'contenteditable="plaintext-only"'.
+• Nur der eigentliche <din-text id="brieftext"> und <ul id="anlagen-text"> nutzen Rich-Text ('true').
+
+3. MODERNE HTML5 & TOP-LAYER APIs
+--------------------------------------------------------------------------------
+• Popovers: 3 Elemente nutzen bereits das popover-Attribut (hint/auto/manual).
+• Dialoge: 1 nativer <dialog> für Zurücksetzen-Modal.
+• Invoker/Commands: 5 Buttons steuern Aktionen deklarativ via commandfor/command.
+• Form-Steuerelemente: Segmented Controls via Radio-Inputs mit verdeckten Checkboxen.
+================================================================================

@@ -28,7 +28,13 @@ error_patterns:
   - light-dark
   - aspect-ratio
   - overflow hidden
-supersedes: []
+  - betreff
+  - falzmarken
+  - pdf titel
+  - pdf dateiname
+  - window.print
+supersedes:
+  - adr-betreff
 depends_on: []
 ---
 
@@ -72,6 +78,12 @@ depends_on: []
 - **CSS @scope:** Vollständige Kapselung der Briefblatt-Stile (`@scope (din-a4)`).
 
 - **Zero-JS State Toggles:** Nutzung von `:has()` und Checkboxen für UI-State.
+
+- **Falzmarken-Kollisionsschutz (ehemals ADR-BETREFF):**
+  Die Falzmarken (`.din-mark`, `din-falz-oben`, `din-falz-unten`) werden im CSS auf exakt 8 mm (`width: calc(8 / 210 * 100cqw);`) am linken Rand begrenzt. Dadurch wird verhindert, dass sie als 100 % breite Linien durch das Dokument schneiden und den Betreff (`<din-betreff>`) optisch überdecken.
+
+- **Nativer Print-Workflow & Dynamischer PDF-Titel (ehemals ADR-BETREFF):**
+  Ausschließliche Nutzung des nativen Browser-Drucks (`window.print()`). Externe PDF-Generatoren (`html2pdf` o.ä.) sind strikt verboten (Zero Dependencies). Der PDF-Dateiname wird dynamisch vor dem Drucken über `document.title = YYYY-MM-DD_{Empfänger}_{Betreff}` gesetzt (unter Verwendung der Temporal API für ISO-Datumsformate), sodass der Browser automatisch einen normgerechten, sprechenden Dateinamen vorschlägt.
 
 ## 4. Consequences
 

@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-09-04T09:30:51.377Z",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  "totalTested": 29,
+  "results": {
+    "field_sizing": {
+      "name": "CSS field-sizing: content",
+      "category": 1,
+      "supported": true
+    },
+    "light_dark": {
+      "name": "CSS light-dark() Funktion",
+      "category": 1,
+      "supported": true
+    },
+    "color_mix": {
+      "name": "CSS color-mix()",
+      "category": 1,
+      "supported": true
+    },
+    "anchor_positioning": {
+      "name": "CSS Anchor Positioning",
+      "category": 1,
+      "supported": true
+    },
+    "starting_style": {
+      "name": "CSS @starting-style",
+      "category": 1,
+      "supported": false
+    },
+    "interpolate_size": {
+      "name": "CSS interpolate-size: allow-keywords",
+      "category": 1,
+      "supported": true
+    },
+    "popover_api": {
+      "name": "HTML Popover API (nativ)",
+      "category": 1,
+      "supported": true
+    },
+    "plaintext_only": {
+      "name": "contenteditable='plaintext-only'",
+      "category": 1,
+      "supported": true
+    },
+    "dialog_native": {
+      "name": "HTML <dialog> mit closedby",
+      "category": 1,
+      "supported": true
+    },
+    "text_wrap": {
+      "name": "CSS text-wrap: balance & pretty",
+      "category": 1,
+      "supported": true
+    },
+    "scrollbar_gutter": {
+      "name": "CSS scrollbar-gutter: stable",
+      "category": 1,
+      "supported": true
+    },
+    "print_color_adjust": {
+      "name": "CSS print-color-adjust: exact",
+      "category": 1,
+      "supported": true
+    },
+    "lh_units": {
+      "name": "CSS lh & rlh Einheiten",
+      "category": 1,
+      "supported": true
+    },
+    "show_picker": {
+      "name": "HTML element.showPicker()",
+      "category": 1,
+      "supported": true
+    },
+    "compression_streams": {
+      "name": "Compression Streams (Gzip/Deflate)",
+      "category": 1,
+      "supported": true
+    },
+    "eyedropper_api": {
+      "name": "EyeDropper API (Farbpipette)",
+      "category": 1,
+      "supported": true
+    },
+    "local_fonts": {
+      "name": "Local Fonts API (queryLocalFonts)",
+      "category": 1,
+      "supported": true
+    },
+    "move_before": {
+      "name": "DOM element.moveBefore()",
+      "category": 1,
+      "supported": true
+    },
+    "sanitizer_api": {
+      "name": "HTML Sanitizer / setHTMLUnsafe",
+      "category": 1,
+      "supported": true
+    },
+    "text_box_trim": {
+      "name": "CSS text-box-trim & text-box-edge",
+      "category": 2,
+      "supported": true
+    },
+    "checkbox_switch": {
+      "name": "HTML <input type='checkbox' switch>",
+      "category": 2,
+      "supported": false
+    },
+    "invoker_commands": {
+      "name": "Invoker Buttons (command / commandfor)",
+      "category": 2,
+      "supported": true
+    },
+    "interest_invokers": {
+      "name": "Interest Invokers (interesttarget)",
+      "category": 2,
+      "supported": false
+    },
+    "customizable_select": {
+      "name": "Customizable <select> (<selectmenu>)",
+      "category": 2,
+      "supported": true
+    },
+    "highlight_api": {
+      "name": "CSS Custom Highlight API (::highlight)",
+      "category": 2,
+      "supported": true
+    },
+    "ai_global": {
+      "name": "window.ai (Chrome Built-in AI)",
+      "category": 3,
+      "supported": false
+    },
+    "ai_writer": {
+      "name": "window.ai.writer (Writer API)",
+      "category": 3,
+      "supported": false
+    },
+    "ai_rewriter": {
+      "name": "window.ai.rewriter (Rewriter API)",
+      "category": 3,
+      "supported": false
+    },
+    "ai_proofreader": {
+      "name": "window.ai.proofreader (Proofreader API)",
+      "category": 3,
+      "supported": false
+    }
+  }
+}

@@ -18,6 +18,12 @@ din-a4 {
     display: none !important;
 }
 
+[contenteditable] {
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
 [data-generated] {
     color: inherit !important;
     font-style: normal !important;

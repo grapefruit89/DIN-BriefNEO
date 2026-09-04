@@ -1,0 +1,123 @@
+[
+  {
+    "test_case": {
+      "query": "Poststraße 1, 53111 Bonn",
+      "desc": "Exakte Adresse mit Hausnummer und PLZ"
+    },
+    "photon_results": [
+      {
+        "name": "Lidl",
+        "street": "Poststraße",
+        "housenumber": "1",
+        "postcode": "53111",
+        "city": "Bonn",
+        "state": "Nordrhein-Westfalen",
+        "country": "Deutschland"
+      },
+      {
+        "name": "Five Guys",
+        "street": "Poststraße",
+        "housenumber": "1",
+        "postcode": "53111",
+        "city": "Bonn",
+        "state": "Nordrhein-Westfalen",
+        "country": "Deutschland"
+      }
+    ],
+    "openplz_results": []
+  },
+  {
+    "test_case": {
+      "query": "Friedrich-Breuer-Str 15, Beuel",
+      "desc": "Abkürzung Str und Ortsteil"
+    },
+    "photon_results": [
+      {
+        "name": "Friedrich-Breuer-Straße",
+        "street": null,
+        "housenumber": null,
+        "postcode": "53225",
+        "city": "Bonn",
+        "state": "Nordrhein-Westfalen",
+        "country": "Deutschland"
+      }
+    ],
+    "openplz_results": [
+      {
+        "street": "Friedrich-Breuer-Str.",
+        "postcode": "53225",
+        "locality": "Bonn",
+        "borough": "Bonn-Beuel",
+        "suburb": "Beuel-Mitte"
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "query": "Kaufingerstr 10 München",
+      "desc": "Ferne Großstadt"
+    },
+    "photon_results": [
+      {
+        "name": null,
+        "street": "Kaufingerstraße",
+        "housenumber": "10",
+        "postcode": "80331",
+        "city": "München",
+        "state": "Bayern",
+        "country": "Deutschland"
+      },
+      {
+        "name": "Lush",
+        "street": "Kaufingerstraße",
+        "housenumber": "10",
+        "postcode": "80331",
+        "city": "München",
+        "state": "Bayern",
+        "country": "Deutschland"
+      }
+    ],
+    "openplz_results": [
+      {
+        "street": "Kaufingerstr.",
+        "postcode": "80331",
+        "locality": "München",
+        "borough": "Altstadt-Lehel",
+        "suburb": "1.4"
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "query": "Willy-Brandt-Allee Bonn",
+      "desc": "Prominente Bonner Adresse"
+    },
+    "photon_results": [
+      {
+        "name": "Willy-Brandt-Allee",
+        "street": null,
+        "housenumber": null,
+        "postcode": "53113",
+        "city": "Bonn",
+        "state": "Nordrhein-Westfalen",
+        "country": "Deutschland"
+      }
+    ],
+    "openplz_results": [
+      {
+        "street": "Willy-Brandt-Allee",
+        "postcode": "23552",
+        "locality": "Lübeck",
+        "borough": "Innenstadt",
+        "suburb": null
+      },
+      {
+        "street": "Willy-Brandt-Allee",
+        "postcode": "23554",
+        "locality": "Lübeck",
+        "borough": "Innenstadt",
+        "suburb": null
+      }
+    ]
+  }
+]

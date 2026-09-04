@@ -1,0 +1,96 @@
+==========================================================================================
+MODERNISIERUNGS-ROADMAP: JAVASCRIPT ERSETZEN DURCH CHROME / WEB FEATURES 2026
+Projekt: DIN-Brief NEO
+==========================================================================================
+
+ZIELSETZUNG:
+Ablösung von projektspezifischem JavaScript-Code durch native HTML5-, CSS4/5- und moderne
+Browser-APIs aus dem Chrome 2026 Katalog zur Reduktion von Bundle-Größe, Latenz und Wartungsaufwand.
+
+==========================================================================================
+KATEGORIE 1: VOLLSTÄNDIGER JS-ERSATZ (100% NATIVE LÖSUNG)
+==========================================================================================
+
+1.1 Schalter & Toggles in Settings (02-settings-manager.js)
+   - Aktueller JS-Code: Eigene Event-Listener, Klassen-Toggles (.is-active), ARIA-Status-Updates
+                        für Darkmode, Hilfslinien und DIN-Falzmarken.
+   - Natives 2026 Feature: <input type="checkbox" switch> (ID: 5178587742339072)
+   - Nutzen: Vollständig nativer OS-/Browser-Schalter ohne zusätzliche Div-Wrapper, ohne Hilfs-JS
+             und mit nativer Accessibility/Keyboard-Unterstützung.
+   - Ersetzt: Ca. 30-40 Zeilen JS & CSS-Wrapper-Markup.
+
+1.2 Text-Größenanpassung & Auto-Expand (48-text-fit.js / 03-ui-protections.js)
+   - Aktueller JS-Code: Polling & MutationObserver auf scrollWidth vs. clientWidth, um Felder dynamisch
+                        anzupassen oder Zeilenumbrüche zu unterbinden.
+   - Natives 2026 Feature: CSS 'field-sizing: content'
+   - Nutzen: Textareas und Inputs wachsen und schrumpfen rein deklarativ in CSS exakt mit dem Inhalt.
+             Kein JS-Listener auf 'input', kein DOM-Messung-Reflow (Layout Thrashing).
+   - Ersetzt: Große Teile von 48-text-fit.js (scanDOM, isOverflowing, MutationObserver).
+
+1.3 Plaintext-Eingabeschutz (03-ui-protections.js: enforceLineLimits)
+   - Aktueller JS-Code: Keydown-Abfangen für Enter, Regex-Bereinigung von eingefügten Zeilenumbrüchen
+                        in einzeiligen Feldern (Betreff, Datum, Postvermerk).
+   - Natives 2026 Feature: contenteditable="plaintext-only" & inputmode / enterkeyhint="done"
+   - Nutzen: Browser verbietet Rich-Text und blockiert Zeilenumbrüche nativ auf Parser-Ebene.
+   - Ersetzt: Komplettes Abfangen von Enter / Paste in einzeiligen editierbaren Feldern.
+
+1.4 HTML-Sanitization (31-format-toolbar.js: sanitizeNode)
+   - Aktueller JS-Code: Rekursive JavaScript-Funktion traverseNodes() / sanitizeNode(), die unerlaubte
+                        Tags, Inline-Styles und Attribute aus Kopier-Aktionen entfernt.
+   - Natives 2026 Feature: Native HTML Sanitizer API / Element.setHTMLUnsafe() & Safe DOM Handling
+   - Nutzen: Hochperformante, C++-native Bereinigung gegen XSS und Format-Verschmutzung direkt
+             durch die Browser-Engine.
+   - Ersetzt: 60+ Zeilen fehleranfälliges DOM-Parsing in sanitizeNode().
+
+1.5 Toast-Einblendung & Positionierung (32-toast.js)
+   - Aktueller JS-Code: Manuelle z-index-Verwaltung, DOM-Mounting, CSS-Klassen für Ein-/Ausblend-Animationen
+                        und Timeout-Tracking.
+   - Natives 2026 Feature: Popover API (popover="manual") + CSS Anchor Positioning + @starting-style
+   - Nutzen: Native Einblendung im Top-Layer (über jedem z-index). CSS @starting-style erlaubt
+             weiche CSS-Transitions ohne JS-Hilfsklassen für Entry/Exit-Animationen.
+   - Ersetzt: DOM-Mounting-Logik, z-Index-Hacks und Transitions-Timing in 32-toast.js.
+
+==========================================================================================
+KATEGORIE 2: SIGNIFIKANTE MINIMIERUNG & ARCHITEKTUR-OPTIMIERUNG
+==========================================================================================
+
+2.1 Toolbar- & Menü-Trigger (31-format-toolbar.js / main.js)
+   - Aktueller JS-Code: button.addEventListener('click', () => { toggleDialog / toggleFormat ... })
+   - Natives 2026 Feature: Invoker Buttons (invoketarget, command, commandfor)
+   - Nutzen: Buttons steuern Popovers, Dialoge und Aktionen rein deklarativ in HTML:
+             <button commandfor="dialog-settings" command="show-modal">Einstellungen</button>
+   - Ersetzt: Dutzende Klick-Event-Listener im Frontend.
+
+2.2 Typografie & DIN-Layout (48-text-fit.js / CSS)
+   - Aktueller JS-Code: Feinkalibrierung von Schriftabständen, Zeilenhöhen und DIN-Grenzen.
+   - Natives 2026 Feature: CSS 'text-box-trim' & 'text-box-edge' sowie 'text-wrap: balance / pretty'
+   - Nutzen: Entfernt die unerwünschten virtuellen Ränder von Schriftarten (Ascender/Descender-Padding)
+             vollautomatisch in CSS. Dadurch stimmen DIN 5008 Abstände (z.B. exakt 45mm zur Anschrift)
+             ohne JS-Kompensationsberechnungen.
+
+2.3 Bildkompression & Signatur-Verarbeitung (42-signature.js)
+   - Aktueller JS-Code: Canvas-Kontext-Manipulation, manuelle Skalierung & Base64-Encoding.
+   - Natives 2026 Feature: WebP/AVIF Encoding Streams & createImageBitmap Verbesserungen
+   - Nutzen: Signaturbilder werden direkt asynchron komprimiert und im Arbeitsspeicher gehalten,
+             ohne den Haupt-Thread mit Canvas 2D Draw-Calls zu belasten.
+
+2.4 Datumsformatierung nach DIN 5008 (47-date-format.js)
+   - Aktueller JS-Code: Manuelles Zusammenbauen von Tag, Monat und Jahr via Date-Objekt.
+   - Natives 2026 Feature: Intl.DateTimeFormat mit 'de-DE' und DIN-spezifischen Optionen oder
+                           die neue JavaScript Temporal API (Temporal.Now.plainDateISO()).
+   - Nutzen: Robuste, standardkonforme Datumsausgabe ohne String-Padding-Boilerplate.
+
+==========================================================================================
+KONKRETER CODE-EINSPARUNGS-VERGLEICH (ESTIMATION):
+==========================================================================================
+Datei                      | Aktuell (Zeilen) | Mit 2026 Features | Einsparung
+---------------------------+------------------+-------------------+-----------
+02-settings-manager.js     |       ~180       |       ~70         |   - 61 %  (durch <input switch>)
+03-ui-protections.js       |       ~160       |       ~45         |   - 72 %  (durch plaintext-only)
+31-format-toolbar.js       |       ~420       |       ~210        |   - 50 %  (durch Sanitizer API & Invoker)
+32-toast.js                |       ~290       |       ~110        |   - 62 %  (durch Popover & @starting-style)
+48-text-fit.js             |       ~150       |       ~30         |   - 80 %  (durch field-sizing & text-box-trim)
+47-date-format.js          |       ~25        |       ~8          |   - 68 %  (durch Intl / Temporal)
+---------------------------+------------------+-------------------+-----------
+GESAMT GESCHÄTZT           |      ~1225       |       ~473        |   - 61 %  JavaScript-Code-Reduktion
+==========================================================================================

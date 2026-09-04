@@ -1,0 +1,21 @@
+{
+  "total_plz": 10814,
+  "total_grosskunden": 2213,
+  "raw_json_kb": 262.3,
+  "gzip_kb": 85.9,
+  "brotli_kb": 71.0,
+  "brotli_savings_percent": 72.9,
+  "decompression_ms": 0.93,
+  "json_parse_ms": 2.13,
+  "total_ready_ms": 3.06,
+  "samples": {
+    "53111": "Bonn",
+    "46359": "Heiden",
+    "10115": "Berlin",
+    "80331": "MÃ¼nchen",
+    "50667": "KÃ¶ln",
+    "20095": "Hamburg",
+    "01067": "Dresden",
+    "99998": "KÃ¶rner"
+  }
+}

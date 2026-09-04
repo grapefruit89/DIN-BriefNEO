@@ -48,6 +48,30 @@
       "pattern": "\\bnew\\s+TextFitEngine\\b|import.*TextFitEngine|\\.scrollWidth\\s*>\\s*\\w*\\.clientWidth",
       "file_patterns": ["website/js/*.js"],
       "exemptions": []
+    },
+    {
+      "id": "P4",
+      "catalog_ref": [],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Manual beforeinput formatting interceptors (beforeInputFormatTypes) are banned. Plaintext enforcement is native via contenteditable='plaintext-only'.",
+      "pattern": "beforeInputFormatTypes|beforeInputParagraphTypes",
+      "file_patterns": ["website/js/*.js"],
+      "exemptions": []
+    },
+    {
+      "id": "P5",
+      "catalog_ref": [],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Manual swipe-drag tracking or pointercapture for toasts is banned. Toast animations and dismissals are declarative via Popover API and @starting-style.",
+      "pattern": "--swipe-x|setPointerCapture.*toast",
+      "file_patterns": ["website/js/*.js", "website/css/*.css"],
+      "exemptions": []
     }
   ]
 }

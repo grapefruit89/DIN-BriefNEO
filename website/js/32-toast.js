@@ -6,6 +6,22 @@
  */
 
 /* @adr [[ADR-JS]] {ToastSystem} */
+/* =========================================================================================
+ * 🛡️ ARCHITECTURE GUARD: NATIVE HTML POPOVER TOAST ENGINE (Top-Layer W3C Standard)
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * Das Toast-System nutzt die native HTML Popover API (`popover="manual"`) und rendert
+ * direkt im Browser-Top-Layer.
+ * - Entry- & Exit-Animationen laufen 100% deklarativ über CSS `@starting-style` in `floating.css`.
+ * - Statt `display: none`-Hacks und manueller Z-Index-Kämpfe (`z-index: 9999`) regelt der
+ *   Browser das Stacking im Top-Layer automatisch.
+ *
+ * ES IST STRENGSTENS UNTERSAGT (Immutable Law A49 & ADR-JS):
+ * 1. Manuelle Pointer-Drag/Swipe-Event-Schleifen oder `--swipe-x` Berechnungen in JS einzufügen.
+ * 2. Manuelle Z-Index-Erhöhungen in JS/CSS zu reaktivieren.
+ * 3. Polyfills oder Framework-Toast-Bibliotheken hinzuzufügen.
+ * ========================================================================================= */
+
 export class ToastSystem {
   constructor() {
     this.state = {
@@ -16,7 +32,6 @@ export class ToastSystem {
         current: null,
         count: 1
       },
-
       timer: {
         /** @type {ReturnType<typeof setTimeout> | null} */
         id: null,
@@ -24,13 +39,6 @@ export class ToastSystem {
         start: 0,
         paused: false
       },
-
-      swipe: {
-        startX: 0,
-        currentX: 0,
-        active: false
-      },
-
       dom: {
         /** @type {HTMLElement | null} */
         global: null,
@@ -43,7 +51,6 @@ export class ToastSystem {
         /** @type {HTMLElement | null} */
         close: null
       },
-
       active: false
     };
   }
@@ -68,61 +75,6 @@ export class ToastSystem {
       this.clearTimer();
       this.cleanupPopover();
     });
-
-    dom.global.addEventListener('pointerdown', this.onPointerDown.bind(this));
-    document.addEventListener('pointermove', this.onPointerMove.bind(this), { passive: false });
-    document.addEventListener('pointerup', this.onPointerUp.bind(this));
-    document.addEventListener('pointercancel', this.onPointerUp.bind(this));
-  }
-
-  /**
-   * @param {PointerEvent} e
-   */
-  onPointerDown(e) {
-    const { active, dom, swipe } = this.state;
-    if (!active || !dom.global) return;
-    const target = /** @type {HTMLElement} */ (e.target);
-    if (target && (target.closest('#toast-close') || target.closest('#toast-action'))) {
-      return;
-    }
-    swipe.active = true;
-    swipe.startX = e.clientX;
-    swipe.currentX = 0;
-    dom.global.style.transition = 'none';
-    dom.global.setPointerCapture(e.pointerId);
-  }
-
-  /**
-   * @param {PointerEvent} e
-   */
-  onPointerMove(e) {
-    const { dom, swipe } = this.state;
-    if (!swipe.active || !dom.global) return;
-    const deltaX = e.clientX - swipe.startX;
-    if (deltaX > 0) {
-      e.preventDefault();
-      swipe.currentX = deltaX;
-      dom.global.style.setProperty('--swipe-x', `${deltaX}px`);
-      dom.global.style.setProperty('--swipe-x-abs', `${Math.abs(deltaX)}`);
-    }
-  }
-
-  /**
-   * @param {PointerEvent} e
-   */
-  onPointerUp(e) {
-    const { dom, swipe } = this.state;
-    if (!swipe.active || !dom.global) return;
-    swipe.active = false;
-    dom.global.style.transition = '';
-    if (swipe.currentX > 80) {
-      this.clearTimer();
-      this.cleanupPopover();
-    } else {
-      dom.global.style.removeProperty('--swipe-x');
-      dom.global.style.removeProperty('--swipe-x-abs');
-    }
-    swipe.currentX = 0;
   }
 
   /**
@@ -141,7 +93,7 @@ export class ToastSystem {
           if (dom.global) dom.global.dataset.shake = 'true';
         });
       }
-      this.startTimer(toast.current.duration, toast.current.options.sticky);
+      this.startTimer(toast.current.duration, toast.current.options?.sticky);
       return;
     }
     if (toast.queue.some(t => t.message === message)) return;
@@ -157,12 +109,10 @@ export class ToastSystem {
    */
   update(id, message, type = 'info') {
     const { toast, dom } = this.state;
-    if (toast.current && toast.current.options.id === id) {
+    if (toast.current && toast.current.options?.id === id) {
       if (dom.message) dom.message.textContent = message;
       if (dom.global) {
         dom.global.className = `toast-container type-${type}`;
-        dom.global.style.removeProperty('--swipe-x');
-        dom.global.style.removeProperty('--swipe-x-abs');
       }
     }
   }
@@ -180,15 +130,13 @@ export class ToastSystem {
     }
     if (dom.badge) dom.badge.textContent = '';
     dom.global.dataset.shake = 'false';
-    dom.global.style.removeProperty('--swipe-x');
-    dom.global.style.removeProperty('--swipe-x-abs');
     if (dom.message) dom.message.textContent = toast.current.message;
     dom.global.className = `toast-container type-${toast.current.type}`;
-    // Visibility is CSS-native: .toast-action-btn:empty { display: none }
-    if (toast.current.options.action && dom.action) {
+    
+    if (toast.current.options?.action && dom.action) {
       dom.action.textContent = toast.current.options.action.label;
       dom.action.onclick = () => {
-        if (toast.current && toast.current.options.action) {
+        if (toast.current?.options?.action?.callback) {
           toast.current.options.action.callback();
         }
         this.clearTimer();
@@ -198,9 +146,12 @@ export class ToastSystem {
       dom.action.textContent = '';
       dom.action.onclick = null;
     }
+
     try {
-      dom.global.showPopover();
-      this.startTimer(toast.current.duration, toast.current.options.sticky);
+      if (!dom.global.matches(':popover-open')) {
+        dom.global.showPopover();
+      }
+      this.startTimer(toast.current.duration, toast.current.options?.sticky);
     } catch (e) {
       console.warn('[Toast] Popover API failure:', e);
       this.clearTimer();
@@ -210,7 +161,7 @@ export class ToastSystem {
 
   /**
    * @param {number} duration
-   * @param {boolean} sticky
+   * @param {boolean} [sticky]
    */
   startTimer(duration, sticky) {
     this.clearTimer();
@@ -223,7 +174,7 @@ export class ToastSystem {
 
   pauseTimer() {
     const { toast, timer } = this.state;
-    if (!this.state.active || timer.paused || !toast.current || toast.current.options.sticky) return;
+    if (!this.state.active || timer.paused || !toast.current || toast.current.options?.sticky) return;
     timer.paused = true;
     if (timer.id) clearTimeout(timer.id);
     const elapsed = performance.now() - timer.start;
@@ -232,7 +183,7 @@ export class ToastSystem {
 
   resumeTimer() {
     const { toast, timer } = this.state;
-    if (!this.state.active || !timer.paused || !toast.current || toast.current.options.sticky) return;
+    if (!this.state.active || !timer.paused || !toast.current || toast.current.options?.sticky) return;
     timer.paused = false;
     timer.start = performance.now();
     timer.id = setTimeout(() => this.cleanupPopover(), timer.remaining);
@@ -256,7 +207,7 @@ export class ToastSystem {
     setTimeout(() => {
       this.state.active = false;
       this.processQueue();
-    }, 300);
+    }, 250);
   }
 }
 

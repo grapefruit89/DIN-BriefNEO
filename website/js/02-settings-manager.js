@@ -11,6 +11,7 @@ export class SettingsManager {
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeLight = document.getElementById('btn-theme-light');
     this.btnThemeDark = document.getElementById('btn-theme-dark');
+    this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-guides-switch'));
     this.btnGuidesOn = document.getElementById('btn-guides-on');
     this.btnGuidesOff = document.getElementById('btn-guides-off');
     this.btnFontAction = document.getElementById('btn-font-action');
@@ -49,14 +50,15 @@ export class SettingsManager {
       }
     }
 
-    if (this.btnGuidesOn && this.btnGuidesOff) {
+    if (this.btnGuidesSwitch) {
+      this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
+    } else if (this.btnGuidesOn && this.btnGuidesOff) {
       if (this.settings.guides) {
         /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked = true;
       } else {
         /** @type {HTMLInputElement} */ (this.btnGuidesOff).checked = true;
       }
     }
-
   }
 
   /**
@@ -164,13 +166,22 @@ export class SettingsManager {
       });
     }
 
-    const handleGuidesToggle = () => {
-      if (!this.isReady) return;
-      this.settings.guides = /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked;
-      this.updateSettings();
-    };
-    if (this.btnGuidesOn) this.btnGuidesOn.addEventListener('change', handleGuidesToggle);
-    if (this.btnGuidesOff) this.btnGuidesOff.addEventListener('change', handleGuidesToggle);
+    const guidesSwitch = this.btnGuidesSwitch;
+    if (guidesSwitch) {
+      guidesSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.guides = guidesSwitch.checked;
+        this.updateSettings();
+      });
+    } else {
+      const handleGuidesToggle = () => {
+        if (!this.isReady) return;
+        this.settings.guides = /** @type {HTMLInputElement} */ (this.btnGuidesOn).checked;
+        this.updateSettings();
+      };
+      if (this.btnGuidesOn) this.btnGuidesOn.addEventListener('change', handleGuidesToggle);
+      if (this.btnGuidesOff) this.btnGuidesOff.addEventListener('change', handleGuidesToggle);
+    }
 
     if (this.btnFontAction) {
       this.btnFontAction.addEventListener('click', () => {

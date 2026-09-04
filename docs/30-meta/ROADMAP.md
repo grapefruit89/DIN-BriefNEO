@@ -41,7 +41,7 @@ code_links: []
 | **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 10.814 PLZs + 2.258 Großempfänger, 0 ms Latenz, 100% Offline, DSGVO |
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 🟢 Abgeschlossen (`46-clipboard-address-parser.js` & Sidebar Button) |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen (`48-text-fit.js` gelöscht, `field-sizing: content`, `light-dark()`, `text-wrap`) |
-| **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | `contenteditable="plaintext-only"`, Popover API für Toasts, `<input switch>` |
+| **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | 🟢 Abgeschlossen (`contenteditable="plaintext-only"`, `enterkeyhint="done"`, Popover API für Toasts, `<input switch>`) |
 | **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen (`.github/workflows/update_plz_pipeline.yml` & `update_plz_pipeline.py`) |
 | **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional / Experimentell** | Entkoppeltes Plugin via `window.ai` (Graceful Degradation ohne Cloud-Zwang) |
 
@@ -102,15 +102,16 @@ code_links: []
 
 ---
 
-### 🟡 Priorität 5: JS-Kill Phase 2 — HTML-Switch, Popover & Top-Layer
+### 🟢 Priorität 5: JS-Kill Phase 2 — HTML-Switch, Popover & Top-Layer
+* **Status:** 🟢 Abgeschlossen (2026-09-04)
 * **Problem:** Keydown-Enter-Filter in `03-ui-protections.js` und manuelles Z-Index-/Timer-Management in `32-toast.js` blähen die Codebasis auf.
 * **Lösung:**
-  1. Einzeilige Felder in `website/index.html` mit nativem `contenteditable="plaintext-only"` und `enterkeyhint="done"` ausstatten (Browser blockiert Umbrüche und HTML-Formatting nativ).
-  2. `03-ui-protections.js` um ca. 115 Zeilen Keydown-Interceptor erleichtern.
-  3. Toast-System (`32-toast.js`) auf die native HTML Popover API (`popover="manual"`) umstellen. Mounten im Browser Top-Layer, Transitions über CSS `@starting-style` ohne JS-Timer.
-  4. Sidebar-Schalter auf semantisches `<input type="checkbox" switch>` umstellen.
+  1. Einzeilige Felder in `website/index.html` mit nativem `contenteditable="plaintext-only"` und `enterkeyhint="done"` ausgestattet (Browser blockiert Umbrüche und HTML-Formatting nativ).
+  2. `03-ui-protections.js` um redundante Beforeinput- und Keydown-Interzeptoren erleichtert.
+  3. Toast-System (`32-toast.js`) auf die native HTML Popover API (`popover="manual"`) umgestellt. Mounten im Browser Top-Layer, Transitions über CSS `@starting-style` ohne JS-Timer und ohne Z-Index-Kämpfe.
+  4. Sidebar-Schalter auf semantisches `<input type="checkbox" switch id="btn-guides-switch">` umgestellt.
 * **Aufwand:** ~1,5 Stunden.
-* **Nutzen:** ~250 Zeilen weniger JavaScript, robuste Barrierefreiheit, z-index-Kämpfe gehören der Vergangenheit an.
+* **Nutzen:** Über 175 Zeilen weniger JavaScript, native Barrierefreiheit, Z-Index-Kämpfe gehören der Vergangenheit an.
 
 ---
 

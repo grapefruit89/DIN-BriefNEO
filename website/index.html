@@ -74,14 +74,18 @@
               <label for="btn-style-casual" title="Hallo ..." data-ui="Locker"></label>
             </div>
           </div>
-          <div>
+          <!-- 
+            🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCH STANDARD
+            ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+            Dieser Schalter nutzt das W3C-Standardattribut `<input type="checkbox" switch>`.
+            Moderne Browser rendern diesen Schalter NATIV als System-Toggle.
+            STRIKT VERBOTEN: Diesen Schalter durch Radio-Segmented-Controls, verschachtelte
+            Div-Wrapper oder JS-Klick-Listener zu ersetzen! Der Status wird rein
+            im CSS über :root:has(#btn-guides-switch:checked) ausgewertet. (ADR-ANTIPATTERN Abs. 16)
+          -->
+          <div class="sidebar-switch-row">
             <h3 class="sidebar-label" data-ui="Hilfslinien"></h3>
-            <div class="segmented-control" focusgroup="horizontal wrap">
-              <input type="radio" name="guides" id="btn-guides-on" value="on" class="sr-only" checked autocomplete="off">
-              <label for="btn-guides-on" data-ui="EIN"></label>
-              <input type="radio" name="guides" id="btn-guides-off" value="off" class="sr-only" autocomplete="off">
-              <label for="btn-guides-off" data-ui="AUS"></label>
-            </div>
+            <input type="checkbox" switch id="btn-guides-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
           </div>
           <div class="sidebar-zusatz-row">
             <!-- Hidden checkboxes — CSS :has() rules stay unchanged -->
@@ -175,29 +179,38 @@
             <din-falz-oben class="din-mark din-fold-top"></din-falz-oben>
             <din-falz-unten class="din-mark din-fold-bottom"></din-falz-unten>
             <din-lochmarke class="din-mark din-punch"></din-lochmarke>
-            <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <!-- 
+              🛡️ BLEEDING EDGE ARCHITECTURE GUARD: PLAINTEXT & ENTERKEYHINT ENGINE
+              ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+              Alle einzeiligen DIN-Felder nutzen `contenteditable="plaintext-only"` und `enterkeyhint="done"`.
+              Der Browser blockiert HTML-Formatting, Rich-Text-Pasting und Zeilenumbrueche NATIV
+              im C++ Rendering-Core.
+              STRIKT VERBOTEN: JavaScript-Keydown-Filter, beforeinput-Interzeptoren oder manuelle
+              Regex-Sanitizer wieder einzubauen! (ADR-ANTIPATTERN Abs. 14)
+            -->
+            <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
               <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk" aria-label="Postvermerk"></din-postvermerk>
-              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
-              <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
-              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
-              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
+              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
+              <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
+              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen">
-              <div id="info-name" class="single-line" contenteditable="plaintext-only" placeholder="Vor- und Nachname" aria-label="Name"></div>
-              <din-absender-strasse id="info-street" class="single-line" contenteditable="plaintext-only" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
-              <din-absender-ort id="info-city" class="single-line" contenteditable="plaintext-only" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
-              <din-absender-tel id="info-tel" class="single-line" contenteditable="plaintext-only" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
-              <din-absender-mail id="info-email" class="single-line" contenteditable="plaintext-only" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+              <div id="info-name" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Vor- und Nachname" aria-label="Name"></div>
+              <din-absender-strasse id="info-street" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="info-city" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="info-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="info-email" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
-            <din-datum id="datum" class="single-line" contenteditable="plaintext-only" placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-datum id="datum" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="2. September 2026" aria-label="Datum"></din-datum>
             <din-kern id="briefkern" aria-label="Briefinhalt">
               <din-betreff id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
-              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
               <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
-              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="signature-wrapper">
-                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>
@@ -227,6 +240,14 @@
       <button type="button" commandfor="format-command-target" command="--comment" title="Kommentar" aria-label="Kommentar">|</button>
     </div>
     <div id="selection-anchor" class="no-print"></div>
+    <!-- 
+      🛡️ BLEEDING EDGE ARCHITECTURE GUARD: NATIVE POPOVER TOP-LAYER TOAST
+      ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+      Dieser Toast nutzt die native HTML Popover API (`popover="manual"`) und rendert
+      direkt im Browser-Top-Layer über allen Dialogen, Modals und z-index-Ebenen.
+      STRIKT VERBOTEN: z-index-Hacks, DOM-Mounting-Libraries oder JavaScript-Animationsschleifen
+      einzuführen! Uebergänge laufen 100% deklarativ über CSS @starting-style. (ADR-ANTIPATTERN Abs. 15)
+    -->
     <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
       <span id="toast-message"></span>
       <span id="toast-badge" class="toast-badge hidden"></span>

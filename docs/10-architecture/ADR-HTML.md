@@ -115,7 +115,7 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
 * **Header & Build-Info (3-Elemente-Zeile):**
   * GitHub-Link (`.sidebar-github-link`) mit integriertem SVG.
   * `#btn-theme-toggle`: Kompakter 3-Wege Theme-Umschalter (`Auto` -> `Hell` -> `Dunkel` -> `Auto`), zentriert in der Header-Zeile (`data-appearance="auto|light|dark"`, `data-ui="🌓 Auto"`).
-  * `#btn-dev-mode`: Build-Timestamp-Anzeige und Umschalter für Entwickler-Features.
+  * `#btn-dev-mode`: Git-Datum-Anzeige (letzter Commit, DD.MM.YYYY) und Umschalter für Entwickler-Features.
 * **DIN-5008 Layout-Wahl (Form A / Form B):**
   * `#btn-form-a`: Hoher Briefkopf (Faltmarke 1 bei 87 mm, Anschriftfeld bei 32 mm).
   * `#btn-form-b`: Tiefer Briefkopf (Default, Faltmarke 1 bei 105 mm, Anschriftfeld bei 50 mm).

@@ -59,29 +59,51 @@ export class SettingsManager {
     const validThemes = ['auto', 'light', 'dark'];
     const active = validThemes.includes(theme) ? theme : 'auto';
     this.settings.theme = active;
-    document.documentElement.setAttribute('data-theme', active);
-    document.documentElement.style.colorScheme = active === 'auto' ? 'light dark' : active;
 
-    const dim = active === 'dark' ? 1 : 0;
-    this.applyThemeDim(dim);
+    const updateDOM = () => {
+      document.documentElement.setAttribute('data-theme', active);
+      if (document.body) {
+        document.body.setAttribute('data-theme', active);
+      }
+      const scheme = active === 'auto' ? 'light dark' : active;
+      document.documentElement.style.colorScheme = scheme;
+      if (document.body) {
+        document.body.style.colorScheme = scheme;
+      }
 
-    if (this.btnThemeToggle) {
-      this.btnThemeToggle.setAttribute('data-appearance', active);
-      /** @type {Record<string, string>} */
-      const labels = {
-        auto: '🌓 Auto',
-        light: '☀️ Hell',
-        dark: '🌙 Dunkel'
-      };
-      /** @type {Record<string, string>} */
-      const titles = {
-        auto: 'Darstellung: Automatisch (System)',
-        light: 'Darstellung: Helles Design',
-        dark: 'Darstellung: Dunkles Design'
-      };
-      this.btnThemeToggle.setAttribute('data-ui', labels[active] || '🌓 Auto');
-      this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
-      this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
+      const dim = active === 'dark' ? 1 : 0;
+      this.applyThemeDim(dim);
+
+      if (this.btnThemeToggle) {
+        this.btnThemeToggle.setAttribute('data-appearance', active);
+        /** @type {Record<string, string>} */
+        const labels = {
+          auto: '🌓 Auto',
+          light: '☀️ Hell',
+          dark: '🌙 Dunkel'
+        };
+        /** @type {Record<string, string>} */
+        const titles = {
+          auto: 'Darstellung: Automatisch (System)',
+          light: 'Darstellung: Helles Design',
+          dark: 'Darstellung: Dunkles Design'
+        };
+        this.btnThemeToggle.setAttribute('data-ui', labels[active] || '🌓 Auto');
+        this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
+        this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
+      }
+    };
+
+    // @ts-ignore
+    if (this.isReady && typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('theme-transition');
+      // @ts-ignore
+      const transition = document.startViewTransition(updateDOM);
+      transition.finished.finally(() => {
+        document.documentElement.classList.remove('theme-transition');
+      });
+    } else {
+      updateDOM();
     }
   }
 

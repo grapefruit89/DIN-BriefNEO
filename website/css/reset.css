@@ -12,9 +12,12 @@ html, body {
   height: 100dvh;
   overflow: hidden;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Isolated UI Font */
-  color-scheme: light dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  color-scheme: light dark;
 }
 
 /* Schriftstapel-Klassen fuer den Brief */

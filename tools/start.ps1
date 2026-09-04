@@ -44,14 +44,15 @@ try {
     exit 1
 }
 
-Write-Host "[X] Injiziere Build-Timestamp in index.html..." -ForegroundColor Yellow
-$timestamp = Get-Date -Format "dd.MM.yyyy HH:mm"
+Write-Host "[X] Injiziere Git-Datum in index.html..." -ForegroundColor Yellow
+$gitDate = (git log -1 --format="%cd" --date=format:"%d.%m.%Y").Trim()
+if (-not $gitDate) { $gitDate = (Get-Date -Format "dd.MM.yyyy") }
 $indexPath = Join-Path $targetDir "website\index.html"
 $indexContent = [IO.File]::ReadAllText($indexPath)
-$indexContent = $indexContent -replace '(?<=<button[^>]*id="btn-dev-mode"[^>]*data-ui=")[^"]*', "$timestamp"
-$indexContent = $indexContent -replace '(?<=<button[^>]*id="btn-dev-mode"[^>]*>).*?(?=</button>)', "$timestamp"
+$indexContent = $indexContent -replace '(?<=<button[^>]*id="btn-dev-mode"[^>]*data-ui=")[^"]*', "$gitDate"
+$indexContent = $indexContent -replace '(?<=<button[^>]*id="btn-dev-mode"[^>]*>).*?(?=</button>)', ""
 [IO.File]::WriteAllText($indexPath, $indexContent)
-Write-Host "    Version aktualisiert auf: Build: $timestamp" -ForegroundColor Green
+Write-Host "    Version aktualisiert auf: $gitDate" -ForegroundColor Green
 
 Write-Host "[X] Prüfe auf verbotene 'scroll' Begriffe in HTML und CSS..." -ForegroundColor Yellow
 $scrollMatches = Select-String -Path "$targetDir\website\*.html", "$targetDir\website\css\*.css" -Pattern "scroll" -AllMatches -SimpleMatch

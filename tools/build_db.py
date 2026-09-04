@@ -5,7 +5,6 @@ import json
 import frontmatter
 from markdown_it import MarkdownIt
 import sqlite_vec
-from sentence_transformers import SentenceTransformer
 
 # --- Custom Markdown-It Plugin for Wikilinks ---
 def wikilink_plugin(md):
@@ -343,16 +342,20 @@ def main():
     print("Loading SentenceTransformer model (Phase 2)...")
     # Using all-MiniLM-L6-v2 which produces 384-dimensional vectors
     embedder = None
+    import gc
+    gc.collect()
     for attempt in range(3):
         try:
+            from sentence_transformers import SentenceTransformer
             try:
                 embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu', local_files_only=True)
             except Exception:
                 embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
             break
-        except Exception as e:
+        except (Exception, MemoryError) as e:
             if attempt < 2:
                 import time
+                gc.collect()
                 time.sleep(2)
             else:
                 raise e

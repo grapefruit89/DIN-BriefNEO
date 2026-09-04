@@ -4,7 +4,7 @@ title: '00-foundation — Fundament & Unverrückbare Gesetze'
 type: meta
 status: active
 created: '2026-08-07'
-updated: '2026-09-02'
+updated: '2026-09-04'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -45,7 +45,7 @@ SPEC                  WAS die Anwendung leisten muss
     |
 LONGEVITY             Kriterien für langlebige Technik; einzige Baseline-Zahl
     |
-WORKFLOW / GUIDES     WIE wir arbeiten (Prozess, nicht Gesetz)
+WORKFLOW / GUIDES     WIE wir arbeiten (Prozess, nicht Gesetz — siehe docs/90-policy/)
 ```
 
 Konfliktregel: Eine untere Ebene darf eine obere nicht aufheben. Konkrete Millimeter, Feldlisten eines Briefes und Implementierungsrezepte gehören nicht in diese Ebene.
@@ -77,6 +77,7 @@ Die kanonische Atomliste und die belegten Millimeter stehen in `docs/10-architec
 
 - **`10-architecture/`** enthält die ADRs und die IMR-Registry — Modell und Begründung dessen, was aus diesen Gesetzen folgt.
 - **`90-policy/`** enthält Entwicklungs-Workflows und Prozess-Richtlinien (z. B. `HYBRID-SPEC-DRIVEN-WORKFLOW.md`).
+- **`docs/foundation_inventory.json`** führt die vollständige, maschinenlesbare W-Fragen-Inventur aller 4 Foundation-Dokumente.
 - **`AGENTS.md`** (Root) referenziert Foundation-Dokumente. Es kopiert sie nicht.
 
 Wer neu einsteigt: [[constitution]] zuerst, dann [[Immutable-Law-Catalog]], dann [[spec]].

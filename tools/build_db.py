@@ -342,7 +342,20 @@ def main():
     
     print("Loading SentenceTransformer model (Phase 2)...")
     # Using all-MiniLM-L6-v2 which produces 384-dimensional vectors
-    embedder = SentenceTransformer('all-MiniLM-L6-v2')
+    embedder = None
+    for attempt in range(3):
+        try:
+            try:
+                embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu', local_files_only=True)
+            except Exception:
+                embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+            break
+        except Exception as e:
+            if attempt < 2:
+                import time
+                time.sleep(2)
+            else:
+                raise e
     
     print("Parsing Markdown Docs...")
     concepts, file_hashes = parse_docs(md, docs_dir)

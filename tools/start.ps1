@@ -111,7 +111,7 @@ $dbInputs = @(
     (Join-Path $targetDir "docs"),
     (Join-Path $targetDir "website")
 )
-$dbOutput = Join-Path $targetDir "agent\cache\DIN-Brief_docs.db"
+$dbOutput = Join-Path $targetDir "build\DIN-Brief_docs.db"
 if ($Force -or (Test-StepNeedsRun -StepName "build_db_py" -InputPaths $dbInputs -OutputPath $dbOutput)) {
     & $pythonExe tools/build_db.py
 

@@ -130,7 +130,7 @@ export class SettingsManager {
       });
     }
 
-    const handleThemeChange = (theme) => {
+    const handleThemeChange = (/** @type {string} */ theme) => {
       if (!this.isReady) return;
       this.settings.theme = theme;
       this.settings.themeDim = theme === 'dark' ? 1 : 0;

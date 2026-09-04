@@ -131,7 +131,12 @@ const FEMALE_NAMES = new Set([
   "wanda", "wibke", "wiebke", "wilhelmine", "wilma", "yasmin", "yvonne", "zenzi"
 ]);
 
+/**
+ * @param {string} [f]
+ * @returns {'formal' | 'polite' | 'casual'}
+ */
 function normalizeFormality(f) {
+  /** @type {Record<string, 'formal' | 'polite' | 'casual'>} */
   const map = {
     formal: "formal", förmlich: "formal", foermlich: "formal",
     polite: "polite", höflich: "polite", hoeflich: "polite",
@@ -274,14 +279,14 @@ export class SalutationFeature {
   }
 
   _wireFormality() {
-    const apply = (style) => {
+    const apply = (/** @type {'formal' | 'polite' | 'casual'} */ style) => {
       if (!this.isReady) return;
       this.settings.formality = style;
       StorageManager.saveSettings(this.settings);
       this._regenerateSalutation({ force: true });
       this._regenerateClosing({ force: true });
     };
-    ['formal', 'polite', 'casual'].forEach(style => {
+    (/** @type {('formal' | 'polite' | 'casual')[]} */ (['formal', 'polite', 'casual'])).forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
       if (btn) btn.addEventListener('change', () => apply(style));
     });

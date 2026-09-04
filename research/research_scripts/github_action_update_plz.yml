@@ -5,7 +5,12 @@ on:
     # Runs quarterly at 04:00 UTC on the 1st of January, April, July, and October
     - cron: '0 4 1 */3 *'
   workflow_dispatch:
-    # Allows manual trigger at any time from GitHub web UI
+    inputs:
+      force:
+        description: 'Force full re-download (bypass ETag check)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,20 +32,16 @@ jobs:
         run: pip install brotli
 
       - name: Execute postal data update pipeline
-        run: python research/research_scripts/update_plz_pipeline.py
-
-      - name: Detect changes
-        id: git-check
+        id: pipeline
         run: |
-          git status --porcelain
-          if [[ -n $(git status --porcelain research/research_results/ website/data/) ]]; then
-            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.force }}" = "true" ]; then
+            python research/research_scripts/update_plz_pipeline.py --force
           else
-            echo "changes_detected=false" >> $GITHUB_OUTPUT
+            python research/research_scripts/update_plz_pipeline.py
           fi
 
-      - name: Commit and push updated assets
-        if: steps.git-check.outputs.changes_detected == 'true'
+      - name: Handle regular healthy update (Auto-Commit)
+        if: steps.pipeline.outputs.action_needed == 'auto_commit'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(data): automated quarterly update of German PLZ and Großempfänger [skip ci]"
@@ -48,3 +49,27 @@ jobs:
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: Handle anomaly detection (Create Review Pull Request)
+        if: steps.pipeline.outputs.action_needed == 'manual_review'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(data): anomalous postal data update requiring manual inspection"
+          branch: "data-update-review"
+          title: "⚠️ [Review erforderlich] Ungewöhnlich viele Änderungen im PLZ-Datensatz"
+          body: |
+            ## 🔍 Anomaly Drift Guard ausgelöst
+            
+            Die automatische Quartals-Pipeline hat ungewöhnlich viele Änderungen oder eine signifikante Größenabweichung festgestellt:
+            - **Zusammenfassung:** ${{ steps.pipeline.outputs.summary }}
+            - **Status:** Vor der Übernahme in `main` ist eine manuelle Sichtprüfung der Datei `research/research_results/de_plz_ort.review.json` erforderlich.
+            
+            Falls die Änderungen legitim sind, kann dieser PR einfach gemergt werden.
+          labels: |
+            data-review
+            dependencies
+
+      - name: Log idempotent / skip result
+        if: steps.pipeline.outputs.action_needed == 'none'
+        run: echo "Idempotent run: ${{ steps.pipeline.outputs.summary }}"

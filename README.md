@@ -18,6 +18,7 @@ Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgru
    - Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
    - Generierte Artefakte (LLM-Kontext, Doku-Datenbank) werden gecacht: sie laufen nur neu, wenn sich ihre Quelldateien seit dem letzten Lauf geändert haben. Der Fitness Gate selbst läuft immer ungecacht. Mit `-Force` lässt sich der volle Durchlauf erzwingen.
 3. **Sichtprüfung im echten Chrome:** [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md) — DevTools-MCP an die laufende App hängen (A4-Viewport, Sidebar, Anrede, Postvermerk).
+4. **Plattform-Recherche (Roadmap):** [`mcp_research.md`](mcp_research.md) — Agent soll nachschauen, ob JS durch HTML/CSS/native APIs ersetzbar ist. Kein Live-Gesetz.
 
 ---
 
@@ -40,7 +41,7 @@ Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern e
 
 Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
-Root-Kurzguide für den Browser-Agenten: [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md).
+Root-Kurzguides: [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md) (Browser sehen), [`mcp_research.md`](mcp_research.md) (Plattform nachschlagen).
 
 ---
 
@@ -48,6 +49,7 @@ Root-Kurzguide für den Browser-Agenten: [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md).
 
 - **[`repository.yaml`](repository.yaml)** beschreibt maschinenlesbar, woraus das Repository besteht (Struktur, Entrypoints, offene Punkte). Verbindliche Quelle für Verhaltensregeln bleibt `AGENTS.md`, für Technologie-Regeln der [Immutable Law Catalog](docs/00-foundation/Immutable-Law-Catalog.md) — `repository.yaml` verweist bewusst darauf, statt sie zu duplizieren.
 - **[`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md)** — Chrome DevTools MCP: Agent sieht die laufende App.
+- **[`mcp_research.md`](mcp_research.md)** — Roadmap: BCD/chromestatus on demand, nie als zweite Baseline.
 - **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
   - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
   - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche.

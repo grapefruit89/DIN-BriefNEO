@@ -16,10 +16,15 @@ __pycache__/
 *.db-journal
 
 # Generierte Agenten-Artefakte liegen unter agent/cache/ (bereits oben ausgeschlossen).
-# Root-Reste aus aelteren Generator-Pfaden:
+# Root-Reste und autogenerierte Build-Artefakte (verhindert Git-Noise bei Zeilenverschiebungen):
 LLM_CONTEXT.md
 import.sql
+docs/10-architecture/Code-Referenzen.md
 
 # OS / Editor
 .DS_Store
 Thumbs.db
+
+# Recherche-Rohdaten (14.3 MB ChromeStatus-Dumps nicht ins Git versionieren)
+research/research_results/chrome_features_*.json
+research/**/__pycache__/

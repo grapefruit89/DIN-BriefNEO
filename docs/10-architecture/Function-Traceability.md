@@ -69,8 +69,8 @@ Um einen neuen Knotenpunkt hinzuzufügen:
 | **Variables** | `website/css/variables.css` | [[ADR-CSS]] | [[chrome-modern-css]] |
 | **Index** | `website/index.html` | [[ADR-HTML]] | [[din-5008-layout]] |
 | **Constants** | `website/js/constants.js` | [[ADR-JS]] | [[glossary]] |
-| **Geoapify** | `website/js/geoapify.js` | [[ADR-API]] | [[geoapify-autocomplete]] |
-| **initAddressServices** | `website/js/geoapify.js` | [[ADR-API]] |  |
+| **Geoapify** | `website/js/43-geoapify.js` | [[ADR-JS]] | [[geoapify-autocomplete]] |
+| **initAddressServices** | `website/js/43-geoapify.js` | [[ADR-JS]] |  |
 | **Healthcheck** | `website/js/healthcheck.js` | [[ADR-JS]] | [[testing-guide]] |
 | **Main** | `website/js/main.js` | [[ADR-JS]] | [[no-scroll-techniques]] |
 | **Dynamic Squeezing** | `website/js/main.js` | [[ADR-JS]] |  |

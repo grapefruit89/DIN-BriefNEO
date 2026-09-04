@@ -43,17 +43,14 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 
 | ADR | Thema |
 |---|---|
-| [[ADR-HTML]] | HTML-Struktur, Custom Elements, IMR-Tags |
-| [[ADR-CSS]] | CSS-Architektur: Anchor Positioning, @scope, oklch, @layer |
+| [[ADR-HTML]] | HTML-Struktur, Custom Elements, IMR-Tags, WYSIWYG & Toolbars (integriert ehem. ADR-FEATURE) |
+| [[ADR-CSS]] | CSS-Architektur: Container Queries, Falzmarken, Anchor Positioning, oklch (integriert ehem. ADR-BETREFF) |
 | [[ADR-JS]] | JS-Architektur: Temporal, StorageManager, ES-Module |
-| [[ADR-API]] | Externe APIs: Geoapify, Photon |
 | [[ADR-DATA-PERSISTENCE]] | localStorage-Sovereignty, StorageManager-Pflicht |
-| [[ADR-FEATURE]] | Premium UX: Popover, WYSIWYG-Toolbar, Anchor Positioning |
-| [[ADR-BETREFF]] | Betreff-Feld spezifisch |
 | [[adr-toast-system]] | Toast-System Architektur & Registry |
 | [[ADR-OMNITRACEABILITY]] | Traceability-System & How-To |
 | [[ADR-005-Sender-Synchronization]] | Absender-Synchronisation |
-| [[ADR-PROFILE-MANAGEMENT]] | Profil-Management-Lücke (Doku sagte ✅, Code hat es nicht) |
+| [[ADR-006-Offline-Address-Intelligence]] | Offline Address Intelligence (70,5 KB Brotli-Dictionary & Fallback-Architektur) |
 
 ## Historisch / Support
 

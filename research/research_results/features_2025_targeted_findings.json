@@ -1,0 +1,2472 @@
+{
+  "total_matches": 214,
+  "features": [
+    {
+      "id": 5184275368509440,
+      "name": "Window Controls Overlay - Android",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "When the window controls overlay is enabled for installed desktop web apps, the app's client area is extended to cover the entire window--including the title bar area--and the window control buttons (close, maximize/restore, minimize) are overlaid on top of the client area. The web app developer is responsible for drawing and input-handling for the entire window except for the window controls overlay."
+    },
+    {
+      "id": 6400108400869376,
+      "name": "Declarative scroll commands for HTMLButtonElement",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "command"
+      ],
+      "summary": "A set of new `command` values for the `HTMLButtonElement` to declaratively control the scroll position of a target element.\n\nThis allows authors to create custom scrolling UI (e.g., for carousels or galleries) without requiring JavaScript, improving accessibility and simplifying implementation."
+    },
+    {
+      "id": 5198590821662720,
+      "name": "Web Animations Level 2: iterationComposite",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/web-animations-2",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The iterationComposite property controls how successive iterations of a CSS animation combine with each other, allowing developers to specify whether each successive iteration is calculated independently (\"replace\") or is accumulated with the final value of the previous iteration (\"accumulate\")."
+    },
+    {
+      "id": 5122501071994880,
+      "name": "PredefinedColorSpace srgb-linear and display-p3-linear",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://html.spec.whatwg.org/multipage/canvas.html#colour-spaces-and-colour-correction",
+      "matched_keywords": [
+        "css",
+        "canvas"
+      ],
+      "summary": "Add srgb-linear and display-p3-linear color spaces (as defined by CSS) to PredefinedColorSpace for use with canvases."
+    },
+    {
+      "id": 5086053979521024,
+      "name": "Speculation rules: mobile \"eager\" eagerness improvements",
+      "category": "Performance",
+      "milestone": null,
+      "spec": "https://html.spec.whatwg.org/multipage/speculative-loading.html#speculative-loading",
+      "matched_keywords": [
+        "anchor"
+      ],
+      "summary": "On mobile, \"eager\" eagerness speculation rules prefetches and prerenders now trigger when HTML anchor elements are in the viewport for a short time.\n\nThe previous behavior, of starting prefetch/prerenders as soon as possible, was the same as \"immediate\" eagerness. This new behavior is more useful as it better reflects the author's intent to be more eager than the \"moderate\" and less eager than \"immediate\".\n\nMore detail on this and other upcoming improvements to speculation rules eagerness are available at https://docs.google.com/document/d/1YPbtUPfZIDElzBZNx8IQMzRFvy8oauLG_i1XIr6jgTs/edit?usp=sharing."
+    },
+    {
+      "id": 5067156794507264,
+      "name": "Customizable combobox",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "appearance:base for the <datalist> element when it is invoked as a picker from an <input type=text> element. https://open-ui.org/components/combobox.explainer/"
+    },
+    {
+      "id": 6324676351623168,
+      "name": "Speculation Rules: prerender-until-script Action",
+      "category": "Performance",
+      "milestone": null,
+      "spec": "https://wicg.github.io/nav-speculation/prerendering.html#speculation-rule-set-prerender_until_script-rules",
+      "matched_keywords": [
+        "style",
+        "page",
+        "image"
+      ],
+      "summary": "This extends speculation rules to introduce a new action called prerender_until_script. \n\nIt is designed as an intermediate option between the existing prefetch (which only fetches the main document) and prerender (which fully renders the page and runs all scripts). This new action will fetch and parse a page, discover and download its subresources like images and stylesheets, but will pause all script execution. When the user navigates to the page, it activates, and all the deferred scripts are then executed in order. \n\nThis allows for a near-instant page load for content-heavy sites without the performance cost or side effects of running analytics or third-party scripts prematurely."
+    },
+    {
+      "id": 5088568590598144,
+      "name": "Deprecate BluetoothRemoteGATTCharacteristic.writeValue()",
+      "category": "Device",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "command"
+      ],
+      "summary": "The writeValue() method on BluetoothRemoteGATTCharacteristic is being deprecated. It is replaced by two new methods, writeValueWithResponse() and writeValueWithoutResponse(), which give developers explicit control over the type of write performed.\n\nThe original writeValue() method is ambiguous, leading to two issues for developers:\n\nPlatform Inconsistency: The behavior of writeValue() differs across platforms. For example, Chrome on Android defaults to a fast \"write without response,\" while other platforms default to a reliable \"write with response.\" This makes it impossible to write predictable, cross-platform compatible code.\n\nLack of Developer Control: Developers are best equipped to decide between a high-throughput write (e.g., for a firmware update) and a guaranteed-delivery write (e.g., for a critical command). writeValue() hides this choice, preventing developers from implementing the correct logic for their application."
+    },
+    {
+      "id": 5996914579472384,
+      "name": "The inherit() CSS function",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-values-5/#inherit-notation",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The inherit() function works similarly to the var() function, but substitutes to the computed custom property value of the parent element, rather than the current element. This can be useful if you want to take a value from the parent element, and make an adjustment to it \"in-place\", e.g. `--foo: calc(inherit(-foo) * 2)`."
+    },
+    {
+      "id": 4614417052467200,
+      "name": "FedCM Privacy Enforcement for Client Metadata",
+      "category": "Miscellaneous",
+      "milestone": 143,
+      "spec": "https://github.com/w3c-fedid/FedCM/pull/760",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "To address cross-site identity correlation risks in the FedCM API, Identity Providers (IdPs) that utilize client_metadata within their FedCM configuration are required to implement the direct endpoints format in the .well-known/web-identity file. This mandate ensures that both accounts_endpoint and login_url are explicitly defined whenever a client_metadata_endpoint is present. This approach strengthens privacy protections by preventing relying parties from exploiting metadata to correlate user identities across multiple sites. For further details and discussion, refer to https://github.com/w3c-fedid/FedCM/issues/700.\n\nIn Chrome 143 (Warning Phase): If client_metadata_endpoint exists but accounts_endpoint or login_url is missing, the browser will display console warnings. This gives IdPs time to update configurations.\n"
+    },
+    {
+      "id": 5080415048171520,
+      "name": "Restricting spelling and grammar highlights",
+      "category": "User input",
+      "milestone": 143,
+      "spec": null,
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "This experiment would change when spelling and grammar hints are applied to text fields to reduce the of websites ability to extract information about the user’s dictionary, specifically:\r\n* Hints would not be applied to a text field that has not had user interaction (an autofocus is insufficient, there must be a click or key press of some kind relative to that field).\r\n* Hints would only be applied once per user interaction (the text cannot be changed programmatically and have hints applied without a click or key press of some kind relative to that field).\r\n"
+    },
+    {
+      "id": 5736934890668032,
+      "name": "The '&' pseudo-class behaves as :where(:scope) in @scope rules",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "css",
+        "select"
+      ],
+      "summary": "The '&' pseudo-class now behaves like :where(:scope) (i.e. refers to the scoping root), rather than referring to the <scope-start> selector."
+    },
+    {
+      "id": 5077164932333568,
+      "name": "Canvas2D tone mapping",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "canvas"
+      ],
+      "summary": "Add a CanvasToneMapping member to CanvasRenderingContext2DSettings, allowing a 2D context to specify tone mapping."
+    },
+    {
+      "id": 6155213736116224,
+      "name": "::view-transition position absolute",
+      "category": "CSS",
+      "milestone": 142,
+      "spec": "https://github.com/w3c/csswg-drafts/issues/12116",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "View Transition feature uses a pseudo sub-tree of the element, with ::view-transition being the root of that transition. Previously ::view-transition element was specified to have a position: fixed. CSSWG made a decision to make this instead position: absolute.\r\n\r\nIn effect, this should not be noticeable since this element's containing block remains the snapshot containing block in either absolute or fixed case.\r\n\r\nThe only noticeable change is a change in getComputedStyle."
+    },
+    {
+      "id": 5143499213242368,
+      "name": "Exposing a string targetSelector attribute to EventTiming performance entries.",
+      "category": "Performance",
+      "milestone": null,
+      "spec": "https://github.com/w3c/event-timing/pull/160",
+      "matched_keywords": [
+        "dialog",
+        "select",
+        "page"
+      ],
+      "summary": "The Event Timing API (part of the Performance Timeline) is used to measure long-running user interactions.  Each entry reports the event type, timeStamp, processing times, and total duration to next paint.\n\nCurrently, each entry already reports the EventTarget (node), which is very important to actually find a reproduction use case from field data, in order to fix latency issues.\n\nThis new feature additionally exposes a String representation of the EventTarget via a new `targetSelector` attribute of Event Timing API.\n\n\nMotivation: because observing Event Timing is asynchronous, and because the `target` value is a weak reference, and because interactions with a page often modify the page (e.g. clicking a cookie consent prompt, or a button to dismiss a modal dialog), it is fairly common that the `target` Node might have already disconnected from the DOM and become reporting as `null`.\n\nBy capturing a light weight representation of the node (as a querySelector formatted string) we can keep a strong reference for reporting purposes."
+    },
+    {
+      "id": 6408307086589952,
+      "name": "Compression Dictionary TTL",
+      "category": "Network / Connectivity",
+      "milestone": null,
+      "spec": "https://github.com/httpwg/http-extensions/issues/2649",
+      "matched_keywords": [
+        "drop"
+      ],
+      "summary": "Adds support for an explicit time-to-live for dictionaries used in Compression Dictionary Transport. This is a backward-compatible extension to the \"Use-As-Dictionary\" HTTP response header that adds a \"ttl\" parameter.\r\n\r\nThe ttl is the number of seconds after the dictionary was last fetched that it is usable as a compression dictionary and overrides the default expiration (which is to expire when the underlying resource expires from the HTTP cache).\r\n\r\nFor example:\r\n\r\nUse-AsDictionary: match=\"/*\", ttl=600\r\n\r\nWould make the response available as a compression dictionary for 10 minutes independent of the HTTP caching headers.\r\n\r\nThis capability was part of the original feature but dropped during the standards process because of a lack of compelling use cases at the time. New use cases have emerged as the feature gains adoption that make it useful to add as an extension.\r\n\r\nDoc: https://docs.google.com/document/d/1uAutnUWpC6V-ka_MA-4m74YV12LAA6qP1sYjy97S2-0/edit?usp=sharing"
+    },
+    {
+      "id": 5116926821007360,
+      "name": "WebGPU: Texture formats tier1 and tier2",
+      "category": "Graphics",
+      "milestone": 142,
+      "spec": "https://www.w3.org/TR/webgpu/#texture-formats-tier1",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Extend GPU texture format support with capabilities like render attachment, blending, multisampling, resolve and storage_binding.\n\n"
+    },
+    {
+      "id": 5149766073843712,
+      "name": "Implement CSS property font-language-override",
+      "category": "Miscellaneous",
+      "milestone": 143,
+      "spec": "https://www.w3.org/TR/css-fonts-4/#font-language-override-prop",
+      "matched_keywords": [
+        "css",
+        "font"
+      ],
+      "summary": "This feature introduces support for the font-language-override CSS property in Chromium. The property allows developers to override the system language used for OpenType glyph substitution by specifying a four-character language tag directly in CSS.\n\nThis enables fine-grained typographic control, particularly useful for multilingual content or fonts with language-specific glyph variants."
+    },
+    {
+      "id": 5151468306956288,
+      "name": "Interoperable pointerrawupdate events exposed only in secure contexts",
+      "category": "User input",
+      "milestone": 142,
+      "spec": "https://w3c.github.io/pointerevents/#the-pointerrawupdate-event",
+      "matched_keywords": [
+        "input",
+        "pointer"
+      ],
+      "summary": "The PointerEvents spec restricted pointerrawupdate to secure contexts in 2020, hiding both the event firing and the global event listeners from insecure contexts.  Through this feature, Chrome will match the updated spec and become interoperable with other major browsers."
+    },
+    {
+      "id": 6229300214890496,
+      "name": "EditContext: TextFormat underlineStyle and underlineThickness",
+      "category": "JavaScript",
+      "milestone": 143,
+      "spec": "https://w3c.github.io/edit-context/#textformatupdateevent",
+      "matched_keywords": [
+        "css",
+        "style",
+        "editcontext"
+      ],
+      "summary": "Chromium shipped https://developer.mozilla.org/en-US/docs/Web/API/EditContext with a bug where the https://developer.mozilla.org/en-US/docs/Web/API/TextFormat object supplied by the https://developer.mozilla.org/en-US/docs/Web/API/EditContext/textformatupdate_event provides incorrect values for the underlineStyle and underlineThickness properties. In Chromium the possible values are {“None”, “Solid”, “Dotted”, “Dashed”, “Squiggle”} and {“None”, “Thin”, “Thick”}, when per https://w3c.github.io/edit-context/#dom-underlinestyle they should be {“none”, “solid”, “dotted”, “dashed”, “wavy”} and {“none”, “thin”, “thick”}. This Intent covers switching TextFormat.underlineStyle and TextFormat.underlineThickness to use the spec values.\n\nThis change is valuable because it aligns these attributes with existing CSS https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-style and the https://www.w3.org/TR/design-principles/#casing-rules. Since the purpose of the TextFormat properties is to be used in applying these text styles to text being composed on behalf of an IME, it will be more convenient for developers if the underlineStyle value can be applied directly from the event to CSS without need for a remapping. For both underlineStyle and underlineThickness, matching the platform lower-case convention will reduce the likelihood of developer confusion."
+    },
+    {
+      "id": 5412736871825408,
+      "name": "Mobile and desktop parity for select element rendering modes",
+      "category": "DOM",
+      "milestone": 142,
+      "spec": "https://github.com/whatwg/html/pull/11460",
+      "matched_keywords": [
+        "select",
+        "page"
+      ],
+      "summary": "By using the size and multiple attributes, the select element can be rendered as an in-page listbox or a button with a popup. However, these modes are not consistently available across mobile and desktop chrome. Currently, in-page listbox rendering is not available on mobile, and button with popup is not available on desktop when the multiple attribute is present.\n\nThis feature adds the listbox to mobile and adds a multi-select popup to desktop, and makes the opt-ins with the size and multiple attributes result in the same rendering mode across mobile and desktop. Here is a summary of the changes:\n- When the size attribute has a value greater than 1, in-page rendering will always be used. Previously, this was ignored on mobile.\n- When the multiple attribute is set with no size attribute, in-page rendering will be used. Previously, this was a popup instead of an in-page listbox on mobile.\n- When the multiple attribute is set with size=1, a popup will be used. Previously, this was an in-page listbox on desktop.\n\nBy making this change, we are providing a foundation to bring customizable select to in-page rendering and multi-select. Customizable select currently only works for single-selects with a popup."
+    },
+    {
+      "id": 5120827674722304,
+      "name": ":target-before and :target-after pseudo-classes",
+      "category": "CSS",
+      "milestone": 142,
+      "spec": "https://drafts.csswg.org/css-overflow-5/#active-before-after-scroll-markers",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "These pseudo-classes match scroll markers that are, respectively, before or after the active marker (the one matching :target-current) within the same scroll marker group, as determined by flat tree order:\r\n\r\n* :target-before matches all scroll markers that precede the active marker in the flat tree order within the group.\r\n\r\n* :target-after matches all scroll markers that follow the active marker in the flat tree order within the group.\r\n\r\n"
+    },
+    {
+      "id": 5070655645155328,
+      "name": "Custom property enumeration in getComputedStyle()",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/cssom/#dom-window-getcomputedstyle",
+      "matched_keywords": [
+        "css",
+        "style",
+        "canvas",
+        "image"
+      ],
+      "summary": "When iterating over window.getComputedStyle(element) in Chromium, there is a bug where it forgets to include any custom properties set on the element. (length() on the returned object forgets to account for the number of custom properties set.) We would like to fix this bug; it brings us closer to web standards, and to Firefox and Safari, which have never had this bug.\n\nThere is a performance interaction with JavaScript libraries html2canvas and html-to-image; see the document below.\n\nMore information: https://docs.google.com/document/d/17zz_asZ7E5ITjejp6Q6p4vqzETE3nEa28k2AC01X--s/edit?tab=t.0"
+    },
+    {
+      "id": 5113389252739072,
+      "name": "HTMLElement: accessKeyLabel",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://html.spec.whatwg.org/multipage/interaction.html#dom-accesskeylabel",
+      "matched_keywords": [],
+      "summary": "The HTMLElement.accessKeyLabel read-only property returns a human-readable string representing the actual keyboard shortcut assigned to the element by the browser, based on the user’s platform and browser. If no access key is assigned, it returns an empty string."
+    },
+    {
+      "id": 5158255487746048,
+      "name": "Clipboard API: presentationStyle",
+      "category": "Capabilities (Fugu)",
+      "milestone": null,
+      "spec": "https://w3c.github.io/clipboard-apis/#dom-clipboarditem-presentationstyle",
+      "matched_keywords": [
+        "style",
+        "clipboard"
+      ],
+      "summary": "A clipboard item has a presentation style (a PresentationStyle). It helps distinguish whether apps \"pasting\" a clipboard item should insert the contents of an appropriate representation inline at the point of paste or if it should be treated as an attachment."
+    },
+    {
+      "id": 5179013869993984,
+      "name": "Update hidden=until-found and details ancestor revealing algorithm",
+      "category": "DOM",
+      "milestone": 141,
+      "spec": "https://github.com/whatwg/html/pull/11457",
+      "matched_keywords": [],
+      "summary": "The spec recently had some small changes to the revealing algorithms for hidden=until-found and details elements in order to prevent the browser from getting stuck in an infinite loop: https://github.com/whatwg/html/pull/11457"
+    },
+    {
+      "id": 5185842163351552,
+      "name": "CSS Text Level 3 text-transform: full-width",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/css-text-3",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Add the full-width value to the text-transform property.\r\n\r\nThis value transforms ASCII characters and specific symbols into their full-width Unicode variants, so they visually align with ideographic characters. It is typically used in Japanese, Chinese, or Korean typesetting where uniform character width is expected."
+    },
+    {
+      "id": 5089468667265024,
+      "name": "Support slotting option elements in select elements",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "select"
+      ],
+      "summary": "This feature makes the select element look in its flat tree for option elements rather than just looking at its normal DOM descendants. This way, web components can use select elements in their shadow DOM and users of the web component can provide option elements. Here is an example: https://github.com/whatwg/html/issues/11535"
+    },
+    {
+      "id": 5204024772788224,
+      "name": "Rec2100 linear color space for canvas",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "css",
+        "canvas"
+      ],
+      "summary": "Adds support for the color space rec2100-linear as a CSS color space and as a PredefinedColorSpace value."
+    },
+    {
+      "id": 6259891077120000,
+      "name": "Page-Embedded Clipboard Read Permission Control ",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://wicg.github.io/PEPC/permission-element.html",
+      "matched_keywords": [
+        "page",
+        "clipboard"
+      ],
+      "summary": "Introduces clipboard-read permission type for PEPC elements\n\nThis feature gives developers control over when and how clipboard permission prompts appear, replacing unpredictable browser-initiated prompts with contextual UI that users can understand and interact with at the right moment."
+    },
+    {
+      "id": 5386725031149568,
+      "name": "Faster background freezing on Android",
+      "category": "Performance",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Shortens the time to freezing background pages (and associated workers) from 5 minutes to 1 minute on Android. See the original intent to ship for background: https://groups.google.com/a/chromium.org/g/blink-dev/c/NKtuFxLsKgo/m/XmQganj9EAAJ. Android 15 has introduced a 1 minute background network restriction on apps, and faster background freezing aligns with this OS-level restriction which causes any network requests made by the site to fail after the 1 minute mark anyways.\n"
+    },
+    {
+      "id": 5176474637959168,
+      "name": "FedCM—Support showing third-party iframe origins in the UI",
+      "category": "Miscellaneous",
+      "milestone": 142,
+      "spec": "https://github.com/w3c-fedid/FedCM/pull/774",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "Currently, FedCM always shows the toplevel site in its UI.\r\n\r\nThis works well when the iframe is conceptually first-party (e.g. foo.com may have an iframe foostatic.com, which is not meaningful to the user).\r\n\r\nBut if the iframe is actually third-party, it would be better to make it possible to show the iframe origin in the UI so that the user better understands who they are sharing their credentials with. For example, a photo editor may be embedded in a book publishing web app and may want to let users access files they have previously stored with the photo editor.\r\n\r\nThis proposal allows doing so."
+    },
+    {
+      "id": 5078337520926720,
+      "name": "Sticky user activation across same-origin renderer-initiated navigations",
+      "category": "User input",
+      "milestone": 142,
+      "spec": "https://github.com/whatwg/html/pull/11454",
+      "matched_keywords": [
+        "input",
+        "page"
+      ],
+      "summary": "This feature preserves the sticky user activation state after a page navigates to another same-origin page. The lack of user activation in the post-navigation page prevents some use cases like showing virtual keyboards on auto-focus, and this has been a blocker for the developers who want to build Multi-page Applications (MPAs) over Single-page Applications (SPAs).\n\nNote that browser-initiated navigation requests (reload, history navigation, typed URL in address bar etc) are not covered by this feature."
+    },
+    {
+      "id": 6715253274181632,
+      "name": "DataTransfer property for insertFromPaste, insertFromDrop and insertReplacementText input events",
+      "category": "Miscellaneous",
+      "milestone": 143,
+      "spec": "https://w3c.github.io/input-events/#dom-inputevent-datatransfer",
+      "matched_keywords": [
+        "input",
+        "contenteditable",
+        "clipboard",
+        "drag",
+        "drop"
+      ],
+      "summary": "Populate the dataTransfer property on input events with inputType of insertFromPaste, insertFromDrop, and insertReplacementText to provide access to clipboard and drag-drop data during editing operations in contenteditable elements.\n\nThe dataTransfer object contains the same data that was available during the beforeinput event.\n\nThis feature only applies to contenteditable elements. For form controls (textarea, input), the behavior remains unchanged - the data property contains the inserted text and dataTransfer remains null.\nBoth Safari and Firefox already support this functionality. Chromium adopting this feature will enhance interoperability across browsers, providing a more consistent experience for web authors."
+    },
+    {
+      "id": 5067126381215744,
+      "name": "activeViewTransition property on document",
+      "category": "JavaScript",
+      "milestone": 142,
+      "spec": "https://drafts.csswg.org/css-view-transitions-2",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "View Transitions API allows developers to start visual transitions between different states. The primary SPA entry point to this is `startViewTransition()` which returns a transition object. This object contains several promises and functionality to track the transition progress, as well as allow manipulations such as skipping the transition or modifying its types.\r\n\r\nThe proposal here is ergonomic in nature: instead of requiring that users store this object in some sort of way for easy access, provide a `document.activeViewTransition` property that represents this object, or null if there is no transition ongoing.\r\n\r\nNote this similarly applies to MPA transitions, where the object is only available via `pageswap` and `pagereveal` events. In this proposal `document.activeViewTransition` would be set to this object for the duration of the transition."
+    },
+    {
+      "id": 4830298126417920,
+      "name": "FileAPI: Blob.bytes()",
+      "category": "File APIs",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/FileAPI",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "The bytes() method of the Blob interface returns a Promise that resolves with a Uint8Array containing the contents of the blob as an array of bytes."
+    },
+    {
+      "id": 5324970347200512,
+      "name": "FileSystemAccess: add \"write\" access mode",
+      "category": "File APIs",
+      "milestone": null,
+      "spec": "https://github.com/WICG/file-system-access/pull/464",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "The File System Access API defines two access modes for file system entries: \"read\" and \"readwrite\". These modes are used when querying or requesting permission to an entry.\n\nAn issue with the current model is that operations requiring only file system modification, such as FileSystemHandle.remove(), are forced to request broad \"readwrite\" permission. This behavior poses some unnecessary security risks.\n\nTo address this, we propose a more granular, \"write\" permission mode. This new mode will allow applications to request only the permission to write to a file or directory, without also gaining permission to read from it."
+    },
+    {
+      "id": 5101681238605824,
+      "name": "@custom-media",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/mediaqueries-5/#custom-mq",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "The proposed @custom-media at-rule is a feature that would allow developers to define and name their own media queries. This would make responsive design code cleaner and more maintainable by reducing repetition.\r\n\r\nFor example:\r\n\r\n@custom-media --narrow-window (max-width: 30em);\r\n\r\n@media (--narrow-window) {\r\n  /* styles for narrow windows */\r\n}"
+    },
+    {
+      "id": 5165304401100800,
+      "name": "ToggleEvent source attribute",
+      "category": "DOM",
+      "milestone": 140,
+      "spec": "https://html.spec.whatwg.org/multipage/interaction.html#the-toggleevent-interface",
+      "matched_keywords": [
+        "popover",
+        "command"
+      ],
+      "summary": "The source attribute of ToggleEvents contains the element which triggered the ToggleEvent to be fired, if applicable. For example, if a button element with the popovertarget or commandfor attribute set up to open a popover is clicked by the user, then the ToggleEvent fired on the popover will have its source attribute set to the invoking button."
+    },
+    {
+      "id": 5154752085884928,
+      "name": "View Transitions: Inherit more animation properties",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://www.w3.org/TR/css-view-transitions-2",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Similar to https://chromestatus.com/feature/5424291457531904, which inherited animation-delay, this feature adds more animation properties to inherit through the view transition pseudo tree based on resolution in https://github.com/w3c/csswg-drafts/issues/11546#issuecomment-3005503138:\r\n* animation-timing-function\r\n* animation-iteration-count\r\n* animation-direction\r\n* animation-play-state"
+    },
+    {
+      "id": 5133972077805568,
+      "name": "CSS Text Level 3 text-align: match-parent",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/css-text-3",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Add the match-parent value to the text-align and text-align-last properties.\r\n\r\nThis value inherits the parent element's text alignment, with the exception that when the parent has start or end alignment, match-parent computes these values to left or right based on the parent's text direction. For the root element, it computes to start.\r\n\r\nPreviously, this functionality was only available through the non-standard -webkit-match-parent value."
+    },
+    {
+      "id": 5143313833000960,
+      "name": "ICU version 77 (supporting Unicode 16)",
+      "category": "JavaScript",
+      "milestone": 143,
+      "spec": "https://tc39.es/ecma402",
+      "matched_keywords": [
+        "intl"
+      ],
+      "summary": "The Unicode support library, International Components for Unicode (ICU), is upgraded from version 74.2 to version 77.1, adding support for Unicode 16 and updating locale data. \nTwo changes could pose some risk for web applications that assume a specific format from the [Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Internationalization) JS APIs:\n1. The default Italian number formatting changed to omit the thousand separator for 4-digit numbers. For example, `new Intl.NumberFormat(\"it\").format(1234)` will return `1234` instead of `1.234`. The old behavior can be achieved with the `useGrouping` parameter for the `Intl.NumberFormat` constructor. \n2. In some English locales (en-AU, en-GB, and en-IN), a comma was added after full-length weekdays, for example, changing Saturday 30 April 2011 to Saturday, 30 April 2011. Web applications should avoid relying on the precise formatting of dates and they may change again in future."
+    },
+    {
+      "id": 5143135809961984,
+      "name": "View Transition finished promise timing change",
+      "category": "JavaScript",
+      "milestone": 140,
+      "spec": null,
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "The current finished promise timing happens within the rendering lifecycle steps. This means that code that runs as a result of promise resolution happens after the visual frame that removes the view transition has been produced. This can cause a flicker at the end of the animation if script moves some styles around in an attempt to preserve visually similar state (e.g. https://vmpstr.github.io/htmldemos/vt/flicker.html)\r\n\r\nThis change rectifies the situation by moving the ViewTransition clean up steps to run asynchronously after the lifecycle is completed. This ensures that visual frame produced at finished promise resolution still maintains the View Transition structure, allowing developers to avoid the flicker.\r\n\r\nMore info: https://github.com/w3c/csswg-drafts/issues/12442"
+    },
+    {
+      "id": 5184992749289472,
+      "name": "Range syntax for style container queries and if()",
+      "category": "CSS",
+      "milestone": 142,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#typedef-style-range",
+      "matched_keywords": [
+        "css",
+        "style",
+        "input"
+      ],
+      "summary": "This feature enhances CSS style queries and the if() function by adding support for range syntax.\r\n\r\nThis extends style queries beyond exact value matching (e.g., style(--theme: dark)). Developers can now use comparison operators (>, <, etc.) to compare custom properties, literal values (like 10px or 25%), and values from substitution functions like attr() and env(). For a comparison to be valid, both sides must resolve to the same data type. This is limited to the following numeric types: <length>, <number>, <percentage>, <angle>, <time>, <frequency>, and <resolution>.\r\n\r\nThis allows for creating more dynamic components that adapt based on a range of inputs, not just predefined states.\r\n\r\nExamples:\r\n\r\n/* Compare a custom property against a literal length */\r\n@container style(--inner-padding > 1em) {\r\n  .card { border: 2px solid; }\r\n}\r\n\r\n/* Compare two literal values */\r\n@container style(1em < 20px) {\r\n  ...\r\n}\r\n\r\n/* Using style ranges in if() */\r\n.item-grid {\r\n  background-color: if(style(attr(data-columns, type<number>) > 2): lightblue; else: white);\r\n}"
+    },
+    {
+      "id": 6265596395913216,
+      "name": "Support `download` attribute in SVG <a> element ",
+      "category": "Miscellaneous",
+      "milestone": 142,
+      "spec": "https://svgwg.org/svg2-draft/linking.html#InterfaceSVGAElement",
+      "matched_keywords": [
+        "anchor"
+      ],
+      "summary": "This feature introduces support for the download attribute on the SVGAElement interface in Chromium, aligning with the SVG 2 specification. The download attribute enables authors to specify that the target of an SVG hyperlink should be downloaded rather than navigated to, mirroring the behavior already supported in HTMLAnchorElement. This enhancement promotes interoperability across major browsers and ensures consistent behavior between HTML and SVG link elements, thereby improving developer experience and user expectations."
+    },
+    {
+      "id": 5196301767278592,
+      "name": "CSS hanging-punctuation",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-text-4/#hanging-punctuation-property",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "This property allows some predefined punctuation characters to be placed outside the line box, at the start or at the end of a line of text.\n\nThe `first` and the `last` values are for the usages in the Latin typography. The `allow-end` is often seen in Japanese novels. The `force-end` will not be included in the initial release as it is less often used and Safari doesn't implement it."
+    },
+    {
+      "id": 5858435803119616,
+      "name": "Canvas2D Target HDR Headroom",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "canvas",
+        "image"
+      ],
+      "summary": "Adds a global HDR headroom attribute to CanvasRenderingContext2D. When drawing HDR content (e.g, gain map images), to the canvas' bitmap, this attribute will determine how much tone mapping should be performed (if any)."
+    },
+    {
+      "id": 5424291457531904,
+      "name": "View transition pseudos inherit animation-delay.",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://www.w3.org/TR/css-view-transitions-2",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "View Transitions project adds a tree of pseudo elements that have various animations applied to them. For ease of development and customization some niceties are provided, such as inheriting animation-duration.\r\n\r\nThis feature adds another nicety: inherit animation-delay."
+    },
+    {
+      "id": 6210047134400512,
+      "name": "Propagate Viewport overscroll-behavior from Root",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/css-overscroll-behavior-1",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Propagate overscroll-behavior from the root instead of the body.\n\nThe CSS working group resolved[0] on not propagating  properties from the <body> to the viewport. Rather, properties of the viewport are to be propagated from the root (i.e. <html>) element e.g. scroll-behavior[1], scroll-snap-type[2], scroll-padding[3]. As such, overscroll-behavior should be propagated from the root element. However, Chrome has had a longstanding issue of propagating overscroll-behavior from the <body> rather than the root, which deviates from the behavior of Safari(WebKit) and Firefox(Gecko). This feature intends to fix this by propagating overscroll-behavior from the root rather than the <body>.\n\n[0]  https://github.com/w3c/csswg-drafts/issues/6079#issuecomment-816307011\n[1] https://drafts.csswg.org/css-overflow/#:~:text=not%20propagated%20to%20the%20viewport\n[2] https://drafts.csswg.org/css-scroll-snap/#:~:text=not%20propagated%20from%20HTML%20body\n[3] https://drafts.csswg.org/css-scroll-snap/#:~:text=padding%20values%20are%20not%20propagated%20from%20HTML%20body\n\n"
+    },
+    {
+      "id": 5221379619946496,
+      "name": "Support font-variation-settings descriptor in @font-face rule",
+      "category": "Miscellaneous",
+      "milestone": 140,
+      "spec": "https://www.w3.org/TR/css-fonts-4/#font-rend-desc",
+      "matched_keywords": [
+        "css",
+        "font"
+      ],
+      "summary": "As CSS allows developers to adjust a font’s weight, width, slant, and other axes using the `font-variation-settings` property on individual elements, Chromium-based browsers lack support for this property within `@font-face` declarations. \n\nThis feature supports the string-based syntax for 'font-variation-settings' as defined in CSS Fonts Level 4. Invalid or unrecognized feature tags will be ignored per specification. No binary or non-standard forms are supported.\n\nAs variable fonts become more widely adopted for both performance and typographic flexibility, adding support for this descriptor in Chromium would enhance control, reduce repetition, and support a more scalable, modern approach to web typography."
+    },
+    {
+      "id": 5079361929347072,
+      "name": "Speculation rules: mobile \"moderate\" eagerness improvements",
+      "category": "Performance",
+      "milestone": null,
+      "spec": "https://wicg.github.io/nav-speculation/speculation-rules.html#:~:text=early%20as%20possible.-,%22moderate%22,balance%20between%20%22eager%22%20and%20%22conservative%22.,-%22conservative%22",
+      "matched_keywords": [
+        "pointer"
+      ],
+      "summary": "On mobile, \"moderate\" eagerness speculation rules prefetches and prerenders now trigger when a link enters the viewport and passes other conditions that indicate that it's more likely to be clicked.\r\n\r\nThe previous behavior, of waiting until pointerdown, was the same as \"conservative\" eagerness. This new behavior is more useful as it better reflects author intent to be more eager than the \"conservative\" setting.\r\n\r\nMore detail on this and other upcoming improvements to speculation rules eagerness are available at https://docs.google.com/document/d/1YPbtUPfZIDElzBZNx8IQMzRFvy8oauLG_i1XIr6jgTs/edit?usp=sharing."
+    },
+    {
+      "id": 5102801981800448,
+      "name": "Support font-feature-settings descriptor in @font-face rule",
+      "category": "CSS",
+      "milestone": 139,
+      "spec": "https://www.w3.org/TR/css-fonts-4/#font-rend-desc",
+      "matched_keywords": [
+        "css",
+        "font"
+      ],
+      "summary": "As CSS allows fine control over font features using 'font-feature-settings' at the element level, Chromium-based browsers currently lack support for these properties within '@font-face' declarations.\n\nThis feature supports the string-based syntax for font-feature-settings as defined in CSS Fonts Level 4. Invalid or unrecognized feature tags will be ignored per specification. No binary or non-standard forms are supported.\n\nAs OpenType fonts become more widely adopted, this enhancement will improve typographic control, reduce redundancy, and support a more scalable, modern approach to web design."
+    },
+    {
+      "id": 5182293874049024,
+      "name": "Re-Sizing TCP Connection Pool",
+      "category": "Network / Connectivity",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "file",
+        "touch",
+        "drop"
+      ],
+      "summary": "This experiment evaluates the impact of changing the per-profile TCP socket pool size from 256 (the current default), down to 255, and up to 257, 512, and 1024 (possibly at 1-2 numbers between those based on findings). We will study the performance impact of these changes in stages, starting with 255 and 257. If no ill effects are seen, 512 will be evaluated and then 1024 after that. We expect that some platforms (e.g., mobile or older OS versions) will have to drop off as we get to the 512/1024 experiments. We will study changes to both normal and websocket pool global limits, but will not touch the per-host or per-proxy limits.\r\n\r\n\r\nThis experiment will not be rolled directly into a full launch, but rather evaluated for use in a future experiment that attempts to partition the TCP socket pool to mitigate a network traffic timing attack. See the motivation section for more.\r\n"
+    },
+    {
+      "id": 5070370113323008,
+      "name": "Scroll Anchoring Priority Candidate Fix",
+      "category": "Miscellaneous",
+      "milestone": 139,
+      "spec": null,
+      "matched_keywords": [
+        "select",
+        "contenteditable",
+        "page",
+        "selection",
+        "anchor"
+      ],
+      "summary": "Currently, scroll anchoring algorithm selects priority candidates when they are available as anchor targets. The priority candidates are currently a focused editable element and find-in-page highlights. \r\n\r\nThis can cause suboptimal user experience if there is a large focused contenteditable element that has content changed offscreen (the cursor ends up being shifted as a consequence).\r\n\r\nA simple fix is to change the algorithm: instead of selecting the priority candidate as the anchor, chose the candidate as the scope/root of the regular anchor selection algorithm which will select the deepest onscreen element as the anchor.\r\n\r\nThis feature tracks this change."
+    },
+    {
+      "id": 5185442420621312,
+      "name": "CSS counter() and counters() in alt text of 'content' property",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/css-content/#content-property",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "counter() and counters() in alt text of 'content' property is useful to provide more meaningful information to e.g. pseudo-elements to improve their accessibility."
+    },
+    {
+      "id": 4740780497043456,
+      "name": "CSS typed arithmetic",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://www.w3.org/TR/css-values-4/#calc-type-checking",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Typed arithmetic allows to write expressions in CSS such a calc(10em / 1px) or calc(20% / 0.5em * 1px) which is useful for e.g. typography, as it allows to convert typed value into an untyped one and reuse it for number accepting properties or futher multiply the unitless value by some other type to e.g. cast from pixels to degrees."
+    },
+    {
+      "id": 5189126177161216,
+      "name": "CSS scroll-target-group property",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/css-overflow-5/#scroll-target-group",
+      "matched_keywords": [
+        "css",
+        "style",
+        "anchor"
+      ],
+      "summary": "The scroll-target-group property specifies whether the element is a scroll marker group container.\r\n\r\n'none': The element does not establish a scroll marker group container.\r\n'auto': The element establishes a scroll marker group container forming a scroll marker group containing all of the scroll marker elements for which this is the nearest ancestor scroll marker group container.\r\n\r\nEstablishing scroll marker group container allows for anchor HTML elements with fragment identifier that are inside such container to be HTML equivalent of ::scroll-marker pseudo elements. The anchor element whose scroll target (the element its fragment identifier is pointing to) is currently in view to be styled via :target-current pseudo class.\r\n"
+    },
+    {
+      "id": 5194501932711936,
+      "name": "Continue running transitions when switching to initial transition value.",
+      "category": "CSS",
+      "milestone": 139,
+      "spec": "https://www.w3.org/TR/css-transitions-1/#starting",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "When the transition related properties change, they are only supposed to affect newly started transitions. This means that if you change the transition properties, unless you also change the properties which have active transition animations, those transition animations will continue with the previously specified duration, easing, etc.\r\n\r\nBlink incorrectly canceled transitions when the transition property was set to \"none\", even though it doesn't cancel them if you only change the transition-duration. With this feature, blink will be consistent with webkit and gecko, allowing active transitions to continue running, unless/until their property value changes triggering a new transition update."
+    },
+    {
+      "id": 6278918763708416,
+      "name": "Allow more characters in javascript DOM APIs",
+      "category": "DOM",
+      "milestone": 143,
+      "spec": "https://dom.spec.whatwg.org/#namespaces",
+      "matched_keywords": [],
+      "summary": "The HTML parser has always (or for a long time) allowed elements and attributes to have a wide variety of valid characters and names, but the javascript DOM APIs to create the same elements and attributes are more strict and don't match the parser.\r\n\r\nThis change relaxes the validation of the javascript DOM APIs to match the HTML parser.\r\n\r\nMore context here: https://github.com/whatwg/dom/issues/849\r\n\r\nI don't anticipate any compat issues from this change because all of the previously allowed element/attribute names are still allowed with the new behavior."
+    },
+    {
+      "id": 5163497234890752,
+      "name": "Last Baseline Content Alignment",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/css-align-3/#baseline-align-content",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "This feature allows developers to align the content of the boxes participating in row-like shared context by their last baseline, instead of their first.\r\n\r\nThis is done via the following property:\r\nalign-content last baseline; /* Table cells, Flex items or grid items */\r\n"
+    },
+    {
+      "id": 5072779506089984,
+      "name": "windowAudio for getDisplayMedia()",
+      "category": "Miscellaneous",
+      "milestone": 141,
+      "spec": "https://w3c.github.io/mediacapture-screen-share/#displaymediastreamoptions",
+      "matched_keywords": [
+        "select"
+      ],
+      "summary": "Extends DisplayMediaStreamOptions for getDisplayMedia() with a windowAudio option. This new option allows web applications to hint to the user agent whether the user should be offered the ability to share audio when a window is selected. windowAudio can be set to exclude, system, or window based on application preference.\n\nA web application that is configured for audio capture but wants to limit system audio capture when a window is selected should set windowAudio: \"exclude\"."
+    },
+    {
+      "id": 5206050462236672,
+      "name": "Secure Payment Confirmation: UX Refresh",
+      "category": "Miscellaneous",
+      "milestone": 145,
+      "spec": "https://w3c.github.io/secure-payment-confirmation",
+      "matched_keywords": [
+        "dialog"
+      ],
+      "summary": "Updates the UX elements for the SPC dialog on Android Chrome.\n\nOther than just UX presentation the following are being added:\n- Allowing merchants to provide an optional list of payment entity logos related to the payment that will be displayed in the UX (https://github.com/w3c/secure-payment-confirmation/pull/294).\n- Returning different output states back to the merchant depending on whether the user wants to continue the transaction without SPC or to cancel the transaction (https://github.com/w3c/secure-payment-confirmation/pull/292). Currently, we only send a single output state back for both cases.\n- A new payment detail label field will be added to the payment instrument so the text be presented across 2 lines in SPC (https://github.com/w3c/secure-payment-confirmation/pull/298)"
+    },
+    {
+      "id": 5177580990496768,
+      "name": "CSS Anchored Fallback Container Queries",
+      "category": "CSS",
+      "milestone": 143,
+      "spec": "https://drafts.csswg.org/css-anchor-position-2/#anchored-container-queries",
+      "matched_keywords": [
+        "css",
+        "style",
+        "anchor"
+      ],
+      "summary": "Introduce @container anchored(fallback) to style descendants of anchor positioned elements based on which of position-try-fallbacks is applied.\n\nSuch queries can be used to e.g. style an anchored element's tether, its animations, etc. based on how the anchor and the anchored element are positioned relative to each other.\n\nExample:\n\n#anchored {\n  position-try-options: flip-block;\n  container-type: anchored;\n}\n@container anchored(fallback: flip-block) {\n  #anchored > .arrow {\n    --arrow-rotation: 180deg;\n  }\n}\n"
+    },
+    {
+      "id": 5178789386256384,
+      "name": "Support width and height as presentation attributes on nested <svg> elements",
+      "category": "Miscellaneous",
+      "milestone": 141,
+      "spec": "https://svgwg.org/svg2-draft/geometry.html#Sizing",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "This feature supports applying width and height as presentation attributes on nested <svg> elements through both SVG markup and CSS. This dual approach provides even greater flexibility for developers, allowing them to manage and style SVG elements more efficiently within complex designs.\n\nWith this feature the below two html will now have the same output:\n\nWith CSS Properties for nested <svg> element:\n<svg width=\"100px\" height=\"100px\">\n  <svg style=\"width:50px;height:50px;\">\n    <circle cx=\"50px\" cy=\"50px\" r=\"40px\" fill=\"green\" />\n  </svg>\n</svg>\n\nWithout CSS Properties for nested <svg> element:\n<svg width=\"100px\" height=\"100px\">\n  <svg width=\"50px\" height=\"50px\">\n    <circle cx=\"50px\" cy=\"50px\" r=\"40px\" fill=\"green\" />\n  </svg>\n</svg>"
+    },
+    {
+      "id": 5075532483657728,
+      "name": "Enhanced Canvas TextMetrics",
+      "category": "Graphics",
+      "milestone": null,
+      "spec": "https://github.com/whatwg/html/pull/11000",
+      "matched_keywords": [
+        "select",
+        "selection",
+        "canvas"
+      ],
+      "summary": "Expand the TextMetrics Canvas API to support selection rectangles, bounding box queries, and glyph cluster-based operations.\n\nThis new functionality should enable complex text editing applications with accurate selection, caret positioning, and hit testing.  Additionally, cluster-based rendering facilitates sophisticated text effects such as independent character animations and styling. "
+    },
+    {
+      "id": 5470594816278528,
+      "name": "Spec-compliant JSON MIME type detection",
+      "category": "Miscellaneous",
+      "milestone": 139,
+      "spec": "https://mimesniff.spec.whatwg.org/#json-mime-type",
+      "matched_keywords": [
+        "image"
+      ],
+      "summary": "Chromium now recognizes all valid JSON MIME types as defined by the WHATWG mimesniff specification. This includes any MIME type whose subtype ends with “+json”, in addition to the traditional application/json and text/json. This change ensures that web APIs and features relying on JSON detection behave consistently with the web platform standard and other browsers.\n\nA key motivation for this change is to fix JSON module import behavior, where previously valid JSON MIME types like text/html+json and image/svg+json would fail to load as modules.\n\nDraft CL: https://chromium-review.googlesource.com/c/chromium/src/+/6525687\n\nRelated Issues: https://github.com/whatwg/mimesniff/issues/112. The consensus was to retain the broad definition of JSON MIME types—including all */*+json."
+    },
+    {
+      "id": 6230159413477376,
+      "name": "The ident() function",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-values-5/#ident",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The ident() function may be used to construct CSS identifiers dynamically, e.g. the concatenation of a string part and an integer part.\r\n"
+    },
+    {
+      "id": 5128140732760064,
+      "name": "Support restrictOwnAudio",
+      "category": "Miscellaneous",
+      "milestone": 141,
+      "spec": "https://www.w3.org/TR/screen-capture/#dfn-restrictownaudio",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "restrictOwnAudio is a captured display surfaces constrainable property. This constrainable property changes the behavior of system audio in a captured display surface. The restrictOwnAudio constraint will only have an effect if the captured display surface inherently includes system audio; otherwise, it will have no impact.\n\nBy default, when system audio is captured, it includes all audio played out by the system on audio output devices. When restrictOwnAudio is enabled, the captured system audio will be filtered to exclude audio originating from the document that performed getDisplayMedia.\n\nThe restrictOwnAudio constraint allows for cleaner screen recordings for some use cases. Without it, if the capturing web page itself is playing audio (e.g. a video embedded on the on the recording page), that audio would be included in the capture. This could lead to an undesirable echo or interfere with the intended audio sources from other tabs or applications.\n\nThe restrictOwnAudio constrainable property is described in the specification.\nhttps://www.w3.org/TR/screen-capture/#dfn-restrictownaudio"
+    },
+    {
+      "id": 5144463990849536,
+      "name": "Modulepreload Referrer Header Fix",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://html.spec.whatwg.org/multipage/links.html#link-type-modulepreload:script-fetch-options",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Modulepreload and dynamic imports now correctly send the page’s referrer header when fetching scripts, aligning Chrome with the HTML specification.\n\n"
+    },
+    {
+      "id": 5099982692286464,
+      "name": "CSS Color for Color Input Value",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://html.spec.whatwg.org/multipage/input.html#update-a-color-well-control-color",
+      "matched_keywords": [
+        "css",
+        "input"
+      ],
+      "summary": "The HTML color input historically only supported 6 digit hex values for the value attribute. This feature changes that to support the much wider range of color syntaxes supported by CSS. Importantly the value will still be serialized as a hex when retrieving the value or during form submission, this is for backwards compatibility."
+    },
+    {
+      "id": 5153430045458432,
+      "name": "Per-Function Explicit Compile Hints via Magic Comments",
+      "category": "JavaScript",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "Allow attaching information about which functions should be eager parsed & compiled in JavaScript files.\n\nThe information will be encoded as magic comments.\n\nThis is an extension of the Per-File Explicit Compile Hints feature ( https://chromestatus.com/feature/5100466238652416 ), where we now allow marking individual functions for eager parsing & compilation."
+    },
+    {
+      "id": 6212939656462336,
+      "name": "Short-circuiting var() and attr()",
+      "category": "CSS",
+      "milestone": 139,
+      "spec": null,
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "When the fallback is not taken, var()/attr() functions evaluate without looking for cycles in that fallback."
+    },
+    {
+      "id": 5065884686876672,
+      "name": "Local Network Access Restrictions for WebRTC",
+      "category": "Security",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "print"
+      ],
+      "summary": "Restricts the ability to make requests to the user's local network using WebRTC, gated behind a permission prompt.\n\nA local network request is any request from a public website to a local IP address or loopback, or from a local website (e.g. intranet) to loopback. Gating the ability for websites to perform these requests behind a permission reduces the ability of sites to use these requests to fingerprint the user's local network.\n\nThis permission is restricted to secure contexts.\n\nThis work is adding to the Local Network Access Restrictions work here: https://chromestatus.com/feature/5152728072060928"
+    },
+    {
+      "id": 5190983595327488,
+      "name": "Deprecate asynchronous range removal for Media Source Extensions",
+      "category": "Multimedia",
+      "milestone": 138,
+      "spec": "https://w3c.github.io/media-source",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "The Media Source standard long ago changed to disallow ambiguously defined behavior involving asynchronous range removals:\n* SourceBuffer.abort() no longer aborts SourceBuffer.remove() operations\n* Setting MediaSource.duration can no longer truncate currently buffered media\n\nExceptions will be thrown in both of these cases now. \n\nSafari and Firefox have long shipped this behavior, Chromium is the last browser remaining with the old behavior. Use counters show ~0.001%-0.005% of page loads hit the deprecated behavior. Primarily small Russian sites. If a site hits this issue, playback may now break.\n\nUsage of abort() cancelling removals is increasing, so it's prudent to resolve this deprecation before more incompatible usage appears."
+    },
+    {
+      "id": 5138494732894208,
+      "name": "Local Style References in Link Tags",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "css",
+        "style",
+        "select",
+        "file"
+      ],
+      "summary": "Extends the ability of the <link> tag to support fragment identifier references to inline style tags. This is only supported when the <link> tag is used to include a stylesheet (<link rel=\"stylesheet\">).\r\n \r\nThis feature is useful for shadow DOM, allowing developers to selectively share inline styles between the light DOM and shadow DOM.\r\n \r\nWithout this feature, the only declarative options for sharing styles with shadow DOM nodes are to either duplicate <style> tags or use external CSS files."
+    },
+    {
+      "id": 5132064512540672,
+      "name": "Trust Anchor Identifiers (TAI)",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://github.com/tlswg/tls-trust-anchor-ids",
+      "matched_keywords": [
+        "select",
+        "selection",
+        "anchor"
+      ],
+      "summary": "Trust Anchor Identifiers (TAI) is a TLS protocol extension enables a TLS server to efficiently advertise which trust anchors it supports (which roots its certificates chain to), and allows the client to select. It provides a fallback path in case the selection is wrong or otherwise out of date.\n\nIn addition to enabling multi-certificate use cases, the same Trust Anchor Identifier mechanism can be used to elide intermediate certificates, savings hundreds to thousands of bytes transmitted during the handshake.\n\nThis work is adopted by the IETF TLS working group.\n\n"
+    },
+    {
+      "id": 5165902775189504,
+      "name": "Support offset-path: shape()",
+      "category": "CSS",
+      "milestone": 137,
+      "spec": "https://drafts.csswg.org/css-shapes-2/#shape-function",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Support offset-path: shape(), to allow using responsive shapes to set the animation path."
+    },
+    {
+      "id": 6129368025530368,
+      "name": "Support transform attribute on SVGSVGElement",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": "https://www.w3.org/TR/SVG2/struct.html#SVGElement",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "This feature enables the application of transformation properties—such as scaling, rotation, translation, and skewing—directly to the <svg> root element via its transform attribute. This enhancement allows developers to manipulate the entire SVG coordinate system or its contents as a whole, providing greater flexibility in creating dynamic, responsive, and interactive vector graphics. By supporting this attribute, the SVG element can be transformed without requiring additional wrapper elements or complex CSS workarounds, streamlining the process of building scalable and animated web graphics."
+    },
+    {
+      "id": 5017616848257024,
+      "name": "Subresource Download Links",
+      "category": "Network / Connectivity",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Some websites host downloadable content on third-party domains (e.g. CDN domains) and those domains use cookies to access-control the content.\r\n\r\nNormally, this can be achieved using a SameSite=None cookie, which can be set by the third-party domain and then sent in the download data requests. However, when browsers restrict third-party cookies, a third-party domain cannot set a cookie without invoking the Storage Access API.\r\n\r\nOne privacy-preserving alternative is partitioned cookies (aka CHIPS). The problem is that currently the browser considers all download data requests as top-level navigation requests, so it is currently impossible to include third-party partitioned cookies in those requests.\r\n\r\nThis proposal is for a new HTML API for download links which would allow the site to opt into the download data requests be treated as subresource requests originating from the frame the user clicked the download link on."
+    },
+    {
+      "id": 5172397000622080,
+      "name": "WebGPU: copyBufferToBuffer overload",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": "https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-copybuffertobuffer",
+      "matched_keywords": [
+        "command"
+      ],
+      "summary": "Functionality added to the WebGPU spec after its first shipment in a browser. \r\n\r\nThe GPUCommandEncoder copyBufferToBuffer() method now includes a simpler way to copy entire buffers using a new overload with optional offsets and size parameters."
+    },
+    {
+      "id": 4850737974345728,
+      "name": "view-transition-name: auto",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-view-transitions-2/#auto-vt-name",
+      "matched_keywords": [
+        "css",
+        "page"
+      ],
+      "summary": "Contact emails\r\nvmpstr@chromium.org, nrosenthal@chromium.org\r\n\r\nExplainer\r\nNone\r\n\r\nSpecification\r\nhttps://drafts.csswg.org/css-view-transitions-2/#auto-vt-name\r\n\r\nSummary\r\n'auto' uses the element's id attribute to generate a unique match for view transition cases. In absence of the id, it generates a unique id based on the element's identity and remains the same for this element. This is used in Single Page App or Multi Page App cases where the element is being moved around and the desire is to animate it with a view transition\r\n\r\nNote this is split off from https://chromestatus.com/feature/6575974796492800 which contains additional discussions\r\n\r\n"
+    },
+    {
+      "id": 5098745710247936,
+      "name": "view-transition-name: match-element",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": "https://drafts.csswg.org/css-view-transitions-2/#auto-vt-name",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "'match-element' generates a unique id based on the element's identity and renames the same for this element. This is used in Single Page App cases where the element is being moved around and the desire is to animate it with a view transition\r\n\r\nNote this is split off from https://chromestatus.com/feature/6575974796492800 which contains additional discussions"
+    },
+    {
+      "id": 5763021961691136,
+      "name": "Support transactional batchUpdate() and disallow batch inner locks",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://wicg.github.io/shared-storage/#batch-update",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "The `sharedStorage.batchUpdate(methods)` API (introduced in https://chromestatus.com/feature/5133950203461632) will now enforce atomicity. This involves treating the entire `batchUpdate()` as a single transaction, rather than executing methods independently. To mitigate deadlock risks associated with granular locking, individual method locks within `batchUpdate()` will be disallowed. Note that the lock for the `batchUpdate()` method itself (if specified) will remain valid."
+    },
+    {
+      "id": 5438017357217792,
+      "name": " Ephemeral TCP/IP Ports Randomization",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "print"
+      ],
+      "summary": "The core issue with ephemeral TCP/IP port assignment is that many systems traditionally allocate these ports sequentially. This predictable order enables websites to track users across sessions and perform ephemeral fingerprinting. While UDP ports are often randomized by operating systems, we aim to implement our own port randomization for TCP. However, initial attempts using the SO_RANDOMIZE_PORTS option resulted in overly aggressive port reuse, causing connection failures. This led to the disabling of port randomization on OSX. Recent information (https://issues.chromium.org/u/1/issues/40744069#comment46) indicates that this problem has been resolved in the Windows 11 2022 update. Consequently, we propose launching a Finch experiment with comprehensive metrics to cautiously reintroduce and monitor port randomization, ensuring stability during a gradual rollout."
+    },
+    {
+      "id": 4885407109742592,
+      "name": "Ignore Letter Spacing in Cursive Scripts",
+      "category": "Miscellaneous",
+      "milestone": 138,
+      "spec": "https://www.w3.org/TR/css-text-3/#cursive-tracking",
+      "matched_keywords": [
+        "font"
+      ],
+      "summary": "This feature adds logic to ignore the letter-spacing setting for cursive scripts as specified by the web author, in line with the spec, to ensure that letter spacing does not disrupt word structure and aims to produce better user experience for users relying on cursive scripts. \n\nThe spec suggests that the UA may apply letter spacing to cursive scripts by translating the total extra space into cursive elongation or compression. Otherwise, if the UA cannot expand text from a cursive script without breaking its cursive connections, it must not apply spacing between any pair of that script’s typographic letter units at all.\n\nIgnoring letter spacing altogether for cursive scripts is simpler and helps avoid performance issues as handling spacing for such scripts requires complex calculations to maintain cursive connections and account for script-specific factors like elongation glyphs, typefaces, and calligraphy preferences. With this feature, Chromium ensures that cursive scripts will be readable and properly spaced, even if the fonts don’t have advanced typographic features.\n\nThe scripts that we are proposing to apply this to in Chromium are Arabic, Hanifi Rohingya, Mandaic, Mongolian, N’Ko, Phags Pa, and Syriac as these scripts are considered cursive as per spec."
+    },
+    {
+      "id": 5580613291343872,
+      "name": "FedCM as an input to a Passkey's conditional create",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "Auto-grant a Passkey if a user goes through a FedCM flow, so that they have a smoother sign-in experience (rather than having to go through FedCM again).\r\n\r\n"
+    },
+    {
+      "id": 4848107667587072,
+      "name": "Private Proof API",
+      "category": "Offline / Storage",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "file",
+        "storage"
+      ],
+      "summary": "This API uses Zero-Knowledge Proofs (ZKPs) to allow analysis of potentially identifiable signals while providing only a limited verdict output. For example, it empowers anti-fraud services to verify whether a user possesses an unmodified stored timestamp older than some provided timestamp without disclosing any additional user data. This approach strikes a balance between user privacy and anti-fraud capabilities by enabling websites to request a reputation signal (such as profile age) on which the user agent can enforce meaningful privacy constraints, while making the signal useful enough to remove the need for other burdensome or invasive checks, and allow the user to clear said signal at will."
+    },
+    {
+      "id": 5128141573718016,
+      "name": "Allow <use> to reference an external document's root element by omitting the fragment.",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": "https://svgwg.org/svg2-draft/struct.html#UseElement",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "In this feature, we are streamlining the SVG <use> element by loosening referencing requirements. Currently, authors need to explicitly reference fragments within the SVG document. If no fragment id is given <use> will not be able to resolve the target and nothing will be rendered/referred.\n\nFor example: a <use> element referencing an external file with fragment identifier will look like: \n\n<svg> \n  <use xlink:href=\"myshape.svg#icon\"></use> \n</svg> \n\nIn this example, #icon is the fragment identifier pointing to an element with id=\"icon\" within myshape.svg. \n\nand without fragment identifier it will look like: \n\n<svg> \n  <use xlink:href=\"myshape.svg\"></use> \n</svg> \n\nWith this feature, omitting fragments or just giving the external svg file name will automatically reference the root element, eliminating the need for authors to alter the referenced document just to assign an ID to the root. This enhancement simplifies this manual editing process and improves efficiency."
+    },
+    {
+      "id": 5159639697850368,
+      "name": "Unprefixed print-color-adjust",
+      "category": "Miscellaneous",
+      "milestone": 136,
+      "spec": "https://drafts.csswg.org/css-color-adjust/#propdef-print-color-adjust",
+      "matched_keywords": [
+        "css",
+        "print",
+        "page"
+      ],
+      "summary": "The print-color-adjust allows adjusting colors in printed web pages.\nThis is the same as Chromium's already-supported -webkit-print-color-adjust, but with a standardized name.\n\nThe -webkit-prefixed version is not removed.\n\nhttps://developer.mozilla.org/en-US/docs/Web/CSS/print-color-adjust"
+    },
+    {
+      "id": 5121180773908480,
+      "name": "FedCM: Alternative Fields in Account Selection",
+      "category": "Miscellaneous",
+      "milestone": 141,
+      "spec": "https://github.com/w3c-fedid/FedCM/pull/718",
+      "matched_keywords": [
+        "select",
+        "selection"
+      ],
+      "summary": "Adds support for phone numbers and usernames, in addition to or instead of a user's full name and email address as identifiers for disambiguating accounts in the account selector. Also, makes these new fields available for websites to affect the disclosure text.\n"
+    },
+    {
+      "id": 5164677291835392,
+      "name": "Proofreader API",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://github.com/webmachinelearning/proofreader-api/blob/main/README.md#full-api-surface-in-web-idl",
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "A JavaScript API for proofreading input text with suggested corrections, backed by an AI language model.\r\n"
+    },
+    {
+      "id": 5422607224274944,
+      "name": "Bounce Tracking Mitigations for dual-use sites",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Performs mitigations on URLs suspected of bounce tracking, even if the user has interacted with the URL’s site, possibly by blocking storage access or partitioning storage for those URLs."
+    },
+    {
+      "id": 5191129693421568,
+      "name": "Rename `string` attr() type to `raw-string`",
+      "category": "CSS",
+      "milestone": 136,
+      "spec": "https://drafts.csswg.org/css-values-5/#attr-notation",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "In  https://github.com/w3c/csswg-drafts/issues/11645#issuecomment-2701601350 it was resolved to replace `string` attr() type with `raw-string`, see: https://drafts.csswg.org/css-values-5/#attr-notation.\r\n\r\nChange attr() syntax, so that `attr(data-foo string)` will now become `attr(data-foo raw-string)`."
+    },
+    {
+      "id": 6548224737017856,
+      "name": "System accent color for accent-color property.",
+      "category": "CSS",
+      "milestone": 137,
+      "spec": "https://drafts.csswg.org/css-ui-4/#widget-accent",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "This feature empowers web developers to enhance the visual appeal of their websites by leveraging the operating system's accent color for form elements. By utilizing the \"accent-color\" CSS property, developers can ensure that form elements such as checkboxes, radio buttons, and progress bars automatically adopt the accent color defined by the user's operating system. This feature is an enhancement to existing feature that is already shipped in Chromium: https://groups.google.com/a/chromium.org/g/blink-dev/c/WwYkLjbGhoA"
+    },
+    {
+      "id": 5128966769475584,
+      "name": "Type-agnostic var() fallback",
+      "category": "CSS",
+      "milestone": 136,
+      "spec": null,
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The fallback part of a var() function does not validate against the type of the custom property being referenced."
+    },
+    {
+      "id": 5111079237320704,
+      "name": "Customized built-in elements via elementInternals.type",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [],
+      "summary": "elementInternals.type supports the creation of custom elements that inherit the behaviors and properties of native HTML elements. When elementInternals.type is set to string values that represent native element types, custom elements can leverage the built-in functionality of standard elements while extending their capabilities to meet specific needs."
+    },
+    {
+      "id": 5152728072060928,
+      "name": "Local network access restrictions",
+      "category": "Security",
+      "milestone": 142,
+      "spec": "https://wicg.github.io/local-network-access",
+      "matched_keywords": [
+        "print"
+      ],
+      "summary": "Chrome 142 restricted the ability to make requests to the user's local network, gated behind a permission prompt. A local network request is any request from a public website to a local IP address or loopback, or from a local website (for example, intranet) to loopback. \n\nGating the ability for websites to perform these requests behind a permission mitigates the risk of cross-site request forgery attacks against local network devices such as routers, and reduces the ability of sites to use these requests to fingerprint the user's local network.\n\nThis permission is restricted to secure contexts. If granted, the permissions additionally relax mixed content blocking for local network requests (since many local devices are not able to obtain publicly trusted TLS certificates for various reasons).\n\nThis work supersedes a prior effort called [Private Network Access](https://chromestatus.com/feature/5737414355058688), which used preflight requests to have local devices opt in. For more information on this feature, see [Adapting your website for new Local Network Access restrictions in Chrome](https://docs.google.com/document/d/1QQkqehw8umtAgz5z0um7THx-aoU251p705FbIQjDuGs/edit?usp=sharing).\n\nChrome 145 introduced more granular permissions for websites requesting access to a user's local network. The previous single `local-network-access permission` is being split into two distinct permissions:\n\n* `local-network`: Grants access to IP addresses in the local network space (for example, intranets, internal devices).\n* `loopback-network`: Grants access to loopback IP addresses (for example, `localhost`, `127.0.0.1`).\n\nThe old `local-network` permission will remain as an alias, ensuring existing configurations and permissions policies continue to function as expected. \n\nThis change provides both users and Admins with more precise control over how websites interact with internal network resources. Current enterprise policies managing local network access will not be affected by this change.\n\nChrome 146 introduces two new enterprise policies for managing local network access restrictions:  [LocalNetworkAccessIpAddressSpaceOverrides](https://chromeenterprise.google/policies/#LocalNetworkAccessIpAddressSpaceOverrides) and  [LocalNetworkAccessPermissionsPolicyDefaultEnabled](https://chromeenterprise.google/policies/#LocalNetworkAccessPermissionsPolicyDefaultEnabled). These policies can be set using [custom configurations](https://support.google.com/chrome/a/answer/14749672).\n\nChrome 147 expands Local Network Access restrictions to include WebSocket and WebTransport connections.\n\nIn Chrome 156, the [LocalNetworkAccessRestrictionsTemporaryOptOut](https://chromeenterprise.google/policies/#LocalNetworkAccessRestrictionsTemporaryOptOut) policy will be removed."
+    },
+    {
+      "id": 5658105834373120,
+      "name": "Nesting of :has() and :host() CSS Selectors",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/selectors-4",
+      "matched_keywords": [
+        "css",
+        "select"
+      ],
+      "summary": "Add support for matching the :host(:has()) selector combination, allowing authors to select the host element if it has a descendent in the light DOM matching a provided relative selector list.\n\nChromium already supports the :host:has() variant, which is similar to :host(:has()), but instead checks against descendants in the shadow DOM."
+    },
+    {
+      "id": 5207202081800192,
+      "name": "Full frame rate render blocking attribute",
+      "category": "Graphics",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "We propose to add a new render blocking token full-frame-rate to the blocking attributes. When the renderer is blocked with the full-frame-rate token, the renderer will work at a lower frame rate so as to reserve more resources for loading.\r\nAn example use case of the proposed API will be:\r\nThe web page contains an element <link rel=\"expect\" href=\"#critical-content\" blocking=\"full-frame-rate\"/> in the page head. After parsing this element, the renderer will work at an implementation-specific lower frame rate.\r\nAfter the #critical-content element is parsed, the renderer will restore its frame rate.\r\nIt is worth noting that the frame rate instructions will be informative. The browser may decide to lower the frame rate before parsing a blocking element. For instance, the frame rate may be lowered at the very beginning of the loading phase. On the other hand, the browser may also decide to restore the frame rate before the frame rate blocking element list gets empty. For instance, the frame rate may be restored after a timeout or certain user interactions.\r\n"
+    },
+    {
+      "id": 5592399713402880,
+      "name": "'request-close' Invoker Command",
+      "category": "DOM",
+      "milestone": 139,
+      "spec": "https://html.spec.whatwg.org/multipage/form-elements.html#attr-button-command-request-close-state",
+      "matched_keywords": [
+        "dialog",
+        "command",
+        "invoker"
+      ],
+      "summary": "Dialog elements can be closed through a variety of mechanisms, sometimes developers want to have the ability to prevent closure. To achieve this dialogs fire a cancel event. Originally this was only fired via a close request (e.g. ESC key press), recently a `requestClose()` JS function was added which also fires the cancel event.\r\n\r\nThe 'request-close' command brings that new ability to the declarative invoker commands API."
+    },
+    {
+      "id": 6192419898654720,
+      "name": "Deprecate special font size rules for H1 within some elements",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://github.com/whatwg/html/pull/11102",
+      "matched_keywords": [
+        "css",
+        "font",
+        "page"
+      ],
+      "summary": "The HTML spec contains a list of [special rules for H1 tags](https://html.spec.whatwg.org/multipage/rendering.html#sections-and-headings) nested within `article`, `aside`, `nav`, or `section` tags. Chrome 140 deprecates these special rules, because they can cause accessibility issues. For example, they can visually reduce the font size for nested `h1` tags so that they look like `h2` tags, but nothing in the accessibility tree reflects this demotion."
+    },
+    {
+      "id": 5589949602332672,
+      "name": "Noising canvas readbacks in Incognito",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "canvas",
+        "image"
+      ],
+      "summary": "The canvas APIs allow websites to draw shapes and forms on a canvas and read back the rendered image. However, the browser's rendering process leaks details about the GPU's properties. The goal of adding noise to canvas readbacks is to prevent scripts from easily obtaining identifying information that can be used to re-identify a browser across contexts. The noise that is added to the pixels is deterministic for a given canvas, and changes based on the site of the embedding document. With this feature noise would only be added to canvas readbacks for users in Incognito mode."
+    },
+    {
+      "id": 6225478530367488,
+      "name": "CSS sibling-index() and sibling-count()",
+      "category": "CSS",
+      "milestone": 138,
+      "spec": "https://drafts.csswg.org/css-values-5/#tree-counting",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "sibling-index() and sibling-count() can be used as integers in CSS property values to style elements based on their position among its siblings, or the total number of siblings respectively. These functions can be used directly as integer values, but more interestingly inside calc() expressions.\r\n\r\nExample:\r\n\r\nli { margin-left: calc(10px * sibling-index()); }\r\n"
+    },
+    {
+      "id": 5328467685801984,
+      "name": "CSS env variable for OS-level font scale",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-env-1/#text-zoom",
+      "matched_keywords": [
+        "css",
+        "font",
+        "page"
+      ],
+      "summary": "Exposes a user's preferred font scale to CSS. Currently, it is not practical for a page to detect if the user has changed their preferred font size via the Operating System's preferences. This CSS environment variable will reflect the scale chosen by the user."
+    },
+    {
+      "id": 5144443101118464,
+      "name": "Restrict orientation lock to phone form-factors on Android",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Since Android tablets often don't reliably report the result of orientation lock to chromium, turn off support for ScreenOrientation::lock() for Android tablets.\r\n\r\nWithout this change, the result of the lock() promise is not trustworthy on Android tablets.  For example, consider a request to lock the orientation in landscape while the device is currently in portrait.  The promise might resolve successfully but the user-facing result might be the page letterboxed while still in portrait orientation, or even no change at all."
+    },
+    {
+      "id": 5350873536135168,
+      "name": "Add Remaining Predefined Color Spaces as Interpolation Spaces",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/css-color-4/#predefined",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Display P3, Rec2020, ProPhoto RGB and a98 RGB are specified in CSS color 4 as predefined color spaces but had not yet been implemented as color spaces for interpolation.\r\n"
+    },
+    {
+      "id": 5066982694846464,
+      "name": "Support rel / relList attributes for SVGAElement",
+      "category": "Miscellaneous",
+      "milestone": 135,
+      "spec": "https://svgwg.org/svg2-draft/linking.html#__svg__SVGAElement__rel",
+      "matched_keywords": [
+        "anchor"
+      ],
+      "summary": "The SVGAElement interface in SVG 2.0 allows manipulation of <a> elements similar to HTML anchor elements. Supporting the rel and relList attributes enhances security and privacy for developers. This alignment with HTML anchor elements ensures consistency and ease of use across web technologies."
+    },
+    {
+      "id": 5168382242193408,
+      "name": "CSS Color 4 for Canvas Gradients",
+      "category": "Graphics",
+      "milestone": null,
+      "spec": "https://github.com/whatwg/html/pull/10986",
+      "matched_keywords": [
+        "css",
+        "canvas"
+      ],
+      "summary": "CSS Color 4 (https://www.w3.org/TR/css-color-4/) added two concepts to CSS gradients: \r\n  1. Color interpolation space: how the values in between color stops will be calculated.\r\n  2. Hue interpolation method: which direction around the color wheel should be used for the \"hue\" component of polar color spaces.\r\n\r\nWe are working to add these features to CanvasGradients, along with a premultiplyAlpha boolean:\r\n\r\nhttps://github.com/whatwg/html/issues/7947\r\nhttps://github.com/whatwg/html/pull/10986"
+    },
+    {
+      "id": 5112558941634560,
+      "name": "Interpolation progress functional notation: CSS progress() function",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-values-5/#progress",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The progress() functional notation returns a <number> value representing the position of one calculation (the progress value) between two other calculations (the progress start value and progress end value). progress() is a math function.\n\nThe syntax of progress() is defined as follows:\n\n<progress()> = progress(<calc-sum>, <calc-sum>, <calc-sum>)\nwhere the first, second, and third <calc-sum> values represent the progress value, progress start value, and progress end value, respectively."
+    },
+    {
+      "id": 5091423843778560,
+      "name": "CSS Sign-Related Functions: abs(), sign()",
+      "category": "CSS",
+      "milestone": 138,
+      "spec": "https://www.w3.org/TR/css-values-4/#sign-funcs",
+      "matched_keywords": [
+        "css",
+        "input"
+      ],
+      "summary": "The sign-related functions ​abs() and sign() ​compute various functions related to the sign of their argument.\r\n\r\nThe abs(A) function contains one calculation A, and returns the absolute value of A, as the same type as the input: if A’s numeric value is positive or 0⁺, just A again; otherwise -1 * A.\r\n\r\nThe sign(A) function contains one calculation A, and returns -1 if A’s numeric value is negative, +1 if A’s numeric value is positive, 0⁺ if A’s numeric value is 0⁺, and 0⁻ if A’s numeric value is 0⁻. The return type is a <number>, made consistent with the input calculation’s type."
+    },
+    {
+      "id": 4710507824807936,
+      "name": "CSS anchor positioning remembered scroll offset",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://drafts.csswg.org/css-anchor-position-1/#scroll",
+      "matched_keywords": [
+        "css",
+        "anchor"
+      ],
+      "summary": "Add support for the concept of \"remembered scroll offset\" - see https://drafts.csswg.org/css-anchor-position-1/#scroll\r\n\r\nWhen a positioned element has a default anchor, and is tethered to this anchor at one edge, and against the original containing block at the other edge, the scroll offset will be taken into account when it comes to sizing the element. This way a developer can use all visible space (using `position-area`) for the anchored element when the document is scrolled at a given scroll offset.\r\n\r\nIn order to avoid layout (resizing the element) every time the document is scrolled (which is undesired behavior, and also bad for performance), what will be used is a so-called \"remembered scroll offset\", rather than always using the current scroll offset. The remembered scroll offset is updated at a so-called \"anchor recalculation point\", which is either:\r\n\r\n- When the positioned element is initially displayed\r\n- When a different position option (`position-try-fallbacks`) is chosen"
+    },
+    {
+      "id": 5139978918821888,
+      "name": "Web serial over Bluetooth on Android",
+      "category": "Device",
+      "milestone": null,
+      "spec": "https://wicg.github.io/serial",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "This feature allows web pages and web apps to connect to serial ports over Bluetooth on Android devices.\n\nChrome on Android now supports Web Serial API over Bluetooth RFCOMM. Existing enterprise policies (DefaultSerialGuardSetting, SerialAllowAllPortsForUrls, SerialAllowUsbDevicesForUrls, SerialAskForUrls and SerialBlockedForUrls) on other platforms are enabled in future_on states for Android. All policies except SerialAllowUsbDevicesForUrls will be enabled after the feature is enabled. SerialAllowUsbDevicesForUrls will be enabled in a future launch after Android provides system level support of wired serial ports."
+    },
+    {
+      "id": 5100036528275456,
+      "name": "ScrollIntoView container option",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/cssom-view/#dom-scrollintoviewoptions-container",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The ScrollIntoViewOptions container option allows developers to perform a scrollIntoView only scrolling the nearest ancestor scroll container. For example, the following snippet only scrolls the scroll container of target to bring target into view, but will not scroll all of the scroll containers to the viewport:\r\n\r\ntarget.scrollIntoView({container: 'nearest'});"
+    },
+    {
+      "id": 5808599110254592,
+      "name": "No-Vary-Search support for the HTTP disk cache",
+      "category": "Network / Connectivity",
+      "milestone": 141,
+      "spec": "https://httpwg.org/http-extensions/draft-ietf-httpbis-no-vary-search.html",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Enables the HTTP disk cache to use the No-Vary-Search response header to share a cache entry between URLs that differ only in the query parameters.\n\nDevelopers can use No-Vary-Search to specify query parameters that have no impact on the user experience. A common example might be an id used to track conversions. Supporting this header in the HTTP disk cache means that if the user later goes back to that same page without the conversion id, it can be used or revalidated from the cache rather than having to be fetched from scratch from the network.\n\nPreviously, No-Vary-Search support shipped for the navigation prefetch cache, prefetch and prerender speculation rules, and prerender. This launch makes it generally available to any feature that uses the HTTP disk cache."
+    },
+    {
+      "id": 4728308937523200,
+      "name": "CSS Logical Overflow",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://drafts.csswg.org/css-overflow-3/#overflow-control",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The overflow-inline and overflow-block CSS properties allow setting overflow in inline and block direction relative to the writing-mode. In a horizontal writing-mode overflow-inline maps to overflow-x, while in a vertical writing-mode it maps to overflow-y.\n"
+    },
+    {
+      "id": 5169937372676096,
+      "name": "Strict Same Origin Policy for Storage Access API",
+      "category": "Security",
+      "milestone": 141,
+      "spec": "https://github.com/privacycg/storage-access/pull/213",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "In Chrome 141,  Storage Access API semantics now strictly follow the Same Origin policy, to enhance  security. Using `document.requestStorageAccess()` in a frame only attaches cookies to requests to the iframe's origin (not site) by default. The [CookiesAllowedForUrls](https://chromeenterprise.google/policies/#CookiesAllowedForUrls) policy or Storage Access Headers can still be used to unblock cross-site cookies.\n\n"
+    },
+    {
+      "id": 5167187989626880,
+      "name": "Protected Audience (B&A): Support multiple sellers in navigator.getInterestGroupAdAuctionData",
+      "category": "Miscellaneous",
+      "milestone": 134,
+      "spec": null,
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Add support for navigator.getInterestGroupAdAuctionData to return the encrypted B&A request payload for multiple sellers in a single call. This allows multiple sellers sharing a single piece of on-page JavaScript to more efficiently run an auction."
+    },
+    {
+      "id": 5357329815699456,
+      "name": "Corner shaping (corner-shape, superellipse, squircle)",
+      "category": "CSS",
+      "milestone": 139,
+      "spec": "https://drafts.csswg.org/css-borders-4/#corner-shaping",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Enable styling corners, on top of the existing border-radius,\nby expressing the shape/curvature of the corner as a superellipse.\n\nThis allows shapes like squircles, notches, scoops etc., and animating between them."
+    },
+    {
+      "id": 6393888941801472,
+      "name": "safe-area-max-inset-* variables",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://drafts.csswg.org/css-env-1/#safe-area-max-insets",
+      "matched_keywords": [
+        "css",
+        "page"
+      ],
+      "summary": "In https://chromestatus.com/feature/5174306712322048 we've added dynamic safe area insets which can change as the user interacts with the device. This proposal amends the general safe area feature to add max-area-safe-inset-* variants of the variables which do not change and represent the maximum possible safe area inset.\r\n\r\nThe use case this solves is to avoid needing to relayout the page in cases where the footer (for example) can simply slide as the safe area inset value grows, as opposed to changing size. "
+    },
+    {
+      "id": 5143357002874880,
+      "name": "Dispatching click events to captured pointer",
+      "category": "User input",
+      "milestone": 136,
+      "spec": "https://w3c.github.io/pointerevents/#event-dispatch",
+      "matched_keywords": [
+        "input",
+        "pointer"
+      ],
+      "summary": "If a pointer is captured while the `pointerup` event is being dispatched, the `click` event will be dispatched to the captured target instead of the nearest common ancestor of `pointerdown` and `pointerup` events as per the UI Event spec.\n\nFor uncaptured pointers, the `click` target  remains unchanged."
+    },
+    {
+      "id": 6313805904347136,
+      "name": "CSS if() function",
+      "category": "CSS",
+      "milestone": 137,
+      "spec": "https://drafts.csswg.org/css-values-5/#if-notation",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "The CSS if() function provides a concise way to express conditional values. It accepts a series of condition-value pairs, delimited by semicolons. The function evaluates each condition sequentially and returns the value associated with the first true condition. If none of the conditions evaluate to true, the function returns an empty token stream. This allows web authors to express complex conditional logic in a simple and concise way.\r\n\r\nExample:\r\n\r\n<style>\r\n  div {\r\n      color: var(--color);\r\n      background-color: if(style(--color: white): black; else: white);\r\n  }\r\n  .dark {\r\n      --color: black;\r\n  }\r\n  .light {\r\n      --color: white;\r\n  }\r\n</style>\r\n<div class=\"dark\">dark</div>\r\n<div class=\"light\">light</div>"
+    },
+    {
+      "id": 5184475929247744,
+      "name": "Related Website Partition API",
+      "category": "JavaScript",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Related Website Sets (RWS) is an effort which aims to introduce a new privacy boundary on the web which allows sites to have access to their unpartitioned cross-site state when they are embedded on other related sites.\r\n\r\nSome third-party SaaS developers embed their content on sites which are part of a Related Website Set and wish to maintain a continuous session across multiple sites within that set.\r\n\r\nThe Related Website Partition (RWP) API is a novel mechanism for providing 3P embeds access to a partitioned, non-cookie storage handle which allows them to continue a single session across multiple domains in the same RWS."
+    },
+    {
+      "id": 5508068999430144,
+      "name": "OffscreenCanvas getContextAttributes",
+      "category": "Graphics",
+      "milestone": 134,
+      "spec": "https://github.com/whatwg/html/pull/10904",
+      "matched_keywords": [
+        "canvas"
+      ],
+      "summary": "Add the getContextAttributes interface from  CanvasRenderingContext2D to OffscreenCanvasRenderingContext2D."
+    },
+    {
+      "id": 6275972238934016,
+      "name": "Expose CSSFontFeaturesValueRule",
+      "category": "CSS",
+      "milestone": 134,
+      "spec": "https://drafts.csswg.org/css-fonts/#cssfontfeaturevaluesrule",
+      "matched_keywords": [
+        "css",
+        "font"
+      ],
+      "summary": "We were accidentally missing the [Exposed=Window] on the CSSFontFeaturesValueRule interface, so window.CSSFontFeaturesValueRule is incorrectly undefined even though the API was otherwise exposed.\n\nThis interface has no constructor and it's unlikely that any website would be looking for it specifically, but it's technically an interop & spec-conformance bug, and maybe in theory slightly useful for feature detection. "
+    },
+    {
+      "id": 5189366316793856,
+      "name": "Private Aggregation API: per-context contribution limits for Shared Storage callers",
+      "category": "Miscellaneous",
+      "milestone": 134,
+      "spec": "https://github.com/patcg-individual-drafts/private-aggregation-api/pull/164/files",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Enables Shared Storage callers to customize the number of contributions per Private Aggregation report.\n\nThis feature enables Shared Storage callers to configure per-context contribution limits via a new field, `maxContributions`. Callers set this field to override the default number of contributions per report — larger and smaller numbers will both be permitted. Chrome will accept values of `maxContributions` between 1 and 1000 inclusive; larger values will be interpreted as 1000.\n\nDue to padding, the size of each report's payload will be roughly proportional to the chosen number of contributions per report. We expect that opting into larger reports will increase the cost of operating the Aggregation Service.\n\nProtected Audience callers will not be affected by this feature. However, we are planning to add support for customizing the number of contributions for Protected Audience reports in future features."
+    },
+    {
+      "id": 5066778773028864,
+      "name": "Language support for CanvasTextDrawingStyles",
+      "category": "Graphics",
+      "milestone": 136,
+      "spec": "https://github.com/whatwg/html/pull/10873",
+      "matched_keywords": [
+        "style",
+        "select",
+        "font",
+        "selection",
+        "canvas"
+      ],
+      "summary": "The <canvas> DOM element, like all DOM elements, accepts a `lang` attribute that is used to define language specific treatment for font selection (when fonts have locale specific glyphs). Browsers respect this attribute. However, when an OffscreenCanvas is created there is no way to set locale information, possibly resulting in a state where an offscreen canvas produces rendered results that differ from the canvas in which it's output is used. This feature adds a `lang` IDL attribute to CanvasTextDrawingStyles to give developers direct control over the language for the text drawing and metrics."
+    },
+    {
+      "id": 5164075049549824,
+      "name": "Reusable Storage Access Headers",
+      "category": "Network / Connectivity",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Allows servers to request user agents to reuse a storage access activation with Storage Access Headers.\nWhen an activation is requested with the `Activate-Storage-Access: retry` header, an optional `reuse-for` parameter can be provided with a list of URLs. The user agent may activate storage access for subsequent requests to the specified URLs, potentially reducing the number of retries required for an application to work."
+    },
+    {
+      "id": 4666019443113984,
+      "name": "Support ImageSmoothingQuality in PaintCanvas",
+      "category": "Miscellaneous",
+      "milestone": 134,
+      "spec": "https://drafts.css-houdini.org/css-paint-api-1/#paintrenderingcontext2d",
+      "matched_keywords": [
+        "canvas",
+        "image"
+      ],
+      "summary": "Add support for the imageSmoothingQuality attribute on Paint Canvas. It allows a web developer to choose the quality/performance tradeoff when scaling images. There are 3 options in total for imageSmoothingQuality: low, medium and high.\r\n\r\nChrome platform status entry for its launch on Canvas 2D: https://chromestatus.com/feature/4717415682277376\r\n\r\n"
+    },
+    {
+      "id": 5172258539307008,
+      "name": "CSS shape() function",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://drafts.csswg.org/css-shapes-2/#shape-function",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "shape() allows responsive free-form shapes in clip-path.\n\nThe author can define a series of verbs, roughly equivalent to the verbs in path(), but where the verbs accept responsive units (e.g. % or vw), as well as any CSS values such as custom properties or rather than pixel-values.\n\nSee https://drafts.csswg.org/css-shapes-2/#shape-function"
+    },
+    {
+      "id": 6299570819301376,
+      "name": "Bounce Tracking Mitigations on HTTP Cache",
+      "category": "Miscellaneous",
+      "milestone": 134,
+      "spec": "https://privacycg.github.io/nav-tracking-mitigations/#bounce-tracking-mitigations",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Bounce tracking mitigations for the HTTP cache is an extension to existing anti-bounce-tracking behavior. It removes the requirement that a suspected tracking site must have performed storage access in order to activate bounce tracking mitigations.\n\nChrome's initially proposed bounce tracking mitigation solution triggers when a site accesses browser storage (e.g. cookies) during a redirect flow. However, bounce trackers can systematically circumvent such mitigations by using the HTTP cache to preserve data. By relaxing the triggering conditions for bounce tracking mitigations, the browser should be able to catch bounce trackers using the HTTP cache."
+    },
+    {
+      "id": 5121048142675968,
+      "name": "Fenced frames - Automatic beacon cross-origin data support",
+      "category": "Miscellaneous",
+      "milestone": 135,
+      "spec": "https://github.com/WICG/fenced-frame/pull/203",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Fenced frames or URN iframes, if loaded through an API like Protected Audience or Shared Storage, can send out reporting beacons automatically if some event occurs (currently only top-level navigation beacons are supported). We previously tweaked this feature to allow cross-origin documents loaded in the root fenced frame's tree to send automatic beacons if opted in, but still kept the restriction that only frames that are same-origin to the origin loaded by the API could set the data that would be sent as part of the beacon. This feature expands that functionality to allow the cross-origin document to set the data that will be used in the automatic beacon.\n\nTo allow this while still preserving privacy, both the fenced frame root document and the cross-origin subframe document must explicitly opt in. This is the same opt in shape as other cross-origin FFAR features. Specifically, the root frame must opt in via the \"Allow-Fenced-Frame-Automatic-Beacons\" header, and the cross-origin subframe setting the data must opt in via the 'crossOriginExposed' parameter in the call to setReportEvent...()."
+    },
+    {
+      "id": 5124993439236096,
+      "name": "Clipboard contentsId",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "clipboard"
+      ],
+      "summary": "An API exposing a unique identifier of the current system clipboard contents. It is a supplement to the current Async Clipboard API and enables websites leveraging clipboard access to detect clipboard content changes much more efficiently."
+    },
+    {
+      "id": 5109012922892288,
+      "name": "Web Authentication: challengeURL",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Adds a new parameter to the PublicKeyCredentialRequestOptions dictionary for WebAuthn assertion requests that provides a URL in lieu of a challenge. The application servicing the assertion request, which can be but is not necessarily the browser, retrieves the challenge from the URL when it needs to obtain the assertion of the authenticator. This allows websites to immediately make a WebAuthn conditional UI request at page load time without waiting for a challenge to be dynamically obtained. Explainer: https://github.com/w3c/webauthn/wiki/Explainer:-WebAuthn-challengeURL"
+    },
+    {
+      "id": 5131558514851840,
+      "name": "Handwriting keyword for \"touch-action\" CSS property",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://github.com/w3c/pointerevents/pull/525/files",
+      "matched_keywords": [
+        "css",
+        "input",
+        "touch"
+      ],
+      "summary": "This feature introduces a standard that simplifies enabling or disabling handwriting input across multiple platforms. By specifying a new keyword in the touch-action CSS property, developers can now easily indicate whether an element or its subtree should allow handwriting input."
+    },
+    {
+      "id": 5118328941838336,
+      "name": "Remove Chrome Welcome page triggering via initial prefs first run tabs",
+      "category": "Miscellaneous",
+      "milestone": 133,
+      "spec": null,
+      "matched_keywords": [
+        "page",
+        "file"
+      ],
+      "summary": "Including \"chrome://welcome\" in the \"first_run_tabs\" property of the \"initial_preferences\" file will now have no effect. This is removed because that page is redundant with the First Run Experience that triggers on desktop platforms.\n\nSee https://www.chromium.org/administrators/configuring-other-preferences for more context on the \"initial_preferences\" file."
+    },
+    {
+      "id": 5203351732748288,
+      "name": "Fix mouse focus for slotted elements in Shadow DOM",
+      "category": "DOM",
+      "milestone": 133,
+      "spec": "https://dom.spec.whatwg.org/#concept-event-dispatch",
+      "matched_keywords": [],
+      "summary": "Currently, mouse-triggered event will traverse up to the parent or shadow host to find fallback element to receive mouse focus. This doesn't make sense for slotted content, where we expect the fallback element to receive focus to be the assigned slot, instead of its parent. This is fixed by changing that step to traverse the Flat Tree."
+    },
+    {
+      "id": 5134341540413440,
+      "name": "Fix text selection on Shadow DOM with delegatesFocus",
+      "category": "DOM",
+      "milestone": 133,
+      "spec": "https://dom.spec.whatwg.org/#shadowroot-delegates-focus",
+      "matched_keywords": [
+        "select",
+        "selection"
+      ],
+      "summary": "A shadow host with delegatesFocus set to true will delegate its focus to its first focusable child.\r\nOn a mouse click event, the child will receive focus and the event will be marked as handled. No further event dispatching is done. This is a problem because the steps to handle text selection afterward are not ran and the selection does not recognize the focused element as part of the selection.\r\nWe fix this by continuing event handling even after an element was delegate focused and update how selection recognizes having focus in a shadow tree."
+    },
+    {
+      "id": 4973414383878144,
+      "name": "Deprecate Intl.v8BreakIterator from v8",
+      "category": "JavaScript",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "intl"
+      ],
+      "summary": "Intl.v8BreakIterator is a v8 only JavaScript API launched long ago before ECMA402 include the Intl.Segmenter. Since Intl.Segmenter is already shipped in m87 (https://chromestatus.com/feature/6099397733515264 ) , we should now deprecate and then remove BreakIterator from v8. \n\nThe current stats of the usage\nThe BreakIterator usage overall - https://chromestatus.com/metrics/feature/timeline/popularity/556\nThe Line type usage https://chromestatus.com/metrics/feature/timeline/popularity/3177\nThe Word type usage https://chromestatus.com/metrics/feature/timeline/popularity/3176"
+    },
+    {
+      "id": 6112108595642368,
+      "name": "Protected Audience (B&A): Selectable Reporting IDs",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "select",
+        "selection"
+      ],
+      "summary": "Chrome already provides ([0]) a selectable reporting ID to the Protected Audience API to facilitate using  “deals” (aka private marketplace) with the Protected Audience API. This feature adds Chrome support for selectable reporting IDs for Protected Audience ad selection auctions run on Bidding and Auction Services [1].\r\n\r\n[0]: https://chromestatus.com/feature/5091868904521728\r\n[1]: https://chromestatus.com/feature/4649601971257344"
+    },
+    {
+      "id": 4821788884992000,
+      "name": "Popover nested inside invoker shouldn't re-invoke it",
+      "category": "DOM",
+      "milestone": 133,
+      "spec": "https://github.com/whatwg/html/pull/10770",
+      "matched_keywords": [
+        "popover",
+        "invoker"
+      ],
+      "summary": "In this case:\n\n```\n<button popovertarget=foo>Activate\n  <div popover id=foo>Clicking me shouldn't close me</div>\n</button>\n```\n\nclicking the button properly activates the popover, however, clicking on the popover itself after that should **not** close the popover. It currently does because the popover click bubbles to the `<button>` and activates the invoker, which toggles the popover closed.\n\nThis chromestatus tracks changing the behavior so that clicking on the nested popover does not re-invoke itself.\n\n{Note: this likely should have been created as a \"No developer-visible change\" chromestatus entry, but it's too late now.}"
+    },
+    {
+      "id": 4886122881351680,
+      "name": "Custom data origin in sharedStorage.createWorklet",
+      "category": "Offline / Storage",
+      "milestone": null,
+      "spec": "https://github.com/WICG/shared-storage/pull/206",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "We add support for a creating a worklet with an arbitrary data origin for accessing shared storage data, as long as that data origin has opted in for its data to be processed by the worklet script's origin and invoking context."
+    },
+    {
+      "id": 5199947786616832,
+      "name": "Nested pseudo elements styling",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://www.w3.org/TR/css-pseudo-4/#marker-pseudo",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "Allows to style pseudo elements that are nested inside other pseudo elements. So far, support is defined for:\r\n\r\n::before::marker\r\n::after::marker\r\n\r\nWith ::column::scroll-marker being supported in the future."
+    },
+    {
+      "id": 5097714453577728,
+      "name": "Dialog light dismiss",
+      "category": "DOM",
+      "milestone": 134,
+      "spec": "https://html.spec.whatwg.org/#attr-dialog-closedby",
+      "matched_keywords": [
+        "popover",
+        "dialog"
+      ],
+      "summary": "One of the nice features of the Popover API is its light dismiss behavior. This chromestatus is about bringing that same capability to `<dialog>`. A new `closedby` attribute controls behavior:\r\n\r\n`<dialog closedby=none>` - no user-triggered closing of dialogs at all.\r\n`<dialog closedby=closerequest>` - user pressing ESC (or other close trigger) closes the dialog\r\n`<dialog closedby=any>` - user clicking outside the dialog, or pressing ESC, closes the dialog. Akin to `popover=auto` behavior.\r\n"
+    },
+    {
+      "id": 6444139556896768,
+      "name": "NotRestoredReasons API reason name change",
+      "category": "Miscellaneous",
+      "milestone": 135,
+      "spec": "https://github.com/whatwg/html/pull/10154",
+      "matched_keywords": [
+        "style",
+        "print"
+      ],
+      "summary": "NotRestoredReasons API has been launched as part of PerformanceNavigationTiming API.\n\nThis PR specified the names of the reasons that User Agents can choose to expose. \nhttps://github.com/whatwg/html/pull/10154\n\nThis entry is about chromium changing the names of the reasons so that they match the ones specified.\n\nList of changes:\n\"extension-messaging\", \"pending-permission-request\", \"not-main-frame\", \"frame-navigating\", \"timeout\", \"cookie-disabled\", \"cookie-removed\", \"printing\", \"web-database\", \"injected-javascript\", \"injected-stylesheet\" -> \"masked\"\n\"response-method-not-get\"->\"request-method-not-get\"\n\"serviceworker-version-activation\" -> \"serviceworker-version-activated\"\n\"serviceworker-added-after-bfcache\" -> \"serviceworker-added\"\n\"serviceworker-unregistration\" -> \"serviceworker-unregistered\"\n\"unload-handler\" -> \"unload-listener\"\n\"session-restored\" -> null\n"
+    },
+    {
+      "id": 5133950203461632,
+      "name": "Support Web Locks API in Shared Storage",
+      "category": "Offline / Storage",
+      "milestone": 134,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Today, concurrent execution of shared storage worklets in scenarios like cross-site reach measurement can result in duplicate reporting, due to the potential race conditions within the \"get() and set()\" logic. To address this issue, we propose integrating the Web Locks API into Shared Storage.\r\n\r\nSpecifically,\r\n- Introduce navigator.locks.request to the worklet environment.\r\n- Introduce { withLock: <resource>} option to all modifier methods.\r\n- Introduce a batch modify method: sharedStorage.batchUpdate(methods, options). This method, with the 'withLock' option, allows multiple modifier methods to be executed atomically, enabling use cases where a website needs to maintain consistency while updating data organized across multiple keys."
+    },
+    {
+      "id": 5166674414927872,
+      "name": "Remove SwiftShader fallback",
+      "category": "Graphics",
+      "milestone": 139,
+      "spec": null,
+      "matched_keywords": [
+        "command",
+        "canvas"
+      ],
+      "summary": "Allowing automatic fallback to WebGL backed by the software renderer SwiftShader is deprecated and WebGL context creation will fail instead of falling back to SwiftShader. This was done for two primary reasons:\n\n1. SwiftShader is a high security risk due to JIT-ed code running in Chromium's GPU process.\n2. Users have a poor experience when falling back from a high-performance GPU-backed WebGL to a CPU-backed implementation. Users have no control over this behavior and it is difficult to describe in bug reports.\n\nSwiftShader is a useful tool for web developers to test their sites on systems that are headless or do not have a supported GPU. This use case will still be supported by opting in but is not intended for running untrusted content.\n\nTo opt-in to lower security guarantees and allow SwiftShader for WebGL, run the chrome executable with the --enable-unsafe-swiftshader command-line switch.\n\nDuring the deprecation period, a warning will appear in the javascript console when a WebGL context is created and backed with SwiftShader. Passing --enable-unsafe-swiftshader will remove this warning message.\n\nChromium and other browsers do not guarantee WebGL availability. Please test and handle WebGL context creation failure and fall back to other web APIs such as Canvas2D or an appropriate message to the user."
+    },
+    {
+      "id": 5107436833472512,
+      "name": "CSS Inertness",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://github.com/flackr/carousel/tree/main/inert",
+      "matched_keywords": [
+        "css",
+        "select",
+        "page"
+      ],
+      "summary": "The interactivity property specifies whether an element and its flat tree descendants (including text runs) are inert or not.\n\nMaking an element inert affects whether it can be focused, edited, selected, and searchable by find-in-page. It also affects whether it is visible in the accessibility tree.\n\nThe syntax is: interactivity: auto | inert\n"
+    },
+    {
+      "id": 5093129273999360,
+      "name": "::scroll-button() pseudo elements",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://drafts.csswg.org/css-overflow-5/#scroll-buttons",
+      "matched_keywords": [
+        "css",
+        "style",
+        "select"
+      ],
+      "summary": "Allow the creation of interactive scroll buttons as pseudo-elements, e.g.\n\n.scroller {\n  overflow: auto;\n}\n\n.scroller::scroll-button(inline-start) {\n  content: \"<\";\n}\n\n.scroller::scroll-button(inline-end) {\n  content: \">\";\n}\n\nThese should be focusable, behaving as a button (including their UA styles). When activated, a scroll should be performed in the direction by some amount. When it is not possible to scroll in that direction, they should be disabled (and styled via :disabled), otherwise they are enabled (and styled via :enabled).\n\nSelector allows to define buttons in four logical directions: block-start, block-end, inline-start, inline-end; as well as four physical directions: up, down, left, right."
+    },
+    {
+      "id": 5192332683771904,
+      "name": "::column pseudo element for Carousel",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": null,
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "A ::column pseudo element, which allows applying a limited set of styles to the generated fragments. Specifically, this would be limited to styles which do not affect the layout, and thus can be applied post-layout."
+    },
+    {
+      "id": 5128261284397056,
+      "name": "Expose coarsened cross-origin renderTime in elment timing/LCP (regardless of TAO)",
+      "category": "Performance",
+      "milestone": 133,
+      "spec": "https://w3c.github.io/paint-timing/#mark-paint-timing",
+      "matched_keywords": [
+        "image"
+      ],
+      "summary": "All element-timing and LCP performance entries would have a non-zero renderTime, even if they are cross-origin without Timing-Allow-Origin. All presentation timestamps (renderTime, paint timing start time, event timing end time) will be coarsened to a 4ms multiple to mitigate the risk of reading cross-origin image information."
+    },
+    {
+      "id": 5145948356083712,
+      "name": "Select parser relaxation",
+      "category": "DOM",
+      "milestone": 134,
+      "spec": "https://github.com/whatwg/html/pull/10557",
+      "matched_keywords": [
+        "select"
+      ],
+      "summary": "This change makes the HTML parser allow additional tags in <select> besides <option>, <optgroup>, and <hr>.\n\nThis change is in support of the customizable <select> feature but is being shipped first because it can be done separately and has some compat risk which I'd like to get feedback on.\n\nThis feature is gated by the temporary policy (SelectParserRelaxationEnabled). This is a temporary transition period, and the policy will stop working on milestone M141.\n\nCustomizable select explainer: https://open-ui.org/components/customizableselect/\n\nI did a compat analysis and determined that the vast majority of sites which would see the effects of the parser changes would not have their behavior changed. More details here: https://github.com/whatwg/html/issues/10310\n\nIf there are major issues with this change, I will reassess and make adjustments to the parser as needed."
+    },
+    {
+      "id": 5124331450138624,
+      "name": "IndexedDB getAllRecords() and direction option for getAll()/getAllKeys()",
+      "category": "Offline / Storage",
+      "milestone": 141,
+      "spec": "https://w3c.github.io/IndexedDB/#dom-idbobjectstore-getallrecords",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "This feature adds the getAllRecords() API to IndexedDB's IDBObjectStore and IDBIndex.  It also adds a direction parameter to getAll() and getAllKeys().  This functionality enables certain read patterns to be significantly faster when compared to the existing alternative of iteration with cursors.  One key workload from a Microsoft property showed a 350ms improvement. \n\ngetAllRecords() effectively combines getAllKeys() and getAll() by enumerating both primary keys and values at the same time. For an IDBIndex, getAllRecords() also provides the record's index key in addition to the primary key and value.\n\ngetAllRecords() can optionally return records in either ascending or descending order.  This option is also back-ported to the existing operations getAll() and getAllKeys()."
+    },
+    {
+      "id": 6575974796492800,
+      "name": "Auto-generated view transition names",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-view-transitions-2/#auto-vt-name",
+      "matched_keywords": [
+        "css",
+        "page"
+      ],
+      "summary": "This intent covers two new keywords for view-transition-name:\n- 'match-element' generates a unique id based on the element's identity and renames the same for this element. This is used in Single Page App cases where the element is being moved around and the desire is to animate it with a view transition\n\n- 'auto' generates a unique id based on the element's id attribute. This value remains the same for the same ids regardless of the element, but does not otherwise match the view-transition-name named with the same ident as the id. This can be used in both Single and Multi Page Apps to match elements based on their id attributes.\n\nAllow the 'auto' keyword as a value for the 'view-transition-name' CSS property. This generates a unique name for the element, and reduces the burden of having to invent unique names for participating elements."
+    },
+    {
+      "id": 5134941143433216,
+      "name": ":has-slotted pseudo selector",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-scoping/#the-has-slotted-pseudo",
+      "matched_keywords": [
+        "css",
+        "style",
+        "select"
+      ],
+      "summary": "The :has-slotted pseudo class represents a slot element with slotted content, such as a text node or element. This can be used to style elements based on whether or not they are using slot fallback content."
+    },
+    {
+      "id": 6176445286842368,
+      "name": "CSS 'stretch' sizing keyword",
+      "category": "CSS",
+      "milestone": 138,
+      "spec": "https://drafts.csswg.org/css-sizing-4/#sizing-values",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "A keyword for CSS sizing properties (e.g. 'width', 'height') that allows elements to grow to exactly fill their containing block's available space. It is similar to '100%', except the resulting size is applied to the element's margin box instead of the box indicated by 'box-sizing'. Using this keyword allows the element to keep its margins while still being as large as possible. An unprefixed version of '-webkit-fill-available'."
+    },
+    {
+      "id": 5074536530444288,
+      "name": "Allow reading interest groups in Shared Storage Worklet",
+      "category": "JavaScript",
+      "milestone": 134,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "An interestGroups() method is added to the shared storage worklet, to return the Protected Audience interest groups associated with the shared storage origin's owner, with some additional metadata.\n\nThis API provides the Protected Audience buyer with a better picture of what's happening with their users, allowing for Private Aggregation reports.\n"
+    },
+    {
+      "id": 5082469066604544,
+      "name": "CSS caret-animation property",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/css-ui/#caret-animation",
+      "matched_keywords": [
+        "css",
+        "style",
+        "page"
+      ],
+      "summary": "Chromium supports animation of the caret-color property, but when animated the default blinking behavior of the caret interferes with the animation. For instance, see the example at https://drafts.csswg.org/css-ui/#caret-animation where an animation from blue to red and back is rendered as a blinking cursor that is randomly blue or red. The CSS caret-animation property has two possible values: auto and manual, where auto means browser default (blinking) and manual means the page author is controlling the caret animation. In addition, via a user stylesheet, it allows users who are disturbed by or have adverse reactions to blinking or flashing visuals to disable the blinking."
+    },
+    {
+      "id": 5136302690009088,
+      "name": "Lightweight Mode For FedCM",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "dialog"
+      ],
+      "summary": "This feature allows Identity Providers (IdPs) to store information about a user's account in the browser ahead of time via the Login Status API, and allow Relying Parties (RPs) to request access to this information via a browser-mediated prompt similar to the current FedCM flow. By storing the account information ahead of time, this eliminates the browser's need to make calls to the accounts endpoint to display the browser-mediated dialog, improving both performance and privacy. Lightweight Mode for FedCM also requires less complex integration for Identity Providers. Currently these benefits come at the cost of reduced freshness for account hint information presented to the user, but future work may address this limitation if there is sufficient developer interest."
+    },
+    {
+      "id": 5202800863346688,
+      "name": "Document-Policy: expect-no-linked-resources",
+      "category": "Performance",
+      "milestone": 134,
+      "spec": "https://github.com/whatwg/html/pull/10718",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "The expect-no-linked-resources configuration point in Document Policy allows a document to hint to the user agent to better optimize its loading sequence, such as not using the default speculative parsing behavior.\r\n\r\nUser Agents have implemented speculative parsing of HTML to speculatively fetch resources that are present in the HTML markup, to speed up page loading. For the vast majority of pages on the Web that have resources declared in the HTML markup, the optimization is beneficial and the cost paid in determining such resources is a sound tradeoff. However, the following scenarios might result in a sub-optimal performance tradeoff vs. the explicit time spent parsing HTML for determining sub resources to fetch:\r\n\r\n * Pages that do not have any resources declared in the HTML.\r\n * Large HTML pages with minimal or no resource loads that could explicitly control preloading resources via other preload mechanisms available.\r\n\r\n`expect-no-linked-resources` Document-Policy hints the User Agent that it may choose to optimize out the time spent in such sub resource determination."
+    },
+    {
+      "id": 5120638407409664,
+      "name": "Popover invoker and anchor positioning improvements",
+      "category": "DOM",
+      "milestone": 133,
+      "spec": "https://github.com/whatwg/html/pull/10728",
+      "matched_keywords": [
+        "popover",
+        "invoker",
+        "anchor"
+      ],
+      "summary": "This chromestatus represents the following related set of changes, which were resolved in https://github.com/whatwg/html/pull/9144#issuecomment-2195095228 and landed in https://github.com/whatwg/html/pull/10728:\n\n1. add an imperative way to set invoker relationships between popovers: popover.showPopover({source})\n2. invoker relationships create implicit anchor element references.\n\n"
+    },
+    {
+      "id": 4926138582040576,
+      "name": "Support creating ClipboardItem with Promise<DOMString>",
+      "category": "Miscellaneous",
+      "milestone": 133,
+      "spec": "https://www.w3.org/TR/clipboard-apis/#typedefdef-clipboarditemdata",
+      "matched_keywords": [
+        "input",
+        "clipboard"
+      ],
+      "summary": "The ClipboardItem, which is the input to the async clipboard write method, now accepts string values in addition to Blobs in its constructor. ClipboardItemData can be a Blob, a string, or a Promise that resolves to either a Blob or a string."
+    },
+    {
+      "id": 5190577638080512,
+      "name": "Incorporating navigation initiator into the HTTP cache partition key",
+      "category": "Security",
+      "milestone": 136,
+      "spec": null,
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Chrome’s HTTP cache keying scheme will be updated to include an “is-cross-site-main-frame-navigation” boolean to mitigate cross-site leak attacks involving top-level navigation. Specifically, this will prevent cross-site attacks in which an attacker can initiate a top-level navigation to a given page and then navigate to a resource known to be loaded by the page in order to infer sensitive information via load timing. This change also improves privacy by preventing a malicious site from using navigations to infer whether a user has visited a given site previously."
+    },
+    {
+      "id": 5130361898795008,
+      "name": "Blob URL Partitioning: Fetching/Navigation",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": null,
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "As a continuation of Storage Partitioning, Chromium will implement partitioning of Blob URL access by Storage Key (top-level site, frame origin, and the has-cross-site-ancestor boolean), with the exception of top-level navigations which will remain partitioned only by frame origin. This behavior is similar to what’s currently implemented by both Firefox and Safari, and aligns Blob URL usage with the partitioning scheme used by other storage APIs as part of Storage Partitioning. In addition, Chromium will enforce noopener on renderer-initiated top-level navigations to Blob URLs where the corresponding site is cross-site to the top-level site performing the navigation. This aligns Chromium with similar behavior in Safari, and the relevant specs have been updated to reflect these changes. \n\nThis change can be temporarily reverted by setting the PartitionedBlobURLUsage policy. The policy will be deprecated when the other storage partitioning related enterprise policies are deprecated.\n\nNote: This launched for users with third-party cookies disabled in M137 and for all users in M142"
+    },
+    {
+      "id": 4552801607483392,
+      "name": "highlightsFromPoint API",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/css-highlight-api-1/#interactions",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The highlightsFromPoint API enables developers to interact with custom highlights by detecting which highlights exist at a specific point within a document. This interactivity is valuable for complex web features where multiple highlights may overlap or exist within shadow DOM. By providing precise point-based highlight detection, the API empowers developers to manage dynamic interactions with custom highlights more effectively, such as responding to user clicks or hover events on highlighted regions to trigger custom tooltips, context menus, or other interactive features. "
+    },
+    {
+      "id": 5112320150470656,
+      "name": "Rewriter API",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "The Rewriter API transforms and rephrases input text in requested ways, backed by an on-device AI language model. Developers may use this API to remove redundancies within a text in order to fit into a word limit, rephrase messages to suit the intended audience or to be more constructive if a message is found to use toxic language, rephrasing a post or article to use simpler words and concepts and more. An enterprise policy (GenAILocalFoundationalModelSettings) is available to disable the underlying model downloading which would render this API unavailable."
+    },
+    {
+      "id": 5193953788559360,
+      "name": "Summarizer API",
+      "category": "Miscellaneous",
+      "milestone": 138,
+      "spec": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "Summarizer API is a JavaScript API for producing summaries of input text, backed by an AI language model. Browsers and operating systems are increasingly expected to gain access to a language model. By exposing this built-in model, we avoid every website needing to download their own multi-gigabyte language model, or send input text to third-party APIs. The summarizer API in particular exposes a high-level API for interfacing with a language model in order to summarize multilingual inputs for a variety of use cases, in a way that does not depend on the specific language model in question. \nAn enterprise policy (GenAILocalFoundationalModelSettings) is available to disable the underlying model downloading which would render this API unavailable.\n\nLanguage support log:\n- Chrome M139 and earlier only supported 'en'\n- Chrome M140 added support for 'es' and 'ja'"
+    },
+    {
+      "id": 5162799714795520,
+      "name": "Nested view transitions groups",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://www.w3.org/TR/css-view-transitions-2/#view-transition-group-prop",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Allow view-transitions to generate a nested pseudo-element tree rather than a flat one.\r\n\r\nThis allows the view transition to appear more in line with its original elements and visual intent, as it enables clipping, nested 3D transforms, and proper application of effects like opacity, masking and filters."
+    },
+    {
+      "id": 5135990159835136,
+      "name": "DOM State-Preserving Move",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://github.com/whatwg/dom/pull/1307",
+      "matched_keywords": [
+        "css",
+        "popover",
+        "dialog"
+      ],
+      "summary": "This features adds a DOM primitive (moveBefore) that allows moving elements around a DOM tree, without resetting the element's state. This function would be available on ParentNodes, like Element, Document, DocumentFragment.\n\nWhen moving instead of removing/inserting, following state such as the following is preserved:\n- IFrames remain loaded\n- Active element remains focus\n- Popovers, fullscreen, modal dialogs remain open\n- CSS transitions and animations carry on\n"
+    },
+    {
+      "id": 6494349985841152,
+      "name": "Language Detector API",
+      "category": "Miscellaneous",
+      "milestone": 138,
+      "spec": "https://webmachinelearning.github.io/translation-api/#language-detector-api",
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "A JavaScript API for detecting the language of text, with confidence levels.\n\nAn important supplement to translation is language detection. This can be combined with translation, e.g. taking user input in an unknown language and translating it to a specific target language. Browsers today often already have langauge detection capabilities, and we want to offer them to web developers through a JavaScript API, supplementing the translation API. An enterprise policy (GenAILocalFoundationalModelSettings) is available to disable the underlying model downloading which would render this API unavailable.\n"
+    },
+    {
+      "id": 5971377218912256,
+      "name": "Selection API getComposedRanges and direction",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": "https://w3c.github.io/selection-api/#dom-selection-getcomposedranges",
+      "matched_keywords": [
+        "select",
+        "selection"
+      ],
+      "summary": "This feature ships two new API methods for the Selection API:\n* Selection.direction which returns the selection's direction as either \"none\", \"forward\" or \"backward\"\n* Selection.getComposedRanges() which returns a list of 0 or 1 “composed” StaticRange\n\nA “composed” StaticRange is allowed to cross shadow boundaries, which normal Ranges cannot.\n\nFor example:\nconst range = getSelection().getComposedRanges({ shadowRoots: [root] });\n\nIf the selection crosses a shadow root boundary that isn’t provided in the shadowRots list, then the StaticRange's endpoints will be “rescoped” to be outside that tree. This makes sure we do not expose unknown shadow trees."
+    },
+    {
+      "id": 5178378197139456,
+      "name": "Add MediaStreamTrack support to the Web Speech API",
+      "category": "Miscellaneous",
+      "milestone": 135,
+      "spec": "https://wicg.github.io/speech-api",
+      "matched_keywords": [
+        "input",
+        "page"
+      ],
+      "summary": "Add MediaStreamTrack support to the Web Speech API.\r\n\r\nThe Web Speech API is a web standard API that allows developers to incorporate speech recognition and synthesis into their web pages. Currently, the Web Speech API uses the user's default microphone as the audio input. MediaStreamTrack support allows websites to use the Web Speech API to caption other sources of audio including remote audio tracks."
+    },
+    {
+      "id": 5717358869217280,
+      "name": "Secure Rust Font Stack",
+      "category": "Graphics",
+      "milestone": 133,
+      "spec": null,
+      "matched_keywords": [
+        "font"
+      ],
+      "summary": "The Rust font stack for Chrome integrates the Fontations font libraries into Chromium as a safe replacement for FreeType (https://github.com/googlefonts/fontations/). This project is a collaboration between Chrome and Google Fonts.\n\nBy replacing FreeType we make font processing in Chrome safer and more reliable and move from a C codebase to a modern set of efficient and ergonomic Rust libraries for font processing in Chrome. \n\nWe reduce the engineering time needed to keep FreeType secure and spend less time having to address incoming issues found by Fuzzers.\n\nWe open up the possibility of unsandboxing font processing code.\n\nWe move to relying on a shared codebase for font processing in Chrome and font production in Google Fonts.\n\nInternal document: http://go/rust-fontstack-chrome"
+    },
+    {
+      "id": 5949561398099968,
+      "name": "Partitioned Popins",
+      "category": "Offline / Storage",
+      "milestone": null,
+      "spec": "https://github.com/arichiv/partitioned-popins",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "*NOTE: Code was removed in Chrome 144 and this is no longer being pursued*\n\nA new web primitive is needed to cover short-lived popup use cases which require access to storage partitioned by the popup opener. This primitive should be private and secure by default, while providing a consistent UI experience across user agents.\n\nTo solve this need, we propose the “Partitioned Popin”, a type of pop-up for loading web content with two unique new features: a modal-like UI relative to its opener tab and cookies/storage being partitioned to its opener context.\n"
+    },
+    {
+      "id": 5148228059398144,
+      "name": "Deprecate getters of Intl Locale Info",
+      "category": "JavaScript",
+      "milestone": 143,
+      "spec": "https://tc39.es/proposal-intl-locale-info",
+      "matched_keywords": [
+        "intl"
+      ],
+      "summary": "Intl Locale Info API is a Stage 3 ECMAScript TC39 proposal to enhance the Intl.Locale object by exposing Locale information, such as week data (first day in a week, weekend start day, weekend end day, minimun day in the first week), and text direction hour cycle used in the locale.\r\nhttps://github.com/tc39/proposal-intl-locale-info\r\n\r\nWe ship our implementation in m99 (https://chromestatus.com/feature/5566859262820352 ) . But later on the propose made some change in Stage 3 and move several getters to functions. We need to remove the deprecated getters and relaunch the renamed functions\r\n"
+    },
+    {
+      "id": 6309742380318720,
+      "name": "ServiceWorkerStaticRouterTimingInfo",
+      "category": "Service Worker",
+      "milestone": 140,
+      "spec": "https://github.com/w3c/ServiceWorker",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Adds timing information for ServiceWorker Static routing API, exposed in navigation timing API and resource timing API for developer use.\r\n\r\nService Worker provides timing information to mark certain points in time. We add two Static routing API-relevant timing information: RouterEvaluationStart, time to start matching a request with registered router rules, and CacheLookupStart, time to start looking up the cache storage if the source is \"cache\". In addition, we also add two router source information, the matched router source and the final router source."
+    },
+    {
+      "id": 5172811302961152,
+      "name": "Translator API",
+      "category": "Miscellaneous",
+      "milestone": 138,
+      "spec": "https://webmachinelearning.github.io/translation-api",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "A JavaScript API to provide language translation capabilities to web pages. Browsers are increasingly offering language translation to their users. Such translation capabilities can also be useful to web developers. This is especially the case when browser's built-in translation abilities cannot help. An enterprise policy (GenAILocalFoundationalModelSettings) is available to disable the underlying model downloading which would render this API unavailable.\n"
+    },
+    {
+      "id": 5090991750250496,
+      "name": "Structured Headings, the headingoffset & headingreset attributes, and the :heading pseudo class",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "select"
+      ],
+      "summary": "A system for creating structured headings within a document.\n\nThe `headingoffset=` attribute can be added to elements that influences the child `h1`-`h6` elements' heading levels, for example a `headingoffset=1` will mean all `h1` elements will have an effective heading level of 2, and so on.\n\nIn addition the `:heading` pseudo class will select all headings (tags of `h1` to `h6`) and the `:heading(N)` pseudo class will select headings with an _effective_ level of `N`.\n\nThis allows for documents with different heading structures (for example user generated content) to be combined to create a well defined heading structure without significantly altering the underlying documents."
+    },
+    {
+      "id": 5160035463462912,
+      "name": "::scroll-marker and ::scroll-marker-group for Carousel",
+      "category": "CSS",
+      "milestone": 135,
+      "spec": "https://drafts.csswg.org/css-overflow-5/#scroll-markers",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "::scroll-marker and ::scroll-marker-group for scrolling containers:\nPseudo elements that allow to create a set of focusable markers for all of the associated items within the scrolling container."
+    },
+    {
+      "id": 5141940204208128,
+      "name": "Document-Isolation-Policy",
+      "category": "Security",
+      "milestone": 137,
+      "spec": "https://wicg.github.io/document-isolation-policy",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Document-Isolation-Policy allows a document to enable crossOriginIsolation for itself, without having to deploy COOP or COEP, and regardless of the crossOriginIsolation status of the page. The policy is backed by process isolation. Additionally, the document non-CORS cross-origin subresources will either be loaded without credentials or will need to have a CORP header."
+    },
+    {
+      "id": 6146353156849664,
+      "name": "Storage Access Headers",
+      "category": "Network / Connectivity",
+      "milestone": 133,
+      "spec": "https://privacycg.github.io/storage-access-headers",
+      "matched_keywords": [
+        "storage"
+      ],
+      "summary": "Offers an alternate way for authenticated embeds to opt in for unpartitioned cookies. These headers indicate whether unpartitioned cookies are (or can be) included in a given network request, and allow servers to activate 'storage-access' permissions they have already been granted. Giving an alternative way to activate the 'storage-access' permission allows usage by non-iframe resources, and can reduce latency for authenticated embeds."
+    },
+    {
+      "id": 4530756656562176,
+      "name": "Interest Invokers (the `interestfor` attribute)",
+      "category": "DOM",
+      "milestone": 142,
+      "spec": "https://github.com/whatwg/html/pull/11006",
+      "matched_keywords": [
+        "popover",
+        "invoker",
+        "touch"
+      ],
+      "summary": "This feature adds an `interestfor` attribute to <button> and <a> elements. This attribute adds \"interest\" behaviors to the element, such that when the user \"shows interest\" in the element, actions are triggered on the target element, such as showing a popover. The user agent will handle detecting when the user \"shows interest\" in the element, via methods such as hovering the element with a mouse, hitting special hotkeys on the keyboard, or long-pressing the element on touchscreens. When interest is shown or lost, an `InterestEvent` will be fired on the target, which have default actions in the case of popovers - showing and hiding the popover."
+    },
+    {
+      "id": 5113638848561152,
+      "name": "CSS reading-flow, reading-order properties",
+      "category": "DOM",
+      "milestone": 137,
+      "spec": "https://www.w3.org/TR/css-display-4",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "The reading-flow CSS property controls the order in which elements in a flex, grid or block layout are exposed to accessibility tools and focused via TAB keyboard focus navigation.\n\nThis change implements the CSS reading-flow keyword values:\n* normal\n* flex-visual\n* flex-flow\n* grid-rows\n* grid-columns\n* grid-order\n* source-order\n\nSee spec: https://drafts.csswg.org/css-display-4/#reading-flow\n\nThe reading-order CSS property allows authors to manually-override the order within a reading flow container. It is an integer with default value 0.\n\nSee spec: https://drafts.csswg.org/css-display-4/#reading-order\n\nPlease find more thorough examples of how TAB keyboard navigation and accessibility is improved by this feature here:\nhttps://chrome.dev/reading-flow-examples/"
+    },
+    {
+      "id": 5179721933651968,
+      "name": "CSS Custom Functions",
+      "category": "CSS",
+      "milestone": 139,
+      "spec": "https://drafts.csswg.org/css-mixins-1/#defining-custom-functions",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Custom Functions are similar to custom properties, but instead of returning a single, fixed value, they return values based on other custom properties, parameters, and conditionals."
+    },
+    {
+      "id": 5085419215781888,
+      "name": "CSS :open pseudo-class",
+      "category": "DOM",
+      "milestone": 133,
+      "spec": "https://drafts.csswg.org/selectors-4/#open-state",
+      "matched_keywords": [
+        "css",
+        "dialog",
+        "input",
+        "select"
+      ],
+      "summary": "The :open pseudo-class matches <dialog> and <details> when they are in their open state, and matches <select> and <input> when they are in modes which have a picker and the picker is showing."
+    },
+    {
+      "id": 4885575595458560,
+      "name": "CSS line-clamp property",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-overflow-4/#suppressing-excess",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Allows clamping a block element to have at most a specific number of text lines, or to have as many lines as will fit in a certain height, showing an ellipsis at the end of the last line. This allows showing a small preview of a longer text, purely in CSS, in a simpler way than was previously possible."
+    },
+    {
+      "id": 5162540351094784,
+      "name": "Speculation rules: target_hint field",
+      "category": "Performance",
+      "milestone": 138,
+      "spec": "https://wicg.github.io/nav-speculation/speculation-rules.html",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "This extends speculation rules syntax to allow developers to specify the target_hint field.\n\nThis field provides a hint to indicate a target navigable where a prerendered page will eventually be activated. For example, when _blank is specified as a hint, a prerendered page can be activated for a navigable opened by window.open(). The field has no effect on prefetching.\n\nThe specification allows this field to accept any strings that are valid as navigable target name or keyword as the value, but this launch supports only one of \"_self\" or \"_blank\" strings. If the hint is not specified, it's treated like \"_self\" is specified."
+    },
+    {
+      "id": 4731248572628992,
+      "name": "Call stacks in crash reports from unresponsive web pages",
+      "category": "Miscellaneous",
+      "milestone": 137,
+      "spec": "https://wicg.github.io/crash-reporting",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "This feature captures the JS call stack when a web page becomes unresponsive due to JavaScript code running an infinite loop or other very long computation. This helps developers to identify the cause of the unresponsiveness and fix it more easily. The JS call stack is included in the crash reporting API when the reason is unresponsive."
+    },
+    {
+      "id": 5142517058371584,
+      "name": "Invoker Commands; the command and commandfor attributes",
+      "category": "DOM",
+      "milestone": 135,
+      "spec": "https://html.spec.whatwg.org/multipage/form-elements.html#attr-button-commandfor",
+      "matched_keywords": [
+        "popover",
+        "dialog",
+        "command",
+        "invoker",
+        "page",
+        "touch"
+      ],
+      "summary": "Adding command and commandfor attributes to <button> elements would allow authors to assign behaviour to buttons in a more accessible and declarative way, while reducing bugs and simplifying the amount of JavaScript pages are required to ship for interactivity. Buttons with commandfor and command attributes will - when clicked, touched, or enacted via keypress - dispatch a CommandEvent on the element referenced by commandfor, with some default behaviours such as opening dialogs and popovers.\n\n"
+    },
+    {
+      "id": 5090853643354112,
+      "name": "CSS Highlight Inheritance",
+      "category": "CSS",
+      "milestone": 134,
+      "spec": "https://drafts.csswg.org/css-pseudo-4/#highlight-cascade",
+      "matched_keywords": [
+        "css",
+        "select",
+        "font",
+        "selection"
+      ],
+      "summary": "With CSS Highlight Inheritance, the CSS Highlight pseudo classes, such as ::selection and ::highlight, inherit their properties through the pseudo highlight chain, rather than the element chain. The result is a more intuitive model for inheritance of properties in highlights. Specifically, \"When any supported property is not given a value by the cascade ... its specified value is determined by inheritance from the corresponding highlight pseudo-element of its originating element’s parent element.\" There are some caveats due to properties not allowed on a highlight pseudo and historical usage: units depending on fonts, container queries, viewports etc. use metrics from the originating element, and all custom property values used in the highlight pseudo are taken from the originating element (inherited through the originating element cascade).  (https://drafts.csswg.org/css-pseudo-4/#highlight-cascade)"
+    },
+    {
+      "id": 5154593776599040,
+      "name": "Observable API",
+      "category": "DOM",
+      "milestone": 135,
+      "spec": "https://wicg.github.io/observable",
+      "matched_keywords": [],
+      "summary": "Observables are a popular reactive-programming paradigm to handle an asynchronous stream of push-based events. They can be thought of as Promises but for multiple events, and aim to do what Promises did for callbacks/nesting. That is, they allow ergonomic event handling by providing an Observable object that represents the asynchronous flow of events.\n\nYou can \"subscribe\" to this object to receive events as they come in, and call any of its operators/combinators to declaratively describe the flow of transformations through which events go. This is in contrast with the imperative version, which often requires complicated nesting with things like `addEventListener()`. For more on this, see the examples in the explainer.\n\nThe big selling point for native Observables is their integration with EventTarget — its proposed `when()` method that returns an Observable which is a \"better\" `addEventListener()`.\n\nSee https://github.com/WICG/observable and https://twitter.com/domfarolino/status/1684921351004430336.\n\nSee the spec https://wicg.github.io/observable/ and the design doc: https://docs.google.com/document/d/1NEobxgiQO-fTSocxJBqcOOOVZRmXcTFg9Iqrhebb7bg/edit."
+    },
+    {
+      "id": 5198846820352000,
+      "name": "Link rel=facilitated-payment to support push payments",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [],
+      "summary": "Adds support for <link rel=\"facilitated-payment\" href=\"...\"> as a hint that the browser should notify registered payment clients about a pending push payment."
+    },
+    {
+      "id": 4654499737632768,
+      "name": "fetchLater API",
+      "category": "Network / Connectivity",
+      "milestone": 135,
+      "spec": "https://whatpr.org/fetch/1647/07662d3...139351f.html",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "fetchLater() is a JavaScript API to request a deferred fetch. Once called in a document, a deferred request is queued by the browser in the PENDING state, and will be invoked by the earliest of the following conditions:\n\n* The document is destroyed.\n* After a user-specified time. For privacy reason, all pending requests will be flushed upon document entering bfcache no matter how much time is left.\n* Browser decides it's time to send it.\n\nThe API returns a FetchLaterResult that contains a boolean field \"activated\" that may be updated to tell whether the deferred request has been sent out or not. On successful sending, the whole response will be ignored by browser, including body and headers. Nothing at all should be processed or updated, as the page may have already be gone.\n\nNote that from the point of view of the API user, the exact send time is unknown."
+    },
+    {
+      "id": 5202578236768256,
+      "name": "Insert CJK inter-script spacing: the CSS `text-autospace` property",
+      "category": "CSS",
+      "milestone": 140,
+      "spec": "https://drafts.csswg.org/css-text-4/#text-autospace-property",
+      "matched_keywords": [
+        "css"
+      ],
+      "summary": "Inserts small spacings to match the established East Asian typographic rules automatically.\n\nText written in Han ideographic writing systems often mixes multiple scripts, usually the Han ideographic scripts, Latin scripts, and ASCII digits. Small spacings between Han ideographic scripts and non-Han ideographic scripts often help the readability. Authors can set `text-autospace: normal` to let browsers insert such spacings automatically."
+    },
+    {
+      "id": 5146250411769856,
+      "name": "CSS dynamic-range-limit property",
+      "category": "Graphics",
+      "milestone": 136,
+      "spec": "https://drafts.csswg.org/css-color-hdr/#controlling-dynamic-range",
+      "matched_keywords": [
+        "css",
+        "page"
+      ],
+      "summary": "Enables a page to limit the maximum brightness of HDR content."
+    },
+    {
+      "id": 4622243656630272,
+      "name": "FileSystemObserver interface",
+      "category": "File APIs",
+      "milestone": 133,
+      "spec": "https://github.com/whatwg/fs/pull/165",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "The FileSystemObserver interface notifies websites of changes to the file system. Sites observe changes to files and directories, to which the user has previously granted permission, in the user's local device (as specified in WICG/file-system-access) or in the Bucket File System (as specified in whatwg/fs), and are notified of basic change info, such as the change type."
+    },
+    {
+      "id": 5158599457767424,
+      "name": "Freezing on Energy Saver",
+      "category": "Performance",
+      "milestone": 133,
+      "spec": "https://wicg.github.io/page-lifecycle",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "When Energy Saver is active, Chrome will freeze a \"browsing context group\" that has been hidden and silent for >5 minutes if any subgroup of same-origin frames within it exceeds a CPU usage threshold, unless it: \n\n- Provides audio- or video-conferencing functionality (detected via microphone, camera or screen/window/tab capture or an RTCPeerConnection with an 'open' RTCDataChannel or a 'live' MediaStreamTrack).\n- Controls an external device (detected via usage of Web USB, Web Bluetooth, Web HID or Web Serial).\n- Holds a Web Lock or an IndexedDB connection that blocks a version update or a transaction on a different connection.\n- Participates in the freezing opt-out origin trial.\n\nFreezing consists of pausing execution. It is formally defined in the Page Lifecycle API.\n\nThe CPU usage threshold will be calibrated to freeze approximately 10% of background tabs when Energy Saver is active.\n\n** Note: The origin trial is to opt-out from freezing, not to activate it. **"
+    },
+    {
+      "id": 5072263730167808,
+      "name": "CSS Scroll State Container Queries",
+      "category": "CSS",
+      "milestone": 133,
+      "spec": "https://www.w3.org/TR/css-conditional-5/#scroll-state-container",
+      "matched_keywords": [
+        "css",
+        "style",
+        "font"
+      ],
+      "summary": "Use container queries to style descendants of containers based on their scroll state.\n\nThe query container is either a scroll container, or an element affected by the scroll position of a scroll container. The following states can be queried:\n\n- Whether a sticky positioned container is stuck to one of the edges of the scroll box (stuck)\n- Whether a scroll snap aligned container is currently snapped horizontally or vertically (snapped)\n- Whether a scroll container can be scrolled in a queried direction (scrollable)\n\nA new container-type:scroll-state is introduced to allow such containers to be queried.\n\nFor instance:\n\n#sticky {\n  position: sticky;\n  container-type: scroll-state;\n}\n\n@container scroll-state(stuck: top) {\n  #sticky-child { font-size: 75% }\n}\n"
+    },
+    {
+      "id": 5101991698628608,
+      "name": "Partitioning :visited links history",
+      "category": "CSS",
+      "milestone": 136,
+      "spec": "https://drafts.csswg.org/selectors-4/#visited-privacy",
+      "matched_keywords": [
+        "css",
+        "style",
+        "page",
+        "anchor"
+      ],
+      "summary": "To eliminate user browsing history leaks, anchor elements are styled as :visited only if they have been clicked from this top-level site and frame origin before. On the browser-side, this means that the VisitedLinks hashtable is now partitioned via \"triple-keying\", or by storing the following for each visited link: <link URL, top-level site, frame origin>. By only styling links that have been clicked on this site and frame before, the many side-channel attacks that have been developed to obtain :visited links styling information are now obsolete, as they no longer provide sites with new information about users. \n\nThere is an exception for \"self-links\", where links to a site's own pages can be styled as :visited even if they have not been clicked on in this exact top-level site and frame origin before. This exemption is only enabled in top-level frames or subframes which are same-origin with the top-level frame. The privacy benefits above are still achieved because sites already know which of its subpages a user has visited, so no new information is exposed. This was a community-requested exception which improves user experience as well."
+    },
+    {
+      "id": 5100466238652416,
+      "name": "Explicit Compile Hints with Magic Comments",
+      "category": "JavaScript",
+      "milestone": null,
+      "spec": "https://wicg.github.io/explicit-javascript-compile-hints-file-based",
+      "matched_keywords": [
+        "select",
+        "file"
+      ],
+      "summary": "Allow attaching information about which functions should be eager parsed & compiled in JavaScript files.\n\nThe information will be encoded as magic comments.\n\nWe'll first target launching the file-based explicit compile hints, and as a follow up, investigate selecting individual functions for eager compilation."
+    },
+    {
+      "id": 5073251081912320,
+      "name": "popover=hint",
+      "category": "DOM",
+      "milestone": 133,
+      "spec": "https://github.com/whatwg/html/pull/9778",
+      "matched_keywords": [
+        "popover",
+        "select"
+      ],
+      "summary": "The Popover API (https://chromestatus.com/feature/5463833265045504) specifies the behavior for two values of the `popover` attribute: `auto` and `manual`. This feature describes a third value, `popover=hint`. Hints, which are most often associated with \"tooltip\" type behaviors, have slightly different behaviors. Primarily, the difference is that `hint`s are subordinate to `auto`s when opening nested stacks of popovers. So it is possible to open an unrelated `hint` popover while an existing stack of `auto` popovers stays open. The canonical example is that a <select> picker is open (popover=auto) and a hover-triggered tooltip (popover=hint) is shown. That action does not close the <select> picker."
+    },
+    {
+      "id": 5174589850648576,
+      "name": "CSS text-box, text-box-trim, and text-box-edge",
+      "category": "CSS",
+      "milestone": 133,
+      "spec": "https://drafts.csswg.org/css-inline-3/#text-edges",
+      "matched_keywords": [
+        "css",
+        "text-box",
+        "font"
+      ],
+      "summary": "To achieve optical balance of text content, the text-box-trim and text-box-edge properties, along with the text-box shorthand property, make finer control of vertical alignment of text possible.\n\nThe text-box-trim property specifies the sides to trim, above or below, and the text-box-edge property specifies how the edge should be trimmed.\n\nThese properties allow developers to control vertical spacing precisely by using the font metrics.\n\nNote that the `ideographic` and `ideographic-ink`, two values for the text-box-edge property for CJK, are deferred to future releases due to open issues currently under discussion."
+    },
+    {
+      "id": 5086141338877952,
+      "name": "Canvas Floating Point Color Types",
+      "category": "Graphics",
+      "milestone": null,
+      "spec": "https://github.com/w3c/ColorWeb-CG/blob/master/canvas_float.md",
+      "matched_keywords": [
+        "canvas",
+        "image"
+      ],
+      "summary": "Introduce the the ability to use floating point pixel formats (as opposed to 8-bit fixed point) with CanvasRenderingContext2D, OffscreenCanvasRenderingContext2D, and ImageData.\n\nThis is necessary for high precision applications (e.g, medical visualization), high dynamic range content, and linear working color spaces."
+    },
+    {
+      "id": 5110990717321216,
+      "name": "Incoming Call Notifications",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://notifications.spec.whatwg.org",
+      "matched_keywords": [
+        "style"
+      ],
+      "summary": "Extend the Notifications API to allow installed PWA's to send incoming call notifications - i.e., notifications with call-styled buttons and a ringtone. This extension will help VoIP web apps to create more engaging experiences by making it easier for users to easily recognize a calling notification and answer it. Besides that, this feature will help bridge the gap between native and web implementations of apps that have them both."
+    },
+    {
+      "id": 5067784766095360,
+      "name": "FedCM multi IDP in single get() call and remove add accounts in passive mode",
+      "category": "Miscellaneous",
+      "milestone": 136,
+      "spec": "https://github.com/w3c-fedid/FedCM/pull/686",
+      "matched_keywords": [
+        "dialog"
+      ],
+      "summary": "Allows FedCM to show multiple identity providers in the same dialog. This provides developers with a convenient way to present all supported identity providers to users. We are planning to first tackle the simple case of having all providers in the same get() call.\n\nWe are also removing support for ‘add another account’ in FedCM passive mode. This feature allows showing a ‘use another account’ button alongside other IdP accounts in the chooser. The feature is currently unused, and UX conversations have led us to believe that supporting this leads to a more complicated flow without much benefit. This feature will still work in FedCM active mode.\n"
+    },
+    {
+      "id": 5168096826884096,
+      "name": "Document Subtitle (Fix PWA app titles)",
+      "category": "Miscellaneous",
+      "milestone": 134,
+      "spec": "https://github.com/whatwg/html/compare/main...diekus:html:main",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "Installed web apps can change the text on the title bar based on the page's content. The current behavior is that the installed web application will put the app's name from the manifest and append the page’s inner text from the `<title>` HTML tag in the head of the page. This often can create awkward titles for some web apps.\r\n\r\nThis feature allows to specify complementary information about the current window of an installed running PWA. It adds a subtitle to the page to provide contextual information that is displayed in the window's title bar. This replaces the text contained in the HTML's title tag."
+    },
+    {
+      "id": 5066686516953088,
+      "name": "Policy-controlled feature `autofill`",
+      "category": "User input",
+      "milestone": null,
+      "spec": "https://github.com/explainers-by-googlers/safe-text-input/blob/main/autofill.md",
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "The policy-controlled feature `autofill` indicates whether it is safe to autofill fields in an embedded document.\n\nEnabling `autofill` in an iframe signals to the user agent that fields in the embedded document may be autofilled together with fields in other documents. Conversely, if `autofill` is disabled in a document, the user agent may warn the user before autofilling any field in the document.\n\nA related feature is `manual-text`: https://chromestatus.com/feature/5164522274553856"
+    },
+    {
+      "id": 5188040623390720,
+      "name": "Reduce fingerprinting in Accept-Language header information",
+      "category": "Network / Connectivity",
+      "milestone": null,
+      "spec": null,
+      "matched_keywords": [
+        "print"
+      ],
+      "summary": "We want to reduce the amount of information the Accept-Language header value string exposes in HTTP requests and in navigator.languages. Instead of sending a full list of the user's preferred languages on every HTTP request via the Accept-Language header. We propose only sending the user’s most preferred language in the Accept-Language header. To minimize compatibility risks, we first plan to reduce the information in the HTTP header, and then reduce the related navigator.languages JS getters in the future.\n"
+    },
+    {
+      "id": 5745430754230272,
+      "name": "ARIA Notify API",
+      "category": "DOM",
+      "milestone": 141,
+      "spec": "https://github.com/w3c/aria/pull/2577",
+      "matched_keywords": [],
+      "summary": "ariaNotify provides a JavaScript API that enables content authors to directly tell a screen reader what to read. \n\nariaNotify improves reliability and developer control compared to ARIA live regions, allowing for announcing changes not tied to DOM updates. This enables more consistent and ergonomic accessibility experiences across dynamic web applications. Iframe usage of this feature can be controlled via a permission policy \"aria-notify\"."
+    },
+    {
+      "id": 5693014656679936,
+      "name": "LCP support for animated images/auto-playing videos",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://github.com/WICG/largest-contentful-paint/issues/83",
+      "matched_keywords": [
+        "image"
+      ],
+      "summary": "LCP (Largest-Contentful-Paint) is a visual loading metric that measures the time it took for the largest contentful element to be painted on the screen.\r\n\r\nRight now, LCP measures the paint time for the image's last paint, regardless of whether the image is animated. It also ignores auto-playing videos as LCP candidates.\r\n\r\nWe propose to include paint time of the first frame in same-origin or Timing-Allow-Origin enabled animated images in LCP candidate entries, as well as expose videos similarly."
+    },
+    {
+      "id": 5746537956114432,
+      "name": "Web app scope extensions",
+      "category": "Miscellaneous",
+      "milestone": 139,
+      "spec": "https://github.com/WICG/manifest-incubations/pull/113",
+      "matched_keywords": [
+        "file"
+      ],
+      "summary": "Adds a \"scope_extensions\" web app manifest field that enables web apps to extend their scope to other origins.  \n\nExample usage:\n{\n  \"name\": \"Example\",\n  \"display\": \"standalone\",\n  \"start_url\": \"/index.html\",\n  \"scope_extensions\": [\n    {\"type\" : \"origin\", \"origin\" : \"https://example.com\"}\n  ]\n}\n\nThis allows sites that control multiple subdomains and top level domains to be presented as a single web app. \n\nRequires listed origins to confirm association with the web app using a .well-known/web-app-origin-association configuration file.\n\n{\n  \"https://sample-app.com/\": {\n    \"scope\": \"/\"\n  }\n}"
+    },
+    {
+      "id": 5737365999976448,
+      "name": "Customizable <select> Element",
+      "category": "DOM",
+      "milestone": 134,
+      "spec": "https://github.com/whatwg/html/issues/9799",
+      "matched_keywords": [
+        "css",
+        "select"
+      ],
+      "summary": "Customizable <select> allows developers to take complete control of the rendering of <select> elements by adding the appearance:base-select CSS property.\n\nThis feature relies on the SelectParserRelaxation flag, which changes the HTML parser to allow more tags within the <select> tag. Sites which include additional tags inside <select> which were getting removed before, such as <span>s, or are including an extremely large number of <option>s in their <select>, may be affected by SelectParserRelaxation. This feature and SelectParserRelaxation can be controlled with the SelectParserRelaxation enterprise policy. Some issues that have come up in prior launches of SelectParserRelaxation include <select>s taking a very long time to open or <option>s not showing up anymore."
+    },
+    {
+      "id": 4680129030651904,
+      "name": "CSS advanced attr() function",
+      "category": "CSS",
+      "milestone": 133,
+      "spec": "https://drafts.csswg.org/css-values-5/#attr-notation",
+      "matched_keywords": [
+        "css",
+        "style"
+      ],
+      "summary": "Implement the augmentation to attr() specified in CSS Level 5, which allows types besides <string> and usage in all CSS properties (besides pseudo-element 'content').\n\nExample:\n\n<style>\n  div {\n     background-color: attr(data-foo type(<color>), red);\n  }\n</style>\n<div data-foo=\"blue\">test</div>\n\n"
+    },
+    {
+      "id": 6244885579431936,
+      "name": "Element Reflection",
+      "category": "DOM",
+      "milestone": 135,
+      "spec": "https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#reflecting-content-attributes-in-idl-attributes:element",
+      "matched_keywords": [
+        "page"
+      ],
+      "summary": "This feature allows for ARIA relationship attributes to be reflected in IDL as element references rather than DOMStrings.\n\nThis implements the IDL attributes in the ARIAMixin (https://w3c.github.io/aria/#ARIAMixin) interface with a type of Element or FrozenArray<Element>, with the exception of ariaOwnsElements.\n\nThis allows authors to use element references directly, rather than ID strings, when setting values for ARIA relationship attributes. These can be used on Elements directly, or on ElementInternals for custom elements (https://html.spec.whatwg.org/multipage/custom-elements.html#accessibility-semantics)."
+    },
+    {
+      "id": 5989275208253440,
+      "name": "Gamepad Event-Driven Input API",
+      "category": "Device",
+      "milestone": null,
+      "spec": "https://w3c.github.io/gamepad",
+      "matched_keywords": [
+        "input"
+      ],
+      "summary": "This proposal extends the Gamepad API with a new event-driven model that enables applications to receive gamepad input with lower latency. Instead of relying on frequent polling via navigator.getGamepads(), developers can now listen for a rawgamepadinputchange event, which fires whenever new input data is available from the device. This allows for more responsive input handling, particularly in latency-sensitive applications."
+    }
+  ]
+}

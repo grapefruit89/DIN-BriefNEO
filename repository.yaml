@@ -27,7 +27,7 @@ project:
   branching: branchless-on-main
   fitness_gate:
     required_score: 100
-    entrypoint: scripts/start.ps1
+    entrypoint: tools/start.ps1
     engine: tools/reconciliation.js
 
 structure:
@@ -39,8 +39,10 @@ structure:
       website/index.html: Einstiegspunkt
 
   tools/:
-    purpose: Build-, Validierungs- und Wartungsskripte (Node.js + Python, kein Build-Framework)
+    purpose: Build-, Validierungs- und Wartungsskripte inkl. Fitness Gate & lokaler Dev-Server
     subpaths:
+      tools/start.ps1: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
+      tools/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
       tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
       tools/archive/: Historische/abgeloeste Einmal-Skripte, nicht Teil des aktiven Build-Pfads
     inventory_doc: docs/30-meta/tooling-overview.md
@@ -52,6 +54,7 @@ structure:
       docs/10-architecture/: ADRs, Architektur-Matrizen, Code-Referenzen
       docs/20-implementation/: Feature-spezifische Implementierungs-Guides
       docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates)
+      docs/90-policy/: Entwicklungs-Workflows, Richtlinien und Prozess-Policies
     schema: docs/30-meta/schema-v6.json
 
   agent/:
@@ -72,12 +75,6 @@ structure:
     purpose: Generierte Artefakte (SQLite-DB-Import, Index-JSON). Bewusst NICHT versioniert (.gitignore).
     regenerate_with: tools/build_db.js, tools/build_db.py
 
-  scripts/:
-    purpose: Repo-weite Einstiegspunkte (Build/Fitness-Pipeline + lokaler Webserver)
-    subpaths:
-      scripts/start.ps1: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
-      scripts/start.bat: Windows-Doppelklick-Wrapper, startet dev_server.ps1 + oeffnet Chrome
-      scripts/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
 
   .github/:
     purpose: GitHub Actions Workflows
@@ -85,8 +82,8 @@ structure:
       .github/workflows/deploy.yml: GitHub Pages Deployment
 
 entrypoints:
-  build: scripts/start.ps1
-  serve: scripts/start.bat
+  build: tools/start.ps1
+  serve: start.bat
   session_log: tools/log_session.js
   context_bundle: tools/create_context.js
 

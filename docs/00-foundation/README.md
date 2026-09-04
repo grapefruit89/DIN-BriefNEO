@@ -60,7 +60,8 @@ Die IMR-Registry liegt in `docs/10-architecture/`. Sie ist das normative DIN-Bri
 | [[Immutable-Law-Catalog]] | Verbote / Plattform | HARD BAN, PREFERRED, FALLBACK |
 | [[spec]] | Anforderungen | WAS DIN-BriefNEO leisten muss |
 | [[longevity-guidelines]] | Technik-Kriterien | Feature-Wahl; **Chrome 148+** |
-| [[HYBRID-SPEC-DRIVEN-WORKFLOW]] | Prozess | Light/Full Mode, Fitness-Gate. Geplanter Ort: `docs/90-policy/` |
+
+*Hinweis: Der Arbeitsprozess [[HYBRID-SPEC-DRIVEN-WORKFLOW]] (Light/Full Mode, Fitness Gate) liegt ordnungsgemäß auf Policy-Ebene in `docs/90-policy/`.*
 
 Historische Prüfberichte gehören nicht hierher. Der frühere `audit_summary` liegt unter `docs/30-meta/audits/`.
 
@@ -75,7 +76,7 @@ Die kanonische Atomliste und die belegten Millimeter stehen in `docs/10-architec
 ## Verhältnis zu anderen Bereichen
 
 - **`10-architecture/`** enthält die ADRs und die IMR-Registry — Modell und Begründung dessen, was aus diesen Gesetzen folgt.
-- **`90-policy/`** ist der vorgesehene Ort für Workflows (Ordner ggf. noch anzulegen).
+- **`90-policy/`** enthält Entwicklungs-Workflows und Prozess-Richtlinien (z. B. `HYBRID-SPEC-DRIVEN-WORKFLOW.md`).
 - **`AGENTS.md`** (Root) referenziert Foundation-Dokumente. Es kopiert sie nicht.
 
 Wer neu einsteigt: [[constitution]] zuerst, dann [[Immutable-Law-Catalog]], dann [[spec]].

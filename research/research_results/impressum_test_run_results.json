@@ -1,0 +1,22 @@
+{
+  "1. Axel Springer (Bild.de)": {
+    "firma": "Axel Springer Deutschland GmbH",
+    "strasse": "Axel-Springer-Straße 65",
+    "plz_ort": "10888 Berlin"
+  },
+  "2. Motorsport-Total": {
+    "firma": "sport media group GmbH",
+    "strasse": "Hans-Pinsel-Straße 9b",
+    "plz_ort": "85540 Haar"
+  },
+  "3. Sky Deutschland (Sky Sport)": {
+    "firma": "Sky Deutschland Fernsehen GmbH & Co. KG",
+    "strasse": "Medienallee 26",
+    "plz_ort": "85774 Unterföhring"
+  },
+  "4. Tagesspiegel Online": {
+    "firma": "Verlag Der Tagesspiegel GmbH",
+    "strasse": "Askanischer Platz 3",
+    "plz_ort": "10963 Berlin"
+  }
+}

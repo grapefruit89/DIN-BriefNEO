@@ -1,0 +1,1693 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "title": "Maschinenlesbare Inventur: docs/00-foundation, docs/10-architecture & docs/90-policy",
+    "description": "Lückenlose Inventur aller Dokumente aus Fundament (00-foundation), Architektur (10-architecture) und Policy/Workflow (90-policy) von DIN-Brief Neo nach der W-Fragelogik.",
+    "target_directory": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation",
+    "generated_at": "2026-09-04T13:28:00+02:00",
+    "normative_hierarchy": [
+      {
+        "level": 1,
+        "name": "CONSTITUTION",
+        "file": "constitution.md",
+        "scope": "Unveränderliche Projektprinzipien und Grundrechte"
+      },
+      {
+        "level": 2,
+        "name": "LAW CATALOG",
+        "file": "Immutable-Law-Catalog.md",
+        "scope": "Verbindliche Verbote (HARD BAN), Empfehlungen (PREFERRED) und Fallbacks"
+      },
+      {
+        "level": 3,
+        "name": "SPEC",
+        "file": "spec.md",
+        "scope": "Erforderliches fachliches Verhalten (WAS das Produkt leisten muss)"
+      },
+      {
+        "level": 4,
+        "name": "LONGEVITY GUIDELINES",
+        "file": "longevity-guidelines.md",
+        "scope": "Technologie-Kriterien für 10+ Jahre Haltbarkeit; einzige Browser-Baseline-Zahl"
+      },
+      {
+        "level": 5,
+        "name": "WORKFLOW & GUIDES",
+        "file": "HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+        "scope": "Prozess und Vorgehensweise (WIE gearbeitet wird; umgezogen nach docs/90-policy/)"
+      }
+    ],
+    "golden_rules": {
+      "immutability": "Kein KI-Agent darf Dokumente in 00-foundation/ eigenständig verändern. Alle Dokumente sind read-only für Automatismen.",
+      "conflict_precedence": "Eine hierarchisch tiefere Ebene darf eine höhere Ebene niemals aufheben oder verwässern.",
+      "single_source_of_truth": "Gesetze und Normen existieren genau einmal an ihrer autoritativen Stelle und dürfen nicht in Checklisten, Prompts oder Readmes dupliziert werden.",
+      "geometry_ssot": "Konkrete DIN-5008-Millimeter und die 45er Atom-Liste gehören in docs/10-architecture/IMR-Registry.md, niemals in 00-foundation."
+    },
+    "target_directories": [
+      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation",
+      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture",
+      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\90-policy"
+    ],
+    "total_documents_count": 21,
+    "architecture_hub_documents": [
+      "IMR-Registry.md (Master-Modell aller 45 Tags, Zonen & Geometrie)",
+      "ADR-ANTIPATTERN.md (Technisches Verbotsregister & Sicherheitsregeln)",
+      "Architecture-Compliance-Matrix.md (Mapping zu Chrome 148+ Baseline)",
+      "ADR-OMNITRACEABILITY.md (Bidirektionale Code-Doku-Kopplung)",
+      "Function-Traceability.md (Funktions-Matrix aller website/js-Module)",
+      "DIN-Brief-Architektur.canvas (Visuelle 2D-Architekturkarte in Obsidian)"
+    ]
+  },
+  "documents": [
+    {
+      "file_name": "constitution.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation\\constitution.md",
+      "normative_level": "Stufe 1 — Prinzipien (Verfassung)",
+      "frontmatter": {
+        "id": "constitution",
+        "title": "Verfassung (Constitution) — DIN-BriefNEO",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/foundation",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "Immutable-Law-Catalog",
+          "spec",
+          "longevity-guidelines",
+          "HYBRID-SPEC-DRIVEN-WORKFLOW"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "constitution",
+          "verfassung",
+          "regelwerk",
+          "fundamental verbote",
+          "zero-dependency",
+          "offline-first"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Das gesamte Projekt, alle Entwickler, alle KI-Agenten und das Endprodukt (website/**).",
+          "aenderungsberechtigt": "Ausschließlich menschliche Projektverantwortliche nach formeller Begründung via Architecture Decision Record (MADR-ADR). Absolutes Änderungsverbot für KIs.",
+          "zielgruppe": "Anwender, die formale, normgerechte Geschäftsbriefe nach DIN 5008 (Form A & B) verfassen und drucken wollen."
+        },
+        "was": {
+          "definition": "Die unumstößliche Verfassung von DIN-Brief Neo: Legt die Mission, fundamentale DONTs und fundamentale DOs fest.",
+          "mission": "Minimalistische, autarke Webanwendung zur Erstellung und zum PDF-Druck formaler Briefe nach DIN 5008 (Form A & B), lauffähig lokal im Browser ohne Server und ohne Build-System.",
+          "kern_verbote_donts": [
+            "Keine fetten Frameworks & Build-Tools (kein React, Vue, Webpack, Vite, Babel)",
+            "Kein unkontrolliertes Dokument-/Seiten-Scrolling (das Blatt/Dokument scrollt nicht)",
+            "Keine Native Apps & keine Browser-Erweiterungen (kein Electron, Capacitor, WebExtension)",
+            "Keine serverseitigen Datenbanken für das Produkt (autarker Betrieb)",
+            "Keine fremden Assets & CDNs (keine externen Web-Fonts, fremden Skripte oder Stylesheet-Hosts)",
+            "Kein 'Date' als Zeitquelle im Produkt (Hard Ban in website/**; nur Temporal erlaubt)"
+          ],
+          "kern_gebote_dos": [
+            "Schichtenfolge: HTML > CSS > JavaScript (HTML first, CSS second, JS last)",
+            "Eine Wahrheit je Fakt (Kanonische 45er IMR-Registry definiert das Modell)",
+            "Lokale Persistenz über localStorage (Offline- & file://-Garantie)",
+            "Native Web-Plattform gemäß Longevity-Baseline (Chrome 148+)",
+            "Anforderung vor Code (spec-driven Vorgehen vor der Implementierung)",
+            "Technische Schulden ausschließlich über formelle MADR-ADRs"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Dauerhaft und uneingeschränkt ab Veröffentlichung; gilt für jede Code- und Architekturentscheidung.",
+          "review_zeitpunkt": "Nur bei grundlegendem Paradigmenwechsel durch Menschenentscheid."
+        },
+        "wo": {
+          "datei_ort": "docs/00-foundation/constitution.md",
+          "wirkungsbereich": "Gilt universell im gesamten Repository; bindend für Quellcode (website/**), Dokumentation (docs/**) und Agenten-Instruktionen (AGENTS.md, CLAUDE.md, GEMINI.md).",
+          "verknuepfungen": [
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/00-foundation/spec.md",
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/10-architecture/IMR-Registry.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Verhindert Projekt-Bitrot und Abhängigkeits-Chaos, indem externe Bibliotheken und Build-Tools verboten werden.",
+          "weshalb": "Ein Briefbogen ist ein Dokument fester Geometrie (DIN A4). Unkontrolliertes Scrolling zerstört das reale Layoutgefühl und die Drucktreue.",
+          "warum": "Die Verfassung garantiert, dass die Anwendung auch nach 10+ Jahren ohne jegliche Wartung oder npm-Installationen per Doppelklick in jedem Standard-Browser funktioniert."
+        }
+      },
+      "section": "00-foundation"
+    },
+    {
+      "file_name": "Immutable-Law-Catalog.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation\\Immutable-Law-Catalog.md",
+      "normative_level": "Stufe 2 — Verbote & Plattformkatalog (Gesetzeskatalog)",
+      "frontmatter": {
+        "id": "immutable-law-catalog",
+        "title": "Immutable Law Catalog (MUST-USE vs FORBIDDEN)",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/foundation",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "constitution",
+          "longevity-guidelines",
+          "spec"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "must-use",
+          "antipattern",
+          "forbidden",
+          "law catalog",
+          "technology catalog",
+          "banned",
+          "must-use replacement"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Implementierungen in website/**, Entwicklungs-Tools in tools/** und automatisierte Prüfwerkzeuge (Fitness Gate).",
+          "aenderungsberechtigt": "Ausschließlich Projektverantwortliche via ADR (Amendment Protocol: 1. ADR, 2. Technische Begründung, 3. Freigabe, 4. SSoT-Update).",
+          "zielgruppe": "Entwickler und KI-Assistenten als unerbittliche Leitplanke gegen schlechte Web-Praktiken."
+        },
+        "was": {
+          "definition": "Autoritative Einzelschrift (Single Source of Truth) für verbindliche Verbote (HARD BAN), bevorzugte native Lösungen (PREFERRED) und Fallbacks.",
+          "klassifikationsstufen": {
+            "HARD_BAN": "Darf unter keinen Umständen eingeführt oder verwendet werden. Verstöße führen zum Abbruch des Fitness Gates.",
+            "PREFERRED": "Verbindlich bevorzugte, moderne native Web-Plattform-Lösung.",
+            "FALLBACK": "Zulässig, wenn Preferred für den konkreten Fall nachweislich keinen Vorteil bietet oder ungeeignet ist.",
+            "INFO": "Erklärende Begründung oder Verweis, keine eigene Norm."
+          },
+          "must_use_highlights": [
+            "H1: Semantische <din-…>-Tags für instantiierte Atome ohne customElements.define()",
+            "H2: Native Popover API für Overlays, Toolbars und Toasts",
+            "H3: contenteditable='plaintext-only' für strukturierte Metadatenfelder (XSS-Schutz)",
+            "H7: Native ES-Module via <script type='module'> ohne Bundler",
+            "S1: localStorage als einziger gewählter Produktspeicher (file:// und Offline-Garantie)",
+            "TM1: Temporal API für alle Datums- und Zeitoperationen im Produkt",
+            "T1: Zero Runtime Dependencies",
+            "T2: Keine CDNs im Produkt",
+            "C1: Farbkette OKLCH -> Lab/LCH -> HSL -> RGB -> HEX -> Named (OKLCH ist Standard #1)"
+          ],
+          "forbidden_antipatterns_highlights": [
+            "A48: new Date(), Date.parse, Date.now in website/** sowie moment.js/date-fns überall",
+            "A21: CSS-Preprozessoren (Sass, Less)",
+            "A22: CSS-in-JS",
+            "A23: @import in CSS-Dateien (Blockade des Ladepfads)",
+            "A24: CSS-Token ohne Deklaration in :root",
+            "A25: Inline style-Attribute für Farben und Layout",
+            "A26: filter: invert(1) für Dark Mode (zerstört Briefpapier-Farbtreue; stattdessen light-dark())",
+            "A42: Doppelte IDs im DOM",
+            "A43: Unkontrolliertes Dokument- und Seitenscrolling",
+            "A34-A37: IndexedDB, OPFS, File System Access API oder Service Worker unter file://",
+            "A38: Fremde CDNs und Asset-Hosts (Allowlist nur für reine Daten-APIs: Geoapify, zippopotam.us)",
+            "A39-A41: Icon-CDNs, Icon-Fonts, Google Fonts"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Bindend bei jedem Commit. Wird vor und nach jeder Änderung durch tools/reconciliation.js auf 100% Konformität geprüft.",
+          "amendment_prozess": "Änderungen treten erst in Kraft, nachdem Schritte 1-4 des Amendment Protocols formell abgeschlossen sind."
+        },
+        "wo": {
+          "datei_ort": "docs/00-foundation/Immutable-Law-Catalog.md",
+          "wirkungsbereich": "Gilt projektweit. Das Fitness Gate (tools/reconciliation.js) greift auf tools/antipatterns/*.json zurück, welche diesen Katalog technisch spiegeln.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/00-foundation/spec.md",
+            "tools/antipatterns/base.json",
+            "tools/antipatterns/web.json",
+            "tools/antipatterns/project.json"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Klare technische Gesetze verhindern endlose Debatten über Geschmacksfragen und schließen veraltete Web-Muster (wie Date, @import oder CDNs) rigoros aus.",
+          "weshalb": "Die Web-Plattform stellt inzwischen fast alle Hilfsmittel nativ bereit (Popover, Dialog, Nesting, OKLCH, Temporal). Externe Libraries sind unnötiger Ballast.",
+          "warum": "Datenschutz (DSGVO ohne Cookie-Banner oder externe Font-Tracker) und 100 % Offline-Fähigkeit können nur durch ein striktes CDN- und Remote-Script-Verbot garantiert werden."
+        }
+      },
+      "section": "00-foundation"
+    },
+    {
+      "file_name": "spec.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation\\spec.md",
+      "normative_level": "Stufe 3 — Anforderungen (Baseline Specification)",
+      "frontmatter": {
+        "id": "spec",
+        "title": "Spezifikation (Spec) — DIN-BriefNEO Baseline Features",
+        "type": "spec",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/foundation",
+          "status/active",
+          "type/spec"
+        ],
+        "doc_links": [
+          "constitution",
+          "Immutable-Law-Catalog",
+          "longevity-guidelines"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "spec",
+          "baseline features",
+          "user story",
+          "akzeptanzkriterien"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Die fachliche Kernfunktionalität der Weboberfläche in website/**.",
+          "aenderungsberechtigt": "Projektleitung bei Erweiterung des Funktionsumfangs über ADR/Spec-Prozess.",
+          "zielgruppe": "Briefschreiber (Endanwender) und Software-Architekten zur Verifikation von User Stories und Akzeptanzkriterien."
+        },
+        "was": {
+          "definition": "Beschreibt das verbindlich geforderte funktionale Verhalten (WAS DIN-Brief Neo zwingend können muss), ohne Implementierungsdetails vorzugeben.",
+          "baseline_features": [
+            {
+              "id": "Feature 1",
+              "titel": "Vollständiger Briefbogen ohne Dokument-Scroll",
+              "user_story": "Als Anwender möchte ich den DIN-A4-Bogen vollständig im Arbeitsbereich sehen.",
+              "akzeptanz": "Blatt behält DIN-A4-Proportion 210:297; Dokument scrollt nicht; bei Fenstergrößenänderung bleibt Bogen proportional sichtbar."
+            },
+            {
+              "id": "Feature 2",
+              "titel": "Form A und Form B",
+              "user_story": "Als Briefschreiber möchte ich zwischen DIN-5008-Form A und Form B wechseln.",
+              "akzeptanz": "Wechsel in der UI erreichbar; Absender, Anschrift, Infoblock, Falz- und Lochmarken passen sich normgerecht an."
+            },
+            {
+              "id": "Feature 3",
+              "titel": "Hell- und Dunkelmodus",
+              "user_story": "Als Anwender möchte ich hell oder dunkel arbeiten.",
+              "akzeptanz": "Umschalter in UI; Briefpapier bleibt stets druckklar hell; PDF-Druck bleibt rein weißes Papier mit dunklem Text."
+            },
+            {
+              "id": "Feature 4",
+              "titel": "Lokale Entwürfe",
+              "user_story": "Als Briefschreiber möchte ich Eingaben nicht verlieren.",
+              "akzeptanz": "Änderungen werden lokal in localStorage gesichert; letzter Entwurf wird beim erneuten Öffnen nahtlos wiederhergestellt."
+            },
+            {
+              "id": "Feature 5",
+              "titel": "Rückmeldungen und zentrale Meldungstexte",
+              "user_story": "Als Entwicklung möchte ich Systemrückmeldungen an einem Ort pflegen.",
+              "akzeptanz": "Nutzerfeedback über native Toasts/Popovers; keine verstreuten Magic Strings in Modulen."
+            }
+          ],
+          "bewusst_ausgeschlossen_aus_foundation_spec": [
+            "Multipage-Karussell, Templates, CSS-Transforms",
+            "Automatischer Form-A/B-Wechsel nach Textlänge",
+            "Geschlechtserkennung / RegExp-Anrede (gehört in Roadmap/Erweiterungen)",
+            "Zeitgesteuerter Dark Mode",
+            "Konkrete CSS-Einheiten (vh, px) oder HTML-Attributnamen"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Gilt fortlaufend für die Baseline-Auslieferung des Produkts.",
+          "feature_erweiterungen": "Neue Funktionen werden in separaten Specs unter specs/NNN-*/ dokumentiert, nicht in die Foundation-Baseline gepresst."
+        },
+        "wo": {
+          "datei_ort": "docs/00-foundation/spec.md",
+          "wirkungsbereich": "Definiert die Akzeptanzkriterien für website/index.html, website/css/ und website/js/.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/10-architecture/IMR-Registry.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Trennt das funktionale 'WAS' strikt vom technischen 'WIE', damit Tests und Anforderungen unabhängig von Refactorings stabil bleiben.",
+          "weshalb": "Verhindert Feature Creep im Fundament: Zusätzliche Komfortfeatures (wie KI-Assistenten oder erweiterte Autocompletes) dürfen das Fundament nicht verwässern.",
+          "warum": "Sichert den Kernnutzen von DIN-Brief Neo ab: Einen Brief nach DIN 5008 in Sekundenschnelle ohne Ablenkung fehlerfrei verfassen und drucken."
+        }
+      },
+      "section": "00-foundation"
+    },
+    {
+      "file_name": "longevity-guidelines.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation\\longevity-guidelines.md",
+      "normative_level": "Stufe 4 — Technik- & Langlebigkeitskriterien (Longevity)",
+      "frontmatter": {
+        "id": "longevity-guidelines",
+        "title": "Guide: Longevity & W3C Native Standards Guidelines",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/foundation",
+          "status/active",
+          "type/guide"
+        ],
+        "doc_links": [
+          "constitution",
+          "Immutable-Law-Catalog"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "longevity",
+          "wartungsfreiheit",
+          "w3c living standards",
+          "zero-dependency",
+          "deprecated apis",
+          "langlebigkeit",
+          "10 jahre"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Architekten, Entwickler und Technologie-Entscheider.",
+          "aenderungsberechtigt": "Nur durch begründete ADR bei offizieller Anhebung der Browser-Baseline.",
+          "zielgruppe": "Das Projekt selbst zur Sicherung einer Lebensdauer von 10+ Jahren ohne Wartungszwang."
+        },
+        "was": {
+          "definition": "Entscheidungsmodell und Kriterien für nachhaltige, langlebige Webstandards ohne Fremdbibliotheken.",
+          "browser_baseline": "Ausschließlich Chrome 148+ (Einzige normative Versionsangabe im gesamten Projekt!).",
+          "die_fuenf_saeulen": [
+            "Säule 1: Zero Runtime-Dependency (keine npm-Pakete, DOM nativ, Temporal für Zeit, fetch für Netzwerk)",
+            "Säule 2: Offline / file:// (App muss als lokale Datei ohne Webserver oder HTTPS-Zwang funktionieren)",
+            "Säule 3: Native Standards vor Experimenten (W3C Living Standards / REC; Popover, Container Queries, Anchor Positioning)",
+            "Säule 4: Kein Compiler für das Produkt (kein Webpack, Vite, Babel, Sass; natives ESM mit .js-Endung)",
+            "Säule 5: localStorage als gewählter Speicher (unter file:// hochgradig stabil und berechenbar)"
+          ],
+          "schreibregeln": {
+            "javascript": "Kein execCommand, keine customElements.define()-Pflicht, keine parallelen Millimeter in JS, kein Date",
+            "css": "Layout und Skalierung in CSS (Container Queries), kein filter:invert(1), var(--token, fallback), Farbe via OKLCH",
+            "geometrie": "Geometrie steht in IMR-Registry; HTML implementiert, CSS rendert, JS erzeugt keine konkurrierende Wahrheit"
+          }
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Langfristig bindend.",
+          "review_turnus": "Fest vorgeschrieben: Alle zwei Jahre oder bei formeller Anhebung der Baseline-Version."
+        },
+        "wo": {
+          "datei_ort": "docs/00-foundation/longevity-guidelines.md",
+          "wirkungsbereich": "Maßstab für alle Technologieentscheidungen in website/** und tools/**.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/00-foundation/Immutable-Law-Catalog.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Frameworks, Bundler und externe CDNs sind statistisch die häufigste Ursache für das Scheitern oder Sterben alter Webprojekte ('Bitrot').",
+          "weshalb": "W3C-Standards und Browser-APIs bleiben jahrzehntelang abwärtskompatibel, während NPM-Ökosysteme im Jahrestakt brechen.",
+          "warum": "Ermöglicht dem Benutzer, die HTML-Datei auf einem USB-Stick oder NAS zu speichern und auch im Jahr 2036 ohne Installationen fehlerfrei zu starten."
+        }
+      },
+      "section": "00-foundation"
+    },
+    {
+      "file_name": "HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\90-policy\\HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+      "normative_level": "Ebene 90 — Prozess & Workflow (Policy Guide)",
+      "frontmatter": {
+        "id": "hybrid-spec-driven-workflow",
+        "title": "Hybrid Spec-Driven Workflow (Light/Full Mode + Reconciliation)",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/policy",
+          "status/active",
+          "type/guide",
+          "workflow",
+          "spec-driven",
+          "agents"
+        ],
+        "doc_links": [
+          "constitution",
+          "Immutable-Law-Catalog",
+          "ADR-ANTIPATTERN",
+          "DECISION-LOG"
+        ],
+        "code_links": [
+          "tools/build_db.js",
+          "tools/log_session.js",
+          "tools/reconciliation.js"
+        ],
+        "error_patterns": [
+          "workflow",
+          "spec-driven",
+          "light mode",
+          "full mode",
+          "fitness score",
+          "pre-build",
+          "post-build",
+          "generalisierbarkeit",
+          "reconciliation",
+          "log session"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Entwickler, Paar-Programmierer und autonome KI-Agenten bei Arbeitsbeginn und -abschluss.",
+          "aenderungsberechtigt": "Entwickler-Team; Prozessänderungen erfordern Anpassung der Dokumentation.",
+          "zielgruppe": "Jeder, der Code, Dokumentation oder Werkzeuge im Repository anfasst."
+        },
+        "was": {
+          "definition": "Kombination aus gestuftem Phasen-Modell (spec-kit) und kompromissloser Qualitätskontrolle via Fitness Gate (Evolutionary Fitness Score) und Session-Logging.",
+          "arbeitsmodi": {
+            "light_mode": "Standard für Bugfixes und kleine Updates: Pre-Build -> Änderung -> Post-Build (100%) -> Loggen in DECISION-LOG. Kein zwingendes Vorab-Spec-Dokument.",
+            "full_mode": "Für komplexe Features und Architekturumbauten: Voller Zyklus (Constitution -> Spec -> Plan -> Tasks -> Implement -> Reconcile -> Generalize)."
+          },
+          "die_7_phasen": [
+            "1. Constitution: Verfassung lesen und respektieren",
+            "2. Specify: specs/NNN-*/spec.md anlegen (Akzeptanzkriterien)",
+            "3. Plan: Technisches Design in plan.md / ADR",
+            "4. Tasks: Granulare Aufgabenliste in tasks.md",
+            "5. Implement: Umsetzung entlang der Gesetze und Normen",
+            "6. Reconcile & Verify: Fitness Score MUSS 100 % betragen (tools/start.ps1)",
+            "7. Generalize & Extract: Erkenntnisse und Wiederverwendbarkeit im DECISION-LOG festhalten"
+          ],
+          "qualitaetstore": "Fitness Gate (tools/reconciliation.js) muss zwingend mit 100 % Score abschließen; Session-Log via tools/log_session.js."
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Gilt verbindlich vor und nach jeder Code-Änderung.",
+          "geplante_aenderung": "Move nach docs/90-policy/ steht aus, da es sich um Prozessvorgaben und nicht um ein fundamentales Gesetz handelt."
+        },
+        "wo": {
+          "datei_ort": "docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+          "wirkungsbereich": "Gilt für den gesamten Entwicklungsprozess; steuert die Ausführung von tools/reconciliation.js und tools/start.ps1.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/10-architecture/ADR-ANTIPATTERN.md",
+            "docs/30-meta/DECISION-LOG.md",
+            "tools/build_db.js",
+            "tools/reconciliation.js",
+            "tools/log_session.js"
+          ],
+          "status_umzug": "Vollzogen nach docs/90-policy/ (verlässt Fundament zur Wahrung des Gesetzescharakters von 00-foundation)."
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Verhindert 'Drive-by-Coding' und unbemerkte Architekturdrift durch KI-Agenten oder überhastete Änderungen.",
+          "weshalb": "Ermöglicht durch den Light Mode schnelles, pragmatisches Arbeiten bei Routineaufgaben, während der Full Mode bei Großprojekten maximale Stabilität garantiert.",
+          "warum": "Sichert die lückenlose Rückverfolgbarkeit (Audit Trail) jeder Entscheidung und stellt sicher, dass kein Code ohne automatisierte Konformitätsprüfung committet wird."
+        }
+      },
+      "section": "90-policy"
+    },
+    {
+      "file_name": "README.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation\\README.md",
+      "normative_level": "Einstieg & Index (Fundament-Katalog)",
+      "frontmatter": {
+        "id": "foundation-readme",
+        "title": "00-foundation — Fundament & Unverrückbare Gesetze",
+        "type": "meta",
+        "status": "active",
+        "created": "2026-08-07",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/foundation",
+          "status/active",
+          "type/meta"
+        ],
+        "doc_links": [
+          "constitution",
+          "Immutable-Law-Catalog",
+          "longevity-guidelines",
+          "spec",
+          "HYBRID-SPEC-DRIVEN-WORKFLOW"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "fundament",
+          "gesetze",
+          "constitution",
+          "spec",
+          "00-foundation"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Neue Entwickler, KI-Agenten beim ersten Kontextaufbau und das gesamte Projekt-Governance-Team.",
+          "aenderungsberechtigt": "Nur menschliche Administratoren.",
+          "zielgruppe": "Erster Einstiegspunkt für jeden, der das Fundament von DIN-Brief Neo verstehen muss."
+        },
+        "was": {
+          "definition": "Der '0'-Anker im Dezimalrahmen der Dokumentation. Erklärt die normative Rangordnung und die Spielregeln des Fundamentordners.",
+          "lesereihenfolge": [
+            "1. constitution.md (Prinzipien & Verfassung)",
+            "2. Immutable-Law-Catalog.md (Verbote & Plattform)",
+            "3. spec.md (Fachliche Baseline)",
+            "4. longevity-guidelines.md (Technik-Kriterien & Baseline Chrome 148+)",
+            "5. HYBRID-SPEC-DRIVEN-WORKFLOW.md (Arbeitsprozess)"
+          ],
+          "abgrenzung": "Konkrete Millimeter, Feldlisten und Implementierungsrezepte gehören nach docs/10-architecture/ (IMR-Registry) und docs/20-implementation/, niemals in 00-foundation."
+        },
+        "wann": {
+          "erstellt": "2026-08-07",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Permanent aktiver Index.",
+          "review_zeitpunkt": "Synchron mit Änderungen an den übrigen Foundation-Dokumenten."
+        },
+        "wo": {
+          "datei_ort": "docs/00-foundation/README.md",
+          "wirkungsbereich": "Ordner-Einstiegspunkt für docs/00-foundation/.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/00-foundation/spec.md",
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/00-foundation/HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+            "docs/10-architecture/IMR-Registry.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Bietet einen zentralen Wegweiser, damit Entwickler und Agenten nicht raten müssen, welches Dokument hierarchisch Vorrang hat.",
+          "weshalb": "Klärt die Konfliktregel: Eine untere Ebene darf eine obere niemals aufheben.",
+          "warum": "Garantiert die Unveränderbarkeit des Fundaments, indem KI-Agenten explizit auf den Read-Only-Status von 00-foundation hingewiesen werden."
+        }
+      },
+      "section": "00-foundation"
+    },
+    {
+      "file_name": "README.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\README.md",
+      "section": "10-architecture",
+      "normative_level": "Einstieg & System-Hubs (Architektur-Index)",
+      "frontmatter": {
+        "id": "architecture-readme",
+        "title": "10-architecture — Architektur-Entscheidungen & Traceability",
+        "type": "meta",
+        "status": "active",
+        "created": "2026-07-07",
+        "updated": "2026-08-08",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/meta"
+        ],
+        "doc_links": [
+          "IMR-Registry",
+          "ADR-ANTIPATTERN",
+          "constitution"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "architektur",
+          "adr",
+          "10-architecture",
+          "entscheidung",
+          "traceability",
+          "imr",
+          "registry"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Jeden Entwickler und KI-Assistenten, der das Systemverständnis und die Zusammenhänge von DIN-Brief Neo aufbauen will.",
+          "aenderungsberechtigt": "Projektleitung bei Einführung neuer ADRs oder Architektur-Module.",
+          "zielgruppe": "Neulinge und Systemarchitekten als Einstiegspunkt in die Architektur-Ebene."
+        },
+        "was": {
+          "definition": "Anker _1 im Dezimalrahmen: Katalogisiert alle Hub-Dokumente (IMR-Registry, ADR-Antipattern, OmniTraceability) und thematischen ADRs.",
+          "hub_dokumente": [
+            "IMR-Registry (Master-Modell aller 45 Custom Tags und Zonen)",
+            "ADR-ANTIPATTERN (Technisches Verbotsregister)",
+            "Architecture-Compliance-Matrix (Regelungs-Mapping auf Quellcode)",
+            "ADR-OMNITRACEABILITY (Code-Dokumentations-Kopplung)",
+            "Function-Traceability (Vollständige Funktions-Matrix)"
+          ],
+          "thematische_adrs": [
+            "ADR-HTML (inkl. ehem. ADR-FEATURE), ADR-CSS (inkl. ehem. ADR-BETREFF), ADR-JS, ADR-DATA-PERSISTENCE, adr-toast-system, ADR-005, ADR-006"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Permanent aktiver Leitfaden für Ebene 10-architecture."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/README.md",
+          "wirkungsbereich": "Verbindet Verfassung (00-foundation) mit konkreten Implementierungs-Guides (20-implementation).",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/10-architecture/IMR-Registry.md",
+            "docs/10-architecture/ADR-ANTIPATTERN.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Strukturiert das Systemverständnis hierarchisch, damit Entwickler nicht in 18 Einzeldokumenten den Überblick verlieren.",
+          "weshalb": "Klärt sofort die Lesereihenfolge (Hub-Dokumente vor Detail-ADRs).",
+          "warum": "Gewährleistet, dass Architektur-Entscheidungen nicht als tote Textwüsten verstauben, sondern aktiv als System-Index dienen."
+        }
+      }
+    },
+    {
+      "file_name": "IMR-Registry.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\IMR-Registry.md",
+      "section": "10-architecture",
+      "normative_level": "Hub — Normatives Master-Modell (DIN 5008 SSoT)",
+      "frontmatter": {
+        "id": "imr-registry",
+        "title": "IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/reference",
+          "tech/html",
+          "standard/din-5008"
+        ],
+        "doc_links": [
+          "constitution",
+          "ADR-HTML",
+          "ADR-CSS"
+        ],
+        "code_links": [
+          "website/index.html"
+        ],
+        "error_patterns": [
+          "imr registry",
+          "din tags",
+          "custom elements",
+          "atomare tags",
+          "din-absender",
+          "din-anschriftfeld",
+          "din-kern",
+          "din-fuss",
+          "falzmarke",
+          "falzmarke",
+          "betreff"
+        ],
+        "supersedes": [
+          "adr-betreff"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Das gesamte Briefmodell, alle HTML-Tags, CSS-Layoutregeln und Validierungswerkzeuge.",
+          "aenderungsberechtigt": "Ausschließlich menschliche Projektleitung bei Norm-Updates der DIN 5008.",
+          "zielgruppe": "Entwickler, KI-Agenten und Layouter als alleinige Quelle der Wahrheit (SSoT) für Brief-Geometrie."
+        },
+        "was": {
+          "definition": "Kanonisches Master-Modell: Definiert das vollständige fachliche Vokabular (45 Atome in der Formel 8+8+8+6+12+3) und 6 Zonen für DIN 5008 Form A & B.",
+          "atom_gruppen_45": {
+            "absender_8": "din-absender-name, din-absender-zusatz, din-absender-strasse, din-absender-plz, din-absender-ort, din-absender-telefon, din-absender-email, din-absender-web",
+            "empfaenger_8": "din-empfaenger-anrede, din-empfaenger-name, din-empfaenger-zusatz, din-empfaenger-strasse, din-empfaenger-plz, din-empfaenger-ort, din-ruecksendezeile, din-postvermerk",
+            "infoblock_8": "din-ihre-zeichen, din-ihre-nachricht, din-unsere-zeichen, din-unsere-nachricht, din-name, din-telefon, din-email, din-datum-infoblock",
+            "metadaten_6": "din-ort-datum, din-datum, din-leitvermerk, din-anlagen-vermerk, din-verteiler-vermerk, din-geschaeftszeichen",
+            "kern_12": "din-betreff, din-anrede, din-text, din-grussformel, din-unterschrift, din-anlagen, din-verteiler, din-absender-vorname, din-absender-nachname, din-empfaenger-vorname, din-empfaenger-nachname, din-maschinenschrift",
+            "systemmarken_3": "din-falz-oben, din-falz-unten, din-lochmarke"
+          },
+          "zonen_6": "din-a4 (Dokumentrahmen), din-absender (Briefkopf), din-anschriftfeld (Fenster 45mm), din-infoblock (rechts), din-kern (Briefkörper), din-fuss (Fußzeile)",
+          "geometrie_regeln": "Koordinatensystem DIN A4 (210x297mm). Form A und Form B sind Y-Varianten desselben Modells. HTML implementiert, CSS rendert, JS erzeugt keine konkurrierende Geometrie. Falzmarken sind auf 8 mm Breite ab linkem Blattrand normiert, um Kollisionen mit din-betreff zu verhindern (ehemals ADR-BETREFF)."
+        },
+        "wann": {
+          "erstellt": "2026-07-03",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Dauerhaft normativ bindend."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/IMR-Registry.md",
+          "wirkungsbereich": "Gilt direkt für website/index.html (HTML-Struktur) und website/css/layout.css (Positionierung).",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/10-architecture/ADR-HTML.md",
+            "docs/10-architecture/ADR-CSS.md",
+            "website/index.html"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Schluss mit konkurrierenden Millimeter-Angaben in CSS, JS und Doku: Es gibt exakt eine SSoT für Maße und Tag-Namen.",
+          "weshalb": "Klärt das Missverständnis: Ein semantisches Tag wie <din-betreff> ist reines HTML-Markup und benötigt KEINE JS-Klasse oder customElements.define().",
+          "warum": "Garantiert die millimetergenaue Einhaltung der amtlichen DIN 5008 Norm für Fensterbriefumschläge (C4, C5, C6/5)."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-ANTIPATTERN.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-ANTIPATTERN.md",
+      "section": "10-architecture",
+      "normative_level": "Hub — Verbotsregister & Antipattern-Architektur",
+      "frontmatter": {
+        "id": "adr-antipattern",
+        "title": "ADR-ANTIPATTERN: Forbidden Practices & Antipatterns",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr"
+        ],
+        "doc_links": [
+          "Immutable-Law-Catalog",
+          "longevity-guidelines",
+          "ADR-HTML",
+          "ADR-CSS",
+          "ADR-JS"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "antipattern",
+          "verboten",
+          "forbidden",
+          "framework",
+          "cdn",
+          "execCommand",
+          "localstorage",
+          "oklch",
+          "scrollbalken",
+          "temporal"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Programmierer, Code-Prüfer und autonome KI-Entwickler.",
+          "aenderungsberechtigt": "Nur durch formellen ADR-Änderungsantrag mit technischer Begründung.",
+          "zielgruppe": "Entwickler zur Vermeidung veralteter oder gefährlicher Web-Muster."
+        },
+        "was": {
+          "definition": "Begründet im Detail die im Immutable-Law-Catalog verankerten HARD BANs und zeigt saubere Alternativen auf.",
+          "begruendete_verbote": [
+            "Sanitizer API statt setHTMLUnsafe() (Verhinderung von XSS-Lücken)",
+            "Frameworks & Build-Tools (Verhinderung von Dependency-Rot)",
+            "Externe CDNs & Google Web Fonts (DSGVO, Offline-Garantie)",
+            "Veraltete Editing-APIs (execCommand ist deprecated, Nutzung von Selection/Range)",
+            "Zwang zu IndexedDB/OPFS (localStorage ist für diesen Zweck robuster)",
+            "Unkontrolliertes Scrollen (Zerstörung des A4-Arbeitsraums)",
+            "Date() API (Temporal API ist immun gegen Zeitzonen- und Parsing-Bugs)"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Sofort und strikt wirksam."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-ANTIPATTERN.md",
+          "wirkungsbereich": "Wird durch tools/antipatterns/*.json und das Fitness Gate technisch durchgesetzt.",
+          "verknuepfungen": [
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/00-foundation/longevity-guidelines.md",
+            "tools/antipatterns/base.json",
+            "tools/antipatterns/web.json",
+            "tools/antipatterns/project.json"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Schützt das Projekt vor technischer Verwahrlosung und verhindert, dass veraltete Patterns aus Gewohnheit wieder eingeführt werden.",
+          "weshalb": "Liefert die detaillierten Begründungen für das 'Warum' hinter jedem Verbot aus dem Law Catalog.",
+          "warum": "Sichert maximale Codequalität, Barrierefreiheit und absolute Sicherheit gegen XSS-Angriffe im Offline-Betrieb."
+        }
+      }
+    },
+    {
+      "file_name": "Architecture-Compliance-Matrix.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\Architecture-Compliance-Matrix.md",
+      "section": "10-architecture",
+      "normative_level": "Hub — Compliance Matrix (IMR 4.0 Standard)",
+      "frontmatter": {
+        "id": "architecture-compliance-matrix",
+        "title": "Architecture Compliance Matrix (IMR 4.0 Standard)",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "IMR-Registry",
+          "ADR-ANTIPATTERN",
+          "constitution",
+          "longevity-guidelines"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "compliance matrix",
+          "platinum baseline",
+          "imr 4.0",
+          "chrome 148",
+          "pvp",
+          "platinum validation",
+          "architektur leitplanken"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Architektur-Auditoren und Entwickler.",
+          "aenderungsberechtigt": "Projektverantwortliche bei Einführung neuer High-End Web-APIs.",
+          "zielgruppe": "Qualitätssicherung zur Prüfung des Implementierungsstatus gegen moderne Web-Standards."
+        },
+        "was": {
+          "definition": "Verbindet Web-Plattform-APIs mit dem Implementierungsstatus (Aktiv, Optional, Geplant, Ausgeschlossen) bezogen auf Chrome 148+.",
+          "status_uebersicht": {
+            "aktiv": "Im Code implementiert und durch Fitness-Checks verifiziert (Popover, Temporal, OKLCH, Container Queries, CSS Nesting)",
+            "optional": "Im Code vorhanden, erfordert Nutzerinteraktion oder Key (Geoapify Autocomplete)",
+            "ausgeschlossen": "Explizit per ADR verboten (CDNs, Frameworks, CSS-Preprozessoren)"
+          },
+          "bekannte_grenzen": "Dokumentiert technische Einschränkungen wie Multi-Page-Synchronisation und PDF-Metadaten im nativen Browser-Druck."
+        },
+        "wann": {
+          "erstellt": "2026-07-03",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Gültig für den aktuellen Entwicklungsstand."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/Architecture-Compliance-Matrix.md",
+          "wirkungsbereich": "Abgleich zwischen Quellcode (website/**) und W3C-Standards.",
+          "verknuepfungen": [
+            "docs/10-architecture/IMR-Registry.md",
+            "docs/00-foundation/longevity-guidelines.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Macht transparent, welche modernen Browser-Features bereits produktiv genutzt werden und wo Grenzen liegen.",
+          "weshalb": "Verhindert, dass veraltete Polyfills für Features geschrieben werden, die in Chrome 148+ längst nativ vorhanden sind.",
+          "warum": "Sichert den High-End-Standard von DIN-Brief Neo ohne jede Fremdbibliothek."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-OMNITRACEABILITY.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-OMNITRACEABILITY.md",
+      "section": "10-architecture",
+      "normative_level": "Hub — OmniTraceability System",
+      "frontmatter": {
+        "id": "ADR-OMNITRACEABILITY",
+        "title": "ADR-OMNI: OmniTraceability System",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-07-06",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr",
+          "tech/llm"
+        ],
+        "doc_links": [
+          "Function-Traceability",
+          "constitution",
+          "README-DB"
+        ],
+        "code_links": [
+          "tools/build_db.py",
+          "tools/reconciliation.js",
+          "tools/build_db.js"
+        ],
+        "error_patterns": [
+          "omnitraceability",
+          "traceability",
+          "fitness",
+          "fitness score",
+          "build_db",
+          "reconciliation",
+          "schema v6"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Quellcode-Dateien in website/ und Dokumente in docs/.",
+          "aenderungsberechtigt": "Architektur-Team.",
+          "zielgruppe": "Entwickler, KI-Agenten und automatische Audit-Tools."
+        },
+        "was": {
+          "definition": "System zur lückenlosen bidirektionalen Kopplung von Code und Spezifikation über maschinenlesbare JSDoc-Tags (@adr, @guide, @requirement).",
+          "mechanik": [
+            "JSDoc-Tagging im Code: Jede Funktion/Klasse verlinkt ihre legitimierende ADR",
+            "YAML-Frontmatter in Doku: Jedes Markdown verlinkt seine Code-Pendants via code_links",
+            "Automatisierter Abgleich: tools/build_db.js und reconciliation.js prüfen die Konsistenz und erzeugen die Traceability-Matrizen"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-06",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Verbindlicher Qualitätsstandard für jeden Commit."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-OMNITRACEABILITY.md",
+          "wirkungsbereich": "Gesteuert über tools/reconciliation.js und tools/build_db.js.",
+          "verknuepfungen": [
+            "docs/10-architecture/Function-Traceability.md",
+            "docs/10-architecture/Code-Referenzen.md",
+            "tools/reconciliation.js"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Verhindert 'Ghost Code' (Code ohne Spezifikation) und 'Stale Docs' (Dokumentation ohne Bezug zur Realität).",
+          "weshalb": "Ermöglicht KIs und Entwicklern, bei jedem Fehler sofort die verantwortliche Architektur-Entscheidung zu finden.",
+          "warum": "Basis für den Evolutionary Fitness Score von 100 %."
+        }
+      }
+    },
+    {
+      "file_name": "Function-Traceability.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\Function-Traceability.md",
+      "section": "10-architecture",
+      "normative_level": "Hub — Funktions-Traceability-Matrix",
+      "frontmatter": {
+        "id": "doc-function-traceability",
+        "title": "Function Traceability Matrix",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "ADR-OMNITRACEABILITY",
+          "Code-Referenzen"
+        ],
+        "code_links": [
+          "tools/build_db.py",
+          "tools/build_db.js"
+        ],
+        "error_patterns": [
+          "function traceability",
+          "code mapping",
+          "adr mapping",
+          "guide mapping",
+          "autogenerated matrix",
+          "code-entity"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Den gesamten Funktionsumfang von website/js/.",
+          "aenderungsberechtigt": "Wird teilautomatisiert durch build_db.js gepflegt und manuell annotiert.",
+          "zielgruppe": "Auditoren und Entwickler zur Prüfung der Code-Legitimation."
+        },
+        "was": {
+          "definition": "Tabelle aller JavaScript-Funktionen mit Zuordnung zu Modul, physischer Datei, legitimierender ADR und Implementierungs-Guide.",
+          "inhalt": "Beweist lückenlos, dass jede Zeile Logik durch eine Spezifikation oder Architektur-Entscheidung abgedeckt ist."
+        },
+        "wann": {
+          "erstellt": "2026-07-03",
+          "zuletzt_aktualisiert": "2026-07-07",
+          "gueltigkeit": "Synchron mit dem Quellcode zu halten."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/Function-Traceability.md",
+          "wirkungsbereich": "Verknüpft alle website/js/*.js Module mit docs/10-architecture/ADR-*.md.",
+          "verknuepfungen": [
+            "docs/10-architecture/ADR-OMNITRACEABILITY.md",
+            "docs/10-architecture/Code-Referenzen.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Verhindert Wildwuchs von Hilfsfunktionen, die niemandem zugeordnet werden können.",
+          "weshalb": "Macht Code-Reviews extrem schnell und objektiv.",
+          "warum": "Sichert die Langlebigkeit und Refaktorisierbarkeit des Projekts."
+        }
+      }
+    },
+    {
+      "file_name": "Code-Referenzen.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\Code-Referenzen.md",
+      "section": "10-architecture",
+      "normative_level": "Support — Autogeneriertes Build-Artefakt (gitignored)",
+      "frontmatter": {
+        "id": "adr-code-referenzen",
+        "title": "Code-Referenzen",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-07-06",
+        "updated": "2026-07-06",
+        "tags": [
+          "autogenerated",
+          "adr",
+          "guide",
+          "code"
+        ],
+        "doc_links": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Den aktuellen Quellcode-Stand.",
+          "aenderungsberechtigt": "Ausschließlich automatisch durch tools/build_db.js generiert.",
+          "zielgruppe": "Maschinenlesbarer Index für Tools und Entwickler."
+        },
+        "was": {
+          "definition": "Automatisch generierte Tabelle aller im Quellcode gefundenen @adr- und @guide-Referenzen inklusive genauer Zeilennummern.",
+          "inhalt": "Mapping von website/index.html, website/js/*.js auf spezifische ADRs."
+        },
+        "wann": {
+          "erstellt": "2026-07-06",
+          "zuletzt_aktualisiert": "2026-07-06",
+          "gueltigkeit": "Wird beim Build-Prozess regeneriert."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/Code-Referenzen.md",
+          "wirkungsbereich": "Generiert aus website/**.",
+          "verknuepfungen": [
+            "tools/build_db.js",
+            "docs/10-architecture/Function-Traceability.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Macht die Code-Dokumentations-Verknüpfung im Dateisystem als Markdown sichtbar.",
+          "weshalb": "Ermöglicht einfache Git-Diffs bei Änderungen an Annotationen.",
+          "warum": "Vermeidet manuelle Buchführung über Code-Zeilen."
+        }
+      },
+      "git_status": "gitignored (liegt lokal für Obsidian vor, erzeugt keine Git-Diffs bei Zeilenverschiebungen)"
+    },
+    {
+      "file_name": "DIN-Brief-Architektur.canvas",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\DIN-Brief-Architektur.canvas",
+      "section": "10-architecture",
+      "normative_level": "Visualisierung — Obsidian Canvas Architektur-Diagramm",
+      "canvas_metadata": {
+        "nodes_count": 36,
+        "edges_count": 78,
+        "format": "Obsidian JSON Canvas"
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Menschliche Entwickler und visuelle Architekten.",
+          "aenderungsberechtigt": "Projektleitung via Obsidian.",
+          "zielgruppe": "Jeder, der die Gesamtarchitektur visuell erfassen möchte."
+        },
+        "was": {
+          "definition": "Interaktives 2D-Architektur-Diagramm in Obsidian mit 36 Knoten und 78 Verbindungskanten.",
+          "elemente": "Visualisiert Verfassungs-Knoten, Gesetzes-Katalog, IMR-Registry-Tags, Zonen, JavaScript-Module und deren Abhängigkeiten."
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "gueltigkeit": "Visueller Spiegel der Systemarchitektur."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/DIN-Brief-Architektur.canvas",
+          "wirkungsbereich": "Visuelle Darstellung der Beziehungen zwischen docs/ und website/."
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Textuelle Spezifikationen allein machen komplexe Beziehungsnetze schwer greifbar.",
+          "weshalb": "Zeigt auf einen Blick, welche Module voneinander abhängen und wo Engpässe liegen.",
+          "warum": "Erleichtert das Onboarding und die strategische Planung neuer Features in Obsidian."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-HTML.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-HTML.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — HTML Architecture & Semantic Structure",
+      "frontmatter": {
+        "id": "adr-html",
+        "title": "ADR-HTML: HTML Architecture & Semantic Structure",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr"
+        ],
+        "doc_links": [
+          "ADR-CSS",
+          "ADR-JS",
+          "ADR-ANTIPATTERN",
+          "longevity-guidelines"
+        ],
+        "code_links": [
+          "website/index.html"
+        ],
+        "error_patterns": [
+          "html architektur",
+          "custom elements",
+          "contenteditable",
+          "plaintext-only",
+          "popover",
+          "din-a4",
+          "semantik",
+          "premium ux",
+          "wysiwyg",
+          "toolbar",
+          "anchor positioning",
+          "überlauf"
+        ],
+        "supersedes": [
+          "adr-feature"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Die HTML-Struktur in website/index.html.",
+          "aenderungsberechtigt": "Frontend-Entwickler nach ADR-Freigabe.",
+          "zielgruppe": "Entwickler für DOM-Aufbau und Barrierefreiheit."
+        },
+        "was": {
+          "definition": "HTML Architecture & Semantic Structure (integriert ehemals ADR-FEATURE: Strict WYSIWYG, Kontextuelle Format-Toolbar, Top-Layer Toasts & A4-Überlauf-Erkennung)",
+          "entscheidungen": [
+            "Verwendung kanonischer <din-…>-Tags ohne customElements.define()",
+            "contenteditable='plaintext-only' für strukturierte Metadaten (XSS-Schutz, kein Rich-Text im Adressfeld)",
+            "contenteditable='true' ausschließlich im Briefkörper",
+            "Native Popover API und <dialog> für Overlays statt JS-z-Index-Tricks",
+            "Strict WYSIWYG: Eingaben finden ausschließlich direkt auf dem Briefblatt statt; Sidebar dient nur globalen Toggles",
+            "Kontextuelle Format-Toolbar im Top-Layer via Popover API und CSS Anchor Positioning am Textcursor",
+            "Toasts und Overlays delegieren Animationen an CSS (@starting-style, transition-behavior: allow-discrete)",
+            "A4-Überlauf-Erkennung: Defensive Überwachung (max. 120 mm) ohne erzwungenes Scrollen"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-07-07",
+          "gueltigkeit": "Dauerhaft aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-HTML.md",
+          "wirkungsbereich": "website/index.html.",
+          "verknuepfungen": [
+            "docs/10-architecture/IMR-Registry.md",
+            "docs/10-architecture/ADR-CSS.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Verhindert DOM-Aufblähung und stellt native Tastaturnavigation und Accessibility sicher.",
+          "weshalb": "Verhindert, dass beim Pasten aus Word oder Websites fremde Schriftarten oder Styles das Layout zerreißen.",
+          "warum": "Sichert ein extrem schnelles, stabiles Rendering direkt im Browser."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-CSS.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-CSS.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — CSS Architecture & Proportional Zoom",
+      "frontmatter": {
+        "id": "adr-css",
+        "title": "ADR-CSS: CSS Architecture & Proportional Zoom",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr",
+          "tech/css"
+        ],
+        "doc_links": [
+          "ADR-HTML",
+          "ADR-JS",
+          "ADR-ANTIPATTERN",
+          "longevity-guidelines"
+        ],
+        "code_links": [
+          "website/css/layout.css",
+          "website/css/variables.css"
+        ],
+        "error_patterns": [
+          "css architektur",
+          "container queries",
+          "cqw cqh",
+          "anchor positioning",
+          "oklch",
+          "light-dark",
+          "aspect-ratio",
+          "overflow hidden",
+          "betreff",
+          "falzmarken",
+          "pdf titel",
+          "pdf dateiname",
+          "window.print"
+        ],
+        "supersedes": [
+          "adr-betreff"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Sämtliche Stylesheets unter website/css/.",
+          "aenderungsberechtigt": "CSS-Architekten.",
+          "zielgruppe": "UI-Entwickler."
+        },
+        "was": {
+          "definition": "CSS Architecture & Proportional Zoom (integriert ehemals ADR-BETREFF: Falzmarken-Kollisionsschutz & Nativer PDF-Druck)",
+          "technologien": [
+            "Container Queries (cqw, cqh) für dynamische Skalierung",
+            "aspect-ratio: 210 / 297 zur garantierten A4-Proportion",
+            "Anchor Positioning für Kontext-Toolbars und Dropdowns",
+            "OKLCH als primärer Farbraum",
+            "light-dark() für sauberen Dunkelmodus ohne invert-Filter",
+            "Falzmarken auf exakt 8 mm am linken Rand gekürzt (kein Durchschneiden des Betreffs)",
+            "Nativer PDF-Druck mit dynamischem Dateinamen über document.title (YYYY-MM-DD_{Empfänger}_{Betreff})"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-07-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-CSS.md",
+          "wirkungsbereich": "website/css/*.css.",
+          "verknuepfungen": [
+            "docs/10-architecture/ADR-HTML.md",
+            "website/css/layout.css"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "ResizeObserver-Schleifen in JavaScript verursachen Layout-Thrashing und Ruckler.",
+          "weshalb": "CSS erledigt Skalierung und Theming nativ auf der GPU in 60 FPS.",
+          "warum": "Garantiert WYSIWYG: Der Brief sieht im Browserfenster exakt so aus wie auf dem späteren Papierausdruck."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-JS.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-JS.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — JavaScript Constraints & 'JS as a Crutch'",
+      "frontmatter": {
+        "id": "adr-js",
+        "title": "ADR-JS: JavaScript Constraints & 'JS as a Crutch'",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr"
+        ],
+        "doc_links": [
+          "ADR-HTML",
+          "ADR-CSS",
+          "ADR-ANTIPATTERN",
+          "longevity-guidelines"
+        ],
+        "code_links": [
+          "website/js/main.js",
+          "website/js/48-text-fit.js"
+        ],
+        "error_patterns": [
+          "javascript constraints",
+          "js as a crutch",
+          "execCommand verboten",
+          "selection range api",
+          "view transitions",
+          "temporal api",
+          "localstorage"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle JavaScript-Module in website/js/.",
+          "aenderungsberechtigt": "JS-Entwickler nach ADR.",
+          "zielgruppe": "Entwickler."
+        },
+        "was": {
+          "definition": "Strikte Einschränkung von JavaScript: JS darf niemals als 'Krücke' für Layout oder Styling missbraucht werden, sondern dient rein der Logik.",
+          "regeln": [
+            "Kein execCommand (veraltet; stattdessen Selection & Range API)",
+            "Temporal API für alle Datumsberechnungen",
+            "Keine parallelen DIN-Geometrien in JS definieren",
+            "Zero Dependencies: Keine Bibliotheken zur Laufzeit"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-07-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-JS.md",
+          "wirkungsbereich": "website/js/*.js.",
+          "verknuepfungen": [
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/10-architecture/ADR-ANTIPATTERN.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "JavaScript-Überladung ist der Hauptgrund für langsame, wartungsintensive Web-Apps.",
+          "weshalb": "Was HTML und CSS nativ können, darf nicht in JS nachgebaut werden.",
+          "warum": "Sichert maximale Wartungsarmut und Fehlerfreiheit über Jahre hinweg."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-DATA-PERSISTENCE.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-DATA-PERSISTENCE.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — Daten-Speicherung & Datumshandling",
+      "frontmatter": {
+        "id": "adr-data-persistence",
+        "title": "ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-07-02",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr"
+        ],
+        "doc_links": [
+          "ADR-ANTIPATTERN",
+          "longevity-guidelines"
+        ],
+        "code_links": [
+          "website/js/main.js",
+          "website/js/52-storage.js"
+        ],
+        "error_patterns": [
+          "data persistence",
+          "localstorage",
+          "speicherung",
+          "temporal api",
+          "datumshandling",
+          "indexeddb"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Speicher- und Wiederherstellungs-Logik im Browser.",
+          "aenderungsberechtigt": "Entwickler.",
+          "zielgruppe": "Briefschreiber, deren Entwürfe automatisch gesichert werden."
+        },
+        "was": {
+          "definition": "Architektur für zuverlässige lokale Datenpersistenz ohne Backend-Server.",
+          "prinzipien": [
+            "localStorage als alleinige Speichertechnologie (synchron, robust unter file://)",
+            "Zentraler StorageManager (website/js/52-storage.js) als einzige Schnittstelle",
+            "Automatisches Speichern bei Eingaben (Debounced Auto-Save)",
+            "Temporal.Now.plainDateISO() für fehlerfreie Datumsformate nach DIN 5008"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-02",
+          "zuletzt_aktualisiert": "2026-07-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-DATA-PERSISTENCE.md",
+          "wirkungsbereich": "website/js/01-draft-manager.js und website/js/52-storage.js.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md",
+            "docs/00-foundation/Immutable-Law-Catalog.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "IndexedDB und File System Access APIs versagen oft unter file:// oder im Inkognito-Modus.",
+          "weshalb": "localStorage ist überall verfügbar und verlangt keine asynchronen Datenmigrationen.",
+          "warum": "Garantiert, dass der Nutzer beim erneuten Öffnen der Datei seinen Brief exakt so vorfindet, wie er ihn verlassen hat."
+        }
+      }
+    },
+    {
+      "file_name": "adr-toast-system.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\adr-toast-system.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — Toast-System Architektur & Registry",
+      "frontmatter": {
+        "id": "adr-toast-system",
+        "title": "ADR-TOAST: Toast-System Architektur & Registry",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr",
+          "tech/ui",
+          "tech/css"
+        ],
+        "doc_links": [
+          "ADR-HTML",
+          "ADR-CSS"
+        ],
+        "code_links": [
+          "website/js/32-toast.js"
+        ],
+        "error_patterns": [
+          "toast",
+          "popover",
+          "notification",
+          "benachrichtigung",
+          "spam",
+          "toast registry"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Das Benachrichtigungssystem in website/js/32-toast.js.",
+          "aenderungsberechtigt": "UI-Entwickler.",
+          "zielgruppe": "Nutzer bei Systemrückmeldungen (z. B. 'Entwurf gespeichert', 'Ungültige PLZ')."
+        },
+        "was": {
+          "definition": "Architektur und zentrale Registry für nicht-blockierende Status-Meldungen.",
+          "prinzipien": [
+            "Native Popover API (popover='manual') im Top-Layer",
+            "Toast-Levels: info, success, warning, error",
+            "Zentrale Toast-Registry als Single Source of Truth für Meldungstexte",
+            "Anti-Spam-Drosselung bei schnellen Mehrfachklicks"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-03",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/adr-toast-system.md",
+          "wirkungsbereich": "website/js/32-toast.js.",
+          "verknuepfungen": [
+            "docs/10-architecture/ADR-HTML.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Klassische Alerts blockieren den gesamten Browser-Thread.",
+          "weshalb": "Frühere div-Toasts hatten z-index-Kollisionen mit Druckansichten.",
+          "warum": "Der Browser-Top-Layer garantiert Sichtbarkeit ohne z-index-Probleme."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-005-Sender-Synchronization.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-005-Sender-Synchronization.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — Sender Synchronization Logic",
+      "frontmatter": {
+        "id": "ADR-005",
+        "title": "ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile)",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-07-07",
+        "updated": "2026-08-08",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr"
+        ],
+        "doc_links": [
+          "ADR-HTML",
+          "ADR-JS"
+        ],
+        "code_links": [
+          "website/js/44-sender-sync.js"
+        ],
+        "error_patterns": [
+          "sender synchronization",
+          "rücksendezeile",
+          "absenderblock",
+          "unterschrift",
+          "sender-sync",
+          "maschinenschrift"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Absender-Felder und deren automatische Spiegelung.",
+          "aenderungsberechtigt": "Frontend-Entwickler.",
+          "zielgruppe": "Briefschreiber, die Absenderdaten nicht mehrfach tippen wollen."
+        },
+        "was": {
+          "definition": "Automatische Synchronisation des Absendernamens und der Anschrift in die einzeilige Rücksendezeile (Fensterkuvert) und die Maschinenschrift unter der Unterschrift.",
+          "regeln": [
+            "Einmalige Eingabe im Absenderblock",
+            "Automatische Formatierung der Rücksendezeile mit Trennpunkten (z.B. 'Max Mustermann • Musterstr. 1 • 12345 Musterstadt')",
+            "Aktualisierung des Namens unter der handschriftlichen Grußformel"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-005-Sender-Synchronization.md",
+          "wirkungsbereich": "website/js/44-sender-sync.js.",
+          "verknuepfungen": [
+            "docs/10-architecture/IMR-Registry.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Verhindert Tippfehler und abweichende Schreibweisen zwischen Absenderkopf und Kuvertfenster.",
+          "weshalb": "Spart Zeit und erfüllt die DIN 5008 Vorgabe für Rücksendeangaben automatisch.",
+          "warum": "Erhöht den Bedienkomfort drastisch ('Zero Redundancy')."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-006-Offline-Address-Intelligence.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture\\ADR-006-Offline-Address-Intelligence.md",
+      "section": "10-architecture",
+      "normative_level": "Thematische ADR — Offline Address Intelligence (Brotli Compact Engine & Fallback-Architektur)",
+      "frontmatter": {
+        "id": "ADR-006",
+        "title": "ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)",
+        "type": "adr",
+        "status": "active",
+        "created": "2026-09-04",
+        "updated": "2026-09-04",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/architecture",
+          "status/active",
+          "type/adr"
+        ],
+        "doc_links": [
+          "ADR-JS",
+          "ADR-HTML",
+          "Immutable-Law-Catalog",
+          "longevity-guidelines"
+        ],
+        "code_links": [
+          "website/js/43-geoapify.js",
+          "research/research_results/de_plz_ort.json.br"
+        ],
+        "error_patterns": [
+          "adr-api",
+          "plz lookup",
+          "brotli dictionary",
+          "offline geocoding",
+          "autocomplete",
+          "address intelligence"
+        ]
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Adress- und Postleitzahl-Vervollständigung im gesamten Formular.",
+          "aenderungsberechtigt": "Architekten und Entwickler.",
+          "zielgruppe": "Nutzer beim Ausfüllen von Empfänger- und Absenderadressen."
+        },
+        "was": {
+          "definition": "Zweistufige Adress-Architektur: Lokales 70,5 KB Brotli-Dictionary als Primärquelle (Tier 1) plus optionale, keyless/keyed APIs (Photon/Geoapify) rein zur optionalen Straßen-Anreicherung (Tier 2).",
+          "prinzipien": [
+            "Brotli Dictionary de_plz_ort.json.br mit 70,5 KB als autoritative Offline-Primärquelle",
+            "Natives DecompressionStream('brotli') für blitzschnelles Entpacken (Chrome 117+ / Baseline Chrome 148+)",
+            "Sub-Millisekunden-Lookup (< 0,2 ms) für bidirektionale PLZ <-> Ort Zuordnung",
+            "Null externe Netzwerkanfragen für grundlegende PLZ/Ort-Vervollständigung",
+            "Vollständige Lauffähigkeit unter file:/// und offline",
+            "Optionale Cloud-Anreicherung nur für Straßen und nur bei explizitem Bedarf"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-09-04",
+          "zuletzt_aktualisiert": "2026-09-04",
+          "gueltigkeit": "Aktiv (löst ADR-API.md ab)."
+        },
+        "wo": {
+          "datei_ort": "docs/10-architecture/ADR-006-Offline-Address-Intelligence.md",
+          "wirkungsbereich": "website/js/43-geoapify.js und research/research_results/de_plz_ort.json.br.",
+          "verknuepfungen": [
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/00-foundation/constitution.md",
+            "docs/10-architecture/ADR-JS.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "ADR-API erzwang für jeden Tastendruck Cloud-Requests mit 150-300 ms Latenz und scheiterte im Offline-Betrieb.",
+          "weshalb": "Offline-First und Lauffähigkeit unter file:/// sind oberste Verfassungsgrundsätze von DIN-Brief Neo.",
+          "warum": "Bietet sofortige, datenschutzfreundliche und latenzfreie Eingabeunterstützung ohne laufende API-Kosten."
+        }
+      }
+    }
+  ],
+  "architectural_synthesis": {
+    "core_imperatives": {
+      "framework_ban": "Keine Runtime-Frameworks, keine Bundler, keine Transpiler. 100% autarkes Vanilla-JS mit .js-ESM.",
+      "zero_runtime_dependencies": "Null NPM-Pakete zur Laufzeit. Alles läuft nativ über standardisierte Browser-APIs.",
+      "offline_and_file_protocol": "Vollständige Funktionsfähigkeit unter file:// und offline. Keine zwingenden Server- oder HTTPS-Dienste.",
+      "time_standard": "Strenges Verbot von 'Date' im Produkt (website/**). Ausschließlich native Temporal API zulässig.",
+      "color_standard": "Farbkette OKLCH -> Lab/LCH -> HSL -> RGB -> HEX -> Named. OKLCH ist Standard #1.",
+      "storage_standard": "localStorage ist der einzige gewählte Produktspeicher (einfach, synchron, file://-kompatibel).",
+      "viewport_standard": "Kein unkontrolliertes Dokumenten-Scrolling. Der DIN-A4-Briefbogen bleibt als Ganzes im Viewport sichtbar.",
+      "geometry_ssot": "Kanonische 45er IMR-Registry in docs/10-architecture/ ist die alleinige Quelle der Wahrheit für DIN-5008-Geometrie.",
+      "browser_baseline": "Einzige projektweite Versions-Baseline: Chrome 148+."
+    },
+    "fitness_gate_reconciliation": {
+      "engine": "tools/reconciliation.js",
+      "required_score": 100,
+      "enforcement": "Automatisch vor und nach jeder Änderung über tools/start.ps1; prüft Frontmatter-Vollständigkeit, Link-Kohärenz und Antipattern-Regeln."
+    }
+  },
+  "sections": [
+    {
+      "id": "00-foundation",
+      "title": "Fundament & Verfassung (Unverrückbare Gesetze)",
+      "documents_count": 5,
+      "governance": "Read-Only für KIs. Reine Gesetzesebene ohne Prozess-Vorschriften."
+    },
+    {
+      "id": "10-architecture",
+      "title": "Architektur-Entscheidungen & Traceability (IMR 4.0 Standard)",
+      "documents_count": 16,
+      "governance": "Architektur-Entscheidungen (MADR-Format), IMR-Registry und Traceability-Matrizen."
+    },
+    {
+      "id": "90-policy",
+      "title": "Entwicklungs-Workflows & Prozess-Policies",
+      "documents_count": 1,
+      "governance": "Arbeitsrichtlinien (Light/Full Mode), Fitness-Gate-Prozesse und Session-Logging."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+================================================================================
+HTML EXTRAKTIONS-ÜBERSICHT (website/index.html)
+Projekt: DIN-Brief Neo
+================================================================================
+
+Gesamtzeilen: 303 | Dateigröße: 20496 Bytes
+Gefundene Tags: 160 (53 verschiedene Tags)
+Eindeutige IDs: 67 | CSS-Klassen: 50
+
+--- 1. CUSTOM ELEMENTS (DIN-SPEZIFISCHE TAGS) ---
+  <din-a4> : 1x vorkommend
+  <din-falz-oben> : 1x vorkommend
+  <din-falz-unten> : 1x vorkommend
+  <din-lochmarke> : 1x vorkommend
+  <din-rucksendezeile> : 1x vorkommend
+  <din-anschriftfeld> : 1x vorkommend
+  <din-postvermerk> : 1x vorkommend
+  <din-empfaenger-firma> : 1x vorkommend
+  <din-empfaenger-strasse> : 1x vorkommend
+  <din-empfaenger-ort> : 1x vorkommend
+  <din-infoblock> : 1x vorkommend
+  <din-absender-strasse> : 1x vorkommend
+  <din-absender-ort> : 1x vorkommend
+  <din-absender-tel> : 1x vorkommend
+  <din-absender-mail> : 1x vorkommend
+  <din-datum> : 1x vorkommend
+  <din-kern> : 1x vorkommend
+  <din-betreff> : 1x vorkommend
+  <din-anrede> : 1x vorkommend
+  <din-text> : 1x vorkommend
+  <din-grussformel> : 1x vorkommend
+  <din-unterschrift> : 1x vorkommend
+  <din-anlagen> : 1x vorkommend
+  <din-fuss> : 1x vorkommend
+
+--- 2. CONTENTEDITABLE ELEMENTE (TEXTFELDER) ---
+  [Zeile 172] <din-rucksendezeile id="absender" contenteditable="plaintext-only">
+  [Zeile 174] <din-postvermerk id="postvermerk" contenteditable="plaintext-only">
+  [Zeile 175] <din-empfaenger-firma id="empfaenger-firma" contenteditable="plaintext-only">
+  [Zeile 176] <div id="empfaenger-name" contenteditable="plaintext-only">
+  [Zeile 177] <din-empfaenger-strasse id="empfaenger-strasse" contenteditable="plaintext-only">
+  [Zeile 178] <din-empfaenger-ort id="empfaenger-ort" contenteditable="plaintext-only">
+  [Zeile 181] <div id="info-name" contenteditable="plaintext-only">
+  [Zeile 182] <din-absender-strasse id="info-street" contenteditable="plaintext-only">
+  [Zeile 183] <din-absender-ort id="info-city" contenteditable="plaintext-only">
+  [Zeile 184] <din-absender-tel id="info-tel" contenteditable="plaintext-only">
+  [Zeile 185] <din-absender-mail id="info-email" contenteditable="plaintext-only">
+  [Zeile 187] <din-datum id="datum" contenteditable="plaintext-only">
+  [Zeile 189] <din-betreff id="betreff" contenteditable="plaintext-only">
+  [Zeile 190] <din-anrede id="anrede" contenteditable="plaintext-only">
+  [Zeile 191] <din-text id="brieftext" contenteditable="true">
+  [Zeile 192] <din-grussformel id="grussformel" contenteditable="plaintext-only">
+  [Zeile 194] <din-unterschrift id="unterschrift" contenteditable="plaintext-only">
+  [Zeile 198] <ul id="anlagen-text" contenteditable="true">
+
+--- 3. FORMULARE & STEUERELEMENTE (INPUTS, BUTTONS, SELECTS) ---
+  [Zeile 49] <button type="button" id="btn-dev-mode" name="">
+  [Zeile 52] <input type="radio" id="btn-theme-light" name="theme">
+  [Zeile 54] <input type="radio" id="btn-theme-dark" name="theme">
+  [Zeile 60] <input type="radio" id="btn-form-a" name="layout-form">
+  [Zeile 62] <input type="radio" id="btn-form-b" name="layout-form">
+  [Zeile 69] <input type="radio" id="btn-style-formal" name="salutation">
+  [Zeile 71] <input type="radio" id="btn-style-polite" name="salutation">
+  [Zeile 73] <input type="radio" id="btn-style-casual" name="salutation">
+  [Zeile 80] <input type="radio" id="btn-guides-on" name="guides">
+  [Zeile 82] <input type="radio" id="btn-guides-off" name="guides">
+  [Zeile 88] <input type="checkbox" id="toggle-postvermerk" name="">
+  [Zeile 89] <input type="checkbox" id="toggle-anlagen" name="">
+  [Zeile 90] <select type="standard" id="sidebar-pv-select" name="">
+  [Zeile 105] <button type="button" id="btn-anlagen-toggle" name="">
+  [Zeile 110] <button type="button" id="btn-font-action" name="">
+  [Zeile 116] <input type="file" id="font-uploader" name="">
+  [Zeile 123] <button type="button" id="btn-reset-sig" name="">
+  [Zeile 125] <input type="file" id="sig-uploader" name="">
+  [Zeile 132] <input type="password" id="input-geoapify-key" name="">
+  [Zeile 136] <input type="text" id="input-address-search" name="">
+  [Zeile 143] <button type="button" id="btn-print" name="">
+  [Zeile 144] <button type="button" id="btn-reset" name="">
+  [Zeile 218] <button type="button" id="no-id" name="">
+  [Zeile 219] <button type="button" id="no-id" name="">
+  [Zeile 220] <button type="button" id="no-id" name="">
+  [Zeile 221] <button type="button" id="no-id" name="">
+  [Zeile 227] <button type="button" id="toast-action" name="">
+  [Zeile 228] <button type="button" id="toast-close" name="">
+  [Zeile 234] <button type="standard" id="no-id" name="">
+  [Zeile 235] <button type="standard" id="btn-confirm-reset" name="">
+
+--- 4. TOP-LAYER & INTERAKTIONEN (POPOVER, DIALOG, COMMANDS) ---
+• Popovers:
+  [Zeile 137] <ul id="address-suggestions" popover="auto">
+  [Zeile 217] <div id="format-toolbar" popover="hint">
+  [Zeile 224] <div id="toast-v4" popover="manual">
+• Dialoge:
+  [Zeile 230] <dialog id="reset-dialog">
+• Command / Invoker Buttons:
+  [Zeile 144] <button commandfor="reset-dialog" command="show-modal">
+  [Zeile 218] <button commandfor="format-command-target" command="--bold">
+  [Zeile 219] <button commandfor="format-command-target" command="--underline">
+  [Zeile 220] <button commandfor="format-command-target" command="--quote">
+  [Zeile 221] <button commandfor="format-command-target" command="--comment">

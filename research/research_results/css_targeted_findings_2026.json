@@ -1,0 +1,1029 @@
+{
+  "total_css_features": 128,
+  "features": [
+    {
+      "id": 5133912740331520,
+      "name": "scroll-snap-stop: before",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "When \"before\" is specified on a snap area, no fling will reach it and the user must drag to snap to it."
+    },
+    {
+      "id": 5144333908049920,
+      "name": "Background layer count independence ",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-values-4/#linked-properties",
+      "summary": "Makes the computed value of the background-* longhands keep the number of comma-separated values the author specified, instead of repeating or truncating it to the background-image layer count. Repeating and truncating are used-value behavior: \"The computed values of the coordinating list properties are not affected by such truncation or repetition.\" This feature would implement the behavior defined in the https://drafts.csswg.org/css-values-4/ Appendix A.\n"
+    },
+    {
+      "id": 5069051687731200,
+      "name": "CSS flow-start and flow-end alignment keywords",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "As agreed upon in the CSSWG issue here: https://github.com/w3c/csswg-drafts/issues/14052, the `flow-start` and `flow-end` keywords are needed for alignment in the case of placement reversals.\n\nIn CSS Grid-Lanes, when placement ordering is reversed through `track-reverse` or `fill-reverse`, the `flow-start` keyword will indicate the starting edge of the container at which placement begins, while `flow-end` indicates the ending edge of the container at which placement ends.  In the absence of any reversals, we expect `flow-start` to have the same meaning as `start`, and `flow-end` to have the same meaning as `end`.  `flow-start/end` act as value aliases for `flex-start/end` and should be the canonical values."
+    },
+    {
+      "id": 4780977359552512,
+      "name": "CSS generic() function",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-fonts-4/#generic-font-families",
+      "summary": "CSS is introducing a new functional syntax for newer generic font families: `generic()`. Instead of adding more bare keywords that might clash with real font names, script-specific generics are written like `generic(fangsong)`, `generic(kai)`, `generic(khmer-mul)`, and `generic(nastaliq)`.\n"
+    },
+    {
+      "id": 5168674259468288,
+      "name": "Optional descriptors for registered custom properties",
+      "category": "CSS",
+      "milestone": 156,
+      "spec": "https://drafts.css-houdini.org/css-properties-values-api-1/#at-property-rule",
+      "summary": "Allows authors to omit any descriptor in an @property rule and the corresponding optional members of CSS.registerProperty(). Omitted values  default to universal syntax, inheritance, and the guaranteed-invalid  initial value; invalid descriptors use normal CSS fallback behavior."
+    },
+    {
+      "id": 6294595288825856,
+      "name": "CSS text-overflow: <string> value",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-overflow-4/#text-overflow",
+      "summary": "Adds a <string> value to the text-overflow property.\n\nThis allows web authors to specify a custom string (e.g., \"(more)\") to indicate that text has been clipped. This provides more design flexibility and can be used to create more user-friendly and context-aware overflow indicators."
+    },
+    {
+      "id": 5174965228929024,
+      "name": "CSS Custom Highlight Universal Selector ::highlight(*)",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://github.com/w3c/csswg-drafts/pull/14301",
+      "summary": "Introduces a universal selector for custom highlights, ::highlight(*), which matches the highlight pseudo-elements of all custom highlights regardless of their name. \n\nThe * argument contributes zero specificity, so its declarations act as a base style that rules naming a specific highlight override through the cascade."
+    },
+    {
+      "id": 5145402365050880,
+      "name": "FontFace width attribute and font-width descriptor",
+      "category": "CSS",
+      "milestone": 154,
+      "spec": "https://drafts.csswg.org/css-fonts-4/#font-width-prop",
+      "summary": "Exposes the width attribute on FontFace and the @font-face font-width descriptor as aliases for stretch and font-stretch. Aligns Chromium with the updated CSS Font Loading and CSS Fonts 4 specifications. Developers can now inspect or initialize font face widths using FontFace.width and CSS font-width interchangeably with stretch and font-stretch."
+    },
+    {
+      "id": 4857112617418752,
+      "name": "Style Module Imports via Link Elements",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "summary": "Introduces a variation of `<link rel=stylesheet>` that utilizes the module map and shares CSSStyleSheet instances between shadow roots. Allows developers to use existing features available in Javascript (such as the module map and import maps) with declarative HTML."
+    },
+    {
+      "id": 5072607092277248,
+      "name": "CSS kashida justification",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-text-4/#text-justify-property",
+      "summary": "Adds the `kashida` value to `text-justify`, allowing authors to justify\nArabic and other cursive-script text by elongating connections within\nwords. The inherited `text-kashida-space` percentage controls how\njustification space is divided between kashida elongation and inter-word\nspacing.\n\n\nCL: https://chromium-review.googlesource.com/c/chromium/src/+/7957320\n\n\nLaunch Chromium with:\n\n   --enable-blink-features=CSSTextJustifyKashida,CSSTextKashidaSpace\n\nThen visit:\n\n   https://static.januschka.com/i-41431127/\n"
+    },
+    {
+      "id": 5124378896498688,
+      "name": "Use scroll-snap-type: pair to snap to a single element",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "https://github.com/w3c/csswg-drafts/issues/9519\n\nAdd a \"pair\" keyword to scroll-snap-type. If used, when the container scroll snaps to an element on one axis, it should snap to the same element on the other axis."
+    },
+    {
+      "id": 5196252624060416,
+      "name": "CSSPageDescriptor for @page at-rules ",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/cssom/#the-csspagerule-interface",
+      "summary": " CSSPageRule.style now returns a CSSPageDescriptors object instead of a generic CSSStyleDeclaration. The new interface exposes the @page descriptors — size, page-orientation and the margin family — as named attributes in both camel-cased and dashedform, and accepts only declarations that are valid in the page context. This matches the CSSOM specification and the behaviour already shipped by Firefox and implemented by WebKit, and it makes @page support detectable via window.CSSPageDescriptors."
+    },
+    {
+      "id": 6207138742534144,
+      "name": "AccentColor & AccentColorText follows accent-color value",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/css-color-4/#css-system-colors",
+      "summary": "AccentColor and AccentColorText reflect the element's effective `accent-color` value instead of only platform-provided system accent colors.\n\nThis allows CSS to reference the same colors used by `accent-color` styling, making it easier to keep custom styling consistent with form controls and other accented UI. It aligns Chromium's behavior with the CSS Color Module Level 4 specification."
+    },
+    {
+      "id": 5086608215900160,
+      "name": "Scroll snap for single-axis scroll containers",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "Supports per-axis scroll snap area propagation and alignment for single-axis scroll containers (e.g., containers with overflow: auto clip;).\n\nWhen a snap area specifies snap alignments on both axes, a single-axis scroll container consumes only its scrollable axis and propagates the unconsumed axis up to find the nearest ancestor scroller capable of scrolling in that direction."
+    },
+    {
+      "id": 5168133036965888,
+      "name": "FocusgroupV2: grid and feed",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "summary": "Extends the declarative `focusgroup` attribute to richer composite widgets. The new `itemcontrols` modifier (name pending bikeshedding) makes nested controls sequentially reachable only for the active item; `feed` models ARIA-style content streams; and `grid` provides two-dimensional focus navigation with configurable wrapping and flow. These additions reduce custom focus-management code for cards, chat threads, feeds, and grid-based UI."
+    },
+    {
+      "id": 5201297767792640,
+      "name": "JS Self-Profiling Markers",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://github.com/WICG/js-self-profiling/pull/89",
+      "summary": "The JavaScript Self-Profiling API lets a web application sample its own call stacks to measure performance on real user devices. This feature adds an optional marker field to each captured sample that identifies the type of browser activity running when the sample was taken: script, gc, style, layout, paint, or other. A trace normally shows gaps between stacks that cannot be interpreted, markers let developers attribute that time to browser work happening outside their JavaScript, for example distinguishing script execution from style recalculation, layout, or a garbage collection pause, making slow traces easier to analyze and optimize."
+    },
+    {
+      "id": 5196081949442048,
+      "name": "CSS shrink-to-fit container",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "Shrinks container width to match the maximum line length of its wrapped content.\n\nWhile keywords like fit-content leave empty space when text wraps, this CSS property tightly fits the container around the actual rendered layout to eliminate awkward trailing gaps."
+    },
+    {
+      "id": 5908461532610560,
+      "name": "scroll-axis-lock",
+      "category": "CSS",
+      "milestone": 153,
+      "spec": "https://github.com/w3c/csswg-drafts/pull/14152",
+      "summary": "scroll-axis-lock is a CSS property that authors can use to instruct browsers not to constrain a user's scrolling gesture to one axis.\n\nWeb browsers often \"lock\" a user's scrolling gesture to a single axis when that gesture starts with significantly more movement in one axis than in the perpendicular axis. In many cases, this behavior improves the user's experience by avoiding accidental scrolls along the perpendicular axis when the user's intent was to scroll only one axis. However, in cases where an author wishes their element to always be diagonally scrollable, this locking behavior forces the user to start their gesture at an angle that doesn't trigger the locking, often not in alignment with the author's intended user experience."
+    },
+    {
+      "id": 5146996093616128,
+      "name": "CSS Symbols()",
+      "category": "CSS",
+      "milestone": 155,
+      "spec": "https://drafts.csswg.org/css-counter-styles-3/#symbols-function",
+      "summary": "The CSS symbols() function lets authors define a counter style inline instead of first declaring a named @counter-style at-rule.\nIt builds an anonymous counter style from a list of string symbols plus an optional counting system (cyclic, numeric, alphabetic, symbolic, or fixed), and is accepted as the counter style in list-style-type, the list-style shorthand, and counter() / counters()."
+    },
+    {
+      "id": 5178587742339072,
+      "name": "<input type=\"checkbox\" switch>",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://github.com/whatwg/html/pull/9546",
+      "summary": "This proposal adds a switch attribute to <input type=\"checkbox\"> for binary on/off settings. The control reuses the checkbox's checked state, form participation, and label association while exposing it as a switch to assistive technologies. It provides a platform-native appearance and supports familiar click, keyboard, and touch interactions. Authors can customize the track and thumb using proposed CSS pseudo-elements, with animation supplied by the user agent. The attribute targets common switch use cases. Cases requiring child content are not supported by the attribute, and a standalone <switch> element is out of scope for this proposal."
+    },
+    {
+      "id": 5114591051907072,
+      "name": "Expose CSSStyleValue hierarchy to Worker contexts",
+      "category": "Miscellaneous",
+      "milestone": 154,
+      "spec": "https://www.w3.org/TR/css-typed-om-1/#stylevalue-subclasses",
+      "summary": "The CSS Typed OM spec exposes the CSSStyleValue hierarchy to worker global scopes ([Exposed=(Window, Worker, PaintWorklet, LayoutWorklet)]), but Blink only exposed CSSStyleValue, CSSKeywordValue, CSSNumericValue, CSSUnitValue and CSSUnparsedValue to Window and the worklets. As a result these constructors were undefined in Workers, unlike in Firefox and Safari."
+    },
+    {
+      "id": 6327898878377984,
+      "name": "CSS pseudo-class for navigation source element",
+      "category": "CSS",
+      "milestone": 156,
+      "spec": "https://drafts.csswg.org/css-navigation-1/#navigation-source-pseudo-class",
+      "summary": "Selects the element that initiated the navigation, whether it's a link/button/form. The element stays selected throughout the navigation."
+    },
+    {
+      "id": 5108022310469632,
+      "name": "CSS mixins",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-mixins-1/#defining-mixins",
+      "summary": "Defines a reusable, parameterized block of style declarations and nested style rules with the @mixin rule, then expands them in place within a style rule via @apply as if the mixin's contents had been written there directly. The mixin body puts the declarations and rules to emit inside an @result block, while any local custom properties used to compute them stay private and never reach the element; parameters can be typed and given defaults, and @result can contain conditional rules such as @supports and @media. This lets authors package consistent patterns – component styles, effects like gradient text, responsive shorthands – once and reuse them across a stylesheet without a CSS pre-processor. "
+    },
+    {
+      "id": 5167864517623808,
+      "name": "Web haptics",
+      "category": "Capabilities (Fugu)",
+      "milestone": null,
+      "spec": null,
+      "summary": "Provides semantic haptic feedback for web interactions through CSS and JavaScript, allowing web apps to trigger platform-appropriate tactile effects such as hints, ticks, alignment confirmations, and boundary signals.\n\nDevelopers can express haptic intent instead of creating device-specific vibration patterns, enabling consistent tactile feedback across desktop and mobile platforms. The API supports both declarative CSS-based haptics for common UI state changes and imperative JavaScript control for interaction logic that requires runtime decisions, while respecting platform settings."
+    },
+    {
+      "id": 5153829504024576,
+      "name": "Capability elements: <camera> and <microphone>",
+      "category": "DOM",
+      "milestone": 153,
+      "spec": "https://w3c.github.io/mediacapture-extensions/#the-camera-html-element",
+      "summary": "The <camera> and <microphone> capability elements are declarative, user-activated HTML controls that share the same underlying mechanism as the <usermedia> MVP element, with one key distinction: they are designed to request a single capability. The <camera> element specifically requests video capture, while the <microphone> element specifically requests audio capture. Like the <usermedia> MVP, they embed a browser-controlled, strictly styled UI into the page, ensuring a strong, intentional user signal (a click) before a permission prompt is triggered or a stream is started.\n\nThe <camera> and <microphone> elements provide a dedicated, semantic HTML control for these single-capability use cases. They maintain the identical security model, strict styling constraints, and built-in permission recovery path as the <usermedia> MVP, but offer a more tailored and ergonomic API for developers who do not need mixed media access."
+    },
+    {
+      "id": 5109685301673984,
+      "name": "CSS scroll-marker-group modes",
+      "category": "CSS",
+      "milestone": 154,
+      "spec": "https://drafts.csswg.org/css-overflow-5/#scroll-marker-modes",
+      "summary": "The scroll-marker-group property is enhaced to support modes:\n1) 'links' - The generated ::scroll-marker-group operates in \"links\" mode, functioning like a navigation list. This is the default mode if omitted.\n2) 'tabs' - The generated ::scroll-marker-group operates in \"tabs\" mode, functioning like a tablist.\n\nEach mode changes focus order and accessibility behavior of ::scroll-marker-group and ::scroll-markers, following WAI-ARIA patterns.\n\nMore details:\n# The links mode (default)\nThis mode is designed to mimic standard Navigation Landmarks combined with fragment anchors.\n\n## Semantic roles\nThe ::scroll-marker-group takes on the navigation role, and the ::scroll-marker elements take on the link role. This perfectly maps to the <nav> + <a> structural pattern.\n\n## Keyboard navigation\nAll ::scroll-marker elements are sequential tab stops, natively acting like a list of standard anchor links.\n\n## Unaffected targets\nThe originating elements do not get forced into any role, leaving the document's natural semantic structure intact.\n\n## Activation focus management\nWhen a link marker is activated, it sets the sequential focus navigation starting point to the target element (the originating element), and focus is lost from the marker. This mimics the native behavior of clicking a standard internal <a href=\"#target\"> link.\n\n# The tabs mode\nThis mode is designed to natively replicate the Tabs Pattern and serves as the interactive foundation for the Tabbed Carousel Pattern.\n\n## Semantic roles\nThe ::scroll-marker-group is implicitly assigned the tablist role, ::scroll-marker elements act as tab roles, and their originating elements get the tabpanel role. This mirrors the required WAI-ARIA Tabs structure.\n\n## Keyboard navigation (roving tabindex)\nIt follows the complex keyboard interactions outlined in standard practices. Only the active ::scroll-marker acts as a tab stop. Users use arrow keys to navigate the focusgroup (switching between markers), preventing the \"tab trap\" of having to tab through 20 carousel dots.\n\n## Focus scope management\nThe marker acts as a focus navigation scope owner. Pressing Tab from the active marker moves focus directly into the active tabpanel content, matching the specification for tabbed interfaces.\n\n## Tree pruning\nContent from inactive tabs is explicitly hidden from the accessibility tree. This mimics the expected behavior of aria-hidden=\"true\" or inert on inactive tab panels, saving developers from manually scripting state changes.\n\n## Activation focus\nWhen a marker is activated, focus is retained on the marker, which is exactly how standard tabs operate.\n\n"
+    },
+    {
+      "id": 5095153430822912,
+      "name": "CSS Linked Parameters Support for External SVG Images",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-link-params",
+      "summary": "CSS Linked Parameters provides a way for developers to pass CSS values for named parameters into linked resources. This feature allows parameters to be passed to external SVG images loaded through <img> or CSS image properties such as 'background-image'. Parameters can be supplied through the 'link-parameters' property, 'param()' URL fragments, or 'param()' modifiers in 'url()'. Developers specify each parameter using 'param(<dashed-ident>, <declaration-value>)', and the linked SVG accesses it as a custom environment variable through 'env()'. This allows a single cacheable SVG file to adapt to different theme colors or design tokens without being inlined or duplicated."
+    },
+    {
+      "id": 5736024861966336,
+      "name": "Wide-gamut and alpha support for <input type=color>",
+      "category": "User input",
+      "milestone": null,
+      "spec": "https://html.spec.whatwg.org/multipage/input.html#attr-input-colorspace,https://html.spec.whatwg.org/multipage/input.html#dom-input-alpha",
+      "summary": "Adds support for the alpha and colorspace attributes on <input type=color>, matching the WHATWG HTML specification. When enabled, the color input gains an alpha boolean attribute (allowing non-opaque colors) and a colorspace attribute (limited-srgb or display-p3), and its CSS color parsing and serialization are expanded to support any CSS color value rather than only opaque hex colors. Both attributes are gated behind a single runtime flag."
+    },
+    {
+      "id": 5351959625334784,
+      "name": "Change the \"position-anchor\" initial value to \"normal\"",
+      "category": "CSS",
+      "milestone": 151,
+      "spec": "https://drafts.csswg.org/css-anchor-position-1/#position-anchor",
+      "summary": "We are changing the initial value of the \"position-anchor\" CSS property from \"none\" to normal to align with other browsers and the specification.\n\n\"normal\" behaves like \"none\" if the \"position-area\" CSS property is \"none\", otherwise behaves as \"auto\"."
+    },
+    {
+      "id": 5139380420345856,
+      "name": "Timeline naming conflict resolution",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "Resolve naming conflicts when multiple timelines in scope match a given name. In the case of a conflict, the last match in flat tree order wins. This updated behavior aligns with anchor positioning.\n\nPreviously, when multiple elements matched an animation-timeline name, the deferred timeline was left unresolved.  The behavior has been clarified in:\n\nhttps://github.com/w3c/csswg-drafts/issues/12581\n\nThough the issue was filed for timeline-triggers rather than scroll animations, the same rules apply to both.\n\nThis change will not cause a resolved timeline to resolve to a different timeline, but allow a timeline that was previously unresolved to become resolved in the event of a conflict.\n\nThis was flagged as part of interop 2026 for scroll-animations."
+    },
+    {
+      "id": 5123999844663296,
+      "name": "Remove [LegacyNoInterfaceObject] from FontFaceSet IDL",
+      "category": "Miscellaneous",
+      "milestone": 151,
+      "spec": "https://drafts.csswg.org/css-font-loading/#fontfaceset",
+      "summary": "Chromium's FontFaceSet IDL previously used [LegacyNoInterfaceObject], which hid FontFaceSet as a global property and deleted the constructor property from its prototype. This deviated from the CSS Font Loading spec and differed from Safari and Firefox behavior. This change removes [LegacyNoInterfaceObject] from the FontFaceSet IDL, so FontFaceSet is properly exposed as a global property. Since no constructor() is defined in the IDL, calling new FontFaceSet() from JavaScript now throws TypeError: Illegal constructor, matching the spec. This also fixes the historical.html WPT, which was previously failing in Chromium."
+    },
+    {
+      "id": 5121011285622784,
+      "name": "CSS image(<color>) function",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-images-4/#image-notation",
+      "summary": "The image() function allows an author to easily generate a solid-color image from any color. Its syntax is:\n   image() = image( <color> )"
+    },
+    {
+      "id": 4882674767495168,
+      "name": "Application context media feature",
+      "category": "Capabilities (Fugu)",
+      "milestone": null,
+      "spec": "https://github.com/w3c/manifest/pull/1218",
+      "summary": "The `application-context` CSS media feature provides a reliable, stable, boolean signal indicating what app context the current document window is running in. It evaluates to `true` when the document is in an application context (a top-level browsing context with a manifest applied, presented in its own app window) and `false` in all other contexts (running in a browser tab).\n\nThis feature separates the concept of \"running as an installed app\" from the app's current display mode, solving a long-standing gap in the web platform where developers lacked a clean, stable signal for installation state."
+    },
+    {
+      "id": 5100672946143232,
+      "name": "closest-corner and farthest-corner radii for circle() and ellipse() basic shapes",
+      "category": "Miscellaneous",
+      "milestone": 155,
+      "spec": "https://drafts.csswg.org/css-shapes-1/#basic-shape-functions",
+      "summary": "The circle() and ellipse() CSS basic-shape functions accept the closest-corner and farthest-corner radius keywords, in addition to the existing closest-side and farthest-side. These keywords resolve to the Euclidean distance from the shape center to the nearest or farthest corner of the reference box, matching the long-standing behavior of radial-gradient(). They work in clip-path, shape-outside, and offset-path, so the same shape syntax accepted by gradients now works for shapes.\n\n\nCL: https://chromium-review.googlesource.com/c/chromium/src/+/7767079"
+    },
+    {
+      "id": 6196591858941952,
+      "name": "Comma-separated Container Queries",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#container-rule",
+      "summary": "Support multiple queries per @container rule. The @container rule applies if at least one of the queries matches.\n\nThis makes it possible to have fallback queries for features which are not supported in all browsers, for instance.\n\nExample:\n\n@container --name1 not-supported(--foo: bar), --name2 (width > 600px) {}\n\nAlong with the support for multiple queries, the object model is extended to support the 'conditions' attribute on the CSSContainerRule API.\n"
+    },
+    {
+      "id": 5183671737909248,
+      "name": "Animatable zoom",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": null,
+      "summary": "The CSS zoom property is animatable and interpolates as a <number>. Developers can transition and animate zoom to smoothly scale elements and their layout, complementing existing transform-based scaling."
+    },
+    {
+      "id": 6516055192240128,
+      "name": "CSSPseudoElement support for ::backdrop, ::scroll-marker and ::view-transitions",
+      "category": "CSS",
+      "milestone": 152,
+      "spec": "https://drafts.csswg.org/css-pseudo-4/#CSSPseudoElement-interface",
+      "summary": "Support for CSSPseudoElement - which is currently only defined for ::after, ::before, and ::marker - is now being extended to include several new pseudo-elements:\n\n::backdrop: useful for closing a dialog when the backdrop is clicked, without interfering with clicks inside the dialog's content. This eliminates the need for complex intersection logic to determine where the click occurred.\n\n::scroll-marker: can be used to collect click statistics.\n\nview transitions: enables geometry-aware view transitions.It also allows you to intercept a view transition mid-flight to start a new one, utilizing the coordinates of the currently animating element to avoid sudden visual jumps."
+    },
+    {
+      "id": 5152215540039680,
+      "name": "CSS corner shorthand properties ",
+      "category": "CSS",
+      "milestone": 155,
+      "spec": "https://drafts.csswg.org/css-borders-4/#corner-shaping",
+      "summary": "Implements the CSS corner shorthand and per-corner sub-shorthands (corner-top-left, corner-top-right, corner-bottom-left, corner-bottom-right) as well as physical (corner-top, corner-bottom) and logical (corner-block-start, corner-block-end, etc.) edge  shorthands. These allow setting both border-radius and corner-shape for individual corners in a single declaration. Additionally, corners is retained as a compat alias for the corner shorthand.\n\n\nsampler: https://static.januschka.com/i-425897047/\n\nCL: https://chromium-review.googlesource.com/c/chromium/src/+/7747994"
+    },
+    {
+      "id": 5179106330279936,
+      "name": "Implement visibility:collapse for flex items",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-flexbox/#algo-visibility",
+      "summary": "Implement the CSS Flexbox visibility-collapse algorithm for flex items. Collapsed flex items should have zero main-axis size during line collection while preserving line cross-size contribution as a strut, per spec.\n\n\nCL: https://chromium-review.googlesource.com/c/chromium/src/+/7675197\n\n\nsampler: https://static.januschka.com/i-41085247/"
+    },
+    {
+      "id": 5070067395067904,
+      "name": "Customizable select multiple dropdown",
+      "category": "DOM",
+      "milestone": null,
+      "spec": null,
+      "summary": "This feature adds base appearance for the select element when it is a multi-select dropdown: <select multiple size=1>. This is the last rendering mode of the select element to get base appearance, since we already shipped base appearance for single-select dropdown <select> and base appearance for single and multi-select listboxes <select size=4> and <select multiple>.\n\nThe CSS opt in is the same as customizable single-select:\nselect, ::picker(select) {\n  appearance: base-select\n}"
+    },
+    {
+      "id": 5135917565214720,
+      "name": "Incremental font transfer",
+      "category": "Network / Connectivity",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/IFT",
+      "summary": "Incremental font transfer enables the browser to download only the specific portions of a web font needed to render the text on a page. This reduces bandwidth usage and improves page load times for sites using large fonts. This allows developers to optimize web performance without needing to generate and manage font subsets."
+    },
+    {
+      "id": 5080980370096128,
+      "name": "Support path() and shape() in shape-outside",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://drafts.csswg.org/css-shapes/#shape-outside-property",
+      "summary": "Adds support for the path() and shape() shape functions in the CSS shape-outside property. These functions allow developers to define the shape of `shape-outside` more flexibly and support animation.\n\nDemo:\n- https://codepen.io/una/full/ogzRBWV\n- https://codepen.io/yisi/full/EaNjzvR"
+    },
+    {
+      "id": 5201338641285120,
+      "name": "window-drag",
+      "category": "CSS",
+      "milestone": 152,
+      "spec": "https://drafts.csswg.org/css-ui-4/#window-drag",
+      "summary": "The `window-drag` CSS property allows web content to designate regions of an installed desktop web app’s UI that should behave as draggable window titlebar areas. When applied, user pointer interactions (e.g., click-and-drag) on that region move the top-level application window rather than triggering normal page interaction. This is primarily used by desktop PWAs or apps using features like Window Controls Overlay to implement custom title bars and draggable areas when the browser-provided title bar is hidden.\n\nThis feature standardizes and renames the existing `app-region` CSS property, changes its value names to `move` and `none`, and adds explicit inheritance behavior. This property is used by installed web apps and Electron-based applications for the same purpose."
+    },
+    {
+      "id": 4832783806627840,
+      "name": "CSS4 text-decoration-skip-spaces",
+      "category": "CSS",
+      "milestone": 154,
+      "spec": "https://drafts.csswg.org/css-text-decor-4/#text-decoration-skip-spaces-property",
+      "summary": "The text-decoration-skip-spaces CSS property controls whether text decoration lines (underlines, overlines, line-throughs, etc.) skip over whitespace characters. This allows authors to prevent decorations from being drawn under spaces, which is often more visually appealing."
+    },
+    {
+      "id": 5178263526834176,
+      "name": "CSS text-decoration-inset",
+      "category": "CSS",
+      "milestone": 154,
+      "spec": "https://drafts.csswg.org/css-text-decor-4/#propdef-text-decoration-inset",
+      "summary": "CSS text-decoration-inset controls how far underlines, overlines, and line-through decorations are inset from or extended beyond text run edges. It supports auto, length, and percentage values, including one-value and two-value syntax for setting the start and end offsets. This lets developers adjust decoration spacing and create reveal effects with native text decorations instead of background gradients or additional elements.\n\n\nsampler: https://static.januschka.com/i-468928416/?asddsaasd\nMDN: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-decoration-inset\n\nCL: https://chromium-review.googlesource.com/c/chromium/src/+/7748204"
+    },
+    {
+      "id": 5111997147512832,
+      "name": "CSS URL request modifiers",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+      "summary": "CSS url() functions accept optional request modifiers after the quoted URL string: cross-origin(), integrity(), and referrer-policy(). These modifiers control the fetch behavior of the referenced resource directly from CSS, without requiring changes to HTML markup or JavaScript. For example, background-image: url(\"image.png\" cross-origin(anonymous)) fetches the image using CORS anonymous mode. This gives authors fine-grained control over cross-origin access, subresource integrity, and referrer policy for CSS-loaded resources including images, fonts, SVG references, and imported stylesheets."
+    },
+    {
+      "id": 5150754462629888,
+      "name": "Element's matchContainer()",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://github.com/w3c/csswg-drafts/pull/13551",
+      "summary": "Introduce matchContainer() on Element instances for the container query, that provides a similar mechanism to window.matchMedia()."
+    },
+    {
+      "id": 5077341928816640,
+      "name": "Remove explicit border color UA stylesheet rule for tables",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://html.spec.whatwg.org/multipage/rendering.html#tables-2",
+      "summary": "This change removes the erroneous `border-color: gray` CSS rule from the UA stylesheet for the `<table>` element.\n\nThe spec does not contain this rule:\n\nhttps://html.spec.whatwg.org/multipage/rendering.html#tables-2\n\nand it causes the borders to incorrectly not default to currentColor. Neither Firefox nor Webkit have this `gray` border color rule in their UA stylesheet, leading to interop problems."
+    },
+    {
+      "id": 6296574159355904,
+      "name": "User action pseudo class top layer boundary",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://www.w3.org/TR/selectors-4/#useraction-pseudos",
+      "summary": "This feature represents the behavior described in this section of the CSS spec:\n\nhttps://www.w3.org/TR/selectors-4/#useraction-pseudos\n\nwhich says that :hover, :active, and :focus-within match on the parents of elements, but only up to the first top layer element in the parent chain. The change for Chromium is that last \"up to the top layer\" part of this behavior.\n\nConcretely, this means that in the following structure if the user hovers the `<button>`, then the `:hover` pseudo class will match the `<button>` and the popover, but will not match the `<main>` element.\n\n```\n<main>\n  <div popover>\n    <button></button>\n  </div>\n</main>\n<script>document.querySelector('[popover]').showPopover();</script>\n```\n\nThe rationale behind this change is that typically top layer elements are rendered \"elsewhere\", in a location that is disconnected from the parent element visually. So it typically does not make sense to change the styles of the parent element when the top layer element is hovered or activated, for example.\n\nThe customizable select implementation shipped in Chromium has this logic hard-coded for the specific case of the select `::picker()` popover. That special case logic is being removed in favor of the more general behavior with this feature."
+    },
+    {
+      "id": 5176802466201600,
+      "name": "overscroll-behavior: chain",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-overscroll-1/#propdef-overscroll-behavior",
+      "summary": "overscroll-behavior currently has 3 values: none, auto, and contain. These values affect 2 independent effects: scroll propagation and local border effect (e.g. overscroll stretch).\n\nnone: no propagation, no local effect\nauto: propagation, local effect\ncontain: no propagation, local effect\n\nThis feature tracks a new value to complete the set:\nchain: propagation, no local effect\n\nThis is useful for effects like side menus implemented as scrollers. We want to bring the menu in and when it hits the edge it doesn't overscroll (stretch/translate). However, it would then allow scroll chaining to the ancestor.\n\nInitial proposal:\nhttps://github.com/w3c/csswg-drafts/issues/13370"
+    },
+    {
+      "id": 6323071520735232,
+      "name": "Support rect() and xywh() in shape-outside",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://drafts.csswg.org/css-shapes/#shape-outside-property",
+      "summary": "Adds support for the rect() and xywh() basic shape functions in the CSS shape-outside property. These functions allow developers to define float exclusion shapes using rectangle coordinates, aligning Chrome with Firefox and Safari which already support this feature."
+    },
+    {
+      "id": 6636392944893952,
+      "name": "Allow optional rounding parameter for `polygon()`",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-polygon",
+      "summary": "Allows an optional corner-rounding parameter in the polygon() CSS shape function. Developers can specify a length value to round polygon corners without manually computing bezier curves.\n\nInteractive demo: https://codepen.io/yisi/pen/NPRLEQN\nCSSWG issue: https://github.com/w3c/csswg-drafts/issues/9843"
+    },
+    {
+      "id": 4921872333537280,
+      "name": "Allow a comma-separated list of custom property names in the @property prelude",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "Allows a comma-separated list of custom property names in the @property prelude, so that multiple custom properties sharing the same type, initial value, and inheritance behavior can be registered in a single @property rule. This reduces repetition when registering many related CSS custom properties that share the same descriptor values."
+    },
+    {
+      "id": 5184267522015232,
+      "name": "CSS Name-only Container Queries",
+      "category": "CSS",
+      "milestone": 148,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#container-rule",
+      "summary": "A CSS query container can be queried based on its container-name only, and the container does not need any container-type set:\n\n<style>\n#container {\n  container-name: --foo;\n}\n@container --foo {\n  input { background-color: green; }\n}\n<style>\n<div id=\"container\">\n  <div><input></div>\n</div>\n\nPreviously, @container required some query in addition to the name.\n"
+    },
+    {
+      "id": 5173684820115456,
+      "name": "CSS fit-content() function for sizing properties",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-sizing-3/#funcdef-width-fit-content",
+      "summary": "Implements the fit-content(<length-percentage>) value for width, height, min-width, max-width, min-height, and max-height properties, as well as flex-basis as defined by the CSS Box Sizing Module Level 3.\n\nIt resolves as min(max-content, max(min-content, <length-percentage>)), clamping an element's size between its min-content and max-content while targeting the specified length or percentage.\n\nThis gives developers explicit control over content-based sizing without relying on the available space, unlike the fit-content keyword which always uses the stretch size as its target."
+    },
+    {
+      "id": 5169590743203840,
+      "name": "Open Font Format avar2 text shaping and glyph rendering",
+      "category": "CSS",
+      "milestone": 148,
+      "spec": "https://www.iso.org/standard/87621.html",
+      "summary": "Version 2 of the avar (Axis Variations) table enables font designers to create variable fonts with better control over interpolation. While the original variable font spec handles axes independently, avar2 allows axes to influence one another. This leads to fonts that are easier to use for content authors to use, and enable compact storage. \n\nSupport for this feature in Blink means, activating a compile flag in HarfBuzz that processes the version 2 additional fields of the avar table to extend axis variations processing.\n\nAvar2 works by using the same familiar concepts of font variations, but applying the variable delta values to the design axis specifications itself. Plus, it allows doing this over a range of multiple axes.\n\nAs an example, it allows the creation of \"meta sliders\" which control multiple variation axes at once, alleviating the user from fine-tuning and  finding a useful corner of the font's design space. \n\nAvar2 gives font designers better control over the usable variation space of their font, and allows coordinating the adjustment of design axes across several axes. \n\nBy defining the relationships between axes mathematically within the avar version 2 table, fonts can achieve complex designs with fewer masters, leading to smaller file sizes, because the interpolation is stored more efficiently.\n"
+    },
+    {
+      "id": 6234471210811392,
+      "name": "CSS background-clip: border-area",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-clip-border-area",
+      "summary": "Implements the border-area value for the CSS background-clip property, as defined in CSS Backgrounds Level 4. background-clip: border-area clips an element's background to the area painted by its border strokes, taking border-width and border-style into account while ignoring transparency from border-color. This enables gradient borders without border-image. WebKit already ships this feature; this implementation brings Chromium to parity."
+    },
+    {
+      "id": 5123253146353664,
+      "name": "CSS light-dark() with image values",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-color-5/#light-dark",
+      "summary": "Extends the CSS light-dark() function to accept image values (url(), image-set(), none) in author stylesheets, allowing image properties like background-image, list-style-image, border-image-source, cursor, and content to automatically switch between images based on the user's preferred color scheme. Previously this was only allowed in UA stylesheets. This aligns with the CSS Color 5 spec and matches Firefox's existing implementation."
+    },
+    {
+      "id": 5070160203481088,
+      "name": "Relative Alpha Colors (CSS Color 5 alpha() function)",
+      "category": "CSS",
+      "milestone": 152,
+      "spec": "https://drafts.csswg.org/css-color-5/#relative-alpha",
+      "summary": "Relative alpha colors refer to an origin color, and only change the alpha channel. The meaning of alpha channels is defined in CSS Color 4 § 4.2 Representing Transparency in Colors: the <alpha-value> syntax."
+    },
+    {
+      "id": 5067363861004288,
+      "name": "Single-axis scroll containers",
+      "category": "CSS",
+      "milestone": 153,
+      "spec": "https://github.com/w3c/csswg-drafts/pull/13903",
+      "summary": "Extends the `overflow` property to support scrollable values together with `clip` (for example, `overflow: scroll clip`). This allows `position: sticky` to be constrained by different ancestor scroll containers per axis, and gives authors a way to ensure an axis using `overflow: clip` stays in place."
+    },
+    {
+      "id": 6560118298771456,
+      "name": "CSS ruby-overhang property",
+      "category": "CSS",
+      "milestone": 151,
+      "spec": "https://drafts.csswg.org/css-ruby/#ruby-overhang",
+      "summary": "Support of new CSS property `ruby-overhang` is added.\n\nThe property accepts one of `auto`, `spaces` and `none` keywords to control overhang of ruby annotation text. Per CSSWG, none is aliased to spaces, allowing overhang only over whitespace and CJK punctuation. This prevents unnecessary layout gaps while preserving text readability."
+    },
+    {
+      "id": 4861677550043136,
+      "name": "Support 'path-length' as a CSS property.",
+      "category": "Miscellaneous",
+      "milestone": 150,
+      "spec": "https://github.com/w3c/svgwg/pull/1073",
+      "summary": "This change introduces a new CSS property, 'path-length', which maps to the existing SVG 'pathLength' presentation attribute. It applies to SVG geometry elements that support 'pathLength' (including <path>, <circle>, <rect>, <line>, <polyline>, <polygon>, and <ellipse>).\n\nExposing 'pathLength' as a CSS property allows authors to specify it via stylesheets, inline styles, and animations, enabling it to participate in normal CSS cascading, specificity, transitions, and animations. The property affects all computations that depend on the total path length, including stroke dash rendering and text positioning along a <textPath>.\n\nCSS declarations override the presentation attribute following standard CSS precedence rules. The initial value of 'path-length' is 'none', which represents the absence of an author-supplied path length and is distinct from an explicit numeric value such as '0'.\n\nExisting attribute-only behavior is preserved when the feature is disabled."
+    },
+    {
+      "id": 5179328935624704,
+      "name": "Pseudo target on events",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://github.com/w3c/uievents/pull/413/changes",
+      "summary": "Specific events are now extended to have `.pseudoTarget` that is either CSSPseudoElement (if interaction has been with pseudo-element) or null.\n\nThis allows to have more specific information on the event origin, e.g. that not just an ultimate originating element (Event.target) has been clicked, but more specifically that it was ::after. Note that the Event.target is unchanged so event only has extra info on pseudo-element interaction.\n\nThe events are UIEvent, AnimationEvent, TransitionEvent.\n\nmouseover, mouseout, mouseenter, mouseleave and their pointer* counterparts are not yet supported."
+    },
+    {
+      "id": 5172217778405376,
+      "name": "image-rendering: crisp-edges",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://www.w3.org/TR/css-images/#ref-for-valdef-image-rendering-crisp-edges",
+      "summary": "\"image-rendering: crisp-edges\" indicates that image should be scaled in a way that preserves contrast and edges, and which avoids smoothing colors or introducing blur to the image in the process\n\nNote: spec wise this is technically different than 'pixelated'. In actual implementations it is not. Spec wise 'pixelated' = use any process the UA wants to make the result look pixelated. nearest-neighbor is acceptable. 'crisp-edges' = use any process you want that preserves contrast, edges, and avoids blending colors, nearest-neighbor is acceptable. Firefox, Safari, and now Chrome treat both as synonyms and use nearest-neighbor."
+    },
+    {
+      "id": 5077600085082112,
+      "name": "text-decoration-skip-ink: all",
+      "category": "Miscellaneous",
+      "milestone": 148,
+      "spec": "https://drafts.csswg.org/css-text-decor-4/#text-decoration-skip-ink-property",
+      "summary": "Add support for the `all` value for the CSS text-decoration-skip-ink property, as specified in https://drafts.csswg.org/css-text-decor-4/#text-decoration-skip-ink-property.\n\nThe `text-decoration-skip-ink` property already supports `auto` and `none`. The `all` value extends this by unconditionally applying ink-skipping to all glyphs - including CJK characters - whereas `auto` leaves CJK characters un-skipped because ink-skipping tends to produce undesirable visual results for ideographic scripts at typical underline positions.\n\nWith `text-decoration-skip-ink: all`, authors who have adjusted `text-underline-position` or `text-underline-offset` to avoid clashing with CJK glyphs can explicitly opt in to ink-skipping for those characters as well."
+    },
+    {
+      "id": 5197863732772864,
+      "name": "Margin-trim",
+      "category": "CSS",
+      "milestone": 155,
+      "spec": "https://drafts.csswg.org/css-box-4/#margin-trim",
+      "summary": "The `margin-trim` CSS property may be used to omit margins before or after the first or last child of a container. This is supported on regular block containers and multicol containers. Note: A previous version of the spec also applied this for flex and grid containers, but this has been removed.\n\nhttps://drafts.csswg.org/css-box-4/#margin-trim\n\nThis is somewhat similar to the effect caused by the margin quirk that is applied to P, H1, H2... elements inside BODY and table cell elements (in quirks mode), but more powerful, generic, and expressive."
+    },
+    {
+      "id": 5143784390262784,
+      "name": "Remove Inline XSLT for production of SVG",
+      "category": "DOM",
+      "milestone": 147,
+      "spec": null,
+      "summary": "A specially crafted XML file may contain an XSL stylesheet that transforms generic XML data into an SVG file. \n\nExample: https://gist.github.com/drott/1fc70b3c7f0ac314d1fe2e5beecc5490?short_path=1c60adf\n\nThis is a special case of XSLT processing that according to recently introduced use counters XSLPIInSVGImage (UseCounter id 5777), XSLPIInSVGStandaloneDoc (UseCounterId 5778) we consider virtually non-existant on the web and which we want to deprecated and remove before fully phasing out XSLT. \n\nThis is rolled out in sync with experimental testing of the Rust based XML parser. This will not be immediately rolled out to 100% in the marked shipping release version.\n\nUpdate: https://crrev.com/c/7502375 introduced metrics that measure this feature, and it was found that this feature was not used. Which enables us to proceed with launching the Rust XML parser for SVG scenarios, too, which is https://chromestatus.com/feature/5309598397497344 ."
+    },
+    {
+      "id": 5106043975761920,
+      "name": "Web app scope system accent color",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://drafts.csswg.org/css-ui-4/#widget-accent",
+      "summary": "Restricts access to the system accent color for CSS keywords and `accent-color: auto` to be only within a web app and initial profile context.\n\nAccentColor and AccentColorText CSS keywords, pose a significant fingerprinting vector when exposing the user's system colors widely on the web. As such, they're only available in installed web app contexts. Form controls with `accent-color: auto` also match this scope with this feature launch. This introduces more consistent developer and user expectations for system colors and aligns with fingerprinting restrictions for AccentColor[Text]."
+    },
+    {
+      "id": 5173990610042880,
+      "name": "CSS Text Level 3 text-transform: full-size-kana",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://www.w3.org/TR/css-text-3/#valdef-text-transform-full-size-kana",
+      "summary": "Add the full-size-kana value to the text-transform property.\n\nThis value transforms small Japanese kana characters to their full-size equivalents. It is typically used for ruby annotation text, where small kana may be rendered at font sizes too small for legibility."
+    },
+    {
+      "id": 4841046007742464,
+      "name": "CSS contrast-color()",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://drafts.csswg.org/css-color-5/#contrast-color",
+      "summary": "This function is used to meet contrast requirements for accessibility.\n\nThe contrast-color() function can be used anywhere in CSS where a color value is expected. It takes a color value argument, and returns either 'black' or 'white' depending on which of them gives the highest contrast against the color argument.\n"
+    },
+    {
+      "id": 5146265241387008,
+      "name": "Clip Text overflow on user interaction",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://www.w3.org/TR/css-overflow-3/#ellipsis-interaction",
+      "summary": "When a user interacts (editing or caret navigation) with text which has ‘text-overflow: ellipsis’ set, the text switches temporarily from ellipsis to clip allowing the user to see and interact with the hidden overflow content. This feature applies to all editable and non-editable elements. For form controls (textarea, input), the behavior is already supported."
+    },
+    {
+      "id": 5171478175809536,
+      "name": "Long Animation Frames style duration",
+      "category": "Performance",
+      "milestone": null,
+      "spec": "https://github.com/w3c/long-animation-frames/pull/30",
+      "summary": "Add `styleDuration` and `forcedStyleDuration` information to the Long Animation Frame API, enabling developers to distinguish style and layout times."
+    },
+    {
+      "id": 5103791907143680,
+      "name": "Deprecate and remove: CSS overlay property",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://github.com/w3c/csswg-drafts/pull/13234",
+      "summary": "The CSS overlay property was added as an opt-in to keep top layer elements in the top layer during their exit animation. Feedback from authors using this feature has repeatedly shown that it is easy to miss and that it creates bugs that are hard to track down. Instead of requiring authors to include the overlay property in their CSS transitions, it would be much better to just keep these elements in the top layer automatically during their exit animations.\n\nThis would fix bugs in existing sites using top layer animations if they forgot to include the overlay property, and it would not affect sites already using the overlay property because including an invalid property in a list of transitions does not break other transitioning properties.\n\nThe overlay property has not been implemented in other browsers, and it has been rejected for inclusion in WPT interop multiple times:\n- https://github.com/mozilla/standards-positions/issues/777\n- https://github.com/WebKit/standards-positions/issues/169\n- https://github.com/web-platform-tests/interop/issues/581\n- https://github.com/web-platform-tests/interop/issues/789\n- https://github.com/web-platform-tests/interop/issues/1031"
+    },
+    {
+      "id": 5078177326170112,
+      "name": "CSS Image Animation",
+      "category": "CSS",
+      "milestone": 156,
+      "spec": "https://drafts.csswg.org/css-image-animation-1",
+      "summary": "Introduces a new CSS property and pseudo-class to control and detect animated images like GIFs and APNGs.\n\n1. image-animation: Can be set to \"normal\", \"running\", or \"paused\" to control image animation playback.\n\n2. :animated-image: A pseudo-class to determine whether an image is animated."
+    },
+    {
+      "id": 6522328437620736,
+      "name": "Timeline Named Range \"scroll\"",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://drafts.csswg.org/scroll-animations-1/#valdef-animation-timeline-range-scroll",
+      "summary": "This feature expands the set of named ranges of view timelines, adding a \"scroll\" range.\n\nThe Scroll-Driven Animations API introduced ViewTimelines along with named ranges which refer to portions of a ViewTimeline that define an animation's range[1].\n\nHowever, all the named ranges provided were restricted to the portion of the ViewTimeline where its subject is visible. It is useful for authors to be able to refer to the full extent of the scroll container underlying the timeline. This feature facilitates this by adding a named range of \"scroll\" to the existing set (\"entry\", \"exit\", \"cover\", \"contain\").\n\n[1] https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/animation-range"
+    },
+    {
+      "id": 5202661416763392,
+      "name": "JSON and style support for link rel=modulepreload",
+      "category": "DOM",
+      "milestone": 147,
+      "spec": "https://github.com/whatwg/html/pull/11981",
+      "summary": "Adds support for JSON and style module types as <link rel=\"modulepreload\"> destinations. <link rel=\"modulepreload\"> is already supported in Chromium (see https://chromestatus.com/feature/5762805915451392), but it currently only supports preloading script-like module scripts. This feature addresses a functionality gap, as JSON and CSS module scripts are supported in Chromium elsewhere but are not supported as <link rel=\"modulepreload\"> destinations. Style modules can be preloaded with <link rel=\"modulepreload\" as=\"style\" href=\"...\"> and JSON modules can be preloaded with <link rel=\"modulepreload\" as=\"json\" href=\"...\">."
+    },
+    {
+      "id": 5084062739988480,
+      "name": "Support the `hanging` and `each-line` for the `text-indent` property",
+      "category": "CSS",
+      "milestone": 146,
+      "spec": "https://drafts.csswg.org/css-text/#text-indent-property",
+      "summary": "The two optional keywords for the `text-indent` property extends the capability and the usability of the property.\n\nThe `hanging` keyword changes indentation to \"hanging\", that is, all lines except the first line will be indented.\n\nThe `each-line` keyword makes indentation to affect not only the first line but also each line after a forced line break."
+    },
+    {
+      "id": 5101480770142208,
+      "name": "Canvas text writing mode support",
+      "category": "Graphics",
+      "milestone": null,
+      "spec": null,
+      "summary": "Writing mode support for HTML canvas text will enable correct text shaping for vertical text, as already supported by CSS. Canvas text styles gain a \"writingMode\" attribute along with a \"textOrientation\" attribute that have the same effect on a text run as the related CSS properties. The various alignment attributes are augmented to support vertically oriented text. The CSS properties from the canvas element style are ignored."
+    },
+    {
+      "id": 5152759609425920,
+      "name": "trigger-scope",
+      "category": "CSS",
+      "milestone": 146,
+      "spec": "https://drafts.csswg.org/css-animations-2/#trigger-scope",
+      "summary": "trigger-scope gives authors the ability to limit the names of animation triggers declared by trigger-instantiating properties.\n\nTrigger-Instantiating properties, such as timeline-trigger, declare names which can be referenced by the animation-trigger property in order to attach animations to triggers. However, these names are global by default (similar to anchor-name) and it is often useful for author to limit the visibility of the names so as to isolate animation-to-trigger interactions."
+    },
+    {
+      "id": 5160464445210624,
+      "name": "Expose 'onanimationcancel' event to GlobalEventHandlers",
+      "category": "CSS",
+      "milestone": 145,
+      "spec": "https://drafts.csswg.org/css-animations/#interface-globaleventhandlers",
+      "summary": "The CSS Animations Level 1 extends [1] the GlobalEventsHandler Interface defined in the HTML spec [2], declaring 4 new event handlers: onanimationstart, onanimationiteration, onanimationend and onanimationcancel. \nOnly the 'onanimationcancel' event handler has been missing from the GobalEventsHandler IDL. \n\n[1]https://drafts.csswg.org/css-animations/#interface-globaleventhandlers\n[2]https://html.spec.whatwg.org/multipage/webappapis.html#globaleventhandlers "
+    },
+    {
+      "id": 5861138256494592,
+      "name": "Enable monochrome emoji rendering in forced colors mode.",
+      "category": "Miscellaneous",
+      "milestone": 145,
+      "spec": "https://drafts.csswg.org/css-color-adjust-1/#forced-colors-properties",
+      "summary": "This change updates Chromium’s emoji rendering behavior in Forced Colors Mode. During computed-value resolution, emoji whose font-variant-emoji value computes to normal or unicode are rendered using their monochrome glyphs when available.\n\nChromium will therefore suppress color emoji rendering, which ensures emojis fully participate in the Forced Colors Mode pipeline and respect system high-contrast colors. Behavior outside forced colors mode is unchanged."
+    },
+    {
+      "id": 5194034339512320,
+      "name": "Non-Tree-Scoped container-name Matching",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#container-name",
+      "summary": "Ignore tree-scope when matching container-name for @container queries.\n\nPreviously, container-name matching for container queries used tree-scoped names/references for matching, which meant the same name would not match if the @container rule and the container-type property\nwere originating from different trees such that that container-type declaration came from an inner shadow tree.\n\nWith this change container names match regardless of @container rule or container-type declaration origins.\n"
+    },
+    {
+      "id": 5068815373303808,
+      "name": "Don't use aria-details for anchor positioning",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://github.com/w3c/html-aam/issues/545",
+      "summary": "See the discussion in this issue for more context:\n\n- https://github.com/w3c/html-aam/issues/545\n\nThe code to create aria-details relationships for non-popover use cases of anchor positioning was likely a mistake. Since popovers and other semantic relationships *do* create aria-details, and the remaining use cases are likely non-semantic, there is a desire *not* to create these relationships in the non-semantic cases.\n\nSince most common use cases use popovers, this change should hopefully not be too noticeable to users."
+    },
+    {
+      "id": 5068277495758848,
+      "name": "Media element pseudo-classes",
+      "category": "Multimedia",
+      "milestone": 155,
+      "spec": "https://html.spec.whatwg.org/multipage/semantics-other.html#pseudo-classes",
+      "summary": "The :playing, :paused, :seeking, :buffering, :stalled, :muted, and :volume-locked CSS pseudo-classes match <audio> and <video> elements based on their state.\n\nThis is one of the focus areas in https://wpt.fyi/interop-2026."
+    },
+    {
+      "id": 6211897229705216,
+      "name": "CSS counter-reset: <reversed-counter-name>",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-lists-3/#counter-reset",
+      "summary": "Supports a <reversed-counter-name> value type for counter-reset.\n\nThis value instantiates a reversed counter of the given <counter-name> with a starting value of the given <integer>, or no starting value if not given."
+    },
+    {
+      "id": 5278801626005504,
+      "name": "CSS Lists and Counters: accounting reversed list value",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-lists-3/#list-item-counter",
+      "summary": "Fixes the accounting of the reversed ordered list by containing non-list elements and applying new algorithm that repeats the last non-zero increment value."
+    },
+    {
+      "id": 5099117340655616,
+      "name": "Respect overscroll-behavior for keyboard scrolls",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://www.w3.org/TR/css-overscroll-1",
+      "summary": "When you set `overscroll-behavior` to a value other than `auto`, the browser should not perform scroll chaining. We respect this for mouse or touch scrolling, however keyboard scrolls were ignoring it. This change makes keyboard scrolling respect overscroll-behavior as well."
+    },
+    {
+      "id": 5134266027606016,
+      "name": "SVG2 CSS Cascading",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://www.w3.org/TR/SVG2/struct.html#UseElement",
+      "summary": "Align the Blink implementation with the SVG2 specification for matching CSS rules in <use> element trees.\n\nMatch selectors against the <use> instantiation elements instead of the originating element subtree. This means selectors will no longer match ancestor and sibling elements outside the cloned subtree. More importantly, state selectors like :hover will now start matching in <use> instances.\n"
+    },
+    {
+      "id": 5106867491700736,
+      "name": "CSS letter-spacing and word-spacing: percentage values",
+      "category": "CSS",
+      "milestone": 145,
+      "spec": "https://www.w3.org/TR/css-text-4/#propdef-letter-spacing",
+      "summary": "Enables percentage values for the letter-spacing and word-spacing CSS property, as defined in the CSS Text Module Level 4 spec. Percentage values are calculated relative to the advance measure of the space character (U+0020). This gives developers more robust and flexible control over typography, particularly in responsive designs where text spacing needs to adapt to different viewports and font sizes."
+    },
+    {
+      "id": 5324559251275776,
+      "name": "CSS random() function",
+      "category": "CSS",
+      "milestone": 155,
+      "spec": "https://www.w3.org/TR/css-values-5/#random",
+      "summary": "The random() function brings generative randomness to CSS, allowing web authors to generate a random numeric value within a specified range.\n\nFor example, web authors can use random() to scatter elements randomly within their container:\n.dot {\n  /* Position each dot randomly */\n  position: absolute;\n  top: random(0%, 100%);\n  left: random(0%, 100%);\n}\n\nThis feature also includes caching controls. By default, each random() function resolves to a new, distinct value. Web authors can override this default by passing a <random-key> value as the function's first argument to control how random values are shared across properties and elements."
+    },
+    {
+      "id": 5079678972985344,
+      "name": "`text-justify` CSS property",
+      "category": "CSS",
+      "milestone": 145,
+      "spec": "https://www.w3.org/TR/css-text-3/#text-justify-property",
+      "summary": "Support of `text-justify` CSS property\n\nWeb authors can control how text is justified when `text-align: justify` is applied by using the `text-justify` property.  For example, they can force justification by expanding inter-character space even in English text.\n"
+    },
+    {
+      "id": 5162372125818880,
+      "name": "CSS color space display-p3-linear",
+      "category": "Miscellaneous",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-color/#predefined-display-p3-linear",
+      "summary": "Add display-p3-linear CSS color space"
+    },
+    {
+      "id": 5110744177836032,
+      "name": "at-rule: CSS Feature Detection",
+      "category": "CSS",
+      "milestone": 148,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#support-definition-at-rules",
+      "summary": "This feature adds an `at-rule()` function to CSS `@supports` which enables authors to feature-detect support for CSS at-rules."
+    },
+    {
+      "id": 5104958101913600,
+      "name": "Base Appearance Form Controls",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-forms-1",
+      "summary": "Base appearance form controls allow developers to take more complete control of the rendering of form controls. Developers can do this by adding the appearance:base CSS property to get an interopable base stylesheet, and use newly provided pseudo-elements to target specific control parts.\n\nBuilding on the work already done for customisable select this feature extends this customisation to the other in-page components of form controls."
+    },
+    {
+      "id": 5176753681203200,
+      "name": "Refine border-radius shadow edge computation for high border-radius",
+      "category": "CSS",
+      "milestone": 145,
+      "spec": "https://drafts.csswg.org/css-backgrounds-3/#corner-shaping",
+      "summary": "This improvement ensures that shadows and clip boundaries on near-circular elements (where border-radius is close to 50%) precisely match the visual contour of the curved edge.\n\nThis produces a more consistent rendering of complex rounded shapes, eliminating visual discrepancies for high radius values. The border-radius adjustment factor, which ensures corners appear sharp for small radii, is now progressively dampened as the radius value approaches 50%.\n\nThis also applies to non-round contours (using corner-shape), which now use the same radius adjustment mechanism."
+    },
+    {
+      "id": 5201048700583936,
+      "name": "CSS anchor positioning with transforms",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-anchor-position-1/#anchor-position-size",
+      "summary": "When an anchor-positioned element is tethered against an anchor that has a transform (or is contained by something with a transform), resolve anchor() and anchor-size() functions against the bounding box of the transformed anchor."
+    },
+    {
+      "id": 4790543041298432,
+      "name": "Declarative Shadow DOM 'shadowrootadoptedstylesheets'",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://github.com/whatwg/html/pull/12339",
+      "summary": "Allows for Declarative Shadow DOM (DSD) to specify adopted stylesheets at parse time. 'shadowrootadoptedstylesheets' supports a space-separated list of specifiers that each get fetched (exactly like a JavaScript import) and added to 'adoptedStyleSheets' in specified order. Developers are encouraged to preload the stylesheets referenced via <link rel=\"modulepreload\" as=\"style\"> in the head to prevent late fetches."
+    },
+    {
+      "id": 5073321259565056,
+      "name": "side-relative syntax for background-position-x/y longhands",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-backgrounds-4/#background-position-longhands",
+      "summary": "Defines the background image's position relative to one of its edges. \n\nThis syntax gives web authors a more flexible and responsive mechanisms to define the background image position, instead of using fixed values that need to be adapted to the window's or frame's size. \n\nThis feature is applied also to the \"-webkit-mask-position\" to ensure webcompat levels are the same."
+    },
+    {
+      "id": 5125651610861568,
+      "name": "CSSOM Document.nodesFromRect API",
+      "category": "CSS",
+      "milestone": null,
+      "spec": null,
+      "summary": "An API on Document for returning the sequence of elements or text nodes within a rectangle."
+    },
+    {
+      "id": 5112244702674944,
+      "name": "meta name=\"text-scale\"",
+      "category": "Miscellaneous",
+      "milestone": 146,
+      "spec": "https://drafts.csswg.org/css-fonts-5/#text-scale-meta",
+      "summary": "Makes the root element's default font size scale in proportion to both the operating system's and browser's text scale setting. This allows pages that follow best practices around font-relative units (i.e. use rem and em for font sizes and page elements that should change with the user's text size preferences) to respect the user's OS-level text scale setting. This also causes the browser to disable existing browser-based mechanisms (i.e. full-page zoom on windows) and heuristics (i.e. text autosizing on mobile). Now web developers can signal to the browser that the page is constructed in a way (i.e. with rem and em) that will scale well across various user-selected font size preferences. Similar to env(preferred-text-scale), which provides authors with a way to access the text scale; this API extends that by enabling scaling via the root element's default font size and opting-out of automatic text scaling."
+    },
+    {
+      "id": 5146458504429568,
+      "name": "The revert-rule keyword",
+      "category": "CSS",
+      "milestone": 148,
+      "spec": "https://drafts.csswg.org/css-cascade-5/#revert-rule-keyword",
+      "summary": "The revert-rule keyword rolls back the cascade to the previous rule, similar to how revert-layer rolls back the cascade to the previous layer. For example:\r\n\r\n```\r\ndiv { color: green; }\r\ndiv { color: revert-rule; /* Effectively green */ }\r\n```\r\n\r\nThis is especially useful in combination with conditionals, as it allows eliminating the current rule if some condition is not met:\r\n\r\n```\r\ndiv {\r\n  display: if(style(--layout: fancy): grid; else: revert-rule);\r\n}\r\n```\r\n"
+    },
+    {
+      "id": 6222145025867776,
+      "name": "Customizable select listbox",
+      "category": "DOM",
+      "milestone": 145,
+      "spec": "https://github.com/whatwg/html/pull/11758",
+      "summary": "This feature extends customizable select support to the listbox rendering mode, including single-select and multi-select in listbox mode.\n\nThe listbox rendering mode means that the select element is rendered in-flow or in the page rather than with a separate button and popup. Listbox rendering mode is opted into across platforms via the multiple or size attributes, like <select multiple> or <select size=4>. When the appearance:base-select CSS property is applied to the select element with these attributes, it will now have improved rendering and input behavior.\n\nThis feature does not support customizable select for the multi-select popup, which will come later. The following attributes must be set in order to get a multi-select popup: <select multiple size=1>."
+    },
+    {
+      "id": 4771962874363904,
+      "name": "Declarative route matching",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-navigation-1",
+      "summary": "A \"route\" is a URL pattern that has rules attached to it.\r\nAllow developers to respond to URL changes by assigning names to routes and matching them directly with CSS or with JS."
+    },
+    {
+      "id": 6297362687066112,
+      "name": "OpaqueRange",
+      "category": "DOM",
+      "milestone": 152,
+      "spec": "https://github.com/whatwg/dom/pull/1404",
+      "summary": "`OpaqueRange` represents a live span of text within a form control’s value, such as a `<textarea>` or text-based `<input>`, so developers can work with value text using range-like APIs.\n\nIt enables operations such as `getBoundingClientRect()`, `getClientRects()`, and integration with the CSS Custom Highlight API for UI such as inline suggestions, highlights, and anchored popovers. It preserves encapsulation by exposing only value offsets while returning `null` for `startContainer` and `endContainer`, so DOM endpoints and internal structure are not exposed."
+    },
+    {
+      "id": 5155103518228480,
+      "name": "Use of CssPixels in LayoutShift API",
+      "category": "Performance",
+      "milestone": 145,
+      "spec": "https://wicg.github.io/layout-instability/#sec-layout-shift-attribution",
+      "summary": "This feature changes the attribution data (`prevRect` and `currentRect`) in the [LayoutShift API](https://wicg.github.io/layout-instability/) to be reported in CSS pixels instead of physical pixels.\nThe current behavior is inconsistent with other layout-related APIs, which all use CSS pixels. This change improves consistency, simplifies usage for developers, and aligns with expected units in debugging and tooling."
+    },
+    {
+      "id": 5194399398756352,
+      "name": "CSSPseudoElement interface",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+      "summary": "CSSPseudoElement interface is a way to represent a pseudo-element in JS.\n\nCSSPseudoElement is returned from Element.pseudo(type), where `type` is currently: ::after, ::before, ::marker.\nCSSPseudoElement is a proxy object that represents a pseudo-element, so, unlike a pseudo-element, CSSPseudoElement always exists.\n\nCSSPseudoElement has the following attributes/methods:\n- The type attribute is a string representing the type of the pseudo-element.\n- The element attribute is the ultimate originating element of the pseudo-element.\n- The parent attribute is the originating element of the pseudo-element (Either Element of CSSPseudoElement for nested pseudo-elements).\n- The pseudo(type) method to retrieve nested pseudo-elements."
+    },
+    {
+      "id": 6317308531965952,
+      "name": "Mirroring of RTL MathML operators",
+      "category": "Miscellaneous",
+      "milestone": 144,
+      "spec": "https://w3c.github.io/mathml-core/#layout-of-operators",
+      "summary": "Support for character-level and glyph-level mirroring when rendering MathML operators in right-to-left mode.\r\n\r\nWhen using RTL mode some operators can be mirrored by changing them to another code point (e.g. a right parentheses becomes a left parentheses). This is character-level mirroring, with equivalences defined by Unicode's `Bidi_Mirrored` property. \r\n\r\nThere are operators that have no appropriate mirroring character. Glyph-level mirroring applies in this case, with the `rtlm` font feature, where another glyph can replace it in a mirrored context. Some existing implementations mirror the original glyph directly, but this may change the meaning for asymmetrical characters, such as the clockwise contour integral."
+    },
+    {
+      "id": 5129635997941760,
+      "name": "Respect overscroll-behavior on non-scrollable scroll containers",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://www.w3.org/TR/css-overscroll-1/#propdef-overscroll-behavior",
+      "summary": "The overscroll-behavior applies to all scroll container elements, regardless of whether those elements currently have overflowing content or are user scrollable. Developers can use overscroll-behavior to prevent scroll propagation on an `overflow: hidden` backdrop or an `overflow: auto` element without needing to consider whether it will currently be overflowing."
+    },
+    {
+      "id": 5162506557063168,
+      "name": "Enhanced support for presentation attributes on <use> and <symbol> elements",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": "https://svgwg.org/svg2-draft/styling.html#TermPresentationAttribute",
+      "summary": "This feature ensures consistent rendering of the <use> element when using width and height via both CSS and presentation attributes. It also adds support for x, y, width, and height on <symbol>, giving developers better control over layout.\n\nBefore:\nOnly CSS-based width and height on <use> were supported; presentation attributes were ignored or inconsistent.\n\nNow:\n<use> supports width and height as presentation attributes.\n<symbol> supports x, y, width, and height as presentation attributes.\n\nThis ensures consistent rendering across CSS and markup.\n\nBefore:\n<svg width=\"100\" height=\"100\">\n <defs>\n    <symbol id=\"sym\">\n      <rect width=\"100\" height=\"100\" fill=\"green\"/>\n    </symbol>\n  </defs>\n  <use href=\"#sym\" style=\"width:40; height:40\"/>\n</svg>\n\nNow:\n<svg width=\"100\" height=\"100\">\n <defs>\n    <symbol id=\"sym\" width=\"80\" height=\"80\" x=\"10\" y=\"10\">\n      <rect width=\"100\" height=\"100\" fill=\"green\"/>\n    </symbol>\n  </defs>\n  <use href=\"#sym\" width=\"40\" height=\"40\"/>\n</svg>"
+    },
+    {
+      "id": 5459864205393920,
+      "name": "CSS border-shape",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://drafts.csswg.org/css-borders-4/#border-shape",
+      "summary": "CSS border-shape enables creating non-rectangular borders, with any arbitrary shape (polygon, circle, shape(), etc).\r\n\r\nThough border-shape accepts the same shapes as clip-path, it is fundamentally different: border-shape defines the shape of the border, decorates it, and clips only the inside. \r\n\r\nborder-shape has two variants: one variant that strokes a shape, and another variant that fills between two shapes."
+    },
+    {
+      "id": 5190141555245056,
+      "name": "Add font-width property and descriptor and make font-stretch a legacy alias",
+      "category": "Miscellaneous",
+      "milestone": null,
+      "spec": null,
+      "summary": "Chrome currently fails to apply the font-width property in both inline styles and @font-face rules, resulting in incorrect font rendering. This is due to the browser not recognizing font-width as a valid property.\nThe font-stretch property is now considered a legacy alias. While it continues to function, it is no longer the recommended approach for controlling font width. According to the CSS Fonts specification, the modern and preferred property for this purpose is font-width.\nHowever, Chromium does not currently support font-width. This lack of implementation leads to rendering inconsistencies when compared to browsers like Safari, which do support the property."
+    },
+    {
+      "id": 5515971464527872,
+      "name": "Expose unprintable areas via CSS",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-page-3/#page-margin-safety",
+      "summary": "Printers usually have a small area at each of the four edges of a sheet of paper that they are not capable of marking reliably, usually due to the printer’s paper handling mechanism. The default page margins are expected to be bigger than these areas, but if authors set margins on their own, and even want to add @page margin boxes (e.g. for custom headers and footers), they need a way of telling where it's safe to print and not.\n\nThe CSS descriptor `page-margin-safety` can be used to steer clear of such unprintable areas."
+    },
+    {
+      "id": 5133099851317248,
+      "name": "CSS update: decoupling of Width and Style properties",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://github.com/w3c/csswg-drafts/pull/11913/files",
+      "summary": "Chrome 147 aligns with updated [CSS specifications](https://www.w3.org/TR/css-2025/) regarding the behavior of `border-width`, `outline-width`, and `column-rule-width` properties. Previously, if the corresponding `border-style`, `outline-style`, or `column-rule-style` was set to `none` or `hidden`, the computed width of these properties would be forced to `0px`, regardless of the specified value.\n\nWith this change, the computed values of `border-width`, `outline-width`, and `column-rule-width` will always reflect the author-specified values, independent of the `*-style` property. Additionally, the resolved values (as returned by `getComputedStyle()`) for `outline-width` and `column-rule-width` will also reflect the specified values.\n\nThe change aligns Chrome with Firefox and WebKit, which have already implemented this behavior."
+    },
+    {
+      "id": 5083137520173056,
+      "name": "@scroll-state scrolled support",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#scrolled",
+      "summary": "Allows authors to style descendants of containers based on the most recent scrolling direction.\n\nExample:\n\n.scrolling-up {\n  translate: 80px 0;\n  transition:\n    0.4s translate;\n}\n\nhtml {\n  container-type: scroll-state;\n}\n\n@container scroll-state(scrolled: top) {\n  .scrolling-up {\n    translate: 0 0;\n  }\n}"
+    },
+    {
+      "id": 6106160780017664,
+      "name": "CSS caret-shape property",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-ui/#caret-shape",
+      "summary": "The shape of the caret in native applications is most commonly a vertical bar, an underscore or a rectangular block. In addition, the shape often varies depending on the input mode, such as insert or replace. The CSS caret-shape property allows sites to choose one of these shapes for the caret inside editable elements, or leave the choice up to the browser. The recognized property values are auto, bar, block and underscore."
+    },
+    {
+      "id": 5104141688635392,
+      "name": "CSS `text-fit` property",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-text-5/#text-fit-property",
+      "summary": "Scales the font size of text nodes to perfectly fit the width of its containing box.\n\nThis property allows developers to ensure headlines or dynamic content fill the available horizontal space without manual font-size calculations or complex JavaScript workarounds. It provides a robust, CSS-native solution for responsive typography that maintains visual alignment across different screen sizes and varying text lengths.\n"
+    },
+    {
+      "id": 4547107962486784,
+      "name": "flex-wrap:balance",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-flexbox-2",
+      "summary": "flex-wrap:balance allows developers to distribute content between flex-lines so that it appears more balanced (similar to text-wrap:balance)."
+    },
+    {
+      "id": 5176206485618688,
+      "name": "Column wrapping for multicol",
+      "category": "CSS",
+      "milestone": 145,
+      "spec": "https://drafts.csswg.org/css-multicol-2",
+      "summary": "Add support for the `column-wrap` and `column-height` CSS properties, from multicol Level 2. \r\n\r\nhttps://drafts.csswg.org/css-multicol-2/#cwr\r\nhttps://drafts.csswg.org/css-multicol-2/#ch\r\n\r\nThis allows for vertical column layout, or even 2D column layout. Columns can have an explicit constrained height, apart from being derived from the content-box height of the multicol container, and wrap to a new row of columns when all columns have been filled for one row, rather than creating overflowing columns in the inline direction."
+    },
+    {
+      "id": 5202380930678784,
+      "name": "Cache sharing for extremely-pervasive resources",
+      "category": "Network / Connectivity",
+      "milestone": 146,
+      "spec": null,
+      "summary": "For a small number (hundreds) of hand-curated static third-party script, stylesheet and compression-dictionary resources that are used on a large portion of the web, Chrome will use a single-keyed HTTP cache to store those resources. \n\nThis helps users and site owners with faster performance for those resources that are very widely used while maintaining the privacy protections of the partitioned disk cache.\n\nThis feature targets the resources that most users are likely to see multiple times across multiple sites in any given browsing session. They are usually not in the critical path of the page loading and may not impact the common performance metrics but they are still important for the healthy operation of the web.\n\nThe list of candidate scripts is curated from the HTTP Archive dataset.\n\nThis includes site-independent things like common analytics scripts, social media embeds, video player embeds, captcha providers and ads libraries. It allows for code that uses versioned URLs as long as the versioning is not a manual process by embedders and that the same version is sent to everybody at a given point in time with the same contents.\n\nThis does not include things like common Javascript libraries where they are commonly self-hosted or where the URL references a specific version of the library and it is up to site owners to manually select a version."
+    },
+    {
+      "id": 5109852273377280,
+      "name": "Element-scoped view transitions",
+      "category": "CSS",
+      "milestone": 147,
+      "spec": "https://drafts.csswg.org/css-view-transitions-2",
+      "summary": "Exposes element.startViewTransition() on arbitrary HTML elements.  The element establishes a scope for the transition, which means that the transition pseudo-elements are affected by ancestor clips and transforms, and multiple transitions on separate elements can run concurrently."
+    },
+    {
+      "id": 5181996801982464,
+      "name": "Scroll Triggered Animations",
+      "category": "CSS",
+      "milestone": 146,
+      "spec": "https://drafts.csswg.org/css-animations-2/#timeline-triggers",
+      "summary": "This feature adds scroll-position-based control of animations, e.g. playing, pausing, and resetting an animation.\n\nA common pattern on pages across the web is to kick off an animation when a scroll position is reached. Developers often do this by using JavaScript to manually detect that an element is within its scroll container's viewport and to kick off a corresponding animation (e.g. perhaps sliding that element into view). Many of such use cases are based on information that can be provided declaratively. This feature gives authors the ability to create such interactions declaratively via CSS, allowing the user agent to offload the handling of this interaction to a worker thread. The API also includes JavaScript interfaces that allow the feature to be extended to web animations in addition to CSS animations."
+    },
+    {
+      "id": 5153932394102784,
+      "name": "named-feature() function for CSS @supports",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-named-feature-fn",
+      "summary": "The named-feature() function allows CSS @supports rules to query for a small set of specific named features that are not possible to test for using other @supports mechanisms but which are considered highly valuable to test for."
+    },
+    {
+      "id": 5157805733183488,
+      "name": "CSS Gap Decorations",
+      "category": "CSS",
+      "milestone": 149,
+      "spec": "https://drafts.csswg.org/css-gaps-1",
+      "summary": "CSS Gap Decorations enables styling of gaps in container layouts like Grid and Flexbox, similar to ‘column-rule’ in multicol layout. This feature is highly requested by web authors who must use hacks to style the gaps in Grid and Flexbox layouts today."
+    },
+    {
+      "id": 5149560434589696,
+      "name": "CSS Grid-Lanes (i.e. Masonry)",
+      "category": "CSS",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/css-grid-3",
+      "summary": "CSS Grid-Lanes is a layout module where items of varying heights are arranged in columns, filling gaps to create a seamless grid, similar to a brick wall, perfect for accommodating elements with varying aspect ratios.\n\nUnlike CSS Grid, Grid-Lanes is better suited for one-dimensional flow layouts, like image galleries, where the focus is on filling the space efficiently rather than aligning items along both axes.\n\nGrid-Lanes provides greater design freedom, enabling the creation of dynamic, responsive layouts that adapt to content variations without the need for manual adjustments or a non-standard JavaScript implementation."
+    },
+    {
+      "id": 5195073796177920,
+      "name": "CSS find-in-page highlight pseudos",
+      "category": "CSS",
+      "milestone": 144,
+      "spec": "https://drafts.csswg.org/css-pseudo-4/#selectordef-search-text",
+      "summary": "This feature exposes **find-in-page** search result styling to authors as a highlight pseudo-element, like selection and spelling errors. This allows authors to change the foreground and background colors or add text decorations, which can be especially useful if the browser defaults have insufficient contrast with the page colors or are otherwise unsuitable."
+    },
+    {
+      "id": 5068127364186112,
+      "name": "AccentColor and AccentColorText system colors",
+      "category": "CSS",
+      "milestone": 150,
+      "spec": "https://www.w3.org/TR/css-color-4/#css-system-colors",
+      "summary": "The AccentColor and AccentColorText system colors can be used in CSS to access the system accent color specified on the user's device.\nThis allows developers to apply native app like styling to their web content in contexts where users expect OS theme integration, such as an installed web application. Users must be in an installed web application on the initial profile to see the system accent color rendered."
+    },
+    {
+      "id": 5201832664629248,
+      "name": "Additional Windowing Controls",
+      "category": "Capabilities (Fugu)",
+      "milestone": 155,
+      "spec": "https://www.w3.org/TR/window-management/#api-window-minimize-method",
+      "summary": "Enable web applications to maximize, minimize, and restore their windows, control whether the window can be resized, and introspect the corresponding window state.\n\nThe Window Management permission is required for new JS API controls (window.maximize()/minimize()/restore()/setResizable(bool)). The new CSS media features display-state and resizable are not gated behind a permission as they can follow the non-AWC API toggled states as well.\n\nThis feature is an enhancement of the Window Management API:\nhttps://chromestatus.com/feature/5252960583942144"
+    },
+    {
+      "id": 6015941766807552,
+      "name": "CSSOM View geometry utilities",
+      "category": "DOM",
+      "milestone": null,
+      "spec": "https://drafts.csswg.org/cssom-view/#the-geometryutils-interface",
+      "summary": "Prototype the CSSOM View GeometryUtils API in Blink behind the existing GeometryUtils runtime flag. The API exposes getBoxQuads(), convertQuadFromNode(), convertRectFromNode(), and convertPointFromNode() on Document, Element, Text, and CSSPseudoElement so authors can obtain and convert precise DOM geometry using standard DOMPoint, DOMRect, and DOMQuad objects.\nThe underlying DOM geometry value types, including DOMPoint, DOMRect, and DOMQuad, already exist in Chromium; this prototype adds the node-based geometry utility methods."
+    }
+  ]
+}

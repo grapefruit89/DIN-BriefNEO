@@ -1,0 +1,1980 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "title": "Maschinenlesbare Inventur: docs/20-implementation & docs/30-meta",
+    "description": "Lückenlose Inventur aller Dokumente aus der Implementierungs-Ebene (20-implementation: Guides, How-Tos, Referenzen) und der Meta-Ebene (30-meta: Status, Logs, Historie, Obsidian-Schema, Tooling) von DIN-Brief Neo nach der W-Fragelogik.",
+    "generated_at": "2026-09-04T13:40:00+02:00",
+    "target_directories": [
+      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation",
+      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta"
+    ],
+    "total_documents_count": 28,
+    "counts_per_directory": {
+      "20-implementation": 10,
+      "30-meta": 18
+    },
+    "directory_roles": {
+      "20-implementation": "Praktisches Implementierungswissen, How-Tos, CSS/JS-Leitfäden, Glossar, Toast-System, Test-Strategie und LLM-SQLite-Recherche. Beantwortet das 'WIE wird es im Code gemacht?'.",
+      "30-meta": "Projektgedächtnis, historische Logs (DECISION-LOG, CHANGELOG, Memories), Feature-Status (Feature-Matrix), Obsidian-Konfiguration (Schema V6, Guides) und Tooling-Übersichten. Beantwortet das 'WAS ist passiert, WO stehen wir und WIE ist die Doku strukturiert?'."
+    }
+  },
+  "documents": [
+    {
+      "file_name": "README.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\README.md",
+      "section": "20-implementation",
+      "normative_level": "Hub-Dokument — Einstiegspunkt & Navigation für Ebene 20-implementation",
+      "frontmatter": {
+        "id": "implementation-readme",
+        "title": "20-implementation — Praktische Anleitungen & How-Tos",
+        "type": "meta",
+        "status": "active",
+        "created": "2026-07-07",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/meta"
+        ],
+        "doc_links": [
+          "Salutation-Engine",
+          "glossary",
+          "testing-guide"
+        ],
+        "error_patterns": [
+          "implementation",
+          "guide",
+          "anleitung",
+          "how-to",
+          "20-implementation"
+        ],
+        "supersedes": [],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Entwickler, KI-Agenten und Autoren von Implementierungsanleitungen.",
+          "aenderungsberechtigt": "Entwickler und Dokumentations-Autoren.",
+          "zielgruppe": "Jeder, der verstehen will, wie ein Feature in DIN-Brief Neo konkret im Code umgesetzt wird."
+        },
+        "was": {
+          "definition": "Zentraler Index für das Implementierungswissen: Verknüpft technische Guides, Feature-Dokumentationen, das Glossar und Test-Anleitungen.",
+          "kerninhalte": [
+            "Feature-Dokumentation (Salutation-Engine, Glossar, Testing, SQLite-DB)",
+            "Technische Guides (DIN 5008 CSS, Adress-Autocomplete, No-Scroll, Toast-System)",
+            "Forschung & Roadmap (sqlite-vec semantische Suche)",
+            "Verlinkung zum Guide-Template in 30-meta"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Permanent aktiver Leitfaden."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/README.md",
+          "wirkungsbereich": "Gesamter Ordner docs/20-implementation/.",
+          "verknuepfungen": [
+            "docs/10-architecture/README.md",
+            "docs/30-meta/GUIDE-TEMPLATE.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Trennung zwischen reiner Architektur (10-architecture) und praktischer Programmierpraxis (20-implementation).",
+          "weshalb": "Ermöglicht schnelles Auffinden praxisorientierter Code-Guides ohne Architektur-Ballast.",
+          "warum": "Stellt sicher, dass neue Teammitglieder oder KI-Agenten sofort die konkreten Code-Patterns finden."
+        }
+      }
+    },
+    {
+      "file_name": "README-DB.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\README-DB.md",
+      "section": "20-implementation",
+      "normative_level": "Technischer Guide — LLM-First SQLite-Datenbank & MCP-Wissensgraph",
+      "frontmatter": {
+        "id": "README-DB",
+        "title": "LLM-First Dokumenten-Datenbank & MCP-Architektur",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/reference",
+          "tech/sqlite",
+          "tech/fts5",
+          "tech/mcp"
+        ],
+        "doc_links": [
+          "Immutable-Law-Catalog",
+          "longevity-guidelines",
+          "DEV-INFO",
+          "sqlite-vec"
+        ],
+        "code_links": [
+          "tools/build_db.js",
+          "tools/build_db.py"
+        ],
+        "error_patterns": [
+          "datenbank",
+          "sqlite",
+          "fts5",
+          "mcp",
+          "build_db",
+          "volltext",
+          "DIN-Brief_docs.db",
+          "sql",
+          "retrieval",
+          "llm-first"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Lokale KI-Agenten, MCP-Server und Entwickler.",
+          "aenderungsberechtigt": "Architekten und KI-Tooling-Entwickler.",
+          "zielgruppe": "KI-Agenten zur semantischen Volltextrecherche im Projektwissen."
+        },
+        "was": {
+          "definition": "Architektur und SQL-Schema für eine lokale SQLite-Datenbank (FTS5 + Views) zur Speicherung und Abfrage aller Markdown-Dokumente und Code-Elemente.",
+          "kerninhalte": [
+            "Schema-Design: Tabellen documents, tags, doc_links, headings, code_links",
+            "FTS5-Volltextsuche für ultraschnelle LLM-Kontextbeschaffung",
+            "SQL-Views (v_broken_links, v_graph_edges, v_architecture_overview)",
+            "MCP-Server-Integration für antigravity/claude/gemini CLI"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-27",
+          "zuletzt_aktualisiert": "2026-08-27",
+          "gueltigkeit": "Aktiv für lokales Tooling."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/README-DB.md",
+          "wirkungsbereich": "tools/build-docs-db.js und lokale SQLite-Datenbank.",
+          "verknuepfungen": [
+            "docs/20-implementation/sqlite-vec.md",
+            "docs/30-meta/tooling-overview.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Dateisystem-Grep wird bei Dutzenden Dokumenten ineffizient und liefert unstrukturierte Kontextfragmente.",
+          "weshalb": "SQLite mit FTS5 liefert strukturierte Relationen zwischen ADRs, Specs und Code in 2 Millisekunden.",
+          "warum": "Maximiert die Effizienz und Genauigkeit automatisierter KI-Codierungsassistenten."
+        }
+      }
+    },
+    {
+      "file_name": "Salutation-Engine.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\Salutation-Engine.md",
+      "section": "20-implementation",
+      "normative_level": "Feature-Dokumentation — Anrede- & Grußformel-Logik (SPEC-002)",
+      "frontmatter": {
+        "id": "salutation-engine",
+        "title": "Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-09-04",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "ADR-JS",
+          "ADR-HTML",
+          "spec",
+          "glossary"
+        ],
+        "code_links": [
+          "website/js/41-salutation-engine.js",
+          "website/js/41-salutation-engine.smart.js"
+        ],
+        "error_patterns": [
+          "salutation engine",
+          "anrede",
+          "grussformel",
+          "gender detection",
+          "formality switch",
+          "b2b paerchen",
+          "adelspartikel",
+          "dirty flag",
+          "auto reset"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Berechnung der automatischen Briefanrede und passenden Grußformel.",
+          "aenderungsberechtigt": "Entwickler.",
+          "zielgruppe": "Endnutzer beim Verfassen privater und geschäftlicher Briefe."
+        },
+        "was": {
+          "definition": "Detaillierte Spezifikation der Anrede-Logik: Namenszerlegung, Titel-Erkennung, Höflichkeitsgrade und ContentEditable-Schutz.",
+          "kerninhalte": [
+            "SPEC-002-Abdeckung: Höflichkeitsgrade (förmlich, höflich, locker)",
+            "Titel-Erkennung (Dr., Prof., Dipl.-Ing.) und akademische Grade",
+            "Heuristiken zur Geschlechtserkennung (Herr, Frau, Vorname)",
+            "Status: Muss mit der neuen Smart Salutation Engine (80/20 B2B) synchronisiert werden"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Aktiv (wird durch smart_salutation_engine.js modernisiert)."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/Salutation-Engine.md",
+          "wirkungsbereich": "website/js/41-salutation-engine.js und website/js/41-salutation-engine.smart.js.",
+          "verknuepfungen": [
+            "docs/00-foundation/spec.md",
+            "docs/10-architecture/ADR-JS.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Manuelle Eingabe von Anrede und Grußformel ist repetitive Fleißarbeit und anfällig für Stilbrüche.",
+          "weshalb": "Eine automatisierte Ableitung aus dem Empfängernamen spart Zeit und garantiert DIN-5008-Konformität.",
+          "warum": "Kern-Feature des 'Zero-Effort'-Briefeschreibens bei 100% manueller Überschreibbarkeit."
+        }
+      }
+    },
+    {
+      "file_name": "din-5008-css-architektur.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\din-5008-css-architektur.md",
+      "section": "20-implementation",
+      "normative_level": "Technischer Guide — CSS-Architektur & Druck-Rendering",
+      "frontmatter": {
+        "id": "din-5008-css-architektur",
+        "title": "DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/guide",
+          "tech/css"
+        ],
+        "doc_links": [
+          "ADR-CSS",
+          "longevity-guidelines",
+          "no-scroll-techniques",
+          "chrome-modern-css"
+        ],
+        "code_links": [
+          "website/css/layout.css",
+          "website/css/variables.css"
+        ],
+        "error_patterns": [
+          "din 5008 layout",
+          "css architektur",
+          "container queries",
+          "absolute positionierung",
+          "latex lessons",
+          "light-dark",
+          "oklch",
+          "container units",
+          "cqw cqh",
+          "popover api",
+          "anchor positioning"
+        ],
+        "supersedes": [
+          "din-5008-precise-layout-lessons",
+          "chrome-modern-css"
+        ],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "CSS-Layout, Druckvorstufe und Viewport-Sizing.",
+          "aenderungsberechtigt": "Frontend- und CSS-Entwickler.",
+          "zielgruppe": "Entwickler, die am optischen Erscheinungsbild und Druckbild arbeiten."
+        },
+        "was": {
+          "definition": "Praktischer Leitfaden zur Umsetzung der DIN-5008-Briefformen (Form A und Form B) mit modernem CSS.",
+          "kerninhalte": [
+            "Verwendung nativer CSS-Variablen für DIN-5008-Millimeterangaben",
+            "Container Queries (@container) zur proportionalen Skalierung",
+            "@page-Regeln für randlosen A4-Druck (210 x 297 mm)",
+            "Farbmanagement: OKLCH-Farbraum als Standard"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/din-5008-css-architektur.md",
+          "wirkungsbereich": "website/css/layout.css, website/css/variables.css, website/css/reset.css.",
+          "verknuepfungen": [
+            "docs/10-architecture/IMR-Registry.md",
+            "docs/10-architecture/ADR-CSS.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "DIN 5008 definiert strikte Fenster- und Falzmarkenmaße auf den Millimeter genau.",
+          "weshalb": "Moderne Browser (Chrome 148+) können hochpräzise Drucklayouts nativ ohne PDF-Generierungs-Server rendern.",
+          "warum": "Gewährleistet, dass ausgedruckte Briefe exakt in Standard-DIN-Lang-Fensterumschläge passen."
+        }
+      }
+    },
+    {
+      "file_name": "geoapify-autocomplete.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\geoapify-autocomplete.md",
+      "section": "20-implementation",
+      "normative_level": "Technischer Guide — Adress-Vervollständigung (Historisch / Tier-2-Enrichment)",
+      "frontmatter": {
+        "id": "guide-geoapify-autocomplete",
+        "title": "Guide: Geoapify Autocomplete Implementierung",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-07-02",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/guide"
+        ],
+        "doc_links": [
+          "ADR-GEOAPIFY"
+        ],
+        "code_links": [
+          "website/js/main.js"
+        ],
+        "error_patterns": [
+          "geoapify",
+          "autocomplete",
+          "adress-autovervollstaendigung",
+          "debouncing",
+          "proximity biasing",
+          "photon fallback",
+          "zippopotam"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Adressfelder im Empfänger- und Absenderbereich.",
+          "aenderungsberechtigt": "Frontend-Entwickler.",
+          "zielgruppe": "Entwickler von Autocomplete- und Geocoding-Funktionen."
+        },
+        "was": {
+          "definition": "Implementierungsanleitung für den bisherigen Adressdienst via Geoapify API und Photon.",
+          "kerninhalte": [
+            "Einsatz von fetch() mit AbortController gegen Race Conditions",
+            "Header-Sicherheit: Übertragung des API-Keys via x-api-key",
+            "Proximity-Biasing zur Bevorzugung lokaler Adressen",
+            "Hinweis: Muss redaktionell mit ADR-006 (Brotli Offline-First) harmonisiert werden"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-07-07",
+          "gueltigkeit": "Teilweise überholt — fungiert nun als Tier-2-Anreicherung für ADR-006."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/geoapify-autocomplete.md",
+          "wirkungsbereich": "website/js/43-geoapify.js.",
+          "verknuepfungen": [
+            "docs/10-architecture/ADR-006-Offline-Address-Intelligence.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Dokumentiert die REST-Schnittstelle und Sicherheitsmaßnahmen für externe Geocoding-APIs.",
+          "weshalb": "Verhindert Sicherheitslücken (Key in URL) und verhindert blockierende Requests.",
+          "warum": "Dient als technisches Referenzdokument für die optionale Online-Adressvervollständigung."
+        }
+      }
+    },
+    {
+      "file_name": "glossary.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\glossary.md",
+      "section": "20-implementation",
+      "normative_level": "Referenz — Zentrales Projektglossar & Begriffslexikon",
+      "frontmatter": {
+        "id": "glossary",
+        "title": "Fachbegriff-Glossar — DIN-BriefNEO",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "longevity-guidelines",
+          "constitution"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "glossar",
+          "begriffe",
+          "definitionen",
+          "abortcontroller",
+          "container queries",
+          "cqw cqh",
+          "localstorage",
+          "oklch farbraum",
+          "no-scroll-layout"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Gesamtes Projekt, alle Dokumente und Codebasen.",
+          "aenderungsberechtigt": "Architekten und Dokumentations-Autoren.",
+          "zielgruppe": "Entwickler, KI-Agenten und Neulinge."
+        },
+        "was": {
+          "definition": "Autoritatives Lexikon aller domänenspezifischen Fachbegriffe und Architektur-Konzepte.",
+          "kerninhalte": [
+            "Definition von IMR (Intermediate Representation) und den 45 Custom Tags",
+            "Erklärung von Ghost-Mirror, Falzmarken, Lochermarke, Rücksendezeile",
+            "Erklärung von Zero-Scroll, Temporal API, OKLCH, Top-Layer-Toasts",
+            "Verlinkungen zu den jeweiligen Gesetzen und ADRs"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Permanent aktives Nachschlagewerk."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/glossary.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/10-architecture/IMR-Registry.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Uneinheitliche Begriffe führen zu Missverständnissen zwischen Mensch und KI.",
+          "weshalb": "Ein kanonisches Glossar schafft eine eindeutige, gemeinsame Begriffswelt ('Ubiquitous Language').",
+          "warum": "Verhindert semantische Drift und stellt sicher, dass Spezifikationen exakt umgesetzt werden."
+        }
+      }
+    },
+    {
+      "file_name": "no-scroll-techniques.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\no-scroll-techniques.md",
+      "section": "20-implementation",
+      "normative_level": "Technischer Guide — Zero-Scroll-Policy & A4-Viewport-Squeezing",
+      "frontmatter": {
+        "id": "guide-no-scroll-techniques",
+        "title": "Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/guide",
+          "tech/css"
+        ],
+        "doc_links": [
+          "din-5008-css-architektur",
+          "ADR-CSS"
+        ],
+        "code_links": [
+          "website/css/layout.css"
+        ],
+        "error_patterns": [
+          "no-scroll",
+          "overflow hidden",
+          "scrollbalken",
+          "viewport-perfect",
+          "field-sizing",
+          "app-shell",
+          "sidebar scroll"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Briefbogen-Layout und Textkörper-Größenanpassung.",
+          "aenderungsberechtigt": "Frontend-Entwickler.",
+          "zielgruppe": "Entwickler, die Layout-Überläufe verhindern wollen."
+        },
+        "was": {
+          "definition": "Praxis-Techniken zur Garantie, dass der gesamte Briefbogen ohne Scrollbalken im Bildschirm-Viewport sichtbar bleibt.",
+          "kerninhalte": [
+            "Text-Fit Algorithmus zur dynamischen Reduktion von Zeilenabständen und Schriftgrößen bei langem Text",
+            "CSS-Viewport-Units (dvh, cqw) und aspect-ratio-Constraints",
+            "Verhinderung von Overflow-Scrollbalken im Browserfenster",
+            "Visuelles Feedback bei Erreichen der A4-Kapazitätsgrenze"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/no-scroll-techniques.md",
+          "wirkungsbereich": "website/js/48-text-fit.js, website/css/layout.css.",
+          "verknuepfungen": [
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/10-architecture/ADR-CSS.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Ein DIN-A4-Brief ist ein physisch begrenztes Blatt Papier und keine endlose Webseite.",
+          "weshalb": "Scrollbalken auf dem Briefbogen zerstören das WYSIWYG-Gefühl und führen zu Druck-Überläufen auf Seite 2.",
+          "warum": "Garantiert die Einhaltung der 'Einseitigkeits-Garantie' (Single Page WYSIWYG)."
+        }
+      }
+    },
+    {
+      "file_name": "sqlite-vec.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\sqlite-vec.md",
+      "section": "20-implementation",
+      "normative_level": "Forschung & Roadmap — SQLite Vector Search für semantische Doku-Suche",
+      "frontmatter": {
+        "id": "sqlite-vec",
+        "title": "Guide: sqlite-vec Integration — Hybrid Search Implementierungsplan",
+        "type": "guide",
+        "status": "draft",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/draft",
+          "type/guide",
+          "tech/sqlite"
+        ],
+        "doc_links": [
+          "README-DB"
+        ],
+        "code_links": [
+          "tools/build_db.js",
+          "tools/hybrid_search.js"
+        ],
+        "error_patterns": [
+          "sqlite-vec",
+          "vector search",
+          "embedding",
+          "hybrid search",
+          "semantic search",
+          "reciprocal rank fusion",
+          "rrf",
+          "all-minilm"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Lokales KI-Wissensmanagement und Dokumentations-MCP-Tools.",
+          "aenderungsberechtigt": "Architekten und KI-Tooling-Entwickler.",
+          "zielgruppe": "Entwickler moderner lokaler KI-Agenten-Workflows."
+        },
+        "was": {
+          "definition": "Konzeptstudie und Implementierungsplan für semantische Vektorsuche (Embeddings) direkt in der lokalen SQLite-Dokumenten-DB.",
+          "kerninhalte": [
+            "Evaluation von sqlite-vec vs. reines FTS5",
+            "Generierung von Text-Embeddings für ADRs und Spezifikationen",
+            "Hybride Suche: FTS5 für exakte Keywords + Vektoren für thematische Ähnlichkeit",
+            "Geplanter Einsatz im Dokumentations-MCP-Server"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-27",
+          "zuletzt_aktualisiert": "2026-08-27",
+          "gueltigkeit": "Vorschlag / Forschung."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/sqlite-vec.md",
+          "wirkungsbereich": "tools/ und docs-db.",
+          "verknuepfungen": [
+            "docs/20-implementation/README-DB.md",
+            "docs/30-meta/tooling-overview.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Reine Stichwortsuche scheitert, wenn Entwickler nach Konzepten suchen, ohne exakte Fachbegriffe zu kennen.",
+          "weshalb": "sqlite-vec ermöglicht lokales Vektor-Retrieval ohne Cloud-Abhängigkeiten oder schwere Vektordatenbanken.",
+          "warum": "Hebt die KI-Agenten-Kontextqualität bei komplexen Refactorings auf ein neues Niveau."
+        }
+      }
+    },
+    {
+      "file_name": "testing-guide.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\testing-guide.md",
+      "section": "20-implementation",
+      "normative_level": "Technischer Guide — QA-, Test- und Validierungs-Strategie",
+      "frontmatter": {
+        "id": "guide-testing-guide",
+        "title": "Guide: Interaktiver Test-Leitfaden",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-06-26",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/guide"
+        ],
+        "doc_links": [
+          "Salutation-Engine",
+          "glossary",
+          "spec"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "testing",
+          "testfaelle",
+          "qa protokoll",
+          "testfall",
+          "manuell",
+          "toast notification",
+          "adress-autocomplete"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Qualitätssicherung, Regressionstests und Release-Validierung.",
+          "aenderungsberechtigt": "Entwickler und QA.",
+          "zielgruppe": "Jeder Entwickler vor dem Erstellen eines Commits oder Releases."
+        },
+        "was": {
+          "definition": "Umfassende Test-Strategie für autarke Vanilla-Web-Anwendungen ohne Node.js-Testrunner.",
+          "kerninhalte": [
+            "Lauffähigkeitstest unter file:/// (CORS-Freiheit, relative Pfade)",
+            "Druckvorschau-Validierung (Ctrl+P) zur Kontrolle der Falzmarken und Seitenumbrüche",
+            "Responsive- und Viewport-Checks (Laptop, Tablet, Desktop)",
+            "Healthcheck-Skript (website/js/healthcheck.js) und Konsolen-Fehlerfreiheit"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/testing-guide.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/00-foundation/Immutable-Law-Catalog.md",
+            "docs/00-foundation/longevity-guidelines.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Ohne automatisierte CI-Pipelines können Regressionen unbemerkt in den Code gelangen.",
+          "weshalb": "Klare Prüfschritte stellen sicher, dass auch ohne schwere Test-Frameworks höchste Stabilität gewahrt bleibt.",
+          "warum": "Garantiert die Einhaltung des Langlebigkeits- und Offline-Prinzips."
+        }
+      }
+    },
+    {
+      "file_name": "toast-system.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\20-implementation\\toast-system.md",
+      "section": "20-implementation",
+      "normative_level": "Technischer Guide — Modulares Toast-Benachrichtigungssystem v4",
+      "frontmatter": {
+        "id": "guide-toast-system",
+        "title": "Guide: Toast Notifications System",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/implementation",
+          "status/active",
+          "type/guide"
+        ],
+        "doc_links": [
+          "adr-toast-system"
+        ],
+        "code_links": [
+          "website/js/toast.js"
+        ],
+        "error_patterns": [
+          "toast",
+          "notification",
+          "showToast",
+          "updateToast",
+          "sticky toast",
+          "hover-to-pause",
+          "counter badge"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Visuelles Nutzer-Feedback und Warnhinweise (z. B. Satzzeichen-Warnung, Speicher-Bestätigung).",
+          "aenderungsberechtigt": "Frontend-Entwickler.",
+          "zielgruppe": "Entwickler, die Benachrichtigungen im UI auslösen wollen."
+        },
+        "was": {
+          "definition": "Praktische Anleitung zur Nutzung der showToast()-API und Registrierung neuer Benachrichtigungstypen.",
+          "kerninhalte": [
+            "Aufbau des Toast-Elements im HTML-Top-Layer via popover='manual'",
+            "Toast-Typen (success, warning, info, error)",
+            "Zentrales Vokabular in website/js/51-constants.js (TOASTS-Objekt)",
+            "Automatische Ausblendung und Barrierefreiheit"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/20-implementation/toast-system.md",
+          "wirkungsbereich": "website/js/32-toast.js, website/css/floating.css.",
+          "verknuepfungen": [
+            "docs/10-architecture/adr-toast-system.md",
+            "docs/10-architecture/ADR-HTML.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Früher gab es inkonsistente alert()-Aufrufe oder unkontrollierte DOM-Elemente.",
+          "weshalb": "Native Popover-Elemente liegen über allem anderen Inhalt, ohne den DOM-Fluss des Briefbogens zu stören.",
+          "warum": "Ermöglicht dezentes, elegantes Nutzerfeedback ohne Fremdbibliotheken."
+        }
+      }
+    },
+    {
+      "file_name": "README.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\README.md",
+      "section": "30-meta",
+      "normative_level": "Hub-Dokument — Einstiegspunkt in Projektgedächtnis, Status & Obsidian-Setup",
+      "frontmatter": {
+        "id": "meta-readme",
+        "title": "30-meta — Projektgeschichte, Status & Obsidian-Setup",
+        "type": "meta",
+        "status": "active",
+        "created": "2026-07-07",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/meta"
+        ],
+        "doc_links": [
+          "CHANGELOG",
+          "DECISION-LOG",
+          "Feature-Matrix",
+          "OBSIDIAN-SETUP-GUIDE"
+        ],
+        "error_patterns": [
+          "meta",
+          "projektgeschichte",
+          "status",
+          "changelog",
+          "roadmap",
+          "30-meta"
+        ],
+        "supersedes": [],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Entwickler, Architekten, KI-Agenten.",
+          "aenderungsberechtigt": "Projektleitung.",
+          "zielgruppe": "Jeder, der sich über Historie, Status, Roadmap oder Obsidian-Tooling informieren will."
+        },
+        "was": {
+          "definition": "Einstiegspunkt für alle Meta-Dokumente: Organisiert Versionshistorie, Entscheidungslogs, Schemata und Tooling-Übersichten.",
+          "kerninhalte": [
+            "Projektstatus (CHANGELOG, Feature-Matrix, DECISION-LOG, ROADMAP)",
+            "Obsidian & Wissensmanagement (OBSIDIAN-SETUP-GUIDE, Vorlagen, Schema V6)",
+            "Projekt-Kontext & Hintergrund (Architektur-Evolution, Tooling-Übersicht, Web-Standards)"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Permanent aktiver Hub."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/README.md",
+          "wirkungsbereich": "Gesamter Ordner docs/30-meta/.",
+          "verknuepfungen": [
+            "docs/10-architecture/README.md",
+            "docs/20-implementation/README.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Projektdokumentation benötigt einen klaren Ort für Meta-Informationen abseits von Gesetzen und How-Tos.",
+          "weshalb": "Verhindert, dass Changelogs, Audit-Reports und temporäre Pläne die Architektur-Ordner überfluten.",
+          "warum": "Sorgt für ein sauberes, getrenntes Projektgedächtnis."
+        }
+      }
+    },
+    {
+      "file_name": "ADR-TEMPLATE.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\ADR-TEMPLATE.md",
+      "section": "30-meta",
+      "normative_level": "Meta-Vorlage — Standard-Template für neue Architectural Decision Records",
+      "frontmatter": {
+        "id": "ADR-TEMPLATE",
+        "title": "ADR-Template für neue Architektur-Entscheidungen",
+        "type": "meta",
+        "status": "active",
+        "created": "2026-06-30",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/meta"
+        ],
+        "doc_links": [
+          "longevity-guidelines",
+          "constitution"
+        ],
+        "error_patterns": [
+          "adr template",
+          "neue adr",
+          "entscheidungsvorlage",
+          "architekturentscheidung"
+        ],
+        "supersedes": [],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Architekten und Entwickler beim Verfassen neuer ADRs.",
+          "aenderungsberechtigt": "Architekten.",
+          "zielgruppe": "Jeder, der eine neue wesentliche Entwurfsentscheidung festhält."
+        },
+        "was": {
+          "definition": "Standardisierte Markdown-Vorlage für ADRs nach Michael Nygard / MADR mit Schema-V6-Frontmatter.",
+          "kerninhalte": [
+            "Pflicht-Frontmatter (id, title, status, doc_links, code_links)",
+            "Abschnitte: Context (Problemstellung), Decision (Lösungsentscheid), Consequences (Vor- und Nachteile)"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/ADR-TEMPLATE.md",
+          "wirkungsbereich": "docs/10-architecture/.",
+          "verknuepfungen": [
+            "docs/10-architecture/README.md",
+            "docs/30-meta/schema-v6.json"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Uneinheitliche Architekturdokumente erschweren das Verständnis und die maschinelle Auswertbarkeit.",
+          "weshalb": "Ein einheitliches Format stellt sicher, dass Kontext, Alternativen und Konsequenzen stets erfasst werden.",
+          "warum": "Macht Architektur-Entscheidungen auch nach Monaten oder Jahren noch nachvollziehbar."
+        }
+      }
+    },
+    {
+      "file_name": "CHANGELOG.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\CHANGELOG.md",
+      "section": "30-meta",
+      "normative_level": "Historie & Protokoll — Versionshistorie des Gesamtsystems",
+      "frontmatter": {
+        "code_links": [],
+        "created": "2026-06-26",
+        "depends_on": [],
+        "doc_links": [],
+        "id": "changelog",
+        "status": "active",
+        "tags": [
+          "documentation",
+          "changelog",
+          "history"
+        ],
+        "title": "Changelog (Dokumentation)",
+        "type": "changelog",
+        "updated": "2026-07-07"
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Gesamtes Produkt und alle Releases.",
+          "aenderungsberechtigt": "Release-Manager und Entwickler.",
+          "zielgruppe": "Nutzer, Entwickler und Auditoren."
+        },
+        "was": {
+          "definition": "Lückenloses Änderungsprotokoll aller Releases von v1.0.0 bis aktuell v15.0.0 nach Keep-a-Changelog.",
+          "kerninhalte": [
+            "Dokumentation von Added, Changed, Deprecated, Removed, Fixed, Security",
+            "Verfolgung aller Meilensteine (v10 OPFS-Entfernung, v14 Toast v4, v15 Reorganisation)"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-26",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Permanent fortgeschriebenes Protokoll."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/CHANGELOG.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/30-meta/DECISION-LOG.md",
+            "docs/30-meta/Feature-Matrix.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Transparenz über Änderungen ist essenziell für Wartbarkeit und Fehlersuche.",
+          "weshalb": "Ermöglicht schnelles Auffinden des Zeitpunkts, an dem ein Feature eingeführt oder geändert wurde.",
+          "warum": "Sichert professionelles Release-Management."
+        }
+      }
+    },
+    {
+      "file_name": "DECISION-LOG.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\DECISION-LOG.md",
+      "section": "30-meta",
+      "normative_level": "Historie & Protokoll — Chronologisches Gesamt-Entscheidungsprotokoll",
+      "frontmatter": {
+        "aliases": [
+          "DECISION-LOG"
+        ],
+        "code_links": [],
+        "created": "2026-06-26",
+        "depends_on": [],
+        "doc_links": [],
+        "id": "decision-log",
+        "status": "active",
+        "tags": [
+          "obsidian",
+          "core",
+          "documentation",
+          "decision-log",
+          "architecture"
+        ],
+        "title": "Chronologisches Entscheidungs-Log: DECISION-LOG.md",
+        "type": "log",
+        "updated": "2026-08-08"
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Architekturentscheidungen und Session-Beschlüsse.",
+          "aenderungsberechtigt": "Architekten und Projektleiter.",
+          "zielgruppe": "Entwickler und KI-Assistenten zur Rekonstruktion früherer Beschlüsse."
+        },
+        "was": {
+          "definition": "31 KB schweres Master-Log aller Sessions und Diskussionen mit genauen Datumsangaben, Begründungen und Verweisen.",
+          "kerninhalte": [
+            "Detaillierte Historie aller Entscheidungen (z. B. Verbot von npm/Frameworks, Temporal-API-Pflicht)",
+            "Ergebnisse früherer KI-Code-Audits (Claude, Gemini)",
+            "Begründungen für historische Kurskorrekturen"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Permanent historisches Archiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/DECISION-LOG.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/10-architecture/README.md",
+            "docs/30-meta/CHANGELOG.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Wiederkehrende Diskussionen über bereits abgelehnte Vorschläge (z. B. 'Warum nutzen wir kein React?') verschwenden Zeit.",
+          "weshalb": "Das Log liefert sofort die historische Begründung für jeden Richtungsentscheid.",
+          "warum": "Verhindert 'Chesterton's Fence'-Fehler und bewahrt institutionelles Wissen."
+        }
+      }
+    },
+    {
+      "file_name": "DEV-INFO.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\DEV-INFO.md",
+      "section": "30-meta",
+      "normative_level": "Referenz — Entwickler-Info & Feature-Erkennungs-Matrix",
+      "frontmatter": {
+        "aliases": [
+          "DEV-INFO"
+        ],
+        "code_links": [],
+        "created": "2026-06-26",
+        "depends_on": [],
+        "doc_links": [],
+        "id": "dev-info",
+        "status": "active",
+        "tags": [
+          "obsidian",
+          "core",
+          "dev-tools",
+          "feature-detection",
+          "chrome-baseline",
+          "diagnostics",
+          "easter-egg"
+        ],
+        "title": "Entwicklerbereich & Feature-Prüfung",
+        "type": "concept",
+        "updated": "2026-07-07"
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Software-Entwickler und KI-Pair-Programmierer.",
+          "aenderungsberechtigt": "Entwickler.",
+          "zielgruppe": "Programmierer, die direkt im Quellcode arbeiten."
+        },
+        "was": {
+          "definition": "Praktische Kurzübersicht über Projektstruktur, Code-Richtlinien, Feature-Mappings und Entwicklungsumgebung.",
+          "kerninhalte": [
+            "Feature-Erkennungs-Matrix (25 Kern-Features und ihre Quellcode-Dateien)",
+            "Regeln für JavaScript-Module und DOM-Selektoren",
+            "Tipps für lokales Debugging im Browser"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/DEV-INFO.md",
+          "wirkungsbereich": "website/js/ und website/css/.",
+          "verknuepfungen": [
+            "docs/10-architecture/Function-Traceability.md",
+            "docs/30-meta/Feature-Matrix.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Neue Entwickler müssen schnell wissen, welches JS-Modul für welche Funktionalität zuständig ist.",
+          "weshalb": "Kompakte Cheat-Sheets beschleunigen die Einarbeitung drastisch.",
+          "warum": "Reduziert die Suchzeit im Quelltext."
+        }
+      }
+    },
+    {
+      "file_name": "DIN-BriefNEO_memory_konsolidiert.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\DIN-BriefNEO_memory_konsolidiert.md",
+      "section": "30-meta",
+      "normative_level": "Projektgedächtnis — Konsolidierter KI-Konversationsspeicher",
+      "frontmatter": {
+        "id": "memory-konsolidiert",
+        "title": "DIN-BriefNEO — Konsolidiertes Projektgedächtnis",
+        "type": "reference",
+        "status": "active",
+        "created": "2026-08-07",
+        "updated": "2026-08-08",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/reference"
+        ],
+        "doc_links": [
+          "CLAUDE",
+          "AGENTS",
+          "IMR-Registry",
+          "Feature-Matrix",
+          "CHANGELOG",
+          "constitution",
+          "ADR-ANTIPATTERN"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "projektgedächtnis",
+          "konsolidiert",
+          "memory",
+          "onboarding",
+          "architekturstand",
+          "constraints",
+          "multi-agent workflow"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "KI-Agenten (Claude, Gemini, Antigravity).",
+          "aenderungsberechtigt": "Projektleitung.",
+          "zielgruppe": "KI-Modelle zum Verständnis von Session-Übergängen."
+        },
+        "was": {
+          "definition": "Konsolidierte Zusammenfassung aus verschiedenen KI-Memory-Speichern über den echten Code-Status und historische Artefakte.",
+          "kerninhalte": [
+            "Abgleich zwischen Dokumentation und Realität (Reality Reconciliation)",
+            "Erfassung behobener 'Phantom-Bugs'",
+            "Offene To-Dos und Verifikations-Ergebnisse"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-07",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Historischer Referenzstand."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/DIN-BriefNEO_memory_konsolidiert.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/30-meta/DECISION-LOG.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Unterschiedliche KI-Tools hatten widersprüchliche Annahmen über das Projekt gespeichert.",
+          "weshalb": "Eine konsolidierte Markdown-Memory bereinigt Diskrepanzen an einem zentralen Ort.",
+          "warum": "Garantiert eine einheitliche Wissensbasis für alle KI-Sitzungen."
+        }
+      }
+    },
+    {
+      "file_name": "FOUNDATION-RESTORATION-PLAN.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\FOUNDATION-RESTORATION-PLAN.md",
+      "section": "30-meta",
+      "normative_level": "Planungsdokument — Historischer Rettungsplan für docs/00-foundation",
+      "frontmatter": {
+        "id": "foundation-restoration-plan",
+        "title": "Foundation Restoration Plan v2",
+        "type": "plan",
+        "status": "proposed",
+        "created": "2026-09-02",
+        "updated": "2026-09-02",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/foundation",
+          "status/proposed",
+          "type/plan"
+        ],
+        "doc_links": [
+          "constitution",
+          "Immutable-Law-Catalog",
+          "spec",
+          "longevity-guidelines",
+          "HYBRID-SPEC-DRIVEN-WORKFLOW"
+        ],
+        "supersedes": [],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Restrukturierung der Ebene 00-foundation.",
+          "aenderungsberechtigt": "Projektleitung.",
+          "zielgruppe": "Auditoren und Architekten."
+        },
+        "was": {
+          "definition": "Detaillierter Audit- und Aktionsplan vom 2026-09-02 zur Bereinigung von Überfrachtung und Inkonsistenzen in der Verfassungsebene.",
+          "kerninhalte": [
+            "Analyse des Wildwuchses in 00-foundation",
+            "Wiederherstellung der normativen Hierarchie (Constitution -> Law -> Spec -> Longevity)",
+            "Auslagerung des Workflows nach docs/90-policy/ (heute erfolgreich umgesetzt)",
+            "Status: Vollständig abgearbeitet und historisch abgeschlossen"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-09-02",
+          "zuletzt_aktualisiert": "2026-09-02",
+          "gueltigkeit": "Historisch abgeschlossen (Plan wurde umgesetzt)."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/FOUNDATION-RESTORATION-PLAN.md",
+          "wirkungsbereich": "docs/00-foundation/.",
+          "verknuepfungen": [
+            "docs/00-foundation/README.md",
+            "docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "00-foundation war durch Prozessanleitungen und Checklisten verwässert worden.",
+          "weshalb": "Der Plan definierte die Schritte, um 00-foundation wieder zum unantastbaren Gesetzeskatalog zu machen.",
+          "warum": "Dokumentiert die Sanierung der Dokumentations-Architektur."
+        }
+      }
+    },
+    {
+      "file_name": "Feature-Matrix.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\Feature-Matrix.md",
+      "section": "30-meta",
+      "normative_level": "Status-Dokument — Feature-Übersicht & Reifegrad-Tabelle",
+      "frontmatter": {
+        "id": "feature-matrix",
+        "title": "Feature-Matrix (Platinum Master)",
+        "type": "roadmap",
+        "status": "active",
+        "created": "2026-07-03",
+        "updated": "2026-07-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/roadmap"
+        ],
+        "doc_links": [
+          "spec",
+          "CHANGELOG",
+          "ROADMAP",
+          "Salutation-Engine"
+        ],
+        "code_links": [],
+        "error_patterns": [
+          "feature matrix",
+          "feature status",
+          "platinum master",
+          "completion percentage",
+          "sprint",
+          "logische gruppen",
+          "fortschritt",
+          "feature progress"
+        ],
+        "supersedes": [
+          "FEATURE-INVENTORY"
+        ],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Produktmanagement und Feature-Tracking.",
+          "aenderungsberechtigt": "Projektleitung.",
+          "zielgruppe": "Alle Beteiligten zum Ablesen des aktuellen Funktionsumfangs."
+        },
+        "was": {
+          "definition": "Tabelle aller 25+ Features mit Status (Aktiv, In Arbeit, Geplant, Nicht implementiert), Testabdeckung und Issue-Nummern.",
+          "kerninhalte": [
+            "Status der Kern-Features (DIN 5008 Layout, Falzmarken, Sender-Sync, Salutation-Engine)",
+            "Klarstellung nicht implementierter Features (z. B. Profil-Management)",
+            "Reifegrad- und Stabilitätsbewertungen"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-03",
+          "zuletzt_aktualisiert": "2026-08-08",
+          "gueltigkeit": "Aktiv (Bedarf regelmäßiger Nachpflege)."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/Feature-Matrix.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/00-foundation/spec.md",
+            "docs/30-meta/CHANGELOG.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Ohne Feature-Matrix verlieren Beteiligte den Überblick darüber, was bereits produktiv ist und was nur als Entwurf existiert.",
+          "weshalb": "Ermöglicht ehrliche Status-Transparenz ('Truth-in-Documentation').",
+          "warum": "Verhindert falsche Versprechungen und unentdeckte Feature-Lücken."
+        }
+      }
+    },
+    {
+      "file_name": "GUIDE-TEMPLATE.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\GUIDE-TEMPLATE.md",
+      "section": "30-meta",
+      "normative_level": "Meta-Vorlage — Standard-Template für neue How-To Guides",
+      "frontmatter": {
+        "id": "GUIDE-TEMPLATE",
+        "title": "Guide-Template — Vorlage für neue How-To Guides",
+        "type": "meta",
+        "status": "active",
+        "created": "2026-06-30",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/meta"
+        ],
+        "doc_links": [
+          "_Template_Obsidian",
+          "longevity-guidelines"
+        ],
+        "error_patterns": [
+          "guide template",
+          "vorlage",
+          "how-to",
+          "new guide"
+        ],
+        "supersedes": [],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Autoren technischer Guides in docs/20-implementation/.",
+          "aenderungsberechtigt": "Architekten.",
+          "zielgruppe": "Entwickler, die eine neue Implementierungsanleitung verfassen."
+        },
+        "was": {
+          "definition": "Strukturierte Vorlage für praktische Anleitungen mit standardisiertem Aufbau.",
+          "kerninhalte": [
+            "Frontmatter-Vorgaben nach Schema V6",
+            "Abschnitte: Ziel, Voraussetzungen, Schritt-für-Schritt-Anleitung, Best Practices, Fehlerbehebung"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-06-30",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/GUIDE-TEMPLATE.md",
+          "wirkungsbereich": "docs/20-implementation/.",
+          "verknuepfungen": [
+            "docs/20-implementation/README.md",
+            "docs/30-meta/schema-v6.json"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Einheitlich aufgebaute Guides lassen sich schneller erfassen und leichter automatisieren.",
+          "weshalb": "Das Template gibt die bewährte Struktur verbindlich vor.",
+          "warum": "Sichert konsistente Dokumentationsqualität."
+        }
+      }
+    },
+    {
+      "file_name": "OBSIDIAN-SETUP-GUIDE.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\OBSIDIAN-SETUP-GUIDE.md",
+      "section": "30-meta",
+      "normative_level": "Technischer Guide — Wissensmanagement mit Obsidian & Schema V6",
+      "frontmatter": {
+        "id": "obsidian-setup-guide",
+        "title": "Obsidian-taugliche Projektdokumentation — Setup-Guide",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-08-07",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/guide",
+          "status/active",
+          "type/guide",
+          "tech/obsidian",
+          "schema-v6"
+        ],
+        "doc_links": [
+          "CLAUDE",
+          "AGENTS"
+        ],
+        "code_links": [
+          "tools/add_wikilinks.py"
+        ],
+        "error_patterns": [
+          "obsidian",
+          "frontmatter",
+          "wikilink",
+          "schema v6",
+          "yaml",
+          "graph",
+          "doc_links",
+          "error_patterns",
+          "supersedes",
+          "vier anker",
+          "folder structure"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Nutzer des Obsidian-Vaults (Mensch und Agent).",
+          "aenderungsberechtigt": "Projektleitung.",
+          "zielgruppe": "Entwickler, die das Projekt in Obsidian öffnen und navigieren."
+        },
+        "was": {
+          "definition": "14 KB starke Komplettanleitung für das Obsidian-Vault-Setup: Plugins, Frontmatter-Schema, Graph-Verlinkung und Dataview.",
+          "kerninhalte": [
+            "Empfohlene Plugins: Dataview, Omnisearch, Obsidian Linter, Canvas",
+            "Erklärung des Schema V6 für einheitliche YAML-Metadaten",
+            "Regeln für Wikilinks ([[Dokument]]) und Tag-Taxonomie",
+            "Verbindung des Vaults mit IDE und Git"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/OBSIDIAN-SETUP-GUIDE.md",
+          "wirkungsbereich": "Gesamter Vault Obsidian_Main.",
+          "verknuepfungen": [
+            "docs/30-meta/schema-v6.json",
+            "docs/10-architecture/DIN-Brief-Architektur.canvas"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Obsidian entfaltet seine volle Stärke erst durch saubere Metadaten und bidirektionale Verknüpfungen.",
+          "weshalb": "Der Guide stellt sicher, dass alle Dokumente den Linter- und Dataview-Regeln entsprechen.",
+          "warum": "Ermöglicht visuelle Wissensgraphen und automatische Index-Tabellen."
+        }
+      }
+    },
+    {
+      "file_name": "PROJECT.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\PROJECT.md",
+      "section": "30-meta",
+      "normative_level": "Projektplan — Spezifischer Projektplan für den Text-Fit Algorithmus",
+      "frontmatter": {
+        "id": "project-text-fit",
+        "title": "Projekt-Plan: Text-Fit Algorithmus",
+        "type": "project-plan",
+        "status": "active",
+        "created": "2026-07-01",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/project-plan"
+        ],
+        "error_patterns": [
+          "text-fit",
+          "text fit algorithmus",
+          "scrollWidth",
+          "contenteditable",
+          "milestones"
+        ],
+        "supersedes": [],
+        "doc_links": [
+          "IMR-Registry",
+          "ADR-JS",
+          "ADR-CSS",
+          "Function-Traceability"
+        ],
+        "code_links": [
+          "website/js/02-settings-manager.js",
+          "website/js/48-text-fit.js"
+        ],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Entwicklung der dynamischen Textanpassung (TextFit).",
+          "aenderungsberechtigt": "Entwickler.",
+          "zielgruppe": "Frontend-Entwickler."
+        },
+        "was": {
+          "definition": "Historischer Projekt- und Umsetzungsplan für den automatischen Text-Fit Algorithmus.",
+          "kerninhalte": [
+            "Zielsetzung: Automatische Zeilenabstands- und Schriftgrößenreduktion",
+            "Milestones und Validierungskriterien",
+            "Status: Umgesetzt in website/js/48-text-fit.js"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-01",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Historisch abgeschlossen (Feature ist aktiv)."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/PROJECT.md",
+          "wirkungsbereich": "website/js/48-text-fit.js.",
+          "verknuepfungen": [
+            "docs/20-implementation/no-scroll-techniques.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Text-Fit war ein kritisches Meilenstein-Feature zur Einhaltung der Zero-Scroll-Garantie.",
+          "weshalb": "Der Plan koordinierte die Implementierungsschritte.",
+          "warum": "Dokumentiert den ursprünglichen Designansatz."
+        }
+      }
+    },
+    {
+      "file_name": "ROADMAP.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\ROADMAP.md",
+      "section": "30-meta",
+      "normative_level": "Zukunftsplanung — Langfristige Vision & Chrome-Modernisierungschancen",
+      "frontmatter": {
+        "id": "roadmap",
+        "title": "Zukunfts-Roadmap — Ideen & Chrome-Modernisierungschancen",
+        "type": "roadmap",
+        "status": "active",
+        "created": "2026-07-07",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/roadmap"
+        ],
+        "doc_links": [
+          "longevity-guidelines",
+          "ADR-ANTIPATTERN",
+          "web-standards-tracking"
+        ],
+        "error_patterns": [
+          "roadmap",
+          "zukunft",
+          "ideen",
+          "brainstorming",
+          "chrome features",
+          "modernisierung"
+        ],
+        "supersedes": [],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Zukünftige Produktversionen und Architekturschritte.",
+          "aenderungsberechtigt": "Projektleitung.",
+          "zielgruppe": "Alle Entwickler und Stakeholder."
+        },
+        "was": {
+          "definition": "Unverbindliche Zukunftssammlung: Ideen für künftige Features und Chancen durch neue Webstandards (Chrome 148-151+).",
+          "kerninhalte": [
+            "Mögliche Features (Mehrseitige Briefe, digitale Signatur, PDF-Export-Optimierung)",
+            "Evaluierung moderner Browser-APIs (CSS Anchor Positioning v2, Shared Storage)",
+            "Modernisierungsmeilensteine"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Zukunftsorientiert / Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/ROADMAP.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/30-meta/web-standards-tracking.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Innovation erfordert einen klaren Horizont für kommende Technologien.",
+          "weshalb": "Trennt verbindliche Spezifikationen (spec.md) von spekulativen Zukunftsideen.",
+          "warum": "Hält den Fokus im aktuellen Release scharf, ohne gute Ideen zu verlieren."
+        }
+      }
+    },
+    {
+      "file_name": "architecture-drift-audit-2026-08-27.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\architecture-drift-audit-2026-08-27.md",
+      "section": "30-meta",
+      "normative_level": "Audit-Bericht — Historischer Prüfbericht zur Dokumentations- und Code-Drift",
+      "frontmatter": {
+        "id": "architecture-drift-audit-2026-08-27",
+        "title": "Architecture Drift Audit — 2026-08-27",
+        "status": "active",
+        "type": "reference",
+        "created": "2026-08-27",
+        "updated": "2026-08-27",
+        "tags": [
+          "din-briefneo",
+          "meta",
+          "agent",
+          "governance",
+          "audit"
+        ],
+        "doc_links": [
+          "[[AGENTS]]",
+          "[[tool-result-vocabulary]]",
+          "[[tooling-overview]]"
+        ],
+        "code_links": [
+          "repository.yaml",
+          "agent/mcp/dinbrief-mcp/index.js",
+          "agent/skills/repository-operations/SKILL.md",
+          "tools/create_context.js"
+        ],
+        "depends_on": [],
+        "supersedes": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Codebase und Dokumentation mit Stand 27. August 2026.",
+          "aenderungsberechtigt": "Auditoren.",
+          "zielgruppe": "Projektleitung zur Qualitätskontrolle."
+        },
+        "was": {
+          "definition": "Stichtags-Audit: Untersuchte Abweichungen zwischen schriftlichen ADRs und dem tatsächlichen JavaScript-Code in website/js/.",
+          "kerninhalte": [
+            "Identifizierte Diskrepanzen (z. B. veraltete Dateinamen, ungenutzte CSS-Klassen)",
+            "Bewertung der Traceability",
+            "Empfehlungen für Bereinigungen (größtenteils inzwischen umgesetzt)"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-27",
+          "zuletzt_aktualisiert": "2026-08-27",
+          "gueltigkeit": "Historischer Audit-Snapshot."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/architecture-drift-audit-2026-08-27.md",
+          "wirkungsbereich": "docs/ und website/js/.",
+          "verknuepfungen": [
+            "docs/30-meta/DECISION-LOG.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Dokumentation altert schneller als Code, wenn sie nicht regelmäßig abgeglichen wird.",
+          "weshalb": "Der Audit deckte tote Links und veraltete Annahmen schonungslos auf.",
+          "warum": "Grundlage für die nachfolgende erfolgreiche Dokumentations-Konsolidierung."
+        }
+      }
+    },
+    {
+      "file_name": "architektur-evolution-und-quellen.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\architektur-evolution-und-quellen.md",
+      "section": "30-meta",
+      "normative_level": "Hintergrund — Entstehungsgeschichte, LaTeX-Erfahrungen & Zero-Dep-Begründung",
+      "frontmatter": {
+        "id": "architektur-evolution-und-quellen",
+        "title": "Architektur-Evolution — Warum wir so gebaut haben & externe Quellen",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-07-07",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/guide"
+        ],
+        "doc_links": [
+          "Immutable-Law-Catalog",
+          "constitution",
+          "din-5008-css-architektur"
+        ],
+        "error_patterns": [
+          "architektur evolution",
+          "warum vanilla",
+          "zero dependency",
+          "kein framework",
+          "entscheidungsgeschichte",
+          "quellen",
+          "lerngeschichte",
+          "externe referenzen"
+        ],
+        "supersedes": [
+          "Architecture-Evolution",
+          "QUELLEN-UND-LERNGESCHICHTE"
+        ],
+        "depends_on": [],
+        "code_links": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Architekturverständnis und historische Herleitung.",
+          "aenderungsberechtigt": "Architekten.",
+          "zielgruppe": "Entwickler, die die tieferen Beweggründe für Designentscheidungen verstehen wollen."
+        },
+        "was": {
+          "definition": "Essay über die Entstehungsgeschichte: Vergleich mit LaTeX-Vorlagen (g-brief, scrlttr2), Kritik an alten Din5008-Projekten und Begründung des autarken Vanilla-Ansatzes.",
+          "kerninhalte": [
+            "Historischer Rückblick auf LaTeX-Briefe und deren Wartungsaufwand",
+            "Warum Web-Standards (HTML5/CSS3) LaTeX im 21. Jahrhundert überlegen sind",
+            "Die Philosophie hinter 'Zero Dependencies' (Kein Node.js, keine Build-Tools)"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Dauerhaft gültiger Kontext."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/architektur-evolution-und-quellen.md",
+          "wirkungsbereich": "Projektweit.",
+          "verknuepfungen": [
+            "docs/00-foundation/constitution.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Wer die Vergangenheit nicht kennt, wiederholt dieselben Fehler bei der Werkzeugauswahl.",
+          "weshalb": "Das Dokument erklärt transparent, warum DIN-Brief Neo bewusst auf moderne Framework-Fluten verzichtet.",
+          "warum": "Stiftet Identität und schützt das Projekt vor technischer Verwässerung."
+        }
+      }
+    },
+    {
+      "file_name": "schema-v6.json",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\schema-v6.json",
+      "section": "30-meta",
+      "normative_level": "Standard & Werkzeug — JSON-Schema (Draft-07) für Frontmatter-Validierung",
+      "frontmatter": {},
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Markdown-Dokumente im gesamten Repository.",
+          "aenderungsberechtigt": "Architekten.",
+          "zielgruppe": "Linter, VS Code Validatoren und Build-Skripte."
+        },
+        "was": {
+          "definition": "Formale Spezifikation der erlaubten und verpflichtenden Frontmatter-Felder (id, title, type, status, tags, doc_links, code_links).",
+          "kerninhalte": [
+            "Regex-Vorgaben für IDs (kebab-case)",
+            "Erlaubte Enum-Werte für 'type' (adr, law, spec, guide, meta, etc.)",
+            "Erlaubte Werte für 'status' (active, draft, proposed, deprecated)",
+            "Automatisierte Prüfbarkeit in CI und Editoren"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-07",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Permanent aktiver Standard."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/schema-v6.json",
+          "wirkungsbereich": "docs/**/*.md.",
+          "verknuepfungen": [
+            "docs/30-meta/OBSIDIAN-SETUP-GUIDE.md",
+            "tools/lint-docs.ps1"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Menschliche und KI-Autoren neigen zu uneinheitlichen Metadaten.",
+          "weshalb": "Ein maschinenlesbares Schema ermöglicht automatisches Linting und schlägt bei Fehlern sofort Alarm.",
+          "warum": "Garant für gleichbleibend hohe Metadaten-Qualität."
+        }
+      }
+    },
+    {
+      "file_name": "tool-result-vocabulary.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\tool-result-vocabulary.md",
+      "section": "30-meta",
+      "normative_level": "Referenz — Standardisiertes Vokabular für Agenten & Tool-Ergebnisse",
+      "frontmatter": {
+        "id": "tool-result-vocabulary",
+        "title": "Tool Result Schema & Vokabular",
+        "status": "active",
+        "type": "guide",
+        "created": "2026-08-27",
+        "updated": "2026-08-28",
+        "tags": [
+          "din-briefneo",
+          "meta",
+          "tooling",
+          "agent",
+          "governance"
+        ],
+        "doc_links": [
+          "[[AGENTS]]",
+          "[[tooling-overview]]"
+        ],
+        "code_links": [
+          "tools/reconciliation.js",
+          "tools/log_session.js"
+        ],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "KI-Agenten, CLI-Tools und Automatisierungs-Skripte.",
+          "aenderungsberechtigt": "Architekten für KI-Governance.",
+          "zielgruppe": "Entwickler von Skripten in tools/."
+        },
+        "was": {
+          "definition": "Vokabular-Definition für maschinenlesbare Rückgaben aus Build-, Test- und Lint-Skripten.",
+          "kerninhalte": [
+            "Standardisierte Status-Codes (SUCCESS, WARNING, VIOLATION, BLOCKED)",
+            "JSON-Struktur für Skript-Ausgaben an KI-Agenten",
+            "Fehlerkategorien und Severity-Levels"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-27",
+          "zuletzt_aktualisiert": "2026-08-28",
+          "gueltigkeit": "Aktiv für Tooling."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/tool-result-vocabulary.md",
+          "wirkungsbereich": "tools/ und KI-Workflows.",
+          "verknuepfungen": [
+            "docs/30-meta/tooling-overview.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Unterschiedliche CLI-Tools geben Statusmeldungen in unvorhersehbarem Freitext zurück.",
+          "weshalb": "Ein einheitliches Vokabular ermöglicht es KI-Agenten, Testergebnisse fehlerfrei zu parsen.",
+          "warum": "Vermeidet Missverständnisse zwischen Skriptausgaben und KI-Aktionen."
+        }
+      }
+    },
+    {
+      "file_name": "tooling-overview.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\tooling-overview.md",
+      "section": "30-meta",
+      "normative_level": "Referenz — Vollständige Bestandsaufnahme aller Hilfswerkzeuge in tools/",
+      "frontmatter": {
+        "id": "tooling-overview",
+        "title": "Tool-Inventur — tools/",
+        "status": "active",
+        "type": "reference",
+        "created": "2026-08-07",
+        "updated": "2026-08-27",
+        "tags": [
+          "din-briefneo",
+          "meta",
+          "tooling",
+          "agent"
+        ],
+        "doc_links": [
+          "[[AGENTS]]",
+          "[[tool-result-vocabulary]]"
+        ],
+        "code_links": [
+          "tools/reconciliation.js",
+          "tools/build_db.js",
+          "tools/build_db.py",
+          "tools/create_context.js",
+          "tools/pipeline-cache.ps1",
+          "tools/log_session.js",
+          "tools/add_wikilinks.py",
+          "tools/build_canvas.js",
+          "tools/test_text_fit_harness.js"
+        ],
+        "depends_on": [],
+        "supersedes": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Alle Entwicklungs-, Build- und Wartungsskripte.",
+          "aenderungsberechtigt": "Entwickler.",
+          "zielgruppe": "Entwickler und KI-Agenten bei der Nutzung von Hilfsskripten."
+        },
+        "was": {
+          "definition": "Katalog aller Skripte im Projekt (Linting, Context-Packer, Wiki-Bundler, Testrunner) mit Aufrufbeispielen.",
+          "kerninhalte": [
+            "Beschreibung von tools/lint-docs.ps1, tools/pack-context.ps1, etc.",
+            "Eingabe- und Ausgabeparameter jedes Skripts",
+            "Status: Erwähnt noch historische Skripte; sollte bei Gelegenheit auf den aktuellen tools/-Stand nachgezogen werden"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-08-07",
+          "zuletzt_aktualisiert": "2026-08-27",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/tooling-overview.md",
+          "wirkungsbereich": "tools/.",
+          "verknuepfungen": [
+            "docs/30-meta/tool-result-vocabulary.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Skripte verstauben und werden vergessen, wenn sie nirgendwo dokumentiert sind.",
+          "weshalb": "Die Inventur listet Zweck und Verwendung jedes Werkzeugs übersichtlich auf.",
+          "warum": "Maximiert die Wiederverwendbarkeit existierender Hilfswerkzeuge."
+        }
+      }
+    },
+    {
+      "file_name": "web-standards-tracking.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\web-standards-tracking.md",
+      "section": "30-meta",
+      "normative_level": "Monitoring — Tracking-Status moderner Web- und CSS-Standards",
+      "frontmatter": {
+        "id": "web-standards-tracking",
+        "title": "Web Standards Tracking & Testing",
+        "type": "guide",
+        "status": "active",
+        "created": "2026-07-21",
+        "updated": "2026-08-07",
+        "tags": [
+          "din-briefneo",
+          "din-briefneo/meta",
+          "status/active",
+          "type/guide",
+          "tech/w3c",
+          "tech/chrome"
+        ],
+        "doc_links": [
+          "Architecture-Evolution",
+          "constitution"
+        ],
+        "code_links": [
+          "tools/build_db.js"
+        ],
+        "error_patterns": [
+          "web standards tracking",
+          "w3c",
+          "chrome status",
+          "chromestatus",
+          "browser features",
+          "fitness gate",
+          "proof of concept"
+        ],
+        "supersedes": [],
+        "depends_on": []
+      },
+      "w_fragen": {
+        "wer": {
+          "gilt_fuer": "Browser-Kompatibilität und Technologieauswahl.",
+          "aenderungsberechtigt": "Frontend-Architekten.",
+          "zielgruppe": "Entwickler, die moderne Browser-APIs einsetzen wollen."
+        },
+        "was": {
+          "definition": "Statusbericht und Testmatrix über neu verabschiedete Webstandards und deren Implementierungsstand in Chromium.",
+          "kerninhalte": [
+            "Tracking von Temporal API (Stage 3/4), CSS Anchor Positioning, Popover API",
+            "Abgleich mit der Projekt-Baseline Chrome 148+",
+            "Testprotokolle für neu eingeführte CSS-Features"
+          ]
+        },
+        "wann": {
+          "erstellt": "2026-07-21",
+          "zuletzt_aktualisiert": "2026-08-07",
+          "gueltigkeit": "Aktiv."
+        },
+        "wo": {
+          "datei_ort": "docs/30-meta/web-standards-tracking.md",
+          "wirkungsbereich": "website/js/ und website/css/.",
+          "verknuepfungen": [
+            "docs/00-foundation/longevity-guidelines.md",
+            "docs/30-meta/ROADMAP.md"
+          ]
+        },
+        "wieso_weshalb_warum": {
+          "wieso": "Web-Standards entwickeln sich rasant; Features wandern von experimentell zu Baseline.",
+          "weshalb": "Kontinuierliches Tracking zeigt auf, wann veralteter JS-Code durch native CSS-/Browser-APIs ersetzt werden kann.",
+          "warum": "Hält die Codebasis schlank und modern ohne externe Bibliotheken."
+        }
+      }
+    }
+  ],
+  "audit_findings_and_recommendations": {
+    "status_summary": "28 Dokumente inventarisiert. Die Trennung zwischen 20-implementation (Handlungsanleitungen) und 30-meta (Projektgedächtnis) ist architektonisch sauber.",
+    "findings": [
+      {
+        "topic": "ADR-006 Synchronisation",
+        "affected_file": "docs/20-implementation/geoapify-autocomplete.md",
+        "observation": "Beschreibt noch den alten Zustand von ADR-API mit zwingenden Cloud-Calls.",
+        "recommendation": "Als Tier-2 Online-Enrichment Guide kennzeichnen und auf das neue 70,5 KB Brotli-Dictionary aus ADR-006 verweisen."
+      },
+      {
+        "topic": "Salutation-Engine Modernisierung",
+        "affected_file": "docs/20-implementation/Salutation-Engine.md",
+        "observation": "Bezieht sich auf den bisherigen Code 41-salutation-engine.js. Die neue 80/20 B2B-Engine (41-salutation-engine.smart.js) liegt bereits daneben.",
+        "recommendation": "Sobald die neue Engine freigegeben wird, Salutation-Engine.md mit den neuen B2B-Paaren und Offline-Namenserkennung aktualisieren."
+      },
+      {
+        "topic": "Historisch erledigte Pläne",
+        "affected_files": [
+          "docs/30-meta/FOUNDATION-RESTORATION-PLAN.md",
+          "docs/30-meta/architecture-drift-audit-2026-08-27.md",
+          "docs/30-meta/PROJECT.md"
+        ],
+        "observation": "Diese Pläne und Audits sind zu 100% umgesetzt und historisch abgeschlossen.",
+        "recommendation": "Können unverändert als Archiv-Artefakte verbleiben, da sie in 30-meta/ genau am richtigen Ort liegen."
+      }
+    ]
+  }
+}

@@ -1,0 +1,144 @@
+==================================================
+JAVASCRIPT FUNKTIONS-ÜBERSICHT (website/js/)
+==================================================
+
+--- Datei: 01-draft-manager.js ---
+  [Zeile 17] function/method constructor(onSaveCallback = null)
+  [Zeile 40] function/method saveDraft()
+  [Zeile 86] function/method loadDraft()
+  [Zeile 138] function/method undo()
+  [Zeile 145] function/method redo()
+  [Zeile 217] function/method traverseNodes(node)
+  [Zeile 247] function/method resetDraft()
+  [Zeile 260] function/method scheduleAutoSave()
+  [Zeile 267] function/method _updateDocumentTitle()
+
+--- Datei: 02-settings-manager.js ---
+  [Zeile 7] function/method constructor()
+  [Zeile 25] function/method init()
+  [Zeile 32] function/method applySettings()
+  [Zeile 65] function/method applyThemeDim(dim)
+  [Zeile 72] function/method updateSettings()
+  [Zeile 77] function/method initFontInjection()
+  [Zeile 90] function/method injectFont(base64Font)
+  [Zeile 103] function/method updateFontStatusUI(hasCustomFont)
+  [Zeile 117] function/method attachListeners()
+  [Zeile 133] function/method handleThemeChange(theme)
+  [Zeile 167] function/method handleGuidesToggle()
+
+--- Datei: 03-ui-protections.js ---
+  [Zeile 3] function/method constructor()
+  [Zeile 15] function/method init()
+  [Zeile 23] function/method enforceLineLimits()
+  [Zeile 117] function/method protectAnlagenList()
+  [Zeile 146] function/method ensureListStructure(anlagen)
+
+--- Datei: 31-format-toolbar.js ---
+  [Zeile 23] function/method constructor(brieftextEl, toolbarEl, onSaveDraft = null)
+  [Zeile 32] function/method init()
+  [Zeile 305] function/method sanitizeNode(node)
+  [Zeile 406] function/method toggleFormat(tagName)
+
+--- Datei: 32-toast.js ---
+  [Zeile 10] function/method constructor()
+  [Zeile 51] function/method initDOM()
+  [Zeile 81] function/method onPointerDown(e)
+  [Zeile 98] function/method onPointerMove(e)
+  [Zeile 113] function/method onPointerUp(e)
+  [Zeile 133] function/method show(message, type = 'info', options = {})
+  [Zeile 158] function/method update(id, message, type = 'info')
+  [Zeile 170] function/method processQueue()
+  [Zeile 215] function/method startTimer(duration, sticky)
+  [Zeile 224] function/method pauseTimer()
+  [Zeile 233] function/method resumeTimer()
+  [Zeile 241] function/method clearTimer()
+  [Zeile 249] function/method cleanupPopover()
+  [Zeile 270] function/method showToast(message, type = 'info', options = {})
+  [Zeile 279] function/method updateToast(id, message, type = 'info')
+  [Zeile 283] function/method initToastSystem()
+
+--- Datei: 41-salutation-engine.js ---
+  [Zeile 18] function/method normalizeFormality(f)
+  [Zeile 32] function/method splitTitles(name)
+  [Zeile 56] function/method derive({ firstName = "", lastName = "", company = "", type = "none", formality = "formal" } = {})
+  [Zeile 89] function/method getClosing(formality = "formal")
+  [Zeile 99] function/method getFallback(formality = "formal")
+  [Zeile 112] function/method constructor(saveDraftDataCallback)
+  [Zeile 119] function/method init()
+  [Zeile 132] function/method _applyUIState()
+  [Zeile 139] function/method _wireFormality()
+  [Zeile 140] function/method apply(style)
+  [Zeile 156] function/method _wireGender()
+  [Zeile 170] function/method _wireRecipientName()
+  [Zeile 178] function/method _wireManualEdits()
+  [Zeile 203] function/method _validatePunctuation(el, kind)
+  [Zeile 215] function/method _readDOMState()
+  [Zeile 245] function/method _regenerateSalutation({ force = false, onlyIfEmpty = false } = {})
+  [Zeile 255] function/method _regenerateClosing({ force = false, onlyIfEmpty = false } = {})
+  [Zeile 270] function/method _setField(el, value, opts = {})
+
+--- Datei: 42-signature.js ---
+  [Zeile 10] function/method constructor(uiContext)
+  [Zeile 28] function/method init()
+  [Zeile 55] function/method initWysiwyg()
+  [Zeile 150] function/method applyTransform()
+  [Zeile 159] function/method saveState()
+  [Zeile 170] function/method processFile(file)
+  [Zeile 190] function/method compressImage(bitmap)
+  [Zeile 207] function/method saveAndApply(base64)
+  [Zeile 233] function/method applyImage(base64)
+  [Zeile 239] function/method resetImage()
+
+--- Datei: 43-geoapify.js ---
+  [Zeile 19] function/method initAddressServices({ onToast, onSaveDraft })
+  [Zeile 69] function/method validateKeyWithHeartbeat(key)
+  [Zeile 90] function/method getLocalAddressBook()
+  [Zeile 100] function/method saveToLocalAddressBook(item)
+  [Zeile 114] function/method fuzzySearchLocal(query)
+  [Zeile 125] function/method highlightMatch(text, query)
+  [Zeile 162] function/method performAddressSearch(query, localMatches)
+  [Zeile 229] function/method mergeAndRender(localMatches, remoteMatches, query)
+  [Zeile 244] function/method renderSuggestions(suggestions, query)
+  [Zeile 278] function/method selectSuggestion(item)
+
+--- Datei: 44-sender-sync.js ---
+  [Zeile 15] function/method abbreviateName(fullName)
+  [Zeile 28] function/method initSenderSync()
+  [Zeile 37] function/method sync()
+
+--- Datei: 47-date-format.js ---
+  [Zeile 7] function/method formatLetterDate()
+  [Zeile 13] function/method applyLetterDate()
+
+--- Datei: 48-text-fit.js ---
+  [Zeile 22] function/method constructor(options = {})
+  [Zeile 39] function/method init()
+  [Zeile 45] function/method scanDOM()
+  [Zeile 60] function/method isOverflowing(el)
+  [Zeile 67] function/method attachEventListeners()
+  [Zeile 112] function/method notifyToast()
+  [Zeile 122] function/method restoreCaretToEnd(el)
+  [Zeile 135] function/method initMutationObserver()
+
+--- Datei: 51-constants.js ---
+  (Keine Funktionen gefunden)
+
+--- Datei: 52-storage.js ---
+  [Zeile 20] function/method saveDraft(key, data)
+  [Zeile 35] function/method loadDraft(key)
+  [Zeile 50] function/method saveSettings(settings)
+  [Zeile 64] function/method loadSettings()
+  [Zeile 91] function/method saveCustomFont(base64Font)
+  [Zeile 105] function/method loadCustomFont()
+  [Zeile 119] function/method saveGeoapifyKey(key)
+  [Zeile 133] function/method loadGeoapifyKey()
+
+--- Datei: 53-metadata.js ---
+  [Zeile 12] function/method prepare()
+  [Zeile 46] function/method _injectMetaTags(data)
+  [Zeile 70] function/method restore(context)
+
+--- Datei: main.js ---
+  [Zeile 22] function/method syncPostvermerkFromSidebar()
+  [Zeile 42] function/method initApp()
+  [Zeile 95] function/method attachGlobalListeners(draftManager, uiProtections)

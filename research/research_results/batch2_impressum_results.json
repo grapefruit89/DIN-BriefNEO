@@ -1,0 +1,361 @@
+{
+  "1. WELT / Axel Springer": {
+    "total_candidates_found": 5,
+    "best_match": {
+      "score": 150.4,
+      "firma": "Axel Springer Deutschland GmbH",
+      "zusatz": "WELT",
+      "strasse": "Schützenstraße 15–17",
+      "plz": "10117",
+      "ort": "Berlin",
+      "source_type": "inline_comma"
+    },
+    "all_candidates": [
+      {
+        "score": 150.4,
+        "firma": "Axel Springer Deutschland GmbH",
+        "zusatz": "WELT",
+        "strasse": "Schützenstraße 15–17",
+        "plz": "10117",
+        "ort": "Berlin",
+        "source_type": "inline_comma"
+      },
+      {
+        "score": 111.15,
+        "firma": "Axel Springer Deutschland GmbH",
+        "zusatz": "",
+        "strasse": "Axel-Springer-Straße 65",
+        "plz": "10888",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      },
+      {
+        "score": 104.4,
+        "firma": "Media Impact GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Axel-Springer-Straße 65",
+        "plz": "10888",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      },
+      {
+        "score": 103.5,
+        "firma": "Visoon Video Impact GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Benzenbergstraße 41",
+        "plz": "40219",
+        "ort": "Düsseldorf",
+        "source_type": "multiline"
+      }
+    ]
+  },
+  "2. DER SPIEGEL": {
+    "total_candidates_found": 6,
+    "best_match": {
+      "score": 118.8,
+      "firma": "DER SPIEGEL GmbH & Co. KG",
+      "zusatz": "",
+      "strasse": "Ericusspitze 1",
+      "plz": "20457",
+      "ort": "Hamburg",
+      "source_type": "multiline"
+    },
+    "all_candidates": [
+      {
+        "score": 118.8,
+        "firma": "DER SPIEGEL GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Ericusspitze 1",
+        "plz": "20457",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 116.4,
+        "firma": "SPIEGEL-Verlag Rudolf Augstein GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Ericusspitze 1",
+        "plz": "20457",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 60.2,
+        "firma": "Baden-Württemberg: Christine Keck (kek)",
+        "zusatz": "",
+        "strasse": "Berlin: Katharina-Paulus-Straße 2, 10557 Berlin, Tel. 030 886688-100",
+        "plz": "01097",
+        "ort": "Dresden",
+        "source_type": "multiline"
+      },
+      {
+        "score": 59.75,
+        "firma": "Baden-Württemberg: Christine Keck (kek)",
+        "zusatz": "",
+        "strasse": "Frankfurt am Main: Matthias Bartsch (mab), Tim Bartz (baz), Fellnerstr. 7-9, 60322 Frankfurt am Main, Tel. 069 9712680",
+        "plz": "76133",
+        "ort": "Karlsruhe",
+        "source_type": "multiline"
+      }
+    ]
+  },
+  "3. DIE ZEIT": {
+    "total_candidates_found": 4,
+    "best_match": {
+      "score": 118.35,
+      "firma": "Zeitverlag Gerd Bucerius GmbH & Co. KG",
+      "zusatz": "Helmut-Schmidt-Haus",
+      "strasse": "Buceriusstraße, Eingang Speersort 1",
+      "plz": "20095",
+      "ort": "Hamburg",
+      "source_type": "multiline"
+    },
+    "all_candidates": [
+      {
+        "score": 118.35,
+        "firma": "Zeitverlag Gerd Bucerius GmbH & Co. KG",
+        "zusatz": "Helmut-Schmidt-Haus",
+        "strasse": "Buceriusstraße, Eingang Speersort 1",
+        "plz": "20095",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 116.7,
+        "firma": "Zeitverlag Gerd Bucerius GmbH & Co. KG",
+        "zusatz": "Helmut-Schmidt-Haus",
+        "strasse": "Buceriusstraße, Eingang Speersort 1",
+        "plz": "20095",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 115.75,
+        "firma": "Süddeutscher Verlag Zeitungsdruck GmbH",
+        "zusatz": "",
+        "strasse": "Zamdorfer Str. 40",
+        "plz": "81677",
+        "ort": "München",
+        "source_type": "inline_comma"
+      },
+      {
+        "score": 75.65,
+        "firma": "Leserbriefe: leserbriefe@zeit.de",
+        "zusatz": "",
+        "strasse": "Schöneberger Straße 21A",
+        "plz": "10963",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      }
+    ]
+  },
+  "4. Presseplus.de": {
+    "total_candidates_found": 3,
+    "best_match": {
+      "score": 101.85,
+      "firma": "Gerhard Sondermann Dialog e.K.",
+      "zusatz": "",
+      "strasse": "Untere Biefangstr. 43",
+      "plz": "79418",
+      "ort": "Schliengen",
+      "source_type": "multiline"
+    },
+    "all_candidates": [
+      {
+        "score": 101.85,
+        "firma": "Gerhard Sondermann Dialog e.K.",
+        "zusatz": "",
+        "strasse": "Untere Biefangstr. 43",
+        "plz": "79418",
+        "ort": "Schliengen",
+        "source_type": "multiline"
+      },
+      {
+        "score": 77.3,
+        "firma": "Gerhard Sondermann Dialog e.K.",
+        "zusatz": "",
+        "strasse": "Bellevue 59",
+        "plz": "22301",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 72.2,
+        "firma": "Sondermann Dialog",
+        "zusatz": "",
+        "strasse": "Bellevue 59",
+        "plz": "22301",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      }
+    ]
+  },
+  "5. BDZV (Bundesverband)": {
+    "total_candidates_found": 2,
+    "best_match": {
+      "score": 118.95,
+      "firma": "BDZV - Bundesverband Digitalpublisher und Zeitungsverleger e.V.",
+      "zusatz": "Haus der Presse",
+      "strasse": "Markgrafenstraße 15",
+      "plz": "10969",
+      "ort": "Berlin",
+      "source_type": "multiline"
+    },
+    "all_candidates": [
+      {
+        "score": 118.95,
+        "firma": "BDZV - Bundesverband Digitalpublisher und Zeitungsverleger e.V.",
+        "zusatz": "Haus der Presse",
+        "strasse": "Markgrafenstraße 15",
+        "plz": "10969",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      },
+      {
+        "score": 113.85,
+        "firma": "BDZV - Bundesverband Digitalpublisher und Zeitungsverleger e.V.",
+        "zusatz": "",
+        "strasse": "Markgrafenstraße 15",
+        "plz": "10969",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      }
+    ]
+  },
+  "6. TU Dortmund": {
+    "total_candidates_found": 3,
+    "best_match": {
+      "score": 115.05,
+      "firma": "Technische Universität Dortmund",
+      "zusatz": "",
+      "strasse": "August-Schmidt-Straße 4",
+      "plz": "44227",
+      "ort": "Dortmund",
+      "source_type": "multiline"
+    },
+    "all_candidates": [
+      {
+        "score": 115.05,
+        "firma": "Technische Universität Dortmund",
+        "zusatz": "",
+        "strasse": "August-Schmidt-Straße 4",
+        "plz": "44227",
+        "ort": "Dortmund",
+        "source_type": "multiline"
+      },
+      {
+        "score": 112.5,
+        "firma": "mehrwert intermediale kommunikation GmbH",
+        "zusatz": "",
+        "strasse": "Steinfelder Gasse 11",
+        "plz": "50670",
+        "ort": "Köln",
+        "source_type": "multiline"
+      },
+      {
+        "score": 73.25,
+        "firma": "Dr. Joachim Kreische",
+        "zusatz": "Universitätsbibliothek Dortmund",
+        "strasse": "Sebrathweg 9",
+        "plz": "44149",
+        "ort": "Dortmund",
+        "source_type": "multiline"
+      }
+    ]
+  },
+  "global_stress_test": {
+    "total_entities_found": 23,
+    "top_entities": [
+      {
+        "score": 150.4,
+        "firma": "Axel Springer Deutschland GmbH",
+        "zusatz": "WELT",
+        "strasse": "Schützenstraße 15–17",
+        "plz": "10117",
+        "ort": "Berlin",
+        "source_type": "inline_comma"
+      },
+      {
+        "score": 111.15,
+        "firma": "Axel Springer Deutschland GmbH",
+        "zusatz": "",
+        "strasse": "Axel-Springer-Straße 65",
+        "plz": "10888",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      },
+      {
+        "score": 104.4,
+        "firma": "Media Impact GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Axel-Springer-Straße 65",
+        "plz": "10888",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      },
+      {
+        "score": 103.5,
+        "firma": "Visoon Video Impact GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Benzenbergstraße 41",
+        "plz": "40219",
+        "ort": "Düsseldorf",
+        "source_type": "multiline"
+      },
+      {
+        "score": 99.6,
+        "firma": "VGL Publishing AG",
+        "zusatz": "",
+        "strasse": "Oranienstraße 6",
+        "plz": "10997",
+        "ort": "Berlin",
+        "source_type": "multiline"
+      },
+      {
+        "score": 88.65,
+        "firma": "DER SPIEGEL GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Ericusspitze 1",
+        "plz": "20457",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 86.25,
+        "firma": "SPIEGEL-Verlag Rudolf Augstein GmbH & Co. KG",
+        "zusatz": "",
+        "strasse": "Ericusspitze 1",
+        "plz": "20457",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 45.0,
+        "firma": "Zeitverlag Gerd Bucerius GmbH & Co. KG",
+        "zusatz": "Helmut-Schmidt-Haus",
+        "strasse": "Buceriusstraße, Eingang Speersort 1",
+        "plz": "20095",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 43.35000000000001,
+        "firma": "Zeitverlag Gerd Bucerius GmbH & Co. KG",
+        "zusatz": "Helmut-Schmidt-Haus",
+        "strasse": "Buceriusstraße, Eingang Speersort 1",
+        "plz": "20095",
+        "ort": "Hamburg",
+        "source_type": "multiline"
+      },
+      {
+        "score": 42.400000000000006,
+        "firma": "Süddeutscher Verlag Zeitungsdruck GmbH",
+        "zusatz": "",
+        "strasse": "Zamdorfer Str. 40",
+        "plz": "81677",
+        "ort": "München",
+        "source_type": "inline_comma"
+      }
+    ]
+  }
+}

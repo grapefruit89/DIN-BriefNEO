@@ -262,9 +262,10 @@ aside {
 
   [contenteditable] {
     field-sizing: content;
-    outline: none;
-    border-radius: 2px;
-    transition: background 0.15s ease, box-shadow 0.15s ease;
+    outline: 1px dashed oklch(from var(--text-muted) l c h / 28%);
+    outline-offset: 2px;
+    border-radius: 4px;
+    transition: outline-color 0.15s ease, outline-width 0.15s ease, outline-style 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
   }
 
   /* Single Line / Max Length Felder leicht stauchen (KISS für 80 Zeichen Limit) */
@@ -273,13 +274,15 @@ aside {
   }
 
   [contenteditable]:hover {
-    background: oklch(62% 0.19 148 / 2%);
-    box-shadow: 0 0 0 1px oklch(62% 0.19 148 / 8%);
+    outline: 1px solid oklch(from var(--accent-color) l c h / 50%);
+    background: oklch(from var(--accent-color) l c h / 2.5%);
   }
 
   [contenteditable]:focus {
-    background: oklch(62% 0.19 148 / 4%);
-    box-shadow: 0 0 0 1px var(--accent-color);
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    background: oklch(from var(--accent-color) l c h / 4%);
+    box-shadow: 0 0 0 3px oklch(from var(--accent-color) l c h / 12%);
   }
 
   /* Placeholder support for contenteditable */
@@ -744,14 +747,8 @@ din-anlagen, din-verteiler {
   line-height: 1.4;
 }
 
-/* Bessere visuelle Begrenzung ohne JS */
+/* Single-line edit focus behavior */
 .single-line[contenteditable]:focus {
-  border: 2px solid transparent;
-  margin: -2px;
-  background-clip: padding-box, border-area;
-  background-image: 
-    linear-gradient(oklch(62% 0.19 148 / 3%), oklch(62% 0.19 148 / 3%)),
-    linear-gradient(135deg, var(--accent-color), var(--c-success));
   overflow: visible; /* beim Editieren darf es temporär umbrechen */
   text-overflow: unset;
   max-height: none;

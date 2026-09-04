@@ -25,7 +25,13 @@ error_patterns:
   - popover
   - din-a4
   - semantik
-supersedes: []
+  - premium ux
+  - wysiwyg
+  - toolbar
+  - anchor positioning
+  - überlauf
+supersedes:
+  - adr-feature
 depends_on: []
 ---
 
@@ -56,9 +62,21 @@ depends_on: []
 
 - **Custom Elements:** Wir nutzen semantische HTML5 Custom Elements (`<din-a4>`, `<din-absender>`, etc.), um Geometriebereiche im CSS klar zu trennen und die DOM-Lesbarkeit zu erhöhen.
 
-- **Native Popovers:** Dialoge & Toolbars nutzen `popover="manual"` für ein konfliktfreies Rendern im **Top-Layer** (ohne `z-index`-Hacks).
+- **Native Popovers & Top-Layer:** Dialoge & Toolbars nutzen `popover="manual"` für ein konfliktfreies Rendern im **Top-Layer** (ohne `z-index`-Hacks).
+
+- **Strict WYSIWYG & In-Place Editing (ehemals ADR-FEATURE):**
+  Eingaben finden *ausschließlich* direkt auf dem virtuellen Papierbogen statt. Die Sidebar dient rein globalen Einstellungen (Toggles, Profile). Formularelemente werden nicht doppelt in einer Seitenleiste gespiegelt.
+
+- **Kontextuelle Formatierungs-Toolbar (WhatsApp-Style, ehemals ADR-FEATURE):**
+  Die Format-Toolbar schwebt als echtes Popover direkt am Textcursor und verankert sich per nativem CSS Anchor Positioning an der aktuellen Textselektion. JavaScript ist strikt von Positionsberechnungen (`getBoundingClientRect`) befreit und steuert lediglich Sichtbarkeit sowie Text-Range-Befehle (ohne `execCommand`).
+
+- **Toasts & Dialoge (Top-Layer-Delegation, ehemals ADR-FEATURE):**
+  Benachrichtigungen nutzen die native Popover API. Ein- und Ausblendanimationen werden vollständig an CSS (`@starting-style`, `transition-behavior: allow-discrete`) delegiert, sodass JavaScript keine Timer-Animationen rechnen muss.
 
 - **Editierbarkeit:** Einzeilige Metadaten (Betreff, Anschrift) nutzen `contenteditable="plaintext-only"`. Nur der Briefkörper (`#brieftext`) nutzt `contenteditable="true"`.
+
+- **A4-Überlauf-Erkennung (ehemals ADR-FEATURE):**
+  JS prüft defensiv die Texthöhe (max. ca. 120 mm) und setzt bei Überschreitung der DIN-Grenzen eine Warn-Klasse für den visuellen Indikator, ohne erzwungene Scrollbalken auf dem Dokument zu provozieren.
 
 - **Barrierefreiheit:** ARIA-Attribute (`aria-pressed="true/false"`) werden nativ für Toolbar-Buttons gepflegt.
 
@@ -66,9 +84,9 @@ depends_on: []
 
 ### Positive Auswirkungen
 
-- **Maximale Lesbarkeit:** Der DOM-Baum ist selbsterklärend und semantisch korrekt.
+- **Maximale Lesbarkeit & Performance:** Der DOM-Baum ist selbsterklärend und semantisch korrekt; Popovers im Top-Layer sind vollständig hardwarebeschleunigt.
 
-- **Wartungsfreiheit:** Keine externen UI- oder Dialog-Libraries nötig.
+- **Wartungsfreiheit:** Keine externen UI-, Dialog- oder Toolbar-Libraries nötig.
 
 - **Sicherheit:** `plaintext-only` schützt Strukturfelder zuverlässig vor unerwünschten Formatierungen aus der Zwischenablage.
 
@@ -82,9 +100,11 @@ depends_on: []
 
 - Alle Brief-Elemente im `index.html` sind als `<din-*>` Tags deklariert.
 
-- Popovers und Toolbars nutzen das `popover`-Attribut.
+- Popovers, Kontext-Toolbars und Toasts nutzen das `popover`-Attribut im Top-Layer.
 
-- Einhaltung wird durch die Anti-Pattern Linter-Regeln für JS-basiertes Styling überprüft.
+- CSS Anchor Positioning und `@starting-style` steuern Toolbars und Einblendungen ohne JS-Positionslogik.
+
+- Einhaltung von WYSIWYG und Zero-JS-Styling wird durch das Fitness Gate (`tools/reconciliation.js`) überprüft.
 
 ## 6. Related Documents
 

@@ -4,10 +4,10 @@ title: 'Hybrid Spec-Driven Workflow (Light/Full Mode + Reconciliation)'
 type: guide
 status: active
 created: '2026-06-26'
-updated: '2026-09-02'
+updated: '2026-09-04'
 tags:
   - din-briefneo
-  - din-briefneo/foundation
+  - din-briefneo/policy
   - status/active
   - type/guide
   - workflow
@@ -39,8 +39,8 @@ depends_on: []
 
 # Hybrid Spec-Driven + Reconciliation Workflow
 
-> [!WARNING] Prozess, nicht Gesetz
-> Dieses Dokument beschreibt, **wie** gearbeitet wird. Es steht hierarchisch unter Constitution, Law Catalog und Spec. Es ist kein immutable law. Vorgesehener Ort: `docs/90-policy/` (Move ausstehend).
+> [!NOTE] Prozess & Workflow (Policy-Ebene)
+> Dieses Dokument beschreibt, **wie** gearbeitet wird. Es steht hierarchisch unter Constitution, Law Catalog und Spec. Es ist ein veränderlicher Leitfaden auf Policy-Ebene (Ebene 90) und kein unumstößliches Fundament-Gesetz.
 >
 > Leitplanken: [[constitution]] · [[Immutable-Law-Catalog]] · [[ADR-ANTIPATTERN]]
 

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIN-Brief Neo: Browser Feature Audit 2025/2026</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --blue: #38bdf8;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .stats-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      flex: 1;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    button:hover { background: #1d4ed8; }
+    button.btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    button.btn-secondary:hover { background: #334155; }
+    
+    .category-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .category-header {
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .feature-item {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .feature-item:last-child { border-bottom: none; }
+    .feature-info {
+      flex: 1;
+    }
+    .feature-name {
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .feature-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+    }
+    .badge-ok { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-no { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    
+    #notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>⚡ DIN-Brief Neo: Live Browser Feature Audit</h1>
+        <div class="subtitle">Prüft alle 2025/2026 Web-Features live in deiner aktuellen Browser-Umgebung.</div>
+      </div>
+      <div class="actions">
+        <button id="btn-export" onclick="exportJSON()">📥 Als JSON exportieren</button>
+        <button id="btn-copy" class="btn-secondary" onclick="copyState()">📋 In die Zwischenablage</button>
+        <button id="btn-rerun" class="btn-secondary" onclick="runAudit()">🔄 Neu prüfen</button>
+      </div>
+    </header>
+
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Geprüfte Features</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--green);" id="stat-supported">0</div>
+        <div class="stat-label">Unterstützt (Ready)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--red);" id="stat-unsupported">0</div>
+        <div class="stat-label">Nicht verfügbar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--blue);" id="stat-score">0%</div>
+        <div class="stat-label">Browser-Fitness</div>
+      </div>
+    </div>
+
+    <!-- KATEGORIE 1: PRODUCTION READY (2025 STABLE) -->
+    <div class="category-section">
+      <div class="category-header">
+        <span>🟢 Kategorie 1: Production Ready (Baseline 2025 & Standards)</span>
+        <span class="badge badge-ok" id="badge-cat1">Prüfe...</span>
+      </div>
+      <div class="feature-list" id="list-cat1"></div>
+    </div>
+
+    <!-- KATEGORIE 2: CUTTING EDGE 2026 (MAYBE FEATURES) -->
+    <div class="category-section">
+      <div class="category-header">
+        <span>🟡 Kategorie 2: Cutting Edge 2026 ("Maybe Features")</span>
+        <span class="badge badge-warn" id="badge-cat2">Prüfe...</span>
+      </div>
+      <div class="feature-list" id="list-cat2"></div>
+    </div>
+
+    <!-- KATEGORIE 3: CHROME BUILT-IN AI (GEMINI NANO) -->
+    <div class="category-section">
+      <div class="category-header">
+        <span>🟣 Kategorie 3: On-Device Chrome AI (Gemini Nano)</span>
+        <span class="badge badge-warn" id="badge-cat3">Prüfe...</span>
+      </div>
+      <div class="feature-list" id="list-cat3"></div>
+    </div>
+  </div>
+
+  <div id="notification">Erfolgreich kopiert!</div>
+
+  <script>
+    const features = [
+      // KATEGORIE 1: PRODUCTION READY (2025)
+      {
+        id: "field_sizing",
+        name: "CSS field-sizing: content",
+        cat: 1,
+        desc: "Inputs & Textareas wachsen automatisch mit dem Text. Ersetzt 48-text-fit.js komplett.",
+        test: () => CSS.supports('field-sizing', 'content')
+      },
+      {
+        id: "light_dark",
+        name: "CSS light-dark() Funktion",
+        cat: 1,
+        desc: "Einzeiliges Dark-/Light-Theming anhand von color-scheme. Halbiert variables.css.",
+        test: () => CSS.supports('color', 'light-dark(#fff, #000)')
+      },
+      {
+        id: "color_mix",
+        name: "CSS color-mix()",
+        cat: 1,
+        desc: "Mischen von Farbnuancen und Dim-Stufen direkt im CSS ohne statische Hex-Codes.",
+        test: () => CSS.supports('color', 'color-mix(in srgb, red 50%, blue)')
+      },
+      {
+        id: "anchor_positioning",
+        name: "CSS Anchor Positioning",
+        cat: 1,
+        desc: "Toolbar und Falzmarken verankern ohne getBoundingClientRect() oder absolute Hacks.",
+        test: () => CSS.supports('position-anchor', '--test') || CSS.supports('top', 'anchor(bottom)')
+      },
+      {
+        id: "starting_style",
+        name: "CSS @starting-style",
+        cat: 1,
+        desc: "Sanfte Transitions von display: none auf block ohne Keyframe-Hacks für Toasts.",
+        test: () => {
+          try { return CSS.supports('@starting-style', '{}') || 'StartingStyle' in window; } catch(e){ return false; }
+        }
+      },
+      {
+        id: "interpolate_size",
+        name: "CSS interpolate-size: allow-keywords",
+        cat: 1,
+        desc: "Flüssige CSS-Animationen auf height: auto bei Menüs und Dropdowns.",
+        test: () => CSS.supports('interpolate-size', 'allow-keywords')
+      },
+      {
+        id: "popover_api",
+        name: "HTML Popover API (nativ)",
+        cat: 1,
+        desc: "Rendert Toasts und Menüs nativ im Top-Layer ohne z-index-Kriege.",
+        test: () => 'popover' in document.createElement('div')
+      },
+      {
+        id: "plaintext_only",
+        name: "contenteditable='plaintext-only'",
+        cat: 1,
+        desc: "Blockiert Enter und Rich-Text in einzeiligen Feldern nativ. Ersetzt enforceLineLimits.",
+        test: () => {
+          const div = document.createElement('div');
+          div.contentEditable = 'plaintext-only';
+          return div.contentEditable === 'plaintext-only';
+        }
+      },
+      {
+        id: "dialog_native",
+        name: "HTML <dialog> mit closedby",
+        cat: 1,
+        desc: "Nativer Bestätigungsdialog mit Tastatur-Fokus und automatischem Schließen.",
+        test: () => 'showModal' in document.createElement('dialog')
+      },
+      {
+        id: "text_wrap",
+        name: "CSS text-wrap: balance & pretty",
+        cat: 1,
+        desc: "Typografischer Schutz vor Waisen-Wörtern und balancierte Betreffzeilen.",
+        test: () => CSS.supports('text-wrap', 'balance') && CSS.supports('text-wrap', 'pretty')
+      },
+      {
+        id: "overflow_clip",
+        name: "CSS overflow: clip & contain: strict",
+        cat: 1,
+        desc: "Strikte Zero-Scroll-Garantie: Verbietet jegliches Scrollen physisch auf dem A4-Blatt.",
+        test: () => CSS.supports('overflow', 'clip') && CSS.supports('contain', 'strict')
+      },
+      {
+        id: "print_color_adjust",
+        name: "CSS print-color-adjust: exact",
+        cat: 1,
+        desc: "Garantiert gestochen scharfen Druck von Falzmarken und Hintergrundfarben im PDF.",
+        test: () => CSS.supports('print-color-adjust', 'exact') || CSS.supports('-webkit-print-color-adjust', 'exact')
+      },
+      {
+        id: "lh_units",
+        name: "CSS lh & rlh Einheiten",
+        cat: 1,
+        desc: "Echte DIN 5008 Leerzeilen-Abstände basierend auf der aktuellen Zeilenhöhe (1lh).",
+        test: () => CSS.supports('margin-bottom', '1lh')
+      },
+      {
+        id: "show_picker",
+        name: "HTML element.showPicker()",
+        cat: 1,
+        desc: "Öffnet den nativen Windows-Kalender direkt per Klick aufs Datumsfeld.",
+        test: () => 'showPicker' in HTMLInputElement.prototype
+      },
+      {
+        id: "compression_streams",
+        name: "Compression Streams (Gzip/Deflate)",
+        cat: 1,
+        desc: "Komprimiert Briefe mit Unterschriften um 80-90% im LocalStorage.",
+        test: () => typeof CompressionStream !== 'undefined'
+      },
+      {
+        id: "eyedropper_api",
+        name: "EyeDropper API (Farbpipette)",
+        cat: 1,
+        desc: "Greift Akzentfarben mit einer Lupe direkt aus hochgeladenen Logos ab.",
+        test: () => typeof EyeDropper !== 'undefined'
+      },
+      {
+        id: "local_fonts",
+        name: "Local Fonts API (queryLocalFonts)",
+        cat: 1,
+        desc: "Direkter Zugriff auf installierte Windows-Schriften (Aptos, DIN) ohne Upload.",
+        test: () => 'queryLocalFonts' in window
+      },
+      {
+        id: "move_before",
+        name: "DOM element.moveBefore()",
+        cat: 1,
+        desc: "Verschieben von Elementen (z. B. Anlagen) unter Erhalt des Tastaturfokus.",
+        test: () => 'moveBefore' in Element.prototype
+      },
+      {
+        id: "sanitizer_api",
+        name: "HTML Sanitizer / setHTMLUnsafe",
+        cat: 1,
+        desc: "C++-native HTML-Bereinigung gegen XSS. Ersetzt fehleranfälliges sanitizeNode.",
+        test: () => 'setHTMLUnsafe' in Element.prototype || typeof Sanitizer !== 'undefined'
+      },
+
+      // KATEGORIE 2: CUTTING EDGE 2026 (MAYBE FEATURES)
+      {
+        id: "text_box_trim",
+        name: "CSS text-box-trim & text-box-edge",
+        cat: 2,
+        desc: "Schneidet virtuellen Font-Leerraum oben/unten ab. Echte 45mm DIN-Genauigkeit.",
+        test: () => CSS.supports('text-box-trim', 'both') || CSS.supports('text-box-edge', 'cap alphabetic')
+      },
+      {
+        id: "checkbox_switch",
+        name: "HTML <input type='checkbox' switch>",
+        cat: 2,
+        desc: "Vollständig nativer Betriebssystem-Schalter ohne Hilfs-Markup oder Klassen.",
+        test: () => {
+          const inp = document.createElement('input');
+          inp.type = 'checkbox';
+          return 'switch' in inp || inp.hasAttribute('switch');
+        }
+      },
+      {
+        id: "invoker_commands",
+        name: "Invoker Buttons (command / commandfor)",
+        cat: 2,
+        desc: "Buttons steuern Dialoge und Popovers rein deklarativ ohne addEventListener.",
+        test: () => 'commandfor' in document.createElement('button') || 'command' in document.createElement('button')
+      },
+      {
+        id: "interest_invokers",
+        name: "Interest Invokers (interesttarget)",
+        cat: 2,
+        desc: "Verzögerungsfreie, stylebare Tooltips bei Hover und Tastaturfokus.",
+        test: () => 'interesttarget' in document.createElement('button')
+      },
+      {
+        id: "customizable_select",
+        name: "Customizable <select> (<selectmenu>)",
+        cat: 2,
+        desc: "Frei gestaltbares Dropdown für Postvermerke mit Icons und DIN-Kürzeln.",
+        test: () => CSS.supports('appearance', 'base-select')
+      },
+      {
+        id: "highlight_api",
+        name: "CSS Custom Highlight API (::highlight)",
+        cat: 2,
+        desc: "Markiert Suchtreffer im Text nativ ohne DOM-Zerteilung in <span>-Tags.",
+        test: () => typeof CSS !== 'undefined' && 'highlights' in CSS
+      },
+
+      // KATEGORIE 3: CHROME BUILT-IN AI
+      {
+        id: "ai_global",
+        name: "window.ai (Chrome Built-in AI)",
+        cat: 3,
+        desc: "Lokale KI-Schnittstelle im Browser (Gemini Nano on-device).",
+        test: () => typeof window.ai !== 'undefined'
+      },
+      {
+        id: "ai_writer",
+        name: "window.ai.writer (Writer API)",
+        cat: 3,
+        desc: "Erstellt aus Stichpunkten druckreife Brieftexte direkt lokal im Browser.",
+        test: () => typeof window.ai?.writer !== 'undefined'
+      },
+      {
+        id: "ai_rewriter",
+        name: "window.ai.rewriter (Rewriter API)",
+        cat: 3,
+        desc: "Formuliert markierten Text auf Knopfdruck in formellen DIN-Briefstil um.",
+        test: () => typeof window.ai?.rewriter !== 'undefined'
+      },
+      {
+        id: "ai_proofreader",
+        name: "window.ai.proofreader (Proofreader API)",
+        cat: 3,
+        desc: "Findet Grammatik- und Kommafehler vor dem PDF-Druck lokal auf dem PC.",
+        test: () => typeof window.ai?.proofreader !== 'undefined'
+      }
+    ];
+
+    let auditResults = {};
+
+    function runAudit() {
+      auditResults = {};
+      let supportedCount = 0;
+      let catCounts = { 1: { ok: 0, total: 0 }, 2: { ok: 0, total: 0 }, 3: { ok: 0, total: 0 } };
+
+      const lists = {
+        1: document.getElementById('list-cat1'),
+        2: document.getElementById('list-cat2'),
+        3: document.getElementById('list-cat3')
+      };
+
+      Object.values(lists).forEach(el => el.innerHTML = '');
+
+      features.forEach(f => {
+        let isOk = false;
+        try {
+          isOk = Boolean(f.test());
+        } catch (e) {
+          isOk = false;
+        }
+
+        auditResults[f.id] = {
+          name: f.name,
+          category: f.cat,
+          supported: isOk
+        };
+
+        catCounts[f.cat].total++;
+        if (isOk) {
+          supportedCount++;
+          catCounts[f.cat].ok++;
+        }
+
+        const item = document.createElement('div');
+        item.className = 'feature-item';
+        item.innerHTML = `
+          <div class="feature-info">
+            <div class="feature-name">
+              ${isOk ? '✅' : '❌'} ${f.name}
+            </div>
+            <div class="feature-desc">${f.desc}</div>
+          </div>
+          <div>
+            <span class="badge ${isOk ? 'badge-ok' : 'badge-no'}">
+              ${isOk ? 'Verfügbar' : 'Nicht aktiv'}
+            </span>
+          </div>
+        `;
+        lists[f.cat].appendChild(item);
+      });
+
+      // Stats updaten
+      const total = features.length;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-supported').textContent = supportedCount;
+      document.getElementById('stat-unsupported').textContent = total - supportedCount;
+      const pct = Math.round((supportedCount / total) * 100);
+      document.getElementById('stat-score').textContent = pct + '%';
+
+      // Kategorie Badges
+      for (let c = 1; c <= 3; c++) {
+        const badge = document.getElementById('badge-cat' + c);
+        badge.textContent = `${catCounts[c].ok} / ${catCounts[c].total} Aktiv`;
+        badge.className = `badge ${catCounts[c].ok > 0 ? 'badge-ok' : 'badge-no'}`;
+      }
+    }
+
+    function exportJSON() {
+      const exportData = {
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        totalTested: features.length,
+        results: auditResults
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dinbrief_browser_feature_audit_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyState() {
+      const text = Object.entries(auditResults)
+        .map(([k, v]) => `${k} == ${v.supported}`)
+        .join('\n');
+
+      navigator.clipboard.writeText(text).then(() => {
+        const notif = document.getElementById('notification');
+        notif.style.display = 'block';
+        setTimeout(() => notif.style.display = 'none', 2000);
+      });
+    }
+
+    // Auto-Run
+    window.addEventListener('DOMContentLoaded', runAudit);
+  </script>
+</body>
+</html>

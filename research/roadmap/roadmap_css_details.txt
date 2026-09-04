@@ -1,0 +1,112 @@
+==========================================================================================
+CSS MODERNISIERUNGS-ROADMAP 2026: NATIVES CSS STATT WORKAROUNDS & HACKS
+Projekt: DIN-Brief Neo (website/css/)
+==========================================================================================
+
+ZIEL:
+Ersetzen von Legacy-CSS-Hacks, absoluten Koordinaten, manuellen z-Indexen und künstlichen
+Abstands-Kompensationen durch die neuesten CSS-Standards aus dem Chrome 2026 Katalog.
+
+==========================================================================================
+1. DIN 5008 MILLIMETER-GENAUIGKEIT: TEXT-BOX-TRIM & ANCHORING (layout.css)
+==========================================================================================
+
+Problem heute in layout.css:
+In DIN-Briefen müssen Abstände (z.B. 45 mm zur Empfängeranschrift, 8.46 mm Zeilenabstand)
+auf den Millimeter genau stimmen. Web-Schriftarten bringen jedoch unsichtbaren Leerraum
+(Font-Ascender und Descender) mit, wodurch 'margin-top: 45mm' real oft 47mm oder 48mm beträgt.
+Bisher musste dies mit 'calc()' und negativen Margins ungenau korrigiert werden.
+
+Natives 2026 Feature: CSS 'text-box-trim: both' & 'text-box-edge: cap alphabetic'
+Nutzen:
+- Schneidet den Schriftart-Leerraum oben und unten exakt an der Versalhöhe (Cap Height)
+  und Grundlinie (Baseline) ab.
+- Ein 'margin-top: 45mm' in layout.css bedeutet jetzt auf Druck und Screen EXAKT 45mm!
+- Ersetzt: Alle künstlichen Schriftausgleichs-Hacks in layout.css.
+
+Natives 2026 Feature: CSS Anchor Positioning (position-anchor, anchor(), position-try)
+Nutzen:
+- Falzmarken (bei 105mm und 210mm) und Lochmarke (bei 148.5mm) können sich direkt an den
+  DIN-Rändern verankern, ohne starres 'position: absolute; left: 0; top: ...' mit Ausrichtungsfehlern.
+
+==========================================================================================
+2. FLOATING UI, TOOLBAR & TOASTS OHNE Z-INDEX-KRIEGE (floating.css)
+==========================================================================================
+
+Problem heute in floating.css:
+Die Toolbar, Dropdowns und Toasts kämpfen mit 'z-index: 1000+', 'z-index: 9999',
+overflow-clipping in Containern und komplexen @keyframes für Fade-In/Fade-Out.
+
+Natives 2026 Feature: CSS '@starting-style' & discrete property transitions
+Nutzen:
+- Erlaubt sanfte CSS-Transitions von 'display: none' auf 'display: block' / Popovers.
+- Keine @keyframes 'toastSlideIn' mehr nötig!
+- Elemente faden nativ via CSS 'transition: opacity 0.2s, transform 0.2s' ein und aus.
+
+Natives 2026 Feature: CSS 'interpolate-size: allow-keywords'
+Nutzen:
+- Ermöglicht weiche CSS-Animationen von 'height: 0' auf 'height: auto' bei Akkordeons,
+  Sidebar-Panels und Dropdowns – bisher in CSS schlicht unmöglich ohne feste Pixelwerte oder JS!
+
+==========================================================================================
+3. DYNAMISCHE FORMULARE & TEXT-ANPASSUNG (layout.css)
+==========================================================================================
+
+Problem heute:
+Einzeilige Inputs (Betreff, Datum, Absender) brechen bei langem Text unschön um oder
+müssen via JS gemessen werden.
+
+Natives 2026 Feature: CSS 'field-sizing: content'
+Nutzen:
+- Inputs und Textareas wachsen vollautomatisch horizontal und vertikal mit dem getippten Text mit.
+- Kein horizontales Scrollen im Betrefffeld mehr, kein Abschneiden von Absenderzeilen.
+
+Natives 2026 Feature: CSS 'text-wrap: balance' & 'text-wrap: pretty'
+Nutzen:
+- 'text-wrap: pretty' verhindert einzelne 'Waisen'-Wörter am Zeilenende im Brieftext.
+- 'text-wrap: balance' balanciert Überschriften und Betreffzeilen harmonisch aus.
+
+==========================================================================================
+4. THEMING & VARIABLEN-SYSTEM (variables.css)
+==========================================================================================
+
+Problem heute in variables.css:
+Dunkel-Modus erfordert doppelte Definitionen aller Variablen unter :root und unter .theme-dark
+oder [data-theme='dark'].
+
+Natives 2026 Feature: CSS 'light-dark()' Funktion
+Nutzen:
+- Definition mit einer einzigen Zeile:
+  --bg-primary: light-dark(#ffffff, #1e1e1e);
+  --text-color: light-dark(#111111, #eeeeee);
+- Der Browser wählt anhand von 'color-scheme: light dark' automatisch den korrekten Wert.
+- Halbiert die Theming-Zeilen in variables.css!
+
+Natives 2026 Feature: CSS 'color-mix()' & OKLCH-Farbraum
+Nutzen:
+- Dim-Stufen können dynamisch gemischt werden: 'color-mix(in srgb, var(--bg-paper) 90%, black)'.
+- Keine statischen Hilfsfarben mehr für Hover- und Dim-Zustände.
+
+==========================================================================================
+5. DRUCK & PAGINIERUNG (print.css)
+==========================================================================================
+
+Natives 2026 Feature: Erweiterte Paged-Media & Margin Boxes (@page)
+Nutzen:
+- Seitenzahlen ('Seite X von Y') können direkt nativ über '@page { @bottom-right { content: counter(page); } }'
+  definiert werden.
+- Fußzeilen müssen nicht mehr künstlich im DOM als absolute Elemente am Seitenende positioniert werden.
+
+==========================================================================================
+ZUSAMMENFASSUNG & EINSPARUNGEN FÜR DEIN CSS:
+==========================================================================================
+CSS-Datei       | Zeilen Heute | Mit CSS 2026 | Hauptvorteil
+----------------+--------------+--------------+---------------------------------------------------
+variables.css   |     ~160     |     ~85      | light-dark() & color-mix halbiert Farbdeklarationen
+floating.css    |     ~320     |     ~160     | @starting-style & Anchor eliminieren Keyframe-Hacks
+layout.css      |     ~780     |     ~510     | field-sizing & text-box-trim sparen Mess-Klassen
+print.css       |     ~65      |     ~40      | Nativer Margin-Box Counter & Umbruch-Regeln
+reset.css       |     ~45      |     ~35      | Bereinigt durch moderne Browser-Defaults
+----------------+--------------+--------------+---------------------------------------------------
+GESAMT          |    ~1370     |     ~830     | ~ 40 % saubereres, robusteres & deklaratives CSS!
+==========================================================================================

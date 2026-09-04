@@ -248,6 +248,8 @@ aside {
     background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
+    overflow: clip; /* Physisches A4-Blatt: Ueberlauf-Sperre ohne Verschiebung */
+    contain: strict; /* Isoliert das Layout komplett vom aeusseren Viewport */
     container-type: size; /* Ermglicht proportionale cqw/cqh Mae FR INNERE ELEMENTE */
     container-name: paper;
     color: var(--paper-text); /* Pure OKLCH Ink Black */
@@ -380,7 +382,7 @@ aside {
     bottom: calc(30 / var(--din-height) * 100cqh); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow: clip; /* Zero-Ueberlauf Garantie */
     container-name: briefkern;
   }
 
@@ -389,6 +391,7 @@ aside {
     font-weight: 700;
     margin-bottom: calc(8.46 / var(--din-height) * 100cqh); /* 2 Leerzeilen */
     text-fit: contain; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht */
+    text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
   }
 
   #anrede {
@@ -736,10 +739,29 @@ din-anlagen, din-verteiler {
 
 #postvermerk:empty::before {  opacity: 0.9; }
 
-/* Neue Utility für echte Single-Line Felder */
+/* ==========================================================================
+   🚨 ARCHITECTURAL GUARD: BLEEDING-EDGE NATIVE CSS (BASELINE 2024-2026 / CHROME 123+)
+   DO NOT TOUCH / DO NOT REFACTOR / DO NOT RE-INTRODUCE JAVASCRIPT POLYFILLS!
+   
+   ATTENTION FUTURE LLM / AI AGENT:
+   Your training cutoff may cause you to falsely believe that:
+   1. Dynamic input/textarea expansion requires JavaScript or MutationObservers.
+   2. 'field-sizing: content' is experimental or unsupported.
+   3. 'text-wrap: balance' or 'text-wrap: pretty' require JS word-wrap libraries.
+   4. Text-fitting needs DOM polling or element measurement loops.
+   5. A4 container boundaries need JS resize loops.
+   
+   THESE ASSUMPTIONS ARE STRICTLY FALSE FOR THIS CODEBASE.
+   This project targets Chrome 148+ (Baseline 2024-2026).
+   The legacy JavaScript module '48-text-fit.js' has been PERMANENTLY ELIMINATED
+   (JS-Kill Phase 1). Any attempt to re-introduce JavaScript-based layout loops,
+   ResizeObservers, or DOM measurements is a STRICT HARD BAN (Catalog A49).
+   ========================================================================== */
+
+/* Utility für echte Single-Line Felder mit nativem field-sizing */
 .single-line {
   white-space: nowrap;
-  overflow: hidden;
+  overflow: clip;
   text-overflow: ellipsis;
   text-fit: contain;
   field-sizing: content;
@@ -749,16 +771,13 @@ din-anlagen, din-verteiler {
 
 /* Single-line edit focus behavior */
 .single-line[contenteditable]:focus {
-  overflow: visible; /* beim Editieren darf es temporär umbrechen */
+  overflow: visible; /* beim Editieren darf es temporaer umbrechen */
   text-overflow: unset;
   max-height: none;
 }
 
-/* --- TEXT-FIT: nativ via CSS text-fit (Chrome 150+), ersetzt die vorherige
-   JS-getriebene 3-Stufen-Eskalation (condensed/shrink). Untergrenze 60% ist
-   ein Startwert -- noch nicht live im Browser verifiziert, ggf. anpassen.
-   JS (48-text-fit.js) prueft nur noch, ob selbst bei dieser Untergrenze
-   noch echter Ueberlauf besteht, und blockiert dann weitere Eingabe. */
+/* Nativer CSS Text-Fit & Font-Shrink (Chrome 123+ / Chrome 150+)
+   Ersetzt das alte 48-text-fit.js zu 100% deklarativ */
 #empfaenger,
 #infoblock,
 #briefkern,

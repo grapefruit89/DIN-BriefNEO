@@ -108,7 +108,7 @@ const CUSTOM_CHECKS = {
 const FEATURE_CHECKS = {
   'Temporal API': {
     regex: /Temporal/g,
-    file: 'website/js/main.js'
+    file: 'website/js/47-date-format.js'
   },
   'CSS Anchor Positioning': {
     regex: /anchor-name|position-anchor|position-area/g,
@@ -141,7 +141,7 @@ function getFilesRecursively(dir, fileList = []) {
   for (const file of files) {
     const name = path.join(dir, file);
     if (fs.statSync(name).isDirectory()) {
-      const ignoredDirs = ['website', '.git', 'tools', 'build', 'venv', 'node_modules', '.agents', '.claude'];
+      const ignoredDirs = ['website', '.git', 'tools', 'build', 'venv', 'node_modules', '.agents', '.claude', 'cache'];
       if (!ignoredDirs.includes(file)) {
         getFilesRecursively(name, fileList);
       }

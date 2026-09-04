@@ -36,6 +36,18 @@
       "pattern": "",
       "file_patterns": ["*.js", "*.html"],
       "exemptions": []
+    },
+    {
+      "id": "P3",
+      "catalog_ref": ["A49"],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "JS text-fitting or DOM layout loops (scrollWidth > clientWidth, TextFitEngine) are Catalog HARD BAN A49. Use CSS field-sizing: content and text-fit: shrink.",
+      "pattern": "\\bnew\\s+TextFitEngine\\b|import.*TextFitEngine|\\.scrollWidth\\s*>\\s*\\w*\\.clientWidth",
+      "file_patterns": ["website/js/*.js"],
+      "exemptions": []
     }
   ]
 }

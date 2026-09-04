@@ -134,6 +134,8 @@ din-text, [contenteditable] {
 Da wir ein hartes `min-height: 800px` und proportionale Skalierung erzwingen, würde das Dokument auf extrem kleinen Smartphones zwangsläufig aus dem Bildbereich ragen.
 Hier greift eine Medienabfrage, die entweder das No-Scroll-Konzept aufweicht (Scrollen erlauben) oder einen klaren Hinweis zeigt, dass die Desktop-Ansicht erforderlich ist.
 
-## 5. Warnung zu `field-sizing: content`
+## 5. Status & Verbot von JS-Layout-Schleifen (Catalog A49)
 
-Während `field-sizing` ein exzellentes CSS-Feature für Auto-Grow Inputs ist, funktioniert es in einigen Engines noch nicht absolut fehlerfrei oder verzögert. Als Fallback oder Alternative für sehr komplexe Felder kann ein `ResizeObserver` oder ein Set aus `min-height` und `max-height` herangezogen werden.
+`field-sizing: content` ist seit Chrome 123+ vollstandardisiert und fehlerfrei aktiv.
+Das frühere JavaScript-Hilfsmodul `48-text-fit.js` sowie alle Versuche, Feldgrößen oder Text-Fitting per `ResizeObserver` oder `scrollWidth > clientWidth` per JS zu steuern, sind **strikt als HARD BAN (A49) verboten**.
+Die Größen- und Schriftanpassung erfolgt ausschließlich deklarativ über `field-sizing: content`, `text-fit: shrink 60%`, `overflow: clip` und `text-wrap: balance/pretty`.

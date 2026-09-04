@@ -137,6 +137,7 @@ Soweit nicht anders markiert: HARD BAN.
 | A45 | HARD BAN | projektfremde Pfade/Kontexte in der App | hermetische Grenzen | Kontamination |
 | A46 | HARD BAN | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite |
 | A47 | HARD BAN | komplexe UI in `contenteditable="true"` | Geschwister außerhalb des Edit-Roots | Browser löscht Innenstruktur |
+| A49 | HARD BAN | JS-basiertes Text-Fitting & DOM-Layout-Polling (`scrollWidth > clientWidth`, MutationObserver für Textanpassung, `48-text-fit.js`) | CSS `field-sizing: content`, `overflow: clip`, `text-wrap: balance/pretty`, CSS `text-fit: shrink 60%` | Verursacht Layout Thrashing, Ruckeln und JS-Overhead. Natives CSS löst die dynamische Feld- und Textanpassung performant und 100% deklarativ. |
 
 ### Storage & Netz
 

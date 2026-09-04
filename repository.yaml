@@ -9,9 +9,7 @@
 # und docs/00-foundation/Immutable-Law-Catalog.md fuer Technologie-Regeln.
 # repository.yaml verweist auf diese, statt sie zu duplizieren.
 #
-# Stand: Lauf 2 (2026-08-27). Herkunft: ChatGPT-Brainstorm
-# "Repo Struktur Refactoring" (siehe ChatGPT-Repo Struktur Refactoring-*.json,
-# Antwort 9 — repository.yaml / Source of Truth war Prioritaet 1 von 5).
+# Stand: 2026-09-04. AI-AGENTS-CLI.md im Root ergaenzt.
 
 schema_version: 1
 
@@ -23,6 +21,7 @@ project:
     Deployment ueber GitHub Pages.
   governance_contract: AGENTS.md
   law_catalog: docs/00-foundation/Immutable-Law-Catalog.md
+  browser_agent_guide: AI-AGENTS-CLI.md
   workflow_modes: [light, full]
   branching: branchless-on-main
   fitness_gate:
@@ -31,6 +30,12 @@ project:
     engine: tools/reconciliation.js
 
 structure:
+  AI-AGENTS-CLI.md:
+    purpose: >
+      Root-Kurzguide: Chrome DevTools MCP an die laufende App haengen.
+      Sichtpruefung A4-Viewport, Sidebar, Anrede, Postvermerk.
+      Kein Gesetz, keine Foundation.
+
   website/:
     purpose: Ausgelieferte Anwendung (das eigentliche Produkt)
     subpaths:
@@ -86,6 +91,7 @@ entrypoints:
   serve: start.bat
   session_log: tools/log_session.js
   context_bundle: tools/create_context.js
+  browser_agent: AI-AGENTS-CLI.md
 
 vocabulary_ref: docs/30-meta/tool-result-vocabulary.md
 

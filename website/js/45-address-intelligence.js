@@ -286,7 +286,7 @@ export class AddressIntelligence {
       }
 
       // Case 2: Letters entered -> Instant reverse city search
-      if (rawText.length >= 3 && !/^\d+$/.test(rawText)) {
+      if (rawText.length >= 3 && !/^\d+$/.test(rawText) && !/^\d{5}\s+/.test(rawText)) {
         const matches = this.lookupCity(rawText);
         if (matches.length > 0 && matches.length <= 6) {
           this.#renderCitySuggestions(matches, empfOrtEl, suggestionsPopover, onSaveDraft);

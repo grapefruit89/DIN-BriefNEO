@@ -2,11 +2,14 @@
 // @adr [[ADR-007-Smart-Clipboard-Impressum-Parser]]
 // @guide [[din-5008-anschriftfeld]]
 
+import { AddressIntelligence } from './45-address-intelligence.js';
+
 /**
  * @typedef {object} AddressCandidate
  * @property {number} score
- * @property {string} firma
- * @property {string} zusatz
+ * @property {string} [firma]
+ * @property {string} [name]
+ * @property {string} [zusatz]
  * @property {string} strasse
  * @property {string} plz
  * @property {string} ort
@@ -14,14 +17,20 @@
  */
 
 /**
- * ClipboardAddressParser: High-precision deterministic parser for German company imprints & signatures.
+ * ClipboardAddressParser: High-precision deterministic parser for German company imprints,
+ * private person signatures, and contact cards.
  * Extracts DIN-5008 postal address blocks from messy clipboard text in < 0.1ms.
  */
 export class ClipboardAddressParser {
   /**
    * Legal entity & corporate forms regex
    */
-  static CORP_REGEX = /\b(gmbh\s*&\s*co\.?\s*kg|gmbh\s*&\s*co\s*kg|gmbh\s*&\s*cokg|gmbh|ag|se|kg|ohg|e\.v\.|ug|gbr|e\.k\.|universität|hochschule|verband|stiftung|behörde|institut|verlag|bundesverband|körperschaft)\b/i;
+  static CORP_REGEX = /\b(gmbh\s*&\s*co\.?\s*kg|gmbh\s*&\s*co\s*kg|gmbh\s*&\s*cokg|gmbh|ag|se|kg|ohg|e\.v\.|ug|gbr|e\.k\.|universität|hochschule|verband|stiftung|behörde|institut|verlag|bundesverband|körperschaft|kanzlei|praxis|apotheke|büro|agentur|studio|klinik|hotel|restaurant)\b/i;
+
+  /**
+   * Person honorifics and contact line markers
+   */
+  static PERSON_PREFIX_REGEX = /^(herr|frau|herrn|dr\.|prof\.|z\.\s*hd\.|zu\s*händen)\b/i;
 
   /**
    * Prefixes that indicate non-recipient administrative/legal metadata
@@ -49,11 +58,11 @@ export class ClipboardAddressParser {
   ];
 
   /**
-   * Checks if a string candidate is invalid as a company name
+   * Checks if a string candidate is invalid as a company or person name
    * @param {string} cand
    * @returns {boolean}
    */
-  static isInvalidCompanyCandidate(cand) {
+  static isInvalidNameCandidate(cand) {
     const candLower = cand.toLowerCase().trim();
     if (cand.length > 75 || cand.length < 2) return true;
     if (this.EXCLUDED_PREFIXES.some(p => candLower.startsWith(p))) return true;
@@ -71,6 +80,7 @@ export class ClipboardAddressParser {
 
   /**
    * Parses raw clipboard text and extracts ranked address candidates.
+   * Handles company imprints, private person signatures, and mixed contact blocks.
    * @param {string} text
    * @returns {AddressCandidate[]}
    */
@@ -85,6 +95,7 @@ export class ClipboardAddressParser {
 
     // PASS 1: Inline comma-separated address detection
     // Example: "Axel Springer Deutschland GmbH, WELT, Schützenstraße 15–17, 10117 Berlin"
+    // Or: "Dr. Julia Wagner, Goethestraße 14, 79100 Freiburg"
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const line = lines[lineIdx];
       const cleanLine = line.replace(/^(Postanschrift|Hausanschrift|Postadresse|Adresse|Anschrift)\s*:\s*/i, '').trim();
@@ -101,12 +112,16 @@ export class ClipboardAddressParser {
               const streetCand = parts[parts.length - 2];
               const hasNum = /\d+/.test(streetCand);
               if (hasNum) {
-                const compCand = parts[0];
+                const nameCand = parts[0];
                 const zusatzCand = parts.length > 3 ? parts.slice(1, -2).join(" ") : "";
-                if (this.CORP_REGEX.test(compCand) && !this.isInvalidCompanyCandidate(compCand)) {
+                if (!this.isInvalidNameCandidate(nameCand)) {
+                  const isCorp = this.CORP_REGEX.test(nameCand);
+                  const isPerson = this.PERSON_PREFIX_REGEX.test(nameCand) || (!isCorp && nameCand.split(/\s+/).length <= 4 && !/\d/.test(nameCand));
+
                   candidates.push({
                     score: 160 - (lineIdx * 0.15),
-                    firma: compCand,
+                    firma: isCorp ? nameCand : "",
+                    name: isPerson ? nameCand : "",
                     zusatz: zusatzCand,
                     strasse: streetCand,
                     plz,
@@ -148,41 +163,51 @@ export class ClipboardAddressParser {
       street = street.replace(/,+$/, '').trim();
 
       let foundComp = '';
+      let foundName = '';
       let foundZusatz = '';
 
-      // Scan upwards (up to 8 lines) for company and optional building/department
-      for (let offset = i - 2; offset >= Math.max(0, i - 9); offset--) {
+      // Scan upwards (up to 7 lines) for company, person name, or building/department
+      for (let offset = i - 2; offset >= Math.max(0, i - 8); offset--) {
         const cand = lines[offset].trim();
-        if (this.isInvalidCompanyCandidate(cand)) continue;
+        if (this.isInvalidNameCandidate(cand)) continue;
 
         const candClean = cand.replace(/^(anbieterin|anbieter|träger der webseite ist die|ist ein angebot der|der online-auftritt der [a-zäöüß]+ wird verantwortet durch|unsere daten)\s*:\s*/i, '').trim();
         if (!candClean) continue;
 
         const hasCorp = this.CORP_REGEX.test(candClean);
-        const hasBuilding = /(haus|turm|gebäude|campus|bibliothek)/i.test(candClean);
+        const hasPersonPrefix = this.PERSON_PREFIX_REGEX.test(candClean);
+        const hasBuilding = /(haus|turm|gebäude|campus|bibliothek|abteilung)/i.test(candClean);
 
-        if (hasCorp) {
+        if (hasPersonPrefix && !foundName) {
+          foundName = candClean.replace(/^(z\.\s*hd\.|zu\s*händen)\s*:?\s*/i, '').trim();
+        } else if (hasCorp && !foundComp) {
           foundComp = candClean;
-          break;
         } else if (hasBuilding && !foundZusatz) {
           foundZusatz = candClean;
-        } else if (!foundComp && candClean.length < 60) {
-          foundComp = candClean;
+        } else if (!foundComp && !foundName) {
+          const words = candClean.split(/\s+/);
+          if (words.length >= 2 && words.length <= 4 && !/\d/.test(candClean)) {
+            foundName = candClean;
+          } else {
+            foundComp = candClean;
+          }
         }
       }
 
-      if (foundComp && street && plz && ort) {
+      if ((foundComp || foundName) && street && plz && ort) {
         let score = 80;
-        if (this.CORP_REGEX.test(foundComp)) score += 40;
+        if (foundComp && this.CORP_REGEX.test(foundComp)) score += 40;
+        if (foundName) score += 30;
 
         const context = lines.slice(Math.max(0, i - 6), i + 1).join(" ").toLowerCase();
         if (context.includes('postanschrift') || context.includes('postadresse')) score += 25;
 
-        score -= (i * 0.15); // Primary provider is near the top
+        score -= (i * 0.15); // Items near top receive higher priority
 
         candidates.push({
           score,
           firma: foundComp,
+          name: foundName,
           zusatz: foundZusatz,
           strasse: street,
           plz,
@@ -200,7 +225,7 @@ export class ClipboardAddressParser {
     const unique = [];
     const seen = new Set();
     for (const c of candidates) {
-      const key = `${c.plz}-${c.strasse.toLowerCase().replace(/\s+/g, '')}`;
+      const key = `${c.plz}-${c.strasse.toLowerCase().replace(/\s+/g, '')}-${(c.name || '').toLowerCase()}`;
       if (!seen.has(key)) {
         seen.add(key);
         unique.push(c);
@@ -212,19 +237,31 @@ export class ClipboardAddressParser {
 
   /**
    * Applies an address candidate into the DIN 5008 DOM fields.
+   * Suppresses autocomplete popovers to prevent unwanted dropdown overlays.
    * @param {AddressCandidate} candidate
    * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
   static applyCandidate(candidate, { onToast = null, onSaveDraft = null } = {}) {
     const empfFirmaEl = document.getElementById('empfaenger-firma');
+    const empfNameEl = document.getElementById('empfaenger-name');
     const empfStrasseEl = document.getElementById('empfaenger-strasse');
     const empfOrtEl = document.getElementById('empfaenger-ort');
 
+    // 1. Set Target Lock in Address Intelligence to lock city context
+    AddressIntelligence.targetLock = { plz: candidate.plz, city: candidate.ort };
+
+    // 2. Populate DIN 5008 fields
     if (empfFirmaEl) {
-      const firmaText = candidate.zusatz ? `${candidate.firma}\n${candidate.zusatz}` : candidate.firma;
+      const firmaText = candidate.zusatz ? `${candidate.firma || ''}\n${candidate.zusatz}`.trim() : (candidate.firma || '');
       empfFirmaEl.textContent = firmaText;
       empfFirmaEl.dispatchEvent(new Event('input', { bubbles: true }));
       empfFirmaEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    if (empfNameEl) {
+      empfNameEl.textContent = candidate.name || '';
+      empfNameEl.dispatchEvent(new Event('input', { bubbles: true }));
+      empfNameEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (empfStrasseEl) {
@@ -239,12 +276,30 @@ export class ClipboardAddressParser {
       empfOrtEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
+    // 3. Proactively hide any autocomplete popovers so they don't overlay the letter
+    try {
+      const plzPopover = document.getElementById('plz-suggestions-popover');
+      // @ts-ignore
+      if (plzPopover && typeof plzPopover.hidePopover === 'function') {
+        // @ts-ignore
+        plzPopover.hidePopover();
+      }
+      const addrPopover = document.getElementById('address-suggestions');
+      // @ts-ignore
+      if (addrPopover && typeof addrPopover.hidePopover === 'function') {
+        // @ts-ignore
+        addrPopover.hidePopover();
+      }
+    } catch (e) {
+      // Ignored
+    }
+
     if (onSaveDraft) {
       onSaveDraft();
     }
 
     if (onToast) {
-      const label = candidate.firma || candidate.strasse;
+      const label = candidate.firma || candidate.name || candidate.strasse;
       onToast(`📋 Adresse übernommen: ${label} (${candidate.ort})`, 'success');
     }
   }
@@ -300,7 +355,8 @@ export class ClipboardAddressParser {
             item.setAttribute('tabindex', '0');
 
             const compSpan = document.createElement('strong');
-            compSpan.textContent = `${idx + 1}. ${cand.firma}`;
+            const mainLabel = cand.firma || cand.name || 'Empfänger';
+            compSpan.textContent = `${idx + 1}. ${mainLabel}`;
             
             const addrSpan = document.createElement('span');
             addrSpan.className = 'autocomplete-sub';

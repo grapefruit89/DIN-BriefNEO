@@ -118,5 +118,25 @@
      * Bei mehreren gefundenen Adressen (z. B. Hauptsitz vs. Redaktion vs. Druckerei): Zeigt ein interaktives Auswahlmenü aller Adress-Kandidaten, sodass der Nutzer mit 1 Klick gezielt auswählen kann.
      * Bei 0 Adressen: Informativer Hinweis-Toast (`⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.`), ohne bestehende Daten zu überschreiben.
   4. **System-Integration in `website/js/main.js`:**
-     * Vollständig verdrahtet über `ClipboardAddressParser.wireSidebarButton({ onToast, onSaveDraft })`.
+      * Vollständig verdrahtet über `ClipboardAddressParser.wireSidebarButton({ onToast, onSaveDraft })`.
 * **Ergebnis:** Höchster Bedienkomfort beim Verfassen von Briefen an Unternehmen und Behörden, 0 ms Layout Thrashing, 100% DSGVO-konform und offline-fähig.
+
+---
+
+### ⚪ Priorität 5: JS-Kill Phase 2 — HTML-Switch, Popover & Top-Layer (Geplante Ausarbeitung)
+* **Status:** ⚪ Geplant (Nächster Meilenstein)
+* **Ziel:** Beseitigung von ca. 250 weiteren Zeilen überflüssigem JavaScript durch moderne Web-Plattform-Standards 2026 (Natives `plaintext-only`, Popover Top-Layer für Toasts und semantische `<input switch>` Schalter).
+* **Geplante Maßnahmen im Detail:**
+  1. **Plaintext-Eingabeschutz & Enter-Sperre (`website/js/03-ui-protections.js`):**
+     * *Bisheriges Problem:* `enforceLineLimits()` interceptet `keydown`, `beforeinput` und `paste` auf allen `[contenteditable]`-Feldern mit ~115 Zeilen JavaScript, um Zeilenumbrüche (Enter, LineBreak) und Rich-Text-Formatting (Fett, Kursiv, Unterstrichen) zu verhindern.
+     * *Nativer Webstandard:* Alle einzeiligen Felder in `website/index.html` nutzen bereits `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Moderne Browser blockieren Formatierungen und mehrzeiliges Pasting nativ auf C++-Engine-Ebene.
+     * *Maßnahme:* Bereinigung von `03-ui-protections.js`. Löschung der ~115 Zeilen redundanten Keydown-/Beforeinput-Handler für Einzeiler. Erhalt einer schlanken, hochspezifischen Absicherung nur für echte Sonderfälle (2-Zeilen-Grenze bei Betreff/Postvermerk sowie Listen-Struktur in `#anlagen-text`). Reduktion des Moduls von 182 auf ~50 Zeilen.
+  2. **Toast-System auf native HTML Popover API umstellen (`website/js/32-toast.js` & `website/css/floating.css`):**
+     * *Bisheriges Problem:* `32-toast.js` umfasst 286 Zeilen JavaScript mit manuellem Z-Index-Handling, DOM-Event-Listenern für Maus/Touch, dynamischen Swipe-Kalkulationen (`--swipe-x`), Animationstimern und `setTimeout`-Kaskaden.
+     * *Nativer Webstandard:* HTML Popover API (`popover="manual"`) im nativen Browser-Top-Layer, kombiniert mit CSS `@starting-style` und `transition-behavior: allow-discrete`.
+     * *Maßnahme:* `#toast-v4` nutzt die native Popover API im Top-Layer (liegt garantiert über jedem Dialog/Modal ohne Z-Index-Kämpfe). Ein- und Ausblendungen laufen rein deklarativ über CSS `@starting-style` ohne JS-Animationsschleifen. `32-toast.js` wird auf eine schlanke FIFO-Queue (~100 Zeilen) reduziert.
+  3. **Sidebar-Schalter auf semantisches `<input type="checkbox" switch>` (`website/index.html`, `website/css/layout.css` & `02-settings-manager.js`):**
+     * *Bisheriges Problem:* Toggles (z. B. Hilfslinien EIN/AUS) nutzen komplexe Segmented-Controls aus doppelten Radio-Buttons (`<input type="radio" class="sr-only">`) und doppelten `<label>`-Elementen. In `02-settings-manager.js` müssen mehrere Radio-Buttons synchronisiert und abgehört werden.
+     * *Nativer Webstandard:* Der neue W3C/HTML-Standard `<input type="checkbox" switch id="...">`.
+     * *Maßnahme:* Umstellung der Schalter auf `<input type="checkbox" switch>`. Der Status wird rein in CSS über `:root:has(#guides:checked)` ausgewertet (0 Zeilen JS für UI-Synchronisation). Entlastung von `02-settings-manager.js` um ca. 30–40 Zeilen.
+* **Erwartetes Gesamtergebnis:** Weitere ~250 Zeilen fragiles JavaScript dauerhaft eliminiert, native Barrierefreiheit, saubere Trennung von UI-Darstellung und Brief-Zustand.

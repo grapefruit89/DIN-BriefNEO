@@ -61,7 +61,7 @@ Die verbindliche Baseline ist ausschließlich die in den Longevity-Guidelines ge
 | Grafik | SVG (inline) | Vektorscharfe Logos. Catalog T4. |
 | Performance | `scheduler.postTask()` | Optional für UI-Priorisierung. |
 | Events | Custom Events | Kommunikation zwischen Entitäten. |
-| Sanitization | Sanitizer API / `setHTML()` | Statt unsicherem `innerHTML`. |
+| Sanitization | Sanitizer API / `setHTML()` | Sicherer Standard ohne unsicheres `innerHTML`. |
 | Edit Context | `EditContext API` | Optional; `contenteditable` bleibt Standard. |
 | Print Logic | `@media print` | PDF-Export. |
 

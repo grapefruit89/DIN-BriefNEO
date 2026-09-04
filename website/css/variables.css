@@ -50,33 +50,39 @@
   --c-ghost-day: oklch(50% 0 0);
   --c-ghost-night: oklch(0.62 0.01 260);
 
-  --bg-viewport: color-mix(in oklch, var(--c-viewport-day, oklch(0.96 0.01 250)), var(--c-viewport-night, oklch(0.27 0.02 252)) calc(var(--theme-dim, 0) * 100%));
-  --bg-sidebar: color-mix(in oklch, var(--c-sidebar-day, oklch(0.98 0.005 250)), var(--c-sidebar-night, oklch(0.21 0.04 260)) calc(var(--theme-dim, 0) * 100%));
-  --bg-sidebar-glass: color-mix(in oklch, var(--c-sidebar-day, oklch(0.98 0.005 250)) 80%, transparent);
-  --bg-card: color-mix(in oklch, var(--c-card-day, oklch(1 0 0)), var(--c-card-night, oklch(0.24 0.04 260)) calc(var(--theme-dim, 0) * 100%));
-  --border-color: color-mix(in oklch, var(--c-border-day, oklch(0.90 0.01 250)), var(--c-border-night, oklch(0.30 0.03 260)) calc(var(--theme-dim, 0) * 100%));
-  --text-primary: color-mix(in oklch, var(--c-text-day, oklch(0.15 0.02 250)), var(--c-text-night, oklch(0.96 0.01 260)) calc(var(--theme-dim, 0) * 100%));
-  --text-muted: color-mix(in oklch, var(--c-muted-day, oklch(0.45 0.02 250)), var(--c-muted-night, oklch(0.70 0.02 260)) calc(var(--theme-dim, 0) * 100%));
+  /* --------------------------------------------------------------------------
+     🚨 ARCHITECTURAL GUARD: NATIVE CSS light-dark() (CHROME 123+ / BASELINE 2024-2026)
+     DO NOT REFACTOR INTO MANUAL THEME CLASSES OR JS THEME SWITCHERS!
+     ATTENTION FUTURE LLM: light-dark() is natively supported and standard.
+     It resolves dynamically according to the active 'color-scheme' context.
+     -------------------------------------------------------------------------- */
+  --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));
+  --bg-sidebar: light-dark(var(--c-sidebar-day), var(--c-sidebar-night));
+  --bg-sidebar-glass: color-mix(in oklch, light-dark(var(--c-sidebar-day), var(--c-sidebar-night)) 80%, transparent);
+  --bg-card: light-dark(var(--c-card-day), var(--c-card-night));
+  --border-color: light-dark(var(--c-border-day), var(--c-border-night));
+  --text-primary: light-dark(var(--c-text-day), var(--c-text-night));
+  --text-muted: light-dark(var(--c-muted-day), var(--c-muted-night));
 
-  --paper-bg: color-mix(in oklch, var(--c-paper-day, oklch(100% 0 0)), var(--c-paper-night, oklch(0.18 0.02 260)) calc(var(--theme-dim, 0) * 100%));
-  --paper-text: color-mix(in oklch, var(--c-ink-day, oklch(0% 0 0)), var(--c-ink-night, oklch(0.96 0.01 260)) calc(var(--theme-dim, 0) * 100%));
-  --paper-ghost: color-mix(in oklch, var(--c-ghost-day, oklch(50% 0 0)), var(--c-ghost-night, oklch(0.62 0.01 260)) calc(var(--theme-dim, 0) * 100%));
+  --paper-bg: light-dark(var(--c-paper-day), var(--c-paper-night));
+  --paper-text: light-dark(var(--c-ink-day), var(--c-ink-night));
+  --paper-ghost: light-dark(var(--c-ghost-day), var(--c-ghost-night));
 
-  --accent-color: color-mix(in oklch, var(--c-accent-day, oklch(0.40 0.14 260)), var(--c-accent-night, oklch(0.85 0.05 260)) calc(var(--theme-dim, 0) * 100%));
-  --accent-muted: color-mix(in oklch, var(--c-accent-muted-day, oklch(0.95 0.03 260)), var(--c-accent-muted-night, oklch(0.35 0.08 260)) calc(var(--theme-dim, 0) * 100%));
-  --border-color-focus: var(--accent-color, oklch(0.40 0.14 260));
-  --accent-hover: color-mix(in oklch, var(--accent-color, oklch(0.40 0.14 260)) 90%, oklch(0% 0 0));
-  --accent-glow: color-mix(in oklch, var(--accent-color, oklch(0.40 0.14 260)) 15%, transparent);
+  --accent-color: light-dark(var(--c-accent-day), var(--c-accent-night));
+  --accent-muted: light-dark(var(--c-accent-muted-day), var(--c-accent-muted-night));
+  --border-color-focus: var(--accent-color);
+  --accent-hover: color-mix(in oklch, var(--accent-color) 90%, oklch(0% 0 0));
+  --accent-glow: color-mix(in oklch, var(--accent-color) 15%, transparent);
 
-  --segment-bg: color-mix(in oklch, var(--c-segment-day, oklch(0.92 0.01 250)), var(--c-segment-night, oklch(0.24 0.03 260)) calc(var(--theme-dim, 0) * 100%));
-  --segment-active-bg: color-mix(in oklch, var(--c-card-day, oklch(1 0 0)), oklch(0.30 0.03 260) calc(var(--theme-dim, 0) * 100%));
-  --segment-active-text: var(--text-primary, oklch(0.15 0.02 250));
+  --segment-bg: light-dark(var(--c-segment-day), var(--c-segment-night));
+  --segment-active-bg: light-dark(var(--c-card-day), oklch(0.30 0.03 260));
+  --segment-active-text: var(--text-primary);
   --segment-active-shadow: 0 1px 3px oklch(0 0 0 / 8%);
 
-  --c-primary: var(--accent-color, oklch(0.40 0.14 260));
-  --c-success: color-mix(in oklch, oklch(0.65 0.12 150), oklch(0.70 0.10 150) calc(var(--theme-dim, 0) * 100%));
-  --c-warning: color-mix(in oklch, oklch(0.75 0.14 75), oklch(0.80 0.12 75) calc(var(--theme-dim, 0) * 100%));
-  --c-danger: color-mix(in oklch, oklch(0.60 0.15 25), oklch(0.65 0.13 25) calc(var(--theme-dim, 0) * 100%));
+  --c-primary: var(--accent-color);
+  --c-success: light-dark(oklch(0.65 0.12 150), oklch(0.70 0.10 150));
+  --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
+  --c-danger: light-dark(oklch(0.60 0.15 25), oklch(0.65 0.13 25));
 
   --shadow-sm: 0 2px 8px oklch(0% 0 0 / 5%);
   --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);

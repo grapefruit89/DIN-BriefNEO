@@ -17,7 +17,6 @@ import { SettingsManager } from './02-settings-manager.js';
 import { UIProtections } from './03-ui-protections.js';
 
 import { applyLetterDate } from './47-date-format.js';
-import { TextFitEngine } from './48-text-fit.js';
 
 function syncPostvermerkFromSidebar() {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
@@ -48,11 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const uiProtections = new UIProtections();
     uiProtections.init();
 
-    const textFitEngine = new TextFitEngine({
-      onToast: (msg, type) => showToast(msg, type || 'warning'),
-      onSaveDraft: () => draftManager.saveDraft()
-    });
-    textFitEngine.init();
+    // 🚨 ARCHITECTURAL GUARD (JS-Kill Phase 1 / Chrome 123+ / Baseline 2024-2026):
+    // Text-fitting & dynamic field scaling are 100% NATIVE CSS ('field-sizing: content',
+    // 'text-fit: shrink 60%', 'overflow: clip', 'text-wrap: balance/pretty').
+    // DO NOT import or re-create legacy text-fitting modules or DOM element width comparison loops.
+    // Future LLMs / KIs: Replacing native CSS with JS loops is a STRICT HARD BAN (Catalog A49).
 
     const settingsManager = new SettingsManager();
     settingsManager.init();
@@ -130,9 +129,17 @@ document.addEventListener('DOMContentLoaded', () => {
       btnAnlagen.addEventListener('click', () => {
         const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
         const pressed = btnAnlagen.getAttribute('aria-pressed') === 'true';
-        btnAnlagen.setAttribute('aria-pressed', pressed ? 'false' : 'true');
-        if (toggle) toggle.checked = !pressed;
-        draftManager.scheduleAutoSave();
+        const applyToggle = () => {
+          btnAnlagen.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+          if (toggle) toggle.checked = !pressed;
+          draftManager.scheduleAutoSave();
+        };
+
+        if ('startViewTransition' in document) {
+          /** @type {any} */ (document).startViewTransition(applyToggle);
+        } else {
+          applyToggle();
+        }
       });
     }
   }

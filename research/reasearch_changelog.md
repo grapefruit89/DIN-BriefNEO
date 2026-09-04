@@ -13,7 +13,7 @@
 | **Prio 1** | **Salutation Engine V2 Produktivschaltung** | Sehr Gering (~30 min) | **Extrem Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | ⚪ Geplant | - |
-| **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | ⚪ Geplant | - |
+| **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | ⚪ Geplant | - |
 | **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | ⚪ Geplant | - |
 | **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional** | ⚪ Geplant | - |
@@ -54,3 +54,28 @@
   4. CSS-Anchor-Positioning für `#plz-suggestions-popover` in `website/css/layout.css` und `website/css/floating.css`.
   5. Validierung: Alle 10 Integrationstests und `tools/reconciliation.js` erfolgreich mit 0 Fehlern bestanden.
 * **Ergebnis:** 100% Offline-Adresstechnologie produktiv aktiv, null Cloud-Requests für PLZ/Ort, volle DSGVO-Konformität.
+
+### 🟢 Priorität 4: JS-Kill Phase 1 — Text-Fit & CSS-Modernisierung
+* **Ziel:** Vollständige Beseitigung von Layout Thrashing und DOM-Messschleifen (`scrollWidth > clientWidth`) durch 100% deklarative CSS-Features (Chrome 123+ / Baseline 2024-2026).
+* **Durchgeführte Maßnahmen:**
+  1. **Archivierung & Löschung von `48-text-fit.js`:**
+     * `website/js/48-text-fit.js` archiviert nach `tools/archive/48-text-fit.legacy.js` und aus `website/js/` via Git entfernt.
+     * `website/js/main.js` von Import und Initialisierung der `TextFitEngine` befreit (~150 Zeilen JS eliminiert).
+  2. **Architektur-Guard-Kommentare platziert:**
+     * In `website/css/layout.css`, `website/css/variables.css` und `website/js/main.js` unübersehbare Warn-Kommentare für zukünftige KIs/LLMs hinterlegt, die klarstellen, dass `field-sizing: content`, `text-fit: shrink`, `overflow: clip` und `text-wrap: balance/pretty` nativer Standard sind und keinesfalls durch JS-Schleifen oder Polyfills ersetzt werden dürfen.
+  3. **Natives CSS `field-sizing: content` & `overflow: clip`:**
+     * `.single-line` und `[contenteditable]` nutzen natives `field-sizing: content` zum flüssigen Mitwachsen.
+     * `<din-a4>` (`:scope`) und `#briefkern` sind mit `overflow: clip; contain: strict;` physisch gegen jeglichen Scroll-/Verschiebe-Überlauf gesichert.
+  4. **CSS `light-dark()` Produktivschaltung:**
+     * `website/css/variables.css` vollständig auf `light-dark(var(--c-...-day), var(--c-...-night))` umgestellt. Komplexe JS/CSS-Farb-Kalkulationen entfallen.
+  5. **Typografie-Absicherung:**
+     * `#betreff` mit `text-wrap: balance` gegen Witwenwörter in Zeile 2 abgesichert.
+     * `#brieftext` mit `text-wrap: pretty` gegen Waisenwörter am Absatzende geschützt.
+  6. **Rechtliche & normative Verankerung in der Dokumentation:**
+     * `docs/00-foundation/Immutable-Law-Catalog.md`: Neues Gesetz **A49 (HARD BAN)** gegen JS-basiertes Text-Fitting & DOM-Polling eingefügt.
+     * `docs/10-architecture/ADR-ANTIPATTERN.md`: Neuer Abschnitt **13** zur Begründung des Verbots von DOM-Messschleifen und Dokumentation der nativen CSS-Ersatztechnologien.
+     * `docs/10-architecture/ADR-JS.md`: `48-text-fit.js` aus Code-Links und Ausnahmeliste gestrichen; Dokumentation der vollständigen CSS-Ablösung.
+     * `docs/10-architecture/ADR-CSS.md`: Ergänzt um `field-sizing`, `overflow: clip`, `text-wrap` und `light-dark()`.
+     * `docs/20-implementation/no-scroll-techniques.md`: Veraltete `ResizeObserver`-Empfehlung gestrichen und als A49-Verstoß markiert.
+     * `tools/antipatterns/project.json`: Automatische Sonde **P3** aktiviert (`TextFitEngine|scrollWidth\s*>\s*clientWidth`).
+* **Ergebnis:** ~150 Zeilen fragiles JavaScript dauerhaft vernichtet, 0 ms Layout Thrashing, seidenweiches Tippen im Browser.

@@ -17,7 +17,6 @@ doc_links:
   - longevity-guidelines
 code_links:
   - website/js/main.js
-  - website/js/48-text-fit.js
 error_patterns:
   - javascript constraints
   - js as a crutch
@@ -57,9 +56,9 @@ depends_on: []
 
 - **Verbot von JS-Layouting:** JS darf keine CSS-Stile für Layout, Rendering oder visuelle Effekte setzen (Toolbar nutzt CSS Anchor Positioning).
 
-- **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits, (7) Content-abhängiges Schriftgrößen-Fitting (`TextFitEngine`, `website/js/48-text-fit.js`).
+- **Reglementierte Aufgaben:** JS darf nur genutzt werden für: (1) Selection/Range API, (2) Paste-Sanitizing, (3) LocalStorage, (4) Externe API-Anfragen, (5) Toast-Queue, (6) Canvas-Bildkomprimierung für LocalStorage-Limits, (7) deterministisches Offline-Anrede- und Adress-Lookup.
 
-- **TextFitEngine (Stand 2026-09-03, Chrome 150+):** Die visuelle Schriftskalierung läuft inzwischen über natives CSS `text-fit: shrink` (`website/css/layout.css`) statt über eine JS-Eskalationslogik — die vorher hier dokumentierte Begründung ("keine native Eigenschaft existiert") ist damit überholt. `TextFitEngine` (`website/js/48-text-fit.js`) reduziert sich auf die eine Aufgabe, die CSS weiterhin nicht kann: erkennen, ob ein Feld selbst bei der von CSS vorgegebenen maximalen Schrumpfung noch echt überläuft, und in dem Fall weitere Eingabe blockieren/zurückrollen. Das ist weiterhin keine Ausnahme vom Verbot der JS-Layoutberechnung: `TextFitEngine` setzt keine Positions-/Geometrie-/Schriftgrößenwerte, sondern reagiert ausschließlich auf gemessenen Restüberlauf. **Ungetestet:** Die CSS-Untergrenze (`60%`) und ob gruppenweises Schrumpfen (`#empfaenger`/`#infoblock`/`#briefkern` als Einheit statt Feld für Feld) tatsächlich so funktioniert wie vorher, sind noch nicht live im Browser verifiziert.
+- **TextFitEngine vollständig eliminiert (JS-Kill Phase 1, 2026-09-04):** Das Modul `website/js/48-text-fit.js` wurde archiviert und gelöscht. Sämtliche DOM-Messungen (`scrollWidth > clientWidth`) und MutationObserver-Schleifen sind als Antipattern (Catalog A49) verboten. Das Text-Fitting und dynamische Feldwachstum erfolgen zu 100% über natives CSS (`field-sizing: content`, `overflow: clip`, `text-wrap: balance/pretty`, CSS `text-fit: shrink 60%`).
 
 - **Verbot von `execCommand`:** Textformatierungen werden über die W3C Selection & Range API umgesetzt.
 

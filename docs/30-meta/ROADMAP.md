@@ -40,7 +40,7 @@ code_links: []
 | **Prio 1** | **Salutation Engine V2 & Vornamen-Dictionary** | Sehr Gering (~30 min) | **Extrem Hoch** | 2,6 KB Vornamen-Brotli, 3 B2B-Pärchen, Adelspartikel-Schutz, Auto-Reset |
 | **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 10.814 PLZs + 2.258 Großempfänger, 0 ms Latenz, 100% Offline, DSGVO |
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 0,1ms Heuristik: 1-Klick-Übernahme kompletter Web-Impressen nach DIN 5008 |
-| **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | `48-text-fit.js` löschen, `field-sizing: content`, `light-dark()`, `text-wrap` |
+| **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen (`48-text-fit.js` gelöscht, `field-sizing: content`, `light-dark()`, `text-wrap`) |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | `contenteditable="plaintext-only"`, Popover API für Toasts, `<input switch>` |
 | **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | GitHub Action + Python-Build für automatische PLZ-/Großempfänger-Updates |
 | **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional / Experimentell** | Entkoppeltes Plugin via `window.ai` (Graceful Degradation ohne Cloud-Zwang) |
@@ -89,7 +89,7 @@ code_links: []
 
 ---
 
-### 🟡 Priorität 4: JS-Kill Phase 1 — `48-text-fit.js` eliminieren & CSS-Bereinigung
+### 🟢 Priorität 4: JS-Kill Phase 1 — `48-text-fit.js` eliminieren & CSS-Bereinigung (Abgeschlossen)
 * **Problem:** `website/js/48-text-fit.js` führt bei jedem Tastenanschlag DOM-Messungen (`scrollWidth > clientWidth`) und MutationObserver-Schleifen aus, was Layout Thrashing verursacht.
 * **Lösung:**
   1. `website/js/48-text-fit.js` komplett löschen und aus `index.html` austragen.

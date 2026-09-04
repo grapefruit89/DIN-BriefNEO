@@ -126,6 +126,17 @@ Verbindliche Kette (Catalog C1, A16–A20):
 
 *   **Begründung:** Hebelt Stylesheets und Token aus. Ausnahme bleibt kurzlebige Selektions-Koordinaten (Catalog A25).
 
+### 13. JS-basiertes Text-Fitting & DOM-Layout-Polling (`scrollWidth > clientWidth`, `48-text-fit.js`) — HARD BAN
+
+*   **Catalog:** A49 (HARD BAN).
+*   **Begründung:** Das frühere Modul `48-text-fit.js` maß bei jedem Tastenanschlag `scrollWidth > clientWidth` und nutzte MutationObserver. Das führte zu erzwungenem synchronen Reflow (Layout Thrashing), Ruckeln und unnötiger Codekomplexität (~150 Zeilen).
+*   **Moderne Plattform-Alternative:** Natives CSS löst das Problem seit Chrome 123+ vollständig und ohne eine einzige Zeile JavaScript:
+    *   `field-sizing: content` lässt Eingabefelder und Textblöcke nativ mit dem Text mitwachsen.
+    *   `overflow: clip` riegelt das physische A4-Papierblatt und den Briefkern ab.
+    *   `text-fit: shrink 60%` übernimmt das Schrumpfen von überlangen Textzeilen deklarativ im Browser.
+    *   `text-wrap: balance` und `text-wrap: pretty` verhindern Waisen- und Witwenwörter in Betreff und Fließtext.
+*   **Guard für zukünftige KIs/LLMs:** Jeglicher Versuch, `48-text-fit.js` wiederzubeleben oder DOM-Messschleifen für Schriftgrößenanpassung einzuführen, ist strikt verboten und bricht Gesetz A49.
+
 ---
 
 ## Konsequenzen

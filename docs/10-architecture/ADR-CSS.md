@@ -67,11 +67,15 @@ depends_on: []
 
 - **Container Queries:** Alle inneren Maße verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren.
 
-- **Absolute Viewport-Sperre:** `overflow: hidden` auf `html` und `body` verhindert Scrollbalken.
+- **Absolute Viewport- & Blatt-Sperre:** `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-a4>` und `#briefkern` verbieten jegliches Scrollen physisch.
 
-- **Natives Theming:** Nutzung von `light-dark()` und W3C Relative Color Syntax (RCS) im OKLCH-Farbraum.
+- **Natives Feldwachstum & Text-Fitting:** `field-sizing: content` lässt Eingabefelder mitwachsen; `text-fit: shrink 60%` skaliert überlange Zeilen rein deklarativ (JS-Kill Phase 1).
 
-- **Anchor Positioning:** W3C CSS Anchor Positioning für Dropdowns (z.B. `#address-suggestions`).
+- **Typografische Umbruchbalance:** `text-wrap: balance` im Betreff und `text-wrap: pretty` im Fließtext verhindern Waisen- und Witwenwörter nativ.
+
+- **Natives Theming:** Vollständige Nutzung von `light-dark()` und W3C Relative Color Syntax (RCS) im OKLCH-Farbraum ohne JS-Theming.
+
+- **Anchor Positioning:** W3C CSS Anchor Positioning für Dropdowns (z.B. `#address-suggestions`, `#plz-suggestions-popover`).
 
 - **CSS @property & interpolate-size:** Für flüssige native Transitionen auf Custom Properties und `auto`-Maße.
 

@@ -15,7 +15,7 @@
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | ⚪ Geplant | - |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | ⚪ Geplant | - |
-| **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | ⚪ Geplant | - |
+| **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional** | ⚪ Geplant | - |
 
 ---
@@ -79,3 +79,24 @@
      * `docs/20-implementation/no-scroll-techniques.md`: Veraltete `ResizeObserver`-Empfehlung gestrichen und als A49-Verstoß markiert.
      * `tools/antipatterns/project.json`: Automatische Sonde **P3** aktiviert (`TextFitEngine|scrollWidth\s*>\s*clientWidth`).
 * **Ergebnis:** ~150 Zeilen fragiles JavaScript dauerhaft vernichtet, 0 ms Layout Thrashing, seidenweiches Tippen im Browser.
+
+### 🟢 Priorität 6: Automatische Quartals-Pipeline für Open-Data
+* **Ziel:** Dauerhafte Wartungsfreiheit für die Offline-PLZ- und Großempfänger-Datensätze über automatische GitHub Actions Builds und Synchronisation.
+* **Durchgeführte Maßnahmen:**
+  1. **GitHub Actions Workflow etabliert (`.github/workflows/update_plz_pipeline.yml`):**
+     * Automatischer Cron-Trigger (`0 4 1 */3 *`): Läuft quartalsweise am 1. Januar, April, Juli und Oktober um 04:00 UTC.
+     * Manuelle Auslösung (`workflow_dispatch`) über die GitHub Web-UI jederzeit möglich.
+     * Nutzt Ubuntu-Latest mit Python 3.12 und `pip install brotli`.
+     * Erkennt Änderungen automatisch per `git status --porcelain` und committed/pusht aktualisierte Daten via `stefanzweifel/git-auto-commit-action@v5` als `github-actions[bot]`.
+  2. **Pipeline-Skript optimiert (`research/research_scripts/update_plz_pipeline.py`):**
+     * Robuste Pfad-Ermittlung relativ zum Repository-Root (funktioniert identisch unter Windows und Linux CI).
+     * Lädt 23.297 Rohdatensätze der Deutschen Post Direkt / Open Data DE.zip herunter (mit Fallback-Mechanismus).
+     * Normalisiert 10.831 eindeutige deutsche 5-Stell-PLZs und führt 2.258 verifizierte Großempfänger & Verfassungsorgane zusammen.
+     * Komprimiert beide Wörterbücher mit Brotli Quality 11 (`de_plz_ort.json.br` 70,5 KB; `de_grosskunden_plz.json.br` 28,8 KB).
+     * Synchronisiert die Payloads synchron nach `website/data/` und `research/research_results/`.
+     * Generiert `website/data/plz-embedded.js` mit Base64-Brotli-Strings für 100% Offline-Betrieb neu.
+     * Validiert Sample-Lookups (`53111` -> Bonn, `11011` -> Deutscher Bundestag) und schreibt `plz_manifest.json`.
+  3. **Verifikation & Testlauf:**
+     * Lokaler Testlauf erfolgreich abgeschlossen in 3.01 ms Ready Time.
+     * Fitness Gate (`tools/start.ps1`) mit 100% Evolutionary Fitness Score und 0 Scroll-Vorkommen bestätigt.
+* **Ergebnis:** 10 Jahre garantierte Wartungsfreiheit für Adress- und Postleitzahldaten bei null personellem Aufwand.

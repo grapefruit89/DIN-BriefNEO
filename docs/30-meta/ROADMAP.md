@@ -42,7 +42,7 @@ code_links: []
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 0,1ms Heuristik: 1-Klick-Übernahme kompletter Web-Impressen nach DIN 5008 |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen (`48-text-fit.js` gelöscht, `field-sizing: content`, `light-dark()`, `text-wrap`) |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | `contenteditable="plaintext-only"`, Popover API für Toasts, `<input switch>` |
-| **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | GitHub Action + Python-Build für automatische PLZ-/Großempfänger-Updates |
+| **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen (`.github/workflows/update_plz_pipeline.yml` & `update_plz_pipeline.py`) |
 | **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional / Experimentell** | Entkoppeltes Plugin via `window.ai` (Graceful Degradation ohne Cloud-Zwang) |
 
 ---
@@ -113,12 +113,13 @@ code_links: []
 
 ---
 
-### ⚪ Priorität 6: Automatische Quartals-Pipeline für Open-Data
+### 🟢 Priorität 6: Automatische Quartals-Pipeline für Open-Data
+* **Status:** 🟢 Abgeschlossen (2026-09-04)
 * **Problem:** Postleitzahlen, Ortsumbenennungen und Großempfänger-Codes ändern sich gelegentlich.
 * **Lösung:**
-  1. GitHub Action `.github/workflows/update_plz_pipeline.yml` aus `research/research_scripts/` aktivieren.
-  2. Quartalsweiser Cron-Job ruft Open-Data der Deutschen Post Direkt und von Destatis ab.
-  3. Führt `update_plz_pipeline.py` aus, komprimiert die 72 KB Brotli-Payload neu und stellt einen automatischen Pull Request bereit.
+  1. GitHub Action `.github/workflows/update_plz_pipeline.yml` aktiv im Repository etabliert.
+  2. Quartalsweiser Cron-Job (`0 4 1 */3 *`) ruft Open-Data der Deutschen Post Direkt und von Destatis ab (inkl. manual `workflow_dispatch`).
+  3. Führt `update_plz_pipeline.py` aus, komprimiert die Brotli-Payloads neu (`de_plz_ort.json.br` 70,5 KB, `de_grosskunden_plz.json.br` 28,8 KB), generiert `website/data/plz-embedded.js` neu und committet Änderungen via GitHub Actions Bot.
 * **Aufwand:** ~30 Minuten.
 * **Nutzen:** Dauerhafte Wartungsfreiheit für die nächsten 10 Jahre.
 

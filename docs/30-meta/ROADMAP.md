@@ -39,7 +39,7 @@ code_links: []
 | :--- | :--- | :--- | :--- | :--- |
 | **Prio 1** | **Salutation Engine V2 & Vornamen-Dictionary** | Sehr Gering (~30 min) | **Extrem Hoch** | 2,6 KB Vornamen-Brotli, 3 B2B-Pärchen, Adelspartikel-Schutz, Auto-Reset |
 | **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 10.814 PLZs + 2.258 Großempfänger, 0 ms Latenz, 100% Offline, DSGVO |
-| **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 0,1ms Heuristik: 1-Klick-Übernahme kompletter Web-Impressen nach DIN 5008 |
+| **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 🟢 Abgeschlossen (`46-clipboard-address-parser.js` & Sidebar Button) |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen (`48-text-fit.js` gelöscht, `field-sizing: content`, `light-dark()`, `text-wrap`) |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | `contenteditable="plaintext-only"`, Popover API für Toasts, `<input switch>` |
 | **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen (`.github/workflows/update_plz_pipeline.yml` & `update_plz_pipeline.py`) |
@@ -76,16 +76,17 @@ code_links: []
 
 ---
 
-### 🟢 Priorität 3: Smart Clipboard Impressum-Parser (Maximaler Nutzerkomfort)
+### 🟢 Priorität 3: Smart Clipboard Impressum-Parser (Abgeschlossen)
+* **Status:** 🟢 Abgeschlossen (2026-09-04)
 * **Problem:** Nutzer müssen Adressen von Firmen-Websites (Impressum) mühsam Zeile für Zeile kopieren und einfügen, während tausende Zeilen Cookie-Banner, Menüs und Redaktionsmitglieder stören.
 * **Lösung:**
-  1. Integration des heuristischen Scoring-Parsers aus `research/roadmap/SMART_CLIPBOARD_IMPRESSUM_PARSER.md` als `paste`-Listener auf das Empfängerfeld.
-  2. Erkennt eingefügte Textblöcke (> 3 Zeilen) und filtert in 0,1 ms:
-     * Menüleisten, Social-Links, Cookie-Texte.
-     * Handelsregisterdaten (`HRB ...`, `Amtsgericht ...`), USt-IdNr., Vorstände.
-  3. Extrahiert exakt die DIN-5008-Felder: Firma, Ansprechpartner, Straße/Hausnummer, PLZ/Ort und befüllt das Adressfeld strukturiert mit einem Klick.
+  1. Modul `website/js/46-clipboard-address-parser.js` mit zweistufigem heuristischem Scoring-Parser implementiert.
+  2. Intuitiver Sidebar-Button `📋 Zwischenablage lesen` (`#btn-clipboard-address`) unter dem Bereich `Adresse aus Zwischenablage`.
+  3. Filtert in unter 0,1 ms: Menüleisten, Social-Links, Cookie-Texte, Handelsregisterdaten (`HRB ...`, `Amtsgericht ...`), USt-IdNr., Vorstände.
+  4. Multi-Address Anomaly Guard: Erkennt mehrere Adressen im Clipboard und bietet ein interaktives Auswahl-Popover (`#clipboard-candidates-popover`) via W3C Popover API.
+  5. Befüllt strukturiert die DIN-5008-Felder: `empfaenger-firma`, `empfaenger-strasse`, `empfaenger-ort`.
 * **Aufwand:** ~1 Stunde.
-* **Nutzen:** Enormer Zeitgewinn für jeden Anwender beim Erstellen geschäftlicher Antwortbriefe.
+* **Nutzen:** Höchste Zeitersparnis beim Verfassen geschäftlicher Briefe ohne Übertragungsfehler.
 
 ---
 

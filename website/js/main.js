@@ -17,6 +17,7 @@ import { SettingsManager } from './02-settings-manager.js';
 import { UIProtections } from './03-ui-protections.js';
 
 import { applyLetterDate } from './47-date-format.js';
+import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 
 function syncPostvermerkFromSidebar() {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initToastSystem();
     initSenderSync();
     initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+    ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
 
     const salutation = new SalutationFeature(() => draftManager.saveDraft());
     salutation.init();

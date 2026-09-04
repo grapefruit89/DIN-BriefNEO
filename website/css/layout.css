@@ -520,6 +520,15 @@ aside {
   anchor-name: --address-input;
 }
 
+#btn-clipboard-address {
+  anchor-name: --clipboard-btn;
+}
+
+#clipboard-candidates-popover {
+  position-anchor: --clipboard-btn;
+  width: max(anchor-size(width), 280px);
+}
+
 /* Glassmorphic Dropdown for Geoapify address suggestions */
 .autocomplete-dropdown {
   position: absolute;
@@ -557,6 +566,19 @@ aside {
 .autocomplete-dropdown li:hover {
   background: var(--border-color);
   color: var(--accent-color);
+}
+
+.autocomplete-header {
+  font-weight: bold;
+  cursor: default !important;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.autocomplete-sub {
+  color: var(--text-muted);
+  font-weight: normal;
 }
 
 /* --- COMMENT FORMAT --- */

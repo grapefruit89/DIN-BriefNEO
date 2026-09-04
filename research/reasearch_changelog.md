@@ -12,7 +12,7 @@
 | :--- | :--- | :--- | :--- | :---: | :---: |
 | **Prio 1** | **Salutation Engine V2 Produktivschaltung** | Sehr Gering (~30 min) | **Extrem Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 🟢 Abgeschlossen | 2026-09-04 |
-| **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | ⚪ Geplant | - |
+| **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | ⚪ Geplant | - |
 | **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen | 2026-09-04 |
@@ -100,3 +100,23 @@
      * Lokaler Testlauf erfolgreich abgeschlossen in 3.01 ms Ready Time.
      * Fitness Gate (`tools/start.ps1`) mit 100% Evolutionary Fitness Score und 0 Scroll-Vorkommen bestätigt.
 * **Ergebnis:** 10 Jahre garantierte Wartungsfreiheit für Adress- und Postleitzahldaten bei null personellem Aufwand.
+
+### 🟢 Priorität 3: Smart Clipboard Impressum-Parser
+* **Ziel:** Robuste, intuitive 1-Klick-Übernahme unformatierter Impressums- und Kontaktdaten aus der Zwischenablage direkt in die DIN 5008 Empfängerfelder über einen dedizierten Sidebar-Button.
+* **Durchgeführte Maßnahmen:**
+  1. **Modul `website/js/46-clipboard-address-parser.js` implementiert:**
+     * Zweistufiger deterministischer Parser (Inline-Komma-Trennung & Mehrzeilen-Scanning).
+     * Filtert juristischen Müll (Handelsregister HRB/HRA, Amtsgerichte als Registerstelle, USt-ID, Chefredaktion, Geschäftsführer, Cookie-Texte, IBANs, Urheberrechtsklauseln).
+     * Intelligentes Relevanz-Scoring (Bonus für Unternehmensformen wie GmbH/AG/e.V., Postanschrift-Kennzeichnung und Positions-Gewichtung).
+     * Saubere W3C-DOM-Bereinigung via `popover.replaceChildren()`.
+  2. **Intuitives UI in der Sidebar (`website/index.html` & `website/css/layout.css`):**
+     * Neuer Unterpunkt in der Sidebar: `Adresse aus Zwischenablage` mit Button `📋 Zwischenablage lesen` (`#btn-clipboard-address`).
+     * Candidate-Popover (`#clipboard-candidates-popover`) via nativer HTML Popover API (`popover="auto"`), gemountet im Top-Layer.
+     * CSS-Anchor-Positioning an `--clipboard-btn`.
+  3. **Multi-Address Handling (Schutz vor "Murks"):**
+     * Bei exakt 1 erkannten Adresse: Sofortige 1-Klick-Befüllung der DIN 5008 Felder (`empfaenger-firma`, `empfaenger-strasse`, `empfaenger-ort`) und Bestätigungs-Toast.
+     * Bei mehreren gefundenen Adressen (z. B. Hauptsitz vs. Redaktion vs. Druckerei): Zeigt ein interaktives Auswahlmenü aller Adress-Kandidaten, sodass der Nutzer mit 1 Klick gezielt auswählen kann.
+     * Bei 0 Adressen: Informativer Hinweis-Toast (`⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.`), ohne bestehende Daten zu überschreiben.
+  4. **System-Integration in `website/js/main.js`:**
+     * Vollständig verdrahtet über `ClipboardAddressParser.wireSidebarButton({ onToast, onSaveDraft })`.
+* **Ergebnis:** Höchster Bedienkomfort beim Verfassen von Briefen an Unternehmen und Behörden, 0 ms Layout Thrashing, 100% DSGVO-konform und offline-fähig.

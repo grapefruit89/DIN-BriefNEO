@@ -67,7 +67,7 @@ Optionale Fach-APIs (reiner Datenabruf) sind davon zu unterscheiden und zulässi
 
 ### ❌ Kein `Date` als Zeitquelle im Produkt
 
-`Date` ist in `website/` nicht zulässig. Tooling (`tools/`, `agent/`, `scripts/`) ist ausgenommen. `moment.js`, `date-fns` und `luxon` bleiben überall verboten. Zeitmodell: [[Immutable-Law-Catalog]] TM1 / A48.
+`Date` ist in `website/` nicht zulässig. Tooling (`tools/`, `agent/`) ist ausgenommen. `moment.js`, `date-fns` und `luxon` bleiben überall verboten. Zeitmodell: [[Immutable-Law-Catalog]] TM1 / A48.
 
 ---
 

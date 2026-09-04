@@ -31,36 +31,39 @@ This workspace contains research, architectural roadmaps, telemetry data, and re
 
 ### 2.1 Schnellübersicht: Was wird in das Projekt übernommen?
 
-| Status / Kategorie | Pfad & Datei | Größe | Zweck & Einsatz im Zielzustand |
-| :--- | :--- | :--- | :--- |
-| 🟢 **PRODUKTION** | `roadmap/smart_salutation_engine.js` | 19 KB | **Drop-in Replacement** für `website/js/41-salutation-engine.js` (KISS 80/20 B2B, In-flight-Schutz, Dirty-Flags). |
-| 🟢 **PRODUKTION** | `research_results/de_plz_ort.json.br` | 70.5 KB | **Asset für Website:** Alle 10.814 PLZs + 2.258 Großempfänger für 0,9ms Offline-Autofill im Adressfeld. |
-| 🟢 **PRODUKTION** | `research_results/de_vornamen_gender.json.br` | 2.55 KB | **Asset für Website:** 951 häufigste deutsche Vornamen für Zero-Click-Geschlechtserkennung ohne Radiobuttons. |
-| 🟢 **PIPELINE / CI/CD** | `research_scripts/github_action_update_plz.yml` | 1.6 KB | **GitHub Actions Cron-Workflow** für automatische quartalsweise Open-Data-Updates. |
-| 🟢 **PIPELINE / BUILD** | `research_scripts/update_plz_pipeline.py` | 5.1 KB | **Build-Skript:** Lädt Rohdaten, fusioniert Großkunden, erzeugt die 70,5 KB Brotli-Payload. |
-| 🟡 **OPTIONAL (ADDON)** | `roadmap/ai_assistant_addon.js` | 6.2 KB | **Opt-In Addon:** 100 % private Gemini Nano On-Device AI für `website/js/addons/`. |
-| 🔵 **BLUEPRINTS (DOCS)** | `roadmap/*.md` (17 Spezifikationen) | ~200 KB | **Architektur-Vorgaben** für Entwickler/LLMs (DIN 5008 Normen, KISS 80/20, CSS Snippets, Zero-Scroll). |
-| ⚪ **FORSCHUNG (ARCHIV)** | `research_results/chrome_features_*.json` | **14.3 MB** | **Labor-Rohdaten:** Google ChromeStatus API-Dumps (können archiviert/gelöscht werden, nicht für Produktion!). |
-| ⚪ **FORSCHUNG (TESTS)** | `research_scripts/test_*.py`, `*.js` | ~150 KB | **Labortests:** Benchmarks, Provider-Latenzmessungen, Impressum-Stresstests (nur zur Verifikation). |
+| Status / Kategorie | Pfad & Datei | Größe | Zweck & Einsatz im Zielzustand | Implementierungs-Status im Repo |
+| :--- | :--- | :--- | :--- | :--- |
+| 🟢 **PRODUKTION** | `roadmap/smart_salutation_engine.js` | 19 KB | **Drop-in Replacement** für `website/js/41-salutation-engine.js` (KISS 80/20 B2B, In-flight-Schutz, Dirty-Flags). | ✅ **100 % PRODUKTIV** (Aktiv in `website/js/41-salutation-engine.js`) |
+| 🟢 **PRODUKTION** | `research_results/de_plz_ort.json.br` | 70.5 KB | **Asset für Website:** Alle 10.831 PLZs + 2.258 Großempfänger für 0,9ms Offline-Autofill im Adressfeld. | ✅ **100 % PRODUKTIV** (Aktiv in `website/data/` & `plz-embedded.js`) |
+| 🟢 **PRODUKTION** | `research_results/de_vornamen_gender.json.br` | 2.55 KB | **Asset für Website:** 951 häufigste deutsche Vornamen für Zero-Click-Geschlechtserkennung ohne Radiobuttons. | ✅ **100 % PRODUKTIV** (Direkt in `website/js/41-salutation-engine.js` integriert) |
+| 🟢 **PIPELINE / CI/CD** | `research_scripts/github_action_update_plz.yml` | 1.6 KB | **GitHub Actions Cron-Workflow** für automatische quartalsweise Open-Data-Updates. | ✅ **100 % PRODUKTIV** (Aktiv als `.github/workflows/update_plz_pipeline.yml`) |
+| 🟢 **PIPELINE / BUILD** | `research_scripts/update_plz_pipeline.py` | 5.1 KB | **Build-Skript:** Lädt Rohdaten, fusioniert Großkunden, erzeugt die 70,5 KB Brotli-Payload. | ✅ **100 % PRODUKTIV** (Aktiv in `research/research_scripts/update_plz_pipeline.py`) |
+| 🟢 **PRODUKTION (NEU)** | `roadmap/SMART_CLIPBOARD_IMPRESSUM_PARSER.md` | ~12 KB | **Smart Clipboard Impressum-Parser** (1-Klick-Übernahme DIN 5008 Empfängeranschriften). | ✅ **100 % PRODUKTIV** (Aktiv in `website/js/46-clipboard-address-parser.js` & Sidebar) |
+| 🟡 **OPTIONAL (ADDON)** | `roadmap/ai_assistant_addon.js` | 6.2 KB | **Opt-In Addon:** 100 % private Gemini Nano On-Device AI für `website/js/addons/`. | ⚪ **Geplant** (Prio 7 / Opt-in) |
+| 🔵 **BLUEPRINTS (DOCS)** | `roadmap/*.md` (17 Spezifikationen) | ~200 KB | **Architektur-Vorgaben** für Entwickler/LLMs (DIN 5008 Normen, KISS 80/20, CSS Snippets, Zero-Scroll). | 📘 **Vollständig referenziert** in ADRs & Roadmap |
+| ⚪ **FORSCHUNG (ARCHIV)** | `research_results/chrome_features_*.json` | **14.3 MB** | **Labor-Rohdaten:** Google ChromeStatus API-Dumps (können archiviert/gelöscht werden, nicht für Produktion!). | 📦 **Archiviert** (Forschungsmaterial) |
+| ⚪ **FORSCHUNG (TESTS)** | `research_scripts/test_*.py`, `*.js` | ~150 KB | **Labortests:** Benchmarks, Provider-Latenzmessungen, Impressum-Stresstests (nur zur Verifikation). | 🧪 **Abgeschlossen** (Laborverifikation) |
 
 ---
 
 ### 2.2 Dateibaum mit Kennzeichnung
 
 ```text
-C:\Users\morit\Documents\dinbrief-temp\
-├── README.md                           <-- Master-Dokumentation & Lese-Reihenfolge
+C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\
+├── research/README.md                  <-- Master-Dokumentation & Lese-Reihenfolge
 │
-├── 🟢 [PRODUKTION / ZIELZUSTAND] (< 95 KB Gesamt)
-│   ├── roadmap/smart_salutation_engine.js      # Drop-in Ersatz für 41-salutation-engine.js (19 KB)
-│   ├── research_results/de_plz_ort.json.br     # Offline Brotli PLZ- & Großkunden-Datenbank (70.5 KB)
-│   ├── research_results/de_vornamen_gender.json.br # Offline Brotli Vornamen-Tabelle (2.55 KB)
-│   ├── research_scripts/update_plz_pipeline.py # Build- & Kompressions-Pipeline für Wartung (5.1 KB)
-│   ├── research_scripts/github_action_update_plz.yml # GitHub Actions Quartals-Workflow (1.6 KB)
-│   └── roadmap/ai_assistant_addon.js           # (Optional) Lokales Gemini Nano Addon (6.2 KB)
+├── 🟢 [PRODUKTIV INTEGRIERT IM REPOSITORY] (< 95 KB Gesamt)
+│   ├── [✅ PRODUKTIV] website/js/41-salutation-engine.js        <-- aus smart_salutation_engine.js (19 KB)
+│   ├── [✅ PRODUKTIV] website/data/de_plz_ort.json.br           <-- aus de_plz_ort.json.br (70.5 KB)
+│   ├── [✅ PRODUKTIV] website/data/plz-embedded.js              <-- 100% Offline Base64-Stream
+│   ├── [✅ PRODUKTIV] website/js/41-salutation-engine.js        <-- inkl. 951 Vornamen (2.55 KB)
+│   ├── [✅ PRODUKTIV] .github/workflows/update_plz_pipeline.yml <-- aus github_action_update_plz.yml (1.6 KB)
+│   ├── [✅ PRODUKTIV] research/research_scripts/update_plz_pipeline.py <-- Build- & Kompressions-Pipeline (5.1 KB)
+│   ├── [✅ PRODUKTIV] website/js/46-clipboard-address-parser.js <-- Impressum-Parser & Sidebar-Button
+│   └── [⚪ GEPLANT]   website/js/addons/ai_assistant_addon.js   <-- (Optional) Lokales Gemini Nano Addon
 │
 ├── 🔵 [ARCHITEKTUR-SPEZIFIKATIONEN & RICHTLINIEN] (~200 KB)
-│   └── roadmap/
+│   └── research/roadmap/
 │       ├── LLM_MODERN_WEB_PLAYBOOK_2026.md     # Verbindliche KI-Direktiven (Moderne Web APIs)
 │       ├── FUNCTION_MIGRATION_MATRIX.md        # Migrationsplan für 109 bestehende JS-Funktionen
 │       ├── CSS_SNIPPETS_REFERENCE_2026.md      # Drop-in CSS 2026 Snippets (field-sizing, light-dark)

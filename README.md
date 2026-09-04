@@ -17,6 +17,7 @@ Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgru
 2. **Entwickler-Check (Agenten):** Führe das Skript `.\scripts\start.ps1` aus.
    - Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
    - Generierte Artefakte (LLM-Kontext, Doku-Datenbank) werden gecacht: sie laufen nur neu, wenn sich ihre Quelldateien seit dem letzten Lauf geändert haben. Der Fitness Gate selbst läuft immer ungecacht. Mit `-Force` lässt sich der volle Durchlauf erzwingen.
+3. **Sichtprüfung im echten Chrome:** [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md) — DevTools-MCP an die laufende App hängen (A4-Viewport, Sidebar, Anrede, Postvermerk).
 
 ---
 
@@ -39,11 +40,14 @@ Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern e
 
 Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
+Root-Kurzguide für den Browser-Agenten: [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md).
+
 ---
 
 ## 🧭 Repository-Contract & Agenten-Infrastruktur
 
 - **[`repository.yaml`](repository.yaml)** beschreibt maschinenlesbar, woraus das Repository besteht (Struktur, Entrypoints, offene Punkte). Verbindliche Quelle für Verhaltensregeln bleibt `AGENTS.md`, für Technologie-Regeln der [Immutable Law Catalog](docs/00-foundation/Immutable-Law-Catalog.md) — `repository.yaml` verweist bewusst darauf, statt sie zu duplizieren.
+- **[`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md)** — Chrome DevTools MCP: Agent sieht die laufende App.
 - **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
   - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
   - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche.
@@ -58,7 +62,7 @@ Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezi
 Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
 
 | Modus | Wann? | Schritte |
-|---|---|---|
+|---|---|
 | 🟢 **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100% Fitness Pflicht!) → Logging (`log_session.js`) |
 | 🔴 **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
 

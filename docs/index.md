@@ -26,6 +26,7 @@ code_links:
   - website/index.html
   - website/js/main.js
   - website/css/layout.css
+  - AI-AGENTS-CLI.md
 error_patterns:
   - hub
   - navigation
@@ -41,6 +42,8 @@ depends_on: []
 
 > **Willkommen im Dokumentationszentrum von DIN-Brief Neo.**  
 > Autarker, serverloser DIN-5008-Briefbogen im Browser (Form A & B) — 100% offline-fähig, null Build-Tools, null externe Laufzeit-Abhängigkeiten, optimiert für Chrome 148+ (Standard-Baseline).
+
+Root-Werkzeug für Sichtprüfung: **[AI-AGENTS-CLI.md](../AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
 
 ---
 
@@ -85,7 +88,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 ---
 
 ### 3. [[20-implementation/README|20-implementation — Praktische Guides & How-Tos]]
-*Konkretes Implementierungswissen für den Quelltext (`website/js/` und `website/css/`).*
+*Konkretes Implementierungswissen für den Quelltext (`website/js/` und `website/css/`).* 
 - **[[Salutation-Engine]]** — Anrede-Logik: Neuer 80/20 B2B-Standard, 3 verbindliche Pärchen, Offline-Vornamenerkennung, Adelspartikel und Auto-Reset.
 - **[[din-5008-css-architektur]]** — DIN-5008-Layout, Druckvorstufe (@media print) und Container Queries.
 - **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
@@ -118,6 +121,9 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 Für automatisierte Audits und Werkzeuge stehen zwei strukturierte JSON-Dateien bereit:
 - **`docs/foundation_inventory.json`** — 21 Dokumente aus 00-foundation, 10-architecture und 90-policy mit lückenloser W-Fragelogik.
 - **`docs/implementation_and_meta_inventory.json`** — 28 Dokumente aus 20-implementation und 30-meta.
+
+Ausserhalb von `docs/`, im Repository-Root:
+- **[`AI-AGENTS-CLI.md`](../AI-AGENTS-CLI.md)** — Chrome DevTools MCP, Sichtprüfung der laufenden App.
 
 ---
 

@@ -1,9 +1,11 @@
 {
-  "version": "v_1788518732",
-  "updated_at": "2026-09-04 12:45:32",
+  "version": "v_1788533244",
+  "updated_at": "2026-09-04 14:47:24 UTC",
   "total_plz": 10831,
   "total_grosskunden": 2258,
-  "raw_kb": 259.8,
-  "brotli_kb": 70.5,
-  "ready_time_ms": 3.13
+  "plz_raw_kb": 259.8,
+  "plz_brotli_kb": 70.5,
+  "grosskunden_raw_kb": 177.6,
+  "grosskunden_brotli_kb": 28.8,
+  "ready_time_ms": 3.01
 }

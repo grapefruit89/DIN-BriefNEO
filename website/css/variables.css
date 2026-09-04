@@ -94,9 +94,23 @@
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-:root[data-theme="light"] { color-scheme: light; }
-:root[data-theme="dark"] { color-scheme: dark; }
-:root[data-theme="auto"] { color-scheme: light dark; }
+:root[data-theme="light"],
+[data-theme="light"] body,
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] body,
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="auto"],
+[data-theme="auto"] body,
+body[data-theme="auto"] {
+  color-scheme: light dark;
+}
 
 body:has(#btn-font-sans:checked) { --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body:has(#btn-font-serif:checked) { --font-active-stack: "Times New Roman", Times, serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }

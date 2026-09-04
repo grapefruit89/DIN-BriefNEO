@@ -200,6 +200,16 @@
 #format-toolbar button b { font-weight: 800; }
 #format-toolbar button u { text-underline-offset: 2px; }
 
+#btn-ai-rewrite {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  gap: 4px;
+  color: var(--accent-color) !important;
+}
+#btn-ai-rewrite:hover {
+  background: var(--accent-glow) !important;
+}
+
 .input-feedback-msg {
   position: absolute;
   top: 102%;

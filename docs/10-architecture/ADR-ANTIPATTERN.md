@@ -155,6 +155,12 @@ Verbindliche Kette (Catalog C1, A16–A20):
 *   **Moderne Plattform-Alternative:** Nativer W3C-Standard `<input type="checkbox" switch>`. Der Zustand wird rein deklarativ über CSS `:has(#switch:checked)` ausgewertet.
 *   **Verbot:** Binäre Toggles dürfen nicht mehr als doppelte Radio-Gruppen konstruiert werden.
 
+### 17. Unnötige Radio-Gruppen für Theming (2-Button Hell/Dunkel Segmented Control) — HARD BAN
+
+*   **Begründung:** Die Verwendung zweier separater Radio-Buttons (`#btn-theme-light`, `#btn-theme-dark`) überlud die Sidebar mit zu vielen Klickzielen und verhinderte einen echten "Auto (System)" Modus.
+*   **Moderne Plattform-Alternative:** Ein kompakter 3-Wege Toggle-Button (`#btn-theme-toggle`), der zentriert in der Header-Zeile liegt und zyklisch durch `Auto` -> `Hell` -> `Dunkel` -> `Auto` schaltet. Farbschema-Steuerung erfolgt über `:root[data-theme="..."]` mit nativer Unterstützung für `light-dark()` und `color-scheme: light dark`.
+*   **Verbot:** Theme-Wahl darf nicht mehr über redundante Radio-Segmented-Controls realisiert werden.
+
 ---
 
 ## Konsequenzen

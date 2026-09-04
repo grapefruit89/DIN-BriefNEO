@@ -120,9 +120,11 @@ website/css/
   * Glassmorphism via `color-mix`: `--bg-sidebar-glass: color-mix(in oklch, light-dark(...) 80%, transparent);`.
 * **Semantische Statusfarben:**
   * `--c-primary`, `--c-success` (Grün), `--c-warning` (Orange), `--c-danger` (Rot).
+* **Theming-Selektoren (3-Wege Toggle Auto/Light/Dark):**
+  * `:root[data-theme="light"] { color-scheme: light; }`
+  * `:root[data-theme="dark"] { color-scheme: dark; }`
+  * `:root[data-theme="auto"] { color-scheme: light dark; }`
 * **State-Bindings via `:has()`:**
-  * `body:has(#btn-theme-light:checked) { color-scheme: light; }`
-  * `body:has(#btn-theme-dark:checked) { color-scheme: dark; }`
   * `body:has(#btn-font-sans:checked)`, `body:has(#btn-font-serif:checked)` steuern `--font-active-stack`.
   * `[popover] { color-scheme: inherit; }` (stellt sicher, dass Top-Layer-Elemente das Parent-Farbschema erben).
 

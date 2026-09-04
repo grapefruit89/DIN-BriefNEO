@@ -983,14 +983,45 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 #geoapify-wrapper #address-search-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
+:root:has(#btn-guides-switch:checked),
 :root:has(#btn-guides-on:checked) {
   --guide-opacity: 0.15;
 }
 .btn-guides::before {
   content: '📐 Falz- & Lochmarken einblenden';
 }
+:root:has(#btn-guides-switch:checked) .btn-guides::before,
 :root:has(#btn-guides-on:checked) .btn-guides::before {
   content: '📐 Falz- & Lochmarken ausblenden';
+}
+
+/* =========================================================================================
+ * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCHES (Native HTML5)
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
+ * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
+ * Die Statuserkennung erfolgt rein deklarativ über `:root:has(#btn-guides-switch:checked)`.
+ * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 16):
+ * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
+ * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
+ * ========================================================================================= */
+.sidebar-switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+.sidebar-switch-row .sidebar-label {
+  margin: 0;
+}
+input[type="checkbox"][switch] {
+  appearance: auto;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  width: 36px;
+  height: 20px;
 }
 .badge-local {
   float: right;

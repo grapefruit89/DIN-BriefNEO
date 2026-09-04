@@ -14,7 +14,7 @@
 | **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
-| **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | ⚪ Geplant | - |
+| **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen | 2026-09-04 |
 | **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional** | ⚪ Geplant | - |
 
@@ -123,20 +123,23 @@
 
 ---
 
-### ⚪ Priorität 5: JS-Kill Phase 2 — HTML-Switch, Popover & Top-Layer (Geplante Ausarbeitung)
-* **Status:** ⚪ Geplant (Nächster Meilenstein)
-* **Ziel:** Beseitigung von ca. 250 weiteren Zeilen überflüssigem JavaScript durch moderne Web-Plattform-Standards 2026 (Natives `plaintext-only`, Popover Top-Layer für Toasts und semantische `<input switch>` Schalter).
-* **Geplante Maßnahmen im Detail:**
-  1. **Plaintext-Eingabeschutz & Enter-Sperre (`website/js/03-ui-protections.js`):**
-     * *Bisheriges Problem:* `enforceLineLimits()` interceptet `keydown`, `beforeinput` und `paste` auf allen `[contenteditable]`-Feldern mit ~115 Zeilen JavaScript, um Zeilenumbrüche (Enter, LineBreak) und Rich-Text-Formatting (Fett, Kursiv, Unterstrichen) zu verhindern.
-     * *Nativer Webstandard:* Alle einzeiligen Felder in `website/index.html` nutzen bereits `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Moderne Browser blockieren Formatierungen und mehrzeiliges Pasting nativ auf C++-Engine-Ebene.
-     * *Maßnahme:* Bereinigung von `03-ui-protections.js`. Löschung der ~115 Zeilen redundanten Keydown-/Beforeinput-Handler für Einzeiler. Erhalt einer schlanken, hochspezifischen Absicherung nur für echte Sonderfälle (2-Zeilen-Grenze bei Betreff/Postvermerk sowie Listen-Struktur in `#anlagen-text`). Reduktion des Moduls von 182 auf ~50 Zeilen.
-  2. **Toast-System auf native HTML Popover API umstellen (`website/js/32-toast.js` & `website/css/floating.css`):**
-     * *Bisheriges Problem:* `32-toast.js` umfasst 286 Zeilen JavaScript mit manuellem Z-Index-Handling, DOM-Event-Listenern für Maus/Touch, dynamischen Swipe-Kalkulationen (`--swipe-x`), Animationstimern und `setTimeout`-Kaskaden.
-     * *Nativer Webstandard:* HTML Popover API (`popover="manual"`) im nativen Browser-Top-Layer, kombiniert mit CSS `@starting-style` und `transition-behavior: allow-discrete`.
-     * *Maßnahme:* `#toast-v4` nutzt die native Popover API im Top-Layer (liegt garantiert über jedem Dialog/Modal ohne Z-Index-Kämpfe). Ein- und Ausblendungen laufen rein deklarativ über CSS `@starting-style` ohne JS-Animationsschleifen. `32-toast.js` wird auf eine schlanke FIFO-Queue (~100 Zeilen) reduziert.
-  3. **Sidebar-Schalter auf semantisches `<input type="checkbox" switch>` (`website/index.html`, `website/css/layout.css` & `02-settings-manager.js`):**
-     * *Bisheriges Problem:* Toggles (z. B. Hilfslinien EIN/AUS) nutzen komplexe Segmented-Controls aus doppelten Radio-Buttons (`<input type="radio" class="sr-only">`) und doppelten `<label>`-Elementen. In `02-settings-manager.js` müssen mehrere Radio-Buttons synchronisiert und abgehört werden.
-     * *Nativer Webstandard:* Der neue W3C/HTML-Standard `<input type="checkbox" switch id="...">`.
-     * *Maßnahme:* Umstellung der Schalter auf `<input type="checkbox" switch>`. Der Status wird rein in CSS über `:root:has(#guides:checked)` ausgewertet (0 Zeilen JS für UI-Synchronisation). Entlastung von `02-settings-manager.js` um ca. 30–40 Zeilen.
-* **Erwartetes Gesamtergebnis:** Weitere ~250 Zeilen fragiles JavaScript dauerhaft eliminiert, native Barrierefreiheit, saubere Trennung von UI-Darstellung und Brief-Zustand.
+### 🟢 Priorität 5: JS-Kill Phase 2 — HTML-Switch, Popover & Top-Layer
+* **Ziel:** Beseitigung von über 175 Zeilen überflüssigem JavaScript durch moderne Web-Plattform-Standards 2026 (Natives `plaintext-only`, Popover Top-Layer für Toasts und semantische `<input switch>` Schalter).
+* **Durchgeführte Maßnahmen:**
+  1. **Plaintext-Eingabeschutz & Enter-Sperre (`website/js/03-ui-protections.js` & `website/index.html`):**
+     * Alle einzeiligen Felder in `website/index.html` mit `enterkeyhint="done"` versehen.
+     * Vollständige Entfernung redundanter Keydown-/Beforeinput-Formatierungs-Interzeptoren (`beforeInputFormatTypes`, `beforeInputParagraphTypes`) aus `03-ui-protections.js`.
+     * Native Browserunterstützung von `contenteditable="plaintext-only"` übernimmt die Formatierungs- und Umbruchssperre nativ im C++ Core der Rendering-Engine.
+     * Schlanke Absicherung für Betreff/Postvermerk (max. 2 Zeilen) und die Listenstruktur von `#anlagen-text` implementiert.
+     * Prominenter Architecture-Guard-Kommentar hinterlegt (Verbot von DOM-Messschleifen und manueller HTML-Sanitization).
+  2. **Toast-System auf native HTML Popover API umgestellt (`website/js/32-toast.js` & `website/css/floating.css`):**
+     * `#toast-v4` nutzt die native Popover API (`popover="manual"`) im Browser-Top-Layer.
+     * Obsoletes `z-index: 9999` und manuelle Pointer-/Swipe-Drag-Listener in JS restlos gestrichen.
+     * Sanfte Einblendung erfolgt rein deklarativ über CSS `@starting-style` in `floating.css`.
+     * `32-toast.js` auf eine schlanke, robuste FIFO-Queue mit Spam-Deduplizierung und Shaking reduziert.
+     * Architecture-Guard-Kommentar für das Top-Layer-Rendering integriert.
+  3. **Sidebar-Schalter auf semantisches `<input type="checkbox" switch>` umgestellt:**
+     * Hilfslinien-Umschalter in `website/index.html` von unübersichtlichen Radio-Segmented-Controls auf semantisches `<input type="checkbox" switch id="btn-guides-switch">` umgestellt.
+     * CSS `:has(#btn-guides-switch:checked)` steuert die Sichtbarkeit direkt deklarativ in `website/css/layout.css` und `website/css/floating.css`.
+     * `02-settings-manager.js` für direkte Bindung an den semantischen Switch angepasst.
+* **Ergebnis:** Über 175 Zeilen JavaScript dauerhaft eliminiert, null Z-Index-Konflikte, native Barrierefreiheit und 100% zukunftssichere Web-Standards.

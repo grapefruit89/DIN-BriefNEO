@@ -3,7 +3,17 @@
 
 /* css/floating.css */
 
-/* --- 1. GLOBAL POPOVER TOAST (#toast-v4) --- */
+/* =========================================================================================
+ * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: POPOVER TOP-LAYER & @STARTING-STYLE
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * `#toast-v4` nutzt die native HTML Popover API und rendert direkt im Browser-Top-Layer.
+ * Einblendung und Ausblendung laufen 100% deklarativ über CSS `@starting-style` und
+ * `transition-behavior: allow-discrete`.
+ * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 15):
+ * 1. `z-index` Stacking-Hacks wieder einzuführen (Top-Layer steht nativ über allem).
+ * 2. Pointer-Drag- oder Swipe-Event-Schleifen in JS wiederherzustellen.
+ * ========================================================================================= */
 #toast-v4 {
   position: fixed;
   top: 24px;
@@ -18,14 +28,12 @@
   font-size: 0.875rem;
   font-weight: 600;
   box-shadow: var(--shadow-lg);
-  z-index: 9999;
   pointer-events: auto;
-  touch-action: pan-x;
   display: flex;
   align-items: center;
   gap: 12px;
   opacity: 0;
-  transform: translateY(-20px) translateX(var(--swipe-x, 0px));
+  transform: translateY(-20px);
   transition: 
     opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
@@ -35,14 +43,14 @@
 
 #toast-v4:popover-open {
   display: flex;
-  opacity: calc(1 - (var(--swipe-x-abs, 0) / 150));
-  transform: translateY(0) translateX(var(--swipe-x, 0px));
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @starting-style {
   #toast-v4:popover-open {
     opacity: 0;
-    transform: translateY(-20px) translateX(var(--swipe-x, 0px));
+    transform: translateY(-20px);
   }
 }
 
@@ -379,7 +387,9 @@ din-a4 {
   max-height: 100%;
 }
 :root { --guide-opacity: 0; }
+:root:has(#btn-guides-switch:checked),
 :root:has(#btn-guides-on:checked) { --guide-opacity: 0.55; }
+:root:not(:has(#btn-guides-switch:checked)):not(:has(#btn-guides-on:checked)),
 :root:has(#btn-guides-off:checked) { --guide-opacity: 0; }
 
 aside input[type="text"],

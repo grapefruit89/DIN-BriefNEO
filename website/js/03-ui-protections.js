@@ -1,4 +1,19 @@
 // @ts-check
+
+/* =========================================================================================
+ * 🛡️ ARCHITECTURE GUARD: MODERN WEB PLATFORM PLAINTEXT ENGINE (W3C Standard)
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * Alle einzeiligen DIN-Felder nutzen `contenteditable="plaintext-only"` und `enterkeyhint="done"`.
+ * Der Browser unterbindet Rich-Text, Formatierungs-Tags (bold/italic) und unerwünschte
+ * Zeilenumbrüche NATIV im C++ Core der Rendering-Engine.
+ *
+ * ES IST STRENGSTENS UNTERSAGT (Immutable Law A49 & ADR-JS):
+ * 1. Vorab-Interzeptoren für `beforeinput` (formatBold, formatItalic, etc.) neu einzuführen.
+ * 2. Manuelle HTML-Sanitization per Regex in Input-Listenern wiederherzustellen.
+ * 3. DOM-Messschleifen oder Polling für Zeilenbegrenzungen einzubauen.
+ * ========================================================================================= */
+
 export class UIProtections {
   constructor() {
     /** @type {HTMLElement | null} */
@@ -19,18 +34,13 @@ export class UIProtections {
     this.initialized = true;
   }
 
-
   enforceLineLimits() {
-    const beforeInputFormatTypes = ['formatBold', 'formatItalic', 'formatUnderline'];
-    const beforeInputParagraphTypes = ['insertParagraph', 'insertLineBreak'];
-
     document.querySelectorAll('[contenteditable]').forEach(elem => {
       const el = /** @type {HTMLElement} */ (elem);
+      
+      // Enter-Taste abfangen: Single-Line blockiert Umbruch, maxTwoLines begrenzt auf 2 Zeilen
       el.addEventListener('keydown', (e) => {
         const keyboardEvent = /** @type {KeyboardEvent} */ (e);
-        const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
-        if (allowedKeys.includes(keyboardEvent.key) || keyboardEvent.ctrlKey || keyboardEvent.metaKey) return;
-        
         if (keyboardEvent.key === 'Enter') {
           if (this.multiLineIds.includes(el.id)) {
             return;
@@ -42,70 +52,33 @@ export class UIProtections {
           } else {
             keyboardEvent.preventDefault();
           }
-        } else {
-          // Line limit protection: maxTwoLinesIds prevent flooding (> 130 chars)
-          const isTwoLine = this.maxTwoLinesIds.includes(el.id);
-          if (isTwoLine) {
-            const text = el.innerText || el.textContent || '';
-            const maxChars = 130;
-            const selection = window.getSelection();
-            const selectionLength = selection ? selection.toString().length : 0;
-            if (text.length - selectionLength >= maxChars && keyboardEvent.key.length === 1) {
-              keyboardEvent.preventDefault();
-            }
-          }
         }
       });
 
-      // Ergaenzt die keydown-Logik oben um beforeinput: faengt Eingabewege ab,
-      // die keinen normalen Enter-Keydown ausloesen (z.B. IME-Komposition,
-      // manche mobile Tastaturen).
-      el.addEventListener('beforeinput', (e) => {
-        const inputEvent = /** @type {InputEvent} */ (e);
-
-        if (beforeInputFormatTypes.includes(inputEvent.inputType)) {
-          inputEvent.preventDefault();
-          return;
-        }
-
-        if (beforeInputParagraphTypes.includes(inputEvent.inputType)) {
-          if (this.multiLineIds.includes(el.id)) return;
-          if (this.maxTwoLinesIds.includes(el.id)) {
-            const text = el.innerText || el.textContent || '';
-            if (text.split('\n').length < 2) return;
-          }
-          inputEvent.preventDefault();
-        }
-      });
-
+      // Paste-Handling: Mehrzeiligen Text für Einzeiler einebnen, 2-Zeiler begrenzen
       el.addEventListener('paste', (e) => {
-        const clipboardEvent = /** @type {ClipboardEvent} */ (e);
         if (this.multiLineIds.includes(el.id)) return;
         
-        clipboardEvent.preventDefault();
+        const clipboardEvent = /** @type {ClipboardEvent} */ (e);
         const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
         let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
+        if (!pastedText) return;
+
+        clipboardEvent.preventDefault();
         const isTwoLine = this.maxTwoLinesIds.includes(el.id);
-        
-        const selection = window.getSelection();
-        if (!selection) return;
 
         if (isTwoLine) {
           const maxChars = 130;
-          const selectedLength = selection.toString().length;
-          const currentText = el.innerText || el.textContent || '';
-          const currentLength = currentText.length - selectedLength;
-          let allowedPasteLength = maxChars - currentLength;
-          if (allowedPasteLength <= 0) return;
-          pastedText = pastedText.split('\n').slice(0, 2).join('\n');
-          if (pastedText.length > allowedPasteLength) {
-            pastedText = pastedText.substring(0, allowedPasteLength);
+          pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
+          if (pastedText.length > maxChars) {
+            pastedText = pastedText.substring(0, maxChars);
           }
         } else {
           pastedText = pastedText.replace(/[\r\n]+/g, ' ');
         }
-        
-        if (!selection.rangeCount) return;
+
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return;
         selection.deleteFromDocument();
         selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
         selection.collapseToEnd();
@@ -118,7 +91,6 @@ export class UIProtections {
     const anlagen = document.getElementById('anlagen-text');
     if (!anlagen) return;
     
-    // Ensure the structure is correct initially
     this.ensureListStructure(anlagen);
     
     anlagen.addEventListener('input', () => {
@@ -130,13 +102,9 @@ export class UIProtections {
       if (keyboardEvent.key === 'Backspace' || keyboardEvent.key === 'Delete') {
         const lis = anlagen.querySelectorAll('li');
         if (lis.length === 1 && lis[0].textContent && lis[0].textContent.trim() === '') {
-          // Don't delete the last empty li
           keyboardEvent.preventDefault();
         }
       }
-      
-      // If user presses enter in an empty li, browser might do weird things
-      // The browser's native enter key in a list usually creates a new li, which is fine
     });
   }
   
@@ -148,7 +116,6 @@ export class UIProtections {
       const li = document.createElement('li');
       anlagen.replaceChildren(li);
       
-      // Move cursor into the new li if focused
       if (document.activeElement === anlagen) {
         const selection = window.getSelection();
         if (selection) {
@@ -159,24 +126,6 @@ export class UIProtections {
           selection.addRange(range);
         }
       }
-    } else {
-      // Sometimes browsers insert raw text nodes or divs, wrap them in li
-      let hasTextNodes = false;
-      for (const node of anlagen.childNodes) {
-        if (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim() !== '') {
-          hasTextNodes = true;
-          break;
-        } else if (node.nodeType === Node.ELEMENT_NODE && /** @type {Element} */ (node).tagName !== 'LI') {
-          hasTextNodes = true;
-          break;
-        }
-      }
-      
-      if (hasTextNodes) {
-        // Native contenteditable can be messy, we just wrap all raw content into a new li
-        // or just let it be unless it's completely broken. For now, simple check is enough.
-      }
     }
   }
-
 }

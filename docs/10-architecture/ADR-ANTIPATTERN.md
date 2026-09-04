@@ -137,6 +137,24 @@ Verbindliche Kette (Catalog C1, A16–A20):
     *   `text-wrap: balance` und `text-wrap: pretty` verhindern Waisen- und Witwenwörter in Betreff und Fließtext.
 *   **Guard für zukünftige KIs/LLMs:** Jeglicher Versuch, `48-text-fit.js` wiederzubeleben oder DOM-Messschleifen für Schriftgrößenanpassung einzuführen, ist strikt verboten und bricht Gesetz A49.
 
+### 14. JS-Formatierungs-Interzeptoren auf Plaintext-Feldern (`beforeInputFormatTypes`, `03-ui-protections.js`) — HARD BAN
+
+*   **Begründung:** Bisher fing `enforceLineLimits()` in `03-ui-protections.js` Tastatureingaben (`beforeinput`, `formatBold`, `formatItalic`, `formatUnderline`) mühsam in JavaScript ab, um Rich-Text in einzeiligen DIN-Feldern zu verhindern.
+*   **Moderne Plattform-Alternative:** Das native W3C-Attribut `contenteditable="plaintext-only"` kombiniert mit `enterkeyhint="done"` verhindert Formatierungs-Tags, Styled Spans und Zeilenumbrüche bereits auf C++-Engine-Ebene des Browsers.
+*   **Verbot:** Die Wiedereinführung von `beforeInputFormatTypes`, `beforeInputParagraphTypes` oder manuellen HTML-Sanitization-Interzeptoren in Input-Listenern ist strikt untersagt.
+
+### 15. Manuelles Pointer-Drag & Z-Index-Stacking für Toasts (`swipe-to-dismiss` in JS, `z-index: 9999`) — HARD BAN
+
+*   **Begründung:** Frühere Versionen von `32-toast.js` verwalteten 60+ Zeilen Touch-/Pointer-Listener (`pointerdown`, `pointermove`, `pointerup`, `setPointerCapture`) und CSS-Variablen-Manipulation (`--swipe-x`) sowie Z-Index-Stacking (`z-index: 9999`), was fehleranfällig war und zu Stacking-Kämpfen mit Modals führte.
+*   **Moderne Plattform-Alternative:** Native HTML Popover API (`popover="manual"`) im Browser-Top-Layer, kombiniert mit deklarativen CSS-Transitions über `@starting-style` und `transition-behavior: allow-discrete`.
+*   **Verbot:** Toasts dürfen keinen manuellen `z-index` mehr erhalten und müssen im nativen Top-Layer residieren. Pointer-Drag-Schleifen in JS für Swipe-Dismiss sind verboten.
+
+### 16. Radio-Segmented-Controls für binäre Toggles — HARD BAN für neue Schalter
+
+*   **Begründung:** Das Nachbauen von binären Schaltern (z. B. Hilfslinien EIN/AUS) mittels doppelter `<input type="radio" class="sr-only">`, mehrfacher `<label>`-Elemente und JavaScript-Zustandssynchronisation erzeugte unnötigen DOM- und JS-Ballast.
+*   **Moderne Plattform-Alternative:** Nativer W3C-Standard `<input type="checkbox" switch>`. Der Zustand wird rein deklarativ über CSS `:has(#switch:checked)` ausgewertet.
+*   **Verbot:** Binäre Toggles dürfen nicht mehr als doppelte Radio-Gruppen konstruiert werden.
+
 ---
 
 ## Konsequenzen

@@ -112,11 +112,10 @@ website/index.html (331 Zeilen | 160 Tags | 67 IDs | 50 Klassen)
 
 Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
 
-* **Header & Build-Info:**
+* **Header & Build-Info (3-Elemente-Zeile):**
   * GitHub-Link (`.sidebar-github-link`) mit integriertem SVG.
+  * `#btn-theme-toggle`: Kompakter 3-Wege Theme-Umschalter (`Auto` -> `Hell` -> `Dunkel` -> `Auto`), zentriert in der Header-Zeile (`data-appearance="auto|light|dark"`, `data-ui="🌓 Auto"`).
   * `#btn-dev-mode`: Build-Timestamp-Anzeige und Umschalter für Entwickler-Features.
-* **Theme-Umschalter (`role="group"`):**
-  * Segmented Control mit `#btn-theme-light` und `#btn-theme-dark` (`focusgroup="horizontal wrap"`).
 * **DIN-5008 Layout-Wahl (Form A / Form B):**
   * `#btn-form-a`: Hoher Briefkopf (Faltmarke 1 bei 87 mm, Anschriftfeld bei 32 mm).
   * `#btn-form-b`: Tiefer Briefkopf (Default, Faltmarke 1 bei 105 mm, Anschriftfeld bei 50 mm).
@@ -126,6 +125,8 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#btn-style-casual` (Locker: "Hallo... / Beste Grüße").
 * **Semantischer Hilfslinien-Schalter:**
   * `<input type="checkbox" switch id="btn-guides-switch" checked>`: Nativer Schalter.
+* **Experimenteller On-Device KI-Assistent (`#sidebar-ai-switch-row`):**
+  * `<input type="checkbox" switch id="toggle-experimental-ai">`: W3C-Standard-Switch für lokales On-Device Rewriting (Chrome Built-in AI / Gemini Nano via `window.ai`).
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
   * `#sidebar-pv-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.).
   * `#toggle-postvermerk` & `#toggle-anlagen`: Ausblendbare State-Checkboxes für CSS `:has()`.
@@ -197,6 +198,7 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
   * `popover="hint"`: Schließt automatisch bei Klick außerhalb oder Selektionsverlust.
   * Verankert per CSS Anchor Positioning an `#selection-anchor`.
   * Command Invoker Buttons für Fett (`--bold`), Unterstrichen (`--underline`), Zitat (`--quote`) und Kommentar (`--comment`).
+  * `#btn-ai-rewrite`: On-Device KI-Aktionsbutton (`✨ Formal`) zur kontextuellen Umformulierung markierter Textpassagen via Gemini Nano (Chrome Built-in AI).
 * **Toast-Benachrichtigungssystem (`#toast-v4`):**
   * `popover="manual"`: Rendert direkt im Top-Layer über allen Dialogen ohne `z-index`.
   * `#toast-message`: Textkörper für Statusinformationen.

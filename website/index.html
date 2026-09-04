@@ -23,10 +23,12 @@
     <link rel="stylesheet" href="css/print.css" media="print">
     <script>
       try {
-        const defaults = { theme: 'light' };
+        const defaults = { theme: 'auto' };
         const raw = localStorage.getItem('din_settings');
         const settings = raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
-        document.documentElement.style.colorScheme = settings.theme === 'dark' ? 'dark' : 'light';
+        const theme = settings.theme || 'auto';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme === 'auto' ? 'light dark' : theme;
         const customFont = localStorage.getItem('din_custom_font');
         if (customFont) {
           const fontStyle = document.createElement('style');
@@ -46,13 +48,8 @@
             <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="sidebar-build-info btn-ghost sidebar-github-link" aria-label="GitHub Repository" data-ui="GitHub">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
             </a>
-            <button type="button" id="btn-dev-mode" class="sidebar-build-info" aria-label="Developer Mode aktivieren" data-ui="02.09.2026 19:21"></button>
-          </div>
-          <div class="segmented-control" focusgroup="horizontal wrap" role="group" aria-label="Theme">
-            <input type="radio" name="theme" id="btn-theme-light" value="light" class="sr-only" autocomplete="off">
-            <label for="btn-theme-light" data-ui="☀️ Hell"></label>
-            <input type="radio" name="theme" id="btn-theme-dark" value="dark" class="sr-only" autocomplete="off">
-            <label for="btn-theme-dark" data-ui="🌙 Dunkel"></label>
+            <button type="button" id="btn-theme-toggle" class="sidebar-build-info btn-ghost theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-appearance="auto" title="Darstellung: Automatisch (System)" data-ui="🌓 Auto"></button>
+            <button type="button" id="btn-dev-mode" class="sidebar-build-info" aria-label="Developer Mode aktivieren" data-ui="04.09.2026 18:06">04.09.2026 18:06</button>
           </div>
           <div>
             <h3 class="sidebar-label" data-ui="DIN-Brief Layout"></h3>
@@ -86,6 +83,10 @@
           <div class="sidebar-switch-row">
             <h3 class="sidebar-label" data-ui="Hilfslinien"></h3>
             <input type="checkbox" switch id="btn-guides-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
+          </div>
+          <div class="sidebar-switch-row" id="sidebar-ai-switch-row">
+            <h3 class="sidebar-label" data-ui="✨ KI-Assistent"></h3>
+            <input type="checkbox" switch id="toggle-experimental-ai" autocomplete="off" aria-label="On-Device KI-Assistent aktivieren">
           </div>
           <div class="sidebar-zusatz-row">
             <!-- Hidden checkboxes — CSS :has() rules stay unchanged -->
@@ -129,10 +130,10 @@
             <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" class="hidden">
           </div>
           <div id="geoapify-wrapper">
-            <h3 class="sidebar-label" data-ui="Adress-Autocomplete"></h3>
+            <h3 class="sidebar-label" data-ui="Empfänger-Tools"></h3>
             <div class="sidebar-options-group">
               <div id="geoapify-key-container">
-                <label for="input-geoapify-key" class="sidebar-sub-label" data-ui="Geoapify API-Key:"></label>
+                <label for="input-geoapify-key" class="sidebar-sub-label" data-ui="Geoapify API-Key (optional):"></label>
                 <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
               </div>
               <div id="address-search-container" class="sidebar-options-group">
@@ -140,12 +141,10 @@
                 <input type="text" id="input-address-search" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
                 <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
               </div>
-            </div>
-          <div id="clipboard-address-wrapper">
-            <h3 class="sidebar-label" data-ui="Adresse aus Zwischenablage"></h3>
-            <div class="sidebar-options-group">
-              <button type="button" id="btn-clipboard-address" class="btn w-full" data-ui="📋 Zwischenablage lesen" title="Liest kopierte Adress- oder Impressumsdaten aus der Zwischenablage"></button>
-              <ul id="clipboard-candidates-popover" class="autocomplete-dropdown no-print" popover="auto"></ul>
+              <div id="clipboard-address-wrapper">
+                <button type="button" id="btn-clipboard-address" class="btn w-full" data-ui="📋 Adresse aus Zwischenablage lesen" title="Liest kopierte Adress- oder Impressumsdaten aus der Zwischenablage"></button>
+                <ul id="clipboard-candidates-popover" class="autocomplete-dropdown no-print" popover="auto"></ul>
+              </div>
             </div>
           </div>
         </div>
@@ -238,6 +237,7 @@
       <button type="button" commandfor="format-command-target" command="--underline" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button>
       <button type="button" commandfor="format-command-target" command="--quote" title="Zitat" aria-label="Zitat">»</button>
       <button type="button" commandfor="format-command-target" command="--comment" title="Kommentar" aria-label="Kommentar">|</button>
+      <button type="button" id="btn-ai-rewrite" title="Ausgewählten Text förmlicher formulieren (Gemini Nano)" aria-label="Förmlicher formulieren" class="hidden">✨ Formal</button>
     </div>
     <div id="selection-anchor" class="no-print"></div>
     <!-- 
@@ -266,7 +266,7 @@
     <script>
       try {
         const defaults = {
-          theme: 'light',
+          theme: 'auto',
           layout: 'form-b',
           guides: true,
           systemFont: 'sans',
@@ -283,11 +283,22 @@
             else b.removeAttribute('checked');
           });
         }
-        setRadioSync('theme', settings.theme === 'dark' ? 'dark' : 'light');
         setRadioSync('layout-form', settings.layout);
         setRadioSync('salutation', settings.formality);
         setRadioSync('font-stack', settings.systemFont);
         setRadioSync('guides', settings.guides ? 'on' : 'off');
+        const activeTheme = settings.theme || 'auto';
+        document.documentElement.setAttribute('data-theme', activeTheme);
+        document.documentElement.style.colorScheme = activeTheme === 'auto' ? 'light dark' : activeTheme;
+        const themeToggleBtn = document.getElementById('btn-theme-toggle');
+        if (themeToggleBtn) {
+          themeToggleBtn.setAttribute('data-appearance', activeTheme);
+          const labels = { auto: '🌓 Auto', light: '☀️ Hell', dark: '🌙 Dunkel' };
+          const titles = { auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' };
+          themeToggleBtn.setAttribute('data-ui', labels[activeTheme] || '🌓 Auto');
+          themeToggleBtn.setAttribute('title', titles[activeTheme] || 'Darstellung: Automatisch');
+          themeToggleBtn.setAttribute('aria-label', titles[activeTheme] || 'Darstellung: Automatisch');
+        }
         const pvToggleBtn = document.getElementById('toggle-postvermerk');
         if (pvToggleBtn) {
           pvToggleBtn.checked = !!settings.postvermerkActive;
@@ -326,5 +337,6 @@
         }
       } catch (e) {}
     </script>
+    <script type="module" src="js/addons/ai-assistant.js" async></script>
   </body>
 </html>

@@ -33,6 +33,7 @@ code_links:
   - website/js/53-metadata.js
   - website/js/healthcheck.js
   - website/js/main.js
+  - website/js/addons/ai-assistant.js
 error_patterns:
   - javascript constraints
   - js as a crutch
@@ -181,6 +182,14 @@ Das Projekt verfügt über exakt **16 aktive JavaScript-Module** unter `website/
 * `initApp()`: Zentraler Bootstrap beim Laden von `DOMContentLoaded`. Initialisiert alle Module in geordneter Reihenfolge.
 * `syncPostvermerkFromSidebar()`: Synchronisiert Auswahlliste mit dem Postvermerkfeld.
 * `attachGlobalListeners(...)`: Registriert globale Tastenkombinationen (Strg+S, Strg+Z, Strg+Y, Strg+P).
+
+### 17. `addons/ai-assistant.js` (Experimenteller On-Device KI-Assistent via Gemini Nano)
+* `constructor()`: Liest Opt-in-Status aus `localStorage` (`din_addon_ai_enabled`) und initialisiert Element-Referenzen (`#toggle-experimental-ai`, `#btn-ai-rewrite`).
+* `init()`: Asynchroner, 100% crash-proof Bootstrapper. Prüft `window.ai`, `window.ai.rewriter` und `window.ai.writer` auf Verfügbarkeit (`'readily'` / `'after-download'`). Fällt bei Nicht-Unterstützung geräuschlos aus (Silent Degradation).
+* `_checkAvailability()`: Ermittelt den Verfügbarkeitsstatus der lokalen KI-Engine.
+* `_updateUIUnsupported(reason)` / `_updateUISupported(statusText)`: Schaltet den Sidebar-Switch aktiv bzw. disabled mit erklärendem Tooltip.
+* `_attachListeners()`: Reagiert auf den W3C `<input switch>` in der Sidebar und blendet den Format-Toolbar-Button `#btn-ai-rewrite` dynamisch ein/aus.
+* `rewriteSelection()`: Liest Text über die W3C Selection & Range API aus und formuliert ihn lokal via `window.ai.rewriter.create({ tone: 'more-formal', length: 'as-is' })` um. Ersetzt den Inhalt inline via `range.deleteContents()` und `range.insertNode()`, triggert AutoSave.
 
 ---
 

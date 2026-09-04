@@ -9,8 +9,7 @@ export class SettingsManager {
     this.shell = document.getElementById('app-shell');
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
-    this.btnThemeLight = document.getElementById('btn-theme-light');
-    this.btnThemeDark = document.getElementById('btn-theme-dark');
+    this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-guides-switch'));
     this.btnGuidesOn = document.getElementById('btn-guides-on');
     this.btnGuidesOff = document.getElementById('btn-guides-off');
@@ -39,16 +38,8 @@ export class SettingsManager {
       }
     }
 
-    const dim = Number(this.settings.themeDim);
-    const themeDim = Number.isFinite(dim) ? Math.min(1, Math.max(0, dim)) : (this.settings.theme === 'dark' ? 1 : 0);
-    this.applyThemeDim(themeDim);
-    if (this.btnThemeLight && this.btnThemeDark) {
-      if (themeDim >= 0.5) {
-        /** @type {HTMLInputElement} */ (this.btnThemeDark).checked = true;
-      } else {
-        /** @type {HTMLInputElement} */ (this.btnThemeLight).checked = true;
-      }
-    }
+    const currentTheme = this.settings.theme || 'auto';
+    this.applyTheme(currentTheme);
 
     if (this.btnGuidesSwitch) {
       this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
@@ -58,6 +49,39 @@ export class SettingsManager {
       } else {
         /** @type {HTMLInputElement} */ (this.btnGuidesOff).checked = true;
       }
+    }
+  }
+
+  /**
+   * @param {'auto' | 'light' | 'dark' | string} theme
+   */
+  applyTheme(theme) {
+    const validThemes = ['auto', 'light', 'dark'];
+    const active = validThemes.includes(theme) ? theme : 'auto';
+    this.settings.theme = active;
+    document.documentElement.setAttribute('data-theme', active);
+    document.documentElement.style.colorScheme = active === 'auto' ? 'light dark' : active;
+
+    const dim = active === 'dark' ? 1 : 0;
+    this.applyThemeDim(dim);
+
+    if (this.btnThemeToggle) {
+      this.btnThemeToggle.setAttribute('data-appearance', active);
+      /** @type {Record<string, string>} */
+      const labels = {
+        auto: '🌓 Auto',
+        light: '☀️ Hell',
+        dark: '🌙 Dunkel'
+      };
+      /** @type {Record<string, string>} */
+      const titles = {
+        auto: 'Darstellung: Automatisch (System)',
+        light: 'Darstellung: Helles Design',
+        dark: 'Darstellung: Dunkles Design'
+      };
+      this.btnThemeToggle.setAttribute('data-ui', labels[active] || '🌓 Auto');
+      this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
+      this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
     }
   }
 
@@ -132,15 +156,20 @@ export class SettingsManager {
       });
     }
 
-    const handleThemeChange = (/** @type {string} */ theme) => {
-      if (!this.isReady) return;
-      this.settings.theme = theme;
-      this.settings.themeDim = theme === 'dark' ? 1 : 0;
-      this.applyThemeDim(this.settings.themeDim);
-      this.updateSettings();
-    };
-    if (this.btnThemeLight) this.btnThemeLight.addEventListener('change', () => handleThemeChange('light'));
-    if (this.btnThemeDark) this.btnThemeDark.addEventListener('change', () => handleThemeChange('dark'));
+    if (this.btnThemeToggle) {
+      this.btnThemeToggle.addEventListener('click', () => {
+        if (!this.isReady) return;
+        /** @type {Record<string, string>} */
+        const cycle = { auto: 'light', light: 'dark', dark: 'auto' };
+        const current = this.settings.theme || 'auto';
+        const next = cycle[current] || 'auto';
+        this.applyTheme(next);
+        this.updateSettings();
+        /** @type {Record<string, string>} */
+        const toastNames = { auto: 'System (Automatisch)', light: 'Helles Design', dark: 'Dunkles Design' };
+        showToast(`Darstellung: ${toastNames[next] || next}`, 'info');
+      });
+    }
 
     if (this.themeDimmer) {
       this.themeDimmer.addEventListener('input', () => {

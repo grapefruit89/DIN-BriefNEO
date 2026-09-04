@@ -900,17 +900,26 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
 .sidebar-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   margin-bottom: 8px;
 }
 .sidebar-build-info {
   font-size: 0.7rem;
   color: var(--text-muted);
-  padding: 0;
+  padding: 2px 4px;
   cursor: default;
   border: none;
   background: none;
   user-select: none;
+}
+.theme-toggle-btn {
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.theme-toggle-btn:hover {
+  background: var(--segment-bg);
+  color: var(--text-primary);
 }
 .sidebar-checkbox-label {
   display: flex;

@@ -211,7 +211,7 @@
             "A42: Doppelte IDs im DOM",
             "A43: Unkontrolliertes Dokument- und Seitenscrolling",
             "A34-A37: IndexedDB, OPFS, File System Access API oder Service Worker unter file://",
-            "A38: Fremde CDNs und Asset-Hosts (Allowlist nur für reine Daten-APIs: Geoapify, zippopotam.us)",
+            "A38: Fremde CDNs und Asset-Hosts (Allowlist nur für reine Daten-APIs: Geoapify, Photon; Offline-Primärquelle Brotli laut ADR-006)",
             "A39-A41: Icon-CDNs, Icon-Fonts, Google Fonts"
           ]
         },

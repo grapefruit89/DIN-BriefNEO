@@ -82,7 +82,7 @@ Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu 
 
 | # | Stufe | MUST-USE | Zweck |
 | :--- | :--- | :--- | :--- |
-| TM1 | HARD BAN im Produkt | `Temporal` für alle Datums-/Zeitoperationen in `website/` | `Date` ist in `website/` unzulässig. Tooling (`tools/`, `agent/`, `scripts/`) ist ausgenommen. `moment.js`, `date-fns`, `luxon` bleiben überall verboten. |
+| TM1 | HARD BAN im Produkt | `Temporal` für alle Datums-/Zeitoperationen in `website/` | `Date` ist in `website/` unzulässig. Tooling (`tools/`, `agent/`) ist ausgenommen. `moment.js`, `date-fns`, `luxon` bleiben überall verboten. |
 
 ### Tooling & Dependencies
 
@@ -118,7 +118,7 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
-| A48 | `new Date()`, `Date.parse`, `Date.now` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/`, `scripts/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
+| A48 | `new Date()`, `Date.parse`, `Date.now` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
 
 ### Color, CSS, Struktur
 
@@ -146,7 +146,7 @@ Soweit nicht anders markiert: HARD BAN.
 | A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | unzuverlässig unter `file://` im Zielkontext |
 | A36 | HARD BAN in diesem Produkt | File System Access API als Pflicht-Speicher | `localStorage` | braucht sicheren Kontext |
 | A37 | HARD BAN in diesem Produkt | Service Worker unter `file://` | relative lokale Pfade | Registration scheitert unter `file://` |
-| A38 | HARD BAN | externe CDNs und fremde Script-/CSS-Assets | lokale Ressourcen | Offline / DSGVO. Optionale Fach-APIs sind keine CDNs. Allowlist: Geoapify Geocoding, zippopotam.us. Ohne Key bleibt das Feature tot. Kein Host darf Script, Font oder Stylesheet liefern. |
+| A38 | HARD BAN | externe CDNs und fremde Script-/CSS-Assets | lokale Ressourcen | Offline / DSGVO. Optionale Fach-APIs sind keine CDNs. Allowlist: Geoapify Geocoding, Photon (optionale Tier-2-Dienste; Grunddaten laufen primär über das lokale 70,5 KB Brotli-Dictionary laut ADR-006). Ohne Key bleibt das optionale Cloud-Feature tot. Kein Host darf Script, Font oder Stylesheet liefern. |
 
 ### Icons & Fonts
 

@@ -1,0 +1,258 @@
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-geometry]]  */
+
+/* css/sheet.css — DIN-A4-Blatt (scoped isolation): Geometrie, Briefzonen, Falzmarken, Inline-Formate */
+
+/* --- DIN-GEOMETRIE (Single Source of Truth: HTML-Attribute) --- */
+din-a4 {
+  /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
+     am <din-a4>-Element (siehe index.html). Fallback-Zahl = bisheriger Hardcode-Wert,
+     greift nur, falls das Attribut fehlt oder attr()/type() nicht unterstützt wird. */
+  --din-width: attr(data-width-mm type(<number>), 210);
+  --din-height: attr(data-height-mm type(<number>), 297);
+
+  --absender-y: calc(attr(data-absender-y-b type(<number>), 45) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-b type(<number>), 50) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-b type(<number>), 92) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-b type(<number>), 109) / var(--din-height) * 100cqh);
+
+  --fold-1-y: calc(attr(data-fold-1-b type(<number>), 105) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-b type(<number>), 210) / var(--din-height) * 100cqh);
+  --punch-y: calc(attr(data-punch-y type(<number>), 148.5) / var(--din-height) * 100cqh);
+}
+
+body:has(#btn-form-a:checked) din-a4 {
+  --absender-y: calc(attr(data-absender-y-a type(<number>), 27) / var(--din-height) * 100cqh);
+  --empfaenger-y: calc(attr(data-empfaenger-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --infoblock-y: calc(attr(data-infoblock-y-a type(<number>), 32) / var(--din-height) * 100cqh);
+  --datum-y: calc(attr(data-datum-y-a type(<number>), 74) / var(--din-height) * 100cqh);
+  --briefkern-y: calc(attr(data-kern-y-a type(<number>), 91) / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --fold-1-y: calc(attr(data-fold-1-a type(<number>), 87) / var(--din-height) * 100cqh);
+  --fold-2-y: calc(attr(data-fold-2-a type(<number>), 181) / var(--din-height) * 100cqh);
+}
+
+/* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
+@scope (din-a4) {
+  :scope {
+    display: block;
+    position: relative;
+
+    /* Das Blatt nimmt maximal die Breite oder Hoehe des Viewports an, ohne ueberzulaufen */
+    width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
+    height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
+    aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhaeltnis */
+    background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
+    box-shadow: var(--shadow-lg);
+    border-radius: 4px;
+    overflow: clip; /* Physisches A4-Blatt: Ueberlauf-Sperre ohne Verschiebung */
+    contain: strict; /* Isoliert das Layout komplett vom aeusseren Viewport */
+    container-type: size; /* Ermglicht proportionale cqw/cqh Mae FR INNERE ELEMENTE */
+    container-name: paper;
+    color: var(--paper-text); /* Pure OKLCH Ink Black */
+    box-sizing: border-box;
+    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Parent selector :has() to highlight sheet focus states dynamically */
+  &:has([contenteditable]:focus) {
+    box-shadow: 0 16px 48px oklch(from var(--accent-color) calc(l - 0.05) c h / 18%);
+  }
+
+  [contenteditable] {
+    field-sizing: content;
+    outline: 1px dashed oklch(from var(--text-muted) l c h / 28%);
+    outline-offset: 2px;
+    border-radius: 4px;
+    transition: outline-color 0.15s ease, outline-width 0.15s ease, outline-style 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  /* Single Line / Max Length Felder leicht stauchen (KISS für 80 Zeichen Limit) */
+  [contenteditable="plaintext-only"].squeezed {
+    letter-spacing: -0.015em; /* kaum sichtbar, aber hilft beim Platz */
+  }
+
+  [contenteditable]:hover {
+    outline: 1px solid oklch(from var(--accent-color) l c h / 50%);
+    background: oklch(from var(--accent-color) l c h / 2.5%);
+  }
+
+  [contenteditable]:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    background: oklch(from var(--accent-color) l c h / 4%);
+    box-shadow: 0 0 0 3px oklch(from var(--accent-color) l c h / 12%);
+  }
+
+  /* Placeholder support for contenteditable */
+  [contenteditable]:empty::before {
+    content: attr(placeholder);
+    color: var(--paper-ghost);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  /* Salutation-Engine: KI-generierter Vorschlag optisch als unbestaetigt markieren
+     (data-generated wird von 41-salutation-engine.js gesetzt und beim ersten
+     manuellen Edit wieder entfernt). Bewusst echter Text, kein ::before-Ghost --
+     sonst wuerde print.css ihn beim Drucken ausblenden. */
+  #anrede[data-generated],
+  #grussformel[data-generated] {
+    color: var(--paper-ghost);
+    font-style: italic;
+  }
+
+  /* --- DIN MARKS (Guides) --- */
+  .din-mark {
+  position: absolute;
+  left: 0;
+  width: calc(8 / var(--din-width) * 100cqw); /* Kurz, nicht durch den Text schneidend */
+    border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
+    opacity: var(--guide-opacity);
+    pointer-events: none;
+  }
+
+  /* Falzmarken & Lochmarken proportionale Koordinaten */
+  .din-fold-top { top: var(--fold-1-y); } /* Form B default: 105mm */
+  .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: var(--din-width)mm */
+  .din-punch {
+    top: var(--punch-y);
+    width: calc(12 / var(--din-width) * 100cqw); /* Breite: 12mm */
+    border-bottom-style: solid;
+  }
+
+  /* --- DIN COMPONENT PLACEMENTS (Form B Default) --- */
+  /* Rücksendezeile */
+  #absender {
+    position: absolute;
+    top: var(--absender-y);
+    left: calc(20 / var(--din-width) * 100cqw);
+    width: calc(85 / var(--din-width) * 100cqw);
+    height: calc(5 / var(--din-height) * 100cqh);
+    font-size: calc(8 * 0.168cqw); /* 8pt in cqw */
+    white-space: nowrap;
+    text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
+  }
+
+  /* Anschriftfeld */
+  #empfaenger {
+    position: absolute;
+    top: var(--empfaenger-y);
+    left: calc(20 / var(--din-width) * 100cqw);
+    width: calc(85 / var(--din-width) * 100cqw);
+    height: calc(40 / var(--din-height) * 100cqh);
+    font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Kompakte Ausrichtung nach oben */
+  }
+
+  /* Info block (Rechte Spalte) */
+  #infoblock {
+    position: absolute;
+    top: var(--infoblock-y);
+    left: calc(125 / var(--din-width) * 100cqw);
+    width: calc(75 / var(--din-width) * 100cqw);
+    font-size: calc(8.5 * 0.168cqw); /* 8.5pt in cqw */
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #datum {
+    position: absolute;
+    top: var(--datum-y);
+    left: calc(125 / var(--din-width) * 100cqw);
+    width: calc(75 / var(--din-width) * 100cqw);
+    font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
+    text-align: left;
+  }
+
+  /* Briefkern */
+  #briefkern {
+    position: absolute;
+    top: var(--briefkern-y);
+    left: calc(25 / var(--din-width) * 100cqw);  /* Linker Fluchtrand: 25mm */
+    right: calc(20 / var(--din-width) * 100cqw); /* Rechter Rand: 20mm */
+    bottom: calc(30 / var(--din-height) * 100cqh); /* Abstand nach unten für Footer */
+    display: flex;
+    flex-direction: column;
+    overflow: clip; /* Zero-Ueberlauf Garantie */
+    container-name: briefkern;
+  }
+
+  #betreff {
+    font-size: calc(12 * 0.168cqw); /* 12pt in cqw */
+    font-weight: 700;
+    margin-bottom: calc(8.46 / var(--din-height) * 100cqh); /* 2 Leerzeilen */
+    text-fit: shrink; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht (contain = ungültig, css-text-5) */
+    text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
+  }
+
+  #anrede {
+    font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
+    margin-bottom: calc(4.23 / var(--din-height) * 100cqh); /* 1 Leerzeile */
+  }
+
+  #brieftext {
+    font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
+    line-height: 1.4;
+    outline: none;
+    min-height: calc(40 / var(--din-height) * 100cqh);
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+
+  #grussformel {
+    font-size: calc(10.5 * 0.168cqw);
+    margin-top: calc(4.23 / var(--din-height) * 100cqh);
+    margin-bottom: calc(12.69 / var(--din-height) * 100cqh); /* 3 Leerzeilen für Unterschrift */
+  }
+
+  #unterschrift {
+    font-size: calc(10.5 * 0.168cqw);
+    font-weight: 500;
+  }
+}
+
+/* --- BLATT-INNERES: INLINE-FORMATE & FOOTER (SCOPED ISOLATION) --- */
+@scope (din-a4) {
+  /* --- WHATSAPP-STYLE INLINE FORMATS --- */
+  #brieftext b, #brieftext strong {
+    font-weight: 700;
+  }
+
+  #brieftext u {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  #brieftext blockquote {
+    margin: 8px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--border-color);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* --- FOOTER --- */
+  #brief-fuss {
+    position: absolute;
+    bottom: calc(10 / var(--din-height) * 100cqh); /* 10mm */
+    left: calc(25 / var(--din-width) * 100cqw); /* 25mm */
+    right: calc(20 / var(--din-width) * 100cqw); /* 20mm */
+    height: calc(15 / var(--din-height) * 100cqh); /* 15mm */
+    font-size: calc(7.5 * 0.168cqw); /* 7.5pt in cqw */
+    color: var(--paper-ghost); /* OKLCH Slate Gray */
+    /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
+    padding-top: calc(2 / var(--din-height) * 100cqh);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(10 / var(--din-width) * 100cqw);
+    column-rule: 0.5px solid var(--paper-ghost);
+    column-rule-inset: 2px;
+  }
+}

@@ -139,7 +139,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - **Concise Accessibility**: Every `contenteditable` block and custom `<din-...>` container must have appropriate `aria-label`s and `role`s (e.g., `role="group"`, `role="article"`). Keep aria-labels concise and non-redundant (e.g., "Straße und Hausnummer" instead of "Ihre Straße und Hausnummer").
 
 ## 25. Omnipresent Traceability Database (MCP)
-- Die SQLite-Projektdatenbank (`DIN-Brief_docs.db`) wird bei jedem Build (`.\scripts\start.ps1`) neu generiert und enthält die absolut aktuellste "Ground Truth" aller Architekturentscheidungen, ADRs, Guides und Code-Metadaten.
+- Die SQLite-Projektdatenbank (`DIN-Brief_docs.db`) wird bei jedem Build (`tools/start.ps1` bzw. Linux ohne pwsh: `node tools/build_db.js`) neu generiert und enthält die absolut aktuellste "Ground Truth" aller Architekturentscheidungen, ADRs, Guides und Code-Metadaten.
 - Da diese Datenbank über den `din_brief_sqlite` MCP-Server live angebunden ist, **muss** sie bei allen Architektur-, Dokumentations- und Code-Struktur-Fragen konsequent per SQL abgefragt werden (`tbl_concepts`, `tbl_code_entities`, etc.).
 - Verlasse dich niemals nur auf veraltetes Kontextwissen oder Caching, sondern nutze die MCP-SQL-Tools, um die aktuellsten Projektrichtlinien präzise zu extrahieren.
 

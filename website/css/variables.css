@@ -44,11 +44,11 @@
   --c-segment-day: oklch(0.92 0.01 250);
   --c-segment-night: oklch(0.24 0.03 260);
   --c-paper-day: oklch(100% 0 0);
-  --c-paper-night: oklch(0.18 0.02 260);
+  --c-paper-night: oklch(0.94 0.008 260); /* Blatt bleibt IMMER weiss (nur gedimmt) — DIN 5008 Papier, kein Dark-Sheet */
   --c-ink-day: oklch(0% 0 0);
-  --c-ink-night: oklch(0.96 0.01 260);
+  --c-ink-night: oklch(0.13 0.01 260); /* dunkle Tinte, da Blatt hell bleibt */
   --c-ghost-day: oklch(50% 0 0);
-  --c-ghost-night: oklch(0.62 0.01 260);
+  --c-ghost-night: oklch(0.45 0.01 260); /* Platzhalter-Grau sichtbar auf gedimmtem Weiss */
 
   /* --------------------------------------------------------------------------
      🚨 ARCHITECTURAL GUARD: NATIVE CSS light-dark() (CHROME 123+ / BASELINE 2024-2026)

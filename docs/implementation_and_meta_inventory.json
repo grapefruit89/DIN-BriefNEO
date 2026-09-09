@@ -1198,7 +1198,7 @@
           "wirkungsbereich": "docs/00-foundation/.",
           "verknuepfungen": [
             "docs/00-foundation/README.md",
-            "docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md"
+            "docs/30-meta/HYBRID-SPEC-DRIVEN-WORKFLOW.md"
           ]
         },
         "wieso_weshalb_warum": {

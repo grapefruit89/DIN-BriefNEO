@@ -1,3 +1,30 @@
+---
+id: ai-agents-cli
+title: 'Sichtpruefung: Chrome DevTools MCP an die laufende App'
+type: guide
+status: active
+created: '2026-09-04'
+updated: '2026-09-10'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/active
+  - type/guide
+  - tech/chrome
+doc_links:
+  - repository.yaml
+  - tooling-overview
+code_links:
+  - tools/start.ps1
+error_patterns:
+  - browser agent
+  - devtools mcp
+  - sichtpruefung
+  - chrome devtools
+supersedes: []
+depends_on: []
+---
+
 # AI-AGENTS-CLI
 
 Stand: 2026-09-04  
@@ -13,8 +40,8 @@ Quellen:
 
 ## 1. App laeuft lokal oder auf Pages
 
-Nutzer: `scripts/start.bat` (Port 8088).  
-Agenten-Check: `.\scripts\start.ps1` (Fitness Gate).  
+Nutzer: `start.bat` (Repo-Root, Port 8088).  
+Agenten-Check: `tools/start.ps1` (Fitness Gate); Linux ohne pwsh: `node tools/build_db.js`.  
 Live: https://grapefruit89.github.io/DIN-BriefNEO/
 
 Kein `file://` fuer den Agenten-Lauf. CORS und Module brauchen den Server.
@@ -74,7 +101,7 @@ website/ ist das Produkt. Fitness Gate vor Commit.
 
 ## 4. Was der Agent nicht darf
 
-- Projekt neu scaffolden oder Vite/React anschleppen
+- Projekt neu scaffolden oder Build-Tools/Frontend-Frameworks anschleppen (Catalog A45)
 - Foundation oder IMR anfassen, wenn der Auftrag website/ ist
 - Geometriewerte erfinden
 - `style=""` oder `style.display` als Dauerloesung

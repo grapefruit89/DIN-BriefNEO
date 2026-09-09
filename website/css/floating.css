@@ -126,6 +126,8 @@
 #selection-anchor {
   anchor-name: --selection-anchor;
   position: absolute;
+  top: var(--sel-y, auto);
+  left: var(--sel-x, auto);
   width: 0;
   height: 0;
   pointer-events: none;
@@ -133,6 +135,12 @@
   overflow: hidden;
 }
 
+/*
+ * PHASE 3 FINAL (M135/M142/M148): Toolbar = popover="hint" + CSS Anchor Positioning.
+ * JS schreibt nur die Custom Properties --sel-x/--sel-y am Zero-Size-Anker
+ * (#selection-anchor), CSS konsumiert sie via top/left (Pattern wie 42-signature.js).
+ * Jede Geometrie-Entscheidung (position-area, flip-block, Top-Layer) macht CSS nativ.
+ */
 #format-toolbar {
   position: absolute;
   position-anchor: --selection-anchor;
@@ -208,39 +216,6 @@
 }
 #btn-ai-rewrite:hover {
   background: var(--accent-glow) !important;
-}
-
-.input-feedback-msg {
-  position: absolute;
-  top: 102%;
-  left: 0;
-  background: var(--c-danger);
-  color: oklch(100% 0 0);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 0.725rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-  z-index: 1000;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-5px);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: nowrap;
-}
-
-.input-feedback-msg.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.input-feedback-msg.warning {
-  background: var(--c-warning);
-  color: oklch(15% 0.01 240);
-}
-
-.input-feedback-msg.success {
-  background: var(--c-success);
 }
 
 #address-suggestions {
@@ -421,8 +396,8 @@ aside .sidebar-checkbox-label::after { content: attr(data-ui); }
 aside .sidebar-github-link::before { content: none; }
 aside .sidebar-github-link::after { content: attr(data-ui); }
 
-:root:has(#toggle-postvermerk:checked) din-postvermerk,
-:root:has(#toggle-postvermerk:checked) #postvermerk {
+:root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk,
+:root:has(#sidebar-pv-select option:checked:not([value=""])) #postvermerk {
   display: block !important;
   flex-direction: unset;
   visibility: visible !important;

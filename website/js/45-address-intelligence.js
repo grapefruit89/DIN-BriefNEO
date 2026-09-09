@@ -2,7 +2,7 @@
 // @adr [[ADR-006-Offline-Address-Intelligence]]
 // @guide [[geoapify-autocomplete]]
 
-import { PLZ_DATA_BROTLI_B64, GROSSKUNDEN_BROTLI_B64 } from '../data/plz-embedded.js';
+import { PLZ_DATA_GZIP_B64, GROSSKUNDEN_GZIP_B64 } from '../data/plz-embedded.js';
 
 /**
  * @typedef {object} GrosskundeEntry
@@ -22,7 +22,7 @@ import { PLZ_DATA_BROTLI_B64, GROSSKUNDEN_BROTLI_B64 } from '../data/plz-embedde
 
 /**
  * AddressIntelligence: Ultra-fast 100% Offline German Postal & Großempfänger Engine.
- * Powered by 72 KB Brotli dictionary with native DecompressionStream.
+ * Powered by 87 KB PLZ-Datenbank mit nativer DecompressionStream-PIP.
  */
 export class AddressIntelligence {
   /** @type {Map<string, string>} */
@@ -44,7 +44,7 @@ export class AddressIntelligence {
   static #initPromise = null;
 
   /**
-   * Initializes the in-memory database by decompressing the Brotli datasets.
+   * Initializes the in-memory database by decompressing the gzip datasets.
    * Runs in under 1ms via native C++ DecompressionStream.
    * @returns {Promise<boolean>}
    */
@@ -60,9 +60,9 @@ export class AddressIntelligence {
         // Try streaming directly via fetch if running under HTTP/HTTPS
         if (typeof window !== 'undefined' && window.location.protocol !== 'file:') {
           try {
-            const plzResp = await fetch('data/de_plz_ort.json.br');
+            const plzResp = await fetch('data/de_plz_ort.json.gz');
             if (plzResp.ok) {
-              const ds = new DecompressionStream(/** @type {any} */ ('brotli'));
+              const ds = new DecompressionStream('gzip');
               const stream = plzResp.body?.pipeThrough(ds);
               if (stream) {
                 const text = await new Response(stream).text();
@@ -74,9 +74,9 @@ export class AddressIntelligence {
           }
 
           try {
-            const grossResp = await fetch('data/de_grosskunden_plz.json.br');
+            const grossResp = await fetch('data/de_grosskunden_plz.json.gz');
             if (grossResp.ok) {
-              const ds = new DecompressionStream(/** @type {any} */ ('brotli'));
+              const ds = new DecompressionStream('gzip');
               const stream = grossResp.body?.pipeThrough(ds);
               if (stream) {
                 const text = await new Response(stream).text();
@@ -88,12 +88,12 @@ export class AddressIntelligence {
           }
         }
 
-        // 100% Offline / file:/// protocol fallback via embedded Base64 Brotli streams
+        // 100% Offline / file:/// protocol fallback via embedded Base64 gzip streams
         if (!plzData) {
-          plzData = await this.#decompressBase64(PLZ_DATA_BROTLI_B64);
+          plzData = await this.#decompressBase64(PLZ_DATA_GZIP_B64);
         }
         if (!grossData) {
-          grossData = await this.#decompressBase64(GROSSKUNDEN_BROTLI_B64);
+          grossData = await this.#decompressBase64(GROSSKUNDEN_GZIP_B64);
         }
 
         // Build PLZ -> City index
@@ -127,7 +127,7 @@ export class AddressIntelligence {
   }
 
   /**
-   * Decompresses a Base64-encoded Brotli payload in memory using native DecompressionStream.
+   * Decompresses a Base64-encoded gzip payload in memory using native DecompressionStream.
    * @param {string} b64
    * @returns {Promise<any>}
    */
@@ -136,7 +136,7 @@ export class AddressIntelligence {
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
 
-    const ds = new DecompressionStream(/** @type {any} */ ('brotli'));
+    const ds = new DecompressionStream('gzip');
     const writer = ds.writable.getWriter();
     writer.write(bytes);
     writer.close();
@@ -311,24 +311,34 @@ export class AddressIntelligence {
    * @param {(() => void) | undefined | null} [onSaveDraft]
    */
   static #renderCitySuggestions(matches, targetEl, popoverEl, onSaveDraft) {
-    popoverEl.replaceChildren();
+    const render = () => {
+      popoverEl.replaceChildren();
 
-    matches.forEach(item => {
-      const li = document.createElement('li');
-      li.className = 'suggestion-item';
-      li.textContent = `${item.plz} ${item.city}`;
+      matches.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'suggestion-item';
+        li.textContent = `${item.plz} ${item.city}`;
 
-      li.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        targetEl.textContent = `${item.plz} ${item.city}`;
-        this.targetLock = { plz: item.plz, city: item.city };
-        this.#moveCaretToEnd(targetEl);
-        if (onSaveDraft) onSaveDraft();
-        this.#hidePopover(popoverEl);
+        li.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          targetEl.textContent = `${item.plz} ${item.city}`;
+          this.targetLock = { plz: item.plz, city: item.city };
+          this.#moveCaretToEnd(targetEl);
+          if (onSaveDraft) onSaveDraft();
+          this.#hidePopover(popoverEl);
+        });
+
+        popoverEl.appendChild(li);
       });
-
-      popoverEl.appendChild(li);
-    });
+    };
+    // Element-scoped View Transitions (Chrome 147+): Listenwechsel nur lokal crossfaden
+    // @ts-ignore Element-scoped View Transitions (Chrome 147+)
+    if (this.isReady && typeof popoverEl.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // @ts-ignore Element-scoped View Transitions (Chrome 147+)
+      popoverEl.startViewTransition(render).finished.catch(() => {});
+    } else {
+      render();
+    }
 
     try {
       /** @type {HTMLElement & { showPopover: () => void }} */ (popoverEl).showPopover();
@@ -358,4 +368,62 @@ export class AddressIntelligence {
     sel.removeAllRanges();
     sel.addRange(range);
   }
+}
+
+/* ------------------------------------------------------------------
+ * Absender-Sync (ehem. js/44-sender-sync.js, zusammengeführt am 2026-09-09)
+ * @guide [[glossary]]
+ * ------------------------------------------------------------------ */
+
+// siehe [[ADR-PROFILE-MANAGEMENT]]. Kein aktiver Auftrag, nur Referenzmarkierung.
+
+/**
+ * Abbreviates the first name (e.g., "Moritz Baumeister" -> "M. Baumeister")
+ * @param {string} fullName
+ * @returns {string}
+ */
+function abbreviateName(fullName) {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length < 2) return fullName;
+    const firstName = parts[0];
+    const rest = parts.slice(1).join(' ');
+    return firstName.charAt(0).toUpperCase() + '. ' + rest;
+}
+
+/**
+ * Synchronizes the sender information from the info block to the return address line
+ * and the signature name. This restores the logic from the original project.
+ */
+export function initSenderSync() {
+    const infoName = document.getElementById('info-name');
+    const infoStreet = document.getElementById('info-street');
+    const infoCity = document.getElementById('info-city');
+    const absender = document.getElementById('absender');
+    const unterschrift = document.getElementById('unterschrift');
+
+    if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
+
+    function sync() {
+        if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
+        const name = (infoName.textContent || '').trim();
+        const street = (infoStreet.textContent || '').trim();
+        const city = (infoCity.textContent || '').trim();
+
+        // 1. Sync to Rücksendezeile (absender) with abbreviated name
+        const shortName = abbreviateName(name);
+        const parts = [shortName, street, city].filter(p => p.length > 0);
+        absender.textContent = parts.join(' • ');
+
+        // 2. Sync to Maschinenschrift (unterschrift) with full name
+        unterschrift.textContent = name;
+        
+        // Dispatch input events so saveDraftData triggers if needed
+        absender.dispatchEvent(new Event('input', { bubbles: true }));
+        unterschrift.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    infoName.addEventListener('input', sync);
+    infoStreet.addEventListener('input', sync);
+    infoCity.addEventListener('input', sync);
 }

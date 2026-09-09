@@ -467,3 +467,220 @@ Dieses Dokument protokolliert alle grundlegenden technologischen und architekton
 *   **Status:** Aktiviert — `CLAUDE.md`, `Salutation-Engine.md`, `DIN-BriefNEO_memory_konsolidiert.md` und `10-architecture/README.md` entsprechend korrigiert.
 
 *   **Offener Punkt:** History-Stack-Limit-Diskrepanz ist nur doku-seitig korrigiert markiert, nicht im Code geändert (50 ist der bestehende, funktionierende Wert — keine Code-Änderung nötig, nur Doku-Korrektur ausstehend an den Stellen, die noch 20/60 nennen).
+---
+
+### 2026-09-09 – AGENTS.md-Hygiene: 7 verifizierte Stale-Claims korrigiert + opencode.json
+
+*   **Entscheidung:** `AGENTS.md` gegen den echten Repo-Zustand abgeglichen und korrigiert: (1) `.\scripts\start.ps1` → `tools/start.ps1` (Pfad existierte nicht; auch `repository.yaml` nennt `tools/`). (2) LLM-Kontext liegt in `agent/cache/LLM_CONTEXT.md` (Output von `tools/create_context.js`, start.ps1-Zeile 76), nicht im Root/`build/`. (3) Phantom-Templates `new-adr.py`/`new-guide.py` entfernt, real: `docs/30-meta/ADR-TEMPLATE.md` + `GUIDE-TEMPLATE.md`. (4) `file:///`-Bezug in §7 entfernt — App nutzt `<script type="module">` und braucht zwingend einen lokalen Webserver. (5) `FUTURE_IDEAS.md`-Fußnote entfernt (Datei existiert nicht). (6) Linux-Fitness-Gate-Einstieg dokumentiert: `node tools/build_db.js` (verifiziert, Score 100%); `reconciliation.js` allein ist ein stilles Modul. (7) Frontmatter-`updated` auf 2026-09-09 gezogen. Zusätzlich: `opencode.json` angelegt, das `AGENTS.md` + `repository.yaml` automatisch als Instructions lädt.
+
+*   **Grund:** Mo bat um Verbesserung der Agenten-Arbeitsfähigkeit im Repo. Jeder Agent scheiterte an der ersten Pflicht-Anweisung des Vertrags (PowerShell-Pfad), und drei referenzierte Dateien existierten nicht. Beides verifiziert durch Ist-Prüfung (ls/run/rg) gegen `repository.yaml` und die Tools.
+
+*   **Quelle:** Code-Grep über `tools/`, `create_context.js` (OUTPUT_FILE), `start.ps1`, `website/index.html`, Testlauf `node tools/build_db.js` (100%).
+
+*   **Status:** Aktiviert — Fitness Gate Pre- und Post-Build je 100%, Session via `log_session.js` protokolliert.
+
+*   **Offener Punkt:** `log_session.js` bricht auf frischem Clone mit SQLite-Error 14 ab, wenn `agent/cache/` nicht existiert (wird normalerweise von `start.ps1` angelegt) — Tool-Fix (mkdir) oder Start.ps1-Unabhängigkeit offen. `CLAUDE.md` hat dieselben `scripts/`-Pfadfehler und veraltete Struktur-Referenzen (u.a. `build/LLM_CONTEXT.md` falsch) — Korrektur ausstehend.
+
+---
+
+### 2026-09-09 – CLAUDE.md-Hygiene + opencode-Skills-Anschluss
+
+*   **Entscheidung:** (1) `CLAUDE.md` gegen den echten Repo-Zustand korrigiert: Doppelklick-Mythos beseitigt (App braucht wegen `<script type="module">` zwingend einen lokalen Webserver), nicht existierender `scripts/`-Ordner-Block auf `tools/start.ps1` + Root-`start.bat` umgestellt, `build/LLM_CONTEXT.md` → `agent/cache/LLM_CONTEXT.md`, `agent/` und `opencode.json` in die Root-Struktur aufgenommen, Fitness-Check-Kommando gefixt (+ Linux-Alternative), alle weiteren `scripts/`-Referenzen gesäubert. (2) `opencode.json` um `skills.paths: ["agent/skills"]` erweitert — die vier Repo-Skills (Frontmatter-Validität verifiziert: name + description in allen SKILL.md) laden jetzt automatisch in opencode-Sessions, ohne Kopie; `agent/skills/` bleibt Single Source of Truth.
+
+*   **Grund:** Fortsetzung der AGENTS.md-Hygiene (gleicher Tag): dieselben Stale-Claims standen in CLAUDE.md und würden Claude Code / Gemini CI in die Irre führen. Skills-Anschluss: Repository.yaml verlangt agent/ als Skill-Quelle — opencode erkennt die Ordner nativ via skills.paths.
+
+*   **Quelle:** `tools/create_context.js` (OUTPUT_FILE), `tools/start.ps1`, `website/index.html` (type=module), `rg`-Sweep über AGENTS.md/CLAUDE.md (0 verbliebene `scripts/`-Treffer), Frontmatter-Check aller 4 SKILL.md.
+
+*   **Status:** Aktiviert — Fitness Gate Post-Build 100%, Session via `log_session.js` protokolliert.
+
+*   **Offener Punkt:** opencode-Restart nötig, damit Config + Skills greifen (Config wird beim Start geladen). Verifikation im Live-Chat ausstehend.
+
+---
+
+### 2026-09-09 – Repo-weite Eintrittspunkt-Hygiene + opencode-Friction-Setup
+
+*   **Entscheidung:** (1) `README.md`, `GEMINI.md` und `AI-AGENTS-CLI.md` von den `scripts/`-Phantompfaden befreit (identische Klasse wie AGENTS.md/CLAUDE.md-Fixes vom selben Tag); README-Mythos „lokaler Python-Server" korrigiert (real: `tools/dev_server.ps1`, PowerShell/.NET). (2) `tools/log_session.js` hart gefixt: `fs.mkdirSync(agent/cache, {recursive: true})` vor dem DB-Open — behebt den dokumentierten Fresh-Clone-Absturz (SQLite-Error 14), live verifiziert. (3) `agent/cache/LLM_CONTEXT.md` erstmals erzeugt (`node tools/create_context.js`, 66 KB, 12 Kern-Dateien) — der Kontext-Schritt aus AGENTS.md §3 ist jetzt real begehbar. (4) `.opencode/command/fitness.md` angelegt (`/fitness`-Shortcut für den Fitness Gate) und `opencode.json` um `permission.bash: {"node tools/*": "allow"}` erweitert — Pflichtkommandos ohne Bestätigungs-Popup.
+
+*   **Grund:** Mo bat um alles weitere, das Agenten-Sessions ohne Suchen macht. Bewusst NICHT angefasst: Verfassung, Law Catalog, ADRs und historische Doku — dort ist `file://` bewusste Design-Historie (Catalog nur per ADR änderbar); `docs/30-meta/tooling-overview.md` hat noch ~15 `scripts/`-Referenzen (offen).
+
+*   **Quelle:** `rg`-Sweep über Root-Guides, `git check-ignore -v build/import.sql` (gitignored, wegwerfbar), Live-Testlauf `log_session.js` nach Fix.
+
+*   **Status:** Aktiviert — Fitness Gate Pre- und Post-Build je 100%.
+
+*   **Offener Punkt:** `docs/30-meta/tooling-overview.md` (Tool-Inventar, verlinkt aus repository.yaml) nennt noch durchgängig `scripts/start.ps1` und `build/LLM_CONTEXT.md` — Korrektur ausstehend. opencode-Restart für Config/Skills/Commands ausstehend.
+
+---
+
+### 2026-09-09 – docs/90-policy/ aufgelöst (1-Datei-Ordner) + Anlagen-Toggle-Zwitter gekillt
+
+*   **Entscheidung:** (1) Der Ein-Datei-Ordner `docs/90-policy/` ist Geschichte: `HYBRID-SPEC-DRIVEN-WORKFLOW.md` zog nach `docs/30-meta/` (dort liegt Prozess-Doku ohnehin). Bewusst NICHT nach `00-foundation/` zurück — der frühere Umzug war dokumentierte Entscheidung („verlässt Fundament zur Wahrung des Gesetzescharakters", foundation_inventory.json), die Rückkehr hätte sie umgekehrt. Alle lebenden Referenzen aktualisiert: `repository.yaml` (90-policy-Subpath entfernt, 30-meta-Beschreibung erweitert), `docs/index.md` (Baum + Section 5), `docs/00-foundation/README.md` (3 Stellen), `CLAUDE.md`, Frontmatter-Tag `din-briefneo/policy` → `din-briefneo/meta`, Struktur-Keys in `foundation_inventory.json`. Historische Dokumente (FOUNDATION-RESTORATION-PLAN, memory_konsolidiert, OBSIDIAN-SETUP-GUIDE mit Vault-`_9`-Anker) blieben absichtlich unverändert. (2) Der Anlagen-Toggle-Zwitter (letzter offener JS-Kill-Restposten, review2_grok.md §4.2) ist gekillt: sr-only-Checkbox `#toggle-anlagen` + Button `#btn-anlagen-toggle` + aria-pressed-Sync-JS (main.js, ~17 Zeilen inkl. startViewTransition-Wrapper) entfernt — ersetzt durch natives `<input type="checkbox" switch>` im etablierten `sidebar-switch-row`-Muster (wie Hilfslinien/KI-Switch). Sichtbarkeit läuft unverändert rein über `:root:has(#toggle-anlagen:checked)`; das Label rendert nativ via CSS `::before content: attr(data-ui)`. Tote `.sidebar-addon-btn`-Regeln aus layout.css entfernt, ADR-HTML.md aktualisiert. (3) `tools/reconciliation.js`: View-Transitions-Nachweis von `main.js` auf `02-settings-manager.js` umgezogen (Feature lebt im Theme-Toggle weiter; der Gate-Check war auf die gelöschte Stelle festgenagelt).
+
+*   **Grund:** Mon explizite Vorgabe gegen 1-Datei-Ordner (Struktur-Hygiene). Anlagen-Fix: review2_grok hatte das Muster schon verbindlich skizziert — ein Switch, CSS macht den Rest; der Button-JS-Sync war gegen das eigene Phase-2-Konsistenzversprechen. ViewTransition beim Anlagen-Toggle wurde bewusst fallengelassen: Der Guides-Switch (Phase-2-Kanon) nutzt ebenfalls keinen VT-Wrapper — Konsistenz schlägt Einzel-Nice-to-have.
+
+*   **Quelle:** `rg`-Sweep `90-policy`/`HYBRID-SPEC`/`btn-anlagen-toggle`/`sidebar-addon-btn` über Repo (0 verbliebene lebende Treffer), `website/index.html:94-110`, `website/js/main.js:129-145`, `website/css/layout.css:653-670`, `website/css/floating.css:413` (natives data-ui-Rendering — kein JS-Dictionary nötig), review2_grok.md §4.2, tools/reconciliation.js:133.
+
+*   **Status:** Aktiviert — Fitness Gate Post-Build je 100 % (bei beiden Änderungen; beim Anlagen-Fix zwischenzeitlich 96,43 % durch Gate-Pointer, nach Korrektur 100 %).
+
+*   **Offener Punkt:** JS-Kill-Verbleib: nur noch Kosmetik laut review2_grok §4.5 (Toast-Interna `class="hidden"`) und Phase-3-Hebel Format-Toolbar-Positionierung → CSS Anchor Positioning. OBSIDIAN-SETUP-GUIDE führt den Vault-Anker `_9` (90-policy-Spiegel) — Obsidian-Vault-Anpassung ist separat zu prüfen. opencode-Restart für Config/Skills/Commands weiterhin ausstehend.
+
+---
+
+### 2026-09-09 – Toast-Interna: `hidden`-Klasse entfernt (Badge/Action waren faktisch tot)
+
+*   **Entscheidung:** `hidden`-Klasse von `#toast-badge` und `#toast-action` in `website/index.html:255-256` entfernt (Restposten aus review2_grok.md §4.5, dort als „Kosmetik" gelistet). Kein weiterer Code nötig: Die Sichtbarkeit läuft vollständig über die bestehende CSS-`:empty`-Regel (`floating.css:57`) — `textContent` leer → `:empty` → `display:none`, Inhalt gesetzt → sichtbar. Die `hidden`-Utility-Klasse in `layout.css:797` bleibt (nutzt `addons/ai-assistant.js` für den Rewrite-Button).
+
+*   **Grund:** Fund war schärfer als „Kosmetik": `32-toast.js` toggelt niemals `classList`, also hing `hidden` dauerhaft an beiden Elementen, und `.hidden { display:none !important }` schlug die `.toast-badge { display: inline-flex }`-Regel — das x2/x3-Dedupe-Badge und der Undo-Button waren faktisch unsichtbar. Der Fix ist zugleich popover-konsistent: Toast-Sichtbarkeit ist jetzt 100 % contentgetrieben über CSS, 0 JS-Sichtbarkeits-Toggles.
+
+*   **Quelle:** `rg classList website/js/32-toast.js` (0 Treffer), `rg "\.hidden" website/css/`, `website/index.html:253-257`, `website/css/floating.css:57-88`, review2_grok.md §4.5.
+
+*   **Status:** Aktiviert — Fitness Gate Post-Build 100 %, Session via `log_session.js` protokolliert.
+
+*   **Offener Punkt:** Verbleibende JS-Kill-Kandidaten laut review2_grok.md: nur noch §4.4 (Format-Toolbar positioniert per JS → CSS Anchor Positioning, Phase 3). Postvermerk-Drei-Schreiber (§4.3) ist UX-Konsolidierung, kein JS-Kill.
+
+---
+
+## 2026-09-09 — Kleindateien-Bereinigung: Intl statt Monatstabelle, .br-Datenlader statt Inline-Wörterbuch
+
+**Entscheidung:**
+1. `47-date-format.js`: MONTHS-Array + padStart ersetzt durch `Intl.DateTimeFormat('de-DE', { day:'numeric', month:'long', year:'numeric' }).format(Temporal.Now.zonedDateTimeISO(...))`. Neben-Bug gefixt: Code lieferte „04. September" (padStart), ADR-JS-Beispiel und HTML-Placeholder verlangen „4. September 2026" (ohne führende Null).
+2. `41-salutation-engine.js`: Verwaistes `data/de_vornamen_gender.json.br` (2,6 KB) verdrahtet statt Inline-Sets (951 Namen). Load via `fetch` + `DecompressionStream('brotli')` nach 45-Muster, file://-Guard, graceful Degradation → neutrale Anrede. Datei 415 → 330 Zeilen.
+
+**Grund:** Handgepflegte Wörterbücher (Monate, Vornamen) sind redundant zu Platform-ICU bzw. zum existing Build-Artefakt in `research/research_results/n_gender.json.br` → `website/data/`. Beides verletzte auf je eine Art „Single Source of Truth": der Code widersprach dem ADR-Format, die `.br`-Datei war tot (Embedding hatte ROADMAP Step 2 ersetzt, ohne die Datei zu löschen oder zu nutzen).
+
+**Quelle:** Context7 (Temporal-Spec / temporal-polyfill-Doku): `Intl.DateTimeFormat.format()` akzeptiert Temporal-Instanzen nativ → kein manualer Monatsindex nötig. research/README.md, docs/30-meta/ROADMAP.md (Namens-Dataset-Provenienz).
+
+**Status:** Umgesetzt (Fitness Gate 100 %).
+
+**Offener Punkt:** ADR-JS-Typdef kennt Intl-Temporal-Overloads nicht → lokaler `/** @type {any} */`-Cast (Codebase-Konvention aus 45). Nachfassen, wenn TS-Libs Temporal-Intl-Overloads ausrollen. Kleindateien-Merges (44→45, 51+52→51) weiterhin offen, warten auf Freigabe.
+
+---
+
+## 2026-09-09 — Chrome-Release-Notes-Scan 142–151: Temporal nativ stable, text-fit/page-margin-safety für Druck-Workflow
+
+**Entscheidung:**
+1. Vollständiger Scan der letzten 10 Chrome-Stable-Versionen (142–151, `developer.chrome.com/release-notes/<VERSION>`); Quelle `https://developer.chrome.com/release-notes/151` + Scan-Ergebnisse in `docs/30-meta/web-standards-tracking.md` §1/§4 dokumentiert (Versions-Tabelle mit Projekt-Mapping + Kernerkenntnisse).
+2. Scan lieferte **kein Breaking-Change** für bestehende Patterns; Top-Fund-Kandidaten für künftige PoCs: `Temporal` nativ stable (144, erfüllt den `new Date()`-Ban nativ), `text-fit` (150, stable — kann Layout-Text-Fit-JS-Kandidat ersetzen), `page-margin-safety` (150 — Druckrand-Handling für print.css), `contrast-color()` (147), `Focusgroup` (146 OT/150, JS-Kill für Tastatur-Navigation), `meta name="text-scale"` (146).
+
+**Grund:** Contract-gemäßer Basis-Scan auf neue CSS/native Features (§4 AGENTS.md-Geist: native Lösung vor JS); `webfetch` der Release-Notes 142–151 inkl. ICU-77-Warnung (143) für 47-date-format.js — Intl-Formate sind datengetrieben, keine hartcodierten Format-Annahmen. 152/153 existieren bereits als Beta/Preview (Vorgriff dokumentiert).
+
+**Quelle:** developer.chrome.com Release Notes 142–151 (alle 10 Versionen am 2026-09-09 abgerufen), Context7-Quellen-Format aus web-standards-tracking §1.
+
+**Status:** Umgesetzt — Fitness Gate Post-Build 100 %, Session via `log_session.js` protokolliert.
+
+**Offener Punkt:** `text-fit` und `page-margin-safety` sind PoC-Kandidaten (isolierter PoC in scratch/, dann ADR-CSS-Update) — nächster Scan-Termin: Chrome 152/153 Stable. Generalisierbarkeit: Scan-Format (Release-Notes-Tabelle + Projekt-Mapping) übertragbar in `llm_boilerplate` als Standard-Recherche-Ritual.
+
+---
+
+## 2026-09-09 — PoCs text-fit/page-margin-safety (Chrome 150+): `contain` ist ungültig, `shrink` ist der Fix
+
+**Entscheidung:**
+1. PoC in Helium (Chrome/151.0.7922.137) via CDP: `scratch/test-text-fit.html` (CSSOM-Validität + Skalierungsverhalten), `scratch/test-page-margin-safety.html` (Descriptor-Parsing über `CSSPageRule`), Auswerter `scratch/cdp-eval.js`. `jsconfig.json` schließt `scratch/` vom App-Typecheck aus (isoliertes PoC-Gerüst, kein Produktionscode).
+2. Befund `text-fit`: `contain` wird in Chrome 150+ **verworfen** — die Spec-Grammatik (css-text-5) kennt `[none|grow|shrink] [consistent|per-line|per-line-all]? <percentage>?`, kein `contain`. Damit waren 3 Deklarationen in `layout.css` (#absender Z. 337, #betreff Z. 393, `.single-line` Z. 769) tot. Fix: `contain` → `shrink` (identische Zielwirkung: Text in Box skaliert). Live-Verifikation über die App: alle drei Regeln rechnen `shrink`. `shrink 60%` (Z. 790, 6-Elemente-Block) ist gültig und bleibt unverändert.
+3. Befund `page-margin-safety`: Descriptor parst (`none`/`clamp`/`add` gültig, Garbage verworfen, `@page :first` ok). Semantik: `clamp` = max(Wert, `<safe-printable-inset>`), `add` = Wert + Inset, nur an Blatträndern. → Integration in `print.css` (DIN-5008-Druck) folgt im Layout-Split-Batch.
+
+**Grund:** PoC vor Adoption (AGENTS.md-Geist: Verifikation vor Produktionsnutzung, Context7/Specs haben Vorrang vor Annahmen). MDN dokumentiert beide Features noch nicht — Validierung lief über Editor's Drafts (css-text-5, css-page-3) + realer Chrome-151-CSSOM-Prüfung statt veraltetem Wissen.
+
+**Quelle:** `scratch/test-text-fit.html` + `scratch/test-page-margin-safety.html` (Helium CDP 9222), Spec-Auszüge css-text-5 `#text-fit-property` / css-page-3 `#page-margin-safety` (Editor's Drafts, Juni/März 2026), Ergebnisse in web-standards-tracking §4 (PoC-Ergebnisse-Sektion).
+
+**Status:** Umgesetzt — Fitness Gate 100 % (vorher 99,84 % wegen scratch-Typecheck, via jsconfig-Exclude gelöst), Session geloggt.
+
+**Offener Punkt:** `page-margin-safety`-Integration in `print.css` (Kandidat: `@page { page-margin-safety: clamp; }` als Absicherung der 25/20/30mm-Ränder gegen unbedruckbare Zonen). Generalisierbarkeit: PoC-Harness-Muster (isolierte HTML-Testdateien + CDP-Auswerter statt Framework-Testsuite) übertragbar in `llm_boilerplate` als Standard-Verifikationsritual für proprietäre/stabile Features ohne MDN-Doku.
+
+---
+
+## 2026-09-09 — Dark-Mode-Fix: DIN-A4-Blatt bleibt immer weiss (User-Bugfix)
+
+**Entscheidung:** `--c-paper-night` von `oklch(0.18 0.02 260)` (nachtschwarzes Sheet) auf `oklch(0.94 0.008 260)` (gedimmtes Weiss) gesetzt; `--c-ink-night` → `oklch(0.13 0.01 260)` (dunkle Tinte), `--c-ghost-night` → `oklch(0.45 0.01 260)`. Das Blatt ist physisches DIN-5008-Papier und muss in beiden Themes hell sein — oklch erlaubt das feine Runterdimmen (L 94 % statt 100 %) gegen Blendung.
+
+**Grund:** (1) UX: Ein schwarzes Briefblatt widerspricht der Papier-Metapher. (2) Print-Bug als Nebenfund: `light-dark()` hätte im dunklen Theme auch dunkel gedruckt (`print.css` erzwang nur `body`-weiss, nicht das Sheet). Der Fix behebt beides mit einem Satz Variablen.
+
+**Quelle:** User-Fehlerbericht ("nachtschwarz"), Live-Verifikation in Helium/Chrome 151 (Dark via `din_settings`-localStorage, Hard-Reload `ignoreCache`): `din-a4` rechnet `oklch(0.94 0.008 260)` / Ink `oklch(0.13 0.01 260)`. Bereitgestellt in `variables.css` (Z. 46-51).
+
+**Status:** Umgesetzt — Fitness Gate 100 %, Session geloggt.
+
+**Offener Punkt:** Der eingebaute Theme-Dimmer (`--theme-dim`, settings `themeDim`) dimmt separat — Prüfen, ob Dimmer-Effekt + neues Paper-Weiss harmonieren (UI-Test im Full-Batch). Generalisierbarkeit: Regel "Surface, die physisches Papier repräsentiert, wechselt nicht das Theme" übertragbar in `llm_boilerplate`.
+
+---
+
+## 2026-09-10 — Format-Toolbar Phase-3-Finalisierung + Temporal/Intl-Bugfix (Init-Kette war halb tot)
+
+**Entscheidung:**
+1. **Rest-Cleanup Format-Toolbar** (Popover/Anchor-Positioning war aus Vorgänger-Session zu ~85 % nativ): Verdecktes Relay-Div `#format-command-target` gelöscht — `#format-toolbar` selbst ist jetzt Command-Target (`commandfor="format-toolbar"`, Invoker Commands M135 dispatcht das `CommandEvent` direkt auf den Popover). `31-format-toolbar.js`: Command-Listener an der Toolbar statt am Geister-Div, Button-Lookup in `#commandButtons`-Map gecacht (statt 4× `querySelector` pro selectionchange). CSS-Seite (floating.css) mit Phase-3-Kommentar dokumentiert.
+2. **Kritischer Nebenfund beim Live-Test**: Die App-Init-Kette starb bereits vor `applyLetterDate` — `47-date-format.js:9` warf `TypeError: Invalid argument for Temporal` (Chrome 151: `Intl.DateTimeFormat.format()` akzeptiert **kein** `Temporal.ZonedDateTime`), und die unbehandelte Exception im DOMContentLoaded-Handler riss UIProtections, SettingsManager, Autosave und FormatToolbar mit ab (`#datum` leer, kein Draft-Save). **Fix: `letterDateFmt.format(zdt.toPlainDate())`** (+ `@type {any}`-Cast für Intl-Typings). Empirisch verifiziert in Chrome 151: `ZonedDateTime` → ERR, `PlainDate`/`PlainDateTime`/`Instant` → ok.
+3. **Live-Test-Batterie (CDP/Helium, bestanden)**: selectionchange → Anker-Positionierung + `showPopover()` ✓; Button-Click → `CommandEvent` auf Toolbar → Bold- und Quote-Wrap ✓ (`<b>…</b>`, `<blockquote>…</blockquote>`); `aria-pressed`-Sync läuft; Collapse → `hidePopover()` ✓; Hard-Reload ohne Uncaught-Errors.
+
+**Grund:** Native Mechanik vor JS-Restanten (§2 Surgical/KISS); der Bugfix folgt aus der Verifikationspflicht — der Temporal-Fehler war nicht durch die Toolbar-Änderung verursacht (Crash-Punkt lag davor), sondern seit der Option-A-Umstellung latent. Error-Capture via CDP (`Runtime.exceptionThrown`) statt Raten.
+
+**Quelle:** Empirische Chrome-151-Prüfung über `scratch/cdp-eval.js` + `/tmp/opencode/cdp-errors.js` (Helium CDP 9222). Context7: keine Doku zur Temporal↔Intl-Integration verfügbar; Verifikation daher im Zielbrowser. MDN-Web-API-Scan gegen den JS-Bestand: Broadcast Channel (Multi-Tab-Draft-Sync), CloseWatcher, View Transition (Theme-Wechsel), CSS Font Loading/Local Font Access (Font-Injection) als künftige Kandidaten; CSS Custom Highlight API für `din-comment` verworfen (Persistenz/Print brauchen echte DOM-Knoten).
+
+**Status:** Umgesetzt — Fitness Gate 100 % (vorher 99,84 % durch Intl-TS-Typing, via Cast gelöst), Session geloggt.
+
+**Offener Punkt:** (1) `DecompressionStream('brotli')` wird von Helium/Chrome 151 nicht unterstützt (Warnung in `45-address-intelligence.js`, gefangen) — Fallback prüfen. (2) Toast-Countdown als CSS-Animation mit `animation-play-state: paused` bei `:hover` + `animationend`-Close (ersetzt JS-Pause/Resume-Timer) — Plan im nächsten Batch. Generalisierbarkeit: "Popover als eigener Command-Target"-Pattern + Temporal-Intl-Falle (`toPlainDate()` vor `Intl.format`) übertragbar in `llm_boilerplate`.
+
+---
+
+## 2026-09-10 — Native-API-Batch: FontFace-Injection, CloseWatcher-Toasts, View-Transition-Verifizierung + brotli→gzip-Datenmigration
+
+**Entscheidung:**
+1. **CSS Font Loading API statt `<style>`-Injection** (`02-settings-manager.js`): `injectFont()` ist jetzt async und baut einen `FontFace('AptosCustom', url(base64))`, lädt via `await face.load()` (Reject → Warn-Toast `FONT_FORMAT_ERROR` + Status-Reset), ersetzt die alte Face via `document.fonts.delete()` → `add()`. Reset-Handler entlädt die Face nativ statt `#din-custom-font-style`-String zu entfernen. Kein Style-Element mehr — Live verifiziert: valides TTF (fontTools-Subset) lädt, korruptes Base64 wirft Reject + Error-Toast, Delete/Reset räumt auf.
+2. **Native `CloseWatcher` für Toast-Esc-Dismiss** (`32-toast.js`): `armCloseWatcher()`/`destroyCloseWatcher()`; `close`-Event ruft `clearTimer()` + `cleanupPopover()` — funktioniert auch für Sticky-Toasts ohne keydown-Handler. Live-Verifiziert mit **trusted** Esc-Events via CDP `Input.dispatchKeyEvent` (programmatische KeyboardEvents feuern CloseWatcher nicht!): Popover zu, `state.active=false`, `closer=null` → unser Cleanup-Pfad lief. Kein Fallback nötig (Feature-Detect-Guard drin).
+3. **View Transition für Theme-Wechsel verifiziert statt neu gebaut**: War schon implementiert (`startViewTransition` + 2s-Crossfade-CSS). Zwei Nebenbugs dabei gefunden und gefixt: (a) Theme-Toggle feuerte `applyTheme(next)` UND `updateSettings()` → **zwei** Transitions pro Klick — jetzt nur noch `settings.theme = next; updateSettings();`; (b) `transition.finished` rejected bei abgebrochener Transition (`InvalidStateError`, Unhandled-Rejection-Spam) — jetzt `.catch(() => {})`.
+4. **brotli→gzip-Datenmigration**: `DecompressionStream('brotli')` ist in Chrome **4–154 unshipped** (nur Firefox 147+, caniuse + Live-Test) — die Offline-PLZ/Großkunden/Gender-Datasets waren auf der Primärplattform tot. Alle 3 `.br`-Dateien + beide Embedded-Base64-Blobs (`plz-embedded.js`) via node `zlib.brotliDecompressSync` → `gzipSync(level 9)` konvertiert (Großenpreis: +15–21 %, z. B. 71,9→87,2 KB), Konstanten umbenannt (`PLZ_DATA_GZIP_B64`), 4 DecompressionStream-Sites + Fetch-Pfade auf `'gzip'`/`.gz` umgestellt (Bonus: die `@type {any}`-Casts fielen weg, `gzip` ist getypt). `.br`-Dateien gelöscht. Live verifiziert: Kein Init-Fehler mehr, PLZ-Suche (10115→Berlin, 187 City→PLZ-Treffer), Großkunde (10026→N26 AG), Zero-Click-Gender („Moritz Weber"→Herr, „Angelika Schmitt"→Frau).
+5. **Ambient-Typen**: `website/js/webapi.d.ts` deklariert `CloseWatcher` für ts-check (lib ES2022/DOM kennt sie noch nicht).
+
+**Grund:** Native APIs vor JS-Hacks (KISS); Streams-brotli ≠ HTTP-brotli (Content-Encoding seit Chrome 50) — der Verwechslungsfalle aufgesessen, erst der caniuse-Eintrag für die Streams-API klärte es. Test-Artefakte gelernt: (a) Hidden Tabs drosseln Timer/Task-Scheduling → Async-Evals timeouten scheinbar (`Page.bringToFront` vor Tests); (b) `document.fonts.check('12px NonExistentFamily')` returns `true` (Chrome-Quirk bei leerer Familie) — Faces via `[...document.fonts]` iterieren statt `check()`.
+
+**Quelle:** Live-Verifikation über `scratch/cdp-eval.js` (+ neuer `awaitPromise: true` im Harness), `/tmp/opencode/cdp-errors.js`, `/tmp/opencode/cdp-key.js` (trusted Esc) — Helium Chrome 151, CDP 9222. caniuse `mdn-api_decompressionstream_decompressionstream_brotli`; MDN FontFace (via Context7 `/mdn/content`). Migrations-Skript: `/tmp/opencode/brotli2gzip.js` (One-off; falls Datensätze je regeneriert werden, gzip-Format beibehalten).
+
+**Status:** Umgesetzt — Fitness Gate 100 %, alle Live-Tests bestanden.
+
+**Offener Punkt:** (1) Toast-Countdown als CSS-Animation (siehe voriger Eintrag) — Plan unverändert. (2) Datengröße +15 % akzeptiert für Universal-Support; falls jemals brotli in Streams shipt, ist der Revert-Dokumentationspfad hier. Generalisierbarkeit: „Streams-API-Feature-Support ≠ HTTP-Content-Encoding-Support separat prüfen" + „check() auf unbekannte Familie ist true — direkt über FontFaceSet iterieren" übertragbar in `llm_boilerplate`.
+
+## 2026-09-10 — Baseline-Verifizierung + Form-A/B-Animation-Fix + CSS-Context-Split (8 Dateien)
+
+**Entscheidung:**
+1. **`:active-view-transition` ersetzt JS-Klassen-Workaround** (Baseline 01/2026): Die 2s-Theme-Crossfade-Klasse `html.theme-transition` (JS `classList.add/remove` + `finished.finally().catch()`) ist jetzt `html:active-view-transition::view-transition-*` — rein CSS, drei JS-Zeilen + Rejection-Handling weg.
+2. **Form-A/B-Klick löste fälschlich die 2s-Root-Transition aus**: `applySettings()` ruft bei jedem Settings-Update `applyTheme()` — das feuerte blind `startViewTransition()`, auch ohne Theme-Änderung. Fix: Guard `themeUnchanged` (data-theme-Vergleich) in `applyTheme()` + `changeLayout()` als eigener Pfad mit **element-scoped VT nur auf `din-a4`** (~0,25s statt 2s). Live verifiziert: Form-A-Klick → `rootCalls: 0, sheetCalls: 1`, `--fold-1-y` schaltet korrekt.
+3. **`contrast-color()` für Inline-Feedback-Badges** (Baseline 04/2026, api.webstatus.dev: low_date 2026-04-10): `floating.css` `.input-feedback-msg` — manuelle Textfarben (`oklch(100% 0 0)` auf danger, `oklch(15%...)` auf warning) durch `contrast-color(var(--c-*))` ersetzt.
+4. **Element-scoped VT auf Font-Status-Chip + PLZ-Trefferliste** (`02-settings-manager.js`/`45-address-intelligence.js`): Feature-Detect `typeof el.startViewTransition === 'function'` + Reduced-Motion-Guard + Fallback plain update; `popoverEl.startViewTransition(render)` um `replaceChildren`.
+5. **CSS-Context-Split**: `layout.css` 861→368 Zeilen; Sektionen zu **`sidebar.css`** (385 Z.: Sidebar, Custom Inputs, Autocomplete, Comment-Format, Utilities, Adressbuch/Geoapify/Guides) und **`signature.css`** (111 Z.: UI-States + WYSIWYG-Editor) ausgegliedert. Reine Verschiebung ohne Selektoränderung; Link-Reihenfolge in index.html = alte Source-Order. Zielkorridor ~300-400 Zeilen/Datei (Kontextkosten pro Lesedurchgang). ADR-CSS §3 auf 8 Dateien aktualisiert.
+6. **sibling-count()-Trap (Empirie schlägt Baseline-Datum)**: api.webstatus.dev meldet `sibling-count()` als „newly" 2026-08-18 — aber `CSS.supports('width','sibling-count()')` ist in Chrome 151 `false` (low_date = letzte der 3 Engines, Chrome fehlt noch). Umsetzung wurde live getestet, Pill-Width brach (0px) → sofort revertiert; die 4 toten Button-Varianten-Regeln blieben draußen.
+7. **Baseline-Quellen maschinenlesbar aufgenommen** (ROADMAP → Verweise): `api.webstatus.dev/v1/features` (Query-DSL `baseline_status:newly`, `low_date`/`high_date`), OpenAPI-Spec (GoogleChrome/webstatus.dev), npm `web-features`, Community-MCP-Server (jlacher/Technickel-Dev/yamanoku) + Chrome-Labs-Beispiel. Bewertung: MCP-Server für dieses Projekt nicht nötig — API ist per curl abfragbar; sinnvoller wäre später ein Fitness-Gate-Probe.
+
+**Grund:** Kontextkosten pro Lesedurchgang sind der treibende Faktor (KI-Agenten + Wartung): Zielfenster ~300-400 Zeilen pro CSS-Datei, Ausreißer splitten an Single-Responsibility-Schnitten. Baseline-Daten DIREKT aus der maschinenlesbaren Quelle verifizieren statt Blog-Digesten vertrauen — `newly`-Datum ≠ Chrome-Support (Punkt 6).
+
+**Quelle:** api.webstatus.dev/v1/features (live gequeried: contrast-color 04/2026, sibling-count 08/2026, field-sizing 06/2026, :active-view-transition 01/2026, @function **limited**!), web.dev/articles/web-platform-dashboard-baseline, Context7 `/websites/modern-css` (@function: Chrome 139+, nicht Baseline; contrast-color-Beispiele). Live-Tests: cdp-eval/cdp-errors (Chrome 151), Fitness Gate 100 %, alle Regressionen grün (Pills 111,5/74,3px, sig-box grab, din-anlagen none, base-select, 8 Stylesheets geladen, KEINE FEHLER).
+
+**Status:** Umgesetzt — Fitness Gate 100 %.
+
+**Offener Punkt:** (1) `@function` (Chrome 139+, webstatus: **limited**) als Kandidat für das 28× `calc(X / var(--din-width) * 100cqh)`-Dedup in sheet.css — fällt durch den Baseline-Filter, nur mit ADR/Decision umsetzen. (2) sibling-count() nach Chrome-Shipping erneut prüfen (Probe ins Gate denkbar). (3) `:open`/Container style queries bleiben Backlog (kein aktueller Use-Case). Generalisierbarkeit: „Baseline-low_date = letzte Engine, nicht Chrome; immer `CSS.supports()`-Empirie gegen die eigene Mindestversion" + „Datei-Zielkorridor als Kontextkosten-Metrik" übertragbar in `llm_boilerplate`.
+
+---
+
+## 2026-09-10 — Session-Batch: VT-Abort-Fix, Toast-Policy, Chrome 150+-Baseline, Zero-Inline-JS
+
+**Agent:** opencode-glm
+**ADR-Betroffen:** [[ADR-CSS]], [[ADR-JS]]
+
+### 1. `InvalidStateError` an allen `startViewTransition`-Sites abgefangen
+Aborts der VT-Promises (z. B. durch Mid-Flight-Navigation/Reload) erzeugten „Uncaught (in promise)"-Exceptions. Fix: `.finished.catch(() => {})` an allen 4 Sites (02-settings-manager.js ×3, 45-address-intelligence.js ×1). Ursachenanalyse: 3 VTs feuerten beim Boot (Root, Font-Chip, PLZ-Popover) — Boot-VTs crossfaden ins Leere und wurden beim Reload abortet.
+**Fix 2 (Root Cause):** Boot-VTs unterdrückt statt nur gefangen — Root-VT via `#themeBooted`-Flag (erstes `applyTheme` ist Initial-Apply, kein Crossfade), Chip-/Popover-VT via bestehende `isReady`-Guards. Live verifiziert: 0 EXC bei Navigate+Reload (cdp-vt-trace.js), echte Theme-/Form-Wechsel animieren weiterhin korrekt (root VT ×1 bei Toggle, sheet VT ×1 bei Formwechsel, root VT 0).
+
+### 2. Toast-Policy: nur Fehler, Warnungen, fehlende User-Guidance
+Theme-Toast („Darstellung: …" incl. toastNames-Map), PRINT_PENDING, FONT_UPLOAD_SUCCESS, „Eigene Schrift entfernt", „Theme-Werte kopiert", KI-aktiviert/-deaktiviert/-Progress/„erfolgreich formalisiert" entfernt. 11 Call-Sites verbleiben (3 ai-assistant Guidance, 6 settings Errors, 2 salutation nur bei `blur`). Tote Constants (PROFILE_SAVED, DRAFT_SAVED, PAGE_ADDED, RESET_SUCCESS, ADDRESS_SUCCESS, INTL_MODE_ON, PAGE_LIMIT_REACHED + ZIP_INVALID, RECIPIENT_LIMIT, SUBJECT_LIMIT, PAGE_OVERFLOW, ADDRESS_ERROR) aus `51-storage.js` gelöscht; toter CSS-Block `.input-feedback-msg` (34 Z., floating.css) entfernt. Live: Theme-Toggle → kein Toast (toast-v4 bleibt geschlossen).
+
+### 3. Browser-Baseline auf Chrome 150+ spezialisiert (User-Entscheid)
+Keine Multi-Browser-Matrix, kein `baseline-browser-mapping` (npm-Paket abgelehnt). Single Source of Truth: `docs/00-foundation/longevity-guidelines.md` („Einzige projektweite Baseline: Chrome 150+" + Chrome-only-Klausel). Mirrors aktualisiert: Immutable-Law-Catalog.md, AGENTS.md, constitution.md, README (Foundation). Konsequenz: Chrome-only-Features (z. B. `@function`, 139+) sind ab 150 prinzipiell im Baseline-Fenster; Empirie bleibt per `CSS.supports()`-Live-Test (sibling-count-Lesson bleibt bindend).
+
+### 4. Zero-Inline-CSS/JS durchgesetzt — HTML ist jetzt script-src-only
+Audit-Fund: 2 Inline-`<script>`-Blöcke in index.html (Z. 27 FOUC-Theme/Font-Boot, Z. 271 Draft/Radio/Theme/PV-Restore, ~86 Z.). Extrahiert in `js/boot-theme.js` (head, blockierend — Module sind deferred und kämen zu spät) und `js/boot-state.js` (Ende body, blockierend an Parse-Position — Draft-Restore muss VOR den ES-Modules laufen). Code 1:1 übernommen (surgical), JSDoc-Types ergänzt (Gate-Forderung). `style.setProperty('--var', …)`-Writes (02-settings `--theme-dim`, 42-signature `--x/--y/--scale/--rot`, 31-format-toolbar `--sel-x/--sel-y`) bleiben: etabliertes Pattern „JS feedet Daten, CSS konsumiert".
+**Fix im selben Zug (Inline-CSS-Ausräumung):** ai-assistant.js 4× `style.display` → `classList.toggle('hidden')` (`.hidden { display:none !important; }`); Phantomklasse `.opacity-50` (nirgends definiert!) → CSS `sidebar.css`: `.sidebar-switch-row:has(input:disabled) { opacity: 0.5; }`; 02-settings 2× `style.colorScheme` gelöscht (variables.css hat komplette `[data-theme]`-color-scheme-Regeln); 31-format-toolbar `style.top/left` → `--sel-y/--sel-x` Custom Props + `#selection-anchor { top: var(--sel-y, auto); left: var(--sel-x, auto); }`.
+
+### Verifikation
+Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei Load, Theme-Toggle → root VT ×1 + kein Toast, Form A/B → sheet VT ×1 + root VT 0, Selektion → `--sel-x/--sel-y` gesetzt + Toolbar `:popover-open` (Anchor-Positioning via CSS), Draft-Restore (121 Z. Brieftext), Radio-Sync (layout form-a), `din-custom-font-style` nur bei gespeicherter Font, 4 externe Scripts, 0 inline.
+
+**Generalisierbarkeit (llm_boilerplate):** (1) „Boot-VTs unterdrücken (isReady-Flag), nicht nur `.finished.catch`" — jedes VT-Feature braucht einen Boot-Guard. (2) „FOUC-/Restore-Boot-Code als externe blockierende Classic-Scripts statt Inline" — Zero-Inline-Policy kompatibel mit Timing-Anforderungen. (3) `:has(input:disabled)` statt JS-Styling-Opacity. (4) Chrome-only-Spezialisierung als alternative Longevity-Strategie zur Multi-Browser-Matrix.
+
+**Quelle:** Context7 `/websites/modern-css` (View Transitions API: `.finished` Reject-Verhalten bei Abort); Live-Tests cdp-vt-trace.js/cdp-errors.js/cdp-eval.js (Chrome 151), Fitness Gate 100 %.
+
+**Status:** Umgesetzt — Fitness Gate 100 %.

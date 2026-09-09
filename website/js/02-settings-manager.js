@@ -1,9 +1,11 @@
 // @ts-check
-import { StorageManager } from './52-storage.js';
-import { Constants } from './51-constants.js';
+import { StorageManager, Constants } from './51-storage.js';
 import { showToast } from './32-toast.js';
 
 export class SettingsManager {
+  /** Erstes applyTheme ist der Initial-Apply — dort ist kein Crossfade sinnvoll. */
+  #themeBooted = false;
+
   constructor() {
     this.settings = StorageManager.loadSettings();
     this.shell = document.getElementById('app-shell');
@@ -19,6 +21,8 @@ export class SettingsManager {
     this.themeDimmer = document.getElementById('theme-dimmer');
     this.themeDimmerValue = document.getElementById('theme-dimmer-value');
     this.btnCopyThemeTokens = document.getElementById('btn-copy-theme-tokens');
+    /** @type {FontFace | null} */
+    this.activeFontFace = null;
     this.isReady = false;
   }
 
@@ -65,12 +69,6 @@ export class SettingsManager {
       if (document.body) {
         document.body.setAttribute('data-theme', active);
       }
-      const scheme = active === 'auto' ? 'light dark' : active;
-      document.documentElement.style.colorScheme = scheme;
-      if (document.body) {
-        document.body.style.colorScheme = scheme;
-      }
-
       const dim = active === 'dark' ? 1 : 0;
       this.applyThemeDim(dim);
 
@@ -95,16 +93,13 @@ export class SettingsManager {
     };
 
     // @ts-ignore
-    if (this.isReady && typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.documentElement.classList.add('theme-transition');
-      // @ts-ignore
-      const transition = document.startViewTransition(updateDOM);
-      transition.finished.finally(() => {
-        document.documentElement.classList.remove('theme-transition');
-      });
+    const themeUnchanged = document.documentElement.getAttribute('data-theme') === active && (!document.body || document.body.getAttribute('data-theme') === active);
+    if (!themeUnchanged && this.isReady && this.#themeBooted && typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.startViewTransition(updateDOM).finished.catch(() => {});
     } else {
       updateDOM();
     }
+    this.#themeBooted = true;
   }
 
   /**
@@ -122,43 +117,79 @@ export class SettingsManager {
     this.applySettings();
   }
 
+  /**
+   * Layout-Wechsel (Form A/B) mit element-scoped View Transition auf dem Blatt (~0,25s).
+   * @param {'form-a' | 'form-b'} layout
+   */
+  changeLayout(layout) {
+    this.settings.layout = layout;
+    const sheet = /** @type {HTMLElement | null} */ (document.querySelector('din-a4'));
+    // @ts-ignore Element-scoped View Transitions (Chrome 147+)
+    if (sheet && typeof sheet.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // @ts-ignore Element-scoped View Transitions (Chrome 147+)
+      sheet.startViewTransition(() => this.updateSettings()).finished.catch(() => {});
+    } else {
+      this.updateSettings();
+    }
+  }
+
   initFontInjection() {
     const savedFont = StorageManager.loadCustomFont();
     if (savedFont) {
       this.injectFont(savedFont);
-      this.updateFontStatusUI(true);
     } else {
       this.updateFontStatusUI(false);
     }
   }
 
   /**
+   * Native CSS Font Loading API: kein <style>-String, echtes Fehler-Handling
+   * (face.load() rejected bei kaputtem Font), sauberes Entladen via document.fonts.delete.
    * @param {string} base64Font
+   * @returns {Promise<void>}
    */
-  injectFont(base64Font) {
-    let fontStyle = document.getElementById('din-custom-font-style');
-    if (!fontStyle) {
-      fontStyle = document.createElement('style');
-      fontStyle.id = 'din-custom-font-style';
-      document.head.appendChild(fontStyle);
+  async injectFont(base64Font) {
+    const face = new FontFace('AptosCustom', `url(${base64Font})`);
+    try {
+      await face.load();
+    } catch (e) {
+      console.warn('[Settings] Custom font invalid:', e);
+      showToast(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+      this.updateFontStatusUI(false);
+      return;
     }
-    fontStyle.textContent = `@font-face { font-family: 'AptosCustom'; src: url('${base64Font}') format('woff2'); }`;
+    if (this.activeFontFace) {
+      document.fonts.delete(this.activeFontFace);
+    }
+    document.fonts.add(face);
+    this.activeFontFace = face;
+    this.updateFontStatusUI(true);
   }
 
   /**
    * @param {boolean} hasCustomFont
    */
   updateFontStatusUI(hasCustomFont) {
-    if (!this.fontStatusLabel) return;
-    const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
-    if (hasCustomFont) {
-      this.fontStatusLabel.textContent = "Aktiv: Eigene WOFF2 Schrift";
-      document.body.classList.add('font-custom-active');
-      if (btn) { btn.dataset.fontMode = 'reset'; btn.dataset.ui = '🗑️ Schrift zurücksetzen'; }
+    const chip = this.fontStatusLabel;
+    if (!chip) return;
+    const apply = () => {
+      const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
+      if (hasCustomFont) {
+        chip.textContent = "Aktiv: Eigene WOFF2 Schrift";
+        document.body.classList.add('font-custom-active');
+        if (btn) { btn.dataset.fontMode = 'reset'; btn.dataset.ui = '🗑️ Schrift zurücksetzen'; }
+      } else {
+        chip.textContent = "Aktiv: System-UI Standardschrift";
+        document.body.classList.remove('font-custom-active');
+        if (btn) { btn.dataset.fontMode = 'upload'; btn.dataset.ui = '📤 Schrift hochladen'; }
+      }
+    };
+    // @ts-ignore Element-scoped View Transitions (Chrome 147+): Chip-Wechsel nur lokal crossfaden
+    if (this.isReady && typeof chip.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // @ts-ignore
+      chip.startViewTransition(apply).finished.catch(() => {});
     } else {
-      this.fontStatusLabel.textContent = "Aktiv: System-UI Standardschrift";
-      document.body.classList.remove('font-custom-active');
-      if (btn) { btn.dataset.fontMode = 'upload'; btn.dataset.ui = '📤 Schrift hochladen'; }
+      apply();
     }
   }
 
@@ -166,15 +197,13 @@ export class SettingsManager {
     if (this.btnFormA) {
       this.btnFormA.addEventListener('change', () => {
         if (!this.isReady) return;
-        this.settings.layout = 'form-a';
-        this.updateSettings();
+        this.changeLayout('form-a');
       });
     }
     if (this.btnFormB) {
       this.btnFormB.addEventListener('change', () => {
         if (!this.isReady) return;
-        this.settings.layout = 'form-b';
-        this.updateSettings();
+        this.changeLayout('form-b');
       });
     }
 
@@ -185,11 +214,8 @@ export class SettingsManager {
         const cycle = { auto: 'light', light: 'dark', dark: 'auto' };
         const current = this.settings.theme || 'auto';
         const next = cycle[current] || 'auto';
-        this.applyTheme(next);
+        this.settings.theme = next;
         this.updateSettings();
-        /** @type {Record<string, string>} */
-        const toastNames = { auto: 'System (Automatisch)', light: 'Helles Design', dark: 'Dunkles Design' };
-        showToast(`Darstellung: ${toastNames[next] || next}`, 'info');
       });
     }
 
@@ -210,7 +236,6 @@ export class SettingsManager {
         const text = keys.map((k) => `${k}: ${cs.getPropertyValue(k).trim()};`).join('\n');
         try {
           await navigator.clipboard.writeText(text);
-          showToast('Theme-Werte kopiert', 'success');
         } catch {
           showToast('Kopieren nicht möglich', 'error');
         }
@@ -239,10 +264,11 @@ export class SettingsManager {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
         if (btn.dataset.fontMode === 'reset') {
           localStorage.removeItem("din_custom_font");
-          const fontStyle = document.getElementById('din-custom-font-style');
-          if (fontStyle) fontStyle.remove();
+          if (this.activeFontFace) {
+            document.fonts.delete(this.activeFontFace);
+            this.activeFontFace = null;
+          }
           this.updateFontStatusUI(false);
-          showToast("🗑️ Eigene Schriftart entfernt", "success");
         } else {
           /** @type {HTMLInputElement | null} */ (this.fontUploader)?.click();
         }
@@ -274,8 +300,6 @@ export class SettingsManager {
           const success = StorageManager.saveCustomFont(base64Font);
           if (success) {
             this.injectFont(base64Font);
-            this.updateFontStatusUI(true);
-            showToast(Constants.TOASTS.FONT_UPLOAD_SUCCESS, 'success');
           } else {
             showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
           }

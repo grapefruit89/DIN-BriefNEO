@@ -49,7 +49,9 @@ export class ToastSystem {
         /** @type {HTMLElement | null} */
         action: null,
         /** @type {HTMLElement | null} */
-        close: null
+        close: null,
+        /** @type {CloseWatcher | null} */
+        closer: null
       },
       active: false
     };
@@ -151,6 +153,7 @@ export class ToastSystem {
       if (!dom.global.matches(':popover-open')) {
         dom.global.showPopover();
       }
+      this.armCloseWatcher();
       this.startTimer(toast.current.duration, toast.current.options?.sticky);
     } catch (e) {
       console.warn('[Toast] Popover API failure:', e);
@@ -197,7 +200,30 @@ export class ToastSystem {
     }
   }
 
+  /**
+   * Native CloseWatcher: Esc (nur bei frischer User-Aktivierung) und Android-Zurück
+   * entladen den sichtbaren Toast — auch sticky. Kein eigener keydown-Handler nötig.
+   */
+  armCloseWatcher() {
+    this.destroyCloseWatcher();
+    if (typeof CloseWatcher === 'undefined') return;
+    const watcher = new CloseWatcher();
+    watcher.addEventListener('close', () => {
+      this.clearTimer();
+      this.cleanupPopover();
+    });
+    this.state.dom.closer = watcher;
+  }
+
+  destroyCloseWatcher() {
+    if (this.state.dom.closer) {
+      this.state.dom.closer.destroy();
+      this.state.dom.closer = null;
+    }
+  }
+
   cleanupPopover() {
+    this.destroyCloseWatcher();
     this.clearTimer();
     this.state.toast.current = null;
     const dom = this.state.dom;

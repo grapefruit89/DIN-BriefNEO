@@ -45,7 +45,7 @@ SPEC                  WAS die Anwendung leisten muss
     |
 LONGEVITY             Kriterien für langlebige Technik; einzige Baseline-Zahl
     |
-WORKFLOW / GUIDES     WIE wir arbeiten (Prozess, nicht Gesetz — siehe docs/90-policy/)
+WORKFLOW / GUIDES     WIE wir arbeiten (Prozess, nicht Gesetz — siehe docs/30-meta/)
 ```
 
 Konfliktregel: Eine untere Ebene darf eine obere nicht aufheben. Konkrete Millimeter, Feldlisten eines Briefes und Implementierungsrezepte gehören nicht in diese Ebene.
@@ -59,9 +59,9 @@ Die IMR-Registry liegt in `docs/10-architecture/`. Sie ist das normative DIN-Bri
 | [[constitution]] | Prinzipien | Kern-Gebote und -Verbote |
 | [[Immutable-Law-Catalog]] | Verbote / Plattform | HARD BAN, PREFERRED, FALLBACK |
 | [[spec]] | Anforderungen | WAS DIN-BriefNEO leisten muss |
-| [[longevity-guidelines]] | Technik-Kriterien | Feature-Wahl; **Chrome 148+** |
+| [[longevity-guidelines]] | Technik-Kriterien | Feature-Wahl; **Chrome 150+** |
 
-*Hinweis: Der Arbeitsprozess [[HYBRID-SPEC-DRIVEN-WORKFLOW]] (Light/Full Mode, Fitness Gate) liegt ordnungsgemäß auf Policy-Ebene in `docs/90-policy/`.*
+*Hinweis: Der Arbeitsprozess [[HYBRID-SPEC-DRIVEN-WORKFLOW]] (Light/Full Mode, Fitness Gate) liegt als Prozess-Guide in `docs/30-meta/`.*
 
 Historische Prüfberichte gehören nicht hierher. Der frühere `audit_summary` liegt unter `docs/30-meta/audits/`.
 
@@ -76,7 +76,7 @@ Die kanonische Atomliste und die belegten Millimeter stehen in `docs/10-architec
 ## Verhältnis zu anderen Bereichen
 
 - **`10-architecture/`** enthält die ADRs und die IMR-Registry — Modell und Begründung dessen, was aus diesen Gesetzen folgt.
-- **`90-policy/`** enthält Entwicklungs-Workflows und Prozess-Richtlinien (z. B. `HYBRID-SPEC-DRIVEN-WORKFLOW.md`).
+- **`30-meta/`** enthält Entwicklungs-Workflows und Prozess-Richtlinien (z. B. `HYBRID-SPEC-DRIVEN-WORKFLOW.md`).
 - **`docs/foundation_inventory.json`** führt die vollständige, maschinenlesbare W-Fragen-Inventur aller 4 Foundation-Dokumente.
 - **`AGENTS.md`** (Root) referenziert Foundation-Dokumente. Es kopiert sie nicht.
 

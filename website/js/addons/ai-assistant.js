@@ -58,7 +58,6 @@ export class AIAssistantAddon {
       // 4. Falls vom Nutzer aktiviert: Toolbar-Button einblenden
       if (this.enabled && this.rewriteBtn) {
         this.rewriteBtn.classList.remove('hidden');
-        this.rewriteBtn.style.display = 'inline-flex';
       }
 
       this._attachListeners();
@@ -115,12 +114,10 @@ export class AIAssistantAddon {
       const parent = this.toggleEl.closest('.sidebar-switch-row');
       if (parent) {
         parent.setAttribute('title', reason);
-        parent.classList.add('opacity-50');
       }
     }
     if (this.rewriteBtn) {
       this.rewriteBtn.classList.add('hidden');
-      this.rewriteBtn.style.display = 'none';
     }
   }
 
@@ -135,7 +132,6 @@ export class AIAssistantAddon {
       const parent = this.toggleEl.closest('.sidebar-switch-row');
       if (parent) {
         parent.setAttribute('title', `On-Device KI: ${statusText}`);
-        parent.classList.remove('opacity-50');
       }
     }
   }
@@ -150,15 +146,7 @@ export class AIAssistantAddon {
         } catch (err) {}
 
         if (this.rewriteBtn) {
-          if (this.enabled) {
-            this.rewriteBtn.classList.remove('hidden');
-            this.rewriteBtn.style.display = 'inline-flex';
-            showToast('✨ Lokale KI aktiviert (Gemini Nano)', 'success');
-          } else {
-            this.rewriteBtn.classList.add('hidden');
-            this.rewriteBtn.style.display = 'none';
-            showToast('Lokale KI deaktiviert', 'info');
-          }
+          this.rewriteBtn.classList.toggle('hidden', !this.enabled);
         }
       });
     }
@@ -184,7 +172,6 @@ export class AIAssistantAddon {
         return;
       }
 
-      showToast('✨ Formuliere Text förmlich um (Gemini Nano)...', 'info');
 
       // @ts-ignore
       if (!this.rewriterInstance && window.ai?.rewriter) {
@@ -201,7 +188,6 @@ export class AIAssistantAddon {
           const range = selection.getRangeAt(0);
           range.deleteContents();
           range.insertNode(document.createTextNode(rewritten));
-          showToast('✅ Text erfolgreich formalisiert', 'success');
 
           // Trigger input event for AutoSave
           const briefEl = document.getElementById(AI_CONFIG.brieftextId);

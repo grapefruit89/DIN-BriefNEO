@@ -1,3 +1,28 @@
+---
+id: chatgpt-review-prompt
+title: 'ChatGPT-Ist-Pruefungs-Prompt (Repo-Struktur/Agent-Infrastruktur)'
+type: meta
+status: archived
+created: '2026-09-04'
+updated: '2026-09-10'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/archived
+  - type/meta
+doc_links:
+  - repository.yaml
+  - tool-result-vocabulary
+code_links:
+  []
+error_patterns:
+  - chatgpt review
+  - repo struktur review
+  - ist-pruefung
+supersedes: []
+depends_on: []
+---
+
 Ich möchte, dass du das Repository https://github.com/grapefruit89/DIN-BriefNEO prüfst (Branch: main, aktueller Stand: Commit ae1384a).
 
 Kontext: Du hattest in einem früheren Gespräch mit mir ("Repo Struktur Refactoring") eine ausführliche Architektur-Diskussion geführt — Repo-Skelett, Agent Contract (repository.yaml als Source of Truth), kanonisches Tool-Result-Schema/Vokabular, Skill-Layer, dünner MCP-Server mit Plan→Execute→Verify, Risikoklassen (READ/WRITE/DESTRUCTIVE), Forschungs-Quellenpyramide. Diese Vorschläge wurden seitdem in zwei Umsetzungsläufen ("Lauf 1" und "Lauf 2") ganz oder teilweise gebaut.

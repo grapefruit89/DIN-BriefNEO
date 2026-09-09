@@ -5,11 +5,11 @@ export class FormatToolbar {
   #brieftext;
   /** @type {HTMLElement} */
   #toolbar;
-  /** @type {HTMLElement | null} */
-  #commandTarget;
   /** @type {(() => void) | null} */
   #onSaveDraft;
 
+  /** @type {Map<string, HTMLButtonElement>} */
+  #commandButtons = new Map();
   /** @type {HTMLElement | null} */
   #selectionAnchor;
   /** @type {number | null} */
@@ -24,16 +24,39 @@ export class FormatToolbar {
     this.#brieftext = brieftextEl;
     this.#toolbar = toolbarEl;
     this.#onSaveDraft = onSaveDraft;
-    
-    this.#commandTarget = /** @type {HTMLElement | null} */ (document.getElementById('format-command-target'));
+
     this.#selectionAnchor = /** @type {HTMLElement | null} */ (document.getElementById('selection-anchor'));
   }
 
   init() {
     if (!this.#brieftext || !this.#toolbar) return;
-    
+
+    /*
+     * Invoker Commands (M135): The toolbar itself is the command target.
+     * Buttons dispatch `command` events directly onto this popover —
+     * no hidden relay element is needed.
+     */
+    this.#toolbar.addEventListener('command', (event) => {
+      const commandEvent = /** @type {any} */ (event);
+      switch (commandEvent.command) {
+        case '--bold':
+          this.toggleFormat('B');
+          break;
+        case '--underline':
+          this.toggleFormat('U');
+          break;
+        case '--quote':
+          this.#toggleQuote();
+          break;
+        case '--comment':
+          this.toggleFormat('comment');
+          break;
+        default:
+          break;
+      }
+    });
+
     this.#initSelectionListener();
-    this.#initCommandListener();
     this.#initPasteSanitizer();
     this.#initDropHandler();
   }
@@ -130,8 +153,8 @@ export class FormatToolbar {
     const rect = range.getBoundingClientRect();
 
     if (this.#selectionAnchor) {
-      this.#selectionAnchor.style.top = `${rect.top}px`;
-      this.#selectionAnchor.style.left = `${rect.left}px`;
+      this.#selectionAnchor.style.setProperty('--sel-y', `${rect.top}px`);
+      this.#selectionAnchor.style.setProperty('--sel-x', `${rect.left}px`);
     }
 
     /*
@@ -180,37 +203,17 @@ export class FormatToolbar {
   // COMMAND BUS
   // ============================================================
 
-  #initCommandListener() {
-    if (!this.#commandTarget) return;
-
-    this.#commandTarget.addEventListener('command', (event) => {
-      const commandEvent = /** @type {any} */ (event);
-      switch (commandEvent.command) {
-        case '--bold':
-          this.toggleFormat('B');
-          break;
-        case '--underline':
-          this.toggleFormat('U');
-          break;
-        case '--quote':
-          this.#toggleQuote();
-          break;
-        case '--comment':
-          this.toggleFormat('comment');
-          break;
-        default:
-          break;
-      }
-    });
-  }
-
   /**
    * @param {string} command
    * @param {boolean} pressed
    */
   #setCommandState(command, pressed) {
-    const button = this.#toolbar.querySelector(`button[command="${command}"]`);
-    if (!button) return;
+    let button = this.#commandButtons.get(command);
+    if (!button) {
+      button = /** @type {HTMLButtonElement} */ (this.#toolbar.querySelector(`button[command="${command}"]`));
+      if (!button) return;
+      this.#commandButtons.set(command, button);
+    }
     button.setAttribute('aria-pressed', String(pressed));
   }
 

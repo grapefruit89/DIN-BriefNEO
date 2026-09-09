@@ -1,4 +1,31 @@
+---
+id: review-grok
+title: 'Externe Review: Grok-Audit website/ (2026-09-04)'
+type: review
+status: archived
+created: '2026-09-04'
+updated: '2026-09-10'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/archived
+  - type/review
+doc_links:
+  - ROADMAP
+  - DECISION-LOG
+code_links:
+  - website/index.html
+error_patterns:
+  - grok review
+  - externe review
+  - js-kill
+  - code review
+supersedes: []
+depends_on: []
+---
+
 # review_grok.md
+**Ort:** ~~Repository-Root~~ docs/30-meta/ (2026-09-10 aufgeraeumt)
 
 **Ort:** Repository-Root  
 **Stand:** 2026-09-04  

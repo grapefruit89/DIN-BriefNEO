@@ -116,11 +116,11 @@ const FEATURE_CHECKS = {
   },
   'CSS @scope': {
     regex: /@scope/g,
-    file: 'website/css/layout.css'
+    file: 'website/css/sheet.css'
   },
   'CSS field-sizing': {
     regex: /field-sizing/g,
-    file: 'website/css/layout.css'
+    file: 'website/css/sheet.css'
   },
   'CSS light-dark()': {
     regex: /light-dark\(/g,
@@ -132,7 +132,7 @@ const FEATURE_CHECKS = {
   },
   'View Transitions': {
     regex: /startViewTransition/g,
-    file: 'website/js/main.js'
+    file: 'website/js/02-settings-manager.js'
   }
 };
 

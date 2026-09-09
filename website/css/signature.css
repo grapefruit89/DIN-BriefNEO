@@ -1,0 +1,111 @@
+/* @adr [[ADR-CSS]]  */
+/* @guide [[glossary]]  */
+
+/* css/signature.css — Unterschrift: UI-States, Upload/Reset-Buttons, WYSIWYG-Editor (Drag/Scale/Rotate) */
+
+/* --- SIGNATURE UI STATES --- */
+
+
+#signature-image[src=""] { display: none !important; }
+
+/* Container is a zero-size overlay anchored at top-left of din-a4.
+   The sig-bounding-box uses translate() to position the image freely over the entire sheet. */
+#signature-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 100;
+  pointer-events: none;
+  display: none;
+}
+body:has(#signature-image[src]:not([src=""])) #signature-container { display: block; }
+#btn-reset-sig { display: none !important; }
+body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
+body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }
+
+/* Font action button — segmented look with upload/reset states */
+#btn-font-action {
+  background: var(--segment-bg);
+  color: var(--text-muted);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+#btn-font-action[data-font-mode="reset"] {
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
+}
+
+/* --- WYSIWYG SIGNATURE EDITOR --- */
+.sig-bounding-box {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  pointer-events: auto;
+  /* Transform values applied via JS inline styles/vars */
+  transform: translate(var(--x, 0px), var(--y, 0px)) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.sig-bounding-box.active {
+  outline: 2px dashed var(--accent-color);
+}
+
+.sig-bounding-box:active {
+  cursor: grabbing;
+}
+
+.sig-handle, .sig-rotate-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--paper-bg);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.sig-bounding-box.active .sig-handle,
+.sig-bounding-box.active .sig-rotate-handle {
+  display: block;
+}
+
+.sig-rotate-handle {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+.sig-rotate-handle::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.sig-handle.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+.sig-handle.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+.sig-handle.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.sig-handle.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#signature-image {
+  pointer-events: none;
+  max-width: 100%;
+  display: block;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+}
+

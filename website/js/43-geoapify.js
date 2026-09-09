@@ -1,7 +1,7 @@
 // @ts-check
 // @guide [[geoapify-autocomplete]] 
 
-import { StorageManager } from './52-storage.js';
+import { StorageManager } from './51-storage.js';
 import { AddressIntelligence } from './45-address-intelligence.js';
 
 /**

@@ -1,5 +1,5 @@
 // @ts-check
-import { StorageManager } from './52-storage.js';
+import { StorageManager } from './51-storage.js';
 
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */

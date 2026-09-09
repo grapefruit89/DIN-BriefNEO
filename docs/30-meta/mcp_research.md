@@ -1,4 +1,34 @@
+---
+id: mcp-research
+title: 'Plattform-Recherche-Roadmap: BCD/chromestatus on demand'
+type: roadmap
+status: active
+created: '2026-09-04'
+updated: '2026-09-10'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/active
+  - type/roadmap
+  - tech/chrome
+doc_links:
+  - repository.yaml
+  - web-standards-tracking
+  - ROADMAP
+code_links:
+  []
+error_patterns:
+  - mcp research
+  - platform research
+  - bcd
+  - chromestatus
+  - web api recherche
+supersedes: []
+depends_on: []
+---
+
 # mcp_research.md
+**Ort:** ~~Repository-Root~~ docs/30-meta/ (2026-09-10 aufgeraeumt)
 
 Stand: 2026-09-04  
 Status: Roadmap, kein laufender Dienst  

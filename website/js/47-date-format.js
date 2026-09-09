@@ -1,13 +1,18 @@
 // @ts-check
-const MONTHS = [
-  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
-];
+// @adr [[ADR-JS]] {DateFormat}
+// DIN-Datum via Intl.DateTimeFormat + Temporal — keine Monatstabelle (DIN 5008: ohne führende Null).
+
+// dateStyle: 'long' = de-DE-ICU liefert "4. September 2026" (ohne führende Null, DIN 5008).
+const letterDateFmt = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' });
 
 export function formatLetterDate() {
-  const t = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
-  const dd = String(t.day).padStart(2, '0');
-  return `${dd}. ${MONTHS[t.month - 1]} ${t.year}`;
+  const zdt = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
+  /*
+   * Intl nimmt in Chrome 151 noch kein ZonedDateTime entgegen
+   * ("Invalid argument for Temporal") — PlainDate wird formatiert,
+   * die Zone steuert nur, WELCHER Tag gemeint ist.
+   */
+  return letterDateFmt.format(/** @type {any} */ (zdt.toPlainDate()));
 }
 
 export function applyLetterDate() {

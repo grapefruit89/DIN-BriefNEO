@@ -1,0 +1,389 @@
+/* @adr [[ADR-CSS]]  */
+/* @guide [[chrome-modern-css]]  */
+
+/* css/sidebar.css — Sidebar: Navigation, Custom Inputs, Autocomplete, Adressbuch, Geoapify, Guides */
+
+/* --- SIDEBAR --- */
+aside {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-sidebar-glass);
+  backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  justify-content: space-between;
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  margin-bottom: 24px;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Premium Segmented Controls & Buttons */
+.btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in srgb, var(--text-muted), transparent 90%);
+  color: var(--text-primary);
+}
+
+.btn.primary {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: contrast-color(var(--accent-color));
+  font-weight: 600;
+}
+
+.btn.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.segmented-control {
+  display: flex;
+  background: var(--segment-bg);
+  padding: 4px;
+  border-radius: 10px;
+  gap: 0; /* Remove gap for perfect math */
+  position: relative;
+  isolation: isolate;
+
+  /* Dynamically calculated items and active index */
+  --items: 2;
+  --active-idx: 0;
+}
+
+/* Count items */
+.segmented-control:has(input[type="radio"]:nth-of-type(3)) { --items: 3; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4)) { --items: 4; }
+
+/* Active index tracking (Index des :checked-Kindes ist nicht nach oben hebringbar) */
+.segmented-control:has(input[type="radio"]:nth-of-type(1):checked) { --active-idx: 0; }
+.segmented-control:has(input[type="radio"]:nth-of-type(2):checked) { --active-idx: 1; }
+.segmented-control:has(input[type="radio"]:nth-of-type(3):checked) { --active-idx: 2; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4):checked) { --active-idx: 3; }
+
+/* The sliding pill */
+.segmented-control::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--items));
+  transform: translateX(calc(var(--active-idx) * 100%));
+  
+  background: var(--segment-active-bg);
+  border-radius: 8px;
+  box-shadow: var(--segment-active-shadow);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+  z-index: -1;
+  opacity: 1;
+}
+
+/* Hide pill if nothing is selected (during hydration) */
+.segmented-control:not(:has(:checked)):not(:has([aria-pressed="true"]))::before {
+  opacity: 0;
+}
+
+.segmented-control button,
+.segmented-control label {
+  flex: 1;
+  border: none;
+  background: transparent !important; /* Force transparent to let pill show */
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.segmented-control button[aria-pressed="true"],
+.segmented-control input[type="radio"]:checked + label {
+  color: var(--segment-active-text);
+  /* Box-shadow and background are now handled by ::before */
+}
+
+/* --- SIDEBAR CUSTOM INPUTS & AUTOCOMPLETE --- */
+.input-field {
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-field:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.input-field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#geoapify-key-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  /* Smooth collapse/expand transition natively! */
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  
+  transition: 
+    height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#geoapify-key-container.active {
+  height: auto;
+  opacity: 1;
+}
+
+#input-address-search {
+  anchor-name: --address-input;
+}
+
+#btn-clipboard-address {
+  anchor-name: --clipboard-btn;
+}
+
+#clipboard-candidates-popover {
+  position-anchor: --clipboard-btn;
+  width: max(anchor-size(width), 280px);
+}
+
+/* Glassmorphic Dropdown for Geoapify address suggestions */
+.autocomplete-dropdown {
+  position: absolute;
+  position-anchor: --address-input;
+  position-area: bottom span-x;
+  position-try-options: flip-block;
+  top: auto;
+  left: auto;
+  width: anchor-size(width);
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 4px 0 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-sidebar-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 10000;
+}
+
+.autocomplete-dropdown li {
+  padding: 8px 12px;
+  font-size: 0.725rem;
+  border-radius: 6px;
+  
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.autocomplete-dropdown li:hover {
+  background: var(--border-color);
+  color: var(--accent-color);
+}
+
+.autocomplete-header {
+  font-weight: bold;
+  cursor: default !important;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.autocomplete-sub {
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+/* --- COMMENT FORMAT --- */
+.din-comment {
+  border-left: 3px solid var(--border-color);
+  padding-left: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin: 4px 0;
+  width: 100%;
+}
+
+/* --- SIDEBAR UTILITIES --- */
+.sidebar-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-options-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: balance;
+}
+
+.sidebar-sub-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* --- CSS-FIRST REFACTORING --- */
+/* Address Book Save Button */
+.address-save-btn {
+  position: absolute;
+  top: 0;
+  right: -30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+.address-save-btn:hover {
+  opacity: 1;
+}
+
+/* Geoapify State Toggles */
+#geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
+#geoapify-wrapper #address-search-container { display: none; }
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
+:root:has(#btn-guides-switch:checked),
+:root:has(#btn-guides-on:checked) {
+  --guide-opacity: 0.15;
+}
+.btn-guides::before {
+  content: '📐 Falz- & Lochmarken einblenden';
+}
+:root:has(#btn-guides-switch:checked) .btn-guides::before,
+:root:has(#btn-guides-on:checked) .btn-guides::before {
+  content: '📐 Falz- & Lochmarken ausblenden';
+}
+
+/* =========================================================================================
+ * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCHES (Native HTML5)
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
+ * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
+ * Die Statuserkennung erfolgt rein deklarativ über `:root:has(#btn-guides-switch:checked)`.
+ * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 16):
+ * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
+ * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
+ * ========================================================================================= */
+.sidebar-switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+.sidebar-switch-row .sidebar-label {
+  margin: 0;
+}
+
+.sidebar-switch-row:has(input:disabled) {
+  opacity: 0.5;
+}
+input[type="checkbox"][switch] {
+  appearance: auto;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  width: 36px;
+  height: 20px;
+}
+.badge-local {
+  float: right;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  background: var(--segment-bg);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+#input-address-search {
+  anchor-name: --anchor-address-search;
+}
+

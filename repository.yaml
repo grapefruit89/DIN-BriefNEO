@@ -9,7 +9,7 @@
 # und docs/00-foundation/Immutable-Law-Catalog.md fuer Technologie-Regeln.
 # repository.yaml verweist auf diese, statt sie zu duplizieren.
 #
-# Stand: 2026-09-04. AI-AGENTS-CLI.md und mcp_research.md im Root.
+# Stand: 2026-09-10. AI-AGENTS-CLI.md und mcp_research.md unter docs/30-meta/ (Root aufgeraeumt).
 
 schema_version: 1
 
@@ -21,8 +21,8 @@ project:
     Deployment ueber GitHub Pages.
   governance_contract: AGENTS.md
   law_catalog: docs/00-foundation/Immutable-Law-Catalog.md
-  browser_agent_guide: AI-AGENTS-CLI.md
-  platform_research_roadmap: mcp_research.md
+  browser_agent_guide: docs/30-meta/AI-AGENTS-CLI.md
+  platform_research_roadmap: docs/30-meta/mcp_research.md
   workflow_modes: [light, full]
   branching: branchless-on-main
   fitness_gate:
@@ -31,13 +31,13 @@ project:
     engine: tools/reconciliation.js
 
 structure:
-  AI-AGENTS-CLI.md:
+  docs/30-meta/AI-AGENTS-CLI.md:
     purpose: >
-      Root-Kurzguide: Chrome DevTools MCP an die laufende App haengen.
+      Kurzguide: Chrome DevTools MCP an die laufende App haengen.
       Sichtpruefung A4-Viewport, Sidebar, Anrede, Postvermerk.
       Kein Gesetz, keine Foundation.
 
-  mcp_research.md:
+  docs/30-meta/mcp_research.md:
     purpose: >
       Roadmap: Plattform-APIs (BCD, chromestatus) on demand nachschlagen,
       ohne Catalog oder Baseline zu ueberschreiben. Kein laufender Dienst.
@@ -64,8 +64,7 @@ structure:
       docs/00-foundation/: Verfassung, Gesetzeskatalog, Grundprinzipien
       docs/10-architecture/: ADRs, Architektur-Matrizen, Code-Referenzen
       docs/20-implementation/: Feature-spezifische Implementierungs-Guides
-      docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates)
-      docs/90-policy/: Entwicklungs-Workflows, Richtlinien und Prozess-Policies
+      docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates, Prozess-/Workflow-Policies)
     schema: docs/30-meta/schema-v6.json
 
   agent/:
@@ -97,8 +96,8 @@ entrypoints:
   serve: start.bat
   session_log: tools/log_session.js
   context_bundle: tools/create_context.js
-  browser_agent: AI-AGENTS-CLI.md
-  platform_research: mcp_research.md
+  browser_agent: docs/30-meta/AI-AGENTS-CLI.md
+  platform_research: docs/30-meta/mcp_research.md
 
 vocabulary_ref: docs/30-meta/tool-result-vocabulary.md
 
@@ -140,6 +139,6 @@ open_items:
   - id: platform-research-on-demand
     description: >
       Agent soll BCD/chromestatus fragen koennen, ohne Catalog zu schreiben.
-      Spezifiziert in mcp_research.md. Noch kein Implementierungsauftrag.
+      Spezifiziert in docs/30-meta/mcp_research.md. Noch kein Implementierungsauftrag.
     status: open
-    spec: mcp_research.md
+    spec: docs/30-meta/mcp_research.md

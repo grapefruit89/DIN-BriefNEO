@@ -34,7 +34,7 @@ depends_on: []
 
 Dieses Dokument ist die autoritative Quelle für Verbote und Plattformprinzipien. Es wird **referenziert**, nicht an fünfzehn Stellen kopiert. Es enthält nicht die 45 Atomnamen und nicht die DIN-Millimeter.
 
-Die Browser-Baseline steht nur in [[longevity-guidelines]]: **Chrome 148+**.
+Die Browser-Baseline steht nur in [[longevity-guidelines]]: **Chrome 150+** (Chrome-only-Spezialisierung).
 
 ------
 

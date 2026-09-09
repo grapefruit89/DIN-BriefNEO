@@ -4,7 +4,7 @@ title: CLAUDE.md — KI-Kontext für Claude & Claude Code
 type: ai-context
 status: active
 created: '2026-08-07'
-updated: '2026-08-28'
+updated: '2026-09-09'
 tags:
 - din-briefneo
 - meta
@@ -22,7 +22,7 @@ code_links: []
 # CLAUDE.md — DIN-BriefNEO Projekt-Kontext
 
 > Automatisch gelesen von Claude/Gemini beim Session-Start.  
-> Stand: 2026-08-28 | Projekt-Version: IMR 4.8.0 | Fitness: 100% (Audit 2026-07-21)
+> Stand: 2026-09-09 | Projekt-Version: IMR 4.8.0 | Fitness: 100% (Audit 2026-07-21)
 
 ---
 
@@ -31,7 +31,7 @@ code_links: []
 **DIN-BriefNEO** ist ein browserbasierter Geschäftsbriefeditor nach **DIN 5008:2020-03**.  
 Solo-Entwickler: Mo (@grapefruit89). Standard: "Aviation Grade Platinum".
 
-**Ausführung:** Doppelklick auf `website/index.html` — kein Server, kein Build nötig.  
+**Ausführung:** `start.bat` — startet lokalen Webserver (Port 8088). Die App nutzt `<script type="module">` und läuft daher **nicht** über `file://`.  
 **GitHub:** https://github.com/grapefruit89/DIN-BriefNEO
 
 ---
@@ -136,7 +136,7 @@ docs/30-meta/                  # Projektgeschichte & Status
   OBSIDIAN-SETUP-GUIDE.md      # ⭐ Obsidian-Kompatibilitäts-Guide (2026-08-07)
   _Template_Obsidian.md        # Obsidian Frontmatter-Template
 
-docs/00-foundation/ (zusätzlich)
+docs/30-meta/ (zusätzlich)
   HYBRID-SPEC-DRIVEN-WORKFLOW.md  # SDD-Workflow (Leitplanken)
 
 docs/20-implementation/ (zusätzlich)
@@ -146,11 +146,12 @@ docs/30-meta/ (zusätzlich)
   tooling-overview.md          # Build-Skripte & Wiki-Bundler Template
 ```
 
-### `scripts/` — ⭐⭐⭐ EINSTIEGSPUNKTE (Build/Fitness-Pipeline + lokaler Webserver)
+### Einstiegspunkte — `tools/` (Build/Fitness-Pipeline) + Root (`start.bat`)
 ```
-start.ps1                      # ⭐ Fitness-Check + Build (Pflicht vor/nach Änderungen)
-start.bat                      # Windows-Doppelklick-Wrapper: startet dev_server.ps1, oeffnet Chrome
-dev_server.ps1                 # Live-Reload-Webserver (Port 8088, reines PowerShell/.NET,
+start.bat                      # Root — Windows-Doppelklick-Wrapper: startet dev_server.ps1, oeffnet Chrome
+tools/start.ps1                # ⭐ Fitness-Check + Build (Pflicht vor/nach Änderungen)
+                                # Linux ohne pwsh: node tools/build_db.js (Fitness-Gate-Einstieg)
+tools/dev_server.ps1           # Live-Reload-Webserver (Port 8088, reines PowerShell/.NET,
                                 # kein Python/Node.js noetig) -- pollt alle ~0,7s, laedt Browser
                                 # automatisch neu bei Aenderungen in website/
 ```
@@ -162,14 +163,14 @@ dev_server.ps1                 # Live-Reload-Webserver (Port 8088, reines PowerS
 
 ### `tools/` — ⭐⭐ WICHTIG (Build & Validierung)
 ```
-reconciliation.js              # ⭐⭐⭐ Der echte Fitness Gate -- laeuft bei jedem scripts/start.ps1
+reconciliation.js              # ⭐⭐⭐ Der echte Fitness Gate -- laeuft bei jedem tools/start.ps1
 build_db.js / build_db.py      # Generiert SQLite-Wissensbasis aus Markdown
 add_wikilinks.py               # ⭐ Obsidian Wikilink-Generator (dry-run / --apply)
-create_context.js              # Context-Bundle Generierung -> build/LLM_CONTEXT.md
+create_context.js              # Context-Bundle Generierung -> agent/cache/LLM_CONTEXT.md
 log_session.js                 # Session-Logging
 build_canvas.js                # Obsidian-Canvas Generator
 test_text_fit_harness.js       # Test-Harness fuer die Text-Fit Engine
-pipeline-cache.ps1             # Hash-Cache fuer scripts/start.ps1 Step-Skip-Logik
+pipeline-cache.ps1             # Hash-Cache fuer tools/start.ps1 Step-Skip-Logik
 antipatterns/                  # Aktive, geschichtete Anti-Pattern-Registry (JSON)
   base.json                    # Basis-Antipatterns
   project.json                 # Projektspezifische Antipatterns (ueberschreibt base/web)
@@ -177,9 +178,9 @@ antipatterns/                  # Aktive, geschichtete Anti-Pattern-Registry (JSO
 boilerplate.config.json        # Boilerplate-Konfiguration
 
 archive/                       # Abgeloeste/superseded Skripte, bewusst stillgelegt
-  serve.ps1                    # Alt-Duplikat von scripts/start.bat (Port 8000, kein Cache-Busting)
-  dev_server.py                # Python-Vorgaenger von scripts/dev_server.ps1 -- abgeloest,
-                                # da Python-Installation noetig war (scripts/dev_server.ps1 braucht keine)
+  serve.ps1                    # Alt-Duplikat von start.bat (Root) (Port 8000, kein Cache-Busting)
+  dev_server.py                # Python-Vorgaenger von tools/dev_server.ps1 -- abgeloest,
+                                # da Python-Installation noetig war (tools/dev_server.ps1 braucht keine)
   verify_compliance.py         # Vorgaenger-Fitness-Check -- abgeloest durch reconciliation.js
   verify_compliance_gen3.py    # Gen3-Nachfolger, ebenfalls abgeloest
   antipatterns.json            # Alte, flache Registry -- abgeloest durch antipatterns/{base,project,web}.json
@@ -190,12 +191,12 @@ archive/                       # Abgeloeste/superseded Skripte, bewusst stillgel
 
 ### `build/` — ⭐ GENERIERT (kann neu erzeugt werden, komplett gitignored)
 ```
-LLM_CONTEXT.md                 # generiert von create_context.js
 import.sql                     # generiert beim Build (Inhalt variiert je nach letztem Lauf)
 DIN-Brief_docs.db              # SQLite-Wissensbasis, generiert von build_db.py (seit 2026-08-28 hier statt im Root)
 README.md                      # Diese Erklaerung -- einzige Ausnahme von der gitignore (siehe .gitignore)
 ```
-> Jederzeit gefahrlos leerbar (bis auf README.md), regeneriert sich beim naechsten `scripts/start.ps1`-Lauf.
+> `LLM_CONTEXT.md` wird nach `agent/cache/` generiert (create_context.js), nicht nach `build/`.
+> Jederzeit gefahrlos leerbar (bis auf README.md), regeneriert sich beim naechsten `tools/start.ps1`-Lauf.
 
 ### Stamm-Dateien (Repo-Root, seit Commit 7edaf19 flach -- kein `aktueller_arbeitsordner/` mehr)
 ```
@@ -204,11 +205,12 @@ AGENTS.md                      # KI-Verhaltensvertrag (für Gemini CLI)
 GEMINI.md                      # Gemini-spezifischer Kontext
 README.md                      # Projekt-Übersicht
 repository.yaml                # Struktur-Landkarte mit Verweisen (kein Regelinhalt)
+opencode.json                  # OpenCode-Konfiguration (laedt AGENTS.md + repository.yaml + agent/skills/)
+agent/                         # Agenten-Infrastruktur: skills/ (Entscheidungslogik) + mcp/ (dinbrief-mcp) -- getrennt von tools/
 jsconfig.json                  # JS-Konfiguration
 .gitignore                     # Git-Ignorier-Liste
 ```
-> `start.ps1`, `start.bat` und `serve.ps1` liegen nicht mehr im Root, siehe `scripts/`
-> und `tools/archive/` oben. `PROJECT.md` und `DIN-BriefNEO_memory_konsolidiert.md`
+> `start.ps1` liegt in `tools/`, `start.bat` im Root, `serve.ps1` in `tools/archive/` (abgeloest). `PROJECT.md` und `DIN-BriefNEO_memory_konsolidiert.md`
 > leben inzwischen unter `docs/30-meta/` (siehe oben), nicht mehr im Root.
 > `Anleitung.md`, `audit_report.md`, `architecture_opportunities.md`,
 > `audit_extra_js_reduction.md`, `poc-postvermerk-toast.*`, `poc-has-state-toggles.*`,
@@ -301,4 +303,4 @@ color: #336699; /* Hard Bug! */
 - **NotebookLM (Mission Control v4.0):** Source-Analyse, CLI-Output-Verifikation
 - **Gemini CLI:** Code-Ausführung, Implementation
 
-**Fitness-Check:** `powershell -ExecutionPolicy Bypass -File .\scripts\start.ps1`
+**Fitness-Check:** `powershell -ExecutionPolicy Bypass -File .\tools\start.ps1` — Linux ohne pwsh: `node tools/build_db.js`

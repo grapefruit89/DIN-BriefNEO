@@ -4,7 +4,7 @@ title: 'Zukunfts-Roadmap — Ideen & Chrome-Modernisierungschancen'
 type: roadmap
 status: active
 created: '2026-07-07'
-updated: '2026-08-07'
+updated: '2026-09-10'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -37,8 +37,8 @@ code_links: []
 
 | Priorität | Arbeitspaket | Aufwand | Nutzen | Primärer Hebel |
 | :--- | :--- | :--- | :--- | :--- |
-| **Prio 1** | **Salutation Engine V2 & Vornamen-Dictionary** | Sehr Gering (~30 min) | **Extrem Hoch** | 2,6 KB Vornamen-Brotli, 3 B2B-Pärchen, Adelspartikel-Schutz, Auto-Reset |
-| **Prio 2** | **72 KB Offline-Brotli PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 10.814 PLZs + 2.258 Großempfänger, 0 ms Latenz, 100% Offline, DSGVO |
+| **Prio 1** | **Salutation Engine V2 & Vornamen-Dictionary** | Sehr Gering (~30 min) | **Extrem Hoch** | 🟢 Abgeschlossen 2026-09-04 (2,6 KB Vornamen-Gzip, 3 B2B-Pärchen, Adelspartikel-Schutz, Auto-Reset) |
+| **Prio 2** | **72 KB Offline PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 🟢 Abgeschlossen 2026-09-04; 2026-09-10 brotli→gzip migriert (DecompressionStream('brotli') in Chrome 4–154 unshipped, nur Firefox 147+) |
 | **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 🟢 Abgeschlossen (`46-clipboard-address-parser.js` & Sidebar Button) |
 | **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen (`48-text-fit.js` gelöscht, `field-sizing: content`, `light-dark()`, `text-wrap`) |
 | **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | 🟢 Abgeschlossen (`contenteditable="plaintext-only"`, `enterkeyhint="done"`, Popover API für Toasts, `<input switch>`) |
@@ -196,12 +196,13 @@ Automatisches Auffinden der zuständigen Finanzamt-Adresse für den Empfänger, 
 
 Audit vom Juli 2026 (ursprünglich `architecture_opportunities.md`, 19 Einzel-Opportunities in 8 Bereichen). **Verifiziert gegen den Code, 2026-08-09:** der Großteil ist bereits umgesetzt — nur noch 4 Punkte offen. Die Detaildatei wurde daher gelöscht, dieser Abschnitt ersetzt sie.
 
-### Noch offen (4)
+### Noch offen (5)
 
 - **`focusgroup="vertical wrap"`** auf der Sidebar-Footer-Aktionsgruppe (`#btn-print`/`#btn-reset`) — ArrowUp/Down-Navigation ohne JS.
 - **Name-Only Container Queries** (`@container paper { ... }`) statt size-basierter Queries — bisher nirgends im CSS verwendet.
 - **`popover="hint"` + `interesttarget`** für reichhaltige, stylebare Tooltips statt nativer `title`-Attribute.
 - **Container Scroll-State Query** (`@container scroll-state(overflow-y: true)`) für eine Text-Overflow-Warnung im Briefkern. Die alte JS-Variante (`checkTextOverflow`, `.scrollHeight`-Polling) wurde als buggy entfernt, nie migriert.
+- **Element-scoped View Transitions** (`Element.startViewTransition()`, Chrome 147 Stable 03/2026) für lokale UI-Updates (Font-Status-Chip, PLZ-Trefferliste): Transition läuft nur im Subtree, der Rest der Seite bleibt interaktiv, mehrere Transitions laufen parallel. Quellen: [chrome blog](https://developer.chrome.com/blog/element-scoped-view-transitions), [Chrome 140 Announce](https://developer.chrome.com/blog/new-in-chrome-140). Kandidaten-Recherche-Quelle zusätzlich: **web.dev/baseline** („Newly/Widely available" als Feature-Filter).
 
 **Status:** Brainstorming / Nice-to-have, keine Bugs. Kein Zeitdruck.
 
@@ -220,3 +221,8 @@ Trennlinien in den Segmented Controls: statt der vorgeschlagenen `column-rule` w
 - [[longevity-guidelines]] — Verbote für CDN und Drittanbieter-Bibliotheken
 - [[ADR-ANTIPATTERN]] — Strikte Verbote (CDN, npm, Polyfills)
 - [[web-standards-tracking]] — Aktuelle W3C/Chrome-Feature-Tracking
+- [web.dev/baseline](https://web.dev/baseline) — Googles Kompatibilitäts-Stufen (Newly/Widely available) als Recherche-Filter
+- [api.webstatus.dev/v1/features](https://api.webstatus.dev/v1/features?q=baseline_status:newly) — offizielle maschinenlesbare Baseline-API (Backend von webstatus.dev); Query-DSL: `baseline_status:newly`, `group:css`, `baseline_date:2026-01-01..2026-12-31`; Antwort: `baseline.status` (`limited|newly|widely`), `low_date`, `high_date`, `feature_id`; Pagination via `metadata.next_page_token`
+- [OpenAPI-Spec webstatus.dev](https://github.com/GoogleChrome/webstatus.dev/blob/main/openapi/backend/openapi.yaml) — offizieller API-Vertrag (`GET /v1/features`, `GET /v1/features/{id}`)
+- [npm web-features](https://www.npmjs.com/package/web-features) — gleiche Daten offline lokal (`features[id].status.baseline` = `false|"low"|"high"` + `baseline_low_date`, `status.by_compat_key` für Property-Level ab v3.6.0); Quelle auch für VS Code, MDN, eslint-css (`use-baseline`)
+- Baseline-MCP-Server (Community, kein offizieller): [jlacher/baseline-mcp-server](https://github.com/jlacher/baseline-mcp-server) (quert webstatus.dev-API), [Technickel-Dev/baseline-mcp](https://github.com/Technickel-Dev/baseline-mcp) (hosted: `baseline-mcp.netlify.app/mcp`), [yamanoku/baseline-mcp-server](https://github.com/yamanoku/baseline-mcp-server) (Deno); offizielles Chrome-Labs-Beispiel: [baseline-demos/tooling/mcp](https://github.com/GoogleChromeLabs/baseline-demos/tree/main/tooling/mcp)

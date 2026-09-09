@@ -3,14 +3,13 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { StorageManager } from './52-storage.js';
-import { Constants } from './51-constants.js';
+import { StorageManager, Constants } from './51-storage.js';
 import { SalutationFeature } from './41-salutation-engine.js';
 import { MetadataService } from './53-metadata.js';
 import { SignatureFeature } from './42-signature.js';
 import { initAddressServices } from './43-geoapify.js';
 import { showToast, initToastSystem } from './32-toast.js';
-import { initSenderSync } from './44-sender-sync.js';
+import { initSenderSync } from './45-address-intelligence.js';
 import { DraftManager } from './01-draft-manager.js';
 import { FormatToolbar } from './31-format-toolbar.js';
 import { SettingsManager } from './02-settings-manager.js';
@@ -22,15 +21,8 @@ import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 function syncPostvermerkFromSidebar() {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
   const field = document.getElementById('postvermerk');
-  const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-postvermerk'));
   if (!sel || !field) return;
-  if (sel.value) {
-    field.textContent = sel.value;
-    if (toggle) toggle.checked = true;
-  } else {
-    field.textContent = '';
-    if (toggle) toggle.checked = false;
-  }
+  field.textContent = sel.value || '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -96,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function attachGlobalListeners(draftManager, uiProtections) {
     if (btnPrint) {
       btnPrint.addEventListener('click', () => {
-        showToast(Constants.TOASTS.PRINT_PENDING, 'info');
         const metaCtx = MetadataService.prepare();
         setTimeout(() => {
           window.print();
@@ -126,23 +117,5 @@ document.addEventListener('DOMContentLoaded', () => {
         draftManager.scheduleAutoSave();
       });
     });
-    const btnAnlagen = document.getElementById('btn-anlagen-toggle');
-    if (btnAnlagen) {
-      btnAnlagen.addEventListener('click', () => {
-        const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-        const pressed = btnAnlagen.getAttribute('aria-pressed') === 'true';
-        const applyToggle = () => {
-          btnAnlagen.setAttribute('aria-pressed', pressed ? 'false' : 'true');
-          if (toggle) toggle.checked = !pressed;
-          draftManager.scheduleAutoSave();
-        };
-
-        if ('startViewTransition' in document) {
-          /** @type {any} */ (document).startViewTransition(applyToggle);
-        } else {
-          applyToggle();
-        }
-      });
-    }
   }
 });

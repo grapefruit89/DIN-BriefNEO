@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "meta": {
-    "title": "Maschinenlesbare Inventur: docs/00-foundation, docs/10-architecture & docs/90-policy",
-    "description": "Lückenlose Inventur aller Dokumente aus Fundament (00-foundation), Architektur (10-architecture) und Policy/Workflow (90-policy) von DIN-Brief Neo nach der W-Fragelogik.",
+    "title": "Maschinenlesbare Inventur: docs/00-foundation, docs/10-architecture & docs/30-meta",
+    "description": "Lückenlose Inventur aller Dokumente aus Fundament (00-foundation), Architektur (10-architecture) und Meta/Workflow (30-meta) von DIN-Brief Neo nach der W-Fragelogik.",
     "target_directory": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation",
     "generated_at": "2026-09-04T13:28:00+02:00",
     "normative_hierarchy": [
@@ -34,7 +34,7 @@
         "level": 5,
         "name": "WORKFLOW & GUIDES",
         "file": "HYBRID-SPEC-DRIVEN-WORKFLOW.md",
-        "scope": "Prozess und Vorgehensweise (WIE gearbeitet wird; umgezogen nach docs/90-policy/)"
+        "scope": "Prozess und Vorgehensweise (WIE gearbeitet wird; umgezogen nach docs/30-meta/)"
       }
     ],
     "golden_rules": {
@@ -46,7 +46,7 @@
     "target_directories": [
       "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\00-foundation",
       "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\10-architecture",
-      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\90-policy"
+      "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta"
     ],
     "total_documents_count": 21,
     "architecture_hub_documents": [
@@ -421,7 +421,7 @@
     },
     {
       "file_name": "HYBRID-SPEC-DRIVEN-WORKFLOW.md",
-      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\90-policy\\HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+      "absolute_path": "C:\\Users\\morit\\Documents\\Obsidian_Main\\Websites & Software\\DIN-Brief Neo\\docs\\30-meta\\HYBRID-SPEC-DRIVEN-WORKFLOW.md",
       "normative_level": "Ebene 90 — Prozess & Workflow (Policy Guide)",
       "frontmatter": {
         "id": "hybrid-spec-driven-workflow",
@@ -493,7 +493,7 @@
           "geplante_aenderung": "Move nach docs/90-policy/ steht aus, da es sich um Prozessvorgaben und nicht um ein fundamentales Gesetz handelt."
         },
         "wo": {
-          "datei_ort": "docs/90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+          "datei_ort": "docs/30-meta/HYBRID-SPEC-DRIVEN-WORKFLOW.md",
           "wirkungsbereich": "Gilt für den gesamten Entwicklungsprozess; steuert die Ausführung von tools/reconciliation.js und tools/start.ps1.",
           "verknuepfungen": [
             "docs/00-foundation/constitution.md",
@@ -512,7 +512,7 @@
           "warum": "Sichert die lückenlose Rückverfolgbarkeit (Audit Trail) jeder Entscheidung und stellt sicher, dass kein Code ohne automatisierte Konformitätsprüfung committet wird."
         }
       },
-      "section": "90-policy"
+      "section": "30-meta"
     },
     {
       "file_name": "README.md",
@@ -1684,7 +1684,7 @@
       "governance": "Architektur-Entscheidungen (MADR-Format), IMR-Registry und Traceability-Matrizen."
     },
     {
-      "id": "90-policy",
+      "id": "30-meta",
       "title": "Entwicklungs-Workflows & Prozess-Policies",
       "documents_count": 1,
       "governance": "Arbeitsrichtlinien (Light/Full Mode), Fitness-Gate-Prozesse und Session-Logging."

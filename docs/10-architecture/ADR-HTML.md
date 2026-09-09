@@ -128,9 +128,8 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
 * **Experimenteller On-Device KI-Assistent (`#sidebar-ai-switch-row`):**
   * `<input type="checkbox" switch id="toggle-experimental-ai">`: W3C-Standard-Switch für lokales On-Device Rewriting (Chrome Built-in AI / Gemini Nano via `window.ai`).
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
-  * `#sidebar-pv-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.).
-  * `#toggle-postvermerk` & `#toggle-anlagen`: Ausblendbare State-Checkboxes für CSS `:has()`.
-  * `#btn-anlagen-toggle`: Umschalt-Button für die Anlagenzeile (`aria-pressed="false"`).
+  * `#sidebar-pv-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#postvermerk` (`din-postvermerk`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-pv-select option:checked:not([value=""]))`.
+  * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.
 * **Schriftarten-Manager:**
   * `#btn-font-action`: Upload- und Reset-Button für benutzerdefinierte Schriften.
   * `#font-uploader`: Verstecktes Datei-Upload-Element (`accept=".woff2"`).

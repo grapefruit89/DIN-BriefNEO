@@ -99,7 +99,7 @@ Entwürfe, Einstellungen und optionale API-Schlüssel liegen in der **Web Storag
 
 ### ✅ Native Plattform gemäß Longevity-Baseline
 
-Die einzige projektweite Browser-Baseline steht in [[longevity-guidelines]] (**Chrome 148+**). Constitution wiederholt keine zweite Versionszahl. Bevorzugt werden stabile native CSS/HTML-APIs, sofern die Longevity-Prüfung sie trägt. Farbe folgt der Kette im Catalog (OKLCH zuerst).
+Die einzige projektweite Browser-Baseline steht in [[longevity-guidelines]] (**Chrome 150+**). Constitution wiederholt keine zweite Versionszahl. Bevorzugt werden stabile native CSS/HTML-APIs, sofern die Longevity-Prüfung sie trägt. Farbe folgt der Kette im Catalog (OKLCH zuerst).
 
 ### ✅ Anforderung vor Code
 

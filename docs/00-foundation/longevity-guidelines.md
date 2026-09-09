@@ -36,11 +36,11 @@ Das ist ein Ziel, keine mythische „W3C-Garantie der Abwärtskompatibilität“
 
 ### 1.1 Projekt-Baseline
 
-**Einzige projektweite Baseline: Chrome 148+.**
+**Einzige projektweite Baseline: Chrome 150+.** (Longevity-Entscheidung 2026-09-10: bewusste Spezialisierung auf Chrome-only; keine Multi-Browser-Matrix, kein `baseline-browser-mapping`. Veraltende APIs altern selbstständig raus, solange der Rollforward-Kurs gehalten wird.)
 
 Andere Dokumente nennen keine zweite Zahl. Eine Anhebung der Baseline ist eine Longevity-Entscheidung plus ADR, kein stilles Editieren verstreuter Versionszahlen.
 
-Chrome 150–152 darf aktueller Entwicklungsfokus sein. Das ändert diese Baseline nicht.
+Der Entwicklungsfokus testet live auf der gerade laufenden Chrome-Version (aktuell 151); diese Version IST die Empirie-Instanz für den Baseline-Check (`CSS.supports()` schlägt jedes Baseline-Datum, siehe sibling-count-Lektion).
 
 Entscheidungsmodell für Features:
 

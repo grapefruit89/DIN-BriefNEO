@@ -7,37 +7,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIN-BriefNEO | Pure Refactored</title>
-    <link rel="shortcut icon" href="data:image/svg+xml,
-      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'>
-        <path fill='%23CCD6DD' d='M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v18z'/>
-        <path fill='%2399aab5' d='M4 5a4 4 0 0 0-4 4v1.03l9.79 9.77-9.15 9.15-.06.09a4 4 0 0 0 1.38 1.38l.09-.06 9.15-9.15 3.32 3.3a4.88 4.88 0 0 0 6.88 0l3.36-3.33 9.18 9.18.09.06a3.98 3.98 0 0 0 1.38-1.38l-.06-.09-9.18-9.18 9.8-9.76V9a4 4 0 0 0-4-4h-28z'/>
-        <path fill='%23E1E8ED' d='M32 5H4A3.99 3.99 0 0 0 .4 7.28l14.8 14.8a4 4 0 0 0 5.66 0l14.8-14.8A3.99 3.99 0 0 0 32.06 5z'/>
-      </svg>">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect width='36' height='26' y='5' fill='%23ccd6dd' rx='4'/><path stroke='%2399aab5' stroke-linecap='round' stroke-width='2' d='m2 29 13-13m6 0 13 13'/><path fill='%2399aab5' d='M4 5h28a4 4 0 0 1 4 4v2L21 25a5 5 0 0 1-6 0L0 11V9a4 4 0 0 1 4-4'/><path fill='%23e1e8ed' d='M4 5h28a4 4 0 0 1 4 4L21 22a4 4 0 0 1-6 0L0 9a4 4 0 0 1 4-4'/></svg>">
     <style>
       @layer reset, tokens, layout, floating;
     </style>
     <link rel="stylesheet" href="css/reset.css" layer="reset">
     <link rel="stylesheet" href="css/variables.css" layer="tokens">
     <link rel="stylesheet" href="css/layout.css" layer="layout">
+    <link rel="stylesheet" href="css/sidebar.css" layer="layout">
+    <link rel="stylesheet" href="css/sheet.css" layer="layout">
+    <link rel="stylesheet" href="css/signature.css" layer="layout">
     <link rel="stylesheet" href="css/floating.css" layer="floating">
     <link rel="stylesheet" href="css/print.css" media="print">
-    <script>
-      try {
-        const defaults = { theme: 'auto' };
-        const raw = localStorage.getItem('din_settings');
-        const settings = raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
-        const theme = settings.theme || 'auto';
-        document.documentElement.setAttribute('data-theme', theme);
-        document.documentElement.style.colorScheme = theme === 'auto' ? 'light dark' : theme;
-        const customFont = localStorage.getItem('din_custom_font');
-        if (customFont) {
-          const fontStyle = document.createElement('style');
-          fontStyle.id = 'din-custom-font-style';
-          fontStyle.textContent = `@font-face { font-family: 'AptosCustom'; src: url('${customFont}') format('woff2'); }`;
-          document.head.appendChild(fontStyle);
-        }
-      } catch (e) {}
-    </script>
+    <script src="js/boot-theme.js"></script>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
@@ -89,9 +71,9 @@
             <input type="checkbox" switch id="toggle-experimental-ai" autocomplete="off" aria-label="On-Device KI-Assistent aktivieren">
           </div>
           <div class="sidebar-zusatz-row">
-            <!-- Hidden checkboxes — CSS :has() rules stay unchanged -->
-            <input type="checkbox" id="toggle-postvermerk" class="sr-only" autocomplete="off">
-            <input type="checkbox" id="toggle-anlagen" class="sr-only" autocomplete="off">
+            <!-- Kein Hidden-State nötig: Sichtbarkeit leitet sich direkt aus dem Select ab
+                 (:root:has(#sidebar-pv-select option:checked:not([value=""]))). Der Select
+                 ist der EINZIGE Schreiber — das Papierfeld ist reine Anzeige (docs/30-meta/review_grok.md rot). -->
             <select id="sidebar-pv-select" class="sidebar-select sidebar-pv-select" data-persist aria-label="Postvermerk wählen">
               <option value="">— kein —</option>
               <option value="Einschreiben">Einschreiben</option>
@@ -107,7 +89,10 @@
               <option value="Büchersendung">Büchersendung</option>
               <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
             </select>
-            <button type="button" id="btn-anlagen-toggle" class="sidebar-addon-btn" aria-pressed="false">Anlagen</button>
+          </div>
+          <div class="sidebar-switch-row">
+            <h3 class="sidebar-label" data-ui="Anlagen"></h3>
+            <input type="checkbox" switch id="toggle-anlagen" autocomplete="off" aria-label="Anlagen-Sektion auf dem Brief umschalten">
           </div>
           <div>
             <h3 class="sidebar-label" data-ui="Schriftarten-Manager"></h3>
@@ -189,7 +174,7 @@
             -->
             <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
-              <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" placeholder="Postvermerk" aria-label="Postvermerk"></din-postvermerk>
+              <din-postvermerk id="postvermerk" class="single-line" aria-label="Postvermerk"></din-postvermerk>
               <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
               <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
@@ -231,12 +216,11 @@
         </div>
       </main>
     </div>
-    <div id="format-command-target" hidden></div>
     <div id="format-toolbar" popover="hint" class="no-print" role="toolbar" aria-label="Textformatierung" focusgroup="horizontal wrap">
-      <button type="button" commandfor="format-command-target" command="--bold" title="Fett" aria-label="Fett"><b>B</b></button>
-      <button type="button" commandfor="format-command-target" command="--underline" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button>
-      <button type="button" commandfor="format-command-target" command="--quote" title="Zitat" aria-label="Zitat">»</button>
-      <button type="button" commandfor="format-command-target" command="--comment" title="Kommentar" aria-label="Kommentar">|</button>
+      <button type="button" commandfor="format-toolbar" command="--bold" title="Fett" aria-label="Fett"><b>B</b></button>
+      <button type="button" commandfor="format-toolbar" command="--underline" title="Unterstrichen" aria-label="Unterstrichen"><u>U</u></button>
+      <button type="button" commandfor="format-toolbar" command="--quote" title="Zitat" aria-label="Zitat">»</button>
+      <button type="button" commandfor="format-toolbar" command="--comment" title="Kommentar" aria-label="Kommentar">|</button>
       <button type="button" id="btn-ai-rewrite" title="Ausgewählten Text förmlicher formulieren (Gemini Nano)" aria-label="Förmlicher formulieren" class="hidden">✨ Formal</button>
     </div>
     <div id="selection-anchor" class="no-print"></div>
@@ -250,8 +234,8 @@
     -->
     <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
       <span id="toast-message"></span>
-      <span id="toast-badge" class="toast-badge hidden"></span>
-      <button type="button" id="toast-action" class="toast-action-btn hidden"></button>
+      <span id="toast-badge" class="toast-badge"></span>
+      <button type="button" id="toast-action" class="toast-action-btn"></button>
       <button type="button" id="toast-close" class="btn-icon" aria-label="Schließen">×</button>
     </div>
     <dialog id="reset-dialog" class="glass-dialog no-print">
@@ -263,85 +247,7 @@
         </div>
       </form>
     </dialog>
-    <script>
-      try {
-        const defaults = {
-          theme: 'auto',
-          layout: 'form-b',
-          guides: true,
-          systemFont: 'sans',
-          formality: 'formal',
-          postvermerkActive: false
-        };
-        const raw = localStorage.getItem('din_settings');
-        const settings = raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
-        function setRadioSync(name, val) {
-          document.querySelectorAll(`input[type="radio"][name="${name}"]`).forEach((b) => {
-            const on = b.value === val;
-            b.checked = on;
-            if (on) b.setAttribute('checked', '');
-            else b.removeAttribute('checked');
-          });
-        }
-        setRadioSync('layout-form', settings.layout);
-        setRadioSync('salutation', settings.formality);
-        setRadioSync('font-stack', settings.systemFont);
-        setRadioSync('guides', settings.guides ? 'on' : 'off');
-        const activeTheme = settings.theme || 'auto';
-        document.documentElement.setAttribute('data-theme', activeTheme);
-        const scheme = activeTheme === 'auto' ? 'light dark' : activeTheme;
-        document.documentElement.style.colorScheme = scheme;
-        if (document.body) {
-          document.body.setAttribute('data-theme', activeTheme);
-          document.body.style.colorScheme = scheme;
-        }
-        const themeToggleBtn = document.getElementById('btn-theme-toggle');
-        if (themeToggleBtn) {
-          themeToggleBtn.setAttribute('data-appearance', activeTheme);
-          const labels = { auto: '🌓 Auto', light: '☀️ Hell', dark: '🌙 Dunkel' };
-          const titles = { auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' };
-          themeToggleBtn.setAttribute('data-ui', labels[activeTheme] || '🌓 Auto');
-          themeToggleBtn.setAttribute('title', titles[activeTheme] || 'Darstellung: Automatisch');
-          themeToggleBtn.setAttribute('aria-label', titles[activeTheme] || 'Darstellung: Automatisch');
-        }
-        const pvToggleBtn = document.getElementById('toggle-postvermerk');
-        if (pvToggleBtn) {
-          pvToggleBtn.checked = !!settings.postvermerkActive;
-          if (settings.postvermerkActive) pvToggleBtn.setAttribute('checked', '');
-          else pvToggleBtn.removeAttribute('checked');
-        }
-        const draftStr = localStorage.getItem('din_draft_current');
-        if (draftStr) {
-          const draft = JSON.parse(draftStr);
-          const parser = new DOMParser();
-          for (const id in draft) {
-            const el = document.getElementById(id);
-            if (!el || !draft[id]) continue;
-            if (el.tagName === 'SELECT') { el.value = draft[id]; continue; }
-            const nested = el.querySelector && el.querySelector('select[data-persist]');
-            if (nested) { nested.value = draft[id]; continue; }
-            const doc = parser.parseFromString(draft[id], 'text/html');
-            el.replaceChildren(...doc.body.childNodes);
-          }
-        }
-        const pvSel = document.getElementById('sidebar-pv-select');
-        const pvField = document.getElementById('postvermerk');
-        const applyPv = () => {
-          if (pvSel && pvField && pvSel.value) pvField.textContent = pvSel.value;
-        };
-        if (pvSel) {
-          pvSel.addEventListener('input', applyPv);
-          pvSel.addEventListener('change', applyPv);
-        }
-        if (pvToggleBtn) pvToggleBtn.addEventListener('change', applyPv);
-        applyPv();
-        if (localStorage.getItem('din_custom_font')) {
-          document.body.classList.add('font-custom-active');
-          const status = document.getElementById('font-status-label');
-          if (status) status.textContent = 'Aktiv: Eigene Schrift (WOFF2)';
-        }
-      } catch (e) {}
-    </script>
+    <script src="js/boot-state.js"></script>
     <script type="module" src="js/addons/ai-assistant.js" async></script>
   </body>
 </html>

@@ -13,12 +13,12 @@ Keine Frameworks. Keine npm-Abhängigkeiten. Purer nativer W3C-Standard.
 
 Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgrund von Browser-Sicherheitsrichtlinien (CORS) muss die App zwingend über einen lokalen Webserver gestartet werden, anstatt per `file://`-Protokoll.
 
-1. **App starten (Nutzer):** Ein Doppelklick auf `scripts/start.bat` reicht aus. Es startet ein lokaler Python-Server (auf Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
-2. **Entwickler-Check (Agenten):** Führe das Skript `.\scripts\start.ps1` aus.
+1. **App starten (Nutzer):** Ein Doppelklick auf `start.bat` (Repo-Root) reicht aus. Es startet der lokale Webserver (`tools/dev_server.ps1`, Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
+2. **Entwickler-Check (Agenten):** Führe das Skript `.\tools\start.ps1` aus.
    - Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
    - Generierte Artefakte (LLM-Kontext, Doku-Datenbank) werden gecacht: sie laufen nur neu, wenn sich ihre Quelldateien seit dem letzten Lauf geändert haben. Der Fitness Gate selbst läuft immer ungecacht. Mit `-Force` lässt sich der volle Durchlauf erzwingen.
-3. **Sichtprüfung im echten Chrome:** [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md) — DevTools-MCP an die laufende App hängen (A4-Viewport, Sidebar, Anrede, Postvermerk).
-4. **Plattform-Recherche (Roadmap):** [`mcp_research.md`](mcp_research.md) — Agent soll nachschauen, ob JS durch HTML/CSS/native APIs ersetzbar ist. Kein Live-Gesetz.
+3. **Sichtprüfung im echten Chrome:** [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md) — DevTools-MCP an die laufende App hängen (A4-Viewport, Sidebar, Anrede, Postvermerk).
+4. **Plattform-Recherche (Roadmap):** [`mcp_research.md`](docs/30-meta/mcp_research.md) — Agent soll nachschauen, ob JS durch HTML/CSS/native APIs ersetzbar ist. Kein Live-Gesetz.
 
 ---
 
@@ -41,15 +41,15 @@ Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern e
 
 Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
-Root-Kurzguides: [`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md) (Browser sehen), [`mcp_research.md`](mcp_research.md) (Plattform nachschlagen).
+Root-Kurzguides: [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md) (Browser sehen), [`mcp_research.md`](docs/30-meta/mcp_research.md) (Plattform nachschlagen).
 
 ---
 
 ## 🧭 Repository-Contract & Agenten-Infrastruktur
 
 - **[`repository.yaml`](repository.yaml)** beschreibt maschinenlesbar, woraus das Repository besteht (Struktur, Entrypoints, offene Punkte). Verbindliche Quelle für Verhaltensregeln bleibt `AGENTS.md`, für Technologie-Regeln der [Immutable Law Catalog](docs/00-foundation/Immutable-Law-Catalog.md) — `repository.yaml` verweist bewusst darauf, statt sie zu duplizieren.
-- **[`AI-AGENTS-CLI.md`](AI-AGENTS-CLI.md)** — Chrome DevTools MCP: Agent sieht die laufende App.
-- **[`mcp_research.md`](mcp_research.md)** — Roadmap: BCD/chromestatus on demand, nie als zweite Baseline.
+- **[`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md)** — Chrome DevTools MCP: Agent sieht die laufende App.
+- **[`mcp_research.md`](docs/30-meta/mcp_research.md)** — Roadmap: BCD/chromestatus on demand, nie als zweite Baseline.
 - **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
   - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
   - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche.

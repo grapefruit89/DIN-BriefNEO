@@ -4,7 +4,7 @@ title: AGENTS.md — Bindender KI-Verhaltensvertrag
 type: ai-context
 status: active
 created: '2026-07-01'
-updated: '2026-08-07'
+updated: '2026-09-09'
 tags:
 - din-briefneo
 - meta
@@ -43,7 +43,7 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 
 ## 2. Unverhandelbare Kernprinzipien
 
-- **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `.\scripts\start.ps1` ausgeführt werden. Der Fitness Score **muss 100 %** betragen.
+- **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `tools/start.ps1` ausgeführt werden (PowerShell; `-Force` erzwingt ungecachte Pipeline). Auf Linux ohne `pwsh`: `node tools/build_db.js` — das ist der Fitness-Gate-Einstieg; `tools/reconciliation.js` ist nur ein Modul und gibt allein nichts aus. Der Fitness Score **muss 100 %** betragen.
 - **Branchless Workflow**: Nur `main`-Branch. Feature-Branches sind verboten. Experimente erfolgen ausschließlich über `git stash`.
 - **Surgical Changes & KISS**: Nur das ändern, was für die aktuelle Aufgabe strikt notwendig ist. Bevor JavaScript geschrieben wird, muss geprüft werden, ob moderne CSS- oder native Web-APIs ausreichen.
 - **Generalisierbarkeit**: Jede neue Lösung ist auf ihre Übertragbarkeit in die `llm_boilerplate` zu prüfen und zu dokumentieren.
@@ -53,10 +53,10 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 ## 3. Workflow-Modi
 
 ### Light Mode (Default)
-1. `.\scripts\start.ps1` ausführen (Pre-Build)
-2. `LLM_CONTEXT.md` lesen
+1. Fitness Gate ausführen (Pre-Build, siehe §2)
+2. Kontext lesen: `agent/cache/LLM_CONTEXT.md` — wird von `tools/create_context.js` generiert (Teil von `start.ps1`, gecacht), nicht von `build_db.js`
 3. Änderung durchführen
-4. `.\scripts\start.ps1` ausführen → **Fitness Score muss 100 %** sein
+4. Fitness Gate ausführen → **Fitness Score muss 100 %** sein
 5. Mit `node tools/log_session.js` protokollieren
 6. Generalisierungs-Vermerk in `DECISION-LOG.md` schreiben
 
@@ -74,7 +74,7 @@ Zusätzlich:
 
 - Unsicherheit über eine Web-API, CSS-Eigenschaft oder JavaScript-Methode
 - Prüfung, ob eine native Lösung existiert (bevor JS geschrieben wird)
-- Verifikation von Browser-Support (mind. Chrome 148+)
+- Verifikation von Browser-Support (Projekt-Baseline: Chrome 150+; Live-Empirie per CSS.supports() schlägt jedes Baseline-Datum)
 - Prüfung auf Deprecations oder bessere Alternativen
 
 Die relevanten Erkenntnisse aus Context7 sind kurz im `DECISION-LOG.md` zu dokumentieren.
@@ -85,7 +85,7 @@ Die relevanten Erkenntnisse aus Context7 sind kurz im `DECISION-LOG.md` zu dokum
 
 ## 5. Dokumentations- & Traceability-Pflicht
 
-- Neue ADRs und Guides müssen über die offiziellen Templates (`new-adr.py` / `new-guide.py`) erstellt werden.
+- Neue ADRs und Guides werden aus den offiziellen Templates erstellt: `docs/30-meta/ADR-TEMPLATE.md` und `docs/30-meta/GUIDE-TEMPLATE.md`.
 - Jedes neue Dokument muss vollständiges Frontmatter nach Schema V6 enthalten.
 - Die automatisierte Function Traceability Matrix darf **nur** durch `build_db.py` verändert werden.
 - Neue Code-Funktionen müssen Traceability über `@adr` / `@guide` Kommentare herstellen.
@@ -112,7 +112,7 @@ Besonders streng verboten sind unter anderem:
 - Frameworks und Build-Tools für das Frontend
 - Legacy-APIs (`new Date()`, `document.execCommand()`, unsicheres `innerHTML` etc.)
 - Hex/RGB/HSL-Farben (nur OKLCH erlaubt)
-- Storage-Lösungen außer `localStorage` unter `file:///`
+- Storage-Lösungen außer `localStorage` (die App lädt per `<script type="module">` und läuft deshalb nur über einen lokalen Webserver, nicht `file://`)
 
 Der aktuelle, verbindliche Stand steht **ausschließlich** im Law Catalog.
 
@@ -138,4 +138,4 @@ node tools/log_session.js --agent "<Name>" --action "<Aktion>" --file "<Datei>" 
 
 Verstöße gegen diesen Vertrag führen zur Ablehnung der Änderung.
 
-*Hinweis: Komplexe oder zukünftige Konzepte sind in FUTURE_IDEAS.md eingefroren. Konzentriere dich auf die oben genannten Regeln.*
+*Hinweis: Konzentriere dich auf die oben genannten Regeln.*

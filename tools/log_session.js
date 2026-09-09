@@ -57,7 +57,10 @@ async function main() {
     process.exit(1);
   }
 
-  const dbPath = path.resolve(__dirname, '../agent/cache/DIN-Brief_docs.db');
+  const cacheDir = path.resolve(__dirname, '../agent/cache');
+  fs.mkdirSync(cacheDir, { recursive: true });
+
+  const dbPath = path.resolve(cacheDir, 'DIN-Brief_docs.db');
   const db = new Database(dbPath);
 
   try {

@@ -1,6 +1,46 @@
 // @ts-check
-// @adr [[ADR-DATA-PERSISTENCE]] 
+// @adr [[ADR-JS]] 
 // @guide [[glossary]] 
+
+
+/* State-Layer: System-Konstanten (ehem. 51-constants.js) + LocalStorage-Persistenz (ehem. 52-storage.js), zusammengeführt am 2026-09-09 (Kohäsion: Constants definieren die Storage-Keys, StorageManager konsumiert sie). */
+
+/* js/constants.js */
+
+export const Constants = {
+  // Database Schema Version
+  SCHEMA_VERSION: 10,
+
+  // LocalStorage Keys
+  // ACHTUNG: Nur LocalStorage nutzen, da OPFS, IndexedDB und File System Access API
+  // unter file:// (lokaler Aufruf per Doppelklick) mangels HTTPS/Sicherheitskontext blockiert werden!
+  STORAGE: {
+    DRAFT_CURRENT: 'din_draft_current',
+    PROFILE: 'din_profile',
+    SETTINGS: 'din_settings',
+    CUSTOM_FONT: 'din_custom_font',
+    GEOAPIFY_KEY: 'din_geoapify_key'
+  },
+
+  // System Limits
+  LIMITS: {
+    HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
+    API_DEBOUNCE_MS: 300,     // Auto-complete delay
+    MAX_PAGES: 12,            // Hard limit on pages (Roadmap)
+    FONT_SIZE_MAX_KB: 60      // Max size für Base64-Schriftarten (LocalStorage Limitierung)
+  },
+
+  // Centralized UI Messages (Toasts) — Policy 2026-09-10: nur noch Fehler, Warnungen
+  // und fehlende User-Guidance. Success-Confirmations sind raus (das UI zeigt das
+  // Ergebnis sichtbar; Toast-Spam war das Problem). Siehe ADR-UI / DECISION-LOG.
+  TOASTS: {
+    // Warnings / Errors
+    FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 60 KB groß sein)',
+    FONT_FORMAT_ERROR: '❌ Falsches Dateiformat! (Nur .woff2 Dateien erlaubt)',
+    SALUTATION_PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
+    CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)'
+  }
+};
 
 /* js/storage.js */
 
@@ -71,8 +111,7 @@ export const StorageManager = {
       formality: "formal",
       recipientType: "none",
       dateFormat: "din",
-      addressProvider: "photon",
-      postvermerkActive: false
+      addressProvider: "photon"
     };
     try {
       const settings = localStorage.getItem("din_settings");

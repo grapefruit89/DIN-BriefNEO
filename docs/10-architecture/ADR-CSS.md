@@ -4,7 +4,7 @@ title: "ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)"
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-04'
+updated: '2026-09-10'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -20,6 +20,9 @@ code_links:
   - website/css/variables.css
   - website/css/reset.css
   - website/css/layout.css
+  - website/css/sheet.css
+  - website/css/sidebar.css
+  - website/css/signature.css
   - website/css/floating.css
   - website/css/print.css
 error_patterns:
@@ -92,15 +95,21 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 
 ## 3. Single Source of Truth: Aktive CSS-Dateien & Komponenten-Registry
 
-Das Projekt verfügt über exakt **5 aktive CSS-Dateien** unter `website/css/`:
+Das Projekt verfügt über exakt **8 aktive CSS-Dateien** unter `website/css/`:
 
 ```
 website/css/
-├── variables.css  (106 Zeilen | 57 Vars  | Design Tokens, @property, OKLCH, light-dark)
-├── reset.css      (43 Zeilen  |  2 Vars  | Box-Sizing, Viewport-Lockdown, Font-Stacks)
-├── layout.css     (1146 Zeilen| 32 Vars  | DIN 5008 Geometrie, App Shell, @scope, Text-Fit)
-├── floating.css   (457 Zeilen |  3 Vars  | Top-Layer Popovers, @starting-style, Anchor Positioning)
-└── print.css      (49 Zeilen  |  0 Vars  | @media print, 0mm Margins, DIN-Trennlinie)
+├── variables.css  (120 Zeilen| 55 Vars  | Design Tokens, @property, OKLCH, light-dark)
+├── reset.css      (45 Zeilen |  2 Vars  | Box-Sizing, Viewport-Lockdown, Font-Stacks)
+├── layout.css     (368 Zeilen| 20 Vars  | App Shell, Viewport, Zero-JS Toggles, Utilities)
+├── sidebar.css    (385 Zeilen|  0 Vars  | Sidebar, Custom Inputs, Autocomplete, Geoapify, Guides)
+├── sheet.css      (258 Zeilen|  0 Vars  | DIN 5008 Blatt-Geometrie, @scope (din-a4), Briefzonen)
+├── signature.css  (111 Zeilen|  0 Vars  | Unterschrift: UI-States + WYSIWYG-Editor)
+├── floating.css   (472 Zeilen|  0 Vars  | Top-Layer Popovers, @starting-style, Anchor Positioning)
+└── print.css      (48 Zeilen |  0 Vars  | @media print, 0mm Margins, DIN-Trennlinie)
+
+> Stand 2026-09-10. Zielkorridor: ~300-400 Zeilen pro Datei (Kontextkosten pro Lesedurchgang);
+> jede Datei mit klarem Single-Responsibility-Schnitt. Ausreißer werden analysiert und gesplittet.
 ```
 
 ---
@@ -144,17 +153,21 @@ website/css/
 
 ---
 
-### 3. `layout.css` (DIN-5008 Geometrie, App-Shell & Blatt-Styling)
+### 3. `layout.css` (App-Shell, Viewport & Zero-JS Toggles)
 
-* **HTML Attribute Parsing via CSS `attr()`:**
-  * `din-a4` liest DIN-Koordinaten direkt aus den HTML-Attributen: `attr(data-width-mm type(<number>), 210)`.
-  * Form A / Form B Reaktivität: `body:has(#btn-form-a:checked) din-a4` berechnet Faltmarken (`--fold-1-y: calc(87 / 297 * 100cqh);`) und Briefkernstart dynamisch um.
 * **App-Shell Layout:**
   * `#app-shell`: CSS Grid mit `clamp(200px, 20dvw, 280px) 1fr;` und `overflow: hidden;`.
   * `aside`: Glassmorphism-Sidebar mit `backdrop-filter: var(--glass-blur);`, `z-index: 10;`.
 * **Segmented Controls & Modern Switches:**
   * `.segmented-control`: Gleitender Hintergrund via `::before` und dynamischem `:checked + label`-Offset.
-  * `.sidebar-switch-row` & `input[type="checkbox"][switch]`: Semantischer HTML-Switch mit nativem Track und Thumb.
+  * `.sidebar-switch-row` & `input[type="checkbox"][switch]`: Semantischer HTML-Switch mit nativem Track und Thumb — Instanzen: `#btn-guides-switch` (Hilfslinien) und `#toggle-anlagen` (Anlagen-Blattzone via `:root:has(#toggle-anlagen:checked) din-anlagen`).
+* **Bedingte Blattzonen (Postvermerk-Sichtbarkeit):**
+  * `:root:has(#sidebar-pv-select option:checked:not([value=""]))` blendet `din-postvermerk`/`#postvermerk` rein deklarativ ein (layout.css + floating.css). Kein Hidden-Checkbox-Zwitter mehr — der Sidebar-Select ist der einzige Schreiber.
+### 4. `sheet.css` (DIN-5008 Blatt-Geometrie, `@scope` & Briefzonen) — 2026-09-10 aus `layout.css` ausgegliedert
+
+* **HTML Attribute Parsing via CSS `attr()`:**
+  * `din-a4` liest DIN-Koordinaten direkt aus den HTML-Attributen: `attr(data-width-mm type(<number>), 210)`.
+  * Form A / Form B Reaktivität: `body:has(#btn-form-a:checked) din-a4` berechnet Faltmarken (`--fold-1-y: calc(87 / 297 * 100cqh);`) und Briefkernstart dynamisch um.
 * **Stage & Scoped Canvas (`@scope (din-a4)`):**
   * `#viewport`: Flex-Container mit `container-type: size; container-name: viewport;`.
   * `#din-a4-viewport`: Grid mit `container-type: size; container-name: sheet-stage;`.
@@ -175,6 +188,7 @@ website/css/
   * `#brieftext`: Blocksatz (`text-align: justify; hyphens: auto; text-wrap: pretty; line-height: 1.4;`).
   * `#grussformel`: 1 Leerzeile vor Gruß, 3 Leerzeilen für Unterschrift.
   * `#unterschrift`: Signaturzone.
+  * `#postvermerk-dropdown`: Popover im Top-Layer, verankert an `--anchor-postvermerk`.
 * **Natives Text-Fitting & Font-Shrink:**
   * `#empfaenger, #infoblock, #briefkern, #anrede, #grussformel, #unterschrift { text-fit: shrink 60%; }`.
   * `.single-line`: `white-space: nowrap; overflow: clip; text-overflow: ellipsis; text-fit: contain; field-sizing: content;`.
@@ -188,7 +202,13 @@ website/css/
 
 ---
 
-### 4. `floating.css` (Top-Layer Overlays, Popovers & Anchor Positioning)
+### 5. `sidebar.css` & `signature.css` (Sidebar-/Signatur-Styling) — 2026-09-10 aus `layout.css` ausgegliedert
+
+* **sidebar.css:** Sidebar-Shell, Custom Inputs & Autocomplete, Comment-Format, Sidebar-Utilities, Adressbuch-/Geoapify-State-Toggles, Guides-Hinweise.
+* **signature.css:** Signatur-UI-States (Upload/Reset) + WYSIWYG-Editor (Drag/Scale/Rotate via Custom Properties).
+* **Split-Grundsatz:** Kontextkosten pro Lesedurchgang — Datei-Zielkorridor ~300-400 Zeilen, Single-Responsibility-Schnitt, reine Verschiebung ohne Selektor-/Kaskadenänderung (Link-Reihenfolge in index.html = alte Source-Order).
+
+### 6. `floating.css` (Top-Layer Overlays, Popovers & Anchor Positioning)
 
 * **Architektur-Wächter Popover Top-Layer:**
   * `#toast-v4`: Verwendet natives HTML `popover="manual"`. Rendert direkt im Browser-Top-Layer ohne `z-index`.
@@ -201,13 +221,13 @@ website/css/
       }
     }
     ```
-  * Enthält `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen.
+  * Enthält `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen. Leere Nebenelemente werden deklarativ versteckt: `.toast-badge:empty, .toast-action-btn:empty { display: none; }` — kein JS-Toggling.
   * Schüttel-Animation bei Deduplizierung: `@keyframes shakeToast`.
 * **CSS Anchor Positioning für schwebende UI:**
   * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
   * `#address-suggestions`: Verankert an `--anchor-address-search` (Geoapify Remote-Vorschläge).
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
-  * `#postvermerk-dropdown`: Verankert an `--anchor-postvermerk`.
+* **Inline-Feedback (.input-feedback-msg):** Statusmeldungen für ungültige API-Keys oder Tastaturbeschränkungen.
 * **Visuelle Trennung:**
   * Alle schwebenden Dropdowns nutzen `backdrop-filter: var(--glass-blur);`, abgerundete Ecken und dezente Schatten (`var(--shadow-lg)`).
 * **Inline-Feedback:**
@@ -217,7 +237,7 @@ website/css/
 
 ---
 
-### 5. `print.css` (Druckarchitektur & PDF-Erzeugung)
+### 7. `print.css` (Druckarchitektur & PDF-Erzeugung)
 
 * **Print-Spezifität & Viewport-Freistellung:**
   * `html, body { overflow: visible !important; height: auto !important; }`.

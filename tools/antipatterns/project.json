@@ -13,40 +13,43 @@
       "category": "javascript",
       "description": "setHTMLUnsafe() only when unfiltered HTML is an explicit requirement. Default: setHTML() or textContent. No Catalog-A-ID.",
       "pattern": "setHTMLUnsafe",
-      "file_patterns": ["*.js"],
-      "exemptions": [
-        {
-          "file": "website/js/main.js",
-          "reason": "Existing call sites pending review."
-        },
-        {
-          "file": "website/js/healthcheck.js",
-          "reason": "Diagnostics may need raw markup."
-        }
-      ]
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
     },
     {
       "id": "P2",
-      "catalog_ref": ["A38", "T2"],
+      "catalog_ref": [
+        "A38",
+        "T2"
+      ],
       "class": "info",
       "severity": "info",
       "check": "review",
       "category": "network",
       "description": "CDN/asset loading is Catalog HARD BAN A38. Optional product APIs are not CDNs. Allowlist: api.geoapify.com, api.zippopotam.us.",
       "pattern": "",
-      "file_patterns": ["*.js", "*.html"],
+      "file_patterns": [
+        "*.js",
+        "*.html"
+      ],
       "exemptions": []
     },
     {
       "id": "P3",
-      "catalog_ref": ["A49"],
+      "catalog_ref": [
+        "A49"
+      ],
       "class": "hard_ban",
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
       "description": "JS text-fitting or DOM layout loops (scrollWidth > clientWidth, TextFitEngine) are Catalog HARD BAN A49. Use CSS field-sizing: content and text-fit: shrink.",
       "pattern": "\\bnew\\s+TextFitEngine\\b|import.*TextFitEngine|\\.scrollWidth\\s*>\\s*\\w*\\.clientWidth",
-      "file_patterns": ["website/js/*.js"],
+      "file_patterns": [
+        "website/js/*.js"
+      ],
       "exemptions": []
     },
     {
@@ -58,7 +61,9 @@
       "category": "javascript",
       "description": "Manual beforeinput formatting interceptors (beforeInputFormatTypes) are banned. Plaintext enforcement is native via contenteditable='plaintext-only'.",
       "pattern": "beforeInputFormatTypes|beforeInputParagraphTypes",
-      "file_patterns": ["website/js/*.js"],
+      "file_patterns": [
+        "website/js/*.js"
+      ],
       "exemptions": []
     },
     {
@@ -70,7 +75,10 @@
       "category": "javascript",
       "description": "Manual swipe-drag tracking or pointercapture for toasts is banned. Toast animations and dismissals are declarative via Popover API and @starting-style.",
       "pattern": "--swipe-x|setPointerCapture.*toast",
-      "file_patterns": ["website/js/*.js", "website/css/*.css"],
+      "file_patterns": [
+        "website/js/*.js",
+        "website/css/*.css"
+      ],
       "exemptions": []
     }
   ]

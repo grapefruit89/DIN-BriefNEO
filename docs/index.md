@@ -26,7 +26,7 @@ code_links:
   - website/index.html
   - website/js/main.js
   - website/css/layout.css
-  - AI-AGENTS-CLI.md
+  - 30-meta/AI-AGENTS-CLI.md
 error_patterns:
   - hub
   - navigation
@@ -43,7 +43,7 @@ depends_on: []
 > **Willkommen im Dokumentationszentrum von DIN-Brief Neo.**  
 > Autarker, serverloser DIN-5008-Briefbogen im Browser (Form A & B) — 100% offline-fähig, null Build-Tools, null externe Laufzeit-Abhängigkeiten, optimiert für Chrome 148+ (Standard-Baseline).
 
-Root-Werkzeug für Sichtprüfung: **[AI-AGENTS-CLI.md](../AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
+Root-Werkzeug für Sichtprüfung: **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
 
 ---
 
@@ -56,7 +56,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 10-architecture/    --> Technische Leitplanken, IMR-Registry & ADRs (WIE im Entwurf)
 20-implementation/  --> Praktische Guides, 80/20 B2B-Engine & Glossar (WIE im Code)
 30-meta/            --> Projektgedächtnis, Decision-Log, Changelog & Tooling (STATUS)
-90-policy/          --> Entwicklungsprozess & Arbeitsweise (WIE gearbeitet wird)
+30-meta/            --> Projektgedächtnis & Arbeitsweise (WIE gearbeitet wird)
 ```
 
 ---
@@ -110,7 +110,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 
 ---
 
-### 5. [[90-policy/HYBRID-SPEC-DRIVEN-WORKFLOW|90-policy — Entwicklungsprozess]]
+### 5. [[30-meta/HYBRID-SPEC-DRIVEN-WORKFLOW|30-meta — Entwicklungsprozess]]
 *Regelt, WIE am Projekt gearbeitet wird (Verfahrensordnung).*
 - **[[HYBRID-SPEC-DRIVEN-WORKFLOW]]** — Der 7-Schritte-Zyklus: Von Spec-Prüfung über Code-Änderung bis zur Dokumentations-Synchronisation.
 
@@ -119,11 +119,11 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 ## 🤖 Maschinenlesbare Inventare (SSoT für KI-Agenten)
 
 Für automatisierte Audits und Werkzeuge stehen zwei strukturierte JSON-Dateien bereit:
-- **`docs/foundation_inventory.json`** — 21 Dokumente aus 00-foundation, 10-architecture und 90-policy mit lückenloser W-Fragelogik.
+- **`docs/foundation_inventory.json`** — 21 Dokumente aus 00-foundation, 10-architecture und 30-meta mit lückenloser W-Fragelogik.
 - **`docs/implementation_and_meta_inventory.json`** — 28 Dokumente aus 20-implementation und 30-meta.
 
 Ausserhalb von `docs/`, im Repository-Root:
-- **[`AI-AGENTS-CLI.md`](../AI-AGENTS-CLI.md)** — Chrome DevTools MCP, Sichtprüfung der laufenden App.
+- **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** — Chrome DevTools MCP, Sichtprüfung der laufenden App.
 
 ---
 

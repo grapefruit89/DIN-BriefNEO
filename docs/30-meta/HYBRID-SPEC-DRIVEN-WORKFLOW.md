@@ -7,7 +7,7 @@ created: '2026-06-26'
 updated: '2026-09-04'
 tags:
   - din-briefneo
-  - din-briefneo/policy
+  - din-briefneo/meta
   - status/active
   - type/guide
   - workflow

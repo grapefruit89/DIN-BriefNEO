@@ -13,7 +13,9 @@
       "category": "javascript",
       "description": "XMLHttpRequest is not a Catalog HARD BAN. Prefer fetch() on the target platform.",
       "pattern": "\\bXMLHttpRequest\\b",
-      "file_patterns": ["*.js"],
+      "file_patterns": [
+        "*.js"
+      ],
       "exemptions": []
     },
     {
@@ -25,48 +27,63 @@
       "category": "javascript",
       "description": "Unsanitized innerHTML assignment is unsafe. Prefer textContent or setHTML(). No Catalog-A-ID; ADR-ANTIPATTERN.",
       "pattern": "\\.innerHTML\\s*=",
-      "file_patterns": ["*.js"],
-      "exemptions": [
-        {
-          "file": "website/js/healthcheck.js",
-          "reason": "Healthcheck may inject controlled markup for diagnostics."
-        }
-      ]
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
     },
     {
       "id": "W4",
-      "catalog_ref": ["C1", "A16", "A20"],
+      "catalog_ref": [
+        "C1",
+        "A16",
+        "A20"
+      ],
       "class": "fallback-policy",
       "severity": "warning",
       "check": "regex",
       "category": "css",
       "description": "HEX found. Catalog chain OKLCH → Lab/LCH → HSL → RGB → HEX → Named. Warn only.",
       "pattern": "#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
-      "file_patterns": ["*.css"],
+      "file_patterns": [
+        "*.css"
+      ],
       "exemptions": []
     },
     {
       "id": "W5",
-      "catalog_ref": ["C1", "A16", "A20"],
+      "catalog_ref": [
+        "C1",
+        "A16",
+        "A20"
+      ],
       "class": "fallback-policy",
       "severity": "warning",
       "check": "regex",
       "category": "css",
       "description": "rgb/rgba found. Catalog color chain: fallback-policy warning, not a ban.",
       "pattern": "\\brgba?\\(.*?\\)",
-      "file_patterns": ["*.css"],
+      "file_patterns": [
+        "*.css"
+      ],
       "exemptions": []
     },
     {
       "id": "W6",
-      "catalog_ref": ["C1", "A16", "A20"],
+      "catalog_ref": [
+        "C1",
+        "A16",
+        "A20"
+      ],
       "class": "fallback-policy",
       "severity": "warning",
       "check": "regex",
       "category": "css",
       "description": "hsl/hsla found. Catalog color chain: fallback-policy warning, not a ban.",
       "pattern": "\\bhsla?\\(.*?\\)",
-      "file_patterns": ["*.css"],
+      "file_patterns": [
+        "*.css"
+      ],
       "exemptions": []
     }
   ]

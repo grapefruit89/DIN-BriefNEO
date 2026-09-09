@@ -684,3 +684,15 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Quelle:** Context7 `/websites/modern-css` (View Transitions API: `.finished` Reject-Verhalten bei Abort); Live-Tests cdp-vt-trace.js/cdp-errors.js/cdp-eval.js (Chrome 151), Fitness Gate 100 %.
 
 **Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — README-Überarbeitung mit SVG-Header
+
+**Kontext:** Haupt-README.md war inhaltlich veraltet (kein Wort zu CSS-Split, Zero-Inline-JS, Chrome-150+-Baseline, Linux-Workflow) und ohne Logo.
+
+**Entscheidung:** README neu strukturiert — zentrierter Header mit `envelope.svg` (das im Repo liegende, eigens erstellte Twemoji-Umschlag-SVG als Identitätsträger), Quick Start getrennt nach Nutzer (start.bat) und Entwickler/Agent (`node tools/build_db.js` als Linux-Einstieg), neue Sektionen „Technologie-Stand 2026-09" (Tabelle: Chrome 150+, 8 CSS-Dateien, Classic-Boot-Scripts, OKLCH, localStorage) und „Verifikation statt Hoffnung". Bestehende Sektionen (Philosophie, Doku-Landkarte, Agenten-Infrastruktur, Light/Full Mode) inhaltlich erhalten, Text gestrafft.
+
+**Generalisierbarkeit:** README-Pattern „SVG-Header + Nutzer/Agent-Split + Tech-Stand-Tabelle" ist direkt auf die `llm_boilerplate` übertragbar — Tech-Stand-Tabelle zwingt Maintainer, die Baseline im Kopf zu dokumentieren statt im Changelog zu verstecken.
+
+**Quelle:** Kein externer Nachschlag nötig (reine Dokumentationsarbeit); Fitness Gate 100 % (pre + post).
+
+**Status:** Umgesetzt — Fitness Gate 100 %.

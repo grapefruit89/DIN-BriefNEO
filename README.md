@@ -1,35 +1,62 @@
-# ✉️ DIN-BriefNEO: Pure Refactored Edition
+<p align="center">
+  <img src="envelope.svg" width="72" alt="DIN-BriefNEO Umschlag-Logo">
+</p>
 
-Willkommen im offiziellen Arbeitsverzeichnis von **DIN-BriefNEO (Pure Refactored Edition)**. 
+<h1 align="center">DIN-BriefNEO — Pure Refactored Edition</h1>
 
-Die wartungsfreie, **100% offline-fähige** Web-App für normkonforme DIN-Briefe.
-Keine Frameworks. Keine npm-Abhängigkeiten. Purer nativer W3C-Standard.
+<p align="center">
+  Die wartungsfreie, <strong>100 % offline-fähige</strong> Web-App für normkonforme DIN-Briefe.<br>
+  Keine Frameworks. Keine npm-Abhängigkeiten. Purer nativer W3C-Standard.
+</p>
 
-👉 **[Jetzt losschreiben!](https://grapefruit89.github.io/DIN-BriefNEO/)**
+<p align="center">
+  👉 <a href="https://grapefruit89.github.io/DIN-BriefNEO/"><strong>Jetzt losschreiben!</strong></a> 👈
+</p>
 
 ---
 
 ## ⚡ Quick Start
 
-Das Projekt nutzt modernen, nativen W3C-Code (ES-Modules und CSS Layers). Aufgrund von Browser-Sicherheitsrichtlinien (CORS) muss die App zwingend über einen lokalen Webserver gestartet werden, anstatt per `file://`-Protokoll.
+Die App nutzt modernen, nativen W3C-Code (ES-Modules, externe Boot-Scripts, CSS Layers) und muss deshalb wegen der Browser-CORS-Richtlinien über einen lokalen Webserver gestartet werden — `file://` reicht nicht.
 
-1. **App starten (Nutzer):** Ein Doppelklick auf `start.bat` (Repo-Root) reicht aus. Es startet der lokale Webserver (`tools/dev_server.ps1`, Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
-2. **Entwickler-Check (Agenten):** Führe das Skript `.\tools\start.ps1` aus.
-   - Dieses Skript prüft den Code (Reconciliation Loop) und stellt sicher, dass der **Fitness Score bei 100%** liegt.
-   - Generierte Artefakte (LLM-Kontext, Doku-Datenbank) werden gecacht: sie laufen nur neu, wenn sich ihre Quelldateien seit dem letzten Lauf geändert haben. Der Fitness Gate selbst läuft immer ungecacht. Mit `-Force` lässt sich der volle Durchlauf erzwingen.
-3. **Sichtprüfung im echten Chrome:** [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md) — DevTools-MCP an die laufende App hängen (A4-Viewport, Sidebar, Anrede, Postvermerk).
-4. **Plattform-Recherche (Roadmap):** [`mcp_research.md`](docs/30-meta/mcp_research.md) — Agent soll nachschauen, ob JS durch HTML/CSS/native APIs ersetzbar ist. Kein Live-Gesetz.
+**Als Nutzer (Windows):**
+1. Doppelklick auf [`start.bat`](start.bat) — startet den lokalen Webserver (`tools/dev_server.ps1`, Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
+2. Losbriefen. Es wird nichts hochgeladen: Kein Tracking, keine Fonts von Fremdservern, keine Requests ins Netz.
+
+**Als Entwickler / KI-Agent:**
+- Linux ohne PowerShell: `node tools/build_db.js` (Fitness-Gate-Einstieg; `tools/reconciliation.js` ist nur ein Modul).
+- Windows/Voller Durchlauf: `.\tools\start.ps1` (gecachte Artefakte, `-Force` erzwingt den vollen Lauf).
+- Der **Fitness Score muss 100 % betragen** — vor und nach jeder relevanten Änderung.
+- Bindender Verhaltensvertrag: [`AGENTS.md`](AGENTS.md).
 
 ---
 
-## 🏛️ Die Philosophie (Wartungsfreiheit auf Lebenszeit)
+## 🏛️ Philosophie: Wartungsfreiheit auf Lebenszeit
 
-Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir vertrauen zu 100% auf native, standardisierte W3C/WHATWG-Schnittstellen. Unser Ziel ist eine **Überlebensspanne von vielen Jahren ohne eine einzige Zeile Wartungsaufwand**.
+Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir vertrauen zu 100 % auf native, standardisierte W3C/WHATWG-Schnittstellen — mit dem Ziel einer Überlebensspanne von vielen Jahren ohne eine einzige Zeile Wartungsaufwand.
 
 - 🚫 **Keine Frameworks:** Weder React, noch Vue, noch Svelte.
-- 🚫 **Keine Compiler:** Weder Webpack, noch Babel, noch Sass.
+- 🚫 **Keine Compiler/Build-Tools:** Weder Webpack, noch Babel, noch Sass.
 - 🚫 **Keine externen Abhängigkeiten:** Keine CDNs, keine Google Fonts, vollständige Offline-Autarkie (Privacy-first).
-- ✅ **Native Standards:** Wir nutzen Container Queries, Popover API, CSS `light-dark()` und die Selection/Range API.
+- 🚫 **Kein Inline-Code:** Null Inline-CSS, null Inline-JS — nur externe Dateien.
+- 🚫 **Keine kurzlebigen APIs:** Kein `new Date()` (stattdessen Temporal), keine Legacy-Selektoren, keine veralteten Event-Muster.
+- ✅ **Native Standards:** Container Queries, Popover API, CSS `light-dark()`, CSS Layers, Selection/Range API.
+
+## 🎨 Technologie-Stand (2026-09)
+
+| Bereich | Umsetzung |
+|---|---|
+| Browser-Baseline | Chrome 150+ (aktuellste Empirie schlägt Baseline-Daten — live geprüft via `CSS.supports()`) |
+| Stylesheets | 8 thematisch getrennte CSS-Dateien mit `@layer`-Architektur |
+| JavaScript | Native ES-Modules; 2 blockierende Classic-Boot-Scripts (`boot-theme.js` gegen FOUC, `boot-state.js` für Restore) |
+| UI-Mechanik | Popover API statt JS-Toggles, `:has()`-Selektoren statt JS-State |
+| Farbwelt | Exklusiv OKLCH, semantische Tokens, automatischer Light/Dark-Wechsel via `light-dark()` |
+| Storage | `localStorage` für Brief-Entwurf & Einstellungen, kein Backend |
+| Sichtprüfung | Echte Chrome-DevTools-MCP-Regressionstests gegen die laufende App |
+
+## 🧪 Verifikation statt Hoffnung
+
+Geändert wird nur, was der Fitness Gate freigibt. Jede Session wird protokolliert (`tools/log_session.js`), jede Architekturentscheidung landet im [Decision-Log](docs/30-meta/DECISION-LOG.md). Regressionstests laufen live gegen die App im echten Chrome (Viewport, Sidebar, Anrede, Postvermerk) — Details in [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md).
 
 ---
 
@@ -43,29 +70,23 @@ Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezi
 
 Root-Kurzguides: [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md) (Browser sehen), [`mcp_research.md`](docs/30-meta/mcp_research.md) (Plattform nachschlagen).
 
----
-
 ## 🧭 Repository-Contract & Agenten-Infrastruktur
 
 - **[`repository.yaml`](repository.yaml)** beschreibt maschinenlesbar, woraus das Repository besteht (Struktur, Entrypoints, offene Punkte). Verbindliche Quelle für Verhaltensregeln bleibt `AGENTS.md`, für Technologie-Regeln der [Immutable Law Catalog](docs/00-foundation/Immutable-Law-Catalog.md) — `repository.yaml` verweist bewusst darauf, statt sie zu duplizieren.
-- **[`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md)** — Chrome DevTools MCP: Agent sieht die laufende App.
-- **[`mcp_research.md`](docs/30-meta/mcp_research.md)** — Roadmap: BCD/chromestatus on demand, nie als zweite Baseline.
 - **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
   - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
-  - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche.
-  - `agent/skills/implement-with-economy/SKILL.md` — HTML-vor-CSS-vor-JS-Entscheidungsleiter fuer Feature-Implementierung, keine externen Abhaengigkeiten ausser den erlaubten A38-Ausnahmen.
+  - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level für technische Recherche.
+  - `agent/skills/implement-with-economy/SKILL.md` — HTML-vor-CSS-vor-JS-Entscheidungsleiter für Feature-Implementierung, keine externen Abhängigkeiten außer den erlaubten A38-Ausnahmen.
   - `agent/skills/architecture-drift-audit/SKILL.md` — periodischer Soll/Ist-Abgleich der Architektur gegen den tatsächlichen Code.
   - `agent/mcp/dinbrief-mcp/` — dünner MCP-artiger STDIO-Server, exponiert `repository.inspect`, `repository.validate` und `repository.execute` (feste Allowlist, keine freie Codeausführung). `execute` verlangt zwingend einen vorherigen Plan-Aufruf, technisch erzwungen über eine an den Repository-Zustand gebundene `plan_id`.
-
----
 
 ## 🤖 KI-Entwicklung (Light Mode vs. Full Mode)
 
 Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
 
 | Modus | Wann? | Schritte |
-|---|---|
-| 🟢 **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100% Fitness Pflicht!) → Logging (`log_session.js`) |
+|---|---|---|
+| 🟢 **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100 % Fitness Pflicht!) → Logging (`log_session.js`) → Decision-Log |
 | 🔴 **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
 
 > **Achtung:** Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](docs/00-foundation/longevity-guidelines.md) geprüft werden.

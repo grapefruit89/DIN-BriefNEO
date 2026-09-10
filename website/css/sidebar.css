@@ -333,15 +333,13 @@ aside {
 #geoapify-wrapper #address-search-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
-:root:has(#btn-guides-switch:checked),
-:root:has(#btn-guides-on:checked) {
+:root:has(#btn-guides-switch:checked) {
   --guide-opacity: 0.15;
 }
 .btn-guides::before {
   content: '📐 Falz- & Lochmarken einblenden';
 }
-:root:has(#btn-guides-switch:checked) .btn-guides::before,
-:root:has(#btn-guides-on:checked) .btn-guides::before {
+:root:has(#btn-guides-switch:checked) .btn-guides::before {
   content: '📐 Falz- & Lochmarken ausblenden';
 }
 

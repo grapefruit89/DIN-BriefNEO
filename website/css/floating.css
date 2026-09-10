@@ -370,10 +370,7 @@ din-a4 {
   max-height: 100%;
 }
 :root { --guide-opacity: 0; }
-:root:has(#btn-guides-switch:checked),
-:root:has(#btn-guides-on:checked) { --guide-opacity: 0.55; }
-:root:not(:has(#btn-guides-switch:checked)):not(:has(#btn-guides-on:checked)),
-:root:has(#btn-guides-off:checked) { --guide-opacity: 0; }
+:root:has(#btn-guides-switch:checked) { --guide-opacity: 0.55; }
 
 aside input[type="text"],
 aside input[type="password"],

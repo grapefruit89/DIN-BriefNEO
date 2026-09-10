@@ -8,25 +8,14 @@
 /* js/constants.js */
 
 export const Constants = {
-  // Database Schema Version
-  SCHEMA_VERSION: 10,
 
   // LocalStorage Keys
   // ACHTUNG: Nur LocalStorage nutzen, da OPFS, IndexedDB und File System Access API
   // unter file:// (lokaler Aufruf per Doppelklick) mangels HTTPS/Sicherheitskontext blockiert werden!
-  STORAGE: {
-    DRAFT_CURRENT: 'din_draft_current',
-    PROFILE: 'din_profile',
-    SETTINGS: 'din_settings',
-    CUSTOM_FONT: 'din_custom_font',
-    GEOAPIFY_KEY: 'din_geoapify_key'
-  },
-
-  // System Limits
+  // Hinweis: Die konkreten Key-Strings ('din_*') leben in den save/load-Methoden und den
+  // Boot-Skripten (klassische <script src>-Skripte, koennen keine Module importieren).
   LIMITS: {
     HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
-    API_DEBOUNCE_MS: 300,     // Auto-complete delay
-    MAX_PAGES: 12,            // Hard limit on pages (Roadmap)
     FONT_SIZE_MAX_KB: 60      // Max size für Base64-Schriftarten (LocalStorage Limitierung)
   },
 
@@ -104,7 +93,6 @@ export const StorageManager = {
   loadSettings() {
     const defaultSettings = {
       theme: "light",
-      themeDim: 0,
       layout: "form-b",
       guides: true,
       systemFont: "sans",

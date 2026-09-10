@@ -3,9 +3,10 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager } from '../website/js/01-draft-manager.js';
-import { StorageManager, Constants } from '../website/js/51-storage.js';
+import { StorageManager } from '../website/js/51-storage.js';
 
-const DRAFT_KEY = Constants.STORAGE.DRAFT_CURRENT;
+/* StorageManager persistiert Drafts unter `din_draft_${key}` (key = 'current'). */
+const DRAFT_KEY = 'din_draft_current';
 
 /** @returns {Record<string, string>} */
 const getDraft = () => {

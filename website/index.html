@@ -72,9 +72,11 @@
             <input type="checkbox" switch id="toggle-experimental-ai" autocomplete="off" aria-label="On-Device KI-Assistent aktivieren">
           </div>
           <div class="sidebar-zusatz-row">
-            <!-- Select = Vorlagen-Auswahl (schreibt ins Feld). Das Papierfeld selbst ist
-                 100% contenteditable (Doktrin: alle DIN-Felder editierbar) — manueller
-                 Text im Feld hat Vorrang und wird nicht vom Boot-Sync überschrieben. -->
+            <!-- Select = Vorlagen-Auswahl UND Hauptschalter der Sichtbarkeit:
+                 kein Wert gewählt → Feld unsichtbar (auch bei manuellem Text).
+                 Das Papierfeld selbst ist 100% contenteditable (Doktrin: alle
+                 DIN-Felder editierbar) und wird nicht vom Boot-Sync überschrieben,
+                 solange es Inhalt hat. -->
             <select id="sidebar-pv-select" class="sidebar-select sidebar-pv-select" data-persist aria-label="Postvermerk wählen">
               <option value="">— kein —</option>
               <option value="Einschreiben">Einschreiben</option>

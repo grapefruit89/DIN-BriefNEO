@@ -933,4 +933,6 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 
 **Gültiger Restbefund:** Die Select-Sync-Logik liegt funktional widerspruchsfrei, aber redundant in zwei Modulen (boot-state.js: R5-Overwrite + FOUC-Fill; main.js: Draft-Restore-Fill). Kein Bug, bewusste Trennung Boot/Rest-Verhalten — wird nur bei künftiger Änderung an dieser Logik konsolidiert.
 
+**Abschluss (Owner, 2026-09-10): R3 endgültig gestrichen.** Das Regelwerk lautet final: **R1** (Default unsichtbar), **R2** (Select-Wahl → sichtbar + Text gesetzt), **R4** („— kein —" → unsichtbar), **R5** (aktive Select-Wahl überschreibt manuellen Text). Ein leer gelassenes, sichtbares Feld zeigt den Placeholder-Hint und bleibt solange bestehen, bis der Select auf „— kein —" gestellt wird. Kein Blur-abhängiges Ausblenden — der Select ist alleiniger Master der Sichtbarkeit (dokumentiert im HTML-Kommentar bei `#sidebar-pv-select`).
+
 **Generalisierbarkeit:** Für `llm_boilerplate`: AI-Reviews müssen gegen den aktuellen Commit geprüft werden, nicht gegen zitierte Snippets — veraltete Prämisse invalidiert die gesamte Folgerungskette. Zustandsgetriebene Sichtbarkeit über `:has()`-Selektoren dokumentieren und in Reviews als bewusste Architektur verteidigen, nicht als „Fallback" abwerten.

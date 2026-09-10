@@ -20,3 +20,14 @@ export function applyLetterDate() {
   if (!el) return;
   el.textContent = formatLetterDate();
 }
+
+/**
+ * „Heute" als ISO-String (YYYY-MM-DD) in Berliner Zeit — Single Source of Truth
+ * für alle maschinenlesbaren Datums-Ableitungen (z. B. PDF-Dateiname in 53-metadata.js).
+ * Bewusst zoned (nicht plainDateISO(), das UTC-basiert ist und nachts 00:00–02:00
+ * deutscher Zeit den Vortag liefern würde).
+ * @returns {string}
+ */
+export function currentISODate() {
+  return Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString();
+}

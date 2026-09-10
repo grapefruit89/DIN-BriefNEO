@@ -2,6 +2,8 @@
 // @adr [[ADR-JS]] 
 // @guide [[glossary]] 
 
+import { currentISODate } from './47-date-format.js';
+
 /**
  * metadata.js — Platinum Metadata Bridge for V5+
  * Optimiert für Paperless-ngx, Obsidian, Notion & System-Suche
@@ -10,8 +12,9 @@
 
 export const MetadataService = {
   prepare() {
-    // 1. Datum & Zeit (rein Temporal API, keine Legacy Date Fallbacks!)
-    const dateStr = Temporal.Now.plainDateISO().toString();
+    // 1. Datum & Zeit — Berliner Zeit aus 47-date-format.js (Single Source of Truth;
+    //    plainDateISO() wäre UTC-basiert und nachts 00:00–02:00 deutscher Zeit falsch)
+    const dateStr = currentISODate();
     
     // 2. Read DOM directly
     const lastName = (document.getElementById('absender')?.textContent || "").split(',')[0].replace(/\s/g, "") || "Absender";

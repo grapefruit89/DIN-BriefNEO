@@ -774,3 +774,15 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Generalisierbarkeit:** Für die `llm_boilerplate`: Document-scoped View Transitions frieren Hit-Testing des gesamten Root-Subtrees ein — `pointer-events: none` allein reicht nicht. Pattern: Root-Opt-Out + nur Inhaltsbereich benennen, wenn während des Transitions Interaktivität gewünscht ist.
 
 **Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Build-Stand: toter Button zu nicht-interaktivem Datum-Stempel
+
+**Kontext:** `#btn-dev-mode` war ein `<button>` ohne einen einzigen JS-Listener — es zeigte nur ein hartkodiertes, veraltetes Datum („04.09.2026") via `data-ui`-CSS und behauptete fälschlich „Developer Mode aktivieren".
+
+**Entscheidung:** Zu nicht-interaktivem `<span id="sidebar-build-date">` („Stand: DD.MM.YYYY") umgebaut. Kein Runtime-Fetch zur GitHub-API (A38-Allowlist) — stattdessen stampft der Deploy-Workflow (deploy.yml, Schritt nach Checkout) das echte Commit-Datum (`git log -1 --format='%cd'`) per sed in `data-ui`. Auf GitHub Pages immer aktuell; lokaler Stand zeigt das kommittierte Datum als Fallback.
+
+**Verifikation:** Fitness Gate 100 %. Live: `<span>`, kein Button mehr, rendert „Stand: 10.09.2026".
+
+**Generalisierbarkeit:** Für die `llm_boilerplate`: Version/Build-Stand gehört in die Deploy-Pipeline (Build-Time-Stamping), nicht in Runtime-Fetches (Offline-Regel) und nicht in hartkodierte Strings, die garantierter Drift unterliegen.
+
+**Status:** Umgesetzt — Fitness Gate 100 %.

@@ -15,8 +15,6 @@ try {
   const defaults = {
     theme: 'auto',
     layout: 'form-b',
-    guides: true,
-    systemFont: 'sans',
     formality: 'formal'
   };
   const raw = localStorage.getItem('din_settings');
@@ -37,8 +35,6 @@ try {
   }
   setRadioSync('layout-form', settings.layout);
   setRadioSync('salutation', settings.formality);
-  setRadioSync('font-stack', settings.systemFont);
-  setRadioSync('guides', settings.guides ? 'on' : 'off');
   const themeToggleBtn = document.getElementById('btn-theme-toggle');
   if (themeToggleBtn) {
     /* Sichtbares Label rendert CSS (floating.css, data-appearance-Selektoren). */

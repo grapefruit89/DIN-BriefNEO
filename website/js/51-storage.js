@@ -95,10 +95,7 @@ export const StorageManager = {
       theme: "light",
       layout: "form-b",
       guides: true,
-      formality: "formal",
-      recipientType: "none",
-      dateFormat: "din",
-      addressProvider: "photon"
+      formality: "formal"
     };
     try {
       const settings = localStorage.getItem("din_settings");

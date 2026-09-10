@@ -5,9 +5,11 @@
 
 /*
  * Blocking classic script (Ende von <body>): stellt vor dem Start der ES-Module
- * den gespeicherten Zustand wieder her (Draft, Radios, Theme, Postvermerk,
- * Custom-Font-Status). Muss synchron an dieser Parse-Position laufen —
- * deferred Modules würden erst nach dem Full-Parse greifen.
+ * den gespeicherten Zustand wieder her (Draft, Radios, Theme-Button,
+ * Postvermerk, Custom-Font-Status). Muss synchron an dieser Parse-Position
+ * laufen — deferred Modules würden erst nach dem Full-Parse greifen.
+ * data-theme/colorScheme am <html> setzt bereits boot-theme.js (Head, vor
+ * First Paint) — hier kein zweiter Owner.
  */
 try {
   const defaults = {
@@ -37,22 +39,12 @@ try {
   setRadioSync('salutation', settings.formality);
   setRadioSync('font-stack', settings.systemFont);
   setRadioSync('guides', settings.guides ? 'on' : 'off');
-  const activeTheme = settings.theme || 'auto';
-  document.documentElement.setAttribute('data-theme', activeTheme);
-  const scheme = activeTheme === 'auto' ? 'light dark' : activeTheme;
-  document.documentElement.style.colorScheme = scheme;
-  if (document.body) {
-    document.body.setAttribute('data-theme', activeTheme);
-    document.body.style.colorScheme = scheme;
-  }
   const themeToggleBtn = document.getElementById('btn-theme-toggle');
   if (themeToggleBtn) {
+    /* Sichtbares Label rendert CSS (floating.css, data-appearance-Selektoren). */
+    const activeTheme = settings.theme || 'auto';
+    const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
     themeToggleBtn.setAttribute('data-appearance', activeTheme);
-    /** @type {Record<string, string>} */
-    const labels = { auto: '🌓 Auto', light: '☀️ Hell', dark: '🌙 Dunkel' };
-    /** @type {Record<string, string>} */
-    const titles = { auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' };
-    themeToggleBtn.setAttribute('data-ui', labels[activeTheme] || '🌓 Auto');
     themeToggleBtn.setAttribute('title', titles[activeTheme] || 'Darstellung: Automatisch');
     themeToggleBtn.setAttribute('aria-label', titles[activeTheme] || 'Darstellung: Automatisch');
   }
@@ -82,7 +74,5 @@ try {
   applyPv();
   if (localStorage.getItem('din_custom_font')) {
     document.body.classList.add('font-custom-active');
-    const status = document.getElementById('font-status-label');
-    if (status) status.textContent = 'Aktiv: Eigene Schrift (WOFF2)';
   }
 } catch (e) {}

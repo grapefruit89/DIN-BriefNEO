@@ -325,10 +325,28 @@ din-anlagen, din-verteiler {
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
 #anlagen-text { margin: 0; padding-left: 1.5rem; }
 
-/* --- 2-SECOND THEME VIEW TRANSITION (nativ: :active-view-transition, Baseline 01/2026) --- */
-html:active-view-transition::view-transition-old(root),
-html:active-view-transition::view-transition-new(root) {
-  animation-duration: 2s;
+/* --- THEME VIEW TRANSITION (nativ: :active-view-transition, Baseline 01/2026) ---
+   0.6s statt 2s (UX-Feedback: zu lang). Root ist NICHT Teil des Snapshots
+   (view-transition-name: none): Während des document-scoped Transitions friert
+   sonst die GANZE Seite Hit-Testing ein — Klicks landen empirisch auf <html>,
+   nicht auf dem Theme-Button, trotz pointer-events: none. Nur #viewport wird
+   gesnapshottet und crossfaded 0.6s; Sidebar/Body wechseln instant und bleiben
+   klickbar (Bramus 2025-01-29: "By not capturing the :root, we leave room for
+   click-interactivity"). Element-scoped VTs (Popover/Sheet/Chip) sind von
+   view-transition-name: none unabhängig — ihr Pseudo-Baum sitzt im Element
+   selbst (MDN Element.startViewTransition, 2026-07-08). */
+:root {
+  view-transition-name: none;
+}
+#viewport {
+  view-transition-name: brief-viewport;
+}
+html:active-view-transition::view-transition-old(brief-viewport),
+html:active-view-transition::view-transition-new(brief-viewport) {
+  animation-duration: 0.6s;
+}
+::view-transition {
+  pointer-events: none;
 }
 
 /* --- VERTICAL RADIO MENU --- */

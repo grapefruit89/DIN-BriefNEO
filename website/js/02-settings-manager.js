@@ -73,20 +73,9 @@ export class SettingsManager {
       this.applyThemeDim(dim);
 
       if (this.btnThemeToggle) {
+        /* Sichtbares Label rendert CSS (floating.css, data-appearance-Selektoren). */
+        const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
         this.btnThemeToggle.setAttribute('data-appearance', active);
-        /** @type {Record<string, string>} */
-        const labels = {
-          auto: '🌓 Auto',
-          light: '☀️ Hell',
-          dark: '🌙 Dunkel'
-        };
-        /** @type {Record<string, string>} */
-        const titles = {
-          auto: 'Darstellung: Automatisch (System)',
-          light: 'Darstellung: Helles Design',
-          dark: 'Darstellung: Dunkles Design'
-        };
-        this.btnThemeToggle.setAttribute('data-ui', labels[active] || '🌓 Auto');
         this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
         this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
       }
@@ -173,15 +162,15 @@ export class SettingsManager {
     const chip = this.fontStatusLabel;
     if (!chip) return;
     const apply = () => {
+      /* Chip-/Button-Text rendert CSS (floating.css, font-custom-active-Selektoren);
+       * JS setzt nur den Zustand: body-Klasse + data-font-mode. */
       const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
       if (hasCustomFont) {
-        chip.textContent = "Aktiv: Eigene WOFF2 Schrift";
         document.body.classList.add('font-custom-active');
-        if (btn) { btn.dataset.fontMode = 'reset'; btn.dataset.ui = '🗑️ Schrift zurücksetzen'; }
+        if (btn) btn.dataset.fontMode = 'reset';
       } else {
-        chip.textContent = "Aktiv: System-UI Standardschrift";
         document.body.classList.remove('font-custom-active');
-        if (btn) { btn.dataset.fontMode = 'upload'; btn.dataset.ui = '📤 Schrift hochladen'; }
+        if (btn) btn.dataset.fontMode = 'upload';
       }
     };
     // @ts-ignore Element-scoped View Transitions (Chrome 147+): Chip-Wechsel nur lokal crossfaden

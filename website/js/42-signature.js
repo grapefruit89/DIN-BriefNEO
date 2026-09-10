@@ -149,10 +149,15 @@ export class SignatureFeature {
 
   applyTransform() {
     if (this.bbox) {
-      this.bbox.style.setProperty('--x', this.state.x + 'px');
-      this.bbox.style.setProperty('--y', this.state.y + 'px');
-      this.bbox.style.setProperty('--scale', this.state.scale.toString());
-      this.bbox.style.setProperty('--rot', this.state.rot + 'deg');
+      /* Individuelle Transform-Eigenschaften (Chrome 104, Baseline): feste
+         Spec-Reihenfolge translate → rotate → scale, keine Matrix-Konkatenation,
+         DevTools zeigen jeden Teil einzeln. Uniform-Scale + Rotate kommutieren,
+         daher visuell identisch zur bisherigen transform-Kaskade.
+         Verzerrungsfreiheit: scale ist ein Skalar — width/height würden
+         das Seitenverhältnis brechen, deshalb bewusst NICHT genutzt. */
+      this.bbox.style.translate = `${this.state.x}px ${this.state.y}px`;
+      this.bbox.style.rotate = `${this.state.rot}deg`;
+      this.bbox.style.scale = this.state.scale.toString();
     }
   }
 

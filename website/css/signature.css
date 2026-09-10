@@ -48,8 +48,9 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
   display: inline-block;
   cursor: grab;
   pointer-events: auto;
-  /* Transform values applied via JS inline styles/vars */
-  transform: translate(var(--x, 0px), var(--y, 0px)) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+  /* Transform via individuelle Eigenschaften, von JS inline gesetzt
+     (42-signature.js applyTransform) — keine --x/--y/--scale/--rot-Vars nötig.
+     Verzerrungsfreiheit bewusst über uniform scale (Skalar), nicht width/height. */
   transform-origin: center center;
   touch-action: none;
 }

@@ -861,3 +861,18 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Fitness Gate 100 %. Live: Span weg, Header-Row = 2 Kinder, Theme-Button einzeilig (19px).
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: Meta-Informationen (Build-Stand, Version) gehören nicht in knapp bemessene UI-Header — Genauigkeit schlägt Gimmick.
+
+## 2026-09-10 — Signatur-Editor: individuelle Transform-Eigenschaften (translate/rotate/scale)
+
+**Kontext:** Externer Brainstorm (angestoßen via webstatus.dev baseline-2026) zur Frage „Bild/Unterschrift — wie viel geht ohne JS?".
+
+**Entscheidung:**
+1. **Umgesetzt:** `42-signature.js applyTransform()` schreibt jetzt `style.translate/rotate/scale` direkt (Chrome 104, Baseline 2023) statt Custom-Props + kombinierte `transform`-Matrix in signature.css. Feste Spec-Reihenfolge (translate → rotate → scale), keine Matrix-Konkatenation, einzeln im DevTools-Inspector lesbar. Visuell identisch: Scale ist ein Skalar, uniform Scale kommutiert mit Rotation um denselben Origin — die Gesten-Mathe (getBoundingClientRect, centerX/centerY, Pointer-Capture) bleibt unangetastet.
+2. **Guard-Kommentar** zur Verzerrungsfreiheit: scale als Skalar ist die Garantie (1:1, nie verzerren) — width/height würden das Seitenverhältnis brechen, bewusst nicht genutzt.
+3. **Abgelehnt:** `@property`+Transitions für „sanftes Einrasten" — es existiert KEINE JS-Easing-Schleife, die man ersetzen könnte (Ersparnis der Review-KI war spekulativ). Eine Transition während der Geste würde am Pointer nachziehen (Print-Präzision!) — sie müsste auf Release gefiltert werden, also Komplexität für ein Feature, das keiner verlangt hat.
+
+**Festhalten (Antwort auf die Kernfrage):** Drag/Rotate/Resize-Gesten **müssen JS bleiben** (Pointer Events, setPointerCapture) — CSS kann keine Gesten. CSS übernimmt die komplette Transform-Ausführung. Der JS-Anteil ist damit minimal und korrekt.
+
+**Verifikation:** Fitness Gate 100 %. Live im Chrome: individuelle Eigenschaften angewandt und per getComputedStyle verifiziert (12px 8px / 45deg / 1.25). applyTransform-Route selbst wird erst mit geladener Unterschrift aktiv (in Testsession kein Bild) — Code-Pfad ist mechanisch (Property-Zuweisung derselben Werte).
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: `transform: translate(...) scale(...) rotate(...)` → individuelle Eigenschaften; nie transform-Kaskaden, wenn einzeln animierbar/debugbar sein soll.

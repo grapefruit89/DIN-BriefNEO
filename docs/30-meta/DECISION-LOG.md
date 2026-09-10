@@ -704,3 +704,21 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Empirie (Chrome 151, live getestet):** `setHTML()` existiert und sanitiert, aber mit eigener `elements`-Allowlist werden **alle Attribute verworfen** (alle drei Spec-Formen von `attributes` getestet: Objekt-Map, per-Element-Entry, flaches Array — plus `new Sanitizer(...)`), inkl. `class` für `din-comment`. Default-Sanitizer behält `class`, aber auch zu viele Elemente (`<i>`, `<em>` überleben). Context7/BCD bestätigt nur Verfügbarkeit, nicht das Config-Verhalten.
 
 **Entscheidung:** Der DOMParser-Walk mit exakter Allowlist (b/strong/u/s/blockquote + span.din-comment) ist ab jetzt **die einzige** Rich-Text-Sicherheitsgrenze — in `01-draft-manager.js` (#sanitizeRichText) und `31-format-toolbar.js` (Paste). `boot-state.js` (Boot-Quick-Restore vor den Modulen) nutzt `setHTML()` mit **Default**-Sanitizer: streng genug gegen Skripte, `class`-safe, null Config — der DraftManager übernimmt direkt danach mit der exakten Allowlist. Der setHTML-Dual-Path mit Verfügbarkeits-Check ist gelöscht (Baseline Chrome 150+).
+
+**Verifikation:** Injektionstest im echten Chrome: `<b>` bleibt, `<em>` wird zu Text entkleidet, `<span class="din-comment">` bleibt inkl. class, Plain-Felder werden via `textContent` escaped. Fitness Gate 100 % (pre + post).
+
+**Generalisierbarkeit:** „Live-Empirie schlägt Sanitizer-API-Doku" — API-Verfügbarkeit ≠ API-Fähigkeit; für die `llm_boilerplate`: immer eine Sanitizing-Funktion als Source of Truth, keine Verfügbarkeits-Branches bei fixer Browser-Baseline.
+
+**Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Tools-Entschlackung: archive/ + Obsidian-Tools geloescht
+
+**Kontext:** Externer Code-Review empfahl Dependency-Check fuer tools/. Verifiziert: `tools/archive/` (10 Dateien), `tools/add_wikilinks.py`, `tools/build_canvas.js` haben keine Referenzen in `start.ps1`, `reconciliation.js`, `build_db.js` oder `repository.yaml` (ausser Doku-Erwaehnungen). Bewusst NICHT geloescht: `build_db.py` (gecachter Pipeline-Step + autoritativer Function-Traceability-Matrix-Generator) und `log_session.js` (bindende Protokollierungspflicht, AGENTS.md Paragraph 8) — der Reviewer kannte den Governance-Contract nicht und hatte beide als Loeschkandidaten gefuehrt.
+
+**Entscheidung:** Loeschung von `tools/archive/` (Git-History haelt die historischen Migrationsskripte), `add_wikilinks.py` (Obsidian-Wikilink-Migration, einmalig abgeschlossen) und `build_canvas.js` (Obsidian-Canvas-Generator, nicht in Pipeline verankert). Stale-Referenzen bereinigt in: `CLAUDE.md` (Tool-Liste, Archiv-Block), `repository.yaml` (subpath), `docs/30-meta/tooling-overview.md` (Inventur Lauf 3: Abschnitte entfernt, Frontmatter aktualisiert), `docs/30-meta/OBSIDIAN-SETUP-GUIDE.md` (Kapitel 5 entfernt, 6-8 renumeriert, code_links), `docs/implementation_and_meta_inventory.json` (Snapshot konsistent gezogen).
+
+**Verifikation:** Fitness Gate 100 % (Metadata/Coherence/Conformance/Features). Grep-Verifikation: keine Referenzen mehr auf geloeschte Pfade in aktiven Konfig-/Gate-Dateien.
+
+**Generalisierbarkeit:** „Safe-to-delete-Hierarchie": 1) Archivverzeichnisse immer via Git-History statt Ordner im Tree; 2) Governance-Tools (`log_session`, Traceability-Generator) sind NICHT loeschbar, auch wenn sie wie Einmalskripte wirken; 3) beim Loeschen von Tools immer die fuenf Referenzorte pruefen: Startskript, Reconciliation-Regeln, repository.yaml, Inventur-Doku, code_links-Frontmatter.
+
+**Status:** Umgesetzt — Fitness Gate 100 %.

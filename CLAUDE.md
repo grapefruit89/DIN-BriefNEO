@@ -155,20 +155,18 @@ tools/dev_server.ps1           # Live-Reload-Webserver (Port 8088, reines PowerS
                                 # kein Python/Node.js noetig) -- pollt alle ~0,7s, laedt Browser
                                 # automatisch neu bei Aenderungen in website/
 ```
-> `sandbox/` wurde entfernt (6 Dateien, git-getrackt aber von nichts referenziert --
-> Recherche-/Prototyp-Material, siehe Commit-History). `serve.ps1` (Alt-Duplikat von
-> start.bat auf Port 8000, ohne Cache-Busting) und `dev_server.py` (Python-Vorgaenger
-> von `dev_server.ps1`, abgeloest wegen der Python-Installationspflicht) liegen jetzt
-> in `tools/archive/`.
+ > `sandbox/` wurde entfernt (6 Dateien, git-getrackt aber von nichts referenziert --
+ > Recherche-/Prototyp-Material, siehe Commit-History). `serve.ps1` (Alt-Duplikat von
+ > start.bat auf Port 8000, ohne Cache-Busting) und `dev_server.py` (Python-Vorgaenger
+ > von `dev_server.ps1`, abgeloest wegen der Python-Installationspflicht) wurden zusammen
+ > mit `tools/archive/` geloescht (Git-History haelt sie).
 
 ### `tools/` — ⭐⭐ WICHTIG (Build & Validierung)
 ```
 reconciliation.js              # ⭐⭐⭐ Der echte Fitness Gate -- laeuft bei jedem tools/start.ps1
 build_db.js / build_db.py      # Generiert SQLite-Wissensbasis aus Markdown
-add_wikilinks.py               # ⭐ Obsidian Wikilink-Generator (dry-run / --apply)
 create_context.js              # Context-Bundle Generierung -> agent/cache/LLM_CONTEXT.md
 log_session.js                 # Session-Logging
-build_canvas.js                # Obsidian-Canvas Generator
 test_text_fit_harness.js       # Test-Harness fuer die Text-Fit Engine
 pipeline-cache.ps1             # Hash-Cache fuer tools/start.ps1 Step-Skip-Logik
 antipatterns/                  # Aktive, geschichtete Anti-Pattern-Registry (JSON)
@@ -176,17 +174,6 @@ antipatterns/                  # Aktive, geschichtete Anti-Pattern-Registry (JSO
   project.json                 # Projektspezifische Antipatterns (ueberschreibt base/web)
   web.json                     # Web-Antipatterns
 boilerplate.config.json        # Boilerplate-Konfiguration
-
-archive/                       # Abgeloeste/superseded Skripte, bewusst stillgelegt
-  serve.ps1                    # Alt-Duplikat von start.bat (Root) (Port 8000, kein Cache-Busting)
-  dev_server.py                # Python-Vorgaenger von tools/dev_server.ps1 -- abgeloest,
-                                # da Python-Installation noetig war (tools/dev_server.ps1 braucht keine)
-  verify_compliance.py         # Vorgaenger-Fitness-Check -- abgeloest durch reconciliation.js
-  verify_compliance_gen3.py    # Gen3-Nachfolger, ebenfalls abgeloest
-  antipatterns.json            # Alte, flache Registry -- abgeloest durch antipatterns/{base,project,web}.json
-  wiki_bundler.py, packer.js, inject_yaml.js, migrate_frontmatter.py,
-  migrate_and_scrub*.py, fix_frontmatter_oneoff.py,
-  validate_foundation_frontmatter.py   # Einmalige Migrations-/Cleanup-Skripte
 ```
 
 ### `build/` — ⭐ GENERIERT (kann neu erzeugt werden, komplett gitignored)

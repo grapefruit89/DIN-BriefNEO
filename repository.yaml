@@ -55,7 +55,6 @@ structure:
       tools/start.ps1: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
       tools/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
       tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
-      tools/archive/: Historische/abgeloeste Einmal-Skripte, nicht Teil des aktiven Build-Pfads
     inventory_doc: docs/30-meta/tooling-overview.md
 
   docs/:

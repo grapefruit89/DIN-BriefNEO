@@ -4,7 +4,7 @@ title: Tool-Inventur — tools/
 status: active
 type: reference
 created: '2026-08-07'
-updated: '2026-08-27'
+updated: '2026-09-10'
 tags:
 - din-briefneo
 - meta
@@ -20,8 +20,6 @@ code_links:
 - 'tools/create_context.js'
 - 'tools/pipeline-cache.ps1'
 - 'tools/log_session.js'
-- 'tools/add_wikilinks.py'
-- 'tools/build_canvas.js'
 - 'tools/test_text_fit_harness.js'
 depends_on: []
 supersedes: []
@@ -29,14 +27,12 @@ supersedes: []
 
 # Tool-Inventur — tools/
 
-> **Ueberarbeitet 2026-08-27** (Lauf 2): Diese Version ersetzt den Stand vom
-> 2026-08-07. Die alte Fassung listete `wiki_bundler.py` und
-> `verify_compliance.py` als aktive Tools (beide liegen inzwischen in
-> `tools/archive/`, siehe Abschnitt "tools/archive/" unten) und beschrieb
-> fuer `create_context.js` ein Platzhalter-Template-Format
-> (`{{ GENERATION_DATE }}` etc.), das nicht mehr dem tatsaechlichen
-> Skriptverhalten entspricht — `create_context.js` buendelt heute schlicht
-> die `CORE_FILES`-Liste ohne Platzhalter-Ersetzung. Diese Inventur
+> **Ueberarbeitet 2026-09-10** (Lauf 3): `tools/archive/`, `add_wikilinks.py`
+> und `build_canvas.js` wurden geloescht (Git-History haelt sie); die
+> zugehoerigen Abschnitte sind entfallen. Vorheriger Stand (Lauf 2,
+> 2026-08-27) ersetzte eine Fassung, die `wiki_bundler.py` und
+> `verify_compliance.py` als aktive Tools listete (Archivmaterial,
+> inzwischen ebenfalls geloescht). Diese Inventur
 > beschreibt den Ist-Stand; das alte Template-Format ist nicht mehr gueltig.
 
 Strukturierte Uebersicht aller Skripte in `tools/`: Zweck, Ein-/Ausgabe,
@@ -130,32 +126,6 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Idempotenz**: NON_IDEMPOTENT (jeder Aufruf erzeugt einen neuen Log-Eintrag, auch bei identischen Argumenten)
 - **Safe-to-delete**: NEIN — einzige Protokollierungspflicht laut Governance-Vertrag
 
-## add_wikilinks.py
-
-- **Zweck**: Findet unverlinkte Dokumentnennungen in `.md`-Dateien und wandelt
-  sie automatisch in `[[Wikilinks]]` um. Ueberspringt Frontmatter, Codebloecke,
-  bestehende Links.
-- **Input**: `docs/**/*.md`
-- **Output**: modifizierte `.md`-Dateien (mit `--dry-run`-Option zur Vorschau ohne Schreiben)
-- **Abhaengigkeiten**: Python-Standardbibliothek
-- **Aufrufer**: NICHT Teil von `scripts/start.ps1` oder `deploy.yml` — manuelles Wartungstool, nur bei Bedarf von Hand aufgerufen
-- **Risikoklasse**: WRITE (aendert Quelldateien; hat aber einen Dry-Run-Modus)
-- **Idempotenz**: IDEMPOTENT (bereits verlinkte Mentions werden uebersprungen)
-- **Safe-to-delete**: Kandidat fuer spaeteren Review — nuetzlich, aber nicht in der Pipeline verankert; vor einer Loeschung pruefen ob es noch aktiv genutzt wird
-
-## build_canvas.js
-
-- **Zweck**: Erzeugt eine Obsidian-`.canvas`-Datei aus allen `.md`-Dateien
-  im Projekt (ausserhalb von `website/`, `.git/`, `tools/`, `scratch/`, `node_modules/`),
-  vermutlich zur visuellen Navigation der Dokumentation in Obsidian.
-- **Input**: alle `.md`-Dateien im Repo (ausserhalb der ausgeschlossenen Ordner)
-- **Output**: `.canvas`-Datei (Pfad im Skript zu verifizieren, nicht Teil dieser Inventur-Pruefung)
-- **Abhaengigkeiten**: keine, reines Node core
-- **Aufrufer**: NICHT Teil von `scripts/start.ps1` oder `deploy.yml` — manuelles Tool
-- **Risikoklasse**: WRITE (schreibt eine generierte Datei)
-- **Idempotenz**: IDEMPOTENT (deterministisch aus demselben Dateibestand)
-- **Safe-to-delete**: Kandidat fuer spaeteren Review — Nutzen haengt davon ab, ob Obsidian-Canvas-Ansicht noch aktiv genutzt wird
-
 ## test_text_fit_harness.js
 
 - **Zweck**: Empirischer Test-Harness fuer `TextFitEngine` und `UIProtections`
@@ -168,17 +138,6 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Risikoklasse**: READ (fuehrt nur Tests aus, schreibt nichts)
 - **Idempotenz**: IDEMPOTENT
 - **Safe-to-delete**: NEIN — einziger automatisierter Test fuer eine funktional komplexe Komponente (Textumbruch-Erkennung)
-
-## tools/archive/ (nicht einzeln inventarisiert)
-
-Enthaelt abgeloeste Einmal-Skripte (`inject_yaml.js`, `migrate_and_scrub*.py`,
-`migrate_frontmatter.py`, `packer.js`, `validate_foundation_frontmatter.py`,
-`verify_compliance*.py`, `wiki_bundler.py`, `fix_frontmatter_oneoff.py`,
-`antipatterns.json`). Diese sind bewusst nicht Teil der aktiven Tool-Inventur,
-da sie historische Migrationen dokumentieren, keine wiederkehrende Funktion
-erfuellen und laut Namenskonvention (`archive/`) als abgeschlossen gelten.
-Vor einer endgueltigen Loeschung: pruefen ob eine der Migrationen bei einem
-kuenftigen Schema-Wechsel als Vorlage dienen koennte.
 
 ## Zusammenfassung: Pipeline-Reihenfolge (scripts/start.ps1)
 

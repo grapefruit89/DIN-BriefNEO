@@ -407,7 +407,8 @@ aside .sidebar-github-link::before { content: none; }
 aside .sidebar-github-link::after { content: attr(data-ui); }
 
 :root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk,
-:root:has(#sidebar-pv-select option:checked:not([value=""])) #postvermerk {
+:root:has(#sidebar-pv-select option:checked:not([value=""])) #postvermerk,
+din-postvermerk:not(:empty) {
   display: block !important;
   flex-direction: unset;
   visibility: visible !important;

@@ -22,7 +22,9 @@ function syncPostvermerkFromSidebar() {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
   const field = document.getElementById('postvermerk');
   if (!sel || !field) return;
-  field.textContent = sel.value || '';
+  /* Feld ist 100% contenteditable (Doktrin): nur füllen, wenn leer —
+   * sonst würde der Boot-Sync manuell getippten Draft-Text vernichten. */
+  if (!field.textContent.trim()) field.textContent = sel.value;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

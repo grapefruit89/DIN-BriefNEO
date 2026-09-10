@@ -5,8 +5,16 @@
  *
  * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
  * Alle einzeiligen DIN-Felder nutzen `contenteditable="plaintext-only"` und `enterkeyhint="done"`.
- * Der Browser unterbindet Rich-Text, Formatierungs-Tags (bold/italic) und unerwünschte
- * Zeilenumbrüche NATIV im C++ Core der Rendering-Engine.
+ * Der Browser unterbindet Rich-Text und Formatierungs-Tags (bold/italic) NATIV
+ * im C++ Core der Rendering-Engine.
+ *
+ * ⚠️ ZEILENUMBRÜCHE SIND NICHT NATIV GEBLOCKT (Empirie 2026-09-10, Chrome 151):
+ * Chromium wandelt Umbrüche in plaintext-only-Feldern in LF-Zeichen (\n) um statt
+ * `<br>`/`<div>` (Chromium quirk, w3c/editing#419 + whatwg/html#11350) — und
+ * `enterkeyhint="done"` ist nur ein Tastatur-LABEL, kein Verhalten. Die Umbruchs-
+ * Sperre lebt bewusst in enforceLineLimits (JS keydown + Paste-Flattening), NICHT
+ * im Plattform-Verhalten. "enterkeyhint/prevented nativ" ist KEIN Grund, den
+ * keydown-Guard zu entfernen — bereits vergeblicher Angriffsversuch, siehe DECISION-LOG.
  *
  * ES IST STRENGSTENS UNTERSAGT (Immutable Law A49 & ADR-JS):
  * 1. Vorab-Interzeptoren für `beforeinput` (formatBold, formatItalic, etc.) neu einzuführen.

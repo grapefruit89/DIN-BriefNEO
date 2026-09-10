@@ -386,6 +386,16 @@ aside select {
   user-select: text;
 }
 aside [data-ui]::before { content: attr(data-ui); }
+
+/* Zustands-Strings im CSS statt in JS-Dictionaries — JS setzt nur den Zustand
+ * (data-appearance / data-font-mode / body.font-custom-active). */
+#btn-theme-toggle[data-appearance="auto"]::before { content: "🌓 Auto"; }
+#btn-theme-toggle[data-appearance="light"]::before { content: "☀️ Hell"; }
+#btn-theme-toggle[data-appearance="dark"]::before { content: "🌙 Dunkel"; }
+#btn-font-action[data-font-mode="upload"]::before { content: "📤 Schrift hochladen"; }
+#btn-font-action[data-font-mode="reset"]::before { content: "🗑️ Schrift zurücksetzen"; }
+#font-status-label::before { content: "Aktiv: System-UI Standardschrift"; }
+body.font-custom-active #font-status-label::before { content: "Aktiv: Eigene WOFF2 Schrift"; }
 aside .sidebar-checkbox-label {
   display: flex;
   align-items: center;

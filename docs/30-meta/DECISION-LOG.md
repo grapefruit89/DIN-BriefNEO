@@ -722,3 +722,55 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Generalisierbarkeit:** „Safe-to-delete-Hierarchie": 1) Archivverzeichnisse immer via Git-History statt Ordner im Tree; 2) Governance-Tools (`log_session`, Traceability-Generator) sind NICHT loeschbar, auch wenn sie wie Einmalskripte wirken; 3) beim Loeschen von Tools immer die fuenf Referenzorte pruefen: Startskript, Reconciliation-Regeln, repository.yaml, Inventur-Doku, code_links-Frontmatter.
 
 **Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Präsentations-Strings von JS in CSS verschoben (Economy-Layer)
+
+**Kontext:** Externer Review fand feste Zustands-Strings (Theme-Label, Font-Chip) doppelt in `boot-state.js` und `02-settings-manager.js`, obwohl die Elemente bereits rein per CSS gerendert werden (`content: attr(data-ui)` bzw. `::before`). Falscher Layer plus doppelt gepflegte Dictionaries.
+
+**Entscheidung:** Sichtbare Labels rendern jetzt ausschließlich CSS (`floating.css`): `#btn-theme-toggle[data-appearance=…]::before`, `#btn-font-action[data-font-mode=…]::before`, `#font-status-label::before` mit `body.font-custom-active`-Variante. JS setzt nur noch den Zustand (`data-appearance`, `data-font-mode`, `body.font-custom-active`); `data-ui` und die Label-Dictionaries entfallen aus beiden JS-Dateien und aus `index.html`. `title`/`aria-label` bleiben bewusst in JS (CSS kann keine echten a11y-Attribute setzen); die `titles`-Dictionaries verbleiben in beiden Dateien, weil `boot-state.js` vor den Modulen laufen muss.
+
+**Verifikation:** Fitness Gate 100 %. Live im echten Chrome (frischer Tab, echte CDP-Maus-Events): Theme-Cycle light→dark mit korrektem Label/Titel, alle drei `data-appearance`-Zustände (`🌓 Auto`, `☀️ Hell`, `🌙 Dunkel`), Font-Chip reagiert sofort auf `body.font-custom-active`, Font-Button zeigt upload/reset-Labels korrekt. Test-Theme-Setting auf light zurückgesetzt.
+
+**Generalisierbarkeit:** Für die `llm_boilerplate`: Zustandsabhängige Festtexte gehören in CSS-Selektoren über Zustandsattribute/-klassen, nicht in JS-Dictionaries; JS schreibt nur den Zustand. Eine Regel: „Wenn der Text bereits per `content: attr()` gerendert wird, gehört auch die Zustandszuordnung ins CSS."
+
+**Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Boot-Path-Shrink: boot-state.js hört auf, boot-theme.js zu kopieren
+
+**Kontext:** Full-Mode-Spec `specs/2026-09-10-boot-path-shrink/` (A1). `boot-state.js` Z. 40–47 setzte `html/body data-theme` + `colorScheme` neu, obwohl `boot-theme.js` (Head, blockierend) als einziger Owner dieser Attribute etabliert ist — doppelter Schreibzugriff auf denselben Zustand direkt nach dem Boot.
+
+**Analyse (Owner-Regel):** CSS deckt `body` komplett über `[data-theme="…"] body`-Descendant-Selektoren ab (`variables.css`), `color-scheme` erbt von `html`. Live-Probe bestätigt: die CSS-Kaskade löst über das html-Attribut allein auf. Die `body[data-theme]`-Tripel-Selektoren wurden bewusst NICHT angefasst (Churn ohne Nutzen).
+
+**Entscheidung:** Block Z. 40–47 entfernt; Header-Kommentar aktualisiert („boot-theme.js ist Owner"). Radios, Draft-Quick-Restore, PV, Font-Klasse und Theme-Button-Block (`data-appearance` + title/aria) bleiben — das ist boot-state.js' eigener Zustand.
+
+**Verifikation:** Fitness Gate 100 %. Frischer Tab, echte CDP-Maus-Events: `htmlTheme: light, bootLabel: "☀️ Hell", title: "Darstellung: Helles Design", bodyColorScheme: light` — alle Boot-States korrekt.
+
+**Generalisierbarkeit:** Für die `llm_boilerplate`: Jeder persistierte State braucht genau einen Boot-Owner; Kopier-Schreibzugriffe in Folge-Modulen sind Drift-Quellen. Regel: „Boot-Modul schreibt, Feature-Module lesen/ändern — nie beides doppelt beim Boot."
+
+**Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — anchor-scope geprüft und vertagt (Segmented Controls)
+
+**Kontext:** Full-Mode-Spec A2: Prüfung, ob `anchor-scope` (Chrome 131+) die Popover-Anker der Radio-Segmented-Controls vereinfacht.
+
+**Empirie (caniuse + CSSWG-Spec, live):** Support Chrome 131+ → im 150+-Baseline ✓. Aber: (1) Anchor-Wechsel wird NICHT interpoliert — die 0.3s-Slide-Animation des Pills (Kern-UX der Controls) ginge verloren, `anchor-scope` springt hart. (2) Die Radio-Inputs sind `.sr-only` (1×1px, `layout.css` ~Z. 233) — der Anker müsste auf `input:checked + label` umziehen. (3) Das „unbegrenzte Optionen"-Motiv greift nicht: feste 2–3 Optionen.
+
+**Entscheidung:** Vertagt. `anchor-scope` bietet hier keinen echten Gewinn gegenüber der bestehenden `:has()`-Positionslösung.
+
+**Generalisierbarkeit:** Für die `llm_boilerplate`: Bleeding-Edge-Funktion erst dann übernehmen, wenn sie ein konkretes Problem löst, das die bestehende Lösung nicht schon löst — „Baseline-tauglich" ist kein Übernahmegrund allein.
+
+**Status:** Geprüft, bewusst nicht umgesetzt.
+
+## 2026-09-10 — Theme-Transition: 0.6s + Klickbarkeit via Root-Opt-Out
+
+**Kontext:** UX-Feedback: Theme-View-Transition dauerte 2s (`layout.css` „2-SECOND …") und der Theme-Button war währenddessen nicht klickbar. Anforderung: max 1s und klickbar während des Transitions.
+
+**Empirie (Chrome 151, echte CDP-Maus-Events + Web-Recherche Bramus 2025-01-29 / CSSWG #11596 / MDN 2026-07-08):** (1) `pointer-events: none` auf `::view-transition` lässt Klicks zwar durchs Overlay fallen, ABER: solange `:root` am Transition teilnimmt, landet der Hit-Test empirisch auf `<html>` statt auf dem Button — bei Root-Capture überdeckt der Snapshot die ganze Seite. (2) Beweis nach dem Fix: Doppelklick 250ms auseinander → `["btn-theme-toggle","btn-theme-toggle"]`, VT aktiv, Theme zweimal weitgeschaltet (dark→auto→light). (3) Element-scoped VTs (Popover/Sheet/Chip) sind von `view-transition-name: none` unabhängig — ihr Pseudo-Baum sitzt im Element selbst (MDN).
+
+**Entscheidung:** `animation-duration: 0.6s` (statt 2s); `:root { view-transition-name: none; }` (Root aus dem document-scoped Snapshot raus → Sidebar bleibt live-klickbar); `#viewport { view-transition-name: brief-viewport; }` crossfaded 0.6s; `::view-transition { pointer-events: none; }`. Sidebar/Body wechseln instant, der Brief-Bereich faded — bewusster Trade zugunsten der Klickbarkeit.
+
+**Verifikation:** Fitness Gate 100 % (pre + post). Live: Doppelklick während aktiver Transition registriert beide Klicks; VT-Dauer ~639ms gemessen; Hilfslinien-Switch nach HTML-Umzug (in „DIN-Brief Layout", unter dem Form A/B-Segmented-Control) funktional und positionell verifiziert.
+
+**Generalisierbarkeit:** Für die `llm_boilerplate`: Document-scoped View Transitions frieren Hit-Testing des gesamten Root-Subtrees ein — `pointer-events: none` allein reicht nicht. Pattern: Root-Opt-Out + nur Inhaltsbereich benennen, wenn während des Transitions Interaktivität gewünscht ist.
+
+**Status:** Umgesetzt — Fitness Gate 100 %.

@@ -64,14 +64,17 @@ try {
   }
   const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
   const pvField = document.getElementById('postvermerk');
-  const applyPv = () => {
-    if (pvSel && pvField && pvSel.value) pvField.textContent = pvSel.value;
+  /* Feld ist 100% contenteditable (Doktrin). Boot-Fill nur, wenn leer
+   * (Draft-Restore darf nicht klobbered werden); aktive Select-Wahl
+   * überschreibt weiter — bewusste Vorlagen-Wahl des Users. */
+  const applyPv = (overwrite = true) => {
+    if (pvSel && pvField && pvSel.value && (overwrite || !pvField.textContent.trim())) pvField.textContent = pvSel.value;
   };
   if (pvSel) {
-    pvSel.addEventListener('input', applyPv);
-    pvSel.addEventListener('change', applyPv);
+    pvSel.addEventListener('input', () => applyPv());
+    pvSel.addEventListener('change', () => applyPv());
   }
-  applyPv();
+  applyPv(false);
   if (localStorage.getItem('din_custom_font')) {
     document.body.classList.add('font-custom-active');
   }

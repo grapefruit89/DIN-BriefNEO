@@ -786,3 +786,15 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Generalisierbarkeit:** Für die `llm_boilerplate`: Version/Build-Stand gehört in die Deploy-Pipeline (Build-Time-Stamping), nicht in Runtime-Fetches (Offline-Regel) und nicht in hartkodierte Strings, die garantierter Drift unterliegen.
 
 **Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Postvermerk: 100% contenteditable (Doktrin-Verletzung behoben)
+
+**Kontext:** `#postvermerk` war das EINZIGE DIN-Feld ohne `contenteditable` — Doktrin „alle einzeiligen DIN-Felder nutzen contenteditable=plaintext-only" (03-ui-protections.js Guard-Kommentar) war verletzt. Historisch begründet als „reine Anzeige" (review_grok.md rot), was Owner-Entscheidung aufgehoben hat.
+
+**Entscheidung:** (1) `contenteditable="plaintext-only" enterkeyhint="done"` am Feld. (2) Boot-Sync (`main.js` syncPostvermerkFromSidebar, `boot-state.js` applyPv) füllt nur noch, wenn das Feld leer ist — manuell getippter Draft-Text hat Vorrang. (3) Aktive Select-Wahl (input/change-Listener) überschreibt weiter — bewusste Vorlagen-Wahl. (4) Sichtbarkeits-Trigger `din-postvermerk:not(:empty)` ergänzt (layout.css + floating.css): Custom-Text bleibt sichtbar, selbst wenn der Select zurückgesetzt wird.
+
+**Verifikation:** Fitness Gate 100 %. Live (echtes CDP-Tippen, Input.insertText): Feld editierbar, Custom-Text „ EinwurfEinschreiben" überlebt Reload (Draft-Restore + kein Boot-Clobber), bleibt nach Select-Clear sichtbar, aktive Select-Wahl überschreibt („Einschreiben Einwurf"). 2-Zeilen-Limit + Paste-Flattening greifen automatisch über die bestehende maxTwoLinesIds-Registrierung.
+
+**Generalisierbarkeit:** Für die `llm_boilerplate`: Sidebar-Steuerung und Papierfeld dürfen nie exklusiv-trennend designed werden („Select ist einziger Schreiber") — Feld immer 100% editierbar, Sidebar-Controls sind Vorlagen-/Komfort-Schreiber. Boot-Sync schreibt nur in leere Felder.
+
+**Status:** Umgesetzt — Fitness Gate 100 %.

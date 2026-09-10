@@ -72,9 +72,9 @@
             <input type="checkbox" switch id="toggle-experimental-ai" autocomplete="off" aria-label="On-Device KI-Assistent aktivieren">
           </div>
           <div class="sidebar-zusatz-row">
-            <!-- Kein Hidden-State nötig: Sichtbarkeit leitet sich direkt aus dem Select ab
-                 (:root:has(#sidebar-pv-select option:checked:not([value=""]))). Der Select
-                 ist der EINZIGE Schreiber — das Papierfeld ist reine Anzeige (docs/30-meta/review_grok.md rot). -->
+            <!-- Select = Vorlagen-Auswahl (schreibt ins Feld). Das Papierfeld selbst ist
+                 100% contenteditable (Doktrin: alle DIN-Felder editierbar) — manueller
+                 Text im Feld hat Vorrang und wird nicht vom Boot-Sync überschrieben. -->
             <select id="sidebar-pv-select" class="sidebar-select sidebar-pv-select" data-persist aria-label="Postvermerk wählen">
               <option value="">— kein —</option>
               <option value="Einschreiben">Einschreiben</option>
@@ -175,7 +175,7 @@
             -->
             <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
-              <din-postvermerk id="postvermerk" class="single-line" aria-label="Postvermerk"></din-postvermerk>
+              <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Postvermerk"></din-postvermerk>
               <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
               <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>

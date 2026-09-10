@@ -58,7 +58,7 @@ Bei technischer Recherche, Reihenfolge nach Autoritaet, hoechste zuerst:
 | 1 | Normative Standards | WHATWG, W3C, TC39 |
 | 2 | Kompatibilitaet | Baseline, MDN, caniuse.com fuer Chrome 148+ (das Projekt ist bewusst chrome-only, siehe Immutable Law Catalog H11 / Baseline-Deklaration). Firefox Platform Status (platform-status.mozilla.org) und WebKit Feature Status (webkit.org/status) sind nur relevant, falls sich diese Baseline-Entscheidung jemals aendert -- kein Standardschritt fuer die aktuelle Chrome-only-Architektur |
 | 3 | Technische Dokumentation | Context7 |
-| 4 | Praxis/Expertenwissen | CSS-Tricks, web.dev, Smashing Magazine, A List Apart |
+| 4 | Praxis/Expertenwissen | CSS-Tricks, web.dev, Smashing Magazine, A List Apart, modern-css.com (Snippet-Sammlung, Ideal-Katalog fuer Modern-CSS-Audits — wie 2026-09-10 gegen den echten Code gegengeprueft; Snippets vor Umsetzung immer verifizieren, siehe DECISION-LOG) |
 | 5 | Allgemeines Web | Nie allein als Quelle ausreichend, nur zur Orientierung |
 
 Tier 0 sticht immer — wenn das Repository selbst eine Regel festlegt (z. B.

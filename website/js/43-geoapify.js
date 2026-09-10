@@ -118,18 +118,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     return book.filter(item => item.formatted.toLowerCase().includes(q)).slice(0, 5);
   }
 
-  /**
-   * @param {string} text
-   * @param {string} query
-   * @returns {string}
-   */
-  function highlightMatch(text, query) {
-    if (!query) return text;
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    return text.replace(regex, '<b>$1</b>');
-  }
-
   
   // Geoapify In-Memory Cache (verhindert doppelte API-Calls für dieselben Strings)
   /** @type {Map<string, AddressEntry[]>} */

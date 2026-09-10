@@ -891,3 +891,22 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Fitness Gate 100 %. Kein Verhaltensunterschied (Kommentar-only).
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: Guard-Kommentare müssen exakt zwischen „nativ verhindert" und „nativ umgeformt" unterscheiden — ein überzeichnetes Guard-Statement erzeugt kontraproduktive „Entdoppelungs"-Vorschläge. Empirie (CDP-Probe) schlägt Annahme in beiden Richtungen.
+
+## 2026-09-10 — Batch A: toter Code entfernt (externer Audit, gegen echten Code verifiziert)
+
+**Kontext:** Externer Zeilen-für-Zeilen-Audit aller 18 JS-Module meldete ~107 Zeilen toten Code. Jede Behauptung wurde vor der Löschung einzeln gegen den Code verifiziert (drei Funde bestätigt, keine Widerrufe). Geoapify bleibt bewusst unverkabelt (Owner-Entscheidung) — nur `highlightMatch()` als toter Funktionskörper entfernt, Modullogik unangetastet.
+
+**Entfernt (verifiziert tot):**
+1. `02-settings-manager.js` (~60 Zeilen): `btnCopyThemeTokens`-Listener, `themeDimmer`/`themeDimmerValue` + `applyThemeDim()` + Aufruf in `applyTheme`, `btnGuidesOn`/`btnGuidesOff`-Radio-Fallback (3 Stellen), `this.shell` (nur Zuweisung). Alles gegen im HTML nicht existierende IDs.
+2. `variables.css`: `@property --theme-dim` + Transition-Referenz + Initial — **kein** `var(--theme-dim)`-Leser im gesamten CSS/HTML (Zombie-Kette: Storage-Default → applyThemeDim → setProperty → @property, gelesen von niemandem).
+3. `51-storage.js`: `themeDim: 0`-Default; `SCHEMA_VERSION`, `STORAGE.*` (5 Keys), `LIMITS.API_DEBOUNCE_MS`/`MAX_PAGES` — alle ohne Referenz. Dateikopf-Kommentar angepasst (behauptete fälschlich, StorageManager konsumiere die Konstanten; er nutzt Magic-Strings — `boot-theme`/`boot-state` sind klassische Skripte und können nicht importieren).
+4. `43-geoapify.js`: `highlightMatch()` (definiert, nie aufgerufen).
+5. `32-toast.js`: `update()`-Methode + `updateToast`-Export (importiert wird nur `showToast, initToastSystem`).
+6. `sidebar.css`/`floating.css`: unerreichbare `:has(#btn-guides-on/:off:checked)`-Fallback-Selektoren (~6 Zeilen) — begingen dieselbe Zombie-Referenz wie das gelöschte JS.
+7. `test/all.js`: `Constants.STORAGE.DRAFT_CURRENT` → Literal `'din_draft_current'` (Test war einziger Konstanten-Konsument).
+
+**Abgelehnt/verschoben (strukturell, braucht Owner-Entscheid):** Toast-Queue/Pause-Resume, Sanitizer-Zentralisierung, boot-state-Draft-Restore (FOUC-Risiko), Popover-Duplikate 43/45, `53-metadata` Temporal-Doppelnutzung — alles bewusst NICHT angefasst.
+
+**Verifikation:** Fitness Gate 100 % (erster Lauf 99,87 % durch den Test-Konstanten-Referenz, behoben). Live (CDP, frischer Tab, cache-disabled, kein Konsolenfehler): Theme-Toggle zyklisch + persistiert, Guides-Switch per **echtem** Mausklick (Input.dispatchMouseEvent) → opacity 0/0.55 + persistiert, `--theme-dim` aus computed style verschwunden. Stale `themeDim`-Key aus alter Settings-Storage bereinigt. Lektion: synthetische `.click()`-Evals auf `switch`-Inputs sind unzuverlässig (togglen teils gar nicht) — nur trusted Input zählt.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: Toter-Code-Audits vor Umsetzung gegen den echten Code verifizieren (der Audit lag bei ~107 Zeilen, real ~120 inkl. CSS-Zombies + Test-Fix); CSS-`:has()`-Fallbacks auf nicht-existente Elemente sind eine eigene Zombie-Kategorie, die beim JS-Räumen leicht vergessen wird.

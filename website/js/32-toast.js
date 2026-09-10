@@ -104,21 +104,6 @@ export class ToastSystem {
     this.processQueue();
   }
 
-  /**
-   * @param {string} id
-   * @param {string} message
-   * @param {string} type
-   */
-  update(id, message, type = 'info') {
-    const { toast, dom } = this.state;
-    if (toast.current && toast.current.options?.id === id) {
-      if (dom.message) dom.message.textContent = message;
-      if (dom.global) {
-        dom.global.className = `toast-container type-${type}`;
-      }
-    }
-  }
-
   processQueue() {
     const { toast, dom } = this.state;
     if (this.state.active || toast.queue.length === 0 || !dom.global) return;
@@ -246,15 +231,6 @@ export const toastSystem = new ToastSystem();
  */
 export function showToast(message, type = 'info', options = {}) {
   toastSystem.show(message, type, options);
-}
-
-/**
- * @param {string} id
- * @param {string} message
- * @param {string} type
- */
-export function updateToast(id, message, type = 'info') {
-  toastSystem.update(id, message, type);
 }
 
 export function initToastSystem() {

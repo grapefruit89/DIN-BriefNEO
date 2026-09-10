@@ -4,7 +4,7 @@ title: 'Obsidian-taugliche Projektdokumentation — Setup-Guide'
 type: guide
 status: active
 created: '2026-08-07'
-updated: '2026-08-07'
+updated: '2026-09-10'
 tags:
   - din-briefneo
   - din-briefneo/guide
@@ -16,7 +16,7 @@ doc_links:
   - CLAUDE
   - AGENTS
 code_links:
-  - 'tools/add_wikilinks.py'
+  - 'tools/log_session.js'
 error_patterns:
   - obsidian
   - frontmatter
@@ -110,7 +110,7 @@ doc_links:                     # Verwandte Dokumente — reine IDs, KEIN [[...]]
   - constitution
   - adr-antipattern
 code_links:                    # Verwandte Code-Dateien — relative Pfade vom Projekt-Root
-  - 'tools/add_wikilinks.py'
+  - 'tools/log_session.js'
 supersedes:                    # Ersetzte ältere Dokumente — reine IDs
   - adr-migration-legacy
 error_patterns:                # KI-Suchbarkeit — YAML-Array, nicht Pipe-String
@@ -276,31 +276,7 @@ Wer dieses Muster kennt, findet sich in jedem Repo sofort zurecht — `00` ist i
 
 ---
 
-## 5. Automatisches Wikilink-Hinzufügen — `add_wikilinks.py`
-
-### Voraussetzungen & Funktionsweise
-
-- **Voraussetzung:** Python 3.8+ (nur Standardbibliothek — keine `pip`-Installationen nötig)
-- **Suchbereich:** Scannt alle `.md`-Dateien in `docs/` und im Projektordner rekursiv
-- **Logik:** Erstellt einen Index aller Dateinamen, ersetzt im Fließtext unverlinkte `dateiname.md`-Nennungen durch `[[dateiname]]`
-- **Schützt automatisch:** YAML-Frontmatter, Code-Blöcke, Inline-Code, bestehende `[[links]]`, Markdown-Links
-
-```bash
-# Arbeitsverzeichnis wechseln (falls nötig)
-cd aktueller_arbeitsordner
-
-# Dry-Run: nur anzeigen was geändert würde
-python tools/add_wikilinks.py
-
-# Änderungen anwenden
-python tools/add_wikilinks.py --apply
-```
-
-> ⚠️ **Windows CRLF:** Das Skript liest und schreibt mit `encoding="utf-8-sig"`, um BOM-Fehler zu vermeiden. Falls gemischte Zeilenumbrüche entstehen, eine `.gitattributes` mit `*.md text eol=lf` hinzufügen.
-
----
-
-## 6. Tags für schöne Graph-Cluster
+## 5. Tags für schöne Graph-Cluster
 
 Tags gruppieren Dokumente im Graphen visuell. **Hierarchische Tags** (mit `/`) erlauben Untergruppen:
 
@@ -321,7 +297,7 @@ In Obsidian → Graph View → Groups: Tags als Farb-Gruppen zuweisen.
 
 ---
 
-## 7. Checkliste — Neue Datei Obsidian-ready machen
+## 6. Checkliste — Neue Datei Obsidian-ready machen
 
 ```
 [ ] YAML-Frontmatter hinzugefügt (id, title, type, status, created, updated, tags, doc_links, code_links)
@@ -339,7 +315,7 @@ In Obsidian → Graph View → Groups: Tags als Farb-Gruppen zuweisen.
 
 ---
 
-## 8. Obsidian-Einstellungen für optimalen Graph
+## 7. Obsidian-Einstellungen für optimalen Graph
 
 > Diese Einstellungen sollten **vor dem ersten Schreiben** konfiguriert werden (siehe auch Abschnitt 0).
 

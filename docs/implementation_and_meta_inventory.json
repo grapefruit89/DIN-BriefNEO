@@ -1372,7 +1372,7 @@
           "AGENTS"
         ],
         "code_links": [
-          "tools/add_wikilinks.py"
+          "tools/log_session.js"
         ],
         "error_patterns": [
           "obsidian",
@@ -1836,8 +1836,6 @@
           "tools/create_context.js",
           "tools/pipeline-cache.ps1",
           "tools/log_session.js",
-          "tools/add_wikilinks.py",
-          "tools/build_canvas.js",
           "tools/test_text_fit_harness.js"
         ],
         "depends_on": [],

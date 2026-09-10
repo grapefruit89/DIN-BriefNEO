@@ -119,6 +119,7 @@ Soweit nicht anders markiert: HARD BAN.
 | # | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- |
 | A48 | `new Date()`, `Date.parse`, `Date.now` als Zeitquelle in `website/`; `moment.js`, `date-fns`, `luxon` überall | `Temporal` in `website/` | HARD BAN im Produkt. Gilt für `website/**`. `tools/`, `agent/` dürfen `Date` nutzen. Legacy-Date-Libraries bleiben projektweit verboten. |
+| A50 | `Temporal.Now.plainDateISO()` (und andere `Temporal.Now`-Ableitungen) **ohne explizite IANA-Zeitzone** in `website/` | `Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString()` — zentral in `47-date-format.js` (`currentISODate()`), referenziert statt neu geschrieben | Ohne Zone nutzt `plainDateISO()` die System-Zeitzone (UTC in CI/VMs/Servern); zwischen 00:00 und ~02:00 deutscher Zeit liefert sie den Vortag → Dateiname/Metadaten widersprechen dem Briefdatum. „Heute" lebt in genau einem Modul (Single Source of Truth). |
 
 ### Color, CSS, Struktur
 

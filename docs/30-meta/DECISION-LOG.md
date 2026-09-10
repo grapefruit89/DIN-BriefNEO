@@ -851,3 +851,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Fitness Gate 100 %. Live: Template wählen → Feld sichtbar; „— kein —" → `display: none` auch bei vorhandenem Text. Doktrin-Kommentar in index.html angepasst.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: Sidebar-Control mit Template-Funktion darf nicht doppelt determiniert werden (Sichtbarkeit über Select, Inhalt über Field) — ein Schalter pro Aspekt.
+
+## 2026-09-10 — Build-Stand-Span entfernt (Owner-Entscheidung, KISS)
+
+**Kontext:** Der `#sidebar-build-date`-Span verursachte 2-Zeilen-Umbrüche in der Sidebar-Header-Row ("Dunkel" wanderte um). Owner: „vielleicht lassen wir das einfach komplett weg — wer sich dafür interessiert kann ja auch auf den GitHub-Link gehen".
+
+**Entscheidung:** Die Entscheidung vom heutigen Vormittag (toter Dev-Mode-Button → Build-Stand-Span) zurückgenommen: Span gelöscht, Stamp-Step aus deploy.yml entfernt. Header-Row enthält jetzt nur noch GitHub-Link + Theme-Toggle. Das Commit-Datum ist über den GitHub-Link bzw. das Repo erreichbar — die Sidebar braucht es nicht.
+
+**Verifikation:** Fitness Gate 100 %. Live: Span weg, Header-Row = 2 Kinder, Theme-Button einzeilig (19px).
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: Meta-Informationen (Build-Stand, Version) gehören nicht in knapp bemessene UI-Header — Genauigkeit schlägt Gimmick.

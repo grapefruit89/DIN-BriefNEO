@@ -161,6 +161,13 @@ Verbindliche Kette (Catalog C1, A16–A20):
 *   **Moderne Plattform-Alternative:** Ein kompakter 3-Wege Toggle-Button (`#btn-theme-toggle`), der zentriert in der Header-Zeile liegt und zyklisch durch `Auto` -> `Hell` -> `Dunkel` -> `Auto` schaltet. Farbschema-Steuerung erfolgt über `:root[data-theme="..."]` mit nativer Unterstützung für `light-dark()` und `color-scheme: light dark`.
 *   **Verbot:** Theme-Wahl darf nicht mehr über redundante Radio-Segmented-Controls realisiert werden.
 
+### 18. Zeitzonen-lose `Temporal.Now`-Aufrufe (`plainDateISO()` ohne Argument) — HARD BAN
+
+*   **Catalog:** A50 (HARD BAN).
+*   **Begründung:** `53-metadata.js` nutzte für den PDF-Dateinamen `Temporal.Now.plainDateISO()` — das nutzt ohne Argument die **System-Zeitzone** (UTC in CI/VMs/Servern). Zwischen 00:00 und ~02:00 deutscher Zeit liefert der UTC-Tagesdatum den **Vortag** → der Dateiname widersprach dem Briefdatum (das korrekt über `zonedDateTimeISO('Europe/Berlin')` lief), was Suche/Sortierung in Paperless-ngx/Obsidian verfälscht. Live-Empirie: fester Instant `2026-09-02T23:30:00Z` (= 00:30 Berlin) → Berlin `2026-09-03`, UTC `2026-09-02`.
+*   **Moderne Plattform-Alternative:** `Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString()` — zentral als `currentISODate()` in `47-date-format.js` exportiert (Single Source of Truth für „heute"; Anzeigeformat via `formatLetterDate()`, maschinenlesbar via `currentISODate()`, bewusst zwei Exports statt einer konfigurierbaren Funktion).
+*   **Verbot:** Jeder `Temporal.Now`-Aufruf in `website/` MUSS eine explizite IANA-Zeitzone übergeben. `plainDateISO()` ohne Argument ist strikt untersagt; „heute"-Ableitungen dürfen nicht dezentral neu geschrieben werden, sondern importieren `currentISODate()`.
+
 ---
 
 ## Konsequenzen

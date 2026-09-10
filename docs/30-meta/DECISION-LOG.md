@@ -920,3 +920,17 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation (CDP, Chrome 151):** 1) Deterministischer Nacht-Beweis mit festem Instant `2026-09-02T23:30:00Z` (= 00:30 Berlin): `.toZonedDateTimeISO('Europe/Berlin').toPlainDate()` → `2026-09-03`, UTC → `2026-09-02` — `.toPlainDate()` honored die Zone. 2) `Emulation.setTimezoneOverride` auf UTC: `currentISODate()` → `2026-09-10` (systemzonenunabhängig), `formatLetterDate()` → „10. September 2026". Fitness Gate 100 %.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: „Heute"-Ableitungen gehören in genau ein Modul; `Temporal.Now.plainDateISO()` ohne explizite Zone ist eine Falle (UTC), `zonedDateTimeISO(<Zone>)` + `.toPlainDate()` ist das korrekte Muster. Zwei Formate (Anzeige vs. maschinenlesbar) = zwei klar benannte Exports, keine konfigurierbare Zusammensetzung.
+
+## 2026-09-10 — Postvermerk-Review geprüft und abgelehnt: R3 widerspricht der Select-Doktrin
+
+**Kontext:** Externe Logik-Analyse präsentierte fünf Regeln (R1 Default-unsichtbar, R2 Select füllt+sichtbar, R3 „leer+Blur → unsichtbar", R4 „— kein —" blendet aus, R5 Select überschreibt manuellen Text) und empfahl Umbau auf Zustandsklasse `.has-postvermerk` + ~25 Zeilen Blur-JS. Behauptungen gegen den echten Code verifiziert:
+
+1. **Zitiertes CSS existiert nicht:** `din-postvermerk:not(:empty)` wurde bereits 2026-09-08 entfernt (Commit df30c58, Owner-Korrektur „Feld strikt vom Select gesteuert"). Sichtbarkeit ist heute rein `:root:has(#sidebar-pv-select option:checked:not([value=""]))` (layout.css:40, floating.css:404). Die zentrale Prämisse („:not(:empty) macht R3 unmöglich") trifft den IST-Zustand nicht.
+2. **R5-Behauptung falsch:** „syncPostvermerkFromSidebar Empty-Guard widerspricht R5" — nein: `boot-state.js:70-75` registriert Listener mit `applyPv()` (Default `overwrite=true`) und überschreibt manuellen Text bei jeder aktiven Select-Wahl. Der Guard in `main.js:27` schützt ausschließlich den Draft-Restore (soll manuell getippten Text nicht vernichten — korrekt). R5 ist erfüllt.
+3. **R1/R2/R4/R5 sind alle erfüllt** mit purem CSS (`:has()`) + minimalen Fills. Nur R3 ist nie implementiert gewesen — bewusst.
+
+**Entscheidung (Owner):** IST-Zustand behalten. R3 erzeugt ein inkonsistentes Drei-Zustands-Grau (Select zeigt „Einschreiben", Feld ist weg) und steht im Widerspruch zur zwei Tage alten Select-Master-Doktrin. Zusätzlich widerspricht sich der Vorschlag selbst: seine Edge-Case-Tabelle fordert „Feld leeren + Klick → verschwindet", sein eigener Code (`hasSelectValue || hasText` + Blur-Bedingung `!sel.value`) lässt das Feld bei gewähltem Select sichtbar. Der Umbau (CSS `:has()` → JS-Zustandsklasse über 3 Dateien) verletzte Economy (HTML vor CSS vor JS).
+
+**Gültiger Restbefund:** Die Select-Sync-Logik liegt funktional widerspruchsfrei, aber redundant in zwei Modulen (boot-state.js: R5-Overwrite + FOUC-Fill; main.js: Draft-Restore-Fill). Kein Bug, bewusste Trennung Boot/Rest-Verhalten — wird nur bei künftiger Änderung an dieser Logik konsolidiert.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: AI-Reviews müssen gegen den aktuellen Commit geprüft werden, nicht gegen zitierte Snippets — veraltete Prämisse invalidiert die gesamte Folgerungskette. Zustandsgetriebene Sichtbarkeit über `:has()`-Selektoren dokumentieren und in Reviews als bewusste Architektur verteidigen, nicht als „Fallback" abwerten.

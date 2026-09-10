@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sicherheitslücke melden
+    url: https://github.com/grapefruit89/DIN-BriefNEO/security/advisories/new
+    about: Bitte NUR über Private Vulnerability Reporting, nicht als öffentliches Issue.

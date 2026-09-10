@@ -16,8 +16,8 @@
 #viewport {
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: safe center;
+  justify-content: safe center;
   position: relative;
   background: var(--bg-viewport);
   padding: 3vh; /* Harmonischer Rand */
@@ -111,70 +111,11 @@ din-anlagen, din-verteiler {
 
 
 
-#local-address-dropdown {
-  position: absolute;
-  position-anchor: --anchor-empfaenger;
-  top: calc(anchor(bottom) + 4px);
-  left: anchor(left);
-  width: anchor-size(width);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: var(--shadow-lg);
-  margin: 0;
-  padding: 0;
-  z-index: 1000;
-  display: none;
-}
-
-#local-address-dropdown:popover-open {
-  display: flex;
-  flex-direction: column;
-}
-
-.address-suggestion-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border-color);
-  
-  font-family: var(--font-stack-sans);
-  font-size: 13px;
-  line-height: 1.4;
-}
-.address-suggestion-item:last-child { border-bottom: none; }
-.address-suggestion-item:hover { background: var(--bg-viewport); }
-
-#postvermerk-dropdown {
-  position: absolute;
-  position-anchor: --anchor-postvermerk;
-  top: calc(anchor(bottom) + 4px);
-  left: anchor(left);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: var(--shadow-lg);
-  margin: 0;
-  padding: 0;
-  z-index: 1000;
-  display: none;
-  width: max-content;
-}
-
-#postvermerk-dropdown:popover-open {
-  display: flex;
-  flex-direction: column;
-}
-
-.pv-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border-color);
-  
-  font-family: var(--font-stack-sans);
-  font-size: 13px;
-}
-.pv-item:last-child { border-bottom: none; }
-.pv-item:hover { background: var(--bg-viewport); }
+/* HINWEIS (2026-09-10): Ehemalige Regeln für #local-address-dropdown,
+   #postvermerk-dropdown, .address-suggestion-item und .pv-item gelöscht —
+   tot (Elemente existieren weder im HTML noch werden sie von JS erzeugt).
+   Echte Suggestion-Dropdowns: .autocomplete-dropdown (sidebar.css/floating.css)
+   + #address-suggestions/#clipboard-candidates-popover (index.html). */
 
 #postvermerk:empty::before {  opacity: 0.9; }
 

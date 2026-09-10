@@ -235,6 +235,8 @@ aside {
   width: anchor-size(width);
   max-height: 200px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
   margin: 4px 0 0 0;
   padding: 4px;
   list-style: none;
@@ -387,3 +389,23 @@ input[type="checkbox"][switch] {
   anchor-name: --anchor-address-search;
 }
 
+
+/* Accessibility: Windows High Contrast / forced-colors. Ohne diesen Guard
+   verlieren Buttons ihren Hintergrund und sind mit `transparent`-Border
+   unsichtbar. Systemfarben (ButtonFace/ButtonText) sind hier der Standardweg. */
+@media (forced-colors: active) {
+  .btn {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  .btn-ghost {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  input[type="checkbox"][switch] {
+    forced-color-adjust: none;
+    accent-color: var(--accent-color);
+  }
+}

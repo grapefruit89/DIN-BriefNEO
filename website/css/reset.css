@@ -20,6 +20,19 @@ html {
   color-scheme: light dark;
 }
 
+/* Accessibility: prefers-reduced-motion — Kill-Switch für alle CSS-Animationen/
+   Transitions. Die View-Transitions selbst werden zusätzlich in JS geskippt
+   (02-settings-manager.js / 45-address-intelligence.js via matchMedia). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Schriftstapel-Klassen fuer den Brief */
 body.font-stack-sans {
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

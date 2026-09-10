@@ -819,3 +819,25 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 - **Contribution Guidelines/Code of Conduct:** Ein-Personen-Projekt; Issue-Templates + SECURITY.md genügen für den aktuellen Scope.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: „Test-Runner statt Test-Framework" — ein eigener ~80-Zeilen-Runner gegen die echte Produkt-Route (nicht gemockt) passt zur Zero-Dependency-Doktrin; SECURITY.md-Datenschutz-Abschnitt folgt dem Muster „lokal-only, Netzwerk-Ausnahmen explizit benennen".
+
+## 2026-09-10 — Modern-CSS-Audit (modern-css.com, 111 Snippets) verarbeitet
+
+**Kontext:** Externe KI-Gegenprüfung der modern-css.com-Snippets gegen den Code ergab ~35 Snippets bereits umgesetzt, ~13 Vorschläge. Eigenverifikation gegen den echten Code vor Umsetzung.
+
+**Akzeptiert & umgesetzt (alle live verifiziert):**
+1. **`safe center`** in `#viewport` (layout.css) — overflow-sicheres Zentrieren, No-Scroll-Doktrin abgesichert bei kleinem Viewport.
+2. **`z-index`-Aufräumen** (floating.css ×3): `#format-toolbar`, `#address-suggestions`, `#plz-suggestions-popover` sind Popovers im Top-Layer — z-index war wirkungslos und widersprach dem bestehenden Guard-Kommentar im Dateikopf.
+3. **`@media (prefers-reduced-motion: reduce)` Kill-Switch** (reset.css) — CSS-seitige A11y-Ergänzung zum JS-Check (der VTs skippt).
+4. **`@media (forced-colors: active)` Guard** (sidebar.css) — **wichtigster Fund**: `.btn`/`.btn-ghost`/Switch verlieren im Windows High Contrast Mode sonst Hintergrund+Border → unsichtbar. Systemfarben (ButtonFace/ButtonText) als Standardausnahme zur OKLCH-Regel dokumentiert.
+5. **`scrollbar-width: thin` + `scrollbar-color`** für `.autocomplete-dropdown` — dezente Scrollbar.
+6. **Totes CSS gelöscht** (layout.css, ~65 Zeilen): `#local-address-dropdown`, `#postvermerk-dropdown`, `.address-suggestion-item`, `.pv-item` — die Elemente existieren **nirgends** (auch nicht dynamisch per JS); die Review-KI hatte sie übersehen und sogar "Popover-Umbau" empfohlen.
+
+**Bewusst abgelehnt:**
+- `scrollbar-gutter: stable`: No-op — `html { overflow: hidden }` (No-Scroll-Doktrin), es entsteht nie eine Scrollbar.
+- `text-spacing-trim`: CJK-Interpunktions-Feature, für deutsche Typografie ohne Nutzen.
+- `@supports`-Fallback für `column-rule-inset` (Gap Decorations): Chrome 150+ ist dokumentierte Baseline — Firefox/Safari-Fallbacks werden bewusst nicht gebaut.
+- `content-visibility: auto` für Sidebar-Sektionen: Containment kann Anchor-Positionierung/Popover-Verhalten der Enkel-Knoten beeinträchtigen — Marginalgewinn, nicht die Risikowert.
+- `interpolate-size`-"Height-Hack-Auflösung" am `#geoapify-key-container`: Existiert nicht — `height: auto` wird über das global gesetzte `interpolate-size: allow-keywords` bereits nativ animiert.
+- `@container style()`, `:is()`-Umstellung, CSS Nesting, `reading-flow`: kosmetisch, kein funktioneller Gewinn.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Popover-Elementen gehören KEINE z-index-Werte (Top-Layer); (b) forced-colors-Guard gehört zum Standard-Reset jeder Button-führenden App; (c) `safe center` als Default für Full-Viewport-Zentrierung; (d) Externe Snippet-Audits vor Umsetzung immer gegen den echten Code verifizieren — die Review-KI verortete totes CSS als活 Code.

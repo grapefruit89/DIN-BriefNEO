@@ -1,5 +1,6 @@
 // @ts-check
-import { StorageManager } from './51-storage.js';
+import { StorageManager, Constants } from './51-storage.js';
+import { sanitizeRichText } from './04-sanitize.js';
 
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
@@ -71,7 +72,7 @@ export class DraftManager {
       this.#currentState = { draftStr, caretInfo };
     } else if (draftStr !== this.#currentState.draftStr) {
       this.#undoStack.push(this.#currentState);
-      if (this.#undoStack.length > 50) this.#undoStack.shift();
+      if (this.#undoStack.length > Constants.LIMITS.HISTORY_MAX_ITEMS) this.#undoStack.shift();
       this.#currentState = { draftStr, caretInfo };
       this.#redoStack = [];
     } else {
@@ -108,62 +109,12 @@ export class DraftManager {
       }
 
       if (id === 'brieftext' || id === 'anlagen-text') {
-        elem.replaceChildren(this.#sanitizeRichText(draft[id]));
+        elem.replaceChildren(sanitizeRichText(draft[id]));
       } else if (!elem.querySelector('select[data-persist]')) {
         elem.textContent = draft[id];
       }
     });
     this.#isRestoring = false;
-  }
-
-  /**
-   * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
-   * setHTML() mit eigener Allowlist verwirft in Chrome 151 alle Attribute
-   * (inkl. class für din-comment) — daher bewusst nicht als Sanitizer genutzt.
-   * @param {string} htmlString
-   * @returns {DocumentFragment}
-   */
-  #sanitizeRichText(htmlString) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, 'text/html');
-    const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
-
-    /**
-     * @param {Node} node
-     * @returns {Node}
-     */
-    const sanitizeNode = (node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return document.createTextNode(node.textContent || '');
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        return document.createTextNode('');
-      }
-      const element = /** @type {Element} */ (node);
-      let newNode;
-      if (allowedTags.includes(element.nodeName)) {
-        newNode = document.createElement(element.nodeName.toLowerCase());
-      } else if (element.nodeName === 'SPAN' && element.classList.contains('din-comment')) {
-        newNode = document.createElement('span');
-        newNode.className = 'din-comment';
-      } else {
-        const frag = document.createDocumentFragment();
-        element.childNodes.forEach((child) => {
-          frag.appendChild(sanitizeNode(child));
-        });
-        return frag;
-      }
-      element.childNodes.forEach((child) => {
-        newNode.appendChild(sanitizeNode(child));
-      });
-      return newNode;
-    };
-
-    const frag = document.createDocumentFragment();
-    doc.body.childNodes.forEach((child) => {
-      frag.appendChild(sanitizeNode(child));
-    });
-    return frag;
   }
 
   undo() {

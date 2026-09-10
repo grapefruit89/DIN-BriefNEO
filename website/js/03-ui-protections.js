@@ -25,8 +25,6 @@
 export class UIProtections {
   constructor() {
     /** @type {HTMLElement | null} */
-    this.paper = document.querySelector('din-a4');
-    /** @type {HTMLElement | null} */
     this.brieftext = document.getElementById('brieftext');
     /** @type {string[]} */
     this.multiLineIds = ['brieftext', 'anlagen-text'];

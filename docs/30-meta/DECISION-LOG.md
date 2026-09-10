@@ -696,3 +696,11 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Quelle:** Kein externer Nachschlag nötig (reine Dokumentationsarbeit); Fitness Gate 100 % (pre + post).
 
 **Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Sanitizing-Konsolidierung: eine Sicherheitsgrenze für Rich-Text
+
+**Kontext:** Rich-Text hatte drei unterschiedlich strenge Pfade (setHTML mit Allowlist, ungefilterter DOMParser-Fallback in DraftManager, völlig ungesanitisierter DOMParser in boot-state.js). External Review bemerkte die inkonsistente Sicherheitsgrenze.
+
+**Empirie (Chrome 151, live getestet):** `setHTML()` existiert und sanitiert, aber mit eigener `elements`-Allowlist werden **alle Attribute verworfen** (alle drei Spec-Formen von `attributes` getestet: Objekt-Map, per-Element-Entry, flaches Array — plus `new Sanitizer(...)`), inkl. `class` für `din-comment`. Default-Sanitizer behält `class`, aber auch zu viele Elemente (`<i>`, `<em>` überleben). Context7/BCD bestätigt nur Verfügbarkeit, nicht das Config-Verhalten.
+
+**Entscheidung:** Der DOMParser-Walk mit exakter Allowlist (b/strong/u/s/blockquote + span.din-comment) ist ab jetzt **die einzige** Rich-Text-Sicherheitsgrenze — in `01-draft-manager.js` (#sanitizeRichText) und `31-format-toolbar.js` (Paste). `boot-state.js` (Boot-Quick-Restore vor den Modulen) nutzt `setHTML()` mit **Default**-Sanitizer: streng genug gegen Skripte, `class`-safe, null Config — der DraftManager übernimmt direkt danach mit der exakten Allowlist. Der setHTML-Dual-Path mit Verfügbarkeits-Check ist gelöscht (Baseline Chrome 150+).

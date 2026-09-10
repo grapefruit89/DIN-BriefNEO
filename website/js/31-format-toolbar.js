@@ -276,67 +276,45 @@ export class FormatToolbar {
       range.deleteContents();
 
       if (html) {
-        let cleanFragment = document.createDocumentFragment();
-        let useFallback = true;
-        
-        const dummyDiv = document.createElement('div');
-        const divWithSetHTML = /** @type {any} */ (dummyDiv);
+        const cleanFragment = document.createDocumentFragment();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
 
-        if (divWithSetHTML.setHTML) {
-          try {
-            divWithSetHTML.setHTML(html, {
-              elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'],
-              attributes: { 'span': ['class'] }
-            });
-            while (dummyDiv.firstChild) {
-              cleanFragment.appendChild(dummyDiv.firstChild);
-            }
-            useFallback = false;
-          } catch (error) {
-            console.warn('[Paste] Native setHTML Sanitizer failed, using fallback.');
+        /**
+         * @param {Node} node
+         * @returns {Node}
+         */
+        const sanitizeNode = (node) => {
+          const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
+          if (node.nodeType === Node.TEXT_NODE) {
+            return document.createTextNode(node.textContent || '');
           }
-        }
-        
-        if (useFallback) {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-
-          /**
-           * @param {Node} node
-           * @returns {Node}
-           */
-          const sanitizeNode = (node) => {
-            const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
-            if (node.nodeType === Node.TEXT_NODE) {
-              return document.createTextNode(node.textContent || '');
-            }
-            if (node.nodeType !== Node.ELEMENT_NODE) {
-              return document.createTextNode('');
-            }
-            const element = /** @type {Element} */ (node);
-            let newNode;
-            if (allowedTags.includes(element.nodeName)) {
-              newNode = document.createElement(element.nodeName.toLowerCase());
-            } else if (element.nodeName === 'SPAN' && element.classList.contains('din-comment')) {
-              newNode = document.createElement('span');
-              newNode.className = 'din-comment';
-            } else {
-              const frag = document.createDocumentFragment();
-              element.childNodes.forEach((child) => {
-                frag.appendChild(sanitizeNode(child));
-              });
-              return frag;
-            }
+          if (node.nodeType !== Node.ELEMENT_NODE) {
+            return document.createTextNode('');
+          }
+          const element = /** @type {Element} */ (node);
+          let newNode;
+          if (allowedTags.includes(element.nodeName)) {
+            newNode = document.createElement(element.nodeName.toLowerCase());
+          } else if (element.nodeName === 'SPAN' && element.classList.contains('din-comment')) {
+            newNode = document.createElement('span');
+            newNode.className = 'din-comment';
+          } else {
+            const frag = document.createDocumentFragment();
             element.childNodes.forEach((child) => {
-              newNode.appendChild(sanitizeNode(child));
+              frag.appendChild(sanitizeNode(child));
             });
-            return newNode;
-          };
-
-          doc.body.childNodes.forEach((child) => {
-            cleanFragment.appendChild(sanitizeNode(child));
+            return frag;
+          }
+          element.childNodes.forEach((child) => {
+            newNode.appendChild(sanitizeNode(child));
           });
-        }
+          return newNode;
+        };
+
+        doc.body.childNodes.forEach((child) => {
+          cleanFragment.appendChild(sanitizeNode(child));
+        });
 
         if (cleanFragment.childNodes.length === 0) {
           range.insertNode(document.createTextNode(text));

@@ -59,15 +59,15 @@ try {
   const draftStr = localStorage.getItem('din_draft_current');
   if (draftStr) {
     const draft = JSON.parse(draftStr);
-    const parser = new DOMParser();
     for (const id in draft) {
       const el = document.getElementById(id);
       if (!el || !draft[id]) continue;
       if (el instanceof HTMLSelectElement) { el.value = /** @type {string} */ (draft[id]); continue; }
       const nested = el.querySelector && el.querySelector('select[data-persist]');
       if (nested instanceof HTMLSelectElement) { nested.value = /** @type {string} */ (draft[id]); continue; }
-      const doc = parser.parseFromString(draft[id], 'text/html');
-      el.replaceChildren(...doc.body.childNodes);
+      /* Default-Sanitizer: streng gegen Skripte, behält class — exakte
+       * Allowlist übernimmt der DraftManager in #sanitizeRichText(). */
+      /** @type {any} */ (el).setHTML(draft[id]);
     }
   }
   const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));

@@ -108,16 +108,7 @@ export class DraftManager {
       }
 
       if (id === 'brieftext' || id === 'anlagen-text') {
-        const elWithSetHTML = /** @type {any} */ (elem);
-        if (elWithSetHTML.setHTML) {
-          try {
-            elWithSetHTML.setHTML(draft[id], { elements: ['b', 'strong', 'u', 's', 'blockquote', 'span'] });
-          } catch {
-            this.#safeFallbackParse(elem, draft[id]);
-          }
-        } else {
-          this.#safeFallbackParse(elem, draft[id]);
-        }
+        elem.replaceChildren(this.#sanitizeRichText(draft[id]));
       } else if (!elem.querySelector('select[data-persist]')) {
         elem.textContent = draft[id];
       }
@@ -126,13 +117,53 @@ export class DraftManager {
   }
 
   /**
-   * @param {HTMLElement} elem
+   * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
+   * setHTML() mit eigener Allowlist verwirft in Chrome 151 alle Attribute
+   * (inkl. class für din-comment) — daher bewusst nicht als Sanitizer genutzt.
    * @param {string} htmlString
+   * @returns {DocumentFragment}
    */
-  #safeFallbackParse(elem, htmlString) {
+  #sanitizeRichText(htmlString) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
-    elem.replaceChildren(...doc.body.childNodes);
+    const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
+
+    /**
+     * @param {Node} node
+     * @returns {Node}
+     */
+    const sanitizeNode = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return document.createTextNode(node.textContent || '');
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return document.createTextNode('');
+      }
+      const element = /** @type {Element} */ (node);
+      let newNode;
+      if (allowedTags.includes(element.nodeName)) {
+        newNode = document.createElement(element.nodeName.toLowerCase());
+      } else if (element.nodeName === 'SPAN' && element.classList.contains('din-comment')) {
+        newNode = document.createElement('span');
+        newNode.className = 'din-comment';
+      } else {
+        const frag = document.createDocumentFragment();
+        element.childNodes.forEach((child) => {
+          frag.appendChild(sanitizeNode(child));
+        });
+        return frag;
+      }
+      element.childNodes.forEach((child) => {
+        newNode.appendChild(sanitizeNode(child));
+      });
+      return newNode;
+    };
+
+    const frag = document.createDocumentFragment();
+    doc.body.childNodes.forEach((child) => {
+      frag.appendChild(sanitizeNode(child));
+    });
+    return frag;
   }
 
   undo() {

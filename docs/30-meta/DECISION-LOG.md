@@ -841,3 +841,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 - `@container style()`, `:is()`-Umstellung, CSS Nesting, `reading-flow`: kosmetisch, kein funktioneller Gewinn.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) Popover-Elementen gehören KEINE z-index-Werte (Top-Layer); (b) forced-colors-Guard gehört zum Standard-Reset jeder Button-führenden App; (c) `safe center` als Default für Full-Viewport-Zentrierung; (d) Externe Snippet-Audits vor Umsetzung immer gegen den echten Code verifizieren — die Review-KI verortete totes CSS als活 Code.
+
+## 2026-09-10 — Postvermerk-Sichtbarkeit: Select ist Hauptschalter (Bugfix, Owner-Entscheidung)
+
+**Kontext:** Der `:not(:empty)`-Zusatz aus dem Postvermerk-Batch (heute früh) sorgte dafür, dass das Feld nach „— kein —" im Select sichtbar blieb, sobald manueller Text drin stand. Owner-Korrektur: „kein" = Feld muss verschwinden, Punkt.
+
+**Entscheidung:** Die `:not(:empty)`-Trigger in layout.css und floating.css entfernt. Sichtbarkeit strikt select-getrieben (`:root:has(#sidebar-pv-select option:checked:not([value=""]))`). Manuelles Editieren bleibt möglich — aber nur innerhalb der durch den Select bestimmten Sichtbarkeit. Boot-Sync-Empty-Guard unverändert (Draft-Text-Schutz bleibt; boot-state.js füllt nur leere Felder).
+
+**Verifikation:** Fitness Gate 100 %. Live: Template wählen → Feld sichtbar; „— kein —" → `display: none` auch bei vorhandenem Text. Doktrin-Kommentar in index.html angepasst.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: Sidebar-Control mit Template-Funktion darf nicht doppelt determiniert werden (Sichtbarkeit über Select, Inhalt über Field) — ein Schalter pro Aspekt.

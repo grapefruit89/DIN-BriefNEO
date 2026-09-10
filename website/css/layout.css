@@ -37,8 +37,7 @@ din-postvermerk, din-anlagen, din-verteiler {
   display: block;
 }
 
-:root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk,
-din-postvermerk:not(:empty) {
+:root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk {
   display: flex;
   flex-direction: column-reverse;
 }

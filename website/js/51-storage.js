@@ -95,7 +95,6 @@ export const StorageManager = {
       theme: "light",
       layout: "form-b",
       guides: true,
-      systemFont: "sans",
       formality: "formal",
       recipientType: "none",
       dateFormat: "din",

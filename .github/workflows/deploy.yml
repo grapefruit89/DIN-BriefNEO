@@ -24,11 +24,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Stamp build date (letzter Commit-Stand)
-        run: |
-          DATE=$(git log -1 --format='%cd' --date=format:'%d.%m.%Y')
-          sed -i "/id=\"sidebar-build-date\"/s/[0-9][0-9]\.[0-9][0-9]\.[0-9]\{4\}/${DATE}/" website/index.html
-          echo "Build-Stand: ${DATE}"
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

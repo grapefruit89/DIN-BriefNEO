@@ -876,3 +876,18 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Fitness Gate 100 %. Live im Chrome: individuelle Eigenschaften angewandt und per getComputedStyle verifiziert (12px 8px / 45deg / 1.25). applyTransform-Route selbst wird erst mit geladener Unterschrift aktiv (in Testsession kein Bild) — Code-Pfad ist mechanisch (Property-Zuweisung derselben Werte).
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: `transform: translate(...) scale(...) rotate(...)` → individuelle Eigenschaften; nie transform-Kaskaden, wenn einzeln animierbar/debugbar sein soll.
+
+## 2026-09-10 — UIProtections-Guard präzisiert: Enter-Block ist NICHT nativ (Empirie schlägt Overstatement)
+
+**Kontext:** Externer Review-Claim: „Der Enter-Block für Single-Line-Felder ist doppelt gemoppelt — `plaintext-only` + `enterkeyhint="done"` verhindern Zeilenumbrüche nativ, ~15 Zeilen Ersparnis." Der eigene Guard-Kommentar in `03-ui-protections.js` überzeichnete genau das („unterbindet … Zeilenumbrüche NATIV").
+
+**Recherche + Empirie (Chrome 151, CDP trusted Input):**
+- `enterkeyhint="done"` ist **nur ein Tastatur-Label** (virtuelle Tastatur), kein Verhalten.
+- Chromium `plaintext-only` blockt Umbrüche NICHT — es wandelt sie in **LF-Zeichen (`\n`) statt `<br>`/`<div>`** um (Chromium quirk: force `white-space: pre-wrap`, Quellen: w3c/editing#419, whatwg/html#11350, mdn/browser-compat-data#26719). Live-Probe: `insertText "\n"` → textContent `abc\ndef`, kein break-Element.
+- CDP kann realen Tastatur-Enter nicht emulieren (auch im `contenteditable=true`-Control kein Insert) — der Online-Konsens deckt das Verhalten trotzdem eindeutig ab.
+
+**Entscheidung:** Ablehnung der ~15-Zeilen-Ersparnis (falsche Prämisse). `enforceLineLimits` (keydown-preventDefault + Paste-Flattening) bleibt die tatsächliche Umbruchs-Sperre. Nur der Guard-Kommentar präzisiert (0 Code-Änderung): Rich-Text nativ blockiert — Umbrüche nicht; Verweis auf den vergeblichen Entfernungsversuch, damit zukünftige KIs den Overstatement nicht erneut „korrigieren".
+
+**Verifikation:** Fitness Gate 100 %. Kein Verhaltensunterschied (Kommentar-only).
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: Guard-Kommentare müssen exakt zwischen „nativ verhindert" und „nativ umgeformt" unterscheiden — ein überzeichnetes Guard-Statement erzeugt kontraproduktive „Entdoppelungs"-Vorschläge. Empirie (CDP-Probe) schlägt Annahme in beiden Richtungen.

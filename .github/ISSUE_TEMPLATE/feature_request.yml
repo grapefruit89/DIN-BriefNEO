@@ -1,0 +1,24 @@
+name: Feature-Request
+description: Vorschlag für eine neue Funktion oder Verbesserung
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem löst der Vorschlag?
+      description: Z. B. „Ich möchte X, aber es gibt keinen Weg, …"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Vorgeschlagene Lösung
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **Hinweis für Vorschlagende:** Dieses Projekt folgt einer strengen Architektur-Doktrin
+        (Zero-Dependencies, native Web-APIs, KISS). Vorschläge, die Frameworks, CDNs oder
+        Build-Tools erfordern, werden in der Regel abgelehnt. Desto wertvoller sind Vorschläge,
+        die mit nativen Web-APIs oder reinem CSS umsetzbar sind.

@@ -1,0 +1,38 @@
+name: Bug-Report
+description: Etwas funktioniert nicht wie dokumentiert
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für den Report. DIN-BriefNEO unterstützt ausschließlich Chrome 150+ —
+        bitte prüfe zuerst, ob das Problem in einer aktuellen Chrome-Version reproduzierbar ist.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Was ist passiert?
+      description: Erwartetes Verhalten vs. tatsächliches Verhalten.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduktionsschritte
+      placeholder: |
+        1. App starten (start.bat oder lokaler Webserver)
+        2. Feld X ausfüllen
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: chrome-version
+    attributes:
+      label: Chrome-Version
+      placeholder: z. B. 151.0.7204.100
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Konsolen-Fehler (F12 → Konsole)
+      description: Falls vorhanden, hier einfügen.

@@ -798,3 +798,24 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Generalisierbarkeit:** Für die `llm_boilerplate`: Sidebar-Steuerung und Papierfeld dürfen nie exklusiv-trennend designed werden („Select ist einziger Schreiber") — Feld immer 100% editierbar, Sidebar-Controls sind Vorlagen-/Komfort-Schreiber. Boot-Sync schreibt nur in leere Felder.
 
 **Status:** Umgesetzt — Fitness Gate 100 %.
+
+## 2026-09-10 — Externes Review verarbeitet: Lizenz, SECURITY, Templates, Unit-Tests
+
+**Kontext:** Umfangreiches externes Review identifizierte fehlende Open-Source-Basics (Lizenz, SECURITY.md, Issue-Templates, Linux-Doku) und keine automatisierten Tests.
+
+**Akzeptiert & umgesetzt:**
+1. **MIT-Lizenz** (`LICENSE`) + README-Sektion.
+2. **SECURITY.md** — Datenschutz-Modell dokumentiert, Private Vulnerability Reporting als Meldekanal, Scope (XSS-Sanitizing-Pfad, MCP-Allowlist) + Out-of-Scope (Browser-Bugs, `file://`).
+3. **Issue-Templates** (bug_report.yml, feature_request.yml, config.yml mit Hinweis auf Chrome-150+-Baseline und Architektur-Doktrin; Security-Issues nur via Advisory).
+4. **Zero-Dependency Test-Runner** (`test/`): eigener Mini-Runner (~80 Zeilen, `describe`/`it`/`assert` + DOM-Report), gebaut nach externem Brainstorm (Option B). 6 Tests gegen die ECHTE Sanitizing-Route (localStorage → loadDraft → #sanitizeRichText → DOM), Draft-Roundtrip, Undo/Redo. Priorität: `#sanitizeRichText` ist die einzige Sicherheitsinstanz für Rich-Text — XSS-Vektoren (`<script>`, `onerror`, nicht-Allowlist-Tags) werden hier festnagelt. Live im echten Chrome verifiziert: 6/6 bestanden.
+5. **README**: Linux-Workflow ergänzt (`python3 -m http.server`).
+
+**Bewusst abgelehnt (dokumentierte Design-Entscheidungen):**
+- **PWA/Single-File-HTML-Distribution:** Single-File würde die modulare Struktur (8 CSS-Dateien, nummerierte JS-Module, Git-Diff-Nachvollziehbarkeit) opfern; eine dist-Bündelung per Build-Script wäre möglich, widerspricht aber dem „Keine Build-Tools"-Prinzip und ist für die Zielgruppe (technisch versiert) nicht nötig.
+- **Firefox/Safari-Unterstützung:** Chrome 150+ ist dokumentierte Baseline; Feature-Detect-Fallback für andere Browser wird nicht gebaut — die App degradiert nicht, sie lädt gar nicht erst kompromittiert.
+- **Unit-Test-Frameworks (Jest/Vitest/Mocha):** widersprechen Zero-Dependencies; der Eigenbau-Runner deckt den risikoreichsten Pfad ab, CDP-Live-Verifikation bleibt die Methodik für Integrations-/CSS-Regression.
+- **Performance-Benchmarks:** Keine Messbarkeits-Pflicht; App lädt lokal ohne Netzwerk — die wichtigen Metriken (nur lokale Requests, kein Parsing von Framework-Runtime) sind strukturell gegeben.
+- **No-Scroll-Doktrin, Sprachbarriere (deutsch), Reset-Dialog:** bewusste Produkt-/Doktrin-Entscheidungen.
+- **Contribution Guidelines/Code of Conduct:** Ein-Personen-Projekt; Issue-Templates + SECURITY.md genügen für den aktuellen Scope.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: „Test-Runner statt Test-Framework" — ein eigener ~80-Zeilen-Runner gegen die echte Produkt-Route (nicht gemockt) passt zur Zero-Dependency-Doktrin; SECURITY.md-Datenschutz-Abschnitt folgt dem Muster „lokal-only, Netzwerk-Ausnahmen explizit benennen".

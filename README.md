@@ -24,7 +24,7 @@ Die App nutzt modernen, nativen W3C-Code (ES-Modules, externe Boot-Scripts, CSS 
 2. Losbriefen. Es wird nichts hochgeladen: Kein Tracking, keine Fonts von Fremdservern, keine Requests ins Netz.
 
 **Als Entwickler / KI-Agent:**
-- Linux ohne PowerShell: `node tools/build_db.js` (Fitness-Gate-Einstieg; `tools/reconciliation.js` ist nur ein Modul).
+- Linux ohne PowerShell: `node tools/build_db.js` (Fitness-Gate-Einstieg; `tools/reconciliation.js` ist nur ein Modul). Für die App selbst genügt ein beliebiger statischer Webserver auf dem Repo-Root, z. B. `python3 -m http.server 8088` — Aufruf dann unter `http://localhost:8088/website/index.html`.
 - Windows/Voller Durchlauf: `.\tools\start.ps1` (gecachte Artefakte, `-Force` erzwingt den vollen Lauf).
 - Der **Fitness Score muss 100 % betragen** — vor und nach jeder relevanten Änderung.
 - Bindender Verhaltensvertrag: [`AGENTS.md`](AGENTS.md).
@@ -58,6 +58,8 @@ Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir
 
 Geändert wird nur, was der Fitness Gate freigibt. Jede Session wird protokolliert (`tools/log_session.js`), jede Architekturentscheidung landet im [Decision-Log](docs/30-meta/DECISION-LOG.md). Regressionstests laufen live gegen die App im echten Chrome (Viewport, Sidebar, Anrede, Postvermerk) — Details in [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md).
 
+**Unit-Tests (Zero-Dependency):** `test/` enthält einen eigengebauten Mini-Runner (kein Framework, keine npm-Abhängigkeiten) mit Fokus auf den kritischsten Pfad — dem Draft-Sanitizing (XSS-Schutz). Ausführen: `test/index.html` im Browser öffnen (über denselben lokalen Webserver wie die App), Ergebnis erscheint auf der Seite und in der Konsole.
+
 ---
 
 ## 🗺️ Dokumentation
@@ -90,3 +92,7 @@ Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
 | 🔴 **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
 
 > **Achtung:** Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](docs/00-foundation/longevity-guidelines.md) geprüft werden.
+
+## 📜 Lizenz
+
+DIN-BriefNEO steht unter der [MIT-Lizenz](LICENSE) — frei nutzen, verändern und weitergeben, ohne Gewährleistung. Sicherheitsmeldungen bitte über [Private Vulnerability Reporting](SECURITY.md), nicht als öffentliches Issue.

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIN-BriefNEO Tests</title>
+</head>
+<body>
+  <h1>DIN-BriefNEO — Unit-Tests (Zero-Dependency)</h1>
+
+  <!-- Minimal-Fixture: DraftManager arbeitet gegen die echten Feld-IDs.
+       Alle [contenteditable]-Elemente hier werden von saveDraft erfasst. -->
+  <div id="brieftext" contenteditable="plaintext-only"></div>
+
+  <h2>Ergebnisse</h2>
+  <div id="test-report"></div>
+
+  <script type="module" src="./all.js"></script>
+</body>
+</html>

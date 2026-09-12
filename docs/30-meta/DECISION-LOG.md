@@ -1033,3 +1033,14 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 - **Ignoriert (falsche Domäne/A34):** FSA-write, FileSystemObserver, EditContext, HTML Modules, Scoped Registry, `<geolocation>`, Rewriter-in-Core, WebGPU/FedCM/WebTransport-etc.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: Feature-Listen von LLMs (1) gegen den eigenen Repo-Stand abgleichen bevor „Einbauen" — die Hälfte ist meist schon drin; (2) empirisch in der Ziel-Chrome-Version testen (Parse-/API-Probes via CDP), Release-Notizen lügen nicht, aber Versions-Zuordnungen sind unzuverlässig; (3) Plattform-Sanitizer ≠ exakte Allowlist — Sicherheitsgrenzen werden durch einen Test-Fixture ersetzt, nicht durch Namensähnlichkeit.
+
+## 2026-09-12 — @function-Dedup + Mini-a11y (::search-text, ariaNotify) umgesetzt
+
+**Umsetzung (Batch 2+3 der Chromium-Verdicts):**
+1. **@function-Dedup (Alt-Todo erledigt):** 51 calc-Duplikate in sheet.css durch drei Custom Functions ersetzt — `--mm-x(mm)` (horizontal → cqw), `--mm-y(mm)` (vertikal → cqh), `--pt(N)` (Schriftgröße → 0.168cqw). Funktionen wohnen in variables.css (Tokens-Layer) mit Guard: „NIEMALS hart `calc(X / var(--din-*) * 100cq*)` daneben schreiben". calc-Bestand: 28 → 3 (Seitenverhältnis-Fit + oklch-Box-Shadow bleiben bewusst).
+2. **::search-text** in floating.css: Ctrl+F-Treffer kontrastieren gegen Papier + din-comment (CSS.supports bestätigt supported in 151).
+3. **ariaNotify** in 01-draft-manager: Save-FEHLER werden per `document.ariaNotify(..., {priority:'important'})` angesagt (unsichtbarer Status-Dot wird auditierbar; Success bleibt still per TOASTS-Policy; `role="status"` am Toast unverändert). Ambient-Deklaration in webapi.d.ts.
+
+**Verifikation:** DIN-Vermaßung nach Refactor **live identisch** (Falz 105/210 mm, Lochmarke 148,5 mm, Fluchtrand 25 mm — die im Code stehennden HTML-Attribut-Werte sind Form-B, nicht 110/220 wie vorher fälschlich im Diag angenommen); Tests 13/13; Gate 100 %; ::search-text-Probe green; Boot-Dot „Gespeichert".
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) DIN-Vermaßung über Custom Functions statt harter calc-Duplikate — Abweichler werden sichtbar statt still verfälscht; (b) ariaNotify-Feature-Detect (typeof) mit Fallback: Status-Dot bleibt die visuelle Quelle; (c) Regelfall beim Feature-Audit: erst Repo-Grep („schon drin?"), dann Empirie („shipped?"), erst dann Design.

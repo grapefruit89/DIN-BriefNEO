@@ -8,13 +8,16 @@
  * genutzt — bewusst ein Modul statt zwei Kopien (Audit 2026-09-10).
  * setHTML() mit eigener Allowlist verwirft in Chrome 151 alle Attribute
  * (inkl. class für din-comment) — daher bewusst nicht als Sanitizer genutzt.
+ * Extra-Tags (z. B. UL/LI für anlagen-text, Grok-Re-Review M2) ergänzen die
+ * Basis-Allowlist, KEINE Attribute auf Extra-Tags.
  * @param {string} htmlString
+ * @param {{ extraTags?: string[] }} [options]
  * @returns {DocumentFragment}
  */
-export function sanitizeRichText(htmlString) {
+export function sanitizeRichText(htmlString, options = {}) {
+  const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE', ...(options.extraTags || [])];
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
-  const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE'];
 
   /**
    * @param {Node} node

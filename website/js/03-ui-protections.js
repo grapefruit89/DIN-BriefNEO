@@ -118,19 +118,44 @@ export class UIProtections {
    * @param {HTMLElement} anlagen
    */
   ensureListStructure(anlagen) {
-    if (anlagen.children.length === 0 || anlagen.innerHTML.trim() === '' || anlagen.innerHTML.trim() === '<br>') {
+    /* M2 wrap-don't-wipe: children.length===0 übersieht Text-Nodes (kein
+     * Element). Vorherige Version wippte hier gespeicherten Anlagen-Text
+     * via replaceChildren(li). Jetzt: echten Inhalt in <li> wickeln, statt
+     * zu löschen; nur wirklich leeres Feld bekommt den Platzhalter-li. */
+    if (anlagen.innerHTML.trim() === '' || anlagen.innerHTML.trim() === '<br>') {
       const li = document.createElement('li');
       anlagen.replaceChildren(li);
-      
-      if (document.activeElement === anlagen) {
-        const selection = window.getSelection();
-        if (selection) {
-          const range = document.createRange();
-          range.setStart(li, 0);
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
+      this.#placeCaretIn(anlagen, li);
+      return;
+    }
+    if (anlagen.children.length === 0) {
+      const lines = (anlagen.textContent || '').split('\n').map(l => l.trim()).filter(Boolean);
+      const lis = lines.map(line => {
+        const li = document.createElement('li');
+        li.textContent = line;
+        return li;
+      });
+      if (lis.length) {
+        anlagen.replaceChildren(...lis);
+        this.#placeCaretIn(anlagen, lis[lis.length - 1]);
+      }
+    }
+  }
+
+  /**
+   * Platziert den Caret am Ende des letzten Kind-Elements.
+   * @param {HTMLElement} anlagen
+   * @param {Element} li
+   */
+  #placeCaretIn(anlagen, li) {
+    if (document.activeElement === anlagen) {
+      const selection = window.getSelection();
+      if (selection) {
+        const range = document.createRange();
+        range.setStart(li, 0);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
     }
   }

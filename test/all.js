@@ -4,6 +4,7 @@
 import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager } from '../website/js/01-draft-manager.js';
 import { StorageManager } from '../website/js/51-storage.js';
+import { UIProtections } from '../website/js/03-ui-protections.js';
 
 /* StorageManager persistiert Drafts unter `din_draft_${key}` (key = 'current'). */
 const DRAFT_KEY = 'din_draft_current';
@@ -90,6 +91,33 @@ describe('DraftManager: Undo/Redo', () => {
     assertEqual(fieldText(), 'Version 1', 'undo → Version 1');
     dm.redo();
     assertEqual(fieldText(), 'Version 2', 'redo → Version 2');
+  });
+});
+
+describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
+  it('UL/LI überleben den Restore im anlagen-text (extraTags)', () => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      'anlagen-text': '<ul><li>Anlage A</li><li>Anlage B</li></ul>'
+    }));
+    new DraftManager().loadDraft();
+    const anlagen = document.getElementById('anlagen-text');
+    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-text');
+    const lis = anlagen.querySelectorAll('li');
+    assert(lis.length === 2, 'zwei <li> nach dem Restore');
+    assert(lis[0].textContent === 'Anlage A', 'Anlage A erhalten');
+    assert(lis[1].textContent === 'Anlage B', 'Anlage B erhalten');
+    assert(lis[0].attributes.length === 0, 'keine Attribute an den <li>');
+  });
+
+  it('ensureListStructure wickelt Text-Nodes in <li> statt sie zu löschen', () => {
+    const anlagen = document.getElementById('anlagen-text');
+    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-text');
+    anlagen.textContent = 'Rechnung\nVollmacht';
+    new UIProtections().ensureListStructure(anlagen);
+    const lis = anlagen.querySelectorAll('li');
+    assert(lis.length === 2, 'zwei <li> aus Text-Nodes gewickelt');
+    assert(lis[0].textContent === 'Rechnung', 'Text 1 erhalten');
+    assert(lis[1].textContent === 'Vollmacht', 'Text 2 erhalten');
   });
 });
 

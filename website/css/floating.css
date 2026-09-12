@@ -444,3 +444,11 @@ din-falz-unten,
 din-lochmarke {
   display: block;
 }
+
+/* Ctrl+F-Treffer (::search-text, Chrome 144+, empirisch 2026-09-12): Find-in-Page
+ * muss gegen das OKLCH-Papier und span.din-comment kontrastieren — der
+ * UA-Default (dunkler Highlight-Blob) ertrinkt auf farbigem Papier. */
+::search-text {
+  background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);
+  color: oklch(15% 0 0);
+}

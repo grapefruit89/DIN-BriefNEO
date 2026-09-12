@@ -6,6 +6,19 @@
 
 interface CloseWatcherEvent extends Event { }
 
+/** Chrome 141+: programmatische a11y-Ansage (Screenreader), ohne Live-Region-DOM. */
+interface Document {
+  ariaNotify(text: string, options?: { priority?: 'important' | 'nonimportant'; interrupt?: boolean }): void;
+}
+
+/** Chrome 144+: Find-in-Page-Highlight-Styling. */
+interface CSSStyleDeclaration {
+  // ::search-text wird als Selektor genutzt, keine TS-Schnittstelle nötig.
+}
+
+/** Chrome 150: @page-Descriptor als typed CSSPageDescriptors. */
+declare class CSSPageDescriptors extends CSSStyleDeclaration { }
+
 /** Chrome Built-in AI (Globals, nicht window.ai — window.ai ist obsolet). */
 declare class Rewriter {
   static availability(): Promise<'available' | 'downloadable' | 'downloading' | 'unavailable'>;

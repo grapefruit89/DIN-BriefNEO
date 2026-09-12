@@ -87,6 +87,22 @@
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* 🚨 ARCHITECTURAL GUARD (DIN-Vermaßung, @function Chrome 139+ / empirisch
+ * 2026-09-12 in Chrome 151): EINZIGE Quelle für die mm→Container-%-Mathematik
+ * und die pt→cqw-Schriftgrößen. NIEMALS hart calc(X / var(--din-*) * 100cq*)
+ * oder calc(N * 0.168cqw) daneben schreiben — ein Abweichler verfälscht die
+ * DIN-Vermaßung (Falzmarken, Lochmarke, Fluchränder). Normzahl im HTML-Attribut,
+ * Layout-Hier via Funktion. 1pt = 0.3528mm → 0.168cqw auf 210 mm Blattbreite. */
+@function --mm-x(--mm) {
+  result: calc(var(--mm) / var(--din-width) * 100cqw);
+}
+@function --mm-y(--mm) {
+  result: calc(var(--mm) / var(--din-height) * 100cqh);
+}
+@function --pt(--points) {
+  result: calc(var(--points) * 0.168cqw);
+}
+
 :root[data-theme="light"],
 [data-theme="light"] body,
 body[data-theme="light"] {

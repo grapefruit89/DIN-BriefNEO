@@ -33,6 +33,23 @@ export class FormatToolbar {
   init() {
     if (!this.#brieftext || !this.#toolbar) return;
 
+    /* M1-Tastaturpfad (Grok-Re-Review): Native Ctrl+B/Ctrl+U führt in
+     * contenteditable NICHT zum erwarteten <b>/<u> (live verifiziert).
+     * Scoped auf #brieftext — Sidebar-Inputs/Dialoge behalten natives
+     * Verhalten; kein document-weiter Hijack (C3-Lektion). */
+    this.#brieftext.addEventListener('keydown', (event) => {
+      const keyEvent = /** @type {KeyboardEvent} */ (event);
+      if (!(keyEvent.ctrlKey || keyEvent.metaKey) || keyEvent.shiftKey || keyEvent.altKey) return;
+      const key = keyEvent.key.toLowerCase();
+      if (key === 'b') {
+        keyEvent.preventDefault();
+        this.toggleFormat('B');
+      } else if (key === 'u') {
+        keyEvent.preventDefault();
+        this.toggleFormat('U');
+      }
+    });
+
     /*
      * Invoker Commands (M135): The toolbar itself is the command target.
      * Buttons dispatch `command` events directly onto this popover —

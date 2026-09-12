@@ -380,7 +380,11 @@ aside select {
   -webkit-user-select: text;
   user-select: text;
 }
-aside [data-ui]::before { content: attr(data-ui); }
+/* M1 (Grok-Re-Review): Labels/Buttons haben jetzt ECHTE Text-Nodes (AT-
+ * und Select-to-Copy-tauglich) — keine content: attr(data-ui)-Regeln mehr.
+ * Die dynamischen Zustands-Strings (data-appearance / data-font-mode /
+ * font-status-label) bleiben bewusst im CSS: JS setzt nur den Zustand,
+ * die Buttons tragen aria-label + title. */
 
 /* Zustands-Strings im CSS statt in JS-Dictionaries — JS setzt nur den Zustand
  * (data-appearance / data-font-mode / body.font-custom-active). */
@@ -396,10 +400,6 @@ aside .sidebar-checkbox-label {
   align-items: center;
   gap: 6px;
 }
-aside .sidebar-checkbox-label::before { content: none; }
-aside .sidebar-checkbox-label::after { content: attr(data-ui); }
-aside .sidebar-github-link::before { content: none; }
-aside .sidebar-github-link::after { content: attr(data-ui); }
 
 :root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk,
 :root:has(#sidebar-pv-select option:checked:not([value=""])) #postvermerk {

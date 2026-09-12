@@ -28,9 +28,9 @@ export function buildDinLetterPayload(draft) {
     format: DINLETTER_FORMAT,
     schema_version: Constants.SCHEMA_VERSION,
     app: 'DIN-BriefNEO',
-    /* 🚨 ARCHITECTURAL GUARD (A48/A50): created NICHT mit new Date()/Date.now()
+    /* 🚨 ARCHITECTURAL GUARD (A48/A50): created NICHT über die Legacy-Date-API
      * bauen — Temporal-only, Zeitzone explizit über currentISODate()
-     * (47-date-format.js). Ein Date()-Rückfall wurde hier bereits fast
+     * (47-date-format.js). Ein Date-API-Rückfall wurde hier bereits fast
      * gebaut (2026-09-11) — der Law Catalog ist bindend, keine Ausnahme. */
     created: currentISODate(),
     tool: 'https://github.com/grapefruit89/DIN-BriefNEO',

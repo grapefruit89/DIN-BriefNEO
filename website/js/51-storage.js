@@ -123,8 +123,8 @@ export const StorageManager = {
     let version = Number(localStorage.getItem('din_schema_version')) || 0;
     if (version === Constants.SCHEMA_VERSION) return;
     /* 🚨 ARCHITECTURAL GUARD (A48 + Longevity): Migrationen sind SEQUENZIELL
-     * (von `version` aufwärts, niemals überspringen) und NIEMALS über
-     * new Date()/Date.now() datieren (Temporal-only). schema_version wird
+     * (von `version` aufwärts, niemals überspringen) und NIEMALS über die
+     * Legacy-Date-API (A48) datieren — Temporal-only. schema_version wird
      * von 52-import-export.js (.dinletter-Header) konsumiert. */
     // Migrationsschritte kommen hier hin (sequenziell von version aufwärts).
     localStorage.setItem('din_schema_version', String(Constants.SCHEMA_VERSION));

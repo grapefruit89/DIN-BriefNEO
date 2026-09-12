@@ -15,7 +15,13 @@ try {
   document.documentElement.setAttribute('data-theme', theme);
   document.documentElement.style.colorScheme = theme === 'auto' ? 'light dark' : theme;
   const customFont = localStorage.getItem('din_custom_font');
-  if (customFont) {
+  /* Audit C2: der Wert landet per String-Konkatenation in CSS. Nur ein
+   * data:-URI mit reiner Base64-Payload (keine Quotes/Klammern/Semicolons
+   * moeglich) darf hier ankommen — ein manipulierter localStorage-Wert
+   * kann keine CSS-Regeln einschleppen. readAsDataURL liefert je nach
+   * System font/woff2 ODER application/octet-stream — Mime flexibel. */
+  const isDataFont = /^data:[\w.+-]+\/[\w.+-]+;base64,[A-Za-z0-9+/=]+$/.test(customFont || '');
+  if (isDataFont) {
     const fontStyle = document.createElement('style');
     fontStyle.id = 'din-custom-font-style';
     fontStyle.textContent = `@font-face { font-family: 'AptosCustom'; src: url('${customFont}') format('woff2'); }`;

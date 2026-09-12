@@ -53,9 +53,13 @@ try {
       if (el instanceof HTMLSelectElement) { el.value = /** @type {string} */ (draft[id]); continue; }
       const nested = el.querySelector && el.querySelector('select[data-persist]');
       if (nested instanceof HTMLSelectElement) { nested.value = /** @type {string} */ (draft[id]); continue; }
-      /* Default-Sanitizer: streng gegen Skripte, behält class — exakte
-       * Allowlist übernimmt der DraftManager in #sanitizeRichText(). */
-      /** @type {any} */ (el).setHTML(draft[id]);
+      /* Rich-Text-Felder (innerHTML im Draft) NICHT hierherstellen: der
+       * Default-Sanitizer von setHTML streift class="din-comment" und
+       * definiert einen zweiten Restore-Owner (Audit C1). DraftManager.
+       * loadDraft() stellt sie sofort nach Modulstart über 04-sanitize
+       * wieder her — hier bewusst übersprungen. */
+      if (id === 'brieftext' || id === 'anlagen-text') continue;
+      el.textContent = /** @type {string} */ (draft[id]);
     }
   }
   const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));

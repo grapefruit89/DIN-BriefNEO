@@ -17,7 +17,10 @@ import { currentISODate } from './47-date-format.js';
  */
 export function buildLetterFileName() {
   const dateStr = currentISODate();
-  const lastName = (document.getElementById('absender')?.textContent || "").split(',')[0].replace(/\s/g, "") || "Absender";
+  /* Rücksendezeile-Format: "M. Name • Straße • Ort" (Sender-Sync joint mit
+   * •, Grok-Bug 6) — split auf • UND Komma, sonst schluckt der Name
+   * Straße+Ort. */
+  const lastName = (document.getElementById('absender')?.textContent || "").split(/[•,]/)[0].replace(/\s/g, "") || "Absender";
   const empfName = (document.getElementById('empfaenger-name')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30);
   const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30);
   const recipientName = empfName || empfFirma || "Empfaenger";

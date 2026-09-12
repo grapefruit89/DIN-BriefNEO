@@ -150,6 +150,22 @@ describe('Import/Export: .dinletter-Payload (pure Funktionen)', () => {
     assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { f: 42 } })).ok, 'nicht-string Feld');
     assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1 })).ok, 'draft fehlt');
   });
+
+  it('parseDinLetterPayload toleriert UTF-8-BOM (Grok F4)', () => {
+    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { betreff: 'BOM' } });
+    const result = parseDinLetterPayload('\uFEFF' + payload);
+    assert(result.ok, 'BOM-präfixtes JSON wird akzeptiert');
+  });
+
+  it('parseDinLetterPayload lehnt gefährliche/unplausible Keys ab (Prototyp-Hygiene, Grok F2)', () => {
+    /* Achtung: { '__proto__': 'x' } als JS-Objektliteral setzt den Prototyp
+     * (kein eigener Key) — die Tests prüfen daher die ROHE Datei-JSON. */
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"__proto__":"x"}}').ok, '__proto__ abgelehnt');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"constructor":"x"}}').ok, 'constructor abgelehnt');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt');
+    const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"brieftext":"x"}}');
+    assert(ok.ok, 'normale Ids erlaubt');
+  });
 });
 
 run().then((ok) => {  /** @type {any} */ (window).__TESTS_PASSED = ok;

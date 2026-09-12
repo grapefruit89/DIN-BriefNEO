@@ -88,7 +88,8 @@ din-postvermerk, din-anlagen, din-verteiler {
 
 din-postvermerk {
   font-size: calc(8 * 0.168cqw);
-  font-family: var(--font-stack-sans);
+  /* Kein eigenes font-family: erbt von din-a4 ('AptosCustom', var(--font-active-stack))
+   * — genau EINE Standard-Schrift (sans) als Default, Custom-Font gilt automatisch. */
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0.5cqh;

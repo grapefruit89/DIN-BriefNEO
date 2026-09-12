@@ -33,15 +33,10 @@ html {
   }
 }
 
-/* Schriftstapel-Klassen fuer den Brief */
-body.font-stack-sans {
-  --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-body.font-stack-serif {
-  --font-active-stack: Georgia, "Times New Roman", Times, serif;
-}
-
-/* Custom Font Overrides applied to din-a4 */
+/* Schriftstapel: genau EINE Standard-Schrift (--font-active-stack, sans,
+ * definiert in variables.css). Kein Sans/Serif-Umschalter — wer eine andere
+ * Schrift will, lädt sie über den Custom-Font-Upload (Owner-Entscheid
+ * 2026-09-10). Custom-Font-Overrides: siehe unten. */
 
 din-a4 { font-family: var(--font-active-stack); }
 body.font-custom-active din-a4 {

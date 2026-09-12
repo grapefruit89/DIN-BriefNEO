@@ -10,20 +10,28 @@ import { currentISODate } from './47-date-format.js';
  * (Vereinfacht: PDF-Re-Import via JSON-Block entfernt gemäß Grok-Review)
  */
 
+/**
+ * Brief-Dateiname nach dem DIN-BriefNEO-Muster — Single Source of Truth für
+ * PDF-Druck (53) und .dinletter-Export (52). Liest die Live-DOM-Felder.
+ * @returns {string}
+ */
+export function buildLetterFileName() {
+  const dateStr = currentISODate();
+  const lastName = (document.getElementById('absender')?.textContent || "").split(',')[0].replace(/\s/g, "") || "Absender";
+  const empfName = (document.getElementById('empfaenger-name')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30);
+  const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30);
+  const recipientName = empfName || empfFirma || "Empfaenger";
+  const subjectClean = (document.getElementById('betreff')?.textContent || "Brief").replace(/[<>:"/\\|?*]/g, "").trim().substring(0, 50);
+  return `${dateStr} - ${subjectClean} - ${lastName} an ${recipientName}`;
+}
+
 export const MetadataService = {
   prepare() {
-    // 1. Datum & Zeit — Berliner Zeit aus 47-date-format.js (Single Source of Truth;
-    //    plainDateISO() wäre UTC-basiert und nachts 00:00–02:00 deutscher Zeit falsch)
+    const fileName = buildLetterFileName();
     const dateStr = currentISODate();
-    
-    // 2. Read DOM directly
     const lastName = (document.getElementById('absender')?.textContent || "").split(',')[0].replace(/\s/g, "") || "Absender";
-    const empfName = (document.getElementById('empfaenger-name')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30);
-    const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30);
-    const recipientName = empfName || empfFirma || "Empfaenger";
+    const recipientName = (document.getElementById('empfaenger-name')?.textContent || document.getElementById('empfaenger-firma')?.textContent || "").replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, "").substring(0, 30) || "Empfaenger";
     const subjectClean = (document.getElementById('betreff')?.textContent || "Brief").replace(/[<>:"/\\|?*]/g, "").trim().substring(0, 50);
-
-    const fileName = `${dateStr} - ${subjectClean} - ${lastName} an ${recipientName}`;
 
     // 3. Backup & Title Set (Standard Chrome Filename)
     const oldTitle = document.title;

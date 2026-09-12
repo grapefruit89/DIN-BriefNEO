@@ -136,7 +136,16 @@
             </div>
           </div>
         </div>
+        <div class="sidebar-section">
+          <h3 class="sidebar-label">Daten &amp; Backup</h3>
+          <button type="button" id="btn-export-dinletter" class="btn w-full" title="Lädt den Brief als .dinletter-Datei herunter (JSON, mit Metadaten-Header)">📥 Brief exportieren (.dinletter)</button>
+          <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .dinletter-Datei und ersetzt den aktuellen Brief">📤 Brief importieren (.dinletter)</button>
+          <input type="file" id="dinletter-uploader" accept=".dinletter,application/json" hidden aria-hidden="true" tabindex="-1">
+        </div>
         <div class="sidebar-section sidebar-footer">
+          <div class="save-status-row">
+            <span id="save-status" class="save-status saved" role="status" aria-live="polite" title="Alle Änderungen gespeichert">Gespeichert</span>
+          </div>
           <button type="button" id="btn-print" class="btn primary w-full">🖨️ Als PDF speichern / Drucken</button>
           <button type="button" id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
         </div>
@@ -249,6 +258,16 @@
         <div class="dialog-actions">
           <button value="cancel" class="btn">Abbrechen</button>
           <button value="confirm" class="btn danger" id="btn-confirm-reset">Zurücksetzen</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="import-dialog" class="glass-dialog no-print">
+      <form method="dialog">
+        <p>Diesen Brief importieren und den aktuellen Inhalt ersetzen?</p>
+        <p class="import-file-name" id="import-file-name"></p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn primary" id="btn-confirm-import">Importieren</button>
         </div>
       </form>
     </dialog>

@@ -1,0 +1,7 @@
+/* layers.css — NICHT gelayert! Deklariert als einziges File die Top-Level-
+ * @layer-Reihenfolge. Ein @layer-Statement innerhalb eines via layer="…"
+ * geladenen Stylesheets legt NESTED Layers an (variables.css-Lektion,
+ * Grok-Review Batch H4/M4) — deshalb steht die Ordnung hier, vor allen
+ * gelayerten Links, als Voraussetzung für CSP style-src ohne 'unsafe-inline'.
+ */
+@layer reset, tokens, layout, floating;

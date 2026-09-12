@@ -188,11 +188,11 @@ din-anlagen, din-verteiler {
 .w-full { width: 100%; }
 .mb-0 { margin-bottom: 0 !important; }
 .btn-danger {
-  border-color: var(--danger-color);
-  color: var(--danger-color);
+  border-color: var(--c-danger);
+  color: var(--c-danger);
 }
 .btn-danger:hover {
-  background: color-mix(in oklch, var(--danger-color) 10%, transparent);
+  background: color-mix(in oklch, var(--c-danger) 10%, transparent);
 }
 
 .sidebar-header-row {

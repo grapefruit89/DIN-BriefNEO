@@ -73,7 +73,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`);
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
-        if (onToast) onToast("🔑 Geoapify Key gültig!", "success");
+        /* Kein Success-Toast (TOASTS-Policy in 51-storage.js: Erfolg ist
+         * still; assertive Alerts nur für Fehler. Grok-Re-Review Priorität 3.) */
       } else {
         if (onToast) onToast("❌ Geoapify Key ungültig", "error");
       }
@@ -301,7 +302,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     saveToLocalAddressBook(item);
 
     if (onSaveDraft) onSaveDraft();
-    if (onToast) onToast("Adresse übernommen & gespeichert", 'success');
+    /* Kein Success-Toast (TOASTS-Policy: still bei Erfolg) */
   }
 
   // NOTE: document click listener removed because popover="auto" natively handles outside clicks!

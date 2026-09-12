@@ -1,4 +1,4 @@
-﻿// @ts-check
+// @ts-check
 
 import { sanitizeRichText } from './04-sanitize.js';
 

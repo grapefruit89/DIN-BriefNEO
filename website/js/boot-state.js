@@ -75,7 +75,10 @@ try {
     pvSel.addEventListener('change', () => applyPv());
   }
   applyPv(false);
-  if (localStorage.getItem('din_custom_font')) {
+  /* Font-Klasse nur, wenn boot-theme.js die @font-face auch wirklich
+   * injiziert hat (derselbe Base64-Gate) — sonst bittet das Blatt um
+   * ein 'AptosCustom', das nie registriert wurde (Grok-Re-Review C2). */
+  if (/^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(localStorage.getItem('din_custom_font') || '')) {
     document.body.classList.add('font-custom-active');
   }
 } catch (e) {}

@@ -1017,3 +1017,19 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Tests **13/13** (echter Lauf, +BOM +Hygiene-Tests), Gate 100 %. Live (CDP): Boot-Dot = „Gespeichert", Filename-Split korrekt, `__proto__`-Datei via echte UI → Fehler-Toast „Ungültiger Feldname", kein Dialog.
 
 **Diag-Lektionen:** (a) `{ '__proto__': 'x' }` als JS-Objektliteral setzt den Prototyp statt einen eigenen Key — Prototyp-Hygiene-Tests müssen Roh-JSON-Strings nutzen; (b) der B2-Detektor grept verbotene API-Literale auch in Kommentaren — Guards umschreiben, nicht zitieren; (c) mein erster `return saved;` stand vor der Undo-Snapshot-Logik (Return-Wert-Konsolidierung: Early-Returns dürfen Nebenpfade nicht schließen).
+
+## 2026-09-12 — Chromium-2025/2026-Feature-Liste empirisch geprüft (Grok) — 18 Verdicts
+
+**Methode:** Repo-Realität zuerst (rg), dann Live-Empirie in Chrome 151 via CDP (Projekt-Doktrin: Empirie schlägt Release-Notizen). Kernbefund: **Items 1, 2, 4, 6, 16 sind bereits umgesetzt** (commandfor ×5, popover="hint", focusgroup ×3, attr() L5 ×17 in sheet.css, element-scoped View Transitions in 02-settings-manager:93) — Grok übersieht den Ist-Stand; `BASELINE_RATIO` existiert nicht (erfundener Code).
+
+**Verdicts (empirisch belegt):**
+- **@function (CSS Custom Functions): ✅ parst in Chrome 151** — einziges neues Feature mit echtem Nutzen (Alt-Todo „28× calc in sheet.css").
+- **ariaNotify: ✅ verfügbar** (`typeof document.ariaNotify === 'function'`) — Toast-Ansagen statt Live-Region-Zusatz; `role="status"` bleibt, Success-still-Policy bleibt.
+- **::search-text (M144):** Ctrl+F-Kontrast vs. din-comment — 1 Selektor.
+- **Sanitizer API (M146): 🧪 Live-Experiment gelaufen — REJECT.** `span.din-comment`+class und `ul/li` überleben ✓, ABER auch `<i>` und `<img src=x>` (nur onerror gestrippt). Plattformmodell ist safe-by-default-Profil, nicht exakte Allowlist (img MUSS verschwinden, i MUSS un-wrapped werden). 04-sanitize.js bleibt getestete Sicherheitsgrenze.
+- **Unshipped (live bestätigt, nicht nutzbar):** interestfor (false in 151), clipboardchange (false), @custom-media (parst nicht), named-feature() (false — Groks „M150"-Claim falsch).
+- **Doktrin-Konflikt REJECT:** line-clamp/text-overflow auf Brief-Feldern = stiller Datenverlust (Ellipsis auf Papier) — `text-fit: shrink` (A49) bleibt: Inhalt verkleinert, nie abgeschnitten.
+- **Deferred (Produkt-Entscheid):** Web Install, Window Controls Overlay, Web Preferences, Openable API, clipboardchange-Parser-Hint.
+- **Ignoriert (falsche Domäne/A34):** FSA-write, FileSystemObserver, EditContext, HTML Modules, Scoped Registry, `<geolocation>`, Rewriter-in-Core, WebGPU/FedCM/WebTransport-etc.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: Feature-Listen von LLMs (1) gegen den eigenen Repo-Stand abgleichen bevor „Einbauen" — die Hälfte ist meist schon drin; (2) empirisch in der Ziel-Chrome-Version testen (Parse-/API-Probes via CDP), Release-Notizen lügen nicht, aber Versions-Zuordnungen sind unzuverlässig; (3) Plattform-Sanitizer ≠ exakte Allowlist — Sicherheitsgrenzen werden durch einen Test-Fixture ersetzt, nicht durch Namensähnlichkeit.

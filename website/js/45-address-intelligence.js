@@ -2,7 +2,10 @@
 // @adr [[ADR-006-Offline-Address-Intelligence]]
 // @guide [[geoapify-autocomplete]]
 
-import { PLZ_DATA_GZIP_B64, GROSSKUNDEN_GZIP_B64 } from '../data/plz-embedded.js';
+/* Audit H3: Das 164-KB-Embed liegt NICHT auf dem statischen Modulgraphen.
+ * Es wird nur per Dynamic-Import geladen, wenn der gzip-Fetch der
+ * .gz-Dateien scheitert (file://-Betrieb oder fehlende Datei) — im
+ * Normalfall (lokal im HTTP-Server) spart das die Parse-Kosten komplett. */
 
 /**
  * @typedef {object} GrosskundeEntry
@@ -89,10 +92,13 @@ export class AddressIntelligence {
         }
 
         // 100% Offline / file:/// protocol fallback via embedded Base64 gzip streams
+        // (Audit H3: Dynamic-Import erst im Fallback — 164 KB nur bei Bedarf)
         if (!plzData) {
+          const { PLZ_DATA_GZIP_B64 } = await import('../data/plz-embedded.js');
           plzData = await this.#decompressBase64(PLZ_DATA_GZIP_B64);
         }
         if (!grossData) {
+          const { GROSSKUNDEN_GZIP_B64 } = await import('../data/plz-embedded.js');
           grossData = await this.#decompressBase64(GROSSKUNDEN_GZIP_B64);
         }
 

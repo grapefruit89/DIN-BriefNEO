@@ -6,6 +6,23 @@
 
 interface CloseWatcherEvent extends Event { }
 
+/** Chrome Built-in AI (Globals, nicht window.ai — window.ai ist obsolet). */
+declare class Rewriter {
+  static availability(): Promise<'available' | 'downloadable' | 'downloading' | 'unavailable'>;
+  static create(options?: {
+    sharedContext?: string;
+    tone?: 'as-is' | 'more-formal' | 'more-casual';
+    length?: 'as-is' | 'shorter' | 'longer';
+    format?: 'as-is' | 'plaintext' | 'markdown';
+    monitor?: ((monitor: any) => void) | null;
+    signal?: AbortSignal;
+  }): Promise<{
+    rewrite(input: string, options?: { context?: string }): Promise<string>;
+    rewriteStreaming(input: string, options?: { context?: string }): AsyncIterable<string>;
+    destroy(): void;
+  }>;
+}
+
 declare class CloseWatcher {
   constructor(options?: { signal?: AbortSignal });
   oncancel: ((e: CloseWatcherEvent) => void) | null;

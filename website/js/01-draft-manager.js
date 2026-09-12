@@ -25,15 +25,21 @@ export class DraftManager {
   }
 
   #initShortcuts() {
+    /* Audit C3: NUR innerhalb des Briefblatts abfangen — Sidebar-Inputs,
+     * Key-Feld, Dialoge behalten natives Undo. Shift+Ctrl+Z ist Redo
+     * (vorher fielen alle z-Varianten auf undo()). contenteditable +
+     * programmatisches replaceChildren zerstoeren natives Undo, daher
+     * bleibt der eigene Snapshot-Undo innerhalb des Blatts verbindlich. */
     document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key.toLowerCase() === 'z') {
-          e.preventDefault();
-          this.undo();
-        } else if (e.key.toLowerCase() === 'y') {
-          e.preventDefault();
-          this.redo();
-        }
+      const sheet = /** @type {Element | null} */ (e.target instanceof Element ? e.target.closest('din-a4') : null);
+      if (!sheet || !(e.ctrlKey || e.metaKey)) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) this.redo(); else this.undo();
+      } else if (key === 'y') {
+        e.preventDefault();
+        this.redo();
       }
     });
   }

@@ -92,7 +92,7 @@ export const StorageManager = {
    */
   loadSettings() {
     const defaultSettings = {
-      theme: "light",
+      theme: "auto",
       layout: "form-b",
       guides: true,
       formality: "formal"

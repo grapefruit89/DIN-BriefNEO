@@ -990,3 +990,18 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 % nach jedem Batch (inkl. 2 neuer M2-Tests). Live (CDP): CSP-Reload ohne Violations; Geoapify-Fetch unter CSP 200; Labels echt (8 h3s, Form A, GitHub, Print-Btn, ::before=none); Ctrl+B real-keystroke → `<b>Brief</b>`; M2-Unit-Tests im Gate.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) unvollständige Ports passieren bei Multi-Punkt-Refactor — jede neu eingeführte Feature-Detect muss ALLE alten Gates derselben API finden (rg auf den API-Namen, nicht nur die benutzte Stelle); (b) `children.length===0` ist ein Wipe-Bug bei contenteditable (Text-Nodes zählen nicht) — wrap-don't-wipe ist das Default-Rettungsmuster; (c) CSP-fähige Zero-Build-App: @layer-Deklaration in non-layered Datei, FontFace statt Style-String, dann strict style-src.
+
+## 2026-09-11 — Persistence-Block: .dinletter + schema_version + Autosave-Indikator (DeepSeek-Longevity-Review)
+
+**Kontext:** DeepSeek-Longevity-Analyse (Owner mit >> annotiert): Import/Export als „wundester Punkt" bestätigt. Umgesetzt:
+
+1. **`.dinletter` (52-import-export.js, neu):** JSON-Format mit Header `format/schema_version/app/created/tool` + Draft-Payload 1:1 aus `din_draft_current`. Export schreibt erst den Live-Draft (`onSaveDraft`) und lädt via Blob-Download (Dateiname = `buildLetterFileName()`). Import: File-Input → Validierung → Confirm-Dialog → `localStorage` + `location.reload()` — Restore läuft ausschließlich über den bewährten Boot-Pfad (EIN Owner, C1-Lektion). Pure Funktionen (`buildDinLetterPayload`/`parseDinLetterPayload`) sind unit-getestet (Roundtrip + 5 Fehlerfälle). `created` via `currentISODate()` (A48 — ein versehentlicher `new Date()`-Versuch wurde noch im Editor abgefangen).
+2. **`SCHEMA_VERSION` + `migrate()`:** Konstante in `Constants` (Konsumenten: migrate + .dinletter-Header), `StorageManager.migrate()` stampft `din_schema_version` idempotent; Aufruf in `main.js` **vor** `loadDraft()`. Migrationsschritte künftig sequenziell.
+3. **`buildLetterFileName()`** aus `53-metadata.js` extrahiert — PDF und Export nutzen denselben Namen (Single Source).
+4. **Autosave-Indikator:** `#save-status`-Dot im Sidebar-Footer (grün/orange/rot, echte Text-Nodes + `role="status"`, print-css-safe) — getrieben aus `DraftManager.#setSaveStatus` (dirty bei scheduleAutoSave, saved/error bei saveDraft).
+
+**Verifikation:** Gate 100 %; Testsuite **11/11** (echter Lauf via test/index.html, +3 .dinletter-Tests); Live (CDP): Export-Payload korrekt (format/schema/created/tool/draft), Import-Dialog → confirm → Storage aktualisiert → Reload, invalide Datei → Fehler-Toast ohne Dialog, Status-Dot dirty→saved, Boot-Diag clean.
+
+**🚨 Gate-Fund (wichtig für zukünftige Agenten):** Der Fitness-Gate meldete die fehlgeschlagenen M2-Tests (fehlende `#anlagen-text`-Fixture) als 100 % — die Test-Komponente des Gates ist **nicht zuverlässig**. `node tools/build_db.js` allein genügt NICHT; echte Testläufe über `test/index.html` (Port 8890) sind Pflicht bei Test-Änderungen. Auch das Fix-Verhalten der Fixture: `#anlagen-text` fehlte komplett (M2-Tests crasheden mit „Test-Fixture fehlt") — jetzt gespiegelt wie in der App (UL + contenteditable=true).
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Datenformat vor Persistenz-Logik designen: Header-Version + reines JSON schlägt jedes binäre Format für 10-Jahres-Lesbarkeit; (b) Import = Validieren + Bestätigen + Neu-Booten, niemals ein zweiter Restore-Pfad; (c) Save-Status als Zustandsklassen statt Toasts — Erfolg ist still (TOASTS-Policy), Fehler wird sichtbar.

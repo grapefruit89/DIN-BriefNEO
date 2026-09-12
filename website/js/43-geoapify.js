@@ -159,7 +159,10 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     if (!key) return;
 
     // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
-    const cacheKey = query.toLowerCase();
+    /* Lock-sensitiver Cache-Key: dieselbe Straße unter verschiedenen
+     * Ziel-PLZ liefert verschiedene Treffer. */
+    const lock = AddressIntelligence.targetLock;
+    const cacheKey = `${lock ? lock.plz + ' ' : ''}${query}`.toLowerCase();
     if (apiCache.has(cacheKey)) {
       mergeAndRender(localMatches, apiCache.get(cacheKey) || [], query);
       return;
@@ -172,17 +175,32 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       coords = savedCoords ? JSON.parse(savedCoords) : null;
     } catch (e) {}
 
-    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${key}&lang=de&limit=5&format=json&filter=countrycode:de`;
-    if (AddressIntelligence.targetLock) {
-      // Dynamic Target Lock: Lock search to destination PLZ/City, deactivating default Bonn bias
-      url += `&filter=postcode:${AddressIntelligence.targetLock.plz}`;
-    } else if (coords && coords.lat && coords.lon) {
+    /* Target Lock (Audit H2): Geoapify kennt keinen `postcode:`-Filter-Typ
+     * (apidocs: filter-Typen sind countrycode/type/boundary/place) und
+     * mehrere filter= Params überschreiben sich gegenseitig. Das
+     * dokumentierte Pattern für "Straße, PLZ Ort" ist die Text-Anreicherung. */
+    const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
+    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${key}&lang=de&limit=5&format=json&filter=countrycode:de`;
+    if (!lock && coords && coords.lat && coords.lon) {
       url += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
 
     try {
       const response = await fetch(url, fetchOptions);
-      if (!response.ok) throw new Error('API Request failed');
+      if (!response.ok) {
+        /* Audit H2: Nur echte Key-Probleme löschen den Key — 429/5xx/Netzwerk
+         * sind NICHT "Key ungültig". */
+        if (response.status === 401 || response.status === 403) {
+          StorageManager.saveGeoapifyKey('');
+          const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
+          if (keyEl) keyEl.value = '';
+          if (onToast) onToast('❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.', 'error');
+        } else {
+          console.warn('[Address] Autocomplete HTTP ' + response.status);
+          if (onToast) onToast('⚠️ Geoapify vorübergehend nicht erreichbar (Status ' + response.status + ').', 'warning');
+        }
+        return;
+      }
       const data = await response.json();
 
       /** @type {AddressEntry[]} */
@@ -204,11 +222,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     } catch (err) {
       const error = /** @type {Error} */ (err);
       if (error.name !== 'AbortError') {
+        /* Netzwerk-/Timeout-Fehler: Key bleibt unangetastet (Audit H2). */
         console.warn('[Address] Autocomplete search failed:', error);
-        StorageManager.saveGeoapifyKey('');
-        const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
-        if (keyEl) keyEl.value = '';
-        if (onToast) onToast("❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.", 'error');
+        if (onToast) onToast('⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.', 'warning');
       }
     }
   }

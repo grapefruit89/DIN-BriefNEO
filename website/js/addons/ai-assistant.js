@@ -37,14 +37,9 @@ export class AIAssistantAddon {
       this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.sidebarToggleId));
       this.rewriteBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById(AI_CONFIG.toolbarRewriteBtnId));
 
-      // 1. Browser-Support prüfen (window.ai)
-      // @ts-ignore
-      if (typeof window.ai === 'undefined') {
-        this._updateUIUnsupported('Nicht vom Browser unterstützt (Chrome 128+ mit Gemini Nano erforderlich)');
-        return;
-      }
-
-      // 2. Verfügbarkeit der APIs prüfen
+      // 1+2. Feature-Detect + Verfügbarkeit (Globals, NICHT window.ai — obsolet).
+      // Der frühere window.ai-Gate retournierte vor _checkAvailability() und
+      // machte den Port auf aktuellen Chrome tot (Grok-Re-Review H5).
       const availability = await this._checkAvailability();
       if (!availability.supported) {
         this._updateUIUnsupported(availability.statusText);

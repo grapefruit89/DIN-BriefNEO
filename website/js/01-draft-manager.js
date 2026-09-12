@@ -115,7 +115,10 @@ export class DraftManager {
       }
 
       if (id === 'brieftext' || id === 'anlagen-text') {
-        elem.replaceChildren(sanitizeRichText(draft[id]));
+        /* M2: Anlagen brauchen UL/LI (Listen-Doktrin von ensureListStructure),
+         * Brieftext bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
+        const extra = id === 'anlagen-text' ? { extraTags: ['UL', 'LI'] } : undefined;
+        elem.replaceChildren(sanitizeRichText(draft[id], extra));
       } else if (!elem.querySelector('select[data-persist]')) {
         elem.textContent = draft[id];
       }

@@ -962,3 +962,16 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Fitness Gate 100 % nach jedem Batch; CDP-Live-Checks pro Batch (poisoned-font-Probe, Boot-Restore mit din-comment, Undo-Scope sidebar/sheet/shiftZ, PLZ-Resource-Timing, AI-Feature-Detect). Diag-Lektion: `defaultPrevented` in Capture-Phase messen liefert immer false — Bubble-Phase prüfen.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) Boot-Skripte dürfen keine HTML-Restore-Logik duplizieren — ein Owner pro Datenpfad; (2) String-in-CSS-Injektion braucht Charset-Regex, keine Prefix-Whitelist (Mime variiert je OS); (3) fremde API-Filter-Params vor dem Bugfix gegen die Doku lesen — der Doku-Befund änderte den Fix-Ansatz komplett.
+
+## 2026-09-11 — H2-Fixes live gegen echte Geoapify-API verifiziert (Owner-Key)
+
+**Kontext:** Owner stellte den API-Key zur Verfügung; die H2-Fixes (Key-Wipe, Target-Lock) waren bisher nur Code-Review-verifiziert. Live-Tests in der echten App (CDP, echte UI-Flows) plus direkte API-Vergleiche:
+
+1. **429-Verhalten (fetch-Stub):** Key überlebt, Warn-Toast „⚠️ vorübergehend nicht erreichbar (Status 429)" — alter Bug (Wipe bei jedem Fehler) behoben.
+2. **401-Verhalten (echte API):** Key wird gewiped + Toast „❌ ungültig oder abgelaufen". (Erste Messung verpasste den Toast — Capture-Timing, MutationObserver-Rerun bestätigt.)
+3. **Basis-Autocomplete:** echter Key liefert korrekte Bonn-Adressen (Adenauerallee → 53113/53111).
+4. **Target-Lock (Text-Pattern „Straße, PLZ Ort"):** dreifach verifiziert — (a) „Am Hauptgericht, 53177 Bonn" → 53177 auf Platz 1 (ohne Kontext matcht die Straße GAR nicht); (b) „Hauptstraße, 10115 Berlin" → nur noch 10827 Berlin (5 Treffer identisch) statt deutschlandweiter Streuung; (c) Straße, die in der Ziel-PLZ nicht existiert (Bahnhofstraße/Bad Godesberg) → korrekter Fallback auf nächste gleiche-Stadt-PLZ (53123 Bonn), kein Lock-Fehler. `boundary.circle` wurde als Alternative getestet und verworfen (Kombination `|countrycode:de` liefert leere Sets, Syntax fragil).
+
+**Verifikation:** Alle Tests gegen `https://api.geoapify.com` mit echtem Key; HTTP-Statuscodes direkt geprüft (200 mit echten Payloads, kein Rate-Limit). Key nach dem 401-Test im App-Storage wiederhergestellt.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: Live-Tests gegen die echte API schlagen Code-Review-Verifikation — der Test FAND den echten Verhaltensnachweis für das Text-Pattern, das Review nur „dokumentiert plausibel" bewertet hatte. Test-Toasts mit MutationObserver observieren statt Endzustand lesen (Toast-Timing).

@@ -19,6 +19,13 @@ export const Constants = {
     FONT_SIZE_MAX_KB: 60      // Max size für Base64-Schriftarten (LocalStorage Limitierung)
   },
 
+  /**
+   * Schema-Version der Datenstrukturen (DeepSeek-Longevity-Review 2026-09-11).
+   * Konsumenten: StorageManager.migrate() (localStorage) und 52-import-export.js
+   * (.dinletter-Header). Missing version im Storage = Version 0 → migrate() stampft.
+   */
+  SCHEMA_VERSION: 1,
+
   // Centralized UI Messages (Toasts) — Policy 2026-09-10: nur noch Fehler, Warnungen
   // und fehlende User-Guidance. Success-Confirmations sind raus (das UI zeigt das
   // Ergebnis sichtbar; Toast-Spam war das Problem). Siehe ADR-UI / DECISION-LOG.
@@ -104,6 +111,19 @@ export const StorageManager = {
       console.error("Fehler beim Laden der Einstellungen:", e);
       return defaultSettings;
     }
+  },
+
+  /**
+   * Schema-Version stampfen + Migrationen ausführen (DeepSeek-Longevity-Review).
+   * Idempotent: fehlende Version = 0 → auf Constants.SCHEMA_VERSION heben.
+   * Zukünftige Schritte: if (from === 1) { … } — sequenziell, niemals springen.
+   * @returns {void}
+   */
+  migrate() {
+    let version = Number(localStorage.getItem('din_schema_version')) || 0;
+    if (version === Constants.SCHEMA_VERSION) return;
+    // Migrationsschritte kommen hier hin (sequenziell von version aufwärts).
+    localStorage.setItem('din_schema_version', String(Constants.SCHEMA_VERSION));
   },
 
   /**

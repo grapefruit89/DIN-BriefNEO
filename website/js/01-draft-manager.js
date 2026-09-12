@@ -61,7 +61,8 @@ export class DraftManager {
       if (sel.id) draft[sel.id] = sel.value;
     });
 
-    StorageManager.saveDraft('current', draft);
+    const saved = StorageManager.saveDraft('current', draft);
+    this.#setSaveStatus(saved ? 'saved' : 'error');
     this._updateDocumentTitle();
 
     if (this.#isRestoring) return;
@@ -249,10 +250,29 @@ export class DraftManager {
   }
 
   scheduleAutoSave() {
+    this.#setSaveStatus('dirty');
     clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
       this.saveDraft();
     }, this.DEBOUNCE_DELAY);
+  }
+
+  /**
+   * Autosave-Indikator (DeepSeek-Longevity-Review): Status-Dot im Sidebar-Footer.
+   * Rein zustandsgetrieben: CSS-Klassen .saved/.dirty/.error, Text als title
+   * (keine Toasts, keine assertive Live-Region).
+   * @param {'saved' | 'dirty' | 'error'} state
+   */
+  #setSaveStatus(state) {
+    const el = /** @type {HTMLElement | null} */ (document.getElementById('save-status'));
+    if (!el) return;
+    el.classList.remove('saved', 'dirty', 'error');
+    el.classList.add(state);
+    el.dataset.state = state;
+    /* Echte Text-Nodes (a11y-Doktrin 2026-09-11) — kein CSS-content. */
+    const labels = { saved: 'Gespeichert', dirty: 'Speichern…', error: 'Fehler beim Speichern!' };
+    el.textContent = labels[state];
+    el.title = labels[state];
   }
 
   _updateDocumentTitle() {

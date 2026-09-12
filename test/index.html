@@ -9,8 +9,10 @@
   <h1>DIN-BriefNEO — Unit-Tests (Zero-Dependency)</h1>
 
   <!-- Minimal-Fixture: DraftManager arbeitet gegen die echten Feld-IDs.
-       Alle [contenteditable]-Elemente hier werden von saveDraft erfasst. -->
+       Alle [contenteditable]-Elemente hier werden von saveDraft erfasst.
+       anlagen-text spiegelt die App-Struktur (UL-Container, contenteditable=true). -->
   <div id="brieftext" contenteditable="plaintext-only"></div>
+  <ul id="anlagen-text" contenteditable="true"><li>Anlage 1</li></ul>
 
   <h2>Ergebnisse</h2>
   <div id="test-report"></div>

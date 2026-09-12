@@ -17,6 +17,7 @@ import { UIProtections } from './03-ui-protections.js';
 
 import { applyLetterDate } from './47-date-format.js';
 import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
+import { initImportExport } from './52-import-export.js';
 
 function syncPostvermerkFromSidebar() {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
@@ -34,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 
   function initApp() {
+    // Schema-Migration VOR dem ersten Restore (DeepSeek-Longevity-Review).
+    StorageManager.migrate();
     const draftManager = new DraftManager();
     draftManager.loadDraft();
     syncPostvermerkFromSidebar();
@@ -67,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initToastSystem();
     initSenderSync();
     initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+    initImportExport({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
     ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
 
     const salutation = new SalutationFeature(() => draftManager.saveDraft());

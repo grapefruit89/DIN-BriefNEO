@@ -5,6 +5,8 @@ import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager } from '../website/js/01-draft-manager.js';
 import { StorageManager } from '../website/js/51-storage.js';
 import { UIProtections } from '../website/js/03-ui-protections.js';
+import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/52-import-export.js';
+import { Constants } from '../website/js/51-storage.js';
 
 /* StorageManager persistiert Drafts unter `din_draft_${key}` (key = 'current'). */
 const DRAFT_KEY = 'din_draft_current';
@@ -121,7 +123,35 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
   });
 });
 
-run().then((ok) => {
-  /** @type {any} */ (window).__TESTS_PASSED = ok;
+describe('Import/Export: .dinletter-Payload (pure Funktionen)', () => {
+  it('buildDinLetterPayload setzt Header mit schema_version + tool-Link', () => {
+    const payload = buildDinLetterPayload({ betreff: 'Test' });
+    assertEqual(payload.format, DINLETTER_FORMAT);
+    assertEqual(payload.schema_version, Constants.SCHEMA_VERSION);
+    assert(payload.tool.includes('github.com/grapefruit89/DIN-BriefNEO'), 'Tool-Link im Header');
+    assert(payload.created.match(/^\d{4}-\d{2}-\d{2}$/), 'created = ISO-Datum');
+    assert(payload.draft.betreff === 'Test', 'Draft-Payload 1:1');
+  });
+
+  it('parseDinLetterPayload akzeptiert ein gültiges Export-Payload (Roundtrip)', () => {
+    const payload = buildDinLetterPayload({ betreff: 'Roundtrip', brieftext: '<b>x</b>' });
+    const result = parseDinLetterPayload(JSON.stringify(payload));
+    assert(result.ok, 'valides Payload wird akzeptiert');
+    if (result.ok) {
+      assertEqual(result.draft.betreff, 'Roundtrip');
+      assertEqual(result.schemaVersion, Constants.SCHEMA_VERSION);
+    }
+  });
+
+  it('parseDinLetterPayload lehnt Mist ab (kein JSON, falsches Format, falsche Version, Feldtypen)', () => {
+    assert(!parseDinLetterPayload('kein json {').ok, 'kein JSON');
+    assert(!parseDinLetterPayload('{"format":"anderes"}').ok, 'falsches format');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 99, draft: {} })).ok, 'zu hohe schema_version');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { f: 42 } })).ok, 'nicht-string Feld');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1 })).ok, 'draft fehlt');
+  });
+});
+
+run().then((ok) => {  /** @type {any} */ (window).__TESTS_PASSED = ok;
   console.log(ok ? '✓ Alle Tests bestanden' : '✗ FEHLER: Tests fehlgeschlagen');
 });

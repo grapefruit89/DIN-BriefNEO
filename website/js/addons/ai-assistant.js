@@ -3,8 +3,9 @@
  * DIN-Brief Neo - Experimentelles On-Device KI-Addon (Gemini Nano)
  * 
  * DESIGN-PRINZIPIEN (ABSTURZSICHERHEIT & DATENSCHUTZ):
- * 1. 100% On-Device: Nutzt Chrome Built-in AI (window.ai.rewriter). Kein Byte verlässt das Gerät.
- * 2. 100% Defensive: Prüft window.ai und API-Verfügbarkeit strikt vor jedem Zugriff.
+ * 1. 100% On-Device: Nutzt Chrome Built-in AI (globales `Rewriter`, nicht das
+ *    obsolet gewordene window.ai). Kein Byte verlässt das Gerät.
+ * 2. 100% Defensive: Feature-Detect ('Rewriter' in self) + availability() strikt vor jedem Zugriff.
  * 3. Silent Degradation: Wenn die API nicht existiert oder fehlschlägt, passiert NICHTS.
  * 4. Opt-in: Standardmäßig deaktiviert, kann über den Schalter in der Sidebar aktiviert werden.
  * 5. Zero Core Dependencies: Keine Kopplung an interne Klassen. Standard W3C Selection & Range API.
@@ -24,8 +25,6 @@ export class AIAssistantAddon {
     this.enabled = this._readSettings();
     /** @type {any} */
     this.rewriterInstance = null;
-    /** @type {any} */
-    this.writerInstance = null;
     this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.sidebarToggleId));
     this.rewriteBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById(AI_CONFIG.toolbarRewriteBtnId));
   }
@@ -76,27 +75,17 @@ export class AIAssistantAddon {
 
   async _checkAvailability() {
     try {
-      let rewriterOk = false;
-      let writerOk = false;
-
-      // @ts-ignore
-      if (window.ai?.rewriter) {
-        // @ts-ignore
-        const status = await window.ai.rewriter.availability();
-        rewriterOk = (status === 'readily' || status === 'after-download');
+      /* Audit H5: window.ai.* ist obsolet (Chromium-Bestätigung) — die
+       * APIs leben als Globals (Rewriter, Writer, LanguageModel) und
+       * availability() liefert 'available'|'downloadable'|'downloading'|'unavailable'. */
+      if (!('Rewriter' in self)) {
+        return { supported: false, statusText: 'Rewriter API nicht verfügbar' };
       }
-
-      // @ts-ignore
-      if (window.ai?.writer) {
-        // @ts-ignore
-        const status = await window.ai.writer.availability();
-        writerOk = (status === 'readily' || status === 'after-download');
-      }
-
-      const supported = rewriterOk || writerOk;
+      const status = await /** @type {any} */ (self).Rewriter.availability();
+      const supported = status === 'available' || status === 'downloadable' || status === 'downloading';
       return {
         supported,
-        statusText: supported ? 'Bereit (Gemini Nano)' : 'Modell nicht geladen'
+        statusText: supported ? (status === 'available' ? 'Bereit (Gemini Nano)' : 'Modell-Ladung: ' + status) : 'Modell nicht verfügbar'
       };
     } catch (e) {
       return { supported: false, statusText: 'Nicht verfügbar' };
@@ -173,10 +162,8 @@ export class AIAssistantAddon {
       }
 
 
-      // @ts-ignore
-      if (!this.rewriterInstance && window.ai?.rewriter) {
-        // @ts-ignore
-        this.rewriterInstance = await window.ai.rewriter.create({
+      if (!this.rewriterInstance && 'Rewriter' in self) {
+        this.rewriterInstance = await /** @type {any} */ (self).Rewriter.create({
           tone: 'more-formal',
           length: 'as-is'
         });

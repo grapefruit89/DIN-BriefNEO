@@ -11,25 +11,25 @@ din-a4 {
   --din-width: attr(data-width-mm type(<number>), 210);
   --din-height: attr(data-height-mm type(<number>), 297);
 
-  --absender-y: calc(attr(data-absender-y-b type(<number>), 45) / var(--din-height) * 100cqh);
-  --empfaenger-y: calc(attr(data-empfaenger-y-b type(<number>), 50) / var(--din-height) * 100cqh);
-  --infoblock-y: calc(attr(data-infoblock-y-b type(<number>), 50) / var(--din-height) * 100cqh);
-  --datum-y: calc(attr(data-datum-y-b type(<number>), 92) / var(--din-height) * 100cqh);
-  --briefkern-y: calc(attr(data-kern-y-b type(<number>), 109) / var(--din-height) * 100cqh);
+  --absender-y: --mm-y(attr(data-absender-y-b type(<number>), 45));
+  --empfaenger-y: --mm-y(attr(data-empfaenger-y-b type(<number>), 50));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>), 50));
+  --datum-y: --mm-y(attr(data-datum-y-b type(<number>), 92));
+  --briefkern-y: --mm-y(attr(data-kern-y-b type(<number>), 109));
 
-  --fold-1-y: calc(attr(data-fold-1-b type(<number>), 105) / var(--din-height) * 100cqh);
-  --fold-2-y: calc(attr(data-fold-2-b type(<number>), 210) / var(--din-height) * 100cqh);
-  --punch-y: calc(attr(data-punch-y type(<number>), 148.5) / var(--din-height) * 100cqh);
+  --fold-1-y: --mm-y(attr(data-fold-1-b type(<number>), 105));
+  --fold-2-y: --mm-y(attr(data-fold-2-b type(<number>), 210));
+  --punch-y: --mm-y(attr(data-punch-y type(<number>), 148.5));
 }
 
 body:has(#btn-form-a:checked) din-a4 {
-  --absender-y: calc(attr(data-absender-y-a type(<number>), 27) / var(--din-height) * 100cqh);
-  --empfaenger-y: calc(attr(data-empfaenger-y-a type(<number>), 32) / var(--din-height) * 100cqh);
-  --infoblock-y: calc(attr(data-infoblock-y-a type(<number>), 32) / var(--din-height) * 100cqh);
-  --datum-y: calc(attr(data-datum-y-a type(<number>), 74) / var(--din-height) * 100cqh);
-  --briefkern-y: calc(attr(data-kern-y-a type(<number>), 91) / var(--din-height) * 100cqh); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
-  --fold-1-y: calc(attr(data-fold-1-a type(<number>), 87) / var(--din-height) * 100cqh);
-  --fold-2-y: calc(attr(data-fold-2-a type(<number>), 181) / var(--din-height) * 100cqh);
+  --absender-y: --mm-y(attr(data-absender-y-a type(<number>), 27));
+  --empfaenger-y: --mm-y(attr(data-empfaenger-y-a type(<number>), 32));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>), 32));
+  --datum-y: --mm-y(attr(data-datum-y-a type(<number>), 74));
+  --briefkern-y: --mm-y(attr(data-kern-y-a type(<number>), 91)); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --fold-1-y: --mm-y(attr(data-fold-1-a type(<number>), 87));
+  --fold-2-y: --mm-y(attr(data-fold-2-a type(<number>), 181));
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -106,7 +106,7 @@ body:has(#btn-form-a:checked) din-a4 {
   .din-mark {
   position: absolute;
   left: 0;
-  width: calc(8 / var(--din-width) * 100cqw); /* Kurz, nicht durch den Text schneidend */
+  width: --mm-x(8); /* Kurz, nicht durch den Text schneidend */
     border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     opacity: var(--guide-opacity);
     pointer-events: none;
@@ -117,7 +117,7 @@ body:has(#btn-form-a:checked) din-a4 {
   .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: var(--din-width)mm */
   .din-punch {
     top: var(--punch-y);
-    width: calc(12 / var(--din-width) * 100cqw); /* Breite: 12mm */
+    width: --mm-x(12); /* Breite: 12mm */
     border-bottom-style: solid;
   }
 
@@ -126,10 +126,10 @@ body:has(#btn-form-a:checked) din-a4 {
   #absender {
     position: absolute;
     top: var(--absender-y);
-    left: calc(20 / var(--din-width) * 100cqw);
-    width: calc(85 / var(--din-width) * 100cqw);
-    height: calc(5 / var(--din-height) * 100cqh);
-    font-size: calc(8 * 0.168cqw); /* 8pt in cqw */
+    left: --mm-x(20);
+    width: --mm-x(85);
+    height: --mm-y(5);
+    font-size: --pt(8); /* 8pt in cqw */
     white-space: nowrap;
     text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
   }
@@ -138,10 +138,10 @@ body:has(#btn-form-a:checked) din-a4 {
   #empfaenger {
     position: absolute;
     top: var(--empfaenger-y);
-    left: calc(20 / var(--din-width) * 100cqw);
-    width: calc(85 / var(--din-width) * 100cqw);
-    height: calc(40 / var(--din-height) * 100cqh);
-    font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
+    left: --mm-x(20);
+    width: --mm-x(85);
+    height: --mm-y(40);
+    font-size: --pt(10); /* 10pt in cqw */
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -152,9 +152,9 @@ body:has(#btn-form-a:checked) din-a4 {
   #infoblock {
     position: absolute;
     top: var(--infoblock-y);
-    left: calc(125 / var(--din-width) * 100cqw);
-    width: calc(75 / var(--din-width) * 100cqw);
-    font-size: calc(8.5 * 0.168cqw); /* 8.5pt in cqw */
+    left: --mm-x(125);
+    width: --mm-x(75);
+    font-size: --pt(8.5); /* 8.5pt in cqw */
     line-height: 1.5;
     display: flex;
     flex-direction: column;
@@ -164,9 +164,9 @@ body:has(#btn-form-a:checked) din-a4 {
   #datum {
     position: absolute;
     top: var(--datum-y);
-    left: calc(125 / var(--din-width) * 100cqw);
-    width: calc(75 / var(--din-width) * 100cqw);
-    font-size: calc(10 * 0.168cqw); /* 10pt in cqw */
+    left: --mm-x(125);
+    width: --mm-x(75);
+    font-size: --pt(10); /* 10pt in cqw */
     text-align: left;
   }
 
@@ -174,9 +174,9 @@ body:has(#btn-form-a:checked) din-a4 {
   #briefkern {
     position: absolute;
     top: var(--briefkern-y);
-    left: calc(25 / var(--din-width) * 100cqw);  /* Linker Fluchtrand: 25mm */
-    right: calc(20 / var(--din-width) * 100cqw); /* Rechter Rand: 20mm */
-    bottom: calc(30 / var(--din-height) * 100cqh); /* Abstand nach unten für Footer */
+    left: --mm-x(25);  /* Linker Fluchtrand: 25mm */
+    right: --mm-x(20); /* Rechter Rand: 20mm */
+    bottom: --mm-y(30); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
     overflow: clip; /* Zero-Ueberlauf Garantie */
@@ -184,36 +184,36 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   #betreff {
-    font-size: calc(12 * 0.168cqw); /* 12pt in cqw */
+    font-size: --pt(12); /* 12pt in cqw */
     font-weight: 700;
-    margin-bottom: calc(8.46 / var(--din-height) * 100cqh); /* 2 Leerzeilen */
+    margin-bottom: --mm-y(8.46); /* 2 Leerzeilen */
     text-fit: shrink; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht (contain = ungültig, css-text-5) */
     text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
   }
 
   #anrede {
-    font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
-    margin-bottom: calc(4.23 / var(--din-height) * 100cqh); /* 1 Leerzeile */
+    font-size: --pt(10.5); /* 10.5pt in cqw */
+    margin-bottom: --mm-y(4.23); /* 1 Leerzeile */
   }
 
   #brieftext {
-    font-size: calc(10.5 * 0.168cqw); /* 10.5pt in cqw */
+    font-size: --pt(10.5); /* 10.5pt in cqw */
     line-height: 1.4;
     outline: none;
-    min-height: calc(40 / var(--din-height) * 100cqh);
+    min-height: --mm-y(40);
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
   }
 
   #grussformel {
-    font-size: calc(10.5 * 0.168cqw);
-    margin-top: calc(4.23 / var(--din-height) * 100cqh);
-    margin-bottom: calc(12.69 / var(--din-height) * 100cqh); /* 3 Leerzeilen für Unterschrift */
+    font-size: --pt(10.5);
+    margin-top: --mm-y(4.23);
+    margin-bottom: --mm-y(12.69); /* 3 Leerzeilen für Unterschrift */
   }
 
   #unterschrift {
-    font-size: calc(10.5 * 0.168cqw);
+    font-size: --pt(10.5);
     font-weight: 500;
   }
 }
@@ -241,17 +241,17 @@ body:has(#btn-form-a:checked) din-a4 {
   /* --- FOOTER --- */
   #brief-fuss {
     position: absolute;
-    bottom: calc(10 / var(--din-height) * 100cqh); /* 10mm */
-    left: calc(25 / var(--din-width) * 100cqw); /* 25mm */
-    right: calc(20 / var(--din-width) * 100cqw); /* 20mm */
-    height: calc(15 / var(--din-height) * 100cqh); /* 15mm */
-    font-size: calc(7.5 * 0.168cqw); /* 7.5pt in cqw */
+    bottom: --mm-y(10); /* 10mm */
+    left: --mm-x(25); /* 25mm */
+    right: --mm-x(20); /* 20mm */
+    height: --mm-y(15); /* 15mm */
+    font-size: --pt(7.5); /* 7.5pt in cqw */
     color: var(--paper-ghost); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
-    padding-top: calc(2 / var(--din-height) * 100cqh);
+    padding-top: --mm-y(2);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: calc(10 / var(--din-width) * 100cqw);
+    gap: --mm-x(10);
     column-rule: 0.5px solid var(--paper-ghost);
     column-rule-inset: 2px;
   }

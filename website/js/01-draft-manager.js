@@ -283,6 +283,12 @@ export class DraftManager {
     const labels = { saved: 'Gespeichert', dirty: 'Speichern…', error: 'Fehler beim Speichern!' };
     el.textContent = labels[state];
     el.title = labels[state];
+    /* ariaNotify (Chrome 141+, empirisch 2026-09-12): der unsichtbare Status-Dot
+     * muss Save-FEHLER auditierbar machen — mit priority 'important', ohne
+     * Toast/Alert (Success bleibt still). */
+    if (state === 'error' && typeof document.ariaNotify === 'function') {
+      document.ariaNotify('Fehler beim Speichern', { priority: 'important' });
+    }
   }
 
   _updateDocumentTitle() {

@@ -189,8 +189,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     try {
       const response = await fetch(url, fetchOptions);
       if (!response.ok) {
-        /* Audit H2: Nur echte Key-Probleme löschen den Key — 429/5xx/Netzwerk
-         * sind NICHT "Key ungültig". */
+        /* 🚨 ARCHITECTURAL GUARD (H2): Der Key wird NUR bei HTTP 401/403
+         * gelöscht. NIEMALS bei 429/5xx/Timeout/Netzwerk — der alte Bug
+         * meldete temporäre Fehler als "Key ungültig" und vernichtete ihn. */
         if (response.status === 401 || response.status === 403) {
           StorageManager.saveGeoapifyKey('');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));

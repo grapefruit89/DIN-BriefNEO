@@ -105,7 +105,7 @@ export class DraftManager {
    */
   #restoreState(draft) {
     this.#isRestoring = true;
-    Object.keys(draft).forEach(id => {
+      Object.keys(draft).forEach(id => {
       if (id === 'datum') return;
       const elem = document.getElementById(id);
       if (!elem) return;
@@ -115,6 +115,10 @@ export class DraftManager {
         return;
       }
 
+      /* 🚨 ARCHITECTURAL GUARD (C1): DIES ist der EINZIGE HTML-Restore-Pfad der
+       * App — immer über 04-sanitize (Allowlist). NIEMALS setHTML, innerHTML,
+       * einen zweiten Restore-Owner oder "Abkürzungen" hier einbauen.
+       * boot-state.js stellt nur textContent her (keine HTML-Parität). */
       if (id === 'brieftext' || id === 'anlagen-text') {
         /* M2: Anlagen brauchen UL/LI (Listen-Doktrin von ensureListStructure),
          * Brieftext bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */

@@ -25,6 +25,9 @@ try {
    * application/octet-stream — Mime flexibel, optional ;charset=. */
   const isDataFont = /^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(customFont || '');
   if (isDataFont) {
+    /* 🚨 ARCHITECTURAL GUARD (CSP/H4): FontFace-Loader ist Pflicht — NIEMALS
+     * zur <style>-String-Injektion zurückkehren (breakt style-src 'self',
+     * war C2-Injektionsvektor). Die Regex oben bleibt der Gate. */
     const face = new FontFace('AptosCustom', `url(${customFont}) format('woff2')`);
     face.load().then((loaded) => {
       document.fonts.add(loaded);

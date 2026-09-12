@@ -246,6 +246,9 @@
       STRIKT VERBOTEN: z-index-Hacks, DOM-Mounting-Libraries oder JavaScript-Animationsschleifen
       einzuführen! Uebergänge laufen 100% deklarativ über CSS @starting-style. (ADR-ANTIPATTERN Abs. 15)
     -->
+    <!-- 🚨 ARCHITECTURAL GUARD (TOASTS-Policy + a11y): role="status"/aria-live="polite"
+         ist PFLICHT — keine assertiven Alerts für Routine-Meldungen, KEINE Success-Toasts
+         (Erfolg ist still, siehe Constants.TOASTS in 51-storage.js). -->
     <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="status" aria-live="polite" aria-atomic="true">
       <span id="toast-message"></span>
       <span id="toast-badge" class="toast-badge"></span>

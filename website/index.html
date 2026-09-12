@@ -6,11 +6,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
+         in layers.css verlagert, Boot-Font via FontFace. connect-src erlaubt
+         nur die A38-Allowlist (optionale Tier-2-Fach-API, ohne Key tot). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect width='36' height='26' y='5' fill='%23ccd6dd' rx='4'/><path stroke='%2399aab5' stroke-linecap='round' stroke-width='2' d='m2 29 13-13m6 0 13 13'/><path fill='%2399aab5' d='M4 5h28a4 4 0 0 1 4 4v2L21 25a5 5 0 0 1-6 0L0 11V9a4 4 0 0 1 4-4'/><path fill='%23e1e8ed' d='M4 5h28a4 4 0 0 1 4 4L21 22a4 4 0 0 1-6 0L0 9a4 4 0 0 1 4-4'/></svg>">
-    <style>
-      @layer reset, tokens, layout, floating;
-    </style>
+    <link rel="stylesheet" href="css/layers.css">
     <link rel="stylesheet" href="css/reset.css" layer="reset">
     <link rel="stylesheet" href="css/variables.css" layer="tokens">
     <link rel="stylesheet" href="css/layout.css" layer="layout">
@@ -27,18 +29,18 @@
       <aside class="no-print">
         <div class="sidebar-section">
           <div class="sidebar-header-row">
-            <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="sidebar-build-info btn-ghost sidebar-github-link" aria-label="GitHub Repository" data-ui="GitHub">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+            <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="sidebar-build-info btn-ghost sidebar-github-link" aria-label="GitHub Repository">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg> GitHub
             </a>
             <button type="button" id="btn-theme-toggle" class="sidebar-build-info btn-ghost theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-appearance="auto" title="Darstellung: Automatisch (System)"></button>
           </div>
           <div>
-            <h3 class="sidebar-label" data-ui="DIN-Brief Layout"></h3>
+            <h3 class="sidebar-label">DIN-Brief Layout</h3>
             <div class="segmented-control" focusgroup="horizontal wrap">
               <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only" autocomplete="off">
-              <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)" data-ui="Form A"></label>
+              <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked autocomplete="off">
-              <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)" data-ui="Form B"></label>
+              <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
             </div>
             <!--
               🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCH STANDARD
@@ -50,23 +52,23 @@
               im CSS über :root:has(#btn-guides-switch:checked) ausgewertet. (ADR-ANTIPATTERN Abs. 16)
             -->
             <div class="sidebar-switch-row">
-              <h3 class="sidebar-label" data-ui="Hilfslinien"></h3>
+              <h3 class="sidebar-label">Hilfslinien</h3>
               <input type="checkbox" switch id="btn-guides-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
             </div>
           </div>
           <div>
-            <h3 class="sidebar-label" data-ui="Brief-Stil & Anrede"></h3>
+            <h3 class="sidebar-label">Brief-Stil & Anrede</h3>
             <div class="segmented-control" focusgroup="horizontal wrap">
               <input type="radio" name="salutation" id="btn-style-formal" value="formal" class="sr-only" checked autocomplete="off">
-              <label for="btn-style-formal" title="Sehr geehrte(r) ..." data-ui="Förmlich"></label>
+              <label for="btn-style-formal" title="Sehr geehrte(r) ...">Förmlich</label>
               <input type="radio" name="salutation" id="btn-style-polite" value="polite" class="sr-only" autocomplete="off">
-              <label for="btn-style-polite" title="Guten Tag ..." data-ui="Höflich"></label>
+              <label for="btn-style-polite" title="Guten Tag ...">Höflich</label>
               <input type="radio" name="salutation" id="btn-style-casual" value="casual" class="sr-only" autocomplete="off">
-              <label for="btn-style-casual" title="Hallo ..." data-ui="Locker"></label>
+              <label for="btn-style-casual" title="Hallo ...">Locker</label>
             </div>
           </div>
           <div class="sidebar-switch-row" id="sidebar-ai-switch-row">
-            <h3 class="sidebar-label" data-ui="✨ KI-Assistent"></h3>
+            <h3 class="sidebar-label">✨ KI-Assistent</h3>
             <input type="checkbox" switch id="toggle-experimental-ai" autocomplete="off" aria-label="On-Device KI-Assistent aktivieren">
           </div>
           <div class="sidebar-zusatz-row">
@@ -92,11 +94,11 @@
             </select>
           </div>
           <div class="sidebar-switch-row">
-            <h3 class="sidebar-label" data-ui="Anlagen"></h3>
+            <h3 class="sidebar-label">Anlagen</h3>
             <input type="checkbox" switch id="toggle-anlagen" autocomplete="off" aria-label="Anlagen-Sektion auf dem Brief umschalten">
           </div>
           <div>
-            <h3 class="sidebar-label" data-ui="Schriftarten-Manager"></h3>
+            <h3 class="sidebar-label">Schriftarten-Manager</h3>
             <div class="sidebar-options-group">
               <button type="button" id="btn-font-action" class="btn w-full" data-font-mode="upload"></button>
               <span id="font-status-label" class="sidebar-status-label"></span>
@@ -107,36 +109,36 @@
             <input type="file" id="font-uploader" accept=".woff2" class="hidden">
           </div>
           <div>
-            <h3 class="sidebar-label" data-ui="Unterschrift (Bild)"></h3>
+            <h3 class="sidebar-label">Unterschrift (Bild)</h3>
             <div class="sidebar-options-group">
-              <span class="sidebar-sub-label" data-ui="Scanne deine Unterschrift als Bild mit transparentem Hintergrund."></span>
-              <label id="btn-upload-sig-trigger" for="sig-uploader" class="btn w-full" data-ui="✒️ Unterschrift laden"></label>
-              <button type="button" id="btn-reset-sig" class="btn btn-danger w-full" data-ui="🗑️ Unterschrift löschen"></button>
+              <span class="sidebar-sub-label">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
+              <label id="btn-upload-sig-trigger" for="sig-uploader" class="btn w-full">✒️ Unterschrift laden</label>
+              <button type="button" id="btn-reset-sig" class="btn btn-danger w-full">🗑️ Unterschrift löschen</button>
             </div>
             <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" class="hidden">
           </div>
           <div id="geoapify-wrapper">
-            <h3 class="sidebar-label" data-ui="Empfänger-Tools"></h3>
+            <h3 class="sidebar-label">Empfänger-Tools</h3>
             <div class="sidebar-options-group">
               <div id="geoapify-key-container">
-                <label for="input-geoapify-key" class="sidebar-sub-label" data-ui="Geoapify API-Key (optional):"></label>
+                <label for="input-geoapify-key" class="sidebar-sub-label">Geoapify API-Key (optional):</label>
                 <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
               </div>
               <div id="address-search-container" class="sidebar-options-group">
-                <label for="input-address-search" class="sidebar-sub-label" data-ui="Empfänger-Adresse suchen:"></label>
+                <label for="input-address-search" class="sidebar-sub-label">Empfänger-Adresse suchen:</label>
                 <input type="text" id="input-address-search" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
                 <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
               </div>
               <div id="clipboard-address-wrapper">
-                <button type="button" id="btn-clipboard-address" class="btn w-full" data-ui="📋 Adresse aus Zwischenablage lesen" title="Liest kopierte Adress- oder Impressumsdaten aus der Zwischenablage"></button>
+                <button type="button" id="btn-clipboard-address" class="btn w-full" title="Liest kopierte Adress- oder Impressumsdaten aus der Zwischenablage">📋 Adresse aus Zwischenablage lesen</button>
                 <ul id="clipboard-candidates-popover" class="autocomplete-dropdown no-print" popover="auto"></ul>
               </div>
             </div>
           </div>
         </div>
         <div class="sidebar-section sidebar-footer">
-          <button type="button" id="btn-print" class="btn primary w-full" data-ui="🖨️ Als PDF speichern / Drucken"></button>
-          <button type="button" id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal" data-ui="🗑️ Brief zurücksetzen"></button>
+          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Als PDF speichern / Drucken</button>
+          <button type="button" id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
         </div>
       </aside>
       <main id="viewport">
@@ -235,7 +237,7 @@
       STRIKT VERBOTEN: z-index-Hacks, DOM-Mounting-Libraries oder JavaScript-Animationsschleifen
       einzuführen! Uebergänge laufen 100% deklarativ über CSS @starting-style. (ADR-ANTIPATTERN Abs. 15)
     -->
-    <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-v4" popover="manual" class="toast-container type-info no-print" role="status" aria-live="polite" aria-atomic="true">
       <span id="toast-message"></span>
       <span id="toast-badge" class="toast-badge"></span>
       <button type="button" id="toast-action" class="toast-action-btn"></button>

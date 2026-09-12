@@ -168,9 +168,11 @@
               🛡️ BLEEDING EDGE ARCHITECTURE GUARD: PLAINTEXT & ENTERKEYHINT ENGINE
               ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
               Alle einzeiligen DIN-Felder nutzen `contenteditable="plaintext-only"` und `enterkeyhint="done"`.
-              Der Browser blockiert HTML-Formatting, Rich-Text-Pasting und Zeilenumbrueche NATIV
-              im C++ Rendering-Core.
-              STRIKT VERBOTEN: JavaScript-Keydown-Filter, beforeinput-Interzeptoren oder manuelle
+              Der Browser blockiert HTML-Formatting, Rich-Text-Pasting und Rich-Text-Tags NATIV
+              im C++ Rendering-Core. Zeilenumbrueche werden dagegen als LF-Zeichen durchgelassen
+              (w3c/editing#419, whatwg/html#11350) — der Keydown-Guard in 03-ui-protections.js
+              (`enforceLineLimits`) ist die einzige echte Umbruch-Sperre und bleibt bewusst bestehen.
+              STRIKT VERBOTEN: beforeinput-Format-Interzeptoren oder manuelle
               Regex-Sanitizer wieder einzubauen! (ADR-ANTIPATTERN Abs. 14)
             -->
             <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>

@@ -2,7 +2,9 @@
 /* @guide [[chrome-modern-css]]  */
 
 /* css/variables.css */
-@layer reset, tokens, layout, floating;
+/* Layer-Reihenfolge wird top-level in index.html deklariert (dieses File
+ * laedt via layer="tokens" — eine @layer-Zeile hier wuerde NESTED layers
+ * unter tokens anlegen, keine Top-Level-Ordnung). */
 
 @property --guide-opacity {
   syntax: '<number>';
@@ -102,9 +104,6 @@ body[data-theme="dark"] {
 body[data-theme="auto"] {
   color-scheme: light dark;
 }
-
-body:has(#btn-font-sans:checked) { --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-body:has(#btn-font-serif:checked) { --font-active-stack: "Times New Roman", Times, serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
 
 [popover] {
   color-scheme: inherit;

@@ -1,3 +1,18 @@
+/* 🚨 ARCHITECTURAL GUARD (Print-Vermaßung, Chrome 150+ page-margin-safety):
+ * size:A4 pinnt das Papierformat fest (vorher: Druckdialog entschied —
+ * US-Letter möglich); margin:0 setzt Falzmarken/Lochmarke an die PHYSISCH
+ * exakte DIN-Position; page-margin-safety:auto lässt den Browser Margen
+ * wachsen, wenn der Drucker einen Einzug meldet (im Print-to-PDF = inset 0
+ * ist es ein No-op — PDF-Hauptpfad bleibt exakt DIN). Quelle:
+ * developer.chrome.com/release-notes/150, css-page-3/#page-margin-safety.
+ * NIEMALS @page-Margen hier "sicherer" machen — das verschiebt die
+ * DIN-Vermaßung (Falzmarken 87/192 mm, Lochmarke 12,5 mm / 148,5 mm). */
+@page {
+  size: A4;
+  margin: 0;
+  page-margin-safety: auto;
+}
+
 /* Print overrides for maximum specificity */
 html, body { overflow: visible !important; height: auto !important; }
 body { background: oklch(100% 0 0) !important; }

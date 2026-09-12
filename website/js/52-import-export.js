@@ -44,6 +44,9 @@ export function buildDinLetterPayload(draft) {
  * @returns {{ ok: true, draft: Record<string, string>, schemaVersion: number } | { ok: false, reason: string }}
  */
 export function parseDinLetterPayload(text) {
+  /* BOM-Toleranz (Grok F4): Notepad/einige Editoren schreiben \uFEFF voran —
+   * JSON.parse chokiert daran. Eine Zeile, adopt now. */
+  text = text.replace(/^\uFEFF/, '');
   /** @type {any} */
   let data;
   try {
@@ -64,10 +67,17 @@ export function parseDinLetterPayload(text) {
   if (!data.draft || typeof data.draft !== 'object' || Array.isArray(data.draft)) {
     return { ok: false, reason: 'Kein Briefinhalt in der Datei.' };
   }
-  /** @type {Record<string, string>} */
-  const draft = {};
+  /* 🚨 ARCHITECTURAL GUARD (Grok F2): Prototyp-Hygiene, kein Allowlist-Zwang.
+   * Gefährliche Namen (__proto__, constructor, prototype) explizit ablehnen,
+   * übrige Keys müssen plausibler DOM-Id-Form folgen (^[A-Za-z]-Anchor schließt
+   * die gefährlichen Namen ohnehin aus — Blacklist als zweite Schicht).
+   * Null-Prototyp-Objekt verhindert Prototype-Pollution über gespeicherte Keys. */
+  const draft = /** @type {Record<string, string>} */ (Object.create(null));
   for (const [key, value] of Object.entries(data.draft)) {
     if (typeof value !== 'string') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
+    if (key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
+      return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
+    }
     draft[key] = value;
   }
   return { ok: true, draft, schemaVersion: version };
@@ -75,7 +85,7 @@ export function parseDinLetterPayload(text) {
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog).
- * @param {{ onSaveDraft: () => void, onToast: (msg: string, type?: string) => void }} params
+ * @param {{ onSaveDraft: () => boolean, onToast: (msg: string, type?: string) => void }} params
  */
 export function initImportExport({ onSaveDraft, onToast }) {
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
@@ -88,7 +98,12 @@ export function initImportExport({ onSaveDraft, onToast }) {
   exportBtn.addEventListener('click', () => {
     // Erst den LIVEDRAFT in den Storage schreiben, dann exportieren —
     // sonst exportiert man den letzten Autosave-Stand, nicht den aktuellen.
-    onSaveDraft();
+    // Grok Bug 3: saveDraft() liefert jetzt bool — bei Quota-Fehler NICHT
+    // einen stale/leeren Stand serialisieren, sondern abbrechen.
+    if (!onSaveDraft()) {
+      onToast('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
+      return;
+    }
     let draft;
     try {
       draft = JSON.parse(localStorage.getItem('din_draft_current') || '{}');
@@ -117,6 +132,12 @@ export function initImportExport({ onSaveDraft, onToast }) {
   importInput.addEventListener('change', async () => {
     const file = importInput.files?.[0];
     if (!file) return;
+    /* Größen-Cap (Grok Bug 5): ein Brief ist Zehner-KB, keine Megabytes —
+     * main-thread JSON.parse eines GB-Drops ablehnen statt frieren. */
+    if (file.size > 512 * 1024) {
+      onToast('❌ Import abgelehnt: Datei zu groß (max. 512 KB).', 'error');
+      return;
+    }
     const result = parseDinLetterPayload(await file.text());
     if (!result.ok) {
       onToast(`❌ Import abgelehnt: ${result.reason}`, 'error');
@@ -136,7 +157,8 @@ export function initImportExport({ onSaveDraft, onToast }) {
       localStorage.setItem('din_draft_current', JSON.stringify(pendingImport.draft));
       StorageManager.migrate();
       pendingImport = null;
-      onToast('✅ Brief importiert — Seite lädt neu.', 'info');
+      /* Kein Success-Toast vor reload (Grok Bug 1): würde nie painten UND
+       * verletzt die Success-still-Policy. Der Reload IST die Bestätigung. */
       // Reload über den Boot-Pfad: EIN Restore-Owner (DraftManager), kein
       // zweiter Import-Restore-Code (C1-Lektion: niemals HTML hier einsetzen).
       location.reload();

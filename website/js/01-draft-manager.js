@@ -65,7 +65,7 @@ export class DraftManager {
     this.#setSaveStatus(saved ? 'saved' : 'error');
     this._updateDocumentTitle();
 
-    if (this.#isRestoring) return;
+    if (this.#isRestoring) return saved;
 
     const draftStr = JSON.stringify(draft);
     let caretInfo = null;
@@ -89,6 +89,8 @@ export class DraftManager {
     if (this.onSaveCallback) {
       this.onSaveCallback();
     }
+    /* Grok Bug 3: Export/Persistenz-Konsumenten prüfen das Resultat. */
+    return saved;
   }
 
   loadDraft() {
@@ -129,6 +131,10 @@ export class DraftManager {
       }
     });
     this.#isRestoring = false;
+    /* Grok F6: Indikator-Initialzustand nach dem Restore setzen — HTML-
+     * initial 'saved' alleine reicht nicht, wenn loadDraft aus Import/
+     * Undo-Kontexten gerufen wird. */
+    this.#setSaveStatus('saved');
   }
 
   undo() {

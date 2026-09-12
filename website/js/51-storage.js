@@ -127,6 +127,11 @@ export const StorageManager = {
      * Legacy-Date-API (A48) datieren — Temporal-only. schema_version wird
      * von 52-import-export.js (.dinletter-Header) konsumiert. */
     // Migrationsschritte kommen hier hin (sequenziell von version aufwärts).
+    // ⚠️ Grok-Bug-4-Vorwarnung (jetzt dokumentieren, damit kein stamp-and-skip):
+    // Sobald der erste Migrationsschritt existiert, MUSS der .dinletter-Import
+    // die payload.schema_version → CURRENT transformieren, BEVOR er raw
+    // schreibt — sonst sieht migrate() die bereits gestempelte Storage-Version
+    // und überspringt die Transformation der importierten Datei.
     localStorage.setItem('din_schema_version', String(Constants.SCHEMA_VERSION));
   },
 

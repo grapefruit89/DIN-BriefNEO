@@ -1433,3 +1433,15 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** `git status` nach Rollback leer; nach den Doku-Edits Gate 100 %, `links.js`/`imr.js` OK.
 
 **Generalisierbarkeit:** Zerstörende Aktionen (Code-Löschung) erst nach eindeutiger Bestätigung; im Zweifel **nur Doku**. Ein „Feature streichen" und ein „Code löschen" sind zwei verschiedene Dinge.
+
+## 2026-09-30 — Plan-Audit: Streichung nach Nutzen (Doku)
+
+**Kontext:** Abgleich der offenen Plan-Punkte nach **echtem Nutzer-Mehrwert** vs. Gimmick/Off-Strategy.
+
+**Gestrichen:** vCard-QR im Briefkopf (Gimmick im formellen B2B-Brief), Service-Worker/PWA (unter `file://` technisch unmöglich), LLM-Addon/Zauberstab (Cloud-API + Keys — bricht Offline/Datenschutz/zero-dep). `ROADMAP`: Backlog-Items 4/5 entfernt, bzst 6 → 4, „Dauerhaft verworfen"-Liste erweitert. `Feature-Matrix`: vCard-Zeile entfernt; Zeile „PWA Standalone ✅" → „Offline-Betrieb ✅" (ohne Service Worker).
+
+**Behalten (echter Nutzen):** Serienbrief (CSV), mehrseitige Briefe, bzst-Beherdenwegweiser; Brief-Archiv (Storage-Konzept offen), Internetmarke (Recherche offen); On-Device KI (live, experimentell), sqlite-vec (Agent-Tool, geparkt).
+
+**Verifikation:** Gate 100 %, `links.js`/`imr.js` OK.
+
+**Generalisierbarkeit:** Ideen zuerst nach **Nutzer-Mehrwert** und **Zielkontext-Machbarkeit** (`file://`/offline, zero-dep, Law Catalog) filtern — „technisch cool" ist kein Nutzen. Verworfenes explizit als „nicht erneut vorschlagen" dokumentieren (Anti-Drift).

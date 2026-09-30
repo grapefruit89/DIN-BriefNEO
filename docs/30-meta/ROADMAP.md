@@ -156,25 +156,13 @@ Ausbau des `parseMarkdown`-Moduls zur nativen Unterstützung von geordneten/unge
 
 **Status:** Brainstorming. Muss mit dem Selection-Popover synchronisiert werden.
 
-### 4. LLM-Features in der App (Zauberstab)
-
-API-Keys im LocalStorage speichern, Buttons im UI für Textformatierung (förmlich, Füllwörter entfernen) per LLM-Aufruf.
-
-**Status:** Geplant (auf Wunsch). LLM-Client in Vanilla JS ohne npm oder Bundle-Size-Explosion.
-
-### 5. Offline-Service-Worker (PWA)
-
-Service Worker für Cache-basiertes PWA-Erlebnis.
-
-**Status:** Zurückgestellt. Service Worker setzen HTTPS voraus — unter `file:///` werfen sie Security Errors. `index.html` per Doppelklick funktioniert offline ohne SW.
-
-### 6. bzst.de Behördenwegweiser — Finanzamt-Adress-Lookup
+### 4. bzst.de Behördenwegweiser — Finanzamt-Adress-Lookup
 
 Automatisches Auffinden der zuständigen Finanzamt-Adresse für den Empfänger, analog zum bestehenden Adress-Autocomplete (Geoapify/Photon).
 
 **Status:** Geplant (2026-08-08 festgehalten). Nischen-Feature, aber spart Nutzern manuelle Suche bei Behördenbriefen.
 
-**Dauerhaft verworfen (2026-09-30, nicht erneut vorschlagen):** Sprachsteuerung/Diktat (Web Speech — plattformspezifisch, nur mit Cloud), LanguageTool (externe API, Offline-Bruch).
+**Dauerhaft verworfen (2026-09-30, nicht erneut vorschlagen):** Sprachsteuerung/Diktat (Web Speech — plattformspezifisch, nur mit Cloud), LanguageTool (externe API, Offline-Bruch), vCard-QR im Briefkopf (Gimmick im formellen B2B-Brief), Service-Worker/PWA (unter `file://` technisch unmöglich — SW braucht HTTPS), LLM-Addon/Zauberstab (Cloud-API + Keys, bricht Offline/Datenschutz/zero-dep).
 
 **Zurückgestellt/verworfen aus derselben Ideen-Liste** (Chat-Audit 2026-08-08, zu nischig für einen allgemeinen Briefeditor): Justizadressen.nrw.de, gerichtsstand.net, insolvenzbekanntmachungen.de, Bundesbank-Webservice (Basiszinssatz/Verzugszins — nur relevant für Mahnschreiben), EZB-Referenzkurse, OpenThesaurus.de, OffeneRegister/OpenCorporates, Wikidata SPARQL, Open Legal Data.
 

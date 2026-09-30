@@ -7,6 +7,7 @@
  * Wahrheit fuer Retrieval und wird aus zwei Quellen gespeist:
  *
  *   Markdown (.md)         -> documents + sections (H1-H6, mit Zeilennummern)
+ *   Code (website/tools/agent) -> je Datei EINE Section (Volltext durchsuchbar)
  *   git ls-files (Inventar) -> files (wo liegt welche Datei, Rolle, Groesse)
  *   Beziehungen            -> links (from_path -> to_ref aus doc_links/code_links/
  *                             depends_on + Code-Annotationen @adr/@guide)
@@ -291,6 +292,26 @@ function buildIndex(opts = {}) {
         insLink.run(t.path, m[1], target, resolveRef(target));
         linkCount++;
       }
+    }
+    // Code-Volltext (bewusst grob: EINE Section je Datei) -> "wo ist X" per docs_search.
+    const INDEX_EXT = new Set(['.js', '.mjs', '.cjs', '.css', '.html', '.py', '.sh']);
+    const INDEX_TOPS = new Set(['website', 'tools', 'agent']);
+    for (const t of tracked) {
+      const ext = path.extname(t.path).toLowerCase();
+      if (!INDEX_EXT.has(ext)) continue;
+      if (!INDEX_TOPS.has(t.path.split('/')[0])) continue;
+      if (t.path.includes('/data/') || t.path.includes('node_modules')) continue;
+      if (t.size_bytes != null && t.size_bytes > 200_000) continue;
+      let raw;
+      try { raw = fs.readFileSync(path.join(REPO_ROOT, t.path), 'utf8'); } catch { continue; }
+      const lineCount = raw.split(/\r?\n/).length;
+      const info = insDoc.run(t.path, t.path, 'code', null, lineCount, fs.statSync(path.join(REPO_ROOT, t.path)).mtimeMs);
+      const docId = Number(info.lastInsertRowid);
+      docCount++;
+      const r = insSec.run(docId, 0, t.path, 1, lineCount, raw);
+      insFts.run(Number(r.lastInsertRowid), t.path, raw);
+      insFtsTri.run(Number(r.lastInsertRowid), t.path, raw);
+      secCount++;
     }
     db.exec('COMMIT');
   } catch (err) {

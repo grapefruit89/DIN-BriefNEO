@@ -1347,3 +1347,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** 0 defekte `code_links`, `links.js`/`imr.js` OK, Gate 100 %. **`din-5008-svgs/` (476 KB): geprüft — einzige visuelle Form-A/B-Referenz, bewusst behalten.**
 
 **Generalisierbarkeit:** Ein Link-Gate muss **alle** Referenzarten prüfen (Wikilinks, `doc_links`, `depends_on`, **`code_links`**) — jedes ungated Feld ist eine Einladung zum Drift. Pfad-Refs relativ zur Repo-Wurzel **und** zum Dokument auflösen; `code_links` zeigen auf echten Code, geplante Dateien gehören nicht hinein.
+
+## 2026-09-30 — Code-Volltext im Index (Datei = Section)
+
+**Kontext:** Doku war per `docs_search` durchsuchbar, Code nur als Inventar (`files`). Wunsch: Code über denselben Kanal findbar, ohne Ordnerraten.
+
+**Änderung:** `tools/docs_index.js` indexiert zusätzlich Code-Dateien aus `website/`, `tools/`, `agent/` (`.js/.mjs/.cjs/.css/.html/.py/.sh`, ohne `*/data/`, ohne Dateien > 200 KB) als **je eine Section** (heading = Pfad) in `documents`/`sections`/FTS. `docs_search` (und damit der MCP) liefert jetzt auch Code-Treffer. Bewusst **grob**: keine Funktions-/Block-Heuristik.
+
+**Verifikation:** 103 → 143 Dokumente, 1166 → 1208 Sections; `docs_search "showToast"` trifft Code; Gate 100 %.
+
+**Grenze/Generalisierbarkeit:** Die grobe Variante nennt die **Datei** (Section-Start = Zeile 1), nicht die exakte Zeile — dafür bleibt `rg` das präzisere Werkzeug. Bewusster Trade-off: einheitlicher Suchkanal statt Heuristik und Rauschen. Code bleibt Source of Truth, die DB ist abgeleitet und jederzeit regenerierbar.

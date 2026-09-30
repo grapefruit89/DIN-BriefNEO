@@ -1,10 +1,10 @@
 ---
-id: ADR-TEMPLATE
+id: adr-template
 title: 'ADR-Template für neue Architektur-Entscheidungen'
 type: meta
 status: active
 created: '2026-06-30'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta

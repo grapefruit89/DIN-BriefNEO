@@ -1240,3 +1240,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 %, `imr.js` OK, `[[…]]`-Links intakt, kein „Toast" mehr in Foundation.
 
 **Generalisierbarkeit:** Foundation (WHY/Gesetze) referenziert die IMR (WAS/WIE) als SSOT — Benennung/Prosa gehört nicht in die Gesetzesebene, sondern in die Registry; Klartext-Pfade in Doku sind eine Lücke des Link-Gates (nur `[[…]]` werden geprüft).
+
+## 2026-09-30 — docs/10-architecture-Audit: Baseline, Doc-id-Case, toter Link, Rename-Drift
+
+**Kontext:** Audit `docs/10-architecture`. Funde: (1) **Baseline-Widerspruch** — Matrix + ADRs nennen **Chrome 148+** statt der einzigen Baseline **150+** (Foundation); (2) Doc-`id:` `ADR-005`/`ADR-006`/`ADR-OMNITRACEABILITY` groß (Case-Contract-Verstoß, vom Gate nicht geprüft); (3) toter inline-Link `[[ADR-MIGRATION]]` (kein File, Gate prüft inline `[[…]]` nicht); (4) **Rename-Drift**: ADR-HTML listete noch `data-punch-y`/`data-fold-*`/`data-empfaenger-y-*`.
+
+**Änderung:** Baseline `148+`→`150+` in Matrix, ADR-HTML/CSS/ANTIPATTERN/006 und `docs/index.md`; Doc-ids auf kebab (auch `ADR-TEMPLATE`/`GUIDE-TEMPLATE`/`README-DB`); toten Link durch `docs/90-archive/`-Hinweis ersetzt; ADR-HTML-`data-*` auf kanonisch; **`checkCase` um Doc-Frontmatter-`id:`** erweitert (schließt die Lücke). Bewusst nicht: ADR-Dateien umbenennen (ADR-CSS 36 / ADR-JS 37 Link-Ziele), Matrizen mergen (2 von 3 generiert).
+
+**Verifikation:** Gate 100 %, `imr.js` OK, Negativtest Doc-id (`ADR-BAD` → FAIL), keine `148`-Baseline mehr in `10-architecture`/`index`.
+
+**Generalisierbarkeit:** (a) Die Baseline steht **einmal** (Foundation) — andere Docs referenzieren, statt die Zahl zu wiederholen (SSoT); (b) ein Case-Gate muss auch Doc-Frontmatter-`id:` prüfen, sonst driften ids unbemerkt; (c) das Link-Gate prüft nur Frontmatter-Relationen und `[]()`, **nicht** inline `[[…]]` — Lücke für tote Wiki-Links; (d) Datei-Umbenennungen sind bei klebrigen Wiki-Links hochriskant → Konvention dokumentieren statt migrieren.

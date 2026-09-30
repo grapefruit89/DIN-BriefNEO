@@ -4,7 +4,7 @@ title: 'ADR-ANTIPATTERN: Forbidden Practices & Antipatterns'
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-02'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -44,12 +44,12 @@ Die **Klassifikation** (HARD BAN / PREFERRED / FALLBACK) steht im [[Immutable-La
 
 Dieses ADR begründet die gewählten Verbote und Alternativen. Es ist keine zweite Verfassung und führt keine eigene Browser-Baseline.
 
-Baseline: ausschließlich [[longevity-guidelines]] — **Chrome 148+**.
+Baseline: ausschließlich [[longevity-guidelines]] — **Chrome 150+**.
 
 ## Kontext & Problemstellung
 
 > [!info] Hintergrund
-> Um Offline-`file://`-Betrieb, Zero Runtime-Dependencies und eine moderne Chrome-148+-Plattform zu halten, sind bestimmte übliche Web-Praktiken ausgeschlossen. Neue Verbote entstehen nur über das Amendment-Protokoll des Catalogs.
+> Um Offline-`file://`-Betrieb, Zero Runtime-Dependencies und eine moderne Chrome-150+-Plattform zu halten, sind bestimmte übliche Web-Praktiken ausgeschlossen. Neue Verbote entstehen nur über das Amendment-Protokoll des Catalogs.
 
 ---
 
@@ -179,7 +179,7 @@ Verbindliche Kette (Catalog C1, A16–A20):
 ## Verknüpfungen
 
 *   [[Immutable-Law-Catalog]] — Stufen und Verbote
-*   [[longevity-guidelines]] — Chrome 148+
+*   [[longevity-guidelines]] — Chrome 150+
 *   [[ADR-HTML]] — `contenteditable`, Popover
 *   [[ADR-CSS]] — Viewport, Typografie
 *   [[ADR-JS]] — DOM, Selection

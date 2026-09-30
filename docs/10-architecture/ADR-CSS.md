@@ -60,7 +60,7 @@ Klassische Webanwendungen brechen das WYSIWYG-Prinzip fortlaufend durch unkontro
 Ein physischer DIN-A4-Briefbogen hat jedoch feste Kanten und **scrollt niemals**.
 In DIN-Brief Neo wird das Dokument unter allen Bildschirmgrößen, DPI-Skalierungen und Fenstertypen **pixelperfekt proportional skaliert und absolut ohne Scrollbalken** gerendert.
 
-Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, werden Layout, Theming, Skalierung, Text-Fitting und Top-Layer-Overlays zu **100 % deklarativ über moderne Web-Platform-Standards (Chrome 148+ / Baseline 2024–2026)** gelöst.
+Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, werden Layout, Theming, Skalierung, Text-Fitting und Top-Layer-Overlays zu **100 % deklarativ über moderne Web-Platform-Standards (Chrome 150+ / Baseline 2024–2026)** gelöst.
 
 ---
 

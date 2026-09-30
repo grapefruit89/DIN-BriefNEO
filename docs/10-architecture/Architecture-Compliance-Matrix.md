@@ -4,7 +4,7 @@ title: 'Architecture Compliance Matrix (IMR 4.0 Standard)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-09-02'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -20,7 +20,7 @@ error_patterns:
   - compliance matrix
   - platinum baseline
   - imr 4.0
-  - chrome 148
+  - chrome 150
   - pvp
   - platinum validation
   - architektur leitplanken
@@ -31,10 +31,10 @@ depends_on: []
 # Architecture Compliance Matrix (IMR 4.0 Standard)
 
 > [!IMPORTANT]
-> **Baseline:** Die einzige projektweite Plattformzahl steht in [[longevity-guidelines]]: **Chrome 148+**. Diese Matrix erfindet keine zweite Zahl. Ältere Browser werden explizit nicht unterstützt.
+> **Baseline:** Die einzige projektweite Plattformzahl steht in [[longevity-guidelines]]: **Chrome 150+**. Diese Matrix erfindet keine zweite Zahl. Ältere Browser werden explizit nicht unterstützt.
 
 Diese Matrix definiert technologische Leitplanken für DIN-BriefNEO.
-Die verbindliche Baseline ist ausschließlich die in den Longevity-Guidelines genannte **Chrome 148+**.
+Die verbindliche Baseline ist ausschließlich die in den Longevity-Guidelines genannte **Chrome 150+**.
 
 ---
 

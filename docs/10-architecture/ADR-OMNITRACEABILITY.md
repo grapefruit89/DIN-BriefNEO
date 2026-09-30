@@ -1,10 +1,10 @@
 ---
-id: ADR-OMNITRACEABILITY
+id: adr-omnitraceability
 title: 'ADR-OMNI: OmniTraceability System'
 type: adr
 status: active
 created: '2026-07-06'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture

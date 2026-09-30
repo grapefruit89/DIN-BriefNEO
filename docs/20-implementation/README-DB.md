@@ -1,10 +1,10 @@
 ---
-id: README-DB
+id: readme-db
 title: 'LLM-First Dokumenten-Datenbank & MCP-Architektur'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation

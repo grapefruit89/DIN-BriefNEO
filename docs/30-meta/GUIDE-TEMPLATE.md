@@ -1,10 +1,10 @@
 ---
-id: GUIDE-TEMPLATE
+id: guide-template
 title: 'Guide-Template — Vorlage für neue How-To Guides'
 type: meta
 status: active
 created: '2026-06-30'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta

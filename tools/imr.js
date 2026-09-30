@@ -127,6 +127,24 @@ function checkCase(targetDir, inventory) {
     for (const m of css.matchAll(/(?<=[\s,>+~()])\.([A-Za-z_][\w-]*)/g)) if (bad(m[1])) report(rel, 'CSS Klasse', m[1]);
     for (const m of css.matchAll(/(?<=[\s,>+~()])#([A-Za-z_][\w-]*)/g)) if (!hex(m[1]) && bad(m[1])) report(rel, 'CSS ID', m[1]);
   }
+  // Docs: Frontmatter-id muss kebab-case sein (nur der Frontmatter-Block, nicht Beispiele im Text)
+  const walkMd = (dir, o = []) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walkMd(p, o);
+      else if (e.name.endsWith('.md')) o.push(p);
+    }
+    return o;
+  };
+  for (const file of walkMd(path.join(targetDir, 'docs'))) {
+    const rel = path.relative(targetDir, file).replace(/\\/g, '/');
+    const fm = fs.readFileSync(file, 'utf-8').match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!fm) continue;
+    const idm = fm[1].match(/^id:\s*(.+?)\s*$/m);
+    if (!idm) continue;
+    const val = idm[1].replace(/^['"]|['"]$/g, '');
+    if (bad(val)) report(rel, 'Doku id', val);
+  }
   return out;
 }
 

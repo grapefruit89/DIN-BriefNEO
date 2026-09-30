@@ -48,7 +48,7 @@ depends_on: []
 
 Klassische Web-Editoren und Office-Nachbildungen leiden häufig unter unübersichtlichen, tief verschachtelten `<div>`-Strukturen, fragilen JavaScript-Dialog-Bibliotheken und asynchron montierten DOM-Knoten. Solche Ansätze führen zu unvorhersehbarem Tastaturfokus, Barrierefreiheitslücken und `z-index`-Konflikten.
 
-In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer Dokumenten- und Komponentenbaum** aufgebaut. Durch den konsequenten Einsatz moderner Web-Platform-Standards (Chrome 148+ / Baseline 2024–2026) übernimmt die HTML-Ebene deklarativ Aufgaben, die früher hunderte Zeilen JavaScript erforderten:
+In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer Dokumenten- und Komponentenbaum** aufgebaut. Durch den konsequenten Einsatz moderner Web-Platform-Standards (Chrome 150+ / Baseline 2024–2026) übernimmt die HTML-Ebene deklarativ Aufgaben, die früher hunderte Zeilen JavaScript erforderten:
 - Vollständige Trennung von DIN-Geometriebereichen über semantische Custom Elements (`<din-*>`).
 - Native Top-Layer-Platzierung für Popovers, Kontext-Toolbars und Toasts ohne `z-index`.
 - Deklarative Modal-Steuerung über native Command Invoker (`commandfor`, `command`).
@@ -155,9 +155,9 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
 
 #### DIN-Geometrie Data-Attribute (SSOT)
 * `data-width-mm="210"` & `data-height-mm="297"`: DIN A4 Blattgröße.
-* `data-punch-y="148.5"`: Lochmarke zentriert auf Blatthälfte.
-* **Form B (Default):** `data-absender-y-b="45"`, `data-empfaenger-y-b="50"`, `data-infoblock-y-b="50"`, `data-datum-y-b="92"`, `data-kern-y-b="109"`, `data-fold-1-b="105"`, `data-fold-2-b="210"`.
-* **Form A:** `data-absender-y-a="27"`, `data-empfaenger-y-a="32"`, `data-infoblock-y-a="32"`, `data-datum-y-a="74"`, `data-kern-y-a="91"`, `data-fold-1-a="87"`, `data-fold-2-a="181"`.
+* `data-lochmarke-y="148.5"`: Lochmarke zentriert auf Blatthälfte.
+* **Form B (Default):** `data-absender-y-b="45"`, `data-anschriftfeld-y-b="50"`, `data-infoblock-y-b="50"`, `data-datum-y-b="92"`, `data-kern-y-b="109"`, `data-falz-oben-y-b="105"`, `data-falz-unten-y-b="210"`.
+* **Form A:** `data-absender-y-a="27"`, `data-anschriftfeld-y-a="32"`, `data-infoblock-y-a="32"`, `data-datum-y-a="74"`, `data-kern-y-a="91"`, `data-falz-oben-y-a="87"`, `data-falz-unten-y-a="181"`.
 
 #### Die 24 Custom Elements & 18 ContentEditable-Felder
 1. `<din-falz-oben>`: Obere Faltmarke (auf 8 mm Randbreite begrenzt).

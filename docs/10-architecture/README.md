@@ -4,7 +4,7 @@ title: '10-architecture — Architektur-Entscheidungen & Traceability'
 type: meta
 status: active
 created: '2026-07-07'
-updated: '2026-08-08'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -54,6 +54,6 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 
 ## Historisch / Support
 
-- [[ADR-MIGRATION]] — Archivierte/migrierte Entscheidungen
+- Migrierte/archivierte Entscheidungen — siehe `docs/90-archive/`
 - [[ADR-TEMPLATE]] — Template für neue ADRs (liegt in `30-meta/`)
 - [[Code-Referenzen]] — Autogeneriert: Code ↔ ADR Verknüpfungen

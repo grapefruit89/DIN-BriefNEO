@@ -1,10 +1,10 @@
 ---
-id: ADR-006
+id: adr-006
 title: 'ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)'
 type: adr
 status: active
 created: '2026-09-04'
-updated: '2026-09-04'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -49,7 +49,7 @@ Mit der Erstellung des optimierten, nur **70,5 KB** großen Brotli-gepackten PLZ
 
 ### 1. Primärquelle: Lokales Brotli-Dictionary (Tier 1)
 - Die ca. 70,5 KB große Binärdatei `de_plz_ort.json.br` dient als autoritative, lokale Datenquelle für alle PLZ- und Ortsabfragen.
-- Die Dekomprimierung erfolgt nativ über die Standard-Browser-API `DecompressionStream('brotli')` (unterstützt ab Chrome 117+, voll kompatibel mit Baseline Chrome 148+).
+- Die Dekomprimierung erfolgt nativ über die Standard-Browser-API `DecompressionStream('brotli')` (unterstützt ab Chrome 117+, voll kompatibel mit Baseline Chrome 150+).
 - Das resultierende Mapping (PLZ ↔ Ort) wird als indizierte Lookup-Tabelle im Hauptspeicher gehalten.
 - **Bidirektionale Zero-Latency-Vervollständigung:**
   - Eingabe einer 5-stelligen PLZ führt sofort und synchron zur automatischen Befüllung des Ortsnamens.

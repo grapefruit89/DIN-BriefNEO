@@ -4,7 +4,7 @@ title: 'DIN-Brief Neo — Zentraler Dokumentations- & Architektur-Hub'
 type: meta
 status: active
 created: '2026-07-03'
-updated: '2026-09-04'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/hub
@@ -41,7 +41,7 @@ depends_on: []
 # DIN-Brief Neo: Zentraler Dokumentations- & Architektur-Hub
 
 > **Willkommen im Dokumentationszentrum von DIN-Brief Neo.**  
-> Autarker, serverloser DIN-5008-Briefbogen im Browser (Form A & B) — 100% offline-fähig, null Build-Tools, null externe Laufzeit-Abhängigkeiten, optimiert für Chrome 148+ (Standard-Baseline).
+> Autarker, serverloser DIN-5008-Briefbogen im Browser (Form A & B) — 100% offline-fähig, null Build-Tools, null externe Laufzeit-Abhängigkeiten, optimiert für Chrome 150+ (Standard-Baseline).
 
 Root-Werkzeug für Sichtprüfung: **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
 
@@ -66,7 +66,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 - **[[constitution]]** ⭐⭐⭐ — 5 Grundrechte (Zero Dependencies, Longevity, Offline-First, Geometry-SSoT, Immutability).
 - **[[Immutable-Law-Catalog]]** ⭐⭐⭐ — Normative Gesetzestexte: Stufe 1 (HARD BAN) bis Stufe 3 (FALLBACK).
 - **[[spec]]** ⭐⭐⭐ — Fachliche Spezifikation aller Benutzerfunktionen (WAS das Produkt leistet).
-- **[[longevity-guidelines]]** ⭐⭐ — 10-Jahres-Technologiekriterien und einzige Browser-Baseline (Chrome 148+).
+- **[[longevity-guidelines]]** ⭐⭐ — 10-Jahres-Technologiekriterien und einzige Browser-Baseline (Chrome 150+).
 
 ---
 

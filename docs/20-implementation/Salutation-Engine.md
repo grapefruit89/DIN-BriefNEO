@@ -36,7 +36,7 @@ depends_on: []
 
 > [!NOTE] Implementierungsstatus & Architektur-Update (2026-09-04)
 > Die Anrede- und Grußformel-Logik basiert auf dem **radikalen 80/20 B2B-Prinzip**.
-> Aktiver Code: `website/js/41-salutation-engine.js` (wird durch `website/js/41-salutation-engine.smart.js` mit Vornamendatenbank und Adelspartikel-Unterstützung abgelöst).
+> Aktiver Code: `website/js/41-salutation-engine.js`. Eine Ablösung durch ein Smart-Modul (Vornamendatenbank + Adelspartikel) ist in [[ROADMAP]] skizziert, aber **nicht** implementiert.
 >
 > **Kern-Regel:** Klare Standard-Pärchen ohne Titel-Akrobatik. Alles Weitere übersteuert der Nutzer bei Bedarf direkt per ContentEditable auf dem Briefbogen (`data-dirty="true"`).
 

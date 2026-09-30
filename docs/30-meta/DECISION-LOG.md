@@ -1387,3 +1387,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** CLI getestet (`search`, `related ADR-JS` → 19 eingehende Kanten, `--source=code`); Gate 100 %, `links.js`/`imr.js` OK; README 248 Zeilen.
 
 **Generalisierbarkeit:** Doku eines Werkzeugs muss den **lebenden** Zustand abbilden, nicht die Absicht. Ein expliziter „bewusst nicht enthalten"-Abschnitt wirkt als **Anti-Drift-Guardrail** gegen „klingt sinnvoll, bauen wir noch X" — besonders bei Agenten. Die DB bleibt abgeleiteter Cache, nie zweite Wahrheit.
+
+## 2026-09-30 — Aufräum-Pass Abschluss docs/20-implementation
+
+**Kontext:** Rest des Playbook-Passes über `docs/20-implementation`. Gefunden: (a) `Salutation-Engine.md` nannte eine geplante Ablösung (`41-salutation-engine.smart.js`) so, als sei sie real; (b) `sqlite-vec.md` (Entwurf/geparkt) enthielt tote Pfade (`aktueller_arbeitsordner/…`, `Guides/`), den **falschen DB-Namen** (`DIN-Brief_docs.db` statt `docs_search.db`) und **Chat-Rückstände** („Möchtest du, dass ich als Nächstes …?").
+
+**Änderung:** Salutation-Engine: Ablösung klar als **geplant** markiert ([[ROADMAP]], „**nicht** implementiert"). sqlite-vec: Status auf „Entwurf / geparkt — nicht Teil des Index (README-DB §11)" geschärft; tote Pfade + DB-Name korrigiert; geplante Dateien (`tools/hybrid_search.js`, `tools/README-VECTOR-SEARCH.md`) als „geplant / neu anzulegen" kenntlich gemacht; Chat-Rückstände durch neutralen Abschluss ersetzt.
+
+**Verifikation:** Prosa-Scan auf stale Datei-Refs (nur noch **beabsichtigte** Plan-Refs; `48-text-fit.js` bleibt als historische A49-Erwähnung), Gate 100 %, `links.js`/`imr.js` OK.
+
+**Generalisierbarkeit:** (1) Zukunfts-Aussagen müssen als **geplant** erkennbar sein, sonst liest sie jeder als Ist-Zustand. (2) Chat-Exporte gehören nicht in kuratierte Doku. (3) Der Prosa-Ref-Scan (`*.js/*.md` gegen `git ls-files`) schließt die Lücke, die der Frontmatter-Link-Gate lässt.

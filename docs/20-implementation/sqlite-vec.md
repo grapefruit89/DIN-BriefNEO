@@ -31,10 +31,10 @@ depends_on: []
 # Phase 1: sqlite-vec Integration – Detaillierte Umsetzungsanleitung
 
 > [!NOTE]
-> **Status:** In Planung / Teilweise umgesetzt
-> **Zweck:** Detaillierter Implementierungsplan für die semantische Vektor-Suche via sqlite-vec.
+> **Status:** Entwurf / geparkt — **nicht** Teil des Retrieval-Index (siehe [[README-DB]], §11 „bewusst NICHT enthalten").
+> **Zweck:** Detaillierter Implementierungsplan für die semantische Vektor-Suche via sqlite-vec. Bewusst zurückgestellt, bis echter Retrieval-Schmerz belegt ist.
 
-**Ziel:** Die bestehende `DIN-Brief_docs.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
+**Ziel:** Die bestehende `docs_search.db` (SQLite + FTS5) um Vektor-Embeddings mit `sqlite-vec` erweitern, um Hybrid Search (keyword + semantic) mit Reciprocal Rank Fusion (RRF) zu ermöglichen. Alles integriert in den bestehenden Build-Prozess. Reconciliation + Fitness Score bleiben das harte Qualitäts-Gate.
 
 **Leitplanken (aus Research + Projektprinzipien):**
 
@@ -341,7 +341,7 @@ report.logs.push(...);
 
 **Erstelle / aktualisiere eine Datei:**
 
-`aktueller_arbeitsordner/tools/README-VECTOR-SEARCH.md` (oder in `Guides/`):
+`tools/README-VECTOR-SEARCH.md` (neu anzulegen):
 
 - Kurze Anleitung: Wie Hybrid Search aufrufen (Beispiel-Code + SQL).
 
@@ -354,8 +354,9 @@ report.logs.push(...);
 **Minimal-Beispiel in der Doku:**
 
 ```js
+// geplant — tools/hybrid_search.js existiert noch nicht
 const { hybridSearch } = require('./tools/hybrid_search');
-const results = hybridSearch('DIN-Brief_docs.db', 'Faltmarken und DIN 5008', 5);
+const results = hybridSearch('docs_search.db', 'Faltmarken und DIN 5008', 5);
 ```
 
 ---
@@ -390,20 +391,6 @@ const results = hybridSearch('DIN-Brief_docs.db', 'Faltmarken und DIN 5008', 5);
 
 ---
 
-**Wie weiter?**
-
-Diese Anleitung ist bewusst detailliert, damit du (oder ein Agent) sie Schritt für Schritt abarbeiten kannst.
-
-Möchtest du, dass ich als Nächstes:
-
-- Den Code für eines der Arbeitspakete (z.B. AP 1+2) direkt in die Dateien schreibe (mit search_replace)?
-
-- Ein separates `tools/hybrid_search.js` Gerüst anlege?
-
-- Die Anleitung noch kürzer mache (nur die Top 3 Pakete)?
-
-- Oder direkt mit der Implementierung von AP 1 (Schema) starte und dann build + log?
-
-Sag mir den nächsten konkreten Schritt – ich führe ihn aus (inkl. Pre/Post-Build + Logging per Vertrag). 
+**Umsetzung:** Dieser Plan ist ein **Entwurf**. Er wird erst verfolgt, wenn der Index ([[README-DB]]) an echte Retrieval-Grenzen stößt — vorher gilt der Guardrail „keine Embeddings/Vector Search". Bei Umsetzung: Pre/Post-Build + Logging per `AGENTS.md`. 
 
 Phase 1 ist machbar in 1–3 Sitzungen, wenn wir fokussiert bleiben.

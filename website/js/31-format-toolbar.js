@@ -4,7 +4,7 @@ import { sanitizeRichText } from './04-sanitize.js';
 
 export class FormatToolbar {
   /** @type {HTMLElement} */
-  #brieftext;
+  #text;
   /** @type {HTMLElement} */
   #toolbar;
   /** @type {(() => void) | null} */
@@ -18,12 +18,12 @@ export class FormatToolbar {
   #selectionTimeout = null;
 
   /**
-   * @param {HTMLElement} brieftextEl
+   * @param {HTMLElement} textEl
    * @param {HTMLElement} toolbarEl
    * @param {(() => void) | null} onSaveDraft
    */
-  constructor(brieftextEl, toolbarEl, onSaveDraft = null) {
-    this.#brieftext = brieftextEl;
+  constructor(textEl, toolbarEl, onSaveDraft = null) {
+    this.#text = textEl;
     this.#toolbar = toolbarEl;
     this.#onSaveDraft = onSaveDraft;
 
@@ -31,13 +31,13 @@ export class FormatToolbar {
   }
 
   init() {
-    if (!this.#brieftext || !this.#toolbar) return;
+    if (!this.#text || !this.#toolbar) return;
 
     /* M1-Tastaturpfad (Grok-Re-Review): Native Ctrl+B/Ctrl+U führt in
      * contenteditable NICHT zum erwarteten <b>/<u> (live verifiziert).
-     * Scoped auf #brieftext — Sidebar-Inputs/Dialoge behalten natives
+     * Scoped auf #text — Sidebar-Inputs/Dialoge behalten natives
      * Verhalten; kein document-weiter Hijack (C3-Lektion). */
-    this.#brieftext.addEventListener('keydown', (event) => {
+    this.#text.addEventListener('keydown', (event) => {
       const keyEvent = /** @type {KeyboardEvent} */ (event);
       if (!(keyEvent.ctrlKey || keyEvent.metaKey) || keyEvent.shiftKey || keyEvent.altKey) return;
       const key = keyEvent.key.toLowerCase();
@@ -96,7 +96,7 @@ export class FormatToolbar {
     const actualTag = isCustomComment ? 'SPAN' : tagName;
 
     let node = selection.anchorNode;
-    while (node && node !== this.#brieftext) {
+    while (node && node !== this.#text) {
       if (node.nodeType === Node.ELEMENT_NODE) {
         const element = /** @type {HTMLElement} */ (node);
         const name = element.nodeName.toUpperCase();
@@ -104,7 +104,7 @@ export class FormatToolbar {
           name === actualTag.toUpperCase() ||
           (actualTag.toUpperCase() === 'B' && name === 'STRONG')
         ) {
-          if (isCustomComment && !element.classList.contains('din-comment')) {
+          if (isCustomComment && !element.classList.contains('brief-kommentar')) {
             // Keep searching upwards.
           } else {
             return true;
@@ -122,7 +122,7 @@ export class FormatToolbar {
    */
   #getBlockquoteAncestor(anchorNode) {
     let node = anchorNode;
-    while (node && node !== this.#brieftext) {
+    while (node && node !== this.#text) {
       if (node.nodeType === Node.ELEMENT_NODE) {
         const element = /** @type {Element} */ (node);
         if (element.nodeName === 'BLOCKQUOTE') {
@@ -154,7 +154,7 @@ export class FormatToolbar {
      */
     if (
       !selection.anchorNode ||
-      !this.#brieftext.contains(selection.anchorNode)
+      !this.#text.contains(selection.anchorNode)
     ) {
       this.#hideToolbar();
       return;
@@ -242,7 +242,7 @@ export class FormatToolbar {
       !selection ||
       selection.isCollapsed ||
       !selection.anchorNode ||
-      !this.#brieftext.contains(selection.anchorNode)
+      !this.#text.contains(selection.anchorNode)
     ) {
       return;
     }
@@ -270,7 +270,7 @@ export class FormatToolbar {
       range.insertNode(quote);
     }
 
-    this.#brieftext.normalize();
+    this.#text.normalize();
     this.#triggerSave();
     this.#handleSelectionChange();
   }
@@ -280,7 +280,7 @@ export class FormatToolbar {
   // ============================================================
   
   #initPasteSanitizer() {
-    this.#brieftext.addEventListener('paste', (e) => {
+    this.#text.addEventListener('paste', (e) => {
       const clipboardEvent = /** @type {ClipboardEvent} */ (e);
       clipboardEvent.preventDefault();
       const clipboardData = clipboardEvent.clipboardData;
@@ -323,7 +323,7 @@ export class FormatToolbar {
   // ============================================================
 
   #initDropHandler() {
-    this.#brieftext.addEventListener('drop', (e) => {
+    this.#text.addEventListener('drop', (e) => {
       const dragEvent = /** @type {DragEvent} */ (e);
       dragEvent.preventDefault();
       
@@ -371,7 +371,7 @@ export class FormatToolbar {
       !selection ||
       selection.isCollapsed ||
       !selection.anchorNode ||
-      !this.#brieftext.contains(selection.anchorNode)
+      !this.#text.contains(selection.anchorNode)
     ) {
       return;
     }
@@ -389,7 +389,7 @@ export class FormatToolbar {
       /** @type {HTMLElement | null} */
       let formatNode = null;
 
-      while (node && node !== this.#brieftext) {
+      while (node && node !== this.#text) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = /** @type {HTMLElement} */ (node);
           const name = element.nodeName.toUpperCase();
@@ -398,7 +398,7 @@ export class FormatToolbar {
             name === actualTag.toUpperCase() ||
             (actualTag.toUpperCase() === 'B' && name === 'STRONG')
           ) {
-            if (isCustomComment && !element.classList.contains('din-comment')) {
+            if (isCustomComment && !element.classList.contains('brief-kommentar')) {
               // Keep searching.
             } else {
               formatNode = element;
@@ -425,7 +425,7 @@ export class FormatToolbar {
        */
       const wrapper = document.createElement(actualTag.toLowerCase());
       if (isCustomComment) {
-        wrapper.className = 'din-comment';
+        wrapper.className = 'brief-kommentar';
       }
 
       try {
@@ -437,7 +437,7 @@ export class FormatToolbar {
       }
     }
 
-    this.#brieftext.normalize();
+    this.#text.normalize();
     this.#triggerSave();
     this.#handleSelectionChange();
   }

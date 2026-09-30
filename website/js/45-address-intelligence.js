@@ -246,7 +246,7 @@ export class AddressIntelligence {
       suggestionsPopover = document.createElement('ul');
       suggestionsPopover.id = 'plz-suggestions-popover';
       suggestionsPopover.setAttribute('popover', 'manual');
-      suggestionsPopover.className = 'address-suggestions-list no-print';
+      suggestionsPopover.className = 'anschrift-vorschlaege-liste no-print';
       empfOrtEl.parentElement?.appendChild(suggestionsPopover);
     }
 
@@ -402,10 +402,10 @@ function abbreviateName(fullName) {
  * and the signature name. This restores the logic from the original project.
  */
 export function initSenderSync() {
-    const infoName = document.getElementById('info-name');
-    const infoStreet = document.getElementById('info-street');
-    const infoCity = document.getElementById('info-city');
-    const absender = document.getElementById('absender');
+    const infoName = document.getElementById('absender-namenszeile');
+    const infoStreet = document.getElementById('absender-strasse');
+    const infoCity = document.getElementById('absender-ort');
+    const absender = document.getElementById('rucksendezeile');
     const unterschrift = document.getElementById('unterschrift');
 
     if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;

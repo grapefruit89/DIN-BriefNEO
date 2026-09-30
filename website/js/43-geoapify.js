@@ -20,9 +20,9 @@ import { AddressIntelligence } from './45-address-intelligence.js';
 export function initAddressServices({ onToast, onSaveDraft }) {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
-  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-address-search'));
-  const addressSuggestions = document.getElementById('address-suggestions');
-  const addressSearchContainer = document.getElementById('address-search-container');
+  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
+  const addressSuggestions = document.getElementById('anschrift-vorschlaege');
+  const addressSearchContainer = document.getElementById('anschrift-suche-container');
 
   if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !geoapifyKeyContainer || !addressSearchContainer) return;
 
@@ -314,7 +314,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   });
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias (kein zweiter Host nötig)
-  const absenderPlzOrtEl = document.getElementById('info-city') || document.getElementById('absender');
+  const absenderPlzOrtEl = document.getElementById('absender-ort') || document.getElementById('rucksendezeile');
   if (absenderPlzOrtEl) {
     /** @type {any} */
     let absenderTimeout = null;

@@ -11,7 +11,7 @@ export class SettingsManager {
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
-    this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-guides-switch'));
+    this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnFontAction = document.getElementById('btn-font-action');
     this.fontStatusLabel = document.getElementById('font-status-label');
     this.fontUploader = document.getElementById('font-uploader');

@@ -20,7 +20,7 @@ import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 import { initImportExport } from './52-import-export.js';
 
 function syncPostvermerkFromSidebar() {
-  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
+  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-postvermerk-select'));
   const field = document.getElementById('postvermerk');
   if (!sel || !field) return;
   /* Feld ist 100% contenteditable (Doktrin): nur füllen, wenn leer —
@@ -56,11 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachGlobalListeners(draftManager, uiProtections);
 
-    const brieftextEl = document.getElementById('brieftext');
+    const textEl = document.getElementById('text');
     const formatToolbarEl = document.getElementById('format-toolbar');
-    if (brieftextEl && formatToolbarEl) {
+    if (textEl && formatToolbarEl) {
       const formatToolbarInstance = new FormatToolbar(
-        brieftextEl,
+        textEl,
         formatToolbarEl,
         () => draftManager.saveDraft()
       );
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.querySelectorAll('select[data-persist]').forEach(el => {
       el.addEventListener('change', () => {
-        if (el.id === 'sidebar-pv-select') syncPostvermerkFromSidebar();
+        if (el.id === 'sidebar-postvermerk-select') syncPostvermerkFromSidebar();
         draftManager.scheduleAutoSave();
       });
     });

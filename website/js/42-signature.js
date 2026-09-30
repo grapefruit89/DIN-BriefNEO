@@ -9,16 +9,16 @@ export class SignatureFeature {
    */
   constructor(uiContext) {
     this.ui = uiContext;
-    this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('signature-image'));
-    this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('sig-uploader'));
-    this.btnTrigger = document.getElementById('btn-upload-sig-trigger');
-    this.btnReset = document.getElementById('btn-reset-sig');
+    this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('unterschriftsbild-vorschau'));
+    this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('unterschriftsbild-datei'));
+    this.btnTrigger = document.getElementById('btn-unterschriftsbild-waehlen');
+    this.btnReset = document.getElementById('btn-unterschriftsbild-reset');
     
     /** @type {{x: number, y: number, scale: number, rot: number}} */
     this.state = { x: 0, y: 0, scale: 1, rot: 0 };
 
-    this.bbox = document.getElementById('sig-bbox');
-    this.container = document.getElementById('signature-container');
+    this.bbox = document.getElementById('unterschriftsbild-box');
+    this.container = document.getElementById('unterschriftsbild-container');
 
     // Config: Maximum dimensions for the compressed signature
     this.MAX_WIDTH = 400;

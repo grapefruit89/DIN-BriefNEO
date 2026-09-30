@@ -8,7 +8,8 @@
  *
  *   Markdown (.md)         -> documents + sections (H1-H6, mit Zeilennummern)
  *   git ls-files (Inventar) -> files (wo liegt welche Datei, Rolle, Groesse)
- *   Volltextsuche          -> sections_fts (SQLite FTS5, bm25, snippet)
+ *   Volltextsuche          -> sections_fts (unicode61 + Prefix von Wortvarianten)
+ *                             sections_fts_tri (trigram: mittlere Teilwoerter)
  *
  * Aufgerufen von:
  *   - tools/build_db.js (Fitness Gate: ein Kommando = Gate + Index)
@@ -155,6 +156,7 @@ function collectTrackedFiles() {
 
 function createSchema(db) {
   db.exec(`
+    DROP TABLE IF EXISTS sections_fts_tri;
     DROP TABLE IF EXISTS sections_fts;
     DROP TABLE IF EXISTS sections;
     DROP TABLE IF EXISTS documents;
@@ -177,7 +179,8 @@ function createSchema(db) {
       end_line   INTEGER NOT NULL,
       body       TEXT NOT NULL
     );
-    CREATE VIRTUAL TABLE sections_fts USING fts5(heading, body);
+    CREATE VIRTUAL TABLE sections_fts USING fts5(heading, body, tokenize = "unicode61 remove_diacritics 2");
+    CREATE VIRTUAL TABLE sections_fts_tri USING fts5(heading, body, tokenize = "trigram remove_diacritics 1");
     CREATE INDEX idx_sections_doc ON sections(doc_id);
     CREATE TABLE files (
       path       TEXT PRIMARY KEY,
@@ -211,6 +214,7 @@ function buildIndex(opts = {}) {
   const insDoc = db.prepare('INSERT INTO documents (path, title, status, tags, line_count, mtime_ms) VALUES (?, ?, ?, ?, ?, ?)');
   const insSec = db.prepare('INSERT INTO sections (doc_id, level, heading, start_line, end_line, body) VALUES (?, ?, ?, ?, ?, ?)');
   const insFts = db.prepare('INSERT INTO sections_fts (rowid, heading, body) VALUES (?, ?, ?)');
+  const insFtsTri = db.prepare('INSERT INTO sections_fts_tri (rowid, heading, body) VALUES (?, ?, ?)');
   const insFile = db.prepare('INSERT OR REPLACE INTO files (path, top, ext, size_bytes, lines) VALUES (?, ?, ?, ?, ?)');
 
   let docCount = 0, secCount = 0, fileCount = 0;
@@ -233,6 +237,7 @@ function buildIndex(opts = {}) {
       for (const s of splitSections(raw, bodyStartLine)) {
         const r = insSec.run(docId, s.level, s.heading, s.start_line, s.end_line, s.body);
         insFts.run(Number(r.lastInsertRowid), s.heading, s.body);
+        insFtsTri.run(Number(r.lastInsertRowid), s.heading, s.body);
         secCount++;
       }
     }
@@ -261,39 +266,70 @@ function ensureFresh() {
   return buildIndex({ force: false });
 }
 
-/** FTS5-sichere Query: Tokens extrahieren und als OR-verknuepfte Phrasen zitieren. */
-function buildMatchQuery(query) {
-  const tokens = String(query || '').match(/[\p{L}\p{N}_-]+/gu) || [];
-  if (tokens.length === 0) return '';
-  return tokens.map(t => `"${t.replace(/"/g, '""')}"`).join(' OR ');
+/** Tokens fuer FTS5: nur Buchstaben/Ziffern/_/- (sprachneutral, Umlaute bleiben). */
+function tokenize(query) {
+  return String(query || '').match(/[\p{L}\p{N}_-]+/gu) || [];
+}
+
+/** unicode61-Query: exakter Begriff, Prefix (*) fuer Wortvarianten. */
+function buildWordQuery(query) {
+  const terms = new Set();
+  for (const t of tokenize(query)) terms.add(t.toLowerCase());
+  if (terms.size === 0) return '';
+  return [...terms].map(t => (t.length >= 3 ? `"${t}"*` : `"${t}"`)).join(' OR ');
+}
+
+/** trigram-Query: Teilwort-Suche fuer mittlere Substrings (nur Terme >= 3 Zeichen; keine Tippfehler-Korrektur). */
+function buildSubstringQuery(query) {
+  const toks = tokenize(query).filter(t => t.length >= 3);
+  if (toks.length === 0) return '';
+  return toks.map(t => `"${t.replace(/"/g, '""')}"`).join(' OR ');
 }
 
 /**
  * Volltextsuche ueber Abschnitte. Liefert kleine Treffer (Pfad + Zeilen +
- * Snippet), nie ganze Dateien.
+ * Snippet), nie ganze Dateien. Zweistufig: erst Wort-Suche
+ * (unicode61, bm25), dann — falls zu wenig Treffer — Teilwort-Suche (trigram).
  * @param {string} query
  * @param {{limit?: number}} [opts]
  */
 function search(query, opts = {}) {
   ensureFresh();
-  const match = buildMatchQuery(query);
   const limit = Math.min(Math.max(Number(opts.limit) || 8, 1), 50);
-  if (match === '') return { query: String(query || ''), count: 0, results: [] };
+  const wordQ = buildWordQuery(query);
+  const subQ = buildSubstringQuery(query);
+  if (wordQ === '' && subQ === '') return { query: String(query || ''), count: 0, results: [] };
 
   const db = new DatabaseSync(DB_PATH, { readOnly: true });
   try {
-    const rows = db.prepare(`
-      SELECT d.path, d.title, s.level, s.heading, s.start_line, s.end_line,
-             snippet(sections_fts, 1, '<<', '>>', ' … ', 14) AS snippet,
-             bm25(sections_fts) AS score
-      FROM sections_fts
-      JOIN sections s  ON s.id = sections_fts.rowid
+    const runMatch = (table, match, cap) => match === '' ? [] : db.prepare(`
+      SELECT s.id AS sid, d.path, d.title, s.level, s.heading, s.start_line, s.end_line,
+             snippet(${table}, 1, '<<', '>>', ' … ', 14) AS snippet,
+             bm25(${table}) AS score
+      FROM ${table}
+      JOIN sections s  ON s.id = ${table}.rowid
       JOIN documents d ON d.id = s.doc_id
-      WHERE sections_fts MATCH ?
+      WHERE ${table} MATCH ?
       ORDER BY score
       LIMIT ?
-    `).all(match, limit);
-    return { query: String(query || ''), count: rows.length, results: rows };
+    `).all(match, cap);
+
+    const seen = new Set();
+    const results = [];
+    const add = (row, kind) => {
+      if (seen.has(row.sid)) return;
+      seen.add(row.sid);
+      const { sid, ...rest } = row;
+      results.push({ ...rest, match: kind });
+    };
+    for (const row of runMatch('sections_fts', wordQ, limit)) add(row, 'word');
+    if (results.length < limit) {
+      for (const row of runMatch('sections_fts_tri', subQ, limit)) {
+        if (results.length >= limit) break;
+        add(row, 'substring');
+      }
+    }
+    return { query: String(query || ''), count: results.length, results };
   } finally {
     db.close();
   }

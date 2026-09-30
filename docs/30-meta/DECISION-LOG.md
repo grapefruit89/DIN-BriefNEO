@@ -1133,3 +1133,42 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate **100 %** nach jeder Phase; MCP `docs_search`/`docs_get` grün; Index 104 Docs / 1138 Abschnitte / 222 Dateien; Hook läuft; CI-YAML vorhanden.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) Platzierungs-Taxonomie als **kritische Gate-Regel** statt Doku-Konvention, Allowlists aus dem Contract lesen (SSOT); (b) **ein** Builder + Index im Gate-Lauf, MCP nur als Query-Schicht; (c) versionierte Hooks (`.githooks` + `core.hooksPath`) plus CI-Backstop; (d) Abschnitts-Chunking mit Zeilennummern ist der Token-Hebel, nicht das Datenformat.
+
+## 2026-09-26 — Suche Stufe 1: FTS5-Prefix + Trigram (statt Vektor)
+
+**Kontext:** Frage „Semantik einfacher als Vektor?" — Klärung gegen SQLite-FTS5-Doku (`sqlite.org/fts5.html`): echte Semantik (Bedeutung/Synonyme) = Vektor/Embeddings; ohne Modell geht nur lexikalischer Ausbau. Vektor bleibt Phase 4 (dauerhafte Modell-Dependency, query-seitig).
+
+**Umgesetzt (`tools/docs_index.js`):** (1) `sections_fts` auf `unicode61 remove_diacritics 2`; (2) Prefix-Query (`"term"*`) für Wortvarianten; (3) zweite FTS-Tabelle `sections_fts_tri` (**trigram**) als Fallback für mittlere Teilwörter; `search()` zweistufig — Wort (bm25) zuerst, dann Trigram-Auffüllung, Treffer markiert mit `match: word|substring`. Bugfix unterwegs: fehlendes `DROP TABLE IF EXISTS sections_fts_tri` im Schema (Rebuild schlug sonst fehl; Gate blieb 100 %, Index wäre still kaputt).
+
+**Verifikation:** Prefix `falzmark`→Falzmarken, `autosav`→Autosave; Trigram `slinien` findet „hilfslinien" (mittleres Teilwort). Grenze dokumentiert: Trigram = **Teilwort**, KEINE Tippfehler-Distance. Gate 100 %; Index 104 Docs / 1140 Abschnitte / 228 Dateien.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) für deutsche Suche ist Porters Stemmer unbrauchbar → **Prefix + Trigram** statt Stemming; (b) **keine Synonym-Map** — stattdessen wird das Vokabular projektweit vereinheitlicht (siehe Eintrag „Vokabular auf IMR-Atome normiert"); (c) Vektor erst bei nachgewiesener Lücke, weil das Modell auch zur Query-Zeit verfügbar sein muss.
+
+## 2026-09-30 — Vokabular auf IMR-Atome normiert (CSS/HTML), tote Leiche entfernt
+
+**Kontext:** IMR-Registry (`docs/10-architecture/IMR-Registry.md`) ist die SSOT des Fachvokabulars (45 Atome, Zonen, Rahmen). Drift-Prüfung ergab: die HTML-*Elemente* waren konform, aber CSS-Klassen/Properties/Attribute waren teils englisch, und `din-verteiler` war eine unregistrierte Leiche. Leitlinie: **ein Begriff pro Konzept, deutsch, aus der IMR** — wie „1 m ist immer 1 m".
+
+**Änderung (`website/css/sheet.css`, `website/css/layout.css`, `website/index.html`):**
+1. System-Atome werden per **Tag** selektiert statt per Klasse: `.din-mark`/`.din-fold-top`/`.din-fold-bottom`/`.din-punch` → `din-falz-oben`/`din-falz-unten`/`din-lochmarke`; die Klassen aus dem HTML entfernt.
+2. Custom Properties + `data-*`-Attribute auf IMR-Begriffe: `--fold-1-y`/`--fold-2-y`/`--punch-y` → `--falz-oben-y`/`--falz-unten-y`/`--lochmarke-y`; `data-fold-1-a|b`, `data-fold-2-a|b`, `data-punch-y` → `data-falz-oben-y-a|b`, `data-falz-unten-y-a|b`, `data-lochmarke-y` (Muster `data-<atom|zone>-y-<form>`, wie schon bei `data-absender-y-a`).
+3. `din-verteiler`-Regeln aus `layout.css` entfernt — kein `<din-verteiler>`-Element, kein `#toggle-verteiler`, kein IMR-Eintrag (als Atom wäre es #46 → laut Registry verboten).
+4. Such-Synonym-Map ersatzlos entfernt (`tools/docs_synonyms.json` gelöscht, Expansion aus `buildWordQuery` raus) — Synonyme sind das Gegenteil von kontrolliertem Vokabular.
+
+**Sicherung:** IMR vor jeder Änderung 1:1 kopiert nach `/home/moritz/.local/state/opencode-changes/DIN-BriefNEO/IMR-Registry.20260930-151745.md` (sha256 identisch), zusätzlich git-getrackt.
+
+**Verifikation:** keine Restvorkommen (`grep` leer für `din-fold|din-punch|din-mark|din-verteiler|--fold-|--punch-|data-fold|data-punch`); Gate 100 %.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) kontrolliertes Vokabular braucht einen **maschinenlesbaren Anker** (Registry = SSOT) + **Gate-Regel**, sonst driftet Prosa/CSS in Synonyme/Englisch; (b) **Element-Namen als primäre Selektoren** (Atome direkt stylen) löscht eine ganze Klassen-Ebene — „das Atom ist der Begriff"; (c) IMR vor Modell-Änderungen immer sichern (sha256-verifiziert).
+
+## 2026-09-30 — IMR als Vokabular-SSOT: 205 Renames + Gate-Regel + Nicht-Atom-Deklaration
+
+**Kontext:** Ziel „ein Begriff pro Konzept, deutsch, 100 % aus der IMR". Sweep fand IMR-Synonyme quer durch den Code: `briefkern`/`brieftext`/`brief-fuss` (statt `kern`/`text`/`fuss`), `#absender` auf `din-rucksendezeile` (Rücksendezeile ≠ Absender), `#empfaenger` auf `din-anschriftfeld`, `info-street/-city/-tel/-email` auf `din-absender-*`, `signature-*`/`sig-*` (englisch), `address-*` (englisch), `guides`/`--guide-opacity` (englisch), Kürzel `pv`, sowie Nicht-Atome im `din-`-Namespace (`din-comment`, `din-a4-viewport`, `--din-width/-height`).
+
+**Änderung:**
+1. **205 Ersetzungen in 22 Dateien** (Codemod, nur kebab-Identifier): Atome/Zonen auf kanonische Namen; `--briefkern-y`→`--kern-y`; `#absender`→`#rucksendezeile`; `#empfaenger`→`#anschriftfeld`; `info-*`→`absender-*` bzw. `absender-namenszeile`; `empfaenger-name`→`empfaenger-namenszeile`; `signature-*`/`sig-*`→`unterschriftsbild-*` bzw. `unterschrift-zeile`; `address-*`→`anschrift-*`; `guides`→`hilfslinien`; `sidebar-pv-select`/`pv-item`→`postvermerk`; `din-comment`→`brief-kommentar`; `din-a4-viewport`→`brief-ansicht`; `--din-width/-height`→`--blatt-breite/-hoehe`. **Nicht angetastet:** JS-Variablennamen (intern) und Persistenz-Keys (`din_local_addresses` — keine Datenmigration riskieren).
+2. **IMR-Registry** um Abschnitt „Nicht-atomare Bezeichner" erweitert (Präfix-Reservierung, `data-<atom|zone>-y-<form>`, Rendering-Bezeichner, Namenszeile als Komposition) — additiv, die 45 Atome bleiben unverändert. Vorher 1:1 gesichert (`/home/moritz/.local/state/opencode-changes/DIN-BriefNEO/IMR-Registry.20260930-151745.md`, sha256).
+3. **Gate-Regel `imr`** in `tools/reconciliation.js`: parst die Registry als SSOT; jedes `din-*` im Website-Code muss registriert sein (Guide-Refs `@guide`/`[[…]]` ausgenommen); Verstoß = `critical`.
+
+**Verifikation:** keine Restvorkommen (`grep` leer), `node --check` aller JS ok, keine doppelten IDs, ID-Konsistenz JS↔HTML ok, Negativtest der Regel greift (`din-bogus`/`din-namenszeile` → Verstoß), Gate 100 % (Index 104/1146/228).
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) kontrolliertes Vokabular = maschinenlesbare SSOT (Registry) + Gate-Regel; (b) Renames als Codemod mit explizitem Mapping und Ausnahme-Liste (Persistenz-Keys!) statt Handarbeit; (c) ein reservierter Namensraum (`din-`) verhindert Wildwuchs am wirksamsten; (d) „ein Begriff pro Konzept" macht Synonym-Ersetzung in der Suche überflüssig.

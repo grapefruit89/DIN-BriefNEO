@@ -49,11 +49,11 @@
               Moderne Browser rendern diesen Schalter NATIV als System-Toggle.
               STRIKT VERBOTEN: Diesen Schalter durch Radio-Segmented-Controls, verschachtelte
               Div-Wrapper oder JS-Klick-Listener zu ersetzen! Der Status wird rein
-              im CSS über :root:has(#btn-guides-switch:checked) ausgewertet. (ADR-ANTIPATTERN Abs. 16)
+              im CSS über :root:has(#btn-hilfslinien-switch:checked) ausgewertet. (ADR-ANTIPATTERN Abs. 16)
             -->
             <div class="sidebar-switch-row">
               <h3 class="sidebar-label">Hilfslinien</h3>
-              <input type="checkbox" switch id="btn-guides-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
+              <input type="checkbox" switch id="btn-hilfslinien-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
             </div>
           </div>
           <div>
@@ -77,7 +77,7 @@
                  Das Papierfeld selbst ist 100% contenteditable (Doktrin: alle
                  DIN-Felder editierbar) und wird nicht vom Boot-Sync überschrieben,
                  solange es Inhalt hat. -->
-            <select id="sidebar-pv-select" class="sidebar-select sidebar-pv-select" data-persist aria-label="Postvermerk wählen">
+            <select id="sidebar-postvermerk-select" class="sidebar-select sidebar-postvermerk-select" data-persist aria-label="Postvermerk wählen">
               <option value="">— kein —</option>
               <option value="Einschreiben">Einschreiben</option>
               <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
@@ -112,10 +112,10 @@
             <h3 class="sidebar-label">Unterschrift (Bild)</h3>
             <div class="sidebar-options-group">
               <span class="sidebar-sub-label">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
-              <label id="btn-upload-sig-trigger" for="sig-uploader" class="btn w-full">✒️ Unterschrift laden</label>
-              <button type="button" id="btn-reset-sig" class="btn btn-danger w-full">🗑️ Unterschrift löschen</button>
+              <label id="btn-unterschriftsbild-waehlen" for="unterschriftsbild-datei" class="btn w-full">✒️ Unterschrift laden</label>
+              <button type="button" id="btn-unterschriftsbild-reset" class="btn btn-danger w-full">🗑️ Unterschrift löschen</button>
             </div>
-            <input type="file" id="sig-uploader" accept="image/png, image/jpeg, image/webp" class="hidden">
+            <input type="file" id="unterschriftsbild-datei" accept="image/png, image/jpeg, image/webp" class="hidden">
           </div>
           <div id="geoapify-wrapper">
             <h3 class="sidebar-label">Empfänger-Tools</h3>
@@ -124,13 +124,13 @@
                 <label for="input-geoapify-key" class="sidebar-sub-label">Geoapify API-Key (optional):</label>
                 <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
               </div>
-              <div id="address-search-container" class="sidebar-options-group">
-                <label for="input-address-search" class="sidebar-sub-label">Empfänger-Adresse suchen:</label>
-                <input type="text" id="input-address-search" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
-                <ul id="address-suggestions" popover="auto" class="autocomplete-dropdown no-print"></ul>
+              <div id="anschrift-suche-container" class="sidebar-options-group">
+                <label for="input-anschrift-suche" class="sidebar-sub-label">Empfänger-Adresse suchen:</label>
+                <input type="text" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
+                <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown no-print"></ul>
               </div>
-              <div id="clipboard-address-wrapper">
-                <button type="button" id="btn-clipboard-address" class="btn w-full" title="Liest kopierte Adress- oder Impressumsdaten aus der Zwischenablage">📋 Adresse aus Zwischenablage lesen</button>
+              <div id="zwischenablage-anschrift-wrapper">
+                <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Adress- oder Impressumsdaten aus der Zwischenablage">📋 Adresse aus Zwischenablage lesen</button>
                 <ul id="clipboard-candidates-popover" class="autocomplete-dropdown no-print" popover="auto"></ul>
               </div>
             </div>
@@ -151,30 +151,30 @@
         </div>
       </aside>
       <main id="viewport">
-        <div id="din-a4-viewport">
+        <div id="brief-ansicht">
           <din-a4 class="paper-theme page-1"
             data-width-mm="210"
             data-height-mm="297"
-            data-punch-y="148.5"
+            data-lochmarke-y="148.5"
             data-absender-y-b="45"
             data-empfaenger-y-b="50"
             data-infoblock-y-b="50"
             data-datum-y-b="92"
             data-kern-y-b="109"
-            data-fold-1-b="105"
-            data-fold-2-b="210"
+            data-falz-oben-y-b="105"
+            data-falz-unten-y-b="210"
             data-absender-y-a="27"
             data-empfaenger-y-a="32"
             data-infoblock-y-a="32"
             data-datum-y-a="74"
             data-kern-y-a="91"
-            data-fold-1-a="87"
-            data-fold-2-a="181"
+            data-falz-oben-y-a="87"
+            data-falz-unten-y-a="181"
             role="article"
             aria-label="DIN 5008 Brief">
-            <din-falz-oben class="din-mark din-fold-top"></din-falz-oben>
-            <din-falz-unten class="din-mark din-fold-bottom"></din-falz-unten>
-            <din-lochmarke class="din-mark din-punch"></din-lochmarke>
+            <din-falz-oben></din-falz-oben>
+            <din-falz-unten></din-falz-unten>
+            <din-lochmarke></din-lochmarke>
             <!-- 
               🛡️ BLEEDING EDGE ARCHITECTURE GUARD: PLAINTEXT & ENTERKEYHINT ENGINE
               ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
@@ -186,28 +186,28 @@
               STRIKT VERBOTEN: beforeinput-Format-Interzeptoren oder manuelle
               Regex-Sanitizer wieder einzubauen! (ADR-ANTIPATTERN Abs. 14)
             -->
-            <din-rucksendezeile id="absender" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
-            <din-anschriftfeld id="empfaenger" role="group" aria-label="Empfängeradresse">
+            <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Empfängeradresse">
               <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Postvermerk"></din-postvermerk>
               <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
-              <div id="empfaenger-name" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+              <div id="empfaenger-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
               <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" role="group" aria-label="Absenderinformationen">
-              <div id="info-name" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Vor- und Nachname" aria-label="Name"></div>
-              <din-absender-strasse id="info-street" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
-              <din-absender-ort id="info-city" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
-              <din-absender-tel id="info-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
-              <din-absender-mail id="info-email" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+              <div id="absender-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Vor- und Nachname" aria-label="Name"></div>
+              <din-absender-strasse id="absender-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="absender-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="absender-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="absender-mail" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
             <din-datum id="datum" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="2. September 2026" aria-label="Datum"></din-datum>
-            <din-kern id="briefkern" aria-label="Briefinhalt">
+            <din-kern id="kern" aria-label="Briefinhalt">
               <din-betreff id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
               <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
-              <din-text id="brieftext" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
+              <din-text id="text" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Brieftext"></din-text>
               <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
-              <div class="signature-wrapper">
+              <div class="unterschrift-zeile">
                 <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
@@ -215,15 +215,15 @@
                 <ul id="anlagen-text" contenteditable="true"><li>Anlage 1</li></ul>
               </din-anlagen>
             </din-kern>
-            <din-fuss id="brief-fuss" role="contentinfo"></din-fuss>
-            <div id="signature-container">
-              <div class="sig-bounding-box" id="sig-bbox">
-                <div class="sig-handle top-left" data-action="resize" data-dir="tl"></div>
-                <div class="sig-handle top-right" data-action="resize" data-dir="tr"></div>
-                <div class="sig-handle bottom-left" data-action="resize" data-dir="bl"></div>
-                <div class="sig-handle bottom-right" data-action="resize" data-dir="br"></div>
-                <div class="sig-rotate-handle" data-action="rotate"></div>
-                <img id="signature-image" alt="Unterschrift" draggable="false">
+            <din-fuss id="fuss" role="contentinfo"></din-fuss>
+            <div id="unterschriftsbild-container">
+              <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box">
+                <div class="unterschriftsbild-griff top-left" data-action="resize" data-dir="tl"></div>
+                <div class="unterschriftsbild-griff top-right" data-action="resize" data-dir="tr"></div>
+                <div class="unterschriftsbild-griff bottom-left" data-action="resize" data-dir="bl"></div>
+                <div class="unterschriftsbild-griff bottom-right" data-action="resize" data-dir="br"></div>
+                <div class="unterschriftsbild-drehgriff" data-action="rotate"></div>
+                <img id="unterschriftsbild-vorschau" alt="Unterschrift" draggable="false">
               </div>
             </div>
           </din-a4>

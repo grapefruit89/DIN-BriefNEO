@@ -4,7 +4,7 @@ title: 'IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-09-02'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -289,9 +289,34 @@ Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört nicht zu d
 
 ---
 
+## Nicht-atomare Bezeichner
+
+Der Präfix `din-` ist reserviert für Atome, Zonen und den Dokumentrahmen (`din-a4`). Alles andere trägt keinen `din-`-Präfix.
+
+### Y-Geometrie (Datenschicht am `<din-a4>`)
+
+Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und `data-<atom|zone>-y-b` (Form B). Beispiele: `data-kern-y-a`, `data-falz-oben-y-a`, `data-lochmarke-y`. CSS liest sie per `attr()`; der belegte Wert dient nur als Fallback.
+
+### Rendering- und Kompositions-Bezeichner
+
+| Bezeichner | Rolle |
+|---|---|
+| `brief-ansicht` | Viewport-/Scroll-Wrapper des Blattes |
+| `brief-kommentar` | Inline-Kommentar-Markierung im Text (kein Atom) |
+| `--blatt-breite`, `--blatt-hoehe` | Blattmaße aus `data-width-mm`/`data-height-mm` |
+| `--hilfslinien-deckkraft` | Deckkraft der System-Atome (Falz/Loch) |
+| `unterschriftsbild-*` | Satellit von `din-unterschrift` (Bild, Rahmen, Griffe) |
+
+### Namenszeile (Komposition, kein Atom)
+
+`din-empfaenger-vorname`/`-nachname` und `din-absender-vorname`/`-nachname` dürfen als **eine** Zeile erscheinen (siehe Komposition). Die kombinierte Eingabezeile heißt im Code `empfaenger-namenszeile` bzw. `absender-namenszeile` und erzeugt kein Atom `din-empfaenger-name`/`din-absender-name`.
+
+---
+
 ## Changelog
 
 | Datum | Änderung |
 |---|---|
+| 2026-09-30 | Nicht-atomare Bezeichner deklariert (Namenszeile, Rendering, `data-`-Konvention); `din-`-Präfix für Atome/Zonen/Rahmen reserviert |
 | 2026-09-02 | Master-Modell: Zonen, Komposition, Kontakt-Platzierung, Overlay außerhalb der 45, Geometrie klassifiziert, Form A/B am Dokumentrahmen |
 | 2026-03-31 | Initiale Version |

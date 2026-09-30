@@ -28,21 +28,20 @@
 
 
 /* --- OPTIONAL BLOCKS TOGGLE (ZERO-JS) --- */
-din-postvermerk, din-anlagen, din-verteiler {
+din-postvermerk, din-anlagen {
   display: none;
 }
 
-:root:has(#toggle-anlagen:checked) din-anlagen,
-:root:has(#toggle-verteiler:checked) din-verteiler {
+:root:has(#toggle-anlagen:checked) din-anlagen {
   display: block;
 }
 
-:root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk {
+:root:has(#sidebar-postvermerk-select option:checked:not([value=""])) din-postvermerk {
   display: flex;
   flex-direction: column-reverse;
 }
 
-#sidebar-pv-select {
+#sidebar-postvermerk-select {
   display: block;
   appearance: base-select;
   width: 100%;
@@ -59,12 +58,12 @@ din-postvermerk, din-anlagen, din-verteiler {
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
-#sidebar-pv-select:has(option:checked:not([value=""])) {
+#sidebar-postvermerk-select:has(option:checked:not([value=""])) {
   background: var(--segment-active-bg);
   color: var(--segment-active-text);
   box-shadow: var(--segment-active-shadow);
 }
-#sidebar-pv-select::picker(select) {
+#sidebar-postvermerk-select::picker(select) {
   appearance: base-select;
   background: var(--bg-sidebar);
   border: 1px solid var(--border-color);
@@ -72,7 +71,7 @@ din-postvermerk, din-anlagen, din-verteiler {
   padding: 4px;
   box-shadow: var(--shadow-lg);
 }
-#sidebar-pv-select::picker-icon {
+#sidebar-postvermerk-select::picker-icon {
   color: var(--text-muted);
 }
 .sidebar-zusatz-row {
@@ -81,7 +80,7 @@ din-postvermerk, din-anlagen, din-verteiler {
   gap: 6px;
   align-items: center;
 }
-.sidebar-pv-select {
+.sidebar-postvermerk-select {
   flex: 1 1 50%;
   min-width: 0;
 }
@@ -97,7 +96,7 @@ din-postvermerk {
   white-space: pre-wrap;
 }
 
-din-anlagen, din-verteiler {
+din-anlagen {
   margin-top: 3cqh;
   font-size: 0.9em;
   page-break-inside: avoid;
@@ -110,11 +109,11 @@ din-anlagen, din-verteiler {
 
 
 
-/* HINWEIS (2026-09-10): Ehemalige Regeln für #local-address-dropdown,
-   #postvermerk-dropdown, .address-suggestion-item und .pv-item gelöscht —
+/* HINWEIS (2026-09-10): Ehemalige Regeln für #lokale-anschrift-dropdown,
+   #postvermerk-dropdown, .anschrift-vorschlag-item und .postvermerk-item gelöscht —
    tot (Elemente existieren weder im HTML noch werden sie von JS erzeugt).
    Echte Suggestion-Dropdowns: .autocomplete-dropdown (sidebar.css/floating.css)
-   + #address-suggestions/#clipboard-candidates-popover (index.html). */
+   + #anschrift-vorschlaege/#clipboard-candidates-popover (index.html). */
 
 #postvermerk:empty::before {  opacity: 0.9; }
 
@@ -157,9 +156,9 @@ din-anlagen, din-verteiler {
 
 /* Nativer CSS Text-Fit & Font-Shrink (Chrome 123+ / Chrome 150+)
    Ersetzt das alte 48-text-fit.js zu 100% deklarativ */
-#empfaenger,
+#anschriftfeld,
 #infoblock,
-#briefkern,
+#kern,
 #anrede,
 #grussformel,
 #unterschrift {
@@ -300,8 +299,8 @@ din-anlagen, din-verteiler {
 #postvermerk { anchor-name: --anchor-postvermerk; }
 #empfaenger-ort { anchor-name: --anchor-empfaenger-ort; }
 #infoblock { line-height: 1.5; }
-#info-tel { margin-top: 8px; }
-.signature-wrapper { position: relative; margin-top: 10px; }
+#absender-tel { margin-top: 8px; }
+.unterschrift-zeile { position: relative; margin-top: 10px; }
 
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
 #anlagen-text { margin: 0; padding-left: 1.5rem; }

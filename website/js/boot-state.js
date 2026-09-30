@@ -54,15 +54,15 @@ try {
       const nested = el.querySelector && el.querySelector('select[data-persist]');
       if (nested instanceof HTMLSelectElement) { nested.value = /** @type {string} */ (draft[id]); continue; }
       /* Rich-Text-Felder (innerHTML im Draft) NICHT hierherstellen: der
-       * Default-Sanitizer von setHTML streift class="din-comment" und
+       * Default-Sanitizer von setHTML streift class="brief-kommentar" und
        * definiert einen zweiten Restore-Owner (Audit C1). DraftManager.
        * loadDraft() stellt sie sofort nach Modulstart über 04-sanitize
        * wieder her — hier bewusst übersprungen. */
-      if (id === 'brieftext' || id === 'anlagen-text') continue;
+      if (id === 'text' || id === 'anlagen-text') continue;
       el.textContent = /** @type {string} */ (draft[id]);
     }
   }
-  const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-pv-select'));
+  const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-postvermerk-select'));
   const pvField = document.getElementById('postvermerk');
   /* Feld ist 100% contenteditable (Doktrin). Boot-Fill nur, wenn leer
    * (Draft-Restore darf nicht klobbered werden); aktive Select-Wahl

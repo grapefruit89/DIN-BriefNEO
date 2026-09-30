@@ -366,6 +366,57 @@ function runReconciliation() {
     }
   }
 
+  // --- IMR-Vokabular-Check (docs/10-architecture/IMR-Registry.md = SSOT) ---
+  // Jedes `din-*` im Website-Code muss ein registriertes Atom, eine Zone oder
+  // der Dokumentrahmen (din-a4) sein. So kann kein Synonym / unregistrierter
+  // Bezeichner in den reservierten `din-`-Namensraum einsickern.
+  conformanceChecked += 1;
+  {
+    let imrViolations = [];
+    try {
+      const imr = fs.readFileSync(path.join(targetDir, 'docs/10-architecture/IMR-Registry.md'), 'utf-8');
+      const registered = new Set((imr.match(/<din-[a-z0-9-]+>/g) || []).map(t => t.slice(1, -1)));
+      registered.add('din-a4');
+      const walkCode = (dir, out = []) => {
+        for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+          const p = path.join(dir, e.name);
+          if (e.isDirectory()) walkCode(p, out);
+          else if (/\.(html|css|js)$/.test(e.name)) out.push(p);
+        }
+        return out;
+      };
+      for (const file of walkCode(path.join(targetDir, 'website'))) {
+        const rel = path.relative(targetDir, file).replace(/\\/g, '/');
+        const content = fs.readFileSync(file, 'utf-8')
+          .replace(/\[\[[^\]]*\]\]/g, '')       // Wiki-Links (@guide/@adr)
+          .replace(/@(guide|adr)\b[^\n]*/g, ''); // Traceability-Annotationen
+        for (const m of content.matchAll(/\bdin-[a-z0-9-]+/g)) {
+          if (!registered.has(m[0])) imrViolations.push(`${rel}:${m[0]}`);
+        }
+      }
+    } catch (err) {
+      logs.push({
+        file_path: 'docs/10-architecture/IMR-Registry.md',
+        check_type: 'imr',
+        severity: 'low',
+        message: `IMR-Check uebersprungen: ${err.message}`
+      });
+      imrViolations = [];
+    }
+    if (imrViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of imrViolations) {
+        logs.push({
+          file_path: v.split(':')[0],
+          check_type: 'imr',
+          severity: 'critical',
+          message: `Nicht registrierter din-Bezeichner (IMR-Registry ist SSOT): ${v}`
+        });
+      }
+    }
+  }
+
   const docFiles = getFilesRecursively(targetDir);
   let metadataChecked = 0;
   let metadataPassed = 0;

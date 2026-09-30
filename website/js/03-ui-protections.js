@@ -25,9 +25,9 @@
 export class UIProtections {
   constructor() {
     /** @type {HTMLElement | null} */
-    this.brieftext = document.getElementById('brieftext');
+    this.text = document.getElementById('text');
     /** @type {string[]} */
-    this.multiLineIds = ['brieftext', 'anlagen-text'];
+    this.multiLineIds = ['text', 'anlagen-text'];
     /** @type {string[]} */
     this.maxTwoLinesIds = ['betreff', 'postvermerk'];
     this.initialized = false;

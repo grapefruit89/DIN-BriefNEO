@@ -50,7 +50,7 @@ export class DraftManager {
 
     document.querySelectorAll('[contenteditable]').forEach(elem => {
       if (!elem.id || elem.id === 'datum') return;
-      if (elem.id === 'brieftext' || elem.id === 'anlagen-text') {
+      if (elem.id === 'text' || elem.id === 'anlagen-text') {
         draft[elem.id] = elem.innerHTML;
       } else {
         draft[elem.id] = elem.textContent;
@@ -121,7 +121,7 @@ export class DraftManager {
        * App — immer über 04-sanitize (Allowlist). NIEMALS setHTML, innerHTML,
        * einen zweiten Restore-Owner oder "Abkürzungen" hier einbauen.
        * boot-state.js stellt nur textContent her (keine HTML-Parität). */
-      if (id === 'brieftext' || id === 'anlagen-text') {
+      if (id === 'text' || id === 'anlagen-text') {
         /* M2: Anlagen brauchen UL/LI (Listen-Doktrin von ensureListStructure),
          * Brieftext bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
         const extra = id === 'anlagen-text' ? { extraTags: ['UL', 'LI'] } : undefined;

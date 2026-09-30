@@ -211,11 +211,11 @@ aside {
   opacity: 1;
 }
 
-#input-address-search {
-  anchor-name: --address-input;
+#input-anschrift-suche {
+  anchor-name: --anschrift-input;
 }
 
-#btn-clipboard-address {
+#btn-zwischenablage-anschrift {
   anchor-name: --clipboard-btn;
 }
 
@@ -227,7 +227,7 @@ aside {
 /* Glassmorphic Dropdown for Geoapify address suggestions */
 .autocomplete-dropdown {
   position: absolute;
-  position-anchor: --address-input;
+  position-anchor: --anschrift-input;
   position-area: bottom span-x;
   position-try-options: flip-block;
   top: auto;
@@ -279,7 +279,7 @@ aside {
 }
 
 /* --- COMMENT FORMAT --- */
-.din-comment {
+.brief-kommentar {
   border-left: 3px solid var(--border-color);
   padding-left: 8px;
   color: var(--text-muted);
@@ -328,7 +328,7 @@ aside {
 
 /* --- CSS-FIRST REFACTORING --- */
 /* Address Book Save Button */
-.address-save-btn {
+.anschrift-speichern-btn {
   position: absolute;
   top: 0;
   right: -30px;
@@ -340,19 +340,19 @@ aside {
   transition: opacity 0.2s;
   z-index: 10;
 }
-.address-save-btn:hover {
+.anschrift-speichern-btn:hover {
   opacity: 1;
 }
 
 /* Geoapify State Toggles */
 #geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
-#geoapify-wrapper #address-search-container { display: none; }
+#geoapify-wrapper #anschrift-suche-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
-#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
-.btn-guides::before {
+#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #anschrift-suche-container { display: flex; flex-direction: column; }
+.btn-hilfslinien::before {
   content: '📐 Falz- & Lochmarken einblenden';
 }
-:root:has(#btn-guides-switch:checked) .btn-guides::before {
+:root:has(#btn-hilfslinien-switch:checked) .btn-hilfslinien::before {
   content: '📐 Falz- & Lochmarken ausblenden';
 }
 
@@ -362,7 +362,7 @@ aside {
  * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
  * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
  * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
- * Die Statuserkennung erfolgt rein deklarativ über `:root:has(#btn-guides-switch:checked)`.
+ * Die Statuserkennung erfolgt rein deklarativ über `:root:has(#btn-hilfslinien-switch:checked)`.
  * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 16):
  * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
  * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
@@ -396,8 +396,8 @@ input[type="checkbox"][switch] {
   padding: 2px 4px;
   border-radius: 4px;
 }
-#input-address-search {
-  anchor-name: --anchor-address-search;
+#input-anschrift-suche {
+  anchor-name: --anchor-anschrift-suche;
 }
 
 

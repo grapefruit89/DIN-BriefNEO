@@ -217,9 +217,9 @@
   background: var(--accent-glow) !important;
 }
 
-#address-suggestions {
+#anschrift-vorschlaege {
   position: absolute;
-  position-anchor: --anchor-address-search;
+  position-anchor: --anchor-anschrift-suche;
   position-area: bottom span-right;
   position-try-fallbacks: flip-block;
   margin-top: 4px;
@@ -242,20 +242,20 @@
     overlay 0.15s allow-discrete;
 }
 
-#address-suggestions:popover-open {
+#anschrift-vorschlaege:popover-open {
   display: block;
   opacity: 1;
   transform: translateY(0);
 }
 
 @starting-style {
-  #address-suggestions:popover-open {
+  #anschrift-vorschlaege:popover-open {
     opacity: 0;
     transform: translateY(-5px);
   }
 }
 
-#address-suggestions li {
+#anschrift-vorschlaege li {
   padding: 8px 12px;
   font-size: 0.8rem;
   color: var(--text-primary);
@@ -265,11 +265,11 @@
   line-height: 1.3;
 }
 
-#address-suggestions li:hover {
+#anschrift-vorschlaege li:hover {
   background: var(--segment-bg);
 }
 
-#address-suggestions li b {
+#anschrift-vorschlaege li b {
   color: var(--accent-color);
   font-weight: 700;
 }
@@ -355,7 +355,7 @@ aside > .sidebar-section:first-of-type {
   padding: 2vh 1.5vw;
   box-sizing: border-box;
 }
-#din-a4-viewport {
+#brief-ansicht {
   width: 100%;
   height: 100%;
   min-width: 0;
@@ -369,7 +369,7 @@ din-a4 {
   max-width: 100%;
   max-height: 100%;
 }
-:root:has(#btn-guides-switch:checked) { --guide-opacity: 0.55; }
+:root:has(#btn-hilfslinien-switch:checked) { --hilfslinien-deckkraft: 0.55; }
 
 aside input[type="text"],
 aside input[type="password"],
@@ -400,8 +400,8 @@ aside .sidebar-checkbox-label {
   gap: 6px;
 }
 
-:root:has(#sidebar-pv-select option:checked:not([value=""])) din-postvermerk,
-:root:has(#sidebar-pv-select option:checked:not([value=""])) #postvermerk {
+:root:has(#sidebar-postvermerk-select option:checked:not([value=""])) din-postvermerk,
+:root:has(#sidebar-postvermerk-select option:checked:not([value=""])) #postvermerk {
   display: block !important;
   flex-direction: unset;
   visibility: visible !important;
@@ -409,7 +409,7 @@ aside .sidebar-checkbox-label {
   color: var(--paper-text);
 }
 
-#sidebar-pv-select {
+#sidebar-postvermerk-select {
   appearance: base-select;
   flex-direction: row;
   align-items: center;
@@ -417,12 +417,12 @@ aside .sidebar-checkbox-label {
   gap: 8px;
   white-space: nowrap;
 }
-#sidebar-pv-select::picker-icon {
+#sidebar-postvermerk-select::picker-icon {
   margin-inline-start: auto;
   flex: 0 0 auto;
   align-self: center;
 }
-#sidebar-pv-select {
+#sidebar-postvermerk-select {
   display: flex;
 }
 
@@ -445,7 +445,7 @@ din-lochmarke {
 }
 
 /* Ctrl+F-Treffer (::search-text, Chrome 144+, empirisch 2026-09-12): Find-in-Page
- * muss gegen das OKLCH-Papier und span.din-comment kontrastieren — der
+ * muss gegen das OKLCH-Papier und span.brief-kommentar kontrastieren — der
  * UA-Default (dunkler Highlight-Blob) ertrinkt auf farbigem Papier. */
 ::search-text {
   background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);

@@ -6,11 +6,11 @@
 /* --- SIGNATURE UI STATES --- */
 
 
-#signature-image[src=""] { display: none !important; }
+#unterschriftsbild-vorschau[src=""] { display: none !important; }
 
 /* Container is a zero-size overlay anchored at top-left of din-a4.
-   The sig-bounding-box uses translate() to position the image freely over the entire sheet. */
-#signature-container {
+   The unterschriftsbild-rahmen uses translate() to position the image freely over the entire sheet. */
+#unterschriftsbild-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -21,13 +21,13 @@
   pointer-events: none;
   display: none;
 }
-body:has(#signature-image[src]:not([src=""])) #signature-container { display: block; }
-#btn-reset-sig { display: none !important; }
-body:has(#signature-image[src]:not([src=""])) #btn-reset-sig { display: flex !important; }
-body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display: none !important; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #unterschriftsbild-container { display: block; }
+#btn-unterschriftsbild-reset { display: none !important; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-reset { display: flex !important; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-waehlen { display: none !important; }
 
 /* --- WYSIWYG SIGNATURE EDITOR --- */
-.sig-bounding-box {
+.unterschriftsbild-rahmen {
   position: relative;
   display: inline-block;
   cursor: grab;
@@ -39,15 +39,15 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
   touch-action: none;
 }
 
-.sig-bounding-box.active {
+.unterschriftsbild-rahmen.active {
   outline: 2px dashed var(--accent-color);
 }
 
-.sig-bounding-box:active {
+.unterschriftsbild-rahmen:active {
   cursor: grabbing;
 }
 
-.sig-handle, .sig-rotate-handle {
+.unterschriftsbild-griff, .unterschriftsbild-drehgriff {
   position: absolute;
   width: 12px;
   height: 12px;
@@ -58,18 +58,18 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
   display: none;
 }
 
-.sig-bounding-box.active .sig-handle,
-.sig-bounding-box.active .sig-rotate-handle {
+.unterschriftsbild-rahmen.active .unterschriftsbild-griff,
+.unterschriftsbild-rahmen.active .unterschriftsbild-drehgriff {
   display: block;
 }
 
-.sig-rotate-handle {
+.unterschriftsbild-drehgriff {
   top: -24px;
   left: 50%;
   transform: translateX(-50%);
   cursor: grab;
 }
-.sig-rotate-handle::after {
+.unterschriftsbild-drehgriff::after {
   content: '';
   position: absolute;
   top: 10px;
@@ -81,12 +81,12 @@ body:has(#signature-image[src]:not([src=""])) #btn-upload-sig-trigger { display:
   z-index: -1;
 }
 
-.sig-handle.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
-.sig-handle.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
-.sig-handle.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
-.sig-handle.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.unterschriftsbild-griff.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+.unterschriftsbild-griff.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+.unterschriftsbild-griff.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
 
-#signature-image {
+#unterschriftsbild-vorschau {
   pointer-events: none;
   max-width: 100%;
   display: block;

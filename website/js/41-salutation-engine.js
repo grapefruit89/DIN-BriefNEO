@@ -207,7 +207,7 @@ export class SalutationFeature {
   }
 
   _wireRecipientName() {
-    const fields = ['empfaenger-name', 'empfaenger-firma'];
+    const fields = ['empfaenger-namenszeile', 'empfaenger-firma'];
     fields.forEach(tag => {
       const el = document.getElementById(tag);
       if (el) el.addEventListener('input', () => this._regenerateSalutation());
@@ -288,7 +288,7 @@ export class SalutationFeature {
     const current = (el.textContent || "").trim();
     if (onlyIfEmpty && current) return;
 
-    const rawName = document.getElementById('empfaenger-name')?.textContent || "";
+    const rawName = document.getElementById('empfaenger-namenszeile')?.textContent || "";
     const rawCompany = document.getElementById('empfaenger-firma')?.textContent || "";
 
     const value = SalutationEngine.derive({

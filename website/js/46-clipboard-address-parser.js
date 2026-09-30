@@ -243,7 +243,7 @@ export class ClipboardAddressParser {
    */
   static applyCandidate(candidate, { onToast = null, onSaveDraft = null } = {}) {
     const empfFirmaEl = document.getElementById('empfaenger-firma');
-    const empfNameEl = document.getElementById('empfaenger-name');
+    const empfNameEl = document.getElementById('empfaenger-namenszeile');
     const empfStrasseEl = document.getElementById('empfaenger-strasse');
     const empfOrtEl = document.getElementById('empfaenger-ort');
 
@@ -284,7 +284,7 @@ export class ClipboardAddressParser {
         // @ts-ignore
         plzPopover.hidePopover();
       }
-      const addrPopover = document.getElementById('address-suggestions');
+      const addrPopover = document.getElementById('anschrift-vorschlaege');
       // @ts-ignore
       if (addrPopover && typeof addrPopover.hidePopover === 'function') {
         // @ts-ignore
@@ -309,7 +309,7 @@ export class ClipboardAddressParser {
    * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
   static wireSidebarButton({ onToast = null, onSaveDraft = null } = {}) {
-    const btn = document.getElementById('btn-clipboard-address');
+    const btn = document.getElementById('btn-zwischenablage-anschrift');
     const popover = document.getElementById('clipboard-candidates-popover');
     if (!btn) return;
 

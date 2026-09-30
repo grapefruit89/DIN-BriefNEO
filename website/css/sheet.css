@@ -8,18 +8,18 @@ din-a4 {
   /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
      am <din-a4>-Element (siehe index.html). Fallback-Zahl = bisheriger Hardcode-Wert,
      greift nur, falls das Attribut fehlt oder attr()/type() nicht unterstützt wird. */
-  --din-width: attr(data-width-mm type(<number>), 210);
-  --din-height: attr(data-height-mm type(<number>), 297);
+  --blatt-breite: attr(data-width-mm type(<number>), 210);
+  --blatt-hoehe: attr(data-height-mm type(<number>), 297);
 
   --absender-y: --mm-y(attr(data-absender-y-b type(<number>), 45));
   --empfaenger-y: --mm-y(attr(data-empfaenger-y-b type(<number>), 50));
   --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>), 50));
   --datum-y: --mm-y(attr(data-datum-y-b type(<number>), 92));
-  --briefkern-y: --mm-y(attr(data-kern-y-b type(<number>), 109));
+  --kern-y: --mm-y(attr(data-kern-y-b type(<number>), 109));
 
-  --fold-1-y: --mm-y(attr(data-fold-1-b type(<number>), 105));
-  --fold-2-y: --mm-y(attr(data-fold-2-b type(<number>), 210));
-  --punch-y: --mm-y(attr(data-punch-y type(<number>), 148.5));
+  --falz-oben-y: --mm-y(attr(data-falz-oben-y-b type(<number>), 105));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-b type(<number>), 210));
+  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>), 148.5));
 }
 
 body:has(#btn-form-a:checked) din-a4 {
@@ -27,9 +27,9 @@ body:has(#btn-form-a:checked) din-a4 {
   --empfaenger-y: --mm-y(attr(data-empfaenger-y-a type(<number>), 32));
   --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>), 32));
   --datum-y: --mm-y(attr(data-datum-y-a type(<number>), 74));
-  --briefkern-y: --mm-y(attr(data-kern-y-a type(<number>), 91)); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
-  --fold-1-y: --mm-y(attr(data-fold-1-a type(<number>), 87));
-  --fold-2-y: --mm-y(attr(data-fold-2-a type(<number>), 181));
+  --kern-y: --mm-y(attr(data-kern-y-a type(<number>), 91)); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --falz-oben-y: --mm-y(attr(data-falz-oben-y-a type(<number>), 87));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>), 181));
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -39,9 +39,9 @@ body:has(#btn-form-a:checked) din-a4 {
     position: relative;
 
     /* Das Blatt nimmt maximal die Breite oder Hoehe des Viewports an, ohne ueberzulaufen */
-    width: min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)));
-    height: min(100cqh, calc(100cqw * var(--din-height) / var(--din-width)));
-    aspect-ratio: var(--din-width) / var(--din-height); /* Exaktes DIN A4 Seitenverhaeltnis */
+    width: min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)));
+    height: min(100cqh, calc(100cqw * var(--blatt-hoehe) / var(--blatt-breite)));
+    aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe); /* Exaktes DIN A4 Seitenverhaeltnis */
     background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
@@ -102,28 +102,28 @@ body:has(#btn-form-a:checked) din-a4 {
     font-style: italic;
   }
 
-  /* --- DIN MARKS (Guides) --- */
-  .din-mark {
-  position: absolute;
-  left: 0;
-  width: --mm-x(8); /* Kurz, nicht durch den Text schneidend */
+  /* --- DIN-MARKEN (System-Atome) --- */
+  din-falz-oben, din-falz-unten, din-lochmarke {
+    position: absolute;
+    left: 0;
+    width: --mm-x(8); /* Kurz, nicht durch den Text schneidend */
     border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
-    opacity: var(--guide-opacity);
+    opacity: var(--hilfslinien-deckkraft);
     pointer-events: none;
   }
 
   /* Falzmarken & Lochmarken proportionale Koordinaten */
-  .din-fold-top { top: var(--fold-1-y); } /* Form B default: 105mm */
-  .din-fold-bottom { top: var(--fold-2-y); } /* Form B default: var(--din-width)mm */
-  .din-punch {
-    top: var(--punch-y);
+  din-falz-oben { top: var(--falz-oben-y); } /* Form B default: 105mm */
+  din-falz-unten { top: var(--falz-unten-y); } /* Form B default: var(--blatt-breite)mm */
+  din-lochmarke {
+    top: var(--lochmarke-y);
     width: --mm-x(12); /* Breite: 12mm */
     border-bottom-style: solid;
   }
 
   /* --- DIN COMPONENT PLACEMENTS (Form B Default) --- */
   /* Rücksendezeile */
-  #absender {
+  #rucksendezeile {
     position: absolute;
     top: var(--absender-y);
     left: --mm-x(20);
@@ -135,7 +135,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* Anschriftfeld */
-  #empfaenger {
+  #anschriftfeld {
     position: absolute;
     top: var(--empfaenger-y);
     left: --mm-x(20);
@@ -171,16 +171,16 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* Briefkern */
-  #briefkern {
+  #kern {
     position: absolute;
-    top: var(--briefkern-y);
+    top: var(--kern-y);
     left: --mm-x(25);  /* Linker Fluchtrand: 25mm */
     right: --mm-x(20); /* Rechter Rand: 20mm */
     bottom: --mm-y(30); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
     overflow: clip; /* Zero-Ueberlauf Garantie */
-    container-name: briefkern;
+    container-name: kern;
   }
 
   #betreff {
@@ -196,7 +196,7 @@ body:has(#btn-form-a:checked) din-a4 {
     margin-bottom: --mm-y(4.23); /* 1 Leerzeile */
   }
 
-  #brieftext {
+  #text {
     font-size: --pt(10.5); /* 10.5pt in cqw */
     line-height: 1.4;
     outline: none;
@@ -221,16 +221,16 @@ body:has(#btn-form-a:checked) din-a4 {
 /* --- BLATT-INNERES: INLINE-FORMATE & FOOTER (SCOPED ISOLATION) --- */
 @scope (din-a4) {
   /* --- WHATSAPP-STYLE INLINE FORMATS --- */
-  #brieftext b, #brieftext strong {
+  #text b, #text strong {
     font-weight: 700;
   }
 
-  #brieftext u {
+  #text u {
     text-decoration: underline;
     text-underline-offset: 2px;
   }
 
-  #brieftext blockquote {
+  #text blockquote {
     margin: 8px 0;
     padding-left: 12px;
     border-left: 3px solid var(--border-color);
@@ -239,7 +239,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* --- FOOTER --- */
-  #brief-fuss {
+  #fuss {
     position: absolute;
     bottom: --mm-y(10); /* 10mm */
     left: --mm-x(25); /* 25mm */

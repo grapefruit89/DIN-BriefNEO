@@ -6,7 +6,7 @@
  * laedt via layer="tokens" — eine @layer-Zeile hier wuerde NESTED layers
  * unter tokens anlegen, keine Top-Level-Ordnung). */
 
-@property --guide-opacity {
+@property --hilfslinien-deckkraft {
   syntax: '<number>';
   inherits: true;
   initial-value: 0;
@@ -16,7 +16,7 @@
   color-scheme: light dark;
   interpolate-size: allow-keywords;
 
-  transition: --guide-opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: --hilfslinien-deckkraft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
   --c-viewport-day: oklch(0.96 0.01 250);
   --c-viewport-night: oklch(0.2735 0.0179 251.92);
@@ -76,7 +76,7 @@
   --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
   --glass-blur: blur(20px);
 
-  --guide-opacity: 0;
+  --hilfslinien-deckkraft: 0;
   --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -86,15 +86,15 @@
  * oder calc(N * 0.168cqw) daneben schreiben — ein Abweichler verfälscht die
  * DIN-Vermaßung (Falzmarken, Lochmarke, Fluchränder). Normzahl im HTML-Attribut,
  * Layout-Hier via Funktion. 1pt = 0.3528mm → 0.168cqw auf 210 mm Blattbreite.
- * --pt() leitet die Blattbreite aus --din-width ab (kein Magic-Constant 0.168). */
+ * --pt() leitet die Blattbreite aus --blatt-breite ab (kein Magic-Constant 0.168). */
 @function --mm-x(--mm) {
-  result: calc(var(--mm) / var(--din-width) * 100cqw);
+  result: calc(var(--mm) / var(--blatt-breite) * 100cqw);
 }
 @function --mm-y(--mm) {
-  result: calc(var(--mm) / var(--din-height) * 100cqh);
+  result: calc(var(--mm) / var(--blatt-hoehe) * 100cqh);
 }
 @function --pt(--points) {
-  result: calc(var(--points) * 0.3528 / var(--din-width) * 100cqw);
+  result: calc(var(--points) * 0.3528 / var(--blatt-breite) * 100cqw);
 }
 
 :root[data-theme="light"],

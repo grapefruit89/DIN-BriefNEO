@@ -7,7 +7,7 @@
  * Wird von 01-draft-manager (Draft-Restore) und 31-format-toolbar (Paste/Drop)
  * genutzt — bewusst ein Modul statt zwei Kopien (Audit 2026-09-10).
  * setHTML() mit eigener Allowlist verwirft in Chrome 151 alle Attribute
- * (inkl. class für din-comment) — daher bewusst nicht als Sanitizer genutzt.
+ * (inkl. class für brief-kommentar) — daher bewusst nicht als Sanitizer genutzt.
  * Extra-Tags (z. B. UL/LI für anlagen-text, Grok-Re-Review M2) ergänzen die
  * Basis-Allowlist, KEINE Attribute auf Extra-Tags.
  * @param {string} htmlString
@@ -34,9 +34,9 @@ export function sanitizeRichText(htmlString, options = {}) {
     let newNode;
     if (allowedTags.includes(element.nodeName)) {
       newNode = document.createElement(element.nodeName.toLowerCase());
-    } else if (element.nodeName === 'SPAN' && element.classList.contains('din-comment')) {
+    } else if (element.nodeName === 'SPAN' && element.classList.contains('brief-kommentar')) {
       newNode = document.createElement('span');
-      newNode.className = 'din-comment';
+      newNode.className = 'brief-kommentar';
     } else {
       const frag = document.createDocumentFragment();
       element.childNodes.forEach((child) => {

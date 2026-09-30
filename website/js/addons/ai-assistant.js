@@ -17,7 +17,7 @@ const AI_CONFIG = {
   storageKey: 'din_addon_ai_enabled',
   sidebarToggleId: 'toggle-experimental-ai',
   toolbarRewriteBtnId: 'btn-ai-rewrite',
-  brieftextId: 'brieftext'
+  textId: 'text'
 };
 
 export class AIAssistantAddon {
@@ -172,7 +172,7 @@ export class AIAssistantAddon {
           range.insertNode(document.createTextNode(rewritten));
 
           // Trigger input event for AutoSave
-          const briefEl = document.getElementById(AI_CONFIG.brieftextId);
+          const briefEl = document.getElementById(AI_CONFIG.textId);
           if (briefEl) {
             briefEl.dispatchEvent(new Event('input', { bubbles: true }));
           }

@@ -12,7 +12,7 @@ import { currentISODate } from './47-date-format.js';
 
 /**
  * Brief-Dateiname nach dem DIN-BriefNEO-Muster — Single Source of Truth für
- * PDF-Druck (53) und .dinletter-Export (52). Liest die Live-DOM-Felder.
+ * PDF-Druck (53) und DIN-Brief-Export (52, .json). Liest die Live-DOM-Felder.
  * @returns {string}
  */
 export function buildLetterFileName() {

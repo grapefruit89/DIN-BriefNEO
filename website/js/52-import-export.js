@@ -3,7 +3,7 @@
 // @guide [[din-5008-css-architektur]]
 
 /*
- * 52-import-export.js — .dinletter als First-Class-Datenformat
+ * 52-import-export.js — .json als First-Class-Datenformat (DIN-Brief)
  * (DeepSeek-Longevity-Review 2026-09-11, Owner-Beschluss).
  * localStorage allein ist ein Ablaufdatum (Browser-Daten löschen = Brief weg).
  * Das Format ist bewusst simpel und selbst-erklärend: JSON mit Metadaten-Header
@@ -16,6 +16,8 @@ import { StorageManager, Constants } from './51-storage.js';
 import { buildLetterFileName } from './53-metadata.js';
 import { currentISODate } from './47-date-format.js';
 
+/** Interner Format-Tag im Header. Dateiendung ist `.json`; der Tag bleibt
+ *  aus Rueckwaertskompatibilitaet (bereits exportierte Dateien). */
 export const DINLETTER_FORMAT = 'dinletter';
 
 /**
@@ -39,7 +41,7 @@ export function buildDinLetterPayload(draft) {
 }
 
 /**
- * Validiert und parsed einen .dinletter-Text. PURE — unit-testbar.
+ * Validiert und parsed eine DIN-Brief-JSON-Datei. PURE — unit-testbar.
  * @param {string} text
  * @returns {{ ok: true, draft: Record<string, string>, schemaVersion: number } | { ok: false, reason: string }}
  */
@@ -55,7 +57,7 @@ export function parseDinLetterPayload(text) {
     return { ok: false, reason: 'Keine gültige JSON-Datei.' };
   }
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return { ok: false, reason: 'Kein gültiges .dinletter (Objekt erwartet).' };
+    return { ok: false, reason: 'Keine gültige DIN-Brief-Datei (.json, Objekt erwartet).' };
   }
   if (data.format !== DINLETTER_FORMAT) {
     return { ok: false, reason: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.` };
@@ -116,7 +118,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${buildLetterFileName()}.dinletter`;
+    anchor.download = `${buildLetterFileName()}.json`;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });

@@ -22,7 +22,7 @@ export const Constants = {
   /**
    * Schema-Version der Datenstrukturen (DeepSeek-Longevity-Review 2026-09-11).
    * Konsumenten: StorageManager.migrate() (localStorage) und 52-import-export.js
-   * (.dinletter-Header). Missing version im Storage = Version 0 → migrate() stampft.
+   * (DIN-Brief-Header, .json). Missing version im Storage = Version 0 → migrate() stampft.
    */
   SCHEMA_VERSION: 1,
 
@@ -125,10 +125,10 @@ export const StorageManager = {
     /* 🚨 ARCHITECTURAL GUARD (A48 + Longevity): Migrationen sind SEQUENZIELL
      * (von `version` aufwärts, niemals überspringen) und NIEMALS über die
      * Legacy-Date-API (A48) datieren — Temporal-only. schema_version wird
-     * von 52-import-export.js (.dinletter-Header) konsumiert. */
+     * von 52-import-export.js (DIN-Brief-Header, .json) konsumiert. */
     // Migrationsschritte kommen hier hin (sequenziell von version aufwärts).
     // ⚠️ Grok-Bug-4-Vorwarnung (jetzt dokumentieren, damit kein stamp-and-skip):
-    // Sobald der erste Migrationsschritt existiert, MUSS der .dinletter-Import
+    // Sobald der erste Migrationsschritt existiert, MUSS der .json-Import
     // die payload.schema_version → CURRENT transformieren, BEVOR er raw
     // schreibt — sonst sieht migrate() die bereits gestempelte Storage-Version
     // und überspringt die Transformation der importierten Datei.

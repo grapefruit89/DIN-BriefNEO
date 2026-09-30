@@ -1445,3 +1445,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 %, `links.js`/`imr.js` OK.
 
 **Generalisierbarkeit:** Ideen zuerst nach **Nutzer-Mehrwert** und **Zielkontext-Machbarkeit** (`file://`/offline, zero-dep, Law Catalog) filtern — „technisch cool" ist kein Nutzen. Verworfenes explizit als „nicht erneut vorschlagen" dokumentieren (Anti-Drift).
+
+## 2026-09-30 — Export/Import-Endung: `.dinletter` → `.json`
+
+**Kontext:** Eine eigene Datei-Endung bringt in einer **Web-App keinen** Doppelklick-Vorteil (OS-Dateizuordnung gäbe es nur bei installierter PWA) und macht die Datei für Dritte unlesbar — obwohl der Inhalt ohnehin selbst-erklärendes JSON ist (`format`, `schema_version`).
+
+**Änderung:** Export schreibt jetzt `<datum - betreff - absender an empfaenger>.json` (statt `.dinletter`); Import akzeptiert `.json` **und** legacy `.dinletter`; UI-Buttons/Titel + Datei-Input (`accept=".json,.dinletter,application/json"`) angepasst. Der interne Header-Tag bleibt `dinletter` (Rückwärtskompatibilität). Kommentare in `51-storage.js`/`53-metadata.js` + Test-Label angeglichen.
+
+**Verifikation:** Gate 100 % (inkl. tsc); Rest-Vorkommen nur Format-Tag, Legacy-Accept, Test-Payloads und interne Element-IDs.
+
+**Generalisierbarkeit:** Eigene Datei-Endungen nur mit **echtem** Mehrwert (OS-Zuordnung/PWA-File-Handler) — sonst Standardendung wählen. „Erkennbar als Text + selbst-beschreibender Header" schlägt Marken-Endung (Future-proof ohne Tool).

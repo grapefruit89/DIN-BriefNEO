@@ -123,7 +123,7 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
   });
 });
 
-describe('Import/Export: .dinletter-Payload (pure Funktionen)', () => {
+describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('buildDinLetterPayload setzt Header mit schema_version + tool-Link', () => {
     const payload = buildDinLetterPayload({ betreff: 'Test' });
     assertEqual(payload.format, DINLETTER_FORMAT);

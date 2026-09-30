@@ -41,7 +41,6 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 ## Obsidian & Wissensmanagement
 
 - [[OBSIDIAN-SETUP-GUIDE]] ⭐ — Schema V6, Wikilinks, Graph-Setup (2026-08-07)
-- [[_Template_Obsidian]] — Frontmatter-Template für neue Dokumente (Schema V6)
 - [[GUIDE-TEMPLATE]] — Template für neue How-To Guides
 - [[schema-v6.json]] — JSON Schema für VS Code Validierung
 

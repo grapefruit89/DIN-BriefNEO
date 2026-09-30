@@ -11,7 +11,6 @@ tags:
   - status/active
   - type/meta
 doc_links:
-  - _Template_Obsidian
   - longevity-guidelines
 error_patterns:
   - guide template
@@ -92,7 +91,7 @@ Falls dieser Guide moderne Web-APIs voraussetzt oder erklärt:
 
 ## Hinweise zur Nutzung
 
-- **Frontmatter ist verpflichtend** — Schema V6, siehe [[_Template_Obsidian]]
+- **Frontmatter ist verpflichtend** — Schema V6.
 - Der Guide soll **praktisch** und **umsetzbar** sein (keine reinen Theorie-Texte)
 - Nutze `diff`-Blöcke und `<details>` für bessere Lesbarkeit
 - Halte den Guide möglichst **kurz und fokussiert** (max. 1–2 Bildschirmseiten)

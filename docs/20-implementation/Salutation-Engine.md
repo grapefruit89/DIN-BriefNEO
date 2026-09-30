@@ -4,7 +4,7 @@ title: 'Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-09-04'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -17,7 +17,7 @@ doc_links:
   - glossary
 code_links:
   - website/js/41-salutation-engine.js
-  - website/js/41-salutation-engine.smart.js
+  - website/js/41-salutation-engine.js
 error_patterns:
   - salutation engine
   - anrede

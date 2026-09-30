@@ -4,7 +4,7 @@ title: 'Guide: sqlite-vec Integration — Hybrid Search Implementierungsplan'
 type: guide
 status: draft
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -15,7 +15,6 @@ doc_links:
   - README-DB
 code_links:
   - tools/build_db.js
-  - tools/hybrid_search.js
 error_patterns:
   - sqlite-vec
   - vector search

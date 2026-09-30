@@ -1,5 +1,5 @@
 ---
-id: guide-testing-guide
+id: testing-guide
 title: 'Guide: Interaktiver Test-Leitfaden'
 type: guide
 status: active

@@ -1,5 +1,5 @@
 ---
-id: guide-geoapify-autocomplete
+id: geoapify-autocomplete
 title: 'Guide: Geoapify Autocomplete Implementierung'
 type: guide
 status: active

@@ -1,10 +1,10 @@
 ---
-id: guide-no-scroll-techniques
+id: no-scroll-techniques
 title: 'Guide: No-Scroll-Techniken (Viewport-Perfect Layouts)'
 type: guide
 status: active
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation

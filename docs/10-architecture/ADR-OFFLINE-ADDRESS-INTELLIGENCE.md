@@ -17,7 +17,7 @@ doc_links:
   - longevity-guidelines
 code_links:
   - website/js/43-geoapify.js
-  - research/research_results/de_plz_ort.json.br
+  - website/data/de_plz_ort.json.gz
 error_patterns:
   - adr-api
   - plz lookup

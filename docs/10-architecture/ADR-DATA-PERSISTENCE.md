@@ -4,7 +4,7 @@ title: 'ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling'
 type: adr
 status: active
 created: '2026-07-02'
-updated: '2026-07-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -15,7 +15,7 @@ doc_links:
   - longevity-guidelines
 code_links:
   - website/js/main.js
-  - website/js/52-storage.js
+  - website/js/51-storage.js
 error_patterns:
   - data persistence
   - localstorage

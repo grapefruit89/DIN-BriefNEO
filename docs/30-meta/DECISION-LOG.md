@@ -1337,3 +1337,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** 289 Beziehungen; `related("website/js/32-toast.js")` → aus 2 / ein 2; `docs_related` per echtem MCP-stdio-Aufruf getestet; Gate 100 %.
 
 **Generalisierbarkeit:** Ein Index wird erst zum Recherche-Werkzeug, wenn er auch **Kanten** kennt (Doc↔Doc, Code→ADR). Kanten aus bereits vorhandenen Quellen ableiten (Frontmatter/Annotationen), nie separat pflegen; Frische an **Ereignisse** hängen (Commit, Pull, Abfrage), nicht an Disziplin.
+
+## 2026-09-30 — Aufräum-Pass docs/20-implementation (+ code_links-Gate)
+
+**Kontext:** Playbook-Pass auf `docs/20-implementation`. Befunde: 3 Guide-`id`s mit inkonsistentem `guide-`-Präfix; **7 defekte `code_links`** (u. a. `41-salutation-engine.smart.js`, `52-storage.js`, `44-sender-sync.js`) — die der Link-Gate bisher **nicht** prüfte (nur `doc_links`/`depends_on`); der Doku-Baum in der Memory-Doku stand noch in alter Ordnerstruktur (`40-tooling/`, `90-policy/`).
+
+**Änderung:** (1) `tools/links.js` prüft jetzt auch `code_links` (Dateipfade, **repo- und dokument-relativ**). (2) 7 defekte `code_links` repariert/entfernt: `41-salutation-engine.js`, `51-storage.js`, `53-metadata.js` (dort lebt der Sender-Sync), `website/data/de_plz_ort.json.gz`; geplante `tools/hybrid_search.js` entfernt (Draft); `90-archive` exempt. (3) `id`s `guide-geoapify-autocomplete`/`guide-no-scroll-techniques`/`guide-testing-guide` → ohne Präfix. (4) Memory-Strukturblock auf die reale Ordnerstruktur aktualisiert.
+
+**Verifikation:** 0 defekte `code_links`, `links.js`/`imr.js` OK, Gate 100 %.
+
+**Generalisierbarkeit:** Ein Link-Gate muss **alle** Referenzarten prüfen (Wikilinks, `doc_links`, `depends_on`, **`code_links`**) — jedes ungated Feld ist eine Einladung zum Drift. Pfad-Refs relativ zur Repo-Wurzel **und** zum Dokument auflösen; `code_links` zeigen auf echten Code, geplante Dateien gehören nicht hinein.

@@ -28,7 +28,7 @@ const SCAN_SKIP = [
   'docs/10-architecture/Code-Referenzen.md',
   'docs/10-architecture/Function-Traceability.md',
 ];
-const FM_KEYS = ['doc_links', 'depends_on'];
+const FM_KEYS = ['doc_links', 'code_links', 'depends_on'];
 
 function walk(dir, out = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -51,6 +51,12 @@ function resolves(target, targetDir, stems) {
     );
   }
   return stems.has(clean);
+}
+
+/** code_links sind Dateipfade: relativ zur Repo-Wurzel ODER zum Dokument. */
+function resolvesPath(target, targetDir, absFile) {
+  const cands = [path.join(targetDir, target), path.join(path.dirname(absFile), target)];
+  return cands.some((p) => fs.existsSync(p) || fs.existsSync(p + '.md'));
 }
 
 function scanWikilinks(content) {
@@ -124,7 +130,10 @@ function checkLinks(targetDir) {
 
     for (const { target, key } of scanFrontmatterLinks(content)) {
       if (PLACEHOLDER.test(target)) continue;
-      if (!resolves(target, targetDir, stems)) {
+      const ok = key === 'code_links'
+        ? resolvesPath(target, targetDir, abs)
+        : resolves(target, targetDir, stems);
+      if (!ok) {
         violations.push({ file: rel, message: `Toter Frontmatter-${key}: "${target}"` });
       }
     }

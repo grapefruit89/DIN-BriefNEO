@@ -66,22 +66,22 @@ depends_on: []
 
 ## 2. Architekturstand (aktuell — Stand Obsidian 2026-07-21)
 
-### Projektstruktur (`aktueller_arbeitsordner`)
+### Projektstruktur
 ```
 docs/
-  00-foundation/  constitution.md, Immutable-Law-Catalog.md, longevity-guidelines.md, spec.md
-  10-architecture/ IMR-Registry.md, ADR/ (thematische ADRs)
-  20-implementation/ Salutation-Engine.md, Guides/, glossary.md
-  30-meta/        ROADMAP.md, CHANGELOG.md, DECISION-LOG.md, Feature-Matrix.md
-  40-tooling/     README-DB.md (SQLite FTS5)
-  90-policy/      HYBRID-SPEC-DRIVEN-WORKFLOW.md
+  00-foundation/     constitution.md, Immutable-Law-Catalog.md, longevity-guidelines.md, spec.md
+  10-architecture/   IMR-Registry.md, ADR-<THEMA>.md, ADR-ANTIPATTERN.md, …
+  20-implementation/ Salutation-Engine.md, din-5008-css-architektur.md, glossary.md, …
+  30-meta/           ROADMAP.md, CHANGELOG.md, DECISION-LOG.md, Feature-Matrix.md, …
+  90-archive/        archivierte Altstände
 website/
   js/            01-draft-manager.js … 53-metadata.js (flach, numerisch geordnet)
   js/addons/     optionale Add-ons
   css/            layout.css, floating.css, variables.css
   index.html
-tools/            build_db.js/py, wiki_bundler.py, verify_compliance*.py
-build/            din-brief-offline.html, DIN-Brief_docs.db, Context-Pack-Main.md
+tools/            build_db.js, docs_index.js, imr.js, links.js, reconciliation.js
+agent/            mcp/dinbrief-mcp (Retrieval), skills/
+build/            import.sql (generiert)
 ```
 
 ### IMR — Isomorphic Master Registry v4.8.0 ✅

@@ -14,7 +14,7 @@ doc_links:
   - ADR-HTML
   - ADR-JS
 code_links:
-  - website/js/44-sender-sync.js
+  - website/js/53-metadata.js
 error_patterns:
   - sender synchronization
   - rücksendezeile

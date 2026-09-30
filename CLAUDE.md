@@ -4,7 +4,7 @@ title: CLAUDE.md — KI-Kontext für Claude & Claude Code
 type: ai-context
 status: active
 created: '2026-08-07'
-updated: '2026-09-09'
+updated: '2026-09-30'
 tags:
 - din-briefneo
 - meta
@@ -90,7 +90,6 @@ docs/00-foundation/            # Verfassungsebene — niemals löschen
 docs/10-architecture/          # Architektur-Entscheidungen — kritisch
   IMR-Registry.md              # ⭐⭐⭐ Single Source of Truth: alle 45 Tags
   IMR-Toast-Registry.md        # Toast-System Tags
-  Architecture-Compliance-Matrix.md
   OmniTraceability.md          # Traceability-Matrix
   Function-Traceability.md
   ADR/                         # 10 thematische ADRs
@@ -118,7 +117,6 @@ docs/20-implementation/        # Implementierungsdetails
     din-5008-precise-layout-lessons.md  # DIN 5008 Layout-Learnings
     geoapify-autocomplete.md   # Adress-Autocomplete (Geoapify + Photon)
     no-scroll-techniques.md    # Zero-Scroll-Policy Techniken
-    toast-system.md            # Toast v4 Implementation Guide
   implementation/
     sqlite-vec.md              # SQLite Vector Search (für LLM-Wissensbasis)
 

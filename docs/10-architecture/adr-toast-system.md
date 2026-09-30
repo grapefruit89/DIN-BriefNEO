@@ -4,7 +4,7 @@ title: 'ADR-TOAST: Toast-System Architektur & Registry'
 type: adr
 status: active
 created: '2026-07-03'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -117,3 +117,7 @@ Alle Toasts verwenden native CSS-Transitions (`@starting-style`) und definieren 
 ### ⚙️ Healthcheck / Diagnostics
 
 - **Plausibility Error:** Dynamisch generiert mit dem betroffenen DOM-Element, z.B. `[Architektur-Warnung] Element #xyz fehlt!` (Level: `warning`)
+
+## Umsetzung (Wie)
+
+Das **Wie** steckt im Code, nicht in einem separaten Guide: `website/js/32-toast.js` (`showToast`, `initToastSystem`) + `website/css/floating.css` (Top-Layer/Popover). Dieser ADR begründet das **Warum**.

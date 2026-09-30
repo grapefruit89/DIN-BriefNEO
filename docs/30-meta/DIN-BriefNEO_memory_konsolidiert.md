@@ -4,7 +4,7 @@ title: 'DIN-BriefNEO — Konsolidiertes Projektgedächtnis'
 type: reference
 status: active
 created: '2026-08-07'
-updated: '2026-08-08'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -70,7 +70,7 @@ depends_on: []
 ```
 docs/
   00-foundation/  constitution.md, Immutable-Law-Catalog.md, longevity-guidelines.md, spec.md
-  10-architecture/ IMR-Registry.md, ADR/ (10 thematische ADRs), Architecture-Compliance-Matrix.md
+  10-architecture/ IMR-Registry.md, ADR/ (thematische ADRs)
   20-implementation/ Salutation-Engine.md, Guides/, glossary.md
   30-meta/        ROADMAP.md, CHANGELOG.md, DECISION-LOG.md, Feature-Matrix.md
   40-tooling/     README-DB.md (SQLite FTS5)

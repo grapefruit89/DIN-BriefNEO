@@ -1260,3 +1260,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** keine `148+`-Baseline mehr außerhalb der Feature-Notizen; Gate 100 %.
 
 **Generalisierbarkeit:** Eine Versionszahl in der Doku ist entweder **Projekt-Baseline** (nur Foundation, sonst referenzieren) oder **Feature-Ship-Version** — beides darf nicht vermischt werden. Ein Sweep muss diesen Unterschied pro Zeile treffen, sonst „korrigiert" er Feature-Notizen kaputt.
+
+## 2026-09-30 — Doppelpflege entfernt: Compliance-Matrix + Toast-Guide
+
+**Kontext:** Zwei redundante Dateien: (1) `Architecture-Compliance-Matrix.md` (manuell; Tech-Tabelle ≈ [[Immutable-Law-Catalog]], ADR↔Datei-Zuordnung ≈ generierte `Function-Traceability`/`Code-Referenzen`); (2) `20-implementation/toast-system.md` (Guide, doppelt den ADR + **stale Pfade** `js/toast.js`).
+
+**Änderung:** Matrix-Inhalt („Bekannte Einschränkungen") → Abschnitt 9 in `ADR-OMNITRACEABILITY`; Toast-**Warum** bleibt im `adr-toast-system` (neuer Hinweis: „Wie = Code, kein separater Guide"); beide Dateien gelöscht; Verweise in `10-architecture/README`, `20-implementation/README`, `docs/index.md`, `CLAUDE.md` und Memory nachgezogen. Build: 104 → 102 Docs.
+
+**Verifikation:** Gate 100 %, `imr.js` OK, keine toten Restverweise.
+
+**Generalisierbarkeit:** Eine Datei = eine Rolle; manuelle Matrizen, die generierte Duplizieren, streichen (kein „zweites Wissensmanagement"); das **Wie** gehört in Code/Guide, der ADR hält das **Warum**.

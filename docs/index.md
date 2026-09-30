@@ -92,7 +92,6 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 - **[[Salutation-Engine]]** — Anrede-Logik: Neuer 80/20 B2B-Standard, 3 verbindliche Pärchen, Offline-Vornamenerkennung, Adelspartikel und Auto-Reset.
 - **[[din-5008-css-architektur]]** — DIN-5008-Layout, Druckvorstufe (@media print) und Container Queries.
 - **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
-- **[[toast-system]]** — Praktische Nutzung der Benachrichtigungs-API (`showToast`).
 - **[[testing-guide]]** — Validierungs-Checklisten für `file:///`, Druckvorschau und responsive Ansichten.
 - **[[glossary]]** — Zentrales Projektglossar (Ubiquitous Language von A bis Z).
 - **[[README-DB]]** & **[[sqlite-vec]]** — Lokale SQLite/FTS5-Wissensdatenbank und semantische Vektorsuche für KI-Agenten.

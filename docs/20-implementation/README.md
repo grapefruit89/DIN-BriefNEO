@@ -43,7 +43,6 @@ Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen:
 | [[din-5008-css-architektur]] | DIN 5008 Layout-Philosophie + Chrome 150+ CSS-Feature-Referenz |
 | [[geoapify-autocomplete]] | Adress-Autocomplete (Geoapify + Photon) |
 | [[no-scroll-techniques]] | Zero-Scroll-Policy: Techniken und Patterns |
-| [[toast-system]] | Toast-System v4 Implementation Guide |
 
 ## Forschung / Roadmap
 

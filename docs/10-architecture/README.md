@@ -35,8 +35,7 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 
 - [[IMR-Registry]] ⭐⭐⭐ — Single Source of Truth: alle Custom Tags, Zonen
 - [[ADR-ANTIPATTERN]] ⭐⭐⭐ — Verbotsregister, vor jeder Änderung lesen
-- [[Architecture-Compliance-Matrix]] — Welche ADR regiert welche Datei?
-- [[ADR-OMNITRACEABILITY]] — Wie Code und Docs verknüpft sind (inkl. How-To)
+- [[ADR-OMNITRACEABILITY]] — Wie Code und Docs verknüpft sind (inkl. How-To, Compliance & bekannte Einschränkungen)
 - [[Function-Traceability]] — Funktions-Traceability-Matrix
 
 ## ADRs — Thematische Architektur-Entscheidungen

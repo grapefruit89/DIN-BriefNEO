@@ -147,3 +147,11 @@ Siehe [[README-DB]] für vollständiges Schema und Build-Befehle.
 - `scripts/start.ps1` garantiert durch Reality Reconciliation einen Evolutionary Fitness Score von 100%.
 
 - Kein Feature darf `main` erreichen, wenn seine Traceability-Kette gebrochen ist — das Fitness Gate blockiert den Release-Prozess automatisch.
+
+## 9. Compliance & bekannte Einschränkungen
+
+Technologische Leitplanken stehen im [[Immutable-Law-Catalog]] (u. a. FileSystem Access A36, OPFS A35, SVG T4, Sanitizer statt `innerHTML`); die Status-Ebenen „Aktiv/Geplant/Roadmap/Experimentell" sind ein Rahmen, keine zweite Liste. Dieser Abschnitt ersetzt die frühere manuelle `Architecture-Compliance-Matrix`; die ADR↔Datei-Zuordnung selbst ist generiert ([[Function-Traceability]], [[Code-Referenzen]]).
+
+**Bekannte Einschränkungen:**
+1. **IMR & Multi-Page-Synchronisation:** Die Registry beschreibt das fachliche Modell; die Implementierung synchronisiert über DOM-IDs primär Seite 1. Folgeseiten erhalten Kopfdaten nicht automatisch (aktuell akzeptiert — Kopfdaten stehen auf Seite 1).
+2. **PDF-Metadaten (Print-to-PDF):** XMP-Metadaten gelangen über `window.print()` nicht in den PDF-Stream; der Dateiname läuft über `document.title`.

@@ -1310,3 +1310,20 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Positiv 100 %; Negativtest (toter `[[…]]`) → `🔴 [CRITICAL] (links)` → 99,88 % / `success=false`.
 
 **Generalisierbarkeit:** Ein Link-Gate muss **Wikilinks UND Frontmatter-Listen** prüfen — relative MD-Links allein genügen nicht. Beispiel-Syntax (Code-Fences/-Spans) und Lineage (`supersedes`) sind legitime Ausnahmen; ohne sie wird das Gate zum Rauschen.
+
+## 2026-09-30 — Repo-Abspeckung (Caches, Research-Dumps, History-Purge)
+
+**Kontext:** Der Ordner wirkte mit 86 MB „fett". Messung entkoppelt die drei Größen:
+- **getrackter Inhalt:** nur 3,42 MB (228 Dateien)
+- **`.git`-History:** 13 MB, davon ~10 MB **gelöschte Alt-Dumps** (`__wegweisende Beispiele/`, `*_BUNDLED.md`, `latex.pdf`, `aktueller_arbeitsordner/`, `docs/PLATINUM_HANDBOOK.md`) — nur noch in der History
+- **gitignorierte lokal-Artefakte:** `.opencode/` 62 MB (opencodes eigener Dep-Baum, **nicht** Repo), `agent/cache/` 7 MB + `build/` 1,6 MB (regenerierbar)
+
+**Änderung:**
+1. Lokale Caches `agent/cache/` + `build/` gelöscht (~8,6 MB frei; regenerieren beim Gate).
+2. Research-Rohdaten enttrackt + `.gitignore` (~1,1 MB; Dateien bleiben lokal).
+3. History per `git filter-repo` von den gelöschten Großdateien + den Research-Dumps befreit, Force-Push (solo-Repo, Backup-Bundle vorher).
+4. **Kein** `docs/metadata.json`: der maschinenlesbare Index existiert bereits (`tools/docs_index.js` → `agent/cache/docs_search.db`, abfragbar über MCP `docs_search`) — ein zweites Index-Artefakt wäre genau die Doppelpflege, die wir entfernt haben.
+
+**Verifikation:** getrackt 3,42 → 2,30 MB; `.git` 13 → 4,4 MB; frischer Klon **15 → 7 MB**; Gate 100 %.
+
+**Generalisierbarkeit:** Repo-Größe immer **dreifach getrennt** messen (getrackter Inhalt / `.git`-History / gitignorierte lokale Artefakte) — sonst verwechselt man `node_modules` mit Repo-Ballast. Große Roh-/Binärdaten nie committen (History ist ohne Rewrite unveränderlich); genau **ein** Index-Artefakt je Zweck.

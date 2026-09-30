@@ -1,3 +1,19 @@
+"""build_db.py — OPTIONALER Vektor-Zweig (Phase 4), NICHT der kanonische Builder.
+
+Rollen-Klarheit (siehe repository.yaml/taxonomy, docs/30-meta/tooling-overview.md):
+  - tools/build_db.js  = KANONISCH. Fitness Gate + build/import.sql + Retrieval-
+    Index (tools/docs_index.js -> agent/cache/docs_search.db, FTS5). Zero-Dep.
+  - tools/build_db.py  = OPTIONAL. Baut eine SQLite-VEKTOR-Datenbank (sqlite-vec)
+    fuer semantische Suche. Braucht pip-Abhaengigkeiten (sqlite_vec, frontmatter,
+    markdown_it; Embeddings via sentence-transformers) und ist daher NICHT Teil
+    der Zero-Dependency-Pipeline. Nur ausfuehren, wenn Vektorsuche bewusst
+    gebaut wird (Phase 4). Nicht mit build_db.js verwechseln.
+
+Verifiziert 2026-09-26: sqlite-vec laeuft auch im Node-Stack (node:sqlite mit
+allowExtension:true + loadExtension(vec0.so), KNN live getestet) -- fuer die
+JS-Vektor-Variante existiert also ein Weg; offen ist nur die Embedding-Modell-
+Entscheidung (offline/zero-dep).
+"""
 import os
 import sqlite3
 import re

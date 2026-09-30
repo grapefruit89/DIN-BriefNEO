@@ -5,7 +5,11 @@ node_modules/
 # Agent / editor local state (nicht Teil des Produktivrepos)
 agent/cache/
 .claude/
+.opencode/
 chat-exports/
+
+# Lokales Scratch (PoC-Testdateien, in Docs referenziert, nicht versioniert)
+scratch/
 
 # Python
 __pycache__/
@@ -24,6 +28,7 @@ docs/10-architecture/Code-Referenzen.md
 # OS / Editor
 .DS_Store
 Thumbs.db
+.directory
 
 # Recherche-Rohdaten (14.3 MB ChromeStatus-Dumps nicht ins Git versionieren)
 research/research_results/chrome_features_*.json

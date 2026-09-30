@@ -118,12 +118,22 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 
 ## 🤖 Maschinenlesbare Inventare (SSoT für KI-Agenten)
 
-Für automatisierte Audits und Werkzeuge stehen zwei strukturierte JSON-Dateien bereit:
-- **`docs/foundation_inventory.json`** — 21 Dokumente aus 00-foundation, 10-architecture und 30-meta mit lückenloser W-Fragelogik.
-- **`docs/implementation_and_meta_inventory.json`** — 28 Dokumente aus 20-implementation und 30-meta.
+Für automatisierte Audits und Werkzeuge stehen zwei strukturierte JSON-Dateien bereit (archiviert, Stand 2026-09-04):
+- **`docs/90-archive/foundation_inventory.json`** — 21 Dokumente aus 00-foundation, 10-architecture und 30-meta mit lückenloser W-Fragelogik.
+- **`docs/90-archive/implementation_and_meta_inventory.json`** — 28 Dokumente aus 20-implementation und 30-meta.
 
 Ausserhalb von `docs/`, im Repository-Root:
 - **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** — Chrome DevTools MCP, Sichtprüfung der laufenden App.
+
+---
+
+## 🗄️ Archiv (`docs/90-archive/`)
+
+Historische Einmal-Artefakte (Reviews, Audits, Snapshots) — nicht Teil des aktiven Doku-Satzes, aber aus Nachvollziehbarkeit behalten:
+- `review_grok.md`, `review2_grok.md`, `chatgpt-review-prompt.md` — externe Reviews
+- `architecture-drift-audit-2026-08-27.md` — erster Architektur-Drift-Durchlauf
+- `FOUNDATION-RESTORATION-PLAN.md`, `PROJECT.md` — abgeschlossene Planungen
+- `foundation_inventory.json`, `implementation_and_meta_inventory.json` — stale Inventar-Snapshots
 
 ---
 

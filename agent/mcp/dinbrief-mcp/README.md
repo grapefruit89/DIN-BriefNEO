@@ -1,15 +1,41 @@
 # dinbrief-mcp
 
-Duenner MCP-Server fuer DIN-BriefNEO. Zweite Ausbaustufe (Lauf 2): drei
-Operationen, keine externe MCP-SDK-Abhaengigkeit.
+Duenner MCP-Server fuer DIN-BriefNEO. Ausbaustufe 3: echter MCP-stdio-Server
+(JSON-RPC 2.0) mit fuenf Tools — Registrierung in `opencode.json` unter `mcp.dinbrief`.
+Der alte Legacy-Modus (`{"operation": ...}`) bleibt erhalten.
 
-## Operationen
+## Zwei Zwecke
 
-- `inspect` — liest `repository.yaml` und gibt den Inhalt zurueck
-- `validate` — ruft `tools/reconciliation.js` (Fitness Gate) auf und gibt das Ergebnis im kanonischen Result-Schema zurueck
-- `execute` — fuehrt eine Aktion aus einer festen Allowlist aus (siehe unten), immer mit Plan-Vorschau davor und automatischem Verify danach
+1. **Retrieval (Token-Sparsamkeit):** `docs_search` / `docs_get` fragen einen
+   FTS5-Index der Markdown-Dokumente auf **Abschnitts-Ebene** ab und liefern
+   Pfad + Zeilennummern + Snippet — Agenten lesen Snippets/Abschnitte statt
+   ganzer Dateien. Index: `agent/cache/docs_search.db` (abgeleitet, jederzeit
+   neu baubar; Logik in `docs.js`).
+2. **Repo-Steuerung:** `repository_inspect` / `_validate` / `_execute`
+   (Plan -> Execute -> Verify, siehe unten).
+
+## Tools (MCP + Legacy)
+
+| Tool | Zweck |
+|---|---|
+| `docs_search` | Volltextsuche ueber alle `.md` (Abschnitts-Snippets mit Pfad + Start-Zeile) |
+| `docs_get` | Dokument-Gerippe (ohne `section`) ODER genau EIN Abschnitt (mit `section=<Ueberschrift>`) — nie die ganze Datei |
+| `repository_inspect` | liest `repository.yaml` (Rohtext) |
+| `repository_validate` | ruft `tools/reconciliation.js` (Fitness Gate) auf |
+| `repository_execute` | Aktion aus fester Allowlist, immer Plan-Vorschau + Verify danach |
 
 ## Nutzung
+
+MCP (opencode startet den Server selbst via `opencode.json`). Manuell/testweise:
+
+```bash
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"docs_search","arguments":{"query":"text-fit","limit":3}}}' \
+  | node agent/mcp/dinbrief-mcp/index.js
+```
+
+Legacy-Modus (unveraendert):
 
 ```bash
 echo '{"operation":"validate"}' | node agent/mcp/dinbrief-mcp/index.js
@@ -96,10 +122,13 @@ nicht (kein Retry mit derselben, mittlerweile veralteten `plan_id`).
 
 - `execute` ist auf die feste Allowlist begrenzt — neue Aktionen werden
   manuell im Code ergaenzt, nie dynamisch aus Nutzereingaben konstruiert.
-- Kein externes MCP-Protokoll-SDK — reine STDIO-JSON-Zeilen, kein volles
-  MCP-Handshake/Capability-Protokoll. Ausreichend fuer lokale Nutzung durch
-  Skills in `agent/skills/`. Bei Bedarf eines echten MCP-Clients (z. B.
-  Claude Desktop) muesste hier ein Protokoll-Adapter ergaenzt werden.
+- Kein externes MCP-Protokoll-SDK — die MCP-stdio-Schleife (initialize /
+  tools/list / tools/call / ping) ist minimal selbst implementiert (reines
+  Node core). Der Legacy-Modus `{"operation": ...}` bleibt fuer direkte
+  Aufrufe/Skills erhalten.
+- Kein Vektor-/Semantik-Index: `node:sqlite` bringt `vec0` nicht mit
+  (verifiziert: "no such module: vec0"), und die Zero-Dependency-Doktrin
+  schliesst ein Embedding-Modell aus. Retrieval laeuft daher ueber FTS5.
 - Kein eigener YAML-Parser fuer komplexe YAML-Faelle — `repository.yaml`
   ist bewusst einfach gehalten, damit die Rohtext-Rueckgabe in `inspect`
   genuegt.

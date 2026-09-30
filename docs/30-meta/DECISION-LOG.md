@@ -1092,3 +1092,44 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate **100 %** (vor + nach); grep: kein `-moz-`/`color-scheme` mehr in `reset.css`, `#btn-font-action`-Visualblock genau einmal (`sidebar.css:314`), `floating.css`-`:before`-Labels unverändert.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) bei Chrome-only-Baseline Vendor-Prefixe der Nicht-Ziel-Engines (`-moz-*`) als toten Ballast entfernen; (b) doppelte `color-scheme`-Deklarationen sind still verdeckt (`:root` schlägt `html` per Spezifität) — eine Theme-Quelle; (c) Datei-Organisation nach Feature statt Historie: Layout-Layer-Moves sind kaskadisch neutral, solange kein gleichspezifischer Konkurrenz-Selektor existiert — vorher per grep prüfen.
+
+## 2026-09-26 — Repo-Aufräumen (Git-Noise + Tippfehler) + Struktur-Verdikt
+
+**Kontext:** User-Eindruck „Ordnerstruktur wie ein Dickicht". Read-only-Inventar des Roots; danach nur das sicher Aufräumbare umgesetzt.
+
+**Umgesetzt:** (1) `.gitignore`: lokalen Tool-/OS-Müll ergänzt — `.directory` (KDE), `.opencode/` + `opencode.json` (Agent/Editor-local-state, konsistent zur bestehenden `.claude/`-Gruppe), `scratch/` (lokale PoC-Testdateien). `git status` damit frei von untracked Noise. (2) Tippfehler-Datei `research/reasearch_changelog.md` → `research/research_changelog.md` (`git mv`) + 2 Referenzen in `docs/30-meta/review2_grok.md` nachgezogen.
+
+**Bewusst NICHT verschoben (gegen den ersten Reflex „nach docs/"):** `specs/` ist vertraglich am Root verankert (`AGENTS.md:65`, `README.md:92`, `docs/30-meta/HYBRID-SPEC-DRIVEN-WORKFLOW.md`, `docs/foundation_inventory.json:326/480`, generiertes `agent/cache/LLM_CONTEXT.md`) — ein Move wäre eine Vertragsänderung über ≥5 Dateien + Gate-Risiko (V6-Frontmatter-Scan), kein Aufräumen. `scratch/` bleibt auf der Platte (Docs zitieren die PoC-Dateien, `jsconfig.json` schließt es aus), nur git-ignoriert. `CLAUDE.md`/`GEMINI.md` sind bewusste Multi-Tool-Einstiegspunkte (Claude Code liest `CLAUDE.md`, Gemini CLI `GEMINI.md`; Memory-Doc: „AI-Lobotomie-Prävention") — kein Nonsense.
+
+**Verifikation:** Gate **100 %** (vor + nach); `git status --short` zeigt nur die 3 beabsichtigten Änderungen.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Root-„Wildwuchs" zuerst klassifizieren (Produkt/Doku/Build/Daten/Agent-Infra/lokaler Müll) statt reflexhaft zusammenzuschieben; (b) „fast leerer Ordner" ≠ Nonsense — vor Verschieben alle Vertrags-/Tool-Referenzen greppen; (c) lokale Tool-/OS-Reste in `.gitignore` (nicht löschen), `scratch` getrennt von versionierten PoC-Belegen behandeln.
+
+## 2026-09-26 — P1: MCP-Retrieval (docs_search/docs_get, FTS5, Abschnitts-Chunking)
+
+**Kontext:** Token-Sparsamkeit — Agenten sollen Dokumente per Suche/Abschnitt lesen, nicht als ganze Dateien. Prüfung ergab: `tools/build_db.js` schreibt nur `build/import.sql` (keine abfragbare DB; enthält `vec0` → mit `node:sqlite` nicht ausführbar), `agent/cache/DIN-Brief_docs.db` ist die **Session-Log**-DB (`tools/log_session.js`), und der „MCP-Server" war bislang **keine** MCP-Implementierung, sondern eine `{"operation":...}`-Zeilen-CLI.
+
+**Umgesetzt:** (1) Neu `agent/mcp/dinbrief-mcp/docs.js` — scannt `.md` des Doku-Korpus, parst Frontmatter, zerlegt in **Abschnitte (H1-H6)** mit echten Datei-Zeilennummern und baut einen FTS5-Index `agent/cache/docs_search.db` (Standalone-`sections_fts`, `bm25`-Ranking, `snippet()`); Auto-Rebuild bei Staleness (mtime); getrennt vom Session-Log-DB (Namenskollision vermieden). (2) `index.js` spricht jetzt echten **MCP-stdio (JSON-RPC 2.0)**: `initialize` / `tools/list` / `tools/call` / `ping`, Tools `docs_search` + `docs_get` (Gerippe oder EIN Abschnitt, nie ganze Datei); der Legacy-`{"operation"}`-Modus bleibt erhalten. (3) `opencode.json`: MCP-Server `dinbrief` registriert; `opencode.json` aus `.gitignore` gelöst (versionierbar). (4) MCP-README aktualisiert.
+
+**Verifikation:** FTS5 in `node:sqlite` v22.22 verifiziert; Index live gebaut (103 Dokumente / 1131 Abschnitte); `docs_search` + `docs_get` + `tools/list` + Legacy-`validate` per stdio getestet; Gate **100 %** (vor + nach). `vec0` fehlt in `node:sqlite` („no such module: vec0") → Vektor-/Semantik-Suche bewusst ausgeklammert.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) **Abschnitts-Chunking statt Datei-Retrieval** ist der eigentliche Token-Hebel — nicht das Format (MD bleibt Source of Truth, SQLite ist abgeleitet); (b) eine Doku-DB braucht einen Rebuild-Trigger (mtime) und eine klare Trennung zu Log-/Generat-DBs; (c) MCP-stdio ohne SDK ist ~60 Zeilen JSON-RPC — die SDK-Dependency ist vermeidbar; (d) Vektor-Suche setzt einen Embedding-Stack voraus, der die Zero-Dependency-Doktrin bricht → erst bei belegtem Bedarf.
+
+## 2026-09-26 — Retrieval/Taxonomie/Automatik (P2–P5 + Phase 1–3)
+
+**Kontext:** Batch aus der Doku-/Retrieval-Liste (P1 war bereits erledigt) plus dem verabschiedeten Phase-Plan.
+
+**Umgesetzt:**
+- **Phase 1 / Taxonomie:** `repository.yaml` → `taxonomy` (`allowed_top_level`, `allowed_root_files`, `roles`). `tools/reconciliation.js` → neuer `check_type "taxonomy"`: liest die Allowlists aus `repository.yaml` (SSOT), prüft per `git ls-files`, meldet Unbekanntes als `critical` (Build bricht ab). Negativtest bestanden (Streudatei → critical/99,88 % → 100 % nach Entfernen). Untracked Müll bleibt irrelevant.
+- **Phase 2 / Ein Builder:** Neu `tools/docs_index.js` — Abschnitts-Chunking (H1–H6, Zeilennummern), Datei-Inventar (`files` per `git ls-files`), `documents`/`sections`/`sections_fts` (FTS5). `tools/build_db.js` baut den Index im Gate-Lauf mit (**ein Kommando = Gate + Index**). `agent/mcp/dinbrief-mcp/docs.js` → dünne Re-Export-Schicht (keine Doppel-Logik).
+- **Phase 3 / Automatik:** `.githooks/pre-commit` (Gate + Index, bricht Commit bei < 100 %) + Aktivierung `git config core.hooksPath .githooks`; `.github/workflows/fitness.yml` als CI-Backstop.
+- **P2:** Abschnitts-Chunking — durch den Index erfüllt.
+- **P3:** `docs/90-archive/` eingeführt; 8 Einmal-Artefakte (2 Grok-Reviews, `chatgpt-review-prompt`, `PROJECT`, `FOUNDATION-RESTORATION-PLAN`, `architecture-drift-audit-2026-08-27`, 2 Inventar-Snapshots) verschoben; Zeiger in `docs/index.md`, `docs/00-foundation/README.md`, `repository.yaml`, `CLAUDE.md` nachgezogen (DECISION-LOG-Altbezüge bewusst NICHT umgeschrieben = Chronik).
+- **P4:** Rollen der zwei Builder klargestellt: `build_db.js` kanonisch, `build_db.py` = optionaler Vektor-Zweig (Phase 4) — in `build_db.py`-Header + `tooling-overview.md`.
+- **P5:** Gate-Warnung bei Doku > 400 Zeilen (Ausnahme `DECISION-LOG`/`Code-Referenzen`); feuert aktuell für `sqlite-vec.md` (410).
+
+**Phase 4 (vorgemerkt, belegt machbar):** sqlite-vec läuft auch im Node-Stack — `node:sqlite` mit `{ allowExtension: true }` + `loadExtension('vec0.so')`, KNN live getestet (Upstream `asg017/sqlite-vec` v0.1.9). Offen ist nur die Embedding-Modell-Entscheidung (offline/zero-dep).
+
+**Verifikation:** Gate **100 %** nach jeder Phase; MCP `docs_search`/`docs_get` grün; Index 104 Docs / 1138 Abschnitte / 222 Dateien; Hook läuft; CI-YAML vorhanden.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Platzierungs-Taxonomie als **kritische Gate-Regel** statt Doku-Konvention, Allowlists aus dem Contract lesen (SSOT); (b) **ein** Builder + Index im Gate-Lauf, MCP nur als Query-Schicht; (c) versionierte Hooks (`.githooks` + `core.hooksPath`) plus CI-Backstop; (d) Abschnitts-Chunking mit Zeilennummern ist der Token-Hebel, nicht das Datenformat.

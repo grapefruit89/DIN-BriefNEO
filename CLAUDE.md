@@ -197,7 +197,7 @@ agent/                         # Agenten-Infrastruktur: skills/ (Entscheidungslo
 jsconfig.json                  # JS-Konfiguration
 .gitignore                     # Git-Ignorier-Liste
 ```
-> `start.ps1` liegt in `tools/`, `start.bat` im Root, `serve.ps1` in `tools/archive/` (abgeloest). `PROJECT.md` und `DIN-BriefNEO_memory_konsolidiert.md`
+> `start.ps1` liegt in `tools/`, `start.bat` im Root, `serve.ps1` in `tools/archive/` (abgeloest). `docs/90-archive/PROJECT.md` und `DIN-BriefNEO_memory_konsolidiert.md`
 > leben inzwischen unter `docs/30-meta/` (siehe oben), nicht mehr im Root.
 > `Anleitung.md`, `audit_report.md`, `architecture_opportunities.md`,
 > `audit_extra_js_reduction.md`, `poc-postvermerk-toast.*`, `poc-has-state-toggles.*`,

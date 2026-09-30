@@ -1,0 +1,15 @@
+#!/bin/sh
+# DIN-BriefNEO pre-commit hook
+# ============================
+# Erzwingt das Fitness Gate (100 %) UND baut den Retrieval-Index
+# (agent/cache/docs_search.db) im selben Lauf -- "definitiv automatisch".
+#
+# Aktivieren (einmalig pro Clone):
+#   git config core.hooksPath .githooks
+#
+# Bricht den Commit ab, wenn das Gate < 100 % meldet oder critical-Verstoesse
+# findet (Exit-Code von tools/build_db.js ist dann != 0).
+set -e
+echo "[pre-commit] Fitness Gate + Index ..."
+node tools/build_db.js
+echo "[pre-commit] OK."

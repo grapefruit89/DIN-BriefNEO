@@ -77,7 +77,7 @@ Die kanonische Atomliste und die belegten Millimeter stehen in `docs/10-architec
 
 - **`10-architecture/`** enthält die ADRs und die IMR-Registry — Modell und Begründung dessen, was aus diesen Gesetzen folgt.
 - **`30-meta/`** enthält Entwicklungs-Workflows und Prozess-Richtlinien (z. B. `HYBRID-SPEC-DRIVEN-WORKFLOW.md`).
-- **`docs/foundation_inventory.json`** führt die vollständige, maschinenlesbare W-Fragen-Inventur aller 4 Foundation-Dokumente.
+- **`docs/90-archive/foundation_inventory.json`** führt die vollständige, maschinenlesbare W-Fragen-Inventur aller 4 Foundation-Dokumente.
 - **`AGENTS.md`** (Root) referenziert Foundation-Dokumente. Es kopiert sie nicht.
 
 Wer neu einsteigt: [[constitution]] zuerst, dann [[Immutable-Law-Catalog]], dann [[spec]].

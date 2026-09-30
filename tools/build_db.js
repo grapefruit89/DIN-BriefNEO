@@ -323,6 +323,18 @@ Diese Datei wird automatisch von \`build_db.js\` generiert und listet alle Archi
 
   fs.writeFileSync(outputSqlFile, sql, 'utf-8');
   console.log(`Generated ${outputSqlFile} successfully!`);
+
+  // Phase 2: EIN Builder — der Retrieval-Index (FTS5 + Datei-Inventar) wird
+  // im selben Lauf mitgebaut. agent/cache/docs_search.db ist abgeleitet und
+  // jederzeit neu baubar. Ein Index-Fehler darf das Gate nicht kippen, wird
+  // aber laut gemeldet.
+  try {
+    const { buildIndex } = require('./docs_index.js');
+    const idx = buildIndex({ force: true });
+    console.log(`Index: ${idx.documents} Dokumente, ${idx.sections} Abschnitte, ${idx.files} Dateien -> ${idx.db_path}`);
+  } catch (err) {
+    console.error(`⚠️  Index-Build uebersprungen: ${err.message}`);
+  }
 }
 
 main();

@@ -64,6 +64,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const readline = require('readline');
+const { docsSearch, docsGet, ensureIndex } = require('./docs.js');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const REPOSITORY_YAML = path.join(REPO_ROOT, 'repository.yaml');
@@ -434,6 +435,195 @@ function repositoryExecute({ action, plan, planId }) {
   });
 }
 
+// --- MCP-Tools (JSON-RPC) --------------------------------------------------
+// Tool-Katalog, den der MCP-Client (opencode) via tools/list erhaelt. Die
+// docs_*-Tools sind die Retrieval-Schicht gegen agent/cache/docs_search.db
+// (siehe docs.js) -- der eigentliche Zweck: Agenten holen Snippets/Abschnitte
+// statt ganze Dateien und sparen so massiv Tokens.
+const TOOLS = [
+  {
+    name: 'docs_search',
+    description: 'Volltextsuche ueber alle Projekt-Dokumente (.md) auf ABSCHNITTS-Ebene. Liefert Treffer mit Pfad + Start-Zeile + Snippet. IMMER zuerst nutzen, statt ganze Dateien zu lesen.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Suchbegriffe (werden OR-verknuepft).' },
+        limit: { type: 'integer', description: 'max. Treffer (default 8, max 50).' }
+      },
+      required: ['query']
+    }
+  },
+  {
+    name: 'docs_get',
+    description: 'Holt zu einem Dokument NUR das Ueberschriften-Gerippe (ohne section) oder GENAU EINEN Abschnitt (mit section=<Ueberschrift>). Liest nie die ganze Datei.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'Pfad oder Teilpfad, z.B. "ADR-CSS" oder "docs/10-architecture/ADR-CSS.md".' },
+        section: { type: 'string', description: 'Optional: Ueberschrift (Teilstring) des gewuenschten Abschnitts.' }
+      },
+      required: ['path']
+    }
+  },
+  {
+    name: 'repository_inspect',
+    description: 'Liest repository.yaml (Rohtext) und gibt sie zurueck.',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'repository_validate',
+    description: 'Fuehrt das Fitness Gate aus (tools/reconciliation.js) und liefert Score + Zusammenfassung.',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'repository_execute',
+    description: 'Fuehrt EINE Aktion aus fester Allowlist aus. Plan -> Execute -> Verify: zuerst mit plan:true aufrufen (liefert plan_id), dann erneut MIT plan_id.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: { type: 'string', description: 'run-fitness-gate | regenerate-llm-context' },
+        plan: { type: 'boolean', description: 'true = nur Vorschau (liefert plan_id).' },
+        plan_id: { type: 'string', description: 'plan_id aus der Vorschau.' }
+      },
+      required: ['action']
+    }
+  }
+];
+
+function formatSearchText(query, result) {
+  const lines = [`${result.count} Treffer fuer "${query}" (Abschnitts-Snippets):`];
+  if (result.count === 0) lines.push('  (keine) — Query kuerzen oder Synonyme probieren.');
+  for (const h of result.results) {
+    lines.push(`- ${h.path}:${h.start_line}${h.heading ? ` [${h.heading}]` : ''}`);
+    lines.push(`    ${String(h.snippet || '').replace(/\s+/g, ' ').trim()}`);
+  }
+  return lines.join('\n');
+}
+
+// Fuehrt ein Tool aus und liefert { text, isError } -- wirft nie, damit
+// ein Tool-Fehler als isError-Result zurueckgeht statt als Transportfehler.
+function callTool(name, args) {
+  args = args || {};
+  switch (name) {
+    case 'docs_search': {
+      const r = docsSearch(args.query, { limit: args.limit });
+      return { text: formatSearchText(args.query, r) };
+    }
+    case 'docs_get': {
+      const r = docsGet({ path: args.path, section: args.section });
+      return { text: JSON.stringify(r, null, 2), isError: r.ok === false };
+    }
+    case 'repository_inspect': {
+      return { text: JSON.stringify(repositoryInspect()) };
+    }
+    case 'repository_validate': {
+      const r = repositoryValidate();
+      return {
+        text: JSON.stringify({
+          operation: r.operation, status: r.status, summary: r.summary,
+          warnings: (r.warnings || []).length, errors: (r.errors || []).length
+        })
+      };
+    }
+    case 'repository_execute': {
+      const r = repositoryExecute({ action: args.action, plan: args.plan === true, planId: args.plan_id });
+      return { text: JSON.stringify(r) };
+    }
+    default:
+      return { text: `Unbekanntes Tool: ${name}`, isError: true };
+  }
+}
+
+// --- MCP JSON-RPC-Schleife -------------------------------------------------
+// Minimalimplementierung des MCP-stdio-Transports (newline-delimited
+// JSON-RPC 2.0), weiterhin OHNE MCP-SDK (siehe Kommentar am Dateianfang).
+// Deckt die fuer opencode noetige Oberflaeche ab: initialize, tools/list,
+// tools/call, ping. Zusaetzlich bleibt der alte Legacy-Modus
+// ({"operation": "..."}) erhalten, damit die README-Beispiele weiter laufen.
+function send(obj) {
+  process.stdout.write(JSON.stringify(obj) + '\n');
+}
+
+function sendResult(id, result) {
+  send({ jsonrpc: '2.0', id, result });
+}
+
+function sendRpcError(id, code, message) {
+  send({ jsonrpc: '2.0', id, error: { code, message } });
+}
+
+function handleRpc(msg) {
+  const id = msg.id;
+  const isNotification = id === undefined || id === null;
+  const params = msg.params || {};
+
+  switch (msg.method) {
+    case 'initialize':
+      sendResult(id, {
+        protocolVersion: params.protocolVersion || '2025-06-18',
+        capabilities: { tools: {} },
+        serverInfo: { name: 'dinbrief', version: '0.3.0' }
+      });
+      return;
+    case 'initialized':
+    case 'notifications/initialized':
+    case 'notifications/cancelled':
+      return; // Notifications erhalten keine Antwort
+    case 'ping':
+      sendResult(id, {});
+      return;
+    case 'tools/list':
+      sendResult(id, { tools: TOOLS });
+      return;
+    case 'tools/call': {
+      let out;
+      try {
+        out = callTool(params.name, params.arguments);
+      } catch (err) {
+        out = { text: `Fehler im Tool "${params.name}": ${err.message}`, isError: true };
+      }
+      const result = { content: [{ type: 'text', text: out.text }] };
+      if (out.isError) result.isError = true;
+      sendResult(id, result);
+      return;
+    }
+    case 'resources/list':
+      sendResult(id, { resources: [] });
+      return;
+    case 'prompts/list':
+      sendResult(id, { prompts: [] });
+      return;
+    default:
+      if (isNotification) return;
+      sendRpcError(id, -32601, `Methode nicht gefunden: ${msg.method}`);
+  }
+}
+
+// Legacy-Modus: {"operation": "inspect"|"validate"|"execute", ...}
+function handleLegacy(request) {
+  let result;
+  switch (request.operation) {
+    case 'inspect':
+      result = repositoryInspect();
+      break;
+    case 'validate':
+      result = repositoryValidate();
+      break;
+    case 'execute':
+      result = repositoryExecute({ action: request.action, plan: request.plan === true, planId: request.plan_id });
+      break;
+    default:
+      result = {
+        operation: request.operation || 'unknown',
+        status: 'failed',
+        summary: `Unbekannte Operation "${request.operation}". Verfuegbar: inspect, validate, execute (oder MCP JSON-RPC via method).`,
+        data: {}, artifacts: [], warnings: [], errors: [],
+        metadata: { tool: 'agent/mcp/dinbrief-mcp/index.js', timestamp: new Date().toISOString(), duration_ms: 0 }
+      };
+  }
+  send(result);
+}
+
 // --- STDIO JSON-RPC-Minimalschleife ---------------------------------------
 // Bewusst kein volles MCP-SDK (siehe Kommentar oben). Nimmt Zeilen von
 // stdin entgegen der Form {"operation": "inspect"|"validate"|"execute", ...}
@@ -442,47 +632,27 @@ function repositoryExecute({ action, plan, planId }) {
 function main() {
   const rl = readline.createInterface({ input: process.stdin, terminal: false });
   rl.on('line', (line) => {
-    let request;
+    const trimmed = line.trim();
+    if (trimmed === '') return;
+    let msg;
     try {
-      request = JSON.parse(line);
+      msg = JSON.parse(trimmed);
     } catch (err) {
-      process.stdout.write(JSON.stringify({
-        operation: 'unknown',
-        status: 'failed',
-        summary: `Ungueltiges JSON empfangen: ${err.message}`,
-        data: {}, artifacts: [], warnings: [], errors: [err.message],
-        metadata: { tool: 'agent/mcp/dinbrief-mcp/index.js', timestamp: new Date().toISOString(), duration_ms: 0 }
-      }) + '\n');
+      sendRpcError(null, -32700, `Parse error: ${err.message}`);
       return;
     }
-
-    let result;
-    switch (request.operation) {
-      case 'inspect':
-        result = repositoryInspect();
-        break;
-      case 'validate':
-        result = repositoryValidate();
-        break;
-      case 'execute':
-        result = repositoryExecute({ action: request.action, plan: request.plan === true, planId: request.plan_id });
-        break;
-      default:
-        result = {
-          operation: request.operation || 'unknown',
-          status: 'failed',
-          summary: `Unbekannte Operation "${request.operation}". Verfuegbar: inspect, validate, execute.`,
-          data: {}, artifacts: [], warnings: [], errors: [],
-          metadata: { tool: 'agent/mcp/dinbrief-mcp/index.js', timestamp: new Date().toISOString(), duration_ms: 0 }
-        };
+    // MCP JSON-RPC (method-Feld vorhanden) vs. Legacy-CLI ({operation}).
+    if (msg && typeof msg.method === 'string') {
+      handleRpc(msg);
+    } else {
+      handleLegacy(msg);
     }
-    process.stdout.write(JSON.stringify(result) + '\n');
   });
 }
 
 // Exportiert fuer Tests / direkten Aufruf aus anderen Skripten,
 // startet die STDIO-Schleife nur wenn direkt ausgefuehrt.
-module.exports = { repositoryInspect, repositoryValidate, repositoryExecute, ACTIONS, hashPaths, hashSingleFile, PLAN_DIR };
+module.exports = { repositoryInspect, repositoryValidate, repositoryExecute, ACTIONS, hashPaths, hashSingleFile, PLAN_DIR, TOOLS, callTool };
 
 if (require.main === module) {
   main();

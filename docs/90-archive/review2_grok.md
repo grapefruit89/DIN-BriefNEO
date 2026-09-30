@@ -30,7 +30,7 @@ depends_on: []
 **Autor:** Grok (xAI)  
 **Ort:** Repo-Root (`main`)  
 **Anlass:** Klärung von „JS-Kill Phase 2 — weitgehend da“  
-**Bezug:** `research/reasearch_changelog.md` Prio 5, `website/` auf `main`  
+**Bezug:** `research/research_changelog.md` Prio 5, `website/` auf `main`  
 **Vorgänger:** `docs/30-meta/review_grok.md`
 
 ---
@@ -192,4 +192,4 @@ nicht „Phase 2 nachziehen“:
 - `website/js/03-ui-protections.js`
 - `website/js/32-toast.js`
 - `website/js/31-format-toolbar.js`
-- `research/reasearch_changelog.md` (Prio 5)
+- `research/research_changelog.md` (Prio 5)

@@ -16,6 +16,7 @@ doc_links:
 code_links:
 - 'tools/reconciliation.js'
 - 'tools/build_db.js'
+- 'tools/docs_index.js'
 - 'tools/build_db.py'
 - 'tools/create_context.js'
 - 'tools/pipeline-cache.ps1'
@@ -74,15 +75,25 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 
 ## build_db.py
 
-- **Zweck**: Python-Gegenstueck zu build_db.js — baut die SQLite-Vektordatenbank
-  (`DIN-Brief_docs.db`) mit Embeddings fuer semantische Suche ueber die Dokumentation.
+- **Zweck**: OPTIONALER Vektor-Zweig (Phase 4), NICHT der kanonische Builder — baut die SQLite-Vektordatenbank mit Embeddings fuer semantische Suche ueber die Dokumentation.
 - **Input**: `docs/**/*.md` (via `frontmatter`-Package geparst), Markdown-Rendering via `markdown-it`
-- **Output**: `DIN-Brief_docs.db` (SQLite mit `sqlite_vec`-Erweiterung)
-- **Abhaengigkeiten**: externe Python-Pakete `frontmatter`, `markdown-it` (`markdown_it`), `sqlite_vec`, `sentence_transformers` (PyTorch-basiert, schwergewichtig)
+- **Output**: SQLite mit `sqlite_vec`-Erweiterung
+- **Abhaengigkeiten**: externe Python-Pakete `frontmatter`, `markdown-it` (`markdown_it`), `sqlite_vec`, `sentence_transformers` (PyTorch-basiert, schwergewichtig) — verlaesst die Zero-Dependency-Doktrin
 - **Aufrufer**: `scripts/start.ps1` (Zeile 116, mit Fallback auf System-Python falls keine `.venv/` existiert; gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs in `docs/` oder `website/`)
-- **Risikoklasse**: WRITE (ueberschreibt `DIN-Brief_docs.db`)
+- **Risikoklasse**: WRITE (ueberschreibt die Vektor-DB)
 - **Idempotenz**: NON_IDEMPOTENT (Embedding-Modelle koennen bei Versionswechsel leicht abweichende Vektoren liefern)
 - **Safe-to-delete**: NEIN — einzige Quelle fuer semantische Doku-Suche
+
+## docs_index.js
+
+- **Zweck**: EIN Builder fuer den Retrieval-Index — Datei-Inventar (`git ls-files`), Dokumente + Abschnitte (H1-H6, mit Zeilennummern) und FTS5-Volltext (`bm25`/`snippet`). Die Query-Schicht des MCP (`agent/mcp/dinbrief-mcp/docs.js`) re-exportiert dieses Modul.
+- **Input**: `docs`-Korpus `.md` (ohne Code/Build/generierte Verzeichnisse) + `git ls-files`
+- **Output**: `agent/cache/docs_search.db` (abgeleitet, jederzeit neu baubar; gitignored)
+- **Abhaengigkeiten**: Node core + `node:sqlite` (Zero-Dependency)
+- **Aufrufer**: `tools/build_db.js` (baut den Index im Gate-Lauf mit), `agent/mcp/dinbrief-mcp` (`ensureFresh` bei Query)
+- **Risikoklasse**: WRITE (nur in `agent/cache/`, keine Quelldateien)
+- **Idempotenz**: IDEMPOTENT (deterministisch aus demselben Repo-Stand)
+- **Safe-to-delete**: JA — reine Ableitung, wird beim naechsten Gate-Lauf neu gebaut
 
 ## create_context.js
 

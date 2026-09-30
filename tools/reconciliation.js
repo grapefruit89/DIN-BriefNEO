@@ -249,10 +249,33 @@ function isExempt(rule, filePath, line, lineContent) {
   });
 }
 
+// Liest eine einfache YAML-Liste (Key auf eigener Zeile, darunter eingerueckte
+// "- item"-Eintraege) aus repository.yaml. Kein voller YAML-Parser -- nur das,
+// was die Taxonomie-Allowlists brauchen.
+function readYamlList(raw, key) {
+  const lines = raw.split(/\r?\n/);
+  const out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^(\s*)([A-Za-z_]+):\s*$/);
+    if (!m || m[2] !== key) continue;
+    const baseIndent = m[1].length;
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j];
+      if (line.trim() === '') continue;
+      const indent = line.match(/^(\s*)/)[1].length;
+      if (indent <= baseIndent) break;
+      const item = line.match(/^\s*-\s+(.+?)\s*$/);
+      if (item) out.push(item[1]);
+    }
+    break;
+  }
+  return out;
+}
+
 function runReconciliation() {
   const logs = [];
   const relations = [];
-  
+
   // 0. JSDoc Type-Safety Verification
   let tscSuccess = true;
   let tscOutput = '';
@@ -297,6 +320,50 @@ function runReconciliation() {
   } else {
      conformanceChecked += 1;
      conformancePassed += 1; // Mark as passed TS check
+  }
+
+  // --- Taxonomie-Check (repository.yaml / taxonomy) -----------------------
+  // Jede GETRACKTE Datei muss unter einem erlaubten Top-Level-Ordner oder in
+  // der Root-Datei-Allowlist liegen. git ls-files -> untracked lokaler Muell
+  // (.directory, scratch/, .opencode/) ist irrelevant. Allowlists kommen aus
+  // repository.yaml (SSOT), damit Doku und Durchsetzung nicht driften.
+  conformanceChecked += 1;
+  {
+    let taxonomyViolations = [];
+    try {
+      const repoYaml = fs.readFileSync(path.join(targetDir, 'repository.yaml'), 'utf-8');
+      const allowedDirs = readYamlList(repoYaml, 'allowed_top_level');
+      const allowedRootFiles = readYamlList(repoYaml, 'allowed_root_files');
+      if (allowedDirs.length > 0 && allowedRootFiles.length > 0) {
+        const tracked = execSync('git ls-files', { cwd: targetDir, encoding: 'utf-8' })
+          .split('\n').map(s => s.trim()).filter(Boolean);
+        for (const rel of tracked) {
+          const top = rel.includes('/') ? rel.split('/')[0] : null;
+          const ok = top === null ? allowedRootFiles.includes(rel) : allowedDirs.includes(top);
+          if (!ok) taxonomyViolations.push(rel);
+        }
+      }
+    } catch (err) {
+      logs.push({
+        file_path: 'repository.yaml',
+        check_type: 'taxonomy',
+        severity: 'low',
+        message: `Taxonomie-Check uebersprungen: ${err.message}`
+      });
+      taxonomyViolations = [];
+    }
+    if (taxonomyViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of taxonomyViolations) {
+        logs.push({
+          file_path: v,
+          check_type: 'taxonomy',
+          severity: 'critical',
+          message: `Datei liegt ausserhalb der Taxonomie (repository.yaml/taxonomy): ${v}`
+        });
+      }
+    }
   }
 
   const docFiles = getFilesRecursively(targetDir);
@@ -352,6 +419,18 @@ function runReconciliation() {
             });
           }
         });
+
+        // P5: Doku-Groessenwarnung (>400 Zeilen). Ausnahmen: DECISION-LOG
+        // (append-only Chronik) und generierte Code-Referenzen.
+        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/10-architecture/Code-Referenzen.md'];
+        if (lines.length > 400 && !docSizeExempt.includes(relPath)) {
+          logs.push({
+            file_path: relPath,
+            check_type: 'doc-size',
+            severity: 'low',
+            message: `Doku-Datei hat ${lines.length} Zeilen (>400). Aufteilen oder nach docs/90-archive/ verschieben (Ausnahme: DECISION-LOG).`
+          });
+        }
       }
 
       if (meta.relations) {

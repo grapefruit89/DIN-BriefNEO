@@ -171,7 +171,6 @@ SORT version DESC
 | **Serienbrief**     | CSV-Import → Batch-Generierung             | 🔴 Geplant | CSV-Parser + Batch-Logic      | [#65](https://github.com/din-briefneo/din-briefneo/issues/65) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
 | **Poststempel**     | Internetmarke via Deutsche Post API        | 🔴 Geplant | Deutsche Post Direkt API      | [#66](https://github.com/din-briefneo/din-briefneo/issues/66) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
 | **Fristen-Rechner** | Automatische Berechnung nach BGB           | 🟡 Analyse | Temporal API + Feiertags-API  | [#67](https://github.com/din-briefneo/din-briefneo/issues/67) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
-| **Sprachsteuerung** | Diktat via Web Speech API                  | 🔴 Geplant | Web Speech API                | [#68](https://github.com/din-briefneo/din-briefneo/issues/68) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
 | **vCard QR-Code**   | Kontaktdaten als QR im Briefkopf           | 🔴 Geplant | QR-Code Generator             | [#69](https://github.com/din-briefneo/din-briefneo/issues/69) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
 | **Lokale KI**       | Grammatik- und Stilprüfung offline         | 🔴 Geplant | Gemini Nano (Chrome Built-in) | [#70](https://github.com/din-briefneo/din-briefneo/issues/70) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
 

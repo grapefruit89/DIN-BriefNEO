@@ -1419,3 +1419,17 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Feature-Greps nur in `website/js|css|index.html` (ohne `data/`); Gate 100 %, `links.js`/`imr.js` OK.
 
 **Generalisierbarkeit:** „Geplant" regelmäßig gegen **Code UND Law Catalog** prüfen — sonst plant die Doku Features, die längst gebaut **oder per A-Regel verboten** sind. Ein Plan-Dokument ohne Ist-Abgleich ist eine Drift-Quelle (2 von ~14 Aussagen waren falsch).
+
+## 2026-09-30 — Korrektur: kein Code-Löschen + Plan-Bereinigung (Doku only)
+
+**Vorfall:** „komplett streichen" wurde falsch als **Code-Löschung** interpretiert — das **live** On-Device-KI-Addon (`website/js/addons/ai-assistant.js`, in `index.html` geladen, mit Toggle/Button/CSS) wurde angefasst. **Sofort vollständig zurückgerollt** via `git reset --hard HEAD` (nichts war committet) — Code und Doku identisch zum letzten Commit, Gate 100 %.
+
+**Lehre:** „streichen" bezieht sich auf **Plan-/Doku-Einträge**, nicht auf produktiven Code. Vor jeder Löschung prüfen: *existiert die Sache als Code/Produkt?* Wenn ja → **nicht** löschen, nur Doku nachziehen. Destruktive Aktionen nur nach eindeutigem Auftrag.
+
+**Änderung (nur Doku):** (1) `ROADMAP`: Backlog „Sprachsteuerung" + „LanguageTool" entfernt (kein Code vorhanden), bzst 8 → 6; „Dauerhaft verworfen"-Vermerk. (2) `Feature-Matrix`: Zeile „Sprachsteuerung" entfernt. (3) `ROADMAP` Item 2 „PDF-Export": Entscheidung dokumentiert — Weg 1 (Pixel) verworfen, Weg 3 (Browser-Druck/`window.print()`), Weg 2 (externe PDF-Lib) zurückgestellt/gesprächsbereit.
+
+**Nicht angetastet:** On-Device KI bleibt komplett (Code + Doku). ROADMAP Prio 7 und die Feature-Matrix-Zeile „Lokale KI" bleiben vorerst stehen.
+
+**Verifikation:** `git status` nach Rollback leer; nach den Doku-Edits Gate 100 %, `links.js`/`imr.js` OK.
+
+**Generalisierbarkeit:** Zerstörende Aktionen (Code-Löschung) erst nach eindeutiger Bestätigung; im Zweifel **nur Doku**. Ein „Feature streichen" und ein „Code löschen" sind zwei verschiedene Dinge.

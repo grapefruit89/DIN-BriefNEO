@@ -142,11 +142,13 @@ Mehrseitige Briefe, die im Editor horizontal gescrollt werden, um vertikales Scr
 
 **Status:** Zurückgestellt (Phase 1 / Backlog). Hohe JS-Komplexität bei der Paginierung. 95% aller DIN 5008 Briefe passen auf eine Seite.
 
-### 2. Nativer PDF-Export (Client-side)
+### 2. PDF-Export — Entscheidung: Browser-Druck (Weg 3)
+Drei Wege wurden abgewogen:
+1. **Pixel-/Raster-Export** (Canvas → PDF/PNG): ❌ **verworfen** — schlechtes Ergebnis, kein echter Text (nicht selektier-/durchsuchbar), große Dateien.
+2. **Echtes PDF via externe Library** (`pdf-lib`, `jsPDF`, …): ⏸️ **zurückgestellt / gesprächsbereit** — würde die Zero-Dependency-Doktrin brechen (neue Abhängigkeit + Bundle). Nur nach bewusster Ausnahme-Entscheidung.
+3. **Browser-Druck** (`window.print()` + `print.css`): ✅ **gewählter Weg** — echtes Vektor-PDF, 0 Byte Code, W3C-nativ, offline über `file://`.
 
-Erzeugung eines echten PDF-Downloads direkt im Browser via `pdf-lib` oder `jspdf`.
-
-**Status:** Brainstorming. Verletzt W3C-First und Zero-Dependency. Bevorzugt bleibt `window.print()` mit optimiertem CSS.
+**Status:** Entschieden (2026-09-30): Weg 3 bleibt Standard; Weg 2 nur auf ausdrücklichen Wunsch erneut aufgreifen.
 
 ### 3. Erweiterte Formatierungsoptionen im Markdown-Parser
 
@@ -166,23 +168,13 @@ Service Worker für Cache-basiertes PWA-Erlebnis.
 
 **Status:** Zurückgestellt. Service Worker setzen HTTPS voraus — unter `file:///` werfen sie Security Errors. `index.html` per Doppelklick funktioniert offline ohne SW.
 
-### 6. Sprachsteuerung & Diktat (Web Speech API)
-
-Native `webkitSpeechRecognition` für Diktat von Brieftexten.
-
-**Status:** Brainstorming. Plattformspezifisch (Chrome/Safari OK, Firefox nicht). Erfordert Cloud-Verbindung.
-
-### 7. LanguageTool API — Rechtschreib-/Grammatikprüfung
-
-Externe API-Anbindung zur Prüfung des Brieftexts auf Rechtschreib- und Grammatikfehler direkt im Editor.
-
-**Status:** Geplant (2026-08-08 festgehalten). Passt zum Editor-Zweck, optionale Enhancement-Schicht (kein Offline-Bruch, da nur bei aktiver Internetverbindung genutzt).
-
-### 8. bzst.de Behördenwegweiser — Finanzamt-Adress-Lookup
+### 6. bzst.de Behördenwegweiser — Finanzamt-Adress-Lookup
 
 Automatisches Auffinden der zuständigen Finanzamt-Adresse für den Empfänger, analog zum bestehenden Adress-Autocomplete (Geoapify/Photon).
 
 **Status:** Geplant (2026-08-08 festgehalten). Nischen-Feature, aber spart Nutzern manuelle Suche bei Behördenbriefen.
+
+**Dauerhaft verworfen (2026-09-30, nicht erneut vorschlagen):** Sprachsteuerung/Diktat (Web Speech — plattformspezifisch, nur mit Cloud), LanguageTool (externe API, Offline-Bruch).
 
 **Zurückgestellt/verworfen aus derselben Ideen-Liste** (Chat-Audit 2026-08-08, zu nischig für einen allgemeinen Briefeditor): Justizadressen.nrw.de, gerichtsstand.net, insolvenzbekanntmachungen.de, Bundesbank-Webservice (Basiszinssatz/Verzugszins — nur relevant für Mahnschreiben), EZB-Referenzkurse, OpenThesaurus.de, OffeneRegister/OpenCorporates, Wikidata SPARQL, Open Legal Data.
 

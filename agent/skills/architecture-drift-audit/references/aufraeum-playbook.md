@@ -45,10 +45,10 @@ rg -o '@(adr|guide) \[\[[^]]+\]\]' website/ | sort -u
 ## 3. Ausnahmen (NICHT „fixen")
 
 - **Code-Fences** (Beispiel-Snippets, z. B. `[[ADR-0002-technology-stack#…]]` in einem ```markdown-Block).
-- **Template-Platzhalter** (`ADR-XXX`, `ADR-YYY`, `_Template_Obsidian`).
-- **Chroniken** (`docs/30-meta/DECISION-LOG.md` append-only, `docs/90-archive/*`).
+- **Template-Platzhalter** (`ADR-XXX`, `ADR-YYY`).
 - **Anhänge** (`[[schema-v6.json]]` — Nicht-MD-Datei, existiert).
 - **Frontmatter-Beispielwerte**.
+- **Chroniken** (`docs/30-meta/DECISION-LOG.md`, `docs/30-meta/CHANGELOG.md`, `docs/90-archive/*`) — nie rückwärts „reparieren".
 
 ## 4. Definition of Done
 

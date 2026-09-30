@@ -13,7 +13,7 @@ tags:
   - tech/w3c
   - tech/chrome
 doc_links:
-  - Architecture-Evolution
+  - architektur-evolution-und-quellen
   - constitution
 code_links:
   - tools/build_db.js

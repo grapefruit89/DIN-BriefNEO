@@ -1,5 +1,5 @@
 ---
-id: adr-006
+id: adr-offline-address-intelligence
 title: 'ADR-006: Offline Address Intelligence (Brotli Compact Engine & Fallback Architecture)'
 type: adr
 status: active

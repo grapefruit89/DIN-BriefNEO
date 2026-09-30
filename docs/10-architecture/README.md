@@ -46,10 +46,10 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 | [[ADR-CSS]] | CSS-Architektur: Container Queries, Falzmarken, Anchor Positioning, oklch (integriert ehem. ADR-BETREFF) |
 | [[ADR-JS]] | JS-Architektur: Temporal, StorageManager, ES-Module |
 | [[ADR-DATA-PERSISTENCE]] | localStorage-Sovereignty, StorageManager-Pflicht |
-| [[adr-toast-system]] | Toast-System Architektur & Registry |
+| [[ADR-TOAST-SYSTEM]] | Toast-System Architektur & Registry |
 | [[ADR-OMNITRACEABILITY]] | Traceability-System & How-To |
-| [[ADR-005-Sender-Synchronization]] | Absender-Synchronisation |
-| [[ADR-006-Offline-Address-Intelligence]] | Offline Address Intelligence (70,5 KB Brotli-Dictionary & Fallback-Architektur) |
+| [[ADR-SENDER-SYNCHRONIZATION]] | Absender-Synchronisation |
+| [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]] | Offline Address Intelligence (70,5 KB Brotli-Dictionary & Fallback-Architektur) |
 
 ## Historisch / Support
 

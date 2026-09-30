@@ -106,7 +106,7 @@ docs/10-architecture/          # Architektur-Entscheidungen — kritisch
     Archive/ADR-MIGRATION.md   # Historisch — migrierte Entscheidungen
     Support/ADR-TEMPLATE.md    # Template für neue ADRs
     Support/Code-Referenzen.md # Code-Referenz-Index
-  ADR-005-Sender-Synchronization.md  # Spezifisch Absender-Sync
+  ADR-SENDER-SYNCHRONIZATION.md  # Spezifisch Absender-Sync
 
 docs/20-implementation/        # Implementierungsdetails
   Salutation-Engine.md         # Anrede-Logik (Auto-Detection)

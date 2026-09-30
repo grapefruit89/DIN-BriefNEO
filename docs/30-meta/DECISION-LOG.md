@@ -1290,3 +1290,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Beweis-Scan 0 ungewollte tote Links (nur `[[schema-v6.json]]`-Anhang, gewollt), Gate 100 %, `imr.js` OK.
 
 **Generalisierbarkeit:** Aufräumen ist ein Standard-Pass mit fester Reihenfolge (**scannen → klassifizieren → fixen → beweisen → protokollieren**) und expliziten Ausnahmen (Code-Fences, Template-Platzhalter, Chronik). Chroniken (`DECISION-LOG`, `90-archive`) werden nie rückwärts „repariert"; eine Klasse pro Commit-Gruppe.
+
+## 2026-09-30 — ADR-Präfix konsolidiert (`ADR-<THEMA>` uppercase)
+
+**Kontext:** Das ADR-Namensschema war gemischt: nummeriert (`ADR-005-Sender-Synchronization`, `ADR-006-Offline-Address-Intelligence`) vs. thematisch-uppercase (`ADR-JS`, `ADR-CSS`, `ADR-HTML`, `ADR-DATA-PERSISTENCE`, `ADR-ANTIPATTERN`, `ADR-OMNITRACEABILITY`) vs. lowercase (`adr-toast-system`).
+
+**Änderung:** 3 Renames auf einheitlich `ADR-<THEMA>` uppercase: `ADR-005-Sender-Synchronization` → `ADR-SENDER-SYNCHRONIZATION`, `ADR-006-Offline-Address-Intelligence` → `ADR-OFFLINE-ADDRESS-INTELLIGENCE`, `adr-toast-system` → `ADR-TOAST-SYSTEM`. Frontmatter-`id` auf kebab (`adr-sender-synchronization`, `adr-offline-address-intelligence`; `adr-toast-system` bleibt). Link-Migration in `10-architecture/README`, `docs/index.md`, `CLAUDE.md`, `website/js/45-address-intelligence.js`, `46-clipboard-address-parser.js` (inkl. `@adr`-Anker, Tabellen, Frontmatter-`doc_links`).
+
+**Verifikation:** Gate 100 %, `imr.js` OK, 0 Rest-Referenzen außer Chronik (`DECISION-LOG`) und dem kebab-`id`.
+
+**Generalisierbarkeit:** Ein Namensschema pro Doc-Typ — ADR = `ADR-<THEMA>` uppercase, `id` immer kebab. Nummern-Präfixe sind Ballast (das Thema trägt die Identität). Bei Rename **Datei + `id` + alle `[[…]]`/`@adr`/`doc_links` gemeinsam** migrieren, sonst driften Anker.

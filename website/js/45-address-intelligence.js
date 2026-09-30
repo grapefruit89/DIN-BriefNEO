@@ -1,5 +1,5 @@
 // @ts-check
-// @adr [[ADR-006-Offline-Address-Intelligence]]
+// @adr [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]
 // @guide [[geoapify-autocomplete]]
 
 /* Audit H3: Das 164-KB-Embed liegt NICHT auf dem statischen Modulgraphen.

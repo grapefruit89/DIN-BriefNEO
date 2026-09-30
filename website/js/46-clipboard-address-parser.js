@@ -1,5 +1,5 @@
 // @ts-check
-// @adr [[ADR-006-Offline-Address-Intelligence]]
+// @adr [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]
 // @guide [[din-5008-css-architektur]]
 
 import { AddressIntelligence } from './45-address-intelligence.js';

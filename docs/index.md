@@ -19,7 +19,7 @@ doc_links:
   - ADR-ANTIPATTERN
   - ADR-OMNITRACEABILITY
   - Function-Traceability
-  - ADR-006-Offline-Address-Intelligence
+  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
   - Salutation-Engine
   - HYBRID-SPEC-DRIVEN-WORKFLOW
 code_links:
@@ -81,9 +81,9 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
   - **[[ADR-CSS]]** — Container Queries, Falzmarken, Viewport-Sizing, oklch (integriert ehem. ADR-BETREFF).
   - **[[ADR-JS]]** — ES-Module, Temporal API, Zero-Framework-Regel.
   - **[[ADR-DATA-PERSISTENCE]]** — localStorage-Souveränität und synchroner Speicher-Manager.
-  - **[[adr-toast-system]]** — Entkoppeltes Toast-System im Top-Layer.
-  - **[[ADR-005-Sender-Synchronization]]** — Automatische Absender-Spiegelung (Absenderblock → Rücksendezeile/Maschinenschrift).
-  - **[[ADR-006-Offline-Address-Intelligence]]** — 70,5 KB Brotli-Dictionary als Offline-Primärquelle (Tier 1) mit optionalem Online-Fallback.
+  - **[[ADR-TOAST-SYSTEM]]** — Entkoppeltes Toast-System im Top-Layer.
+  - **[[ADR-SENDER-SYNCHRONIZATION]]** — Automatische Absender-Spiegelung (Absenderblock → Rücksendezeile/Maschinenschrift).
+  - **[[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]** — 70,5 KB Brotli-Dictionary als Offline-Primärquelle (Tier 1) mit optionalem Online-Fallback.
 
 ---
 

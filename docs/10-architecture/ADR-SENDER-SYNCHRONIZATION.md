@@ -1,5 +1,5 @@
 ---
-id: adr-005
+id: adr-sender-synchronization
 title: 'ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile)'
 type: adr
 status: active

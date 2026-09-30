@@ -105,7 +105,7 @@ Schlägt der Request an Geoapify fehl, werfen wir keinen UI-blockierenden Fehler
 ## 6. Rate Limiting & Performance
 
 Die Geoapify API hat in der kostenlosen Stufe strikte Limits (z.B. 3.000 Requests pro Tag).
-Das strenge Debouncing (300-500ms) und ein geplantes, lokales **Caching** von Suchbegriffen (aktuell noch in Planung / noch nicht implementiert) sind unsere primären Abwehrwerkzeuge gegen das Limit.
+Das strenge Debouncing (300-500ms) und ein **lokales In-Memory-Caching** von Suchbegriffen (`apiCache` in `43-geoapify.js`, verhindert doppelte API-Calls für denselben String) sind unsere primären Abwehrwerkzeuge gegen das Limit.
 
 ## 7. Datenschutz (Privacy)
 

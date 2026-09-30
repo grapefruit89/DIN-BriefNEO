@@ -4,7 +4,7 @@ title: Tool-Inventur — tools/
 status: active
 type: reference
 created: '2026-08-07'
-updated: '2026-09-10'
+updated: '2026-09-30'
 tags:
 - din-briefneo
 - meta
@@ -87,7 +87,7 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 ## docs_index.js
 
 - **Zweck**: EIN Builder fuer den Retrieval-Index — Datei-Inventar (`git ls-files`), Dokumente + Abschnitte (H1-H6, mit Zeilennummern) und FTS5-Volltext (`bm25`/`snippet`). Die Query-Schicht des MCP (`agent/mcp/dinbrief-mcp/docs.js`) re-exportiert dieses Modul.
-- **Input**: `docs`-Korpus `.md` (ohne Code/Build/generierte Verzeichnisse) + `git ls-files`
+- **Input**: `docs`-Korpus `.md` **plus Code** (`website/`, `tools/`, `agent/`; eine Section je Datei) + `git ls-files`
 - **Output**: `agent/cache/docs_search.db` (abgeleitet, jederzeit neu baubar; gitignored)
 - **Abhaengigkeiten**: Node core + `node:sqlite` (Zero-Dependency)
 - **Aufrufer**: `tools/build_db.js` (baut den Index im Gate-Lauf mit), `agent/mcp/dinbrief-mcp` (`ensureFresh` bei Query)

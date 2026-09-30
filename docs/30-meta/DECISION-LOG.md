@@ -1407,3 +1407,15 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Alle Variablennamen gegen `website/css/variables.css` geprüft; Gate 100 %, `links.js`/`imr.js` OK.
 
 **Generalisierbarkeit:** (1) „Ist" vs. „geplant" **am Code** belegen, nie aus der Doku übernehmen — meine Fehlkennzeichnung stammte aus der (stale) ROADMAP. (2) Benennt der Code Variablen um, müssen **Doku-Erwähnungen** mitgezogen werden — der Link-Gate sieht Code-Bezeichner in Prosa nicht. (3) Stale-Prosa-Scan (`*.js|*.md|--var` gegen Quellen) als Prüfklasse ergänzen.
+
+## 2026-09-30 — Drift-Audit: „geplant" vs. „Ist"
+
+**Kontext:** Nach der Salutation-Fehlkennzeichnung systematisch alle Zukunfts-Marker in lebenden Docs gegen den **Code** geprüft.
+
+**Befunde & Änderung:** (1) `geoapify-autocomplete.md`: „geplantes Caching (noch nicht implementiert)" → **implementiert** (`apiCache` in `43-geoapify.js`, Cache-Hit-Pfad vorhanden). (2) `tooling-overview.md`: `docs_index.js`-Input als „ohne Code" beschrieben → indexiert jetzt **Markdown + Code** (`website/`, `tools/`, `agent/`). (3) `Feature-Matrix.md`: „Brief-Archiv via IndexedDB" **widerspricht A34** (Immutable Law Catalog verbietet IndexedDB als Produktspeicher) → Zeile als „🔴 Geplant (blockiert durch A34)" markiert. Der `indexeddb`-Treffer in `51-storage.js` ist nur ein **Warn-Kommentar** (nie genutzt).
+
+**Verifiziert NICHT implementiert** („geplant" ist korrekt): Sprachsteuerung, Brief-Archiv, Serienbrief, QR-Code, Internetmarke/Poststempel, LanguageTool, bzst.de, Mehrseitig, nativer PDF-Export, Service-Worker, LLM-Addon, sqlite-vec.
+
+**Verifikation:** Feature-Greps nur in `website/js|css|index.html` (ohne `data/`); Gate 100 %, `links.js`/`imr.js` OK.
+
+**Generalisierbarkeit:** „Geplant" regelmäßig gegen **Code UND Law Catalog** prüfen — sonst plant die Doku Features, die längst gebaut **oder per A-Regel verboten** sind. Ein Plan-Dokument ohne Ist-Abgleich ist eine Drift-Quelle (2 von ~14 Aussagen waren falsch).

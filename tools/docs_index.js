@@ -33,7 +33,7 @@ const { DatabaseSync } = require('node:sqlite');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DB_PATH = path.join(REPO_ROOT, 'agent', 'cache', 'docs_search.db');
-const DOC_SIZE_EXEMPT_FILES = new Set([]);
+const DOC_SIZE_EXEMPT_FILES = new Set([]); // (reserviert; derzeit ungenutzt)
 
 // Verzeichnisse, die NICHT zum Doku-Korpus gehoeren (Code, Dumps, generierte
 // Artefakte, lokaler Muell).
@@ -212,6 +212,7 @@ function createSchema(db) {
     CREATE INDEX idx_links_from ON links(from_path);
     CREATE INDEX idx_links_to   ON links(to_path);
     CREATE INDEX idx_links_ref  ON links(to_ref);
+    CREATE UNIQUE INDEX idx_links_uniq ON links(from_path, kind, to_ref);
   `);
 }
 
@@ -224,7 +225,7 @@ function buildIndex(opts = {}) {
   const mdFiles = collectMarkdownFiles();
   const tracked = collectTrackedFiles();
 
-  if (!opts.force && !indexIsStale(mdFiles)) {
+  if (!opts.force && !indexIsStale(mdFiles, tracked)) {
     return { rebuilt: false, documents: null, sections: null, files: null, links: null, db_path: DB_PATH };
   }
 
@@ -238,7 +239,7 @@ function buildIndex(opts = {}) {
   const insFts = db.prepare('INSERT INTO sections_fts (rowid, heading, body) VALUES (?, ?, ?)');
   const insFtsTri = db.prepare('INSERT INTO sections_fts_tri (rowid, heading, body) VALUES (?, ?, ?)');
   const insFile = db.prepare('INSERT OR REPLACE INTO files (path, top, ext, size_bytes, lines) VALUES (?, ?, ?, ?, ?)');
-  const insLink = db.prepare('INSERT INTO links (from_path, kind, to_ref, to_path) VALUES (?, ?, ?, ?)');
+  const insLink = db.prepare('INSERT OR IGNORE INTO links (from_path, kind, to_ref, to_path) VALUES (?, ?, ?, ?)');
 
   // Auflösung: Basename -> Doku-Pfad (doc_links/@adr) bzw. existierender Tracked-Pfad (code_links).
   const trackedPaths = new Set(tracked.map(t => t.path));
@@ -281,37 +282,36 @@ function buildIndex(opts = {}) {
         for (const ref of list) { insLink.run(rel, kind, ref, resolveRef(ref)); linkCount++; }
       }
     }
-    // Code-Annotationen @adr [[...]] / @guide [[...]] -> Beziehungen (from = Code-Datei).
+    // Code: EIN Durchlauf -- Annotationen (@adr/@guide) + Volltext (Section je Datei).
     const ANNOTATION = /@(adr|guide)\s+\[\[([^\]]+)\]\]/g;
-    for (const t of tracked) {
-      if (!CODE_EXT.has(path.extname(t.path).toLowerCase())) continue;
-      let raw;
-      try { raw = fs.readFileSync(path.join(REPO_ROOT, t.path), 'utf8'); } catch { continue; }
-      for (const m of raw.matchAll(ANNOTATION)) {
-        const target = m[2].trim();
-        insLink.run(t.path, m[1], target, resolveRef(target));
-        linkCount++;
-      }
-    }
-    // Code-Volltext (bewusst grob: EINE Section je Datei) -> "wo ist X" per docs_search.
     const INDEX_EXT = new Set(['.js', '.mjs', '.cjs', '.css', '.html', '.py', '.sh']);
     const INDEX_TOPS = new Set(['website', 'tools', 'agent']);
     for (const t of tracked) {
       const ext = path.extname(t.path).toLowerCase();
-      if (!INDEX_EXT.has(ext)) continue;
-      if (!INDEX_TOPS.has(t.path.split('/')[0])) continue;
-      if (t.path.includes('/data/') || t.path.includes('node_modules')) continue;
-      if (t.size_bytes != null && t.size_bytes > 200_000) continue;
+      const isAnnot = CODE_EXT.has(ext);
+      const wantsIndex = INDEX_EXT.has(ext) && INDEX_TOPS.has(t.path.split('/')[0])
+        && !t.path.includes('/data/') && !t.path.includes('node_modules')
+        && !(t.size_bytes != null && t.size_bytes > 200_000);
+      if (!isAnnot && !wantsIndex) continue;
       let raw;
       try { raw = fs.readFileSync(path.join(REPO_ROOT, t.path), 'utf8'); } catch { continue; }
-      const lineCount = raw.split(/\r?\n/).length;
-      const info = insDoc.run(t.path, t.path, 'code', null, lineCount, fs.statSync(path.join(REPO_ROOT, t.path)).mtimeMs);
-      const docId = Number(info.lastInsertRowid);
-      docCount++;
-      const r = insSec.run(docId, 0, t.path, 1, lineCount, raw);
-      insFts.run(Number(r.lastInsertRowid), t.path, raw);
-      insFtsTri.run(Number(r.lastInsertRowid), t.path, raw);
-      secCount++;
+      if (isAnnot) {
+        for (const m of raw.matchAll(ANNOTATION)) {
+          const target = m[2].trim();
+          insLink.run(t.path, m[1], target, resolveRef(target));
+          linkCount++;
+        }
+      }
+      if (wantsIndex) {
+        const lineCount = raw.split(/\r?\n/).length;
+        const info = insDoc.run(t.path, t.path, 'code', null, lineCount, fs.statSync(path.join(REPO_ROOT, t.path)).mtimeMs);
+        const docId = Number(info.lastInsertRowid);
+        docCount++;
+        const r = insSec.run(docId, 0, t.path, 1, lineCount, raw);
+        insFts.run(Number(r.lastInsertRowid), t.path, raw);
+        insFtsTri.run(Number(r.lastInsertRowid), t.path, raw);
+        secCount++;
+      }
     }
     db.exec('COMMIT');
   } catch (err) {
@@ -324,12 +324,25 @@ function buildIndex(opts = {}) {
 }
 
 /** Rebuild-Trigger: DB fehlt oder aelter als die neueste Quelldatei. */
-function indexIsStale(mdFiles) {
+function indexIsStale(mdFiles, tracked = []) {
   if (!fs.existsSync(DB_PATH)) return true;
   const dbMtime = fs.statSync(DB_PATH).mtimeMs;
+  // (a) irgendeine Quelldatei (Doku ODER Code) neuer als die DB?
   for (const f of mdFiles) {
     try { if (fs.statSync(f).mtimeMs > dbMtime) return true; } catch { /* ignore */ }
   }
+  for (const t of tracked) {
+    try { if (fs.statSync(path.join(REPO_ROOT, t.path)).mtimeMs > dbMtime) return true; } catch { /* ignore */ }
+  }
+  // (b) Datei-Set geaendert (neu/geloescht)? -> Abgleich mit der files-Tabelle.
+  try {
+    const db = new DatabaseSync(DB_PATH, { readOnly: true });
+    const n = db.prepare('SELECT COUNT(*) c FROM files').get().c;
+    const have = new Set(db.prepare('SELECT path FROM files').all().map((r) => r.path));
+    db.close();
+    if (n !== tracked.length) return true;
+    for (const t of tracked) if (!have.has(t.path)) return true;
+  } catch { return true; }
   return false;
 }
 
@@ -344,11 +357,12 @@ function tokenize(query) {
 }
 
 /** unicode61-Query: exakter Begriff, Prefix (*) fuer Wortvarianten. */
-function buildWordQuery(query) {
+function buildWordQuery(query, mode = 'AND') {
   const terms = new Set();
   for (const t of tokenize(query)) terms.add(t.toLowerCase());
   if (terms.size === 0) return '';
-  return [...terms].map(t => (t.length >= 3 ? `"${t}"*` : `"${t}"`)).join(' OR ');
+  const join = mode === 'OR' ? ' OR ' : ' AND ';
+  return [...terms].map(t => (t.length >= 3 ? `"${t}"*` : `"${t}"`)).join(join);
 }
 
 /** trigram-Query: Teilwort-Suche fuer mittlere Substrings (nur Terme >= 3 Zeichen; keine Tippfehler-Korrektur). */
@@ -368,20 +382,24 @@ function buildSubstringQuery(query) {
 function search(query, opts = {}) {
   ensureFresh();
   const limit = Math.min(Math.max(Number(opts.limit) || 8, 1), 50);
-  const wordQ = buildWordQuery(query);
+  const source = opts.source === 'code' || opts.source === 'doc' ? opts.source : 'all';
+  const andQ = buildWordQuery(query, 'AND');
+  const orQ = buildWordQuery(query, 'OR');
   const subQ = buildSubstringQuery(query);
-  if (wordQ === '' && subQ === '') return { query: String(query || ''), count: 0, results: [] };
+  if (andQ === '' && subQ === '') return { query: String(query || ''), source, count: 0, results: [] };
+  const srcCond = source === 'code' ? "AND d.status='code'"
+    : source === 'doc' ? "AND (d.status IS NULL OR d.status <> 'code')" : '';
 
   const db = new DatabaseSync(DB_PATH, { readOnly: true });
   try {
     const runMatch = (table, match, cap) => match === '' ? [] : db.prepare(`
-      SELECT s.id AS sid, d.path, d.title, s.level, s.heading, s.start_line, s.end_line,
+      SELECT s.id AS sid, d.path, d.title, d.status, s.level, s.heading, s.start_line, s.end_line,
              snippet(${table}, 1, '<<', '>>', ' … ', 14) AS snippet,
              bm25(${table}) AS score
       FROM ${table}
       JOIN sections s  ON s.id = ${table}.rowid
       JOIN documents d ON d.id = s.doc_id
-      WHERE ${table} MATCH ?
+      WHERE ${table} MATCH ? ${srcCond}
       ORDER BY score
       LIMIT ?
     `).all(match, cap);
@@ -394,14 +412,18 @@ function search(query, opts = {}) {
       const { sid, ...rest } = row;
       results.push({ ...rest, match: kind });
     };
-    for (const row of runMatch('sections_fts', wordQ, limit)) add(row, 'word');
-    if (results.length < limit) {
+    // 1) UND (alle Terme) = praezise; 2) OR-Fallback; 3) Trigram (mittlere Teilwoerter).
+    for (const row of runMatch('sections_fts', andQ, limit)) add(row, 'word');
+    if (results.length === 0 && orQ !== andQ) {
+      for (const row of runMatch('sections_fts', orQ, limit)) add(row, 'word-or');
+    }
+    if (results.length < limit && subQ !== '') {
       for (const row of runMatch('sections_fts_tri', subQ, limit)) {
         if (results.length >= limit) break;
         add(row, 'substring');
       }
     }
-    return { query: String(query || ''), count: results.length, results };
+    return { query: String(query || ''), source, count: results.length, results };
   } finally {
     db.close();
   }

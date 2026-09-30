@@ -447,8 +447,9 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        query: { type: 'string', description: 'Suchbegriffe (werden OR-verknuepft).' },
-        limit: { type: 'integer', description: 'max. Treffer (default 8, max 50).' }
+        query: { type: 'string', description: 'Suchbegriffe. Mehrere Begriffe = UND (alle muessen vorkommen); bei 0 Treffern automatischer ODER-Fallback.' },
+        limit: { type: 'integer', description: 'max. Treffer (default 8, max 50).' },
+        source: { type: 'string', enum: ['all', 'doc', 'code'], description: 'Nur Doku (doc), nur Code (code) oder beides (all, default).' }
       },
       required: ['query']
     }
@@ -530,7 +531,7 @@ function callTool(name, args) {
   args = args || {};
   switch (name) {
     case 'docs_search': {
-      const r = docsSearch(args.query, { limit: args.limit });
+      const r = docsSearch(args.query, { limit: args.limit, source: args.source });
       return { text: formatSearchText(args.query, r) };
     }
     case 'docs_get': {

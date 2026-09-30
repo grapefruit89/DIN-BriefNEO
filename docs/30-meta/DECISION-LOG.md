@@ -1357,3 +1357,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** 103 → 143 Dokumente, 1166 → 1208 Sections; `docs_search "showToast"` trifft Code; Gate 100 %.
 
 **Grenze/Generalisierbarkeit:** Die grobe Variante nennt die **Datei** (Section-Start = Zeile 1), nicht die exakte Zeile — dafür bleibt `rg` das präzisere Werkzeug. Bewusster Trade-off: einheitlicher Suchkanal statt Heuristik und Rauschen. Code bleibt Source of Truth, die DB ist abgeleitet und jederzeit regenerierbar.
+
+## 2026-09-30 — Index-Audit: Bugs + Optimierungen
+
+**Kontext:** Audit des Retrieval-/Index-Stacks (Werkzeug, nicht Inhalt). Befunde: (1) `indexIsStale` prüfte nur `.md`-mtime → **Code-Änderungen/-Löschungen ignoriert** (stale Index; bewiesen: `touch` einer JS-Datei → `rebuilt=false`); (2) Mehrterm-Suche per **OR** = unscharf (`"toast hinweis"` → 50 Treffer); (3) `links` ohne UNIQUE (Duplikate); (4) Code-Dateien **2×** gelesen; (5) toter Code; (6) ungenutzte `agent/cache/DIN-Brief_docs.db`.
+
+**Änderung:** (1) Staleness jetzt über **alle** getrackten Dateien (mtime) **plus** Datei-Set-Abgleich (neu/gelöscht gegen die `files`-Tabelle); (2) Suche **UND zuerst** (alle Terme), bei 0 Treffern automatischer **ODER**-Fallback, dann Trigram; (3) neuer **`source`-Filter** `doc|code|all` (`search()` + MCP-Tool `docs_search`); (4) Annotationen + Code-Index in **einem** Dateidurchlauf; (5) `links` UNIQUE + `INSERT OR IGNORE`; (6) toter Code markiert, Alt-DB gelöscht.
+
+**Verifikation:** Code-`touch` → `rebuilt=true`; `"toast hinweis"` 50 → 8; `source=doc` 7 vs `source=code` 5; `links` 288 → 286; Trigram-Fallback (`slinien`) weiter aktiv; Gate 100 %.
+
+**Generalisierbarkeit:** Ein Index-/Cache-Tool muss (a) **alle** Quellen auf Staleness prüfen (nicht nur die erste), (b) Mehrterm-Anfragen **UND-first** beantworten, (c) Filterdimensionen explizit machen (`source`). Der Index ist Werkzeug, nie Wahrheit — Bugs hier kosten Vertrauen, keine Daten.

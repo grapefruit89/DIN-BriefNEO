@@ -89,7 +89,7 @@
   color: var(--bg-seitenleiste);
 }
 
-@keyframes shakeToast {
+@keyframes shake-hinweis {
   0% { transform: translateX(0); }
   25% { transform: translateX(-4px) translateY(0); }
   50% { transform: translateX(4px) translateY(0); }
@@ -98,7 +98,7 @@
 }
 
 #hinweis-v4[data-shake="true"] {
-  animation: shakeToast 0.3s ease-in-out;
+  animation: shake-hinweis 0.3s ease-in-out;
 }
 
 #hinweis-close {

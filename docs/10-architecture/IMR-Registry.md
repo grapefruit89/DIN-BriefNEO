@@ -81,6 +81,28 @@ UI-, Rendering- und Kompositions-Bezeichner tragen **keinen** `din-`-Präfix.
 
 ---
 
+## Case Contract
+
+Jede Sprache behält ihren nativen Case; Übergänge zwischen Namensräumen folgen den Plattform-Mappings.
+
+| Bereich | Case |
+|---|---|
+| HTML `id`, `class`, `data-*`, Elementnamen | kebab-case |
+| CSS Klassen-/ID-Selektoren, Custom Properties, `@keyframes`, `@property` | kebab-case |
+| JavaScript Variablen, Funktionen, Properties | camelCase |
+| JavaScript Klassen | PascalCase |
+| JavaScript Konstanten | UPPER_SNAKE_CASE |
+| Dokument-Dateinamen | bestehende Konvention (nicht umbenennen) |
+| Dokument `id:` (Frontmatter) | kebab-case |
+
+**MUST-NOT:** Mixed-/snake-case in HTML/CSS-Identifiern; camelCase in CSS-Klassen/Custom-Properties.
+
+**DATASET-MAPPING (kein Verstoß):** `data-schrift-modus` → `dataset.schriftModus`.
+
+**EXCEPTION:** technische/Plattform-Identifier, die nicht dem Projekt gehören (`font-family`, `::picker()`, Vendor-Präfixe).
+
+---
+
 ## Geometrieklassen
 
 Koordinatensystem: DIN-A4-Blatt, 210 mm × 297 mm, Ursprung oben links, Einheit Millimeter. Form A und Form B sind Y-Varianten desselben Modells.
@@ -429,6 +451,11 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
     "forbiddenTokens": ["--paper-", "--c-paper-", "--c-ink-", "--c-ghost-", "--fold-", "--punch-", "--din-width", "--din-height", "--guide-opacity"],
     "exceptions": ["sheet.css", "sidebar.css", "32-toast.js"],
     "notAutoChecked": ["font (native CSS font-family/size/weight/…)", "action (native touch-action / JS-Schluessel)", "Adresse (Input-Parsing: Postadresse/Anschrift-Labels)"]
+  },
+  "caseContract": {
+    "htmlCss": "kebab-case",
+    "js": { "variables": "camelCase", "functions": "camelCase", "properties": "camelCase", "classes": "PascalCase", "constants": "UPPER_SNAKE_CASE" },
+    "docs": { "filename": "preserved", "id": "kebab-case" }
   }
 }
 ```
@@ -440,6 +467,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
 
 | Datum | Änderung |
 |---|---|
+| 2026-09-30 | Case Contract (kebab HTML/CSS, camelCase/PascalCase/UPPER_SNAKE JS, Docs-`id` kebab) + Case-Gate in `tools/imr.js` |
 | 2026-09-30 | Kanonisches Vokabular (`vocabulary`) ins Inventar + Gate-Prüfung in `tools/imr.js` |
 | 2026-09-30 | Formalisiert: Registry Contract + MUST-NOT, Namespace-Kategorien, Alias-Registry, Authority-Klassen, maschinenlesbares JSON-Inventar |
 | 2026-09-30 | Nicht-atomare Bezeichner deklariert (Namenszeile, Rendering, `data-`-Konvention); `din-`-Präfix für Atome/Zonen/Rahmen reserviert |

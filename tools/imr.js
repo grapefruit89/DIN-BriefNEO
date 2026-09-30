@@ -94,6 +94,42 @@ function checkVocabulary(targetDir, inventory) {
   return out;
 }
 
+/**
+ * Case-Gate: HTML/CSS-Identifier muessen kebab-case sein (kein Upper/snake).
+ * JS-Identifier (camelCase/PascalCase/UPPER_SNAKE) werden bewusst NICHT geprueft.
+ * Dateinamen werden nicht geprueft (bestehende Konvention).
+ */
+function checkCase(targetDir, inventory) {
+  const out = [];
+  const cc = inventory.caseContract;
+  if (!cc || cc.htmlCss !== 'kebab-case') return out;
+  const bad = (n) => /[A-Z_]/.test(n);
+  const hex = (n) => /^[0-9a-fA-F]{3,8}$/.test(n);
+  const seen = new Set();
+  const report = (rel, kind, name) => {
+    const key = `${rel}|${kind}|${name}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ file: rel, message: `Case-Verstoss (${kind} -> kebab-case): "${name}"` });
+  };
+  const htmlRel = 'website/index.html';
+  const html = fs.readFileSync(path.join(targetDir, htmlRel), 'utf-8');
+  for (const m of html.matchAll(/\bid="([^"]*)"/g)) if (bad(m[1])) report(htmlRel, 'HTML id', m[1]);
+  for (const m of html.matchAll(/\bclass="([^"]*)"/g)) for (const c of m[1].split(/\s+/)) if (c && bad(c)) report(htmlRel, 'HTML class', c);
+  for (const m of html.matchAll(/\b(data-[a-z0-9-]+)\s*=/g)) if (bad(m[1])) report(htmlRel, 'HTML data-Attribut', m[1]);
+  for (const file of walkCode(path.join(targetDir, 'website'))) {
+    if (!file.endsWith('.css')) continue;
+    const rel = path.relative(targetDir, file).replace(/\\/g, '/');
+    const css = ' ' + fs.readFileSync(file, 'utf-8').replace(/\/\*[\s\S]*?\*\//g, ' ');
+    for (const m of css.matchAll(/@(?:-\w+-)?keyframes\s+([A-Za-z_][\w-]*)/g)) if (bad(m[1])) report(rel, '@keyframes', m[1]);
+    for (const m of css.matchAll(/@property\s+(--[\w-]+)/g)) if (bad(m[1])) report(rel, '@property', m[1]);
+    for (const m of css.matchAll(/(--[\w-]+)\s*:/g)) if (bad(m[1])) report(rel, 'Custom Property', m[1]);
+    for (const m of css.matchAll(/(?<=[\s,>+~()])\.([A-Za-z_][\w-]*)/g)) if (bad(m[1])) report(rel, 'CSS Klasse', m[1]);
+    for (const m of css.matchAll(/(?<=[\s,>+~()])#([A-Za-z_][\w-]*)/g)) if (!hex(m[1]) && bad(m[1])) report(rel, 'CSS ID', m[1]);
+  }
+  return out;
+}
+
 function checkImr(targetDir) {
   const violations = [];
   const add = (file, message) => violations.push({ file, message });
@@ -156,12 +192,15 @@ function checkImr(targetDir) {
 
     // 3) Kanonisches Vokabular (IMR vocabulary-Block)
     for (const v of checkVocabulary(targetDir, inventory)) add(v.file, v.message);
+
+    // 4) Case Contract (HTML/CSS kebab-case)
+    for (const v of checkCase(targetDir, inventory)) add(v.file, v.message);
   }
 
   return { violations, tags: [...tags], inventory };
 }
 
-module.exports = { checkImr, checkVocabulary, expectedDataAttrs, REGISTRY_REL };
+module.exports = { checkImr, checkVocabulary, checkCase, expectedDataAttrs, REGISTRY_REL };
 
 if (require.main === module) {
   const r = checkImr(path.resolve(__dirname, '..'));

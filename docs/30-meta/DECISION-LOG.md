@@ -1217,3 +1217,16 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** `node tools/imr.js` → „IMR OK"; Negativtest greift (`paper`/`sheet`/`sidebar`/`toast` geflaggt) und respektiert Ausnahmen (`font-family`, `touch-action`, `css/sidebar.css`, `showToast`, `32-toast.js`); Gate 100 %; `node --check` ok.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) Terminologie deterministisch wie Struktur behandeln — kanonische Liste + verbotene Aliase + technische Ausnahmen als maschinenlesbarer Vertrag im selben SSOT-Dokument; (b) case-sensitive Wortgrenzen + Datei-Pfad-Ausnahmen verhindern die typischen False Positives (native CSS, API-Namen, Brands); (c) was nicht sicher prüfbar ist (native API, Eingabe-Parsing), wird ausdrücklich als `notAutoChecked` deklariert statt still weggelassen.
+
+## 2026-09-30 — Case Contract (kebab HTML/CSS) + Case-Gate
+
+**Vorbefund:** Bestandsaufnahme ergab **keinen** bestehenden Case-Vertrag in `ADR-CSS/-HTML/-JS` oder IMR → keine konkurrierende Regel. Ist-Code deckt sich mit dem Vorschlag (HTML/CSS kebab, JS camelCase, Klassen PascalCase); einzige echte Abweichung: `@keyframes shakeToast` (camelCase). Docs-Dateinamen sind gemischt (Pascal/kebab/snake) — **bewusst nicht umgebaut** (dateinamen-basierte `[[…]]`-Links).
+
+**Änderung:**
+1. **IMR `## Case Contract`** + maschinenlesbarer `caseContract` im Inventar: HTML/CSS kebab; JS camelCase / PascalCase / **UPPER_SNAKE für Konstanten**; Docs-Dateiname = bestehend, `id:` kebab; Dataset-Mapping `data-schrift-modus` → `dataset.schriftModus`; Exception für Plattform-Identifier.
+2. **`tools/imr.js`: `checkCase`** — prüft HTML (`id`/`class`/`data-*`) und CSS (Klassen-/ID-Selektoren, Custom Properties, `@keyframes`, `@property`) auf kebab; Kommentare werden gestrippt, Hex-Farben ignoriert; **JS-Identifier und Dateinamen bewusst nicht**. Verstöße = Gate-`critical`, contract-getrieben (`caseContract.htmlCss`).
+3. **Fix:** `@keyframes shakeToast` → `shake-hinweis` (inkl. `animation`-Referenz).
+
+**Verifikation:** `node tools/imr.js` → OK; Negativtest: `BadClassName`/`bad_class_name`/`#BadId`/`--BadProp`/`@keyframes badName` → FAIL, Kommentar-Klasse ignoriert; JS `badClassName`/`BAD_CONSTANT`/`PascalClass` → PASS; `data-schrift-modus` → PASS; Gate 100 %.
+
+**Generalisierbarkeit:** (a) Case und Vokabular sind **getrennte Achsen** — ein Identifier kann Case-konform/vokabular-falsch sein und umgekehrt; (b) pro Sprache/Artefakt den nativen Case, Übergänge über Plattform-Mapping (dataset); (c) nicht sicher Prüfbares (JS-Identifier, Dateinamen) ausdrücklich ausnehmen statt halbherzig prüfen.

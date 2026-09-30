@@ -123,6 +123,12 @@ Erlaubte und verbotene Nicht-Atom-Bezeichner. **Kein Eintrag dieser Tabelle ist 
 | `din-empfaenger-name` | Alias | zwei Split-Atome | **verboten** |
 | `din-absender-name` | Alias | zwei Split-Atome | **verboten** |
 
+Diese Liste ist maschinenlesbar im JSON-Inventar unter `vocabulary` hinterlegt; `tools/imr.js` prüft sie gegen den Code.
+
+**Kanonisches Vokabular:** Blatt · Anschrift · Anschriftfeld · Infoblock · Briefkern · Text · Betreff · Absender · Datum · Unterschrift · Fuss · Schrift · Hinweis · Seitenleiste · Aktion · Ansicht.
+
+**Technische Ausnahmen (nicht automatisch geprüft):** `font-family`/`font-size`/… (native CSS), `FontFace` (native API), `fontsource` (Brand), `touch-action`/`action` (native CSS bzw. JS-Schlüssel), `Adresse` (Input-Parsing: Postadresse/Anschrift-Labels), Dateinamen `sidebar.css`/`32-toast.js`.
+
 ---
 
 ## Autorität und Herkunft
@@ -401,6 +407,28 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
   "compositions": {
     "empfaenger-namenszeile": ["din-empfaenger-vorname", "din-empfaenger-nachname"],
     "absender-namenszeile":   ["din-absender-vorname", "din-absender-nachname"]
+  },
+  "vocabulary": {
+    "canonical": {
+      "dokument": ["Blatt"],
+      "layout": ["Zone", "Atom", "Falz", "Lochmarke", "Anschriftfeld", "Infoblock", "Briefkern", "Fuss"],
+      "inhalt": ["Text", "Betreff", "Anschrift", "Absender", "Datum", "Unterschrift"],
+      "ui": ["Seitenleiste", "Hinweis", "Aktion", "Schrift", "Ansicht"]
+    },
+    "forbidden": [
+      { "term": "paper", "canonical": "Blatt" },
+      { "term": "sheet", "canonical": "Blatt" },
+      { "term": "Brieftext", "canonical": "Text" },
+      { "term": "Briefinhalt", "canonical": "Briefkern" },
+      { "term": "Empfängeradresse", "canonical": "Anschriftfeld" },
+      { "term": "Absenderinformationen", "canonical": "Infoblock" },
+      { "term": "sidebar", "canonical": "Seitenleiste" },
+      { "term": "toast", "canonical": "Hinweis" },
+      { "term": "page-1", "canonical": "seite-1" }
+    ],
+    "forbiddenTokens": ["--paper-", "--c-paper-", "--c-ink-", "--c-ghost-", "--fold-", "--punch-", "--din-width", "--din-height", "--guide-opacity"],
+    "exceptions": ["sheet.css", "sidebar.css", "32-toast.js"],
+    "notAutoChecked": ["font (native CSS font-family/size/weight/…)", "action (native touch-action / JS-Schluessel)", "Adresse (Input-Parsing: Postadresse/Anschrift-Labels)"]
   }
 }
 ```
@@ -412,6 +440,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
 
 | Datum | Änderung |
 |---|---|
+| 2026-09-30 | Kanonisches Vokabular (`vocabulary`) ins Inventar + Gate-Prüfung in `tools/imr.js` |
 | 2026-09-30 | Formalisiert: Registry Contract + MUST-NOT, Namespace-Kategorien, Alias-Registry, Authority-Klassen, maschinenlesbares JSON-Inventar |
 | 2026-09-30 | Nicht-atomare Bezeichner deklariert (Namenszeile, Rendering, `data-`-Konvention); `din-`-Präfix für Atome/Zonen/Rahmen reserviert |
 | 2026-09-02 | Master-Modell: Zonen, Komposition, Kontakt-Platzierung, Overlay außerhalb der 45, Geometrie klassifiziert, Form A/B am Dokumentrahmen |

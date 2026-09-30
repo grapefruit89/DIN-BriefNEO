@@ -31,8 +31,8 @@ export class DraftManager {
      * programmatisches replaceChildren zerstoeren natives Undo, daher
      * bleibt der eigene Snapshot-Undo innerhalb des Blatts verbindlich. */
     document.addEventListener('keydown', (e) => {
-      const sheet = /** @type {Element | null} */ (e.target instanceof Element ? e.target.closest('din-a4') : null);
-      if (!sheet || !(e.ctrlKey || e.metaKey)) return;
+      const blatt = /** @type {Element | null} */ (e.target instanceof Element ? e.target.closest('din-a4') : null);
+      if (!blatt || !(e.ctrlKey || e.metaKey)) return;
       const key = e.key.toLowerCase();
       if (key === 'z') {
         e.preventDefault();
@@ -123,7 +123,7 @@ export class DraftManager {
        * boot-state.js stellt nur textContent her (keine HTML-Parität). */
       if (id === 'text' || id === 'anlagen-text') {
         /* M2: Anlagen brauchen UL/LI (Listen-Doktrin von ensureListStructure),
-         * Brieftext bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
+         * Der Text bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
         const extra = id === 'anlagen-text' ? { extraTags: ['UL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));
       } else if (!elem.querySelector('select[data-speichern]')) {

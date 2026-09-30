@@ -1204,3 +1204,16 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** keine Restvorkommen (grep leer), Schutz-Token intakt (`font-family`, `FontFace`, `fontsource`, `32-toast.js`, `css/sidebar.css`), `node --check` aller JS ok, ID-Konsistenz JS↔HTML ok, Gate 100 %, `imr.js` OK.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) Renames über Guard-Regex (`(?!\.js|\.css)`) + explizite Native-/Brand-Ausnahmen statt Blanket; (b) **`dataset.camelCase` ist die Falle** beim Attribut-Rename — Attribut und JS-Zugriff müssen zusammen wandern; (c) tote `container-name` ohne `@container` einfach löschen statt harmonisieren.
+
+## 2026-09-30 — Kanonisches Vokabular als IMR-Vertrag + Gate-Prüfung
+
+**Kontext:** Der Sweep zeigte: `imr.js` kontrollierte bisher nur die `din-*`-Struktur, nicht das übrige Projektvokabular. Ziel: die IMR definiert **auch die erlaubte Sprache**, und das Gate prüft sie — damit kein manueller Sweep mehr nötig ist.
+
+**Änderung:**
+1. **IMR-Inventar** um `vocabulary` erweitert: `canonical`, `forbidden` (paper→Blatt, sheet→Blatt, Brieftext→Text, Briefinhalt→Briefkern, Empfängeradresse→Anschriftfeld, Absenderinformationen→Infoblock, sidebar→Seitenleiste, toast→Hinweis, page-1→seite-1), `forbiddenTokens` (`--paper-`/`--c-paper-`/`--c-ink-`/`--c-ghost-`/`--fold-`/`--punch-`/`--din-width`/`--din-height`/`--guide-opacity`), `exceptions` (Dateinamen), `notAutoChecked` (font/action/Adresse wegen native API bzw. Input-Parsing).
+2. **`tools/imr.js`**: neue `checkVocabulary` — **case-sensitive** (kapitalisierte API-/Brand-Namen bleiben unberührt), Wortgrenzen mit `-`/`_`/`.`, überspringt `.js`/`.css`-Tokens und die Ausnahmen; `forbiddenTokens` als Literal-Scan. Verstöße sind Gate-`critical`.
+3. **Residuen bereinigt:** Kommentar „Brieftext"→„Text", Meldung „Briefinhalt"→„Briefkern", JS-Variablen `sheet`→`blatt` (draft-manager/settings-manager), Kommentar „sheet"→„Blatt".
+
+**Verifikation:** `node tools/imr.js` → „IMR OK"; Negativtest greift (`paper`/`sheet`/`sidebar`/`toast` geflaggt) und respektiert Ausnahmen (`font-family`, `touch-action`, `css/sidebar.css`, `showToast`, `32-toast.js`); Gate 100 %; `node --check` ok.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Terminologie deterministisch wie Struktur behandeln — kanonische Liste + verbotene Aliase + technische Ausnahmen als maschinenlesbarer Vertrag im selben SSOT-Dokument; (b) case-sensitive Wortgrenzen + Datei-Pfad-Ausnahmen verhindern die typischen False Positives (native CSS, API-Namen, Brands); (c) was nicht sicher prüfbar ist (native API, Eingabe-Parsing), wird ausdrücklich als `notAutoChecked` deklariert statt still weggelassen.

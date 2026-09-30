@@ -88,11 +88,11 @@ export class SettingsManager {
    */
   changeLayout(layout) {
     this.settings.layout = layout;
-    const sheet = /** @type {HTMLElement | null} */ (document.querySelector('din-a4'));
+    const blatt = /** @type {HTMLElement | null} */ (document.querySelector('din-a4'));
     // @ts-ignore Element-scoped View Transitions (Chrome 147+)
-    if (sheet && typeof sheet.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (blatt && typeof blatt.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // @ts-ignore Element-scoped View Transitions (Chrome 147+)
-      sheet.startViewTransition(() => this.updateSettings()).finished.catch(() => {});
+      blatt.startViewTransition(() => this.updateSettings()).finished.catch(() => {});
     } else {
       this.updateSettings();
     }

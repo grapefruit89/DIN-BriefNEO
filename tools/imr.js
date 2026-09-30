@@ -47,6 +47,53 @@ function walkCode(dir, out = []) {
   return out;
 }
 
+function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function boundaryRe(term) {
+  return new RegExp(`(?<![A-Za-z0-9äöüÄÖÜß])${escapeRe(term)}(?![A-Za-z0-9äöüÄÖÜß])`, 'g');
+}
+
+/**
+ * Kanonischer-Vokabular-Check. Case-sensitive, damit kapitalisierte API-/Brand-
+ * Namen (Toast/ToastSystem, FontFace, Paperless) unberuehrt bleiben. Datei-Pfade
+ * (.js/.css) und die deklarierten Ausnahmen werden uebersprungen.
+ */
+function checkVocabulary(targetDir, inventory) {
+  const out = [];
+  const vocab = inventory.vocabulary;
+  if (!vocab) return out;
+  const exceptions = vocab.exceptions || [];
+  const tokenChar = /[A-Za-z0-9_.\-äöüÄÖÜß]/;
+  const seen = new Set();
+  const files = walkCode(path.join(targetDir, 'website'))
+    .filter(f => !f.includes(`${path.sep}data${path.sep}`));
+  for (const file of files) {
+    const rel = path.relative(targetDir, file).replace(/\\/g, '/');
+    const content = fs.readFileSync(file, 'utf-8')
+      .replace(/\[\[[^\]]*\]\]/g, '')
+      .replace(/@(guide|adr)\b[^\n]*/g, '');
+    const report = (term, msg) => {
+      const key = `${rel}|${term}`;
+      if (!seen.has(key)) { seen.add(key); out.push({ file: rel, message: `${msg} (${rel})` }); }
+    };
+    for (const entry of vocab.forbidden || []) {
+      for (const m of content.matchAll(boundaryRe(entry.term))) {
+        const i = m.index;
+        let a = i, b = i + m[0].length;
+        while (a > 0 && tokenChar.test(content[a - 1])) a--;
+        while (b < content.length && tokenChar.test(content[b])) b++;
+        const token = content.slice(a, b);
+        if (/\.(js|css)$/.test(token)) continue;
+        if (exceptions.some(e => token.includes(e))) continue;
+        report(entry.term, `Verbotener Begriff "${entry.term}" -> kanonisch "${entry.canonical}"`);
+      }
+    }
+    for (const tok of vocab.forbiddenTokens || []) {
+      if (content.includes(tok)) report(tok, `Verbotenes Token "${tok}"`);
+    }
+  }
+  return out;
+}
+
 function checkImr(targetDir) {
   const violations = [];
   const add = (file, message) => violations.push({ file, message });
@@ -106,12 +153,15 @@ function checkImr(targetDir) {
         else if (present[k] !== String(v)) add('website/index.html', `${k}="${present[k]}" weicht von Registry (${v}) ab`);
       }
     }
+
+    // 3) Kanonisches Vokabular (IMR vocabulary-Block)
+    for (const v of checkVocabulary(targetDir, inventory)) add(v.file, v.message);
   }
 
   return { violations, tags: [...tags], inventory };
 }
 
-module.exports = { checkImr, expectedDataAttrs, REGISTRY_REL };
+module.exports = { checkImr, checkVocabulary, expectedDataAttrs, REGISTRY_REL };
 
 if (require.main === module) {
   const r = checkImr(path.resolve(__dirname, '..'));

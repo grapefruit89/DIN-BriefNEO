@@ -65,7 +65,7 @@ export function parseDinLetterPayload(text) {
     return { ok: false, reason: `Unbekannte schema_version ${data.schema_version} — Datei neu exportieren oder Tool aktualisieren.` };
   }
   if (!data.draft || typeof data.draft !== 'object' || Array.isArray(data.draft)) {
-    return { ok: false, reason: 'Kein Briefinhalt in der Datei.' };
+    return { ok: false, reason: 'Kein Briefkern in der Datei.' };
   }
   /* 🚨 ARCHITECTURAL GUARD (Grok F2): Prototyp-Hygiene, kein Allowlist-Zwang.
    * Gefährliche Namen (__proto__, constructor, prototype) explizit ablehnen,

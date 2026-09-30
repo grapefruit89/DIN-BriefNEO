@@ -217,7 +217,7 @@ export class SignatureFeature {
       const dinA4 = document.querySelector('din-a4');
       if (dinA4) {
         const rect = dinA4.getBoundingClientRect();
-        // ~left margin (8%), ~70% down the sheet, half-size
+        // ~8% linker Rand, ~70% Hoehe auf dem Blatt, halbe Groesse
         this.state = { x: rect.width * 0.08, y: rect.height * 0.70, scale: 0.5, rot: 0 };
         this.applyTransform();
       }

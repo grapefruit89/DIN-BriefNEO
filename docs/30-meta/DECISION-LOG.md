@@ -1044,3 +1044,51 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** DIN-Vermaßung nach Refactor **live identisch** (Falz 105/210 mm, Lochmarke 148,5 mm, Fluchtrand 25 mm — die im Code stehennden HTML-Attribut-Werte sind Form-B, nicht 110/220 wie vorher fälschlich im Diag angenommen); Tests 13/13; Gate 100 %; ::search-text-Probe green; Boot-Dot „Gespeichert".
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) DIN-Vermaßung über Custom Functions statt harter calc-Duplikate — Abweichler werden sichtbar statt still verfälscht; (b) ariaNotify-Feature-Detect (typeof) mit Fallback: Status-Dot bleibt die visuelle Quelle; (c) Regelfall beim Feature-Audit: erst Repo-Grep („schon drin?"), dann Empirie („shipped?"), erst dann Design.
+
+## 2026-09-26 — CSS-Review-Triage (ChatGPT) + Mini-Cleanups (Layout-Guard, toter Code, Doku-Drift)
+
+**Kontext:** Externes ChatGPT-Review zu `website/index.html` und `website/css/layout.css`. Jeder Punkt vor Umsetzung gegen Repo-Ist-Stand und Upstream (Spec/MDN) geprüft — nichts blind übernommen.
+
+**Verworfen (Review-Fehlschluss):** „`text-fit` nicht abgesichert" — PoC in Chrome 151 existiert (`web-standards-tracking.md:144-160`: `contain` verworfen, `shrink`/`shrink 60%` gültig). „`field-sizing` betrifft `contenteditable`" — korrekt und belegt: `css-forms-1 §7.1` = „elements with default preferred size", MDN listet nur Form-Controls → die Deklaration ist auf `<din-*>` inert (nicht schädlich; getragen von `text-fit` + fixen Zonenbreiten; `ADR-CSS:76` überzeichnet). „`padding: 3cqh` auf `#viewport`" — falsch: Container-Einheiten lösen gegen den **Vorfahren**-Container auf, nicht gegen sich selbst. Ferner Nicht-Themen/dokumentierte Entscheidungen: `100vw`-Scrollbar (`overflow:hidden` überall), `form-action` vs. `method="dialog"` (MDN: kein Submit/Navigation), `.hidden`→`[hidden]`, `role=article/group` (ADR-HTML §3).
+
+**Umgesetzt (5 Mini-Cleanups):** (1) `layout.css:90` `calc(8 * 0.168cqw)` → `--pt(8)` — echter Guard-Verstoß (`variables.css:90-103` verbietet die Rohform ausdrücklich); (2) toter `.radio-menu`-Block + ungenutztes `.mb-0` gelöscht; (3) doppeltes `display:none` bei `din-postvermerk` entfernt (Gruppenregel `:31` deckt Default); (4) `ADR-CSS:76/186/194/269` `text-fit: contain` → `shrink` (Doku-Drift gegen PoC).
+
+**Verifikation:** Gate 100 % (vor + nach); grep clean (`text-fit: contain`/`radio-menu`/`mb-0`/rohe calc-Form); `din-postvermerk`-Default weiterhin über die Gruppenregel.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) LLM-Reviews zuerst gegen Repo-Ist-Stand + eigene Empirie prüfen — die Mehrheit der „Funde" ist bereits umgesetzt oder dokumentiert (gleiches Muster wie 2026-09-12); (b) ein Review-Wunsch „bitte kommentieren/verifizieren" kann einen echten Guard-Verstoß verdecken (hier calc→`--pt`) — Fundort selbst nachmessen, nicht die Review-Kategorie übernehmen; (c) Plattform-Claims (`field-sizing`, Container-Units) gegen Spec-Paragraf statt gegen Bauchgefühl prüfen, sonst baut man eine Regression ein.
+
+## 2026-09-26 — variables.css-Aufräumen (tote Tokens, guide-opacity-Dedup, --pt-SSOT)
+
+**Kontext:** ChatGPT-Review zu `website/css/variables.css`. Gegen Verbraucher/Setzer geprüft (Layer-Reihenfolge `index.html:15-23`) — die eigentlichen Funde hatte das Review übersehen.
+
+**Review-KEEP (bestätigt):** `@layer`-Kommentar; `@property --guide-opacity` (`inherits: true` ist load-bearing: `:root`-Set + `sheet.css:111`-Consume + Transition `variables.css:19`); `light-dark()`-Struktur; `data-theme="auto"`-Explizitheit; `--bg-sidebar-glass`; `--accent-hover` (1 Verwendung, aber semantischer Token); `[popover] { color-scheme: inherit }`.
+
+**Umgesetzt:** (1) **5 tote Tokens entfernt** (nichts im Repo liest sie): `--guide-color`, `--paper-zoom`, `--shadow-sm`, `--accent-muted` + Kette `--c-accent-muted-day/night`, `--border-color-focus` (war nur vom bereits gelöschten toten `.radio-menu` referenziert). (2) **`--guide-opacity` dedupliziert:** tote `0.15` in `sidebar.css` (layout-Layer) entfernt — wurde nachweislich von `:root:has(#btn-guides-switch:checked){--guide-opacity:0.55}` in `floating.css` (floating-Layer, identischer Selektor) überschrieben; Default nur noch einmal (`variables.css:79`), floating-Dublette weg. (3) **`--pt()` bindet die Blattbreite an `var(--din-width)`** statt Magic-Constant `0.168cqw` (mathematisch identisch: 0.3528/210·100 = 0.168). (4) `tools/reconciliation.js`: Feature-Check „CSS Relative Color Syntax" zeigte auf `variables.css`, wo die Syntax nur im toten `--guide-color` stand → Anker auf `sheet.css` (6 echte `oklch(from …)`-Verwendungen) korrigiert.
+
+**Verifikation:** Gate **100 %** (vor + nach; zwischenzeitlich 96,43 % wegen des Feature-Ankers — gefunden und behoben), grep clean (keine Referenz auf entfernte Tokens; `--guide-opacity` nur noch 1 Default + 1 Override + `@property`), `--pt`-Ergebnis mathematisch identisch. Rollback-Punkt: git.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) **Tote-Token-Scan** (definiert, aber nirgends per `var()` gelesen) findet echten Ballast, den ein Schönheits-Review nicht sieht — aber Primitive, die nur intern in derselben Datei referenziert werden, gehören NICHT in den „unused"-Topf; (b) **über Layer überschriebene Werte sind still tot** (identischer Selektor, spätere Lage gewinnt) — Layer-Reihenfolge beim Dedup zwingend prüfen; (c) Feature-Checks an den Ort echter Nutzung binden, nicht an die Datei, in der ein Token zufällig wohnt.
+
+## 2026-09-26 — print.css: toten `.pv-select`-Block entfernt
+
+**Kontext:** ChatGPT-Review zu `website/css/print.css`. Alle 12 Review-Punkte als KEEP bestätigt; der als „bitte prüfen" markierte `.pv-select`-Selektor war der einzige echte Fund.
+
+**Befund:** `print.css` stylte `.pv-select`/`.pv-select::picker-icon`. Kein Element trägt diese Klasse — das echte Select ist `index.html:80` (`id="sidebar-pv-select" class="sidebar-select sidebar-pv-select"`); Klassen-Matching ist tokenweise, `.pv-select` ≠ `sidebar-pv-select`. Zusätzlich konzeptionell wirkungslos: das Select liegt im `<aside>`, das `print.css:20` per `display:none !important` ausblendet; der gedruckte Postvermerk läuft über `din-postvermerk` (JS-Spiegel). Rename-Leiche (vgl. `layout.css:114-118`, alte `.pv-item`-Regeln dort bereits entfernt).
+
+**Umgesetzt:** `.pv-select` + `.pv-select::picker-icon` (9 Zeilen) entfernt. Übrige Punkte bewusst KEEP: `@page` (`size`/`margin`/`page-margin-safety`, im Datei-Kommentar belegt + PoC in `web-standards-tracking.md`), App-Shell-/`#viewport`-Print-Reset inkl. `container-type: normal`, `din-a4`-mm via `attr()`-SSOT, `[popover]`/`.no-print`/`[data-generated]`/Contenteditable-Reset, `page-break-after: avoid` (ein Blatt/Dokument), `#absender`-Drucklinie.
+
+**Verifikation:** Gate **100 %** (vor + nach), grep clean; übrige Selektoren als live bestätigt (`no-print` 8×, `[placeholder]` 18×, `data-generated` gesetzt in `41-salutation-engine.js:326`).
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Klassen-Selektoren nach Umbenennungen per **Token-Vergleich** prüfen, nicht per Substring — `.pv-select` matcht `sidebar-pv-select` nicht; (b) ein Selektor kann zugleich **syntaktisch tot** (falsche Klasse) und **konzeptionell tot** (Element liegt in `display:none`-Container) sein — beides prüfen, bevor man ihn „repariert"; (c) Print-CSS selektoren auf Elemente in ausgeblendeten Containern sind immer Karteileichen.
+
+## 2026-09-26 — Chrome-only-Aufräumen: reset.css + signature.css (Firefox-Rest, Dubletten, Font-SSOT, Datei-Organisation)
+
+**Kontext:** ChatGPT-Review zu `layers.css`/`reset.css`/`signature.css`. Baseline bestätigt: **Chrome 150+, kein Firefox/Safari** (`Immutable-Law-Catalog.md:37`). Alle KEEPs bestätigt; ein echter Rest + drei optionale Redundanzen umgesetzt.
+
+**Umgesetzt:** (1) `reset.css`: `-moz-osx-font-smoothing: grayscale` entfernt — Firefox-only, in Chromium No-op (Chrome-only-Baseline). (2) `reset.css`: `html { color-scheme: light dark }` entfernt — war von `:root { color-scheme: light dark }` (`variables.css:16`; höhere Spezifität *und* spätere Lage, gleiches Element) vollständig verdeckt. (3) `reset.css`: UI-Font-Literal durch `var(--font-active-stack)` ersetzt (SSOT; Token wird nie mutiert, Custom-Font läuft über `body.font-custom-active` via `02-settings-manager.js:145`). (4) `#btn-font-action`-Visualblock von `signature.css` nach `sidebar.css` verschoben (Schriftarten-Manager-CSS gehört nicht zur Unterschrift; beide `layout`-Layer → kaskadisch neutral, kein Konkurrenz-Selektor, vorher per grep verifiziert).
+
+**Bewusst KEEP:** `layers.css` + Kommentar; `100vw/100dvh + overflow:hidden`; Reduced-Motion-Kill-Switch; `-webkit-font-smoothing` (wirkt in Chromium); `signature.css` pointer-events-Architektur, `:has()`-States, JS-inline `translate/rotate/scale` (`42-signature.js:158-160`), `touch-action:none`, `mix-blend-mode:multiply` (Print-QA), `z-index:100`. `max-width:100%` auf `#signature-image` ist **No-op** (Prozent-`max-width` gegen shrink-to-fit-inline-block in 0-Breite-Container → als `none` aufgelöst) — kein Defekt.
+
+**Verifikation:** Gate **100 %** (vor + nach); grep: kein `-moz-`/`color-scheme` mehr in `reset.css`, `#btn-font-action`-Visualblock genau einmal (`sidebar.css:314`), `floating.css`-`:before`-Labels unverändert.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) bei Chrome-only-Baseline Vendor-Prefixe der Nicht-Ziel-Engines (`-moz-*`) als toten Ballast entfernen; (b) doppelte `color-scheme`-Deklarationen sind still verdeckt (`:root` schlägt `html` per Spezifität) — eine Theme-Quelle; (c) Datei-Organisation nach Feature statt Historie: Layout-Layer-Moves sind kaskadisch neutral, solange kein gleichspezifischer Konkurrenz-Selektor existiert — vorher per grep prüfen.

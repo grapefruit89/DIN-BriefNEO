@@ -128,7 +128,7 @@ const FEATURE_CHECKS = {
   },
   'CSS Relative Color Syntax': {
     regex: /oklch\(from/g,
-    file: 'website/css/variables.css'
+    file: 'website/css/sheet.css'
   },
   'View Transitions': {
     regex: /startViewTransition/g,

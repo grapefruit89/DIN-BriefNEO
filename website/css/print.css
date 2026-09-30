@@ -44,18 +44,6 @@ din-a4 {
     font-style: normal !important;
 }
 
-.pv-select {
-  appearance: none !important;
-  border: none !important;
-  background: transparent !important;
-  color: inherit !important;
-  font: inherit !important;
-  padding: 0 !important;
-}
-.pv-select::picker-icon {
-  display: none !important;
-}
-
 /* DIN 5008: Trennlinie unter Rücksendezeile nur im Druck */
 #absender {
   border-bottom: 0.5pt solid oklch(0% 0 0) !important;

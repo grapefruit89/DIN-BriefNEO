@@ -73,7 +73,7 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 3. **Absolute Viewport- & Blatt-Sperre (Zero-Scroll-Garantie):**
    `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-a4>` und `#briefkern` verbieten jegliches Scrollen physisch. Der Substring `scroll` ist in allen Produktionsdateien unter `website/*.html` und `website/css/*.css` durch das CI-Gate (`tools/start.ps1`) strikt verboten.
 4. **Natives Feldwachstum & Text-Fitting (JS-Kill Phase 1):**
-   `field-sizing: content` lässt einzeilige und mehrzeilige Textfelder mitwachsen. `text-fit: shrink 60%` und `text-fit: contain` stauchen überlange Empfänger- und Betreffzeilen rein deklarativ ohne JS-DOM-Messschleifen (Catalog A49).
+   `field-sizing: content` lässt einzeilige und mehrzeilige Textfelder mitwachsen. `text-fit: shrink 60%` und `text-fit: shrink` stauchen überlange Empfänger- und Betreffzeilen rein deklarativ ohne JS-DOM-Messschleifen (Catalog A49).
 5. **Typografische Umbruchbalance:**
    `text-wrap: balance` im Betreff und `text-wrap: pretty` im Fließtext verhindern unschöne Waisen- und Witwenwörter vollautomatisch in C++ auf Engine-Ebene.
 6. **Natives Theming mit OKLCH & `light-dark()`:**
@@ -183,7 +183,7 @@ website/css/
   * `#infoblock`: Zusatzinformationen rechtsbündig ab 125 mm.
   * `#datum`: Datumszeile normgerecht auf 92 mm (Form B).
   * `#briefkern`: Fließtextbereich mit Fluchträndern 25 mm links und 20 mm rechts; `overflow: clip;`.
-  * `#betreff`: Betreffzeile mit `font-weight: 700; text-fit: contain; text-wrap: balance;`.
+  * `#betreff`: Betreffzeile mit `font-weight: 700; text-fit: shrink; text-wrap: balance;`.
   * `#anrede`: 10.5pt Schriftgröße, 1 Leerzeile Abstand.
   * `#brieftext`: Blocksatz (`text-align: justify; hyphens: auto; text-wrap: pretty; line-height: 1.4;`).
   * `#grussformel`: 1 Leerzeile vor Gruß, 3 Leerzeilen für Unterschrift.
@@ -191,7 +191,7 @@ website/css/
   * `#postvermerk-dropdown`: Popover im Top-Layer, verankert an `--anchor-postvermerk`.
 * **Natives Text-Fitting & Font-Shrink:**
   * `#empfaenger, #infoblock, #briefkern, #anrede, #grussformel, #unterschrift { text-fit: shrink 60%; }`.
-  * `.single-line`: `white-space: nowrap; overflow: clip; text-overflow: ellipsis; text-fit: contain; field-sizing: content;`.
+  * `.single-line`: `white-space: nowrap; overflow: clip; text-overflow: ellipsis; text-fit: shrink; field-sizing: content;`.
 * **Moderne Form-Controls & Base Select:**
   * `#sidebar-pv-select`: Gestaltet via `appearance: base-select`, `::picker(select)` und `::picker-icon`.
 * **Hilfslinien & Faltmarken:**
@@ -266,7 +266,7 @@ Folgende CSS-Praktiken und Alt-Techniken sind im Projekt **strikt verboten (HARD
 | :--- | :--- | :---: | :--- | :--- |
 | **`z-index: 9999` Wars** | Toast-, Modal- und Dropdown-Schichtung | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 15, Probe P5 | Native HTML Popover API (`popover="manual"`) und `<dialog>` im Browser-Top-Layer. |
 | **Viewport- / Papier-Scrollbalken** | `overflow: auto;`, `overflow: scroll;` | 🚫 **HARD BAN** | Zero-Scroll-Mandat, Catalog A46 | `overflow: clip; contain: strict;`. Der Substring `scroll` ist in `website/*.html` und `website/css/*.css` komplett verboten. |
-| **JS-gesteuertes Layout & Text-Fit** | `48-text-fit.js`, `ResizeObserver`, DOM-Messschleifen | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `text-fit: shrink 60%`, `text-fit: contain`, `text-wrap: balance/pretty`. 0ms Latenz. |
+| **JS-gesteuertes Layout & Text-Fit** | `48-text-fit.js`, `ResizeObserver`, DOM-Messschleifen | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `text-fit: shrink 60%`, `text-fit: shrink`, `text-wrap: balance/pretty`. 0ms Latenz. |
 | **Statische Hex/RGB-Farbduplikation** | Manuelle `.dark-mode`-Klassen mit HEX-Dopplung | 🚫 **HARD BAN** | Longevity Guidelines, ADR-CSS | CSS `color-scheme: light dark;`, `light-dark()` und W3C Relative Color Syntax im OKLCH-Farbraum. |
 | **`calc()` Font-Leading Hacks** | Negative Ränder zur Ausgleichung von Schrift-Freiräumen | 🚫 **HARD BAN** | Catalog A49 | Native CSS Half-Leading-Neutralisierung (`text-box-trim: both`, `text-box-edge: cap alphabetic`). |
 | **CSS-Frameworks & Utility-Klassen** | Kein Tailwind, kein Bootstrap, kein Bulma | 🚫 **HARD BAN** | Catalog A45, Longevity Guidelines | 100% Handcrafted Vanilla CSS mit `@layer`, `@scope`, Container Queries und Semantic Tokens. |

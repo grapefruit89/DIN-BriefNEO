@@ -310,6 +310,22 @@ aside {
   margin-bottom: 4px;
 }
 
+/* Font action button — segmented look with upload/reset states (Schriftarten-Manager) */
+#btn-font-action {
+  background: var(--segment-bg);
+  color: var(--text-muted);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+#btn-font-action[data-font-mode="reset"] {
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  box-shadow: var(--segment-active-shadow);
+}
+
 /* --- CSS-FIRST REFACTORING --- */
 /* Address Book Save Button */
 .address-save-btn {
@@ -333,9 +349,6 @@ aside {
 #geoapify-wrapper #address-search-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
 #geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #address-search-container { display: flex; flex-direction: column; }
-:root:has(#btn-guides-switch:checked) {
-  --guide-opacity: 0.15;
-}
 .btn-guides::before {
   content: '📐 Falz- & Lochmarken einblenden';
 }

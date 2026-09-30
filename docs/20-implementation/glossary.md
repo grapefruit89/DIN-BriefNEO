@@ -53,7 +53,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Schützt vor Race Conditions bei der Adress-Autovervollständigung, indem alte Netzwerk-Requests sofort abgebrochen werden, wenn der Benutzer einen neuen Buchstaben eintippt.
 
-*   **Verweis:** Siehe [[ADR-API#4-race-condition-schutz-via-abortcontroller|ADR-API.md]] und [[longevity-guidelines|longevity-guidelines.md]].
+*   **Verweis:** Siehe [[ADR-OFFLINE-ADDRESS-INTELLIGENCE|ADR-OFFLINE-ADDRESS-INTELLIGENCE.md]] und [[longevity-guidelines|longevity-guidelines.md]].
 
 ### `container-type: size`
 
@@ -61,7 +61,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Deklariert auf dem `<din-a4>`-Blatt, um proportionale CSS-Layoutberechnungen unabhängig von der Skalierung des übergeordneten Fensters durchzuführen.
 
-*   **Verweis:** Siehe [[ADR-CSS#2-container-queries--proportionale-einheiten-cqw--cqh|ADR-CSS.md]] und [[din-5008-geometry|din-5008-geometry.md]].
+*   **Verweis:** Siehe [[ADR-CSS#2-container-queries--proportionale-einheiten-cqw--cqh|ADR-CSS.md]] und [[din-5008-css-architektur|din-5008-css-architektur.md]].
 
 ### `cqw` / `cqh` (CSS Container Query Units)
 
@@ -80,7 +80,7 @@ depends_on: []
         C -.->|Beispiel: 45mm Kopfhöhe| E["15.152 cqh"]
     ```
 
-*   **Verweis:** Siehe [[ADR-CSS#2-container-queries--proportionale-einheiten-cqw--cqh|ADR-CSS.md]] und [[din-5008-geometry|din-5008-geometry.md]].
+*   **Verweis:** Siehe [[ADR-CSS#2-container-queries--proportionale-einheiten-cqw--cqh|ADR-CSS.md]] und [[din-5008-css-architektur|din-5008-css-architektur.md]].
 
 ### `fetch()` API
 
@@ -88,7 +88,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Führt die asynchronen Adresssuchen über Photon und Geoapify im Hintergrund aus und validiert den API-Key per Heartbeat.
 
-*   **Verweis:** Siehe [[ADR-API#1-dual-provider-autocomplete-photon--geoapify|ADR-API.md]].
+*   **Verweis:** Siehe [[ADR-OFFLINE-ADDRESS-INTELLIGENCE|ADR-OFFLINE-ADDRESS-INTELLIGENCE.md]].
 
 ### `Geoapify API`
 
@@ -96,7 +96,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Dient als optionaler Premium-Adress-Provider in der Sidebar (erfordert Key, geschützt über Header-Security).
 
-*   **Verweis:** Siehe [[ADR-API#1-dual-provider-autocomplete-photon--geoapify|ADR-API.md]] und [[ADR-FEATURE#4-automatisches-proximity-biasing|ADR-FEATURE.md]].
+*   **Verweis:** Siehe [[ADR-OFFLINE-ADDRESS-INTELLIGENCE|ADR-OFFLINE-ADDRESS-INTELLIGENCE.md]] und [[ADR-HTML|ADR-HTML.md]].
 
 ### `IMR 4.0` (Input Mapping Registry)
 
@@ -136,7 +136,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Dient als Standard-Adress-Provider in der Sidebar. Funktioniert keyless und ohne Kreditkartenregistrierung.
 
-*   **Verweis:** Siehe [[ADR-API#1-dual-provider-autocomplete-photon--geoapify|ADR-API.md]].
+*   **Verweis:** Siehe [[ADR-OFFLINE-ADDRESS-INTELLIGENCE|ADR-OFFLINE-ADDRESS-INTELLIGENCE.md]].
 
 ### Popover API (`popover="manual"`)
 
@@ -144,7 +144,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Steuert die schwebende WhatsApp-Toolbar und die Popover-Toasts nativ auf Browserebene. Verhindert jegliche Z-Index-Kollisionen im CSS.
 
-*   **Verweis:** Siehe [[ADR-HTML#2-native-html-popover-api--dialogs|ADR-HTML.md]] und [[ADR-FEATURE#1-whatsapp-style-selection-toolbar-popover|ADR-FEATURE.md]].
+*   **Verweis:** Siehe [[ADR-HTML#2-native-html-popover-api--dialogs|ADR-HTML.md]] und [[ADR-HTML|ADR-HTML.md]].
 
 ### Selection & Range API
 
@@ -160,7 +160,7 @@ depends_on: []
 
 *   **Nutzen im Projekt:** Löst 5-stellige deutsche PLZs im Empfängerfeld im Hintergrund auf, um den Ortsnamen automatisch hinzuzufügen.
 
-*   **Verweis:** Siehe [[ADR-API#5-zippopotam-plz-auto-lookup|ADR-API.md]].
+*   **Verweis:** Siehe [[ADR-OFFLINE-ADDRESS-INTELLIGENCE|ADR-OFFLINE-ADDRESS-INTELLIGENCE.md]].
 
 ### Falzmarke / Faltmarke
 

@@ -27,6 +27,8 @@ Case-Contract, Baseline-Sweep, Doppelpflege-Entfernung, Traceability-Anker).
 | 7 | **Stale Pfade** | stimmt der genannte Dateipfad? | gegen `git ls-files` / `ls` prüfen |
 | 8 | **Archiv/Rolle** | veraltet/überholt? | nach `docs/90-archive/` |
 
+Klasse 2 wird seit 2026-09 automatisch erzwungen: `tools/links.js` (Gate-Regel `links`, severity **critical**) prüft inline `[[…]]` und Frontmatter `doc_links`/`depends_on` gegen existierende Basenames. Manuell bleibt nur das Umbiegen/Aufräumen. Ausnahmen (Code-Fences/-Spans, Template-Platzhalter, Chronik, `90-archive`, `supersedes`-Lineage) definiert `tools/links.js`.
+
 ## 2. Scan-Vorlagen
 
 ```bash

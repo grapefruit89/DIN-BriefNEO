@@ -4,14 +4,14 @@ title: 'Guide: Geoapify Autocomplete Implementierung'
 type: guide
 status: active
 created: '2026-07-02'
-updated: '2026-07-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
   - status/active
   - type/guide
 doc_links:
-  - ADR-GEOAPIFY
+  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
 code_links:
   - website/js/main.js
 error_patterns:

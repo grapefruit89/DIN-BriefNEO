@@ -398,6 +398,39 @@ function runReconciliation() {
     }
   }
 
+  // --- Link-Check (Wikilinks [[...]] + Frontmatter doc_links/depends_on) ----
+  // Werkzeug: tools/links.js. Faengt tote Wikilinks/Frontmatter-Links, die der
+  // Markdown-Link-Check weiter unten NICHT sieht (der prueft nur `[](path)`).
+  // Ausnahmen (Code-Fences/-Spans, Template-Platzhalter, Chronik, 90-archive,
+  // supersedes-Lineage): siehe tools/links.js.
+  conformanceChecked += 1;
+  {
+    let linkViolations = [];
+    try {
+      linkViolations = require('./links.js').checkLinks(targetDir).violations;
+    } catch (err) {
+      logs.push({
+        file_path: 'tools/links.js',
+        check_type: 'links',
+        severity: 'low',
+        message: `Link-Check uebersprungen: ${err.message}`
+      });
+      linkViolations = [];
+    }
+    if (linkViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of linkViolations) {
+        logs.push({
+          file_path: v.file,
+          check_type: 'links',
+          severity: 'critical',
+          message: v.message
+        });
+      }
+    }
+  }
+
   const docFiles = getFilesRecursively(targetDir);
   let metadataChecked = 0;
   let metadataPassed = 0;

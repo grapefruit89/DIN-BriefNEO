@@ -15,7 +15,6 @@ doc_links:
   - ADR-CSS
   - longevity-guidelines
   - no-scroll-techniques
-  - chrome-modern-css
 code_links:
   - website/css/layout.css
   - website/css/variables.css

@@ -256,12 +256,12 @@ color: #336699; /* Hard Bug! */
 - `_to_delete/aktueller_arbeitsordner/` — leerer Stub, der am 2026-08-28 unerklärt wieder aufgetaucht ist (Ordner war seit Commit 7edaf19 am 2026-08-27 eigentlich aufgelöst; kein aktuelles Skript referenziert den alten Pfad mehr, vermutlich Sync-Artefakt). Liegt zum Löschen bereit, da Delete-Permission in dieser Session verweigert wurde
 - Loser `agents/` Ordner (Plural, ungetrackt) + `ChatGPT-Repo Struktur Refactoring-*.json` (123 KB) im Root — beides Altlasten, siehe DECISION-LOG
 - Feature-Matrix neu messen (aktueller Stand >> 76%)
-- Profil-Management: bauen oder streichen? (Produktentscheidung offen, siehe [[ADR-PROFILE-MANAGEMENT]])
+- Profil-Management: bauen oder streichen? (Produktentscheidung offen, siehe [[ROADMAP]])
 - History Stack Limit korrigieren: Code nutzt tatsächlich 50 (`#undoStack` in `01-draft-manager.js`), nicht 20 oder 60 — Doku-Referenzen auf 20/60 sind falsch
 
 ### Verifiziert (2026-08-08, Memory-Audit)
 - ✅ **Salutation Engine SPEC-002:** Titel-Scan, Auto-Gender-Erkennung, 3-stufiger Formality-Switch und Grußformel-Generator sind in `41-salutation-engine.js` implementiert. Ghost-Text-Pattern und DIN-Punktuations-Validator waren zum Audit-Zeitpunkt nicht implementiert — siehe "Erledigt (2026-08-28)" unten, wo beides nachgezogen wurde. `Salutation-Engine.md` beschrieb zudem eine veraltete Zieldatei-Struktur (`salutation.js`/`logic.js`/`engine.js`) — im selben Zug korrigiert.
-- ✅ **IBAN Ghost-Text:** existiert nicht — weder das Sicherheitsproblem noch das Feature selbst sind im Produktivcode vorhanden (siehe [[ADR-PROFILE-MANAGEMENT]]).
+- ✅ **IBAN Ghost-Text:** existiert nicht — weder das Sicherheitsproblem noch das Feature selbst sind im Produktivcode vorhanden (siehe [[ROADMAP]]).
 - ✅ **CSS Custom Properties:** `--c-danger` und `--c-success` sind in `variables.css` definiert. `--c-text-muted` existiert nirgends (weder Definition noch Verwendung) — kein aktiver Bug, nur eine veraltete Doku-Erwähnung.
 - ✅ **History Stack Limit:** Code verwendet `50` (nicht 20 oder 60) — siehe oben unter "Offen", da die Doku-Werte selbst noch zu korrigieren sind.
 

@@ -1300,3 +1300,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 %, `imr.js` OK, 0 Rest-Referenzen außer Chronik (`DECISION-LOG`) und dem kebab-`id`.
 
 **Generalisierbarkeit:** Ein Namensschema pro Doc-Typ — ADR = `ADR-<THEMA>` uppercase, `id` immer kebab. Nummern-Präfixe sind Ballast (das Thema trägt die Identität). Bei Rename **Datei + `id` + alle `[[…]]`/`@adr`/`doc_links` gemeinsam** migrieren, sonst driften Anker.
+
+## 2026-09-30 — Link-Gate (D): tote Wikilinks/Frontmatter-Links werden erzwungen
+
+**Kontext:** Der Gate prüfte nur klassische Markdown-Links und `relations:` — inline `[[…]]`-Wikilinks sowie Frontmatter-`doc_links`/`depends_on` waren ungeprüft. Dangling Links (ADR-001/`chrome-modern-css`/`ADR-PROFILE-MANAGEMENT` …) fielen dadurch erst bei manueller Aufräumarbeit auf.
+
+**Änderung:** Neues `tools/links.js` (Muster wie `imr.js`) + Regel `links` (severity **critical**) in `tools/reconciliation.js`. Prüft alle `.md` gegen existierende Datei-Basenames. **Ausnahmen:** Code-Fences, Inline-Code-Spans (`` `[[…]]` `` = Syntax-Beispiel), Template-Platzhalter, Chronik (`DECISION-LOG`/`CHANGELOG`), `docs/90-archive/`, generierte Artefakte, `supersedes` (bewusste Lineage zu ersetzten Alt-Dokumenten). Dabei die verbliebenen echten Toten bereinigt: `CLAUDE.md` (`ADR-PROFILE-MANAGEMENT` → `ROADMAP`), `glossary.md` (Legacy `ADR-API`/`ADR-FEATURE`/`din-5008-geometry` → heutige ADRs), `din-5008-css-architektur.md` (`chrome-modern-css` entfernt), `geoapify-autocomplete.md` (`ADR-GEOAPIFY` → `ADR-OFFLINE-ADDRESS-INTELLIGENCE`).
+
+**Verifikation:** Positiv 100 %; Negativtest (toter `[[…]]`) → `🔴 [CRITICAL] (links)` → 99,88 % / `success=false`.
+
+**Generalisierbarkeit:** Ein Link-Gate muss **Wikilinks UND Frontmatter-Listen** prüfen — relative MD-Links allein genügen nicht. Beispiel-Syntax (Code-Fences/-Spans) und Lineage (`supersedes`) sind legitime Ausnahmen; ohne sie wird das Gate zum Rauschen.

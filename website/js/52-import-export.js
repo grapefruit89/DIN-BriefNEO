@@ -1,6 +1,6 @@
 // @ts-check
 // @adr [[ADR-DATA-PERSISTENCE]] {ImportExport}
-// @guide [[chrome-modern-css]]
+// @guide [[din-5008-css-architektur]]
 
 /*
  * 52-import-export.js — .dinletter als First-Class-Datenformat

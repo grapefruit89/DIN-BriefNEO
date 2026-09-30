@@ -36,7 +36,7 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 - [[IMR-Registry]] ⭐⭐⭐ — Single Source of Truth: alle Custom Tags, Zonen
 - [[ADR-ANTIPATTERN]] ⭐⭐⭐ — Verbotsregister, vor jeder Änderung lesen
 - [[ADR-OMNITRACEABILITY]] — Wie Code und Docs verknüpft sind (inkl. How-To, Compliance & bekannte Einschränkungen)
-- [[Function-Traceability]] — Funktions-Traceability-Matrix
+- [[Function-Traceability]] — Funktions-Traceability-Matrix (generiert durch `tools/build_db.py`, **nicht versioniert**)
 
 ## ADRs — Thematische Architektur-Entscheidungen
 
@@ -55,4 +55,4 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 
 - Migrierte/archivierte Entscheidungen — siehe `docs/90-archive/`
 - [[ADR-TEMPLATE]] — Template für neue ADRs (liegt in `30-meta/`)
-- [[Code-Referenzen]] — Autogeneriert: Code ↔ ADR Verknüpfungen
+- [[Code-Referenzen]] — Autogeneriert (Code ↔ ADR Verknüpfungen, `tools/build_db.js`, **nicht versioniert**)

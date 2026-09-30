@@ -1,6 +1,6 @@
 // @ts-check
-// @adr [[ADR-007-Smart-Clipboard-Impressum-Parser]]
-// @guide [[din-5008-anschriftfeld]]
+// @adr [[ADR-006-Offline-Address-Intelligence]]
+// @guide [[din-5008-css-architektur]]
 
 import { AddressIntelligence } from './45-address-intelligence.js';
 

@@ -1,6 +1,6 @@
 // @ts-check
 // @adr [[ADR-JS]] {BootTheme}
-// @guide [[chrome-modern-css]]
+// @guide [[din-5008-css-architektur]]
 
 /*
  * Blocking classic script (head): setzt data-theme/colorScheme VOR dem First Paint

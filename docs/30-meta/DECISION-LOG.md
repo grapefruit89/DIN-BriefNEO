@@ -1270,3 +1270,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 %, `imr.js` OK, keine toten Restverweise.
 
 **Generalisierbarkeit:** Eine Datei = eine Rolle; manuelle Matrizen, die generierte Duplizieren, streichen (kein „zweites Wissensmanagement"); das **Wie** gehört in Code/Guide, der ADR hält das **Warum**.
+
+## 2026-09-30 — Traceability-Anker repariert (B) + generierte Artefakte enttrackt (C)
+
+**Kontext:** Code-Annotationen `@adr`/`@guide` zeigten auf **nicht existierende** Doku (`chrome-modern-css`, `din-5008-geometry/-layout/-anschriftfeld`, `ADR-007-Smart-Clipboard-Impressum-Parser`) → die generierten Matrizen hatten unauflösbare Anker. Zudem war `Function-Traceability.md` als generiertes Artefakt getrackt.
+
+**Änderung:** (B) Alle dangling-Annotationen auf existierende Ziele umgebogen: `chrome-modern-css` + `din-5008-*` → `din-5008-css-architektur`; `ADR-007-…` → `ADR-006-Offline-Address-Intelligence` (13 Dateien). (C) `Function-Traceability.md` enttrackt + in `.gitignore` (wie `Code-Referenzen.md`, `import.sql`, `LLM_CONTEXT.md`); READMEs markieren beide als „generiert, nicht versioniert".
+
+**Verifikation:** Gate 100 %, keine dangling-Annotationen mehr.
+
+**Generalisierbarkeit:** Generierte Artefakte **nie** versionieren (Git-Noise bei Zeilenverschiebungen); Traceability-Anker müssen auf existierende Doku zeigen — sonst lügt die Matrix.

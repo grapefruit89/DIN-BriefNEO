@@ -75,7 +75,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 - **[[IMR-Registry]]** ⭐⭐⭐ — Alleinige Quelle der Wahrheit (SSoT) für alle 45 Custom Tags und DIN-5008-Millimetermaße.
 - **[[ADR-ANTIPATTERN]]** ⭐⭐⭐ — Das technische Verbotsregister (Vor jeder Änderung zwingend lesen!).
 - **[[ADR-OMNITRACEABILITY]]** ⭐⭐ — Bidirektionale Verknüpfung von Quellcode und Dokumentation.
-- **[[Function-Traceability]]** ⭐⭐ — Matrix aller JavaScript-Module und zugeordneter Architekturentscheidungen.
+- **[[Function-Traceability]]** ⭐⭐ — Matrix aller JavaScript-Module und zugeordneter Architekturentscheidungen (generiert, nicht versioniert).
 - **Thematische Architektur-Entscheidungen (ADRs):**
   - **[[ADR-HTML]]** — Semantische HTML-Struktur, WYSIWYG & Native Popover Toolbars (integriert ehem. ADR-FEATURE).
   - **[[ADR-CSS]]** — Container Queries, Falzmarken, Viewport-Sizing, oklch (integriert ehem. ADR-BETREFF).

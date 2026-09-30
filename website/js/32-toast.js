@@ -1,5 +1,5 @@
 // @ts-check
-// @guide [[chrome-modern-css]]
+// @guide [[din-5008-css-architektur]]
 
 /**
  * @typedef {{message: string, type: string, options: any, duration: number}} ToastEntry

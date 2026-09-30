@@ -1,7 +1,7 @@
 // @ts-check
 // @adr [[ADR-JS]] {BootState}
 // @adr [[ADR-DATA-PERSISTENCE]] {DraftRestore}
-// @guide [[chrome-modern-css]]
+// @guide [[din-5008-css-architektur]]
 
 /*
  * Blocking classic script (Ende von <body>): stellt vor dem Start der ES-Module

@@ -1,6 +1,6 @@
 // @ts-check
 // @adr [[ADR-JS]] {RichTextSanitizer}
-// @guide [[chrome-modern-css]]
+// @guide [[din-5008-css-architektur]]
 
 /**
  * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.

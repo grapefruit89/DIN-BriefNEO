@@ -24,6 +24,7 @@ __pycache__/
 LLM_CONTEXT.md
 import.sql
 docs/10-architecture/Code-Referenzen.md
+docs/10-architecture/Function-Traceability.md
 
 # OS / Editor
 .DS_Store

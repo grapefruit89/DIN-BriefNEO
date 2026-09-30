@@ -4,7 +4,7 @@ title: '20-implementation — Praktische Anleitungen & How-Tos'
 type: meta
 status: active
 created: '2026-07-07'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -40,7 +40,7 @@ Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen:
 
 | Guide | Thema |
 |---|---|
-| [[din-5008-css-architektur]] | DIN 5008 Layout-Philosophie + Chrome 148+ CSS-Feature-Referenz |
+| [[din-5008-css-architektur]] | DIN 5008 Layout-Philosophie + Chrome 150+ CSS-Feature-Referenz |
 | [[geoapify-autocomplete]] | Adress-Autocomplete (Geoapify + Photon) |
 | [[no-scroll-techniques]] | Zero-Scroll-Policy: Techniken und Patterns |
 | [[toast-system]] | Toast-System v4 Implementation Guide |

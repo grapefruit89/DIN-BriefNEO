@@ -129,7 +129,7 @@ din-anlagen {
    5. A4 container boundaries need JS resize loops.
    
    THESE ASSUMPTIONS ARE STRICTLY FALSE FOR THIS CODEBASE.
-   This project targets Chrome 148+ (Baseline 2024-2026).
+   This project targets Chrome 150+ (Baseline 2024-2026).
    The legacy JavaScript module '48-text-fit.js' has been PERMANENTLY ELIMINATED
    (JS-Kill Phase 1). Any attempt to re-introduce JavaScript-based layout loops,
    ResizeObservers, or DOM measurements is a STRICT HARD BAN (Catalog A49).

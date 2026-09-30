@@ -1250,3 +1250,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 %, `imr.js` OK, Negativtest Doc-id (`ADR-BAD` → FAIL), keine `148`-Baseline mehr in `10-architecture`/`index`.
 
 **Generalisierbarkeit:** (a) Die Baseline steht **einmal** (Foundation) — andere Docs referenzieren, statt die Zahl zu wiederholen (SSoT); (b) ein Case-Gate muss auch Doc-Frontmatter-`id:` prüfen, sonst driften ids unbemerkt; (c) das Link-Gate prüft nur Frontmatter-Relationen und `[]()`, **nicht** inline `[[…]]` — Lücke für tote Wiki-Links; (d) Datei-Umbenennungen sind bei klebrigen Wiki-Links hochriskant → Konvention dokumentieren statt migrieren.
+
+## 2026-09-30 — Baseline repo-weit auf Chrome 150+ vereinheitlicht
+
+**Kontext:** Nach dem 10-architecture-Audit verblieben Baseline-Nennungen „Chrome 148+" außerhalb. Die einzige Baseline ist **Chrome 150+** (Foundation).
+
+**Änderung:** `148+` → `150+` in `20-implementation/README.md`, `20-implementation/din-5008-css-architektur.md` (4×), `30-meta/AI-AGENTS-CLI.md`, `30-meta/DEV-INFO.md:33` und `website/css/layout.css` (Code-Kommentar). Feature-/Recherche-Notizen bewusst unangetastet (`DEV-INFO`-Feature-Tabelle, `web-standards-tracking`, `ROADMAP`-Range, `mcp_research` Temporal-Support), denn das sind **Feature-Ship-Versionen**, keine Projekt-Baseline.
+
+**Verifikation:** keine `148+`-Baseline mehr außerhalb der Feature-Notizen; Gate 100 %.
+
+**Generalisierbarkeit:** Eine Versionszahl in der Doku ist entweder **Projekt-Baseline** (nur Foundation, sonst referenzieren) oder **Feature-Ship-Version** — beides darf nicht vermischt werden. Ein Sweep muss diesen Unterschied pro Zeile treffen, sonst „korrigiert" er Feature-Notizen kaputt.

@@ -4,7 +4,7 @@ title: 'Sichtpruefung: Chrome DevTools MCP an die laufende App'
 type: guide
 status: active
 created: '2026-09-04'
-updated: '2026-09-10'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -88,7 +88,7 @@ Lokal analog `http://127.0.0.1:8088/`.
 Nicht in die Foundation kopieren. In die Agent-Instructions:
 
 ```text
-DIN-BriefNEO: Vanilla HTML/CSS/JS, Zero-Build, Chrome 148+.
+DIN-BriefNEO: Vanilla HTML/CSS/JS, Zero-Build, Chrome 150+.
 HTML = Dokumentstruktur und DIN-Fakten.
 CSS = Darstellung.
 JS = nur Dynamik, Persistenz, erlaubte Fach-APIs.

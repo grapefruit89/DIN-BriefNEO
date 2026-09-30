@@ -4,7 +4,7 @@ title: 'DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz'
 type: guide
 status: active
 created: '2026-06-26'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -39,7 +39,7 @@ depends_on: []
 
 # DIN 5008 CSS-Architektur — Layout-Philosophie & Feature-Referenz
 
-Zwei Perspektiven auf dieselbe Architektur: **Warum** wir so denken (Lessons Learned aus LaTeX) und **Was** wir konkret einsetzen (moderne CSS-Feature-Referenz für Chrome 148+).
+Zwei Perspektiven auf dieselbe Architektur: **Warum** wir so denken (Lessons Learned aus LaTeX) und **Was** wir konkret einsetzen (moderne CSS-Feature-Referenz für Chrome 150+).
 
 ---
 
@@ -78,9 +78,9 @@ In der frühen Explorationsphase haben wir das LaTeX-Paket `GerLaTeXLetter` tief
 
 ---
 
-## Teil 2 — Moderne CSS-Feature-Referenz (Chrome 148+)
+## Teil 2 — Moderne CSS-Feature-Referenz (Chrome 150+)
 
-Da die App Chrome 148+ voraussetzt, nutzen wir hochmoderne Web-Plattform-Features nativ — ohne Polyfills, ohne Prefix-Hacks.
+Da die App Chrome 150+ voraussetzt, nutzen wir hochmoderne Web-Plattform-Features nativ — ohne Polyfills, ohne Prefix-Hacks.
 
 ### 2.1 Farbthemen & Design Tokens
 
@@ -111,4 +111,4 @@ Da die App Chrome 148+ voraussetzt, nutzen wir hochmoderne Web-Plattform-Feature
 
 ### 2.4 Feature-Stabilität
 
-Alle oben genannten Features sind auf **Chrome 148+** stabil verfügbar. Ein manueller JavaScript-Feature-Check ist unnötig — wir definieren Chrome 148+ als harte Engine-Vorbedingung.
+Alle oben genannten Features sind auf **Chrome 150+** stabil verfügbar. Ein manueller JavaScript-Feature-Check ist unnötig — wir definieren Chrome 150+ als harte Engine-Vorbedingung.

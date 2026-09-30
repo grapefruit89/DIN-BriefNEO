@@ -47,6 +47,40 @@ Es gibt keine Atome 46 oder 47. Overlay ist keine der 45.
 
 ---
 
+## Registry Contract
+
+Diese Registry ist die **einzige normative Quelle** für: kanonische Tags, Atom-Identität, Zonen- und System-Atom-Identität, erlaubte Beziehungen, belegte Geometrie und die Form-A/Form-B-Y-Werte. HTML, CSS und JavaScript sind **abgeleitete Implementierungen**.
+
+**Regelvokabular:** MUST (zwingend) · MUST-NOT (verboten) · SHOULD (stark empfohlen) · MAY (zulässig).
+
+### MUST-NOT
+
+1. MUST-NOT: ein Atom außerhalb des 45er-Inventars definieren.
+2. MUST-NOT: ein `din-*` ohne Registry-Eintrag verwenden (siehe Namespace).
+3. MUST-NOT: Synonyme, Kompositionen, Satelliten, Zonen oder Rendering-Bezeichner als Atom zählen.
+4. MUST-NOT: eine zweite Form oder den Dokumentrahmen als eigenes Atom-Inventar behandeln.
+5. MUST-NOT: normative Geometrie in CSS oder JavaScript duplizieren.
+6. MUST-NOT: `data-*`-Werte abweichend von dieser Registry pflegen (sie sind generiert, siehe „Maschinenlesbares Inventar").
+7. MUST-NOT: nicht belegte X/Y/W/H-Werte rechnerisch als normativ deklarieren.
+8. MUST-NOT: einen Alias oder eine Komposition ohne kanonischen Registry-Bezug verwenden.
+
+---
+
+## Namespace
+
+`din-*` ist ausschließlich der kanonische Namespace dieses Modells. Jeder `din-*`-Bezeichner gehört exakt einer Kategorie an:
+
+| Kategorie | Umfang | Beispiele |
+|---|---|---|
+| DOCUMENT | 1 | `din-a4` |
+| ZONE | 5 | `din-absender`, `din-anschriftfeld`, `din-infoblock`, `din-kern`, `din-fuss` |
+| ATOM | 42 | `din-betreff`, `din-anrede`, `din-text`, `din-fuss-iban`, … |
+| SYSTEM_ATOM | 3 | `din-falz-oben`, `din-falz-unten`, `din-lochmarke` |
+
+UI-, Rendering- und Kompositions-Bezeichner tragen **keinen** `din-`-Präfix.
+
+---
+
 ## Geometrieklassen
 
 Koordinatensystem: DIN-A4-Blatt, 210 mm × 297 mm, Ursprung oben links, Einheit Millimeter. Form A und Form B sind Y-Varianten desselben Modells.
@@ -73,6 +107,35 @@ Vorhandene Millimeterwerte werden nicht gelöscht und nicht durch Rechnung ergä
 Dasselbe gilt für `din-absender-vorname` und `din-absender-nachname` in der Zone, in der der Absenderkontakt tatsächlich liegt.
 
 Ein optionales Unterschriftsbild ist Satellit von `din-unterschrift`, kein eigenes Atom.
+
+---
+
+## Synonym- und Alias-Registry
+
+Erlaubte und verbotene Nicht-Atom-Bezeichner. **Kein Eintrag dieser Tabelle ist ein Atom.**
+
+| Nicht-kanonischer Name | Typ | Kanonischer Bezug | Status |
+|---|---|---|---|
+| `empfaenger-namenszeile` | Komposition | `din-empfaenger-vorname` + `din-empfaenger-nachname` | erlaubt |
+| `absender-namenszeile` | Komposition | `din-absender-vorname` + `din-absender-nachname` | erlaubt |
+| `unterschriftsbild-*` | Satellit | `din-unterschrift` | erlaubt |
+| `brief-ansicht`, `brief-kommentar` | Rendering | — (kein Atom) | erlaubt |
+| `din-empfaenger-name` | Alias | zwei Split-Atome | **verboten** |
+| `din-absender-name` | Alias | zwei Split-Atome | **verboten** |
+
+---
+
+## Autorität und Herkunft
+
+Jeder normative Wert trägt seine Herkunft:
+
+| Herkunft | Bedeutung |
+|---|---|
+| DIN | aus DIN 5008 abgeleitet — **gegen DIN 5008:2020-03 + Berichtigung 1:2020-07 zu verifizieren** |
+| PROJECT | projektspezifische Modell-/Layoutentscheidung |
+| IMPLEMENTATION | technische Umsetzung (Rendering), nicht normativ |
+
+Als `PROJECT` geführt: die 8-mm-Begrenzung der Falz-/Lochmarken, die Kollisionsvermeidung mit dem Betreff, die feste 45-mm-Höhe des Anschriftfelds und der Form-A/B-Schalter. Die Millimeterwerte (210/297, 25/125, 27/45/32/50/74/92/91/109/87/105/181/210, 148,5) sind als `DIN` geführt und **noch zu verifizieren**.
 
 ---
 
@@ -313,10 +376,43 @@ Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und
 
 ---
 
+## Maschinenlesbares Inventar
+
+Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Kompositionen. Die Tag-Liste der 45 Atome ergibt sich aus den Atom-Tabellen oben; dieser Block ist die normative Quelle für Geometrie und Beziehungen. `tools/imr.js` validiert das Inventar und leitet daraus die `data-*`-Werte des `<din-a4>` ab.
+
+<!-- IMR-INVENTORY:START -->
+```json
+{
+  "sheet": { "width": 210, "height": 297 },
+  "document": "din-a4",
+  "zones": ["din-absender", "din-anschriftfeld", "din-infoblock", "din-kern", "din-fuss"],
+  "systemAtoms": ["din-falz-oben", "din-falz-unten", "din-lochmarke"],
+  "geometry": {
+    "din-absender":      { "y": { "A": 27,  "B": 45 } },
+    "din-anschriftfeld": { "y": { "A": 32,  "B": 50 } },
+    "din-infoblock":     { "y": { "A": 32,  "B": 50 } },
+    "din-kern":          { "y": { "A": 91,  "B": 109 } },
+    "din-datum":         { "y": { "A": 74,  "B": 92 } },
+    "din-falz-oben":     { "y": { "A": 87,  "B": 105 } },
+    "din-falz-unten":    { "y": { "A": 181, "B": 210 } },
+    "din-lochmarke":     { "y": { "Y": 148.5 } }
+  },
+  "forbiddenAliases": ["din-empfaenger-name", "din-absender-name"],
+  "compositions": {
+    "empfaenger-namenszeile": ["din-empfaenger-vorname", "din-empfaenger-nachname"],
+    "absender-namenszeile":   ["din-absender-vorname", "din-absender-nachname"]
+  }
+}
+```
+<!-- IMR-INVENTORY:END -->
+
+---
+
 ## Changelog
 
 | Datum | Änderung |
 |---|---|
+| 2026-09-30 | Formalisiert: Registry Contract + MUST-NOT, Namespace-Kategorien, Alias-Registry, Authority-Klassen, maschinenlesbares JSON-Inventar |
 | 2026-09-30 | Nicht-atomare Bezeichner deklariert (Namenszeile, Rendering, `data-`-Konvention); `din-`-Präfix für Atome/Zonen/Rahmen reserviert |
 | 2026-09-02 | Master-Modell: Zonen, Komposition, Kontakt-Platzierung, Overlay außerhalb der 45, Geometrie klassifiziert, Form A/B am Dokumentrahmen |
 | 2026-03-31 | Initiale Version |

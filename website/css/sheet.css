@@ -12,7 +12,7 @@ din-a4 {
   --blatt-hoehe: attr(data-height-mm type(<number>), 297);
 
   --absender-y: --mm-y(attr(data-absender-y-b type(<number>), 45));
-  --empfaenger-y: --mm-y(attr(data-empfaenger-y-b type(<number>), 50));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>), 50));
   --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>), 50));
   --datum-y: --mm-y(attr(data-datum-y-b type(<number>), 92));
   --kern-y: --mm-y(attr(data-kern-y-b type(<number>), 109));
@@ -24,7 +24,7 @@ din-a4 {
 
 body:has(#btn-form-a:checked) din-a4 {
   --absender-y: --mm-y(attr(data-absender-y-a type(<number>), 27));
-  --empfaenger-y: --mm-y(attr(data-empfaenger-y-a type(<number>), 32));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>), 32));
   --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>), 32));
   --datum-y: --mm-y(attr(data-datum-y-a type(<number>), 74));
   --kern-y: --mm-y(attr(data-kern-y-a type(<number>), 91)); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
@@ -137,7 +137,7 @@ body:has(#btn-form-a:checked) din-a4 {
   /* Anschriftfeld */
   #anschriftfeld {
     position: absolute;
-    top: var(--empfaenger-y);
+    top: var(--anschriftfeld-y);
     left: --mm-x(20);
     width: --mm-x(85);
     height: --mm-y(40);

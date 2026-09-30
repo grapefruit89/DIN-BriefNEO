@@ -1172,3 +1172,19 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** keine Restvorkommen (`grep` leer), `node --check` aller JS ok, keine doppelten IDs, ID-Konsistenz JS↔HTML ok, Negativtest der Regel greift (`din-bogus`/`din-namenszeile` → Verstoß), Gate 100 % (Index 104/1146/228).
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) kontrolliertes Vokabular = maschinenlesbare SSOT (Registry) + Gate-Regel; (b) Renames als Codemod mit explizitem Mapping und Ausnahme-Liste (Persistenz-Keys!) statt Handarbeit; (c) ein reservierter Namensraum (`din-`) verhindert Wildwuchs am wirksamsten; (d) „ein Begriff pro Konzept" macht Synonym-Ersetzung in der Suche überflüssig.
+
+## 2026-09-30 — IMR formalisiert: Contract, Alias-Registry, Authority, maschinenlesbares Inventar
+
+**Kontext:** Review der IMR-Registry (7,5/10 Entwurf) ergab: fehlender Namespace-/Alias-Vertrag, keine maschinenprüfbaren Invarianten, unmarkierte Normativität — und als wichtigsten Punkt **`data-*` als faktisch zweite Geometriequelle** (die Registry war Doku, nicht SSoT der Geometrie).
+
+**Änderung:**
+1. **Registry Contract** + **MUST-NOT** (8 Regeln) + einheitliches Regelvokabular MUST/MUST-NOT/SHOULD/MAY.
+2. **Namespace**: jeder `din-*` gehört exakt einer Kategorie (DOCUMENT / ZONE / ATOM (42) / SYSTEM_ATOM (3)); UI-/Rendering-Bezeichner ohne `din-`.
+3. **Synonym-/Alias-Registry** (erlaubte Kompositionen/Satelliten, verbotene Aliase `din-empfaenger-name`/`din-absender-name`) + **Authority** (DIN „zu verifizieren" / PROJECT / IMPLEMENTATION).
+4. **Maschinenlesbares JSON-Inventar** in der Registry; neu **`tools/imr.js`** validiert (45 Atome / 3 System / 42 Inhalt, Duplikate, verbotene Aliase, Kompositions- und Geometrie-Bezüge), prüft Code auf nur-registrierte `din-*` und **leitet die `data-*`-Geometrie ab und vergleicht sie mit `website/index.html`** → Registry ist jetzt echte SSoT der Geometrie. Die Gate-Regel `imr` ruft das Werkzeug auf (kritisch).
+5. **Letztes Synonym geschlossen:** Zonen-Geometrie `data-empfaenger-y-*` / `--empfaenger-y` → `data-anschriftfeld-y-*` / `--anschriftfeld-y` (die Zone heißt `din-anschriftfeld`).
+6. `doc-size`-Ausnahme für die IMR-Registry (normative SSOT, darf nicht gesplittet werden).
+
+**Verifikation:** `node tools/imr.js` → „51 registrierte din-Bezeichner, Inventar konsistent"; Negativtests greifen (fremdes Atom → 46/43; `data-kern-y-a="999"` → Abweichung); Gate 100 %.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) eine SSoT ist erst echt, wenn ihre abgeleiteten Artefakte (hier `data-*`) **generiert bzw. gegengeprüft** werden — sonst ist sie nur Doku; (b) Invarianten (Anzahl/Duplikate/Aliase) als Gate-Check statt Prosa; (c) Herkunft (normativ/projekt/implementierung) pro Wert markieren, sonst liest man Projektregeln später als Norm; (d) ein maschinenlesbarer JSON-Block im selben Dokument schlägt eine zweite Datei.

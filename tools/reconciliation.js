@@ -366,34 +366,15 @@ function runReconciliation() {
     }
   }
 
-  // --- IMR-Vokabular-Check (docs/10-architecture/IMR-Registry.md = SSOT) ---
-  // Jedes `din-*` im Website-Code muss ein registriertes Atom, eine Zone oder
-  // der Dokumentrahmen (din-a4) sein. So kann kein Synonym / unregistrierter
-  // Bezeichner in den reservierten `din-`-Namensraum einsickern.
+  // --- IMR-Check (docs/10-architecture/IMR-Registry.md = SSOT) --------------
+  // Werkzeug: tools/imr.js. Prueft die Registry-Invarianten (45 Atome, 3 System,
+  // 42 Inhalt, keine verbotenen Aliase), dass der Website-Code nur registrierte
+  // `din-*` verwendet und dass die `data-*`-Geometrie exakt der Registry entspricht.
   conformanceChecked += 1;
   {
     let imrViolations = [];
     try {
-      const imr = fs.readFileSync(path.join(targetDir, 'docs/10-architecture/IMR-Registry.md'), 'utf-8');
-      const registered = new Set((imr.match(/<din-[a-z0-9-]+>/g) || []).map(t => t.slice(1, -1)));
-      registered.add('din-a4');
-      const walkCode = (dir, out = []) => {
-        for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-          const p = path.join(dir, e.name);
-          if (e.isDirectory()) walkCode(p, out);
-          else if (/\.(html|css|js)$/.test(e.name)) out.push(p);
-        }
-        return out;
-      };
-      for (const file of walkCode(path.join(targetDir, 'website'))) {
-        const rel = path.relative(targetDir, file).replace(/\\/g, '/');
-        const content = fs.readFileSync(file, 'utf-8')
-          .replace(/\[\[[^\]]*\]\]/g, '')       // Wiki-Links (@guide/@adr)
-          .replace(/@(guide|adr)\b[^\n]*/g, ''); // Traceability-Annotationen
-        for (const m of content.matchAll(/\bdin-[a-z0-9-]+/g)) {
-          if (!registered.has(m[0])) imrViolations.push(`${rel}:${m[0]}`);
-        }
-      }
+      imrViolations = require('./imr.js').checkImr(targetDir).violations;
     } catch (err) {
       logs.push({
         file_path: 'docs/10-architecture/IMR-Registry.md',
@@ -408,10 +389,10 @@ function runReconciliation() {
     } else {
       for (const v of imrViolations) {
         logs.push({
-          file_path: v.split(':')[0],
+          file_path: v.file,
           check_type: 'imr',
           severity: 'critical',
-          message: `Nicht registrierter din-Bezeichner (IMR-Registry ist SSOT): ${v}`
+          message: v.message
         });
       }
     }
@@ -472,8 +453,9 @@ function runReconciliation() {
         });
 
         // P5: Doku-Groessenwarnung (>400 Zeilen). Ausnahmen: DECISION-LOG
-        // (append-only Chronik) und generierte Code-Referenzen.
-        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/10-architecture/Code-Referenzen.md'];
+        // (append-only Chronik), generierte Code-Referenzen und die IMR-Registry
+        // (normative SSOT des Fachmodells — darf nicht gesplittet werden).
+        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md'];
         if (lines.length > 400 && !docSizeExempt.includes(relPath)) {
           logs.push({
             file_path: relPath,

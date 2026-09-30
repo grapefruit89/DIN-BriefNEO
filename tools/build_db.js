@@ -331,7 +331,7 @@ Diese Datei wird automatisch von \`build_db.js\` generiert und listet alle Archi
   try {
     const { buildIndex } = require('./docs_index.js');
     const idx = buildIndex({ force: true });
-    console.log(`Index: ${idx.documents} Dokumente, ${idx.sections} Abschnitte, ${idx.files} Dateien -> ${idx.db_path}`);
+    console.log(`Index: ${idx.documents} Dokumente, ${idx.sections} Abschnitte, ${idx.files} Dateien, ${idx.links} Links -> ${idx.db_path}`);
   } catch (err) {
     console.error(`⚠️  Index-Build uebersprungen: ${err.message}`);
   }

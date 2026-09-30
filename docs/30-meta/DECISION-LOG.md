@@ -1327,3 +1327,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** getrackt 3,42 → 2,30 MB; `.git` 13 → 4,1 MB; frischer **Remote**-Klon **15 → 7,3 MB** (pack 4,34 MiB); 0 Alt-Blobs in allen Refs; Gate 100 %. (Hinweis: GitHubs UI-Größenangabe kann bis zum serverseitigen GC nachhängen — der Klon ist die Wahrheit.)
 
 **Generalisierbarkeit:** Repo-Größe immer **dreifach getrennt** messen (getrackter Inhalt / `.git`-History / gitignorierte lokale Artefakte) — sonst verwechselt man `node_modules` mit Repo-Ballast. Große Roh-/Binärdaten nie committen (History ist ohne Rewrite unveränderlich); genau **ein** Index-Artefakt je Zweck.
+
+## 2026-09-30 — Index-Ausbau: Link-Graph + Freshness-Hooks
+
+**Kontext:** Der Index (`tools/docs_index.js` → `agent/cache/docs_search.db`) kannte Doku-Volltext (`documents`/`sections`) + Datei-Inventar (`files`), aber **keine Beziehungen** — „wer referenziert X / was hängt an Y" war nur per manuellem grep möglich.
+
+**Änderung:** (1) Neue Tabelle `links(from_path, kind, to_ref, to_path)`, gefüllt aus Frontmatter `doc_links`/`code_links`/`depends_on` **und** aus Code-Annotationen `@adr`/`@guide` (Ziel-Basenames auf Doku-Pfade aufgelöst). Neuer Helper `related(ref)` + MCP-Tool `docs_related`; Gate-Ausgabe zeigt jetzt die Link-Zahl. (2) Neue `post-checkout`/`post-merge`-Hooks halten den Index nach Branch-Wechsel/`git pull` frisch (nur Index, kein volles Gate → schnell, blockiert nicht).
+
+**Verifikation:** 289 Beziehungen; `related("website/js/32-toast.js")` → aus 2 / ein 2; `docs_related` per echtem MCP-stdio-Aufruf getestet; Gate 100 %.
+
+**Generalisierbarkeit:** Ein Index wird erst zum Recherche-Werkzeug, wenn er auch **Kanten** kennt (Doc↔Doc, Code→ADR). Kanten aus bereits vorhandenen Quellen ableiten (Frontmatter/Annotationen), nie separat pflegen; Frische an **Ereignisse** hängen (Commit, Pull, Abfrage), nicht an Disziplin.

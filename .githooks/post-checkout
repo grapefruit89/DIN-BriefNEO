@@ -1,0 +1,10 @@
+#!/bin/sh
+# DIN-BriefNEO post-checkout hook
+# Haelt den Retrieval-Index (agent/cache/docs_search.db) nach einem Branch-/
+# Commit-Wechsel frisch. Nur der Index (kein volles Fitness Gate) -- schnell
+# und blockiert nicht. $3 == 1 bedeutet Branch-Wechsel; reine Datei-Checkouts
+# werden uebersprungen.
+[ "$3" = "1" ] || exit 0
+cd "$(git rev-parse --show-toplevel)" 2>/dev/null || exit 0
+node -e "require('./tools/docs_index.js').buildIndex({force:true})" >/dev/null 2>&1 || true
+exit 0

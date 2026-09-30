@@ -64,7 +64,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const readline = require('readline');
-const { docsSearch, docsGet, ensureIndex } = require('./docs.js');
+const { docsSearch, docsGet, docsRelated, ensureIndex } = require('./docs.js');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const REPOSITORY_YAML = path.join(REPO_ROOT, 'repository.yaml');
@@ -466,6 +466,17 @@ const TOOLS = [
     }
   },
   {
+    name: 'docs_related',
+    description: 'Beziehungsgraph: ausgehende Links (doc_links/code_links/@adr/@guide) einer Quelle + eingehende Verweise auf ein Ziel. Argument ist ein Pfad (docs/x.md) ODER ein Basename (z.B. ADR-JS).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ref: { type: 'string', description: 'Pfad oder Basename, z.B. "ADR-JS" oder "website/js/32-toast.js".' }
+      },
+      required: ['ref']
+    }
+  },
+  {
     name: 'repository_inspect',
     description: 'Liest repository.yaml (Rohtext) und gibt sie zurueck.',
     inputSchema: { type: 'object', properties: {} }
@@ -490,6 +501,19 @@ const TOOLS = [
   }
 ];
 
+function formatRelatedText(r) {
+  const lines = [`Beziehungen fuer "${r.ref}" (ausgehend ${r.outgoing.length}, eingehend ${r.incoming.length}):`];
+  if (r.outgoing.length) {
+    lines.push('  ausgehend:');
+    for (const o of r.outgoing) lines.push(`    -> [${o.kind}] ${o.to_ref}${o.to_path ? ` (${o.to_path})` : ''}`);
+  }
+  if (r.incoming.length) {
+    lines.push('  eingehend:');
+    for (const i of r.incoming) lines.push(`    <- [${i.kind}] ${i.from_path}`);
+  }
+  return lines.join('\n');
+}
+
 function formatSearchText(query, result) {
   const lines = [`${result.count} Treffer fuer "${query}" (Abschnitts-Snippets):`];
   if (result.count === 0) lines.push('  (keine) — Query kuerzen oder Synonyme probieren.');
@@ -512,6 +536,10 @@ function callTool(name, args) {
     case 'docs_get': {
       const r = docsGet({ path: args.path, section: args.section });
       return { text: JSON.stringify(r, null, 2), isError: r.ok === false };
+    }
+    case 'docs_related': {
+      const r = docsRelated(args.ref);
+      return { text: formatRelatedText(r) };
     }
     case 'repository_inspect': {
       return { text: JSON.stringify(repositoryInspect()) };

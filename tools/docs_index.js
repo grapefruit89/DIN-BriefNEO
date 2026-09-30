@@ -8,6 +8,8 @@
  *
  *   Markdown (.md)         -> documents + sections (H1-H6, mit Zeilennummern)
  *   git ls-files (Inventar) -> files (wo liegt welche Datei, Rolle, Groesse)
+ *   Beziehungen            -> links (from_path -> to_ref aus doc_links/code_links/
+ *                             depends_on + Code-Annotationen @adr/@guide)
  *   Volltextsuche          -> sections_fts (unicode61 + Prefix von Wortvarianten)
  *                             sections_fts_tri (trigram: mittlere Teilwoerter)
  *
@@ -62,10 +64,11 @@ function collectMarkdownFiles() {
  * Minimaler Frontmatter-Parser (bewusst kein YAML-Dependency, gleiche
  * Beschraenkung wie tools/build_db.js: flache Schluessel der obersten Ebene).
  * @param {string} raw
- * @returns {{ meta: {title?: string, status?: string, tags: string[]}, bodyStartLine: number }}
+ * @returns {{ meta: {title?: string, status?: string, tags: string[], doc_links: string[], code_links: string[], depends_on: string[]}, bodyStartLine: number }}
  */
 function parseFrontmatter(raw) {
-  const meta = { title: undefined, status: undefined, tags: [] };
+  const meta = { title: undefined, status: undefined, tags: [], doc_links: [], code_links: [], depends_on: [] };
+  const LIST_KEYS = { tags: 'tags', doc_links: 'doc_links', code_links: 'code_links', depends_on: 'depends_on' };
   const lines = raw.split(/\r?\n/);
   if (lines[0] !== '---') return { meta, bodyStartLine: 0 };
   let end = -1;
@@ -74,21 +77,29 @@ function parseFrontmatter(raw) {
   }
   if (end === -1) return { meta, bodyStartLine: 0 };
 
-  let inTags = false;
+  let listKey = null;
   for (let i = 1; i < end; i++) {
     const line = lines[i];
-    const tagItem = line.match(/^\s*-\s+(.+?)\s*$/);
-    if (inTags && tagItem && !line.startsWith('  -')) inTags = false;
-    if (inTags && tagItem) { meta.tags.push(tagItem[1].replace(/['"]/g, '')); continue; }
+    const item = line.match(/^\s*-\s+(.+?)\s*$/);
+    if (item) {
+      if (listKey) {
+        const val = item[1].replace(/\s*#.*$/, '').trim().replace(/['"]/g, '');
+        if (val) meta[listKey].push(val);
+      }
+      continue;
+    }
     const kv = line.match(/^([A-Za-z_]+):\s*(.*)$/);
     if (!kv) continue;
     const key = kv[1].toLowerCase();
     const value = kv[2].replace(/\s*#.*$/, '').trim();
-    if (key === 'title') meta.title = value.replace(/['"]/g, '');
-    else if (key === 'status') meta.status = value.replace(/['"]/g, '');
-    else if (key === 'tags') {
-      if (value === '' || value === '[]') { meta.tags = []; inTags = value === ''; }
-      else if (value.startsWith('[')) meta.tags = value.slice(1, -1).split(',').map(s => s.trim().replace(/['"]/g, '')).filter(Boolean);
+    if (key === 'title') { meta.title = value.replace(/['"]/g, ''); listKey = null; }
+    else if (key === 'status') { meta.status = value.replace(/['"]/g, ''); listKey = null; }
+    else if (LIST_KEYS[key]) {
+      listKey = LIST_KEYS[key];
+      if (value === '' || value === '[]') { meta[listKey] = []; }
+      else if (value.startsWith('[')) meta[listKey] = value.slice(1, -1).split(',').map(s => s.trim().replace(/['"]/g, '')).filter(Boolean);
+    } else {
+      listKey = null;
     }
   }
   return { meta, bodyStartLine: end + 1 };
@@ -161,6 +172,7 @@ function createSchema(db) {
     DROP TABLE IF EXISTS sections;
     DROP TABLE IF EXISTS documents;
     DROP TABLE IF EXISTS files;
+    DROP TABLE IF EXISTS links;
     CREATE TABLE documents (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       path        TEXT UNIQUE NOT NULL,
@@ -190,6 +202,15 @@ function createSchema(db) {
       lines      INTEGER
     );
     CREATE INDEX idx_files_top ON files(top);
+    CREATE TABLE links (
+      from_path TEXT NOT NULL,
+      kind      TEXT NOT NULL,
+      to_ref    TEXT NOT NULL,
+      to_path   TEXT
+    );
+    CREATE INDEX idx_links_from ON links(from_path);
+    CREATE INDEX idx_links_to   ON links(to_path);
+    CREATE INDEX idx_links_ref  ON links(to_ref);
   `);
 }
 
@@ -203,7 +224,7 @@ function buildIndex(opts = {}) {
   const tracked = collectTrackedFiles();
 
   if (!opts.force && !indexIsStale(mdFiles)) {
-    return { rebuilt: false, documents: null, sections: null, files: null, db_path: DB_PATH };
+    return { rebuilt: false, documents: null, sections: null, files: null, links: null, db_path: DB_PATH };
   }
 
   fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
@@ -216,8 +237,23 @@ function buildIndex(opts = {}) {
   const insFts = db.prepare('INSERT INTO sections_fts (rowid, heading, body) VALUES (?, ?, ?)');
   const insFtsTri = db.prepare('INSERT INTO sections_fts_tri (rowid, heading, body) VALUES (?, ?, ?)');
   const insFile = db.prepare('INSERT OR REPLACE INTO files (path, top, ext, size_bytes, lines) VALUES (?, ?, ?, ?, ?)');
+  const insLink = db.prepare('INSERT INTO links (from_path, kind, to_ref, to_path) VALUES (?, ?, ?, ?)');
 
-  let docCount = 0, secCount = 0, fileCount = 0;
+  // Auflösung: Basename -> Doku-Pfad (doc_links/@adr) bzw. existierender Tracked-Pfad (code_links).
+  const trackedPaths = new Set(tracked.map(t => t.path));
+  const docByStem = new Map();
+  for (const abs of mdFiles) {
+    const rel = path.relative(REPO_ROOT, abs).split(path.sep).join('/');
+    docByStem.set(rel.replace(/\.md$/, '').split('/').pop(), rel);
+  }
+  const resolveRef = (ref) => {
+    const stem = String(ref).replace(/\.(md|json|js|css|html|ya?ml)$/i, '');
+    if (docByStem.has(stem)) return docByStem.get(stem);
+    return trackedPaths.has(ref) ? ref : null;
+  };
+  const CODE_EXT = new Set(['.js', '.mjs', '.cjs', '.css', '.html', '.json', '.yaml', '.yml', '.py', '.ps1', '.sh']);
+
+  let docCount = 0, secCount = 0, fileCount = 0, linkCount = 0;
   db.exec('BEGIN');
   try {
     for (const rel of tracked) {
@@ -240,6 +276,21 @@ function buildIndex(opts = {}) {
         insFtsTri.run(Number(r.lastInsertRowid), s.heading, s.body);
         secCount++;
       }
+      for (const [kind, list] of [['doc', meta.doc_links], ['code', meta.code_links], ['depends_on', meta.depends_on]]) {
+        for (const ref of list) { insLink.run(rel, kind, ref, resolveRef(ref)); linkCount++; }
+      }
+    }
+    // Code-Annotationen @adr [[...]] / @guide [[...]] -> Beziehungen (from = Code-Datei).
+    const ANNOTATION = /@(adr|guide)\s+\[\[([^\]]+)\]\]/g;
+    for (const t of tracked) {
+      if (!CODE_EXT.has(path.extname(t.path).toLowerCase())) continue;
+      let raw;
+      try { raw = fs.readFileSync(path.join(REPO_ROOT, t.path), 'utf8'); } catch { continue; }
+      for (const m of raw.matchAll(ANNOTATION)) {
+        const target = m[2].trim();
+        insLink.run(t.path, m[1], target, resolveRef(target));
+        linkCount++;
+      }
     }
     db.exec('COMMIT');
   } catch (err) {
@@ -248,7 +299,7 @@ function buildIndex(opts = {}) {
     throw err;
   }
   db.close();
-  return { rebuilt: true, documents: docCount, sections: secCount, files: fileCount, db_path: DB_PATH };
+  return { rebuilt: true, documents: docCount, sections: secCount, files: fileCount, links: linkCount, db_path: DB_PATH };
 }
 
 /** Rebuild-Trigger: DB fehlt oder aelter als die neueste Quelldatei. */
@@ -399,10 +450,33 @@ function get(args = {}) {
   }
 }
 
+/**
+ * Beziehungsgraph: ausgehende Links einer Quelle + eingehende Verweise auf ein
+ * Ziel. `ref` ist ein Pfad (docs/x.md) ODER ein Basename (@adr-Ziel, z.B. ADR-JS).
+ * @param {string} ref
+ * @returns {{ref: string, outgoing: object[], incoming: object[]}}
+ */
+function related(ref) {
+  ensureFresh();
+  const needle = String(ref || '').trim();
+  const db = new DatabaseSync(DB_PATH, { readOnly: true });
+  try {
+    const outgoing = db.prepare(
+      'SELECT kind, to_ref, to_path FROM links WHERE from_path = ? OR from_path LIKE ? ORDER BY kind, to_ref'
+    ).all(needle, '%/' + needle);
+    const incoming = db.prepare(
+      'SELECT from_path, kind, to_ref FROM links WHERE to_ref = ? OR to_path = ? OR to_ref LIKE ? ORDER BY from_path, kind'
+    ).all(needle, needle, '%/' + needle);
+    return { ref: needle, outgoing, incoming };
+  } finally {
+    db.close();
+  }
+}
+
 module.exports = {
   REPO_ROOT, DB_PATH,
-  buildIndex, ensureFresh, search, get,
+  buildIndex, ensureFresh, search, get, related,
   collectMarkdownFiles, collectTrackedFiles, splitSections, parseFrontmatter,
   // Aliase fuer die MCP-Schicht (sprechende Namen):
-  docsSearch: search, docsGet: get, ensureIndex: ensureFresh
+  docsSearch: search, docsGet: get, docsRelated: related, ensureIndex: ensureFresh
 };

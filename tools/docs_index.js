@@ -11,8 +11,8 @@
  *   git ls-files (Inventar) -> files (wo liegt welche Datei, Rolle, Groesse)
  *   Beziehungen            -> links (from_path -> to_ref aus doc_links/code_links/
  *                             depends_on + Code-Annotationen @adr/@guide)
- *   Volltextsuche          -> sections_fts (unicode61 + Prefix von Wortvarianten)
- *                             sections_fts_tri (trigram: mittlere Teilwoerter)
+ *   Volltextsuche          -> sections_fts (unicode61, EXTERNAL-CONTENT, Prefix von Wortvarianten)
+ *                             sections_fts_tri (trigram, nur Doku, reiner Fallback: mittlere Teilwoerter)
  *
  * Aufgerufen von:
  *   - tools/build_db.js (Fitness Gate: ein Kommando = Gate + Index)
@@ -192,7 +192,7 @@ function createSchema(db) {
       end_line   INTEGER NOT NULL,
       body       TEXT NOT NULL
     );
-    CREATE VIRTUAL TABLE sections_fts USING fts5(heading, body, tokenize = "unicode61 remove_diacritics 2");
+    CREATE VIRTUAL TABLE sections_fts USING fts5(heading, body, content='sections', content_rowid='id', tokenize = "unicode61 remove_diacritics 2");
     CREATE VIRTUAL TABLE sections_fts_tri USING fts5(heading, body, tokenize = "trigram remove_diacritics 1");
     CREATE INDEX idx_sections_doc ON sections(doc_id);
     CREATE TABLE files (
@@ -236,7 +236,6 @@ function buildIndex(opts = {}) {
 
   const insDoc = db.prepare('INSERT INTO documents (path, title, status, tags, line_count, mtime_ms) VALUES (?, ?, ?, ?, ?, ?)');
   const insSec = db.prepare('INSERT INTO sections (doc_id, level, heading, start_line, end_line, body) VALUES (?, ?, ?, ?, ?, ?)');
-  const insFts = db.prepare('INSERT INTO sections_fts (rowid, heading, body) VALUES (?, ?, ?)');
   const insFtsTri = db.prepare('INSERT INTO sections_fts_tri (rowid, heading, body) VALUES (?, ?, ?)');
   const insFile = db.prepare('INSERT OR REPLACE INTO files (path, top, ext, size_bytes, lines) VALUES (?, ?, ?, ?, ?)');
   const insLink = db.prepare('INSERT OR IGNORE INTO links (from_path, kind, to_ref, to_path) VALUES (?, ?, ?, ?)');
@@ -274,7 +273,6 @@ function buildIndex(opts = {}) {
       docCount++;
       for (const s of splitSections(raw, bodyStartLine)) {
         const r = insSec.run(docId, s.level, s.heading, s.start_line, s.end_line, s.body);
-        insFts.run(Number(r.lastInsertRowid), s.heading, s.body);
         insFtsTri.run(Number(r.lastInsertRowid), s.heading, s.body);
         secCount++;
       }
@@ -308,12 +306,13 @@ function buildIndex(opts = {}) {
         const docId = Number(info.lastInsertRowid);
         docCount++;
         const r = insSec.run(docId, 0, t.path, 1, lineCount, raw);
-        insFts.run(Number(r.lastInsertRowid), t.path, raw);
-        insFtsTri.run(Number(r.lastInsertRowid), t.path, raw);
         secCount++;
       }
     }
+    // External-content-FTS einmalig aus der Content-Tabelle (sections) indizieren.
+    db.exec(`INSERT INTO sections_fts(sections_fts) VALUES('rebuild');`);
     db.exec('COMMIT');
+    db.exec('VACUUM');
   } catch (err) {
     db.exec('ROLLBACK');
     db.close();
@@ -412,12 +411,12 @@ function search(query, opts = {}) {
       const { sid, ...rest } = row;
       results.push({ ...rest, match: kind });
     };
-    // 1) UND (alle Terme) = praezise; 2) OR-Fallback; 3) Trigram (mittlere Teilwoerter).
+    // 1) UND (alle Terme) = praezise; 2) OR-Fallback; 3) Trigram NUR als reiner Fallback (0 Treffer).
     for (const row of runMatch('sections_fts', andQ, limit)) add(row, 'word');
     if (results.length === 0 && orQ !== andQ) {
       for (const row of runMatch('sections_fts', orQ, limit)) add(row, 'word-or');
     }
-    if (results.length < limit && subQ !== '') {
+    if (results.length === 0 && subQ !== '') {
       for (const row of runMatch('sections_fts_tri', subQ, limit)) {
         if (results.length >= limit) break;
         add(row, 'substring');

@@ -1367,3 +1367,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Code-`touch` → `rebuilt=true`; `"toast hinweis"` 50 → 8; `source=doc` 7 vs `source=code` 5; `links` 288 → 286; Trigram-Fallback (`slinien`) weiter aktiv; Gate 100 %.
 
 **Generalisierbarkeit:** Ein Index-/Cache-Tool muss (a) **alle** Quellen auf Staleness prüfen (nicht nur die erste), (b) Mehrterm-Anfragen **UND-first** beantworten, (c) Filterdimensionen explizit machen (`source`). Der Index ist Werkzeug, nie Wahrheit — Bugs hier kosten Vertrauen, keine Daten.
+
+## 2026-09-30 — Index-Dedup: external-content FTS + Trigramm nur Doku/Fallback
+
+**Kontext:** Dry-Run mit 4 Varianten zeigte: der Text lag **dreifach** (`sections.body` + `sections_fts` + `sections_fts_tri`); der eigentliche Größenhebel war aber der **Trigramm-Index** (~7 MB), nicht die Dedup allein (external-content allein: nur −14 %).
+
+**Änderung:** (1) `sections_fts` ist jetzt **external-content** (`content='sections'`, `content_rowid='id'`) — FTS speichert nur den Inverted Index, den Text liest es aus `sections`; (2) Trigramm nur noch für **Doku**-Sections (Code über `rg`) und **rein als Fallback** (greift erst bei **0** Wort-Treffern, füllt nicht mehr auf → kein Rauschen); (3) `VACUUM` nach dem Rebuild — ohne das schrumpft die Datei nach `DROP`/Neuaufbau nicht.
+
+**Verifikation:** 9,7 → **6,6 MB** (−32 %); `hilfslinien` → `[word]`, `fslinie` (Wortmitte) → `[substring]`, `zzqx` → 0; `snippet()` auf external-content korrekt; Gate 100 %, Build ~1,4 s.
+
+**Generalisierbarkeit:** Bei FTS den Content **einmal** speichern (external content), teure Indizes (Trigramm) nur für die Quellen, die sie brauchen, und nur als **Fallback** einsetzen (sonst Rauschen). Nach `DROP`/Rebuild `VACUUM`, sonst bleibt die Datei groß — die Dateigröße folgt den freigegebenen Seiten, nicht dem Inhalt.

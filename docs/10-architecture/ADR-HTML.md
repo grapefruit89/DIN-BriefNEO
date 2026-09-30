@@ -4,7 +4,7 @@ title: "ADR-HTML: HTML Architecture, Constraints & Single Source of Truth (SSOT)
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-04'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -66,9 +66,9 @@ In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer D
 3. **Hardwarebeschleunigter Eingabeschutz (`plaintext-only` & `enterkeyhint`):**
    Alle 16 einzeiligen Metadaten- und Anschriftfelder sind mit `contenteditable="plaintext-only"` und `enterkeyhint="done"` geschützt. Unerwünschte Formatierungen (Fett, Kursiv, HTML-Tags) und mehrzeilige Zeilenumbrüche werden direkt von der Browser-Engine in C++ geblockt. JS-Keydown- und BeforeInput-Interzeptoren sind vollständig eliminiert (ADR-ANTIPATTERN Abs. 14).
 4. **Strikt reglementierte Rich-Text-Zonen:**
-   Ausschließlich der Brieftext (`<din-text id="brieftext">`) und die Anlagenliste (`<ul id="anlagen-text">`) sind mit `contenteditable="true"` deklariert.
+   Ausschließlich der Brieftext (`<din-text id="text">`) und die Anlagenliste (`<ul id="anlagen-text">`) sind mit `contenteditable="true"` deklariert.
 5. **Contenteditable Integrity Isolation (Catalog A47):**
-   Interaktive oder strukturelle Elemente (wie z. B. `<div id="signature-container">` mit `<img id="signature-image">`) dürfen niemals innerhalb von `contenteditable`-Elementen verschachtelt werden. Sie werden als Geschwister-Elemente in einem isolierten Container platziert, um eine Zerstörung des inneren DOM-Baums bei Texteingaben physisch auszuschließen.
+   Interaktive oder strukturelle Elemente (wie z. B. `<div id="unterschriftsbild-container">` mit `<img id="unterschriftsbild-vorschau">`) dürfen niemals innerhalb von `contenteditable`-Elementen verschachtelt werden. Sie werden als Geschwister-Elemente in einem isolierten Container platziert, um eine Zerstörung des inneren DOM-Baums bei Texteingaben physisch auszuschließen.
 6. **Top-Layer-Mandat für Overlays (Popover API & `<dialog>`):**
    Sämtliche schwebenden Elemente (Format-Toolbar, Adressvorschläge, Clipboard-Kandidaten, Toasts) nutzen die native HTML Popover API (`popover="manual"`, `popover="auto"`, `popover="hint"`). Modale Dialoge nutzen das standardkonforme `<dialog>`-Element mit `<form method="dialog">`.
 7. **Deklarative Invoker / Command API:**
@@ -124,24 +124,24 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#btn-style-polite` (Höflich: "Guten Tag... / Freundliche Grüße").
   * `#btn-style-casual` (Locker: "Hallo... / Beste Grüße").
 * **Semantischer Hilfslinien-Schalter:**
-  * `<input type="checkbox" switch id="btn-guides-switch" checked>`: Nativer Schalter.
+  * `<input type="checkbox" switch id="btn-hilfslinien-switch" checked>`: Nativer Schalter.
 * **Experimenteller On-Device KI-Assistent (`#sidebar-ai-switch-row`):**
   * `<input type="checkbox" switch id="toggle-experimental-ai">`: W3C-Standard-Switch für lokales On-Device Rewriting (Chrome Built-in AI / Gemini Nano via `window.ai`).
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
-  * `#sidebar-pv-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#postvermerk` (`din-postvermerk`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-pv-select option:checked:not([value=""]))`.
+  * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#postvermerk` (`din-postvermerk`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
   * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.
 * **Schriftarten-Manager:**
   * `#btn-font-action`: Upload- und Reset-Button für benutzerdefinierte Schriften.
   * `#font-uploader`: Verstecktes Datei-Upload-Element (`accept=".woff2"`).
   * `#font-status-label`: Dynamische Anzeige der aktiven Schriftfamilie.
 * **Signatur-Manager:**
-  * `#btn-upload-sig-trigger` / `#sig-uploader`: Datei-Upload für Unterschriften-Bilder (PNG, JPEG, WebP).
-  * `#btn-reset-sig`: Löscht die hinterlegte Signatur.
+  * `#btn-unterschriftsbild-waehlen` / `#unterschriftsbild-datei`: Datei-Upload für Unterschriften-Bilder (PNG, JPEG, WebP).
+  * `#btn-unterschriftsbild-reset`: Löscht die hinterlegte Signatur.
 * **Adressdienste & Intelligenter Zwischenablagen-Parser:**
   * `#input-geoapify-key`: Passwort-Feld für den Geoapify-API-Key.
-  * `#input-address-search`: Autocomplete-Suchfeld für Remote-Adresssuche.
-  * `#address-suggestions`: Native Popover-Vorschlagsliste (`popover="auto"`).
-  * `#btn-clipboard-address`: Ein-Klick-Button `📋 Zwischenablage lesen` für Impressumsdaten.
+  * `#input-anschrift-suche`: Autocomplete-Suchfeld für Remote-Adresssuche.
+  * `#anschrift-vorschlaege`: Native Popover-Vorschlagsliste (`popover="auto"`).
+  * `#btn-zwischenablage-anschrift`: Ein-Klick-Button `📋 Zwischenablage lesen` für Impressumsdaten.
   * `#clipboard-candidates-popover`: Top-Layer Auswahlliste (`popover="auto"`) bei mehreren Standorten.
 * **Footer-Aktionen:**
   * `#btn-print`: Primärer Druck-Button für nativen PDF-Export (`window.print()`).
@@ -167,27 +167,27 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
 5. `<din-anschriftfeld id="empfaenger">` (`role="group"`):
    * `<din-postvermerk id="postvermerk">`: Postvermerke (`plaintext-only`).
    * `<din-empfaenger-firma id="empfaenger-firma">`: Firma (`plaintext-only`, `enterkeyhint="done"`).
-   * `<div id="empfaenger-name">`: Ansprechpartner (`plaintext-only`, `enterkeyhint="done"`).
+   * `<div id="empfaenger-namenszeile">`: Ansprechpartner (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-empfaenger-strasse id="empfaenger-strasse">`: Straße & Hausnummer (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-empfaenger-ort id="empfaenger-ort">`: PLZ & Ort (`plaintext-only`, `enterkeyhint="done"`).
 6. `<din-infoblock id="infoblock">` (`role="group"`):
-   * `<div id="info-name">`: Absender-Name (`plaintext-only`, `enterkeyhint="done"`).
-   * `<din-absender-strasse id="info-street">`: Absender-Straße (`plaintext-only`, `enterkeyhint="done"`).
-   * `<din-absender-ort id="info-city">`: Absender-Ort (`plaintext-only`, `enterkeyhint="done"`).
-   * `<din-absender-tel id="info-tel">`: Absender-Telefon (`plaintext-only`, `enterkeyhint="done"`).
-   * `<din-absender-mail id="info-email">`: Absender-E-Mail (`plaintext-only`, `enterkeyhint="done"`).
+   * `<div id="absender-namenszeile">`: Absender-Name (`plaintext-only`, `enterkeyhint="done"`).
+   * `<din-absender-strasse id="absender-strasse">`: Absender-Straße (`plaintext-only`, `enterkeyhint="done"`).
+   * `<din-absender-ort id="absender-ort">`: Absender-Ort (`plaintext-only`, `enterkeyhint="done"`).
+   * `<din-absender-tel id="absender-tel">`: Absender-Telefon (`plaintext-only`, `enterkeyhint="done"`).
+   * `<din-absender-mail id="absender-mail">`: Absender-E-Mail (`plaintext-only`, `enterkeyhint="done"`).
 7. `<din-datum id="datum">`: Tagesdatum (`plaintext-only`, `enterkeyhint="done"`).
-8. `<din-kern id="briefkern">`:
+8. `<din-kern id="kern">`:
    * `<din-betreff id="betreff">`: Betreffzeile (`plaintext-only`, max. 2 Zeilen via UI-Protection).
    * `<din-anrede id="anrede">`: Briefanrede (`plaintext-only`, `enterkeyhint="done"`).
-   * `<din-text id="brieftext">`: **Rich-Text Fließtext** (`contenteditable="true"`).
+   * `<din-text id="text">`: **Rich-Text Fließtext** (`contenteditable="true"`).
    * `<din-grussformel id="grussformel">`: Grußformel (`plaintext-only`, `enterkeyhint="done"`).
-   * `<div class="signature-wrapper">` mit `<din-unterschrift id="unterschrift">`: Getippter Name (`plaintext-only`, `enterkeyhint="done"`).
+   * `<div class="unterschrift-zeile">` mit `<din-unterschrift id="unterschrift">`: Getippter Name (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-anlagen id="anlagen">`: Anlagenvermerk mit `<ul id="anlagen-text" contenteditable="true">`.
-9. `<din-fuss id="brief-fuss">`: Fußzeilenbereich (`role="contentinfo"`).
-10. `#signature-container` (Isoliert außerhalb von ContentEditable):
-    * `.sig-bounding-box` mit Transformations-Handles (`.top-left`, `.top-right`, `.bottom-left`, `.bottom-right`, `.sig-rotate-handle`).
-    * `<img id="signature-image" alt="Unterschrift" draggable="false">`: Bild-Signatur ohne Textfluss-Interferenz.
+9. `<din-fuss id="fuss">`: Fußzeilenbereich (`role="contentinfo"`).
+10. `#unterschriftsbild-container` (Isoliert außerhalb von ContentEditable):
+    * `.unterschriftsbild-rahmen` mit Transformations-Handles (`.top-left`, `.top-right`, `.bottom-left`, `.bottom-right`, `.unterschriftsbild-drehgriff`).
+    * `<img id="unterschriftsbild-vorschau" alt="Unterschrift" draggable="false">`: Bild-Signatur ohne Textfluss-Interferenz.
 
 ---
 
@@ -215,7 +215,7 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
 
 * Synchronisiert Radio-Buttons und Checkboxen sofort nach DOM-Erstellung mit gespeicherten Einstellungen.
 * Füllt ContentEditable-Felder aus `localStorage` (`din_draft_current`) noch vor dem Start externer Module.
-* Synchronisiert Postvermerke sofort reaktiv mit `#sidebar-pv-select`.
+* Synchronisiert Postvermerke sofort reaktiv mit `#sidebar-postvermerk-select`.
 
 ---
 
@@ -228,10 +228,10 @@ Folgende HTML-Strukturen und Alt-Muster sind im gesamten Repository **strikt ver
 | **Generische Div-Suppe** | Reine `<div>`-Verschachtelungen für Briefelemente | 🚫 **HARD BAN** | Longevity Guidelines, ADR-HTML | Semantische HTML5 Custom Elements (`<din-a4>`, `<din-betreff>`, etc.). |
 | **Mirror-Editing in Sidebar** | Doppelte Textfelder in Sidebar und Blatt | 🚫 **HARD BAN** | ADR-HTML Abs. 2, WYSIWYG | Reines In-Place WYSIWYG Editing direkt auf dem `<din-a4>`-Blatt. |
 | **`contenteditable="true"` auf Einzeilern** | Standard-Editable für Anschrift, Betreff, Datum | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 14, Probe P4 | `contenteditable="plaintext-only"` mit `enterkeyhint="done"`. C++ blockiert Formatierung nativ. |
-| **`<img>` innerhalb von `contenteditable`** | Unterschriften-Grafik im Fließtext | 🚫 **HARD BAN** | Immutable Law Catalog A47 | Kapselung in separatem `#signature-container` als Geschwister-Element außerhalb von ContentEditable. |
+| **`<img>` innerhalb von `contenteditable`** | Unterschriften-Grafik im Fließtext | 🚫 **HARD BAN** | Immutable Law Catalog A47 | Kapselung in separatem `#unterschriftsbild-container` als Geschwister-Element außerhalb von ContentEditable. |
 | **Eigene `<div>`-Modals mit `z-index`** | Manuell geschichtete Overlays und Dialoge | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 15, Probe P5 | Native HTML Popover API (`popover`) und `<dialog>` im Browser-Top-Layer. |
 | **JS-Event-Listener für Dialog-Öffnung** | `btn.addEventListener('click', () => dialog.showModal())` | 🚫 **HARD BAN** | Modern DOM Standards 2026 | Deklarative HTML Command Invokers (`commandfor="reset-dialog" command="show-modal"`). |
-| **Radio-Controls für Binärschalter** | Segmented Control ("An" / "Aus") für Hilfslinien | ⚠️ **DEPRECATED** | ADR-ANTIPATTERN Abs. 16, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-guides-switch">`. |
+| **Radio-Controls für Binärschalter** | Segmented Control ("An" / "Aus") für Hilfslinien | ⚠️ **DEPRECATED** | ADR-ANTIPATTERN Abs. 16, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">`. |
 | **`scroll`-relevante Attribute / Tags** | Scroll-Container, `overflow-scroll`-Klassen | 🚫 **HARD BAN** | Zero-Scroll-Mandat, CI-Gate | Physisches A4-Papier scrollt niemals. Der Begriff `scroll` ist in `website/*.html` komplett verboten. |
 
 ---

@@ -4,7 +4,7 @@ title: "ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)"
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-10'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -67,11 +67,11 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 ## 2. Grundlegende Architektur-Entscheidungen
 
 1. **Reiner CSS-Zoom & Seitenverhältnis (`aspect-ratio`):**
-   Der Briefbogen `<din-a4>` wird über `aspect-ratio: var(--din-width) / var(--din-height)` (210 / 297) fixiert und über `min(100cqw, calc(100cqh * var(--din-width) / var(--din-height)))` verzerrungsfrei in den Viewport eingepasst.
+   Der Briefbogen `<din-a4>` wird über `aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe)` (210 / 297) fixiert und über `min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))` verzerrungsfrei in den Viewport eingepasst.
 2. **Container Queries (`cqw`, `cqh`):**
    Sämtliche inneren Maße, Ränder, Faltmarken und typografischen Größen verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren (`calc(10 * 0.168cqw)` für 10pt Fließtext).
 3. **Absolute Viewport- & Blatt-Sperre (Zero-Scroll-Garantie):**
-   `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-a4>` und `#briefkern` verbieten jegliches Scrollen physisch. Der Substring `scroll` ist in allen Produktionsdateien unter `website/*.html` und `website/css/*.css` durch das CI-Gate (`tools/start.ps1`) strikt verboten.
+   `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-a4>` und `#kern` verbieten jegliches Scrollen physisch. Der Substring `scroll` ist in allen Produktionsdateien unter `website/*.html` und `website/css/*.css` durch das CI-Gate (`tools/start.ps1`) strikt verboten.
 4. **Natives Feldwachstum & Text-Fitting (JS-Kill Phase 1):**
    `field-sizing: content` lässt einzeilige und mehrzeilige Textfelder mitwachsen. `text-fit: shrink 60%` und `text-fit: shrink` stauchen überlange Empfänger- und Betreffzeilen rein deklarativ ohne JS-DOM-Messschleifen (Catalog A49).
 5. **Typografische Umbruchbalance:**
@@ -79,11 +79,11 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 6. **Natives Theming mit OKLCH & `light-dark()`:**
    Vollständige Nutzung von `color-scheme: light dark`, `light-dark()` und W3C Relative Color Syntax (RCS) im wahrnehmungsgerechten OKLCH-Farbraum. Sämtliche Farbableitungen erfolgen über `color-mix(in oklch, ...)`. Es gibt keine JS-basierten Theme-Klassen.
 7. **CSS Anchor Positioning (W3C Standard):**
-   Schwebende Dropdowns und die Format-Toolbar werden nativ über CSS Anchor Positioning an ihren DOM-Ankern befestigt (`position-anchor: --selection-anchor`, `position-area: top center`, `flip-block` für `#format-toolbar`; `--anchor-address-search` für `#address-suggestions`; `--anchor-empfaenger-ort` für `#plz-suggestions-popover`).
+   Schwebende Dropdowns und die Format-Toolbar werden nativ über CSS Anchor Positioning an ihren DOM-Ankern befestigt (`position-anchor: --selection-anchor`, `position-area: top center`, `flip-block` für `#format-toolbar`; `--anchor-anschrift-suche` für `#anschrift-vorschlaege`; `--anchor-empfaenger-ort` für `#plz-suggestions-popover`).
 8. **Top-Layer Popovers & Deklarative Transitions:**
-   Overlays (`#toast-v4`, `#address-suggestions`, `#plz-suggestions-popover`) nutzen die native HTML Popover API und rendern im Browser-Top-Layer. Transitions laufen 100% deklarativ über CSS `@starting-style` und `transition-behavior: allow-discrete`.
+   Overlays (`#toast-v4`, `#anschrift-vorschlaege`, `#plz-suggestions-popover`) nutzen die native HTML Popover API und rendern im Browser-Top-Layer. Transitions laufen 100% deklarativ über CSS `@starting-style` und `transition-behavior: allow-discrete`.
 9. **Semantische Schalter (`<input type="checkbox" switch>`):**
-   Zustände (z. B. Hilfslinien) werden semantisch gerendert und direkt im CSS via `:root:has(#btn-guides-switch:checked)` ausgewertet (JS-Kill Phase 2).
+   Zustände (z. B. Hilfslinien) werden semantisch gerendert und direkt im CSS via `:root:has(#btn-hilfslinien-switch:checked)` ausgewertet (JS-Kill Phase 2).
 10. **CSS @scope:**
     Vollständige Kapselung der Briefblatt-Stile (`@scope (din-a4)`), um Leckagen zwischen App-Shell und Briefdokument auszuschließen.
 11. **Modern Form Control Styling:**
@@ -118,7 +118,7 @@ website/css/
 
 * **Cascade Layers:** Definiert die hierarchische Schichtung `@layer reset, tokens, layout, floating;`.
 * **Registered Custom Properties (`@property`):**
-  * `@property --guide-opacity`: Syntax `<number>`, inherits `true`, initial `0` — ermöglicht flüssige CSS-Interpolation beim Ein-/Ausschalten der Hilfslinien.
+  * `@property --hilfslinien-deckkraft`: Syntax `<number>`, inherits `true`, initial `0` — ermöglicht flüssige CSS-Interpolation beim Ein-/Ausschalten der Hilfslinien.
   * `@property --theme-dim`: Syntax `<number>`, inherits `true`, initial `0` — stufenlose Helligkeitsregulierung im Dark Mode.
 * **Farbmetrik (OKLCH-Farbraum):**
   * Sämtliche Farben sind mathematisch als wahrnehmungsgleich im OKLCH-Farbraum definiert (z. B. `--c-viewport-day: oklch(0.96 0.01 250);`, `--c-viewport-night: oklch(0.2735 0.0179 251.92);`).
@@ -160,17 +160,17 @@ website/css/
   * `aside`: Glassmorphism-Sidebar mit `backdrop-filter: var(--glass-blur);`, `z-index: 10;`.
 * **Segmented Controls & Modern Switches:**
   * `.segmented-control`: Gleitender Hintergrund via `::before` und dynamischem `:checked + label`-Offset.
-  * `.sidebar-switch-row` & `input[type="checkbox"][switch]`: Semantischer HTML-Switch mit nativem Track und Thumb — Instanzen: `#btn-guides-switch` (Hilfslinien) und `#toggle-anlagen` (Anlagen-Blattzone via `:root:has(#toggle-anlagen:checked) din-anlagen`).
+  * `.sidebar-switch-row` & `input[type="checkbox"][switch]`: Semantischer HTML-Switch mit nativem Track und Thumb — Instanzen: `#btn-hilfslinien-switch` (Hilfslinien) und `#toggle-anlagen` (Anlagen-Blattzone via `:root:has(#toggle-anlagen:checked) din-anlagen`).
 * **Bedingte Blattzonen (Postvermerk-Sichtbarkeit):**
-  * `:root:has(#sidebar-pv-select option:checked:not([value=""]))` blendet `din-postvermerk`/`#postvermerk` rein deklarativ ein (layout.css + floating.css). Kein Hidden-Checkbox-Zwitter mehr — der Sidebar-Select ist der einzige Schreiber.
+  * `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))` blendet `din-postvermerk`/`#postvermerk` rein deklarativ ein (layout.css + floating.css). Kein Hidden-Checkbox-Zwitter mehr — der Sidebar-Select ist der einzige Schreiber.
 ### 4. `sheet.css` (DIN-5008 Blatt-Geometrie, `@scope` & Briefzonen) — 2026-09-10 aus `layout.css` ausgegliedert
 
 * **HTML Attribute Parsing via CSS `attr()`:**
   * `din-a4` liest DIN-Koordinaten direkt aus den HTML-Attributen: `attr(data-width-mm type(<number>), 210)`.
-  * Form A / Form B Reaktivität: `body:has(#btn-form-a:checked) din-a4` berechnet Faltmarken (`--fold-1-y: calc(87 / 297 * 100cqh);`) und Briefkernstart dynamisch um.
+  * Form A / Form B Reaktivität: `body:has(#btn-form-a:checked) din-a4` berechnet Faltmarken (`--falz-oben-y: calc(87 / 297 * 100cqh);`) und Briefkernstart dynamisch um.
 * **Stage & Scoped Canvas (`@scope (din-a4)`):**
   * `#viewport`: Flex-Container mit `container-type: size; container-name: viewport;`.
-  * `#din-a4-viewport`: Grid mit `container-type: size; container-name: sheet-stage;`.
+  * `#brief-ansicht`: Grid mit `container-type: size; container-name: sheet-stage;`.
   * `@scope (din-a4)`: Kapselt alle Blattstile. Fixiert Maße auf `aspect-ratio: 210 / 297`, `overflow: clip; contain: strict; container-type: size; container-name: paper;`.
 * **ContentEditable-Veredelung:**
   * `[contenteditable] { field-sizing: content; outline: 1px dashed oklch(...); }`.
@@ -178,27 +178,27 @@ website/css/
   * `.squeezed`: Minimale Schriftstauchung (`letter-spacing: -0.015em`) bei Zeichenlimits.
   * Ghost-Platzhalter: `[contenteditable]:empty::before { content: attr(placeholder); }`.
 * **DIN-5008 Briefzonen:**
-  * `#absender`: Rücksendezeile (45 mm von oben in Form B, 5 mm Höhe, 8pt Schrift).
-  * `#empfaenger`: Anschriftfeld (85 × 45 mm, 10pt Schrift).
+  * `#rucksendezeile`: Rücksendezeile (45 mm von oben in Form B, 5 mm Höhe, 8pt Schrift).
+  * `#anschriftfeld`: Anschriftfeld (85 × 45 mm, 10pt Schrift).
   * `#infoblock`: Zusatzinformationen rechtsbündig ab 125 mm.
   * `#datum`: Datumszeile normgerecht auf 92 mm (Form B).
-  * `#briefkern`: Fließtextbereich mit Fluchträndern 25 mm links und 20 mm rechts; `overflow: clip;`.
+  * `#kern`: Fließtextbereich mit Fluchträndern 25 mm links und 20 mm rechts; `overflow: clip;`.
   * `#betreff`: Betreffzeile mit `font-weight: 700; text-fit: shrink; text-wrap: balance;`.
   * `#anrede`: 10.5pt Schriftgröße, 1 Leerzeile Abstand.
-  * `#brieftext`: Blocksatz (`text-align: justify; hyphens: auto; text-wrap: pretty; line-height: 1.4;`).
+  * `#text`: Blocksatz (`text-align: justify; hyphens: auto; text-wrap: pretty; line-height: 1.4;`).
   * `#grussformel`: 1 Leerzeile vor Gruß, 3 Leerzeilen für Unterschrift.
   * `#unterschrift`: Signaturzone.
   * `#postvermerk-dropdown`: Popover im Top-Layer, verankert an `--anchor-postvermerk`.
 * **Natives Text-Fitting & Font-Shrink:**
-  * `#empfaenger, #infoblock, #briefkern, #anrede, #grussformel, #unterschrift { text-fit: shrink 60%; }`.
+  * `#anschriftfeld, #infoblock, #kern, #anrede, #grussformel, #unterschrift { text-fit: shrink 60%; }`.
   * `.single-line`: `white-space: nowrap; overflow: clip; text-overflow: ellipsis; text-fit: shrink; field-sizing: content;`.
 * **Moderne Form-Controls & Base Select:**
-  * `#sidebar-pv-select`: Gestaltet via `appearance: base-select`, `::picker(select)` und `::picker-icon`.
+  * `#sidebar-postvermerk-select`: Gestaltet via `appearance: base-select`, `::picker(select)` und `::picker-icon`.
 * **Hilfslinien & Faltmarken:**
-  * `.din-mark`: Faltmarken 1 und 2 sowie Lochmarke am linken Rand auf exakt 8 mm begrenzt (`width: calc(8 / 210 * 100cqw);`), um Betreffkollisionen physisch zu verhindern.
-  * Sichtbarkeit gesteuert über `--guide-opacity`: `:root:has(#btn-guides-switch:checked) { --guide-opacity: 0.55; }`.
+  * `din-falz-oben, din-falz-unten, din-lochmarke`: Faltmarken 1 und 2 sowie Lochmarke am linken Rand auf exakt 8 mm begrenzt (`width: calc(8 / 210 * 100cqw);`), um Betreffkollisionen physisch zu verhindern.
+  * Sichtbarkeit gesteuert über `--hilfslinien-deckkraft`: `:root:has(#btn-hilfslinien-switch:checked) { --hilfslinien-deckkraft: 0.55; }`.
 * **Signatur-Bounding-Box:**
-  * `.sig-bounding-box`, `.sig-handle`, `.sig-rotate-handle`: Interaktive Transformations-Handles für die Unterschrift.
+  * `.unterschriftsbild-rahmen`, `.unterschriftsbild-griff`, `.unterschriftsbild-drehgriff`: Interaktive Transformations-Handles für die Unterschrift.
 
 ---
 
@@ -225,7 +225,7 @@ website/css/
   * Schüttel-Animation bei Deduplizierung: `@keyframes shakeToast`.
 * **CSS Anchor Positioning für schwebende UI:**
   * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
-  * `#address-suggestions`: Verankert an `--anchor-address-search` (Geoapify Remote-Vorschläge).
+  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
 * **Inline-Feedback (.input-feedback-msg):** Statusmeldungen für ungültige API-Keys oder Tastaturbeschränkungen.
 * **Visuelle Trennung:**
@@ -251,7 +251,7 @@ website/css/
   * `[contenteditable]:empty::before, [placeholder]:empty::before { display: none !important; }`.
   * `[contenteditable] { outline: none !important; box-shadow: none !important; background: transparent !important; }`.
 * **DIN-5008 Druck-Trennlinie:**
-  * `#absender { border-bottom: 0.5pt solid oklch(0% 0 0) !important; padding-bottom: 2px !important; }` — die genormte Trennlinie unter der Rücksendezeile erscheint ausschließlich auf dem Papier/PDF.
+  * `#rucksendezeile { border-bottom: 0.5pt solid oklch(0% 0 0) !important; padding-bottom: 2px !important; }` — die genormte Trennlinie unter der Rücksendezeile erscheint ausschließlich auf dem Papier/PDF.
 * **Dropdown-Icons neutralisieren:**
   * `.pv-select { appearance: none !important; border: none !important; background: transparent !important; }`.
   * `.pv-select::picker-icon { display: none !important; }`.

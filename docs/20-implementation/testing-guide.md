@@ -4,7 +4,7 @@ title: 'Guide: Interaktiver Test-Leitfaden'
 type: guide
 status: active
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -40,7 +40,7 @@ depends_on: []
 
 #### Testfall 1: Plaintext-Paste-Filter
 
-*   **Ausgangssituation:** Das Feld „Brieftext“ (`#brieftext`) ist leer oder befüllt.
+*   **Ausgangssituation:** Das Feld „Brieftext“ (`#text`) ist leer oder befüllt.
 
 *   **Aktion:** Einen formatierten Text kopieren und einfügen.
 
@@ -54,7 +54,7 @@ depends_on: []
 
 #### Testfall 2: Plaintext-Drag-and-Drop-Filter
 
-*   **Ausgangssituation:** Das Feld „Brieftext“ (`#brieftext`) ist aktiv.
+*   **Ausgangssituation:** Das Feld „Brieftext“ (`#text`) ist aktiv.
 
 *   **Aktion:** Formatierten Text via Drag-and-Drop in das Feld ziehen.
 

@@ -4,7 +4,7 @@ title: 'Zukunfts-Roadmap — Ideen & Chrome-Modernisierungschancen'
 type: roadmap
 status: active
 created: '2026-07-07'
-updated: '2026-09-10'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -81,7 +81,7 @@ code_links: []
 * **Problem:** Nutzer müssen Adressen von Firmen-Websites (Impressum) mühsam Zeile für Zeile kopieren und einfügen, während tausende Zeilen Cookie-Banner, Menüs und Redaktionsmitglieder stören.
 * **Lösung:**
   1. Modul `website/js/46-clipboard-address-parser.js` mit zweistufigem heuristischem Scoring-Parser implementiert.
-  2. Intuitiver Sidebar-Button `📋 Zwischenablage lesen` (`#btn-clipboard-address`) unter dem Bereich `Adresse aus Zwischenablage`.
+  2. Intuitiver Sidebar-Button `📋 Zwischenablage lesen` (`#btn-zwischenablage-anschrift`) unter dem Bereich `Adresse aus Zwischenablage`.
   3. Filtert in unter 0,1 ms: Menüleisten, Social-Links, Cookie-Texte, Handelsregisterdaten (`HRB ...`, `Amtsgericht ...`), USt-IdNr., Vorstände.
   4. Multi-Address Anomaly Guard: Erkennt mehrere Adressen im Clipboard und bietet ein interaktives Auswahl-Popover (`#clipboard-candidates-popover`) via W3C Popover API.
   5. Befüllt strukturiert die DIN-5008-Felder: `empfaenger-firma`, `empfaenger-strasse`, `empfaenger-ort`.
@@ -109,7 +109,7 @@ code_links: []
   1. Einzeilige Felder in `website/index.html` mit nativem `contenteditable="plaintext-only"` und `enterkeyhint="done"` ausgestattet (Browser blockiert Umbrüche und HTML-Formatting nativ).
   2. `03-ui-protections.js` um redundante Beforeinput- und Keydown-Interzeptoren erleichtert.
   3. Toast-System (`32-toast.js`) auf die native HTML Popover API (`popover="manual"`) umgestellt. Mounten im Browser Top-Layer, Transitions über CSS `@starting-style` ohne JS-Timer und ohne Z-Index-Kämpfe.
-  4. Sidebar-Schalter auf semantisches `<input type="checkbox" switch id="btn-guides-switch">` umgestellt.
+  4. Sidebar-Schalter auf semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">` umgestellt.
 * **Aufwand:** ~1,5 Stunden.
 * **Nutzen:** Über 175 Zeilen weniger JavaScript, native Barrierefreiheit, Z-Index-Kämpfe gehören der Vergangenheit an.
 

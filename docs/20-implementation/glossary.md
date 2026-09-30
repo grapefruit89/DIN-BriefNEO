@@ -4,7 +4,7 @@ title: 'Fachbegriff-Glossar — DIN-BriefNEO'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-07-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -176,4 +176,4 @@ Ein Web-Design-Konzept, bei dem die Anwendung (wie dieser Brief-Editor) immer ex
 
 ### Single Source of Truth (SSoT)
 
-Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) existiert nur an **einem einzigen, zentralen Ort** im Code (z.B. als CSS Custom Property `--fold-1-y`). Alle anderen Komponenten lesen diesen Wert nur aus. Es gibt keine redundanten Kopien des Wertes, was Fehler bei Updates verhindert.
+Ein Architekturprinzip. Ein bestimmter Wert (z.B. die Y-Position der Falzmarke) existiert nur an **einem einzigen, zentralen Ort** im Code (z.B. als CSS Custom Property `--falz-oben-y`). Alle anderen Komponenten lesen diesen Wert nur aus. Es gibt keine redundanten Kopien des Wertes, was Fehler bei Updates verhindert.

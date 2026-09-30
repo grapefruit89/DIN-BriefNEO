@@ -4,7 +4,7 @@ title: 'ADR-005: Sender Synchronization Logic (Absenderblock → Rücksendezeile
 type: adr
 status: active
 created: '2026-07-07'
-updated: '2026-08-08'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -38,11 +38,11 @@ The user firmly requested this logic to be restored and declared it an invariant
 
 We restore the `<din-infoblock>` (or sender input fields) and introduce a dedicated synchronization script (`sender-sync.js`) that enforces the following data flow:
 
-1. `info-name`, `info-street`, and `info-city` are the single source of truth for the sender's address.
+1. `absender-namenszeile`, `absender-strasse`, and `absender-ort` are the single source of truth for the sender's address.
 
 2. An `input` event listener continuously concatenates these fields with a separator (e.g., ` • `) and injects the result into the `<din-absender id="absender">` element (Rücksendezeile).
 
-3. The `info-name` field is additionally mirrored into the `<div id="unterschrift">` (Maschinenschrift) element.
+3. The `absender-namenszeile` field is additionally mirrored into the `<div id="unterschrift">` (Maschinenschrift) element.
 
 ## Consequences
 
@@ -54,11 +54,11 @@ We restore the `<din-infoblock>` (or sender input fields) and introduce a dedica
 
 ## Implementation Rules
 
-- **Rule 1:** The signature image (`#signature-image`) MUST reside in a separate DOM container outside of the `contenteditable` `#unterschrift` element.
+- **Rule 1:** The signature image (`#unterschriftsbild-vorschau`) MUST reside in a separate DOM container outside of the `contenteditable` `#unterschrift` element.
 
 - **Rule 2:** The `sender-sync.js` module MUST be loaded during the initial application setup in `main.js`.
 
 - **Rule 3:** This logic is considered **core functionality** and MUST NOT be removed in future refactoring attempts.
 
 > [!WARNING] Stille Abhängigkeit (ergänzt 2026-08-08)
-> Es gibt **keinen automatischen Check**, der greift, wenn `info-name`/`info-street`/`info-city` umbenannt oder `44-sender-sync.js` verändert wird — die Rücksendezeile (`#absender`) und `#unterschrift` würden dann stillschweigend aufhören zu synchronisieren, ohne Fehlermeldung. Kein akuter Bug, nur ein Hinweis für den nächsten, der an dieser Datei arbeitet: die drei Feld-IDs oben sind ein informeller Vertrag, kein technisch erzwungener.
+> Es gibt **keinen automatischen Check**, der greift, wenn `absender-namenszeile`/`absender-strasse`/`absender-ort` umbenannt oder `44-sender-sync.js` verändert wird — die Rücksendezeile (`#rucksendezeile`) und `#unterschrift` würden dann stillschweigend aufhören zu synchronisieren, ohne Fehlermeldung. Kein akuter Bug, nur ein Hinweis für den nächsten, der an dieser Datei arbeitet: die drei Feld-IDs oben sind ein informeller Vertrag, kein technisch erzwungener.

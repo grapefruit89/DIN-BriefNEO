@@ -4,7 +4,7 @@ title: 'Web Standards Tracking & Testing'
 type: guide
 status: active
 created: '2026-07-21'
-updated: '2026-09-09'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -157,6 +157,6 @@ Verifiziert in Helium (Chrome/151.0.7922.137) via CDP, Testdateien: `scratch/tes
 | `shrink per-line 50%` | gültig | Skalierung pro Zeile |
 | `consistent shrink` / `per-line shrink` | verworfen (falsche Reihenfolge) | — |
 
-→ **Fix in `layout.css` umgesetzt**: `text-fit: contain` (Z. 337, 393, 769) → `text-fit: shrink`. Live-Verifikation über die laufende App: `#absender`, `#betreff`, `.single-line` rechnen jetzt `shrink` (vorher ungültig → Deklaration tot). Spec-Grammatik bestätigt: `[none|grow|shrink] [consistent|per-line|per-line-all]? <percentage>?` — Reihenfolge der Keywords ist verbindlich.
+→ **Fix in `layout.css` umgesetzt**: `text-fit: contain` (Z. 337, 393, 769) → `text-fit: shrink`. Live-Verifikation über die laufende App: `#rucksendezeile`, `#betreff`, `.single-line` rechnen jetzt `shrink` (vorher ungültig → Deklaration tot). Spec-Grammatik bestätigt: `[none|grow|shrink] [consistent|per-line|per-line-all]? <percentage>?` — Reihenfolge der Keywords ist verbindlich.
 
 **`page-margin-safety` (css-page-3, `@page`-Descriptor)** — CSSOM-Parsing-Test: `none`, `clamp`, `add` parsen alle; Garbage verworfen; `@page :first` akzeptiert den Descriptor. Semantik laut Spec (§7.6): `clamp` = max(Setterwert, `<safe-printable-inset>`), `add` = Setterwert + Inset — greift nur an Blatträndern, nicht am Seitenbereich. → Integration in `print.css` (DIN-5008-Druckworkflow) offen.

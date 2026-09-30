@@ -4,7 +4,7 @@ title: "ADR-JS: JavaScript Architecture, Constraints & Single Source of Truth (S
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-09'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -91,7 +91,7 @@ Das Projekt verfügt über exakt **14 aktive JavaScript-Module** unter `website/
 * `updateSettings()`: Persistiert Einstellungsänderungen via `StorageManager`.
 * `initFontInjection()` / `injectFont(base64Font)`: Injiziert Offline-WOFF2-Fonts via `@font-face`.
 * `updateFontStatusUI(hasCustomFont)`: Aktualisiert Schriftstatus in der Sidebar.
-* `attachListeners()`: Event-Handler für Theme, Layout und den semantischen `<input type="checkbox" switch id="btn-guides-switch">`.
+* `attachListeners()`: Event-Handler für Theme, Layout und den semantischen `<input type="checkbox" switch id="btn-hilfslinien-switch">`.
 
 ### 3. `03-ui-protections.js` (Eingabeschutz & Listen-Integrität)
 * `constructor()`: Registriert geschützte Selektoren (`multiLineIds`, `maxTwoLinesIds`).
@@ -210,7 +210,7 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 14, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |
 | **`32-toast.js`** | `onPointerDown`, `onPointerMove`, `onPointerUp`, `setPointerCapture`, `swipe.startX`, `--swipe-x`, `z-index: 9999` | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 15, Probe P5 | Native HTML Popover API (`popover="manual"`) im Top-Layer, CSS `@starting-style` und `transition-behavior: allow-discrete`. |
 | **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 72 KB Offline Brotli PLZ & Großempfänger Engine (`45-address-intelligence.js`). 100% DSGVO-konform, 0ms Latenz. |
-| **`02-settings-manager.js`** | Radio-Segmented-Controls für Hilfslinien (`btn-guides-on`, `btn-guides-off`) | ⚠️ **DEPRECATED** | ADR-ANTIPATTERN Abs. 16, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-guides-switch">`. Direkte CSS `:has()` Auswertung ohne JS-Synchronisation. |
+| **`02-settings-manager.js`** | Radio-Segmented-Controls für Hilfslinien (`btn-hilfslinien-on`, `btn-hilfslinien-off`) | ⚠️ **DEPRECATED** | ADR-ANTIPATTERN Abs. 16, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">`. Direkte CSS `:has()` Auswertung ohne JS-Synchronisation. |
 | **Global** | `document.execCommand('bold'|'italic'|...)` | 🚫 **HARD BAN** | Catalog A48, ADR-ANTIPATTERN Abs. 4 | W3C Selection & Range API in `31-format-toolbar.js` sowie native Command Invokers. |
 | **Global** | `new Date()`, `Date.now()`, `Date.parse()` | 🚫 **HARD BAN** | Catalog TM1, A48 | Temporal API (`Temporal.Now.plainDateISO()`) und standardkonformes DIN-Formatting. |
 

@@ -124,9 +124,9 @@ website/css/
   * Sämtliche Farben sind mathematisch als wahrnehmungsgleich im OKLCH-Farbraum definiert (z. B. `--c-viewport-day: oklch(0.96 0.01 250);`, `--c-viewport-night: oklch(0.2735 0.0179 251.92);`).
   * Reines Weiß (`oklch(100% 0 0)`) und Tiefschwarz (`oklch(0% 0 0)`).
 * **Natives Theming (`light-dark()`):**
-  * `--bg-viewport`, `--bg-sidebar`, `--bg-card`, `--border-color`, `--text-primary`, `--text-muted`.
-  * `--paper-bg`, `--paper-text`, `--paper-ghost`.
-  * Glassmorphism via `color-mix`: `--bg-sidebar-glass: color-mix(in oklch, light-dark(...) 80%, transparent);`.
+  * `--bg-viewport`, `--bg-seitenleiste`, `--bg-card`, `--border-color`, `--text-primary`, `--text-muted`.
+  * `--blatt-hintergrund`, `--blatt-text`, `--blatt-schwach`.
+  * Glassmorphism via `color-mix`: `--bg-seitenleiste-glass: color-mix(in oklch, light-dark(...) 80%, transparent);`.
 * **Semantische Statusfarben:**
   * `--c-primary`, `--c-success` (Grün), `--c-warning` (Orange), `--c-danger` (Rot).
 * **Theming-Selektoren (3-Wege Toggle Auto/Light/Dark):**

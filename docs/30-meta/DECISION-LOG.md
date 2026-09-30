@@ -1397,3 +1397,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Prosa-Scan auf stale Datei-Refs (nur noch **beabsichtigte** Plan-Refs; `48-text-fit.js` bleibt als historische A49-Erwähnung), Gate 100 %, `links.js`/`imr.js` OK.
 
 **Generalisierbarkeit:** (1) Zukunfts-Aussagen müssen als **geplant** erkennbar sein, sonst liest sie jeder als Ist-Zustand. (2) Chat-Exporte gehören nicht in kuratierte Doku. (3) Der Prosa-Ref-Scan (`*.js/*.md` gegen `git ls-files`) schließt die Lücke, die der Frontmatter-Link-Gate lässt.
+
+## 2026-09-30 — Korrektur: Salutation V2 ist live (kein smart.js) + CSS-Token-Drift
+
+**Kontext:** Meine vorige Kennzeichnung („Ablösung durch ein Smart-Modul ist geplant, nicht implementiert") war **falsch**. Belegt am Code: `website/js/main.js` importiert `41-salutation-engine.js`, und **genau diese Datei ist die V2** (951 Vornamen Zero-Click, Adelspartikel-Erhalt, 3 B2B-Pärchen, Dirty/Auto-Reset; `website/data/de_vornamen_gender.json.gz` liegt vor; Commit `cc12e5d` *„promote 80/20 Smart Salutation Engine V2 to production"*). Stale war nicht die Engine, sondern die **ROADMAP** (Prio 1 forderte die Umhängung auf ein **nie existierendes** `41-salutation-engine.smart.js`).
+
+**Änderung:** (1) `Salutation-Engine.md`: Fehlaussage ersetzt — Engine ist live V2, **kein** separates Modul; Vornamen-Angabe korrigiert (450+/`MALE_NAMES` → 951/`NAME_INDEX`). (2) `ROADMAP.md` Prio 1 → **abgeschlossen** (V2 in dieselbe Datei promoviert; Prototyp liegt in `research/roadmap/smart_salutation_engine.js`). (3) CSS-Token-Drift in Doku korrigiert (gegen `variables.css` verifiziert): `--paper-bg/-text/-ghost` → `--blatt-hintergrund/-text/-schwach`, `--bg-sidebar(-glass)` → `--bg-seitenleiste(-glass)`, `--guide-opacity` → `--hilfslinien-deckkraft`; nicht mehr existente `--danger-hover`/`--guide-color` aus der Memory-Liste entfernt.
+
+**Verifikation:** Alle Variablennamen gegen `website/css/variables.css` geprüft; Gate 100 %, `links.js`/`imr.js` OK.
+
+**Generalisierbarkeit:** (1) „Ist" vs. „geplant" **am Code** belegen, nie aus der Doku übernehmen — meine Fehlkennzeichnung stammte aus der (stale) ROADMAP. (2) Benennt der Code Variablen um, müssen **Doku-Erwähnungen** mitgezogen werden — der Link-Gate sieht Code-Bezeichner in Prosa nicht. (3) Stale-Prosa-Scan (`*.js|*.md|--var` gegen Quellen) als Prüfklasse ergänzen.

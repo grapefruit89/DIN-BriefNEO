@@ -97,8 +97,8 @@ build/            import.sql (generiert)
 - **CSS Anchor Positioning:** Adress-Dropdown an `#input-address-search` gekoppelt
 - **CSS View Transitions API:** Layout-Wechsel (Form A/B) und Farbschema per `document.startViewTransition()`
 - **CSS @starting-style + `transition-behavior: allow-discrete`:** Toast + Format-Toolbar
-- **CSS @property:** `--guide-opacity` als `<number>` registriert, Hilfslinien-Fading
-- **CSS Relative Color Syntax (OKLCH):** `--accent-glow`, `--accent-hover`, `--danger-hover`, `--guide-color`
+- **CSS @property:** `--hilfslinien-deckkraft` als `<number>` registriert, Hilfslinien-Fading
+- **CSS Relative Color Syntax (OKLCH):** `--accent-glow`, `--accent-hover`
 - **CSS `interpolate-size: allow-keywords`:** API-Key-Container `height: 0 → auto`
 - **CSS `@scope (din-a4)`:** Briefbogen-Stile isoliert von globalen Styles
 - **Reaktives `:has()`:** Ambient Glow beim Fokus editierbarer Felder

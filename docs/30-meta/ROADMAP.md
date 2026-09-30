@@ -49,15 +49,11 @@ code_links: []
 
 ## 🚀 Detaillierte Umsetzungsschritte (Prio-Sortiert)
 
-### 🟢 Priorität 1: Salutation Engine V2 Produktivschaltung (Quick Win)
-* **Problem:** `website/js/main.js` importiert noch das veraltete `41-salutation-engine.js`. Nutzer müssen Geschlechter teils manuell wählen oder stoßen auf unvollständige Anreden während des Tippens.
-* **Lösung:**
-  1. Umhängen des Imports in `main.js` auf `website/js/41-salutation-engine.smart.js`.
-  2. Kopieren von `research/research_results/de_vornamen_gender.json.br` (2,6 KB) nach `website/data/` und Integration des Offline-Lookups für Zero-Click-Geschlechtserkennung.
-  3. Aktivierung der 3 B2B-Pärchen (Förmlich, Höflich, Locker), Adelspartikel-Erhalt (`von`, `zu`, `van`, `de`) und Dirty-Flag-Schutz mit Auto-Reset.
-  4. Archivierung des alten `41-salutation-engine.js`.
-* **Aufwand:** ~30 Minuten.
-* **Nutzen:** Sofortige Beseitigung aller Anrede-Fehler auf dem echten Briefbogen.
+### ✅ Priorität 1: Salutation Engine V2 Produktivschaltung (abgeschlossen)
+* **Status:** Erledigt (Commit `cc12e5d`, *„promote 80/20 Smart Salutation Engine V2 to production"*). Die V2 wurde **in `website/js/41-salutation-engine.js` selbst** promoviert — ein separates `41-salutation-engine.smart.js` gibt es **nicht**.
+* **Ist:** `main.js` importiert `41-salutation-engine.js` (V2): Zero-Click-Geschlecht (951 Vornamen aus `website/data/de_vornamen_gender.json.gz`), Adelspartikel-Erhalt (`von`, `zu`, `van`, `de`, …), 3 B2B-Pärchen (Förmlich, Höflich, Locker), Dirty-Flag + Auto-Reset.
+* **Verworfen:** Der ursprüngliche Plan (Import-Umhängung auf eine separate `.smart.js` + Archivierung der Altdatei) wurde nicht verfolgt — die Altdatei wurde zur V2. Der Prototyp liegt unter `research/roadmap/smart_salutation_engine.js`.
+* Siehe [[Salutation-Engine]].
 
 ---
 

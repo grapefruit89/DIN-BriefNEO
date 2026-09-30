@@ -36,7 +36,7 @@ depends_on: []
 
 > [!NOTE] Implementierungsstatus & Architektur-Update (2026-09-04)
 > Die Anrede- und Grußformel-Logik basiert auf dem **radikalen 80/20 B2B-Prinzip**.
-> Aktiver Code: `website/js/41-salutation-engine.js`. Eine Ablösung durch ein Smart-Modul (Vornamendatenbank + Adelspartikel) ist in [[ROADMAP]] skizziert, aber **nicht** implementiert.
+> **Aktiver Code: `website/js/41-salutation-engine.js` — das ist bereits die V2** (Zero-Click-Geschlecht aus 951 Vornamen, Adelspartikel-Erhalt, 3 B2B-Pärchen, Dirty-Flag + Auto-Reset). Ein separates `*.smart.js` gibt es **nicht** — die V2 wurde in dieselbe Datei promoviert (Commit `cc12e5d`).
 >
 > **Kern-Regel:** Klare Standard-Pärchen ohne Titel-Akrobatik. Alles Weitere übersteuert der Nutzer bei Bedarf direkt per ContentEditable auf dem Briefbogen (`data-dirty="true"`).
 
@@ -48,7 +48,7 @@ Um Fehlentscheidungen und wiederkehrende Diskussionen zu vermeiden, dokumentiert
 
 | Aspekt | Früherer Stand (Legacy) | Neuer 80/20 B2B-Standard | Warum geändert? (Begründung) |
 | :--- | :--- | :--- | :--- |
-| **Geschlechtserkennung** | Nur wenn Nutzer explizit `"Herr "` / `"Frau "` voranstellte oder unsichtbare Radio-Buttons klickte. | **Zero-Click:** 2,55 KB Offline-Datenbank mit 450+ deutschen Vornamen (`MALE_NAMES` / `FEMALE_NAMES`). | Bei Eingabe wie „Thomas Müller“ scheiterte die alte Engine und fiel auf „Damen und Herren“ zurück. |
+| **Geschlechtserkennung** | Nur wenn Nutzer explizit `"Herr "` / `"Frau "` voranstellte oder unsichtbare Radio-Buttons klickte. | **Zero-Click:** 951 Vornamen aus `website/data/de_vornamen_gender.json.gz` (~2,9 KB gzip, `NAME_INDEX`). | Bei Eingabe wie „Thomas Müller“ scheiterte die alte Engine und fiel auf „Damen und Herren“ zurück. |
 | **Der „Herr “-Tippbug** | Bei beginnender Eingabe (`"herr "`) erzeugte der Splitter fehlerhaften Kauderwelsch (`"Hallo herr,"`). | **In-Flight Guard:** Wartet bei reinem Präfix ab und liefert sauberen Zwischenzustand (`"Sehr geehrter Herr,"`). | Verhindert peinliche oder verwirrende Text-Glitches während des Schreibens. |
 | **Titel (Dr., Prof.)** | Greedy Regex versuchte Titel krampfhaft in die Anrede einzubauen (`"Frau Prof. Dr. Schmidt"`). | **Standard ohne Titel:** Titel werden im Standard gestrippt. Manuelle Zusätze trägt der Nutzer direkt per Hand ein. | Reduziert Code-Komplexität drastisch; Titel-Regeln sind im B2B-Alltag hochgradig individuell. |
 | **Adelspartikel** | Schnitt nur das letzte Wort ab: `"von Bismarck"` verlor das `"von"` (`"Herr Bismarck"`). | **Partikel-Erhalt:** Erkennt `von`, `zu`, `van`, `de`, `von und zu` und hängt sie an den Nachnamen an. | Entspricht der korrekten deutschen Höflichkeits- und Namenskonvention (`"Herr von Bismarck"`). |
@@ -107,4 +107,4 @@ Die Engine überwacht die normgerechte Zeichensetzung automatisch bei Verlassen 
 - **Automatischer Reset:**
   Löscht der Nutzer den Inhalt des Feldes vollständig (z. B. mit Strg+A, Backspace), erkennt die Engine das leere Feld, entfernt das Dirty-Flag und generiert sofort wieder die passende Standardformel.
 - **Ghost-Markierung:**
-  Automatisch generierte, noch unberührte Vorschläge tragen `data-generated="true"`. Dies wird auf dem Bildschirm dezent gekennzeichnet (`--paper-ghost`), im Ausdruck (`print.css`) jedoch automatisch als normaler Text neutralisiert.
+  Automatisch generierte, noch unberührte Vorschläge tragen `data-generated="true"`. Dies wird auf dem Bildschirm dezent gekennzeichnet (`--blatt-schwach`), im Ausdruck (`print.css`) jedoch automatisch als normaler Text neutralisiert.

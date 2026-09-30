@@ -55,7 +55,7 @@ depends_on: []
 | Constraint | Regel |
 |---|---|
 | Framework | 100% Vanilla HTML/CSS/JS — kein React, Vue, Tailwind, CDN |
-| Browser | Chrome 145–148+ exklusiv; Cross-Browser bewusst verschoben |
+| Browser | Chrome 150+ exklusiv ([[longevity-guidelines]]); Cross-Browser bewusst verschoben |
 | Offline | Doppelklick-fähig via `file:///` |
 | Persistenz | LocalStorage only — OPFS, Web Locks, Leader Election, IdleDetector **aufgegeben** |
 | Datum | Temporal API only — `new Date()` ist ein **Hard Bug**, keine Stilfrage |
@@ -76,9 +76,8 @@ docs/
   40-tooling/     README-DB.md (SQLite FTS5)
   90-policy/      HYBRID-SPEC-DRIVEN-WORKFLOW.md
 website/
-  js/00-core/     draft-manager.js, settings-manager.js
-  js/20-features/ sender-sync.js
-  js/30-utils/    constants.js, metadata.js, dev-tools.js
+  js/            01-draft-manager.js … 53-metadata.js (flach, numerisch geordnet)
+  js/addons/     optionale Add-ons
   css/            layout.css, floating.css, variables.css
   index.html
 tools/            build_db.js/py, wiki_bundler.py, verify_compliance*.py
@@ -148,10 +147,10 @@ Diese Bugs aus der alten Memory existieren in der neuen Architektur nicht mehr:
 ### Offen / Zu verifizieren
 - **`recipientType` Auto-Erkennung:** IMR v4.8.0 dokumentiert Auto-Detection via `_updateSalutation()` — Grundfunktion verifiziert (siehe unten), Vollständigkeit aller Edge-Cases weiterhin nicht durchgetestet
 - **History Stack Limit korrigieren:** Doku nennt 20/60, Code nutzt tatsächlich `50` — Doku-Werte müssen noch angepasst werden (siehe CLAUDE.md "Offen")
-- **Profil-Management:** bauen oder streichen? Produktentscheidung offen, siehe [[ADR-PROFILE-MANAGEMENT]]
+- **Profil-Management:** bauen oder streichen? Produktentscheidung offen, siehe [[ROADMAP]]
 
 ### Verifiziert am 2026-08-08 (Memory-Audit, siehe DECISION-LOG)
-- **IBAN Ghost-Text / Profil-Management:** ✅ verifiziert — existiert **nicht** im Produktivcode (`website/js/`, `index.html`). Nur eine Erwähnung in `poc-features.js` (Sandbox, nicht produktiv). `Feature-Matrix.md` war falsch ("✅ Aktiv"), wurde korrigiert. Siehe [[ADR-PROFILE-MANAGEMENT]].
+- **IBAN Ghost-Text / Profil-Management:** ✅ verifiziert — existiert **nicht** im Produktivcode (`website/js/`, `index.html`). Nur eine Erwähnung in `poc-features.js` (Sandbox, nicht produktiv). `Feature-Matrix.md` war falsch ("✅ Aktiv"), wurde korrigiert. Siehe [[ROADMAP]].
 - **Salutation Engine SPEC-002:** ✅ verifiziert — teilweise abgedeckt. Titel-Scan, Auto-Gender, Formality-Switch, Grußformel-Generator implementiert in `41-salutation-engine.js`. Fehlt: Ghost-Text-Pattern (Code setzt direkt `textContent`), DIN-Fehler-Punctuation-Validator, IBAN-Check. `Salutation-Engine.md` referenzierte zudem falsche Dateinamen (`salutation.js`/`logic.js`/`engine.js` statt `41-salutation-engine.js`) — korrigiert.
 - **CSS Custom Properties:** ✅ verifiziert — `--c-danger`/`--c-success` existieren in `variables.css`. `--c-text-muted` existiert nirgends (weder definiert noch verwendet) — kein aktiver Bug, nur veraltete Erwähnung.
 - **History Stack Limit:** ✅ verifiziert — Code (`01-draft-manager.js`, `#undoStack`) nutzt `50`, nicht 20 oder 60. Beide historischen Doku-Werte waren falsch.

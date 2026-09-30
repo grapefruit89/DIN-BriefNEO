@@ -89,3 +89,6 @@ jede einzelne Aenderung sieht fuer sich genommen klein aus.
 - `repository.yaml` `open_items`: Funde, die zu konkreten Massnahmen
   werden, landen hier als Eintrag mit `status: open`, nicht nur im
   Audit-Dokument -- sonst verschwindet der Fund wieder aus dem Contract.
+- `references/aufraeum-playbook.md`: die konkrete Putz-Sequenz
+  (Pruefklassen, Scan-Vorlagen, Ausnahmen, Definition of Done) -- anwenden,
+  wenn der Audit nicht nur Befunde, sondern Fixes produzieren soll.

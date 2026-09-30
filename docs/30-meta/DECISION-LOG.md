@@ -1280,3 +1280,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** Gate 100 %, keine dangling-Annotationen mehr.
 
 **Generalisierbarkeit:** Generierte Artefakte **nie** versionieren (Git-Noise bei Zeilenverschiebungen); Traceability-Anker müssen auf existierende Doku zeigen — sonst lügt die Matrix.
+
+## 2026-09-30 — Aufräum-Playbook + Pass über docs/30-meta
+
+**Kontext:** Die wiederkehrende Aufräum-Methodik (Rolle, tote Links, generierte Artefakte, Vokabular, Case, Baseline, stale Pfade, Archiv) war nur implizit; `architecture-drift-audit` prüfte bislang nur Soll/Ist-Drift. Anwendung auf `docs/30-meta`.
+
+**Änderung:** (1) `agent/skills/architecture-drift-audit/references/aufraeum-playbook.md` angelegt (Ablauf, 8 Prüfklassen, Scan-Vorlagen, Ausnahmen, DoD) + Verweis in `SKILL.md`. (2) 30-meta: tote Links repariert (`MASTER-DO-DONT-DEPRECATED`/`MODERNIZATION-GUIDE` → `ADR-ANTIPATTERN`/`web-standards-tracking`; `ADR-PROFILE-MANAGEMENT` → `ROADMAP`; `FEATURE-INVENTORY` + Review-Artefakte entfernt), Baseline-Nennungen auf „Chrome 150+ ([[longevity-guidelines]])" (DEV-INFO 25/109, memory 58), stale `js/00-core/`-Baum in memory an die reale flache `website/js/`-Struktur angepasst.
+
+**Verifikation:** Beweis-Scan 0 ungewollte tote Links (nur `[[schema-v6.json]]`-Anhang, gewollt), Gate 100 %, `imr.js` OK.
+
+**Generalisierbarkeit:** Aufräumen ist ein Standard-Pass mit fester Reihenfolge (**scannen → klassifizieren → fixen → beweisen → protokollieren**) und expliziten Ausnahmen (Code-Fences, Template-Platzhalter, Chronik). Chroniken (`DECISION-LOG`, `90-archive`) werden nie rückwärts „repariert"; eine Klasse pro Commit-Gruppe.

@@ -4,7 +4,7 @@ title: '30-meta — Projektgeschichte, Status & Obsidian-Setup'
 type: meta
 status: active
 created: '2026-07-07'
-updated: '2026-08-07'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -35,7 +35,6 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 
 - [[CHANGELOG]] ⭐⭐ — Versionshistorie (aktuell: v15.0.0)
 - [[Feature-Matrix]] ⭐⭐ — Projektstatus: 76% Features fertig (Stand 2026-04-01, veraltet)
-- [[FEATURE-INVENTORY]] — Feature-Inventar mit Details
 - [[DECISION-LOG]] — Chronologisches Entscheidungslog aller Sessions
 - [[ROADMAP]] — Zukunfts-Ideen (unverbindlich)
 
@@ -53,8 +52,3 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 - [[DEV-INFO]] — Developer-Info & Feature-Erkennungs-Matrix (25 Features)
 - [[web-standards-tracking]] — Chrome/W3C-Feature-Tracking
 - [[ROADMAP]] — Zukunftsideen + Chrome 148-151 Modernisierungschancen
-
-## Review-Artefakte
-
-- [[OBSIDIAN-SETUP-GUIDE-REVIEW]] — Gemini Agent Team Review (6.5/10, 2026-08-07)
-- [[REVIEW-PROMPT-obsidian-guide]] — Review-Prompt für Gemini CLI

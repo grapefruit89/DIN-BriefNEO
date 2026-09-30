@@ -22,7 +22,7 @@ updated: '2026-09-30'
 
 # 🛠️ DIN-BriefNEO — Entwicklerbereich & Feature-Prüfung
 
-Dieses Dokument dient als reines **Live-Diagnose-Tool** und Feature-Erkennungs-Matrix für die Validierung moderner Webtechnologien. Es ist keine Architektur-Vorgabe (diese finden sich in den ADRs) im Kontext unserer **Chrome 147/148/149+ Baseline**. Es basiert auf der originalen `check_readiness.js` und wurde massiv erweitert, um **25 absolute Bleeding-Edge-Features** der modernen Web-Plattform systematisch zu erkennen. 
+Dieses Dokument dient als reines **Live-Diagnose-Tool** und Feature-Erkennungs-Matrix für die Validierung moderner Webtechnologien. Es ist keine Architektur-Vorgabe (diese finden sich in den ADRs) im Kontext unserer **Chrome-Baseline** ([[longevity-guidelines]]). Es basiert auf der originalen `check_readiness.js` und wurde massiv erweitert, um **25 absolute Bleeding-Edge-Features** der modernen Web-Plattform systematisch zu erkennen. 
 
 Darüber hinaus spezifizieren wir hier das Konzept für ein **geheimes Easter-Egg-Entwickler-Overlay**, das später mit minimalem JavaScript-Einsatz direkt in das Frontend integriert werden kann.
 
@@ -44,7 +44,7 @@ Wir unterscheiden bei der Bewertung von Web-APIs drei klar definierte Zustände:
 
 2. **Future-Proof (Inaktiv):** Modernste W3C-Kandidaten, die bereits in Chromium-Engines bereitstehen, aber mangels breiter Cross-Browser-Stabilität oder aufgrund experimentellen Status noch nicht in den Produktiv-Code einfließen dürfen.
 
-3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[[MASTER-DO-DONT-DEPRECATED|MASTER-DO-DONT-DEPRECATED.md]]** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
+3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
 
 ---
 
@@ -106,7 +106,7 @@ Der Text der Versionsnummer im Fußbereich dient als Klick-Trigger. Das Popover-
   </div>
   <div class="popover-body">
     <p class="diagnostic-meta">
-      <strong>Zielplattform:</strong> Chrome 147+ Baseline | 
+      <strong>Zielplattform:</strong> Chrome 150+ Baseline | 
       <strong>Echtzeit-Status:</strong> <span id="diag-timestamp"></span>
     </p>
     <div class="table-scroll-container">
@@ -148,10 +148,10 @@ Kopiere diesen erweiterten Block und füge ihn in deine Browser-Konsole ein, um 
 
 ## 🔗 Verwandte Dokumente
 
-*   ⚖️ **[[MASTER-DO-DONT-DEPRECATED|MASTER-DO-DONT-DEPRECATED.md]]:** Unser unumstößliches Gesetzbuch für technologische Verbote.
+*   ⚖️ **[[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]:** Unser Verbotsregister (Antipattern).
 
 *   📚 **[[longevity-guidelines|longevity-guidelines.md]]:** Die W3C-Verfassung von DIN-BriefNEO.
 
-*   🧭 **[[MODERNIZATION-GUIDE|MODERNIZATION-GUIDE.md]]:** Strategische Einschätzungen zu künftigen Technologiewechseln.
+*   🧭 **[[web-standards-tracking|web-standards-tracking.md]]:** Strategische Einschätzungen zu künftigen Technologiewechseln.
 
 *   📄 **[[spec|spec.md]]:** System-Spezifikation für die Baseline-Features.

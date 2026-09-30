@@ -34,3 +34,10 @@ Thumbs.db
 # Recherche-Rohdaten (14.3 MB ChromeStatus-Dumps nicht ins Git versionieren)
 research/research_results/chrome_features_*.json
 research/**/__pycache__/
+
+# Research-Rohdaten (Labor, groß; bleiben lokal, nicht im Repo)
+research/research_results/chrome_features_*_overview.txt
+research/research_results/js_targeted_findings_*.json
+research/research_results/features_*_targeted_findings.json
+research/research_results/raw_user_batch_2.txt
+research/address-autocomplete-api-openapi-specs.json

@@ -204,4 +204,4 @@ Diese Bugs aus der alten Memory existieren in der neuen Architektur nicht mehr:
 | **Desktop Commander MCP** | Windows-Filesystem-Tool; `rewrite` nur mit Vorsicht (post-INCIDENT-002) |
 
 **Referenz-Repos (forked, in `din-5008-forked/`):**
-- SVGs: `DIN_5008,_Form_A.svg` + `DIN_5008_Form_B.svg` für `<din-overlay>` Visual Audit
+- SVGs: `research/din-5008-svgs/DIN_5008,_Form_A.svg` + `DIN_5008_Form_B.svg` für `<din-overlay>` Visual Audit (aus `docs/` verschoben — zu groß für den Doku-Korpus)

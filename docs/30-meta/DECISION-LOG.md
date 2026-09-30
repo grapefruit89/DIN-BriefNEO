@@ -1321,9 +1321,9 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Änderung:**
 1. Lokale Caches `agent/cache/` + `build/` gelöscht (~8,6 MB frei; regenerieren beim Gate).
 2. Research-Rohdaten enttrackt + `.gitignore` (~1,1 MB; Dateien bleiben lokal).
-3. History per `git filter-repo` von den gelöschten Großdateien + den Research-Dumps befreit, Force-Push (solo-Repo, Backup-Bundle vorher).
+3. History per `git filter-repo` von den gelöschten Großdateien + den Research-Dumps befreit — **alle Refs** (`main`, `legacy`-Archiv-Branch, `v4.0*`-Tags) — dann force-gepusht. Backup vorher: `/tmp/opencode/DIN-BriefNEO-backup-20260930.bundle` (11 MB).
 4. **Kein** `docs/metadata.json`: der maschinenlesbare Index existiert bereits (`tools/docs_index.js` → `agent/cache/docs_search.db`, abfragbar über MCP `docs_search`) — ein zweites Index-Artefakt wäre genau die Doppelpflege, die wir entfernt haben.
 
-**Verifikation:** getrackt 3,42 → 2,30 MB; `.git` 13 → 4,4 MB; frischer Klon **15 → 7 MB**; Gate 100 %.
+**Verifikation:** getrackt 3,42 → 2,30 MB; `.git` 13 → 4,1 MB; frischer **Remote**-Klon **15 → 7,3 MB** (pack 4,34 MiB); 0 Alt-Blobs in allen Refs; Gate 100 %. (Hinweis: GitHubs UI-Größenangabe kann bis zum serverseitigen GC nachhängen — der Klon ist die Wahrheit.)
 
 **Generalisierbarkeit:** Repo-Größe immer **dreifach getrennt** messen (getrackter Inhalt / `.git`-History / gitignorierte lokale Artefakte) — sonst verwechselt man `node_modules` mit Repo-Ballast. Große Roh-/Binärdaten nie committen (History ist ohne Rewrite unveränderlich); genau **ein** Index-Artefakt je Zweck.

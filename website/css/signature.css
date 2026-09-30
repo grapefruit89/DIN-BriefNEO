@@ -9,7 +9,7 @@
 #unterschriftsbild-vorschau[src=""] { display: none !important; }
 
 /* Container is a zero-size overlay anchored at top-left of din-a4.
-   The unterschriftsbild-rahmen uses translate() to position the image freely over the entire sheet. */
+   Der unterschriftsbild-rahmen positioniert das Bild per translate() frei ueber dem gesamten Blatt. */
 #unterschriftsbild-container {
   position: absolute;
   top: 0;
@@ -51,7 +51,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-
   position: absolute;
   width: 12px;
   height: 12px;
-  background-color: var(--paper-bg);
+  background-color: var(--blatt-hintergrund);
   border: 2px solid var(--accent-color);
   border-radius: 50%;
   z-index: 10;

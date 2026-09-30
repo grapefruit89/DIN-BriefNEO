@@ -11,7 +11,7 @@ html, body {
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
-  font-family: var(--font-active-stack); /* Isolated UI Font — SSOT: variables.css */
+  font-family: var(--schrift-stack); /* Isolated UI Font — SSOT: variables.css */
   -webkit-font-smoothing: antialiased;
 }
 
@@ -28,14 +28,14 @@ html, body {
   }
 }
 
-/* Schriftstapel: genau EINE Standard-Schrift (--font-active-stack, sans,
+/* Schriftstapel: genau EINE Standard-Schrift (--schrift-stack, sans,
  * definiert in variables.css). Kein Sans/Serif-Umschalter — wer eine andere
  * Schrift will, lädt sie über den Custom-Font-Upload (Owner-Entscheid
  * 2026-09-10). Custom-Font-Overrides: siehe unten. */
 
-din-a4 { font-family: var(--font-active-stack); }
-body.font-custom-active din-a4 {
-  font-family: 'AptosCustom', var(--font-active-stack);
+din-a4 { font-family: var(--schrift-stack); }
+body.schrift-eigene-aktiv din-a4 {
+  font-family: 'AptosCustom', var(--schrift-stack);
 }
 
 

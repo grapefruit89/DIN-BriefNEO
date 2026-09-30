@@ -20,7 +20,7 @@ import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 import { initImportExport } from './52-import-export.js';
 
 function syncPostvermerkFromSidebar() {
-  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-postvermerk-select'));
+  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
   const field = document.getElementById('postvermerk');
   if (!sel || !field) return;
   /* Feld ist 100% contenteditable (Doktrin): nur füllen, wenn leer —
@@ -117,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
         draftManager.scheduleAutoSave();
       });
     });
-    document.querySelectorAll('select[data-persist]').forEach(el => {
+    document.querySelectorAll('select[data-speichern]').forEach(el => {
       el.addEventListener('change', () => {
-        if (el.id === 'sidebar-postvermerk-select') syncPostvermerkFromSidebar();
+        if (el.id === 'seitenleiste-postvermerk-select') syncPostvermerkFromSidebar();
         draftManager.scheduleAutoSave();
       });
     });

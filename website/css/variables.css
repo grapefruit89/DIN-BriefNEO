@@ -20,8 +20,8 @@
 
   --c-viewport-day: oklch(0.96 0.01 250);
   --c-viewport-night: oklch(0.2735 0.0179 251.92);
-  --c-sidebar-day: oklch(0.98 0.005 250);
-  --c-sidebar-night: oklch(0.21 0.04 260);
+  --c-seitenleiste-day: oklch(0.98 0.005 250);
+  --c-seitenleiste-night: oklch(0.21 0.04 260);
   --c-card-day: oklch(1 0 0);
   --c-card-night: oklch(0.24 0.04 260);
   --c-border-day: oklch(0.90 0.01 250);
@@ -34,12 +34,12 @@
   --c-accent-night: oklch(0.85 0.05 260);
   --c-segment-day: oklch(0.92 0.01 250);
   --c-segment-night: oklch(0.24 0.03 260);
-  --c-paper-day: oklch(100% 0 0);
-  --c-paper-night: oklch(0.94 0.008 260); /* Blatt bleibt IMMER weiss (nur gedimmt) — DIN 5008 Papier, kein Dark-Sheet */
-  --c-ink-day: oklch(0% 0 0);
-  --c-ink-night: oklch(0.13 0.01 260); /* dunkle Tinte, da Blatt hell bleibt */
-  --c-ghost-day: oklch(50% 0 0);
-  --c-ghost-night: oklch(0.45 0.01 260); /* Platzhalter-Grau sichtbar auf gedimmtem Weiss */
+  --c-blatt-day: oklch(100% 0 0);
+  --c-blatt-night: oklch(0.94 0.008 260); /* Blatt bleibt IMMER weiss (nur gedimmt) — DIN 5008 Papier, kein Dark-Sheet */
+  --c-tinte-day: oklch(0% 0 0);
+  --c-tinte-night: oklch(0.13 0.01 260); /* dunkle Tinte, da Blatt hell bleibt */
+  --c-schwach-day: oklch(50% 0 0);
+  --c-schwach-night: oklch(0.45 0.01 260); /* Platzhalter-Grau sichtbar auf gedimmtem Weiss */
 
   /* --------------------------------------------------------------------------
      🚨 ARCHITECTURAL GUARD: NATIVE CSS light-dark() (CHROME 123+ / BASELINE 2024-2026)
@@ -48,16 +48,16 @@
      It resolves dynamically according to the active 'color-scheme' context.
      -------------------------------------------------------------------------- */
   --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));
-  --bg-sidebar: light-dark(var(--c-sidebar-day), var(--c-sidebar-night));
-  --bg-sidebar-glass: color-mix(in oklch, light-dark(var(--c-sidebar-day), var(--c-sidebar-night)) 80%, transparent);
+  --bg-seitenleiste: light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night));
+  --bg-seitenleiste-glass: color-mix(in oklch, light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night)) 80%, transparent);
   --bg-card: light-dark(var(--c-card-day), var(--c-card-night));
   --border-color: light-dark(var(--c-border-day), var(--c-border-night));
   --text-primary: light-dark(var(--c-text-day), var(--c-text-night));
   --text-muted: light-dark(var(--c-muted-day), var(--c-muted-night));
 
-  --paper-bg: light-dark(var(--c-paper-day), var(--c-paper-night));
-  --paper-text: light-dark(var(--c-ink-day), var(--c-ink-night));
-  --paper-ghost: light-dark(var(--c-ghost-day), var(--c-ghost-night));
+  --blatt-hintergrund: light-dark(var(--c-blatt-day), var(--c-blatt-night));
+  --blatt-text: light-dark(var(--c-tinte-day), var(--c-tinte-night));
+  --blatt-schwach: light-dark(var(--c-schwach-day), var(--c-schwach-night));
 
   --accent-color: light-dark(var(--c-accent-day), var(--c-accent-night));
   --accent-hover: color-mix(in oklch, var(--accent-color) 90%, oklch(0% 0 0));
@@ -77,7 +77,7 @@
   --glass-blur: blur(20px);
 
   --hilfslinien-deckkraft: 0;
-  --font-active-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --schrift-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* 🚨 ARCHITECTURAL GUARD (DIN-Vermaßung, @function Chrome 139+ / empirisch

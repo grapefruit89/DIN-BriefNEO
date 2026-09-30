@@ -7,21 +7,21 @@
  * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: POPOVER TOP-LAYER & @STARTING-STYLE
  *
  * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
- * `#toast-v4` nutzt die native HTML Popover API und rendert direkt im Browser-Top-Layer.
+ * `#hinweis-v4` nutzt die native HTML Popover API und rendert direkt im Browser-Top-Layer.
  * Einblendung und Ausblendung laufen 100% deklarativ über CSS `@starting-style` und
  * `transition-behavior: allow-discrete`.
  * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 15):
  * 1. `z-index` Stacking-Hacks wieder einzuführen (Top-Layer steht nativ über allem).
  * 2. Pointer-Drag- oder Swipe-Event-Schleifen in JS wiederherzustellen.
  * ========================================================================================= */
-#toast-v4 {
+#hinweis-v4 {
   position: fixed;
   top: 24px;
   right: 24px;
   padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  background: var(--bg-sidebar-glass);
+  background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   color: var(--text-primary);
   font-family: inherit;
@@ -41,26 +41,26 @@
     overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
 }
 
-#toast-v4:popover-open {
+#hinweis-v4:popover-open {
   display: flex;
   opacity: 1;
   transform: translateY(0);
 }
 
 @starting-style {
-  #toast-v4:popover-open {
+  #hinweis-v4:popover-open {
     opacity: 0;
     transform: translateY(-20px);
   }
 }
 
-.toast-badge:empty, .toast-action-btn:empty {
+.hinweis-badge:empty, .hinweis-action-btn:empty {
   display: none !important;
 }
 
-.toast-badge {
+.hinweis-badge {
   background: var(--text-primary);
-  color: var(--bg-sidebar-glass);
+  color: var(--bg-seitenleiste-glass);
   font-size: 0.7rem;
   font-weight: 800;
   padding: 2px 6px;
@@ -70,7 +70,7 @@
   justify-content: center;
 }
 
-.toast-action-btn {
+.hinweis-action-btn {
   background: var(--border-color);
   color: var(--text-primary);
   border: none;
@@ -84,9 +84,9 @@
   white-space: nowrap;
 }
 
-.toast-action-btn:hover {
+.hinweis-action-btn:hover {
   background: var(--text-primary);
-  color: var(--bg-sidebar);
+  color: var(--bg-seitenleiste);
 }
 
 @keyframes shakeToast {
@@ -97,11 +97,11 @@
   100% { transform: translateX(0); }
 }
 
-#toast-v4[data-shake="true"] {
+#hinweis-v4[data-shake="true"] {
   animation: shakeToast 0.3s ease-in-out;
 }
 
-#toast-close {
+#hinweis-close {
   background: transparent;
   border: none;
   color: var(--text-muted);
@@ -113,15 +113,15 @@
   transition: color 0.2s, background 0.2s;
 }
 
-#toast-close:hover {
+#hinweis-close:hover {
   color: var(--c-danger);
   background: oklch(50% 0.2 20 / 10%);
 }
 
-#toast-v4.type-success { border-left: 4px solid var(--c-success); }
-#toast-v4.type-error { border-left: 4px solid var(--c-danger); }
-#toast-v4.type-info { border-left: 4px solid var(--c-primary); }
-#toast-v4.type-warning { border-left: 4px solid var(--c-warning); }
+#hinweis-v4.type-success { border-left: 4px solid var(--c-success); }
+#hinweis-v4.type-error { border-left: 4px solid var(--c-danger); }
+#hinweis-v4.type-info { border-left: 4px solid var(--c-primary); }
+#hinweis-v4.type-warning { border-left: 4px solid var(--c-warning); }
 
 #selection-anchor {
   anchor-name: --selection-anchor;
@@ -147,7 +147,7 @@
   position-area: top center;
   position-try-fallbacks: flip-block;
   margin-bottom: 8px;
-  background: var(--bg-sidebar-glass);
+  background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -226,7 +226,7 @@
   width: anchor-size(width);
   max-height: 250px;
   overflow-y: auto;
-  background: var(--bg-sidebar-glass);
+  background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -283,7 +283,7 @@
   min-width: max(220px, anchor-size(width));
   max-height: 220px;
   overflow-y: auto;
-  background: var(--bg-sidebar-glass);
+  background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -327,10 +327,10 @@
   background: var(--segment-bg);
 }
 
-#btn-reset-font { display: none; }
-body.font-custom-active #btn-reset-font { display: flex; }
-.sidebar-header-row { align-items: center; gap: 8px; }
-a.sidebar-github-link {
+#btn-schrift-zuruecksetzen { display: none; }
+body.schrift-eigene-aktiv #btn-schrift-zuruecksetzen { display: flex; }
+.seitenleiste-header-row { align-items: center; gap: 8px; }
+a.seitenleiste-github-link {
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -345,7 +345,7 @@ aside {
   -webkit-user-select: none;
   user-select: none;
 }
-aside > .sidebar-section:first-of-type {
+aside > .seitenleiste-section:first-of-type {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -363,7 +363,6 @@ aside > .sidebar-section:first-of-type {
   display: grid;
   place-items: center;
   container-type: size;
-  container-name: sheet-stage;
 }
 din-a4 {
   max-width: 100%;
@@ -381,35 +380,35 @@ aside select {
 }
 /* M1 (Grok-Re-Review): Labels/Buttons haben jetzt ECHTE Text-Nodes (AT-
  * und Select-to-Copy-tauglich) — keine content: attr(data-ui)-Regeln mehr.
- * Die dynamischen Zustands-Strings (data-appearance / data-font-mode /
- * font-status-label) bleiben bewusst im CSS: JS setzt nur den Zustand,
+ * Die dynamischen Zustands-Strings (data-erscheinungsbild / data-schrift-modus /
+ * schrift-status-label) bleiben bewusst im CSS: JS setzt nur den Zustand,
  * die Buttons tragen aria-label + title. */
 
 /* Zustands-Strings im CSS statt in JS-Dictionaries — JS setzt nur den Zustand
- * (data-appearance / data-font-mode / body.font-custom-active). */
-#btn-theme-toggle[data-appearance="auto"]::before { content: "🌓 Auto"; }
-#btn-theme-toggle[data-appearance="light"]::before { content: "☀️ Hell"; }
-#btn-theme-toggle[data-appearance="dark"]::before { content: "🌙 Dunkel"; }
-#btn-font-action[data-font-mode="upload"]::before { content: "📤 Schrift hochladen"; }
-#btn-font-action[data-font-mode="reset"]::before { content: "🗑️ Schrift zurücksetzen"; }
-#font-status-label::before { content: "Aktiv: System-UI Standardschrift"; }
-body.font-custom-active #font-status-label::before { content: "Aktiv: Eigene WOFF2 Schrift"; }
-aside .sidebar-checkbox-label {
+ * (data-erscheinungsbild / data-schrift-modus / body.schrift-eigene-aktiv). */
+#btn-theme-toggle[data-erscheinungsbild="auto"]::before { content: "🌓 Auto"; }
+#btn-theme-toggle[data-erscheinungsbild="light"]::before { content: "☀️ Hell"; }
+#btn-theme-toggle[data-erscheinungsbild="dark"]::before { content: "🌙 Dunkel"; }
+#btn-schrift-aktion[data-schrift-modus="upload"]::before { content: "📤 Schrift hochladen"; }
+#btn-schrift-aktion[data-schrift-modus="reset"]::before { content: "🗑️ Schrift zurücksetzen"; }
+#schrift-status-label::before { content: "Aktiv: System-UI Standardschrift"; }
+body.schrift-eigene-aktiv #schrift-status-label::before { content: "Aktiv: Eigene WOFF2 Schrift"; }
+aside .seitenleiste-checkbox-label {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-:root:has(#sidebar-postvermerk-select option:checked:not([value=""])) din-postvermerk,
-:root:has(#sidebar-postvermerk-select option:checked:not([value=""])) #postvermerk {
+:root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) din-postvermerk,
+:root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) #postvermerk {
   display: block !important;
   flex-direction: unset;
   visibility: visible !important;
   opacity: 1;
-  color: var(--paper-text);
+  color: var(--blatt-text);
 }
 
-#sidebar-postvermerk-select {
+#seitenleiste-postvermerk-select {
   appearance: base-select;
   flex-direction: row;
   align-items: center;
@@ -417,12 +416,12 @@ aside .sidebar-checkbox-label {
   gap: 8px;
   white-space: nowrap;
 }
-#sidebar-postvermerk-select::picker-icon {
+#seitenleiste-postvermerk-select::picker-icon {
   margin-inline-start: auto;
   flex: 0 0 auto;
   align-self: center;
 }
-#sidebar-postvermerk-select {
+#seitenleiste-postvermerk-select {
   display: flex;
 }
 

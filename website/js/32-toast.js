@@ -25,7 +25,7 @@
 export class ToastSystem {
   constructor() {
     this.state = {
-      toast: {
+      hinweis: {
         /** @type {ToastEntry[]} */
         queue: [],
         /** @type {ToastEntry | null} */
@@ -59,11 +59,11 @@ export class ToastSystem {
 
   initDOM() {
     const dom = this.state.dom;
-    dom.global = document.getElementById('toast-v4');
-    dom.message = document.getElementById('toast-message');
-    dom.badge = document.getElementById('toast-badge');
-    dom.action = document.getElementById('toast-action');
-    dom.close = document.getElementById('toast-close');
+    dom.global = document.getElementById('hinweis-v4');
+    dom.message = document.getElementById('hinweis-message');
+    dom.badge = document.getElementById('hinweis-badge');
+    dom.action = document.getElementById('hinweis-action');
+    dom.close = document.getElementById('hinweis-close');
 
     if (!dom.global || !dom.message || !dom.close) {
       console.warn('[Toast] DOM elements missing.');
@@ -85,46 +85,46 @@ export class ToastSystem {
    * @param {Object} [options]
    */
   show(message, type = 'info', options = {}) {
-    const { toast, dom } = this.state;
-    if (toast.current && toast.current.message === message) {
-      toast.count++;
-      if (dom.badge) dom.badge.textContent = `x${toast.count}`;
+    const { hinweis, dom } = this.state;
+    if (hinweis.current && hinweis.current.message === message) {
+      hinweis.count++;
+      if (dom.badge) dom.badge.textContent = `x${hinweis.count}`;
       if (dom.global) {
         dom.global.dataset.shake = 'false';
         requestAnimationFrame(() => {
           if (dom.global) dom.global.dataset.shake = 'true';
         });
       }
-      this.startTimer(toast.current.duration, toast.current.options?.sticky);
+      this.startTimer(hinweis.current.duration, hinweis.current.options?.sticky);
       return;
     }
-    if (toast.queue.some(t => t.message === message)) return;
+    if (hinweis.queue.some(t => t.message === message)) return;
     const duration = Math.min(5000, 2000 + (message.length * 30));
-    toast.queue.push({ message, type, options, duration });
+    hinweis.queue.push({ message, type, options, duration });
     this.processQueue();
   }
 
   processQueue() {
-    const { toast, dom } = this.state;
-    if (this.state.active || toast.queue.length === 0 || !dom.global) return;
+    const { hinweis, dom } = this.state;
+    if (this.state.active || hinweis.queue.length === 0 || !dom.global) return;
     this.state.active = true;
     this.state.timer.paused = false;
-    toast.count = 1;
-    toast.current = toast.queue.shift() || null;
-    if (!toast.current) {
+    hinweis.count = 1;
+    hinweis.current = hinweis.queue.shift() || null;
+    if (!hinweis.current) {
       this.state.active = false;
       return;
     }
     if (dom.badge) dom.badge.textContent = '';
     dom.global.dataset.shake = 'false';
-    if (dom.message) dom.message.textContent = toast.current.message;
-    dom.global.className = `toast-container type-${toast.current.type}`;
+    if (dom.message) dom.message.textContent = hinweis.current.message;
+    dom.global.className = `hinweis-container type-${hinweis.current.type}`;
     
-    if (toast.current.options?.action && dom.action) {
-      dom.action.textContent = toast.current.options.action.label;
+    if (hinweis.current.options?.action && dom.action) {
+      dom.action.textContent = hinweis.current.options.action.label;
       dom.action.onclick = () => {
-        if (toast.current?.options?.action?.callback) {
-          toast.current.options.action.callback();
+        if (hinweis.current?.options?.action?.callback) {
+          hinweis.current.options.action.callback();
         }
         this.clearTimer();
         this.cleanupPopover();
@@ -139,7 +139,7 @@ export class ToastSystem {
         dom.global.showPopover();
       }
       this.armCloseWatcher();
-      this.startTimer(toast.current.duration, toast.current.options?.sticky);
+      this.startTimer(hinweis.current.duration, hinweis.current.options?.sticky);
     } catch (e) {
       console.warn('[Toast] Popover API failure:', e);
       this.clearTimer();
@@ -161,8 +161,8 @@ export class ToastSystem {
   }
 
   pauseTimer() {
-    const { toast, timer } = this.state;
-    if (!this.state.active || timer.paused || !toast.current || toast.current.options?.sticky) return;
+    const { hinweis, timer } = this.state;
+    if (!this.state.active || timer.paused || !hinweis.current || hinweis.current.options?.sticky) return;
     timer.paused = true;
     if (timer.id) clearTimeout(timer.id);
     const elapsed = performance.now() - timer.start;
@@ -170,8 +170,8 @@ export class ToastSystem {
   }
 
   resumeTimer() {
-    const { toast, timer } = this.state;
-    if (!this.state.active || !timer.paused || !toast.current || toast.current.options?.sticky) return;
+    const { hinweis, timer } = this.state;
+    if (!this.state.active || !timer.paused || !hinweis.current || hinweis.current.options?.sticky) return;
     timer.paused = false;
     timer.start = performance.now();
     timer.id = setTimeout(() => this.cleanupPopover(), timer.remaining);
@@ -210,7 +210,7 @@ export class ToastSystem {
   cleanupPopover() {
     this.destroyCloseWatcher();
     this.clearTimer();
-    this.state.toast.current = null;
+    this.state.hinweis.current = null;
     const dom = this.state.dom;
     if (dom.global && dom.global.matches(':popover-open')) {
       dom.global.hidePopover();
@@ -222,7 +222,7 @@ export class ToastSystem {
   }
 }
 
-export const toastSystem = new ToastSystem();
+export const hinweisSystem = new ToastSystem();
 
 /**
  * @param {string} message
@@ -230,9 +230,9 @@ export const toastSystem = new ToastSystem();
  * @param {any} [options]
  */
 export function showToast(message, type = 'info', options = {}) {
-  toastSystem.show(message, type, options);
+  hinweisSystem.show(message, type, options);
 }
 
 export function initToastSystem() {
-  toastSystem.initDOM();
+  hinweisSystem.initDOM();
 }

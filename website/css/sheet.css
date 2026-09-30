@@ -42,19 +42,18 @@ body:has(#btn-form-a:checked) din-a4 {
     width: min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)));
     height: min(100cqh, calc(100cqw * var(--blatt-hoehe) / var(--blatt-breite)));
     aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe); /* Exaktes DIN A4 Seitenverhaeltnis */
-    background: var(--paper-bg); /* Pure OKLCH White in light, soft grey in dark */
+    background: var(--blatt-hintergrund); /* Pure OKLCH White in light, soft grey in dark */
     box-shadow: var(--shadow-lg);
     border-radius: 4px;
     overflow: clip; /* Physisches A4-Blatt: Ueberlauf-Sperre ohne Verschiebung */
     contain: strict; /* Isoliert das Layout komplett vom aeusseren Viewport */
     container-type: size; /* Ermglicht proportionale cqw/cqh Mae FR INNERE ELEMENTE */
-    container-name: paper;
-    color: var(--paper-text); /* Pure OKLCH Ink Black */
+    color: var(--blatt-text); /* Pure OKLCH Ink Black */
     box-sizing: border-box;
     transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Parent selector :has() to highlight sheet focus states dynamically */
+  /* :has()-Vorfahrenselektor fuer dynamische Blatt-Fokuszustaende */
   &:has([contenteditable]:focus) {
     box-shadow: 0 16px 48px oklch(from var(--accent-color) calc(l - 0.05) c h / 18%);
   }
@@ -87,7 +86,7 @@ body:has(#btn-form-a:checked) din-a4 {
   /* Placeholder support for contenteditable */
   [contenteditable]:empty::before {
     content: attr(placeholder);
-    color: var(--paper-ghost);
+    color: var(--blatt-schwach);
     font-style: italic;
     pointer-events: none;
   }
@@ -98,7 +97,7 @@ body:has(#btn-form-a:checked) din-a4 {
      sonst wuerde print.css ihn beim Drucken ausblenden. */
   #anrede[data-generated],
   #grussformel[data-generated] {
-    color: var(--paper-ghost);
+    color: var(--blatt-schwach);
     font-style: italic;
   }
 
@@ -180,7 +179,6 @@ body:has(#btn-form-a:checked) din-a4 {
     display: flex;
     flex-direction: column;
     overflow: clip; /* Zero-Ueberlauf Garantie */
-    container-name: kern;
   }
 
   #betreff {
@@ -218,7 +216,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 }
 
-/* --- BLATT-INNERES: INLINE-FORMATE & FOOTER (SCOPED ISOLATION) --- */
+/* --- BLATT-INNERES: INLINE-FORMATE & FUSS (SCOPED ISOLATION) --- */
 @scope (din-a4) {
   /* --- WHATSAPP-STYLE INLINE FORMATS --- */
   #text b, #text strong {
@@ -238,7 +236,7 @@ body:has(#btn-form-a:checked) din-a4 {
     font-style: italic;
   }
 
-  /* --- FOOTER --- */
+  /* --- FUSS --- */
   #fuss {
     position: absolute;
     bottom: --mm-y(10); /* 10mm */
@@ -246,13 +244,13 @@ body:has(#btn-form-a:checked) din-a4 {
     right: --mm-x(20); /* 20mm */
     height: --mm-y(15); /* 15mm */
     font-size: --pt(7.5); /* 7.5pt in cqw */
-    color: var(--paper-ghost); /* OKLCH Slate Gray */
+    color: var(--blatt-schwach); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
     padding-top: --mm-y(2);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: --mm-x(10);
-    column-rule: 0.5px solid var(--paper-ghost);
+    column-rule: 0.5px solid var(--blatt-schwach);
     column-rule-inset: 2px;
   }
 }

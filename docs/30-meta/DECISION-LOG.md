@@ -1188,3 +1188,19 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** `node tools/imr.js` → „51 registrierte din-Bezeichner, Inventar konsistent"; Negativtests greifen (fremdes Atom → 46/43; `data-kern-y-a="999"` → Abweichung); Gate 100 %.
 
 **Generalisierbarkeit:** Für `llm_boilerplate`: (a) eine SSoT ist erst echt, wenn ihre abgeleiteten Artefakte (hier `data-*`) **generiert bzw. gegengeprüft** werden — sonst ist sie nur Doku; (b) Invarianten (Anzahl/Duplikate/Aliase) als Gate-Check statt Prosa; (c) Herkunft (normativ/projekt/implementierung) pro Wert markieren, sonst liest man Projektregeln später als Norm; (d) ein maschinenlesbarer JSON-Block im selben Dokument schlägt eine zweite Datei.
+
+## 2026-09-30 — IMR-Vokabular Pass 3: Blatt, container-name-Ballast, UI-Englisch
+
+**Kontext:** Zweiter Sweep in `website/css` + `website/index.html`. Gefunden: das Blatt hieß `paper`/`sheet`/`Blatt` gemischt; `#viewport` hatte **zwei** `container-name` (`viewport`, `sheet-stage`) und **alle** container-names waren ungenutzt; aria-labels nannten Atome/Zonen anders; UI-Texte sagten „Adresse" statt „Anschrift"; UI-Englisch (`font`, `toast`, `sidebar`, `data-*`).
+
+**Änderung:**
+1. **Blatt vereinheitlicht** (DIN-nah „Briefblatt", Registry „DIN-A4-Blatt"): `--paper-bg/-text/-ghost` → `--blatt-hintergrund/-text/-schwach`; `--c-paper-*`→`--c-blatt-*`, `--c-ink-*`→`--c-tinte-*`, `--c-ghost-*`→`--c-schwach-*`; `class="paper-theme"`→`blatt-theme`; Kommentare „Paper/FOOTER/sheet"→„Blatt/FUSS".
+2. **container-name-Ballast entfernt:** alle `container-name`-Deklarationen gelöscht (kein `@container` im Projekt → ungenutzt; der Doppelname auf `#viewport` war ein toter Konflikt). `container-type` bleibt (cqw/cqh).
+3. **aria-labels auf IMR-Namen:** „Brieftext"→„Text", „Briefinhalt"→„Briefkern", „Empfängeradresse"→„Anschriftfeld", „Absenderinformationen"→„Infoblock".
+4. **„Adresse"→„Anschrift"** in UI-Texten (Ausnahme „E-Mail-Adresse").
+5. **UI-Englisch verdeutscht:** `font`→`schrift` (explizite Identifier; `font-family`/`FontFace`/`fontsource` unberührt), `toast`→`hinweis` (Datei `32-toast.js` + kapitales JS-API `showToast`/`TOASTS` unberührt), `sidebar`→`seitenleiste` (Datei `sidebar.css` unberührt); `data-appearance/persist/dir/font-mode/action`→`data-erscheinungsbild/speichern/richtung/schrift-modus/aktion`; `page-1`→`seite-1`, `no-print`→`nicht-drucken`.
+6. **Bugfix aus dem Rename:** JS-`dataset`-Zugriffe angepasst (`dataset.action`→`dataset.aktion`, `dataset.fontMode`→`dataset.schriftModus`) — sonst wären Signatur-Handles/Font-Umschalter stillschweigend kaputt. Bewusst gelassen: reine CSS-Konvention (`hidden`/`w-full`/`sr-only`/`single-line`, Farb-Rollen `--c-primary/-danger/-success/-warning`, `type-*`) — kein Vokabular, KISS.
+
+**Verifikation:** keine Restvorkommen (grep leer), Schutz-Token intakt (`font-family`, `FontFace`, `fontsource`, `32-toast.js`, `css/sidebar.css`), `node --check` aller JS ok, ID-Konsistenz JS↔HTML ok, Gate 100 %, `imr.js` OK.
+
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Renames über Guard-Regex (`(?!\.js|\.css)`) + explizite Native-/Brand-Ausnahmen statt Blanket; (b) **`dataset.camelCase` ist die Falle** beim Attribut-Rename — Attribut und JS-Zugriff müssen zusammen wandern; (c) tote `container-name` ohne `@container` einfach löschen statt harmonisieren.

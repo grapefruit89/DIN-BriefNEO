@@ -37,10 +37,10 @@ try {
   setRadioSync('salutation', settings.formality);
   const themeToggleBtn = document.getElementById('btn-theme-toggle');
   if (themeToggleBtn) {
-    /* Sichtbares Label rendert CSS (floating.css, data-appearance-Selektoren). */
+    /* Sichtbares Label rendert CSS (floating.css, data-erscheinungsbild-Selektoren). */
     const activeTheme = settings.theme || 'auto';
     const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
-    themeToggleBtn.setAttribute('data-appearance', activeTheme);
+    themeToggleBtn.setAttribute('data-erscheinungsbild', activeTheme);
     themeToggleBtn.setAttribute('title', titles[activeTheme] || 'Darstellung: Automatisch');
     themeToggleBtn.setAttribute('aria-label', titles[activeTheme] || 'Darstellung: Automatisch');
   }
@@ -51,7 +51,7 @@ try {
       const el = document.getElementById(id);
       if (!el || !draft[id]) continue;
       if (el instanceof HTMLSelectElement) { el.value = /** @type {string} */ (draft[id]); continue; }
-      const nested = el.querySelector && el.querySelector('select[data-persist]');
+      const nested = el.querySelector && el.querySelector('select[data-speichern]');
       if (nested instanceof HTMLSelectElement) { nested.value = /** @type {string} */ (draft[id]); continue; }
       /* Rich-Text-Felder (innerHTML im Draft) NICHT hierherstellen: der
        * Default-Sanitizer von setHTML streift class="brief-kommentar" und
@@ -62,7 +62,7 @@ try {
       el.textContent = /** @type {string} */ (draft[id]);
     }
   }
-  const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('sidebar-postvermerk-select'));
+  const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
   const pvField = document.getElementById('postvermerk');
   /* Feld ist 100% contenteditable (Doktrin). Boot-Fill nur, wenn leer
    * (Draft-Restore darf nicht klobbered werden); aktive Select-Wahl
@@ -79,6 +79,6 @@ try {
    * injiziert hat (derselbe Base64-Gate) — sonst bittet das Blatt um
    * ein 'AptosCustom', das nie registriert wurde (Grok-Re-Review C2). */
   if (/^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(localStorage.getItem('din_custom_font') || '')) {
-    document.body.classList.add('font-custom-active');
+    document.body.classList.add('schrift-eigene-aktiv');
   }
 } catch (e) {}

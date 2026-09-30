@@ -15,7 +15,7 @@ import { showToast } from '../32-toast.js';
 
 const AI_CONFIG = {
   storageKey: 'din_addon_ai_enabled',
-  sidebarToggleId: 'toggle-experimental-ai',
+  seitenleisteToggleId: 'toggle-experimental-ai',
   toolbarRewriteBtnId: 'btn-ai-rewrite',
   textId: 'text'
 };
@@ -25,7 +25,7 @@ export class AIAssistantAddon {
     this.enabled = this._readSettings();
     /** @type {any} */
     this.rewriterInstance = null;
-    this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.sidebarToggleId));
+    this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.seitenleisteToggleId));
     this.rewriteBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById(AI_CONFIG.toolbarRewriteBtnId));
   }
 
@@ -34,7 +34,7 @@ export class AIAssistantAddon {
    */
   async init() {
     try {
-      this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.sidebarToggleId));
+      this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.seitenleisteToggleId));
       this.rewriteBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById(AI_CONFIG.toolbarRewriteBtnId));
 
       // 1+2. Feature-Detect + Verfügbarkeit (Globals, NICHT window.ai — obsolet).
@@ -95,7 +95,7 @@ export class AIAssistantAddon {
       this.toggleEl.disabled = true;
       this.toggleEl.checked = false;
       this.toggleEl.title = reason;
-      const parent = this.toggleEl.closest('.sidebar-switch-row');
+      const parent = this.toggleEl.closest('.seitenleiste-switch-row');
       if (parent) {
         parent.setAttribute('title', reason);
       }
@@ -113,7 +113,7 @@ export class AIAssistantAddon {
       this.toggleEl.disabled = false;
       this.toggleEl.checked = this.enabled;
       this.toggleEl.title = `On-Device KI: ${statusText}`;
-      const parent = this.toggleEl.closest('.sidebar-switch-row');
+      const parent = this.toggleEl.closest('.seitenleiste-switch-row');
       if (parent) {
         parent.setAttribute('title', `On-Device KI: ${statusText}`);
       }

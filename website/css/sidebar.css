@@ -8,7 +8,7 @@ aside {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg-sidebar-glass);
+  background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border-color);
   padding: 24px;
@@ -17,11 +17,11 @@ aside {
   transition: transform 0.3s ease;
 }
 
-.sidebar-header {
+.seitenleiste-header {
   margin-bottom: 24px;
 }
 
-.sidebar-title {
+.seitenleiste-title {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -32,13 +32,13 @@ aside {
 
 
 
-.sidebar-section {
+.seitenleiste-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.sidebar-label {
+.seitenleiste-label {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -240,7 +240,7 @@ aside {
   margin: 4px 0 0 0;
   padding: 4px;
   list-style: none;
-  background: var(--bg-sidebar-glass);
+  background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -290,19 +290,19 @@ aside {
 }
 
 /* --- SIDEBAR UTILITIES --- */
-.sidebar-options-group {
+.seitenleiste-options-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.sidebar-options-row {
+.seitenleiste-options-row {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: balance;
 }
 
-.sidebar-sub-label {
+.seitenleiste-sub-label {
   font-size: 0.7rem;
   color: var(--text-muted);
   font-weight: 500;
@@ -311,7 +311,7 @@ aside {
 }
 
 /* Font action button — segmented look with upload/reset states (Schriftarten-Manager) */
-#btn-font-action {
+#btn-schrift-aktion {
   background: var(--segment-bg);
   color: var(--text-muted);
   border: none;
@@ -320,7 +320,7 @@ aside {
   font-weight: 500;
   transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
-#btn-font-action[data-font-mode="reset"] {
+#btn-schrift-aktion[data-schrift-modus="reset"] {
   background: var(--segment-active-bg);
   color: var(--segment-active-text);
   box-shadow: var(--segment-active-shadow);
@@ -367,18 +367,18 @@ aside {
  * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
  * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
  * ========================================================================================= */
-.sidebar-switch-row {
+.seitenleiste-switch-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 4px 0;
   margin-bottom: 8px;
 }
-.sidebar-switch-row .sidebar-label {
+.seitenleiste-switch-row .seitenleiste-label {
   margin: 0;
 }
 
-.sidebar-switch-row:has(input:disabled) {
+.seitenleiste-switch-row:has(input:disabled) {
   opacity: 0.5;
 }
 input[type="checkbox"][switch] {

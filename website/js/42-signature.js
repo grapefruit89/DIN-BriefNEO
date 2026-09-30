@@ -94,7 +94,7 @@ export class SignatureFeature {
       e.preventDefault();
 
       const target = /** @type {HTMLElement} */ (e.target);
-      interaction.action = target.dataset.action || 'drag';
+      interaction.action = target.dataset.aktion || 'drag';
 
       interaction.startX = e.clientX;
       interaction.startY = e.clientY;

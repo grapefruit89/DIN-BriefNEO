@@ -246,7 +246,7 @@ export class AddressIntelligence {
       suggestionsPopover = document.createElement('ul');
       suggestionsPopover.id = 'plz-suggestions-popover';
       suggestionsPopover.setAttribute('popover', 'manual');
-      suggestionsPopover.className = 'anschrift-vorschlaege-liste no-print';
+      suggestionsPopover.className = 'anschrift-vorschlaege-liste nicht-drucken';
       empfOrtEl.parentElement?.appendChild(suggestionsPopover);
     }
 

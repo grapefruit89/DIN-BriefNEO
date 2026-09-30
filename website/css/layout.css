@@ -23,7 +23,6 @@
   padding: 3vh; /* Harmonischer Rand */
   
   container-type: size; /* Der Viewport ist der Massstab fuer das Blatt */
-  container-name: viewport;
 }
 
 
@@ -36,12 +35,12 @@ din-postvermerk, din-anlagen {
   display: block;
 }
 
-:root:has(#sidebar-postvermerk-select option:checked:not([value=""])) din-postvermerk {
+:root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) din-postvermerk {
   display: flex;
   flex-direction: column-reverse;
 }
 
-#sidebar-postvermerk-select {
+#seitenleiste-postvermerk-select {
   display: block;
   appearance: base-select;
   width: 100%;
@@ -58,36 +57,36 @@ din-postvermerk, din-anlagen {
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
-#sidebar-postvermerk-select:has(option:checked:not([value=""])) {
+#seitenleiste-postvermerk-select:has(option:checked:not([value=""])) {
   background: var(--segment-active-bg);
   color: var(--segment-active-text);
   box-shadow: var(--segment-active-shadow);
 }
-#sidebar-postvermerk-select::picker(select) {
+#seitenleiste-postvermerk-select::picker(select) {
   appearance: base-select;
-  background: var(--bg-sidebar);
+  background: var(--bg-seitenleiste);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 4px;
   box-shadow: var(--shadow-lg);
 }
-#sidebar-postvermerk-select::picker-icon {
+#seitenleiste-postvermerk-select::picker-icon {
   color: var(--text-muted);
 }
-.sidebar-zusatz-row {
+.seitenleiste-zusatz-row {
   display: flex;
   flex-direction: row;
   gap: 6px;
   align-items: center;
 }
-.sidebar-postvermerk-select {
+.seitenleiste-postvermerk-select {
   flex: 1 1 50%;
   min-width: 0;
 }
 
 din-postvermerk {
   font-size: --pt(8); /* 8pt in cqw */
-  /* Kein eigenes font-family: erbt von din-a4 ('AptosCustom', var(--font-active-stack))
+  /* Kein eigenes font-family: erbt von din-a4 ('AptosCustom', var(--schrift-stack))
    * — genau EINE Standard-Schrift (sans) als Default, Custom-Font gilt automatisch. */
   font-weight: 500;
   line-height: 1.2;
@@ -192,13 +191,13 @@ din-anlagen {
   background: color-mix(in oklch, var(--c-danger) 10%, transparent);
 }
 
-.sidebar-header-row {
+.seitenleiste-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
-.sidebar-build-info {
+.seitenleiste-build-info {
   font-size: 0.7rem;
   color: var(--text-muted);
   padding: 2px 4px;
@@ -216,26 +215,26 @@ din-anlagen {
   background: var(--segment-bg);
   color: var(--text-primary);
 }
-.sidebar-checkbox-label {
+.seitenleiste-checkbox-label {
   display: flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
   color: var(--text-muted);
 }
-.sidebar-select {
+.seitenleiste-select {
   font-size: 0.75rem;
   padding: 4px;
   margin-top: 4px;
 }
-.sidebar-status-label {
+.seitenleiste-status-label {
   font-size: 0.7rem;
   opacity: 0.6;
   text-align: center;
   display: block;
   margin-top: 2px;
 }
-.sidebar-ux-tip {
+.seitenleiste-ux-tip {
   margin-top: 4px;
   padding: 10px;
   border-radius: 8px;
@@ -244,12 +243,12 @@ din-anlagen {
   font-size: 0.75rem;
   line-height: 1.45;
 }
-.sidebar-link {
+.seitenleiste-link {
   color: var(--accent-color);
   text-decoration: underline;
   pointer-events: auto;
 }
-.sidebar-footer {
+.seitenleiste-footer {
   gap: 10px;
   margin-top: auto;
 }
@@ -295,7 +294,7 @@ din-anlagen {
   word-break: break-all;
 }
 
-/* Paper Elements */
+/* Blatt-Elemente */
 #postvermerk { anchor-name: --anchor-postvermerk; }
 #empfaenger-ort { anchor-name: --anchor-empfaenger-ort; }
 #infoblock { line-height: 1.5; }

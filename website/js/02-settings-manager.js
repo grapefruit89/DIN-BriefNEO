@@ -12,9 +12,9 @@ export class SettingsManager {
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
-    this.btnFontAction = document.getElementById('btn-font-action');
-    this.fontStatusLabel = document.getElementById('font-status-label');
-    this.fontUploader = document.getElementById('font-uploader');
+    this.btnFontAction = document.getElementById('btn-schrift-aktion');
+    this.fontStatusLabel = document.getElementById('schrift-status-label');
+    this.fontUploader = document.getElementById('schrift-uploader');
     /** @type {FontFace | null} */
     this.activeFontFace = null;
     this.isReady = false;
@@ -59,9 +59,9 @@ export class SettingsManager {
       }
 
       if (this.btnThemeToggle) {
-        /* Sichtbares Label rendert CSS (floating.css, data-appearance-Selektoren). */
+        /* Sichtbares Label rendert CSS (floating.css, data-erscheinungsbild-Selektoren). */
         const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
-        this.btnThemeToggle.setAttribute('data-appearance', active);
+        this.btnThemeToggle.setAttribute('data-erscheinungsbild', active);
         this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
         this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
       }
@@ -138,15 +138,15 @@ export class SettingsManager {
     const chip = this.fontStatusLabel;
     if (!chip) return;
     const apply = () => {
-      /* Chip-/Button-Text rendert CSS (floating.css, font-custom-active-Selektoren);
-       * JS setzt nur den Zustand: body-Klasse + data-font-mode. */
+      /* Chip-/Button-Text rendert CSS (floating.css, schrift-eigene-aktiv-Selektoren);
+       * JS setzt nur den Zustand: body-Klasse + data-schrift-modus. */
       const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
       if (hasCustomFont) {
-        document.body.classList.add('font-custom-active');
-        if (btn) btn.dataset.fontMode = 'reset';
+        document.body.classList.add('schrift-eigene-aktiv');
+        if (btn) btn.dataset.schriftModus = 'reset';
       } else {
-        document.body.classList.remove('font-custom-active');
-        if (btn) btn.dataset.fontMode = 'upload';
+        document.body.classList.remove('schrift-eigene-aktiv');
+        if (btn) btn.dataset.schriftModus = 'upload';
       }
     };
     // @ts-ignore Element-scoped View Transitions (Chrome 147+): Chip-Wechsel nur lokal crossfaden
@@ -196,7 +196,7 @@ export class SettingsManager {
     if (this.btnFontAction) {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
-        if (btn.dataset.fontMode === 'reset') {
+        if (btn.dataset.schriftModus === 'reset') {
           localStorage.removeItem("din_custom_font");
           if (this.activeFontFace) {
             document.fonts.delete(this.activeFontFace);

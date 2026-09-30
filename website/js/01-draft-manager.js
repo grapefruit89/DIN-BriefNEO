@@ -56,7 +56,7 @@ export class DraftManager {
         draft[elem.id] = elem.textContent;
       }
     });
-    document.querySelectorAll('select[data-persist]').forEach(elem => {
+    document.querySelectorAll('select[data-speichern]').forEach(elem => {
       const sel = /** @type {HTMLSelectElement} */ (elem);
       if (sel.id) draft[sel.id] = sel.value;
     });
@@ -126,7 +126,7 @@ export class DraftManager {
          * Brieftext bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
         const extra = id === 'anlagen-text' ? { extraTags: ['UL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));
-      } else if (!elem.querySelector('select[data-persist]')) {
+      } else if (!elem.querySelector('select[data-speichern]')) {
         elem.textContent = draft[id];
       }
     });
@@ -252,7 +252,7 @@ export class DraftManager {
       el.replaceChildren();
       el.textContent = '';
     });
-    document.querySelectorAll('select[data-persist]').forEach(el => {
+    document.querySelectorAll('select[data-speichern]').forEach(el => {
       const sel = /** @type {HTMLSelectElement} */ (el);
       sel.selectedIndex = 0;
     });

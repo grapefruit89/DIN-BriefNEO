@@ -522,3 +522,37 @@ module.exports = {
   // Aliase fuer die MCP-Schicht (sprechende Namen):
   docsSearch: search, docsGet: get, docsRelated: related, ensureIndex: ensureFresh
 };
+
+// --- Kommandozeile (Bedienung von Hand, ohne MCP) --------------------------
+//   node tools/docs_index.js build
+//   node tools/docs_index.js search "<query>" [--limit=N] [--source=doc|code|all]
+//   node tools/docs_index.js get <path> [section]
+//   node tools/docs_index.js related <ref>
+if (require.main === module) {
+  const arg = (name, def) => (process.argv.find((a) => a.startsWith(`--${name}=`)) || `--${name}=${def}`).split('=').slice(1).join('=');
+  const [cmd, ...rest] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+  try {
+    if (cmd === 'build') {
+      console.log(JSON.stringify(buildIndex({ force: true })));
+    } else if (cmd === 'search') {
+      const r = search(rest.join(' '), { limit: Number(arg('limit', 8)), source: arg('source', 'all') });
+      console.log(`${r.count} Treffer fuer "${r.query}" (source=${r.source}):`);
+      for (const x of r.results) {
+        console.log(`  ${x.path}:${x.start_line}${x.heading ? ` [${x.heading}]` : ''} (${x.match})`);
+        console.log(`     ${String(x.snippet || '').replace(/\s+/g, ' ').trim()}`);
+      }
+    } else if (cmd === 'get') {
+      console.log(JSON.stringify(get({ path: rest[0], section: rest[1] }), null, 2));
+    } else if (cmd === 'related') {
+      const r = related(rest[0]);
+      console.log(`Beziehungen fuer "${r.ref}" (ausgehend ${r.outgoing.length}, eingehend ${r.incoming.length}):`);
+      for (const o of r.outgoing) console.log(`  -> [${o.kind}] ${o.to_ref}${o.to_path ? ` (${o.to_path})` : ''}`);
+      for (const i of r.incoming) console.log(`  <- [${i.kind}] ${i.from_path}`);
+    } else {
+      console.log('Usage:\n  node tools/docs_index.js build\n  node tools/docs_index.js search "<query>" [--limit=N] [--source=doc|code|all]\n  node tools/docs_index.js get <path> [section]\n  node tools/docs_index.js related <ref>');
+    }
+  } catch (e) {
+    console.error(`Fehler: ${e.message}`);
+    process.exit(1);
+  }
+}

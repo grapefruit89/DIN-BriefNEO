@@ -1377,3 +1377,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** 9,7 → **6,6 MB** (−32 %); `hilfslinien` → `[word]`, `fslinie` (Wortmitte) → `[substring]`, `zzqx` → 0; `snippet()` auf external-content korrekt; Gate 100 %, Build ~1,4 s.
 
 **Generalisierbarkeit:** Bei FTS den Content **einmal** speichern (external content), teure Indizes (Trigramm) nur für die Quellen, die sie brauchen, und nur als **Fallback** einsetzen (sonst Rauschen). Nach `DROP`/Rebuild `VACUUM`, sonst bleibt die Datei groß — die Dateigröße folgt den freigegebenen Seiten, nicht dem Inhalt.
+
+## 2026-09-30 — README-DB neu (Bedienungsanleitung + Spec) + Index-CLI
+
+**Kontext:** `docs/20-implementation/README-DB.md` beschrieb ein **nie gebautes** Schema (`documents.content`, `document_tags`, Trigger, Views `v_active_docs`, `prefix='2 3'`, Datei `DIN-Brief_docs.db`) — vollständig am Ist-Stand vorbei. Zusätzlich fehlte eine Bedienungsanleitung für Nicht-SQLite-Kenner.
+
+**Änderung:** (1) Neue CLI in `tools/docs_index.js`: `build` / `search "<q>" [--limit=N] [--source=doc|code|all]` / `get <path> [section]` / `related <ref>` — Bedienung von Hand ohne MCP. (2) `README-DB.md` komplett neu: Bedienungsanleitung, exaktes Schema (`documents`/`sections`/`files`/`links` + 2 FTS5), Suchkaskade (UND→ODER→Trigramm), external-content, Link-Graph, Builder/Freshness/`VACUUM`, Invarianten, Regenerierbarkeit, Größenstand und ein **Guardrail-Abschnitt „bewusst NICHT enthalten"** (keine Symbol-/AST-DB, keine Chunks, keine Embeddings/Vector, keine Hashes …).
+
+**Verifikation:** CLI getestet (`search`, `related ADR-JS` → 19 eingehende Kanten, `--source=code`); Gate 100 %, `links.js`/`imr.js` OK; README 248 Zeilen.
+
+**Generalisierbarkeit:** Doku eines Werkzeugs muss den **lebenden** Zustand abbilden, nicht die Absicht. Ein expliziter „bewusst nicht enthalten"-Abschnitt wirkt als **Anti-Drift-Guardrail** gegen „klingt sinnvoll, bauen wir noch X" — besonders bei Agenten. Die DB bleibt abgeleiteter Cache, nie zweite Wahrheit.

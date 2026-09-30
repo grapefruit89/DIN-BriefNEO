@@ -4,7 +4,7 @@ title: 'Spezifikation (Spec) — DIN-BriefNEO Baseline Features'
 type: spec
 status: active
 created: '2026-06-26'
-updated: '2026-09-02'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -82,7 +82,7 @@ Akzeptanz:
 
 Akzeptanz:
 
-- Nutzerfeedback ist sichtbar (Toast oder gleichwertig nativ).
+- Nutzerfeedback ist sichtbar (Hinweis oder gleichwertig nativ).
 - Meldungstexte und Speicher-Keys liegen nicht verstreut als Magie in jedem Modul.
 
 ---

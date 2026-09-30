@@ -4,7 +4,7 @@ title: '00-foundation — Fundament & Unverrückbare Gesetze'
 type: meta
 status: active
 created: '2026-08-07'
-updated: '2026-09-04'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -63,7 +63,7 @@ Die IMR-Registry liegt in `docs/10-architecture/`. Sie ist das normative DIN-Bri
 
 *Hinweis: Der Arbeitsprozess [[HYBRID-SPEC-DRIVEN-WORKFLOW]] (Light/Full Mode, Fitness Gate) liegt als Prozess-Guide in `docs/30-meta/`.*
 
-Historische Prüfberichte gehören nicht hierher. Der frühere `audit_summary` liegt unter `docs/30-meta/audits/`.
+Historische Prüfberichte gehören nicht hierher; sie liegen unter `docs/90-archive/`.
 
 ## Architekturgrundsatz (eingefroren)
 
@@ -72,6 +72,8 @@ Die 45er Registry definiert das vollständige fachliche Vokabular. Ein konkreter
 Normative belegte Geometrie steht in der IMR-Registry. HTML implementiert dieses Modell. CSS rendert es. JS verändert es nicht. Wenn Registry und Produkt divergieren, wird die Registry repariert — nicht das Briefmodell verbogen.
 
 Die kanonische Atomliste und die belegten Millimeter stehen in `docs/10-architecture/IMR-Registry.md`, nicht in diesem Ordner.
+
+Nicht nur die Struktur, sondern auch die **Benennung** (kanonisches Vokabular und Case) ist normativ in der IMR-Registry definiert und wird maschinell von `tools/imr.js` erzwungen (Terminologie- und Case-Gate). Die ADRs begründen das *Warum*, die IMR definiert das *Was/Wie*, `imr.js` erzwingt es.
 
 ## Verhältnis zu anderen Bereichen
 

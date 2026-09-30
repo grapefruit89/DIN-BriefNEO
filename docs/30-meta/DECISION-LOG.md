@@ -1230,3 +1230,13 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** `node tools/imr.js` → OK; Negativtest: `BadClassName`/`bad_class_name`/`#BadId`/`--BadProp`/`@keyframes badName` → FAIL, Kommentar-Klasse ignoriert; JS `badClassName`/`BAD_CONSTANT`/`PascalClass` → PASS; `data-schrift-modus` → PASS; Gate 100 %.
 
 **Generalisierbarkeit:** (a) Case und Vokabular sind **getrennte Achsen** — ein Identifier kann Case-konform/vokabular-falsch sein und umgekehrt; (b) pro Sprache/Artefakt den nativen Case, Übergänge über Plattform-Mapping (dataset); (c) nicht sicher Prüfbares (JS-Identifier, Dateinamen) ausdrücklich ausnehmen statt halbherzig prüfen.
+
+## 2026-09-30 — Foundation-Dokumente nachgezogen (Verweis, Vokabular, Benennungs-Hinweis)
+
+**Kontext:** Prüfung von `docs/00-foundation/` (per eigener Regel read-only für KI-Agenten; hier **menschlich freigegeben**). Funde: tote Klartext-Referenz `README.md:66` (`docs/30-meta/audits/` existiert nicht, kein `audit_summary` im Repo), „Toast" statt kanonisch „Hinweis".
+
+**Änderung:** (1) README-Verweis strichlos auf `docs/90-archive/` umgebogen; (2) „Toast"→„Hinweis" in `spec.md` und `Immutable-Law-Catalog.md` (H2); (3) README ergänzt, dass **Benennung** (Vokabular + Case) in der IMR definiert und von `tools/imr.js` erzwungen wird; `updated`-Daten gesetzt.
+
+**Verifikation:** Gate 100 %, `imr.js` OK, `[[…]]`-Links intakt, kein „Toast" mehr in Foundation.
+
+**Generalisierbarkeit:** Foundation (WHY/Gesetze) referenziert die IMR (WAS/WIE) als SSOT — Benennung/Prosa gehört nicht in die Gesetzesebene, sondern in die Registry; Klartext-Pfade in Doku sind eine Lücke des Link-Gates (nur `[[…]]` werden geprüft).

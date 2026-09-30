@@ -4,7 +4,7 @@ title: 'Immutable Law Catalog (MUST-USE vs FORBIDDEN)'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-09-02'
+updated: '2026-09-30'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -58,7 +58,7 @@ Plattform-APIs in den MUST-USE-Tabellen sind PREFERRED native Lösungen. Eine ne
 | # | Stufe | MUST-USE | Zweck |
 | :--- | :--- | :--- | :--- |
 | H1 | HARD BAN Gegenteil | Semantische `<din-…>`-Tags für **instantierte** Atome der 45er Registry. Zonen sind Container, keine Atome. `customElements.define()` ist dafür nicht erforderlich. Implementierungs-Wrapper ohne Fachbedeutung sind verboten. Die Atomliste steht in der Architecture-Registry. | Eine Semantik, keine 15er Pflichtliste, keine 45 JS-Klassen |
-| H2 | PREFERRED | Native Popover API wo Overlay/Toolbar/Toast gebraucht wird | Browser-Top-Layer statt z-index-JS |
+| H2 | PREFERRED | Native Popover API wo Overlay/Toolbar/Hinweis gebraucht wird | Browser-Top-Layer statt z-index-JS |
 | H3 | HARD BAN Gegenteil | `contenteditable="plaintext-only"` für Metadatenfelder | XSS- und Struktur-Schutz |
 | H4 | PREFERRED | `contenteditable="true"` nur im Briefkern | kontrollierte Inline-Formatierung |
 | H5 | PREFERRED | Invoker Commands (`commandfor`, `command`) wo nativ tragfähig | weniger Listener |

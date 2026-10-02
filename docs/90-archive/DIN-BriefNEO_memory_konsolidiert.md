@@ -2,7 +2,8 @@
 id: memory-konsolidiert
 title: 'DIN-BriefNEO — Konsolidiertes Projektgedächtnis'
 type: reference
-status: active
+status: archived
+
 created: '2026-08-07'
 updated: '2026-09-30'
 tags:

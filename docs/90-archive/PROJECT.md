@@ -2,7 +2,8 @@
 id: project-text-fit
 title: 'Projekt-Plan: Text-Fit Algorithmus'
 type: project-plan
-status: active
+status: archived
+
 created: '2026-07-01'
 updated: '2026-08-07'
 tags:

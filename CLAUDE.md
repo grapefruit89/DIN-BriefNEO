@@ -39,10 +39,13 @@ Solo-Entwickler: Mo (@grapefruit89). Standard: "Aviation Grade Platinum".
 ## ⛔ ABSOLUTE VERBOTE — NIEMALS BRECHEN
 
 ```
-1. new Date()               → Temporal.Now.plainDateISO() oder Temporal.PlainDate
+1. new Date()               → currentISODate() aus 47-date-format.js
+                              (Temporal MIT IANA-Zone; zonenloses
+                              Temporal.Now.plainDateISO() ist per A50 verboten)
 2. HEX/RGB/HSL Farben       → Nur oklch() — immer
 3. CDN-Links                → Zero-Dependency, alles lokal
-4. npm/Bundler/Build-Tools  → Vanilla HTML/CSS/JS only, file:/// lauffähig
+4. npm/Bundler/Build-Tools  → Vanilla HTML/CSS/JS only; Start über lokalen
+                              Webserver (file:// ist durch ESM+CSP ausgeschlossen)
 5. Frameworks               → Kein React, Vue, Tailwind, jQuery, etc.
 6. Inline-Styles (gestalterisch) → CSS Custom Properties + @layer
 7. localStorage überschreiben ohne StorageManager → StorageManager.saveSettings()

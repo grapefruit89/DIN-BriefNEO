@@ -43,7 +43,7 @@ depends_on: []
 > **Willkommen im Dokumentationszentrum von DIN-Brief Neo.**  
 > Autarker, serverloser DIN-5008-Briefbogen im Browser (Form A & B) — 100% offline-fähig, null Build-Tools, null externe Laufzeit-Abhängigkeiten, optimiert für Chrome 150+ (Standard-Baseline).
 
-Root-Werkzeug für Sichtprüfung: **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
+Werkzeug für die Sichtprüfung: **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** (Chrome DevTools MCP an die laufende App).
 
 ---
 
@@ -55,8 +55,8 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 00-foundation/      --> Die unantastbare Verfassung (WAS & WARUM)
 10-architecture/    --> Technische Leitplanken, IMR-Registry & ADRs (WIE im Entwurf)
 20-implementation/  --> Praktische Guides, 80/20 B2B-Engine & Glossar (WIE im Code)
-30-meta/            --> Projektgedächtnis, Decision-Log, Changelog & Tooling (STATUS)
-30-meta/            --> Projektgedächtnis & Arbeitsweise (WIE gearbeitet wird)
+30-meta/            --> Projektgedächtnis, Tooling & Arbeitsweise (STATUS + WIE gearbeitet wird)
+90-archive/         --> Historische Einmal-Artefakte (nicht mehr normativ)
 ```
 
 ---
@@ -117,12 +117,13 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 
 ## 🤖 Maschinenlesbare Inventare (SSoT für KI-Agenten)
 
-Für automatisierte Audits und Werkzeuge stehen zwei strukturierte JSON-Dateien bereit (archiviert, Stand 2026-09-04):
-- **`docs/90-archive/foundation_inventory.json`** — 21 Dokumente aus 00-foundation, 10-architecture und 30-meta mit lückenloser W-Fragelogik.
-- **`docs/90-archive/implementation_and_meta_inventory.json`** — 28 Dokumente aus 20-implementation und 30-meta.
+Lebende Quelle ist die lokal generierte Wissensdatenbank aus `tools/build_db.js`
+(plus die generierten `Code-Referenzen.md` / `Function-Traceability.md`) — **nicht**
+eingefrorene Snapshots. Die beiden früheren `*_inventory.json` (Stand 2026-09-04)
+waren bereits stale und wurden am 2026-10-02 entfernt; siehe [[DECISION-LOG]].
 
-Ausserhalb von `docs/`, im Repository-Root:
-- **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)** — Chrome DevTools MCP, Sichtprüfung der laufenden App.
+Werkzeug zur Sichtprüfung:
+- **[[AI-AGENTS-CLI]]** (`docs/30-meta/AI-AGENTS-CLI.md`) — Chrome DevTools MCP, Sichtprüfung der laufenden App.
 
 ---
 
@@ -132,13 +133,12 @@ Historische Einmal-Artefakte (Reviews, Audits, Snapshots) — nicht Teil des akt
 - `review_grok.md`, `review2_grok.md`, `chatgpt-review-prompt.md` — externe Reviews
 - `architecture-drift-audit-2026-08-27.md` — erster Architektur-Drift-Durchlauf
 - `FOUNDATION-RESTORATION-PLAN.md`, `PROJECT.md` — abgeschlossene Planungen
-- `foundation_inventory.json`, `implementation_and_meta_inventory.json` — stale Inventar-Snapshots
 
 ---
 
 ## ⚡ Eiserne Leitregeln für Entwickler & KI-Agenten
 
 1. **Keine Frameworks / Kein Build-Schritt:** Ausschließlich natives HTML5, modernstes CSS3 und Vanilla JavaScript (.js mit ESM).
-2. **Offline- & file:///-Garantie:** Alle Kernfunktionen müssen ohne Webserver und ohne Internetverbindung im lokalen Browser laufen.
+2. **Offline-Garantie:** Alle Kernfunktionen müssen **ohne Internetverbindung** laufen — kein CDN, keine Fremd-Fonts, kein Tracking, kein Backend. Ein **lokaler Webserver ist dagegen Voraussetzung** (`<script type="module">` + CSP schliessen `file://` aus, siehe [`README.md`](../README.md) und [[AGENTS]]). „Offline" heisst hier netzunabhängig, nicht serverlos.
 3. **Single Source of Truth:** Definitionen existieren an genau einem Ort. Niemals Fakten oder Geometrien in Prompts oder Checklisten duplizieren.
 4. **Main-Branch-Only:** Keine Feature-Branches. Alle Änderungen fließen sauber verifiziert direkt in `main`.

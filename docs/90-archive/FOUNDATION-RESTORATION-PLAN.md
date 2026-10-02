@@ -2,7 +2,8 @@
 id: foundation-restoration-plan
 title: Foundation Restoration Plan v2
 type: plan
-status: proposed
+status: archived
+
 created: '2026-09-02'
 updated: '2026-09-02'
 tags:

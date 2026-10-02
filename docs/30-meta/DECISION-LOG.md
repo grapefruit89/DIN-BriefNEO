@@ -956,3 +956,22 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 
 **Generalisierbarkeit:** Chroniken regelmäßig nach Zeitfenster auslagern (Live = aktuelles Fenster). **Orphans** (von nichts verlinkt) sind Archiv-/Recherche-Kandidaten — Link-Zähler als Kriterium. Bei Verschiebungen **alle** Referenzarten prüfen (Markdown-Links sieht der Wikilink-Gate nicht).
 
+## 2026-10-02 — Fitness Gate war strukturell unerreichbar (Link-Gate-Fix) + Doku-Quick-Wins
+
+**Kontext:** Audit von `website/` und `docs/` (→ `WEBSITE-CODE-AUDIT.md`, `DOCS-AUDIT.md`). Der Pre-Build-Gate stand auf **main** bei **99,88 %** und failte — entgegen der Annahme „100 % ist der Normalzustand".
+
+**Befund (Grundursache):** 8 kritische tote Wikilinks, alle auf `[[Function-Traceability]]` und `[[Code-Referenzen]]`. Beide sind **generierte** Artefakte und per `.gitignore` **nicht versioniert**. `tools/links.js` nahm sie zwar in `SCAN_SKIP` auf — aber nur als Scan-**Quelle**, nicht als Link-**Ziel**. Verschärfend: `build_db.js` (dokumentierter Linux-Einstieg) erzeugt nur `Code-Referenzen.md`; `Function-Traceability.md` entsteht ausschliesslich in `build_db.py`. Damit war **100 % auf dem dokumentierten Linux-Pfad nach jedem frischen Clone unerreichbar**, obwohl AGENTS.md §2 genau das vor jeder Änderung verlangt. Der Datei-Header von `links.js` behauptete die Ausnahme bereits — implementiert war sie nie.
+
+**Änderung:**
+1. `tools/links.js`: `GENERATED_TARGETS`-Allowlist; `resolves()` behandelt generierte Artefakte unabhängig von ihrer momentanen Existenz als auflösbar.
+2. `tools/reconciliation.js`: `doc-size`-Regel nimmt `docs/90-archive/` aus — die Regel nannte als Abhilfe „nach `docs/90-archive/` verschieben" und meldete eine Datei, die bereits dort lag (unerfüllbare Forderung).
+3. `docs/90-archive/`: `foundation_inventory.json` + `implementation_and_meta_inventory.json` (154 KB) gelöscht — `docs/index.md` nannte sie selbst „stale" und verwies im selben Abschnitt auf sie als „SSoT für KI-Agenten". Lebende Quelle ist die generierte DB aus `build_db.js`.
+4. Frontmatter: 4 Archivdokumente standen auf `status: active`/`proposed` → `archived`.
+5. `docs/index.md`: Dezimalrahmen nannte `30-meta` doppelt und `90-archive` gar nicht (angeblich „5-stufig", faktisch 4); `AI-AGENTS-CLI.md` war als „im Repository-Root" beschrieben, liegt aber in `docs/30-meta/`.
+6. `docs/index.md` Leitregel 2 + `CLAUDE.md`: **Faktenkorrektur** — „Offline-Garantie ohne Webserver" bzw. „`file:///` lauffähig" widersprachen README.md/AGENTS.md und `CLAUDE.md` sich selbst (Zeile 34 vs. 45). ESM + CSP schliessen `file://` aus. „Offline" = netzunabhängig, nicht serverlos. Zusätzlich empfahl `CLAUDE.md` als `new Date()`-Ersatz das zonenlose `Temporal.Now.plainDateISO()` — **genau das verbietet A50**; jetzt Verweis auf `currentISODate()`.
+
+**Bewusst NICHT geändert:** Die `file://`-Begründungen im Immutable Law Catalog (S1, A22, A34–A37) stützen fünf Verbote auf eine nicht mehr existierende Voraussetzung. Das ist eine Grundsatzentscheidung des Maintainers (ADR-pflichtig), keine Aufräumarbeit — offen, siehe `DOCS-AUDIT.md` §3/W1.
+
+**Verifikation:** Gate **100 %** (Metadata/Coherence/Conformance/Features je 100 %), **null** Diagnosen — vorher 8× CRITICAL + 1× LOW.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) Link-/Kohärenz-Gates müssen generierte Artefakte in **beiden** Richtungen kennen — als Quelle *und* als Ziel; sonst ist das Gate nach jedem Clone rot und die Mannschaft gewöhnt sich an ein rotes Gate. (b) Eine Lint-Regel, deren vorgeschlagene Abhilfe am Zielort weiter greift, ist ein Regelfehler. (c) Dokumente, die ein Gate nie prüft (Prosa-Leitregeln, Agenten-Kontextdateien), driften zuerst — Fakten dort gehören auf das **eine** normative Dokument verlinkt, nicht kopiert.

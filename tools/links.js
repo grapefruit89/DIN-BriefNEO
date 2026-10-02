@@ -28,6 +28,22 @@ const SCAN_SKIP = [
   'docs/10-architecture/Code-Referenzen.md',
   'docs/10-architecture/Function-Traceability.md',
 ];
+
+/*
+ * Generierte, bewusst nicht versionierte Doku-Artefakte (.gitignore).
+ * Sie sind nicht nur als Scan-QUELLE auszunehmen (SCAN_SKIP), sondern auch
+ * als Link-ZIEL: nach einem frischen Clone existieren sie noch nicht, und
+ * `Function-Traceability.md` entsteht ueberhaupt nur im Python-Pfad
+ * (build_db.py), nicht in build_db.js. Ohne diese Liste meldet das Gate
+ * 8 tote Wikilinks und kann auf dem dokumentierten Linux-Einstieg
+ * (`node tools/build_db.js`) niemals 100 % erreichen — obwohl AGENTS.md §2
+ * genau das vor jeder Aenderung verlangt.
+ * Die Dateien sind legitime Ziele; ihre Existenz ist nur zeitpunktabhaengig.
+ */
+const GENERATED_TARGETS = new Set([
+  'Code-Referenzen',
+  'Function-Traceability',
+]);
 const FM_KEYS = ['doc_links', 'code_links', 'depends_on'];
 
 function walk(dir, out = []) {
@@ -43,6 +59,9 @@ function walk(dir, out = []) {
 
 function resolves(target, targetDir, stems) {
   const clean = target.replace(STRIP_EXT, '');
+  /* Generierte Artefakte gelten unabhaengig von ihrer momentanen Existenz
+   * als aufloesbar (siehe GENERATED_TARGETS). */
+  if (GENERATED_TARGETS.has(path.basename(clean))) return true;
   if (target.includes('/')) {
     return (
       fs.existsSync(path.join(targetDir, target)) ||

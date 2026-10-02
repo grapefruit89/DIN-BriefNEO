@@ -1,7 +1,8 @@
 ---
 id: architecture-drift-audit-2026-08-27
 title: Architecture Drift Audit — 2026-08-27
-status: active
+status: archived
+
 type: reference
 created: '2026-08-27'
 updated: '2026-08-27'

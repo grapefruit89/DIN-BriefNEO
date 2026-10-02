@@ -489,7 +489,12 @@ function runReconciliation() {
         // (append-only Chronik), generierte Code-Referenzen und die IMR-Registry
         // (normative SSOT des Fachmodells — darf nicht gesplittet werden).
         const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md'];
-        if (lines.length > 400 && !docSizeExempt.includes(relPath)) {
+        /* Bereits archivierte Dokumente sind von der Groessenregel ausgenommen:
+         * Die Regel fordert als Abhilfe genau den Umzug nach docs/90-archive/ —
+         * sie dort weiter zu melden ist eine unerfuellbare Forderung (das Archiv
+         * ist eingefroren und wird bewusst nicht nachtraeglich gesplittet). */
+        const isArchived = relPath.includes('90-archive/');
+        if (lines.length > 400 && !docSizeExempt.includes(relPath) && !isArchived) {
           logs.push({
             file_path: relPath,
             check_type: 'doc-size',

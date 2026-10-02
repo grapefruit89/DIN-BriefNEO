@@ -54,6 +54,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B4** | **`GEMINI.md`/`CLAUDE.md` auf Wegweiser reduziert, Regeln nach `AGENTS.md`/Catalog** | s. u. |
 | **B16** | **Terminologie-Kanon im Glossar + Gate-Durchsetzung (`tools/terminology.js`)** | s. u. |
 | **B5** | **Agenten-Tooling nach `30-meta/`; `CHANGELOG` + `OBSIDIAN-SETUP-GUIDE` archiviert** | s. u. |
+| **B8** | **Alle 12 Screen-`!important` aufgelöst + CSS-Ursachen bereinigt** | `809eb15` |
 
 ---
 
@@ -84,10 +85,12 @@ hinzukommen; vorerst wäre er zusätzliche Abstraktion ohne weiteren Nutzerwert.
 **Risiko:** hoch — betrifft die normative Geometrie. Nur mit Sichtprüfung gegen die
 `research/din-5008-svgs/`-Referenzen.
 
-### B8 · Die 12 Nicht-Print-`!important` auflösen · **M** · ⭐⭐
-`floating.css` 7, `reset.css` 5, `signature.css` 4, `sidebar.css` 2, `layout.css` 1.
-Das Projekt nutzt `@layer` — Layers lösen Spezifitätskonflikte per Design. Die 18 in
-`print.css` bleiben (Druck muss gewinnen).
+### B8 · Die 12 Nicht-Print-`!important` auflösen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
+Alle 12 Screen-`!important` in den Autoren-Styles (`floating.css`, `layout.css`, `sidebar.css`, `signature.css`)
+restlos aufgelöst (Commit `809eb15`). Root-Causes bereinigt: verfehlt platzierte Seitenleisten-Labels
+nach `sidebar.css`, DIN-Elemente nach `sheet.css`, Postvermerk-Styling in `layout.css` konsolidiert,
+`.hidden` und `#btn-ai-rewrite` über Layer-Hierarchie und native Spezifität gelöst.
+Nur die 5 normativen `prefers-reduced-motion`-Resets in `reset.css` und die 18 in `print.css` bleiben bestehen.
 
 ### B9 · Caret-Utilities zusammenführen + `TreeWalker` · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Die gemeinsame native Selection-/Caret-Logik liegt in `website/js/selection-utils.js`.
@@ -145,7 +148,7 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 4. ~~**B12, B13, B14, B11**~~ ✅ erledigt 2026-10-02
 5. ~~**B10**~~ ✅ Research klassifiziert 2026-10-02 (`research/STATUS.md`)
 6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
-7. **B8, B15**
+7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), **B15**
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02

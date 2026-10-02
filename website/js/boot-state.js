@@ -67,14 +67,16 @@ try {
   /* Feld ist 100% contenteditable (Doktrin). Boot-Fill nur, wenn leer
    * (Draft-Restore darf nicht klobbered werden); aktive Select-Wahl
    * überschreibt weiter — bewusste Vorlagen-Wahl des Users. */
-  const applyPv = (overwrite = true) => {
-    if (pvSel && pvField && pvSel.value && (overwrite || !pvField.textContent.trim())) pvField.textContent = pvSel.value;
-  };
-  if (pvSel) {
-    pvSel.addEventListener('input', () => applyPv());
-    pvSel.addEventListener('change', () => applyPv());
+  /* 🚨 ARCHITECTURAL GUARD (ein Listener-Owner):
+   * Dieses Boot-Script setzt NUR den Initialwert. Die Listener auf dem
+   * Select gehoeren ausschliesslich main.js (syncPostvermerkFromSidebar).
+   * Vorher haengten hier zusaetzlich 'input' UND 'change' — zusammen mit
+   * dem Handler in main.js liefen bei einer einzigen Auswahl DREI Handler
+   * mit WIDERSPRUECHLICHER Semantik (hier ueberschreibend, dort nur-wenn-leer).
+   * NIEMALS wieder Listener in diesem Boot-Script registrieren. */
+  if (pvSel && pvField && pvSel.value && !pvField.textContent.trim()) {
+    pvField.textContent = pvSel.value;
   }
-  applyPv(false);
   /* Font-Klasse nur, wenn boot-theme.js die @font-face auch wirklich
    * injiziert hat (derselbe Base64-Gate) — sonst bittet das Blatt um
    * ein 'AptosCustom', das nie registriert wurde (Grok-Re-Review C2). */

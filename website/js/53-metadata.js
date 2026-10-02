@@ -64,6 +64,23 @@ export function buildLetterFileName() {
   return collectLetterIdentity().fileName;
 }
 
+/* 🚨 ARCHITECTURAL GUARD (ein Titel-Owner):
+ * `document.title` hat zwei Schreiber: DraftManager (Betreff, bei jedem
+ * Autosave) und MetadataService (Dateiname, waehrend des Druckens — Chrome
+ * leitet daraus den PDF-Dateinamen ab). Tippt der User bei offenem
+ * Druckdialog weiter, ueberschrieb der Autosave den Dateinamen.
+ * Dieses Flag gibt dem Druck-Titel Vorrang; DraftManager fragt es ab.
+ * NIEMALS document.title an einer dritten Stelle setzen. */
+let printTitleActive = false;
+
+/**
+ * Darf der Draft-Autosave den Dokumenttitel gerade setzen?
+ * @returns {boolean}
+ */
+export function isPrintTitleActive() {
+  return printTitleActive;
+}
+
 export const MetadataService = {
   prepare() {
     /* Ein Lesevorgang, ein Ergebnis — siehe Guard an collectLetterIdentity(). */
@@ -72,6 +89,7 @@ export const MetadataService = {
     // 3. Backup & Title Set (Standard Chrome Filename)
     const oldTitle = document.title;
     document.title = fileName;
+    printTitleActive = true;
 
     // 4. PDF-Standard-Metadaten (Meta-Tags für Drucker)
     const metaData = {
@@ -115,6 +133,7 @@ export const MetadataService = {
    * @param {{ oldTitle: string, injectedTags: HTMLMetaElement[] } | null} context
    */
   restore(context) {
+    printTitleActive = false;
     if (!context) return;
     document.title = context.oldTitle;
     if (context.injectedTags) {

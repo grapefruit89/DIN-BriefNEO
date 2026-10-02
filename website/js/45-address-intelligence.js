@@ -7,6 +7,8 @@
  * .gz-Dateien scheitert (file://-Betrieb oder fehlende Datei) — im
  * Normalfall (lokal im HTTP-Server) spart das die Parse-Kosten komplett. */
 
+import { fetchGzipJson, decompressGzipBase64 } from './05-gzip.js';
+
 /**
  * @typedef {object} GrosskundeEntry
  * @property {string} name
@@ -57,50 +59,23 @@ export class AddressIntelligence {
 
     this.#initPromise = (async () => {
       try {
-        let plzData = null;
-        let grossData = null;
-
-        // Try streaming directly via fetch if running under HTTP/HTTPS
-        if (typeof window !== 'undefined' && window.location.protocol !== 'file:') {
-          try {
-            const plzResp = await fetch('data/de_plz_ort.json.gz');
-            if (plzResp.ok) {
-              const ds = new DecompressionStream('gzip');
-              const stream = plzResp.body?.pipeThrough(ds);
-              if (stream) {
-                const text = await new Response(stream).text();
-                plzData = JSON.parse(text);
-              }
-            }
-          } catch (e) {
-            // Fallback to embedded Base64 below
-          }
-
-          try {
-            const grossResp = await fetch('data/de_grosskunden_plz.json.gz');
-            if (grossResp.ok) {
-              const ds = new DecompressionStream('gzip');
-              const stream = grossResp.body?.pipeThrough(ds);
-              if (stream) {
-                const text = await new Response(stream).text();
-                grossData = JSON.parse(text);
-              }
-            }
-          } catch (e) {
-            // Fallback to embedded Base64 below
-          }
-        }
+        /* Primaerpfad: gzip-Stream vom lokalen Webserver (05-gzip.js kapselt
+         * fetch + DecompressionStream + Fehlerverhalten und liefert unter
+         * file:// bzw. bei jedem Fehler null). */
+        let plzData = await fetchGzipJson('data/de_plz_ort.json.gz');
+        let grossData = await fetchGzipJson('data/de_grosskunden_plz.json.gz');
 
         // 100% Offline / file:/// protocol fallback via embedded Base64 gzip streams
         // (Audit H3: Dynamic-Import erst im Fallback — 164 KB nur bei Bedarf)
         if (!plzData) {
           const { PLZ_DATA_GZIP_B64 } = await import('../data/plz-embedded.js');
-          plzData = await this.#decompressBase64(PLZ_DATA_GZIP_B64);
+          plzData = await decompressGzipBase64(PLZ_DATA_GZIP_B64);
         }
         if (!grossData) {
           const { GROSSKUNDEN_GZIP_B64 } = await import('../data/plz-embedded.js');
-          grossData = await this.#decompressBase64(GROSSKUNDEN_GZIP_B64);
+          grossData = await decompressGzipBase64(GROSSKUNDEN_GZIP_B64);
         }
+        if (!plzData || !grossData) return false;
 
         // Build PLZ -> City index
         for (const [plz, city] of Object.entries(plzData)) {
@@ -132,24 +107,6 @@ export class AddressIntelligence {
     return this.#initPromise;
   }
 
-  /**
-   * Decompresses a Base64-encoded gzip payload in memory using native DecompressionStream.
-   * @param {string} b64
-   * @returns {Promise<any>}
-   */
-  static async #decompressBase64(b64) {
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-
-    const ds = new DecompressionStream('gzip');
-    const writer = ds.writable.getWriter();
-    writer.write(bytes);
-    writer.close();
-
-    const text = await new Response(ds.readable).text();
-    return JSON.parse(text);
-  }
 
   /**
    * Instant PLZ lookup (0.001 ms).

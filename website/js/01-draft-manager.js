@@ -1,6 +1,7 @@
 // @ts-check
 import { StorageManager, Constants } from './51-storage.js';
 import { sanitizeRichText } from './04-sanitize.js';
+import { isPrintTitleActive } from './53-metadata.js';
 
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
@@ -292,6 +293,10 @@ export class DraftManager {
   }
 
   _updateDocumentTitle() {
+    /* Waehrend des Druckens haelt MetadataService den Titel (Chrome leitet
+     * daraus den PDF-Dateinamen ab) — ein Autosave darf ihn dann nicht
+     * ueberschreiben. Siehe Guard in 53-metadata.js. */
+    if (isPrintTitleActive()) return;
     const betreff = document.getElementById('betreff')?.textContent.trim() || 'Unbenannt';
     document.title = betreff;
   }

@@ -1157,3 +1157,44 @@ solcher markiert.
 davon **abgeleiteten** Normen nachgezogen werden — sonst bleiben Verbote mit toter Begründung
 stehen und werden irgendwann aus dem falschen Grund gekippt. Normen sollten ihre Begründung
 explizit referenzieren („verboten **weil** X"), damit ein Wegfall von X maschinell auffindbar ist.
+
+## 2026-10-02 — Vier Kleinfixes: Listener-, Pipeline-, Timer- und Titel-Owner bereinigt
+
+**Kontext:** Vier im Code-Audit ([[code-audit-website-2026-10-02]]) als P1-3/P2-2/P2-5/P2-6
+geführte Befunde — alle vom selben Typ wie P1-1/P1-2: mehrere Owner für eine Sache bzw. dieselbe
+Logik mehrfach kopiert. Alle vier sind unabhängig von der offenen `file://`-Frage.
+
+**Änderung:**
+1. **P1-3 Postvermerk (`boot-state.js`, `main.js`):** Bei einer einzigen Select-Auswahl liefen
+   **drei** Handler — `input` + `change` aus dem Boot-Script und `change` aus `main.js` — mit
+   **widersprüchlicher** Semantik (Boot überschrieb, `main` füllte nur wenn leer). Das Boot-Script
+   setzt jetzt ausschliesslich den Initialwert und registriert keine Listener mehr.
+   `syncPostvermerkFromSidebar({ overwrite })` hält beide Modi explizit: Boot/Restore darf
+   getippten Text nicht vernichten, eine aktive Auswahl **muss** überschreiben — sonst wäre das
+   Dropdown wirkungslos, sobald einmal Text im Feld steht.
+2. **P2-2 gzip-Pipeline (`05-gzip.js`, neu):** Die Kette `fetch` → `DecompressionStream('gzip')`
+   → `Response.text()` → `JSON.parse` stand **dreimal** im Code (2× in `45`, 1× in `41`) mit je
+   eigenem `try/catch`-Dialekt. Jetzt ein Core-Modul mit `fetchGzipJson()` und
+   `decompressGzipBase64()`; `DecompressionStream(` kommt projektweit nur noch dort vor.
+3. **P2-5 Druck-Lifecycle (`main.js`):** `setTimeout(…, 100)` um `window.print()` durch das native
+   `afterprint`-Event ersetzt (`{ once: true }`). Die Magic Number restaurierte bei langsam
+   öffnendem Druckdialog zu früh.
+4. **P2-6 Titel-Owner (`53-metadata.js`, `01-draft-manager.js`):** `document.title` hatte zwei
+   Schreiber. Tippte der User bei offenem Druckdialog weiter, überschrieb der Autosave den
+   PDF-Dateinamen. `isPrintTitleActive()` gibt dem Druck-Titel Vorrang.
+
+**Verworfen:** Bei P1-3 den Handler in `main.js` zu löschen und den Boot-Handler zu behalten —
+das hätte den Listener im Boot-Script belassen, wo er wegen des `catch {}`-Rahmens stumm scheitern
+kann und nicht typgeprüft ist. Bei P2-6 ein Event-basiertes Title-Bus-Konstrukt: für genau zwei
+Schreiber ist ein Lesezugriff auf ein Flag die kleinere Lösung (KISS).
+
+**Verifikation:** `tsc --noEmit -p jsconfig.json` ohne Befund; Fitness Gate **100 %**, null
+Diagnosen, geprüft nach `git add`. Kein Zyklus durch den neuen Import `01 → 53 → 47`.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) Zwei Handler auf demselben Event sind nur dann
+harmlos, wenn sie dieselbe Semantik haben — hier taten sie es **nicht**, und das Verhalten hing
+an der Registrierungsreihenfolge. Beim Entdoppeln zuerst die Semantik beider Seiten vergleichen,
+sonst wird aus dem Aufräumen eine Verhaltensänderung. (b) Timer um native Lifecycle-Events
+(`print`, `load`, Transitions) sind fast immer ein fehlendes Event. (c) Teilen sich zwei Module
+eine globale Ressource (`document.title`), braucht eine Seite explizit Vorrang — implizite
+Reihenfolge ist kein Vertrag.

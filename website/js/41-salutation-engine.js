@@ -11,6 +11,7 @@
 
 import { StorageManager, Constants } from './51-storage.js';
 import { showToast } from './32-toast.js';
+import { fetchGzipJson } from './05-gzip.js';
 
 /**
  * Offline-Gender-Index aus data/de_vornamen_gender.json.gz (2,6 KB gzip,
@@ -27,19 +28,12 @@ const NAME_INDEX = { male: new Set(), female: new Set(), ready: null };
 function ensureNameIndex() {
   if (NAME_INDEX.ready) return NAME_INDEX.ready;
   NAME_INDEX.ready = (async () => {
-    if (typeof window === 'undefined' || window.location.protocol === 'file:') return;
-    try {
-      const resp = await fetch('data/de_vornamen_gender.json.gz');
-      if (!resp.ok) return;
-      const ds = new DecompressionStream('gzip');
-      const stream = resp.body?.pipeThrough(ds);
-      if (!stream) return;
-      const json = JSON.parse(await new Response(stream).text());
-      for (const name of json.m || []) NAME_INDEX.male.add(String(name).toLowerCase());
-      for (const name of json.f || []) NAME_INDEX.female.add(String(name).toLowerCase());
-    } catch {
-      // Fallback: Sets bleiben leer -> neutrale Anrede
-    }
+    /* Gemeinsame gzip-Pipeline (05-gzip.js). Liefert null unter file:// und
+     * bei jedem Fehler -> Sets bleiben leer -> neutrale Anrede. */
+    const json = await fetchGzipJson('data/de_vornamen_gender.json.gz');
+    if (!json) return;
+    for (const name of json.m || []) NAME_INDEX.male.add(String(name).toLowerCase());
+    for (const name of json.f || []) NAME_INDEX.female.add(String(name).toLowerCase());
   })();
   return NAME_INDEX.ready;
 }

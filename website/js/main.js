@@ -19,13 +19,24 @@ import { applyLetterDate } from './47-date-format.js';
 import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 import { initImportExport } from './52-import-export.js';
 
-function syncPostvermerkFromSidebar() {
+/**
+ * 🚨 ARCHITECTURAL GUARD (ein Listener-Owner):
+ * Einziger Sync-Pfad zwischen Postvermerk-Select und Papierfeld. boot-state.js
+ * setzt nur den Initialwert und registriert bewusst KEINE Listener mehr.
+ *
+ * Die beiden Modi sind nicht austauschbar:
+ *  - `overwrite: false` (Boot/Restore): Feld ist 100 % contenteditable (Doktrin),
+ *    darf also manuell getippten Draft-Text nicht vernichten.
+ *  - `overwrite: true` (aktive Auswahl): eine bewusste Vorlagen-Wahl des Users
+ *    ersetzt den Feldinhalt — sonst waere das Dropdown wirkungslos, sobald
+ *    einmal Text im Feld steht.
+ * @param {{ overwrite?: boolean }} [options]
+ */
+function syncPostvermerkFromSidebar({ overwrite = false } = {}) {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
   const field = document.getElementById('postvermerk');
   if (!sel || !field) return;
-  /* Feld ist 100% contenteditable (Doktrin): nur füllen, wenn leer —
-   * sonst würde der Boot-Sync manuell getippten Draft-Text vernichten. */
-  if (!field.textContent.trim()) field.textContent = sel.value;
+  if (overwrite || !field.textContent.trim()) field.textContent = sel.value;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -105,11 +116,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function attachGlobalListeners(draftManager, uiProtections) {
     if (btnPrint) {
       btnPrint.addEventListener('click', () => {
+        /* 🚨 ARCHITECTURAL GUARD (natives Druck-Lifecycle):
+         * Aufraeumen haengt am nativen 'afterprint'-Event, NICHT an einem
+         * Timer. Vorher: setTimeout(…, 100) — eine Magic Number, die bei
+         * langsam oeffnendem Druckdialog zu frueh restaurierte (Metadaten
+         * waren dann schon wieder weg, bevor der Dialog sie las).
+         * DOM-Mutationen aus prepare() sind synchron wirksam; es gibt
+         * nichts, worauf zu warten waere.
+         * NIEMALS wieder einen Timer um window.print() legen. */
         const metaCtx = MetadataService.prepare();
-        setTimeout(() => {
-          window.print();
+        window.addEventListener('afterprint', () => {
           MetadataService.restore(metaCtx);
-        }, 100);
+        }, { once: true });
+        window.print();
       });
     }
 
@@ -130,7 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.querySelectorAll('select[data-speichern]').forEach(el => {
       el.addEventListener('change', () => {
-        if (el.id === 'seitenleiste-postvermerk-select') syncPostvermerkFromSidebar();
+        /* Aktive Auswahl des Users -> ueberschreibt (siehe Guard an der Funktion). */
+        if (el.id === 'seitenleiste-postvermerk-select') syncPostvermerkFromSidebar({ overwrite: true });
         draftManager.scheduleAutoSave();
       });
     });

@@ -62,7 +62,7 @@ In DIN-Brief Neo ist JavaScript streng auf eine **logische Begleitschicht** redu
 3. **View Transitions API:** Zustandswechsel (z. B. Formularwechsel Form A/B, Theme-Wechsel) nutzen `document.startViewTransition()` statt JS-Animationen.
 4. **Reglementierte Aufgaben für JavaScript:**
    * W3C Selection & Range API (Textformatierung im Fließtext)
-   * Lokale Datenpersistenz via `localStorage` (garantierter Offline-Betrieb unter `file:///`)
+   * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore)
    * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('brotli')`
    * Deterministischer 0,1ms Clipboard-Impressum-Parser mit juristischem Müllfilter
    * Native Popover-Queue & Lifecycle-Steuerung für Toasts im Top-Layer

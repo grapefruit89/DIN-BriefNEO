@@ -1198,3 +1198,58 @@ sonst wird aus dem Aufräumen eine Verhaltensänderung. (b) Timer um native Life
 (`print`, `load`, Transitions) sind fast immer ein fehlendes Event. (c) Teilen sich zwei Module
 eine globale Ressource (`document.title`), braucht eine Seite explizit Vorrang — implizite
 Reihenfolge ist kein Vertrag.
+
+## 2026-10-02 — `file://` als Laufzeitziel gestrichen (B1 + B2)
+
+**Kontext:** Revidiert die lange geführte `file://`-Doktrin und schliesst den als offen
+dokumentierten Punkt aus dem Eintrag „`file://`-Doktrin: Befund dokumentiert, Entscheidung
+bewusst offen" (gleiches Datum). Auslöser: Die Voraussetzung existiert seit ESM + CSP nicht
+mehr — die App startet unter `file://` nicht einmal —, während sechs Normen (`S1`, `A22`,
+`A34`–`A37`) weiterhin damit begründet waren. Entscheid des Maintainers: streichen.
+
+**Änderung:**
+1. **[[ADR-RUNTIME-CONTEXT]]** neu angelegt (Amendment Protocol PART IV): lokaler Webserver ist
+   der einzige unterstützte Laufzeitkontext. Option „Single-File-HTML" geprüft und verworfen.
+2. **Law Catalog:** `S1`, `A22`, `A34`, `A35`, `A36`, `A37` **neu begründet** — Verbote bleiben
+   unverändert in Kraft, nur das Argument wechselt (synchroner Boot-Restore ohne FOUC,
+   Unsichtbarkeit von OPFS, Permission-Zwang der File System Access API, Cache-Invalidierung
+   als Wartungslast). Präambel hält fest, dass `file://` **nicht** mehr als Begründung taugt.
+3. **Doku:** `longevity-guidelines` Säule 2 „Offline / `file://`" → „Netzunabhängigkeit";
+   `constitution`, `ADR-DATA-PERSISTENCE`, `ADR-JS`, `ADR-ANTIPATTERN`,
+   `ADR-OFFLINE-ADDRESS-INTELLIGENCE`, `glossary`, `Feature-Matrix`, `docs/index.md` korrigiert.
+   `architektur-evolution-und-quellen.md` ist ein Zeitdokument — dort steht ein **Nachtrag**
+   statt einer Umschreibung.
+4. **Code (B2):** `website/data/plz-embedded.js` (164 KB) gelöscht; Fallback-Zweige in
+   `45-address-intelligence.js` entfernt (Fetch jetzt parallel via `Promise.all`, sanfte
+   Degradation statt Zweitpfad); `file:`-Guard in `05-gzip.js` und die dort ungenutzt gewordene
+   `decompressGzipBase64()` entfernt; **drei weitere tote Guards in `43-geoapify.js`**, die im
+   Audit durchgerutscht waren (sie prüfen `'file:'`, nicht `'file://'`); Kommentare in
+   `51-storage.js` berichtigt. `location.protocol` kommt im Produktcode nicht mehr vor.
+
+**Verworfen:** Single-File-HTML, um `file://` zurückzugewinnen (ca. 381 KB). Erfordert
+`unsafe-inline`, bricht `H7`/`H8` und braucht einen Build-Schritt. Entscheidend war aber ein
+anderes Argument: Chromium ignoriert bei `localStorage` den Pfad der `file://`-URL, alle lokal
+geöffneten HTML-Dateien teilen **einen** Namespace. Briefdaten und Unterschriftsbild wären dort
+von jeder beliebigen lokalen HTML-Datei lesbar. `file://` ist für dieses Produkt nicht bequemer,
+sondern **unsicherer** — der Webserver stützt das Privacy-Versprechen.
+
+**Bewusst NICHT geändert:** `navigator.onLine`-Guards in `43-geoapify.js` (betreffen echte
+Netzverfügbarkeit, nicht das Protokoll). Historische Einträge in diesem Log und in
+`docs/90-archive/` (Append-only). Die 23 `file://`-Erwähnungen in Altenträgen bleiben stehen.
+
+**Offener Punkt:** Single-File-Distribution als optionales Release-Artefakt
+(`tools/build_single_file.js`) — nicht Teil dieser Entscheidung, siehe ADR §5.
+
+**Verifikation:** `tsc --noEmit` ohne Befund; Fitness Gate **100 %**, null Diagnosen, nach
+`git add` geprüft. `git grep "location.protocol" -- website/` liefert keine Treffer mehr.
+`website/data` von 294 KB auf 132 KB.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) Fällt eine **Voraussetzung** weg, müssen alle
+davon abgeleiteten Normen **einzeln** nachgezogen werden — sonst bleiben Verbote mit toter
+Begründung stehen und werden irgendwann aus dem falschen Grund gekippt. Normen sollten ihre
+Begründung explizit referenzieren („verboten **weil** X"), damit der Wegfall von X auffindbar
+wird. (b) Zwei Begriffe, die umgangssprachlich verschmelzen (hier *offline* = netzunabhängig
+vs. *serverlos*), erzeugen über Jahre Widersprüche; die Trennung gehört ins Glossar, bevor sie
+in Normen wandert. (c) Beim Entfernen eines Konzepts nach **Schreibweisen-Varianten** suchen
+(`file://` **und** `'file:'`) — die drei übersehenen Guards in `43-geoapify.js` fand erst der
+zweite Grep.

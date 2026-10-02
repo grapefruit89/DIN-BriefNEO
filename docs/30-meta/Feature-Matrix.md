@@ -129,7 +129,7 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 | **Flight Recorder** | Telemetrie und Notfall-Wiederherstellung   | ✅ Aktiv | Log-Export als JSON für Bug-Reports        | [#59](https://github.com/din-briefneo/din-briefneo/issues/59) |
 | **JSON Data-IO**    | Import/Export des kompletten Briefzustands | ✅ Aktiv | Schema-Validator gegen IMR 4.0             | [#60](https://github.com/din-briefneo/din-briefneo/issues/60) |
 | **Print CSS**       | Vektorscharfer PDF-Export via Print-Styles | ✅ Aktiv | PDF-Metadaten – Titel/Autor im PDF         | [#61](https://github.com/din-briefneo/din-briefneo/issues/61) |
-| **Offline-Betrieb** | Voll offline-fähig (Doppelklick, `file://`) | ✅ Aktiv | Kein Service Worker/PWA möglich unter `file://` (SW braucht HTTPS) | [#62](https://github.com/din-briefneo/din-briefneo/issues/62) |
+| **Offline-Betrieb** | Voll netzunabhängig (lokaler Webserver via `start.bat`) | ✅ Aktiv | Kein Service Worker (A37: Cache-Invalidierung = dauerhafte Wartungslast); `file://` kein Ziel, siehe [[ADR-RUNTIME-CONTEXT]] | [#62](https://github.com/din-briefneo/din-briefneo/issues/62) |
 | **SSoT Constants**  | Zentrale Geometrie-Definition              | ✅ Aktiv | Typed CSS Properties (`@property`)         | [#63](https://github.com/din-briefneo/din-briefneo/issues/63) |
 | **Toast-System**    | Pure-CSS Benachrichtigungssystem           | ✅ Aktiv | `@starting-style` für flüssige Entries   | [#75](https://github.com/din-briefneo/din-briefneo/issues/75) |
 

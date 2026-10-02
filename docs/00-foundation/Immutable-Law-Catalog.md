@@ -36,6 +36,11 @@ Dieses Dokument ist die autoritative Quelle für Verbote und Plattformprinzipien
 
 Die Browser-Baseline steht nur in [[longevity-guidelines]]: **Chrome 150+** (Chrome-only-Spezialisierung).
 
+**Laufzeitkontext:** Die App läuft ausschliesslich über einen lokalen Webserver. `file://` ist seit
+ESM + CSP kein unterstütztes Ziel mehr und darf **nicht** als Begründung für Normen herangezogen
+werden — siehe [[ADR-RUNTIME-CONTEXT]]. „Offline“ bedeutet in diesem Projekt *netzunabhängig*,
+nicht *serverlos*.
+
 ------
 
 ## Klassifikation
@@ -74,7 +79,7 @@ Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu 
 
 | # | Stufe | MUST-USE | Zweck |
 | :--- | :--- | :--- | :--- |
-| S1 | HARD BAN anderer Produktspeicher | `localStorage` für Produktdaten | Offline / `file://`. Andere Speicher-APIs sind nicht „unbrauchbar“, sondern für diesen Kontext nicht gewählt |
+| S1 | HARD BAN anderer Produktspeicher | `localStorage` für Produktdaten | **Synchron** (Boot-Restore ohne await, kein FOUC), Zero-Dependency, Datenmenge passt (ein Brief + Einstellungen). Andere Speicher-APIs sind nicht „unbrauchbar“, sondern für diesen Kontext nicht gewählt — siehe [[ADR-RUNTIME-CONTEXT]] |
 | S2 | PREFERRED | JSON für gespeicherte Strukturen | prüfbares Format |
 | S3 | PREFERRED | Base64 nur für optionale lokale WOFF2-Schriften | kein Font-CDN |
 
@@ -127,7 +132,7 @@ Soweit nicht anders markiert: HARD BAN.
 | :--- | :--- | :--- | :--- | :--- |
 | A16–A20 | FALLBACK-Politik | Farbe **oberhalb** der benötigten Kettenstufe ohne Vorteil erzwingen oder die Kette ignorieren | C1: OKLCH → Lab/LCH → HSL → RGB → HEX → Named | OKLCH bleibt Standard #1; Hex/RGB/HSL/Named sind nicht kategorisch verboten |
 | A21 | HARD BAN | CSS-Preprozessoren | natives Nesting + Custom Properties | kein Build |
-| A22 | HARD BAN | CSS-in-JS | Stylesheets | JS-Overhead, `file://` |
+| A22 | HARD BAN | CSS-in-JS | Stylesheets | JS-Overhead, FOUC, bricht `@layer`-Kaskade und CSP ohne `unsafe-inline` |
 | A23 | HARD BAN | `@import` in CSS-Dateien | `<link>` | Ladeblockade |
 | A24 | HARD BAN | Produkt-Token ohne Definition in `:root` | Token in `:root` als Literal oder `var(--x, literal)` anlegen. Verbraucher dürfen `var(--token)` nutzen, wenn `--token` in `:root` steht. Rohe `var(--undeclared)` ohne Fallback bleiben verboten. | stilles Versagen |
 | A25 | HARD BAN | Inline `style` für Farbe/Layout (`style.color`, `style.background`, `style.display`) | CSS | Ausnahme: kurzlebige Koordinaten am Selektionsanker; CSS Custom Properties für UI-Zustand (Dimmer, Signatur-Transform, Swipe) dürfen per JS gesetzt werden |
@@ -144,10 +149,10 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- | :--- |
-| A34 | HARD BAN in diesem Produkt | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Entscheidung für `file://`, kein generelles Verdikt über IndexedDB |
-| A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | unzuverlässig unter `file://` im Zielkontext |
-| A36 | HARD BAN in diesem Produkt | File System Access API als Pflicht-Speicher | `localStorage` | braucht sicheren Kontext |
-| A37 | HARD BAN in diesem Produkt | Service Worker unter `file://` | relative lokale Pfade | Registration scheitert unter `file://` |
+| A34 | HARD BAN in diesem Produkt | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Asynchron → Boot-Restore bräuchte await und erzeugt FOUC; Transaktions-Overhead ohne Nutzen bei einem Brief. Kein generelles Verdikt über IndexedDB |
+| A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | Für den Nutzer unsichtbarer Speicher (nicht im Dateisystem auffindbar), asynchron, Worker-nah — kein Gewinn gegenüber localStorage bei dieser Datenmenge |
+| A36 | HARD BAN in diesem Produkt | File System Access API als **Pflicht**-Speicher | `localStorage` | Erzwingt für jeden Autosave eine Nutzergeste/Permission; als freiwilliger Export-Weg zulässig (siehe `52-import-export.js`) |
+| A37 | HARD BAN in diesem Produkt | Service Worker | relative lokale Pfade | Cache-Invalidierung ist eine dauerhafte Wartungslast (Longevity-Ziel: null Wartung); die App lädt ohnehin rein lokal, es gibt nichts zu cachen |
 | A38 | HARD BAN | externe CDNs und fremde Script-/CSS-Assets | lokale Ressourcen | Offline / DSGVO. Optionale Fach-APIs sind keine CDNs. Allowlist: Geoapify Geocoding, Photon (optionale Tier-2-Dienste; Grunddaten laufen primär über das lokale 70,5 KB Brotli-Dictionary laut ADR-006). Ohne Key bleibt das optionale Cloud-Feature tot. Kein Host darf Script, Font oder Stylesheet liefern. |
 
 ### Icons & Fonts

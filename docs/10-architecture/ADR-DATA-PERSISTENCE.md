@@ -35,7 +35,7 @@ depends_on: []
 
 - Die Anwendung muss ihre Daten (Inhalte des Briefes, Absenderdaten) zuverlässig lokal speichern können.
 
-- Es gibt keinen Backend-Server und keine Datenbank (`file:///` Ausführung).
+- Es gibt keinen Backend-Server und keine Datenbank (rein clientseitige Ausführung über einen lokalen Webserver, siehe [[ADR-RUNTIME-CONTEXT]]).
 
 - Die W3C `Date()` API ist bekanntermaßen fehleranfällig, asymmetrisch und schwer zu parsen, was besonders bei Brief-Daten zu Problemen führt.
 

@@ -49,7 +49,7 @@ Baseline: ausschließlich [[longevity-guidelines]] — **Chrome 150+**.
 ## Kontext & Problemstellung
 
 > [!info] Hintergrund
-> Um Offline-`file://`-Betrieb, Zero Runtime-Dependencies und eine moderne Chrome-150+-Plattform zu halten, sind bestimmte übliche Web-Praktiken ausgeschlossen. Neue Verbote entstehen nur über das Amendment-Protokoll des Catalogs.
+> Um Netzunabhängigkeit, Zero Runtime-Dependencies und eine moderne Chrome-150+-Plattform zu halten, sind bestimmte übliche Web-Praktiken ausgeschlossen. Neue Verbote entstehen nur über das Amendment-Protokoll des Catalogs.
 
 ---
 
@@ -76,7 +76,7 @@ Es dürfen **keinerlei** externe Scripts, Stylesheets oder Webfonts über CDNs g
 
 ### 3. IndexedDB, OPFS, File System Access als Produktspeicher — HARD BAN in diesem Produkt
 
-*   **Begründung:** Unter `file://` werfen diese APIs Sicherheits-Exceptions.
+*   **Begründung:** Alle drei sind asynchron und erzwingen beim Boot-Restore ein `await` (FOUC); OPFS ist für den Nutzer unsichtbar, die File System Access API verlangt pro Autosave eine Nutzergeste. Kein Gewinn bei einem Brief + Einstellungen. Siehe [[ADR-RUNTIME-CONTEXT]].
 *   **Entscheidung:** `localStorage` ist der Produktspeicher (Catalog S1, A34–A36). Das ist keine Aussage über den Wert dieser APIs außerhalb dieses Produkts.
 
 ### 4. `document.execCommand` — HARD BAN
@@ -173,7 +173,7 @@ Verbindliche Kette (Catalog C1, A16–A20):
 ## Konsequenzen
 
 *   Verstöße gegen Catalog-HARD-BANs werden im Review zurückgewiesen.
-*   Lauffähigkeit unter `file:///index.html` bleibt QA-Voraussetzung.
+*   Lauffähigkeit über den lokalen Webserver (`start.bat`, Port 8088) bleibt QA-Voraussetzung.
 *   Baseline-Änderungen nur über Longevity plus ADR, nicht in diesem Dokument.
 
 ## Verknüpfungen

@@ -68,7 +68,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
    * @param {string} key
    */
   async function validateKeyWithHeartbeat(key) {
-    if (typeof window !== 'undefined' && window.location.protocol === 'file:') return;
     try {
       const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`);
       if (res.ok) {
@@ -153,7 +152,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     if (activeAbortController) activeAbortController.abort();
     activeAbortController = new AbortController();
 
-    if (typeof window !== 'undefined' && window.location.protocol === 'file:') return;
     if (!navigator.onLine) return;
 
     const key = StorageManager.loadGeoapifyKey();
@@ -319,7 +317,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     /** @type {any} */
     let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
-      if (window.location.protocol === 'file:' || !navigator.onLine) return;
+      if (!navigator.onLine) return;
       clearTimeout(absenderTimeout);
       absenderTimeout = setTimeout(() => {
         const key = StorageManager.loadGeoapifyKey();

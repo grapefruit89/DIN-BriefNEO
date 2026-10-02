@@ -2,12 +2,17 @@
 // @adr [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]
 // @guide [[geoapify-autocomplete]]
 
-/* Audit H3: Das 164-KB-Embed liegt NICHT auf dem statischen Modulgraphen.
- * Es wird nur per Dynamic-Import geladen, wenn der gzip-Fetch der
- * .gz-Dateien scheitert (file://-Betrieb oder fehlende Datei) — im
- * Normalfall (lokal im HTTP-Server) spart das die Parse-Kosten komplett. */
+/* 🚨 ARCHITECTURAL GUARD (ein Datenpfad):
+ * Die Datensaetze kommen ausschliesslich als .gz-Stream vom lokalen Webserver.
+ * Der frueher hier liegende Base64-Fallback (`data/plz-embedded.js`, 164 KB)
+ * war nur unter file:// erreichbar — einem Kontext, den die App seit ESM + CSP
+ * gar nicht mehr erreicht ([[ADR-RUNTIME-CONTEXT]]). Er wurde am 2026-10-02
+ * ersatzlos entfernt.
+ * NIEMALS einen zweiten Datenpfad oder ein Daten-Embed wieder einfuehren:
+ * Schlaegt der Fetch fehl, degradiert das Feature bewusst sanft (leere Indizes,
+ * manuelle Eingabe bleibt moeglich). */
 
-import { fetchGzipJson, decompressGzipBase64 } from './05-gzip.js';
+import { fetchGzipJson } from './05-gzip.js';
 
 /**
  * @typedef {object} GrosskundeEntry
@@ -59,23 +64,16 @@ export class AddressIntelligence {
 
     this.#initPromise = (async () => {
       try {
-        /* Primaerpfad: gzip-Stream vom lokalen Webserver (05-gzip.js kapselt
-         * fetch + DecompressionStream + Fehlerverhalten und liefert unter
-         * file:// bzw. bei jedem Fehler null). */
-        let plzData = await fetchGzipJson('data/de_plz_ort.json.gz');
-        let grossData = await fetchGzipJson('data/de_grosskunden_plz.json.gz');
-
-        // 100% Offline / file:/// protocol fallback via embedded Base64 gzip streams
-        // (Audit H3: Dynamic-Import erst im Fallback — 164 KB nur bei Bedarf)
-        if (!plzData) {
-          const { PLZ_DATA_GZIP_B64 } = await import('../data/plz-embedded.js');
-          plzData = await decompressGzipBase64(PLZ_DATA_GZIP_B64);
+        /* 05-gzip.js kapselt fetch + DecompressionStream + Fehlerverhalten
+         * und liefert bei jedem Fehler null. */
+        const [plzData, grossData] = await Promise.all([
+          fetchGzipJson('data/de_plz_ort.json.gz'),
+          fetchGzipJson('data/de_grosskunden_plz.json.gz')
+        ]);
+        if (!plzData || !grossData) {
+          console.warn('[AddressIntelligence] Datensaetze nicht ladbar — PLZ-Automatik inaktiv.');
+          return false;
         }
-        if (!grossData) {
-          const { GROSSKUNDEN_GZIP_B64 } = await import('../data/plz-embedded.js');
-          grossData = await decompressGzipBase64(GROSSKUNDEN_GZIP_B64);
-        }
-        if (!plzData || !grossData) return false;
 
         // Build PLZ -> City index
         for (const [plz, city] of Object.entries(plzData)) {

@@ -48,34 +48,19 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | P2-2 | gzip-Pipeline 3× kopiert → `05-gzip.js` | `7d52cbe` |
 | P2-5 | `setTimeout(…,100)` → natives `afterprint` | `7d52cbe` |
 | P2-6 | `document.title`: zwei Schreiber → Vorrangregel | `7d52cbe` |
+| **B1** | **`file://` als Laufzeitziel gestrichen** ([[ADR-RUNTIME-CONTEXT]]) | s. u. |
+| **B2** | **`plz-embedded.js` (164 KB) + alle Protokoll-Guards entfernt** | s. u. |
 
 ---
 
 ## 🔴 Priorität 1 — blockiert anderes
 
-### B1 · `file://`-Grundsatzentscheidung · Aufwand **M** · ROI ⭐⭐⭐
-**Problem:** Fünf Normen (`S1`, `A22`, `A34`–`A37`) im [[Immutable-Law-Catalog]] sind mit
-`file://`-Tauglichkeit begründet — einer Voraussetzung, die durch ESM + CSP nicht mehr existiert.
-Die Verbote mögen richtig bleiben, die Begründung trägt nicht.
-**Zu tun:**
-1. Probe-HTML in `scratch/` — misst empirisch, ob inline `<script type="module">` unter `file://`
-   ausgeführt wird, ob `localStorage` dort wirklich geteilt ist, ob `DecompressionStream` läuft.
-2. ADR nach Amendment Protocol (PART IV): `file://` als Laufzeitziel streichen **oder**
-   Single-File-Distribution als eigenes Artefakt beschliessen.
-3. Folgearbeiten je nach Entscheid (siehe B2, B6).
-
-**Blockiert:** B2, B6, Teile von B9.
-**Entscheidungskriterium:** Fällt der Inline-Modul-Test negativ aus, entfällt die
-Single-File-Option ohne Build-Schritt von selbst.
+*Derzeit leer — B1 ist am 2026-10-02 entschieden und umgesetzt
+([[ADR-RUNTIME-CONTEXT]]), B2 damit erledigt. Nichts blockiert mehr.*
 
 ---
 
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
-
-### B2 · Toten `file://`-Fallback + 164 KB entfernen · **S** · ⭐⭐⭐ *(wartet auf B1)*
-`45-address-intelligence.js` lädt per Dynamic Import `website/data/plz-embedded.js` (164 KB
-Base64), erreichbar nur unter `file://`. Entfällt mit B1-Entscheid „streichen" ersatzlos —
-grösster Einzelgewinn an Repo-Gewicht im Produktpfad.
 
 ### B3 · `ADR-ANTIPATTERN` in den Law Catalog auflösen · **M** · ⭐⭐⭐
 185 Zeilen, inhaltlich Volldublette von Law Catalog PART II (A1–A50) in anderer Darstellung.
@@ -167,11 +152,10 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 
 ## Empfohlene Reihenfolge
 
-1. **B1** (Probe-HTML zuerst) — entscheidet über B2 und einen Teil von B6/B9
-2. **B2** sofort nach B1, falls „streichen"
-3. **B3 → B4** — die beiden grossen Doppelungen, grösster Doku-Gewinn
-4. **B12, B13, B14, B11** — Hygiene, lässt sich gut zwischenschieben
-5. **B5, B10** — Umzüge
-6. **B6** — Full Mode, braucht eigene Sitzung
-7. **B8, B9, B15**
-8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
+1. ~~**B1**~~ ✅ erledigt 2026-10-02 · ~~**B2**~~ ✅ erledigt 2026-10-02
+2. **B3 → B4** — die beiden grossen Doppelungen, grösster Doku-Gewinn
+3. **B12, B13, B14, B11** — Hygiene, lässt sich gut zwischenschieben
+4. **B5, B10** — Umzüge
+5. **B6** — Full Mode, braucht eigene Sitzung
+6. **B8, B9, B15**
+7. **B7** zuletzt — höchstes Risiko, niedrigster Zwang

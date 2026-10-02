@@ -95,7 +95,7 @@ Vorname und Nachname dürfen als gemeinsame Namenszeile in der zuständigen Zone
 
 ### ✅ Lokale Persistenz über LocalStorage
 
-Entwürfe, Einstellungen und optionale API-Schlüssel liegen in der **Web Storage API (localStorage)**. Das ist eine bewusste Entscheidung für Offline- und `file://`-Betrieb, kein Urteil über IndexedDB an sich.
+Entwürfe, Einstellungen und optionale API-Schlüssel liegen in der **Web Storage API (localStorage)**. Das ist eine bewusste Entscheidung für **synchronen** Zugriff beim Boot-Restore (kein `await`, kein FOUC) bei kleiner Datenmenge, kein Urteil über IndexedDB an sich.
 
 ### ✅ Native Plattform gemäß Longevity-Baseline
 

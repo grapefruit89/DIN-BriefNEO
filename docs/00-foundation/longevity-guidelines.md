@@ -57,9 +57,11 @@ Entscheidungsmodell für Features:
 
 Keine npm-Pakete und keine CDN-Skripte im Produkt. DOM nativ, Datum über `Temporal`, Netz nur wo ein explizites optionales Feature es braucht (`fetch`). `Date` ist im Projekt nicht zulässig (Catalog TM1).
 
-### Säule 2: Offline / `file://`
+### Säule 2: Netzunabhängigkeit
 
-Die Anwendung muss als lokale HTML-Datei funktionieren. Keine Pflicht auf HTTPS-only-APIs für Kernfunktionen.
+Alle Kernfunktionen müssen **ohne Internetverbindung** laufen: keine CDNs, keine Fremd-Fonts, kein Tracking, kein Backend. Optionale Fach-APIs (Geoapify) sind ohne Key tot und nie Voraussetzung.
+
+Der Betrieb erfolgt über einen **lokalen Webserver** (`start.bat`). „Offline“ heisst *netzunabhängig*, nicht *serverlos* — `file://` ist seit ESM + CSP kein Ziel mehr, siehe [[ADR-RUNTIME-CONTEXT]].
 
 ### Säule 3: Native Standards vor Experimenten
 
@@ -73,7 +75,7 @@ Kein Webpack/Vite/Babel/Sass als Voraussetzung. ESM mit Dateiendung `.js`. CSS m
 
 ### Säule 5: localStorage als gewählter Speicher
 
-Produktdaten liegen in localStorage, weil das unter `file://` zuverlässig ist. Das disqualifiziert IndexedDB nicht weltweit; es ist hier nicht der Produktspeicher.
+Produktdaten liegen in localStorage, weil der Zugriff **synchron** ist: Der Boot-Restore läuft ohne `await` und damit ohne FOUC, und die Datenmenge (ein Brief + Einstellungen) rechtfertigt keinen Transaktionsspeicher. Das disqualifiziert IndexedDB nicht weltweit; es ist hier nicht der Produktspeicher.
 
 ---
 

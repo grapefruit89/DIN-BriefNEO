@@ -52,6 +52,12 @@ Zwei Perspektiven auf die gleiche Geschichte: **Warum** wir die radikalen Archit
 
 **Das Problem:** OPFS (Origin Private File System) ist an HTTPS gebunden. Da DIN-Brief NEO 100% offline unter `file:///` laufen muss, werfen OPFS-Aufrufe Security Errors.
 
+> **Nachtrag 2026-10-02 (historische Einordnung):** Die damalige Begründung ist überholt. Die App
+> läuft heute über einen lokalen Webserver, `localhost` ist ein sicherer Kontext — OPFS wäre
+> technisch verfügbar. Das Verbot (A35) **bleibt bestehen**, jetzt aber begründet mit
+> Asynchronität und Unsichtbarkeit für den Nutzer, nicht mehr mit `file://`.
+> Siehe [[ADR-RUNTIME-CONTEXT]]. Der Absatz darüber bleibt als Zeitdokument stehen.
+
 **Die Entscheidung:** `localStorage` funktioniert beim Doppelklick auf die `.html`-Datei. Synchron, überall unterstützt, ausreichend für Textdokumente.
 
 ### Warum der Immutable Law Catalog?

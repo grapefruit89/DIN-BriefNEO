@@ -10,8 +10,10 @@
 export const Constants = {
 
   // LocalStorage Keys
-  // ACHTUNG: Nur LocalStorage nutzen, da OPFS, IndexedDB und File System Access API
-  // unter file:// (lokaler Aufruf per Doppelklick) mangels HTTPS/Sicherheitskontext blockiert werden!
+  // ACHTUNG: Nur LocalStorage nutzen. Begruendung ist NICHT mehr file:// (die App
+  // laeuft ueber einen lokalen Webserver, siehe ADR-RUNTIME-CONTEXT), sondern:
+  // localStorage ist SYNCHRON lesbar -> Boot-Restore ohne await, kein FOUC.
+  // OPFS/IndexedDB/File System Access sind asynchron und hier ohne Gewinn (A34-A36).
   // Hinweis: Die konkreten Key-Strings ('din_*') leben in den save/load-Methoden und den
   // Boot-Skripten (klassische <script src>-Skripte, koennen keine Module importieren).
   LIMITS: {
@@ -136,7 +138,7 @@ export const StorageManager = {
   },
 
   /**
-   * Save base64 encoded custom font (1-Font Limit for file:// compatibility)
+   * Save base64 encoded custom font (1-Font-Limit wegen localStorage-Quota)
    * @param {string} base64Font
    * @returns {boolean}
    */

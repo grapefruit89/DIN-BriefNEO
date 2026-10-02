@@ -28,8 +28,8 @@ const NAME_INDEX = { male: new Set(), female: new Set(), ready: null };
 function ensureNameIndex() {
   if (NAME_INDEX.ready) return NAME_INDEX.ready;
   NAME_INDEX.ready = (async () => {
-    /* Gemeinsame gzip-Pipeline (05-gzip.js). Liefert null unter file:// und
-     * bei jedem Fehler -> Sets bleiben leer -> neutrale Anrede. */
+    /* Gemeinsame gzip-Pipeline (05-gzip.js). Liefert bei jedem Fehler null
+     * -> Sets bleiben leer -> neutrale Anrede (sanfte Degradation). */
     const json = await fetchGzipJson('data/de_vornamen_gender.json.gz');
     if (!json) return;
     for (const name of json.m || []) NAME_INDEX.male.add(String(name).toLowerCase());

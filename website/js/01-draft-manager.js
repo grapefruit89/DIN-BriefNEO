@@ -74,7 +74,7 @@ export class DraftManager {
 
     const activeElem = document.activeElement;
     if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id && activeElem.id !== 'datum') {
-      caretInfo = { id: activeElem.id, offset: this.#getCaretCharacterOffsetWithin(activeElem) };
+      caretInfo = { id: activeElem.id, offset: getCaretCharacterOffset(activeElem) };
     }
 
     if (!this.#currentState) {
@@ -166,27 +166,11 @@ export class DraftManager {
       const elem = document.getElementById(stateObj.caretInfo.id);
       if (elem) {
         elem.focus();
-        this.#setCaretPosition(elem, stateObj.caretInfo.offset);
+        setCaretCharacterOffset(elem, stateObj.caretInfo.offset);
       }
     }
 
     if (this.onSaveCallback) this.onSaveCallback();
-  }
-
-  /**
-   * @param {Element} element
-   * @returns {number}
-   */
-  #getCaretCharacterOffsetWithin(element) {
-    return getCaretCharacterOffset(element);
-  }
-
-  /**
-   * @param {HTMLElement} elem
-   * @param {number} caretPos
-   */
-  #setCaretPosition(elem, caretPos) {
-    setCaretCharacterOffset(elem, caretPos);
   }
 
   resetDraft() {

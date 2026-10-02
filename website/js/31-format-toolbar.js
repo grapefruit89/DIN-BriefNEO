@@ -85,35 +85,32 @@ export class FormatToolbar {
   // ============================================================
 
   /**
+   * @param {Node | null} node
+   * @param {string} tagName
+   * @returns {HTMLElement | null}
+   */
+  #findFormatAncestor(node, tagName) {
+    const elem = node instanceof Element ? node : node?.parentElement;
+    if (!elem) return null;
+
+    const selector = tagName === 'comment'
+      ? 'span.brief-kommentar'
+      : tagName.toUpperCase() === 'B'
+        ? 'b, strong'
+        : tagName.toLowerCase();
+
+    const match = elem.closest(selector);
+    return match && this.#text.contains(match) ? /** @type {HTMLElement} */ (match) : null;
+  }
+
+  /**
    * @param {string} tagName
    * @returns {boolean}
    */
   #isSelectionInsideTag(tagName) {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return false;
-
-    const isCustomComment = tagName === 'comment';
-    const actualTag = isCustomComment ? 'SPAN' : tagName;
-
-    let node = selection.anchorNode;
-    while (node && node !== this.#text) {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = /** @type {HTMLElement} */ (node);
-        const name = element.nodeName.toUpperCase();
-        if (
-          name === actualTag.toUpperCase() ||
-          (actualTag.toUpperCase() === 'B' && name === 'STRONG')
-        ) {
-          if (isCustomComment && !element.classList.contains('brief-kommentar')) {
-            // Keep searching upwards.
-          } else {
-            return true;
-          }
-        }
-      }
-      node = node.parentNode;
-    }
-    return false;
+    return this.#findFormatAncestor(selection.anchorNode, tagName) !== null;
   }
 
   /**
@@ -121,17 +118,7 @@ export class FormatToolbar {
    * @returns {Element | null}
    */
   #getBlockquoteAncestor(anchorNode) {
-    let node = anchorNode;
-    while (node && node !== this.#text) {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = /** @type {Element} */ (node);
-        if (element.nodeName === 'BLOCKQUOTE') {
-          return element;
-        }
-      }
-      node = node.parentNode;
-    }
-    return null;
+    return this.#findFormatAncestor(anchorNode, 'BLOCKQUOTE');
   }
 
   #handleSelectionChange() {
@@ -383,41 +370,15 @@ export class FormatToolbar {
     /*
      * UNWRAP
      */
-    if (this.#isSelectionInsideTag(tagName)) {
-      /** @type {Node | null} */
-      let node = selection.anchorNode;
-      /** @type {HTMLElement | null} */
-      let formatNode = null;
-
-      while (node && node !== this.#text) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = /** @type {HTMLElement} */ (node);
-          const name = element.nodeName.toUpperCase();
-          
-          if (
-            name === actualTag.toUpperCase() ||
-            (actualTag.toUpperCase() === 'B' && name === 'STRONG')
-          ) {
-            if (isCustomComment && !element.classList.contains('brief-kommentar')) {
-              // Keep searching.
-            } else {
-              formatNode = element;
-              break;
-            }
-          }
+    const formatNode = this.#findFormatAncestor(selection.anchorNode, tagName);
+    if (formatNode) {
+      const parent = formatNode.parentNode;
+      if (parent) {
+        const fragment = document.createDocumentFragment();
+        while (formatNode.firstChild) {
+          fragment.appendChild(formatNode.firstChild);
         }
-        node = node.parentNode;
-      }
-
-      if (formatNode) {
-        const parent = formatNode.parentNode;
-        if (parent) {
-          const fragment = document.createDocumentFragment();
-          while (formatNode.firstChild) {
-            fragment.appendChild(formatNode.firstChild);
-          }
-          parent.replaceChild(fragment, formatNode);
-        }
+        parent.replaceChild(fragment, formatNode);
       }
     } else {
       /*

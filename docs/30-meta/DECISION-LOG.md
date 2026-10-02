@@ -1584,3 +1584,13 @@ schneller, als eine fehlende Sonde es je koennte.
 **Verifikation.** Fitness Gate 100 %, TypeScript-/Link-/Metadaten-Gate ohne Befund. Die Änderung ist auf die Seitenleiste begrenzt; der bekannte Low-Hinweis zur unvollständigen Law-Coverage bleibt unverändert.
 
 **Generalisierung.** Browser-Seitenzoom ist kein normales responsives Layoutsignal. Eine Kompensation darf deshalb nicht global erfolgen: OS-Skalierung wird als Startreferenz neutralisiert, danach wird ausschließlich die betroffene Bedienfläche invers skaliert.
+
+## 2026-10-02 — Feature-Matrix als aktuelle Bestandsquelle neu geschrieben
+
+**Kontext.** Die alte `Feature-Matrix.md` war eine historische Platinum-Sprintliste mit veralteten Prozentzahlen, fremden Issue-Links und Statusangaben, die dem aktuellen Code widersprachen. Damit konkurrierte sie mit `ROADMAP.md` und `BACKLOG.md`, statt eine eigene klare Rolle zu haben.
+
+**Änderung.** Die Datei wurde vollständig als aktuelle Produkt-Bestandsmatrix neu geschrieben. Sie beschreibt jetzt nur noch vorhandene Kernfunktionen, optionale Funktionen, geparkte Themen und klar benannte offene Kandidaten. Prozentwerte, Sprintnamen und externe Issue-Links wurden entfernt. Die Zuständigkeiten sind explizit: Matrix = Bestand, Backlog = konkrete Arbeit, Roadmap = Zukunft, ADRs/Law Catalog = kanonische Entscheidungen und Normen, Research = Quellen.
+
+**Verifikation.** Fitness Gate 100 %, Link-/Metadaten-Gate ohne Befund. Die Matrix enthält keine Completion-Prozentzahl mehr.
+
+**Generalisierung.** Eine Feature-Matrix ist nur dann nützlich, wenn sie den Ist-Stand beschreibt. Fortschrittszahlen und Sprintplanung gehören nicht in dieselbe Quelle; sobald eine Matrix beides vermischt, wird sie zur zweiten, driftenden Roadmap.

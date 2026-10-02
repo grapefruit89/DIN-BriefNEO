@@ -1,192 +1,148 @@
 ---
 id: feature-matrix
-title: 'Feature-Matrix (Platinum Master)'
-type: roadmap
+title: 'Feature-Matrix — aktueller Produktumfang'
+type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/meta
   - status/active
-  - type/roadmap
+  - type/reference
 doc_links:
   - spec
+  - BACKLOG
   - ROADMAP
+  - ADR-CSS
+  - ADR-HTML
+  - ADR-JS
   - Salutation-Engine
-code_links: []
-error_patterns:
-  - feature matrix
-  - feature status
-  - platinum master
-  - completion percentage
-  - sprint
-  - logische gruppen
-  - fortschritt
-  - feature progress
+  - ADR-OFFLINE-ADDRESS-INTELLIGENCE
+code_links:
+  - website/index.html
+  - website/js/main.js
+  - website/js/01-draft-manager.js
+  - website/js/02-settings-manager.js
+  - website/js/41-salutation-engine.js
+  - website/js/43-geoapify.js
+  - website/js/45-address-intelligence.js
+  - website/js/46-clipboard-address-parser.js
+  - website/js/51-storage.js
+  - website/js/52-import-export.js
+  - website/js/53-metadata.js
+  - website/css/layout.css
+  - website/css/sidebar.css
+  - website/css/floating.css
+  - website/css/print.css
+depends_on: []
 supersedes:
   - FEATURE-INVENTORY
-depends_on: []
 ---
 
-# Logische Gruppen — Feature-Matrix (Platinum Master)
+# Feature-Matrix — aktueller Produktumfang
 
-> [!IMPORTANT]
-> **Nächster Sprint:** Seitenumbrüche (#58) und DIN-Overlay (#57) sind priorisiert. Das @din-briefneo/core-team überwacht die Compliance.
+> **Rolle dieses Dokuments:** aktuelle Bestandsaufnahme des Produkts. Es ist weder
+> eine Sprintplanung noch ein Fortschrittszähler und enthält keine historischen
+> Platinum-/Issue-Listen. Offene Arbeiten stehen im [[BACKLOG]], größere Produktideen
+> in der [[ROADMAP]].
 
-> [!TIP]
-> Alle Issues sind mit GitHub-Labels versehen. Filtere nach `group:geometry` für Geometrie-spezifische Aufgaben.
+## Statusvokabular
 
-Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Roadmap für die kommenden Platinum-Sessionen.
+| Status | Bedeutung |
+|---|---|
+| **aktiv** | Im aktuellen Produktcode vorhanden und regulär nutzbar |
+| **aktiv · optional** | Vorhanden, aber nur bei bewusster Aktivierung oder mit optionalem Dienst |
+| **geparkt** | Bewusst vorhanden, aber derzeit nicht Teil des Produktumfangs |
+| **offen** | Relevanter, noch nicht implementierter Kandidat; siehe [[BACKLOG]] oder [[ROADMAP]] |
+| **verworfen** | Nicht weiterverfolgen; nicht erneut als neue Produktanforderung vorschlagen |
 
----
+## 1. Brief und DIN-Grundfunktionen
 
-## 🎯 Platinum Sprint Q2 2026 (Current Focus)
+| Funktion | Status | Ist-Stand / kanonische Quelle |
+|---|---|---|
+| DIN-5008-Briefbogen Form A und B | **aktiv** | Umschaltung über native Radio-Gruppe; Maße und Atome in [[IMR-Registry]], Umsetzung in `website/index.html` und `website/css/sheet.css` |
+| A4-Druck und PDF über Browserdruck | **aktiv** | `window.print()` und `@media print`/`@page`; keine externe PDF-Bibliothek, siehe [[ADR-CSS]] |
+| WYSIWYG-Brieffläche | **aktiv** | Semantische `din-*`-Elemente, direkt editierbare Felder, absolute DIN-Geometrie |
+| Absender- und Empfängerblock | **aktiv** | Rücksendezeile, Anschriftfeld und Infoblock mit synchronisierten Absenderdaten |
+| Betreff, Anrede, Brieftext und Grußformel | **aktiv** | Native `contenteditable`-Felder; Rich-Text nur im Briefkern |
+| Anlagen | **aktiv** | Optionaler Bereich über nativen Checkbox-Schalter; editierbare Anlagenliste |
+| Falz- und Lochmarken | **aktiv** | Deklarativ über CSS und IMR-verankerte `data-*`-Geometrie |
+| Einseitige Papiergrenze / Zero-Scroll | **aktiv** | Viewport- und Papierregeln in `layout.css`, `sheet.css` und `print.css`; siehe [[no-scroll-techniques]] |
 
-- [x] Variable-First Form A/B Switching (#55)
+## 2. Eingabe, Anrede und Dokumentzustand
 
-- [x] Refactor Fold Marks to 4mm Standard (#54)
+| Funktion | Status | Ist-Stand / kanonische Quelle |
+|---|---|---|
+| Automatische Anrede | **aktiv** | 80/20-B2B-Engine mit drei Stilklassen, Vornamenerkennung, Adelspartikeln und manuellem Override; siehe [[Salutation-Engine]] |
+| Anrede-/Grußformel-Pärchen | **aktiv** | Stilwahl synchronisiert Anrede und Grußformel; manuelle Bearbeitung wird geschützt |
+| Plaintext-Metadatenfelder | **aktiv** | `contenteditable="plaintext-only"` und `enterkeyhint`; notwendige Zeilen-/Paste-Sonderfälle bleiben in `03-ui-protections.js` |
+| Rich-Text im Briefkern | **aktiv** | Selection/Range-basierte Formatierung mit eigener Draft-Sanitization |
+| Entwurf-Autosave | **aktiv** | Synchroner `localStorage`-Pfad mit Debouncing, Restore und Dirty-Status; siehe [[ADR-DATA-PERSISTENCE]] |
+| Reset-Dialog | **aktiv** | Native `<dialog>`- und Invoker-Command-Unterstützung |
+| Browser-Zoom der Seitenleiste | **aktiv** | Seitenleiste kompensiert `Ctrl`+`+`/`Ctrl`+`-`; das DIN-Blatt bleibt unverändert |
 
-- [x] CSS Capability Matrix & Platinum Glossary (v4.8.0)
+## 3. Adress- und Absenderintelligenz
 
-- [x] 3D-Carousel & Toast Animation System
+| Funktion | Status | Ist-Stand / kanonische Quelle |
+|---|---|---|
+| Offline PLZ → Ort | **aktiv** | Lokaler komprimierter Datensatz und native `DecompressionStream`-Pipeline |
+| Ort → PLZ-Vorschläge | **aktiv** | Lokale Rückwärtssuche im Empfänger-Ortsfeld |
+| Großempfänger-Erkennung | **aktiv** | Lokale Großempfänger-Daten; Straßenzeile wird bei passenden PLZ fachlich berücksichtigt |
+| Ziel-Lock für Straßenrecherche | **aktiv** | PLZ/Ort-Kontext beeinflusst optionale Geoapify-Suche |
+| Lokales Adressbuch | **aktiv** | Ausgewählte Treffer werden lokal gespeichert und wiederverwendet |
+| Optionale Straßen-/Hausnummernsuche | **aktiv · optional** | Geoapify nur mit Nutzer-Key und Netzverbindung; lokale Funktionen bleiben unabhängig |
+| API-Timeouts und Request-Abbruch | **aktiv** | `AbortSignal.timeout()` plus `AbortSignal.any()` in `43-geoapify.js` |
+| Tastaturbedienung der Vorschläge | **aktiv** | Pfeiltasten, Enter, Escape und ARIA-Listbox-Semantik |
+| Adaptive Trefferzonen | **offen** | Mehr als fünf Treffer derzeit noch nicht als reiner Hinweis behandelt; siehe B19 in [[BACKLOG]] |
+| Bidirektionales Formular-Orchestrieren | **offen** | Straße-zuerst/PLZ-zuerst als separates Konzept, derzeit nicht Teil des Kerns |
 
-- [ ] Finalize Address-Autocomplete integration (#42)
+## 4. Import, Export und Zwischenablage
 
-- [ ] Integrate DIN-Referenz-SVG Overlay (#57)
+| Funktion | Status | Ist-Stand / kanonische Quelle |
+|---|---|---|
+| JSON-Export | **aktiv** | Selbstbeschreibendes JSON mit Metadaten; siehe `52-import-export.js` |
+| JSON- und Legacy-Import | **aktiv** | Import akzeptiert `.json` und `.dinletter`; Inhalte werden vor dem Restore bereinigt |
+| Clipboard-Impressum-Parser | **aktiv** | Deterministischer Offline-Parser mit Kandidaten-Popover; siehe `46-clipboard-address-parser.js` |
+| Mehrere Clipboard-Kandidaten | **aktiv** | Nutzer wählt bei mehreren erkannten Anschriften über natives Popover |
+| Briefarchiv mit mehreren Profilen | **geparkt** | Derzeit bewusst kein Produktfeature; `localStorage` bleibt auf einen Entwurf und Einstellungen begrenzt |
 
-- [ ] Implement CMA-Sensor for Page Breaks (#58)
+## 5. Darstellung und Plattform
 
----
+| Funktion | Status | Ist-Stand / kanonische Quelle |
+|---|---|---|
+| Hell-/Dunkel-/Systemdarstellung | **aktiv** | `light-dark()`, `color-scheme` und persistente Auswahl; Papier bleibt druckweiß |
+| Native CSS-Layoutmodernisierung | **aktiv** | `text-fit`, `field-sizing`, Container Queries, `:has()`, `@property`, Anchor Positioning und `@starting-style`; Details in [[ADR-CSS]] |
+| Native Popovers und Top-Layer | **aktiv** | Toasts, Formattoolbar und Adressvorschläge ohne z-index-Stapelung |
+| Native Dialoge und Invoker Commands | **aktiv** | Reset-/Import-Dialoge über `<dialog>` und `commandfor` |
+| Signaturbild | **aktiv** | Lokales Bild, Verschieben, Skalieren und Rotieren; Fachinteraktion bleibt JavaScript |
+| Lokale Schrift | **aktiv · optional** | WOFF2-Upload, FontFace-API und lokale Speicherung |
+| On-Device-KI-Assistent | **aktiv · optional** | Separates Addon mit Graceful Degradation; nur bei vorhandener Browser-API und bewusster Aktivierung |
 
-## 📌 Quick Links
+## 6. Bewusst nicht im aktuellen Umfang
 
-| Bereich                    | Link                                                                                                |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| 🗺️ **Roadmap**             | [GitHub Projects](https://github.com/din-briefneo/din-briefneo/projects)                            |
-| 🐛 **Bug melden**          | [New Issue](https://github.com/din-briefneo/din-briefneo/issues/new?template=bug_report.yml)        |
-| ✨ **Feature vorschlagen** | [New Feature](https://github.com/din-briefneo/din-briefneo/issues/new?template=feature_request.yml) |
-| 📊 **Milestones**          | [Milestones](https://github.com/din-briefneo/din-briefneo/milestones)                               |
+| Thema | Status | Begründung / Verweis |
+|---|---|---|
+| Framework, Bundler, npm-Runtime | **verworfen** | Widerspricht Zero-Dependency und Longevity; [[Immutable-Law-Catalog]] |
+| Service Worker / PWA-Zwang | **verworfen** | Zusätzliche Cache- und Invalidierungswartung ohne Nutzen für die lokale Web-App |
+| Externe PDF-Engine | **verworfen** | Browserdruck ist der kanonische PDF-Weg |
+| `@page`-Seitenzahlen | **geparkt** | Einseitige DIN-Brief-Fläche; Mehrseitigkeit ist nicht entschieden |
+| CSS `::highlight()` | **geparkt** | Der aktuelle Code besitzt keinen DOM-Highlight-Renderer, den diese API ersetzen würde |
+| CSS `subgrid` für Anschrift/Infoblock | **geparkt** | Passt derzeit nicht zur absoluten, IMR-geführten DIN-Geometrie |
+| Vektorsuche / sqlite-vec | **geparkt** | Agenten-Tooling, nicht Produktfunktion; siehe [[sqlite-vec]] |
+| Serienbriefe und Mehrseitenbriefe | **offen** | Produktentscheidung und Geometriekonzept fehlen; nicht nebenbei aus Research ableiten |
 
----
+## Zuständigkeit der anderen Dokumente
 
-## 🚦 Projekt-Status
+- **Aktueller Bestand:** diese Matrix plus der verifizierte Code.
+- **Normen und Verbote:** [[Immutable-Law-Catalog]].
+- **Fachliche Anforderungen:** [[spec]].
+- **Architekturentscheidungen:** thematische ADRs in `docs/10-architecture/`.
+- **Konkrete offene Arbeit:** [[BACKLOG]].
+- **Zukünftige Produktoptionen:** [[ROADMAP]].
+- **Begründungen und historische Kurswechsel:** [[DECISION-LOG]].
+- **Quellen und Experimente:** `research/README.md`.
 
-![Progress](https://img.shields.io/badge/Overall_Progress-76%25-blue)
-![Completed](https://img.shields.io/badge/Completed-26_of_34-green)
-![Open](https://img.shields.io/badge/Open-8-red)
-![Platinum](https://img.shields.io/badge/Platinum_Session-2026-gold)
-
----
-
-## Gruppe 1: Identität & Address Intelligence
-
-| Funktion                | Beschreibung                                    | Status                                                  | Upgrade-Potenzial                           | 🔗 Issue / PR                                                 |
-| ----------------------- | ----------------------------------------------- | ------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
-| **Adress-Autocomplete** | API-Anbindung für schnelle Empfänger-Eingabe    | ✅ Aktiv | Geoapify Premium – aktuell Photon (OSM)     | [#42](https://github.com/din-briefneo/din-briefneo/issues/42) |
-| **Adress-Validierung**  | Prüfung der 6-Zeilen-Regel nach DIN 5008        | ✅ Aktiv | Länder-spezifische PLZ-Validierung          | [#43](https://github.com/din-briefneo/din-briefneo/issues/43) |
-| **Branding-Atome**      | Native Unterstützung für Logo und Wasserzeichen | ✅ Aktiv | Base64-Optimierung – localStorage-Effizienz | [#44](https://github.com/din-briefneo/din-briefneo/issues/44) |
-| **Empfänger-Parser**    | Automatisches Erkennen von Geschlecht/Titeln    | ✅ Aktiv | Firmen-Erkennung – "GmbH/AG" Erkennung      | [#45](https://github.com/din-briefneo/din-briefneo/issues/45) |
-| **Profil-Management**   | Granulare Speicherung von Kontakt- & Bankdaten  | ❌ Nicht implementiert (siehe [[ROADMAP]]) | Mehrere Profile – Privat/Büro Wechsel       | [#46](https://github.com/din-briefneo/din-briefneo/issues/46) |
-| **Rücksendezeile**      | Automatische Generierung der Kleinstzeile       | ✅ Aktiv | Internationales Format – c/o Anpassungen    | [#47](https://github.com/din-briefneo/din-briefneo/issues/47) |
-
----
-
-## Gruppe 2: Inhalts-Engine & WYSIWYG
-
-| Funktion                | Beschreibung                                 | Status                                                  | Upgrade-Potenzial                        | 🔗 Issue / PR                                                 |
-| ----------------------- | -------------------------------------------- | ------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------- |
-| **Ghost-Mirror**        | Echtzeit-Markdown-Vorschau ohne Verschiebung | ✅ Aktiv | Syntax-Highlighting für Markdown-Marker  | [#48](https://github.com/din-briefneo/din-briefneo/issues/48) |
-| **Native Sanitization** | XSS-Schutz via Browser-native Sanitizer API  | ✅ Aktiv | CSP-Header – Trusted Types Integration   | [#49](https://github.com/din-briefneo/din-briefneo/issues/49) |
-| **Plaintext-Only**      | Striktes Plaintext-Handling in allen Feldern | ✅ Aktiv | Paste-Filter mit Whitelist für `<br>`    | [#50](https://github.com/din-briefneo/din-briefneo/issues/50) |
-| **Salutation Engine**   | Automatische Generierung der DIN-Anrede      | ✅ Aktiv | Firmen-Anrede – "Damen und Herren" Logik | [#51](https://github.com/din-briefneo/din-briefneo/issues/51) |
-| **Smart Deadlines**     | Kontextsensitive Termin-Vorschläge           | ✅ Aktiv | Feiertags-API – Regionale Prüfung        | [#52](https://github.com/din-briefneo/din-briefneo/issues/52) |
-| **Styling Buttons**     | Toolbar für Fett, Unterstrichen, Zitate      | ✅ Aktiv | Keyboard Shortcuts – Strg+B/I/U          | [#53](https://github.com/din-briefneo/din-briefneo/issues/53) |
-| **Ghost-Text Anrede**   | Platzhalter via `data-salutation`            | ✅ Aktiv | Individuelle Vorschläge pro Kontakt-Typ  | [#71](https://github.com/din-briefneo/din-briefneo/issues/71) |
-
----
-
-## Gruppe 3: Geometrie & Compliance
-
-| Funktion               | Beschreibung                                   | Status                                                  | Upgrade-Potenzial                     | 🔗 Issue / PR                                                 |
-| ---------------------- | ---------------------------------------------- | ------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
-| **Faltmarken**         | Präzise Positionierung nach DIN 5008           | ✅ Aktiv | Toggle für Hilfslinien in der Sidebar | [#54](https://github.com/din-briefneo/din-briefneo/issues/54) |
-| **Form A/B Switch**    | Mechanische Umschaltung der Kopfhöhe via CSS   | ✅ Aktiv | Persistenz via LocalStorage           | [#55](https://github.com/din-briefneo/din-briefneo/issues/55) |
-| **IMR 4.0 Atome**      | Alle 45 DIN-Felder als eigenständige Objekte   | ✅ Aktiv | IMR-Catalog Generator für Agenten     | [#56](https://github.com/din-briefneo/din-briefneo/issues/56) |
-| **Layout-Guides**      | Visuelle Hilfslinien zur Ausrichtungskontrolle | ✅ Aktiv | DIN-Referenz-SVG Overlay              | [#57](https://github.com/din-briefneo/din-briefneo/issues/57) |
-| **3D-Carousel**        | Native CSS-Variablen Transformation           | ✅ Aktiv | Hardware-Beschleunigung optimiert     | [#72](https://github.com/din-briefneo/din-briefneo/issues/72) |
-| **Form C Layout**      | Flexbox-basiertes gestapeltes Layout           | ✅ Aktiv | Responsive Breakpoints für Mobile     | [#73](https://github.com/din-briefneo/din-briefneo/issues/73) |
-| **Footer Auto-Hide**   | Leere Spalten via CSS ausblenden               | ✅ Aktiv | Zero-Layout-Shift Optimierung         | [#74](https://github.com/din-briefneo/din-briefneo/issues/74) |
-| **Seitenumbrüche**     | Native Unterstützung für mehrseitige Briefe    | ⏳ Offen | Duplex-Erkennung – Leerseiten-Logik   | [#58](https://github.com/din-briefneo/din-briefneo/issues/58) |
-
----
-
-## Gruppe 4: Infrastruktur & Daten-IO
-
-| Funktion            | Beschreibung                               | Status                                                  | Upgrade-Potenzial                          | 🔗 Issue / PR                                                 |
-| ------------------- | ------------------------------------------ | ------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
-| **Flight Recorder** | Telemetrie und Notfall-Wiederherstellung   | ✅ Aktiv | Log-Export als JSON für Bug-Reports        | [#59](https://github.com/din-briefneo/din-briefneo/issues/59) |
-| **JSON Data-IO**    | Import/Export des kompletten Briefzustands | ✅ Aktiv | Schema-Validator gegen IMR 4.0             | [#60](https://github.com/din-briefneo/din-briefneo/issues/60) |
-| **Print CSS**       | Vektorscharfer PDF-Export via Print-Styles | ✅ Aktiv | PDF-Metadaten – Titel/Autor im PDF         | [#61](https://github.com/din-briefneo/din-briefneo/issues/61) |
-| **Offline-Betrieb** | Voll netzunabhängig (lokaler Webserver via `start.bat`) | ✅ Aktiv | Kein Service Worker (A37: Cache-Invalidierung = dauerhafte Wartungslast); `file://` kein Ziel, siehe [[ADR-RUNTIME-CONTEXT]] | [#62](https://github.com/din-briefneo/din-briefneo/issues/62) |
-| **SSoT Constants**  | Zentrale Geometrie-Definition              | ✅ Aktiv | Typed CSS Properties (`@property`)         | [#63](https://github.com/din-briefneo/din-briefneo/issues/63) |
-| **Toast-System**    | Pure-CSS Benachrichtigungssystem           | ✅ Aktiv | `@starting-style` für flüssige Entries   | [#75](https://github.com/din-briefneo/din-briefneo/issues/75) |
-
----
-
-## 🔗 Dokumenten-Navigation
-
-| Issue | Dokument | Zweck |
-|-------|----------|-------|
-| [#1](https://github.com/grapefruit89/DIN-BriefNEO/issues/1) | IMR 4.0 Registry | Alle 45+ DIN-Tags |
-| [#2](https://github.com/grapefruit89/DIN-BriefNEO/issues/2) | Architecture Compliance | Technologie-Leitplanken |
-| [#3](https://github.com/grapefruit89/DIN-BriefNEO/issues/3) | Feature Matrix | Projekt-Fortschritt |
-| [#4](https://github.com/grapefruit89/DIN-BriefNEO/issues/4) | Salutation Engine | Logik-Dokumentation |
-| [#5](https://github.com/grapefruit89/DIN-BriefNEO/issues/5) | CSS Glossar | CSS-Features Referenz |
-
-**Gesamtversion:** 4.8 | **Letzte Sync:** 2026-04-01
-
----
-
-## 🔗 Verwandte Dokumente (Dataview)
-
-```dataview
-TABLE 
-  version AS "Version",
-  status AS "Status",
-  date_updated AS "Aktualisiert"
-FROM ""
-WHERE contains(related, this.file.name)
-SORT version DESC
-```
-
----
-
-## Gruppe 5: Zukunfts-Features (Roadmap 2026/2027)
-
-| Funktion            | Beschreibung                               | Status     | Technologie                   | 🔗 Issue / PR                                                 | Priorität                                                |
-| ------------------- | ------------------------------------------ | ---------- | ----------------------------- | ------------------------------------------------------------- | -------------------------------------------------------- |
-| **Brief-Archiv**    | Archiv hunderter Briefe — **IndexedDB ist per [[Immutable-Law-Catalog]] A34 als Produktspeicher verboten** | 🔴 Geplant (blockiert durch A34) | Speicherstrategie offen (localStorage-Grenzen prüfen) | [#64](https://github.com/din-briefneo/din-briefneo/issues/64) | ![High](https://img.shields.io/badge/🔴-Hoch-red)        |
-| **Serienbrief**     | CSV-Import → Batch-Generierung             | 🔴 Geplant | CSV-Parser + Batch-Logic      | [#65](https://github.com/din-briefneo/din-briefneo/issues/65) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
-| **Poststempel**     | Internetmarke via Deutsche Post API        | 🔴 Geplant | Deutsche Post Direkt API      | [#66](https://github.com/din-briefneo/din-briefneo/issues/66) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
-| **Fristen-Rechner** | Automatische Berechnung nach BGB           | 🟡 Analyse | Temporal API + Feiertags-API  | [#67](https://github.com/din-briefneo/din-briefneo/issues/67) | ![Medium](https://img.shields.io/badge/🟡-Mittel-yellow) |
-| **Lokale KI**       | Grammatik- und Stilprüfung offline         | 🔴 Geplant | Gemini Nano (Chrome Built-in) | [#70](https://github.com/din-briefneo/din-briefneo/issues/70) | ![Low](https://img.shields.io/badge/🟢-Niedrig-green)    |
-
----
-
-## 📊 Platinum Fortschritts-Matrix
-
-| Gruppe                             | Gesamt | ✅ Erledigt | ⏳ Offen | Fortschritt                           | Status                                                             |
-| ---------------------------------- | ------ | ----------- | -------- | ------------------------------------- | ------------------------------------------------------------------ |
-| **Identität & Address Intelligence** | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
-| **Inhalts-Engine & WYSIWYG**       | 7      | 7           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
-| **Geometrie & Compliance**         | 8      | 7           | 1        | ![87%](https://progress-bar.dev/87)   | ![In Progress](https://img.shields.io/badge/In_Progress-⚡-yellow) |
-| **Infrastruktur & Daten-IO**       | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
-| **Zukunfts-Features**              | 7      | 0           | 7        | ![0%](https://progress-bar.dev/0)     | ![Roadmap](https://img.shields.io/badge/Roadmap-📅-blue)           |
-| **GESAMT**                         | **34** | **26**      | **8**    | ![76%](https://progress-bar.dev/76)   | —                                                                  |
-
----
-
-**Status:** ACTIVE  
-**Version:** Platinum Master v4.8  
-**Maintainer:** @grapefruit89
+Diese Matrix enthält bewusst keine Prozentzahl. Ein Prozentwert vermischt fertige
+Kernfunktionen, optionale Addons und bewusst nicht verfolgte Ideen und war deshalb
+keine belastbare Information.

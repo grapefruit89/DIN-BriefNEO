@@ -94,7 +94,7 @@ supersedes:
 | Optionale Straßen-/Hausnummernsuche | **aktiv · optional** | Geoapify nur mit Nutzer-Key und Netzverbindung; lokale Funktionen bleiben unabhängig |
 | API-Timeouts und Request-Abbruch | **aktiv** | `AbortSignal.timeout()` plus `AbortSignal.any()` in `43-geoapify.js` |
 | Tastaturbedienung der Vorschläge | **aktiv** | Pfeiltasten, Enter, Escape und ARIA-Listbox-Semantik |
-| Adaptive Trefferzonen | **offen** | Mehr als fünf Treffer derzeit noch nicht als reiner Hinweis behandelt; siehe B19 in [[BACKLOG]] |
+| Adaptive Trefferzonen | **aktiv** | 3-Zonen-Logik (>5 Eingrenzungshinweis, 2–5 Trefferliste, genau 1 Zero-Click) in `43-geoapify.js`; siehe B19 in [[BACKLOG]] |
 | Bidirektionales Formular-Orchestrieren | **offen** | Straße-zuerst/PLZ-zuerst als separates Konzept, derzeit nicht Teil des Kerns |
 
 ## 4. Import, Export und Zwischenablage

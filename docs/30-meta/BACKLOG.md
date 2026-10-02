@@ -98,11 +98,16 @@ statt Handarbeit, im Sinne von A49.
 
 ## 🟢 Priorität 4 — Hygiene
 
-### B10 · `research/` auslagern · **S** · ⭐⭐
-1,1 MB, 86 getrackte Dateien, 20 Python-Skripte — abgeschlossene Laborarbeit, deren Ergebnis als
-`.json.gz` in `website/data/` liegt. Grösster Ordner im Repo.
+### B10 · `research/` **statuskennzeichnen** (NICHT auslagern) · **M** · ⭐⭐⭐
+**Neu gefasst 2026-10-02 nach Inventur** — siehe `[[research-inventar-2026-10-02]]`.
+Die alte Fassung („1,1 MB auslagern") war falsch gestellt: 476 KB davon sind die beiden
+DIN-5008-Normgeometrie-SVGs, und der Ordner enthält **nicht umgesetzte** UX-Spezifikationen
+(→ B18, B19). Ungelesenes Auslagern hätte dieses Wissen vernichtet.
+**Stattdessen:** Jede der 39 Markdown-Dateien bekommt im Frontmatter einen Status
+(`umgesetzt` / `offen` / `verfallen`). Erst danach entscheiden, ob Erledigtes nach
+`docs/90-archive/` wandert. Platz ist kein Problem — Ordnung ist das Problem.
 **Achtung:** `41-salutation-engine.js` und `ADR-OFFLINE-ADDRESS-INTELLIGENCE` verweisen auf die
-Provenienz der Datensätze — vor dem Auslagern Referenzen prüfen (Lehre aus 2026-09-30:
+Provenienz der Datensätze — vor jedem Verschieben Referenzen prüfen (Lehre aus 2026-09-30:
 Markdown-Links sieht das Wikilink-Gate nicht).
 
 ### B11 · `_`-Prefix → `#private` vereinheitlichen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
@@ -150,4 +155,38 @@ nicht per Textmuster prüfen. Machbar wären u. a.: **A42** (doppelte `id`) und
 (Produkt-Token ohne `:root`-Definition) und **A59** (Theme-Variablen auf dem
 Blatt) per CSS-Variablen-Index; **A23/A21/A22** sind bereits abgedeckt bzw.
 entfallen. Erst nach B10. Abdeckung aktuell 21/35, siehe `tools/lawcoverage.js`.
+
+### B18 · Adress-Dropdown mit der Tastatur bedienbar machen · **M** · ⭐⭐⭐⭐⭐
+**Härtester Fund der Research-Inventur und unabhängig von ihr gültig.**
+`43-geoapify.js` → `renderSuggestions()` hängt ausschliesslich einen `click`-Listener an
+jedes `<li>`. Kein `keydown`, kein `ArrowDown`/`ArrowUp`, kein `Enter`, kein
+`role="listbox"`/`role="option"`, kein `aria-activedescendant`. Wer die Maus nicht
+benutzt, kann keine Adresse übernehmen. Das wiegt schwerer als jedes offene CSS-Feature.
+Umsetzung vor B19, weil B19 darauf aufbaut.
+
+### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐
+Quelle: `research/roadmap/ADAPTIVE_DROPDOWN_THRESHOLD_SPEC.md` und
+`ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md` — ausgearbeitet, aber nie umgesetzt.
+Heute: `renderSuggestions(combined.slice(0, 6), query)` zeigt stur „die ersten 6" —
+genau das, was die Spezifikation als „willkürliche Auswahl" und „flackerndes
+UI-Rauschen" verwirft. Soll: > 5 Treffer → kein Dropdown, nur Zähler; 2–5 → Liste;
+genau 1 → geräuschlose Übernahme. Danach optional `SMART_FORM_BIDIRECTIONAL_ORCHESTRATION`.
+
+### B20 · `fetch()`-Zeitlimits in `43-geoapify.js` · **S** · ⭐⭐⭐⭐
+Kein einziger `fetch()` hat ein Zeitlimit. Der `AbortController` (Z. 152 f.) ersetzt nur
+eine ältere Anfrage durch eine neuere; `validateKeyWithHeartbeat()` (Z. 72) und der
+PLZ-Abruf (Z. 329) laufen ganz ohne Signal. Hängt das Netz, hängt die UI unbegrenzt.
+Lösung: `AbortSignal.timeout()`, kombiniert via `AbortSignal.any()` mit dem bestehenden
+Controller. Klein, risikoarm, sofort spürbar.
+**Nicht anfassen:** der H2-Guard (Key nur bei 401/403 löschen, nie bei Timeout/5xx).
+
+### B21 · Offene CSS-Features bewerten: `@page`-Seitenzahlen, `::highlight()`, `subgrid` · **M** · ⭐⭐
+Aus den 14 Research-Features sind 9 umgesetzt. Offen und noch sinnvoll: **`@page`
+Margin Boxes** mit `counter(page)` (echte „Seite X von Y" im Druck — zuerst klären, ob
+mehrseitige Briefe überhaupt unterstützt werden sollen), **`::highlight()`** zum
+Hervorheben des Suchtreffers im Dropdown ohne DOM-Zerlegung, **`subgrid`** für die
+Zeilenparallelität von Anschriftfeld und Infoblock.
+**Verfallen, bewusst NICHT nachziehen:** `text-box-trim` (die versprochenen „15+ `calc()`-Hacks"
+sind auf 3 geschrumpft, Rest gehört zu B7) und `font-display` (die Schrift wird über die
+FontFace-API in `boot-theme.js` geladen, ein `@font-face`-Deskriptor wirkt dort nicht).
 

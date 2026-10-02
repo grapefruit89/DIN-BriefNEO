@@ -207,14 +207,17 @@
 #format-toolbar button b { font-weight: 800; }
 #format-toolbar button u { text-underline-offset: 2px; }
 
-#btn-ai-rewrite {
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
+#format-toolbar #btn-ai-rewrite {
+  font-size: 0.75rem;
+  font-weight: 600;
   gap: 4px;
-  color: var(--accent-color) !important;
+  color: var(--accent-color);
 }
-#btn-ai-rewrite:hover {
-  background: var(--accent-glow) !important;
+#format-toolbar #btn-ai-rewrite:hover {
+  background: var(--accent-glow);
+}
+#format-toolbar button.hidden {
+  display: none;
 }
 
 #anschrift-vorschlaege {
@@ -378,70 +381,7 @@ aside select {
   -webkit-user-select: text;
   user-select: text;
 }
-/* M1 (Grok-Re-Review): Labels/Buttons haben jetzt ECHTE Text-Nodes (AT-
- * und Select-to-Copy-tauglich) — keine content: attr(data-ui)-Regeln mehr.
- * Die dynamischen Zustands-Strings (data-erscheinungsbild / data-schrift-modus /
- * schrift-status-label) bleiben bewusst im CSS: JS setzt nur den Zustand,
- * die Buttons tragen aria-label + title. */
 
-/* Zustands-Strings im CSS statt in JS-Dictionaries — JS setzt nur den Zustand
- * (data-erscheinungsbild / data-schrift-modus / body.schrift-eigene-aktiv). */
-#btn-theme-toggle[data-erscheinungsbild="auto"]::before { content: "🌓 Auto"; }
-#btn-theme-toggle[data-erscheinungsbild="light"]::before { content: "☀️ Hell"; }
-#btn-theme-toggle[data-erscheinungsbild="dark"]::before { content: "🌙 Dunkel"; }
-#btn-schrift-aktion[data-schrift-modus="upload"]::before { content: "📤 Schrift hochladen"; }
-#btn-schrift-aktion[data-schrift-modus="reset"]::before { content: "🗑️ Schrift zurücksetzen"; }
-#schrift-status-label::before { content: "Aktiv: System-UI Standardschrift"; }
-body.schrift-eigene-aktiv #schrift-status-label::before { content: "Aktiv: Eigene WOFF2 Schrift"; }
-aside .seitenleiste-checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-:root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) din-postvermerk,
-:root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) #postvermerk {
-  display: block !important;
-  flex-direction: unset;
-  visibility: visible !important;
-  opacity: 1;
-  color: var(--blatt-text);
-}
-
-#seitenleiste-postvermerk-select {
-  appearance: base-select;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  white-space: nowrap;
-}
-#seitenleiste-postvermerk-select::picker-icon {
-  margin-inline-start: auto;
-  flex: 0 0 auto;
-  align-self: center;
-}
-#seitenleiste-postvermerk-select {
-  display: flex;
-}
-
-din-rucksendezeile,
-din-empfaenger-firma,
-din-empfaenger-strasse,
-din-empfaenger-ort,
-din-absender-strasse,
-din-absender-ort,
-din-absender-tel,
-din-absender-mail,
-din-betreff,
-din-anrede,
-din-grussformel,
-din-unterschrift,
-din-falz-oben,
-din-falz-unten,
-din-lochmarke {
-  display: block;
-}
 
 /* Ctrl+F-Treffer (::search-text, Chrome 144+, empirisch 2026-09-12): Find-in-Page
  * muss gegen das OKLCH-Papier und span.brief-kommentar kontrastieren — der

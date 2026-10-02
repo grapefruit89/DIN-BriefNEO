@@ -36,13 +36,19 @@ din-postvermerk, din-anlagen {
 }
 
 :root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) din-postvermerk {
-  display: flex;
-  flex-direction: column-reverse;
+  display: block;
+  opacity: 1;
+  color: var(--blatt-text);
 }
 
 #seitenleiste-postvermerk-select {
-  display: block;
+  display: flex;
   appearance: base-select;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
   width: 100%;
   padding: 8px 10px;
   background: var(--segment-bg);
@@ -54,7 +60,6 @@ din-postvermerk, din-anlagen {
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 #seitenleiste-postvermerk-select:has(option:checked:not([value=""])) {
@@ -71,6 +76,9 @@ din-postvermerk, din-anlagen {
   box-shadow: var(--shadow-lg);
 }
 #seitenleiste-postvermerk-select::picker-icon {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  align-self: center;
   color: var(--text-muted);
 }
 .seitenleiste-zusatz-row {
@@ -168,7 +176,7 @@ din-anlagen {
 
 
 /* Accessibility / Visibility */
-.hidden { display: none !important; }
+:is([hidden], .hidden) { display: none; }
 .sr-only {
   position: absolute;
   width: 1px;

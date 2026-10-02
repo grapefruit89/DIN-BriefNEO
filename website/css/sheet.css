@@ -254,3 +254,23 @@ body:has(#btn-form-a:checked) din-a4 {
     column-rule-inset: 2px;
   }
 }
+
+/* Custom Elements Block-Display (DIN-Normelemente) */
+din-rucksendezeile,
+din-empfaenger-firma,
+din-empfaenger-strasse,
+din-empfaenger-ort,
+din-absender-strasse,
+din-absender-ort,
+din-absender-tel,
+din-absender-mail,
+din-betreff,
+din-anrede,
+din-grussformel,
+din-unterschrift,
+din-falz-oben,
+din-falz-unten,
+din-lochmarke {
+  display: block;
+}
+

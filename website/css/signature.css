@@ -6,7 +6,7 @@
 /* --- SIGNATURE UI STATES --- */
 
 
-#unterschriftsbild-vorschau[src=""] { display: none !important; }
+#unterschriftsbild-vorschau[src=""] { display: none; }
 
 /* Container is a zero-size overlay anchored at top-left of din-a4.
    Der unterschriftsbild-rahmen positioniert das Bild per translate() frei ueber dem gesamten Blatt. */
@@ -22,9 +22,9 @@
   display: none;
 }
 body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #unterschriftsbild-container { display: block; }
-#btn-unterschriftsbild-reset { display: none !important; }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-reset { display: flex !important; }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-waehlen { display: none !important; }
+#btn-unterschriftsbild-reset { display: none; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-reset { display: flex; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-waehlen { display: none; }
 
 /* --- WYSIWYG SIGNATURE EDITOR --- */
 .unterschriftsbild-rahmen {

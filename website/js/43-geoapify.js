@@ -94,10 +94,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
    * @returns {AddressEntry[]}
    */
   function getLocalAddressBook() {
-    try {
-      const saved = localStorage.getItem('din_local_addresses');
-      return saved ? JSON.parse(saved) : [];
-    } catch(e) { return []; }
+    return /** @type {AddressEntry[]} */ (StorageManager.loadLocalAddresses());
   }
 
   /**
@@ -109,7 +106,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     if (!book.find(entry => entry.formatted === item.formatted)) {
       book.unshift(item); // Add to top
       if (book.length > 50) book.pop(); // Keep max 50
-      localStorage.setItem('din_local_addresses', JSON.stringify(book));
+      StorageManager.saveLocalAddresses(book);
     }
   }
 
@@ -196,11 +193,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     let fetchOptions = {
       signal: AbortSignal.any([activeAbortController.signal, AbortSignal.timeout(8000)]),
     };
-    let coords = null;
-    try {
-      const savedCoords = localStorage.getItem('din_sender_coords');
-      coords = savedCoords ? JSON.parse(savedCoords) : null;
-    } catch (e) {}
+    const coords = StorageManager.loadSenderCoords();
 
     /* Target Lock (Audit H2): Geoapify kennt keinen `postcode:`-Filter-Typ
      * (apidocs: filter-Typen sind countrycode/type/boundary/place) und
@@ -383,7 +376,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
               if (data && data.results && data.results.length > 0) {
                 const result = data.results[0];
                 if (result.lat && result.lon) {
-                  localStorage.setItem('din_sender_coords', JSON.stringify({ lat: result.lat, lon: result.lon }));
+                  StorageManager.saveSenderCoords({ lat: result.lat, lon: result.lon });
                 }
               }
             }).catch(() => {});

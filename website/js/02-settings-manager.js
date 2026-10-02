@@ -197,7 +197,7 @@ export class SettingsManager {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
         if (btn.dataset.schriftModus === 'reset') {
-          localStorage.removeItem("din_custom_font");
+          StorageManager.removeCustomFont();
           if (this.activeFontFace) {
             document.fonts.delete(this.activeFontFace);
             this.activeFontFace = null;

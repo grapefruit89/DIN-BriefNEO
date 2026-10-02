@@ -108,7 +108,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
     }
     let draft;
     try {
-      draft = JSON.parse(localStorage.getItem('din_draft_current') || '{}');
+      draft = StorageManager.loadDraft('current') || {};
     } catch (e) {
       onToast('❌ Export fehlgeschlagen: lokaler Draft nicht lesbar.', 'error');
       return;
@@ -156,7 +156,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
       return;
     }
     try {
-      localStorage.setItem('din_draft_current', JSON.stringify(pendingImport.draft));
+      StorageManager.saveDraft('current', pendingImport.draft);
       StorageManager.migrate();
       pendingImport = null;
       /* Kein Success-Toast vor reload (Grok Bug 1): würde nie painten UND

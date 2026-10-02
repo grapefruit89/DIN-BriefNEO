@@ -195,5 +195,77 @@ export const StorageManager = {
       console.error("[Storage] Fehler beim Laden des Geoapify Keys:", e);
       return "";
     }
+  },
+
+  /**
+   * Remove custom font from LocalStorage
+   * @returns {boolean}
+   */
+  removeCustomFont() {
+    try {
+      localStorage.removeItem("din_custom_font");
+      return true;
+    } catch (e) {
+      console.error("[Storage] Fehler beim Entfernen der Schriftart:", e);
+      return false;
+    }
+  },
+
+  /**
+   * Load local address book
+   * @returns {Array<any>}
+   */
+  loadLocalAddresses() {
+    try {
+      const saved = localStorage.getItem("din_local_addresses");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("[Storage] Fehler beim Laden des Adressbuchs:", e);
+      return [];
+    }
+  },
+
+  /**
+   * Save local address book
+   * @param {Array<any>} book
+   * @returns {boolean}
+   */
+  saveLocalAddresses(book) {
+    try {
+      localStorage.setItem("din_local_addresses", JSON.stringify(book));
+      return true;
+    } catch (e) {
+      console.error("[Storage] Fehler beim Speichern des Adressbuchs:", e);
+      return false;
+    }
+  },
+
+  /**
+   * Load sender coordinates for proximity bias
+   * @returns {{ lat: number, lon: number } | null}
+   */
+  loadSenderCoords() {
+    try {
+      const saved = localStorage.getItem("din_sender_coords");
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("[Storage] Fehler beim Laden der Koordinaten:", e);
+      return null;
+    }
+  },
+
+  /**
+   * Save sender coordinates for proximity bias
+   * @param {{ lat: number, lon: number }} coords
+   * @returns {boolean}
+   */
+  saveSenderCoords(coords) {
+    try {
+      localStorage.setItem("din_sender_coords", JSON.stringify(coords));
+      return true;
+    } catch (e) {
+      console.error("[Storage] Fehler beim Speichern der Koordinaten:", e);
+      return false;
+    }
   }
 };

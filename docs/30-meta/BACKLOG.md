@@ -89,11 +89,10 @@ hinzukommen; vorerst wäre er zusätzliche Abstraktion ohne weiteren Nutzerwert.
 Das Projekt nutzt `@layer` — Layers lösen Spezifitätskonflikte per Design. Die 18 in
 `print.css` bleiben (Druck muss gewinnen).
 
-### B9 · Caret-Utilities zusammenführen + `TreeWalker` · **M** · ⭐⭐
-15 Stellen mit `createRange`/`getSelection`/`nodeType === 3` in `01`, `03`, `45`.
-Der manuelle rekursive Node-Walk in `#setCaretPosition` (~40 Z.) wird mit
-`document.createTreeWalker(elem, NodeFilter.SHOW_TEXT)` zu ~12 Zeilen — native API
-statt Handarbeit, im Sinne von A49.
+### B9 · Caret-Utilities zusammenführen + `TreeWalker` · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
+Die gemeinsame native Selection-/Caret-Logik liegt in `website/js/selection-utils.js`.
+DraftManager und Offline-Adressintelligenz verwenden jetzt denselben Utility-Pfad;
+der manuelle rekursive Node-Walk wurde durch `TreeWalker` ersetzt.
 
 ---
 
@@ -144,9 +143,9 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 2. ~~**B3**, **B4**, **B16**~~ ✅ erledigt 2026-10-02 (Kanonisierung: eine Quelle, ein Begriff)
 3. ~~**B5**~~ ✅ erledigt 2026-10-02
 4. ~~**B12, B13, B14, B11**~~ ✅ erledigt 2026-10-02
-5. **B10** — `research/` klassifizieren, nicht pauschal auslagern
-6. **B6** — Full Mode, braucht eigene Sitzung
-7. **B8, B9, B15**
+5. ~~**B10**~~ ✅ Research klassifiziert 2026-10-02 (`research/STATUS.md`)
+6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
+7. **B8, B15**
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
@@ -175,20 +174,13 @@ Orchestrieren und ein expliziter Nutzer-Schalter für Zero-Click müssen separat
 werden.
 
 ### B20 · `fetch()`-Zeitlimits in `43-geoapify.js` · **S** · ⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
-Kein einziger `fetch()` hat ein Zeitlimit. Der `AbortController` (Z. 152 f.) ersetzt nur
-eine ältere Anfrage durch eine neuere; `validateKeyWithHeartbeat()` (Z. 72) und der
-PLZ-Abruf (Z. 329) laufen ganz ohne Signal. Hängt das Netz, hängt die UI unbegrenzt.
-Lösung: `AbortSignal.timeout()`, kombiniert via `AbortSignal.any()` mit dem bestehenden
-Controller. Klein, risikoarm, sofort spürbar.
-**Nicht anfassen:** der H2-Guard (Key nur bei 401/403 löschen, nie bei Timeout/5xx).
+Alle drei Geoapify-Anfragen haben jetzt ein natives 8-Sekunden-Limit über
+`AbortSignal.timeout()`; die laufende Suche kombiniert es mit dem bestehenden
+`AbortController` über `AbortSignal.any()`. Der H2-Guard (Key nur bei 401/403 löschen)
+bleibt unverändert.
 
 ### B21 · Offene CSS-Features bewerten: `@page`-Seitenzahlen, `::highlight()`, `subgrid` · **M** · ⭐⭐ · ✅ BEWERTET 2026-10-02
-Aus den 14 Research-Features sind 9 umgesetzt. Offen und noch sinnvoll: **`@page`
-Margin Boxes** mit `counter(page)` (echte „Seite X von Y" im Druck — zuerst klären, ob
-mehrseitige Briefe überhaupt unterstützt werden sollen), **`::highlight()`** zum
-Hervorheben des Suchtreffers im Dropdown ohne DOM-Zerlegung, **`subgrid`** für die
-Zeilenparallelität von Anschriftfeld und Infoblock.
-**Verfallen, bewusst NICHT nachziehen:** `text-box-trim` (die versprochenen „15+ `calc()`-Hacks"
-sind auf 3 geschrumpft, Rest gehört zu B7) und `font-display` (die Schrift wird über die
-FontFace-API in `boot-theme.js` geladen, ein `@font-face`-Deskriptor wirkt dort nicht).
-
+Die drei Kandidaten ersetzen im aktuellen Ein-Seiten-/absoluten DIN-Layout keinen
+bestehenden JavaScript-Pfad sicher. `@page`-Seitenzahlen warten auf die
+Mehrseiten-Spec; `::highlight()` hat keinen vorhandenen DOM-Highlight-Renderer;
+`subgrid` würde die IMR-Geometrie unnötig riskant umbauen. Keine Produktionsänderung.

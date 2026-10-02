@@ -7,13 +7,14 @@
     {
       "id": "P1",
       "catalog_ref": [
+        "A61",
         "H11"
       ],
-      "class": "preferred",
-      "severity": "high",
+      "class": "hard_ban",
+      "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "setHTMLUnsafe() only when unfiltered HTML is an explicit requirement. Default: setHTML() or textContent. Catalog H11.",
+      "description": "setHTMLUnsafe() ist Catalog HARD BAN A61 (XSS-Pfad), nicht blosse Praeferenz. Ersatz: setHTML() oder textContent. H11 bleibt als Stilbezug.",
       "pattern": "setHTMLUnsafe",
       "file_patterns": [
         "*.js"
@@ -30,7 +31,7 @@
       "severity": "info",
       "check": "review",
       "category": "network",
-      "description": "CDN/asset loading is Catalog HARD BAN A38. Optional product APIs are not CDNs. Allowlist: api.geoapify.com, api.zippopotam.us.",
+      "description": "Hinweis, kein Gate: A38 wird ladend von tools/isolation.js erzwungen und per CDN-Hostliste von B5. Diese Sonde dokumentiert nur die fetch()-Allowlist (api.geoapify.com, photon.komoot.io, api.zippopotam.us), die KEIN Verstoss ist.",
       "pattern": "",
       "file_patterns": [
         "*.js",
@@ -79,10 +80,202 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Manual swipe-drag tracking or pointercapture for toasts is Catalog HARD BAN A56. Toast animations and dismissals are declarative via Popover API and @starting-style.",
-      "pattern": "--swipe-x|setPointerCapture.*toast",
+      "description": "Manuelle Pointer-Drag-Schleifen (setPointerCapture, --swipe-x) fuer Swipe-to-Dismiss von Toasts sind Catalog HARD BAN A56; Entry/Exit laufen deklarativ ueber Popover API + @starting-style. BEWUSST auf die Toast-Dateien begrenzt: A56 gilt laut Katalog nur 'bei Toasts' - der Rotier-/Skaliergriff in 42-signature.js nutzt setPointerCapture legitim.",
+      "pattern": "--swipe-x\\s*:|var\\(\\s*--swipe-x|\\bsetPointerCapture\\s*\\(",
       "file_patterns": [
-        "website/js/*.js",
+        "website/js/32-toast.js",
+        "website/css/floating.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P6",
+      "catalog_ref": [
+        "A51"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Frontend-Frameworks und Bundler sind Catalog HARD BAN A51. Diese App ist Vanilla-W3C ohne Build-Schritt.",
+      "pattern": "\\bfrom\\s+['\\\"](react|react-dom|vue|svelte|@angular/[\\w-]+|jquery)['\\\"]|\\bReact\\.createElement\\s*\\(|\\bnew\\s+Vue\\s*\\(",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P7",
+      "catalog_ref": [
+        "A53"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Utility-Bibliotheken (Lodash, Underscore) sind Catalog HARD BAN A53. Die Plattform kann das selbst.",
+      "pattern": "\\bfrom\\s+['\\\"](lodash|lodash-es|underscore)['\\\"]|\\b_\\.(map|filter|reduce|debounce|throttle|merge|cloneDeep)\\s*\\(",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P8",
+      "catalog_ref": [
+        "A54"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "JS-Animationsbibliotheken sind Catalog HARD BAN A54. Ersatz: CSS-Transitions/@starting-style.",
+      "pattern": "\\bgsap\\s*\\.|\\bfrom\\s+['\\\"](gsap|animejs|motion|@motionone/[\\w-]+)['\\\"]|\\banime\\s*\\(\\s*\\{",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P9",
+      "catalog_ref": [
+        "A37"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Service Worker sind Catalog HARD BAN A37. Die App laeuft bewusst ohne Offline-Schicht.",
+      "pattern": "navigator\\s*\\.\\s*serviceWorker|\\bserviceWorker\\s*\\.\\s*register\\s*\\(",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P10",
+      "catalog_ref": [
+        "A34"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "IndexedDB als Produktspeicher ist Catalog HARD BAN A34. Einziger Produktspeicher ist localStorage.",
+      "pattern": "\\bindexedDB\\s*\\.\\s*open\\s*\\(|window\\.indexedDB|\\bnew\\s+IDBRequest\\b",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P11",
+      "catalog_ref": [
+        "A35"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "OPFS als Produktspeicher ist Catalog HARD BAN A35.",
+      "pattern": "navigator\\s*\\.\\s*storage\\s*\\.\\s*getDirectory\\s*\\(",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P12",
+      "catalog_ref": [
+        "A36"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "File System Access API als Pflicht-Speicher ist Catalog HARD BAN A36. Als optionaler Export waere sie zulaessig - diese Sonde markiert den Pfad zur Pruefung.",
+      "pattern": "\\bshowSaveFilePicker\\s*\\(|\\bshowOpenFilePicker\\s*\\(|\\bshowDirectoryPicker\\s*\\(",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P13",
+      "catalog_ref": [
+        "A50"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Temporal.Now ohne explizite IANA-Zeitzone ist Catalog HARD BAN A50. Pflicht: Temporal.Now.zonedDateTimeISO('Europe/Berlin').",
+      "pattern": "Temporal\\.Now\\.(plainDateISO|zonedDateTimeISO|instant)\\s*\\(\\s*\\)",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P14",
+      "catalog_ref": [
+        "A25"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Inline-style fuer Farbe/Layout ist Catalog HARD BAN A25. Ausnahme laut Katalog: kurzlebige Koordinaten - die sind hier nicht gemeint.",
+      "pattern": "\\.style\\s*\\.\\s*(color|background|backgroundColor|display)\\s*=",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P15",
+      "catalog_ref": [
+        "A23"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "@import in CSS-Dateien ist Catalog HARD BAN A23 (Render-Blocking, Kaskaden-Chaos). Ersatz: <link> + @layer.",
+      "pattern": "^\\s*@import\\b",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P16",
+      "catalog_ref": [
+        "A26"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "filter: invert(1) fuer Dark Mode ist Catalog HARD BAN A26. Ersatz: eigene OKLCH-Token je Theme.",
+      "pattern": "filter\\s*:\\s*invert\\(\\s*1\\s*\\)",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P17",
+      "catalog_ref": [
+        "A40"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Icon-Fonts sind Catalog HARD BAN A40. Ersatz: Inline-SVG.",
+      "pattern": "font-family\\s*:[^;]*(FontAwesome|Font Awesome|Material Icons|Glyphicons|Ionicons)",
+      "file_patterns": [
         "website/css/*.css"
       ],
       "exemptions": []

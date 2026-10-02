@@ -16,17 +16,20 @@
       "file_patterns": [
         "*.js"
       ],
-      "exemptions": []
+      "exemptions": [],
+      "no_catalog_ref_reason": "XMLHttpRequest ist im Law Catalog nicht verboten; die Sonde ist ein reiner Modernisierungs-Hinweis zugunsten von fetch(). Bewusst norm-frei."
     },
     {
       "id": "W3",
-      "catalog_ref": [],
-      "class": "hard-ban",
-      "severity": "high",
+      "catalog_ref": [
+        "A61"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Unsanitized innerHTML assignment is unsafe. Prefer textContent or setHTML(). No Catalog-A-ID; ADR-ANTIPATTERN.",
-      "pattern": "\\.innerHTML\\s*=",
+      "description": "Schreibender innerHTML-Zugriff (auch '+=' und ['innerHTML']) sowie setHTMLUnsafe() sind Catalog HARD BAN A61 (XSS-Pfad). Lesender Zugriff bleibt erlaubt. Ersatz: textContent, setHTML(), oder DOMParser + replaceChildren().",
+      "pattern": "\\.\\s*innerHTML\\s*\\+?=(?!=)|\\[\\s*['\\\"]innerHTML['\\\"]\\s*\\]\\s*\\+?=(?!=)|\\bsetHTMLUnsafe\\s*\\(",
       "file_patterns": [
         "*.js"
       ],
@@ -35,9 +38,7 @@
     {
       "id": "W4",
       "catalog_ref": [
-        "C1",
-        "A16",
-        "A20"
+        "C1"
       ],
       "class": "fallback-policy",
       "severity": "warning",
@@ -53,9 +54,7 @@
     {
       "id": "W5",
       "catalog_ref": [
-        "C1",
-        "A16",
-        "A20"
+        "C1"
       ],
       "class": "fallback-policy",
       "severity": "warning",
@@ -71,9 +70,7 @@
     {
       "id": "W6",
       "catalog_ref": [
-        "C1",
-        "A16",
-        "A20"
+        "C1"
       ],
       "class": "fallback-policy",
       "severity": "warning",

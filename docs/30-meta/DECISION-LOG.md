@@ -1480,3 +1480,69 @@ Guards). Vor der Umsetzung nachmessen, nicht den Eintrag glauben.
 (o) **Ein fehlgeschlagener Test ist zuerst ein Testfehler.** Der 404-Sturm beim
 Smoke-Test kam von `--directory website` relativ zum falschen Verzeichnis, nicht
 vom Code. Zweiter Fall dieser Art in diesem Projekt.
+
+## 2026-10-02 — Inventur des Law Catalogs: die Pruefer werden selbst geprueft
+
+**Anlass.** Nach dem dritten Fall einer Norm, die als blosse Absichtserklaerung
+dastand (`@adr`-Schutz, Terminologie, A45), war die Verdachtsfrage faellig:
+*Welche der Gesetze prueft tatsaechlich jemand?* Die Antwort war schlechter als
+erwartet — und zwar nicht wegen fehlender Sonden, sondern wegen **kaputter
+Verbindungen zwischen Norm und Pruefung**.
+
+### Befund (gemessen, nicht geschaetzt)
+
+| Defektklasse | Fund |
+|---|---|
+| Sonde beruft sich auf ein Gesetz, das es nicht gibt | `W4/W5/W6` → `A16`, `A20` (6 tote Verweise) |
+| Sonde setzt ein Gesetz durch, benennt es aber nicht | `W1` → A52, `W3` → A61 (unsichtbare Abdeckung) |
+| Sonde ist schwaecher eingestuft als das Gesetz | `P1` war `preferred/high`, A61 ist HARD BAN |
+| Sonde beansprucht ein Gesetz und prueft nichts | `P2` (`check: review`, leeres Pattern) |
+| **Sonde trifft keine einzige Datei** | **`P3` (A49), `P4` (A55), `P5` (A56)** |
+
+Der letzte Punkt ist der schwerste. `matchFilePattern` in `reconciliation.js`
+verglich Pfadmuster mit `*` als **literalen String**: `"website/js/*.js"` traf
+nie eine Datei. Drei HARD-BAN-Sonden waren wirkungslos, ohne dass irgendetwas
+Alarm schlug. Nachgewiesen durch Injektion von `new TextFitEngine()` — der
+Scanner blieb stumm, nur `tsc` stolperte zufaellig ueber den undefinierten Namen.
+
+Zusaetzlich fiel eine echte Luecke auf: A61 untersagt schreibenden `innerHTML`-Zugriff,
+aber die Sonde `\.innerHTML\s*=` liess die Variante mit `+=` durch (HARD BAN umgangen,
+haeufigste Anhaenge-Form, XSS-Pfad).
+
+### Entschieden
+
+1. `tools/filematch.js` neu: Glob-Aufloesung (`*` im Segment, `**` darueber).
+   Bewusst **eigenes Modul**, weil `reconciliation.js` und `lawcoverage.js`
+   dieselbe Entscheidung treffen muessen — zwei Kopien waeren genau der Fehler,
+   den das Meta-Gate aufdecken soll.
+2. `tools/lawcoverage.js` neu, eingehaengt als `check_type: 'law_coverage'`,
+   `severity: 'critical'`. Prueft die **Verbindung**: tote `catalog_ref`,
+   Sonden ohne Pattern, HARD BAN als `info`, wirksame Sonden ohne Zuordnung,
+   und **tote Sonden** (Dateimuster ohne Treffer).
+3. Alle gefundenen Defekte behoben. Das Pattern des HARD BAN A61 ist geschaerft
+   (`+=`, Bracket-Zugriff, `setHTMLUnsafe`), mit `(?!=)` gegen Fehlalarm bei `===`.
+4. **Zwoelf neue Sonden** (P6–P17) fuer bisher ungeprueftes Recht: A51, A53,
+   A54, A37, A34, A35, A36, A50, A25, A23, A26, A40. Abdeckung **9 → 21 von 35**.
+5. `P5` bewusst auf `32-toast.js`/`floating.css` begrenzt: A56 gilt laut Katalog
+   nur „bei Toasts"; der Rotiergriff in `42-signature.js` nutzt
+   `setPointerCapture` legitim. Eine breitere Sonde produzierte sofort einen
+   Fehlalarm — dokumentiert in der `description` der Sonde.
+
+**Abdeckung wird berichtet, nicht erzwungen.** Die verbleibenden 14 Gesetze
+(A21, A22, A24, A42, A43, A44, A46, A47, A57, A58, A59, A60, A62, A39) sind
+nicht sinnvoll per Regex pruefbar — „unkontrolliertes Scrolling" oder „komplexe
+UI in contenteditable" braucht Struktur-, keine Textanalyse. Ein Gate, das
+100 % Abdeckung fordert, erzwaenge Schein-Sonden: das Gegenteil des Ziels.
+Die Quote steht ab jetzt in jedem Build-Log, damit sie nicht unsichtbar verfaellt.
+
+### Generalisierung
+(p) **Eine Pruefung, die nie zuschlaegt, ist von einer bestandenen Pruefung nicht
+zu unterscheiden.** Gruenes Gate heisst „keine Sonde hat angeschlagen", nicht
+„alles ist in Ordnung". Jede Sonde braucht mindestens einmal den Nachweis, dass
+sie ueberhaupt feuern kann — sonst ist sie Dekoration.
+(q) **Normen brauchen eine maschinenlesbare Rueckverbindung zur Pruefung.**
+`catalog_ref` gab es schon; niemand pruefte, ob die Ziele existieren. Ein
+Verweis ohne Integritaetspruefung ist eine Behauptung.
+(r) **Die Reichweite einer Sonde ist Teil der Norm.** A56 sagt „bei Toasts".
+Wer das beim Pruefen weglaesst, erzeugt Fehlalarme und untergraebt das Gate
+schneller, als eine fehlende Sonde es je koennte.

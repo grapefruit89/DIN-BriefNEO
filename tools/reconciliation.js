@@ -206,18 +206,9 @@ function parseYamlFrontmatter(content) {
   return meta;
 }
 
-function matchFilePattern(filePath, patterns) {
-  const ext = path.extname(filePath).toLowerCase();
-  return patterns.some(pattern => {
-    if (pattern === '*' || pattern === '*.*') return true;
-    if (pattern.startsWith('*.')) {
-      return ext === pattern.slice(1).toLowerCase();
-    }
-    const normPattern = pattern.replace(/\\/g, '/');
-    const normPath = filePath.replace(/\\/g, '/');
-    return normPath.endsWith(normPattern) || normPath.includes(normPattern);
-  });
-}
+// Dateimuster-Abgleich liegt in tools/filematch.js -- dieselbe Logik nutzt
+// tools/lawcoverage.js fuer die Totsonden-Erkennung. Siehe Kopf dort.
+const { matchFilePattern } = require('./filematch.js');
 
 function isExempt(rule, filePath, line, lineContent) {
   if (!rule.exemptions || rule.exemptions.length === 0) return false;
@@ -461,6 +452,51 @@ function runReconciliation() {
           message: `${v.message} (Zeile ${v.line})`
         });
       }
+    }
+  }
+
+  // --- Meta-Gate: die Pruefer selbst (Law Catalog <-> Sonden) ---
+  // Werkzeug: tools/lawcoverage.js. Anlass: dreimal stand eine Norm ungeprueft da,
+  // und die Inventur fand Sonden, die Gesetze beanspruchten, die es nicht gibt (A16/A20),
+  // bzw. Gesetze durchsetzten, ohne sie zu benennen (W1/W3). Geprueft wird die
+  // VERBINDUNG Norm<->Pruefung, nicht die Abdeckungsquote: die wird nur berichtet,
+  // weil eine erzwungene 100%-Quote nur Schein-Sonden erzeugen wuerde.
+  conformanceChecked += 1;
+  {
+    let covViolations = [];
+    let coverage = null;
+    try {
+      const res = require('./lawcoverage.js').checkLawCoverage(targetDir);
+      covViolations = res.violations;
+      coverage = res.coverage;
+    } catch (err) {
+      logs.push({
+        file_path: 'tools/lawcoverage.js',
+        check_type: 'law_coverage',
+        severity: 'low',
+        message: `Meta-Gate uebersprungen: ${err.message}`
+      });
+      covViolations = [];
+    }
+    if (covViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of covViolations) {
+        logs.push({
+          file_path: v.file,
+          check_type: 'law_coverage',
+          severity: 'critical',
+          message: `${v.message} (Zeile ${v.line})`
+        });
+      }
+    }
+    if (coverage) {
+      logs.push({
+        file_path: 'docs/00-foundation/Immutable-Law-Catalog.md',
+        check_type: 'law_coverage',
+        severity: 'info',
+        message: `Abdeckung: ${coverage.covered}/${coverage.laws} A-Gesetze maschinell geprueft. Ohne Pruefung: ${coverage.uncovered.join(', ')}`
+      });
     }
   }
 

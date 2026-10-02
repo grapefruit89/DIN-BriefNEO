@@ -142,3 +142,12 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 6. **B6** — Full Mode, braucht eigene Sitzung
 7. **B8, B9, B15**
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
+
+### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐
+A21, A22, A24, A42, A43, A44, A46, A47, A57, A58, A59, A60, A62, A39 lassen sich
+nicht per Textmuster prüfen. Machbar wären u. a.: **A42** (doppelte `id`) und
+**A57/A58** (Radio-Segmented-Control statt `switch`) per HTML-Parse; **A24**
+(Produkt-Token ohne `:root`-Definition) und **A59** (Theme-Variablen auf dem
+Blatt) per CSS-Variablen-Index; **A23/A21/A22** sind bereits abgedeckt bzw.
+entfallen. Erst nach B10. Abdeckung aktuell 21/35, siehe `tools/lawcoverage.js`.
+

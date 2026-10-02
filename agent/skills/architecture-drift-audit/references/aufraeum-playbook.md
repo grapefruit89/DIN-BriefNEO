@@ -50,7 +50,7 @@ rg -o '@(adr|guide) \[\[[^]]+\]\]' website/ | sort -u
 - **Template-Platzhalter** (`ADR-XXX`, `ADR-YYY`).
 - **Anhänge** (`[[schema-v6.json]]` — Nicht-MD-Datei, existiert).
 - **Frontmatter-Beispielwerte**.
-- **Chroniken** (`docs/30-meta/DECISION-LOG.md`, `docs/30-meta/CHANGELOG.md`, `docs/90-archive/*`) — nie rückwärts „reparieren".
+- **Chroniken** (`docs/30-meta/DECISION-LOG.md`, `docs/90-archive/CHANGELOG.md`, `docs/90-archive/*`) — nie rückwärts „reparieren".
 
 ## 4. Definition of Done
 

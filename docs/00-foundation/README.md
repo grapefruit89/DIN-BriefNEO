@@ -4,7 +4,7 @@ title: '00-foundation — Fundament & Unverrückbare Gesetze'
 type: meta
 status: active
 created: '2026-08-07'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/foundation

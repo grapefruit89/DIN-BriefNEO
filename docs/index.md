@@ -63,7 +63,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 
 ### 1. [[00-foundation/README|00-foundation — Die Verfassungsebene (Unveränderlich)]]
 *Streng schreibgeschützt für Automatismen. Definiert die Existenzberechtigung und Grundrechte des Projekts.*
-- **[[constitution]]** ⭐⭐⭐ — 5 Grundrechte (Zero Dependencies, Longevity, Offline-First, Geometry-SSoT, Immutability).
+- **[[constitution]]** ⭐⭐⭐ — unveränderliche Projektprinzipien und die kanonische Quellenhierarchie.
 - **[[Immutable-Law-Catalog]]** ⭐⭐⭐ — Normative Gesetzestexte: Stufe 1 (HARD BAN) bis Stufe 3 (FALLBACK).
 - **[[spec]]** ⭐⭐⭐ — Fachliche Spezifikation aller Benutzerfunktionen (WAS das Produkt leistet).
 - **[[longevity-guidelines]]** ⭐⭐ — 10-Jahres-Technologiekriterien und einzige Browser-Baseline (Chrome 150+).
@@ -102,7 +102,6 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 ### 4. [[30-meta/README|30-meta — Projektgedächtnis, Status & Werkzeuge]]
 *Historische Protokolle, Statusberichte und Wissensmanagement.*
 - **[[DECISION-LOG]]** — die lebende Entscheidungs- und Begründungschronik (append-only). Der alte `CHANGELOG` ist seit 2026-10-02 archiviert.
-- **[[DECISION-LOG]]** — 31 KB Master-Log aller Sessions und historischer Kurskorrekturen.
 - **[[Feature-Matrix]]** — Übersicht aller Features mit Reifegrad und Status.
 - **`docs/30-meta/schema-v6.json`** — das Frontmatter-Schema V6 (Pflichtfelder, erlaubte `type`-Werte), maschinenlesbar und damit die einzige Quelle. Der frühere `OBSIDIAN-SETUP-GUIDE` ist seit 2026-10-02 archiviert.
 - **[[tooling-overview]]** — Bestandsaufnahme aller Hilfswerkzeuge im Ordner `tools/`.

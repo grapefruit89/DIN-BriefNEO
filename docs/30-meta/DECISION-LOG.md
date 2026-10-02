@@ -1546,3 +1546,11 @@ Verweis ohne Integritaetspruefung ist eine Behauptung.
 (r) **Die Reichweite einer Sonde ist Teil der Norm.** A56 sagt „bei Toasts".
 Wer das beim Pruefen weglaesst, erzeugt Fehlalarme und untergraebt das Gate
 schneller, als eine fehlende Sonde es je koennte.
+
+## 2026-10-02 — Foundation-Dokumentation auf eine Quelle je Aussage zurückgeführt
+
+**Anlass.** Die vorherige Konsolidierung hatte den Law Catalog und die Agenten-Einstiegspunkte bereinigt, aber `constitution.md` enthielt weiterhin eine verkürzte dritte Verbotsliste. Zusätzlich führten der Foundation-Hub noch auf gelöschte Inventar-Snapshots und zwei Hubs dieselbe Chronik doppelt.
+
+**Entschieden.** `constitution.md` ist jetzt eine schlanke Prinzipien-Charta: Mission, Unabhängigkeit, Plattform-vor-Nachbau und Quellenhierarchie bleiben dort; konkrete Verbote und technische Muster werden ausschließlich im [[Immutable-Law-Catalog]] geführt. Stale Inventarverweise und doppelte DECISION-LOG-Einträge wurden entfernt. Die Archivregel im Drift-Playbook verweist nun auf den tatsächlichen Archivpfad.
+
+**Generalisierung.** Ein Foundation-Dokument darf den Zweck und die Zuständigkeit einer Norm erklären, aber deren Einzelfälle nicht paraphrasieren. Bei jeder Doku-Konsolidierung sind danach sowohl tote Pfade als auch doppelte Hub-Einträge zu prüfen.

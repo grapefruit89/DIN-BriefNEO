@@ -1,6 +1,6 @@
 ---
 id: meta-readme
-title: '30-meta — Projektgeschichte, Status & Obsidian-Setup'
+title: '30-meta — Projektgeschichte, Status & Tooling'
 type: meta
 status: active
 created: '2026-07-07'
@@ -34,9 +34,8 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 - [[README-DB]] — LLM-First SQLite-Wissensdatenbank: Schema, FTS5, MCP-Anbindung (Agenten-Tooling, 2026-10-02 aus `20-implementation/` hierher)
 - [[sqlite-vec]] — geparkter Plan für semantische Vektorsuche (`status: draft`, kein Guide)
 - [[DECISION-LOG]] — die lebende Chronik. (`CHANGELOG` wurde am 2026-10-02 archiviert: seit Juli 2026 ungepflegt.)
-- [[Feature-Matrix]] ⭐⭐ — Projektstatus: 76% Features fertig (Stand 2026-04-01, veraltet)
-- [[DECISION-LOG]] — Chronologisches Entscheidungslog aller Sessions
-- [[ROADMAP]] — Zukunfts-Ideen (unverbindlich)
+- [[Feature-Matrix]] — Reifegradübersicht der Features
+- [[ROADMAP]] — Zukunftsideen (unverbindlich)
 
 ## Obsidian & Wissensmanagement
 

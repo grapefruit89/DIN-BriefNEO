@@ -181,6 +181,30 @@ Der [[DECISION-LOG]] ist dabei kein Ballast, sondern das Gedächtnis für *verwo
 Im Code-Audit 2026-10-02 hat er mehrfach verhindert, dass eine bewusst gewählte Lösung
 fälschlich als Antipattern gemeldet wurde. Vor jedem „das sieht falsch aus" dort nachsehen.
 
+### 5.7 `website/` und `docs/` sind getrennt
+
+**`website/` ist ein auslieferbares Artefakt.** Kopiert man den Ordner allein auf einen
+Webserver, muss die App vollständig starten — ohne `docs/`, ohne `tools/`, ohne das
+Repository drumherum. Das ist kein Ideal, sondern eine geprüfte Invariante: **`A45`**,
+erzwungen von `tools/isolation.js`.
+
+Verboten ist daher in `website/**.{html,css,js}` jede Referenz, die den Ordner verlässt —
+`../..`, `/docs/`, `/tools/`, absolute Dateisystempfade — und jeder **ladende** Verweis
+(Script, Style, Font, Bild) auf einen fremden Host.
+
+Die Trennung läuft in **beide** Richtungen und ist bewusst asymmetrisch:
+
+| Richtung | Regel |
+| :--- | :--- |
+| `website/` → `docs/` | **Nur Kommentare.** `@adr`/`@guide [[Doc]]` sind Traceability ohne Laufzeitwirkung. Verschwindet die Doku, läuft die App weiter. |
+| `docs/` → `website/` | Frei. Dokumentation darf Code beschreiben und über `code_links` auf ihn zeigen. |
+
+> [!info] Warum Kommentare erlaubt bleiben
+> Sie kosten zur Laufzeit nichts und tragen die Traceability, die das Projekt ausmacht.
+> `tools/links.js` prüft die Gegenrichtung: ein per `@adr` referenziertes Dokument darf
+> nicht unbemerkt verschwinden. Zusammen heißt das — die App **bricht** nicht, wenn die
+> Doku fehlt, aber es **fällt auf**.
+
 ---
 
 ## 6. Generalisierbarkeit & llm_boilerplate

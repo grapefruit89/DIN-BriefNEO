@@ -1386,3 +1386,56 @@ Taxonomie folgt dem deklarierten Typ, also ist ein ehrlicher Typ die billigste O
 (c) Ein Dokument, das sich selbst `status: active` gibt, aber seit Monaten keinen Eintrag
 bekam, ist gefährlicher als ein offensichtlich altes — **Aktualität behaupten ist schlimmer
 als alt sein**.
+
+## 2026-10-02 — `website/` ist hermetisch: A45 wird erzwungen
+
+**Kontext:** Vorgabe des Maintainers — zwischen `website/` und `docs/` muss eine vollständige
+Trennung bestehen, `website/` muss allein lauffähig sein. Zwei Fragen waren zu klären: Ist es
+das heute? Und bleibt es das?
+
+**Befund — ja, aber ungesichert.** `website/` wurde isoliert nach `/tmp` kopiert (432 KB,
+34 Dateien, kein `docs/` daneben) und über einen Webserver ausgeliefert: 14 referenzierte
+Ressourcen, alle 19 Module, alle drei `.json.gz` → **HTTP 200**. Die drei externen `href`
+sind `<a>`-Links für den Nutzer (GitHub, Fontsource), keine Ladevorgänge — kein A38-Verstoss.
+Gesichert war das aber nicht: **`A45` („projektfremde Pfade — hermetische Grenzen") stand seit
+2026-06 im Catalog und wurde von nichts geprüft.** Dasselbe Muster wie beim Dokumentenschutz
+zwei Einträge zuvor: eine Invariante, die nur durch Disziplin hielt.
+
+**Änderung:**
+1. Neu `tools/isolation.js`, eingehängt in `reconciliation.js`. Prüft jede Referenz in
+   `website/**.{html,css,js}` auf (a) Pfade, die den Ordner verlassen (`../..`, `/docs/`,
+   `/tools/`), (b) absolute Dateisystempfade, (c) **ladende** Verweise auf fremde Hosts.
+2. **`A45` präzisiert** von einer Zeile Absichtserklärung zu einer prüfbaren Regel mit
+   Ausnahmen und Werkzeugverweis.
+3. `AGENTS.md` §5.7 beschreibt die Trennung als **asymmetrischen Vertrag**: `docs/` → `website/`
+   ist frei, `website/` → `docs/` nur als Kommentar.
+4. `DIN-Brief-Architektur.canvas`: 22 tote Pfade korrigiert (`ADR/`-Unterordner, `.specify/`,
+   `Guides/` — alles Strukturen, die es seit Commit `7edaf19` nicht mehr gibt).
+
+**Bewusst NICHT geändert:** Die `@adr`/`@guide`-Kommentare im Code bleiben. Sie haben null
+Laufzeitwirkung und tragen die Traceability; `tools/links.js` prüft die Gegenrichtung. Ergebnis:
+Die App **bricht** nicht, wenn Doku fehlt — aber es **fällt auf**. 13 Canvas-Knoten zeigen auf
+Dokumente, die es nirgends mehr gibt; die Knoten zu entfernen ändert das Layout und ist ein
+eigener Vorgang.
+
+**Verifikation:** Fitness Gate **100 %**, null Diagnosen. Gegentest mit sechs künstlichen
+Verstössen (`../../docs/foo.js`, `/docs/spec.md`, `cdn.jsdelivr.net` per fetch, externes
+`<script src>`, `<link href="../docs/x.css">`, `<img src="/tools/logo.png">`) — alle sechs
+gemeldet, nach Rücknahme wieder 0. Canvas nach der Korrektur valides JSON (36 Knoten, 78 Kanten).
+
+**Offener Punkt geschlossen:** Die Frage, ob der Antipattern-Scanner auf Markdown ausgeweitet
+werden sollte, wird mit **nein** beantwortet. Das Muster des Gates sind **fachlich getrennte
+Module** mit einheitlichem Aufrufvertrag (`imr.js`, `links.js`, `terminology.js`, jetzt
+`isolation.js`). Ein generischer Regex-Scanner über alles wäre schwerer zu begründen, schwerer
+zu testen und würde Regeln unterschiedlicher Natur vermischen. `project.json` bleibt, was es
+ist: Code-Sonden für `website/`.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) **Hermetik ist testbar, nicht nur behauptbar** —
+den Ordner isoliert kopieren und starten ist ein Fünf-Minuten-Test, der die Zusage beweist statt
+sie zu wiederholen. Für jedes als „eigenständig" deklarierte Artefakt gehört er in die
+Routine. (b) **Zwischen *laden* und *erwähnen* unterscheiden.** Ein `<a href>` auf GitHub ist
+harmlos, ein `<script src>` auf denselben Host wäre ein Bruch; ein `@adr`-Kommentar ist
+Metadaten, ein `import` wäre Kopplung. Eine Prüfregel, die beides gleich behandelt, erzeugt
+Fehlalarme und wird abgeschaltet. (c) Dies ist die **dritte** Norm in diesem Projekt, die als
+Absichtserklärung ohne Prüfung existierte (nach `@adr`-Schutz und Terminologie). Verdachtsfrage
+für jeden Katalog: *welche dieser Regeln prüft tatsächlich jemand?*

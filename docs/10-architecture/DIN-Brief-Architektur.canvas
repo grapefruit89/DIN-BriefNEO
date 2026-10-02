@@ -3,7 +3,7 @@
     {
       "id": "1",
       "type": "file",
-      "file": ".specify/constitution.md",
+      "file": "../00-foundation/constitution.md",
       "x": 0,
       "y": 0,
       "width": 400,
@@ -12,7 +12,7 @@
     {
       "id": "2",
       "type": "file",
-      "file": ".specify/templates/spec.md",
+      "file": "../00-foundation/spec.md",
       "x": 600,
       "y": 0,
       "width": 400,
@@ -21,7 +21,7 @@
     {
       "id": "3",
       "type": "file",
-      "file": "ADR/ADR-ANTIPATTERN.md",
+      "file": "ADR-ANTIPATTERN.md",
       "x": 1200,
       "y": 0,
       "width": 400,
@@ -39,7 +39,7 @@
     {
       "id": "5",
       "type": "file",
-      "file": "ADR/ADR-CSS.md",
+      "file": "ADR-CSS.md",
       "x": 2400,
       "y": 0,
       "width": 400,
@@ -57,7 +57,7 @@
     {
       "id": "7",
       "type": "file",
-      "file": "ADR/ADR-HTML.md",
+      "file": "ADR-HTML.md",
       "x": 600,
       "y": 400,
       "width": 400,
@@ -66,7 +66,7 @@
     {
       "id": "8",
       "type": "file",
-      "file": "ADR/ADR-JS.md",
+      "file": "ADR-JS.md",
       "x": 1200,
       "y": 400,
       "width": 400,
@@ -84,7 +84,7 @@
     {
       "id": "10",
       "type": "file",
-      "file": "ADR/ADR-TEMPLATE.md",
+      "file": "../30-meta/ADR-TEMPLATE.md",
       "x": 2400,
       "y": 400,
       "width": 400,
@@ -93,7 +93,7 @@
     {
       "id": "11",
       "type": "file",
-      "file": "ADR/Code-Referenzen.md",
+      "file": "Code-Referenzen.md",
       "x": 0,
       "y": 800,
       "width": 400,
@@ -102,7 +102,7 @@
     {
       "id": "12",
       "type": "file",
-      "file": "CHANGELOG.md",
+      "file": "../90-archive/CHANGELOG.md",
       "x": 600,
       "y": 800,
       "width": 400,
@@ -111,7 +111,7 @@
     {
       "id": "13",
       "type": "file",
-      "file": "constitution.md",
+      "file": "../00-foundation/constitution.md",
       "x": 1200,
       "y": 800,
       "width": 400,
@@ -120,7 +120,7 @@
     {
       "id": "14",
       "type": "file",
-      "file": "DECISION-LOG.md",
+      "file": "../30-meta/DECISION-LOG.md",
       "x": 1800,
       "y": 800,
       "width": 400,
@@ -129,7 +129,7 @@
     {
       "id": "15",
       "type": "file",
-      "file": "DEV-INFO.md",
+      "file": "../30-meta/DEV-INFO.md",
       "x": 2400,
       "y": 800,
       "width": 400,
@@ -183,7 +183,7 @@
     {
       "id": "21",
       "type": "file",
-      "file": "Guides/glossary.md",
+      "file": "../20-implementation/glossary.md",
       "x": 0,
       "y": 1600,
       "width": 400,
@@ -192,7 +192,7 @@
     {
       "id": "22",
       "type": "file",
-      "file": "Guides/GUIDE-TEMPLATE.md",
+      "file": "../30-meta/GUIDE-TEMPLATE.md",
       "x": 600,
       "y": 1600,
       "width": 400,
@@ -201,7 +201,7 @@
     {
       "id": "23",
       "type": "file",
-      "file": "Guides/longevity-guidelines.md",
+      "file": "../00-foundation/longevity-guidelines.md",
       "x": 1200,
       "y": 1600,
       "width": 400,
@@ -210,7 +210,7 @@
     {
       "id": "24",
       "type": "file",
-      "file": "Guides/no-scroll-techniques.md",
+      "file": "../20-implementation/no-scroll-techniques.md",
       "x": 1800,
       "y": 1600,
       "width": 400,
@@ -219,7 +219,7 @@
     {
       "id": "25",
       "type": "file",
-      "file": "Guides/testing-guide.md",
+      "file": "../20-implementation/testing-guide.md",
       "x": 2400,
       "y": 1600,
       "width": 400,
@@ -228,7 +228,7 @@
     {
       "id": "26",
       "type": "file",
-      "file": "HYBRID-SPEC-DRIVEN-WORKFLOW.md",
+      "file": "../30-meta/HYBRID-SPEC-DRIVEN-WORKFLOW.md",
       "x": 0,
       "y": 2000,
       "width": 400,
@@ -273,7 +273,7 @@
     {
       "id": "31",
       "type": "file",
-      "file": "README-DB.md",
+      "file": "../30-meta/README-DB.md",
       "x": 0,
       "y": 2400,
       "width": 400,
@@ -291,7 +291,7 @@
     {
       "id": "33",
       "type": "file",
-      "file": "ROADMAP.md",
+      "file": "../30-meta/ROADMAP.md",
       "x": 1200,
       "y": 2400,
       "width": 400,
@@ -300,7 +300,7 @@
     {
       "id": "34",
       "type": "file",
-      "file": "spec.md",
+      "file": "../00-foundation/spec.md",
       "x": 1800,
       "y": 2400,
       "width": 400,
@@ -309,7 +309,7 @@
     {
       "id": "35",
       "type": "file",
-      "file": "specs/001-hybrid-workflow-integration/spec.md",
+      "file": "../00-foundation/spec.md",
       "x": 2400,
       "y": 2400,
       "width": 400,

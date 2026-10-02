@@ -431,6 +431,39 @@ function runReconciliation() {
     }
   }
 
+  // --- Hermetik-Check (website/ muss allein lauffaehig sein, Catalog A45) ---
+  // Werkzeug: tools/isolation.js. A45 stand seit 2026-06 im Catalog, wurde aber von
+  // nichts geprueft. Jetzt Invariante: kopiert man website/ allein auf einen Webserver,
+  // darf nichts fehlen. @adr/@guide-Kommentare bleiben erlaubt (Traceability ohne
+  // Laufzeitwirkung) -- deren Gegenstueck prueft tools/links.js.
+  conformanceChecked += 1;
+  {
+    let isoViolations = [];
+    try {
+      isoViolations = require('./isolation.js').checkIsolation(targetDir).violations;
+    } catch (err) {
+      logs.push({
+        file_path: 'tools/isolation.js',
+        check_type: 'isolation',
+        severity: 'low',
+        message: `Hermetik-Check uebersprungen: ${err.message}`
+      });
+      isoViolations = [];
+    }
+    if (isoViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of isoViolations) {
+        logs.push({
+          file_path: v.file,
+          check_type: 'isolation',
+          severity: 'critical',
+          message: `${v.message} (Zeile ${v.line})`
+        });
+      }
+    }
+  }
+
   // --- Terminologie-Check ("Ein Sachverhalt, ein Begriff", AGENTS.md 5.5) ---
   // Werkzeug: tools/terminology.js. Die Begriffsliste steht NICHT im Code, sondern
   // in der Tabelle "Kanonische Begriffe" in docs/20-implementation/glossary.md --

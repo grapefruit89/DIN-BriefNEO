@@ -119,8 +119,8 @@
               </div>
               <div id="anschrift-suche-container" class="seitenleiste-options-group">
                 <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-                <input type="text" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
-                <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken"></ul>
+                <input type="text" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+                <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
               </div>
               <div>
                 <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage lesen</button>

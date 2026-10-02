@@ -450,3 +450,12 @@ din-lochmarke {
   background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);
   color: oklch(15% 0 0);
 }
+
+/* Keyboard focus for address suggestions (B18): selection is semantic, not hover-only. */
+#anschrift-vorschlaege li[aria-selected="true"],
+#anschrift-vorschlaege li:focus-visible,
+#plz-suggestions-popover li[aria-selected="true"] {
+  background: color-mix(in srgb, var(--accent-color) 18%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 65%, transparent);
+  outline-offset: -2px;
+}

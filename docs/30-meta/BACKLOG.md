@@ -142,8 +142,8 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 1. ~~**B1**, **B2**~~ ✅ erledigt 2026-10-02 (`file://` gestrichen)
 2. ~~**B3**, **B4**, **B16**~~ ✅ erledigt 2026-10-02 (Kanonisierung: eine Quelle, ein Begriff)
 3. ~~**B5**~~ ✅ erledigt 2026-10-02
-4. **B12, B13, B14, B11** — Hygiene, lässt sich gut zwischenschieben
-5. **B10** — `research/` auslagern
+4. ~~**B12, B13, B14, B11**~~ ✅ erledigt 2026-10-02
+5. **B10** — `research/` klassifizieren, nicht pauschal auslagern
 6. **B6** — Full Mode, braucht eigene Sitzung
 7. **B8, B9, B15**
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
@@ -156,7 +156,7 @@ nicht per Textmuster prüfen. Machbar wären u. a.: **A42** (doppelte `id`) und
 Blatt) per CSS-Variablen-Index; **A23/A21/A22** sind bereits abgedeckt bzw.
 entfallen. Erst nach B10. Abdeckung aktuell 21/35, siehe `tools/lawcoverage.js`.
 
-### B18 · Adress-Dropdown mit der Tastatur bedienbar machen · **M** · ⭐⭐⭐⭐⭐
+### B18 · Adress-Dropdown mit der Tastatur bedienbar machen · **M** · ⭐⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
 **Härtester Fund der Research-Inventur und unabhängig von ihr gültig.**
 `43-geoapify.js` → `renderSuggestions()` hängt ausschliesslich einen `click`-Listener an
 jedes `<li>`. Kein `keydown`, kein `ArrowDown`/`ArrowUp`, kein `Enter`, kein

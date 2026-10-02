@@ -1554,3 +1554,13 @@ schneller, als eine fehlende Sonde es je koennte.
 **Entschieden.** `constitution.md` ist jetzt eine schlanke Prinzipien-Charta: Mission, Unabhängigkeit, Plattform-vor-Nachbau und Quellenhierarchie bleiben dort; konkrete Verbote und technische Muster werden ausschließlich im [[Immutable-Law-Catalog]] geführt. Stale Inventarverweise und doppelte DECISION-LOG-Einträge wurden entfernt. Die Archivregel im Drift-Playbook verweist nun auf den tatsächlichen Archivpfad.
 
 **Generalisierung.** Ein Foundation-Dokument darf den Zweck und die Zuständigkeit einer Norm erklären, aber deren Einzelfälle nicht paraphrasieren. Bei jeder Doku-Konsolidierung sind danach sowohl tote Pfade als auch doppelte Hub-Einträge zu prüfen.
+
+## 2026-10-02 — Research-Funde umgesetzt: Adresssuche gehärtet, CSS-Kandidaten bewertet
+
+**Kontext.** Die Research-Roadmap wurde gegen den aktuellen Code geprüft. Die offenen CSS-Kandidaten `@page`-Margin-Boxes, `::highlight()` und `subgrid` ersetzen in der heutigen Ein-Seiten-/absoluten DIN-Geometrie keinen vorhandenen JavaScript-Pfad sicher. Eine Schein-Implementierung würde entweder die Drucknorm verändern oder nur ungenutzte Syntax hinzufügen.
+
+**Änderung.** (1) Das Adress-Dropdown (`43-geoapify.js`) ist jetzt als `role=listbox`/`role=option` ausgezeichnet und per Pfeiltasten, Enter und Escape bedienbar; die aktive Option wird über `aria-activedescendant` und deklaratives CSS hervorgehoben. (2) Alle drei Geoapify-Anfragen haben jetzt ein natives 8-Sekunden-Limit über `AbortSignal.timeout()`; die laufende Suche kombiniert dieses Limit mit dem bestehenden `AbortController` über `AbortSignal.any()`. (3) B18 und B20 im Backlog als erledigt, B21 als bewertet markiert.
+
+**Verifikation.** Fitness Gate 100 %; TypeScript-Prüfung und Link-/Metadaten-Gate ohne Befund. Der einzige verbleibende Hinweis ist die bekannte, bewusst nicht vollständige Law-Coverage.
+
+**Generalisierung.** Moderne CSS-Syntax ist kein Selbstzweck: Ein Kandidat wird nur übernommen, wenn er einen realen Layout-/DOM-/JS-Pfad ersetzt. Für asynchrone Fach-APIs sind native Abort-Signale der richtige Ersatz für eigene Timeout- und Race-Logik; die UI-Zustandssemantik bleibt nativ, wo sie ohne zusätzliche Laufzeitlogik möglich ist.

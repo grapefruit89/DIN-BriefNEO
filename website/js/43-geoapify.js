@@ -32,6 +32,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   let debounceSearchTimeout = null;
   /** @type {any} */
   let keyDebounceTimeout = null;
+  /** @type {AddressEntry[]} */
+  let renderedSuggestions = [];
+  let activeSuggestionIndex = -1;
 
   // Load initial settings
   const savedKey = StorageManager.loadGeoapifyKey() || '';
@@ -69,7 +72,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
    */
   async function validateKeyWithHeartbeat(key) {
     try {
-      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`);
+      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`, {
+        signal: AbortSignal.timeout(8000),
+      });
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
         /* Kein Success-Toast (TOASTS-Policy in 51-storage.js: Erfolg ist
@@ -123,6 +128,27 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   /** @type {Map<string, AddressEntry[]>} */
   const apiCache = new Map();
 
+  // Tastatursteuerung fuer das native Listbox-Popover.
+  inputAddressSearch.addEventListener('keydown', (event) => {
+    if (!renderedSuggestions.length) return;
+    const key = event.key;
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
+      event.preventDefault();
+      const direction = key === 'ArrowDown' ? 1 : -1;
+      activeSuggestionIndex = (activeSuggestionIndex + direction + renderedSuggestions.length) % renderedSuggestions.length;
+      addressSuggestions.querySelectorAll('[role=option]').forEach((option, index) => {
+        option.setAttribute('aria-selected', String(index === activeSuggestionIndex));
+      });
+      inputAddressSearch.setAttribute('aria-activedescendant', `anschrift-vorschlag-${activeSuggestionIndex}`);
+    } else if (key === 'Enter' && activeSuggestionIndex >= 0) {
+      event.preventDefault();
+      selectSuggestion(renderedSuggestions[activeSuggestionIndex]);
+    } else if (key === 'Escape') {
+      activeSuggestionIndex = -1;
+      inputAddressSearch.removeAttribute('aria-activedescendant');
+    }
+  });
+
   // Optimierter Input Handler
   inputAddressSearch.addEventListener('input', () => {
     clearTimeout(debounceSearchTimeout);
@@ -167,7 +193,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       return;
     }
 
-    let fetchOptions = { signal: activeAbortController.signal };
+    let fetchOptions = {
+      signal: AbortSignal.any([activeAbortController.signal, AbortSignal.timeout(8000)]),
+    };
     let coords = null;
     try {
       const savedCoords = localStorage.getItem('din_sender_coords');
@@ -252,14 +280,20 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   function renderSuggestions(suggestions, query) {
     if (!addressSuggestions) return;
     addressSuggestions.replaceChildren();
+    renderedSuggestions = suggestions;
+    activeSuggestionIndex = -1;
+    inputAddressSearch?.removeAttribute('aria-activedescendant');
 
     if (suggestions.length === 0) {
       try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
       return;
     }
 
-    suggestions.forEach(item => {
+    suggestions.forEach((item, index) => {
       const li = document.createElement('li');
+      li.id = `anschrift-vorschlag-${index}`;
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', 'false');
       // Use textContent to avoid innerHTML vulnerabilities (Antipattern Fix)
       li.textContent = item.formatted;
       
@@ -326,7 +360,9 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];
-          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${plz}&type=postcode&filter=countrycode:de&format=json&apiKey=${key}&limit=1`)
+          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${plz}&type=postcode&filter=countrycode:de&format=json&apiKey=${key}&limit=1`, {
+              signal: AbortSignal.timeout(8000),
+            })
             .then(r => r.json())
             .then(data => {
               if (data && data.results && data.results.length > 0) {

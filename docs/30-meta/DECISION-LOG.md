@@ -1604,3 +1604,26 @@ schneller, als eine fehlende Sonde es je koennte.
 **Verifikation.** Fitness Gate 100 %, TypeScript-/Link-/Metadaten-Gate ohne Befund. Der bekannte Low-Hinweis zur 21/35-Law-Coverage bleibt bewusst bestehen. Der Browser-Zoom-Ausgleich ist code-seitig auf die Seitenleiste begrenzt; die tatsächliche Ctrl-+/Ctrl--Sichtprüfung bleibt ein manueller Browser-Test.
 
 **Generalisierung.** Deklarative Metadaten lohnen sich dort, wo mehrere Module dieselbe Feldklassifikation kennen müssen. Native Plattformfeatures werden nur übernommen, wenn sie einen realen Pfad ersetzen; Mehrseiten-Druck und Seitenzahlen bilden eine eigene Architektur, keine kleine CSS-Erweiterung.
+
+## 2026-10-02 — KISS-Optimierungsbatch: Event-Delegation, Caret-SSoT, Gzip-Pipeline, B8-Abschluss und Gesetzes-Gate-Ausbau (30/35)
+
+**Kontext.** Nach der Feature-Matrix- und Research-Bereinigung blieben fünf konkrete Stellen für Code-Deduplizierung und Overhead-Reduktion offen: über 60 redundante Event-Listener auf jedem editierbaren Blattfeld, veraltete Durchreicher-Methoden im DraftManager, ein CI-Fehlschlag in der veralteten Quartals-Pipeline (Brotli vs. Gzip-Architektur), manuelle DOM-Tree-Walk-Schleifen in der Formatierungsleiste, direkte LocalStorage-Bypässe an `StorageManager` vorbei sowie 12 verbliebene Non-Print-`!important`-Deklarationen (Backlog B8). Zudem war die Gesetzes-Abdeckung des Fitness-Gates bei 21/35 stehengeblieben, obwohl `tools/structural-laws.js` bereits strukturelle Prüfungen durchführte.
+
+**Änderung.**
+1. **DOM-Event-Delegation (Task 1):** Die 60 Einzellistener auf `[contenteditable]` in `03-ui-protections.js` und `main.js` wurden durch 3 delegierte Listener auf dem Briefbogen-Root `din-a4` (`keydown`, `paste` für Zeichenlimits/Zeilenlimits und `input` für AutoSave) ersetzt.
+2. **Caret-SSoT (Task 2):** Die privaten Durchreicher-Methoden `#getCaretCharacterOffsetWithin` und `#setCaretPosition` in `01-draft-manager.js` wurden entfernt; Aufrufe erfolgen nun direkt an das kanonische Modul `selection-utils.js`.
+3. **CI-Pipeline-Synchronisation:** `research/research_scripts/update_plz_pipeline.py` wurde von Brotli auf gzip mit bit-deterministischem `compresslevel=9, mtime=0` umgestellt; die Generierung der veralteten `plz-embedded.js` wurde vollständig entfernt. Pipeline-Output und App-Laufzeit (`05-gzip.js`) sind wieder 100 % synchron.
+4. **Toolbar DOM-Traversierung (Task 4):** Drei manuelle `while`-Elternknoten-Schleifen in `31-format-toolbar.js` wurden zu einer einzigen `#findFormatAncestor(node, tagName)`-Hilfsmethode mit nativem `.closest()` konsolidiert. Die doppelte Traversierung beim Formatierungs-Unwrapping entfällt.
+5. **LocalStorage-Kapselung (Task 3):** Direkte `localStorage`-Zugriffe in `43-geoapify.js` (Adressen, Koordinaten), `02-settings-manager.js` (Custom Font Cleanup) und `52-import-export.js` (Draft-Handling) wurden vollständig in `StorageManager` (`51-storage.js`) gekapselt.
+6. **B8-Abschluss (CSS `!important`):** Alle 12 Non-Print-`!important` in Autoren-Styles wurden restlos aufgelöst. Verfehlt platzierte Seitenleisten-Labels wanderten nach `sidebar.css`, DIN-Elemente nach `sheet.css`, Postvermerk-Styling in `layout.css` wurde konsolidiert und `.hidden` über native Spezifität und Layer-Hierarchie gelöst.
+7. **B17 Phase 2 (Gesetzes-Gate-Ausbau):** `tools/structural-laws.js` wurde um Prüfungen für A58 (Theme-Radios verboten), A24 (nicht deklarierte CSS-Tokens) und A59 (Theme-Variablen auf dem DIN-A4-Blatt) erweitert und in `tools/lawcoverage.js` als SSoT-Prüfer verdrahtet. Vier neue Sonden P18–P21 in `tools/antipatterns/project.json` erzwingen A46 (page-break-before), A39 (Icon-CDNs), A21 (CSS-Preprozessoren) und A22 (CSS-in-JS). Die normative Abdeckung stieg von 21/35 auf **30/35 (85,7 %)**.
+
+**Verifikation.**
+- Alle Fitness-Tools (`isolation.js`, `structural-laws.js`, `imr.js`, `links.js`, `terminology.js`) laufen mit Exit-Code 0 durch.
+- `tools/lawcoverage.js` meldet 0 Verstöße und bestätigt 30/35 abgedeckte Gesetze.
+- Manuelle und automatisierte Tests der Web-App bestätigen fehlerfreie Funktionalität ohne Regressionen.
+
+**Generalisierung.**
+- Event-Delegation am Dokument- oder Container-Root ist Einzellistenern auf dynamischen Kindelementen immer überlegen: weniger DOM-Overhead, keine Memory-Leaks bei Re-Renders und saubere Trennung von Event-Falle und Event-Ziel.
+- Eine CI-Pipeline muss zwingend denselben Datenvertrag und dieselbe Kompressionsstufe bedienen wie die Laufzeitkomponenten der Anwendung.
+- Architekturregeln dürfen nicht als „Papiergesetze" existieren: Was im Gesetzbuch steht, braucht entweder einen maschinellen Gate-Prüfer oder eine explizite Dokumentation, warum es sich um einen nicht-regexfähigen Gestaltungsleitsatz handelt.

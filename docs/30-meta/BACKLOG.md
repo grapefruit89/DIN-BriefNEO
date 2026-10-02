@@ -56,6 +56,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B5** | **Agenten-Tooling nach `30-meta/`; `CHANGELOG` + `OBSIDIAN-SETUP-GUIDE` archiviert** | s. u. |
 | **B8** | **Alle 12 Screen-`!important` aufgelöst + CSS-Ursachen bereinigt** | `809eb15` |
 | **B17** | **Strukturprüfungen für Gesetze ausgebaut (Abdeckung 21 → 30 von 35)** | `a16899c` |
+| **B15** | **DECISION-LOG-Behauptungen geprüft, Append-Only-Nachtrag für KISS + B8 + B17** | s. u. |
 
 ---
 
@@ -134,10 +135,8 @@ Fünf „🛡️ ARCHITECTURE GUARD"-Blöcke stehen wortgleich in `index.html` *
 **Nicht anfassen:** `btn-style-formal|polite|casual` — die sehen nur tot aus, werden aber in
 `41-salutation-engine.js` per Template-String (`` `btn-style-${…}` ``) gebaut.
 
-### B15 · Log-Behauptungen gegen den Code prüfen · **M** · ⭐⭐
-Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat jetzt N Zeilen",
-„Baseline ist Chrome 150+"). Prüfen und kategorisieren: *stimmt* / *Code anpassen* /
-*neuer Log-Eintrag*. **Niemals** Alteinträge korrigieren — Append-only ([[DECISION-LOG]]).
+### B15 · Log-Behauptungen gegen den Code prüfen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
+DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append-Only-Eintrag für die 5 KISS-Optimierungen (Event-Delegation, Caret-SSoT, Gzip-Pipeline, `.closest()`-Ancestor, StorageManager-Kapselung), den B8-Vollzug (`!important`-Beseitigung) und den B17-Phase-2-Gate-Ausbau (30/35 Gesetze) eingepflegt. Ältere historische Einträge bleiben gemäß DECISION-LOG-Governance strikt unverändert (Append-only).
 
 ---
 
@@ -149,7 +148,7 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 4. ~~**B12, B13, B14, B11**~~ ✅ erledigt 2026-10-02
 5. ~~**B10**~~ ✅ Research klassifiziert 2026-10-02 (`research/STATUS.md`)
 6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
-7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), **B15**
+7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), ~~**B15**~~ ✅ erledigt 2026-10-02, ~~**B17**~~ ✅ erledigt 2026-10-02 (`a16899c`)
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02

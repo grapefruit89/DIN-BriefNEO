@@ -55,6 +55,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B16** | **Terminologie-Kanon im Glossar + Gate-Durchsetzung (`tools/terminology.js`)** | s. u. |
 | **B5** | **Agenten-Tooling nach `30-meta/`; `CHANGELOG` + `OBSIDIAN-SETUP-GUIDE` archiviert** | s. u. |
 | **B8** | **Alle 12 Screen-`!important` aufgelöst + CSS-Ursachen bereinigt** | `809eb15` |
+| **B17** | **Strukturprüfungen für Gesetze ausgebaut (Abdeckung 21 → 30 von 35)** | `a16899c` |
 
 ---
 
@@ -151,13 +152,12 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), **B15**
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
 
-### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
-A21, A22, A24, A42, A43, A44, A46, A47, A57, A58, A59, A60, A62, A39 lassen sich
-nicht per Textmuster prüfen. Machbar wären u. a.: **A42** (doppelte `id`) und
-**A57/A58** (Radio-Segmented-Control statt `switch`) per HTML-Parse; **A24**
-(Produkt-Token ohne `:root`-Definition) und **A59** (Theme-Variablen auf dem
-Blatt) per CSS-Variablen-Index; **A23/A21/A22** sind bereits abgedeckt bzw.
-entfallen. Erst nach B10. Abdeckung aktuell 21/35, siehe `tools/lawcoverage.js`.
+### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
+Vollständig umgesetzt (Commit `a16899c`):
+1. `tools/structural-laws.js` prüft nun **A42** (doppelte IDs), **A57** (binäre Radios als Schalter), **A58** (Theme-Wahl als Radio), **A24** (Token ohne `:root`-Definition) und **A59** (Theme-Variablen auf dem DIN-A4-Blatt).
+2. `tools/antipatterns/project.json` ergänzt um Sonden **P18** (A46: `page-break-before: always`), **P19** (A39: Icon-CDNs), **P20** (A21: CSS-Preprozessoren) und **P21** (A22: CSS-in-JS).
+3. `tools/lawcoverage.js` verdrahtet die neuen Prüfer in `TOOL_ENFORCED`.
+4. Gesetzliche Abdeckung von 21/35 auf **30/35 (85,7 %)** gesteigert. Die 5 verbleibenden Normen (A43, A44, A47, A60, A62) sind reine Gestaltungs-/UX-Grundsätze und werden bewusst nur berichtet.
 
 ### B18 · Adress-Dropdown mit der Tastatur bedienbar machen · **M** · ⭐⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
 **Härtester Fund der Research-Inventur und unabhängig von ihr gültig.**

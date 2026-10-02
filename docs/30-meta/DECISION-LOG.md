@@ -15,12 +15,93 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-09-30'
+updated: '2026-10-02'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
 
 Dieses Dokument protokolliert alle grundlegenden technologischen und architektonischen Entscheidungen des **DIN-BriefNEO**-Projekts in zeitlicher Reihenfolge. Es ergänzt die thematischen Architecture Decision Records (ADRs) um eine historische Perspektive.
+
+---
+
+## 📌 Nutzungsregeln dieses Logs
+
+> Diese Regeln beschreiben **den Log selbst** (Metadaten, keine Chronik-Einträge).
+> Sie dürfen geändert werden; die **Einträge darunter nicht** — siehe „Append-only".
+> Die Regeln für `docs/` insgesamt stehen in [[AGENTS]] §5, nicht hier.
+
+### Wozu dieser Log da ist
+
+Der Log beantwortet **„Warum ist das so?"** — nicht „Was ist es?" und nicht „Wie macht man es?".
+Sein Wert liegt in den **verworfenen Alternativen** und den **empirischen Befunden**: Er bewahrt
+spätere Bearbeiter (Mensch wie KI) davor, eine bewusst getroffene Entscheidung für einen Fehler
+zu halten und „aufzuräumen". Das ist mehrfach belegt — zuletzt im Code-Audit 2026-10-02, wo die
+dokumentierten Begründungen zu `enforceLineLimits`, zum eigenen Undo-Stack und zu
+`sanitizeRichText` verhindert haben, dass korrekte Lösungen als Antipattern gemeldet wurden
+([[code-audit-website-2026-10-02]] §5).
+
+### Was hier hineingehört — und was woanders hin
+
+| Inhalt | Gehört nach |
+| :--- | :--- |
+| „Wir haben X gewählt, Y verworfen, weil …" | **Hierher** |
+| Empirischer Messwert, der eine Annahme widerlegt | **Hierher** |
+| Fehlschlag, Rollback, Incident + Lehre daraus | **Hierher** |
+| Dauerhaft gültige Norm / Verbot | [[Immutable-Law-Catalog]] |
+| Thematisch geschlossene Architekturentscheidung | ADR in `docs/10-architecture/` |
+| Anleitung „so macht man das" | Guide in `docs/20-implementation/` |
+| Begriffsdefinition | [[glossary]] |
+| Aktueller Projektstatus / Fortschritt | [[ROADMAP]], [[Feature-Matrix]] |
+
+**Faustregel:** Wer das Dokument in einem Jahr liest, soll die *Entscheidung* nachvollziehen
+können, ohne den damaligen Code zu kennen. Alles, was stattdessen den *Istzustand* beschreibt,
+veraltet hier und gehört in ein normatives Dokument.
+
+### Verbindliches Eintrags-Schema
+
+Jeder neue Eintrag beginnt mit `## JJJJ-MM-TT — <prägnanter Titel>` und nutzt **genau diese
+vier Pflichtabschnitte** in dieser Reihenfolge:
+
+```markdown
+## 2026-10-02 — Kurztitel der Entscheidung
+
+**Kontext:** Was war der Auslöser? Welches Problem lag vor? (2–4 Sätze)
+
+**Änderung:** Was wurde konkret getan — mit Datei- und Funktionsnamen.
+
+**Verifikation:** Womit belegt? (Fitness Score, tsc, Messwert, DevTools-Test)
+
+**Generalisierbarkeit:** Was lernt die `llm_boilerplate` daraus?
+```
+
+**Optionale Zusatzabschnitte** (nur verwenden, wenn zutreffend — keine neuen erfinden):
+
+- `**Verworfen:**` — geprüfte Alternativen und der Grund der Ablehnung. *Der wertvollste
+  Abschnitt überhaupt; wo immer möglich ausfüllen.*
+- `**Bewusst NICHT geändert:**` — was absichtlich stehen blieb, damit es niemand „repariert".
+- `**Offener Punkt:**` — was die Entscheidung noch braucht, inkl. Entscheidungskriterium.
+- `**Quelle:**` — Context7, ChromeStatus, Spec-Link, externes Review.
+
+Historisch existieren ~23 Einmal-Labels (`Vorfall:`, `Lehre:`, `Adoptiert:` …). Sie bleiben
+unangetastet, werden aber **nicht fortgeführt**.
+
+### Append-only
+
+Bestehende Einträge werden **nicht umgeschrieben, nicht umsortiert, nicht gelöscht**. Wird eine
+Entscheidung revidiert, entsteht ein **neuer** Eintrag, der die alte per Datum referenziert
+(„revidiert Eintrag 2026-09-10 — …"). Nur so bleibt die Kette der Irrtümer lesbar, und genau die
+ist der Schutz vor Wiederholung.
+
+Wird der Live-Log zu groß, wird er **nach Zeitfenster** ausgelagert (zuletzt 2026-09-30:
+Einträge bis 2026-08 → [[decision-log-archiv-2026-05-08]]), niemals thematisch ausgedünnt.
+
+### Was diesen Log kaputt macht
+
+- **Statusmeldungen statt Begründungen** („Feature X ist jetzt fertig") — veraltet sofort.
+- **Normative Regeln** hier ablegen — der Log ist append-only, Regeln müssen änderbar bleiben.
+- **Einträge ohne `Verifikation`** — eine Behauptung ohne Beleg ist keine Entscheidung.
+- **Einträge ohne `Verworfen`**, wo es Alternativen gab — dann fehlt genau der Schutzwert.
+- **Nachträgliches Glattziehen** alter Einträge — vernichtet die Lernspur.
 
 ---
 
@@ -987,3 +1068,92 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Verifikation:** `tsc --noEmit -p jsconfig.json` sauber; Gate **100 %** (null Diagnosen) — geprüft **nach** dem Stagen.
 
 **Generalisierbarkeit (llm_boilerplate):** (a) Geteilter Zustand braucht genau **einen** Owner; Features bekommen ihn **injiziert**, statt ihn selbst zu laden — ein zweiter `load()`-Aufruf ist bereits der Bug. (b) Wird derselbe Wert an zwei Stellen abgeleitet, driften die Stellen garantiert; der Fix ist eine gemeinsame Funktion, nicht ein nachgezogener Zweitfix. (c) **Gates, die den Git-Index lesen, müssen nach `git add` laufen** — sonst meldet der Pre-Commit-Lauf grün, was der Commit erst einführt.
+
+## 2026-10-02 — Doku-Governance: „Ein Fakt, ein Ort" wird verbindlich; Log bekommt Schema
+
+**Kontext:** Das Doku-Audit 2026-10-02 ([[docs-audit-2026-10-02]]) hat ein Verhältnis von
+1,9 Zeilen Prosa je Zeile Produktionscode gemessen und als Hauptproblem **nicht** die Menge
+identifiziert, sondern die Vervielfachung: Derselbe Verbotskanon existierte in fünf Fassungen
+(Law Catalog, ADR-ANTIPATTERN, constitution §2, CLAUDE.md, GEMINI.md), das Framework-Verbot in
+15 Dateien. Der Law Catalog verbietet das in „PART III — SINGLE SOURCE, KEINE 15 KOPIEN"
+selbst, ohne dass die Regel durchsetzbar formuliert war. Parallel fehlte dem DECISION-LOG ein
+Schema: 72 Einträge tragen vier wiederkehrende Labels, daneben 23 Einmal-Labels.
+
+**Änderung:**
+1. [[AGENTS]] §5 von vier Zeilen auf eine vollständige Doku-Governance erweitert:
+   §5.1 „Ein Fakt, ein Ort" mit Pflichtfrage vor jedem neuen Absatz; §5.2 Zuordnungstabelle
+   Wissensart → Ort (inkl. „Agenten-Tooling ist kein Produktwissen" und Root-Allowlist);
+   §5.3 Pflichten je Änderung (Frontmatter, `updated` einzeln pflegen, Gate **nach** `git add`);
+   §5.4 explizite Negativliste.
+2. DECISION-LOG: Abschnitt „Nutzungsregeln dieses Logs" vorangestellt — Zweck, Abgrenzung
+   gegen Law Catalog/ADR/Guide/Glossar/ROADMAP, **verbindliches Vier-Abschnitte-Schema**
+   (`Kontext` / `Änderung` / `Verifikation` / `Generalisierbarkeit`), optionale Zusatzlabels
+   (insbesondere `Verworfen:`), Append-only-Regel und „Was diesen Log kaputt macht".
+
+**Verworfen:** Die Arbeitsregeln für `docs/` direkt in den DECISION-LOG zu schreiben
+(ursprünglicher Auftrag). Abgelehnt, weil der Log **append-only** ist: Normative Regeln wären
+dort weder revidierbar noch als geltende Fassung erkennbar — und wären die **sechste** Kopie
+des Regelwerks, also exakt der Fehler, den dieser Beschluss abstellt. Ebenfalls verworfen: ein
+neues Dokument `docs/30-meta/dokumentations-governance.md`. In einem Projekt mit zu vielen
+Dokumenten ist die richtige Antwort, das **vorhandene** normative Dokument zu schärfen
+(`AGENTS.md` §5), nicht ein weiteres anzulegen.
+
+**Bewusst NICHT geändert:** Die bestehenden 72 Log-Einträge und ihre Einmal-Labels bleiben
+unangetastet (Append-only). Das neue Schema gilt ab diesem Eintrag vorwärts.
+
+**Verifikation:** Fitness Gate 100 % (Metadata/Coherence/Conformance/Features), null Diagnosen,
+geprüft nach `git add`. Link-Gate `tools/links.js` ohne Befund.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) „Single Source" als Prinzip zu **deklarieren**
+reicht nicht — es braucht eine **Pflichtfrage im Arbeitsablauf** („Steht das schon irgendwo?")
+und eine Zuordnungstabelle, sonst entstehen Kopien aus Hilfsbereitschaft. (b) Eine append-only
+Chronik braucht ein **Pflichtschema**, sonst driftet die Form und die Einträge werden
+unvergleichbar. (c) Der wertvollste Abschnitt einer Chronik ist `Verworfen:` — er verhindert,
+dass spätere Bearbeiter geprüfte Sackgassen erneut betreten; genau dieser Schutz ist im
+Code-Audit mehrfach eingetreten.
+
+## 2026-10-02 — `file://`-Doktrin: Befund dokumentiert, Entscheidung bewusst offen
+
+**Kontext:** Quer durch die Doku wird `file://`-Lauffähigkeit garantiert — und gleichzeitig
+ausgeschlossen. `README.md`, `AGENTS.md` §7 und `CLAUDE.md` (Z. 34) sagen korrekt: ESM + CSP
+machen `file://` unmöglich. Dagegen versprach `docs/index.md` „Alle Kernfunktionen ohne
+Webserver", [[longevity-guidelines]] führt „Säule 2: Offline / `file://`", [[testing-guide]]
+prüft gegen `file:///`, und `CLAUDE.md` widersprach sich in Zeile 45 selbst. Schwerwiegender:
+Der [[Immutable-Law-Catalog]] begründet **fünf** Verbote (S1, A22, A34, A35, A36, A37) mit
+`file://`-Tauglichkeit — eine Voraussetzung, die es nicht mehr gibt. Im Code hängen daran ein
+toter Fallback-Zweig in `45-address-intelligence.js`/`41-salutation-engine.js` und das
+164 KB große `website/data/plz-embedded.js`.
+
+**Befundlage (empirisch belegt, 2026-10-02):**
+- ES-Modules werden unter `file://` CORS-geprüft geladen → Origin `null` → **blockiert**.
+  Klassische `<script>`-Tags und **inline** Module sind davon nicht betroffen (letzteres noch
+  nicht gegengemessen — kein Chrome in der Prüfumgebung).
+- `fetch()` lokaler Dateien unter `file://` ebenfalls blockiert → die `.gz`-Datenpfade sterben.
+- `localStorage` **funktioniert** unter `file://`, aber Chromium ignoriert dabei den Pfad der
+  URL (langjähriger offener Chromium-Bug): **alle** lokal geöffneten HTML-Dateien teilen sich
+  einen Namespace. Für dieses Produkt heißt das: Absenderdaten, Empfänger, Brieftext und
+  Base64-Unterschrift wären von jeder beliebigen lokal geöffneten HTML-Datei les- und
+  überschreibbar. Das kollidiert frontal mit dem Privacy-Versprechen des Projekts.
+- Ein Single-File-Build wäre ca. **381 KB** (51 CSS + 145 JS + 21 HTML + 164 Daten-Base64).
+
+**Offener Punkt:** Ob `file://` als Laufzeitziel **gestrichen** wird (dann: Neubegründung von
+S1/A22/A34–A37 ohne `file://`-Argument, Entfernen der toten Zweige und der 164 KB, Korrektur
+von `longevity-guidelines` Säule 2 und `testing-guide`) oder ob stattdessen eine
+**Single-File-Distribution** als eigenes Artefakt eingeführt wird. Beides ist ADR-pflichtig
+(Amendment Protocol, PART IV). **Entscheidungskriterium:** zuerst empirisch klären, ob ein
+inline `<script type="module">` unter `file://` ausgeführt wird — fällt das negativ aus,
+entfällt die Single-File-Option ohne Build-Schritt von selbst.
+
+**Bewusst NICHT geändert:** Die `file://`-Begründungen im Law Catalog bleiben vorerst stehen.
+Fünf Normen umzuschreiben ist eine Grundsatzentscheidung des Maintainers, keine Aufräumarbeit —
+und ohne ADR wäre es ein Verstoß gegen das Amendment Protocol. Korrigiert wurden ausschliesslich
+Stellen, die der bereits etablierten Faktenlage (README/AGENTS) **widersprachen**.
+
+**Verifikation:** Gate 100 %. Die Faktenlage zu ESM/`fetch`/`localStorage` unter `file://` ist
+gegen die Chromium-/WHATWG-Quellenlage geprüft; der Inline-Modul-Fall ist **ungeprüft** und als
+solcher markiert.
+
+**Generalisierbarkeit (llm_boilerplate):** Wird eine **Voraussetzung** ungültig, müssen alle
+davon **abgeleiteten** Normen nachgezogen werden — sonst bleiben Verbote mit toter Begründung
+stehen und werden irgendwann aus dem falschen Grund gekippt. Normen sollten ihre Begründung
+explizit referenzieren („verboten **weil** X"), damit ein Wegfall von X maschinell auffindbar ist.

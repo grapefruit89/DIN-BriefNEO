@@ -4,7 +4,7 @@ title: AGENTS.md — Bindender KI-Verhaltensvertrag
 type: ai-context
 status: active
 created: '2026-07-01'
-updated: '2026-09-09'
+updated: '2026-10-02'
 tags:
 - din-briefneo
 - meta
@@ -89,6 +89,61 @@ Die relevanten Erkenntnisse aus Context7 sind kurz im `DECISION-LOG.md` zu dokum
 - Jedes neue Dokument muss vollständiges Frontmatter nach Schema V6 enthalten.
 - Die automatisierte Function Traceability Matrix darf **nur** durch `build_db.py` verändert werden.
 - Neue Code-Funktionen müssen Traceability über `@adr` / `@guide` Kommentare herstellen.
+
+### 5.1 Ein Fakt, ein Ort (oberste Doku-Regel)
+
+Jede Aussage lebt an **genau einer** Stelle. Alle anderen Stellen **verlinken** darauf.
+Das ist keine Stilfrage: Das Doku-Audit 2026-10-02 hat gezeigt, dass derselbe Verbotskanon
+in fünf Fassungen existierte und dabei nachweislich auseinanderlief — `CLAUDE.md` empfahl als
+`new Date()`-Ersatz ausgerechnet das von **A50** verbotene zonenlose `Temporal.Now.plainDateISO()`,
+weil die fünfte Kopie beim A50-Beschluss vergessen wurde.
+
+**Vor jedem neuen Absatz gilt die Pflichtfrage:** Steht das schon irgendwo? Wenn ja —
+dorthin verlinken, nicht wiederholen. Wenn es dort falsch steht — dort korrigieren.
+
+### 5.2 Wo was hingehört
+
+| Art des Wissens | Ort | Merkmal |
+| :--- | :--- | :--- |
+| Norm, Verbot, MUST-USE | `docs/00-foundation/Immutable-Law-Catalog.md` | dauerhaft, ADR-pflichtig änderbar |
+| Fachliche Produktanforderung | `docs/00-foundation/spec.md` | WAS das Produkt leistet |
+| Architekturentscheidung (thematisch) | `docs/10-architecture/ADR-*.md` | abgeschlossen, referenzierbar |
+| Geometrie, 45 Atome, DIN-Millimeter | `docs/10-architecture/IMR-Registry.md` | **SSoT**, nie duplizieren |
+| „So macht man das" (Code-nah) | `docs/20-implementation/*.md` | Guide, aus Template |
+| Begriffe | `docs/20-implementation/glossary.md` | Ubiquitous Language |
+| Begründung / Historie / Irrtümer | `docs/30-meta/DECISION-LOG.md` | append-only Chronik |
+| Arbeitsweise, Tooling, Vorlagen | `docs/30-meta/` | darf veralten, wird gepflegt |
+| Abgeschlossene Einmal-Artefakte | `docs/90-archive/` | `status: archived`, eingefroren |
+
+- **Agenten-Tooling ist kein Produktwissen.** Alles, was Build-Pipeline, MCP, Vektorsuche oder
+  Editor-Setup betrifft, gehört nach `30-meta/` — nicht nach `20-implementation/`.
+- **Repo-Root ist eine Allowlist.** Neue Dateien im Wurzelverzeichnis sind nur zulässig, wenn
+  sie in `repository.yaml` → `taxonomy.allowed_root_files` eingetragen sind. Audits, Berichte
+  und Analysen gehören nach `docs/90-archive/`.
+
+### 5.3 Pflichten bei jeder Doku-Änderung
+
+1. **Frontmatter V6 vollständig** — inkl. `status` und wahrheitsgemäßem `updated`.
+2. **`updated:` einzeln pflegen.** Sammel-Stempeln aller Dateien auf dasselbe Datum ist
+   verboten — es vernichtet die einzige Information, die das Feld trägt.
+3. **`status:` muss dem Ort entsprechen.** Alles unter `90-archive/` ist `archived`.
+4. **Wikilinks statt Pfad-Kopien**, damit das Link-Gate (`tools/links.js`) sie prüfen kann.
+5. **Fitness Gate nach `git add` ausführen.** Taxonomie- und Link-Regeln lesen den Git-Index;
+   ein Lauf vor dem Stagen meldet grün, was der Commit erst einführt (Vorfall 2026-10-02).
+
+### 5.4 Was wir in `docs/` nicht tun
+
+- ❌ **Verbote, Regeln oder Baselines kopieren.** Nur der Law Catalog (Normen) und die
+  Longevity-Guidelines (Browser-Baseline) führen sie. Alles andere verlinkt.
+- ❌ **Projektstatus in Kontextdateien schreiben** (`CLAUDE.md`, `GEMINI.md`, Hubs). Solche
+  Snapshots („Stand: 2026-08-07") sind per Konstruktion sofort veraltet → `ROADMAP`/`Feature-Matrix`.
+- ❌ **Normative Regeln in den DECISION-LOG schreiben.** Der ist append-only; Regeln müssen
+  änderbar bleiben. Der Log hält den *Beschluss*, das normative Dokument die *Regel*.
+- ❌ **Eingefrorene Snapshots als „SSoT" ausgeben.** Lebende Quelle ist die generierte
+  Datenbank aus `tools/build_db.js`.
+- ❌ **Dokumente anlegen, die niemand referenziert.** Orphans (von nichts verlinkt, von keinem
+  `@adr`/`@guide` adressiert) sind Archiv-Kandidaten — Link-Zähler ist das Kriterium.
+- ❌ **Guard-Kommentare doppelt pflegen.** Der Schutztext lebt im Modul; HTML verweist darauf.
 
 ---
 

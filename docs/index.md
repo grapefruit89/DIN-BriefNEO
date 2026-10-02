@@ -95,16 +95,16 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 - **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
 - **[[testing-guide]]** — Validierungs-Checklisten für Druckvorschau und responsive Ansichten.
 - **[[glossary]]** — Zentrales Projektglossar (Ubiquitous Language von A bis Z).
-- **[[README-DB]]** & **[[sqlite-vec]]** — Lokale SQLite/FTS5-Wissensdatenbank und semantische Vektorsuche für KI-Agenten.
+- **[[README-DB]]** — lokale SQLite/FTS5-Wissensdatenbank für KI-Agenten. Die geparkte Vektorsuche liegt als [[sqlite-vec]] in `30-meta/` (Agenten-Tooling, kein Produktwissen).
 
 ---
 
 ### 4. [[30-meta/README|30-meta — Projektgedächtnis, Status & Werkzeuge]]
 *Historische Protokolle, Statusberichte und Wissensmanagement.*
-- **[[CHANGELOG]]** — Chronologische Versionshistorie aller Releases bis v15.0.0.
+- **[[DECISION-LOG]]** — die lebende Entscheidungs- und Begründungschronik (append-only). Der alte `CHANGELOG` ist seit 2026-10-02 archiviert.
 - **[[DECISION-LOG]]** — 31 KB Master-Log aller Sessions und historischer Kurskorrekturen.
 - **[[Feature-Matrix]]** — Übersicht aller Features mit Reifegrad und Status.
-- **[[OBSIDIAN-SETUP-GUIDE]]** — Einrichtung des Obsidian-Vaults mit Schema V6, Dataview und Graph-View.
+- **`docs/30-meta/schema-v6.json`** — das Frontmatter-Schema V6 (Pflichtfelder, erlaubte `type`-Werte), maschinenlesbar und damit die einzige Quelle. Der frühere `OBSIDIAN-SETUP-GUIDE` ist seit 2026-10-02 archiviert.
 - **[[tooling-overview]]** — Bestandsaufnahme aller Hilfswerkzeuge im Ordner `tools/`.
 - **Vorlagen:** **[[ADR-TEMPLATE]]** (für neue Architektur-Entscheidungen) und **[[GUIDE-TEMPLATE]]** (für neue How-Tos).
 

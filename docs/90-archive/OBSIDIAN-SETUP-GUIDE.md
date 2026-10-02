@@ -2,13 +2,13 @@
 id: obsidian-setup-guide
 title: 'Obsidian-taugliche Projektdokumentation — Setup-Guide'
 type: guide
-status: active
+status: archived
 created: '2026-08-07'
-updated: '2026-09-10'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/guide
-  - status/active
+  - status/archived
   - type/guide
   - tech/obsidian
   - schema-v6
@@ -34,6 +34,20 @@ depends_on: []
 ---
 
 # Obsidian-taugliche Projektdokumentation — Setup-Guide
+
+> [!warning] Archiviert am 2026-10-02 — eingefroren
+> Zwei Gründe: Der Löwenanteil ist **Editor-Setup** (Obsidian installieren, Einstellungen,
+> Graph-Ansicht) und damit kein Projektwissen — Abschnitt 5.2 in [[AGENTS]] verortet so etwas
+> nicht in `docs/`. Und Abschnitt 2 war eine **zweite Fassung des Frontmatter-Schemas**, das
+> maschinenlesbar in `docs/30-meta/schema-v6.json` steht; eine Prosa-Kopie daneben driftet
+> zwangsläufig.
+>
+> Verbindlich sind stattdessen:
+> - **`docs/30-meta/schema-v6.json`** — das Schema selbst (Pflichtfelder, erlaubte `type`-Werte)
+> - **[[AGENTS]] §5** — Doku-Regeln: ein Fakt ein Ort, Wikilink-Pflicht, Ablageorte
+> - **[[ADR-TEMPLATE]]** / **[[GUIDE-TEMPLATE]]** — die Vorlagen für neue Dokumente
+>
+> Nicht fortschreiben.
 
 > Dieses Dokument erklärt, wie man Markdown-Dateien Obsidian-kompatibel macht:
 > **YAML-Frontmatter + `[[Wikilinks]]` = Wissensgraph**.

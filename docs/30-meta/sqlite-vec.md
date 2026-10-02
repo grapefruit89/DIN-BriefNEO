@@ -1,15 +1,15 @@
 ---
 id: sqlite-vec
 title: 'Guide: sqlite-vec Integration — Hybrid Search Implementierungsplan'
-type: guide
+type: project-plan
 status: draft
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
-  - din-briefneo/implementation
+  - din-briefneo/meta
   - status/draft
-  - type/guide
+  - type/project-plan
   - tech/sqlite
 doc_links:
   - README-DB

@@ -34,7 +34,6 @@ Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen:
 - [[Salutation-Engine]] — Anrede-Logik: Auto-Detection, Fallbacks, SPEC-002
 - [[glossary]] — Projektbegriffe und Definitionen
 - [[testing-guide]] — Test-Anleitung und -Strategie
-- [[README-DB]] — LLM-First SQLite-Datenbank: Schema, FTS5, MCP-Anbindung, SQL-Views
 
 ## Technische Guides
 
@@ -46,7 +45,7 @@ Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen:
 
 ## Forschung / Roadmap
 
-- [[sqlite-vec]] — SQLite Vector Search (Hybrid FTS5 + Semantic Search, Implementierungsplan)
+
 
 ## Templates
 

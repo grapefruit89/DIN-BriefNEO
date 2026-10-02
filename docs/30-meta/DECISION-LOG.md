@@ -1345,3 +1345,44 @@ Zufall. Gegenprobe für jede Invariante: die Bedingung künstlich verletzen und 
 Gate **aus dem beabsichtigten Grund** anschlägt, nicht aus einem Nebeneffekt. Konkret hier:
 Dokumentreferenzen leben nicht nur in Dokumenten, sondern auch im Code — ein Link-Checker,
 der nur Markdown liest, kennt nur die Hälfte des Graphen.
+
+## 2026-10-02 — Agenten-Tooling getrennt, zwei Dokumente archiviert (B5)
+
+**Kontext:** `AGENTS.md` §5.2 trennt Produktwissen von Agenten-Tooling, aber vier Dokumente
+standen am falschen Ort oder behaupteten eine Aktualität, die sie nicht hatten.
+
+**Änderung:**
+1. **`CHANGELOG.md` → `docs/90-archive/`**, `status: archived`. Letzter echter Eintrag war
+   **2026-07-07**; als scheinbar lebende Chronik war die Datei irreführend. Die lebende
+   Begründungschronik ist [[DECISION-LOG]], die Faktenlage liefert `git log`.
+2. **`OBSIDIAN-SETUP-GUIDE.md` → `docs/90-archive/`**, `status: archived`. Zwei Gründe: der
+   Großteil ist Editor-Setup (kein Projektwissen), und Abschnitt 2 war eine **Prosa-Kopie des
+   Frontmatter-Schemas**, das maschinenlesbar in `docs/30-meta/schema-v6.json` steht — also
+   erneut „ein Fakt, zwei Orte". Verbindlich sind jetzt `schema-v6.json`, [[AGENTS]] §5 und
+   die beiden Templates.
+3. **`sqlite-vec.md` → `docs/30-meta/`**, zusätzlich `type: guide` → **`type: project-plan`**.
+   Die Datei ist ein Umsetzungsplan mit `status: draft`, kein Guide; der falsche Typ war der
+   Grund, warum sie überhaupt unter `20-implementation/` lag.
+4. **`README-DB.md` → `docs/30-meta/`**. Beschreibt die SQLite-Wissensbasis **für KI-Agenten**,
+   fällt damit unter §5.2 „Agenten-Tooling ist kein Produktwissen".
+
+**Verifikation:** Fitness Gate **100 %**, null Diagnosen, nach `git add`. Zwischenstand 98 %
+mit zwei toten Links — der Umzug hatte relative Markdown-Pfade (`DEV-INFO.md`,
+`DECISION-LOG.md`) in `CHANGELOG.md` gebrochen; sie wurden zu Wikilinks konvertiert.
+`tools/links.js` SCAN_SKIP auf den neuen Pfad nachgezogen.
+
+**Bewusst NICHT gelöscht:** Beide Dateien sind **archiviert, nicht entfernt**. Ein toter
+Changelog bleibt ein Zeitdokument, und der Obsidian-Guide enthält Konventionen, die man
+nachschlagen können soll. `docs/90-archive/` ist genau dafür da und von Link-, Terminologie-
+und Größenprüfung ausgenommen.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) **Relative Markdown-Pfadlinks sind eine
+Umzugsbremse** — sie brechen still, sobald eine Datei das Verzeichnis wechselt. Wikilinks
+überleben den Umzug, weil sie über den Dateinamen auflösen; deshalb steht die Wikilink-Pflicht
+in `AGENTS.md` §5.3.4. Beim Verschieben immer zuerst auf Pfadlinks prüfen. (b) **Ein falscher
+`type` im Frontmatter zieht die Datei an den falschen Ort.** `sqlite-vec.md` lag unter
+`20-implementation/`, weil sie sich „guide" nannte, obwohl sie ein `project-plan` war — die
+Taxonomie folgt dem deklarierten Typ, also ist ein ehrlicher Typ die billigste Ordnung.
+(c) Ein Dokument, das sich selbst `status: active` gibt, aber seit Monaten keinen Eintrag
+bekam, ist gefährlicher als ein offensichtlich altes — **Aktualität behaupten ist schlimmer
+als alt sein**.

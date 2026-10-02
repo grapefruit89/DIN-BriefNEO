@@ -4,17 +4,25 @@ created: '2026-06-26'
 depends_on: []
 doc_links: []
 id: changelog
-status: active
+status: archived
 tags:
 - documentation
 - changelog
 - history
 title: Changelog (Dokumentation)
 type: changelog
-updated: '2026-07-07'
+updated: '2026-10-02'
 ---
 
 # Changelog (Dokumentation)
+
+> [!warning] Archiviert am 2026-10-02 — eingefroren
+> Letzter echter Eintrag: **2026-07-07**. Die Datei wurde danach nicht mehr gepflegt, lief
+> also der Realität hinterher und wäre als scheinbar aktuelle Chronik irreführend gewesen.
+>
+> Die lebende Begründungs-Chronik ist **[[DECISION-LOG]]** (append-only, mit Pflichtschema).
+> Was sich zuletzt geändert hat, beantwortet `git log` genauer als jede Handpflege.
+> Nicht fortschreiben.
 
 Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden in dieser Datei nach dem "Keep a Changelog"-Standard gepflegt.
 
@@ -63,13 +71,13 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 
 ### Added
 
-*   **Datenbank-Architektur:** Spezifikation der LLM-first SQLite-Dokumenten-Datenbank in **[../20-implementation/README-DB.md](../20-implementation/README-DB.md)** verankert.
+*   **Datenbank-Architektur:** Spezifikation der LLM-first SQLite-Dokumenten-Datenbank in **[[README-DB]]** verankert.
 
 *   **Datenbank-Compiler:** Das zero-dependency Node.js-Skript `build_db.js` zur vollautomatischen Generierung der SQLite-Datenbank aus den Markdown-Dateien angelegt.
 
 *   **GitHub-Automatisierung:** Die Workflow-Vorlage `github_action_workflow.txt` für die vollautomatische Datenbank-Aktualisierung bei jedem Push erstellt.
 
-*   **Entwicklerbereich:** Die Diagnose-Ansicht und Feature-Erkennungs-Matrix **[DEV-INFO.md](DEV-INFO.md)** zur Validierung von 25 absoluten Bleeding-Edge-Features der Web-Plattform angelegt und das Easter-Egg High-Integrity Dev-Panel (Feature 11) spezifiziert.
+*   **Entwicklerbereich:** Die Diagnose-Ansicht und Feature-Erkennungs-Matrix **[[DEV-INFO]]** zur Validierung von 25 absoluten Bleeding-Edge-Features der Web-Plattform angelegt und das Easter-Egg High-Integrity Dev-Panel (Feature 11) spezifiziert.
 
 *   **Mermaid-Diagramme:** Visuelle Systemarchitektur und Spec-Kit-Lifecycle in `README.md` eingebettet.
 
@@ -79,11 +87,11 @@ Alle wichtigen Änderungen an der Systemdokumentation dieses Repositories werden
 
 *   **YAML Frontmatter:** Obsidian- und KI-kompatible Metadaten-Blöcke an den Anfang aller 7 ADR-Dateien gestellt.
 
-*   **Guides:** Das zentrale Fachbegriff-Glossar **[glossary.md](../20-implementation/glossary.md)** mit integrierten CSS-Container-Skizzen angelegt.
+*   **Guides:** Das zentrale Fachbegriff-Glossar **[[glossary]]** mit integrierten CSS-Container-Skizzen angelegt.
 
-*   **Guides:** Der interaktive manuelle QA-Testleitfaden **[testing-guide.md](../20-implementation/testing-guide.md)** für alle Baseline-Features 1 bis 6 erstellt.
+*   **Guides:** Der interaktive manuelle QA-Testleitfaden **[[testing-guide]]** für alle Baseline-Features 1 bis 6 erstellt.
 
-*   **Entscheidungs-Log:** Das chronologische Logbuch **[DECISION-LOG.md](DECISION-LOG.md)** zur historischen Nachverfolgbarkeit aller Systementscheidungen angelegt.
+*   **Entscheidungs-Log:** Das chronologische Logbuch **[[DECISION-LOG]]** zur historischen Nachverfolgbarkeit aller Systementscheidungen angelegt.
 
 *   **Maschinen-Index:** Die Datei **`build/index.json`** (generiertes Build-Artefakt) als maschinenlesbarer Index aller Dokumente angelegt.
 

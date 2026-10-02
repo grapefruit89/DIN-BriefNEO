@@ -12,7 +12,6 @@ tags:
   - type/roadmap
 doc_links:
   - spec
-  - CHANGELOG
   - ROADMAP
   - Salutation-Engine
 code_links: []

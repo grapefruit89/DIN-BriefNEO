@@ -24,7 +24,7 @@ const STRIP_EXT = /\.(md|json|js|css|html|canvas|ya?ml)$/i;
 const PLACEHOLDER = /^(adr-x+$|adr-y+$|_template|\.{3}|…)$/i;
 const SCAN_SKIP = [
   'docs/30-meta/DECISION-LOG.md',
-  'docs/30-meta/CHANGELOG.md',
+  'docs/90-archive/CHANGELOG.md',
   'docs/10-architecture/Code-Referenzen.md',
   'docs/10-architecture/Function-Traceability.md',
 ];

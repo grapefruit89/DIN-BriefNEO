@@ -4,10 +4,10 @@ title: 'README-DB — Retrieval-Index (SQLite): Bedienung & Spezifikation'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
-  - din-briefneo/implementation
+  - din-briefneo/meta
   - status/active
   - type/reference
   - tech/sqlite

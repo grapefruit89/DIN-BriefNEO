@@ -53,6 +53,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B3** | **`ADR-ANTIPATTERN` aufgelöst → `A51`–`A62`, `H11` im Law Catalog** | s. u. |
 | **B4** | **`GEMINI.md`/`CLAUDE.md` auf Wegweiser reduziert, Regeln nach `AGENTS.md`/Catalog** | s. u. |
 | **B16** | **Terminologie-Kanon im Glossar + Gate-Durchsetzung (`tools/terminology.js`)** | s. u. |
+| **B5** | **Agenten-Tooling nach `30-meta/`; `CHANGELOG` + `OBSIDIAN-SETUP-GUIDE` archiviert** | s. u. |
 
 ---
 
@@ -64,15 +65,6 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 ---
 
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
-
-### B5 · Agenten-Tooling-Docs nach `30-meta/` · **S** · ⭐⭐
-`sqlite-vec.md` (395 Z., `status: draft`) liegt in `20-implementation/` und beschreibt vier
-Tools, die es nicht gibt — sie ist ein **Plan**, kein Guide. Ebenso `README-DB.md` und
-`tool-result-vocabulary.md`.
-**Zu tun:** Umziehen; `sqlite-vec.md` entweder als ROADMAP-Eintrag führen oder archivieren.
-Verstösst aktuell gegen `AGENTS.md` §5.2 („Agenten-Tooling ist kein Produktwissen").
-
----
 
 ## 🟡 Priorität 3 — gute Verbesserung, grösserer Eingriff
 
@@ -144,8 +136,9 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 
 1. ~~**B1**, **B2**~~ ✅ erledigt 2026-10-02 (`file://` gestrichen)
 2. ~~**B3**, **B4**, **B16**~~ ✅ erledigt 2026-10-02 (Kanonisierung: eine Quelle, ein Begriff)
-3. **B12, B13, B14, B11** — Hygiene, lässt sich gut zwischenschieben
-4. **B5, B10** — Umzüge
-5. **B6** — Full Mode, braucht eigene Sitzung
-6. **B8, B9, B15**
-7. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
+3. ~~**B5**~~ ✅ erledigt 2026-10-02
+4. **B12, B13, B14, B11** — Hygiene, lässt sich gut zwischenschieben
+5. **B10** — `research/` auslagern
+6. **B6** — Full Mode, braucht eigene Sitzung
+7. **B8, B9, B15**
+8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang

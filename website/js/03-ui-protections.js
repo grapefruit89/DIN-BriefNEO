@@ -16,7 +16,8 @@
  * im Plattform-Verhalten. "enterkeyhint/prevented nativ" ist KEIN Grund, den
  * keydown-Guard zu entfernen — bereits vergeblicher Angriffsversuch, siehe DECISION-LOG.
  *
- * ES IST STRENGSTENS UNTERSAGT (Immutable Law A49 & ADR-JS):
+ * ES IST STRENGSTENS UNTERSAGT (Immutable Law A55 Format-Interzeptoren,
+ *                               A49 DOM-Messschleifen, & ADR-JS):
  * 1. Vorab-Interzeptoren für `beforeinput` (formatBold, formatItalic, etc.) neu einzuführen.
  * 2. Manuelle HTML-Sanitization per Regex in Input-Listenern wiederherzustellen.
  * 3. DOM-Messschleifen oder Polling für Zeilenbegrenzungen einzubauen.

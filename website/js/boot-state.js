@@ -83,4 +83,8 @@ try {
   if (/^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(localStorage.getItem('din_custom_font') || '')) {
     document.body.classList.add('schrift-eigene-aktiv');
   }
-} catch (e) {}
+} catch (e) {
+  /* Boot-Restore ist still gescheitert: der Nutzer sieht ein leeres Blatt, obwohl ein
+   * Entwurf existiert. Ohne Log war genau das unsichtbar — nicht erneut verschlucken. */
+  console.error('[Boot] Entwurf konnte nicht wiederhergestellt werden:', e);
+}

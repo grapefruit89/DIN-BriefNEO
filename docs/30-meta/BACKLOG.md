@@ -105,21 +105,21 @@ statt Handarbeit, im Sinne von A49.
 Provenienz der Datensätze — vor dem Auslagern Referenzen prüfen (Lehre aus 2026-09-30:
 Markdown-Links sieht das Wikilink-Gate nicht).
 
-### B11 · `_`-Prefix → `#private` vereinheitlichen · **S** · ⭐
+### B11 · `_`-Prefix → `#private` vereinheitlichen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
 `01`, `41`, `53` mischen `#private`, `_underscore` und public. Rein mechanisch, kein
 Verhaltensrisiko.
 
-### B12 · Logging-Konvention · **S** · ⭐
+### B12 · Logging-Konvention · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
 21 `console.*` ohne einheitliches Präfix. Vorschlag `[DIN-BriefNEO/<Modul>]`.
 Zusätzlich: die beiden leeren `catch (e) {}` in `boot-theme.js`/`boot-state.js` loggen lassen —
 aktuell sind Boot-Fehler inklusive Draft-Verlust unsichtbar.
 
-### B13 · Guard-Kommentare entdoppeln · **S** · ⭐
+### B13 · Guard-Kommentare entdoppeln · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
 Fünf „🛡️ ARCHITECTURE GUARD"-Blöcke stehen wortgleich in `index.html` **und** im Modul
 (~60 Z. Redundanz). Guard-Text ins Modul, HTML bekommt einen Einzeiler-Verweis
 (`AGENTS.md` §5.4).
 
-### B14 · Vier ungenutzte IDs entfernen · **S** · ⭐
+### B14 · Vier ungenutzte IDs entfernen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
 `btn-confirm-import`, `btn-confirm-reset`, `seitenleiste-ai-switch-row`,
 `zwischenablage-anschrift-wrapper`.
 **Nicht anfassen:** `btn-style-formal|polite|casual` — die sehen nur tot aus, werden aber in

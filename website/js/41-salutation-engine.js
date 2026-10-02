@@ -159,6 +159,9 @@ export const SalutationEngine = {
 
 /* @adr [[ADR-JS]] {SalutationFeature} */
 export class SalutationFeature {
+  /** @type {{save: () => void} | null} */
+  #settingsContext = null;
+
   /**
    * 🚨 ARCHITECTURAL GUARD (ein Settings-Owner):
    * `settingsContext` ist das GETEILTE Settings-Objekt des SettingsManager
@@ -176,7 +179,7 @@ export class SalutationFeature {
   constructor(saveDraftDataCallback, settingsContext = null) {
     this.saveDraftData = saveDraftDataCallback;
     /** @type {{ settings: any, save: () => void } | null} */
-    this._settingsContext = settingsContext;
+    this.#settingsContext = settingsContext;
     this.settings = settingsContext ? settingsContext.settings : StorageManager.loadSettings();
     if (!this.settings.formality) this.settings.formality = 'formal';
   }
@@ -185,35 +188,35 @@ export class SalutationFeature {
    * Persistiert über den gemeinsamen Owner, damit kein Fremdfeld verliert.
    * @returns {void}
    */
-  _saveSettings() {
-    if (this._settingsContext) this._settingsContext.save();
+  #saveSettings() {
+    if (this.#settingsContext) this.#settingsContext.save();
     else StorageManager.saveSettings(this.settings);
   }
 
   init() {
     this.isReady = false;
     ensureNameIndex();
-    this._wireFormality();
-    this._wireRecipientName();
-    this._wireManualEdits();
-    this._applyUIState();
-    this._regenerateSalutation({ onlyIfEmpty: true });
-    this._regenerateClosing({ onlyIfEmpty: true });
+    this.#wireFormality();
+    this.#wireRecipientName();
+    this.#wireManualEdits();
+    this.#applyUIState();
+    this.#regenerateSalutation({ onlyIfEmpty: true });
+    this.#regenerateClosing({ onlyIfEmpty: true });
     this.isReady = true;
   }
 
-  _applyUIState() {
+  #applyUIState() {
     const formalBtn = document.getElementById(`btn-style-${this.settings.formality}`);
     if (formalBtn) /** @type {HTMLInputElement} */ (formalBtn).checked = true;
   }
 
-  _wireFormality() {
+  #wireFormality() {
     const apply = (/** @type {'formal' | 'polite' | 'casual'} */ style) => {
       if (!this.isReady) return;
       this.settings.formality = style;
-      this._saveSettings();
-      this._regenerateSalutation({ force: true });
-      this._regenerateClosing({ force: true });
+      this.#saveSettings();
+      this.#regenerateSalutation({ force: true });
+      this.#regenerateClosing({ force: true });
     };
     (/** @type {('formal' | 'polite' | 'casual')[]} */ (['formal', 'polite', 'casual'])).forEach(style => {
       const btn = document.getElementById(`btn-style-${style}`);
@@ -221,18 +224,18 @@ export class SalutationFeature {
     });
   }
 
-  _wireRecipientName() {
+  #wireRecipientName() {
     const fields = ['empfaenger-namenszeile', 'empfaenger-firma'];
     fields.forEach(tag => {
       const el = document.getElementById(tag);
-      if (el) el.addEventListener('input', () => this._regenerateSalutation());
+      if (el) el.addEventListener('input', () => this.#regenerateSalutation());
     });
   }
 
   /**
    * ContentEditable-First: Locks fields when edited, auto-resets when cleared.
    */
-  _wireManualEdits() {
+  #wireManualEdits() {
     const anrede = document.getElementById('anrede');
     const gruss = document.getElementById('grussformel');
 
@@ -243,17 +246,17 @@ export class SalutationFeature {
           // AUTO-RESET: User cleared field -> Re-enable auto-generation
           delete anrede.dataset.dirty;
           this.settings.salutationDirty = false;
-          this._saveSettings();
-          this._regenerateSalutation({ force: true });
+          this.#saveSettings();
+          this.#regenerateSalutation({ force: true });
         } else {
           // USER LOCK: Manual edit is sacred -> Hands off!
           anrede.dataset.dirty = "true";
           delete anrede.dataset.generated;
           this.settings.salutationDirty = true;
-          this._saveSettings();
+          this.#saveSettings();
         }
       });
-      anrede.addEventListener('blur', () => this._validatePunctuation(anrede, 'anrede'));
+      anrede.addEventListener('blur', () => this.#validatePunctuation(anrede, 'anrede'));
     }
 
     if (gruss) {
@@ -262,16 +265,16 @@ export class SalutationFeature {
         if (!text) {
           delete gruss.dataset.dirty;
           this.settings.closingDirty = false;
-          this._saveSettings();
-          this._regenerateClosing({ force: true });
+          this.#saveSettings();
+          this.#regenerateClosing({ force: true });
         } else {
           gruss.dataset.dirty = "true";
           delete gruss.dataset.generated;
           this.settings.closingDirty = true;
-          this._saveSettings();
+          this.#saveSettings();
         }
       });
-      gruss.addEventListener('blur', () => this._validatePunctuation(gruss, 'grussformel'));
+      gruss.addEventListener('blur', () => this.#validatePunctuation(gruss, 'grussformel'));
     }
   }
 
@@ -279,7 +282,7 @@ export class SalutationFeature {
    * @param {HTMLElement} el
    * @param {'anrede'|'grussformel'} kind
    */
-  _validatePunctuation(el, kind) {
+  #validatePunctuation(el, kind) {
     const dirty = kind === 'anrede' ? this.settings.salutationDirty : this.settings.closingDirty;
     if (!dirty) return;
     const text = (el.textContent || "").trim();
@@ -291,7 +294,7 @@ export class SalutationFeature {
     }
   }
 
-  _regenerateSalutation({ force = false, onlyIfEmpty = false } = {}) {
+  #regenerateSalutation({ force = false, onlyIfEmpty = false } = {}) {
     const el = document.getElementById('anrede');
     if (!el) return;
 
@@ -312,10 +315,10 @@ export class SalutationFeature {
       formality: this.settings.formality
     });
 
-    this._setField(el, value, { force });
+    this.#setField(el, value, { force });
   }
 
-  _regenerateClosing({ force = false, onlyIfEmpty = false } = {}) {
+  #regenerateClosing({ force = false, onlyIfEmpty = false } = {}) {
     const el = document.getElementById('grussformel');
     if (!el) return;
 
@@ -327,7 +330,7 @@ export class SalutationFeature {
     if (onlyIfEmpty && current) return;
 
     const value = SalutationEngine.getClosing(this.settings.formality);
-    this._setField(el, value, { force });
+    this.#setField(el, value, { force });
   }
 
   /**
@@ -335,7 +338,7 @@ export class SalutationFeature {
    * @param {string} value
    * @param {{ force?: boolean }} [opts]
    */
-  _setField(el, value, opts = {}) {
+  #setField(el, value, opts = {}) {
     if (!opts.force && document.activeElement === el) return;
     el.textContent = value;
     el.dataset.generated = "true";

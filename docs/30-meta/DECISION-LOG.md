@@ -1439,3 +1439,44 @@ Metadaten, ein `import` wäre Kopplung. Eine Prüfregel, die beides gleich behan
 Fehlalarme und wird abgeschaltet. (c) Dies ist die **dritte** Norm in diesem Projekt, die als
 Absichtserklärung ohne Prüfung existierte (nach `@adr`-Schutz und Terminologie). Verdachtsfrage
 für jeden Katalog: *welche dieser Regeln prüft tatsächlich jemand?*
+
+## 2026-10-02 — B11–B14: Kleinkram, der eine echte Fehlreferenz freilegte
+
+**B11 `#private`:** Alle Klassen nutzen jetzt native `#`-Felder/-Methoden
+(`41-salutation-engine.js` 29 Stellen, `01-draft-manager.js` 2). **`53-metadata.js`
+bleibt bei `_`** — es ist ein Objekt-Literal, dort ist `#private` syntaktisch
+unmöglich. `tsc` hat den Fehlversuch gefangen (TS18016).
+
+**B12 Logging:** Alle 26 `console.*` tragen ein `[Modul]`-Präfix. Abweichung vom
+Backlog: Es schlug `[DIN-BriefNEO/<Modul>]` vor, aber 14 Stellen nutzten bereits
+das kurze `[Modul]` — die 9 Ausreißer wurden an den **Bestand** angepasst, nicht
+umgekehrt. Die stummen `catch` in `boot-state.js` und `boot-theme.js` loggen jetzt
+(stiller Draft-/Theme-Verlust war unsichtbar). Die leeren `catch` um
+`hidePopover()/showPopover()` in `43-geoapify.js` bleiben: legitimes Schlucken.
+
+**B13 Guard-Kommentare — der eigentliche Fund:** Die Blöcke waren *nicht* wortgleich,
+sondern Paraphrasen, und sie waren bereits auseinandergelaufen:
+`03-ui-protections.js` und `32-toast.js` zitierten beide **`A49`** (JS-Text-Fitting),
+richtig sind **`A55`** (Format-Interzeptoren) bzw. **`A56`** (Pointer-Drag). Die
+HTML-Kopien hatten die korrekten IDs. Die Doppelung hat die Fehlreferenz erzeugt
+*und* verdeckt. Jetzt: der Modultext ist die verbindliche Fassung, das HTML trägt
+nur noch einen Verweis darauf. Die TOASTS-Policy hatte kein Modul-Gegenstück und
+sitzt nun bei `Constants.TOASTS` in `51-storage.js`.
+
+**B14 tote IDs:** Vier IDs entfernt. Die Dialog-Buttons werden über
+`returnValue`/`value="confirm"` ausgewertet, nicht über die ID — vorher verifiziert.
+`btn-style-formal|polite|casual` wurden **nicht** angefasst: sie werden in
+`41-salutation-engine.js:206,219` per Template-String gebaut.
+
+### Generalisierung
+(m) **Eine Kopie, die paraphrasiert statt zitiert, driftet unbemerkt.** Wortgleiche
+Doppelung fällt beim Diff auf; eine Paraphrase sieht immer „gewollt anders" aus —
+hier hat sie zwei falsche Gesetzesnummern überlebt. Wenn ein Text an zwei Orten
+stehen muss, braucht einer davon die Rolle „verbindlich" und der andere einen
+reinen Verweis.
+(n) **Backlog-Zahlen altern schneller als der Code.** Jede der vier Positionen war
+falsch beziffert (23 statt 21 `console.*`, 10 statt 2 leere `catch`, 4 statt 5
+Guards). Vor der Umsetzung nachmessen, nicht den Eintrag glauben.
+(o) **Ein fehlgeschlagener Test ist zuerst ein Testfehler.** Der 404-Sturm beim
+Smoke-Test kam von `--directory website` relativ zum falschen Verzeichnis, nicht
+vom Code. Zweiter Fall dieser Art in diesem Projekt.

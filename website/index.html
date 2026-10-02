@@ -42,15 +42,8 @@
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked autocomplete="off">
               <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
             </div>
-            <!--
-              🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCH STANDARD
-              ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
-              Dieser Schalter nutzt das W3C-Standardattribut `<input type="checkbox" switch>`.
-              Moderne Browser rendern diesen Schalter NATIV als System-Toggle.
-              STRIKT VERBOTEN: Diesen Schalter durch Radio-Segmented-Controls, verschachtelte
-              Div-Wrapper oder JS-Klick-Listener zu ersetzen! Der Status wird rein
-              im CSS über :root:has(#btn-hilfslinien-switch:checked) ausgewertet. (Law Catalog A57)
-            -->
+            <!-- Guard: W3C-Switch (`<input type="checkbox" switch>`, Status via :has()).
+                 Verbindlicher Text: css/sidebar.css — Law Catalog A57. -->
             <div class="seitenleiste-switch-row">
               <h3 class="seitenleiste-label">Hilfslinien</h3>
               <input type="checkbox" switch id="btn-hilfslinien-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
@@ -67,7 +60,7 @@
               <label for="btn-style-casual" title="Hallo ...">Locker</label>
             </div>
           </div>
-          <div class="seitenleiste-switch-row" id="seitenleiste-ai-switch-row">
+          <div class="seitenleiste-switch-row">
             <h3 class="seitenleiste-label">✨ KI-Assistent</h3>
             <input type="checkbox" switch id="toggle-experimental-ai" autocomplete="off" aria-label="On-Device KI-Assistent aktivieren">
           </div>
@@ -129,7 +122,7 @@
                 <input type="text" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off">
                 <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken"></ul>
               </div>
-              <div id="zwischenablage-anschrift-wrapper">
+              <div>
                 <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage lesen</button>
                 <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
               </div>
@@ -175,17 +168,9 @@
             <din-falz-oben></din-falz-oben>
             <din-falz-unten></din-falz-unten>
             <din-lochmarke></din-lochmarke>
-            <!-- 
-              🛡️ BLEEDING EDGE ARCHITECTURE GUARD: PLAINTEXT & ENTERKEYHINT ENGINE
-              ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
-              Alle einzeiligen DIN-Felder nutzen `contenteditable="plaintext-only"` und `enterkeyhint="done"`.
-              Der Browser blockiert HTML-Formatting, Rich-Text-Pasting und Rich-Text-Tags NATIV
-              im C++ Rendering-Core. Zeilenumbrueche werden dagegen als LF-Zeichen durchgelassen
-              (w3c/editing#419, whatwg/html#11350) — der Keydown-Guard in 03-ui-protections.js
-              (`enforceLineLimits`) ist die einzige echte Umbruch-Sperre und bleibt bewusst bestehen.
-              STRIKT VERBOTEN: beforeinput-Format-Interzeptoren oder manuelle
-              Regex-Sanitizer wieder einzubauen! (Law Catalog A55)
-            -->
+            <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
+                 nativ gesperrt — die Sperre lebt in enforceLineLimits.
+                 Verbindlicher Text: js/03-ui-protections.js — Law Catalog A55/A49. -->
             <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
               <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Postvermerk"></din-postvermerk>
@@ -238,17 +223,10 @@
       <button type="button" id="btn-ai-rewrite" title="Ausgewählten Text förmlicher formulieren (Gemini Nano)" aria-label="Förmlicher formulieren" class="hidden">✨ Formal</button>
     </div>
     <div id="selection-anchor" class="nicht-drucken"></div>
-    <!-- 
-      🛡️ BLEEDING EDGE ARCHITECTURE GUARD: NATIVE POPOVER TOP-LAYER TOAST
-      ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
-      Dieser Toast nutzt die native HTML Popover API (`popover="manual"`) und rendert
-      direkt im Browser-Top-Layer über allen Dialogen, Modals und z-index-Ebenen.
-      STRIKT VERBOTEN: z-index-Hacks, DOM-Mounting-Libraries oder JavaScript-Animationsschleifen
-      einzuführen! Uebergänge laufen 100% deklarativ über CSS @starting-style. (Law Catalog A56)
-    -->
-    <!-- 🚨 ARCHITECTURAL GUARD (TOASTS-Policy + a11y): role="status"/aria-live="polite"
-         ist PFLICHT — keine assertiven Alerts für Routine-Meldungen, KEINE Success-Toasts
-         (Erfolg ist still, siehe Constants.TOASTS in 51-storage.js). -->
+    <!-- Guard: nativer Popover-Toast im Top-Layer, Uebergaenge via @starting-style.
+         Verbindlicher Text: js/32-toast.js — Law Catalog A56. -->
+    <!-- Guard: role="status"/aria-live="polite" ist Pflicht, keine Success-Toasts.
+         Verbindlicher Text: js/51-storage.js bei Constants.TOASTS. -->
     <div id="hinweis-v4" popover="manual" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite" aria-atomic="true">
       <span id="hinweis-message"></span>
       <span id="hinweis-badge" class="hinweis-badge"></span>
@@ -260,7 +238,7 @@
         <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
         <div class="dialog-actions">
           <button value="cancel" class="btn">Abbrechen</button>
-          <button value="confirm" class="btn danger" id="btn-confirm-reset">Zurücksetzen</button>
+          <button value="confirm" class="btn danger">Zurücksetzen</button>
         </div>
       </form>
     </dialog>
@@ -270,7 +248,7 @@
         <p class="import-file-name" id="import-file-name"></p>
         <div class="dialog-actions">
           <button value="cancel" class="btn">Abbrechen</button>
-          <button value="confirm" class="btn primary" id="btn-confirm-import">Importieren</button>
+          <button value="confirm" class="btn primary">Importieren</button>
         </div>
       </form>
     </dialog>

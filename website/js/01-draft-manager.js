@@ -64,7 +64,7 @@ export class DraftManager {
 
     const saved = StorageManager.saveDraft('current', draft);
     this.#setSaveStatus(saved ? 'saved' : 'error');
-    this._updateDocumentTitle();
+    this.#updateDocumentTitle();
 
     if (this.#isRestoring) return saved;
 
@@ -292,7 +292,7 @@ export class DraftManager {
     }
   }
 
-  _updateDocumentTitle() {
+  #updateDocumentTitle() {
     /* Waehrend des Druckens haelt MetadataService den Titel (Chrome leitet
      * daraus den PDF-Dateinamen ab) — ein Autosave darf ihn dann nicht
      * ueberschreiben. Siehe Guard in 53-metadata.js. */

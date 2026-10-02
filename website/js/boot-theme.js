@@ -31,6 +31,12 @@ try {
     const face = new FontFace('AptosCustom', `url(${customFont}) format('woff2')`);
     face.load().then((loaded) => {
       document.fonts.add(loaded);
-    }).catch(() => {});
+    }).catch((e) => {
+      console.warn('[Boot] Eigene Schriftart konnte nicht geladen werden:', e);
+    });
   }
-} catch (e) {}
+} catch (e) {
+  /* Schlaegt das Theme-Boot fehl, startet die App im falschen Farbschema und
+   * ohne die gewaehlte Schrift — sichtbar, aber ohne Ursache. Daher loggen. */
+  console.error('[Boot] Theme-Initialisierung fehlgeschlagen:', e);
+}

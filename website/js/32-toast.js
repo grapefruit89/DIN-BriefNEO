@@ -16,7 +16,7 @@
  * - Statt `display: none`-Hacks und manueller Z-Index-Kämpfe (`z-index: 9999`) regelt der
  *   Browser das Stacking im Top-Layer automatisch.
  *
- * ES IST STRENGSTENS UNTERSAGT (Immutable Law A49 & ADR-JS):
+ * ES IST STRENGSTENS UNTERSAGT (Immutable Law A56 & ADR-JS):
  * 1. Manuelle Pointer-Drag/Swipe-Event-Schleifen oder `--swipe-x` Berechnungen in JS einzufügen.
  * 2. Manuelle Z-Index-Erhöhungen in JS/CSS zu reaktivieren.
  * 3. Polyfills oder Framework-Toast-Bibliotheken hinzuzufügen.

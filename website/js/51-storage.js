@@ -31,6 +31,10 @@ export const Constants = {
   // Centralized UI Messages (Toasts) — Policy 2026-09-10: nur noch Fehler, Warnungen
   // und fehlende User-Guidance. Success-Confirmations sind raus (das UI zeigt das
   // Ergebnis sichtbar; Toast-Spam war das Problem). Siehe ADR-UI / DECISION-LOG.
+  /* 🚨 ARCHITECTURAL GUARD (TOASTS-Policy + a11y): Jeder Toast wird ueber das
+   * role="status"/aria-live="polite"-Element #hinweis-v4 ausgegeben. PFLICHT:
+   * keine assertiven Alerts fuer Routine-Meldungen. Und KEINE Success-Toasts —
+   * Erfolg ist still; nur Fehler und Rueckfragen duerfen den Nutzer unterbrechen. */
   TOASTS: {
     // Warnings / Errors
     FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 60 KB groß sein)',
@@ -60,7 +64,7 @@ export const StorageManager = {
       localStorage.setItem(`din_draft_${key}`, JSON.stringify(data));
       return true;
     } catch (e) {
-      console.error("Fehler beim Speichern im LocalStorage:", e);
+      console.error("[Storage] Fehler beim Speichern im LocalStorage:", e);
       return false;
     }
   },
@@ -75,7 +79,7 @@ export const StorageManager = {
       const item = localStorage.getItem(`din_draft_${key}`);
       return item ? JSON.parse(item) : null;
     } catch (e) {
-      console.error("Fehler beim Laden aus dem LocalStorage:", e);
+      console.error("[Storage] Fehler beim Laden aus dem LocalStorage:", e);
       return null;
     }
   },
@@ -90,7 +94,7 @@ export const StorageManager = {
       localStorage.setItem("din_settings", JSON.stringify(settings));
       return true;
     } catch (e) {
-      console.error("Fehler beim Speichern der Einstellungen:", e);
+      console.error("[Storage] Fehler beim Speichern der Einstellungen:", e);
       return false;
     }
   },
@@ -110,7 +114,7 @@ export const StorageManager = {
       const settings = localStorage.getItem("din_settings");
       return settings ? { ...defaultSettings, ...JSON.parse(settings) } : defaultSettings;
     } catch (e) {
-      console.error("Fehler beim Laden der Einstellungen:", e);
+      console.error("[Storage] Fehler beim Laden der Einstellungen:", e);
       return defaultSettings;
     }
   },
@@ -147,7 +151,7 @@ export const StorageManager = {
       localStorage.setItem("din_custom_font", base64Font);
       return true;
     } catch (e) {
-      console.error("Fehler beim Speichern der Schriftart im LocalStorage:", e);
+      console.error("[Storage] Fehler beim Speichern der Schriftart im LocalStorage:", e);
       return false;
     }
   },
@@ -160,7 +164,7 @@ export const StorageManager = {
     try {
       return localStorage.getItem("din_custom_font");
     } catch (e) {
-      console.error("Fehler beim Laden der Schriftart aus dem LocalStorage:", e);
+      console.error("[Storage] Fehler beim Laden der Schriftart aus dem LocalStorage:", e);
       return null;
     }
   },
@@ -175,7 +179,7 @@ export const StorageManager = {
       localStorage.setItem("din_geoapify_key", key);
       return true;
     } catch (e) {
-      console.error("Fehler beim Speichern des Geoapify Keys:", e);
+      console.error("[Storage] Fehler beim Speichern des Geoapify Keys:", e);
       return false;
     }
   },
@@ -188,7 +192,7 @@ export const StorageManager = {
     try {
       return localStorage.getItem("din_geoapify_key") || "";
     } catch (e) {
-      console.error("Fehler beim Laden des Geoapify Keys:", e);
+      console.error("[Storage] Fehler beim Laden des Geoapify Keys:", e);
       return "";
     }
   }

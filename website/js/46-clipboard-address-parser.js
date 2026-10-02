@@ -397,7 +397,7 @@ export class ClipboardAddressParser {
           this.applyCandidate(candidates[0], { onToast, onSaveDraft });
         }
       } catch (err) {
-        console.warn('Clipboard read error:', err);
+        console.warn('[Clipboard] Lesefehler:', err);
         if (onToast) onToast('⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.', 'error');
       }
     });

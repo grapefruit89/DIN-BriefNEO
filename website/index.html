@@ -49,7 +49,7 @@
               Moderne Browser rendern diesen Schalter NATIV als System-Toggle.
               STRIKT VERBOTEN: Diesen Schalter durch Radio-Segmented-Controls, verschachtelte
               Div-Wrapper oder JS-Klick-Listener zu ersetzen! Der Status wird rein
-              im CSS über :root:has(#btn-hilfslinien-switch:checked) ausgewertet. (ADR-ANTIPATTERN Abs. 16)
+              im CSS über :root:has(#btn-hilfslinien-switch:checked) ausgewertet. (Law Catalog A57)
             -->
             <div class="seitenleiste-switch-row">
               <h3 class="seitenleiste-label">Hilfslinien</h3>
@@ -184,7 +184,7 @@
               (w3c/editing#419, whatwg/html#11350) — der Keydown-Guard in 03-ui-protections.js
               (`enforceLineLimits`) ist die einzige echte Umbruch-Sperre und bleibt bewusst bestehen.
               STRIKT VERBOTEN: beforeinput-Format-Interzeptoren oder manuelle
-              Regex-Sanitizer wieder einzubauen! (ADR-ANTIPATTERN Abs. 14)
+              Regex-Sanitizer wieder einzubauen! (Law Catalog A55)
             -->
             <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
@@ -244,7 +244,7 @@
       Dieser Toast nutzt die native HTML Popover API (`popover="manual"`) und rendert
       direkt im Browser-Top-Layer über allen Dialogen, Modals und z-index-Ebenen.
       STRIKT VERBOTEN: z-index-Hacks, DOM-Mounting-Libraries oder JavaScript-Animationsschleifen
-      einzuführen! Uebergänge laufen 100% deklarativ über CSS @starting-style. (ADR-ANTIPATTERN Abs. 15)
+      einzuführen! Uebergänge laufen 100% deklarativ über CSS @starting-style. (Law Catalog A56)
     -->
     <!-- 🚨 ARCHITECTURAL GUARD (TOASTS-Policy + a11y): role="status"/aria-live="polite"
          ist PFLICHT — keine assertiven Alerts für Routine-Meldungen, KEINE Success-Toasts

@@ -264,14 +264,14 @@ Folgende CSS-Praktiken und Alt-Techniken sind im Projekt **strikt verboten (HARD
 
 | CSS-Technik / Konstrukt | Frühere Verwendung | Status | Verboten durch | Moderner Ersatz (Web Platform 2026) |
 | :--- | :--- | :---: | :--- | :--- |
-| **`z-index: 9999` Wars** | Toast-, Modal- und Dropdown-Schichtung | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 15, Probe P5 | Native HTML Popover API (`popover="manual"`) und `<dialog>` im Browser-Top-Layer. |
+| **`z-index: 9999` Wars** | Toast-, Modal- und Dropdown-Schichtung | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover="manual"`) und `<dialog>` im Browser-Top-Layer. |
 | **Viewport- / Papier-Scrollbalken** | `overflow: auto;`, `overflow: scroll;` | 🚫 **HARD BAN** | Zero-Scroll-Mandat, Catalog A46 | `overflow: clip; contain: strict;`. Der Substring `scroll` ist in `website/*.html` und `website/css/*.css` komplett verboten. |
 | **JS-gesteuertes Layout & Text-Fit** | `48-text-fit.js`, `ResizeObserver`, DOM-Messschleifen | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `text-fit: shrink 60%`, `text-fit: shrink`, `text-wrap: balance/pretty`. 0ms Latenz. |
 | **Statische Hex/RGB-Farbduplikation** | Manuelle `.dark-mode`-Klassen mit HEX-Dopplung | 🚫 **HARD BAN** | Longevity Guidelines, ADR-CSS | CSS `color-scheme: light dark;`, `light-dark()` und W3C Relative Color Syntax im OKLCH-Farbraum. |
 | **`calc()` Font-Leading Hacks** | Negative Ränder zur Ausgleichung von Schrift-Freiräumen | 🚫 **HARD BAN** | Catalog A49 | Native CSS Half-Leading-Neutralisierung (`text-box-trim: both`, `text-box-edge: cap alphabetic`). |
 | **CSS-Frameworks & Utility-Klassen** | Kein Tailwind, kein Bootstrap, kein Bulma | 🚫 **HARD BAN** | Catalog A45, Longevity Guidelines | 100% Handcrafted Vanilla CSS mit `@layer`, `@scope`, Container Queries und Semantic Tokens. |
 | **`page-break-before: always;`** | Seitenumbruch-Erzwingung auf Container-Ebene | 🚫 **HARD BAN** | Catalog A46 | Erzeugt zwingend leere Seiten im Chromium-Druck-Manager. Strikte Nutzung von `page-break-after: avoid;` auf `<din-a4>`. |
-| **Inline-Styles auf Textknoten** | `style="color: red; font-size: 14px"` aus Pastes | 🚫 **HARD BAN** | Catalog A48, ADR-ANTIPATTERN Abs. 4 | W3C Selection & Range API Sanitizer (`31-format-toolbar.js`) bereinigt alle fremden Inline-Styles. |
+| **Inline-Styles auf Textknoten** | `style="color: red; font-size: 14px"` aus Pastes | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API Sanitizer (`31-format-toolbar.js`) bereinigt alle fremden Inline-Styles. |
 
 ---
 

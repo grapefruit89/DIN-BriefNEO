@@ -64,7 +64,7 @@ In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer D
 2. **Strict WYSIWYG & In-Place Editing:**
    Eingaben finden *ausschließlich* direkt auf dem virtuellen Papierbogen statt. Formularfelder werden nicht redundant in einer Seitenleiste gespiegelt. Die Sidebar dient ausschließlich globalen Konfigurationen (Theming, DIN-Layout-Form, Schriftart, API-Schlüssel, Schalter).
 3. **Hardwarebeschleunigter Eingabeschutz (`plaintext-only` & `enterkeyhint`):**
-   Alle 16 einzeiligen Metadaten- und Anschriftfelder sind mit `contenteditable="plaintext-only"` und `enterkeyhint="done"` geschützt. Unerwünschte Formatierungen (Fett, Kursiv, HTML-Tags) und mehrzeilige Zeilenumbrüche werden direkt von der Browser-Engine in C++ geblockt. JS-Keydown- und BeforeInput-Interzeptoren sind vollständig eliminiert (ADR-ANTIPATTERN Abs. 14).
+   Alle 16 einzeiligen Metadaten- und Anschriftfelder sind mit `contenteditable="plaintext-only"` und `enterkeyhint="done"` geschützt. Unerwünschte Formatierungen (Fett, Kursiv, HTML-Tags) und mehrzeilige Zeilenumbrüche werden direkt von der Browser-Engine in C++ geblockt. JS-Keydown- und BeforeInput-Interzeptoren sind vollständig eliminiert (Catalog A55).
 4. **Strikt reglementierte Rich-Text-Zonen:**
    Ausschließlich der Brieftext (`<din-text id="text">`) und die Anlagenliste (`<ul id="anlagen-text">`) sind mit `contenteditable="true"` deklariert.
 5. **Contenteditable Integrity Isolation (Catalog A47):**
@@ -227,11 +227,11 @@ Folgende HTML-Strukturen und Alt-Muster sind im gesamten Repository **strikt ver
 | :--- | :--- | :---: | :--- | :--- |
 | **Generische Div-Suppe** | Reine `<div>`-Verschachtelungen für Briefelemente | 🚫 **HARD BAN** | Longevity Guidelines, ADR-HTML | Semantische HTML5 Custom Elements (`<din-a4>`, `<din-betreff>`, etc.). |
 | **Mirror-Editing in Sidebar** | Doppelte Textfelder in Sidebar und Blatt | 🚫 **HARD BAN** | ADR-HTML Abs. 2, WYSIWYG | Reines In-Place WYSIWYG Editing direkt auf dem `<din-a4>`-Blatt. |
-| **`contenteditable="true"` auf Einzeilern** | Standard-Editable für Anschrift, Betreff, Datum | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 14, Probe P4 | `contenteditable="plaintext-only"` mit `enterkeyhint="done"`. C++ blockiert Formatierung nativ. |
+| **`contenteditable="true"` auf Einzeilern** | Standard-Editable für Anschrift, Betreff, Datum | 🚫 **HARD BAN** | Catalog A55, Probe P4 | `contenteditable="plaintext-only"` mit `enterkeyhint="done"`. C++ blockiert Formatierung nativ. |
 | **`<img>` innerhalb von `contenteditable`** | Unterschriften-Grafik im Fließtext | 🚫 **HARD BAN** | Immutable Law Catalog A47 | Kapselung in separatem `#unterschriftsbild-container` als Geschwister-Element außerhalb von ContentEditable. |
-| **Eigene `<div>`-Modals mit `z-index`** | Manuell geschichtete Overlays und Dialoge | 🚫 **HARD BAN** | ADR-ANTIPATTERN Abs. 15, Probe P5 | Native HTML Popover API (`popover`) und `<dialog>` im Browser-Top-Layer. |
+| **Eigene `<div>`-Modals mit `z-index`** | Manuell geschichtete Overlays und Dialoge | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover`) und `<dialog>` im Browser-Top-Layer. |
 | **JS-Event-Listener für Dialog-Öffnung** | `btn.addEventListener('click', () => dialog.showModal())` | 🚫 **HARD BAN** | Modern DOM Standards 2026 | Deklarative HTML Command Invokers (`commandfor="reset-dialog" command="show-modal"`). |
-| **Radio-Controls für Binärschalter** | Segmented Control ("An" / "Aus") für Hilfslinien | ⚠️ **DEPRECATED** | ADR-ANTIPATTERN Abs. 16, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">`. |
+| **Radio-Controls für Binärschalter** | Segmented Control ("An" / "Aus") für Hilfslinien | ⚠️ **DEPRECATED** | Catalog A57, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">`. |
 | **`scroll`-relevante Attribute / Tags** | Scroll-Container, `overflow-scroll`-Klassen | 🚫 **HARD BAN** | Zero-Scroll-Mandat, CI-Gate | Physisches A4-Papier scrollt niemals. Der Begriff `scroll` ist in `website/*.html` komplett verboten. |
 
 ---

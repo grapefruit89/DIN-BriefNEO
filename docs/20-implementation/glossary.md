@@ -45,6 +45,45 @@ depends_on: []
 
 ---
 
+## 📏 Kanonische Begriffe
+
+> [!important] Normativ — maschinell geprüft
+> Für jeden Sachverhalt steht **ein** Begriff fest ([[AGENTS]] §5.5). Die Spalte
+> „statt" listet die **verdrängten Varianten**: `tools/terminology.js` liest genau diese
+> Tabelle und lässt das Fitness Gate anschlagen, wenn eine davon in einem lebenden
+> Dokument auftaucht. Neuer Begriff? Erst hier eintragen, dann verwenden.
+>
+> Nicht geprüft werden: `docs/90-archive/` (eingefroren), [[DECISION-LOG]] (append-only),
+> `research/` (Laborarchiv) und diese Tabelle selbst. Englische Bezeichner **im Code**
+> (`draft`, `settings`, `onToast`) sind nicht betroffen — geprüft wird deutscher Fließtext.
+
+| Kanonisch | statt | Sachverhalt |
+| :--- | :--- | :--- |
+| **Fitness Gate** | Quality Gate, Fitness-Check | Die Prüfkette aus `node tools/build_db.js`. Ihr Ergebnis heißt **Fitness Score** und muss 100 % sein. |
+| **Immutable Law Catalog** (kurz: **Law Catalog**) | Verbotskanon, Verbotsregister, Gesetzeskatalog | `docs/00-foundation/Immutable-Law-Catalog.md`, die höchste normative Instanz. |
+| **Address Intelligence** | Adress-Intelligenz, PLZ-Engine | Die lokale Adressauflösung aus `45-address-intelligence.js` mit den `.json.gz`-Daten. |
+| **Nutzer** | Anwender, Benutzer | Die Person, die den Brief schreibt. |
+| **netzunabhängig** | — (siehe unten) | Die Eigenschaft, ohne Internetverbindung vollständig zu funktionieren. |
+
+### Begriffe, die bewusst *nicht* zusammengelegt werden
+
+Diese Paare klingen austauschbar, bezeichnen aber Verschiedenes. Sie zu vereinheitlichen
+wäre ein Fehler — sie auseinanderzuhalten ist die eigentliche Arbeit.
+
+| Begriff | bedeutet | **nicht** zu verwechseln mit |
+| :--- | :--- | :--- |
+| **Briefkern** | die Zone `<din-kern>` — Container für Betreff, Anrede, Text, Grußformel | **Brieftext**: das einzelne editierbare Feld `<din-text>` darin |
+| **Briefbogen** | das Blatt als DIN-5008-Artefakt (Fachbegriff der Norm, Form A/B) | **`<din-a4>`**: das konkrete DOM-Element, das ihn darstellt |
+| **Entwurf** | der gespeicherte Briefinhalt (das *Was*) | **Autosave**: der Mechanismus, der ihn schreibt (das *Wie*) |
+| **netzunabhängig** | braucht kein Internet — gilt für dieses Produkt | **serverlos**: bräuchte keinen lokalen Webserver — gilt **nicht**, siehe [[ADR-RUNTIME-CONTEXT]] |
+
+> [!warning] „Offline" ist mehrdeutig und allein nie ausreichend
+> Das Wort trug historisch beide Bedeutungen und ist damit die Wurzel der `file://`-Verwirrung
+> (siehe [[ADR-RUNTIME-CONTEXT]]). Wer „offline" schreibt, muss dazusagen, welche gemeint ist —
+> oder gleich **netzunabhängig** schreiben. Die App ist netzunabhängig, aber **nicht** serverlos.
+
+---
+
 ## 🔤 Begriffslexikon
 
 ### `AbortController`

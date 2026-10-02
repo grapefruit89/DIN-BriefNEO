@@ -38,7 +38,7 @@ Umsetzung (CSS-Einheiten, Dateinamen, konkrete `data-*`-Attribute) gehört nach 
 
 ## Feature 1: Vollständiger Briefbogen ohne Dokument-Scroll
 
-**Als** Anwender **möchte ich** den DIN-A4-Bogen vollständig im Arbeitsbereich sehen.
+**Als** Nutzer **möchte ich** den DIN-A4-Bogen vollständig im Arbeitsbereich sehen.
 
 Akzeptanz:
 
@@ -58,7 +58,7 @@ Akzeptanz:
 
 ## Feature 3: Hell- und Dunkelmodus
 
-**Als** Anwender **möchte ich** hell oder dunkel arbeiten.
+**Als** Nutzer **möchte ich** hell oder dunkel arbeiten.
 
 Akzeptanz:
 

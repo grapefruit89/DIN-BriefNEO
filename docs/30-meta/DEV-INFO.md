@@ -44,7 +44,7 @@ Wir unterscheiden bei der Bewertung von Web-APIs drei klar definierte Zustände:
 
 2. **Future-Proof (Inaktiv):** Modernste W3C-Kandidaten, die bereits in Chromium-Engines bereitstehen, aber mangels breiter Cross-Browser-Stabilität oder aufgrund experimentellen Status noch nicht in den Produktiv-Code einfließen dürfen.
 
-3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
+3. **Verboten (Antipattern):** Veraltete (*deprecated*) oder riskante APIs, die laut **[[Immutable-Law-Catalog]]** strikt untersagt sind (z. B. `execCommand` oder OPFS/IndexedDB unter `file://`).
 
 ---
 
@@ -148,7 +148,7 @@ Kopiere diesen erweiterten Block und füge ihn in deine Browser-Konsole ein, um 
 
 ## 🔗 Verwandte Dokumente
 
-*   ⚖️ **[[ADR-ANTIPATTERN|ADR-ANTIPATTERN.md]]:** Unser Verbotsregister (Antipattern).
+*   ⚖️ **[[Immutable-Law-Catalog]]:** Alle Verbote und MUST-USE (höchste Instanz). `ADR-ANTIPATTERN` ist seit 2026-10-02 darin aufgelöst.
 
 *   📚 **[[longevity-guidelines|longevity-guidelines.md]]:** Die W3C-Verfassung von DIN-BriefNEO.
 

@@ -431,6 +431,39 @@ function runReconciliation() {
     }
   }
 
+  // --- Terminologie-Check ("Ein Sachverhalt, ein Begriff", AGENTS.md 5.5) ---
+  // Werkzeug: tools/terminology.js. Die Begriffsliste steht NICHT im Code, sondern
+  // in der Tabelle "Kanonische Begriffe" in docs/20-implementation/glossary.md --
+  // sonst waere das Modul selbst die zweite Kopie des Kanons. Ausgenommen:
+  // 90-archive (eingefroren), DECISION-LOG (append-only), research/, das Glossar selbst.
+  conformanceChecked += 1;
+  {
+    let termViolations = [];
+    try {
+      termViolations = require('./terminology.js').checkTerminology(targetDir).violations;
+    } catch (err) {
+      logs.push({
+        file_path: 'tools/terminology.js',
+        check_type: 'terminology',
+        severity: 'low',
+        message: `Terminologie-Check uebersprungen: ${err.message}`
+      });
+      termViolations = [];
+    }
+    if (termViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of termViolations) {
+        logs.push({
+          file_path: v.file,
+          check_type: 'terminology',
+          severity: 'critical',
+          message: `Verdraengte Begriffsvariante "${v.found}" in Zeile ${v.line} -- kanonisch ist "${v.canonical}" (siehe glossary.md, Kanonische Begriffe)`
+        });
+      }
+    }
+  }
+
   const docFiles = getFilesRecursively(targetDir);
   let metadataChecked = 0;
   let metadataPassed = 0;
@@ -463,8 +496,10 @@ function runReconciliation() {
         // Scrub Check for banned terms.
         // Negations/comparisons ("kein React", "No raw `innerHTML`", "ohne innerHTML")
         // and enumerations of forbidden tech are legitimate documentation, not violations —
+        // likewise a line classified "HARD BAN" in the Law Catalog: the catalog MUST be able
+        // to name what it forbids, otherwise the norm cannot be written down at all.
         // only flag lines that don't carry an explicit negation/prohibition marker nearby.
-        const scrubNegationPattern = /\b(?:kein|keine|keinem|keinen|ohne|no|not|non-|verbot|forbidden|banned|nie|niemals)\b/i;
+        const scrubNegationPattern = /\b(?:kein|keine|keinem|keinen|ohne|no|not|non-|verbot|forbidden|ban|banned|nie|niemals|unzulaessig|untersagt)\b/i;
         // "etc." after an enumeration ("React, Vue, etc.") marks a descriptive comparison
         // ("other frameworks do X"), not a recommendation to use the named tech.
         const scrubEnumerationPattern = /\b(?:React|Vue)\b[^.\n]{0,40}\betc\.?/i;

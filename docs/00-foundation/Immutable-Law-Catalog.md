@@ -4,7 +4,7 @@ title: 'Immutable Law Catalog (MUST-USE vs FORBIDDEN)'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -72,6 +72,7 @@ Plattform-APIs in den MUST-USE-Tabellen sind PREFERRED native Lösungen. Eine ne
 | H8 | HARD BAN Gegenteil | Kein Inline-JS außer anti-FOUC / Hydration | Trennung der Schichten |
 | H9 | HARD BAN Gegenteil | Eindeutige `id`-Attribute | definiertes Targeting |
 | H10 | PREFERRED | ARIA nur wo native Semantik nicht reicht | Zugänglichkeit |
+| H11 | PREFERRED | `setHTML()` oder `textContent` als Default; `setHTMLUnsafe()` nur, wo ungefiltertes HTML die bewusste Anforderung ist | Ungefiltertes HTML ist der XSS-Pfad; die native Sanitizer API ist auf der Baseline da |
 
 Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu führen. Die Baseline steht in den Longevity-Guidelines.
 
@@ -141,7 +142,7 @@ Soweit nicht anders markiert: HARD BAN.
 | A43 | HARD BAN | unkontrolliertes Dokument-/Seiten-Scrolling | `overflow` am Dokument begrenzen; internes Scrollen MAY in abgegrenzter UI | Viewport bleibt Brief-Arbeitsfläche |
 | A44 | HARD BAN | generisches `div`/`span` **für ein instantiiertes Registry-Atom** | kanonisches `<din-…>` | Kompositionsflächen (gemeinsame Namenszeile) und reine UI dürfen generisch bleiben |
 | A45 | HARD BAN | projektfremde Pfade/Kontexte in der App | hermetische Grenzen | Kontamination |
-| A46 | HARD BAN | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite |
+| A46 | HARD BAN | `page-break-before: always` auf Layout-Wurzeln | kontrolliertes Print | leere erste PDF-Seite. **Gegenpflicht:** Sperrt der Viewport per `overflow: hidden` + `height: 100vh` (A43), MUSS `@media print` ihn mit `html, body { overflow: visible; height: auto; }` wieder freigeben — sonst schneidet der Druck ab oder bleibt leer. |
 | A47 | HARD BAN | komplexe UI in `contenteditable="true"` | Geschwister außerhalb des Edit-Roots | Browser löscht Innenstruktur |
 | A49 | HARD BAN | JS-basiertes Text-Fitting & DOM-Layout-Polling (`scrollWidth > clientWidth`, MutationObserver für Textanpassung, `48-text-fit.js`) | CSS `field-sizing: content`, `overflow: clip`, `text-wrap: balance/pretty`, CSS `text-fit: shrink 60%` | Verursacht Layout Thrashing, Ruckeln und JS-Overhead. Natives CSS löst die dynamische Feld- und Textanpassung performant und 100% deklarativ. |
 
@@ -154,6 +155,38 @@ Soweit nicht anders markiert: HARD BAN.
 | A36 | HARD BAN in diesem Produkt | File System Access API als **Pflicht**-Speicher | `localStorage` | Erzwingt für jeden Autosave eine Nutzergeste/Permission; als freiwilliger Export-Weg zulässig (siehe `52-import-export.js`) |
 | A37 | HARD BAN in diesem Produkt | Service Worker | relative lokale Pfade | Cache-Invalidierung ist eine dauerhafte Wartungslast (Longevity-Ziel: null Wartung); die App lädt ohnehin rein lokal, es gibt nichts zu cachen |
 | A38 | HARD BAN | externe CDNs und fremde Script-/CSS-Assets | lokale Ressourcen | Offline / DSGVO. Optionale Fach-APIs sind keine CDNs. Allowlist: Geoapify Geocoding, Photon (optionale Tier-2-Dienste; Grunddaten laufen primär über das lokale 70,5 KB Brotli-Dictionary laut ADR-006). Ohne Key bleibt das optionale Cloud-Feature tot. Kein Host darf Script, Font oder Stylesheet liefern. |
+
+### Abhängigkeiten & Build
+
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A51 | HARD BAN | Frontend-Frameworks (React, Vue, Svelte, Angular, jQuery) und Build-/Bundler-Schritte (Vite, Webpack, Rollup, Parcel) als Produktbestandteil | Vanilla HTML + CSS + JS-ESM | Jedes Framework zieht eine Toolchain nach, die das Produkt an eine Ökosystem-Generation bindet. Longevity-Ziel ist null Wartung. Node-Werkzeuge in `tools/` bleiben zulässig (T5). |
+| A53 | HARD BAN | Utility-Bibliotheken (Lodash, Underscore) und Produkt-Transpiler (TypeScript-Compile, Babel) im Auslieferungspfad | native Array-/Objekt-Methoden; JSDoc + `checkJs` für Typprüfung ohne Compile | ES2023+ deckt den Bedarf nativ. Ein Pflicht-Compile-Schritt macht die ausgelieferte Datei zum Artefakt statt zur Quelle. |
+| A54 | HARD BAN | JS-Animationsbibliotheken (GSAP, Anime.js, Motion One) | CSS Transitions, `@keyframes`, `@starting-style`, `transition-behavior: allow-discrete`, View Transitions | Läuft auf dem Compositor statt im Main Thread, ohne Laufzeit-Abhängigkeit. |
+
+### JavaScript statt Plattform
+
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A52 | HARD BAN | `document.execCommand()` in jeder Form — auch `'insertText'`, `'undo'`, `'bold'` | Selection & Range API (`deleteFromDocument()`, `range.insertNode()`); Undo über den History-Stack des `DraftManager` | Deprecated, in Randfällen browserabhängig, und das native Undo kollidiert mit dem eigenen Snapshot-Stack. |
+| A55 | HARD BAN | JS-Interzeptoren, die Formatierung auf Plaintext-Feldern abfangen (`beforeInputFormatTypes`, `beforeInputParagraphTypes`, Regex-Sanitizer in `input`-Listenern) | `contenteditable="plaintext-only"` + `enterkeyhint` | Die Engine erzwingt das auf C++-Ebene lückenlos; die JS-Nachbildung war lückenhaft und teuer. |
+| A56 | HARD BAN | manuelle Pointer-Drag-Schleifen (`pointerdown`/`pointermove`/`setPointerCapture`) für Swipe-to-Dismiss und manuelle `z-index`-Stapelung bei Toasts | Popover API (`popover="manual"`) im nativen Top-Layer + deklarative CSS-Transitions | Top-Layer beendet den z-index-Wettlauf mit Modals; 60+ Zeilen Pointer-Logik entfallen. |
+| A61 | HARD BAN | **Schreibender** `innerHTML`-Zugriff und `setHTMLUnsafe()` zum Parsen von HTML-Strings | `setHTML()`, oder `DOMParser` + `replaceChildren(...doc.body.childNodes)` | XSS-Pfad. **Lesender** `.innerHTML`-Zugriff zum Serialisieren eines Entwurfs ist ausdrücklich zulässig — nur das Zurückschreiben muss gefiltert laufen. |
+
+### UI-Zustand & Semantik
+
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A57 | HARD BAN für neue Schalter | **binäre** Ein/Aus-Schalter als doppelte `<input type="radio" class="sr-only">` + zwei `<label>` + JS-Zustandssync | `<input type="checkbox" switch>`, Zustand per `:has(#schalter:checked)` | Halber DOM, kein JS. **Abgrenzung zu A60:** mehrwertige Schalter (3+ Zustände, z. B. Form A/B/C) bleiben Radio-Gruppen mit `:has()` — verboten ist nur der Radio-Nachbau eines Booleans. Bestand (`#btn-form-a`) ist bestandsgeschützt. |
+| A58 | HARD BAN | Theme-Wahl als Radio-Segmented-Control mit je einem Button pro Modus | ein zyklischer Toggle (`Auto → Hell → Dunkel`) auf `:root[data-theme]`, dazu `light-dark()` und `color-scheme: light dark` | Zwei Radios können „Auto (System)" baulich nicht ausdrücken und verbrauchen zwei Klickziele. |
+| A60 | HARD BAN | globalen UI-Zustand per JS-Klassen schalten (`classList.add('active')` auf Wrapper, um Sektionen ein-/auszublenden) | versteckter nativer Schalter + `:has()` im CSS; JS **nur** für Anti-FOUC-Restore beim Boot und zum Persistieren im `change`-Handler | Der Zustand lebt im DOM statt in einer JS-Variable, ist tastaturbedienbar und überlebt ohne Sync-Code. |
+| A62 | HARD BAN | aktive Zustände von Bedienelementen über `classList.add('active')` ausdrücken | `aria-pressed="true\|false"`, Styling per `button[aria-pressed="true"]` | Eine Quelle für Semantik **und** Styling; Screenreader bekommen den Zustand geschenkt. |
+
+### Theming & Papier
+
+| # | Stufe | ANTIPATTERN | Ersatz | Grund |
+| :--- | :--- | :--- | :--- | :--- |
+| A59 | HARD BAN | theme-abhängige Variablen (`--text-primary`, `--bg-surface`) **auf dem DIN-A4-Blatt** verwenden | papier-eigene Token (`--paper-bg`, `--paper-text`) oder feste `oklch()`-Werte | Das Blatt ist WYSIWYG-Abbild des Druckprodukts: **Papier ist weiß, Tinte ist schwarz** — auch im Dark Mode. Das UI-Theme darf nur Sidebar und Viewport-Hintergrund färben (ergänzt A26). |
 
 ### Icons & Fonts
 
@@ -171,6 +204,13 @@ Der Catalog existiert **einmal**. Andere Dokumente verlinken ihn.
 
 Zulässig: Verweis, generierter Suchindex, Agent-Kontext mit Link/ID.
 Unzulässig: den Volltext in Constitution, README, GEMINI, Review-Checklisten und Datenbank-„Gesetzesduplikaten“ zu spiegeln.
+
+> [!warning] Vollzug 2026-10-02
+> `ADR-ANTIPATTERN.md` war genau so ein Duplikat: eine zweite, parallel gepflegte Verbotsliste
+> mit eigener Nummerierung (`Abschnitt 0–18`). Sie wurde **aufgelöst** — ihre Verbote stehen
+> jetzt als `A51`–`A62`, `H11` hier, ihre Begründungen in den thematischen ADRs.
+> Code und Doku referenzieren Gesetze **nur noch über die A-/H-/S-/T-ID**, nie über eine
+> Abschnittsnummer. Siehe [[DECISION-LOG]], Eintrag 2026-10-02.
 
 ------
 

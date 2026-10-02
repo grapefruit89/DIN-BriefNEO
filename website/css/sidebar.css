@@ -363,7 +363,7 @@ aside {
  * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
  * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
  * Die Statuserkennung erfolgt rein deklarativ über `:root:has(#btn-hilfslinien-switch:checked)`.
- * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 16):
+ * ES IST STRENGSTENS VERBOTEN (Law Catalog A57):
  * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
  * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
  * ========================================================================================= */

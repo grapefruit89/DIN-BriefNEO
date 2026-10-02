@@ -10,7 +10,7 @@
  * `#hinweis-v4` nutzt die native HTML Popover API und rendert direkt im Browser-Top-Layer.
  * Einblendung und Ausblendung laufen 100% deklarativ über CSS `@starting-style` und
  * `transition-behavior: allow-discrete`.
- * ES IST STRENGSTENS VERBOTEN (ADR-ANTIPATTERN Abschnitt 15):
+ * ES IST STRENGSTENS VERBOTEN (Law Catalog A56):
  * 1. `z-index` Stacking-Hacks wieder einzuführen (Top-Layer steht nativ über allem).
  * 2. Pointer-Drag- oder Swipe-Event-Schleifen in JS wiederherzustellen.
  * ========================================================================================= */

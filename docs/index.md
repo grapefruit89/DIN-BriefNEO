@@ -73,7 +73,8 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 ### 2. [[10-architecture/README|10-architecture — Technische Architektur & ADRs]]
 *Das technische Fundament: Regelt Geometrie, Datenfluss und architektonische Entscheidungen.*
 - **[[IMR-Registry]]** ⭐⭐⭐ — Alleinige Quelle der Wahrheit (SSoT) für alle 45 Custom Tags und DIN-5008-Millimetermaße.
-- **[[ADR-ANTIPATTERN]]** ⭐⭐⭐ — Das technische Verbotsregister (Vor jeder Änderung zwingend lesen!).
+- **[[Immutable-Law-Catalog]]** ⭐⭐⭐ — Alle Verbote und MUST-USE (vor jeder Änderung zwingend lesen!).
+- **[[ADR-ANTIPATTERN]]** — 2026-10-02 aufgelöst; enthält nur noch die Umschlüsselung `Abschnitt → Gesetz`.
 - **[[ADR-OMNITRACEABILITY]]** ⭐⭐ — Bidirektionale Verknüpfung von Quellcode und Dokumentation.
 - **[[Function-Traceability]]** ⭐⭐ — Matrix aller JavaScript-Module und zugeordneter Architekturentscheidungen (generiert, nicht versioniert).
 - **Thematische Architektur-Entscheidungen (ADRs):**

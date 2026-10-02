@@ -195,7 +195,7 @@ Trennlinien in den Segmented Controls: statt der vorgeschlagenen `column-rule` w
 ## Verweise
 
 - [[longevity-guidelines]] — Verbote für CDN und Drittanbieter-Bibliotheken
-- [[ADR-ANTIPATTERN]] — Strikte Verbote (CDN, npm, Polyfills)
+- [[Immutable-Law-Catalog]] — alle Verbote und MUST-USE (CDN, npm, Polyfills)
 - [[web-standards-tracking]] — Aktuelle W3C/Chrome-Feature-Tracking
 - [web.dev/baseline](https://web.dev/baseline) — Googles Kompatibilitäts-Stufen (Newly/Widely available) als Recherche-Filter
 - [api.webstatus.dev/v1/features](https://api.webstatus.dev/v1/features?q=baseline_status:newly) — offizielle maschinenlesbare Baseline-API (Backend von webstatus.dev); Query-DSL: `baseline_status:newly`, `group:css`, `baseline_date:2026-01-01..2026-12-31`; Antwort: `baseline.status` (`limited|newly|widely`), `low_date`, `high_date`, `feature_id`; Pagination via `metadata.next_page_token`

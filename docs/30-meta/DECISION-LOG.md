@@ -1253,3 +1253,71 @@ vs. *serverlos*), erzeugen über Jahre Widersprüche; die Trennung gehört ins G
 in Normen wandert. (c) Beim Entfernen eines Konzepts nach **Schreibweisen-Varianten** suchen
 (`file://` **und** `'file:'`) — die drei übersehenen Guards in `43-geoapify.js` fand erst der
 zweite Grep.
+
+## 2026-10-02 — Kanonisierung: eine Quelle, ein Begriff (B3 + B4 + B16)
+
+**Kontext:** Der Maintainer wollte „für einen Sachverhalt einen Begriff". Die Messung
+widerlegte die Vermutung teilweise: Bei der Wortwahl gab es kaum Drift (`Address Intelligence`
+71:2, `draft` 249:17, `Fitness Gate` 97:1). Das reale Problem war **Quelleninflation** — ein
+Sachverhalt an fünf Orten: Law Catalog, `ADR-ANTIPATTERN`, `GEMINI.md`, `CLAUDE.md`,
+`AGENTS.md` §7. Nachweislich auseinandergelaufen:
+
+- `CLAUDE.md` empfahl als `new Date()`-Ersatz das per **A50** verbotene zonenlose
+  `Temporal.Now.plainDateISO()`.
+- `CLAUDE.md` und `AGENTS.md` §7 behaupteten „nur OKLCH", während **C1** eine Fallback-Kette
+  erlaubt — eine Kopie, die ihr Original **verschärft**.
+- `GEMINI.md` widersprach sich selbst (Regel 13 verlangte `.innerHTML`, Regel 15 verbot es)
+  und seine Regel 28 verlangte Radio-Toggles, die `ADR-ANTIPATTERN` Abs. 16 verbot.
+
+**Änderung:**
+1. **B3 — `ADR-ANTIPATTERN` aufgelöst.** Die neun Verbote, die **nur** dort existierten, haben
+   jetzt Gesetzes-IDs: `A51` Frameworks/Build, `A52` `execCommand`, `A53` Lodash/Transpiler,
+   `A54` JS-Animationslibs, `A55` Format-Interzeptoren, `A56` Toast-Pointer-Drag/`z-index`,
+   `A57` Radio statt Checkbox-Switch, `A58` Radio-Theme-Wahl, `H11` Sanitizer-Default.
+   Aus den Agent-Dateien kamen `A59` (Papier ist theme-unabhängig), `A60` (kein JS-Klassen-
+   Toggle für UI-Zustand), `A61` (schreibendes `innerHTML`), `A62` (`aria-pressed` statt
+   `.active`) sowie die Druck-Gegenpflicht in `A46` hinzu. Die Datei bleibt als 69-zeiliger
+   **Grabstein** mit Umschlüsselungstabelle `Abschnitt → Gesetz` (von 185 Zeilen), weil der
+   append-only [[DECISION-LOG]] und `docs/90-archive/` auf sie verlinken.
+2. **B4 — `GEMINI.md` (166 Z.) und `CLAUDE.md` (294 Z.) sind Wegweiser** ohne eigene Regeln.
+   Die Arbeitsweise-Regeln (Denken vor Code, Minimalität, chirurgische Änderungen,
+   Feature-Detection, Codestruktur) stehen jetzt in `AGENTS.md` §7a; `AGENTS.md` §7 führt
+   keine Verbotsliste mehr, sondern verweist.
+3. **B16 — Terminologie-Kanon.** [[glossary]] bekam „Kanonische Begriffe" mit Spalte „statt",
+   dazu bewusst **nicht** zusammengelegte Paare (Briefkern/Brieftext, Briefbogen/`<din-a4>`,
+   Entwurf/Autosave, netzunabhängig/serverlos). Neu `tools/terminology.js`, eingehängt in
+   `reconciliation.js` wie `links.js`/`imr.js`.
+
+**Verifikation:** Fitness Gate **100 %**, null Diagnosen, nach `git add`. `tsc --noEmit` sauber.
+Gegentest: eine eingefügte Zeile mit „Verbotsregister" und „Anwender" drückte den Score auf
+99,88 % mit zwei CRITICAL-Diagnosen; nach Rücknahme wieder 100 %. Acht reale Altverstöße
+wurden dabei gefunden und behoben — einer davon im frisch geschriebenen `AGENTS.md` §5.1.
+Zehn Zitate auf `ADR-ANTIPATTERN Abs. N` in `ADR-CSS`/`ADR-HTML`/`ADR-JS` und fünf in
+`website/` auf Gesetzes-IDs umgeschlüsselt.
+
+**Verworfen:** Die Begriffsliste im Prüfmodul zu pflegen. Das Modul **parst die Tabelle aus
+`glossary.md`** — sonst wäre der Terminologie-Wächter selbst die zweite Kopie des Kanons
+geworden, also exakt der Fehler, den er verhindern soll.
+
+**Bewusst NICHT geändert:** `Briefbogen` bleibt (DIN-5008-Fachbegriff in `spec.md`/`ADR-CSS`,
+kein Synonym für `<din-a4>`). `Briefkern` und `Brieftext` bleiben getrennt — Zone vs. Feld.
+`DIN-Brief-Architektur.canvas` zeigt auf den veralteten Pfad `ADR/ADR-ANTIPATTERN.md`; der war
+schon vorher falsch und gehört zu einem eigenen Vorgang. Alteinträge in diesem Log und
+`docs/90-archive/` bleiben unberührt.
+
+**Offener Punkt:** Der Antipattern-Scanner in `reconciliation.js` liest nur `website/` mit
+`.html/.css/.js`. Regeln in `tools/antipatterns/project.json` können daher **nie** in `docs/`
+greifen — deshalb brauchte die Terminologie ein eigenes Modul. Ob der Scanner selbst auf
+Markdown ausgeweitet werden sollte, ist offen.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) **Vor dem Kanonisieren messen.** Die Annahme
+„zehn Wörter für eine Sache" war falsch; die Zählung zeigte klare Platzhirsche und wies auf
+das eigentliche Problem (fünf Quellen). Eine Terminologie-Aufräumaktion ohne Messung hätte
+Arbeit an der falschen Stelle erzeugt. (b) **Ein Prüfwerkzeug darf seine Regelliste nicht
+selbst führen** — es liest sie aus dem normativen Dokument, sonst verdoppelt der Wächter die
+Quelle. (c) **Kopien sind nicht nur dadurch gefährlich, dass sie veralten, sondern auch
+dadurch, dass sie verschärfen** (hier: „nur OKLCH"). Beim Zusammenführen jede Kopie gegen das
+Original diffen, statt die scheinbar strengste zu übernehmen. (d) **Querverweise auf
+Abschnittsnummern eines anderen Dokuments sind Bruchstellen** — nur stabile IDs zitieren.
+(e) Beim Auflösen eines Dokuments, auf das append-only-Quellen verlinken, einen **Grabstein
+mit Umschlüsselungstabelle** hinterlassen statt zu löschen.

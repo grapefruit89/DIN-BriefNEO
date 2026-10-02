@@ -80,7 +80,7 @@ Diese Matrix definiert den aktuellen Funktionsumfang von DIN-BriefNEO und die Ro
 
 ---
 
-## Gruppe 1: Identität & Adress-Intelligenz
+## Gruppe 1: Identität & Address Intelligence
 
 | Funktion                | Beschreibung                                    | Status                                                  | Upgrade-Potenzial                           | 🔗 Issue / PR                                                 |
 | ----------------------- | ----------------------------------------------- | ------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
@@ -179,7 +179,7 @@ SORT version DESC
 
 | Gruppe                             | Gesamt | ✅ Erledigt | ⏳ Offen | Fortschritt                           | Status                                                             |
 | ---------------------------------- | ------ | ----------- | -------- | ------------------------------------- | ------------------------------------------------------------------ |
-| **Identität & Adress-Intelligenz** | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
+| **Identität & Address Intelligence** | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
 | **Inhalts-Engine & WYSIWYG**       | 7      | 7           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |
 | **Geometrie & Compliance**         | 8      | 7           | 1        | ![87%](https://progress-bar.dev/87)   | ![In Progress](https://img.shields.io/badge/In_Progress-⚡-yellow) |
 | **Infrastruktur & Daten-IO**       | 6      | 6           | 0        | ![100%](https://progress-bar.dev/100) | ![Stable](https://img.shields.io/badge/Stable-✓-brightgreen)       |

@@ -42,7 +42,7 @@ depends_on: []
 > [!NOTE] Prozess & Workflow (Policy-Ebene)
 > Dieses Dokument beschreibt, **wie** gearbeitet wird. Es steht hierarchisch unter Constitution, Law Catalog und Spec. Es ist ein veränderlicher Leitfaden auf Policy-Ebene (Ebene 90) und kein unumstößliches Fundament-Gesetz.
 >
-> Leitplanken: [[constitution]] · [[Immutable-Law-Catalog]] · [[ADR-ANTIPATTERN]]
+> Leitplanken: [[constitution]] · [[Immutable-Law-Catalog]]
 
 This combines phased development with Reconciliation, Fitness Score and session logging.
 
@@ -113,4 +113,4 @@ We keep .specify/ for agent-specific artifacts and specs/ for numbered, traceabl
 5. Post-build 100%.
 6. Log.
 
-Siehe auch: [[constitution]] | [[Immutable-Law-Catalog]] | [[ADR-ANTIPATTERN]] | [[DECISION-LOG]]
+Siehe auch: [[constitution]] | [[Immutable-Law-Catalog]] | [[DECISION-LOG]]

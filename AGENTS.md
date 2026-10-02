@@ -15,7 +15,6 @@ tags:
 doc_links:
 - '[[CLAUDE]]'
 - '[[Immutable-Law-Catalog]]'
-- '[[ADR-ANTIPATTERN]]'
 - '[[DECISION-LOG]]'
 - '[[longevity-guidelines]]'
 code_links:
@@ -93,7 +92,7 @@ Die relevanten Erkenntnisse aus Context7 sind kurz im `DECISION-LOG.md` zu dokum
 ### 5.1 Ein Fakt, ein Ort (oberste Doku-Regel)
 
 Jede Aussage lebt an **genau einer** Stelle. Alle anderen Stellen **verlinken** darauf.
-Das ist keine Stilfrage: Das Doku-Audit 2026-10-02 hat gezeigt, dass derselbe Verbotskanon
+Das ist keine Stilfrage: Das Doku-Audit 2026-10-02 hat gezeigt, dass derselbe Kanon an Verboten
 in fünf Fassungen existierte und dabei nachweislich auseinanderlief — `CLAUDE.md` empfahl als
 `new Date()`-Ersatz ausgerechnet das von **A50** verbotene zonenlose `Temporal.Now.plainDateISO()`,
 weil die fünfte Kopie beim A50-Beschluss vergessen wurde.
@@ -145,6 +144,21 @@ dorthin verlinken, nicht wiederholen. Wenn es dort falsch steht — dort korrigi
   `@adr`/`@guide` adressiert) sind Archiv-Kandidaten — Link-Zähler ist das Kriterium.
 - ❌ **Guard-Kommentare doppelt pflegen.** Der Schutztext lebt im Modul; HTML verweist darauf.
 
+### 5.5 Ein Sachverhalt, ein Begriff
+
+Für jeden Sachverhalt steht **ein** Begriff fest. Synonyme sind keine Stilvielfalt, sie
+zersplittern Suche, Grep und das Verständnis neuer Mitlesender — und sie verstecken
+Duplikate, weil zwei Texte über dieselbe Sache unter zwei Namen nicht mehr als Doppelung
+auffallen.
+
+Die verbindliche Liste steht in [[glossary]] → „Kanonische Begriffe". Sie nennt zu jedem
+Begriff ausdrücklich die **verdrängten Varianten**. Wer einen neuen Begriff braucht, trägt
+ihn dort ein, bevor er ihn verwendet.
+
+Maschinell geprüft: die Regeln `P6`–`P11` in `tools/antipatterns/project.json` lassen das
+Fitness Gate bei einer verdrängten Variante anschlagen. Englische Bezeichner im Code
+(`draft`, `settings`) sind davon unberührt — geprüft wird Fließtext in `docs/`.
+
 ---
 
 ## 6. Generalisierbarkeit & llm_boilerplate
@@ -161,15 +175,62 @@ Erkenntnisse sind im `DECISION-LOG.md` festzuhalten.
 
 ## 7. Verbotene Technologien
 
-Es gelten die Regeln des **Immutable Law Catalogs** (`docs/00-foundation/Immutable-Law-Catalog.md`). 
+**Diese Datei führt keine Verbotsliste.** Sie stand hier bis 2026-10-02 — und war falsch:
+Sie behauptete „Hex/RGB/HSL-Farben (nur OKLCH erlaubt)", während **C1** eine abgestufte
+Kette `OKLCH → Lab/LCH → HSL → RGB → HEX → Named` erlaubt. Eine Kopie, die ihr Original
+verschärft, ist genauso schädlich wie eine, die es aufweicht.
 
-Besonders streng verboten sind unter anderem:
-- Frameworks und Build-Tools für das Frontend
-- Legacy-APIs (`new Date()`, `document.execCommand()`, unsicheres `innerHTML` etc.)
-- Hex/RGB/HSL-Farben (nur OKLCH erlaubt)
-- Storage-Lösungen außer `localStorage` (die App lädt per `<script type="module">` und läuft deshalb nur über einen lokalen Webserver, nicht `file://`)
+Verbindlich und vollständig: **`docs/00-foundation/Immutable-Law-Catalog.md`**.
 
-Der aktuelle, verbindliche Stand steht **ausschließlich** im Law Catalog.
+Vor einer Änderung dort nachschlagen — nicht aus dem Gedächtnis oder aus einer
+Kontextdatei zitieren. Agenten referenzieren Gesetze über ihre **ID** (`A52`, `H11`, `S1`),
+niemals über Abschnittsnummern eines anderen Dokuments.
+
+## 7a. Arbeitsweise (übernommen aus GEMINI.md, 2026-10-02)
+
+Verhaltensregeln, die Fehlerklassen adressieren, die bei LLM-Mitarbeit regelmäßig auftreten.
+Keine Normen — Normen stehen im Law Catalog.
+
+### Denken vor Code
+- Annahmen **aussprechen**. Bei Unklarheit anhalten und benennen, was unklar ist.
+- Mehrere Lesarten? Vorlegen, nicht still eine auswählen.
+- Gibt es einen einfacheren Weg, das sagen — auch ungefragt.
+
+### Minimalität
+- Kein Feature über das Gefragte hinaus, keine Abstraktion für Einmalcode, keine
+  „Konfigurierbarkeit" auf Vorrat, keine Fehlerbehandlung für unmögliche Fälle.
+- Prüffrage: Würde ein erfahrener Entwickler das überkompliziert nennen?
+
+### Chirurgische Änderungen
+- Nur anfassen, was die Aufgabe verlangt. Angrenzenden Code nicht „verbessern".
+- Vorhandenen Stil treffen, auch wenn man es anders schreiben würde.
+- Fremden toten Code **melden**, nicht löschen. Eigenen Müll aufräumen.
+- Test: Jede geänderte Zeile muss sich auf den Auftrag zurückführen lassen.
+
+### Verifizierbare Ziele
+Aufgabe in ein prüfbares Ziel übersetzen („Bug beheben" → „Test schreiben, der ihn
+reproduziert, dann grün machen"). Bei mehrstufigen Aufgaben kurzen Plan nennen:
+`1. [Schritt] → Prüfung: [Check]`.
+
+### Experimentelle APIs absichern
+Moderne APIs sind ausdrücklich erwünscht (`Temporal`, `startViewTransition`), müssen aber
+feature-detected oder in `try/catch` laufen. Im Boot-Pfad (`DOMContentLoaded`) darf ein
+fehlendes Feature **niemals** nachfolgende Listener blockieren — sonst friert die UI ein.
+
+### Recherche
+Bei Fragen zu Web-Standards zuerst **chromestatus.com** prüfen und die konkrete Version
+nennen („Shipping in Chrome 151"). Ergänzend Context7 nach §4. Live-Empirie per
+`CSS.supports()` schlägt jedes Baseline-Datum.
+
+### Codestruktur
+- **Eine Verantwortung pro Datei**; der Dateiname benennt sie. Ausnahmen: `main.js`
+  (reiner Orchestrator) und Utility-Module, die verwandte Helfer bündeln.
+- `main.js` enthält **keine** Geschäftslogik. Module werden instanziiert und per
+  Dependency Injection gekoppelt — keine `window.*`-Globals für interne Logik.
+- JS-Dateien liegen **flach** in `website/js/`. Domäne steckt im zweistelligen Präfix:
+  `0x` Core · `3x` UI · `4x` Features · `5x` Utils. Unterordner sind unzulässig.
+- Wird ein Feature, nach dem das Gate in `main.js` sucht, ausgelagert, bleibt dort ein
+  Trace-Kommentar zurück: `// Feature Trace: <API> wird jetzt in <Modul> behandelt`.
 
 ---
 

@@ -1,17 +1,19 @@
 {
-  "version": "1.1.1",
+  "version": "1.2.0",
   "layer": "project",
   "id_space": "JSON-IDs (P*) bleiben. Normative IDs nur in catalog_ref.",
   "description": "DIN-BriefNEO-only Sonden. Keine generische Boilerplate.",
   "rules": [
     {
       "id": "P1",
-      "catalog_ref": [],
+      "catalog_ref": [
+        "H11"
+      ],
       "class": "preferred",
       "severity": "high",
       "check": "regex",
       "category": "javascript",
-      "description": "setHTMLUnsafe() only when unfiltered HTML is an explicit requirement. Default: setHTML() or textContent. No Catalog-A-ID.",
+      "description": "setHTMLUnsafe() only when unfiltered HTML is an explicit requirement. Default: setHTML() or textContent. Catalog H11.",
       "pattern": "setHTMLUnsafe",
       "file_patterns": [
         "*.js"
@@ -54,12 +56,14 @@
     },
     {
       "id": "P4",
-      "catalog_ref": [],
+      "catalog_ref": [
+        "A55"
+      ],
       "class": "hard_ban",
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Manual beforeinput formatting interceptors (beforeInputFormatTypes) are banned. Plaintext enforcement is native via contenteditable='plaintext-only'.",
+      "description": "Manual beforeinput formatting interceptors (beforeInputFormatTypes) are Catalog HARD BAN A55. Plaintext enforcement is native via contenteditable='plaintext-only'.",
       "pattern": "beforeInputFormatTypes|beforeInputParagraphTypes",
       "file_patterns": [
         "website/js/*.js"
@@ -68,12 +72,14 @@
     },
     {
       "id": "P5",
-      "catalog_ref": [],
+      "catalog_ref": [
+        "A56"
+      ],
       "class": "hard_ban",
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Manual swipe-drag tracking or pointercapture for toasts is banned. Toast animations and dismissals are declarative via Popover API and @starting-style.",
+      "description": "Manual swipe-drag tracking or pointercapture for toasts is Catalog HARD BAN A56. Toast animations and dismissals are declarative via Popover API and @starting-style.",
       "pattern": "--swipe-x|setPointerCapture.*toast",
       "file_patterns": [
         "website/js/*.js",

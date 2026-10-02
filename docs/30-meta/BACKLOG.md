@@ -50,6 +50,9 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | P2-6 | `document.title`: zwei Schreiber → Vorrangregel | `7d52cbe` |
 | **B1** | **`file://` als Laufzeitziel gestrichen** ([[ADR-RUNTIME-CONTEXT]]) | s. u. |
 | **B2** | **`plz-embedded.js` (164 KB) + alle Protokoll-Guards entfernt** | s. u. |
+| **B3** | **`ADR-ANTIPATTERN` aufgelöst → `A51`–`A62`, `H11` im Law Catalog** | s. u. |
+| **B4** | **`GEMINI.md`/`CLAUDE.md` auf Wegweiser reduziert, Regeln nach `AGENTS.md`/Catalog** | s. u. |
+| **B16** | **Terminologie-Kanon im Glossar + Gate-Durchsetzung (`tools/terminology.js`)** | s. u. |
 
 ---
 
@@ -61,19 +64,6 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 ---
 
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
-
-### B3 · `ADR-ANTIPATTERN` in den Law Catalog auflösen · **M** · ⭐⭐⭐
-185 Zeilen, inhaltlich Volldublette von Law Catalog PART II (A1–A50) in anderer Darstellung.
-**Zu tun:** Inhalte abgleichen, Einzigartiges in den Catalog übernehmen, Datei durch Stub mit
-Verweis ersetzen (Code referenziert sie nicht per `@adr`, aber `docs/index.md` tut es).
-**Nutzen:** Entfernt die zweite von fünf Verbotskopien — die Quelle der A50-Drift.
-
-### B4 · `GEMINI.md` + `CLAUDE.md`-Verbote in `AGENTS.md` auflösen · **M** · ⭐⭐⭐
-`GEMINI.md` (166 Z., 28 Regeln, kein Frontmatter, Titel „Andrej Karpathy LLM Coding Principles")
-und der Verbotsblock in `CLAUDE.md` (294 Z.) sind Kopie 4 und 5.
-**Zu tun:** Projektspezifisches nach `AGENTS.md`/Law Catalog, Rest streichen; `CLAUDE.md` auf eine
-schlanke Verweisdatei reduzieren, Status-Blöcke („Stand: 2026-08-07") entfernen —
-die sind per Konstruktion veraltet (verstösst gegen `AGENTS.md` §5.4).
 
 ### B5 · Agenten-Tooling-Docs nach `30-meta/` · **S** · ⭐⭐
 `sqlite-vec.md` (395 Z., `status: draft`) liegt in `20-implementation/` und beschreibt vier
@@ -152,8 +142,8 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 
 ## Empfohlene Reihenfolge
 
-1. ~~**B1**~~ ✅ erledigt 2026-10-02 · ~~**B2**~~ ✅ erledigt 2026-10-02
-2. **B3 → B4** — die beiden grossen Doppelungen, grösster Doku-Gewinn
+1. ~~**B1**, **B2**~~ ✅ erledigt 2026-10-02 (`file://` gestrichen)
+2. ~~**B3**, **B4**, **B16**~~ ✅ erledigt 2026-10-02 (Kanonisierung: eine Quelle, ein Begriff)
 3. **B12, B13, B14, B11** — Hygiene, lässt sich gut zwischenschieben
 4. **B5, B10** — Umzüge
 5. **B6** — Full Mode, braucht eigene Sitzung

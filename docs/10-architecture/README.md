@@ -34,7 +34,8 @@ Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Proj
 ## Hub-Dokumente (immer zuerst lesen)
 
 - [[IMR-Registry]] ⭐⭐⭐ — Single Source of Truth: alle Custom Tags, Zonen
-- [[ADR-ANTIPATTERN]] ⭐⭐⭐ — Verbotsregister, vor jeder Änderung lesen
+- [[Immutable-Law-Catalog]] ⭐⭐⭐ — alle Verbote und MUST-USE, vor jeder Änderung lesen
+- [[ADR-ANTIPATTERN]] — aufgelöst 2026-10-02, nur noch Umschlüsselungstabelle `Abschnitt → Gesetz`
 - [[ADR-OMNITRACEABILITY]] — Wie Code und Docs verknüpft sind (inkl. How-To, Compliance & bekannte Einschränkungen)
 - [[Function-Traceability]] — Funktions-Traceability-Matrix (generiert durch `tools/build_db.py`, **nicht versioniert**)
 

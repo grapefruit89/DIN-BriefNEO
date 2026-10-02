@@ -1574,3 +1574,13 @@ schneller, als eine fehlende Sonde es je koennte.
 **Verifikation.** Fitness Gate 100 %, Link-/Metadaten-Gate ohne Befund. Kein historischer DECISION-LOG-Eintrag wurde rückwirkend umgeschrieben.
 
 **Generalisierung.** Ein Dokument mit historischem Browser-Scan oder Architekturbegründungen ist nicht automatisch aktives Projektwissen. Aktive Dokumente müssen Entscheidungen und aktuelle Zuständigkeiten enthalten; Recherche und Zeitdokumente werden referenziert, nicht als parallele Normquelle geführt.
+
+## 2026-10-02 — Browser-Zoom nur für die Seitenleiste kompensieren
+
+**Kontext.** `Ctrl`+`+`/`Ctrl`+`-` verändert den Desktop-Seitenzoom. Das DIN-Blatt blieb durch seine physische A4-Geometrie visuell korrekt, während die Seitenleiste mitskalierte. Gewünscht ist: Blatt und Seitenleisten-Bedienfläche behalten ihre authored Größe; nur der Browser-Viewport darf sich ändern.
+
+**Änderung.** `main.js` erfasst beim Start die initiale `devicePixelRatio` (inklusive OS-/Display-Skalierung) und reagiert auf spätere `resize`-Ereignisse von Window und `visualViewport`. Nur auf `aside` wird die inverse Differenz als native CSS-`zoom` über `--seitenleisten-zoom` gesetzt. Das DIN-Blatt und `#viewport` bleiben vollständig unberührt; es gibt keine globale Skalierung und keine Änderung der DIN-Millimeterwerte.
+
+**Verifikation.** Fitness Gate 100 %, TypeScript-/Link-/Metadaten-Gate ohne Befund. Die Änderung ist auf die Seitenleiste begrenzt; der bekannte Low-Hinweis zur unvollständigen Law-Coverage bleibt unverändert.
+
+**Generalisierung.** Browser-Seitenzoom ist kein normales responsives Layoutsignal. Eine Kompensation darf deshalb nicht global erfolgen: OS-Skalierung wird als Startreferenz neutralisiert, danach wird ausschließlich die betroffene Bedienfläche invers skaliert.

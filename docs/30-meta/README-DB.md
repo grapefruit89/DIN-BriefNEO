@@ -17,7 +17,6 @@ doc_links:
   - Immutable-Law-Catalog
   - longevity-guidelines
   - ADR-OMNITRACEABILITY
-  - DEV-INFO
   - sqlite-vec
 code_links:
   - 'tools/docs_index.js'
@@ -244,5 +243,5 @@ belegten Retrieval-Schmerz:
 - [[Immutable-Law-Catalog]] — Technologische Leitplanken (MUST-USE / FORBIDDEN)
 - [[longevity-guidelines]] — Native-Standards-/Longevity-Leitlinie
 - [[ADR-OMNITRACEABILITY]] — Wie Code und Doku verknüpft sind (Traceability)
-- [[DEV-INFO]] — Feature-Erkennungs-Matrix (Chrome 150+)
+
 - [[sqlite-vec]] — geparkte Idee (Hybrid-Search), nicht Teil dieser DB

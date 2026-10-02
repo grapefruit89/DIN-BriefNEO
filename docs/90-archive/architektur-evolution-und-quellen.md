@@ -2,9 +2,9 @@
 id: architektur-evolution-und-quellen
 title: 'Architektur-Evolution — Warum wir so gebaut haben & externe Quellen'
 type: guide
-status: active
+status: archived
 created: '2026-07-07'
-updated: '2026-08-07'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/meta

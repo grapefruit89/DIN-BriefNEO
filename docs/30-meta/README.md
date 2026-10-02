@@ -45,8 +45,6 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 
 ## Projekt-Kontext & Hintergrund
 
-- [[architektur-evolution-und-quellen]] — Warum Vanilla/Zero-Dep + externe Quellen & LaTeX-Lessons
 - [[tooling-overview]] — Build-Skripte & Wiki-Bundler Context-Pack Template
-- [[DEV-INFO]] — Developer-Info & Feature-Erkennungs-Matrix (25 Features)
-- [[web-standards-tracking]] — Chrome/W3C-Feature-Tracking
+- [[research/README|research/]] — Quellen, Messungen und Modern-Web-Recherche
 - [[ROADMAP]] — Zukunftsideen + Chrome 148-151 Modernisierungschancen

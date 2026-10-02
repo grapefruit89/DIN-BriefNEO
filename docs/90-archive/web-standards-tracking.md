@@ -2,9 +2,9 @@
 id: web-standards-tracking
 title: 'Web Standards Tracking & Testing'
 type: guide
-status: active
+status: archived
 created: '2026-07-21'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/meta

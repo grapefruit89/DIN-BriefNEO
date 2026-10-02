@@ -6,7 +6,7 @@ created: '2026-06-26'
 depends_on: []
 doc_links: []
 id: dev-info
-status: active
+status: archived
 tags:
 - obsidian
 - core
@@ -17,7 +17,7 @@ tags:
 - easter-egg
 title: Entwicklerbereich & Feature-Prüfung
 type: concept
-updated: '2026-09-30'
+updated: '2026-10-02'
 ---
 
 # 🛠️ DIN-BriefNEO — Entwicklerbereich & Feature-Prüfung

@@ -1564,3 +1564,13 @@ schneller, als eine fehlende Sonde es je koennte.
 **Verifikation.** Fitness Gate 100 %; TypeScript-Prüfung und Link-/Metadaten-Gate ohne Befund. Der einzige verbleibende Hinweis ist die bekannte, bewusst nicht vollständige Law-Coverage.
 
 **Generalisierung.** Moderne CSS-Syntax ist kein Selbstzweck: Ein Kandidat wird nur übernommen, wenn er einen realen Layout-/DOM-/JS-Pfad ersetzt. Für asynchrone Fach-APIs sind native Abort-Signale der richtige Ersatz für eigene Timeout- und Race-Logik; die UI-Zustandssemantik bleibt nativ, wo sie ohne zusätzliche Laufzeitlogik möglich ist.
+
+## 2026-10-02 — Doku-Deduplizierung: historische Feature-Tracking-Dokumente archiviert
+
+**Kontext.** Der aktive `30-meta`-Bereich enthielt drei Dokumente mit weitgehend überlappender oder historischer Technologie-Orientierung: `DEV-INFO.md` (25-Feature-Diagnose und Easter-Egg-Konzept), `web-standards-tracking.md` (Chrome-Release-Scan 142–151) und `architektur-evolution-und-quellen.md` (Entscheidungsgeschichte). Der verbindliche aktuelle Stand liegt bereits in `longevity-guidelines`, den thematischen ADRs und der Research-Quelle `research/README.md`.
+
+**Änderung.** Die drei Dokumente wurden unverändert als Zeitdokumente nach `docs/90-archive/` verschoben und auf `status: archived` gesetzt. Live-Hubs verlinken nicht mehr auf die alten Kopien; `research/README.md` ist der Einstieg für Quellen, Messungen und Modern-Web-Recherche. `tool-result-vocabulary.md` bleibt bewusst aktiv, weil MCP, Skills und `repository.yaml` es als kanonischen Tool-Vertrag referenzieren.
+
+**Verifikation.** Fitness Gate 100 %, Link-/Metadaten-Gate ohne Befund. Kein historischer DECISION-LOG-Eintrag wurde rückwirkend umgeschrieben.
+
+**Generalisierung.** Ein Dokument mit historischem Browser-Scan oder Architekturbegründungen ist nicht automatisch aktives Projektwissen. Aktive Dokumente müssen Entscheidungen und aktuelle Zuständigkeiten enthalten; Recherche und Zeitdokumente werden referenziert, nicht als parallele Normquelle geführt.

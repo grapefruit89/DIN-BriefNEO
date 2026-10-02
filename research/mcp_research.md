@@ -13,7 +13,7 @@ tags:
   - tech/chrome
 doc_links:
   - repository.yaml
-  - web-standards-tracking
+  - research/README
   - ROADMAP
 code_links:
   []

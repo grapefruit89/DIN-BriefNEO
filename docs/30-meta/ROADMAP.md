@@ -13,7 +13,7 @@ tags:
 doc_links:
   - longevity-guidelines
   - ADR-ANTIPATTERN
-  - web-standards-tracking
+  - research/README
 error_patterns:
   - roadmap
   - zukunft
@@ -196,7 +196,7 @@ Trennlinien in den Segmented Controls: statt der vorgeschlagenen `column-rule` w
 
 - [[longevity-guidelines]] — Verbote für CDN und Drittanbieter-Bibliotheken
 - [[Immutable-Law-Catalog]] — alle Verbote und MUST-USE (CDN, npm, Polyfills)
-- [[web-standards-tracking]] — Aktuelle W3C/Chrome-Feature-Tracking
+- [[research/README|research/]] — aktuelle Quellen und Modern-Web-Feature-Tracking
 - [web.dev/baseline](https://web.dev/baseline) — Googles Kompatibilitäts-Stufen (Newly/Widely available) als Recherche-Filter
 - [api.webstatus.dev/v1/features](https://api.webstatus.dev/v1/features?q=baseline_status:newly) — offizielle maschinenlesbare Baseline-API (Backend von webstatus.dev); Query-DSL: `baseline_status:newly`, `group:css`, `baseline_date:2026-01-01..2026-12-31`; Antwort: `baseline.status` (`limited|newly|widely`), `low_date`, `high_date`, `feature_id`; Pagination via `metadata.next_page_token`
 - [OpenAPI-Spec webstatus.dev](https://github.com/GoogleChrome/webstatus.dev/blob/main/openapi/backend/openapi.yaml) — offizieller API-Vertrag (`GET /v1/features`, `GET /v1/features/{id}`)

@@ -11,6 +11,15 @@ on:
         required: false
         type: boolean
         default: false
+  pull_request:
+    paths:
+      - 'research/research_scripts/**'
+      - '.github/workflows/update_plz_pipeline.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'research/research_scripts/**'
+      - '.github/workflows/update_plz_pipeline.yml'
 
 permissions:
   contents: write
@@ -45,7 +54,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(data): automated quarterly update of German PLZ and Großempfänger [skip ci]"
-          file_pattern: "research/research_results/ website/data/"
+          file_pattern: |
+            research/research_results/
+            website/data/
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"

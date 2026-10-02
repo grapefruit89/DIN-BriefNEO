@@ -1,12 +1,14 @@
 {
-  "version": "v_1788533650",
-  "updated_at": "2026-09-04 14:54:10 UTC",
+  "version": "v_1790979124",
+  "updated_at": "2026-10-02 22:12:04 UTC",
   "upstream_etag": "24bf89cd5aa354edf3b53ee5a9d17516893e1acdf82e1fe1510574dc61d86399",
   "total_plz": 10831,
   "total_grosskunden": 2258,
   "plz_raw_kb": 256.0,
-  "plz_brotli_kb": 70.2,
+  "plz_gz_kb": 85.1,
   "grosskunden_raw_kb": 177.6,
-  "grosskunden_brotli_kb": 28.8,
-  "ready_time_ms": 721.55
+  "grosskunden_gz_kb": 34.9,
+  "ready_time_ms": 1221.35,
+  "plz_brotli_kb": 70.2,
+  "grosskunden_brotli_kb": 28.8
 }

@@ -62,18 +62,14 @@ Produktentscheidung geprüft. Seitenzahlen sind eine Folge der Mehrseitenarchite
 nicht deren Vorab-Ersatz. Umsetzung braucht eine eigene Spec unter `specs/` und ein
 ADR; nicht nebenbei in `print.css` einbauen.
 
-## Priorität 2 — Adaptive Adresssuche
+## Priorität 2 — Adaptive Adresssuche · ✅ ERLEDIGT 2026-10-02
 
-Die offene B19-Arbeit aus [[BACKLOG]] wird zum produktiven Adress-UX-Ausbau:
-
-- mehr als fünf Treffer: kein willkürliches Dropdown, sondern ein Hinweis zur
-  weiteren Eingrenzung;
-- zwei bis fünf Treffer: fokussierbares, tastaturbedienbares Dropdown;
-- genau ein sicherer Treffer: optionaler Zero-Click-Übernahmepfad;
-- Top-down- und Bottom-up-Eingabe erst nach einem stabilen Basispfad.
-
-Die bereits vorhandene Offline-Suche bleibt Primärquelle. Geoapify bleibt optionaler
-Tier-2-Dienst.
+Die 3-Zonen-Trefferlogik aus B19 ist im Kernprodukt vollständig umgesetzt:
+- mehr als fünf Treffer: Eingrenzungshinweis statt unübersichtlicher Liste;
+- zwei bis fünf Treffer: fokussierbares, tastaturbedienbares Dropdown (`role=listbox`);
+- genau ein sicherer Treffer: automatischer Zero-Click-Übernahmepfad.
+Ein darüber hinausgehendes bidirektionales Bottom-up-Orchestrieren („Straße zuerst") wurde
+zugunsten der Code-Einfachheit (KISS) verworfen. Die lokale Offline-Suche bleibt Primärquelle.
 
 ## Priorität 3 — Serienbriefe und wiederverwendbare Vorlagen
 

@@ -205,6 +205,12 @@ Die Trennung läuft in **beide** Richtungen und ist bewusst asymmetrisch:
 > nicht unbemerkt verschwinden. Zusammen heißt das — die App **bricht** nicht, wenn die
 > Doku fehlt, aber es **fällt auf**.
 
+### 5.8 CI- und Workflow-Verifikationsdisziplin
+
+Keine Abschlussmeldung ohne Verifikation des realen CI- und Workflow-Status. Lokale Prüfungen (Fitness-Gate, Linter, Gesetzes-Coverage) sind eine notwendige Voraussetzung, aber hinreichend ist erst der Status aller relevanten GitHub Actions Workflows (`Fitness Gate`, `Deploy Pages`, `update_plz_pipeline`).
+
+Eine Erfolgsmeldung ohne Nennung des HEAD-Commit-Hashes und der tatsächlichen CI-Verifikation gilt als unvollständig. Bei jedem Pull Request oder Push an Pipeline- oder Workflow-Dateien ist der entsprechende Workflow-Lauf abzuwarten und zu bestätigen.
+
 ---
 
 ## 6. Generalisierbarkeit & llm_boilerplate

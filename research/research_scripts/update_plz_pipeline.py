@@ -132,11 +132,15 @@ def run_update_pipeline(force: bool = False, check_only: bool = False):
             if len(name) < len(existing) and not any(c.isdigit() for c in name):
                 plz_dict[zipcode] = name
 
-    # Großempfänger aus lokalem Verzeichnis integrieren
+    # Großempfänger aus lokalem Verzeichnis integrieren (Fallback auf gzip-Archiv)
     grosskunden_path = os.path.join(research_results_dir, "de_grosskunden_plz.json")
+    grosskunden_gz_path = os.path.join(website_data_dir, "de_grosskunden_plz.json.gz")
     grosskunden = {}
     if os.path.exists(grosskunden_path):
         with open(grosskunden_path, "r", encoding="utf-8") as f:
+            grosskunden = json.load(f)
+    elif os.path.exists(grosskunden_gz_path):
+        with gzip.open(grosskunden_gz_path, "rt", encoding="utf-8") as f:
             grosskunden = json.load(f)
         for plz, info in grosskunden.items():
             if plz not in plz_dict and isinstance(info, dict) and info.get('city'):

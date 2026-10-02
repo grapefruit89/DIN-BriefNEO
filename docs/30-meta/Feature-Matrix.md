@@ -95,7 +95,7 @@ supersedes:
 | API-Timeouts und Request-Abbruch | **aktiv** | `AbortSignal.timeout()` plus `AbortSignal.any()` in `43-geoapify.js` |
 | Tastaturbedienung der Vorschläge | **aktiv** | Pfeiltasten, Enter, Escape und ARIA-Listbox-Semantik |
 | Adaptive Trefferzonen | **aktiv** | 3-Zonen-Logik (>5 Eingrenzungshinweis, 2–5 Trefferliste, genau 1 Zero-Click) in `43-geoapify.js`; siehe B19 in [[BACKLOG]] |
-| Bidirektionales Formular-Orchestrieren | **offen** | Straße-zuerst/PLZ-zuerst als separates Konzept, derzeit nicht Teil des Kerns |
+| Bidirektionales Formular-Orchestrieren | **verworfen** | Als separates Konzept verworfen; 1.500 Zeilen Adresslogik bleiben ohne zusätzlichen State-Sync-Overhead schlank (KISS) |
 
 ## 4. Import, Export und Zwischenablage
 

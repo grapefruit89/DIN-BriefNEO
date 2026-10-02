@@ -57,6 +57,8 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B8** | **Alle 12 Screen-`!important` aufgelöst + CSS-Ursachen bereinigt** | `809eb15` |
 | **B17** | **Strukturprüfungen für Gesetze ausgebaut (Abdeckung 21 → 30 von 35)** | `a16899c` |
 | **B15** | **DECISION-LOG-Behauptungen geprüft, Append-Only-Nachtrag für KISS + B8 + B17** | s. u. |
+| **B7** | **`attr()`-Geometrie dauerhaft geschlossen (Verstoß gegen MUST-NOT 5 der IMR)** | s. u. |
+| **B19** | **Adaptive 3-Zonen-Logik aktiv (Phase 1); Phase 2 geschlossen (KISS)** | s. u. |
 
 ---
 
@@ -80,12 +82,8 @@ in `selection-utils.js`.
 **Rest:** Ein vollständiger `fields.js`-Iterator ist erst sinnvoll, wenn weitere Feldtypen
 hinzukommen; vorerst wäre er zusätzliche Abstraktion ohne weiteren Nutzerwert.
 
-### B7 · `attr()`-Geometrie statt doppelter mm-Werte · **L** · ⭐⭐
-46 `mm`-Werte in `sheet.css` + 8 in `variables.css` spiegeln die 17 `data-*-y-*`-Attribute am
-`<din-a4>`. Die DIN-Geometrie existiert damit zweimal.
-**Zu tun:** `attr(data-datum-y-b type(<length>))` (Chrome 133+, Baseline 150+ erfüllt).
-**Risiko:** hoch — betrifft die normative Geometrie. Nur mit Sichtprüfung gegen die
-`research/din-5008-svgs/`-Referenzen.
+### B7 · `attr()`-Geometrie statt doppelter mm-Werte · **L** · ⭐⭐ · ❌ DAUERHAFT GESCHLOSSEN 2026-10-02
+Wurde als Verstoß gegen MUST-NOT 5 der IMR-Registry („normative Geometrie in CSS oder JavaScript duplizieren") bewertet und dauerhaft geschlossen. Die IMR-Registry ist die alleinige normative Quelle. `attr()` würde Geometrie syntaktisch in CSS verankern und die saubere Trennung verletzen.
 
 ### B8 · Die 12 Nicht-Print-`!important` auflösen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Alle 12 Screen-`!important` in den Autoren-Styles (`floating.css`, `layout.css`, `sidebar.css`, `signature.css`)
@@ -149,7 +147,7 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 5. ~~**B10**~~ ✅ Research klassifiziert 2026-10-02 (`research/STATUS.md`)
 6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
 7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), ~~**B15**~~ ✅ erledigt 2026-10-02, ~~**B17**~~ ✅ erledigt 2026-10-02 (`a16899c`)
-8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
+8. ~~**B7**~~ ❌ dauerhaft geschlossen (MUST-NOT 5); ~~**B19 Phase 2**~~ ❌ geschlossen (KISS)
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Vollständig umgesetzt (Commit `a16899c`):
@@ -166,14 +164,14 @@ jedes `<li>`. Kein `keydown`, kein `ArrowDown`/`ArrowUp`, kein `Enter`, kein
 benutzt, kann keine Adresse übernehmen. Das wiegt schwerer als jedes offene CSS-Feature.
 Umsetzung vor B19, weil B19 darauf aufbaut.
 
-### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
+### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐ · ✅ ERLEDIGT (PHASE 1) / GESCHLOSSEN (PHASE 2) 2026-10-02
 Quelle: `research/roadmap/ADAPTIVE_DROPDOWN_THRESHOLD_SPEC.md` und
 `ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md`. Phase 1 ist umgesetzt: > 5 Treffer zeigen
 nur einen Eingrenzungshinweis, 2–5 Treffer erscheinen als Liste, genau 1 Treffer wird
 nach dem vollständigen lokalen/Remote-Abgleich automatisch übernommen. Die vorherige
-willkürliche `slice(0, 6)`-Anzeige ist entfernt. Rest: bidirektionales Formular-
-Orchestrieren und ein expliziter Nutzer-Schalter für Zero-Click müssen separat bewertet
-werden.
+willkürliche `slice(0, 6)`-Anzeige ist entfernt. Phase 2 (bidirektionales Orchestrieren „Straße zuerst")
+wird dauerhaft geschlossen: Die 1.500 Zeilen Adresslogik tragen bereits erhebliche Komplexität
+und dürfen ohne dedizierte Unit-Tests nicht mit weiterem State-Sync-Overhead belastet werden (KISS-Prinzip).
 
 ### B20 · `fetch()`-Zeitlimits in `43-geoapify.js` · **S** · ⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Alle drei Geoapify-Anfragen haben jetzt ein natives 8-Sekunden-Limit über

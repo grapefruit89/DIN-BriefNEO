@@ -162,7 +162,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     // 1. INSTANT LOCAL SEARCH: Ohne Debounce sofort anzeigen! (0ms Latenz)
     const localMatches = fuzzySearchLocal(query);
     localMatches.forEach(m => m.source = 'local');
-    renderSuggestions(localMatches, query);
+    renderSuggestions(localMatches, query, false);
 
     // 2. REMOTE SEARCH (Debounced)
     debounceSearchTimeout = setTimeout(() => {
@@ -270,14 +270,15 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         combined.push(ps);
       }
     });
-    renderSuggestions(combined.slice(0, 6), query);
+    renderSuggestions(combined, query, true);
   }
 
   /**
    * @param {AddressEntry[]} suggestions
    * @param {string} query
+   * @param {boolean} allowZeroClick
    */
-  function renderSuggestions(suggestions, query) {
+  function renderSuggestions(suggestions, query, allowZeroClick) {
     if (!addressSuggestions) return;
     addressSuggestions.replaceChildren();
     renderedSuggestions = suggestions;
@@ -289,7 +290,21 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       return;
     }
 
-    suggestions.forEach((item, index) => {
+    if (allowZeroClick && suggestions.length === 1) {
+      selectSuggestion(suggestions[0]);
+      return;
+    }
+
+    if (allowZeroClick && suggestions.length > 5) {
+      const status = document.createElement('li');
+      status.setAttribute('role', 'status');
+      status.textContent = `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`;
+      addressSuggestions.appendChild(status);
+      try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch(e) {}
+      return;
+    }
+
+    suggestions.slice(0, 5).forEach((item, index) => {
       const li = document.createElement('li');
       li.id = `anschrift-vorschlag-${index}`;
       li.setAttribute('role', 'option');

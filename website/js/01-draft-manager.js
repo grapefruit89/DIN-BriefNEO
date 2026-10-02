@@ -1,6 +1,7 @@
 // @ts-check
 import { StorageManager, Constants } from './51-storage.js';
 import { sanitizeRichText } from './04-sanitize.js';
+import { getCaretCharacterOffset, setCaretCharacterOffset } from './selection-utils.js';
 import { isPrintTitleActive } from './53-metadata.js';
 
 export class DraftManager {
@@ -50,8 +51,8 @@ export class DraftManager {
     const draft = {};
 
     document.querySelectorAll('[contenteditable]').forEach(elem => {
-      if (!elem.id || elem.id === 'datum') return;
-      if (elem.id === 'text' || elem.id === 'anlagen-text') {
+      if (!elem.id || elem.getAttribute('data-feldtyp') === 'systemwert') return;
+      if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
         draft[elem.id] = elem.innerHTML;
       } else {
         draft[elem.id] = elem.textContent;
@@ -109,8 +110,8 @@ export class DraftManager {
   #restoreState(draft) {
     this.#isRestoring = true;
       Object.keys(draft).forEach(id => {
-      if (id === 'datum') return;
       const elem = document.getElementById(id);
+      if (elem?.dataset.feldtyp === 'systemwert') return;
       if (!elem) return;
 
       if (elem instanceof HTMLSelectElement) {
@@ -122,10 +123,10 @@ export class DraftManager {
        * App — immer über 04-sanitize (Allowlist). NIEMALS setHTML, innerHTML,
        * einen zweiten Restore-Owner oder "Abkürzungen" hier einbauen.
        * boot-state.js stellt nur textContent her (keine HTML-Parität). */
-      if (id === 'text' || id === 'anlagen-text') {
+      if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
         /* M2: Anlagen brauchen UL/LI (Listen-Doktrin von ensureListStructure),
          * Der Text bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
-        const extra = id === 'anlagen-text' ? { extraTags: ['UL', 'LI'] } : undefined;
+        const extra = elem.getAttribute('data-feldtyp')?.includes('liste') ? { extraTags: ['UL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));
       } else if (!elem.querySelector('select[data-speichern]')) {
         elem.textContent = draft[id];
@@ -177,21 +178,7 @@ export class DraftManager {
    * @returns {number}
    */
   #getCaretCharacterOffsetWithin(element) {
-    let caretOffset = 0;
-    const doc = element.ownerDocument;
-    if (!doc) return 0;
-    const win = doc.defaultView;
-    if (win && typeof win.getSelection !== "undefined") {
-      const sel = win.getSelection();
-      if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0);
-        const preCaretRange = range.cloneRange();
-        preCaretRange.selectNodeContents(element);
-        preCaretRange.setEnd(range.endContainer, range.endOffset);
-        caretOffset = preCaretRange.toString().length;
-      }
-    }
-    return caretOffset;
+    return getCaretCharacterOffset(element);
   }
 
   /**
@@ -199,57 +186,12 @@ export class DraftManager {
    * @param {number} caretPos
    */
   #setCaretPosition(elem, caretPos) {
-    if (caretPos === 0) {
-      elem.focus();
-      return;
-    }
-    const doc = elem.ownerDocument;
-    if (!doc) return;
-    const win = doc.defaultView;
-    if (!win) return;
-    const sel = win.getSelection();
-    if (!sel) return;
-    const range = doc.createRange();
-
-    let charIndex = 0;
-    let found = false;
-
-    /**
-     * @param {Node} node
-     */
-    const traverseNodes = (node) => {
-      if (found) return;
-      if (node.nodeType === 3) {
-        const length = node.textContent ? node.textContent.length : 0;
-        const nextCharIndex = charIndex + length;
-        if (caretPos >= charIndex && caretPos <= nextCharIndex) {
-          range.setStart(node, caretPos - charIndex);
-          range.collapse(true);
-          found = true;
-        }
-        charIndex = nextCharIndex;
-      } else {
-        let child = node.firstChild;
-        while (child) {
-          traverseNodes(child);
-          child = child.nextSibling;
-        }
-      }
-    };
-
-    traverseNodes(elem);
-
-    if (found) {
-      sel.removeAllRanges();
-      sel.addRange(range);
-    } else {
-      elem.focus();
-    }
+    setCaretCharacterOffset(elem, caretPos);
   }
 
   resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(el => {
-      if (el.id === 'datum') return;
+      if (el.getAttribute('data-feldtyp') === 'systemwert') return;
       el.replaceChildren();
       el.textContent = '';
     });

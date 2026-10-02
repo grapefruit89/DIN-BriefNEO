@@ -58,7 +58,7 @@ try {
        * definiert einen zweiten Restore-Owner (Audit C1). DraftManager.
        * loadDraft() stellt sie sofort nach Modulstart über 04-sanitize
        * wieder her — hier bewusst übersprungen. */
-      if (id === 'text' || id === 'anlagen-text') continue;
+      if (el.dataset.feldtyp?.includes('rich')) continue;
       el.textContent = /** @type {string} */ (draft[id]);
     }
   }

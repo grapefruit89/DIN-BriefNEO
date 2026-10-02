@@ -173,7 +173,7 @@
                  Verbindlicher Text: js/03-ui-protections.js — Law Catalog A55/A49. -->
             <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
-              <din-postvermerk id="postvermerk" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Postvermerk"></din-postvermerk>
+              <din-postvermerk id="postvermerk" class="single-line" data-feldtyp="zweizeilig" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Postvermerk"></din-postvermerk>
               <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
               <div id="empfaenger-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
@@ -186,18 +186,18 @@
               <din-absender-tel id="absender-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
               <din-absender-mail id="absender-mail" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
-            <din-datum id="datum" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" contenteditable="plaintext-only" enterkeyhint="done" placeholder="2. September 2026" aria-label="Datum"></din-datum>
             <din-kern id="kern" aria-label="Briefkern">
-              <din-betreff id="betreff" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-betreff id="betreff" data-feldtyp="zweizeilig" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
               <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
-              <din-text id="text" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
+              <din-text id="text" data-feldtyp="rich mehrzeilig" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
               <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="unterschrift-zeile">
                 <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>
-                <ul id="anlagen-text" contenteditable="true"><li>Anlage 1</li></ul>
+                <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true"><li>Anlage 1</li></ul>
               </din-anlagen>
             </din-kern>
             <din-fuss id="fuss" role="contentinfo"></din-fuss>

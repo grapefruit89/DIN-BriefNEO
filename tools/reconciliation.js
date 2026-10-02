@@ -455,6 +455,34 @@ function runReconciliation() {
     }
   }
 
+  // --- Struktur-Gate: Gesetze, die ein Parser statt Regex prueft ---
+  conformanceChecked += 1;
+  {
+    let structuralViolations = [];
+    try {
+      structuralViolations = require('./structural-laws.js').checkStructuralLaws(targetDir);
+    } catch (err) {
+      logs.push({
+        file_path: 'tools/structural-laws.js',
+        check_type: 'structural_laws',
+        severity: 'critical',
+        message: `Struktur-Gate konnte nicht geladen werden: ${err.message}`
+      });
+    }
+    if (structuralViolations.length === 0) {
+      conformancePassed += 1;
+    } else {
+      for (const v of structuralViolations) {
+        logs.push({
+          file_path: v.file,
+          check_type: 'structural_laws',
+          severity: 'critical',
+          message: `${v.message} (Zeile ${v.line})`
+        });
+      }
+    }
+  }
+
   // --- Meta-Gate: die Pruefer selbst (Law Catalog <-> Sonden) ---
   // Werkzeug: tools/lawcoverage.js. Anlass: dreimal stand eine Norm ungeprueft da,
   // und die Inventur fand Sonden, die Gesetze beanspruchten, die es nicht gibt (A16/A20),

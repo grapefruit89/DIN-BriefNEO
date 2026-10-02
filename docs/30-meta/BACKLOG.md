@@ -68,13 +68,14 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 
 ## 🟡 Priorität 3 — gute Verbesserung, grösserer Eingriff
 
-### B6 · Feldlisten deklarativ per `data-feld` · **L** (Full Mode) · ⭐⭐⭐
-**Problem:** 14 Stellen in `01`, `03`, `main.js` und `boot-state.js` kennen die Sonderfälle als
-String-Literale (`id === 'datum'`, `id === 'text' || id === 'anlagen-text'`, `multiLineIds`,
-`maxTwoLinesIds`). Ein neues Feld anzulegen heisst, an 4–5 Orten nichts zu vergessen.
-**Zu tun:** `data-feld="rich|single|zweizeilig|fluechtig"` im HTML als SSoT, kleines
-`fields.js` mit `forEachField()`. Braucht `specs/`-Ordner + ADR.
-**Nutzen:** Grösster Struktur-Gewinn des Codes; beseitigt die brüchigste Stelle des Projekts.
+### B6 · Feldtypen deklarativ per `data-feldtyp` · **L** · ⭐⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
+**Problem:** Mehrere Module kannten Feld-Sonderfälle über ID-Listen.
+**Änderung:** `data-feldtyp` ist jetzt im HTML die Quelle für `rich`, `mehrzeilig`,
+`zweizeilig`, `liste` und `systemwert`. Draft-Restore, Boot-Restore und UI-Schutz lesen
+diese Eigenschaften statt parallele Feldlisten zu führen. Die gemeinsame Caret-Logik liegt
+in `selection-utils.js`.
+**Rest:** Ein vollständiger `fields.js`-Iterator ist erst sinnvoll, wenn weitere Feldtypen
+hinzukommen; vorerst wäre er zusätzliche Abstraktion ohne weiteren Nutzerwert.
 
 ### B7 · `attr()`-Geometrie statt doppelter mm-Werte · **L** · ⭐⭐
 46 `mm`-Werte in `sheet.css` + 8 in `variables.css` spiegeln die 17 `data-*-y-*`-Attribute am
@@ -148,7 +149,7 @@ Der DECISION-LOG stellt Behauptungen über den Istzustand auf („Datei X hat je
 7. **B8, B9, B15**
 8. **B7** zuletzt — höchstes Risiko, niedrigster Zwang
 
-### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐
+### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
 A21, A22, A24, A42, A43, A44, A46, A47, A57, A58, A59, A60, A62, A39 lassen sich
 nicht per Textmuster prüfen. Machbar wären u. a.: **A42** (doppelte `id`) und
 **A57/A58** (Radio-Segmented-Control statt `switch`) per HTML-Parse; **A24**
@@ -164,15 +165,16 @@ jedes `<li>`. Kein `keydown`, kein `ArrowDown`/`ArrowUp`, kein `Enter`, kein
 benutzt, kann keine Adresse übernehmen. Das wiegt schwerer als jedes offene CSS-Feature.
 Umsetzung vor B19, weil B19 darauf aufbaut.
 
-### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐
+### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
 Quelle: `research/roadmap/ADAPTIVE_DROPDOWN_THRESHOLD_SPEC.md` und
-`ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md` — ausgearbeitet, aber nie umgesetzt.
-Heute: `renderSuggestions(combined.slice(0, 6), query)` zeigt stur „die ersten 6" —
-genau das, was die Spezifikation als „willkürliche Auswahl" und „flackerndes
-UI-Rauschen" verwirft. Soll: > 5 Treffer → kein Dropdown, nur Zähler; 2–5 → Liste;
-genau 1 → geräuschlose Übernahme. Danach optional `SMART_FORM_BIDIRECTIONAL_ORCHESTRATION`.
+`ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md`. Phase 1 ist umgesetzt: > 5 Treffer zeigen
+nur einen Eingrenzungshinweis, 2–5 Treffer erscheinen als Liste, genau 1 Treffer wird
+nach dem vollständigen lokalen/Remote-Abgleich automatisch übernommen. Die vorherige
+willkürliche `slice(0, 6)`-Anzeige ist entfernt. Rest: bidirektionales Formular-
+Orchestrieren und ein expliziter Nutzer-Schalter für Zero-Click müssen separat bewertet
+werden.
 
-### B20 · `fetch()`-Zeitlimits in `43-geoapify.js` · **S** · ⭐⭐⭐⭐
+### B20 · `fetch()`-Zeitlimits in `43-geoapify.js` · **S** · ⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Kein einziger `fetch()` hat ein Zeitlimit. Der `AbortController` (Z. 152 f.) ersetzt nur
 eine ältere Anfrage durch eine neuere; `validateKeyWithHeartbeat()` (Z. 72) und der
 PLZ-Abruf (Z. 329) laufen ganz ohne Signal. Hängt das Netz, hängt die UI unbegrenzt.
@@ -180,7 +182,7 @@ Lösung: `AbortSignal.timeout()`, kombiniert via `AbortSignal.any()` mit dem bes
 Controller. Klein, risikoarm, sofort spürbar.
 **Nicht anfassen:** der H2-Guard (Key nur bei 401/403 löschen, nie bei Timeout/5xx).
 
-### B21 · Offene CSS-Features bewerten: `@page`-Seitenzahlen, `::highlight()`, `subgrid` · **M** · ⭐⭐
+### B21 · Offene CSS-Features bewerten: `@page`-Seitenzahlen, `::highlight()`, `subgrid` · **M** · ⭐⭐ · ✅ BEWERTET 2026-10-02
 Aus den 14 Research-Features sind 9 umgesetzt. Offen und noch sinnvoll: **`@page`
 Margin Boxes** mit `counter(page)` (echte „Seite X von Y" im Druck — zuerst klären, ob
 mehrseitige Briefe überhaupt unterstützt werden sollen), **`::highlight()`** zum

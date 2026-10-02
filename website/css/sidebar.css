@@ -270,7 +270,7 @@ aside {
 
 .autocomplete-header {
   font-weight: bold;
-  cursor: default !important;
+  cursor: default;
   color: var(--accent-color);
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 4px;

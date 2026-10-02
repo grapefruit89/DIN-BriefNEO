@@ -1594,3 +1594,13 @@ schneller, als eine fehlende Sonde es je koennte.
 **Verifikation.** Fitness Gate 100 %, Link-/Metadaten-Gate ohne Befund. Die Matrix enthält keine Completion-Prozentzahl mehr.
 
 **Generalisierung.** Eine Feature-Matrix ist nur dann nützlich, wenn sie den Ist-Stand beschreibt. Fortschrittszahlen und Sprintplanung gehören nicht in dieselbe Quelle; sobald eine Matrix beides vermischt, wird sie zur zweiten, driftenden Roadmap.
+
+## 2026-10-02 — Optimierungsbatch: Adresszonen, deklarative Feldtypen, Struktur-Gate und Caret-SSoT
+
+**Kontext.** Nach der Feature-Matrix-Bereinigung wurden die nächsten technisch belastbaren Punkte aus dem Backlog umgesetzt. Mehrseitigkeit bleibt ein späteres Produktvorhaben; `@page`-Seitenzahlen werden bis zu einer eigenen Mehrseiten-Spec nicht eingebaut.
+
+**Änderung.** (1) `43-geoapify.js` nutzt jetzt die adaptive Trefferlogik: mehr als fünf Treffer zeigen einen Eingrenzungshinweis, zwei bis fünf eine Liste, genau ein Treffer wird erst nach dem vollständigen Abgleich automatisch übernommen. (2) Feld-Sonderfälle stehen als `data-feldtyp` im HTML; Draft-Restore, Boot-Restore und UI-Schutz lesen diese Quelle statt paralleler ID-Listen. (3) `tools/structural-laws.js` prüft doppelte IDs und binäre Radio-Gruppen (mit der begründeten Form-A/B-Ausnahme); das Modul ist in den Fitness Gate integriert. (4) Selection-/Caret-Funktionen wurden in `website/js/selection-utils.js` zentralisiert und von DraftManager und Offline-Adressintelligenz verwendet. (5) Fünf unkritische Nicht-Print-`!important`-Deklarationen wurden entfernt; Schutzregeln für Print, Reduced Motion und Signaturzustände bleiben bestehen. (6) `research/STATUS.md` klassifiziert Research als umgesetzt, offen, verfallen, Quelle oder Index. (7) `ROADMAP.md` enthält nur noch echte Zukunft, einschließlich einer späteren Mehrseitenarchitektur.
+
+**Verifikation.** Fitness Gate 100 %, TypeScript-/Link-/Metadaten-Gate ohne Befund. Der bekannte Low-Hinweis zur 21/35-Law-Coverage bleibt bewusst bestehen. Der Browser-Zoom-Ausgleich ist code-seitig auf die Seitenleiste begrenzt; die tatsächliche Ctrl-+/Ctrl--Sichtprüfung bleibt ein manueller Browser-Test.
+
+**Generalisierung.** Deklarative Metadaten lohnen sich dort, wo mehrere Module dieselbe Feldklassifikation kennen müssen. Native Plattformfeatures werden nur übernommen, wenn sie einen realen Pfad ersetzen; Mehrseiten-Druck und Seitenzahlen bilden eine eigene Architektur, keine kleine CSS-Erweiterung.

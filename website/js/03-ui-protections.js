@@ -27,10 +27,6 @@ export class UIProtections {
   constructor() {
     /** @type {HTMLElement | null} */
     this.text = document.getElementById('text');
-    /** @type {string[]} */
-    this.multiLineIds = ['text', 'anlagen-text'];
-    /** @type {string[]} */
-    this.maxTwoLinesIds = ['betreff', 'postvermerk'];
     this.initialized = false;
   }
 
@@ -49,9 +45,9 @@ export class UIProtections {
       el.addEventListener('keydown', (e) => {
         const keyboardEvent = /** @type {KeyboardEvent} */ (e);
         if (keyboardEvent.key === 'Enter') {
-          if (this.multiLineIds.includes(el.id)) {
+          if (el.dataset.feldtyp?.includes('mehrzeilig')) {
             return;
-          } else if (this.maxTwoLinesIds.includes(el.id)) {
+          } else if (el.dataset.feldtyp?.includes('zweizeilig')) {
             const text = el.innerText || el.textContent || '';
             if (text.split('\n').length >= 2) {
               keyboardEvent.preventDefault();
@@ -64,7 +60,7 @@ export class UIProtections {
 
       // Paste-Handling: Mehrzeiligen Text für Einzeiler einebnen, 2-Zeiler begrenzen
       el.addEventListener('paste', (e) => {
-        if (this.multiLineIds.includes(el.id)) return;
+        if (el.dataset.feldtyp?.includes('mehrzeilig')) return;
         
         const clipboardEvent = /** @type {ClipboardEvent} */ (e);
         const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
@@ -72,7 +68,7 @@ export class UIProtections {
         if (!pastedText) return;
 
         clipboardEvent.preventDefault();
-        const isTwoLine = this.maxTwoLinesIds.includes(el.id);
+        const isTwoLine = el.dataset.feldtyp?.includes('zweizeilig');
 
         if (isTwoLine) {
           const maxChars = 130;

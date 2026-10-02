@@ -1,204 +1,111 @@
 ---
 id: roadmap
-title: 'Zukunfts-Roadmap — Ideen & Chrome-Modernisierungschancen'
+title: 'Roadmap — echte Zukunft des Produkts'
 type: roadmap
 status: active
 created: '2026-07-07'
-updated: '2026-09-30'
+updated: '2026-10-02'
 tags:
   - din-briefneo
   - din-briefneo/meta
   - status/active
   - type/roadmap
 doc_links:
+  - spec
+  - BACKLOG
+  - Feature-Matrix
   - longevity-guidelines
-  - ADR-ANTIPATTERN
   - research/README
+code_links:
+  - website/index.html
+  - website/js/43-geoapify.js
+  - website/css/print.css
 error_patterns:
   - roadmap
   - zukunft
-  - ideen
-  - brainstorming
-  - chrome features
+  - mehrseitig
+  - serienbrief
   - modernisierung
 supersedes: []
 depends_on: []
-code_links: []
 ---
 
-# Zukunfts- & Modernisierungs-Roadmap 2026
+# Roadmap — echte Zukunft des Produkts
 
-> **Status:** Genehmigter Umsetzungsplan (Forschungsergebnisse aus `research/README.md`)  
-> **Kernziel:** Maximale Code-Reduktion (~61% weniger JavaScript, ~40% weniger CSS-Hacks), 100% Offline-Autofill für Deutschland und strikte Einhaltung der Zero-Scroll-Papiergrenze.
+> Diese Datei beschreibt ausschließlich Vorhaben, die **noch nicht Bestandteil** des
+> aktuellen Produkts sind. Der Ist-Stand steht in [[Feature-Matrix]], konkrete
+> technische Arbeit in [[BACKLOG]]. Abgeschlossene Arbeiten werden hier nicht als
+> Sprint-Historie wiederholt.
 
----
+## Leitplanken
 
-## 📊 ROI-Übersicht (Nutzen vs. Aufwand)
+Neue Vorhaben müssen mit der [[spec]], dem [[Immutable-Law-Catalog]] und der
+Chrome-150+-Baseline aus [[longevity-guidelines]] vereinbar sein. Research ist
+Begründung und Quelle, aber keine automatische Produktanforderung.
 
-| Priorität | Arbeitspaket | Aufwand | Nutzen | Primärer Hebel |
-| :--- | :--- | :--- | :--- | :--- |
-| **Prio 1** | **Salutation Engine V2 & Vornamen-Dictionary** | Sehr Gering (~30 min) | **Extrem Hoch** | 🟢 Abgeschlossen 2026-09-04 (2,6 KB Vornamen-Gzip, 3 B2B-Pärchen, Adelspartikel-Schutz, Auto-Reset) |
-| **Prio 2** | **72 KB Offline PLZ & Großempfänger** | Mittel (~2 h) | **Maximal (Gamechanger)** | 🟢 Abgeschlossen 2026-09-04; 2026-09-10 brotli→gzip migriert (DecompressionStream('brotli') in Chrome 4–154 unshipped, nur Firefox 147+) |
-| **Prio 3** | **Smart Clipboard Impressum-Parser** | Gering–Mittel (~1 h) | **Sehr Hoch** | 🟢 Abgeschlossen (`46-clipboard-address-parser.js` & Sidebar Button) |
-| **Prio 4** | **JS-Kill Phase 1: Text-Fit & CSS-Modernisierung** | Gering (~45 min) | **Hoch** | 🟢 Abgeschlossen (`48-text-fit.js` gelöscht, `field-sizing: content`, `light-dark()`, `text-wrap`) |
-| **Prio 5** | **JS-Kill Phase 2: HTML-Switch, Popover & Top-Layer** | Mittel (~1,5 h) | **Hoch** | 🟢 Abgeschlossen (`contenteditable="plaintext-only"`, `enterkeyhint="done"`, Popover API für Toasts, `<input switch>`) |
-| **Prio 6** | **Quartalsweise Open-Data Pipeline** | Gering (~30 min) | **Mittel** | 🟢 Abgeschlossen (`.github/workflows/update_plz_pipeline.yml` & `update_plz_pipeline.py`) |
-| **Prio 7** | **Optionales On-Device KI-Addon (Gemini Nano)** | Mittel (~1,5 h) | **Optional / Experimentell** | Entkoppeltes Plugin via `window.ai` (Graceful Degradation ohne Cloud-Zwang) |
+## Priorität 1 — Mehrseitige Briefe
 
----
+**Ziel:** Briefe über mehrere DIN-A4-Seiten hinweg bearbeiten, drucken und als PDF
+exportieren können.
 
-## 🚀 Detaillierte Umsetzungsschritte (Prio-Sortiert)
+**Noch zu klären:**
 
-### ✅ Priorität 1: Salutation Engine V2 Produktivschaltung (abgeschlossen)
-* **Status:** Erledigt (Commit `cc12e5d`, *„promote 80/20 Smart Salutation Engine V2 to production"*). Die V2 wurde **in `website/js/41-salutation-engine.js` selbst** promoviert — ein separates `41-salutation-engine.smart.js` gibt es **nicht**.
-* **Ist:** `main.js` importiert `41-salutation-engine.js` (V2): Zero-Click-Geschlecht (951 Vornamen aus `website/data/de_vornamen_gender.json.gz`), Adelspartikel-Erhalt (`von`, `zu`, `van`, `de`, …), 3 B2B-Pärchen (Förmlich, Höflich, Locker), Dirty-Flag + Auto-Reset.
-* **Verworfen:** Der ursprüngliche Plan (Import-Umhängung auf eine separate `.smart.js` + Archivierung der Altdatei) wurde nicht verfolgt — die Altdatei wurde zur V2. Der Prototyp liegt unter `research/roadmap/smart_salutation_engine.js`.
-* Siehe [[Salutation-Engine]].
+- fachliche Grenze zwischen Briefkern und Folgeseite;
+- Seitenumbrüche ohne unlesbare oder abgeschnittene Inhalte;
+- wiederholte Kopf-/Fußbereiche und optionale Seitenzahlen;
+- Darstellung mehrerer Blätter im Editor ohne ungewolltes Dokument-Scrolling;
+- Persistenz, Undo/Redo und Import/Export für mehrere Seiten;
+- Drucktests für Form A und Form B.
 
----
+**Wichtig:** `@page`-Margin-Boxes und `counter(page)` werden erst nach dieser
+Produktentscheidung geprüft. Seitenzahlen sind eine Folge der Mehrseitenarchitektur,
+nicht deren Vorab-Ersatz. Umsetzung braucht eine eigene Spec unter `specs/` und ein
+ADR; nicht nebenbei in `print.css` einbauen.
 
-### 🟢 Priorität 2: 72 KB Offline-Brotli PLZ- & Großempfänger-Engine (Gamechanger)
-* **Problem:** Aktuell erzeugt jeder Tastenanschlag im Adressfeld langsame Cloud-Requests (150–250 ms) an Geoapify/Zippopotam. Ohne Internet funktioniert die Adresshilfe nicht.
-* **Lösung:**
-  1. `research/research_results/de_plz_ort.json.br` (72,1 KB) nach `website/data/` überführen.
-  2. Implementierung eines schlanken Loaders über die native Browser `DecompressionStream`-API (Ladezeit unter 1 ms, Ausführung nativ in C++).
-  3. Bidirektionale Logik:
-     * Tippen von 5 Ziffern (z. B. `53111`) ➔ Sofortige Ergänzung von `Bonn` in 0,001 ms.
-     * Tippen von Ortsnamen (z. B. `Bonn`) ➔ Sofortige Vorschläge der Stadtteile.
-  4. Großempfänger-Automatik (OLG Frankfurt, Az. 6 U 170/13): Bei 2.258 Sonder-PLZs (Bundestag `11011`, Kanzleramt `11012`, Ministerien, Konzerne) wird die Straßenzeile normgerecht automatisch weggelassen.
-  5. Entlastung von `website/js/43-geoapify.js`: Geoapify wird ausschließlich als optionale Tier-2-Suche für Straßen und Hausnummern aufgerufen.
-* **Aufwand:** ~2 Stunden.
-* **Nutzen:** 100% autarker Offline-Betrieb für ganz Deutschland, null API-Quota-Verbrauch für Standard-Briefe, 100% Datenschutz.
+## Priorität 2 — Adaptive Adresssuche
 
----
+Die offene B19-Arbeit aus [[BACKLOG]] wird zum produktiven Adress-UX-Ausbau:
 
-### 🟢 Priorität 3: Smart Clipboard Impressum-Parser (Abgeschlossen)
-* **Status:** 🟢 Abgeschlossen (2026-09-04)
-* **Problem:** Nutzer müssen Adressen von Firmen-Websites (Impressum) mühsam Zeile für Zeile kopieren und einfügen, während tausende Zeilen Cookie-Banner, Menüs und Redaktionsmitglieder stören.
-* **Lösung:**
-  1. Modul `website/js/46-clipboard-address-parser.js` mit zweistufigem heuristischem Scoring-Parser implementiert.
-  2. Intuitiver Sidebar-Button `📋 Zwischenablage lesen` (`#btn-zwischenablage-anschrift`) unter dem Bereich `Adresse aus Zwischenablage`.
-  3. Filtert in unter 0,1 ms: Menüleisten, Social-Links, Cookie-Texte, Handelsregisterdaten (`HRB ...`, `Amtsgericht ...`), USt-IdNr., Vorstände.
-  4. Multi-Address Anomaly Guard: Erkennt mehrere Adressen im Clipboard und bietet ein interaktives Auswahl-Popover (`#clipboard-candidates-popover`) via W3C Popover API.
-  5. Befüllt strukturiert die DIN-5008-Felder: `empfaenger-firma`, `empfaenger-strasse`, `empfaenger-ort`.
-* **Aufwand:** ~1 Stunde.
-* **Nutzen:** Höchste Zeitersparnis beim Verfassen geschäftlicher Briefe ohne Übertragungsfehler.
+- mehr als fünf Treffer: kein willkürliches Dropdown, sondern ein Hinweis zur
+  weiteren Eingrenzung;
+- zwei bis fünf Treffer: fokussierbares, tastaturbedienbares Dropdown;
+- genau ein sicherer Treffer: optionaler Zero-Click-Übernahmepfad;
+- Top-down- und Bottom-up-Eingabe erst nach einem stabilen Basispfad.
 
----
+Die bereits vorhandene Offline-Suche bleibt Primärquelle. Geoapify bleibt optionaler
+Tier-2-Dienst.
 
-### 🟢 Priorität 4: JS-Kill Phase 1 — `48-text-fit.js` eliminieren & CSS-Bereinigung (Abgeschlossen)
-* **Problem:** `website/js/48-text-fit.js` führt bei jedem Tastenanschlag DOM-Messungen (`scrollWidth > clientWidth`) und MutationObserver-Schleifen aus, was Layout Thrashing verursacht.
-* **Lösung:**
-  1. `website/js/48-text-fit.js` komplett löschen und aus `index.html` austragen.
-  2. Aktivierung von nativem CSS: `field-sizing: content` (Standard in Chrome 123+) und `overflow: clip`.
-  3. Bereinigung von `variables.css`: Ersatz redundanter Theme-Klassen durch CSS `light-dark()` und `color-mix()`.
-  4. Betreff & Brieftext typografisch mit `text-wrap: balance` und `text-wrap: pretty` absichern (keine Waisen-Wörter am Zeilenende).
-* **Aufwand:** ~45 Minuten.
-* **Nutzen:** ~150 Zeilen fragiles JavaScript entfallen, 0 ms Reflow-Overhead, seidenweiches Tippen.
+## Priorität 3 — Serienbriefe und wiederverwendbare Vorlagen
 
----
+Ein späterer Serienbrief-Modus könnte mehrere Empfänger auf einen Briefentwurf
+anwenden und Vorlagen speichern. Vor einer Umsetzung müssen Datenmodell, Datenschutz,
+Import-/Exportformat und die Interaktion mit manuellen Overrides spezifiziert werden.
 
-### 🟢 Priorität 5: JS-Kill Phase 2 — HTML-Switch, Popover & Top-Layer
-* **Status:** 🟢 Abgeschlossen (2026-09-04)
-* **Problem:** Keydown-Enter-Filter in `03-ui-protections.js` und manuelles Z-Index-/Timer-Management in `32-toast.js` blähen die Codebasis auf.
-* **Lösung:**
-  1. Einzeilige Felder in `website/index.html` mit nativem `contenteditable="plaintext-only"` und `enterkeyhint="done"` ausgestattet (Browser blockiert Umbrüche und HTML-Formatting nativ).
-  2. `03-ui-protections.js` um redundante Beforeinput- und Keydown-Interzeptoren erleichtert.
-  3. Toast-System (`32-toast.js`) auf die native HTML Popover API (`popover="manual"`) umgestellt. Mounten im Browser Top-Layer, Transitions über CSS `@starting-style` ohne JS-Timer und ohne Z-Index-Kämpfe.
-  4. Sidebar-Schalter auf semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">` umgestellt.
-* **Aufwand:** ~1,5 Stunden.
-* **Nutzen:** Über 175 Zeilen weniger JavaScript, native Barrierefreiheit, Z-Index-Kämpfe gehören der Vergangenheit an.
+## Priorität 4 — Fachliche Erweiterungen mit echtem Nutzerwert
 
----
+Diese Ideen bleiben bewusst nachrangig und werden einzeln bewertet:
 
-### 🟢 Priorität 6: Automatische Quartals-Pipeline für Open-Data
-* **Status:** 🟢 Abgeschlossen (2026-09-04)
-* **Problem:** Postleitzahlen, Ortsumbenennungen und Großempfänger-Codes ändern sich gelegentlich.
-* **Lösung:**
-  1. GitHub Action `.github/workflows/update_plz_pipeline.yml` aktiv im Repository etabliert.
-  2. Quartalsweiser Cron-Job (`0 4 1 */3 *`) ruft Open-Data der Deutschen Post Direkt und von Destatis ab (inkl. manual `workflow_dispatch`).
-  3. Führt `update_plz_pipeline.py` aus, komprimiert die Brotli-Payloads neu (`de_plz_ort.json.br` 70,5 KB, `de_grosskunden_plz.json.br` 28,8 KB), generiert `website/data/plz-embedded.js` neu und committet Änderungen via GitHub Actions Bot.
-* **Aufwand:** ~30 Minuten.
-* **Nutzen:** Dauerhafte Wartungsfreiheit für die nächsten 10 Jahre.
+- Behördenwegweiser für ausgewählte Schreiben;
+- zusätzliche DIN-5008-Formen oder internationale Varianten;
+- robuste Vorlagen- und Textbausteinverwaltung.
 
----
+Keines dieser Themen darf die lokale Kernfunktion oder die Abwesenheit einer
+Runtime-Abhängigkeit voraussetzen.
 
-### ⚪ Priorität 7: Optionales On-Device KI-Addon (Gemini Nano)
-* **Problem:** Schreibblockaden oder unklare Formulierungen beim Briefeschreiben.
-* **Lösung:**
-  1. `research/roadmap/ai_assistant_addon.js` als modulares Addon in `website/js/addons/` platzieren.
-  2. Nutzt die lokale Chrome Built-in AI (`window.ai` / `ai.rewriter` / `ai.writer`) ohne API-Keys und ohne Internetverbindung direkt auf der NPU/GPU des Nutzers.
-  3. Strenges Opt-in mit Graceful Degradation: Auf Geräten ohne lokales Modell bleibt das Feature unsichtbar und beeinträchtigt die Kernanwendung in keiner Weise.
-* **Aufwand:** ~1,5 Stunden.
-* **Nutzen:** Privatsphärefreundliche, optionale KI-Hilfe für Power-User mit moderner Hardware.
+## Bewusst nicht auf dieser Roadmap
 
----
+- Frameworks, Bundler und externe PDF-Bibliotheken;
+- Service-Worker-/PWA-Zwang;
+- vCard-QR, Sprachsteuerung und Cloud-LanguageTool;
+- ungeprüfte Chrome-Features nur wegen ihrer Neuheit;
+- `@page`-Seitenzahlen vor einer Mehrseitenentscheidung;
+- `subgrid` als Ersatz für die bestehende IMR-Geometrie.
 
-## Historischer Ideenspeicher & Backlog
+## Zuständigkeit
 
-### 1. Mehrseitiges Horizontal-Karussell
-
-Mehrseitige Briefe, die im Editor horizontal gescrollt werden, um vertikales Scrollen im Viewport zu vermeiden.
-
-**Status:** Zurückgestellt (Phase 1 / Backlog). Hohe JS-Komplexität bei der Paginierung. 95% aller DIN 5008 Briefe passen auf eine Seite.
-
-### 2. PDF-Export — Entscheidung: Browser-Druck (Weg 3)
-Drei Wege wurden abgewogen:
-1. **Pixel-/Raster-Export** (Canvas → PDF/PNG): ❌ **verworfen** — schlechtes Ergebnis, kein echter Text (nicht selektier-/durchsuchbar), große Dateien.
-2. **Echtes PDF via externe Library** (`pdf-lib`, `jsPDF`, …): ⏸️ **zurückgestellt / gesprächsbereit** — würde die Zero-Dependency-Doktrin brechen (neue Abhängigkeit + Bundle). Nur nach bewusster Ausnahme-Entscheidung.
-3. **Browser-Druck** (`window.print()` + `print.css`): ✅ **gewählter Weg** — echtes Vektor-PDF, 0 Byte Code, W3C-nativ, offline über `file://`.
-
-**Status:** Entschieden (2026-09-30): Weg 3 bleibt Standard; Weg 2 nur auf ausdrücklichen Wunsch erneut aufgreifen.
-
-### 3. Erweiterte Formatierungsoptionen im Markdown-Parser
-
-Ausbau des `parseMarkdown`-Moduls zur nativen Unterstützung von geordneten/ungeordneten Listen, Überschriften und Tabellen im Briefkern.
-
-**Status:** Brainstorming. Muss mit dem Selection-Popover synchronisiert werden.
-
-### 4. bzst.de Behördenwegweiser — Finanzamt-Adress-Lookup
-
-Automatisches Auffinden der zuständigen Finanzamt-Adresse für den Empfänger, analog zum bestehenden Adress-Autocomplete (Geoapify/Photon).
-
-**Status:** Geplant (2026-08-08 festgehalten). Nischen-Feature, aber spart Nutzern manuelle Suche bei Behördenbriefen.
-
-**Dauerhaft verworfen (2026-09-30, nicht erneut vorschlagen):** Sprachsteuerung/Diktat (Web Speech — plattformspezifisch, nur mit Cloud), LanguageTool (externe API, Offline-Bruch), vCard-QR im Briefkopf (Gimmick im formellen B2B-Brief), Service-Worker/PWA (unter `file://` technisch unmöglich — SW braucht HTTPS), LLM-Addon/Zauberstab (Cloud-API + Keys, bricht Offline/Datenschutz/zero-dep).
-
-**Zurückgestellt/verworfen aus derselben Ideen-Liste** (Chat-Audit 2026-08-08, zu nischig für einen allgemeinen Briefeditor): Justizadressen.nrw.de, gerichtsstand.net, insolvenzbekanntmachungen.de, Bundesbank-Webservice (Basiszinssatz/Verzugszins — nur relevant für Mahnschreiben), EZB-Referenzkurse, OpenThesaurus.de, OffeneRegister/OpenCorporates, Wikidata SPARQL, Open Legal Data.
-
----
-
-## Chrome 148-151 Modernisierungschancen
-
-Audit vom Juli 2026 (ursprünglich `architecture_opportunities.md`, 19 Einzel-Opportunities in 8 Bereichen). **Verifiziert gegen den Code, 2026-08-09:** der Großteil ist bereits umgesetzt — nur noch 4 Punkte offen. Die Detaildatei wurde daher gelöscht, dieser Abschnitt ersetzt sie.
-
-### Noch offen (5)
-
-- **`focusgroup="vertical wrap"`** auf der Sidebar-Footer-Aktionsgruppe (`#btn-print`/`#btn-reset`) — ArrowUp/Down-Navigation ohne JS.
-- **Name-Only Container Queries** (`@container paper { ... }`) statt size-basierter Queries — bisher nirgends im CSS verwendet.
-- **`popover="hint"` + `interesttarget`** für reichhaltige, stylebare Tooltips statt nativer `title`-Attribute.
-- **Container Scroll-State Query** (`@container scroll-state(overflow-y: true)`) für eine Text-Overflow-Warnung im Briefkern. Die alte JS-Variante (`checkTextOverflow`, `.scrollHeight`-Polling) wurde als buggy entfernt, nie migriert.
-- **Element-scoped View Transitions** (`Element.startViewTransition()`, Chrome 147 Stable 03/2026) für lokale UI-Updates (Font-Status-Chip, PLZ-Trefferliste): Transition läuft nur im Subtree, der Rest der Seite bleibt interaktiv, mehrere Transitions laufen parallel. Quellen: [chrome blog](https://developer.chrome.com/blog/element-scoped-view-transitions), [Chrome 140 Announce](https://developer.chrome.com/blog/new-in-chrome-140). Kandidaten-Recherche-Quelle zusätzlich: **web.dev/baseline** („Newly/Widely available" als Feature-Filter).
-
-**Status:** Brainstorming / Nice-to-have, keine Bugs. Kein Zeitdruck.
-
-### Bereits umgesetzt (verifiziert 2026-08-09)
-
-`text-fit` auf Absender/Betreff/`.single-line` · `focusgroup="horizontal wrap"` auf allen Segmented Controls · `light-dark()` durchgängig in `variables.css` · Gap Decorations (`column-rule`/`column-rule-inset`) im Footer · CSS Anchor Positioning für alle Dropdowns und die Format-Toolbar · `:has()`-Radio-Pattern für Theme/Schriftart/Anrede/Datum/Unterschrift · natives `<dialog>` für die Reset-Bestätigung (sogar mit `command="show-modal"`, moderner als im Audit vorgeschlagen).
-
-### Bewusst anders gelöst
-
-Trennlinien in den Segmented Controls: statt der vorgeschlagenen `column-rule` wurde ein gleitendes Pill-Element (`::before`) gewählt.
-
----
-
-## Verweise
-
-- [[longevity-guidelines]] — Verbote für CDN und Drittanbieter-Bibliotheken
-- [[Immutable-Law-Catalog]] — alle Verbote und MUST-USE (CDN, npm, Polyfills)
-- [[research/README|research/]] — aktuelle Quellen und Modern-Web-Feature-Tracking
-- [web.dev/baseline](https://web.dev/baseline) — Googles Kompatibilitäts-Stufen (Newly/Widely available) als Recherche-Filter
-- [api.webstatus.dev/v1/features](https://api.webstatus.dev/v1/features?q=baseline_status:newly) — offizielle maschinenlesbare Baseline-API (Backend von webstatus.dev); Query-DSL: `baseline_status:newly`, `group:css`, `baseline_date:2026-01-01..2026-12-31`; Antwort: `baseline.status` (`limited|newly|widely`), `low_date`, `high_date`, `feature_id`; Pagination via `metadata.next_page_token`
-- [OpenAPI-Spec webstatus.dev](https://github.com/GoogleChrome/webstatus.dev/blob/main/openapi/backend/openapi.yaml) — offizieller API-Vertrag (`GET /v1/features`, `GET /v1/features/{id}`)
-- [npm web-features](https://www.npmjs.com/package/web-features) — gleiche Daten offline lokal (`features[id].status.baseline` = `false|"low"|"high"` + `baseline_low_date`, `status.by_compat_key` für Property-Level ab v3.6.0); Quelle auch für VS Code, MDN, eslint-css (`use-baseline`)
-- Baseline-MCP-Server (Community, kein offizieller): [jlacher/baseline-mcp-server](https://github.com/jlacher/baseline-mcp-server) (quert webstatus.dev-API), [Technickel-Dev/baseline-mcp](https://github.com/Technickel-Dev/baseline-mcp) (hosted: `baseline-mcp.netlify.app/mcp`), [yamanoku/baseline-mcp-server](https://github.com/yamanoku/baseline-mcp-server) (Deno); offizielles Chrome-Labs-Beispiel: [baseline-demos/tooling/mcp](https://github.com/GoogleChromeLabs/baseline-demos/tree/main/tooling/mcp)
+- **Produktbestand:** [[Feature-Matrix]]
+- **Umsetzbare nächste Aufgaben:** [[BACKLOG]]
+- **Architekturentscheidungen:** ADRs in `docs/10-architecture/`
+- **Normen:** [[Immutable-Law-Catalog]]
+- **Quellen und Experimente:** `research/README.md`
+- **Historische Begründungen:** [[DECISION-LOG]]

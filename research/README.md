@@ -1,5 +1,7 @@
 # DIN-Brief Neo: Modern Web Platform Migration Workspace (2025–2026)
 
+> **Statusübersicht:** [`STATUS.md`](STATUS.md) klassifiziert die Research-Dokumente in umgesetzt, offen, verfallen, Quelle und Index. Verbindliche Entscheidungen stehen nicht hier, sondern in den ADRs und im Backlog.
+
 > **Audience:** AI Coding Assistants (LLMs) & Software Engineers  
 > **Target Application:** [DIN-Brief Neo](https://github.com/grapefruit89/DIN-BriefNEO) (German standard DIN 5008 letter composer)  
 > **Status:** Analyzed, verified, and ready for progressive implementation.

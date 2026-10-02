@@ -2,6 +2,8 @@
 // @adr [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]
 // @guide [[geoapify-autocomplete]]
 
+import { setCaretToEnd } from './selection-utils.js';
+
 /* 🚨 ARCHITECTURAL GUARD (ein Datenpfad):
  * Die Datensaetze kommen ausschliesslich als .gz-Stream vom lokalen Webserver.
  * Der frueher hier liegende Base64-Fallback (`data/plz-embedded.js`, 164 KB)
@@ -321,13 +323,7 @@ export class AddressIntelligence {
    * @param {HTMLElement} el
    */
   static #moveCaretToEnd(el) {
-    const sel = window.getSelection();
-    if (!sel) return;
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    sel.removeAllRanges();
-    sel.addRange(range);
+    setCaretToEnd(el);
   }
 }
 

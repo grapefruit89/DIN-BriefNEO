@@ -55,7 +55,7 @@
 }
 
 .hinweis-badge:empty, .hinweis-action-btn:empty {
-  display: none !important;
+  display: none;
 }
 
 .hinweis-badge {

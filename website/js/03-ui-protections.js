@@ -38,55 +38,59 @@ export class UIProtections {
   }
 
   enforceLineLimits() {
-    document.querySelectorAll('[contenteditable]').forEach(elem => {
-      const el = /** @type {HTMLElement} */ (elem);
-      
-      // Enter-Taste abfangen: Single-Line blockiert Umbruch, maxTwoLines begrenzt auf 2 Zeilen
-      el.addEventListener('keydown', (e) => {
-        const keyboardEvent = /** @type {KeyboardEvent} */ (e);
-        if (keyboardEvent.key === 'Enter') {
-          if (el.dataset.feldtyp?.includes('mehrzeilig')) {
-            return;
-          } else if (el.dataset.feldtyp?.includes('zweizeilig')) {
-            const text = el.innerText || el.textContent || '';
-            if (text.split('\n').length >= 2) {
-              keyboardEvent.preventDefault();
-            }
-          } else {
+    const root = document.querySelector('din-a4') || document;
+
+    // Enter-Taste abfangen: Single-Line blockiert Umbruch, maxTwoLines begrenzt auf 2 Zeilen
+    root.addEventListener('keydown', (e) => {
+      const keyboardEvent = /** @type {KeyboardEvent} */ (e);
+      const target = keyboardEvent.target instanceof Element ? keyboardEvent.target.closest('[contenteditable]') : null;
+      if (!target || !(target instanceof HTMLElement)) return;
+
+      if (keyboardEvent.key === 'Enter') {
+        if (target.dataset.feldtyp?.includes('mehrzeilig')) {
+          return;
+        } else if (target.dataset.feldtyp?.includes('zweizeilig')) {
+          const text = target.innerText || target.textContent || '';
+          if (text.split('\n').length >= 2) {
             keyboardEvent.preventDefault();
           }
-        }
-      });
-
-      // Paste-Handling: Mehrzeiligen Text für Einzeiler einebnen, 2-Zeiler begrenzen
-      el.addEventListener('paste', (e) => {
-        if (el.dataset.feldtyp?.includes('mehrzeilig')) return;
-        
-        const clipboardEvent = /** @type {ClipboardEvent} */ (e);
-        const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
-        let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
-        if (!pastedText) return;
-
-        clipboardEvent.preventDefault();
-        const isTwoLine = el.dataset.feldtyp?.includes('zweizeilig');
-
-        if (isTwoLine) {
-          const maxChars = 130;
-          pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
-          if (pastedText.length > maxChars) {
-            pastedText = pastedText.substring(0, maxChars);
-          }
         } else {
-          pastedText = pastedText.replace(/[\r\n]+/g, ' ');
+          keyboardEvent.preventDefault();
         }
+      }
+    });
 
-        const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) return;
-        selection.deleteFromDocument();
-        selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
-        selection.collapseToEnd();
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      });
+    // Paste-Handling: Mehrzeiligen Text für Einzeiler einebnen, 2-Zeiler begrenzen
+    root.addEventListener('paste', (e) => {
+      const clipboardEvent = /** @type {ClipboardEvent} */ (e);
+      const target = clipboardEvent.target instanceof Element ? clipboardEvent.target.closest('[contenteditable]') : null;
+      if (!target || !(target instanceof HTMLElement)) return;
+
+      if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
+      
+      const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
+      let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
+      if (!pastedText) return;
+
+      clipboardEvent.preventDefault();
+      const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
+
+      if (isTwoLine) {
+        const maxChars = 130;
+        pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
+        if (pastedText.length > maxChars) {
+          pastedText = pastedText.substring(0, maxChars);
+        }
+      } else {
+        pastedText = pastedText.replace(/[\r\n]+/g, ' ');
+      }
+
+      const selection = window.getSelection();
+      if (!selection || !selection.rangeCount) return;
+      selection.deleteFromDocument();
+      selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
+      selection.collapseToEnd();
+      target.dispatchEvent(new Event('input', { bubbles: true }));
     });
   }
 

@@ -164,10 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    document.querySelectorAll('[contenteditable]').forEach(el => {
-      el.addEventListener('input', () => {
+    const briefblatt = document.querySelector('din-a4') || document;
+    briefblatt.addEventListener('input', (e) => {
+      if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
         draftManager.scheduleAutoSave();
-      });
+      }
     });
     document.querySelectorAll('select[data-speichern]').forEach(el => {
       el.addEventListener('change', () => {

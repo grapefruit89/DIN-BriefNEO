@@ -73,15 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initImportExport({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
     ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
 
-    const salutation = new SalutationFeature(() => draftManager.saveDraft());
-    salutation.init();
-
-    const sigContext = {
+    /* 🚨 ARCHITECTURAL GUARD (ein Settings-Owner):
+     * `settingsManager.settings` ist das EINZIGE Settings-Objekt der App.
+     * Features bekommen es injiziert und persistieren ausschliesslich über
+     * diesen Kontext — niemals per eigenem StorageManager.loadSettings().
+     * Sonst entstehen parallele Snapshots, die sich gegenseitig ueberschreiben. */
+    const settingsContext = {
       settings: settingsManager.settings,
-      saveSettings: () => {
+      save: () => {
         StorageManager.saveSettings(settingsManager.settings);
         settingsManager.applySettings();
       }
+    };
+
+    const salutation = new SalutationFeature(() => draftManager.saveDraft(), settingsContext);
+    salutation.init();
+
+    /* SignatureFeature erwartet historisch `saveSettings` als Methodennamen. */
+    const sigContext = {
+      settings: settingsContext.settings,
+      saveSettings: settingsContext.save
     };
     const signature = new SignatureFeature(sigContext);
     signature.init();

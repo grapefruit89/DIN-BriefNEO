@@ -1,3 +1,28 @@
+---
+id: code-audit-website-2026-10-02
+title: Code-Audit website/ — 2026-10-02
+status: archived
+type: reference
+created: '2026-10-02'
+updated: '2026-10-02'
+tags:
+- din-briefneo
+- meta
+- audit
+- governance
+doc_links:
+- '[[AGENTS]]'
+- '[[Immutable-Law-Catalog]]'
+- '[[ADR-JS]]'
+- '[[DECISION-LOG]]'
+code_links:
+- 'website/js/53-metadata.js'
+- 'website/js/41-salutation-engine.js'
+- 'website/js/main.js'
+depends_on: []
+supersedes: []
+---
+
 # Code-Audit `/website` — Struktur & Code-Qualität
 
 **Datum:** 2026-10-01 · **Umfang:** `website/` (index.html, 9 CSS, 18 JS, ~6.000 LOC)

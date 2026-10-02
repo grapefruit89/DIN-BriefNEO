@@ -1,8 +1,32 @@
+---
+id: docs-audit-2026-10-02
+title: Doku-Audit docs/ — 2026-10-02
+status: archived
+type: reference
+created: '2026-10-02'
+updated: '2026-10-02'
+tags:
+- din-briefneo
+- meta
+- audit
+- governance
+doc_links:
+- '[[AGENTS]]'
+- '[[Immutable-Law-Catalog]]'
+- '[[DECISION-LOG]]'
+- '[[code-audit-website-2026-10-02]]'
+code_links:
+- 'tools/links.js'
+- 'tools/reconciliation.js'
+depends_on: []
+supersedes: []
+---
+
 # Doku-Audit `/docs` — Was ist wichtig, was kann weg?
 
 **Datum:** 2026-10-02 · **Umfang:** `docs/` (41 aktive + 8 archivierte MD), Root-MDs, `research/`, `agent/`
 **Modus:** Nur Analyse. Keine Datei gelöscht, verschoben oder geändert.
-**Gegenstück:** [`WEBSITE-CODE-AUDIT.md`](WEBSITE-CODE-AUDIT.md)
+**Gegenstück:** [[code-audit-website-2026-10-02]]
 
 ---
 

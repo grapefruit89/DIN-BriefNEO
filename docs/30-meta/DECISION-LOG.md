@@ -958,7 +958,7 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 
 ## 2026-10-02 — Fitness Gate war strukturell unerreichbar (Link-Gate-Fix) + Doku-Quick-Wins
 
-**Kontext:** Audit von `website/` und `docs/` (→ `WEBSITE-CODE-AUDIT.md`, `DOCS-AUDIT.md`). Der Pre-Build-Gate stand auf **main** bei **99,88 %** und failte — entgegen der Annahme „100 % ist der Normalzustand".
+**Kontext:** Audit von `website/` und `docs/` (→ [[code-audit-website-2026-10-02]], [[docs-audit-2026-10-02]]). Der Pre-Build-Gate stand auf **main** bei **99,88 %** und failte — entgegen der Annahme „100 % ist der Normalzustand".
 
 **Befund (Grundursache):** 8 kritische tote Wikilinks, alle auf `[[Function-Traceability]]` und `[[Code-Referenzen]]`. Beide sind **generierte** Artefakte und per `.gitignore` **nicht versioniert**. `tools/links.js` nahm sie zwar in `SCAN_SKIP` auf — aber nur als Scan-**Quelle**, nicht als Link-**Ziel**. Verschärfend: `build_db.js` (dokumentierter Linux-Einstieg) erzeugt nur `Code-Referenzen.md`; `Function-Traceability.md` entsteht ausschliesslich in `build_db.py`. Damit war **100 % auf dem dokumentierten Linux-Pfad nach jedem frischen Clone unerreichbar**, obwohl AGENTS.md §2 genau das vor jeder Änderung verlangt. Der Datei-Header von `links.js` behauptete die Ausnahme bereits — implementiert war sie nie.
 
@@ -970,8 +970,20 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 5. `docs/index.md`: Dezimalrahmen nannte `30-meta` doppelt und `90-archive` gar nicht (angeblich „5-stufig", faktisch 4); `AI-AGENTS-CLI.md` war als „im Repository-Root" beschrieben, liegt aber in `docs/30-meta/`.
 6. `docs/index.md` Leitregel 2 + `CLAUDE.md`: **Faktenkorrektur** — „Offline-Garantie ohne Webserver" bzw. „`file:///` lauffähig" widersprachen README.md/AGENTS.md und `CLAUDE.md` sich selbst (Zeile 34 vs. 45). ESM + CSP schliessen `file://` aus. „Offline" = netzunabhängig, nicht serverlos. Zusätzlich empfahl `CLAUDE.md` als `new Date()`-Ersatz das zonenlose `Temporal.Now.plainDateISO()` — **genau das verbietet A50**; jetzt Verweis auf `currentISODate()`.
 
-**Bewusst NICHT geändert:** Die `file://`-Begründungen im Immutable Law Catalog (S1, A22, A34–A37) stützen fünf Verbote auf eine nicht mehr existierende Voraussetzung. Das ist eine Grundsatzentscheidung des Maintainers (ADR-pflichtig), keine Aufräumarbeit — offen, siehe `DOCS-AUDIT.md` §3/W1.
+**Bewusst NICHT geändert:** Die `file://`-Begründungen im Immutable Law Catalog (S1, A22, A34–A37) stützen fünf Verbote auf eine nicht mehr existierende Voraussetzung. Das ist eine Grundsatzentscheidung des Maintainers (ADR-pflichtig), keine Aufräumarbeit — offen, siehe [[docs-audit-2026-10-02]] §3/W1.
 
 **Verifikation:** Gate **100 %** (Metadata/Coherence/Conformance/Features je 100 %), **null** Diagnosen — vorher 8× CRITICAL + 1× LOW.
 
 **Generalisierbarkeit (llm_boilerplate):** (a) Link-/Kohärenz-Gates müssen generierte Artefakte in **beiden** Richtungen kennen — als Quelle *und* als Ziel; sonst ist das Gate nach jedem Clone rot und die Mannschaft gewöhnt sich an ein rotes Gate. (b) Eine Lint-Regel, deren vorgeschlagene Abhilfe am Zielort weiter greift, ist ein Regelfehler. (c) Dokumente, die ein Gate nie prüft (Prosa-Leitregeln, Agenten-Kontextdateien), driften zuerst — Fakten dort gehören auf das **eine** normative Dokument verlinkt, nicht kopiert.
+
+## 2026-10-02 — Code-Fixes P1-1/P1-2: doppelte Owner beseitigt + Audits taxonomiekonform
+
+**P1-1 (`53-metadata.js`, echter Bug):** `buildLetterFileName()` und `MetadataService.prepare()` leiteten Datum, Absender, Empfänger und Betreff **zweimal mit abweichender Logik** aus dem DOM ab. `prepare()` splittete die Rücksendezeile nur auf Komma — der Grok-Bug-6-Fix (Sender-Sync joint mit `•`) war dort nie nachgezogen. Folge: PDF-Metadatum `author` enthielt `Name•Straße•Ort`, während der Dateiname korrekt `Name` trug. Zusätzlich bereinigte `prepare()` Empfängername und -firma erst nach dem Verketten, wodurch eine Namenszeile aus reiner Interpunktion die Firma unterschlug. **Neu:** `collectLetterIdentity()` als einzige Ableitung; `buildLetterFileName()` ist nur noch Konsument. Öffentliche API unverändert (`52-import-export.js` unberührt).
+
+**P1-2 (`41-salutation-engine.js` + `main.js`, Race):** `SalutationFeature` lud per `StorageManager.loadSettings()` eine **eigene** Settings-Kopie und schrieb sie an **sechs** Stellen vollständig zurück. Jede Theme-/Layout-/Hilfslinien-Änderung des `SettingsManager` nach diesem Ladezeitpunkt wurde beim nächsten Anrede- oder Grußformel-Wechsel mit dem veralteten Snapshot überschrieben (Last-Write-Wins auf stale Daten). **Neu:** Injection des geteilten Settings-Objekts über `settingsContext` — dasselbe Muster, das `SignatureFeature` bereits korrekt nutzte. Persistenz läuft über `_saveSettings()`; `main.js` hält den einzigen Owner.
+
+**Taxonomie-Korrektur (eigener Fehler):** Die beiden Audit-Dokumente lagen im Repo-Root und verletzten `repository.yaml/taxonomy` (`allowed_root_files` ist eine Allowlist). Der Verstoß blieb im vorigen Commit unentdeckt, weil der Gate **vor** `git add` lief und die Taxonomie-Regel nur **getrackte** Dateien prüft. Beide Dokumente liegen jetzt als `docs/90-archive/code-audit-website-2026-10-02.md` und `docs/90-archive/docs-audit-2026-10-02.md` mit vollständigem Frontmatter V6; Querverweise auf Wikilinks umgestellt.
+
+**Verifikation:** `tsc --noEmit -p jsconfig.json` sauber; Gate **100 %** (null Diagnosen) — geprüft **nach** dem Stagen.
+
+**Generalisierbarkeit (llm_boilerplate):** (a) Geteilter Zustand braucht genau **einen** Owner; Features bekommen ihn **injiziert**, statt ihn selbst zu laden — ein zweiter `load()`-Aufruf ist bereits der Bug. (b) Wird derselbe Wert an zwei Stellen abgeleitet, driften die Stellen garantiert; der Fix ist eine gemeinsame Funktion, nicht ein nachgezogener Zweitfix. (c) **Gates, die den Git-Index lesen, müssen nach `git add` laufen** — sonst meldet der Pre-Commit-Lauf grün, was der Commit erst einführt.

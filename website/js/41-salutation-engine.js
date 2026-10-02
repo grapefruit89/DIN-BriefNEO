@@ -166,16 +166,37 @@ export const SalutationEngine = {
 /* @adr [[ADR-JS]] {SalutationFeature} */
 export class SalutationFeature {
   /**
+   * 🚨 ARCHITECTURAL GUARD (ein Settings-Owner):
+   * `settingsContext` ist das GETEILTE Settings-Objekt des SettingsManager
+   * (gleiches Muster wie SignatureFeature). Vorher lud diese Klasse per
+   * `StorageManager.loadSettings()` eine EIGENE Kopie und schrieb sie an
+   * sechs Stellen vollständig zurück — jede Theme-/Layout-/Hilfslinien-
+   * Änderung, die der SettingsManager nach dem Laden vornahm, wurde beim
+   * nächsten Anrede-Wechsel mit dem veralteten Snapshot überschrieben
+   * (Last-Write-Wins auf stale Daten).
+   * NIEMALS hier wieder `loadSettings()` aufrufen oder ein zweites
+   * Settings-Objekt anlegen.
    * @param {(() => void) | null} saveDraftDataCallback
+   * @param {{ settings: any, save: () => void } | null} [settingsContext]
    */
-  constructor(saveDraftDataCallback) {
+  constructor(saveDraftDataCallback, settingsContext = null) {
     this.saveDraftData = saveDraftDataCallback;
-    this.settings = StorageManager.loadSettings();
+    /** @type {{ settings: any, save: () => void } | null} */
+    this._settingsContext = settingsContext;
+    this.settings = settingsContext ? settingsContext.settings : StorageManager.loadSettings();
     if (!this.settings.formality) this.settings.formality = 'formal';
   }
 
+  /**
+   * Persistiert über den gemeinsamen Owner, damit kein Fremdfeld verliert.
+   * @returns {void}
+   */
+  _saveSettings() {
+    if (this._settingsContext) this._settingsContext.save();
+    else StorageManager.saveSettings(this.settings);
+  }
+
   init() {
-    this.settings = StorageManager.loadSettings();
     this.isReady = false;
     ensureNameIndex();
     this._wireFormality();
@@ -196,7 +217,7 @@ export class SalutationFeature {
     const apply = (/** @type {'formal' | 'polite' | 'casual'} */ style) => {
       if (!this.isReady) return;
       this.settings.formality = style;
-      StorageManager.saveSettings(this.settings);
+      this._saveSettings();
       this._regenerateSalutation({ force: true });
       this._regenerateClosing({ force: true });
     };
@@ -228,14 +249,14 @@ export class SalutationFeature {
           // AUTO-RESET: User cleared field -> Re-enable auto-generation
           delete anrede.dataset.dirty;
           this.settings.salutationDirty = false;
-          StorageManager.saveSettings(this.settings);
+          this._saveSettings();
           this._regenerateSalutation({ force: true });
         } else {
           // USER LOCK: Manual edit is sacred -> Hands off!
           anrede.dataset.dirty = "true";
           delete anrede.dataset.generated;
           this.settings.salutationDirty = true;
-          StorageManager.saveSettings(this.settings);
+          this._saveSettings();
         }
       });
       anrede.addEventListener('blur', () => this._validatePunctuation(anrede, 'anrede'));
@@ -247,13 +268,13 @@ export class SalutationFeature {
         if (!text) {
           delete gruss.dataset.dirty;
           this.settings.closingDirty = false;
-          StorageManager.saveSettings(this.settings);
+          this._saveSettings();
           this._regenerateClosing({ force: true });
         } else {
           gruss.dataset.dirty = "true";
           delete gruss.dataset.generated;
           this.settings.closingDirty = true;
-          StorageManager.saveSettings(this.settings);
+          this._saveSettings();
         }
       });
       gruss.addEventListener('blur', () => this._validatePunctuation(gruss, 'grussformel'));

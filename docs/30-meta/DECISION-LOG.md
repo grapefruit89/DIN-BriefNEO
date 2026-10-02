@@ -1321,3 +1321,27 @@ Original diffen, statt die scheinbar strengste zu übernehmen. (d) **Querverweis
 Abschnittsnummern eines anderen Dokuments sind Bruchstellen** — nur stabile IDs zitieren.
 (e) Beim Auflösen eines Dokuments, auf das append-only-Quellen verlinken, einen **Grabstein
 mit Umschlüsselungstabelle** hinterlassen statt zu löschen.
+
+## 2026-10-02 — Schutz der code-referenzierten Dokumente war ein Zufall
+
+**Kontext:** Nachkontrolle der drei Baustellen. Zwei Restbefunde: (1) `constitution.md`
+behauptete weiterhin „läuft lokal im Browser, **ohne Server**" — der letzte Widerspruch zu
+[[ADR-RUNTIME-CONTEXT]]. (2) Die als unantastbar geführten Dokumente waren **nicht**
+geschützt: `tools/links.js` überspringt alles, was nicht `.md` ist, die `@adr`/`@guide`-
+Verweise im Code wurden also nie geprüft.
+
+**Änderung:** `constitution.md` korrigiert. `tools/links.js` scannt zusätzlich
+`website/**.{js,css,html}` nach `@adr`/`@guide [[Doc]]` und meldet fehlende Ziele als
+CRITICAL. `AGENTS.md` §5.6 hält die drei Schutzgruppen und ihren jeweiligen Mechanismus fest.
+
+**Verifikation:** Härtetest — `geoapify-autocomplete.md` entfernt: vorher hätte nur ein
+einziger Markdown-Verweis angeschlagen, jetzt melden zusätzlich beide Code-Stellen
+(`43-geoapify.js:2`, `45-address-intelligence.js:3`). Score fiel auf 99,88 %, nach Rücknahme
+wieder 100 %. `tsc` sauber.
+
+**Generalisierbarkeit (llm_boilerplate):** Ein Schutz, der nur wirkt, weil **zufällig** noch
+eine zweite Referenz existiert, ist kein Schutz — er ist eine unbemerkte Abhängigkeit vom
+Zufall. Gegenprobe für jede Invariante: die Bedingung künstlich verletzen und prüfen, ob das
+Gate **aus dem beabsichtigten Grund** anschlägt, nicht aus einem Nebeneffekt. Konkret hier:
+Dokumentreferenzen leben nicht nur in Dokumenten, sondern auch im Code — ein Link-Checker,
+der nur Markdown liest, kennt nur die Hälfte des Graphen.

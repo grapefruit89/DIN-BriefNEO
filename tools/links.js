@@ -133,6 +133,31 @@ function checkLinks(targetDir) {
   const allFiles = walk(targetDir);
   const stems = new Set(allFiles.map((f) => path.basename(f).replace(/\.[^.]+$/, '')));
 
+  // --- Code-Referenzen (@adr/@guide [[Doc]]) --------------------------------
+  // Ohne das sind die vom Code referenzierten Dokumente nur SCHEINBAR geschuetzt:
+  // bis 2026-10-02 fiel ihr Verschwinden lediglich auf, weil zufaellig auch andere
+  // Markdown-Dateien auf sie verlinkten. `geoapify-autocomplete` haing an genau EINEM
+  // solchen Verweis -- waere der entfallen, haette das Gate die Loeschung geschluckt,
+  // obwohl zwei Code-Stellen das Dokument brauchen.
+  for (const abs of allFiles) {
+    const rel = path.relative(targetDir, abs).replace(/\\/g, '/');
+    if (!/^website\/.*\.(js|css|html)$/.test(rel)) continue;
+    const content = fs.readFileSync(abs, 'utf8');
+    const re = /@(adr|guide)\s+\[\[([^\]]+)\]\]/g;
+    let m;
+    while ((m = re.exec(content)) !== null) {
+      const target = m[2].split('|')[0].split('#')[0].trim();
+      if (PLACEHOLDER.test(target)) continue;
+      if (!resolves(target, targetDir, stems)) {
+        const line = content.slice(0, m.index).split('\n').length;
+        violations.push({
+          file: rel,
+          message: `Code referenziert fehlendes Dokument: @${m[1]} [[${target}]] (Zeile ${line})`
+        });
+      }
+    }
+  }
+
   for (const abs of allFiles) {
     const rel = path.relative(targetDir, abs).replace(/\\/g, '/');
     if (!rel.endsWith('.md')) continue;

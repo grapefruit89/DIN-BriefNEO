@@ -159,6 +159,28 @@ Maschinell geprüft: die Regeln `P6`–`P11` in `tools/antipatterns/project.json
 Fitness Gate bei einer verdrängten Variante anschlagen. Englische Bezeichner im Code
 (`draft`, `settings`) sind davon unberührt — geprüft wird Fließtext in `docs/`.
 
+### 5.6 Geschützte Dokumente
+
+Drei Gruppen dürfen nicht gelöscht, verschoben oder umbenannt werden. Alle drei sind
+**maschinell** geschützt — Konvention allein hat sich als zu schwach erwiesen.
+
+| Gruppe | Schutz |
+| :--- | :--- |
+| Die vom Code per `@adr`/`@guide` referenzierten Dokumente | `tools/links.js` scannt seit 2026-10-02 auch `website/**.{js,css,html}`. Fehlt das Ziel, meldet das Gate CRITICAL. |
+| [[IMR-Registry]] (SSoT für die 45 Atome und die DIN-Geometrie) | `tools/imr.js` prüft die Registry-Invarianten und den Abgleich mit dem Code. |
+| [[DECISION-LOG]] und `docs/90-archive/` | Append-only bzw. eingefroren. Von Link-, Terminologie- und Größenprüfung ausgenommen, damit Alteinträge Zeitdokumente bleiben dürfen. |
+
+> [!warning] Warum der Code-Scan nötig war
+> Vorher fiel das Verschwinden eines solchen Dokuments nur auf, wenn zufällig **auch** eine
+> andere Markdown-Datei darauf verlinkte. `geoapify-autocomplete` hing an genau **einem**
+> solchen Verweis — wäre der entfallen, hätte das Gate die Löschung stillschweigend
+> durchgewunken, obwohl zwei Module das Dokument referenzieren. Der Schutz war also
+> nicht vorhanden, sondern ein Zufall.
+
+Der [[DECISION-LOG]] ist dabei kein Ballast, sondern das Gedächtnis für *verworfene* Wege.
+Im Code-Audit 2026-10-02 hat er mehrfach verhindert, dass eine bewusst gewählte Lösung
+fälschlich als Antipattern gemeldet wurde. Vor jedem „das sieht falsch aus" dort nachsehen.
+
 ---
 
 ## 6. Generalisierbarkeit & llm_boilerplate

@@ -38,7 +38,7 @@ Es enthält Prinzipien, keine Millimeter, keine Atomlisten und keine Kopie des a
 ## 1. Mission & Vision
 
 DIN-BriefNEO ist eine minimalistische, autarke Webanwendung zur Erstellung und zum PDF-Druck formaler Briefe nach **DIN 5008 (Form A & B)**.
-Sie läuft lokal im Browser, ohne Server und ohne Build-System, und soll über Jahre hinweg direkt ausführbar bleiben.
+Sie läuft lokal im Browser über einen schlanken lokalen Webserver (`start.bat`), ohne Build-System und ohne Netzverbindung, und soll über Jahre hinweg direkt ausführbar bleiben. Zur Abgrenzung von *netzunabhängig* und *serverlos* siehe [[ADR-RUNTIME-CONTEXT]].
 
 ---
 

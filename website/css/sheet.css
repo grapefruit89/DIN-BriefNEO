@@ -60,7 +60,7 @@ body:has(#btn-form-a:checked) din-a4 {
 
   [contenteditable] {
     field-sizing: content;
-    outline: 1px dashed oklch(from var(--text-muted) l c h / 28%);
+    outline: 1px dashed oklch(from var(--blatt-schwach) l c h / 28%);
     outline-offset: 2px;
     border-radius: 4px;
     transition: outline-color 0.15s ease, outline-width 0.15s ease, outline-style 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
@@ -231,8 +231,8 @@ body:has(#btn-form-a:checked) din-a4 {
   #text blockquote {
     margin: 8px 0;
     padding-left: 12px;
-    border-left: 3px solid var(--border-color);
-    color: var(--text-muted);
+    border-left: 3px solid var(--blatt-schwach);
+    color: var(--blatt-schwach);
     font-style: italic;
   }
 

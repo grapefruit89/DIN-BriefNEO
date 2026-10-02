@@ -42,7 +42,14 @@ const PROBE_DIR = 'tools/antipatterns';
  * es die Norm wirklich prueft, waere derselbe Selbstbetrug, den dieses Werkzeug
  * verhindern soll. Jeder Eintrag braucht einen Gegentest im DECISION-LOG.
  */
-const TOOL_ENFORCED = { A45: 'tools/isolation.js' };
+const TOOL_ENFORCED = {
+  A45: 'tools/isolation.js',
+  A42: 'tools/structural-laws.js',
+  A57: 'tools/structural-laws.js',
+  A58: 'tools/structural-laws.js',
+  A24: 'tools/structural-laws.js',
+  A59: 'tools/structural-laws.js',
+};
 
 /** Liest alle normativen IDs (erste Tabellenspalte) samt Typ aus dem Katalog. */
 function readCatalog(repoRoot) {

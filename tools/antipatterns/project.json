@@ -279,6 +279,72 @@
         "website/css/*.css"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P18",
+      "catalog_ref": [
+        "A46"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "page-break-before: always auf Layout-Wurzeln ist Catalog HARD BAN A46 (erzeugt leere erste PDF-Seite). Ersatz: kontrolliertes Print-Layout.",
+      "pattern": "\\b(page-break-before|break-before)\\s*:\\s*always\\b",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P19",
+      "catalog_ref": [
+        "A39"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "general",
+      "description": "Icon-CDNs sind Catalog HARD BAN A39. Ersatz: Inline-SVG.",
+      "pattern": "(use|kit)\\.fontawesome\\.com|cdn\\.jsdelivr\\.net/npm/(@mdi|bootstrap-icons)|unpkg\\.com/(ionicons|feather-icons)|cdn\\.jsdelivr\\.net/npm/heroicons|api\\.iconify\\.design",
+      "file_patterns": [
+        "website/index.html",
+        "website/css/*.css",
+        "website/js/*.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P20",
+      "catalog_ref": [
+        "A21"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "CSS-Preprozessoren (Sass/SCSS, Less) sind Catalog HARD BAN A21. Ersatz: natives CSS Nesting und Custom Properties.",
+      "pattern": "@mixin\\b|@include\\b|@extend\\b|\\$[a-zA-Z0-9_-]+\\s*:",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P21",
+      "catalog_ref": [
+        "A22"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "CSS-in-JS (styled-components, Emotion) ist Catalog HARD BAN A22. Ersatz: native Stylesheets mit @layer.",
+      "pattern": "\\bstyled\\.[a-zA-Z0-9_-]+\\s*`|\\bstyled\\([^)]*\\)\\s*`|\\bcss\\s*`[^`]*\\{",
+      "file_patterns": [
+        "website/js/*.js"
+      ],
+      "exemptions": []
     }
   ]
 }

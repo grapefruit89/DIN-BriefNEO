@@ -1,9 +1,9 @@
-/* layers.css — Deklariert die Top-Level-@layer-Reihenfolge.
+/* layers.css — Quell-Reihenfolge in index.html bestimmt die Kaskade.
  * <link layer="…"> ist NICHT standardisiert (WHATWG: 0× „layer", MDN BCD:
- * kein Attribut am <link>) — die Zuordnung per @import layer() ist durch
- * A23 (@import-Verbot) ausgeschlossen. Die Kaskaden-Reihenfolge wird
- * daher durch die Quell-Reihenfolge in index.html sichergestellt
- * (reset → variables → layout → floating), was dem @layer-Statement
- * entspricht. CSP style-src 'self' bleibt erfuellt.
+ * kein Attribut am <link>). @import layer() ist durch A23 ausgeschlossen.
+ * Deshalb: Reihenfolge in index.html (reset → variables → layout → floating).
+ * CSP style-src 'self' bleibt erfüllt.
+ *
+ * HINWEIS: Keine @layer-Blöcke in den CSS-Dateien — alle Regeln sind unlayered.
+ * Die @layer-Deklaration wurde entfernt, weil sie ohne Wrapper wirkungslos war.
  */
-@layer reset, tokens, layout, floating;

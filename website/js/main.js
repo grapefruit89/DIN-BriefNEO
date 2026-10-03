@@ -39,32 +39,10 @@ function syncPostvermerkFromSidebar({ overwrite = false } = {}) {
   if (overwrite || !field.textContent.trim()) field.textContent = sel.value;
 }
 
-/**
- * Keeps the control surface at its authored visual size when desktop page zoom
- * changes via Ctrl+/Ctrl-. This is deliberately scoped to the Seitenleiste:
- * Das DIN-Blatt nutzt bereits physische Einheiten und bleibt im normalen
- * Viewport-Koordinatensystem des Browsers. The initial DPR captures OS/display scaling;
- * only later DPR changes are interpreted as page zoom.
- */
-function stabilizeSidebarForPageZoom() {
-  const seitenleiste = document.querySelector('aside');
-  if (!seitenleiste) return;
-  const initialDpr = window.devicePixelRatio || 1;
-  const apply = () => {
-    const currentDpr = window.devicePixelRatio || initialDpr;
-    const zoomRatio = currentDpr / initialDpr;
-    seitenleiste.style.setProperty('--seitenleisten-zoom', String(1 / zoomRatio));
-  };
-  apply();
-  window.addEventListener('resize', apply, { passive: true });
-  window.visualViewport?.addEventListener('resize', apply, { passive: true });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   const btnPrint = document.getElementById('btn-print');
   const btnReset = document.getElementById('btn-reset');
 
-  stabilizeSidebarForPageZoom();
   initApp();
 
   function initApp() {

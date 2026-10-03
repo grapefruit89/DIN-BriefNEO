@@ -1775,3 +1775,39 @@ schneller, als eine fehlende Sonde es je koennte.
 - Betriebs-Details sind wichtiger als technische Dokumentation. Agenten müssen wissen, wie die DBs gebaut werden, wann sie neu gebaut werden und wie man sie abfragt.
 - ensureFresh() wird automatisch aufgerufen — Agenten müssen es nicht explizit tun.
 - Stale-Erkennung nutzt mtime + Datei-Set-Vergleich, kein Incremental-Update.
+
+## 2026-10-03 — stabilizeSidebarForPageZoom entfernt
+
+**Kontext:** Ein Review hatte `stabilizeSidebarForPageZoom` als „echten Bug" identifiziert: DPR-Delta als Zoom-Proxy triggert fälschlich bei Monitorwechsel.
+
+**Änderung:** `stabilizeSidebarForPageZoom` aus `website/js/main.js` entfernt. CSS-Variable `--seitenleisten-zoom` aus `website/css/sidebar.css` entfernt.
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- DPR-Delta ist kein zuverlässiger Zoom-Proxy. Monitorwechsel löst `resize` aus, was fälschlich als Zoom interpretiert wird.
+- Wenn eine Funktion einen Bug verursacht, die Funktion entfernen, nicht den Bug umgehen.
+
+## 2026-10-03 — CSS-Links wiederhergestellt (Production-Breaker)
+
+**Kontext:** Ein Review hatte festgestellt, dass 6 CSS-Dateien nicht geladen werden. `layers.css` enthielt nur die `@layer`-Deklaration, aber keine `@import`-Zeilen. Die App hätte ohne Layout, Farben und DIN-Geometrie gerendert.
+
+**Änderung:** CSS-Links für `reset.css`, `variables.css`, `layout.css`, `sidebar.css`, `sheet.css`, `signature.css`, `floating.css` in `website/index.html` wiederhergestellt. Quell-Reihenfolge ersetzt Layer-Zuordnung.
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- `@import layer()` ist durch A23 (`@import`-Verbot) ausgeschlossen. Die Quell-Reihenfolge in `index.html` ist der einzige Weg, Kaskaden-Layer ohne `@import` zu kontrollieren.
+- Ein Review, der nur `website/js/` sieht, versteht nicht, warum die CSS-Links fehlen. Die Änderung wurde im Kontext der Layer-Architektur vorgenommen, aber der Reviewer hat recht: Die App wäre unbenutzbar gewesen.
+
+## 2026-10-03 — @layer-Deklaration aus layers.css entfernt
+
+**Kontext:** Ein Review hatte festgestellt, dass die `@layer`-Deklaration in `layers.css` dekorativ ist — ohne `@layer`-Blöcke in den CSS-Dateien hat sie keine Wirkung.
+
+**Änderung:** `@layer reset, tokens, layout, floating;` aus `website/css/layers.css` entfernt. Kommentar aktualisiert.
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Eine Deklaration ohne Inhalt ist schlimmer als keine Deklaration. Sie suggeriert eine Struktur, die nicht existiert.
+- Option B (Wrapper in 6 CSS-Dateien) wäre sauberer, aber ohne konkreten Schmerz — die Kaskade funktioniert wie sie soll.

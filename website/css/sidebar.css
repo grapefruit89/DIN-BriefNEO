@@ -5,9 +5,8 @@
 
 /* --- SIDEBAR --- */
 aside {
-  /* Browser page zoom is compensated by main.js only for the Seitenleiste.
-   * Das DIN-Blatt bleibt im unveränderten Viewport-Koordinatensystem. */
-  zoom: var(--seitenleisten-zoom, 1);
+  /* Browser page zoom: keine Kompensation mehr — stabilizeSidebarForPageZoom
+   * entfernt (DPR-Delta als Zoom-Proxy triggert fälschlich bei Monitorwechsel). */
   display: flex;
   flex-direction: column;
   height: 100%;

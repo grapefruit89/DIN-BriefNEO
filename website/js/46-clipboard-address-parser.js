@@ -278,18 +278,10 @@ export class ClipboardAddressParser {
 
     // 3. Proactively hide any autocomplete popovers so they don't overlay the letter
     try {
-      const plzPopover = document.getElementById('plz-suggestions-popover');
-      // @ts-ignore
-      if (plzPopover && typeof plzPopover.hidePopover === 'function') {
-        // @ts-ignore
-        plzPopover.hidePopover();
-      }
-      const addrPopover = document.getElementById('anschrift-vorschlaege');
-      // @ts-ignore
-      if (addrPopover && typeof addrPopover.hidePopover === 'function') {
-        // @ts-ignore
-        addrPopover.hidePopover();
-      }
+      const plzPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (document.getElementById('plz-suggestions-popover'));
+      if (plzPopover?.hidePopover) plzPopover.hidePopover();
+      const addrPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (document.getElementById('anschrift-vorschlaege'));
+      if (addrPopover?.hidePopover) addrPopover.hidePopover();
     } catch (e) {
       // Ignored
     }
@@ -368,7 +360,6 @@ export class ClipboardAddressParser {
             const selectCandidate = () => {
               this.applyCandidate(cand, { onToast, onSaveDraft });
               try {
-                // @ts-ignore
                 popover.hidePopover();
               } catch (e) {
                 popover.classList.remove('active');
@@ -387,7 +378,6 @@ export class ClipboardAddressParser {
           });
 
           try {
-            // @ts-ignore
             popover.showPopover();
           } catch (e) {
             popover.classList.add('active');

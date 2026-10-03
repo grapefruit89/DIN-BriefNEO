@@ -2,6 +2,14 @@
 
 import { sanitizeRichText } from './04-sanitize.js';
 
+/** @type {Record<string, string>} */
+const FORMAT_SELECTORS = {
+  B: 'b, strong',
+  U: 'u',
+  BLOCKQUOTE: 'blockquote',
+  comment: 'span.brief-kommentar',
+};
+
 export class FormatToolbar {
   /** @type {HTMLElement} */
   #text;
@@ -10,8 +18,6 @@ export class FormatToolbar {
   /** @type {(() => void) | null} */
   #onSaveDraft;
 
-  /** @type {Map<string, HTMLButtonElement>} */
-  #commandButtons = new Map();
   /** @type {HTMLElement | null} */
   #selectionAnchor;
   /** @type {number | null} */
@@ -33,42 +39,33 @@ export class FormatToolbar {
   init() {
     if (!this.#text || !this.#toolbar) return;
 
-    /* M1-Tastaturpfad (Grok-Re-Review): Native Ctrl+B/Ctrl+U führt in
-     * contenteditable NICHT zum erwarteten <b>/<u> (live verifiziert).
-     * Scoped auf #text — Sidebar-Inputs/Dialoge behalten natives
-     * Verhalten; kein document-weiter Hijack (C3-Lektion). */
     this.#text.addEventListener('keydown', (event) => {
       const keyEvent = /** @type {KeyboardEvent} */ (event);
       if (!(keyEvent.ctrlKey || keyEvent.metaKey) || keyEvent.shiftKey || keyEvent.altKey) return;
       const key = keyEvent.key.toLowerCase();
       if (key === 'b') {
         keyEvent.preventDefault();
-        this.toggleFormat('B');
+        this.#toggleWrap('B');
       } else if (key === 'u') {
         keyEvent.preventDefault();
-        this.toggleFormat('U');
+        this.#toggleWrap('U');
       }
     });
 
-    /*
-     * Invoker Commands (M135): The toolbar itself is the command target.
-     * Buttons dispatch `command` events directly onto this popover —
-     * no hidden relay element is needed.
-     */
     this.#toolbar.addEventListener('command', (event) => {
       const commandEvent = /** @type {any} */ (event);
       switch (commandEvent.command) {
         case '--bold':
-          this.toggleFormat('B');
+          this.#toggleWrap('B');
           break;
         case '--underline':
-          this.toggleFormat('U');
+          this.#toggleWrap('U');
           break;
         case '--quote':
-          this.#toggleQuote();
+          this.#toggleWrap('BLOCKQUOTE');
           break;
         case '--comment':
-          this.toggleFormat('comment');
+          this.#toggleWrap('comment');
           break;
         default:
           break;
@@ -80,10 +77,6 @@ export class FormatToolbar {
     this.#initDropHandler();
   }
 
-  // ============================================================
-  // SELECTION STATE
-  // ============================================================
-
   /**
    * @param {Node | null} node
    * @param {string} tagName
@@ -92,13 +85,7 @@ export class FormatToolbar {
   #findFormatAncestor(node, tagName) {
     const elem = node instanceof Element ? node : node?.parentElement;
     if (!elem) return null;
-
-    const selector = tagName === 'comment'
-      ? 'span.brief-kommentar'
-      : tagName.toUpperCase() === 'B'
-        ? 'b, strong'
-        : tagName.toLowerCase();
-
+    const selector = FORMAT_SELECTORS[tagName] || tagName.toLowerCase();
     const match = elem.closest(selector);
     return match && this.#text.contains(match) ? /** @type {HTMLElement} */ (match) : null;
   }
@@ -113,21 +100,10 @@ export class FormatToolbar {
     return this.#findFormatAncestor(selection.anchorNode, tagName) !== null;
   }
 
-  /**
-   * @param {Node | null} anchorNode
-   * @returns {Element | null}
-   */
-  #getBlockquoteAncestor(anchorNode) {
-    return this.#findFormatAncestor(anchorNode, 'BLOCKQUOTE');
-  }
-
   #handleSelectionChange() {
     const selection = window.getSelection();
     if (!selection) return;
 
-    /*
-     * No active text selection.
-     */
     if (
       selection.isCollapsed ||
       selection.toString().trim().length === 0
@@ -136,9 +112,6 @@ export class FormatToolbar {
       return;
     }
 
-    /*
-     * Selection must belong to the actual brief editor.
-     */
     if (
       !selection.anchorNode ||
       !this.#text.contains(selection.anchorNode)
@@ -147,14 +120,6 @@ export class FormatToolbar {
       return;
     }
 
-    /*
-     * This is the one remaining geometry calculation.
-     * 
-     * JS does NOT calculate toolbar dimensions or viewport
-     * collisions anymore.
-     * 
-     * It only moves the invisible CSS anchor.
-     */
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
@@ -163,12 +128,6 @@ export class FormatToolbar {
       this.#selectionAnchor.style.setProperty('--sel-x', `${rect.left}px`);
     }
 
-    /*
-     * popover="hint" does not automatically mean:
-     * "open when contenteditable selection changes".
-     * 
-     * Therefore this minimal imperative trigger remains.
-     */
     if (!this.#toolbar.matches(':popover-open')) {
       try {
         this.#toolbar.showPopover();
@@ -177,12 +136,6 @@ export class FormatToolbar {
       }
     }
 
-    /*
-     * Update formatting state.
-     * 
-     * No button references are cached anymore.
-     * The command attribute is the stable semantic identifier.
-     */
     this.#setCommandState('--bold', this.#isSelectionInsideTag('B'));
     this.#setCommandState('--underline', this.#isSelectionInsideTag('U'));
     this.#setCommandState('--quote', this.#isSelectionInsideTag('BLOCKQUOTE'));
@@ -191,10 +144,6 @@ export class FormatToolbar {
 
   #initSelectionListener() {
     document.addEventListener('selectionchange', () => {
-      /*
-       * This timeout is only a selection-change debounce.
-       * It is NOT an animation or viewport calculation.
-       */
       if (this.#selectionTimeout !== null) {
         clearTimeout(this.#selectionTimeout);
       }
@@ -205,67 +154,16 @@ export class FormatToolbar {
     });
   }
 
-  // ============================================================
-  // COMMAND BUS
-  // ============================================================
-
   /**
    * @param {string} command
    * @param {boolean} pressed
    */
   #setCommandState(command, pressed) {
-    let button = this.#commandButtons.get(command);
-    if (!button) {
-      button = /** @type {HTMLButtonElement} */ (this.#toolbar.querySelector(`button[command="${command}"]`));
-      if (!button) return;
-      this.#commandButtons.set(command, button);
-    }
+    const button = /** @type {HTMLButtonElement} */ (this.#toolbar.querySelector(`button[command="${command}"]`));
+    if (!button) return;
     button.setAttribute('aria-pressed', String(pressed));
   }
 
-  #toggleQuote() {
-    const selection = window.getSelection();
-    if (
-      !selection ||
-      selection.isCollapsed ||
-      !selection.anchorNode ||
-      !this.#text.contains(selection.anchorNode)
-    ) {
-      return;
-    }
-
-    const range = selection.getRangeAt(0);
-    const blockquote = this.#getBlockquoteAncestor(selection.anchorNode);
-
-    if (blockquote) {
-      /*
-       * UNWRAP
-       */
-      const parent = blockquote.parentNode;
-      if (parent) {
-        while (blockquote.firstChild) {
-          parent.insertBefore(blockquote.firstChild, blockquote);
-        }
-        parent.removeChild(blockquote);
-      }
-    } else {
-      /*
-       * WRAP
-       */
-      const quote = document.createElement('blockquote');
-      quote.appendChild(range.extractContents());
-      range.insertNode(quote);
-    }
-
-    this.#text.normalize();
-    this.#triggerSave();
-    this.#handleSelectionChange();
-  }
-
-  // ============================================================
-  // PASTE SANITIZER
-  // ============================================================
-  
   #initPasteSanitizer() {
     this.#text.addEventListener('paste', (e) => {
       const clipboardEvent = /** @type {ClipboardEvent} */ (e);
@@ -305,33 +203,27 @@ export class FormatToolbar {
     });
   }
 
-  // ============================================================
-  // DROP HANDLER
-  // ============================================================
-
   #initDropHandler() {
     this.#text.addEventListener('drop', (e) => {
       const dragEvent = /** @type {DragEvent} */ (e);
       dragEvent.preventDefault();
-      
+
       const dataTransfer = dragEvent.dataTransfer;
       if (!dataTransfer) return;
 
       const text = dataTransfer.getData('text/plain');
-      // @ts-ignore
-      const range = document.caretRangeFromPoint(dragEvent.clientX, dragEvent.clientY);
-      
-      if (range) {
+      const caretPos = document.caretPositionFromPoint(dragEvent.clientX, dragEvent.clientY);
+
+      if (caretPos) {
+        const range = document.createRange();
+        range.setStart(caretPos.offsetNode, caretPos.offset);
+        range.collapse(true);
         range.deleteContents();
         range.insertNode(document.createTextNode(text));
       }
       this.#triggerSave();
     });
   }
-
-  // ============================================================
-  // FORMAT ENGINE
-  // ============================================================
 
   #triggerSave() {
     if (this.#onSaveDraft) {
@@ -352,7 +244,7 @@ export class FormatToolbar {
   /**
    * @param {string} tagName
    */
-  toggleFormat(tagName) {
+  #toggleWrap(tagName) {
     const selection = window.getSelection();
     if (
       !selection ||
@@ -367,9 +259,6 @@ export class FormatToolbar {
     const isCustomComment = tagName === 'comment';
     const actualTag = isCustomComment ? 'SPAN' : tagName;
 
-    /*
-     * UNWRAP
-     */
     const formatNode = this.#findFormatAncestor(selection.anchorNode, tagName);
     if (formatNode) {
       const parent = formatNode.parentNode;
@@ -381,9 +270,6 @@ export class FormatToolbar {
         parent.replaceChild(fragment, formatNode);
       }
     } else {
-      /*
-       * WRAP
-       */
       const wrapper = document.createElement(actualTag.toLowerCase());
       if (isCustomComment) {
         wrapper.className = 'brief-kommentar';

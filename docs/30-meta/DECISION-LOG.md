@@ -1627,3 +1627,151 @@ schneller, als eine fehlende Sonde es je koennte.
 - Event-Delegation am Dokument- oder Container-Root ist Einzellistenern auf dynamischen Kindelementen immer überlegen: weniger DOM-Overhead, keine Memory-Leaks bei Re-Renders und saubere Trennung von Event-Falle und Event-Ziel.
 - Eine CI-Pipeline muss zwingend denselben Datenvertrag und dieselbe Kompressionsstufe bedienen wie die Laufzeitkomponenten der Anwendung.
 - Architekturregeln dürfen nicht als „Papiergesetze" existieren: Was im Gesetzbuch steht, braucht entweder einen maschinellen Gate-Prüfer oder eine explizite Dokumentation, warum es sich um einen nicht-regexfähigen Gestaltungsleitsatz handelt.
+
+## 2026-10-03 — Surgical Fixes: Layer-Ehrlichkeit, field-sizing, Browserziel, Autosave-A11y (#1–#4)
+
+**Kontext:** Das Handoff-Dokument `docs/90-archive/HANDOFF-2026-10-03-pull-diff-offene-punkte.md` listete 7 offene Punkte. Diese Sitzung umsetzte #1–#4 surgical.
+
+**Änderung:**
+1. **#1 Layer-Architektur:** `<link layer="…">` in `index.html` war ein No-Op (Attribut nicht standardisiert). `@import layer()` als Alternative scheiterte an A23 (`@import`-Verbot). Lösung: Kommentare in `layers.css` ehrlich machen — Quell-Reihenfolge in `index.html` ersetzt die Layer-Zuordnung, `@layer`-Statement bleibt als Dokumentation der gewünschten Kaskaden-Reihenfolge.
+2. **#2 field-sizing:** `field-sizing: content` auf `contenteditable` war wirkungslos (zielt auf Form-Controls). Deklaration entfernt, `text-fit: shrink` als eigentlicher Stauchungsmechanismus benannt.
+3. **#3 Browserziel-Doku:** „Baseline 2024-2026" durch „Chromium 150+" ersetzt in `variables.css`, `layout.css`, `main.js` — das Projekt hat kein Cross-Browser-Ziel.
+4. **#4 Autosave-A11y:** `role="status" aria-live="polite"` von `#save-status` entfernt — widersprach dem JS-Kommentar („keine Live-Region") und erzeugte mit `document.ariaNotify` eine Doppelansage bei Fehlern.
+
+**Verifikation:** Fitness Gate 100 % (nach `git add` geprüft). `tsc --noEmit` ohne Befund. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Wenn ein Feature nicht standardisiert ist, Kommentare ehrlich machen statt als implementiert zu tun. Ein No-Op-Attribut ist schlimmer als kein Attribut — es suggeriert Schutz, der nicht existiert.
+- A23 (`@import`-Verbot) schließt `@import layer()` aus — die einzige unterstützte Layer-Zuordnung. Die Quell-Reihenfolge in `html` ist der einzige Weg, Kaskaden-Layer ohne `@import` zu kontrollieren.
+- `field-sizing: content` wirkt nur auf Form-Controls (`input`, `textarea`), nicht auf `contenteditable`. Die Stauchung macht `text-fit: shrink`.
+- `role="status"` + `aria-live="polite"` auf einem Element, dessen Text sich bei jedem Autosave ändert, erzeugt eine Doppelansage, wenn der Fehlerpfad zusätzlich `document.ariaNotify` nutzt. Visuelle Indikatoren brauchen keine Live-Region.
+
+## 2026-10-03 — Toast-System entschlackt (238 → 70 Zeilen)
+
+**Kontext:** Das Toast-System war ein Framework für ein Feature, das ~70 Zeilen braucht. Queue-Verwaltung, Pause/Resume, Badge, Shake-Animation und Action-Button waren Overkill. Die Queue war ursprünglich dafür gedacht, dass nicht derselbe Toast 5 mal durchrutscht — das sieht scheisse programmiert aus.
+
+**Änderung:**
+1. **Queue entfernt** — stattdessen Deduplizierung: identische Message → Timer zurücksetzen, neuer Toast ersetzt alten sofort.
+2. **Pause/Resume entfernt** — Nice-to-have, nicht essenziell.
+3. **Badge entfernt** — Nice-to-have.
+4. **Shake-Animation entfernt** — Nice-to-have.
+5. **Action-Button entfernt** — toter Code (kein Aufruf mit `options.action`).
+6. **Direktes Ersetzen statt hide/show** — vermeidet Race-Condition zwischen Exit- und Entry-Animation.
+7. **CloseWatcher + Popover + CSS Animation bleiben** — nativ + kostenlos.
+
+**Verifikation:** Fitness Gate 100 %. `tsc --noEmit` ohne Befund. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Ein Toast-Slot statt Framework: neuer Toast ersetzt alten, Deduplizierung verhindert Spam ohne Queue.
+- `showPopover()` ist idempotent — kein Hide-Show-Tanz nötig.
+- Toter Code (Action-Button) entfernen, nicht „für den Fall" behalten. Ein Bestätigungs-Toast ist in 5 Zeilen nachgerüstet, wenn gebraucht.
+
+## 2026-10-03 — Format-Toolbar entschlackt (405 → 270 Zeilen)
+
+**Kontext:** Ein Review hatte `31-format-toolbar.js` als „Müllberg" bezeichnet. Nach Korrektur: Das Modul ist moderat aufgebläht, kein Müllberg. Fünf surgical Changes.
+
+**Änderung:**
+1. `#getBlockquoteAncestor` entfernt — redundant, 3 Zeilen gespart.
+2. `toggleFormat` + `#toggleQuote` zu `#toggleWrap` gemergt — Wrap/Unwrap-Logik vereinheitlicht, ~80 Zeilen gespart.
+3. `#commandButtons-Map` durch direkte `querySelector`-Refs ersetzt — Lazy-Lookup unnötig, 5 Zeilen gespart.
+4. `caretRangeFromPoint` → `caretPositionFromPoint` — deprecated API ersetzt.
+5. B/Strong-Sonderfall in `FORMAT_SELECTORS`-Mapping-Objekt — verschachtelte Ternaries entfernt.
+
+**Verifikation:** Fitness Gate 100 %. `tsc --noEmit` ohne Befund. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Wrap/Unwrap-Logik vereinheitlichen: `toggleFormat` und `#toggleQuote` waren identische Code-Pfade.
+- Deprecated APIs ersetzen: `caretRangeFromPoint` ist non-standard, `caretPositionFromPoint` ist der Nachfolger (Chrome 128+).
+- Verschachtelte Ternaries in Mapping-Objekte umwandeln: `FORMAT_SELECTORS[tagName]` ist lesbarer als `tagName === 'comment' ? ... : tagName === 'B' ? ... : ...`.
+- Button-Cache mit Lazy-Lookup ist Overhead: direkte `querySelector`-Refs sind schneller und einfacher.
+
+## 2026-10-03 — View-Transition-Helper + AI-Assistant-UI-Merge
+
+**Kontext:** Drei fast identische View-Transition-Blöcke in `02-settings-manager.js` (~20 Zeilen Boilerplate). Zwei fast identische UI-Funktionen in `addons/ai-assistant.js` (~40 Zeilen). `rewriterInstance` wurde nie freigegeben.
+
+**Änderung:**
+1. `transitionOn(target, fn)`-Helper in `02-settings-manager.js` — vereinheitlicht Document- und Element-Scope, `prefers-reduced-motion`-Check, `finished.catch(() => {})`. Drei Aufrufstellen je 1 Zeile.
+2. `_updateUIUnsupported` + `_updateUISupported` → `_setToggleState(supported, statusText)` in `addons/ai-assistant.js`.
+3. `rewriterInstance.destroy()` + `= null` bei Toggle-Off.
+
+**Verifikation:** Fitness Gate 100 %. `tsc --noEmit` ohne Befund. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- View-Transition-Boilerplate in Hilfsfunktion vereinheitlichen: `prefers-reduced-motion`-Check + `finished.catch()` überall identisch.
+- UI-Zustands-Funktionen mit gemeinsamer Logik mergen: `_setToggleState` statt zwei fast identischer Funktionen.
+- Instanzen bei Deaktivierung freigeben: `destroy()` + `= null` verhindert Speicherlecks.
+
+## 2026-10-03 — Papier-Nachtmodus auf gedimmtes Grau
+
+**Kontext:** Der Nutzer fand `oklch(0.94 0.008 260)` (fast weiß) im Nachtmodus zu hell. Gewünscht: `oklch(0.6 0 260)` — gedimmtes Grau, sanfter Kontrast.
+
+**Änderung:** `--c-blatt-night` in `website/css/variables.css` von `oklch(0.94 0.008 260)` auf `oklch(0.6 0 260)` geändert. Kommentar aktualisiert.
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Nachtmodus-Papier sollte gedimmt sein, nicht dunkel. `oklch(0.6 0 260)` ist ein sanfter Grauton, der die Augen schont.
+- Der Wert wurde per F12-Slider live getestet, nicht geraten. Live-Empirie schlägt Annahme.
+
+## 2026-10-03 — @ts-ignore zu @ts-expect-error migriert
+
+**Kontext:** Ein Review hatte `@ts-ignore` als „unsichtbare Workarounds" kritisiert. `@ts-expect-error` ist besser: Es wirft einen Fehler, wenn der Fehler nicht mehr auftritt — dann weißt du, dass du den Workaround entfernen kannst.
+
+**Änderung:**
+1. `02-settings-manager.js:83` — `@ts-ignore` entfernt (defensiv, kein echter Fehler).
+2. `46-clipboard-address-parser.js` — alle 6 `@ts-ignore` entfernt. `hidePopover`/`showPopover` als optional Properties deklariert (`HTMLElement & { hidePopover?: () => void }`).
+3. `45-address-intelligence.js:298,300` — `@ts-ignore` → `@ts-expect-error` mit Begründung (Element-scoped View Transitions, Chrome 147+, noch nicht in lib.dom).
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- `@ts-expect-error` statt `@ts-ignore`: Workarounds werden sichtbar. Wenn ein Update den Fehler auflöst, meldet der Typecheck „Unused '@ts-expect-error'" — und du weißt: Workaround kann raus.
+- Defensive `@ts-ignore` entfernen: Wenn kein Fehler gemeldet wird, war der `@ts-ignore` unnötig.
+- Popover-Methoden als optional Properties deklarieren: `HTMLElement & { hidePopover?: () => void }` ist robuster als `@ts-ignore` und funktioniert mit jeder TS-Version.
+
+## 2026-10-03 — SQLite-Datenbanken dokumentiert
+
+**Kontext:** Ein Review hatte die SQLite-Datenbanken als „unsichtbar" kritisiert. Sie existieren, aber kein Dokument erwähnt sie prominent. Agenten greppen, statt `docs_search.db` zu fragen.
+
+**Änderung:** `docs/30-meta/tooling-overview.md` ergänzt um:
+1. `docs_search.db` — Schema-Tabellen (documents, sections, files, links, FTS5), FTS5-Details (unicode61 + trigram), Query-Beispiele, Verbesserungsideen.
+2. `DIN-Brief_docs.db` — Schema-Tabelle (agent_session_logs), Query-Beispiele, Verbesserungsideen.
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Agenten müssen wissen, welche DBs existieren, wo sie liegen, wie sie gebaut werden und wie man sie abfragt. Ohne Dokumentation ist jede Infrastruktur für Agenten tot.
+- Query-Beispiele sind wichtiger als Schema-Beschreibung — Agenten können Schema selbst lesen, aber Query-Syntax müssen sie kennen.
+- Verbesserungsideen helfen Agenten, die DBs zu verbessenden, statt sie zu ignorieren.
+
+## 2026-10-03 — SQLite-Datenbanken detailliert dokumentiert
+
+**Kontext:** Der Nutzer wollte eine detaillierte technische Dokumentation — wie die DBs gebaut werden, welche Bausteine verwendet werden, wie die FTS5-Indizes funktionieren.
+
+**Änderung:** `docs/30-meta/tooling-overview.md` ergänzt um:
+1. `docs_search.db` — Build-Prozess (5 Schritte), Bausteine (node:sqlite, FTS5, git ls-files), Schema (6 Tabellen), Indizes (5), FTS5-Details (unicode61 + trigram), Query-Schicht (4 Funktionen), CLI-Bedienung, Verbesserungsideen.
+2. `DIN-Brief_docs.db` — Build-Prozess (6 Schritte), Bausteine (node:sqlite + sqlite3-Fallback), Schema (1 Tabelle), Query-Beispiele, CLI-Bedienung, Verbesserungsideen.
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Eine detaillierte technische Dokumentation ist wichtiger als eine kurze Beschreibung. Agenten müssen wissen, wie die DBs gebaut werden, welche Bausteine verwendet werden und wie man sie abfragt.
+- Build-Prozess, Bausteine, Schema, Indizes, Query-Schicht, CLI-Bedienung — alles muss dokumentiert sein, damit Agenten die DBs verbessern können.
+
+## 2026-10-03 — Betriebs-Details zu SQLite-Datenbanken dokumentiert
+
+**Kontext:** Der Nutzer wollte konkrete Betriebs-Details — Schema, Aufruf-Kontext, Build-Lifecycle, Nutzungs-Regel, Stale-Erkennung.
+
+**Änderung:** `docs/30-meta/tooling-overview.md` um neuen Abschnitt "Betriebs-Details" ergänzt:
+1. Session-Log-Schema (CREATE TABLE, Spalten, Constraints, Defaults)
+2. Aufruf-Kontext (4 Abfragestellen, ensureFresh() automatisch)
+3. Build-Lifecycle (automatisch über Fitness Gate, manuell über CLI)
+4. Nutzungs-Regel (docs_search.db für Volltextsuche, grep für Codesuche)
+5. Stale-Erkennung (mtime-Vergleich + Datei-Set-Vergleich, full rebuild)
+
+**Verifikation:** Fitness Gate 100 %. `node tools/log_session.js` protokolliert.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Betriebs-Details sind wichtiger als technische Dokumentation. Agenten müssen wissen, wie die DBs gebaut werden, wann sie neu gebaut werden und wie man sie abfragt.
+- ensureFresh() wird automatisch aufgerufen — Agenten müssen es nicht explizit tun.
+- Stale-Erkennung nutzt mtime + Datei-Set-Vergleich, kein Incremental-Update.

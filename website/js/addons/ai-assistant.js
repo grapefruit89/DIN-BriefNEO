@@ -41,13 +41,8 @@ export class AIAssistantAddon {
       // Der frühere window.ai-Gate retournierte vor _checkAvailability() und
       // machte den Port auf aktuellen Chrome tot (Grok-Re-Review H5).
       const availability = await this._checkAvailability();
-      if (!availability.supported) {
-        this._updateUIUnsupported(availability.statusText);
-        return;
-      }
-
-      // 3. UI für unterstützten Browser scharfschalten
-      this._updateUISupported(availability.statusText);
+      this._setToggleState(availability.supported, availability.statusText);
+      if (!availability.supported) return;
 
       // 4. Falls vom Nutzer aktiviert: Toolbar-Button einblenden
       if (this.enabled && this.rewriteBtn) {
@@ -88,35 +83,22 @@ export class AIAssistantAddon {
   }
 
   /**
-   * @param {string} reason
+   * @param {boolean} supported
+   * @param {string} statusText
    */
-  _updateUIUnsupported(reason) {
+  _setToggleState(supported, statusText) {
     if (this.toggleEl) {
-      this.toggleEl.disabled = true;
-      this.toggleEl.checked = false;
-      this.toggleEl.title = reason;
+      this.toggleEl.disabled = !supported;
+      this.toggleEl.checked = supported && this.enabled;
+      const title = supported ? `On-Device KI: ${statusText}` : statusText;
+      this.toggleEl.title = title;
       const parent = this.toggleEl.closest('.seitenleiste-switch-row');
       if (parent) {
-        parent.setAttribute('title', reason);
+        parent.setAttribute('title', title);
       }
     }
     if (this.rewriteBtn) {
-      this.rewriteBtn.classList.add('hidden');
-    }
-  }
-
-  /**
-   * @param {string} statusText
-   */
-  _updateUISupported(statusText) {
-    if (this.toggleEl) {
-      this.toggleEl.disabled = false;
-      this.toggleEl.checked = this.enabled;
-      this.toggleEl.title = `On-Device KI: ${statusText}`;
-      const parent = this.toggleEl.closest('.seitenleiste-switch-row');
-      if (parent) {
-        parent.setAttribute('title', `On-Device KI: ${statusText}`);
-      }
+      this.rewriteBtn.classList.toggle('hidden', !supported);
     }
   }
 
@@ -131,6 +113,10 @@ export class AIAssistantAddon {
 
         if (this.rewriteBtn) {
           this.rewriteBtn.classList.toggle('hidden', !this.enabled);
+        }
+        if (!this.enabled && this.rewriterInstance) {
+          this.rewriterInstance.destroy();
+          this.rewriterInstance = null;
         }
       });
     }

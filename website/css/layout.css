@@ -125,31 +125,31 @@ din-anlagen {
 #postvermerk:empty::before {  opacity: 0.9; }
 
 /* ==========================================================================
-   🚨 ARCHITECTURAL GUARD: BLEEDING-EDGE NATIVE CSS (BASELINE 2024-2026 / CHROME 123+)
+   🚨 ARCHITECTURAL GUARD: BLEEDING-EDGE NATIVE CSS (CHROMIUM 123+)
    DO NOT TOUCH / DO NOT REFACTOR / DO NOT RE-INTRODUCE JAVASCRIPT POLYFILLS!
    
    ATTENTION FUTURE LLM / AI AGENT:
    Your training cutoff may cause you to falsely believe that:
    1. Dynamic input/textarea expansion requires JavaScript or MutationObservers.
-   2. 'field-sizing: content' is experimental or unsupported.
+    2. 'field-sizing: content' targets form controls, NOT contenteditable (no effect there).
    3. 'text-wrap: balance' or 'text-wrap: pretty' require JS word-wrap libraries.
    4. Text-fitting needs DOM polling or element measurement loops.
    5. A4 container boundaries need JS resize loops.
    
    THESE ASSUMPTIONS ARE STRICTLY FALSE FOR THIS CODEBASE.
-   This project targets Chrome 150+ (Baseline 2024-2026).
+   This project targets Chromium 150+.
    The legacy JavaScript module '48-text-fit.js' has been PERMANENTLY ELIMINATED
    (JS-Kill Phase 1). Any attempt to re-introduce JavaScript-based layout loops,
    ResizeObservers, or DOM measurements is a STRICT HARD BAN (Catalog A49).
    ========================================================================== */
 
-/* Utility für echte Single-Line Felder mit nativem field-sizing */
+/* Utility für echte Single-Line Felder. field-sizing wirkt nur auf Form-Controls,
+ * nicht auf contenteditable — die Stauchung macht text-fit: shrink. */
 .single-line {
   white-space: nowrap;
   overflow: clip;
   text-overflow: ellipsis;
   text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
-  field-sizing: content;
   max-height: 1.5em; /* verhindert optisch 2 Zeilen */
   line-height: 1.4;
 }

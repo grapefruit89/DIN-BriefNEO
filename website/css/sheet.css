@@ -59,7 +59,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   [contenteditable] {
-    field-sizing: content;
+    /* field-sizing: content entfernt — wirkt nur auf Form-Controls, nicht auf contenteditable */
     outline: 1px dashed oklch(from var(--blatt-schwach) l c h / 28%);
     outline-offset: 2px;
     border-radius: 4px;

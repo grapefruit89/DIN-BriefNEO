@@ -54,53 +54,6 @@
   }
 }
 
-.hinweis-badge:empty, .hinweis-action-btn:empty {
-  display: none;
-}
-
-.hinweis-badge {
-  background: var(--text-primary);
-  color: var(--bg-seitenleiste-glass);
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hinweis-action-btn {
-  background: var(--border-color);
-  color: var(--text-primary);
-  border: none;
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  white-space: nowrap;
-}
-
-.hinweis-action-btn:hover {
-  background: var(--text-primary);
-  color: var(--bg-seitenleiste);
-}
-
-@keyframes shake-hinweis {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-4px) translateY(0); }
-  50% { transform: translateX(4px) translateY(0); }
-  75% { transform: translateX(-4px) translateY(0); }
-  100% { transform: translateX(0); }
-}
-
-#hinweis-v4[data-shake="true"] {
-  animation: shake-hinweis 0.3s ease-in-out;
-}
-
 #hinweis-close {
   background: transparent;
   border: none;

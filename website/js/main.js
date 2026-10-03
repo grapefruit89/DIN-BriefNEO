@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const uiProtections = new UIProtections();
     uiProtections.init();
 
-    // 🚨 ARCHITECTURAL GUARD (JS-Kill Phase 1 / Chrome 123+ / Baseline 2024-2026):
+    // 🚨 ARCHITECTURAL GUARD (JS-Kill Phase 1 / Chromium 123+):
     // Text-fitting & dynamic field scaling are 100% NATIVE CSS ('field-sizing: content',
     // 'text-fit: shrink 60%', 'overflow: clip', 'text-wrap: balance/pretty').
     // DO NOT import or re-create legacy text-fitting modules or DOM element width comparison loops.

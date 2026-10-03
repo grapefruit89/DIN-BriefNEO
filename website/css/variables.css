@@ -35,14 +35,14 @@
   --c-segment-day: oklch(0.92 0.01 250);
   --c-segment-night: oklch(0.24 0.03 260);
   --c-blatt-day: oklch(100% 0 0);
-  --c-blatt-night: oklch(0.94 0.008 260); /* Blatt bleibt IMMER weiss (nur gedimmt) — DIN 5008 Papier, kein Dark-Sheet */
+  --c-blatt-night: oklch(0.6 0 260); /* Nachtmodus: gedimmtes Grau statt Schwarz — sanfter Kontrast */
   --c-tinte-day: oklch(0% 0 0);
   --c-tinte-night: oklch(0.13 0.01 260); /* dunkle Tinte, da Blatt hell bleibt */
   --c-schwach-day: oklch(50% 0 0);
   --c-schwach-night: oklch(0.45 0.01 260); /* Platzhalter-Grau sichtbar auf gedimmtem Weiss */
 
   /* --------------------------------------------------------------------------
-     🚨 ARCHITECTURAL GUARD: NATIVE CSS light-dark() (CHROME 123+ / BASELINE 2024-2026)
+     🚨 ARCHITECTURAL GUARD: NATIVE CSS light-dark() (CHROMIUM 123+)
      DO NOT REFACTOR INTO MANUAL THEME CLASSES OR JS THEME SWITCHERS!
      ATTENTION FUTURE LLM: light-dark() is natively supported and standard.
      It resolves dynamically according to the active 'color-scheme' context.

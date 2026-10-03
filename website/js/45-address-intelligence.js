@@ -295,9 +295,9 @@ export class AddressIntelligence {
       });
     };
     // Element-scoped View Transitions (Chrome 147+): Listenwechsel nur lokal crossfaden
-    // @ts-ignore Element-scoped View Transitions (Chrome 147+)
+    // @ts-expect-error Element-scoped View Transitions (Chrome 147+, noch nicht in lib.dom)
     if (this.isReady && typeof popoverEl.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      // @ts-ignore Element-scoped View Transitions (Chrome 147+)
+      // @ts-expect-error Element-scoped View Transitions (Chrome 147+, noch nicht in lib.dom)
       popoverEl.startViewTransition(render).finished.catch(() => {});
     } else {
       render();

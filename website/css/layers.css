@@ -1,7 +1,9 @@
-/* layers.css — NICHT gelayert! Deklariert als einziges File die Top-Level-
- * @layer-Reihenfolge. Ein @layer-Statement innerhalb eines via layer="…"
- * geladenen Stylesheets legt NESTED Layers an (variables.css-Lektion,
- * Grok-Review Batch H4/M4) — deshalb steht die Ordnung hier, vor allen
- * gelayerten Links, als Voraussetzung für CSP style-src ohne 'unsafe-inline'.
+/* layers.css — Deklariert die Top-Level-@layer-Reihenfolge.
+ * <link layer="…"> ist NICHT standardisiert (WHATWG: 0× „layer", MDN BCD:
+ * kein Attribut am <link>) — die Zuordnung per @import layer() ist durch
+ * A23 (@import-Verbot) ausgeschlossen. Die Kaskaden-Reihenfolge wird
+ * daher durch die Quell-Reihenfolge in index.html sichergestellt
+ * (reset → variables → layout → floating), was dem @layer-Statement
+ * entspricht. CSP style-src 'self' bleibt erfuellt.
  */
 @layer reset, tokens, layout, floating;

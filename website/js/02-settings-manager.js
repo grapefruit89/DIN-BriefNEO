@@ -2,6 +2,19 @@
 import { StorageManager, Constants } from './51-storage.js';
 import { showToast } from './32-toast.js';
 
+/**
+ * @param {any} target
+ * @param {() => void} fn
+ */
+function transitionOn(target, fn) {
+  if (typeof target.startViewTransition !== 'function'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    fn();
+    return;
+  }
+  target.startViewTransition(fn).finished.catch(() => {});
+}
+
 export class SettingsManager {
   /** Erstes applyTheme ist der Initial-Apply — dort ist kein Crossfade sinnvoll. */
   #themeBooted = false;
@@ -67,10 +80,9 @@ export class SettingsManager {
       }
     };
 
-    // @ts-ignore
     const themeUnchanged = document.documentElement.getAttribute('data-theme') === active && (!document.body || document.body.getAttribute('data-theme') === active);
-    if (!themeUnchanged && this.isReady && this.#themeBooted && typeof document.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.startViewTransition(updateDOM).finished.catch(() => {});
+    if (!themeUnchanged && this.isReady && this.#themeBooted) {
+      transitionOn(document, updateDOM);
     } else {
       updateDOM();
     }
@@ -89,10 +101,8 @@ export class SettingsManager {
   changeLayout(layout) {
     this.settings.layout = layout;
     const blatt = /** @type {HTMLElement | null} */ (document.querySelector('din-a4'));
-    // @ts-ignore Element-scoped View Transitions (Chrome 147+)
-    if (blatt && typeof blatt.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      // @ts-ignore Element-scoped View Transitions (Chrome 147+)
-      blatt.startViewTransition(() => this.updateSettings()).finished.catch(() => {});
+    if (blatt) {
+      transitionOn(blatt, () => this.updateSettings());
     } else {
       this.updateSettings();
     }
@@ -149,10 +159,8 @@ export class SettingsManager {
         if (btn) btn.dataset.schriftModus = 'upload';
       }
     };
-    // @ts-ignore Element-scoped View Transitions (Chrome 147+): Chip-Wechsel nur lokal crossfaden
-    if (this.isReady && typeof chip.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      // @ts-ignore
-      chip.startViewTransition(apply).finished.catch(() => {});
+    if (this.isReady) {
+      transitionOn(chip, apply);
     } else {
       apply();
     }

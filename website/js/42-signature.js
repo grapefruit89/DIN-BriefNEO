@@ -5,10 +5,10 @@
 /* @adr [[ADR-JS]] {SignatureFeature} */
 export class SignatureFeature {
   /**
-   * @param {{ settings: any, saveSettings: () => void }} uiContext
+   * @param {{ settings: any, save?: () => void, saveSettings?: () => void }} settingsContext
    */
-  constructor(uiContext) {
-    this.ui = uiContext;
+  constructor(settingsContext) {
+    this.ui = settingsContext;
     this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('unterschriftsbild-vorschau'));
     this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('unterschriftsbild-datei'));
     this.btnTrigger = document.getElementById('btn-unterschriftsbild-waehlen');
@@ -161,12 +161,18 @@ export class SignatureFeature {
     }
   }
 
+  #saveSettings() {
+    if (typeof this.ui?.save === 'function') {
+      this.ui.save();
+    } else if (typeof this.ui?.saveSettings === 'function') {
+      this.ui.saveSettings();
+    }
+  }
+
   saveState() {
     if (!this.ui.settings) this.ui.settings = {};
     this.ui.settings.signatureState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
-    if (typeof this.ui.saveSettings === 'function') {
-      this.ui.saveSettings();
-    }
+    this.#saveSettings();
   }
 
   /**
@@ -227,9 +233,7 @@ export class SignatureFeature {
     if (!this.ui.settings) this.ui.settings = {};
     this.ui.settings.signatureImage = base64;
 
-    if (typeof this.ui.saveSettings === 'function') {
-      this.ui.saveSettings();
-    }
+    this.#saveSettings();
   }
 
   /**
@@ -257,8 +261,6 @@ export class SignatureFeature {
     this.applyTransform();
     if (this.bbox) this.bbox.classList.remove('active');
 
-    if (typeof this.ui.saveSettings === 'function') {
-      this.ui.saveSettings();
-    }
+    this.#saveSettings();
   }
 }

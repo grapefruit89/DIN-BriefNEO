@@ -129,13 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);
     }
 
-    /* SignatureFeature erwartet historisch `saveSettings` als Methodennamen. */
-    const sigContext = {
-      settings: settingsContext.settings,
-      saveSettings: settingsContext.save
-    };
     try {
-      const signature = new SignatureFeature(sigContext);
+      const signature = new SignatureFeature(settingsContext);
       signature.init();
     } catch (e) {
       console.error('[Bootstrap] SignatureFeature.init fehlgeschlagen:', e);

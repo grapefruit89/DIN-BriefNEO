@@ -1868,3 +1868,18 @@ schneller, als eine fehlende Sonde es je koennte.
 2. **Kommentar-Inflation bereinigt:** Alle hysterischen Großbuchstaben-Banner und KI-Modell-Nennungen wurden aus `website/js/` entfernt. Echte Invarianten (z. B. nativer `afterprint`-Lifecycle, Single Source of Truth bei Metadaten, CSS-driven Layout) bleiben als präzise, professionelle Einzeiler erhalten.
 
 **Verifikation:** Fitness Gate 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. 145 Zeilen redundanter Kommentar-Ballast über 12 Dateien entfernt.
+
+## 2026-10-06 — Konsolidierung des Draft-Restore: boot-state.js entfernt (DraftManager als SSoT)
+
+**Kontext:** 
+Die App besaß historisch zwei parallele Restore-Owner:
+1. `website/js/boot-state.js` am Ende von `<body>`, das den Draft aus `localStorage` las und eine partielle Wiederherstellung durchführte (nur Non-Rich-Felder per `textContent`).
+2. `website/js/01-draft-manager.js` in `main.js`, das den Draft kurz darauf erneut vollständig einlas und über `04-sanitize.js` sanitizierte.
+Diese doppelte Buchführung führte über Monate zu künstlichen Schutzklauseln (Schutz gegen UI-Bricking musste in beiden Dateien synchron gehalten werden, Rich-Text-Ausnahmen, Postvermerk-Synchronisationskonflikte). Da `main.js` als ES-Modul im selben Task-Cycle vor dem ersten Render ausgeführt wird, bot `boot-state.js` keinen FOUC-Mehrwert.
+
+**Entscheidung:**
+1. **`boot-state.js` vollständig entfernt:** Das Script wurde gelöscht und der `<script>`-Tag aus `website/index.html` entfernt.
+2. **DraftManager als Single Source of Truth (SSoT):** `DraftManager.loadDraft()` in `01-draft-manager.js` ist der alleinige, autoritative Eigentümer der Entwurfswiederherstellung.
+3. **Settings- und Formularzustand konsolidiert:** Radio-Buttons, Postvermerk und Schriftstatus werden sauber und zentral über `SettingsManager.init()` bzw. `syncPostvermerkFromSidebar()` initialisiert.
+
+**Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Alle Links (`tools/links.js`) und Gesetzes-Prüfungen (`tools/structural-laws.js`) bestanden.

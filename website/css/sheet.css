@@ -228,6 +228,10 @@ body:has(#btn-form-a:checked) din-a4 {
     text-underline-offset: 2px;
   }
 
+  #text p {
+    margin: 0;
+  }
+
   #text blockquote {
     margin: 8px 0;
     padding-left: 12px;

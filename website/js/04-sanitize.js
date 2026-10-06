@@ -15,7 +15,7 @@
  * @returns {DocumentFragment}
  */
 export function sanitizeRichText(htmlString, options = {}) {
-  const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE', ...(options.extraTags || [])];
+  const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', ...(options.extraTags || [])];
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
 

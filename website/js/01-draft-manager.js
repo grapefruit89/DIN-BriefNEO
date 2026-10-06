@@ -4,6 +4,8 @@ import { sanitizeRichText } from './04-sanitize.js';
 import { getCaretCharacterOffset, setCaretCharacterOffset } from './selection-utils.js';
 import { isPrintTitleActive } from './53-metadata.js';
 
+const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), select[data-speichern]';
+
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #undoStack = [];
@@ -109,10 +111,11 @@ export class DraftManager {
    */
   #restoreState(draft) {
     this.#isRestoring = true;
-      Object.keys(draft).forEach(id => {
+    Object.keys(draft).forEach(id => {
       const elem = document.getElementById(id);
-      if (elem?.dataset.feldtyp === 'systemwert') return;
-      if (!elem) return;
+      /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
+      if (!elem || !elem.matches(EDITABLE_FIELD_SELECTOR)) return;
+      if (elem.dataset.feldtyp === 'systemwert') return;
 
       if (elem instanceof HTMLSelectElement) {
         elem.value = draft[id];

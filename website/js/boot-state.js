@@ -49,7 +49,9 @@ try {
     const draft = JSON.parse(draftStr);
     for (const id in draft) {
       const el = document.getElementById(id);
-      if (!el || !draft[id]) continue;
+      /* Nur erlaubte Eingabefelder beschreiben (Schutz gegen Zerstörung von UI-Elementen wie app-shell) */
+      if (!el || !el.matches('[contenteditable]:not([data-feldtyp="systemwert"]), select[data-speichern]')) continue;
+      if (!draft[id]) continue;
       if (el instanceof HTMLSelectElement) { el.value = /** @type {string} */ (draft[id]); continue; }
       const nested = el.querySelector && el.querySelector('select[data-speichern]');
       if (nested instanceof HTMLSelectElement) { nested.value = /** @type {string} */ (draft[id]); continue; }

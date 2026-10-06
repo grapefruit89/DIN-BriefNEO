@@ -72,8 +72,8 @@ export class AddressIntelligence {
           fetchGzipJson('data/de_plz_ort.json.gz'),
           fetchGzipJson('data/de_grosskunden_plz.json.gz')
         ]);
-        if (!plzData || !grossData) {
-          console.warn('[AddressIntelligence] Datensaetze nicht ladbar — PLZ-Automatik inaktiv.');
+        if (!plzData) {
+          console.warn('[AddressIntelligence] Datensatz de_plz_ort nicht ladbar — PLZ-Automatik inaktiv.');
           return false;
         }
 
@@ -91,8 +91,9 @@ export class AddressIntelligence {
           list.push(plz);
         }
 
-        // Build Großempfänger index
-        for (const [plz, info] of Object.entries(grossData)) {
+        // Build Großempfänger index (optional)
+        const gross = grossData || {};
+        for (const [plz, info] of Object.entries(gross)) {
           this.grosskunden.set(plz, /** @type {GrosskundeEntry} */ (info));
         }
 

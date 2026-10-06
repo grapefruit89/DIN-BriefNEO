@@ -9,7 +9,7 @@ import { MetadataService } from './53-metadata.js';
 import { SignatureFeature } from './42-signature.js';
 import { initAddressServices } from './43-geoapify.js';
 import { showToast, initToastSystem } from './32-toast.js';
-import { initSenderSync } from './45-address-intelligence.js';
+import { initSenderSync, AddressIntelligence } from './45-address-intelligence.js';
 import { DraftManager } from './01-draft-manager.js';
 import { FormatToolbar } from './31-format-toolbar.js';
 import { SettingsManager } from './02-settings-manager.js';
@@ -138,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (resetDialog.returnValue === 'confirm') {
           draftManager.resetDraft();
           applyLetterDate();
+          AddressIntelligence.targetLock = null;
         }
       });
     }

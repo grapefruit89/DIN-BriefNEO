@@ -211,6 +211,10 @@ export class AddressIntelligence {
     empfOrtEl.addEventListener('input', () => {
       const rawText = (empfOrtEl.textContent || "").trim();
 
+      if (this.targetLock && !rawText.startsWith(this.targetLock.plz)) {
+        this.targetLock = null;
+      }
+
       // Case 1: Exactly 5 digits entered -> Instant PLZ resolution (0.001 ms)
       const plzMatch = rawText.match(/^(\d{5})$/);
       if (plzMatch) {
@@ -362,6 +366,9 @@ export function initSenderSync() {
 
     if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
 
+    let lastSyncedRucksendezeile = (absender.textContent || '').trim();
+    let lastSyncedUnterschrift = (unterschrift.textContent || '').trim();
+
     function sync() {
         if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
         const name = (infoName.textContent || '').trim();
@@ -371,14 +378,21 @@ export function initSenderSync() {
         // 1. Sync to Rücksendezeile (absender) with abbreviated name
         const shortName = abbreviateName(name);
         const parts = [shortName, street, city].filter(p => p.length > 0);
-        absender.textContent = parts.join(' • ');
+        const newRucksendezeile = parts.join(' • ');
+        const currentAbsender = (absender.textContent || '').trim();
+        if (!currentAbsender || currentAbsender === lastSyncedRucksendezeile) {
+            absender.textContent = newRucksendezeile;
+            lastSyncedRucksendezeile = newRucksendezeile;
+            absender.dispatchEvent(new Event('input', { bubbles: true }));
+        }
 
         // 2. Sync to Maschinenschrift (unterschrift) with full name
-        unterschrift.textContent = name;
-        
-        // Dispatch input events so saveDraftData triggers if needed
-        absender.dispatchEvent(new Event('input', { bubbles: true }));
-        unterschrift.dispatchEvent(new Event('input', { bubbles: true }));
+        const currentUnterschrift = (unterschrift.textContent || '').trim();
+        if (!currentUnterschrift || currentUnterschrift === lastSyncedUnterschrift) {
+            unterschrift.textContent = name;
+            lastSyncedUnterschrift = name;
+            unterschrift.dispatchEvent(new Event('input', { bubbles: true }));
+        }
     }
 
     infoName.addEventListener('input', sync);

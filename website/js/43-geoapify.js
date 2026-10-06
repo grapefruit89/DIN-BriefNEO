@@ -40,11 +40,6 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   const savedKey = StorageManager.loadGeoapifyKey() || '';
   inputGeoapifyKey.value = savedKey;
 
-  // Initial validation check if we have a key
-  if (savedKey.trim()) {
-    validateKeyWithHeartbeat(savedKey.trim());
-  }
-
   // Key input handler with Heartbeat Validation
   inputGeoapifyKey.addEventListener('input', () => {
     clearTimeout(keyDebounceTimeout);
@@ -72,18 +67,23 @@ export function initAddressServices({ onToast, onSaveDraft }) {
    */
   async function validateKeyWithHeartbeat(key) {
     try {
-      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${key}`, {
+      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${encodeURIComponent(key)}`, {
         signal: AbortSignal.timeout(8000),
       });
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
         /* Kein Success-Toast (TOASTS-Policy in 51-storage.js: Erfolg ist
          * still; assertive Alerts nur für Fehler. Grok-Re-Review Priorität 3.) */
-      } else {
+      } else if (res.status === 401 || res.status === 403) {
+        StorageManager.saveGeoapifyKey('');
         if (onToast) onToast("❌ Geoapify Key ungültig", "error");
+      } else {
+        // 429/5xx: Key behalten und still bleiben
+        StorageManager.saveGeoapifyKey(key);
       }
     } catch (err) {
-      if (onToast) onToast("❌ Fehler bei der Key-Validierung", "error");
+      // Netzwerk/Timeout: Key behalten und still bleiben
+      StorageManager.saveGeoapifyKey(key);
     }
   }
 
@@ -200,7 +200,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
      * mehrere filter= Params überschreiben sich gegenseitig. Das
      * dokumentierte Pattern für "Straße, PLZ Ort" ist die Text-Anreicherung. */
     const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
-    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${key}&lang=de&limit=5&format=json&filter=countrycode:de`;
+    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
     if (!lock && coords && coords.lat && coords.lon) {
       url += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
@@ -274,7 +274,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   function renderSuggestions(suggestions, query, allowZeroClick) {
     if (!addressSuggestions) return;
     addressSuggestions.replaceChildren();
-    renderedSuggestions = suggestions;
+    renderedSuggestions = suggestions.slice(0, 5);
     activeSuggestionIndex = -1;
     inputAddressSearch?.removeAttribute('aria-activedescendant');
 
@@ -283,12 +283,8 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       return;
     }
 
-    if (allowZeroClick && suggestions.length === 1) {
-      selectSuggestion(suggestions[0]);
-      return;
-    }
-
     if (allowZeroClick && suggestions.length > 5) {
+      renderedSuggestions = [];
       const status = document.createElement('li');
       status.setAttribute('role', 'status');
       status.textContent = `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`;
@@ -297,7 +293,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       return;
     }
 
-    suggestions.slice(0, 5).forEach((item, index) => {
+    renderedSuggestions.forEach((item, index) => {
       const li = document.createElement('li');
       li.id = `anschrift-vorschlag-${index}`;
       li.setAttribute('role', 'option');
@@ -368,7 +364,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];
-          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${plz}&type=postcode&filter=countrycode:de&format=json&apiKey=${key}&limit=1`, {
+          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(plz)}&type=postcode&filter=countrycode:de&format=json&apiKey=${encodeURIComponent(key)}&limit=1`, {
               signal: AbortSignal.timeout(8000),
             })
             .then(r => r.json())

@@ -143,6 +143,8 @@ export class DraftManager {
   }
 
   undo() {
+    clearTimeout(this.debounceTimer);
+    this.saveDraft();
     if (this.#undoStack.length === 0 || !this.#currentState) return;
     this.#redoStack.push(this.#currentState);
     this.#currentState = this.#undoStack.pop() || null;
@@ -150,6 +152,8 @@ export class DraftManager {
   }
 
   redo() {
+    clearTimeout(this.debounceTimer);
+    this.saveDraft();
     if (this.#redoStack.length === 0 || !this.#currentState) return;
     this.#undoStack.push(this.#currentState);
     this.#currentState = this.#redoStack.pop() || null;

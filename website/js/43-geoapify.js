@@ -1,7 +1,7 @@
 // @ts-check
 // @guide [[geoapify-autocomplete]] 
 
-import { StorageManager } from './51-storage.js';
+import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './51-storage.js';
 import { AddressIntelligence } from './45-address-intelligence.js';
 
 /**
@@ -37,7 +37,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   let activeSuggestionIndex = -1;
 
   // Load initial settings
-  const savedKey = StorageManager.loadGeoapifyKey() || '';
+  const savedKey = load(STORAGE_KEYS.geoapifyKey, '') || '';
   inputGeoapifyKey.value = savedKey;
 
   // Key input handler with Heartbeat Validation
@@ -47,7 +47,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
     keyDebounceTimeout = setTimeout(async () => {
       if (!val) {
-        StorageManager.saveGeoapifyKey('');
+        save(STORAGE_KEYS.geoapifyKey, '');
         return;
       }
       validateKeyWithHeartbeat(val);
@@ -57,7 +57,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   // Double click to reset key
   inputAddressSearch.addEventListener('dblclick', () => {
     if(confirm("Geoapify API-Key ändern?")) {
-      StorageManager.saveGeoapifyKey('');
+      save(STORAGE_KEYS.geoapifyKey, '');
       inputGeoapifyKey.value = '';
     }
   });
@@ -71,18 +71,18 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         signal: AbortSignal.timeout(8000),
       });
       if (res.ok) {
-        StorageManager.saveGeoapifyKey(key);
+        save(STORAGE_KEYS.geoapifyKey, key);
         // Kein Toast bei Erfolg: Stille Übernahme
       } else if (res.status === 401 || res.status === 403) {
-        StorageManager.saveGeoapifyKey('');
+        save(STORAGE_KEYS.geoapifyKey, '');
         if (onToast) onToast("❌ Geoapify Key ungültig", "error");
       } else {
         // 429/5xx: Key behalten und still bleiben
-        StorageManager.saveGeoapifyKey(key);
+        save(STORAGE_KEYS.geoapifyKey, key);
       }
     } catch (err) {
       // Netzwerk/Timeout: Key behalten und still bleiben
-      StorageManager.saveGeoapifyKey(key);
+      save(STORAGE_KEYS.geoapifyKey, key);
     }
   }
 
@@ -93,7 +93,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
    * @returns {AddressEntry[]}
    */
   function getLocalAddressBook() {
-    return /** @type {AddressEntry[]} */ (StorageManager.loadLocalAddresses());
+    return /** @type {AddressEntry[]} */ (loadJSON(STORAGE_KEYS.addresses, []));
   }
 
   /**
@@ -105,7 +105,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     if (!book.find(entry => entry.formatted === item.formatted)) {
       book.unshift(item); // Add to top
       if (book.length > 50) book.pop(); // Keep max 50
-      StorageManager.saveLocalAddresses(book);
+      saveJSON(STORAGE_KEYS.addresses, book);
     }
   }
 
@@ -176,7 +176,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
     if (!navigator.onLine) return;
 
-    const key = StorageManager.loadGeoapifyKey();
+    const key = load(STORAGE_KEYS.geoapifyKey, '');
     if (!key) return;
 
     // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
@@ -192,7 +192,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     let fetchOptions = {
       signal: AbortSignal.any([activeAbortController.signal, AbortSignal.timeout(8000)]),
     };
-    const coords = StorageManager.loadSenderCoords();
+    const coords = /** @type {{ lat: number, lon: number } | null} */ (loadJSON(STORAGE_KEYS.senderCoords, null));
 
     // Target Lock: Geoapify unterstützt keinen expliziten postcode-Filter; Text-Anreicherung nutzen
     const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
@@ -206,7 +206,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       if (!response.ok) {
         // Key nur bei Authentifizierungsfehlern (401/403) verwerfen, nicht bei Rate-Limits (429) oder 5xx
         if (response.status === 401 || response.status === 403) {
-          StorageManager.saveGeoapifyKey('');
+          save(STORAGE_KEYS.geoapifyKey, '');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
           if (keyEl) keyEl.value = '';
           if (onToast) onToast('❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.', 'error');
@@ -352,7 +352,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       if (!navigator.onLine) return;
       clearTimeout(absenderTimeout);
       absenderTimeout = setTimeout(() => {
-        const key = StorageManager.loadGeoapifyKey();
+        const key = load(STORAGE_KEYS.geoapifyKey, '');
         if (!key) return;
         const text = absenderPlzOrtEl.textContent ? absenderPlzOrtEl.textContent.trim() : '';
         const match = text.match(/(\d{5})/);
@@ -366,7 +366,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
               if (data && data.results && data.results.length > 0) {
                 const result = data.results[0];
                 if (result.lat && result.lon) {
-                  StorageManager.saveSenderCoords({ lat: result.lat, lon: result.lon });
+                  saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });
                 }
               }
             }).catch(() => {});

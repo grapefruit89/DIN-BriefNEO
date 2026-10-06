@@ -10,7 +10,7 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { StorageManager, Constants } from './51-storage.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
 import { showToast } from './32-toast.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
@@ -115,7 +115,7 @@ export class SalutationFeature {
   constructor(saveDraftDataCallback, settingsContext = null) {
     this.saveDraftData = saveDraftDataCallback;
     this.#ctx = settingsContext;
-    this.settings = settingsContext ? settingsContext.settings : StorageManager.loadSettings();
+    this.settings = settingsContext ? settingsContext.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.settings.formality = toStyle(this.settings.formality);
   }
 
@@ -159,7 +159,7 @@ export class SalutationFeature {
   #setStyle(style) {
     this.settings.formality = style;
     if (this.#ctx) this.#ctx.save();
-    else StorageManager.saveSettings(this.settings);
+    else saveJSON(STORAGE_KEYS.settings, this.settings);
     this.#update('anrede');
     this.#update('grussformel');
   }

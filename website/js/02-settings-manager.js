@@ -1,5 +1,5 @@
 // @ts-check
-import { StorageManager, Constants } from './51-storage.js';
+import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
 import { showToast } from './32-toast.js';
 
 /**
@@ -20,7 +20,7 @@ export class SettingsManager {
   #themeBooted = false;
 
   constructor() {
-    this.settings = StorageManager.loadSettings();
+    this.settings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -90,7 +90,7 @@ export class SettingsManager {
   }
 
   updateSettings() {
-    StorageManager.saveSettings(this.settings);
+    saveJSON(STORAGE_KEYS.settings, this.settings);
     this.applySettings();
   }
 
@@ -109,7 +109,7 @@ export class SettingsManager {
   }
 
   initFontInjection() {
-    const savedFont = StorageManager.loadCustomFont();
+    const savedFont = load(STORAGE_KEYS.font, null);
     if (savedFont) {
       this.injectFont(savedFont);
     } else {
@@ -205,7 +205,7 @@ export class SettingsManager {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
         if (btn.dataset.schriftModus === 'reset') {
-          StorageManager.removeCustomFont();
+          remove(STORAGE_KEYS.font);
           if (this.activeFontFace) {
             document.fonts.delete(this.activeFontFace);
             this.activeFontFace = null;
@@ -239,7 +239,7 @@ export class SettingsManager {
             showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
             return;
           }
-          const success = StorageManager.saveCustomFont(base64Font);
+          const success = save(STORAGE_KEYS.font, base64Font);
           if (success) {
             this.injectFont(base64Font);
           } else {

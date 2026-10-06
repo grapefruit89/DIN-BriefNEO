@@ -3,13 +3,13 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager } from '../website/js/01-draft-manager.js';
-import { StorageManager } from '../website/js/51-storage.js';
+import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage } from '../website/js/51-storage.js';
 import { UIProtections } from '../website/js/03-ui-protections.js';
 import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/52-import-export.js';
 import { Constants } from '../website/js/51-storage.js';
 
-/* StorageManager persistiert Drafts unter `din_draft_${key}` (key = 'current'). */
-const DRAFT_KEY = 'din_draft_current';
+/* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
+const DRAFT_KEY = STORAGE_KEYS.draft;
 
 /** @returns {Record<string, string>} */
 const getDraft = () => {
@@ -165,6 +165,40 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt');
     const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"brieftext":"x"}}');
     assert(ok.ok, 'normale Ids erlaubt');
+  });
+});
+
+describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
+  it('save und load speichern und lesen Plain Strings', () => {
+    save('test_str_key', 'plain_value');
+    assertEqual(load('test_str_key'), 'plain_value', 'String korrekt geladen');
+    remove('test_str_key');
+    assertEqual(load('test_str_key', 'def'), 'def', 'Fallback bei fehlendem Key');
+  });
+
+  it('saveJSON und loadJSON serialisieren Objekte und Arrays sauber', () => {
+    const obj = { theme: 'dark', layout: 'form-a' };
+    saveJSON('test_json_key', obj);
+    const loaded = loadJSON('test_json_key', { theme: 'light', layout: 'form-b' });
+    assertEqual(loaded.theme, 'dark', 'JSON-Wert korrekt geladen');
+    assertEqual(loaded.layout, 'form-a', 'JSON-Wert korrekt geladen');
+    remove('test_json_key');
+  });
+
+  it('loadJSON fällt bei ungültigem JSON sicher auf fallback zurück', () => {
+    save('test_corrupt_json', '{ corrupt json');
+    const fallback = { safe: true };
+    const res = loadJSON('test_corrupt_json', fallback);
+    assertEqual(res.safe, true, 'Fallback bei korruptem JSON');
+    remove('test_corrupt_json');
+  });
+
+  it('migrateStorage setzt SCHEMA_VERSION idempotent', () => {
+    remove(STORAGE_KEYS.schema);
+    migrateStorage();
+    assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version initial gesetzt');
+    migrateStorage();
+    assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version idempotent');
   });
 });
 

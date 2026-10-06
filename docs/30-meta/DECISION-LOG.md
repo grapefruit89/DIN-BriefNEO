@@ -1912,3 +1912,23 @@ Diese doppelte Buchführung führte über Monate zu künstlichen Schutzklauseln 
 3. **Regex-Spirale gestoppt:** 40+ `EXCLUDED_PREFIXES` und die 8-Zeilen-Rückwärtssuchschleife wurden ersatzlos entfernt (-155 Zeilen Netto-Code).
 
 **Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Unit-Tests für Firmenanschriften, private Personen, Impressums-Auszüge, Inline-Adressen und Mehrfach-Standorte erfolgreich.
+
+## 2026-10-06 — KISS-Refactoring: StorageManager zu primitiven Speicherfunktionen & STORAGE_KEYS
+
+**Kontext:**
+`website/js/51-storage.js` war historisch zu einer überdimensionierten, 250 Zeilen langen `StorageManager`-Fassadenklasse mit 14 redundanten statischen Methoden herangewachsen. Diese wrappte triviale `localStorage`-Aufrufe (`loadDraft`, `saveDraft`, `loadSettings`, `saveSettings`, `loadFont`, `saveFont`, `clearFont`, `loadGeoapifyKey`, `saveGeoapifyKey`, `loadAddresses`, `saveAddresses`, `loadSenderCoords`, `saveSenderCoords`), wodurch jeder neue Persistenz-Schlüssel zwei neue Fassadenmethoden und redundante try/catch-Blöcke erforderte.
+
+**Entscheidung:**
+1. **Primitive Helper & flache Key-Map:**
+   - Bereitstellung von 4 schlanken, typsicheren und fehlerresistenten Primitiven: `load(key, fallback = null)`, `save(key, value)`, `remove(key)` für Strings sowie `loadJSON(key, fallback = null)` und `saveJSON(key, value)` für strukturierte Daten.
+   - Alle Storage-Keys sind zentral und flach in `STORAGE_KEYS` definiert (`DRAFT`, `SETTINGS`, `FONT`, `GEOAPIFY_KEY`, `ADDRESSES`, `SENDER_COORDS`).
+2. **Spezifische Key-Verwaltung:**
+   - Strings (`FONT`, `GEOAPIFY_KEY`) werden direkt als Strings gespeichert und nicht mehr unnötig durch `JSON.stringify`/`JSON.parse` geschleust.
+   - Strukturierte Daten (`DRAFT`, `SETTINGS`, `ADDRESSES`, `SENDER_COORDS`) nutzen `loadJSON`/`saveJSON`.
+3. **Schlanke Migration:**
+   - `migrateStorage()` führt die Schema-v1-Migration (Umbenennung von Alt-Keys) idempotent und schlank in 10 Zeilen durch.
+4. **Konsumenten direkt angebunden:**
+   - Alle Module (`01-draft-manager.js`, `02-settings-manager.js`, `41-salutation-engine.js`, `43-geoapify.js`, `52-import-export.js`, `main.js`) nutzen nun direkt die primitiven Hilfsfunktionen und `STORAGE_KEYS`.
+   - `StorageManager` verbleibt lediglich als dünner Deprecation-Wrapper für Abwärtskompatibilität.
+
+**Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Umfassende Unit-Tests in `test/all.js` für `load`, `save`, `remove`, `loadJSON`, `saveJSON` und `migrateStorage` erfolgreich.

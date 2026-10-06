@@ -8,7 +8,7 @@
  * und dem Draft-Payload aus din_draft_current.
  */
 
-import { StorageManager, Constants } from './51-storage.js';
+import { loadJSON, saveJSON, migrateStorage, STORAGE_KEYS, Constants } from './51-storage.js';
 import { buildLetterFileName } from './53-metadata.js';
 import { currentISODate } from './47-date-format.js';
 
@@ -93,7 +93,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
     }
     let draft;
     try {
-      draft = StorageManager.loadDraft('current') || {};
+      draft = loadJSON(STORAGE_KEYS.draft, {});
     } catch (e) {
       onToast('❌ Export fehlgeschlagen: lokaler Draft nicht lesbar.', 'error');
       return;
@@ -140,8 +140,8 @@ export function initImportExport({ onSaveDraft, onToast }) {
       return;
     }
     try {
-      StorageManager.saveDraft('current', pendingImport.draft);
-      StorageManager.migrate();
+      saveJSON(STORAGE_KEYS.draft, pendingImport.draft);
+      migrateStorage();
       pendingImport = null;
       // Durch Seiten-Reload wird der Entwurf über den regulären Boot- und Restore-Pfad geladen
       location.reload();

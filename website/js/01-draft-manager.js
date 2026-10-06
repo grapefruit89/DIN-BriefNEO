@@ -1,5 +1,5 @@
 // @ts-check
-import { StorageManager, Constants } from './51-storage.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, Constants } from './51-storage.js';
 import { sanitizeRichText } from './04-sanitize.js';
 import { getCaretCharacterOffset, setCaretCharacterOffset } from './selection-utils.js';
 import { isPrintTitleActive } from './53-metadata.js';
@@ -61,7 +61,7 @@ export class DraftManager {
       if (sel.id) draft[sel.id] = sel.value;
     });
 
-    const saved = StorageManager.saveDraft('current', draft);
+    const saved = saveJSON(STORAGE_KEYS.draft, draft);
     this.#setSaveStatus(saved ? 'saved' : 'error');
     this.#updateDocumentTitle();
 
@@ -93,7 +93,7 @@ export class DraftManager {
   }
 
   loadDraft() {
-    const draft = StorageManager.loadDraft('current');
+    const draft = loadJSON(STORAGE_KEYS.draft, null);
     if (!draft) return false;
 
     this.#currentState = { draftStr: JSON.stringify(draft), caretInfo: null };
@@ -155,7 +155,7 @@ export class DraftManager {
     if (!stateObj) return;
     const draft = JSON.parse(stateObj.draftStr);
     this.#restoreState(draft);
-    StorageManager.saveDraft('current', draft);
+    saveJSON(STORAGE_KEYS.draft, draft);
 
     if (stateObj.caretInfo) {
       const elem = document.getElementById(stateObj.caretInfo.id);

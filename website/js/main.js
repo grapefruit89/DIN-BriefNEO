@@ -3,7 +3,7 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { StorageManager, Constants } from './51-storage.js';
+import { saveJSON, migrateStorage, STORAGE_KEYS, Constants } from './51-storage.js';
 import { SalutationFeature } from './41-salutation-engine.js';
 import { MetadataService } from './53-metadata.js';
 import { SignatureFeature } from './42-signature.js';
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initApp() {
     // Schema-Migration vor dem ersten Restore
-    StorageManager.migrate();
+    migrateStorage();
     const draftManager = new DraftManager();
     draftManager.loadDraft();
     syncPostvermerkFromSidebar();
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsContext = {
       settings: settingsManager.settings,
       save: () => {
-        StorageManager.saveSettings(settingsManager.settings);
+        saveJSON(STORAGE_KEYS.settings, settingsManager.settings);
         settingsManager.applySettings();
       }
     };

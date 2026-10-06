@@ -6,7 +6,7 @@ import { AddressIntelligence } from './45-address-intelligence.js';
 
 /**
  * @typedef {object} AddressCandidate
- * @property {number} score
+ * @property {number} [score]
  * @property {string} [firma]
  * @property {string} [name]
  * @property {string} [zusatz]
@@ -17,80 +17,38 @@ import { AddressIntelligence } from './45-address-intelligence.js';
  */
 
 /**
- * ClipboardAddressParser: High-precision deterministic parser for German company imprints,
- * private person signatures, and contact cards.
- * Extracts DIN-5008 postal address blocks from messy clipboard text in < 0.1ms.
+ * ClipboardAddressParser: 95%-KISS Adressparser für deutsche Firmen- und Personenanschriften.
+ * Folgt dem Kernmuster: PLZ-Zeile als Anker, Zeile davor als Straße, Zeilen davor als Empfänger.
+ * Bietet bei Mehrdeutigkeit ein sauberes Popover zur Nutzer-Auswahl statt überfrachteter Heuristiken.
  */
 export class ClipboardAddressParser {
   /**
-   * Legal entity & corporate forms regex
+   * Typische deutsche Rechtsformen und Organisationen
    */
-  static CORP_REGEX = /\b(gmbh\s*&\s*co\.?\s*kg|gmbh\s*&\s*co\s*kg|gmbh\s*&\s*cokg|gmbh|ag|se|kg|ohg|e\.v\.|ug|gbr|e\.k\.|universität|hochschule|verband|stiftung|behörde|institut|verlag|bundesverband|körperschaft|kanzlei|praxis|apotheke|büro|agentur|studio|klinik|hotel|restaurant)\b/i;
+  static CORP_REGEX = /\b(gmbh\s*&\s*co\.?\s*kg|gmbh|ag|se|kg|ohg|e\.v\.|ug|gbr|e\.k\.|e\.?g\.?|universität|hochschule|verband|stiftung|behörde|institut|verlag|kanzlei|praxis|apotheke|büro|agentur|studio|klinik|hotel|restaurant|bank|sparkasse)\b/i;
 
   /**
-   * Person honorifics and contact line markers
+   * Anreden und Empfänger-Prefixe
    */
   static PERSON_PREFIX_REGEX = /^(herr|frau|herrn|dr\.|prof\.|z\.\s*hd\.|zu\s*händen)\b/i;
 
   /**
-   * Prefixes that indicate non-recipient administrative/legal metadata
+   * Straßenschlüsselwörter und Postfach
    */
-  static EXCLUDED_PREFIXES = [
-    'registergericht', 'registernummer', 'registriergericht', 'registriernummer',
-    'amtsgericht', 'ag ', 'hrb', 'hra', 'ust-id', 'ust.-id', 'ustid', 'w-idnr',
-    'steuernummer', 'diensteanbieter', 'impressum',
-    'email', 'e-mail', 'mail:', 'www.', 'http', 'https',
-    'vertreten durch', 'geschäftsführung', 'geschäftsführer', 'chefredakteur',
-    'chefredaktion', 'verantwortlich', 'sitz der gesellschaft', 'vorsitzender',
-    'aufsichtsrat', 'redaktion', 'jugendschutz', 'online-rundfunkangebot',
-    'zentrale kontaktstelle', 'eigentumsverhältnisse', 'gesellschafterin',
-    'wirtschaftliche eigentümer', 'fragen zu', 'information gemäß', 'verleger:',
-    'herausgeber:', 'editor-at-large:', 'newsroom:', 'ressortleitungen:',
-    'autoren:', 'reporter:', 'quellenhinweis:', 'druck:', 'abonnentenservice',
-    'anzeigenservice', 'pressestelle', 'geschäftsstelle', 'abonnementspreis',
-    'erfüllungsort', 'intranet', 'sie sind hier:', 'startseite',
-    'vorbehalt nach', 'die nutzung und vervielfältigung', 'anfahrt / lageplan',
-    'öffnungszeiten', 'handelsregister', 'bankkonto', 'unsere daten',
-    'pfadnavigation', 'veröffentlicht am', 'aktualisiert am', 'lesedauer:',
-    'klicken sie hier', 'mehr erfahren', 'jetzt aktivieren', 'abo testen',
-    'konzeption, gestaltung', 'alle zulassen', 'inhaber:', 'postadresse:',
-    'postanschrift:', 'hausanschrift:', 'adresse:', 'anschrift:'
-  ];
+  static STREET_REGEX = /(?:str(?:aße|asse|\.)?|weg|platz|allee|damm|ring|ufer|gasse|zeile|chaussee|speersort|spitze|bellevue|postfach)\b/i;
 
   /**
-   * Checks if a string candidate is invalid as a company or person name
-   * @param {string} cand
-   * @returns {boolean}
+   * Zeilen-Marker für nicht-adressrelevante Metadaten (Telefon, Web, Register etc.)
    */
-  static isInvalidNameCandidate(cand) {
-    const candLower = cand.toLowerCase().trim();
-    if (cand.length > 75 || cand.length < 2) return true;
-    if (this.EXCLUDED_PREFIXES.some(p => candLower.startsWith(p))) return true;
-
-    // Metadaten-Präfixe mit typischen Trennzeichen (schützt Firmennamen wie Telekom, Telefonica, VR Bank, Serviceplan, Kontaktwerk)
-    if (/^(tel\.?|telefon|fax\.?|telefax)\s*[:\d\+\/]/i.test(candLower)) return true;
-    if (/^vr\s*\d+/i.test(candLower) && !candLower.startsWith('vr bank')) return true;
-    if (/^(service|kontakt)\s*[:\-\d\+]/i.test(candLower)) return true;
-    if (/^service-hotline/i.test(candLower)) return true;
-
-    // Cannot be a PLZ / Ort line
-    if (/^\d{5}\s+/.test(cand)) return true;
-    // Cannot be a pure street line with ending house number
-    if (/\d+[\s\-\/a-zA-Z0-9]*$/.test(cand) && /(?:str(?:aße|asse|\.)?|weg|platz|allee|damm|ring|ufer|spitze|speersort|gasse|chaussee)\b/i.test(candLower)) {
-      return true;
-    }
-    // Juristische Metadaten-Marker mit Wortgrenzen (verhindert False Positives bei 'satz' in 'Ersatzteile' oder 'gema' in 'Gemalto')
-    if (/\b(satz\s+\d+|s\.\s*\d+|abs\.\s*\d+|urhg|gema)\b/i.test(candLower)) return true;
-
-    const markers = ['gemäß', 'gem.', 'aufsicht', 'rechtsaufsicht', 'ausnahme', 'beiträge',
-                     'kennzeichnung', 'startseite', 'sie sind hier', 'intranet', 'ist die',
-                     'wird verantwortet durch', 'angebot unter', 'wahr.', 'nimmt wahr'];
-    return markers.some(m => candLower.includes(m));
-  }
+  static METADATA_LINE_REGEX = /^(tel[:\.\d\+\/]|telefon|fax[:\.\d\+\/]|telefax|e-?mail|www\.|https?:\/\/|amtsgericht|handelsregister|hr[ab]\b|ust-?id|steuernummer|ihr zeichen|unsere zeichen|datum:)/i;
 
   /**
-   * Parses raw clipboard text and extracts ranked address candidates.
-   * Handles company imprints, private person signatures, and mixed contact blocks.
+   * Abschnittsüberschriften, die nicht als Empfängername interpretiert werden dürfen
+   */
+  static SECTION_LABEL_REGEX = /^(hauptsitz|niederlassung|standort|filiale|zentrale|werk|postadresse|hausanschrift|anschrift|adresse|impressum|kontakt)[:\s]*$/i;
+
+  /**
+   * Extrahiert Adress-Kandidaten aus unstrukturiertem Text.
    * @param {string} text
    * @returns {AddressCandidate[]}
    */
@@ -100,142 +58,130 @@ export class ClipboardAddressParser {
     const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     if (lines.length === 0) return [];
 
+    const plzOrtRegex = /\b(\d{5})\s+([A-ZÄÖÜ][a-zäöüßA-Z\s\-\/\.]+)/;
     /** @type {AddressCandidate[]} */
     const candidates = [];
 
-    // PASS 1: Inline comma-separated address detection
-    // Example: "Axel Springer Deutschland GmbH, WELT, Schützenstraße 15–17, 10117 Berlin"
-    // Or: "Dr. Julia Wagner, Goethestraße 14, 79100 Freiburg"
-    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-      const line = lines[lineIdx];
-      const cleanLine = line.replace(/^(Postanschrift|Hausanschrift|Postadresse|Adresse|Anschrift)\s*:\s*/i, '').trim();
-
-      if (cleanLine.includes(',')) {
-        const parts = cleanLine.split(',').map(p => p.trim()).filter(Boolean);
-        if (parts.length >= 3) {
-          const lastPart = parts[parts.length - 1];
-          const plzMatch = lastPart.match(/\b(\d{5})\s+([A-ZÄÖÜ][a-zäöüßA-Z\s\-\/\.]+)/);
-          if (plzMatch) {
-            const plz = plzMatch[1];
-            const ort = plzMatch[2].trim();
-            if (!ort.endsWith('.') && !/wahr|gemäß|siehe/i.test(ort)) {
-              const streetCand = parts[parts.length - 2];
-              const hasNum = /\d+/.test(streetCand);
-              if (hasNum) {
-                const nameCand = parts[0];
-                const zusatzCand = parts.length > 3 ? parts.slice(1, -2).join(" ") : "";
-                if (!this.isInvalidNameCandidate(nameCand)) {
-                  const isCorp = this.CORP_REGEX.test(nameCand);
-                  const isPerson = this.PERSON_PREFIX_REGEX.test(nameCand) || (!isCorp && nameCand.split(/\s+/).length <= 4 && !/\d/.test(nameCand));
-
-                  candidates.push({
-                    score: 160 - (lineIdx * 0.15),
-                    firma: isCorp ? nameCand : "",
-                    name: isPerson ? nameCand : "",
-                    zusatz: zusatzCand,
-                    strasse: streetCand,
-                    plz,
-                    ort,
-                    source_type: 'inline_comma'
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // PASS 2: Multi-line address block scanning
+    // PASS 1: Mehrzeilige Adressblöcke (PLZ-Zeile als Anker)
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const plzMatch = line.match(/\b(\d{5})\s+([A-ZÄÖÜ][a-zäöüßA-Z\s\-\/\.]+)/);
+      const plzMatch = line.match(plzOrtRegex);
       if (!plzMatch) continue;
 
       const plz = plzMatch[1];
-      let ort = plzMatch[2].trim();
-      ort = ort.split(/[,;\(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
-
-      // Ignore register lines
-      if (/^(handelsregister|amtsgericht|registergericht|ust-id)/i.test(line)) continue;
-
+      let ort = plzMatch[2].trim().split(/[,;\(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
       if (i === 0) continue;
 
       const prevLine = lines[i - 1].trim();
-      if (prevLine.includes('|')) continue;
+      const isStreet = (/\d+/.test(prevLine) && this.STREET_REGEX.test(prevLine)) ||
+                       this.STREET_REGEX.test(prevLine) ||
+                       /\d+/.test(prevLine) ||
+                       /^postfach\s+\d+/i.test(prevLine);
+      if (!isStreet) continue;
 
-      const hasNumber = /\d+[\s\-\/a-zA-Z0-9]*$/.test(prevLine);
-      const hasStreetKw = /(?:str(?:aße|asse|\.)?|weg|platz|allee|damm|ring|ufer|gasse|zeile|speersort|spitze|biefangstr|bellevue)\b/i.test(prevLine);
+      const street = prevLine.replace(/^(postanschrift|hausanschrift|anschrift|adresse|postadresse)\s*:\s*/i, '').replace(/,+$/, '').trim();
 
-      if (!hasNumber && !hasStreetKw) continue;
+      let candFirma = '';
+      let candName = '';
+      let candZusatz = '';
 
-      let street = prevLine.replace(/^(Postanschrift|Hausanschrift|Anschrift|Adresse|Postadresse)\s*:\s*/i, '').trim();
-      street = street.replace(/,+$/, '').trim();
+      // Maximal 2 Zeilen vor der Straße betrachten
+      /** @type {string[]} */
+      const preLines = [];
+      for (let j = i - 2; j >= Math.max(0, i - 4); j--) {
+        const l = lines[j].trim();
+        if (this.METADATA_LINE_REGEX.test(l) || l.length > 80 || l.includes('|')) break;
+        if (plzOrtRegex.test(l) || /^\d{5}\b/.test(l)) break; // Stopp bei vorangehender Adresse
+        if (this.SECTION_LABEL_REGEX.test(l)) continue;
 
-      let foundComp = '';
-      let foundName = '';
-      let foundZusatz = '';
+        const cleanL = l.replace(/^(anbieterin|anbieter|unsere daten|kontakt|impressum|herausgeber|geschäftsführung|geschäftsführer|vertreten durch)\s*:\s*/i, '').trim();
+        if (cleanL && !cleanL.endsWith(':')) preLines.unshift(cleanL);
+      }
 
-      // Scan upwards (up to 7 lines) for company, person name, or building/department
-      for (let offset = i - 2; offset >= Math.max(0, i - 8); offset--) {
-        const cand = lines[offset].trim();
-        if (this.isInvalidNameCandidate(cand)) continue;
+      if (preLines.length === 1) {
+        const single = preLines[0];
+        if (this.CORP_REGEX.test(single)) {
+          candFirma = single;
+        } else {
+          candName = single;
+        }
+      } else if (preLines.length >= 2) {
+        const l0 = preLines[preLines.length - 2];
+        const l1 = preLines[preLines.length - 1];
 
-        const candClean = cand.replace(/^(anbieterin|anbieter|träger der webseite ist die|ist ein angebot der|der online-auftritt der [a-zäöüß]+ wird verantwortet durch|unsere daten)\s*:\s*/i, '').trim();
-        if (!candClean) continue;
-
-        const hasCorp = this.CORP_REGEX.test(candClean);
-        const hasPersonPrefix = this.PERSON_PREFIX_REGEX.test(candClean);
-        const hasBuilding = /(haus|turm|gebäude|campus|bibliothek|abteilung)/i.test(candClean);
-
-        if (hasPersonPrefix && !foundName) {
-          foundName = candClean.replace(/^(z\.\s*hd\.|zu\s*händen)\s*:?\s*/i, '').trim();
-        } else if (hasCorp && !foundComp) {
-          foundComp = candClean;
-        } else if (hasBuilding && !foundZusatz) {
-          foundZusatz = candClean;
-        } else if (!foundComp && !foundName) {
-          const words = candClean.split(/\s+/);
-          if (words.length >= 2 && words.length <= 4 && !/\d/.test(candClean)) {
-            foundName = candClean;
+        if (this.CORP_REGEX.test(l0)) {
+          candFirma = l0;
+          if (this.PERSON_PREFIX_REGEX.test(l1) || !/\d/.test(l1)) {
+            candName = l1.replace(/^(z\.\s*hd\.|zu\s*händen)\s*:?\s*/i, '').trim();
           } else {
-            foundComp = candClean;
+            candZusatz = l1;
           }
+        } else if (this.CORP_REGEX.test(l1)) {
+          candFirma = l1;
+          candName = l0;
+        } else {
+          candFirma = l0;
+          candName = l1;
         }
       }
 
-      if ((foundComp || foundName) && street && plz && ort) {
-        let score = 80;
-        if (foundComp && this.CORP_REGEX.test(foundComp)) score += 40;
-        if (foundName) score += 30;
-
-        const context = lines.slice(Math.max(0, i - 6), i + 1).join(" ").toLowerCase();
-        if (context.includes('postanschrift') || context.includes('postadresse')) score += 25;
-
-        score -= (i * 0.15); // Items near top receive higher priority
-
-        candidates.push({
-          score,
-          firma: foundComp,
-          name: foundName,
-          zusatz: foundZusatz,
-          strasse: street,
-          plz,
-          ort,
-          source_type: 'multiline'
-        });
-      }
+      candidates.push({
+        firma: candFirma,
+        name: candName,
+        zusatz: candZusatz,
+        strasse: street,
+        plz,
+        ort,
+        source_type: 'multiline'
+      });
     }
 
-    // Sort descending by relevance score
-    candidates.sort((a, b) => b.score - a.score);
+    // PASS 2: Einzeilige, kommagetrennte Adressen
+    for (const line of lines) {
+      if (!line.includes(',')) continue;
+      const parts = line.split(',').map(p => p.trim()).filter(Boolean);
+      if (parts.length < 3) continue;
 
-    // Deduplicate candidates with identical PLZ and street
+      const lastPart = parts[parts.length - 1];
+      const plzMatch = lastPart.match(plzOrtRegex);
+      if (!plzMatch) continue;
+
+      const streetPart = parts[parts.length - 2];
+      if (!this.STREET_REGEX.test(streetPart) && !/\d+/.test(streetPart)) continue;
+
+      const nameParts = parts.slice(0, parts.length - 2);
+      const first = nameParts[0] || '';
+      const second = nameParts[1] || '';
+
+      let candFirma = '';
+      let candName = '';
+      let candZusatz = '';
+
+      if (this.CORP_REGEX.test(first)) {
+        candFirma = first;
+        if (second) candName = second;
+      } else {
+        candName = first;
+        if (second) candZusatz = second;
+      }
+
+      candidates.push({
+        firma: candFirma,
+        name: candName,
+        zusatz: candZusatz,
+        strasse: streetPart,
+        plz: plzMatch[1],
+        ort: plzMatch[2].trim(),
+        source_type: 'inline'
+      });
+    }
+
+    // Deduplizieren nach PLZ und bereinigter Straße
     /** @type {AddressCandidate[]} */
     const unique = [];
     const seen = new Set();
     for (const c of candidates) {
-      const key = `${c.plz}-${c.strasse.toLowerCase().replace(/\s+/g, '')}-${(c.name || '').toLowerCase()}`;
+      const key = `${c.plz}-${c.strasse.toLowerCase().replace(/[\s\-_]/g, '')}`;
       if (!seen.has(key)) {
         seen.add(key);
         unique.push(c);
@@ -246,8 +192,7 @@ export class ClipboardAddressParser {
   }
 
   /**
-   * Applies an address candidate into the DIN 5008 DOM fields.
-   * Suppresses autocomplete popovers to prevent unwanted dropdown overlays.
+   * Überträgt einen Adress-Kandidaten in die DIN-5008-Formularfelder.
    * @param {AddressCandidate} candidate
    * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
@@ -257,10 +202,10 @@ export class ClipboardAddressParser {
     const empfStrasseEl = document.getElementById('empfaenger-strasse');
     const empfOrtEl = document.getElementById('empfaenger-ort');
 
-    // 1. Set Target Lock in Address Intelligence to lock city context
+    // 1. Ziel-Sperre in AddressIntelligence setzen
     AddressIntelligence.targetLock = { plz: candidate.plz, city: candidate.ort };
 
-    // 2. Populate DIN 5008 fields
+    // 2. Felder befüllen und Events triggern
     if (empfFirmaEl) {
       const firmaText = candidate.zusatz ? `${candidate.firma || ''}\n${candidate.zusatz}`.trim() : (candidate.firma || '');
       empfFirmaEl.textContent = firmaText;
@@ -286,14 +231,14 @@ export class ClipboardAddressParser {
       empfOrtEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    // 3. Proactively hide any autocomplete popovers so they don't overlay the letter
+    // 3. Autocomplete-Dropdowns schließen
     try {
       const plzPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (document.getElementById('plz-suggestions-popover'));
       if (plzPopover?.hidePopover) plzPopover.hidePopover();
       const addrPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (document.getElementById('anschrift-vorschlaege'));
       if (addrPopover?.hidePopover) addrPopover.hidePopover();
-    } catch (e) {
-      // Ignored
+    } catch {
+      // Ignoriert
     }
 
     if (onSaveDraft) {
@@ -307,7 +252,7 @@ export class ClipboardAddressParser {
   }
 
   /**
-   * Wires the explicit Sidebar button and interactive candidate popover.
+   * Verdrahtet den Sidebar-Button und das Auswahllisten-Popover.
    * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
   static wireSidebarButton({ onToast = null, onSaveDraft = null } = {}) {
@@ -336,15 +281,14 @@ export class ClipboardAddressParser {
         }
 
         if (candidates.length === 1) {
-          // Exactly 1 address -> 1-Click instant apply
           this.applyCandidate(candidates[0], { onToast, onSaveDraft });
           return;
         }
 
-        // Multiple addresses detected -> Present clean selection popover (no "Murks"!)
+        // Mehrere Adressen gefunden: Popover zur Auswahl öffnen
         if (popover) {
           popover.replaceChildren();
-          
+
           const header = document.createElement('li');
           header.className = 'autocomplete-header';
           header.textContent = `📋 ${candidates.length} Adressen gefunden:`;
@@ -359,7 +303,7 @@ export class ClipboardAddressParser {
             const compSpan = document.createElement('strong');
             const mainLabel = cand.firma || cand.name || 'Empfänger';
             compSpan.textContent = `${idx + 1}. ${mainLabel}`;
-            
+
             const addrSpan = document.createElement('span');
             addrSpan.className = 'autocomplete-sub';
             addrSpan.textContent = ` • ${cand.strasse}, ${cand.plz} ${cand.ort}`;
@@ -370,8 +314,9 @@ export class ClipboardAddressParser {
             const selectCandidate = () => {
               this.applyCandidate(cand, { onToast, onSaveDraft });
               try {
+                // @ts-ignore
                 popover.hidePopover();
-              } catch (e) {
+              } catch {
                 popover.classList.remove('active');
               }
             };
@@ -388,12 +333,12 @@ export class ClipboardAddressParser {
           });
 
           try {
+            // @ts-ignore
             popover.showPopover();
-          } catch (e) {
+          } catch {
             popover.classList.add('active');
           }
         } else {
-          // Fallback: Apply top-ranked candidate
           this.applyCandidate(candidates[0], { onToast, onSaveDraft });
         }
       } catch (err) {

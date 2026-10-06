@@ -1908,7 +1908,7 @@ Diese doppelte Buchführung führte über Monate zu künstlichen Schutzklauseln 
    - Unmittelbare Vorzeile als Straße / Hausnummer (`STREET_REGEX` oder `HAS_NUM_REGEX` oder `Postfach`).
    - Maximal 1–2 Zeilen unmittelbar davor als Empfänger (Firma mit Rechtsform via `CORP_REGEX`, Person via `PERSON_PREFIX_REGEX` oder Standard-Empfänger).
    - Saubere Stop-Kriterien (`METADATA_LINE_REGEX`, Vorläufer-PLZ) verhindern das Durchrutschen in Metadaten oder Vorläuferblöcke.
-2. **Kandidaten-Popover statt Heuristik-Wettkampf:** Bei mehreren Adressblöcken (z. B. Hauptsitz + Niederlassung) wird kein spekulatives Dezimal-Scoring berechnet, sondern die Fundstellen werden sauber im nativen Popover `#clipboard-candidates-popover` zur Nutzer-Auswahl gerendert.
+2. **Kandidaten-Popover statt Heuristik-Wettkampf:** Bei mehreren Adressblöcken (z. B. Hauptsitz + Niederlassung) wird kein spekulatives Dezimal-Scoring berechnet, sondern die Fundstellen werden sauber im nativen Popover `#clipboard-candidates-popover` zur Nutzer-Auswahl gerendert. Es erfolgt bei Mehrfachtreffern niemals ein automatischer Fallback auf den ersten Treffer — der Nutzer muss stets bewusst wählen.
 3. **Regex-Spirale gestoppt:** 40+ `EXCLUDED_PREFIXES` und die 8-Zeilen-Rückwärtssuchschleife wurden ersatzlos entfernt (-155 Zeilen Netto-Code).
 
 **Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Unit-Tests für Firmenanschriften, private Personen, Impressums-Auszüge, Inline-Adressen und Mehrfach-Standorte erfolgreich.

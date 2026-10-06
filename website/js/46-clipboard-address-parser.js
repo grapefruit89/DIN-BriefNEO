@@ -339,7 +339,8 @@ export class ClipboardAddressParser {
             popover.classList.add('active');
           }
         } else {
-          this.applyCandidate(candidates[0], { onToast, onSaveDraft });
+          // Niemals bei mehreren Treffern automatisch den ersten Kandidaten übernehmen
+          if (onToast) onToast(`⚠️ ${candidates.length} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`, 'warning');
         }
       } catch (err) {
         console.warn('[Clipboard] Lesefehler:', err);

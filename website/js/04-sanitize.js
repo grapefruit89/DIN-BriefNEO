@@ -4,8 +4,7 @@
 
 /**
  * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
- * Wird von 01-draft-manager (Draft-Restore) und 31-format-toolbar (Paste/Drop)
- * genutzt — bewusst ein Modul statt zwei Kopien (Audit 2026-09-10).
+ * Wird von 01-draft-manager (Draft-Restore) genutzt.
  * setHTML() mit eigener Allowlist verwirft in Chrome 151 alle Attribute
  * (inkl. class für brief-kommentar) — daher bewusst nicht als Sanitizer genutzt.
  * Extra-Tags (z. B. UL/LI für anlagen-text, Grok-Re-Review M2) ergänzen die

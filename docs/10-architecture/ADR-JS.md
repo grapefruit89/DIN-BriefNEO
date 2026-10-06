@@ -19,7 +19,7 @@ code_links:
   - website/js/01-draft-manager.js
   - website/js/02-settings-manager.js
   - website/js/03-ui-protections.js
-  - website/js/31-format-toolbar.js
+  - website/js/04-sanitize.js
   - website/js/32-toast.js
   - website/js/41-salutation-engine.js
   - website/js/42-signature.js
@@ -100,11 +100,9 @@ Das Projekt verfügt über exakt **14 aktive JavaScript-Module** unter `website/
 * `protectAnlagenList()`: Verhindert die Löschung des letzten Listenelements in `#anlagen-text`.
 * `ensureListStructure(anlagen)`: Stellt sicher, dass `#anlagen-text` stets ein valides `<ul><li>`-Gerüst behält.
 
-### 4. `31-format-toolbar.js` (Textformatierung & Sanitization)
-* `constructor(brieftextEl, toolbarEl, onSaveDraft)`: Bindet Toolbar an den Fließtext.
-* `init()`: Registriert Command-Buttons für Fett, Kursiv, Unterstrichen, Zitat und Kommentar.
-* `sanitizeNode(node)`: Bereinigt eingefügte HTML-Knoten von unerlaubten Inline-Styles und Attributen.
-* `toggleFormat(tagName)`: Schaltet Inline-Formatierungen über Range-Splitting um.
+### 4. `04-sanitize.js` (Rich-Text-Sanitizer & Allowlist-Guard)
+* `sanitizeRichText(htmlString, options)`: Bereinigt HTML-Strings für den Brieftext (`#text`) und Anlagen (`#anlagen-text`) vor dem Restore über eine strikte Allowlist (`B`, `STRONG`, `U`, `S`, `BLOCKQUOTE`, `BR`, `DIV`, `P` und optional `UL`/`LI`). Verhindert XSS und unerlaubte Attribute/Tags.
+*(Hinweis: Die frühere Floating-Toolbar `31-format-toolbar.js` wurde zugunsten des robusteren **Rich-Text-Light**-Ansatzes eliminiert: Fett/Unterstrichen erfolgen browser-nativ via Chromium Core, Blockquote via `Ctrl+Q` in `03-ui-protections.js`, und Paste filtert fremdes Styling bei Erhalt aller Zeilenumbrüche).*
 
 ### 5. `32-toast.js` (Native Popover Top-Layer Queue)
 * `constructor()`: Initialisiert schlanke FIFO-Queue mit Deduplizierung und State.
@@ -210,8 +208,8 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | Catalog A55, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |
 | **`32-toast.js`** | `onPointerDown`, `onPointerMove`, `onPointerUp`, `setPointerCapture`, `swipe.startX`, `--swipe-x`, `z-index: 9999` | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover="manual"`) im Top-Layer, CSS `@starting-style` und `transition-behavior: allow-discrete`. |
 | **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 72 KB Offline Brotli PLZ & Großempfänger Engine (`45-address-intelligence.js`). 100% DSGVO-konform, 0ms Latenz. |
-| **`02-settings-manager.js`** | Radio-Segmented-Controls für Hilfslinien (`btn-hilfslinien-on`, `btn-hilfslinien-off`) | ⚠️ **DEPRECATED** | Catalog A57, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">`. Direkte CSS `:has()` Auswertung ohne JS-Synchronisation. |
-| **Global** | `document.execCommand('bold'|'italic'|...)` | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API in `31-format-toolbar.js` sowie native Command Invokers. |
+| **`31-format-toolbar.js`** | Floating Toolbar Popover, Selection-Anchor, manuelle Format-Buttons | 🚫 **ELIMINATED** | Rich-Text-Light Doktrin | Nativer Browser-Support (Ctrl+B/Ctrl+U), Plaintext-Paste & Ctrl+Q in `03-ui-protections.js`. |
+| **Global** | `document.execCommand('bold'|'italic'|...)` | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API sowie native Browser-Shortcuts (`Ctrl+B`, `Ctrl+U`) und Rich-Text-Light. |
 | **Global** | `new Date()`, `Date.now()`, `Date.parse()` | 🚫 **HARD BAN** | Catalog TM1, A48 | Temporal API (`Temporal.Now.plainDateISO()`) und standardkonformes DIN-Formatting. |
 
 ---

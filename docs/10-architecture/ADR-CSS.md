@@ -271,7 +271,7 @@ Folgende CSS-Praktiken und Alt-Techniken sind im Projekt **strikt verboten (HARD
 | **`calc()` Font-Leading Hacks** | Negative Ränder zur Ausgleichung von Schrift-Freiräumen | 🚫 **HARD BAN** | Catalog A49 | Native CSS Half-Leading-Neutralisierung (`text-box-trim: both`, `text-box-edge: cap alphabetic`). |
 | **CSS-Frameworks & Utility-Klassen** | Kein Tailwind, kein Bootstrap, kein Bulma | 🚫 **HARD BAN** | Catalog A45, Longevity Guidelines | 100% Handcrafted Vanilla CSS mit `@layer`, `@scope`, Container Queries und Semantic Tokens. |
 | **`page-break-before: always;`** | Seitenumbruch-Erzwingung auf Container-Ebene | 🚫 **HARD BAN** | Catalog A46 | Erzeugt zwingend leere Seiten im Chromium-Druck-Manager. Strikte Nutzung von `page-break-after: avoid;` auf `<din-a4>`. |
-| **Inline-Styles auf Textknoten** | `style="color: red; font-size: 14px"` aus Pastes | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API Sanitizer (`31-format-toolbar.js`) bereinigt alle fremden Inline-Styles. |
+| **Inline-Styles auf Textknoten** | `style="color: red; font-size: 14px"` aus Pastes | 🚫 **HARD BAN** | Catalog A48, A52 | Plaintext-Paste-Filter (`03-ui-protections.js`) und Rich-Text-Sanitizer (`04-sanitize.js`) bereinigen alle fremden Inline-Styles. |
 
 ---
 

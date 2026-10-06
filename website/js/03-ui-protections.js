@@ -46,6 +46,13 @@ export class UIProtections {
       const target = keyboardEvent.target instanceof Element ? keyboardEvent.target.closest('[contenteditable]') : null;
       if (!target || !(target instanceof HTMLElement)) return;
 
+      // Rich-Text-Light: Blockquote-Shortcut (Ctrl+Q / Cmd+Q) für Text
+      if (target.id === 'text' && (keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
+        keyboardEvent.preventDefault();
+        this.#toggleBlockquote(target);
+        return;
+      }
+
       if (keyboardEvent.key === 'Enter') {
         if (target.dataset.feldtyp?.includes('mehrzeilig')) {
           return;
@@ -66,11 +73,41 @@ export class UIProtections {
       const target = clipboardEvent.target instanceof Element ? clipboardEvent.target.closest('[contenteditable]') : null;
       if (!target || !(target instanceof HTMLElement)) return;
 
-      if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
-      
       const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
       let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
       if (!pastedText) return;
+
+      // Rich-Text-Light: Plaintext-Paste im Text erhält Zeilenumbrüche, streift aber fremdes HTML/CSS ab
+      if (target.id === 'text') {
+        clipboardEvent.preventDefault();
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return;
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+
+        const lines = pastedText.split(/\r?\n/);
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < lines.length; i++) {
+          if (i > 0) {
+            fragment.appendChild(document.createElement('br'));
+          }
+          if (lines[i]) {
+            fragment.appendChild(document.createTextNode(lines[i]));
+          }
+        }
+        const lastChild = fragment.lastChild;
+        range.insertNode(fragment);
+        if (lastChild) {
+          range.setStartAfter(lastChild);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+
+      if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
 
       clipboardEvent.preventDefault();
       const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
@@ -159,5 +196,54 @@ export class UIProtections {
         selection.addRange(range);
       }
     }
+  }
+
+  /**
+   * Rich-Text-Light: Schaltet Zitat (<blockquote>) im Text per W3C Range API um.
+   * @param {HTMLElement} textEl
+   */
+  #toggleBlockquote(textEl) {
+    const selection = window.getSelection();
+    if (!selection || !selection.anchorNode || !textEl.contains(selection.anchorNode)) return;
+
+    const elem = selection.anchorNode instanceof Element ? selection.anchorNode : selection.anchorNode.parentElement;
+    const bq = elem ? elem.closest('blockquote') : null;
+
+    if (bq && textEl.contains(bq)) {
+      const parent = bq.parentNode;
+      if (parent) {
+        const fragment = document.createDocumentFragment();
+        while (bq.firstChild) {
+          fragment.appendChild(bq.firstChild);
+        }
+        parent.replaceChild(fragment, bq);
+      }
+    } else {
+      if (selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      const newBq = document.createElement('blockquote');
+
+      if (!selection.isCollapsed) {
+        try {
+          newBq.appendChild(range.extractContents());
+          range.insertNode(newBq);
+          selection.selectAllChildren(newBq);
+        } catch (err) {
+          console.warn('[RichTextLight] Blockquote wrap failed:', err);
+        }
+      } else {
+        const br = document.createElement('br');
+        newBq.appendChild(br);
+        range.insertNode(newBq);
+        const newRange = document.createRange();
+        newRange.setStart(newBq, 0);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    }
+
+    textEl.normalize();
+    textEl.dispatchEvent(new Event('input', { bubbles: true }));
   }
 }

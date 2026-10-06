@@ -11,7 +11,6 @@ import { initAddressServices } from './43-geoapify.js';
 import { showToast, initToastSystem } from './32-toast.js';
 import { initSenderSync, AddressIntelligence } from './45-address-intelligence.js';
 import { DraftManager } from './01-draft-manager.js';
-import { FormatToolbar } from './31-format-toolbar.js';
 import { SettingsManager } from './02-settings-manager.js';
 import { UIProtections } from './03-ui-protections.js';
 
@@ -66,17 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsManager.init();
 
     attachGlobalListeners(draftManager, uiProtections);
-
-    const textEl = document.getElementById('text');
-    const formatToolbarEl = document.getElementById('format-toolbar');
-    if (textEl && formatToolbarEl) {
-      const formatToolbarInstance = new FormatToolbar(
-        textEl,
-        formatToolbarEl,
-        () => draftManager.saveDraft()
-      );
-      formatToolbarInstance.init();
-    }
 
     initToastSystem();
     initSenderSync();

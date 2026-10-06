@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-10-02'
+updated: '2026-10-06'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -1811,3 +1811,20 @@ schneller, als eine fehlende Sonde es je koennte.
 **Generalisierbarkeit (llm_boilerplate):**
 - Eine Deklaration ohne Inhalt ist schlimmer als keine Deklaration. Sie suggeriert eine Struktur, die nicht existiert.
 - Option B (Wrapper in 6 CSS-Dateien) wäre sauberer, aber ohne konkreten Schmerz — die Kaskade funktioniert wie sie soll.
+
+## 2026-10-06 — SalutationEngine: Vornamen-Index zugunsten von Robustheit & Autarkie entfernt
+
+**Kontext:** Die bisherige SalutationEngine nutzte eine asynchron geladene Gzip-Vornamendatenbank (`data/de_vornamen_gender.json.gz`), um bei bloßer Eingabe von Vor- und Nachnamen (ohne "Herr"/"Frau") das Geschlecht zu erraten. Dies führte zu asynchronen Latenzen/Race-Conditions beim schnellen Tippen, potentiellen Fehlzuordnungen bei androgynen oder unbekannten Namen sowie einem fehleranfälligen Dirty-State-Management, das manuelle Eingaben bei Stilwechseln mit `force: true` überschrieb.
+
+**Entscheidung:**
+1. **Entfernung der Vornamen-Erkennung:** Das Geschlecht wird ausschließlich aus expliziten Präfixen ("Herr", "Herrn", "Frau") abgeleitet. Ohne Präfix wird neutral formuliert ("Sehr geehrte Damen und Herren," bzw. "Guten Tag," / "Hallo,") — lieber neutral als falsch geraten.
+2. **100 % Autark & Synchron:** Kein Netzwerk-Fetch, kein Gzip-Decompressions-Stream mehr für die Anrede. `SalutationEngine.derive()` ist eine reine, seiteneffektfreie Funktion (`pure function`) ohne I/O.
+3. **Verbessertes Name-Parsing:** Unterstützung für das Format "Nachname, Vorname" (wird zu "Vorname Nachname" invertiert), generisches Filtern von Titeln/Initialen (`!t.endsWith('.')`) und erweiterte Adels-/Herkunftspartikel (`PARTICLES`).
+4. **Zuletzt-synchronisiert-State:** Manuelle Benutzereingaben in Anrede und Grußformel werden niemals mehr überschrieben, auch nicht beim Umschalten der Formalität.
+
+**Verifikation:** Fitness Gate 100 %. Node Syntax-Check fehlerfrei.
+
+**Generalisierbarkeit (llm_boilerplate):**
+- Autarke deterministische Heuristiken schlagen spekulative Wörterbuch-Lookups, wenn Fehlerraten bei Personennamen Peinlichkeiten verursachen können.
+- "Zuletzt generiert" als Synchronisationsanker schützt Benutzereingaben zuverlässiger als globale Dirty-Flags.
+

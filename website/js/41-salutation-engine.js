@@ -1,347 +1,228 @@
 // @ts-check
 // @adr [[ADR-JS]] {SalutationEngine}
-// 80/20 Pure B2B Salutation & Closing Engine for DIN-Brief Neo
-// Focus: Clean B2B correspondence without exotic edge-case bloat.
-// Principles:
-// 1. 80/20 Rule: 3 crisp styles (Förmlich, Höflich, Locker) with matched salutation + closing pairs.
-// 2. No Bloat: No "Hochachtungsvoll" or exotic edge cases.
-// 3. ContentEditable-First: Any manual user edit locks the field (dirty flag).
-// 4. In-flight Guard: Typing "herr " or "frau " never corrupts into "Hallo herr,".
-// 5. Offline Zero-Click: 951 Vornamen aus data/de_vornamen_gender.json.gz (gzip) erkennen das Geschlecht ohne Präfix.
+// Anrede & Grußformel — bewusst klein (80/20), dafür verlässlich.
+//
+// Regeln:
+//  1. Das Geschlecht kommt NUR aus einem expliziten "Herr/Herrn/Frau" im
+//     Namensfeld. Ohne Präfix wird neutral angesprochen — lieber neutral als
+//     falsch geraten. Keine Namensliste, kein Datei-Laden.
+//  2. Auto-Text wird nur geschrieben, solange das Feld leer ist oder noch genau
+//     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
+//  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
 import { StorageManager, Constants } from './51-storage.js';
 import { showToast } from './32-toast.js';
-import { fetchGzipJson } from './05-gzip.js';
+
+const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
+
+const CLOSINGS = Object.freeze({
+  formal: 'Mit freundlichen Grüßen',
+  polite: 'Freundliche Grüße',
+  casual: 'Beste Grüße'
+});
+
+const FALLBACK = Object.freeze({
+  formal: 'Sehr geehrte Damen und Herren,',
+  polite: 'Guten Tag,',
+  casual: 'Hallo,'
+});
+
+/** Namenszusätze, die zum Nachnamen gehören ("von", "van der", ...). */
+const PARTICLES = new Set(['von', 'vom', 'zu', 'zur', 'zum', 'van', 'der', 'den', 'de', 'ten', 'ter', 'la', 'le', 'du', 'di']);
 
 /**
- * Offline-Gender-Index aus data/de_vornamen_gender.json.gz (2,6 KB gzip,
- * geladen wie in 45-address-intelligence via DecompressionStream).
- * Bis zum Load liefert Zero-Click-Detection die neutrale Anrede.
- * @type {{ male: Set<string>, female: Set<string>, ready: Promise<void> | null }}
- */
-const NAME_INDEX = { male: new Set(), female: new Set(), ready: null };
-
-/**
- * Lädt das Vornamen-Wörterbuch einmalig beim Init.
- * @returns {Promise<void>}
- */
-function ensureNameIndex() {
-  if (NAME_INDEX.ready) return NAME_INDEX.ready;
-  NAME_INDEX.ready = (async () => {
-    /* Gemeinsame gzip-Pipeline (05-gzip.js). Liefert bei jedem Fehler null
-     * -> Sets bleiben leer -> neutrale Anrede (sanfte Degradation). */
-    const json = await fetchGzipJson('data/de_vornamen_gender.json.gz');
-    if (!json) return;
-    for (const name of json.m || []) NAME_INDEX.male.add(String(name).toLowerCase());
-    for (const name of json.f || []) NAME_INDEX.female.add(String(name).toLowerCase());
-  })();
-  return NAME_INDEX.ready;
-}
-
-/**
- * @param {string} [f]
+ * @param {string | undefined} f
  * @returns {'formal' | 'polite' | 'casual'}
  */
-function normalizeFormality(f) {
-  /** @type {Record<string, 'formal' | 'polite' | 'casual'>} */
-  const map = {
-    formal: "formal", förmlich: "formal", foermlich: "formal",
-    polite: "polite", höflich: "polite", hoeflich: "polite",
-    casual: "casual", modern: "casual", locker: "casual",
-  };
-  return map[(f || "").toLowerCase()] || "formal";
+function toStyle(f) {
+  return /** @type {any} */ (STYLES).includes(f) ? /** @type {any} */ (f) : 'formal';
 }
 
-/* @adr [[ADR-JS]] {SalutationEngine} */
 export const SalutationEngine = {
-  /**
-   * The 3 matched 80/20 B2B Closings.
-   */
-  CLOSINGS: Object.freeze({
-    formal: "Mit freundlichen Grüßen",
-    polite: "Freundliche Grüße",
-    casual: "Beste Grüße"
-  }),
+  CLOSINGS,
 
   /**
-   * Pure 80/20 B2B Salutation Derivation.
-   * Produces crisp, standard German greetings without title acrobatics.
-   * @param {{ rawName?: string, rawCompany?: string, formality?: string }} [opts]
+   * Leitet die Anrede aus dem Namensfeld ab.
+   * Unterstützt: "Herr/Frau Nachname", "Herrn Vorname Nachname", Titel
+   * (alles mit Punkt am Ende wird ignoriert: Dr., Prof., Dipl.-Ing., Initialen),
+   * Namenszusätze (von, van der, ...) und "Nachname, Vorname".
+   * @param {{ rawName?: string, formality?: string }} [opts]
+   * @returns {string}
    */
-  derive({ rawName = "", rawCompany = "", formality = "formal" } = {}) {
-    const style = normalizeFormality(formality);
-    const text = (rawName || "").trim();
-    const company = (rawCompany || "").trim();
+  derive({ rawName = '', formality = 'formal' } = {}) {
+    const style = toStyle(formality);
+    let text = (rawName || '').trim();
 
-    // 1. Company or empty input -> Standard formal fallback
-    if (!text || (company && !text)) {
-      return this.getFallback(style);
+    // 1. Explizites Herr/Frau (einziger Geschlechts-Hinweis)
+    /** @type {'m' | 'f' | null} */
+    let gender = null;
+    const prefix = text.match(/^(herrn?|frau)(?=\s|$)/i);
+    if (prefix) {
+      gender = prefix[1].toLowerCase() === 'frau' ? 'f' : 'm';
+      text = text.slice(prefix[0].length).trim();
     }
 
-    // 2. Explicit prefix check ("Herr", "Herrn", "Frau")
-    let gender = "none";
-    let nameWithoutPrefix = text;
-    const prefixMatch = text.match(/^(herrn?|frau)\b\s*/i);
-    if (prefixMatch) {
-      gender = prefixMatch[1].toLowerCase().startsWith("herr") ? "male" : "female";
-      nameWithoutPrefix = text.slice(prefixMatch[0].length).trim();
+    // 2. "Müller, Hans" -> "Hans Müller"
+    const comma = text.indexOf(',');
+    if (comma > 0) text = `${text.slice(comma + 1)} ${text.slice(0, comma)}`;
 
-      // In-flight guard: User only typed "herr " or "frau " so far
-      if (!nameWithoutPrefix) {
-        if (style === "casual") return "Hallo,";
-        if (style === "polite") return gender === "female" ? "Guten Tag Frau," : "Guten Tag Herr,";
-        return gender === "female" ? "Sehr geehrte Frau," : "Sehr geehrter Herr,";
-      }
+    // 3. Titel und Initialen (alles mit Punkt am Ende) entfernen
+    const tokens = text.split(/\s+/).filter((t) => t && !t.endsWith('.'));
+    if (tokens.length === 0) return FALLBACK[style]; // leer oder nur "Herr " getippt
+
+    // 4. Nachname inkl. Zusätze, Vorname = erstes Wort
+    let i = tokens.length - 1;
+    while (i > 0 && PARTICLES.has(tokens[i - 1].toLowerCase())) i--;
+    const lastName = tokens.slice(i).join(' ');
+    const firstName = i > 0 ? tokens[0] : '';
+
+    // 5. Ausgabe
+    if (style === 'casual') {
+      if (firstName) return `Hallo ${firstName},`;
+      if (gender) return `Hallo ${gender === 'f' ? 'Frau' : 'Herr'} ${lastName},`;
+      return FALLBACK.casual;
     }
+    if (!gender) return FALLBACK[style]; // ohne Herr/Frau: neutral
 
-    // 3. Strip optional titles cleanly (80/20 standard: keine Titelakrobatik)
-    const cleanName = nameWithoutPrefix.replace(/(?:^|\s)(Prof\.\s*Dr\.|Prof\.|Dr\.|Dipl\.-Ing\.|Mag\.)(?:\s+|$)/gi, ' ').trim();
-
-    // 4. Split Name with noble particle support (von, zu, van, de, etc.)
-    const parts = cleanName.split(/\s+/).filter(Boolean);
-    let lastName = "";
-    let firstName = "";
-
-    if (parts.length <= 1) {
-      lastName = parts[0] || "";
-    } else {
-      const nobleParticles = new Set(["von", "zu", "van", "de", "der", "den", "vom", "zur", "und"]);
-      const nameTokens = [...parts];
-      const lastToken = nameTokens.pop() || "";
-      const particleTokens = [];
-
-      while (nameTokens.length > 0 && nobleParticles.has(nameTokens[nameTokens.length - 1].toLowerCase())) {
-        particleTokens.unshift(nameTokens.pop());
-      }
-
-      lastName = particleTokens.length > 0 ? `${particleTokens.join(" ")} ${lastToken}` : lastToken;
-      firstName = nameTokens.join(" ");
-    }
-
-    // 5. Zero-Click Gender Detection (data/de_vornamen_gender.json.gz)
-    if (gender === "none") {
-      const checkWord = (firstName || lastName).toLowerCase().split(/[\s-]+/)[0];
-      if (NAME_INDEX.male.has(checkWord)) gender = "male";
-      else if (NAME_INDEX.female.has(checkWord)) gender = "female";
-    }
-
-    // 6. Matched Output Pairs (80/20 B2B)
-    if (style === "formal") {
-      if (gender === "female") return `Sehr geehrte Frau ${lastName},`;
-      if (gender === "male") return `Sehr geehrter Herr ${lastName},`;
-      return "Sehr geehrte Damen und Herren,";
-    }
-
-    if (style === "polite") {
-      if (gender === "female") return `Guten Tag Frau ${lastName},`;
-      if (gender === "male") return `Guten Tag Herr ${lastName},`;
-      return "Guten Tag,";
-    }
-
-    // Casual / Locker
-    if (firstName) return `Hallo ${firstName},`;
-    if (lastName) return `Hallo ${lastName},`;
-    return "Hallo,";
+    if (style === 'polite') return `Guten Tag ${gender === 'f' ? 'Frau' : 'Herr'} ${lastName},`;
+    return gender === 'f' ? `Sehr geehrte Frau ${lastName},` : `Sehr geehrter Herr ${lastName},`;
   },
 
-  getClosing(formality = "formal") {
-    const style = normalizeFormality(formality);
-    return this.CLOSINGS[style] || this.CLOSINGS.formal;
+  /** @param {string} [formality] */
+  getClosing(formality = 'formal') {
+    return CLOSINGS[toStyle(formality)];
   },
 
-  getFallback(formality = "formal") {
-    const style = normalizeFormality(formality);
-    if (style === "casual") return "Hallo,";
-    if (style === "polite") return "Guten Tag,";
-    return "Sehr geehrte Damen und Herren,";
+  /** @param {string} [formality] */
+  getFallback(formality = 'formal') {
+    return FALLBACK[toStyle(formality)];
   }
 };
 
 /* @adr [[ADR-JS]] {SalutationFeature} */
 export class SalutationFeature {
-  /** @type {{save: () => void} | null} */
-  #settingsContext = null;
+  /** @type {{ settings: any, save: () => void } | null} */
+  #ctx;
+  /** Zuletzt automatisch geschriebener Text je Feld (Key = Element-ID). */
+  #auto = { anrede: '', grussformel: '' };
 
   /**
-   * 🚨 ARCHITECTURAL GUARD (ein Settings-Owner):
-   * `settingsContext` ist das GETEILTE Settings-Objekt des SettingsManager
-   * (gleiches Muster wie SignatureFeature). Vorher lud diese Klasse per
-   * `StorageManager.loadSettings()` eine EIGENE Kopie und schrieb sie an
-   * sechs Stellen vollständig zurück — jede Theme-/Layout-/Hilfslinien-
-   * Änderung, die der SettingsManager nach dem Laden vornahm, wurde beim
-   * nächsten Anrede-Wechsel mit dem veralteten Snapshot überschrieben
-   * (Last-Write-Wins auf stale Daten).
-   * NIEMALS hier wieder `loadSettings()` aufrufen oder ein zweites
-   * Settings-Objekt anlegen.
+   * `settingsContext` ist das geteilte Settings-Objekt des SettingsManager
+   * (ein Settings-Owner, kein eigener Snapshot per loadSettings()).
    * @param {(() => void) | null} saveDraftDataCallback
    * @param {{ settings: any, save: () => void } | null} [settingsContext]
    */
   constructor(saveDraftDataCallback, settingsContext = null) {
     this.saveDraftData = saveDraftDataCallback;
-    /** @type {{ settings: any, save: () => void } | null} */
-    this.#settingsContext = settingsContext;
+    this.#ctx = settingsContext;
     this.settings = settingsContext ? settingsContext.settings : StorageManager.loadSettings();
-    if (!this.settings.formality) this.settings.formality = 'formal';
-  }
-
-  /**
-   * Persistiert über den gemeinsamen Owner, damit kein Fremdfeld verliert.
-   * @returns {void}
-   */
-  #saveSettings() {
-    if (this.#settingsContext) this.#settingsContext.save();
-    else StorageManager.saveSettings(this.settings);
+    this.settings.formality = toStyle(this.settings.formality);
   }
 
   init() {
-    this.isReady = false;
-    ensureNameIndex();
-    this.#wireFormality();
-    this.#wireRecipientName();
-    this.#wireManualEdits();
-    this.#applyUIState();
-    this.#regenerateSalutation({ onlyIfEmpty: true });
-    this.#regenerateClosing({ onlyIfEmpty: true });
-    this.isReady = true;
-  }
+    const checked = /** @type {HTMLInputElement | null} */ (document.getElementById(`btn-style-${this.settings.formality}`));
+    if (checked) checked.checked = true;
 
-  #applyUIState() {
-    const formalBtn = document.getElementById(`btn-style-${this.settings.formality}`);
-    if (formalBtn) /** @type {HTMLInputElement} */ (formalBtn).checked = true;
-  }
+    this.#seedAuto();
 
-  #wireFormality() {
-    const apply = (/** @type {'formal' | 'polite' | 'casual'} */ style) => {
-      if (!this.isReady) return;
-      this.settings.formality = style;
-      this.#saveSettings();
-      this.#regenerateSalutation({ force: true });
-      this.#regenerateClosing({ force: true });
-    };
-    (/** @type {('formal' | 'polite' | 'casual')[]} */ (['formal', 'polite', 'casual'])).forEach(style => {
-      const btn = document.getElementById(`btn-style-${style}`);
-      if (btn) btn.addEventListener('change', () => apply(style));
+    for (const style of STYLES) {
+      document.getElementById(`btn-style-${style}`)?.addEventListener('change', () => this.#setStyle(style));
+    }
+    document.getElementById('empfaenger-namenszeile')?.addEventListener('input', () => this.#update('anrede'));
+
+    for (const kind of /** @type {const} */ (['anrede', 'grussformel'])) {
+      const el = document.getElementById(kind);
+      if (!el) continue;
+      // Tippt der Nutzer etwas Eigenes, ist es kein Auto-Text mehr (Optik: [data-generated]).
+      el.addEventListener('input', () => {
+        if ((el.textContent || '').trim() !== this.#auto[kind]) delete el.dataset.generated;
+      });
+      el.addEventListener('blur', () => this.#hint(kind, el));
+    }
+
+    // Nach "Brief zurücksetzen" (main.js leert vorher die Felder) wieder befüllen.
+    const resetDialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('reset-dialog'));
+    resetDialog?.addEventListener('close', () => {
+      if (resetDialog.returnValue === 'confirm') this.refresh();
     });
+
+    this.refresh();
   }
 
-  #wireRecipientName() {
-    const fields = ['empfaenger-namenszeile', 'empfaenger-firma'];
-    fields.forEach(tag => {
-      const el = document.getElementById(tag);
-      if (el) el.addEventListener('input', () => this.#regenerateSalutation());
-    });
+  /** Leere Felder mit Auto-Text füllen; Eigenes bleibt stehen. */
+  refresh() {
+    this.#update('anrede', true);
+    this.#update('grussformel', true);
+  }
+
+  /** @param {'formal' | 'polite' | 'casual'} style */
+  #setStyle(style) {
+    this.settings.formality = style;
+    if (this.#ctx) this.#ctx.save();
+    else StorageManager.saveSettings(this.settings);
+    this.#update('anrede');
+    this.#update('grussformel');
   }
 
   /**
-   * ContentEditable-First: Locks fields when edited, auto-resets when cleared.
+   * Nach einem Reload steht der alte Auto-Text schon im Feld. Entspricht er
+   * dem, was die Engine erzeugen würde, bleibt er "automatisch".
    */
-  #wireManualEdits() {
-    const anrede = document.getElementById('anrede');
-    const gruss = document.getElementById('grussformel');
-
-    if (anrede) {
-      anrede.addEventListener('input', () => {
-        const text = (anrede.textContent || "").trim();
-        if (!text) {
-          // AUTO-RESET: User cleared field -> Re-enable auto-generation
-          delete anrede.dataset.dirty;
-          this.settings.salutationDirty = false;
-          this.#saveSettings();
-          this.#regenerateSalutation({ force: true });
-        } else {
-          // USER LOCK: Manual edit is sacred -> Hands off!
-          anrede.dataset.dirty = "true";
-          delete anrede.dataset.generated;
-          this.settings.salutationDirty = true;
-          this.#saveSettings();
-        }
-      });
-      anrede.addEventListener('blur', () => this.#validatePunctuation(anrede, 'anrede'));
+  #seedAuto() {
+    const name = this.#nameText();
+    const anrede = (document.getElementById('anrede')?.textContent || '').trim();
+    if (anrede && STYLES.some((s) => SalutationEngine.derive({ rawName: name, formality: s }) === anrede)) {
+      this.#auto.anrede = anrede;
     }
-
-    if (gruss) {
-      gruss.addEventListener('input', () => {
-        const text = (gruss.textContent || "").trim();
-        if (!text) {
-          delete gruss.dataset.dirty;
-          this.settings.closingDirty = false;
-          this.#saveSettings();
-          this.#regenerateClosing({ force: true });
-        } else {
-          gruss.dataset.dirty = "true";
-          delete gruss.dataset.generated;
-          this.settings.closingDirty = true;
-          this.#saveSettings();
-        }
-      });
-      gruss.addEventListener('blur', () => this.#validatePunctuation(gruss, 'grussformel'));
+    const gruss = (document.getElementById('grussformel')?.textContent || '').trim();
+    if (gruss && /** @type {string[]} */ (Object.values(CLOSINGS)).includes(gruss)) {
+      this.#auto.grussformel = gruss;
     }
   }
 
+  #nameText() {
+    return document.getElementById('empfaenger-namenszeile')?.textContent || '';
+  }
+
   /**
+   * Schreibt den Auto-Text, außer der Nutzer hat das Feld selbst befüllt.
+   * @param {'anrede' | 'grussformel'} kind
+   * @param {boolean} [onlyIfEmpty]
+   */
+  #update(kind, onlyIfEmpty = false) {
+    const el = document.getElementById(kind);
+    if (!el || document.activeElement === el) return;
+
+    const current = (el.textContent || '').trim();
+    if (current && (onlyIfEmpty || current !== this.#auto[kind])) return; // Nutzer-Text
+
+    const style = this.settings.formality;
+    const value = kind === 'anrede'
+      ? SalutationEngine.derive({ rawName: this.#nameText(), formality: style })
+      : SalutationEngine.getClosing(style);
+
+    this.#auto[kind] = value;
+    if (value === current) {
+      el.dataset.generated = 'true';
+      return;
+    }
+    el.textContent = value;
+    el.dataset.generated = 'true';
+    if (this.saveDraftData) this.saveDraftData();
+  }
+
+  /**
+   * DIN-5008-Hinweis nur für selbst getippten Text.
+   * @param {'anrede' | 'grussformel'} kind
    * @param {HTMLElement} el
-   * @param {'anrede'|'grussformel'} kind
    */
-  #validatePunctuation(el, kind) {
-    const dirty = kind === 'anrede' ? this.settings.salutationDirty : this.settings.closingDirty;
-    if (!dirty) return;
-    const text = (el.textContent || "").trim();
-    if (!text) return;
+  #hint(kind, el) {
+    const text = (el.textContent || '').trim();
+    if (!text || text === this.#auto[kind]) return;
     if (kind === 'anrede' && !text.endsWith(',')) {
       showToast(Constants.TOASTS.SALUTATION_PUNCTUATION, 'warning');
     } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
       showToast(Constants.TOASTS.CLOSING_PUNCTUATION, 'warning');
     }
-  }
-
-  #regenerateSalutation({ force = false, onlyIfEmpty = false } = {}) {
-    const el = document.getElementById('anrede');
-    if (!el) return;
-
-    // CONTENTEDITABLE MANDATE: Never overwrite manual user input unless forced
-    if (!force && (this.settings.salutationDirty || el.dataset.dirty === "true")) {
-      return;
-    }
-
-    const current = (el.textContent || "").trim();
-    if (onlyIfEmpty && current) return;
-
-    const rawName = document.getElementById('empfaenger-namenszeile')?.textContent || "";
-    const rawCompany = document.getElementById('empfaenger-firma')?.textContent || "";
-
-    const value = SalutationEngine.derive({
-      rawName,
-      rawCompany,
-      formality: this.settings.formality
-    });
-
-    this.#setField(el, value, { force });
-  }
-
-  #regenerateClosing({ force = false, onlyIfEmpty = false } = {}) {
-    const el = document.getElementById('grussformel');
-    if (!el) return;
-
-    if (!force && (this.settings.closingDirty || el.dataset.dirty === "true")) {
-      return;
-    }
-
-    const current = (el.textContent || "").trim();
-    if (onlyIfEmpty && current) return;
-
-    const value = SalutationEngine.getClosing(this.settings.formality);
-    this.#setField(el, value, { force });
-  }
-
-  /**
-   * @param {HTMLElement} el
-   * @param {string} value
-   * @param {{ force?: boolean }} [opts]
-   */
-  #setField(el, value, opts = {}) {
-    if (!opts.force && document.activeElement === el) return;
-    el.textContent = value;
-    el.dataset.generated = "true";
-    if (this.saveDraftData) this.saveDraftData();
   }
 }

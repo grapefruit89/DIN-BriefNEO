@@ -125,8 +125,6 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#btn-style-casual` (Locker: "Hallo... / Beste Grüße").
 * **Semantischer Hilfslinien-Schalter:**
   * `<input type="checkbox" switch id="btn-hilfslinien-switch" checked>`: Nativer Schalter.
-* **Experimenteller On-Device KI-Assistent (`#sidebar-ai-switch-row`):**
-  * `<input type="checkbox" switch id="toggle-experimental-ai">`: W3C-Standard-Switch für lokales On-Device Rewriting (Chrome Built-in AI / Gemini Nano via `window.ai`).
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
   * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#postvermerk` (`din-postvermerk`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
   * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.

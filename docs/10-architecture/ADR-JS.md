@@ -30,7 +30,6 @@ code_links:
   - website/js/51-storage.js
   - website/js/53-metadata.js
   - website/js/main.js
-  - website/js/addons/ai-assistant.js
 error_patterns:
   - javascript constraints
   - js as a crutch
@@ -187,14 +186,6 @@ Die Datei ist als Single-Responsibility-Modul ("Datum-Stempel") damit am irreduz
 * `syncPostvermerkFromSidebar()`: Synchronisiert Auswahlliste mit dem Postvermerkfeld.
 * `attachGlobalListeners(...)`: Registriert globale Tastenkombinationen (Strg+S, Strg+Z, Strg+Y, Strg+P).
 
-### 15. `addons/ai-assistant.js` (Experimenteller On-Device KI-Assistent via Gemini Nano)
-* `constructor()`: Liest Opt-in-Status aus `localStorage` (`din_addon_ai_enabled`) und initialisiert Element-Referenzen (`#toggle-experimental-ai`, `#btn-ai-rewrite`).
-* `init()`: Asynchroner, 100% crash-proof Bootstrapper. Prüft `window.ai`, `window.ai.rewriter` und `window.ai.writer` auf Verfügbarkeit (`'readily'` / `'after-download'`). Fällt bei Nicht-Unterstützung geräuschlos aus (Silent Degradation).
-* `_checkAvailability()`: Ermittelt den Verfügbarkeitsstatus der lokalen KI-Engine.
-* `_updateUIUnsupported(reason)` / `_updateUISupported(statusText)`: Schaltet den Sidebar-Switch aktiv bzw. disabled mit erklärendem Tooltip.
-* `_attachListeners()`: Reagiert auf den W3C `<input switch>` in der Sidebar und blendet den Format-Toolbar-Button `#btn-ai-rewrite` dynamisch ein/aus.
-* `rewriteSelection()`: Liest Text über die W3C Selection & Range API aus und formuliert ihn lokal via `window.ai.rewriter.create({ tone: 'more-formal', length: 'as-is' })` um. Ersetzt den Inhalt inline via `range.deleteContents()` und `range.insertNode()`, triggert AutoSave.
-
 ---
 
 ## 4. Antipattern- & Deprecation-Registry (Verbotene Alt-Funktionen)
@@ -203,6 +194,8 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 
 | Modul / Komponente | Eliminierte Funktionen / Konstrukte | Status | Verboten durch | Moderner Ersatz (Web Platform 2026) |
 | :--- | :--- | :---: | :--- | :--- |
+| **`addons/ai-assistant.js`** | On-Device Gemini Nano Rewriter, `#toggle-experimental-ai`, `#btn-ai-rewrite` | 🚫 **ELIMINATED** | KISS-Bereinigung toten Codes | Wegfall der Format-Toolbar machte Addon funktionslos; Prototyp archiviert unter `research/roadmap/`. |
+| **`boot-state.js`** | Doppelter Draft-Restore vor `main.js`, DOM-Vorbelegung | 🚫 **ELIMINATED** | KISS SSoT-Doktrin | `DraftManager` in `01-draft-manager.js` ist alleiniger Restore-Owner. |
 | **`48-text-fit.js`** | `constructor`, `init`, `scanDOM`, `isOverflowing`, `attachEventListeners`, `notifyToast`, `restoreCaretToEnd`, `initMutationObserver` | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `overflow: clip`, `text-fit: shrink 60%`, `text-wrap: balance/pretty`. 0 Zeilen JS, 0 ms Layout Thrashing. |
 | **`41-salutation-engine.legacy.js`** | `_wireGender`, Radio-Buttons für Geschlecht, NLP-Regexes für Adelstitel/Paare | 🚫 **HARD BAN** | Catalog A58, Prio 1 | 80/20 Smart Engine (`41-salutation-engine.js`), 951 Offline-Vornamen, ContentEditable Dirty-Flag mit Auto-Reset. |
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | Catalog A55, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |

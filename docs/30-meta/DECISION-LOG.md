@@ -1883,3 +1883,16 @@ Diese doppelte Buchführung führte über Monate zu künstlichen Schutzklauseln 
 3. **Settings- und Formularzustand konsolidiert:** Radio-Buttons, Postvermerk und Schriftstatus werden sauber und zentral über `SettingsManager.init()` bzw. `syncPostvermerkFromSidebar()` initialisiert.
 
 **Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Alle Links (`tools/links.js`) und Gesetzes-Prüfungen (`tools/structural-laws.js`) bestanden.
+
+## 2026-10-06 — KISS-Bereinigung: Toter Code ai-assistant.js und Phantom-UI entfernt
+
+**Kontext:**
+`website/js/addons/ai-assistant.js` war ein historischer Prototyp für On-Device-Textumformulierung via Gemini Nano. Nach der früheren Beseitigung der Floating-Format-Toolbar (`31-format-toolbar.js`) fehlte dem Addon der zugehörige Aktionsbutton (`#btn-ai-rewrite`) im DOM vollständig. Der verbliebene Schalter in der Sidebar (`#toggle-experimental-ai`) war ein funktionsloser Phantom-Schalter, der lediglich ein ungenutztes Flag in `localStorage` setzte. Das Skript wurde in `main.js` nicht importiert, sondern lediglich als totes async-Modul am Ende von `index.html` geladen.
+
+**Entscheidung:**
+1. **Addon und Script gelöscht:** `website/js/addons/ai-assistant.js` (-181 Zeilen) und der `<script>`-Tag in `website/index.html` wurden restlos entfernt. Das Verzeichnis `website/js/addons/` wurde aufgelöst.
+2. **Phantom-UI entfernt:** Der Schalter `#toggle-experimental-ai` wurde aus der Sidebar in `website/index.html` entfernt.
+3. **Konzeption bleibt archiviert:** Die Research-Spezifikationen und Prototyp-Dateien verbleiben unberührt in `research/roadmap/` als Blaupause für eine etwaige spätere, vollintegrierte Einbindung.
+4. **ADR-Register synchronisiert:** `docs/10-architecture/ADR-JS.md` und `ADR-HTML.md` wurden aktualisiert; `ai-assistant.js` wurde in die Deprecation-Registry überführt.
+
+**Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Keine verwaisten DOM-IDs oder Skript-Referenzen.

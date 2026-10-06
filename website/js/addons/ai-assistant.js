@@ -37,14 +37,12 @@ export class AIAssistantAddon {
       this.toggleEl = /** @type {HTMLInputElement | null} */ (document.getElementById(AI_CONFIG.seitenleisteToggleId));
       this.rewriteBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById(AI_CONFIG.toolbarRewriteBtnId));
 
-      // 1+2. Feature-Detect + Verfügbarkeit (Globals, NICHT window.ai — obsolet).
-      // Der frühere window.ai-Gate retournierte vor _checkAvailability() und
-      // machte den Port auf aktuellen Chrome tot (Grok-Re-Review H5).
+      // 1+2. Feature-Detect + Verfügbarkeit über globale Browser-APIs
       const availability = await this._checkAvailability();
       this._setToggleState(availability.supported, availability.statusText);
       if (!availability.supported) return;
 
-      // 4. Falls vom Nutzer aktiviert: Toolbar-Button einblenden
+      // 4. Falls vom Nutzer aktiviert: Button einblenden
       if (this.enabled && this.rewriteBtn) {
         this.rewriteBtn.classList.remove('hidden');
       }
@@ -65,9 +63,7 @@ export class AIAssistantAddon {
 
   async _checkAvailability() {
     try {
-      /* Audit H5: window.ai.* ist obsolet (Chromium-Bestätigung) — die
-       * APIs leben als Globals (Rewriter, Writer, LanguageModel) und
-       * availability() liefert 'available'|'downloadable'|'downloading'|'unavailable'. */
+      // Globale Rewriter-API prüfen
       if (!('Rewriter' in self)) {
         return { supported: false, statusText: 'Rewriter API nicht verfügbar' };
       }

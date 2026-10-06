@@ -22,19 +22,11 @@ export const Constants = {
   },
 
   /**
-   * Schema-Version der Datenstrukturen (DeepSeek-Longevity-Review 2026-09-11).
-   * Konsumenten: StorageManager.migrate() (localStorage) und 52-import-export.js
-   * (DIN-Brief-Header, .json). Missing version im Storage = Version 0 → migrate() stampft.
+   * Schema-Version der Datenstrukturen für Storage-Migrationen und Import/Export.
    */
   SCHEMA_VERSION: 1,
 
-  // Centralized UI Messages (Toasts) — Policy 2026-09-10: nur noch Fehler, Warnungen
-  // und fehlende User-Guidance. Success-Confirmations sind raus (das UI zeigt das
-  // Ergebnis sichtbar; Toast-Spam war das Problem). Siehe ADR-UI / DECISION-LOG.
-  /* 🚨 ARCHITECTURAL GUARD (TOASTS-Policy + a11y): Jeder Toast wird ueber das
-   * role="status"/aria-live="polite"-Element #hinweis-v4 ausgegeben. PFLICHT:
-   * keine assertiven Alerts fuer Routine-Meldungen. Und KEINE Success-Toasts —
-   * Erfolg ist still; nur Fehler und Rueckfragen duerfen den Nutzer unterbrechen. */
+  // Zentrale UI-Hinweise (Toasts) für Fehler und Validierungen
   TOASTS: {
     // Warnings / Errors
     FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 60 KB groß sein)',
@@ -120,24 +112,13 @@ export const StorageManager = {
   },
 
   /**
-   * Schema-Version stampfen + Migrationen ausführen (DeepSeek-Longevity-Review).
-   * Idempotent: fehlende Version = 0 → auf Constants.SCHEMA_VERSION heben.
-   * Zukünftige Schritte: if (from === 1) { … } — sequenziell, niemals springen.
+   * Führt anstehende Schema-Migrationen sequenziell aus und aktualisiert die Version.
    * @returns {void}
    */
   migrate() {
     let version = Number(localStorage.getItem('din_schema_version')) || 0;
     if (version === Constants.SCHEMA_VERSION) return;
-    /* 🚨 ARCHITECTURAL GUARD (A48 + Longevity): Migrationen sind SEQUENZIELL
-     * (von `version` aufwärts, niemals überspringen) und NIEMALS über die
-     * Legacy-Date-API (A48) datieren — Temporal-only. schema_version wird
-     * von 52-import-export.js (DIN-Brief-Header, .json) konsumiert. */
-    // Migrationsschritte kommen hier hin (sequenziell von version aufwärts).
-    // ⚠️ Grok-Bug-4-Vorwarnung (jetzt dokumentieren, damit kein stamp-and-skip):
-    // Sobald der erste Migrationsschritt existiert, MUSS der .json-Import
-    // die payload.schema_version → CURRENT transformieren, BEVOR er raw
-    // schreibt — sonst sieht migrate() die bereits gestempelte Storage-Version
-    // und überspringt die Transformation der importierten Datei.
+    // Migrationsschritte sequenziell von version aufwärts ausführen
     localStorage.setItem('din_schema_version', String(Constants.SCHEMA_VERSION));
   },
 

@@ -72,8 +72,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       });
       if (res.ok) {
         StorageManager.saveGeoapifyKey(key);
-        /* Kein Success-Toast (TOASTS-Policy in 51-storage.js: Erfolg ist
-         * still; assertive Alerts nur für Fehler. Grok-Re-Review Priorität 3.) */
+        // Kein Toast bei Erfolg: Stille Übernahme
       } else if (res.status === 401 || res.status === 403) {
         StorageManager.saveGeoapifyKey('');
         if (onToast) onToast("❌ Geoapify Key ungültig", "error");
@@ -195,10 +194,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     };
     const coords = StorageManager.loadSenderCoords();
 
-    /* Target Lock (Audit H2): Geoapify kennt keinen `postcode:`-Filter-Typ
-     * (apidocs: filter-Typen sind countrycode/type/boundary/place) und
-     * mehrere filter= Params überschreiben sich gegenseitig. Das
-     * dokumentierte Pattern für "Straße, PLZ Ort" ist die Text-Anreicherung. */
+    // Target Lock: Geoapify unterstützt keinen expliziten postcode-Filter; Text-Anreicherung nutzen
     const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
     let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
     if (!lock && coords && coords.lat && coords.lon) {
@@ -208,9 +204,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     try {
       const response = await fetch(url, fetchOptions);
       if (!response.ok) {
-        /* 🚨 ARCHITECTURAL GUARD (H2): Der Key wird NUR bei HTTP 401/403
-         * gelöscht. NIEMALS bei 429/5xx/Timeout/Netzwerk — der alte Bug
-         * meldete temporäre Fehler als "Key ungültig" und vernichtete ihn. */
+        // Key nur bei Authentifizierungsfehlern (401/403) verwerfen, nicht bei Rate-Limits (429) oder 5xx
         if (response.status === 401 || response.status === 403) {
           StorageManager.saveGeoapifyKey('');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
@@ -243,7 +237,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
     } catch (err) {
       const error = /** @type {Error} */ (err);
       if (error.name !== 'AbortError') {
-        /* Netzwerk-/Timeout-Fehler: Key bleibt unangetastet (Audit H2). */
+        // Netzwerk- oder Timeout-Fehler: Key bleibt erhalten
         console.warn('[Address] Autocomplete search failed:', error);
         if (onToast) onToast('⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.', 'warning');
       }

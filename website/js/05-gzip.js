@@ -3,20 +3,8 @@
 // @guide [[glossary]]
 
 /**
- * 🚨 ARCHITECTURAL GUARD (eine gzip-Pipeline):
- * Einziger Lesepfad fuer die gzip-komprimierten Datensaetze in `website/data/`.
- * Vorher stand dieselbe Kette (fetch -> DecompressionStream('gzip') ->
- * Response.text() -> JSON.parse) dreimal im Code — zweimal in
- * 45-address-intelligence.js, einmal in 41-salutation-engine.js — jeweils mit
- * eigenem try/catch-Dialekt und eigenem Fehlerverhalten.
- *
- * Dekomprimiert wird 100 % nativ (C++ DecompressionStream). ES IST UNTERSAGT,
- * eine JS-Inflate-Bibliothek, einen Build-Schritt oder einen zweiten
- * Lesepfad einzufuehren (Immutable Law: Zero-Dependency).
- *
- * Kein file://-Zweig: Die App laeuft ausschliesslich ueber einen lokalen
- * Webserver ([[ADR-RUNTIME-CONTEXT]]). Die frueher hier gefuehrte
- * Base64-Variante bediente nur den geloeschten Embed-Fallback.
+ * Zentraler nativer Lesepfad für gzip-komprimierte JSON-Datensätze in `website/data/`.
+ * Nutzt die native DecompressionStream-API des Browsers ohne externe Bibliotheken.
  */
 
 /**

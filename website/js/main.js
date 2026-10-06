@@ -19,16 +19,7 @@ import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 import { initImportExport } from './52-import-export.js';
 
 /**
- * 🚨 ARCHITECTURAL GUARD (ein Listener-Owner):
- * Einziger Sync-Pfad zwischen Postvermerk-Select und Papierfeld. boot-state.js
- * setzt nur den Initialwert und registriert bewusst KEINE Listener mehr.
- *
- * Die beiden Modi sind nicht austauschbar:
- *  - `overwrite: false` (Boot/Restore): Feld ist 100 % contenteditable (Doktrin),
- *    darf also manuell getippten Draft-Text nicht vernichten.
- *  - `overwrite: true` (aktive Auswahl): eine bewusste Vorlagen-Wahl des Users
- *    ersetzt den Feldinhalt — sonst waere das Dropdown wirkungslos, sobald
- *    einmal Text im Feld steht.
+ * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.
  * @param {{ overwrite?: boolean }} [options]
  */
 function syncPostvermerkFromSidebar({ overwrite = false } = {}) {
@@ -45,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 
   function initApp() {
-    // Schema-Migration VOR dem ersten Restore (DeepSeek-Longevity-Review).
+    // Schema-Migration vor dem ersten Restore
     StorageManager.migrate();
     const draftManager = new DraftManager();
     draftManager.loadDraft();
@@ -64,11 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('[Bootstrap] uiProtections.init fehlgeschlagen:', e);
     }
 
-    // 🚨 ARCHITECTURAL GUARD (JS-Kill Phase 1 / Chromium 123+):
-    // Text-fitting & dynamic field scaling are 100% NATIVE CSS ('field-sizing: content',
-    // 'text-fit: shrink 60%', 'overflow: clip', 'text-wrap: balance/pretty').
-    // DO NOT import or re-create legacy text-fitting modules or DOM element width comparison loops.
-    // Future LLMs / KIs: Replacing native CSS with JS loops is a STRICT HARD BAN (Catalog A49).
+    // Layout- und Textanpassung laufen rein über natives CSS ('field-sizing', 'text-fit', 'overflow: clip')
 
     const settingsManager = new SettingsManager();
     try {
@@ -109,11 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
     }
 
-    /* 🚨 ARCHITECTURAL GUARD (ein Settings-Owner):
-     * `settingsManager.settings` ist das EINZIGE Settings-Objekt der App.
-     * Features bekommen es injiziert und persistieren ausschliesslich über
-     * diesen Kontext — niemals per eigenem StorageManager.loadSettings().
-     * Sonst entstehen parallele Snapshots, die sich gegenseitig ueberschreiben. */
+    // Zentrale Settings-Instanz: Features teilen sich dieselbe Referenz
     const settingsContext = {
       settings: settingsManager.settings,
       save: () => {
@@ -144,14 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function attachGlobalListeners(draftManager, uiProtections) {
     if (btnPrint) {
       btnPrint.addEventListener('click', () => {
-        /* 🚨 ARCHITECTURAL GUARD (natives Druck-Lifecycle):
-         * Aufraeumen haengt am nativen 'afterprint'-Event, NICHT an einem
-         * Timer. Vorher: setTimeout(…, 100) — eine Magic Number, die bei
-         * langsam oeffnendem Druckdialog zu frueh restaurierte (Metadaten
-         * waren dann schon wieder weg, bevor der Dialog sie las).
-         * DOM-Mutationen aus prepare() sind synchron wirksam; es gibt
-         * nichts, worauf zu warten waere.
-         * NIEMALS wieder einen Timer um window.print() legen. */
+        // Druck-Lifecycle: Metadaten vorbereiten und nach dem Druck aufräumen
         const metaCtx = MetadataService.prepare();
         window.addEventListener('afterprint', () => {
           MetadataService.restore(metaCtx);

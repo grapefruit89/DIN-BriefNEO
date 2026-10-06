@@ -5,9 +5,8 @@
 import { currentISODate } from './47-date-format.js';
 
 /**
- * metadata.js — Platinum Metadata Bridge for V5+
+ * metadata.js — Metadaten-Brücke für DIN-BriefNEO
  * Optimiert für Paperless-ngx, Obsidian, Notion & System-Suche
- * (Vereinfacht: PDF-Re-Import via JSON-Block entfernt gemäß Grok-Review)
  */
 
 /**
@@ -20,23 +19,13 @@ import { currentISODate } from './47-date-format.js';
  */
 
 /**
- * 🚨 ARCHITECTURAL GUARD (Single Source of Truth):
- * Die Identitätsfelder eines Briefes (Datum, Absender, Empfänger, Betreff)
- * werden AUSSCHLIESSLICH hier aus dem Live-DOM gelesen. Vorher existierten
- * zwei Rechenwege — buildLetterFileName() und MetadataService.prepare() —
- * die auseinandergelaufen sind: prepare() splittete die Rücksendezeile nur
- * auf Komma, der Grok-Bug-6-Fix (Sender-Sync joint mit "•") war dort nie
- * nachgezogen. Folge: PDF-Metadatum "author" enthielt "Name•Straße•Ort",
- * während der Dateiname korrekt "Name" trug.
- * NIEMALS diese Felder an einer zweiten Stelle neu ableiten — Konsumenten
- * rufen collectLetterIdentity() auf.
+ * Liest die Identitätsfelder des Schreibens (Datum, Absender, Empfänger, Betreff)
+ * zentral aus dem Live-DOM und erzeugt standardisierte Metadaten und Dateinamen.
  * @returns {LetterIdentity}
  */
 export function collectLetterIdentity() {
   const dateStr = currentISODate();
-  /* Rücksendezeile-Format: "M. Name • Straße • Ort" (Sender-Sync joint mit
-   * •, Grok-Bug 6) — split auf • UND Komma, sonst schluckt der Name
-   * Straße+Ort. */
+  // Rücksendezeile nach '•' oder ',' trennen, um nur den Namen zu extrahieren
   const lastName = (document.getElementById('rucksendezeile')?.textContent || "").split(/[•,]/)[0].replace(/\s/g, "") || "Absender";
   /* Name und Firma je EINZELN bereinigen und erst dann faellig werden lassen:
    * roh verketten wuerde eine Namenszeile aus reiner Interpunktion als
@@ -64,13 +53,10 @@ export function buildLetterFileName() {
   return collectLetterIdentity().fileName;
 }
 
-/* 🚨 ARCHITECTURAL GUARD (ein Titel-Owner):
- * `document.title` hat zwei Schreiber: DraftManager (Betreff, bei jedem
- * Autosave) und MetadataService (Dateiname, waehrend des Druckens — Chrome
- * leitet daraus den PDF-Dateinamen ab). Tippt der User bei offenem
- * Druckdialog weiter, ueberschrieb der Autosave den Dateinamen.
- * Dieses Flag gibt dem Druck-Titel Vorrang; DraftManager fragt es ab.
- * NIEMALS document.title an einer dritten Stelle setzen. */
+/**
+ * Steuerung von document.title: Gibt dem Druck-Dateinamen Vorrang vor dem
+ * Autosave-Titel des DraftManagers, während der Druckdialog geöffnet ist.
+ */
 let printTitleActive = false;
 
 /**

@@ -5,10 +5,8 @@
 /**
  * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
  * Wird von 01-draft-manager (Draft-Restore) genutzt.
- * setHTML() mit eigener Allowlist verwirft in Chrome 151 alle Attribute
- * (inkl. class für brief-kommentar) — daher bewusst nicht als Sanitizer genutzt.
- * Extra-Tags (z. B. UL/LI für anlagen-text, Grok-Re-Review M2) ergänzen die
- * Basis-Allowlist, KEINE Attribute auf Extra-Tags.
+ * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-text) ergänzen die
+ * Basis-Allowlist (ohne Attribute).
  * @param {string} htmlString
  * @param {{ extraTags?: string[] }} [options]
  * @returns {DocumentFragment}

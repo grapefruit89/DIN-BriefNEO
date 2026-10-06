@@ -55,33 +55,18 @@ try {
       if (el instanceof HTMLSelectElement) { el.value = /** @type {string} */ (draft[id]); continue; }
       const nested = el.querySelector && el.querySelector('select[data-speichern]');
       if (nested instanceof HTMLSelectElement) { nested.value = /** @type {string} */ (draft[id]); continue; }
-      /* Rich-Text-Felder (innerHTML im Draft) NICHT hierherstellen: der
-       * Default-Sanitizer von setHTML streift class="brief-kommentar" und
-       * definiert einen zweiten Restore-Owner (Audit C1). DraftManager.
-       * loadDraft() stellt sie sofort nach Modulstart über 04-sanitize
-       * wieder her — hier bewusst übersprungen. */
+      // Rich-Text-Felder überspringen: Werden im DraftManager über 04-sanitize wiederhergestellt
       if (el.dataset.feldtyp?.includes('rich')) continue;
       el.textContent = /** @type {string} */ (draft[id]);
     }
   }
   const pvSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
   const pvField = document.getElementById('postvermerk');
-  /* Feld ist 100% contenteditable (Doktrin). Boot-Fill nur, wenn leer
-   * (Draft-Restore darf nicht klobbered werden); aktive Select-Wahl
-   * überschreibt weiter — bewusste Vorlagen-Wahl des Users. */
-  /* 🚨 ARCHITECTURAL GUARD (ein Listener-Owner):
-   * Dieses Boot-Script setzt NUR den Initialwert. Die Listener auf dem
-   * Select gehoeren ausschliesslich main.js (syncPostvermerkFromSidebar).
-   * Vorher haengten hier zusaetzlich 'input' UND 'change' — zusammen mit
-   * dem Handler in main.js liefen bei einer einzigen Auswahl DREI Handler
-   * mit WIDERSPRUECHLICHER Semantik (hier ueberschreibend, dort nur-wenn-leer).
-   * NIEMALS wieder Listener in diesem Boot-Script registrieren. */
+  // Initialwert für Postvermerk vorbelegen (Event-Listener liegen zentral in main.js)
   if (pvSel && pvField && pvSel.value && !pvField.textContent.trim()) {
     pvField.textContent = pvSel.value;
   }
-  /* Font-Klasse nur, wenn boot-theme.js die @font-face auch wirklich
-   * injiziert hat (derselbe Base64-Gate) — sonst bittet das Blatt um
-   * ein 'AptosCustom', das nie registriert wurde (Grok-Re-Review C2). */
+  // Eigene Schriftart aktivieren, falls im Storage hinterlegt
   if (/^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(localStorage.getItem('din_custom_font') || '')) {
     document.body.classList.add('schrift-eigene-aktiv');
   }

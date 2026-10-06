@@ -4,15 +4,7 @@
 
 import { setCaretToEnd } from './selection-utils.js';
 
-/* 🚨 ARCHITECTURAL GUARD (ein Datenpfad):
- * Die Datensaetze kommen ausschliesslich als .gz-Stream vom lokalen Webserver.
- * Der frueher hier liegende Base64-Fallback (`data/plz-embedded.js`, 164 KB)
- * war nur unter file:// erreichbar — einem Kontext, den die App seit ESM + CSP
- * gar nicht mehr erreicht ([[ADR-RUNTIME-CONTEXT]]). Er wurde am 2026-10-02
- * ersatzlos entfernt.
- * NIEMALS einen zweiten Datenpfad oder ein Daten-Embed wieder einfuehren:
- * Schlaegt der Fetch fehl, degradiert das Feature bewusst sanft (leere Indizes,
- * manuelle Eingabe bleibt moeglich). */
+// Daten werden als .gz-Stream geladen. Bei Fehlschlag degradiert die Suche sanft (manuelle Eingabe bleibt möglich).
 
 import { fetchGzipJson } from './05-gzip.js';
 

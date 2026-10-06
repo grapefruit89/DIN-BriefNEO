@@ -29,11 +29,7 @@ export class DraftManager {
   }
 
   #initShortcuts() {
-    /* Audit C3: NUR innerhalb des Briefblatts abfangen — Sidebar-Inputs,
-     * Key-Feld, Dialoge behalten natives Undo. Shift+Ctrl+Z ist Redo
-     * (vorher fielen alle z-Varianten auf undo()). contenteditable +
-     * programmatisches replaceChildren zerstoeren natives Undo, daher
-     * bleibt der eigene Snapshot-Undo innerhalb des Blatts verbindlich. */
+    // Shortcuts nur innerhalb des Briefblatts abfangen; andere Inputs behalten natives Undo/Redo
     document.addEventListener('keydown', (e) => {
       const blatt = /** @type {Element | null} */ (e.target instanceof Element ? e.target.closest('din-a4') : null);
       if (!blatt || !(e.ctrlKey || e.metaKey)) return;
@@ -93,7 +89,6 @@ export class DraftManager {
     if (this.onSaveCallback) {
       this.onSaveCallback();
     }
-    /* Grok Bug 3: Export/Persistenz-Konsumenten prüfen das Resultat. */
     return saved;
   }
 
@@ -122,13 +117,8 @@ export class DraftManager {
         return;
       }
 
-      /* 🚨 ARCHITECTURAL GUARD (C1): DIES ist der EINZIGE HTML-Restore-Pfad der
-       * App — immer über 04-sanitize (Allowlist). NIEMALS setHTML, innerHTML,
-       * einen zweiten Restore-Owner oder "Abkürzungen" hier einbauen.
-       * boot-state.js stellt nur textContent her (keine HTML-Parität). */
+      // HTML-Restore ausschließlich über 04-sanitize (Allowlist)
       if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-        /* M2: Anlagen brauchen UL/LI (Listen-Doktrin von ensureListStructure),
-         * Der Text bleibt bei der Basis-Allowlist. Keine Attribute auf Extra-Tags. */
         const extra = elem.getAttribute('data-feldtyp')?.includes('liste') ? { extraTags: ['UL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));
       } else if (!elem.querySelector('select[data-speichern]')) {
@@ -136,9 +126,7 @@ export class DraftManager {
       }
     });
     this.#isRestoring = false;
-    /* Grok F6: Indikator-Initialzustand nach dem Restore setzen — HTML-
-     * initial 'saved' alleine reicht nicht, wenn loadDraft aus Import/
-     * Undo-Kontexten gerufen wird. */
+    // Initialzustand der Statusanzeige nach dem Restore setzen
     this.#setSaveStatus('saved');
   }
 
@@ -202,9 +190,8 @@ export class DraftManager {
   }
 
   /**
-   * Autosave-Indikator (DeepSeek-Longevity-Review): Status-Dot im Sidebar-Footer.
-   * Rein zustandsgetrieben: CSS-Klassen .saved/.dirty/.error, Text als title
-   * (keine Toasts, keine assertive Live-Region).
+   * Autosave-Indikator: Status-Dot im Sidebar-Footer.
+   * Zustandsgetrieben über CSS-Klassen .saved / .dirty / .error.
    * @param {'saved' | 'dirty' | 'error'} state
    */
   #setSaveStatus(state) {

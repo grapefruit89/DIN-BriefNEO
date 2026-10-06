@@ -4,12 +4,8 @@
 
 /*
  * 52-import-export.js — .json als First-Class-Datenformat (DIN-Brief)
- * (DeepSeek-Longevity-Review 2026-09-11, Owner-Beschluss).
- * localStorage allein ist ein Ablaufdatum (Browser-Daten löschen = Brief weg).
- * Das Format ist bewusst simpel und selbst-erklärend: JSON mit Metadaten-Header
- * (format, schema_version, created, tool-Link) + dem Draft-Payload 1:1 aus
- * din_draft_current. Kein Kompression, keine Obskurität — der Brief soll auch
- * in 10 Jahren ohne dieses Tool lesbar sein.
+ * Simples JSON mit Metadaten-Header (format, schema_version, created, tool)
+ * und dem Draft-Payload aus din_draft_current.
  */
 
 import { StorageManager, Constants } from './51-storage.js';
@@ -30,10 +26,7 @@ export function buildDinLetterPayload(draft) {
     format: DINLETTER_FORMAT,
     schema_version: Constants.SCHEMA_VERSION,
     app: 'DIN-BriefNEO',
-    /* 🚨 ARCHITECTURAL GUARD (A48/A50): created NICHT über die Legacy-Date-API
-     * bauen — Temporal-only, Zeitzone explizit über currentISODate()
-     * (47-date-format.js). Ein Date-API-Rückfall wurde hier bereits fast
-     * gebaut (2026-09-11) — der Law Catalog ist bindend, keine Ausnahme. */
+    // Erstellungsdatum im ISO-Format über currentISODate() (Temporal API)
     created: currentISODate(),
     tool: 'https://github.com/grapefruit89/DIN-BriefNEO',
     draft
@@ -46,8 +39,7 @@ export function buildDinLetterPayload(draft) {
  * @returns {{ ok: true, draft: Record<string, string>, schemaVersion: number } | { ok: false, reason: string }}
  */
 export function parseDinLetterPayload(text) {
-  /* BOM-Toleranz (Grok F4): Notepad/einige Editoren schreiben \uFEFF voran —
-   * JSON.parse chokiert daran. Eine Zeile, adopt now. */
+  // BOM entfernen, falls vorhanden (\uFEFF)
   text = text.replace(/^\uFEFF/, '');
   /** @type {any} */
   let data;
@@ -69,11 +61,7 @@ export function parseDinLetterPayload(text) {
   if (!data.draft || typeof data.draft !== 'object' || Array.isArray(data.draft)) {
     return { ok: false, reason: 'Kein Briefkern in der Datei.' };
   }
-  /* 🚨 ARCHITECTURAL GUARD (Grok F2): Prototyp-Hygiene, kein Allowlist-Zwang.
-   * Gefährliche Namen (__proto__, constructor, prototype) explizit ablehnen,
-   * übrige Keys müssen plausibler DOM-Id-Form folgen (^[A-Za-z]-Anchor schließt
-   * die gefährlichen Namen ohnehin aus — Blacklist als zweite Schicht).
-   * Null-Prototyp-Objekt verhindert Prototype-Pollution über gespeicherte Keys. */
+  // Prototyp-Pollution verhindern: Null-Prototyp-Objekt und Validierung der Feldnamen
   const draft = /** @type {Record<string, string>} */ (Object.create(null));
   for (const [key, value] of Object.entries(data.draft)) {
     if (typeof value !== 'string') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
@@ -98,10 +86,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
   if (!exportBtn || !importBtn || !importInput || !importDialog) return;
 
   exportBtn.addEventListener('click', () => {
-    // Erst den LIVEDRAFT in den Storage schreiben, dann exportieren —
-    // sonst exportiert man den letzten Autosave-Stand, nicht den aktuellen.
-    // Grok Bug 3: saveDraft() liefert jetzt bool — bei Quota-Fehler NICHT
-    // einen stale/leeren Stand serialisieren, sondern abbrechen.
+    // Vor dem Export aktuellen Stand speichern; bei Misserfolg abbrechen
     if (!onSaveDraft()) {
       onToast('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
       return;
@@ -134,8 +119,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
   importInput.addEventListener('change', async () => {
     const file = importInput.files?.[0];
     if (!file) return;
-    /* Größen-Cap (Grok Bug 5): ein Brief ist Zehner-KB, keine Megabytes —
-     * main-thread JSON.parse eines GB-Drops ablehnen statt frieren. */
+    // Größenbeschränkung: Maximal 512 KB erlauben
     if (file.size > 512 * 1024) {
       onToast('❌ Import abgelehnt: Datei zu groß (max. 512 KB).', 'error');
       return;
@@ -159,10 +143,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
       StorageManager.saveDraft('current', pendingImport.draft);
       StorageManager.migrate();
       pendingImport = null;
-      /* Kein Success-Toast vor reload (Grok Bug 1): würde nie painten UND
-       * verletzt die Success-still-Policy. Der Reload IST die Bestätigung. */
-      // Reload über den Boot-Pfad: EIN Restore-Owner (DraftManager), kein
-      // zweiter Import-Restore-Code (C1-Lektion: niemals HTML hier einsetzen).
+      // Durch Seiten-Reload wird der Entwurf über den regulären Boot- und Restore-Pfad geladen
       location.reload();
     } catch (e) {
       onToast('❌ Import fehlgeschlagen (Storage voll?).', 'error');

@@ -166,6 +166,46 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"brieftext":"x"}}');
     assert(ok.ok, 'normale Ids erlaubt');
   });
+
+  it('buildDinLetterPayload und parseDinLetterPayload unterstützen optionale settings und font (Voll-Backup)', () => {
+    const settings = {
+      layout: 'form-a',
+      theme: 'dark',
+      guides: false,
+      formality: 'polite',
+      signatureImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      signatureState: { x: 15, y: 30, scale: 0.8, rot: 5 }
+    };
+    const font = 'data:font/woff2;base64,d09GMgABAAAAAA...';
+    const payload = buildDinLetterPayload({ betreff: 'Mit Settings' }, settings, font);
+
+    assertEqual(payload.settings?.layout, 'form-a');
+    assertEqual(payload.settings?.theme, 'dark');
+    assertEqual(payload.font, font);
+
+    const parsed = parseDinLetterPayload(JSON.stringify(payload));
+    assert(parsed.ok, 'Voll-Backup erfolgreich geparst');
+    if (parsed.ok) {
+      assertEqual(parsed.settings?.layout, 'form-a');
+      assertEqual(parsed.settings?.theme, 'dark');
+      assertEqual(parsed.settings?.guides, false);
+      assertEqual(parsed.settings?.formality, 'polite');
+      assertEqual(parsed.settings?.signatureState?.x, 15);
+      assertEqual(parsed.settings?.signatureState?.scale, 0.8);
+      assertEqual(parsed.font, font);
+    }
+  });
+
+  it('parseDinLetterPayload validiert settings und font defensiv (Schutz vor fehlerhaften/manipulierten Werten)', () => {
+    // Ungültiges Layout
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { layout: 'form-c' } })).ok, 'ungültiges Layout abgelehnt');
+    // Ungültiges Theme
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { theme: 'neon' } })).ok, 'ungültiges Theme abgelehnt');
+    // Ungültiges Signaturbild (kein data:image/ URL)
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { signatureImage: 'http://malicious.site/sig.png' } })).ok, 'externes Signaturbild abgelehnt');
+    // Ungültiger Font (kein data: URL)
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, font: 'https://evil.com/font.woff2' })).ok, 'externer Font abgelehnt');
+  });
 });
 
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {

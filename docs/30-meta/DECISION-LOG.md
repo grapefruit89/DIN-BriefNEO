@@ -1932,3 +1932,22 @@ Diese doppelte Buchführung führte über Monate zu künstlichen Schutzklauseln 
    - `StorageManager` verbleibt lediglich als dünner Deprecation-Wrapper für Abwärtskompatibilität.
 
 **Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Umfassende Unit-Tests in `test/all.js` für `load`, `save`, `remove`, `loadJSON`, `saveJSON` und `migrateStorage` erfolgreich.
+
+## 2026-10-06 — Vollständiger Settings- und Font-Export in 52-import-export.js (Projekt-Backup)
+
+**Kontext:**
+Bislang exportierte `52-import-export.js` ausschließlich den Briefentwurf (`din_draft_current`) in die `.json`-Datei. Wurde ein Brief mit abweichendem Layout (z. B. Form A statt Form B), individueller WOFF2-Schriftart oder hochgeladenem und positioniertem Signaturbild exportiert und auf einem anderen Gerät oder nach einem Zurücksetzen reimportiert, gingen Layout-Wahl, Schriftart und Signatur verloren.
+
+**Entscheidung:**
+1. **Erweitertes Payload (`buildDinLetterPayload`):**
+   - Neben `draft` werden optional auch `settings` (`theme`, `layout`, `guides`, `formality`, `signatureImage`, `signatureState`) und `font` (Base64-Data-URL) im standardisierten JSON-Payload gebündelt.
+   - Der Export über den Button `#btn-export-dinletter` liest nun automatisch die aktuellen Einstellungen und Schriftarten aus `STORAGE_KEYS` und exportiert ein vollständiges Projekt-Backup.
+2. **Defensive Validierung & Sanitizing (`parseDinLetterPayload`):**
+   - Strenge Typprüfung und Sanitizing aller importierten Einstellungsfelder: Layout wird auf `'form-a' | 'form-b'` begrenzt, Signaturbild muss ein valider `data:image/`-URL sein (max. 1 MB), Signaturkoordinaten müssen finite Zahlen sein (Scale auf [0.1, 5] beschränkt), Schriftarten müssen `data:`-URLs sein (max. 256 KB).
+   - Manipulierte oder invalide Werte führen zur sauberen Ablehnung (`ok: false`) mit verständlicher Fehlermeldung statt fehlerhaften DOM-Zuständen.
+   - 100% abwärtskompatibel: Ältere `.json`-Dateien ohne `settings`/`font` werden unverändert akzeptiert und restauriert.
+3. **UI-Rückmeldung im Import-Dialog:**
+   - Der Bestätigungsdialog `#import-dialog` zeigt dem Nutzer transparent an, welche Komponenten in der Datei enthalten sind (z. B. `Brief.json (Layout: Form A, Signatur, Schriftart)`).
+   - Beim Bestätigen werden Einstellungen sauber mit bestehenden lokalen Voreinstellungen gemergt und die Seite neu geladen.
+
+**Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Umfassende Unit-Tests in `test/all.js` für Roundtrip, Datenvalidierung und Abweisung manipulierter Werte erfolgreich.

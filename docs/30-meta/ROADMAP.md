@@ -48,19 +48,16 @@ Begründung und Quelle, aber keine automatische Produktanforderung.
 **Ziel:** Briefe über mehrere DIN-A4-Seiten hinweg bearbeiten, drucken und als PDF
 exportieren können.
 
-**Noch zu klären:**
+> **Architekturkonzept vorliegend:** Siehe `research/roadmap/MULTI_PAGE_ARCHITECTURE_SPEC.md` für die normgerechte DIN-5008-Zonierung, das horizontale Paging-Modell (Zero-Scroll) und die Druck-Architektur.
 
-- fachliche Grenze zwischen Briefkern und Folgeseite;
-- Seitenumbrüche ohne unlesbare oder abgeschnittene Inhalte;
-- wiederholte Kopf-/Fußbereiche und optionale Seitenzahlen;
-- Darstellung mehrerer Blätter im Editor ohne ungewolltes Dokument-Scrolling;
-- Persistenz, Undo/Redo und Import/Export für mehrere Seiten;
-- Drucktests für Form A und Form B.
+**Geklärte Punkte & Vorgaben:**
 
-**Wichtig:** `@page`-Margin-Boxes und `counter(page)` werden erst nach dieser
-Produktentscheidung geprüft. Seitenzahlen sind eine Folge der Mehrseitenarchitektur,
-nicht deren Vorab-Ersatz. Umsetzung braucht eine eigene Spec unter `specs/` und ein
-ADR; nicht nebenbei in `print.css` einbauen.
+- Fachliche Trennung: Erstseite (Kopf/Anschrift/Falzmarken) vs. Folgeseite (Folgeseiten-Kopf bei 20 mm, kein Anschriftfeld/Infoblock).
+- Zero-Scroll-Garantie im Editor: Horizontales Karussell / Paging-Stepper mit View Transitions API statt vertikalem Scrollen.
+- Textfluss: Modell 1 (Explizite Folgeseite per Strg+Enter / Button) statt instabiler DOM-Messschleifen (A49).
+- Druckarchitektur: Nativer Umbruch via `page-break-after: always; break-after: page;` und `din-a4:last-of-type { page-break-after: avoid; }`.
+- Schlussblock-Integrität: Grußformel und Unterschrift wandern auf die letzte Seite (unter Beachtung der Schusterjungen-Regel).
+
 
 ## Priorität 2 — Adaptive Adresssuche · ✅ ERLEDIGT 2026-10-02
 

@@ -16,7 +16,6 @@ doc_links:
   - DECISION-LOG
   - ADR-JS
 code_links:
-  - 'website/js/boot-state.js'
   - 'website/js/boot-theme.js'
   - 'website/css/sidebar.css'
 ---

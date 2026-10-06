@@ -1828,3 +1828,16 @@ schneller, als eine fehlende Sonde es je koennte.
 - Autarke deterministische Heuristiken schlagen spekulative Wörterbuch-Lookups, wenn Fehlerraten bei Personennamen Peinlichkeiten verursachen können.
 - "Zuletzt generiert" als Synchronisationsanker schützt Benutzereingaben zuverlässiger als globale Dirty-Flags.
 
+## 2026-10-06 — Umstellung auf Rich-Text-Light (Format-Toolbar eliminiert)
+
+**Kontext:** Die frühere Floating Format-Toolbar (`website/js/31-format-toolbar.js`, Popover mit Anchor-Positioning, Selection-Anchor) brachte erhebliche Komplexität und Fehleranfälligkeit für Standardbriefe nach DIN 5008 (u. a. Flackern, Selektions-Desync, Code-Bloat). Zudem führte unkontrolliertes Rich-Text-Pasting zu Stil-Verschmutzung im Briefblatt.
+
+**Entscheidung:**
+1. **Format-Toolbar vollständig entfernt:** `31-format-toolbar.js`, `#format-toolbar` und `#selection-anchor` (HTML + CSS) wurden restlos gelöscht (~420 Zeilen eliminiert).
+2. **Natives Bold & Underline:** Der Text (`#text`) bleibt `contenteditable="true"`. Fettes (`<b>`) und unterstrichenes (`<u>`) Formatieren erfolgt 100 % nativ über die Standard-Shortcuts des Browsers (Ctrl+B, Ctrl+U).
+3. **Zitat-Shortcut (Ctrl+Q):** In `website/js/03-ui-protections.js` wurde ein nativer Shortcut implementiert, der Textpassagen per W3C Range API in `<blockquote>` fasst bzw. bei erneutem Betätigen wieder entpackt.
+4. **Plaintext-Paste mit Zeilenumbruch-Erhalt:** Beim Einfügen in `#text` wird der Inhalt via Clipboard API als Plaintext extrahiert und in Text-Nodes mit `<br>`-Tags gewandelt. Absätze und Zeilenumbrüche bleiben perfekt erhalten, während fremde CSS-Stile, Schriftarten und Spans aus Word oder Webseiten sauber abgeworfen werden.
+5. **Sanitizer & Draft-Restore:** `04-sanitize.js` bleibt als strikter Allowlist-Wächter beim Laden und Wiederherstellen von Entwürfen erhalten.
+
+**Verifikation:** Fitness Gate 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei.
+

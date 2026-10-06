@@ -6,19 +6,30 @@
 const letterDateFmt = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' });
 
 export function formatLetterDate() {
-  const zdt = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
-  /*
-   * Intl nimmt in Chrome 151 noch kein ZonedDateTime entgegen
-   * ("Invalid argument for Temporal") — PlainDate wird formatiert,
-   * die Zone steuert nur, WELCHER Tag gemeint ist.
-   */
-  return letterDateFmt.format(/** @type {any} */ (zdt.toPlainDate()));
+  if (typeof Temporal === 'undefined' || !Temporal?.Now) {
+    return '';
+  }
+  try {
+    const zdt = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
+    /*
+     * Intl nimmt in Chrome 151 noch kein ZonedDateTime entgegen
+     * ("Invalid argument for Temporal") — PlainDate wird formatiert,
+     * die Zone steuert nur, WELCHER Tag gemeint ist.
+     */
+    return letterDateFmt.format(/** @type {any} */ (zdt.toPlainDate()));
+  } catch (err) {
+    console.warn('[DateFormat] formatLetterDate fehlgeschlagen:', err);
+    return '';
+  }
 }
 
 export function applyLetterDate() {
   const el = document.getElementById('datum');
   if (!el) return;
-  el.textContent = formatLetterDate();
+  const formatted = formatLetterDate();
+  if (formatted) {
+    el.textContent = formatted;
+  }
 }
 
 /**
@@ -29,5 +40,13 @@ export function applyLetterDate() {
  * @returns {string}
  */
 export function currentISODate() {
-  return Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString();
+  if (typeof Temporal === 'undefined' || !Temporal?.Now) {
+    return '';
+  }
+  try {
+    return Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString();
+  } catch (err) {
+    console.warn('[DateFormat] currentISODate fehlgeschlagen:', err);
+    return '';
+  }
 }

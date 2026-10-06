@@ -50,10 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const draftManager = new DraftManager();
     draftManager.loadDraft();
     syncPostvermerkFromSidebar();
-    applyLetterDate();
+
+    try {
+      applyLetterDate();
+    } catch (e) {
+      console.warn('[Bootstrap] applyLetterDate fehlgeschlagen:', e);
+    }
 
     const uiProtections = new UIProtections();
-    uiProtections.init();
+    try {
+      uiProtections.init();
+    } catch (e) {
+      console.error('[Bootstrap] uiProtections.init fehlgeschlagen:', e);
+    }
 
     // 🚨 ARCHITECTURAL GUARD (JS-Kill Phase 1 / Chromium 123+):
     // Text-fitting & dynamic field scaling are 100% NATIVE CSS ('field-sizing: content',
@@ -62,15 +71,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Future LLMs / KIs: Replacing native CSS with JS loops is a STRICT HARD BAN (Catalog A49).
 
     const settingsManager = new SettingsManager();
-    settingsManager.init();
+    try {
+      settingsManager.init();
+    } catch (e) {
+      console.error('[Bootstrap] settingsManager.init fehlgeschlagen:', e);
+    }
 
     attachGlobalListeners(draftManager, uiProtections);
 
-    initToastSystem();
-    initSenderSync();
-    initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
-    initImportExport({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
-    ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+    try {
+      initToastSystem();
+    } catch (e) {
+      console.error('[Bootstrap] initToastSystem fehlgeschlagen:', e);
+    }
+
+    try {
+      initSenderSync();
+    } catch (e) {
+      console.error('[Bootstrap] initSenderSync fehlgeschlagen:', e);
+    }
+
+    try {
+      initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+    } catch (e) {
+      console.error('[Bootstrap] initAddressServices fehlgeschlagen:', e);
+    }
+
+    try {
+      initImportExport({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+    } catch (e) {
+      console.error('[Bootstrap] initImportExport fehlgeschlagen:', e);
+    }
+
+    try {
+      ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+    } catch (e) {
+      console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
+    }
 
     /* 🚨 ARCHITECTURAL GUARD (ein Settings-Owner):
      * `settingsManager.settings` ist das EINZIGE Settings-Objekt der App.
@@ -85,16 +122,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    const salutation = new SalutationFeature(() => draftManager.saveDraft(), settingsContext);
-    salutation.init();
+    try {
+      const salutation = new SalutationFeature(() => draftManager.saveDraft(), settingsContext);
+      salutation.init();
+    } catch (e) {
+      console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);
+    }
 
     /* SignatureFeature erwartet historisch `saveSettings` als Methodennamen. */
     const sigContext = {
       settings: settingsContext.settings,
       saveSettings: settingsContext.save
     };
-    const signature = new SignatureFeature(sigContext);
-    signature.init();
+    try {
+      const signature = new SignatureFeature(sigContext);
+      signature.init();
+    } catch (e) {
+      console.error('[Bootstrap] SignatureFeature.init fehlgeschlagen:', e);
+    }
   }
 
   /**

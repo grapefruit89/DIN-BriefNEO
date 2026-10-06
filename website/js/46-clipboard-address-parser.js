@@ -37,9 +37,9 @@ export class ClipboardAddressParser {
    */
   static EXCLUDED_PREFIXES = [
     'registergericht', 'registernummer', 'registriergericht', 'registriernummer',
-    'amtsgericht', 'ag ', 'hrb', 'hra', 'vr ', 'ust-id', 'ust.-id', 'ustid', 'w-idnr',
-    'steuernummer', 'diensteanbieter', 'impressum', 'kontakt', 'tel', 'telefon',
-    'fax', 'telefax', 'email', 'e-mail', 'mail:', 'www.', 'http', 'https',
+    'amtsgericht', 'ag ', 'hrb', 'hra', 'ust-id', 'ust.-id', 'ustid', 'w-idnr',
+    'steuernummer', 'diensteanbieter', 'impressum',
+    'email', 'e-mail', 'mail:', 'www.', 'http', 'https',
     'vertreten durch', 'geschäftsführung', 'geschäftsführer', 'chefredakteur',
     'chefredaktion', 'verantwortlich', 'sitz der gesellschaft', 'vorsitzender',
     'aufsichtsrat', 'redaktion', 'jugendschutz', 'online-rundfunkangebot',
@@ -50,7 +50,7 @@ export class ClipboardAddressParser {
     'anzeigenservice', 'pressestelle', 'geschäftsstelle', 'abonnementspreis',
     'erfüllungsort', 'intranet', 'sie sind hier:', 'startseite',
     'vorbehalt nach', 'die nutzung und vervielfältigung', 'anfahrt / lageplan',
-    'öffnungszeiten', 'handelsregister', 'bankkonto', 'unsere daten', 'service',
+    'öffnungszeiten', 'handelsregister', 'bankkonto', 'unsere daten',
     'pfadnavigation', 'veröffentlicht am', 'aktualisiert am', 'lesedauer:',
     'klicken sie hier', 'mehr erfahren', 'jetzt aktivieren', 'abo testen',
     'konzeption, gestaltung', 'alle zulassen', 'inhaber:', 'postadresse:',
@@ -66,15 +66,25 @@ export class ClipboardAddressParser {
     const candLower = cand.toLowerCase().trim();
     if (cand.length > 75 || cand.length < 2) return true;
     if (this.EXCLUDED_PREFIXES.some(p => candLower.startsWith(p))) return true;
+
+    // Metadaten-Präfixe mit typischen Trennzeichen (schützt Firmennamen wie Telekom, Telefonica, VR Bank, Serviceplan, Kontaktwerk)
+    if (/^(tel\.?|telefon|fax\.?|telefax)\s*[:\d\+\/]/i.test(candLower)) return true;
+    if (/^vr\s*\d+/i.test(candLower) && !candLower.startsWith('vr bank')) return true;
+    if (/^(service|kontakt)\s*[:\-\d\+]/i.test(candLower)) return true;
+    if (/^service-hotline/i.test(candLower)) return true;
+
     // Cannot be a PLZ / Ort line
     if (/^\d{5}\s+/.test(cand)) return true;
     // Cannot be a pure street line with ending house number
-    if (/\d+[\s\-\/a-zA-Z0-9]*$/.test(cand) && /(str|weg|platz|allee|damm|ring|ufer|spitze|speersort|gasse)/i.test(candLower)) {
+    if (/\d+[\s\-\/a-zA-Z0-9]*$/.test(cand) && /(?:str(?:aße|asse|\.)?|weg|platz|allee|damm|ring|ufer|spitze|speersort|gasse|chaussee)\b/i.test(candLower)) {
       return true;
     }
-    const markers = ['gemäß', 'gem.', 'abs.', 'satz', 'aufsicht', 'rechtsaufsicht', 'ausnahme', 'beiträge',
+    // Juristische Metadaten-Marker mit Wortgrenzen (verhindert False Positives bei 'satz' in 'Ersatzteile' oder 'gema' in 'Gemalto')
+    if (/\b(satz\s+\d+|s\.\s*\d+|abs\.\s*\d+|urhg|gema)\b/i.test(candLower)) return true;
+
+    const markers = ['gemäß', 'gem.', 'aufsicht', 'rechtsaufsicht', 'ausnahme', 'beiträge',
                      'kennzeichnung', 'startseite', 'sie sind hier', 'intranet', 'ist die',
-                     'wird verantwortet durch', 'angebot unter', 'urhg', 'gema', 'wahr.', 'nimmt wahr'];
+                     'wird verantwortet durch', 'angebot unter', 'wahr.', 'nimmt wahr'];
     return markers.some(m => candLower.includes(m));
   }
 
@@ -155,7 +165,7 @@ export class ClipboardAddressParser {
       if (prevLine.includes('|')) continue;
 
       const hasNumber = /\d+[\s\-\/a-zA-Z0-9]*$/.test(prevLine);
-      const hasStreetKw = /(str|weg|platz|allee|damm|ring|ufer|gasse|zeile|speersort|spitze|biefangstr|bellevue)/i.test(prevLine);
+      const hasStreetKw = /(?:str(?:aße|asse|\.)?|weg|platz|allee|damm|ring|ufer|gasse|zeile|speersort|spitze|biefangstr|bellevue)\b/i.test(prevLine);
 
       if (!hasNumber && !hasStreetKw) continue;
 

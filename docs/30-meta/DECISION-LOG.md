@@ -1841,3 +1841,19 @@ schneller, als eine fehlende Sonde es je koennte.
 
 **Verifikation:** Fitness Gate 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei.
 
+## 2026-10-06 — Fehlerschutz in initApp() & Namensfilter-Entschärfung
+
+**Kontext:**
+1. `applyLetterDate()` nutzte `Temporal` ohne Feature-Detection. In älteren Browsern oder Safari ohne natives `Temporal` warf dies einen ungefangenen `ReferenceError`, der die gesamte nachfolgende Bootstrap-Kette (`uiProtections`, Autosave, Toasts, Import/Export) abbrach.
+2. Der Zwischenablage-Parser (`46-clipboard-address-parser.js`) filterte über zu aggressive Präfix- und Teilwortprüfungen valide Unternehmensnamen heraus (z. B. `tel` filterte Telekom, `vr ` filterte VR Bank, `service` filterte Serviceplan, `satz` filterte Ersatzteile, `gema` filterte Gemalto).
+
+**Entscheidung:**
+1. **Defensiver Bootstrap:** `formatLetterDate()` und `currentISODate()` in `47-date-format.js` prüfen `typeof Temporal !== 'undefined'` und fangen Fehler ab. In `main.js` werden `applyLetterDate()` sowie alle Feature-Inits in isolierten `try/catch`-Blöcken initialisiert. Ein Fehler in einem Modul blockiert niemals mehr die Basisfunktionen (wie Autosave).
+2. **Entschärfte Namensfilter:**
+   - Präfixe `tel`, `telefon`, `fax`, `telefax`, `service`, `kontakt` greifen nur noch bei typischen Metadaten-Trennzeichen (`[:\d\+\/]`).
+   - `vr ` filtert Vereinsregister-Nummern (`^vr\s*\d+`), schließt jedoch Firmennamen wie `"VR Bank"` explizit aus.
+   - Juristische Klausel-Marker (`satz`, `gema`, `abs.`, `urhg`) arbeiten mit Wortgrenzen (`\b`), sodass Firmennamen wie `"Ersatzteile Müller GmbH"` oder `"Gemalto GmbH"` nicht mehr fälschlich verworfen werden.
+   - Straßen-Erkennung (`hasStreetKw`) nutzt Wortgrenzen (`\b`), um Wortbestandteile wie `"ring"` in `"Axel Springer"` nicht als Straßennamen einzustufen.
+
+**Verifikation:** Fitness Gate 100 %. Node Unit-Tests für Firmennamen und Metadaten-Zeilen erfolgreich.
+

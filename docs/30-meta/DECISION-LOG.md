@@ -1857,3 +1857,14 @@ schneller, als eine fehlende Sonde es je koennte.
 
 **Verifikation:** Fitness Gate 100 %. Node Unit-Tests für Firmennamen und Metadaten-Zeilen erfolgreich.
 
+## 2026-10-06 — KISS-Refactoring: Adapter-Bereinigung & Entschlackung paranoider LLM-Guards
+
+**Kontext:** 
+1. `website/js/main.js` hielt historisch ein Adapter-Objekt `sigContext = { settings, saveSettings: settingsContext.save }`, das lediglich existierte, weil `SignatureFeature` intern eine abweichende Methodensignatur erwartete.
+2. Der Code in `website/js/` war über mehrere Iterationen mit paranoiden Warnkommentaren (`🚨 ARCHITECTURAL GUARD`, `STRICT HARD BAN`, `FUTURE LLM`, `GROK F6`, `AUDIT H5`) überfrachtet worden (~190 Zeilen Meta-Kommentare). Dies erschwerte die Lesbarkeit und lenkte von den tatsächlichen fachlichen Invarianten ab.
+
+**Entscheidung:**
+1. **Adapter eliminiert:** `SignatureFeature` akzeptiert nun direkt das standardisierte `settingsContext`-Objekt und nutzt intern eine private `#saveSettings()`-Methode, die `settingsContext.save()` aufruft (mit Fallback auf `saveSettings`). Der künstliche Adapter `sigContext` in `main.js` entfällt ersatzlos.
+2. **Kommentar-Inflation bereinigt:** Alle hysterischen Großbuchstaben-Banner und KI-Modell-Nennungen wurden aus `website/js/` entfernt. Echte Invarianten (z. B. nativer `afterprint`-Lifecycle, Single Source of Truth bei Metadaten, CSS-driven Layout) bleiben als präzise, professionelle Einzeiler erhalten.
+
+**Verifikation:** Fitness Gate 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. 145 Zeilen redundanter Kommentar-Ballast über 12 Dateien entfernt.

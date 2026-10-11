@@ -235,6 +235,18 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     remove('test_corrupt_json');
   });
 
+  it('loadJSON filtert gefährliche Keys (__proto__, constructor, prototype) vor Fallback-Merge', () => {
+    save('test_polluted_json', '{"theme":"dark","__proto__":{"polluted":true},"constructor":"bad","prototype":"bad"}');
+    const fallback = { theme: 'light', safe: true };
+    const res = loadJSON('test_polluted_json', fallback);
+    assertEqual(res.theme, 'dark', 'Erlaubter Key übernommen');
+    assertEqual(res.safe, true, 'Fallback-Key erhalten');
+    assertEqual(Object.prototype.hasOwnProperty.call(res, '__proto__'), false, '__proto__ gefiltert');
+    assertEqual(Object.prototype.hasOwnProperty.call(res, 'constructor'), false, 'constructor gefiltert');
+    assertEqual(Object.prototype.hasOwnProperty.call(res, 'prototype'), false, 'prototype gefiltert');
+    remove('test_polluted_json');
+  });
+
   it('migrateStorage setzt SCHEMA_VERSION idempotent', () => {
     remove(STORAGE_KEYS.schema);
     migrateStorage();

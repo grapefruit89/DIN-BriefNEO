@@ -180,7 +180,13 @@ export function loadJSON(key, fallback) {
   try {
     const parsed = JSON.parse(raw);
     if (parsed !== null && typeof parsed === 'object' && !Array.isArray(fallback) && typeof fallback === 'object') {
-      return /** @type {T} */ ({ ...fallback, ...parsed });
+      const clean = Object.create(null);
+      for (const [k, v] of Object.entries(parsed)) {
+        if (k !== '__proto__' && k !== 'constructor' && k !== 'prototype') {
+          clean[k] = v;
+        }
+      }
+      return /** @type {T} */ ({ ...fallback, ...clean });
     }
     return /** @type {T} */ (parsed ?? fallback);
   } catch {

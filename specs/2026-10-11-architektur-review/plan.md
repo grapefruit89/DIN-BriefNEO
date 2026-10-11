@@ -24,11 +24,11 @@ spec_links:
 - [x] Spec (`spec.md`) und Plan (`plan.md`) definiert.
 - [x] Fitness Gate verifiziert (100 %).
 
-## Phase 1 — EventBus-Fundament (Zero Risk)
-- [ ] `website/js/00-event-bus.js` und `website/js/00-event-types.js` anlegen (flache Modulstruktur gemäß AGENTS.md §7a).
-- [ ] Basierend auf nativem `EventTarget` und `CustomEvent` mit Namespace `dinbrief:`.
-- [ ] Unit-Tests in `test/all.js` für Event-Pub/Sub ergänzen.
-- [ ] Verifikation: Fitness Gate 100 %, keine Seiteneffekte auf bestehenden Code.
+## Phase 1 — EventBus-Fundament (Erledigt)
+- [x] `website/js/00-event-bus.js` angelegt (flache Modulstruktur gemäß AGENTS.md §7a, Events + createEventBus + eventBus).
+- [x] Basierend auf nativem `EventTarget` und `CustomEvent` mit Namespace `dinbrief:`.
+- [x] Unit-Tests in `test/all.js` für Event-Pub/Sub ergänzt (23/23 Tests bestanden).
+- [x] Verifikation: Fitness Gate 100 %, keine Seiteneffekte auf bestehenden Code.
 
 ## Phase 2 — Toast- & Benachrichtigungssystem entkoppeln (Erster vertikaler Schnitt)
 - [ ] `32-toast.js` so erweitern, dass es auf `dinbrief:notification.requested` lauscht.

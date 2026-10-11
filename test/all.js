@@ -7,6 +7,7 @@ import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, m
 import { UIProtections } from '../website/js/03-ui-protections.js';
 import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/52-import-export.js';
 import { Constants } from '../website/js/51-storage.js';
+import { createEventBus, Events } from '../website/js/00-event-bus.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -37,13 +38,13 @@ localStorage.clear();
 
 describe('DraftManager: Sanitizing (XSS-Schutz, echte Route localStorage → loadDraft)', () => {
   it('entfernt <script> und erlaubte/verbotene Tags korrekt', () => {
-    setDraft('<b>fett</b><script>alert(1)</script><em>kursiv</em><span class="din-comment">Anmerkung</span>');
+    setDraft('<b>fett</b><script>alert(1)</script><em>kursiv</em><span class="brief-kommentar">Anmerkung</span>');
     new DraftManager().loadDraft();
     const html = mustField().innerHTML;
     assert(!html.includes('script'), 'kein <script> im DOM');
     assert(!html.includes('em>'), 'verbotenes <em> ist entfernt (nur Textinhalt bleibt)');
     assert(html.includes('<b>fett</b>'), 'erlaubtes <b> bleibt');
-    assert(html.includes('din-comment'), 'span.din-comment bleibt erhalten');
+    assert(html.includes('brief-kommentar'), 'span.brief-kommentar bleibt erhalten');
     assert(html.includes('Anmerkung'), 'Textinhalte von verbotenen Tags bleiben');
   });
 
@@ -239,6 +240,66 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version initial gesetzt');
     migrateStorage();
     assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version idempotent');
+  });
+});
+
+describe('EventBus: Entkoppelte Pub/Sub-Kommunikation (Zero-Dependency)', () => {
+  it('veröffentlicht und empfängt Events mit typisiertem Topic und Payload', () => {
+    const bus = createEventBus();
+    /** @type {any} */
+    let received = null;
+    bus.subscribe(Events.NOTIFICATION_REQUESTED, (data) => {
+      received = data;
+    });
+    bus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Brief gespeichert', type: 'info' });
+    assert(received !== null, 'Event wurde empfangen');
+    assertEqual(received.message, 'Brief gespeichert', 'Payload-Nachricht stimmt');
+    assertEqual(received.type, 'info', 'Payload-Typ stimmt');
+  });
+
+  it('erlaubt sauberes Unsubscribe über die Rückgabefunktion', () => {
+    const bus = createEventBus();
+    let callCount = 0;
+    const unsubscribe = bus.subscribe(Events.NOTIFICATION_REQUESTED, () => {
+      callCount += 1;
+    });
+    bus.publish(Events.NOTIFICATION_REQUESTED, { message: '1' });
+    assertEqual(callCount, 1, 'Erster Aufruf gezählt');
+    unsubscribe();
+    bus.publish(Events.NOTIFICATION_REQUESTED, { message: '2' });
+    assertEqual(callCount, 1, 'Nach Unsubscribe kein weiterer Aufruf');
+  });
+
+  it('unterstützt AbortSignal zur automatischen Listener-Bereinigung', () => {
+    const bus = createEventBus();
+    const controller = new AbortController();
+    let callCount = 0;
+    bus.subscribe(Events.NOTIFICATION_REQUESTED, () => {
+      callCount += 1;
+    }, { signal: controller.signal });
+    bus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Vor Abort' });
+    assertEqual(callCount, 1, 'Aufruf vor Abort');
+    controller.abort();
+    bus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Nach Abort' });
+    assertEqual(callCount, 1, 'Nach Abort kein weiterer Aufruf');
+  });
+
+  it('verwirft ungültige Topics ohne den Prefix dinbrief:', () => {
+    const bus = createEventBus();
+    let threwOnPublish = false;
+    let threwOnSubscribe = false;
+    try {
+      bus.publish('ungueltiges-topic', {});
+    } catch {
+      threwOnPublish = true;
+    }
+    try {
+      bus.subscribe('ungueltiges-topic', () => {});
+    } catch {
+      threwOnSubscribe = true;
+    }
+    assert(threwOnPublish, 'publish mit fremdem Prefix wirft TypeError');
+    assert(threwOnSubscribe, 'subscribe mit fremdem Prefix wirft TypeError');
   });
 });
 

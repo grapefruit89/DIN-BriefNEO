@@ -6,178 +6,38 @@
 // @guide [[din-5008-css-architektur]]
 
 /**
- * @file 45-address.js — Konsolidiertes Adress-, PLZ- und Geocoding-Modul für DIN-BriefNEO.
- * Bündelt die bisherigen 5 Adressmodule:
- *  1. fetchGzipJson (ehem. 05-gzip.js): Nativer DecompressionStream für gzip-Datensätze.
- *  2. Domain Functions (ehem. 44-address-domain.js): Zustandslose PLZ/Orts-Auflösung.
- *  3. AddressIntelligence & initSenderSync (ehem. 45-address-intelligence.js): Offline PLZ- und Großempfänger-Engine.
- *  4. ClipboardAddressParser (ehem. 46-clipboard-address-parser.js): Anschrift-Parser aus Zwischenablage.
- *  5. initAddressServices (ehem. 43-geoapify.js): Optionaler Geoapify-Service mit Cache, Listbox-Popover und lokaler Historie.
+ * @file 45-address.js — Adress-, PLZ- und Geocoding-Services für DIN-BriefNEO.
+ * Bündelt:
+ *  1. AddressIntelligence & initSenderSync: Offline PLZ- und Großempfänger-Engine.
+ *  2. ClipboardAddressParser: Anschrift-Parser aus Zwischenablage mit Popover-Vorschau.
+ *  3. initAddressServices: Optionaler Geoapify-Service mit Cache, Listbox-Popover und lokaler Historie.
+ * Pure Domain-Funktionen und Gzip-DecompressionStream sind modular in 44-address-domain.js ausgelagert.
  */
 
 import { setCaretToEnd } from './01-document.js';
 import { eventBus, Events } from './00-event-bus.js';
 import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './51-persistence.js';
+import {
+  fetchGzipJson,
+  normalizePostcode,
+  resolvePostcode,
+  resolveCity,
+  filterPostcodePrefix,
+  detectPlzInputPattern
+} from './44-address-domain.js';
 
-/* =========================================================================================
- * 1. NATIVE GZIP DECOMPRESSION (DecompressionStream API)
- * ========================================================================================= */
+// Re-export für Abwärtskompatibilität
+export {
+  fetchGzipJson,
+  normalizePostcode,
+  resolvePostcode,
+  resolveCity,
+  filterPostcodePrefix,
+  detectPlzInputPattern
+};
 
-/**
- * Lädt eine gzip-komprimierte JSON-Datei und gibt das geparste Objekt zurück.
- * Liefert `null` statt zu werfen — die Aufrufer degradieren bewusst sanft
- * (leere Indizes statt Absturz).
- * @param {string} path Pfad relativ zum Dokument, z. B. 'data/de_plz_ort.json.gz'
- * @returns {Promise<any|null>}
- */
-export async function fetchGzipJson(path) {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) return null;
-    const stream = response.body?.pipeThrough(new DecompressionStream('gzip'));
-    if (!stream) return null;
-    return JSON.parse(await new Response(stream).text());
-  } catch (err) {
-    console.warn(`[gzip] Laden fehlgeschlagen: ${path}`, err);
-    return null;
-  }
-}
-
-/* =========================================================================================
- * 2. PURE DOMAIN FUNCTIONS (Zustandslose Fachlogik)
- * ========================================================================================= */
-
-/**
- * @typedef {object} GrosskundeEntry
- * @property {string} name
- * @property {string} city
- * @property {boolean} [is_building]
- * @property {string} [notes]
- */
-
-/**
- * @typedef {object} PlzLookupResult
- * @property {string} plz
- * @property {string} city
- * @property {boolean} isGrosskunde
- * @property {GrosskundeEntry | null} grosskunde
- */
-
-/**
- * Validiert und normalisiert eine deutsche Postleitzahl.
- * @param {unknown} input
- * @returns {string | null} 5-stellige PLZ oder null
- */
-export function normalizePostcode(input) {
-  if (typeof input !== 'string' && typeof input !== 'number') return null;
-  const str = String(input).trim();
-  return /^\d{5}$/.test(str) ? str : null;
-}
-
-/**
- * Löst eine 5-stellige PLZ gegen die In-Memory-Maps auf.
- * @param {string} plz
- * @param {Map<string, string>} plzToCityMap
- * @param {Map<string, GrosskundeEntry> | null} [grosskundenMap]
- * @returns {PlzLookupResult | null}
- */
-export function resolvePostcode(plz, plzToCityMap, grosskundenMap = null) {
-  const normPlz = normalizePostcode(plz);
-  if (!normPlz) return null;
-
-  const city = plzToCityMap.get(normPlz);
-  if (!city) return null;
-
-  const grosskunde = grosskundenMap?.get(normPlz) || null;
-  return {
-    plz: normPlz,
-    city,
-    isGrosskunde: !!grosskunde,
-    grosskunde
-  };
-}
-
-/**
- * Löst einen Ortsnamen gegen die In-Memory-Maps auf (exakte Treffer zuerst, danach Präfix).
- * @param {string} query
- * @param {Map<string, string[]>} cityToPlzMap
- * @param {Map<string, string>} plzToCityMap
- * @param {number} [limit=10]
- * @returns {{ plz: string, city: string }[]}
- */
-export function resolveCity(query, cityToPlzMap, plzToCityMap, limit = 10) {
-  const q = String(query || '').toLowerCase().trim();
-  if (q.length < 2) return [];
-
-  /** @type {{ plz: string, city: string }[]} */
-  const results = [];
-
-  // 1. Exakte Treffer zuerst
-  const exactPlzs = cityToPlzMap.get(q);
-  if (exactPlzs) {
-    const canonicalCity = plzToCityMap.get(exactPlzs[0]) || query;
-    for (const plz of exactPlzs) {
-      results.push({ plz, city: canonicalCity });
-      if (results.length >= limit) return results;
-    }
-  }
-
-  // 2. Präfix-Treffer
-  for (const [normCity, plzs] of cityToPlzMap.entries()) {
-    if (normCity !== q && normCity.startsWith(q)) {
-      const canonicalCity = plzToCityMap.get(plzs[0]) || normCity;
-      for (const plz of plzs) {
-        results.push({ plz, city: canonicalCity });
-        if (results.length >= limit) return results;
-      }
-    }
-  }
-
-  return results;
-}
-
-/**
- * Filtert PLZs nach einem 2- bis 4-stelligen Ziffern-Präfix.
- * @param {string} prefix
- * @param {Map<string, string>} plzToCityMap
- * @param {number} [limit=10]
- * @returns {{ plz: string, city: string }[]}
- */
-export function filterPostcodePrefix(prefix, plzToCityMap, limit = 10) {
-  const p = String(prefix || '').trim();
-  if (p.length < 2 || p.length > 4 || !/^\d+$/.test(p)) return [];
-
-  /** @type {{ plz: string, city: string }[]} */
-  const matches = [];
-  for (const [plz, city] of plzToCityMap.entries()) {
-    if (plz.startsWith(p)) {
-      matches.push({ plz, city });
-      if (matches.length >= limit) break;
-    }
-  }
-  return matches;
-}
-
-/**
- * Erkennt den semantischen Eingabetyp eines Textes im Empfänger-Ort-Feld.
- * @param {string} rawText
- * @returns {{ type: 'plz_exact' | 'plz_prefix' | 'city_name' | 'unknown', value: string }}
- */
-export function detectPlzInputPattern(rawText) {
-  const text = String(rawText || '').trim();
-  const exactMatch = text.match(/^(\d{5})$/);
-  if (exactMatch) {
-    return { type: 'plz_exact', value: exactMatch[1] };
-  }
-  const prefixMatch = text.match(/^(\d{2,4})$/);
-  if (prefixMatch) {
-    return { type: 'plz_prefix', value: prefixMatch[1] };
-  }
-  if (text.length >= 2 && !/^\d/.test(text)) {
-    return { type: 'city_name', value: text };
-  }
-  return { type: 'unknown', value: text };
-}
+/** @typedef {import('./44-address-domain.js').GrosskundeEntry} GrosskundeEntry */
+/** @typedef {import('./44-address-domain.js').PlzLookupResult} PlzLookupResult */
 
 /* =========================================================================================
  * 3. ADDRESS INTELLIGENCE & SENDER SYNC

@@ -6,7 +6,9 @@ import { DraftManager, UIProtections } from '../website/js/01-document.js';
 import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, Constants, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/51-persistence.js';
 import { createEventBus, eventBus, Events } from '../website/js/00-event-bus.js';
 import { initToastSystem } from '../website/js/32-toast.js';
-import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern } from '../website/js/45-address.js';
+import { SalutationEngine } from '../website/js/41-salutation-engine.js';
+import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern } from '../website/js/44-address-domain.js';
+import { ClipboardAddressParser } from '../website/js/45-address.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -458,6 +460,86 @@ describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
     dm.redo();
     assertEqual(fieldText(), 'Stand Zwei', 'Redo stellt Stand Zwei wieder her');
     dm.destroy();
+  });
+});
+
+describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
+  it('erkennt Dr.- und akademische Titel und filtert sie aus der Anrede', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. Hans Müller', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Prof. Dr. Julia Sommer', formality: 'formal' }), 'Sehr geehrte Frau Sommer,');
+  });
+
+  it('erkennt Adelstitel und Namenszusätze (von, van der, zu)', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. med. Albrecht von Sydow', formality: 'formal' }), 'Sehr geehrter Herr von Sydow,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Sophie van der Bellen', formality: 'formal' }), 'Sehr geehrte Frau van der Bellen,');
+  });
+
+  it('spricht neutrale Firmen und Organisationen neutral an', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Acme Corp GmbH', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Acme', formality: 'casual' }), 'Hallo,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Stadtwerke Troisdorf', formality: 'polite' }), 'Guten Tag,');
+  });
+
+  it('unterstützt die Stile formal, polite und casual', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'formal' }), 'Sehr geehrte Frau Schmidt,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'polite' }), 'Guten Tag Frau Schmidt,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'casual' }), 'Hallo Petra,');
+  });
+
+  it('unterstützt "Nachname, Vorname" Notation', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Müller, Hans', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
+  });
+});
+
+describe('ClipboardAddressParser: Anschrift-Parsing (unstrukturierte Zwischenablage)', () => {
+  it('extrahiert Standard-Unternehmensadressen aus mehrzeiligem Impressum', () => {
+    const text = [
+      'Musterfirma GmbH',
+      'Max Mustermann',
+      'Hauptstraße 42',
+      '10115 Berlin',
+      'Telefon: 030 123456',
+      'E-Mail: info@musterfirma.de'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Mindestens ein Adress-Kandidat gefunden');
+    assertEqual(candidates[0].firma, 'Musterfirma GmbH');
+    assertEqual(candidates[0].name, 'Max Mustermann');
+    assertEqual(candidates[0].strasse, 'Hauptstraße 42');
+    assertEqual(candidates[0].plz, '10115');
+    assertEqual(candidates[0].ort, 'Berlin');
+  });
+
+  it('extrahiert Privatpersonen ohne Firma korrekt', () => {
+    const text = [
+      'Erika Musterfrau',
+      'Gartenweg 7 b',
+      '50667 Köln'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Kandidat für Privatperson gefunden');
+    assertEqual(candidates[0].firma, '');
+    assertEqual(candidates[0].name, 'Erika Musterfrau');
+    assertEqual(candidates[0].strasse, 'Gartenweg 7 b');
+    assertEqual(candidates[0].plz, '50667');
+    assertEqual(candidates[0].ort, 'Köln');
+  });
+
+  it('ignoriert Metadaten-Zeilen wie Telefon, Fax und Register', () => {
+    const text = [
+      'Kontakt:',
+      'SuperTech AG',
+      'Technologiepark 1',
+      '80331 München',
+      'Tel: +49 89 99999',
+      'Handelsregister: HRB 12345'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Kandidat gefunden');
+    assertEqual(candidates[0].firma, 'SuperTech AG');
+    assertEqual(candidates[0].strasse, 'Technologiepark 1');
+    assertEqual(candidates[0].plz, '80331');
+    assertEqual(candidates[0].ort, 'München');
   });
 });
 

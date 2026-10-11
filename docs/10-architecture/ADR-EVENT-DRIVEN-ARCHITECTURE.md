@@ -102,7 +102,18 @@ Er ersetzt ausdrücklich nicht:
 - synchrone Validierungen oder Normalisierungen;
 - interne Aufrufe innerhalb desselben Moduls;
 - den synchronen Boot-Restore aus `localStorage`;
-- explizite Storage-Schnittstellen (`saveJSON`, `loadJSON` in `51-storage.js`).
+- explizite Storage-Schnittstellen (`saveJSON`, `loadJSON` in `51-persistence.js`).
+
+### 3.3 Hybrides DOM-State-Modell mit Event-Triggering (Invariante für contenteditable & Caret-Tracking)
+
+Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung des Dokumentenzustands:
+
+- **Warum kein reines In-Memory-Virtual-DOM:**
+  In einer nativen Vanilla-JS-Anwendung mit `contenteditable`-Feldern führt die Reduktion des DOMs auf eine rein passive Einweg-Projektion eines zentralen RAM-State-Objekts bei jedem Tastenanschlag unweigerlich zum **Caret-Kollaps** (Verlust der Cursorposition, Unterbrechung der nativen IME-/Wortvorschlags-Pipelines und Zerstörung nativer Selektionen bei asynchronem Re-Rendering).
+- **Das hybride Architekturmodell von DIN-BriefNEO:**
+  1. **Live-Interaktionsschicht:** Das contenteditable DOM fungiert als flackerfreie, performante Echtzeit-Eingabefläche (Live-Oberfläche). Der Browser verwaltet Tippen, Zeilenumbrüche und W3C-Auswahlen nativ.
+  2. **Single-Writer für Persistenz & History (`DraftManager`):** Der `DraftManager` in `01-document.js` ist der alleinige autoritative Koordinator für Speicherung (`localStorage`), Undo/Redo-Stacks und XSS-Sanitizing. Er lauscht auf `dinbrief:document.save.requested`, serialisiert die Felder strukturiert, filtert unerlaubte Tags über die strikte Allowlist und publiziert `dinbrief:document.saved` bzw. `dinbrief:document.changed`.
+  3. **Event-Triggering statt wilder Mutationen:** Fachmodule (wie `45-address.js`, `41-salutation-engine.js` oder `51-persistence.js`) mutieren den Zustand niemals im Alleingang, sondern fordern Speichervorgänge und Benachrichtigungen entkoppelt über den EventBus an.
 
 ## 4. Systemverträge und Topic-Katalog
 
@@ -222,7 +233,7 @@ export function createEventBus(target = new EventTarget()) {
 | **Composition Root (`main.js`)** | Initialisierung des EventBus und Verdrahtung der Module |
 | **EventBus (`00-event-bus.js`)** | Neutraler Transport typisierter Events ohne Geschäftslogik |
 | **State Layer (`01-document.js`, `51-persistence.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
-| **Domain Functions (`45-address.js`)** | Reine zustandslose Berechnungen ohne DOM oder I/O |
+| **Domain Functions (`44-address-domain.js`)** | Reine zustandslose Berechnungen ohne DOM oder I/O |
 | **UI Components (`32-toast.js`, Popovers)** | Darstellung, Barrierefreiheit und Top-Layer-Lifecycle |
 | **Feature Controllers (`02`, `41`, `45`, `51`)** | Koordination spezifischer Domänen (UI-Settings, Anrede, Adresse, Signatur, Export) |
 

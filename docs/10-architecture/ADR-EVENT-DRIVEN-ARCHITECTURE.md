@@ -124,7 +124,7 @@ Er ersetzt ausdrücklich nicht:
 #### `dinbrief:document.save.requested`
 
 - **Zweck:** Ein Modul oder DOM-Listener fordert die Persistierung des aktuellen Briefentwurfs an.
-- **Publisher:** `main.js` (Eingabe-Events, Select-Change), `45-address.js`, `41-salutation-engine.js`, `52-import-export.js`.
+- **Publisher:** `main.js` (Eingabe-Events, Select-Change), `45-address.js`, `41-salutation-engine.js`, `51-persistence.js`.
 - **Subscriber:** `01-document.js` (`DraftManager`).
 - **Payload-Vertrag:**
   ```javascript
@@ -221,10 +221,10 @@ export function createEventBus(target = new EventTarget()) {
 | :--- | :--- |
 | **Composition Root (`main.js`)** | Initialisierung des EventBus und Verdrahtung der Module |
 | **EventBus (`00-event-bus.js`)** | Neutraler Transport typisierter Events ohne Geschäftslogik |
-| **State Layer (`01-document.js`, `51-storage.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
+| **State Layer (`01-document.js`, `51-persistence.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
 | **Domain Functions (`45-address.js`)** | Reine zustandslose Berechnungen ohne DOM oder I/O |
 | **UI Components (`32-toast.js`, Popovers)** | Darstellung, Barrierefreiheit und Top-Layer-Lifecycle |
-| **Feature Controllers (`41`, `42`, `45`, `52`)** | Koordination spezifischer Domänen (Anrede, Adresse, Signatur) |
+| **Feature Controllers (`41`, `42`, `45`, `51`)** | Koordination spezifischer Domänen (Anrede, Adresse, Signatur, Export) |
 
 ---
 

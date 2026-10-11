@@ -17,7 +17,7 @@
 
 import { setCaretToEnd } from './01-document.js';
 import { eventBus, Events } from './00-event-bus.js';
-import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './51-storage.js';
+import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './51-persistence.js';
 
 /* =========================================================================================
  * 1. NATIVE GZIP DECOMPRESSION (DecompressionStream API)

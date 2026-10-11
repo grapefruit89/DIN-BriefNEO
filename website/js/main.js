@@ -3,17 +3,13 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { saveJSON, migrateStorage, STORAGE_KEYS, Constants } from './51-storage.js';
+import { saveJSON, migrateStorage, STORAGE_KEYS, Constants, MetadataService, applyLetterDate, initImportExport } from './51-persistence.js';
 import { SalutationFeature } from './41-salutation-engine.js';
-import { MetadataService } from './53-metadata.js';
 import { SignatureFeature } from './42-signature.js';
 import { initToastSystem } from './32-toast.js';
 import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './45-address.js';
 import { DraftManager, UIProtections } from './01-document.js';
 import { SettingsManager } from './02-settings-manager.js';
-
-import { applyLetterDate } from './47-date-format.js';
-import { initImportExport } from './52-import-export.js';
 import { eventBus, Events } from './00-event-bus.js';
 
 /**

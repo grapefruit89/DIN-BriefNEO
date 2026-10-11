@@ -25,10 +25,7 @@ code_links:
   - website/js/41-salutation-engine.js
   - website/js/42-signature.js
   - website/js/45-address.js
-  - website/js/47-date-format.js
-  - website/js/51-storage.js
-  - website/js/52-import-export.js
-  - website/js/53-metadata.js
+  - website/js/51-persistence.js
   - website/js/main.js
 error_patterns:
   - javascript constraints
@@ -154,26 +151,23 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * **`ClipboardAddressParser`**: 95%-KISS Multi-Pass Regex-Parser für Zwischenablagen-Texte. Filtert Metadaten (HRB, USt-ID etc.) und öffnet bei Mehrdeutigkeit das Popover `#clipboard-candidates-popover`.
 * **`initAddressServices({ onToast, onSaveDraft })`**: Optionaler Geoapify-Service mit In-Memory Cache, Adressbuch-Historie (max. 50 Einträge) und Absender-Proximity-Bias.
 
-### 12. `47-date-format.js` (DIN 5008 Datumsformatierung)
-* `formatLetterDate()`: Erzeugt DIN-konformes Datum ("4. September 2026", ohne führende Null) via `Intl.DateTimeFormat('de-DE')` mit Temporal-Objekt.
-* `applyLetterDate()`: Befüllt das Datumsfeld des Briefes beim Laden.
-
-### 13. `51-storage.js` (State-Layer: System-Konstanten & Persistenz)
-* `Constants`: SCHEMA-Version, Storage-Keys, System-Limits und Toast-Meldungen.
-* `saveDraft(key, data)` / `loadDraft(key)`: Persistiert Brieftexte im `localStorage`.
-* `saveSettings(settings)` / `loadSettings()`: Persistiert Layout-, Theme- und Schalter-Einstellungen.
-* `saveCustomFont(base64Font)` / `loadCustomFont()`: Speichert benutzerdefinierte WOFF2-Schrift.
-* `saveGeoapifyKey(key)` / `loadGeoapifyKey()`: Speichert API-Key.
-
-### 14. `52-import-export.js` (JSON-Datenaustausch & Backup)
-* `buildDinLetterPayload(draft, settings, font)`: Erzeugt valides DIN-Brief-JSON mit Metadaten-Header.
-* `parseDinLetterPayload(raw)`: Defensiver Validator für importierte JSON-Dateien (Schutz vor Prototyp-Pollution und XSS).
-* `initImportExport({ onSaveDraft, onToast })`: Verdrahtet Export- und Import-Dialoge; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
-
-### 15. `53-metadata.js` (Dokument-Metadaten für Export)
-* `prepare()`: Extrahiert Empfänger und Betreff für standardkonforme PDF-Drucktitel.
-* `_injectMetaTags(data)`: Injiziert Meta-Tags in den `<head>`.
-* `restore(context)`: Stellt den ursprünglichen DOM-Zustand nach dem Drucken wieder her.
+### 9. `51-persistence.js` (Konsolidierter Persistenz-, Datums- & Export-Layer)
+*Bündelt die vormaligen Einzelmodule `47-date-format.js`, `51-storage.js`, `53-metadata.js` und `52-import-export.js`:*
+* **DateFormat (`formatLetterDate`, `applyLetterDate`, `currentISODate`)**: Zoniertes DIN-5008-Datum ("4. September 2026") und maschinenlesbares ISO-Datum via nativer `Intl.DateTimeFormat` und `Temporal API`.
+* **Storage Primitives & Konstanten**:
+  * `Constants`: SCHEMA-Version, Storage-Keys, System-Limits und Toast-Meldungen.
+  * `DEFAULT_SETTINGS` & `STORAGE_KEYS`: Zentrale Speicherschlüssel und Default-Konfiguration.
+  * `load`, `save`, `remove`, `loadJSON`, `saveJSON`: Robuste, try-catch-gekapselte LocalStorage-Primitives.
+  * `migrateStorage()`: Idempotente Schema-Migration beim App-Start.
+  * `StorageManager`: Abwärtskompatible Fassade für bestehende Komponenten.
+* **Metadata & Document Identity**:
+  * `collectLetterIdentity()` & `buildLetterFileName()`: Ermittelt Empfänger, Absender, Betreff und zoniertes Datum für standardisierte PDF-Dateinamen und Backups.
+  * `isPrintTitleActive()`: Koordiniert `document.title` zwischen Druckdialog und DraftManager-Autosave.
+  * `MetadataService`: Bereitet PDF-Drucktitel und HTML-Metatags im `<head>` vor und stellt den Urzustand nach dem Drucken wieder her.
+* **Import / Export (`DINLETTER_FORMAT = 'dinletter'`)**:
+  * `buildDinLetterPayload(draft, settings, font)`: Erzeugt valides DIN-Brief-JSON mit Metadaten-Header.
+  * `parseDinLetterPayload(raw)`: Defensiver Validator für importierte JSON-Dateien (Schutz vor Prototyp-Pollution und XSS).
+  * `initImportExport({ onSaveDraft, onToast })`: Verdrahtet Export- und Import-Dialoge; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
 
 ### 16. `main.js` (Composition Root & Bootstrap)
 * `initApp()`: Zentraler Bootstrap beim Laden von `DOMContentLoaded`. Initialisiert EventBus, Module und Adapter.

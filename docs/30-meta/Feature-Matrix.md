@@ -26,9 +26,7 @@ code_links:
   - website/js/02-settings-manager.js
   - website/js/41-salutation-engine.js
   - website/js/45-address.js
-  - website/js/51-storage.js
-  - website/js/52-import-export.js
-  - website/js/53-metadata.js
+  - website/js/51-persistence.js
   - website/css/layout.css
   - website/css/sidebar.css
   - website/css/floating.css

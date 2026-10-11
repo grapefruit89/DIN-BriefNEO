@@ -11,9 +11,8 @@
  *  3. DraftManager (Single-Writer für localStorage, Undo/Redo, Autosave, EventBus-Verträge)
  */
 
-import { loadJSON, saveJSON, STORAGE_KEYS, Constants } from './51-storage.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, Constants, isPrintTitleActive } from './51-persistence.js';
 import { sanitizeRichText } from './04-sanitize.js';
-import { isPrintTitleActive } from './53-metadata.js';
 import { eventBus, Events } from './00-event-bus.js';
 
 /* =========================================================================================

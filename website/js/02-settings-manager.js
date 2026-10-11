@@ -1,5 +1,5 @@
 // @ts-check
-import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
+import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-persistence.js';
 import { eventBus, Events } from './00-event-bus.js';
 
 /**

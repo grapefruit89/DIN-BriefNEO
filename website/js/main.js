@@ -3,20 +3,13 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { saveJSON, migrateStorage, STORAGE_KEYS, Constants } from './51-storage.js';
+import { saveJSON, migrateStorage, STORAGE_KEYS, Constants, MetadataService, applyLetterDate, initImportExport } from './51-persistence.js';
 import { SalutationFeature } from './41-salutation-engine.js';
-import { MetadataService } from './53-metadata.js';
-import { SignatureFeature } from './42-signature.js';
-import { initAddressServices } from './43-geoapify.js';
-import { showToast, initToastSystem } from './32-toast.js';
-import { initSenderSync, AddressIntelligence } from './45-address-intelligence.js';
-import { DraftManager } from './01-draft-manager.js';
-import { SettingsManager } from './02-settings-manager.js';
-import { UIProtections } from './03-ui-protections.js';
-
-import { applyLetterDate } from './47-date-format.js';
-import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
-import { initImportExport } from './52-import-export.js';
+import { SettingsManager, SignatureFeature } from './02-ui-settings.js';
+import { initToastSystem } from './32-toast.js';
+import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './45-address.js';
+import { DraftManager, UIProtections } from './01-document.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 /**
  * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.
@@ -79,19 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+      initAddressServices();
     } catch (e) {
       console.error('[Bootstrap] initAddressServices fehlgeschlagen:', e);
     }
 
     try {
-      initImportExport({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+      initImportExport();
     } catch (e) {
       console.error('[Bootstrap] initImportExport fehlgeschlagen:', e);
     }
 
     try {
-      ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+      ClipboardAddressParser.wireSidebarButton();
     } catch (e) {
       console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
     }
@@ -106,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const salutation = new SalutationFeature(() => draftManager.saveDraft(), settingsContext);
+      const salutation = new SalutationFeature(null, settingsContext);
       salutation.init();
     } catch (e) {
       console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);
@@ -150,14 +143,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const briefblatt = document.querySelector('din-a4') || document;
     briefblatt.addEventListener('input', (e) => {
       if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
-        draftManager.scheduleAutoSave();
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }
     });
     document.querySelectorAll('select[data-speichern]').forEach(el => {
       el.addEventListener('change', () => {
         /* Aktive Auswahl des Users -> ueberschreibt (siehe Guard an der Funktion). */
         if (el.id === 'seitenleiste-postvermerk-select') syncPostvermerkFromSidebar({ overwrite: true });
-        draftManager.scheduleAutoSave();
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     });
   }

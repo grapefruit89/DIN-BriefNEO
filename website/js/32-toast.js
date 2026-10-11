@@ -1,6 +1,8 @@
 // @ts-check
 // @guide [[din-5008-css-architektur]]
 
+import { eventBus, Events } from './00-event-bus.js';
+
 /* Ein Toast-Slot. Neuer Toast ersetzt alten sofort.
  * Dedupliziert bei identischer Message (Timer-Reset statt Neuaufbau).
  * Popover-Top-Layer + @starting-style (CSS) für Animation.
@@ -25,6 +27,12 @@ export function initToastSystem() {
   }
   dom = { global, message, close };
   close.addEventListener('click', hide);
+
+  eventBus.subscribe(Events.NOTIFICATION_REQUESTED, (payload) => {
+    if (payload && typeof payload.message === 'string') {
+      showToast(payload.message, payload.type || 'info');
+    }
+  });
 }
 
 /**

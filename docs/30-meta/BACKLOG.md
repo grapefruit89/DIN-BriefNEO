@@ -17,7 +17,7 @@ doc_links:
 - '[[code-audit-website-2026-10-02]]'
 - '[[docs-audit-2026-10-02]]'
 code_links:
-- 'website/js/03-ui-protections.js'
+- 'website/js/01-document.js'
 - 'website/css/sheet.css'
 - 'tools/links.js'
 depends_on: []

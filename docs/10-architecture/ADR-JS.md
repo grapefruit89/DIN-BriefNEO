@@ -4,7 +4,7 @@ title: "ADR-JS: JavaScript Architecture, Constraints & Single Source of Truth (S
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-10-11'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -14,21 +14,16 @@ doc_links:
   - ADR-HTML
   - ADR-CSS
   - ADR-ANTIPATTERN
+  - ADR-EVENT-DRIVEN-ARCHITECTURE
   - longevity-guidelines
 code_links:
-  - website/js/01-draft-manager.js
-  - website/js/02-settings-manager.js
-  - website/js/03-ui-protections.js
-  - website/js/04-sanitize.js
+  - website/js/00-event-bus.js
+  - website/js/01-document.js
+  - website/js/02-ui-settings.js
   - website/js/32-toast.js
   - website/js/41-salutation-engine.js
-  - website/js/42-signature.js
-  - website/js/43-geoapify.js
-  - website/js/45-address-intelligence.js
-  - website/js/46-clipboard-address-parser.js
-  - website/js/47-date-format.js
-  - website/js/51-storage.js
-  - website/js/53-metadata.js
+  - website/js/45-address.js
+  - website/js/51-persistence.js
   - website/js/main.js
 error_patterns:
   - javascript constraints
@@ -39,6 +34,7 @@ error_patterns:
   - temporal api
   - localstorage
   - antipattern
+  - event bus
 supersedes: []
 depends_on: []
 ---
@@ -52,6 +48,8 @@ depends_on: []
 Klassische Webanwendungen missbrauchen JavaScript häufig für visuelle Effekte, Layout-Berechnungen, Textumbruch-Messungen und State-Synchronisationen, die moderne Browser nativ und hochperformant in C++ lösen können.
 In DIN-Brief Neo ist JavaScript streng auf eine **logische Begleitschicht** reduziert (< 18 KB Core-Bundle). Es dient als Bindeglied für Datenpersistenz, DOM-Range-Manipulationen und Offline-Suchalgorithmen.
 
+Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft`) zu tiefen Verdrahtungsketten zwischen `main.js` und den Fachmodulen. Diese enge Kopplung wird nach dem Strangler-Fig-Pattern schrittweise durch einen leichtgewichtigen nativen EventBus (`website/js/00-event-bus.js`) abgelöst, ohne Framework-Abhängigkeiten einzuführen.
+
 ---
 
 ## 2. Grundlegende Architektur-Entscheidungen
@@ -59,132 +57,143 @@ In DIN-Brief Neo ist JavaScript streng auf eine **logische Begleitschicht** redu
 1. **Striktes Verbot von JS-Layouting & DOM-Messschleifen:** JS darf keine CSS-Stile für Layout, Elementpositionen oder Textgrößen berechnen (Toolbar nutzt CSS Anchor Positioning, Text-Fit nutzt `field-sizing: content` und `text-fit: shrink`).
 2. **Verbot von `document.execCommand`:** Textformatierungen erfolgen ausschließlich über die standardkonforme W3C Selection & Range API.
 3. **View Transitions API:** Zustandswechsel (z. B. Formularwechsel Form A/B, Theme-Wechsel) nutzen `document.startViewTransition()` statt JS-Animationen.
-4. **Reglementierte Aufgaben für JavaScript:**
+4. **Modulkommunikation & EventBus:** Modulübergreifende Benachrichtigungen und Zustandsänderungen erfolgen lose gekoppelt über den nativen EventBus (`website/js/00-event-bus.js`, `EventTarget`/`CustomEvent`) gemäß [[ADR-EVENT-DRIVEN-ARCHITECTURE]]. Reine fachliche Berechnungen verbleiben in zustandslosen Domain-Funktionen (`website/js/45-address.js`).
+5. **Reglementierte Aufgaben für JavaScript:**
    * W3C Selection & Range API (Textformatierung im Fließtext)
    * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore)
    * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('brotli')`
    * Deterministischer 0,1ms Clipboard-Impressum-Parser mit juristischem Müllfilter
    * Native Popover-Queue & Lifecycle-Steuerung für Toasts im Top-Layer
    * Canvas-Bildkompression für Unterschriften (`createImageBitmap`)
+   * Entkoppelte Pub/Sub-Ereignisse über den nativen EventBus (`dinbrief:`-Namespace)
 
 ---
 
 ## 3. Single Source of Truth: Aktive Module & Funktions-Registry
 
-Das Projekt verfügt über exakt **14 aktive JavaScript-Module** unter `website/js/` (13 Fach-Module + Bootstrap `main.js`), dazu 1 Add-on. Letzte Konsolidierung 2026-09-09: `44-sender-sync.js` → in `45-address-intelligence.js` (Adress-Domain), `51-constants.js` + `52-storage.js` → `51-storage.js` (State-Layer); `healthcheck.js` wurde bereits aus dem Produkt entfernt:
+Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS.md §7a, keine Unterordner). Module sind nach Schichten strukturiert (`0x` Core, `3x` UI, `4x` Features/Domain, `5x` Storage/Tools):
 
-### 1. `01-draft-manager.js` (Entwurfs- & History-Management)
-* `constructor(onSaveCallback)`: Initialisiert den Manager und den History-Stack.
-* `saveDraft()`: Serialisiert den aktuellen Briefentwurf und speichert ihn in `localStorage`.
-* `loadDraft()`: Liest gespeicherte Entwurfsdaten aus und befüllt die DOM-Felder.
-* `undo()` / `redo()`: Schrittweises Rückgängigmachen / Wiederherstellen über internen Snapshot-Stack.
-* `resetDraft()`: Setzt alle Felder auf DIN-5008-Default-Werte zurück.
-* `scheduleAutoSave()`: Debounced AutoSave nach Benutzerinaktivität.
-* `_updateDocumentTitle()`: Aktualisiert den Fenstertitel dynamisch basierend auf Empfänger und Betreff.
+### 0. `00-event-bus.js` (Natives Pub/Sub-Fundament)
+* `createEventBus(target)`: Factory für isolierte EventTarget-Instanzen (ideal für Unit-Tests).
+* `eventBus`: Singleton-Instanz für die anwendungsweite Kommunikation.
+* `Events`: Typisierte Event-Konstanten mit Pflicht-Namespace `dinbrief:` (`NOTIFICATION_REQUESTED`, `DOCUMENT_SAVE_REQUESTED`, `DOCUMENT_SAVED`, `DOCUMENT_SAVE_FAILED`, `DOCUMENT_CHANGED`).
+* `publish(topic, payload)` / `subscribe(topic, handler, options)`: Entkoppelte Kommunikation via `CustomEvent`; `subscribe` gibt Unsubscribe-Funktion zurück und unterstützt `AbortSignal`.
 
-### 2. `02-settings-manager.js` (Layout & Plattform-Schalter)
-* `constructor()`: Bindet UI-Elemente für Layout (Form A/B), Theme und Schalter.
-* `init()`: Lädt gespeicherte Einstellungen und injiziert Fonts.
-* `applySettings()`: Synchronisiert Radio-Controls und semantische Switches mit dem State.
-* `applyThemeDim(dim)`: Setzt CSS Custom Property `--theme-dim` für stufenloses Darkmode-Dimming.
-* `updateSettings()`: Persistiert Einstellungsänderungen via `StorageManager`.
-* `initFontInjection()` / `injectFont(base64Font)`: Injiziert Offline-WOFF2-Fonts via `@font-face`.
-* `updateFontStatusUI(hasCustomFont)`: Aktualisiert Schriftstatus in der Sidebar.
-* `attachListeners()`: Event-Handler für Theme, Layout und den semantischen `<input type="checkbox" switch id="btn-hilfslinien-switch">`.
+### 1. `01-document.js` (Dokumenten-Core: DraftManager, UIProtections & SelectionUtils)
+* **`DraftManager`**:
+  * `constructor(onSaveCallback = null, bus = eventBus)`: Initialisiert History-Stack und lauscht auf `DOCUMENT_SAVE_REQUESTED`.
+  * `saveDraft()`: Serialisiert den aktuellen Entwurf, speichert ihn in `localStorage` und publiziert `DOCUMENT_SAVED` bzw. `DOCUMENT_SAVE_FAILED`.
+  * `loadDraft()`: Liest gespeicherte Entwurfsdaten aus und befüllt die DOM-Felder via Allowlist-Sanitizer.
+  * `undo()` / `redo()`: Schrittweises Rückgängigmachen / Wiederherstellen über Snapshot-Stack; publiziert `DOCUMENT_CHANGED`.
+  * `resetDraft()`: Setzt alle Felder auf DIN-5008-Default-Werte zurück und publiziert `DOCUMENT_CHANGED`.
+  * `scheduleAutoSave()`: Debounced AutoSave nach Benutzerinaktivität (500 ms).
+  * `destroy()`: Bereinigt EventBus-Listener.
+* **`UIProtections`**:
+  * `constructor()`: Registriert geschützte Selektoren (`multiLineIds`, `maxTwoLinesIds`).
+  * `init()`: Initialisiert Tasten-, Shortcut- (`Ctrl+Q` für Blockquotes) und Paste-Schutz.
+  * `enforceLineLimits()`: Fängt Enter-Taste auf einzeiligen Feldern ab und begrenzt Betreff/Postvermerk auf max. 2 Zeilen (130 Zeichen). Behandelt Pasting mit Zeilenumbruch-Einebnung (`pastedText.replace(/[\r\n]+/g, ' ')`). (Single-Line Plaintext-Schutz ist nativ über `contenteditable="plaintext-only"` und `enterkeyhint="done"` gelöst).
+  * `protectAnlagenList()`: Verhindert die Löschung des letzten Listenelements in `#anlagen-text`.
+  * `ensureListStructure(anlagen)`: Stellt sicher, dass `#anlagen-text` stets ein valides `<ul><li>`-Gerüst behält.
+* **Selection & Caret Utilities**:
+  * `getCaretCharacterOffset(element)` / `setCaretCharacterOffset(element, offset)`: W3C Range- & TreeWalker-basierte Caret-Positionsbestimmung ohne Layout Thrashing.
+  * `setCaretToEnd(element)`: Setzt den Fokus und Caret ans Textende.
 
-### 3. `03-ui-protections.js` (Eingabeschutz & Listen-Integrität)
-* `constructor()`: Registriert geschützte Selektoren (`multiLineIds`, `maxTwoLinesIds`).
-* `init()`: Initialisiert Tasten- und Paste-Schutz.
-* `enforceLineLimits()`: Fängt Enter-Taste auf einzeiligen Feldern ab und begrenzt Betreff/Postvermerk auf max. 2 Zeilen (130 Zeichen). Behandelt Pasting mit Zeilenumbruch-Einebnung (`pastedText.replace(/[\r\n]+/g, ' ')`). (Single-Line Plaintext-Schutz ist nativ über `contenteditable="plaintext-only"` und `enterkeyhint="done"` gelöst).
-* `protectAnlagenList()`: Verhindert die Löschung des letzten Listenelements in `#anlagen-text`.
-* `ensureListStructure(anlagen)`: Stellt sicher, dass `#anlagen-text` stets ein valides `<ul><li>`-Gerüst behält.
+### 2. `02-ui-settings.js` (UI-Settings, Layout, Theme, Font & SignatureFeature)
+*Bündelt die vormaligen Einzelmodule `02-settings-manager.js`, `42-signature.js` und re-exportiert `sanitizeRichText`:*
+* **`SettingsManager`**:
+  * `constructor()`: Bindet UI-Elemente für Layout (Form A/B), Theme und Schalter.
+  * `init()`: Lädt gespeicherte Einstellungen und injiziert Fonts.
+  * `applySettings()`: Synchronisiert Radio-Controls und semantische Switches mit dem State.
+  * `applyTheme(theme)`: Setzt Theme (`auto`, `light`, `dark`) mit element-scoped View Transitions.
+  * `changeLayout(layout)`: Wechselt DIN-Layout (Form A vs. B) mit View Transition auf `<din-a4>`.
+  * `updateSettings()`: Persistiert Einstellungsänderungen via `51-persistence.js`.
+  * `initFontInjection()` / `injectFont(base64Font)`: Injiziert Offline-WOFF2-Fonts via native `FontFace` API.
+  * `updateFontStatusUI(hasCustomFont)`: Aktualisiert Schriftstatus in der Sidebar.
+  * `attachListeners()`: Event-Handler für Theme, Layout und den semantischen Switch `#btn-hilfslinien-switch`.
+* **`SignatureFeature`**:
+  * `constructor(settingsContext)`: Verwaltet Bild-Upload und Signatur-Bounding-Box.
+  * `init()` / `initWysiwyg()`: Bindet Drag, Resize und Rotation der Unterschrift auf dem Briefblatt.
+  * `applyTransform()`: Schreibt individuelle CSS-Transforms (`style.translate`, `style.rotate`, `style.scale`) direkt ohne Layout Thrashing.
+  * `processFile(file)` / `compressImage(bitmap)`: Asynchrone Bildkompression via `createImageBitmap` zur Schonung des LocalStorage.
+  * `saveAndApply(base64)` / `applyImage(base64)` / `resetImage()`: Speichern, Rendern und Löschen der Signatur.
 
-### 4. `04-sanitize.js` (Rich-Text-Sanitizer & Allowlist-Guard)
-* `sanitizeRichText(htmlString, options)`: Bereinigt HTML-Strings für den Brieftext (`#text`) und Anlagen (`#anlagen-text`) vor dem Restore über eine strikte Allowlist (`B`, `STRONG`, `U`, `S`, `BLOCKQUOTE`, `BR`, `DIV`, `P` und optional `UL`/`LI`). Verhindert XSS und unerlaubte Attribute/Tags.
-*(Hinweis: Die frühere Floating-Toolbar `31-format-toolbar.js` wurde zugunsten des robusteren **Rich-Text-Light**-Ansatzes eliminiert: Fett/Unterstrichen erfolgen browser-nativ via Chromium Core, Blockquote via `Ctrl+Q` in `03-ui-protections.js`, und Paste filtert fremdes Styling bei Erhalt aller Zeilenumbrüche).*
+### 3. `32-toast.js` (Native Popover Top-Layer Queue & EventBus-Subscriber)
+* `initToastSystem()`: Ermittelt `#hinweis-v4` (`popover="manual"`) im DOM, bindet Close-Button und abonniert `Events.NOTIFICATION_REQUESTED`.
+* `showToast(message, type)`: Zeigt Toast im Top-Layer via `showPopover()`; dedupliziert bei gleicher Nachricht via Timer-Reset.
+* `armCloseWatcher()`: Schließt den Toast nativ über `CloseWatcher` bei Esc / Back-Gesture.
+* Verwaltet automatischen Lesezeit-Timer (`2000ms + 30ms × Zeichenanzahl`, max. `5000ms`).
 
-### 5. `32-toast.js` (Native Popover Top-Layer Queue)
-* `constructor()`: Initialisiert schlanke FIFO-Queue mit Deduplizierung und State.
-* `initDOM()`: Ermittelt `#toast-v4` (`popover="manual"`) im DOM und bindet Hover-Pause sowie Close-Button.
-* `show(message, type, options)`: Fügt Toast zur Queue hinzu; dedupliziert wiederholte Nachrichten via Badge-Counter (`x2`, `x3`) und Triggering von CSS-Shake.
-* `update(id, message, type)`: Aktualisiert laufende Progress-Toasts.
-* `processQueue()`: Zeigt den nächsten Toast nativ im Top-Layer via `dom.global.showPopover()`.
-* `startTimer(duration, sticky)` / `pauseTimer()` / `resumeTimer()` / `clearTimer()`: Timer-Steuerung.
-* `cleanupPopover()`: Schließt den Toast deklarativ via `dom.global.hidePopover()`.
-* `showToast(...)` / `updateToast(...)` / `initToastSystem()`: Exportierte globale Hilfsfunktionen.
-
-### 6. `41-salutation-engine.js` (80/20 Smart Salutation Engine V2)
-* `constructor(saveDraftDataCallback)`: Initialisiert Engine mit 3 B2B-Pärchen; die 951 Vornamen werden aus `data/de_vornamen_gender.json.br` geladen (Brotli via DecompressionStream, Muster wie ADR-006).
+### 4. `41-salutation-engine.js` (80/20 Smart Salutation Engine V2)
+* `constructor(saveDraftDataCallback = null, settingsContext = null)`: Initialisiert Engine mit 3 B2B-Pärchen; die 951 Vornamen werden aus `data/de_vornamen_gender.json.br` geladen. Publiziert `DOCUMENT_SAVE_REQUESTED` über den EventBus bei Änderungen.
 * `init()`: Verdrahtet Empfänger-Eingaben mit Anrede und Grußformel.
 * `derive({ firstName, lastName, company, formality })`: Ermittelt treffsicher die Anredeform ("Sehr geehrte(r) Frau/Herr [Nachname],", "Guten Tag...", "Hallo...").
 * `getClosing(formality)`: Liefert das harmonische DIN-5008-Gegenstück ("Mit freundlichen Grüßen", "Freundliche Grüße", "Beste Grüße").
 * `getFallback(formality)`: Fallback-Anrede ("Sehr geehrte Damen und Herren,").
 * `splitTitles(name)`: Erkennt akademische Grade (Dr., Prof.) und Adelspartikel (von, zu, van, de).
 * `_applyUIState()` / `_wireRecipientName()` / `_wireManualEdits()`: Reagiert auf Eingaben mit In-Flight-Tippschutz und schützt manuelle Nutzereingaben via `data-dirty="true"` (mit Auto-Reset bei Feldleerung).
-* `_validatePunctuation(el, kind)`: Erzwingt DIN-Kommasetzung (Komma nach Anrede, strikt KEIN Komma nach Grußformel).
+* `_validatePunctuation(el, kind)`: Erzwingt DIN-Kommasetzung (Komma nach Anrede, strikt KEIN Komma nach Grußformel) via `NOTIFICATION_REQUESTED`.
 
-### 7. `42-signature.js` (Unterschriften-Manager)
-* `constructor(uiContext)`: Verwaltet Bild-Upload und Signatur-Bounding-Box.
-* `init()` / `initWysiwyg()`: Bindet Drag, Resize und Rotation der Unterschrift auf dem Briefblatt.
-* `applyTransform()`: Setzt Transformations-Matrix auf das Unterschriftenbild.
-* `processFile(file)` / `compressImage(bitmap)`: Asynchrone Bildkompression via `createImageBitmap` zur Schonung des LocalStorage.
-* `saveAndApply(base64)` / `applyImage(base64)` / `resetImage()`: Speichern, Rendern und Löschen der Signatur.
+### 8. `45-address.js` (Konsolidierter Adress-, PLZ- & Geocoding-Cluster)
+*Bündelt die vormaligen Einzelmodule `05-gzip.js`, `44-address-domain.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js` und `43-geoapify.js`:*
+* **Gzip-Decompression (`fetchGzipJson`)**: Nativer `DecompressionStream('gzip')` für `de_plz_ort.json.gz` und `de_grosskunden_plz.json.gz` ohne Fremdbibliotheken.
+* **Domain Functions (Zustandslos)**:
+  * `normalizePostcode(raw)`: Validiert 5-stellige deutsche Postleitzahlen.
+  * `resolvePostcode(plz, plzToCityMap, grosskundenMap)`: Zustandsloser PLZ-Lookup inkl. Großempfänger-Erkennung (OLG Frankfurt Az. 6 U 170/13).
+  * `resolveCity(query, cityToPlzMap, plzToCityMap, limit)`: Exakte und präfixbasierte Ortssuche.
+  * `filterPostcodePrefix(prefix, plzToCityMap, limit)`: Filtert PLZs nach 2–4-stelligen Ziffern-Präfixen.
+  * `detectPlzInputPattern(raw)`: Erkennt semantische Muster (`plz_exact`, `plz_prefix`, `city_name`, `unknown`).
+* **`AddressIntelligence`**: 100% Offline PLZ- und Großempfänger-Engine. Initialisiert Datensätze im Speicher, bindet Empfängerfelder via `wireDOM()`, steuert Popover-Vorschläge und publiziert `DOCUMENT_SAVE_REQUESTED` sowie `NOTIFICATION_REQUESTED`.
+* **`initSenderSync()`**: Synchronisiert Absender-Formularfelder reaktiv mit der DIN-Rücksendezeile (mit Namenskürzel via `abbreviateName`) und der Maschinenschrift.
+* **`ClipboardAddressParser`**: 95%-KISS Multi-Pass Regex-Parser für Zwischenablagen-Texte. Filtert Metadaten (HRB, USt-ID etc.) und öffnet bei Mehrdeutigkeit das Popover `#clipboard-candidates-popover`.
+* **`initAddressServices({ onToast, onSaveDraft })`**: Optionaler Geoapify-Service mit In-Memory Cache, Adressbuch-Historie (max. 50 Einträge) und Absender-Proximity-Bias.
 
-### 8. `43-geoapify.js` (Remote-Adress-Autocomplete mit Dynamic Target Lock)
-* `initAddressServices({ onToast, onSaveDraft })`: Initialisiert Adress-Suche.
-* `validateKeyWithHeartbeat(key)`: Prüft Gültigkeit des API-Keys.
-* `performAddressSearch(query, localMatches)`: Führt Remote-Suche durch, wenn Offline-Treffer nicht ausreichen.
-* `setTargetLock(plz, city)`: Dynamische Sperre des Bonn-Bias zugunsten des erkannten Zielorts.
-* `renderSuggestions(suggestions, query)` / `selectSuggestion(item)`: Dropdown-Rendering und Auswahl.
+### 9. `51-persistence.js` (Konsolidierter Persistenz-, Datums- & Export-Layer)
+*Bündelt die vormaligen Einzelmodule `47-date-format.js`, `51-storage.js`, `53-metadata.js` und `52-import-export.js`:*
+* **DateFormat (`formatLetterDate`, `applyLetterDate`, `currentISODate`)**: Zoniertes DIN-5008-Datum ("4. September 2026") und maschinenlesbares ISO-Datum via nativer `Intl.DateTimeFormat` und `Temporal API`.
+* **Storage Primitives & Konstanten**:
+  * `Constants`: SCHEMA-Version, Storage-Keys, System-Limits und Toast-Meldungen.
+  * `DEFAULT_SETTINGS` & `STORAGE_KEYS`: Zentrale Speicherschlüssel und Default-Konfiguration.
+  * `load`, `save`, `remove`, `loadJSON`, `saveJSON`: Robuste, try-catch-gekapselte LocalStorage-Primitives.
+  * `migrateStorage()`: Idempotente Schema-Migration beim App-Start.
+  * `StorageManager`: Abwärtskompatible Fassade für bestehende Komponenten.
+* **Metadata & Document Identity**:
+  * `collectLetterIdentity()` & `buildLetterFileName()`: Ermittelt Empfänger, Absender, Betreff und zoniertes Datum für standardisierte PDF-Dateinamen und Backups.
+  * `isPrintTitleActive()`: Koordiniert `document.title` zwischen Druckdialog und DraftManager-Autosave.
+  * `MetadataService`: Bereitet PDF-Drucktitel und HTML-Metatags im `<head>` vor und stellt den Urzustand nach dem Drucken wieder her.
+* **Import / Export (`DINLETTER_FORMAT = 'dinletter'`)**:
+  * `buildDinLetterPayload(draft, settings, font)`: Erzeugt valides DIN-Brief-JSON mit Metadaten-Header.
+  * `parseDinLetterPayload(raw)`: Defensiver Validator für importierte JSON-Dateien (Schutz vor Prototyp-Pollution und XSS).
+  * `initImportExport({ onSaveDraft, onToast })`: Verdrahtet Export- und Import-Dialoge; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
 
-### 9. `45-address-intelligence.js` (Adress-Domain: Offline Brotli PLZ & Großkunden-Engine + Absender-Sync)
-*Ehemals `45-address-intelligence.js` + `44-sender-sync.js` (zusammengeführt am 2026-09-09, Kohäsion: beide bedienen das Empfänger-/Absender-Adressfeld).*
-* `initAddressIntelligence()`: Dekomprimiert `de_plz_ort.json.br` (10.831 PLZs) und `de_grosskunden_plz.json.br` (2.258 Großempfänger) in unter 1 ms via `DecompressionStream('brotli')`.
-* `lookupPlz(plz)`: Sofort-Lookup von PLZ zu Ort und Bundesland.
-* `lookupGrosskunde(plz)`: Erkennt Großkunden (Bundestag, Kanzleramt, Konzerne) und setzt Straßenzeile normgerecht auf entbehrlich.
-* `searchByCity(cityName)`: Bidirektionale Suche nach Ort oder Stadtteil.
-* `wireAutocomplete(inputField, options)`: Verbindet Adressfelder mit dem Offline-Kandidaten-Popover.
-* `abbreviateName(fullName)`: Erzeugt platzsparende Namenskürzel für die DIN-Rücksendezeile.
-* `initSenderSync()`: Verbindet Absender-Formularfelder reaktiv mit der Rücksendezeile; `sync()` schreibt Absenderzeile und Maschinenschrift synchron zusammen.
-
-### 10. `46-clipboard-address-parser.js` (Smart Clipboard Impressum-Parser)
-* `parseAddressFromText(rawText)`: Heuristischer 0,1ms Multi-Pass Regex-Parser. Filtert juristischen Müll (Handelsregister HRB, Amtsgerichte, USt-ID, Cookie-Texte) und extrahiert DIN-5008-Anschriften.
-* `wireSidebarButton({ onToast, onSaveDraft })`: Verbindet den Sidebar-Button `📋 Zwischenablage lesen` mit dem System.
-* `showAddressCandidates(candidates)`: Öffnet bei mehreren Standorten das Top-Layer Popover `#clipboard-candidates-popover` zur Ein-Klick-Auswahl.
-
-### 11. `47-date-format.js` (DIN 5008 Datumsformatierung)
-* `formatLetterDate()`: Erzeugt DIN-konformes Datum ("4. September 2026", ohne führende Null) via `Intl.DateTimeFormat('de-DE')` mit Temporal-Objekt — keine manuelle Monatstabelle (Context7: Intl.DateTimeFormat.format() akzeptiert Temporal-Instanzen nativ).
-* `applyLetterDate()`: Befüllt das Datumsfeld des Briefes beim Laden.
-
-**Down-Breaking vom 2026-09-09 (17 → 16 Zeilen, Monatsblock eliminiert, Config auf Einzeiler verdichtet):**
-Die Vorgängerversion pflegte ein `MONTHS`-Array (12 handgepflegte Strings), Index-Arithmetik (`MONTHS[t.month - 1]`) und `padStart(2, '0')` — letzteres erzeugte "04. September" und widersprach damit DIN 5008 sowie dem HTML-Placeholder (`placeholder="4. September 2026"`). Ersetzt durch `Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })`.
-
-| Bestandteil | Status | Grund |
-| :--- | :---: | :--- |
-| `MONTHS`-Array, Index-Mathematik, `padStart` | 🗑️ **eliminiert** | Platform-ICU liefert Locale-Strings deterministisch und normgerecht |
-| `Intl.DateTimeFormat('de-DE', { dateStyle: 'long' })` (1 Zeile) | 🔒 **irreduzibel** | Temporal ist die Datums-Mathe-API (Kalender, Zeitzonen, Arithmetik); Locale-Formatierung ist bewusst ein Job von Intl, nicht von Temporal |
-| `formatLetterDate()` + `@type {any}`-Cast | 🔒 **irreduzibel** | Ortszeit `Europe/Berlin` (DIN-Zustelldatum); Cast nur, weil die TS-Libs die Intl↔Temporal-Overloads noch nicht führen (Runtime läuft) |
-| `applyLetterDate()` (DOM-Glue) | 🔒 **irreduzibel** | Kein Datums-API schreibt Text in `#datum` — das ist App-Verdrahtung, keine Datumstechnik |
-
-Die Datei ist als Single-Responsibility-Modul ("Datum-Stempel") damit am irreduziblen Minimum. Verbleibende Verkleinerungsoptionen (nicht umgesetzt): **B)** Funktionen nach `main.js` inline ziehen und das Modul löschen (47 importiert nichts — zirkelfrei; konträr zur Regel "Bootstrap bleibt dünn"). *(Option A — `dateStyle: 'long'` als Einzeiler — wurde am 2026-09-09 umgesetzt; Verifikation: de-DE-ICU liefert "4. September 2026" / "1. Januar 2026" identisch zur Komponenten-Konfiguration.)*
-
-### 12. `51-storage.js` (State-Layer: System-Konstanten & Persistenz)
-*Ehemals `51-constants.js` + `52-storage.js` (zusammengeführt am 2026-09-09, Kohäsion: `Constants.STORAGE` definiert die Keys, `StorageManager` konsumiert sie).*
-* `Constants`: SCHEMA-Version, Storage-Keys, System-Limits (History-Cap, Debounce, Font-Größe) und standardisierte Toast-Meldungen.
-* `saveDraft(key, data)` / `loadDraft(key)`: Persistiert Brieftexte im `localStorage`.
-* `saveSettings(settings)` / `loadSettings()`: Persistiert Layout-, Theme- und Schalter-Einstellungen.
-* `saveCustomFont(base64Font)` / `loadCustomFont()`: Speichert benutzerdefinierte WOFF2-Schrift.
-* `saveGeoapifyKey(key)` / `loadGeoapifyKey()`: Speichert API-Key.
-
-### 13. `53-metadata.js` (Dokument-Metadaten für Export)
-* `prepare()`: Extrahiert Empfänger und Betreff für standardkonforme PDF-Drucktitel.
-* `_injectMetaTags(data)`: Injiziert Meta-Tags in den `<head>`.
-* `restore(context)`: Stellt den ursprünglichen DOM-Zustand nach dem Drucken wieder her.
-
-### 14. `main.js` (Bootstrap)
-* `initApp()`: Zentraler Bootstrap beim Laden von `DOMContentLoaded`. Initialisiert alle Module in geordneter Reihenfolge.
+### 16. `main.js` (Composition Root & Bootstrap)
+* `initApp()`: Zentraler Bootstrap beim Laden von `DOMContentLoaded`. Initialisiert EventBus, Module und Adapter.
 * `syncPostvermerkFromSidebar()`: Synchronisiert Auswahlliste mit dem Postvermerkfeld.
-* `attachGlobalListeners(...)`: Registriert globale Tastenkombinationen (Strg+S, Strg+Z, Strg+Y, Strg+P).
+* `attachGlobalListeners(...)`: Registriert globale Tastenkombinationen und leitet DOM-Eingaben via `DOCUMENT_SAVE_REQUESTED` an den EventBus weiter.
+
+---
+
+### 3.1 Modulkommunikation
+
+Modulübergreifende Benachrichtigungen und Zustandswechsel erfolgen über den nativen EventBus, sofern eine direkte funktionale Abhängigkeit fachlich nicht erforderlich ist. Der EventBus verwendet `EventTarget`, `CustomEvent` und das Topic-Präfix `dinbrief:`.
+
+Der EventBus ersetzt keine reine Domain-Funktion und keinen synchron benötigten Rückgabewert. Berechnungen wie ein PLZ-/Ort-Lookup bleiben unabhängig testbare Funktionen. Die Benachrichtigung über eine daraus resultierende Zustandsänderung kann ereignisgesteuert erfolgen.
+
+Die verbindlichen Topic-Namen und Payload-Verträge sind in [[ADR-EVENT-DRIVEN-ARCHITECTURE]] festgelegt.
+
+### 3.2 Verantwortlichkeiten & Schichten
+
+- **Composition Root (`main.js`):** Initialisierung und Verdrahtung der Module.
+- **EventBus (`00-event-bus.js`):** Transport vereinbarter Ereignisse ohne fachliche Kenntnis.
+- **Services / Manager:** Koordination von Anwendungsfällen und Zustandsänderungen (`DraftManager`, `SettingsManager`).
+- **Domain-Funktionen (`44-address-domain.js`):** reine fachliche Berechnungen ohne DOM-, Storage- oder Netzwerkzugriff.
+- **DOM-Adapter / Views:** Lesen von UI-Eingaben und Darstellung von Ergebnissen.
+- **Storage-Verantwortliche (`51-storage.js`):** lokale Persistenz gemäß [[ADR-DATA-PERSISTENCE]].
+
+### 3.3 Grenzen der Entkopplung
+
+Nicht jeder Funktionsaufruf wird zu einem Event. Direkte Aufrufe innerhalb eines Moduls sowie synchrone reine Funktionen bleiben Standard. Events werden ausschließlich für die vereinbarte modulübergreifende Kommunikation verwendet.
+
+Ein Event stellt keine erfolgreiche Persistenz und keine fehlerfreie Ausführung aller Subscriber sicher. Solche Ergebnisse werden nur vom jeweils verantwortlichen Service nach erfolgreichem Abschluss veröffentlicht.
 
 ---
 
@@ -195,13 +204,13 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 | Modul / Komponente | Eliminierte Funktionen / Konstrukte | Status | Verboten durch | Moderner Ersatz (Web Platform 2026) |
 | :--- | :--- | :---: | :--- | :--- |
 | **`addons/ai-assistant.js`** | On-Device Gemini Nano Rewriter, `#toggle-experimental-ai`, `#btn-ai-rewrite` | 🚫 **ELIMINATED** | KISS-Bereinigung toten Codes | Wegfall der Format-Toolbar machte Addon funktionslos; Prototyp archiviert unter `research/roadmap/`. |
-| **`boot-state.js`** | Doppelter Draft-Restore vor `main.js`, DOM-Vorbelegung | 🚫 **ELIMINATED** | KISS SSoT-Doktrin | `DraftManager` in `01-draft-manager.js` ist alleiniger Restore-Owner. |
+| **`boot-state.js`** | Doppelter Draft-Restore vor `main.js`, DOM-Vorbelegung | 🚫 **ELIMINATED** | KISS SSoT-Doktrin | `DraftManager` in `01-document.js` ist alleiniger Restore-Owner. |
 | **`48-text-fit.js`** | `constructor`, `init`, `scanDOM`, `isOverflowing`, `attachEventListeners`, `notifyToast`, `restoreCaretToEnd`, `initMutationObserver` | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `overflow: clip`, `text-fit: shrink 60%`, `text-wrap: balance/pretty`. 0 Zeilen JS, 0 ms Layout Thrashing. |
 | **`41-salutation-engine.legacy.js`** | `_wireGender`, Radio-Buttons für Geschlecht, NLP-Regexes für Adelstitel/Paare | 🚫 **HARD BAN** | Catalog A58, Prio 1 | 80/20 Smart Engine (`41-salutation-engine.js`), 951 Offline-Vornamen, ContentEditable Dirty-Flag mit Auto-Reset. |
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | Catalog A55, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |
 | **`32-toast.js`** | `onPointerDown`, `onPointerMove`, `onPointerUp`, `setPointerCapture`, `swipe.startX`, `--swipe-x`, `z-index: 9999` | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover="manual"`) im Top-Layer, CSS `@starting-style` und `transition-behavior: allow-discrete`. |
 | **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 72 KB Offline Brotli PLZ & Großempfänger Engine (`45-address-intelligence.js`). 100% DSGVO-konform, 0ms Latenz. |
-| **`31-format-toolbar.js`** | Floating Toolbar Popover, Selection-Anchor, manuelle Format-Buttons | 🚫 **ELIMINATED** | Rich-Text-Light Doktrin | Nativer Browser-Support (Ctrl+B/Ctrl+U), Plaintext-Paste & Ctrl+Q in `03-ui-protections.js`. |
+| **`31-format-toolbar.js`** | Floating Toolbar Popover, Selection-Anchor, manuelle Format-Buttons | 🚫 **ELIMINATED** | Rich-Text-Light Doktrin | Nativer Browser-Support (Ctrl+B/Ctrl+U), Plaintext-Paste & Ctrl+Q in `01-document.js`. |
 | **Global** | `document.execCommand('bold'|'italic'|...)` | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API sowie native Browser-Shortcuts (`Ctrl+B`, `Ctrl+U`) und Rich-Text-Light. |
 | **Global** | `new Date()`, `Date.now()`, `Date.parse()` | 🚫 **HARD BAN** | Catalog TM1, A48 | Temporal API (`Temporal.Now.plainDateISO()`) und standardkonformes DIN-Formatting. |
 

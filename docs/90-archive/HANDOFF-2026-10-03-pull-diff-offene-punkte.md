@@ -19,8 +19,8 @@ code_links:
 - 'website/index.html'
 - 'website/css/layers.css'
 - 'website/css/layout.css'
-- 'website/js/01-draft-manager.js'
-- 'website/js/51-storage.js'
+- 'website/js/01-document.js'
+- 'website/js/51-persistence.js'
 depends_on: []
 supersedes: []
 ---

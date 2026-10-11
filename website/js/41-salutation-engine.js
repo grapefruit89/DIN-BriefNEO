@@ -10,21 +10,42 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
-import { showToast } from './32-toast.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-persistence.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
+export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
+  formal: {
+    salutationDefault: 'Sehr geehrte Damen und Herren,',
+    salutationMale: 'Sehr geehrter Herr',
+    salutationFemale: 'Sehr geehrte Frau',
+    closing: 'Mit freundlichen Grüßen'
+  },
+  polite: {
+    salutationDefault: 'Guten Tag,',
+    salutationMale: 'Guten Tag Herr',
+    salutationFemale: 'Guten Tag Frau',
+    closing: 'Freundliche Grüße'
+  },
+  casual: {
+    salutationDefault: 'Hallo,',
+    salutationMale: 'Hallo Herr',
+    salutationFemale: 'Hallo Frau',
+    closing: 'Beste Grüße'
+  }
+}));
+
 const CLOSINGS = Object.freeze({
-  formal: 'Mit freundlichen Grüßen',
-  polite: 'Freundliche Grüße',
-  casual: 'Beste Grüße'
+  formal: SALUTATION_TONES.formal.closing,
+  polite: SALUTATION_TONES.polite.closing,
+  casual: SALUTATION_TONES.casual.closing
 });
 
 const FALLBACK = Object.freeze({
-  formal: 'Sehr geehrte Damen und Herren,',
-  polite: 'Guten Tag,',
-  casual: 'Hallo,'
+  formal: SALUTATION_TONES.formal.salutationDefault,
+  polite: SALUTATION_TONES.polite.salutationDefault,
+  casual: SALUTATION_TONES.casual.salutationDefault
 });
 
 /** Namenszusätze, die zum Nachnamen gehören ("von", "van der", ...). */
@@ -40,6 +61,7 @@ function toStyle(f) {
 
 export const SalutationEngine = {
   CLOSINGS,
+  SALUTATION_TONES,
 
   /**
    * Leitet die Anrede aus dem Namensfeld ab.
@@ -79,13 +101,13 @@ export const SalutationEngine = {
     // 5. Ausgabe
     if (style === 'casual') {
       if (firstName) return `Hallo ${firstName},`;
-      if (gender) return `Hallo ${gender === 'f' ? 'Frau' : 'Herr'} ${lastName},`;
-      return FALLBACK.casual;
+      if (gender) return `${SALUTATION_TONES.casual[gender === 'f' ? 'salutationFemale' : 'salutationMale']} ${lastName},`;
+      return SALUTATION_TONES.casual.salutationDefault;
     }
-    if (!gender) return FALLBACK[style]; // ohne Herr/Frau: neutral
+    if (!gender) return SALUTATION_TONES[style].salutationDefault; // ohne Herr/Frau: neutral
 
-    if (style === 'polite') return `Guten Tag ${gender === 'f' ? 'Frau' : 'Herr'} ${lastName},`;
-    return gender === 'f' ? `Sehr geehrte Frau ${lastName},` : `Sehr geehrter Herr ${lastName},`;
+    const prefixWord = gender === 'f' ? SALUTATION_TONES[style].salutationFemale : SALUTATION_TONES[style].salutationMale;
+    return `${prefixWord} ${lastName},`;
   },
 
   /** @param {string} [formality] */
@@ -109,10 +131,10 @@ export class SalutationFeature {
   /**
    * `settingsContext` ist das geteilte Settings-Objekt des SettingsManager
    * (ein Settings-Owner, kein eigener Snapshot per loadSettings()).
-   * @param {(() => void) | null} saveDraftDataCallback
+   * @param {(() => void) | null} [saveDraftDataCallback]
    * @param {{ settings: any, save: () => void } | null} [settingsContext]
    */
-  constructor(saveDraftDataCallback, settingsContext = null) {
+  constructor(saveDraftDataCallback = null, settingsContext = null) {
     this.saveDraftData = saveDraftDataCallback;
     this.#ctx = settingsContext;
     this.settings = settingsContext ? settingsContext.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
@@ -208,7 +230,11 @@ export class SalutationFeature {
     }
     el.textContent = value;
     el.dataset.generated = 'true';
-    if (this.saveDraftData) this.saveDraftData();
+    if (this.saveDraftData) {
+      this.saveDraftData();
+    } else {
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    }
   }
 
   /**
@@ -220,9 +246,9 @@ export class SalutationFeature {
     const text = (el.textContent || '').trim();
     if (!text || text === this.#auto[kind]) return;
     if (kind === 'anrede' && !text.endsWith(',')) {
-      showToast(Constants.TOASTS.SALUTATION_PUNCTUATION, 'warning');
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION_PUNCTUATION, type: 'warning' });
     } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
-      showToast(Constants.TOASTS.CLOSING_PUNCTUATION, 'warning');
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.CLOSING_PUNCTUATION, type: 'warning' });
     }
   }
 }

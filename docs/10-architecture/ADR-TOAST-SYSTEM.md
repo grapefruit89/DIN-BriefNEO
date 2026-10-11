@@ -4,7 +4,7 @@ title: 'ADR-TOAST: Toast-System Architektur & Registry'
 type: adr
 status: active
 created: '2026-07-03'
-updated: '2026-09-30'
+updated: '2026-10-11'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -15,7 +15,9 @@ tags:
 doc_links:
   - ADR-HTML
   - ADR-CSS
+  - ADR-EVENT-DRIVEN-ARCHITECTURE
 code_links:
+  - website/js/00-event-bus.js
   - website/js/32-toast.js
 error_patterns:
   - toast
@@ -24,6 +26,7 @@ error_patterns:
   - benachrichtigung
   - spam
   - toast registry
+  - notification.requested
 supersedes:
   - adr-toast-architecture
   - imr-toast-registry
@@ -37,9 +40,10 @@ depends_on: []
 **Robustes Benachrichtigungssystem ohne Framework-Abhängigkeiten.**
 
 - Die Anwendung benötigte ein stabiles, visuell ansprechendes und zugängliches (a11y) Toast-System.
-
 - Frühere Implementierungen basierten auf `display: none`-Toggles, manuellen Event-Listenern und einfachen JS-Timeouts — anfällig für "Notification Spam" bei schnellen Benutzeraktionen (z.B. wiederholtes Klicken auf Speichern).
-
+- Die ursprüngliche Benachrichtigungskommunikation über direkte Callback-Übergaben (`onToast`) koppelte aufrufende Module an die konkrete Toast-Implementierung.
+- Die aktuelle Architektur verwendet stattdessen den nativen EventBus (`website/js/00-event-bus.js`) und das Topic `dinbrief:notification.requested`.
+- Das Toast-System ist Subscriber dieses Vertrags. Fachmodule müssen weder die Toast-DOM-Struktur noch die konkrete Anzeigeimplementierung importieren. Die Entkopplung betrifft die Kommunikation; sie verändert nicht die fachliche Bedeutung der Meldungen oder die Verantwortung des Toast-Systems für deren Darstellung.
 - Anforderung: 100% nativ, performant, Vanilla JS/CSS, keine externe Abhängigkeit.
 
 ## 2. Decision
@@ -52,26 +56,37 @@ depends_on: []
 
 2. **CSS `@starting-style` & Discrete Transitions:** JS-basierte Animations-Listener entfallen. Enter/Exit-Animationen laufen vollständig nativ über `allow-discrete`-Transitions auf der `display`-Property.
 
-3. **Deduplizierungs-Queue (Spam-Schutz):** Gleichartige Nachrichten werden nicht gestapelt, sondern als Badge (`×2`, `×3`) mit `@keyframes shake` visualisiert.
+3. **Deduplizierungs-Queue (Spam-Schutz):** Gleichartige Nachrichten werden nicht gestapelt, sondern verlängern den aktiven Timer ohne unruhigen Neuaufbau.
 
-4. **Actionable & Sticky Toasts:** Die API erlaubt `action`-Objekte (z.B. "Rückgängig"-Button) und `sticky`-Modus für Progress-Indikatoren ohne Auto-Expire.
+4. **W3C Accessibility (ARIA):** Toast-Container ist strikt mit `role="alert"`, `aria-live="assertive"` und `aria-atomic="true"` markiert — Screen Reader kündigen Benachrichtigungen sofort an.
 
-5. **W3C Accessibility (ARIA):** Toast-Container ist strikt mit `role="alert"`, `aria-live="assertive"` und `aria-atomic="true"` markiert — Screen Reader kündigen Benachrichtigungen sofort an.
+5. **Native Schließmechanismen (Catalog A56):** Manuelle Pointer-Drag-Schleifen für Swipe-to-Dismiss sind durch Law Catalog A56 verboten. Das Schließen erfolgt rein deklarativ über den Close-Button und den nativen W3C `CloseWatcher` (Esc-Taste & Android-Back-Geste) sowie automatische Timer.
 
-6. **Swipe-to-Dismiss:** Über `PointerEvents` kann der Toast horizontal weggwischt werden — analoges Verhalten zu nativen Mobile-OS-Benachrichtigungen.
+### Kommunikationsvertrag
+
+Das Toast-System konsumiert `dinbrief:notification.requested`. Publisher übergeben die Meldung als Event-Payload mit dem vereinbarten Nachrichtentext und Meldungslevel (`type`: `'info' | 'success' | 'warning' | 'error'`).
+
+Der EventBus ist für den Transport zuständig. Das Toast-System bleibt für Validierung, Deduplizierung, Lebenszyklus, Anzeige und Barrierefreiheit verantwortlich.
+
+Die Toast-Implementierung kennt die aufrufenden Fachmodule nicht. Änderungen am Toast-Layout dürfen deshalb keinen Umbau der Publisher erfordern, solange der Eventvertrag unverändert bleibt.
+
+Der vollständige Kommunikationsvertrag ist in [[ADR-EVENT-DRIVEN-ARCHITECTURE]] beschrieben.
 
 ## 3. Consequences
 
-**Positiv:** Keine externen Abhängigkeiten. Maximale Performance durch Hardware-Beschleunigung. Best-in-class UX und Accessibility. `toast.js` ist vollständig von `main.js` entkoppelt.
+**Positiv:** Keine externen Abhängigkeiten. Maximale Performance durch Hardware-Beschleunigung. Best-in-class UX und Accessibility. `32-toast.js` ist vollständig von Fachmodulen und `main.js`-Callbacks entkoppelt.
 
-**Negativ/Risiko:** Setzt moderne Browser-Features voraus (Popover API, `@starting-style`). Browser älter als Ende 2023 rendern Enter/Exit-Animationen nicht — die Logik degradiert aber sicher.
+**Grenzen & Risiken:** Setzt moderne Browser-Features voraus (Popover API, `@starting-style`, `CloseWatcher`). Die Initialisierung und DOM-Verdrahtung verbleibt als Aufgabe des Composition Roots (`main.js`). Der EventBus garantiert keine Zustellungsergebnisse; ungültige Payloads werden defensiv ignoriert.
 
 ## 4. Implementation & Verification
 
+- `website/js/00-event-bus.js` liefert das Pub/Sub-Fundament.
+- `website/js/32-toast.js` abonniert `Events.NOTIFICATION_REQUESTED`.
 - CSS Anchor Positioning und `@starting-style` sind in `layout.css` aktiv.
-- JavaScript steuert ausschließlich `show/hidePopover()` — keine Positions- oder Animationsberechnungen.
+- JavaScript steuert ausschließlich `show/hidePopover()` — keine manuellen Drag-Schleifen oder Positionsmessungen (Catalog A56).
 - Laufzeit: `2000ms + 30ms × Zeichenanzahl`, max. `5000ms`.
-- Fitness Gate (`scripts/start.ps1`) verifiziert Traceability automatisch.
+- Alle alten `onToast`-Callbacks wurden restlos entfernt.
+- Verifikation über automatische Unit-Tests in `test/all.js` und das Fitness Gate (`node tools/build_db.js`).
 
 ---
 

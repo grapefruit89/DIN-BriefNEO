@@ -4,7 +4,7 @@ title: '10-architecture — Architektur-Entscheidungen & Traceability'
 type: meta
 status: active
 created: '2026-07-07'
-updated: '2026-09-30'
+updated: '2026-10-11'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -12,8 +12,14 @@ tags:
   - type/meta
 doc_links:
   - IMR-Registry
-  - ADR-ANTIPATTERN
+  - ADR-EVENT-DRIVEN-ARCHITECTURE
+  - ADR-JS
+  - ADR-TOAST-SYSTEM
+  - ADR-OMNITRACEABILITY
   - constitution
+  - Immutable-Law-Catalog
+  - longevity-guidelines
+  - spec
 error_patterns:
   - architektur
   - adr
@@ -29,31 +35,73 @@ code_links: []
 
 # 10-architecture — Architektur-Entscheidungen & Traceability
 
-Anker `_1` im Dezimalrahmen — Einstieg in das Systemverständnis. Wer das Projekt verstehen will, beginnt hier.
+Einstieg in das Architekturmodell von DIN-BriefNEO. Dieses Verzeichnis dokumentiert die begründeten technischen Entscheidungen und verknüpft sie mit dem normativen Fachmodell und der Implementierung.
 
-## Hub-Dokumente (immer zuerst lesen)
+## 1. Normative Quellen
 
-- [[IMR-Registry]] ⭐⭐⭐ — Single Source of Truth: alle Custom Tags, Zonen
-- [[Immutable-Law-Catalog]] ⭐⭐⭐ — alle Verbote und MUST-USE, vor jeder Änderung lesen
-- [[ADR-ANTIPATTERN]] — aufgelöst 2026-10-02, nur noch Umschlüsselungstabelle `Abschnitt → Gesetz`
-- [[ADR-OMNITRACEABILITY]] — Wie Code und Docs verknüpft sind (inkl. How-To, Compliance & bekannte Einschränkungen)
-- [[Function-Traceability]] — Funktions-Traceability-Matrix (generiert durch `tools/build_db.py`, **nicht versioniert**)
+Diese Quellen zuerst lesen. Sie definieren die Grenzen, innerhalb derer Architekturentscheidungen getroffen werden.
 
-## ADRs — Thematische Architektur-Entscheidungen
+- [[constitution]] — unveränderliche Projektprinzipien.
+- [[Immutable-Law-Catalog]] — verbindliche Verbote, bevorzugte native APIs und zulässige Alternativen.
+- [[spec]] — fachliche Produktanforderungen.
+- [[longevity-guidelines]] — Browser-Baseline und Kriterien für langlebige Technik.
+- [[IMR-Registry]] — kanonisches fachliches Vokabular, Tags, Zonen und belegte Geometrie.
 
-| ADR | Thema |
-|---|---|
-| [[ADR-HTML]] | HTML-Struktur, Custom Elements, IMR-Tags, WYSIWYG & Toolbars (integriert ehem. ADR-FEATURE) |
-| [[ADR-CSS]] | CSS-Architektur: Container Queries, Falzmarken, Anchor Positioning, oklch (integriert ehem. ADR-BETREFF) |
-| [[ADR-JS]] | JS-Architektur: Temporal, StorageManager, ES-Module |
-| [[ADR-DATA-PERSISTENCE]] | localStorage-Sovereignty, StorageManager-Pflicht |
-| [[ADR-TOAST-SYSTEM]] | Toast-System Architektur & Registry |
-| [[ADR-OMNITRACEABILITY]] | Traceability-System & How-To |
-| [[ADR-SENDER-SYNCHRONIZATION]] | Absender-Synchronisation |
-| [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]] | Offline Address Intelligence (70,5 KB Brotli-Dictionary & Fallback-Architektur) |
+Die Foundation-Dokumente sind READ-ONLY. Architekturentscheidungen und Implementierungen müssen mit ihnen übereinstimmen; sie ändern die Foundation nicht.
 
-## Historisch / Support
+## 2. Fachmodell und Semantik
 
-- Migrierte/archivierte Entscheidungen — siehe `docs/90-archive/`
-- [[ADR-TEMPLATE]] — Template für neue ADRs (liegt in `30-meta/`)
-- [[Code-Referenzen]] — Autogeneriert (Code ↔ ADR Verknüpfungen, `tools/build_db.js`, **nicht versioniert**)
+- [[IMR-Registry]] — Single Source of Truth für instantiierte Fachatome und die normative DIN-Geometrie.
+- [[ADR-HTML]] — HTML-Struktur, semantische `<din-…>`-Elemente, Editierbarkeit und native UI-Semantik.
+- [[ADR-CSS]] — Darstellung, Blatt-Skalierung, Container Queries, Anchor Positioning und Farbregeln.
+
+HTML implementiert das Modell. CSS rendert es. JavaScript erzeugt keine konkurrierende Quelle für Fachvokabular oder DIN-Millimeter.
+
+## 3. Kern- und Event-Architektur
+
+- [[ADR-JS]] — allgemeine Regeln für JavaScript, ES-Module und die Grenzen imperativer Logik.
+- [[ADR-EVENT-DRIVEN-ARCHITECTURE]] — EventBus, Pub/Sub, Topic-Namenskonventionen und Payload-Verträge.
+- [[ADR-DATA-PERSISTENCE]] — lokale Datenspeicherung und Datumshandling.
+- [[ADR-OMNITRACEABILITY]] — Verknüpfung von Architekturentscheidungen, Code und Prüfungen.
+
+Die Event-ADR dokumentiert die modulübergreifende Kommunikation. Die JavaScript-ADR beschreibt die übergeordneten Grenzen der Implementierung. Die Persistenz-ADR regelt den Speicherpfad.
+
+## 4. Präsentationsschichten
+
+- [[ADR-HTML]] — Struktur, Semantik und Editierbarkeit.
+- [[ADR-CSS]] — Layout, Blattdarstellung, Positionierung und visuelle Zustände.
+- [[ADR-TOAST-SYSTEM]] — native Popover-basierte Benachrichtigungen, Anzeigeverhalten und Toast-Registry.
+
+UI-Module verantworten ihre Darstellung. Fachmodule kommunizieren über die vereinbarten Schnittstellen, statt fremde UI-Elemente direkt zu manipulieren.
+
+## 5. Fachliche Subsysteme
+
+- [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]] — lokale PLZ-/Ort-Auflösung und optionale externe Anreicherung.
+- [[ADR-SENDER-SYNCHRONIZATION]] — Absender-Synchronisation.
+- [[ADR-DATA-PERSISTENCE]] — lokaler Speicher und Datumsverarbeitung.
+
+Die Subsysteme folgen den allgemeinen Architekturregeln und dürfen keine davon unabhängige zweite Quelle für fachliche Definitionen oder Persistenzentscheidungen schaffen.
+
+## 6. Traceability und Verifikation
+
+- [[ADR-OMNITRACEABILITY]] — Regeln für Code-/Dokumentationsreferenzen und maschinelle Nachvollziehbarkeit.
+- [[Function-Traceability]] — generierte Funktions-Traceability-Matrix.
+- [[ADR-TEMPLATE]] — Vorlage für neue Architekturentscheidungen; liegt unter `docs/30-meta/`.
+
+Jede neue oder geänderte ADR muss das vorgeschriebene Frontmatter-Schema einhalten. Bestehende Dateinamen und Frontmatter-IDs bleiben stabil. Code-Referenzen und Fitness Gate werden vor Abschluss einer Änderung geprüft.
+
+## 7. Historische und archivierte Entscheidungen
+
+- Migrierte oder abgelöste Entscheidungen liegen in `docs/90-archive/`.
+- Historische Dokumente werden nicht als aktive Architekturvorgabe verlinkt.
+- Die ehemalige `ADR-ANTIPATTERN`-Sammlung ist keine zweite Quelle für Verbote. Maßgeblich bleibt der [[Immutable-Law-Catalog]].
+- Frühere API-, Feature- oder Tech-Stack-Entscheidungen werden nur dort referenziert, wo sie die Herkunft einer aktiven Entscheidung erklären.
+
+## Empfohlene Lesereihenfolge
+
+1. Foundation-Dokumente (`constitution`, `Immutable-Law-Catalog`, `spec`, `longevity-guidelines`).
+2. IMR-Registry.
+3. `ADR-HTML` und `ADR-CSS`.
+4. `ADR-JS` und `ADR-EVENT-DRIVEN-ARCHITECTURE`.
+5. `ADR-DATA-PERSISTENCE` und die fachlichen Subsystem-ADRs.
+6. `ADR-OMNITRACEABILITY` vor Änderungen an Code oder Dokumentation.

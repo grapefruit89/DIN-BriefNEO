@@ -18,7 +18,7 @@ doc_links:
   - research/README
 code_links:
   - website/index.html
-  - website/js/43-geoapify.js
+  - website/js/45-address.js
   - website/css/print.css
 error_patterns:
   - roadmap

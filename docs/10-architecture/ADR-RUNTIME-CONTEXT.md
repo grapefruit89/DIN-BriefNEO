@@ -28,8 +28,7 @@ supersedes: []
 depends_on: []
 code_links:
   - 'website/index.html'
-  - 'website/js/05-gzip.js'
-  - 'website/js/45-address-intelligence.js'
+  - 'website/js/45-address.js'
   - 'start.bat'
 ---
 

@@ -108,7 +108,7 @@ const CUSTOM_CHECKS = {
 const FEATURE_CHECKS = {
   'Temporal API': {
     regex: /Temporal/g,
-    file: 'website/js/47-date-format.js'
+    file: 'website/js/51-persistence.js'
   },
   'CSS Anchor Positioning': {
     regex: /anchor-name|position-anchor|position-area/g,
@@ -132,7 +132,7 @@ const FEATURE_CHECKS = {
   },
   'View Transitions': {
     regex: /startViewTransition/g,
-    file: 'website/js/02-settings-manager.js'
+    file: 'website/js/02-ui-settings.js'
   }
 };
 

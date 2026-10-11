@@ -15,7 +15,7 @@ doc_links:
   - longevity-guidelines
 code_links:
   - website/js/main.js
-  - website/js/51-storage.js
+  - website/js/51-persistence.js
 error_patterns:
   - data persistence
   - localstorage

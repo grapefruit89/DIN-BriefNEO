@@ -279,3 +279,173 @@ din-lochmarke {
   display: block;
 }
 
+/* --- BLATT-BEDINGTE ELEMENTE & UTILITIES --- */
+#brief-ansicht {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+
+din-a4 {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+:root:has(#btn-hilfslinien-switch:checked) {
+  --hilfslinien-deckkraft: 0.55;
+}
+
+/* Optionale DIN-Blöcke */
+din-postvermerk, din-anlagen {
+  display: none;
+}
+
+:root:has(#toggle-anlagen:checked) din-anlagen {
+  display: block;
+}
+
+:root:has(#seitenleiste-postvermerk-select option:checked:not([value=""])) din-postvermerk {
+  display: block;
+  opacity: 1;
+  color: var(--blatt-text);
+}
+
+din-postvermerk {
+  font-size: --pt(8);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0.5cqh;
+  white-space: pre-wrap;
+}
+
+#postvermerk:empty::before { opacity: 0.9; }
+
+din-anlagen {
+  margin-top: 3cqh;
+  font-size: 0.9em;
+  page-break-inside: avoid;
+}
+
+.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
+#anlagen-text { margin: 0; padding-left: 1.5rem; }
+
+/* Single-Line & Nativer Text-Fit */
+.single-line {
+  white-space: nowrap;
+  overflow: clip;
+  text-overflow: ellipsis;
+  text-fit: shrink;
+  max-height: 1.5em;
+  line-height: 1.4;
+}
+
+.single-line[contenteditable]:focus {
+  overflow: visible;
+  text-overflow: unset;
+  max-height: none;
+}
+
+#anschriftfeld,
+#infoblock,
+#kern,
+#anrede,
+#grussformel,
+#unterschrift {
+  text-fit: shrink 60%;
+}
+
+/* Anchors auf dem Blatt */
+#postvermerk { anchor-name: --anchor-postvermerk; }
+#empfaenger-ort { anchor-name: --anchor-empfaenger-ort; }
+#infoblock { line-height: 1.5; }
+#absender-tel { margin-top: 8px; }
+.unterschrift-zeile { position: relative; margin-top: 10px; }
+
+/* --- SIGNATUR-OVERLAY (aus ehemals signature.css) --- */
+#unterschriftsbild-vorschau[src=""] { display: none; }
+
+#unterschriftsbild-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 100;
+  pointer-events: none;
+  display: none;
+}
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #unterschriftsbild-container { display: block; }
+#btn-unterschriftsbild-reset { display: none; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-reset { display: flex; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-waehlen { display: none; }
+
+.unterschriftsbild-rahmen {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  pointer-events: auto;
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.unterschriftsbild-rahmen.active {
+  outline: 2px dashed var(--accent-color);
+}
+
+.unterschriftsbild-rahmen:active {
+  cursor: grabbing;
+}
+
+.unterschriftsbild-griff, .unterschriftsbild-drehgriff {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--blatt-hintergrund);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.unterschriftsbild-rahmen.active .unterschriftsbild-griff,
+.unterschriftsbild-rahmen.active .unterschriftsbild-drehgriff {
+  display: block;
+}
+
+.unterschriftsbild-drehgriff {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+.unterschriftsbild-drehgriff::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.unterschriftsbild-griff.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+.unterschriftsbild-griff.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+.unterschriftsbild-griff.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#unterschriftsbild-vorschau {
+  pointer-events: none;
+  max-width: 100%;
+  display: block;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+}
+
+

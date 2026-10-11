@@ -27,9 +27,9 @@ code_links:
   - website/js/41-salutation-engine.js
   - website/js/45-address.js
   - website/js/51-persistence.js
-  - website/css/layout.css
+  - website/css/base.css
   - website/css/sidebar.css
-  - website/css/floating.css
+  - website/css/sheet.css
   - website/css/print.css
 depends_on: []
 supersedes:

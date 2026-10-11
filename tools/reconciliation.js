@@ -112,7 +112,7 @@ const FEATURE_CHECKS = {
   },
   'CSS Anchor Positioning': {
     regex: /anchor-name|position-anchor|position-area/g,
-    file: 'website/css/floating.css'
+    file: 'website/css/sidebar.css'
   },
   'CSS @scope': {
     regex: /@scope/g,
@@ -124,7 +124,7 @@ const FEATURE_CHECKS = {
   },
   'CSS light-dark()': {
     regex: /light-dark\(/g,
-    file: 'website/css/variables.css'
+    file: 'website/css/base.css'
   },
   'CSS Relative Color Syntax': {
     regex: /oklch\(from/g,

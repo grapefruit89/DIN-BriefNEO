@@ -25,7 +25,7 @@ doc_links:
 code_links:
   - website/index.html
   - website/js/main.js
-  - website/css/layout.css
+  - website/css/base.css
   - 30-meta/AI-AGENTS-CLI.md
 error_patterns:
   - hub

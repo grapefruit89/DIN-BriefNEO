@@ -84,7 +84,7 @@
       "pattern": "--swipe-x\\s*:|var\\(\\s*--swipe-x|\\bsetPointerCapture\\s*\\(",
       "file_patterns": [
         "website/js/32-toast.js",
-        "website/css/floating.css"
+        "website/css/sidebar.css"
       ],
       "exemptions": []
     },

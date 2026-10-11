@@ -17,13 +17,9 @@ doc_links:
   - ADR-ANTIPATTERN
   - longevity-guidelines
 code_links:
-  - website/css/variables.css
-  - website/css/reset.css
-  - website/css/layout.css
-  - website/css/sheet.css
+  - website/css/base.css
   - website/css/sidebar.css
-  - website/css/signature.css
-  - website/css/floating.css
+  - website/css/sheet.css
   - website/css/print.css
 error_patterns:
   - css architektur

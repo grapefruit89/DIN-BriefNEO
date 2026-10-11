@@ -16,8 +16,8 @@ doc_links:
   - longevity-guidelines
   - no-scroll-techniques
 code_links:
-  - website/css/layout.css
-  - website/css/variables.css
+  - website/css/base.css
+  - website/css/sheet.css
 error_patterns:
   - din 5008 layout
   - css architektur

@@ -1,9 +1,0 @@
-/* layers.css — Quell-Reihenfolge in index.html bestimmt die Kaskade.
- * <link layer="…"> ist NICHT standardisiert (WHATWG: 0× „layer", MDN BCD:
- * kein Attribut am <link>). @import layer() ist durch A23 ausgeschlossen.
- * Deshalb: Reihenfolge in index.html (reset → variables → layout → floating).
- * CSP style-src 'self' bleibt erfüllt.
- *
- * HINWEIS: Keine @layer-Blöcke in den CSS-Dateien — alle Regeln sind unlayered.
- * Die @layer-Deklaration wurde entfernt, weil sie ohne Wrapper wirkungslos war.
- */

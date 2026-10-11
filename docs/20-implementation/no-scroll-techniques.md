@@ -15,7 +15,7 @@ doc_links:
   - din-5008-css-architektur
   - ADR-CSS
 code_links:
-  - website/css/layout.css
+  - website/css/base.css
 error_patterns:
   - no-scroll
   - overflow hidden

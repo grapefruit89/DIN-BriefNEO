@@ -151,7 +151,7 @@ wäre ein Fehler — sie auseinanderzuhalten ist die eigentliche Arbeit.
 
 *   **Nutzen im Projekt:** Ermöglicht die komplett JS-freie, flüssige Echtzeit-Themeumschaltung aller UI-Elemente direkt im CSS.
 
-*   **Verweis:** Siehe [[ADR-CSS#4-natives-lightdark-mode-theme-light-dark|ADR-CSS.md]] und [variables.css](../../website/css/variables.css).
+*   **Verweis:** Siehe [[ADR-CSS#4-natives-lightdark-mode-theme-light-dark|ADR-CSS.md]] und [base.css](../../website/css/base.css).
 
 ### `localStorage` API
 
@@ -167,7 +167,7 @@ wäre ein Fehler — sie auseinanderzuhalten ist die eigentliche Arbeit.
 
 *   **Nutzen im Projekt:** Garantiert präzise Kontraststufen, fehlerfreie Grauabstufungen und ein absolut premium-artiges Dark-Paper-Theme ohne Farbverzerrungen.
 
-*   **Verweis:** Siehe [[ADR-CSS#4-natives-lightdark-mode-theme-light-dark|ADR-CSS.md]] und [variables.css](../../website/css/variables.css).
+*   **Verweis:** Siehe [[ADR-CSS#4-natives-lightdark-mode-theme-light-dark|ADR-CSS.md]] und [base.css](../../website/css/base.css).
 
 ### `Photon API`
 

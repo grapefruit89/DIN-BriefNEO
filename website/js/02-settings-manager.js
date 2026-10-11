@@ -1,6 +1,12 @@
 // @ts-check
 import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
-import { showToast } from './32-toast.js';
+import { eventBus, Events } from './00-event-bus.js';
+
+/**
+ * @param {string} message
+ * @param {string} [type]
+ */
+const notify = (message, type = 'info') => eventBus.publish(Events.NOTIFICATION_REQUESTED, { message, type });
 
 /**
  * @param {any} target
@@ -129,7 +135,7 @@ export class SettingsManager {
       await face.load();
     } catch (e) {
       console.warn('[Settings] Custom font invalid:', e);
-      showToast(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+      notify(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
       this.updateFontStatusUI(false);
       return;
     }
@@ -223,12 +229,12 @@ export class SettingsManager {
         const file = target && target.files ? target.files[0] : null;
         if (!file) return;
         if (!file.name.endsWith('.woff2')) {
-          showToast(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+          notify(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
           return;
         }
         const maxSizeInBytes = Constants.LIMITS.FONT_SIZE_MAX_KB * 1024;
         if (file.size > maxSizeInBytes) {
-          showToast(Constants.TOASTS.FONT_SIZE_ERROR, 'error');
+          notify(Constants.TOASTS.FONT_SIZE_ERROR, 'error');
           return;
         }
         const reader = new FileReader();
@@ -236,14 +242,14 @@ export class SettingsManager {
           const readerTarget = /** @type {FileReader} */ (event.target);
           const base64Font = readerTarget ? readerTarget.result : null;
           if (typeof base64Font !== 'string') {
-            showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+            notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
             return;
           }
           const success = save(STORAGE_KEYS.font, base64Font);
           if (success) {
             this.injectFont(base64Font);
           } else {
-            showToast('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+            notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
           }
         };
         reader.readAsDataURL(file);

@@ -3,6 +3,7 @@
 // @guide [[din-5008-css-architektur]]
 
 import { AddressIntelligence } from './45-address-intelligence.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 /**
  * @typedef {object} AddressCandidate
@@ -245,9 +246,12 @@ export class ClipboardAddressParser {
       onSaveDraft();
     }
 
+    const label = candidate.firma || candidate.name || candidate.strasse;
+    const toastMsg = `📋 Adresse übernommen: ${label} (${candidate.ort})`;
     if (onToast) {
-      const label = candidate.firma || candidate.name || candidate.strasse;
-      onToast(`📋 Adresse übernommen: ${label} (${candidate.ort})`, 'success');
+      onToast(toastMsg, 'success');
+    } else {
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'success' });
     }
   }
 
@@ -260,23 +264,32 @@ export class ClipboardAddressParser {
     const popover = document.getElementById('clipboard-candidates-popover');
     if (!btn) return;
 
+    /**
+     * @param {string} msg
+     * @param {string} [type]
+     */
+    const notify = (msg, type = 'info') => {
+      if (onToast) onToast(msg, type);
+      else eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
+    };
+
     btn.addEventListener('click', async () => {
       try {
         if (!navigator.clipboard?.readText) {
-          if (onToast) onToast('⚠️ Zwischenablage-Zugriff wird von diesem Browser nicht unterstützt.', 'error');
+          notify('⚠️ Zwischenablage-Zugriff wird von diesem Browser nicht unterstützt.', 'error');
           return;
         }
 
         const text = await navigator.clipboard.readText();
         if (!text || !text.trim()) {
-          if (onToast) onToast('⚠️ Die Zwischenablage ist leer.', 'warning');
+          notify('⚠️ Die Zwischenablage ist leer.', 'warning');
           return;
         }
 
         const candidates = this.parse(text);
 
         if (candidates.length === 0) {
-          if (onToast) onToast('⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.', 'warning');
+          notify('⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.', 'warning');
           return;
         }
 
@@ -340,11 +353,11 @@ export class ClipboardAddressParser {
           }
         } else {
           // Niemals bei mehreren Treffern automatisch den ersten Kandidaten übernehmen
-          if (onToast) onToast(`⚠️ ${candidates.length} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`, 'warning');
+          notify(`⚠️ ${candidates.length} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`, 'warning');
         }
       } catch (err) {
         console.warn('[Clipboard] Lesefehler:', err);
-        if (onToast) onToast('⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.', 'error');
+        notify('⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.', 'error');
       }
     });
   }

@@ -11,6 +11,7 @@
 import { load, save, loadJSON, saveJSON, migrateStorage, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
 import { buildLetterFileName } from './53-metadata.js';
 import { currentISODate } from './47-date-format.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 /** Interner Format-Tag im Header. Dateiendung ist `.json`; der Tag bleibt
  *  aus Rueckwaertskompatibilitaet (bereits exportierte Dateien). */
@@ -217,9 +218,9 @@ export function parseDinLetterPayload(text) {
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog).
- * @param {{ onSaveDraft: () => boolean, onToast: (msg: string, type?: string) => void }} params
+ * @param {{ onSaveDraft: () => boolean, onToast?: ((msg: string, type?: string) => void) | null }} params
  */
-export function initImportExport({ onSaveDraft, onToast }) {
+export function initImportExport({ onSaveDraft, onToast = null }) {
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
   const importBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-import-dinletter'));
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
@@ -227,17 +228,26 @@ export function initImportExport({ onSaveDraft, onToast }) {
   const importFileName = document.getElementById('import-file-name');
   if (!exportBtn || !importBtn || !importInput || !importDialog) return;
 
+  /**
+   * @param {string} msg
+   * @param {string} [type]
+   */
+  const notify = (msg, type = 'info') => {
+    if (onToast) onToast(msg, type);
+    else eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
+  };
+
   exportBtn.addEventListener('click', () => {
     // Vor dem Export aktuellen Stand speichern; bei Misserfolg abbrechen
     if (!onSaveDraft()) {
-      onToast('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
+      notify('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
       return;
     }
     let draft;
     try {
       draft = loadJSON(STORAGE_KEYS.draft, {});
     } catch (e) {
-      onToast('❌ Export fehlgeschlagen: lokaler Draft nicht lesbar.', 'error');
+      notify('❌ Export fehlgeschlagen: lokaler Draft nicht lesbar.', 'error');
       return;
     }
     const settings = loadJSON(STORAGE_KEYS.settings, null);
@@ -265,12 +275,12 @@ export function initImportExport({ onSaveDraft, onToast }) {
     if (!file) return;
     // Größenbeschränkung: Maximal 1 MB erlauben (Text + Signaturbild + Schriftart)
     if (file.size > 1024 * 1024) {
-      onToast('❌ Import abgelehnt: Datei zu groß (max. 1 MB).', 'error');
+      notify('❌ Import abgelehnt: Datei zu groß (max. 1 MB).', 'error');
       return;
     }
     const result = parseDinLetterPayload(await file.text());
     if (!result.ok) {
-      onToast(`❌ Import abgelehnt: ${result.reason}`, 'error');
+      notify(`❌ Import abgelehnt: ${result.reason}`, 'error');
       return;
     }
     pendingImport = result;
@@ -313,7 +323,7 @@ export function initImportExport({ onSaveDraft, onToast }) {
       // Durch Seiten-Reload wird der Entwurf über den regulären Boot- und Restore-Pfad geladen
       location.reload();
     } catch (e) {
-      onToast('❌ Import fehlgeschlagen (Storage voll?).', 'error');
+      notify('❌ Import fehlgeschlagen (Storage voll?).', 'error');
     }
   });
 }

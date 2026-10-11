@@ -3,10 +3,8 @@
 // @guide [[geoapify-autocomplete]]
 
 import { setCaretToEnd } from './selection-utils.js';
-
-// Daten werden als .gz-Stream geladen. Bei Fehlschlag degradiert die Suche sanft (manuelle Eingabe bleibt möglich).
-
 import { fetchGzipJson } from './05-gzip.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 /**
  * @typedef {object} GrosskundeEntry
@@ -234,8 +232,11 @@ export class AddressIntelligence {
               empfStrasseEl.setAttribute('placeholder', '(Großempfänger – Straße entfällt)');
             }
 
+            const toastMsg = `🏛️ Großempfänger erkannt: ${res.grosskunde.name} (Straße entfällt nach DIN 5008)`;
             if (onToast) {
-              onToast(`🏛️ Großempfänger erkannt: ${res.grosskunde.name} (Straße entfällt nach DIN 5008)`, 'info');
+              onToast(toastMsg, 'info');
+            } else {
+              eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'info' });
             }
           }
 

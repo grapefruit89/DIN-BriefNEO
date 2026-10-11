@@ -11,7 +11,7 @@
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
 import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-storage.js';
-import { showToast } from './32-toast.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
@@ -220,9 +220,9 @@ export class SalutationFeature {
     const text = (el.textContent || '').trim();
     if (!text || text === this.#auto[kind]) return;
     if (kind === 'anrede' && !text.endsWith(',')) {
-      showToast(Constants.TOASTS.SALUTATION_PUNCTUATION, 'warning');
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION_PUNCTUATION, type: 'warning' });
     } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
-      showToast(Constants.TOASTS.CLOSING_PUNCTUATION, 'warning');
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.CLOSING_PUNCTUATION, type: 'warning' });
     }
   }
 }

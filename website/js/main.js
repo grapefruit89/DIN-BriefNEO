@@ -8,7 +8,7 @@ import { SalutationFeature } from './41-salutation-engine.js';
 import { MetadataService } from './53-metadata.js';
 import { SignatureFeature } from './42-signature.js';
 import { initAddressServices } from './43-geoapify.js';
-import { showToast, initToastSystem } from './32-toast.js';
+import { initToastSystem } from './32-toast.js';
 import { initSenderSync, AddressIntelligence } from './45-address-intelligence.js';
 import { DraftManager } from './01-draft-manager.js';
 import { SettingsManager } from './02-settings-manager.js';
@@ -79,19 +79,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      initAddressServices({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+      initAddressServices({ onSaveDraft: () => draftManager.saveDraft() });
     } catch (e) {
       console.error('[Bootstrap] initAddressServices fehlgeschlagen:', e);
     }
 
     try {
-      initImportExport({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+      initImportExport({ onSaveDraft: () => draftManager.saveDraft() });
     } catch (e) {
       console.error('[Bootstrap] initImportExport fehlgeschlagen:', e);
     }
 
     try {
-      ClipboardAddressParser.wireSidebarButton({ onToast: showToast, onSaveDraft: () => draftManager.saveDraft() });
+      ClipboardAddressParser.wireSidebarButton({ onSaveDraft: () => draftManager.saveDraft() });
     } catch (e) {
       console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
     }

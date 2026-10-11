@@ -7,7 +7,8 @@ import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, m
 import { UIProtections } from '../website/js/03-ui-protections.js';
 import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/52-import-export.js';
 import { Constants } from '../website/js/51-storage.js';
-import { createEventBus, Events } from '../website/js/00-event-bus.js';
+import { createEventBus, eventBus, Events } from '../website/js/00-event-bus.js';
+import { initToastSystem } from '../website/js/32-toast.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -300,6 +301,20 @@ describe('EventBus: Entkoppelte Pub/Sub-Kommunikation (Zero-Dependency)', () => 
     }
     assert(threwOnPublish, 'publish mit fremdem Prefix wirft TypeError');
     assert(threwOnSubscribe, 'subscribe mit fremdem Prefix wirft TypeError');
+  });
+});
+
+describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
+  it('reagiert auf NOTIFICATION_REQUESTED und aktualisiert den Toast-DOM', () => {
+    initToastSystem();
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, {
+      message: 'EventBus Toast Test',
+      type: 'warning'
+    });
+    const msgEl = document.getElementById('hinweis-message');
+    const container = document.getElementById('hinweis-v4');
+    assertEqual(msgEl?.textContent, 'EventBus Toast Test', 'Toast-Nachricht im DOM aktualisiert');
+    assert(container?.className.includes('type-warning'), 'Toast-Typ im DOM gesetzt');
   });
 });
 

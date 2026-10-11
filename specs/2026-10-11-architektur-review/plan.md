@@ -30,11 +30,11 @@ spec_links:
 - [x] Unit-Tests in `test/all.js` für Event-Pub/Sub ergänzt (23/23 Tests bestanden).
 - [x] Verifikation: Fitness Gate 100 %, keine Seiteneffekte auf bestehenden Code.
 
-## Phase 2 — Toast- & Benachrichtigungssystem entkoppeln (Erster vertikaler Schnitt)
-- [ ] `32-toast.js` so erweitern, dass es auf `dinbrief:notification.requested` lauscht.
-- [ ] In `main.js`: `onToast`-Callback-Übergabe schrittweise ablösen.
-- [ ] Publisher umstellen (`43-geoapify.js`, `52-import-export.js`, `46-clipboard-address-parser.js` publizieren Event statt Callback-Aufruf).
-- [ ] Verifikation: Toasts erscheinen zuverlässig bei Import, Adresssuche und Fehlern.
+## Phase 2 — Toast- & Benachrichtigungssystem entkoppeln (Erledigt)
+- [x] `32-toast.js` so erweitert, dass es auf `dinbrief:notification.requested` lauscht.
+- [x] In `main.js`: `onToast`-Callback-Übergabe restlos entfernt.
+- [x] Alle Publisher umgestellt (`43-geoapify.js`, `52-import-export.js`, `46-clipboard-address-parser.js`, `02-settings-manager.js`, `41-salutation-engine.js` publizieren über den EventBus).
+- [x] Verifikation: 24/24 Tests im Browser bestanden, Fitness Gate 100 %.
 
 ## Phase 3 — Reine Domain-Funktionen extrahieren
 - [ ] Postcode-Lookup Logik aus `45-address-intelligence.js` in pure Funktion extrahieren.

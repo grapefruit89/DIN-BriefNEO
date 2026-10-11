@@ -3,6 +3,7 @@
 
 import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './51-storage.js';
 import { AddressIntelligence } from './45-address-intelligence.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 /**
  * @typedef {object} AddressEntry
@@ -15,9 +16,9 @@ import { AddressIntelligence } from './45-address-intelligence.js';
  */
 
 /**
- * @param {{ onToast: ((msg: string, type?: string) => void) | null, onSaveDraft: (() => void) | null }} params
+ * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft: (() => void) | null }} params
  */
-export function initAddressServices({ onToast, onSaveDraft }) {
+export function initAddressServices({ onToast = null, onSaveDraft }) {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
   const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
@@ -25,6 +26,15 @@ export function initAddressServices({ onToast, onSaveDraft }) {
   const addressSearchContainer = document.getElementById('anschrift-suche-container');
 
   if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !geoapifyKeyContainer || !addressSearchContainer) return;
+
+  /**
+   * @param {string} msg
+   * @param {string} [type]
+   */
+  const notify = (msg, type = 'info') => {
+    if (onToast) onToast(msg, type);
+    else eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
+  };
 
   /** @type {AbortController | null} */
   let activeAbortController = null;
@@ -75,7 +85,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
         // Kein Toast bei Erfolg: Stille Übernahme
       } else if (res.status === 401 || res.status === 403) {
         save(STORAGE_KEYS.geoapifyKey, '');
-        if (onToast) onToast("❌ Geoapify Key ungültig", "error");
+        notify("❌ Geoapify Key ungültig", "error");
       } else {
         // 429/5xx: Key behalten und still bleiben
         save(STORAGE_KEYS.geoapifyKey, key);
@@ -209,10 +219,10 @@ export function initAddressServices({ onToast, onSaveDraft }) {
           save(STORAGE_KEYS.geoapifyKey, '');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
           if (keyEl) keyEl.value = '';
-          if (onToast) onToast('❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.', 'error');
+          notify('❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.', 'error');
         } else {
           console.warn('[Address] Autocomplete HTTP ' + response.status);
-          if (onToast) onToast('⚠️ Geoapify vorübergehend nicht erreichbar (Status ' + response.status + ').', 'warning');
+          notify('⚠️ Geoapify vorübergehend nicht erreichbar (Status ' + response.status + ').', 'warning');
         }
         return;
       }
@@ -239,7 +249,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
       if (error.name !== 'AbortError') {
         // Netzwerk- oder Timeout-Fehler: Key bleibt erhalten
         console.warn('[Address] Autocomplete search failed:', error);
-        if (onToast) onToast('⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.', 'warning');
+        notify('⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.', 'warning');
       }
     }
   }
@@ -340,7 +350,7 @@ export function initAddressServices({ onToast, onSaveDraft }) {
 
   // --- TIER 1: OFFLINE ADDRESS INTELLIGENCE (72 KB BROTLI ENGINE) ---
   AddressIntelligence.init().then(() => {
-    AddressIntelligence.wireDOM({ onToast, onSaveDraft });
+    AddressIntelligence.wireDOM({ onSaveDraft });
   });
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias (kein zweiter Host nötig)

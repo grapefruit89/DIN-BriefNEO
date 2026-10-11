@@ -131,6 +131,7 @@ body:has(#btn-form-a:checked) din-a4 {
     font-size: --pt(8); /* 8pt in cqw */
     white-space: nowrap;
     text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
+    border-radius: 0;
   }
 
   /* Anschriftfeld */

@@ -314,6 +314,15 @@ export function isPrintTitleActive() {
 
 export const MetadataService = {
   prepare() {
+    const rucksendezeile = document.getElementById('rucksendezeile');
+    if (rucksendezeile) {
+      if (!rucksendezeile.textContent || !rucksendezeile.textContent.trim()) {
+        rucksendezeile.classList.add('is-empty');
+      } else {
+        rucksendezeile.classList.remove('is-empty');
+      }
+    }
+
     const { fileName, dateStr, lastName, recipientName, subjectClean } = collectLetterIdentity();
 
     const oldTitle = document.title;
@@ -362,6 +371,10 @@ export const MetadataService = {
    */
   restore(context) {
     printTitleActive = false;
+    const rucksendezeile = document.getElementById('rucksendezeile');
+    if (rucksendezeile) {
+      rucksendezeile.classList.remove('is-empty');
+    }
     if (!context) return;
     document.title = context.oldTitle;
     if (context.injectedTags) {

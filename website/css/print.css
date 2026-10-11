@@ -38,6 +38,7 @@ din-a4 {
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    border-radius: 0 !important;
 }
 
 [data-generated] {
@@ -45,8 +46,15 @@ din-a4 {
     font-style: normal !important;
 }
 
-/* DIN 5008: Trennlinie unter Rücksendezeile nur im Druck */
+/* DIN 5008: Trennlinie unter Rücksendezeile nur im Druck, wenn befüllt */
 #rucksendezeile {
+  border-radius: 0 !important;
   border-bottom: 0.5pt solid oklch(0% 0 0) !important;
-  padding-bottom: 2px !important;
+  padding-bottom: 1.5pt !important;
+}
+
+#rucksendezeile:empty,
+#rucksendezeile.is-empty {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
 }

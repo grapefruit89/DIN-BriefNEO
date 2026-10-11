@@ -572,9 +572,8 @@ export function parseDinLetterPayload(text) {
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog).
- * @param {{ onSaveDraft?: (() => boolean) | null, onToast?: ((msg: string, type?: string) => void) | null }} [params]
  */
-export function initImportExport({ onSaveDraft = null, onToast = null } = {}) {
+export function initImportExport() {
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
   const importBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-import-dinletter'));
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
@@ -586,20 +585,10 @@ export function initImportExport({ onSaveDraft = null, onToast = null } = {}) {
    * @param {string} msg
    * @param {string} [type]
    */
-  const notify = (msg, type = 'info') => {
-    if (onToast) onToast(msg, type);
-    else eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
-  };
+  const notify = (msg, type = 'info') => eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
 
   exportBtn.addEventListener('click', () => {
-    if (onSaveDraft) {
-      if (!onSaveDraft()) {
-        notify('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
-        return;
-      }
-    } else {
-      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-    }
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     let draft;
     try {
       draft = loadJSON(STORAGE_KEYS.draft, {});

@@ -147,9 +147,8 @@ export class AddressIntelligence {
 
   /**
    * Wires the recipient address block in the DOM for instant offline autocomplete.
-   * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
-  static wireDOM({ onToast = null, onSaveDraft = null } = {}) {
+  static wireDOM() {
     const empfOrtEl = document.getElementById('empfaenger-ort');
     const empfFirmaEl = document.getElementById('empfaenger-firma');
     const empfStrasseEl = document.getElementById('empfaenger-strasse');
@@ -201,18 +200,10 @@ export class AddressIntelligence {
             }
 
             const toastMsg = `🏛️ Großempfänger erkannt: ${res.grosskunde.name} (Straße entfällt nach DIN 5008)`;
-            if (onToast) {
-              onToast(toastMsg, 'info');
-            } else {
-              eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'info' });
-            }
+            eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'info' });
           }
 
-          if (onSaveDraft) {
-            onSaveDraft();
-          } else {
-            eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          }
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
           this.#hidePopover(suggestionsPopover);
           return;
         }
@@ -222,7 +213,7 @@ export class AddressIntelligence {
       if (rawText.length >= 3 && !/^\d+$/.test(rawText) && !/^\d{5}\s+/.test(rawText)) {
         const matches = this.lookupCity(rawText);
         if (matches.length > 0 && matches.length <= 6) {
-          this.#renderCitySuggestions(matches, empfOrtEl, suggestionsPopover, onSaveDraft);
+          this.#renderCitySuggestions(matches, empfOrtEl, suggestionsPopover);
           return;
         }
       }
@@ -241,9 +232,8 @@ export class AddressIntelligence {
    * @param {{ plz: string, city: string }[]} matches
    * @param {HTMLElement} targetEl
    * @param {HTMLElement} popoverEl
-   * @param {(() => void) | undefined | null} [onSaveDraft]
    */
-  static #renderCitySuggestions(matches, targetEl, popoverEl, onSaveDraft) {
+  static #renderCitySuggestions(matches, targetEl, popoverEl) {
     const render = () => {
       popoverEl.replaceChildren();
 
@@ -257,11 +247,7 @@ export class AddressIntelligence {
           targetEl.textContent = `${item.plz} ${item.city}`;
           this.targetLock = { plz: item.plz, city: item.city };
           this.#moveCaretToEnd(targetEl);
-          if (onSaveDraft) {
-            onSaveDraft();
-          } else {
-            eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          }
+          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
           this.#hidePopover(popoverEl);
         });
 
@@ -546,9 +532,8 @@ export class ClipboardAddressParser {
   /**
    * Überträgt einen Adress-Kandidaten in die DIN-5008-Formularfelder.
    * @param {AddressCandidate} candidate
-   * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
-  static applyCandidate(candidate, { onToast = null, onSaveDraft = null } = {}) {
+  static applyCandidate(candidate) {
     const empfFirmaEl = document.getElementById('empfaenger-firma');
     const empfNameEl = document.getElementById('empfaenger-namenszeile');
     const empfStrasseEl = document.getElementById('empfaenger-strasse');
@@ -593,26 +578,17 @@ export class ClipboardAddressParser {
       // Ignoriert
     }
 
-    if (onSaveDraft) {
-      onSaveDraft();
-    } else {
-      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-    }
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
     const label = candidate.firma || candidate.name || candidate.strasse;
     const toastMsg = `📋 Adresse übernommen: ${label} (${candidate.ort})`;
-    if (onToast) {
-      onToast(toastMsg, 'success');
-    } else {
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'success' });
-    }
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'success' });
   }
 
   /**
    * Verdrahtet den Sidebar-Button und das Auswahllisten-Popover.
-   * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [options]
    */
-  static wireSidebarButton({ onToast = null, onSaveDraft = null } = {}) {
+  static wireSidebarButton() {
     const btn = document.getElementById('btn-zwischenablage-anschrift');
     const popover = document.getElementById('clipboard-candidates-popover');
     if (!btn) return;
@@ -622,8 +598,7 @@ export class ClipboardAddressParser {
      * @param {string} [type]
      */
     const notify = (msg, type = 'info') => {
-      if (onToast) onToast(msg, type);
-      else eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
     };
 
     btn.addEventListener('click', async () => {
@@ -647,7 +622,7 @@ export class ClipboardAddressParser {
         }
 
         if (candidates.length === 1) {
-          this.applyCandidate(candidates[0], { onToast, onSaveDraft });
+          this.applyCandidate(candidates[0]);
           return;
         }
 
@@ -678,7 +653,7 @@ export class ClipboardAddressParser {
             item.appendChild(addrSpan);
 
             const selectCandidate = () => {
-              this.applyCandidate(cand, { onToast, onSaveDraft });
+              this.applyCandidate(cand);
               try {
                 // @ts-ignore
                 popover.hidePopover();
@@ -731,9 +706,8 @@ export class ClipboardAddressParser {
 
 /**
  * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
- * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [params]
  */
-export function initAddressServices({ onToast = null, onSaveDraft = null } = {}) {
+export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
   const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
@@ -747,8 +721,7 @@ export function initAddressServices({ onToast = null, onSaveDraft = null } = {})
    * @param {string} [type]
    */
   const notify = (msg, type = 'info') => {
-    if (onToast) onToast(msg, type);
-    else eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
   };
 
   /** @type {AbortController | null} */
@@ -1044,16 +1017,12 @@ export function initAddressServices({ onToast = null, onSaveDraft = null } = {})
 
     saveToLocalAddressBook(item);
 
-    if (onSaveDraft) {
-      onSaveDraft();
-    } else {
-      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-    }
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
   }
 
   // --- TIER 1: OFFLINE ADDRESS INTELLIGENCE ---
   AddressIntelligence.init().then(() => {
-    AddressIntelligence.wireDOM({ onSaveDraft });
+    AddressIntelligence.wireDOM();
   });
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias

@@ -131,11 +131,9 @@ export class SalutationFeature {
   /**
    * `settingsContext` ist das geteilte Settings-Objekt des SettingsManager
    * (ein Settings-Owner, kein eigener Snapshot per loadSettings()).
-   * @param {(() => void) | null} [saveDraftDataCallback]
    * @param {{ settings: any, save: () => void } | null} [settingsContext]
    */
-  constructor(saveDraftDataCallback = null, settingsContext = null) {
-    this.saveDraftData = saveDraftDataCallback;
+  constructor(settingsContext = null) {
     this.#ctx = settingsContext;
     this.settings = settingsContext ? settingsContext.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.settings.formality = toStyle(this.settings.formality);
@@ -230,11 +228,7 @@ export class SalutationFeature {
     }
     el.textContent = value;
     el.dataset.generated = 'true';
-    if (this.saveDraftData) {
-      this.saveDraftData();
-    } else {
-      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-    }
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
   }
 
   /**

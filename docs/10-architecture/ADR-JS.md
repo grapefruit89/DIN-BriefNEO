@@ -124,7 +124,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * Verwaltet automatischen Lesezeit-Timer (`2000ms + 30ms × Zeichenanzahl`, max. `5000ms`).
 
 ### 4. `41-salutation-engine.js` (80/20 Smart Salutation Engine V2)
-* `constructor(saveDraftDataCallback = null, settingsContext = null)`: Initialisiert Engine mit 3 B2B-Pärchen; die 951 Vornamen werden aus `data/de_vornamen_gender.json.br` geladen. Publiziert `DOCUMENT_SAVE_REQUESTED` über den EventBus bei Änderungen.
+* `constructor(settingsContext = null)`: Initialisiert Engine mit 3 B2B-Pärchen; die 951 Vornamen werden aus `data/de_vornamen_gender.json.br` geladen. Publiziert `DOCUMENT_SAVE_REQUESTED` über den EventBus bei Änderungen.
 * `init()`: Verdrahtet Empfänger-Eingaben mit Anrede und Grußformel.
 * `derive({ firstName, lastName, company, formality })`: Ermittelt treffsicher die Anredeform ("Sehr geehrte(r) Frau/Herr [Nachname],", "Guten Tag...", "Hallo...").
 * `getClosing(formality)`: Liefert das harmonische DIN-5008-Gegenstück ("Mit freundlichen Grüßen", "Freundliche Grüße", "Beste Grüße").
@@ -145,7 +145,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * **`AddressIntelligence`**: 100% Offline PLZ- und Großempfänger-Engine. Initialisiert Datensätze im Speicher, bindet Empfängerfelder via `wireDOM()`, steuert Popover-Vorschläge und publiziert `DOCUMENT_SAVE_REQUESTED` sowie `NOTIFICATION_REQUESTED`.
 * **`initSenderSync()`**: Synchronisiert Absender-Formularfelder reaktiv mit der DIN-Rücksendezeile (mit Namenskürzel via `abbreviateName`) und der Maschinenschrift.
 * **`ClipboardAddressParser`**: 95%-KISS Multi-Pass Regex-Parser für Zwischenablagen-Texte. Filtert Metadaten (HRB, USt-ID etc.) und öffnet bei Mehrdeutigkeit das Popover `#clipboard-candidates-popover`.
-* **`initAddressServices({ onToast, onSaveDraft })`**: Optionaler Geoapify-Service mit In-Memory Cache, Adressbuch-Historie (max. 50 Einträge) und Absender-Proximity-Bias.
+* **`initAddressServices()`**: Optionaler Geoapify-Service mit In-Memory Cache, Adressbuch-Historie (max. 50 Einträge) und Absender-Proximity-Bias.
 
 ### 9. `51-persistence.js` (Konsolidierter Persistenz-, Datums- & Export-Layer)
 *Bündelt die vormaligen Einzelmodule `47-date-format.js`, `51-storage.js`, `53-metadata.js` und `52-import-export.js`:*
@@ -163,7 +163,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * **Import / Export (`DINLETTER_FORMAT = 'dinletter'`)**:
   * `buildDinLetterPayload(draft, settings, font)`: Erzeugt valides DIN-Brief-JSON mit Metadaten-Header.
   * `parseDinLetterPayload(raw)`: Defensiver Validator für importierte JSON-Dateien (Schutz vor Prototyp-Pollution und XSS).
-  * `initImportExport({ onSaveDraft, onToast })`: Verdrahtet Export- und Import-Dialoge; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
+  * `initImportExport()`: Verdrahtet Export- und Import-Dialoge; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
 
 ### 16. `main.js` (Composition Root & Bootstrap)
 * `initApp()`: Zentraler Bootstrap beim Laden von `DOMContentLoaded`. Initialisiert EventBus, Module und Adapter.

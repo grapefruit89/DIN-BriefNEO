@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const salutation = new SalutationFeature(null, settingsContext);
+      const salutation = new SalutationFeature(settingsContext);
       salutation.init();
     } catch (e) {
       console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);

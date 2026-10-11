@@ -58,6 +58,12 @@ depends_on: []
 
 - Zur Generierung von Zeitstempeln (z.B. für den PDF-Export oder das Datum-Feld) wird **ausschließlich** die moderne W3C `Temporal` API genutzt (z.B. `Temporal.Now.plainDateISO()`). Die fehleranfällige `Date()` API ist strikt verboten (außer als absolutes Fallback für alte Safari-Versionen).
 
+### 3.1 Zustandstrennung & 80/20-Architekturgrenze v1.0
+
+- **Dokumentinhalt (`din_draft_current`):** Enthält ausschließlich Textfelder und den Postvermerk (`seitenleiste-postvermerk-select`), frei von UI-Schaltern.
+- **Einstellungen & Signatur (`din_settings`):** Beherbergt Workspace-Präferenzen (`theme`, `guides`) sowie in v1.0 pragmatisch Form A/B (`layout`) und das canvas-skalierte Signaturbild (`signatureImage`, `signatureState`).
+- **Kompensation:** Der JSON-Export (`buildDinLetterPayload`) exportiert beide Blöcke atomar in eine `.json`-Datei, sodass Dokumente inklusive Form A/B und Signatur vollständig portierbar sind. Eine striktere Entkopplung ist für künftige Multi-Page-Features vorgesehen.
+
 ## 4. Consequences
 
 ### Positive Auswirkungen

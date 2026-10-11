@@ -378,12 +378,9 @@ export class DraftManager {
   #unsubSaveRequested = null;
 
   /**
-   * @param {(() => void) | null} [onSaveCallback]
    * @param {ReturnType<typeof import('./00-event-bus.js').createEventBus> | null} [bus]
    */
-  constructor(onSaveCallback = null, bus = eventBus) {
-    /** @type {(() => void) | null} */
-    this.onSaveCallback = onSaveCallback;
+  constructor(bus = eventBus) {
     /** @type {ReturnType<typeof import('./00-event-bus.js').createEventBus> | null} */
     this.bus = bus;
     /** @type {any} */
@@ -475,9 +472,6 @@ export class DraftManager {
       this.#currentState.caretInfo = caretInfo;
     }
 
-    if (this.onSaveCallback) {
-      this.onSaveCallback();
-    }
     return saved;
   }
 
@@ -556,7 +550,6 @@ export class DraftManager {
     if (this.bus && typeof this.bus.publish === 'function') {
       this.bus.publish(Events.DOCUMENT_CHANGED, { draft });
     }
-    if (this.onSaveCallback) this.onSaveCallback();
   }
 
   resetDraft() {

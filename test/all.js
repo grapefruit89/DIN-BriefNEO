@@ -418,7 +418,7 @@ describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
     seed();
     setField('EventBus Sofort-Speichern');
     const bus = createEventBus();
-    const dm = new DraftManager(null, bus);
+    const dm = new DraftManager(bus);
     bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     assertEqual(getDraft().brieftext, 'EventBus Sofort-Speichern', 'Draft sofort synchron gespeichert');
     dm.destroy();
@@ -428,7 +428,7 @@ describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
     seed();
     setField('Payload Test');
     const bus = createEventBus();
-    const dm = new DraftManager(null, bus);
+    const dm = new DraftManager(bus);
     /** @type {any} */
     let receivedPayload = null;
     bus.subscribe(Events.DOCUMENT_SAVED, (detail) => {
@@ -444,7 +444,7 @@ describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
     seed();
     setField('Debounced Text');
     const bus = createEventBus();
-    const dm = new DraftManager(null, bus);
+    const dm = new DraftManager(bus);
     localStorage.removeItem(DRAFT_KEY);
     bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
     assertEqual(getDraft().brieftext, undefined, 'Noch nicht gespeichert während Debounce-Verzögerung');
@@ -460,7 +460,7 @@ describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
     el.focus();
     setField('Stand Eins');
     const bus = createEventBus();
-    const dm = new DraftManager(null, bus);
+    const dm = new DraftManager(bus);
     bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
     setField('Stand Zwei');

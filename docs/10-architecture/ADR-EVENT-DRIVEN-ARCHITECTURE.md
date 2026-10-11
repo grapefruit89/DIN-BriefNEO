@@ -2,13 +2,13 @@
 id: adr-event-driven-architecture
 title: 'ADR-EVENT-DRIVEN-ARCHITECTURE: Ereignisgesteuerte Client-Architektur'
 type: adr
-status: proposed
+status: active
 created: '2026-10-11'
 updated: '2026-10-11'
 tags:
   - din-briefneo
   - din-briefneo/architecture
-  - status/proposed
+  - status/active
   - type/adr
   - tech/javascript
   - tech/event-driven
@@ -114,6 +114,10 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
   1. **Live-Interaktionsschicht:** Das contenteditable DOM fungiert als flackerfreie, performante Echtzeit-Eingabefläche (Live-Oberfläche). Der Browser verwaltet Tippen, Zeilenumbrüche und W3C-Auswahlen nativ.
   2. **Single-Writer für Persistenz & History (`DraftManager`):** Der `DraftManager` in `01-document.js` ist der alleinige autoritative Koordinator für Speicherung (`localStorage`), Undo/Redo-Stacks und XSS-Sanitizing. Er lauscht auf `dinbrief:document.save.requested`, serialisiert die Felder strukturiert, filtert unerlaubte Tags über die strikte Allowlist und publiziert `dinbrief:document.saved` bzw. `dinbrief:document.changed`.
   3. **Event-Triggering statt wilder Mutationen:** Fachmodule (wie `45-address.js`, `41-salutation-engine.js` oder `51-persistence.js`) mutieren den Zustand niemals im Alleingang, sondern fordern Speichervorgänge und Benachrichtigungen entkoppelt über den EventBus an.
+- **Bewusste 80/20-Architekturgrenze für v1.0 (Single-Document):**
+  - `din_draft_current` persistiert alle Inhaltsfelder und den Postvermerk frei von UI-Schaltern.
+  - Das Layout (DIN-Form A/B) und das Signaturbild (`signatureImage`, `signatureState`) verbleiben in v1.0 pragmatisch in `din_settings` neben den Workspace-Optionen (Theme, Hilfslinien).
+  - Diese Grenze wird im Export- und Backup-System (`buildDinLetterPayload` / `parseDinLetterPayload`) vollständig geheilt, da beide Sektionen atomar in derselben `.json`-Datei gebündelt werden. Eine strikte Entkopplung in eigenständige Dokumenten-Metadaten wird für den Multi-Page-/Vorlagen-Meilenstein vorbereitet.
 
 ## 4. Systemverträge und Topic-Katalog
 

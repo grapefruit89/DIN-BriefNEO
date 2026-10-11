@@ -202,6 +202,9 @@ export function loadJSON(key, fallback) {
  */
 export function saveJSON(key, value) {
   try {
+    if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
+      navigator.storage.persist().catch(() => {});
+    }
     return save(key, JSON.stringify(value));
   } catch {
     return false;

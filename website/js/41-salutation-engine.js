@@ -228,7 +228,7 @@ export class SalutationFeature {
     }
     el.textContent = value;
     el.dataset.generated = 'true';
-    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
   }
 
   /**

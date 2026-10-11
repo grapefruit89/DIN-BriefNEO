@@ -22,6 +22,7 @@ din-a4 {
   --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>), 148.5));
 }
 
+:root[data-layout="form-a"] din-a4,
 body:has(#btn-form-a:checked) din-a4 {
   --absender-y: --mm-y(attr(data-absender-y-a type(<number>), 27));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>), 32));

@@ -64,8 +64,10 @@ export class SettingsManager {
   }
 
   applySettings() {
+    const layout = this.settings.layout || 'form-b';
+    document.documentElement.setAttribute('data-layout', layout);
     if (this.btnFormA && this.btnFormB) {
-      if (this.settings.layout === 'form-a') {
+      if (layout === 'form-a') {
         /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;
       } else {
         /** @type {HTMLInputElement} */ (this.btnFormB).checked = true;
@@ -156,8 +158,12 @@ export class SettingsManager {
       this.updateFontStatusUI(false);
       return;
     }
-    if (this.activeFontFace) {
-      document.fonts.delete(this.activeFontFace);
+    if (typeof document.fonts !== 'undefined') {
+      for (const f of Array.from(document.fonts)) {
+        if (f.family === 'AptosCustom') {
+          document.fonts.delete(f);
+        }
+      }
     }
     document.fonts.add(face);
     this.activeFontFace = face;
@@ -229,10 +235,14 @@ export class SettingsManager {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
         if (btn.dataset.schriftModus === 'reset') {
           remove(STORAGE_KEYS.font);
-          if (this.activeFontFace) {
-            document.fonts.delete(this.activeFontFace);
-            this.activeFontFace = null;
+          if (typeof document.fonts !== 'undefined') {
+            for (const face of Array.from(document.fonts)) {
+              if (face.family === 'AptosCustom') {
+                document.fonts.delete(face);
+              }
+            }
           }
+          this.activeFontFace = null;
           this.updateFontStatusUI(false);
         } else {
           /** @type {HTMLInputElement | null} */ (this.fontUploader)?.click();
@@ -333,6 +343,13 @@ export class SignatureFeature {
 
     if (this.ui.settings?.signatureState) {
       this.state = { ...this.state, ...this.ui.settings.signatureState };
+      // Migration: Falls noch absolute px-Werte (> 100) gespeichert waren, in prozentuale cqw umrechnen
+      if (Math.abs(this.state.x) > 100 || Math.abs(this.state.y) > 100) {
+        const blatt = document.querySelector('din-a4');
+        const blattWidth = blatt?.getBoundingClientRect().width || 800;
+        this.state.x = (this.state.x / blattWidth) * 100;
+        this.state.y = (this.state.y / blattWidth) * 100;
+      }
     }
     this.applyTransform();
 
@@ -388,8 +405,11 @@ export class SignatureFeature {
       e.preventDefault();
 
       if (interaction.action === 'drag') {
-        this.state.x = interaction.initial.x + (e.clientX - interaction.startX);
-        this.state.y = interaction.initial.y + (e.clientY - interaction.startY);
+        const blatt = document.querySelector('din-a4');
+        const blattWidth = blatt ? blatt.getBoundingClientRect().width : 800;
+        const pxToCqw = 100 / (blattWidth || 1);
+        this.state.x = interaction.initial.x + (e.clientX - interaction.startX) * pxToCqw;
+        this.state.y = interaction.initial.y + (e.clientY - interaction.startY) * pxToCqw;
       } else if (interaction.action === 'rotate') {
         const currentAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
         const deltaRot = (currentAngle - interaction.startAngle) * (180 / Math.PI);
@@ -419,7 +439,7 @@ export class SignatureFeature {
 
   applyTransform() {
     if (this.bbox) {
-      this.bbox.style.translate = `${this.state.x}px ${this.state.y}px`;
+      this.bbox.style.translate = `${this.state.x}cqw ${this.state.y}cqw`;
       this.bbox.style.rotate = `${this.state.rot}deg`;
       this.bbox.style.scale = this.state.scale.toString();
     }
@@ -446,10 +466,14 @@ export class SignatureFeature {
     /** @type {ImageBitmap} */
     let bitmap;
     try {
-      bitmap = await createImageBitmap(file);
-    } catch (error) {
-      console.warn('[Signature] createImageBitmap failed:', error);
-      return;
+      bitmap = await createImageBitmap(file, { resizeWidth: this.MAX_WIDTH, resizeQuality: 'high' });
+    } catch {
+      try {
+        bitmap = await createImageBitmap(file);
+      } catch (error) {
+        console.warn('[Signature] createImageBitmap failed:', error);
+        return;
+      }
     }
     const compressedBase64 = this.compressImage(bitmap);
     bitmap.close();

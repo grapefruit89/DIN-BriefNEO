@@ -346,11 +346,9 @@ aside {
   opacity: 1;
 }
 
-/* Geoapify State Toggles */
+/* Geoapify Settings */
 #geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
-#geoapify-wrapper #anschrift-suche-container { display: none; }
-#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #geoapify-key-container { display: none; }
-#geoapify-wrapper:has(#input-geoapify-key:not(:placeholder-shown)) #anschrift-suche-container { display: flex; flex-direction: column; }
+#geoapify-wrapper #anschrift-suche-container { display: flex; flex-direction: column; }
 .btn-hilfslinien::before {
   content: '📐 Falz- & Lochmarken einblenden';
 }

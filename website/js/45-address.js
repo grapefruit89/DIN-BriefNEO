@@ -752,12 +752,9 @@ export function initAddressServices() {
     }, 500);
   });
 
-  // Double click to reset key
-  inputAddressSearch.addEventListener('dblclick', () => {
-    if (confirm('Geoapify API-Key ändern?')) {
-      save(STORAGE_KEYS.geoapifyKey, '');
-      inputGeoapifyKey.value = '';
-    }
+  // A11y: Sync aria-expanded state of combobox with popover toggle
+  addressSuggestions.addEventListener('toggle', (e) => {
+    inputAddressSearch.setAttribute('aria-expanded', String(/** @type {any} */ (e).newState === 'open'));
   });
 
   /**

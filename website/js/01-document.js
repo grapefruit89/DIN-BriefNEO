@@ -388,6 +388,7 @@ export class DraftManager {
     this.DEBOUNCE_DELAY = 500;
     this.#initShortcuts();
     this.#initEventBus();
+    this.#initLifecycleFlush();
   }
 
   #initEventBus() {
@@ -399,6 +400,28 @@ export class DraftManager {
           this.saveDraft();
         }
       });
+    }
+  }
+
+  #initLifecycleFlush() {
+    const flush = () => {
+      if (this.debounceTimer !== null) {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = null;
+        this.saveDraft();
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          flush();
+        }
+      });
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pagehide', flush);
     }
   }
 

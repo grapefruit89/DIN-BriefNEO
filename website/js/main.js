@@ -118,13 +118,20 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {UIProtections} uiProtections
    */
   function attachGlobalListeners(draftManager, uiProtections) {
+    /** @type {any} */
+    let metaCtx = null;
+    window.addEventListener('beforeprint', () => {
+      metaCtx = MetadataService.prepare();
+    });
+    window.addEventListener('afterprint', () => {
+      if (metaCtx) {
+        MetadataService.restore(metaCtx);
+        metaCtx = null;
+      }
+    });
+
     if (btnPrint) {
       btnPrint.addEventListener('click', () => {
-        // Druck-Lifecycle: Metadaten vorbereiten und nach dem Druck aufräumen
-        const metaCtx = MetadataService.prepare();
-        window.addEventListener('afterprint', () => {
-          MetadataService.restore(metaCtx);
-        }, { once: true });
         window.print();
       });
     }

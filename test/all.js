@@ -2,13 +2,11 @@
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
-import { DraftManager, UIProtections } from '../website/js/01-document.js';
-import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, Constants, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/51-persistence.js';
-import { createEventBus, eventBus, Events } from '../website/js/00-event-bus.js';
-import { initToastSystem } from '../website/js/32-toast.js';
-import { SalutationEngine } from '../website/js/41-salutation-engine.js';
-import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern } from '../website/js/44-address-domain.js';
-import { ClipboardAddressParser } from '../website/js/45-address.js';
+import { DraftManager, UIProtections } from '../website/js/document.js';
+import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, Constants, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
+import { createEventBus, eventBus, Events, initToastSystem } from '../website/js/core.js';
+import { SalutationEngine } from '../website/js/salutation.js';
+import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser } from '../website/js/address.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;

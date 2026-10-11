@@ -22,9 +22,8 @@ doc_links:
   - longevity-guidelines
   - spec
 code_links:
-  - website/js/00-event-bus.js
-  - website/js/01-document.js
-  - website/js/32-toast.js
+  - website/js/core.js
+  - website/js/document.js
   - website/js/main.js
 error_patterns:
   - event bus
@@ -60,7 +59,7 @@ Die historische Kopplung über Callback-Parameter wie `onToast` und `onSaveDraft
 - Tests mussten häufig die gesamte Aufrufkette oder Mock-Verdrahtungen berücksichtigen.
 - Ein neues Modul musste bestehende Callbacks kennen, bevor es Systemfunktionen nutzen konnte.
 
-Mit dem nativen EventBus in `website/js/00-event-bus.js` wurden das Benachrichtigungssystem (`dinbrief:notification.requested`) und das Speicher- und Entwurfs-Lifecycle-System (`dinbrief:document.save.requested`, `dinbrief:document.saved`, `dinbrief:document.changed`) bereits auf Publish/Subscribe umgestellt.
+Mit dem nativen EventBus in `website/js/core.js` wurden das Benachrichtigungssystem (`dinbrief:notification.requested`) und das Speicher- und Entwurfs-Lifecycle-System (`dinbrief:document.save.requested`, `dinbrief:document.saved`, `dinbrief:document.changed`) bereits auf Publish/Subscribe umgestellt.
 
 Diese ADR legt die verbindlichen Architekturverträge, Regeln und zukünftigen Topics fest.
 
@@ -112,8 +111,8 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
   In einer nativen Vanilla-JS-Anwendung mit `contenteditable`-Feldern führt die Reduktion des DOMs auf eine rein passive Einweg-Projektion eines zentralen RAM-State-Objekts bei jedem Tastenanschlag unweigerlich zum **Caret-Kollaps** (Verlust der Cursorposition, Unterbrechung der nativen IME-/Wortvorschlags-Pipelines und Zerstörung nativer Selektionen bei asynchronem Re-Rendering).
 - **Das hybride Architekturmodell von DIN-BriefNEO:**
   1. **Live-Interaktionsschicht:** Das contenteditable DOM fungiert als flackerfreie, performante Echtzeit-Eingabefläche (Live-Oberfläche). Der Browser verwaltet Tippen, Zeilenumbrüche und W3C-Auswahlen nativ.
-  2. **Single-Writer für Persistenz & History (`DraftManager`):** Der `DraftManager` in `01-document.js` ist der alleinige autoritative Koordinator für Speicherung (`localStorage`), Undo/Redo-Stacks und XSS-Sanitizing. Er lauscht auf `dinbrief:document.save.requested`, serialisiert die Felder strukturiert, filtert unerlaubte Tags über die strikte Allowlist und publiziert `dinbrief:document.saved` bzw. `dinbrief:document.changed`.
-  3. **Event-Triggering statt wilder Mutationen:** Fachmodule (wie `45-address.js`, `41-salutation-engine.js` oder `51-persistence.js`) mutieren den Zustand niemals im Alleingang, sondern fordern Speichervorgänge und Benachrichtigungen entkoppelt über den EventBus an.
+  2. **Single-Writer für Persistenz & History (`DraftManager`):** Der `DraftManager` in `document.js` ist der alleinige autoritative Koordinator für Speicherung (`localStorage`), Undo/Redo-Stacks und XSS-Sanitizing. Er lauscht auf `dinbrief:document.save.requested`, serialisiert die Felder strukturiert, filtert unerlaubte Tags über die strikte Allowlist und publiziert `dinbrief:document.saved` bzw. `dinbrief:document.changed`.
+  3. **Event-Triggering statt wilder Mutationen:** Fachmodule (wie `address.js`, `salutation.js` oder `persistence.js`) mutieren den Zustand niemals im Alleingang, sondern fordern Speichervorgänge und Benachrichtigungen entkoppelt über den EventBus an.
 - **Bewusste 80/20-Architekturgrenze für v1.0 (Single-Document):**
   - `din_draft_current` persistiert alle Inhaltsfelder und den Postvermerk frei von UI-Schaltern.
   - Das Layout (DIN-Form A/B) und das Signaturbild (`signatureImage`, `signatureState`) verbleiben in v1.0 pragmatisch in `din_settings` neben den Workspace-Optionen (Theme, Hilfslinien).
@@ -126,8 +125,8 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
 #### `dinbrief:notification.requested`
 
 - **Zweck:** Ein Modul fordert eine Nutzer-Rückmeldung an, ohne das Toast-System direkt zu importieren.
-- **Publisher:** Fachmodule (`43-geoapify.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js`, `41-salutation-engine.js`, `52-import-export.js`, `02-settings-manager.js`).
-- **Subscriber:** `32-toast.js` (`initToastSystem`).
+- **Publisher:** Fachmodule (`address.js`, `salutation.js`, `persistence.js`, `settings.js`).
+- **Subscriber:** `core.js` (`initToastSystem`).
 - **Payload-Vertrag:**
   ```javascript
   {
@@ -139,8 +138,8 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
 #### `dinbrief:document.save.requested`
 
 - **Zweck:** Ein Modul oder DOM-Listener fordert die Persistierung des aktuellen Briefentwurfs an.
-- **Publisher:** `main.js` (Eingabe-Events, Select-Change), `45-address.js`, `41-salutation-engine.js`, `51-persistence.js`.
-- **Subscriber:** `01-document.js` (`DraftManager`).
+- **Publisher:** `main.js` (Eingabe-Events, Select-Change), `address.js`, `salutation.js`, `persistence.js`.
+- **Subscriber:** `document.js` (`DraftManager`).
 - **Payload-Vertrag:**
   ```javascript
   {
@@ -151,7 +150,7 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
 #### `dinbrief:document.saved`
 
 - **Zweck:** Bestätigt erfolgreiche Persistierung im `localStorage`.
-- **Publisher:** `01-document.js` (`DraftManager.saveDraft`).
+- **Publisher:** `document.js` (`DraftManager.saveDraft`).
 - **Subscriber:** UI-Statusindikatoren, Logging, künftige History-Observer.
 - **Payload-Vertrag:**
   ```javascript
@@ -163,7 +162,7 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
 #### `dinbrief:document.save.failed`
 
 - **Zweck:** Signalisiert einen Speicherfehler (z. B. Storage-Quota überschritten).
-- **Publisher:** `01-document.js` (`DraftManager.saveDraft`).
+- **Publisher:** `document.js` (`DraftManager.saveDraft`).
 - **Subscriber:** UI-Statusindikator (`#save-status`), Screenreader via `ariaNotify`.
 - **Payload-Vertrag:**
   ```javascript
@@ -175,7 +174,7 @@ Eine zentrale architektonische Erkenntnis aus Phase 5 betrifft die Modellierung 
 #### `dinbrief:document.changed`
 
 - **Zweck:** Signalisiert inhaltliche Änderungen durch Undo/Redo oder Entwurfs-Reset.
-- **Publisher:** `01-document.js` (`#applyHistoryState`, `resetDraft`).
+- **Publisher:** `document.js` (`#applyHistoryState`, `resetDraft`).
 - **Subscriber:** Autocomplete-Reset, Metadaten-Service, abhängige Widgets.
 - **Payload-Vertrag:**
   ```javascript
@@ -209,7 +208,7 @@ Die nachstehenden Topics bilden die Architektur-Roadmap für die Harmonisierung 
 
 ## 6. EventBus-API und Lifecycle
 
-Die öffentliche Schnittstelle in `website/js/00-event-bus.js` umfasst:
+Die öffentliche Schnittstelle in `website/js/core.js` umfasst:
 
 ```javascript
 // Singleton-Instanz
@@ -235,11 +234,10 @@ export function createEventBus(target = new EventTarget()) {
 | Schicht | Verantwortung |
 | :--- | :--- |
 | **Composition Root (`main.js`)** | Initialisierung des EventBus und Verdrahtung der Module |
-| **EventBus (`00-event-bus.js`)** | Neutraler Transport typisierter Events ohne Geschäftslogik |
-| **State Layer (`01-document.js`, `51-persistence.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
-| **Domain Functions (`44-address-domain.js`)** | Reine zustandslose Berechnungen ohne DOM oder I/O |
-| **UI Components (`32-toast.js`, Popovers)** | Darstellung, Barrierefreiheit und Top-Layer-Lifecycle |
-| **Feature Controllers (`02`, `41`, `45`, `51`)** | Koordination spezifischer Domänen (UI-Settings, Anrede, Adresse, Signatur, Export) |
+| **EventBus & Toasts (`core.js`)** | Neutraler Transport typisierter Events & Popover-basiertes Toast-Feedback |
+| **State Layer (`document.js`, `persistence.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
+| **Domain Functions & Services (`address.js`)** | PLZ-Auflösung, Geocoding, Adress-Parsing & DOM-Autocomplete |
+| **Feature Controllers (`settings.js`, `salutation.js`)** | UI-Settings, Farbmodus, Signatur, Anrede- & Grußformel-Logik |
 
 ---
 
@@ -262,4 +260,4 @@ export function createEventBus(target = new EventTarget()) {
 
 - Unit-Tests für EventBus und Topic-Verträge in `test/all.js`.
 - Fitness Gate Prüfung via `node tools/build_db.js` (Evolutionary Fitness 100%).
-- Traceability-Verknüpfungen zu `00-event-bus.js`, `01-document.js`, `32-toast.js` und `main.js`.
+- Traceability-Verknüpfungen zu `core.js`, `document.js` und `main.js`.

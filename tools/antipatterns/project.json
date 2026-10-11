@@ -80,10 +80,10 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "Manuelle Pointer-Drag-Schleifen (setPointerCapture, --swipe-x) fuer Swipe-to-Dismiss von Toasts sind Catalog HARD BAN A56; Entry/Exit laufen deklarativ ueber Popover API + @starting-style. BEWUSST auf die Toast-Dateien begrenzt: A56 gilt laut Katalog nur 'bei Toasts' - der Rotier-/Skaliergriff in 02-ui-settings.js nutzt setPointerCapture legitim.",
+      "description": "Manuelle Pointer-Drag-Schleifen (setPointerCapture, --swipe-x) fuer Swipe-to-Dismiss von Toasts sind Catalog HARD BAN A56; Entry/Exit laufen deklarativ ueber Popover API + @starting-style. BEWUSST auf die Toast-Dateien begrenzt: A56 gilt laut Katalog nur 'bei Toasts' - der Rotier-/Skaliergriff in settings.js nutzt setPointerCapture legitim.",
       "pattern": "--swipe-x\\s*:|var\\(\\s*--swipe-x|\\bsetPointerCapture\\s*\\(",
       "file_patterns": [
-        "website/js/32-toast.js",
+        "website/js/core.js",
         "website/css/sidebar.css"
       ],
       "exemptions": []

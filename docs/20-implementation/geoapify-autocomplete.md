@@ -14,7 +14,7 @@ doc_links:
   - ADR-OFFLINE-ADDRESS-INTELLIGENCE
 code_links:
   - website/js/main.js
-  - website/js/45-address.js
+  - website/js/address.js
 error_patterns:
   - geoapify
   - autocomplete

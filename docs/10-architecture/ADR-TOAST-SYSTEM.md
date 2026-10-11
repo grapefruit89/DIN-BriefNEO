@@ -17,8 +17,7 @@ doc_links:
   - ADR-CSS
   - ADR-EVENT-DRIVEN-ARCHITECTURE
 code_links:
-  - website/js/00-event-bus.js
-  - website/js/32-toast.js
+  - website/js/core.js
 error_patterns:
   - toast
   - popover
@@ -42,7 +41,7 @@ depends_on: []
 - Die Anwendung benötigte ein stabiles, visuell ansprechendes und zugängliches (a11y) Toast-System.
 - Frühere Implementierungen basierten auf `display: none`-Toggles, manuellen Event-Listenern und einfachen JS-Timeouts — anfällig für "Notification Spam" bei schnellen Benutzeraktionen (z.B. wiederholtes Klicken auf Speichern).
 - Die ursprüngliche Benachrichtigungskommunikation über direkte Callback-Übergaben (`onToast`) koppelte aufrufende Module an die konkrete Toast-Implementierung.
-- Die aktuelle Architektur verwendet stattdessen den nativen EventBus (`website/js/00-event-bus.js`) und das Topic `dinbrief:notification.requested`.
+- Die aktuelle Architektur verwendet stattdessen den nativen EventBus in `website/js/core.js` und das Topic `dinbrief:notification.requested`.
 - Das Toast-System ist Subscriber dieses Vertrags. Fachmodule müssen weder die Toast-DOM-Struktur noch die konkrete Anzeigeimplementierung importieren. Die Entkopplung betrifft die Kommunikation; sie verändert nicht die fachliche Bedeutung der Meldungen oder die Verantwortung des Toast-Systems für deren Darstellung.
 - Anforderung: 100% nativ, performant, Vanilla JS/CSS, keine externe Abhängigkeit.
 
@@ -74,14 +73,13 @@ Der vollständige Kommunikationsvertrag ist in [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
 
 ## 3. Consequences
 
-**Positiv:** Keine externen Abhängigkeiten. Maximale Performance durch Hardware-Beschleunigung. Best-in-class UX und Accessibility. `32-toast.js` ist vollständig von Fachmodulen und `main.js`-Callbacks entkoppelt.
+**Positiv:** Keine externen Abhängigkeiten. Maximale Performance durch Hardware-Beschleunigung. Best-in-class UX und Accessibility. `core.js` entkoppelt Benachrichtigungen vollständig von Fachmodulen und `main.js`-Callbacks.
 
 **Grenzen & Risiken:** Setzt moderne Browser-Features voraus (Popover API, `@starting-style`, `CloseWatcher`). Die Initialisierung und DOM-Verdrahtung verbleibt als Aufgabe des Composition Roots (`main.js`). Der EventBus garantiert keine Zustellungsergebnisse; ungültige Payloads werden defensiv ignoriert.
 
 ## 4. Implementation & Verification
 
-- `website/js/00-event-bus.js` liefert das Pub/Sub-Fundament.
-- `website/js/32-toast.js` abonniert `Events.NOTIFICATION_REQUESTED`.
+- `website/js/core.js` liefert das Pub/Sub-Fundament und das Toast-System (abonniert `Events.NOTIFICATION_REQUESTED`).
 - CSS Anchor Positioning und `@starting-style` sind in `layout.css` aktiv.
 - JavaScript steuert ausschließlich `show/hidePopover()` — keine manuellen Drag-Schleifen oder Positionsmessungen (Catalog A56).
 - Laufzeit: `2000ms + 30ms × Zeichenanzahl`, max. `5000ms`.
@@ -135,4 +133,4 @@ Alle Toasts verwenden native CSS-Transitions (`@starting-style`) und definieren 
 
 ## Umsetzung (Wie)
 
-Das **Wie** steckt im Code, nicht in einem separaten Guide: `website/js/32-toast.js` (`showToast`, `initToastSystem`) + `website/css/floating.css` (Top-Layer/Popover). Dieser ADR begründet das **Warum**.
+Das **Wie** steckt im Code, nicht in einem separaten Guide: `website/js/core.js` (`showToast`, `initToastSystem`) + `website/css/sidebar.css` (Top-Layer/Popover). Dieser ADR begründet das **Warum**.

@@ -3,13 +3,12 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { saveJSON, migrateStorage, STORAGE_KEYS, Constants, MetadataService, applyLetterDate, initImportExport } from './51-persistence.js';
-import { SalutationFeature } from './41-salutation-engine.js';
-import { SettingsManager, SignatureFeature } from './02-ui-settings.js';
-import { initToastSystem } from './32-toast.js';
-import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './45-address.js';
-import { DraftManager, UIProtections } from './01-document.js';
-import { eventBus, Events } from './00-event-bus.js';
+import { saveJSON, migrateStorage, STORAGE_KEYS, Constants, MetadataService, applyLetterDate, initImportExport } from './persistence.js';
+import { SalutationFeature } from './salutation.js';
+import { SettingsManager, SignatureFeature } from './settings.js';
+import { initToastSystem, eventBus, Events } from './core.js';
+import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './address.js';
+import { DraftManager, UIProtections } from './document.js';
 
 /**
  * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.

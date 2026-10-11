@@ -6,7 +6,7 @@
 // @guide [[din-5008-css-architektur]]
 
 /**
- * @file 51-persistence.js — Konsolidierter Speicher-, Datums-, Metadaten- und Export-Layer für DIN-BriefNEO.
+ * @file persistence.js — Konsolidierter Speicher-, Datums-, Metadaten- und Export-Layer für DIN-BriefNEO.
  * Bündelt die bisherigen 4 Module:
  *  1. DateFormat (ehem. 47-date-format.js): DIN-Datum via Intl.DateTimeFormat & Temporal API.
  *  2. Storage (ehem. 51-storage.js): System-Konstanten, LocalStorage-Primitives & Migration.
@@ -14,8 +14,8 @@
  *  4. ImportExport (ehem. 52-import-export.js): JSON-Export/Import mit Metadaten-Header und Validierung.
  */
 
-import { eventBus, Events } from './00-event-bus.js';
-import { collectDraft } from './01-document.js';
+import { eventBus, Events } from './core.js';
+import { collectDraft } from './document.js';
 
 /* =========================================================================================
  * 1. DATE & TIME FORMATTING (Temporal API & DIN 5008)

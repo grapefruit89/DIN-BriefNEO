@@ -16,7 +16,7 @@ doc_links:
   - Immutable-Law-Catalog
   - longevity-guidelines
 code_links:
-  - website/js/45-address.js
+  - website/js/address.js
   - website/data/de_plz_ort.json.gz
 error_patterns:
   - adr-api

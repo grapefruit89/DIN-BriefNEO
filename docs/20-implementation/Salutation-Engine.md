@@ -16,8 +16,7 @@ doc_links:
   - spec
   - glossary
 code_links:
-  - website/js/41-salutation-engine.js
-  - website/js/41-salutation-engine.js
+  - website/js/salutation.js
 error_patterns:
   - salutation engine
   - anrede
@@ -36,7 +35,7 @@ depends_on: []
 
 > [!NOTE] Implementierungsstatus & Architektur-Update (2026-09-04)
 > Die Anrede- und Grußformel-Logik basiert auf dem **radikalen 80/20 B2B-Prinzip**.
-> **Aktiver Code: `website/js/41-salutation-engine.js` — das ist bereits die V2** (Zero-Click-Geschlecht aus 951 Vornamen, Adelspartikel-Erhalt, 3 B2B-Pärchen, Dirty-Flag + Auto-Reset). Ein separates `*.smart.js` gibt es **nicht** — die V2 wurde in dieselbe Datei promoviert (Commit `cc12e5d`).
+> **Aktiver Code: `website/js/salutation.js` — das ist bereits die V2** (Zero-Click-Geschlecht aus 951 Vornamen, Adelspartikel-Erhalt, 3 B2B-Pärchen, Dirty-Flag + Auto-Reset). Ein separates `*.smart.js` gibt es **nicht** — die V2 wurde in dieselbe Datei promoviert (Commit `cc12e5d`).
 >
 > **Kern-Regel:** Klare Standard-Pärchen ohne Titel-Akrobatik. Alles Weitere übersteuert der Nutzer bei Bedarf direkt per ContentEditable auf dem Briefbogen (`data-dirty="true"`).
 

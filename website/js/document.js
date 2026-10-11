@@ -4,15 +4,15 @@
 // @adr [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
 
 /**
- * @file 01-document.js — Konsolidierter Dokumenten- und Editor-Core für DIN-BriefNEO.
+ * @file document.js — Konsolidierter Dokumenten- und Editor-Core für DIN-BriefNEO.
  * Bündelt:
  *  1. Native Selection- und Caret-Helfer (W3C Range / TreeWalker)
  *  2. UIProtections (Zeilenlimits, Paste-Flattening, Blockquote-Shortcut, Anlagen-Liste)
  *  3. DraftManager (Single-Writer für localStorage, Undo/Redo, Autosave, EventBus-Verträge)
  */
 
-import { loadJSON, saveJSON, STORAGE_KEYS, Constants, isPrintTitleActive } from './51-persistence.js';
-import { eventBus, Events } from './00-event-bus.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, Constants, isPrintTitleActive } from './persistence.js';
+import { eventBus, Events } from './core.js';
 
 /* =========================================================================================
  * 0. RICH TEXT SANITIZER (Allowlist Guard)
@@ -412,10 +412,10 @@ export class DraftManager {
   #unsubSaveRequested = null;
 
   /**
-   * @param {ReturnType<typeof import('./00-event-bus.js').createEventBus> | null} [bus]
+   * @param {ReturnType<typeof import('./core.js').createEventBus> | null} [bus]
    */
   constructor(bus = eventBus) {
-    /** @type {ReturnType<typeof import('./00-event-bus.js').createEventBus> | null} */
+    /** @type {ReturnType<typeof import('./core.js').createEventBus> | null} */
     this.bus = bus;
     /** @type {any} */
     this.debounceTimer = null;

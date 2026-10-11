@@ -17,8 +17,8 @@ doc_links:
   - ADR-JS
 code_links:
   - 'website/js/main.js'
-  - 'website/js/32-toast.js'
-  - 'website/js/01-document.js'
+  - 'website/js/core.js'
+  - 'website/js/document.js'
 ---
 
 # Spec: Architektur-Review & Event-Driven Refactoring

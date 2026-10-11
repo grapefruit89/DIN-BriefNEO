@@ -4,16 +4,16 @@
 // @guide [[din-5008-css-architektur]]
 
 /**
- * @file 02-ui-settings.js — Konsolidiertes UI-, Einstellungs- und Signatur-Modul für DIN-BriefNEO.
+ * @file settings.js — Konsolidiertes UI-, Einstellungs- und Signatur-Modul für DIN-BriefNEO.
  * Bündelt:
  *  1. SettingsManager (ehem. 02-settings-manager.js): Layout (Form A/B), Theme (Auto/Light/Dark), Hilfslinien & Font Injection.
  *  2. SignatureFeature (ehem. 42-signature.js): Bild-Upload, Kompression, interaktives Drag/Resize/Rotate & Persistenz.
- *  3. sanitizeRichText: Re-Export aus 01-document.js.
+ *  3. sanitizeRichText: Re-Export aus document.js.
  */
 
-import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-persistence.js';
-import { eventBus, Events } from './00-event-bus.js';
-export { sanitizeRichText } from './01-document.js';
+import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './persistence.js';
+import { eventBus, Events } from './core.js';
+export { sanitizeRichText } from './document.js';
 
 /**
  * @param {string} message

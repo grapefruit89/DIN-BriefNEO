@@ -14,8 +14,8 @@ doc_links:
   - ADR-HTML
   - ADR-JS
 code_links:
-  - website/js/45-address.js
-  - website/js/51-persistence.js
+  - website/js/address.js
+  - website/js/persistence.js
 error_patterns:
   - sender synchronization
   - rücksendezeile

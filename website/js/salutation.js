@@ -10,8 +10,8 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './51-persistence.js';
-import { eventBus, Events } from './00-event-bus.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './persistence.js';
+import { eventBus, Events } from './core.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 

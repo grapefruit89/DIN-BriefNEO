@@ -162,7 +162,7 @@
             <din-lochmarke></din-lochmarke>
             <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
                  nativ gesperrt — die Sperre lebt in enforceLineLimits.
-                 Verbindlicher Text: js/01-document.js — Law Catalog A55/A49. -->
+                 Verbindlicher Text: js/document.js — Law Catalog A55/A49. -->
             <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
               <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" aria-label="Postvermerk"></din-postvermerk>
@@ -212,9 +212,9 @@
       </main>
     </div>
     <!-- Guard: nativer Popover-Toast im Top-Layer, Uebergaenge via @starting-style.
-         Verbindlicher Text: js/32-toast.js — Law Catalog A56. -->
+         Verbindlicher Text: js/core.js — Law Catalog A56. -->
     <!-- Guard: role="status"/aria-live="polite" ist Pflicht, keine Success-Toasts.
-         Verbindlicher Text: js/51-storage.js bei Constants.TOASTS. -->
+         Verbindlicher Text: js/persistence.js bei Constants.TOASTS. -->
     <div id="hinweis-v4" popover="manual" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite" aria-atomic="true">
       <span id="hinweis-message"></span>
       <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen">×</button>

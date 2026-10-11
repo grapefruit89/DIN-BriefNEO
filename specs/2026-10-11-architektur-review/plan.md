@@ -36,11 +36,11 @@ spec_links:
 - [x] Alle Publisher umgestellt (`43-geoapify.js`, `52-import-export.js`, `46-clipboard-address-parser.js`, `02-settings-manager.js`, `41-salutation-engine.js` publizieren über den EventBus).
 - [x] Verifikation: 24/24 Tests im Browser bestanden, Fitness Gate 100 %.
 
-## Phase 3 — Reine Domain-Funktionen extrahieren
-- [ ] Postcode-Lookup Logik aus `45-address-intelligence.js` in pure Funktion extrahieren.
-- [ ] Salutation-Berechnung aus `41-salutation-engine.js` prüfen und kapseln.
-- [ ] Unit-Tests für pure Domain-Funktionen (ohne DOM/Storage-Mocks).
-- [ ] Verifikation: Adresserkennung und Anrede-Ableitung laufen unverändert präzise.
+## Phase 3 — Reine Domain-Funktionen extrahieren (Erledigt)
+- [x] Postcode- und City-Lookup-Logik aus `45-address-intelligence.js` in pure Domain-Funktionen nach `44-address-domain.js` extrahiert.
+- [x] `resolvePostcode`, `resolveCity`, `filterPostcodePrefix` und `detectPlzInputPattern` isoliert und typisiert.
+- [x] Unit-Tests für pure Domain-Funktionen in `test/all.js` ergänzt (29/29 Tests bestanden).
+- [x] Verifikation: Fitness Gate 100 %, zero regressions.
 
 ## Phase 4 — Autosave & Save-Events entkoppeln
 - [ ] Callback `onSaveDraft: () => draftManager.saveDraft()` durch Event `dinbrief:document.save.requested` ersetzen.

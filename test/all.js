@@ -9,6 +9,7 @@ import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '
 import { Constants } from '../website/js/51-storage.js';
 import { createEventBus, eventBus, Events } from '../website/js/00-event-bus.js';
 import { initToastSystem } from '../website/js/32-toast.js';
+import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern } from '../website/js/44-address-domain.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -315,6 +316,89 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     const container = document.getElementById('hinweis-v4');
     assertEqual(msgEl?.textContent, 'EventBus Toast Test', 'Toast-Nachricht im DOM aktualisiert');
     assert(container?.className.includes('type-warning'), 'Toast-Typ im DOM gesetzt');
+  });
+});
+
+describe('AddressDomain: Reine PLZ- und Adressauflösung (Phase 3)', () => {
+  it('normalizePostcode validiert 5-stellige deutsche Postleitzahlen', () => {
+    assertEqual(normalizePostcode('53111'), '53111', 'gültige PLZ als String');
+    assertEqual(normalizePostcode(53111), '53111', 'gültige PLZ als Zahl');
+    assertEqual(normalizePostcode('  53111  '), '53111', 'Whitespace getrimmt');
+    assertEqual(normalizePostcode('5311'), null, 'zu kurze PLZ abgewiesen');
+    assertEqual(normalizePostcode('531111'), null, 'zu lange PLZ abgewiesen');
+    assertEqual(normalizePostcode('abcde'), null, 'Buchstaben abgewiesen');
+    assertEqual(normalizePostcode(null), null, 'null abgewiesen');
+  });
+
+  it('resolvePostcode löst PLZ gegen Map auf inkl. Großempfänger', () => {
+    const plzToCity = new Map([
+      ['53111', 'Bonn'],
+      ['53113', 'Bonn']
+    ]);
+    const grosskunden = new Map([
+      ['53113', { name: 'Deutsche Post DHL Group', city: 'Bonn' }]
+    ]);
+
+    const resStandard = resolvePostcode('53111', plzToCity, grosskunden);
+    assert(resStandard !== null, 'Treffer gefunden');
+    assertEqual(resStandard?.city, 'Bonn');
+    assertEqual(resStandard?.isGrosskunde, false);
+    assertEqual(resStandard?.grosskunde, null);
+
+    const resGrosskunde = resolvePostcode('53113', plzToCity, grosskunden);
+    assert(resGrosskunde !== null, 'Großkunde gefunden');
+    assertEqual(resGrosskunde?.isGrosskunde, true);
+    assertEqual(resGrosskunde?.grosskunde?.name, 'Deutsche Post DHL Group');
+
+    const resFehlend = resolvePostcode('99999', plzToCity, grosskunden);
+    assertEqual(resFehlend, null, 'Unbekannte PLZ liefert null');
+  });
+
+  it('resolveCity liefert exakte Treffer zuerst und danach Präfixe', () => {
+    const cityToPlz = new Map([
+      ['bonn', ['53111', '53113']],
+      ['borken', ['46325']]
+    ]);
+    const plzToCity = new Map([
+      ['53111', 'Bonn'],
+      ['53113', 'Bonn'],
+      ['46325', 'Borken']
+    ]);
+
+    const resultsExact = resolveCity('Bonn', cityToPlz, plzToCity);
+    assertEqual(resultsExact.length, 2, 'Zwei Treffer für Bonn');
+    assertEqual(resultsExact[0].plz, '53111');
+    assertEqual(resultsExact[1].plz, '53113');
+
+    const resultsPrefix = resolveCity('bo', cityToPlz, plzToCity);
+    assertEqual(resultsPrefix.length, 3, 'Drei Treffer für Präfix bo (Bonn + Borken)');
+    assertEqual(resultsPrefix[0].city, 'Bonn');
+
+    assertEqual(resolveCity('b', cityToPlz, plzToCity).length, 0, 'Suche unter 2 Zeichen leer');
+  });
+
+  it('filterPostcodePrefix filtert PLZs nach 2-4 Ziffern', () => {
+    const plzToCity = new Map([
+      ['53111', 'Bonn'],
+      ['53113', 'Bonn'],
+      ['50667', 'Köln']
+    ]);
+
+    const matches53 = filterPostcodePrefix('53', plzToCity);
+    assertEqual(matches53.length, 2, 'Zwei 53er Treffer');
+    const matches50 = filterPostcodePrefix('50', plzToCity);
+    assertEqual(matches50.length, 1, 'Ein 50er Treffer');
+    assertEqual(matches50[0].city, 'Köln');
+
+    assertEqual(filterPostcodePrefix('5', plzToCity).length, 0, '1-stellig ungültig');
+    assertEqual(filterPostcodePrefix('531111', plzToCity).length, 0, 'zu lang ungültig');
+  });
+
+  it('detectPlzInputPattern erkennt semantischen Mustertyp', () => {
+    assertEqual(detectPlzInputPattern('53111').type, 'plz_exact');
+    assertEqual(detectPlzInputPattern('53').type, 'plz_prefix');
+    assertEqual(detectPlzInputPattern('Bonn').type, 'city_name');
+    assertEqual(detectPlzInputPattern('!').type, 'unknown');
   });
 });
 

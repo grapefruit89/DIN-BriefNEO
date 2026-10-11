@@ -5,6 +5,7 @@
 import { setCaretToEnd } from './selection-utils.js';
 import { fetchGzipJson } from './05-gzip.js';
 import { eventBus, Events } from './00-event-bus.js';
+import { resolvePostcode, resolveCity, filterPostcodePrefix } from './44-address-domain.js';
 
 /**
  * @typedef {object} GrosskundeEntry
@@ -105,17 +106,7 @@ export class AddressIntelligence {
    * @returns {PlzLookupResult | null}
    */
   static lookupPlz(plz) {
-    if (!plz || plz.length !== 5) return null;
-    const city = this.plzToCity.get(plz);
-    if (!city) return null;
-
-    const gk = this.grosskunden.get(plz) || null;
-    return {
-      plz,
-      city,
-      isGrosskunde: !!gk,
-      grosskunde: gk
-    };
+    return resolvePostcode(plz, this.plzToCity, this.grosskunden);
   }
 
   /**
@@ -124,36 +115,7 @@ export class AddressIntelligence {
    * @returns {{ plz: string, city: string }[]}
    */
   static lookupCity(query) {
-    const q = (query || "").toLowerCase().trim();
-    if (q.length < 2) return [];
-
-    /** @type {{ plz: string, city: string }[]} */
-    const results = [];
-
-    // Exact city match first
-    const exactPlzs = this.cityToPlz.get(q);
-    if (exactPlzs) {
-      const canonicalCity = this.plzToCity.get(exactPlzs[0]) || query;
-      for (const plz of exactPlzs) {
-        results.push({ plz, city: canonicalCity });
-      }
-    }
-
-    // Prefix matches across all cities
-    if (results.length < 10) {
-      for (const [normCity, plzs] of this.cityToPlz.entries()) {
-        if (normCity !== q && normCity.startsWith(q)) {
-          const canonicalCity = this.plzToCity.get(plzs[0]) || normCity;
-          for (const plz of plzs) {
-            results.push({ plz, city: canonicalCity });
-            if (results.length >= 10) break;
-          }
-        }
-        if (results.length >= 10) break;
-      }
-    }
-
-    return results;
+    return resolveCity(query, this.cityToPlz, this.plzToCity);
   }
 
   /**
@@ -163,18 +125,7 @@ export class AddressIntelligence {
    * @returns {{ plz: string, city: string }[]}
    */
   static filterPrefix(prefix, limit = 10) {
-    const p = (prefix || "").trim();
-    if (p.length < 2 || p.length > 4) return [];
-
-    /** @type {{ plz: string, city: string }[]} */
-    const matches = [];
-    for (const [plz, city] of this.plzToCity.entries()) {
-      if (plz.startsWith(p)) {
-        matches.push({ plz, city });
-        if (matches.length >= limit) break;
-      }
-    }
-    return matches;
+    return filterPostcodePrefix(prefix, this.plzToCity, limit);
   }
 
   /**

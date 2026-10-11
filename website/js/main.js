@@ -5,11 +5,10 @@
 /* js/main.js */
 import { saveJSON, migrateStorage, STORAGE_KEYS, Constants, MetadataService, applyLetterDate, initImportExport } from './51-persistence.js';
 import { SalutationFeature } from './41-salutation-engine.js';
-import { SignatureFeature } from './42-signature.js';
+import { SettingsManager, SignatureFeature } from './02-ui-settings.js';
 import { initToastSystem } from './32-toast.js';
 import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './45-address.js';
 import { DraftManager, UIProtections } from './01-document.js';
-import { SettingsManager } from './02-settings-manager.js';
 import { eventBus, Events } from './00-event-bus.js';
 
 /**

@@ -23,7 +23,7 @@ code_links:
   - website/index.html
   - website/js/main.js
   - website/js/01-document.js
-  - website/js/02-settings-manager.js
+  - website/js/02-ui-settings.js
   - website/js/41-salutation-engine.js
   - website/js/45-address.js
   - website/js/51-persistence.js

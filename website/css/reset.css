@@ -17,7 +17,7 @@ html, body {
 
 /* Accessibility: prefers-reduced-motion — Kill-Switch für alle CSS-Animationen/
    Transitions. Die View-Transitions selbst werden zusätzlich in JS geskippt
-   (02-settings-manager.js / 45-address-intelligence.js via matchMedia). */
+   (02-ui-settings.js / 45-address.js via matchMedia). */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

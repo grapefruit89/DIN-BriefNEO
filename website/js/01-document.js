@@ -12,8 +12,63 @@
  */
 
 import { loadJSON, saveJSON, STORAGE_KEYS, Constants, isPrintTitleActive } from './51-persistence.js';
-import { sanitizeRichText } from './04-sanitize.js';
 import { eventBus, Events } from './00-event-bus.js';
+
+/* =========================================================================================
+ * 0. RICH TEXT SANITIZER (Allowlist Guard)
+ * ========================================================================================= */
+
+/**
+ * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
+ * Wird von 01-document.js (Draft-Restore) genutzt.
+ * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-text) ergänzen die
+ * Basis-Allowlist (ohne Attribute).
+ * @param {string} htmlString
+ * @param {{ extraTags?: string[] }} [options]
+ * @returns {DocumentFragment}
+ */
+export function sanitizeRichText(htmlString, options = {}) {
+  const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', ...(options.extraTags || [])];
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString || '', 'text/html');
+
+  /**
+   * @param {Node} node
+   * @returns {Node}
+   */
+  const sanitizeNode = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return document.createTextNode(node.textContent || '');
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return document.createTextNode('');
+    }
+    const element = /** @type {Element} */ (node);
+    let newNode;
+    if (allowedTags.includes(element.nodeName)) {
+      newNode = document.createElement(element.nodeName.toLowerCase());
+    } else if (element.nodeName === 'SPAN' && element.classList.contains('brief-kommentar')) {
+      newNode = document.createElement('span');
+      newNode.className = 'brief-kommentar';
+    } else {
+      const frag = document.createDocumentFragment();
+      element.childNodes.forEach((child) => {
+        frag.appendChild(sanitizeNode(child));
+      });
+      return frag;
+    }
+    element.childNodes.forEach((child) => {
+      newNode.appendChild(sanitizeNode(child));
+    });
+    return newNode;
+  };
+
+  const frag = document.createDocumentFragment();
+  doc.body.childNodes.forEach((child) => {
+    frag.appendChild(sanitizeNode(child));
+  });
+  return frag;
+}
 
 /* =========================================================================================
  * 1. SELECTION & CARET UTILITIES (W3C Standard)
@@ -451,7 +506,7 @@ export class DraftManager {
         return;
       }
 
-      // HTML-Restore ausschließlich über 04-sanitize (Allowlist)
+      // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
       if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
         const extra = elem.getAttribute('data-feldtyp')?.includes('liste') ? { extraTags: ['UL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));

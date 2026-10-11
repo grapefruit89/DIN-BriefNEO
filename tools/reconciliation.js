@@ -132,7 +132,7 @@ const FEATURE_CHECKS = {
   },
   'View Transitions': {
     regex: /startViewTransition/g,
-    file: 'website/js/02-settings-manager.js'
+    file: 'website/js/02-ui-settings.js'
   }
 };
 

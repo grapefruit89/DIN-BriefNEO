@@ -19,11 +19,9 @@ doc_links:
 code_links:
   - website/js/00-event-bus.js
   - website/js/01-document.js
-  - website/js/02-settings-manager.js
-  - website/js/04-sanitize.js
+  - website/js/02-ui-settings.js
   - website/js/32-toast.js
   - website/js/41-salutation-engine.js
-  - website/js/42-signature.js
   - website/js/45-address.js
   - website/js/51-persistence.js
   - website/js/main.js
@@ -100,27 +98,32 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
   * `getCaretCharacterOffset(element)` / `setCaretCharacterOffset(element, offset)`: W3C Range- & TreeWalker-basierte Caret-Positionsbestimmung ohne Layout Thrashing.
   * `setCaretToEnd(element)`: Setzt den Fokus und Caret ans Textende.
 
-### 2. `02-settings-manager.js` (Layout & Plattform-Schalter)
-* `constructor()`: Bindet UI-Elemente für Layout (Form A/B), Theme und Schalter.
-* `init()`: Lädt gespeicherte Einstellungen und injiziert Fonts.
-* `applySettings()`: Synchronisiert Radio-Controls und semantische Switches mit dem State.
-* `applyThemeDim(dim)`: Setzt CSS Custom Property `--theme-dim` für stufenloses Darkmode-Dimming.
-* `updateSettings()`: Persistiert Einstellungsänderungen via `StorageManager`.
-* `initFontInjection()` / `injectFont(base64Font)`: Injiziert Offline-WOFF2-Fonts via `@font-face`.
-* `updateFontStatusUI(hasCustomFont)`: Aktualisiert Schriftstatus in der Sidebar.
-* `attachListeners()`: Event-Handler für Theme, Layout und den semantischen `<input type="checkbox" switch id="btn-hilfslinien-switch">`.
+### 2. `02-ui-settings.js` (UI-Settings, Layout, Theme, Font & SignatureFeature)
+*Bündelt die vormaligen Einzelmodule `02-settings-manager.js`, `42-signature.js` und re-exportiert `sanitizeRichText`:*
+* **`SettingsManager`**:
+  * `constructor()`: Bindet UI-Elemente für Layout (Form A/B), Theme und Schalter.
+  * `init()`: Lädt gespeicherte Einstellungen und injiziert Fonts.
+  * `applySettings()`: Synchronisiert Radio-Controls und semantische Switches mit dem State.
+  * `applyTheme(theme)`: Setzt Theme (`auto`, `light`, `dark`) mit element-scoped View Transitions.
+  * `changeLayout(layout)`: Wechselt DIN-Layout (Form A vs. B) mit View Transition auf `<din-a4>`.
+  * `updateSettings()`: Persistiert Einstellungsänderungen via `51-persistence.js`.
+  * `initFontInjection()` / `injectFont(base64Font)`: Injiziert Offline-WOFF2-Fonts via native `FontFace` API.
+  * `updateFontStatusUI(hasCustomFont)`: Aktualisiert Schriftstatus in der Sidebar.
+  * `attachListeners()`: Event-Handler für Theme, Layout und den semantischen Switch `#btn-hilfslinien-switch`.
+* **`SignatureFeature`**:
+  * `constructor(settingsContext)`: Verwaltet Bild-Upload und Signatur-Bounding-Box.
+  * `init()` / `initWysiwyg()`: Bindet Drag, Resize und Rotation der Unterschrift auf dem Briefblatt.
+  * `applyTransform()`: Schreibt individuelle CSS-Transforms (`style.translate`, `style.rotate`, `style.scale`) direkt ohne Layout Thrashing.
+  * `processFile(file)` / `compressImage(bitmap)`: Asynchrone Bildkompression via `createImageBitmap` zur Schonung des LocalStorage.
+  * `saveAndApply(base64)` / `applyImage(base64)` / `resetImage()`: Speichern, Rendern und Löschen der Signatur.
 
-### 3. `04-sanitize.js` (Rich-Text-Sanitizer & Allowlist-Guard)
-* `sanitizeRichText(htmlString, options)`: Bereinigt HTML-Strings für den Brieftext (`#text`) und Anlagen (`#anlagen-text`) vor dem Restore über eine strikte Allowlist (`B`, `STRONG`, `U`, `S`, `BLOCKQUOTE`, `BR`, `DIV`, `P` und optional `UL`/`LI`). Verhindert XSS und unerlaubte Attribute/Tags.
-*(Hinweis: Die frühere Floating-Toolbar `31-format-toolbar.js` wurde zugunsten des robusteren **Rich-Text-Light**-Ansatzes eliminiert: Fett/Unterstrichen erfolgen browser-nativ via Chromium Core, Blockquote via `Ctrl+Q` in `01-document.js`, und Paste filtert fremdes Styling bei Erhalt aller Zeilenumbrüche).*
-
-### 5. `32-toast.js` (Native Popover Top-Layer Queue & EventBus-Subscriber)
+### 3. `32-toast.js` (Native Popover Top-Layer Queue & EventBus-Subscriber)
 * `initToastSystem()`: Ermittelt `#hinweis-v4` (`popover="manual"`) im DOM, bindet Close-Button und abonniert `Events.NOTIFICATION_REQUESTED`.
 * `showToast(message, type)`: Zeigt Toast im Top-Layer via `showPopover()`; dedupliziert bei gleicher Nachricht via Timer-Reset.
 * `armCloseWatcher()`: Schließt den Toast nativ über `CloseWatcher` bei Esc / Back-Gesture.
 * Verwaltet automatischen Lesezeit-Timer (`2000ms + 30ms × Zeichenanzahl`, max. `5000ms`).
 
-### 6. `41-salutation-engine.js` (80/20 Smart Salutation Engine V2)
+### 4. `41-salutation-engine.js` (80/20 Smart Salutation Engine V2)
 * `constructor(saveDraftDataCallback = null, settingsContext = null)`: Initialisiert Engine mit 3 B2B-Pärchen; die 951 Vornamen werden aus `data/de_vornamen_gender.json.br` geladen. Publiziert `DOCUMENT_SAVE_REQUESTED` über den EventBus bei Änderungen.
 * `init()`: Verdrahtet Empfänger-Eingaben mit Anrede und Grußformel.
 * `derive({ firstName, lastName, company, formality })`: Ermittelt treffsicher die Anredeform ("Sehr geehrte(r) Frau/Herr [Nachname],", "Guten Tag...", "Hallo...").
@@ -129,13 +132,6 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * `splitTitles(name)`: Erkennt akademische Grade (Dr., Prof.) und Adelspartikel (von, zu, van, de).
 * `_applyUIState()` / `_wireRecipientName()` / `_wireManualEdits()`: Reagiert auf Eingaben mit In-Flight-Tippschutz und schützt manuelle Nutzereingaben via `data-dirty="true"` (mit Auto-Reset bei Feldleerung).
 * `_validatePunctuation(el, kind)`: Erzwingt DIN-Kommasetzung (Komma nach Anrede, strikt KEIN Komma nach Grußformel) via `NOTIFICATION_REQUESTED`.
-
-### 7. `42-signature.js` (Unterschriften-Manager)
-* `constructor(uiContext)`: Verwaltet Bild-Upload und Signatur-Bounding-Box.
-* `init()` / `initWysiwyg()`: Bindet Drag, Resize und Rotation der Unterschrift auf dem Briefblatt.
-* `applyTransform()`: Setzt Transformations-Matrix auf das Unterschriftenbild.
-* `processFile(file)` / `compressImage(bitmap)`: Asynchrone Bildkompression via `createImageBitmap` zur Schonung des LocalStorage.
-* `saveAndApply(base64)` / `applyImage(base64)` / `resetImage()`: Speichern, Rendern und Löschen der Signatur.
 
 ### 8. `45-address.js` (Konsolidierter Adress-, PLZ- & Geocoding-Cluster)
 *Bündelt die vormaligen Einzelmodule `05-gzip.js`, `44-address-domain.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js` und `43-geoapify.js`:*

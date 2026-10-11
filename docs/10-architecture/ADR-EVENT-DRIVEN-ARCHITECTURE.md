@@ -224,7 +224,7 @@ export function createEventBus(target = new EventTarget()) {
 | **State Layer (`01-document.js`, `51-persistence.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
 | **Domain Functions (`45-address.js`)** | Reine zustandslose Berechnungen ohne DOM oder I/O |
 | **UI Components (`32-toast.js`, Popovers)** | Darstellung, Barrierefreiheit und Top-Layer-Lifecycle |
-| **Feature Controllers (`41`, `42`, `45`, `51`)** | Koordination spezifischer Domänen (Anrede, Adresse, Signatur, Export) |
+| **Feature Controllers (`02`, `41`, `45`, `51`)** | Koordination spezifischer Domänen (UI-Settings, Anrede, Adresse, Signatur, Export) |
 
 ---
 

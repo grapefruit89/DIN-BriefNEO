@@ -15,6 +15,7 @@
  */
 
 import { eventBus, Events } from './00-event-bus.js';
+import { collectDraft } from './01-document.js';
 
 /* =========================================================================================
  * 1. DATE & TIME FORMATTING (Temporal API & DIN 5008)
@@ -594,10 +595,9 @@ export function initImportExport() {
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     let draft;
     try {
+      draft = collectDraft();
+    } catch {
       draft = loadJSON(STORAGE_KEYS.draft, {});
-    } catch (e) {
-      notify('❌ Export fehlgeschlagen: lokaler Draft nicht lesbar.', 'error');
-      return;
     }
     const settings = loadJSON(STORAGE_KEYS.settings, null);
     const font = load(STORAGE_KEYS.font, null);

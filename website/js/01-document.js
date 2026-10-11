@@ -301,8 +301,8 @@ export class UIProtections {
       const selection = window.getSelection();
       if (selection) {
         const range = document.createRange();
-        range.setStart(li, 0);
-        range.collapse(true);
+        range.selectNodeContents(li);
+        range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
       }
@@ -365,7 +365,41 @@ export class UIProtections {
 
 const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), select[data-speichern]';
 
+/**
+ * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
+ * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert.
+ * @returns {Record<string, string>}
+ */
+export function collectDraft() {
+  /** @type {Record<string, string>} */
+  const draft = {};
+
+  if (typeof document === 'undefined') return draft;
+
+  document.querySelectorAll('[contenteditable]').forEach(elem => {
+    if (!elem.id || elem.getAttribute('data-feldtyp') === 'systemwert') return;
+    if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
+      const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
+      const extra = isListe ? { extraTags: ['UL', 'LI'] } : undefined;
+      const cleanFrag = sanitizeRichText(elem.innerHTML, extra);
+      const container = document.createElement('div');
+      container.appendChild(cleanFrag);
+      draft[elem.id] = container.innerHTML;
+    } else {
+      draft[elem.id] = elem.textContent || '';
+    }
+  });
+
+  document.querySelectorAll('select[data-speichern]').forEach(elem => {
+    const sel = /** @type {HTMLSelectElement} */ (elem);
+    if (sel.id) draft[sel.id] = sel.value;
+  });
+
+  return draft;
+}
+
 export class DraftManager {
+  static collectDraft = collectDraft;
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #undoStack = [];
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
@@ -450,21 +484,7 @@ export class DraftManager {
   }
 
   saveDraft() {
-    /** @type {Record<string, string>} */
-    const draft = {};
-
-    document.querySelectorAll('[contenteditable]').forEach(elem => {
-      if (!elem.id || elem.getAttribute('data-feldtyp') === 'systemwert') return;
-      if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-        draft[elem.id] = elem.innerHTML;
-      } else {
-        draft[elem.id] = elem.textContent;
-      }
-    });
-    document.querySelectorAll('select[data-speichern]').forEach(elem => {
-      const sel = /** @type {HTMLSelectElement} */ (elem);
-      if (sel.id) draft[sel.id] = sel.value;
-    });
+    const draft = collectDraft();
 
     const saved = saveJSON(STORAGE_KEYS.draft, draft);
     this.#setSaveStatus(saved ? 'saved' : 'error');
@@ -525,8 +545,12 @@ export class DraftManager {
 
       // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
       if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
-        const extra = elem.getAttribute('data-feldtyp')?.includes('liste') ? { extraTags: ['UL', 'LI'] } : undefined;
+        const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
+        const extra = isListe ? { extraTags: ['UL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));
+        if (isListe && elem.children.length === 0) {
+          elem.replaceChildren(document.createElement('li'));
+        }
       } else if (!elem.querySelector('select[data-speichern]')) {
         elem.textContent = draft[id];
       }
@@ -578,8 +602,12 @@ export class DraftManager {
   resetDraft() {
     document.querySelectorAll('[contenteditable]').forEach(el => {
       if (el.getAttribute('data-feldtyp') === 'systemwert') return;
-      el.replaceChildren();
-      el.textContent = '';
+      if (el.getAttribute('data-feldtyp')?.includes('liste')) {
+        el.replaceChildren(document.createElement('li'));
+      } else {
+        el.replaceChildren();
+        el.textContent = '';
+      }
     });
     document.querySelectorAll('select[data-speichern]').forEach(el => {
       const sel = /** @type {HTMLSelectElement} */ (el);

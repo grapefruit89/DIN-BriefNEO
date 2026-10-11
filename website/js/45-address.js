@@ -765,6 +765,9 @@ export function initAddressServices() {
       const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${encodeURIComponent(key)}`, {
         signal: AbortSignal.timeout(8000),
       });
+      // Guard gegen asynchrone Race Conditions: Nur speichern, wenn der validierte Key noch der aktuelle Eingabewert ist
+      if (!inputGeoapifyKey || inputGeoapifyKey.value.trim() !== key) return;
+
       if (res.ok) {
         save(STORAGE_KEYS.geoapifyKey, key);
         // Kein Toast bei Erfolg: Stille Übernahme
@@ -776,6 +779,7 @@ export function initAddressServices() {
         save(STORAGE_KEYS.geoapifyKey, key);
       }
     } catch (err) {
+      if (!inputGeoapifyKey || inputGeoapifyKey.value.trim() !== key) return;
       // Netzwerk/Timeout: Key behalten und still bleiben
       save(STORAGE_KEYS.geoapifyKey, key);
     }

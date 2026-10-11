@@ -255,3 +255,35 @@ aside select {
   outline: 2px solid color-mix(in srgb, var(--accent-color) 65%, transparent);
   outline-offset: -2px;
 }
+
+/* --- NATIVE DIALOGE (GLASSMORPHISM) --- */
+.glass-dialog {
+  border: 1px solid var(--border-color);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 12px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  max-width: min(90vw, 420px);
+  margin: auto;
+}
+.glass-dialog::backdrop {
+  background: oklch(0% 0 0 / 40%);
+  backdrop-filter: blur(4px);
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.btn.danger,
+.btn-danger {
+  border-color: var(--c-danger);
+  color: var(--c-danger);
+}
+.btn.danger:hover,
+.btn-danger:hover {
+  background: color-mix(in oklch, var(--c-danger) 15%, transparent);
+}

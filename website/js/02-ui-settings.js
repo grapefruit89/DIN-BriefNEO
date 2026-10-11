@@ -146,7 +146,7 @@ export class SettingsManager {
    * Native CSS Font Loading API: kein <style>-String, echtes Fehler-Handling
    * (face.load() rejected bei kaputtem Font), sauberes Entladen via document.fonts.delete.
    * @param {string} base64Font
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>}
    */
   async injectFont(base64Font) {
     const face = new FontFace('AptosCustom', `url(${base64Font})`);
@@ -156,7 +156,7 @@ export class SettingsManager {
       console.warn('[Settings] Custom font invalid:', e);
       notify(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
       this.updateFontStatusUI(false);
-      return;
+      return false;
     }
     if (typeof document.fonts !== 'undefined') {
       for (const f of Array.from(document.fonts)) {
@@ -168,6 +168,7 @@ export class SettingsManager {
     document.fonts.add(face);
     this.activeFontFace = face;
     this.updateFontStatusUI(true);
+    return true;
   }
 
   /**
@@ -265,18 +266,19 @@ export class SettingsManager {
           return;
         }
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
           const readerTarget = /** @type {FileReader} */ (event.target);
           const base64Font = readerTarget ? readerTarget.result : null;
           if (typeof base64Font !== 'string') {
             notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
             return;
           }
-          const success = save(STORAGE_KEYS.font, base64Font);
-          if (success) {
-            this.injectFont(base64Font);
-          } else {
-            notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+          const loaded = await this.injectFont(base64Font);
+          if (loaded) {
+            const success = save(STORAGE_KEYS.font, base64Font);
+            if (!success) {
+              notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+            }
           }
         };
         reader.readAsDataURL(file);

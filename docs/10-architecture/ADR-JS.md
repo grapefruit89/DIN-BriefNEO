@@ -24,10 +24,7 @@ code_links:
   - website/js/32-toast.js
   - website/js/41-salutation-engine.js
   - website/js/42-signature.js
-  - website/js/43-geoapify.js
-  - website/js/44-address-domain.js
-  - website/js/45-address-intelligence.js
-  - website/js/46-clipboard-address-parser.js
+  - website/js/45-address.js
   - website/js/47-date-format.js
   - website/js/51-storage.js
   - website/js/52-import-export.js
@@ -65,7 +62,7 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 1. **Striktes Verbot von JS-Layouting & DOM-Messschleifen:** JS darf keine CSS-Stile für Layout, Elementpositionen oder Textgrößen berechnen (Toolbar nutzt CSS Anchor Positioning, Text-Fit nutzt `field-sizing: content` und `text-fit: shrink`).
 2. **Verbot von `document.execCommand`:** Textformatierungen erfolgen ausschließlich über die standardkonforme W3C Selection & Range API.
 3. **View Transitions API:** Zustandswechsel (z. B. Formularwechsel Form A/B, Theme-Wechsel) nutzen `document.startViewTransition()` statt JS-Animationen.
-4. **Modulkommunikation & EventBus:** Modulübergreifende Benachrichtigungen und Zustandsänderungen erfolgen lose gekoppelt über den nativen EventBus (`website/js/00-event-bus.js`, `EventTarget`/`CustomEvent`) gemäß [[ADR-EVENT-DRIVEN-ARCHITECTURE]]. Reine fachliche Berechnungen verbleiben in zustandslosen Domain-Funktionen (`website/js/44-address-domain.js`).
+4. **Modulkommunikation & EventBus:** Modulübergreifende Benachrichtigungen und Zustandsänderungen erfolgen lose gekoppelt über den nativen EventBus (`website/js/00-event-bus.js`, `EventTarget`/`CustomEvent`) gemäß [[ADR-EVENT-DRIVEN-ARCHITECTURE]]. Reine fachliche Berechnungen verbleiben in zustandslosen Domain-Funktionen (`website/js/45-address.js`).
 5. **Reglementierte Aufgaben für JavaScript:**
    * W3C Selection & Range API (Textformatierung im Fließtext)
    * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore)
@@ -143,33 +140,19 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * `processFile(file)` / `compressImage(bitmap)`: Asynchrone Bildkompression via `createImageBitmap` zur Schonung des LocalStorage.
 * `saveAndApply(base64)` / `applyImage(base64)` / `resetImage()`: Speichern, Rendern und Löschen der Signatur.
 
-### 8. `43-geoapify.js` (Remote-Adress-Autocomplete mit Dynamic Target Lock)
-* `initAddressServices({ onToast, onSaveDraft })`: Initialisiert Adress-Suche; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED` bei Fehlen von Callbacks.
-* `validateKeyWithHeartbeat(key)`: Prüft Gültigkeit des API-Keys.
-* `performAddressSearch(query, localMatches)`: Führt Remote-Suche durch, wenn Offline-Treffer nicht ausreichen.
-* `setTargetLock(plz, city)`: Dynamische Sperre des Bonn-Bias zugunsten des erkannten Zielorts.
-* `renderSuggestions(suggestions, query)` / `selectSuggestion(item)`: Dropdown-Rendering und Auswahl.
-
-### 9. `44-address-domain.js` (Reine Domain-Funktionen für PLZ- & Adresslogik)
-* `normalizePostcode(raw)`: Validiert und bereinigt 5-stellige deutsche Postleitzahlen.
-* `resolvePostcode(plz, plzToCityMap, grosskundenMap)`: Zustandsloser Lookup von PLZ zu Ort inkl. Großempfänger-Erkennung (OLG Frankfurt Az. 6 U 170/13).
-* `resolveCity(query, cityToPlzMap, plzToCityMap)`: Exakte und präfixbasierte Ortssuche (mind. 2 Zeichen).
-* `filterPostcodePrefix(prefix, plzToCityMap)`: Filtert PLZs nach 2–4-stelligen Ziffern-Präfixen.
-* `detectPlzInputPattern(raw)`: Erkennt semantische Muster (`plz_exact`, `plz_prefix`, `city_name`, `unknown`).
-*(100% reine Funktionen: frei von DOM, Storage, Netzwerk und EventBus; isoliert testbar).*
-
-### 10. `45-address-intelligence.js` (Adress-Domain: Offline Brotli PLZ & Großkunden-Engine + Absender-Sync)
-*Ehemals `45-address-intelligence.js` + `44-sender-sync.js` (zusammengeführt am 2026-09-09, Kohäsion: beide bedienen das Empfänger-/Absender-Adressfeld).*
-* `initAddressIntelligence()`: Dekomprimiert `de_plz_ort.json.br` (10.831 PLZs) und `de_grosskunden_plz.json.br` (2.258 Großempfänger) via `DecompressionStream('brotli')`.
-* `lookupPlz(plz)` / `lookupCity(name)`: Delegiert an pure Domain-Funktionen in `44-address-domain.js`.
-* `wireDOM({ onToast, onSaveDraft })`: Verbindet Empfängerfelder mit Popover-Vorschlägen; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
-* `abbreviateName(fullName)`: Erzeugt platzsparende Namenskürzel für die DIN-Rücksendezeile.
-* `initSenderSync()`: Verbindet Absender-Formularfelder reaktiv mit der Rücksendezeile.
-
-### 11. `46-clipboard-address-parser.js` (Smart Clipboard Impressum-Parser)
-* `parseAddressFromText(rawText)`: Heuristischer 0,1ms Multi-Pass Regex-Parser. Filtert juristischen Müll (Handelsregister HRB, Amtsgerichte, USt-ID, Cookie-Texte) und extrahiert DIN-5008-Anschriften.
-* `wireSidebarButton({ onToast, onSaveDraft })`: Verbindet den Sidebar-Button `📋 Zwischenablage lesen` mit dem System; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
-* `showAddressCandidates(candidates)`: Öffnet bei mehreren Standorten das Top-Layer Popover `#clipboard-candidates-popover` zur Ein-Klick-Auswahl.
+### 8. `45-address.js` (Konsolidierter Adress-, PLZ- & Geocoding-Cluster)
+*Bündelt die vormaligen Einzelmodule `05-gzip.js`, `44-address-domain.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js` und `43-geoapify.js`:*
+* **Gzip-Decompression (`fetchGzipJson`)**: Nativer `DecompressionStream('gzip')` für `de_plz_ort.json.gz` und `de_grosskunden_plz.json.gz` ohne Fremdbibliotheken.
+* **Domain Functions (Zustandslos)**:
+  * `normalizePostcode(raw)`: Validiert 5-stellige deutsche Postleitzahlen.
+  * `resolvePostcode(plz, plzToCityMap, grosskundenMap)`: Zustandsloser PLZ-Lookup inkl. Großempfänger-Erkennung (OLG Frankfurt Az. 6 U 170/13).
+  * `resolveCity(query, cityToPlzMap, plzToCityMap, limit)`: Exakte und präfixbasierte Ortssuche.
+  * `filterPostcodePrefix(prefix, plzToCityMap, limit)`: Filtert PLZs nach 2–4-stelligen Ziffern-Präfixen.
+  * `detectPlzInputPattern(raw)`: Erkennt semantische Muster (`plz_exact`, `plz_prefix`, `city_name`, `unknown`).
+* **`AddressIntelligence`**: 100% Offline PLZ- und Großempfänger-Engine. Initialisiert Datensätze im Speicher, bindet Empfängerfelder via `wireDOM()`, steuert Popover-Vorschläge und publiziert `DOCUMENT_SAVE_REQUESTED` sowie `NOTIFICATION_REQUESTED`.
+* **`initSenderSync()`**: Synchronisiert Absender-Formularfelder reaktiv mit der DIN-Rücksendezeile (mit Namenskürzel via `abbreviateName`) und der Maschinenschrift.
+* **`ClipboardAddressParser`**: 95%-KISS Multi-Pass Regex-Parser für Zwischenablagen-Texte. Filtert Metadaten (HRB, USt-ID etc.) und öffnet bei Mehrdeutigkeit das Popover `#clipboard-candidates-popover`.
+* **`initAddressServices({ onToast, onSaveDraft })`**: Optionaler Geoapify-Service mit In-Memory Cache, Adressbuch-Historie (max. 50 Einträge) und Absender-Proximity-Bias.
 
 ### 12. `47-date-format.js` (DIN 5008 Datumsformatierung)
 * `formatLetterDate()`: Erzeugt DIN-konformes Datum ("4. September 2026", ohne führende Null) via `Intl.DateTimeFormat('de-DE')` mit Temporal-Objekt.

@@ -8,7 +8,7 @@ import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '
 import { Constants } from '../website/js/51-storage.js';
 import { createEventBus, eventBus, Events } from '../website/js/00-event-bus.js';
 import { initToastSystem } from '../website/js/32-toast.js';
-import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern } from '../website/js/44-address-domain.js';
+import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern } from '../website/js/45-address.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;

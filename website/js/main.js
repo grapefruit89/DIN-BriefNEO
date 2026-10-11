@@ -7,14 +7,12 @@ import { saveJSON, migrateStorage, STORAGE_KEYS, Constants } from './51-storage.
 import { SalutationFeature } from './41-salutation-engine.js';
 import { MetadataService } from './53-metadata.js';
 import { SignatureFeature } from './42-signature.js';
-import { initAddressServices } from './43-geoapify.js';
 import { initToastSystem } from './32-toast.js';
-import { initSenderSync, AddressIntelligence } from './45-address-intelligence.js';
+import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './45-address.js';
 import { DraftManager, UIProtections } from './01-document.js';
 import { SettingsManager } from './02-settings-manager.js';
 
 import { applyLetterDate } from './47-date-format.js';
-import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 import { initImportExport } from './52-import-export.js';
 import { eventBus, Events } from './00-event-bus.js';
 

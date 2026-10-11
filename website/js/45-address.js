@@ -156,14 +156,8 @@ export class AddressIntelligence {
     if (!empfOrtEl) return;
 
     // Popover suggestions container for city -> PLZ reverse matches
-    let suggestionsPopover = document.getElementById('plz-suggestions-popover');
-    if (!suggestionsPopover) {
-      suggestionsPopover = document.createElement('ul');
-      suggestionsPopover.id = 'plz-suggestions-popover';
-      suggestionsPopover.setAttribute('popover', 'manual');
-      suggestionsPopover.className = 'anschrift-vorschlaege-liste nicht-drucken';
-      empfOrtEl.parentElement?.appendChild(suggestionsPopover);
-    }
+    const suggestionsPopover = document.getElementById('plz-suggestions-popover');
+    if (!suggestionsPopover) return;
 
     empfOrtEl.addEventListener('input', () => {
       const rawText = (empfOrtEl.textContent || "").trim();

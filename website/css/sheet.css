@@ -260,6 +260,7 @@ body:has(#btn-form-a:checked) din-a4 {
 
   /* --- FUSS --- */
   #fuss {
+    display: none;
     position: absolute;
     bottom: --mm-y(10); /* 10mm */
     left: --mm-x(25); /* 25mm */
@@ -269,11 +270,15 @@ body:has(#btn-form-a:checked) din-a4 {
     color: var(--blatt-schwach); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
     padding-top: --mm-y(2);
-    display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: --mm-x(10);
     column-rule: 0.5px solid var(--blatt-schwach);
     column-rule-inset: 2px;
+  }
+
+  din-fuss:has(.fuss-spalte:not(:empty)),
+  #fuss:has(.fuss-spalte:not(:empty)) {
+    display: grid;
   }
 }
 
@@ -317,8 +322,12 @@ din-a4 {
 }
 
 /* Optionale DIN-Blöcke */
-din-postvermerk, din-anlagen {
+din-postvermerk, din-anlagen, din-fuss {
   display: none;
+}
+
+din-fuss:has(.fuss-spalte:not(:empty)) {
+  display: grid;
 }
 
 :root:has(#toggle-anlagen:checked) din-anlagen {

@@ -112,6 +112,7 @@
                 <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
                 <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
                 <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
+                <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
               </search>
               <div>
                 <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage lesen</button>
@@ -191,7 +192,11 @@
                 <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences"><li>Anlage 1</li></ul>
               </din-anlagen>
             </din-kern>
-            <din-fuss id="fuss" role="contentinfo"></din-fuss>
+            <din-fuss id="fuss" role="contentinfo">
+              <div id="fuss-spalte-1" class="fuss-spalte" contenteditable="plaintext-only" spellcheck="false" placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
+              <div id="fuss-spalte-2" class="fuss-spalte" contenteditable="plaintext-only" spellcheck="false" placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
+              <div id="fuss-spalte-3" class="fuss-spalte" contenteditable="plaintext-only" spellcheck="false" placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>
+            </din-fuss>
             <div id="unterschriftsbild-container">
               <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box">
                 <div class="unterschriftsbild-griff top-left" data-aktion="resize" data-richtung="tl"></div>
@@ -206,7 +211,6 @@
         </div>
       </main>
     </div>
-    <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste autocomplete-dropdown nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
     <!-- Guard: nativer Popover-Toast im Top-Layer, Uebergaenge via @starting-style.
          Verbindlicher Text: js/32-toast.js — Law Catalog A56. -->
     <!-- Guard: role="status"/aria-live="polite" ist Pflicht, keine Success-Toasts.

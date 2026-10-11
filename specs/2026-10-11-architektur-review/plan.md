@@ -48,7 +48,10 @@ spec_links:
 - [x] Publisher entkoppelt (`43-geoapify.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js`, `41-salutation-engine.js`, `52-import-export.js`, `main.js`).
 - [x] Verifikation: Entprelltes Speichern, Statusanzeige (#save-status), Caret-Tracking und Undo/Redo bleiben intakt (33/33 Tests bestanden, Fitness Gate 100 %).
 
-## Phase 5 — Dokumentzustand & History harmonisieren
-- [ ] State-Ownership klarer modellieren, ohne die DOM-Eingabeschleife zu stören.
-- [ ] Caret-Tracking und Undo-Stack absichern.
-- [ ] Vollständiger Regressionstest gegen alte gespeicherte Briefe und Vorlagen.
+## Phase 5 — Dokumentzustand, History & Modul-Konsolidierung (Erledigt)
+- [x] Konsolidierung der 21 JS-Dateien auf 7 LLM-optimale Domänen-Module (`00-`, `01-`, `02-`, `32-`, `41-`, `45-`, `51-`).
+- [x] State-Ownership in `01-document.js` konsolidiert, Caret-Tracking und Undo/Redo abgesichert.
+- [x] Settings, Signatur & Sanitize in `02-ui-settings.js` gebündelt.
+- [x] Adress- und Geodaten in `45-address.js` gebündelt.
+- [x] Storage, Metadaten, Datum & Export in `51-persistence.js` gebündelt.
+- [x] Vollständiger Testlauf: 33/33 Tests bestanden, Evolutionary Fitness Gate bei 100 %.

@@ -108,11 +108,11 @@
                 <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key (optional):</label>
                 <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
               </div>
-              <div id="anschrift-suche-container" class="seitenleiste-options-group">
+              <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
                 <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-                <input type="text" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+                <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
                 <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
-              </div>
+              </search>
               <div>
                 <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage lesen</button>
                 <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
@@ -162,33 +162,33 @@
             <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
                  nativ gesperrt — die Sperre lebt in enforceLineLimits.
                  Verbindlicher Text: js/01-document.js — Law Catalog A55/A49. -->
-            <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
-              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Postvermerk"></din-postvermerk>
-              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
-              <div id="empfaenger-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
-              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
-              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
+              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" aria-label="Postvermerk"></din-postvermerk>
+              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
+              <div id="empfaenger-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
+              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" role="group" aria-label="Infoblock">
-              <div id="absender-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Vor- und Nachname" aria-label="Name"></div>
-              <din-absender-strasse id="absender-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
-              <din-absender-ort id="absender-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
-              <din-absender-tel id="absender-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
-              <din-absender-mail id="absender-mail" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+              <div id="absender-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Vor- und Nachname" aria-label="Name"></div>
+              <din-absender-strasse id="absender-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="absender-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="absender-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="absender-mail" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="none" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
-            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" contenteditable="plaintext-only" enterkeyhint="done" placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" placeholder="2. September 2026" aria-label="Datum"></din-datum>
             <din-kern id="kern" aria-label="Briefkern">
-              <din-betreff id="betreff" data-feldtyp="zweizeilig" contenteditable="plaintext-only" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
-              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
-              <din-text id="text" data-feldtyp="rich mehrzeilig" contenteditable="true" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
-              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+              <din-betreff id="betreff" data-feldtyp="zweizeilig" contenteditable="plaintext-only" spellcheck="true" autocapitalize="sentences" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <din-text id="text" data-feldtyp="rich mehrzeilig" contenteditable="true" spellcheck="true" autocapitalize="sentences" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
+              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="unterschrift-zeile">
-                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>
-                <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true"><li>Anlage 1</li></ul>
+                <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences"><li>Anlage 1</li></ul>
               </din-anlagen>
             </din-kern>
             <din-fuss id="fuss" role="contentinfo"></din-fuss>
@@ -206,6 +206,7 @@
         </div>
       </main>
     </div>
+    <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste autocomplete-dropdown nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
     <!-- Guard: nativer Popover-Toast im Top-Layer, Uebergaenge via @starting-style.
          Verbindlicher Text: js/32-toast.js — Law Catalog A56. -->
     <!-- Guard: role="status"/aria-live="polite" ist Pflicht, keine Success-Toasts.
@@ -214,7 +215,7 @@
       <span id="hinweis-message"></span>
       <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen">×</button>
     </div>
-    <dialog id="reset-dialog" class="glass-dialog nicht-drucken">
+    <dialog id="reset-dialog" class="glass-dialog nicht-drucken" closedby="any">
       <form method="dialog">
         <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
         <div class="dialog-actions">
@@ -223,7 +224,7 @@
         </div>
       </form>
     </dialog>
-    <dialog id="import-dialog" class="glass-dialog nicht-drucken">
+    <dialog id="import-dialog" class="glass-dialog nicht-drucken" closedby="any">
       <form method="dialog">
         <p>Diesen Brief importieren und den aktuellen Inhalt ersetzen?</p>
         <p class="import-file-name" id="import-file-name"></p>

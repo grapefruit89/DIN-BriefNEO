@@ -148,6 +148,23 @@ body:has(#btn-form-a:checked) din-a4 {
     justify-content: flex-start; /* Kompakte Ausrichtung nach oben */
   }
 
+  /* Umschlag-Fenster-Visier für DIN-Lang (DIN 680: 90x45mm, linksbündig mit Anschriftfeld) */
+  #anschriftfeld::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: --mm-x(90);
+    height: --mm-y(45);
+    border-radius: --mm-x(3);
+    border: 1px dashed oklch(0.5 0.05 250 / 40%);
+    background: oklch(0.5 0.05 250 / 4%);
+    opacity: var(--hilfslinien-deckkraft);
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
   /* Info block (Rechte Spalte) */
   #infoblock {
     position: absolute;

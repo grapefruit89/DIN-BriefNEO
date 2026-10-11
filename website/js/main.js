@@ -17,6 +17,7 @@ import { UIProtections } from './03-ui-protections.js';
 import { applyLetterDate } from './47-date-format.js';
 import { ClipboardAddressParser } from './46-clipboard-address-parser.js';
 import { initImportExport } from './52-import-export.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 /**
  * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.
@@ -79,19 +80,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      initAddressServices({ onSaveDraft: () => draftManager.saveDraft() });
+      initAddressServices();
     } catch (e) {
       console.error('[Bootstrap] initAddressServices fehlgeschlagen:', e);
     }
 
     try {
-      initImportExport({ onSaveDraft: () => draftManager.saveDraft() });
+      initImportExport();
     } catch (e) {
       console.error('[Bootstrap] initImportExport fehlgeschlagen:', e);
     }
 
     try {
-      ClipboardAddressParser.wireSidebarButton({ onSaveDraft: () => draftManager.saveDraft() });
+      ClipboardAddressParser.wireSidebarButton();
     } catch (e) {
       console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
     }
@@ -106,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const salutation = new SalutationFeature(() => draftManager.saveDraft(), settingsContext);
+      const salutation = new SalutationFeature(null, settingsContext);
       salutation.init();
     } catch (e) {
       console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);
@@ -150,14 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const briefblatt = document.querySelector('din-a4') || document;
     briefblatt.addEventListener('input', (e) => {
       if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
-        draftManager.scheduleAutoSave();
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }
     });
     document.querySelectorAll('select[data-speichern]').forEach(el => {
       el.addEventListener('change', () => {
         /* Aktive Auswahl des Users -> ueberschreibt (siehe Guard an der Funktion). */
         if (el.id === 'seitenleiste-postvermerk-select') syncPostvermerkFromSidebar({ overwrite: true });
-        draftManager.scheduleAutoSave();
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     });
   }

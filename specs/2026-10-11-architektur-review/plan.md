@@ -42,10 +42,11 @@ spec_links:
 - [x] Unit-Tests für pure Domain-Funktionen in `test/all.js` ergänzt (29/29 Tests bestanden).
 - [x] Verifikation: Fitness Gate 100 %, zero regressions.
 
-## Phase 4 — Autosave & Save-Events entkoppeln
-- [ ] Callback `onSaveDraft: () => draftManager.saveDraft()` durch Event `dinbrief:document.save.requested` ersetzen.
-- [ ] `01-draft-manager.js` lauscht auf Speicheranforderungen.
-- [ ] Verifikation: Entprelltes Speichern, Statusanzeige (#speicher-status) und Undo/Redo bleiben intakt.
+## Phase 4 — Autosave & Save-Events entkoppeln (Erledigt)
+- [x] Callback `onSaveDraft: () => draftManager.saveDraft()` durch Event `dinbrief:document.save.requested` ersetzt.
+- [x] `01-draft-manager.js` lauscht auf Speicheranforderungen (`DOCUMENT_SAVE_REQUESTED`) und publiziert `DOCUMENT_SAVED` / `DOCUMENT_CHANGED`.
+- [x] Publisher entkoppelt (`43-geoapify.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js`, `41-salutation-engine.js`, `52-import-export.js`, `main.js`).
+- [x] Verifikation: Entprelltes Speichern, Statusanzeige (#save-status), Caret-Tracking und Undo/Redo bleiben intakt (33/33 Tests bestanden, Fitness Gate 100 %).
 
 ## Phase 5 — Dokumentzustand & History harmonisieren
 - [ ] State-Ownership klarer modellieren, ohne die DOM-Eingabeschleife zu stören.

@@ -109,10 +109,10 @@ export class SalutationFeature {
   /**
    * `settingsContext` ist das geteilte Settings-Objekt des SettingsManager
    * (ein Settings-Owner, kein eigener Snapshot per loadSettings()).
-   * @param {(() => void) | null} saveDraftDataCallback
+   * @param {(() => void) | null} [saveDraftDataCallback]
    * @param {{ settings: any, save: () => void } | null} [settingsContext]
    */
-  constructor(saveDraftDataCallback, settingsContext = null) {
+  constructor(saveDraftDataCallback = null, settingsContext = null) {
     this.saveDraftData = saveDraftDataCallback;
     this.#ctx = settingsContext;
     this.settings = settingsContext ? settingsContext.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
@@ -208,7 +208,11 @@ export class SalutationFeature {
     }
     el.textContent = value;
     el.dataset.generated = 'true';
-    if (this.saveDraftData) this.saveDraftData();
+    if (this.saveDraftData) {
+      this.saveDraftData();
+    } else {
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    }
   }
 
   /**

@@ -191,7 +191,11 @@ export class AddressIntelligence {
             }
           }
 
-          if (onSaveDraft) onSaveDraft();
+          if (onSaveDraft) {
+            onSaveDraft();
+          } else {
+            eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+          }
           this.#hidePopover(suggestionsPopover);
           return;
         }
@@ -236,7 +240,11 @@ export class AddressIntelligence {
           targetEl.textContent = `${item.plz} ${item.city}`;
           this.targetLock = { plz: item.plz, city: item.city };
           this.#moveCaretToEnd(targetEl);
-          if (onSaveDraft) onSaveDraft();
+          if (onSaveDraft) {
+            onSaveDraft();
+          } else {
+            eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+          }
           this.#hidePopover(popoverEl);
         });
 

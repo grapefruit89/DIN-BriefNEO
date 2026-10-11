@@ -402,6 +402,69 @@ describe('AddressDomain: Reine PLZ- und Adressauflösung (Phase 3)', () => {
   });
 });
 
-run().then((ok) => {  /** @type {any} */ (window).__TESTS_PASSED = ok;
+describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
+  it('DOCUMENT_SAVE_REQUESTED speichert sofort ohne debounce', () => {
+    seed();
+    setField('EventBus Sofort-Speichern');
+    const bus = createEventBus();
+    const dm = new DraftManager(null, bus);
+    bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    assertEqual(getDraft().brieftext, 'EventBus Sofort-Speichern', 'Draft sofort synchron gespeichert');
+    dm.destroy();
+  });
+
+  it('saveDraft() publiziert DOCUMENT_SAVED mit draft-Payload', () => {
+    seed();
+    setField('Payload Test');
+    const bus = createEventBus();
+    const dm = new DraftManager(null, bus);
+    /** @type {any} */
+    let receivedPayload = null;
+    bus.subscribe(Events.DOCUMENT_SAVED, (detail) => {
+      receivedPayload = detail;
+    });
+    dm.saveDraft();
+    assert(receivedPayload !== null, 'DOCUMENT_SAVED Event erhalten');
+    assertEqual(receivedPayload.draft.brieftext, 'Payload Test', 'Payload enthält aktuellen Text');
+    dm.destroy();
+  });
+
+  it('DOCUMENT_SAVE_REQUESTED mit debounce: true plant AutoSave', () => {
+    seed();
+    setField('Debounced Text');
+    const bus = createEventBus();
+    const dm = new DraftManager(null, bus);
+    localStorage.removeItem(DRAFT_KEY);
+    bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+    assertEqual(getDraft().brieftext, undefined, 'Noch nicht gespeichert während Debounce-Verzögerung');
+    clearTimeout(dm.debounceTimer);
+    dm.saveDraft();
+    assertEqual(getDraft().brieftext, 'Debounced Text', 'Nach Ausführung gespeichert');
+    dm.destroy();
+  });
+
+  it('Caret-Tracking und Undo/Redo bleiben über den EventBus-Zyklus intakt', () => {
+    seed();
+    const el = mustField();
+    el.focus();
+    setField('Stand Eins');
+    const bus = createEventBus();
+    const dm = new DraftManager(null, bus);
+    bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+
+    setField('Stand Zwei');
+    bus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+
+    assertEqual(fieldText(), 'Stand Zwei');
+    dm.undo();
+    assertEqual(fieldText(), 'Stand Eins', 'Undo stellt Stand Eins wieder her');
+    dm.redo();
+    assertEqual(fieldText(), 'Stand Zwei', 'Redo stellt Stand Zwei wieder her');
+    dm.destroy();
+  });
+});
+
+run().then((ok) => {
+  /** @type {any} */ (window).__TESTS_PASSED = ok;
   console.log(ok ? '✓ Alle Tests bestanden' : '✗ FEHLER: Tests fehlgeschlagen');
 });

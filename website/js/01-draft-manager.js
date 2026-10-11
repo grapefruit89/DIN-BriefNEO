@@ -1,8 +1,10 @@
 // @ts-check
+// @adr [[ADR-DATA-PERSISTENCE]] {DraftManager}
 import { loadJSON, saveJSON, STORAGE_KEYS, Constants } from './51-storage.js';
 import { sanitizeRichText } from './04-sanitize.js';
 import { getCaretCharacterOffset, setCaretCharacterOffset } from './selection-utils.js';
 import { isPrintTitleActive } from './53-metadata.js';
+import { eventBus, Events } from './00-event-bus.js';
 
 const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), select[data-speichern]';
 
@@ -15,17 +17,43 @@ export class DraftManager {
   #currentState = null;
   /** @type {boolean} */
   #isRestoring = false;
+  /** @type {(() => void) | null} */
+  #unsubSaveRequested = null;
 
   /**
-   * @param {(() => void) | null} onSaveCallback
+   * @param {(() => void) | null} [onSaveCallback]
+   * @param {ReturnType<typeof import('./00-event-bus.js').createEventBus> | null} [bus]
    */
-  constructor(onSaveCallback = null) {
+  constructor(onSaveCallback = null, bus = eventBus) {
     /** @type {(() => void) | null} */
     this.onSaveCallback = onSaveCallback;
+    /** @type {ReturnType<typeof import('./00-event-bus.js').createEventBus> | null} */
+    this.bus = bus;
     /** @type {any} */
     this.debounceTimer = null;
     this.DEBOUNCE_DELAY = 500;
     this.#initShortcuts();
+    this.#initEventBus();
+  }
+
+  #initEventBus() {
+    if (this.bus && typeof this.bus.subscribe === 'function') {
+      this.#unsubSaveRequested = this.bus.subscribe(Events.DOCUMENT_SAVE_REQUESTED, (payload) => {
+        if (payload && payload.debounce) {
+          this.scheduleAutoSave();
+        } else {
+          this.saveDraft();
+        }
+      });
+    }
+  }
+
+  destroy() {
+    clearTimeout(this.debounceTimer);
+    if (this.#unsubSaveRequested) {
+      this.#unsubSaveRequested();
+      this.#unsubSaveRequested = null;
+    }
   }
 
   #initShortcuts() {
@@ -64,6 +92,10 @@ export class DraftManager {
     const saved = saveJSON(STORAGE_KEYS.draft, draft);
     this.#setSaveStatus(saved ? 'saved' : 'error');
     this.#updateDocumentTitle();
+
+    if (this.bus && typeof this.bus.publish === 'function') {
+      this.bus.publish(saved ? Events.DOCUMENT_SAVED : Events.DOCUMENT_SAVE_FAILED, { draft });
+    }
 
     if (this.#isRestoring) return saved;
 
@@ -165,6 +197,9 @@ export class DraftManager {
       }
     }
 
+    if (this.bus && typeof this.bus.publish === 'function') {
+      this.bus.publish(Events.DOCUMENT_CHANGED, { draft });
+    }
     if (this.onSaveCallback) this.onSaveCallback();
   }
 
@@ -179,6 +214,9 @@ export class DraftManager {
       sel.selectedIndex = 0;
     });
     this.saveDraft();
+    if (this.bus && typeof this.bus.publish === 'function') {
+      this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
+    }
   }
 
   scheduleAutoSave() {

@@ -244,6 +244,8 @@ export class ClipboardAddressParser {
 
     if (onSaveDraft) {
       onSaveDraft();
+    } else {
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     }
 
     const label = candidate.firma || candidate.name || candidate.strasse;

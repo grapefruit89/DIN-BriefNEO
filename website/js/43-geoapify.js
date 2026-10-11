@@ -16,9 +16,9 @@ import { eventBus, Events } from './00-event-bus.js';
  */
 
 /**
- * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft: (() => void) | null }} params
+ * @param {{ onToast?: ((msg: string, type?: string) => void) | null, onSaveDraft?: (() => void) | null }} [params]
  */
-export function initAddressServices({ onToast = null, onSaveDraft }) {
+export function initAddressServices({ onToast = null, onSaveDraft = null } = {}) {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
   const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
@@ -342,7 +342,11 @@ export function initAddressServices({ onToast = null, onSaveDraft }) {
     // Save selected address to local address book for future offline usage
     saveToLocalAddressBook(item);
 
-    if (onSaveDraft) onSaveDraft();
+    if (onSaveDraft) {
+      onSaveDraft();
+    } else {
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    }
     /* Kein Success-Toast (TOASTS-Policy: still bei Erfolg) */
   }
 

@@ -218,9 +218,9 @@ export function parseDinLetterPayload(text) {
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog).
- * @param {{ onSaveDraft: () => boolean, onToast?: ((msg: string, type?: string) => void) | null }} params
+ * @param {{ onSaveDraft?: (() => boolean) | null, onToast?: ((msg: string, type?: string) => void) | null }} [params]
  */
-export function initImportExport({ onSaveDraft, onToast = null }) {
+export function initImportExport({ onSaveDraft = null, onToast = null } = {}) {
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
   const importBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-import-dinletter'));
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
@@ -239,9 +239,13 @@ export function initImportExport({ onSaveDraft, onToast = null }) {
 
   exportBtn.addEventListener('click', () => {
     // Vor dem Export aktuellen Stand speichern; bei Misserfolg abbrechen
-    if (!onSaveDraft()) {
-      notify('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
-      return;
+    if (onSaveDraft) {
+      if (!onSaveDraft()) {
+        notify('❌ Export abgebrochen: Speichern fehlgeschlagen (Storage?).', 'error');
+        return;
+      }
+    } else {
+      eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     }
     let draft;
     try {

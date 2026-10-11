@@ -4,7 +4,8 @@
 /* css/sidebar.css — Sidebar: Navigation, Custom Inputs, Autocomplete, Adressbuch, Geoapify, Guides */
 
 /* --- SIDEBAR --- */
-aside {
+aside,
+aside.seitenleiste {
   /* Browser page zoom: keine Kompensation mehr — stabilizeSidebarForPageZoom
    * entfernt (DPR-Delta als Zoom-Proxy triggert fälschlich bei Monitorwechsel). */
   display: flex;
@@ -17,6 +18,10 @@ aside {
   justify-content: space-between;
   z-index: 10;
   transition: transform 0.3s ease;
+  touch-action: pan-y;           /* Erlaubt vertikales Scrollen, blockiert Pinch-Zoom-Gesten auf der Leiste */
+  overscroll-behavior: contain;  /* Verhindert Scroll-Chaining zum Hauptdokument */
+  flex-shrink: 0;                /* Verhindert horizontales Zusammendrücken */
+  user-select: none;             /* Verhindert versehentliches Markieren von UI-Labels */
 }
 
 .seitenleiste-header {
@@ -561,33 +566,42 @@ aside .seitenleiste-checkbox-label {
   justify-content: center;
 }
 .save-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75em;
-  color: light-dark(oklch(0.45 0.02 250), oklch(0.7 0.02 250));
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 .save-status::before {
   content: "";
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: light-dark(oklch(0.6 0.15 145), oklch(0.72 0.16 145));
+  background: currentColor;
 }
-.save-status.dirty::before {
-  background: light-dark(oklch(0.75 0.15 75), oklch(0.8 0.15 75));
+
+/* Gespeichert: Klares Grün mit starkem Kontrast in beiden Themes */
+.save-status.saved {
+  color: light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
+  background: light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
+  border: 1px solid light-dark(oklch(0.85 0.06 145), oklch(0.35 0.08 145));
 }
+
+/* Speichern / Dirty: Warmes Amber */
 .save-status.dirty {
-  color: light-dark(oklch(0.55 0.13 75), oklch(0.8 0.13 75));
+  color: light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
+  background: light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
+  border: 1px solid light-dark(oklch(0.85 0.08 65), oklch(0.38 0.08 65));
 }
-.save-status.error::before {
-  background: var(--c-danger);
-}
+
+/* Fehler: Signal-Rot */
 .save-status.error {
-  color: var(--c-danger);
-}
-.save-status.saved::before {
-  background: light-dark(oklch(0.6 0.15 145), oklch(0.72 0.16 145));
+  color: light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
+  background: light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
+  border: 1px solid light-dark(oklch(0.85 0.08 25), oklch(0.40 0.10 25));
 }
 .import-file-name {
   font-size: 0.85em;
@@ -778,7 +792,8 @@ a.seitenleiste-github-link {
   padding-inline: 0;
 }
 
-aside {
+aside,
+aside.seitenleiste {
   min-height: 0;
   overflow: hidden;
   -webkit-user-select: none;

@@ -162,7 +162,8 @@ function checkImr(targetDir) {
   if (inventory) {
     const zones = new Set(inventory.zones || []);
     const systemAtoms = new Set(inventory.systemAtoms || []);
-    const registered = new Set([inventory.document, ...zones, ...tags]);
+    const allowedUi = new Set(inventory.allowedUiIdentifiers || []);
+    const registered = new Set([inventory.document, ...zones, ...tags, ...allowedUi]);
     const atoms = [...tags].filter(t => t !== inventory.document && !zones.has(t));
 
     if (atoms.length !== 45) add(REGISTRY_REL, `Atom-Inventar: erwartet 45, gefunden ${atoms.length}`);

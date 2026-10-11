@@ -834,6 +834,10 @@ aside select {
   gap: 10px;
   margin-top: 16px;
 }
+#din-info-dialog .din-info-title { margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; }
+#din-info-dialog .din-info-content { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
+#din-info-dialog .din-info-content strong { color: var(--text-primary); }
+#din-info-dialog .dialog-actions { margin-top: 16px; }
 .btn.danger,
 .btn-danger {
   border-color: var(--c-danger);

@@ -397,6 +397,7 @@ Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und
 | `--blatt-breite`, `--blatt-hoehe` | Blattmaße aus `data-width-mm`/`data-height-mm` |
 | `--hilfslinien-deckkraft` | Deckkraft der System-Atome (Falz/Loch) |
 | `unterschriftsbild-*` | Satellit von `din-unterschrift` (Bild, Rahmen, Griffe) |
+| `din-info-*` | UI-Modal für DIN 5008 Leitfaden (Dialog, Titel, Content) |
 
 ### Namenszeile (Komposition, kein Atom)
 
@@ -426,6 +427,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
     "din-lochmarke":     { "y": { "Y": 148.5 } }
   },
   "forbiddenAliases": ["din-empfaenger-name", "din-absender-name"],
+  "allowedUiIdentifiers": ["din-info-dialog", "din-info-title", "din-info-content"],
   "compositions": {
     "empfaenger-namenszeile": ["din-empfaenger-vorname", "din-empfaenger-nachname"],
     "absender-namenszeile":   ["din-absender-vorname", "din-absender-nachname"]

@@ -31,7 +31,7 @@
           </div>
           <div>
             <h3 class="seitenleiste-label">DIN-Brief Layout</h3>
-            <div class="segmented-control" focusgroup="horizontal wrap">
+            <div class="segmented-control" focusgroup="toolbar inline wrap">
               <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only" autocomplete="off">
               <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked autocomplete="off">
@@ -46,7 +46,7 @@
           </div>
           <div>
             <h3 class="seitenleiste-label">Brief-Stil & Anrede</h3>
-            <div class="segmented-control" focusgroup="horizontal wrap">
+            <div class="segmented-control" focusgroup="toolbar inline wrap">
               <input type="radio" name="salutation" id="btn-style-formal" value="formal" class="sr-only" checked autocomplete="off">
               <label for="btn-style-formal" title="Sehr geehrte(r) ...">Förmlich</label>
               <input type="radio" name="salutation" id="btn-style-polite" value="polite" class="sr-only" autocomplete="off">
@@ -222,7 +222,7 @@
     <dialog id="reset-dialog" class="glass-dialog nicht-drucken" closedby="any">
       <form method="dialog">
         <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
-        <div class="dialog-actions">
+        <div class="dialog-actions" focusgroup="toolbar inline wrap">
           <button value="cancel" class="btn">Abbrechen</button>
           <button value="confirm" class="btn danger">Zurücksetzen</button>
         </div>
@@ -232,11 +232,22 @@
       <form method="dialog">
         <p>Diesen Brief importieren und den aktuellen Inhalt ersetzen?</p>
         <p class="import-file-name" id="import-file-name"></p>
-        <div class="dialog-actions">
+        <div class="dialog-actions" focusgroup="toolbar inline wrap">
           <button value="cancel" class="btn">Abbrechen</button>
           <button value="confirm" class="btn primary">Importieren</button>
         </div>
       </form>
+    </dialog>
+    <dialog id="din-info-dialog" class="glass-dialog nicht-drucken" closedby="any">
+      <h3 class="din-info-title">DIN 5008 Standard-Leitfaden</h3>
+      <div class="din-info-content">
+        <p><strong>Form A vs. Form B:</strong> Form A hat einen 27-mm-Briefkopf (mehr Platz für Text). Form B nutzt 45 mm (Standard für Privatbriefe mit Absenderblock oder Logo).</p>
+        <p><strong>Fensterumschlag (DIN Lang):</strong> Das Anschriftfeld (85 × 40 mm) ist exakt so platziert, dass es bei korrekter Faltung im 90 × 45 mm Sichtfenster liegt.</p>
+        <p><strong>Falz- & Lochmarken:</strong> Falzmarke 1 (105 mm) und Falzmarke 2 (210 mm) teilen das Blatt in Drittel (Zickzack- oder Wickelfalz). Die Lochmarke (148,5 mm) zentriert das Blatt im Ordner.</p>
+      </div>
+      <div class="dialog-actions" focusgroup="toolbar inline wrap">
+        <form method="dialog"><button class="btn primary">Verstanden</button></form>
+      </div>
     </dialog>
   </body>
 </html>

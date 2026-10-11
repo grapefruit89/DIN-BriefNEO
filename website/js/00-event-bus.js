@@ -13,14 +13,11 @@ export const EVENT_PREFIX = 'dinbrief:';
  * Zentrale typisierte Event-Namen für das Pub/Sub-System.
  */
 export const Events = Object.freeze({
-  APP_READY: 'dinbrief:app.ready',
   NOTIFICATION_REQUESTED: 'dinbrief:notification.requested',
   DOCUMENT_SAVE_REQUESTED: 'dinbrief:document.save.requested',
   DOCUMENT_SAVED: 'dinbrief:document.saved',
   DOCUMENT_SAVE_FAILED: 'dinbrief:document.save.failed',
-  DOCUMENT_CHANGED: 'dinbrief:document.changed',
-  ADDRESS_SEARCH_REQUESTED: 'dinbrief:address.search.requested',
-  ADDRESS_SUGGESTIONS_UPDATED: 'dinbrief:address.suggestions.updated'
+  DOCUMENT_CHANGED: 'dinbrief:document.changed'
 });
 
 /**

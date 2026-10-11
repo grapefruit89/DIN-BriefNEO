@@ -29,9 +29,6 @@ const letterDateFmt = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' });
  * @returns {string}
  */
 export function formatLetterDate() {
-  if (typeof Temporal === 'undefined' || !Temporal?.Now) {
-    return '';
-  }
   try {
     const zdt = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
     return letterDateFmt.format(/** @type {any} */ (zdt.toPlainDate()));
@@ -61,9 +58,6 @@ export function applyLetterDate() {
  * @returns {string}
  */
 export function currentISODate() {
-  if (typeof Temporal === 'undefined' || !Temporal?.Now) {
-    return '';
-  }
   try {
     return Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString();
   } catch (err) {
@@ -97,7 +91,8 @@ export const Constants = {
     FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 60 KB groß sein)',
     FONT_FORMAT_ERROR: '❌ Falsches Dateiformat! (Nur .woff2 Dateien erlaubt)',
     SALUTATION_PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
-    CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)'
+    CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)',
+    AUTOSAVE_ERROR: '❌ Fehler beim Speichern!'
   }
 };
 
@@ -180,7 +175,10 @@ export function loadJSON(key, fallback) {
   if (raw === null) return fallback;
   try {
     const parsed = JSON.parse(raw);
-    if (parsed !== null && typeof parsed === 'object' && !Array.isArray(fallback) && typeof fallback === 'object') {
+    if (parsed === null || typeof parsed !== typeof fallback || Array.isArray(parsed) !== Array.isArray(fallback)) {
+      return fallback;
+    }
+    if (typeof fallback === 'object' && !Array.isArray(fallback)) {
       const clean = Object.create(null);
       for (const [k, v] of Object.entries(parsed)) {
         if (k !== '__proto__' && k !== 'constructor' && k !== 'prototype') {
@@ -189,7 +187,7 @@ export function loadJSON(key, fallback) {
       }
       return /** @type {T} */ ({ ...fallback, ...clean });
     }
-    return /** @type {T} */ (parsed ?? fallback);
+    return /** @type {T} */ (parsed);
   } catch {
     return fallback;
   }
@@ -280,7 +278,8 @@ export function collectLetterIdentity() {
   const empfName = (document.getElementById('empfaenger-namenszeile')?.textContent || '').replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '').substring(0, 30);
   const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '').substring(0, 30);
   const recipientName = empfName || empfFirma || 'Empfaenger';
-  const subjectClean = (document.getElementById('betreff')?.textContent || 'Brief').replace(/[<>:"/\\|?*]/g, '').trim().substring(0, 50);
+  const rawSubject = (document.getElementById('betreff')?.textContent || 'Brief').replace(/[\x00-\x1f\r\n<>:"/\\|?*]/g, ' ').replace(/\s+/g, ' ').trim();
+  const subjectClean = (rawSubject || 'Brief').substring(0, 50);
   return {
     dateStr,
     lastName,

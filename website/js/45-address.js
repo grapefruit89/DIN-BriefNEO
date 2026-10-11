@@ -181,8 +181,18 @@ export class AddressIntelligence {
           const completed = `${res.plz} ${res.city}`;
           empfOrtEl.textContent = completed;
 
-          // Place cursor at the end of the field
-          this.#moveCaretToEnd(empfOrtEl);
+          // Ortsnamen als aktive Text-Selektion markieren (Weitertippen überschreibt, Tab/Pfeil-Rechts übernimmt)
+          const textNode = empfOrtEl.firstChild;
+          if (textNode) {
+            const sel = window.getSelection();
+            if (sel) {
+              const range = document.createRange();
+              range.setStart(textNode, 5);
+              range.setEnd(textNode, completed.length);
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+          }
 
           // Target Lock: fix city for subsequent street lookups (Bonn bias deactivated)
           this.targetLock = { plz: res.plz, city: res.city };
@@ -255,8 +265,7 @@ export class AddressIntelligence {
       });
     };
     // Element-scoped View Transitions (Chrome 147+): Listenwechsel nur lokal crossfaden
-    // @ts-expect-error Element-scoped View Transitions (Chrome 147+, noch nicht in lib.dom)
-    if (this.isReady && typeof popoverEl.startViewTransition === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (this.isReady && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // @ts-expect-error Element-scoped View Transitions (Chrome 147+, noch nicht in lib.dom)
       popoverEl.startViewTransition(render).finished.catch(() => {});
     } else {
@@ -296,9 +305,17 @@ function abbreviateName(fullName) {
   if (!fullName) return '';
   const parts = fullName.trim().split(/\s+/);
   if (parts.length < 2) return fullName;
-  const firstName = parts[0];
-  const rest = parts.slice(1).join(' ');
-  return firstName.charAt(0).toUpperCase() + '. ' + rest;
+  let idx = 0;
+  const titles = [];
+  while (idx < parts.length - 1 && parts[idx].endsWith('.')) {
+    titles.push(parts[idx]);
+    idx++;
+  }
+  if (idx >= parts.length - 1) return fullName;
+  const firstName = parts[idx];
+  const rest = parts.slice(idx + 1).join(' ');
+  const prefix = titles.length ? titles.join(' ') + ' ' : '';
+  return prefix + firstName.charAt(0).toUpperCase() + '. ' + rest;
 }
 
 /**
@@ -346,6 +363,11 @@ export function initSenderSync() {
   infoName.addEventListener('input', sync);
   infoStreet.addEventListener('input', sync);
   infoCity.addEventListener('input', sync);
+
+  eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
+    lastSyncedRucksendezeile = (absender.textContent || '').trim();
+    lastSyncedUnterschrift = (unterschrift.textContent || '').trim();
+  });
 }
 
 /* =========================================================================================

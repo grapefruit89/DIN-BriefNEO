@@ -26,8 +26,7 @@ const notify = (message, type = 'info') => eventBus.publish(Events.NOTIFICATION_
  * @param {() => void} fn
  */
 function transitionOn(target, fn) {
-  if (typeof target.startViewTransition !== 'function'
-      || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     fn();
     return;
   }

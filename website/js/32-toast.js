@@ -2,6 +2,7 @@
 // @guide [[din-5008-css-architektur]]
 
 import { eventBus, Events } from './00-event-bus.js';
+import { Constants } from './51-persistence.js';
 
 /* Ein Toast-Slot. Neuer Toast ersetzt alten sofort.
  * Dedupliziert bei identischer Message (Timer-Reset statt Neuaufbau).
@@ -32,6 +33,11 @@ export function initToastSystem() {
     if (payload && typeof payload.message === 'string') {
       showToast(payload.message, payload.type || 'info');
     }
+  });
+
+  eventBus.subscribe(Events.DOCUMENT_SAVE_FAILED, (payload) => {
+    const msg = (payload && typeof payload.message === 'string') ? payload.message : (Constants.TOASTS.AUTOSAVE_ERROR || '❌ Fehler beim Speichern!');
+    showToast(msg, 'error');
   });
 }
 
@@ -71,7 +77,6 @@ function startTimer(message) {
 
 function armCloseWatcher() {
   closer?.destroy();
-  if (typeof CloseWatcher === 'undefined') return;
   closer = new CloseWatcher();
   closer.addEventListener('close', hide);
 }

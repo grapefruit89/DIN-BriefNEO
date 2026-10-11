@@ -247,6 +247,23 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     remove('test_polluted_json');
   });
 
+  it('loadJSON fällt auf Fallback zurück wenn gespeicherter Typ oder Array-Form nicht zum Fallback passt', () => {
+    save('test_type_string', JSON.stringify('nur ein string'));
+    const fallbackObj = { theme: 'light' };
+    assertEqual(loadJSON('test_type_string', fallbackObj).theme, 'light', 'String vs Object fallback');
+
+    save('test_type_array', JSON.stringify([1, 2, 3]));
+    assertEqual(loadJSON('test_type_array', fallbackObj).theme, 'light', 'Array vs Object fallback');
+
+    save('test_type_obj_for_arr', JSON.stringify({ a: 1 }));
+    const fallbackArr = ['default'];
+    assertEqual(loadJSON('test_type_obj_for_arr', fallbackArr)[0], 'default', 'Object vs Array fallback');
+
+    remove('test_type_string');
+    remove('test_type_array');
+    remove('test_type_obj_for_arr');
+  });
+
   it('migrateStorage setzt SCHEMA_VERSION idempotent', () => {
     remove(STORAGE_KEYS.schema);
     migrateStorage();

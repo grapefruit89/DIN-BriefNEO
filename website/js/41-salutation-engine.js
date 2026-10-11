@@ -166,6 +166,10 @@ export class SalutationFeature {
       if (resetDialog.returnValue === 'confirm') this.refresh();
     });
 
+    eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
+      this.#seedAuto();
+    });
+
     this.refresh();
   }
 

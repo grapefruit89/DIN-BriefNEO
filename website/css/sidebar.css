@@ -214,7 +214,7 @@ aside {
 }
 
 #input-anschrift-suche {
-  anchor-name: --anschrift-input;
+  anchor-name: --anchor-anschrift-suche;
 }
 
 #btn-zwischenablage-anschrift {
@@ -229,7 +229,7 @@ aside {
 /* Glassmorphic Dropdown for Geoapify address suggestions */
 .autocomplete-dropdown {
   position: absolute;
-  position-anchor: --anschrift-input;
+  position-anchor: --anchor-anschrift-suche;
   position-area: bottom span-x;
   position-try-options: flip-block;
   top: auto;
@@ -395,9 +395,6 @@ input[type="checkbox"][switch] {
   background: var(--segment-bg);
   padding: 2px 4px;
   border-radius: 4px;
-}
-#input-anschrift-suche {
-  anchor-name: --anchor-anschrift-suche;
 }
 
 

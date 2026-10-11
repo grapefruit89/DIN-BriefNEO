@@ -18,7 +18,7 @@ doc_links:
 code_links:
   - 'website/js/main.js'
   - 'website/js/32-toast.js'
-  - 'website/js/01-draft-manager.js'
+  - 'website/js/01-document.js'
 ---
 
 # Spec: Architektur-Review & Event-Driven Refactoring

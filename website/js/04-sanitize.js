@@ -4,7 +4,7 @@
 
 /**
  * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
- * Wird von 01-draft-manager (Draft-Restore) genutzt.
+ * Wird von 01-document.js (Draft-Restore) genutzt.
  * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-text) ergänzen die
  * Basis-Allowlist (ohne Attribute).
  * @param {string} htmlString

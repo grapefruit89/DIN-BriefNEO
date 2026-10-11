@@ -2,7 +2,7 @@
 // @adr [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]]
 // @guide [[geoapify-autocomplete]]
 
-import { setCaretToEnd } from './selection-utils.js';
+import { setCaretToEnd } from './01-document.js';
 import { fetchGzipJson } from './05-gzip.js';
 import { eventBus, Events } from './00-event-bus.js';
 import { resolvePostcode, resolveCity, filterPostcodePrefix } from './44-address-domain.js';

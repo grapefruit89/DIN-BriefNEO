@@ -22,7 +22,7 @@ doc_links:
 code_links:
   - website/index.html
   - website/js/main.js
-  - website/js/01-draft-manager.js
+  - website/js/01-document.js
   - website/js/02-settings-manager.js
   - website/js/41-salutation-engine.js
   - website/js/43-geoapify.js
@@ -76,7 +76,7 @@ supersedes:
 |---|---|---|
 | Automatische Anrede | **aktiv** | 80/20-B2B-Engine mit drei Stilklassen, Vornamenerkennung, Adelspartikeln und manuellem Override; siehe [[Salutation-Engine]] |
 | Anrede-/Grußformel-Pärchen | **aktiv** | Stilwahl synchronisiert Anrede und Grußformel; manuelle Bearbeitung wird geschützt |
-| Plaintext-Metadatenfelder | **aktiv** | `contenteditable="plaintext-only"` und `enterkeyhint`; notwendige Zeilen-/Paste-Sonderfälle bleiben in `03-ui-protections.js` |
+| Plaintext-Metadatenfelder | **aktiv** | `contenteditable="plaintext-only"` und `enterkeyhint`; notwendige Zeilen-/Paste-Sonderfälle bleiben in `01-document.js` |
 | Rich-Text im Briefkern | **aktiv** | Selection/Range-basierte Formatierung mit eigener Draft-Sanitization |
 | Entwurf-Autosave | **aktiv** | Synchroner `localStorage`-Pfad mit Debouncing, Restore und Dirty-Status; siehe [[ADR-DATA-PERSISTENCE]] |
 | Reset-Dialog | **aktiv** | Native `<dialog>`- und Invoker-Command-Unterstützung |

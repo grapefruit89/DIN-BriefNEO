@@ -2,9 +2,8 @@
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
-import { DraftManager } from '../website/js/01-draft-manager.js';
+import { DraftManager, UIProtections } from '../website/js/01-document.js';
 import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage } from '../website/js/51-storage.js';
-import { UIProtections } from '../website/js/03-ui-protections.js';
 import { buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/52-import-export.js';
 import { Constants } from '../website/js/51-storage.js';
 import { createEventBus, eventBus, Events } from '../website/js/00-event-bus.js';

@@ -18,9 +18,8 @@ doc_links:
   - longevity-guidelines
 code_links:
   - website/js/00-event-bus.js
-  - website/js/01-draft-manager.js
+  - website/js/01-document.js
   - website/js/02-settings-manager.js
-  - website/js/03-ui-protections.js
   - website/js/04-sanitize.js
   - website/js/32-toast.js
   - website/js/41-salutation-engine.js
@@ -88,14 +87,24 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * `Events`: Typisierte Event-Konstanten mit Pflicht-Namespace `dinbrief:` (`NOTIFICATION_REQUESTED`, `DOCUMENT_SAVE_REQUESTED`, `DOCUMENT_SAVED`, `DOCUMENT_SAVE_FAILED`, `DOCUMENT_CHANGED`).
 * `publish(topic, payload)` / `subscribe(topic, handler, options)`: Entkoppelte Kommunikation via `CustomEvent`; `subscribe` gibt Unsubscribe-Funktion zurück und unterstützt `AbortSignal`.
 
-### 1. `01-draft-manager.js` (Entwurfs- & History-Management)
-* `constructor(onSaveCallback = null, bus = eventBus)`: Initialisiert History-Stack und lauscht auf `DOCUMENT_SAVE_REQUESTED`.
-* `saveDraft()`: Serialisiert den aktuellen Entwurf, speichert ihn in `localStorage` und publiziert `DOCUMENT_SAVED` bzw. `DOCUMENT_SAVE_FAILED`.
-* `loadDraft()`: Liest gespeicherte Entwurfsdaten aus und befüllt die DOM-Felder via Allowlist-Sanitizer.
-* `undo()` / `redo()`: Schrittweises Rückgängigmachen / Wiederherstellen über Snapshot-Stack; publiziert `DOCUMENT_CHANGED`.
-* `resetDraft()`: Setzt alle Felder auf DIN-5008-Default-Werte zurück und publiziert `DOCUMENT_CHANGED`.
-* `scheduleAutoSave()`: Debounced AutoSave nach Benutzerinaktivität (500 ms).
-* `destroy()`: Bereinigt EventBus-Listener.
+### 1. `01-document.js` (Dokumenten-Core: DraftManager, UIProtections & SelectionUtils)
+* **`DraftManager`**:
+  * `constructor(onSaveCallback = null, bus = eventBus)`: Initialisiert History-Stack und lauscht auf `DOCUMENT_SAVE_REQUESTED`.
+  * `saveDraft()`: Serialisiert den aktuellen Entwurf, speichert ihn in `localStorage` und publiziert `DOCUMENT_SAVED` bzw. `DOCUMENT_SAVE_FAILED`.
+  * `loadDraft()`: Liest gespeicherte Entwurfsdaten aus und befüllt die DOM-Felder via Allowlist-Sanitizer.
+  * `undo()` / `redo()`: Schrittweises Rückgängigmachen / Wiederherstellen über Snapshot-Stack; publiziert `DOCUMENT_CHANGED`.
+  * `resetDraft()`: Setzt alle Felder auf DIN-5008-Default-Werte zurück und publiziert `DOCUMENT_CHANGED`.
+  * `scheduleAutoSave()`: Debounced AutoSave nach Benutzerinaktivität (500 ms).
+  * `destroy()`: Bereinigt EventBus-Listener.
+* **`UIProtections`**:
+  * `constructor()`: Registriert geschützte Selektoren (`multiLineIds`, `maxTwoLinesIds`).
+  * `init()`: Initialisiert Tasten-, Shortcut- (`Ctrl+Q` für Blockquotes) und Paste-Schutz.
+  * `enforceLineLimits()`: Fängt Enter-Taste auf einzeiligen Feldern ab und begrenzt Betreff/Postvermerk auf max. 2 Zeilen (130 Zeichen). Behandelt Pasting mit Zeilenumbruch-Einebnung (`pastedText.replace(/[\r\n]+/g, ' ')`). (Single-Line Plaintext-Schutz ist nativ über `contenteditable="plaintext-only"` und `enterkeyhint="done"` gelöst).
+  * `protectAnlagenList()`: Verhindert die Löschung des letzten Listenelements in `#anlagen-text`.
+  * `ensureListStructure(anlagen)`: Stellt sicher, dass `#anlagen-text` stets ein valides `<ul><li>`-Gerüst behält.
+* **Selection & Caret Utilities**:
+  * `getCaretCharacterOffset(element)` / `setCaretCharacterOffset(element, offset)`: W3C Range- & TreeWalker-basierte Caret-Positionsbestimmung ohne Layout Thrashing.
+  * `setCaretToEnd(element)`: Setzt den Fokus und Caret ans Textende.
 
 ### 2. `02-settings-manager.js` (Layout & Plattform-Schalter)
 * `constructor()`: Bindet UI-Elemente für Layout (Form A/B), Theme und Schalter.
@@ -107,16 +116,9 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * `updateFontStatusUI(hasCustomFont)`: Aktualisiert Schriftstatus in der Sidebar.
 * `attachListeners()`: Event-Handler für Theme, Layout und den semantischen `<input type="checkbox" switch id="btn-hilfslinien-switch">`.
 
-### 3. `03-ui-protections.js` (Eingabeschutz & Listen-Integrität)
-* `constructor()`: Registriert geschützte Selektoren (`multiLineIds`, `maxTwoLinesIds`).
-* `init()`: Initialisiert Tasten- und Paste-Schutz.
-* `enforceLineLimits()`: Fängt Enter-Taste auf einzeiligen Feldern ab und begrenzt Betreff/Postvermerk auf max. 2 Zeilen (130 Zeichen). Behandelt Pasting mit Zeilenumbruch-Einebnung (`pastedText.replace(/[\r\n]+/g, ' ')`). (Single-Line Plaintext-Schutz ist nativ über `contenteditable="plaintext-only"` und `enterkeyhint="done"` gelöst).
-* `protectAnlagenList()`: Verhindert die Löschung des letzten Listenelements in `#anlagen-text`.
-* `ensureListStructure(anlagen)`: Stellt sicher, dass `#anlagen-text` stets ein valides `<ul><li>`-Gerüst behält.
-
-### 4. `04-sanitize.js` (Rich-Text-Sanitizer & Allowlist-Guard)
+### 3. `04-sanitize.js` (Rich-Text-Sanitizer & Allowlist-Guard)
 * `sanitizeRichText(htmlString, options)`: Bereinigt HTML-Strings für den Brieftext (`#text`) und Anlagen (`#anlagen-text`) vor dem Restore über eine strikte Allowlist (`B`, `STRONG`, `U`, `S`, `BLOCKQUOTE`, `BR`, `DIV`, `P` und optional `UL`/`LI`). Verhindert XSS und unerlaubte Attribute/Tags.
-*(Hinweis: Die frühere Floating-Toolbar `31-format-toolbar.js` wurde zugunsten des robusteren **Rich-Text-Light**-Ansatzes eliminiert: Fett/Unterstrichen erfolgen browser-nativ via Chromium Core, Blockquote via `Ctrl+Q` in `03-ui-protections.js`, und Paste filtert fremdes Styling bei Erhalt aller Zeilenumbrüche).*
+*(Hinweis: Die frühere Floating-Toolbar `31-format-toolbar.js` wurde zugunsten des robusteren **Rich-Text-Light**-Ansatzes eliminiert: Fett/Unterstrichen erfolgen browser-nativ via Chromium Core, Blockquote via `Ctrl+Q` in `01-document.js`, und Paste filtert fremdes Styling bei Erhalt aller Zeilenumbrüche).*
 
 ### 5. `32-toast.js` (Native Popover Top-Layer Queue & EventBus-Subscriber)
 * `initToastSystem()`: Ermittelt `#hinweis-v4` (`popover="manual"`) im DOM, bindet Close-Button und abonniert `Events.NOTIFICATION_REQUESTED`.
@@ -229,13 +231,13 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 | Modul / Komponente | Eliminierte Funktionen / Konstrukte | Status | Verboten durch | Moderner Ersatz (Web Platform 2026) |
 | :--- | :--- | :---: | :--- | :--- |
 | **`addons/ai-assistant.js`** | On-Device Gemini Nano Rewriter, `#toggle-experimental-ai`, `#btn-ai-rewrite` | 🚫 **ELIMINATED** | KISS-Bereinigung toten Codes | Wegfall der Format-Toolbar machte Addon funktionslos; Prototyp archiviert unter `research/roadmap/`. |
-| **`boot-state.js`** | Doppelter Draft-Restore vor `main.js`, DOM-Vorbelegung | 🚫 **ELIMINATED** | KISS SSoT-Doktrin | `DraftManager` in `01-draft-manager.js` ist alleiniger Restore-Owner. |
+| **`boot-state.js`** | Doppelter Draft-Restore vor `main.js`, DOM-Vorbelegung | 🚫 **ELIMINATED** | KISS SSoT-Doktrin | `DraftManager` in `01-document.js` ist alleiniger Restore-Owner. |
 | **`48-text-fit.js`** | `constructor`, `init`, `scanDOM`, `isOverflowing`, `attachEventListeners`, `notifyToast`, `restoreCaretToEnd`, `initMutationObserver` | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `overflow: clip`, `text-fit: shrink 60%`, `text-wrap: balance/pretty`. 0 Zeilen JS, 0 ms Layout Thrashing. |
 | **`41-salutation-engine.legacy.js`** | `_wireGender`, Radio-Buttons für Geschlecht, NLP-Regexes für Adelstitel/Paare | 🚫 **HARD BAN** | Catalog A58, Prio 1 | 80/20 Smart Engine (`41-salutation-engine.js`), 951 Offline-Vornamen, ContentEditable Dirty-Flag mit Auto-Reset. |
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | Catalog A55, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |
 | **`32-toast.js`** | `onPointerDown`, `onPointerMove`, `onPointerUp`, `setPointerCapture`, `swipe.startX`, `--swipe-x`, `z-index: 9999` | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover="manual"`) im Top-Layer, CSS `@starting-style` und `transition-behavior: allow-discrete`. |
 | **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 72 KB Offline Brotli PLZ & Großempfänger Engine (`45-address-intelligence.js`). 100% DSGVO-konform, 0ms Latenz. |
-| **`31-format-toolbar.js`** | Floating Toolbar Popover, Selection-Anchor, manuelle Format-Buttons | 🚫 **ELIMINATED** | Rich-Text-Light Doktrin | Nativer Browser-Support (Ctrl+B/Ctrl+U), Plaintext-Paste & Ctrl+Q in `03-ui-protections.js`. |
+| **`31-format-toolbar.js`** | Floating Toolbar Popover, Selection-Anchor, manuelle Format-Buttons | 🚫 **ELIMINATED** | Rich-Text-Light Doktrin | Nativer Browser-Support (Ctrl+B/Ctrl+U), Plaintext-Paste & Ctrl+Q in `01-document.js`. |
 | **Global** | `document.execCommand('bold'|'italic'|...)` | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API sowie native Browser-Shortcuts (`Ctrl+B`, `Ctrl+U`) und Rich-Text-Light. |
 | **Global** | `new Date()`, `Date.now()`, `Date.parse()` | 🚫 **HARD BAN** | Catalog TM1, A48 | Temporal API (`Temporal.Now.plainDateISO()`) und standardkonformes DIN-Formatting. |
 

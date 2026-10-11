@@ -23,7 +23,7 @@ doc_links:
   - spec
 code_links:
   - website/js/00-event-bus.js
-  - website/js/01-draft-manager.js
+  - website/js/01-document.js
   - website/js/32-toast.js
   - website/js/main.js
 error_patterns:
@@ -125,7 +125,7 @@ Er ersetzt ausdrücklich nicht:
 
 - **Zweck:** Ein Modul oder DOM-Listener fordert die Persistierung des aktuellen Briefentwurfs an.
 - **Publisher:** `main.js` (Eingabe-Events, Select-Change), `43-geoapify.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js`, `41-salutation-engine.js`, `52-import-export.js`.
-- **Subscriber:** `01-draft-manager.js` (`DraftManager`).
+- **Subscriber:** `01-document.js` (`DraftManager`).
 - **Payload-Vertrag:**
   ```javascript
   {
@@ -136,7 +136,7 @@ Er ersetzt ausdrücklich nicht:
 #### `dinbrief:document.saved`
 
 - **Zweck:** Bestätigt erfolgreiche Persistierung im `localStorage`.
-- **Publisher:** `01-draft-manager.js` (`DraftManager.saveDraft`).
+- **Publisher:** `01-document.js` (`DraftManager.saveDraft`).
 - **Subscriber:** UI-Statusindikatoren, Logging, künftige History-Observer.
 - **Payload-Vertrag:**
   ```javascript
@@ -148,7 +148,7 @@ Er ersetzt ausdrücklich nicht:
 #### `dinbrief:document.save.failed`
 
 - **Zweck:** Signalisiert einen Speicherfehler (z. B. Storage-Quota überschritten).
-- **Publisher:** `01-draft-manager.js` (`DraftManager.saveDraft`).
+- **Publisher:** `01-document.js` (`DraftManager.saveDraft`).
 - **Subscriber:** UI-Statusindikator (`#save-status`), Screenreader via `ariaNotify`.
 - **Payload-Vertrag:**
   ```javascript
@@ -160,7 +160,7 @@ Er ersetzt ausdrücklich nicht:
 #### `dinbrief:document.changed`
 
 - **Zweck:** Signalisiert inhaltliche Änderungen durch Undo/Redo oder Entwurfs-Reset.
-- **Publisher:** `01-draft-manager.js` (`#applyHistoryState`, `resetDraft`).
+- **Publisher:** `01-document.js` (`#applyHistoryState`, `resetDraft`).
 - **Subscriber:** Autocomplete-Reset, Metadaten-Service, abhängige Widgets.
 - **Payload-Vertrag:**
   ```javascript
@@ -221,7 +221,7 @@ export function createEventBus(target = new EventTarget()) {
 | :--- | :--- |
 | **Composition Root (`main.js`)** | Initialisierung des EventBus und Verdrahtung der Module |
 | **EventBus (`00-event-bus.js`)** | Neutraler Transport typisierter Events ohne Geschäftslogik |
-| **State Layer (`01-draft-manager.js`, `51-storage.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
+| **State Layer (`01-document.js`, `51-storage.js`)** | Lokale Persistenz, Caret-Tracking, History-Stacks |
 | **Domain Functions (`44-address-domain.js`)** | Reine zustandslose Berechnungen ohne DOM oder I/O |
 | **UI Components (`32-toast.js`, Popovers)** | Darstellung, Barrierefreiheit und Top-Layer-Lifecycle |
 | **Feature Controllers (`41`, `42`, `43`, `46`, `52`)** | Koordination spezifischer Domänen (Anrede, Adresse, Signatur) |
@@ -247,4 +247,4 @@ export function createEventBus(target = new EventTarget()) {
 
 - Unit-Tests für EventBus und Topic-Verträge in `test/all.js`.
 - Fitness Gate Prüfung via `node tools/build_db.js` (Evolutionary Fitness 100%).
-- Traceability-Verknüpfungen zu `00-event-bus.js`, `01-draft-manager.js`, `32-toast.js` und `main.js`.
+- Traceability-Verknüpfungen zu `00-event-bus.js`, `01-document.js`, `32-toast.js` und `main.js`.

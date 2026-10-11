@@ -10,9 +10,8 @@ import { SignatureFeature } from './42-signature.js';
 import { initAddressServices } from './43-geoapify.js';
 import { initToastSystem } from './32-toast.js';
 import { initSenderSync, AddressIntelligence } from './45-address-intelligence.js';
-import { DraftManager } from './01-draft-manager.js';
+import { DraftManager, UIProtections } from './01-document.js';
 import { SettingsManager } from './02-settings-manager.js';
-import { UIProtections } from './03-ui-protections.js';
 
 import { applyLetterDate } from './47-date-format.js';
 import { ClipboardAddressParser } from './46-clipboard-address-parser.js';

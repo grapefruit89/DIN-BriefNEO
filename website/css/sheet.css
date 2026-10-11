@@ -60,11 +60,12 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   [contenteditable] {
-    /* field-sizing: content entfernt — wirkt nur auf Form-Controls, nicht auf contenteditable */
-    outline: 1px dashed oklch(from var(--blatt-schwach) l c h / 28%);
+    /* field-sizing: content wirkt nur auf Form-Controls, nicht auf contenteditable */
+    outline: none;
     outline-offset: 2px;
     border-radius: 4px;
-    transition: outline-color 0.15s ease, outline-width 0.15s ease, outline-style 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    background: transparent;
+    transition: outline 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
   }
 
   /* Single Line / Max Length Felder leicht stauchen (KISS für 80 Zeichen Limit) */
@@ -73,15 +74,13 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   [contenteditable]:hover {
-    outline: 1px solid oklch(from var(--accent-color) l c h / 50%);
-    background: oklch(from var(--accent-color) l c h / 2.5%);
+    outline: 1px dashed oklch(from var(--accent-color) l c h / 40%);
+    outline-offset: 2px;
   }
 
   [contenteditable]:focus {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
-    background: oklch(from var(--accent-color) l c h / 4%);
-    box-shadow: 0 0 0 3px oklch(from var(--accent-color) l c h / 12%);
   }
 
   /* Placeholder support for contenteditable */
@@ -148,11 +147,11 @@ body:has(#btn-form-a:checked) din-a4 {
     justify-content: flex-start; /* Kompakte Ausrichtung nach oben */
   }
 
-  /* Umschlag-Fenster-Visier für DIN-Lang (DIN 680: 90x45mm, linksbündig mit Anschriftfeld) */
+  /* Umschlag-Fenster-Visier für DIN-Lang (DIN 680: 90x45mm, umschließt Rücksendezeile + Anschriftfeld) */
   #anschriftfeld::after {
     content: '';
     position: absolute;
-    top: 0;
+    top: calc(-1 * --mm-y(5));
     left: 0;
     width: --mm-x(90);
     height: --mm-y(45);

@@ -320,9 +320,8 @@ export class SignatureFeature {
     this.bbox = document.getElementById('unterschriftsbild-box');
     this.container = document.getElementById('unterschriftsbild-container');
 
-    // Config: Maximum dimensions for the compressed signature
-    this.MAX_WIDTH = 400;
-    this.MAX_HEIGHT = 200;
+    // Config: Maximale Dimension für hochauflösende Druck-/PDF-Wiedergabe
+    this.MAX_DIM = 1400;
 
     /** @type {string | null} */
     this.currentBlobUrl = null;
@@ -510,7 +509,8 @@ export class SignatureFeature {
       return;
     }
 
-    const scale = Math.min(1, this.MAX_WIDTH / bitmap.width, this.MAX_HEIGHT / bitmap.height);
+    const maxDim = this.MAX_DIM || 1400;
+    const scale = Math.min(1, maxDim / bitmap.width, maxDim / bitmap.height);
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
 

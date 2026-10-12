@@ -340,7 +340,7 @@ export class AddressIntelligence {
 
             // In accordance with DIN 5008 & OLG Frankfurt, street is legally unnecessary
             if (empfStrasseEl && !(empfStrasseEl.textContent || "").trim()) {
-              empfStrasseEl.setAttribute('placeholder', '(Großempfänger – Straße entfällt)');
+              empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
             }
 
             const toastMsg = `🏛️ Großempfänger erkannt: ${res.grosskunde.name} (Straße entfällt nach DIN 5008)`;

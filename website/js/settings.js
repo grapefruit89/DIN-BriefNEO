@@ -547,8 +547,7 @@ export class SignatureFeature {
     }
 
     if (this.imgElement) {
-      this.imgElement.src = '';
-      this.imgElement.removeAttribute('src');
+      this.imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
     }
 
     if (this.ui.settings) {

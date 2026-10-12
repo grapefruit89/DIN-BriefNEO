@@ -4,14 +4,14 @@
 <!doctype html>
 <html lang="de">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
          in layers.css verlagert, Boot-Font via FontFace. connect-src erlaubt
          nur die A38-Allowlist (optionale Tier-2-Fach-API, ohne Key tot). -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
     <title>DIN-BriefNEO | Pure Refactored</title>
-    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect width='36' height='26' y='5' fill='%23ccd6dd' rx='4'/><path stroke='%2399aab5' stroke-linecap='round' stroke-width='2' d='m2 29 13-13m6 0 13 13'/><path fill='%2399aab5' d='M4 5h28a4 4 0 0 1 4 4v2L21 25a5 5 0 0 1-6 0L0 11V9a4 4 0 0 1 4-4'/><path fill='%23e1e8ed' d='M4 5h28a4 4 0 0 1 4 4L21 22a4 4 0 0 1-6 0L0 9a4 4 0 0 1 4-4'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/sheet.css">
@@ -22,6 +22,7 @@
   <body>
     <div id="app-shell">
       <aside id="seitenleiste" class="seitenleiste nicht-drucken">
+        <h1 class="sr-only">DIN-BriefNEO – DIN 5008 Editor</h1>
         <div class="seitenleiste-header-row">
           <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="seitenleiste-build-info btn-ghost seitenleiste-github-link" aria-label="GitHub Repository">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg> GitHub
@@ -32,23 +33,23 @@
         <!-- Zone 1: Brief-Steuerung -->
         <section id="zone-dokument" class="seitenleiste-zone">
           <div class="seitenleiste-field-group">
-            <h3 class="seitenleiste-label">DIN-Brief Layout</h3>
+            <h2 class="seitenleiste-label">DIN-Brief Layout</h2>
             <div class="segmented-control" focusgroup="toolbar inline wrap">
-              <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only" autocomplete="off">
+              <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
               <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
-              <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked autocomplete="off">
+              <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
               <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
             </div>
           </div>
 
           <div class="seitenleiste-switch-row">
             <span class="seitenleiste-label">Hilfslinien</span>
-            <input type="checkbox" switch id="btn-hilfslinien-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
+            <input type="checkbox" switch id="btn-hilfslinien-switch" checked aria-label="Hilfslinien umschalten">
           </div>
 
           <div class="seitenleiste-switch-row">
             <span class="seitenleiste-label">Kompaktsatz (1 Seite)</span>
-            <input type="checkbox" switch id="toggle-copyfit" autocomplete="off" aria-label="Micro-Copyfitting aktivieren">
+            <input type="checkbox" switch id="toggle-copyfit" aria-label="Micro-Copyfitting aktivieren">
           </div>
 
           <div class="seitenleiste-field-group">
@@ -81,21 +82,21 @@
 
           <div class="seitenleiste-switch-row">
             <span class="seitenleiste-label">Anlagen</span>
-            <input type="checkbox" switch id="toggle-anlagen" autocomplete="off" aria-label="Anlagen-Sektion auf dem Brief umschalten">
+            <input type="checkbox" switch id="toggle-anlagen" aria-label="Anlagen-Sektion auf dem Brief umschalten">
           </div>
 
           <div class="seitenleiste-switch-row">
             <span class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</span>
-            <input type="checkbox" switch id="toggle-fuss" autocomplete="off" aria-label="Geschäftsfußzeile einblenden">
+            <input type="checkbox" switch id="toggle-fuss" aria-label="Geschäftsfußzeile einblenden">
           </div>
         </section>
 
         <!-- Zone 2: Daten & Adressen -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
-          <h3 class="seitenleiste-label">Daten &amp; Adressen</h3>
+          <h2 class="seitenleiste-label">Daten &amp; Adressen</h2>
           <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
             <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <input type="text" inputmode="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
             <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
             <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
           </search>
@@ -107,7 +108,7 @@
             <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
             <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
           </div>
-          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden aria-hidden="true" tabindex="-1">
+          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden tabindex="-1">
         </section>
 
         <!-- Zone 3: Grundeinstellungen & Setup -->
@@ -176,29 +177,29 @@
             <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
                  nativ gesperrt — die Sperre lebt in enforceLineLimits.
                  Verbindlicher Text: js/document.js — Law Catalog A55/A49. -->
-            <din-rucksendezeile id="rucksendezeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <din-rucksendezeile id="rucksendezeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
-              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" aria-label="Postvermerk"></din-postvermerk>
-              <din-empfaenger-firma id="empfaenger-firma" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
-              <div id="empfaenger-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
-              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Straße & Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
-              <din-empfaenger-ort id="empfaenger-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="PLZ & Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
+              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" aria-label="Postvermerk"></din-postvermerk>
+              <din-empfaenger-firma id="empfaenger-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
+              <div id="empfaenger-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
+              <din-empfaenger-ort id="empfaenger-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" role="group" aria-label="Infoblock">
-              <div id="absender-namenszeile" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Vor- und Nachname" aria-label="Name"></div>
-              <din-absender-strasse id="absender-strasse" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
-              <din-absender-ort id="absender-ort" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
-              <din-absender-tel id="absender-tel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
-              <din-absender-mail id="absender-mail" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="none" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+              <div id="absender-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Vor- und Nachname" aria-label="Name"></div>
+              <din-absender-strasse id="absender-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="absender-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="absender-tel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" data-placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="absender-mail" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="none" data-placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
-            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" placeholder="2. September 2026" aria-label="Datum"></din-datum>
-            <din-kern id="kern" aria-label="Briefkern">
-              <din-betreff id="betreff" data-feldtyp="zweizeilig" contenteditable="plaintext-only" spellcheck="true" autocapitalize="sentences" placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
-              <din-anrede id="anrede" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
-              <din-text id="text" data-feldtyp="rich mehrzeilig" contenteditable="true" spellcheck="true" autocapitalize="sentences" placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
-              <din-grussformel id="grussformel" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-kern id="kern" role="region" aria-label="Briefkern">
+              <din-betreff id="betreff" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" spellcheck="true" autocapitalize="sentences" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-anrede id="anrede" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <din-text id="text" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" spellcheck="true" autocapitalize="sentences" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
+              <din-grussformel id="grussformel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="unterschrift-zeile">
-                <din-unterschrift id="unterschrift" class="single-line" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+                <din-unterschrift id="unterschrift" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>
@@ -206,9 +207,9 @@
               </din-anlagen>
             </din-kern>
             <din-fuss id="fuss" role="contentinfo">
-              <div id="fuss-spalte-1" class="fuss-spalte" contenteditable="plaintext-only" spellcheck="false" placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
-              <div id="fuss-spalte-2" class="fuss-spalte" contenteditable="plaintext-only" spellcheck="false" placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
-              <div id="fuss-spalte-3" class="fuss-spalte" contenteditable="plaintext-only" spellcheck="false" placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>
+              <div id="fuss-spalte-1" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" spellcheck="false" data-placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
+              <div id="fuss-spalte-2" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" spellcheck="false" data-placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
+              <div id="fuss-spalte-3" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" spellcheck="false" data-placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>
             </din-fuss>
             <div id="unterschriftsbild-container">
               <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box">
@@ -217,7 +218,7 @@
                 <div class="unterschriftsbild-griff bottom-left" data-aktion="resize" data-richtung="bl"></div>
                 <div class="unterschriftsbild-griff bottom-right" data-aktion="resize" data-richtung="br"></div>
                 <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
-                <img id="unterschriftsbild-vorschau" alt="Unterschrift" draggable="false">
+                <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift" draggable="false">
               </div>
             </div>
           </din-a4>

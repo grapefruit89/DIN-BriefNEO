@@ -84,7 +84,13 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* Placeholder support for contenteditable */
-  [contenteditable]:empty::before {
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--blatt-schwach);
+    font-style: italic;
+    pointer-events: none;
+  }
+  [contenteditable][placeholder]:empty::before {
     content: attr(placeholder);
     color: var(--blatt-schwach);
     font-style: italic;
@@ -394,7 +400,8 @@ din-anlagen {
 
 /* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
 #unterschriftsbild-vorschau:not([src]),
-#unterschriftsbild-vorschau[src=""] { display: none; }
+#unterschriftsbild-vorschau[src=""],
+#unterschriftsbild-vorschau[src^="data:image/svg"] { display: none; }
 
 #unterschriftsbild-container {
   position: absolute;
@@ -408,10 +415,10 @@ din-anlagen {
   pointer-events: auto;
   display: none;
 }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #unterschriftsbild-container { display: block; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
 #btn-unterschriftsbild-reset { display: none; }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-reset { display: flex; }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-waehlen { display: none; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-reset { display: flex; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-waehlen { display: none; }
 
 .unterschriftsbild-rahmen {
   position: relative;

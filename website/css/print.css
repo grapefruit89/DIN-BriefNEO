@@ -32,6 +32,7 @@ din-a4 {
 }
 
 [contenteditable]:empty::before,
+[data-placeholder]:empty::before,
 [placeholder]:empty::before {
     display: none !important;
 }

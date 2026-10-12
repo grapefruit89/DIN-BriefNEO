@@ -16,7 +16,7 @@ html, body {
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
-  font-family: var(--schrift-stack);
+  font-family: var(--font-system-stack);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -31,9 +31,12 @@ html, body {
   }
 }
 
-din-a4 { font-family: var(--schrift-stack); }
+din-a4 {
+  font-family: var(--active-font-family, var(--font-system-stack));
+  font-size-adjust: 0.52;
+}
 body.schrift-eigene-aktiv din-a4 {
-  font-family: 'AptosCustom', var(--schrift-stack);
+  font-family: var(--active-font-family, var(--font-system-stack));
 }
 
 body {
@@ -112,7 +115,9 @@ body {
   --glass-blur: blur(20px);
 
   --hilfslinien-deckkraft: 0;
-  --schrift-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-system-stack: "Aptos", "Aptos Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
+  --active-font-family: var(--font-system-stack);
+  --schrift-stack: var(--font-system-stack);
 }
 
 /* --- 3. DIN-MATHEMATIK (@function) --- */

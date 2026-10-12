@@ -5,6 +5,9 @@
 
 /* --- DIN-GEOMETRIE (Single Source of Truth: HTML-Attribute) --- */
 din-a4 {
+  font-family: var(--active-font-family, var(--font-system-stack));
+  font-size-adjust: 0.52;
+
   /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
      am <din-a4>-Element (siehe index.html). Fallback-Zahl = bisheriger Hardcode-Wert,
      greift nur, falls das Attribut fehlt oder attr()/type() nicht unterstützt wird. */

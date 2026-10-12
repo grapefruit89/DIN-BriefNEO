@@ -47,9 +47,8 @@ export class SettingsManager {
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnCopyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
-    this.btnFontAction = document.getElementById('btn-schrift-aktion');
-    this.fontStatusLabel = document.getElementById('schrift-status-label');
-    this.fontUploader = document.getElementById('schrift-uploader');
+    this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
+    this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
     this.activeFontFace = null;
     this.isReady = false;
@@ -151,7 +150,7 @@ export class SettingsManager {
    * @returns {Promise<boolean>}
    */
   async injectFont(base64Font) {
-    const face = new FontFace('AptosCustom', `url(${base64Font})`);
+    const face = new FontFace('CustomUserFont', `url(${base64Font})`);
     try {
       await face.load();
     } catch (e) {
@@ -162,7 +161,7 @@ export class SettingsManager {
     }
     if (typeof document.fonts !== 'undefined') {
       for (const f of Array.from(document.fonts)) {
-        if (f.family === 'AptosCustom') {
+        if (f.family === 'CustomUserFont' || f.family === 'AptosCustom') {
           document.fonts.delete(f);
         }
       }
@@ -177,22 +176,32 @@ export class SettingsManager {
    * @param {boolean} hasCustomFont
    */
   updateFontStatusUI(hasCustomFont) {
-    const chip = this.fontStatusLabel;
-    if (!chip) return;
+    const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
     const apply = () => {
-      /* Chip-/Button-Text rendert CSS (floating.css, schrift-eigene-aktiv-Selektoren);
-       * JS setzt nur den Zustand: body-Klasse + data-schrift-modus. */
-      const btn = /** @type {HTMLButtonElement | null} */ (this.btnFontAction);
       if (hasCustomFont) {
-        document.body.classList.add('schrift-eigene-aktiv');
-        if (btn) btn.dataset.schriftModus = 'reset';
+        document.documentElement.style.setProperty('--active-font-family', "'CustomUserFont', var(--font-system-stack)");
+        if (document.body) {
+          document.body.classList.add('schrift-eigene-aktiv');
+        }
+        if (btn) {
+          btn.dataset.fontState = 'loaded';
+          btn.dataset.schriftModus = 'reset';
+          btn.textContent = '🗑️ Eigene Schrift entfernen';
+        }
       } else {
-        document.body.classList.remove('schrift-eigene-aktiv');
-        if (btn) btn.dataset.schriftModus = 'upload';
+        document.documentElement.style.removeProperty('--active-font-family');
+        if (document.body) {
+          document.body.classList.remove('schrift-eigene-aktiv');
+        }
+        if (btn) {
+          btn.dataset.fontState = 'empty';
+          btn.dataset.schriftModus = 'upload';
+          btn.textContent = '🔤 Eigene Schriftart laden';
+        }
       }
     };
-    if (this.isReady) {
-      transitionOn(chip, apply);
+    if (this.isReady && btn) {
+      transitionOn(btn, apply);
     } else {
       apply();
     }
@@ -246,17 +255,19 @@ export class SettingsManager {
     if (this.btnFontAction) {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
-        if (btn.dataset.schriftModus === 'reset') {
+        if (btn.dataset.fontState === 'loaded' || btn.dataset.schriftModus === 'reset') {
           remove(STORAGE_KEYS.font);
           if (typeof document.fonts !== 'undefined') {
             for (const face of Array.from(document.fonts)) {
-              if (face.family === 'AptosCustom') {
+              if (face.family === 'CustomUserFont' || face.family === 'AptosCustom') {
                 document.fonts.delete(face);
               }
             }
           }
           this.activeFontFace = null;
           this.updateFontStatusUI(false);
+          const uploader = /** @type {HTMLInputElement | null} */ (this.fontUploader);
+          if (uploader) uploader.value = '';
         } else {
           /** @type {HTMLInputElement | null} */ (this.fontUploader)?.click();
         }
@@ -268,13 +279,17 @@ export class SettingsManager {
         const target = /** @type {HTMLInputElement} */ (e.target);
         const file = target && target.files ? target.files[0] : null;
         if (!file) return;
-        if (!file.name.endsWith('.woff2')) {
+        const validExtensions = ['.woff2', '.ttf', '.otf'];
+        const isValid = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
+        if (!isValid) {
           notify(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+          target.value = '';
           return;
         }
         const maxSizeInBytes = Constants.LIMITS.FONT_SIZE_MAX_KB * 1024;
         if (file.size > maxSizeInBytes) {
           notify(Constants.TOASTS.FONT_SIZE_ERROR, 'error');
+          target.value = '';
           return;
         }
         const reader = new FileReader();

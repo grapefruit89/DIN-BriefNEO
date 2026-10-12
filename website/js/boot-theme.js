@@ -19,11 +19,12 @@ try {
   // Validiere Base64 data-URI, um CSS-Injektionen auszuschließen
   const isDataFont = /^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(customFont || '');
   if (isDataFont) {
-    // Sichere Registrierung via Font Loading API statt <style>-Injection
-    const face = new FontFace('AptosCustom', `url(${customFont}) format('woff2')`);
+    document.documentElement.style.setProperty('--active-font-family', "'CustomUserFont', var(--font-system-stack)");
+    const face = new FontFace('CustomUserFont', `url(${customFont})`);
     face.load().then((loaded) => {
       document.fonts.add(loaded);
     }).catch((e) => {
+      document.documentElement.style.removeProperty('--active-font-family');
       console.warn('[Boot] Eigene Schriftart konnte nicht geladen werden:', e);
     });
   }

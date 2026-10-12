@@ -7,6 +7,7 @@ import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, m
 import { createEventBus, eventBus, Events, initToastSystem } from '../website/js/core.js';
 import { SalutationEngine } from '../website/js/salutation.js';
 import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser } from '../website/js/address.js';
+import { SettingsManager } from '../website/js/settings.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -658,6 +659,48 @@ describe('ClipboardAddressParser: Anschrift-Parsing (unstrukturierte Zwischenabl
     assertEqual(candidates[0].strasse, 'Technologiepark 1');
     assertEqual(candidates[0].plz, '80331');
     assertEqual(candidates[0].ort, 'München');
+  });
+});
+
+describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', () => {
+  it('initialisiert im leeren Zustand mit Systemschrift-Fallback', () => {
+    const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
+    const sm = new SettingsManager();
+    sm.updateFontStatusUI(false);
+    assertEqual(btn.dataset.fontState, 'empty');
+    assert(btn.textContent?.includes('Eigene Schriftart laden') || false, 'Text zeigt Schriftart laden');
+    assert(!document.body.classList.contains('schrift-eigene-aktiv'), 'body hat nicht schrift-eigene-aktiv');
+    assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
+  });
+
+  it('wechselt in geladenen Zustand bei vorhandener Schrift', () => {
+    const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
+    const sm = new SettingsManager();
+    sm.updateFontStatusUI(true);
+    assertEqual(btn.dataset.fontState, 'loaded');
+    assert(btn.textContent?.includes('Eigene Schrift entfernen') || false, 'Text zeigt Schrift entfernen');
+    assert(document.body.classList.contains('schrift-eigene-aktiv'), 'body hat schrift-eigene-aktiv');
+    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('CustomUserFont'), '--active-font-family enthaelt CustomUserFont');
+  });
+
+  it('entfernt Schrift synchron bei Klick im Zustand loaded', () => {
+    const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
+    const sm = new SettingsManager();
+    sm.attachListeners();
+    save(STORAGE_KEYS.font, 'data:font/woff2;base64,AAAA');
+    sm.updateFontStatusUI(true);
+    assertEqual(btn.dataset.fontState, 'loaded');
+
+    // Klick auf den Button löscht die Schrift
+    btn.click();
+    assert(load(STORAGE_KEYS.font, null) === null, 'localStorage din_custom_font wurde synchron gelöscht');
+    assertEqual(btn.dataset.fontState, 'empty');
+    assert(!document.body.classList.contains('schrift-eigene-aktiv'), 'body Klasse entfernt');
+    assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
+  });
+
+  it('erzwingt 80 KB Obergrenze in Constants.LIMITS', () => {
+    assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 80);
   });
 });
 

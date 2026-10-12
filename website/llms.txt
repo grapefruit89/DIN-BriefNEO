@@ -1,0 +1,61 @@
+# DIN-BriefNEO
+
+> Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 (Form A und Form B) für geschäftliche und private Korrespondenz.
+
+## Übersicht
+
+DIN-BriefNEO ist eine reine Client-Side-Webanwendung zur Erstellung und Formatierung von Briefen nach der deutschen Industrienorm DIN 5008.
+
+- **Architektur:** 100 % clientseitig, Zero-Dependency, keine externen Frameworks, keine Cloud-Datenspeicherung.
+- **Datenschutz:** Alle Daten verbleiben ausschließlich im Browser des Nutzers (LocalStorage für Entwürfe, In-Memory-Blobs für Signaturen).
+- **Export:** Nativer Browser-Druckdialog (Druck / PDF) mit exakter mm-Typografie via Container Queries und @page.
+- **Datenformat:** Reines Text-JSON (Schema v2, Zero-Base64).
+
+## Dokumenten-Schema (Schema v2)
+
+Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keinerlei Base64- oder Binärdaten:
+
+```json
+{
+  "$schema": "https://grapefruit89.github.io/DIN-BriefNEO/schema/v2/din-letter.json",
+  "schema_version": 2,
+  "generator": "DIN-BriefNEO",
+  "document": {
+    "layout": { "form": "form-b", "fold_guides": true, "punch_guide": true },
+    "copyfit": false,
+    "fields": {
+      "rucksendezeile": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
+      "postvermerk": "",
+      "empfaenger_firma": "",
+      "empfaenger_name": "Erika Mustermann",
+      "empfaenger_strasse": "Beispielweg 42",
+      "empfaenger_ort": "54321 Beispielstadt",
+      "absender_name": "Max Mustermann",
+      "absender_strasse": "Musterstraße 1",
+      "absender_ort": "12345 Musterstadt",
+      "absender_tel": "+49 123 456789",
+      "absender_mail": "max@example.com",
+      "datum": "12. Oktober 2026",
+      "betreff": "Kündigung des Vertrags Nr. 12345",
+      "anrede": "Sehr geehrte Damen und Herren,",
+      "text": "hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.",
+      "grussformel": "Mit freundlichen Grüßen",
+      "unterschrift": "Max Mustermann",
+      "anlagen": ["Kündigungsbestätigung erbeten"]
+    }
+  },
+  "profile": {
+    "sender": { "name": "Max Mustermann", "street": "Musterstraße 1", "city": "12345 Musterstadt" }
+  },
+  "signature": {
+    "placed": false,
+    "transform": { "x": 11.9, "y": 96.0, "scale": 0.5, "rot": 0 }
+  }
+}
+```
+
+## DIN 5008 Geometrie & Normvorgaben
+
+- **Form A:** Hoher Briefkopf (Absender beginnt bei 27 mm von oben, Anschriftfeld bei 32 mm).
+- **Form B:** Tiefer Briefkopf (Absender beginnt bei 45 mm von oben, Anschriftfeld bei 50 mm). Standard für Standard-Fensterbriefumschläge DIN lang (DL).
+- **Fluchtlinie:** Linker Blattrand 25 mm für alle Anschrift- und Textfelder.

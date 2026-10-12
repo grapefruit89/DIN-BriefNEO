@@ -332,6 +332,34 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     migrateStorage();
     assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version idempotent');
   });
+
+  it('verwaltet das isolierte Signatur-Asset (din_signature_asset) synchron (Law A34)', () => {
+    const dummyWebP = 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoAAP7/2QAA';
+    StorageManager.saveSignatureAsset(dummyWebP);
+    assertEqual(StorageManager.loadSignatureAsset(), dummyWebP, 'Signatur-Asset erfolgreich geladen');
+    assertEqual(load(STORAGE_KEYS.signatureAsset), dummyWebP, 'Im isolierten Schlüssel din_signature_asset abgelegt');
+
+    StorageManager.removeSignatureAsset();
+    assertEqual(StorageManager.loadSignatureAsset(), null, 'Signatur-Asset erfolgreich gelöscht');
+    assertEqual(load(STORAGE_KEYS.signatureAsset), null, 'Schlüssel din_signature_asset vollständig entfernt');
+  });
+
+  it('garantiert Zero-Base64 im Schema-v2-Export trotz vorhandenem Signatur-Asset', () => {
+    const dummyWebP = 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoAAP7/2QAA';
+    StorageManager.saveSignatureAsset(dummyWebP);
+
+    const payload = buildDinLetterPayload(
+      { brieftext: 'Testtext' },
+      { signatureState: { x: 12, y: 95, scale: 0.6, rot: 5 } }
+    );
+    const serialized = JSON.stringify(payload);
+    assert(!serialized.includes('data:image/webp'), 'Export-Payload darf keine Bilddaten enthalten');
+    assert(!serialized.includes(dummyWebP), 'Export-Payload darf keine Data-URL enthalten');
+    assertEqual(payload.signature.placed, true);
+    assertEqual(payload.signature.transform.x, 12);
+
+    StorageManager.removeSignatureAsset();
+  });
 });
 
 describe('EventBus: Entkoppelte Pub/Sub-Kommunikation (Zero-Dependency)', () => {

@@ -116,6 +116,7 @@ export const STORAGE_KEYS = {
   draft: 'din_draft_current',
   settings: 'din_settings',
   font: 'din_custom_font',
+  signatureAsset: 'din_signature_asset',
   geoapifyKey: 'din_geoapify_key',
   addresses: 'din_local_addresses',
   senderCoords: 'din_sender_coords',
@@ -243,6 +244,10 @@ export const StorageManager = {
   saveCustomFont: (font) => save(STORAGE_KEYS.font, font),
   loadCustomFont: () => load(STORAGE_KEYS.font, null),
   removeCustomFont: () => remove(STORAGE_KEYS.font),
+  /** @param {string} asset */
+  saveSignatureAsset: (asset) => save(STORAGE_KEYS.signatureAsset, asset),
+  loadSignatureAsset: () => load(STORAGE_KEYS.signatureAsset, null),
+  removeSignatureAsset: () => remove(STORAGE_KEYS.signatureAsset),
   /** @param {string} key */
   saveGeoapifyKey: (key) => save(STORAGE_KEYS.geoapifyKey, key),
   loadGeoapifyKey: () => load(STORAGE_KEYS.geoapifyKey, '') || '',

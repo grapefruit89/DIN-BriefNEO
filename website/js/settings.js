@@ -320,8 +320,8 @@ export class SignatureFeature {
     this.bbox = document.getElementById('unterschriftsbild-box');
     this.container = document.getElementById('unterschriftsbild-container');
 
-    // Config: Maximale Dimension für hochauflösende Druck-/PDF-Wiedergabe
-    this.MAX_DIM = 1400;
+    // Config: Maximale Dimension für hochauflösende Druck-/PDF-Wiedergabe (< 15 KB WebP)
+    this.MAX_DIM = 800;
 
     /** @type {string | null} */
     this.currentBlobUrl = null;
@@ -352,6 +352,13 @@ export class SignatureFeature {
     }
 
     this.initWysiwyg();
+
+    // Option B: Synchrone Wiederherstellung des isolierten Signatur-Assets (Law A34 konform)
+    const savedSignature = load(STORAGE_KEYS.signatureAsset, null);
+    if (savedSignature && this.imgElement) {
+      this.imgElement.src = savedSignature;
+      this.applyTransform();
+    }
   }
 
   initWysiwyg() {
@@ -496,7 +503,7 @@ export class SignatureFeature {
   }
 
   /**
-   * Zero-Base64: Bilddaten rein ephemer über OffscreenCanvas, WebP-Blob und ObjectURL.
+   * Kompaktes WebP im isolierten Schlüssel din_signature_asset (synchron, Law A34 konform).
    * @param {File} file
    */
   async processFile(file) {
@@ -509,7 +516,7 @@ export class SignatureFeature {
       return;
     }
 
-    const maxDim = this.MAX_DIM || 1400;
+    const maxDim = this.MAX_DIM || 800;
     const scale = Math.min(1, maxDim / bitmap.width, maxDim / bitmap.height);
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -524,23 +531,41 @@ export class SignatureFeature {
     bitmap.close();
 
     try {
-      const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.85 });
+      const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.82 });
+      const dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+
+      if (!dataUrl) {
+        console.warn('[Signature] FileReader erzeugte keine gültige Data URL');
+        return;
+      }
+
       if (this.currentBlobUrl) {
         URL.revokeObjectURL(this.currentBlobUrl);
+        this.currentBlobUrl = null;
       }
-      this.currentBlobUrl = URL.createObjectURL(blob);
+
+      // Isoliertes Arbeitsplatz-Asset synchron im LocalStorage ablegen
+      save(STORAGE_KEYS.signatureAsset, dataUrl);
 
       if (this.imgElement) {
-        this.imgElement.src = this.currentBlobUrl;
+        this.imgElement.src = dataUrl;
       }
 
       this.saveState();
     } catch (error) {
-      console.warn('[Signature] convertToBlob failed:', error);
+      console.warn('[Signature] convertToBlob / save failed:', error);
     }
   }
 
   resetImage() {
+    // Isoliertes Arbeitsplatz-Asset synchron aus LocalStorage entfernen
+    remove(STORAGE_KEYS.signatureAsset);
+
     if (this.currentBlobUrl) {
       URL.revokeObjectURL(this.currentBlobUrl);
       this.currentBlobUrl = null;

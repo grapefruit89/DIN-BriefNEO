@@ -13,7 +13,6 @@
 
 import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './persistence.js';
 import { eventBus, Events } from './core.js';
-export { sanitizeRichText } from './document.js';
 
 /**
  * @param {string} message
@@ -345,7 +344,7 @@ export class SignatureFeature {
     if (this.ui.settings?.signatureState) {
       this.state = { ...this.state, ...this.ui.settings.signatureState };
       // Migration: Falls noch absolute px-Werte (> 100) gespeichert waren, in prozentuale cqw umrechnen
-      if (Math.abs(this.state.x) > 100 || Math.abs(this.state.y) > 100) {
+      if (Math.abs(this.state.x) > 100) {
         const blatt = document.querySelector('din-a4');
         const blattWidth = blatt?.getBoundingClientRect().width || 800;
         this.state.x = (this.state.x / blattWidth) * 100;
@@ -506,12 +505,8 @@ export class SignatureFeature {
     this.applyImage(base64);
 
     if (!this.ui.settings?.signatureState) {
-      const dinA4 = document.querySelector('din-a4');
-      if (dinA4) {
-        const rect = dinA4.getBoundingClientRect();
-        this.state = { x: rect.width * 0.08, y: rect.height * 0.70, scale: 0.5, rot: 0 };
-        this.applyTransform();
-      }
+      this.state = { x: 8, y: 99, scale: 0.5, rot: 0 };
+      this.applyTransform();
     }
 
     if (!this.ui.settings) this.ui.settings = {};

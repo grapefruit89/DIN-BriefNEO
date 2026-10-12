@@ -30,7 +30,7 @@ body:has(#btn-form-a:checked) din-a4 {
   --datum-y: --mm-y(attr(data-datum-y-a type(<number>), 74));
   --kern-y: --mm-y(attr(data-kern-y-a type(<number>), 91)); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
   --falz-oben-y: --mm-y(attr(data-falz-oben-y-a type(<number>), 87));
-  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>), 181));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>), 192));
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -326,6 +326,7 @@ din-postvermerk, din-anlagen, din-fuss {
   display: none;
 }
 
+:root:has(#toggle-fuss:checked) din-fuss,
 din-fuss:has(.fuss-spalte:not(:empty)) {
   display: grid;
 }

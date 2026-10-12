@@ -155,7 +155,7 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
 * `data-width-mm="210"` & `data-height-mm="297"`: DIN A4 Blattgröße.
 * `data-lochmarke-y="148.5"`: Lochmarke zentriert auf Blatthälfte.
 * **Form B (Default):** `data-absender-y-b="45"`, `data-anschriftfeld-y-b="50"`, `data-infoblock-y-b="50"`, `data-datum-y-b="92"`, `data-kern-y-b="109"`, `data-falz-oben-y-b="105"`, `data-falz-unten-y-b="210"`.
-* **Form A:** `data-absender-y-a="27"`, `data-anschriftfeld-y-a="32"`, `data-infoblock-y-a="32"`, `data-datum-y-a="74"`, `data-kern-y-a="91"`, `data-falz-oben-y-a="87"`, `data-falz-unten-y-a="181"`.
+* **Form A:** `data-absender-y-a="27"`, `data-anschriftfeld-y-a="32"`, `data-infoblock-y-a="32"`, `data-datum-y-a="74"`, `data-kern-y-a="91"`, `data-falz-oben-y-a="87"`, `data-falz-unten-y-a="192"`.
 
 #### Die 24 Custom Elements & 18 ContentEditable-Felder
 1. `<din-falz-oben>`: Obere Faltmarke (auf 8 mm Randbreite begrenzt).

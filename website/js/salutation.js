@@ -163,7 +163,9 @@ export class SalutationFeature {
     // Nach "Brief zurücksetzen" (main.js leert vorher die Felder) wieder befüllen.
     const resetDialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('reset-dialog'));
     resetDialog?.addEventListener('close', () => {
-      if (resetDialog.returnValue === 'confirm') this.refresh();
+      const confirmed = resetDialog.returnValue === 'confirm';
+      queueMicrotask(() => { resetDialog.returnValue = ''; });
+      if (confirmed) this.refresh();
     });
 
     eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {

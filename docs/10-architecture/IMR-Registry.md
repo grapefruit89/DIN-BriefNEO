@@ -163,7 +163,7 @@ Jeder normative Wert trägt seine Herkunft:
 | PROJECT | projektspezifische Modell-/Layoutentscheidung |
 | IMPLEMENTATION | technische Umsetzung (Rendering), nicht normativ |
 
-Als `PROJECT` geführt: die 8-mm-Begrenzung der Falz-/Lochmarken, die Kollisionsvermeidung mit dem Betreff, die feste 45-mm-Höhe des Anschriftfelds und der Form-A/B-Schalter. Die Millimeterwerte (210/297, 25/125, 27/45/32/50/74/92/91/109/87/105/181/210, 148,5) sind als `DIN` geführt und **noch zu verifizieren**.
+Als `PROJECT` geführt: die 8-mm-Begrenzung der Falz-/Lochmarken, die Kollisionsvermeidung mit dem Betreff, die feste 45-mm-Höhe des Anschriftfelds und der Form-A/B-Schalter. Die Millimeterwerte (210/297, 25/125, 27/45/32/50/74/92/91/109/87/105/192/210, 148,5) sind als `DIN` geführt und **noch zu verifizieren**.
 
 ---
 
@@ -241,7 +241,7 @@ Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 | Atom `din-datum` | 74 mm | 92 mm |
 | Zone `din-kern` | 91 mm | 109 mm |
 | Atom `din-falz-oben` | 87 mm | 105 mm |
-| Atom `din-falz-unten` | 181 mm | 210 mm |
+| Atom `din-falz-unten` | 192 mm | 210 mm |
 
 Unverändert zwischen den Formen, soweit belegt: Blatt 210 × 297, Anschrift W 85 H 45, Infoblock X 125, Kern X 25 W 165, Fuß X 25 Y 241 W 165, Lochung Y 148,5 mm.
 
@@ -369,7 +369,7 @@ Genau drei Atome. Sie liegen auf dem Blatt, nicht in einer Inhaltszone.
 | Atom | Tag | Belegte Geometrie | Nicht belegt |
 |---|---|---|---|
 | din-falz-oben | `<din-falz-oben>` | Y Form A 87 mm, Form B 105 mm, X 0 mm, W 8 mm | H |
-| din-falz-unten | `<din-falz-unten>` | Y Form A 181 mm, Form B 210 mm, X 0 mm, W 8 mm | H |
+| din-falz-unten | `<din-falz-unten>` | Y Form A 192 mm, Form B 210 mm, X 0 mm, W 8 mm | H |
 | din-lochmarke | `<din-lochmarke>` | Y 148,5 mm, X 0 mm, W 8 mm | H |
 
 Die Breite von exakt 8 mm am linken Papierrand verhindert jede optische Kollision mit dem Betreff- oder Textbereich (ehemals ADR-BETREFF).
@@ -423,11 +423,11 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
     "din-kern":          { "y": { "A": 91,  "B": 109 } },
     "din-datum":         { "y": { "A": 74,  "B": 92 } },
     "din-falz-oben":     { "y": { "A": 87,  "B": 105 } },
-    "din-falz-unten":    { "y": { "A": 181, "B": 210 } },
+    "din-falz-unten":    { "y": { "A": 192, "B": 210 } },
     "din-lochmarke":     { "y": { "Y": 148.5 } }
   },
   "forbiddenAliases": ["din-empfaenger-name", "din-absender-name"],
-  "allowedUiIdentifiers": ["din-info-dialog", "din-info-title", "din-info-content"],
+  "allowedUiIdentifiers": ["din-info", "din-info-dialog", "din-info-title", "din-info-content"],
   "compositions": {
     "empfaenger-namenszeile": ["din-empfaenger-vorname", "din-empfaenger-nachname"],
     "absender-namenszeile":   ["din-absender-vorname", "din-absender-nachname"]

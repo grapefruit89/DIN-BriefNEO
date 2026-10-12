@@ -15,7 +15,6 @@
  */
 
 import { eventBus, Events } from './core.js';
-import { collectDraft } from './document.js';
 
 /* =========================================================================================
  * 1. DATE & TIME FORMATTING (Temporal API & DIN 5008)
@@ -588,8 +587,9 @@ export function parseDinLetterPayload(text) {
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog).
+ * @param {{ collectDraft?: () => Record<string, string> }} [options]
  */
-export function initImportExport() {
+export function initImportExport({ collectDraft } = {}) {
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
   const importBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-import-dinletter'));
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
@@ -607,7 +607,7 @@ export function initImportExport() {
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     let draft;
     try {
-      draft = collectDraft();
+      draft = typeof collectDraft === 'function' ? collectDraft() : loadJSON(STORAGE_KEYS.draft, {});
     } catch {
       draft = loadJSON(STORAGE_KEYS.draft, {});
     }
@@ -665,7 +665,9 @@ export function initImportExport() {
   });
 
   importDialog.addEventListener('close', () => {
-    if (importDialog.returnValue !== 'confirm' || !pendingImport?.ok) {
+    const confirmed = importDialog.returnValue === 'confirm';
+    importDialog.returnValue = '';
+    if (!confirmed || !pendingImport?.ok) {
       pendingImport = null;
       return;
     }

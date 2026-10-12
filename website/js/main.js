@@ -8,7 +8,7 @@ import { SalutationFeature } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
 import { initToastSystem, eventBus, Events } from './core.js';
 import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './address.js';
-import { DraftManager, UIProtections } from './document.js';
+import { DraftManager, UIProtections, collectDraft } from './document.js';
 
 /**
  * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      initImportExport();
+      initImportExport({ collectDraft });
     } catch (e) {
       console.error('[Bootstrap] initImportExport fehlgeschlagen:', e);
     }
@@ -138,11 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
     if (btnReset && resetDialog) {
       resetDialog.addEventListener('close', () => {
-        if (resetDialog.returnValue === 'confirm') {
-          draftManager.resetDraft();
-          applyLetterDate();
-          AddressIntelligence.targetLock = null;
-        }
+        const confirmed = resetDialog.returnValue === 'confirm';
+        queueMicrotask(() => { resetDialog.returnValue = ''; });
+        if (!confirmed) return;
+        draftManager.resetDraft();
+        applyLetterDate();
+        AddressIntelligence.targetLock = null;
       });
     }
 

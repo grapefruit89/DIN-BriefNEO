@@ -461,6 +461,7 @@ export class DraftManager {
 
   destroy() {
     clearTimeout(this.debounceTimer);
+    this.debounceTimer = null;
     if (this.#unsubSaveRequested) {
       this.#unsubSaveRequested();
       this.#unsubSaveRequested = null;
@@ -561,6 +562,7 @@ export class DraftManager {
 
   undo() {
     clearTimeout(this.debounceTimer);
+    this.debounceTimer = null;
     this.saveDraft();
     if (this.#undoStack.length === 0 || !this.#currentState) return;
     this.#redoStack.push(this.#currentState);
@@ -570,6 +572,7 @@ export class DraftManager {
 
   redo() {
     clearTimeout(this.debounceTimer);
+    this.debounceTimer = null;
     this.saveDraft();
     if (this.#redoStack.length === 0 || !this.#currentState) return;
     this.#undoStack.push(this.#currentState);
@@ -623,6 +626,7 @@ export class DraftManager {
     this.#setSaveStatus('dirty');
     clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
+      this.debounceTimer = null;
       this.saveDraft();
     }, this.DEBOUNCE_DELAY);
   }

@@ -298,7 +298,8 @@ export class AddressIntelligence {
     const suggestionsPopover = document.getElementById('plz-suggestions-popover');
     if (!suggestionsPopover) return;
 
-    empfOrtEl.addEventListener('input', () => {
+    empfOrtEl.addEventListener('input', (e) => {
+      if (/** @type {InputEvent} */ (e).inputType?.startsWith('delete')) return;
       const rawText = (empfOrtEl.textContent || "").trim();
 
       if (this.targetLock && !rawText.startsWith(this.targetLock.plz)) {

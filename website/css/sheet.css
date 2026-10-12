@@ -227,12 +227,16 @@ body:has(#btn-form-a:checked) din-a4 {
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
+    orphans: 3;
+    widows: 3;
   }
 
   #grussformel {
     font-size: --pt(10.5);
     margin-top: --mm-y(4.23);
     margin-bottom: --mm-y(12.69); /* 3 Leerzeilen für Unterschrift */
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   #unterschrift {
@@ -397,7 +401,12 @@ din-anlagen {
 #empfaenger-ort { anchor-name: --anchor-empfaenger-ort; }
 #infoblock { line-height: 1.5; }
 #absender-tel { margin-top: 8px; }
-.unterschrift-zeile { position: relative; margin-top: 10px; }
+.unterschrift-zeile {
+  position: relative;
+  margin-top: 10px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
 
 /* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
 #unterschriftsbild-vorschau:not([src]),
@@ -415,6 +424,8 @@ din-anlagen {
   z-index: 50;
   pointer-events: auto;
   display: none;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
 #btn-unterschriftsbild-reset { display: none; }
@@ -483,6 +494,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   block-size: auto;
   pointer-events: none;
   mix-blend-mode: multiply; /* Weißer Papierhintergrund wird unsichtbar */
+  filter: contrast(1.15) brightness(1.05);
 }
 
 /* --- MICRO-COPYFITTING (KOMPAKTSATZ / MESSSCHIEBER-MODUS) --- */

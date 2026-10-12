@@ -14,7 +14,11 @@
 }
 
 /* Print overrides for maximum specificity */
-:root, body, din-a4 { color-scheme: light !important; }
+:root, body, din-a4 {
+  color-scheme: light !important;
+  print-color-adjust: exact !important;
+  -webkit-print-color-adjust: exact !important;
+}
 html, body { overflow: visible !important; height: auto !important; }
 body { background: oklch(100% 0 0) !important; }
 din-falz-oben, din-falz-unten, din-lochmarke { opacity: 1 !important; }
@@ -61,3 +65,21 @@ din-a4 {
   border-bottom: none !important;
   padding-bottom: 0 !important;
 }
+
+/* Umbruch- und typografischer Schutz im Druck */
+#text {
+  orphans: 3 !important;
+  widows: 3 !important;
+}
+
+#grussformel {
+  break-after: avoid !important;
+  page-break-after: avoid !important;
+}
+
+.unterschrift-zeile,
+#unterschriftsbild-container {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+

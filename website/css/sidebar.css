@@ -68,6 +68,13 @@ aside.seitenleiste,
   user-select: none;
 }
 
+#zone-setup summary:focus-visible,
+.seitenleiste-setup summary:focus-visible {
+  outline: 2px solid oklch(55% 0.2 250);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .seitenleiste-setup-content {
   display: flex;
   flex-direction: column;
@@ -93,7 +100,7 @@ aside.seitenleiste,
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -110,7 +117,7 @@ aside.seitenleiste,
 .btn-ghost {
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-muted);
+  color: var(--text-primary);
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.2s ease;
@@ -124,7 +131,7 @@ aside.seitenleiste,
 .btn.primary {
   background: var(--accent-color);
   border-color: var(--accent-color);
-  color: contrast-color(var(--accent-color));
+  color: oklch(1 0 0); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
   font-weight: 600;
 }
 
@@ -188,9 +195,9 @@ aside.seitenleiste,
   padding: 8px 12px;
   font-family: inherit;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 6px;
-  color: var(--text-muted);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
   cursor: pointer;
   transition: color 0.2s ease;
   text-align: center;
@@ -200,7 +207,8 @@ aside.seitenleiste,
 
 .segmented-control button[aria-pressed="true"],
 .segmented-control input[type="radio"]:checked + label {
-  color: var(--segment-active-text);
+  color: oklch(0 0 0);
+  font-weight: 700;
   /* Box-shadow and background are now handled by ::before */
 }
 
@@ -212,9 +220,14 @@ aside.seitenleiste,
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
   outline: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-field::placeholder {
+  color: oklch(0.42 0.03 260); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
+  opacity: 1;
 }
 
 .input-field:focus {
@@ -480,19 +493,19 @@ aside .seitenleiste-checkbox-label {
   width: 100%;
   padding: 8px 10px;
   background: var(--segment-bg);
-  color: var(--text-muted);
+  color: oklch(0.18 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 gegen --segment-bg */
   border: none;
   border-radius: 8px;
   font-family: inherit;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: background 0.15s, color 0.15s;
 }
 #seitenleiste-postvermerk-select:has(option:checked:not([value=""])) {
   background: var(--segment-active-bg);
-  color: var(--segment-active-text);
+  color: oklch(0.18 0.02 260);
   box-shadow: var(--segment-active-shadow);
 }
 #seitenleiste-postvermerk-select::picker(select) {
@@ -507,7 +520,7 @@ aside .seitenleiste-checkbox-label {
   margin-inline-start: auto;
   flex: 0 0 auto;
   align-self: center;
-  color: var(--text-muted);
+  color: oklch(0.18 0.02 260);
 }
 .seitenleiste-zusatz-row {
   display: flex;
@@ -885,10 +898,13 @@ aside select {
 #din-info-dialog .dialog-actions { margin-top: 16px; }
 .btn.danger,
 .btn-danger {
-  border-color: var(--c-danger);
-  color: var(--c-danger);
+  border-color: oklch(0.45 0.18 28);
+  color: oklch(0.38 0.16 28); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
+  font-weight: 600;
 }
 .btn.danger:hover,
 .btn-danger:hover {
-  background: color-mix(in oklch, var(--c-danger) 15%, transparent);
+  background: color-mix(in oklch, oklch(45% 0.22 25) 15%, var(--bg-card));
+  color: oklch(0.28 0.14 28);
+  border-color: oklch(0.38 0.16 28);
 }

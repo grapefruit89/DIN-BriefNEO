@@ -84,6 +84,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* Placeholder support for contenteditable */
+  [data-placeholder]:empty::before,
   [contenteditable][data-placeholder]:empty::before {
     content: attr(data-placeholder);
     color: var(--blatt-schwach);

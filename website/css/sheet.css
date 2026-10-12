@@ -475,4 +475,31 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-
   mix-blend-mode: multiply;
 }
 
+/* --- MICRO-COPYFITTING (KOMPAKTSATZ / MESSSCHIEBER-MODUS) --- */
+:root:has(#toggle-copyfit:checked) {
+  --copyfit-font-size: --pt(10.2);
+  --copyfit-line-height: 1.34;
+  --copyfit-word-spacing: -0.035em;
+}
+
+:root:has(#toggle-copyfit:checked) #text {
+  font-size: var(--copyfit-font-size);
+  line-height: var(--copyfit-line-height);
+  word-spacing: var(--copyfit-word-spacing);
+  hanging-punctuation: last;
+}
+
+:root:has(#toggle-copyfit:checked) #text p {
+  margin-block-end: 0.8em; /* Staucht Absatz-Puffer */
+}
+
+:root:has(#toggle-copyfit:checked) #unterschrift {
+  margin-block-start: --mm-y(9); /* Reduziert von ~12.7mm auf 9mm */
+}
+
+:root:has(#toggle-copyfit:checked) #kern {
+  bottom: --mm-y(25); /* 5mm Satzspiegel-Gewinn unten */
+  padding-block-end: --mm-y(25);
+}
+
 

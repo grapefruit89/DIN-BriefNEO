@@ -21,16 +21,17 @@
   </head>
   <body>
     <div id="app-shell">
-      <aside class="seitenleiste nicht-drucken">
-        <div class="seitenleiste-section">
-          <div class="seitenleiste-header-row">
-            <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="seitenleiste-build-info btn-ghost seitenleiste-github-link" aria-label="GitHub Repository">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg> GitHub
-            </a>
-            <button type="button" id="btn-din-info" class="seitenleiste-build-info btn-ghost" commandfor="din-info-dialog" command="show-modal" title="DIN 5008 Hilfe" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008</button>
-            <button type="button" id="btn-theme-toggle" class="seitenleiste-build-info btn-ghost theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-erscheinungsbild="auto" title="Darstellung: Automatisch (System)"></button>
-          </div>
-          <div>
+      <aside id="seitenleiste" class="seitenleiste nicht-drucken">
+        <div class="seitenleiste-header-row">
+          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="seitenleiste-build-info btn-ghost seitenleiste-github-link" aria-label="GitHub Repository">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg> GitHub
+          </a>
+          <button type="button" id="btn-theme-toggle" class="seitenleiste-build-info btn-ghost theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-erscheinungsbild="auto" title="Darstellung: Automatisch (System)"></button>
+        </div>
+
+        <!-- Zone 1: Brief-Steuerung -->
+        <section id="zone-dokument" class="seitenleiste-zone">
+          <div class="seitenleiste-field-group">
             <h3 class="seitenleiste-label">DIN-Brief Layout</h3>
             <div class="segmented-control" focusgroup="toolbar inline wrap">
               <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only" autocomplete="off">
@@ -38,30 +39,29 @@
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked autocomplete="off">
               <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
             </div>
-            <!-- Guard: W3C-Switch (`<input type="checkbox" switch>`, Status via :has()).
-                 Verbindlicher Text: css/sidebar.css — Law Catalog A57. -->
-            <div class="seitenleiste-switch-row">
-              <h3 class="seitenleiste-label">Hilfslinien</h3>
-              <input type="checkbox" switch id="btn-hilfslinien-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
-            </div>
           </div>
-          <div>
-            <h3 class="seitenleiste-label">Brief-Stil & Anrede</h3>
-            <div class="segmented-control" focusgroup="toolbar inline wrap">
-              <input type="radio" name="salutation" id="btn-style-formal" value="formal" class="sr-only" checked autocomplete="off">
-              <label for="btn-style-formal" title="Sehr geehrte(r) ...">Förmlich</label>
-              <input type="radio" name="salutation" id="btn-style-polite" value="polite" class="sr-only" autocomplete="off">
-              <label for="btn-style-polite" title="Guten Tag ...">Höflich</label>
-              <input type="radio" name="salutation" id="btn-style-casual" value="casual" class="sr-only" autocomplete="off">
-              <label for="btn-style-casual" title="Hallo ...">Locker</label>
-            </div>
+
+          <div class="seitenleiste-switch-row">
+            <span class="seitenleiste-label">Hilfslinien</span>
+            <input type="checkbox" switch id="btn-hilfslinien-switch" checked autocomplete="off" aria-label="Hilfslinien umschalten">
           </div>
-          <div class="seitenleiste-zusatz-row">
-            <!-- Select = Vorlagen-Auswahl UND Hauptschalter der Sichtbarkeit:
-                 kein Wert gewählt → Feld unsichtbar (auch bei manuellem Text).
-                 Das Papierfeld selbst ist 100% contenteditable (Doktrin: alle
-                 DIN-Felder editierbar) und wird nicht vom Boot-Sync überschrieben,
-                 solange es Inhalt hat. -->
+
+          <div class="seitenleiste-switch-row">
+            <span class="seitenleiste-label">Kompaktsatz (1 Seite)</span>
+            <input type="checkbox" switch id="toggle-copyfit" autocomplete="off" aria-label="Micro-Copyfitting aktivieren">
+          </div>
+
+          <div class="seitenleiste-field-group">
+            <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
+            <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
+              <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
+              <option value="polite">Höflich (Guten Tag...)</option>
+              <option value="casual">Locker (Hallo...)</option>
+            </select>
+          </div>
+
+          <div class="seitenleiste-field-group">
+            <label for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
             <select id="seitenleiste-postvermerk-select" class="seitenleiste-select seitenleiste-postvermerk-select" data-speichern aria-label="Postvermerk wählen">
               <option value="">— kein —</option>
               <option value="Einschreiben">Einschreiben</option>
@@ -78,65 +78,73 @@
               <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
             </select>
           </div>
+
           <div class="seitenleiste-switch-row">
-            <h3 class="seitenleiste-label">Anlagen</h3>
+            <span class="seitenleiste-label">Anlagen</span>
             <input type="checkbox" switch id="toggle-anlagen" autocomplete="off" aria-label="Anlagen-Sektion auf dem Brief umschalten">
           </div>
+
           <div class="seitenleiste-switch-row">
-            <h3 class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</h3>
+            <span class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</span>
             <input type="checkbox" switch id="toggle-fuss" autocomplete="off" aria-label="Geschäftsfußzeile einblenden">
           </div>
-          <div>
-            <h3 class="seitenleiste-label">Schriftarten-Manager</h3>
-            <div class="seitenleiste-options-group">
+        </section>
+
+        <!-- Zone 2: Daten & Adressen -->
+        <section id="zone-werkzeuge" class="seitenleiste-zone">
+          <h3 class="seitenleiste-label">Daten &amp; Adressen</h3>
+          <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
+            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
+            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
+            <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+          </search>
+
+          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
+          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
+
+          <div class="seitenleiste-btn-row">
+            <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
+            <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
+          </div>
+          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden aria-hidden="true" tabindex="-1">
+        </section>
+
+        <!-- Zone 3: Grundeinstellungen & Setup -->
+        <details id="zone-setup" class="seitenleiste-setup">
+          <summary>⚙️ Einstellungen &amp; Assets</summary>
+          <div class="seitenleiste-setup-content">
+            <div class="seitenleiste-field-group">
+              <span class="seitenleiste-sub-label">Schriftart (WOFF2):</span>
               <button type="button" id="btn-schrift-aktion" class="btn w-full" data-schrift-modus="upload"></button>
               <span id="schrift-status-label" class="seitenleiste-status-label"></span>
-              <div class="seitenleiste-ux-tip">
-                💡 <b>UX-Tipp:</b> Freie WOFF2-Fonts (z.&nbsp;B. <a href="https://github.com/rsms/inter/releases" target="_blank" rel="noopener noreferrer" class="seitenleiste-link">Inter</a>) findest du auf <a href="https://fontsource.org/?subsets=latin&category=sans-serif" target="_blank" rel="noopener noreferrer" class="seitenleiste-link">Fontsource</a> — dort direkt nach WOFF2 filtern und hier offline laden.
-              </div>
+              <input type="file" id="schrift-uploader" accept=".woff2" class="hidden">
             </div>
-            <input type="file" id="schrift-uploader" accept=".woff2" class="hidden">
-          </div>
-          <div>
-            <h3 class="seitenleiste-label">Unterschrift (Bild)</h3>
-            <div class="seitenleiste-options-group">
-              <span class="seitenleiste-sub-label">Scanne deine Unterschrift als Bild mit transparentem Hintergrund.</span>
-              <label id="btn-unterschriftsbild-waehlen" for="unterschriftsbild-datei" class="btn w-full">✒️ Unterschrift laden</label>
-              <button type="button" id="btn-unterschriftsbild-reset" class="btn btn-danger w-full">🗑️ Unterschrift löschen</button>
-            </div>
-            <input type="file" id="unterschriftsbild-datei" accept="image/png, image/jpeg, image/webp" class="hidden">
-          </div>
-          <div id="geoapify-wrapper">
-            <h3 class="seitenleiste-label">Empfänger-Tools</h3>
-            <div class="seitenleiste-options-group">
-              <div id="geoapify-key-container">
-                <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key (optional):</label>
-                <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+
+            <div class="seitenleiste-field-group">
+              <span class="seitenleiste-sub-label">Unterschrift / Stempel:</span>
+              <div class="seitenleiste-btn-row">
+                <label id="btn-unterschriftsbild-waehlen" for="unterschriftsbild-datei" class="btn w-full">✒️ Laden</label>
+                <button type="button" id="btn-unterschriftsbild-reset" class="btn btn-danger w-full">🗑️ Löschen</button>
               </div>
-              <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
-                <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-                <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
-                <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
-                <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
-              </search>
-              <div>
-                <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage lesen</button>
-                <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
-              </div>
+              <input type="file" id="unterschriftsbild-datei" accept="image/png, image/jpeg, image/webp" class="hidden">
             </div>
+
+            <div id="geoapify-key-container" class="seitenleiste-field-group">
+              <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key (optional):</label>
+              <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+            </div>
+
+            <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" title="DIN 5008 Hilfe" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
           </div>
-        </div>
-        <div class="seitenleiste-section">
-          <h3 class="seitenleiste-label">Daten &amp; Backup</h3>
-          <button type="button" id="btn-export-dinletter" class="btn w-full" title="Lädt den Brief als .json-Datei herunter (JSON mit Metadaten-Header)">📥 Brief exportieren (.json)</button>
-          <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Brief importieren (.json)</button>
-          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden aria-hidden="true" tabindex="-1">
-        </div>
-        <div class="seitenleiste-section seitenleiste-footer">
+        </details>
+
+        <!-- Zone 4: Fester Fußbereich -->
+        <div id="zone-aktionen" class="seitenleiste-footer">
           <div class="save-status-row">
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
           </div>
-          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Als PDF speichern / Drucken</button>
+          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
           <button type="button" id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
         </div>
       </aside>

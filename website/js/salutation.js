@@ -140,6 +140,14 @@ export class SalutationFeature {
   }
 
   init() {
+    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    if (styleSelect) {
+      styleSelect.value = this.settings.formality;
+      styleSelect.addEventListener('change', () => {
+        this.#setStyle(toStyle(styleSelect.value));
+      });
+    }
+
     const checked = /** @type {HTMLInputElement | null} */ (document.getElementById(`btn-style-${this.settings.formality}`));
     if (checked) checked.checked = true;
 
@@ -184,6 +192,14 @@ export class SalutationFeature {
   /** @param {'formal' | 'polite' | 'casual'} style */
   #setStyle(style) {
     this.settings.formality = style;
+    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    if (styleSelect && styleSelect.value !== style) {
+      styleSelect.value = style;
+    }
+    const radio = /** @type {HTMLInputElement | null} */ (document.getElementById(`btn-style-${style}`));
+    if (radio && !radio.checked) {
+      radio.checked = true;
+    }
     if (this.#ctx) this.#ctx.save();
     else saveJSON(STORAGE_KEYS.settings, this.settings);
     this.#update('anrede');

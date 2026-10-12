@@ -11,7 +11,7 @@
  *  3. DraftManager (Single-Writer für localStorage, Undo/Redo, Autosave, EventBus-Verträge)
  */
 
-import { loadJSON, saveJSON, STORAGE_KEYS, Constants, isPrintTitleActive } from './persistence.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants, isPrintTitleActive } from './persistence.js';
 import { eventBus, Events } from './core.js';
 
 /* =========================================================================================
@@ -395,6 +395,11 @@ export function collectDraft() {
     if (sel.id) draft[sel.id] = sel.value;
   });
 
+  const copyfitEl = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
+  if (copyfitEl) {
+    draft['toggle-copyfit'] = String(copyfitEl.checked);
+  }
+
   return draft;
 }
 
@@ -423,6 +428,7 @@ export class DraftManager {
     this.#initShortcuts();
     this.#initEventBus();
     this.#initLifecycleFlush();
+    this.#initMultiTabSync();
   }
 
   #initEventBus() {
@@ -456,6 +462,23 @@ export class DraftManager {
 
     if (typeof window !== 'undefined') {
       window.addEventListener('pagehide', flush);
+    }
+  }
+
+  #initMultiTabSync() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (event) => {
+        if (event.key !== STORAGE_KEYS.draft || !event.newValue) return;
+        // Wenn dieser Tab im Hintergrund ist und keine ungespeicherten Eingaben hat:
+        if (typeof document !== 'undefined' && !document.hasFocus() && this.debounceTimer === null) {
+          this.loadDraft();
+        } else {
+          eventBus.publish(Events.NOTIFICATION_REQUESTED, {
+            message: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
+            type: 'info'
+          });
+        }
+      });
     }
   }
 
@@ -556,6 +579,14 @@ export class DraftManager {
         elem.textContent = draft[id];
       }
     });
+
+    if ('toggle-copyfit' in draft) {
+      const copyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
+      if (copyfitSwitch) {
+        copyfitSwitch.checked = draft['toggle-copyfit'] === 'true';
+      }
+    }
+
     this.#isRestoring = false;
     this.#setSaveStatus('saved');
   }
@@ -616,6 +647,10 @@ export class DraftManager {
       const sel = /** @type {HTMLSelectElement} */ (el);
       sel.selectedIndex = 0;
     });
+    const copyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
+    if (copyfitSwitch) {
+      copyfitSwitch.checked = false;
+    }
     this.saveDraft();
     if (this.bus && typeof this.bus.publish === 'function') {
       this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {} });

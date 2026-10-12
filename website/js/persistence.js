@@ -74,7 +74,10 @@ export function currentISODate() {
  * @property {'auto' | 'light' | 'dark' | string} theme
  * @property {'form-a' | 'form-b' | string} layout
  * @property {boolean} guides
+ * @property {boolean} [copyfit]
  * @property {'formal' | 'polite' | 'casual' | string} formality
+ * @property {string} [signatureImage]
+ * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
 
 /**
@@ -85,7 +88,7 @@ export const Constants = {
     HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
     FONT_SIZE_MAX_KB: 60      // Max size für Base64-Schriftarten (LocalStorage Limitierung)
   },
-  SCHEMA_VERSION: 1,
+  SCHEMA_VERSION: 2,
   TOASTS: {
     FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 60 KB groß sein)',
     FONT_FORMAT_ERROR: '❌ Falsches Dateiformat! (Nur .woff2 Dateien erlaubt)',
@@ -103,6 +106,7 @@ export const DEFAULT_SETTINGS = {
   theme: 'auto',
   layout: 'form-b',
   guides: true,
+  copyfit: false,
   formality: 'formal'
 };
 
@@ -393,6 +397,11 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @typedef {object} DinLetterPayload
  * @property {string} format
  * @property {number} schema_version
+ * @property {string} generator
+ * @property {string} timestamp
+ * @property {{ layout: string, copyfit: boolean, guides: boolean, fields: Record<string, string> }} document
+ * @property {Record<string, any>} profile
+ * @property {Record<string, any>} assets
  * @property {string} app
  * @property {string} created
  * @property {string} tool
@@ -421,28 +430,35 @@ export const DINLETTER_FORMAT = 'dinletter';
  */
 
 /**
- * Baut das Export-Payload aus einem Draft-Objekt und optionalen Einstellungen / Schriften. PURE — unit-testbar.
+ * Baut das Export-Payload (Schema v2 mit v1-Abwärtskompatibilität) aus einem Draft-Objekt
+ * und optionalen Einstellungen / Schriften. PURE — unit-testbar.
  * @param {Record<string, string>} draft
  * @param {Record<string, any> | null} [settings]
  * @param {string | null} [font]
  * @returns {DinLetterPayload}
  */
 export function buildDinLetterPayload(draft, settings = null, font = null) {
-  /** @type {DinLetterPayload} */
-  const payload = {
-    format: DINLETTER_FORMAT,
-    schema_version: Constants.SCHEMA_VERSION,
-    app: 'DIN-BriefNEO',
-    created: currentISODate(),
-    tool: 'https://github.com/grapefruit89/DIN-BriefNEO',
-    draft
-  };
+  const isoDate = currentISODate();
+  let timestamp = `${isoDate}T00:00:00Z`;
+  try {
+    timestamp = Temporal.Now.zonedDateTimeISO('Europe/Berlin').toString();
+  } catch {
+    timestamp = `${isoDate}T00:00:00+01:00`;
+  }
 
+  const cleanFields = /** @type {Record<string, string>} */ (Object.create(null));
+  if (draft && typeof draft === 'object') {
+    for (const [k, v] of Object.entries(draft)) {
+      if (typeof v === 'string') cleanFields[k] = v;
+    }
+  }
+
+  const cleanSettings = /** @type {Record<string, any>} */ (Object.create(null));
   if (settings && typeof settings === 'object') {
-    const cleanSettings = /** @type {Record<string, any>} */ (Object.create(null));
     if (typeof settings.theme === 'string') cleanSettings.theme = settings.theme;
     if (typeof settings.layout === 'string') cleanSettings.layout = settings.layout;
     if (typeof settings.guides === 'boolean') cleanSettings.guides = settings.guides;
+    if (typeof settings.copyfit === 'boolean') cleanSettings.copyfit = settings.copyfit;
     if (typeof settings.formality === 'string') cleanSettings.formality = settings.formality;
     if (typeof settings.signatureImage === 'string') cleanSettings.signatureImage = settings.signatureImage;
     if (settings.signatureState && typeof settings.signatureState === 'object') {
@@ -453,9 +469,47 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
         rot: Number(settings.signatureState.rot) || 0
       };
     }
-    if (Object.keys(cleanSettings).length > 0) {
-      payload.settings = cleanSettings;
-    }
+  }
+
+  const layout = (cleanSettings.layout === 'form-a' || cleanSettings.layout === 'form-b') ? cleanSettings.layout : 'form-b';
+  const copyfit = Boolean(cleanSettings.copyfit);
+  const guides = cleanSettings.guides !== undefined ? Boolean(cleanSettings.guides) : true;
+
+  /** @type {Record<string, any>} */
+  const assets = {};
+  if (cleanSettings.signatureImage) {
+    assets.signature = {
+      data: cleanSettings.signatureImage,
+      transform: cleanSettings.signatureState || { x: 0, y: 0, scale: 1, rot: 0 }
+    };
+  }
+
+  /** @type {DinLetterPayload} */
+  const payload = {
+    format: DINLETTER_FORMAT,
+    schema_version: Constants.SCHEMA_VERSION,
+    generator: 'DIN-BriefNEO',
+    timestamp,
+    document: {
+      layout,
+      copyfit,
+      guides,
+      fields: cleanFields
+    },
+    profile: {
+      theme: cleanSettings.theme || 'auto',
+      formality: cleanSettings.formality || 'formal'
+    },
+    assets,
+    // Top-Level-Aliase für Abwärtskompatibilität und Tests:
+    app: 'DIN-BriefNEO',
+    created: isoDate,
+    tool: 'https://github.com/grapefruit89/DIN-BriefNEO',
+    draft: cleanFields
+  };
+
+  if (Object.keys(cleanSettings).length > 0) {
+    payload.settings = cleanSettings;
   }
 
   if (typeof font === 'string' && font.length > 0) {
@@ -466,7 +520,7 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
 }
 
 /**
- * Validiert und parsed eine DIN-Brief-JSON-Datei. PURE — unit-testbar.
+ * Validiert und parsed eine DIN-Brief-JSON-Datei (unterstützt Schema v1 & v2 mit automatischer Migration). PURE — unit-testbar.
  * @param {string} text
  * @returns {DinLetterParseResult}
  */
@@ -489,11 +543,17 @@ export function parseDinLetterPayload(text) {
   if (!Number.isInteger(version) || version < 1 || version > Constants.SCHEMA_VERSION) {
     return { ok: false, reason: `Unbekannte schema_version ${data.schema_version} — Datei neu exportieren oder Tool aktualisieren.` };
   }
-  if (!data.draft || typeof data.draft !== 'object' || Array.isArray(data.draft)) {
+
+  // Schema v2 hat document.fields, Schema v1 hat data.draft
+  const rawFields = data.document && typeof data.document === 'object' && !Array.isArray(data.document) && data.document.fields && typeof data.document.fields === 'object' && !Array.isArray(data.document.fields)
+    ? data.document.fields
+    : data.draft;
+
+  if (!rawFields || typeof rawFields !== 'object' || Array.isArray(rawFields)) {
     return { ok: false, reason: 'Kein Briefkern in der Datei.' };
   }
   const draft = /** @type {Record<string, string>} */ (Object.create(null));
-  for (const [key, value] of Object.entries(data.draft)) {
+  for (const [key, value] of Object.entries(rawFields)) {
     if (typeof value !== 'string') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
     if (key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
       return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
@@ -501,67 +561,95 @@ export function parseDinLetterPayload(text) {
     draft[key] = value;
   }
 
-  /** @type {Record<string, any> | undefined} */
-  let parsedSettings;
-  if (data.settings !== undefined && data.settings !== null) {
-    if (typeof data.settings !== 'object' || Array.isArray(data.settings)) {
-      return { ok: false, reason: 'Ungültiges settings-Objekt in der Datei.' };
+  /** @type {Record<string, any>} */
+  const cleanSettings = Object.create(null);
+
+  // Settings aus Schema v1 oder v2 zusammenführen
+  const docObj = (data.document && typeof data.document === 'object') ? data.document : null;
+  const profObj = (data.profile && typeof data.profile === 'object') ? data.profile : null;
+  const assetObj = (data.assets && typeof data.assets === 'object') ? data.assets : null;
+  const rawSettings = (data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)) ? data.settings : null;
+
+  if (data.settings !== undefined && data.settings !== null && (typeof data.settings !== 'object' || Array.isArray(data.settings))) {
+    return { ok: false, reason: 'Ungültiges settings-Objekt in der Datei.' };
+  }
+
+  // Layout:
+  const rawLayout = docObj?.layout ?? rawSettings?.layout;
+  if (rawLayout !== undefined) {
+    if (typeof rawLayout !== 'string' || !['form-a', 'form-b'].includes(rawLayout)) {
+      return { ok: false, reason: 'Ungültiger layout-Wert in settings.' };
     }
-    const clean = /** @type {Record<string, any>} */ (Object.create(null));
-    if (data.settings.theme !== undefined) {
-      if (typeof data.settings.theme !== 'string' || !['auto', 'light', 'dark'].includes(data.settings.theme)) {
-        return { ok: false, reason: 'Ungültiger theme-Wert in settings.' };
-      }
-      clean.theme = data.settings.theme;
+    cleanSettings.layout = rawLayout;
+  }
+
+  // Copyfit:
+  const rawCopyfit = docObj?.copyfit ?? rawSettings?.copyfit;
+  if (rawCopyfit !== undefined) {
+    if (typeof rawCopyfit !== 'boolean') {
+      return { ok: false, reason: 'Ungültiger copyfit-Wert in settings.' };
     }
-    if (data.settings.layout !== undefined) {
-      if (typeof data.settings.layout !== 'string' || !['form-a', 'form-b'].includes(data.settings.layout)) {
-        return { ok: false, reason: 'Ungültiger layout-Wert in settings.' };
-      }
-      clean.layout = data.settings.layout;
+    cleanSettings.copyfit = rawCopyfit;
+  }
+
+  // Guides:
+  const rawGuides = docObj?.guides ?? rawSettings?.guides;
+  if (rawGuides !== undefined) {
+    if (typeof rawGuides !== 'boolean') {
+      return { ok: false, reason: 'Ungültiger guides-Wert in settings.' };
     }
-    if (data.settings.guides !== undefined) {
-      if (typeof data.settings.guides !== 'boolean') {
-        return { ok: false, reason: 'Ungültiger guides-Wert in settings.' };
-      }
-      clean.guides = data.settings.guides;
+    cleanSettings.guides = rawGuides;
+  }
+
+  // Theme:
+  const rawTheme = profObj?.theme ?? rawSettings?.theme;
+  if (rawTheme !== undefined) {
+    if (typeof rawTheme !== 'string' || !['auto', 'light', 'dark'].includes(rawTheme)) {
+      return { ok: false, reason: 'Ungültiger theme-Wert in settings.' };
     }
-    if (data.settings.formality !== undefined) {
-      if (typeof data.settings.formality !== 'string' || !['formal', 'polite', 'casual'].includes(data.settings.formality)) {
-        return { ok: false, reason: 'Ungültiger formality-Wert in settings.' };
-      }
-      clean.formality = data.settings.formality;
+    cleanSettings.theme = rawTheme;
+  }
+
+  // Formality:
+  const rawFormality = profObj?.formality ?? rawSettings?.formality;
+  if (rawFormality !== undefined) {
+    if (typeof rawFormality !== 'string' || !['formal', 'polite', 'casual'].includes(rawFormality)) {
+      return { ok: false, reason: 'Ungültiger formality-Wert in settings.' };
     }
-    if (data.settings.signatureImage !== undefined) {
-      if (typeof data.settings.signatureImage !== 'string' || !data.settings.signatureImage.startsWith('data:image/')) {
-        return { ok: false, reason: 'Ungültiges Signaturbild in settings (muss ein Bild-Data-URL sein).' };
-      }
-      if (data.settings.signatureImage.length > 1024 * 1024) {
-        return { ok: false, reason: 'Signaturbild zu groß (maximal 1 MB erlaubt).' };
-      }
-      clean.signatureImage = data.settings.signatureImage;
+    cleanSettings.formality = rawFormality;
+  }
+
+  // Signature:
+  const rawSigImage = assetObj?.signature?.data ?? rawSettings?.signatureImage;
+  if (rawSigImage !== undefined) {
+    if (typeof rawSigImage !== 'string' || !rawSigImage.startsWith('data:image/')) {
+      return { ok: false, reason: 'Ungültiges Signaturbild in settings (muss ein Bild-Data-URL sein).' };
     }
-    if (data.settings.signatureState !== undefined) {
-      const state = data.settings.signatureState;
-      if (!state || typeof state !== 'object' || Array.isArray(state)) {
-        return { ok: false, reason: 'Ungültiges signatureState in settings.' };
-      }
-      if (
-        typeof state.x !== 'number' || !Number.isFinite(state.x) ||
-        typeof state.y !== 'number' || !Number.isFinite(state.y) ||
-        typeof state.scale !== 'number' || !Number.isFinite(state.scale) ||
-        typeof state.rot !== 'number' || !Number.isFinite(state.rot)
-      ) {
-        return { ok: false, reason: 'Ungültige Koordinaten in signatureState.' };
-      }
-      clean.signatureState = {
-        x: state.x,
-        y: state.y,
-        scale: Math.max(0.1, Math.min(5, state.scale)),
-        rot: state.rot
-      };
+    if (rawSigImage.length > 1024 * 1024) {
+      return { ok: false, reason: 'Signaturbild zu groß (maximal 1 MB erlaubt).' };
     }
-    parsedSettings = clean;
+    cleanSettings.signatureImage = rawSigImage;
+  }
+
+  const rawSigState = assetObj?.signature?.transform ?? rawSettings?.signatureState;
+  if (rawSigState !== undefined) {
+    if (!rawSigState || typeof rawSigState !== 'object' || Array.isArray(rawSigState)) {
+      return { ok: false, reason: 'Ungültiges signatureState in settings.' };
+    }
+    if (
+      typeof rawSigState.x !== 'number' || !Number.isFinite(rawSigState.x) ||
+      typeof rawSigState.y !== 'number' || !Number.isFinite(rawSigState.y) ||
+      typeof rawSigState.scale !== 'number' || !Number.isFinite(rawSigState.scale) ||
+      typeof rawSigState.rot !== 'number' || !Number.isFinite(rawSigState.rot)
+    ) {
+      return { ok: false, reason: 'Ungültige Koordinaten in signatureState.' };
+    }
+    cleanSettings.signatureState = {
+      x: rawSigState.x,
+      y: rawSigState.y,
+      scale: Math.max(0.1, Math.min(5, rawSigState.scale)),
+      rot: rawSigState.rot
+    };
   }
 
   /** @type {string | undefined} */
@@ -576,17 +664,72 @@ export function parseDinLetterPayload(text) {
     parsedFont = data.font;
   }
 
+  const hasSettings = Object.keys(cleanSettings).length > 0;
   return {
     ok: true,
     draft,
-    settings: parsedSettings,
+    settings: hasSettings ? cleanSettings : undefined,
     font: parsedFont,
     schemaVersion: version
   };
 }
 
 /**
- * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog).
+ * Exportiert das DIN-Brief-Payload über die File System Access API (showSaveFilePicker)
+ * oder fällt auf einen Standard-Blob-Download über ein <a>-Element zurück.
+ * @param {DinLetterPayload} payload
+ * @param {string} [fileName]
+ * @returns {Promise<boolean>}
+ */
+export async function exportDocumentToFile(payload, fileName = buildLetterFileName()) {
+  const jsonContent = JSON.stringify(payload, null, 2);
+  const fullName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
+
+  const savePicker = typeof window !== 'undefined' ? /** @type {any} */ (window)['showSaveFilePicker'] : null;
+  if (typeof savePicker === 'function') {
+    try {
+      const handle = await savePicker.call(window, {
+        suggestedName: fullName,
+        types: [{
+          description: 'DIN-Brief Dokument',
+          accept: {
+            'application/json': ['.json', '.dinletter']
+          }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(jsonContent);
+      await writable.close();
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: '💾 Brief erfolgreich gespeichert.', type: 'info' });
+      return true;
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return false;
+      }
+      console.warn('[Export] File System Access API fehlgeschlagen, Fallback auf Download:', err);
+    }
+  }
+
+  // Fallback: Blob-Download über temporäres <a>-Element
+  try {
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fullName;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: '💾 Brief heruntergeladen.', type: 'info' });
+    return true;
+  } catch (err) {
+    console.error('[Export] Download fehlgeschlagen:', err);
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: '❌ Fehler beim Exportieren.', type: 'error' });
+    return false;
+  }
+}
+
+/**
+ * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog, Keyboard-Shortcut).
  * @param {{ collectDraft?: () => Record<string, string> }} [options]
  */
 export function initImportExport({ collectDraft } = {}) {
@@ -603,7 +746,7 @@ export function initImportExport({ collectDraft } = {}) {
    */
   const notify = (msg, type = 'info') => eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
 
-  exportBtn.addEventListener('click', () => {
+  const handleExport = async () => {
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
     let draft;
     try {
@@ -614,13 +757,17 @@ export function initImportExport({ collectDraft } = {}) {
     const settings = loadJSON(STORAGE_KEYS.settings, null);
     const font = load(STORAGE_KEYS.font, null);
     const payload = buildDinLetterPayload(draft, settings, font);
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `${buildLetterFileName()}.json`;
-    anchor.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    await exportDocumentToFile(payload);
+  };
+
+  exportBtn.addEventListener('click', handleExport);
+
+  // Globaler Tastatur-Shortcut: Ctrl + S / Cmd + S triggert exportDocumentToFile
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      handleExport();
+    }
   });
 
   importBtn.addEventListener('click', () => {

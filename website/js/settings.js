@@ -46,6 +46,7 @@ export class SettingsManager {
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
+    this.btnCopyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
     this.btnFontAction = document.getElementById('btn-schrift-aktion');
     this.fontStatusLabel = document.getElementById('schrift-status-label');
     this.fontUploader = document.getElementById('schrift-uploader');
@@ -77,6 +78,9 @@ export class SettingsManager {
 
     if (this.btnGuidesSwitch) {
       this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
+    }
+    if (this.btnCopyfitSwitch) {
+      this.btnCopyfitSwitch.checked = Boolean(this.settings.copyfit);
     }
   }
 
@@ -226,6 +230,16 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.guides = guidesSwitch.checked;
         this.updateSettings();
+      });
+    }
+
+    const copyfitSwitch = this.btnCopyfitSwitch;
+    if (copyfitSwitch) {
+      copyfitSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.copyfit = copyfitSwitch.checked;
+        this.updateSettings();
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
 

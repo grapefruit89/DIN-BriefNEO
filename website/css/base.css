@@ -151,7 +151,7 @@ body[data-theme="auto"] {
 /* --- 4. APP SHELL & VIEWPORT GRID --- */
 #app-shell {
   display: grid;
-  grid-template-columns: clamp(200px, 20dvw, 280px) 1fr;
+  grid-template-columns: 290px 1fr;
   width: 100vw;
   height: 100dvh;
   overflow: hidden;

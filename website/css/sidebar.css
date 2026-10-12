@@ -5,17 +5,22 @@
 
 /* --- SIDEBAR --- */
 aside,
-aside.seitenleiste {
-  /* Browser page zoom: keine Kompensation mehr — stabilizeSidebarForPageZoom
-   * entfernt (DPR-Delta als Zoom-Proxy triggert fälschlich bei Monitorwechsel). */
+aside.seitenleiste,
+#seitenleiste {
   display: flex;
   flex-direction: column;
   height: 100%;
+  inline-size: 290px;
+  max-inline-size: 290px;
+  min-inline-size: 290px;
+  box-sizing: border-box;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border-color);
-  padding: 24px;
-  justify-content: space-between;
+  padding: 16px;
+  gap: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 10;
   transition: transform 0.3s ease;
   touch-action: pan-y;           /* Erlaubt vertikales Scrollen, blockiert Pinch-Zoom-Gesten auf der Leiste */
@@ -24,25 +29,50 @@ aside.seitenleiste {
   user-select: none;             /* Verhindert versehentliches Markieren von UI-Labels */
 }
 
-.seitenleiste-header {
-  margin-bottom: 24px;
-}
-
-.seitenleiste-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, var(--text-primary), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-
-
+.seitenleiste-zone,
 .seitenleiste-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.seitenleiste-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seitenleiste-btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.seitenleiste-setup {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.seitenleiste-setup[open] {
+  padding-bottom: 12px;
+}
+
+.seitenleiste-setup summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  user-select: none;
+}
+
+.seitenleiste-setup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .seitenleiste-label {

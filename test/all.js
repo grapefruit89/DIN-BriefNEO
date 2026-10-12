@@ -206,6 +206,60 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     // Ungültiger Font (kein data: URL)
     assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, font: 'https://evil.com/font.woff2' })).ok, 'externer Font abgelehnt');
   });
+
+  it('buildDinLetterPayload erzeugt Schema v2 Struktur mit generator, timestamp und document', () => {
+    const payload = buildDinLetterPayload({ betreff: 'V2 Test' }, { layout: 'form-a', copyfit: true, guides: false });
+    assertEqual(payload.schema_version, 2);
+    assertEqual(payload.generator, 'DIN-BriefNEO');
+    assertEqual(payload.document.layout, 'form-a');
+    assertEqual(payload.document.copyfit, true);
+    assertEqual(payload.document.guides, false);
+    assertEqual(payload.document.fields.betreff, 'V2 Test');
+  });
+
+  it('parseDinLetterPayload parst Schema v2 und migriert Schema v1 automatisch', () => {
+    // Schema v1
+    const v1Json = JSON.stringify({
+      format: DINLETTER_FORMAT,
+      schema_version: 1,
+      draft: { betreff: 'Altes Format' },
+      settings: { layout: 'form-b', guides: true }
+    });
+    const res1 = parseDinLetterPayload(v1Json);
+    assert(res1.ok, 'v1 erfolgreich geparst');
+    if (res1.ok) {
+      assertEqual(res1.schemaVersion, 1);
+      assertEqual(res1.draft.betreff, 'Altes Format');
+      assertEqual(res1.settings?.layout, 'form-b');
+    }
+
+    // Schema v2
+    const v2Json = JSON.stringify({
+      format: DINLETTER_FORMAT,
+      schema_version: 2,
+      generator: 'DIN-BriefNEO',
+      timestamp: '2026-10-12T14:00:00Z',
+      document: {
+        layout: 'form-a',
+        copyfit: true,
+        guides: false,
+        fields: { betreff: 'Neues Format' }
+      },
+      profile: { theme: 'dark', formality: 'casual' },
+      assets: { signature: { data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', transform: { x: 5, y: 10, scale: 1, rot: 0 } } }
+    });
+    const res2 = parseDinLetterPayload(v2Json);
+    assert(res2.ok, 'v2 erfolgreich geparst');
+    if (res2.ok) {
+      assertEqual(res2.schemaVersion, 2);
+      assertEqual(res2.draft.betreff, 'Neues Format');
+      assertEqual(res2.settings?.layout, 'form-a');
+      assertEqual(res2.settings?.copyfit, true);
+      assertEqual(res2.settings?.guides, false);
+      assertEqual(res2.settings?.theme, 'dark');
+      assertEqual(res2.settings?.formality, 'casual');
+    }
+  });
 });
 
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {

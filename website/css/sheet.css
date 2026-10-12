@@ -392,18 +392,20 @@ din-anlagen {
 #absender-tel { margin-top: 8px; }
 .unterschrift-zeile { position: relative; margin-top: 10px; }
 
-/* --- SIGNATUR-OVERLAY (aus ehemals signature.css) --- */
+/* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
+#unterschriftsbild-vorschau:not([src]),
 #unterschriftsbild-vorschau[src=""] { display: none; }
 
 #unterschriftsbild-container {
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
-  height: 0;
-  overflow: visible;
-  z-index: 100;
-  pointer-events: none;
+  translate: var(--sig-x, 11.9cqw) var(--sig-y, 96cqw);
+  scale: var(--sig-scale, 0.5);
+  rotate: var(--sig-rot, 0deg);
+  transform-origin: center center;
+  z-index: 50;
+  pointer-events: auto;
   display: none;
 }
 body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #unterschriftsbild-container { display: block; }
@@ -468,11 +470,11 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""])) #btn-unterschriftsbild-
 .unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
 
 #unterschriftsbild-vorschau {
-  pointer-events: none;
-  max-width: 100%;
   display: block;
-  opacity: 0.9;
-  mix-blend-mode: multiply;
+  max-inline-size: 100%;
+  block-size: auto;
+  pointer-events: none;
+  mix-blend-mode: multiply; /* Weißer Papierhintergrund wird unsichtbar */
 }
 
 /* --- MICRO-COPYFITTING (KOMPAKTSATZ / MESSSCHIEBER-MODUS) --- */

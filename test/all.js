@@ -173,7 +173,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       theme: 'dark',
       guides: false,
       formality: 'polite',
-      signatureImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
       signatureState: { x: 15, y: 30, scale: 0.8, rot: 5 }
     };
     const font = 'data:font/woff2;base64,d09GMgABAAAAAA...';
@@ -201,8 +200,8 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { layout: 'form-c' } })).ok, 'ungültiges Layout abgelehnt');
     // Ungültiges Theme
     assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { theme: 'neon' } })).ok, 'ungültiges Theme abgelehnt');
-    // Ungültiges Signaturbild (kein data:image/ URL)
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { signatureImage: 'http://malicious.site/sig.png' } })).ok, 'externes Signaturbild abgelehnt');
+    // Ungültige Signatur-Koordinaten
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { signatureState: { x: 'ungueltig', y: 0, scale: 1, rot: 0 } } })).ok, 'ungültige Signatur-Koordinaten abgelehnt');
     // Ungültiger Font (kein data: URL)
     assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, font: 'https://evil.com/font.woff2' })).ok, 'externer Font abgelehnt');
   });
@@ -215,15 +214,21 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assertEqual(payload.document.copyfit, true);
     assertEqual(payload.document.guides, false);
     assertEqual(payload.document.fields.betreff, 'V2 Test');
+    assertEqual(payload.signature.placed, false);
   });
 
-  it('parseDinLetterPayload parst Schema v2 und migriert Schema v1 automatisch', () => {
-    // Schema v1
+  it('parseDinLetterPayload parst Schema v2 und migriert Schema v1 automatisch (Zero-Base64)', () => {
+    // Schema v1 mit altem Base64-Signaturbild (wird sauber verworfen, Geometrie bleibt erhalten)
     const v1Json = JSON.stringify({
       format: DINLETTER_FORMAT,
       schema_version: 1,
       draft: { betreff: 'Altes Format' },
-      settings: { layout: 'form-b', guides: true }
+      settings: {
+        layout: 'form-b',
+        guides: true,
+        signatureImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        signatureState: { x: 12, y: 95, scale: 0.5, rot: 0 }
+      }
     });
     const res1 = parseDinLetterPayload(v1Json);
     assert(res1.ok, 'v1 erfolgreich geparst');
@@ -231,9 +236,11 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       assertEqual(res1.schemaVersion, 1);
       assertEqual(res1.draft.betreff, 'Altes Format');
       assertEqual(res1.settings?.layout, 'form-b');
+      assertEqual(res1.settings?.signatureImage, undefined, 'Base64-Bild wurde verworfen');
+      assertEqual(res1.settings?.signatureState?.x, 12, 'Signatur-Geometrie bleibt erhalten');
     }
 
-    // Schema v2
+    // Schema v2 (reine Text-Payload, CAD-Geometrie)
     const v2Json = JSON.stringify({
       format: DINLETTER_FORMAT,
       schema_version: 2,
@@ -245,8 +252,8 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
         guides: false,
         fields: { betreff: 'Neues Format' }
       },
-      profile: { theme: 'dark', formality: 'casual' },
-      assets: { signature: { data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', transform: { x: 5, y: 10, scale: 1, rot: 0 } } }
+      profile: { sender: 'Max Mustermann', theme: 'dark', formality: 'casual' },
+      signature: { placed: true, transform: { x: 5, y: 10, scale: 1, rot: 0 } }
     });
     const res2 = parseDinLetterPayload(v2Json);
     assert(res2.ok, 'v2 erfolgreich geparst');
@@ -258,6 +265,8 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       assertEqual(res2.settings?.guides, false);
       assertEqual(res2.settings?.theme, 'dark');
       assertEqual(res2.settings?.formality, 'casual');
+      assertEqual(res2.settings?.signatureState?.x, 5);
+      assertEqual(res2.settings?.signatureState?.scale, 1);
     }
   });
 });

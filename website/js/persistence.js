@@ -76,7 +76,6 @@ export function currentISODate() {
  * @property {boolean} guides
  * @property {boolean} [copyfit]
  * @property {'formal' | 'polite' | 'casual' | string} formality
- * @property {string} [signatureImage]
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
 
@@ -400,8 +399,8 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @property {string} generator
  * @property {string} timestamp
  * @property {{ layout: string, copyfit: boolean, guides: boolean, fields: Record<string, string> }} document
- * @property {Record<string, any>} profile
- * @property {Record<string, any>} assets
+ * @property {{ sender?: string, theme: string, formality: string }} profile
+ * @property {{ placed: boolean, transform: { x: number, y: number, scale: number, rot: number } }} signature
  * @property {string} app
  * @property {string} created
  * @property {string} tool
@@ -460,12 +459,11 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
     if (typeof settings.guides === 'boolean') cleanSettings.guides = settings.guides;
     if (typeof settings.copyfit === 'boolean') cleanSettings.copyfit = settings.copyfit;
     if (typeof settings.formality === 'string') cleanSettings.formality = settings.formality;
-    if (typeof settings.signatureImage === 'string') cleanSettings.signatureImage = settings.signatureImage;
     if (settings.signatureState && typeof settings.signatureState === 'object') {
       cleanSettings.signatureState = {
-        x: Number(settings.signatureState.x) || 0,
-        y: Number(settings.signatureState.y) || 0,
-        scale: Number(settings.signatureState.scale) || 1,
+        x: Number(settings.signatureState.x) || 11.9,
+        y: Number(settings.signatureState.y) || 96.0,
+        scale: Math.max(0.15, Math.min(4.5, Number(settings.signatureState.scale) || 0.5)),
         rot: Number(settings.signatureState.rot) || 0
       };
     }
@@ -475,14 +473,15 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
   const copyfit = Boolean(cleanSettings.copyfit);
   const guides = cleanSettings.guides !== undefined ? Boolean(cleanSettings.guides) : true;
 
-  /** @type {Record<string, any>} */
-  const assets = {};
-  if (cleanSettings.signatureImage) {
-    assets.signature = {
-      data: cleanSettings.signatureImage,
-      transform: cleanSettings.signatureState || { x: 0, y: 0, scale: 1, rot: 0 }
-    };
-  }
+  const sigPlaced = Boolean(cleanSettings.signatureState);
+  const sigTransform = cleanSettings.signatureState
+    ? {
+        x: cleanSettings.signatureState.x,
+        y: cleanSettings.signatureState.y,
+        scale: cleanSettings.signatureState.scale,
+        rot: cleanSettings.signatureState.rot
+      }
+    : { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
 
   /** @type {DinLetterPayload} */
   const payload = {
@@ -497,10 +496,14 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
       fields: cleanFields
     },
     profile: {
+      sender: cleanFields.absender || '',
       theme: cleanSettings.theme || 'auto',
       formality: cleanSettings.formality || 'formal'
     },
-    assets,
+    signature: {
+      placed: sigPlaced,
+      transform: sigTransform
+    },
     // Top-Level-Aliase für Abwärtskompatibilität und Tests:
     app: 'DIN-BriefNEO',
     created: isoDate,
@@ -619,36 +622,29 @@ export function parseDinLetterPayload(text) {
     cleanSettings.formality = rawFormality;
   }
 
-  // Signature:
-  const rawSigImage = assetObj?.signature?.data ?? rawSettings?.signatureImage;
-  if (rawSigImage !== undefined) {
-    if (typeof rawSigImage !== 'string' || !rawSigImage.startsWith('data:image/')) {
-      return { ok: false, reason: 'Ungültiges Signaturbild in settings (muss ein Bild-Data-URL sein).' };
-    }
-    if (rawSigImage.length > 1024 * 1024) {
-      return { ok: false, reason: 'Signaturbild zu groß (maximal 1 MB erlaubt).' };
-    }
-    cleanSettings.signatureImage = rawSigImage;
-  }
+  // Signature (CAD-Geometrie transform):
+  // Discard any incoming legacy base64 image data (assets.signature.data / signatureImage).
+  const rawSigTransform = (data.signature && typeof data.signature === 'object' && data.signature.transform)
+    ? data.signature.transform
+    : (assetObj?.signature?.transform ?? rawSettings?.signatureState);
 
-  const rawSigState = assetObj?.signature?.transform ?? rawSettings?.signatureState;
-  if (rawSigState !== undefined) {
-    if (!rawSigState || typeof rawSigState !== 'object' || Array.isArray(rawSigState)) {
+  if (rawSigTransform !== undefined && rawSigTransform !== null) {
+    if (!rawSigTransform || typeof rawSigTransform !== 'object' || Array.isArray(rawSigTransform)) {
       return { ok: false, reason: 'Ungültiges signatureState in settings.' };
     }
     if (
-      typeof rawSigState.x !== 'number' || !Number.isFinite(rawSigState.x) ||
-      typeof rawSigState.y !== 'number' || !Number.isFinite(rawSigState.y) ||
-      typeof rawSigState.scale !== 'number' || !Number.isFinite(rawSigState.scale) ||
-      typeof rawSigState.rot !== 'number' || !Number.isFinite(rawSigState.rot)
+      typeof rawSigTransform.x !== 'number' || !Number.isFinite(rawSigTransform.x) ||
+      typeof rawSigTransform.y !== 'number' || !Number.isFinite(rawSigTransform.y) ||
+      typeof rawSigTransform.scale !== 'number' || !Number.isFinite(rawSigTransform.scale) ||
+      typeof rawSigTransform.rot !== 'number' || !Number.isFinite(rawSigTransform.rot)
     ) {
       return { ok: false, reason: 'Ungültige Koordinaten in signatureState.' };
     }
     cleanSettings.signatureState = {
-      x: rawSigState.x,
-      y: rawSigState.y,
-      scale: Math.max(0.1, Math.min(5, rawSigState.scale)),
-      rot: rawSigState.rot
+      x: rawSigTransform.x,
+      y: rawSigTransform.y,
+      scale: Math.max(0.15, Math.min(4.5, rawSigTransform.scale)),
+      rot: rawSigTransform.rot
     };
   }
 
@@ -797,8 +793,8 @@ export function initImportExport({ collectDraft } = {}) {
       if (result.settings?.layout) {
         details.push(`Layout: ${result.settings.layout === 'form-a' ? 'Form A' : 'Form B'}`);
       }
-      if (result.settings?.signatureImage) {
-        details.push('Signatur');
+      if (result.settings?.signatureState) {
+        details.push('Signatur-Position');
       }
       if (result.font) {
         details.push('Schriftart');

@@ -315,7 +315,7 @@ export class SignatureFeature {
     this.btnReset = document.getElementById('btn-unterschriftsbild-reset');
     
     /** @type {{x: number, y: number, scale: number, rot: number}} */
-    this.state = { x: 0, y: 0, scale: 1, rot: 0 };
+    this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
 
     this.bbox = document.getElementById('unterschriftsbild-box');
     this.container = document.getElementById('unterschriftsbild-container');
@@ -323,13 +323,18 @@ export class SignatureFeature {
     // Config: Maximum dimensions for the compressed signature
     this.MAX_WIDTH = 400;
     this.MAX_HEIGHT = 200;
+
+    /** @type {string | null} */
+    this.currentBlobUrl = null;
   }
 
   init() {
     if (!this.uploader || !this.imgElement) return;
 
+    // Zero-Base64: Alte Base64-Signaturbilder aus Settings restlos bereinigen
     if (this.ui.settings?.signatureImage) {
-      this.applyImage(this.ui.settings.signatureImage);
+      delete this.ui.settings.signatureImage;
+      this.#saveSettings();
     }
 
     this.uploader.addEventListener('change', (e) => {
@@ -355,15 +360,16 @@ export class SignatureFeature {
     const container = this.container;
     if (!bbox || !container) return;
 
-    if (this.ui.settings?.signatureState) {
-      this.state = { ...this.state, ...this.ui.settings.signatureState };
-      // Migration: Falls noch absolute px-Werte (> 100) gespeichert waren, in prozentuale cqw umrechnen
-      if (Math.abs(this.state.x) > 100) {
-        const blatt = document.querySelector('din-a4');
-        const blattWidth = blatt?.getBoundingClientRect().width || 800;
-        this.state.x = (this.state.x / blattWidth) * 100;
-        this.state.y = (this.state.y / blattWidth) * 100;
-      }
+    const savedState = this.ui.settings?.signatureState || this.ui.settings?.signature?.transform;
+    if (savedState) {
+      this.state = {
+        x: typeof savedState.x === 'number' && Number.isFinite(savedState.x) ? savedState.x : 11.9,
+        y: typeof savedState.y === 'number' && Number.isFinite(savedState.y) ? savedState.y : 96.0,
+        scale: typeof savedState.scale === 'number' && Number.isFinite(savedState.scale)
+          ? Math.max(0.15, Math.min(4.5, savedState.scale))
+          : 0.5,
+        rot: typeof savedState.rot === 'number' && Number.isFinite(savedState.rot) ? savedState.rot : 0
+      };
     }
     this.applyTransform();
 
@@ -414,6 +420,9 @@ export class SignatureFeature {
       bbox.setPointerCapture(e.pointerId);
     });
 
+    const SNAP_TARGETS = [0, 54.74, -54.74, 90, -90, 180, -180];
+    const SNAP_TOLERANCE = 2.5;
+
     bbox.addEventListener('pointermove', (e) => {
       if (!interaction.action || !interaction.initial) return;
       e.preventDefault();
@@ -427,11 +436,23 @@ export class SignatureFeature {
       } else if (interaction.action === 'rotate') {
         const currentAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
         const deltaRot = (currentAngle - interaction.startAngle) * (180 / Math.PI);
-        this.state.rot = interaction.initial.rot + deltaRot;
+        const rawRot = interaction.initial.rot + deltaRot;
+
+        // Magnetisches Snapping (CAD-Modus)
+        const normalized = ((rawRot + 180) % 360 + 360) % 360 - 180;
+        let snapped = rawRot;
+        for (const target of SNAP_TARGETS) {
+          if (Math.abs(normalized - target) <= SNAP_TOLERANCE) {
+            snapped = rawRot + (target - normalized);
+            break;
+          }
+        }
+        this.state.rot = snapped;
       } else if (interaction.action === 'resize') {
         const currentDist = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
-        const scaleFactor = currentDist / interaction.startDistance;
-        this.state.scale = Math.max(0.1, Math.min(5, interaction.initial.scale * scaleFactor));
+        const scaleFactor = currentDist / (interaction.startDistance || 1);
+        const newScale = interaction.initial.scale * scaleFactor;
+        this.state.scale = Math.max(0.15, Math.min(4.5, newScale));
       }
       this.applyTransform();
     });
@@ -452,10 +473,11 @@ export class SignatureFeature {
   }
 
   applyTransform() {
-    if (this.bbox) {
-      this.bbox.style.translate = `${this.state.x}cqw ${this.state.y}cqw`;
-      this.bbox.style.rotate = `${this.state.rot}deg`;
-      this.bbox.style.scale = this.state.scale.toString();
+    if (this.container) {
+      this.container.style.setProperty('--sig-x', `${this.state.x}cqw`);
+      this.container.style.setProperty('--sig-y', `${this.state.y}cqw`);
+      this.container.style.setProperty('--sig-scale', `${this.state.scale}`);
+      this.container.style.setProperty('--sig-rot', `${this.state.rot}deg`);
     }
   }
 
@@ -470,78 +492,63 @@ export class SignatureFeature {
   saveState() {
     if (!this.ui.settings) this.ui.settings = {};
     this.ui.settings.signatureState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
+    delete this.ui.settings.signatureImage;
     this.#saveSettings();
   }
 
   /**
+   * Zero-Base64: Bilddaten rein ephemer über OffscreenCanvas, WebP-Blob und ObjectURL.
    * @param {File} file
    */
   async processFile(file) {
     /** @type {ImageBitmap} */
     let bitmap;
     try {
-      bitmap = await createImageBitmap(file, { resizeWidth: this.MAX_WIDTH, resizeQuality: 'high' });
-    } catch {
-      try {
-        bitmap = await createImageBitmap(file);
-      } catch (error) {
-        console.warn('[Signature] createImageBitmap failed:', error);
-        return;
-      }
+      bitmap = await createImageBitmap(file);
+    } catch (error) {
+      console.warn('[Signature] createImageBitmap failed:', error);
+      return;
     }
-    const compressedBase64 = this.compressImage(bitmap);
-    bitmap.close();
-    this.saveAndApply(compressedBase64);
-  }
 
-  /**
-   * @param {ImageBitmap} bitmap
-   * @returns {string}
-   */
-  compressImage(bitmap) {
     const scale = Math.min(1, this.MAX_WIDTH / bitmap.width, this.MAX_HEIGHT / bitmap.height);
-    const width = Math.round(bitmap.width * scale);
-    const height = Math.round(bitmap.height * scale);
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = new OffscreenCanvas(width, height);
     const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(bitmap, 0, 0, width, height);
+    if (!ctx) {
+      bitmap.close();
+      return;
     }
-    return canvas.toDataURL('image/png');
-  }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
 
-  /**
-   * @param {string} base64
-   */
-  saveAndApply(base64) {
-    this.applyImage(base64);
+    try {
+      const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.85 });
+      if (this.currentBlobUrl) {
+        URL.revokeObjectURL(this.currentBlobUrl);
+      }
+      this.currentBlobUrl = URL.createObjectURL(blob);
 
-    if (!this.ui.settings?.signatureState) {
-      this.state = { x: 8, y: 99, scale: 0.5, rot: 0 };
-      this.applyTransform();
-    }
+      if (this.imgElement) {
+        this.imgElement.src = this.currentBlobUrl;
+      }
 
-    if (!this.ui.settings) this.ui.settings = {};
-    this.ui.settings.signatureImage = base64;
-
-    this.#saveSettings();
-  }
-
-  /**
-   * @param {string} base64
-   */
-  applyImage(base64) {
-    if (this.imgElement) {
-      this.imgElement.src = base64;
+      this.saveState();
+    } catch (error) {
+      console.warn('[Signature] convertToBlob failed:', error);
     }
   }
 
   resetImage() {
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+      this.currentBlobUrl = null;
+    }
+
     if (this.imgElement) {
       this.imgElement.src = '';
-      this.imgElement.setAttribute('src', '');
+      this.imgElement.removeAttribute('src');
     }
 
     if (this.ui.settings) {
@@ -549,7 +556,7 @@ export class SignatureFeature {
       delete this.ui.settings.signatureState;
     }
     
-    this.state = { x: 0, y: 0, scale: 1, rot: 0 };
+    this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
     this.applyTransform();
     if (this.bbox) this.bbox.classList.remove('active');
 

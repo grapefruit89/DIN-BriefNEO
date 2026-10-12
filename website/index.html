@@ -36,7 +36,7 @@
         <section id="zone-dokument" class="seitenleiste-zone">
           <div class="seitenleiste-field-group">
             <h2 class="seitenleiste-label">DIN-Brief Layout</h2>
-            <div class="segmented-control" focusgroup="toolbar inline wrap">
+            <div class="segmented-control">
               <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
               <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
@@ -173,6 +173,7 @@
             data-falz-oben-y-a="87"
             data-falz-unten-y-a="192"
             role="article"
+            writingsuggestions="false"
             aria-label="DIN 5008 Brief">
             <din-falz-oben></din-falz-oben>
             <din-falz-unten></din-falz-unten>
@@ -180,39 +181,39 @@
             <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
                  nativ gesperrt — die Sperre lebt in enforceLineLimits.
                  Verbindlicher Text: js/document.js — Law Catalog A55/A49. -->
-            <din-rucksendezeile id="rucksendezeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <din-rucksendezeile id="rucksendezeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld">
-              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" aria-label="Postvermerk"></din-postvermerk>
-              <din-empfaenger-firma id="empfaenger-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
-              <div id="empfaenger-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
-              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
-              <din-empfaenger-ort id="empfaenger-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
+              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-postvermerk>
+              <din-empfaenger-firma id="empfaenger-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
+              <div id="empfaenger-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
+              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
+              <din-empfaenger-ort id="empfaenger-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" role="group" aria-label="Infoblock">
-              <div id="absender-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Vor- und Nachname" aria-label="Name"></div>
-              <din-absender-strasse id="absender-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
-              <din-absender-ort id="absender-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
-              <din-absender-tel id="absender-tel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" data-placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
-              <din-absender-mail id="absender-mail" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="none" data-placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+              <div id="absender-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Vor- und Nachname" aria-label="Name"></div>
+              <din-absender-strasse id="absender-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="absender-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="absender-tel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" inputmode="tel" spellcheck="false" writingsuggestions="false" data-placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="absender-mail" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" inputmode="email" spellcheck="false" autocapitalize="none" writingsuggestions="false" data-placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
             </din-infoblock>
-            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-datum id="datum" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
             <din-kern id="kern" role="region" aria-label="Briefkern">
-              <din-betreff id="betreff" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" spellcheck="true" autocapitalize="sentences" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
-              <din-anrede id="anrede" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
-              <din-text id="text" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" spellcheck="true" autocapitalize="sentences" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
-              <din-grussformel id="grussformel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="sentences" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+              <din-betreff id="betreff" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-anrede id="anrede" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <din-text id="text" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
+              <din-grussformel id="grussformel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="unterschrift-zeile">
-                <din-unterschrift id="unterschrift" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+                <din-unterschrift id="unterschrift" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>
-                <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences"><li>Anlage 1</li></ul>
+                <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences" writingsuggestions="false"><li>Anlage 1</li></ul>
               </din-anlagen>
             </din-kern>
             <din-fuss id="fuss" role="contentinfo">
-              <div id="fuss-spalte-1" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" spellcheck="false" data-placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
-              <div id="fuss-spalte-2" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" spellcheck="false" data-placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
-              <div id="fuss-spalte-3" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" spellcheck="false" data-placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>
+              <div id="fuss-spalte-1" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
+              <div id="fuss-spalte-2" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
+              <div id="fuss-spalte-3" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>
             </din-fuss>
             <div id="unterschriftsbild-container">
               <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box">
@@ -239,7 +240,7 @@
     <dialog id="reset-dialog" class="glass-dialog nicht-drucken" closedby="any">
       <form method="dialog">
         <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
-        <div class="dialog-actions" focusgroup="toolbar inline wrap">
+        <div class="dialog-actions">
           <button value="cancel" class="btn">Abbrechen</button>
           <button value="confirm" class="btn danger">Zurücksetzen</button>
         </div>
@@ -249,7 +250,7 @@
       <form method="dialog">
         <p>Diesen Brief importieren und den aktuellen Inhalt ersetzen?</p>
         <p class="import-file-name" id="import-file-name"></p>
-        <div class="dialog-actions" focusgroup="toolbar inline wrap">
+        <div class="dialog-actions">
           <button value="cancel" class="btn">Abbrechen</button>
           <button value="confirm" class="btn primary">Importieren</button>
         </div>
@@ -262,7 +263,7 @@
         <p><strong>Fensterumschlag (DIN Lang):</strong> Das Anschriftfeld (85 × 40 mm) ist exakt so platziert, dass es bei korrekter Faltung im 90 × 45 mm Sichtfenster liegt.</p>
         <p><strong>Falz- & Lochmarken:</strong> Falzmarke 1 (105 mm) und Falzmarke 2 (210 mm) teilen das Blatt in Drittel (Zickzack- oder Wickelfalz). Die Lochmarke (148,5 mm) zentriert das Blatt im Ordner.</p>
       </div>
-      <div class="dialog-actions" focusgroup="toolbar inline wrap">
+      <div class="dialog-actions">
         <form method="dialog"><button class="btn primary">Verstanden</button></form>
       </div>
     </dialog>

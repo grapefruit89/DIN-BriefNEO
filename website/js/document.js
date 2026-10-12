@@ -149,7 +149,16 @@ export class UIProtections {
     if (this.initialized) return;
     this.enforceLineLimits();
     this.protectAnlagenList();
+    this.setupPrintProtection();
     this.initialized = true;
+  }
+
+  setupPrintProtection() {
+    window.addEventListener('beforeprint', () => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
   }
 
   enforceLineLimits() {

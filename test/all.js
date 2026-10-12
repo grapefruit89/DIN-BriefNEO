@@ -122,6 +122,17 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
     assert(lis[0].textContent === 'Rechnung', 'Text 1 erhalten');
     assert(lis[1].textContent === 'Vollmacht', 'Text 2 erhalten');
   });
+
+  it('setupPrintProtection entfernt Fokus vor dem Druckdialog (beforeprint blur)', () => {
+    const input = document.getElementById('brieftext');
+    if (!input) throw new Error('Test-Fixture fehlt: #brieftext');
+    input.focus();
+    assertEqual(document.activeElement, input);
+    const uip = new UIProtections();
+    uip.setupPrintProtection();
+    window.dispatchEvent(new Event('beforeprint'));
+    assert(document.activeElement !== input, 'Fokus wurde vor dem Druckdialog entfernt');
+  });
 });
 
 describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {

@@ -699,8 +699,9 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
-  it('erzwingt 80 KB Obergrenze in Constants.LIMITS', () => {
-    assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 80);
+  it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
+    assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 400);
+    assert(Constants.TOASTS.FONT_SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
   });
 });
 

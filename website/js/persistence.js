@@ -85,11 +85,11 @@ export function currentISODate() {
 export const Constants = {
   LIMITS: {
     HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
-    FONT_SIZE_MAX_KB: 80      // Max size für Base64-Schriftarten (< 80 KB)
+    FONT_SIZE_MAX_KB: 400     // Max size für Base64-Schriftarten (< 400 KB)
   },
   SCHEMA_VERSION: 2,
   TOASTS: {
-    FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 80 KB groß sein)',
+    FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 400 KB groß sein)',
     FONT_FORMAT_ERROR: '❌ Falsches Dateiformat! (Erlaubt: .woff2, .ttf, .otf)',
     SALUTATION_PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
     CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)',

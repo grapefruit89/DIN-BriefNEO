@@ -61,7 +61,7 @@ structure:
     purpose: Dokumentation nach Schema V6 (YAML-Frontmatter-Pflicht)
     subpaths:
       docs/00-foundation/: Verfassung, Gesetzeskatalog, Grundprinzipien
-      docs/10-architecture/: ADRs, Architektur-Matrizen, Code-Referenzen
+      docs/10-architecture/: ADRs, Architektur-Entscheidungen
       docs/20-implementation/: Feature-spezifische Implementierungs-Guides
       docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates, Prozess-/Workflow-Policies)
     schema: docs/30-meta/schema-v6.json
@@ -81,8 +81,8 @@ structure:
     decided_over: tools/skills/ (siehe ChatGPT-Brainstorm Antwort 13 — agent/{skills,mcp} war der zuletzt favorisierte Vorschlag)
 
   build/:
-    purpose: Generierte Artefakte (SQLite-DB-Import, Index-JSON). Bewusst NICHT versioniert (.gitignore).
-    regenerate_with: tools/build_db.js, tools/build_db.py
+    purpose: Generierte Artefakte (SQLite-DB-Import, Matrizen). Liegt extern unter ~/.din-briefneo/build/.
+    regenerate_with: tools/build_db.js
 
 
    .github/:
@@ -163,7 +163,7 @@ open_items:
     status: done
     resolved_note: >
       plan_id + SHA256-Hash der von der Aktion betroffenen Dateien
-      technisch erzwungen, dateibasiert unter agent/cache/plans/,
+      technisch erzwungen, dateibasiert unter ~/.din-briefneo/cache/plans/,
       TTL 600s, Single-Use (Commit 60ff87a). Live gegen den echten Server
       verifiziert (kein Plan -> blocked, falsche plan_id -> blocked,
       geaenderter Repo-Zustand zwischen Plan und Execute -> blocked).

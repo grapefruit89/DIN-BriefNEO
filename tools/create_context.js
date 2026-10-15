@@ -1,7 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const OUTPUT_FILE = 'agent/cache/LLM_CONTEXT.md';
+const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
+const CACHE_DIR = path.join(DIN_HOME, 'cache');
+const OUTPUT_FILE = path.join(CACHE_DIR, 'LLM_CONTEXT.md');
 
 // Liste der absolut kritischen Kern-Dokumente für LLMs
 // repository.yaml und SKILL.md ergaenzt (Architecture Drift Audit,
@@ -64,7 +67,7 @@ function generateContext() {
         }
     }
 
-    const outPath = path.join(__dirname, '..', OUTPUT_FILE);
+    const outPath = OUTPUT_FILE;
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, outputContent, 'utf8');
     

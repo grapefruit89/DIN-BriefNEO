@@ -12,7 +12,8 @@
 # "Agenten-Infrastruktur entschlacken", start.ps1-Pipeline laeuft bislang
 # immer komplett durch.
 
-$CacheDir = Join-Path $PSScriptRoot "..\agent\cache"
+$dinHome = if ($env:DIN_BRIEFNEO_HOME) { $env:DIN_BRIEFNEO_HOME } else { Join-Path $HOME ".din-briefneo" }
+$CacheDir = Join-Path $dinHome "cache"
 $CacheFile = Join-Path $CacheDir "pipeline-hashes.json"
 
 function Get-PathsHash {

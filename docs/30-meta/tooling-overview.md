@@ -17,7 +17,6 @@ code_links:
 - 'tools/reconciliation.js'
 - 'tools/build_db.js'
 - 'tools/docs_index.js'
-- 'tools/build_db.py'
 - 'tools/create_context.js'
 - 'tools/pipeline-cache.ps1'
 - 'tools/log_session.js'
@@ -61,28 +60,22 @@ IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 - **Safe-to-delete**: NEIN — zentrales Gate, von AGENTS.md als verbindlich vorausgesetzt
 
 ## build_db.js
-
-- **Zweck**: Ruft `reconciliation.js` auf, erzeugt daraus `build/import.sql`
+ 
+- **Zweck**: Ruft `reconciliation.js` auf, erzeugt daraus `import.sql`
   (SQLite-Import-Statements fuer die Function Traceability Matrix) sowie
-  `docs/10-architecture/Code-Referenzen.md`.
+  `Code-Referenzen.md` und `Function-Traceability.md` im externen Build-Verzeichnis (`~/.din-briefneo/build/`).
 - **Input**: Ergebnis von `runReconciliation()`, `docs/**/*.md` Frontmatter (`code_links`)
-- **Output**: `build/import.sql`, `docs/10-architecture/Code-Referenzen.md`
+- **Output**: `~/.din-briefneo/build/import.sql`, `~/.din-briefneo/build/Code-Referenzen.md`, `~/.din-briefneo/build/Function-Traceability.md`
 - **Abhaengigkeiten**: `tools/reconciliation.js` (intern), Node core
 - **Aufrufer**: `scripts/start.ps1` (Zeile 89, ungecacht -- Fitness Gate laeuft immer)
 - **Risikoklasse**: WRITE (erzeugt/ueberschreibt generierte Artefakte, keine Quelldateien)
 - **Idempotenz**: IDEMPOTENT (deterministische Neuerzeugung aus demselben Repo-Stand)
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline
 
-## build_db.py
+## build_db.py (2026-10-15 abgelöst & gelöscht)
 
-- **Zweck**: OPTIONALER Vektor-Zweig (Phase 4), NICHT der kanonische Builder — baut die SQLite-Vektordatenbank mit Embeddings fuer semantische Suche ueber die Dokumentation.
-- **Input**: `docs/**/*.md` (via `frontmatter`-Package geparst), Markdown-Rendering via `markdown-it`
-- **Output**: SQLite mit `sqlite_vec`-Erweiterung
-- **Abhaengigkeiten**: externe Python-Pakete `frontmatter`, `markdown-it` (`markdown_it`), `sqlite_vec`, `sentence_transformers` (PyTorch-basiert, schwergewichtig) — verlaesst die Zero-Dependency-Doktrin
-- **Aufrufer**: `scripts/start.ps1` (Zeile 116, mit Fallback auf System-Python falls keine `.venv/` existiert; gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs in `docs/` oder `website/`)
-- **Risikoklasse**: WRITE (ueberschreibt die Vektor-DB)
-- **Idempotenz**: NON_IDEMPOTENT (Embedding-Modelle koennen bei Versionswechsel leicht abweichende Vektoren liefern)
-- **Safe-to-delete**: NEIN — einzige Quelle fuer semantische Doku-Suche
+- **Status**: GELÖSCHT (2026-10-15). Die Generierung der Traceability-Matrix wurde vollständig nach `tools/build_db.js` portiert. Historie ist im Git-Log gesichert.
+- **Historischer Zweck**: Früherer optionaler Vektor-Zweig. Entfallen zugunsten von Zero-Dependency und EINEM Builder (`tools/build_db.js`).
 
 ## docs_index.js
 
@@ -447,8 +440,7 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
    auf. **Ungecacht, laeuft bei jedem Aufruf** — bewusst, weil dies der
    Fitness Gate ist und AGENTS.md Paragraph 2 den Score vor UND nach jeder
    Aenderung verlangt, ungecacht.
-3. `tools/build_db.py` (Zeile 116) — **gecacht**: laeuft nur, wenn sich
-   `docs/` oder `website/` seit dem letzten Lauf geaendert haben.
+3. *(Ehemals `tools/build_db.py`: 2026-10-15 entfallen, Funktion vollständig in `tools/build_db.js` integriert).*
 
 Seit Commit 753681c (Lauf 2, "scripts/start.ps1 Caching + repository.execute")
 laufen Schritt 1 und 3 also nicht mehr bei jedem Aufruf komplett durch,

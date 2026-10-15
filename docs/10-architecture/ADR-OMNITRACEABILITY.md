@@ -12,11 +12,9 @@ tags:
   - type/adr
   - tech/llm
 doc_links:
-  - Function-Traceability
   - constitution
   - README-DB
 code_links:
-  - tools/build_db.py
   - tools/reconciliation.js
   - tools/build_db.js
 error_patterns:
@@ -63,7 +61,7 @@ Das OmniTraceability-System garantiert, dass Quellcode und Dokumentation niemals
 
 - **Frontmatter Schema V6:** Jede Markdown-Datei in `docs/` muss standardisierte Felder enthalten (`created`, `updated`, `doc_links`, `code_links`). Grundlage für SQLite-Import und Obsidian Graph-Views.
 
-- **Python-basierte Traceability Matrix:** `Function-Traceability.md` wird vollautomatisiert durch `tools/build_db.py` generiert. Das Skript extrahiert `@adr`- und `@guide`-Metadaten aus dem Source Code und fügt sie zwischen `<!-- BEGIN AUTOMATED MATRIX -->`-Blöcke ein.
+- **Automatisierte Traceability Matrix:** `Function-Traceability.md` wird vollautomatisiert durch `tools/build_db.js` generiert und extern unter `~/.din-briefneo/build/` abgelegt. Das Skript extrahiert `@adr`- und `@guide`-Metadaten aus dem Source Code.
 
 - **Crawler Exclusions:** `reconciliation.js` und `build_db.js` ignorieren zwingend `venv/`, `node_modules/`, `.agents/`, `.claude/` — eliminiert False-Positives im Evolutionary Fitness Score.
 
@@ -124,7 +122,7 @@ Dieses System ist auf 3–5 Jahre Wartbarkeit ausgelegt. Aktiv am Quellcode vera
 ### Szenario C: Globaler CSS-Bug behoben
 
 1. **Kein neues ADR nötig:** Korrektur bestehender Logik ohne neue Architektur-Entscheidung — Code einfach schreiben. Die Verknüpfung bleibt bestehen.
-2. **Matrix manuell annotieren:** Falls die Datei eine Ausnahme darstellt (z.B. externes Polyfill), unter "Manuelle Notizen" in [[Function-Traceability]] eintragen.
+2. **Matrix manuell annotieren:** Falls die Datei eine Ausnahme darstellt (z.B. externes Polyfill), unter "Manuelle Notizen" in der Function-Traceability-Matrix eintragen.
 
 ## 7. Relationales Architekturmodell (SQLite)
 
@@ -150,7 +148,7 @@ Siehe [[README-DB]] für vollständiges Schema und Build-Befehle.
 
 ## 9. Compliance & bekannte Einschränkungen
 
-Technologische Leitplanken stehen im [[Immutable-Law-Catalog]] (u. a. FileSystem Access A36, OPFS A35, SVG T4, Sanitizer statt `innerHTML`); die Status-Ebenen „Aktiv/Geplant/Roadmap/Experimentell" sind ein Rahmen, keine zweite Liste. Dieser Abschnitt ersetzt die frühere manuelle `Architecture-Compliance-Matrix`; die ADR↔Datei-Zuordnung selbst ist generiert ([[Function-Traceability]], [[Code-Referenzen]]).
+Technologische Leitplanken stehen im [[Immutable-Law-Catalog]] (u. a. FileSystem Access A36, OPFS A35, SVG T4, Sanitizer statt `innerHTML`); die Status-Ebenen „Aktiv/Geplant/Roadmap/Experimentell" sind ein Rahmen, keine zweite Liste. Dieser Abschnitt ersetzt die frühere manuelle `Architecture-Compliance-Matrix`; die ADR↔Datei-Zuordnung selbst ist generiert (Function-Traceability, Code-Referenzen unter `~/.din-briefneo/build/`).
 
 **Bekannte Einschränkungen:**
 1. **IMR & Multi-Page-Synchronisation:** Die Registry beschreibt das fachliche Modell; die Implementierung synchronisiert über DOM-IDs primär Seite 1. Folgeseiten erhalten Kopfdaten nicht automatisch (aktuell akzeptiert — Kopfdaten stehen auf Seite 1).

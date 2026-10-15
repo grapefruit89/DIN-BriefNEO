@@ -28,11 +28,14 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { execSync } = require('child_process');
 const { DatabaseSync } = require('node:sqlite');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const DB_PATH = path.join(REPO_ROOT, 'agent', 'cache', 'docs_search.db');
+const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
+const CACHE_DIR = path.join(DIN_HOME, 'cache');
+const DB_PATH = path.join(CACHE_DIR, 'docs_search.db');
 const DOC_SIZE_EXEMPT_FILES = new Set([]); // (reserviert; derzeit ungenutzt)
 
 // Verzeichnisse, die NICHT zum Doku-Korpus gehoeren (Code, Dumps, generierte

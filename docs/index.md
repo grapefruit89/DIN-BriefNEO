@@ -18,7 +18,6 @@ doc_links:
   - IMR-Registry
   - ADR-ANTIPATTERN
   - ADR-OMNITRACEABILITY
-  - Function-Traceability
   - ADR-OFFLINE-ADDRESS-INTELLIGENCE
   - Salutation-Engine
   - HYBRID-SPEC-DRIVEN-WORKFLOW
@@ -76,7 +75,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 - **[[Immutable-Law-Catalog]]** ⭐⭐⭐ — Alle Verbote und MUST-USE (vor jeder Änderung zwingend lesen!).
 - **[[ADR-ANTIPATTERN]]** — 2026-10-02 aufgelöst; enthält nur noch die Umschlüsselung `Abschnitt → Gesetz`.
 - **[[ADR-OMNITRACEABILITY]]** ⭐⭐ — Bidirektionale Verknüpfung von Quellcode und Dokumentation.
-- **[[Function-Traceability]]** ⭐⭐ — Matrix aller JavaScript-Module und zugeordneter Architekturentscheidungen (generiert, nicht versioniert).
+- **Function-Traceability** ⭐⭐ — Matrix aller JavaScript-Module und zugeordneter Architekturentscheidungen (generiert unter `~/.din-briefneo/build/`, nicht versioniert).
 - **Thematische Architektur-Entscheidungen (ADRs):**
   - **[[ADR-HTML]]** — Semantische HTML-Struktur, WYSIWYG & Native Popover Toolbars (integriert ehem. ADR-FEATURE).
   - **[[ADR-CSS]]** — Container Queries, Falzmarken, Viewport-Sizing, oklch (integriert ehem. ADR-BETREFF).

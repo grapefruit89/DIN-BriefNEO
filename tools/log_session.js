@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 let Database;
 try {
@@ -57,7 +58,8 @@ async function main() {
     process.exit(1);
   }
 
-  const cacheDir = path.resolve(__dirname, '../agent/cache');
+  const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
+  const cacheDir = path.join(DIN_HOME, 'cache');
   fs.mkdirSync(cacheDir, { recursive: true });
 
   const dbPath = path.resolve(cacheDir, 'DIN-Brief_docs.db');

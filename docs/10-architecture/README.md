@@ -85,7 +85,7 @@ Die Subsysteme folgen den allgemeinen Architekturregeln und dürfen keine davon 
 ## 6. Traceability und Verifikation
 
 - [[ADR-OMNITRACEABILITY]] — Regeln für Code-/Dokumentationsreferenzen und maschinelle Nachvollziehbarkeit.
-- [[Function-Traceability]] — generierte Funktions-Traceability-Matrix.
+- Function-Traceability — generierte Funktions-Traceability-Matrix (unter `~/.din-briefneo/build/`).
 - [[ADR-TEMPLATE]] — Vorlage für neue Architekturentscheidungen; liegt unter `docs/30-meta/`.
 
 Jede neue oder geänderte ADR muss das vorgeschriebene Frontmatter-Schema einhalten. Bestehende Dateinamen und Frontmatter-IDs bleiben stabil. Code-Referenzen und Fitness Gate werden vor Abschluss einer Änderung geprüft.

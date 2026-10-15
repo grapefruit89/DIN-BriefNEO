@@ -1961,3 +1961,18 @@ Bislang exportierte `52-import-export.js` ausschließlich den Briefentwurf (`din
 `syncPostvermerkFromSidebar()` beim App-Start wird strikt an `if (!hasDraft)` gekoppelt. Existiert ein gespeicherter Entwurf im `localStorage`, ist der `DraftManager` die alleinige Autorität (SSoT) für das Feld `#postvermerk` und das Dropdown `#seitenleiste-postvermerk-select`. Nur bei einem jungfräulichen Erststart ohne gespeicherten Draft initialisiert `syncPostvermerkFromSidebar()` das Feld.
 
 **Verifikation:** Evolutionary Fitness Score 100 %.
+
+## 2026-10-15 — Repo-Baum 1:1 mit GitHub-Stand synchronisiert (Externe Auslagerung)
+
+**Kontext:**
+Der lokale Arbeitsbaum enthielt bisher nicht-versionierte und generierte Artefakte (`node_modules/`, `agent/cache/`, `build/`, `docs/10-architecture/Code-Referenzen.md`, `docs/10-architecture/Function-Traceability.md` sowie lokale `research/`-Rohdaten-Scrapes). Dies führte zu Drift-Risiken und widersprach dem Ziel eines sauberen, hermetischen Arbeitsbaums.
+
+**Entscheidung:**
+1. **Zentrales Auslagerungsverzeichnis:** Alle lokalen Artefakte wandern nach `~/.din-briefneo/` (konfigurierbar über `DIN_BRIEFNEO_HOME`).
+2. **Pfade in 9 Tools umgestellt:** `build_db.js`, `docs_index.js`, `log_session.js`, `create_context.js`, `pipeline-cache.ps1`, `start.ps1`, `agent/mcp/dinbrief-mcp/index.js`, `reconciliation.js`, `links.js`.
+3. **TypeScript-Check:** `reconciliation.js` prüft hart auf `$DIN_HOME/node_modules/.bin/tsc`. Fehlt der Compiler, bricht der Build mit klarer Instruktion ab.
+4. **Setup-Skripte:** `tools/setup-din-home.ps1` und `tools/setup-din-home.sh` zur idempotenten Initialisierung auf frischen Systemen erstellt.
+5. **Doku-Referenzen bereinigt:** Wikilinks auf generierte Dateien in `docs/index.md`, `docs/10-architecture/README.md`, `docs/10-architecture/ADR-OMNITRACEABILITY.md` und `docs/30-meta/tooling-overview.md` bereinigt.
+6. **.gitignore:** Bereinigt um obsolete generierte Einträge; Schutzfilter (`node_modules/`, `agent/cache/`, `build/`, etc.) bleiben erhalten.
+
+**Verifikation:** Evolutionary Fitness Score 100 %, TypeScript 0 Fehler, `git clean -ndx` frei von Projekt-Artefakten.

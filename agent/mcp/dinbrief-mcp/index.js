@@ -62,13 +62,16 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const os = require('os');
 const { execFileSync } = require('child_process');
 const readline = require('readline');
 const { docsSearch, docsGet, docsRelated, ensureIndex } = require('./docs.js');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const REPOSITORY_YAML = path.join(REPO_ROOT, 'repository.yaml');
-const PLAN_DIR = path.join(REPO_ROOT, 'agent', 'cache', 'plans');
+const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
+const CACHE_DIR = path.join(DIN_HOME, 'cache');
+const PLAN_DIR = path.join(CACHE_DIR, 'plans');
 const PLAN_TTL_MS = 10 * 60 * 1000; // 10 Minuten -- lang genug zum Nachdenken, kurz genug gegen veraltete Plaene
 
 // --- Minimaler YAML-Reader ---------------------------------------------

@@ -1,30 +1,23 @@
 # Dependencies & environments
 venv/
 node_modules/
+build/
 
-# Agent / editor local state (nicht Teil des Produktivrepos)
+# Agent / editor local state (Schutzfilter)
 agent/cache/
 .claude/
 .opencode/
 chat-exports/
 
-# Lokales Scratch (PoC-Testdateien, in Docs referenziert, nicht versioniert)
+# Lokales Scratch (Schutzfilter)
 scratch/
 
-# Python
+# Python & Datenbanken (Schutzfilter)
 __pycache__/
 *.pyc
-
-# Datenbanken (lokal generiert, nicht versioniert)
 *.db
 *.db-journal
 
-# Generierte Agenten-Artefakte liegen unter agent/cache/ (bereits oben ausgeschlossen).
-# Root-Reste und autogenerierte Build-Artefakte (verhindert Git-Noise bei Zeilenverschiebungen):
-LLM_CONTEXT.md
-import.sql
-docs/10-architecture/Code-Referenzen.md
-docs/10-architecture/Function-Traceability.md
 
 # OS / Editor
 .DS_Store

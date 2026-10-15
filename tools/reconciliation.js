@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { execSync } = require('child_process');
 
 const targetDir = path.resolve(__dirname, '..');
+const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
 const websiteDir = path.join(targetDir, 'website');
 const antipatternsDir = path.join(__dirname, 'antipatterns');
 
@@ -267,50 +269,75 @@ function runReconciliation() {
   const logs = [];
   const relations = [];
 
-  // 0. JSDoc Type-Safety Verification
-  let tscSuccess = true;
-  let tscOutput = '';
-  try {
-    tscOutput = execSync('npx -p typescript tsc -p jsconfig.json', { cwd: targetDir, encoding: 'utf8', stdio: 'pipe' });
-  } catch (error) {
-    tscSuccess = false;
-    tscOutput = error.stdout || error.message;
-  }
-
-  if (!tscSuccess) {
-    const tscLines = tscOutput.split('\n').filter(l => l.trim().length > 0);
-    let parsedErrors = 0;
-    tscLines.forEach(line => {
-      const match = line.match(/^(.+?):(\d+):(\d+)\s+-\s+error\s+(TS\d+):\s+(.+)$/);
-      if (match) {
-        parsedErrors++;
-        logs.push({
-          file_path: match[1].replace(/\\/g, '/'),
-          check_type: 'type-safety',
-          severity: 'high',
-          message: `TypeScript Error ${match[4]}: ${match[5]} (Line ${match[2]})`
-        });
-      }
-    });
-    if (parsedErrors === 0) {
-      logs.push({
-        file_path: 'jsconfig.json',
-        check_type: 'type-safety',
-        severity: 'high',
-        message: `TypeScript Compilation failed: ${tscOutput.substring(0, 200)}...`
-      });
-    }
-  }
-
   // We need conformance variables earlier so we can increment them for TS/Scrub checks
   let conformanceChecked = 0;
   let conformancePassed = 0;
 
-  if (!tscSuccess) {
-     conformanceChecked += 1; // Mark as failed TS check
+  // 0. JSDoc Type-Safety Verification
+  let tscBin = null;
+  const extTsc = path.join(DIN_HOME, 'node_modules', '.bin', 'tsc');
+  const localTsc = path.join(targetDir, 'node_modules', '.bin', 'tsc');
+
+  if (fs.existsSync(extTsc)) {
+    tscBin = extTsc;
+  } else if (fs.existsSync(localTsc)) {
+    tscBin = localTsc;
   } else {
-     conformanceChecked += 1;
-     conformancePassed += 1; // Mark as passed TS check
+    try {
+      execSync('tsc --version', { stdio: 'pipe' });
+      tscBin = 'tsc';
+    } catch (e) {
+      // Nicht im System-PATH gefunden
+    }
+  }
+
+  if (!tscBin) {
+    logs.push({
+      file_path: 'jsconfig.json',
+      check_type: 'type-safety',
+      severity: 'critical',
+      message: 'TypeScript-Compiler nicht gefunden. Bitte tools/setup-din-home.ps1 ausführen oder DIN_BRIEFNEO_HOME setzen.'
+    });
+    conformanceChecked += 1;
+  } else {
+    let tscSuccess = true;
+    let tscOutput = '';
+    try {
+      tscOutput = execSync(`"${tscBin}" -p jsconfig.json`, { cwd: targetDir, encoding: 'utf8', stdio: 'pipe' });
+    } catch (error) {
+      tscSuccess = false;
+      tscOutput = error.stdout || error.message;
+    }
+
+    if (!tscSuccess) {
+      const tscLines = tscOutput.split('\n').filter(l => l.trim().length > 0);
+      let parsedErrors = 0;
+      tscLines.forEach(line => {
+        const match = line.match(/^(.+?):(\d+):(\d+)\s+-\s+error\s+(TS\d+):\s+(.+)$/);
+        if (match) {
+          parsedErrors++;
+          logs.push({
+            file_path: match[1].replace(/\\/g, '/'),
+            check_type: 'type-safety',
+            severity: 'high',
+            message: `TypeScript Error ${match[4]}: ${match[5]} (Line ${match[2]})`
+          });
+        }
+      });
+      if (parsedErrors === 0) {
+        logs.push({
+          file_path: 'jsconfig.json',
+          check_type: 'type-safety',
+          severity: 'high',
+          message: `TypeScript Compilation failed: ${tscOutput.substring(0, 200)}...`
+        });
+      }
+    }
+
+    conformanceChecked += 1;
+    if (tscSuccess) {
+      conformancePassed += 1;
+    }
   }
 
   // --- Taxonomie-Check (repository.yaml / taxonomy) -----------------------

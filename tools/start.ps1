@@ -73,8 +73,9 @@ $contextInputs = @(
     (Join-Path $targetDir "AGENTS.md"),
     (Join-Path $targetDir "docs\00-foundation")
 )
-$contextOutput = Join-Path $targetDir "agent\cache\LLM_CONTEXT.md"
-$cacheDir = Join-Path $targetDir "agent\cache"
+$dinHome = if ($env:DIN_BRIEFNEO_HOME) { $env:DIN_BRIEFNEO_HOME } else { Join-Path $HOME ".din-briefneo" }
+$cacheDir = Join-Path $dinHome "cache"
+$contextOutput = Join-Path $cacheDir "LLM_CONTEXT.md"
 if (-not (Test-Path $cacheDir)) {
     New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null
 }
@@ -82,11 +83,11 @@ if ($Force -or (Test-StepNeedsRun -StepName "create_context" -InputPaths $contex
     node tools/create_context.js
     Update-StepCache -StepName "create_context" -InputPaths $contextInputs
 } else {
-    Write-Host "    Uebersprungen (keine Aenderung seit letztem Lauf, agent/cache/LLM_CONTEXT.md ist aktuell)." -ForegroundColor DarkGray
+    Write-Host "    Uebersprungen (keine Aenderung seit letztem Lauf, LLM_CONTEXT.md ist aktuell)." -ForegroundColor DarkGray
 }
 
 Write-Host ""
-Write-Host "[3/5] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
+Write-Host "[3/4] Starte Reconciliation + Build (Fitness Score muss 100% sein)..." -ForegroundColor Yellow
 Write-Host "    (immer aktiv, kein Caching -- Fitness Gate darf nie uebersprungen werden)" -ForegroundColor DarkGray
 node tools/build_db.js
 
@@ -97,38 +98,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "[4/5] Starte Python SQLite OmniTraceability Parser (Phase 1)..." -ForegroundColor Yellow
-
-# Repo-lokale venv bevorzugen; falls keine existiert, auf System-Python zurückfallen
-# statt an einem hartcodierten, umgebungsabhaengigen Pfad zu scheitern.
-$venvPython = Join-Path $targetDir ".venv\Scripts\python.exe"
-if (Test-Path $venvPython) {
-    $pythonExe = $venvPython
-} else {
-    $pythonExe = "python"
-    Write-Host "    (Keine .venv/ im Projekt gefunden, nutze System-Python)" -ForegroundColor DarkGray
-}
-
-$dbInputs = @(
-    (Join-Path $targetDir "docs"),
-    (Join-Path $targetDir "website")
-)
-$dbOutput = Join-Path $targetDir "build\DIN-Brief_docs.db"
-if ($Force -or (Test-StepNeedsRun -StepName "build_db_py" -InputPaths $dbInputs -OutputPath $dbOutput)) {
-    & $pythonExe tools/build_db.py
-
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host ""
-        Write-Error "Python OmniTraceability Build fehlgeschlagen."
-        exit 1
-    }
-    Update-StepCache -StepName "build_db_py" -InputPaths $dbInputs
-} else {
-    Write-Host "    Uebersprungen (keine Aenderung in docs/ oder website/ seit letztem Lauf)." -ForegroundColor DarkGray
-}
-
-Write-Host ""
-Write-Host "[5/5] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
+Write-Host "[4/4] Fertig. Fitness Score: 100% ! Datenbank und Reconciliation erfolgreich." -ForegroundColor Green
 Write-Host ""
 Write-Host "Nächste Schritte (Light Mode - der Default):"
 Write-Host "  - Aenderungen machen (siehe AGENTS.md)"

@@ -31,8 +31,8 @@ din-a4 {
     box-shadow: none !important; 
     margin: 0 !important; 
     page-break-after: avoid; 
-    width: calc(attr(data-width-mm type(<number>), 210) * 1mm) !important;
-    height: calc(attr(data-height-mm type(<number>), 297) * 1mm) !important; 
+    width: calc(attr(data-width-mm type(<number>)) * 1mm) !important;
+    height: calc(attr(data-height-mm type(<number>)) * 1mm) !important; 
 }
 
 [contenteditable]:empty::before,

@@ -31,8 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Schema-Migration vor dem ersten Restore
     migrateStorage();
     const draftManager = new DraftManager();
-    draftManager.loadDraft();
-    syncPostvermerkFromSidebar();
+    const hasDraft = draftManager.loadDraft();
+    if (!hasDraft) syncPostvermerkFromSidebar();
 
     try {
       applyLetterDate();
@@ -88,24 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
     }
 
-    // Zentrale Settings-Instanz: Features teilen sich dieselbe Referenz
-    const settingsContext = {
-      settings: settingsManager.settings,
-      save: () => {
-        saveJSON(STORAGE_KEYS.settings, settingsManager.settings);
-        settingsManager.applySettings();
-      }
-    };
-
     try {
-      const salutation = new SalutationFeature(settingsContext);
+      const salutation = new SalutationFeature(settingsManager);
       salutation.init();
     } catch (e) {
       console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);
     }
 
     try {
-      const signature = new SignatureFeature(settingsContext);
+      const signature = new SignatureFeature(settingsManager);
       signature.init();
     } catch (e) {
       console.error('[Bootstrap] SignatureFeature.init fehlgeschlagen:', e);

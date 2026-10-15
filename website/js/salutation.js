@@ -123,19 +123,19 @@ export const SalutationEngine = {
 
 /* @adr [[ADR-JS]] {SalutationFeature} */
 export class SalutationFeature {
-  /** @type {{ settings: any, save: () => void } | null} */
-  #ctx;
+  /** @type {import('./settings.js').SettingsManager | null} */
+  #settingsManager;
   /** Zuletzt automatisch geschriebener Text je Feld (Key = Element-ID). */
   #auto = { anrede: '', grussformel: '' };
+  /** @type {(() => void) | null} */
+  #unsubDocChanged = null;
 
   /**
-   * `settingsContext` ist das geteilte Settings-Objekt des SettingsManager
-   * (ein Settings-Owner, kein eigener Snapshot per loadSettings()).
-   * @param {{ settings: any, save: () => void } | null} [settingsContext]
+   * @param {import('./settings.js').SettingsManager | null} [settingsManager]
    */
-  constructor(settingsContext = null) {
-    this.#ctx = settingsContext;
-    this.settings = settingsContext ? settingsContext.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  constructor(settingsManager = null) {
+    this.#settingsManager = settingsManager;
+    this.settings = settingsManager ? settingsManager.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.settings.formality = toStyle(this.settings.formality);
   }
 
@@ -176,11 +176,18 @@ export class SalutationFeature {
       if (confirmed) this.refresh();
     });
 
-    eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
+    this.#unsubDocChanged = eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
       this.#seedAuto();
     });
 
     this.refresh();
+  }
+
+  destroy() {
+    if (this.#unsubDocChanged) {
+      this.#unsubDocChanged();
+      this.#unsubDocChanged = null;
+    }
   }
 
   /** Leere Felder mit Auto-Text füllen; Eigenes bleibt stehen. */
@@ -200,8 +207,11 @@ export class SalutationFeature {
     if (radio && !radio.checked) {
       radio.checked = true;
     }
-    if (this.#ctx) this.#ctx.save();
-    else saveJSON(STORAGE_KEYS.settings, this.settings);
+    if (this.#settingsManager) {
+      this.#settingsManager.updateSettings();
+    } else {
+      saveJSON(STORAGE_KEYS.settings, this.settings);
+    }
     this.#update('anrede');
     this.#update('grussformel');
   }

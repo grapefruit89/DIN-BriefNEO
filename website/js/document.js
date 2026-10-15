@@ -20,7 +20,15 @@ import { eventBus, Events } from './core.js';
 
 /**
  * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
- * Wird von 01-document.js (Draft-Restore) genutzt.
+ * Wird von DraftManager (Draft-Restore) und collectDraft genutzt.
+ *
+ * Bezug: Law Catalog H11 (PREFERRED) & Einleitung (FALLBACK-Klausel):
+ * H11 setzt setHTML() als PREFERRED. sanitizeRichText bildet domänenspezifische
+ * Anforderungen ab (vollständiges Strippen aller Inline-Attribute, Erhalt der
+ * Spezialklasse <span class="brief-kommentar"> bei generischer SPAN-Entfernung,
+ * Erzeugung eines DocumentFragment für replaceChildren/collectDraft), die natives
+ * setHTML() nicht leistet.
+ *
  * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-text) ergänzen die
  * Basis-Allowlist (ohne Attribute).
  * @param {string} htmlString

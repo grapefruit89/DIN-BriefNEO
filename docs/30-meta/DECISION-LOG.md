@@ -1951,3 +1951,13 @@ Bislang exportierte `52-import-export.js` ausschließlich den Briefentwurf (`din
    - Beim Bestätigen werden Einstellungen sauber mit bestehenden lokalen Voreinstellungen gemergt und die Seite neu geladen.
 
 **Verifikation:** Evolutionary Fitness Score 100 %. TypeScript `tsc -p jsconfig.json` fehlerfrei. Umfassende Unit-Tests in `test/all.js` für Roundtrip, Datenvalidierung und Abweisung manipulierter Werte erfolgreich.
+
+## 2026-10-15 — Boot-Sync des Postvermerks an Draft-Existenz gekoppelt (Befund 3)
+
+**Kontext:**
+`main.js` führte beim Bootstrap synchron nacheinander `draftManager.loadDraft()` und `syncPostvermerkFromSidebar()` aus. Wenn der Nutzer das Postvermerk-Feld im Blatt bewusst geleert hatte, aber im Dropdown noch eine Auswahl stand, überschrieb `syncPostvermerkFromSidebar()` beim Neuladen das absichtlich geleerte Feld, da der Guard lediglich `!field.textContent.trim()` prüfte.
+
+**Entscheidung:**
+`syncPostvermerkFromSidebar()` beim App-Start wird strikt an `if (!hasDraft)` gekoppelt. Existiert ein gespeicherter Entwurf im `localStorage`, ist der `DraftManager` die alleinige Autorität (SSoT) für das Feld `#postvermerk` und das Dropdown `#seitenleiste-postvermerk-select`. Nur bei einem jungfräulichen Erststart ohne gespeicherten Draft initialisiert `syncPostvermerkFromSidebar()` das Feld.
+
+**Verifikation:** Evolutionary Fitness Score 100 %.

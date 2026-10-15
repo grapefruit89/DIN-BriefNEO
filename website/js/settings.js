@@ -320,10 +320,12 @@ export class SettingsManager {
 
 export class SignatureFeature {
   /**
-   * @param {{ settings: any, save?: () => void, saveSettings?: () => void }} settingsContext
+   * @param {SettingsManager | { settings: any, updateSettings?: () => void } | null} [settingsManager]
    */
-  constructor(settingsContext) {
-    this.ui = settingsContext;
+  constructor(settingsManager = null) {
+    this.settingsManager = settingsManager;
+    /** @type {any} */
+    this.settings = settingsManager ? settingsManager.settings : {};
     this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('unterschriftsbild-vorschau'));
     this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('unterschriftsbild-datei'));
     this.btnTrigger = document.getElementById('btn-unterschriftsbild-waehlen');
@@ -346,8 +348,8 @@ export class SignatureFeature {
     if (!this.uploader || !this.imgElement) return;
 
     // Zero-Base64: Alte Base64-Signaturbilder aus Settings restlos bereinigen
-    if (this.ui.settings?.signatureImage) {
-      delete this.ui.settings.signatureImage;
+    if (this.settings?.signatureImage) {
+      delete this.settings.signatureImage;
       this.#saveSettings();
     }
 
@@ -381,7 +383,7 @@ export class SignatureFeature {
     const container = this.container;
     if (!bbox || !container) return;
 
-    const savedState = this.ui.settings?.signatureState || this.ui.settings?.signature?.transform;
+    const savedState = this.settings?.signatureState || this.settings?.signature?.transform;
     if (savedState) {
       this.state = {
         x: typeof savedState.x === 'number' && Number.isFinite(savedState.x) ? savedState.x : 11.9,
@@ -503,17 +505,15 @@ export class SignatureFeature {
   }
 
   #saveSettings() {
-    if (typeof this.ui?.save === 'function') {
-      this.ui.save();
-    } else if (typeof this.ui?.saveSettings === 'function') {
-      this.ui.saveSettings();
+    if (this.settingsManager && typeof this.settingsManager.updateSettings === 'function') {
+      this.settingsManager.updateSettings();
     }
   }
 
   saveState() {
-    if (!this.ui.settings) this.ui.settings = {};
-    this.ui.settings.signatureState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
-    delete this.ui.settings.signatureImage;
+    if (!this.settings) this.settings = {};
+    this.settings.signatureState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
+    delete this.settings.signatureImage;
     this.#saveSettings();
   }
 
@@ -590,9 +590,9 @@ export class SignatureFeature {
       this.imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
     }
 
-    if (this.ui.settings) {
-      delete this.ui.settings.signatureImage;
-      delete this.ui.settings.signatureState;
+    if (this.settings) {
+      delete this.settings.signatureImage;
+      delete this.settings.signatureState;
     }
     
     this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };

@@ -57,7 +57,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B8** | **Alle 12 Screen-`!important` aufgelöst + CSS-Ursachen bereinigt** | `809eb15` |
 | **B17** | **Strukturprüfungen für Gesetze ausgebaut (Abdeckung 21 → 30 von 35)** | `a16899c` |
 | **B15** | **DECISION-LOG-Behauptungen geprüft, Append-Only-Nachtrag für KISS + B8 + B17** | s. u. |
-| **B7** | **`attr()`-Geometrie dauerhaft geschlossen (Verstoß gegen MUST-NOT 5 der IMR)** | s. u. |
+| **B7** | **`attr()`-Geometrie: Fallbacks entfernt, MUST-NOT 5 erfüllt** | s. u. |
 | **B19** | **Adaptive 3-Zonen-Logik aktiv (Phase 1); Phase 2 geschlossen (KISS)** | s. u. |
 
 ---
@@ -82,8 +82,8 @@ in `selection-utils.js`.
 **Rest:** Ein vollständiger `fields.js`-Iterator ist erst sinnvoll, wenn weitere Feldtypen
 hinzukommen; vorerst wäre er zusätzliche Abstraktion ohne weiteren Nutzerwert.
 
-### B7 · `attr()`-Geometrie statt doppelter mm-Werte · **L** · ⭐⭐ · ❌ DAUERHAFT GESCHLOSSEN 2026-10-02
-Wurde als Verstoß gegen MUST-NOT 5 der IMR-Registry („normative Geometrie in CSS oder JavaScript duplizieren") bewertet und dauerhaft geschlossen. Die IMR-Registry ist die alleinige normative Quelle. `attr()` würde Geometrie syntaktisch in CSS verankern und die saubere Trennung verletzen.
+### B7 · `attr()`-Geometrie statt doppelter mm-Werte · **L** · ⭐⭐ · ✅ ERLEDIGT 2026-10-15
+Liest die DIN-5008-Koordinaten via `attr(data-* type(<number>))` direkt aus den HTML-Attributen (SSoT aus IMR-Registry). Alle redundanten CSS-Fallback-Zahlen in `sheet.css` und `print.css` wurden entfernt. Damit ist Regel MUST-NOT 5 der IMR-Registry („normative Geometrie nicht in CSS duplizieren") vollständig erfüllt; CSS enthält null Millimeter-Werte.
 
 ### B8 · Die 12 Nicht-Print-`!important` auflösen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Alle 12 Screen-`!important` in den Autoren-Styles (`floating.css`, `layout.css`, `sidebar.css`, `signature.css`)
@@ -147,7 +147,7 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 5. ~~**B10**~~ ✅ Research klassifiziert 2026-10-02 (`research/STATUS.md`)
 6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
 7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), ~~**B15**~~ ✅ erledigt 2026-10-02, ~~**B17**~~ ✅ erledigt 2026-10-02 (`a16899c`)
-8. ~~**B7**~~ ❌ dauerhaft geschlossen (MUST-NOT 5); ~~**B19 Phase 2**~~ ❌ geschlossen (KISS)
+8. ~~**B7**~~ ✅ erledigt 2026-10-15 (attr()-Fallbacks entfernt, MUST-NOT 5); ~~**B19 Phase 2**~~ ❌ geschlossen (KISS)
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Vollständig umgesetzt (Commit `a16899c`):

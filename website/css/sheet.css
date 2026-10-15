@@ -9,31 +9,31 @@ din-a4 {
   font-size-adjust: 0.52;
 
   /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
-     am <din-a4>-Element (siehe index.html). Fallback-Zahl = bisheriger Hardcode-Wert,
-     greift nur, falls das Attribut fehlt oder attr()/type() nicht unterstützt wird. */
-  --blatt-breite: attr(data-width-mm type(<number>), 210);
-  --blatt-hoehe: attr(data-height-mm type(<number>), 297);
+     am <din-a4>-Element (siehe index.html). Keine Fallback-Zahlen im CSS (SSoT
+     gemäß IMR MUST-NOT 5; Chrome 150+ Baseline garantiert attr(... type(<number>))). */
+  --blatt-breite: attr(data-width-mm type(<number>));
+  --blatt-hoehe: attr(data-height-mm type(<number>));
 
-  --absender-y: --mm-y(attr(data-absender-y-b type(<number>), 45));
-  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>), 50));
-  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>), 50));
-  --datum-y: --mm-y(attr(data-datum-y-b type(<number>), 92));
-  --kern-y: --mm-y(attr(data-kern-y-b type(<number>), 109));
+  --absender-y: --mm-y(attr(data-absender-y-b type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
+  --datum-y: --mm-y(attr(data-datum-y-b type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
 
-  --falz-oben-y: --mm-y(attr(data-falz-oben-y-b type(<number>), 105));
-  --falz-unten-y: --mm-y(attr(data-falz-unten-y-b type(<number>), 210));
-  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>), 148.5));
+  --falz-oben-y: --mm-y(attr(data-falz-oben-y-b type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-b type(<number>)));
+  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
 :root[data-layout="form-a"] din-a4,
 body:has(#btn-form-a:checked) din-a4 {
-  --absender-y: --mm-y(attr(data-absender-y-a type(<number>), 27));
-  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>), 32));
-  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>), 32));
-  --datum-y: --mm-y(attr(data-datum-y-a type(<number>), 74));
-  --kern-y: --mm-y(attr(data-kern-y-a type(<number>), 91)); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
-  --falz-oben-y: --mm-y(attr(data-falz-oben-y-a type(<number>), 87));
-  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>), 192));
+  --absender-y: --mm-y(attr(data-absender-y-a type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
+  --datum-y: --mm-y(attr(data-datum-y-a type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-a type(<number>))); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --falz-oben-y: --mm-y(attr(data-falz-oben-y-a type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>)));
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */

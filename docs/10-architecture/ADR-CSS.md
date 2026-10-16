@@ -77,7 +77,7 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 7. **CSS Anchor Positioning (W3C Standard):**
    Schwebende Dropdowns und die Format-Toolbar werden nativ über CSS Anchor Positioning an ihren DOM-Ankern befestigt (`position-anchor: --selection-anchor`, `position-area: top center`, `flip-block` für `#format-toolbar`; `--anchor-anschrift-suche` für `#anschrift-vorschlaege`; `--anchor-empfaenger-ort` für `#plz-suggestions-popover`).
 8. **Top-Layer Popovers & Deklarative Transitions:**
-   Overlays (`#toast-v4`, `#anschrift-vorschlaege`, `#plz-suggestions-popover`) nutzen die native HTML Popover API und rendern im Browser-Top-Layer. Transitions laufen 100% deklarativ über CSS `@starting-style` und `transition-behavior: allow-discrete`.
+   Overlays (`#hinweis-v4`, `#anschrift-vorschlaege`, `#plz-suggestions-popover`) nutzen die native HTML Popover API und rendern im Browser-Top-Layer. Transitions laufen 100% deklarativ über CSS `@starting-style` und `transition-behavior: allow-discrete`.
 9. **Semantische Schalter (`<input type="checkbox" switch>`):**
    Zustände (z. B. Hilfslinien) werden semantisch gerendert und direkt im CSS via `:root:has(#btn-hilfslinien-switch:checked)` ausgewertet (JS-Kill Phase 2).
 10. **CSS @scope:**
@@ -178,7 +178,7 @@ Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die ehemals in `float
   * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
 * **Top-Layer Popovers & Deklarative Transitions:**
-  * `#hinweis-v4` / `#toast-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
+  * `#hinweis-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
   * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`:
     ```css
     @starting-style {

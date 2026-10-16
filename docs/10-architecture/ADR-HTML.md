@@ -4,7 +4,7 @@ title: "ADR-HTML: HTML Architecture, Constraints & Single Source of Truth (SSOT)
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-10-16'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -196,12 +196,10 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
   * Verankert per CSS Anchor Positioning an `#selection-anchor`.
   * Command Invoker Buttons für Fett (`--bold`), Unterstrichen (`--underline`), Zitat (`--quote`) und Kommentar (`--comment`).
   * `#btn-ai-rewrite`: On-Device KI-Aktionsbutton (`✨ Formal`) zur kontextuellen Umformulierung markierter Textpassagen via Gemini Nano (Chrome Built-in AI).
-* **Toast-Benachrichtigungssystem (`#toast-v4`):**
+* **Toast-Benachrichtigungssystem (`#hinweis-v4`):**
   * `popover="manual"`: Rendert direkt im Top-Layer über allen Dialogen ohne `z-index`.
-  * `#toast-message`: Textkörper für Statusinformationen.
-  * `#toast-badge`: Badge-Zähler für Toast-Deduplizierung (`x2`, `x3`).
-  * `#toast-action`: Optionaler Inline-Aktions-Button (z. B. Undo).
-  * `#toast-close`: Schließen-Button (`×`).
+  * `#hinweis-message`: Textkörper für Statusinformationen.
+  * `#hinweis-close`: Schließen-Button (`×`).
 * **Zurücksetzen-Modal (`<dialog id="reset-dialog">`):**
   * Nativer HTML5 `<dialog>` mit Glassmorphism-Backdrop.
   * `<form method="dialog">`: Schließt den Dialog nativ ohne JavaScript bei Klick auf "Abbrechen" (`value="cancel"`).

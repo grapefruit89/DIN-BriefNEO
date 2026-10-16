@@ -61,7 +61,7 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 5. **Reglementierte Aufgaben für JavaScript:**
    * W3C Selection & Range API (Textformatierung im Fließtext)
    * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore)
-   * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('brotli')`
+   * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('gzip')`
    * Deterministischer 0,1ms Clipboard-Impressum-Parser mit juristischem Müllfilter
    * Native Popover-Queue & Lifecycle-Steuerung für Toasts im Top-Layer
    * Canvas-Bildkompression für Unterschriften (`createImageBitmap`)
@@ -71,7 +71,7 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 
 ## 3. Single Source of Truth: Aktive Module & Funktions-Registry
 
-Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS.md §7a, keine Unterordner). Module sind nach Schichten strukturiert (`0x` Core, `3x` UI, `4x` Features/Domain, `5x` Storage/Tools):
+Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS.md §7a, keine Unterordner). Die 8 Module sind nach fachlichen Domänen und Verantwortlichkeiten gegliedert:
 
 ### 0. `boot-theme.js` (Blocking Head-Script: FOUC-Schutz & Font-Loading)
 * Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme` und `data-layout` auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz).
@@ -213,7 +213,7 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 | **`41-salutation-engine.legacy.js`** | `_wireGender`, Radio-Buttons für Geschlecht, NLP-Regexes für Adelstitel/Paare | 🚫 **HARD BAN** | Catalog A58, Prio 1 | 80/20 Smart Engine (`salutation.js`), deterministische regelbasierte Erkennung ohne externe Namenslisten, ContentEditable Dirty-Flag mit Auto-Reset. |
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | Catalog A55, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |
 | **`32-toast.js`** | `onPointerDown`, `onPointerMove`, `onPointerUp`, `setPointerCapture`, `swipe.startX`, `--swipe-x`, `z-index: 9999` | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover="manual"`) im Top-Layer, CSS `@starting-style` und `transition-behavior: allow-discrete`. |
-| **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 72 KB Offline Brotli PLZ & Großempfänger Engine (`45-address-intelligence.js`). 100% DSGVO-konform, 0ms Latenz. |
+| **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 43 KB Offline Gzip PLZ & Großempfänger Engine (`address.js`). 100% DSGVO-konform, 0ms Latenz. |
 | **`31-format-toolbar.js`** | Floating Toolbar Popover, Selection-Anchor, manuelle Format-Buttons | 🚫 **ELIMINATED** | Rich-Text-Light Doktrin | Nativer Browser-Support (Ctrl+B/Ctrl+U), Plaintext-Paste & Ctrl+Q in `01-document.js`. |
 | **Global** | `document.execCommand('bold'|'italic'|...)` | 🚫 **HARD BAN** | Catalog A48, A52 | W3C Selection & Range API sowie native Browser-Shortcuts (`Ctrl+B`, `Ctrl+U`) und Rich-Text-Light. |
 | **Global** | `new Date()`, `Date.now()`, `Date.parse()` | 🚫 **HARD BAN** | Catalog TM1, A48 | Temporal API (`Temporal.Now.plainDateISO()`) und standardkonformes DIN-Formatting. |

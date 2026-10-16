@@ -4,7 +4,7 @@ title: Backlog — offene Baustellen nach Aufwand und ROI
 status: active
 type: reference
 created: '2026-10-02'
-updated: '2026-10-02'
+updated: '2026-10-16'
 tags:
 - din-briefneo
 - meta
@@ -71,6 +71,20 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
 
+### B22 · Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) · **M** · ⭐⭐
+**Kontext:** Nach der Geometrie-SSoT-Migration (Commit `1a6dba0`) leben alle statischen DIN-5008-Werte als `data-*`-Attribute im HTML.
+**Ziel:** Neues Tool `tools/check-geometry.js` als automatisierter Wächter:
+- Prüft in `website/css/sheet.css`:
+  - Keine numerischen Literale in `--mm-x()`, `--mm-y()`, `--pt()` (außer den 10 definierten Grauzonen-Literalen)
+  - Jedes `attr(data-X)` besitzt eine entsprechende HTML-Quelle am zugehörigen Element
+  - Keine Fallback-Zahlen in `attr()`
+  - Form-A/B-Paare sind vollständig vorhanden
+- CLI-Modi: Standard, `--json`, `--help`, `--version`
+- Exit-Code: 0 bei PASS, 1 bei FAIL
+- Bezug: Geometrie-SSoT-Migration (Commit `1a6dba0`)
+
+---
+
 ## 🟡 Priorität 3 — gute Verbesserung, grösserer Eingriff
 
 ### B6 · Feldtypen deklarativ per `data-feldtyp` · **L** · ⭐⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
@@ -136,6 +150,17 @@ Fünf „🛡️ ARCHITECTURE GUARD"-Blöcke stehen wortgleich in `index.html` *
 ### B15 · Log-Behauptungen gegen den Code prüfen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append-Only-Eintrag für die 5 KISS-Optimierungen (Event-Delegation, Caret-SSoT, Gzip-Pipeline, `.closest()`-Ancestor, StorageManager-Kapselung), den B8-Vollzug (`!important`-Beseitigung) und den B17-Phase-2-Gate-Ausbau (30/35 Gesetze) eingepflegt. Ältere historische Einträge bleiben gemäß DECISION-LOG-Governance strikt unverändert (Append-only).
 
+### B23 · Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) · **S** · ⭐
+**Problem:** `tools/lawcoverage.js` meldet eine LOW-Warnung: 30/35 A-Gesetze maschinell geprüft, 5 ungeprüft (A43, A44, A47, A60, A62).
+**Hintergrund:** Diese 5 Gesetze sind reine Gestaltungs- und UX-Prinzipien, die sich nicht sinnvoll per Regex prüfen lassen.
+**Lösung:** Einführung einer `MANUAL_REVIEW_LAWS`-Konstante in `tools/lawcoverage.js`, die diese 5 Gesetze als bewusst manuell geprüft und dokumentiert führt, um die LOW-Warnung im Fitness Gate auf 0 Diagnosen zu senken.
+
+### B24 · Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit · **S** · ⭐
+**Problem:** `docs/30-meta/tooling-overview.md` hat aktuell 482 Zeilen und löst die `doc-size`-Warnung (> 400 Zeilen) im Fitness Gate aus.
+**Lösungsmöglichkeiten:**
+- Option A: Aufteilung der Datei (z. B. historische/archivierte Tools nach `tooling-overview-legacy.md` auslagern).
+- Option B: Konfiguriertes Limit in `tools/reconciliation.js` für `tooling-overview.md` auf 500 Zeilen anheben (begründet durch den Charakter als zentrale Tooling-SSoT, analog zur bestehenden Ausnahme für `DECISION-LOG.md`).
+
 ---
 
 ## Empfohlene Reihenfolge
@@ -148,6 +173,8 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
 7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), ~~**B15**~~ ✅ erledigt 2026-10-02, ~~**B17**~~ ✅ erledigt 2026-10-02 (`a16899c`)
 8. ~~**B7**~~ ✅ erledigt 2026-10-15 (attr()-Fallbacks entfernt, MUST-NOT 5); ~~**B19 Phase 2**~~ ❌ geschlossen (KISS)
+9. **B22** (`check-geometry.js` — Guard gegen hardcodierte Geometriewerte)
+10. **B23** (`law_coverage` 30/35) + **B24** (`tooling-overview` doc-size)
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Vollständig umgesetzt (Commit `a16899c`):

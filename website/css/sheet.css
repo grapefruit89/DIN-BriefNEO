@@ -115,7 +115,7 @@ body:has(#btn-form-a:checked) din-a4 {
   din-falz-oben, din-falz-unten, din-lochmarke {
     position: absolute;
     left: 0;
-    width: --mm-x(8); /* Kurz, nicht durch den Text schneidend */
+    width: --mm-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
     border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     opacity: var(--hilfslinien-deckkraft);
     pointer-events: none;
@@ -126,7 +126,7 @@ body:has(#btn-form-a:checked) din-a4 {
   din-falz-unten { top: var(--falz-unten-y); } /* Form B default: var(--blatt-breite)mm */
   din-lochmarke {
     top: var(--lochmarke-y);
-    width: --mm-x(12); /* Breite: 12mm */
+    width: --mm-x(attr(data-w type(<number>))); /* Breite: 12mm */
     border-bottom-style: solid;
   }
 
@@ -135,10 +135,10 @@ body:has(#btn-form-a:checked) din-a4 {
   #rucksendezeile {
     position: absolute;
     top: var(--absender-y);
-    left: --mm-x(20);
-    width: --mm-x(85);
-    height: --mm-y(5);
-    font-size: --pt(8); /* 8pt in cqw */
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    height: --mm-y(attr(data-h type(<number>)));
+    font-size: --pt(attr(data-font type(<number>))); /* 8pt in cqw */
     white-space: nowrap;
     text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
     border-radius: 0;
@@ -148,10 +148,10 @@ body:has(#btn-form-a:checked) din-a4 {
   #anschriftfeld {
     position: absolute;
     top: var(--anschriftfeld-y);
-    left: --mm-x(20);
-    width: --mm-x(85);
-    height: --mm-y(40);
-    font-size: --pt(10); /* 10pt in cqw */
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    height: --mm-y(attr(data-h type(<number>)));
+    font-size: --pt(attr(data-font type(<number>))); /* 10pt in cqw */
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -162,10 +162,10 @@ body:has(#btn-form-a:checked) din-a4 {
   #anschriftfeld::after {
     content: '';
     position: absolute;
-    top: calc(-1 * --mm-y(5));
+    top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
     left: 0;
-    width: --mm-x(90);
-    height: --mm-y(45);
+    width: --mm-x(attr(data-visier-w type(<number>)));
+    height: --mm-y(attr(data-visier-h type(<number>)));
     border-radius: --mm-x(3);
     border: 1px dashed oklch(0.5 0.05 250 / 40%);
     background: oklch(0.5 0.05 250 / 4%);
@@ -179,9 +179,9 @@ body:has(#btn-form-a:checked) din-a4 {
   #infoblock {
     position: absolute;
     top: var(--infoblock-y);
-    left: --mm-x(125);
-    width: --mm-x(75);
-    font-size: --pt(8.5); /* 8.5pt in cqw */
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    font-size: --pt(attr(data-font type(<number>))); /* 8.5pt in cqw */
     line-height: 1.5;
     display: flex;
     flex-direction: column;
@@ -191,9 +191,9 @@ body:has(#btn-form-a:checked) din-a4 {
   #datum {
     position: absolute;
     top: var(--datum-y);
-    left: --mm-x(125);
-    width: --mm-x(75);
-    font-size: --pt(10); /* 10pt in cqw */
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    font-size: --pt(attr(data-font type(<number>))); /* 10pt in cqw */
     text-align: left;
   }
 
@@ -201,29 +201,29 @@ body:has(#btn-form-a:checked) din-a4 {
   #kern {
     position: absolute;
     top: var(--kern-y);
-    left: --mm-x(25);  /* Linker Fluchtrand: 25mm */
-    right: --mm-x(20); /* Rechter Rand: 20mm */
-    bottom: --mm-y(30); /* Abstand nach unten für Footer */
+    left: --mm-x(attr(data-left type(<number>)));  /* Linker Fluchtrand: 25mm */
+    right: --mm-x(attr(data-right type(<number>))); /* Rechter Rand: 20mm */
+    bottom: --mm-y(attr(data-bottom type(<number>))); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
     overflow: clip; /* Zero-Ueberlauf Garantie */
   }
 
   #betreff {
-    font-size: --pt(12); /* 12pt in cqw */
+    font-size: --pt(attr(data-font type(<number>))); /* 12pt in cqw */
     font-weight: 700;
-    margin-bottom: --mm-y(8.46); /* 2 Leerzeilen */
+    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 2 Leerzeilen */
     text-fit: shrink; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht (contain = ungültig, css-text-5) */
     text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
   }
 
   #anrede {
-    font-size: --pt(10.5); /* 10.5pt in cqw */
-    margin-bottom: --mm-y(4.23); /* 1 Leerzeile */
+    font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
+    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 1 Leerzeile */
   }
 
   #text {
-    font-size: --pt(10.5); /* 10.5pt in cqw */
+    font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
     line-height: 1.4;
     outline: none;
     min-height: --mm-y(40);
@@ -235,9 +235,9 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   #grussformel {
-    font-size: --pt(10.5);
-    margin-top: --mm-y(4.23);
-    margin-bottom: --mm-y(12.69); /* 3 Leerzeilen für Unterschrift */
+    font-size: --pt(attr(data-font type(<number>)));
+    margin-top: --mm-y(attr(data-margin-top type(<number>)));
+    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 3 Leerzeilen für Unterschrift */
     break-after: avoid;
     page-break-after: avoid;
   }
@@ -276,11 +276,11 @@ body:has(#btn-form-a:checked) din-a4 {
   #fuss {
     display: none;
     position: absolute;
-    bottom: --mm-y(10); /* 10mm */
-    left: --mm-x(25); /* 25mm */
-    right: --mm-x(20); /* 20mm */
-    height: --mm-y(15); /* 15mm */
-    font-size: --pt(7.5); /* 7.5pt in cqw */
+    bottom: --mm-y(attr(data-bottom type(<number>))); /* 10mm */
+    left: --mm-x(attr(data-left type(<number>))); /* 25mm */
+    right: --mm-x(attr(data-right type(<number>))); /* 20mm */
+    height: --mm-y(attr(data-h type(<number>))); /* 15mm */
+    font-size: --pt(attr(data-font type(<number>))); /* 7.5pt in cqw */
     color: var(--blatt-schwach); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
     padding-top: --mm-y(2);

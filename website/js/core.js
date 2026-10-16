@@ -10,6 +10,67 @@
  */
 
 /* =========================================================================================
+ * 0. SYSTEM- & VALIDIERUNGS-KONSTANTEN & TOASTS
+ * ========================================================================================= */
+
+/**
+ * System- und Validierungs-Konstanten.
+ */
+export const Constants = {
+  LIMITS: {
+    HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
+    FONT_SIZE_MAX_KB: 400     // Max size für Base64-Schriftarten (< 400 KB)
+  },
+  SCHEMA_VERSION: 2,
+  TOASTS: {
+    DRAFT: {
+      AUTOSAVE_ERROR: '❌ Fehler beim Speichern!',
+      MULTI_TAB: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
+      EXPORT_SAVED: '💾 Brief erfolgreich gespeichert.',
+      EXPORT_DOWNLOADED: '💾 Brief heruntergeladen.',
+      EXPORT_ERROR: '❌ Fehler beim Exportieren.',
+      IMPORT_SIZE_ERROR: '❌ Import abgelehnt: Datei zu groß (max. 1 MB).',
+      /** @param {string} reason @returns {string} */
+      IMPORT_REJECTED: (reason) => `❌ Import abgelehnt: ${reason}`,
+      IMPORT_STORAGE_ERROR: '❌ Import fehlgeschlagen (Storage voll?).'
+    },
+    FONT: {
+      SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 400 KB groß sein)',
+      FORMAT_ERROR: '❌ Falsches Dateiformat! (Erlaubt: .woff2, .ttf, .otf)',
+      SAVE_ERROR: '❌ Fehler beim dauerhaften Speichern der Schriftart'
+    },
+    ADDRESS: {
+      /** @param {string} name @returns {string} */
+      GROSSKUNDE_RECOGNIZED: (name) => `🏛️ Großempfänger erkannt: ${name} (Straße entfällt nach DIN 5008)`
+    },
+    CLIPBOARD: {
+      /** @param {string} label @param {string} ort @returns {string} */
+      APPLIED: (label, ort) => `📋 Adresse übernommen: ${label} (${ort})`,
+      UNSUPPORTED: '⚠️ Zwischenablage-Zugriff wird von diesem Browser nicht unterstützt.',
+      EMPTY: '⚠️ Die Zwischenablage ist leer.',
+      NO_ADDRESS: '⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.',
+      /** @param {number} n @returns {string} */
+      MULTIPLE: (n) => `⚠️ ${n} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`,
+      PERMISSION_DENIED: '⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.'
+    },
+    GEOAPIFY: {
+      KEY_INVALID: '❌ Geoapify Key ungültig',
+      KEY_EXPIRED: '❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.',
+      /** @param {number | string} status @returns {string} */
+      UNAVAILABLE: (status) => `⚠️ Geoapify vorübergehend nicht erreichbar (Status ${status}).`,
+      NETWORK_ERROR: '⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.'
+    },
+    SALUTATION: {
+      PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
+      CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)'
+    },
+    SYSTEM: {
+      SAVE_ERROR: '❌ Fehler beim Speichern!'
+    }
+  }
+};
+
+/* =========================================================================================
  * 1. NATIVE EVENT BUS (Standard Web APIs: EventTarget & CustomEvent)
  * ========================================================================================= */
 
@@ -117,7 +178,7 @@ export function initToastSystem() {
   });
 
   eventBus.subscribe(Events.DOCUMENT_SAVE_FAILED, (payload) => {
-    const msg = (payload && typeof payload.message === 'string') ? payload.message : '❌ Fehler beim Speichern!';
+    const msg = (payload && typeof payload.message === 'string') ? payload.message : Constants.TOASTS.SYSTEM.SAVE_ERROR;
     showToast(msg, 'error');
   });
 }

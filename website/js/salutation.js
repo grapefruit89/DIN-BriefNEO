@@ -10,8 +10,8 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './persistence.js';
-import { eventBus, Events } from './core.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS } from './persistence.js';
+import { eventBus, Events, Constants } from './core.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
@@ -272,9 +272,9 @@ export class SalutationFeature {
     const text = (el.textContent || '').trim();
     if (!text || text === this.#auto[kind]) return;
     if (kind === 'anrede' && !text.endsWith(',')) {
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION_PUNCTUATION, type: 'warning' });
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.PUNCTUATION, type: 'warning' });
     } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.CLOSING_PUNCTUATION, type: 'warning' });
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.CLOSING_PUNCTUATION, type: 'warning' });
     }
   }
 }

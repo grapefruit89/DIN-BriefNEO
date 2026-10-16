@@ -15,7 +15,7 @@
  */
 
 import { setCaretToEnd } from './document.js';
-import { eventBus, Events } from './core.js';
+import { eventBus, Events, Constants } from './core.js';
 import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './persistence.js';
 
 /* =========================================================================================
@@ -343,7 +343,7 @@ export class AddressIntelligence {
               empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
             }
 
-            const toastMsg = `🏛️ Großempfänger erkannt: ${res.grosskunde.name} (Straße entfällt nach DIN 5008)`;
+            const toastMsg = Constants.TOASTS.ADDRESS.GROSSKUNDE_RECOGNIZED(res.grosskunde.name);
             eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'info' });
           }
 
@@ -737,7 +737,7 @@ export class ClipboardAddressParser {
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
     const label = candidate.firma || candidate.name || candidate.strasse;
-    const toastMsg = `📋 Adresse übernommen: ${label} (${candidate.ort})`;
+    const toastMsg = Constants.TOASTS.CLIPBOARD.APPLIED(label, candidate.ort);
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'success' });
   }
 
@@ -760,20 +760,20 @@ export class ClipboardAddressParser {
     btn.addEventListener('click', async () => {
       try {
         if (!navigator.clipboard?.readText) {
-          notify('⚠️ Zwischenablage-Zugriff wird von diesem Browser nicht unterstützt.', 'error');
+          notify(Constants.TOASTS.CLIPBOARD.UNSUPPORTED, 'error');
           return;
         }
 
         const text = await navigator.clipboard.readText();
         if (!text || !text.trim()) {
-          notify('⚠️ Die Zwischenablage ist leer.', 'warning');
+          notify(Constants.TOASTS.CLIPBOARD.EMPTY, 'warning');
           return;
         }
 
         const candidates = this.parse(text);
 
         if (candidates.length === 0) {
-          notify('⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.', 'warning');
+          notify(Constants.TOASTS.CLIPBOARD.NO_ADDRESS, 'warning');
           return;
         }
 
@@ -836,11 +836,11 @@ export class ClipboardAddressParser {
             popover.classList.add('active');
           }
         } else {
-          notify(`⚠️ ${candidates.length} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`, 'warning');
+          notify(Constants.TOASTS.CLIPBOARD.MULTIPLE(candidates.length), 'warning');
         }
       } catch (err) {
         console.warn('[Clipboard] Lesefehler:', err);
-        notify('⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.', 'error');
+        notify(Constants.TOASTS.CLIPBOARD.PERMISSION_DENIED, 'error');
       }
     });
   }
@@ -929,7 +929,7 @@ export function initAddressServices() {
         // Kein Toast bei Erfolg: Stille Übernahme
       } else if (res.status === 401 || res.status === 403) {
         save(STORAGE_KEYS.geoapifyKey, '');
-        notify('❌ Geoapify Key ungültig', 'error');
+        notify(Constants.TOASTS.GEOAPIFY.KEY_INVALID, 'error');
       } else {
         // 429/5xx: Key behalten und still bleiben
         save(STORAGE_KEYS.geoapifyKey, key);
@@ -1056,10 +1056,10 @@ export function initAddressServices() {
           save(STORAGE_KEYS.geoapifyKey, '');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
           if (keyEl) keyEl.value = '';
-          notify('❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.', 'error');
+          notify(Constants.TOASTS.GEOAPIFY.KEY_EXPIRED, 'error');
         } else {
           console.warn('[Address] Autocomplete HTTP ' + response.status);
-          notify('⚠️ Geoapify vorübergehend nicht erreichbar (Status ' + response.status + ').', 'warning');
+          notify(Constants.TOASTS.GEOAPIFY.UNAVAILABLE(response.status), 'warning');
         }
         return;
       }
@@ -1083,7 +1083,7 @@ export function initAddressServices() {
       const error = /** @type {Error} */ (err);
       if (error.name !== 'AbortError') {
         console.warn('[Address] Autocomplete search failed:', error);
-        notify('⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.', 'warning');
+        notify(Constants.TOASTS.GEOAPIFY.NETWORK_ERROR, 'warning');
       }
     }
   }

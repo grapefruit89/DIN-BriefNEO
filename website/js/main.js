@@ -3,7 +3,7 @@
 // @guide [[no-scroll-techniques]] 
 
 /* js/main.js */
-import { saveJSON, migrateStorage, STORAGE_KEYS, Constants, MetadataService, applyLetterDate, initImportExport } from './persistence.js';
+import { saveJSON, migrateStorage, STORAGE_KEYS, MetadataService, applyLetterDate, initImportExport } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
 import { initToastSystem, eventBus, Events } from './core.js';

@@ -3,8 +3,8 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager, UIProtections } from '../website/js/document.js';
-import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, Constants, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
-import { createEventBus, eventBus, Events, initToastSystem } from '../website/js/core.js';
+import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
+import { createEventBus, eventBus, Events, initToastSystem, Constants } from '../website/js/core.js';
 import { SalutationEngine } from '../website/js/salutation.js';
 import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser } from '../website/js/address.js';
 import { SettingsManager } from '../website/js/settings.js';
@@ -712,7 +712,7 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
 
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
     assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 400);
-    assert(Constants.TOASTS.FONT_SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
+    assert(Constants.TOASTS.FONT.SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
   });
 });
 

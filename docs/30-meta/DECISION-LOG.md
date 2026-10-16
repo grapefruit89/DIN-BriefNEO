@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-10-15'
+updated: '2026-10-16'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -1997,3 +1997,48 @@ Evolutionary Fitness Score 100 %. Chrome DevTools Rendering-Checks: Keine Kaskad
 
 **Generalisierbarkeit:**
 Domänen-Schnitt nach Lebenszyklus und Kapselungsgrenzen (`base` vs. `sheet` vs. `sidebar` vs. `print`) ist robuster und wartungsärmer als feingliedrige Schichten-Splits (`reset`, `variables`, `layout`, `floating`), die künstliche Schnittstellen erzwingen.
+
+## 2026-10-16 — tools/check-feature.js angelegt (Chrome 150+ Baseline-Recherche)
+
+**Kontext:**
+Bei der Umsetzung von Features gemäß der Entscheidungsleiter (HTML vor CSS vor JS, `implement-with-economy`) fehlte ein deterministisches, maschinenlesbares Werkzeug, um die Verfügbarkeit nativer Web-Plattform- und CSS/HTML/JS-Features gegen die Projekt-Baseline **Chrome 150+** zu verifizieren. Manuelle Prüfungen führten historisch wiederholt zu Annahmen-Drifts.
+
+**Entscheidung:**
+1. **Recherche-Tooling bereitgestellt (`tools/check-feature.js`):**
+   - Prüft Features gegen maschinenlesbare Upstream-Daten (`web-features`, `@mdn/browser-compat-data`, `baseline-browser-mapping`).
+   - Kaskadierte Suche: Exakte IDs, normalisierte Slugs (z. B. `text-fit: shrink` → `text-fit` mit Sub-Feature `shrink`), CSS-Selektoren (`:has`), HTML-Elemente/Attribute und High-Level-Konzepte (`CSS Anchor Positioning`).
+   - Abgleich gegen die feste Projekt-Baseline `CHROME_BASELINE = 150`: Deklariert Features eindeutig als `✅ NUTZBAR`, `⚠️ NUR WENN BASELINE ANGEHOBEN WIRD` oder `❌ NICHT NUTZBAR`.
+2. **Strikte Trennung der Datenbestände (Isolation):**
+   - Die Upstream-Datenpakete liegen isoliert unter `~/.din-briefneo/feature-cache/` und berühren weder das Produktverzeichnis `website/` noch die TypeScript-Entwicklungsumgebung unter `~/.din-briefneo/node_modules/`.
+   - Null Runtime-Abhängigkeiten im Repository.
+
+**Verifikation:**
+CLI-Funktionstests für CSS-Properties (`text-fit: shrink`, `text-wrap: balance`), Selektoren (`:has`), High-Level-Features (`CSS Anchor Positioning`), JSON-Ausgabe (`--json`), Gruppen (`--list-groups`) und Fehlerfälle erfolgreich verifiziert. Evolutionary Fitness Score 100 %.
+
+## 2026-10-16 — Toast-Strings nach Constants.TOASTS zentralisiert (Domänen-Struktur)
+
+**Kontext:**
+In `website/js/` waren ca. 15 Toast-Meldungen inline verstreut (`address.js`, `settings.js`, `document.js`, `core.js`, `persistence.js`). `Constants.TOASTS` enthielt lediglich 5 flache Einträge. Dies verletzte das SSoT-Prinzip (Single Source of Truth) der Verfassung.
+
+**Entscheidung:**
+1. **Domänen-Struktur & Ort von `Constants` (`website/js/core.js`):**
+   - `Constants` (LIMITS, SCHEMA_VERSION, TOASTS) ist im Fundament-Modul `website/js/core.js` verankert, wodurch Zirkel-Importe zwischen `persistence.js` und `core.js` ausgeschlossen sind. `core.js` bleibt ein importfreies Basismodul.
+   - Vollständige Konsolidierung aller Toast-Texte gruppiert nach Domänen: `DRAFT`, `FONT`, `ADDRESS`, `CLIPBOARD`, `GEOAPIFY`, `SALUTATION`, `SYSTEM`.
+   - Dynamische Toast-Meldungen sind als JSDoc-typisierte Hilfsfunktionen implementiert (`GROSSKUNDE_RECOGNIZED`, `CLIPBOARD_APPLIED`, `CLIPBOARD_MULTIPLE`, `GEOAPIFY_UNAVAILABLE`, `IMPORT_REJECTED`).
+   - Keine flachen Aliase: Alle Alt-Schlüssel (`FONT_SIZE_ERROR`, `FONT_FORMAT_ERROR`, `SALUTATION_PUNCTUATION`, `CLOSING_PUNCTUATION`, `AUTOSAVE_ERROR`) wurden entfernt und alle Verwender im Produktcode sowie `test/all.js` direkt auf die neue Domänen-Hierarchie umgestellt.
+2. **Verwender angepasst (Import von `Constants` aus `core.js`):**
+   - `website/js/core.js`: Definiert `Constants` und nutzt intern `Constants.TOASTS.SYSTEM.SAVE_ERROR`.
+   - `website/js/persistence.js`: Importiert `Constants` aus `core.js` und nutzt `Constants.TOASTS.DRAFT.EXPORT_*` und `Constants.TOASTS.DRAFT.IMPORT_*`.
+   - `website/js/address.js`: 11 Aufrufe auf `Constants.TOASTS.ADDRESS.*`, `Constants.TOASTS.CLIPBOARD.*` und `Constants.TOASTS.GEOAPIFY.*` umgestellt.
+   - `website/js/document.js`: `Constants.TOASTS.DRAFT.MULTI_TAB` und `Constants.LIMITS`.
+   - `website/js/settings.js`: `Constants.TOASTS.FONT.FORMAT_ERROR`, `Constants.TOASTS.FONT.SIZE_ERROR`, `Constants.TOASTS.FONT.SAVE_ERROR`.
+   - `website/js/salutation.js`: `Constants.TOASTS.SALUTATION.PUNCTUATION`, `Constants.TOASTS.SALUTATION.CLOSING_PUNCTUATION`.
+   - `test/all.js`: Importiert `Constants` aus `core.js` und aktualisiert Assertion auf `Constants.TOASTS.FONT.SIZE_ERROR`.
+
+**Verifikation:**
+- `grep`-Prüfung auf verbleibende flache Aliase: 0 Treffer.
+- `grep`-Prüfung auf verbleibende Inline-Strings in `website/js/`: 0 Treffer.
+- TypeScript (`tsc -p jsconfig.json`): 0 Fehler.
+- `node tools/build_db.js`: Evolutionary Fitness Score 100 %.
+- `node tools/links.js`: Keine toten Wikilinks.
+- `node tools/log_session.js`: Erfolgreich protokolliert.

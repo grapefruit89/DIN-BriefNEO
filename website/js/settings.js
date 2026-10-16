@@ -11,8 +11,8 @@
  *  3. sanitizeRichText: Re-Export aus document.js.
  */
 
-import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants } from './persistence.js';
-import { eventBus, Events } from './core.js';
+import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS } from './persistence.js';
+import { eventBus, Events, Constants } from './core.js';
 
 /**
  * @param {string} message
@@ -155,7 +155,7 @@ export class SettingsManager {
       await face.load();
     } catch (e) {
       console.warn('[Settings] Custom font invalid:', e);
-      notify(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+      notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
       this.updateFontStatusUI(false);
       return false;
     }
@@ -282,13 +282,13 @@ export class SettingsManager {
         const validExtensions = ['.woff2', '.ttf', '.otf'];
         const isValid = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
         if (!isValid) {
-          notify(Constants.TOASTS.FONT_FORMAT_ERROR, 'error');
+          notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
           target.value = '';
           return;
         }
         const maxSizeInBytes = Constants.LIMITS.FONT_SIZE_MAX_KB * 1024;
         if (file.size > maxSizeInBytes) {
-          notify(Constants.TOASTS.FONT_SIZE_ERROR, 'error');
+          notify(Constants.TOASTS.FONT.SIZE_ERROR, 'error');
           target.value = '';
           return;
         }
@@ -297,14 +297,14 @@ export class SettingsManager {
           const readerTarget = /** @type {FileReader} */ (event.target);
           const base64Font = readerTarget ? readerTarget.result : null;
           if (typeof base64Font !== 'string') {
-            notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+            notify(Constants.TOASTS.FONT.SAVE_ERROR, 'error');
             return;
           }
           const loaded = await this.injectFont(base64Font);
           if (loaded) {
             const success = save(STORAGE_KEYS.font, base64Font);
             if (!success) {
-              notify('❌ Fehler beim dauerhaften Speichern der Schriftart', 'error');
+              notify(Constants.TOASTS.FONT.SAVE_ERROR, 'error');
             }
           }
         };

@@ -11,8 +11,8 @@
  *  3. DraftManager (Single-Writer für localStorage, Undo/Redo, Autosave, EventBus-Verträge)
  */
 
-import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, Constants, isPrintTitleActive } from './persistence.js';
-import { eventBus, Events } from './core.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, isPrintTitleActive } from './persistence.js';
+import { eventBus, Events, Constants } from './core.js';
 
 /* =========================================================================================
  * 0. RICH TEXT SANITIZER (Allowlist Guard)
@@ -491,7 +491,7 @@ export class DraftManager {
           this.loadDraft();
         } else {
           eventBus.publish(Events.NOTIFICATION_REQUESTED, {
-            message: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
+            message: Constants.TOASTS.DRAFT.MULTI_TAB,
             type: 'info'
           });
         }

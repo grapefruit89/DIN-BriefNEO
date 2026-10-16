@@ -14,7 +14,7 @@
  *  4. ImportExport (ehem. 52-import-export.js): JSON-Export/Import mit Metadaten-Header und Validierung.
  */
 
-import { eventBus, Events } from './core.js';
+import { eventBus, Events, Constants } from './core.js';
 
 /* =========================================================================================
  * 1. DATE & TIME FORMATTING (Temporal API & DIN 5008)
@@ -78,24 +78,6 @@ export function currentISODate() {
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
-
-/**
- * System- und Validierungs-Konstanten.
- */
-export const Constants = {
-  LIMITS: {
-    HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
-    FONT_SIZE_MAX_KB: 400     // Max size für Base64-Schriftarten (< 400 KB)
-  },
-  SCHEMA_VERSION: 2,
-  TOASTS: {
-    FONT_SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 400 KB groß sein)',
-    FONT_FORMAT_ERROR: '❌ Falsches Dateiformat! (Erlaubt: .woff2, .ttf, .otf)',
-    SALUTATION_PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
-    CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)',
-    AUTOSAVE_ERROR: '❌ Fehler beim Speichern!'
-  }
-};
 
 /**
  * Standard-Einstellungen für UI und Typografie.
@@ -701,7 +683,7 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
       const writable = await handle.createWritable();
       await writable.write(jsonContent);
       await writable.close();
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: '💾 Brief erfolgreich gespeichert.', type: 'info' });
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.DRAFT.EXPORT_SAVED, type: 'info' });
       return true;
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -720,11 +702,11 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
     anchor.download = fullName;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: '💾 Brief heruntergeladen.', type: 'info' });
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.DRAFT.EXPORT_DOWNLOADED, type: 'info' });
     return true;
   } catch (err) {
     console.error('[Export] Download fehlgeschlagen:', err);
-    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: '❌ Fehler beim Exportieren.', type: 'error' });
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.DRAFT.EXPORT_ERROR, type: 'error' });
     return false;
   }
 }
@@ -783,12 +765,12 @@ export function initImportExport({ collectDraft } = {}) {
     const file = importInput.files?.[0];
     if (!file) return;
     if (file.size > 1024 * 1024) {
-      notify('❌ Import abgelehnt: Datei zu groß (max. 1 MB).', 'error');
+      notify(Constants.TOASTS.DRAFT.IMPORT_SIZE_ERROR, 'error');
       return;
     }
     const result = parseDinLetterPayload(await file.text());
     if (!result.ok) {
-      notify(`❌ Import abgelehnt: ${result.reason}`, 'error');
+      notify(Constants.TOASTS.DRAFT.IMPORT_REJECTED(result.reason), 'error');
       return;
     }
     pendingImport = result;
@@ -832,7 +814,7 @@ export function initImportExport({ collectDraft } = {}) {
       pendingImport = null;
       location.reload();
     } catch (e) {
-      notify('❌ Import fehlgeschlagen (Storage voll?).', 'error');
+      notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
     }
   });
 }

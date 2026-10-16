@@ -2042,3 +2042,24 @@ In `website/js/` waren ca. 15 Toast-Meldungen inline verstreut (`address.js`, `s
 - `node tools/build_db.js`: Evolutionary Fitness Score 100 %.
 - `node tools/links.js`: Keine toten Wikilinks.
 - `node tools/log_session.js`: Erfolgreich protokolliert.
+
+## 2026-10-16 — tools/adr-check.js angelegt (Präventiver ADR-Drift-Wächter)
+
+**Kontext:**
+In den vorangegangenen Wochen traten wiederholt drei ADR-Drift-Klassen auf: falsche Datei-Zahlen im Text (z. B. ADR-CSS behauptete „8 aktive CSS-Dateien“, Realität waren 4), Referenzen auf historisch gelöschte oder konsolidierte Module (z. B. `boot-state.js`, `layout.css`, `sender-sync.js`) sowie potentiell fehlende `@adr`-Tags in Produktionsdateien.
+
+**Entscheidung:**
+1. **Automatisierter Drift-Wächter (`tools/adr-check.js`):**
+   - **Regel 1 (1:1-Bijektion):** Verifiziert, dass alle physischen CSS- und JS-Dateien in `ADR-CSS.md` bzw. `ADR-JS.md` im `code_links`-Frontmatter registriert sind und keine toten Links existieren.
+   - **Regel 2 (Annotation-Guard):** Verifiziert, dass jede `.js`-Produktionsdatei unter `website/js/` (außer `.d.ts`) in den ersten 5 Zeilen ein `@adr [[...]]`-Tag besitzt.
+   - **Regel 3 (Registry-Zähler):** Verifiziert die Textzähler in `ADR-CSS.md` („exakt N aktive“) und `ADR-JS.md` („Die N Module“) gegen `code_links.length`.
+   - **Regel 4 (Verwaiste Assets):** Scannt alle ADRs nach Dateiendungen (`.css`, `.js`, `.json.gz`, `.svg`) und meldet verwaiste Referenzen als **Warnung (Exit-Code 0)**, um legitime historische Erwähnungen (Antipattern-Tabellen, Konsolidierungs-Chronik) nicht fälschlich als Fehler zu blockieren.
+2. **CLI-Schnittstelle:** Standard-Konsolenausgabe, maschinenlesbares `--json`, `--help` und `--version`.
+3. **Dokumentierte offene Punkte:**
+   - *Annotation-Guard-Regex:* Ist noch nicht strikt kommentar-sicher (sucht Zeile 1–5 nach `@adr [[...]]`; zukünftiges Ticket zur AST-/Kommentar-Prüfung).
+   - *tooling-overview.md:* Hat >400 Zeilen und erzeugt eine LOW-Warnung im Gate; Aufteilung in separatem Ticket vorgesehen.
+   - *Pipeline-Integration:* `adr-check.js` wird zunächst als eigenständiges Tool geführt und erst nach Bewährung in `start.ps1` / `reconciliation.js` eingehängt.
+   - *Unit-Tests:* Eigenständige Test-Suite für `adr-check.js` in `test/all.js` noch offen.
+
+**Verifikation:**
+Funktionstests aller 4 Modi erfolgreich durchgeführt. Fitness Gate (`node tools/build_db.js`) 100 %, Link-Checker (`node tools/links.js`) 0 tote Wikilinks.

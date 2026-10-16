@@ -20,6 +20,7 @@ code_links:
 - 'tools/create_context.js'
 - 'tools/pipeline-cache.ps1'
 - 'tools/log_session.js'
+- 'tools/adr-check.js'
 - 'tools/check-feature.js'
 - 'tools/test_text_fit_harness.js'
 depends_on: []
@@ -428,6 +429,17 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
 - **Risikoklasse**: READ.
 - **Idempotenz**: IDEMPOTENT (gleicher Input → gleicher Output).
 - **Safe-to-delete**: NEIN (Tooling, wird in Skill referenziert).
+
+## adr-check.js
+
+- **Zweck**: Präventiver ADR-Drift-Wächter. Prüft die 4 Regeln: 1:1-Bijektion `code_links` ↔ Dateisystem (ADR-CSS, ADR-JS), `@adr`-Annotation-Guard in Produktionscode (`website/js/*.js`), Registry-Zähler gegen `code_links.length` und verwaiste Asset-Referenzen in allen Architektur-ADRs.
+- **Input**: `docs/10-architecture/ADR-*.md`, `website/css/*.css`, `website/js/*.js`.
+- **Output**: Konsolen-Ergebnisbericht (Standard) oder JSON (`--json`), Exit-Code 0 (OK / nur Regel-4-Warnungen) oder 1 (Fehler in Regel 1, 2 oder 3).
+- **Abhängigkeiten**: Node core (`fs`, `path`). Keine externen npm-Pakete.
+- **Aufrufer**: Manuell durch Entwickler / KI-Agenten vor Commits; potentiell `start.ps1` (noch nicht eingehängt).
+- **Risikoklasse**: READ (reines Prüfwerkzeug, modifiziert keine Dateien).
+- **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand → gleiches Ergebnis).
+- **Safe-to-delete**: NEIN — präventiver Drift-Wächter zur Qualitätssicherung der ADR-Konsistenz.
 
 ## test_text_fit_harness.js
 

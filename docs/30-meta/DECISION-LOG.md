@@ -2075,3 +2075,42 @@ Die Einführung von `tools/adr-check.js` deckte 4 verwaiste Referenzen in Archit
 
 **Verifikation:**
 `node tools/adr-check.js` meldet 0 Funde in Regel 4 (Status: PASS, Exit-Code: 0). Evolutionary Fitness Score 100 %, 0 tote Wikilinks.
+
+## 2026-10-16 — DIN-5008-Abgleich nach Geometrie-Migration
+
+**Kontext:**
+Nach Migration der 36 statischen Geometriewerte aus
+`website/css/sheet.css` in `data-*`-Attribute am jeweiligen
+Element in `website/index.html` wurden alle Werte gegen
+DIN 5008 geprüft.
+
+**Ergebnis (36 Werte):**
+- 32 konform
+- 3 grenzwertig (bewusst beibehalten, dokumentiert)
+- 1 hart abweichend (korrigiert)
+
+**🔴 Korrektur:**
+- `<din-anschriftfeld data-h="40">` → `data-h="45"`
+- Quelle: DIN 5008 Kap. 19.4.3 (17,7 mm) + Kap. 19.4.4 (27,3 mm)
+  = 45 mm.
+- Auswirkung: Anschriftfeld liegt jetzt vollständig im
+  DIN-680-Sichtfenster (45 mm hoch).
+
+**🟡 Beibehaltene Grenzfälle:**
+1. `data-x="20"` an Rücksendezeile und Anschriftfeld.
+   Grund: DIN-interner Widerspruch. Anhang A Tabelle A.1 nennt
+   Fluchtlinie 25 mm, Kap. 19.4.3/19.4.4 nennt 85 mm Breite bis
+   105 mm (= 20 mm). Der Code folgt den Kapiteln, weil das
+   konsistent mit DIN-680-Fensterlage ist.
+2. `data-font="12"` am Betreff.
+   Grund: DIN 20.9.2 erlaubt Hervorhebung. 12 pt ist bewusste
+   Projekt-Entscheidung.
+3. `data-font="8.5"` am Infoblock.
+   Grund: DIN 20.2 nennt 8 pt als Minimum. 8.5 pt innerhalb
+   des Rahmens.
+
+**Verifikation:**
+- Fitness Gate: 100 %
+- adr-check: PASS
+- Grauzone-Literale unverändert (10)
+

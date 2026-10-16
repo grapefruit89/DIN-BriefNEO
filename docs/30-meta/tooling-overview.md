@@ -4,7 +4,7 @@ title: Tool-Inventur — tools/
 status: active
 type: reference
 created: '2026-08-07'
-updated: '2026-09-30'
+updated: '2026-10-16'
 tags:
 - din-briefneo
 - meta
@@ -20,6 +20,7 @@ code_links:
 - 'tools/create_context.js'
 - 'tools/pipeline-cache.ps1'
 - 'tools/log_session.js'
+- 'tools/check-feature.js'
 - 'tools/test_text_fit_harness.js'
 depends_on: []
 supersedes: []
@@ -416,6 +417,17 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
 - `action_type` könnte ein festes Vokabular erhalten (siehe [[tool-result-vocabulary]])
 - `file_path` könnte normalisiert werden (relativ zum Repo-Root)
 - Ein Index auf `file_path` würde Datei-Historien beschleunigen
+
+## check-feature.js
+
+- **Zweck**: Prüft Web-Plattform-Features gegen die Projekt-Baseline Chrome 150+. Nutzt maschinenlesbare Upstream-Daten (`web-features`, `@mdn/browser-compat-data`, `baseline-browser-mapping`).
+- **Input**: CLI-Argument (Feature-Name, CSS-Property, Selektor, HTML-Attribut), Flags (`--refresh`, `--list-groups`, `--json`, `--help`, `--version`).
+- **Output**: Konsolen-Ausgabe (Feature, Baseline-Status, Chrome-Version, andere Browser, Projekt-Status).
+- **Abhängigkeiten**: Node core + drei isolierte Pakete in `~/.din-briefneo/feature-cache/node_modules/`.
+- **Aufrufer**: Manuell durch Entwickler oder KI-Agenten vor einer Feature-Entscheidung. Auch in `agent/skills/implement-with-economy/`.
+- **Risikoklasse**: READ.
+- **Idempotenz**: IDEMPOTENT (gleicher Input → gleicher Output).
+- **Safe-to-delete**: NEIN (Tooling, wird in Skill referenziert).
 
 ## test_text_fit_harness.js
 

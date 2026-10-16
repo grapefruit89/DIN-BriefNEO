@@ -40,6 +40,27 @@ Styling, Interaktion) — nicht bei reinen Tooling-/Build-Skripten in
 `tools/`, dort gilt weiterhin nur die generische Leiter aus
 `repository-operations`.
 
+## Schritt 0 — Feature-Verfügbarkeit prüfen (vor HTML/CSS/JS)
+
+Bevor du entscheidest, ob ein Feature mit HTML, CSS oder JavaScript
+umgesetzt wird, prüfe, ob es in der Projekt-Baseline (Chrome 150+)
+verfügbar ist:
+
+    node tools/check-feature.js "<feature-name>"
+
+Beispiele:
+    node tools/check-feature.js "text-fit: shrink"
+    node tools/check-feature.js ":has"
+    node tools/check-feature.js "CSS Anchor Positioning"
+
+Ergebnis interpretieren:
+- ✅ NUTZBAR → Feature kann direkt genutzt werden
+- ⚠️ NUR WENN BASELINE ANGEHOBEN WIRD → nicht nutzen
+- ❌ NICHT NUTZBAR → nicht nutzen
+- ❓ NICHT GEFUNDEN → Schreibweise prüfen oder Feature existiert nicht
+
+Erst danach: HTML → CSS → JS-Entscheidungsleiter anwenden.
+
 ## Die Leiter
 
 Der Reihe nach pruefen, bei der ersten Stufe stoppen, die das Problem

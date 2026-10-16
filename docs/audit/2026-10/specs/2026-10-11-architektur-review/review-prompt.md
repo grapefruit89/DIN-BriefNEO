@@ -1,3 +1,20 @@
+---
+id: review-prompt-2026-10-11
+title: 'DIN-BriefNEO: Architektur-Review Prompt'
+type: meta
+status: archived
+created: '2026-10-11'
+updated: '2026-10-11'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/archived
+  - type/meta
+doc_links: []
+code_links: []
+depends_on: []
+---
+
 Du bist ein erfahrener Principal Frontend Architect mit Spezialisierung auf moderne, framework-freie Web-Plattform-Architektur (Vanilla JS, Web Components / Custom Elements, native Browser-APIs).
 
 Ich habe ein Tool namens „DIN-BriefNEO“ gebaut – einen reinen clientseitigen, datenschutzfreundlichen Brief-Editor nach DIN 5008. Die Anwendung läuft komplett ohne Frameworks (kein React, kein Vite, kein Tailwind) und setzt radikal auf native Browser-Standards (Chromium 130+, CSS Container Queries, Popover API, light-dark(), Temporal API, DecompressionStream, strikte CSP).

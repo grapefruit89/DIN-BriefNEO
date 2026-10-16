@@ -4,7 +4,7 @@ title: "ADR-JS: JavaScript Architecture, Constraints & Single Source of Truth (S
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-10-11'
+updated: '2026-10-15'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -24,6 +24,7 @@ code_links:
   - website/js/address.js
   - website/js/persistence.js
   - website/js/main.js
+  - website/js/boot-theme.js
 error_patterns:
   - javascript constraints
   - js as a crutch
@@ -72,7 +73,12 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 
 Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS.md §7a, keine Unterordner). Module sind nach Schichten strukturiert (`0x` Core, `3x` UI, `4x` Features/Domain, `5x` Storage/Tools):
 
-### 0. `core.js` (Natives Pub/Sub-Fundament & Popover-Toast-System)
+### 0. `boot-theme.js` (Blocking Head-Script: FOUC-Schutz & Font-Loading)
+* Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme` und `data-layout` auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz).
+* Liest gespeicherte Benutzereinstellungen (`din_settings`) synchron aus dem `localStorage`.
+* Validiert gespeicherte Custom-Fonts (Base64 data-URI) und registriert diese via `FontFace` API.
+
+### 1. `core.js` (Natives Pub/Sub-Fundament & Popover-Toast-System)
 *Bündelt den vormaligen EventBus (`00-event-bus.js`) und das Toast-System (`32-toast.js`):*
 * `createEventBus(target)`: Factory für isolierte EventTarget-Instanzen (ideal für Unit-Tests).
 * `eventBus`: Singleton-Instanz für die anwendungsweite Kommunikation.
@@ -83,7 +89,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * `armCloseWatcher()`: Schließt den Toast nativ über `CloseWatcher` bei Esc / Back-Gesture.
 * Verwaltet automatischen Lesezeit-Timer (`2000ms + 30ms × Zeichenanzahl`, max. `5000ms`).
 
-### 1. `document.js` (Dokumenten-Core: DraftManager, UIProtections & SelectionUtils)
+### 2. `document.js` (Dokumenten-Core: DraftManager, UIProtections & SelectionUtils)
 * **`DraftManager`**:
   * `constructor(onSaveCallback = null, bus = eventBus)`: Initialisiert History-Stack und lauscht auf `DOCUMENT_SAVE_REQUESTED`.
   * `saveDraft()`: Serialisiert den aktuellen Entwurf, speichert ihn in `localStorage` und publiziert `DOCUMENT_SAVED` bzw. `DOCUMENT_SAVE_FAILED`.
@@ -102,7 +108,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
   * `getCaretCharacterOffset(element)` / `setCaretCharacterOffset(element, offset)`: W3C Range- & TreeWalker-basierte Caret-Positionsbestimmung ohne Layout Thrashing.
   * `setCaretToEnd(element)`: Setzt den Fokus und Caret ans Textende.
 
-### 2. `settings.js` (UI-Settings, Layout, Theme, Font & SignatureFeature)
+### 3. `settings.js` (UI-Settings, Layout, Theme, Font & SignatureFeature)
 *Bündelt die vormaligen Einzelmodule `02-settings-manager.js`, `42-signature.js` und re-exportiert `sanitizeRichText`:*
 * **`SettingsManager`**:
   * `constructor()`: Bindet UI-Elemente für Layout (Form A/B), Theme und Schalter.
@@ -121,8 +127,8 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
   * `processFile(file)` / `compressImage(bitmap)`: Asynchrone Bildkompression via `createImageBitmap` zur Schonung des LocalStorage.
   * `saveAndApply(base64)` / `applyImage(base64)` / `resetImage()`: Speichern, Rendern und Löschen der Signatur.
 
-### 3. `salutation.js` (80/20 Smart Salutation Engine)
-* `constructor(settingsContext = null)`: Initialisiert Engine mit 3 B2B-Pärchen; die 951 Vornamen werden aus `data/de_vornamen_gender.json.br` geladen. Publiziert `DOCUMENT_SAVE_REQUESTED` über den EventBus bei Änderungen.
+### 4. `salutation.js` (80/20 Smart Salutation Engine)
+* `constructor(settingsContext = null)`: Initialisiert Engine mit 3 Tonalitäten (`formal`, `polite`, `casual`); arbeitet rein regelbasiert und deterministisch ohne externe Namenslisten (Offline/Zero-Dep). Erkennt Geschlecht ausschließlich aus expliziten Präfixen ("Herr", "Herrn", "Frau") im Namensfeld oder adressiert neutral ("Guten Tag", "Hallo", "Sehr geehrte Damen und Herren"). Publiziert `DOCUMENT_SAVE_REQUESTED` über den EventBus bei Änderungen.
 * `init()`: Verdrahtet Empfänger-Eingaben mit Anrede und Grußformel.
 * `derive({ firstName, lastName, company, formality })`: Ermittelt treffsicher die Anredeform ("Sehr geehrte(r) Frau/Herr [Nachname],", "Guten Tag...", "Hallo...").
 * `getClosing(formality)`: Liefert das harmonische DIN-5008-Gegenstück ("Mit freundlichen Grüßen", "Freundliche Grüße", "Beste Grüße").
@@ -131,7 +137,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * `_applyUIState()` / `_wireRecipientName()` / `_wireManualEdits()`: Reagiert auf Eingaben mit In-Flight-Tippschutz und schützt manuelle Nutzereingaben via `data-dirty="true"` (mit Auto-Reset bei Feldleerung).
 * `_validatePunctuation(el, kind)`: Erzwingt DIN-Kommasetzung (Komma nach Anrede, strikt KEIN Komma nach Grußformel) via `NOTIFICATION_REQUESTED`.
 
-### 4. `address.js` (Konsolidierter Adress-, PLZ- & Geocoding-Cluster)
+### 5. `address.js` (Konsolidierter Adress-, PLZ- & Geocoding-Cluster)
 *Bündelt die vormaligen Einzelmodule `05-gzip.js`, `44-address-domain.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js` und `43-geoapify.js`:*
 * **Gzip-Decompression (`fetchGzipJson`)**: Nativer `DecompressionStream('gzip')` für `de_plz_ort.json.gz` und `de_grosskunden_plz.json.gz` ohne Fremdbibliotheken.
 * **Domain Functions (Zustandslos)**:
@@ -145,7 +151,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 * **`ClipboardAddressParser`**: 95%-KISS Multi-Pass Regex-Parser für Zwischenablagen-Texte. Filtert Metadaten (HRB, USt-ID etc.) und öffnet bei Mehrdeutigkeit das Popover `#clipboard-candidates-popover`.
 * **`initAddressServices()`**: Optionaler Geoapify-Service mit In-Memory Cache, Adressbuch-Historie (max. 50 Einträge) und Absender-Proximity-Bias.
 
-### 5. `persistence.js` (Konsolidierter Persistenz-, Datums- & Export-Layer)
+### 6. `persistence.js` (Konsolidierter Persistenz-, Datums- & Export-Layer)
 *Bündelt die vormaligen Einzelmodule `47-date-format.js`, `51-storage.js`, `53-metadata.js` und `52-import-export.js`:*
 * **DateFormat (`formatLetterDate`, `applyLetterDate`, `currentISODate`)**: Zoniertes DIN-5008-Datum ("4. September 2026") und maschinenlesbares ISO-Datum via nativer `Intl.DateTimeFormat` und `Temporal API`.
 * **Storage Primitives & Konstanten**:
@@ -163,7 +169,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
   * `parseDinLetterPayload(raw)`: Defensiver Validator für importierte JSON-Dateien (Schutz vor Prototyp-Pollution und XSS).
   * `initImportExport()`: Verdrahtet Export- und Import-Dialoge; publiziert `DOCUMENT_SAVE_REQUESTED` und `NOTIFICATION_REQUESTED`.
 
-### 16. `main.js` (Composition Root & Bootstrap)
+### 7. `main.js` (Composition Root & Bootstrap)
 * `initApp()`: Zentraler Bootstrap beim Laden von `DOMContentLoaded`. Initialisiert EventBus, Module und Adapter.
 * `syncPostvermerkFromSidebar()`: Synchronisiert Auswahlliste mit dem Postvermerkfeld.
 * `attachGlobalListeners(...)`: Registriert globale Tastenkombinationen und leitet DOM-Eingaben via `DOCUMENT_SAVE_REQUESTED` an den EventBus weiter.
@@ -204,7 +210,7 @@ Folgende Funktionen und Module aus früheren Versionen (Stand Commit `1b663fa`) 
 | **`addons/ai-assistant.js`** | On-Device Gemini Nano Rewriter, `#toggle-experimental-ai`, `#btn-ai-rewrite` | 🚫 **ELIMINATED** | KISS-Bereinigung toten Codes | Wegfall der Format-Toolbar machte Addon funktionslos; Prototyp archiviert unter `research/roadmap/`. |
 | **`boot-state.js`** | Doppelter Draft-Restore vor `main.js`, DOM-Vorbelegung | 🚫 **ELIMINATED** | KISS SSoT-Doktrin | `DraftManager` in `document.js` ist alleiniger Restore-Owner. |
 | **`48-text-fit.js`** | `constructor`, `init`, `scanDOM`, `isOverflowing`, `attachEventListeners`, `notifyToast`, `restoreCaretToEnd`, `initMutationObserver` | 🚫 **HARD BAN** | Catalog A49, Probe P3 | CSS `field-sizing: content`, `overflow: clip`, `text-fit: shrink 60%`, `text-wrap: balance/pretty`. 0 Zeilen JS, 0 ms Layout Thrashing. |
-| **`41-salutation-engine.legacy.js`** | `_wireGender`, Radio-Buttons für Geschlecht, NLP-Regexes für Adelstitel/Paare | 🚫 **HARD BAN** | Catalog A58, Prio 1 | 80/20 Smart Engine (`41-salutation-engine.js`), 951 Offline-Vornamen, ContentEditable Dirty-Flag mit Auto-Reset. |
+| **`41-salutation-engine.legacy.js`** | `_wireGender`, Radio-Buttons für Geschlecht, NLP-Regexes für Adelstitel/Paare | 🚫 **HARD BAN** | Catalog A58, Prio 1 | 80/20 Smart Engine (`salutation.js`), deterministische regelbasierte Erkennung ohne externe Namenslisten, ContentEditable Dirty-Flag mit Auto-Reset. |
 | **`03-ui-protections.js`** | `beforeInputFormatTypes`, `beforeInputParagraphTypes`, BeforeInput-Event-Listener für Einzeiler | 🚫 **HARD BAN** | Catalog A55, Probe P4 | Natives HTML `contenteditable="plaintext-only"` und `enterkeyhint="done"`. Formatierungs- und Umbruchssperre erfolgt nativ in C++. |
 | **`32-toast.js`** | `onPointerDown`, `onPointerMove`, `onPointerUp`, `setPointerCapture`, `swipe.startX`, `--swipe-x`, `z-index: 9999` | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover="manual"`) im Top-Layer, CSS `@starting-style` und `transition-behavior: allow-discrete`. |
 | **`43-geoapify.js`** | Zippopotam.us Fetch-Kaskaden & synchrone externe PLZ-Lookups | 🚫 **HARD BAN** | Catalog A38, Prio 2 | 72 KB Offline Brotli PLZ & Großempfänger Engine (`45-address-intelligence.js`). 100% DSGVO-konform, 0ms Latenz. |

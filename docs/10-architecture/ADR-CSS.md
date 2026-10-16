@@ -4,7 +4,7 @@ title: "ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)"
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-10-15'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -91,166 +91,127 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 
 ## 3. Single Source of Truth: Aktive CSS-Dateien & Komponenten-Registry
 
-Das Projekt verfügt über exakt **8 aktive CSS-Dateien** unter `website/css/`:
+Das Projekt verfügt über exakt **4 aktive CSS-Dateien** unter `website/css/` (konsolidiert am 2026-10-11, Commit `0621dde`):
 
 ```
 website/css/
-├── variables.css  (120 Zeilen| 55 Vars  | Design Tokens, @property, OKLCH, light-dark)
-├── reset.css      (45 Zeilen |  2 Vars  | Box-Sizing, Viewport-Lockdown, Font-Stacks)
-├── layout.css     (368 Zeilen| 20 Vars  | App Shell, Viewport, Zero-JS Toggles, Utilities)
-├── sidebar.css    (385 Zeilen|  0 Vars  | Sidebar, Custom Inputs, Autocomplete, Geoapify, Guides)
-├── sheet.css      (258 Zeilen|  0 Vars  | DIN 5008 Blatt-Geometrie, @scope (din-a4), Briefzonen)
-├── signature.css  (111 Zeilen|  0 Vars  | Unterschrift: UI-States + WYSIWYG-Editor)
-├── floating.css   (472 Zeilen|  0 Vars  | Top-Layer Popovers, @starting-style, Anchor Positioning)
-└── print.css      (48 Zeilen |  0 Vars  | @media print, 0mm Margins, DIN-Trennlinie)
+├── base.css       (193 Zeilen | Reset, Design-Tokens, OKLCH, No-Flip, Theming, Viewport-Lockdown & Font-Stacks)
+├── sheet.css      (531 Zeilen | DIN-5008 Blatt-Geometrie, @scope (din-a4), Briefzonen, Text-Fit, Signatur-Canvas)
+├── sidebar.css    (918 Zeilen | Sidebar-Navigation, Custom Inputs, Autocomplete, Popovers/Overlays, Anchor Positioning)
+└── print.css      (86 Zeilen  | @media print, @page, 0mm Margins, DIN-Trennlinie, PDF-Erzeugung)
 
-> Stand 2026-09-10. Zielkorridor: ~300-400 Zeilen pro Datei (Kontextkosten pro Lesedurchgang);
-> jede Datei mit klarem Single-Responsibility-Schnitt. Ausreißer werden analysiert und gesplittet.
+> Stand 2026-10-15. 4-Domänen-Konsolidierung: Klare Trennung nach Lebenszyklus und Kapselungsgrenzen
+> statt künstlicher Schichten-Splits. Beseitigt Kaskaden-Konflikte und zirkuläre Spezifitäts-Fixes.
 ```
 
 ---
 
-### 1. `variables.css` (Design-Tokens, Farbraum & Registered Custom Properties)
+### 1. `base.css` (Fundament: Reset, Design-Tokens, OKLCH, Theming & App-Shell Grid)
 
-* **Cascade Layers:** Definiert die hierarchische Schichtung `@layer reset, tokens, layout, floating;`.
+Bündelt die vormaligen Einzeldateien `reset.css`, `variables.css` und `layers.css` sowie das globale App-Shell-Grid:
+* **Reset & Viewport-Lockdown:**
+  * Universelles Box-Sizing: `*, *::before, *::after { box-sizing: border-box; }`.
+  * Absolute Viewport-Sperre: `html, body { width: 100vw; height: 100dvh; overflow: hidden; margin: 0; padding: 0; }`.
+  * Typografische Basis & System-Font-Stacks (`system-ui, -apple-system, "Segoe UI", Roboto...`).
+  * Accessibility: `@media (prefers-reduced-motion: reduce)` als Kill-Switch für alle Animationen und Transitions.
 * **Registered Custom Properties (`@property`):**
-  * `@property --hilfslinien-deckkraft`: Syntax `<number>`, inherits `true`, initial `0` — ermöglicht flüssige CSS-Interpolation beim Ein-/Ausschalten der Hilfslinien.
-  * `@property --theme-dim`: Syntax `<number>`, inherits `true`, initial `0` — stufenlose Helligkeitsregulierung im Dark Mode.
-* **Farbmetrik (OKLCH-Farbraum):**
-  * Sämtliche Farben sind mathematisch als wahrnehmungsgleich im OKLCH-Farbraum definiert (z. B. `--c-viewport-day: oklch(0.96 0.01 250);`, `--c-viewport-night: oklch(0.2735 0.0179 251.92);`).
+  * `@property --hilfslinien-deckkraft`: Syntax `<number>`, inherits `true`, initial `0` — flüssige CSS-Interpolation beim Umschalten der Hilfslinien.
+* **Design Tokens & Wahrnehmungsgerechter Farbraum (OKLCH):**
+  * Sämtliche Farben im OKLCH-Farbraum definiert (`--c-viewport-day`, `--c-viewport-night`, etc.).
   * Reines Weiß (`oklch(100% 0 0)`) und Tiefschwarz (`oklch(0% 0 0)`).
-* **Natives Theming (`light-dark()`):**
+* **Natives Theming mit `light-dark()` & No-Flip Nachtmodus:**
   * `--bg-viewport`, `--bg-seitenleiste`, `--bg-card`, `--border-color`, `--text-primary`, `--text-muted`.
-  * `--blatt-hintergrund`, `--blatt-text`, `--blatt-schwach`.
+  * No-Flip Ergonomie: Der Papierbogen bleibt auch im Dark Mode als Dokument lesbar (`--blatt-hintergrund`, `--blatt-text`), während Viewport und Sidebar abgedunkelt werden.
   * Glassmorphism via `color-mix`: `--bg-seitenleiste-glass: color-mix(in oklch, light-dark(...) 80%, transparent);`.
-* **Semantische Statusfarben:**
-  * `--c-primary`, `--c-success` (Grün), `--c-warning` (Orange), `--c-danger` (Rot).
-* **Theming-Selektoren (3-Wege Toggle Auto/Light/Dark):**
-  * `:root[data-theme="light"] { color-scheme: light; }`
-  * `:root[data-theme="dark"] { color-scheme: dark; }`
-  * `:root[data-theme="auto"] { color-scheme: light dark; }`
-* **State-Bindings via `:has()`:**
-  * `body:has(#btn-font-sans:checked)`, `body:has(#btn-font-serif:checked)` steuern `--font-active-stack`.
-  * `[popover] { color-scheme: inherit; }` (stellt sicher, dass Top-Layer-Elemente das Parent-Farbschema erben).
+* **State-Bindings via `:has()` & Theme-Selektoren:**
+  * `:root[data-theme="light"] { color-scheme: light; }`, `:root[data-theme="dark"] { color-scheme: dark; }`, `:root[data-theme="auto"] { color-scheme: light dark; }`.
+  * `body:has(#btn-font-sans:checked)`, `body:has(#btn-font-serif:checked)` steuern Schriftauswahl.
+  * `[popover] { color-scheme: inherit; }` (Top-Layer-Elemente erben das Farbschema).
+* **App-Shell Grid & Viewport:**
+  * `#app-shell`: Flexbox-/Grid-Layout mit `height: 100dvh; overflow: hidden;`.
+  * `#viewport`: Flex-Container für das Briefblatt mit `container-type: size; container-name: viewport;`.
 
 ---
 
-### 2. `reset.css` (Globaler Reset & Viewport-Lockdown)
+### 2. `sheet.css` (DIN-5008 Blatt-Geometrie, Scoped Isolation, Briefzonen & Signatur-Stage)
 
-* **Box-Sizing:** Universell `*, *::before, *::after { box-sizing: border-box; }`.
-* **Viewport-Sperre:** `html, body { width: 100vw; height: 100dvh; overflow: hidden; margin: 0; padding: 0; }`.
-* **Schrift-Glättung:** `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;`.
-* **Typografische Basis:** `system-ui, -apple-system, "Segoe UI", Roboto...` für die App-Shell.
-* **Font-Stack Umschaltung:**
-  * `body.font-stack-sans` aktiviert moderne Sans-Serif-Glyphen.
-  * `body.font-stack-serif` schaltet auf DIN-konforme Serifenschriften um (`Georgia, Times New Roman`).
-  * `body.font-custom-active din-a4` aktiviert injizierte WOFF2-Schriften (`'AptosCustom'`).
-* **Theme Transition:** Sanfter Hintergrundfarbwechsel auf `body` mit `transition: background-color 0.4s, color 0.4s`.
-
----
-
-### 3. `layout.css` (App-Shell, Viewport & Zero-JS Toggles)
-
-* **App-Shell Layout:**
-  * `#app-shell`: CSS Grid mit `clamp(200px, 20dvw, 280px) 1fr;` und `overflow: hidden;`.
-  * `aside`: Glassmorphism-Sidebar mit `backdrop-filter: var(--glass-blur);`, `z-index: 10;`.
-* **Segmented Controls & Modern Switches:**
-  * `.segmented-control`: Gleitender Hintergrund via `::before` und dynamischem `:checked + label`-Offset.
-  * `.sidebar-switch-row` & `input[type="checkbox"][switch]`: Semantischer HTML-Switch mit nativem Track und Thumb — Instanzen: `#btn-hilfslinien-switch` (Hilfslinien) und `#toggle-anlagen` (Anlagen-Blattzone via `:root:has(#toggle-anlagen:checked) din-anlagen`).
-* **Bedingte Blattzonen (Postvermerk-Sichtbarkeit):**
-  * `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))` blendet `din-postvermerk`/`#postvermerk` rein deklarativ ein (layout.css + floating.css). Kein Hidden-Checkbox-Zwitter mehr — der Sidebar-Select ist der einzige Schreiber.
-### 4. `sheet.css` (DIN-5008 Blatt-Geometrie, `@scope` & Briefzonen) — 2026-09-10 aus `layout.css` ausgegliedert
-
-* **HTML Attribute Parsing via CSS `attr()`:**
-  * `din-a4` liest DIN-Koordinaten direkt aus den HTML-Attributen: `attr(data-width-mm type(<number>), 210)`.
-  * Form A / Form B Reaktivität: `body:has(#btn-form-a:checked) din-a4` berechnet Faltmarken (`--falz-oben-y: calc(87 / 297 * 100cqh);`) und Briefkernstart dynamisch um.
+Bündelt die DIN-5008-Geometrie, ContentEditable-Schutz und die vormalige `signature.css`:
+* **HTML Attribute Parsing via CSS `attr()` (Single Source of Truth):**
+  * `din-a4` liest DIN-Koordinaten direkt aus HTML-Attributen: `attr(data-width-mm type(<number>))` und `attr(data-height-mm type(<number>))`.
+  * Form A / Form B Reaktivität: `:root[data-layout="form-a"] din-a4` bzw. `body:has(#btn-form-a:checked) din-a4` schaltet Faltmarken (`--falz-oben-y`, etc.) und Briefkernstart dynamisch um.
 * **Stage & Scoped Canvas (`@scope (din-a4)`):**
-  * `#viewport`: Flex-Container mit `container-type: size; container-name: viewport;`.
-  * `#brief-ansicht`: Grid mit `container-type: size; container-name: sheet-stage;`.
-  * `@scope (din-a4)`: Kapselt alle Blattstile. Fixiert Maße auf `aspect-ratio: 210 / 297`, `overflow: clip; contain: strict; container-type: size; container-name: paper;`.
-* **ContentEditable-Veredelung:**
+  * Kapselt alle Blattstile strikt gegen die App-Shell ab.
+  * Fixiert Maße auf `aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe)`, `overflow: clip; contain: strict; container-type: size; container-name: paper;`.
+  * Verhindert horizontales und vertikales Ausbrechen über `width: min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))`.
+* **ContentEditable & Micro-Copyfitting:**
   * `[contenteditable] { field-sizing: content; outline: 1px dashed oklch(...); }`.
-  * Hover- und Focus-Zustände mit dynamischen OKLCH-Aura-Ringen (`box-shadow: 0 0 0 3px oklch(...)`).
-  * `.squeezed`: Minimale Schriftstauchung (`letter-spacing: -0.015em`) bei Zeichenlimits.
   * Ghost-Platzhalter: `[contenteditable]:empty::before { content: attr(placeholder); }`.
+  * Fokuszustände mit OKLCH-Aura-Ringen (`box-shadow: 0 0 0 3px oklch(...)`).
+  * Stauchung überlanger Inhalte via CSS: `text-fit: shrink 60%` und `text-fit: shrink`.
+  * Typografische Balance: `text-wrap: balance;` für Betreff, `text-wrap: pretty;` für Fließtext.
 * **DIN-5008 Briefzonen:**
-  * `#rucksendezeile`: Rücksendezeile (45 mm von oben in Form B, 5 mm Höhe, 8pt Schrift).
-  * `#anschriftfeld`: Anschriftfeld (85 × 45 mm, 10pt Schrift).
-  * `#infoblock`: Zusatzinformationen rechtsbündig ab 125 mm.
-  * `#datum`: Datumszeile normgerecht auf 92 mm (Form B).
-  * `#kern`: Fließtextbereich mit Fluchträndern 25 mm links und 20 mm rechts; `overflow: clip;`.
-  * `#betreff`: Betreffzeile mit `font-weight: 700; text-fit: shrink; text-wrap: balance;`.
-  * `#anrede`: 10.5pt Schriftgröße, 1 Leerzeile Abstand.
-  * `#text`: Blocksatz (`text-align: justify; hyphens: auto; text-wrap: pretty; line-height: 1.4;`).
-  * `#grussformel`: 1 Leerzeile vor Gruß, 3 Leerzeilen für Unterschrift.
-  * `#unterschrift`: Signaturzone.
-  * `#postvermerk-dropdown`: Popover im Top-Layer, verankert an `--anchor-postvermerk`.
-* **Natives Text-Fitting & Font-Shrink:**
-  * `#anschriftfeld, #infoblock, #kern, #anrede, #grussformel, #unterschrift { text-fit: shrink 60%; }`.
-  * `.single-line`: `white-space: nowrap; overflow: clip; text-overflow: ellipsis; text-fit: shrink; field-sizing: content;`.
-* **Moderne Form-Controls & Base Select:**
-  * `#sidebar-postvermerk-select`: Gestaltet via `appearance: base-select`, `::picker(select)` und `::picker-icon`.
-* **Hilfslinien & Faltmarken:**
-  * `din-falz-oben, din-falz-unten, din-lochmarke`: Faltmarken 1 und 2 sowie Lochmarke am linken Rand auf exakt 8 mm begrenzt (`width: calc(8 / 210 * 100cqw);`), um Betreffkollisionen physisch zu verhindern.
+  * `#rucksendezeile` (Rücksendeangabe 5 mm Höhe, 8pt Schrift).
+  * `#anschriftfeld` (85 × 45 mm, 10pt Schrift).
+  * `#infoblock` (Zusatzinformationen rechtsbündig ab 125 mm).
+  * `#datum` (Datumszeile normgerecht auf 92 mm in Form B).
+  * `#kern` (Fließtextbereich mit Fluchträndern 25 mm links, 20 mm rechts).
+  * `#betreff`, `#anrede`, `#text`, `#grussformel`, `#unterschrift`, `#anlagen`.
+* **Falt- und Lochmarken:**
+  * `din-falz-oben`, `din-falz-unten`, `din-lochmarke`: exakt auf 8 mm begrenzt (`calc(8 / 210 * 100cqw)`), um Betreffkollisionen physisch auszuschließen.
   * Sichtbarkeit gesteuert über `--hilfslinien-deckkraft`: `:root:has(#btn-hilfslinien-switch:checked) { --hilfslinien-deckkraft: 0.55; }`.
-* **Signatur-Bounding-Box:**
-  * `.unterschriftsbild-rahmen`, `.unterschriftsbild-griff`, `.unterschriftsbild-drehgriff`: Interaktive Transformations-Handles für die Unterschrift.
+* **Signatur-Overlay (CAD-Geometrie & Snapping):**
+  * Interaktiver Transformations-Rahmen (`.unterschriftsbild-rahmen`, `.unterschriftsbild-griff`, `.unterschriftsbild-drehgriff`) für stufenloses Skalieren, Verschieben und Rotieren der Signatur.
 
 ---
 
-### 5. `sidebar.css` & `signature.css` (Sidebar-/Signatur-Styling) — 2026-09-10 aus `layout.css` ausgegliedert
+### 3. `sidebar.css` (Sidebar-Navigation, Form-Controls, Floating Popovers & Anchor Positioning)
 
-* **sidebar.css:** Sidebar-Shell, Custom Inputs & Autocomplete, Comment-Format, Sidebar-Utilities, Adressbuch-/Geoapify-State-Toggles, Guides-Hinweise.
-* **signature.css:** Signatur-UI-States (Upload/Reset) + WYSIWYG-Editor (Drag/Scale/Rotate via Custom Properties).
-* **Split-Grundsatz:** Kontextkosten pro Lesedurchgang — Datei-Zielkorridor ~300-400 Zeilen, Single-Responsibility-Schnitt, reine Verschiebung ohne Selektor-/Kaskadenänderung (Link-Reihenfolge in index.html = alte Source-Order).
-
-### 6. `floating.css` (Top-Layer Overlays, Popovers & Anchor Positioning)
-
-* **Architektur-Wächter Popover Top-Layer:**
-  * `#toast-v4`: Verwendet natives HTML `popover="manual"`. Rendert direkt im Browser-Top-Layer ohne `z-index`.
-  * Einblendung/Ausblendung über `@starting-style` und `transition-behavior: allow-discrete`:
+Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die ehemals in `floating.css` ausgelagerten Top-Layer-Overlays:
+* **Sidebar-Shell & Navigation:**
+  * `#seitenleiste`: Feste Breite `290px`, Glassmorphism mit `backdrop-filter: var(--glass-blur);`, `touch-action: pan-y;`, `overscroll-behavior: contain;`.
+  * Akkordeon-Bereiche (`.seitenleiste-setup`), Zonengruppierungen und Buttons.
+* **Moderne Form-Controls & Base Select:**
+  * Formular-Controls gestaltet mit nativem `appearance: base-select`, `::picker(select)` und `::picker-icon`.
+  * Semantische HTML-Switches (`input[type="checkbox"][switch]`) für Hilfslinien und Anlagen.
+* **CSS Anchor Positioning für schwebende UI (W3C Standard):**
+  * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
+  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
+  * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
+* **Top-Layer Popovers & Deklarative Transitions:**
+  * `#hinweis-v4` / `#toast-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
+  * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`:
     ```css
     @starting-style {
-      #toast-v4:popover-open {
+      #hinweis-v4:popover-open {
         opacity: 0;
         transform: translateY(-20px);
       }
     }
     ```
-  * Enthält `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen. Leere Nebenelemente werden deklarativ versteckt: `.toast-badge:empty, .toast-action-btn:empty { display: none; }` — kein JS-Toggling.
-  * Schüttel-Animation bei Deduplizierung: `@keyframes shakeToast`.
-* **CSS Anchor Positioning für schwebende UI:**
-  * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
-  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
-  * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
-* **Inline-Feedback (.input-feedback-msg):** Statusmeldungen für ungültige API-Keys oder Tastaturbeschränkungen.
-* **Visuelle Trennung:**
-  * Alle schwebenden Dropdowns nutzen `backdrop-filter: var(--glass-blur);`, abgerundete Ecken und dezente Schatten (`var(--shadow-lg)`).
-* **Inline-Feedback:**
-  * `.input-feedback-msg`: Statusmeldungen für ungültige API-Keys oder Tastaturbeschränkungen.
-* **Sichtbarkeitsdeklarationen:**
-  * Explizite Block-Deklaration für DIN-Custom-Elemente (`din-rucksendezeile`, `din-betreff`, etc.).
+  * `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen; leere Elemente deklarativ versteckt (`:empty { display: none; }`).
+* **Dialoge & Modals:**
+  * Native `<dialog>`-Elemente (`#import-dialog`, `#dialog-adressbuch`) im Top-Layer mit abgedunkeltem `::backdrop`.
 
 ---
 
-### 7. `print.css` (Druckarchitektur & PDF-Erzeugung)
+### 4. `print.css` (Druckarchitektur & PDF-Erzeugung)
 
+* **Exakte Druck-Vermaßung (Chrome 150+ Baseline):**
+  * `@page { size: A4; margin: 0; page-margin-safety: auto; }` — pinnt A4 fest, setzt Margen auf 0 (Falzmarken/Lochmarke an physischer DIN-Position) und nutzt `page-margin-safety: auto`.
 * **Print-Spezifität & Viewport-Freistellung:**
   * `html, body { overflow: visible !important; height: auto !important; }`.
-  * `body { background: oklch(100% 0 0) !important; }`.
+  * `body { background: oklch(100% 0 0) !important; color-scheme: light !important; }`.
   * `#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }`.
-* **Chrome-Ausblendung:**
-  * `aside, .no-print, [popover], #toast-v4, #font-uploader { display: none !important; }`.
-* **Exakte DIN-A4-Papiermaße im Druck:**
-  * `din-a4`: `transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; width: calc(210 * 1mm) !important; height: calc(297 * 1mm) !important;`.
-* **Bereinigung von Hilfselementen:**
-  * `[contenteditable]:empty::before, [placeholder]:empty::before { display: none !important; }`.
-  * `[contenteditable] { outline: none !important; box-shadow: none !important; background: transparent !important; }`.
+* **Chrome- & UI-Ausblendung:**
+  * `aside, .nicht-drucken, [popover], #hinweis-v4, #schrift-uploader, .unterschriftsbild-griff { display: none !important; }`.
+* **DIN-A4 Papiermaße im Druck:**
+  * `din-a4`: `transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; width: calc(attr(data-width-mm type(<number>)) * 1mm) !important; height: calc(attr(data-height-mm type(<number>)) * 1mm) !important;`.
 * **DIN-5008 Druck-Trennlinie:**
-  * `#rucksendezeile { border-bottom: 0.5pt solid oklch(0% 0 0) !important; padding-bottom: 2px !important; }` — die genormte Trennlinie unter der Rücksendezeile erscheint ausschließlich auf dem Papier/PDF.
-* **Dropdown-Icons neutralisieren:**
-  * `.pv-select { appearance: none !important; border: none !important; background: transparent !important; }`.
-  * `.pv-select::picker-icon { display: none !important; }`.
+  * `#rucksendezeile { border-bottom: 0.5pt solid oklch(0% 0 0) !important; padding-bottom: 1.5pt !important; }` — erscheint ausschließlich im Druck, wenn die Zeile befüllt ist (`#rucksendezeile:empty { border-bottom: none !important; }`).
+* **Typografischer Schutz:**
+  * `#text { orphans: 3 !important; widows: 3 !important; }`.
+  * `#grussformel { break-after: avoid !important; }`.
+  * `.unterschrift-zeile, #unterschriftsbild-container { break-inside: avoid !important; }`.
 
 ---
 

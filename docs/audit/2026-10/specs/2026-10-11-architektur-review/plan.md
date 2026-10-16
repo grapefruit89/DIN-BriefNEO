@@ -2,7 +2,7 @@
 id: plan-2026-10-11-architektur-review
 title: 'Plan: Phasen-Roadmap für sicheres Event-Driven Refactoring'
 type: plan
-status: active
+status: archived
 created: '2026-10-11'
 updated: '2026-10-11'
 tags:
@@ -12,6 +12,9 @@ tags:
   - type/plan
   - event-bus
   - refactoring
+doc_links: []
+code_links: []
+depends_on: []
 spec_links:
   - spec-2026-10-11-architektur-review
 ---

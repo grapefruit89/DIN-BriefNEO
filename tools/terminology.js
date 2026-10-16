@@ -21,6 +21,7 @@ const GLOSSARY = 'docs/20-implementation/glossary.md';
 /** Dateien, die bewusst ungeprueft bleiben. */
 const EXCLUDED = [
   'docs/90-archive/',            // eingefroren (status: archived)
+  'docs/audit/',                 // Audit-Archiv (status: archived)
   'docs/30-meta/DECISION-LOG.md',// append-only Chronik, Alteintraege sind Zeitdokumente
   'research/',                   // Laborarchiv
   GLOSSARY,                      // enthaelt die verdraengten Varianten per Definition

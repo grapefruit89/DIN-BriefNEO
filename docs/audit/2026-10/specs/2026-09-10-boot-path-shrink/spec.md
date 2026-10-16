@@ -2,7 +2,7 @@
 id: spec-2026-09-10-boot-path-shrink
 title: 'Spec: Boot-Path-Shrink + anchor-scope-Nutzenprüfung'
 type: spec
-status: active
+status: archived
 created: '2026-09-10'
 updated: '2026-09-10'
 tags:
@@ -15,6 +15,7 @@ tags:
 doc_links:
   - DECISION-LOG
   - ADR-JS
+depends_on: []
 code_links:
   - 'website/js/boot-theme.js'
   - 'website/css/sidebar.css'

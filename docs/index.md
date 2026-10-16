@@ -4,7 +4,7 @@ title: 'DIN-Brief Neo — Zentraler Dokumentations- & Architektur-Hub'
 type: meta
 status: active
 created: '2026-07-03'
-updated: '2026-09-30'
+updated: '2026-10-16'
 tags:
   - din-briefneo
   - din-briefneo/hub
@@ -46,7 +46,7 @@ Werkzeug für die Sichtprüfung: **[AI-AGENTS-CLI.md](30-meta/AI-AGENTS-CLI.md)*
 
 ---
 
-## 🏛️ Der 5-stufige Dezimalrahmen
+## 🏛️ Der 5-stufige Dezimalrahmen & Audit-Ebene
 
 Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen dürfen höhere Ebenen niemals verwässern oder außer Kraft setzen.
 
@@ -55,6 +55,7 @@ Das gesamte Projektwissen ist streng hierarchisch strukturiert. Tiefere Ebenen d
 10-architecture/    --> Technische Leitplanken, IMR-Registry & ADRs (WIE im Entwurf)
 20-implementation/  --> Praktische Guides, 80/20 B2B-Engine & Glossar (WIE im Code)
 30-meta/            --> Projektgedächtnis, Tooling & Arbeitsweise (STATUS + WIE gearbeitet wird)
+audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zeitbezogene Arbeitsstände)
 90-archive/         --> Historische Einmal-Artefakte (nicht mehr normativ)
 ```
 
@@ -123,6 +124,14 @@ waren bereits stale und wurden am 2026-10-02 entfernt; siehe [[DECISION-LOG]].
 
 Werkzeug zur Sichtprüfung:
 - **[[AI-AGENTS-CLI]]** (`docs/30-meta/AI-AGENTS-CLI.md`) — Chrome DevTools MCP, Sichtprüfung der laufenden App.
+
+---
+
+## 🔍 Sprint- & Audit-Dokumentation (`docs/audit/`)
+
+Zeitbezogene Arbeitsstände, Feature-Spezifikationen und Architektur-Reviews (nach Jahr-Monat strukturiert, analog mediNix-Muster):
+- `docs/audit/2026-10/specs/2026-09-10-boot-path-shrink/` — Spezifikation & Plan zur Boot-Path-Verkürzung
+- `docs/audit/2026-10/specs/2026-10-11-architektur-review/` — Architektur-Review, Refactoring-Blaupause & Prompt
 
 ---
 

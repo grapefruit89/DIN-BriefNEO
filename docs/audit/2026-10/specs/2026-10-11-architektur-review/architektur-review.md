@@ -1,3 +1,20 @@
+---
+id: architektur-review-2026-10-11
+title: 'DIN-BriefNEO: Architektur-Review und Refactoring-Blaupause'
+type: review
+status: archived
+created: '2026-10-11'
+updated: '2026-10-11'
+tags:
+  - din-briefneo
+  - din-briefneo/architecture
+  - status/archived
+  - type/review
+doc_links: []
+code_links: []
+depends_on: []
+---
+
 # DIN-BriefNEO: Architektur-Review und Refactoring-Blaupause
 
 Meine zentrale Empfehlung: **Baue DIN-BriefNEO nicht zu einer Sammlung künstlicher In-Browser-Microservices um, sondern zu einer modularen, event-getriebenen Client-Architektur mit explizitem Zustandsmodell.**

@@ -2,7 +2,7 @@
 id: plan-2026-09-10-boot-path-shrink
 title: 'Plan: Boot-Path-Shrink + anchor-scope-Nutzenprüfung'
 type: plan
-status: active
+status: archived
 created: '2026-09-10'
 updated: '2026-09-10'
 tags:
@@ -10,6 +10,9 @@ tags:
   - din-briefneo/implementation
   - status/active
   - type/plan
+doc_links: []
+code_links: []
+depends_on: []
 spec_links:
   - spec-2026-09-10-boot-path-shrink
 ---

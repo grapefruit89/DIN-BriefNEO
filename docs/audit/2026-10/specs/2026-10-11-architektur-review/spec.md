@@ -2,7 +2,7 @@
 id: spec-2026-10-11-architektur-review
 title: 'Spec: Architektur-Review & Event-Driven Refactoring'
 type: spec
-status: active
+status: archived
 created: '2026-10-11'
 updated: '2026-10-11'
 tags:
@@ -15,6 +15,7 @@ tags:
 doc_links:
   - DECISION-LOG
   - ADR-JS
+depends_on: []
 code_links:
   - 'website/js/main.js'
   - 'website/js/core.js'

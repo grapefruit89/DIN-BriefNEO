@@ -141,7 +141,7 @@ function checkLinks(targetDir) {
   for (const abs of allFiles) {
     const rel = path.relative(targetDir, abs).replace(/\\/g, '/');
     if (!rel.endsWith('.md')) continue;
-    if (rel.includes('90-archive/') || SCAN_SKIP.includes(rel)) continue;
+    if (rel.includes('90-archive/') || rel.includes('audit/') || SCAN_SKIP.includes(rel)) continue;
 
     const content = fs.readFileSync(abs, 'utf8');
 

@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-10-06'
+updated: '2026-10-15'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -1976,3 +1976,24 @@ Der lokale Arbeitsbaum enthielt bisher nicht-versionierte und generierte Artefak
 6. **.gitignore:** Bereinigt um obsolete generierte Einträge; Schutzfilter (`node_modules/`, `agent/cache/`, `build/`, etc.) bleiben erhalten.
 
 **Verifikation:** Evolutionary Fitness Score 100 %, TypeScript 0 Fehler, `git clean -ndx` frei von Projekt-Artefakten.
+
+## 2026-10-11 — 4-Domänen-Konsolidierung der CSS-Architektur und No-Flip Ergonomie-Nachtmodus (Nachtrag)
+
+**Kontext:**
+Historisch war das CSS in 8 separate Dateien fragmentiert (`variables.css`, `reset.css`, `layers.css`, `layout.css`, `sidebar.css`, `sheet.css`, `signature.css`, `floating.css`, `print.css`). Diese Zerstückelung führte zu unübersichtlichen Kaskaden-Abhängigkeiten, zirkulären Spezifitäts-Fixes zwischen `layout.css` und `floating.css` sowie übermäßigem Kontextaufwand bei Änderungen. Zudem erforderten Änderungen an gemeinsamen UI-Komponenten parallele Edits in bis zu 4 Dateien.
+
+**Änderung:**
+1. **Konsolidierung auf 4 Domänen-Dateien (Commit `0621dde`):**
+   - `website/css/base.css`: Bündelt Reset, `@layer`, Design-Tokens (OKLCH), No-Flip Farbmetrik, App-Shell-Grid, `@property`-Definitionen und native Font-Stacks.
+   - `website/css/sheet.css`: DIN-5008-Blattgeometrie mit Scoped Isolation (`@scope (din-a4)`), HTML-Attribut-Vermaßung via `attr()`, Briefzonen, Text-Fitting und Signatur-CAD-Overlay.
+   - `website/css/sidebar.css`: Bündelt die gesamte Seitenleiste, Form-Controls (`base-select`), Autocomplete, Guides sowie die ehemals in `floating.css` ausgelagerten Top-Layer-Popovers, Dialoge und CSS Anchor Positioning (`position-anchor`).
+   - `website/css/print.css`: Reiner Druck- und PDF-Export-Pfad mit `@page { size: A4; margin: 0; page-margin-safety: auto; }` und DIN-Drucktrennlinie.
+2. **No-Flip Ergonomie-Nachtmodus:**
+   - Sanfte Dämpfung statt invertierendem Farbchaos: Der Papierbogen bleibt auch im Dark Mode als Dokument lesbar (`--blatt-hintergrund: oklch(...)`), während Viewport und Sidebar abgedunkelt werden.
+   - Beseitigung toter CSS-Dateien: `variables.css`, `reset.css`, `layers.css`, `layout.css`, `signature.css`, `floating.css` ersatzlos gelöscht.
+
+**Verifikation:**
+Evolutionary Fitness Score 100 %. Chrome DevTools Rendering-Checks: Keine Kaskaden-Konflikte, 0 Layout Thrashing, Null Scrollbars auf Viewport und Blatt.
+
+**Generalisierbarkeit:**
+Domänen-Schnitt nach Lebenszyklus und Kapselungsgrenzen (`base` vs. `sheet` vs. `sidebar` vs. `print`) ist robuster und wartungsärmer als feingliedrige Schichten-Splits (`reset`, `variables`, `layout`, `floating`), die künstliche Schnittstellen erzwingen.

@@ -652,7 +652,7 @@ function runReconciliation() {
          * Die Regel fordert als Abhilfe genau den Umzug nach docs/90-archive/ —
          * sie dort weiter zu melden ist eine unerfuellbare Forderung (das Archiv
          * ist eingefroren und wird bewusst nicht nachtraeglich gesplittet). */
-        const isArchived = relPath.includes('90-archive/');
+        const isArchived = relPath.includes('90-archive/') || relPath.includes('audit/');
         if (lines.length > 400 && !docSizeExempt.includes(relPath) && !isArchived) {
           logs.push({
             file_path: relPath,

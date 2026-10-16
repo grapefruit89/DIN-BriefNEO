@@ -80,7 +80,7 @@ Der vollständige Kommunikationsvertrag ist in [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
 ## 4. Implementation & Verification
 
 - `website/js/core.js` liefert das Pub/Sub-Fundament und das Toast-System (abonniert `Events.NOTIFICATION_REQUESTED`).
-- CSS Anchor Positioning und `@starting-style` sind in `layout.css` aktiv.
+- CSS Anchor Positioning und `@starting-style` sind in `sidebar.css` aktiv.
 - JavaScript steuert ausschließlich `show/hidePopover()` — keine manuellen Drag-Schleifen oder Positionsmessungen (Catalog A56).
 - Laufzeit: `2000ms + 30ms × Zeichenanzahl`, max. `5000ms`.
 - Alle alten `onToast`-Callbacks wurden restlos entfernt.

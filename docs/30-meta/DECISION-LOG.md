@@ -2063,3 +2063,15 @@ In den vorangegangenen Wochen traten wiederholt drei ADR-Drift-Klassen auf: fals
 
 **Verifikation:**
 Funktionstests aller 4 Modi erfolgreich durchgeführt. Fitness Gate (`node tools/build_db.js`) 100 %, Link-Checker (`node tools/links.js`) 0 tote Wikilinks.
+
+## 2026-10-16 — 4 ADR-Drift-Stellen bereinigt (adr-check.js Regel 4 auf 0 Funde)
+
+**Kontext:**
+Die Einführung von `tools/adr-check.js` deckte 4 verwaiste Referenzen in Architektur-ADRs auf: `layout.css` in `ADR-TOAST-SYSTEM.md:83` sowie `sender-sync.js` (Zeilen 40 und 60) und `44-sender-sync.js` (Zeile 65) in `ADR-SENDER-SYNCHRONIZATION.md`.
+
+**Entscheidung:**
+1. **`ADR-TOAST-SYSTEM.md`:** `layout.css` durch `sidebar.css` ersetzt (wo Top-Layer-Popovers und `@starting-style` seit der CSS-Konsolidierung verankert sind).
+2. **`ADR-SENDER-SYNCHRONIZATION.md`:** `sender-sync.js` und `44-sender-sync.js` durch `address.js` ersetzt (wo `initSenderSync` im Produktionscode implementiert ist und von `main.js` geladen wird).
+
+**Verifikation:**
+`node tools/adr-check.js` meldet 0 Funde in Regel 4 (Status: PASS, Exit-Code: 0). Evolutionary Fitness Score 100 %, 0 tote Wikilinks.

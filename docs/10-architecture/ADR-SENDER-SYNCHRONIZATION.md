@@ -37,7 +37,7 @@ The user firmly requested this logic to be restored and declared it an invariant
 
 ## Decision
 
-We restore the `<din-infoblock>` (or sender input fields) and introduce a dedicated synchronization script (`sender-sync.js`) that enforces the following data flow:
+We restore the `<din-infoblock>` (or sender input fields) and introduce a dedicated synchronization script (`address.js`) that enforces the following data flow:
 
 1. `absender-namenszeile`, `absender-strasse`, and `absender-ort` are the single source of truth for the sender's address.
 
@@ -57,9 +57,9 @@ We restore the `<din-infoblock>` (or sender input fields) and introduce a dedica
 
 - **Rule 1:** The signature image (`#unterschriftsbild-vorschau`) MUST reside in a separate DOM container outside of the `contenteditable` `#unterschrift` element.
 
-- **Rule 2:** The `sender-sync.js` module MUST be loaded during the initial application setup in `main.js`.
+- **Rule 2:** The `address.js` module MUST be loaded during the initial application setup in `main.js`.
 
 - **Rule 3:** This logic is considered **core functionality** and MUST NOT be removed in future refactoring attempts.
 
 > [!WARNING] Stille Abhängigkeit (ergänzt 2026-08-08)
-> Es gibt **keinen automatischen Check**, der greift, wenn `absender-namenszeile`/`absender-strasse`/`absender-ort` umbenannt oder `44-sender-sync.js` verändert wird — die Rücksendezeile (`#rucksendezeile`) und `#unterschrift` würden dann stillschweigend aufhören zu synchronisieren, ohne Fehlermeldung. Kein akuter Bug, nur ein Hinweis für den nächsten, der an dieser Datei arbeitet: die drei Feld-IDs oben sind ein informeller Vertrag, kein technisch erzwungener.
+> Es gibt **keinen automatischen Check**, der greift, wenn `absender-namenszeile`/`absender-strasse`/`absender-ort` umbenannt oder `address.js` verändert wird — die Rücksendezeile (`#rucksendezeile`) und `#unterschrift` würden dann stillschweigend aufhören zu synchronisieren, ohne Fehlermeldung. Kein akuter Bug, nur ein Hinweis für den nächsten, der an dieser Datei arbeitet: die drei Feld-IDs oben sind ein informeller Vertrag, kein technisch erzwungener.

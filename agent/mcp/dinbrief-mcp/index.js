@@ -181,7 +181,7 @@ function repositoryValidate() {
 // nicht bei jedem Lauf garantiert unterschiedlich).
 const ACTIONS = {
   'run-fitness-gate': {
-    description: 'Fuehrt tools/build_db.js aus (Fitness Gate + Traceability-Build). Entspricht Schritt [3/5] in scripts/start.ps1.',
+    description: 'Fuehrt tools/build_db.js aus (Fitness Gate + Traceability-Build + Suchindex).',
     risk: 'WRITE',
     idempotent: true,
     affectedPaths: ['docs', 'website', 'tools/antipatterns', 'tools/reconciliation.js', 'tools/build_db.js', 'docs/30-meta/schema-v6.json'],
@@ -190,14 +190,14 @@ const ACTIONS = {
       execFileSync('node', ['tools/build_db.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
     }
   },
-  'regenerate-llm-context': {
-    description: 'Fuehrt tools/create_context.js aus, erzeugt build/LLM_CONTEXT.md neu.',
+  'build-docs-index': {
+    description: 'Fuehrt tools/docs_index.js aus, aktualisiert docs_search.db.',
     risk: 'WRITE',
     idempotent: true,
-    affectedPaths: ['README.md', 'docs/index.md', 'AGENTS.md', 'docs/00-foundation', 'tools/create_context.js'],
-    outputPath: 'build/LLM_CONTEXT.md',
+    affectedPaths: ['docs', 'tools/docs_index.js'],
+    outputPath: 'build/import.sql',
     run: () => {
-      execFileSync('node', ['tools/create_context.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
+      execFileSync('node', ['tools/docs_index.js'], { cwd: REPO_ROOT, stdio: 'pipe', encoding: 'utf-8' });
     }
   }
 };
@@ -496,7 +496,7 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        action: { type: 'string', description: 'run-fitness-gate | regenerate-llm-context' },
+        action: { type: 'string', description: 'run-fitness-gate | build-docs-index' },
         plan: { type: 'boolean', description: 'true = nur Vorschau (liefert plan_id).' },
         plan_id: { type: 'string', description: 'plan_id aus der Vorschau.' }
       },

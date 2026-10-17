@@ -93,7 +93,7 @@ Es gibt keine Ausfuehrung ohne mitgeliefertes Verify-Ergebnis.
 **Intent-Verification** (seit Architecture Drift Audit, 2026-08-27):
 `data.verify` enthaelt zusaetzlich zum Fitness Score ein `intent`-Feld --
 prueft per Hash-Vergleich vor/nach der Ausfuehrung, ob die Aktion ihren
-`outputPath` (z. B. `build/LLM_CONTEXT.md`) tatsaechlich veraendert hat.
+`outputPath` (z. B. `build/import.sql`) tatsaechlich veraendert hat.
 Vorher pruefte Verify AUSSCHLIESSLICH den Fitness Score -- eine Aktion, die
 inhaltlich nichts bewirkt (z. B. ein zweiter Lauf ohne geaenderte Inputs),
 konnte trotzdem als vollstaendiger Erfolg durchgehen. Jetzt: `status` wird

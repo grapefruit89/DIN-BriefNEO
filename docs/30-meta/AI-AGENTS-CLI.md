@@ -15,7 +15,8 @@ doc_links:
   - repository.yaml
   - tooling-overview
 code_links:
-  - tools/start.ps1
+  - start.bat
+  - start.sh
 error_patterns:
   - browser agent
   - devtools mcp
@@ -40,8 +41,8 @@ Quellen:
 
 ## 1. App laeuft lokal oder auf Pages
 
-Nutzer: `start.bat` (Repo-Root, Port 8088).  
-Agenten-Check: `tools/start.ps1` (Fitness Gate); Linux ohne pwsh: `node tools/build_db.js`.  
+Nutzer: `start.bat` (Windows) oder `start.sh` (Linux) im Repo-Root (Port 8088).  
+Agenten-Check: `node tools/build_db.js` (Fitness Gate).  
 Live: https://grapefruit89.github.io/DIN-BriefNEO/
 
 Kein `file://` fuer den Agenten-Lauf. CORS und Module brauchen den Server.

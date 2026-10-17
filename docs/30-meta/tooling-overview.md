@@ -17,8 +17,6 @@ code_links:
 - 'tools/reconciliation.js'
 - 'tools/build_db.js'
 - 'tools/docs_index.js'
-- 'tools/create_context.js'
-- 'tools/pipeline-cache.ps1'
 - 'tools/log_session.js'
 - 'tools/adr-check.js'
 - 'tools/check-feature.js'
@@ -204,35 +202,6 @@ node tools/docs_index.js related ADR-JS           # Beziehungsgraph
 - `files.top` (erste Zeile) könnte für Code-Suche genutzt werden
 - `links.to_path` ist oft NULL — könnte für Link-Checks verwendet werden
 - `sections_fts_tri` könnte für Tippfehler-Korrektur genutzt werden (aktuell nur Fallback)
-
-## create_context.js
-
-- **Zweck**: Buendelt die wichtigsten Kern-Dokumente (`CORE_FILES`) zu einer
-  einzigen `build/LLM_CONTEXT.md` fuer schnellen Kontextaufbau bei Sessionstart.
-- **Input**: `README.md`, `docs/index.md`, `AGENTS.md`, `docs/00-foundation/{constitution,longevity-guidelines,Immutable-Law-Catalog,spec}.md`
-- **Output**: `build/LLM_CONTEXT.md`
-- **Abhaengigkeiten**: keine, reines Node core
-- **Aufrufer**: `scripts/start.ps1` (Zeile 80, gecacht ueber `tools/pipeline-cache.ps1`, laeuft nur bei geaenderten Inputs)
-- **Risikoklasse**: WRITE (nur generiertes Artefakt, kein Quellcode)
-- **Idempotenz**: IDEMPOTENT
-- **Safe-to-delete**: NEIN — Teil der Build-Pipeline, wird von AGENTS.md Light Mode Schritt 2 vorausgesetzt
-
-## pipeline-cache.ps1
-
-- **Zweck**: Hash-basierte Skip-Logik fuer `scripts/start.ps1`. Berechnet SHA256 ueber
-  die Inputs eines Pipeline-Schritts (`create_context.js`, `build_db.py`) und
-  entscheidet anhand eines gespeicherten Vergleichswerts, ob der Schritt
-  erneut laufen muss oder uebersprungen werden kann. `reconciliation.js`/
-  `build_db.js` (Fitness Gate) ist davon bewusst ausgenommen -- laeuft immer.
-- **Input**: Datei-/Verzeichnispfade des jeweiligen Pipeline-Schritts (von
-  `scripts/start.ps1` uebergeben), bestehender Cache-Inhalt aus `agent/cache/pipeline-hashes.json`
-- **Output**: `agent/cache/pipeline-hashes.json` (gitignored, da `agent/cache/`
-  bereits in `.gitignore` steht) -- kein versioniertes Artefakt
-- **Abhaengigkeiten**: keine, reines PowerShell Core (`System.Security.Cryptography.SHA256`)
-- **Aufrufer**: `scripts/start.ps1` (dot-sourced vor den Pipeline-Schritten, Zeile 36)
-- **Risikoklasse**: WRITE (schreibt nur die lokale, gitignorete Cache-Datei, keine Quell- oder Build-Artefakte)
-- **Idempotenz**: IDEMPOTENT (gleicher Eingabe-Hash -> gleiches Skip/Run-Ergebnis)
-- **Safe-to-delete**: NEIN -- Teil der aktiven Build-Pipeline seit Commit 753681c
 
 ## Betriebs-Details — SQLite-Datenbanken
 
@@ -440,28 +409,15 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand → gleiches Ergebnis).
 - **Safe-to-delete**: NEIN — präventiver Drift-Wächter zur Qualitätssicherung der ADR-Konsistenz.
 
-## Zusammenfassung: Pipeline-Reihenfolge (scripts/start.ps1)
+## Zusammenfassung: Fitness-Gate-Pipeline
 
-1. `tools/create_context.js` (Zeile 80) — **gecacht**: laeuft nur, wenn sich
-   `README.md`, `docs/index.md`, `AGENTS.md` oder `docs/00-foundation/`
-   seit dem letzten Lauf geaendert haben (SHA256-Hash-Vergleich, siehe
-   `tools/pipeline-cache.ps1`).
-2. `tools/build_db.js` (Zeile 89) — ruft intern `tools/reconciliation.js`
-   auf. **Ungecacht, laeuft bei jedem Aufruf** — bewusst, weil dies der
-   Fitness Gate ist und AGENTS.md Paragraph 2 den Score vor UND nach jeder
-   Aenderung verlangt, ungecacht.
-3. *(Ehemals `tools/build_db.py`: 2026-10-15 entfallen, Funktion vollständig in `tools/build_db.js` integriert).*
-
-Seit Commit 753681c (Lauf 2, "scripts/start.ps1 Caching + repository.execute")
-laufen Schritt 1 und 3 also nicht mehr bei jedem Aufruf komplett durch,
-sondern nur bei tatsaechlich geaenderten Inputs. `-Force` erzwingt den
-vollen Durchlauf ungeachtet der Caches. Der vormals hier dokumentierte
-Punkt "laeuft immer komplett durch" (Antwort 5 des ChatGPT-Brainstorms,
-"Agenten-Infrastruktur entschlacken") ist damit erledigt — der zugehoerige
-`open_items`-Eintrag in `repository.yaml` wurde entsprechend aktualisiert.
+1. `tools/build_db.js` — ruft intern `tools/reconciliation.js`
+   auf. Läuft synchron und ungecacht in ca. 500 ms durch.
+2. `tools/docs_index.js` — baut im selben Durchlauf den abgeleiteten
+   FTS5-Suchindex (`docs_search.db`) für Agenten-Retrieval.
 
 ## Fitness Gate
 
-Nach jeder Aenderung: `.\scripts\start.ps1` muss **100% Evolutionary Fitness Score**
-liefern. Kein Merge ohne gruenes Gate (aus der vorherigen Fassung dieses
-Dokuments uebernommen — weiterhin gueltig, siehe AGENTS.md Paragraph 2).
+Nach jeder Änderung: `node tools/build_db.js` muss **100% Evolutionary Fitness Score**
+liefern. Kein Merge/Commit ohne grünes Gate (wird auch im pre-commit Hook und CI erzwungen,
+siehe AGENTS.md §2).

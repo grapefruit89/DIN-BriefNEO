@@ -42,7 +42,7 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 
 ## 2. Unverhandelbare Kernprinzipien
 
-- **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `tools/start.ps1` ausgeführt werden (PowerShell; `-Force` erzwingt ungecachte Pipeline). Auf Linux ohne `pwsh`: `node tools/build_db.js` — das ist der Fitness-Gate-Einstieg; `tools/reconciliation.js` ist nur ein Modul und gibt allein nichts aus. Der Fitness Score **muss 100 %** betragen.
+- **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `node tools/build_db.js` ausgeführt werden (plattformunabhängig). Der Fitness Score **muss 100 %** betragen.
 - **Branchless Workflow**: Nur `main`-Branch. Feature-Branches sind verboten. Experimente erfolgen ausschließlich über `git stash`.
 - **Surgical Changes & KISS**: Nur das ändern, was für die aktuelle Aufgabe strikt notwendig ist. Bevor JavaScript geschrieben wird, muss geprüft werden, ob moderne CSS- oder native Web-APIs ausreichen.
 - **Generalisierbarkeit**: Jede neue Lösung ist auf ihre Übertragbarkeit in die `llm_boilerplate` zu prüfen und zu dokumentieren.
@@ -52,8 +52,8 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 ## 3. Workflow-Modi
 
 ### Light Mode (Default)
-1. Fitness Gate ausführen (Pre-Build, siehe §2)
-2. Kontext lesen: `agent/cache/LLM_CONTEXT.md` — wird von `tools/create_context.js` generiert (Teil von `start.ps1`, gecacht), nicht von `build_db.js`
+1. Fitness Gate ausführen (Pre-Build, siehe §2: `node tools/build_db.js`)
+2. Kontext abfragen: Volltext- und Symbolsuche via `docs_search.db` (FTS5 SQLite, wird von `build_db.js` automatisch aktualisiert)
 3. Änderung durchführen
 4. Fitness Gate ausführen → **Fitness Score muss 100 %** sein
 5. Mit `node tools/log_session.js` protokollieren

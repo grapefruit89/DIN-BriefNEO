@@ -27,7 +27,7 @@ project:
   branching: branchless-on-main
   fitness_gate:
     required_score: 100
-    entrypoint: tools/start.ps1
+    entrypoint: node tools/build_db.js
     engine: tools/reconciliation.js
 
 structure:
@@ -45,14 +45,14 @@ structure:
   website/:
     purpose: Ausgelieferte Anwendung (das eigentliche Produkt)
     subpaths:
-      website/js/: Numerisch praefixierte JS-Module, Ladereihenfolge ueber Praefix (01-, 02-, ... 51-, main.js zuletzt)
-      website/css/: Layered CSS (reset, variables, layout, floating, print)
+      website/js/: ES-Module (core, persistence, document, settings, salutation, address, main)
+      website/css/: Layered CSS (base, sidebar, sheet, print)
       website/index.html: Einstiegspunkt
 
   tools/:
     purpose: Build-, Validierungs- und Wartungsskripte inkl. Fitness Gate & lokaler Dev-Server
     subpaths:
-      tools/start.ps1: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
+      tools/build_db.js: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
       tools/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
       tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
     inventory_doc: docs/30-meta/tooling-overview.md
@@ -116,6 +116,7 @@ taxonomy:
     - opencode.json
     - jsconfig.json
     - start.bat
+    - start.sh
     - envelope.svg
     - .gitignore
     - .gitattributes
@@ -131,10 +132,11 @@ taxonomy:
     .github: CI-Workflows
 
 entrypoints:
-  build: tools/start.ps1
+  build: tools/build_db.js
   serve: start.bat
+  serve_linux: start.sh
   session_log: tools/log_session.js
-  context_bundle: tools/create_context.js
+  context_bundle: tools/docs_index.js
   browser_agent: docs/30-meta/AI-AGENTS-CLI.md
   platform_research: docs/30-meta/mcp_research.md
 

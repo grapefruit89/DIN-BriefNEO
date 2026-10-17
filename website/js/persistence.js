@@ -1,5 +1,5 @@
 // @ts-check
-// @adr [[ADR-DATA-PERSISTENCE]] {StorageManager, ImportExport}
+// @adr [[ADR-DATA-PERSISTENCE]] {LocalStoragePrimitives, ImportExport}
 // @adr [[ADR-JS]] {DateFormat, MetadataBridge}
 // @adr [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
 // @guide [[glossary]]
@@ -203,45 +203,6 @@ export function migrateStorage() {
   if (version === Constants.SCHEMA_VERSION) return;
   save(STORAGE_KEYS.schema, String(Constants.SCHEMA_VERSION));
 }
-
-/**
- * Schlanke Fassade für bestehende Module.
- */
-export const StorageManager = {
-  load,
-  save,
-  remove,
-  loadJSON,
-  saveJSON,
-  migrate: migrateStorage,
-  /** @param {string} key @param {any} data */
-  saveDraft: (key, data) => saveJSON(key === 'current' ? STORAGE_KEYS.draft : `din_draft_${key}`, data),
-  /** @param {string} key @returns {any} */
-  loadDraft: (key) => loadJSON(key === 'current' ? STORAGE_KEYS.draft : `din_draft_${key}`, /** @type {any} */ (null)),
-  /** @param {any} settings */
-  saveSettings: (settings) => saveJSON(STORAGE_KEYS.settings, settings),
-  /** @returns {DinSettings} */
-  loadSettings: () => loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS),
-  /** @param {string} font */
-  saveCustomFont: (font) => save(STORAGE_KEYS.font, font),
-  loadCustomFont: () => load(STORAGE_KEYS.font, null),
-  removeCustomFont: () => remove(STORAGE_KEYS.font),
-  /** @param {string} asset */
-  saveSignatureAsset: (asset) => save(STORAGE_KEYS.signatureAsset, asset),
-  loadSignatureAsset: () => load(STORAGE_KEYS.signatureAsset, null),
-  removeSignatureAsset: () => remove(STORAGE_KEYS.signatureAsset),
-  /** @param {string} key */
-  saveGeoapifyKey: (key) => save(STORAGE_KEYS.geoapifyKey, key),
-  loadGeoapifyKey: () => load(STORAGE_KEYS.geoapifyKey, '') || '',
-  /** @returns {Array<any>} */
-  loadLocalAddresses: () => loadJSON(STORAGE_KEYS.addresses, /** @type {Array<any>} */ ([])),
-  /** @param {Array<any>} book */
-  saveLocalAddresses: (book) => saveJSON(STORAGE_KEYS.addresses, book),
-  /** @returns {{ lat: number, lon: number } | null} */
-  loadSenderCoords: () => /** @type {{ lat: number, lon: number } | null} */ (loadJSON(STORAGE_KEYS.senderCoords, /** @type {any} */ (null))),
-  /** @param {{ lat: number, lon: number }} coords */
-  saveSenderCoords: (coords) => saveJSON(STORAGE_KEYS.senderCoords, coords)
-};
 
 /* =========================================================================================
  * 3. METADATA & DOCUMENT IDENTITY BRIDGE

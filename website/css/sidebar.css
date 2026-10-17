@@ -29,8 +29,7 @@ aside.seitenleiste,
   user-select: none;             /* Verhindert versehentliches Markieren von UI-Labels */
 }
 
-.seitenleiste-zone,
-.seitenleiste-section {
+.seitenleiste-zone {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -405,15 +404,6 @@ aside.seitenleiste,
   opacity: 1;
 }
 
-/* Geoapify Settings */
-#geoapify-wrapper #geoapify-key-container { display: flex; flex-direction: column; }
-#geoapify-wrapper #anschrift-suche-container { display: flex; flex-direction: column; }
-.btn-hilfslinien::before {
-  content: '📐 Falz- & Lochmarken einblenden';
-}
-:root:has(#btn-hilfslinien-switch:checked) .btn-hilfslinien::before {
-  content: '📐 Falz- & Lochmarken ausblenden';
-}
 
 /* =========================================================================================
  * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCHES (Native HTML5)
@@ -831,8 +821,6 @@ aside .seitenleiste-checkbox-label {
   background: var(--segment-bg);
 }
 
-#btn-schrift-zuruecksetzen { display: none; }
-body.schrift-eigene-aktiv #btn-schrift-zuruecksetzen { display: flex; }
 .seitenleiste-header-row { align-items: center; gap: 8px; }
 a.seitenleiste-github-link {
   text-decoration: none;
@@ -848,11 +836,6 @@ aside.seitenleiste {
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
-}
-aside > .seitenleiste-section:first-of-type {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
 }
 
 aside input[type="text"],

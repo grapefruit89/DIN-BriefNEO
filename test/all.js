@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager, UIProtections } from '../website/js/document.js';
-import { StorageManager, STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
+import { STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
 import { createEventBus, eventBus, Events, initToastSystem, Constants } from '../website/js/core.js';
 import { SalutationEngine } from '../website/js/salutation.js';
 import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser } from '../website/js/address.js';
@@ -347,18 +347,18 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
 
   it('verwaltet das isolierte Signatur-Asset (din_signature_asset) synchron (Law A34)', () => {
     const dummyWebP = 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoAAP7/2QAA';
-    StorageManager.saveSignatureAsset(dummyWebP);
-    assertEqual(StorageManager.loadSignatureAsset(), dummyWebP, 'Signatur-Asset erfolgreich geladen');
+    save(STORAGE_KEYS.signatureAsset, dummyWebP);
+    assertEqual(load(STORAGE_KEYS.signatureAsset, null), dummyWebP, 'Signatur-Asset erfolgreich geladen');
     assertEqual(load(STORAGE_KEYS.signatureAsset), dummyWebP, 'Im isolierten Schlüssel din_signature_asset abgelegt');
 
-    StorageManager.removeSignatureAsset();
-    assertEqual(StorageManager.loadSignatureAsset(), null, 'Signatur-Asset erfolgreich gelöscht');
+    remove(STORAGE_KEYS.signatureAsset);
+    assertEqual(load(STORAGE_KEYS.signatureAsset, null), null, 'Signatur-Asset erfolgreich gelöscht');
     assertEqual(load(STORAGE_KEYS.signatureAsset), null, 'Schlüssel din_signature_asset vollständig entfernt');
   });
 
   it('garantiert Zero-Base64 im Schema-v2-Export trotz vorhandenem Signatur-Asset', () => {
     const dummyWebP = 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoAAP7/2QAA';
-    StorageManager.saveSignatureAsset(dummyWebP);
+    save(STORAGE_KEYS.signatureAsset, dummyWebP);
 
     const payload = buildDinLetterPayload(
       { brieftext: 'Testtext' },
@@ -370,7 +370,7 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     assertEqual(payload.signature.placed, true);
     assertEqual(payload.signature.transform.x, 12);
 
-    StorageManager.removeSignatureAsset();
+    remove(STORAGE_KEYS.signatureAsset);
   });
 });
 

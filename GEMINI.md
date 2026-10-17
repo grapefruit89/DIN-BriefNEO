@@ -46,7 +46,7 @@ depends_on: []
 | DIN-Geometrie, die 45 Atome, Zonen | [[IMR-Registry]] |
 | HTML-Entscheidungen, `contenteditable`, Popover | [[ADR-HTML]] |
 | CSS: Anchor Positioning, `@scope`, View Transitions | [[ADR-CSS]] |
-| JS: Temporal, Selection/Range, StorageManager | [[ADR-JS]] |
+| JS: Temporal, Selection/Range, EventBus | [[ADR-JS]] |
 | Speicherstrategie | [[ADR-DATA-PERSISTENCE]] |
 | Absender-Synchronisation (Kernfeature) | [[ADR-SENDER-SYNCHRONIZATION]] |
 | Anrede- und Grußformel-Logik | [[Salutation-Engine]] |

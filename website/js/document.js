@@ -11,7 +11,7 @@
  *  3. DraftManager (Single-Writer für localStorage, Undo/Redo, Autosave, EventBus-Verträge)
  */
 
-import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS, isPrintTitleActive } from './persistence.js';
+import { loadJSON, saveJSON, STORAGE_KEYS, isPrintTitleActive } from './persistence.js';
 import { eventBus, Events, Constants } from './core.js';
 
 /* =========================================================================================
@@ -482,6 +482,10 @@ export class DraftManager {
     }
   }
 
+  /* Bewusste Entscheidung: Kein Web-Locks-Mechanismus (Over-Engineering für
+   * Single-User-App). Bei fokussiertem Tab gewinnt der aktive Tab; der Toast
+   * warnt vor dem Multi-Tab-Fall. Restrisiko: paralleles Tippen in 2 Tabs
+   * kann den älteren Stand überschreiben — akzeptiert. */
   #initMultiTabSync() {
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (event) => {

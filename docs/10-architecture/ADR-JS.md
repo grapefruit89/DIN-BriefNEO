@@ -159,7 +159,6 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
   * `DEFAULT_SETTINGS` & `STORAGE_KEYS`: Zentrale Speicherschlüssel und Default-Konfiguration.
   * `load`, `save`, `remove`, `loadJSON`, `saveJSON`: Robuste, try-catch-gekapselte LocalStorage-Primitives.
   * `migrateStorage()`: Idempotente Schema-Migration beim App-Start.
-  * `StorageManager`: Abwärtskompatible Fassade für bestehende Komponenten.
 * **Metadata & Document Identity**:
   * `collectLetterIdentity()` & `buildLetterFileName()`: Ermittelt Empfänger, Absender, Betreff und zoniertes Datum für standardisierte PDF-Dateinamen und Backups.
   * `isPrintTitleActive()`: Koordiniert `document.title` zwischen Druckdialog und DraftManager-Autosave.

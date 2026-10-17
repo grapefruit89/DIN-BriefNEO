@@ -45,7 +45,9 @@ Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keiner
     }
   },
   "profile": {
-    "sender": { "name": "Max Mustermann", "street": "Musterstraße 1", "city": "12345 Musterstadt" }
+    "sender": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
+    "theme": "auto",
+    "formality": "formal"
   },
   "signature": {
     "placed": false,

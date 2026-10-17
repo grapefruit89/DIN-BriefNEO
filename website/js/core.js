@@ -24,7 +24,6 @@ export const Constants = {
   SCHEMA_VERSION: 2,
   TOASTS: {
     DRAFT: {
-      AUTOSAVE_ERROR: '❌ Fehler beim Speichern!',
       MULTI_TAB: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
       EXPORT_SAVED: '💾 Brief erfolgreich gespeichert.',
       EXPORT_DOWNLOADED: '💾 Brief heruntergeladen.',

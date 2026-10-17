@@ -1,3 +1,23 @@
+---
+id: function-migration-matrix
+title: 'Exakte Funktions-Migrations-Matrix: DIN-Brief Neo'
+type: reference
+status: archived
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/archive
+  - status/archived
+  - type/reference
+doc_links:
+  - ROADMAP
+code_links:
+  []
+depends_on: []
+supersedes: []
+---
+
 # Exakte Funktions-Migrations-Matrix: DIN-Brief Neo
 
 > **Gesamtanzahl analysierter JavaScript-Funktionen:** 109 Funktionen in 15 Dateien (~1.225 Zeilen)  

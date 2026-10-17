@@ -4,7 +4,7 @@ title: 'Roadmap — echte Zukunft des Produkts'
 type: roadmap
 status: active
 created: '2026-07-07'
-updated: '2026-10-02'
+updated: '2026-10-17'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -48,7 +48,7 @@ Begründung und Quelle, aber keine automatische Produktanforderung.
 **Ziel:** Briefe über mehrere DIN-A4-Seiten hinweg bearbeiten, drucken und als PDF
 exportieren können.
 
-> **Architekturkonzept vorliegend:** Siehe `research/roadmap/MULTI_PAGE_ARCHITECTURE_SPEC.md` für die normgerechte DIN-5008-Zonierung, das horizontale Paging-Modell (Zero-Scroll) und die Druck-Architektur.
+> **Architekturkonzept vorliegend:** Siehe [[BACKLOG#B27]] für die normgerechte DIN-5008-Zonierung, das horizontale Paging-Modell (Zero-Scroll) und die Druck-Architektur.
 
 **Geklärte Punkte & Vorgaben:**
 
@@ -80,7 +80,13 @@ Diese Ideen bleiben bewusst nachrangig und werden einzeln bewertet:
 
 - Behördenwegweiser für ausgewählte Schreiben;
 - zusätzliche DIN-5008-Formen oder internationale Varianten;
-- robuste Vorlagen- und Textbausteinverwaltung.
+- robuste Vorlagen- und Textbausteinverwaltung;
+- **Modulare Geocoder-Abstraktionsschicht** (Multi-Provider: Nominatim, Photon, BKG als datensparsame/autonome Alternative; siehe [[BACKLOG#B28]]);
+- **Geoapify Performance Tuning & Geo-Bias** (Pre-Warming bei Fokus, Session-Debounce, LRU-Cache und Multi-Cluster Failover; siehe [[BACKLOG#B29]] und [[BACKLOG#B30]]);
+- **Native Browser-APIs mit direktem Mehrwert** (konsolidiert aus Telemetrie-Recherche, siehe [[BACKLOG#B31]]):
+  - `window.queryLocalFonts()`: Direkter Zugriff auf installierte Systemschriften (Aptos, Calibri, Arial, DIN Next) im Schriftarten-Manager ohne `.woff2`-Dateiupload und ohne Base64-Speicher;
+  - `EyeDropper` API: Native Bildschirm-Pipette für exakte Farbabstimmung des Briefkopfes an Firmenlogos;
+  - `input.showPicker()`: Programmatisches Öffnen des nativen Windows-/OS-Kalenders bei Klick auf Datumsfelder.
 
 Keines dieser Themen darf die lokale Kernfunktion oder die Abwesenheit einer
 Runtime-Abhängigkeit voraussetzen.

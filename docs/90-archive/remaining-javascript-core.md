@@ -1,3 +1,23 @@
+---
+id: remaining-javascript-core
+title: 'Das verbleibende JavaScript-Kernsystem in DIN-Brief Neo'
+type: reference
+status: archived
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/archive
+  - status/archived
+  - type/reference
+doc_links:
+  - ROADMAP
+code_links:
+  []
+depends_on: []
+supersedes: []
+---
+
 # Das verbleibende JavaScript-Kernsystem in DIN-Brief Neo
 
 > **Ausgangslage:** Von ursprünglich ~1.225 Zeilen und 109 Funktionen entfallen ~61 % durch natives HTML5 & CSS 2025/2026.  

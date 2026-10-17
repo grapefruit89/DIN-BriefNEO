@@ -1,3 +1,23 @@
+---
+id: chrome-2025-analysis
+title: 'Chrome 2025 Features: Analyse für DIN-Brief Neo'
+type: reference
+status: archived
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/archive
+  - status/archived
+  - type/reference
+doc_links:
+  - ROADMAP
+code_links:
+  []
+depends_on: []
+supersedes: []
+---
+
 # Chrome 2025 Features: Analyse für DIN-Brief Neo
 
 > **Datenbasis:** 355 Chrome-Features mit `shipping_year:2025`  

@@ -1,3 +1,24 @@
+---
+id: grossemfaenger-post-und-rechts-spec
+title: 'Großempfänger der Deutschen Post: Rechtliche Grundlagen, Normen & Datenarchitektur'
+type: reference
+status: active
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/reference
+doc_links:
+  - Immutable-Law-Catalog
+  - longevity-guidelines
+code_links:
+  - website/js/address.js
+depends_on: []
+supersedes: []
+---
+
 # Großempfänger der Deutschen Post: Rechtliche Grundlagen, Normen & Datenarchitektur
 
 > **Status:** Verbindliche Architektur- und Rechtsspezifikation für DIN-Brief Neo.  

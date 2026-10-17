@@ -1,3 +1,24 @@
+---
+id: plz-maintenance-and-update-lifecycle
+title: 'Wartungs-, Update- & Entkopplungs-Architektur für PLZ- und Großempfänger-Daten'
+type: guide
+status: active
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/implementation
+  - status/active
+  - type/guide
+doc_links:
+  - Immutable-Law-Catalog
+code_links:
+  - .github/workflows/update_plz_pipeline.yml
+  - website/js/address.js
+depends_on: []
+supersedes: []
+---
+
 # Wartungs-, Update- & Entkopplungs-Architektur für PLZ- und Großempfänger-Daten
 
 > **Status:** Verbindliche Architektur-Spezifikation für Wartung, CI/CD-Updates und API-Fallback.  

@@ -1,3 +1,23 @@
+---
+id: modernization-roadmap-2026
+title: 'Modernisierungs-Roadmap 2026: DIN-Brief Neo (Native Web Platform)'
+type: reference
+status: archived
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/archive
+  - status/archived
+  - type/reference
+doc_links:
+  - ROADMAP
+code_links:
+  []
+depends_on: []
+supersedes: []
+---
+
 # Modernisierungs-Roadmap 2026: DIN-Brief Neo (Native Web Platform)
 
 > **Status:** Analysiert & Konsolidiert  

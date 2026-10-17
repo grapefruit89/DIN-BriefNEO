@@ -4,7 +4,7 @@ title: 'ADR-ANTIPATTERN: aufgelöst in den Immutable Law Catalog'
 type: adr
 status: superseded
 created: '2026-06-26'
-updated: '2026-10-02'
+updated: '2026-10-17'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -62,6 +62,16 @@ Fett = Verbot hatte vorher **keine** Catalog-ID und existierte nur hier.
 Zusätzlich aus [[GEMINI]] und [[CLAUDE]] in den Catalog überführt: **A59** (Papier ist
 theme-unabhängig), **A60** (kein JS-Klassen-Toggle für UI-Zustand), **A61** (schreibendes
 `innerHTML`), **A62** (`aria-pressed` statt `.active`) sowie die Druck-Gegenpflicht in A46.
+
+## Abgelehnte Roadmap-Konzepte (Dokumentation nach Konsolidierung 2026-10-17)
+
+Im Rahmen der Bereinigung von `research/roadmap/` wurden folgende Ansätze nach fachlicher und architektonischer Prüfung verworfen:
+
+| Ansatz | Betroffene Entwürfe | Begründung & geltende Norm |
+| :--- | :--- | :--- |
+| **Lokale LLM/AI-Integration (`window.ai` / Gemini Nano)** | `AI_ADDON_INTEGRATION_GUIDE.md`, `ai_assistant_addon.js`, `EXPERIMENTAL_AI_ADDON_SPEC.md` | **Verworfen nach A1 (Zero-Dependency) und B2 (Offline-First).** Experimentelle Chrome-Canary-APIs erzeugen Vendor-Lock-in und widersprechen der Baseline Chrome 150+. Formelle Geschäftsbriefe und DIN-5008-Layout erfordern deterministische Regeln statt unberechenbarer Text-Generierung. |
+| **Vornamen-Heuristikdatenbank (400+ Namen)** | `ANREDE_ENGINE_AND_GENDER_SPEC.md`, `smart_salutation_engine.js` | **Verworfen nach A3 (KISS) und B5 (Keine fehleranfälligen Heuristiken).** Hoher Pflegeaufwand, Fehlerraten bei geschlechtsneutralen Namen und unzeitgemäße Annahmen. Das Produkt setzt stattdessen auf neutrale Standard-Fallbacks und manuelle Korrektur im Contenteditable. |
+| **Veraltete Browser-Feature-Snapshots** | `BROWSER_AUDIT_EVALUATION.md`, `dinbrief_browser_feature_audit_1788514251378.json` | **Verworfen wegen überholter Annahmen** (z. B. fehlerhafte Annahme `field-sizing` für contenteditable; siehe A49/B5). Das funktionierende Diagnose-Werkzeug wurde als `tools/browser-audit.html` isoliert. |
 
 ## Verknüpfungen
 

@@ -1,3 +1,24 @@
+---
+id: css-modern-replacements
+title: 'CSS-Modernisierungs- & Ablösungsbericht: DIN-Brief Neo'
+type: reference
+status: archived
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/archive
+  - status/archived
+  - type/reference
+doc_links:
+  - ROADMAP
+code_links:
+  - website/css/sheet.css
+  - website/css/print.css
+depends_on: []
+supersedes: []
+---
+
 # CSS-Modernisierungs- & Ablösungsbericht: DIN-Brief Neo
 
 > **Fokus:** 1. Welche CSS-Aufgaben holen wir aus JavaScript ab?  

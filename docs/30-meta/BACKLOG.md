@@ -126,21 +126,24 @@ der manuelle rekursive Node-Walk wurde durch `TreeWalker` ersetzt.
 1. **6-Zeilen-Limit im Anschriftfeld:** DIN 5008 Kap. 19.4.3 begrenzt den Inhalt des Anschriftfeldes auf maximal 6 Zeilen (Zusatz- und Vermerkzone 3 Zeilen + Anschriftzone 6 Zeilen = 9 Zeilen Gesamtraum). Eine optische Warnung (z. B. via Pseudo-Element oder sanftem Toast), wenn der Text 6 Zeilen übersteigt.
 2. **IBAN-Prüfziffer (Modulo-97):** Reine Syntax- und Prüfziffern-Validierung für im Brieftext oder Fußbereich erkannte IBANs nach ISO 7064 (Modulo-97-10) zur Vermeidung von Zahlendrehern.
 
+### B27 · Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) · **L** · ⭐⭐⭐⭐
+**Kontext:** Konsolidiert aus `MULTI_PAGE_ARCHITECTURE_SPEC.md` (zugeordnet zu [[ROADMAP#Priorität 1 — Mehrseitige Briefe]]).
+**Ziel:** Saubere Trennung zwischen Erstseite (Kopf/Anschrift/Falzmarken) und Folgeseiten (Folgeseiten-Kopf bei 20 mm). Horizontales Paging-Karussell im Editor mit View Transitions API (Zero-Scroll-Garantie). Explizite Folgeseiten-Generierung statt instabiler DOM-Messschleifen (A49). Nativer Druckumbruch per `page-break-after: always; break-after: page;`.
+
+### B28 · Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) · **M** · ⭐⭐⭐
+**Kontext:** Konsolidiert aus `MULTI_PROVIDER_INTEGRATION_BLUEPRINT.md`.
+**Ziel:** Provider-unabhängiges Interface für Straßen- und Adress-Lookups als Fallback oder datensparsame Offline/Selbsthost-Option neben Geoapify (z. B. Nominatim, Komoot Photon, BKG Bund). Konsistente Datenstruktur `{ plz, city, street, state }` ohne Vendor-Lock-in.
+
 ---
 
 ## 🟢 Priorität 4 — Hygiene
 
-### B10 · `research/` **statuskennzeichnen** (NICHT auslagern) · **M** · ⭐⭐⭐
+### B10 · `research/` **statuskennzeichnen** (NICHT auslagern) · **M** · ⭐⭐⭐ · ✅ TEIL BEREINIGT 2026-10-17
 **Neu gefasst 2026-10-02 nach Inventur** — siehe `[[research-inventar-2026-10-02]]`.
 Die alte Fassung („1,1 MB auslagern") war falsch gestellt: 476 KB davon sind die beiden
 DIN-5008-Normgeometrie-SVGs, und der Ordner enthält **nicht umgesetzte** UX-Spezifikationen
 (→ B18, B19). Ungelesenes Auslagern hätte dieses Wissen vernichtet.
-**Stattdessen:** Jede der 39 Markdown-Dateien bekommt im Frontmatter einen Status
-(`umgesetzt` / `offen` / `verfallen`). Erst danach entscheiden, ob Erledigtes nach
-`docs/90-archive/` wandert. Platz ist kein Problem — Ordnung ist das Problem.
-**Achtung:** `41-salutation-engine.js` und `ADR-OFFLINE-ADDRESS-INTELLIGENCE` verweisen auf die
-Provenienz der Datensätze — vor jedem Verschieben Referenzen prüfen (Lehre aus 2026-09-30:
-Markdown-Links sieht das Wikilink-Gate nicht).
+**Aktualisierung 2026-10-17:** Der Ordner `research/roadmap/` (38 Dateien) wurde vollständig bereinigt und konsolidiert: 13 implementierte Features und 7 verworfene Ansätze wurden nach Überführung in Law Catalog / ADR gelöscht, 5 Spezifikationen in BACKLOG (B27–B31) und ROADMAP überführt, 12 Referenzdokumente nach `docs/` und das Diagnose-Tool nach `tools/browser-audit.html` verschoben.
 
 ### B11 · `_`-Prefix → `#private` vereinheitlichen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
 `01`, `41`, `53` mischen `#private`, `_underscore` und public. Rein mechanisch, kein
@@ -176,6 +179,21 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 - Option A: Aufteilung der Datei (z. B. historische/archivierte Tools nach `tooling-overview-legacy.md` auslagern).
 - Option B: Konfiguriertes Limit in `tools/reconciliation.js` für `tooling-overview.md` auf 500 Zeilen anheben (begründet durch den Charakter als zentrale Tooling-SSoT, analog zur bestehenden Ausnahme für `DECISION-LOG.md`).
 
+### B29 · Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) · **S** · ⭐⭐⭐
+**Kontext:** Konsolidiert aus `GEOAPIFY_OPTIMIZATION_CONCEPT.md`.
+**Ziel:** Feinabstimmung der Remote-Adressabfrage: Verbindungsvorwärmung (`preconnect`/DNS-Prefetch bei Fokus auf das Straßenfeld), dynamischer Session-Debounce (500 ms) und In-Memory LRU-Cache für wiederholte Tastenanschläge zur Minimierung von API-Calls.
+
+### B30 · Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) · **S** · ⭐⭐
+**Kontext:** Konsolidiert aus `GEOAPIFY_REGION_BIAS_SPEC.md`.
+**Ziel:** Geografischer Such-Bias auf Basis der bereits aufgelösten PLZ/Ort (Bounding Box oder Koordinaten-Bias) und konfigurierbare Ausfallsicherheit (automatischer Failover zwischen EU- und Global-Clustern bei Timeouts/HTTP 5xx).
+
+### B31 · Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker · **S** · ⭐⭐
+**Kontext:** Konsolidiert aus `CHROME_METRICS_HIDDEN_GEMS.md` (Chromium Web Features UseCounter Telemetrie).
+**Ziel:** Direkte Integration moderner, nativer Browser-APIs:
+1. `window.queryLocalFonts()`: Ermöglicht dem Schriftarten-Manager direkten Zugriff auf alle installierten lokalen Systemschriften (Aptos, Calibri, Arial, DIN Next etc.) ohne Datei-Upload und ohne Base64-Speicherbedarf.
+2. `EyeDropper` API: Native Bildschirm-Pipette für die Farbauswahl des Briefkopfes (z. B. Abstimmung auf ein eingefügtes Firmenlogo).
+3. `input.showPicker()`: Programmatisches Öffnen des nativen OS-Kalenders bei Klick auf Datumsfelder.
+
 ---
 
 ## Empfohlene Reihenfolge
@@ -191,6 +209,7 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 9. **B22** (`check-geometry.js` — Guard gegen hardcodierte Geometriewerte)
 10. **B23** (`law_coverage` 30/35) + **B24** (`tooling-overview` doc-size)
 11. **B25** (Brief-Vorlagen) + **B26** (DIN-Validatoren Anschrift/IBAN)
+12. **B27** (Mehrseitige Briefe) + **B28** (Multi-Provider Geocoding) + **B29**–**B31** (Geoapify-Tuning, Bias & Native APIs)
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Vollständig umgesetzt (Commit `a16899c`):
@@ -208,8 +227,8 @@ benutzt, kann keine Adresse übernehmen. Das wiegt schwerer als jedes offene CSS
 Umsetzung vor B19, weil B19 darauf aufbaut.
 
 ### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐ · ✅ ERLEDIGT (PHASE 1) / GESCHLOSSEN (PHASE 2) 2026-10-02
-Quelle: `research/roadmap/ADAPTIVE_DROPDOWN_THRESHOLD_SPEC.md` und
-`ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md`. Phase 1 ist umgesetzt: > 5 Treffer zeigen
+Quelle: ehemals `research/roadmap/ADAPTIVE_DROPDOWN_THRESHOLD_SPEC.md` und
+`ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md` (konsolidiert). Phase 1 ist umgesetzt: > 5 Treffer zeigen
 nur einen Eingrenzungshinweis, 2–5 Treffer erscheinen als Liste, genau 1 Treffer wird
 nach dem vollständigen lokalen/Remote-Abgleich automatisch übernommen. Die vorherige
 willkürliche `slice(0, 6)`-Anzeige ist entfernt. Phase 2 (bidirektionales Orchestrieren „Straße zuerst")

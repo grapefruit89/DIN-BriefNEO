@@ -1,3 +1,23 @@
+---
+id: css-snippets-reference-2026
+title: 'Modern CSS 2026: Gesamtreferenz & Praxis-Snippets'
+type: reference
+status: archived
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/archive
+  - status/archived
+  - type/reference
+doc_links:
+  - ROADMAP
+code_links:
+  []
+depends_on: []
+supersedes: []
+---
+
 # Modern CSS 2026: Gesamtreferenz & Praxis-Snippets
 
 > **Quelle:** MDN Web Docs & Chrome Platform Status 2026 (128 CSS-Features)  
@@ -54,7 +74,7 @@ Neben den 8 Gamechangern gibt es aus dem 2026-Katalog 6 weitere nützliche CSS-F
   color: inherit;
 }
 ```
-*Nutzen:* Man muss den DOM-Text nicht mehr in separate `<span>`-Tags zerlegen (`innerHTML`-Sicherheitsrisiko entfällt).
+*Nutzen:* Man muss den DOM-Text nicht mehr in separate `<span>`-Tags zerlegen (ohne `innerHTML`-Sicherheitsrisiko).
 
 ---
 

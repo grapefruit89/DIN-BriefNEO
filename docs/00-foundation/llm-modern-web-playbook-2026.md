@@ -1,3 +1,23 @@
+---
+id: llm-modern-web-playbook-2026
+title: 'LLM Modern Web Playbook 2026: Anweisungen für KIs & Entwickler'
+type: reference
+status: active
+created: '2026-09-04'
+updated: '2026-10-17'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/reference
+doc_links:
+  - Immutable-Law-Catalog
+  - longevity-guidelines
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # LLM Modern Web Playbook 2026: Anweisungen für KIs & Entwickler
 
 > **Zweck dieses Dokuments:**  

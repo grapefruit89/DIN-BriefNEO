@@ -380,6 +380,8 @@ export class UIProtections {
  * 3. DRAFT MANAGER (Single-Writer für localStorage, Undo/Redo, Autosave)
  * ========================================================================================= */
 
+/* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
+ * Matcht contenteditable-Blattfelder UND speicherbare Formular-Selects (z. B. Postvermerk). */
 const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), select[data-speichern]';
 
 /**
@@ -421,7 +423,6 @@ export function collectDraft() {
 }
 
 export class DraftManager {
-  static collectDraft = collectDraft;
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #undoStack = [];
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */

@@ -11,13 +11,6 @@ interface Document {
   ariaNotify(text: string, options?: { priority?: 'important' | 'nonimportant'; interrupt?: boolean }): void;
 }
 
-/** Chrome 144+: Find-in-Page-Highlight-Styling. */
-interface CSSStyleDeclaration {
-  // ::search-text wird als Selektor genutzt, keine TS-Schnittstelle nötig.
-}
-
-/** Chrome 150: @page-Descriptor als typed CSSPageDescriptors. */
-declare class CSSPageDescriptors extends CSSStyleDeclaration { }
 
 
 declare class CloseWatcher {

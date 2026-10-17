@@ -4,7 +4,7 @@ title: Backlog — offene Baustellen nach Aufwand und ROI
 status: active
 type: reference
 created: '2026-10-02'
-updated: '2026-10-16'
+updated: '2026-10-17'
 tags:
 - din-briefneo
 - meta
@@ -111,6 +111,21 @@ Die gemeinsame native Selection-/Caret-Logik liegt in `website/js/selection-util
 DraftManager und Offline-Adressintelligenz verwenden jetzt denselben Utility-Pfad;
 der manuelle rekursive Node-Walk wurde durch `TreeWalker` ersetzt.
 
+### B25 · Vorkonfigurierte Brief-Vorlagen (JSON-Muster) · **M** · ⭐⭐⭐
+**Kontext:** Übernommen aus GitHub-Issue #13. Ein leerer Briefeditor ist für Erstnutzer eine Hürde.
+**Ziel:** Vorkonfigurierte Vorlagen / Musterbriefe für typische Alltagsfälle bereitstellen:
+- Privatbrief (Standard)
+- Kündigung (Vertrag / Wohnung)
+- Mahnung / Fristsetzung
+- Formloser Antrag (Behörde)
+**Umsetzung:** Vorlagen als leichtgewichtige, validierte `.dinletter` JSON-Payloads (Schema v2) vorhalten, die per UI-Auswahl direkt in den Editor geladen werden können.
+
+### B26 · Optionale DIN-5008-Validatoren (Anschrift-Zeilenlimit & IBAN) · **S** · ⭐⭐
+**Kontext:** Übernommen aus GitHub-Issue #4.
+**Ziel:** Zwei zusätzliche defensive Norm- und Syntaxprüfungen:
+1. **6-Zeilen-Limit im Anschriftfeld:** DIN 5008 Kap. 19.4.3 begrenzt den Inhalt des Anschriftfeldes auf maximal 6 Zeilen (Zusatz- und Vermerkzone 3 Zeilen + Anschriftzone 6 Zeilen = 9 Zeilen Gesamtraum). Eine optische Warnung (z. B. via Pseudo-Element oder sanftem Toast), wenn der Text 6 Zeilen übersteigt.
+2. **IBAN-Prüfziffer (Modulo-97):** Reine Syntax- und Prüfziffern-Validierung für im Brieftext oder Fußbereich erkannte IBANs nach ISO 7064 (Modulo-97-10) zur Vermeidung von Zahlendrehern.
+
 ---
 
 ## 🟢 Priorität 4 — Hygiene
@@ -175,6 +190,7 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 8. ~~**B7**~~ ✅ erledigt 2026-10-15 (attr()-Fallbacks entfernt, MUST-NOT 5); ~~**B19 Phase 2**~~ ❌ geschlossen (KISS)
 9. **B22** (`check-geometry.js` — Guard gegen hardcodierte Geometriewerte)
 10. **B23** (`law_coverage` 30/35) + **B24** (`tooling-overview` doc-size)
+11. **B25** (Brief-Vorlagen) + **B26** (DIN-Validatoren Anschrift/IBAN)
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Vollständig umgesetzt (Commit `a16899c`):

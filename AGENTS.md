@@ -86,7 +86,7 @@ Die relevanten Erkenntnisse aus Context7 sind kurz im `DECISION-LOG.md` zu dokum
 
 - Neue ADRs und Guides werden aus den offiziellen Templates erstellt: `docs/30-meta/ADR-TEMPLATE.md` und `docs/30-meta/GUIDE-TEMPLATE.md`.
 - Jedes neue Dokument muss vollständiges Frontmatter nach Schema V6 enthalten.
-- Die automatisierte Function Traceability Matrix darf **nur** durch `build_db.py` verändert werden.
+- Die automatisierte Function Traceability Matrix darf **nur** durch `tools/build_db.js` verändert werden.
 - Neue Code-Funktionen müssen Traceability über `@adr` / `@guide` Kommentare herstellen.
 
 ### 5.1 Ein Fakt, ein Ort (oberste Doku-Regel)
@@ -279,8 +279,7 @@ nennen („Shipping in Chrome 151"). Ergänzend Context7 nach §4. Live-Empirie 
   (reiner Orchestrator) und Utility-Module, die verwandte Helfer bündeln.
 - `main.js` enthält **keine** Geschäftslogik. Module werden instanziiert und per
   Dependency Injection gekoppelt — keine `window.*`-Globals für interne Logik.
-- JS-Dateien liegen **flach** in `website/js/`. Domäne steckt im zweistelligen Präfix:
-  `0x` Core · `3x` UI · `4x` Features · `5x` Utils. Unterordner sind unzulässig.
+- JS-Dateien liegen **flach** in `website/js/` mit sprechenden Domänennamen (`core.js`, `document.js`, `address.js`, `salutation.js`, `settings.js`, `persistence.js`, `main.js`, `boot-theme.js`). Unterordner und Zahlenpräfixe sind unzulässig.
 - Wird ein Feature, nach dem das Gate in `main.js` sucht, ausgelagert, bleibt dort ein
   Trace-Kommentar zurück: `// Feature Trace: <API> wird jetzt in <Modul> behandelt`.
 

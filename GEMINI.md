@@ -4,7 +4,7 @@ title: GEMINI.md — Einstieg für Gemini & Gemini CLI
 type: ai-context
 status: active
 created: '2026-07-01'
-updated: '2026-10-02'
+updated: '2026-10-17'
 tags:
 - din-briefneo
 - meta
@@ -57,6 +57,7 @@ depends_on: []
 ## Start
 
 ```bash
-start.bat                 # lokaler Webserver auf Port 8088
+start.bat                 # lokaler Webserver auf Port 8088 (Windows)
+./start.sh                # lokaler Webserver auf Port 8088 (Linux)
 node tools/build_db.js    # Fitness Gate — muss 100 % melden
 ```

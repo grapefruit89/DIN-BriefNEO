@@ -4,7 +4,7 @@ title: CLAUDE.md — Einstieg für Claude & Claude Code
 type: ai-context
 status: active
 created: '2026-08-07'
-updated: '2026-10-02'
+updated: '2026-10-17'
 tags:
 - din-briefneo
 - meta
@@ -54,7 +54,7 @@ oder aus dem Gedächtnis.
 
 | Bereich | Inhalt |
 | :--- | :--- |
-| `website/` | Produktionscode. `index.html`, `css/` (9 Dateien, `@layer`), `js/` (flach, Domäne im Zehner-Präfix), `data/` (`.json.gz`) |
+| `website/` | Produktionscode. `index.html`, `css/` (4 Dateien: `base.css`, `sidebar.css`, `sheet.css`, `print.css`), `js/` (8 flache Dateien, domänenbasiert ohne Zahlenpräfixe), `data/` (`.json.gz`) |
 | `docs/00-foundation/` | Verfassungsebene: Catalog, [[constitution]], [[longevity-guidelines]], [[spec]] |
 | `docs/10-architecture/` | [[IMR-Registry]] (SSoT für die 45 Atome) und die thematischen ADRs |
 | `docs/20-implementation/` | Guides und [[glossary]] |
@@ -68,7 +68,8 @@ nicht ein Baum in einer Markdown-Datei.
 ## Start
 
 ```bash
-start.bat                 # lokaler Webserver auf Port 8088 (einziger Laufzeitkontext)
+start.bat                 # lokaler Webserver auf Port 8088 (Windows)
+./start.sh                # lokaler Webserver auf Port 8088 (Linux)
 node tools/build_db.js    # Fitness Gate — muss 100 % melden, vor und nach jeder Änderung
 ```
 

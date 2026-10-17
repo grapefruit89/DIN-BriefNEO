@@ -17,15 +17,15 @@
 
 ## ⚡ Quick Start
 
-Die App nutzt modernen, nativen W3C-Code (ES-Modules, externe Boot-Scripts, CSS Layers) und muss deshalb wegen der Browser-CORS-Richtlinien über einen lokalen Webserver gestartet werden — `file://` reicht nicht.
+Die App nutzt modernen, nativen W3C-Code (ES-Modules, isoliertes Boot-Script, natives CSS) und muss deshalb wegen der Browser-CORS-Richtlinien über einen lokalen Webserver gestartet werden — `file://` reicht nicht.
 
 **Als Nutzer (Windows):**
 1. Doppelklick auf [`start.bat`](start.bat) — startet den lokalen Webserver (`tools/dev_server.ps1`, Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
 2. Losbriefen. Es wird nichts hochgeladen: Kein Tracking, keine Fonts von Fremdservern, keine Requests ins Netz.
 
 **Als Entwickler / KI-Agent:**
-- Linux ohne PowerShell: `node tools/build_db.js` (Fitness-Gate-Einstieg; `tools/reconciliation.js` ist nur ein Modul). Für die App selbst genügt ein beliebiger statischer Webserver auf dem Repo-Root, z. B. `python3 -m http.server 8088` — Aufruf dann unter `http://localhost:8088/website/index.html`.
-- Windows/Voller Durchlauf: `.\tools\start.ps1` (gecachte Artefakte, `-Force` erzwingt den vollen Lauf).
+- Linux: `node tools/build_db.js` (Fitness Gate + Index-Generierung). Lokaler Server via `./start.sh` oder `python3 -m http.server 8088`.
+- Windows: `node tools/build_db.js` (Fitness Gate). Lokaler Server via `start.bat`.
 - Der **Fitness Score muss 100 % betragen** — vor und nach jeder relevanten Änderung.
 - Bindender Verhaltensvertrag: [`AGENTS.md`](AGENTS.md).
 
@@ -47,8 +47,8 @@ Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir
 | Bereich | Umsetzung |
 |---|---|
 | Browser-Baseline | Chrome 150+ (aktuellste Empirie schlägt Baseline-Daten — live geprüft via `CSS.supports()`) |
-| Stylesheets | 8 thematisch getrennte CSS-Dateien mit `@layer`-Architektur |
-| JavaScript | Native ES-Modules; 2 blockierende Classic-Boot-Scripts (`boot-theme.js` gegen FOUC, `boot-state.js` für Restore) |
+| Stylesheets | 4 thematisch getrennte CSS-Dateien (`base.css`, `sidebar.css`, `sheet.css`, `print.css`) |
+| JavaScript | Native ES-Modules; 1 blockierendes Classic-Boot-Script (`boot-theme.js` gegen FOUC), Restore via `DraftManager` in `document.js` |
 | UI-Mechanik | Popover API statt JS-Toggles, `:has()`-Selektoren statt JS-State |
 | Farbwelt | Exklusiv OKLCH, semantische Tokens, automatischer Light/Dark-Wechsel via `light-dark()` |
 | Storage | `localStorage` für Brief-Entwurf & Einstellungen, kein Backend |

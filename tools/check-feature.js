@@ -11,10 +11,12 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { execSync } = require('child_process');
 
 const CHROME_BASELINE = 150;
-const CACHE_DIR = '/home/moritz/.din-briefneo/feature-cache';
+const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
+const CACHE_DIR = path.join(DIN_HOME, 'feature-cache');
 const NODE_MODULES = path.join(CACHE_DIR, 'node_modules');
 
 const WF_DATA_PATH = path.join(NODE_MODULES, 'web-features', 'data.json');

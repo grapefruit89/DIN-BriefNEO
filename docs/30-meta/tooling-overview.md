@@ -22,7 +22,6 @@ code_links:
 - 'tools/log_session.js'
 - 'tools/adr-check.js'
 - 'tools/check-feature.js'
-- 'tools/test_text_fit_harness.js'
 depends_on: []
 supersedes: []
 ---
@@ -440,19 +439,6 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
 - **Risikoklasse**: READ (reines Prüfwerkzeug, modifiziert keine Dateien).
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand → gleiches Ergebnis).
 - **Safe-to-delete**: NEIN — präventiver Drift-Wächter zur Qualitätssicherung der ADR-Konsistenz.
-
-## test_text_fit_harness.js
-
-- **Zweck**: Empirischer Test-Harness fuer `TextFitEngine` und `UIProtections`
-  (Textueberlauf-Handling im Editor). Simuliert Browser-APIs (`Range`, DOM-Mocks)
-  ausserhalb eines echten Browsers.
-- **Input**: keine externen Dateien, Testfaelle sind im Skript selbst definiert
-- **Output**: Konsolen-Testergebnisse (Pass/Fail)
-- **Abhaengigkeiten**: keine, reines Node core mit selbstgebauten Mocks
-- **Aufrufer**: NICHT Teil von `scripts/start.ps1` oder `deploy.yml` — manuell bei Aenderungen an `48-text-fit.js` auszufuehren
-- **Risikoklasse**: READ (fuehrt nur Tests aus, schreibt nichts)
-- **Idempotenz**: IDEMPOTENT
-- **Safe-to-delete**: NEIN — einziger automatisierter Test fuer eine funktional komplexe Komponente (Textumbruch-Erkennung)
 
 ## Zusammenfassung: Pipeline-Reihenfolge (scripts/start.ps1)
 

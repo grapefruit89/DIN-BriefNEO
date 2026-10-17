@@ -120,10 +120,6 @@ const FEATURE_CHECKS = {
     regex: /@scope/g,
     file: 'website/css/sheet.css'
   },
-  'CSS field-sizing': {
-    regex: /field-sizing/g,
-    file: 'website/css/sheet.css'
-  },
   'CSS light-dark()': {
     regex: /light-dark\(/g,
     file: 'website/css/base.css'

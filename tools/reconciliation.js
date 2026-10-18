@@ -1,4 +1,5 @@
 const fs = require('fs');
+const standHelper = require('./structure-stand.js');
 const path = require('path');
 const os = require('os');
 const { execSync } = require('child_process');
@@ -666,20 +667,18 @@ function runReconciliation() {
           });
         }
 
-        // Drift-Guard: structure-fresh (docs/STRUCTURE.md muss aktuellen HEAD-Hash enthalten)
+        // Drift-Guard: structure-fresh. Prueft, dass die Stand-Zeile zum Inhalt
+        // der Datei passt (Inhalts-Hash, kein Commit-Hash/keine Uhrzeit - sonst
+        // war die Datei nach jedem Commit erneut "dirty").
         if (relPath === 'docs/STRUCTURE.md') {
-          let gitCommit = '';
-          try {
-            const { execSync } = require('child_process');
-            gitCommit = execSync('git rev-parse --short HEAD', { cwd: targetDir, encoding: 'utf8' }).trim();
-          } catch (e) {}
-
-          if (gitCommit && !content.includes(gitCommit)) {
+          const standMatch = content.match(/<!-- Stand: ([0-9a-f]{6,64}) -->/);
+          const expected = standHelper.computeStand(content);
+          if (!standMatch || standMatch[1] !== expected) {
             logs.push({
               file_path: relPath,
               check_type: 'structure-fresh',
               severity: 'critical',
-              message: `docs/STRUCTURE.md ist veraltet (enthält nicht aktuellen Commit ${gitCommit}). Bitte mit "node tools/build_db.js" regenerieren.`
+              message: `docs/STRUCTURE.md passt nicht zu seinem Stand-Hash (${expected}). Bitte mit "node tools/build_db.js" regenerieren.`
             });
           }
         }

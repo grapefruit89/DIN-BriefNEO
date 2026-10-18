@@ -148,6 +148,13 @@ depends_on: []
 `;
 
   const structurePath = path.join(targetDir, 'docs', 'STRUCTURE.md');
+  if (fs.existsSync(structurePath)) {
+    const existing = fs.readFileSync(structurePath, 'utf8');
+    const normalize = s => s.replace(/<!-- Stand: ([^\s|]+) \| .*? -->/, '<!-- Stand: $1 -->');
+    if (normalize(existing) === normalize(structMd)) {
+      return;
+    }
+  }
   fs.writeFileSync(structurePath, structMd, 'utf8');
 }
 
@@ -458,9 +465,6 @@ Diese Datei wird automatisch von \`build_db.js\` generiert und bildet alle Quell
       ftMd += `| **${displayName}** | \`${entry.file}\` | ${adrs} | ${guides} |\n`;
     });
     fs.writeFileSync(path.join(BUILD_DIR, 'Function-Traceability.md'), ftMd, 'utf8');
-
-    // Generate docs/STRUCTURE.md
-    generateStructureMap(targetDir);
   }
 
   fs.writeFileSync(outputSqlFile, sql, 'utf-8');

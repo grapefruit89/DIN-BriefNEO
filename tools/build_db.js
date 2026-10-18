@@ -152,6 +152,7 @@ depends_on: []
 }
 
 function main() {
+  generateStructureMap(targetDir);
   console.log('Running Reality Reconciliation & Fitness Check...');
   const report = runReconciliation();
 

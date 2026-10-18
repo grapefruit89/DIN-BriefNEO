@@ -4,7 +4,7 @@ title: AGENTS.md — Bindender KI-Verhaltensvertrag
 type: ai-context
 status: active
 created: '2026-07-01'
-updated: '2026-10-02'
+updated: '2026-10-17'
 tags:
 - din-briefneo
 - meta
@@ -25,6 +25,9 @@ code_links:
 
 **BINDENDER VERHALTENSVERTRAG FÜR ALLE KI-AGENTEN**  
 Dieser Vertrag ist nicht verhandelbar. Verstöße führen zur Ablehnung der Änderung.
+
+> **Schritt 0 — Repo-Struktur kennen:**
+> Vor jeder Dateisuche `docs/STRUCTURE.md` lesen. Nur greppen, wenn das gesuchte Symbol dort nicht verzeichnet ist. Die Datei wird bei jedem `node tools/build_db.js` automatisch regeneriert.
 
 ---
 

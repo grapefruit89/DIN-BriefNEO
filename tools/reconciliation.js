@@ -585,6 +585,14 @@ function runReconciliation() {
   }
 
   const docFiles = getFilesRecursively(targetDir);
+  if (!fs.existsSync(path.join(targetDir, 'docs', 'STRUCTURE.md'))) {
+    logs.push({
+      file_path: 'docs/STRUCTURE.md',
+      check_type: 'structure-fresh',
+      severity: 'critical',
+      message: 'docs/STRUCTURE.md existiert nicht. Bitte mit "node tools/build_db.js" generieren.'
+    });
+  }
   let metadataChecked = 0;
   let metadataPassed = 0;
   let linksChecked = 0;
@@ -656,6 +664,24 @@ function runReconciliation() {
             severity: 'low',
             message: `Doku-Datei hat ${lines.length} Zeilen (>400). Aufteilen oder nach docs/90-archive/ verschieben (Ausnahme: DECISION-LOG).`
           });
+        }
+
+        // Drift-Guard: structure-fresh (docs/STRUCTURE.md muss aktuellen HEAD-Hash enthalten)
+        if (relPath === 'docs/STRUCTURE.md') {
+          let gitCommit = '';
+          try {
+            const { execSync } = require('child_process');
+            gitCommit = execSync('git rev-parse --short HEAD', { cwd: targetDir, encoding: 'utf8' }).trim();
+          } catch (e) {}
+
+          if (gitCommit && !content.includes(gitCommit)) {
+            logs.push({
+              file_path: relPath,
+              check_type: 'structure-fresh',
+              severity: 'critical',
+              message: `docs/STRUCTURE.md ist veraltet (enthält nicht aktuellen Commit ${gitCommit}). Bitte mit "node tools/build_db.js" regenerieren.`
+            });
+          }
         }
       }
 

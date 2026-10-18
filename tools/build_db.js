@@ -60,7 +60,19 @@ function escapeSql(str) {
 }
 
 function generateStructureMap(targetDir) {
-  const isoDate = new Date().toISOString().split('T')[0];
+  // Datum OHNE Uhrzeit-Zugriff (kein new Date): der letzte Commit, der die
+  // Quellen (docs/, ohne dieses Artefakt) geaendert hat. Bleibt ueber Laeufe
+  // hinweg stabil -> die Datei ist idempotent; der Vergleich ignoriert `updated:`
+  // ohnehin, es loest also nie eine Neuschreibung aus.
+  let isoDate = '2026-10-17';
+  try {
+    const { execSync } = require('child_process');
+    isoDate =
+      execSync("git log -1 --format=%cs -- docs ':!docs/STRUCTURE.md'", {
+        cwd: targetDir,
+        encoding: 'utf8',
+      }).trim() || isoDate;
+  } catch (e) {}
 
   const structMd = `---
 id: structure

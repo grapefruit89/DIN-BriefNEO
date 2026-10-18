@@ -83,4 +83,4 @@ jobs:
 
       - name: Log idempotent / skip result
         if: steps.pipeline.outputs.action_needed == 'none'
-        run: echo "Idempotent run: ${{ steps.pipeline.outputs.summary }}"
+        run: 'echo "Idempotent run: ${{ steps.pipeline.outputs.summary }}"'

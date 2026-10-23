@@ -33,15 +33,15 @@
 
         <!-- Zone 1: Brief-Steuerung -->
         <section id="zone-dokument" class="seitenleiste-zone">
-          <div class="seitenleiste-field-group">
-            <h2 class="seitenleiste-label">DIN-Brief Layout</h2>
+          <fieldset class="seitenleiste-field-group">
+            <legend class="seitenleiste-label">DIN-Brief Layout</legend>
             <div class="segmented-control">
               <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
               <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
               <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
               <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
             </div>
-          </div>
+          </fieldset>
 
           <div class="seitenleiste-switch-row">
             <span class="seitenleiste-label">Hilfslinien</span>
@@ -208,7 +208,7 @@
               </div>
               <din-anlagen id="anlagen">
                 <div class="anlagen-heading">Anlagen</div>
-                <ul id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences" writingsuggestions="false"><li>Anlage 1</li></ul>
+                <ol id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" aria-label="Anlagen"><li>Anlage 1</li></ol>
               </din-anlagen>
             </din-kern>
             <din-fuss id="fuss" data-left="25" data-right="20" data-bottom="10" data-h="15" data-font="7.5" role="contentinfo">

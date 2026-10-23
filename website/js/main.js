@@ -165,5 +165,21 @@ document.addEventListener('DOMContentLoaded', () => {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
+    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+    if (anlagenSwitch) {
+      anlagenSwitch.addEventListener('change', () => {
+        const anlagenEl = document.getElementById('anlagen-text');
+        if (anlagenEl) {
+          if (anlagenSwitch.checked) {
+            const li = document.createElement('li');
+            li.textContent = 'Anlage 1';
+            anlagenEl.replaceChildren(li);
+          } else {
+            anlagenEl.replaceChildren();
+          }
+        }
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
   }
 });

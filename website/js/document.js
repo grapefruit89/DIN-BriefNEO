@@ -397,9 +397,10 @@ export function collectDraft() {
 
   document.querySelectorAll('[contenteditable]').forEach(elem => {
     if (!elem.id || elem.getAttribute('data-feldtyp') === 'systemwert') return;
+    if (elem.id === 'anlagen-text' && !/** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'))?.checked) return;
     if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
       const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-      const extra = isListe ? { extraTags: ['UL', 'LI'] } : undefined;
+      const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
       const cleanFrag = sanitizeRichText(elem.innerHTML, extra);
       const container = document.createElement('div');
       container.appendChild(cleanFrag);
@@ -422,6 +423,11 @@ export function collectDraft() {
   const copyfitEl = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
   if (copyfitEl) {
     draft['toggle-copyfit'] = String(copyfitEl.checked);
+  }
+
+  const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+  if (anlagenSwitch) {
+    draft['toggle-anlagen'] = String(anlagenSwitch.checked);
   }
 
   return draft;
@@ -597,7 +603,7 @@ export class DraftManager {
       // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
       if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
         const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-        const extra = isListe ? { extraTags: ['UL', 'LI'] } : undefined;
+        const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
         elem.replaceChildren(sanitizeRichText(draft[id], extra));
         if (isListe && elem.children.length === 0) {
           elem.replaceChildren(document.createElement('li'));
@@ -624,6 +630,18 @@ export class DraftManager {
       const copyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
       if (copyfitSwitch) {
         copyfitSwitch.checked = draft['toggle-copyfit'] === 'true';
+      }
+    }
+
+    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+    if (anlagenSwitch) {
+      if ('toggle-anlagen' in draft) {
+        anlagenSwitch.checked = draft['toggle-anlagen'] === 'true';
+      }
+      /* Migration: alte Drafts können anlagen-text enthalten, obwohl Toggle aus ist */
+      if (!anlagenSwitch.checked) {
+        const anlagenEl = document.getElementById('anlagen-text');
+        if (anlagenEl) anlagenEl.replaceChildren();
       }
     }
 
@@ -677,7 +695,11 @@ export class DraftManager {
     document.querySelectorAll('[contenteditable]').forEach(el => {
       if (el.getAttribute('data-feldtyp') === 'systemwert') return;
       if (el.getAttribute('data-feldtyp')?.includes('liste')) {
-        el.replaceChildren(document.createElement('li'));
+        if (el.id === 'anlagen-text') {
+          el.replaceChildren();
+        } else {
+          el.replaceChildren(document.createElement('li'));
+        }
       } else {
         el.replaceChildren();
         el.textContent = '';
@@ -690,6 +712,10 @@ export class DraftManager {
     const copyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
     if (copyfitSwitch) {
       copyfitSwitch.checked = false;
+    }
+    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+    if (anlagenSwitch) {
+      anlagenSwitch.checked = false;
     }
     const postvermerk = document.getElementById('postvermerk');
     if (postvermerk) {

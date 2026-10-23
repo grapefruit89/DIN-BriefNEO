@@ -41,6 +41,15 @@ aside.seitenleiste,
   flex-direction: column;
   gap: 4px;
 }
+fieldset.seitenleiste-field-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+fieldset.seitenleiste-field-group > legend {
+  padding: 0;
+}
 
 .seitenleiste-btn-row {
   display: flex;
@@ -141,7 +150,9 @@ aside.seitenleiste,
 }
 
 .segmented-control {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   background: var(--segment-bg);
   padding: 4px;
   border-radius: 10px;
@@ -172,12 +183,12 @@ aside.seitenleiste,
   bottom: 4px;
   left: 4px;
   width: calc((100% - 8px) / var(--items));
-  transform: translateX(calc(var(--active-idx) * 100%));
+  translate: calc(var(--active-idx) * 100%);
   
   background: var(--segment-active-bg);
   border-radius: 8px;
   box-shadow: var(--segment-active-shadow);
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+  transition: translate 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
   z-index: -1;
   opacity: 1;
 }
@@ -189,7 +200,6 @@ aside.seitenleiste,
 
 .segmented-control button,
 .segmented-control label {
-  flex: 1;
   border: none;
   background: transparent; /* Clean transparent to let pill show */
   padding: 8px 12px;
@@ -210,6 +220,29 @@ aside.seitenleiste,
   color: oklch(0 0 0);
   font-weight: 700;
   /* Box-shadow and background are now handled by ::before */
+}
+
+/* Tastatur-Fokusindikator (WCAG 2.2 SC 2.4.7) */
+.segmented-control input[type="radio"]:focus-visible + label {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Motion-Präferenz: Gleitanimation bei reduzierter Bewegung deaktivieren */
+@media (prefers-reduced-motion: reduce) {
+  .segmented-control::before {
+    transition: none;
+  }
+}
+
+/* Windows High Contrast Mode / Forced Colors */
+@media (forced-colors: active) {
+  .segmented-control::before {
+    outline: 2px solid Highlight;
+  }
+  .segmented-control input[type="radio"]:checked + label {
+    color: HighlightText;
+  }
 }
 
 /* --- SIDEBAR CUSTOM INPUTS & AUTOCOMPLETE --- */

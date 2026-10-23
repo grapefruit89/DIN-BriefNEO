@@ -346,13 +346,13 @@ din-postvermerk {
 }
 
 din-anlagen {
-  margin-top: 3cqh;
+  margin-top: --mm-y(12.69);
   font-size: 0.9em;
   page-break-inside: avoid;
 }
 
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
-#anlagen-text { margin: 0; padding-left: 1.5rem; }
+#anlagen-text { margin: 0; padding-left: 0; list-style-position: inside; }
 
 /* Single-Line & Nativer Text-Fit */
 .single-line {

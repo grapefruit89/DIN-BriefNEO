@@ -18,5 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install TypeScript
+        run: npm install -g typescript
       - name: Fitness Gate + Retrieval-Index
         run: node tools/build_db.js

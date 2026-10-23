@@ -36,6 +36,18 @@ aside.seitenleiste,
   gap: 12px;
 }
 
+.seitenleiste-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.seitenleiste-divider {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+
 .seitenleiste-field-group {
   display: flex;
   flex-direction: column;

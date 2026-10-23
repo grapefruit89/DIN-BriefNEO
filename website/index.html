@@ -33,62 +33,79 @@
 
         <!-- Zone 1: Brief-Steuerung -->
         <section id="zone-dokument" class="seitenleiste-zone">
-          <fieldset class="seitenleiste-field-group">
-            <legend class="seitenleiste-label">DIN-Brief Layout</legend>
-            <div class="segmented-control">
-              <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
-              <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
-              <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
-              <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
+          <!-- 1. Format & Ansicht -->
+          <div class="seitenleiste-subgroup">
+            <fieldset class="seitenleiste-field-group">
+              <legend class="seitenleiste-label">DIN-Brief Layout</legend>
+              <div class="segmented-control">
+                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+                <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
+                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+                <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
+              </div>
+            </fieldset>
+
+            <div class="seitenleiste-switch-row">
+              <span class="seitenleiste-label">Hilfslinien</span>
+              <input type="checkbox" switch id="btn-hilfslinien-switch" checked aria-label="Hilfslinien umschalten">
             </div>
-          </fieldset>
 
-          <div class="seitenleiste-switch-row">
-            <span class="seitenleiste-label">Hilfslinien</span>
-            <input type="checkbox" switch id="btn-hilfslinien-switch" checked aria-label="Hilfslinien umschalten">
+            <div class="seitenleiste-switch-row">
+              <span class="seitenleiste-label">Kompaktsatz (1 Seite)</span>
+              <input type="checkbox" switch id="toggle-copyfit" aria-label="Micro-Copyfitting aktivieren">
+            </div>
           </div>
 
-          <div class="seitenleiste-switch-row">
-            <span class="seitenleiste-label">Kompaktsatz (1 Seite)</span>
-            <input type="checkbox" switch id="toggle-copyfit" aria-label="Micro-Copyfitting aktivieren">
+          <hr class="seitenleiste-divider">
+
+          <!-- 2. Briefelemente -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-field-group">
+              <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
+              <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
+                <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
+                <option value="polite">Höflich (Guten Tag...)</option>
+                <option value="casual">Locker (Hallo...)</option>
+              </select>
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <label for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
+              <select id="seitenleiste-postvermerk-select" class="seitenleiste-select seitenleiste-postvermerk-select" aria-label="Postvermerk wählen">
+                <option value="">— kein —</option>
+                <optgroup label="Versandarten">
+                  <option value="Einschreiben">Einschreiben</option>
+                  <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                  <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                  <option value="Einschreiben Wert">Einschreiben Wert</option>
+                  <option value="Warensendung">Warensendung</option>
+                  <option value="Büchersendung">Büchersendung</option>
+                  <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+                </optgroup>
+                <optgroup label="Vertraulichkeit">
+                  <option value="Persönlich">Persönlich</option>
+                  <option value="Vertraulich">Vertraulich</option>
+                  <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                  <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                  <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                </optgroup>
+              </select>
+            </div>
           </div>
 
-          <div class="seitenleiste-field-group">
-            <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
-            <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
-              <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
-              <option value="polite">Höflich (Guten Tag...)</option>
-              <option value="casual">Locker (Hallo...)</option>
-            </select>
-          </div>
+          <hr class="seitenleiste-divider">
 
-          <div class="seitenleiste-field-group">
-            <label for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
-            <select id="seitenleiste-postvermerk-select" class="seitenleiste-select seitenleiste-postvermerk-select" aria-label="Postvermerk wählen">
-              <option value="">— kein —</option>
-              <option value="Einschreiben">Einschreiben</option>
-              <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
-              <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
-              <option value="Einschreiben Wert">Einschreiben Wert</option>
-              <option value="Persönlich">Persönlich</option>
-              <option value="Vertraulich">Vertraulich</option>
-              <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
-              <option value="Nicht nachsenden!">Nicht nachsenden!</option>
-              <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
-              <option value="Warensendung">Warensendung</option>
-              <option value="Büchersendung">Büchersendung</option>
-              <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
-            </select>
-          </div>
+          <!-- 3. Zusatzblöcke -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-switch-row">
+              <span class="seitenleiste-label">Anlagen</span>
+              <input type="checkbox" switch id="toggle-anlagen" aria-label="Anlagen-Sektion auf dem Brief umschalten">
+            </div>
 
-          <div class="seitenleiste-switch-row">
-            <span class="seitenleiste-label">Anlagen</span>
-            <input type="checkbox" switch id="toggle-anlagen" aria-label="Anlagen-Sektion auf dem Brief umschalten">
-          </div>
-
-          <div class="seitenleiste-switch-row">
-            <span class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</span>
-            <input type="checkbox" switch id="toggle-fuss" aria-label="Geschäftsfußzeile einblenden">
+            <div class="seitenleiste-switch-row">
+              <span class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</span>
+              <input type="checkbox" switch id="toggle-fuss" aria-label="Geschäftsfußzeile einblenden">
+            </div>
           </div>
         </section>
 

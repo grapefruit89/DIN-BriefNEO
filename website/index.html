@@ -46,13 +46,13 @@
             </fieldset>
 
             <div class="seitenleiste-switch-row">
-              <span class="seitenleiste-label">Hilfslinien</span>
-              <input type="checkbox" switch id="btn-hilfslinien-switch" checked aria-label="Hilfslinien umschalten">
+              <label for="btn-hilfslinien-switch" class="seitenleiste-label">Hilfslinien</label>
+              <input type="checkbox" switch id="btn-hilfslinien-switch" checked>
             </div>
 
             <div class="seitenleiste-switch-row">
-              <span class="seitenleiste-label">Kompaktsatz (1 Seite)</span>
-              <input type="checkbox" switch id="toggle-copyfit" aria-label="Micro-Copyfitting aktivieren">
+              <label for="toggle-copyfit" class="seitenleiste-label">Kompaktsatz (1 Seite)</label>
+              <input type="checkbox" switch id="toggle-copyfit">
             </div>
           </div>
 
@@ -98,13 +98,13 @@
           <!-- 3. Zusatzblöcke -->
           <div class="seitenleiste-subgroup">
             <div class="seitenleiste-switch-row">
-              <span class="seitenleiste-label">Anlagen</span>
-              <input type="checkbox" switch id="toggle-anlagen" aria-label="Anlagen-Sektion auf dem Brief umschalten">
+              <label for="toggle-anlagen" class="seitenleiste-label">Anlagen</label>
+              <input type="checkbox" switch id="toggle-anlagen">
             </div>
 
             <div class="seitenleiste-switch-row">
-              <span class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</span>
-              <input type="checkbox" switch id="toggle-fuss" aria-label="Geschäftsfußzeile einblenden">
+              <label for="toggle-fuss" class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</label>
+              <input type="checkbox" switch id="toggle-fuss">
             </div>
           </div>
         </section>
@@ -170,7 +170,8 @@
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
           </div>
           <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
-          <button type="button" id="btn-reset" class="btn btn-danger w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
+          <hr class="seitenleiste-divider">
+          <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
         </div>
       </aside>
       <main id="viewport">
@@ -259,6 +260,11 @@
     <div id="hinweis-v4" popover="manual" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite" aria-atomic="true">
       <span id="hinweis-message"></span>
       <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen">×</button>
+    </div>
+    <div id="undo-hinweis" popover="manual" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite">
+      <span>Brief zurückgesetzt.</span>
+      <button type="button" id="btn-undo-reset" class="btn btn-ghost">Rückgängig</button>
+      <button type="button" id="undo-hinweis-close" class="btn-icon" aria-label="Schließen">×</button>
     </div>
     <dialog id="reset-dialog" class="glass-dialog nicht-drucken" closedby="any">
       <form method="dialog">

@@ -135,19 +135,87 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
+    const undoHinweis = /** @type {HTMLElement | null} */ (document.getElementById('undo-hinweis'));
+    const btnUndoReset = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-undo-reset'));
+    const undoHinweisClose = /** @type {HTMLButtonElement | null} */ (document.getElementById('undo-hinweis-close'));
+    /** @type {any} */
+    let undoTimer = null;
+
+    const clearUndoSnapshot = () => {
+      if (undoTimer) {
+        clearTimeout(undoTimer);
+        undoTimer = null;
+      }
+      try {
+        sessionStorage.removeItem('din_reset_snapshot');
+      } catch (e) {
+        console.warn('[Undo] sessionStorage.removeItem fehlgeschlagen:', e);
+      }
+      try {
+        if (undoHinweis && undoHinweis.matches(':popover-open')) {
+          undoHinweis.hidePopover();
+        }
+      } catch (_) {}
+    };
+
     if (btnReset && resetDialog) {
       resetDialog.addEventListener('close', () => {
         const confirmed = resetDialog.returnValue === 'confirm';
         queueMicrotask(() => { resetDialog.returnValue = ''; });
         if (!confirmed) return;
+
+        // Nur der letzte Reset ist rückgängig. Ein weiterer Reset überschreibt den Snapshot.
+        let snapshotSaved = false;
+        try {
+          const snapshot = collectDraft();
+          sessionStorage.setItem('din_reset_snapshot', JSON.stringify(snapshot));
+          snapshotSaved = true;
+        } catch (e) {
+          console.warn('[Undo] Snapshot konnte nicht in sessionStorage gesichert werden:', e);
+        }
+
         draftManager.resetDraft();
         applyLetterDate();
         AddressIntelligence.targetLock = null;
+
+        if (snapshotSaved && undoHinweis) {
+          try {
+            undoHinweis.showPopover();
+            if (undoTimer) clearTimeout(undoTimer);
+            undoTimer = setTimeout(clearUndoSnapshot, 5000);
+          } catch (e) {
+            console.warn('[Undo] Popover konnte nicht geöffnet werden:', e);
+          }
+        }
       });
+    }
+
+    if (btnUndoReset) {
+      btnUndoReset.addEventListener('click', () => {
+        try {
+          const raw = sessionStorage.getItem('din_reset_snapshot');
+          if (raw) {
+            const data = JSON.parse(raw);
+            draftManager.restoreDraft(data);
+          }
+        } catch (e) {
+          console.error('[Undo] Fehler beim Wiederherstellen des Snapshots:', e);
+        }
+        clearUndoSnapshot();
+      });
+    }
+
+    if (undoHinweisClose) {
+      undoHinweisClose.addEventListener('click', clearUndoSnapshot);
     }
 
     const briefblatt = document.querySelector('din-a4') || document;
     briefblatt.addEventListener('input', (e) => {
+      try {
+        if (sessionStorage.getItem('din_reset_snapshot')) {
+          clearUndoSnapshot();
+        }
+      } catch (_) {}
       if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }

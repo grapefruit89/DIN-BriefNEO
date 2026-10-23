@@ -490,6 +490,7 @@ fieldset.seitenleiste-field-group > legend {
 }
 .seitenleiste-switch-row .seitenleiste-label {
   margin: 0;
+  cursor: pointer;
 }
 
 .seitenleiste-switch-row:has(input:disabled) {
@@ -626,8 +627,24 @@ input[type="checkbox"][switch] {
   margin-top: 4px;
 }
 .seitenleiste-footer {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-top: auto;
+}
+
+.btn-danger-subtle {
+  align-self: center;
+  width: auto;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: light-dark(oklch(0.40 0.16 28), oklch(0.75 0.14 25));
+  padding: 6px 12px;
+}
+
+.btn-danger-subtle:hover {
+  background: color-mix(in oklch, var(--c-danger) 12%, transparent);
+  color: light-dark(oklch(0.30 0.14 28), oklch(0.85 0.14 25));
 }
 
 /* Autosave-Indikator */
@@ -741,6 +758,78 @@ input[type="checkbox"][switch] {
 #hinweis-v4.type-error { border-left: 4px solid var(--c-danger); }
 #hinweis-v4.type-info { border-left: 4px solid var(--c-primary); }
 #hinweis-v4.type-warning { border-left: 4px solid var(--c-warning); }
+
+/* Undo-Hinweis nach Reset (Top-Layer Popover) */
+#undo-hinweis {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-color);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: 
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
+    overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#undo-hinweis:popover-open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #undo-hinweis:popover-open {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+#btn-undo-reset {
+  font-weight: 600;
+  color: var(--accent-color);
+  padding: 4px 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+#btn-undo-reset:hover {
+  background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+}
+
+#undo-hinweis-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+#undo-hinweis-close:hover {
+  color: var(--c-danger);
+  background: oklch(50% 0.2 20 / 10%);
+}
 
 #anschrift-vorschlaege {
   position: absolute;

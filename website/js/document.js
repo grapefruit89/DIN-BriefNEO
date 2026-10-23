@@ -660,6 +660,16 @@ export class DraftManager {
   }
 
   /**
+   * Stellt einen Snapshot (z. B. aus Undo nach Reset) im DOM wieder her und persistiert ihn.
+   * @param {Record<string, string>} draft
+   */
+  restoreDraft(draft) {
+    if (!draft || typeof draft !== 'object') return;
+    this.#restoreState(draft);
+    this.saveDraft();
+  }
+
+  /**
    * @param {Record<string, string>} draft
    */
   #restoreState(draft) {

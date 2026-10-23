@@ -4,7 +4,7 @@ title: 'Roadmap — echte Zukunft des Produkts'
 type: roadmap
 status: active
 created: '2026-07-07'
-updated: '2026-10-17'
+updated: '2026-10-23'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -56,6 +56,7 @@ exportieren können.
 - Zero-Scroll-Garantie im Editor: Horizontales Karussell / Paging-Stepper mit View Transitions API statt vertikalem Scrollen.
 - Textfluss: Modell 1 (Explizite Folgeseite per Strg+Enter / Button) statt instabiler DOM-Messschleifen (A49).
 - Druckarchitektur: Nativer Umbruch via `page-break-after: always; break-after: page;` und `din-a4:last-of-type { page-break-after: avoid; }`.
+- Paginierung nach DIN 5008 Kap. 20.17: Semantische Komponente `<din-seitenangabe>` im Folgeseitenkopf (20 mm) mit „Seite X von Y“ (siehe [[BACKLOG#B34]]).
 - Schlussblock-Integrität: Grußformel und Unterschrift wandern auf die letzte Seite (unter Beachtung der Schusterjungen-Regel).
 
 
@@ -81,6 +82,9 @@ Diese Ideen bleiben bewusst nachrangig und werden einzeln bewertet:
 - Behördenwegweiser für ausgewählte Schreiben;
 - zusätzliche DIN-5008-Formen oder internationale Varianten;
 - robuste Vorlagen- und Textbausteinverwaltung;
+- **Verlauf / Brief-Historie (`din_history`)** (Archivierung der letzten 10 Briefe als FIFO-Ringspeicher in LocalStorage, Klick-Wiederherstellung mit Sanitize-Schutz; siehe [[BACKLOG#B32]]);
+- **DIN-5008-Telefonnummer-Formatierer** (Rechtskonforme Gliederung von Landesvorwahl, Ortsnetz und Durchwahl per explizitem Klick-Button `#btn-format-tel` ohne störendes Auto-Formatting; siehe [[BACKLOG#B33]]);
+- **Subpixel-Präzision für Falz- und Lochmarken** (SVG-basierte Vektormarken mit 0,25 mm Strichstärke statt CSS-Border gegen Rundungsfehler im Druck; siehe [[BACKLOG#B35]]);
 - **Modulare Geocoder-Abstraktionsschicht** (Multi-Provider: Nominatim, Photon, BKG als datensparsame/autonome Alternative; siehe [[BACKLOG#B28]]);
 - **Geoapify Performance Tuning & Geo-Bias** (Pre-Warming bei Fokus, Session-Debounce, LRU-Cache und Multi-Cluster Failover; siehe [[BACKLOG#B29]] und [[BACKLOG#B30]]);
 - **Native Browser-APIs mit direktem Mehrwert** (konsolidiert aus Telemetrie-Recherche, siehe [[BACKLOG#B31]]):

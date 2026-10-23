@@ -133,9 +133,14 @@
               <input type="file" id="unterschriftsbild-datei" accept="image/*" class="hidden">
             </div>
 
-            <div id="geoapify-key-container" class="seitenleiste-field-group">
-              <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key (optional):</label>
-              <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+            <div class="seitenleiste-field-group">
+              <span class="seitenleiste-sub-label">Adress-Autovervollständigung:</span>
+              <button type="button" id="btn-geoapify-key" class="btn w-full" data-geoapify-state="empty" aria-expanded="false" aria-controls="geoapify-key-container" aria-label="Geoapify API-Key hinterlegen"></button>
+              <div id="geoapify-key-container" class="seitenleiste-field-group" hidden>
+                <label for="input-geoapify-key" class="sr-only">Geoapify API-Key</label>
+                <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+                <span id="geoapify-status-hint" class="seitenleiste-status-hint" role="status"></span>
+              </div>
             </div>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" title="DIN 5008 Hilfe" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
@@ -158,15 +163,15 @@
             data-height-mm="297"
             data-lochmarke-y="148.5"
             data-absender-y-b="45"
-            data-anschriftfeld-y-b="50"
-            data-infoblock-y-b="50"
+            data-anschriftfeld-y-b="51"
+            data-infoblock-y-b="51"
             data-datum-y-b="92"
             data-kern-y-b="109"
             data-falz-oben-y-b="105"
             data-falz-unten-y-b="210"
             data-absender-y-a="27"
-            data-anschriftfeld-y-a="32"
-            data-infoblock-y-a="32"
+            data-anschriftfeld-y-a="34"
+            data-infoblock-y-a="34"
             data-datum-y-a="74"
             data-kern-y-a="91"
             data-falz-oben-y-a="87"
@@ -180,11 +185,11 @@
             <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
                  nativ gesperrt — die Sperre lebt in enforceLineLimits.
                  Verbindlicher Text: js/document.js — Law Catalog A55/A49. -->
-            <din-rucksendezeile id="rucksendezeile" data-x="20" data-w="85" data-h="5" data-font="8" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
+            <din-rucksendezeile id="rucksendezeile" data-x="25" data-w="85" data-h="5" data-font="8" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendezeile>
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
-              data-x="20" data-w="85" data-h="45" data-font="10"
+              data-x="25" data-w="85" data-h="45" data-font="10"
               data-visier-top="5" data-visier-w="90" data-visier-h="45">
-              <din-postvermerk id="postvermerk" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-postvermerk>
+              <din-postvermerk id="postvermerk" data-font="8" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-postvermerk>
               <din-empfaenger-firma id="empfaenger-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
               <div id="empfaenger-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Empfänger Name" aria-label="Name des Empfängers"></div>
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
@@ -204,14 +209,14 @@
               <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
               <din-grussformel id="grussformel" data-font="10.5" data-margin-top="4.23" data-margin-bottom="12.69" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <div class="unterschrift-zeile">
-                <din-unterschrift id="unterschrift" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+                <din-unterschrift id="unterschrift" data-font="10.5" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
               </div>
-              <din-anlagen id="anlagen">
+              <din-anlagen id="anlagen" data-margin-top="12.69">
                 <div class="anlagen-heading">Anlagen</div>
                 <ol id="anlagen-text" data-feldtyp="rich liste mehrzeilig" contenteditable="true" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" aria-label="Anlagen"><li>Anlage 1</li></ol>
               </din-anlagen>
             </din-kern>
-            <din-fuss id="fuss" data-left="25" data-right="20" data-bottom="10" data-h="15" data-font="7.5" role="contentinfo">
+            <din-fuss id="fuss" data-left="25" data-right="20" data-bottom="10" data-h="15" data-padding-top="2" data-gap="10" data-font="7.5" role="contentinfo">
               <div id="fuss-spalte-1" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
               <div id="fuss-spalte-2" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
               <div id="fuss-spalte-3" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>

@@ -163,7 +163,7 @@ Jeder normative Wert trägt seine Herkunft:
 | PROJECT | projektspezifische Modell-/Layoutentscheidung |
 | IMPLEMENTATION | technische Umsetzung (Rendering), nicht normativ |
 
-Als `PROJECT` geführt: die 8-mm-Begrenzung der Falz-/Lochmarken, die Kollisionsvermeidung mit dem Betreff, die feste 45-mm-Höhe des Anschriftfelds und der Form-A/B-Schalter. Die Millimeterwerte (210/297, 25/125, 27/45/32/50/74/92/91/109/87/105/192/210, 148,5) sind als `DIN` geführt und **noch zu verifizieren**.
+Als `PROJECT` geführt: die 8-mm-Begrenzung der Falz-/Lochmarken, die Kollisionsvermeidung mit dem Betreff, die feste 45-mm-Höhe des Anschriftfelds und der Form-A/B-Schalter. Die Millimeterwerte (210/297, 25/125, 27/45/34/51/74/92/91/109/87/105/192/210, 148,5) sind als `DIN` geführt und **noch zu verifizieren**.
 
 ---
 
@@ -236,8 +236,8 @@ Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 | Objekt | Y Form A | Y Form B |
 |---|---|---|
 | Zone `din-absender` | 27 mm | 45 mm |
-| Zone `din-anschriftfeld` | 32 mm | 50 mm |
-| Zone `din-infoblock` | 32 mm | 50 mm |
+| Zone `din-anschriftfeld` | 34 mm | 51 mm |
+| Zone `din-infoblock` | 34 mm | 51 mm |
 | Atom `din-datum` | 74 mm | 92 mm |
 | Zone `din-kern` | 91 mm | 109 mm |
 | Atom `din-falz-oben` | 87 mm | 105 mm |
@@ -274,7 +274,7 @@ Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil 
 
 **Zone:** `<din-anschriftfeld>`  
 **ARIA:** `group`  
-**Zonen-Geometrie:** X 25 mm. Y Form A 32 mm, Form B 50 mm. Breite 85 mm. Höhe 45 mm (fix).
+**Zonen-Geometrie:** X 25 mm. Y Form A 34 mm, Form B 51 mm. Breite 85 mm. Höhe 45 mm (fix).
 
 Die Höhe 45 mm ist Zonenmaß, keine Atom-Box.
 
@@ -297,7 +297,7 @@ Schriftgröße 8 pt der Rücksendezeile ist ein typografischer Parameter, keine 
 
 **Zone:** `<din-infoblock>`  
 **ARIA:** `group`  
-**Zonen-Geometrie:** X 125 mm. Y Form A 32 mm, Form B 50 mm. Breite und Höhe der Zone: `absolute geometry: not independently specified`.
+**Zonen-Geometrie:** X 125 mm. Y Form A 34 mm, Form B 51 mm. Breite und Höhe der Zone: `absolute geometry: not independently specified`.
 
 Kontakt-Atome der Absendergruppe MAY hier instantiiert werden (siehe Platzierung).
 
@@ -418,8 +418,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
   "systemAtoms": ["din-falz-oben", "din-falz-unten", "din-lochmarke"],
   "geometry": {
     "din-absender":      { "y": { "A": 27,  "B": 45 } },
-    "din-anschriftfeld": { "y": { "A": 32,  "B": 50 } },
-    "din-infoblock":     { "y": { "A": 32,  "B": 50 } },
+    "din-anschriftfeld": { "y": { "A": 34,  "B": 51 } },
+    "din-infoblock":     { "y": { "A": 34,  "B": 51 } },
     "din-kern":          { "y": { "A": 91,  "B": 109 } },
     "din-datum":         { "y": { "A": 74,  "B": 92 } },
     "din-falz-oben":     { "y": { "A": 87,  "B": 105 } },

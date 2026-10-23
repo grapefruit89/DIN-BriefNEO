@@ -730,7 +730,7 @@ function runReconciliation() {
 
         let resolvedTarget;
         if (targetLink.startsWith('file:///')) {
-          const urlPath = decodeURIComponent(targetLink.slice(8));
+          const urlPath = decodeURIComponent(targetLink.slice(7));
           if (urlPath.match(/^\/[a-zA-Z]:/)) {
             resolvedTarget = path.normalize(urlPath.slice(1));
           } else {

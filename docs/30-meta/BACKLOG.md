@@ -4,7 +4,7 @@ title: Backlog — offene Baustellen nach Aufwand und ROI
 status: active
 type: reference
 created: '2026-10-02'
-updated: '2026-10-17'
+updated: '2026-10-23'
 tags:
 - din-briefneo
 - meta
@@ -83,6 +83,31 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 - Exit-Code: 0 bei PASS, 1 bei FAIL
 - Bezug: Geometrie-SSoT-Migration (Commit `1a6dba0`)
 
+### B32 · History / Brief-Verlauf (Archiv der letzten 10 Briefe) · **S** · ⭐⭐⭐⭐
+**Kontext:** Re-integriert aus archivierten Entwurfsmustern. Verhindert Datenverlust bei versehentlichem Leeren oder Überschreiben des Entwurfs.
+**Ziel:** Automatisches oder semi-automatisches Archivieren von Briefständen:
+- **Datenhaltung:** Eigener LocalStorage-Key `din_history` mit maximal 10 Einträgen (FIFO-Ringspeicher).
+- **Trigger:** Gespeichert wird automatisch beim Drucken/PDF-Export sowie über einen expliziten UI-Button („In Verlauf sichern“).
+- **Metadaten pro Eintrag:** `{ id, timestamp, empfaengerName, betreff, schema_version: 2, data }`.
+- **UI:** Schlankes `<details>`-Element in der Seitenleiste („Verlauf (letzte 10)“) mit Datum, Empfänger und Betreff.
+- **Sicherheit & Integrität:** Beim Wiederherstellen (`restoreState`) wird die bestehende Allowlist-Bereinigung (`sanitizeRichText`) zwingend durchlaufen. Bei ungespeicherten Änderungen am aktuellen Entwurf erfolgt eine Sicherheitsabfrage.
+
+### B33 · DIN-5008-Telefonnummer-Formatierer (Expliziter Button) · **S** · ⭐⭐⭐
+**Kontext:** DIN 5008 Kap. 20.6 (funktionsbezogene Gliederung von Telefonnummern).
+**Ziel:** Rechtskonforme, standardisierte Formatierung deutscher und internationaler Rufnummern:
+- **Normformat:** Landesvorwahl mit `+` (z. B. `+49`), Trennung von Ortsnetz/Mobilfunk und Rufnummer durch Leerzeichen, Durchwahl mit Bindestrich ohne Leerzeichen (`+49 2241 12345-67`).
+- **KISS-Bedienung:** Kein fehleranfälliges `oninput`- oder `onblur`-Auto-Formatting (verhindert Cursor-Jumping und Falschkorrekturen bei Sonderrufnummern).
+- **UI:** Expliziter Aktions-Button `#btn-format-tel` direkt am Telefonnummern-Eingabefeld.
+- **Defensives Parsing:** Kann eine Nummer nicht eindeutig zerlegt werden, bleibt der Originaltext unberührt und es wird ein dezenter Warnhinweis ausgegeben.
+
+### B35 · Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) · **S** · ⭐⭐⭐
+**Kontext:** DIN 5008 Kap. 20.3 (Falzmarken Form A/B und Lochmarke).
+**Ziel:** Höchste Präzision beim Drucken und PDF-Rendern:
+- **Problem:** CSS-Border (`border-top: 1px solid`) leidet bei 96/300 DPI unter Rundungsfehlern und treiberabhängigen Skalierungsunschärfen (Hairline-Problem).
+- **Lösung:** Vektorbasierte `<svg>`-Marken mit `stroke-width="0.25mm"` und `vector-effect="non-scaling-stroke"`.
+- **IMR-Invariante:** Koordinaten (`data-falz-1-y`, `data-falz-2-y`, `data-loch-y`) verbleiben als deklarative `data-*`-Attribute am HTML-Wurzelelement (SSoT).
+- **Print-Sicherheit:** Sicherstellen, dass `print.css` die SVG-Marken nicht versehentlich unterdrückt.
+
 ---
 
 ## 🟡 Priorität 3 — gute Verbesserung, grösserer Eingriff
@@ -129,6 +154,14 @@ der manuelle rekursive Node-Walk wurde durch `TreeWalker` ersetzt.
 ### B27 · Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) · **L** · ⭐⭐⭐⭐
 **Kontext:** Konsolidiert aus `MULTI_PAGE_ARCHITECTURE_SPEC.md` (zugeordnet zu [[ROADMAP#Priorität 1 — Mehrseitige Briefe]]).
 **Ziel:** Saubere Trennung zwischen Erstseite (Kopf/Anschrift/Falzmarken) und Folgeseiten (Folgeseiten-Kopf bei 20 mm). Horizontales Paging-Karussell im Editor mit View Transitions API (Zero-Scroll-Garantie). Explizite Folgeseiten-Generierung statt instabiler DOM-Messschleifen (A49). Nativer Druckumbruch per `page-break-after: always; break-after: page;`.
+
+### B34 · DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) · **S** · ⭐⭐⭐⭐
+**Kontext:** Gekoppelt an [[ROADMAP#Priorität 1 — Mehrseitige Briefe]] und [[BACKLOG#B27]]. DIN 5008 Kap. 20.17 schreibt für mehrseitige Briefe eine fortlaufende Seitennummerierung vor.
+**Ziel:** Standardisierte Paginierung auf Folgeseiten:
+- **Komponente:** Semantisches Element `<din-seitenangabe>` im Folgeseitenkopf (`<din-folgeseitenkopf>`).
+- **Position & Layout:** Oberkante exakt 20 mm von der oberen Blattkante, wahlweise rechtsbündig oder zentriert.
+- **Normtext:** „Seite X von Y“ oder „Seite X“.
+- **Reaktivität:** Automatische Zählung von `X` und `Y` gekoppelt an die tatsächliche Anzahl der `<din-a4>`-Seiten-Container.
 
 ### B28 · Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) · **M** · ⭐⭐⭐
 **Kontext:** Konsolidiert aus `MULTI_PROVIDER_INTEGRATION_BLUEPRINT.md`.
@@ -209,7 +242,8 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 9. **B22** (`check-geometry.js` — Guard gegen hardcodierte Geometriewerte)
 10. **B23** (`law_coverage` 30/35) + **B24** (`tooling-overview` doc-size)
 11. **B25** (Brief-Vorlagen) + **B26** (DIN-Validatoren Anschrift/IBAN)
-12. **B27** (Mehrseitige Briefe) + **B28** (Multi-Provider Geocoding) + **B29**–**B31** (Geoapify-Tuning, Bias & Native APIs)
+12. **B32** (History/Verlauf `din_history`) + **B33** (Telefonnummer-Formatierer) + **B35** (Subpixel-Falzmarken)
+13. **B27** (Mehrseitige Briefe inkl. **B34** Folgeseiten-Paginierung) + **B28** (Multi-Provider Geocoding) + **B29**–**B31** (Geoapify-Tuning, Bias & Native APIs)
 
 ### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 Vollständig umgesetzt (Commit `a16899c`):

@@ -233,7 +233,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   #unterschrift {
-    font-size: --pt(10.5);
+    font-size: --pt(attr(data-font type(<number>)));
     font-weight: 500;
   }
 
@@ -243,8 +243,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   #text u {
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    text-decoration: none;
   }
 
   #text p {
@@ -270,9 +269,9 @@ body:has(#btn-form-a:checked) din-a4 {
     font-size: --pt(attr(data-font type(<number>))); /* 7.5pt in cqw */
     color: var(--blatt-schwach); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
-    padding-top: --mm-y(2);
+    padding-top: --mm-y(attr(data-padding-top type(<number>)));
     grid-template-columns: repeat(3, 1fr);
-    gap: --mm-x(10);
+    gap: --mm-x(attr(data-gap type(<number>)));
     column-rule: 0.5px solid var(--blatt-schwach);
     column-rule-inset: 2px; /* Bewusst genutzt: Nativ in Chromium 150+ */
   }
@@ -338,7 +337,7 @@ din-postvermerk[data-visible="true"] {
 }
 
 din-postvermerk {
-  font-size: --pt(8);
+  font-size: --pt(attr(data-font type(<number>)));
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0.5cqh;
@@ -346,7 +345,7 @@ din-postvermerk {
 }
 
 din-anlagen {
-  margin-top: --mm-y(12.69);
+  margin-top: --mm-y(attr(data-margin-top type(<number>)));
   font-size: 0.9em;
   page-break-inside: avoid;
 }

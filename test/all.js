@@ -2,7 +2,7 @@
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
-import { DraftManager, UIProtections } from '../website/js/document.js';
+import { DraftManager, UIProtections, formatGermanMobile } from '../website/js/document.js';
 import { STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
 import { createEventBus, eventBus, Events, initToastSystem, Constants } from '../website/js/core.js';
 import { SalutationEngine } from '../website/js/salutation.js';
@@ -57,13 +57,15 @@ describe('DraftManager: Sanitizing (XSS-Schutz, echte Route localStorage → loa
     assert(html.includes('Text'), 'ummantelter Text bleibt');
   });
 
-  it('erhält die volle Format-Allowlist (strong, u, s, blockquote)', () => {
+  it('erhält die Format-Allowlist (strong, s, blockquote) und stript u (DIN 5008 13.1)', () => {
     setDraft('<strong>a</strong><u>b</u><s>c</s><blockquote>d</blockquote>');
     new DraftManager().loadDraft();
     const html = mustField().innerHTML;
-    for (const tag of ['<strong>', '<u>', '<s>', '<blockquote>']) {
+    for (const tag of ['<strong>', '<s>', '<blockquote>']) {
       assert(html.includes(tag), `erlaubtes ${tag} bleibt`);
     }
+    assert(!html.includes('<u>') && !html.includes('</u>'), 'u-Tag wird gestrippt');
+    assert(html.includes('b'), 'Inhalt des u-Tags bleibt erhalten');
   });
 });
 
@@ -713,6 +715,33 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
     assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 400);
     assert(Constants.TOASTS.FONT.SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
+  });
+});
+
+describe('formatGermanMobile (DIN 5008 11.3.2)', () => {
+  it('formatiert nationale Mobilfunknummern mit Vorwahl-Leerzeichen', () => {
+    assertEqual(formatGermanMobile('01601234567'), '0160 1234567');
+    assertEqual(formatGermanMobile('0160 1234567'), '0160 1234567');
+    assertEqual(formatGermanMobile('0170/1234567'), '0170 1234567');
+  });
+  it('erhält Durchwahl mit Bindestrich', () => {
+    assertEqual(formatGermanMobile('0151 1234567-89'), '0151 1234567-89');
+    assertEqual(formatGermanMobile('+49 151 1234567-89'), '+49 151 1234567-89');
+  });
+  it('normalisiert internationale Präfixe zu +49 (inkl. +49 (0))', () => {
+    assertEqual(formatGermanMobile('+491601234567'), '+49 160 1234567');
+    assertEqual(formatGermanMobile('+49 160 1234567'), '+49 160 1234567');
+    assertEqual(formatGermanMobile('+49 (0) 160 1234567'), '+49 160 1234567');
+    assertEqual(formatGermanMobile('0049 160 1234567'), '+49 160 1234567');
+  });
+  it('belässt Festnetz und Sonderrufnummern unverändert', () => {
+    assertEqual(formatGermanMobile('0221 1234567'), '0221 1234567');
+    assertEqual(formatGermanMobile('030 1234567'), '030 1234567');
+    assertEqual(formatGermanMobile('0800 123456'), '0800 123456');
+  });
+  it('behandelt leere Eingaben defensiv', () => {
+    assertEqual(formatGermanMobile(''), '');
+    assertEqual(formatGermanMobile(null), '');
   });
 });
 

@@ -36,7 +36,7 @@ import { eventBus, Events, Constants } from './core.js';
  * @returns {DocumentFragment}
  */
 export function sanitizeRichText(htmlString, options = {}) {
-  const allowedTags = ['B', 'STRONG', 'U', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', ...(options.extraTags || [])];
+  const allowedTags = ['B', 'STRONG', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', ...(options.extraTags || [])];
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString || '', 'text/html');
 
@@ -142,6 +142,49 @@ export function setCaretToEnd(element) {
   selection.addRange(range);
 }
 
+/**
+ * Formatiert deutsche Mobilfunknummern nach DIN 5008 (Vorwahl + Leerzeichen + Rufnummer).
+ * Erhält einen Durchwahl-Bindestrich. Festnetz- und Sonderrufnummern bleiben unverändert.
+ * @param {string | null | undefined} input
+ * @returns {string}
+ */
+export function formatGermanMobile(input) {
+  const original = String(input || '');
+  const [main, dw = ''] = original.split('-', 2);
+  let digits = main.replace(/[\s/.\-();]+/g, '');
+  if (!digits) return original;
+
+  const dwClean = dw.replace(/[\s/.\-();]+/g, '');
+  const dwSuffix = dwClean ? `-${dwClean}` : '';
+
+  // 1. Internationale Präfixe erkennen
+  const isInternational = original.startsWith('+') || original.startsWith('0049') || original.startsWith('49');
+
+  if (digits.startsWith('+49')) {
+    digits = digits.slice(3);
+  } else if (digits.startsWith('0049')) {
+    digits = digits.slice(4);
+  } else if (digits.startsWith('49')) {
+    if (/^1[5-7]\d/.test(digits.slice(2))) digits = digits.slice(2);
+    else return original;
+  }
+
+  // Führende 0 (national oder aus "+49 (0)") abstreifen
+  if (digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
+
+  // 2. Deutsche Mobilfunknummer (Vorwahlen 015x, 016x, 017x)
+  if (/^1[5-7]\d/.test(digits)) {
+    if (isInternational) {
+      return `+49 ${digits.slice(0, 3)} ${digits.slice(3)}${dwSuffix}`;
+    }
+    return `0${digits.slice(0, 3)} ${digits.slice(3)}${dwSuffix}`;
+  }
+
+  return original;
+}
+
 /* =========================================================================================
  * 2. UI PROTECTIONS (Zeilenlimits, Paste-Schutz, Anlagen-Struktur)
  * ========================================================================================= */
@@ -158,6 +201,7 @@ export class UIProtections {
     this.enforceLineLimits();
     this.protectAnlagenList();
     this.setupPrintProtection();
+    this.setupMobilePhoneFormatting();
     this.initialized = true;
   }
 
@@ -185,6 +229,12 @@ export class UIProtections {
         return;
       }
 
+      // DIN 5008 13.1: Keine Unterstreichung — Ctrl+U / Cmd+U blockieren
+      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'u') {
+        keyboardEvent.preventDefault();
+        return;
+      }
+
       if (keyboardEvent.key === 'Enter') {
         if (target.dataset.feldtyp?.includes('mehrzeilig')) {
           return;
@@ -196,6 +246,14 @@ export class UIProtections {
         } else {
           keyboardEvent.preventDefault();
         }
+      }
+    });
+
+    // DIN 5008 13.1: Format-Event für Unterstreichung via Input-Events / Kontextmenü abfangen
+    root.addEventListener('beforeinput', (e) => {
+      const inputEvent = /** @type {InputEvent} */ (e);
+      if (inputEvent.inputType === 'formatUnderline') {
+        inputEvent.preventDefault();
       }
     });
 
@@ -373,6 +431,23 @@ export class UIProtections {
 
     textEl.normalize();
     textEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  /**
+   * DIN 5008 11.3.2: Formatierung deutscher Mobilfunknummern beim Verlassen des Telefonfeldes.
+   */
+  setupMobilePhoneFormatting() {
+    const tel = document.getElementById('absender-tel');
+    if (!tel) return;
+    tel.addEventListener('blur', () => {
+      const current = (tel.textContent || '').trim();
+      if (!current) return;
+      const formatted = formatGermanMobile(current);
+      if (formatted && formatted !== current) {
+        tel.textContent = formatted;
+        tel.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
   }
 }
 

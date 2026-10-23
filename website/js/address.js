@@ -866,6 +866,8 @@ export class ClipboardAddressParser {
 export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
   const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
+  const btnGeoapifyKey = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-geoapify-key'));
+  const statusHint = document.getElementById('geoapify-status-hint');
   const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
   const addressSuggestions = document.getElementById('anschrift-vorschlaege');
   const addressSearchContainer = document.getElementById('anschrift-suche-container');
@@ -879,6 +881,44 @@ export function initAddressServices() {
   const notify = (msg, type = 'info') => {
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
   };
+
+  /**
+   * @param {'empty' | 'valid' | 'invalid'} state
+   * @param {string} [hint]
+   */
+  function setGeoapifyState(state, hint = '') {
+    if (btnGeoapifyKey) {
+      btnGeoapifyKey.dataset.geoapifyState = state;
+      const labels = {
+        empty: 'Geoapify API-Key hinterlegen',
+        valid: 'Geoapify aktiv (Key ändern)',
+        invalid: 'Key ungültig – neu eingeben'
+      };
+      btnGeoapifyKey.setAttribute('aria-label', labels[state]);
+    }
+    if (statusHint) {
+      statusHint.textContent = hint;
+    }
+  }
+
+  /**
+   * @param {boolean} open
+   */
+  function setContainerVisible(open) {
+    if (!geoapifyKeyContainer) return;
+    geoapifyKeyContainer.hidden = !open;
+    if (btnGeoapifyKey) {
+      btnGeoapifyKey.setAttribute('aria-expanded', String(open));
+    }
+  }
+
+  if (btnGeoapifyKey) {
+    btnGeoapifyKey.addEventListener('click', () => {
+      const willOpen = Boolean(geoapifyKeyContainer.hidden);
+      setContainerVisible(willOpen);
+      if (willOpen) inputGeoapifyKey.focus();
+    });
+  }
 
   /** @type {AbortController | null} */
   let activeAbortController = null;
@@ -894,16 +934,25 @@ export function initAddressServices() {
   const savedKey = load(STORAGE_KEYS.geoapifyKey, '') || '';
   inputGeoapifyKey.value = savedKey;
 
+  if (!savedKey) {
+    setGeoapifyState('empty');
+    setContainerVisible(false);
+  } else {
+    validateKeyWithHeartbeat(savedKey, { isInitial: true });
+  }
+
   // Key input handler with Heartbeat Validation
   inputGeoapifyKey.addEventListener('input', () => {
     clearTimeout(keyDebounceTimeout);
     const val = inputGeoapifyKey.value.trim();
 
-    keyDebounceTimeout = setTimeout(async () => {
-      if (!val) {
-        save(STORAGE_KEYS.geoapifyKey, '');
-        return;
-      }
+    if (!val) {
+      save(STORAGE_KEYS.geoapifyKey, '');
+      setGeoapifyState('empty');
+      return;
+    }
+
+    keyDebounceTimeout = setTimeout(() => {
       validateKeyWithHeartbeat(val);
     }, 500);
   });
@@ -915,29 +964,45 @@ export function initAddressServices() {
 
   /**
    * @param {string} key
+   * @param {{ isInitial?: boolean }} [options]
    */
-  async function validateKeyWithHeartbeat(key) {
+  async function validateKeyWithHeartbeat(key, { isInitial = false } = {}) {
+    if (!key) {
+      save(STORAGE_KEYS.geoapifyKey, '');
+      setGeoapifyState('empty');
+      return;
+    }
+
     try {
       const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn&limit=1&apiKey=${encodeURIComponent(key)}`, {
         signal: AbortSignal.timeout(8000),
       });
-      // Guard gegen asynchrone Race Conditions: Nur speichern, wenn der validierte Key noch der aktuelle Eingabewert ist
+      // Guard gegen asynchrone Race Conditions: Gilt IMMER (auch initial)
       if (!inputGeoapifyKey || inputGeoapifyKey.value.trim() !== key) return;
 
       if (res.ok) {
         save(STORAGE_KEYS.geoapifyKey, key);
-        // Kein Toast bei Erfolg: Stille Übernahme
+        setGeoapifyState('valid');
+        setContainerVisible(false);
       } else if (res.status === 401 || res.status === 403) {
         save(STORAGE_KEYS.geoapifyKey, '');
-        notify(Constants.TOASTS.GEOAPIFY.KEY_INVALID, 'error');
+        setGeoapifyState('invalid', 'Key ungültig oder abgelaufen (401/403)');
+        setContainerVisible(true);
+        if (!isInitial) {
+          notify(Constants.TOASTS.GEOAPIFY.KEY_INVALID, 'error');
+        }
       } else {
-        // 429/5xx: Key behalten und still bleiben
+        // 429/5xx: Server vorübergehend nicht bereit -> Key behalten und als valid einstufen
         save(STORAGE_KEYS.geoapifyKey, key);
+        setGeoapifyState('valid');
+        setContainerVisible(false);
       }
     } catch (err) {
       if (!inputGeoapifyKey || inputGeoapifyKey.value.trim() !== key) return;
-      // Netzwerk/Timeout: Key behalten und still bleiben
+      // Netzwerk/Timeout: Key behalten und valid bleiben (Offline-Resilienz)
       save(STORAGE_KEYS.geoapifyKey, key);
+      setGeoapifyState('valid');
+      setContainerVisible(false);
     }
   }
 
@@ -1056,6 +1121,16 @@ export function initAddressServices() {
           save(STORAGE_KEYS.geoapifyKey, '');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
           if (keyEl) keyEl.value = '';
+          const btnKey = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-geoapify-key'));
+          if (btnKey) {
+            btnKey.dataset.geoapifyState = 'invalid';
+            btnKey.setAttribute('aria-label', 'Key ungültig – neu eingeben');
+            btnKey.setAttribute('aria-expanded', 'true');
+          }
+          const cont = document.getElementById('geoapify-key-container');
+          if (cont) cont.hidden = false;
+          const hint = document.getElementById('geoapify-status-hint');
+          if (hint) hint.textContent = 'Key abgelaufen (401/403)';
           notify(Constants.TOASTS.GEOAPIFY.KEY_EXPIRED, 'error');
         } else {
           console.warn('[Address] Autocomplete HTTP ' + response.status);

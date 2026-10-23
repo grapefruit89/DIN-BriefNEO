@@ -131,6 +131,7 @@ body:has(#btn-form-a:checked) din-a4 {
     font-size: --pt(attr(data-font type(<number>))); /* 8pt in cqw */
     white-space: nowrap;
     text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
+    text-box: trim-both cap alphabetic;
     border-radius: 0;
   }
 
@@ -205,11 +206,13 @@ body:has(#btn-form-a:checked) din-a4 {
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 2 Leerzeilen */
     text-fit: shrink; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht (contain = ungültig, css-text-5) */
     text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
+    text-box: trim-both cap alphabetic;
   }
 
   #anrede {
     font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 1 Leerzeile */
+    text-box: trim-both cap alphabetic;
   }
 
   #text {
@@ -222,6 +225,7 @@ body:has(#btn-form-a:checked) din-a4 {
     text-wrap: pretty;
     orphans: 3;
     widows: 3;
+    text-box: trim-both cap alphabetic;
   }
 
   #grussformel {
@@ -230,11 +234,13 @@ body:has(#btn-form-a:checked) din-a4 {
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 3 Leerzeilen für Unterschrift */
     break-after: avoid;
     page-break-after: avoid;
+    text-box: trim-both cap alphabetic;
   }
 
   #unterschrift {
     font-size: --pt(attr(data-font type(<number>)));
     font-weight: 500;
+    text-box: trim-both cap alphabetic;
   }
 
   /* --- WHATSAPP-STYLE INLINE FORMATS --- */
@@ -341,6 +347,7 @@ din-postvermerk {
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0.5cqh;
+  text-box: trim-both cap alphabetic;
   white-space: pre-wrap;
 }
 

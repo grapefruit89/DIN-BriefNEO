@@ -10,15 +10,15 @@ aside.seitenleiste,
   display: flex;
   flex-direction: column;
   height: 100%;
-  inline-size: 290px;
-  max-inline-size: 290px;
-  min-inline-size: 290px;
+  inline-size: var(--seitenleiste-breite);
+  max-inline-size: var(--seitenleiste-breite);
+  min-inline-size: var(--seitenleiste-breite);
   box-sizing: border-box;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border-color);
-  padding: 16px;
-  gap: 12px;
+  padding: var(--space-2xl);
+  gap: var(--space-xl);
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -33,13 +33,13 @@ aside.seitenleiste,
 .seitenleiste-zone {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-xl);
 }
 
 .seitenleiste-subgroup {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-lg);
 }
 
 .seitenleiste-divider {
@@ -51,7 +51,7 @@ aside.seitenleiste,
 .seitenleiste-field-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-xs);
 }
 fieldset.seitenleiste-field-group {
   border: 0;
@@ -65,14 +65,14 @@ fieldset.seitenleiste-field-group > legend {
 
 .seitenleiste-btn-row {
   display: flex;
-  gap: 8px;
+  gap: var(--space-md);
 }
 
 .seitenleiste-setup {
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--bg-card);
-  padding: 8px 12px;
+  padding: var(--space-md) var(--space-xl);
   font-size: 0.8rem;
   transition: all 0.2s ease;
 }
@@ -99,7 +99,7 @@ fieldset.seitenleiste-field-group > legend {
 .seitenleiste-setup-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-lg);
   margin-top: 10px;
 }
 
@@ -117,8 +117,8 @@ fieldset.seitenleiste-field-group > legend {
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
@@ -126,7 +126,7 @@ fieldset.seitenleiste-field-group > legend {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-md);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -140,7 +140,7 @@ fieldset.seitenleiste-field-group > legend {
   border: 1px solid transparent;
   color: var(--text-primary);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   transition: all 0.2s ease;
 }
 
@@ -166,8 +166,8 @@ fieldset.seitenleiste-field-group > legend {
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   background: var(--segment-bg);
-  padding: 4px;
-  border-radius: 10px;
+  padding: var(--space-xs);
+  border-radius: var(--radius-lg);
   gap: 0; /* Remove gap for perfect math */
   position: relative;
   isolation: isolate;
@@ -198,7 +198,7 @@ fieldset.seitenleiste-field-group > legend {
   translate: calc(var(--active-idx) * 100%);
   
   background: var(--segment-active-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: var(--segment-active-shadow);
   transition: translate 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
   z-index: -1;
@@ -214,11 +214,11 @@ fieldset.seitenleiste-field-group > legend {
 .segmented-control label {
   border: none;
   background: transparent; /* Clean transparent to let pill show */
-  padding: 8px 12px;
+  padding: var(--space-md) var(--space-xl);
   font-family: inherit;
   font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
   cursor: pointer;
   transition: color 0.2s ease;
@@ -261,8 +261,8 @@ fieldset.seitenleiste-field-group > legend {
 .input-field {
   font-family: inherit;
   font-size: 0.8rem;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
@@ -383,7 +383,7 @@ fieldset.seitenleiste-field-group > legend {
   background: var(--segment-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
@@ -410,7 +410,7 @@ fieldset.seitenleiste-field-group > legend {
   background: var(--segment-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -553,7 +553,7 @@ input[type="checkbox"][switch] {
   background: var(--segment-bg);
   color: oklch(0.18 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 gegen --segment-bg */
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-family: inherit;
   font-size: 0.75rem;
   font-weight: 600;
@@ -614,7 +614,7 @@ input[type="checkbox"][switch] {
 }
 .theme-toggle-btn {
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: background 0.15s ease, color 0.15s ease;
 }
 .theme-toggle-btn:hover {
@@ -629,7 +629,7 @@ input[type="checkbox"][switch] {
 .seitenleiste-footer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-lg);
   margin-top: auto;
 }
 

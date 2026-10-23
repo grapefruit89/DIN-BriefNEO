@@ -40,10 +40,12 @@ export class SettingsManager {
   #themeBooted = false;
 
   constructor() {
+    /** @type {import('./persistence.js').DinSettings & { style?: string }} */
     this.settings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
+    this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnCopyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
@@ -73,6 +75,9 @@ export class SettingsManager {
 
     const currentTheme = this.settings.theme || 'auto';
     this.applyTheme(currentTheme);
+
+    const currentStyle = this.settings.style || 'default';
+    this.applyStyle(currentStyle);
 
     if (this.btnGuidesSwitch) {
       this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
@@ -112,6 +117,19 @@ export class SettingsManager {
       updateDOM();
     }
     this.#themeBooted = true;
+  }
+
+  /**
+   * @param {'default' | 'compact' | string} style
+   */
+  applyStyle(style) {
+    const validStyles = ['default', 'compact'];
+    const active = validStyles.includes(style) ? style : 'default';
+    this.settings.style = active;
+    document.documentElement.setAttribute('data-style', active);
+    if (this.styleSelect) {
+      this.styleSelect.value = active;
+    }
   }
 
   updateSettings() {
@@ -228,6 +246,15 @@ export class SettingsManager {
         const current = this.settings.theme || 'auto';
         const next = cycle[current] || 'auto';
         this.settings.theme = next;
+        this.updateSettings();
+      });
+    }
+
+    if (this.styleSelect) {
+      this.styleSelect.addEventListener('change', () => {
+        if (!this.isReady) return;
+        const val = this.styleSelect ? this.styleSelect.value : 'default';
+        this.applyStyle(val);
         this.updateSettings();
       });
     }

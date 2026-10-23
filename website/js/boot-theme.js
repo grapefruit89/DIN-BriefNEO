@@ -8,13 +8,15 @@
  * Kein Modul — Modules sind deferred und kämen zu spät.
  */
 try {
-  const defaults = { theme: 'auto', layout: 'form-b' };
+  const defaults = { theme: 'auto', layout: 'form-b', style: 'default' };
   const raw = localStorage.getItem('din_settings');
   const settings = raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
   const theme = settings.theme || 'auto';
   document.documentElement.setAttribute('data-theme', theme);
   const layout = settings.layout || 'form-b';
   document.documentElement.setAttribute('data-layout', layout);
+  const style = settings.style || 'default';
+  document.documentElement.setAttribute('data-style', style);
   const customFont = localStorage.getItem('din_custom_font');
   // Validiere Base64 data-URI, um CSS-Injektionen auszuschließen
   const isDataFont = /^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(customFont || '');

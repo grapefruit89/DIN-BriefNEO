@@ -12,13 +12,22 @@ import { DraftManager, UIProtections, collectDraft } from './document.js';
 
 /**
  * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.
- * @param {{ overwrite?: boolean }} [options]
+ * @param {string} [value]
  */
-function syncPostvermerkFromSidebar({ overwrite = false } = {}) {
+function syncPostvermerkFromSidebar(value) {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
   const field = document.getElementById('postvermerk');
-  if (!sel || !field) return;
-  if (overwrite || !field.textContent.trim()) field.textContent = sel.value;
+  if (!field) return;
+  const val = typeof value === 'string' ? value : (sel?.value ?? '');
+  if (!val) {
+    field.textContent = '';
+    field.removeAttribute('data-visible');
+    if (sel) sel.value = '';
+  } else {
+    field.textContent = val;
+    field.setAttribute('data-visible', 'true');
+    if (sel && sel.value !== val) sel.value = val;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,8 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Schema-Migration vor dem ersten Restore
     migrateStorage();
     const draftManager = new DraftManager();
-    const hasDraft = draftManager.loadDraft();
-    if (!hasDraft) syncPostvermerkFromSidebar();
+    draftManager.loadDraft();
 
     try {
       applyLetterDate();
@@ -144,12 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }
     });
-    document.querySelectorAll('select[data-speichern]').forEach(el => {
-      el.addEventListener('change', () => {
-        /* Aktive Auswahl des Users -> ueberschreibt (siehe Guard an der Funktion). */
-        if (el.id === 'seitenleiste-postvermerk-select') syncPostvermerkFromSidebar({ overwrite: true });
+    const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+    if (pvSelect) {
+      pvSelect.addEventListener('click', (e) => {
+        const option = e.target instanceof Element ? e.target.closest('option') : null;
+        if (!option) return;
+        syncPostvermerkFromSidebar(/** @type {HTMLOptionElement} */ (option).value);
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
-    });
+      pvSelect.addEventListener('change', () => {
+        syncPostvermerkFromSidebar(pvSelect.value);
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
   }
 });

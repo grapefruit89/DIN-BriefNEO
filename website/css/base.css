@@ -55,6 +55,7 @@ body {
 :root {
   color-scheme: light dark;
   interpolate-size: allow-keywords;
+  view-transition-name: none;
 
   transition: --hilfslinien-deckkraft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -174,15 +175,9 @@ body[data-theme="auto"] {
   min-height: 0;
   box-sizing: border-box;
   container-type: size;
-}
-
-/* Theme View Transition */
-:root {
-  view-transition-name: none;
-}
-#viewport {
   view-transition-name: brief-viewport;
 }
+
 html:active-view-transition::view-transition-old(brief-viewport),
 html:active-view-transition::view-transition-new(brief-viewport) {
   animation-duration: 0.6s;

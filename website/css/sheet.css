@@ -4,14 +4,14 @@
 /* css/sheet.css — DIN-A4-Blatt (scoped isolation): Geometrie, Briefzonen, Falzmarken, Inline-Formate */
 
 /* --- DIN-GEOMETRIE (Single Source of Truth: HTML-Attribute) --- */
-din-a4 {
+din-blatt {
   font-family: var(--active-font-family, var(--font-system-stack));
   font-size-adjust: 0.52;
   max-width: 100%;
   max-height: 100%;
 
   /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
-     am <din-a4>-Element (siehe index.html). Keine Fallback-Zahlen im CSS (SSoT
+     am <din-blatt>-Element (siehe index.html). Keine Fallback-Zahlen im CSS (SSoT
      gemäß IMR MUST-NOT 5; Chrome 150+ Baseline garantiert attr(... type(<number>))). */
   --blatt-breite: attr(data-width-mm type(<number>));
   --blatt-hoehe: attr(data-height-mm type(<number>));
@@ -27,8 +27,8 @@ din-a4 {
   --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
-:root[data-layout="form-a"] din-a4,
-body:has(#btn-form-a:checked) din-a4 {
+:root[data-layout="form-a"] din-blatt,
+body:has(#btn-form-a:checked) din-blatt {
   --absender-y: --mm-y(attr(data-absender-y-a type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
   --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
@@ -39,7 +39,7 @@ body:has(#btn-form-a:checked) din-a4 {
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
-@scope (din-a4) {
+@scope (din-blatt) {
   :scope {
     display: block;
     position: relative;
@@ -102,7 +102,7 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* --- DIN-MARKEN (System-Atome) --- */
-  din-falz-oben, din-falz-unten, din-lochmarke {
+  din-falzmarke-1, din-falzmarke-2, din-lochmarke {
     position: absolute;
     left: 0;
     width: --mm-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
@@ -112,8 +112,8 @@ body:has(#btn-form-a:checked) din-a4 {
   }
 
   /* Falzmarken & Lochmarken proportionale Koordinaten */
-  din-falz-oben { top: var(--falz-oben-y); } /* Form B default: 105mm */
-  din-falz-unten { top: var(--falz-unten-y); } /* Form B default: var(--blatt-breite)mm */
+  din-falzmarke-1 { top: var(--falz-oben-y); } /* Form B default: 105mm */
+  din-falzmarke-2 { top: var(--falz-unten-y); } /* Form B default: var(--blatt-breite)mm */
   din-lochmarke {
     top: var(--lochmarke-y);
     width: --mm-x(attr(data-w type(<number>))); /* Breite: 12mm */
@@ -282,14 +282,14 @@ body:has(#btn-form-a:checked) din-a4 {
     column-rule-inset: 2px; /* Bewusst genutzt: Nativ in Chromium 150+ */
   }
 
-  din-fuss:has(.fuss-spalte:not(:empty)),
+  din-geschaeftsangaben:has(.fuss-spalte:not(:empty)),
   #fuss:has(.fuss-spalte:not(:empty)) {
     display: grid;
   }
 }
 
 /* Custom Elements Block-Display (DIN-Normelemente) */
-din-rucksendezeile,
+din-rucksendeangabe,
 din-empfaenger-firma,
 din-empfaenger-strasse,
 din-empfaenger-ort,
@@ -301,8 +301,8 @@ din-betreff,
 din-anrede,
 din-grussformel,
 din-unterschrift,
-din-falz-oben,
-din-falz-unten,
+din-falzmarke-1,
+din-falzmarke-2,
 din-lochmarke {
   display: block;
 }
@@ -323,26 +323,26 @@ din-lochmarke {
 }
 
 /* Optionale DIN-Blöcke */
-din-postvermerk, din-anlagen, din-fuss {
+din-vermerke, din-anlagenvermerk, din-geschaeftsangaben {
   display: none;
 }
 
-:root:has(#toggle-fuss:checked) din-fuss,
-din-fuss:has(.fuss-spalte:not(:empty)) {
+:root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+din-geschaeftsangaben:has(.fuss-spalte:not(:empty)) {
   display: grid;
 }
 
-:root:has(#toggle-anlagen:checked) din-anlagen {
+:root:has(#toggle-anlagen:checked) din-anlagenvermerk {
   display: block;
 }
 
-din-postvermerk[data-visible="true"] {
+din-vermerke[data-visible="true"] {
   display: block;
   opacity: 1;
   color: var(--blatt-text);
 }
 
-din-postvermerk {
+din-vermerke {
   font-size: --pt(attr(data-font type(<number>)));
   font-weight: 500;
   line-height: 1.2;
@@ -351,7 +351,7 @@ din-postvermerk {
   white-space: pre-wrap;
 }
 
-din-anlagen {
+din-anlagenvermerk {
   margin-top: --mm-y(attr(data-margin-top type(<number>)));
   font-size: 0.9em;
   page-break-inside: avoid;
@@ -359,6 +359,10 @@ din-anlagen {
 
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
 #anlagen-text { margin: 0; padding-left: 0; list-style-position: inside; }
+
+.is-dormant {
+  display: none !important;
+}
 
 /* Single-Line & Nativer Text-Fit */
 .single-line {

@@ -142,8 +142,8 @@ Erlaubte und verbotene Nicht-Atom-Bezeichner. **Kein Eintrag dieser Tabelle ist 
 | `absender-namenszeile` | Komposition | `din-absender-vorname` + `din-absender-nachname` | erlaubt |
 | `unterschriftsbild-*` | Satellit | `din-unterschrift` | erlaubt |
 | `brief-ansicht`, `brief-kommentar` | Rendering | — (kein Atom) | erlaubt |
-| `din-empfaenger-name` | Alias | zwei Split-Atome | **verboten** |
-| `din-absender-name` | Alias | zwei Split-Atome | **verboten** |
+| `din-empfaenger-name` | Atom (DIN 20.7.4) | Name des Empfängers | erlaubt |
+| `din-absender-name` | Atom (DIN 19.5) | Name des Absenders | erlaubt |
 
 Diese Liste ist maschinenlesbar im JSON-Inventar unter `vocabulary` hinterlegt; `tools/imr.js` prüft sie gegen den Code.
 
@@ -413,9 +413,26 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
 ```json
 {
   "sheet": { "width": 210, "height": 297 },
-  "document": "din-a4",
-  "zones": ["din-absender", "din-anschriftfeld", "din-infoblock", "din-kern", "din-fuss"],
+  "document": "din-blatt",
+  "zones": ["din-absender", "din-anschriftfeld", "din-infoblock", "din-kern", "din-geschaeftsangaben"],
   "systemAtoms": ["din-falz-oben", "din-falz-unten", "din-lochmarke"],
+  "deprecatedTags": {
+    "din-a4": "din-blatt",
+    "din-falz-oben": "din-falzmarke-1",
+    "din-falz-unten": "din-falzmarke-2",
+    "din-rucksendezeile": "din-rucksendeangabe",
+    "din-postvermerk": "din-vermerke",
+    "din-anlagen": "din-anlagenvermerk",
+    "din-fuss": "din-geschaeftsangaben"
+  },
+  "registeredTags": [
+    "din-blatt", "din-falzmarke-1", "din-falzmarke-2", "din-rucksendeangabe",
+    "din-vermerke", "din-anlagenvermerk", "din-geschaeftsangaben", "din-briefkopf",
+    "din-bezugszeichen", "din-teilbetreff", "din-unternehmensbezeichnung",
+    "din-zusaetze", "din-verteilvermerk", "din-beglaubigungsvermerk",
+    "din-seitennummerierung", "din-werbliche-elemente", "din-empfaenger-name",
+    "din-absender-name", "din-anlagen-bezeichnung", "din-anlagen-angabe"
+  ],
   "geometry": {
     "din-absender":      { "y": { "A": 27,  "B": 45 } },
     "din-anschriftfeld": { "y": { "A": 34,  "B": 51 } },
@@ -426,7 +443,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
     "din-falz-unten":    { "y": { "A": 192, "B": 210 } },
     "din-lochmarke":     { "y": { "Y": 148.5 } }
   },
-  "forbiddenAliases": ["din-empfaenger-name", "din-absender-name"],
+  "forbiddenAliases": [],
   "allowedUiIdentifiers": ["din-info", "din-info-dialog", "din-info-title", "din-info-content"],
   "compositions": {
     "empfaenger-namenszeile": ["din-empfaenger-vorname", "din-empfaenger-nachname"],

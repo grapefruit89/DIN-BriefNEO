@@ -163,8 +163,12 @@ function checkImr(targetDir) {
     const zones = new Set(inventory.zones || []);
     const systemAtoms = new Set(inventory.systemAtoms || []);
     const allowedUi = new Set(inventory.allowedUiIdentifiers || []);
-    const registered = new Set([inventory.document, ...zones, ...tags, ...allowedUi]);
-    const atoms = [...tags].filter(t => t !== inventory.document && !zones.has(t));
+    const additional = new Set(inventory.registeredTags || []);
+    const deprecated = new Set(Object.keys(inventory.deprecatedTags || {}));
+    const docs = new Set([inventory.document, ...[...deprecated].filter(d => (inventory.deprecatedTags || {})[d] === inventory.document)]);
+    const allZones = new Set([...zones, ...[...deprecated].filter(d => zones.has((inventory.deprecatedTags || {})[d]))]);
+    const registered = new Set([...docs, ...zones, ...tags, ...allowedUi, ...additional, ...deprecated]);
+    const atoms = [...tags].filter(t => !docs.has(t) && !allZones.has(t));
 
     if (atoms.length !== 45) add(REGISTRY_REL, `Atom-Inventar: erwartet 45, gefunden ${atoms.length}`);
     if (new Set(atoms).size !== atoms.length) add(REGISTRY_REL, 'Atom-Inventar enthaelt Duplikate');
@@ -189,16 +193,17 @@ function checkImr(targetDir) {
       const content = fs.readFileSync(file, 'utf-8')
         .replace(/\[\[[^\]]*\]\]/g, '')
         .replace(/@(guide|adr)\b[^\n]*/g, '');
-      for (const mm of content.matchAll(/\bdin-[a-z0-9-]+/g)) {
-        if (!registered.has(mm[0])) add(rel, `Nicht registrierter din-Bezeichner (IMR ist SSOT): ${mm[0]}`);
+      for (const mm of content.matchAll(/<din-[a-z0-9-]+|\bdin-[a-z0-9-]+/g)) {
+        const tag = mm[0].replace(/^</, '');
+        if (!registered.has(tag)) add(rel, `Nicht registrierter din-Bezeichner (IMR ist SSOT): ${tag}`);
       }
     }
 
-    // 2) data-* des <din-a4> muss exakt der Registry-Geometrie entsprechen.
+    // 2) data-* des <din-a4> bzw. <din-blatt> muss exakt der Registry-Geometrie entsprechen.
     const htmlPath = path.join(targetDir, 'website/index.html');
     const html = fs.readFileSync(htmlPath, 'utf-8');
-    const a4 = html.match(/<din-a4\b[^>]*>/);
-    if (!a4) add('website/index.html', '<din-a4> nicht gefunden');
+    const a4 = html.match(/<(din-blatt|din-a4)\b[^>]*>/);
+    if (!a4) add('website/index.html', '<din-blatt> oder <din-a4> nicht gefunden');
     else {
       const present = Object.fromEntries(
         [...a4[0].matchAll(/data-[a-z-]+="([^"]+)"/g)].map(x => [x[0].split('=')[0], x[1]])

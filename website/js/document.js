@@ -214,7 +214,7 @@ export class UIProtections {
   }
 
   enforceLineLimits() {
-    const root = document.querySelector('din-a4') || document;
+    const root = document.querySelector('din-blatt') || document;
 
     // Enter-Taste abfangen: Single-Line blockiert Umbruch, maxTwoLines begrenzt auf 2 Zeilen
     root.addEventListener('keydown', (e) => {
@@ -602,7 +602,7 @@ export class DraftManager {
   #initShortcuts() {
     // Shortcuts nur innerhalb des Briefblatts abfangen; andere Inputs behalten natives Undo/Redo
     document.addEventListener('keydown', (e) => {
-      const blatt = /** @type {Element | null} */ (e.target instanceof Element ? e.target.closest('din-a4') : null);
+      const blatt = /** @type {Element | null} */ (e.target instanceof Element ? e.target.closest('din-blatt') : null);
       if (!blatt || !(e.ctrlKey || e.metaKey)) return;
       const key = e.key.toLowerCase();
       if (key === 'z') {

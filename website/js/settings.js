@@ -143,7 +143,7 @@ export class SettingsManager {
    */
   changeLayout(layout) {
     this.settings.layout = layout;
-    const blatt = /** @type {HTMLElement | null} */ (document.querySelector('din-a4'));
+    const blatt = /** @type {HTMLElement | null} */ (document.querySelector('din-blatt'));
     if (blatt) {
       transitionOn(blatt, () => this.updateSettings());
     } else {
@@ -477,7 +477,7 @@ export class SignatureFeature {
       e.preventDefault();
 
       if (interaction.action === 'drag') {
-        const blatt = document.querySelector('din-a4');
+        const blatt = document.querySelector('din-blatt');
         const blattWidth = blatt ? blatt.getBoundingClientRect().width : 800;
         const pxToCqw = 100 / (blattWidth || 1);
         this.state.x = interaction.initial.x + (e.clientX - interaction.startX) * pxToCqw;

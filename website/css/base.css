@@ -31,11 +31,11 @@ html, body {
   }
 }
 
-din-a4 {
+din-blatt {
   font-family: var(--active-font-family, var(--font-system-stack));
   font-size-adjust: 0.52;
 }
-body.schrift-eigene-aktiv din-a4 {
+body.schrift-eigene-aktiv din-blatt {
   font-family: var(--active-font-family, var(--font-system-stack));
 }
 

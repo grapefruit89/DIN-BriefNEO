@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       undoHinweisClose.addEventListener('click', clearUndoSnapshot);
     }
 
-    const briefblatt = document.querySelector('din-a4') || document;
+    const briefblatt = document.querySelector('din-blatt') || document;
     briefblatt.addEventListener('input', (e) => {
       try {
         if (sessionStorage.getItem('din_reset_snapshot')) {

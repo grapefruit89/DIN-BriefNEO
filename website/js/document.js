@@ -113,8 +113,7 @@ export function setCaretCharacterOffset(element, offset) {
   const range = documentRef.createRange();
   const walker = documentRef.createTreeWalker(element, NodeFilter.SHOW_TEXT);
   let remaining = offset;
-  let node = walker.nextNode();
-  while (node) {
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
     const length = node.textContent?.length || 0;
     if (remaining <= length) {
       range.setStart(node, remaining);
@@ -124,7 +123,6 @@ export function setCaretCharacterOffset(element, offset) {
       return;
     }
     remaining -= length;
-    node = walker.nextNode();
   }
   setCaretToEnd(element);
 }

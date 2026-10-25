@@ -108,7 +108,7 @@ body {
   --c-border-night: oklch(0.60 0.02 250);         /* Saubere Konturlinien */
   --c-text-night: oklch(0.15 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
   --c-muted-night: oklch(0.35 0.02 250);          /* Gedämpftere Beschriftungen */
-  --c-accent-night: oklch(0.38 0.12 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
+  --c-accent-night: oklch(0.35 0.13 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
   --c-danger-night: oklch(0.35 0.20 25);
   --c-segment-night: oklch(0.69 0.015 250);       /* Schalter-Vertiefungen */
   --c-blatt-night: oklch(0.85 0.005 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */

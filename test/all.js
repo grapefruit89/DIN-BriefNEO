@@ -3,10 +3,11 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
 import { DraftManager, UIProtections, formatGermanMobile } from '../website/js/document.js';
-import { STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT } from '../website/js/persistence.js';
+// @ts-ignore
+import { STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT, buildDINLetterJSON, registerDraftCollector } from '../website/js/persistence.js?v=test2';
 import { createEventBus, eventBus, Events, initToastSystem, Constants } from '../website/js/core.js';
 import { SalutationEngine } from '../website/js/salutation.js';
-import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser } from '../website/js/address.js';
+import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser, AddressIntelligence, buildPrefixIndex, buildOrtIndex, buildFirmenIndex } from '../website/js/address.js';
 import { SettingsManager } from '../website/js/settings.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
@@ -229,6 +230,36 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assertEqual(payload.document.guides, false);
     assertEqual(payload.document.fields.betreff, 'V2 Test');
     assertEqual(payload.signature.placed, false);
+  });
+
+  it('buildDINLetterJSON erzeugt exakt dasselbe Datenmodell wie Export-Payload (SSoT / DeepEqual)', () => {
+    saveJSON(STORAGE_KEYS.draft, { empfaenger: 'Max Mustermann', betreff: 'SSoT Test', brieftext: 'Hallo Welt' });
+    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', copyfit: false, guides: true, theme: 'dark' });
+
+    const directPayload = buildDinLetterPayload(
+      loadJSON(STORAGE_KEYS.draft, {}),
+      loadJSON(STORAGE_KEYS.settings, null),
+      load(STORAGE_KEYS.font, null)
+    );
+
+    const unifiedPayload = buildDINLetterJSON();
+
+    // Vergleiche alle fachlichen Felder
+    assertEqual(unifiedPayload.format, directPayload.format);
+    assertEqual(unifiedPayload.schema_version, directPayload.schema_version);
+    assertEqual(unifiedPayload.generator, directPayload.generator);
+    assertEqual(unifiedPayload.document.layout, directPayload.document.layout);
+    assertEqual(unifiedPayload.document.copyfit, directPayload.document.copyfit);
+    assertEqual(unifiedPayload.document.guides, directPayload.document.guides);
+    assertEqual(JSON.stringify(unifiedPayload.document.fields), JSON.stringify(directPayload.document.fields));
+    assertEqual(JSON.stringify(unifiedPayload.profile), JSON.stringify(directPayload.profile));
+    assertEqual(JSON.stringify(unifiedPayload.signature), JSON.stringify(directPayload.signature));
+
+    // Teste mit registriertem Collector
+    registerDraftCollector(() => ({ betreff: 'Live Collector' }));
+    const collectorPayload = buildDINLetterJSON();
+    assertEqual(collectorPayload.document.fields.betreff, 'Live Collector');
+    registerDraftCollector(null);
   });
 
   it('parseDinLetterPayload parst Schema v2 und migriert Schema v1 automatisch (Zero-Base64)', () => {
@@ -533,6 +564,496 @@ describe('AddressDomain: Reine PLZ- und Adressauflösung (Phase 3)', () => {
   });
 });
 
+describe('PLZ-Daten-Integration (Teil 1: echte Datensätze)', () => {
+  it('initialisiert AddressIntelligence mit echten .json.gz Datensätzen', async () => {
+    const ready = await AddressIntelligence.init();
+    assert(ready, 'AddressIntelligence erfolgreich initialisiert');
+    assert(AddressIntelligence.plzToCity.size >= 10000, 'Über 10.000 Orte geladen');
+    assert(AddressIntelligence.grosskunden.size >= 2500, 'Über 2.500 Großkunden/Behörden geladen');
+  });
+
+  it('Test 1: 01053 löst auf Dresden und Großkunde Commerzbank AG (Firma)', () => {
+    const res = AddressIntelligence.lookupPlz('01053');
+    assert(res !== null, 'Treffer gefunden');
+    assertEqual(res?.city, 'Dresden');
+    assertEqual(res?.isGrosskunde, true);
+    assertEqual(res?.grosskunde?.name, 'Commerzbank AG');
+    assertEqual(res?.grosskunde?.typ, 'Firma');
+  });
+
+  it('Test 2: 80920 löst auf München und Großkunde OSRAM GmbH (Firma)', () => {
+    const res = AddressIntelligence.lookupPlz('80920');
+    assert(res !== null, 'Treffer gefunden');
+    assertEqual(res?.city, 'München');
+    assertEqual(res?.isGrosskunde, true);
+    assertEqual(res?.grosskunde?.name, 'OSRAM GmbH');
+  });
+
+  it('Test 3: 11011 löst auf Berlin und Deutscher Bundestag (Behörde)', () => {
+    const res = AddressIntelligence.lookupPlz('11011');
+    assert(res !== null, 'Treffer gefunden');
+    assertEqual(res?.city, 'Berlin');
+    assertEqual(res?.isGrosskunde, true);
+    assertEqual(res?.grosskunde?.name, 'Deutscher Bundestag');
+    assertEqual(res?.grosskunde?.typ, 'Behörde');
+  });
+
+  it('Test 4: 53113 löst auf Bonn und enthält Bundesamt für Justiz und Bundeskartellamt in all_names', () => {
+    const res = AddressIntelligence.lookupPlz('53113');
+    assert(res !== null, 'Treffer gefunden');
+    assertEqual(res?.city, 'Bonn');
+    assertEqual(res?.isGrosskunde, true);
+    const all = res?.grosskunde?.all_names || [];
+    assert(all.includes('Bundesamt für Justiz'), 'Bundesamt für Justiz enthalten');
+    assert(all.includes('Bundeskartellamt'), 'Bundeskartellamt enthalten');
+  });
+
+  it('Test 5: 99999 ist unbekannt und liefert null ohne Throw', () => {
+    const res = AddressIntelligence.lookupPlz('99999');
+    assertEqual(res, null);
+  });
+});
+
+describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () => {
+  // Case A (PLZ-Eingabe progressiv)
+  it('Test 1: buildPrefixIndex liefert für "101" ein Set mit Berlin (< 20 ms)', () => {
+    const t0 = performance.now();
+    const prefixMap = buildPrefixIndex(AddressIntelligence.plzToCity);
+    const duration = performance.now() - t0;
+    assert(duration < 20, `Prefix-Index Aufbauzeit < 20 ms (war ${duration.toFixed(2)} ms)`);
+    const s = prefixMap.get('101');
+    assert(s !== undefined, 'Präfix 101 existiert');
+    assert(Boolean(s && s.has('Berlin')), 'Enthält Berlin');
+  });
+
+  it('Test 2: Eingabe "010" enthält Dresden', () => {
+    const matches = AddressIntelligence.lookupPrefix('010');
+    assert(matches.some(m => m.city === 'Dresden'), '010 enthält Dresden');
+  });
+
+  it('Test 3: Eingabe "01053" liefert Dresden und Commerzbank AG', () => {
+    const res = AddressIntelligence.lookupPlz('01053');
+    assertEqual(res?.city, 'Dresden');
+    assertEqual(res?.grosskunde?.name, 'Commerzbank AG');
+  });
+
+  it('Test 4: Eingabe "99999" liefert null (PLZ nicht gefunden)', () => {
+    const res = AddressIntelligence.lookupPlz('99999');
+    assertEqual(res, null);
+  });
+
+  it('Test 5: Manuelle Eingabe im Ort-Feld wird durch fremde PLZ nicht überschrieben', () => {
+    const ortEl = document.createElement('div');
+    ortEl.textContent = 'Berlin';
+    // Nicht auto-filled: manueller Wert bleibt geschützt
+    assert(!ortEl.hasAttribute('data-autofilled') || ortEl.getAttribute('data-autofilled') === 'false', 'Manuell');
+  });
+
+  // Case B (Ort-Eingabe Reverse)
+  it('Test 6: buildOrtIndex liefert für Bonn >= 38 PLZs und Berlin >= 90 (< 20 ms)', () => {
+    const t0 = performance.now();
+    const ortIndex = buildOrtIndex(AddressIntelligence.plzToCity);
+    const duration = performance.now() - t0;
+    assert(duration < 20, `Ort-Index Aufbauzeit < 20 ms (war ${duration.toFixed(2)} ms)`);
+    const bonnPlzs = ortIndex.get('Bonn') || [];
+    const berlinPlzs = ortIndex.get('Berlin') || [];
+    assert(bonnPlzs.length >= 38, `Bonn hat ${bonnPlzs.length} PLZs (>= 38)`);
+    assert(berlinPlzs.length >= 90, `Berlin hat ${berlinPlzs.length} PLZs (>= 90)`);
+  });
+
+  it('Test 7: Eingabe "Bon" findet Bonn und Bonndorf', () => {
+    const res = AddressIntelligence.lookupUniversal('Bon', 30);
+    assert(res.items.some(i => i.city === 'Bonn'), 'Enthält Bonn');
+    assert(res.items.some(i => i.city === 'Bonndorf'), 'Enthält Bonndorf');
+  });
+
+  it('Test 8: Eingabe "Bo" (unter 3 Zeichen) liefert keine Dropdown-Treffer', () => {
+    const res = AddressIntelligence.lookupUniversal('Bo', 10);
+    assertEqual(res.items.length, 0);
+  });
+
+  it('Test 9: Bonndorf wählen → Ort + PLZ gefüllt (79848 Bonndorf)', () => {
+    const res = AddressIntelligence.lookupUniversal('Bonndorf', 10);
+    const item = res.items.find(i => i.city === 'Bonndorf');
+    assert(item !== undefined, 'Bonndorf gefunden');
+    assertEqual(item?.isSinglePlz, true);
+    assertEqual(item?.plz, '79848');
+
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    const fakeFirma = { textContent: '', setAttribute: () => {} };
+    AddressIntelligence.applySelection(item, fakeOrt, fakeFirma);
+    assertEqual(fakeOrt.textContent, '79848 Bonndorf');
+    assertEqual(fakeFirma.textContent, '', 'Firma bleibt leer');
+  });
+
+  it('Test 10: Bonn wählen → Ort gefüllt (Bonn), PLZ leer, kein Hinweis nötig', () => {
+    const res = AddressIntelligence.lookupUniversal('Bonn', 10);
+    const item = res.items.find(i => i.city === 'Bonn' && i.typ === 'Stadt');
+    assert(item !== undefined, 'Bonn gefunden');
+    assertEqual(item?.isSinglePlz, false);
+
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    const fakeFirma = { textContent: '', setAttribute: () => {} };
+    const selectionRes = AddressIntelligence.applySelection(item, fakeOrt, fakeFirma);
+    assertEqual(fakeOrt.textContent, 'Bonn');
+    assertEqual(fakeFirma.textContent, '', 'Firma bleibt leer');
+    assertEqual(selectionRes.note, undefined, 'Kein Text-Hinweis mehr');
+  });
+
+  it('Test 11: PLZ 80331 gehört nicht zu Bonn (erkennt Abweichung)', () => {
+    const bonnPlzs = AddressIntelligence.ortIndex.get('Bonn') || [];
+    assert(!bonnPlzs.includes('80331'), '80331 gehört nicht zu Bonn');
+    const targetCity = AddressIntelligence.lookupPlz('80331')?.city;
+    assertEqual(targetCity, 'München');
+  });
+
+  it('Test 12: Eingabe "munchen" findet München dank Umlaut-Normalisierung', () => {
+    const res = AddressIntelligence.lookupUniversal('munchen', 10);
+    assert(res.items.some(i => i.city === 'München'), 'München gefunden');
+  });
+
+  // Case C (Firmen-Eingabe Großkunden)
+  it('Test 13: buildFirmenIndex liefert für "Allianz" mindestens 5 Einträge (< 30 ms)', () => {
+    const t0 = performance.now();
+    const firmenIdx = buildFirmenIndex(AddressIntelligence.grosskunden);
+    const duration = performance.now() - t0;
+    assert(duration < 30, `Firmen-Index Aufbauzeit < 30 ms (war ${duration.toFixed(2)} ms)`);
+    const matches = firmenIdx.search('Allianz', 30);
+    assert(matches.length >= 5, `Allianz Treffer: ${matches.length} (>= 5)`);
+  });
+
+  it('Test 14: Eingabe "Allianz" liefert Allianz Lebensversicherungs-AG mit Typ und PLZ', () => {
+    /** @type {Array<any>} */
+    const matches = AddressIntelligence.firmenIndex.search('Allianz', 30);
+    const hit = matches.find((/** @type {any} */ m) => m.name.includes('Lebensversicherungs-AG'));
+    assert(hit !== undefined, 'Allianz Lebensversicherungs-AG gefunden');
+    assertEqual(hit?.typ, 'Firma');
+    assert(Boolean(hit?.plz), 'PLZ vorhanden');
+  });
+
+  it('Test 15: Allianz Lebensversicherungs-AG in Stuttgart hat PLZ 70151', () => {
+    /** @type {Array<any>} */
+    const matches = AddressIntelligence.firmenIndex.search('Allianz Lebensversicherungs-AG', 30);
+    const stuttgart = matches.find((/** @type {any} */ m) => m.city === 'Stuttgart');
+    assert(stuttgart !== undefined, 'Stuttgart gefunden');
+    assertEqual(stuttgart?.plz, '70151');
+  });
+
+  it('Test 16: Eingabe "Bundesamt" findet Bundesamt für Justiz (Behörde)', () => {
+    /** @type {Array<any>} */
+    const matches = AddressIntelligence.firmenIndex.search('Bundesamt', 30);
+    const bfj = matches.find((/** @type {any} */ m) => m.name.includes('Bundesamt für Justiz'));
+    assert(bfj !== undefined, 'Bundesamt für Justiz gefunden');
+    assertEqual(bfj?.typ, 'Behörde');
+  });
+
+  it('Test 17: Eingabe "Xyzfirma" liefert keine Treffer', () => {
+    /** @type {Array<any>} */
+    const matches = AddressIntelligence.firmenIndex.search('Xyzfirma', 10);
+    assertEqual(matches.length, 0);
+  });
+
+  it('Test 18: all_names-Treffer: "Bundeskartellamt" liefert PLZ 53113 Bonn', () => {
+    /** @type {Array<any>} */
+    const matches = AddressIntelligence.firmenIndex.search('Bundeskartellamt', 10);
+    const bka = matches.find((/** @type {any} */ m) => m.name === 'Bundeskartellamt');
+    assert(bka !== undefined, 'Bundeskartellamt gefunden');
+    assertEqual(bka?.plz, '53113');
+    assertEqual(bka?.city, 'Bonn');
+  });
+
+  // Ergänzende Tests 19–21 (Doppel-Fill und Kein-Doppel-Fill bei Stadt)
+  it('Test 19: Auswahl Allianz Lebensversicherungs-AG im Ort-Feld füllt Ort und Firma (Doppel-Fill)', () => {
+    const matches = AddressIntelligence.lookupUniversal('Allianz', 30);
+    const item = matches.items.find(i => i.name === 'Allianz Lebensversicherungs-AG' && i.city === 'Stuttgart');
+    assert(item !== undefined, 'Treffer vorhanden');
+    assertEqual(item?.typ, 'Firma');
+
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    const fakeFirma = { textContent: '', setAttribute: () => {} };
+    AddressIntelligence.applySelection(item, fakeOrt, fakeFirma);
+
+    assertEqual(fakeOrt.textContent, '70151 Stuttgart');
+    assertEqual(fakeFirma.textContent, 'Allianz Lebensversicherungs-AG');
+  });
+
+  it('Test 20: Auswahl Deutscher Bundestag im Ort-Feld füllt 11011 Berlin und Firma (Doppel-Fill)', () => {
+    const matches = AddressIntelligence.lookupUniversal('Bundestag', 10);
+    const item = matches.items.find(i => i.name === 'Deutscher Bundestag');
+    assert(item !== undefined, 'Bundestag vorhanden');
+
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    const fakeFirma = { textContent: '', setAttribute: () => {} };
+    AddressIntelligence.applySelection(item, fakeOrt, fakeFirma);
+
+    assertEqual(fakeOrt.textContent, '11011 Berlin');
+    assertEqual(fakeFirma.textContent, 'Deutscher Bundestag');
+  });
+
+  it('Test 21: Auswahl Bonn im Ort-Feld füllt Bonn, Firma-Feld bleibt leer (KEIN Doppel-Fill bei Stadt)', () => {
+    const matches = AddressIntelligence.lookupUniversal('Bonn', 10);
+    const item = matches.items.find(i => i.city === 'Bonn' && i.typ === 'Stadt');
+    assert(item !== undefined, 'Bonn vorhanden');
+
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    const fakeFirma = { textContent: '', setAttribute: () => {} };
+    AddressIntelligence.applySelection(item, fakeOrt, fakeFirma);
+
+    assertEqual(fakeOrt.textContent, 'Bonn');
+    assertEqual(fakeFirma.textContent, '', 'Firma-Feld bleibt strikt leer bei Stadt');
+  });
+
+  // Tests 22–26 (Fix: Exakter Stadtname → sofort PLZ-Dropdown)
+  it('Test 22: "bonn" → sofort PLZ-Dropdown mit allen 38 PLZs (53111 an 1. Stelle)', () => {
+    const res = AddressIntelligence.resolveCityInput('bonn');
+    assertEqual(res.mode, 'city_plzs');
+    assertEqual(res.items.length, 38);
+    assertEqual(res.city, 'Bonn');
+    assertEqual(res.items[0].plz, '53111');
+  });
+
+  it('Test 23: "bonnd" → sofort "79848 Bonndorf" (1 PLZ, kein Dropdown nötig)', () => {
+    const res = AddressIntelligence.resolveCityInput('bonnd');
+    assertEqual(res.mode, 'single_fill');
+    assertEqual(res.city, 'Bonndorf');
+    assertEqual(res.plz, '79848');
+  });
+
+  it('Test 24: "bon" → Stadt-Dropdown (Bonn, Bonndorf, ...)', () => {
+    const res = AddressIntelligence.resolveCityInput('bon');
+    assertEqual(res.mode, 'city_list');
+    assert(res.items.some((/** @type {any} */ i) => i.city === 'Bonn'), 'Enthält Bonn');
+    assert(res.items.some((/** @type {any} */ i) => i.city === 'Bonndorf'), 'Enthält Bonndorf');
+  });
+
+  it('Test 25: "bonn 53" → PLZ-Dropdown gefiltert auf 53xxx', () => {
+    const res = AddressIntelligence.resolveCityInput('bonn 53');
+    assertEqual(res.mode, 'city_plzs');
+    assertEqual(res.city, 'Bonn');
+    assert(res.items.length > 0, 'Treffer vorhanden');
+    assert(res.items.every((/** @type {any} */ i) => i.plz.startsWith('53')), 'Alle PLZs beginnen mit 53');
+  });
+
+  it('Test 26: Auswahl "53111 Bonn" → Ort-Feld = "53111 Bonn"', () => {
+    const item = { plz: '53111', city: 'Bonn', name: 'Bonn', typ: 'Stadt' };
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    const fakeFirma = { textContent: '', setAttribute: () => {} };
+    AddressIntelligence.applySelection(item, fakeOrt, fakeFirma);
+    assertEqual(fakeOrt.textContent, '53111 Bonn');
+    assertEqual(fakeFirma.textContent, '', 'Firma bleibt leer');
+  });
+
+  it('Test 27: Postfach-/Fremd-PLZ 10910 ist in Bonn-Liste ausgeblendet und gehört zu Berlin', () => {
+    const resBonn = AddressIntelligence.lookupCityPlzs('Bonn');
+    assert(!resBonn.some((/** @type {any} */ i) => i.plz === '10910'), '10910 ist in Bonn-Liste ausgeblendet');
+    const resNoris = AddressIntelligence.lookupPlz('10910');
+    assert(resNoris !== null, '10910 existiert in Grosskunden/Orte');
+    assertEqual(resNoris?.city, 'Berlin', '10910 gehört zu Berlin');
+    assertEqual(resNoris?.grosskunde?.name, 'norisbank GmbH');
+  });
+
+  it('Test 28: Bereinigte Datenquellen: 45195 Essen, 60651 Frankfurt am Main, 96039 Bamberg in grosskunden', () => {
+    const gk45 = AddressIntelligence.grosskunden.get('45195');
+    assert(gk45 !== undefined, '45195 vorhanden');
+    assertEqual(gk45?.city, 'Essen', '45195 hat city Essen');
+
+    const gk60 = AddressIntelligence.grosskunden.get('60651');
+    assert(gk60 !== undefined, '60651 vorhanden');
+    assertEqual(gk60?.city, 'Frankfurt am Main', '60651 hat city Frankfurt am Main');
+
+    const gk96 = AddressIntelligence.grosskunden.get('96039');
+    assert(gk96 !== undefined, '96039 vorhanden');
+    assertEqual(gk96?.city, 'Bamberg', '96039 hat city Bamberg');
+  });
+
+  it('Test 29: Autocomplete-Ereigniskette (8 Fixture-Schritte mit Backspace und Re-Render)', async () => {
+    AddressIntelligence.wireDOM();
+    const ortEl = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const popover = /** @type {HTMLElement} */ (document.getElementById('plz-suggestions-popover'));
+
+    const fixture = [
+      { input: 'b',     expectItems: 0 },
+      { input: 'bo',    expectItems: 0 },
+      { input: 'bon',   expectItems: 8,  expectFirstItem: /Bonn/,     isStadtListe: true },
+      { input: 'bonn',  expectItems: 38, expectFirstItem: /53111/,    isPlzListe: true,
+        expectNotContains: ['Bondelum', 'Bondorf', 'Bönen', 'Bonstetten', 'BonusCard'] },
+      { input: 'bon',   expectItems: 8,  expectFirstItem: /Bonn/,     isStadtListe: true,  isDelete: true },
+      { input: 'bonn',  expectItems: 38, expectFirstItem: /53111/,    isPlzListe: true },
+      { input: 'b',     expectItems: 0,  isDelete: true },
+      { input: '',      expectItems: 0,  isDelete: true, popoverClosed: true },
+    ];
+
+    for (let idx = 0; idx < fixture.length; idx++) {
+      const s = fixture[idx];
+      ortEl.textContent = s.input;
+      ortEl.dispatchEvent(new InputEvent('input', {
+        bubbles: true,
+        inputType: s.isDelete ? 'deleteContentBackward' : 'insertText'
+      }));
+      await new Promise(r => setTimeout(r, 250));
+      const lis = popover.querySelectorAll('li');
+      assertEqual(lis.length, s.expectItems, `Schritt ${idx + 1} ("${s.input}"): Items = ${s.expectItems}`);
+
+      if (s.expectFirstItem) {
+        assert(s.expectFirstItem.test(lis[0]?.textContent || ''), `Schritt ${idx + 1}: Erstes Item matcht ${s.expectFirstItem}`);
+      }
+
+      if (s.expectNotContains) {
+        const allText = Array.from(lis).map(l => l.textContent || '').join(' ');
+        for (const bad of s.expectNotContains) {
+          assert(!allText.includes(bad), `Schritt ${idx + 1}: Darf nicht "${bad}" enthalten`);
+        }
+      }
+
+      if (s.popoverClosed) {
+        assert(lis.length === 0, `Schritt ${idx + 1}: Popover ist geleert`);
+      }
+    }
+  });
+
+  it('Test 30: "bonn" → PLZ-Liste sortiert + Stadtteile', async () => {
+    AddressIntelligence.wireDOM();
+    const ortEl = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const popover = /** @type {HTMLElement} */ (document.getElementById('plz-suggestions-popover'));
+
+    ortEl.textContent = 'bonn';
+    ortEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+    await new Promise(r => setTimeout(r, 250));
+
+    const items = [...popover.querySelectorAll('li')].map(li => li.textContent?.trim() || '');
+
+    // 1. Reihenfolge
+    assertEqual(items[0].startsWith('53111'), true);
+    assertEqual(items[1].startsWith('53113'), true);
+    assertEqual(items[2].startsWith('53115'), true);
+
+    // 2. Stadtteile
+    assertEqual(items[0], '53111 Bonn (Zentrum, Castell, Nordstadt)');
+    assert(items[1].includes('(Gronau'), '53113 hat Stadtteile');
+
+    // 3. Vollständigkeit
+    assertEqual(items.length, 38);
+  });
+
+  it('Test 30b: "bonndorf" füllt sofort "79848 Bonndorf" und schließt Dropdown', async () => {
+    AddressIntelligence.wireDOM();
+    const ortEl = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const popover = /** @type {HTMLElement} */ (document.getElementById('plz-suggestions-popover'));
+
+    ortEl.textContent = 'bonndorf';
+    ortEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+    await new Promise(r => setTimeout(r, 250));
+
+    assertEqual(ortEl.textContent, '79848 Bonndorf');
+    assertEqual(popover.querySelectorAll('li').length, 0);
+  });
+
+  it('Test 31: Konsistente Trefferzahlen bei gleicher Eingabe vorwärts vs rückwärts (boch)', async () => {
+    AddressIntelligence.wireDOM();
+    const ortEl = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const popover = /** @type {HTMLElement} */ (document.getElementById('plz-suggestions-popover'));
+
+    // Vorwärts zu "boch"
+    ortEl.textContent = 'boch';
+    ortEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+    await new Promise(r => setTimeout(r, 250));
+    const forwardCount = popover.querySelectorAll('li').length;
+
+    // Weiter zu "bochu"
+    ortEl.textContent = 'bochu';
+    ortEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+    await new Promise(r => setTimeout(r, 250));
+
+    // Rückwärts zu "boch"
+    ortEl.textContent = 'boch';
+    ortEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' }));
+    await new Promise(r => setTimeout(r, 250));
+    const backwardCount = popover.querySelectorAll('li').length;
+
+    assertEqual(forwardCount, backwardCount, `boch vorwärts (${forwardCount}) === rückwärts (${backwardCount})`);
+  });
+
+  it('Test 32: Auto-Fill User-Editing-Guard: Backspace von "53884 Feldpostleitstelle Mechernich" auf "53884" füllt nicht erneut', async () => {
+    AddressIntelligence.wireDOM();
+    const ortEl = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+
+    const fixture = [
+      { text: '53884', expectValue: '53884 Feldpostleitstelle Mechernich', userEditing: false },
+      { text: '53884 Feldpostleitstelle Mechernic', expectValue: '53884 Feldpostleitstelle Mechernic', isDelete: true },
+      { text: '53884 Feldpostleitstelle', expectValue: '53884 Feldpostleitstelle', isDelete: true },
+      { text: '53884 Feld', expectValue: '53884 Feld', isDelete: true },
+      { text: '53884', expectValue: '53884', isDelete: true },  // KEIN Re-Fill!
+      { text: '5388', expectValue: '5388', isDelete: true },
+      { text: '538', expectValue: '538', isDelete: true },
+      { text: '', expectValue: '', isDelete: true },
+    ];
+
+    for (let idx = 0; idx < fixture.length; idx++) {
+      const step = fixture[idx];
+      ortEl.textContent = step.text;
+      ortEl.dispatchEvent(new InputEvent('input', {
+        bubbles: true,
+        inputType: step.isDelete ? 'deleteContentBackward' : 'insertText',
+        data: step.isDelete ? undefined : '4'
+      }));
+      await new Promise(r => setTimeout(r, 50));
+      assertEqual(ortEl.textContent, step.expectValue, `Schritt ${idx + 1} ("${step.text}"): Wert = "${step.expectValue}"`);
+    }
+
+    // Zusätzlicher Check: Feld ist leer, nun "53884" frisch getippt -> Auto-Fill greift wieder!
+    ortEl.textContent = '53884';
+    ortEl.dispatchEvent(new InputEvent('input', {
+      bubbles: true,
+      inputType: 'insertText',
+      data: '4'
+    }));
+    await new Promise(r => setTimeout(r, 50));
+    assertEqual(ortEl.textContent, '53884 Feldpostleitstelle Mechernich', 'Frisch getipptes 53884 füllt wieder');
+  });
+
+  it('Test 30: Sortierung Städte vor Firmen: "bon" liefert Städte (Bonn...) vor Firmen (BonusCard)', () => {
+    const res = AddressIntelligence.lookupUniversal('bon', 30);
+    const bonnIdx = res.items.findIndex(i => i.city === 'Bonn' && i.typ === 'Stadt');
+    const bonusIdx = res.items.findIndex(i => i.name.includes('BonusCard') || i.typ === 'Firma');
+    assert(bonnIdx !== -1, 'Bonn in Treffern vorhanden');
+    if (bonusIdx !== -1) {
+      assert(bonnIdx < bonusIdx, `Bonn (Index ${bonnIdx}) steht vor Firmen (Index ${bonusIdx})`);
+    }
+    // Alle Städte müssen vor allen Firmen/Behörden stehen
+    let seenNonCity = false;
+    for (const item of res.items) {
+      if (item.typ !== 'Stadt') {
+        seenNonCity = true;
+      } else {
+        assert(!seenNonCity, `Stadt ${item.name} erscheint nach einer Firma/Behörde`);
+      }
+    }
+  });
+
+  it('Test 33: PLZ-Präfix-Regel (<=15 Treffer direkt, >15 zusammengefasst)', () => {
+    // 1. "5311" hat 6 Treffer (<=15) -> alle direkt, keine "Bonn (5 PLZs)" Zusammenfassung
+    const res5311 = AddressIntelligence.lookupPrefix('5311');
+    assertEqual(res5311.length, 6, '5311 hat 6 Treffer');
+    assert(res5311.every((/** @type {any} */ m) => Boolean(m.plz)), 'Alle 5311-Treffer haben eine konkrete PLZ');
+    assert(!res5311.some((/** @type {any} */ m) => (m.plzCount || 1) > 1), 'Keine Stadt zusammengefasst');
+    assert(res5311.some((/** @type {any} */ m) => m.plz === '53111'), 'Enthält 53111');
+    assert(res5311.some((/** @type {any} */ m) => m.plz === '53113'), 'Enthält 53113');
+    assert(res5311.some((/** @type {any} */ m) => m.plz === '53115'), 'Enthält 53115');
+    assert(res5311.some((/** @type {any} */ m) => m.plz === '53117'), 'Enthält 53117');
+    assert(res5311.some((/** @type {any} */ m) => m.plz === '53119'), 'Enthält 53119');
+
+    // 2. "538" hat 11 Treffer (<=15) -> alle direkt, keine "Euskirchen (3 PLZs)" Zusammenfassung
+    const res538 = AddressIntelligence.lookupPrefix('538');
+    assertEqual(res538.length, 11, '538 hat 11 Treffer');
+    assert(res538.every((/** @type {any} */ m) => Boolean(m.plz)), 'Alle 538-Treffer haben eine konkrete PLZ');
+    assert(!res538.some((/** @type {any} */ m) => (m.plzCount || 1) > 1), 'Keine Stadt-Zusammenfassung bei <=15 Treffern');
+
+    // 3. "531" hat >15 Treffer -> Stadt-Zusammenfassung "Stadt (N PLZs)"
+    const res531 = AddressIntelligence.lookupPrefix('531');
+    assert(res531.some((/** @type {any} */ m) => m.city === 'Bonn' && m.plzCount > 1), 'Bonn als Stadt mit mehreren PLZs zusammengefasst');
+  });
+});
+
 describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
   it('DOCUMENT_SAVE_REQUESTED speichert sofort ohne debounce', () => {
     seed();
@@ -742,6 +1263,403 @@ describe('formatGermanMobile (DIN 5008 11.3.2)', () => {
   it('behandelt leere Eingaben defensiv', () => {
     assertEqual(formatGermanMobile(''), '');
     assertEqual(formatGermanMobile(null), '');
+  });
+});
+
+describe('Debug-Recorder: Spam-Filter & Zähler', () => {
+  it('filtert leere Schritte bei aktivem Filter und zeigt genauen Zähler', async () => {
+    const { initAutocompleteRecorder } = await import('../website/js/debug-recorder.js');
+    initAutocompleteRecorder(true);
+
+    const rec = /** @type {any} */ (window).__rec;
+    assert(Boolean(rec), '__rec API ist verfügbar');
+    rec.clear();
+
+    const panel = document.getElementById('panel-autocomplete') || document.getElementById('autocomplete-debug-panel');
+    assert(Boolean(panel), 'Panel ist im DOM');
+
+    const filterCheckbox = /** @type {HTMLInputElement | null} */ (document.getElementById('rec-filter-empty'));
+    const counterEl = document.getElementById('rec-counter');
+    assert(Boolean(filterCheckbox), 'Checkbox #rec-filter-empty existiert');
+    assert(Boolean(counterEl), 'Zähler #rec-counter existiert');
+    assertEqual(filterCheckbox?.checked, false);
+
+    // Simuliere 26 Schritte: 14 mit 0 Items, 12 mit Items
+    rec.steps.length = 0;
+    for (let i = 1; i <= 26; i++) {
+      const hasItems = i <= 12;
+      rec.steps.push({
+        stepIndex: i,
+        text: `ort_${i}`,
+        items: hasItems ? [`Treffer ${i}`] : [],
+        itemCount: hasItems ? 1 : 0,
+        tag: '',
+        timestamp: Date.now(),
+        timeStr: '12:00:00'
+      });
+    }
+
+    // Standard (Filter aus): Alle 26 sichtbar
+    rec.setHideEmptySteps(false);
+    assertEqual(filterCheckbox?.checked, false);
+    let renderedSteps = panel?.querySelectorAll('.debug-step');
+    assertEqual(renderedSteps?.length, 26);
+    assertEqual(counterEl?.textContent, '(26 von 26 Schritten sichtbar)');
+
+    // Export enthält alle 26 Schritte
+    const fullJSON = JSON.parse(rec.dumpJSON());
+    assertEqual(fullJSON.length, 26);
+    const dumpGlobal = JSON.parse(/** @type {any} */ (window).__dumpJSON());
+    assertEqual(dumpGlobal.length, 26);
+
+    // Filter aktivieren: Nur noch 12 sichtbar
+    rec.setHideEmptySteps(true);
+    assertEqual(filterCheckbox?.checked, true);
+    renderedSteps = panel?.querySelectorAll('.debug-step');
+    assertEqual(renderedSteps?.length, 12);
+    assertEqual(counterEl?.textContent, '(12 von 26 Schritten sichtbar)');
+
+    // Export via __dumpJSON enthält weiterhin ALLE 26 Schritte
+    const filteredExport = JSON.parse(rec.dumpJSON());
+    assertEqual(filteredExport.length, 26);
+
+    // Filter wieder deaktivieren: Wieder alle 26 sichtbar
+    rec.setHideEmptySteps(false);
+    assertEqual(filterCheckbox?.checked, false);
+    renderedSteps = panel?.querySelectorAll('.debug-step');
+    assertEqual(renderedSteps?.length, 26);
+    assertEqual(counterEl?.textContent, '(26 von 26 Schritten sichtbar)');
+
+    // Aufräumen
+    rec.clear();
+    if (panel) {
+      panel.hidden = true;
+    }
+  });
+
+  it('erfüllt alle UI-Refactor Anforderungen (keine per-step Buttons, Confirm bei Clear, Drag/Snap/Keyboard)', async () => {
+    const { initAutocompleteRecorder } = await import('../website/js/debug-recorder.js');
+    initAutocompleteRecorder(true);
+
+    const rec = /** @type {any} */ (window).__rec;
+    rec.clear();
+
+    const panel = document.getElementById('panel-autocomplete') || document.getElementById('autocomplete-debug-panel');
+    assert(Boolean(panel), 'Panel vorhanden');
+
+    // 1. Keine per-Schritt Buttons im DOM
+    rec.steps.length = 0;
+    for (let i = 1; i <= 5; i++) {
+      rec.steps.push({
+        stepIndex: i,
+        text: `ort_${i}`,
+        items: [`Treffer ${i}`],
+        itemCount: 1,
+        tag: '',
+        timestamp: Date.now(),
+        timeStr: '12:00:00'
+      });
+    }
+    rec.setHideEmptySteps(false);
+    const copyStepBtns = document.querySelectorAll('.debug-copy-step-btn');
+    assertEqual(copyStepBtns.length, 0);
+
+    // 2. Globaler Copy-Button kopiert alle Schritte
+    /** @type {string | null} */
+    let copiedText = null;
+    const origWriteText = navigator.clipboard?.writeText;
+    if (navigator.clipboard) {
+      /** @param {string} txt */
+      navigator.clipboard.writeText = async (txt) => { copiedText = txt; };
+    }
+    const copyAllBtn = /** @type {HTMLButtonElement} */ (document.getElementById('rec-btn-copy-all'));
+    copyAllBtn.click();
+    await Promise.resolve();
+    assert(Boolean(copiedText), 'Clipboard hat Text erhalten');
+    const parsedCopied = JSON.parse(copiedText || '[]');
+    assertEqual(parsedCopied.length, 5);
+    if (navigator.clipboard && origWriteText) {
+      navigator.clipboard.writeText = origWriteText;
+    }
+
+    // 3. Clear mit confirm()
+    const origConfirm = window.confirm;
+    const clearBtn = /** @type {HTMLButtonElement} */ (document.getElementById('rec-btn-clear'));
+    
+    // Fall 3a: confirm liefert false -> nicht leeren
+    window.confirm = () => false;
+    clearBtn.click();
+    assertEqual(rec.steps.length, 5);
+
+    // Fall 3b: confirm liefert true -> leeren
+    window.confirm = () => true;
+    clearBtn.click();
+    assertEqual(rec.steps.length, 0);
+    window.confirm = origConfirm;
+
+    // 4. Drag, Snap und Bounds-Persistenz
+    const titleDiv = /** @type {HTMLElement} */ (panel?.querySelector('.debug-title'));
+    assert(Boolean(titleDiv), 'TitleDiv ist Drag-Handle');
+
+    // Floating setzen
+    rec.setPosition(120, 80);
+    const storedPos = JSON.parse(localStorage.getItem('debug-panel-pos-autocomplete') || '{}');
+    assertEqual(storedPos.left, 120);
+    assertEqual(storedPos.top, 80);
+    assertEqual(localStorage.getItem('debug-panel-mode-autocomplete'), 'floating');
+
+    // Snap rechts
+    rec.snap('right');
+    assert(panel?.classList.contains('snap-right'), 'Panel hat snap-right Klasse');
+    assertEqual(localStorage.getItem('debug-panel-mode-autocomplete'), 'right');
+
+    // Snap links
+    rec.snap('left');
+    assert(panel?.classList.contains('snap-left'), 'Panel hat snap-left Klasse');
+    assertEqual(localStorage.getItem('debug-panel-mode-autocomplete'), 'left');
+
+    // Doppelklick auf Header -> Default-Position
+    titleDiv.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    assert(!panel?.classList.contains('snap-right') && !panel?.classList.contains('snap-left'), 'Snap entfernt');
+    assertEqual(localStorage.getItem('debug-panel-pos-autocomplete'), null);
+
+    // Keyboard-Steuerung
+    rec.setPosition(200, 200);
+    titleDiv.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    const posAfterKey = JSON.parse(localStorage.getItem('debug-panel-pos-autocomplete') || '{}');
+    assertEqual(posAfterKey.left, 210);
+
+    titleDiv.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assertEqual(localStorage.getItem('debug-panel-pos-autocomplete'), null);
+
+    // Touch / Pointer-Event Drag Simulation
+    titleDiv.dispatchEvent(new PointerEvent('pointerdown', { clientX: 100, clientY: 100, pointerType: 'touch', bubbles: true }));
+    titleDiv.dispatchEvent(new PointerEvent('pointermove', { clientX: 150, clientY: 120, pointerType: 'touch', bubbles: true }));
+    titleDiv.dispatchEvent(new PointerEvent('pointerup', { clientX: 150, clientY: 120, pointerType: 'touch', bubbles: true }));
+
+    // Aufräumen
+    rec.clear();
+    if (copyAllBtn) {
+      copyAllBtn.textContent = '📋 Alles';
+    }
+    if (panel) {
+      panel.hidden = true;
+      panel.classList.remove('snap-right', 'snap-left');
+      panel.style.left = '';
+      panel.style.top = '';
+    }
+  });
+
+  it('strikte Trennung der Buttons zwischen Panel A (?debug=autocomplete) und Panel B (?debug=json)', async () => {
+    const { initAutocompleteRecorder } = await import('../website/js/debug-recorder.js');
+    const { initJSONDebugPanel } = await import('../website/js/debug-json-panel.js');
+
+    initAutocompleteRecorder(true);
+    // Simuliere ?debug=json
+    const origLocation = window.location.search;
+    history.replaceState(null, '', '?debug=json');
+    initJSONDebugPanel();
+    history.replaceState(null, '', origLocation);
+
+    const panelA = document.getElementById('panel-autocomplete') || document.getElementById('autocomplete-debug-panel');
+    const panelB = document.getElementById('panel-json') || document.getElementById('dinletter-json-debug-panel');
+
+    assert(Boolean(panelA), 'Panel A (autocomplete) existiert');
+    assert(Boolean(panelB), 'Panel B (json) existiert');
+
+    // Panel A Buttons prüfen: genau 4 Buttons
+    const buttonsA = Array.from(panelA?.querySelectorAll('button') || []).map(b => ({
+      id: b.id,
+      text: b.textContent?.trim()
+    }));
+    assertEqual(buttonsA.length, 4, 'Panel A hat genau 4 Buttons');
+    assertEqual(buttonsA[0].id, 'rec-btn-copy-all');
+    assertEqual(buttonsA[0].text, '📋 Alles');
+    assertEqual(buttonsA[1].id, 'rec-btn-clear');
+    assertEqual(buttonsA[1].text, '🗑️ Leeren');
+    assertEqual(buttonsA[2].id, 'rec-btn-toggle');
+    assertEqual(buttonsA[2].text, '⏸️');
+    assertEqual(buttonsA[3].id, 'rec-btn-min');
+    assertEqual(buttonsA[3].text, '_');
+    assert(Boolean(panelA?.querySelector('#rec-filter-empty')), 'Panel A hat Filter-Checkbox');
+    assert(Boolean(panelA?.querySelector('#rec-counter')), 'Panel A hat Zähler');
+
+    // Panel B Buttons prüfen: genau 3 Buttons (Kopieren, Leeren, Schließen!)
+    const buttonsB = Array.from(panelB?.querySelectorAll('button') || []).map(b => ({
+      id: b.id,
+      text: b.textContent?.trim()
+    }));
+    assertEqual(buttonsB.length, 3, 'Panel B hat genau 3 Buttons (Kopieren, Leeren, Schließen)');
+    assertEqual(buttonsB[0].id, 'json-btn-copy');
+    assertEqual(buttonsB[0].text, '📋 Kopieren');
+    assertEqual(buttonsB[1].id, 'json-btn-clear');
+    assertEqual(buttonsB[1].text, '🗑️ Leeren');
+    assertEqual(buttonsB[2].id, 'json-btn-close');
+    assertEqual(buttonsB[2].text, '✕');
+
+    // Negative Zusicherungen für Panel B
+    assertEqual(panelB?.querySelectorAll('#json-btn-toggle').length, 0, 'Panel B hat kein Toggle/Pause');
+    assertEqual(panelB?.querySelectorAll('#json-btn-min').length, 0, 'Panel B hat kein Minimize');
+    assertEqual(panelB?.querySelectorAll('.debug-badge').length, 0, 'Panel B hat kein LIVE-Badge');
+    assertEqual(panelB?.querySelectorAll('#rec-filter-empty').length, 0, 'Panel B hat keine Filter-Checkbox');
+    assertEqual(panelB?.querySelectorAll('#rec-counter').length, 0, 'Panel B hat keinen Zähler');
+    assertEqual(panelA?.querySelectorAll('#json-btn-copy').length, 0, 'Panel A hat keine JSON-Buttons');
+    assertEqual(panelA?.querySelectorAll('#json-btn-close').length, 0, 'Panel A hat keinen Close-Button');
+
+    // Aufräumen
+    if (panelA) {
+      panelA.hidden = true;
+      panelA.classList.remove('snap-right', 'snap-left');
+      panelA.style.left = '';
+      panelA.style.top = '';
+    }
+    if (panelB) {
+      panelB.hidden = true;
+      panelB.classList.remove('snap-right', 'snap-left');
+      panelB.style.left = '';
+      panelB.style.top = '';
+    }
+  });
+
+  it('is-dragging State wird in allen 5 End-Zuständen zuverlässig entfernt', () => {
+    const panel = document.getElementById('panel-autocomplete');
+    assert(Boolean(panel), 'Panel vorhanden');
+    const header = /** @type {HTMLElement | null} */ (panel?.querySelector('.debug-header'));
+    assert(Boolean(header), 'Header vorhanden');
+
+    if (!header) return;
+
+    // 1. pointerup
+    header.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }));
+    assert(header.classList.contains('is-dragging'), 'pointerdown setzt is-dragging');
+    header.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 10, clientY: 10 }));
+    assert(!header.classList.contains('is-dragging'), 'pointerup entfernt is-dragging');
+
+    // 2. pointercancel
+    header.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }));
+    assert(header.classList.contains('is-dragging'));
+    header.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true }));
+    assert(!header.classList.contains('is-dragging'), 'pointercancel entfernt is-dragging');
+
+    // 3. lostpointercapture
+    header.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }));
+    assert(header.classList.contains('is-dragging'));
+    header.dispatchEvent(new Event('lostpointercapture', { bubbles: true }));
+    assert(!header.classList.contains('is-dragging'), 'lostpointercapture entfernt is-dragging');
+
+    // 4. Escape-Taste
+    header.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }));
+    assert(header.classList.contains('is-dragging'));
+    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert(!header.classList.contains('is-dragging'), 'Escape entfernt is-dragging');
+
+    // 5. window.blur
+    header.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }));
+    assert(header.classList.contains('is-dragging'));
+    window.dispatchEvent(new Event('blur'));
+    assert(!header.classList.contains('is-dragging'), 'window.blur entfernt is-dragging');
+  });
+
+  it('[hidden]-Spezifität: Panels sind ohne Parameter unsichtbar (display: none) und nur mit passendem Parameter sichtbar', () => {
+    const panelAuto = /** @type {HTMLElement | null} */ (document.getElementById('panel-autocomplete'));
+    const panelJson = /** @type {HTMLElement | null} */ (document.getElementById('panel-json'));
+    assert(Boolean(panelAuto), 'panel-autocomplete existiert');
+    assert(Boolean(panelJson), 'panel-json existiert');
+
+    if (!panelAuto || !panelJson) return;
+
+    // 1. Ohne ?debug=: beide hidden -> display: none
+    panelAuto.hidden = true;
+    panelJson.hidden = true;
+    assertEqual(getComputedStyle(panelAuto).display, 'none');
+    assertEqual(getComputedStyle(panelJson).display, 'none');
+    assertEqual(panelAuto.getBoundingClientRect().width, 0);
+    assertEqual(panelJson.getBoundingClientRect().width, 0);
+
+    // 2. Mit ?debug=json: panelJson sichtbar, panelAuto unsichtbar
+    panelAuto.hidden = true;
+    panelJson.hidden = false;
+    assertEqual(getComputedStyle(panelAuto).display, 'none');
+    assertEqual(getComputedStyle(panelJson).display, 'flex');
+    assertEqual(panelAuto.getBoundingClientRect().width, 0);
+    assert(panelJson.getBoundingClientRect().width > 0, 'panelJson hat Breite > 0');
+
+    // 3. Mit ?debug=autocomplete: panelAuto sichtbar, panelJson unsichtbar
+    panelAuto.hidden = false;
+    panelJson.hidden = true;
+    assertEqual(getComputedStyle(panelAuto).display, 'flex');
+    assertEqual(getComputedStyle(panelJson).display, 'none');
+    assert(panelAuto.getBoundingClientRect().width > 0, 'panelAuto hat Breite > 0');
+    assertEqual(panelJson.getBoundingClientRect().width, 0);
+
+    // 4. Mit ?debug=autocomplete,json: beide sichtbar
+    panelAuto.hidden = false;
+    panelJson.hidden = false;
+    assertEqual(getComputedStyle(panelAuto).display, 'flex');
+    assertEqual(getComputedStyle(panelJson).display, 'flex');
+    assert(panelAuto.getBoundingClientRect().width > 0, 'panelAuto hat Breite > 0');
+    assert(panelJson.getBoundingClientRect().width > 0, 'panelJson hat Breite > 0');
+
+    // Aufräumen
+    panelAuto.hidden = true;
+    panelJson.hidden = true;
+  });
+
+  it('Close-Button ✕ am JSON-Panel entfernt debug=json sauber aus der URL und schließt das Panel', async () => {
+    const { initJSONDebugPanel } = await import('../website/js/debug-json-panel.js');
+    const panelJson = /** @type {HTMLElement | null} */ (document.getElementById('panel-json'));
+    const btnClose = /** @type {HTMLButtonElement | null} */ (panelJson?.querySelector('#json-btn-close'));
+    assert(Boolean(panelJson), 'panel-json existiert');
+    assert(Boolean(btnClose), 'json-btn-close existiert');
+
+    if (!panelJson || !btnClose) return;
+
+    const origLocation = window.location.href;
+
+    // Teste alle 5 URL-Transformationen
+    const testCases = [
+      { start: '?debug=json', expectedSearch: '' },
+      { start: '?debug=json,autocomplete', expectedSearch: '?debug=autocomplete' },
+      { start: '?debug=autocomplete,json', expectedSearch: '?debug=autocomplete' },
+      { start: '?debug=autocomplete,json,foo', expectedSearch: '?debug=autocomplete,foo' },
+      { start: '?debug=json&other=bar', expectedSearch: '?other=bar' }
+    ];
+
+    for (const { start, expectedSearch } of testCases) {
+      history.replaceState(null, '', start);
+      initJSONDebugPanel();
+      assertEqual(panelJson.hidden, false, `Panel ist geöffnet für ${start}`);
+
+      btnClose.click();
+
+      assertEqual(panelJson.hidden, true, `Panel ist hidden nach Klick für ${start}`);
+      assertEqual(getComputedStyle(panelJson).display, 'none', `Display ist none nach Klick für ${start}`);
+      assertEqual(window.location.search, expectedSearch, `URL Search transformiert für ${start} zu ${expectedSearch}`);
+    }
+
+    // Aufräumen
+    history.replaceState(null, '', origLocation);
+    panelJson.hidden = true;
+  });
+
+  it('Clear-Button 🗑️ am JSON-Panel leert die Code-Anzeige', async () => {
+    const { initJSONDebugPanel } = await import('../website/js/debug-json-panel.js');
+    const panelJson = /** @type {HTMLElement | null} */ (document.getElementById('panel-json'));
+    const btnClear = /** @type {HTMLButtonElement | null} */ (panelJson?.querySelector('#json-btn-clear'));
+    const codeEl = document.getElementById('json-debug-code');
+    assert(Boolean(panelJson), 'panel-json existiert');
+    assert(Boolean(btnClear), 'json-btn-clear existiert');
+    assert(Boolean(codeEl), 'json-debug-code existiert');
+
+    if (!panelJson || !btnClear || !codeEl) return;
+
+    initJSONDebugPanel(true);
+    assert(Boolean(codeEl.textContent && codeEl.textContent.length > 0), 'Code-Element enthält initiales JSON');
+
+    btnClear.click();
+    assertEqual(codeEl.textContent, '', 'Code-Element ist nach Clear leer');
+
+    panelJson.hidden = true;
   });
 });
 

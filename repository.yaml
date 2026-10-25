@@ -115,6 +115,7 @@ taxonomy:
     - repository.yaml
     - opencode.json
     - jsconfig.json
+    - biome.json
     - start.bat
     - start.sh
     - envelope.svg

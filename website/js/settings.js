@@ -317,7 +317,7 @@ export class SettingsManager {
     if (this.fontUploader) {
       this.fontUploader.addEventListener('change', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
-        const file = target && target.files ? target.files[0] : null;
+        const file = target?.files?.[0] ?? null;
         if (!file) return;
         const validExtensions = ['.woff2', '.ttf', '.otf'];
         const isValid = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
@@ -395,7 +395,7 @@ export class SignatureFeature {
 
     this.uploader.addEventListener('change', (e) => {
       const target = /** @type {HTMLInputElement} */ (e.target);
-      const file = target && target.files ? target.files[0] : null;
+      const file = target?.files?.[0] ?? null;
       if (file) {
         this.processFile(file);
       }

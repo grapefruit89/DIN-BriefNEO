@@ -670,7 +670,7 @@ export class AddressIntelligence {
       }
       // Wenn in Grosskunden vorhanden und dort andere Stadt hinterlegt ist: ausschließen
       const gk = this.grosskunden.get(p);
-      if (gk && gk.city && normalizeText(gk.city) !== normTarget) {
+      if (gk?.city && normalizeText(gk.city) !== normTarget) {
         return false;
       }
       return true;
@@ -1894,7 +1894,7 @@ export function initAddressServices() {
 
     const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
     let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
-    if (!lock && coords && coords.lat && coords.lon) {
+    if (!lock && coords?.lat && coords?.lon) {
       url += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
 
@@ -2064,7 +2064,7 @@ export function initAddressServices() {
           })
             .then(r => r.json())
             .then(data => {
-              if (data && data.results && data.results.length > 0) {
+              if (data?.results?.length) {
                 const result = data.results[0];
                 if (result.lat && result.lon) {
                   saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });

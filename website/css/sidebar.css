@@ -464,6 +464,23 @@ fieldset.seitenleiste-field-group > legend {
   margin-top: 8px;
 }
 
+details.seitenleiste-demo-box summary::-webkit-details-marker,
+details.seitenleiste-demo-box summary::marker {
+  display: none;
+}
+details.seitenleiste-demo-box summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+details.seitenleiste-demo-box summary:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+details.seitenleiste-demo-box[open] summary {
+  margin-bottom: var(--space-2, 8px);
+}
+
 .seitenleiste-status-hint {
   font-size: 0.7rem;
   line-height: 1.3;

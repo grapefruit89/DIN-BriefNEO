@@ -6,6 +6,9 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f7fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2025">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="description" content="Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 für geschäftliche und private Korrespondenz.">
     <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
          in layers.css verlagert, Boot-Font via FontFace. connect-src erlaubt
@@ -167,7 +170,7 @@
           <p class="seitenleiste-label">Daten &amp; Adressen</p>
           <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
             <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="text" inputmode="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
             <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
             <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
           </search>

@@ -58,7 +58,7 @@ function copyToClipboard(text, btnEl = null) {
           }
         }, 1500);
       }
-    }).catch(() => {});
+    }).catch(console.debug);
   }
 }
 
@@ -382,7 +382,7 @@ export function createDebugPanel(rootEl, options) {
       if (typeof res === 'string') {
         copyToClipboard(res, btnCopy);
       } else if (res && typeof res.then === 'function') {
-        res.then((/** @type {string} */ text) => copyToClipboard(text, btnCopy)).catch(() => {});
+        res.then((/** @type {string} */ text) => copyToClipboard(text, btnCopy)).catch(console.debug);
       }
     });
   }
@@ -988,7 +988,7 @@ export function mountJsonPanel(force = false) {
     },
     copy() {
       const json = JSON.stringify(buildDINLetterJSON(), null, 2);
-      navigator.clipboard.writeText(json).catch(() => {});
+      navigator.clipboard.writeText(json).catch(console.debug);
       return json;
     },
     pause() {

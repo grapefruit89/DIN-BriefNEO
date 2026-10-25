@@ -187,7 +187,7 @@ export function loadJSON(key, fallback) {
 export function saveJSON(key, value) {
   try {
     if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
-      navigator.storage.persist().catch(() => {});
+      navigator.storage.persist().catch(err => console.debug('[Storage]', err));
     }
     return save(key, JSON.stringify(value));
   } catch {
@@ -672,11 +672,45 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
   }
 }
 
+/** @type {(() => Record<string, string>) | null} */
+let registeredDraftCollector = null;
+
+/**
+ * Registriert den Collector für den aktuellen DOM-Draft.
+ * @param {(() => Record<string, string>) | null} collector
+ */
+export function registerDraftCollector(collector) {
+  registeredDraftCollector = collector;
+}
+
+/**
+ * Erzeugt das vollständige DIN-Letter-Payload (Objekt), wie es vom Export-Button
+ * und vom Live-JSON-Debug-Panel verwendet wird. PURE / SSoT.
+ * @param {(() => Record<string, string>) | null} [draftCollector]
+ * @returns {DinLetterPayload}
+ */
+export function buildDINLetterJSON(draftCollector = null) {
+  const collector = draftCollector || registeredDraftCollector;
+  let draft;
+  try {
+    draft = typeof collector === 'function' ? collector() : loadJSON(STORAGE_KEYS.draft, {});
+  } catch {
+    draft = loadJSON(STORAGE_KEYS.draft, {});
+  }
+  const settings = loadJSON(STORAGE_KEYS.settings, null);
+  const font = load(STORAGE_KEYS.font, null);
+  return buildDinLetterPayload(draft, settings, font);
+}
+
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog, Keyboard-Shortcut).
  * @param {{ collectDraft?: () => Record<string, string> }} [options]
  */
 export function initImportExport({ collectDraft } = {}) {
+  if (typeof collectDraft === 'function') {
+    registerDraftCollector(collectDraft);
+  }
+
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
   const importBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-import-dinletter'));
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
@@ -692,15 +726,7 @@ export function initImportExport({ collectDraft } = {}) {
 
   const handleExport = async () => {
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-    let draft;
-    try {
-      draft = typeof collectDraft === 'function' ? collectDraft() : loadJSON(STORAGE_KEYS.draft, {});
-    } catch {
-      draft = loadJSON(STORAGE_KEYS.draft, {});
-    }
-    const settings = loadJSON(STORAGE_KEYS.settings, null);
-    const font = load(STORAGE_KEYS.font, null);
-    const payload = buildDinLetterPayload(draft, settings, font);
+    const payload = buildDINLetterJSON(collectDraft);
     await exportDocumentToFile(payload);
   };
 

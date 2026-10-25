@@ -28,7 +28,7 @@ function transitionOn(target, fn) {
     fn();
     return;
   }
-  target.startViewTransition(fn).finished.catch(() => {});
+  target.startViewTransition(fn).finished.catch(console.debug);
 }
 
 /* =========================================================================================

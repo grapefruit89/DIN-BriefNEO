@@ -2070,7 +2070,7 @@ export function initAddressServices() {
                   saveJSON(STORAGE_KEYS.senderCoords, { lat: result.lat, lon: result.lon });
                 }
               }
-            }).catch(() => {});
+            }).catch(console.debug);
         }
       }, 500);
     });

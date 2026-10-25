@@ -1351,7 +1351,7 @@ export class ClipboardAddressParser {
       if (!plzMatch) continue;
 
       const plz = plzMatch[1];
-      let ort = plzMatch[2].trim().split(/[,;\(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
+      const ort = plzMatch[2].trim().split(/[,;\(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
       if (i === 0) continue;
 
       const prevLine = lines[i - 1].trim();
@@ -1893,7 +1893,7 @@ export function initAddressServices() {
       return;
     }
 
-    let fetchOptions = {
+    const fetchOptions = {
       signal: AbortSignal.any([activeAbortController.signal, AbortSignal.timeout(8000)]),
     };
     const coords = /** @type {{ lat: number, lon: number } | null} */ (loadJSON(STORAGE_KEYS.senderCoords, null));

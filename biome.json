@@ -18,7 +18,25 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"preset": "recommended"
+			"preset": "recommended",
+			"correctness": {
+				"noUnusedVariables": "warn",
+				"noUnusedImports": "error"
+			},
+			"style": {
+				"useConst": "error"
+			},
+			"suspicious": {
+				"noAssignInExpressions": "error",
+				"useIterableCallbackReturn": "error",
+				"noControlCharactersInRegex": "off"
+			},
+			"performance": {
+				"useDomNodeTextContent": "error"
+			},
+			"complexity": {
+				"useOptionalChain": "error"
+			}
 		}
 	}
 }

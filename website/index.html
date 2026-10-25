@@ -21,6 +21,7 @@
     <script type="module" src="js/main.js?v=live6"></script>
   </head>
   <body>
+    <a href="#viewport" class="skip-link">Zum Briefkern springen</a>
     <div id="app-shell">
       <aside id="seitenleiste" class="seitenleiste nicht-drucken">
         <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungsmodus umschalten">
@@ -32,7 +33,7 @@
             </svg>
           </a>
           <div class="seitenleiste-header-actions">
-            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" role="button" tabindex="0" aria-label="Einstellungen" title="Einstellungen">
+            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" aria-label="Einstellungen" title="Einstellungen">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true">
                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>
               </svg>
@@ -179,7 +180,7 @@
             <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
             <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
           </div>
-          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden tabindex="-1">
+          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
         </section>
 
         <!-- Zone 3: Grundeinstellungen & Setup -->
@@ -201,7 +202,7 @@
               <button type="button" id="btn-schrift-aktion" class="btn w-full" data-font-state="empty">
                 🔤 Eigene Schriftart laden
               </button>
-              <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden">
+              <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden" aria-label="Schriftart-Datei auswählen">
             </div>
 
             <div class="seitenleiste-field-group">
@@ -390,8 +391,8 @@
           <label class="debug-filter"><input type="checkbox" id="rec-filter-empty" data-role="filter-empty"> Leere ausblenden</label>
           <button type="button" class="debug-btn" id="rec-btn-copy-all" data-action="copy-all">📋 Alles</button>
           <button type="button" class="debug-btn" id="rec-btn-clear" data-action="clear">🗑️ Leeren</button>
-          <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause">⏸️</button>
-          <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize">_</button>
+          <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause" aria-label="Aufzeichnung pausieren" title="Aufzeichnung pausieren">⏸️</button>
+          <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize" aria-label="Panel minimieren" title="Panel minimieren">_</button>
         </div>
       </header>
       <div class="debug-body" id="rec-body" data-role="body">

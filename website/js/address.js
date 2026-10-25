@@ -1036,12 +1036,16 @@ export class AddressIntelligence {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
-        items.forEach((item, idx) => item.setAttribute('aria-selected', String(idx === nextIndex)));
+        for (const [idx, item] of items.entries()) {
+          item.setAttribute('aria-selected', String(idx === nextIndex));
+        }
         items[nextIndex]?.scrollIntoView({ block: 'nearest' });
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
-        items.forEach((item, idx) => item.setAttribute('aria-selected', String(idx === prevIndex)));
+        for (const [idx, item] of items.entries()) {
+          item.setAttribute('aria-selected', String(idx === prevIndex));
+        }
         items[prevIndex]?.scrollIntoView({ block: 'nearest' });
       } else if (e.key === 'Enter') {
         if (items.length > 0) {
@@ -1857,7 +1861,9 @@ export function initAddressServices() {
 
     // 1. INSTANT LOCAL SEARCH: Ohne Debounce sofort anzeigen! (0ms Latenz)
     const localMatches = fuzzySearchLocal(query);
-    localMatches.forEach(m => m.source = 'local');
+    for (const m of localMatches) {
+      m.source = 'local';
+    }
     renderSuggestions(localMatches, query, false);
 
     // 2. REMOTE SEARCH (Debounced)

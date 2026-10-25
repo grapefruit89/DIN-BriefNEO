@@ -82,7 +82,9 @@ export async function run() {
   summary.style.fontWeight = 'bold';
   reportEl.appendChild(summary);
   console.log(`\n${summary.textContent}`);
-  failures.forEach((f) => console.error(`✗ ${f}`));
+  for (const f of failures) {
+    console.error(`✗ ${f}`);
+  }
   document.title = total === passed ? '✓ Tests' : '✗ Tests';
   return total === passed;
 }

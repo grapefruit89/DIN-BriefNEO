@@ -328,7 +328,9 @@ export const MetadataService = {
     if (!context) return;
     document.title = context.oldTitle;
     if (context.injectedTags) {
-      context.injectedTags.forEach(tag => tag.remove());
+      for (const tag of context.injectedTags) {
+        tag.remove();
+      }
     }
   }
 };

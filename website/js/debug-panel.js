@@ -611,7 +611,9 @@ function renderAllSteps() {
   if (!bodyEl) return;
 
   const existingSteps = bodyEl.querySelectorAll('.debug-step');
-  existingSteps.forEach(el => el.remove());
+  for (const el of existingSteps) {
+    el.remove();
+  }
 
   const emptyEl = document.getElementById('rec-empty');
   const visibleSteps = hideEmptySteps ? recorderSteps.filter(s => s.itemCount > 0) : recorderSteps;
@@ -625,7 +627,9 @@ function renderAllSteps() {
     }
   } else {
     if (emptyEl) emptyEl.classList.add('is-hidden');
-    visibleSteps.forEach(s => renderStepElement(s, bodyEl));
+    for (const s of visibleSteps) {
+      renderStepElement(s, bodyEl);
+    }
     bodyEl.scrollTop = bodyEl.scrollHeight;
   }
 
@@ -751,7 +755,9 @@ function clearSteps() {
   const bodyEl = document.getElementById('rec-body') || document.querySelector('#panel-autocomplete [data-role="body"]');
   if (bodyEl) {
     const existingSteps = bodyEl.querySelectorAll('.debug-step');
-    existingSteps.forEach(el => el.remove());
+    for (const el of existingSteps) {
+      el.remove();
+    }
   }
   const emptyEl = document.getElementById('rec-empty');
   if (emptyEl) {

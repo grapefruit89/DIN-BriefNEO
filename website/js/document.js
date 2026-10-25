@@ -189,6 +189,25 @@ export function formatGermanMobile(input) {
  * 2. UI PROTECTIONS (Zeilenlimits, Paste-Schutz, Anlagen-Struktur)
  * ========================================================================================= */
 
+const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
+  'rucksendezeile': 85,
+  'empfaenger-firma': 50,
+  'empfaenger-namenszeile': 45,
+  'empfaenger-strasse': 45,
+  'empfaenger-ort': 45,
+  'absender-namenszeile': 40,
+  'absender-strasse': 40,
+  'absender-ort': 40,
+  'absender-tel': 30,
+  'absender-mail': 40,
+  'postvermerk': 80,
+  'datum': 35,
+  'betreff': 140,
+  'anrede': 70,
+  'grussformel': 45,
+  'unterschrift': 45
+}));
+
 export class UIProtections {
   constructor() {
     /** @type {HTMLElement | null} */
@@ -202,6 +221,7 @@ export class UIProtections {
     this.protectAnlagenList();
     this.setupPrintProtection();
     this.setupMobilePhoneFormatting();
+    this.setupOverflowDetector();
     this.initialized = true;
   }
 
@@ -277,12 +297,12 @@ export class UIProtections {
 
         const lines = pastedText.split(/\r?\n/);
         const fragment = document.createDocumentFragment();
-        for (let i = 0; i < lines.length; i++) {
+        for (const [i, line] of lines.entries()) {
           if (i > 0) {
             fragment.appendChild(document.createElement('br'));
           }
-          if (lines[i]) {
-            fragment.appendChild(document.createTextNode(lines[i]));
+          if (line) {
+            fragment.appendChild(document.createTextNode(line));
           }
         }
         const lastChild = fragment.lastChild;
@@ -302,15 +322,24 @@ export class UIProtections {
       clipboardEvent.preventDefault();
       const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
 
+      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? 50 : 0);
+
       if (isTwoLine) {
-        const maxChars = 130;
+        const maxChars = maxLimit || 130;
         pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
         if (pastedText.length > maxChars) {
           pastedText = pastedText.substring(0, maxChars);
         }
       } else {
         pastedText = pastedText.replace(/[\r\n]+/g, ' ');
+        if (maxLimit > 0) {
+          const currentLen = (target.textContent || '').length;
+          const remaining = Math.max(0, maxLimit - currentLen);
+          pastedText = pastedText.substring(0, remaining);
+        }
       }
+
+      if (!pastedText) return;
 
       const selection = window.getSelection();
       if (!selection || !selection.rangeCount) return;
@@ -318,6 +347,28 @@ export class UIProtections {
       selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
       selection.collapseToEnd();
       target.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    // Längenbegrenzung beim direkten Tippen auf Einzeilern durchsetzen
+    root.addEventListener('input', (e) => {
+      const target = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
+      if (!target || !(target instanceof HTMLElement)) return;
+      if (target.id === 'text') return; // Haupttext bleibt flexibel
+
+      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? 50 : 0);
+      if (maxLimit > 0) {
+        const text = target.textContent || '';
+        if (text.length > maxLimit) {
+          target.textContent = text.substring(0, maxLimit);
+          // Cursor sicher ans Ende stellen
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        }
+      }
     });
   }
 
@@ -449,6 +500,81 @@ export class UIProtections {
       }
     });
   }
+
+  /**
+   * D1: Overflow-Erkennung im Briefkern (#kern).
+   * Dual-Check via CSSOM View APIs: scrollHeight + BoundingClientRect-Fallback.
+   * Setzt data-ueberlauf und data-ueberlauf-zeilen am din-blatt.
+   */
+  setupOverflowDetector() {
+    const blatt = document.querySelector('din-blatt');
+    const kern = document.getElementById('kern');
+    const text = document.getElementById('text');
+    if (!blatt || !kern) return;
+
+    /** @type {(cb: FrameRequestCallback) => number} */
+    const raf = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
+      ? window.requestAnimationFrame.bind(window)
+      : (cb) => /** @type {number} */ (/** @type {unknown} */ (setTimeout(cb, 0)));
+
+    const checkOverflow = () => {
+      raf(() => {
+        if (!blatt || !kern) return;
+
+        // Primär: scrollHeight > clientHeight + 1px Puffer
+        const isPrimaryOverflow = kern.scrollHeight > kern.clientHeight + 1;
+
+        // Fallback: Letztes sichtbares Kind-Element im Kern (#anlagen oder .unterschrift-zeile)
+        let isFallbackOverflow = false;
+        const visibleChildren = Array.from(kern.children).filter(
+          (el) => el instanceof HTMLElement && el.getBoundingClientRect().height > 0
+        );
+        const lastVisibleChild = visibleChildren[visibleChildren.length - 1];
+        if (lastVisibleChild instanceof HTMLElement) {
+          const kernRect = kern.getBoundingClientRect();
+          const lastRect = lastVisibleChild.getBoundingClientRect();
+          isFallbackOverflow = lastRect.bottom > kernRect.bottom + 0.5;
+        }
+
+        const hasOverflow = isPrimaryOverflow || isFallbackOverflow;
+
+        if (hasOverflow) {
+          blatt.setAttribute('data-ueberlauf', 'true');
+          const computedLineHeight = text ? parseFloat(window.getComputedStyle(text).lineHeight) : 18;
+          const lineHeight = Number.isFinite(computedLineHeight) && computedLineHeight > 0 ? computedLineHeight : 18;
+          const overflowPixels = Math.max(0, kern.scrollHeight - kern.clientHeight);
+          const estimatedLines = Math.max(1, Math.ceil(overflowPixels / lineHeight));
+          blatt.setAttribute('data-ueberlauf-zeilen', String(estimatedLines));
+        } else {
+          blatt.removeAttribute('data-ueberlauf');
+          blatt.removeAttribute('data-ueberlauf-zeilen');
+        }
+      });
+    };
+
+    // Debounced Trigger für Benutzereingaben im Text (200ms)
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    let debounceTimer = null;
+    const debouncedCheck = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(checkOverflow, 200);
+    };
+
+    if (text) {
+      text.addEventListener('input', debouncedCheck);
+    }
+
+    // ResizeObserver auf #kern für Viewport- und Zoomwechsel
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        checkOverflow();
+      });
+      ro.observe(kern);
+    }
+
+    // Initialer Check beim Start
+    checkOverflow();
+  }
 }
 
 /* =========================================================================================
@@ -493,11 +619,6 @@ export function collectDraft() {
   const postvermerk = document.getElementById('postvermerk');
   if (postvermerk && postvermerk.getAttribute('data-visible') === 'true') {
     draft['postvermerk-visible'] = 'true';
-  }
-
-  const copyfitEl = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
-  if (copyfitEl) {
-    draft['toggle-copyfit'] = String(copyfitEl.checked);
   }
 
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
@@ -711,13 +832,6 @@ export class DraftManager {
       pvSelect.selectedIndex = 0;
     }
 
-    if ('toggle-copyfit' in draft) {
-      const copyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
-      if (copyfitSwitch) {
-        copyfitSwitch.checked = draft['toggle-copyfit'] === 'true';
-      }
-    }
-
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       if ('toggle-anlagen' in draft) {
@@ -794,10 +908,6 @@ export class DraftManager {
       const sel = /** @type {HTMLSelectElement} */ (el);
       sel.selectedIndex = 0;
     });
-    const copyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
-    if (copyfitSwitch) {
-      copyfitSwitch.checked = false;
-    }
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.checked = false;

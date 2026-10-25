@@ -45,7 +45,6 @@ export class SettingsManager {
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
     this.seitenleiste = document.getElementById('seitenleiste');
-    this.btnEinstellungen = document.getElementById('btn-einstellungen');
     this.btnZurueck = document.getElementById('btn-zurueck');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
@@ -128,11 +127,11 @@ export class SettingsManager {
     const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
     toggle.checked = isChecked;
     toggle.dispatchEvent(new Event('change', { bubbles: true }));
-    if (this.btnEinstellungen) {
-      this.btnEinstellungen.setAttribute('aria-pressed', String(isChecked));
-      this.btnEinstellungen.classList.toggle('active', isChecked);
-      this.btnEinstellungen.setAttribute('title', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
-      this.btnEinstellungen.setAttribute('aria-label', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
+    const label = document.querySelector('label[for="toggle-modus"]');
+    if (label) {
+      label.setAttribute('aria-pressed', String(isChecked));
+      label.setAttribute('title', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
+      label.setAttribute('aria-label', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
     }
   }
 

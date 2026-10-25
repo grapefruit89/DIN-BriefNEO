@@ -862,24 +862,18 @@ input[type="checkbox"][switch] {
 }
 
 /* Modus-Steuerung (Brief vs. Einstellungen via CSS :has) */
-#seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup,
-#seitenleiste[data-modus="brief"] #zone-setup {
+#seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup {
   display: none;
 }
 
 #seitenleiste:has(#toggle-modus:checked) #zone-dokument,
-#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
-#seitenleiste[data-modus="einstellungen"] #zone-dokument,
-#seitenleiste[data-modus="einstellungen"] #zone-werkzeuge {
+#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge {
   display: none;
 }
 
 #seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-print,
 #seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset,
-#seitenleiste:has(#toggle-modus:checked) #zone-aktionen .seitenleiste-divider,
-#seitenleiste[data-modus="einstellungen"] #zone-aktionen #btn-print,
-#seitenleiste[data-modus="einstellungen"] #zone-aktionen #btn-reset,
-#seitenleiste[data-modus="einstellungen"] #zone-aktionen .seitenleiste-divider {
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen .seitenleiste-divider {
   display: none;
 }
 

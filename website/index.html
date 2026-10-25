@@ -23,9 +23,8 @@
   <body>
     <a href="#viewport" class="skip-link">Zum Briefkern springen</a>
     <div id="app-shell">
-      <aside id="seitenleiste" class="seitenleiste nicht-drucken">
+      <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
         <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungsmodus umschalten">
-        <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>
         <div class="seitenleiste-header-row">
           <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository" title="GitHub Repository">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
@@ -112,12 +111,12 @@
                   <span class="item-label">— kein —</span>
                 </button>
 
-                <div class="popover-group group-versand">
-                  <div class="popover-group-header">
+                <div class="popover-group group-versand" role="group" aria-labelledby="postvermerk-group-versand-label">
+                  <div class="popover-group-header" id="postvermerk-group-versand-label">
                     <svg class="group-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                     <span>Versandarten</span>
                   </div>
-                  <div class="popover-group-items">
+                  <div class="popover-group-items" role="presentation">
                     <button type="button" class="popover-item" role="option" data-value="Einschreiben">Einschreiben</button>
                     <button type="button" class="popover-item" role="option" data-value="Einschreiben Einwurf">Einschreiben Einwurf</button>
                     <button type="button" class="popover-item" role="option" data-value="Einschreiben Rückschein">Einschreiben Rückschein</button>
@@ -128,14 +127,14 @@
                   </div>
                 </div>
 
-                <div class="popover-divider"></div>
+                <div class="popover-divider" role="separator"></div>
 
-                <div class="popover-group group-vertraulich">
-                  <div class="popover-group-header">
+                <div class="popover-group group-vertraulich" role="group" aria-labelledby="postvermerk-group-vertraulich-label">
+                  <div class="popover-group-header" id="postvermerk-group-vertraulich-label">
                     <svg class="group-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span>Vertraulichkeit</span>
                   </div>
-                  <div class="popover-group-items">
+                  <div class="popover-group-items" role="presentation">
                     <button type="button" class="popover-item" role="option" data-value="Persönlich">Persönlich</button>
                     <button type="button" class="popover-item" role="option" data-value="Vertraulich">Vertraulich</button>
                     <button type="button" class="popover-item" role="option" data-value="Persönlich / Vertraulich">Persönlich / Vertraulich</button>
@@ -168,7 +167,7 @@
           <h2 class="seitenleiste-label">Daten &amp; Adressen</h2>
           <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
             <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="text" inputmode="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <input type="text" inputmode="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
             <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
             <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
           </search>
@@ -220,7 +219,7 @@
               <div id="geoapify-key-container" class="seitenleiste-field-group" hidden>
                 <form onsubmit="return false;" autocomplete="off">
                   <label for="input-geoapify-key" class="sr-only">Geoapify API-Key</label>
-                  <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+                  <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen…" autocomplete="off">
                 </form>
                 <span id="geoapify-status-hint" class="seitenleiste-status-hint" role="status"></span>
               </div>
@@ -250,6 +249,7 @@
         </div>
       </aside>
       <main id="viewport">
+        <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>
         <div id="brief-ansicht">
           <din-blatt class="blatt-theme seite-1"
             data-width-mm="210"
@@ -302,7 +302,7 @@
               <din-betreff id="betreff" data-font="12" data-margin-bottom="8.46" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
               <din-teilbetreff class="is-dormant"></din-teilbetreff>
               <din-anrede id="anrede" data-font="10.5" data-margin-bottom="4.23" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
-              <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes..." aria-label="Text"></din-text>
+              <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes…" aria-label="Text"></din-text>
               <din-grussformel id="grussformel" data-font="10.5" data-margin-top="4.23" data-margin-bottom="12.69" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
               <din-unternehmensbezeichnung class="is-dormant"></din-unternehmensbezeichnung>
               <div class="unterschrift-zeile">
@@ -317,7 +317,7 @@
               <din-beglaubigungsvermerk class="is-dormant"></din-beglaubigungsvermerk>
               <din-werbliche-elemente class="is-dormant"></din-werbliche-elemente>
             </din-kern>
-            <din-geschaeftsangaben id="fuss" data-left="25" data-right="20" data-bottom="10" data-h="15" data-padding-top="2" data-gap="10" data-font="7.5" role="contentinfo">
+            <din-geschaeftsangaben id="fuss" data-left="25" data-right="20" data-bottom="10" data-h="15" data-padding-top="2" data-gap="10" data-font="7.5" role="region" aria-label="Geschäftsangaben Fußzeile">
               <div id="fuss-spalte-1" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Kommunikation / Web" aria-label="Fußzeile Spalte 1"></div>
               <div id="fuss-spalte-2" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Bankverbindung" aria-label="Fußzeile Spalte 2"></div>
               <div id="fuss-spalte-3" class="fuss-spalte" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="Geschäftsangaben" aria-label="Fußzeile Spalte 3"></div>
@@ -369,8 +369,8 @@
         </div>
       </form>
     </dialog>
-    <dialog id="din-info-dialog" class="glass-dialog nicht-drucken" closedby="any">
-      <h3 class="din-info-title">DIN 5008 Standard-Leitfaden</h3>
+    <dialog id="din-info-dialog" class="glass-dialog nicht-drucken" closedby="any" aria-labelledby="din-info-title">
+      <h2 id="din-info-title" class="din-info-title">DIN 5008 Standard-Leitfaden</h2>
       <div class="din-info-content">
         <p><strong>Form A vs. Form B:</strong> Form A hat einen 27-mm-Briefkopf (mehr Platz für Text). Form B nutzt 45 mm (Standard für Privatbriefe mit Absenderblock oder Logo).</p>
         <p><strong>Fensterumschlag (DIN Lang):</strong> Das Anschriftfeld (85 × 40 mm) ist exakt so platziert, dass es bei korrekter Faltung im 90 × 45 mm Sichtfenster liegt.</p>
@@ -382,7 +382,7 @@
     </dialog>
 
     <!-- Autocomplete-Recorder -->
-    <aside id="panel-autocomplete" class="debug-panel" data-panel="autocomplete" hidden>
+    <aside id="panel-autocomplete" class="debug-panel" data-panel="autocomplete" hidden aria-label="Autocomplete Debug-Recorder">
       <header class="debug-header" tabindex="0">
         <span class="debug-title">Autocomplete Recorder</span>
         <span class="debug-badge" data-state="live">LIVE</span>
@@ -401,7 +401,7 @@
     </aside>
 
     <!-- JSON-Panel -->
-    <aside id="panel-json" class="debug-panel" data-panel="json" hidden>
+    <aside id="panel-json" class="debug-panel" data-panel="json" hidden aria-label="DIN-Letter JSON Debug-Panel">
       <header class="debug-header" tabindex="0">
         <span class="debug-title">DIN-Letter JSON</span>
         <div class="debug-actions">

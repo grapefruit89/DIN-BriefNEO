@@ -43,7 +43,7 @@ function getTemporalEpochMs() {
  */
 function copyToClipboard(text, btnEl = null) {
   if (typeof text !== 'string') return;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
+  if (navigator.clipboard?.writeText) {
     const origText = btnEl ? (btnEl.getAttribute('data-original-text') || btnEl.textContent || '') : '';
     if (btnEl && !btnEl.getAttribute('data-original-text')) {
       btnEl.setAttribute('data-original-text', origText);
@@ -911,7 +911,7 @@ let jsonIsPaused = false;
 function updateJSON(force = false) {
   if (jsonIsPaused && !force) return;
   const root = document.getElementById('panel-json') || document.getElementById('dinletter-json-debug-panel');
-  if (root && root.hidden && !force) return;
+  if (root?.hidden && !force) return;
   const codeEl = document.getElementById('json-debug-code');
   if (!codeEl) return;
 

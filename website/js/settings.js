@@ -439,7 +439,7 @@ export class SignatureFeature {
     document.addEventListener('pointerdown', (e) => {
       const target = /** @type {HTMLElement} */ (e.target);
       if (bbox.contains(target)) {
-        if (this.imgElement && this.imgElement.src && this.imgElement.src !== window.location.href) {
+        if (this.imgElement?.src && this.imgElement.src !== window.location.href) {
           bbox.classList.add('active');
         }
       } else {

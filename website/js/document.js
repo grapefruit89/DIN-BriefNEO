@@ -260,7 +260,7 @@ export class UIProtections {
         if (target.dataset.feldtyp?.includes('mehrzeilig')) {
           return;
         } else if (target.dataset.feldtyp?.includes('zweizeilig')) {
-          const text = target.innerText || target.textContent || '';
+          const text = target.textContent ?? '';
           if (text.split('\n').length >= 2) {
             keyboardEvent.preventDefault();
           }
@@ -292,7 +292,7 @@ export class UIProtections {
       if (target.id === 'text') {
         clipboardEvent.preventDefault();
         const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) return;
+        if (!selection?.rangeCount) return;
         const range = selection.getRangeAt(0);
         range.deleteContents();
 
@@ -343,7 +343,7 @@ export class UIProtections {
       if (!pastedText) return;
 
       const selection = window.getSelection();
-      if (!selection || !selection.rangeCount) return;
+      if (!selection?.rangeCount) return;
       selection.deleteFromDocument();
       selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
       selection.collapseToEnd();
@@ -442,7 +442,7 @@ export class UIProtections {
    */
   #toggleBlockquote(textEl) {
     const selection = window.getSelection();
-    if (!selection || !selection.anchorNode || !textEl.contains(selection.anchorNode)) return;
+    if (!selection?.anchorNode || !textEl.contains(selection.anchorNode)) return;
 
     const elem = selection.anchorNode instanceof Element ? selection.anchorNode : selection.anchorNode.parentElement;
     const bq = elem ? elem.closest('blockquote') : null;
@@ -660,7 +660,7 @@ export class DraftManager {
   #initEventBus() {
     if (this.bus && typeof this.bus.subscribe === 'function') {
       this.#unsubSaveRequested = this.bus.subscribe(Events.DOCUMENT_SAVE_REQUESTED, (payload) => {
-        if (payload && payload.debounce) {
+        if (payload?.debounce) {
           this.scheduleAutoSave();
         } else {
           this.saveDraft();
@@ -754,7 +754,7 @@ export class DraftManager {
     let caretInfo = null;
 
     const activeElem = document.activeElement;
-    if (activeElem && activeElem.hasAttribute('contenteditable') && activeElem.id && activeElem.id !== 'datum') {
+    if (activeElem?.hasAttribute('contenteditable') && activeElem.id && activeElem.id !== 'datum') {
       caretInfo = { id: activeElem.id, offset: getCaretCharacterOffset(activeElem) };
     }
 
@@ -799,7 +799,7 @@ export class DraftManager {
     Object.keys(draft).forEach(id => {
       const elem = document.getElementById(id);
       /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
-      if (!elem || !elem.matches(EDITABLE_FIELD_SELECTOR)) return;
+      if (!elem?.matches(EDITABLE_FIELD_SELECTOR)) return;
       if (elem.dataset.feldtyp === 'systemwert') return;
 
       if (elem instanceof HTMLSelectElement) {

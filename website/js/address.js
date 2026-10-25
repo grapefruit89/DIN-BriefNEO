@@ -906,7 +906,7 @@ export class AddressIntelligence {
         const res = this.lookupPlz(plz);
         if (res && !userEditing) {
           // Plausibilitäts-Check: Passt PLZ zu vorher gewähltem Ort?
-          if (this.targetLock && this.targetLock.city) {
+          if (this.targetLock?.city) {
             const allowedPlzs = this.ortIndex.get(this.targetLock.city) || [];
             if (allowedPlzs.length > 0 && !allowedPlzs.includes(plz)) {
               const warn = `PLZ ${plz} gehört nicht zu ${this.targetLock.city} – meinten Sie ${res.city}?`;
@@ -1553,7 +1553,7 @@ export class ClipboardAddressParser {
         }
 
         const text = await navigator.clipboard.readText();
-        if (!text || !text.trim()) {
+        if (!text?.trim()) {
           notify(Constants.TOASTS.CLIPBOARD.EMPTY, 'warning');
           return;
         }

@@ -4,43 +4,60 @@
 
 /* js/main.js */
 import { saveJSON, migrateStorage, STORAGE_KEYS, MetadataService, applyLetterDate, initImportExport } from './persistence.js';
-import { SalutationFeature } from './salutation.js';
+import { SalutationFeature, SalutationEngine } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
 import { initToastSystem, eventBus, Events } from './core.js';
 import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './address.js';
 import { DraftManager, UIProtections, collectDraft } from './document.js';
 
 /**
- * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld.
+ * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld und dem Popover-Trigger.
  * @param {string} [value]
  */
 function syncPostvermerkFromSidebar(value) {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+  const triggerLabel = document.getElementById('postvermerk-trigger-label');
+  const triggerBtn = document.getElementById('btn-postvermerk-trigger');
+  const popover = document.getElementById('postvermerk-popover');
   const field = document.getElementById('postvermerk');
   if (!field) return;
+
   const val = typeof value === 'string' ? value : (sel?.value ?? '');
   if (!val) {
     field.textContent = '';
     field.removeAttribute('data-visible');
     if (sel) sel.value = '';
+    if (triggerLabel) triggerLabel.textContent = '— kein —';
+    if (triggerBtn) triggerBtn.removeAttribute('data-active');
   } else {
     field.textContent = val;
     field.setAttribute('data-visible', 'true');
     if (sel && sel.value !== val) sel.value = val;
+    if (triggerLabel) triggerLabel.textContent = val;
+    if (triggerBtn) triggerBtn.setAttribute('data-active', 'true');
+  }
+
+  if (popover) {
+    popover.querySelectorAll('.popover-item').forEach(item => {
+      const isSelected = (item.getAttribute('data-value') || '') === val;
+      item.setAttribute('aria-selected', String(isSelected));
+    });
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const btnPrint = document.getElementById('btn-print');
-  const btnReset = document.getElementById('btn-reset');
-
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
   initApp();
+}
 
-  function initApp() {
-    // Schema-Migration vor dem ersten Restore
+function initApp() {
+  // Schema-Migration vor dem ersten Restore
     migrateStorage();
     const draftManager = new DraftManager();
     draftManager.loadDraft();
+    const initPv = document.getElementById('postvermerk')?.textContent || '';
+    syncPostvermerkFromSidebar(initPv);
 
     try {
       applyLetterDate();
@@ -109,6 +126,37 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.error('[Bootstrap] SignatureFeature.init fehlgeschlagen:', e);
     }
+
+    try {
+      initTestData();
+    } catch (e) {
+      console.error('[Bootstrap] initTestData fehlgeschlagen:', e);
+    }
+
+    // Eingebaute Debug-Funktionen (?debug=autocomplete, ?debug=json oder ?debug=autocomplete,json)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const debugVal = urlParams.get('debug') || '';
+      const debugModes = debugVal.split(',').map(s => s.trim().toLowerCase());
+
+      if (debugModes.includes('autocomplete')) {
+        const panel = document.getElementById('panel-autocomplete');
+        if (panel) panel.hidden = false;
+        import('./debug-panel.js').then(m => m.mountAutocompletePanel()).catch(err => {
+          console.error('[DebugPanel] Autocomplete Initialisierung fehlgeschlagen:', err);
+        });
+      }
+
+      if (debugModes.includes('json')) {
+        const panel = document.getElementById('panel-json');
+        if (panel) panel.hidden = false;
+        import('./debug-panel.js').then(m => m.mountJsonPanel()).catch(err => {
+          console.error('[DebugPanel] JSON Initialisierung fehlgeschlagen:', err);
+        });
+      }
+    } catch (e) {
+      console.error('[Bootstrap] Debug-Module fehlgeschlagen:', e);
+    }
   }
 
   /**
@@ -116,6 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {UIProtections} uiProtections
    */
   function attachGlobalListeners(draftManager, uiProtections) {
+    const btnPrint = document.getElementById('btn-print');
+    const btnReset = document.getElementById('btn-reset');
     /** @type {any} */
     let metaCtx = null;
     window.addEventListener('beforeprint', () => {
@@ -152,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('[Undo] sessionStorage.removeItem fehlgeschlagen:', e);
       }
       try {
-        if (undoHinweis && undoHinweis.matches(':popover-open')) {
+        if (undoHinweis?.matches(':popover-open')) {
           undoHinweis.hidePopover();
         }
       } catch (_) {}
@@ -233,6 +283,43 @@ document.addEventListener('DOMContentLoaded', () => {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
+
+    // Native HTML Popover Integration für Postvermerk
+    const pvPopover = /** @type {HTMLElement & { hidePopover: () => void } | null} */ (document.getElementById('postvermerk-popover'));
+    const pvTrigger = document.getElementById('btn-postvermerk-trigger');
+    if (pvPopover && pvTrigger) {
+      pvPopover.addEventListener('toggle', (e) => {
+        const isOpen = /** @type {ToggleEvent} */ (e).newState === 'open';
+        pvTrigger.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      pvPopover.addEventListener('click', (e) => {
+        const btn = /** @type {HTMLElement | null} */ (e.target)?.closest('.popover-item');
+        if (!btn) return;
+        const val = btn.getAttribute('data-value') || '';
+        syncPostvermerkFromSidebar(val);
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+        try { pvPopover.hidePopover(); } catch(_) {}
+      });
+
+      pvPopover.addEventListener('keydown', (e) => {
+        const items = /** @type {HTMLElement[]} */ (Array.from(pvPopover.querySelectorAll('.popover-item')));
+        const active = document.activeElement;
+        const idx = items.indexOf(/** @type {HTMLElement} */ (active));
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = idx < items.length - 1 ? idx + 1 : 0;
+          items[next]?.focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = idx > 0 ? idx - 1 : items.length - 1;
+          items[prev]?.focus();
+        } else if (e.key === 'Escape') {
+          try { pvPopover.hidePopover(); } catch(_) {}
+          pvTrigger.focus();
+        }
+      });
+    }
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
@@ -250,4 +337,337 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
-});
+
+/* =========================================================================================
+ * TESTDATEN-GENERATOR (TESTBRIEF & FELDER LEEREN)
+ * ========================================================================================= */
+
+/** @type {any[] | null} */
+let heroesCache = null;
+/** @type {any[] | null} */
+let heroesPool = null;
+let heroIndex = 0;
+/** @type {any | null} */
+let lastHero = null;
+
+/**
+ * Prüft, ob ein Charakter vollständige und nutzbare Adressdaten besitzt.
+ * @param {any} h
+ * @returns {boolean}
+ */
+function isUsableHero(h) {
+  const strasse = (h.strasse || '').toLowerCase();
+  const ort = (h.ort || '').trim();
+  if (!strasse || !ort) return false;
+  return !strasse.includes('unterwegs') &&
+         !strasse.includes('kein festes') &&
+         !strasse.includes('kein fester') &&
+         !strasse.includes('replik');
+}
+
+/**
+ * Zieht einen zufälligen Hook für einen Charakter.
+ * Fallback: franchise oder medium (kurz), niemals das lange 'hinweis'-Feld.
+ * @param {any} char
+ * @returns {string}
+ */
+function getCharHook(char) {
+  if (char?.hooks && Array.isArray(char.hooks) && char.hooks.length > 0) {
+    return char.hooks[Math.floor(Math.random() * char.hooks.length)];
+  }
+  return char?.franchise || char?.medium || 'eine dringende Angelegenheit';
+}
+
+/**
+ * Generiert einen passenden Betreff basierend auf dem gewürfelten Thema.
+ * @param {string} themenHook
+ * @returns {string}
+ */
+function randomBetreff(themenHook) {
+  const options = [
+    `Dringende Mitteilung bezüglich ${themenHook}`,
+    `Sachstand und Maßnahmenkatalog zu ${themenHook}`,
+    `Außerordentliche Kündigung im Zusammenhang mit ${themenHook}`,
+    `Fristsetzung und Aufforderung zur Stellungnahme: ${themenHook}`,
+    `Kooperationsvereinbarung und Beistandspakt hinsichtlich ${themenHook}`
+  ];
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+/**
+ * Erzeugt den Text anhand der gewürfelten Familie (n = 0..3 Dritte).
+ * @param {any} sender
+ * @param {any} recipient
+ * @param {any[]} dritte
+ * @param {string} themenHook
+ * @returns {string}
+ */
+function generateNerdText(sender, recipient, dritte, themenHook) {
+  const n = dritte.length;
+  const sName = sender.buergerlicherName || sender.name;
+  const sHook = getCharHook(sender);
+  const sOrt = sender.ort || 'hier';
+  const rOrt = recipient.ort || 'dort';
+
+  if (n === 0) {
+    const templatesA = [
+      `hiermit kündige ich unsere bisherige Vereinbarung mit sofortiger Wirkung.\n\nDie jüngsten Entwicklungen rund um ${themenHook} machen eine Fortführung für mich schlicht unmöglich. Als ${sName} (${sHook}) kann ich die damit verbundenen Risiken in ${sOrt} nicht länger verantworten.\n\nIch bitte um schriftliche Bestätigung über das Vertragsende und den Verbleib aller Unterlagen.`,
+      `bezugnehmend auf unsere Situation unterbreite ich Ihnen einen dringenden Vorschlag zur Zusammenarbeit.\n\nDie Lage bezüglich ${themenHook} erfordert entschlossenes Handeln unserer beiden Seiten. Gerne stelle ich meine Erfahrungen als ${sName} (${sHook}) zur Verfügung, um eine geordnete Lösung für ${rOrt} herbeizuführen.\n\nÜber eine kurzfristige Rückmeldung zur Abstimmung der nächsten Schritte freue ich mich.`,
+      `ich wende mich heute mit einem formellen Auskunftsersuchen an Ihre Adresse.\n\nIn den vergangenen Tagen sind vermehrt Fragen zu ${themenHook} aufgetreten, die Ihre Zuständigkeit in ${rOrt} berühren. Zur Wahrung meiner berechtigten Interessen fordere ich Sie hiermit auf, den aktuellen Sachstand darzulegen.\n\nNach fruchtlosem Fristablauf behalte ich mir weitere Schritte vor.`
+    ];
+    return templatesA[Math.floor(Math.random() * templatesA.length)];
+  }
+
+  if (n === 1) {
+    const d0Name = dritte[0].buergerlicherName || dritte[0].name;
+    const d0Hook = getCharHook(dritte[0]);
+    const d0Ort = dritte[0].ort || 'seinem Quartier';
+    const templatesB = [
+      `ich muss Ihnen heute von einem besorgniserregenden Vorfall berichten.\n\n${d0Name} (${d0Hook}) hat die Lage in Bezug auf ${themenHook} vollkommen eskaliert. Was zunächst harmlos schien, bedroht inzwischen die Ordnung von ${sOrt} bis nach ${rOrt}.\n\nIch ersuche Sie dringend um Beistand und eine gemeinsame Lagebesprechung.`,
+      `auf Empfehlung von ${d0Name} (${d0Hook}) trete ich heute direkt mit Ihnen in Kontakt.\n\nGemeinsam haben wir analysiert, dass ${themenHook} einer neuen Vereinbarung zwischen uns bedarf. Die Expertise aus ${d0Ort} belegt eindeutig, dass ein abgestimmtes Vorgehen unerlässlich ist.\n\nBitte teilen Sie mir zeitnah mit, wann Ihnen ein persönlicher Austausch möglich ist.`
+    ];
+    return templatesB[Math.floor(Math.random() * templatesB.length)];
+  }
+
+  if (n === 2) {
+    const d0Name = dritte[0].buergerlicherName || dritte[0].name;
+    const d0Hook = getCharHook(dritte[0]);
+    const d1Name = dritte[1].buergerlicherName || dritte[1].name;
+    const d1Hook = getCharHook(dritte[1]);
+    const templatesC = [
+      `die Ereignisse der letzten Tage zwingen mich zu diesem außerordentlichen Schreiben.\n\n${d0Name} (${d0Hook}) und ${d1Name} (${d1Hook}) haben wegen ${themenHook} einen offenen Konflikt begonnen. Die Auswirkungen sind mittlerweile bis in meine Wirkungsstätte spürbar.\n\nIch fordere Sie als Verantwortliche auf, unverzüglich mäßigend auf beide Parteien einzuwirken.`,
+      `nach vertraulicher Rücksprache mit ${d0Name} (${d0Hook}) sowie ${d1Name} (${d1Hook}) wende ich mich an Sie.\n\nWir sind übereingekommen, dass die Vorkommnisse um ${themenHook} eine gemeinsame Stellungnahme verlangen. Unsere Kräfte stehen bereit, um Schaden von ${rOrt} abzuwenden.\n\nIch erwarte Ihre verbindliche Rückäußerung binnen zehn Werktagen.`
+    ];
+    return templatesC[Math.floor(Math.random() * templatesC.length)];
+  }
+
+  // n === 3
+  const d0Name = dritte[0].buergerlicherName || dritte[0].name;
+  const d0Hook = getCharHook(dritte[0]);
+  const d1Name = dritte[1].buergerlicherName || dritte[1].name;
+  const d1Hook = getCharHook(dritte[1]);
+  const d2Name = dritte[2].buergerlicherName || dritte[2].name;
+  const d2Hook = getCharHook(dritte[2]);
+  const templatesD = [
+    `zur Abwendung einer drohenden Krise berufe ich hiermit eine Dringlichkeitssitzung ein.\n\nSowohl ${d0Name} (${d0Hook}), ${d1Name} (${d1Hook}) als auch ${d2Name} (${d2Hook}) haben bestätigt, dass ${themenHook} außer Kontrolle geraten ist. Es bedarf unseres geschlossenen Auftretens.\n\nIch bitte Sie, sich unverzüglich für den gemeinsamen Termin bereitzuhalten.`,
+    `hiermit übermittle ich Ihnen den konsolidierten Lagebericht unserer Beobachter.\n\nDie Berichte von ${d0Name} (${d0Hook}), ${d1Name} (${d1Hook}) und ${d2Name} (${d2Hook}) stimmen überein: Das Thema ${themenHook} erfordert sofortige Schutzmaßnahmen auf beiden Seiten.\n\nBitte bestätigen Sie den Erhalt dieser Mitteilung und leiten Sie die vereinbarten Notfallprotokolle ein.`
+  ];
+  return templatesD[Math.floor(Math.random() * templatesD.length)];
+}
+
+/**
+ * Lädt die 325 konsolidierten Figuren einmalig asynchron (Lazy Load beim ersten Klick).
+ * @returns {Promise<any[] | null>}
+ */
+async function loadHeroes() {
+  if (heroesCache) return heroesCache;
+  try {
+    const res = await fetch('data/charaktere_konsolidiert.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    heroesCache = Array.isArray(data) ? data : (data.figuren || []);
+    return heroesCache;
+  } catch (err) {
+    console.error('[TestData] Fehler beim Laden der Figuren:', err);
+    return null;
+  }
+}
+
+/**
+ * Fisher-Yates-Shuffle.
+ * @param {any[]} arr
+ * @returns {any[]}
+ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/**
+ * Zieht den nächsten Helden aus dem Pool mit Reshuffle-Ausschluss des letzten Helden.
+ * @param {any[]} heroes
+ * @returns {any}
+ */
+function nextHero(heroes) {
+  if (!heroesPool || heroIndex >= heroesPool.length) {
+    const filtered = lastHero ? heroes.filter(h => h !== lastHero) : heroes;
+    heroesPool = shuffle(filtered);
+    heroIndex = 0;
+  }
+  const hero = heroesPool[heroIndex++];
+  lastHero = hero;
+  return hero;
+}
+
+/**
+ * Extrahiert den Nachnamen (letztes Wort vor eventuellen Klammern).
+ * @param {string} fullName
+ * @returns {string}
+ */
+function extractNachname(fullName) {
+  if (!fullName) return '';
+  const clean = fullName.replace(/\s*\([^)]*\)/g, '').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  return parts.length > 0 ? parts[parts.length - 1] : clean;
+}
+
+/**
+ * Leitet die Anrede ab: Prüft recipient.geschlecht (m/w/d), nutzt ansonsten
+ * die SalutationEngine als Fallback und endet bei neutralem DIN-Standard.
+ * @param {any} sender
+ * @param {any} recipient
+ * @returns {string}
+ */
+function deriveAnrede(sender, recipient) {
+  if (recipient?.geschlecht) {
+    const nachname = extractNachname(recipient.buergerlicherName || recipient.name);
+    if (recipient.geschlecht === 'm') return `Sehr geehrter Herr ${nachname},`;
+    if (recipient.geschlecht === 'w') return `Sehr geehrte Frau ${nachname},`;
+    if (recipient.geschlecht === 'd') return `Sehr geehrte*r ${nachname},`;
+  }
+  const candidate = recipient.buergerlicherName || recipient.name || '';
+  const derived = SalutationEngine.derive({ rawName: candidate, formality: 'formal' });
+  if (derived && derived !== 'Sehr geehrte Damen und Herren,' && derived !== 'Guten Tag,') {
+    return derived;
+  }
+  return 'Sehr geehrte Damen und Herren,';
+}
+
+/**
+ * Setzt den Textinhalt eines Elements und feuert ein bubbelndes input-Event.
+ * @param {string} id
+ * @param {string} value
+ */
+function setField(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = value || '';
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/**
+ * Befüllt alle Felder des Briefes mit zwei Pflichtfiguren und 0..3 Dritten.
+ */
+async function wuerfelTestbrief() {
+  const heroes = await loadHeroes();
+  if (!heroes) return;
+  const usableHeroes = heroes.filter(isUsableHero);
+  if (usableHeroes.length < 5) {
+    console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
+    return;
+  }
+
+  // 1. Pflicht-Charaktere
+  const sender = nextHero(usableHeroes);
+  const recipient = nextHero(usableHeroes);
+
+  // 2. Gewürfelte Dritte (n = 0..3)
+  const numDritte = Math.floor(Math.random() * 4);
+  const dritte = [];
+  for (let i = 0; i < numDritte; i++) {
+    dritte.push(nextHero(usableHeroes));
+  }
+
+  // 3. Thema aus allen beteiligten Charakteren würfeln
+  const allChars = [sender, recipient, ...dritte];
+  const themenChar = allChars[Math.floor(Math.random() * allChars.length)];
+  const themenHook = getCharHook(themenChar);
+
+  const senderName = sender.buergerlicherName || sender.name;
+  const recipientName = recipient.buergerlicherName || recipient.name;
+
+  // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
+  setField('absender-namenszeile', senderName);
+  setField('absender-strasse', sender.strasse || '');
+  setField('absender-ort', sender.ort || '');
+  setField('absender-tel', '+49 228 123456-78');
+  setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
+
+  const rucksendeTeile = [senderName, sender.strasse, sender.ort].filter(Boolean);
+  setField('rucksendezeile', rucksendeTeile.join(' • '));
+
+  // 5. Empfänger
+  setField('empfaenger-firma', recipient.firma || '');
+  setField('empfaenger-namenszeile', recipientName);
+  setField('empfaenger-strasse', recipient.strasse || '');
+  setField('empfaenger-ort', recipient.ort || '');
+
+  // 6. Briefkern
+  setField('betreff', randomBetreff(themenHook));
+  setField('anrede', deriveAnrede(sender, recipient));
+  setField('text', generateNerdText(sender, recipient, dritte, themenHook));
+  setField('grussformel', 'Mit freundlichen Grüßen');
+  setField('unterschrift', senderName);
+  applyLetterDate();
+
+  // 7. Zusatzblöcke & Postvermerk zurücksetzen
+  const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+  if (anlagenToggle) {
+    anlagenToggle.checked = false;
+    document.getElementById('anlagen-text')?.replaceChildren();
+  }
+  const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+  if (fussToggle) {
+    fussToggle.checked = false;
+  }
+  syncPostvermerkFromSidebar('');
+
+  // 8. Entwurf persistieren
+  eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+}
+
+/**
+ * Leert ausnahmslos alle editierbaren Felder sofort und ohne Bestätigung.
+ */
+function felderLeeren() {
+  document.querySelectorAll('[contenteditable]').forEach(el => {
+    if (el.getAttribute('data-feldtyp') === 'systemwert' || el.id === 'datum') return;
+    el.textContent = '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  applyLetterDate();
+
+  const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+  if (pvSelect) pvSelect.selectedIndex = 0;
+  const stilSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+  if (stilSelect) stilSelect.selectedIndex = 0;
+
+  syncPostvermerkFromSidebar('');
+
+  const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+  if (anlagenToggle) {
+    anlagenToggle.checked = false;
+    document.getElementById('anlagen-text')?.replaceChildren();
+  }
+  const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+  if (fussToggle) {
+    fussToggle.checked = false;
+  }
+
+  eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+}
+
+/**
+ * Verdrahtet die neuen Footer-Buttons.
+ */
+function initTestData() {
+  const btnTestbrief = document.getElementById('btn-testbrief');
+  const btnFelderLeeren = document.getElementById('btn-felder-leeren');
+
+  if (btnTestbrief) {
+    btnTestbrief.addEventListener('click', () => {
+      wuerfelTestbrief().catch(err => console.error('[TestData] Fehler:', err));
+    });
+  }
+
+  if (btnFelderLeeren) {
+    btnFelderLeeren.addEventListener('click', () => {
+      felderLeeren();
+    });
+  }
+}

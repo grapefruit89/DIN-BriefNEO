@@ -266,7 +266,7 @@ export const MetadataService = {
   prepare() {
     const rucksendezeile = document.getElementById('rucksendezeile');
     if (rucksendezeile) {
-      if (!rucksendezeile.textContent || !rucksendezeile.textContent.trim()) {
+      if (!rucksendezeile.textContent?.trim()) {
         rucksendezeile.classList.add('is-empty');
       } else {
         rucksendezeile.classList.remove('is-empty');

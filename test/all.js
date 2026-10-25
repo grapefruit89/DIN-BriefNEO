@@ -623,7 +623,7 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assert(duration < 20, `Prefix-Index Aufbauzeit < 20 ms (war ${duration.toFixed(2)} ms)`);
     const s = prefixMap.get('101');
     assert(s !== undefined, 'Präfix 101 existiert');
-    assert(Boolean(s && s.has('Berlin')), 'Enthält Berlin');
+    assert(Boolean(s?.has('Berlin')), 'Enthält Berlin');
   });
 
   it('Test 2: Eingabe "010" enthält Dresden', () => {

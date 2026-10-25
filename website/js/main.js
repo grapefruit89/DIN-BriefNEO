@@ -324,14 +324,10 @@ function initApp() {
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
         const anlagenEl = document.getElementById('anlagen-text');
-        if (anlagenEl) {
-          if (anlagenSwitch.checked) {
-            const li = document.createElement('li');
-            li.textContent = 'Anlage 1';
-            anlagenEl.replaceChildren(li);
-          } else {
-            anlagenEl.replaceChildren();
-          }
+        if (anlagenEl && anlagenSwitch.checked && !anlagenEl.textContent?.trim()) {
+          const li = document.createElement('li');
+          li.textContent = 'Anlage 1';
+          anlagenEl.replaceChildren(li);
         }
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });

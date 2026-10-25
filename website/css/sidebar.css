@@ -414,6 +414,15 @@ fieldset.seitenleiste-field-group > legend {
   padding: 8px 12px;
   transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
   text-align: center;
+  list-style: none;
+}
+#btn-geoapify-key::-webkit-details-marker,
+#btn-geoapify-key::marker {
+  display: none;
+}
+#btn-geoapify-key:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 #btn-geoapify-key:hover {
@@ -451,8 +460,8 @@ fieldset.seitenleiste-field-group > legend {
 #geoapify-key-container {
   margin-top: 4px;
 }
-#geoapify-key-container[hidden] {
-  display: none;
+#geoapify-key-container form {
+  margin-top: 8px;
 }
 
 .seitenleiste-status-hint {

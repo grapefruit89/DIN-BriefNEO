@@ -1653,8 +1653,8 @@ export class ClipboardAddressParser {
  */
 export function initAddressServices() {
   const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
-  const geoapifyKeyContainer = document.getElementById('geoapify-key-container');
-  const btnGeoapifyKey = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-geoapify-key'));
+  const geoapifyKeyContainer = /** @type {HTMLDetailsElement | null} */ (document.getElementById('geoapify-key-container'));
+  const btnGeoapifyKey = /** @type {HTMLElement | null} */ (document.getElementById('btn-geoapify-key'));
   const statusHint = document.getElementById('geoapify-status-hint');
   const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
   const addressSuggestions = document.getElementById('anschrift-vorschlaege');
@@ -1689,22 +1689,9 @@ export function initAddressServices() {
     }
   }
 
-  /**
-   * @param {boolean} open
-   */
-  function setContainerVisible(open) {
-    if (!geoapifyKeyContainer) return;
-    geoapifyKeyContainer.hidden = !open;
-    if (btnGeoapifyKey) {
-      btnGeoapifyKey.setAttribute('aria-expanded', String(open));
-    }
-  }
-
-  if (btnGeoapifyKey) {
-    btnGeoapifyKey.addEventListener('click', () => {
-      const willOpen = Boolean(geoapifyKeyContainer.hidden);
-      setContainerVisible(willOpen);
-      if (willOpen) inputGeoapifyKey.focus();
+  if (geoapifyKeyContainer) {
+    geoapifyKeyContainer.addEventListener('toggle', () => {
+      if (geoapifyKeyContainer.open) inputGeoapifyKey.focus();
     });
   }
 
@@ -1724,7 +1711,7 @@ export function initAddressServices() {
 
   if (!savedKey) {
     setGeoapifyState('empty');
-    setContainerVisible(false);
+    geoapifyKeyContainer.open = false;
   } else {
     validateKeyWithHeartbeat(savedKey, { isInitial: true });
   }
@@ -1771,11 +1758,11 @@ export function initAddressServices() {
       if (res.ok) {
         save(STORAGE_KEYS.geoapifyKey, key);
         setGeoapifyState('valid');
-        setContainerVisible(false);
+        if (geoapifyKeyContainer) geoapifyKeyContainer.open = false;
       } else if (res.status === 401 || res.status === 403) {
         save(STORAGE_KEYS.geoapifyKey, '');
         setGeoapifyState('invalid', 'Key ungültig oder abgelaufen (401/403)');
-        setContainerVisible(true);
+        if (geoapifyKeyContainer) geoapifyKeyContainer.open = true;
         if (!isInitial) {
           notify(Constants.TOASTS.GEOAPIFY.KEY_INVALID, 'error');
         }
@@ -1783,14 +1770,14 @@ export function initAddressServices() {
         // 429/5xx: Server vorübergehend nicht bereit -> Key behalten und als valid einstufen
         save(STORAGE_KEYS.geoapifyKey, key);
         setGeoapifyState('valid');
-        setContainerVisible(false);
+        if (geoapifyKeyContainer) geoapifyKeyContainer.open = false;
       }
     } catch {
       if (!inputGeoapifyKey || inputGeoapifyKey.value.trim() !== key) return;
       // Netzwerk/Timeout: Key behalten und valid bleiben (Offline-Resilienz)
       save(STORAGE_KEYS.geoapifyKey, key);
       setGeoapifyState('valid');
-      setContainerVisible(false);
+      if (geoapifyKeyContainer) geoapifyKeyContainer.open = false;
     }
   }
 
@@ -1911,16 +1898,8 @@ export function initAddressServices() {
           save(STORAGE_KEYS.geoapifyKey, '');
           const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
           if (keyEl) keyEl.value = '';
-          const btnKey = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-geoapify-key'));
-          if (btnKey) {
-            btnKey.dataset.geoapifyState = 'invalid';
-            btnKey.setAttribute('aria-label', 'Key ungültig – neu eingeben');
-            btnKey.setAttribute('aria-expanded', 'true');
-          }
-          const cont = document.getElementById('geoapify-key-container');
-          if (cont) cont.hidden = false;
-          const hint = document.getElementById('geoapify-status-hint');
-          if (hint) hint.textContent = 'Key abgelaufen (401/403)';
+          setGeoapifyState('invalid', 'Key abgelaufen (401/403)');
+          if (geoapifyKeyContainer) geoapifyKeyContainer.open = true;
           notify(Constants.TOASTS.GEOAPIFY.KEY_EXPIRED, 'error');
         } else {
           console.warn(`[Address] Autocomplete HTTP ${response.status}`);

@@ -218,14 +218,14 @@
 
             <div class="seitenleiste-field-group">
               <span class="seitenleiste-sub-label">Adress-Autovervollständigung:</span>
-              <button type="button" id="btn-geoapify-key" class="btn w-full" data-geoapify-state="empty" aria-expanded="false" aria-controls="geoapify-key-container" aria-label="Geoapify API-Key hinterlegen"></button>
-              <div id="geoapify-key-container" class="seitenleiste-field-group" hidden>
+              <details id="geoapify-key-container" class="seitenleiste-field-group">
+                <summary id="btn-geoapify-key" class="btn w-full" data-geoapify-state="empty" aria-label="Geoapify API-Key hinterlegen"></summary>
                 <form onsubmit="return false;" autocomplete="off">
                   <label for="input-geoapify-key" class="sr-only">Geoapify API-Key</label>
                   <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen…" autocomplete="off">
                 </form>
                 <span id="geoapify-status-hint" class="seitenleiste-status-hint" role="status"></span>
-              </div>
+              </details>
             </div>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" title="DIN 5008 Hilfe" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>

@@ -1396,7 +1396,7 @@ aside select {
 #autocomplete-debug-panel {
   bottom: 16px;
   right: 16px;
-  width: 440px;
+  width: min(680px, calc(100vw - 32px));
 }
 
 .debug-panel[data-panel="json"],
@@ -1468,6 +1468,7 @@ aside select {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   padding: 8px 12px;
   background: color-mix(in oklch, var(--text-primary, oklch(100% 0 0)) 6%, var(--bg-card, oklch(22% 0.01 260)));
   border-bottom: 1px solid var(--border-color, oklch(35% 0.01 260));

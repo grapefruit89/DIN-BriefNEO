@@ -139,6 +139,25 @@ export function createDebugPanel(rootEl, options) {
   }
 
   /**
+   * Clamps coordinates so panel stays fully within the visible viewport.
+   * Panel right edge never exceeds viewport (all buttons visible).
+   * Panel header is always reachable at top and bottom.
+   * @param {number} left
+   * @param {number} top
+   * @returns {{ left: number, top: number }}
+   */
+  function clampToViewport(left, top) {
+    const width = rootEl.offsetWidth || 440;
+    const minVisibleHeight = 60;
+    const maxLeft = Math.max(0, window.innerWidth - width);
+    const maxTop = Math.max(0, window.innerHeight - minVisibleHeight);
+    return {
+      left: Math.max(0, Math.min(Math.round(left), maxLeft)),
+      top: Math.max(0, Math.min(Math.round(top), maxTop))
+    };
+  }
+
+  /**
    * @param {number} left
    * @param {number} top
    * @param {boolean} [persist=true]
@@ -153,14 +172,13 @@ export function createDebugPanel(rootEl, options) {
     rootEl.style.right = '';
     rootEl.style.bottom = '';
 
-    const roundX = Math.round(left);
-    const roundY = Math.round(top);
-    rootEl.style.setProperty('--drag-x', `${roundX}px`);
-    rootEl.style.setProperty('--drag-y', `${roundY}px`);
+    const clamped = clampToViewport(left, top);
+    rootEl.style.setProperty('--drag-x', `${clamped.left}px`);
+    rootEl.style.setProperty('--drag-y', `${clamped.top}px`);
 
     if (persist) {
       localStorage.setItem(modeKey, 'floating');
-      localStorage.setItem(posKey, JSON.stringify({ left: roundX, top: roundY }));
+      localStorage.setItem(posKey, JSON.stringify({ left: clamped.left, top: clamped.top }));
     }
   }
 
@@ -189,6 +207,17 @@ export function createDebugPanel(rootEl, options) {
       if (rawPos) {
         const { left, top } = JSON.parse(rawPos);
         if (typeof left === 'number' && typeof top === 'number') {
+          const width = rootEl.offsetWidth || 440;
+          const minVisibleHeight = 60;
+          const maxLeft = Math.max(0, window.innerWidth - width);
+          const maxTop = Math.max(0, window.innerHeight - minVisibleHeight);
+
+          // Validierung: Falls außerhalb des sichtbaren Viewports -> Reset auf Default
+          if (left < 0 || left > maxLeft || top < 0 || top > maxTop) {
+            resetToDefault();
+            return;
+          }
+
           applyFloating(left, top, false);
           return;
         }
@@ -280,13 +309,13 @@ export function createDebugPanel(rootEl, options) {
         localStorage.setItem(modeKey, 'left');
         localStorage.removeItem(posKey);
       } else {
-        const rect = rootEl.getBoundingClientRect();
         const dragX = parseFloat(rootEl.style.getPropertyValue('--drag-x'));
         const dragY = parseFloat(rootEl.style.getPropertyValue('--drag-y'));
-        const finalLeft = !isNaN(dragX) ? Math.round(dragX) : Math.round(rect.left || 0);
-        const finalTop = !isNaN(dragY) ? Math.round(dragY) : Math.round(rect.top || 0);
-        localStorage.setItem(modeKey, 'floating');
-        localStorage.setItem(posKey, JSON.stringify({ left: finalLeft, top: finalTop }));
+        const clamped = clampToViewport(
+          !isNaN(dragX) ? dragX : (rootEl.offsetLeft || 0),
+          !isNaN(dragY) ? dragY : (rootEl.offsetTop || 0)
+        );
+        applyFloating(clamped.left, clamped.top, true);
       }
     };
 
@@ -389,6 +418,20 @@ export function createDebugPanel(rootEl, options) {
   }
 
   restorePosition();
+
+  // Viewport-Resize: Panel innerhalb der sichtbaren Grenzen halten
+  window.addEventListener('resize', () => {
+    if (rootEl.dataset.mode === 'floating') {
+      const curX = parseFloat(rootEl.style.getPropertyValue('--drag-x'));
+      const curY = parseFloat(rootEl.style.getPropertyValue('--drag-y'));
+      if (!isNaN(curX) && !isNaN(curY)) {
+        const clamped = clampToViewport(curX, curY);
+        if (clamped.left !== curX || clamped.top !== curY) {
+          applyFloating(clamped.left, clamped.top, true);
+        }
+      }
+    }
+  });
 
   const controller = {
     rootEl,

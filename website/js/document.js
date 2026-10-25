@@ -264,6 +264,23 @@ export class UIProtections {
           }
         } else {
           keyboardEvent.preventDefault();
+          const addressFlow = [
+            'empfaenger-namenszeile',
+            'empfaenger-strasse',
+            'empfaenger-ort',
+            'empfaenger-firma',
+            'betreff',
+          ];
+          const idx = addressFlow.indexOf(target.id);
+          if (idx !== -1 && idx < addressFlow.length - 1) {
+            for (let i = idx + 1; i < addressFlow.length; i++) {
+              const nextEl = document.getElementById(addressFlow[i]);
+              if (nextEl && nextEl.offsetParent !== null && window.getComputedStyle(nextEl).display !== 'none') {
+                nextEl.focus();
+                break;
+              }
+            }
+          }
         }
       }
     });

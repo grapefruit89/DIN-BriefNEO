@@ -483,7 +483,7 @@ export function parseDinLetterPayload(text) {
   let data;
   try {
     data = JSON.parse(text);
-  } catch (e) {
+  } catch {
     return { ok: false, reason: 'Keine gültige JSON-Datei.' };
   }
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
@@ -802,7 +802,7 @@ export function initImportExport({ collectDraft } = {}) {
       migrateStorage();
       pendingImport = null;
       location.reload();
-    } catch (e) {
+    } catch {
       notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
     }
   });

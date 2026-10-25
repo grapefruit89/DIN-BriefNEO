@@ -168,7 +168,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
   it('parseDinLetterPayload toleriert UTF-8-BOM (Grok F4)', () => {
     const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { betreff: 'BOM' } });
-    const result = parseDinLetterPayload('\uFEFF' + payload);
+    const result = parseDinLetterPayload(`\uFEFF${payload}`);
     assert(result.ok, 'BOM-präfixtes JSON wird akzeptiert');
   });
 

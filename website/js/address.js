@@ -1196,7 +1196,7 @@ export class AddressIntelligence {
 
     try {
       /** @type {HTMLElement & { showPopover: () => void }} */ (popoverEl).showPopover();
-    } catch (e) {}
+    } catch {}
   }
 
   /**
@@ -1206,7 +1206,7 @@ export class AddressIntelligence {
     if (!el) return;
     try {
       /** @type {HTMLElement & { hidePopover: () => void }} */ (el).hidePopover();
-    } catch (e) {}
+    } catch {}
   }
 
   /**
@@ -1236,8 +1236,8 @@ function abbreviateName(fullName) {
   if (idx >= parts.length - 1) return fullName;
   const firstName = parts[idx];
   const rest = parts.slice(idx + 1).join(' ');
-  const prefix = titles.length ? titles.join(' ') + ' ' : '';
-  return prefix + firstName.charAt(0).toUpperCase() + '. ' + rest;
+  const prefix = titles.length ? `${titles.join(' ')} ` : '';
+  return `${prefix}${firstName.charAt(0).toUpperCase()}. ${rest}`;
 }
 
 /**
@@ -1785,7 +1785,7 @@ export function initAddressServices() {
         setGeoapifyState('valid');
         setContainerVisible(false);
       }
-    } catch (err) {
+    } catch {
       if (!inputGeoapifyKey || inputGeoapifyKey.value.trim() !== key) return;
       // Netzwerk/Timeout: Key behalten und valid bleiben (Offline-Resilienz)
       save(STORAGE_KEYS.geoapifyKey, key);
@@ -1855,7 +1855,7 @@ export function initAddressServices() {
     const query = inputAddressSearch.value.trim();
 
     if (query.length < 3) {
-      try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
+      try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch {}
       return;
     }
 
@@ -1887,7 +1887,7 @@ export function initAddressServices() {
 
     // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
     const lock = AddressIntelligence.targetLock;
-    const cacheKey = `${lock ? lock.plz + ' ' : ''}${query}`.toLowerCase();
+    const cacheKey = `${lock ? `${lock.plz} ` : ''}${query}`.toLowerCase();
     if (apiCache.has(cacheKey)) {
       mergeAndRender(localMatches, apiCache.get(cacheKey) || [], query);
       return;
@@ -1923,7 +1923,7 @@ export function initAddressServices() {
           if (hint) hint.textContent = 'Key abgelaufen (401/403)';
           notify(Constants.TOASTS.GEOAPIFY.KEY_EXPIRED, 'error');
         } else {
-          console.warn('[Address] Autocomplete HTTP ' + response.status);
+          console.warn(`[Address] Autocomplete HTTP ${response.status}`);
           notify(Constants.TOASTS.GEOAPIFY.UNAVAILABLE(response.status), 'warning');
         }
         return;
@@ -1982,7 +1982,7 @@ export function initAddressServices() {
     inputAddressSearch?.removeAttribute('aria-activedescendant');
 
     if (suggestions.length === 0) {
-      try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
+      try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch {}
       return;
     }
 
@@ -1995,7 +1995,7 @@ export function initAddressServices() {
       statusLi.setAttribute('aria-selected', 'false');
       statusLi.textContent = `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`;
       addressSuggestions.appendChild(statusLi);
-      try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch(e) {}
+      try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch {}
       return;
     }
 
@@ -2020,7 +2020,7 @@ export function initAddressServices() {
       addressSuggestions.appendChild(li);
     });
 
-    try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch(e) {}
+    try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch {}
   }
 
   /**
@@ -2037,7 +2037,7 @@ export function initAddressServices() {
       empfOrt.textContent = `${item.postcode} ${item.city}`.trim();
     }
 
-    try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch(e) {}
+    try { (/** @type {HTMLElement & { hidePopover: () => void }} */ (addressSuggestions)).hidePopover(); } catch {}
     if (inputAddressSearch) inputAddressSearch.value = '';
 
     saveToLocalAddressBook(item);

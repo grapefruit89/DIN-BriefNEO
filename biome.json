@@ -19,24 +19,66 @@
 		"enabled": true,
 		"rules": {
 			"preset": "recommended",
-			"correctness": {
-				"noUnusedVariables": "warn",
-				"noUnusedImports": "error"
-			},
-			"style": {
-				"useConst": "error"
-			},
 			"suspicious": {
-				"noAssignInExpressions": "error",
+				"noControlCharactersInRegex": "off",
 				"useIterableCallbackReturn": "error",
-				"noControlCharactersInRegex": "off"
-			},
-			"performance": {
-				"useDomNodeTextContent": "error"
+				"noAssignInExpressions": "error"
 			},
 			"complexity": {
-				"useOptionalChain": "error"
+				"useOptionalChain": "error",
+				"useSimplifiedLogicExpression": "warn",
+				"noUselessTernary": "warn"
+			},
+			"performance": {
+				"useDomNodeTextContent": "error",
+				"noDelete": "warn"
+			},
+			"style": {
+				"useConst": "error",
+				"useTemplate": "error",
+				"useNodejsImportProtocol": "error",
+				"useNumberNamespace": "warn",
+				"noNonNullAssertion": "warn",
+				"useArrayLiterals": "warn"
+			},
+			"correctness": {
+				"noUnusedVariables": "error",
+				"noUnusedImports": "error"
 			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"enabled": false
+		},
+		"globals": [
+			"document",
+			"window",
+			"localStorage",
+			"sessionStorage",
+			"navigator",
+			"console",
+			"fetch",
+			"performance",
+			"URL",
+			"URLSearchParams",
+			"HTMLElement",
+			"CustomEvent",
+			"InputEvent",
+			"KeyboardEvent",
+			"MouseEvent",
+			"PointerEvent",
+			"Event",
+			"MutationObserver",
+			"DecompressionStream",
+			"Blob",
+			"Response",
+			"Request"
+		]
+	},
+	"json": {
+		"formatter": {
+			"enabled": false
 		}
 	}
 }

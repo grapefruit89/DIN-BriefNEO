@@ -161,9 +161,9 @@ function initApp() {
 
   /**
    * @param {DraftManager} draftManager
-   * @param {UIProtections} uiProtections
+   * @param {UIProtections} [_uiProtections]
    */
-  function attachGlobalListeners(draftManager, uiProtections) {
+  function attachGlobalListeners(draftManager, _uiProtections) {
     const btnPrint = document.getElementById('btn-print');
     const btnReset = document.getElementById('btn-reset');
     /** @type {any} */
@@ -518,11 +518,11 @@ function extractNachname(fullName) {
 /**
  * Leitet die Anrede ab: Prüft recipient.geschlecht (m/w/d), nutzt ansonsten
  * die SalutationEngine als Fallback und endet bei neutralem DIN-Standard.
- * @param {any} sender
+ * @param {any} _sender
  * @param {any} recipient
  * @returns {string}
  */
-function deriveAnrede(sender, recipient) {
+function deriveAnrede(_sender, recipient) {
   if (recipient?.geschlecht) {
     const nachname = extractNachname(recipient.buergerlicherName || recipient.name);
     if (recipient.geschlecht === 'm') return `Sehr geehrter Herr ${nachname},`;

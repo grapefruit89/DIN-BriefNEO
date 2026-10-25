@@ -861,20 +861,39 @@ input[type="checkbox"][switch] {
   color: var(--text-primary);
 }
 
-/* Modus-Steuerung (Brief vs. Einstellungen) */
+/* Modus-Steuerung (Brief vs. Einstellungen via CSS :has) */
+#seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup,
 #seitenleiste[data-modus="brief"] #zone-setup {
   display: none;
 }
 
+#seitenleiste:has(#toggle-modus:checked) #zone-dokument,
+#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
 #seitenleiste[data-modus="einstellungen"] #zone-dokument,
 #seitenleiste[data-modus="einstellungen"] #zone-werkzeuge {
   display: none;
 }
 
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-print,
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset,
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen .seitenleiste-divider,
 #seitenleiste[data-modus="einstellungen"] #zone-aktionen #btn-print,
 #seitenleiste[data-modus="einstellungen"] #zone-aktionen #btn-reset,
 #seitenleiste[data-modus="einstellungen"] #zone-aktionen .seitenleiste-divider {
   display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #btn-einstellungen,
+#seitenleiste:has(#toggle-modus:checked) label[for="toggle-modus"] {
+  background: var(--segment-active-bg, oklch(35% 0.02 260));
+  color: var(--accent-color, oklch(75% 0.16 240));
+}
+
+#toggle-modus:focus-visible ~ .seitenleiste-header-row #btn-einstellungen,
+#btn-einstellungen:focus-visible,
+#btn-zurueck:focus-visible {
+  outline: 2px solid var(--accent-color, oklch(75% 0.16 240));
+  outline-offset: 2px;
 }
 
 .seitenleiste-back-btn {

@@ -44,10 +44,12 @@ export class SettingsManager {
     this.settings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
+    this.seitenleiste = document.getElementById('seitenleiste');
+    this.btnEinstellungen = document.getElementById('btn-einstellungen');
+    this.btnZurueck = document.getElementById('btn-zurueck');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
-    this.btnCopyfitSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-copyfit'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
@@ -82,9 +84,6 @@ export class SettingsManager {
     if (this.btnGuidesSwitch) {
       this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
     }
-    if (this.btnCopyfitSwitch) {
-      this.btnCopyfitSwitch.checked = Boolean(this.settings.copyfit);
-    }
   }
 
   /**
@@ -117,6 +116,24 @@ export class SettingsManager {
       updateDOM();
     }
     this.#themeBooted = true;
+  }
+
+  /**
+   * Schaltet zwischen Brief-Modus und Einstellungs-Modus der Seitenleiste um.
+   * @param {'brief' | 'einstellungen'} [force]
+   */
+  toggleSettingsModus(force) {
+    const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
+    if (!toggle) return;
+    const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
+    toggle.checked = isChecked;
+    toggle.dispatchEvent(new Event('change', { bubbles: true }));
+    if (this.btnEinstellungen) {
+      this.btnEinstellungen.setAttribute('aria-pressed', String(isChecked));
+      this.btnEinstellungen.classList.toggle('active', isChecked);
+      this.btnEinstellungen.setAttribute('title', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
+      this.btnEinstellungen.setAttribute('aria-label', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
+    }
   }
 
   /**
@@ -238,6 +255,13 @@ export class SettingsManager {
       });
     }
 
+    if (this.btnZurueck) {
+      this.btnZurueck.addEventListener('click', () => {
+        if (!this.isReady) return;
+        this.toggleSettingsModus('brief');
+      });
+    }
+
     if (this.btnThemeToggle) {
       this.btnThemeToggle.addEventListener('click', () => {
         if (!this.isReady) return;
@@ -265,16 +289,6 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.guides = guidesSwitch.checked;
         this.updateSettings();
-      });
-    }
-
-    const copyfitSwitch = this.btnCopyfitSwitch;
-    if (copyfitSwitch) {
-      copyfitSwitch.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.copyfit = copyfitSwitch.checked;
-        this.updateSettings();
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
 

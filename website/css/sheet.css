@@ -64,22 +64,31 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   [contenteditable] {
-    /* field-sizing: content wirkt nur auf Form-Controls, nicht auf contenteditable */
-    outline: none;
-    outline-offset: 2px;
-    border-radius: 4px;
+    /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
+    outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
+    outline-offset: -1px;
+    border-radius: 3px;
     background: transparent;
-    transition: outline 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
   }
 
-  [contenteditable]:hover {
-    outline: 1px dashed oklch(from var(--accent-color) l c h / 40%);
-    outline-offset: 2px;
+  /* Wenn der Hilfslinien-Schalter ausgeschaltet ist, verschwinden die gestrichelten Linien im Ruhezustand */
+  :root:not(:has(#btn-hilfslinien-switch:checked)) & [contenteditable]:not(:hover):not(:focus) {
+    outline: none;
+  }
+
+  [contenteditable]:hover:not(:focus) {
+    /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
+    outline: 1.5px solid var(--accent-color);
+    outline-offset: -1.5px;
+    background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
   }
 
   [contenteditable]:focus {
+    /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
     outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
+    outline-offset: -2px;
+    background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
   }
 
   /* Placeholder support for contenteditable */
@@ -130,8 +139,8 @@ body:has(#btn-form-a:checked) din-blatt {
     height: --mm-y(attr(data-h type(<number>)));
     font-size: --pt(attr(data-font type(<number>))); /* 8pt in cqw */
     white-space: nowrap;
-    text-fit: shrink; /* Chrome 150+ (contain ist laut Spec/css-text-5 ungültig) */
-    text-box: trim-both cap text;
+    overflow: hidden;
+    text-overflow: ellipsis;
     border-radius: 0;
   }
 
@@ -173,7 +182,7 @@ body:has(#btn-form-a:checked) din-blatt {
     left: --mm-x(attr(data-x type(<number>)));
     width: --mm-x(attr(data-w type(<number>)));
     font-size: --pt(attr(data-font type(<number>))); /* 8.5pt in cqw */
-    line-height: 1.5;
+    line-height: 1.4;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -203,29 +212,27 @@ body:has(#btn-form-a:checked) din-blatt {
   #betreff {
     font-size: --pt(attr(data-font type(<number>))); /* 12pt in cqw */
     font-weight: 700;
+    line-height: 1.4;
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 2 Leerzeilen */
-    text-fit: shrink; /* Verhindert Witwen in der 2. Zeile, falls Stauchung nicht reicht (contain = ungültig, css-text-5) */
     text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
-    text-box: trim-both cap text;
+    flex-shrink: 0;
   }
 
   #anrede {
     font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 1 Leerzeile */
-    text-box: trim-both cap text;
   }
 
   #text {
     font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
     line-height: 1.4;
-    outline: none;
     min-height: --mm-y(40);
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
     orphans: 3;
     widows: 3;
-    text-box: trim-both cap text;
+    flex-shrink: 0; /* Verhindert Stauchung und Überlappung mit Grußformel */
   }
 
   #grussformel {
@@ -234,13 +241,12 @@ body:has(#btn-form-a:checked) din-blatt {
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 3 Leerzeilen für Unterschrift */
     break-after: avoid;
     page-break-after: avoid;
-    text-box: trim-both cap text;
+    flex-shrink: 0;
   }
 
   #unterschrift {
     font-size: --pt(attr(data-font type(<number>)));
     font-weight: 500;
-    text-box: trim-both cap text;
   }
 
   /* --- WHATSAPP-STYLE INLINE FORMATS --- */
@@ -345,10 +351,10 @@ din-vermerke[data-visible="true"] {
 din-vermerke {
   font-size: --pt(attr(data-font type(<number>)));
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.4;
   margin-bottom: 0.5cqh;
-  text-box: trim-both cap text;
   white-space: pre-wrap;
+  flex-shrink: 0;
 }
 
 din-anlagenvermerk {
@@ -364,39 +370,48 @@ din-anlagenvermerk {
   display: none !important;
 }
 
-/* Single-Line & Nativer Text-Fit */
+/* Single-Line: Strikt einzeilig mit unveränderlicher, fixer Zeilenhöhe (Kein Stauchen, Kein Wachsen) */
 .single-line {
   white-space: nowrap;
-  overflow: clip;
+  overflow: hidden;
   text-overflow: ellipsis;
-  text-fit: shrink;
-  max-height: 1.5em;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
   line-height: 1.4;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .single-line[contenteditable]:focus {
-  overflow: visible;
-  text-overflow: unset;
-  max-height: none;
+  /* Kein vertikales Überlaufen benachbarter Zeilen: horizontal mitwandern */
+  text-overflow: clip;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
 }
 
-#anschriftfeld,
-#infoblock,
-#kern,
-#anrede,
-#grussformel,
-#unterschrift {
-  text-fit: shrink 60%;
+.single-line[contenteditable]:focus::-webkit-scrollbar {
+  display: none;
+}
+
+#anschriftfeld > *,
+#infoblock > * {
+  flex-shrink: 0;
 }
 
 /* Anchors auf dem Blatt */
-#empfaenger-ort { anchor-name: --anchor-empfaenger-ort; }
+#empfaenger-ort { anchor-name: --anchor-ort, --anchor-empfaenger-ort; }
+#empfaenger-firma { anchor-name: --anchor-firma, --anchor-empfaenger-firma; }
 #absender-tel { margin-top: 8px; }
 .unterschrift-zeile {
   position: relative;
   margin-top: 10px;
   break-inside: avoid;
   page-break-inside: avoid;
+  flex-shrink: 0;
 }
 
 /* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
@@ -488,30 +503,30 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   filter: contrast(1.15) brightness(1.05);
 }
 
-/* --- MICRO-COPYFITTING (KOMPAKTSATZ / MESSSCHIEBER-MODUS) --- */
-:root:has(#toggle-copyfit:checked) {
-  --copyfit-font-size: --pt(10.2);
-  --copyfit-line-height: 1.34;
-  --copyfit-word-spacing: -0.035em;
+/* --- D1: OVERFLOW-INDIKATOR (Zero-Druck-Garantie) --- */
+din-blatt[data-ueberlauf="true"]::after {
+  content: "⚠️ Text übersteigt Seite 1 (ca. +" attr(data-ueberlauf-zeilen) " Zeilen)";
+  position: absolute;
+  bottom: 8px;
+  right: 20px;
+  font-size: 11px;
+  font-family: var(--font-system-stack, sans-serif);
+  font-weight: 500;
+  color: oklch(55% 0.18 35);
+  background: oklch(95% 0.04 80 / 0.9);
+  border: 1px solid oklch(75% 0.15 65 / 0.5);
+  border-radius: 4px;
+  padding: 3px 8px;
+  pointer-events: none;
+  z-index: 50;
+  line-height: 1.2;
 }
 
-:root:has(#toggle-copyfit:checked) #text {
-  font-size: var(--copyfit-font-size);
-  line-height: var(--copyfit-line-height);
-  word-spacing: var(--copyfit-word-spacing);
+@media print {
+  din-blatt[data-ueberlauf="true"]::after {
+    display: none !important;
+  }
 }
 
-:root:has(#toggle-copyfit:checked) #text p {
-  margin-block-end: 0.8em; /* Staucht Absatz-Puffer */
-}
-
-:root:has(#toggle-copyfit:checked) #unterschrift {
-  margin-block-start: --mm-y(9); /* Reduziert von ~12.7mm auf 9mm */
-}
-
-:root:has(#toggle-copyfit:checked) #kern {
-  bottom: --mm-y(25); /* 5mm Satzspiegel-Gewinn unten */
-  padding-block-end: --mm-y(25);
-}
 
 

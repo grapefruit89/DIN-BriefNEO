@@ -1164,8 +1164,8 @@ input[type="checkbox"][switch] {
 
 #plz-suggestions-popover {
   position: absolute;
-  position-anchor: --anchor-empfaenger-ort;
-  position-area: bottom span-right;
+  position-anchor: --anchor-ort;
+  position-area: block-end span-inline-start;
   position-try-fallbacks: flip-block;
   margin-top: 4px;
   min-width: max(300px, anchor-size(width));
@@ -1186,6 +1186,12 @@ input[type="checkbox"][switch] {
     transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
     display 0.15s allow-discrete,
     overlay 0.15s allow-discrete;
+}
+
+#anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,
+:has(#empfaenger-firma:focus) #plz-suggestions-popover,
+body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
+  position-anchor: --anchor-firma;
 }
 
 #plz-suggestions-popover:popover-open {

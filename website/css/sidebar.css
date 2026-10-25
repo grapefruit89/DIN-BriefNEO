@@ -1162,7 +1162,8 @@ input[type="checkbox"][switch] {
   font-weight: 700;
 }
 
-#plz-suggestions-popover {
+#plz-suggestions-popover,
+#plz-suggestions-popover[popover] {
   position: absolute;
   position-anchor: --anchor-ort;
   position-area: block-end span-inline-start;
@@ -1180,12 +1181,8 @@ input[type="checkbox"][switch] {
   padding: 4px;
   list-style: none;
   opacity: 0;
-  transform: translateY(-5px);
-  transition: 
-    opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-    display 0.15s allow-discrete,
-    overlay 0.15s allow-discrete;
+  transition: opacity 0.15s ease-out, display 0.15s allow-discrete,
+              overlay 0.15s allow-discrete;
 }
 
 #anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,
@@ -1194,16 +1191,16 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   position-anchor: --anchor-firma;
 }
 
-#plz-suggestions-popover:popover-open {
+#plz-suggestions-popover:popover-open,
+#plz-suggestions-popover[popover]:popover-open {
   display: block;
   opacity: 1;
-  transform: translateY(0);
 }
 
 @starting-style {
-  #plz-suggestions-popover:popover-open {
+  #plz-suggestions-popover:popover-open,
+  #plz-suggestions-popover[popover]:popover-open {
     opacity: 0;
-    transform: translateY(-5px);
   }
 }
 

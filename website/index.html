@@ -13,22 +13,35 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/sheet.css">
-    <link rel="stylesheet" href="css/print.css" media="print">
-    <script src="js/boot-theme.js"></script>
-    <script type="module" src="js/main.js"></script>
+    <link rel="stylesheet" href="css/base.css?v=live6">
+    <link rel="stylesheet" href="css/sidebar.css?v=live6">
+    <link rel="stylesheet" href="css/sheet.css?v=live6">
+    <link rel="stylesheet" href="css/print.css?v=live6" media="print">
+    <script src="js/boot-theme.js?v=live6"></script>
+    <script type="module" src="js/main.js?v=live6"></script>
   </head>
   <body>
     <div id="app-shell">
-      <aside id="seitenleiste" class="seitenleiste nicht-drucken">
+      <aside id="seitenleiste" class="seitenleiste nicht-drucken" data-modus="brief">
         <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>
         <div class="seitenleiste-header-row">
-          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="seitenleiste-build-info btn-ghost seitenleiste-github-link" aria-label="GitHub Repository">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27-.01-1.13-.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg> GitHub
+          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository" title="GitHub Repository">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
+            </svg>
           </a>
-          <button type="button" id="btn-theme-toggle" class="seitenleiste-build-info btn-ghost theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-erscheinungsbild="auto" title="Darstellung: Automatisch (System)"></button>
+          <div class="seitenleiste-header-actions">
+            <button type="button" id="btn-einstellungen" class="icon-btn" aria-label="Einstellungen öffnen" title="Einstellungen" aria-pressed="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button type="button" id="btn-theme-toggle" class="icon-btn theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-erscheinungsbild="auto" title="Darstellung: Automatisch (System)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-auto lucide lucide-sun-moon" aria-hidden="true"><path d="M12 2v2"></path><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"></path><path d="M16 12a4 4 0 0 0-4-4"></path><path d="m19 5-1.256 1.256"></path><path d="M20 12h2"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-light lucide lucide-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-dark lucide lucide-moon-star" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></svg>
+            </button>
+          </div>
         </div>
 
         <!-- Zone 1: Brief-Steuerung -->
@@ -49,11 +62,6 @@
               <label for="btn-hilfslinien-switch" class="seitenleiste-label">Hilfslinien</label>
               <input type="checkbox" switch id="btn-hilfslinien-switch" checked>
             </div>
-
-            <div class="seitenleiste-switch-row">
-              <label for="toggle-copyfit" class="seitenleiste-label">Kompaktsatz (1 Seite)</label>
-              <input type="checkbox" switch id="toggle-copyfit">
-            </div>
           </div>
 
           <hr class="seitenleiste-divider">
@@ -70,8 +78,8 @@
             </div>
 
             <div class="seitenleiste-field-group">
-              <label for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
-              <select id="seitenleiste-postvermerk-select" class="seitenleiste-select seitenleiste-postvermerk-select" aria-label="Postvermerk wählen">
+              <label id="label-postvermerk" for="btn-postvermerk-trigger" class="seitenleiste-label">Postvermerk</label>
+              <select id="seitenleiste-postvermerk-select" class="sr-only" aria-label="Postvermerk wählen" tabindex="-1">
                 <option value="">— kein —</option>
                 <optgroup label="Versandarten">
                   <option value="Einschreiben">Einschreiben</option>
@@ -90,6 +98,50 @@
                   <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
                 </optgroup>
               </select>
+
+              <button id="btn-postvermerk-trigger" type="button" class="seitenleiste-select" popovertarget="postvermerk-popover" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="label-postvermerk postvermerk-trigger-label">
+                <span id="postvermerk-trigger-label">— kein —</span>
+                <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+
+              <div id="postvermerk-popover" popover="auto" class="dropdown-popover nicht-drucken" role="listbox" aria-label="Postvermerk Optionen">
+                <button type="button" class="popover-item popover-item-none" role="option" data-value="" aria-selected="true">
+                  <span class="item-icon" aria-hidden="true">✕</span>
+                  <span class="item-label">— kein —</span>
+                </button>
+
+                <div class="popover-group group-versand">
+                  <div class="popover-group-header">
+                    <svg class="group-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <span>Versandarten</span>
+                  </div>
+                  <div class="popover-group-items">
+                    <button type="button" class="popover-item" role="option" data-value="Einschreiben">Einschreiben</button>
+                    <button type="button" class="popover-item" role="option" data-value="Einschreiben Einwurf">Einschreiben Einwurf</button>
+                    <button type="button" class="popover-item" role="option" data-value="Einschreiben Rückschein">Einschreiben Rückschein</button>
+                    <button type="button" class="popover-item" role="option" data-value="Einschreiben Wert">Einschreiben Wert</button>
+                    <button type="button" class="popover-item" role="option" data-value="Warensendung">Warensendung</button>
+                    <button type="button" class="popover-item" role="option" data-value="Büchersendung">Büchersendung</button>
+                    <button type="button" class="popover-item" role="option" data-value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</button>
+                  </div>
+                </div>
+
+                <div class="popover-divider"></div>
+
+                <div class="popover-group group-vertraulich">
+                  <div class="popover-group-header">
+                    <svg class="group-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>Vertraulichkeit</span>
+                  </div>
+                  <div class="popover-group-items">
+                    <button type="button" class="popover-item" role="option" data-value="Persönlich">Persönlich</button>
+                    <button type="button" class="popover-item" role="option" data-value="Vertraulich">Vertraulich</button>
+                    <button type="button" class="popover-item" role="option" data-value="Persönlich / Vertraulich">Persönlich / Vertraulich</button>
+                    <button type="button" class="popover-item" role="option" data-value="Nicht nachsenden!">Nicht nachsenden!</button>
+                    <button type="button" class="popover-item" role="option" data-value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -116,7 +168,7 @@
             <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
             <input type="text" inputmode="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort..." autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
             <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
-            <ul id="plz-suggestions-popover" popover="manual" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
           </search>
 
           <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
@@ -130,8 +182,10 @@
         </section>
 
         <!-- Zone 3: Grundeinstellungen & Setup -->
-        <details id="zone-setup" class="seitenleiste-setup">
-          <summary>⚙️ Einstellungen &amp; Assets</summary>
+        <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup">
+          <div class="seitenleiste-setup-header">
+            <button type="button" id="btn-zurueck" class="btn-ghost seitenleiste-back-btn" aria-label="Zurück zum Brief">← Zurück zum Brief</button>
+          </div>
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
               <label for="style-select" class="seitenleiste-sub-label">Darstellung:</label>
@@ -162,15 +216,17 @@
               <span class="seitenleiste-sub-label">Adress-Autovervollständigung:</span>
               <button type="button" id="btn-geoapify-key" class="btn w-full" data-geoapify-state="empty" aria-expanded="false" aria-controls="geoapify-key-container" aria-label="Geoapify API-Key hinterlegen"></button>
               <div id="geoapify-key-container" class="seitenleiste-field-group" hidden>
-                <label for="input-geoapify-key" class="sr-only">Geoapify API-Key</label>
-                <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+                <form onsubmit="return false;" autocomplete="off">
+                  <label for="input-geoapify-key" class="sr-only">Geoapify API-Key</label>
+                  <input type="password" id="input-geoapify-key" class="input-field w-full" placeholder="API-Key eintragen..." autocomplete="off">
+                </form>
                 <span id="geoapify-status-hint" class="seitenleiste-status-hint" role="status"></span>
               </div>
             </div>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" title="DIN 5008 Hilfe" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
           </div>
-        </details>
+        </section>
 
         <!-- Zone 4: Fester Fußbereich -->
         <div id="zone-aktionen" class="seitenleiste-footer">
@@ -178,6 +234,15 @@
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
           </div>
           <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
+          <hr class="seitenleiste-divider">
+          <div class="seitenleiste-btn-row">
+            <button type="button" id="btn-testbrief" class="btn btn-ghost" title="Zufälligen Testbrief mit zwei Figuren generieren">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Testbrief
+            </button>
+            <button type="button" id="btn-felder-leeren" class="btn btn-ghost" title="Alle Textfelder sofort leeren">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg> Felder leeren
+            </button>
+          </div>
           <hr class="seitenleiste-divider">
           <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
         </div>
@@ -222,7 +287,7 @@
               <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
               <din-empfaenger-ort id="empfaenger-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
             </din-anschriftfeld>
-            <din-infoblock id="infoblock" data-x="125" data-w="75" data-font="8.5" role="group" aria-label="Infoblock">
+            <din-infoblock id="infoblock" data-x="125" data-w="65" data-font="8.5" role="group" aria-label="Infoblock">
               <din-absender-name id="absender-namenszeile" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Vor- und Nachname" aria-label="Name"></din-absender-name>
               <din-absender-strasse id="absender-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
               <din-absender-ort id="absender-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
@@ -230,7 +295,7 @@
               <din-absender-mail id="absender-mail" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" inputmode="email" spellcheck="false" autocapitalize="none" writingsuggestions="false" data-placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
               <din-bezugszeichen class="is-dormant"></din-bezugszeichen>
             </din-infoblock>
-            <din-datum id="datum" data-x="125" data-w="75" data-font="10" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
+            <din-datum id="datum" data-x="125" data-w="65" data-font="10" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
             <din-kern id="kern" data-left="25" data-right="20" data-bottom="30" role="region" aria-label="Briefkern">
               <din-betreff id="betreff" data-font="12" data-margin-bottom="8.46" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
               <din-teilbetreff class="is-dormant"></din-teilbetreff>
@@ -313,5 +378,37 @@
         <form method="dialog"><button class="btn primary">Verstanden</button></form>
       </div>
     </dialog>
+
+    <!-- Autocomplete-Recorder -->
+    <aside id="panel-autocomplete" class="debug-panel" data-panel="autocomplete" hidden>
+      <header class="debug-header" tabindex="0">
+        <span class="debug-title">Autocomplete Recorder</span>
+        <span class="debug-badge" data-state="live">LIVE</span>
+        <span class="debug-counter" id="rec-counter" data-role="counter">(0 von 0)</span>
+        <div class="debug-actions">
+          <label class="debug-filter"><input type="checkbox" id="rec-filter-empty" data-role="filter-empty"> Leere ausblenden</label>
+          <button type="button" class="debug-btn" id="rec-btn-copy-all" data-action="copy-all">📋 Alles</button>
+          <button type="button" class="debug-btn" id="rec-btn-clear" data-action="clear">🗑️ Leeren</button>
+          <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause">⏸️</button>
+          <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize">_</button>
+        </div>
+      </header>
+      <div class="debug-body" id="rec-body" data-role="body">
+        <div class="debug-empty" id="rec-empty">Warte auf Eingabe in #empfaenger-ort...</div>
+      </div>
+    </aside>
+
+    <!-- JSON-Panel -->
+    <aside id="panel-json" class="debug-panel" data-panel="json" hidden>
+      <header class="debug-header" tabindex="0">
+        <span class="debug-title">DIN-Letter JSON</span>
+        <div class="debug-actions">
+          <button type="button" class="debug-btn" id="json-btn-copy" data-action="copy" title="JSON kopieren">📋 Kopieren</button>
+          <button type="button" class="debug-btn" id="json-btn-clear" data-action="clear" title="Anzeige leeren">🗑️ Leeren</button>
+          <button type="button" class="debug-btn" id="json-btn-close" data-action="close" aria-label="Schließen" title="Schließen">✕</button>
+        </div>
+      </header>
+      <div class="debug-body" data-role="body"><pre><code id="json-debug-code"></code></pre></div>
+    </aside>
   </body>
 </html>

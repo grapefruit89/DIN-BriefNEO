@@ -1057,16 +1057,6 @@ export class AddressIntelligence {
 
     empfOrtEl.addEventListener('keydown', handleKeyNav);
     if (empfFirmaEl) empfFirmaEl.addEventListener('keydown', handleKeyNav);
-
-    // Hide suggestions on blur
-    empfOrtEl.addEventListener('blur', () => {
-      setTimeout(() => this.#hidePopover(suggestionsPopover), 200);
-    });
-    if (empfFirmaEl) {
-      empfFirmaEl.addEventListener('blur', () => {
-        setTimeout(() => this.#hidePopover(suggestionsPopover), 200);
-      });
-    }
   }
 
   /**
@@ -1151,7 +1141,7 @@ export class AddressIntelligence {
           if (isSelectionHandled) return;
           isSelectionHandled = true;
           if (e) e.preventDefault();
-          setTimeout(() => { isSelectionHandled = false; }, 200);
+          setTimeout(() => { isSelectionHandled = false; }, 100);
 
           // Wenn in der Stadtliste eine Stadt mit mehreren PLZs angeklickt wird: sofort PLZ-Liste öffnen!
           if (item.typ === 'Stadt' && !item.isSinglePlz) {

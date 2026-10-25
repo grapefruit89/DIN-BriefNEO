@@ -27,7 +27,6 @@ din-blatt {
   --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
-:root[data-layout="form-a"] din-blatt,
 body:has(#btn-form-a:checked) din-blatt {
   --absender-y: --mm-y(attr(data-absender-y-a type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));

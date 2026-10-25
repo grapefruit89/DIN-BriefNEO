@@ -65,7 +65,6 @@ export class SettingsManager {
 
   applySettings() {
     const layout = this.settings.layout || 'form-b';
-    document.documentElement.setAttribute('data-layout', layout);
     if (this.btnFormA && this.btnFormB) {
       if (layout === 'form-a') {
         /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;

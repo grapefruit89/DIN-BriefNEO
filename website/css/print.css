@@ -60,8 +60,7 @@ din-blatt {
   padding-bottom: 1.5pt !important;
 }
 
-#rucksendezeile:empty,
-#rucksendezeile.is-empty {
+#rucksendezeile:empty {
   border-bottom: none !important;
   padding-bottom: 0 !important;
 }

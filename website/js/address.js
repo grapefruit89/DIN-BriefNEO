@@ -442,7 +442,7 @@ export class AddressIntelligence {
         // Indizes für Case A, B, C aufbauen (< 15 ms)
         this.prefixIndex = buildPrefixIndex(this.plzToCity);
         this.ortIndex = buildOrtIndex(this.plzToCity);
-        this.ortList = Array.from(new Set(this.plzToCity.values())).sort((a, b) => a.localeCompare(b, 'de'));
+        this.ortList = Array.from(new Set(this.plzToCity.values())).toSorted((a, b) => a.localeCompare(b, 'de'));
         this.firmenIndex = buildFirmenIndex(this.grosskunden);
 
         this.isReady = true;
@@ -517,8 +517,8 @@ export class AddressIntelligence {
 
     // REGEL 1: Wenn <= 15 Treffer -> alle PLZs direkt anzeigen
     if (matches.length <= 15) {
-      matches.sort((a, b) => a.plz.localeCompare(b.plz, 'de'));
-      return matches.map(m => ({
+      const sortedMatches = matches.toSorted((a, b) => a.plz.localeCompare(b.plz, 'de'));
+      return sortedMatches.map(m => ({
         plz: m.plz,
         name: m.city,
         city: m.city,
@@ -530,7 +530,7 @@ export class AddressIntelligence {
     }
 
     // REGEL 2: Wenn > 15 Treffer -> Stadt-Zusammenfassung nach Häufigkeit
-    const sorted = Array.from(cityMap.entries()).sort((a, b) => {
+    const sorted = Array.from(cityMap.entries()).toSorted((a, b) => {
       const diff = b[1].length - a[1].length;
       if (diff !== 0) return diff;
       return a[0].localeCompare(b[0], 'de');
@@ -598,7 +598,7 @@ export class AddressIntelligence {
     // 1. Exakter Stadt-Treffer zuerst
     // 2. Städte mit mehreren PLZs (Großstädte/Zentren) vor 1-PLZ-Orten
     // 3. Alphabetisch
-    cityItems.sort((a, b) => {
+    const sortedCityItems = cityItems.toSorted((a, b) => {
       const aNorm = normalizeText(a.name);
       const bNorm = normalizeText(b.name);
       const aIsExact = aNorm === nq || a.name.toLowerCase() === rawQ.toLowerCase();
@@ -626,11 +626,11 @@ export class AddressIntelligence {
       district: this.districts.get(f.plz) || '',
       isSinglePlz: true
     }));
-    firmenItems.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    const sortedFirmenItems = firmenItems.toSorted((a, b) => a.name.localeCompare(b.name, 'de'));
 
-    const totalCount = cityItems.length + firmenItems.length;
+    const totalCount = sortedCityItems.length + sortedFirmenItems.length;
     // Städte immer zuerst, danach Firmen/Behörden
-    const items = [...cityItems, ...firmenItems].slice(0, limit);
+    const items = [...sortedCityItems, ...sortedFirmenItems].slice(0, limit);
 
     return { totalCount, items };
   }
@@ -677,7 +677,7 @@ export class AddressIntelligence {
     });
 
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
-    const sorted = filtered.slice().sort((a, b) => {
+    const sorted = filtered.toSorted((a, b) => {
       // Zustell-PLZs (mit Stadtteil) zuerst, danach Sonder-PLZs; jeweils aufsteigend nach PLZ
       const distA = this.districts.has(a) ? 1 : 0;
       const distB = this.districts.has(b) ? 1 : 0;

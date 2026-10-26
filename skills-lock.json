@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "architecture-analysis": {
+      "source": "hubvue/skills",
+      "sourceType": "github",
+      "skillPath": "fe-analysis/architecture-analysis/SKILL.md",
+      "computedHash": "e1f63bb6f170361ff0ca685da6347b89bcb49bfe185ea58ef42347e8a1200721"
+    },
+    "good-css": {
+      "source": "vojtaholik/good-css",
+      "sourceType": "github",
+      "skillPath": "skills/good-css/SKILL.md",
+      "computedHash": "882dc3f6cb2ad58b3569af84a8c67668cda0284b156b27f8a8d989bd98063958"
+    },
+    "modern-css": {
+      "source": "ccheney/robust-skills",
+      "sourceType": "github",
+      "skillPath": "skills/modern-css/SKILL.md",
+      "computedHash": "7f2aeb588e1887777daeffe649c09e4111c156dc46effb2c382d635570d838bb"
+    },
+    "modern-javascript": {
+      "source": "ccheney/robust-skills",
+      "sourceType": "github",
+      "skillPath": "skills/modern-javascript/SKILL.md",
+      "computedHash": "1c7944fbb9daeba46b3fb610931ce9582e95822c7fce750afda27de61730e1dd"
+    },
+    "ux-principles-skill": {
+      "source": "dereyurtali/ux-principles-skill",
+      "sourceType": "github",
+      "skillPath": "skills/ux-principles-skill/SKILL.md",
+      "computedHash": "d792898d41bc497d040c139bc426b34b72dbe315d5d7274086ce23aa09e638ba"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+    }
+  }
+}

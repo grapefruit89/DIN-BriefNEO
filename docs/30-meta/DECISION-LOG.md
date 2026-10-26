@@ -2114,3 +2114,14 @@ DIN 5008 geprüft.
 - adr-check: PASS
 - Grauzone-Literale unverändert (10)
 
+
+
+## 2026-10-25 – Built-in AI APIs abgelehnt
+
+Geprüft: Summarizer, Prompt, Proofreader, LanguageModel in Helium
+(Chromium 155). `availability()` liefert `"unavailable"`, `create()`
+wirft `NotSupportedError`. Grund: Helium hat keinen Omaha Component
+Updater, der das Gemini-Nano-Modell bezieht.
+
+Entscheidung: Keine Built-in AI. Testbrief Stufe 2 nutzt BYOK
+(Groq/Gemini). Details: `decision-built-in-ai.md`.

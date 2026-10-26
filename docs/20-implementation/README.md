@@ -14,6 +14,7 @@ doc_links:
   - Salutation-Engine
   - glossary
   - testing-guide
+  - icon-system-und-quellen
 error_patterns:
   - implementation
   - guide
@@ -40,6 +41,7 @@ Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen:
 | Guide | Thema |
 |---|---|
 | [[din-5008-css-architektur]] | DIN 5008 Layout-Philosophie + Chrome 150+ CSS-Feature-Referenz |
+| [[icon-system-und-quellen]] | Icon-System & SVG-Quellen (Lucide Icons & Design-System) |
 | [[geoapify-autocomplete]] | Adress-Autocomplete (Geoapify + Photon) |
 | [[no-scroll-techniques]] | Zero-Scroll-Policy: Techniken und Patterns |
 

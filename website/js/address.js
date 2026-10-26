@@ -678,10 +678,10 @@ export class AddressIntelligence {
 
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
     const sorted = filtered.toSorted((a, b) => {
-      // Zustell-PLZs (mit Stadtteil) zuerst, danach Sonder-PLZs; jeweils aufsteigend nach PLZ
-      const distA = this.districts.has(a) ? 1 : 0;
-      const distB = this.districts.has(b) ? 1 : 0;
-      if (distA !== distB) return distB - distA;
+      // Zustell-PLZ (mit Stadtteil oder nicht in grosskunden) vor reinen Grosskunden/Postfach; jeweils numerisch
+      const isSonderA = !this.districts.has(a) && this.grosskunden.has(a) ? 1 : 0;
+      const isSonderB = !this.districts.has(b) && this.grosskunden.has(b) ? 1 : 0;
+      if (isSonderA !== isSonderB) return isSonderA - isSonderB;
       return a.localeCompare(b, 'de');
     });
 

@@ -48,6 +48,11 @@
           </div>
         </div>
 
+        <div class="seitenleiste-export-group seitenleiste-btn-row">
+          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
+          <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
+        </div>
+
         <!-- Zone 1: Brief-Steuerung -->
         <section id="zone-dokument" class="seitenleiste-zone">
           <!-- 1. Format & Ansicht -->
@@ -178,10 +183,7 @@
           <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
           <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
 
-          <div class="seitenleiste-btn-row">
-            <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
-            <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
-          </div>
+          <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
           <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
 
           <details class="seitenleiste-field-group seitenleiste-demo-box">
@@ -249,9 +251,7 @@
           <div class="save-status-row">
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
           </div>
-          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
-          <hr class="seitenleiste-divider">
-          <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
+          <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
         </div>
       </aside>
       <main id="viewport">

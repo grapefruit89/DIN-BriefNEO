@@ -893,7 +893,8 @@ input[type="checkbox"][switch] {
 }
 
 #seitenleiste:has(#toggle-modus:checked) #zone-dokument,
-#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge {
+#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-export-group {
   display: none;
 }
 

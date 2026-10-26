@@ -1524,6 +1524,17 @@ export class ClipboardAddressParser {
 
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
+    // UX-4: Visuelles Feedback beim erfolgreichen Einfügen aus der Zwischenablage
+    const fieldsToFlash = [empfFirmaEl, empfNameEl, empfStrasseEl, empfOrtEl];
+    for (const f of fieldsToFlash) {
+      if (f) f.classList.add('flash-success');
+    }
+    setTimeout(() => {
+      for (const f of fieldsToFlash) {
+        if (f) f.classList.remove('flash-success');
+      }
+    }, 500);
+
     const label = candidate.firma || candidate.name || candidate.strasse;
     const toastMsg = Constants.TOASTS.CLIPBOARD.APPLIED(label, candidate.ort);
     eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'success' });

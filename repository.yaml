@@ -104,6 +104,8 @@ taxonomy:
     - specs
     - .github
     - .githooks
+    - .agents
+    - todo
     - build
   allowed_root_files:
     - AGENTS.md
@@ -119,6 +121,9 @@ taxonomy:
     - start.bat
     - start.sh
     - envelope.svg
+    - din5008.md
+    - TODO.md
+    - skills-lock.json
     - .gitignore
     - .gitattributes
   roles:
@@ -131,6 +136,8 @@ taxonomy:
     specs: Full-Mode-Specs (spec.md/plan.md)
     build: generiert, gitignored
     .github: CI-Workflows
+    .agents: Projekt-Skills (opencode-Discovery-Wurzel)
+    todo: Arbeitsvorrat und Planungsnotizen (keine lebende Doku)
 
 entrypoints:
   build: tools/build_db.js

@@ -1,0 +1,5695 @@
+{
+  "figuren": [
+    {
+      "name": "Agent Smith",
+      "buergerlicherName": "Agent Smith",
+      "alias": [
+        "Smith"
+      ],
+      "firma": "Maschinen",
+      "strasse": "Kein fester Ort (replikierendes Programm)",
+      "ort": "Matrix",
+      "franchise": "Matrix",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Ein Agentenprogramm, das sich im Verlauf der Reihe verselbstständigt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Ahri",
+      "buergerlicherName": "Ahri",
+      "alias": [],
+      "firma": null,
+      "strasse": "Ahri-Residenz 1",
+      "ort": "Ionia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Fuchsdämonin",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ahsoka Tano",
+      "buergerlicherName": "Ahsoka Tano",
+      "alias": [
+        "Asajj Ventress",
+        "Sabine Wren"
+      ],
+      "firma": null,
+      "strasse": "Jedi-Schiff T-6 Shuttle 1",
+      "ort": "Coruscant",
+      "franchise": "Star Wars",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Jedi-Kriegerin aus The Clone Wars",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Albert Wesker",
+      "buergerlicherName": "Albert Wesker",
+      "alias": [
+        "Wesker"
+      ],
+      "firma": "Umbrella Corporation",
+      "strasse": "Arklay-Forschungseinrichtung",
+      "ort": "Raccoon City, Vereinigte Staaten",
+      "franchise": "Resident Evil",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Ehemaliger S.T.A.R.S.-Offizier und zentraler Gegenspieler mehrerer Spiele.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Albus Dumbledore",
+      "buergerlicherName": "Albus Percival Wulfric Brian Dumbledore",
+      "alias": [
+        "Professor Dumbledore",
+        "Der alte Mann mit dem langen Bart"
+      ],
+      "firma": "Hogwarts",
+      "strasse": "Hogwarts-Schule für Hexerei und Zauberei",
+      "ort": "Schottland",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Mentor",
+      "hinweis": "Schulleiter von Hogwarts; die genaue Lage der Schule ist magisch verborgen.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Alfred Pennyworth",
+      "buergerlicherName": "Alfred Thaddeus Crane Pennyworth",
+      "alias": [
+        "Alfred",
+        "Penny-One",
+        "Der Butler"
+      ],
+      "firma": "Wayne-Familie",
+      "strasse": "Wayne Manor",
+      "ort": "Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Sidekick",
+      "hinweis": "Butler, Vertrauter und medizinischer Helfer von Bruce Wayne; vollständiger Name variiert nach Kontinuität.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Alphonse Elric",
+      "buergerlicherName": "Alphonse Elric",
+      "alias": [
+        "Al"
+      ],
+      "firma": "Staatsalchemisten-Prüfungskandidat (Amestris-Militär)",
+      "strasse": "Elric-Residenz (abgebrannt), Rizembool",
+      "ort": "Resembool, Amestris",
+      "franchise": "Fullmetal Alchemist",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Seele in einer Rüstung gebunden nach gescheiterter menschlicher Transmutation.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Alyx Vance",
+      "buergerlicherName": "Alyx Vance",
+      "alias": [
+        "Alyx"
+      ],
+      "firma": "Widerstand gegen die Combine",
+      "strasse": "Alyx Vance-Residenz 1",
+      "ort": "City 17",
+      "franchise": "Half-Life",
+      "medium": "Videospiel",
+      "rolle": "Sidekick",
+      "hinweis": "Wichtige Verbündete von Gordon Freeman und Hauptfigur des Spiels Half-Life: Alyx.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ambessa Medarda",
+      "buergerlicherName": "Ambessa Medarda",
+      "alias": [],
+      "firma": "Medarda Corporation",
+      "strasse": "Ambessa Medarda-Residenz 1",
+      "ort": "Piltover",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Mutter von Mel, Kriegsherrin",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Andrew Ryan",
+      "buergerlicherName": "Andrei Rianofski",
+      "alias": [
+        "Gründer von Rapture",
+        "Der Gründer Raptures"
+      ],
+      "firma": "Ryan Industries",
+      "strasse": "Ryan Amusements",
+      "ort": "Rapture",
+      "franchise": "BioShock",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Gründer der Unterwasserstadt Rapture; der Geburtsname wird in der Spielhandlung enthüllt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Annabeth Chase",
+      "buergerlicherName": "Annabeth Chase",
+      "alias": [
+        "Architektin des Olymps",
+        "Wise Girl"
+      ],
+      "firma": "Camp Half-Blood",
+      "strasse": "Camp Half-Blood",
+      "ort": "Long Island, New York",
+      "franchise": "Percy Jackson",
+      "medium": "Buch",
+      "rolle": "Mentor",
+      "hinweis": "Tochter der Athene und begabte Strategin.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Aquaman",
+      "buergerlicherName": "Arthur Curry",
+      "alias": [
+        "König von Atlantis",
+        "Orin",
+        "Meister der Meere"
+      ],
+      "firma": "Königreich Atlantis / Justice League",
+      "strasse": "Königspalast von Atlantis",
+      "ort": "Atlantis",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Halb Mensch (Arthur Curry), halb Atlanter (Sohn von Königin Atlanna).",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Aragorn",
+      "buergerlicherName": "Aragorn II. Elessar",
+      "alias": [
+        "Elessar",
+        "Streicher",
+        "König Elessar",
+        "König von Gondor"
+      ],
+      "firma": "Haus Isildur",
+      "strasse": "Königspalast",
+      "ort": "Minas Tirith, Gondor",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Wird nach dem Ringkrieg König von Gondor und Arnor.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Arbiter",
+      "buergerlicherName": "Thel 'Vadamee",
+      "alias": [
+        "Thel 'Vadam"
+      ],
+      "firma": "Sangheili (Kriegerkaste), ehem. Covenant, später Verbündeter",
+      "strasse": "Kein fester Wohnsitz (Flottendienst)",
+      "ort": "Sanghelios (Heimatwelt der Sangheili)",
+      "franchise": "Halo",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Ehemaliger Covenant-Feldherr; wurde zum symbolischen Titel 'Arbiter' und Verbündeten der Menschen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Arthur Dent",
+      "buergerlicherName": "Arthur Philip Dent",
+      "alias": [
+        "Der Erdenmensch"
+      ],
+      "firma": "BBC Radio (ehemalig)",
+      "strasse": "Country Lane",
+      "ort": "Cottington, West Country (Erde / wechselnd)",
+      "franchise": "Per Anhalter durch die Galaxis",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Überlebender der zerstörten Erde im Bademantel.",
+      "quellenAnzahl": 1,
+      "hooks": [
+        "Bademantel",
+        "Handtuch",
+        "keine Panik",
+        "Vogonen-Lyrik",
+        "Babelfisch",
+        "Tasse Tee"
+      ]
+    },
+    {
+      "name": "Arthur Morgan",
+      "buergerlicherName": "Arthur Morgan",
+      "alias": [
+        "Arthur"
+      ],
+      "firma": "Van-der-Linde-Bande",
+      "strasse": "Arthur Morgan-Residenz 1",
+      "ort": "New Hanover",
+      "franchise": "Red Dead Redemption 2",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Outlaw, dessen Aufenthaltsort im Spiel fortlaufend wechselt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Arya Stark",
+      "buergerlicherName": "Arya Stark",
+      "alias": [
+        "Arry",
+        "Kein Einer",
+        "Katze der Kanäle"
+      ],
+      "firma": "Haus Stark (Geburtshaus), Faceless Men (zeitweilig)",
+      "strasse": "Große Burg von Winterfell",
+      "ort": "Winterfell, Der Norden",
+      "franchise": "Game of Thrones",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": null,
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ash Ketchum",
+      "buergerlicherName": "Ash Ketchum",
+      "alias": [
+        "Satoshi (japanischer Name)",
+        "Satoshi",
+        "Pokémon-Meister",
+        "Ash Ketchum"
+      ],
+      "firma": "Pokémon-Trainer",
+      "strasse": "Route 1 / Ketchum-Residenz",
+      "ort": "Alabastia, Kanto",
+      "franchise": "Pokémon",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Im japanischen Original heißt die Figur Satoshi.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Ash Williams",
+      "buergerlicherName": "Ashley Joanna Williams",
+      "alias": [
+        "Ash"
+      ],
+      "firma": null,
+      "strasse": "Ash Williams-Residenz 1",
+      "ort": "Michigan, Vereinigte Staaten",
+      "franchise": "Tanz der Teufel",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Der vollständige Name wird in einzelnen Filmen und Begleitmaterial verwendet.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Asterix",
+      "buergerlicherName": "Asterix",
+      "alias": [
+        "Der kleine Krieger",
+        "Der kleine Gallier"
+      ],
+      "firma": "Das gallische Dorf",
+      "strasse": "Dorfplatz 1",
+      "ort": "Unbeugsames gallisches Dorf (Aremorica)",
+      "franchise": "Asterix",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Hüter des Zaubertranks an der Seite von Obelix.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Atlas",
+      "buergerlicherName": "Frank Fontaine",
+      "alias": [
+        "Frank Fontaine"
+      ],
+      "firma": "Untergrundbewegung von Rapture",
+      "strasse": "Atlas-Residenz 1",
+      "ort": "Rapture",
+      "franchise": "BioShock",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Atlas ist eine falsche Identität, die Frank Fontaine benutzt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Baron Vladimir Harkonnen",
+      "buergerlicherName": "Vladimir Harkonnen",
+      "alias": [
+        "Der Baron"
+      ],
+      "firma": "Haus Harkonnen",
+      "strasse": "Harkonnen-Festung",
+      "ort": "Giedi Prime",
+      "franchise": "Dune",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Die genaue Residenz und der Planetensitz werden in den verschiedenen Adaptionen unterschiedlich dargestellt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Bart Simpson",
+      "buergerlicherName": "Bartholomew JoJo Simpson",
+      "alias": [
+        "El Barto"
+      ],
+      "firma": "Springfield Elementary School",
+      "strasse": "742 Evergreen Terrace",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "El Barto ist sein Graffiti-Pseudonym.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Batgirl",
+      "buergerlicherName": "Barbara Gordon",
+      "alias": [
+        "Oracle",
+        "Babs"
+      ],
+      "firma": "Gotham City Public Library / Birds of Prey",
+      "strasse": "Clocktower Plaza 1",
+      "ort": "10002 Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Tochter von Commissioner Jim Gordon, operiert als Batgirl und später als Oracle.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Batman",
+      "buergerlicherName": "Bruce Wayne",
+      "alias": [
+        "Bruce Wayne",
+        "Dunkler Ritter",
+        "Caped Crusader",
+        "Der Mitternachtsdetektiv",
+        "Mitternachtsdetektiv",
+        "The Dark Knight",
+        "The Batman"
+      ],
+      "firma": "Wayne Enterprises",
+      "strasse": "Wayne Manor 1007",
+      "ort": "10001 Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Wayne Manor liegt je nach Kontinuität außerhalb des Stadtzentrums. Eine universell gültige Straßenadresse existiert nicht.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "Doppelleben",
+        "Gotham bei Nacht",
+        "Wayne Enterprises",
+        "Fledermaushöhle",
+        "Alfred",
+        "Batmobil"
+      ]
+    },
+    {
+      "name": "Beerus",
+      "buergerlicherName": "Beerus",
+      "alias": [
+        "Der Gott des Zerstörens"
+      ],
+      "firma": null,
+      "strasse": "Tempel des Gottes der Zerstörung",
+      "ort": "Universe 7",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Gott der Zerstörung",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Beetlejuice",
+      "buergerlicherName": "Beetlejuice",
+      "alias": [
+        "Betelgeuse"
+      ],
+      "firma": null,
+      "strasse": "Beetlejuice-Residenz 1",
+      "ort": "Jenseits",
+      "franchise": "Beetlejuice",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Ein exzentrischer Geist; die Schreibweise des Namens unterscheidet sich zwischen Film, Serie und Musical.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Bender",
+      "buergerlicherName": "Bender Bending Rodríguez",
+      "alias": [
+        "Bender Bending Rodríguez",
+        "Flexo-ähnlicher Blechroboter",
+        "Bending Rodriguez"
+      ],
+      "firma": "Planet Express",
+      "strasse": "Planet-Express-Gebäude",
+      "ort": "New New York",
+      "franchise": "Futurama",
+      "medium": "Cartoon",
+      "rolle": "Antiheld",
+      "hinweis": "Roboter mit ausgeprägter Vorliebe für Alkohol, Glücksspiel und Diebstahl.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Bienlein",
+      "buergerlicherName": "Tryphon Tournesol (Prof. Bienlein)",
+      "alias": [
+        "Professor Tournesol",
+        "Professor Calculus",
+        "Tryphon Tournesol"
+      ],
+      "firma": "Schloss Mühlenhof Laboratorium",
+      "strasse": "Schloss Mühlenhof 1",
+      "ort": "Moulinsart (Belgien)",
+      "franchise": "Tim und Struppi",
+      "medium": "Comic",
+      "rolle": "Support",
+      "hinweis": "Schwerhöriger, genialer Erfinder von Haifisch-U-Boot und Mondrakete.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Bilbo Beutlin",
+      "buergerlicherName": "Bilbo Beutlin",
+      "alias": [
+        "Meisterdieb",
+        "Finder des Rings",
+        "Bilbo Baggins",
+        "Der alte Ringfinder"
+      ],
+      "firma": "Freier Bürger des Auenlands",
+      "strasse": "Beutelsend 1 (Bag End)",
+      "ort": "Hobbingen, Auenland",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Onkel von Frodo Beutlin, Verfasser von 'Hin und zurück'.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Auenland",
+        "der Eine Ring",
+        "Hobbit",
+        "Gandalf",
+        "unerwartetes Abenteuer",
+        "Tee um vier"
+      ]
+    },
+    {
+      "name": "Bill Cipher",
+      "buergerlicherName": "Bill Cipher",
+      "alias": [
+        "Der Traumdämon"
+      ],
+      "firma": null,
+      "strasse": "Bill Cipher-Residenz 1",
+      "ort": "Zwischen Dimensionen",
+      "franchise": "Gravity Falls",
+      "medium": "Cartoon",
+      "rolle": "Antagonist",
+      "hinweis": "Ein interdimensionales Wesen mit dem Aussehen eines gelben Dreiecks.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Black Panther",
+      "buergerlicherName": "T'Challa",
+      "alias": [
+        "König von Wakanda",
+        "Black Panther"
+      ],
+      "firma": "Königreich Wakanda",
+      "strasse": "Königspalast",
+      "ort": "Wakanda",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "T'Challa ist König und Beschützer Wakandas; seine Regierungsrolle variiert über die Comic-Kontinuitäten.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Black Widow",
+      "buergerlicherName": "Natasha Romanoff (Natalia Alianovna Romanova)",
+      "alias": [
+        "Schwarze Witwe",
+        "Natalie Rushman",
+        "Natasha Romanoff",
+        "Natalia Romanova",
+        "Black Widow"
+      ],
+      "firma": "Avengers / S.H.I.E.L.D. (ehemalig KGB)",
+      "strasse": "Avengers Compound",
+      "ort": "Upstate New York",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Ehemalige sowjetische Spionin, Meisterin der Kampfkunst und Taktik.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Booker DeWitt",
+      "buergerlicherName": "Booker DeWitt",
+      "alias": [
+        "Zachary Hale Comstock"
+      ],
+      "firma": "Pinkerton National Detective Agency",
+      "strasse": "Booker DeWitt-Residenz 1",
+      "ort": "Columbia",
+      "franchise": "BioShock Infinite",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Seine alternative Identität als Zachary Comstock ist zentral für die Handlung.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Bowser",
+      "buergerlicherName": "Bowser",
+      "alias": [
+        "König der Koopas",
+        "King Koopa",
+        "König Bowser"
+      ],
+      "firma": "Koopa-Truppe",
+      "strasse": "Bowsers Schloss",
+      "ort": "Pilz-Königreich",
+      "franchise": "Super Mario",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Hauptgegner der Mario-Reihe.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Bugs Bunny",
+      "buergerlicherName": "Bugs Bunny",
+      "alias": [
+        "Der schlaue Hase"
+      ],
+      "firma": "Warner Bros. Cartoons",
+      "strasse": "Bugs Bunny-Residenz 1",
+      "ort": "Looney-Tunes-Welt",
+      "franchise": "Looney Tunes",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Eine festgelegte zivile Adresse ist nicht kanonisch etabliert.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Bulma",
+      "buergerlicherName": "Bulma",
+      "alias": [
+        "Bulma Brief"
+      ],
+      "firma": "Capsule Corporation",
+      "strasse": "Capsule Corporation",
+      "ort": "West City, Erde",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Brillante Erfinderin und Tochter des Gründers der Capsule Corporation.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Caitlyn Kiramman",
+      "buergerlicherName": "Caitlyn Kiramman",
+      "alias": [],
+      "firma": "Kiramman Family",
+      "strasse": "Kiramman-Anwesen, Piltover",
+      "ort": "Piltover",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Polizistin gegen Kriminelle",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Camille",
+      "buergerlicherName": "Camille",
+      "alias": [],
+      "firma": null,
+      "strasse": "Haus Ferros Anwesen 1",
+      "ort": "Piltover",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Chemikerin, schlägt gegen Zaun",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Captain America",
+      "buergerlicherName": "Steven Grant Rogers",
+      "alias": [
+        "Cap",
+        "Der erste Rächer",
+        "The Sentinel of Liberty",
+        "Sentinel of Liberty"
+      ],
+      "firma": "Avengers / US Army (Reservist)",
+      "strasse": "569 Leaman Place",
+      "ort": "Brooklyn, New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Supersoldat aus dem Zweiten Weltkrieg, Anführer der Avengers.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Vibranium-Schild",
+        "Super-Soldat",
+        "Brooklyn",
+        "eingefroren im Eis",
+        "Gerechtigkeit"
+      ]
+    },
+    {
+      "name": "Cersei Lennister",
+      "buergerlicherName": "Cersei Lannister",
+      "alias": [
+        "Königin Cersei",
+        "Regentin der Sieben Königslande"
+      ],
+      "firma": "Haus Lennister",
+      "strasse": "Roter Bergfried",
+      "ort": "Königsmund, Westeros",
+      "franchise": "Game of Thrones",
+      "medium": "Serie",
+      "rolle": "Antagonist",
+      "hinweis": "Die Schreibweise Lennister stammt aus der deutschen Buchübersetzung; die Serie verwendet häufig Lannister.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Charlie Bucket",
+      "buergerlicherName": "Charlie Bucket",
+      "alias": [
+        "Charlie"
+      ],
+      "firma": null,
+      "strasse": "Charlie Bucket-Residenz 1",
+      "ort": "Unbekannte Stadt",
+      "franchise": "Charlie und die Schokoladenfabrik",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Armer Junge, der ein goldenes Ticket für die Schokoladenfabrik gewinnt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Chewbacca",
+      "buergerlicherName": "Chewbacca",
+      "alias": [
+        "Chewie"
+      ],
+      "firma": "Rebellenallianz / Millennium Falcon",
+      "strasse": "Kashyyyk Baumstadt / Millennium Falcon",
+      "ort": "Kashyyyk",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Wookiee-Krieger und loyaler Co-Pilot von Han Solo.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Chihiro Ogino",
+      "buergerlicherName": "Chihiro Ogino",
+      "alias": [
+        "Sen"
+      ],
+      "firma": "Badehaus von Yubaba",
+      "strasse": "Aburaya-Badehaus",
+      "ort": "Geisterwelt",
+      "franchise": "Chihiros Reise ins Zauberland",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Sen ist der Name, den Yubaba ihr bei der Arbeit im Badehaus gibt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Ciri",
+      "buergerlicherName": "Cirilla Fiona Elen Riannon",
+      "alias": [
+        "Löwenjunges von Cintra",
+        "Zireael",
+        "Cirilla Fiona Elen Riannon",
+        "Das Kind des Älteren Blutes"
+      ],
+      "firma": "Haus Cintra",
+      "strasse": "Schloss Cintra",
+      "ort": "Cintra",
+      "franchise": "The Witcher",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Prinzessin von Cintra; ihr vollständiger Name stammt aus der Buchreihe.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Clementine",
+      "buergerlicherName": "Clementine",
+      "alias": [
+        "Clem"
+      ],
+      "firma": null,
+      "strasse": "Clementine-Residenz 1",
+      "ort": "Georgia, Vereinigte Staaten",
+      "franchise": "The Walking Dead",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Hauptfigur der gleichnamigen Adventure-Spielreihe von Telltale Games.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Commander Shepard",
+      "buergerlicherName": "Kommandant Shepard (Vorname vom Spieler wählbar)",
+      "alias": [
+        "Shepard",
+        "Der Held der Citadel",
+        "Commander"
+      ],
+      "firma": "Systems Alliance",
+      "strasse": "Normandy",
+      "ort": "Milchstraße",
+      "franchise": "Mass Effect",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Vorname, Geschlecht und Hintergrund werden vom Spieler bestimmt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Cortana",
+      "buergerlicherName": "Cortana",
+      "alias": [
+        "KI Cortana"
+      ],
+      "firma": "UNSC (KI des Master Chief)",
+      "strasse": "Digitale Datenbank im Mjolnir-Mark-VI-Anzug",
+      "ort": "Aufenthalt: Installationsring Halo / UNSC Infinity",
+      "franchise": "Halo",
+      "medium": "Videospiel",
+      "rolle": "Sidekick",
+      "hinweis": "Künstliche Intelligenz (KI) mit menschlicher Persönlichkeit; lebt digital im Anzug von Master Chief.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Corvo Attano",
+      "buergerlicherName": "Corvo Attano",
+      "alias": [
+        "Der königliche Beschützer"
+      ],
+      "firma": "Kaiserliches Gericht von Dunwall (Leibwächter)",
+      "strasse": "Dunwall Tower (kaiserlicher Palast)",
+      "ort": "Dunwall, Inselreich Gristol",
+      "franchise": "Dishonored",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Rahmenhandlung: verdeckt operierender Attentäter mit übernatürlichen Outsider-Kräften.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Daenerys Targaryen",
+      "buergerlicherName": "Daenerys Targaryen",
+      "alias": [
+        "Drachenmutter",
+        "Khaleesi",
+        "Königin von Meereen",
+        "Die Unverbrannte",
+        "Mhysa",
+        "Mutter der Drachen",
+        "Sturmtochter",
+        "Sturmkönigin"
+      ],
+      "firma": "Haus Targaryen",
+      "strasse": "Große Pyramide von Meereen / Drachenstein Festung",
+      "ort": "Drachenstein",
+      "franchise": "Game of Thrones",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Titel wie 'Sturmtochter aus dem Hause Targaryen' sind kein bürgerlicher Name.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Daffy Duck",
+      "buergerlicherName": "Daffy Duck",
+      "alias": [
+        "Daffy"
+      ],
+      "firma": "Warner Bros. Cartoons",
+      "strasse": "Daffy Duck-Residenz 1",
+      "ort": "Looney-Tunes-Welt",
+      "franchise": "Looney Tunes",
+      "medium": "Cartoon",
+      "rolle": "Antiheld",
+      "hinweis": "Rivale und gelegentlicher Partner von Bugs Bunny.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Dagobert Duck",
+      "buergerlicherName": "Scrooge McDuck (Dagobert Duck)",
+      "alias": [
+        "Reichste Ente der Welt",
+        "Der Fantastilliardär",
+        "Onkel Dagobert",
+        "Scrooge McDuck",
+        "Der reichste Erpel der Welt"
+      ],
+      "firma": "Duck Enterprises / Geldtransport AG",
+      "strasse": "Killmotor Hill (Auf dem Geldspeicher)",
+      "ort": "Entenhausen",
+      "franchise": "Entenhausen (Disney)",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Schwimmt im Geld; Glückszehner ist sein größter Schatz.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Geldspeicher",
+        "Glückstaler",
+        "Talerbad",
+        "Entenhausen",
+        "Zylinder",
+        "Geiz"
+      ]
+    },
+    {
+      "name": "Dalton-Brüder",
+      "buergerlicherName": "Dalton-Brüder",
+      "alias": [
+        "Joe, William, Jack und Averell Dalton"
+      ],
+      "firma": null,
+      "strasse": "Verschiedene Gefängnisse",
+      "ort": "Wilder Westen, Vereinigte Staaten",
+      "franchise": "Lucky Luke",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Gruppeneintrag für die fiktionalen Dalton-Brüder der Lucky-Luke-Reihe; kein einzelner Charakterdatensatz.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Daniel Düsentrieb",
+      "buergerlicherName": "Daniel Düsentrieb (Gyro Gearloose)",
+      "alias": [
+        "Der geniale Ingenieur",
+        "Gyro Gearloose"
+      ],
+      "firma": "Erfinder-Werkstatt Düsentrieb",
+      "strasse": "Erfinderweg 1",
+      "ort": "Entenhausen",
+      "franchise": "Entenhausen (Disney)",
+      "medium": "Comic",
+      "rolle": "Support",
+      "hinweis": "Erfinder von Helferlein und Phantomias-Ausrüstung. Motto: 'Dem Ingeniör ist nichts zu schwör'.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Daredevil",
+      "buergerlicherName": "Matthew Michael Murdock",
+      "alias": [
+        "Der Mann ohne Furcht",
+        "Teufel von Hell's Kitchen"
+      ],
+      "firma": "Nelson & Murdock (Kanzlei)",
+      "strasse": "463 8th Avenue",
+      "ort": "Hell's Kitchen, New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Erblindeter Anwalt mit geschärften Radarsinnen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Darth Maul",
+      "buergerlicherName": "Maul",
+      "alias": [
+        "Maul"
+      ],
+      "firma": "Sith-Orden",
+      "strasse": "Crimson Dawn-Hauptquartier (Verbrechersyndikat)",
+      "ort": "Dathomir",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Zabrak-Krieger von Dathomir; spätere Handlungen zeigen seine Entwicklung zum unabhängigen Machtspieler.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Darth Vader",
+      "buergerlicherName": "Anakin Skywalker",
+      "alias": [
+        "Lord Vader",
+        "Anakin Skywalker",
+        "Der Auserwählte",
+        "Der Dunkle Lord der Sith",
+        "Thomas A. Anderson",
+        "Der Junge, der lebt"
+      ],
+      "firma": "Galaktisches Imperium (Sith-Lord)",
+      "strasse": "Vader-Festung",
+      "ort": "Mustafar",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Mustafar ist nur ein einzelner Schauplatz, nicht der Hauptwirkungsort.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "Todesstern",
+        "dunkle Seite der Macht",
+        "Atemmaske",
+        "Mustafar",
+        "imperiale Flotte"
+      ]
+    },
+    {
+      "name": "Data",
+      "buergerlicherName": "Data",
+      "alias": [
+        "Lieutenant Commander Data"
+      ],
+      "firma": "Sternenflotte",
+      "strasse": "USS Enterprise-D",
+      "ort": "Weltraum",
+      "franchise": "Star Trek",
+      "medium": "Serie",
+      "rolle": "Sidekick",
+      "hinweis": "Android und Offizier der Sternenflotte.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Davy Jones",
+      "buergerlicherName": "Davy Jones",
+      "alias": [
+        "Kapitän der Flying Dutchman"
+      ],
+      "firma": "Flying Dutchman",
+      "strasse": "Flying Dutchman",
+      "ort": "Karibik",
+      "franchise": "Fluch der Karibik",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Übernatürlicher Kapitän, der über die Seelen der Ertrunkenen wacht.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Deadpool",
+      "buergerlicherName": "Wade Winston Wilson",
+      "alias": [
+        "Merc with a Mouth",
+        "Der Söldner mit der großen Klappe",
+        "Wade Wilson"
+      ],
+      "firma": "Selbständig (Söldner)",
+      "strasse": "Wohnwagen, Anchor of Mercy Hospital-Gelände",
+      "ort": "New York",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Söldner mit Regenerationsfähigkeit und häufigem Durchbrechen der vierten Wand.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Vierte Wand",
+        "Chimichangas",
+        "Katanas",
+        "Regeneration",
+        "Kabelsalat",
+        "Einhorn"
+      ]
+    },
+    {
+      "name": "Dele Adebayo",
+      "buergerlicherName": "Dele Adebayo",
+      "alias": [
+        "Mr. Adebayo"
+      ],
+      "firma": "Adebayo Associates",
+      "strasse": "1 Adebayo Tower, Main Street",
+      "ort": "Abuja, Nigeria",
+      "franchise": "Der Undercover-König",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Fiktive Figur für dieses Briefsystem; Beispiel für Nicht-US-Seriencharakter.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Der Doktor",
+      "buergerlicherName": "Der Doktor",
+      "alias": [
+        "The Doctor",
+        "Time Lord",
+        "Doctor Who",
+        "Der Zeitlord"
+      ],
+      "firma": "Zeitreisende",
+      "strasse": "TARDIS",
+      "ort": "Raum und Zeit",
+      "franchise": "Doctor Who",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Die Figur regeneriert sich in unterschiedliche Erscheinungsformen; ein allgemein bekannter bürgerlicher Name ist nicht kanonisch festgelegt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Dexter Morgan",
+      "buergerlicherName": "Dexter Morgan",
+      "alias": [
+        "Bay Harbor Butcher",
+        "Der Bay Harbor Butcher",
+        "Der Dunkle Passagier"
+      ],
+      "firma": "Miami Metro Police Department",
+      "strasse": "Wohnung 10B, 1155 Palmetto Drive",
+      "ort": "Miami, Florida",
+      "franchise": "Dexter",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Forensischer Blutspurenanalyst und Serienmörder; Wohnorte ändern sich im Verlauf der Reihe.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Din Djarin",
+      "buergerlicherName": "Din Djarin",
+      "alias": [
+        "Der Mandalorianer",
+        "Mando"
+      ],
+      "firma": "Mandalorianer",
+      "strasse": "Razor Crest",
+      "ort": "Galaxis",
+      "franchise": "Star Wars",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Sein Raumschiff wird im Serienverlauf ersetzt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Dipper Pines",
+      "buergerlicherName": "Mason Pines",
+      "alias": [
+        "Dipper"
+      ],
+      "firma": "Mystery Shack",
+      "strasse": "Mystery Shack",
+      "ort": "Gravity Falls, Oregon",
+      "franchise": "Gravity Falls",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Dipper ist sein Spitzname; sein Vorname Mason wird im Begleitmaterial bestätigt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Discworld-Tod",
+      "buergerlicherName": "Discworld-Tod",
+      "alias": [
+        "Tod",
+        "DEATH"
+      ],
+      "firma": null,
+      "strasse": "Haus des Todes",
+      "ort": "Dimension des Todes",
+      "franchise": "Scheibenwelt",
+      "medium": "Buch",
+      "rolle": "Sonstiges",
+      "hinweis": "Anthropomorphe Personifikation des Todes; wird in der englischen Originalfassung oft in Kapitälchen dargestellt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Doc Brown",
+      "buergerlicherName": "Emmett Lathrop Brown",
+      "alias": [
+        "Dr. Emmett Brown"
+      ],
+      "firma": "Brown Industries",
+      "strasse": "1640 Riverside Drive",
+      "ort": "Hill Valley, Kalifornien",
+      "franchise": "Zurück in die Zukunft",
+      "medium": "Film",
+      "rolle": "Mentor",
+      "hinweis": "Erfinder der Zeitmaschine; seine Wohn- und Arbeitsorte variieren zwischen den Filmen.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "DeLorean",
+        "Fluxkompensator",
+        "1.21 Gigawatt",
+        "88 Meilen pro Stunde",
+        "Plutonium"
+      ]
+    },
+    {
+      "name": "Doctor Doom",
+      "buergerlicherName": "Victor von Doom",
+      "alias": [
+        "Victor von Doom",
+        "Herrscher von Latveria",
+        "Dr. Doom"
+      ],
+      "firma": "Regierung von Latveria",
+      "strasse": "Schloss Doom",
+      "ort": "Doomstadt, Latveria",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Herrscher eines fiktiven europäischen Staates.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Doctor Strange",
+      "buergerlicherName": "Stephen Vincent Strange",
+      "alias": [
+        "Sorcerer Supreme",
+        "Meister der mystischen Künste"
+      ],
+      "firma": "Sanctum Sanctorum / Masters of the Mystic Arts",
+      "strasse": "177A Bleecker Street",
+      "ort": "Greenwich Village, New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Ehemaliger Neurochirurg, Oberster Zauberer der Erde.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Dr. Eggman",
+      "buergerlicherName": "Ivo Robotnik",
+      "alias": [
+        "Doctor Robotnik",
+        "Ivo Robotnik"
+      ],
+      "firma": "Eggman Empire",
+      "strasse": "Eggman-Basis",
+      "ort": "Mobius",
+      "franchise": "Sonic the Hedgehog",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Eggman und Robotnik sind regional beziehungsweise historisch unterschiedliche Namensformen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Dr. John Watson",
+      "buergerlicherName": "John Hamish Watson",
+      "alias": [
+        "John H. Watson",
+        "Dr. Watson"
+      ],
+      "firma": "Ärztliche Praxis",
+      "strasse": "221B Baker Street",
+      "ort": "London, England",
+      "franchise": "Sherlock Holmes",
+      "medium": "Buch",
+      "rolle": "Sidekick",
+      "hinweis": "Mitbewohner und Chronist der Holmes-Fälle; der zweite Vorname Hamish stammt aus späterer Kontinuitätstradition.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Dr. Manhattan",
+      "buergerlicherName": "Jon Osterman",
+      "alias": [
+        "Dr. Jon Osterman",
+        "Jon Osterman",
+        "Dr. Manhattan"
+      ],
+      "firma": null,
+      "strasse": "Gila Flats Research Center / Mars-Kristallpalast",
+      "ort": "Earth",
+      "franchise": "Watchmen",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Quantenphysiker, besitzt übermenschliche Fähigkeiten",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Draco Malfoy",
+      "buergerlicherName": "Draco Lucius Malfoy",
+      "alias": [
+        "Draco"
+      ],
+      "firma": "Malfoy-Familie",
+      "strasse": "Malfoy Manor",
+      "ort": "Wiltshire, England",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Antagonist",
+      "hinweis": "Er entwickelt sich im Verlauf der Reihe von einem schulischen Gegenspieler zu einer ambivalenteren Figur.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Duke Nukem",
+      "buergerlicherName": "Duke Nukem",
+      "alias": [
+        "Duke"
+      ],
+      "firma": null,
+      "strasse": "Duke Nukem-Residenz 1",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Duke Nukem",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Überzeichneter Actionheld; eine konsistente zivile Adresse ist nicht kanonisch festgelegt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Dutch van der Linde",
+      "buergerlicherName": "Dutch van der Linde",
+      "alias": [
+        "Dutch"
+      ],
+      "firma": "Van-der-Linde-Bande",
+      "strasse": "Dutch van der Linde-Residenz 1",
+      "ort": "New Hanover",
+      "franchise": "Red Dead Redemption",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Bandenführer, dessen Ideale und Handlungen zunehmend auseinanderdriften.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Edward Elric",
+      "buergerlicherName": "Edward Elric",
+      "alias": [
+        "Der Stahlalchemistist",
+        "Fullmetal Alchemist"
+      ],
+      "firma": "Amestris-Militär (Staatsalchemist)",
+      "strasse": "Hauptquartier Zentral (Central Command Center)",
+      "ort": "Zentral, Amestris",
+      "franchise": "Fullmetal Alchemist",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Jüngster Staatsalchemist in der Geschichte Amestris'; verliert Arm und Bein durch Alchemie.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ekko",
+      "buergerlicherName": "Ekko",
+      "alias": [],
+      "firma": null,
+      "strasse": "Firelight-Versteck am großen Baum",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Zeitreise-Techniker",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Eleven",
+      "buergerlicherName": "Jane Ives (später Jane Hopper)",
+      "alias": [
+        "Elfi",
+        "Jane Hopper",
+        "Jane Ives",
+        "El"
+      ],
+      "firma": "Hawkins National Laboratory (Versuchsperson, ehemalig)",
+      "strasse": "Byers Residenz / Hopper Hütte",
+      "ort": "Hawkins, Indiana",
+      "franchise": "Stranger Things",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Kanonischer Name ist Eleven; 'Elf' ist eine deutsche Übersetzung, keine kanonische Bezeichnung.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Elizabeth",
+      "buergerlicherName": "Anna DeWitt",
+      "alias": [
+        "Anna DeWitt"
+      ],
+      "firma": null,
+      "strasse": "Monument Island",
+      "ort": "Columbia",
+      "franchise": "BioShock Infinite",
+      "medium": "Videospiel",
+      "rolle": "Sidekick",
+      "hinweis": "Elizabeth ist der Name, unter dem Booker sie kennt; Anna ist ihr Geburtsname.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Elizabeth Swann",
+      "buergerlicherName": "Elizabeth Swann",
+      "alias": [
+        "Elizabeth Turner"
+      ],
+      "firma": "Piraten der Karibik",
+      "strasse": "Elizabeth Swann-Residenz 1",
+      "ort": "Port Royal, Karibik",
+      "franchise": "Fluch der Karibik",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Ihre Rolle verändert sich von der Gouverneurstochter zur Piratenkönigin.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ellen Ripley",
+      "buergerlicherName": "Ellen Louise Ripley",
+      "alias": [
+        "Ripley"
+      ],
+      "firma": "Weyland-Yutani Corporation (ehemalig)",
+      "strasse": "USCSS Nostromo / Weyland-Yutani Dock",
+      "ort": "Gateway Station",
+      "franchise": "Alien",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Offizierin und Überlebende der Begegnungen mit dem Xenomorph.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Elliot Alderson",
+      "buergerlicherName": "Elliot Alderson",
+      "alias": [
+        "Mr. Robot"
+      ],
+      "firma": "Allsafe Cybersecurity / fsociety",
+      "strasse": "Wohnung in Manhattan, New York City",
+      "ort": "New York City, NY",
+      "franchise": "Mr. Robot",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Hacker mit dissoziativer Identitätsstörung; zielt auf E Corp und die globale Finanzwelt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Emil Tischbein",
+      "buergerlicherName": "Emil Tischbein",
+      "alias": [
+        "Emil"
+      ],
+      "firma": null,
+      "strasse": "Emil Tischbein-Residenz 1",
+      "ort": "Neustadt, Deutschland",
+      "franchise": "Emil und die Detektive",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Die Handlung führt ihn nach Berlin; Neustadt ist sein Heimatort in der Geschichte.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Eren Jäger",
+      "buergerlicherName": "Eren Jäger",
+      "alias": [
+        "Eren Yeager",
+        "Angriffstitan",
+        "Attack Titan",
+        "Der Gründer"
+      ],
+      "firma": "Aufklärungstrupp",
+      "strasse": "Hauptquartier der Aufklärungstruppe, Strohert-Distrikt",
+      "ort": "Shiganshina, Paradis",
+      "franchise": "Attack on Titan",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Der deutsche Name Jäger entspricht dem japanischen Yeager in anderen Transkriptionen.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Eric Cartman",
+      "buergerlicherName": "Eric Theodore Cartman",
+      "alias": [
+        "Cartman",
+        "Der Coon"
+      ],
+      "firma": "South Park Elementary",
+      "strasse": "2001 Bonanza Street",
+      "ort": "South Park, Colorado",
+      "franchise": "South Park",
+      "medium": "Cartoon",
+      "rolle": "Antiheld",
+      "hinweis": "Die konkrete Hausnummer ist nicht über alle Episoden hinweg konsistent belegt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Ferkel",
+      "buergerlicherName": "Ferkel",
+      "alias": [
+        "Piglet"
+      ],
+      "firma": null,
+      "strasse": "Ferkel-Residenz 1",
+      "ort": "Hundertsechzig-Morgen-Wald",
+      "franchise": "Winnie Puuh",
+      "medium": "Buch",
+      "rolle": "Sidekick",
+      "hinweis": "Puuhs bester Freund und eine der Hauptfiguren der Geschichten.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Forrest Gump",
+      "buergerlicherName": "Forrest Gump",
+      "alias": [
+        "Forrest"
+      ],
+      "firma": null,
+      "strasse": "Greenbow-Haus",
+      "ort": "Greenbow, Alabama",
+      "franchise": "Forrest Gump",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Die fiktive Stadt Greenbow ist nicht mit einer eindeutig festgelegten realen Postanschrift verbunden.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Fred Jones",
+      "buergerlicherName": "Fred Jones",
+      "alias": [
+        "Freddie"
+      ],
+      "firma": "Mystery Inc.",
+      "strasse": "Mystery Machine",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Scooby-Doo",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Anführer der Mystery Inc.; seine Hintergrundgeschichte variiert je nach Serie.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Frieza",
+      "buergerlicherName": "Frieza",
+      "alias": [
+        "Der Herrscher des Raums",
+        "Freezer",
+        "Imperator des Universums"
+      ],
+      "firma": "Frieza Force",
+      "strasse": "Raumschiff der Frieza Force",
+      "ort": "Planet Vegeta",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Imperiale Macht",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Frodo Beutlin",
+      "buergerlicherName": "Frodo Beutlin",
+      "alias": [
+        "Ringträger",
+        "Frodo Baggins"
+      ],
+      "firma": "Die Gefährten des Rings",
+      "strasse": "Beutelsend 1",
+      "ort": "Hobbingen, Auenland",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Er erbt Beutelsend von Bilbo und übernimmt die Aufgabe, den Einen Ring zu vernichten.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Schicksalsberg",
+        "Auenland",
+        "Bruchbruchtal",
+        "Stich",
+        "Mithril-Kettenhemd",
+        "schwere Bürde"
+      ]
+    },
+    {
+      "name": "G-Man",
+      "buergerlicherName": "G-Man",
+      "alias": [
+        "G-Man",
+        "Der mysteriöse Regierungsbeamte"
+      ],
+      "firma": "Unbekannt (übernatürlicher Beobachter)",
+      "strasse": "Kein fester Ort (reisend durch Dimensionen)",
+      "ort": "Unbekannt",
+      "franchise": "Half-Life",
+      "medium": "Videospiel",
+      "rolle": "Sonstiges",
+      "hinweis": "Mysteriöse Figur mit Aktenkoffer; erscheint und verschwindet interdimensional.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Gandalf",
+      "buergerlicherName": "Olórin",
+      "alias": [
+        "Mithrandir",
+        "Olórin",
+        "Grauer Pilger",
+        "Weißer Reiter",
+        "Gandalf der Graue",
+        "Gandalf der Weiße",
+        "Der Graue Wanderer"
+      ],
+      "firma": "Istari (Zaubererorden)",
+      "strasse": "Wandernder Pfad",
+      "ort": "Mittelerde (wandernd)",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Ein Maia in Gestalt eines Zauberers; Mithrandir ist ein elbischer Name.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Feuerwerk im Auenland",
+        "Schattenfell",
+        "Moria",
+        "Zauberstab",
+        "du kannst nicht vorbei"
+      ]
+    },
+    {
+      "name": "Ganondorf",
+      "buergerlicherName": "Ganondorf Dragmire",
+      "alias": [
+        "Ganon",
+        "König des Bösen",
+        "Der König der Gerudo-Diebe"
+      ],
+      "firma": "Gerudo",
+      "strasse": "Gerudo-Festung",
+      "ort": "Wüste der Gerudo",
+      "franchise": "The Legend of Zelda",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Der Familienname Dragmire stammt aus ergänzendem Material und ist nicht in allen Spielen etabliert.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Garrus Vakarian",
+      "buergerlicherName": "Garrus Vakarian",
+      "alias": [
+        "Archangel"
+      ],
+      "firma": "Turianische Hierarchie",
+      "strasse": "Normandy",
+      "ort": "Milchstraße",
+      "franchise": "Mass Effect",
+      "medium": "Videospiel",
+      "rolle": "Sidekick",
+      "hinweis": "Turianischer Offizier und enger Verbündeter Shepards.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Genos",
+      "buergerlicherName": "Genos",
+      "alias": [
+        "Demon Cyborg"
+      ],
+      "firma": "Hero Association (S-Klasse Held)",
+      "strasse": "Wohnung bei Saitama (Z-City)",
+      "ort": "Z-City, Japan",
+      "franchise": "One Punch Man",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Cyborg und Schüler von Saitama; ständig stärkere Aufrüstungen durch Dr. Kuseno.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Gerald Broflovski",
+      "buergerlicherName": "Gerald Broflovski",
+      "alias": [
+        "Gerald"
+      ],
+      "firma": "Broflovski & Associates (Anwalt)",
+      "strasse": "Broflovski-Residenz, 28641 Evergreen Terrace",
+      "ort": "South Park, Colorado",
+      "franchise": "South Park",
+      "medium": "Cartoon",
+      "rolle": "Sonstiges",
+      "hinweis": "Vater von Kyle Broflovski; Rechtsanwalt mit Gerechtigkeitssinn.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Geralt von Riva",
+      "buergerlicherName": "Geralt",
+      "alias": [
+        "Der Weiße Wolf",
+        "Geralt",
+        "Schlächter von Blaviken",
+        "Gwynbleidd",
+        "Hexer",
+        "Weißer Wolf",
+        "Der Weißwolf",
+        "Hexer vom Wolf"
+      ],
+      "firma": "Hexerschule des Wolfes",
+      "strasse": "Festung Kaer Morhen",
+      "ort": "Kaer Morhen",
+      "franchise": "The Witcher",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Der Beiname 'von Riva' ist zunächst angenommen; er wird später zum Ritter von Riva geschlagen.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "zwei Schwerter",
+        "Silber für Monster",
+        "Kaer Morhen",
+        "Plötze",
+        "Hexer-Zeichen"
+      ]
+    },
+    {
+      "name": "Gimli",
+      "buergerlicherName": "Gimli",
+      "alias": [
+        "Gimli Glóins Sohn"
+      ],
+      "firma": "Volk Durins",
+      "strasse": "Glitzernde Grotten",
+      "ort": "Helms Klamm, Rohan",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Sidekick",
+      "hinweis": "Zwerg und Mitglied der Gemeinschaft des Rings; die Glitzernden Grotten werden ihm später als Herrschaftsgebiet zugeordnet.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "GLaDOS",
+      "buergerlicherName": "GLaDOS",
+      "alias": [
+        "Genetic Lifeform and Disk Operating System"
+      ],
+      "firma": "Aperture Science",
+      "strasse": "Aperture Science Enrichment Center",
+      "ort": "Michigan, Vereinigte Staaten",
+      "franchise": "Portal",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Künstliche Intelligenz, die die Testkammern des Aperture-Komplexes kontrolliert.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Gojo Satoru",
+      "buergerlicherName": "Gojo Satoru",
+      "alias": [
+        "Der Sechste"
+      ],
+      "firma": "Jujutsu High",
+      "strasse": "Tokyo",
+      "ort": "Japan",
+      "franchise": "Jujutsu Kaisen",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Stärkster Jujutsu-Kämpfer",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Goku",
+      "buergerlicherName": "Goku",
+      "alias": [
+        "Kakarot"
+      ],
+      "firma": "Kame House",
+      "strasse": "Capsule Corp",
+      "ort": "Earth",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Stärkster Kämpfer der Universe",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Gollum",
+      "buergerlicherName": "Sméagol (Stoors-Hobbit)",
+      "alias": [
+        "Sméagol"
+      ],
+      "firma": "Selbständig (Ring-Sklave)",
+      "strasse": "Höhle unter den Misty Mountains",
+      "ort": "Nebelgebirge, Mittelerde",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Antiheld",
+      "hinweis": "Lebte jahrhundertelang im Nebelgebirge, bis Bilbo den Ring fand; geteilte Persönlichkeit Sméagol/Gollum.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Goofy",
+      "buergerlicherName": "Goofy Goof",
+      "alias": [
+        "Goof"
+      ],
+      "firma": null,
+      "strasse": "Goofy-Residenz 1",
+      "ort": "Entenhausen",
+      "franchise": "Disney",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Sein vollständiger Name und Wohnort sind in verschiedenen Disney-Kontinuitäten nicht einheitlich.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Gordon Freeman",
+      "buergerlicherName": "Gordon Freeman",
+      "alias": [
+        "Der stille Wissenschaftler",
+        "Der freie Mann",
+        "Der eine freie Mann"
+      ],
+      "firma": "Black Mesa Research Facility",
+      "strasse": "Black Mesa Research Facility",
+      "ort": "New Mexico, Vereinigte Staaten",
+      "franchise": "Half-Life",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Theoretischer Physiker und Hauptfigur der Half-Life-Reihe.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Gordon Ramsay (Hell's Kitchen Parodie)",
+      "buergerlicherName": "Gordon James Ramsay",
+      "alias": [
+        "Chef Ramsay"
+      ],
+      "firma": "Hell's Kitchen (Küchenchef)",
+      "strasse": "Hell's Kitchen Restaurant (Studio-Küche)",
+      "ort": "Los Angeles, CA",
+      "franchise": "Hell's Kitchen",
+      "medium": "Serie",
+      "rolle": "Mentor",
+      "hinweis": "Berühmter für prägnante ('idiots sandwich') Wutausbrüche; realer TV-Personality als fiktionale Popkultur-Ikone.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Green Arrow",
+      "buergerlicherName": "Oliver Jonas Queen",
+      "alias": [
+        "Der Bogenschütze von Star City",
+        "Ollie",
+        "Emerald Archer"
+      ],
+      "firma": "Queen Industries / Team Arrow",
+      "strasse": "Queen Manor / The Bunker",
+      "ort": "Star City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Milliardär und meisterhafter Bogenschütze mit Trickpfeilen.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Green Lantern",
+      "buergerlicherName": "Harold 'Hal' Jordan",
+      "alias": [
+        "Der Smaragdritter",
+        "Emerald Knight",
+        "Green Lantern Sektor 2814",
+        "Smaragdritter"
+      ],
+      "firma": "Green Lantern Corps / Ferris Aircraft",
+      "strasse": "Ferris Aircraft Hangar 3",
+      "ort": "Coast City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Testpilot, Träger des mächtigsten Rings im Universum (grüne Willenskraft).",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Grogu",
+      "buergerlicherName": "Grogu",
+      "alias": [
+        "Das Kind",
+        "Baby Yoda"
+      ],
+      "firma": "Mandalorianer",
+      "strasse": "Razor Crest",
+      "ort": "Galaxis",
+      "franchise": "Star Wars",
+      "medium": "Serie",
+      "rolle": "Sidekick",
+      "hinweis": "Baby Yoda ist ein populärer Spitzname, nicht der kanonische Eigenname.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Gus Fring",
+      "buergerlicherName": "Gustavo Fring",
+      "alias": [
+        "Der Hühnermann"
+      ],
+      "firma": "Los Pollos Hermanos",
+      "strasse": "4257 Isleta Boulevard Southwest",
+      "ort": "Albuquerque, NM 87105",
+      "franchise": "Breaking Bad",
+      "medium": "Serie",
+      "rolle": "Antagonist",
+      "hinweis": "Betreibt die Fast-Food-Kette Los Pollos Hermanos als bürgerliche Tarnung",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Gwen Stacy (Spider-Gwen)",
+      "buergerlicherName": "Gwendolyne Maxine Stacy",
+      "alias": [
+        "Spider-Woman",
+        "Ghost-Spider"
+      ],
+      "firma": "Spider-Punk-Band (Schlagzeugerin), Mary Janes",
+      "strasse": "Earth-65 Stacy-Residenz",
+      "ort": "New York City, Erde-65 (Paralleluniversum)",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "In ihrem Universum wurde sie (nicht Peter) von der Spinne gebissen; Musikerin und Heldin.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Han Solo",
+      "buergerlicherName": "Han Solo",
+      "alias": [
+        "Captain Solo",
+        "Schmuggler-Kapitän"
+      ],
+      "firma": "Rebellenallianz",
+      "strasse": "Millennium Falke",
+      "ort": "Weltraum",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Schmuggler und späterer General der Rebellenallianz.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Handy Schlumpf",
+      "buergerlicherName": "Handy Schlumpf",
+      "alias": [
+        "Bastelschlumpf",
+        "Erfinderschnitt"
+      ],
+      "firma": "Schlumpfhausen Bau & Handwerk",
+      "strasse": "Pilzhaus Nr. 7",
+      "ort": "Schlumpfhausen (Verwunschenes Land)",
+      "franchise": "Die Schlümpfe",
+      "medium": "Comic",
+      "rolle": "Support",
+      "hinweis": "Trägt Latzhose und Bleistift hinterm Ohr; repariert das Dorf.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Hank Schrader",
+      "buergerlicherName": "Henry R. Schrader",
+      "alias": [
+        "DEA-Agent Schrader"
+      ],
+      "firma": "Drug Enforcement Administration",
+      "strasse": "Hank Schrader-Residenz 1",
+      "ort": "Albuquerque, New Mexico",
+      "franchise": "Breaking Bad",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "DEA-Agent und Schwager von Walter White.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Hannibal Lecter",
+      "buergerlicherName": "Hannibal Lecter",
+      "alias": [
+        "Hannibal the Cannibal",
+        "Der Kannibale",
+        "Dr. Lecter",
+        "Hannibal der Kannibale"
+      ],
+      "firma": "Psychiatrische Privatpraxis Lecter",
+      "strasse": "Chandler Street 12",
+      "ort": "Baltimore, Maryland",
+      "franchise": "Hannibal Lecter",
+      "medium": "Buch",
+      "rolle": "Antagonist",
+      "hinweis": "Psychiater und Serienmörder",
+      "quellenAnzahl": 4,
+      "hooks": []
+    },
+    {
+      "name": "Harley Quinn",
+      "buergerlicherName": "Harleen Frances Quinzel",
+      "alias": [
+        "Harleen Quinzel",
+        "Dr. Harleen Quinzel"
+      ],
+      "firma": "Suicide Squad",
+      "strasse": "Joker's Funhouse",
+      "ort": "Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Ehemalige Psychiaterin; ihre Rolle reicht von Schurkin bis Antiheldin.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Harry Potter",
+      "buergerlicherName": "Harry James Potter",
+      "alias": [
+        "Der Junge, der überlebte",
+        "Der Auserwählte",
+        "Auserwählter"
+      ],
+      "firma": "Hogwarts-Schule für Hexerei und Zauberei",
+      "strasse": "Ligusterweg 4 (ehem.) / Hogwarts",
+      "ort": "Little Whinging, Surrey",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Der Ligusterweg ist seine Kindheitsadresse bei den Dursleys, nicht sein dauerhafter erwachsener Wohnsitz.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Hogwarts",
+        "Quidditch",
+        "Narben-Blitz",
+        "Zauberstab aus Stechpalme",
+        "Dumbledore"
+      ]
+    },
+    {
+      "name": "Hawkeye",
+      "buergerlicherName": "Clinton Francis Barton",
+      "alias": [
+        "Ronin",
+        "Bester Schütze der Welt",
+        "Meisterschütze"
+      ],
+      "firma": "Avengers / S.H.I.E.L.D.",
+      "strasse": "Barton Farm",
+      "ort": "Waverly, Iowa",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Meisterschütze ohne Superkräfte, loyalster Team-Rückhalt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Heimerdinger",
+      "buergerlicherName": "Heimerdinger",
+      "alias": [],
+      "firma": "Piltover Institute",
+      "strasse": "Akademie-Turm 1",
+      "ort": "Piltover",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Mentor",
+      "hinweis": "Genie mit überlegener Intelligenz",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Hercule Poirot",
+      "buergerlicherName": "Hercule Poirot",
+      "alias": [
+        "Der berühmte Detektiv"
+      ],
+      "firma": "Privatdetektiv (ehem. belgischer Polizist)",
+      "strasse": "Whitehaven Mansions, Sandhurst Square 56B",
+      "ort": "London SW1, Vereinigtes Königreich",
+      "franchise": "Agatha Christie",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Belgischer Meisterdetektiv mit ausgeprägtem Ordnungssinn und berühmtem Schnurrbart.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Hermine Granger",
+      "buergerlicherName": "Hermine Jean Granger",
+      "alias": [
+        "Hermy (von Grawp)",
+        "Hermine Granger",
+        "Muggelgeborene"
+      ],
+      "firma": "Hogwarts (Schule), Zaubereiministerium (später)",
+      "strasse": "Granger Dentalpraxis & Residenz",
+      "ort": "London, England",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Die deutsche Buchübersetzung verwendet den Vornamen Hermine.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Homer Simpson",
+      "buergerlicherName": "Homer Jay Simpson",
+      "alias": [
+        "Homer Jay Simpson",
+        "Max Power",
+        "Homer"
+      ],
+      "firma": "Springfield Kernkraftwerk (Sektor 7G)",
+      "strasse": "742 Evergreen Terrace",
+      "ort": "Springfield, OR 97477",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Haupt-Figur der langlebigsten US-Zeichentrickserie der Welt.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Howl",
+      "buergerlicherName": "Howl Jenkins Pendragon",
+      "alias": [
+        "Howl Jenkins Pendragon",
+        "Zauberer Howl"
+      ],
+      "firma": null,
+      "strasse": "Bewegliches Schloss",
+      "ort": "Ingary",
+      "franchise": "Das wandelnde Schloss",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Die Namensform und die Ortsbezeichnungen variieren je nach Buchübersetzung und Filmadaption.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Hulk",
+      "buergerlicherName": "Robert Bruce Banner",
+      "alias": [
+        "Der unglaubliche Hulk",
+        "Der grüne Goliath",
+        "Professor Hulk",
+        "Der Unglaubliche Hulk",
+        "Grüner Goliath",
+        "Der Hulk"
+      ],
+      "firma": "Avengers / Culver University (ehem.)",
+      "strasse": "Stark Tower Labor / wechselnd",
+      "ort": "New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Genialer Nuklearphysiker mit Wut-induzierter Transformation.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Gammastrahlung",
+        "Zorn",
+        "unzerstörbare Hose",
+        "Smash",
+        "Pulsschlag",
+        "Monster im Inneren"
+      ]
+    },
+    {
+      "name": "Human Torch",
+      "buergerlicherName": "Jonathan Lowell Spencer Storm",
+      "alias": [
+        "Die menschliche Fackel",
+        "Johnny Storm"
+      ],
+      "firma": "Fantastic Four / Baxter Foundation",
+      "strasse": "Baxter Building, 42nd St & Madison Ave",
+      "ort": "New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Ruft 'Flamme an!' (Flame on!). Bruder von Susan Storm.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ichigo Kurosaki",
+      "buergerlicherName": "Ichigo Kurosaki",
+      "alias": [
+        "Der Halbtote",
+        "Der Shinigami-Stellvertreter"
+      ],
+      "firma": "Soul Society (Karakura-Town-Einheit)",
+      "strasse": "Kurosaki-Klinik, Wohnhaus",
+      "ort": "Karakura Town",
+      "franchise": "Bleach",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Schneide- und Rüstungsfähigkeiten",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Invisible Woman",
+      "buergerlicherName": "Susan Storm Richards",
+      "alias": [
+        "Die Unsichtbare",
+        "Sue Storm"
+      ],
+      "firma": "Fantastic Four / Baxter Foundation",
+      "strasse": "Baxter Building, 42nd St & Madison Ave",
+      "ort": "New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Ehefrau von Reed Richards, beherrscht Kraftfelder und Unsichtbarkeit.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Irelia",
+      "buergerlicherName": "Irelia",
+      "alias": [],
+      "firma": null,
+      "strasse": "Irelia-Residenz 1",
+      "ort": "Ionia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Schwertkämpferin aus Ionia",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Iron Fist",
+      "buergerlicherName": "Daniel Thomas Rand-K'ai",
+      "alias": [
+        "Die unsterbliche eiserne Faust",
+        "Danny Rand"
+      ],
+      "firma": "Rand Enterprises / Heroes for Hire",
+      "strasse": "Rand Tower, 485 Lexington Avenue",
+      "ort": "New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Gelehrt in der mystischen Stadt K'un-Lun; bündelt Chi in seinen Fäusten.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Iron Man",
+      "buergerlicherName": "Anthony Edward Stark",
+      "alias": [
+        "Tony Stark",
+        "Der gepanzerte Rächer",
+        "Shellhead",
+        "Goldene Rächer"
+      ],
+      "firma": "Stark Industries / Avengers",
+      "strasse": "10880 Wilshire Boulevard / Stark Tower",
+      "ort": "Malibu / New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Genie, Milliardär, Playboy, Philanthrop.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Stark Industries",
+        "Arc-Reaktor",
+        "Jarvis",
+        "Nanotechnologie",
+        "Avengers"
+      ]
+    },
+    {
+      "name": "Itachi Uchiha",
+      "buergerlicherName": "Itachi Uchiha",
+      "alias": [
+        "Der Clan-Mörder",
+        "Akatsuki-Mitglied"
+      ],
+      "firma": "Akatsuki (Verbrecherorganisation, getarnt als Informationssammler)",
+      "strasse": "Kein fester Wohnsitz (Undercover in Akatsuki-Zellen)",
+      "ort": "Unbekannt (ehem. Konohagakure, Land des Feuers)",
+      "franchise": "Naruto",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Tötete seinen Clan auf Geheiß, um Krieg zu verhindern; wahrer Held im Verborgenen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jack",
+      "buergerlicherName": "Jack Ryan",
+      "alias": [
+        "Jack Ryan",
+        "Jack of All Trades (Spitzname)",
+        "Naked Snake",
+        "Der Soldat ohne Grenzen"
+      ],
+      "firma": "Rapture (Bürger, kein festes Amt)",
+      "strasse": "Bathysphere-Terminal, Rapture Welcome Center",
+      "ort": "Rapture (Unterwasserstadt), Atlantik",
+      "franchise": "Bioshock",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Stummer Protagonist; entdeckt die Unterwasser-Dystopie Rapture.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jack Sparrow",
+      "buergerlicherName": "Jack Sparrow",
+      "alias": [
+        "Captain Jack Sparrow"
+      ],
+      "firma": "Piraten der Karibik",
+      "strasse": "Black Pearl",
+      "ort": "Karibik",
+      "franchise": "Fluch der Karibik",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Piratenkapitän mit wechselnden Allianzen; die Black Pearl ist sein bekanntestes Schiff.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "James",
+      "buergerlicherName": "James",
+      "alias": [
+        "Kojiro"
+      ],
+      "firma": "Team Rocket",
+      "strasse": "James-Residenz 1",
+      "ort": "Kanto",
+      "franchise": "Pokémon",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Mitglied von Team Rocket; seine wohlhabende Familie wird in einzelnen Episoden gezeigt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "James Bond",
+      "buergerlicherName": "James Bond",
+      "alias": [
+        "007",
+        "Agent 007"
+      ],
+      "firma": "MI6",
+      "strasse": "1 Whitehall Court",
+      "ort": "SW1A 2DT London",
+      "franchise": "James Bond",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Die Filmreihe legt keine dauerhaft gültige private Wohnadresse fest.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Aston Martin",
+        "geschüttelt nicht gerührt",
+        "MI6",
+        "Lizenz zum Töten",
+        "Q-Gadgets"
+      ]
+    },
+    {
+      "name": "James T. Kirk",
+      "buergerlicherName": "James Tiberius Kirk",
+      "alias": [
+        "Captain Kirk"
+      ],
+      "firma": "Sternenflotte",
+      "strasse": "USS Enterprise",
+      "ort": "Weltraum",
+      "franchise": "Star Trek",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Kommandant der USS Enterprise in der Originalserie.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jax",
+      "buergerlicherName": "Jax",
+      "alias": [],
+      "firma": null,
+      "strasse": "Jax-Residenz 1",
+      "ort": "Demacia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Disziplinierter Kämpfer",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jayce Talis",
+      "buergerlicherName": "Jayce Talis",
+      "alias": [],
+      "firma": "Hextech",
+      "strasse": "Akademie der Wissenschaften, Talis-Labor 1",
+      "ort": "Piltover",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Erfinder von Hextech",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jean Grey",
+      "buergerlicherName": "Jean Elaine Grey",
+      "alias": [
+        "Phoenix",
+        "Marvel Girl"
+      ],
+      "firma": "X-Men",
+      "strasse": "Xavier-Institut",
+      "ort": "Westchester County, New York",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Ihre Verbindung zur Phoenix Force ist je nach Comicphase unterschiedlich ausgeprägt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jean-Luc Picard",
+      "buergerlicherName": "Jean-Luc Picard",
+      "alias": [
+        "Locutus von Borg",
+        "Captain Picard",
+        "Admiral Picard",
+        "Locutus"
+      ],
+      "firma": "Sternenflotte",
+      "strasse": "Château Picard",
+      "ort": "La Barre, Frankreich",
+      "franchise": "Star Trek",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Die USS Enterprise-D ist ein Schiff, kein Wohnort.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Tee Earl Grey heiß",
+        "Enterprise NCC-1701-D",
+        "Château Picard",
+        "Energie",
+        "Sternenflotte"
+      ]
+    },
+    {
+      "name": "Jerry",
+      "buergerlicherName": "Jerry",
+      "alias": [
+        "Jerry Mouse"
+      ],
+      "firma": null,
+      "strasse": "Jerry-Residenz 1",
+      "ort": "Unbekannt",
+      "franchise": "Tom und Jerry",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Eine kleine Maus, die Tom regelmäßig entkommt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jesse Pinkman",
+      "buergerlicherName": "Jesse Bruce Pinkman",
+      "alias": [
+        "Cap'n Cook"
+      ],
+      "firma": "Selbständig (Drogenlabor und Reinigungsfirma als Tarnung)",
+      "strasse": "Wohnung 302, 316 Margo Street",
+      "ort": "Albuquerque, New Mexico",
+      "franchise": "Breaking Bad",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Ehemaliger Schüler Walter Whites und dessen Geschäftspartner.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Jessica Jones",
+      "buergerlicherName": "Jessica Campbell Jones-Cage",
+      "alias": [
+        "Jewel (ehem.)"
+      ],
+      "firma": "Alias Investigations",
+      "strasse": "463 West 46th Street",
+      "ort": "Hell's Kitchen, New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Privatdetektivin mit übermenschlicher Kraft und PTBS.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jessie",
+      "buergerlicherName": "Jessie",
+      "alias": [
+        "Musashi"
+      ],
+      "firma": "Team Rocket",
+      "strasse": "Jessie-Residenz 1",
+      "ort": "Kanto",
+      "franchise": "Pokémon",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Jessie und James sind Mitglieder von Team Rocket; der Anime gibt ihnen keine durchgehend etablierte bürgerliche Familiennamensform.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jill Valentine",
+      "buergerlicherName": "Jill Valentine",
+      "alias": [
+        "Meisterin des Entkommens"
+      ],
+      "firma": "S.T.A.R.S.",
+      "strasse": "Jill Valentine-Residenz 1",
+      "ort": "Raccoon City",
+      "franchise": "Resident Evil",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Eine der zentralen Figuren der Resident-Evil-Reihe.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Jinx",
+      "buergerlicherName": "Jinx",
+      "alias": [
+        "Powder"
+      ],
+      "firma": null,
+      "strasse": "Zaun Unterstadt / Schrottplatz-Versteck 4",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Chemikerin mit explosiven Fähigkeiten",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Johnny Silverhand",
+      "buergerlicherName": "Robert John Linder",
+      "alias": [
+        "Robert John Linder",
+        "Johnny Silverhand",
+        "Samurai-Frontmann"
+      ],
+      "firma": "Samurai",
+      "strasse": "Konstrukt im Engramm von V (digitales Bewusstsein)",
+      "ort": "Night City",
+      "franchise": "Cyberpunk 2077",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Rockmusiker und digitaler Geist im Bewusstsein von V.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Joker",
+      "buergerlicherName": "Joker",
+      "alias": [
+        "Clownprinz des Verbrechens",
+        "Harlekin des Hasses",
+        "Der Clownprinz des Verbrechens"
+      ],
+      "firma": "Injustice League",
+      "strasse": "Arkham Asylum",
+      "ort": "Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Eine definitive bürgerliche Identität ist in den meisten Comic-Kontinuitäten nicht festgelegt. Einzelne Adaptionen verwenden andere Namen.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Lächeln",
+        "Arkham Asylum",
+        "Kartenspiel",
+        "Chaos",
+        "Lachgas",
+        "Gotham im Brand"
+      ]
+    },
+    {
+      "name": "Jon Schnee",
+      "buergerlicherName": "Aegon Targaryen",
+      "alias": [
+        "Aegon Targaryen",
+        "Lord Schnee",
+        "Der Bastard von Winterfell",
+        "Jon Snow",
+        "Lord Kommandant",
+        "Aemon Targaryen (wahrer Name)"
+      ],
+      "firma": "Nachtwache",
+      "strasse": "Schwarze Festung / Winterfell",
+      "ort": "Die Mauer / Winterfell",
+      "franchise": "Game of Thrones",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Geboren als Aegon Targaryen, wuchs als unehelicher Sohn von Eddard Stark unter dem Namen Jon Schnee auf.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Kakashi Hatake",
+      "buergerlicherName": "Kakashi Hatake",
+      "alias": [
+        "Kopier-Ninja",
+        "Kakashi mit dem Sharingan",
+        "Der Kopier-Ninja",
+        "Kakashi-Sensei"
+      ],
+      "firma": "Konohagakure",
+      "strasse": "Kakashi-Residenz, Wohnviertel von Konoha",
+      "ort": "Konohagakure, Feuerreich",
+      "franchise": "Naruto",
+      "medium": "Anime",
+      "rolle": "Mentor",
+      "hinweis": "Ehemaliger Lehrer von Team 7 und später sechster Hokage.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Kapitän Haddock",
+      "buergerlicherName": "Archibald Haddock",
+      "alias": [
+        "Kapitän zur See",
+        "Archibald Haddock",
+        "Alter Seebär"
+      ],
+      "firma": "Handelsmarine / Schloss Mühlenhof",
+      "strasse": "Schloss Mühlenhof 1",
+      "ort": "Moulinsart (Belgien)",
+      "franchise": "Tim und Struppi",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Berühmt für Flüche ('Hunderttausend heulende Höllenhunde!') und Loch-Lomond-Whisky.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Katarina",
+      "buergerlicherName": "Katarina",
+      "alias": [],
+      "firma": null,
+      "strasse": "Katarina-Residenz 1",
+      "ort": "Demacia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Assassinin",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Katniss Everdeen",
+      "buergerlicherName": "Katniss Everdeen",
+      "alias": [
+        "Der Spottölpel",
+        "Das Mädchen, das in Flammen steht"
+      ],
+      "firma": "Distrikt 12 Aufstand",
+      "strasse": "Dorf der Sieger, Haus 1",
+      "ort": "Distrikt 12, Panem",
+      "franchise": "Die Tribute von Panem",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": null,
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Kenny McCormick",
+      "buergerlicherName": "Kenneth McCormick",
+      "alias": [
+        "Mysterion"
+      ],
+      "firma": "South Park Elementary",
+      "strasse": "McCormick-Residenz, 935 Avenue de los Mexicanos",
+      "ort": "South Park, Colorado",
+      "franchise": "South Park",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Mysterion ist sein maskiertes Alter Ego.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "King Dedede",
+      "buergerlicherName": "King Dedede",
+      "alias": [
+        "Der König von Dream Land"
+      ],
+      "firma": "Dream Land (Selbsternannter König)",
+      "strasse": "Dededes Schloss",
+      "ort": "Dream Land, Planet Popstar",
+      "franchise": "Kirby",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Dicklicher Pinguin-König mit Hammer; öfter Rivale als echter Bösewicht.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Kirby",
+      "buergerlicherName": "Kirby",
+      "alias": [
+        "Rosa Held",
+        "Der rosa Ball"
+      ],
+      "firma": "Dream Land (Beschützer)",
+      "strasse": "Haus von Kirby",
+      "ort": "Dream Land, Planet Popstar",
+      "franchise": "Kirby",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Rosa, kugelförmige Figur mit der Fähigkeit, Gegner einzusaugen und Fähigkeiten zu kopieren.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Krabat",
+      "buergerlicherName": "Krabat",
+      "alias": [
+        "Der sorbische Zauberlehrling"
+      ],
+      "firma": "Schwarze Mühle",
+      "strasse": "Schwarze Mühle",
+      "ort": "Lausitz",
+      "franchise": "Krabat",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Figur aus der sorbischen Sagenwelt und aus Otfried Preußlers Roman.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Krachbumm-Ente (Gizmoduck)",
+      "buergerlicherName": "Fenton Crackshell-Cabrera",
+      "alias": [
+        "Gizmoduck",
+        "Robo-Ente"
+      ],
+      "firma": "Duck Enterprises (Buchhaltung)",
+      "strasse": "Wohnwagensiedlung Entenhausen",
+      "ort": "Entenhausen",
+      "franchise": "Entenhausen (Disney)",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Aktiviert den Exo-Anzug mit dem Codewort 'Zählappell!' (Blathering Blatherskite!).",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Kratos",
+      "buergerlicherName": "Kratos",
+      "alias": [
+        "Geist Spartas",
+        "Vater von Atreus"
+      ],
+      "firma": null,
+      "strasse": "Hütte im Wald",
+      "ort": "Midgard",
+      "franchise": "God of War",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Die Figur entwickelt sich von einem rachsüchtigen Krieger zu einem zurückhaltenden Vater.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Krusty der Clown",
+      "buergerlicherName": "Herschel Shmoikel Pinkus Yerucham Krustofsky",
+      "alias": [
+        "Krusty"
+      ],
+      "firma": "Krusty Studios",
+      "strasse": "Krusty der Clown-Residenz 1",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Sonstiges",
+      "hinweis": "Sein bürgerlicher Name ist in einer Folge ausführlich genannt worden.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Kyle Broflovski",
+      "buergerlicherName": "Kyle Broflovski",
+      "alias": [
+        "Kyle"
+      ],
+      "firma": "South Park Elementary",
+      "strasse": "Broflovski-Residenz",
+      "ort": "South Park, Colorado",
+      "franchise": "South Park",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Einer der vier zentralen Jungen der Serie.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Kylo Ren",
+      "buergerlicherName": "Ben Solo",
+      "alias": [
+        "Ben Solo"
+      ],
+      "firma": "Erste Ordnung (Anführer), Ritter von Ren",
+      "strasse": "Kommandobrücke, Sternenzerstörer Finalizer",
+      "ort": "Weltraum (Basis: Starkiller-Basis, Ilum)",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Sohn von Leia Organa und Han Solo; trägt maschinenverzerrte Stimme unter Maske.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "L",
+      "buergerlicherName": "L Lawliet",
+      "alias": [
+        "Ryuzaki",
+        "Hideki Ryuga",
+        "Detektiv L"
+      ],
+      "firma": "Waisenhaus Wammy's House",
+      "strasse": "Hotel Suite 1213 (variierend), unterirdisches Hauptquartier",
+      "ort": "Unbekannt",
+      "franchise": "Death Note",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Der weltweit bekannte Detektiv verbirgt seine Identität. Sein voller Name wird in Zusatzmaterial als L Lawliet angegeben.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Lady Jessica",
+      "buergerlicherName": "Jessica",
+      "alias": [
+        "Jessica Atreides",
+        "Ehrwürdige Mutter"
+      ],
+      "firma": "Haus Atreides",
+      "strasse": "Palast von Arrakeen",
+      "ort": "Arrakis",
+      "franchise": "Dune",
+      "medium": "Film",
+      "rolle": "Mentor",
+      "hinweis": "Bene-Gesserit und Mutter von Paul Atreides.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Lara Croft",
+      "buergerlicherName": "Lara Croft",
+      "alias": [
+        "Tomb Raider",
+        "Die Gräber-Räuberin"
+      ],
+      "firma": "Croft Holdings / Archäologie",
+      "strasse": "Croft Manor",
+      "ort": "Abinger, Surrey, England",
+      "franchise": "Tomb Raider",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Archäologin und Abenteurerin; die Lage des Familienanwesens variiert zwischen Kontinuitäten.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "LeBlanc",
+      "buergerlicherName": "LeBlanc",
+      "alias": [],
+      "firma": null,
+      "strasse": "LeBlanc-Residenz 1",
+      "ort": "Zaun",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Meister der Illusion",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Legolas",
+      "buergerlicherName": "Legolas",
+      "alias": [
+        "Legolas Grünblatt"
+      ],
+      "firma": "Gemeinschaft des Rings (zeitweilig)",
+      "strasse": "Palast des Waldland-Reichs",
+      "ort": "Düsterwald (Eryn Lasgalen)",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Support",
+      "hinweis": "Sohn des Elbenkönigs Thranduil.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Leia Organa",
+      "buergerlicherName": "Leia Organa",
+      "alias": [
+        "Prinzessin Leia",
+        "General Organa"
+      ],
+      "firma": "Allianz zur Wiederherstellung der Republik",
+      "strasse": "Königlicher Palast",
+      "ort": "Alderaan",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Ihre Geburtsidentität als Leia Skywalker wird in der Filmreihe enthüllt; Organa ist ihr angenommener Familienname.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Lelouch vi Britannia",
+      "buergerlicherName": "Lelouch Lamperouge",
+      "alias": [
+        "Zero"
+      ],
+      "firma": "Order of the Black Knights (Anführer)",
+      "strasse": "Schülerwohnheim Ashford Academy, Raum 401",
+      "ort": "Tokio (Area 11), Heiliges Britannisches Kaiserreich",
+      "franchise": "Code Geass",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Verdeckter Ex-Prinz mit Geass-Macht (absoluter Befehl); Schüler an der Ashford-Akademie.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Leon S. Kennedy",
+      "buergerlicherName": "Leon Scott Kennedy",
+      "alias": [
+        "Leon Kennedy",
+        "Agent Kennedy"
+      ],
+      "firma": "US-Regierungsdienst",
+      "strasse": "Raccoon City Police Department (Rekrut im R.P.D.)",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Resident Evil",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Polizist und später Regierungsagent; seine genaue Dienststelle variiert mit der Handlung.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Levi Ackermann",
+      "buergerlicherName": "Levi Ackermann",
+      "alias": [
+        "Captain Levi",
+        "Stärkster Soldat der Menschheit",
+        "Korporal Levi",
+        "Der stärkste Soldat der Menschheit"
+      ],
+      "firma": "Aufklärungstrupp",
+      "strasse": "Hauptquartier der Aufklärungstruppe",
+      "ort": "Paradis",
+      "franchise": "Attack on Titan",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Erfahrener Soldat und Kommandant; die genaue Schreibweise variiert nach Übersetzung.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Lex Luthor",
+      "buergerlicherName": "Alexander Joseph Luthor",
+      "alias": [
+        "Lex",
+        "Alexander Luthor"
+      ],
+      "firma": "LexCorp",
+      "strasse": "LexCorp Tower",
+      "ort": "Metropolis",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Unternehmer und einer der bekanntesten Gegenspieler Supermans.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Kryptonit",
+        "LexCorp",
+        "Glatze",
+        "Machtstreben",
+        "Präsidentschaft",
+        "Genie"
+      ]
+    },
+    {
+      "name": "Light Yagami",
+      "buergerlicherName": "Light Yagami",
+      "alias": [
+        "Kira"
+      ],
+      "firma": "Kira-Bewegung",
+      "strasse": "Wohnung der Yagami-Familie, Wohnviertel Tokio",
+      "ort": "Japan",
+      "franchise": "Death Note",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Schüler, der mit Death Note tötet",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Link",
+      "buergerlicherName": "Link",
+      "alias": [
+        "Held der Zeit",
+        "Held von Hyrule"
+      ],
+      "firma": "Königliche Leibgarde von Schloss Hyrule",
+      "strasse": "Hateno-Dorf Haus 1 / Schloss Hyrule",
+      "ort": "Königreich Hyrule",
+      "franchise": "The Legend of Zelda",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Träger des Triforce des Mutes und des Master-Schwerts.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Lisa Simpson",
+      "buergerlicherName": "Lisa Marie Simpson",
+      "alias": [
+        "Lisa Marie Simpson"
+      ],
+      "firma": "Springfield Elementary School",
+      "strasse": "742 Evergreen Terrace",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Ihre musikalischen und akademischen Interessen sind wiederkehrende Handlungselemente.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Loki",
+      "buergerlicherName": "Loki Laufeyson",
+      "alias": [
+        "Gott des Schabernacks",
+        "Laufeyson",
+        "Loki"
+      ],
+      "firma": "Asgard",
+      "strasse": "Hütte im Wald",
+      "ort": "Asgard",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Wird in unterschiedlichen Handlungssträngen als Schurke, Antiheld oder Verbündeter dargestellt.",
+      "quellenAnzahl": 1,
+      "hooks": [
+        "Gott des Schabernacks",
+        "Illusionen",
+        "Tesserakt",
+        "Hörnerhelm",
+        "glorreiche Bestimmung"
+      ]
+    },
+    {
+      "name": "Lucky Luke",
+      "buergerlicherName": "Lucky Luke",
+      "alias": [
+        "Der Mann, der schneller zieht als sein Schatten",
+        "Der einsame Cowboy"
+      ],
+      "firma": "Kein festes (Kopfgeldjäger und Cowboy)",
+      "strasse": "Reiter unterwegs (Pferd Jolly Jumper)",
+      "ort": "Wilder Westen, Vereinigte Staaten",
+      "franchise": "Lucky Luke",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Ein umherziehender Cowboy ohne dauerhaft kanonische Postanschrift.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Luigi",
+      "buergerlicherName": "Luigi Mario",
+      "alias": [
+        "Green Mario"
+      ],
+      "firma": null,
+      "strasse": "Luigi-Residenz 1",
+      "ort": "Pilz-Königreich",
+      "franchise": "Super Mario",
+      "medium": "Videospiel",
+      "rolle": "Sidekick",
+      "hinweis": "Marios Bruder; der Familienname ist nicht in allen offiziellen Spielen etabliert.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Luke Cage",
+      "buergerlicherName": "Carl Lucas (Luke Cage)",
+      "alias": [
+        "Power Man"
+      ],
+      "firma": "Heroes for Hire / Pop's Barber Shop",
+      "strasse": "Pop's Barber Shop, 119th Street",
+      "ort": "Harlem, New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Unzerstörbare Haut und übermenschliche Stärke.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Luke Skywalker",
+      "buergerlicherName": "Luke Skywalker",
+      "alias": [
+        "Luke",
+        "Jedi-Ritter",
+        "Sohn der Skywalker-Familie",
+        "Meister Skywalker"
+      ],
+      "firma": "Jedi-Orden, Rebellenallianz",
+      "strasse": "Lars Feuchtfarm (ehem.) / Neuer Jedi-Tempel",
+      "ort": "Tatooine",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Wuchs auf der Lars-Farm auf und lebte später an verschiedenen Orten in der Galaxis.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Lichtschwert",
+        "Feuchtfarm",
+        "Tatooine",
+        "die Macht",
+        "X-Wing",
+        "Jedi-Meister"
+      ]
+    },
+    {
+      "name": "M",
+      "buergerlicherName": "Miles Messervy (klassische Buch-Identität)",
+      "alias": [
+        "M",
+        "Miles Messervy (klassischer Name)"
+      ],
+      "firma": "MI6 (Leiter)",
+      "strasse": "MI6-Hauptquartier, 85 Albert Embankment",
+      "ort": "London SE1, Vereinigtes Königreich",
+      "franchise": "James Bond",
+      "medium": "Film",
+      "rolle": "Mentor",
+      "hinweis": "Amtscode M; direkter Vorgesetzte von James Bond.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Mabel Pines",
+      "buergerlicherName": "Mabel Pines",
+      "alias": [
+        "Mabel"
+      ],
+      "firma": "Mystery Shack",
+      "strasse": "Mystery Shack",
+      "ort": "Gravity Falls, Oregon",
+      "franchise": "Gravity Falls",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Zwillingsschwester von Dipper Pines.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Maggie Simpson",
+      "buergerlicherName": "Margaret Evelyn Lenny Simpson",
+      "alias": [
+        "Maggie"
+      ],
+      "firma": null,
+      "strasse": "742 Evergreen Terrace",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Sonstiges",
+      "hinweis": "Ihr vollständiger Name wird in der Serie und Begleitmaterial nicht durchgehend einheitlich angegeben.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Magneto",
+      "buergerlicherName": "Max Eisenhardt",
+      "alias": [
+        "Erik Lehnsherr",
+        "Max Eisenhardt",
+        "Master of Magnetism"
+      ],
+      "firma": "Bruderschaft der Mutanten",
+      "strasse": "Asteroid M (Orbitalstation)",
+      "ort": "Genosha",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Seine ursprüngliche Identität und seine politischen Ziele wurden über mehrere Comic-Epochen weiterentwickelt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Majestix",
+      "buergerlicherName": "Majestix",
+      "alias": [
+        "Häuptling des Dorfes"
+      ],
+      "firma": "Gallischer Häuptlingssitz",
+      "strasse": "Häuptlingshütte (auf dem Schild)",
+      "ort": "Unbeugsames gallisches Dorf (Aremorica)",
+      "franchise": "Asterix",
+      "medium": "Comic",
+      "rolle": "Support",
+      "hinweis": "Hat nur eine Angst: Dass ihm der Himmel auf den Kopf fällt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Majin Buu",
+      "buergerlicherName": "Majin Buu",
+      "alias": [
+        "Absorber"
+      ],
+      "firma": null,
+      "strasse": "Buu-Kuppelhaus 1",
+      "ort": "Earth",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Unsterblicher Bösewicht",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Marge Gunderson",
+      "buergerlicherName": "Marge Gunderson",
+      "alias": [
+        "Marge"
+      ],
+      "firma": "Brainerd Police Department (Polizeichefin)",
+      "strasse": "Polizeirevier Brainerd",
+      "ort": "Brainerd, Minnesota",
+      "franchise": "Fargo",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Schwangere Polizeichefin mit unverwechselbarem Minnesota-Dialekt ('Oh, you betcha!').",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Marge Simpson",
+      "buergerlicherName": "Marjorie Jacqueline Simpson",
+      "alias": [
+        "Marge Bouvier"
+      ],
+      "firma": "Hausfrau und Mutter",
+      "strasse": "742 Evergreen Terrace",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Geborene Bouvier; der genaue US-Bundesstaat Springfields ist in der Serie absichtlich uneindeutig.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Mario",
+      "buergerlicherName": "Mario",
+      "alias": [
+        "Super Mario",
+        "Jumpman",
+        "Mario"
+      ],
+      "firma": "Nintendo",
+      "strasse": "Mario Bros. Klempnerbetrieb / Schloss Peach",
+      "ort": "Pilz-Königreich",
+      "franchise": "Super Mario",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "'Mario Mario' stammt aus der Realverfilmung von 1993 und gilt nicht als Spiel-Kanon.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Martian Manhunter",
+      "buergerlicherName": "J'onn J'onzz (John Jones)",
+      "alias": [
+        "Der Marsmensch",
+        "Das Herz der Justice League"
+      ],
+      "firma": "Justice League / Marsianische Garde",
+      "strasse": "Justice League Watchtower",
+      "ort": "Erdorbit / Metropolis",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Letzter Überlebender des Mars, beherrscht Gestaltwandlung und Telepathie. Schwäche: Feuer.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Marty McFly",
+      "buergerlicherName": "Martin Seamus McFly",
+      "alias": [
+        "Marty"
+      ],
+      "firma": "Schüler an der Hill Valley High School",
+      "strasse": "1640 Riverside Drive",
+      "ort": "Hill Valley, Kalifornien",
+      "franchise": "Zurück in die Zukunft",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Hill Valley ist eine fiktive Stadt; die Filmreihe verwendet unterschiedliche Zeitlinien und Adressen.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Hoverboard",
+        "Skateboard",
+        "Gitarrenverstärker",
+        "Feigling",
+        "Twin Pines Mall"
+      ]
+    },
+    {
+      "name": "Mary Poppins",
+      "buergerlicherName": "Mary Poppins",
+      "alias": [
+        "Das Kindermädchen"
+      ],
+      "firma": null,
+      "strasse": "17 Kirschbaumweg",
+      "ort": "London, England",
+      "franchise": "Mary Poppins",
+      "medium": "Buch",
+      "rolle": "Mentor",
+      "hinweis": "Der Kirschbaumweg ist die deutsche Bezeichnung für Cherry Tree Lane; Hausnummern variieren je nach Adaption.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Master Chief",
+      "buergerlicherName": "John (Nachname unbekannt)",
+      "alias": [
+        "John-117",
+        "Sierra-117",
+        "Der Demokratie-Held"
+      ],
+      "firma": "UNSC (Spartan-II-Supersoldat)",
+      "strasse": "Mjolnir-Mark-VI-Kampfanzug (kein fester Wohnsitz)",
+      "ort": "UNSC Infinity (Schiff) / Installation 04 (Halo-Ring)",
+      "franchise": "Halo",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Bio-technisch verbesserter Supersoldat; bürgerlicher Name nur als 'John' bekannt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Master Yi",
+      "buergerlicherName": "Master Yi",
+      "alias": [],
+      "firma": null,
+      "strasse": "Master Yi-Residenz 1",
+      "ort": "Ionia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Mentor",
+      "hinweis": "Wächter der Balance",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Mel Medarda",
+      "buergerlicherName": "Mel Medarda",
+      "alias": [],
+      "firma": "Medarda Corporation",
+      "strasse": "Medarda-Palast, Piltover Promenade 1",
+      "ort": "Piltover",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Politische Strategin",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Michael Corleone",
+      "buergerlicherName": "Michael Corleone",
+      "alias": [
+        "Der Pate",
+        "Don Corleone",
+        "Don Vito"
+      ],
+      "firma": "Corleone-Familie",
+      "strasse": "Corleone Compound",
+      "ort": "Long Beach, New York",
+      "franchise": "Der Pate",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "'Der Pate' ist der Filmtitel, kein Alias der Figur.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Mickey Maus",
+      "buergerlicherName": "Mickey Mouse",
+      "alias": [
+        "Mickey Mouse"
+      ],
+      "firma": null,
+      "strasse": "Mickey Maus-Residenz 1",
+      "ort": "Entenhausen",
+      "franchise": "Disney",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Wohnort und Nachbarschaft variieren in den zahlreichen Disney-Comic- und Zeichentrickkontinuitäten.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Micky Maus",
+      "buergerlicherName": "Micky Maus",
+      "alias": [
+        "Detective Micky",
+        "Meisterdetektiv Micky"
+      ],
+      "firma": "Detektiv / Agent (wechselnde Auftraggeber)",
+      "strasse": "Mausweg 1",
+      "ort": "Entenhausen",
+      "franchise": "Disney",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": null,
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Mikasa Ackerman",
+      "buergerlicherName": "Mikasa Ackermann",
+      "alias": [
+        "Mikasa Ackerman",
+        "Mikasa"
+      ],
+      "firma": "Aufklärungstrupp",
+      "strasse": "Hauptquartier der Aufklärungstruppe",
+      "ort": "Wall Maria",
+      "franchise": "Attack on Titan",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Starker Wille, Kriegerin gegen Titanen",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Mike Ehrmantraut",
+      "buergerlicherName": "Michael Ehrmantraut",
+      "alias": [
+        "Der Fixer"
+      ],
+      "firma": "Madrigal Electromotive (Sicherheit, als Tarnung)",
+      "strasse": "Madrigal Electromotive GmbH, Zweigstelle",
+      "ort": "Albuquerque, NM ( ursprünglich Philadelphia, PA)",
+      "franchise": "Better Call Saul",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Ehemaliger Polizist; Arbeitet als Problem-Löser für Gus Fring und Saul Goodman.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Mikoto Misaka",
+      "buergerlicherName": "Mikoto Misaka",
+      "alias": [
+        "Railgun"
+      ],
+      "firma": "Tokiwadai Mittelschule (Stufe 5 Esper)",
+      "strasse": "Tokiwadai-Schülerwohnheim, Raum 208",
+      "ort": "Academy City, Japan",
+      "franchise": "A Certain Scientific Railgun",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Elektro-Espe der Stufe 5; wird 'Railgun' genannt, weil sie Münzen als Projektile verschießt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Milo",
+      "buergerlicherName": "Milo",
+      "alias": [],
+      "firma": null,
+      "strasse": "Milo-Residenz 1",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Freund von Jinx",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Minerva McGonagall",
+      "buergerlicherName": "Minerva McGonagall",
+      "alias": [
+        "Professor McGonagall"
+      ],
+      "firma": "Hogwarts",
+      "strasse": "Hogwarts-Schule für Hexerei und Zauberei",
+      "ort": "Schottland",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Mentor",
+      "hinweis": "Lehrerin für Verwandlung und später Schulleiterin.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Miraculix",
+      "buergerlicherName": "Miraculix",
+      "alias": [
+        "Der Druide",
+        "Panoramix"
+      ],
+      "firma": "Gallischer Druidenorden",
+      "strasse": "Druidenhütte am Eichenhain",
+      "ort": "Unbeugsames gallisches Dorf (Aremorica)",
+      "franchise": "Asterix",
+      "medium": "Comic",
+      "rolle": "Mentor",
+      "hinweis": "Brauer des Zaubertranks mit der goldenen Sichel. Schneidet Misteln nur im Eichenhain.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Miss Marple",
+      "buergerlicherName": "Jane Marple",
+      "alias": [
+        "Jane Marple"
+      ],
+      "firma": "Keine (ruhige Beobachterin und Amateur-Detektivin)",
+      "strasse": "Danemede Cottage",
+      "ort": "St. Mary Mead, England",
+      "franchise": "Agatha Christie",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Scharfsinnige alte Dame, die Kriminalfälle durch Menschenkenntnis löst.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Mister Fantastic",
+      "buergerlicherName": "Dr. Reed Richards",
+      "alias": [
+        "Mr. Fantastic",
+        "Der klügste Mann der Welt"
+      ],
+      "firma": "Fantastic Four / Baxter Foundation",
+      "strasse": "Baxter Building, 42nd St & Madison Ave",
+      "ort": "New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Anführer der Fantastic Four, hyper-elastischer Körper.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Momo",
+      "buergerlicherName": "Momo",
+      "alias": [
+        "Momo, das Mädchen"
+      ],
+      "firma": null,
+      "strasse": "Ruine des Amphitheaters",
+      "ort": "Unbenannte italienische Stadt",
+      "franchise": "Momo",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Michael Endes Roman benennt die Stadt nicht ausdrücklich.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Monkey D. Ruffy",
+      "buergerlicherName": "Monkey D. Luffy",
+      "alias": [
+        "Strohhut-Ruffy",
+        "Strohhut",
+        "Lucy",
+        "Straw Hat Captain",
+        "Luffy",
+        "Zukünftiger König der Piraten",
+        "Der Mann, der König der Piraten wird"
+      ],
+      "firma": "Strohhutpiraten",
+      "strasse": "Thousand Sunny (Flaggschiff)",
+      "ort": "Windmühlendorf (Heimat) / Grandline",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Sucht den One Piece",
+      "quellenAnzahl": 4,
+      "hooks": []
+    },
+    {
+      "name": "Morpheus",
+      "buergerlicherName": "Morpheus",
+      "alias": [
+        "Captain Morpheus",
+        "Der Kapitän der Nebuchadnezzar"
+      ],
+      "firma": "Widerstand gegen die Maschinen",
+      "strasse": "Nebuchadnezzar",
+      "ort": "Matrix und reale Welt",
+      "franchise": "Matrix",
+      "medium": "Film",
+      "rolle": "Mentor",
+      "hinweis": "Führt Neo an die Wahrheit über die Matrix heran.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Morty Smith",
+      "buergerlicherName": "Mortimer Smith",
+      "alias": [
+        "Morty"
+      ],
+      "firma": "Schüler an der Harry Herpson High School",
+      "strasse": "Smith-Familienhaus",
+      "ort": "Seattle-ähnlicher Vorort",
+      "franchise": "Rick and Morty",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Der Name Mortimer wird gelegentlich als Langform verwendet, ist aber nicht durchgehend kanonisch.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Mr. Burns",
+      "buergerlicherName": "Charles Montgomery Burns",
+      "alias": [
+        "Charles Montgomery Burns",
+        "Monty",
+        "C. Montgomery Burns"
+      ],
+      "firma": "Springfield Atomkraftwerk",
+      "strasse": "Burns Manor",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Antagonist",
+      "hinweis": "Reicher Eigentümer des Atomkraftwerks; sein Alter und seine Biografie werden komödiantisch inkonsistent dargestellt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Mr. Krabs",
+      "buergerlicherName": "Eugene Harold Krabs",
+      "alias": [
+        "Eugene H. Krabs"
+      ],
+      "firma": "Krusty Krab (Inhaber)",
+      "strasse": "Krusty Krab Restaurant, Bikini Bottom Hauptstraße",
+      "ort": "Bikini Bottom, Pazifischer Ozean",
+      "franchise": "SpongeBob Schwammkopf",
+      "medium": "Cartoon",
+      "rolle": "Antiheld",
+      "hinweis": "Geldgieriger Krabben-Restaurantbesitzer; Erzfeind von Plankton und dessen Chum Bucket.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Mr. Poopybutthole",
+      "buergerlicherName": "Mr. Poopybutthole",
+      "alias": [
+        "Mr. Poopy Butthole"
+      ],
+      "firma": null,
+      "strasse": "Mr Poopybutthole-Residenz 1",
+      "ort": "Unbekannt",
+      "franchise": "Rick and Morty",
+      "medium": "Cartoon",
+      "rolle": "Sonstiges",
+      "hinweis": "Nebenfigur mit absichtlich absurd gestaltetem Namen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Nami",
+      "buergerlicherName": "Nami",
+      "alias": [
+        "Katzeneinbrecherin"
+      ],
+      "firma": "Strohhutbande",
+      "strasse": "Thousand Sunny",
+      "ort": "Grandline",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Navigatorin der Strohhutbande.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Namor",
+      "buergerlicherName": "Namor McKenzie",
+      "alias": [
+        "Sub-Mariner"
+      ],
+      "firma": "Atlantis",
+      "strasse": "Atlantischer Palast",
+      "ort": "Atlantis",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Herrscher von Atlantis; Herkunft und Staatszugehörigkeit unterscheiden sich in verschiedenen Kontinuitäten.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Naruto Uzumaki",
+      "buergerlicherName": "Naruto Uzumaki",
+      "alias": [
+        "Konohas orangefarbener Ninja",
+        "Jinchūriki des Neunschwänzigen",
+        "Siebter Hokage",
+        "Held des versteckten Blattes",
+        "Der Neunte",
+        "Knallkopf-Ninja",
+        "Siebenter Hokage",
+        "Der Ninja aus Konoha"
+      ],
+      "firma": "Konohagakure (Dorf des Blattes)",
+      "strasse": "Hokage-Residenz",
+      "ort": "Konohagakure (Dorf hinter den Blättern)",
+      "franchise": "Naruto",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Siebtes Hokage, verdient Respekt",
+      "quellenAnzahl": 4,
+      "hooks": []
+    },
+    {
+      "name": "Ned Flanders",
+      "buergerlicherName": "Nedward Flanders",
+      "alias": [
+        "Neddy",
+        "Neighborino"
+      ],
+      "firma": "Leftorium",
+      "strasse": "744 Evergreen Terrace",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Homer Simpsons Nachbar und Besitzer eines Fachgeschäfts für Linkshänder.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Neo",
+      "buergerlicherName": "Thomas A. Anderson",
+      "alias": [
+        "Der Eine",
+        "The One",
+        "Thomas Anderson"
+      ],
+      "firma": "Nebuchadnezzar-Besatzung",
+      "strasse": "Zion Dock / Nebuchadnezzar",
+      "ort": "Zion",
+      "franchise": "Matrix",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Thomas Anderson ist seine Identität innerhalb der simulierten Welt.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Obelix",
+      "buergerlicherName": "Obelix",
+      "alias": [
+        "Der Hinkelstein-Lieferant",
+        "Der Hinkelsteinlieferant",
+        "Der Menhir-Lieferant"
+      ],
+      "firma": "Obelix Hinkelsteine & Wildschweinjagd",
+      "strasse": "Steinbruchweg 1",
+      "ort": "Unbeugsames gallisches Dorf (Aremorica)",
+      "franchise": "Asterix",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Als kleines Kind in den Zaubertranktopf gefallen; hat Dauer-Superkraft. Begleitet von Idefix.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Obi-Wan Kenobi",
+      "buergerlicherName": "Obi-Wan Kenobi",
+      "alias": [
+        "Ben Kenobi",
+        "Der Verhandlungsmeister"
+      ],
+      "firma": "Jedi-Orden",
+      "strasse": "Einsiedlerhütte",
+      "ort": "Tatooine",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Mentor",
+      "hinweis": "Lebt nach dem Fall der Jedi in einer abgelegenen Hütte auf Tatooine.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Paddington Bär",
+      "buergerlicherName": "Paddington",
+      "alias": [
+        "Paddington Brown"
+      ],
+      "firma": "Familie Brown",
+      "strasse": "32 Windsor Gardens",
+      "ort": "London",
+      "franchise": "Paddington Bär",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Bär aus dem dunkelsten Peru mit Vorliebe für Orangenmarmelade.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Palpatine",
+      "buergerlicherName": "Sheev Palpatine",
+      "alias": [
+        "Darth Sidious",
+        "Imperator",
+        "Kanzler Palpatine",
+        "Der Imperator"
+      ],
+      "firma": "Galaktisches Imperium",
+      "strasse": "Imperialer Palast",
+      "ort": "Coruscant",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Der Vorname Sheev stammt aus ergänzendem kanonischem Material.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Papa Schlumpf",
+      "buergerlicherName": "Papa Schlumpf",
+      "alias": [
+        "Der Dorfälteste"
+      ],
+      "firma": "Schlumpfhausen Dorfleitung & Alchemie",
+      "strasse": "Großes Pilzhaus im Zentrum",
+      "ort": "Schlumpfhausen (Verwunschenes Land)",
+      "franchise": "Die Schlümpfe",
+      "medium": "Comic",
+      "rolle": "Mentor",
+      "hinweis": "Trägt als einziger rote Mütze und weiße Bartpracht; weiser Zauberer und Schutz vor Gargamel.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Patrick Star",
+      "buergerlicherName": "Patrick Star",
+      "alias": [
+        "Patrick"
+      ],
+      "firma": "Kein Beruf (professioneller Nichtstuer)",
+      "strasse": "Felsen-Haus 120, Conch Street",
+      "ort": "Bikini Bottom, Pazifischer Ozean",
+      "franchise": "SpongeBob Schwammkopf",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Seestern und bester Freund von SpongeBob; lebt unter einem Felsen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Paul Atreides",
+      "buergerlicherName": "Paul Atreides",
+      "alias": [
+        "Muad'Dib",
+        "Usul",
+        "Lisan al-Gaib",
+        "Der Mahdi"
+      ],
+      "firma": "Haus Atreides",
+      "strasse": "Palast von Arrakeen",
+      "ort": "Arrakis",
+      "franchise": "Dune",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Die Titel und Aufenthaltsorte variieren zwischen Romanen und Verfilmungen.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Percy Jackson",
+      "buergerlicherName": "Perseus Jackson",
+      "alias": [
+        "Perseus Jackson",
+        "Seaweed Brain",
+        "Der Sohn des Poseidon"
+      ],
+      "firma": "Camp Half-Blood",
+      "strasse": "Camp Half-Blood",
+      "ort": "Long Island, New York",
+      "franchise": "Percy Jackson",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Halbgott und Sohn Poseidons; Camp Half-Blood ist ein fiktives Trainingslager.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Phantomias",
+      "buergerlicherName": "Donald Fauntleroy Duck",
+      "alias": [
+        "Der Rächer von Entenhausen",
+        "Paperinik",
+        "Donald Fauntleroy Duck",
+        "Donald Duck"
+      ],
+      "firma": "O.M.A. (Organisation zum weltweiten Kampf gegen Monster)",
+      "strasse": "313 Erpelweg (Geheimbunker unter Haus)",
+      "ort": "Entenhausen",
+      "franchise": "Entenhausen (Disney)",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Donalds nächtliches Superhelden-Alter-Ego mit dem Kennzeichen 313X.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Philip J. Fry",
+      "buergerlicherName": "Philip J. Fry",
+      "alias": [
+        "Fry",
+        "Philip J. Fry"
+      ],
+      "firma": "Planet Express",
+      "strasse": "Planet-Express-Gebäude",
+      "ort": "New New York",
+      "franchise": "Futurama",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Pizzabote aus dem 20. Jahrhundert, der ins Jahr 3000 versetzt wird.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Piccolo",
+      "buergerlicherName": "Piccolo",
+      "alias": [
+        "Piccolo Jr.",
+        "Dämonenkönig Piccolo",
+        "Ma Junior"
+      ],
+      "firma": "Z-Kämpfer",
+      "strasse": "Kein fester Wohnsitz (Meditationsort: Dende-Turm-Umgebung)",
+      "ort": "Earth",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Namekianer, wird zu Freunden mit Goku",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Pikachu",
+      "buergerlicherName": "Pikachu",
+      "alias": [
+        "Elektro-Maus",
+        "Pokémon #025",
+        "Partner-Pokémon",
+        "Pika"
+      ],
+      "firma": "Team Ash Ketchum / Pokémon-Liga",
+      "strasse": "Reist auf Ashs Schulter",
+      "ort": "Alabastia, Kanto",
+      "franchise": "Pokémon",
+      "medium": "Anime",
+      "rolle": "Support",
+      "hinweis": "Bezieht sich auf Ash Ketchums Partner-Pikachu aus dem Anime; in Videospielen gibt es viele namenlose Pikachu.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Pippi Langstrumpf",
+      "buergerlicherName": "Pippilotta Viktualia Rollgardina Pfefferminz Efraimstochter Langstrumpf",
+      "alias": [
+        "Pippilotta Viktualia Rollgardina Pfefferminz Efraimstochter Langstrumpf"
+      ],
+      "firma": null,
+      "strasse": "Villa Kunterbunt",
+      "ort": "Kleinstadt in Schweden",
+      "franchise": "Pippi Langstrumpf",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Ihr vollständiger Name wird in den deutschsprachigen Ausgaben in dieser Form wiedergegeben.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Popeye",
+      "buergerlicherName": "Popeye der Matrose",
+      "alias": [
+        "Der Seemann"
+      ],
+      "firma": "Seeleute (Arbeitsverhältnisse wechselnd)",
+      "strasse": "Hafenkante, Kreuzwort-Neptun-Bar-Viertel",
+      "ort": "Sweet Haven, Küstenstadt",
+      "franchise": "Popeye",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Bezieht seine Superkraft aus Spinat; Lebensgefährte von Olivia Oyl.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Prinzessin Daisy",
+      "buergerlicherName": "Prinzessin Daisy von Sarasaland",
+      "alias": [
+        "Daisy"
+      ],
+      "firma": "Königreich Sarasaland",
+      "strasse": "Schloss Sarasaland",
+      "ort": "Sarasaland",
+      "franchise": "Super Mario",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Herrscherin von Sarasaland, sportlich und temperamentvoll.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Prinzessin Peach",
+      "buergerlicherName": "Peach",
+      "alias": [
+        "Princess Toadstool"
+      ],
+      "firma": "Königreich der Pilze",
+      "strasse": "Schloss Peach",
+      "ort": "Pilz-Königreich",
+      "franchise": "Super Mario",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Princess Toadstool war der englische Name in frühen westlichen Veröffentlichungen.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Prinzessin Zelda",
+      "buergerlicherName": "Zelda",
+      "alias": [
+        "Zelda",
+        "Sheik (Verkleidung)"
+      ],
+      "firma": "Königshaus von Hyrule",
+      "strasse": "Schloss Hyrule",
+      "ort": "Hyrule",
+      "franchise": "The Legend of Zelda",
+      "medium": "Videospiel",
+      "rolle": "Mentor",
+      "hinweis": "Zelda ist eine wiederkehrende Figur mit unterschiedlichen Identitäten und Rollen in verschiedenen Zeitlinien.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Professor Farnsworth",
+      "buergerlicherName": "Hubert J. Farnsworth",
+      "alias": [
+        "Hubert J. Farnsworth",
+        "Professor"
+      ],
+      "firma": "Planet Express",
+      "strasse": "Planet-Express-Gebäude",
+      "ort": "New New York",
+      "franchise": "Futurama",
+      "medium": "Cartoon",
+      "rolle": "Mentor",
+      "hinweis": "Exzentrischer Wissenschaftler und Eigentümer von Planet Express.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Professor Moriarty",
+      "buergerlicherName": "James Moriarty",
+      "alias": [
+        "Napoleon des Verbrechens",
+        "Der Napoleon des Verbrechens"
+      ],
+      "firma": "Verbrecherorganisation",
+      "strasse": "Mathematische Fakultät, Universität (ehem. Professur)",
+      "ort": "London, England",
+      "franchise": "Sherlock Holmes",
+      "medium": "Buch",
+      "rolle": "Antagonist",
+      "hinweis": "Der Vorname James wird in einer Holmes-Erzählung für den Bruder und in späteren Adaptionen für den Professor verwendet.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Professor X",
+      "buergerlicherName": "Charles Francis Xavier",
+      "alias": [
+        "Professor Xavier",
+        "Professor Charles Xavier"
+      ],
+      "firma": "Xavier-Institut für höhere Bildung",
+      "strasse": "Xavier-Anwesen, Graymalkin Lane",
+      "ort": "Salem Center, Westchester County, New York",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Mentor",
+      "hinweis": "Gründer der X-Men; die Anschrift und der Name der Schule variieren je nach Kontinuität.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Q",
+      "buergerlicherName": "Q",
+      "alias": [
+        "Q (Kontinuum-Avatar)"
+      ],
+      "firma": "Q-Kontinuum",
+      "strasse": "Kein physischer Wohnsitz (außerhalb Raum-Zeit)",
+      "ort": "Q-Kontinuum",
+      "franchise": "Star Trek",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Allmächtiges, übermenschliches Wesen; Adresse nur als Humor zu verstehen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Rey",
+      "buergerlicherName": "Rey Palpatine",
+      "alias": [
+        "Rey Skywalker"
+      ],
+      "firma": "Widerstand / Jedi (Selbstlernend)",
+      "strasse": "AT-AT-Wrack, Jakku-Wüste",
+      "ort": "Jakku",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Aufgewachsen als Schrottsammlerin auf dem Wüstenplaneten Jakku.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Rick Deckard",
+      "buergerlicherName": "Rick Deckard",
+      "alias": [
+        "Blade Runner"
+      ],
+      "firma": "Los Angeles Police Department",
+      "strasse": "Wohnung 9730, Sector 6, Los Angeles",
+      "ort": "Los Angeles, Kalifornien",
+      "franchise": "Blade Runner",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Blade Runner und seine Wohnsituation unterscheiden sich zwischen Film und Romanvorlage.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Rick Sanchez",
+      "buergerlicherName": "Richard Sanchez",
+      "alias": [
+        "Rick C-137",
+        "Rick Prime"
+      ],
+      "firma": "Sanchez / Smith Garage Labor",
+      "strasse": "Smith Residenz Garage",
+      "ort": "Seattle, Washington (Dimension C-137)",
+      "franchise": "Rick and Morty",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "'Seattle' ist nicht klar kanonisch.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "Portal-Kanone",
+        "Dimension C-137",
+        "Gurken-Rick",
+        "Plazma-Laser",
+        "Multiversum"
+      ]
+    },
+    {
+      "name": "Rincewind",
+      "buergerlicherName": "Rincewind",
+      "alias": [
+        "Rincewind der Zauberer",
+        "Der feige Zauberer"
+      ],
+      "firma": "Unsichtbare Universität",
+      "strasse": "Unsichtbare Universität",
+      "ort": "Ankh-Morpork",
+      "franchise": "Scheibenwelt",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Ein feiger, aber erstaunlich überlebensfähiger Zauberer.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Riven",
+      "buergerlicherName": "Riven",
+      "alias": [],
+      "firma": null,
+      "strasse": "Riven-Residenz 1",
+      "ort": "Shurima",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Exilierte Kriegerin",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Robin",
+      "buergerlicherName": "Richard John 'Dick' Grayson",
+      "alias": [
+        "Nightwing",
+        "Boy Wonder",
+        "Der Wunderknabe"
+      ],
+      "firma": "Teen Titans / Wayne Enterprises / Blüdhaven PD",
+      "strasse": "Wayne Manor 1007",
+      "ort": "10001 Gotham City / Blüdhaven",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Sidekick",
+      "hinweis": "Erster Robin, wuchs bei Bruce Wayne auf und wurde später eigenständiger Held Nightwing.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Ron Weasley",
+      "buergerlicherName": "Ronald Bilius Weasley",
+      "alias": [
+        "Ron"
+      ],
+      "firma": "Aurorenbüro, Zaubereiministerium",
+      "strasse": "Der Fuchsbau",
+      "ort": "Ottery St Catchpole, Devon",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Sidekick",
+      "hinweis": "Der Fuchsbau ist das Haus seiner Familie.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Roronoa Zoro",
+      "buergerlicherName": "Roronoa Zoro",
+      "alias": [
+        "Piratenjäger Zoro",
+        "Der Schwertkämpfer"
+      ],
+      "firma": "Strohhutbande (Schwertkämpfer)",
+      "strasse": "Thousand Sunny (Schlafsäle)",
+      "ort": "Reisend (East Blue als Heimatgewässer)",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Kämpft mit drei Schwertern (Santoryu-Technik); sensationell schlechter Orientierungssinn.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Roronoa Zorro",
+      "buergerlicherName": "Roronoa Zorro",
+      "alias": [
+        "Piratenjäger Zorro"
+      ],
+      "firma": "Strohhutbande",
+      "strasse": "Thousand Sunny",
+      "ort": "Grandline",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Schwertkämpfer und erstes Mitglied, das sich Ruffy anschließt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Rorschach",
+      "buergerlicherName": "Walter Joseph Kovacs",
+      "alias": [
+        "Walter Kovacs"
+      ],
+      "firma": null,
+      "strasse": "Rorschach-Residenz 1",
+      "ort": "New York City",
+      "franchise": "Watchmen",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Lebt in einer fiktionalisierten Version von New York City.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Roy Batty",
+      "buergerlicherName": "Roy Batty",
+      "alias": [
+        "Nexus-6-Replikant"
+      ],
+      "firma": "Tyrell Corporation",
+      "strasse": "Untergekommen im Bradbury Building, 304 South Broadway",
+      "ort": "Los Angeles, Kalifornien",
+      "franchise": "Blade Runner",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Replikant, der gegen seine begrenzte Lebensdauer rebelliert.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Rubeus Hagrid",
+      "buergerlicherName": "Rubeus Hagrid",
+      "alias": [
+        "Hagrid"
+      ],
+      "firma": "Hogwarts",
+      "strasse": "Hagrids Hütte",
+      "ort": "Hogwarts-Gelände, Schottland",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Mentor",
+      "hinweis": "Wildhüter und später Lehrer für Pflege magischer Geschöpfe.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Ryuk",
+      "buergerlicherName": "Ryuk",
+      "alias": [
+        "Shinigami"
+      ],
+      "firma": null,
+      "strasse": "Ryuk-Residenz 1",
+      "ort": "Shinigami-Reich",
+      "franchise": "Death Note",
+      "medium": "Anime",
+      "rolle": "Sonstiges",
+      "hinweis": "Ein Todesgott, der ein Death Note in die Menschenwelt fallen lässt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sailor Moon",
+      "buergerlicherName": "Usagi Tsukino",
+      "alias": [
+        "Usagi Tsukino",
+        "Kriegerin des Mondes"
+      ],
+      "firma": "Sailor Senshi (Kriegerinnen des Mondlichts)",
+      "strasse": "Tsukino-Residenz, Azabu-Juban Bezirk",
+      "ort": "Minato, Tokio, Japan",
+      "franchise": "Sailor Moon",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Mutige Schügerin, die sich in die Mondkriegerin Sailor Moon verwandelt; liebt Essen.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Saitama",
+      "buergerlicherName": "Saitama",
+      "alias": [
+        "One Punch Man",
+        "Der kahle Held mit Cape"
+      ],
+      "firma": "Hero Association (Klasse B, später S)",
+      "strasse": "Wohnung Z-City, Bezirk 4-2",
+      "ort": "Z-City, Japan (One-Punch-Man-Welt)",
+      "franchise": "One Punch Man",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Besiegt jeden Gegner mit einem einzigen Schlag; langweilt sich aus Mangel an Herausforderung.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sakura Haruno",
+      "buergerlicherName": "Sakura Haruno",
+      "alias": [
+        "Sakura Uchiha"
+      ],
+      "firma": "Konohagakure",
+      "strasse": "Sakura Haruno-Residenz 1",
+      "ort": "Konohagakure, Feuerreich",
+      "franchise": "Naruto",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "In späteren Handlungen ist sie mit Sasuke Uchiha verheiratet.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sam Mumm",
+      "buergerlicherName": "Samuel Mumm",
+      "alias": [
+        "Kommandant Mumm"
+      ],
+      "firma": "Ankh-Morpork Stadtwache",
+      "strasse": "Pseudopolis Yard, Wachhäuser",
+      "ort": "Ankh-Morpork, Scheibenwelt",
+      "franchise": "Scheibenwelt",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Kommandeur der Stadtwache; humoristische Fantasy-Verkörperung eines Polizeichefs.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sam Vimes",
+      "buergerlicherName": "Samuel Vimes",
+      "alias": [
+        "Kommandeur Vimes"
+      ],
+      "firma": "Stadtwache von Ankh-Morpork",
+      "strasse": "Pseudopolis Yard",
+      "ort": "Ankh-Morpork",
+      "franchise": "Scheibenwelt",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Leitet die Stadtwache; seine familiäre Wohnsituation entwickelt sich im Verlauf der Romane.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Samus Aran",
+      "buergerlicherName": "Samus Aran",
+      "alias": [
+        "Kopfgeldjägerin",
+        "Die Kopfgeldjägerin"
+      ],
+      "firma": "Unabhängige Kopfgeldjägerin",
+      "strasse": "Gunship (Raumschiff, ihr Zuhause)",
+      "ort": "Galaktische Föderation",
+      "franchise": "Metroid",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Intergalaktische Kopfgeldjägerin; besitzt keine dauerhaft etablierte Postanschrift.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Samweis Gamdschie",
+      "buergerlicherName": "Samweis Gamdschie",
+      "alias": [
+        "Sam",
+        "Samwise Gamgee"
+      ],
+      "firma": "Gemeinschaft des Rings",
+      "strasse": "Beutelhaldenweg 3",
+      "ort": "Hobbingen, Auenland",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Sidekick",
+      "hinweis": "Die Schreibweise und Hausnummer seiner Wohnadresse sind nicht über alle Ausgaben einheitlich; Beutelhaldenweg ist eine deutsche Ortsbezeichnung.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sandor Clegane",
+      "buergerlicherName": "Sandor Clegane",
+      "alias": [
+        "Der Bluthund"
+      ],
+      "firma": "Haus Clegane",
+      "strasse": "Sandor Clegane-Residenz 1",
+      "ort": "Westeros",
+      "franchise": "Game of Thrones",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Ein brutaler Kämpfer, dessen Entwicklung ihn zu einer ambivalenten Figur macht.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sanji",
+      "buergerlicherName": "Vinsmoke Sanji",
+      "alias": [
+        "Schwarzfuß Sanji",
+        "Schwarzfuß-Sanji",
+        "Vinsmoke Sanji"
+      ],
+      "firma": "Strohhutbande",
+      "strasse": "Thousand Sunny",
+      "ort": "Grandline",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Koch der Strohhutbande; Vinsmoke ist sein Familienname.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Sarah Connor",
+      "buergerlicherName": "Sarah Jeanette Connor",
+      "alias": [
+        "Sarah Reese",
+        "Sarah Baum",
+        "Sarah Hamilton",
+        "Sarah Gale",
+        "Mutter des Widerstands"
+      ],
+      "firma": "Menschlicher Widerstand gegen Cyberdyne Systems",
+      "strasse": "Untergrund-Safehouse",
+      "ort": "Los Angeles, Kalifornien",
+      "franchise": "Terminator",
+      "medium": "Film",
+      "rolle": "Protagonist",
+      "hinweis": "Ihre Biografie und die Ereignisse ihrer Zeitlinie variieren zwischen den Filmfortsetzungen.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Sarah Jane Smith",
+      "buergerlicherName": "Sarah Jane Smith",
+      "alias": [
+        "Sarah Jane"
+      ],
+      "firma": "UNIT",
+      "strasse": "Sarah Jane Smith-Residenz 1",
+      "ort": "London, England",
+      "franchise": "Doctor Who",
+      "medium": "Serie",
+      "rolle": "Sidekick",
+      "hinweis": "Journalistin und langjährige Begleiterin des Doktors.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Saren Arterius",
+      "buergerlicherName": "Saren Arterius",
+      "alias": [
+        "Spectre Saren"
+      ],
+      "firma": "SPECTRE",
+      "strasse": "Saren Arterius-Residenz 1",
+      "ort": "Milchstraße",
+      "franchise": "Mass Effect",
+      "medium": "Videospiel",
+      "rolle": "Antagonist",
+      "hinweis": "Turianischer Spectre und Hauptgegner des ersten Mass-Effect-Spiels.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Saruman",
+      "buergerlicherName": "Saruman",
+      "alias": [
+        "Saruman der Weiße",
+        "Curunír"
+      ],
+      "firma": "Isengart",
+      "strasse": "Orthanc",
+      "ort": "Isengart, Rohan",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Antagonist",
+      "hinweis": "Einer der Istari, der sich gegen den Weißen Rat und schließlich gegen Saurons Gegner stellt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sasuke Uchiha",
+      "buergerlicherName": "Sasuke Uchiha",
+      "alias": [
+        "Letzter Uchiha",
+        "Sasuke"
+      ],
+      "firma": "Konohagakure",
+      "strasse": "Ehem. Uchiha-Clan-Viertel (zerstört)",
+      "ort": "Feuerreich",
+      "franchise": "Naruto",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Sein Weg führt von Rache und Gegnerschaft zurück zu einer Verbündetenrolle.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Saul Goodman",
+      "buergerlicherName": "James Morgan McGill",
+      "alias": [
+        "Jimmy McGill",
+        "Gene Takavic"
+      ],
+      "firma": "Saul Goodman & Associates",
+      "strasse": "9800 Montgomery Boulevard",
+      "ort": "Albuquerque, New Mexico",
+      "franchise": "Better Call Saul",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Die Identitäten Jimmy McGill und Gene Takavic gehören zu unterschiedlichen Lebensphasen; die Büroadresse variiert.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Sauron",
+      "buergerlicherName": "Tom Marvolo Riddle",
+      "alias": [
+        "Der Dunkle Lord",
+        "Morgoth",
+        "Tom Riddle",
+        "Du-weißt-schon-wer",
+        "Der Dunkle Herrscher",
+        "Annatar",
+        "Gorthaur",
+        "Der Eine Ring",
+        "Tom Vorlost Riddle",
+        "Er weiß, dessen Name nicht genannt werden darf"
+      ],
+      "firma": "Reich von Angband",
+      "strasse": "Barad-dûr",
+      "ort": "Mittelerde",
+      "franchise": "Der Herr der Ringe",
+      "medium": "Buch",
+      "rolle": "Antagonist",
+      "hinweis": "Dunkler Herrscher von Mittelerde",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Schlumpfine",
+      "buergerlicherName": "Schlumpfine (Sassette)",
+      "alias": [
+        "Die Blonde Schlumpfine"
+      ],
+      "firma": "Schlumpfhausen",
+      "strasse": "Blumenpilz Nr. 3",
+      "ort": "Schlumpfhausen (Verwunschenes Land)",
+      "franchise": "Die Schlümpfe",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Einst von Gargamel geschaffen, durch Papa Schlumpfs Zauber erlöst.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Schulze & Schultze",
+      "buergerlicherName": "Schulze und Schultze (Dupont et Dupond)",
+      "alias": [
+        "Die Zwillings-Detektive"
+      ],
+      "firma": "Königliche Kriminalpolizei Brüssel",
+      "strasse": "Polizeidirektion Brüssel",
+      "ort": "Brüssel (Belgien)",
+      "franchise": "Tim und Struppi",
+      "medium": "Comic",
+      "rolle": "Support",
+      "hinweis": "Unterscheidbar nur am Schnurrbart: Schulze (Dupont) hat gezwirbelte Enden, Schultze gerade.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Scooby-Doo",
+      "buergerlicherName": "Scoobert Doo",
+      "alias": [
+        "Scoob",
+        "Scooby"
+      ],
+      "firma": "Mystery Inc.",
+      "strasse": "Mystery Machine",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Scooby-Doo",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Sprechender Hund; Scoobert ist sein in Begleitmaterial verwendeter voller Name.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Severus Snape",
+      "buergerlicherName": "Severus Snape",
+      "alias": [
+        "Der Halbblutprinz"
+      ],
+      "firma": "Hogwarts-Schule für Hexerei und Zauberei",
+      "strasse": "Spinner's End",
+      "ort": "Cokeworth",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Antiheld",
+      "hinweis": "Dient als Zaubertrankmeister/Lehrer in Hogwarts, privater Wohnsitz liegt in Spinner's End",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Sevika",
+      "buergerlicherName": "Sevika",
+      "alias": [],
+      "firma": null,
+      "strasse": "Sevika-Residenz 1",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Säuferin, kämpft für Feuerlights",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Shaggy Rogers",
+      "buergerlicherName": "Norville Rogers",
+      "alias": [
+        "Shaggy"
+      ],
+      "firma": "Mystery Inc.",
+      "strasse": "Mystery Machine",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Scooby-Doo",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Norville ist sein kanonischer Vorname; Shaggy ist sein Spitzname.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Shanks",
+      "buergerlicherName": "Shanks",
+      "alias": [
+        "Rotshanks",
+        "Der Rot-Haarige"
+      ],
+      "firma": "Rotshaar-Piratenbande (Kapitän), einer der Vier Kaiser",
+      "strasse": "Rotshaar-Piratenschiff Red Force",
+      "ort": "Neue Welt (New World), Grand Line",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Mentor",
+      "hinweis": "Gab Ruffy seinen Strohhut; gilt als einer der mächtigsten Piraten der Welt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Sherlock Holmes",
+      "buergerlicherName": "William Sherlock Scott Holmes",
+      "alias": [
+        "Meisterdetektiv",
+        "Beratender Detektiv",
+        "Der einzige Beratende Detektiv der Welt"
+      ],
+      "firma": "Beratender Detektiv (Privatkanzlei)",
+      "strasse": "221B Baker Street",
+      "ort": "NW1 6XE London",
+      "franchise": "Sherlock Holmes",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Wohnte mit Dr. John Watson bei Mrs. Hudson.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "221B Baker Street",
+        "Deduktion",
+        "Violine um Mitternacht",
+        "Dr. Watson",
+        "Moriarty"
+      ]
+    },
+    {
+      "name": "Shinichi Kudo",
+      "buergerlicherName": "Shinichi Kudo",
+      "alias": [
+        "Conan Edogawa",
+        "Der Detektiv des Ostens"
+      ],
+      "firma": "Selbständig (Jugenddetektiv)",
+      "strasse": "Detektei Kudo (Vater-Haus), Beika-Stadt 2-21",
+      "ort": "Beika-Stadt, Tokio, Japan",
+      "franchise": "Detektiv Conan",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "In einen Kindskörper verwandeltes Detektivgenie; löst Kriminalfälle als 'Conan Edogawa'.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Silco",
+      "buergerlicherName": "Silco",
+      "alias": [],
+      "firma": null,
+      "strasse": "Die Letzte Tropfen Bar, Büro",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antagonist",
+      "hinweis": "Drogendealer, Gründer von Firelights",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Solid Snake",
+      "buergerlicherName": "David",
+      "alias": [
+        "David",
+        "Old Snake"
+      ],
+      "firma": "FOXHOUND",
+      "strasse": "Solid Snake-Residenz 1",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Metal Gear",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Codename und Identität unterscheiden sich je nach Spielphase.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Son-Gohan",
+      "buergerlicherName": "Son Gohan",
+      "alias": [
+        "Der große Saiyaman"
+      ],
+      "firma": "Universität / Wissenschaftler",
+      "strasse": "Haus am Berg Paozu (neben Gokus Haus)",
+      "ort": "Berg Paozu, Erde (Dragon-Ball-Welt)",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Erster Sohn von Goku und Chichi; verkleidet sich als Held 'Großer Saiyaman'.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Son-Goku",
+      "buergerlicherName": "Kakarott",
+      "alias": [
+        "Kakarott",
+        "Kakarot",
+        "Super-Saiyajin",
+        "Son Goku",
+        "Goku"
+      ],
+      "firma": "Z-Kämpfer",
+      "strasse": "Berg Paozu Residenz 1",
+      "ort": "Ost-Distrikt 439",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Protagonist",
+      "hinweis": "Sein Saiyajin-Geburtsname lautet Kakarott; in Japan wird der Familienname Son vorangestellt.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Sonic the Hedgehog",
+      "buergerlicherName": "Sonic",
+      "alias": [
+        "Sonic"
+      ],
+      "firma": "Freedom Fighters",
+      "strasse": "Sonic the Hedgehog-Residenz 1",
+      "ort": "Mobius",
+      "franchise": "Sonic the Hedgehog",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "Die Weltbezeichnung Mobius stammt aus bestimmten Adaptionen; die Spiele verwenden unterschiedliche Weltmodelle.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Spider-Man",
+      "buergerlicherName": "Peter Parker",
+      "alias": [
+        "Spidey",
+        "Die freundliche Spinne aus der Nachbarschaft",
+        "Wandkrabbler",
+        "Der Mann aus Spinnennetz",
+        "Freundliche Nachbar aus Queens",
+        "Web-Slinger",
+        "Spider-Man (Ultimate)",
+        "Kid Arachnid"
+      ],
+      "firma": "Daily Bugle (freelance)",
+      "strasse": "20 Ingram Street (Forest Hills)",
+      "ort": "Queens, New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Die Wohnadresse ist mit bestimmten Comic-Kontinuitäten verbunden; Peter Parker lebte im Lauf der Serie an verschiedenen Orten.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Queens",
+        "Daily Bugle",
+        "Spinnenkräfte",
+        "Tante May",
+        "Netzschleudern",
+        "große Verantwortung"
+      ]
+    },
+    {
+      "name": "Spock",
+      "buergerlicherName": "S'chn T'gai Spock",
+      "alias": [
+        "S'chn T'gai Spock",
+        "Mr. Spock",
+        "Der Vulkanier"
+      ],
+      "firma": "Sternenflotte",
+      "strasse": "Sternenflotte Sternenbasis 1 / USS Enterprise NCC-1701",
+      "ort": "ShiKahr, Vulkan",
+      "franchise": "Star Trek",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Der vollständige vulkanische Name gilt für Menschen als unaussprechlich.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "vulkanischer Gruß",
+        "faszinierend",
+        "Logik",
+        "Gedankenverschmelzung",
+        "Nervengriff"
+      ]
+    },
+    {
+      "name": "SpongeBob Schwammkopf",
+      "buergerlicherName": "SpongeBob SquarePants",
+      "alias": [
+        "SpongeBob"
+      ],
+      "firma": "Krusty Krab (Fry Cook, Best Burger-Flipper)",
+      "strasse": "Ananas-Haus 124, Conch Street",
+      "ort": "Bikini Bottom, Pazifischer Ozean",
+      "franchise": "SpongeBob Schwammkopf",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Optimistischer Schwamm in Unterwasser-Stadt; Haustier: Schnecke Gary.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Squidward Tentakels",
+      "buergerlicherName": "Squidward Q. Tentacles",
+      "alias": [
+        "Squidward"
+      ],
+      "firma": "Krusty Krab (Kassierer)",
+      "strasse": "Moai-Steinkopf-Haus 122, Conch Street",
+      "ort": "Bikini Bottom, Pazifischer Ozean",
+      "franchise": "SpongeBob Schwammkopf",
+      "medium": "Cartoon",
+      "rolle": "Antiheld",
+      "hinweis": "Gereizter Nachbar von SpongeBob; heimlicher Klarinettisten-Künstler (in seinen Augen).",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Stan Marsh",
+      "buergerlicherName": "Stanley Randall Marsh",
+      "alias": [
+        "Stan"
+      ],
+      "firma": "South Park Elementary",
+      "strasse": "Marsh-Residenz, 260 Avenue de los Mexicanos",
+      "ort": "South Park, Colorado",
+      "franchise": "South Park",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Einer der vier zentralen Jungen der Serie.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Stanford Pines",
+      "buergerlicherName": "Stanford Filbrick Pines",
+      "alias": [
+        "Ford",
+        "Grunkle Ford"
+      ],
+      "firma": "Mystery Shack",
+      "strasse": "Mystery Shack",
+      "ort": "Gravity Falls, Oregon",
+      "franchise": "Gravity Falls",
+      "medium": "Cartoon",
+      "rolle": "Mentor",
+      "hinweis": "Wissenschaftler und Autor der geheimnisvollen Tagebücher.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Storm",
+      "buergerlicherName": "Ororo Munroe",
+      "alias": [
+        "Ororo Munroe"
+      ],
+      "firma": "X-Men",
+      "strasse": "Xavier-Institut",
+      "ort": "Westchester County, New York",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Mutantin mit der Fähigkeit, Wetter zu kontrollieren.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Superman",
+      "buergerlicherName": "Clark Joseph Kent (Kal-El)",
+      "alias": [
+        "Mann aus Stahl",
+        "Man of Steel",
+        "Der letzte Sohn von Krypton",
+        "Der Mann aus Stahl",
+        "Kal-El",
+        "Der Letzte Sohn von Krypton"
+      ],
+      "firma": "Daily Planet (Metropolis)",
+      "strasse": "Daily Planet Plaza 1 / Festung der Einsamkeit",
+      "ort": "Metropolis",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Geboren als Kal-El auf Krypton, aufgewachsen bei Jonathan und Martha Kent in Smallville.",
+      "quellenAnzahl": 3,
+      "hooks": [
+        "Daily Planet",
+        "Metropolis",
+        "stählerne Haut",
+        "Krypton",
+        "Lois Lane",
+        "fliegen"
+      ]
+    },
+    {
+      "name": "T-800",
+      "buergerlicherName": "T-800",
+      "alias": [
+        "Der Terminator",
+        "Model 101"
+      ],
+      "firma": "Cyberdyne Systems",
+      "strasse": "Kein Wohnsitz (Zeitreise-Einsatzkommando)",
+      "ort": "Los Angeles, Kalifornien",
+      "franchise": "Terminator",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Die Bezeichnung T-800 steht für eine Reihe von Terminator-Modellen, nicht für eine einzelne menschliche Identität.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Tali'Zorah",
+      "buergerlicherName": "Tali'Zorah",
+      "alias": [
+        "Tali'Zorah nar Rayya",
+        "Tali'Zorah vas Normandy"
+      ],
+      "firma": "Quarianische Flotte",
+      "strasse": "Normandy",
+      "ort": "Milchstraße",
+      "franchise": "Mass Effect",
+      "medium": "Videospiel",
+      "rolle": "Sidekick",
+      "hinweis": "Der vollständige Name und das Namenssuffix ändern sich entsprechend ihrer Zugehörigkeit.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Thanos",
+      "buergerlicherName": "Thanos",
+      "alias": [
+        "Der verrückte Titan",
+        "Der Wahnsinnige Titan",
+        "Der Verrückte Titan"
+      ],
+      "firma": "Black Order (Anführer)",
+      "strasse": "Sanctuary",
+      "ort": "Weltraum",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Sanctuary ist in den Filmadaptionen ein Raumschiff beziehungsweise Stützpunkt; Comic-Aufenthaltsorte variieren.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "The Flash",
+      "buergerlicherName": "Bartholomew Henry 'Barry' Allen",
+      "alias": [
+        "The Scarlet Speedster",
+        "Der schnellste Mensch der Welt",
+        "Scarlet Speedster"
+      ],
+      "firma": "Central City Police Department (Kriminaltechnik)",
+      "strasse": "CCPD Forensics Lab, 4th Street",
+      "ort": "Central City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Erhielt seine Superkräfte durch Blitzschlag und Chemikalien.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "The Joker",
+      "buergerlicherName": "Arthur Fleck",
+      "alias": [
+        "Clown Prince"
+      ],
+      "firma": null,
+      "strasse": "Arkham Asylum Zelle 0801 / Vergnügungspark",
+      "ort": "Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Antagonist",
+      "hinweis": "Arch-Nemesis von Batman",
+      "quellenAnzahl": 1,
+      "hooks": [
+        "Lächeln",
+        "Arkham Asylum",
+        "Kartenspiel",
+        "Chaos",
+        "Lachgas",
+        "Gotham im Brand"
+      ]
+    },
+    {
+      "name": "The Master",
+      "buergerlicherName": "The Master",
+      "alias": [
+        "Der Meister",
+        "Missy"
+      ],
+      "firma": null,
+      "strasse": "TARDIS",
+      "ort": "Raum und Zeit",
+      "franchise": "Doctor Who",
+      "medium": "Serie",
+      "rolle": "Antagonist",
+      "hinweis": "Ein Time Lord und wiederkehrender Gegenspieler des Doktors, der ebenfalls regeneriert.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "The Thing",
+      "buergerlicherName": "Benjamin Jacob Grimm",
+      "alias": [
+        "Das Ding",
+        "Der blaue Augenbrocken aus der Yancy Street"
+      ],
+      "firma": "Fantastic Four / Baxter Foundation",
+      "strasse": "Baxter Building, 42nd St & Madison Ave",
+      "ort": "New York City",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Kampfruf: 'Jetzt geht's rund!' (It's clobberin' time!). Körper aus lebendem Stein.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Thor",
+      "buergerlicherName": "Thor Odinson",
+      "alias": [
+        "Gott des Donners",
+        "Herr von Mjölnir",
+        "Donnergott",
+        "Odinson"
+      ],
+      "firma": "Königreich Asgard / Avengers",
+      "strasse": "Palast von Valaskjalf",
+      "ort": "Asgard (Reich der Götter)",
+      "franchise": "Marvel",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Sohn Odins, Hüter von Mjölnir und Herrscher über Blitze und Sturm.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Mjölnir",
+        "Donnergott",
+        "Asgard",
+        "Bifröst",
+        "Metbecher",
+        "Blitz und Donner"
+      ]
+    },
+    {
+      "name": "Tigger",
+      "buergerlicherName": "Tigger",
+      "alias": [
+        "Tigger"
+      ],
+      "firma": null,
+      "strasse": "Tigger-Residenz 1",
+      "ort": "Hundertsechzig-Morgen-Wald",
+      "franchise": "Winnie Puuh",
+      "medium": "Buch",
+      "rolle": "Sidekick",
+      "hinweis": "Ein energiegeladener Tiger, der gerne auf seinem Schwanz hüpft.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Tim",
+      "buergerlicherName": "Tim (Tintin)",
+      "alias": [
+        "Der junge Reporter",
+        "Tintin",
+        "Tim und Struppi"
+      ],
+      "firma": "Zeitung 'Le Petit Vingtième' / Schloss Mühlenhof",
+      "strasse": "Labradorstraße 26 (später Schloss Mühlenhof)",
+      "ort": "Brüssel (Belgien)",
+      "franchise": "Tim und Struppi",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Furchtloser investigativer Journalist, immer begleitet von Foxterrier Struppi.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Tom",
+      "buergerlicherName": "Thomas",
+      "alias": [
+        "Thomas Cat",
+        "Tom"
+      ],
+      "firma": "Waystar Royco (ATN-Nachrichtenchef)",
+      "strasse": "Wambsgans-Residenz, Upper East Side",
+      "ort": "Unbekannt",
+      "franchise": "Tom und Jerry",
+      "medium": "Cartoon",
+      "rolle": "Antiheld",
+      "hinweis": "Der Name Thomas wird in einzelnen Episoden und Begleitmaterial verwendet.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Tony Montana",
+      "buergerlicherName": "Antonio Montana",
+      "alias": [
+        "Scarface"
+      ],
+      "firma": "Selbständig (Drogenbaron)",
+      "strasse": "Miami Beach Villa, 735 Ocean Drive",
+      "ort": "Miami, Florida",
+      "franchise": "Scarface",
+      "medium": "Film",
+      "rolle": "Antiheld",
+      "hinweis": "Kubanischer Immigrant, der korrumpiert zum mächtigsten Drogenbaron von Miami aufsteigt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Tony Soprano",
+      "buergerlicherName": "Anthony John Soprano Sr.",
+      "alias": [
+        "T"
+      ],
+      "firma": "DiMeo-Crime-Familie (Boss)",
+      "strasse": "14 Aspen Drive",
+      "ort": "North Caldwell, NJ 07006",
+      "franchise": "Die Sopranos",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": null,
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Totoro",
+      "buergerlicherName": "Totoro",
+      "alias": [
+        "Großer Totoro",
+        "O-Totoro"
+      ],
+      "firma": null,
+      "strasse": "Wald bei Kusakabe",
+      "ort": "Japan",
+      "franchise": "Mein Nachbar Totoro",
+      "medium": "Anime",
+      "rolle": "Sonstiges",
+      "hinweis": "Waldgeist aus dem Studio-Ghibli-Film von Hayao Miyazaki.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Trafalgar D. Water Law",
+      "buergerlicherName": "Trafalgar D. Water Law",
+      "alias": [
+        "Chirurg des Todes"
+      ],
+      "firma": "Heart-Piratenbande",
+      "strasse": "Trafalgar D Water Law-Residenz 1",
+      "ort": "Grandline",
+      "franchise": "One Piece",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Kapitän und Arzt; Aufenthaltsorte ändern sich mit dem Handlungsverlauf.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Troubadix",
+      "buergerlicherName": "Troubadix",
+      "alias": [
+        "Der Barde"
+      ],
+      "firma": "Gallischer Bardensitz",
+      "strasse": "Baumhütte am Dorfrand",
+      "ort": "Unbeugsames gallisches Dorf (Aremorica)",
+      "franchise": "Asterix",
+      "medium": "Comic",
+      "rolle": "Support",
+      "hinweis": "Singt schrecklich und wird beim Festbankett traditionell gefesselt und geknebelt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Turanga Leela",
+      "buergerlicherName": "Turanga Leela",
+      "alias": [
+        "Leela",
+        "Turanga Leela"
+      ],
+      "firma": "Planet Express",
+      "strasse": "Planet-Express-Gebäude",
+      "ort": "New New York",
+      "franchise": "Futurama",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Pilotin und Kapitänin des Planet-Express-Raumschiffs.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Twitch",
+      "buergerlicherName": "Twitch",
+      "alias": [],
+      "firma": null,
+      "strasse": "Twitch-Residenz 1",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Sidekick",
+      "hinweis": "Kämpferin für Zaun",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Tyrion Lennister",
+      "buergerlicherName": "Tyrion Lennister",
+      "alias": [
+        "Der Gnom",
+        "Kobold",
+        "Der Zwerg von Casterlystein"
+      ],
+      "firma": "Haus Lennister",
+      "strasse": "Casterlystein",
+      "ort": "Westlande, Westeros",
+      "franchise": "Das Lied von Eis und Feuer",
+      "medium": "Buch",
+      "rolle": "Antiheld",
+      "hinweis": "In der englischen Originalfassung heißt die Figur Tyrion Lannister.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Urahara Kisuke",
+      "buergerlicherName": "Kisuke Urahara",
+      "alias": [
+        "Mr. Hat-and-Clogs",
+        "Der Sandalen-Hut-Mann"
+      ],
+      "firma": "Urahara-Shop (Spirit-Items) / ehem. Gotei 13, 12. Kompanie",
+      "strasse": "Urahara-Shoten (Laden), Karakura-Stadt",
+      "ort": "Karakura-Stadt, Japan",
+      "franchise": "Bleach",
+      "medium": "Anime",
+      "rolle": "Mentor",
+      "hinweis": "Exzentrischer Ladenbesitzer; war Kapitän der 12. Kompanie und Gründer des R&D-Instituts.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "V",
+      "buergerlicherName": "V",
+      "alias": [
+        "Vincent",
+        "Valerie",
+        "V",
+        "Valerie (Ghost-Identität)"
+      ],
+      "firma": "Unabhängiger Söldner",
+      "strasse": "Megagebäude H10",
+      "ort": "Night City",
+      "franchise": "Cyberpunk 2077",
+      "medium": "Videospiel",
+      "rolle": "Protagonist",
+      "hinweis": "V kann je nach Spielauswahl unterschiedliche Vornamen und Hintergründe haben; Megagebäude H10 ist ein früher Wohnort.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Vegeta",
+      "buergerlicherName": "Vegeta",
+      "alias": [
+        "Prinz des Saiyajin",
+        "Prinz der Saiyajins"
+      ],
+      "firma": "Z-Kämpfer",
+      "strasse": "Capsule Corporation",
+      "ort": "Planet Vegeta",
+      "franchise": "Dragon Ball",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Rival von Goku, wird zum Verbündeten",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Velma Dinkley",
+      "buergerlicherName": "Velma Dinkley",
+      "alias": [
+        "Velma"
+      ],
+      "firma": "Mystery Inc.",
+      "strasse": "Mystery Machine",
+      "ort": "Vereinigte Staaten",
+      "franchise": "Scooby-Doo",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": "Die analytische Denkerin der Gruppe.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Viktor",
+      "buergerlicherName": "Viktor",
+      "alias": [],
+      "firma": null,
+      "strasse": "Hextech-Laboratorium 2",
+      "ort": "Zaun",
+      "franchise": "Arcane",
+      "medium": "Anime",
+      "rolle": "Antiheld",
+      "hinweis": "Genie, verändert sich zum Cybernetischen",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Walter White",
+      "buergerlicherName": "Walter Hartwell White Sr.",
+      "alias": [
+        "Heisenberg",
+        "Walt"
+      ],
+      "firma": "Gray Matter Technologies (Mitbegründer, ehemalig)",
+      "strasse": "308 Negra Arroyo Lane",
+      "ort": "Albuquerque, NM 87104",
+      "franchise": "Breaking Bad",
+      "medium": "Serie",
+      "rolle": "Protagonist",
+      "hinweis": "Die Anschrift wird in der Serie mit dem Wohnhaus der Familie White verbunden; die reale Adresse ist keine zu verwendende Privatanschrift.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "blaues Kristall",
+        "Wohnmobil in der Wüste",
+        "Heisenberg",
+        "Los Pollos Hermanos",
+        "Periodensystem"
+      ]
+    },
+    {
+      "name": "Waylon Smithers",
+      "buergerlicherName": "Waylon Joseph Smithers Jr.",
+      "alias": [
+        "Smithers"
+      ],
+      "firma": "Springfield Atomkraftwerk",
+      "strasse": "Waylon Smithers-Residenz 1",
+      "ort": "Springfield",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Sidekick",
+      "hinweis": "Assistent von Mr. Burns.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Willy Wonka",
+      "buergerlicherName": "Willy Wonka",
+      "alias": [
+        "Der Schokoladenfabrikant"
+      ],
+      "firma": "Wonka-Schokoladenfabrik",
+      "strasse": "Wonka-Fabrik",
+      "ort": "Unbekannte Stadt",
+      "franchise": "Charlie und die Schokoladenfabrik",
+      "medium": "Buch",
+      "rolle": "Mentor",
+      "hinweis": "Die Stadt der Fabrik wird in den Buch- und Filmversionen nicht einheitlich benannt.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Winnie Puuh",
+      "buergerlicherName": "Winnie Puuh",
+      "alias": [
+        "Winnie-the-Pooh",
+        "Pu der Bär"
+      ],
+      "firma": null,
+      "strasse": "Hundertsechzig-Morgen-Wald",
+      "ort": "Hundred Acre Wood",
+      "franchise": "Winnie Puuh",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Die deutsche Übersetzung verwendet unterschiedliche Formen des Namens und des Waldes.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Wolverine",
+      "buergerlicherName": "James Howlett",
+      "alias": [
+        "Logan",
+        "Weapon X",
+        "Patch"
+      ],
+      "firma": "X-Men",
+      "strasse": "Xavier-Institut für höhere Bildung",
+      "ort": "Salem Center, Westchester County, New York",
+      "franchise": "Marvel Comics",
+      "medium": "Comic",
+      "rolle": "Antiheld",
+      "hinweis": "Sein Geburtsname wurde in späteren Comic-Handlungen als James Howlett enthüllt.",
+      "quellenAnzahl": 2,
+      "hooks": [
+        "Adamantium-Klauen",
+        "X-Men",
+        "Zigarren",
+        "Cerebro",
+        "Waffen-X-Programm",
+        "Heilfaktor"
+      ]
+    },
+    {
+      "name": "Wonder Woman",
+      "buergerlicherName": "Diana Prince (Prinzessin Diana von Themyscira)",
+      "alias": [
+        "Prinzessin der Amazonen",
+        "Göttin der Wahrheit",
+        "Prinzessin Diana",
+        "Diana von Themyscira",
+        "Diana Prince",
+        "Amazonenprinzessin"
+      ],
+      "firma": "Themyscira / Louvre / Justice League",
+      "strasse": "Amazonenpalast / Botschaft von Themyscira",
+      "ort": "Themyscira / Washington D.C.",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": "Tochter von Königin Hippolyta, bewaffnet mit dem Lasso der Wahrheit und unzerstörbaren Armreifen.",
+      "quellenAnzahl": 3,
+      "hooks": []
+    },
+    {
+      "name": "Xenomorph",
+      "buergerlicherName": "Xenomorph",
+      "alias": [
+        "Alien",
+        "Organismus XX121"
+      ],
+      "firma": null,
+      "strasse": "Xenomorph-Residenz 1",
+      "ort": "Weltraum",
+      "franchise": "Alien",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Spezies mit unterschiedlichen Lebenszyklusformen; kein individueller bürgerlicher Name.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Yasuo",
+      "buergerlicherName": "Yasuo",
+      "alias": [],
+      "firma": null,
+      "strasse": "Yasuo-Residenz 1",
+      "ort": "Ionia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Rachesuchender Samurai",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Yennefer (Netflix)",
+      "buergerlicherName": "Yennefer",
+      "alias": [
+        "Yennefer of Vengerberg"
+      ],
+      "firma": "Aretusa (Zauberin)",
+      "strasse": "Aretusa-Institut, Thanedd-Insel",
+      "ort": "Thanedd, Nördliche Königreiche",
+      "franchise": "The Witcher",
+      "medium": "Serie",
+      "rolle": "Antiheld",
+      "hinweis": "Netflix-Serienadaption der mächtigen Zauberin.",
+      "quellenAnzahl": 1,
+      "hooks": []
+    },
+    {
+      "name": "Yennefer von Vengerberg",
+      "buergerlicherName": "Yennefer von Vengerberg",
+      "alias": [
+        "Yen",
+        "Yenna"
+      ],
+      "firma": "Magierzirkel",
+      "strasse": "Aretusa-Insel, Zauberakademie",
+      "ort": "Vengerberg, Aedirn",
+      "franchise": "The Witcher",
+      "medium": "Buch",
+      "rolle": "Antiheld",
+      "hinweis": "Zauberin und wichtige Bezugsperson Geralts und Ciris.",
+      "quellenAnzahl": 2,
+      "hooks": []
+    },
+    {
+      "name": "Yoda",
+      "buergerlicherName": "Yoda",
+      "alias": [
+        "Großmeister des Jedi-Ordens",
+        "Großmeister Yoda"
+      ],
+      "firma": "Hoher Rat der Jedi / Jedi-Orden",
+      "strasse": "Jedi-Tempel (Coruscant) / Sumpfhütte (Dagobah)",
+      "ort": "Coruscant / Dagobah",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Mentor",
+      "hinweis": "900 Jahre alter legendärer Jedi-Meister mit unverwechselbarer Satzstellung.",
+      "quellenAnzahl": 4,
+      "hooks": [
+        "Sumpfhütte auf Dagobah",
+        "grüner Meister",
+        "tun oder nicht tun",
+        "alte Weisheit",
+        "Rückwärtssprache"
+      ]
+    },
+    {
+      "name": "Zed",
+      "buergerlicherName": "Zed",
+      "alias": [],
+      "firma": null,
+      "strasse": "Zed-Residenz 1",
+      "ort": "Ionia",
+      "franchise": "League of Legends",
+      "medium": "Videospiel",
+      "rolle": "Antiheld",
+      "hinweis": "Meister des Schattenmarsch",
+      "quellenAnzahl": 1,
+      "hooks": []
+    }
+  ]
+}

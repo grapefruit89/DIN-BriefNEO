@@ -1,0 +1,2270 @@
+{
+  "konflikte": [
+    {
+      "name": "Alfred Pennyworth",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Alfred",
+            "Penny-One",
+            "Der Butler"
+          ],
+          "api": [
+            "Alfred Beagle"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Wayne-Familie",
+          "api": "Butler; Caretaker, former Actor; Field Medic; Government Agent"
+        },
+        "ort": {
+          "konsolidiert": "Gotham City",
+          "api": "Wayne Manor; Batcave; Gotham City"
+        },
+        "rolle": {
+          "konsolidiert": "Sidekick",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Butler, Vertrauter und medizinischer Helfer von Bruce Wayne; vollständiger Name variiert nach Kontinuität.",
+          "api": "Batman Family, Outsiders"
+        }
+      }
+    },
+    {
+      "name": "Aquaman",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Arthur Curry",
+          "api": "Orin"
+        },
+        "alias": {
+          "konsolidiert": [
+            "König von Atlantis",
+            "Orin",
+            "Meister der Meere"
+          ],
+          "api": [
+            "Dweller in the Depths",
+            "Swimmer",
+            "Waterbearer",
+            "Mental Man",
+            "Aquaboy",
+            "Water Wraith"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Königreich Atlantis / Justice League",
+          "api": "Protector of the Seas and Oceans, King of Poseidonis"
+        },
+        "ort": {
+          "konsolidiert": "Atlantis",
+          "api": "Atlantean Royal Palace; Poseidonis, Atlantis"
+        },
+        "hinweis": {
+          "konsolidiert": "Halb Mensch (Arthur Curry), halb Atlanter (Sohn von Königin Atlanna).",
+          "api": "Justice League, Aquaman Family, Atlantean Royal Family; formerly Black Lantern Corps, Justice League International, Justice League Detroit, U.N."
+        }
+      }
+    },
+    {
+      "name": "Atlas",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Frank Fontaine",
+          "api": "Erik Josten"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Frank Fontaine"
+          ],
+          "api": [
+            "Power Man",
+            "Smuggler",
+            "Goliath",
+            "Shatterfist",
+            "Intruder from Beyond",
+            "Edward Jantzen"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Untergrundbewegung von Rapture",
+          "api": "Adventurer; former professional criminal, mercenary, dock worker, soldier"
+        },
+        "ort": {
+          "konsolidiert": "Rapture",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "BioShock",
+          "api": "Goliath"
+        },
+        "medium": {
+          "konsolidiert": "Videospiel",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Antagonist",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Atlas ist eine falsche Identität, die Frank Fontaine benutzt.",
+          "api": "Thunderbolts, formerly Revengers, Defenders (New Jersey Initiative team), Masters of Evil, Maggia, Grim Reaper's Lethal Legion, Mandarin's Minions, Emissaries of Evil; former partner of Citizen V (Dal"
+        }
+      }
+    },
+    {
+      "name": "Batgirl",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Oracle",
+            "Babs"
+          ],
+          "api": [
+            "Oracle",
+            "Bluebelle"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Gotham City Public Library / Birds of Prey",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "10002 Gotham City",
+          "api": "Gotham City, formerly Metropolis, Platinum Flats"
+        },
+        "franchise": {
+          "konsolidiert": "DC Comics",
+          "api": "Oracle"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Batman",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Bruce Wayne",
+          "api": "Terry McGinnis"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Bruce Wayne",
+            "Dunkler Ritter",
+            "Caped Crusader",
+            "Der Mitternachtsdetektiv",
+            "Mitternachtsdetektiv",
+            "The Dark Knight",
+            "The Batman"
+          ],
+          "api": [
+            "Batman II",
+            "The Tomorrow Knight",
+            "The second Dark Knight",
+            "The Dark Knight of Tomorrow",
+            "Batman Beyond"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Wayne Enterprises",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "10001 Gotham City",
+          "api": "21st Century Gotham City"
+        },
+        "hinweis": {
+          "konsolidiert": "Wayne Manor liegt je nach Kontinuität außerhalb des Stadtzentrums. Eine universell gültige Straßenadresse existiert nicht.",
+          "api": "Batman Family, Justice League Unlimited"
+        }
+      }
+    },
+    {
+      "name": "Black Panther",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "König von Wakanda",
+            "Black Panther"
+          ],
+          "api": [
+            "Mr. Okonkwo",
+            "The Man Without Fear",
+            "Luke Charles",
+            "Black Leopard",
+            "the Client",
+            "Coal Tiger",
+            "has impersonated Daredevil and others on occasion"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Königreich Wakanda",
+          "api": "King and Chieftain of Wakanda, scientist; former school teacher"
+        },
+        "ort": {
+          "konsolidiert": "Wakanda",
+          "api": "Wakanda, Mobile"
+        },
+        "hinweis": {
+          "konsolidiert": "T'Challa ist König und Beschützer Wakandas; seine Regierungsrolle variiert über die Comic-Kontinuitäten.",
+          "api": "Formerly Fantastic Four, Secret Avengers, Avengers, Pendragons, Queen's Vengeance, former Fantastic Force financier"
+        }
+      }
+    },
+    {
+      "name": "Black Widow",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Natasha Romanoff (Natalia Alianovna Romanova)",
+          "api": "Natasha Romanoff"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Schwarze Witwe",
+            "Natalie Rushman",
+            "Natasha Romanoff",
+            "Natalia Romanova",
+            "Black Widow"
+          ],
+          "api": [
+            "Yelena Belova",
+            "Natasha Romanoff",
+            "Natasha",
+            "Tasha",
+            "Madame Natasha",
+            "Nancy Rushman",
+            "Laura Matthers",
+            "Nadine Roman",
+            "\"Oktober\"",
+            "Black Pearl",
+            "Ebon Flame"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Avengers / S.H.I.E.L.D. (ehemalig KGB)",
+          "api": "Adventurer, Intelligence agent, former ballerina"
+        },
+        "ort": {
+          "konsolidiert": "Upstate New York",
+          "api": "Mobile"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Ehemalige sowjetische Spionin, Meisterin der Kampfkunst und Taktik.",
+          "api": "Secret Avengers; formerly Thunderbolts (as Yelena Belova), Nick Fury, Mighty Avengers, S.H.I.E.L.D., Avengers, Champions of Los Angeles, Lady Liberators, KGB, \"Marvel Knights\", partner of Daredevil, H"
+        }
+      }
+    },
+    {
+      "name": "Captain America",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Steven Grant Rogers",
+          "api": "Steve Rogers"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Cap",
+            "Der erste Rächer",
+            "The Sentinel of Liberty",
+            "Sentinel of Liberty"
+          ],
+          "api": [
+            "Nomad",
+            "The Captain"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Avengers / US Army (Reservist)",
+          "api": "Adventurer, federal official, intelligence operative; former soldier, Hydra agent, liaison between S.H.I.E.L.D. and the Avengers, police officer, teacher, sparring partner."
+        },
+        "ort": {
+          "konsolidiert": "Brooklyn, New York City",
+          "api": "New York City"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Supersoldat aus dem Zweiten Weltkrieg, Anführer der Avengers.",
+          "api": "Secret Avengers (Black OPS Unit Formerly,The Avengers, Secret Avengers (Civil War), New Avengers, formerly The Invaders, Secret Defenders The Redeemers; formerly partner of Bucky, Golden Girl, Rick Jo"
+        }
+      }
+    },
+    {
+      "name": "Daredevil",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Matthew Michael Murdock",
+          "api": "Matt Murdock"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Der Mann ohne Furcht",
+            "Teufel von Hell's Kitchen"
+          ],
+          "api": [
+            "Matt",
+            "Jack Batlin",
+            "Kingpin of Crime",
+            "Laurent LeVasseur",
+            "Michael \"Mike\" Murdock",
+            "Scarlet Swashbuckler",
+            "Nameless One",
+            "Kingpin of Hell's Kitchen",
+            "The Man Without Fear",
+            "The Guardian Devil",
+            "DD",
+            "Red",
+            "Hornhead",
+            "Cooper Peyton",
+            "Captain Universe"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Nelson & Murdock (Kanzlei)",
+          "api": "Adventurer, vigilante, Attorney at Law"
+        },
+        "ort": {
+          "konsolidiert": "Hell's Kitchen, New York City",
+          "api": "Hell's Kitchen, New York, New York, Shadowland (formerly)"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Erblindeter Anwalt mit geschärften Radarsinnen.",
+          "api": "none; Formerly: partner of Black Widow (Natasha Romanoff), Defenders, S.H.I.E.L.D., Marvel Knights, Secret Avengers (Civil War), Hand leader."
+        }
+      }
+    },
+    {
+      "name": "Darth Maul",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Maul",
+          "api": "Darth Maul"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Maul"
+          ],
+          "api": [
+            "Sith",
+            "Master Of The Double-Bladed Lightsaber"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Sith-Orden",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Dathomir",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Darth Vader",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Lord Vader",
+            "Anakin Skywalker",
+            "Der Auserwählte",
+            "Der Dunkle Lord der Sith",
+            "Thomas A. Anderson",
+            "Der Junge, der lebt"
+          ],
+          "api": [
+            "Lord Vader"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Galaktisches Imperium (Sith-Lord)",
+          "api": "Sith Lord, Supreme Commander of the Imperial Fleet"
+        },
+        "ort": {
+          "konsolidiert": "Mustafar",
+          "api": "Death Star"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Mustafar ist nur ein einzelner Schauplatz, nicht der Hauptwirkungsort.",
+          "api": "Sith, Galactic Empire"
+        }
+      }
+    },
+    {
+      "name": "Data",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Lieutenant Commander Data"
+          ],
+          "api": [
+            "B-4"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Sternenflotte",
+          "api": "Lieutenant commander"
+        },
+        "ort": {
+          "konsolidiert": "Weltraum",
+          "api": "Unbekannt"
+        },
+        "medium": {
+          "konsolidiert": "Serie",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Sidekick",
+          "api": "Protagonist"
+        }
+      }
+    },
+    {
+      "name": "Deadpool",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Wade Winston Wilson",
+          "api": "Wade Wilson"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Merc with a Mouth",
+            "Der Söldner mit der großen Klappe",
+            "Wade Wilson"
+          ],
+          "api": [
+            "Wade Wilson",
+            "Jack",
+            "Chiyonosake (\"the Wolf of the Rice Wine\")",
+            "Rhodes",
+            "Corpus",
+            "Lopez",
+            "Hobgoblin",
+            "Thom Cruz",
+            "Peter Parker"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Selbständig (Söldner)",
+          "api": "Mercenary; former enforcer, government operative, sumo wrestler, soldier, assassin, anti-hero, others"
+        },
+        "ort": {
+          "konsolidiert": "New York",
+          "api": "Cavern-X, Sedona, Arizona, Mobile"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel Comics",
+          "api": "Evil Deadpool"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Neutral"
+        },
+        "hinweis": {
+          "konsolidiert": "Söldner mit Regenerationsfähigkeit und häufigem Durchbrechen der vierten Wand.",
+          "api": "Thunderbolts (Strike Team), shares body with Agent Preston; formerly X-Force, Deadpool Corps, Agency X, S.H.I.E.L.D.; Code Red, Six Pack, One World Church, DP Inc., Weapon X, Weapon Plus, Heroes for H"
+        }
+      }
+    },
+    {
+      "name": "Doctor Doom",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Victor von Doom",
+            "Herrscher von Latveria",
+            "Dr. Doom"
+          ],
+          "api": [
+            "The Master",
+            "Invincible Man"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Regierung von Latveria",
+          "api": "Monarch"
+        },
+        "ort": {
+          "konsolidiert": "Doomstadt, Latveria",
+          "api": "Castle Doom, Doomstadt, Latveria"
+        },
+        "hinweis": {
+          "konsolidiert": "Herrscher eines fiktiven europäischen Staates.",
+          "api": "Future Foundation; Formerly Cabal, Knights of the Atomic Table, Acts of Vengeance Prime Movers, partner of Namor, employer of the Terrible Trio, Fantastic Four (leader)"
+        }
+      }
+    },
+    {
+      "name": "Doctor Strange",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Stephen Vincent Strange",
+          "api": "Stephen Strange"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Sorcerer Supreme",
+            "Meister der mystischen Künste"
+          ],
+          "api": [
+            "Sorcerer Supreme",
+            "Master of the Mystic Arts",
+            "Stephen Sanders",
+            "Captain Universe",
+            "Vincent Stevens"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Sanctum Sanctorum / Masters of the Mystic Arts",
+          "api": "Sorcerer Supreme, retired neurosurgeon"
+        },
+        "ort": {
+          "konsolidiert": "Greenwich Village, New York City",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Ehemaliger Neurochirurg, Oberster Zauberer der Erde.",
+          "api": "Defenders, underground Avengers; formerly the Order, Midnight Sons; former disciple of the Ancient One"
+        }
+      }
+    },
+    {
+      "name": "Goku",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Goku",
+          "api": "Kakarot"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Kakarot"
+          ],
+          "api": [
+            "Ultimate Defender",
+            "Sayain Monkey",
+            "Super Sayain",
+            "Z-Fighter",
+            "Son-Goku",
+            "Lower-Class Sayain",
+            "Goku Son"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Kame House",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Earth",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Dragon Ball",
+          "api": "Shueisha"
+        },
+        "medium": {
+          "konsolidiert": "Anime",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Stärkster Kämpfer der Universe",
+          "api": "Saiyajin, Son family, Z-Fighters"
+        }
+      }
+    },
+    {
+      "name": "Green Arrow",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Oliver Jonas Queen",
+          "api": "Oliver Queen"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Der Bogenschütze von Star City",
+            "Ollie",
+            "Emerald Archer"
+          ],
+          "api": [
+            "The Emerald Archer",
+            "Battling Bowman"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Queen Industries / Team Arrow",
+          "api": "Professional Crime-fighter; Multi-Billionaire"
+        },
+        "ort": {
+          "konsolidiert": "Star City",
+          "api": "Star City, California; Formerly Seattle, Washington"
+        },
+        "hinweis": {
+          "konsolidiert": "Milliardär und meisterhafter Bogenschütze mit Trickpfeilen.",
+          "api": "Justice League Reserve, Connor Hawke, Mia Dearden,  Arsenal, Green Arrows of the World, Black Canary, Green Lantern Hal Jordan, Shado, Eddie Fyers, Justice League Elite, Seven Soldiers of Victory, All"
+        }
+      }
+    },
+    {
+      "name": "Han Solo",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Captain Solo",
+            "Schmuggler-Kapitän"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Rebellenallianz",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Weltraum",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Protagonist"
+        }
+      }
+    },
+    {
+      "name": "Harley Quinn",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Harleen Frances Quinzel",
+          "api": "Harley Quinn"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Harleen Quinzel",
+            "Dr. Harleen Quinzel"
+          ],
+          "api": [
+            "Harleen Quinzel",
+            "Harl",
+            "Cupid of Crime",
+            "Jane Wisakedjak",
+            "Elise Archer",
+            "Pumpkin Pooh"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Suicide Squad",
+          "api": "Psychiatrist"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Antagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Ehemalige Psychiaterin; ihre Rolle reicht von Schurkin bis Antiheldin.",
+          "api": "Formerly The Quintets, The Joker, Poison Ivy, Secret Six"
+        }
+      }
+    },
+    {
+      "name": "Harry Potter",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Der Junge, der überlebte",
+            "Der Auserwählte",
+            "Auserwählter"
+          ],
+          "api": [
+            "Triwizard Champion",
+            "Seeker",
+            "Quidditch Captain",
+            "Leader of Dumbledore's Army",
+            "Master of Death"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Hogwarts-Schule für Hexerei und Zauberei",
+          "api": "Head of the Department of Magical Law Enforcement["
+        },
+        "ort": {
+          "konsolidiert": "Little Whinging, Surrey",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Harry Potter",
+          "api": "J. K. Rowling"
+        },
+        "medium": {
+          "konsolidiert": "Buch",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Hawkeye",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Clinton Francis Barton",
+          "api": "Clint Barton"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Ronin",
+            "Bester Schütze der Welt",
+            "Meisterschütze"
+          ],
+          "api": [
+            "Ronin",
+            "Goliath",
+            "Golden Archer",
+            "the Marksman",
+            "Father Time",
+            "Longbow"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Avengers / S.H.I.E.L.D.",
+          "api": "Adventurer"
+        },
+        "ort": {
+          "konsolidiert": "Waverly, Iowa",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Goliath"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Meisterschütze ohne Superkräfte, loyalster Team-Rückhalt.",
+          "api": "Avengers, Thunderbolts, Avengers West Coast, Great Lakes Avengers, Shadows, Chain Gang, former partner of the Black Widow"
+        }
+      }
+    },
+    {
+      "name": "Hulk",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Robert Bruce Banner",
+          "api": "Bruce Banner"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Der unglaubliche Hulk",
+            "Der grüne Goliath",
+            "Professor Hulk",
+            "Der Unglaubliche Hulk",
+            "Grüner Goliath",
+            "Der Hulk"
+          ],
+          "api": [
+            "Annihilator",
+            "Captain Universe",
+            "Joe Fixit",
+            "Mr. Fixit",
+            "Mechano",
+            "Professor",
+            "Jade Jaws",
+            "Golly Green Giant"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Avengers / Culver University (ehem.)",
+          "api": "Nuclear physicist, Agent of S.H.I.E.L.D."
+        },
+        "ort": {
+          "konsolidiert": "New York City",
+          "api": "(Banner) Hulkbuster Base, New Mexico, (Hulk) mobile, but prefers New Mexico"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Genialer Nuklearphysiker mit Wut-induzierter Transformation.",
+          "api": "Defenders, former leader of the new Hulkbusters, member of the Avengers, Pantheon, Titans Three, the Order, Hulkbusters of Counter-Earth-Franklin, alternate Fantastic Four"
+        }
+      }
+    },
+    {
+      "name": "Human Torch",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Jonathan Lowell Spencer Storm",
+          "api": "Johnny Storm"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Die menschliche Fackel",
+            "Johnny Storm"
+          ],
+          "api": [
+            "Matchstick Johnny",
+            "Doug Brown"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Fantastic Four / Baxter Foundation",
+          "api": "Adventurer"
+        },
+        "ort": {
+          "konsolidiert": "New York City",
+          "api": "Pier Four, New York City"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Ruft 'Flamme an!' (Flame on!). Bruder von Susan Storm.",
+          "api": "Fantastic Four"
+        }
+      }
+    },
+    {
+      "name": "Invisible Woman",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Die Unsichtbare",
+            "Sue Storm"
+          ],
+          "api": [
+            "Invisible Girl"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Fantastic Four / Baxter Foundation",
+          "api": "Member of the Fantastic Four, financial manager for Fantastic Four Inc, occasional model and actress"
+        },
+        "ort": {
+          "konsolidiert": "New York City",
+          "api": "Pier Four, New York City"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Ehefrau von Reed Richards, beherrscht Kraftfelder und Unsichtbarkeit.",
+          "api": "Fantastic Four, formerly; Secret Avengers, Avengers, Brides of Set, Pawns of Death"
+        }
+      }
+    },
+    {
+      "name": "Iron Fist",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Daniel Thomas Rand-K'ai",
+          "api": "Danny Rand"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Die unsterbliche eiserne Faust",
+            "Danny Rand"
+          ],
+          "api": [
+            "Daredevil",
+            "Daniel Thomas Rand",
+            "the Living Weapon",
+            "Young Dragon",
+            "Danny Rand"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Rand Enterprises / Heroes for Hire",
+          "api": "Adventurer; formerly co-owner of Rand-Meachum, Inc., bodyguard, private investigator, research assistant, warrior"
+        },
+        "ort": {
+          "konsolidiert": "New York City",
+          "api": "New York"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Gelehrt in der mystischen Stadt K'un-Lun; bündelt Chi in seinen Fäusten.",
+          "api": "New Avengers, Heroes for Hire, Inc., Secret Defenders, Defenders, Misty Knight, Luke Cage"
+        }
+      }
+    },
+    {
+      "name": "Iron Man",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Anthony Edward Stark",
+          "api": "Tony Stark"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Tony Stark",
+            "Der gepanzerte Rächer",
+            "Shellhead",
+            "Goldene Rächer"
+          ],
+          "api": [
+            "Iron Knight",
+            "Hogan Potts",
+            "Spare Parts Man",
+            "Cobalt Man II",
+            "Crimson Dynamo",
+            "Ironman"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Stark Industries / Avengers",
+          "api": "Inventor, Industrialist; former United States Secretary of Defense"
+        },
+        "ort": {
+          "konsolidiert": "Malibu / New York City",
+          "api": "Seattle, Washington"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Genie, Milliardär, Playboy, Philanthrop.",
+          "api": "Avengers, Illuminati, Stark Resilient; formerly S.H.I.E.L.D., leader of Stark Enterprises, the Pro-Registration Superhero Unit, New Avengers, Mighty Avengers, Hellfire Club, Force Works, Avengers West"
+        }
+      }
+    },
+    {
+      "name": "James Bond",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "007",
+            "Agent 007"
+          ],
+          "api": [
+            "007",
+            "Commander Bond"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "MI6",
+          "api": "00 Agent"
+        },
+        "ort": {
+          "konsolidiert": "SW1A 2DT London",
+          "api": "London"
+        },
+        "franchise": {
+          "konsolidiert": "James Bond",
+          "api": "Titan Books"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Die Filmreihe legt keine dauerhaft gültige private Wohnadresse fest.",
+          "api": "Secret Intelligence Service, MI6, C.I.A., Royal Navy"
+        }
+      }
+    },
+    {
+      "name": "James T. Kirk",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "James Tiberius Kirk",
+          "api": "James T. Kirk"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Captain Kirk"
+          ],
+          "api": [
+            "Jim",
+            "Captain Kirk"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Sternenflotte",
+          "api": "Captain"
+        },
+        "ort": {
+          "konsolidiert": "Weltraum",
+          "api": "Unbekannt"
+        },
+        "medium": {
+          "konsolidiert": "Serie",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Kommandant der USS Enterprise in der Originalserie.",
+          "api": "Federation, Starfleet"
+        }
+      }
+    },
+    {
+      "name": "Jean Grey",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Jean Elaine Grey",
+          "api": "Jean Grey"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Phoenix",
+            "Marvel Girl"
+          ],
+          "api": [
+            "Redd Dayspring",
+            "Marvel Girl"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "X-Men",
+          "api": "Adventurer"
+        },
+        "ort": {
+          "konsolidiert": "Westchester County, New York",
+          "api": "Xavier Institute of Higher Learning, Westchester County, New York"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel Comics",
+          "api": "Phoenix"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Ihre Verbindung zur Phoenix Force ist je nach Comicphase unterschiedlich ausgeprägt.",
+          "api": "Formerly X-Men (founding member); Clan Rebellion, Muir Island X-Men; X-Factor/X-Terminators (founding member); Brides of Set"
+        }
+      }
+    },
+    {
+      "name": "Jean-Luc Picard",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Locutus von Borg",
+            "Captain Picard",
+            "Admiral Picard",
+            "Locutus"
+          ],
+          "api": [
+            "Locutus"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Sternenflotte",
+          "api": "Commanding officer USS Enterprise (NCC-1701-E)"
+        },
+        "ort": {
+          "konsolidiert": "La Barre, Frankreich",
+          "api": "Unbekannt"
+        },
+        "medium": {
+          "konsolidiert": "Serie",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Jessica Jones",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Jessica Campbell Jones-Cage",
+          "api": "Jessica Campbell Jones Cage"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Jewel (ehem.)"
+          ],
+          "api": [
+            "Knightress",
+            "Madeline",
+            "Jewel",
+            "Power Woman"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Alias Investigations",
+          "api": "Special Consultant to \"The Pulse\", a Daily Bugle supplement; formerly private investigator, adventurer, short-time vigilante"
+        },
+        "ort": {
+          "konsolidiert": "Hell's Kitchen, New York City",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Power Woman"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Privatdetektivin mit übermenschlicher Kraft und PTBS.",
+          "api": "Formerly New Avengers, Daily Bugle, Alias Investigations"
+        }
+      }
+    },
+    {
+      "name": "Joker",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Joker",
+          "api": "Jack Napier"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Clownprinz des Verbrechens",
+            "Harlekin des Hasses",
+            "Der Clownprinz des Verbrechens"
+          ],
+          "api": [
+            "Red Hood I",
+            "Clown Prince of Crime",
+            "Harlequin of Hate",
+            "Jack Napier",
+            "Joe Kerr",
+            "Mr. J"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Injustice League",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Gotham City",
+          "api": "Arkham Asylum, Gotham City; Ha-Hacienda"
+        },
+        "hinweis": {
+          "konsolidiert": "Eine definitive bürgerliche Identität ist in den meisten Comic-Kontinuitäten nicht festgelegt. Einzelne Adaptionen verwenden andere Namen.",
+          "api": "Black Glove, Injustice Gang, Injustice League, Joker League of Anarchy"
+        }
+      }
+    },
+    {
+      "name": "Katniss Everdeen",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Der Spottölpel",
+            "Das Mädchen, das in Flammen steht"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Distrikt 12 Aufstand",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Distrikt 12, Panem",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Die Tribute von Panem",
+          "api": "Unbekannt"
+        },
+        "medium": {
+          "konsolidiert": "Buch",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Kylo Ren",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Ben Solo"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Erste Ordnung (Anführer), Ritter von Ren",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Weltraum (Basis: Starkiller-Basis, Ilum)",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Lex Luthor",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Alexander Joseph Luthor",
+          "api": "Lex Luthor"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Lex",
+            "Alexander Luthor"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "LexCorp",
+          "api": "Owner of LexCorp"
+        },
+        "ort": {
+          "konsolidiert": "Metropolis",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Unternehmer und einer der bekanntesten Gegenspieler Supermans.",
+          "api": "Injustice Gang, Injustice League, Society of Supervillains"
+        }
+      }
+    },
+    {
+      "name": "Loki",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Gott des Schabernacks",
+            "Laufeyson",
+            "Loki"
+          ],
+          "api": [
+            "God of Mischief",
+            "Gem-Keeper",
+            "Walter Lawson",
+            "Lester",
+            "Loren Olsen",
+            "Tyfon",
+            "Father Williams",
+            "Willie",
+            "Tso Zhung; has also impersonated hundreds of others."
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Asgard",
+          "api": "God of evil; former god of mischief and madness"
+        },
+        "hinweis": {
+          "konsolidiert": "Wird in unterschiedlichen Handlungssträngen als Schurke, Antiheld oder Verbündeter dargestellt.",
+          "api": "Asgardians, Karnilla, Enchantress, Skurge the Executioner, Cobra, Mister Hyde, Absorbing Man, Igron, Tyr, Lorelei, Hela, Ulik, Frost Giants, Storm Giants (former), Dormammu, \"Acts of Vengeance\" prime"
+        }
+      }
+    },
+    {
+      "name": "Luke Cage",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Carl Lucas (Luke Cage)",
+          "api": "Luke Cage"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Power Man"
+          ],
+          "api": [
+            "Carl Lucas",
+            "Power Man",
+            "Mark Lucas",
+            "Hero for Hire",
+            "Ace of Spades"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Heroes for Hire / Pop's Barber Shop",
+          "api": "Adventurer, bar owner, bodyguard, mercenary; formerly theater owner, private investigator, various odd jobs"
+        },
+        "ort": {
+          "konsolidiert": "Harlem, New York City",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Power Man"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Unzerstörbare Haut und übermenschliche Stärke.",
+          "api": "Underground Avengers (formerly Daredevil's Unnamed Super-Hero Team), Secret Defenders, Heroes for Hire, Nightwing Restorations, Fantastic Four, Defenders, Bloods"
+        }
+      }
+    },
+    {
+      "name": "Luke Skywalker",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Luke",
+            "Jedi-Ritter",
+            "Sohn der Skywalker-Familie",
+            "Meister Skywalker"
+          ],
+          "api": [
+            "General Skywalker",
+            "Master Luke",
+            "Jedi"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Jedi-Orden, Rebellenallianz",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Tatooine",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Wuchs auf der Lars-Farm auf und lebte später an verschiedenen Orten in der Galaxis.",
+          "api": "Alliance to Restore the Republic, Jedi Order, Alliance of Free Planets, Bright Tree Village, New Republic, New Jedi Order"
+        }
+      }
+    },
+    {
+      "name": "Magneto",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Max Eisenhardt",
+          "api": "Erik Magnus Lensherr"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Erik Lehnsherr",
+            "Max Eisenhardt",
+            "Master of Magnetism"
+          ],
+          "api": [
+            "The Creator",
+            "Erik Magnus Lehnsherr",
+            "Michael Xavier",
+            "White Pilgrim",
+            "Erik the RedThe Master of Magnetism"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Bruderschaft der Mutanten",
+          "api": "Currently Revolutionary and Conqueror, formerly Volunteer Orderly, Secret Agent"
+        },
+        "ort": {
+          "konsolidiert": "Genosha",
+          "api": "Currently unrevealed, formerly Asteroid M; various hidden bases on Earth including one in Antarctica; an island in the Bermuda Triangle; Professor Xavier's School for Gifted Youngsters, Salem Center, Westchester County, New York"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Antagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Seine ursprüngliche Identität und seine politischen Ziele wurden über mehrere Comic-Epochen weiterentwickelt.",
+          "api": "Currently None, formerly Brotherhood of Evil Mutants I and II, X-Men, teacher of the New Mutants, Lords Cardinal of the Hellfire Club, leader of the Acolytes"
+        }
+      }
+    },
+    {
+      "name": "Martian Manhunter",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "J'onn J'onzz (John Jones)",
+          "api": "J'onn J'onzz"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Der Marsmensch",
+            "Das Herz der Justice League"
+          ],
+          "api": [
+            "ohn Jones; J'Onn J'Onzz (alternate spelling); Big Green Buddy; J.J.; Jolly Green Giant; Light to the Light; Manhunter; Manhunter from Mars; Son of Mars; Bronze Wraith",
+            "Bloodwynd",
+            "many others"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Justice League / Marsianische Garde",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Erdorbit / Metropolis",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Letzter Überlebender des Mars, beherrscht Gestaltwandlung und Telepathie. Schwäche: Feuer.",
+          "api": "Darkstars, Justice League of Aliens, Justice League Of America, Justice League Task Force, Justice League Unlimited, Martians, Outsiders"
+        }
+      }
+    },
+    {
+      "name": "Master Chief",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "John (Nachname unbekannt)",
+          "api": "John-117"
+        },
+        "alias": {
+          "konsolidiert": [
+            "John-117",
+            "Sierra-117",
+            "Der Demokratie-Held"
+          ],
+          "api": [
+            "Blue 1",
+            "Sierra 117",
+            "Spartan 117",
+            "Demon"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "UNSC (Spartan-II-Supersoldat)",
+          "api": "Master Chief Petty Officer of the Navy"
+        },
+        "ort": {
+          "konsolidiert": "UNSC Infinity (Schiff) / Installation 04 (Halo-Ring)",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Halo",
+          "api": "Microsoft"
+        },
+        "medium": {
+          "konsolidiert": "Videospiel",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Bio-technisch verbesserter Supersoldat; bürgerlicher Name nur als 'John' bekannt.",
+          "api": "United Nations Space Command, Navy"
+        }
+      }
+    },
+    {
+      "name": "Mister Fantastic",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Dr. Reed Richards",
+          "api": "Reed Richards"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Mr. Fantastic",
+            "Der klügste Mann der Welt"
+          ],
+          "api": [
+            "Mr Fantastic"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Fantastic Four / Baxter Foundation",
+          "api": "Scientist, adventurer"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Anführer der Fantastic Four, hyper-elastischer Körper.",
+          "api": "Fantastic Four"
+        }
+      }
+    },
+    {
+      "name": "Namor",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Sub-Mariner"
+          ],
+          "api": [
+            "Imperius Rex",
+            "Dr. G.W. Falton",
+            "Sub-Mariner",
+            "\"Subby\"",
+            "Namor the First",
+            "Avenging Son",
+            "Old Man",
+            "Rex",
+            "Joe Pierre",
+            "Lord of the Seven Seas",
+            "the Scion of the Deep",
+            "Phoenix"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Atlantis",
+          "api": "King of Atlantis, Adventurer; former warrior, commando, CEO"
+        },
+        "ort": {
+          "konsolidiert": "Atlantis",
+          "api": "Ultimate Universe; formerly New Atlantis, Utopia, San Francisco Bay, California; Atlantis; Necropolis, Wakanda; occasionally mobile"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Herrscher von Atlantis; Herkunft und Staatszugehörigkeit unterscheiden sich in verschiedenen Kontinuitäten.",
+          "api": "Cabal (founder), Invaders, Atlantis; formerly Illuminati, X-Men, Extinction Team, Phoenix Five, Defenders, Osborn's X-Men, Osborn's Cabal, Avengers, All-Winners Squad, Titans Three, Fantastic Four, Or"
+        }
+      }
+    },
+    {
+      "name": "Naruto Uzumaki",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Konohas orangefarbener Ninja",
+            "Jinchūriki des Neunschwänzigen",
+            "Siebter Hokage",
+            "Held des versteckten Blattes",
+            "Der Neunte",
+            "Knallkopf-Ninja",
+            "Siebenter Hokage",
+            "Der Ninja aus Konoha"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Konohagakure (Dorf des Blattes)",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Konohagakure (Dorf hinter den Blättern)",
+          "api": "Konohagakure"
+        },
+        "franchise": {
+          "konsolidiert": "Naruto",
+          "api": "Shueisha"
+        },
+        "medium": {
+          "konsolidiert": "Anime",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Siebtes Hokage, verdient Respekt",
+          "api": "Team 7"
+        }
+      }
+    },
+    {
+      "name": "Professor X",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Professor Xavier",
+            "Professor Charles Xavier"
+          ],
+          "api": [
+            "Prof",
+            "Dr. X",
+            "Professor Xavier",
+            "formerly Prisoner M-13"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Xavier-Institut für höhere Bildung",
+          "api": "Mutant leader, mutant rights activist, geneticist, teacher, adventurer, heir, formerly headmaster, soldier (US Army)"
+        },
+        "ort": {
+          "konsolidiert": "Salem Center, Westchester County, New York",
+          "api": "Formerly Utopia, San Francisco Bay, California; Genosha; Xavier Institute, Salem Center, Westchester County, New York; Imperial Palace, Chandilar, Shi'ar Empire; Columbia University, Manhattan, New York City, New York"
+        },
+        "rolle": {
+          "konsolidiert": "Mentor",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Gründer der X-Men; die Anschrift und der Name der Schule variieren je nach Kontinuität.",
+          "api": "Formerly X-Men (founder; formerly teacher & leader), Illuminati, Genoshan Excalibur, Brotherhood of Evil Mutants (leader), Cadre K, Generation X (founder), Starjammers, The Twelve, New Mutants (founde"
+        }
+      }
+    },
+    {
+      "name": "Q",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Q (Kontinuum-Avatar)"
+          ],
+          "api": [
+            "Q Continuum"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Q-Kontinuum",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Q-Kontinuum",
+          "api": "Unbekannt"
+        },
+        "medium": {
+          "konsolidiert": "Serie",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Neutral"
+        }
+      }
+    },
+    {
+      "name": "Rey",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Rey Palpatine",
+          "api": "Rey"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Rey Skywalker"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Widerstand / Jedi (Selbstlernend)",
+          "api": "Scavenger"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Aufgewachsen als Schrottsammlerin auf dem Wüstenplaneten Jakku.",
+          "api": "Resistence"
+        }
+      }
+    },
+    {
+      "name": "Robin",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Richard John 'Dick' Grayson",
+          "api": "Dick Grayson"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Nightwing",
+            "Boy Wonder",
+            "Der Wunderknabe"
+          ],
+          "api": [
+            "Renegade",
+            "The Target",
+            "Freddie Dinardo"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Teen Titans / Wayne Enterprises / Blüdhaven PD",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "10001 Gotham City / Blüdhaven",
+          "api": "Wayne Tower, Gotham City; formerly the Batcave;  formerly Bl?dhaven;  formerly New York City"
+        },
+        "franchise": {
+          "konsolidiert": "DC Comics",
+          "api": "Batman II"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Sidekick",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Erster Robin, wuchs bei Bruce Wayne auf und wurde später eigenständiger Held Nightwing.",
+          "api": "Batman Family, Batman Incorporated, Justice League; formerly Teen Titans, Outsiders, Bludhaven Police Department, Secret Society of Super-Villains"
+        }
+      }
+    },
+    {
+      "name": "Rorschach",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Walter Kovacs"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "ort": {
+          "konsolidiert": "New York City",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Watchmen",
+          "api": "DC Comics"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Lebt in einer fiktionalisierten Version von New York City.",
+          "api": "Crimebusters"
+        }
+      }
+    },
+    {
+      "name": "Sauron",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Tom Marvolo Riddle",
+          "api": "Sauron"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Der Dunkle Lord",
+            "Morgoth",
+            "Tom Riddle",
+            "Du-weißt-schon-wer",
+            "Der Dunkle Herrscher",
+            "Annatar",
+            "Gorthaur",
+            "Der Eine Ring",
+            "Tom Vorlost Riddle",
+            "Er weiß, dessen Name nicht genannt werden darf"
+          ],
+          "api": [
+            "Annatar",
+            "Gorthaur the Cruel",
+            "Sauron the Dark",
+            "The Necromancer",
+            "Dark Lord of Mordor",
+            "Lord of the Rings",
+            "The Great Eye"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Reich von Angband",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Mittelerde",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Der Herr der Ringe",
+          "api": "J. R. R. Tolkien"
+        },
+        "medium": {
+          "konsolidiert": "Buch",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Spider-Man",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Spidey",
+            "Die freundliche Spinne aus der Nachbarschaft",
+            "Wandkrabbler",
+            "Der Mann aus Spinnennetz",
+            "Freundliche Nachbar aus Queens",
+            "Web-Slinger",
+            "Spider-Man (Ultimate)",
+            "Kid Arachnid"
+          ],
+          "api": [
+            "Spiderman",
+            "Bag-Man",
+            "Black Marvel",
+            "Captain Universe",
+            "Dusk",
+            "Green Hood",
+            "Hornet",
+            "Mad Dog 336",
+            "Peter Palmer",
+            "Prodigy",
+            "Ricochet",
+            "Scarlet Spider",
+            "Spider-Boy",
+            "Spider-Hulk",
+            "Spider-Morphosis"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Daily Bugle (freelance)",
+          "api": "Freelance photographer, teacher"
+        },
+        "ort": {
+          "konsolidiert": "Queens, New York City",
+          "api": "New York, New York"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Marvel Comics"
+        },
+        "hinweis": {
+          "konsolidiert": "Die Wohnadresse ist mit bestimmten Comic-Kontinuitäten verbunden; Peter Parker lebte im Lauf der Serie an verschiedenen Orten.",
+          "api": "Member of the Avengers, formerly member of Outlaws, alternate Fantastic Four"
+        }
+      }
+    },
+    {
+      "name": "Spock",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "S'chn T'gai Spock",
+            "Mr. Spock",
+            "Der Vulkanier"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Sternenflotte",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "ShiKahr, Vulkan",
+          "api": "Unbekannt"
+        },
+        "medium": {
+          "konsolidiert": "Serie",
+          "api": "Unbekannt"
+        }
+      }
+    },
+    {
+      "name": "Storm",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Ororo Munroe"
+          ],
+          "api": [
+            "Ororo Iqadi T'Challa",
+            "Queen Ororo",
+            "Ororo Komo Wakandas,White Queen",
+            "Weather Witch",
+            "Windrider",
+            "Goddess",
+            "Mistress of the Elements",
+            "Princess of N'Dare",
+            "High Priestess Windrider",
+            "Goddess",
+            "Mistress of the Elements",
+            "Princess of N'Dare",
+            "High Priestess"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "X-Men",
+          "api": "Adventurer"
+        },
+        "ort": {
+          "konsolidiert": "Westchester County, New York",
+          "api": "Xavier Institute, Salem Center, Westchester County, New York State"
+        },
+        "hinweis": {
+          "konsolidiert": "Mutantin mit der Fähigkeit, Wetter zu kontrollieren.",
+          "api": "X-Men (Jean Grey School member, leader); formerly X-Force (Strike Team); Murder Circus (brainwashed), Extinction Team, Avengers[3], Fantastic Four, X.S.E., X-Treme X-Men, Tokyo Arena, The Twelve, Seve"
+        }
+      }
+    },
+    {
+      "name": "Superman",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Clark Joseph Kent (Kal-El)",
+          "api": "Clark Kent"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Mann aus Stahl",
+            "Man of Steel",
+            "Der letzte Sohn von Krypton",
+            "Der Mann aus Stahl",
+            "Kal-El",
+            "Der Letzte Sohn von Krypton"
+          ],
+          "api": [
+            "Clark Joseph Kent",
+            "The Man of Steel",
+            "the Man of Tomorrow",
+            "the Last Son of Krypton",
+            "Big Blue",
+            "the Metropolis Marvel",
+            "the Action Ace"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Daily Planet (Metropolis)",
+          "api": "Reporter for the Daily Planet and novelist"
+        },
+        "franchise": {
+          "konsolidiert": "DC Comics",
+          "api": "Superman Prime One-Million"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Geboren als Kal-El auf Krypton, aufgewachsen bei Jonathan und Martha Kent in Smallville.",
+          "api": "Justice League of America, The Legion of Super-Heroes (pre-Crisis as Superboy); Justice Society of America (pre-Crisis Earth-2 version); All-Star Squadron (pre-Crisis Earth-2 version)"
+        }
+      }
+    },
+    {
+      "name": "T-800",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "T-800",
+          "api": "Cyberdyne Systems Series 800 Terminator Model 101"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Der Terminator",
+            "Model 101"
+          ],
+          "api": [
+            "Terminator"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Cyberdyne Systems",
+          "api": "Assassin"
+        },
+        "ort": {
+          "konsolidiert": "Los Angeles, Kalifornien",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Terminator",
+          "api": "Dark Horse Comics"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Antagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Die Bezeichnung T-800 steht für eine Reihe von Terminator-Modellen, nicht für eine einzelne menschliche Identität.",
+          "api": "Skynet"
+        }
+      }
+    },
+    {
+      "name": "Thanos",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Der verrückte Titan",
+            "Der Wahnsinnige Titan",
+            "Der Verrückte Titan"
+          ],
+          "api": [
+            "The Mad Titan",
+            "Masterlord",
+            "The Overmaster",
+            "Chins"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Black Order (Anführer)",
+          "api": "Conqueror, worshiper of Death"
+        },
+        "ort": {
+          "konsolidiert": "Weltraum",
+          "api": "Mobile, formerly Sanctuary II, Titan"
+        },
+        "hinweis": {
+          "konsolidiert": "Sanctuary ist in den Filmadaptionen ein Raumschiff beziehungsweise Stützpunkt; Comic-Aufenthaltsorte variieren.",
+          "api": "Zodiac (ally); formerly Infinity Watch, Defenders"
+        }
+      }
+    },
+    {
+      "name": "Thor",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Gott des Donners",
+            "Herr von Mjölnir",
+            "Donnergott",
+            "Odinson"
+          ],
+          "api": [
+            "Donald Blake",
+            "Sigurd Jarlson",
+            "Jake Olsen",
+            "Donar the Mighty"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Königreich Asgard / Avengers",
+          "api": "King of Asgard; formerly EMS Technician; Physician"
+        },
+        "ort": {
+          "konsolidiert": "Asgard (Reich der Götter)",
+          "api": "New York, New York"
+        },
+        "franchise": {
+          "konsolidiert": "Marvel",
+          "api": "Rune King Thor"
+        },
+        "medium": {
+          "konsolidiert": "Comic",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Sohn Odins, Hüter von Mjölnir und Herrscher über Blitze und Sturm.",
+          "api": "Avengers"
+        }
+      }
+    },
+    {
+      "name": "Vegeta",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Prinz des Saiyajin",
+            "Prinz der Saiyajins"
+          ],
+          "api": [
+            "Prince Vegeta",
+            "The Saiyan Prince",
+            "The Prince of all Saiyans",
+            "Majin Vegeta",
+            "Bejiita",
+            "Bejiita no Ouji",
+            "Vejita",
+            "Vegita",
+            "Captain Vegeta",
+            "Vegeta-Sama",
+            "Makita (Hebrew dub)",
+            "Bezita (Malaysian dub)",
+            "Super Vegeta"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Z-Kämpfer",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Planet Vegeta",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Dragon Ball",
+          "api": "Shueisha"
+        },
+        "medium": {
+          "konsolidiert": "Anime",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Antagonist"
+        }
+      }
+    },
+    {
+      "name": "Wolverine",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "James Howlett",
+          "api": "Logan"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Logan",
+            "Weapon X",
+            "Patch"
+          ],
+          "api": [
+            "Weapon X",
+            "Weapon Ten",
+            "Death",
+            "Mutate 9601",
+            "Jim Logan",
+            "Emilio Garra",
+            "Weapon Chi",
+            "Experiment X",
+            "Agent Ten",
+            "Peter Richards",
+            "Mai kethLogan",
+            "Mr. Patch"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "X-Men",
+          "api": "Adventurer, instructor, former bartender, bouncer, spy, government operative, mercenary, soldier, sailor, miner"
+        },
+        "ort": {
+          "konsolidiert": "Salem Center, Westchester County, New York",
+          "api": "Xavier Institute, Salem Center, Westchester County, New York; Avengers Tower, New York City"
+        },
+        "rolle": {
+          "konsolidiert": "Antiheld",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "Sein Geburtsname wurde in späteren Comic-Handlungen als James Howlett enthüllt.",
+          "api": "X-Men, formerly Horsemen of Apocalypse, Fantastic Four, Secret Defenders, Clan Yashida, Department H, Alpha Flight, Department K, Team X, Team_Weapon_X, Devil's Brigade, Canadian Army"
+        }
+      }
+    },
+    {
+      "name": "Wonder Woman",
+      "felder": {
+        "buergerlicherName": {
+          "konsolidiert": "Diana Prince (Prinzessin Diana von Themyscira)",
+          "api": "Diana Prince"
+        },
+        "alias": {
+          "konsolidiert": [
+            "Prinzessin der Amazonen",
+            "Göttin der Wahrheit",
+            "Prinzessin Diana",
+            "Diana von Themyscira",
+            "Diana Prince",
+            "Amazonenprinzessin"
+          ],
+          "api": [
+            "Princess Diana",
+            "Princess of the Amazons",
+            "Goddess of Truth",
+            " Wondy",
+            "Wonder Girl",
+            "The Amazon Princess"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Themyscira / Louvre / Justice League",
+          "api": "Adventurer, Emissary to the world of Man, Protector of Paradise Island; former Goddess of Truth"
+        },
+        "ort": {
+          "konsolidiert": "Themyscira / Washington D.C.",
+          "api": "Unbekannt"
+        },
+        "hinweis": {
+          "konsolidiert": "Tochter von Königin Hippolyta, bewaffnet mit dem Lasso der Wahrheit und unzerstörbaren Armreifen.",
+          "api": "Justice League of America, Justice Society of America (pre-Crisis Earth-2 version); All-Star Squadron (pre-Crisis Earth-2 version)"
+        }
+      }
+    },
+    {
+      "name": "Yoda",
+      "felder": {
+        "alias": {
+          "konsolidiert": [
+            "Großmeister des Jedi-Ordens",
+            "Großmeister Yoda"
+          ],
+          "api": [
+            "-"
+          ]
+        },
+        "firma": {
+          "konsolidiert": "Hoher Rat der Jedi / Jedi-Orden",
+          "api": "Unbekannt"
+        },
+        "ort": {
+          "konsolidiert": "Coruscant / Dagobah",
+          "api": "Unbekannt"
+        },
+        "franchise": {
+          "konsolidiert": "Star Wars",
+          "api": "George Lucas"
+        },
+        "medium": {
+          "konsolidiert": "Film",
+          "api": "Unbekannt"
+        },
+        "rolle": {
+          "konsolidiert": "Mentor",
+          "api": "Protagonist"
+        },
+        "hinweis": {
+          "konsolidiert": "900 Jahre alter legendärer Jedi-Meister mit unverwechselbarer Satzstellung.",
+          "api": "Jedi Order, Jedi High Counsl, Galactic Republic"
+        }
+      }
+    }
+  ]
+}

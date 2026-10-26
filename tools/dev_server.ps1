@@ -91,9 +91,7 @@ try {
         $response = $context.Response
 
         try {
-            $response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
-            $response.Headers.Add("Pragma", "no-cache")
-            $response.Headers.Add("Expires", "0")
+            $response.Headers.Add("Cache-Control", "no-cache, must-revalidate")
 
             $urlPath = $request.Url.AbsolutePath
 

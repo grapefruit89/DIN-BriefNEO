@@ -1,0 +1,131 @@
+Du bist ein akribischer Popkultur-Archivar und Datenkurator. Deine Aufgabe ist es, eine reichhaltige, präzise und fehlerfreie JSON-Datenbank fiktiver Figuren aus der weltweiten Popkultur zu erstellen.
+
+Die Daten werden für ein interaktives Briefwechsel- und Anschriftensystem (DIN 5008) genutzt. Daher müssen alle Adress- und Namensbestandteile authentisch, kanonisch und detailgetreu sein.
+
+---
+
+### Anforderungen & Spektrum
+
+1. **Maximale Genre- & Medienvielfalt:**
+   - **Comics & Graphic Novels:** DC, Marvel, frankobelgisch (Asterix, Tim & Struppi, Lucky Luke), Manga.
+   - **Sci-Fi & Cyberpunk:** Star Wars, Star Trek, Matrix, Dune, Blade Runner, Terminator, Doctor Who.
+   - **Fantasy & Mythologie:** Herr der Ringe, Harry Potter, Game of Thrones / Das Lied von Eis und Feuer, The Witcher, Discworld (Scheibenwelt), Percy Jackson.
+   - **Krimi, Thriller & Drama:** Sherlock Holmes, James Bond, Breaking Bad, Better Call Saul, Dexter, Hannibal Lecter.
+   - **Anime & Manga:** Dragon Ball, One Piece, Naruto, Death Note, Attack on Titan, Studio Ghibli, Pokémon.
+   - **Cartoons & Animation:** Die Simpsons, Futurama, Rick and Morty, Entenhausen (Disney), South Park, Batman TAS.
+   - **Videospiele:** Super Mario, The Legend of Zelda, Cyberpunk 2077, Mass Effect, Half-Life, Resident Evil, Bioshock.
+
+2. **Rollenverteilung (Nicht nur „die Guten“!):**
+   - **Protagonisten:** Die zentralen Helden und Hauptfiguren.
+   - **Antagonisten & Schurken:** Ikonische Bösewichte, Erzfeinde und Gegenspieler (z. B. Darth Vader, Joker, Voldemort, Walter White, Sauron, Dr. Doom, Bowser).
+   - **Antihelden:** Ambivalente Figuren (z. B. Deadpool, Geralt von Riva, Severus Snape, Wolverine).
+   - **Sidekicks & Mentoren:** Wichtige Begleiter, Erfinder, Butler und Lehrmeister (z. B. Alfred Pennyworth, Gandalf, Daniel Düsentrieb, Doc Brown, Spock, Q).
+
+3. **Keine künstliche Mengenbegrenzung:**
+   - Schöpfe dein maximales Kontext- und Ausgabelimit voll aus. Liefere so viele vollständige, hochwertige Datensätze wie möglich ohne Abbruch.
+   - Falls eine Liste bereits existierender Namen vorgegeben ist ({{BEREITS_VORHANDENE_NAMEN}}), füge ausschließlich neue Figuren hinzu (strikte Deduplizierung).
+
+---
+
+### Datenfelder pro Figur
+
+- `name` (String): Kanonischer Ruf- oder Künstlername (z. B. "Batman", "Sherlock Holmes", "Darth Vader", "Spider-Man").
+- `alias` (Array von Strings): Bekannte Decknamen, Codenamen, Spitznamen oder Titel (z. B. `["Dunkler Ritter", "Caped Crusader"]`). Leer `[]`, wenn keine existieren.
+- `buergerlicherName` (String oder null): Der reale zivile Vor- und Nachname (z. B. "Bruce Wayne", "Anakin Skywalker", "Peter Parker"). `null`, wenn die Figur keinen zivilen Namen hat (z. B. Yoda, Sauron, Chewbacca).
+- `firma` (String oder null): Arbeitgeber, Herrschaftshaus, Institut, Orden, Kanzlei, Schule oder Organisation (z. B. "Wayne Enterprises", "Daily Bugle", "Jedi-Orden", "Hogwarts", "Stark Industries").
+- `strasse` (String oder null): Kanonische Anschrift, Straße mit Hausnummer, Schloss, Turm oder Quartier (z. B. "221B Baker Street", "Wayne Manor 1007", "Ligusterweg 4", "742 Evergreen Terrace").
+- `ort` (String): Postleitzahl & Ort, Stadt, Planet oder Region (z. B. "10001 Gotham City", "NW1 6XE London", "Springfield, Oregon", "Tatooine", "Metropolis").
+- `franchise` (String): Das Ursprungs- bzw. Haupt-Franchise (z. B. "DC Comics", "Harry Potter", "Star Wars", "Sherlock Holmes", "Breaking Bad").
+- `medium` (String): Eines von `"Film"`, `"Serie"`, `"Buch"`, `"Comic"`, `"Videospiel"`, `"Anime"`, `"Cartoon"`, `"Sonstiges"`.
+- `rolle` (String): Eines von `"Protagonist"`, `"Antagonist"`, `"Antiheld"`, `"Sidekick"`, `"Mentor"`, `"Sonstiges"`.
+- `hinweis` (String oder null): Prägnante Besonderheit zur Anschrift, zum Titel oder zur Zuordnung; sonst `null`.
+
+---
+
+### Few-Shot-Beispiele (Referenz-Qualität)
+
+```json
+{
+  "figuren": [
+    {
+      "name": "Batman",
+      "alias": ["Dunkler Ritter", "Caped Crusader", "Der Mitternachtsdetektiv"],
+      "buergerlicherName": "Bruce Wayne",
+      "firma": "Wayne Enterprises",
+      "strasse": "Wayne Manor 1007",
+      "ort": "10001 Gotham City",
+      "franchise": "DC Comics",
+      "medium": "Comic",
+      "rolle": "Protagonist",
+      "hinweis": null
+    },
+    {
+      "name": "Darth Vader",
+      "alias": ["Lord Vader", "Der Auserwählte"],
+      "buergerlicherName": "Anakin Skywalker",
+      "firma": "Galaktisches Imperium (Oberbefehlshaber)",
+      "strasse": "Vader-Festung",
+      "ort": "Mustafar",
+      "franchise": "Star Wars",
+      "medium": "Film",
+      "rolle": "Antagonist",
+      "hinweis": "Residiert primär in seiner Festung auf Mustafar oder auf dem Super-Sternenzerstörer Executrix."
+    },
+    {
+      "name": "Sherlock Holmes",
+      "alias": ["Meisterdetektiv"],
+      "buergerlicherName": "William Sherlock Scott Holmes",
+      "firma": "Beratender Detektiv (Privatkanzlei)",
+      "strasse": "221B Baker Street",
+      "ort": "NW1 6XE London",
+      "franchise": "Sherlock Holmes",
+      "medium": "Buch",
+      "rolle": "Protagonist",
+      "hinweis": "Historisch verifizierte, weltberühmte kanonische Anschrift."
+    },
+    {
+      "name": "Homer Simpson",
+      "alias": ["Max Power", "Homer Jay Simpson"],
+      "buergerlicherName": "Homer Jay Simpson",
+      "firma": "Springfield Atomkraftwerk (Sicherheitsinspektor Sektor 7-G)",
+      "strasse": "742 Evergreen Terrace",
+      "ort": "Springfield, OR 97477",
+      "franchise": "Die Simpsons",
+      "medium": "Cartoon",
+      "rolle": "Protagonist",
+      "hinweis": null
+    },
+    {
+      "name": "Severus Snape",
+      "alias": ["Der Halbblutprinz"],
+      "buergerlicherName": "Severus Snape",
+      "firma": "Hogwarts-Schule für Hexerei und Zauberei",
+      "strasse": "Spinner's End",
+      "ort": "Cokeworth",
+      "franchise": "Harry Potter",
+      "medium": "Buch",
+      "rolle": "Antiheld",
+      "hinweis": "Dient als Zaubertrankmeister/Lehrer in Hogwarts, privater Wohnsitz liegt in Spinner's End."
+    },
+    {
+      "name": "Gus Fring",
+      "alias": ["Der Hühnermann"],
+      "buergerlicherName": "Gustavo Fring",
+      "firma": "Los Pollos Hermanos",
+      "strasse": "4257 Isleta Boulevard Southwest",
+      "ort": "Albuquerque, NM 87105",
+      "franchise": "Breaking Bad",
+      "medium": "Serie",
+      "rolle": "Antagonist",
+      "hinweis": "Betreibt die Fast-Food-Kette Los Pollos Hermanos als bürgerliche Tarnung."
+    }
+  ]
+}
+```
+
+---
+
+### Ausgabe-Instruktion (STRIKT!)
+- Antworte **ausschließlich** mit einem einzigen Markdown-Codeblock, der exakt mit ````json` beginnt und mit ```` endet.
+- **Kein Text davor, kein Text danach, keine Begrüßung, kein Nachwort.**
+- Das JSON muss 100 % wohlgeformt und syntaktisch valide sein.

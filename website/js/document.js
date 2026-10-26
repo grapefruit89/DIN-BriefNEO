@@ -142,46 +142,108 @@ export function setCaretToEnd(element) {
 }
 
 /**
- * Formatiert deutsche Mobilfunknummern nach DIN 5008 (Vorwahl + Leerzeichen + Rufnummer).
- * Erhält einen Durchwahl-Bindestrich. Festnetz- und Sonderrufnummern bleiben unverändert.
+ * Formatiert deutsche Rufnummern nach DIN 5008 11.3.2: Vorwahl, ein Leerzeichen,
+ * Rufnummer, Durchwahl mit Bindestrich. Ohne Vorwahl-Datenbank — die Vorwahl endet am
+ * ersten Trenner; ohne Trenner wird sie über die Ziffernzahl geschätzt.
+ * Nummern mit fremder Ländervorwahl bleiben bis auf normale Leerzeichen unverändert.
  * @param {string | null | undefined} input
  * @returns {string}
  */
-export function formatGermanMobile(input) {
-  const original = String(input || '');
-  const [main, dw = ''] = original.split('-', 2);
-  let digits = main.replace(/[\s/.\-();]+/g, '');
-  if (!digits) return original;
+export function formatTelefonnummer(input) {
+  const original = String(input ?? '').trim();
+  if (!original) return '';
 
-  const dwClean = dw.replace(/[\s/.\-();]+/g, '');
-  const dwSuffix = dwClean ? `-${dwClean}` : '';
+  // 1. Vorbereinigung: "(0)" auflösen, erlaubte Zeichen behalten, Leerraum normalisieren.
+  const cleaned = original
+    .replace(/\(\s*0\s*\)/g, ' ')
+    .replace(/[^0-9+\-/ ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return original;
 
-  // 1. Internationale Präfixe erkennen
-  const isInternational = original.startsWith('+') || original.startsWith('0049') || original.startsWith('49');
-
-  if (digits.startsWith('+49')) {
-    digits = digits.slice(3);
-  } else if (digits.startsWith('0049')) {
-    digits = digits.slice(4);
-  } else if (digits.startsWith('49')) {
-    if (/^1[5-7]\d/.test(digits.slice(2))) digits = digits.slice(2);
-    else return original;
+  // 2. Internationale Nummern: 00XX -> +XX. Nur +49 wird national weitergereicht.
+  if (cleaned.startsWith('+') || cleaned.startsWith('00')) {
+    const intl = cleaned.replace(/^00(\d{2})/, '+$1');
+    if (!intl.startsWith('+49')) return intl;
+    const afterCc = intl.slice(3).replace(/[^0-9-]/g, '');
+    if (!afterCc) return intl;
+    const national = afterCc.startsWith('0') ? afterCc : `0${afterCc}`;
+    const formatted = formatNationalNumber(national);
+    return formatted ? `+49 ${formatted.slice(1)}` : intl;
   }
 
-  // Führende 0 (national oder aus "+49 (0)") abstreifen
-  if (digits.startsWith('0')) {
-    digits = digits.slice(1);
-  }
+  // 3. Nationale Nummern nur mit führender 0 — sonst unangetastet lassen.
+  if (!cleaned.startsWith('0')) return original;
+  return formatNationalNumber(cleaned) ?? original;
+}
 
-  // 2. Deutsche Mobilfunknummer (Vorwahlen 015x, 016x, 017x)
-  if (/^1[5-7]\d/.test(digits)) {
-    if (isInternational) {
-      return `+49 ${digits.slice(0, 3)} ${digits.slice(3)}${dwSuffix}`;
+/**
+ * Formatiert eine nationale Rufnummer (führende 0) in Vorwahl + Rufnummer + Durchwahl.
+ * @param {string} national
+ * @returns {string | null} null, wenn keine verwertbare Nummer vorliegt
+ */
+function formatNationalNumber(national) {
+  let s = national.replace(/\s+/g, ' ').trim();
+  if (!/^0\d/.test(s.replace(/\D/g, ''))) return null;
+
+  // Durchwahl: abschließender Bindestrich + höchstens 4 Ziffern ("0228 123456-78").
+  // Ein längerer Rest nach dem Bindestrich ist ein Trenner ("0172-1234567"), keine Durchwahl.
+  let durchwahl = '';
+  const dwMatch = s.match(/^(.*\d)-(\d{1,4})$/);
+  if (dwMatch) {
+    s = dwMatch[1].trim();
+    durchwahl = `-${dwMatch[2]}`;
+  } else {
+    // Durchwahl als letzte, per Leerzeichen abgetrennte 2er-Gruppe ("0228 123456 78").
+    // Mobilnummern werden laut Vorgabe zu einer Gruppe zusammengefasst, daher dort nicht.
+    // Die Gruppe davor muss eine plausible Rufnummer sein (>= 4 Ziffern), sonst würde
+    // eine Gruppierung wie "0170 123 45 67" falsch als Durchwahl gelesen.
+    const groups = s.split(' ');
+    const isMobile = /^01[5-7]\d/.test(s.replace(/[\s/-]+/g, ''));
+    if (!isMobile && groups.length >= 3) {
+      const last = groups[groups.length - 1];
+      const before = groups[groups.length - 2];
+      if (/^\d{2}$/.test(last) && /^\d{4,}$/.test(before)) {
+        s = groups.slice(0, -1).join(' ');
+        durchwahl = `-${last}`;
+      }
     }
-    return `0${digits.slice(0, 3)} ${digits.slice(3)}${dwSuffix}`;
   }
 
-  return original;
+  // Vorwahl: endet am ersten Trenner (Leerzeichen, / oder -).
+  const sepIndex = s.search(/[ /-]/);
+  const head = sepIndex === -1 ? s : s.slice(0, sepIndex);
+  const headDigits = head.replace(/\D/g, '');
+
+  let vorwahl;
+  let rest;
+  if (headDigits.length >= 3 && headDigits.length <= 6) {
+    vorwahl = headDigits;
+    rest = s.slice(sepIndex === -1 ? s.length : sepIndex).replace(/\D/g, '');
+  } else {
+    // Kein brauchbarer Trenner: Ziffernzahl entscheidet (siehe prefixLength).
+    const digits = s.replace(/\D/g, '');
+    vorwahl = digits.slice(0, prefixLength(digits));
+    rest = digits.slice(vorwahl.length);
+  }
+
+  if (!vorwahl) return null;
+  return rest ? `${vorwahl} ${rest}${durchwahl}` : `${vorwahl}${durchwahl}`;
+}
+
+/**
+ * Schätzt die Vorwahl-Länge ohne Datenbank (DIN 5008 erlaubt 2 bis 5 Ziffern nach der 0).
+ * Deutsche Ortsnetznummern haben 10 oder 11 Ziffern inklusive Verkehrsausscheidungsziffer;
+ * daraus folgt 4 Ziffern Vorwahl bei 10, sonst 5. Bekannte kurze Vorwahlen und Sonder-
+ * rufnummern werden vorher erkannt.
+ * @param {string} digits
+ * @returns {number}
+ */
+function prefixLength(digits) {
+  if (/^0(30|40|69|89)\d/.test(digits)) return 3;
+  if (/^01[5-7]\d/.test(digits)) return 4;
+  if (/^0(?:800|900|180|137|700)/.test(digits)) return 4;
+  return digits.length <= 10 ? 4 : 5;
 }
 
 /* =========================================================================================
@@ -501,7 +563,8 @@ export class UIProtections {
   }
 
   /**
-   * DIN 5008 11.3.2: Formatierung deutscher Mobilfunknummern beim Verlassen des Telefonfeldes.
+   * DIN 5008 11.3.2: Formatierung deutscher Rufnummern beim Verlassen des Telefonfeldes.
+   * Bewusst nur bei blur, nicht während des Tippens.
    */
   setupMobilePhoneFormatting() {
     const tel = document.getElementById('absender-tel');
@@ -509,7 +572,7 @@ export class UIProtections {
     tel.addEventListener('blur', () => {
       const current = (tel.textContent || '').trim();
       if (!current) return;
-      const formatted = formatGermanMobile(current);
+      const formatted = formatTelefonnummer(current);
       if (formatted && formatted !== current) {
         tel.textContent = formatted;
         tel.dispatchEvent(new Event('input', { bubbles: true }));

@@ -2,7 +2,7 @@
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 import { describe, it, assert, assertEqual, run } from './runner.js';
-import { DraftManager, UIProtections, formatGermanMobile } from '../website/js/document.js';
+import { DraftManager, UIProtections, formatTelefonnummer } from '../website/js/document.js';
 // @ts-ignore
 import { STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT, buildDINLetterJSON, registerDraftCollector } from '../website/js/persistence.js?v=test2';
 import { createEventBus, eventBus, Events, initToastSystem, Constants } from '../website/js/core.js';
@@ -1239,30 +1239,73 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
   });
 });
 
-describe('formatGermanMobile (DIN 5008 11.3.2)', () => {
-  it('formatiert nationale Mobilfunknummern mit Vorwahl-Leerzeichen', () => {
-    assertEqual(formatGermanMobile('01601234567'), '0160 1234567');
-    assertEqual(formatGermanMobile('0160 1234567'), '0160 1234567');
-    assertEqual(formatGermanMobile('0170/1234567'), '0170 1234567');
+describe('formatTelefonnummer (DIN 5008 11.3.2)', () => {
+  it('formatiert Mobilfunknummern (015x/016x/017x)', () => {
+    assertEqual(formatTelefonnummer('01601234567'), '0160 1234567');
+    assertEqual(formatTelefonnummer('0160 1234567'), '0160 1234567');
+    assertEqual(formatTelefonnummer('0170/1234567'), '0170 1234567');
+    assertEqual(formatTelefonnummer('01701234567'), '0170 1234567');
+    assertEqual(formatTelefonnummer('0170 123 45 67'), '0170 1234567');
+    assertEqual(formatTelefonnummer('0151/23456789'), '0151 23456789');
+    assertEqual(formatTelefonnummer('0172-1234567'), '0172 1234567');
   });
-  it('erhält Durchwahl mit Bindestrich', () => {
-    assertEqual(formatGermanMobile('0151 1234567-89'), '0151 1234567-89');
-    assertEqual(formatGermanMobile('+49 151 1234567-89'), '+49 151 1234567-89');
+  it('formatiert Sonderrufnummern (0800/0900/0180/0137/0700)', () => {
+    assertEqual(formatTelefonnummer('0800123456'), '0800 123456');
+    assertEqual(formatTelefonnummer('0900123456'), '0900 123456');
+    assertEqual(formatTelefonnummer('0180123456'), '0180 123456');
+    assertEqual(formatTelefonnummer('0137123456'), '0137 123456');
+    assertEqual(formatTelefonnummer('07001234567'), '0700 1234567');
   });
-  it('normalisiert internationale Präfixe zu +49 (inkl. +49 (0))', () => {
-    assertEqual(formatGermanMobile('+491601234567'), '+49 160 1234567');
-    assertEqual(formatGermanMobile('+49 160 1234567'), '+49 160 1234567');
-    assertEqual(formatGermanMobile('+49 (0) 160 1234567'), '+49 160 1234567');
-    assertEqual(formatGermanMobile('0049 160 1234567'), '+49 160 1234567');
+  it('formatiert Festnetznummern (2- bis 5-stellige Vorwahl)', () => {
+    assertEqual(formatTelefonnummer('0228123456'), '0228 123456');
+    assertEqual(formatTelefonnummer('0228/123456'), '0228 123456');
+    assertEqual(formatTelefonnummer('0228-123456'), '0228 123456');
+    assertEqual(formatTelefonnummer('0301234567'), '030 1234567');
+    assertEqual(formatTelefonnummer('0221123456'), '0221 123456');
+    assertEqual(formatTelefonnummer('02203123456'), '02203 123456');
+    assertEqual(formatTelefonnummer('0221 1234567'), '0221 1234567');
+    assertEqual(formatTelefonnummer('030 1234567'), '030 1234567');
+    assertEqual(formatTelefonnummer('0800 123456'), '0800 123456');
   });
-  it('belässt Festnetz und Sonderrufnummern unverändert', () => {
-    assertEqual(formatGermanMobile('0221 1234567'), '0221 1234567');
-    assertEqual(formatGermanMobile('030 1234567'), '030 1234567');
-    assertEqual(formatGermanMobile('0800 123456'), '0800 123456');
+  it('dokumentierte Grenze: 5-stellige Vorwahl ohne Trenner ist nicht erkennbar', () => {
+    // Die Vorgabe nennt 02204123456 -> "022041 23456", verlangt aber gleichzeitig als
+    // Default 5 Ziffern Vorwahl. Beides zugleich ist ohne Vorwahl-Datenbank nicht
+    // entscheidbar (02203123456 hat dieselbe Laenge, aber 5 Ziffern Vorwahl).
+    // Mit Trenner ist das Ergebnis korrekt.
+    assertEqual(formatTelefonnummer('02204123456'), '02204 123456');
+    assertEqual(formatTelefonnummer('022041 23456'), '022041 23456');
   });
-  it('behandelt leere Eingaben defensiv', () => {
-    assertEqual(formatGermanMobile(''), '');
-    assertEqual(formatGermanMobile(null), '');
+  it('uebernimmt Durchwahlen mit Bindestrich', () => {
+    assertEqual(formatTelefonnummer('0228 123456-78'), '0228 123456-78');
+    assertEqual(formatTelefonnummer('0228 123456 78'), '0228 123456-78');
+    assertEqual(formatTelefonnummer('0228123456-78'), '0228 123456-78');
+    assertEqual(formatTelefonnummer('0151 1234567-89'), '0151 1234567-89');
+  });
+  it('normalisiert internationale Praefixe zu +49 (inkl. +49 (0))', () => {
+    assertEqual(formatTelefonnummer('+491601234567'), '+49 160 1234567');
+    assertEqual(formatTelefonnummer('+49 160 1234567'), '+49 160 1234567');
+    assertEqual(formatTelefonnummer('+49 (0) 160 1234567'), '+49 160 1234567');
+    assertEqual(formatTelefonnummer('0049 160 1234567'), '+49 160 1234567');
+    assertEqual(formatTelefonnummer('+49 228 123456'), '+49 228 123456');
+    assertEqual(formatTelefonnummer('+49 (0) 228 123456'), '+49 228 123456');
+    assertEqual(formatTelefonnummer('0049 228 123456'), '+49 228 123456');
+    assertEqual(formatTelefonnummer('+49 151 1234567-89'), '+49 151 1234567-89');
+  });
+  it('laesst Nummern fremder Laendervorwahlen in ihrer Schreibweise', () => {
+    assertEqual(formatTelefonnummer('+43 1 2345678'), '+43 1 2345678');
+    assertEqual(formatTelefonnummer('0043 1 2345678'), '+43 1 2345678');
+  });
+  it('ist idempotent', () => {
+    for (const nummer of ['0170 1234567', '0228 123456-78', '+49 228 123456', '030 1234567', '0800 123456']) {
+      assertEqual(formatTelefonnummer(formatTelefonnummer(nummer)), nummer);
+    }
+  });
+  it('behandelt leere und fremde Eingaben defensiv', () => {
+    assertEqual(formatTelefonnummer(''), '');
+    assertEqual(formatTelefonnummer(null), '');
+    assertEqual(formatTelefonnummer(undefined), '');
+    assertEqual(formatTelefonnummer('keine Nummer'), 'keine Nummer');
+    assertEqual(formatTelefonnummer('228 123456'), '228 123456');
   });
 });
 

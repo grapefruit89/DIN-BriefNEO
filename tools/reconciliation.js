@@ -737,8 +737,15 @@ function runReconciliation() {
             resolvedTarget = path.normalize(urlPath);
           }
         } else {
-          const fileDir = path.dirname(file);
-          resolvedTarget = path.resolve(fileDir, targetLink);
+          // Bei Symlinks (TODO.md -> todo/README.md) muss relativ zum ZIEL
+          // aufgeloest werden, sonst ist eine der beiden Ansichten immer rot.
+          let basis;
+          try {
+            basis = path.dirname(fs.realpathSync(file));
+          } catch {
+            basis = path.dirname(file);
+          }
+          resolvedTarget = path.resolve(basis, targetLink);
         }
 
         if (fs.existsSync(resolvedTarget)) {

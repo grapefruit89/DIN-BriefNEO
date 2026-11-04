@@ -36,7 +36,7 @@ summary: "Plan zur Mehrseitenunterstützung nach DIN 5008 für den DIN-BriefNEO-
 ## 2. Druck-/PDF-Paginierung vs. `@page { margin: 0 }` Guard
 
 ### Warum DOM-Folgekopf statt `@page` Margin Boxes (`@top-right`)
-Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { content: "Seite " counter(page) " von " counter(pages); }`). In DIN-BriefNEO gilt jedoch in [`/home/moritz/repos/DIN-BriefNEO/website/css/print.css`](file:///home/moritz/repos/DIN-BriefNEO/website/css/print.css) der unantastbare **Architectural Guard**:
+Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { content: "Seite " counter(page) " von " counter(pages); }`). In DIN-BriefNEO gilt jedoch in [`/home/moritz/repos/DIN-BriefNEO/website/css/print.css`](../website/css/print.css) der unantastbare **Architectural Guard**:
 ```css
 @page {
   size: A4;

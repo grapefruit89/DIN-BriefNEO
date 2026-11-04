@@ -52,6 +52,6 @@ summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Feh
 
 ## 🔗 Verwandte Referenzen im Repository
 
-- **Maschinell erzwungene Gesetze:** [`/home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md`](file:///home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md)
-- **Historische Beschluss-Chronik:** [`/home/moritz/repos/DIN-BriefNEO/docs/30-meta/DECISION-LOG.md`](file:///home/moritz/repos/DIN-BriefNEO/docs/30-meta/DECISION-LOG.md)
-- **Zentrale Aufgaben & Roadmap:** [`/home/moritz/repos/DIN-BriefNEO/todo/README.md`](file:///home/moritz/repos/DIN-BriefNEO/todo/README.md)
+- **Maschinell erzwungene Gesetze:** [`/home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md`](../docs/00-foundation/Immutable-Law-Catalog.md)
+- **Historische Beschluss-Chronik:** [`/home/moritz/repos/DIN-BriefNEO/docs/30-meta/DECISION-LOG.md`](../docs/30-meta/DECISION-LOG.md)
+- **Zentrale Aufgaben & Roadmap:** [`/home/moritz/repos/DIN-BriefNEO/todo/README.md`](README.md)

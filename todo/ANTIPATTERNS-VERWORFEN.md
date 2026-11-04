@@ -44,6 +44,9 @@ summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Feh
 | **`interesttarget`-Attribut** | Plattform-API in Chromium 150+ noch experimentell / nicht stabil verfügbar. Keine verfrühte Bindung an instabile Entwürfe. | **Baseline**, **KISS** |
 | **8pt-Grid-Umstellung (DS-2/DS-3)** | Verworfen (Nutzerentscheid 2026-10-26): Kein DIN-Risiko. Das Bogenlayout folgt strikten DIN-Millimetern, die Seitenleiste ist visuell ausbalanciert; pauschale 8pt-Zwangsabstände würden bestehende Proportionen gefährden. | **KISS**, **DIN 5008** |
 | **`address.js`-Modularisierung** | Verworfen (Nutzerentscheid 2026-10-26): Keine Datei-Explosion. Die monolithische Struktur bündelt PLZ-, Autocomplete- und Adresslogik performant und regressionsarm an einem Ort; eine Aufteilung brächte reinen Overhead ohne funktionalen Gewinn. | **Simplicity First**, **KISS** |
+| **DIN 5008 Kapitel 22–25 (E-Mail, Präsentationen, Excel-Tabellen, Protokolle, Dateiablage)** | **Scope Creep & Feature-Bloat:** DIN-BriefNEO ist ein fokussierter DIN-5008-**Brief**-Editor nach Karpathy (Simplicity First). PowerPoint-Slides, Besprechungsprotokolle oder Datei-Ablagebäume gehören nicht in eine Brief-App. | **Karpathy-Prinzip**, **Simplicity First**, **YAGNI** |
+| **Starres 4,23-mm-Schreibmaschinen-Raster (DIN 5008 § 19.3 / 12pt Line-Grid)** | Veraltetes mechanisches Schreibmaschinen-Relikt. Führt bei modernen Proportional-Webfonts (Aptos, Liberation Sans, Inter) zu unnatürlichen Abständen, vertikalem Text-Clipping und starrer Inflexibilität. Natives CSS mit `line-height: 4.5mm` ist visuell überlegen. | **CSS Platform-First**, **KISS** |
+| **Manuelle bedingte Trennstriche (`&shy;` / `¬` nach DIN 5008 § 6.1)** | Durch modernes natives CSS (`hyphens: auto; lang="de"` und `text-wrap: pretty;`) auf Chromium 150+ vollständig obsolet. Manuelle HTML-Trennmarken zerstören den sauberen DOM-Text und machen Änderungen wartungsfeindlich. | **Rule 12 (Chromium 150+)**, **KISS** |
 
 ---
 

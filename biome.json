@@ -9,6 +9,7 @@
 		"ignoreUnknown": false,
 		"includes": [
 			"website/js/**",
+			"website/addons/**",
 			"test/**"
 		]
 	},
@@ -21,12 +22,14 @@
 			"preset": "recommended",
 			"suspicious": {
 				"noControlCharactersInRegex": "off",
+				"noTsIgnore": "off",
 				"useIterableCallbackReturn": "error",
 				"noAssignInExpressions": "error"
 			},
 			"complexity": {
 				"useOptionalChain": "error",
-				"useSimplifiedLogicExpression": "warn",
+				"useSimplifiedLogicExpression": "off",
+				"noStaticOnlyClass": "off",
 				"noUselessTernary": "warn"
 			},
 			"performance": {

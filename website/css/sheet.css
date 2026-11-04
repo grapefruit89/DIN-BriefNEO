@@ -115,7 +115,6 @@ body:has(#btn-form-a:checked) din-blatt {
     left: 0;
     width: --mm-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
     border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
-    opacity: var(--hilfslinien-deckkraft);
     pointer-events: none;
   }
 
@@ -159,7 +158,15 @@ body:has(#btn-form-a:checked) din-blatt {
 
   /* Umschlag-Fenster-Visier für DIN-Lang (DIN 680: 90x45mm, umschließt Rücksendezeile + Anschriftfeld) */
   #anschriftfeld::after {
-    content: '';
+    content: 'Kuvert-Fenster 90 × 45 mm';
+    font-size: 7pt;
+    font-weight: 500;
+    color: oklch(0.45 0.08 250 / 70%);
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 3px 6px;
+    box-sizing: border-box;
     position: absolute;
     top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
     left: 0;
@@ -325,6 +332,48 @@ din-lochmarke {
 
 :root:has(#btn-hilfslinien-switch:checked) {
   --hilfslinien-deckkraft: 0.55;
+}
+
+/* Schalter: Falz- & Lochmarken ausblenden */
+:root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-1,
+:root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-2,
+:root:not(:has(#toggle-falzmarken:checked)) din-lochmarke {
+  display: none !important;
+}
+
+/* DIN 5008 Maße Overlay an den Marken */
+:root:has(#btn-hilfslinien-switch:checked) din-falzmarke-1::after {
+  content: 'Falz 1 (105 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+body:has(#btn-form-a:checked):has(#btn-hilfslinien-switch:checked) din-falzmarke-1::after {
+  content: 'Falz 1 (87 mm)';
+}
+:root:has(#btn-hilfslinien-switch:checked) din-lochmarke::after {
+  content: 'Lochung (148,5 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+:root:has(#btn-hilfslinien-switch:checked) din-falzmarke-2::after {
+  content: 'Falz 2 (210 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
 }
 
 /* Optionale DIN-Blöcke */

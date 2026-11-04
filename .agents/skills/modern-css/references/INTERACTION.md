@@ -30,7 +30,7 @@ Use it on every `:hover` rule, so a tap on a touch screen does not leave the hov
 
 Rules:
 
-- Tailwind v4's `hover:` variant wraps itself in `(hover: hover)` only. Write the full query by hand everywhere else.
+- Always wrap `:hover` rules explicitly inside `@media (hover: hover) and (pointer: fine)`.
 - Touch users still need feedback on press. Give it with `:active`, which works for every input.
 
 Support: Chrome 38, Firefox 64, Safari 9.

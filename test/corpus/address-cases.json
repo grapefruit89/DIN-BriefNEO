@@ -1,0 +1,563 @@
+[
+  {
+    "id": "rev-street-001",
+    "tag": "street",
+    "description": "Zusammengesetztes Kompositum Hauptstraße",
+    "input": "Max Mustermann\nHauptstraße 5\n10115 Berlin",
+    "expect": { "strasse": "Hauptstraße 5", "plz": "10115", "ort": "Berlin" }
+  },
+  {
+    "id": "rev-street-002",
+    "tag": "street",
+    "description": "Zusammengesetztes Kompositum Musterstr. mit Buchstabe",
+    "input": "Erika Musterfrau\nMusterstr. 12a\n50667 Köln",
+    "expect": { "strasse": "Musterstr. 12a", "plz": "50667", "ort": "Köln" }
+  },
+  {
+    "id": "rev-street-003",
+    "tag": "street",
+    "description": "Zusammengesetztes Kompositum Eichenpfad",
+    "input": "Hans Schmidt\nEichenpfad 1\n20095 Hamburg",
+    "expect": { "strasse": "Eichenpfad 1", "plz": "20095", "ort": "Hamburg" }
+  },
+  {
+    "id": "rev-street-004",
+    "tag": "street",
+    "description": "Zusammengesetztes Kompositum Schulsteig",
+    "input": "Petra Meyer\nSchulsteig 4\n01067 Dresden",
+    "expect": { "strasse": "Schulsteig 4", "plz": "01067", "ort": "Dresden" }
+  },
+  {
+    "id": "rev-street-005",
+    "tag": "street",
+    "description": "Zusammengesetztes Kompositum Schlossberg",
+    "input": "Klaus Wagner\nSchlossberg 7\n79098 Freiburg",
+    "expect": { "strasse": "Schlossberg 7", "plz": "79098", "ort": "Freiburg" }
+  },
+  {
+    "id": "rev-street-006",
+    "tag": "street",
+    "description": "Campus-Adresse Venusberg-Campus",
+    "input": "Universitätsklinikum Bonn\nVenusberg-Campus 1\n53127 Bonn",
+    "expect": { "strasse": "Venusberg-Campus 1", "plz": "53127", "ort": "Bonn" }
+  },
+  {
+    "id": "rev-street-007",
+    "tag": "street",
+    "description": "Bindestrich-Straße Karl-Marx-Straße",
+    "input": "Karl-Marx-Straße 15\n10115 Berlin",
+    "expect": { "strasse": "Karl-Marx-Straße 15", "plz": "10115", "ort": "Berlin" }
+  },
+  {
+    "id": "rev-street-008",
+    "tag": "street",
+    "description": "Bindestrich-Ring Dr.-Külz-Ring",
+    "input": "Dr.-Külz-Ring 10\n01067 Dresden",
+    "expect": { "strasse": "Dr.-Külz-Ring 10", "plz": "01067", "ort": "Dresden" }
+  },
+  {
+    "id": "rev-street-009",
+    "tag": "street",
+    "description": "Langes Ring-Kompositum Hohenzollernring mit Hausnummer",
+    "input": "Johanna Schmidt\nHohenzollernring 55\n50672 Köln",
+    "expect": { "strasse": "Hohenzollernring 55", "plz": "50672", "ort": "Köln" }
+  },
+  {
+    "id": "rev-floor-001",
+    "tag": "floor",
+    "description": "Geschosszusatz EG mit Leerzeichen",
+    "input": "Firma ABC GmbH\nMusterweg 3 EG\n10115 Berlin",
+    "expect": { "strasse": "Musterweg 3 EG", "plz": "10115", "ort": "Berlin", "firma": "Firma ABC GmbH" }
+  },
+  {
+    "id": "rev-floor-002",
+    "tag": "floor",
+    "description": "Geschosszusatz UG mit Komma",
+    "input": "Technik GmbH\nHauptstr. 5, UG\n70173 Stuttgart",
+    "expect": { "strasse": "Hauptstr. 5, UG", "plz": "70173", "ort": "Stuttgart", "firma": "Technik GmbH" }
+  },
+  {
+    "id": "rev-floor-003",
+    "tag": "floor",
+    "description": "isStreetLine für Straße ohne Hausnummer aber mit UG",
+    "input": "Eichenweg UG",
+    "expect": { "is_street": true }
+  },
+  {
+    "id": "rev-floor-004",
+    "tag": "floor",
+    "description": "FLOOR_SUFFIX schneidet kein Wortende 'eg' bei Eichenweg ab",
+    "input": "Eichenweg",
+    "expect": { "is_street": true }
+  },
+  {
+    "id": "rev-floor-005",
+    "tag": "floor",
+    "description": "FLOOR_SUFFIX schneidet kein Wortende 'eg' bei Bergweg ab",
+    "input": "Bergweg",
+    "expect": { "is_street": true }
+  },
+  {
+    "id": "rev-neg-001",
+    "tag": "negative",
+    "description": "Nachname auf -ring darf ohne Hausnummer nicht als Straße gewertet werden",
+    "input": "Hans Hering\n53721 Siegburg",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "rev-neg-002",
+    "tag": "negative",
+    "description": "Nachname auf -wall darf ohne Hausnummer nicht als Straße gewertet werden",
+    "input": "Petra Wall\n50667 Köln",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "rev-neg-003",
+    "tag": "negative",
+    "description": "Nachname auf -damm darf ohne Hausnummer nicht als Straße gewertet werden",
+    "input": "Karl Damm\n20095 Hamburg",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "rev-neg-004",
+    "tag": "negative",
+    "description": "Nachname Klaus Hohenring ist keine Straße",
+    "input": "Klaus Hohenring",
+    "expect": { "is_street": false }
+  },
+  {
+    "id": "rev-neg-005",
+    "tag": "negative",
+    "description": "Nachname Anna Wiedring ist keine Straße",
+    "input": "Anna Wiedring",
+    "expect": { "is_street": false }
+  },
+  {
+    "id": "rev-neg-006",
+    "tag": "negative",
+    "description": "Nachname Peter Goldring ist keine Straße",
+    "input": "Peter Goldring",
+    "expect": { "is_street": false }
+  },
+  {
+    "id": "rev-neg-007",
+    "tag": "negative",
+    "description": "Verein mit Gründungsjahr 1860 darf ohne Straße nicht als Straße erkannt werden",
+    "input": "Turnverein Bonn 1860\n53111 Bonn",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "rev-neg-008",
+    "tag": "negative",
+    "description": "Verein mit Gründungsjahr 1904 darf nicht als Straße gewertet werden",
+    "input": "Verein Am Park 1904",
+    "expect": { "is_street": false }
+  },
+  {
+    "id": "rev-neg-009",
+    "tag": "negative",
+    "description": "Sportclub mit Gründungsjahr 1920 darf nicht als Straße gewertet werden",
+    "input": "Sportclub Am Markt 1920",
+    "expect": { "is_street": false }
+  },
+  {
+    "id": "rev-meta-001",
+    "tag": "metadata",
+    "description": "Mobil Oil AG darf nicht als Metadatenzeile verworfen werden",
+    "input": "Mobil Oil AG",
+    "expect": { "is_metadata": false, "is_corporate": true }
+  },
+  {
+    "id": "rev-meta-002",
+    "tag": "metadata",
+    "description": "Tel Aviv Café darf nicht als Metadatenzeile verworfen werden",
+    "input": "Tel Aviv Café",
+    "expect": { "is_metadata": false }
+  },
+  {
+    "id": "rev-meta-003",
+    "tag": "metadata",
+    "description": "Fon Design darf nicht als Metadatenzeile verworfen werden",
+    "input": "Fon Design",
+    "expect": { "is_metadata": false }
+  },
+  {
+    "id": "rev-meta-004",
+    "tag": "metadata",
+    "description": "Bic Burger GmbH darf nicht als Metadatenzeile verworfen werden",
+    "input": "Bic Burger GmbH",
+    "expect": { "is_metadata": false, "is_corporate": true }
+  },
+  {
+    "id": "rev-meta-005",
+    "tag": "metadata",
+    "description": "Emailwerk GmbH darf nicht als E-Mail-Metadatenzeile verworfen werden",
+    "input": "Emailwerk GmbH\nGeschäftsführer Max Mustermann\nIndustriestr. 10\n40212 Düsseldorf",
+    "expect": { "firma": "Emailwerk GmbH", "name": "Max Mustermann", "strasse": "Industriestr. 10" }
+  },
+  {
+    "id": "rev-meta-006",
+    "tag": "metadata",
+    "description": "Telefonseelsorge ist keine Metadatenzeile",
+    "input": "Telefonseelsorge Bonn",
+    "expect": { "is_metadata": false }
+  },
+  {
+    "id": "rev-meta-007",
+    "tag": "metadata",
+    "description": "Mobilfunkshop ist keine Metadatenzeile",
+    "input": "Mobilfunkshop Köln",
+    "expect": { "is_metadata": false }
+  },
+  {
+    "id": "rev-meta-008",
+    "tag": "metadata",
+    "description": "Tel mit Leerzeichen und Ziffern ist Metadatenzeile",
+    "input": "Tel 0228 123456",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "rev-meta-009",
+    "tag": "metadata",
+    "description": "Tel.: mit Doppelpunkt ist Metadatenzeile",
+    "input": "Tel.: 0228 12345",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "rev-meta-010",
+    "tag": "metadata",
+    "description": "Mobil mit Leerzeichen und Ziffern ist Metadatenzeile",
+    "input": "Mobil 0170 12345",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "rev-meta-011",
+    "tag": "metadata",
+    "description": "IBAN-Zeile mit Leerzeichen ist Metadatenzeile",
+    "input": "IBAN DE89 3704 0044 0532 0130 00",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "rev-meta-012",
+    "tag": "metadata",
+    "description": "BIC-Zeile mit Doppelpunkt ist Metadatenzeile",
+    "input": "BIC: COBADEFFXXX",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "rev-postfach-001",
+    "tag": "postfach",
+    "description": "Postfach mit Ziffern wird korrekt als Straßenzeile erkannt",
+    "input": "Kanzlei Dr. Steinberg\nPostfach 12 34 56\n53111 Bonn",
+    "expect": { "firma": "Kanzlei Dr. Steinberg", "strasse": "Postfach 12 34 56", "plz": "53111", "ort": "Bonn" }
+  },
+  {
+    "id": "rev-unfold-001",
+    "tag": "unfolding",
+    "description": "Einzeilige kommagetrennte Google-Maps Adresse",
+    "input": "Acme Corp GmbH, Hauptstraße 10, 10115 Berlin",
+    "expect": { "firma": "Acme Corp GmbH", "strasse": "Hauptstraße 10", "plz": "10115", "ort": "Berlin" }
+  },
+  {
+    "id": "rev-sal-001",
+    "tag": "salutation",
+    "description": "GmbH führt zur neutralen Anrede",
+    "input": "Muster GmbH",
+    "expect": { "anrede": "Sehr geehrte Damen und Herren," }
+  },
+  {
+    "id": "rev-sal-002",
+    "tag": "salutation",
+    "description": "Haftungsbeschränkt in Großschreibung führt zur neutralen Anrede",
+    "input": "Muster (Haftungsbeschränkt)",
+    "expect": { "anrede": "Sehr geehrte Damen und Herren," }
+  },
+  {
+    "id": "rev-sal-003",
+    "tag": "salutation",
+    "description": "Case-sensitive UG führt zur neutralen Anrede",
+    "input": "Muster UG",
+    "expect": { "anrede": "Sehr geehrte Damen und Herren," }
+  },
+  {
+    "id": "rev-sal-004",
+    "tag": "salutation",
+    "description": "Initialen bei Frau E. K. Meier übersteuern neutralen e.K.-Fallback",
+    "input": "Frau E. K. Meier",
+    "expect": { "anrede": "Sehr geehrte Frau Meier," }
+  },
+  {
+    "id": "rev-sal-005",
+    "tag": "salutation",
+    "description": "Herr Thomas Bank übersteuert neutralen Bank-Fallback",
+    "input": "Herr Thomas Bank",
+    "expect": { "anrede": "Sehr geehrter Herr Bank," }
+  },
+  {
+    "id": "rev-sal-006",
+    "tag": "salutation",
+    "description": "Frau Sabine Hotel übersteuert neutralen Hotel-Fallback",
+    "input": "Frau Sabine Hotel",
+    "expect": { "anrede": "Sehr geehrte Frau Hotel," }
+  },
+  {
+    "id": "rev-sal-007",
+    "tag": "salutation",
+    "description": "Bindestrich-Doppelname mit Adelstitel und Dr.",
+    "input": "Dr. Hans-Peter von Müller-Lüdenscheidt",
+    "expect": { "anrede": "Sehr geehrter Herr von Müller-Lüdenscheidt," }
+  },
+  {
+    "id": "rev-sal-008",
+    "tag": "salutation",
+    "description": "Herr Max Mustermann e.K. wird persönlich angesprochen",
+    "input": "Herr Max Mustermann e.K.",
+    "expect": { "anrede": "Sehr geehrter Herr Mustermann," }
+  },
+  {
+    "id": "rev-sal-009",
+    "tag": "salutation",
+    "description": "Dipl.-Ing. Heinz e.K. ohne Herr/Frau wird neutral angesprochen",
+    "input": "Dipl.-Ing. Heinz e.K.",
+    "expect": { "anrede": "Sehr geehrte Damen und Herren," }
+  },
+  {
+    "id": "real-addr-001",
+    "tag": "street",
+    "description": "Unter den Linden mit Adelstitel",
+    "input": "Dr. Hans-Peter von Müller\nUnter den Linden 42\n10117 Berlin",
+    "expect": { "name": "Dr. Hans-Peter von Müller", "strasse": "Unter den Linden 42", "plz": "10117", "ort": "Berlin" }
+  },
+  {
+    "id": "real-addr-002",
+    "tag": "street",
+    "description": "Am Markt Köln",
+    "input": "Erika Mustermann\nAm Markt 3\n50667 Köln",
+    "expect": { "name": "Erika Mustermann", "strasse": "Am Markt 3", "plz": "50667", "ort": "Köln" }
+  },
+  {
+    "id": "real-addr-003",
+    "tag": "street",
+    "description": "Großkonzern Siemens AG",
+    "input": "Siemens AG\nWerner-von-Siemens-Straße 1\n80333 München",
+    "expect": { "firma": "Siemens AG", "strasse": "Werner-von-Siemens-Straße 1", "plz": "80333", "ort": "München" }
+  },
+  {
+    "id": "real-addr-004",
+    "tag": "street",
+    "description": "BioNTech SE An der Goldgrube",
+    "input": "BioNTech SE\nAn der Goldgrube 12\n55131 Mainz",
+    "expect": { "firma": "BioNTech SE", "strasse": "An der Goldgrube 12", "plz": "55131", "ort": "Mainz" }
+  },
+  {
+    "id": "real-addr-005",
+    "tag": "street",
+    "description": "Robert Bosch GmbH Gerlingen",
+    "input": "Robert Bosch GmbH\nRobert-Bosch-Platz 1\n70839 Gerlingen",
+    "expect": { "firma": "Robert Bosch GmbH", "strasse": "Robert-Bosch-Platz 1", "plz": "70839", "ort": "Gerlingen" }
+  },
+  {
+    "id": "real-addr-006",
+    "tag": "street",
+    "description": "Rechtsanwälte mit z. Hd.",
+    "input": "Rechtsanwälte Schmidt & Partner\nz. Hd. Frau Meyer\nKaiserstraße 14\n60311 Frankfurt am Main",
+    "expect": { "firma": "Rechtsanwälte Schmidt & Partner", "name": "Frau Meyer", "strasse": "Kaiserstraße 14", "plz": "60311" }
+  },
+  {
+    "id": "real-addr-007",
+    "tag": "street",
+    "description": "Klinikum Rechts der Isar",
+    "input": "Klinikum Rechts der Isar\nIsmaninger Straße 22\n81675 München",
+    "expect": { "firma": "Klinikum Rechts der Isar", "strasse": "Ismaninger Straße 22", "plz": "81675", "ort": "München" }
+  },
+  {
+    "id": "real-addr-008",
+    "tag": "street",
+    "description": "Deutsche Telekom AG Friedrich-Ebert-Allee",
+    "input": "Deutsche Telekom AG\nFriedrich-Ebert-Allee 140\n53113 Bonn",
+    "expect": { "firma": "Deutsche Telekom AG", "strasse": "Friedrich-Ebert-Allee 140", "plz": "53113", "ort": "Bonn" }
+  },
+  {
+    "id": "real-addr-009",
+    "tag": "street",
+    "description": "Volksbank eG Ludwig-Erhard-Allee",
+    "input": "Volksbank Köln Bonn eG\nLudwig-Erhard-Allee 20\n53175 Bonn",
+    "expect": { "firma": "Volksbank Köln Bonn eG", "strasse": "Ludwig-Erhard-Allee 20", "plz": "53175", "ort": "Bonn" }
+  },
+  {
+    "id": "real-addr-010",
+    "tag": "street",
+    "description": "Stadtwerke München GmbH",
+    "input": "Stadtwerke München GmbH\nEmmy-Noether-Straße 2\n80992 München",
+    "expect": { "firma": "Stadtwerke München GmbH", "strasse": "Emmy-Noether-Straße 2", "plz": "80992", "ort": "München" }
+  },
+  {
+    "id": "real-addr-011",
+    "tag": "street",
+    "description": "Verlag Moderne Medien Speersort Hamburg",
+    "input": "Verlag Moderne Medien GmbH\nSpeersort 1\n20095 Hamburg",
+    "expect": { "firma": "Verlag Moderne Medien GmbH", "strasse": "Speersort 1", "plz": "20095", "ort": "Hamburg" }
+  },
+  {
+    "id": "real-addr-012",
+    "tag": "street",
+    "description": "Theater Bundesstadt Am Boeselagerhof",
+    "input": "Theater der Bundesstadt\nAm Boeselagerhof 1\n53111 Bonn",
+    "expect": { "strasse": "Am Boeselagerhof 1", "plz": "53111", "ort": "Bonn" }
+  },
+  {
+    "id": "real-addr-013",
+    "tag": "street",
+    "description": "Auf dem Kamp Münster",
+    "input": "Tischlerei Holzwurm\nAuf dem Kamp 3\n48143 Münster",
+    "expect": { "strasse": "Auf dem Kamp 3", "plz": "48143", "ort": "Münster" }
+  },
+  {
+    "id": "real-addr-014",
+    "tag": "street",
+    "description": "Domplatz Essen",
+    "input": "Dr. med. dent. Michael Groß\nDomplatz 6\n45127 Essen",
+    "expect": { "strasse": "Domplatz 6", "plz": "45127", "ort": "Essen" }
+  },
+  {
+    "id": "real-addr-015",
+    "tag": "street",
+    "description": "Kastanienallee Berlin",
+    "input": "Agentur Kreativrausch\nKastanienallee 79\n10435 Berlin",
+    "expect": { "strasse": "Kastanienallee 79", "plz": "10435", "ort": "Berlin" }
+  },
+  {
+    "id": "real-addr-016",
+    "tag": "street",
+    "description": "Mainzer Straße Wiesbaden",
+    "input": "Druckerei Gutenbergs Erben\nMainzer Straße 88\n65189 Wiesbaden",
+    "expect": { "strasse": "Mainzer Straße 88", "plz": "65189", "ort": "Wiesbaden" }
+  },
+  {
+    "id": "real-addr-017",
+    "tag": "street",
+    "description": "Rebenweg Saulheim",
+    "input": "Weingut Sonnenhang\nRebenweg 14\n55291 Saulheim",
+    "expect": { "strasse": "Rebenweg 14", "plz": "55291", "ort": "Saulheim" }
+  },
+  {
+    "id": "neg-code-001",
+    "tag": "negative",
+    "description": "Code-Snippet darf nicht als Adresse geparst werden",
+    "input": "function calculateTotal() { const zip = 12345; return zip * 2; }",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "neg-chat-001",
+    "tag": "negative",
+    "description": "Chat-Nachricht mit Uhrzeit darf nicht als Adresse geparst werden",
+    "input": "Hallo Moritz, wie geht es dir? Treffen wir uns morgen um 18:00 Uhr am Bahnhof?",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "neg-list-001",
+    "tag": "negative",
+    "description": "Nummerierte Einkaufsliste darf nicht als Adresse geparst werden",
+    "input": "1. Bio-Äpfel\n2. Vollkornbrot\n3. Hafermilch 3.8",
+    "expect": { "candidates": 0 }
+  },
+  {
+    "id": "behoerde-001",
+    "tag": "street",
+    "description": "Finanzamt Troisdorf als Behörde",
+    "input": "Finanzamt Troisdorf\nKölner Straße 100\n53840 Troisdorf",
+    "expect": { "firma": "Finanzamt Troisdorf", "strasse": "Kölner Straße 100", "plz": "53840", "ort": "Troisdorf" }
+  },
+  {
+    "id": "behoerde-002",
+    "tag": "street",
+    "description": "Amtsgericht Siegburg als Justizbehörde",
+    "input": "Amtsgericht Siegburg\nNeue Poststraße 16\n53721 Siegburg",
+    "expect": { "firma": "Amtsgericht Siegburg", "strasse": "Neue Poststraße 16", "plz": "53721", "ort": "Siegburg" }
+  },
+  {
+    "id": "impressum-001",
+    "tag": "street",
+    "description": "Impressum-Block mit Kopfzeile",
+    "input": "Impressum\nAntigravity Systems GmbH\nInnovationsallee 42\n80331 München",
+    "expect": { "firma": "Antigravity Systems GmbH", "strasse": "Innovationsallee 42", "plz": "80331", "ort": "München" }
+  },
+  {
+    "id": "co-001",
+    "tag": "street",
+    "description": "c/o Adresszusatz vor der Straße",
+    "input": "Erika Musterfrau\nc/o Max Mustermann\nSchulstraße 5\n10115 Berlin",
+    "expect": { "name": "Erika Musterfrau", "zusatz": "c/o Max Mustermann", "strasse": "Schulstraße 5", "plz": "10115", "ort": "Berlin" }
+  },
+  {
+    "id": "sal-multi-001",
+    "tag": "salutation",
+    "description": "Mehrere akademische Titel inkl. mult.",
+    "input": "Prof. Dr. Dr. h.c. mult. Angela Merkel",
+    "expect": { "anrede": "Sehr geehrte Frau Merkel," }
+  },
+  {
+    "id": "sal-casual-001",
+    "tag": "salutation",
+    "description": "Legere Anrede bei Bindestrich-Name",
+    "input": "Dr. Hans-Peter von Müller-Lüdenscheidt",
+    "formality": "casual",
+    "expect": { "anrede": "Hallo Hans-Peter," }
+  },
+  {
+    "id": "unfold-002",
+    "tag": "unfolding",
+    "description": "Einzeilige Adresse Max Mustermann",
+    "input": "Max Mustermann, Am Markt 1, 50667 Köln",
+    "expect": { "name": "Max Mustermann", "strasse": "Am Markt 1", "plz": "50667", "ort": "Köln" }
+  },
+  {
+    "id": "unfold-003",
+    "tag": "unfolding",
+    "description": "Einzeilige Adresse Siemens AG",
+    "input": "Siemens AG, Werner-von-Siemens-Straße 1, 80333 München",
+    "expect": { "firma": "Siemens AG", "strasse": "Werner-von-Siemens-Straße 1", "plz": "80333", "ort": "München" }
+  },
+  {
+    "id": "street-ang-001",
+    "tag": "street",
+    "description": "Angerweg Erfurt",
+    "input": "Klaus Müller\nAngerweg 12\n99084 Erfurt",
+    "expect": { "name": "Klaus Müller", "strasse": "Angerweg 12", "plz": "99084", "ort": "Erfurt" }
+  },
+  {
+    "id": "street-gr-001",
+    "tag": "street",
+    "description": "Am Stadtgraben Münster",
+    "input": "Sabine Schmidt\nAm Stadtgraben 4\n48143 Münster",
+    "expect": { "name": "Sabine Schmidt", "strasse": "Am Stadtgraben 4", "plz": "48143", "ort": "Münster" }
+  },
+  {
+    "id": "street-pr-001",
+    "tag": "street",
+    "description": "Rheinuferpromenade Düsseldorf",
+    "input": "Thomas Weber\nRheinuferpromenade 2\n40213 Düsseldorf",
+    "expect": { "name": "Thomas Weber", "strasse": "Rheinuferpromenade 2", "plz": "40213", "ort": "Düsseldorf" }
+  },
+  {
+    "id": "meta-iban-002",
+    "tag": "metadata",
+    "description": "Österreichische IBAN wird als Metadatenzeile erkannt",
+    "input": "IBAN: AT61 1904 3002 3457 3201",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "meta-bic-002",
+    "tag": "metadata",
+    "description": "BIC ohne Doppelpunkt wird als Metadatenzeile erkannt",
+    "input": "BIC DUSSDEDDXXX",
+    "expect": { "is_metadata": true }
+  },
+  {
+    "id": "meta-ustid-001",
+    "tag": "metadata",
+    "description": "USt-IdNr. wird als Metadatenzeile erkannt",
+    "input": "USt-IdNr.: DE123456789",
+    "expect": { "is_metadata": true }
+  }
+]

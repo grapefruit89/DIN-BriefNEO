@@ -14,9 +14,9 @@
  *  4. initAddressServices: Optionaler Geoapify-Service mit Cache, Listbox-Popover und lokaler Historie.
  */
 
+import { Constants, Events, eventBus } from './core.js';
 import { setCaretToEnd } from './document.js';
-import { eventBus, Events, Constants } from './core.js';
-import { load, save, loadJSON, saveJSON, STORAGE_KEYS } from './persistence.js';
+import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 /* =========================================================================================
  * 1. NATIVE GZIP DECOMPRESSION (DecompressionStream API)
@@ -391,10 +391,10 @@ export class AddressIntelligence {
    * @returns {Promise<boolean>}
    */
   static async init() {
-    if (this.isReady) return true;
-    if (this.#initPromise) return this.#initPromise;
+    if (AddressIntelligence.isReady) return true;
+    if (AddressIntelligence.#initPromise) return AddressIntelligence.#initPromise;
 
-    this.#initPromise = (async () => {
+    AddressIntelligence.#initPromise = (async () => {
       try {
         /** @param {string} relPath */
         const loadDataset = (relPath) => {
@@ -415,14 +415,14 @@ export class AddressIntelligence {
 
         // Build PLZ -> City index
         for (const [plz, city] of Object.entries(plzData)) {
-          this.plzToCity.set(plz, city);
+          AddressIntelligence.plzToCity.set(plz, city);
 
           // Build reverse City -> PLZ index
           const normCity = city.toLowerCase().trim();
-          let list = this.cityToPlz.get(normCity);
+          let list = AddressIntelligence.cityToPlz.get(normCity);
           if (!list) {
             list = [];
-            this.cityToPlz.set(normCity, list);
+            AddressIntelligence.cityToPlz.set(normCity, list);
           }
           list.push(plz);
         }
@@ -430,22 +430,22 @@ export class AddressIntelligence {
         // Build Großempfänger index (optional)
         const gross = grossData || {};
         for (const [plz, info] of Object.entries(gross)) {
-          this.grosskunden.set(plz, /** @type {GrosskundeEntry} */ (info));
+          AddressIntelligence.grosskunden.set(plz, /** @type {GrosskundeEntry} */ (info));
         }
 
         // Build Districts index (optional)
         const districts = distData || {};
         for (const [plz, name] of Object.entries(districts)) {
-          this.districts.set(plz, String(name));
+          AddressIntelligence.districts.set(plz, String(name));
         }
 
         // Indizes für Case A, B, C aufbauen (< 15 ms)
-        this.prefixIndex = buildPrefixIndex(this.plzToCity);
-        this.ortIndex = buildOrtIndex(this.plzToCity);
-        this.ortList = Array.from(new Set(this.plzToCity.values())).toSorted((a, b) => a.localeCompare(b, 'de'));
-        this.firmenIndex = buildFirmenIndex(this.grosskunden);
+        AddressIntelligence.prefixIndex = buildPrefixIndex(AddressIntelligence.plzToCity);
+        AddressIntelligence.ortIndex = buildOrtIndex(AddressIntelligence.plzToCity);
+        AddressIntelligence.ortList = Array.from(new Set(AddressIntelligence.plzToCity.values())).toSorted((a, b) => a.localeCompare(b, 'de'));
+        AddressIntelligence.firmenIndex = buildFirmenIndex(AddressIntelligence.grosskunden);
 
-        this.isReady = true;
+        AddressIntelligence.isReady = true;
         return true;
       } catch (err) {
         console.warn('[AddressIntelligence] Initialization error:', err);
@@ -453,7 +453,7 @@ export class AddressIntelligence {
       }
     })();
 
-    return this.#initPromise;
+    return AddressIntelligence.#initPromise;
   }
 
   /**
@@ -462,7 +462,7 @@ export class AddressIntelligence {
    * @returns {PlzLookupResult | null}
    */
   static lookupPlz(plz) {
-    return resolvePostcode(plz, this.plzToCity, this.grosskunden);
+    return resolvePostcode(plz, AddressIntelligence.plzToCity, AddressIntelligence.grosskunden);
   }
 
   /**
@@ -472,7 +472,7 @@ export class AddressIntelligence {
    * @returns {{ plz: string, city: string, district?: string }[]}
    */
   static lookupCity(query, limit = 30) {
-    return resolveCity(query, this.cityToPlz, this.plzToCity, limit, this.districts, this.grosskunden);
+    return resolveCity(query, AddressIntelligence.cityToPlz, AddressIntelligence.plzToCity, limit, AddressIntelligence.districts, AddressIntelligence.grosskunden);
   }
 
   /**
@@ -482,7 +482,7 @@ export class AddressIntelligence {
    * @returns {{ plz: string, city: string, district?: string }[]}
    */
   static filterPrefix(prefix, limit = 30) {
-    return filterPostcodePrefix(prefix, this.plzToCity, limit, this.districts, this.grosskunden);
+    return filterPostcodePrefix(prefix, AddressIntelligence.plzToCity, limit, AddressIntelligence.districts, AddressIntelligence.grosskunden);
   }
 
   /**
@@ -503,7 +503,7 @@ export class AddressIntelligence {
     /** @type {Map<string, string[]>} */
     const cityMap = new Map();
 
-    for (const [plz, city] of this.plzToCity.entries()) {
+    for (const [plz, city] of AddressIntelligence.plzToCity.entries()) {
       if (plz.startsWith(p)) {
         matches.push({ plz, city });
         let list = cityMap.get(city);
@@ -523,7 +523,7 @@ export class AddressIntelligence {
         name: m.city,
         city: m.city,
         typ: 'Stadt',
-        district: this.districts.get(m.plz) || '',
+        district: AddressIntelligence.districts.get(m.plz) || '',
         plzCount: 1,
         isSinglePlz: true
       }));
@@ -541,7 +541,7 @@ export class AddressIntelligence {
       name: city,
       city: city,
       typ: 'Stadt',
-      district: plzs.length === 1 ? (this.districts.get(plzs[0]) || '') : '',
+      district: plzs.length === 1 ? (AddressIntelligence.districts.get(plzs[0]) || '') : '',
       plzCount: plzs.length,
       isSinglePlz: plzs.length === 1
     }));
@@ -566,10 +566,10 @@ export class AddressIntelligence {
     const cityItems = [];
 
     // 1. Städte-Suche
-    for (const city of this.ortList) {
+    for (const city of AddressIntelligence.ortList) {
       const normCity = normalizeText(city);
       if (normCity.startsWith(searchPrefix)) {
-        const plzs = this.ortIndex.get(city) || [];
+        const plzs = AddressIntelligence.ortIndex.get(city) || [];
         if (plzs.length === 1) {
           const singlePlz = plzs[0];
           cityItems.push({
@@ -577,7 +577,7 @@ export class AddressIntelligence {
             name: city,
             city: city,
             typ: 'Stadt',
-            district: this.districts.get(singlePlz) || '',
+            district: AddressIntelligence.districts.get(singlePlz) || '',
             isSinglePlz: true,
             plzCount: 1
           });
@@ -617,13 +617,13 @@ export class AddressIntelligence {
 
     // 2. Firmen/Behörden-Suche (3. Firmen/Behörden alphabetisch)
     /** @type {Array<any>} */
-    const firmenMatches = this.firmenIndex ? this.firmenIndex.search(searchPrefix, limit * 2) : [];
+    const firmenMatches = AddressIntelligence.firmenIndex ? AddressIntelligence.firmenIndex.search(searchPrefix, limit * 2) : [];
     const firmenItems = firmenMatches.map((/** @type {any} */ f) => ({
       plz: f.plz,
       name: f.name,
       city: f.city,
       typ: f.typ,
-      district: this.districts.get(f.plz) || '',
+      district: AddressIntelligence.districts.get(f.plz) || '',
       isSinglePlz: true
     }));
     const sortedFirmenItems = firmenItems.toSorted((a, b) => a.name.localeCompare(b.name, 'de'));
@@ -644,8 +644,8 @@ export class AddressIntelligence {
    */
   static lookupCityPlzs(cityName, plzPrefix = '') {
     const normTarget = normalizeText(cityName);
-    const canonicalCity = this.ortList.find(c => normalizeText(c) === normTarget) || cityName;
-    const allPlzs = this.ortIndex.get(canonicalCity) || [];
+    const canonicalCity = AddressIntelligence.ortList.find(c => normalizeText(c) === normTarget) || cityName;
+    const allPlzs = AddressIntelligence.ortIndex.get(canonicalCity) || [];
     const prefix = String(plzPrefix || '').trim();
 
     // Plausibilitäts-Check: Ermittle dominante Leitbereich-Ziffer der Stadt
@@ -669,7 +669,7 @@ export class AddressIntelligence {
         return false;
       }
       // Wenn in Grosskunden vorhanden und dort andere Stadt hinterlegt ist: ausschließen
-      const gk = this.grosskunden.get(p);
+      const gk = AddressIntelligence.grosskunden.get(p);
       if (gk?.city && normalizeText(gk.city) !== normTarget) {
         return false;
       }
@@ -679,8 +679,8 @@ export class AddressIntelligence {
     const filtered = prefix ? plausibel.filter(p => p.startsWith(prefix)) : plausibel;
     const sorted = filtered.toSorted((a, b) => {
       // Zustell-PLZ (mit Stadtteil oder nicht in grosskunden) vor reinen Grosskunden/Postfach; jeweils numerisch
-      const isSonderA = !this.districts.has(a) && this.grosskunden.has(a) ? 1 : 0;
-      const isSonderB = !this.districts.has(b) && this.grosskunden.has(b) ? 1 : 0;
+      const isSonderA = !AddressIntelligence.districts.has(a) && AddressIntelligence.grosskunden.has(a) ? 1 : 0;
+      const isSonderB = !AddressIntelligence.districts.has(b) && AddressIntelligence.grosskunden.has(b) ? 1 : 0;
       if (isSonderA !== isSonderB) return isSonderA - isSonderB;
       return a.localeCompare(b, 'de');
     });
@@ -690,7 +690,7 @@ export class AddressIntelligence {
       name: canonicalCity,
       city: canonicalCity,
       typ: 'Stadt',
-      district: this.districts.get(plz) || '',
+      district: AddressIntelligence.districts.get(plz) || '',
       isSinglePlz: true
     }));
   }
@@ -708,19 +708,19 @@ export class AddressIntelligence {
     const text = String(rawText || '').trim();
     if (text.length < 3) return { mode: 'city_list', items: [], totalCount: 0 };
 
-    // 1. Fall: Stadt + PLZ-Filter (z. B. "bonn 53" oder "münchen 80")
-    const cityPlzMatch = text.match(/^([a-zA-ZäöüÄÖÜß\s\-]+?)\s+(\d{1,5})$/);
+    // 1. Fall: Stadt + PLZ-Filter (z. B. "bonn 53", "st. augustin 53" oder "münchen 80" via /v flag)
+    const cityPlzMatch = text.match(/^([\p{L}\s\-\/.]+?)\s+(\d{1,5})$/v);
     if (cityPlzMatch) {
       const cityPart = cityPlzMatch[1].trim();
       const plzPrefix = cityPlzMatch[2].trim();
       const normPart = normalizeText(cityPart);
 
-      const exactCity = this.ortList.find(c => normalizeText(c) === normPart);
-      const prefixCities = !exactCity ? this.ortList.filter(c => normalizeText(c).startsWith(normPart)) : [];
+      const exactCity = AddressIntelligence.ortList.find(c => normalizeText(c) === normPart);
+      const prefixCities = !exactCity ? AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(normPart)) : [];
       const targetCity = exactCity || (prefixCities.length === 1 ? prefixCities[0] : null);
 
       if (targetCity) {
-        const plzs = this.lookupCityPlzs(targetCity, plzPrefix);
+        const plzs = AddressIntelligence.lookupCityPlzs(targetCity, plzPrefix);
         return {
           mode: 'city_plzs',
           city: targetCity,
@@ -732,12 +732,12 @@ export class AddressIntelligence {
 
     // 2. Fall: Reiner Text (z. B. "bonn", "bonnd", "bon")
     const nq = normalizeText(text);
-    const exactCity = this.ortList.find(c => normalizeText(c) === nq);
-    const matchingCities = this.ortList.filter(c => normalizeText(c).startsWith(nq));
+    const exactCity = AddressIntelligence.ortList.find(c => normalizeText(c) === nq);
+    const matchingCities = AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(nq));
 
     // Regel 1: Exakter Match auf Stadtname
     if (exactCity) {
-      const plzs = this.ortIndex.get(exactCity) || [];
+      const plzs = AddressIntelligence.ortIndex.get(exactCity) || [];
       if (plzs.length === 1) {
         return {
           mode: 'single_fill',
@@ -747,7 +747,7 @@ export class AddressIntelligence {
           totalCount: 1
         };
       }
-      const items = this.lookupCityPlzs(exactCity);
+      const items = AddressIntelligence.lookupCityPlzs(exactCity);
       return {
         mode: 'city_plzs',
         city: exactCity,
@@ -759,7 +759,7 @@ export class AddressIntelligence {
     // Regel 2: Präfix mit genau 1 Stadt-Match und 1 PLZ -> sofort füllen
     if (matchingCities.length === 1) {
       const targetCity = matchingCities[0];
-      const plzs = this.ortIndex.get(targetCity) || [];
+      const plzs = AddressIntelligence.ortIndex.get(targetCity) || [];
       if (plzs.length === 1) {
         return {
           mode: 'single_fill',
@@ -772,7 +772,7 @@ export class AddressIntelligence {
     }
 
     // Regel 3: Reiner Text liefert die Stadt-Auswahlliste
-    const univ = this.lookupUniversal(text, limit);
+    const univ = AddressIntelligence.lookupUniversal(text, limit);
     // Wenn Städte matchen: reine Stadtliste anzeigen (Firmen nur wenn keine Städte matchen)
     const hasCities = univ.items.some(i => i.typ === 'Stadt');
     const items = hasCities ? univ.items.filter(i => i.typ === 'Stadt') : univ.items;
@@ -894,7 +894,7 @@ export class AddressIntelligence {
 
       // 0–2 Zeichen: Nichts anzeigen & Popover leeren
       if (rawText.length < 3) {
-        this.#hidePopover(suggestionsPopover);
+        AddressIntelligence.#hidePopover(suggestionsPopover);
         suggestionsPopover.replaceChildren();
         return;
       }
@@ -903,13 +903,13 @@ export class AddressIntelligence {
       const plzMatch = rawText.match(/^(\d{5})$/);
       if (plzMatch) {
         const plz = plzMatch[1];
-        const res = this.lookupPlz(plz);
+        const res = AddressIntelligence.lookupPlz(plz);
         if (res && !userEditing) {
           // Plausibilitäts-Check: Passt PLZ zu vorher gewähltem Ort?
-          if (this.targetLock?.city) {
-            const allowedPlzs = this.ortIndex.get(this.targetLock.city) || [];
+          if (AddressIntelligence.targetLock?.city) {
+            const allowedPlzs = AddressIntelligence.ortIndex.get(AddressIntelligence.targetLock.city) || [];
             if (allowedPlzs.length > 0 && !allowedPlzs.includes(plz)) {
-              const warn = `PLZ ${plz} gehört nicht zu ${this.targetLock.city} – meinten Sie ${res.city}?`;
+              const warn = `PLZ ${plz} gehört nicht zu ${AddressIntelligence.targetLock.city} – meinten Sie ${res.city}?`;
               eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: warn, type: 'warning' });
             }
           }
@@ -918,7 +918,7 @@ export class AddressIntelligence {
           empfOrtEl.textContent = completed;
           empfOrtEl.setAttribute('data-autofilled', 'true');
 
-          this.targetLock = { plz: res.plz, city: res.city };
+          AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
 
           // Großkunde / Behörde Automatik
           if (res.isGrosskunde && res.grosskunde) {
@@ -934,12 +934,12 @@ export class AddressIntelligence {
           }
 
           eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          this.#hidePopover(suggestionsPopover);
+          AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
           return;
         } else {
           // Keine PLZ gefunden oder Nutzer editiert/löscht gerade (userEditing === true) -> KEIN Auto-Fill!
-          this.#hidePopover(suggestionsPopover);
+          AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
           return;
         }
@@ -949,12 +949,12 @@ export class AddressIntelligence {
       const prefixMatch = rawText.match(/^(\d{3,4})$/);
       if (prefixMatch) {
         const prefix = prefixMatch[1];
-        const matches = this.lookupPrefix(prefix, 15);
+        const matches = AddressIntelligence.lookupPrefix(prefix, 15);
         if (matches.length > 0) {
           const isDirectPlzList = matches.every(m => m.isSinglePlz && m.plz);
-          this.#renderUniversalSuggestions(matches, matches.length, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, null, isDirectPlzList);
+          AddressIntelligence.#renderUniversalSuggestions(matches, matches.length, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, null, isDirectPlzList);
         } else {
-          this.#hidePopover(suggestionsPopover);
+          AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
         }
         return;
@@ -962,30 +962,30 @@ export class AddressIntelligence {
 
       // Case 3: Text (>= 3 Zeichen) -> Sofortiger Exakter Match / Präfix / Universell
       if (rawText.length >= 3 && !/^\d/.test(rawText)) {
-        const res = this.resolveCityInput(rawText, maxItems);
+        const res = AddressIntelligence.resolveCityInput(rawText, maxItems);
         if (res.mode === 'single_fill' && res.plz && res.city && !userEditing) {
           const completed = `${res.plz} ${res.city}`;
           empfOrtEl.textContent = completed;
           empfOrtEl.setAttribute('data-autofilled', 'true');
-          this.targetLock = { plz: res.plz, city: res.city };
-          this.#moveCaretToEnd(empfOrtEl);
+          AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
+          AddressIntelligence.#moveCaretToEnd(empfOrtEl);
           eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          this.#hidePopover(suggestionsPopover);
+          AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
           return;
         }
 
         if (res.items.length > 0) {
           const isPlzList = res.mode === 'city_plzs';
-          this.#renderUniversalSuggestions(res.items, res.totalCount, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, null, isPlzList);
+          AddressIntelligence.#renderUniversalSuggestions(res.items, res.totalCount, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, null, isPlzList);
         } else {
-          this.#hidePopover(suggestionsPopover);
+          AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
         }
         return;
       }
 
-      this.#hidePopover(suggestionsPopover);
+      AddressIntelligence.#hidePopover(suggestionsPopover);
       suggestionsPopover.replaceChildren();
     });
 
@@ -997,7 +997,7 @@ export class AddressIntelligence {
         if (debounceTimer) clearTimeout(debounceTimer);
 
         if (rawText.length < 3) {
-          this.#hidePopover(suggestionsPopover);
+          AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
           return;
         }
@@ -1005,19 +1005,19 @@ export class AddressIntelligence {
         debounceTimer = setTimeout(() => {
           const maxItems = window.innerWidth < 600 ? 8 : 12;
           /** @type {Array<any>} */
-          const matches = this.firmenIndex ? this.firmenIndex.search(rawText, maxItems) : [];
+          const matches = AddressIntelligence.firmenIndex ? AddressIntelligence.firmenIndex.search(rawText, maxItems) : [];
           if (matches.length > 0) {
             const formatted = matches.map((/** @type {any} */ m) => ({
               plz: m.plz,
               name: m.name,
               city: m.city,
               typ: m.typ,
-              district: this.districts.get(m.plz) || '',
+              district: AddressIntelligence.districts.get(m.plz) || '',
               isSinglePlz: true
             }));
-            this.#renderUniversalSuggestions(formatted, matches.length, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, empfFirmaEl);
+            AddressIntelligence.#renderUniversalSuggestions(formatted, matches.length, empfOrtEl, empfFirmaEl, empfStrasseEl, suggestionsPopover, empfFirmaEl);
           } else {
-            this.#hidePopover(suggestionsPopover);
+            AddressIntelligence.#hidePopover(suggestionsPopover);
           }
         }, 150);
       });
@@ -1050,12 +1050,12 @@ export class AddressIntelligence {
       } else if (e.key === 'Enter') {
         if (items.length > 0) {
           e.preventDefault();
-          const targetIndex = currentIndex >= 0 ? currentIndex : 0;
+          const targetIndex = Math.max(currentIndex, 0);
           items[targetIndex]?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
         }
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        this.#hidePopover(suggestionsPopover);
+        AddressIntelligence.#hidePopover(suggestionsPopover);
       }
     };
 
@@ -1149,19 +1149,19 @@ export class AddressIntelligence {
 
           // Wenn in der Stadtliste eine Stadt mit mehreren PLZs angeklickt wird: sofort PLZ-Liste öffnen!
           if (item.typ === 'Stadt' && !item.isSinglePlz) {
-            const plzs = this.lookupCityPlzs(item.city);
-            this.#renderUniversalSuggestions(plzs, plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
+            const plzs = AddressIntelligence.lookupCityPlzs(item.city);
+            AddressIntelligence.#renderUniversalSuggestions(plzs, plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
             return;
           }
 
-          const res = this.applySelection(item, ortEl, firmaEl, strasseEl);
-          this.targetLock = { city: item.city, plz: item.plz };
+          const res = AddressIntelligence.applySelection(item, ortEl, firmaEl, strasseEl);
+          AddressIntelligence.targetLock = { city: item.city, plz: item.plz };
           if (res?.note) {
             eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: res.note, type: 'info' });
           }
-          this.#moveCaretToEnd(anchorEl || ortEl);
+          AddressIntelligence.#moveCaretToEnd(anchorEl || ortEl);
           eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          this.#hidePopover(popoverEl);
+          AddressIntelligence.#hidePopover(popoverEl);
         };
 
         // mousedown: Verhindert Fokusverlust (blur) des Eingabefeldes auf dem Desktop
@@ -1314,20 +1314,92 @@ export function initSenderSync() {
  * Bietet bei Mehrdeutigkeit ein sauberes Popover zur Nutzer-Auswahl statt überfrachteter Heuristiken.
  */
 export class ClipboardAddressParser {
-  /** Typische deutsche Rechtsformen und Organisationen */
-  static CORP_REGEX = /\b(gmbh\s*&\s*co\.?\s*kg|gmbh|ag|se|kg|ohg|e\.v\.|ug|gbr|e\.k\.|e\.?g\.?|universität|hochschule|verband|stiftung|behörde|institut|verlag|kanzlei|praxis|apotheke|büro|agentur|studio|klinik|hotel|restaurant|bank|sparkasse)\b/i;
+  /** Typische deutsche Rechtsformen und Organisationen (ES2024 /v flag, case-insensitive) */
+  static CORP_REGEX = /(?<!\p{L})(?:gmbh\s*&\s*co\.?\s*kg|gmbh|ag|se|kg|ohg|gbr|universit[äa]t|hochschule|verband|stiftung|beh[öo]rde|finanzamt|amtsgericht|landgericht|institut|verlag|kanzlei|rechtsanw[äa]lte|praxis|apotheke|b[üu]ro|agentur|studio|klinik(?:en|um)?|hotel|restaurant|[\p{L}\-]*bank|sparkasse|verein|e\.\s*v\.|e\.\s*k\.|e\.\s*g\.|haftungsbeschr[äa]nkt)(?!\p{L})/iv;
 
-  /** Anreden und Empfänger-Prefixe */
-  static PERSON_PREFIX_REGEX = /^(herr|frau|herrn|dr\.|prof\.|z\.\s*hd\.|zu\s*händen)\b/i;
+  /** Unternehmergesellschaft (UG) & Genossenschaft (eG) case-sensitive (ohne /i), um Kollisionen mit Geschossen ("ug", "EG") zu verhindern */
+  static CORP_UG_REGEX = /(?<!\p{L})(?:UG|eG)(?!\p{L})/v;
 
-  /** Straßenschlüsselwörter und Postfach */
-  static STREET_REGEX = /(?:str(?:aße|asse|\.)?|weg|platz|allee|damm|ring|ufer|gasse|zeile|chaussee|speersort|spitze|bellevue|postfach)\b/i;
+  /**
+   * Prüft, ob ein Text eine Firmenbezeichnung oder Rechtsform enthält.
+   * @param {string} text
+   * @returns {boolean}
+   */
+  static isCorporate(text) {
+    if (!text) return false;
+    return ClipboardAddressParser.CORP_REGEX.test(text) || ClipboardAddressParser.CORP_UG_REGEX.test(text);
+  }
 
-  /** Zeilen-Marker für nicht-adressrelevante Metadaten (Telefon, Web, Register etc.) */
-  static METADATA_LINE_REGEX = /^(tel[:\.\d\+\/]|telefon|fax[:\.\d\+\/]|telefax|e-?mail|www\.|https?:\/\/|amtsgericht|handelsregister|hr[ab]\b|ust-?id|steuernummer|ihr zeichen|unsere zeichen|datum:)/i;
+  /** Anreden und Empfänger-Prefixe (ES2024 /v flag) */
+  static PERSON_PREFIX_REGEX = /^(?:herrn?|frau|dr\.?|prof\.?|z\.?\s*hd\.?|zu\s*h[äa]nden)(?!\p{L})/iv;
+
+  /**
+   * Straßensuffixe für Komposita (Hauptstraße, Musterweg, Eichenpfad, Schillerplatz, Schlossberg, Campus).
+   * Nur nach hinten wortbegrenzt, damit vorangestellte Buchstaben (Haupt-) erlaubt sind.
+   */
+  static STREET_SUFFIX = /(?:str(?:aße|asse|\.)?|weg|gasse|allee|platz|damm|ring|ufer|zeile|chaussee|pfad|steig|grund|graben|rain|stiege|wall|bruch|promenade|berg|campus)(?!\p{L})/iv;
+
+  /**
+   * Eigenständige Straßenwörter (Am Markt, Zum Tor, Im Park, Kirchhof).
+   * Beidseitig wortbegrenzt, um Falschtreffer in normalen Wörtern auszuschließen.
+   */
+  static STREET_WORD = /(?<!\p{L})(?:markt|park|tor|h[öo]fe?|speersort|spitze|bellevue|anger|feld|kamp|garten|berg)(?!\p{L})/iv;
+
+  /** Straßen-Präpositionen (Am, An der, Im, Auf dem, Zum, Zur, etc.) */
+  static STREET_PREPOSITION = /^(?:am|an\s+der|an\s+den|im|in\s+der|in\s+den|auf\s+dem|auf\s+der|zum|zur|unter\s+den|hinter\s+dem|bei\s+der|vor\s+dem)\s+/iv;
+
+  /** Echte Hausnummer am Zeilenende (1-3 Ziffern, z. B. " 5", " 12a", " 10-12", " 3 EG", " 5, UG") */
+  static HOUSE_NUMBER_END = /(?:^|\s)\d{1,3}\s*[\p{L}]?(?:\s*[\-–\/]\s*\d{1,3}\s*[\p{L}]?)?(?:\s*[,\/]?\s*(?:EG|OG|UG|DG|\d+\.?\s*(?:OG|Stock|Etage|Stockwerk)|HH|VH|WHG|App\.?\s*\d+))?\s*$/iv;
+
+  /**
+   * Geschoss- und Gebäudeteil-Zusätze (EG, OG, UG, DG etc.) — verlangt Trennzeichen oder Ziffer davor.
+   * Architektonischer Trade-off: Durch das Abtrennen vor isCorporate() wird "Musterstr. 5 UG" nicht als
+   * Unternehmergesellschaft fehlklassifiziert. Im Parser ist dies sicher, da isStreetLine() ausschließlich
+   * auf Zeilen unmittelbar über dem PLZ-Anker (Zeile i-1 / i-2) angewendet wird.
+   */
+  static FLOOR_SUFFIX = /(?:[\s,\/]+|(?<=\d))(?:EG|OG|UG|DG|\d+\.?\s*(?:OG|Stock|Etage|Stockwerk)|HH|VH|Seitenflügel|Vorderhaus|Hinterhaus|App\.?\s*\d+|Whg\.?\s*\d+)\s*$/iv;
+
+  /** Zeilen-Marker für nicht-adressrelevante Metadaten (Telefon, Mobil, Web, Bank, Register etc.) */
+  static METADATA_LINE_REGEX = /^(?:(?:tel|telefon|mobil|mobilfunk|handy|fon|phone|fax|telefax)(?!\p{L})\s*[:.+\(\d\/]|(?:e-?mail|email)\s*[:.\-@]|www\.|https?:\/\/|(?:amtsgericht|landgericht)\s*[:\s].*\bhr[ab]\b|handelsregister\s*[:\s]|hr[ab]\b\s*[:\s]*\d+|ust-?id(?:nr)?|steuernummer|st\.-?nr|iban\s*:?\s*[a-z]{2}\d{2}|bic\s*:?\s*[a-z0-9]{8,11}(?!\p{L})|bankverbindung(?!\p{L})\s*[:\s]|(?:geschäftsführer|geschäftsführung|vorstand|aufsichtsrat|vorsitzender|vertreten durch)\s*:|ihr zeichen|unsere zeichen|datum:)/iv;
 
   /** Abschnittsüberschriften, die nicht als Empfängername interpretiert werden dürfen */
-  static SECTION_LABEL_REGEX = /^(hauptsitz|niederlassung|standort|filiale|zentrale|werk|postadresse|hausanschrift|anschrift|adresse|impressum|kontakt)[:\s]*$/i;
+  static SECTION_LABEL_REGEX = /^(?:hauptsitz|niederlassung|standort|filiale|zentrale|werk|postadresse|postanschrift|hausanschrift|anschrift|adresse|impressum|kontakt)[:\s]*$/iv;
+
+  /** PLZ + Ortsname Erkennung (ES2024 /v flag mit Unicode-Buchstabenklassen) */
+  static PLZ_ORT_REGEX = /(?<!\d)(\d{5})\s+([\p{Lu}\p{Lt}][\p{L}\s\-\/.]+?)(?=\s*(?:[,;\(]|$|\b(?:tel|fax|e-mail)\b))/v;
+
+  /**
+   * Prüft, ob eine Textzeile als Straßenzeile oder Postfach in Frage kommt.
+   * Schließt Firmen- und Rechtsformzeilen (isCorporate) strikt aus.
+   * @param {string} rawLine
+   * @returns {boolean}
+   */
+  static isStreetLine(rawLine) {
+    if (!rawLine) return false;
+
+    // Geschossangaben (EG, UG, 1. OG) vor dem Check abtrennen, damit z. B. "3 EG" nicht als e.G. fehlschlägt
+    const line = rawLine.trim().replace(ClipboardAddressParser.FLOOR_SUFFIX, '').trim();
+
+    if (ClipboardAddressParser.isCorporate(line)) return false;
+    if (/^postfach\s+\d+/iv.test(line)) return true;
+
+    const hasHouseNumber = ClipboardAddressParser.HOUSE_NUMBER_END.test(rawLine);
+    const hasStreetKeyword = ClipboardAddressParser.STREET_SUFFIX.test(line) || ClipboardAddressParser.STREET_WORD.test(line);
+    const hasPreposition = ClipboardAddressParser.STREET_PREPOSITION.test(line);
+
+    // 1. Mit Hausnummer: Straßensuffix/Wort ODER Straßen-Präposition
+    if (hasHouseNumber && (hasStreetKeyword || hasPreposition)) return true;
+
+    // 2. Ohne Hausnummer: Nur eindeutige Straßenkomposita (Hauptstraße, Karl-Marx-Straße, Dr.-Külz-Ring, Hohenzollernring)
+    // Verhindert, dass Nachnamen wie "Hans Hering" (endet auf -ring) oder "Petra Wall" als Straße gewertet werden.
+    // Bei "-ring" ohne Hausnummer: Erfordert Bindestrich (Dr.-Külz-Ring) oder mindestens 7 Zeichen vor dem Suffix.
+    if (!hasHouseNumber) {
+      const isUnambiguousStreet = /(?:^|\s)(?:[\p{L}\-.]*(?:stra(?:ß|ss)e|str\.|gasse|allee|chaussee|weg|[\-]ring)|\p{L}{7,}ring)$/iv.test(line);
+      return isUnambiguousStreet || (hasPreposition && ClipboardAddressParser.STREET_WORD.test(line));
+    }
+
+    return false;
+  }
 
   /**
    * Extrahiert Adress-Kandidaten aus unstrukturiertem Text.
@@ -1337,74 +1409,104 @@ export class ClipboardAddressParser {
   static parse(text) {
     if (!text || typeof text !== 'string') return [];
 
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    let lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     if (lines.length === 0) return [];
 
-    const plzOrtRegex = /\b(\d{5})\s+([A-ZÄÖÜ][a-zäöüßA-Z\s\-\/\.]+)/;
+    // Stufe 1: Unfolding für einzeilige, kommagetrennte Adressen (z. B. Google Maps / CSV)
+    if (lines.length === 1 && lines[0].includes(',')) {
+      lines = lines[0].split(',').map(l => l.trim()).filter(Boolean);
+    }
+
     /** @type {AddressCandidate[]} */
     const candidates = [];
 
     // PASS 1: Mehrzeilige Adressblöcke (PLZ-Zeile als Anker)
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const plzMatch = line.match(plzOrtRegex);
+      const plzMatch = line.match(ClipboardAddressParser.PLZ_ORT_REGEX);
       if (!plzMatch) continue;
 
       const plz = plzMatch[1];
-      const ort = plzMatch[2].trim().split(/[,;\(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
+      const ort = plzMatch[2].trim().split(/[,;(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
       if (i === 0) continue;
 
-      const prevLine = lines[i - 1].trim();
-      const isStreet = (/\d+/.test(prevLine) && this.STREET_REGEX.test(prevLine)) ||
-                       this.STREET_REGEX.test(prevLine) ||
-                       /\d+/.test(prevLine) ||
-                       /^postfach\s+\d+/i.test(prevLine);
+      let streetLineIndex = i - 1;
+      let prevLine = lines[streetLineIndex].trim();
+      let isStreet = ClipboardAddressParser.isStreetLine(prevLine);
+
+      if (!isStreet && i >= 2) {
+        const lineBefore = lines[i - 2].trim();
+        if (ClipboardAddressParser.isStreetLine(lineBefore)) {
+          streetLineIndex = i - 2;
+          prevLine = lineBefore;
+          isStreet = true;
+        }
+      }
+
       if (!isStreet) continue;
 
-      const street = prevLine.replace(/^(postanschrift|hausanschrift|anschrift|adresse|postadresse)\s*:\s*/i, '').replace(/,+$/, '').trim();
+      const street = prevLine.replace(/^(?:postanschrift|hausanschrift|anschrift|adresse|postadresse)\s*:\s*/iv, '').replace(/,+$/, '').trim();
 
       let candFirma = '';
       let candName = '';
       let candZusatz = '';
 
-      // Maximal 2 Zeilen vor der Straße betrachten
+      // Maximal 3 Zeilen vor der Straße betrachten
       /** @type {string[]} */
       const preLines = [];
-      for (let j = i - 2; j >= Math.max(0, i - 4); j--) {
+      for (let j = streetLineIndex - 1; j >= Math.max(0, streetLineIndex - 4); j--) {
         const l = lines[j].trim();
-        if (this.METADATA_LINE_REGEX.test(l) || l.length > 80 || l.includes('|')) break;
-        if (plzOrtRegex.test(l) || /^\d{5}\b/.test(l)) break; // Stopp bei vorangehender Adresse
-        if (this.SECTION_LABEL_REGEX.test(l)) continue;
+        if (ClipboardAddressParser.METADATA_LINE_REGEX.test(l) || l.length > 90 || l.includes('|')) break;
+        if (ClipboardAddressParser.PLZ_ORT_REGEX.test(l) || /^\d{5}\b/.test(l)) break; // Stopp bei vorangehender Adresse
+        if (ClipboardAddressParser.SECTION_LABEL_REGEX.test(l)) continue;
 
-        const cleanL = l.replace(/^(anbieterin|anbieter|unsere daten|kontakt|impressum|herausgeber|geschäftsführung|geschäftsführer|vertreten durch)\s*:\s*/i, '').trim();
+        const cleanL = l
+          .replace(/^(?:anbieterin|anbieter|unsere daten|kontakt|impressum|herausgeber|geschäftsführung|vertreten durch)\s*:\s*/iv, '')
+          .replace(/^(?:geschäftsführer(?:in)?|vorstand|vorsitzende[rn]?)\s+/iv, '')
+          .trim();
         if (cleanL && !cleanL.endsWith(':')) preLines.unshift(cleanL);
       }
 
       if (preLines.length === 1) {
         const single = preLines[0];
-        if (this.CORP_REGEX.test(single)) {
+        if (ClipboardAddressParser.PERSON_PREFIX_REGEX.test(single)) {
+          candName = single;
+        } else if (ClipboardAddressParser.isCorporate(single)) {
           candFirma = single;
         } else {
           candName = single;
         }
-      } else if (preLines.length >= 2) {
-        const l0 = preLines[preLines.length - 2];
-        const l1 = preLines[preLines.length - 1];
+      } else if (preLines.length === 2) {
+        const l0 = preLines[0];
+        const l1 = preLines[1];
 
-        if (this.CORP_REGEX.test(l0)) {
+        const isCO = /^(?:c\s*\/\s*o|bei)\s+/iv.test(l1);
+
+        if (isCO) {
+          if (ClipboardAddressParser.isCorporate(l0)) {
+            candFirma = l0;
+          } else {
+            candName = l0;
+          }
+          candZusatz = l1;
+        } else if (ClipboardAddressParser.isCorporate(l0) || ClipboardAddressParser.PERSON_PREFIX_REGEX.test(l1)) {
           candFirma = l0;
-          if (this.PERSON_PREFIX_REGEX.test(l1) || !/\d/.test(l1)) {
-            candName = l1.replace(/^(z\.\s*hd\.|zu\s*händen)\s*:?\s*/i, '').trim();
+          if (ClipboardAddressParser.PERSON_PREFIX_REGEX.test(l1) || !/\d/.test(l1)) {
+            candName = l1.replace(/^(?:z\.\s*hd\.|zu\s*händen)\s*:?\s*/iv, '').trim();
           } else {
             candZusatz = l1;
           }
-        } else if (this.CORP_REGEX.test(l1)) {
+        } else if (ClipboardAddressParser.isCorporate(l1)) {
           candFirma = l1;
           candName = l0;
         } else {
           candFirma = l0;
-          candName = l1;
+          candName = l1.replace(/^(?:z\.\s*hd\.|zu\s*händen)\s*:?\s*/iv, '').trim();
         }
+      } else if (preLines.length >= 3) {
+        candFirma = preLines[preLines.length - 3];
+        candZusatz = preLines[preLines.length - 2];
+        candName = preLines[preLines.length - 1].replace(/^(?:z\.\s*hd\.|zu\s*händen)\s*:?\s*/iv, '').trim();
       }
 
       candidates.push({
@@ -1425,11 +1527,11 @@ export class ClipboardAddressParser {
       if (parts.length < 3) continue;
 
       const lastPart = parts[parts.length - 1];
-      const plzMatch = lastPart.match(plzOrtRegex);
+      const plzMatch = lastPart.match(ClipboardAddressParser.PLZ_ORT_REGEX);
       if (!plzMatch) continue;
 
       const streetPart = parts[parts.length - 2];
-      if (!this.STREET_REGEX.test(streetPart) && !/\d+/.test(streetPart)) continue;
+      if (!ClipboardAddressParser.isStreetLine(streetPart)) continue;
 
       const nameParts = parts.slice(0, parts.length - 2);
       const first = nameParts[0] || '';
@@ -1439,7 +1541,7 @@ export class ClipboardAddressParser {
       let candName = '';
       let candZusatz = '';
 
-      if (this.CORP_REGEX.test(first)) {
+      if (ClipboardAddressParser.isCorporate(first)) {
         candFirma = first;
         if (second) candName = second;
       } else {
@@ -1569,7 +1671,7 @@ export class ClipboardAddressParser {
           return;
         }
 
-        const candidates = this.parse(text);
+        const candidates = ClipboardAddressParser.parse(text);
 
         if (candidates.length === 0) {
           notify(Constants.TOASTS.CLIPBOARD.NO_ADDRESS, 'warning');
@@ -1577,7 +1679,7 @@ export class ClipboardAddressParser {
         }
 
         if (candidates.length === 1) {
-          this.applyCandidate(candidates[0]);
+          ClipboardAddressParser.applyCandidate(candidates[0]);
           return;
         }
 
@@ -1608,7 +1710,7 @@ export class ClipboardAddressParser {
             item.appendChild(addrSpan);
 
             const selectCandidate = () => {
-              this.applyCandidate(cand);
+              ClipboardAddressParser.applyCandidate(cand);
               try {
                 // @ts-ignore
                 popover.hidePopover();
@@ -1961,10 +2063,10 @@ export function initAddressServices() {
 
   /**
    * @param {AddressEntry[]} suggestions
-   * @param {string} query
+   * @param {string} _query
    * @param {boolean} allowZeroClick
    */
-  function renderSuggestions(suggestions, query, allowZeroClick) {
+  function renderSuggestions(suggestions, _query, allowZeroClick) {
     if (!addressSuggestions) return;
     addressSuggestions.replaceChildren();
     renderedSuggestions = suggestions.slice(0, 5);

@@ -10,8 +10,8 @@
  *  2. SignatureFeature (ehem. 42-signature.js): Bild-Upload, Kompression, interaktives Drag/Resize/Rotate & Persistenz.
  */
 
-import { load, save, remove, loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS } from './persistence.js';
-import { eventBus, Events, Constants } from './core.js';
+import { Constants, Events, eventBus } from './core.js';
+import { DEFAULT_SETTINGS, load, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 /**
  * @param {string} message
@@ -49,6 +49,7 @@ export class SettingsManager {
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
+    this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
@@ -81,6 +82,9 @@ export class SettingsManager {
 
     if (this.btnGuidesSwitch) {
       this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
+    }
+    if (this.btnMarksSwitch) {
+      this.btnMarksSwitch.checked = this.settings.marks !== false;
     }
   }
 
@@ -290,6 +294,15 @@ export class SettingsManager {
       });
     }
 
+    const marksSwitch = this.btnMarksSwitch;
+    if (marksSwitch) {
+      marksSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.marks = marksSwitch.checked;
+        this.updateSettings();
+      });
+    }
+
     if (this.btnFontAction) {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
@@ -387,7 +400,7 @@ export class SignatureFeature {
 
     // Zero-Base64: Alte Base64-Signaturbilder aus Settings restlos bereinigen
     if (this.settings?.signatureImage) {
-      delete this.settings.signatureImage;
+      this.settings.signatureImage = undefined;
       this.#saveSettings();
     }
 
@@ -551,7 +564,7 @@ export class SignatureFeature {
   saveState() {
     if (!this.settings) this.settings = {};
     this.settings.signatureState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
-    delete this.settings.signatureImage;
+    this.settings.signatureImage = undefined;
     this.#saveSettings();
   }
 
@@ -629,8 +642,8 @@ export class SignatureFeature {
     }
 
     if (this.settings) {
-      delete this.settings.signatureImage;
-      delete this.settings.signatureState;
+      this.settings.signatureImage = undefined;
+      this.settings.signatureState = undefined;
     }
     
     this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };

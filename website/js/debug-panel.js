@@ -6,9 +6,9 @@
  * und exportiert mountAutocompletePanel() sowie mountJsonPanel().
  */
 
+import { Events, eventBus } from './core.js';
 // @ts-ignore
 import { buildDINLetterJSON } from './persistence.js?v=p1';
-import { eventBus, Events } from './core.js';
 
 // ============================================================================
 // HELPER: Zeitstempel (Temporal API mit Performance-Fallback)
@@ -264,10 +264,10 @@ export function createDebugPanel(rootEl, options) {
       const rect = rootEl.getBoundingClientRect();
       dragStartPointerX = e.clientX;
       dragStartPointerY = e.clientY;
-      const curDragX = parseFloat(rootEl.style.getPropertyValue('--drag-x'));
-      const curDragY = parseFloat(rootEl.style.getPropertyValue('--drag-y'));
-      initialPanelLeft = !isNaN(curDragX) ? curDragX : (rect.left || 0);
-      initialPanelTop = !isNaN(curDragY) ? curDragY : (rect.top || 0);
+      const curDragX = Number.parseFloat(rootEl.style.getPropertyValue('--drag-x'));
+      const curDragY = Number.parseFloat(rootEl.style.getPropertyValue('--drag-y'));
+      initialPanelLeft = Number.isFinite(curDragX) ? curDragX : (rect.left || 0);
+      initialPanelTop = Number.isFinite(curDragY) ? curDragY : (rect.top || 0);
     });
 
     header.addEventListener('pointermove', (e) => {
@@ -309,11 +309,11 @@ export function createDebugPanel(rootEl, options) {
         localStorage.setItem(modeKey, 'left');
         localStorage.removeItem(posKey);
       } else {
-        const dragX = parseFloat(rootEl.style.getPropertyValue('--drag-x'));
-        const dragY = parseFloat(rootEl.style.getPropertyValue('--drag-y'));
+        const dragX = Number.parseFloat(rootEl.style.getPropertyValue('--drag-x'));
+        const dragY = Number.parseFloat(rootEl.style.getPropertyValue('--drag-y'));
         const clamped = clampToViewport(
-          !isNaN(dragX) ? dragX : (rootEl.offsetLeft || 0),
-          !isNaN(dragY) ? dragY : (rootEl.offsetTop || 0)
+          Number.isFinite(dragX) ? dragX : (rootEl.offsetLeft || 0),
+          Number.isFinite(dragY) ? dragY : (rootEl.offsetTop || 0)
         );
         applyFloating(clamped.left, clamped.top, true);
       }
@@ -342,10 +342,10 @@ export function createDebugPanel(rootEl, options) {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault();
         const rect = rootEl.getBoundingClientRect();
-        const curDragX = parseFloat(rootEl.style.getPropertyValue('--drag-x'));
-        const curDragY = parseFloat(rootEl.style.getPropertyValue('--drag-y'));
-        let curLeft = !isNaN(curDragX) ? curDragX : (rect.left || 0);
-        let curTop = !isNaN(curDragY) ? curDragY : (rect.top || 0);
+        const curDragX = Number.parseFloat(rootEl.style.getPropertyValue('--drag-x'));
+        const curDragY = Number.parseFloat(rootEl.style.getPropertyValue('--drag-y'));
+        let curLeft = Number.isFinite(curDragX) ? curDragX : (rect.left || 0);
+        let curTop = Number.isFinite(curDragY) ? curDragY : (rect.top || 0);
         if (e.key === 'ArrowLeft') curLeft -= step;
         if (e.key === 'ArrowRight') curLeft += step;
         if (e.key === 'ArrowUp') curTop -= step;
@@ -422,9 +422,9 @@ export function createDebugPanel(rootEl, options) {
   // Viewport-Resize: Panel innerhalb der sichtbaren Grenzen halten
   window.addEventListener('resize', () => {
     if (rootEl.dataset.mode === 'floating') {
-      const curX = parseFloat(rootEl.style.getPropertyValue('--drag-x'));
-      const curY = parseFloat(rootEl.style.getPropertyValue('--drag-y'));
-      if (!isNaN(curX) && !isNaN(curY)) {
+      const curX = Number.parseFloat(rootEl.style.getPropertyValue('--drag-x'));
+      const curY = Number.parseFloat(rootEl.style.getPropertyValue('--drag-y'));
+      if (Number.isFinite(curX) && Number.isFinite(curY)) {
         const clamped = clampToViewport(curX, curY);
         if (clamped.left !== curX || clamped.top !== curY) {
           applyFloating(clamped.left, clamped.top, true);

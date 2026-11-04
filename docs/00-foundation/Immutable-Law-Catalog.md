@@ -163,6 +163,7 @@ Soweit nicht anders markiert: HARD BAN.
 | A51 | HARD BAN | Frontend-Frameworks (React, Vue, Svelte, Angular, jQuery) und Build-/Bundler-Schritte (Vite, Webpack, Rollup, Parcel) als Produktbestandteil | Vanilla HTML + CSS + JS-ESM | Jedes Framework zieht eine Toolchain nach, die das Produkt an eine Ökosystem-Generation bindet. Longevity-Ziel ist null Wartung. Node-Werkzeuge in `tools/` bleiben zulässig (T5). |
 | A53 | HARD BAN | Utility-Bibliotheken (Lodash, Underscore) und Produkt-Transpiler (TypeScript-Compile, Babel) im Auslieferungspfad | native Array-/Objekt-Methoden; JSDoc + `checkJs` für Typprüfung ohne Compile | ES2023+ deckt den Bedarf nativ. Ein Pflicht-Compile-Schritt macht die ausgelieferte Datei zum Artefakt statt zur Quelle. |
 | A54 | HARD BAN | JS-Animationsbibliotheken (GSAP, Anime.js, Motion One) | CSS Transitions, `@keyframes`, `@starting-style`, `transition-behavior: allow-discrete`, View Transitions | Läuft auf dem Compositor statt im Main Thread, ohne Laufzeit-Abhängigkeit. |
+| A64 | HARD BAN | Base64-Blobs, Base64-Inlining oder Data-Embedding in Quellcode/Modulen | getrennte, lesbare Rohdateien (z. B. `.json`, `.js`) | Zerstört Git-Diffs, macht Quellcode unlesbar, verletzt strikte Trennung von Code und Daten. |
 
 ### JavaScript statt Plattform
 

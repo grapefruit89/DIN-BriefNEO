@@ -54,10 +54,10 @@ def get_fitting_street(fig):
         return fittings[name]
 
     if firma and any(w in firma.lower() for w in ['palast', 'schloss', 'burg', 'festung', 'turm', 'akademie', 'tempel']):
-        return f"{firma} 1"
-    
-    clean_name = re.sub(r'[^a-zA-ZäöüÄÖÜß\s]', '', name).strip()
-    return f"{clean_name}-Residenz 1"
+        return firma
+
+    # Kein erfundener Platzhalter: fehlende Anschrift bleibt fehlend (null).
+    return None
 
 def run_consolidation():
     sources = [

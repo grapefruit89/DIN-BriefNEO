@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-10-16'
+updated: '2026-10-26'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -2125,3 +2125,54 @@ Updater, der das Gemini-Nano-Modell bezieht.
 
 Entscheidung: Keine Built-in AI. Testbrief Stufe 2 nutzt BYOK
 (Groq/Gemini). Details: `decision-built-in-ai.md`.
+
+## 2026-10-26 – Testbrief: Adressleiter und Ankerleiter statt Volltext-Vorlagen
+
+Ausgangsproblem: Der Knopf „Testbrief" hat `strasse`/`ort`/`firma` ungeprüft
+in den Empfängerblock geschrieben. Dadurch standen erfundene Werte im Brief
+(„Wayne Manor 1007", „Ahri-Residenz 1", `10001 Gotham City`) und Berufs-Blobs
+in der Firmenzeile („Musician, adventurer, author; formerly talk show host").
+
+Gemessen am Bestand (325 Figuren): `alias` gefüllt bei 304, `firma` bei 273,
+`hooks` bei 31. Eine Textlogik auf `hooks` trägt 9 % der Datenbank — die
+Priorität wurde deshalb auf `alias` gedreht.
+
+Entscheidung: Die Regeln und Generierungslogik liegen als reines On-Demand-Addon in `website/addons/testbrief.js`
+(Adressleiter, Ankerleiter, Scheinanschrift-Erkennung, Firmenfilter, Nerd-Text). `main.js`
+bleibt neutraler Orchestrator und lädt das Addon erst beim Klick per dynamischem Import. Die JSON wird **nicht** verändert.
+
+Leitlinien, vom Nutzer entschieden:
+- Korrektheit ist die harte Grenze: kein Satz behauptet eine unbelegte Tatsache.
+- Gebäudename in der Anschriftenzeile ist erlaubt (`Der Fuchsbau`, `Sanctuary`),
+  erfundene Hausnummern und geborgte Straßen sind es nicht.
+- Eine leere Zeile ist ein gültiges Ergebnis, kein Fehler.
+
+Ergebnis: 317 von 325 Figuren briefbar; 8 haben keinen belegten Ort.
+58 Straßenzeilen bleiben leer, weil ihr Wert ein generierter Platzhalter war.
+
+Regeln dokumentiert in `docs/20-implementation/testbrief-generator.md`.
+Generalisierbar für die `llm_boilerplate`: Platzhalter gegen das eigene
+Vokabular erkennen, Fallback-Leitern nach Datenlage sortieren, leeres
+Ergebnis zulassen.
+
+
+## 2026-11-02 – Verwerfung von JS/CSS Code-Splitting: Beibehaltung des Single PWA Bundle Modells (Ansatz 1)
+
+Ausgangsproblem: Lighthouse meldete beim initialen Ladevorgang ca. 32 KiB „unused CSS" in `sidebar.css` und ca. 78 KiB „unused JS" (vor allem in `address.js` und `document.js`).
+
+Empirische Untersuchung:
+1. Das vermeintlich „unbenutzte" CSS deckt Dialoge (`<dialog id="settings-dialog">`), Popovers, Validierungszustände und Akkordeons ab, die beim initialen 2-Sekunden-Render schlicht noch nicht geöffnet waren.
+2. Das vermeintlich „unbenutzte" JS deckt die Offline-PLZ-Matrix (DecompressionStream), Adress-Autovervollständigung, Zwischenablagen-Parser und Undo/Redo-Stack ab, die erst bei Nutzerinteraktion feuern.
+3. Die Gesamtgröße aller JS-Module beträgt unkomprimiert nur ca. 120 KB (gzipped < 35 KB).
+4. Alle statischen Assets sind versioniert und werden mit `Cache-Control: public, max-age=31536000, immutable` ausgeliefert.
+
+Verworfene Alternative (Ansatz 2):
+Dynamisches Nachladen (`import(...)`) von Fachlogik erst bei Klick oder Tastendruck.
+Verworfen, weil:
+- Führt zu spürbarer Eingabelatenz und UI-Rucklern beim ersten Tastendruck im Adressfeld.
+- Zerstört die deterministische Offline-Fähigkeit der PWA.
+- Erhöht die Zustands- und Fehlertoleranz-Komplexität massiv (Netzwerkfehler während der Eingabe).
+- Lighthouse erzielt bereits ohne Code-Splitting die Bestnote 100/100 across all 4 categories.
+
+Entscheidung (vom Nutzer bestätigt):
+Ansatz 1 bleibt unverrückbar Standard: Single PWA Bundle, Zero Build, native ES-Module, sofortige Bereitstellung aller Module im Browser-Cache mit unendlicher Gültigkeit (`immutable`).

@@ -2,13 +2,14 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
+import { istBriefbar, resolveFirma, resolveOrt, resolveStrasse, waehleAnker } from '../addons/testbrief.js';
+import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initSenderSync } from './address.js';
+import { Events, eventBus, initToastSystem } from './core.js';
+import { collectDraft, DraftManager, UIProtections } from './document.js';
 /* js/main.js */
-import { migrateStorage, MetadataService, applyLetterDate, initImportExport } from './persistence.js';
-import { SalutationFeature, SalutationEngine } from './salutation.js';
+import { applyLetterDate, initImportExport, MetadataService, migrateStorage } from './persistence.js';
+import { SalutationEngine, SalutationFeature } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
-import { initToastSystem, eventBus, Events } from './core.js';
-import { initAddressServices, initSenderSync, AddressIntelligence, ClipboardAddressParser } from './address.js';
-import { DraftManager, UIProtections, collectDraft } from './document.js';
 
 /**
  * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld und dem Popover-Trigger.
@@ -347,45 +348,33 @@ let heroIndex = 0;
 let lastHero = null;
 
 /**
- * Prüft, ob ein Charakter vollständige und nutzbare Adressdaten besitzt.
- * @param {any} h
- * @returns {boolean}
- */
-function isUsableHero(h) {
-  const strasse = (h.strasse || '').toLowerCase();
-  const ort = (h.ort || '').trim();
-  if (!strasse || !ort) return false;
-  return !strasse.includes('unterwegs') &&
-         !strasse.includes('kein festes') &&
-         !strasse.includes('kein fester') &&
-         !strasse.includes('replik');
-}
-
-/**
- * Zieht einen zufälligen Hook für einen Charakter.
- * Fallback: franchise oder medium (kurz), niemals das lange 'hinweis'-Feld.
+ * Zieht ein belegtes Thema für den Text.
+ * Reihenfolge: Alias → einzelne Organisation → Hook → Franchise.
+ * Erfundene Platzhalter entfallen; Franchise ist notfalls der einzige belegte Wert.
  * @param {any} char
  * @returns {string}
  */
 function getCharHook(char) {
-  if (char?.hooks && Array.isArray(char.hooks) && char.hooks.length > 0) {
-    return char.hooks[Math.floor(Math.random() * char.hooks.length)];
-  }
-  return char?.franchise || char?.medium || 'eine dringende Angelegenheit';
+  const anker = waehleAnker(char);
+  if (anker) return anker.text;
+  const franchise = String(char?.franchise ?? '').trim();
+  return franchise || 'einer dringenden Angelegenheit';
 }
 
 /**
- * Generiert einen passenden Betreff basierend auf dem gewürfelten Thema.
+ * Generiert einen passenden Betreff zum gewürfelten Thema.
+ * Doppelpunkt-Form: das Thema steht als Nachtrag, damit keine Kasus-Fehler
+ * entstehen („bezüglich Netz" wäre falsch).
  * @param {string} themenHook
  * @returns {string}
  */
 function randomBetreff(themenHook) {
   const options = [
-    `Dringende Mitteilung bezüglich ${themenHook}`,
-    `Sachstand und Maßnahmenkatalog zu ${themenHook}`,
-    `Außerordentliche Kündigung im Zusammenhang mit ${themenHook}`,
+    `Dringende Mitteilung: ${themenHook}`,
+    `Sachstand und Maßnahmenkatalog: ${themenHook}`,
+    `Außerordentliche Kündigung: ${themenHook}`,
     `Fristsetzung und Aufforderung zur Stellungnahme: ${themenHook}`,
-    `Kooperationsvereinbarung und Beistandspakt hinsichtlich ${themenHook}`
+    `Kooperationsvereinbarung und Beistandspakt: ${themenHook}`
   ];
   return options[Math.floor(Math.random() * options.length)];
 }
@@ -402,8 +391,8 @@ function generateNerdText(sender, recipient, dritte, themenHook) {
   const n = dritte.length;
   const sName = sender.buergerlicherName || sender.name;
   const sHook = getCharHook(sender);
-  const sOrt = sender.ort || 'hier';
-  const rOrt = recipient.ort || 'dort';
+  const sOrt = resolveOrt(sender) || 'hier';
+  const rOrt = resolveOrt(recipient) || 'dort';
 
   if (n === 0) {
     const templatesA = [
@@ -417,7 +406,7 @@ function generateNerdText(sender, recipient, dritte, themenHook) {
   if (n === 1) {
     const d0Name = dritte[0].buergerlicherName || dritte[0].name;
     const d0Hook = getCharHook(dritte[0]);
-    const d0Ort = dritte[0].ort || 'seinem Quartier';
+    const d0Ort = resolveOrt(dritte[0]) || 'seinem Quartier';
     const templatesB = [
       `ich muss Ihnen heute von einem besorgniserregenden Vorfall berichten.\n\n${d0Name} (${d0Hook}) hat die Lage in Bezug auf ${themenHook} vollkommen eskaliert. Was zunächst harmlos schien, bedroht inzwischen die Ordnung von ${sOrt} bis nach ${rOrt}.\n\nIch ersuche Sie dringend um Beistand und eine gemeinsame Lagebesprechung.`,
       `auf Empfehlung von ${d0Name} (${d0Hook}) trete ich heute direkt mit Ihnen in Kontakt.\n\nGemeinsam haben wir analysiert, dass ${themenHook} einer neuen Vereinbarung zwischen uns bedarf. Die Expertise aus ${d0Ort} belegt eindeutig, dass ein abgestimmtes Vorgehen unerlässlich ist.\n\nBitte teilen Sie mir zeitnah mit, wann Ihnen ein persönlicher Austausch möglich ist.`
@@ -551,7 +540,7 @@ function setField(id, value) {
 async function wuerfelTestbrief() {
   const heroes = await loadHeroes();
   if (!heroes) return;
-  const usableHeroes = heroes.filter(isUsableHero);
+  const usableHeroes = heroes.filter(istBriefbar);
   if (usableHeroes.length < 5) {
     console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
     return;
@@ -578,19 +567,20 @@ async function wuerfelTestbrief() {
 
   // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
   setField('absender-namenszeile', senderName);
-  setField('absender-strasse', sender.strasse || '');
-  setField('absender-ort', sender.ort || '');
+  setField('absender-strasse', resolveStrasse(sender));
+  setField('absender-ort', resolveOrt(sender));
   setField('absender-tel', '+49 228 123456-78');
   setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
 
-  const rucksendeTeile = [senderName, sender.strasse, sender.ort].filter(Boolean);
+  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrt(sender)].filter(Boolean);
   setField('rucksendezeile', rucksendeTeile.join(' • '));
 
   // 5. Empfänger
-  setField('empfaenger-firma', recipient.firma || '');
+  // Firmenzeile nur bei einer einzelnen belegten Organisation — kein Berufs-Blob.
+  setField('empfaenger-firma', resolveFirma(recipient));
   setField('empfaenger-namenszeile', recipientName);
-  setField('empfaenger-strasse', recipient.strasse || '');
-  setField('empfaenger-ort', recipient.ort || '');
+  setField('empfaenger-strasse', resolveStrasse(recipient));
+  setField('empfaenger-ort', resolveOrt(recipient));
 
   // 6. Briefkern
   setField('betreff', randomBetreff(themenHook));

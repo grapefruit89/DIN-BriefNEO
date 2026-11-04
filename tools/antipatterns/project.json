@@ -345,6 +345,24 @@
         "website/js/*.js"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P22",
+      "catalog_ref": [
+        "A64"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "architecture",
+      "description": "Base64-Inlining oder Data-Embedding in Quellcode/Modulen ist strikt verboten (Catalog HARD BAN A64). Code und Daten bleiben sauber getrennt.",
+      "pattern": "data:[^;]+;base64,[A-Za-z0-9+/=]{50,}",
+      "file_patterns": [
+        "website/js/*.js",
+        "website/addons/*.js",
+        "website/css/*.css"
+      ],
+      "exemptions": []
     }
   ]
 }

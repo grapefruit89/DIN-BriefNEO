@@ -59,5 +59,5 @@ Die Built-in AI APIs werden **nicht** eingebaut.
 
 ## Verweis
 
-- `din5008.md` (Norm, unverändert)
+- `docs/00-foundation/din5008.md` (Norm, unverändert)
 - DECISION-LOG (wird um diesen Eintrag ergänzt)

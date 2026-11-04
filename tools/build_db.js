@@ -113,6 +113,8 @@ depends_on: []
 | js/persistence.js | ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | glossary, din-5008-css-architektur | LocalStoragePrimitives, MetadataService, initImportExport, formatLetterDate |
 | js/salutation.js | ADR-JS | - | SalutationEngine, SalutationFeature, SALUTATION_TONES |
 | js/settings.js | ADR-JS | glossary, din-5008-css-architektur | SettingsManager, SignatureFeature |
+| addons/testbrief.js | ADR-JS | testbrief-generator | Testbrief-Addon (Generator, Adress- & Ankerleiter) |
+| addons/webmcp-bridge.js | ADR-JS | - | WebMCP Bridge & Polyfill (WebSocket ws://127.0.0.1:8333) |
 | data/de_plz_ort.json.gz | ADR-OFFLINE-ADDRESS-INTELLIGENCE | - | PLZ-/Ortsverzeichnis (Gzip, Offline Tier 1) |
 | data/de_grosskunden_plz.json.gz | ADR-OFFLINE-ADDRESS-INTELLIGENCE | grossemfaenger-post-und-rechts-spec | Großempfänger-Verzeichnis (Gzip, OLG Frankfurt) |
 
@@ -120,6 +122,7 @@ depends_on: []
 | Datei | Zweck |
 |---|---|
 | build_db.js | Fitness Gate + Index-Builder & SSoT-Sync |
+| agent_gateway.py | Lokales WebMCP-Gateway für Bash-/Agenten-Anbindung |
 | docs_index.js | SQLite-FTS5-Retrieval-Index (search, get, related) |
 | adr-check.js | Präventiver ADR-Drift-Wächter (Bijektion & Verwaiste Assets) |
 | reconciliation.js | Reality Reconciliation Engine (Evolutionary Fitness Score) |

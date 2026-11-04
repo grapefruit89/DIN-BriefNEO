@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototyp: mehrseitiger DIN-Brief (Multicol Level 2)</title>
+<style>
+/* ------------------------------------------------------------
+   Maße. Alle Werte sind Platzhalter und müssen gegen DIN 5008
+   geprüft werden (Form B angenommen).
+   ------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --seite: 297mm;
+  --luecke: 8mm;                 /* sichtbarer Abstand zwischen zwei Blättern (nur Bildschirm) */
+  --rand-o: 25mm;                /* oberer Rand ab Seite 2 */
+  --rand-u: 20mm;                /* unterer Rand, alle Seiten */
+  --rand-l: 25mm;
+  --rand-r: 20mm;
+  --text-start: 125mm;           /* Beginn des Brieftextes auf Seite 1, von oben */
+
+  --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u));
+  --spacer: calc(var(--text-start) - var(--rand-o));
+  --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke));
+
+  --ui-bg: #e3e5e8;
+  --ui-text: #1d2127;
+  --ui-akzent: #1f5fbf;
+  font-family: system-ui, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+}
+
+/* ---------- Werkzeugleiste (nur Bildschirm) ---------- */
+.ui {
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 14px 0 12px;
+  font-size: 14px;
+}
+.ui .reihe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ui button {
+  font: inherit;
+  padding: 6px 12px;
+  border: 1px solid #8b929c;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+}
+.ui button:hover { border-color: var(--ui-akzent); }
+.ui button:focus-visible { outline: 2px solid var(--ui-akzent); outline-offset: 2px; }
+#status { margin-left: auto; font-variant-numeric: tabular-nums; }
+#warnung {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  background: #fde8e6;
+  border: 1px solid #c4453a;
+  border-radius: 6px;
+}
+.ui details { margin-top: 10px; }
+.ui summary { cursor: pointer; }
+.ui ol { margin: 8px 0 0; padding-left: 20px; line-height: 1.5; }
+
+/* ---------- Blatt ---------- */
+#blatt {
+  position: relative;
+  width: 210mm;
+  margin: 0 auto 40px;
+}
+
+/*
+  Fluss: eine Spalte pro "Seite". column-height ist die Nutzhöhe, column-wrap
+  lässt überlaufenden Text in eine neue Zeile (= nächste Seite) umbrechen.
+  Der Zeilenabstand enthält unteren Rand, sichtbare Lücke und oberen Rand der
+  nächsten Seite. Dadurch passt der Takt des Hintergrunds genau.
+*/
+#fluss {
+  min-height: var(--seite);
+  padding: var(--rand-o) var(--rand-r) var(--rand-u) var(--rand-l);
+  column-count: 1;
+  column-height: var(--nutz);
+  column-wrap: wrap;
+  row-gap: var(--zeilenabstand);
+  background:
+    linear-gradient(#fff 0 var(--seite), transparent var(--seite))
+    0 0 / 100% calc(var(--seite) + var(--luecke)) repeat-y;
+}
+/* Spalten sind keine Elemente: Schatten oder Rand pro Blatt gibt es nicht. */
+
+#spacer {
+  height: var(--spacer);
+  user-select: none;
+}
+
+#text {
+  outline: none;
+  font-size: 11pt;
+  line-height: 4.5mm;
+  color: #000;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+#text p { margin: 0 0 4.5mm; orphans: 2; widows: 2; }
+#text .schluss { break-inside: avoid; }
+#text .gruss { break-after: avoid; }
+
+/* ---------- Seite-1-Elemente (absolut, bleiben auf Blatt 1) ---------- */
+.kopf, .marke { position: absolute; margin: 0; }
+.kopf { font-size: 10pt; line-height: 1.25; color: #000; outline: none; }
+
+#absender { top: 12mm; left: var(--rand-l); right: var(--rand-r); font-size: 9pt; color: #333; }
+#ruecksende { top: 45mm; left: 20mm; width: 85mm; height: 5mm; font-size: 7pt; border-bottom: .3pt solid #000; white-space: nowrap; overflow: hidden; }
+#anschrift { top: 50mm; left: 20mm; width: 85mm; height: 40mm; }
+#datum { top: 50mm; left: 125mm; width: 65mm; }
+#betreff { top: 98.46mm; left: var(--rand-l); right: var(--rand-r); font-weight: 700; }
+
+.marke { left: 0; height: 0; border-top: .3pt solid #000; }
+#falz1 { top: 105mm; width: 5mm; }
+#lochmarke { top: 148.5mm; width: 8mm; }
+#falz2 { top: 210mm; width: 5mm; }
+
+/* ---------- Folgekopf auf dem Bildschirm (im Druck: Randboxen) ---------- */
+.folgekopf-screen {
+  position: absolute;
+  left: var(--rand-l);
+  right: var(--rand-r);
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: #333;
+  pointer-events: none;
+}
+
+#probe { position: absolute; visibility: hidden; height: 1000mm; width: 1px; }
+
+/* ------------------------------------------------------------
+   Druck: Multicol aus, @page übernimmt den Umbruch.
+   Seite 1: oberer Rand 0 (Kopf wird absolut gesetzt, der Spacer
+   schiebt den Text nach unten). Ab Seite 2: 25 mm oben.
+   ------------------------------------------------------------ */
+@page { size: A4; margin: 25mm 0 20mm 0;
+  @top-left  { padding-left: 25mm;  font: 9pt system-ui, sans-serif; color: #333; vertical-align: middle; }
+  @top-right { padding-right: 20mm; font: 9pt system-ui, sans-serif; color: #333; vertical-align: middle;
+               content: "Seite " counter(page) " von " counter(pages); }
+}
+@page :first { margin: 0 0 20mm 0;
+  @top-left  { content: none; }
+  @top-right { content: none; }
+}
+
+@media print {
+  body { background: #fff; }
+  .ui, .folgekopf-screen { display: none !important; }
+  #blatt { margin: 0; width: 210mm; }
+  #fluss {
+    min-height: 0;
+    padding-top: 0;
+    column-count: auto;
+    column-height: auto;
+    column-wrap: nowrap;
+    row-gap: normal;
+    background: none;
+  }
+  #spacer { height: var(--text-start); }
+}
+</style>
+<style id="print-dyn"></style>
+</head>
+<body>
+
+<div class="ui">
+  <div class="reihe">
+    <button type="button" id="btn-lang">Langen Text einfügen</button>
+    <button type="button" id="btn-kurz">Zurücksetzen</button>
+    <button type="button" id="btn-druck">Drucken / PDF</button>
+    <span id="status" aria-live="polite">Seite 1 von 1</span>
+  </div>
+  <p id="warnung" hidden>Dieser Browser kennt <code>column-wrap</code> und <code>column-height</code> nicht (erst ab Chrome 145). Der Text läuft dann nicht auf Seite 2 über.</p>
+  <details>
+    <summary>Testliste</summary>
+    <ol>
+      <li>Lang einfügen: Entstehen mehrere Blätter mit Lücke dazwischen?</li>
+      <li>Am Ende von Seite 1 weitertippen: Bleibt der Cursor stabil beim Sprung auf Seite 2?</li>
+      <li>Mit Pfeil hoch/runter über die Seitengrenze gehen, Text über die Grenze markieren.</li>
+      <li>Fremden Text einfügen (Word, Mail), danach Strg+Z und Strg+Umschalt+Z.</li>
+      <li>Drucken als PDF: Ränder der Seite 2 messen (oben 25 mm, unten 20 mm), Seitenzahl und Folgekopf prüfen. Im Druckdialog „Kopf- und Fußzeilen“ ausschalten.</li>
+      <li>Stimmen die Umbrüche im PDF mit der Bildschirmansicht überein?</li>
+      <li>Grußformel und Unterschrift: Landen sie nie allein auf einer neuen Seite?</li>
+    </ol>
+  </details>
+</div>
+
+<div id="blatt">
+  <div id="probe"></div>
+
+  <!-- Seite 1: feste Elemente -->
+  <div id="absender" class="kopf" contenteditable="true" spellcheck="false">Muster GmbH · Musterweg 1 · 53721 Siegburg</div>
+  <div id="ruecksende" class="kopf" contenteditable="true" spellcheck="false">Muster GmbH · Musterweg 1 · 53721 Siegburg</div>
+  <div id="anschrift" class="kopf" contenteditable="true" spellcheck="false">Frau<br>Erika Beispiel<br>Beispielstraße 7<br>50667 Köln</div>
+  <div id="datum" class="kopf" contenteditable="true" spellcheck="false">03.11.2026</div>
+  <div id="betreff" class="kopf" contenteditable="true" spellcheck="false">Testbrief über mehrere Seiten</div>
+  <div class="marke" id="falz1" aria-hidden="true"></div>
+  <div class="marke" id="lochmarke" aria-hidden="true"></div>
+  <div class="marke" id="falz2" aria-hidden="true"></div>
+
+  <!-- Fluss -->
+  <div id="fluss">
+    <div id="spacer" contenteditable="false" aria-hidden="true"></div>
+    <div id="text" contenteditable="true" spellcheck="true" lang="de"></div>
+  </div>
+
+  <div id="folgekoepfe" aria-hidden="true"></div>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const fluss = $('#fluss');
+  const text = $('#text');
+  const probe = $('#probe');
+  const status = $('#status');
+  const folgekoepfe = $('#folgekoepfe');
+  const dyn = $('#print-dyn');
+
+  if (!(CSS.supports('column-wrap', 'wrap') && CSS.supports('column-height', '10mm'))) {
+    $('#warnung').hidden = false;
+  }
+
+  const KURZ = `
+    <p class="anrede">Sehr geehrte Frau Beispiel,</p>
+    <p>dies ist ein kurzer Testtext. Tippen Sie weiter oder fügen Sie einen langen Text ein, um den Umbruch auf eine zweite Seite auszulösen.</p>
+    <p class="gruss">Mit freundlichen Grüßen</p>
+    <p class="schluss">Max Mustermann</p>`;
+
+  const SAETZE = [
+    'Wir bestätigen den Eingang Ihres Schreibens und danken Ihnen für die ausführliche Darstellung des Sachverhalts.',
+    'Nach Prüfung der vorliegenden Unterlagen ergibt sich, dass die geltend gemachte Forderung dem Grunde nach besteht.',
+    'Die Höhe der Forderung konnten wir anhand der übersandten Belege jedoch nur teilweise nachvollziehen.',
+    'Wir bitten Sie daher, uns die fehlenden Nachweise bis zum Ende des laufenden Monats zukommen zu lassen.',
+    'Sollten sich Rückfragen ergeben, erreichen Sie uns telefonisch zu den üblichen Geschäftszeiten.',
+    'Bis zur Klärung bitten wir um Verständnis, dass wir keine weiteren Zahlungen veranlassen können.',
+  ];
+
+  function langerText() {
+    const absaetze = [];
+    for (let i = 0; i < 14; i++) {
+      let p = '';
+      const anzahl = 4 + (i % 3);
+      for (let j = 0; j < anzahl; j++) p += SAETZE[(i + j) % SAETZE.length] + ' ';
+      absaetze.push('<p>' + p.trim() + '</p>');
+    }
+    return `<p class="anrede">Sehr geehrte Frau Beispiel,</p>${absaetze.join('')}
+      <p class="gruss">Mit freundlichen Grüßen</p><p class="schluss">Max Mustermann</p>`;
+  }
+
+  function mmZuPx() { return probe.getBoundingClientRect().height / 1000; }
+
+  function esc(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\s+/g, ' '); }
+
+  function aktualisieren() {
+    const cs = getComputedStyle(document.documentElement);
+    const seite = parseFloat(cs.getPropertyValue('--seite'));
+    const luecke = parseFloat(cs.getPropertyValue('--luecke'));
+    const mm = mmZuPx();
+    if (!mm) return;
+
+    // Höhe n Blätter = n * (Seite + Lücke) - Lücke
+    const hoeheMm = fluss.getBoundingClientRect().height / mm;
+    const n = Math.max(1, Math.round((hoeheMm + luecke) / (seite + luecke)));
+
+    status.textContent = `Seite 1 von ${n}`;
+
+    const empfaenger = ($('#anschrift').innerText.split('\n').map((z) => z.trim()).filter(Boolean)[1]
+      || $('#anschrift').innerText.split('\n')[0] || '').trim();
+    const datum = $('#datum').innerText.trim();
+    const kopfText = `Brief an ${empfaenger} vom ${datum}`;
+
+    folgekoepfe.textContent = '';
+    for (let i = 1; i < n; i++) {
+      const el = document.createElement('div');
+      el.className = 'folgekopf-screen';
+      el.style.top = `calc(${i} * (var(--seite) + var(--luecke)) + 12mm)`;
+      const links = document.createElement('span');
+      links.textContent = kopfText;
+      const rechts = document.createElement('span');
+      rechts.textContent = `Seite ${i + 1} von ${n}`;
+      el.append(links, rechts);
+      folgekoepfe.append(el);
+    }
+
+    // Druck: Inhalt der linken Randbox dynamisch setzen
+    dyn.textContent = `@page { @top-left { content: "${esc(kopfText)}"; } }`;
+  }
+
+  text.innerHTML = KURZ;
+  $('#btn-lang').addEventListener('click', () => { text.innerHTML = langerText(); aktualisieren(); });
+  $('#btn-kurz').addEventListener('click', () => { text.innerHTML = KURZ; aktualisieren(); });
+  $('#btn-druck').addEventListener('click', () => window.print());
+
+  new ResizeObserver(aktualisieren).observe(fluss);
+  for (const id of ['#anschrift', '#datum']) $(id).addEventListener('input', aktualisieren);
+  text.addEventListener('input', aktualisieren);
+  window.addEventListener('beforeprint', aktualisieren);
+  aktualisieren();
+})();
+</script>
+</body>
+</html>

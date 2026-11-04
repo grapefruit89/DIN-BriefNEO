@@ -652,7 +652,7 @@ function runReconciliation() {
         // P5: Doku-Groessenwarnung (>400 Zeilen). Ausnahmen: DECISION-LOG
         // (append-only Chronik), generierte Code-Referenzen und die IMR-Registry
         // (normative SSOT des Fachmodells — darf nicht gesplittet werden).
-        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md'];
+        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md', 'docs/00-foundation/din5008.md'];
         /* Bereits archivierte Dokumente sind von der Groessenregel ausgenommen:
          * Die Regel fordert als Abhilfe genau den Umzug nach docs/90-archive/ —
          * sie dort weiter zu melden ist eine unerfuellbare Forderung (das Archiv

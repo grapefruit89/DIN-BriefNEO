@@ -138,7 +138,7 @@ body {
   --segment-active-shadow: 0 1px 3px oklch(0 0 0 / 8%);
 
   --c-primary: var(--accent-color);
-  --c-success: light-dark(oklch(0.65 0.12 150), oklch(0.70 0.10 150));
+  --c-success: light-dark(oklch(0.40 0.14 145), oklch(0.82 0.14 145));
   --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
   --c-danger: light-dark(var(--c-danger-day), var(--c-danger-night));
 

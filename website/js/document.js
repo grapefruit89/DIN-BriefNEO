@@ -11,8 +11,8 @@
  *  3. DraftManager (Single-Writer für localStorage, Undo/Redo, Autosave, EventBus-Verträge)
  */
 
-import { loadJSON, saveJSON, STORAGE_KEYS, isPrintTitleActive } from './persistence.js';
-import { eventBus, Events, Constants } from './core.js';
+import { Constants, Events, eventBus } from './core.js';
+import { isPrintTitleActive, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
 /* =========================================================================================
  * 0. RICH TEXT SANITIZER (Allowlist Guard)
@@ -619,7 +619,7 @@ export class UIProtections {
 
         if (hasOverflow) {
           blatt.setAttribute('data-ueberlauf', 'true');
-          const computedLineHeight = text ? parseFloat(window.getComputedStyle(text).lineHeight) : 18;
+          const computedLineHeight = text ? Number.parseFloat(window.getComputedStyle(text).lineHeight) : 18;
           const lineHeight = Number.isFinite(computedLineHeight) && computedLineHeight > 0 ? computedLineHeight : 18;
           const overflowPixels = Math.max(0, kern.scrollHeight - kern.clientHeight);
           const estimatedLines = Math.max(1, Math.ceil(overflowPixels / lineHeight));

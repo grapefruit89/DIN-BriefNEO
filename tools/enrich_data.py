@@ -1,4 +1,5 @@
 import json
+import sys
 
 ENRICHMENT = {
     "Aquaman": {
@@ -28,8 +29,9 @@ ENRICHMENT = {
         "ort": "Winterfell, Der Norden"
     },
     "Ash Ketchum": {
-        "strasse": "Route 1 / Ketchum-Residenz",
-        "ort": "Alabastia, Kanto"
+        "strasse": None,
+        "ort": "Alabastia, Kanto",
+        "geschlecht": "m",
     },
     "Asterix": {
         "buergerlicherName": "Asterix",
@@ -47,15 +49,15 @@ ENRICHMENT = {
         "alias": ["Oracle", "Babs"],
         "firma": "Gotham City Public Library / Birds of Prey",
         "strasse": "Clocktower Plaza 1",
-        "ort": "10002 Gotham City",
+        "ort": "Gotham City",
         "franchise": "DC Comics",
         "medium": "Comic",
         "rolle": "Protagonist",
         "hinweis": "Tochter von Commissioner Jim Gordon, operiert als Batgirl und später als Oracle."
     },
     "Batman": {
-        "strasse": "Wayne Manor 1007",
-        "ort": "10001 Gotham City"
+        "strasse": "Wayne Manor",
+        "ort": "Gotham City"
     },
     "Bienlein": {
         "buergerlicherName": "Tryphon Tournesol (Prof. Bienlein)",
@@ -89,6 +91,9 @@ ENRICHMENT = {
         "medium": "Comic",
         "rolle": "Protagonist",
         "hinweis": "Ehemalige sowjetische Spionin, Meisterin der Kampfkunst und Taktik."
+    },
+    "Charlie Bucket": {
+        "geschlecht": "m"
     },
     "Captain America": {
         "buergerlicherName": "Steven Grant Rogers",
@@ -164,6 +169,9 @@ ENRICHMENT = {
         "rolle": "Protagonist",
         "hinweis": "Ehemaliger Neurochirurg, Oberster Zauberer der Erde."
     },
+    "Emil Tischbein": {
+        "geschlecht": "m"
+    },
     "Eleven": {
         "strasse": "Byers Residenz / Hopper Hütte",
         "ort": "Hawkins, Indiana"
@@ -192,12 +200,13 @@ ENRICHMENT = {
         "buergerlicherName": "Oliver Jonas Queen",
         "alias": ["Der Bogenschütze von Star City", "Ollie"],
         "firma": "Queen Industries / Team Arrow",
-        "strasse": "Queen Manor / The Bunker",
+        "strasse": "Queen Manor",
         "ort": "Star City",
         "franchise": "DC Comics",
         "medium": "Comic",
         "rolle": "Protagonist",
-        "hinweis": "Milliardär und meisterhafter Bogenschütze mit Trickpfeilen."
+        "hinweis": "Milliardär und meisterhafter Bogenschütze mit Trickpfeilen.",
+        "geschlecht": "m",
     },
     "Green Lantern": {
         "buergerlicherName": "Harold 'Hal' Jordan",
@@ -209,6 +218,9 @@ ENRICHMENT = {
         "medium": "Comic",
         "rolle": "Protagonist",
         "hinweis": "Testpilot, Träger des mächtigsten Rings im Universum (grüne Willenskraft)."
+    },
+    "Hank Schrader": {
+        "geschlecht": "m"
     },
     "Handy Schlumpf": {
         "buergerlicherName": "Handy Schlumpf",
@@ -227,8 +239,9 @@ ENRICHMENT = {
         "ort": "Baltimore, Maryland"
     },
     "Harry Potter": {
-        "strasse": "Ligusterweg 4 (ehem.) / Hogwarts",
-        "ort": "Little Whinging, Surrey"
+        "strasse": "Ligusterweg 4",
+        "ort": "Little Whinging, Surrey",
+        "geschlecht": "m",
     },
     "Hawkeye": {
         "buergerlicherName": "Clinton Francis Barton",
@@ -302,7 +315,8 @@ ENRICHMENT = {
         "franchise": "Marvel",
         "medium": "Comic",
         "rolle": "Protagonist",
-        "hinweis": "Genie, Milliardär, Playboy, Philanthrop."
+        "hinweis": "Genie, Milliardär, Playboy, Philanthrop.",
+        "geschlecht": "m",
     },
     "Jean-Luc Picard": {
         "strasse": "Château Picard",
@@ -336,8 +350,9 @@ ENRICHMENT = {
     },
     "Katniss Everdeen": {
         "firma": "Distrikt 12 Aufstand",
-        "strasse": "Dorf der Sieger, Haus 1",
-        "ort": "Distrikt 12, Panem"
+        "strasse": "Dorf der Sieger",
+        "ort": "Distrikt 12, Panem",
+        "geschlecht": "w",
     },
     "Krachbumm-Ente (Gizmoduck)": {
         "buergerlicherName": "Fenton Crackshell-Cabrera",
@@ -363,7 +378,7 @@ ENRICHMENT = {
         "buergerlicherName": "Link",
         "alias": ["Held der Zeit", "Held von Hyrule"],
         "firma": "Königliche Leibgarde von Schloss Hyrule",
-        "strasse": "Hateno-Dorf Haus 1 / Schloss Hyrule",
+        "strasse": "Hateno-Dorf",
         "ort": "Königreich Hyrule",
         "franchise": "The Legend of Zelda",
         "medium": "Videospiel",
@@ -504,8 +519,8 @@ ENRICHMENT = {
         "buergerlicherName": "Richard John 'Dick' Grayson",
         "alias": ["Nightwing", "Boy Wonder"],
         "firma": "Teen Titans / Wayne Enterprises / Blüdhaven PD",
-        "strasse": "Wayne Manor 1007",
-        "ort": "10001 Gotham City / Blüdhaven",
+        "strasse": "Wayne Manor",
+        "ort": "Gotham City / Blüdhaven",
         "franchise": "DC Comics",
         "medium": "Comic",
         "rolle": "Sidekick",
@@ -550,7 +565,7 @@ ENRICHMENT = {
         "hinweis": "Wohnte mit Dr. John Watson bei Mrs. Hudson."
     },
     "Son-Goku": {
-        "strasse": "Berg Paozu Residenz 1",
+        "strasse": None,
         "ort": "Ost-Distrikt 439"
     },
     "Spider-Man": {
@@ -565,12 +580,13 @@ ENRICHMENT = {
         "buergerlicherName": "Clark Joseph Kent (Kal-El)",
         "alias": ["Mann aus Stahl", "Man of Steel", "Der letzte Sohn von Krypton"],
         "firma": "Daily Planet (Metropolis)",
-        "strasse": "Daily Planet Plaza 1 / Festung der Einsamkeit",
+        "strasse": "Clinton Street 344",
         "ort": "Metropolis",
         "franchise": "DC Comics",
         "medium": "Comic",
         "rolle": "Protagonist",
-        "hinweis": "Geboren als Kal-El auf Krypton, aufgewachsen bei Jonathan und Martha Kent in Smallville."
+        "hinweis": "Geboren als Kal-El auf Krypton, aufgewachsen bei Jonathan und Martha Kent in Smallville.",
+        "geschlecht": "m",
     },
     "The Flash (Barry Allen)": {
         "buergerlicherName": "Bartholomew Henry 'Barry' Allen",
@@ -582,6 +598,9 @@ ENRICHMENT = {
         "medium": "Comic",
         "rolle": "Protagonist",
         "hinweis": "Verbindet sich mit der Speed Force nach Blitzschlag mit Chemikalien."
+    },
+    "The Joker": {
+        "strasse": None
     },
     "The Thing": {
         "buergerlicherName": "Benjamin Jacob Grimm",
@@ -631,6 +650,9 @@ ENRICHMENT = {
         "rolle": "Support",
         "hinweis": "Singt schrecklich und wird beim Festbankett traditionell gefesselt und geknebelt."
     },
+    "Waylon Smithers": {
+        "geschlecht": "m"
+    },
     "Walter White": {
         "strasse": "308 Negra Arroyo Lane",
         "ort": "Albuquerque, NM 87104"
@@ -659,7 +681,9 @@ ENRICHMENT = {
     }
 }
 
-file_path = '/home/moritz/repos/DIN-BriefNEO/website/data/charaktere_konsolidiert.json'
+STANDARD_ZIEL = '/home/moritz/repos/DIN-BriefNEO/website/data/charaktere_konsolidiert.json'
+# Optionaler Zielpfad fuer Trockenlaeufe: python3 tools/enrich_data.py /tmp/kopie.json
+file_path = sys.argv[1] if len(sys.argv) > 1 else STANDARD_ZIEL
 with open(file_path, 'r', encoding='utf-8') as f:
     data = json.load(f)
 
@@ -669,11 +693,21 @@ for fig in data['figuren']:
     if name in ENRICHMENT:
         patch = ENRICHMENT[name]
         for k, v in patch.items():
-            fig[k] = v
+            if k == 'alias':
+                # Alias ist eine Sammlung, kein Einzelwert: das Enrichment
+                # ergaenzt, es ersetzt nicht. Sonst loescht ein Lauf alle
+                # Aliasse, die aus anderen Quellen dazugekommen sind.
+                vorhanden = fig.get('alias') or []
+                for eintrag in v or []:
+                    if eintrag not in vorhanden:
+                        vorhanden.append(eintrag)
+                fig['alias'] = vorhanden
+            else:
+                fig[k] = v
         count_updated += 1
-    # Ensure strasse exists on all
-    if 'strasse' not in fig or not fig['strasse']:
-        fig['strasse'] = "Hauptstraße 1"
+    # Fehlende Strasse bleibt fehlend (null-Konvention der Pipeline).
+    # Kein Platzhalter: eine erfundene Anschrift ist schlechter als keine.
+    fig.setdefault('strasse', None)
 
 with open(file_path, 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=2)

@@ -10,8 +10,14 @@
 //     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
-import { loadJSON, saveJSON, STORAGE_KEYS, DEFAULT_SETTINGS } from './persistence.js';
-import { eventBus, Events, Constants } from './core.js';
+import { Constants, Events, eventBus } from './core.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+
+/** Bekannte akademische Grade und Titel */
+const KNOWN_TITLES = new Set([
+  'dr', 'prof', 'dipl', 'ing', 'mag', 'med', 'jur', 'rer', 'nat',
+  'msc', 'bsc', 'mba', 'phd', 'ba', 'ma', 'hc', 'mult'
+]);
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
@@ -88,31 +94,75 @@ export const SalutationEngine = {
     let text = (rawName || '').trim();
     if (!text) return FALLBACK[style];
 
-    // 1. Firmen-, Behörden- und Organisationsprüfung für neutrale Anrede
-    const rawTokens = text.toLowerCase().split(/[\s,./\\-]+/).filter(Boolean);
-    if (rawTokens.some((t) => COMPANY_KEYWORDS.has(t))) {
+    // 1. Explizites Herr/Frau (Präfix mit Unicode-Grenze /v) zuerst prüfen
+    /** @type {'m' | 'f' | null} */
+    let gender = null;
+    const prefix = text.match(/^(?:herrn?|frau)(?!\p{L})/iv);
+    if (prefix) {
+      gender = prefix[0].toLowerCase().startsWith('frau') ? 'f' : 'm';
+      text = text.slice(prefix[0].length).trim();
+    }
+
+    // 2. Firmen-, Behörden- und Organisationsprüfung für neutrale Anrede
+    // Echte Rechtsformen (GmbH, AG, SE, KG, OHG, GbR, UG, haftungsbeschränkt etc.) führen immer zur neutralen Anrede
+    const hasOrgForm = /(?<!\p{L})(?:gmbh\s*&\s*co\.?\s*kg|gmbh|ag|se|kg|ohg|gbr|universit[äa]t|hochschule|verband|stiftung|beh[öo]rde|institut|verlag|haftungsbeschr[äa]nkt)(?!\p{L})/iv.test(text)
+      || /(?<!\p{L})UG(?!\p{L})/v.test(text);
+    if (hasOrgForm) {
       return FALLBACK[style];
     }
 
-    // 2. Explizites Herr/Frau (Präfix)
-    /** @type {'m' | 'f' | null} */
-    let gender = null;
-    const prefix = text.match(/^(herrn?|frau)(?=\s|$)/i);
-    if (prefix) {
-      gender = prefix[1].toLowerCase() === 'frau' ? 'f' : 'm';
-      text = text.slice(prefix[0].length).trim();
+    // Wenn KEIN Herr/Frau-Präfix vorliegt: Auch e.V., e.K., e.G. und Keyword-Nomen (Bank, Hotel, Studio, Praxis, Verein) prüfen.
+    // (Verhindert, dass "Herr Thomas Bank", "Frau Sabine Hotel" oder "Frau E. K. Meier" neutral angesprochen werden)
+    if (!prefix) {
+      if (/(?<!\p{L})(?:e\.\s*v\.|e\.\s*k\.|e\.\s*g\.)(?!\p{L})/iv.test(text)) {
+        return FALLBACK[style];
+      }
+      const rawTokens = text.toLowerCase().split(/[\s,./\\-]+/).filter(Boolean);
+      const hasOrgKeyword = rawTokens.some((t) => 
+        COMPANY_KEYWORDS.has(t) ||
+        t.endsWith('verein') ||
+        t.endsWith('verband') ||
+        t.endsWith('gesellschaft') ||
+        t.endsWith('gemeinschaft') ||
+        t.endsWith('kasse') ||
+        t.endsWith('werk') ||
+        t.endsWith('werke')
+      );
+      if (hasOrgKeyword) {
+        return FALLBACK[style];
+      }
     }
 
     // 3. "Nachname, Vorname" -> "Vorname Nachname"
     const comma = text.indexOf(',');
     if (comma > 0) text = `${text.slice(comma + 1)} ${text.slice(0, comma)}`;
 
-    // 4. Titel und Initialen (alles mit Punkt am Ende oder Dr/Prof ohne Punkt) entfernen
-    const tokens = text.split(/\s+/).filter((t) => {
-      if (!t || t.endsWith('.')) return false;
-      const lower = t.toLowerCase();
-      return !['dr', 'prof', 'dipl', 'ing', 'mag', 'med'].includes(lower);
-    });
+    // 4. Wort-Tokenisierung & Titel-Entfernung
+    // Zerlegung an Whitespace; Satzzeichen am Wortende strippen (z. B. "Dr." -> "Dr", "Müller," -> "Müller")
+    // Bindestrich-Namen (Hans-Peter) bleiben dabei von Natur aus intakt.
+    const nameTokens = text.trim().split(/\s+/).filter(Boolean);
+    /** @type {string[]} */
+    const tokens = [];
+
+    for (const rawToken of nameTokens) {
+      const cleanEnd = rawToken.replace(/^[,;:(]+|[,;:.)]+$/g, '');
+      if (!cleanEnd) continue;
+
+      // Akademische Grade mit Punkt (z. B. "Dipl.-Ing.", "M.Sc.", "B.A.", "Dr.med.", "h.c.")
+      if (cleanEnd.includes('.')) {
+        continue;
+      }
+
+      const lower = cleanEnd.toLowerCase();
+      if (KNOWN_TITLES.has(lower)) continue;
+
+      // Einzelne Initialen (z. B. "J." in "Hans J. Müller" oder "E." in "E. K. Meier")
+      if (cleanEnd.length === 1 && (/^[A-Za-z]$/.test(cleanEnd) || rawToken.includes('.'))) {
+        continue;
+      }
+
+      tokens.push(cleanEnd);
+    }
     if (tokens.length === 0) return FALLBACK[style];
 
     // 5. Nachname inkl. Zusätze (von, van der, ...), Vorname = erstes Wort
@@ -125,7 +175,7 @@ export const SalutationEngine = {
     let isSingleWordFirstName = false;
     if (!gender) {
       if (firstName) {
-        const cleanFirst = firstName.toLowerCase().replace(/[^a-zäöüß-]/g, '');
+        const cleanFirst = firstName.toLowerCase().replace(/[^\p{L}\-]/gv, '');
         if (MALE_NAMES.has(cleanFirst)) {
           gender = 'm';
         } else if (FEMALE_NAMES.has(cleanFirst)) {
@@ -136,7 +186,7 @@ export const SalutationEngine = {
           else if (FEMALE_NAMES.has(part)) gender = 'f';
         }
       } else if (tokens.length === 1) {
-        const cleanWord = lastName.toLowerCase().replace(/[^a-zäöüß-]/g, '');
+        const cleanWord = lastName.toLowerCase().replace(/[^\p{L}\-]/gv, '');
         if (MALE_NAMES.has(cleanWord)) {
           gender = 'm';
           isSingleWordFirstName = true;

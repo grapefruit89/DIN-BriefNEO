@@ -14,7 +14,7 @@
  *  4. ImportExport (ehem. 52-import-export.js): JSON-Export/Import mit Metadaten-Header und Validierung.
  */
 
-import { eventBus, Events, Constants } from './core.js';
+import { Constants, Events, eventBus } from './core.js';
 
 /* =========================================================================================
  * 1. DATE & TIME FORMATTING (Temporal API & DIN 5008)
@@ -74,6 +74,7 @@ export function currentISODate() {
  * @property {'auto' | 'light' | 'dark' | string} theme
  * @property {'form-a' | 'form-b' | string} layout
  * @property {boolean} guides
+ * @property {boolean} [marks]
  * @property {boolean} [copyfit]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
@@ -87,6 +88,7 @@ export const DEFAULT_SETTINGS = {
   theme: 'auto',
   layout: 'form-b',
   guides: true,
+  marks: true,
   copyfit: false,
   formality: 'formal'
 };
@@ -225,8 +227,8 @@ export function migrateStorage() {
 export function collectLetterIdentity() {
   const dateStr = currentISODate();
   const lastName = (document.getElementById('rucksendezeile')?.textContent || '').split(/[•,]/)[0].replace(/\s/g, '') || 'Absender';
-  const empfName = (document.getElementById('empfaenger-namenszeile')?.textContent || '').replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '').substring(0, 30);
-  const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '').substring(0, 30);
+  const empfName = (document.getElementById('empfaenger-namenszeile')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
+  const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
   const recipientName = empfName || empfFirma || 'Empfaenger';
   const rawSubject = (document.getElementById('betreff')?.textContent || 'Brief').replace(/[\x00-\x1f\r\n<>:"/\\|?*]/g, ' ').replace(/\s+/g, ' ').trim();
   const subjectClean = (rawSubject || 'Brief').substring(0, 50);
@@ -618,7 +620,7 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
   const jsonContent = JSON.stringify(payload, null, 2);
   const fullName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
 
-  const savePicker = typeof window !== 'undefined' ? /** @type {any} */ (window)['showSaveFilePicker'] : null;
+  const savePicker = typeof window !== 'undefined' ? /** @type {any} */ (window).showSaveFilePicker : null;
   if (typeof savePicker === 'function') {
     try {
       const handle = await savePicker.call(window, {

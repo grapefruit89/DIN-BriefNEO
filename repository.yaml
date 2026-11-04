@@ -121,7 +121,6 @@ taxonomy:
     - start.bat
     - start.sh
     - envelope.svg
-    - din5008.md
     - TODO.md
     - skills-lock.json
     - .gitignore

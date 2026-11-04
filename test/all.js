@@ -1131,6 +1131,9 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Acme Corp GmbH', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
     assertEqual(SalutationEngine.derive({ rawName: 'Acme', formality: 'casual' }), 'Hallo,');
     assertEqual(SalutationEngine.derive({ rawName: 'Stadtwerke Troisdorf', formality: 'polite' }), 'Guten Tag,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Turnverein Bonn 1860 e.V.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Sportverein Troisdorf', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Eigentümergemeinschaft Hauptstr. 10', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
   });
 
   it('unterstützt die Stile formal, polite und casual', () => {
@@ -1141,6 +1144,40 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
 
   it('unterstützt "Nachname, Vorname" Notation', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Herr Müller, Hans', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
+  });
+
+  it('rekonstruiert Bindestrich-Doppelnamen und Adelspartikel robust (TC-01)', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'formal' }), 'Sehr geehrter Herr von Müller-Lüdenscheidt,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'casual' }), 'Hallo Hans-Peter,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Dipl.-Ing. Heinz e.K.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Musterholding GmbH & Co. KG', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+  });
+
+  it('behandelt Negativfälle wie Dr. allein oder Namen mit Ortssuffixen (Steinberg)', () => {
+    // Dr. allein ohne weiteren Namen -> Fallback-Anrede
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr. med.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    // Person mit Nachname auf -berg wird nicht als Ort/Organisation fehlinterpretiert
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Maria Steinberg', formality: 'formal' }), 'Sehr geehrte Frau Steinberg,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Thomas Rosenfeld', formality: 'formal' }), 'Sehr geehrter Herr Rosenfeld,');
+    // Firma auf -berg wird als Organisation erkannt
+    assertEqual(SalutationEngine.derive({ rawName: 'Wolfsberg GmbH', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+  });
+
+  it('übersteuert Branchen-Nomen (Bank, Hotel) und Initialen bei explizitem Herr/Frau (Review Befund 2 & 4)', () => {
+    // Herr/Frau vor Nomen, die auch in COMPANY_KEYWORDS stehen
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Thomas Bank', formality: 'formal' }), 'Sehr geehrter Herr Bank,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Sabine Hotel', formality: 'formal' }), 'Sehr geehrte Frau Hotel,');
+    // Initialen bei Frau/Herr
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau E. K. Meier', formality: 'formal' }), 'Sehr geehrte Frau Meier,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dipl.-Ing. Hans J. Müller', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Müller, M.Sc. Anna', formality: 'formal' }), 'Sehr geehrte Frau Müller,');
+    // Turnverein ohne Herr/Frau bleibt neutral
+    assertEqual(SalutationEngine.derive({ rawName: 'Turnverein Bonn 1860', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    // UG (haftungsbeschränkt) wird als Organisation erkannt
+    assertEqual(SalutationEngine.derive({ rawName: 'Muster UG (haftungsbeschränkt)', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    // Herr Max Mustermann e.K. ist Einzelkaufmann und wird persönlich angesprochen
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Max Mustermann e.K.', formality: 'formal' }), 'Sehr geehrter Herr Mustermann,');
   });
 });
 
@@ -1193,6 +1230,262 @@ describe('ClipboardAddressParser: Anschrift-Parsing (unstrukturierte Zwischenabl
     assertEqual(candidates[0].strasse, 'Technologiepark 1');
     assertEqual(candidates[0].plz, '80331');
     assertEqual(candidates[0].ort, 'München');
+  });
+
+  it('erkennt Titel (Dr., Prof.) und z. Hd. vor Leerzeichen sowie e.V. und erweiterte Straßennamen (Markt, Pfad)', () => {
+    const text = [
+      'Turnverein Bonn 1860 e.V.',
+      'z. Hd. Dr. Hans-Peter Müller',
+      'Am Markt 3',
+      '53111 Bonn',
+      'Mobil: 0170 12345678',
+      'IBAN: DE12345678901234567890'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Kandidat für e.V. und Dr. gefunden');
+    assertEqual(candidates[0].firma, 'Turnverein Bonn 1860 e.V.');
+    assertEqual(candidates[0].name, 'Dr. Hans-Peter Müller');
+    assertEqual(candidates[0].strasse, 'Am Markt 3');
+    assertEqual(candidates[0].plz, '53111');
+    assertEqual(candidates[0].ort, 'Bonn');
+  });
+
+  it('entfaltet einzeilige kommagetrennte Adressen (TC-05)', () => {
+    const raw = 'Acme Corp, Berliner Str. 10, 10115 Berlin';
+    const candidates = ClipboardAddressParser.parse(raw);
+    assert(candidates.length > 0, 'Kandidat für Einzeiler gefunden');
+    assertEqual(candidates[0].firma, 'Acme Corp');
+    assertEqual(candidates[0].strasse, 'Berliner Str. 10');
+    assertEqual(candidates[0].plz, '10115');
+    assertEqual(candidates[0].ort, 'Berlin');
+  });
+
+  it('klassifiziert 3-zeiligen Empfänger mit Zusatz und z. Hd. (TC-06)', () => {
+    const text = [
+      'Acme International GmbH',
+      'Abteilung Rechnungswesen',
+      'z. Hd. Herrn Hans-Peter Müller',
+      'Friedrichstraße 42',
+      '10115 Berlin'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Kandidat für 3-zeiligen Empfänger gefunden');
+    assertEqual(candidates[0].firma, 'Acme International GmbH');
+    assertEqual(candidates[0].zusatz, 'Abteilung Rechnungswesen');
+    assertEqual(candidates[0].name, 'Herrn Hans-Peter Müller');
+    assertEqual(candidates[0].strasse, 'Friedrichstraße 42');
+    assertEqual(candidates[0].plz, '10115');
+    assertEqual(candidates[0].ort, 'Berlin');
+  });
+
+  it('toleriert eingeschobene Ortsteile zwischen Straße und PLZ', () => {
+    const text = [
+      'SuperTech AG',
+      'Technologiepark 1',
+      'Gewerbegebiet Süd',
+      '80331 München'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Kandidat mit Ortsteil gefunden');
+    assertEqual(candidates[0].firma, 'SuperTech AG');
+    assertEqual(candidates[0].strasse, 'Technologiepark 1');
+    assertEqual(candidates[0].plz, '80331');
+    assertEqual(candidates[0].ort, 'München');
+  });
+
+  it('schützt Firmen mit Straßensuffixen (Wolfsberg GmbH, Park Hotel) vor Falschklassifikation als Straße', () => {
+    // Negativfall: Park Hotel GmbH direkt vor PLZ ohne Straßenzeile
+    const text = [
+      'Park Hotel GmbH',
+      '10115 Berlin'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    // Da keine gültige Straße vorhanden ist, darf Park Hotel GmbH keinesfalls als Straße interpretiert werden
+    assertEqual(candidates.length, 0, 'Ohne echte Straßenzeile wird kein fehlerhafter Kandidat erzeugt');
+  });
+
+  it('erkennt Postfach-Adressen mit Ziffern korrekt als Straße', () => {
+    const text = [
+      'Kanzlei Dr. Steinberg',
+      'Postfach 12 34 56',
+      '53111 Bonn'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Postfach-Kandidat gefunden');
+    assertEqual(candidates[0].firma, 'Kanzlei Dr. Steinberg');
+    assertEqual(candidates[0].strasse, 'Postfach 12 34 56');
+    assertEqual(candidates[0].plz, '53111');
+    assertEqual(candidates[0].ort, 'Bonn');
+  });
+
+  it('erkennt alle zusammengesetzten Straßennamen mit Suffixen (Review Befund 1)', () => {
+    const testCases = [
+      { text: 'Max Mustermann\nHauptstraße 5\n10115 Berlin', strasse: 'Hauptstraße 5' },
+      { text: 'Erika Musterfrau\nMusterstr. 12a\n50667 Köln', strasse: 'Musterstr. 12a' },
+      { text: 'Hans Schmidt\nEichenpfad 1\n20095 Hamburg', strasse: 'Eichenpfad 1' },
+      { text: 'Petra Meyer\nSchulsteig 4\n01067 Dresden', strasse: 'Schulsteig 4' },
+      { text: 'Klaus Wagner\nSchlossberg 7\n79098 Freiburg', strasse: 'Schlossberg 7' }
+    ];
+    for (const tc of testCases) {
+      const candidates = ClipboardAddressParser.parse(tc.text);
+      assert(candidates.length > 0, `Kandidat für ${tc.strasse} gefunden`);
+      assertEqual(candidates[0].strasse, tc.strasse, `Straße ${tc.strasse} exakt extrahiert`);
+    }
+  });
+
+  it('behandelt Geschoss- und Gebäudeteile (EG, UG) ohne Fehlklassifikation als Firma (Review Befund 2)', () => {
+    const t1 = 'Firma ABC GmbH\nMusterweg 3 EG\n10115 Berlin';
+    const c1 = ClipboardAddressParser.parse(t1);
+    assert(c1.length > 0, 'Kandidat für Musterweg 3 EG gefunden');
+    assertEqual(c1[0].strasse, 'Musterweg 3 EG');
+
+    const t2 = 'Firma XYZ AG\nHauptstr. 5, UG\n50667 Köln';
+    const c2 = ClipboardAddressParser.parse(t2);
+    assert(c2.length > 0, 'Kandidat für Hauptstr. 5, UG gefunden');
+    assertEqual(c2[0].strasse, 'Hauptstr. 5, UG');
+  });
+
+  it('behält Empfänger mit Geschäftsführer-Titel und Emailwerk GmbH intakt (Review Befund 5)', () => {
+    const text = [
+      'Emailwerk GmbH',
+      'Geschäftsführer Max Mustermann',
+      'Industriestr. 10',
+      '40212 Düsseldorf'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assert(candidates.length > 0, 'Kandidat für Emailwerk gefunden');
+    assertEqual(candidates[0].firma, 'Emailwerk GmbH');
+    assertEqual(candidates[0].name, 'Max Mustermann');
+    assertEqual(candidates[0].strasse, 'Industriestr. 10');
+  });
+
+  it('weist Vereine mit Jahreszahlen ohne Straße korrekt als Nicht-Straße ab (Review Befund 6)', () => {
+    const text = [
+      'Turnverein Bonn 1860',
+      '53111 Bonn'
+    ].join('\n');
+    const candidates = ClipboardAddressParser.parse(text);
+    assertEqual(candidates.length, 0, 'Turnverein Bonn 1860 darf ohne Straße nicht als Straße erkannt werden');
+  });
+
+  it('sichert alle Randfälle aus Review Runde 3 (FLOOR_SUFFIX, Nachnamen als Straße, UG, Metadaten)', () => {
+    // 1. FLOOR_SUFFIX frisst keine Wortenden (Eichenweg bleibt Eichenweg)
+    assertEqual(ClipboardAddressParser.isStreetLine('Eichenweg'), true, 'Eichenweg bleibt Straße (kein EG-Abschneiden)');
+    assertEqual(ClipboardAddressParser.isStreetLine('Bergweg'), true, 'Bergweg bleibt Straße');
+
+    // 2. Nachnamen ohne Hausnummer werden nicht als Straße erkannt
+    assertEqual(ClipboardAddressParser.isStreetLine('Hans Hering'), false, 'Hans Hering (-ring) ist keine Straße');
+    assertEqual(ClipboardAddressParser.isStreetLine('Petra Wall'), false, 'Petra Wall (-wall) ist keine Straße');
+    assertEqual(ClipboardAddressParser.isStreetLine('Karl Damm'), false, 'Karl Damm (-damm) ist keine Straße');
+
+    // 3. Geschoss mit Trenner
+    assertEqual(ClipboardAddressParser.isStreetLine('Musterweg 3 EG'), true, 'Musterweg 3 EG ist Straße');
+
+    // 4. Metadaten-Grenzen
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Telefonseelsorge Bonn'), false, 'Telefonseelsorge ist keine Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobilfunkshop GmbH'), false, 'Mobilfunkshop ist keine Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Tel 0228 123456'), true, 'Tel mit Leerzeichen ist Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobil 0170 99999'), true, 'Mobil mit Leerzeichen ist Metadatenzeile');
+  });
+
+  it('sichert alle Randfälle aus Review Runde 4 (Rechtsformen case-sensitivity, Bindestrich-Straßen, Metadaten-Präfixe, Jahreszahlen)', () => {
+    // 1. Rechtsformen case-sensitivity & UG
+    assertEqual(ClipboardAddressParser.isCorporate('Muster GmbH'), true, 'Muster GmbH ist Corporate');
+    assertEqual(ClipboardAddressParser.isCorporate('Muster (Haftungsbeschränkt)'), true, 'Muster (Haftungsbeschränkt) ist Corporate');
+    assertEqual(ClipboardAddressParser.isCorporate('Muster UG'), true, 'Muster UG ist Corporate');
+    assertEqual(ClipboardAddressParser.isCorporate('Park Hotel'), true, 'Park Hotel ist Corporate');
+
+    // 2. Bindestrich-Straßen ohne Hausnummer
+    assertEqual(ClipboardAddressParser.isStreetLine('Karl-Marx-Straße'), true, 'Karl-Marx-Straße ohne Hausnummer ist Straße');
+    assertEqual(ClipboardAddressParser.isStreetLine('Dr.-Külz-Ring'), true, 'Dr.-Külz-Ring ohne Hausnummer ist Straße');
+
+    // 3. Metadaten vs. Firmennamen (Mobil Oil AG, Tel Aviv Café, Fon Design, Bic Burger GmbH)
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobil Oil AG'), false, 'Mobil Oil AG ist keine Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Tel Aviv Café'), false, 'Tel Aviv Café ist keine Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Fon Design'), false, 'Fon Design ist keine Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Bic Burger GmbH'), false, 'Bic Burger GmbH ist keine Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Tel.: 0228 12345'), true, 'Tel.: 0228 ist Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('Mobil 0170 12345'), true, 'Mobil 0170 ist Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('IBAN DE89 3704 0044 0532 0130 00'), true, 'IBAN ist Metadatenzeile');
+    assertEqual(ClipboardAddressParser.METADATA_LINE_REGEX.test('BIC: COBADEFFXXX'), true, 'BIC ist Metadatenzeile');
+
+    // 4. Jahreszahlen vs. 1-3-stellige Hausnummern
+    assertEqual(ClipboardAddressParser.isStreetLine('Verein Am Park 1904'), false, 'Verein Am Park 1904 hat keine gültige Hausnummer und ist Verein');
+    assertEqual(ClipboardAddressParser.isStreetLine('Sportclub Am Markt 1920'), false, 'Sportclub Am Markt 1920 hat 4-stellige Jahreszahl');
+
+    // 5. Geschoss-Tokens (Eichenweg UG bleibt Straße mit Geschoss)
+    assertEqual(ClipboardAddressParser.isStreetLine('Eichenweg UG'), true, 'Eichenweg UG bleibt Straße mit Souterrain/UG');
+
+    // 6. Nachnamen vs. Ring-Straßen (Review Runde 5)
+    assertEqual(ClipboardAddressParser.isStreetLine('Hans Hering'), false, 'Hans Hering ist Nachname');
+    assertEqual(ClipboardAddressParser.isStreetLine('Klaus Hohenring'), false, 'Klaus Hohenring ist Nachname');
+    assertEqual(ClipboardAddressParser.isStreetLine('Anna Wiedring'), false, 'Anna Wiedring ist Nachname');
+    assertEqual(ClipboardAddressParser.isStreetLine('Peter Goldring'), false, 'Peter Goldring ist Nachname');
+    assertEqual(ClipboardAddressParser.isStreetLine('Hohenzollernring'), true, 'Hohenzollernring ist Straße');
+  });
+
+  it('validiert 50 diverse reale deutsche Anschriften aus der Praxis', () => {
+    const dataset = [
+      { text: 'Dr. Hans-Peter von Müller\nUnter den Linden 42\n10117 Berlin', plz: '10117', ort: 'Berlin', strasse: 'Unter den Linden 42' },
+      { text: 'Erika Mustermann\nAm Markt 3\n50667 Köln', plz: '50667', ort: 'Köln', strasse: 'Am Markt 3' },
+      { text: 'Klaus Wagner\nSchlossberg 7\n79098 Freiburg', plz: '79098', ort: 'Freiburg', strasse: 'Schlossberg 7' },
+      { text: 'Petra Meyer\nSchulsteig 4\n01067 Dresden', plz: '01067', ort: 'Dresden', strasse: 'Schulsteig 4' },
+      { text: 'Siemens AG\nWerner-von-Siemens-Straße 1\n80333 München', plz: '80333', ort: 'München', strasse: 'Werner-von-Siemens-Straße 1' },
+      { text: 'Kanzlei Dr. Steinberg\nPostfach 12 34 56\n53111 Bonn', plz: '53111', ort: 'Bonn', strasse: 'Postfach 12 34 56' },
+      { text: 'Firma Muster UG\nMusterweg 3 EG\n20095 Hamburg', plz: '20095', ort: 'Hamburg', strasse: 'Musterweg 3 EG' },
+      { text: 'Technik GmbH\nHauptstr. 5, UG\n70173 Stuttgart', plz: '70173', ort: 'Stuttgart', strasse: 'Hauptstr. 5, UG' },
+      { text: 'Dr. med. Anna Sommer\nKurfürstendamm 195\n10707 Berlin', plz: '10707', ort: 'Berlin', strasse: 'Kurfürstendamm 195' },
+      { text: 'Dipl.-Ing. Heinz Weber\nIndustriestraße 10-12\n40212 Düsseldorf', plz: '40212', ort: 'Düsseldorf', strasse: 'Industriestraße 10-12' },
+      { text: 'BioNTech SE\nAn der Goldgrube 12\n55131 Mainz', plz: '55131', ort: 'Mainz', strasse: 'An der Goldgrube 12' },
+      { text: 'Max Mustermann\nKarl-Marx-Allee 34\n10243 Berlin', plz: '10243', ort: 'Berlin', strasse: 'Karl-Marx-Allee 34' },
+      { text: 'Johanna Schmidt\nHohenzollernring 55\n50672 Köln', plz: '50672', ort: 'Köln', strasse: 'Hohenzollernring 55' },
+      { text: 'Robert Bosch GmbH\nRobert-Bosch-Platz 1\n70839 Gerlingen', plz: '70839', ort: 'Gerlingen', strasse: 'Robert-Bosch-Platz 1' },
+      { text: 'Bäckerei Müller\nBäckerweg 8\n90403 Nürnberg', plz: '90403', ort: 'Nürnberg', strasse: 'Bäckerweg 8' },
+      { text: 'Rechtsanwälte Schmidt & Partner\nz. Hd. Frau Meyer\nKaiserstraße 14\n60311 Frankfurt am Main', plz: '60311', strasse: 'Kaiserstraße 14' },
+      { text: 'Universitätsklinikum Bonn\nVenusberg-Campus 1\n53127 Bonn', plz: '53127', ort: 'Bonn', strasse: 'Venusberg-Campus 1' },
+      { text: 'Hotel Stadtpalais\nDeutzer Damm 2\n50679 Köln', plz: '50679', ort: 'Köln', strasse: 'Deutzer Damm 2' },
+      { text: 'Autohaus Süd GmbH\nStuttgarter Chaussee 99\n71032 Böblingen', plz: '71032', strasse: 'Stuttgarter Chaussee 99' },
+      { text: 'Prof. Dr. Christian Drosten\nCharitéplatz 1\n10117 Berlin', plz: '10117', ort: 'Berlin', strasse: 'Charitéplatz 1' },
+      { text: 'Zimmerei Holzbau e.K.\nIm Gewerbepark 4\n85356 Freising', plz: '85356', strasse: 'Im Gewerbepark 4' },
+      { text: 'Verband der Automobilindustrie\nBehrenstraße 35\n10117 Berlin', plz: '10117', strasse: 'Behrenstraße 35' },
+      { text: 'Dr. Külz Stiftung\nWilly-Brandt-Straße 1\n10557 Berlin', plz: '10557', strasse: 'Willy-Brandt-Straße 1' },
+      { text: 'Apotheke am Rathaus\nRathausgasse 3\n53111 Bonn', plz: '53111', strasse: 'Rathausgasse 3' },
+      { text: 'Volksbank Köln Bonn eG\nLudwig-Erhard-Allee 20\n53175 Bonn', plz: '53175', strasse: 'Ludwig-Erhard-Allee 20' },
+      { text: 'Stiftung Warentest\nLützowplatz 11-13\n10785 Berlin', plz: '10785', strasse: 'Lützowplatz 11-13' },
+      { text: 'Deutsche Telekom AG\nFriedrich-Ebert-Allee 140\n53113 Bonn', plz: '53113', strasse: 'Friedrich-Ebert-Allee 140' },
+      { text: 'Hansestadt Lübeck\nBreite Straße 62\n23552 Lübeck', plz: '23552', strasse: 'Breite Straße 62' },
+      { text: 'Stadtwerke München GmbH\nEmmy-Noether-Straße 2\n80992 München', plz: '80992', strasse: 'Emmy-Noether-Straße 2' },
+      { text: 'Kanzlei Berger & Kollegen\nFriedrichstraße 100\n10117 Berlin', plz: '10117', strasse: 'Friedrichstraße 100' },
+      { text: 'Hausverwaltung Nord\nLange Zeile 15\n28203 Bremen', plz: '28203', strasse: 'Lange Zeile 15' },
+      { text: 'Büro für Gestaltung\nAm Ufer 8\n24105 Kiel', plz: '24105', strasse: 'Am Ufer 8' },
+      { text: 'Logistikzentrum Ost\nBahnhofspfad 2\n04109 Leipzig', plz: '04109', strasse: 'Bahnhofspfad 2' },
+      { text: 'Klinikum Rechts der Isar\nIsmaninger Straße 22\n81675 München', plz: '81675', strasse: 'Ismaninger Straße 22' },
+      { text: 'Verlag Moderne Medien GmbH\nSpeersort 1\n20095 Hamburg', plz: '20095', strasse: 'Speersort 1' },
+      { text: 'Architekturbüro Raum & Form\nAm Anger 12\n99084 Erfurt', plz: '99084', strasse: 'Am Anger 12' },
+      { text: 'Institut für Umweltforschung\nWaldweg 44\n69120 Heidelberg', plz: '69120', strasse: 'Waldweg 44' },
+      { text: 'Gartenbau Grünspecht e.K.\nIm Rosengarten 7\n67655 Kaiserslautern', plz: '67655', strasse: 'Im Rosengarten 7' },
+      { text: 'Theater der Bundesstadt\nAm Boeselagerhof 1\n53111 Bonn', plz: '53111', strasse: 'Am Boeselagerhof 1' },
+      { text: 'Fahrschule Blitz\nSchillerstraße 12\n30159 Hannover', plz: '30159', strasse: 'Schillerstraße 12' },
+      { text: 'Physiotherapie Praxis Balance\nKirchgasse 5\n65185 Wiesbaden', plz: '65185', strasse: 'Kirchgasse 5' },
+      { text: 'Baugenossenschaft Freie Scholle eG\nSchollenweg 18\n33613 Bielefeld', plz: '33613', strasse: 'Schollenweg 18' },
+      { text: 'Tischlerei Holzwurm\nAuf dem Kamp 3\n48143 Münster', plz: '48143', strasse: 'Auf dem Kamp 3' },
+      { text: 'Dr. med. dent. Michael Groß\nDomplatz 6\n45127 Essen', plz: '45127', strasse: 'Domplatz 6' },
+      { text: 'Agentur Kreativrausch\nKastanienallee 79\n10435 Berlin', plz: '10435', strasse: 'Kastanienallee 79' },
+      { text: 'Sportverein Blau-Weiß\nSportplatzweg 1\n26122 Oldenburg', plz: '26122', strasse: 'Sportplatzweg 1' },
+      { text: 'Finanzberatung Transparent\nWallstraße 20\n40213 Düsseldorf', plz: '40213', strasse: 'Wallstraße 20' },
+      { text: 'Fotostudio Lichtblick\nZeppelinstraße 15\n88045 Friedrichshafen', plz: '88045', strasse: 'Zeppelinstraße 15' },
+      { text: 'Druckerei Gutenbergs Erben\nMainzer Straße 88\n65189 Wiesbaden', plz: '65189', strasse: 'Mainzer Straße 88' },
+      { text: 'Weingut Sonnenhang\nRebenweg 14\n55291 Saulheim', plz: '55291', strasse: 'Rebenweg 14' }
+    ];
+
+    for (const item of dataset) {
+      const res = ClipboardAddressParser.parse(item.text);
+      assert(res.length > 0, `Kandidat für ${item.text.split('\n')[0]} gefunden`);
+      assertEqual(res[0].plz, item.plz, `PLZ stimmt für ${item.text.split('\n')[0]}`);
+      if (item.strasse) {
+        assertEqual(res[0].strasse, item.strasse, `Straße stimmt für ${item.text.split('\n')[0]}`);
+      }
+    }
   });
 });
 

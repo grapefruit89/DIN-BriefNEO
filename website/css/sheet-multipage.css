@@ -1,0 +1,748 @@
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-css-architektur]]  */
+
+/* css/sheet-multipage.css — DIN-A4-Blatt Mehrseiten-Layout (Multicol Level 2) */
+
+:root {
+  --seite: 297mm;
+  --luecke: 8mm;                 /* sichtbarer Abstand zwischen zwei Blättern auf dem Bildschirm */
+  --rand-o: 25mm;                /* oberer Rand ab Seite 2 */
+  --rand-u: 20mm;                /* unterer Rand, alle Seiten */
+  --rand-l: 25mm;                /* linker Rand */
+  --rand-r: 20mm;                /* rechter Rand */
+
+  --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u)); /* 252mm */
+  --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
+
+  /* Spacer-Höhe auf Seite 1: schiebt den Betreff exakt an die DIN-5008-Position */
+  --spacer-hoehe: calc(98.46mm - var(--rand-o)); /* Form B: 73.46mm */
+}
+
+body:has(#btn-form-a:checked) {
+  --spacer-hoehe: calc(80.46mm - var(--rand-o)); /* Form A: 55.46mm */
+}
+
+/* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout */
+@function --mm-x(--mm) {
+  result: calc(var(--mm) * 1mm);
+}
+@function --mm-y(--mm) {
+  result: calc(var(--mm) * 1mm);
+}
+@function --pt(--points) {
+  result: calc(var(--points) * 1pt);
+}
+
+/* --- DIN-GEOMETRIE --- */
+din-blatt {
+  font-family: var(--active-font-family, var(--font-system-stack));
+
+  --blatt-breite: attr(data-width-mm type(<number>));
+  --blatt-hoehe: attr(data-height-mm type(<number>));
+
+  --absender-y: --mm-y(attr(data-absender-y-b type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
+  --datum-y: --mm-y(attr(data-datum-y-b type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
+
+  --falz-oben-y: --mm-y(attr(data-falz-oben-y-b type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-b type(<number>)));
+  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
+}
+
+body:has(#btn-form-a:checked) din-blatt {
+  --absender-y: --mm-y(attr(data-absender-y-a type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
+  --datum-y: --mm-y(attr(data-datum-y-a type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-a type(<number>)));
+  --falz-oben-y: --mm-y(attr(data-falz-oben-y-a type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>)));
+}
+
+/* Viewport-Scrolling für Mehrseiten */
+#viewport {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: block !important;
+  padding: 40px 20px 80px !important;
+  min-height: 0 !important;
+}
+
+#brief-ansicht {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  min-height: 100% !important;
+  height: auto !important;
+  width: 100% !important;
+  container-type: normal !important;
+}
+
+/* --- DIN A4 MULTIPAGE CANVAS --- */
+@scope (din-blatt) {
+  :scope {
+    display: block;
+    position: relative;
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0 auto 40px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    color: var(--blatt-text);
+    box-sizing: border-box;
+  }
+
+  [contenteditable] {
+    outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
+    outline-offset: -1px;
+    border-radius: 3px;
+    background: transparent;
+    transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
+  }
+
+  :root:not(:has(#btn-hilfslinien-switch:checked)) & [contenteditable]:not(:hover):not(:focus) {
+    outline: none;
+  }
+
+  [contenteditable]:hover:not(:focus) {
+    outline: 1.5px solid var(--accent-color);
+    outline-offset: -1.5px;
+    background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
+  }
+
+  [contenteditable]:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+    background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
+  }
+
+  [data-placeholder]:empty::before,
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--blatt-schwach);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  #anrede[data-generated],
+  #grussformel[data-generated] {
+    color: var(--blatt-schwach);
+    font-style: italic;
+  }
+
+  /* --- DIN-MARKEN (System-Atome auf Seite 1) --- */
+  din-falzmarke-1, din-falzmarke-2, din-lochmarke {
+    position: absolute;
+    left: 0;
+    width: --mm-x(attr(data-w type(<number>)));
+    border-bottom: 0.8pt solid oklch(0.35 0 0);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  din-falzmarke-1 { top: var(--falz-oben-y); }
+  din-falzmarke-2 { top: var(--falz-unten-y); }
+  din-lochmarke {
+    top: var(--lochmarke-y);
+    width: --mm-x(attr(data-w type(<number>)));
+    border-bottom-style: solid;
+  }
+
+  /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
+  #rucksendezeile {
+    position: absolute;
+    top: var(--absender-y);
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    height: --mm-y(attr(data-h type(<number>)));
+    font-size: --pt(attr(data-font type(<number>)));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 0;
+    z-index: 10;
+  }
+
+  #anschriftfeld {
+    position: absolute;
+    top: var(--anschriftfeld-y);
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    height: --mm-y(attr(data-h type(<number>)));
+    font-size: --pt(attr(data-font type(<number>)));
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    z-index: 10;
+  }
+
+  #anschriftfeld::after {
+    content: 'Kuvert-Fenster 90 × 45 mm';
+    font-size: 7pt;
+    font-weight: 500;
+    color: oklch(0.45 0.08 250 / 70%);
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 3px 6px;
+    box-sizing: border-box;
+    position: absolute;
+    top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
+    left: 0;
+    width: --mm-x(attr(data-visier-w type(<number>)));
+    height: --mm-y(attr(data-visier-h type(<number>)));
+    border-radius: --mm-x(3);
+    border: 1px dashed oklch(0.5 0.05 250 / 40%);
+    background: oklch(0.5 0.05 250 / 4%);
+    opacity: var(--hilfslinien-deckkraft);
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #infoblock {
+    position: absolute;
+    top: var(--infoblock-y);
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    font-size: --pt(attr(data-font type(<number>)));
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 10;
+  }
+
+  #datum {
+    position: absolute;
+    top: var(--datum-y);
+    left: --mm-x(attr(data-x type(<number>)));
+    width: --mm-x(attr(data-w type(<number>)));
+    font-size: --pt(attr(data-font type(<number>)));
+    text-align: left;
+    z-index: 10;
+  }
+
+  /* ============================================================
+     BRIEFKERN: CSS Multi-column Layout Level 2 (Chromium 150+)
+     column-count: 1; column-height: var(--nutz); column-wrap: wrap;
+     Lässt überlaufenden Text nahtlos in Spalte 2 (= Seite 2) fließen.
+     ============================================================ */
+  #kern {
+    position: relative;
+    width: 210mm;
+    min-height: var(--seite);
+    padding: var(--rand-o) var(--rand-r) var(--rand-u) var(--rand-l);
+    column-count: 1;
+    column-height: var(--nutz);
+    column-wrap: wrap;
+    row-gap: var(--zeilenabstand);
+    background:
+      linear-gradient(var(--blatt-hintergrund) 0 var(--seite), transparent var(--seite))
+      0 0 / 100% calc(var(--seite) + var(--luecke)) repeat-y;
+    filter: drop-shadow(0 4px 14px oklch(0 0 0 / 12%));
+    box-sizing: border-box;
+    display: block;
+    overflow: visible;
+  }
+
+  #spacer {
+    height: var(--spacer-hoehe);
+    display: block;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  #betreff {
+    display: block;
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 8.46mm;
+    text-wrap: balance;
+  }
+
+  #anrede {
+    display: block;
+    font-size: 10.5pt;
+    line-height: 1.4;
+    margin-bottom: 4.23mm;
+  }
+
+  #text {
+    display: block;
+    font-size: 10.5pt;
+    line-height: 4.5mm;
+    min-height: 20mm;
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+
+  #text p {
+    margin: 0 0 4.5mm 0;
+  }
+
+  #grussformel {
+    display: block;
+    font-size: 10.5pt;
+    margin-top: 4.23mm;
+    margin-bottom: 12.69mm;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .unterschrift-zeile {
+    display: block;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  #unterschrift {
+    font-size: 10.5pt;
+    font-weight: 500;
+  }
+
+  #anlagen {
+    margin-top: --mm-y(attr(data-margin-top type(<number>)));
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  #text b, #text strong { font-weight: 700; }
+  #text u { text-decoration: none; }
+  #text blockquote {
+    margin: 8px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--blatt-schwach);
+    color: var(--blatt-schwach);
+    font-style: italic;
+  }
+
+  /* Fußzeile auf Seite 1 */
+  #fuss {
+    display: none;
+    position: absolute;
+    top: 280mm;
+    left: var(--rand-l);
+    right: var(--rand-r);
+    height: 15mm;
+    font-size: --pt(attr(data-font type(<number>)));
+    color: var(--blatt-schwach);
+    padding-top: 2mm;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10mm;
+    column-rule: 0.5px solid var(--blatt-schwach);
+    z-index: 10;
+  }
+
+  din-geschaeftsangaben:has(.fuss-spalte:not(:empty)),
+  #fuss:has(.fuss-spalte:not(:empty)) {
+    display: grid;
+  }
+}
+
+/* Folgekopf auf Bildschirm (ab Seite 2) */
+.folgekopf-screen {
+  position: absolute;
+  left: var(--rand-l);
+  right: var(--rand-r);
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: var(--blatt-schwach);
+  pointer-events: none;
+  z-index: 10;
+  font-family: inherit;
+}
+
+#probe {
+  position: absolute;
+  visibility: hidden;
+  height: 1000mm;
+  width: 1px;
+}
+
+/* Custom Elements Block-Display (DIN-Normelemente) */
+din-rucksendeangabe,
+din-empfaenger-firma,
+din-empfaenger-strasse,
+din-empfaenger-ort,
+din-absender-strasse,
+din-absender-ort,
+din-absender-tel,
+din-absender-mail,
+din-betreff,
+din-anrede,
+din-grussformel,
+din-unterschrift,
+din-falzmarke-1,
+din-falzmarke-2,
+din-lochmarke {
+  display: block;
+}
+
+/* --- BLATT-BEDINGTE ELEMENTE & UTILITIES --- */
+
+:root:has(#btn-hilfslinien-switch:checked) {
+  --hilfslinien-deckkraft: 0.55;
+}
+
+/* Schalter: Falz- & Lochmarken ausblenden */
+:root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-1,
+:root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-2,
+:root:not(:has(#toggle-falzmarken:checked)) din-lochmarke {
+  display: none !important;
+}
+
+/* DIN 5008 Maße Overlay an den Marken */
+:root:has(#btn-hilfslinien-switch:checked) din-falzmarke-1::after {
+  content: 'Falz 1 (105 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+body:has(#btn-form-a:checked):has(#btn-hilfslinien-switch:checked) din-falzmarke-1::after {
+  content: 'Falz 1 (87 mm)';
+}
+:root:has(#btn-hilfslinien-switch:checked) din-lochmarke::after {
+  content: 'Lochung (148,5 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+:root:has(#btn-hilfslinien-switch:checked) din-falzmarke-2::after {
+  content: 'Falz 2 (210 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+
+/* Optionale DIN-Blöcke */
+din-vermerke, din-anlagenvermerk, #anlagen, din-geschaeftsangaben {
+  display: none;
+}
+
+:root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+din-geschaeftsangaben:has(.fuss-spalte:not(:empty)) {
+  display: grid;
+}
+
+:root:has(#toggle-anlagen:checked) din-anlagenvermerk,
+:root:has(#toggle-anlagen:checked) #anlagen {
+  display: block;
+}
+
+din-vermerke[data-visible="true"] {
+  display: block;
+  opacity: 1;
+  color: var(--blatt-text);
+}
+
+din-vermerke {
+  font-size: --pt(attr(data-font type(<number>)));
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 0.5cqh;
+  white-space: pre-wrap;
+  flex-shrink: 0;
+}
+
+din-anlagenvermerk {
+  margin-top: --mm-y(attr(data-margin-top type(<number>)));
+  font-size: 0.9em;
+  page-break-inside: avoid;
+}
+
+.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
+#anlagen-text { margin: 0; padding-left: 0; list-style-position: inside; }
+
+.is-dormant {
+  display: none !important;
+}
+
+/* Single-Line: Strikt einzeilig mit unveränderlicher, fixer Zeilenhöhe (Kein Stauchen, Kein Wachsen) */
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+  line-height: 1.4;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.single-line[contenteditable]:focus {
+  /* Kein vertikales Überlaufen benachbarter Zeilen: horizontal mitwandern */
+  text-overflow: clip;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+}
+
+.single-line[contenteditable]:focus::-webkit-scrollbar {
+  display: none;
+}
+
+#anschriftfeld > *,
+#infoblock > * {
+  flex-shrink: 0;
+}
+
+/* Anchors auf dem Blatt */
+#empfaenger-ort { anchor-name: --anchor-ort, --anchor-empfaenger-ort; }
+#empfaenger-firma { anchor-name: --anchor-firma, --anchor-empfaenger-firma; }
+#absender-tel { margin-top: 8px; }
+.unterschrift-zeile {
+  position: relative;
+  margin-top: 10px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  flex-shrink: 0;
+}
+
+/* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
+#unterschriftsbild-vorschau:not([src]),
+#unterschriftsbild-vorschau[src=""],
+#unterschriftsbild-vorschau[src^="data:image/svg"] { display: none; }
+
+#unterschriftsbild-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: var(--sig-x, 11.9cqw) var(--sig-y, 96cqw);
+  scale: var(--sig-scale, 0.5);
+  rotate: var(--sig-rot, 0deg);
+  transform-origin: center center;
+  z-index: 50;
+  pointer-events: auto;
+  display: none;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
+#btn-unterschriftsbild-reset { display: none; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-reset { display: flex; }
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-waehlen { display: none; }
+
+.unterschriftsbild-rahmen {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  pointer-events: auto;
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.unterschriftsbild-rahmen.active {
+  outline: 2px dashed var(--accent-color);
+}
+
+.unterschriftsbild-rahmen:active {
+  cursor: grabbing;
+}
+
+.unterschriftsbild-griff, .unterschriftsbild-drehgriff {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--blatt-hintergrund);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.unterschriftsbild-rahmen.active .unterschriftsbild-griff,
+.unterschriftsbild-rahmen.active .unterschriftsbild-drehgriff {
+  display: block;
+}
+
+.unterschriftsbild-drehgriff {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+.unterschriftsbild-drehgriff::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.unterschriftsbild-griff.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+.unterschriftsbild-griff.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+.unterschriftsbild-griff.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#unterschriftsbild-vorschau {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  pointer-events: none;
+  mix-blend-mode: multiply; /* Weißer Papierhintergrund wird unsichtbar */
+  filter: contrast(1.15) brightness(1.05);
+}
+
+/* In Mehrseitenansicht: Kein 1-Seiten-Überlauf-Hinweis, da Mehrseitigkeit gewollt ist */
+din-blatt[data-ueberlauf="true"]::after {
+  display: none !important;
+}
+
+/* Workbench UI Styling */
+.workbench-box {
+  border: 1.5px solid var(--accent-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+  background: light-dark(oklch(from var(--accent-color) l c h / 5%), oklch(from var(--accent-color) l c h / 12%));
+}
+.workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+.workbench-title {
+  font-size: 0.85rem;
+  color: var(--accent-color);
+}
+.workbench-status {
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.workbench-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.workbench-actions .btn {
+  flex: 1;
+  font-size: 0.78rem;
+  padding: 4px 6px;
+}
+
+/* ============================================================
+   DRUCK-REGELN (Chromium 150+ Baseline Paged Media & Randboxen)
+   ============================================================ */
+@page {
+  size: A4;
+  margin: 25mm 20mm 20mm 25mm;
+  @top-left {
+    font: 9pt var(--font-system-stack, sans-serif);
+    color: oklch(25% 0 0);
+    vertical-align: middle;
+  }
+  @top-right {
+    font: 9pt var(--font-system-stack, sans-serif);
+    color: oklch(25% 0 0);
+    vertical-align: middle;
+    content: "Seite " counter(page) " von " counter(pages);
+  }
+}
+
+@page :first {
+  margin: 0 20mm 20mm 25mm;
+  @top-left { content: none; }
+  @top-right { content: none; }
+}
+
+@media print {
+  body {
+    background: oklch(100% 0 0) !important;
+  }
+  #app-shell {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #seitenleiste, .seitenleiste, .nicht-drucken, #folgekoepfe, .folgekopf-screen {
+    display: none !important;
+  }
+  #viewport {
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+  #brief-ansicht {
+    margin: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  din-blatt {
+    margin: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+  #kern {
+    min-height: 0 !important;
+    padding: 0 !important;
+    column-count: auto !important;
+    column-height: auto !important;
+    column-wrap: nowrap !important;
+    row-gap: normal !important;
+    background: none !important;
+    filter: none !important;
+  }
+  #spacer {
+    height: 98.46mm !important; /* Form B */
+  }
+  body:has(#btn-form-a:checked) #spacer {
+    height: 80.46mm !important; /* Form A */
+  }
+}
+
+/* UX-4: Visuelles Feedback beim Einfügen aus der Zwischenablage */
+.flash-success {
+  animation: flash-success 0.5s ease-out;
+}
+
+@keyframes flash-success {
+  0% {
+    background: light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145));
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash-success {
+    animation: none;
+  }
+}
+
+
+
+

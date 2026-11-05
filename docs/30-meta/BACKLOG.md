@@ -283,3 +283,12 @@ Die drei Kandidaten ersetzen im aktuellen Ein-Seiten-/absoluten DIN-Layout keine
 bestehenden JavaScript-Pfad sicher. `@page`-Seitenzahlen warten auf die
 Mehrseiten-Spec; `::highlight()` hat keinen vorhandenen DOM-Highlight-Renderer;
 `subgrid` würde die IMR-Geometrie unnötig riskant umbauen. Keine Produktionsänderung.
+
+### B32 · `mehrseiten-prototyp.html` einordnen · **M** · ⭐⭐
+`website/mehrseiten-prototyp.html` (315 Zeilen) ist von nichts im Repo verlinkt
+(`index.html`, `multipage.html` und `docs/` geprüft: keine Verweise) und unterscheidet
+sich in 756 Zeilen von `multipage.html` — also eine ältere, eigenständige Datei. Sie liegt
+aber live im ausgelieferten `website/`-Ordner und ist damit öffentlich erreichbar.
+**Zu entscheiden:** vergessene Live-Seite (dann verlinken) oder Dead Code (dann nach
+`docs/90-archive/` verschieben). Vor einer Löschung prüfen, ob ein externer Link zeigt —
+Referrer-Logs gibt es nicht. Siehe auch [[ARCHITECTURE-MAP]].

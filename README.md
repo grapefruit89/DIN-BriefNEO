@@ -70,6 +70,8 @@ Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern e
 
 Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
 
+Für den Einstieg **ohne Dateisuche**: [Architecture-Map](docs/10-architecture/ARCHITECTURE-MAP.md) — Lade-Trigger, Modul-Abhängigkeiten und CSS-Kaskade auf einer Seite.
+
 Root-Kurzguides: [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md) (Browser sehen), [`mcp_research.md`](research/mcp_research.md) (Plattform nachschlagen).
 
 ## 🧭 Repository-Contract & Agenten-Infrastruktur

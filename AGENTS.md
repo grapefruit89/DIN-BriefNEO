@@ -28,6 +28,7 @@ Dieser Vertrag ist nicht verhandelbar. Verstöße führen zur Ablehnung der Änd
 
 > **Schritt 0 — Repo-Struktur kennen:**
 > Vor jeder Dateisuche `docs/STRUCTURE.md` lesen. Nur greppen, wenn das gesuchte Symbol dort nicht verzeichnet ist. Die Datei wird bei jedem `node tools/build_db.js` automatisch regeneriert.
+> Für Lade-Trigger, Modul-Abhängigkeiten und CSS-Kaskade: `docs/10-architecture/ARCHITECTURE-MAP.md`.
 
 ---
 

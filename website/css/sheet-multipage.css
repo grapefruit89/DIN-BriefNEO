@@ -345,8 +345,8 @@ body:has(#btn-form-a:checked) din-blatt {
     z-index: 10;
   }
 
-  din-geschaeftsangaben:has(.fuss-spalte:not(:empty)),
-  #fuss:has(.fuss-spalte:not(:empty)) {
+  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+  :root:has(#toggle-fuss:checked) #fuss {
     display: grid;
   }
 }
@@ -452,8 +452,7 @@ din-vermerke, din-anlagenvermerk, #anlagen, din-geschaeftsangaben {
   display: none;
 }
 
-:root:has(#toggle-fuss:checked) din-geschaeftsangaben,
-din-geschaeftsangaben:has(.fuss-spalte:not(:empty)) {
+:root:has(#toggle-fuss:checked) din-geschaeftsangaben {
   display: grid;
 }
 

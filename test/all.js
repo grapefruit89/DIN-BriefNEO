@@ -229,7 +229,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assertEqual(payload.document.copyfit, true);
     assertEqual(payload.document.guides, false);
     assertEqual(payload.document.fields.betreff, 'V2 Test');
-    assertEqual(payload.signature.placed, false);
+    assert(!('placed' in payload.signature), 'signature.placed ist gestrichen (kein Leser)');
   });
 
   it('buildDINLetterJSON erzeugt exakt dasselbe Datenmodell wie Export-Payload (SSoT / DeepEqual)', () => {
@@ -400,7 +400,7 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     const serialized = JSON.stringify(payload);
     assert(!serialized.includes('data:image/webp'), 'Export-Payload darf keine Bilddaten enthalten');
     assert(!serialized.includes(dummyWebP), 'Export-Payload darf keine Data-URL enthalten');
-    assertEqual(payload.signature.placed, true);
+    assert(!('placed' in payload.signature), 'signature.placed ist gestrichen (kein Leser)');
     assertEqual(payload.signature.transform.x, 12);
 
     remove(STORAGE_KEYS.signatureAsset);

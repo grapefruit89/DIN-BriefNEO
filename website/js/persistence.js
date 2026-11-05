@@ -43,6 +43,10 @@ export function formatLetterDate() {
 export function applyLetterDate() {
   const el = document.getElementById('datum');
   if (!el) return;
+  // Ein selbst eingetragenes Datum gewinnt: sonst ueberschreibt jeder Aufruf
+  // die Eingabe, und sie waere nach dem Reload verloren (Befund 1.2).
+  const manuallySet = el.dataset.dirty === 'true' && (el.textContent || '').trim() !== '';
+  if (manuallySet) return;
   const formatted = formatLetterDate();
   if (formatted) {
     el.textContent = formatted;
@@ -339,7 +343,7 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @property {string} timestamp
  * @property {{ layout: string, copyfit: boolean, guides: boolean, fields: Record<string, string> }} document
  * @property {{ sender?: string, theme: string, formality: string }} profile
- * @property {{ placed: boolean, transform: { x: number, y: number, scale: number, rot: number } }} signature
+ * @property {{ transform: { x: number, y: number, scale: number, rot: number } }} signature
  * @property {string} app
  * @property {string} created
  * @property {string} tool
@@ -412,7 +416,6 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
   const copyfit = Boolean(cleanSettings.copyfit);
   const guides = cleanSettings.guides !== undefined ? Boolean(cleanSettings.guides) : true;
 
-  const sigPlaced = Boolean(cleanSettings.signatureState);
   const sigTransform = cleanSettings.signatureState
     ? {
         x: cleanSettings.signatureState.x,
@@ -440,7 +443,6 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
       formality: cleanSettings.formality || 'formal'
     },
     signature: {
-      placed: sigPlaced,
       transform: sigTransform
     },
     // Top-Level-Aliase für Abwärtskompatibilität und Tests:

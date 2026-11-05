@@ -432,6 +432,7 @@ export class UIProtections {
       const target = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
       if (!target || !(target instanceof HTMLElement)) return;
       if (target.id === 'text') return; // Haupttext bleibt flexibel
+      if (target.id === 'datum') target.dataset.dirty = 'true';
 
       const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? 50 : 0);
       if (maxLimit > 0) {
@@ -676,8 +677,10 @@ export function collectDraft() {
   if (typeof document === 'undefined') return draft;
 
   document.querySelectorAll('[contenteditable]').forEach(elem => {
-    if (!elem.id || elem.getAttribute('data-feldtyp') === 'systemwert') return;
-    if (elem.id === 'anlagen-text' && !/** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'))?.checked) return;
+    // #datum ist ein Systemwert, den der Nutzer bewusst aendern darf (Befund 1.2).
+    // Der Anlagentext wird immer gespeichert, auch bei ausgeschaltetem Toggle (1.3) -
+    // sonst ist er nach dem naechsten Reload endgueltig weg.
+    if (!elem.id || (elem.getAttribute('data-feldtyp') === 'systemwert' && elem.id !== 'datum')) return;
     if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
       const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
       const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
@@ -703,6 +706,11 @@ export function collectDraft() {
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenSwitch) {
     draft['toggle-anlagen'] = String(anlagenSwitch.checked);
+  }
+
+  const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+  if (fussSwitch) {
+    draft['toggle-fuss'] = String(fussSwitch.checked);
   }
 
   return draft;
@@ -878,7 +886,7 @@ export class DraftManager {
       const elem = document.getElementById(id);
       /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
       if (!elem?.matches(EDITABLE_FIELD_SELECTOR)) return;
-      if (elem.dataset.feldtyp === 'systemwert') return;
+      if (elem.dataset.feldtyp === 'systemwert' && elem.id !== 'datum') return;
 
       if (elem instanceof HTMLSelectElement) {
         elem.value = draft[id];
@@ -895,6 +903,10 @@ export class DraftManager {
         }
       } else if (!elem.querySelector('select[data-speichern]')) {
         elem.textContent = draft[id];
+        if (elem.id === 'datum') {
+          // Gemerkt: der Wert stammt vom Nutzer, applyLetterDate darf ihn nicht ueberschreiben.
+          if ((draft[id] || '').trim() !== '') elem.dataset.dirty = 'true';
+        }
       }
     });
 
@@ -912,14 +924,19 @@ export class DraftManager {
     }
 
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-    if (anlagenSwitch) {
-      if ('toggle-anlagen' in draft) {
-        anlagenSwitch.checked = draft['toggle-anlagen'] === 'true';
-      }
-      /* Migration: alte Drafts können anlagen-text enthalten, obwohl Toggle aus ist */
-      if (!anlagenSwitch.checked) {
-        const anlagenEl = document.getElementById('anlagen-text');
-        if (anlagenEl) anlagenEl.replaceChildren();
+    if (anlagenSwitch && 'toggle-anlagen' in draft) {
+      anlagenSwitch.checked = draft['toggle-anlagen'] === 'true';
+    }
+
+    const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+    if (fussSwitch) {
+      if ('toggle-fuss' in draft) {
+        fussSwitch.checked = draft['toggle-fuss'] === 'true';
+      } else {
+        // Migration: alte Drafts kennen den Toggle nicht. Vorhandener Text
+        // bedeutet "Fusszeile war an" - sonst waere er unsichtbar.
+        fussSwitch.checked = Array.from(document.querySelectorAll('.fuss-spalte'))
+          .some((sp) => (sp.textContent || '').trim() !== '');
       }
     }
 
@@ -990,6 +1007,16 @@ export class DraftManager {
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.checked = false;
+    }
+    const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+    if (fussSwitch) {
+      fussSwitch.checked = false;
+    }
+    // Datum: Markierung loeschen und Feld leeren, damit applyLetterDate wieder "heute" setzt.
+    const datumEl = document.getElementById('datum');
+    if (datumEl) {
+      datumEl.removeAttribute('data-dirty');
+      datumEl.textContent = '';
     }
     const postvermerk = document.getElementById('postvermerk');
     if (postvermerk) {

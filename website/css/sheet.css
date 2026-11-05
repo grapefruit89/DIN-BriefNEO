@@ -238,6 +238,10 @@ body:has(#btn-form-a:checked) din-blatt {
     text-wrap: pretty;
     orphans: 3;
     widows: 3;
+    /* Absaetze des Generators sind \n\n. Ohne diese Zeile kollabiert der
+       Browser sie zu Leerzeichen: "Schreiben. Rincewind," klebt dann in
+       einer Zeile, statt dass der Name einen neuen Absatz beginnt. */
+    white-space: pre-line;
     flex-shrink: 0; /* Verhindert Stauchung und Überlappung mit Grußformel */
   }
 

@@ -284,6 +284,8 @@ body:has(#btn-form-a:checked) din-blatt {
     text-wrap: pretty;
     orphans: 2;
     widows: 2;
+    /* Absaetze des Generators sind \n\n — ohne pre-line kollabieren sie. */
+    white-space: pre-line;
   }
 
   #text p {

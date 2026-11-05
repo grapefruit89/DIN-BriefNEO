@@ -1,4 +1,28 @@
 {
+  "_meta": {
+    "version": "2.0",
+    "name": "Figurenkatalog",
+    "stand": "2026-11-05",
+    "figuren": 303,
+    "schema": [
+      "name",
+      "buergerlicherName",
+      "alias",
+      "firma",
+      "strasse",
+      "plz",
+      "ort",
+      "franchise",
+      "medium",
+      "rolle",
+      "hinweis",
+      "quellenAnzahl",
+      "hooks"
+    ],
+    "herkunft": "Kuratiert aus 325 Rohfiguren der Sammel-Pipeline: 25 ohne belegbare Anschrift entfernt, 3 ergaenzt, alle Adressen gegen Quellen geprueft.",
+    "marker": "keine feste Anschrift",
+    "hinweis": "plz traegt echte Postleitzahlen je Stadt; mehrere belegte Werte sind mit | getrennt und werden pro Brief neu gewuerfelt. Postlagernd und das Zeichen U+2105 (care of) sind gueltige Zustellwege."
+  },
   "figuren": [
     {
       "name": "Agent Smith",

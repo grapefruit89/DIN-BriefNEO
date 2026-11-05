@@ -68,9 +68,14 @@ def run_consolidation():
     ]
 
     all_items = []
+    meta = {}
     for fpath, label in sources:
         with open(fpath, 'r', encoding='utf-8') as f:
             d = json.load(f)
+        # Die Versionsangabe der Basisdatei ueberlebt den Lauf. Ohne diese Zeile
+        # wuerde jeder Pipeline-Lauf die Kennzeichnung stillschweigend entfernen.
+        if label == 'basis':
+            meta = dict(d.get('_meta') or {})
         items = d.get('figuren') or d.get('helden') or []
         for it in items:
             all_items.append((it, label))
@@ -174,8 +179,13 @@ def run_consolidation():
         final_list.append(c)
 
     out_file = '/home/moritz/repos/DIN-BriefNEO/website/data/charaktere_konsolidiert.json'
+    ausgabe = {}
+    if meta:
+        meta['figuren'] = len(final_list)
+        ausgabe['_meta'] = meta
+    ausgabe['figuren'] = final_list
     with open(out_file, 'w', encoding='utf-8') as f:
-        json.dump({'figuren': final_list}, f, ensure_ascii=False, indent=2)
+        json.dump(ausgabe, f, ensure_ascii=False, indent=2)
 
     print(f"Erfolgreich {len(final_list)} Figuren konsolidiert in {out_file} gespeichert.")
 

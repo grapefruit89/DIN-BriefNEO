@@ -17,31 +17,33 @@ Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keiner
 
 ```json
 {
+  "format": "dinletter",
   "$schema": "https://grapefruit89.github.io/DIN-BriefNEO/schema/v2/din-letter.json",
   "schema_version": 2,
   "generator": "DIN-BriefNEO",
   "document": {
-    "layout": { "form": "form-b", "fold_guides": true, "punch_guide": true },
+    "layout": "form-b",
     "copyfit": false,
+    "guides": true,
     "fields": {
       "rucksendezeile": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
       "postvermerk": "",
-      "empfaenger_firma": "",
-      "empfaenger_name": "Erika Mustermann",
-      "empfaenger_strasse": "Beispielweg 42",
-      "empfaenger_ort": "54321 Beispielstadt",
-      "absender_name": "Max Mustermann",
-      "absender_strasse": "Musterstraße 1",
-      "absender_ort": "12345 Musterstadt",
-      "absender_tel": "+49 123 456789",
-      "absender_mail": "max@example.com",
+      "empfaenger-firma": "",
+      "empfaenger-namenszeile": "Erika Mustermann",
+      "empfaenger-strasse": "Beispielweg 42",
+      "empfaenger-ort": "54321 Beispielstadt",
+      "absender-namenszeile": "Max Mustermann",
+      "absender-strasse": "Musterstraße 1",
+      "absender-ort": "12345 Musterstadt",
+      "absender-tel": "+49 123 456789",
+      "absender-mail": "max@example.com",
       "datum": "12. Oktober 2026",
       "betreff": "Kündigung des Vertrags Nr. 12345",
       "anrede": "Sehr geehrte Damen und Herren,",
       "text": "hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.",
       "grussformel": "Mit freundlichen Grüßen",
       "unterschrift": "Max Mustermann",
-      "anlagen": ["Kündigungsbestätigung erbeten"]
+      "anlagen-text": "<li>Kündigungsbestätigung erbeten</li>"
     }
   },
   "profile": {
@@ -50,7 +52,6 @@ Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keiner
     "formality": "formal"
   },
   "signature": {
-    "placed": false,
     "transform": { "x": 11.9, "y": 96.0, "scale": 0.5, "rot": 0 }
   }
 }

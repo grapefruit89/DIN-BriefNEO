@@ -22,7 +22,7 @@ supersedes: []
 # Befundprüfung — 22 offene Punkte
 
 **Datum:** 2026-11-05 · **Methode:** Jeder Befund gegen den Code geprüft, nicht übernommen.
-**Ergebnis:** 11 bestätigt · 3 widerlegt · 1 teilweise · 7 bereits erledigt.
+**Ergebnis:** 12 bereits erledigt (vor dieser Prüfung, inkl. 2.5) · 18 in dieser Prüfung bestätigt · 2 widerlegt (2.1, 8.4) · 2 teilweise (2.4, 8.3).
 
 ## Bereits erledigt (vor dieser Prüfung)
 
@@ -37,7 +37,7 @@ supersedes: []
 
 | Nr | Verdikt | Beleg | Empfehlung |
 | :--- | :--- | :--- | :--- |
-| 6.1 | **bestätigt (Kritisch)** | `persistence.js:336` `DINLETTER_FORMAT='dinletter'`, `:483` lehnt alles andere ab. `llms.txt:20-21` zeigt nur `$schema` + `schema_version`, **kein** `format` | `llms.txt`-Beispiel um `"format": "dinletter"` ergänzen — oder `parse` akzeptiert `$schema` |
+| 6.1 | **bestätigt (Kritisch) — behoben** | Das `llms.txt`-Beispiel scheiterte an **drei** Stellen: `format` fehlte (`persistence.js:336,483`), `layout` war ein Objekt statt `'form-a'`/`'form-b'` (`:522-525`), `anlagen` war ein Array statt String (`:499`). Zusätzlich Feld-IDs mit `_` statt `-` (`empfaenger_name` statt `empfaenger-namenszeile`) — ohne Normalisierung im Parser, also stumm verloren | Beispiel korrigiert und mit `parseDinLetterPayload` gegengetestet: `ok = true`, 18 Felder |
 | 6.2 | **bestätigt (Niedrig)** | `persistence.js:302` `'DIN-BriefNEO Platinum V5'` vs. `index.html:18` `'Pure Refactored'` | Einen Namen wählen (SSoT) |
 | 6.3 | **bestätigt (Niedrig)** | `salutation.js:3` sagt „Keine Namensliste"; `:69-70` `MALE_NAMES`/`FEMALE_NAMES`, je mehrere hundert Einträge | Kopfzeile korrigieren |
 
@@ -92,4 +92,5 @@ supersedes: []
 2. **2.4** behauptet zwei `ResizeObserver` — es ist einer.
 3. **8.4** behauptet CSS-Fragmentierung via `column-height`/`column-wrap` — existiert nicht; die Seite zählt per JS.
 4. **8.3** nennt `pretty` = Chrome 117 und Firefox-Unterstützung für `orphans` — beides laut Projekt-BCD anders.
-5. **3.1** zählt neun Duplikate — drei (`getCharHook`, `randomBetreff`, `generateNerdText`) waren bereits entfernt; es sind sechs.
+5. **6.1** war unvollständig: Das `llms.txt`-Beispiel scheitert an drei Stellen (fehlendes `format`, `layout` als Objekt, `anlagen` als Array) — nicht nur an `format`.
+6. **3.1** zählt neun Duplikate — drei (`getCharHook`, `randomBetreff`, `generateNerdText`) waren bereits entfernt; es sind sechs.

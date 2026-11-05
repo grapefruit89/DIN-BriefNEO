@@ -389,6 +389,14 @@ din-lochmarke {
   display: block;
 }
 
+/* Leere Anschriftzeilen duerfen keinen Platz behalten. `.single-line` hat eine
+   feste Hoehe von 1.4em — ohne diese Regel reisst eine fehlende Strasse Name und
+   Ort auseinander (Fall: Figuren ohne belegte Anschrift, Marker in der JSON). */
+din-empfaenger-firma:empty,
+din-empfaenger-strasse:empty {
+  display: none;
+}
+
 /* --- BLATT-BEDINGTE ELEMENTE & UTILITIES --- */
 
 :root:has(#btn-hilfslinien-switch:checked) {

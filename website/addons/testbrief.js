@@ -131,6 +131,53 @@ export function resolveOrt(char) {
   return sauber;
 }
 
+/** @type {WeakMap<object, string>} */
+let plzWahl = new WeakMap();
+
+/**
+ * Setzt die PLZ-Wahl zurück. Wird zu Beginn jedes Testbriefs aufgerufen:
+ * Eine Figur mit mehreren belegten Postleitzahlen (die Springfields) würfelt
+ * so pro Brief neu, bleibt innerhalb eines Briefes aber stabil.
+ * @returns {void}
+ */
+export function plzNeuWuerfeln() {
+  plzWahl = new WeakMap();
+}
+
+/**
+ * Liefert eine Postleitzahl der Figur. Mehrere belegte Werte werden mit `|`
+ * getrennt — der Brief wählt eine aus und merkt sie sich für diesen Durchlauf.
+ * @param {any} char
+ * @returns {string}
+ */
+export function resolvePlz(char) {
+  const roh = String(char?.plz ?? '').trim();
+  if (!roh) return '';
+  const teile = roh.split('|').map((t) => t.trim()).filter(Boolean);
+  if (teile.length === 0) return '';
+  if (typeof char !== 'object' || char === null) return teile[0];
+  const gemerkt = plzWahl.get(char);
+  if (gemerkt !== undefined) return gemerkt;
+  const gewaehlt = teile[Math.floor(Math.random() * teile.length)] ?? teile[0];
+  plzWahl.set(char, gewaehlt);
+  return gewaehlt;
+}
+
+/**
+ * Liefert die Ortszeile für das Anschriftfeld — PLZ und Ort.
+ * Bewusst getrennt von `resolveOrt`, weil dieses auch im Fließtext steht
+ * („in Springfield") und dort keine Postleitzahl tragen darf.
+ * @param {any} char
+ * @returns {string}
+ */
+export function resolveOrtZeile(char) {
+  const ort = resolveOrt(char);
+  const plz = resolvePlz(char);
+  if (!plz) return ort;
+  if (!ort) return plz;
+  return `${plz} ${ort}`;
+}
+
 /**
  * Prüft, ob ein `firma`-Wert eine einzelne Organisation benennt.
  * Sammelwerte mit `;`, `/` oder „formerly/ehemalig" sind Berufs-Blobs und

@@ -2176,3 +2176,24 @@ Verworfen, weil:
 
 Entscheidung (vom Nutzer bestätigt):
 Ansatz 1 bleibt unverrückbar Standard: Single PWA Bundle, Zero Build, native ES-Module, sofortige Bereitstellung aller Module im Browser-Cache mit unendlicher Gültigkeit (`immutable`).
+
+
+## 2026-11-05 – Figurenkatalog: kuratierte Datendatei, kein eigenes Addon-Laden
+
+Der Testbrief-Generator zieht seine Figuren aus `website/data/charaktere_konsolidiert.json`.
+Nach der Kuration stehen dort 303 Figuren mit vollständigen Anschriftblöcken.
+
+Zwei Festlegungen, die sich daraus ergeben:
+
+1. **Die Daten sind abnehmbar, der Code nicht.** Wer den Figurenkatalog abschalten will,
+   löscht die JSON — dann bleibt der Button wirkungslos. `main.js` importiert
+   `../addons/testbrief.js` jedoch **statisch**; ohne das Modul startet `main.js` nicht.
+   Eine dynamische Nachladung wäre der in dieser Chronik bereits verworfene Ansatz
+   (Eintrag 2026-11-02) und wird hier nicht wieder aufgenommen.
+2. **Der Marker für „kanonisch keine Anschrift" ist reiner Text.** `keine feste Anschrift`
+   steht in `strasse` und wird von `KEINE_ANSCHRIFT` gefiltert, bevor er in den Brief läuft.
+   Kein Zusatzfeld, keine Schema-Änderung — die Daten bleiben für sich lesbar.
+
+Generalisierbar für die `llm_boilerplate`: Ein Katalog, der aus Fremdwelten stammt, braucht
+einen **aussprechbaren Negativwert** statt `null`. Ein Textmarker bleibt in der Datei lesbar,
+in der Anzeige verschwindet er, und es gibt keine zweite Wahrheit über ein Flag-Feld.

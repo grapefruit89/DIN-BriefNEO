@@ -2,7 +2,7 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
-import { istBriefbar, resolveFirma, resolveOrt, resolveStrasse, waehleAnker } from '../addons/testbrief.js';
+import { istBriefbar, plzNeuWuerfeln, resolveFirma, resolveOrt, resolveOrtZeile, resolveStrasse, waehleAnker } from '../addons/testbrief.js';
 import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initSenderSync } from './address.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, DraftManager, UIProtections } from './document.js';
@@ -540,6 +540,8 @@ function setField(id, value) {
 async function wuerfelTestbrief() {
   const heroes = await loadHeroes();
   if (!heroes) return;
+  // Jeder Brief wuerfelt die PLZ-Varianten neu (z. B. die 17 Springfields).
+  plzNeuWuerfeln();
   const usableHeroes = heroes.filter(istBriefbar);
   if (usableHeroes.length < 5) {
     console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
@@ -568,11 +570,11 @@ async function wuerfelTestbrief() {
   // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
   setField('absender-namenszeile', senderName);
   setField('absender-strasse', resolveStrasse(sender));
-  setField('absender-ort', resolveOrt(sender));
+  setField('absender-ort', resolveOrtZeile(sender));
   setField('absender-tel', '+49 228 123456-78');
   setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
 
-  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrt(sender)].filter(Boolean);
+  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
   setField('rucksendezeile', rucksendeTeile.join(' • '));
 
   // 5. Empfänger
@@ -580,7 +582,7 @@ async function wuerfelTestbrief() {
   setField('empfaenger-firma', resolveFirma(recipient));
   setField('empfaenger-namenszeile', recipientName);
   setField('empfaenger-strasse', resolveStrasse(recipient));
-  setField('empfaenger-ort', resolveOrt(recipient));
+  setField('empfaenger-ort', resolveOrtZeile(recipient));
 
   // 6. Briefkern
   setField('betreff', randomBetreff(themenHook));

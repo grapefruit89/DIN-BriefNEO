@@ -2,7 +2,7 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
-import { istBriefbar, plzNeuWuerfeln, resolveFirma, resolveOrt, resolveOrtZeile, resolveStrasse, waehleAnker } from '../addons/testbrief.js';
+import { generateNerdText, getCharHook, istBriefbar, plzNeuWuerfeln, randomBetreff, resolveFirma, resolveOrtZeile, resolveStrasse } from '../addons/testbrief.js';
 import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initSenderSync } from './address.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, DraftManager, UIProtections } from './document.js';
@@ -346,99 +346,6 @@ let heroesPool = null;
 let heroIndex = 0;
 /** @type {any | null} */
 let lastHero = null;
-
-/**
- * Zieht ein belegtes Thema für den Text.
- * Reihenfolge: Alias → einzelne Organisation → Hook → Franchise.
- * Erfundene Platzhalter entfallen; Franchise ist notfalls der einzige belegte Wert.
- * @param {any} char
- * @returns {string}
- */
-function getCharHook(char) {
-  const anker = waehleAnker(char);
-  if (anker) return anker.text;
-  const franchise = String(char?.franchise ?? '').trim();
-  return franchise || 'einer dringenden Angelegenheit';
-}
-
-/**
- * Generiert einen passenden Betreff zum gewürfelten Thema.
- * Doppelpunkt-Form: das Thema steht als Nachtrag, damit keine Kasus-Fehler
- * entstehen („bezüglich Netz" wäre falsch).
- * @param {string} themenHook
- * @returns {string}
- */
-function randomBetreff(themenHook) {
-  const options = [
-    `Dringende Mitteilung: ${themenHook}`,
-    `Sachstand und Maßnahmenkatalog: ${themenHook}`,
-    `Außerordentliche Kündigung: ${themenHook}`,
-    `Fristsetzung und Aufforderung zur Stellungnahme: ${themenHook}`,
-    `Kooperationsvereinbarung und Beistandspakt: ${themenHook}`
-  ];
-  return options[Math.floor(Math.random() * options.length)];
-}
-
-/**
- * Erzeugt den Text anhand der gewürfelten Familie (n = 0..3 Dritte).
- * @param {any} sender
- * @param {any} recipient
- * @param {any[]} dritte
- * @param {string} themenHook
- * @returns {string}
- */
-function generateNerdText(sender, recipient, dritte, themenHook) {
-  const n = dritte.length;
-  const sName = sender.buergerlicherName || sender.name;
-  const sHook = getCharHook(sender);
-  const sOrt = resolveOrt(sender) || 'hier';
-  const rOrt = resolveOrt(recipient) || 'dort';
-
-  if (n === 0) {
-    const templatesA = [
-      `hiermit kündige ich unsere bisherige Vereinbarung mit sofortiger Wirkung.\n\nDie jüngsten Entwicklungen rund um ${themenHook} machen eine Fortführung für mich schlicht unmöglich. Als ${sName} (${sHook}) kann ich die damit verbundenen Risiken in ${sOrt} nicht länger verantworten.\n\nIch bitte um schriftliche Bestätigung über das Vertragsende und den Verbleib aller Unterlagen.`,
-      `bezugnehmend auf unsere Situation unterbreite ich Ihnen einen dringenden Vorschlag zur Zusammenarbeit.\n\nDie Lage bezüglich ${themenHook} erfordert entschlossenes Handeln unserer beiden Seiten. Gerne stelle ich meine Erfahrungen als ${sName} (${sHook}) zur Verfügung, um eine geordnete Lösung für ${rOrt} herbeizuführen.\n\nÜber eine kurzfristige Rückmeldung zur Abstimmung der nächsten Schritte freue ich mich.`,
-      `ich wende mich heute mit einem formellen Auskunftsersuchen an Ihre Adresse.\n\nIn den vergangenen Tagen sind vermehrt Fragen zu ${themenHook} aufgetreten, die Ihre Zuständigkeit in ${rOrt} berühren. Zur Wahrung meiner berechtigten Interessen fordere ich Sie hiermit auf, den aktuellen Sachstand darzulegen.\n\nNach fruchtlosem Fristablauf behalte ich mir weitere Schritte vor.`
-    ];
-    return templatesA[Math.floor(Math.random() * templatesA.length)];
-  }
-
-  if (n === 1) {
-    const d0Name = dritte[0].buergerlicherName || dritte[0].name;
-    const d0Hook = getCharHook(dritte[0]);
-    const d0Ort = resolveOrt(dritte[0]) || 'seinem Quartier';
-    const templatesB = [
-      `ich muss Ihnen heute von einem besorgniserregenden Vorfall berichten.\n\n${d0Name} (${d0Hook}) hat die Lage in Bezug auf ${themenHook} vollkommen eskaliert. Was zunächst harmlos schien, bedroht inzwischen die Ordnung von ${sOrt} bis nach ${rOrt}.\n\nIch ersuche Sie dringend um Beistand und eine gemeinsame Lagebesprechung.`,
-      `auf Empfehlung von ${d0Name} (${d0Hook}) trete ich heute direkt mit Ihnen in Kontakt.\n\nGemeinsam haben wir analysiert, dass ${themenHook} einer neuen Vereinbarung zwischen uns bedarf. Die Expertise aus ${d0Ort} belegt eindeutig, dass ein abgestimmtes Vorgehen unerlässlich ist.\n\nBitte teilen Sie mir zeitnah mit, wann Ihnen ein persönlicher Austausch möglich ist.`
-    ];
-    return templatesB[Math.floor(Math.random() * templatesB.length)];
-  }
-
-  if (n === 2) {
-    const d0Name = dritte[0].buergerlicherName || dritte[0].name;
-    const d0Hook = getCharHook(dritte[0]);
-    const d1Name = dritte[1].buergerlicherName || dritte[1].name;
-    const d1Hook = getCharHook(dritte[1]);
-    const templatesC = [
-      `die Ereignisse der letzten Tage zwingen mich zu diesem außerordentlichen Schreiben.\n\n${d0Name} (${d0Hook}) und ${d1Name} (${d1Hook}) haben wegen ${themenHook} einen offenen Konflikt begonnen. Die Auswirkungen sind mittlerweile bis in meine Wirkungsstätte spürbar.\n\nIch fordere Sie als Verantwortliche auf, unverzüglich mäßigend auf beide Parteien einzuwirken.`,
-      `nach vertraulicher Rücksprache mit ${d0Name} (${d0Hook}) sowie ${d1Name} (${d1Hook}) wende ich mich an Sie.\n\nWir sind übereingekommen, dass die Vorkommnisse um ${themenHook} eine gemeinsame Stellungnahme verlangen. Unsere Kräfte stehen bereit, um Schaden von ${rOrt} abzuwenden.\n\nIch erwarte Ihre verbindliche Rückäußerung binnen zehn Werktagen.`
-    ];
-    return templatesC[Math.floor(Math.random() * templatesC.length)];
-  }
-
-  // n === 3
-  const d0Name = dritte[0].buergerlicherName || dritte[0].name;
-  const d0Hook = getCharHook(dritte[0]);
-  const d1Name = dritte[1].buergerlicherName || dritte[1].name;
-  const d1Hook = getCharHook(dritte[1]);
-  const d2Name = dritte[2].buergerlicherName || dritte[2].name;
-  const d2Hook = getCharHook(dritte[2]);
-  const templatesD = [
-    `zur Abwendung einer drohenden Krise berufe ich hiermit eine Dringlichkeitssitzung ein.\n\nSowohl ${d0Name} (${d0Hook}), ${d1Name} (${d1Hook}) als auch ${d2Name} (${d2Hook}) haben bestätigt, dass ${themenHook} außer Kontrolle geraten ist. Es bedarf unseres geschlossenen Auftretens.\n\nIch bitte Sie, sich unverzüglich für den gemeinsamen Termin bereitzuhalten.`,
-    `hiermit übermittle ich Ihnen den konsolidierten Lagebericht unserer Beobachter.\n\nDie Berichte von ${d0Name} (${d0Hook}), ${d1Name} (${d1Hook}) und ${d2Name} (${d2Hook}) stimmen überein: Das Thema ${themenHook} erfordert sofortige Schutzmaßnahmen auf beiden Seiten.\n\nBitte bestätigen Sie den Erhalt dieser Mitteilung und leiten Sie die vereinbarten Notfallprotokolle ein.`
-  ];
-  return templatesD[Math.floor(Math.random() * templatesD.length)];
-}
 
 /**
  * Lädt die 325 konsolidierten Figuren einmalig asynchron (Lazy Load beim ersten Klick).

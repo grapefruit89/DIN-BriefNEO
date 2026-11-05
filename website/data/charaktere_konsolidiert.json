@@ -1057,7 +1057,7 @@
         "Der Söldner mit der großen Klappe",
         "Wade Wilson"
       ],
-      "firma": "Selbständig",
+      "firma": "",
       "strasse": "Wohnwagen, Anchor of Mercy Hospital-Gelände",
       "plz": "10001",
       "ort": "New York",
@@ -1101,7 +1101,7 @@
         "Doctor Who",
         "Der Zeitlord"
       ],
-      "firma": "Zeitreisende",
+      "firma": "",
       "strasse": "TARDIS",
       "plz": "",
       "ort": "Raum und Zeit",
@@ -1269,7 +1269,7 @@
         "John H. Watson",
         "Dr. Watson"
       ],
-      "firma": "Ärztliche Praxis",
+      "firma": "",
       "strasse": "221B Baker Street",
       "plz": "NW1 6XE",
       "ort": "London, England",
@@ -1809,7 +1809,7 @@
       "alias": [
         "Sméagol"
       ],
-      "firma": "Selbständig",
+      "firma": "",
       "strasse": "Höhle unter den Misty Mountains",
       "plz": "",
       "ort": "Nebelgebirge, Mittelerde",
@@ -2107,7 +2107,7 @@
       "alias": [
         "Der berühmte Detektiv"
       ],
-      "firma": "Privatdetektiv",
+      "firma": "",
       "strasse": "Whitehaven Mansions, Sandhurst Square 56B",
       "plz": "",
       "ort": "London SW1, Vereinigtes Königreich",
@@ -2481,7 +2481,7 @@
       "alias": [
         "Cap'n Cook"
       ],
-      "firma": "Selbständig",
+      "firma": "",
       "strasse": "Wohnung 302, 316 Margo Street",
       "plz": "87101",
       "ort": "Albuquerque, New Mexico",
@@ -3258,7 +3258,7 @@
       "alias": [
         "Marge Bouvier"
       ],
-      "firma": "Hausfrau und Mutter",
+      "firma": "",
       "strasse": "742 Evergreen Terrace",
       "plz": "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
       "ort": "Springfield",
@@ -3978,7 +3978,7 @@
         "Partner-Pokémon",
         "Pika"
       ],
-      "firma": "Team Ash Ketchum",
+      "firma": "",
       "strasse": "Reist auf Ashs Schulter",
       "plz": "",
       "ort": "Alabastia, Kanto",
@@ -4012,7 +4012,7 @@
       "alias": [
         "Der Seemann"
       ],
-      "firma": "Seeleute",
+      "firma": "",
       "strasse": "Hafenkante, Kreuzwort-Neptun-Bar-Viertel",
       "plz": "",
       "ort": "Sweet Haven, Küstenstadt",
@@ -4793,7 +4793,7 @@
         "Conan Edogawa",
         "Der Detektiv des Ostens"
       ],
-      "firma": "Selbständig",
+      "firma": "",
       "strasse": "Detektei Kudo",
       "plz": "",
       "ort": "Beika-Stadt, Tokio, Japan",
@@ -5269,7 +5269,7 @@
       "alias": [
         "Scarface"
       ],
-      "firma": "Selbständig",
+      "firma": "",
       "strasse": "Miami Beach Villa, 735 Ocean Drive",
       "plz": "33101",
       "ort": "Miami, Florida",

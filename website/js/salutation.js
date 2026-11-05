@@ -257,14 +257,8 @@ export class SalutationFeature {
       });
     }
 
-    const checked = /** @type {HTMLInputElement | null} */ (document.getElementById(`btn-style-${this.settings.formality}`));
-    if (checked) checked.checked = true;
-
     this.#seedAuto();
 
-    for (const style of STYLES) {
-      document.getElementById(`btn-style-${style}`)?.addEventListener('change', () => this.#setStyle(style));
-    }
     document.getElementById('empfaenger-namenszeile')?.addEventListener('input', () => this.#update('anrede'));
     document.getElementById('empfaenger-firma')?.addEventListener('input', () => this.#update('anrede'));
 
@@ -319,10 +313,6 @@ export class SalutationFeature {
     const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
     if (styleSelect?.value !== style) {
       if (styleSelect) styleSelect.value = style;
-    }
-    const radio = /** @type {HTMLInputElement | null} */ (document.getElementById(`btn-style-${style}`));
-    if (radio && !radio.checked) {
-      radio.checked = true;
     }
     if (this.#settingsManager) {
       this.#settingsManager.updateSettings();

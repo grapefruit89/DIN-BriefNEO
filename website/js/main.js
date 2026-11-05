@@ -516,53 +516,13 @@ async function wuerfelTestbrief() {
 }
 
 /**
- * Leert ausnahmslos alle editierbaren Felder sofort und ohne Bestätigung.
- */
-function felderLeeren() {
-  document.querySelectorAll('[contenteditable]').forEach(el => {
-    if (el.getAttribute('data-feldtyp') === 'systemwert' || el.id === 'datum') return;
-    el.textContent = '';
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-
-  applyLetterDate();
-
-  const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
-  if (pvSelect) pvSelect.selectedIndex = 0;
-  const stilSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
-  if (stilSelect) stilSelect.selectedIndex = 0;
-
-  syncPostvermerkFromSidebar('');
-
-  const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-  if (anlagenToggle) {
-    anlagenToggle.checked = false;
-    document.getElementById('anlagen-text')?.replaceChildren();
-  }
-  const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
-  if (fussToggle) {
-    fussToggle.checked = false;
-  }
-
-  eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-}
-
-/**
- * Verdrahtet die neuen Footer-Buttons.
+ * Verdrahtet den Testbrief-Button.
  */
 function initTestData() {
   const btnTestbrief = document.getElementById('btn-testbrief');
-  const btnFelderLeeren = document.getElementById('btn-felder-leeren');
+  if (!btnTestbrief) return;
 
-  if (btnTestbrief) {
-    btnTestbrief.addEventListener('click', () => {
-      wuerfelTestbrief().catch(err => console.error('[TestData] Fehler:', err));
-    });
-  }
-
-  if (btnFelderLeeren) {
-    btnFelderLeeren.addEventListener('click', () => {
-      felderLeeren();
-    });
-  }
+  btnTestbrief.addEventListener('click', () => {
+    wuerfelTestbrief().catch(err => console.error('[TestData] Fehler:', err));
+  });
 }

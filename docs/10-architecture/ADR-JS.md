@@ -4,7 +4,7 @@ title: "ADR-JS: JavaScript Architecture, Constraints & Single Source of Truth (S
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-10-15'
+updated: '2026-11-05'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -74,7 +74,7 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS.md §7a, keine Unterordner). Die 8 Module sind nach fachlichen Domänen und Verantwortlichkeiten gegliedert:
 
 ### 0. `boot-theme.js` (Blocking Head-Script: FOUC-Schutz & Font-Loading)
-* Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme` und `data-layout` auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz).
+* Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme` und `data-style` auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz).
 * Liest gespeicherte Benutzereinstellungen (`din_settings`) synchron aus dem `localStorage`.
 * Validiert gespeicherte Custom-Fonts (Base64 data-URI) und registriert diese via `FontFace` API.
 

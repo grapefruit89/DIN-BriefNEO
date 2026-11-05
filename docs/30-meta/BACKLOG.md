@@ -4,7 +4,7 @@ title: Backlog — offene Baustellen nach Aufwand und ROI
 status: active
 type: reference
 created: '2026-10-02'
-updated: '2026-10-23'
+updated: '2026-11-05'
 tags:
 - din-briefneo
 - meta
@@ -195,8 +195,11 @@ Fünf „🛡️ ARCHITECTURE GUARD"-Blöcke stehen wortgleich in `index.html` *
 ### B14 · Vier ungenutzte IDs entfernen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
 `btn-confirm-import`, `btn-confirm-reset`, `seitenleiste-ai-switch-row`,
 `zwischenablage-anschrift-wrapper`.
-**Nicht anfassen:** `btn-style-formal|polite|casual` — die sehen nur tot aus, werden aber in
-`41-salutation-engine.js` per Template-String (`` `btn-style-${…}` ``) gebaut.
+**Korrektur 2026-11-05:** Der damalige Zusatz war falsch. `btn-style-formal|polite|casual`
+werden **nicht** „per Template-String gebaut" — `getElementById('btn-style-…')` **sucht** ein
+Element, es baut keines. Die IDs existieren nirgends; der Stil läuft über `#stil-select`.
+Die Radio-Zweige in `salutation.js` sind am 2026-11-05 entfernt.
+Siehe [[dead-code-audit-2026-11-05]].
 
 ### B15 · Log-Behauptungen gegen den Code prüfen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
 DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append-Only-Eintrag für die 5 KISS-Optimierungen (Event-Delegation, Caret-SSoT, Gzip-Pipeline, `.closest()`-Ancestor, StorageManager-Kapselung), den B8-Vollzug (`!important`-Beseitigung) und den B17-Phase-2-Gate-Ausbau (30/35 Gesetze) eingepflegt. Ältere historische Einträge bleiben gemäß DECISION-LOG-Governance strikt unverändert (Append-only).

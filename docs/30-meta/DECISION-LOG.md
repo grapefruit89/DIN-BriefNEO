@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-10-26'
+updated: '2026-11-05'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -2197,3 +2197,43 @@ Zwei Festlegungen, die sich daraus ergeben:
 Generalisierbar für die `llm_boilerplate`: Ein Katalog, der aus Fremdwelten stammt, braucht
 einen **aussprechbaren Negativwert** statt `null`. Ein Textmarker bleibt in der Datei lesbar,
 in der Anzeige verschwindet er, und es gibt keine zweite Wahrheit über ein Flag-Feld.
+
+## 2026-11-05 — Dead-Code-Audit: drei Befunde widerlegt, vier umgesetzt
+
+**Kontext:** Eine externe Befundliste meldete sieben Dead-Code-Positionen (4.1–4.7). Vor der
+Umsetzung wurde jeder Punkt gegen den Code geprüft. Ergebnis in
+[[dead-code-audit-2026-11-05]] (in `90-archive/`), weil die Rohliste keinen Ort im Repo hatte.
+
+**Entscheidungen:**
+
+1. **4.3 war der einzige mit sichtbarer Wirkung.** `js/boot-theme.js` wurde nicht geladen; der
+   Inline-Block im Head setzte nur `data-theme`, nicht `data-style`. Wer den Stil „kompakt"
+   gespeichert hatte, sah zuerst die Default-Dichte und dann den Sprung. Der Block war in
+   `bac3c3c` (Mehrseiten-Prototyp) durch eine Kopie ersetzt worden — in `index.html` **und**
+   `multipage.html`. Jetzt in beiden Dateien `<script src="js/boot-theme.js?v=live6">`;
+   der CSP-Hash entfällt, `script-src 'self'` deckt das externe Classic-Script ab.
+2. **4.1 und 4.2 entfernt, nicht repariert.** `felderLeeren()` war unerreichbar, weil
+   `#btn-felder-leeren` in keiner HTML-Datei existiert; der bestätigte Weg ist `#btn-reset`
+   mit Dialog. Die `btn-style-*`-Radio-Zweige zeigen auf IDs, die es nie gab — der Stil läuft
+   über `#stil-select`.
+3. **4.5 liegengelassen, nicht archiviert.** Der erste Versuch, `webmcp-bridge.js` (202 Zeilen)
+   nach `90-archive/` zu verschieben, brach die TypeScript-Prüfung: der relative Import
+   `../js/core.js` löst sich am neuen Ort nicht auf, der Fitness Score fiel auf 99,93 %
+   (Befund 4.8). Die Datei bleibt am Ort und ist in [[STRUCTURE]] als „derzeit nicht
+   eingebunden" markiert. Eine Einbindung wäre ohnehin eine Architekturentscheidung
+   (CSP-Erweiterung, A38-Allowlist).
+4. **4.4, 4.6, 4.7 nicht angefasst.** Die Debug-Wrapper sind Test-API (`test/all.js` importiert
+   sie namentlich), `#isRestoring` schützt gegen einen debounced `saveDraft` während des
+   Restores, und der `AptosCustom`-Zweig ist Migrationsschutz aus `efe5af8`.
+5. **6.5 widerlegt.** `boot-state.js` ist in [[ADR-JS]]:210 als `ELIMINATED` und in dieser
+   Chronik (2026-10-06) als entfernt dokumentiert. Nur ein erledigter BACKLOG-Eintrag nennt
+   die Datei noch historisch — das bleibt als Zeitdokument stehen.
+
+**Doku-Korrektur (6.4):** `BACKLOG.md` B14 behauptete, die `btn-style-*`-IDs würden „per
+Template-String gebaut". `getElementById('btn-style-…')` **sucht** ein Element; es baut keines.
+Die Falschaussage hat einen früheren Audit-Eintrag geschützt und damit jeden Folge-Audit in
+dieselbe Sackgasse geschickt.
+
+**Generalisierung:** Ein Befund ist eine Hypothese, kein Fakt. Drei von sieben waren falsch —
+und der als „Mittel" einsortierte Punkt war der einzige mit sichtbarer Wirkung. Befunde werden
+gegen den Code geprüft, bevor sie in einen Auftrag wandern.

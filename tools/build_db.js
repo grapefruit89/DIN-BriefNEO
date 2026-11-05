@@ -114,7 +114,7 @@ depends_on: []
 | js/salutation.js | ADR-JS | - | SalutationEngine, SalutationFeature, SALUTATION_TONES |
 | js/settings.js | ADR-JS | glossary, din-5008-css-architektur | SettingsManager, SignatureFeature |
 | addons/testbrief.js | ADR-JS | testbrief-generator | Testbrief-Addon (Generator, Adress- & Ankerleiter) |
-| addons/webmcp-bridge.js | ADR-JS | - | WebMCP Bridge & Polyfill (WebSocket ws://127.0.0.1:8333) |
+| addons/webmcp-bridge.js | ADR-JS | - | WebMCP Bridge & Polyfill — derzeit nicht eingebunden (WebSocket ws://127.0.0.1:8333) |
 | data/de_plz_ort.json.gz | ADR-OFFLINE-ADDRESS-INTELLIGENCE | - | PLZ-/Ortsverzeichnis (Gzip, Offline Tier 1) |
 | data/de_grosskunden_plz.json.gz | ADR-OFFLINE-ADDRESS-INTELLIGENCE | grossemfaenger-post-und-rechts-spec | Großempfänger-Verzeichnis (Gzip, OLG Frankfurt) |
 

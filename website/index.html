@@ -11,30 +11,17 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="description" content="Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 für geschäftliche und private Korrespondenz.">
     <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
-         in layers.css verlagert, Boot-Font via FontFace. connect-src erlaubt
+         in layers.css verlagert, Boot als externes Classic-Script
+         (js/boot-theme.js), daher kein Inline-Hash noetig. connect-src erlaubt
          nur die A38-Allowlist (optionale Tier-2-Fach-API, ohne Key tot). -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-fdxZizEKslGrssy1cJ92nbGhj8BDMdG+RMX3b//L2dY='; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
     <link rel="stylesheet" href="css/base.css?v=live6">
     <link rel="stylesheet" href="css/sidebar.css?v=live6">
     <link rel="stylesheet" href="css/sheet.css?v=live6">
     <link rel="stylesheet" href="css/print.css?v=live6" media="print">
-    <script>try {
-  const s = JSON.parse(localStorage.getItem("din_settings") || "{}");
-  if (s.theme) document.documentElement.setAttribute("data-theme", s.theme);
-  const customFont = localStorage.getItem("din_custom_font");
-  if (customFont && /^data:[\w.+-]+\/[\w.+-]+(?:;charset=[\w-]+)?;base64,[A-Za-z0-9+/=]+$/.test(customFont)) {
-    document.documentElement.style.setProperty("--active-font-family", "'CustomUserFont', var(--font-system-stack)");
-    new FontFace("CustomUserFont", "url(" + customFont + ")").load().then((loaded) => {
-      document.fonts.add(loaded);
-    }).catch(() => {
-      document.documentElement.style.removeProperty("--active-font-family");
-    });
-  }
-} catch (e) {
-  console.warn("[Boot] Theme-Initialisierung:", e);
-}</script>
+    <script src="js/boot-theme.js?v=live6"></script>
     <script type="module" src="js/main.js?v=live6"></script>
   </head>
   <body>

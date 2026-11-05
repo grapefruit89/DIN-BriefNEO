@@ -1595,13 +1595,13 @@
         "Der Graue Wanderer"
       ],
       "firma": "Istari",
-      "strasse": "Wandernder Pfad",
+      "strasse": "℅ Elronds Haus",
       "plz": "",
-      "ort": "Mittelerde",
+      "ort": "Bruchtal",
       "franchise": "Der Herr der Ringe",
       "medium": "Buch",
       "rolle": "Protagonist",
-      "hinweis": "Ein Maia in Gestalt eines Zauberers; Mithrandir ist ein elbischer Name.",
+      "hinweis": "Ein Maia in Gestalt eines Zauberers; Mithrandir ist ein elbischer Name. Gast in Elronds Haus in Bruchtal, wo der Rat abgehalten wird",
       "quellenAnzahl": 3,
       "hooks": [
         "Feuerwerk im Auenland",

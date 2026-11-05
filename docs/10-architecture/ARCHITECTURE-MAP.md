@@ -112,6 +112,25 @@ Reihenfolge zählt: Spätere Dateien überschreiben frühere bei gleicher Spezif
 Die App bündelt **keine** Daten. Alles kommt per `fetch` aus `website/data/` —
 deshalb muss der Ordner beim Deploy mitgehen.
 
+## 4a. Build-Zeit (nicht Laufzeit)
+
+`tools/` enthält Build-Zeit-Skripte; nichts davon läuft im Browser.
+Datenquelle der Adressdaten: `tools/build_plz_databases.py` schreibt `data/*.json.gz`
+(`orte`, `grosskunden`, `bundesbehoerden`, `de_districts` sowie die
+Kompatibilitätskopien `de_*`). Gate, Isolation, Links und IMR liegen ebenfalls dort —
+Einzeleinträge in [[STRUCTURE]].
+
+Konsequenz: `bundesbehoerden.json.gz` hat keinen Laufzeit-Leser, weil sie ein
+Pipeline-Ergebnis ist, kein Laufzeit-Datum.
+
+## 4b. Tests (nur lokal)
+
+`test/index.html` lädt `test/all.js` (122 Tests). Braucht einen HTTP-Server —
+ES-Module laden nicht über `file://`. **Nicht** mit `node test/all.js` aufrufen:
+`localStorage` fehlt, die Tests brauchen den Browser.
+
+4 Tests sind vorbestehend fehlgeschlagen — siehe [[BACKLOG]] B33.
+
 ## 5. Regeln für den Agenten
 
 1. **Zwei Nachschlagewerke, zwei Zwecke:** [[STRUCTURE]] für Dateien, Exporte und

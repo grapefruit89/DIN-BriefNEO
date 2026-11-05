@@ -292,3 +292,16 @@ aber live im ausgelieferten `website/`-Ordner und ist damit öffentlich erreichb
 **Zu entscheiden:** vergessene Live-Seite (dann verlinken) oder Dead Code (dann nach
 `docs/90-archive/` verschieben). Vor einer Löschung prüfen, ob ein externer Link zeigt —
 Referrer-Logs gibt es nicht. Siehe auch [[ARCHITECTURE-MAP]].
+
+### B33 · Vier vorbestehende Testfehler dokumentieren · **M** · ⭐⭐
+Gemessen am 2026-11-05 (Commit `aa4a39b`, reproduziert in eigenem Worktree):
+**122 Tests bestanden, 4 fehlgeschlagen** — vorbestehend, nicht durch die Persistenz-
+oder Dead-Code-Commits verursacht.
+
+- „ignoriert Metadaten-Zeilen wie Telefon, Fax und Register" — Adress-Parser
+- „entfaltet einzeilige kommagetrennte Adressen (TC-05)" — Adress-Parser
+- „toleriert eingeschobene Ortsteile zwischen Straße und PLZ" — Adress-Parser
+- „erfüllt alle UI-Refactor Anforderungen (keine per-step Buttons, Confirm bei …)" — UI-Policy
+
+Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
+UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und [[befundpruefung-2026-11-05]].

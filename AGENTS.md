@@ -4,7 +4,7 @@ title: AGENTS.md — Bindender KI-Verhaltensvertrag
 type: ai-context
 status: active
 created: '2026-07-01'
-updated: '2026-10-17'
+updated: '2026-11-06'
 tags:
 - din-briefneo
 - meta
@@ -29,6 +29,42 @@ Dieser Vertrag ist nicht verhandelbar. Verstöße führen zur Ablehnung der Änd
 > **Schritt 0 — Repo-Struktur kennen:**
 > Vor jeder Dateisuche `docs/STRUCTURE.md` lesen. Nur greppen, wenn das gesuchte Symbol dort nicht verzeichnet ist. Die Datei wird bei jedem `node tools/build_db.js` automatisch regeneriert.
 > Für Lade-Trigger, Modul-Abhängigkeiten und CSS-Kaskade: `docs/10-architecture/ARCHITECTURE-MAP.md`.
+
+---
+
+## Lokale Vorschau (Pflicht vor manuellen Tests)
+
+`file://` funktioniert nicht — ES-Module, `fetch` und `localStorage` sind dort eingeschränkt.
+Jeder manuelle Test braucht einen HTTP-Server.
+
+**Bequem (empfohlen):** `./start.sh` startet den Server auf Port 8088 und öffnet Helium mit
+DevTools-Protokoll auf Port 9222. Das Skript nutzt ein eigenes Profil
+(`~/.local/share/helium-din-briefneo`): Läuft Helium bereits, entstünde sonst nur ein Tab im
+bestehenden Prozess und der CDP-Port gar nicht. Nutzer-Tabs werden nicht angefasst.
+
+**Manuell:**
+```bash
+cd /home/moritz/repos/DIN-BriefNEO
+python3 -m http.server 8765 --directory website > /tmp/din-server.log 2>&1 &
+echo $! > /tmp/din-server.pid
+```
+
+**Sichtbarer Browser aus einer Agent-Shell** (die Shell hat kein Display, `xdg-open`
+schlägt dort fehl):
+```bash
+export XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus DISPLAY=:0 WAYLAND_DISPLAY=wayland-0
+setsid /home/moritz/.local/bin/helium http://127.0.0.1:8765/index.html >/dev/null 2>&1 &
+```
+
+**Konsole und DOM per CDP lesen** (läuft, wenn `start.sh` aktiv ist):
+```bash
+curl -s http://127.0.0.1:9222/json/list   # Targets inkl. webSocketDebuggerUrl
+```
+
+`--headless=new --dump-dom` ist **nur** für automatisierte Checks erlaubt, nie für manuelle
+Tests. `--remote-debugging-address` wird nicht gesetzt: Standard `127.0.0.1` ist sicher,
+`0.0.0.0` würde den Debug-Port im Netz öffnen. Aufräumen:
+`kill $(cat /tmp/din-server.pid) 2>/dev/null; rm /tmp/din-server.pid`.
 
 ---
 

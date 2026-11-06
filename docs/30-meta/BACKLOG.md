@@ -306,7 +306,7 @@ oder Dead-Code-Commits verursacht.
 Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
 UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und [[befundpruefung-2026-11-05]].
 
-### B34 · Schema-Verweis in `llms.txt` zeigt ins Leere · **M** · ⭐⭐
+### B36 · Schema-Verweis in `llms.txt` zeigt ins Leere · **M** · ⭐⭐
 `website/llms.txt` verweist im JSON-Beispiel auf
 `https://grapefruit89.github.io/DIN-BriefNEO/schema/v2/din-letter.json`. Die Datei
 existiert im Repo **nicht** (`website/schema/` fehlt), live antwortet sie mit **HTTP 404**.

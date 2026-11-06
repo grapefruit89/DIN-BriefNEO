@@ -37,7 +37,7 @@ supersedes: []
 
 | Nr | Verdikt | Beleg | Empfehlung |
 | :--- | :--- | :--- | :--- |
-| 6.1 | **bestätigt (Kritisch) — teilweise behoben** | Das `llms.txt`-Beispiel scheiterte an **drei** Stellen: `format` fehlte (`persistence.js:336,483`), `layout` war ein Objekt statt `'form-a'`/`'form-b'` (`:522-525`), `anlagen` war ein Array statt String (`:499`). Zusätzlich Feld-IDs mit `_` statt `-` (`empfaenger_name` statt `empfaenger-namenszeile`) — ohne Normalisierung im Parser, also stumm verloren | Beispiel korrigiert und gegengetestet: `ok = true`, 18 Felder. **Rest offen:** `$schema` verweist auf `website/schema/v2/din-letter.json` — die Datei existiert nicht, live HTTP 404. Siehe [[BACKLOG]] B34 |
+| 6.1 | **bestätigt (Kritisch) — teilweise behoben** | Das `llms.txt`-Beispiel scheiterte an **drei** Stellen: `format` fehlte (`persistence.js:336,483`), `layout` war ein Objekt statt `'form-a'`/`'form-b'` (`:522-525`), `anlagen` war ein Array statt String (`:499`). Zusätzlich Feld-IDs mit `_` statt `-` (`empfaenger_name` statt `empfaenger-namenszeile`) — ohne Normalisierung im Parser, also stumm verloren | Beispiel korrigiert und gegengetestet: `ok = true`, 18 Felder. **Rest offen:** `$schema` verweist auf `website/schema/v2/din-letter.json` — die Datei existiert nicht, live HTTP 404. Siehe [[BACKLOG]] B36 |
 | 6.2 | **bestätigt (Niedrig)** | `persistence.js:302` `'DIN-BriefNEO Platinum V5'` vs. `index.html:18` `'Pure Refactored'` | Einen Namen wählen (SSoT) |
 | 6.3 | **bestätigt (Niedrig)** | `salutation.js:3` sagt „Keine Namensliste"; `:69-70` `MALE_NAMES`/`FEMALE_NAMES`, je mehrere hundert Einträge | Kopfzeile korrigieren |
 

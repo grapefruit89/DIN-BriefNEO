@@ -91,7 +91,7 @@ export function currentISODate() {
 export const DEFAULT_SETTINGS = {
   theme: 'auto',
   layout: 'form-b',
-  guides: true,
+  guides: false,
   marks: true,
   copyfit: false,
   formality: 'formal'

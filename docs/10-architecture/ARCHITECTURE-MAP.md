@@ -4,7 +4,7 @@ title: Architecture-Map — Lade-Trigger, Abhängigkeiten, Kaskade
 status: active
 type: reference
 created: '2026-11-05'
-updated: '2026-11-05'
+updated: '2026-11-06'
 tags:
 - din-briefneo
 - architecture
@@ -40,11 +40,12 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 
 | Datei | Rolle | Wann geladen | Besonderheit |
 | :--- | :--- | :--- | :--- |
-| `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot-theme.js` (blockierend) + `main.js` (Modul) |
+| `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot-theme.js` + `boot-switches.js` (beide blockierend) + `main.js` (Modul) |
 | `website/multipage.html` | Mehrseiten-Editor, **produktiv** | immer | ~94 % identisch mit `index.html`; eigene Stylesheets, eigener Controller |
 | `website/mehrseiten-prototyp.html` | Prototyp | **nicht verlinkt** | liegt live im Auslieferungsordner — siehe [[BACKLOG]] B15 |
 | `test/index.html` | Test-Runner (122 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
 | `website/js/boot-theme.js` | Theme- und Stil-Boot | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Setzt `data-theme` **und** `data-style` |
+| `website/js/boot-switches.js` | Schalter-Boot (Hilfslinien, Falz-/Lochmarken) | **blockierend, vor First Paint** | klassisches Script im `<head>`: liest `din_settings` und setzt die Checkboxen per `MutationObserver`, sobald sie geparst sind. Microtasks laufen vor dem Rendern — deshalb kein Wettlauf mit dem ersten Frame. Der HTML-Default muss `DEFAULT_SETTINGS` entsprechen |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
 | `website/js/debug-panel.js` | Debug-Panels | **nur bei `?debug=json` / `?debug=autocomplete`** | per dynamischem `import()` aus `main.js`; ohne Query-Parameter wird nichts geladen |
 | `website/js/debug-json-panel.js`, `debug-recorder.js` | Kompatibilitäts-Wrapper | nur von Tests | **Test-API**, `test/all.js` importiert sie namentlich — kein Dead Code |

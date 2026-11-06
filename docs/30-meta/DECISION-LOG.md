@@ -2266,3 +2266,49 @@ vor (`main.js` und Add-on), und die Add-on-Version erzeugte Anschriften **ohne P
 Kernlast — den Unterschied sieht man erst, wenn der Import scheitern darf. Und zwei Kopien
 derselben Funktion divergieren nicht zufaellig, sondern **fachlich**: hier fehlte der
 PLZ-Teil, und es fiel nicht auf, weil die Kopie nie lief.
+\n
+## 2026-11-06 — Switch-FOUC: Zustand vor dem ersten Paint
+
+**Problem:** `#btn-hilfslinien-switch` und `#toggle-falzmarken` standen mit `checked` im
+Markup. Die CSS-Regeln haengen per `:root:has(...:checked)` direkt an diesen Inputs — also
+zeigte der erste Frame „an", und `applySettings()` (Modul, deferred) sprang danach auf den
+gespeicherten Wert. Bei gespeichertem `guides: false` war das ein sichtbares An-Aus.
+
+**Entscheidung:**
+
+1. **Markup-Default = JS-Default.** `guides` steht in `DEFAULT_SETTINGS` jetzt auf `false`,
+   das `checked` am Hilfslinien-Switch ist entfernt. Ohne gleichen Default gaebe es den
+   Sprung auch fuer Neunutzer ohne `din_settings`.
+2. **Falzmarken bleiben Default `true`** (Markup behaelt `checked`). Begruendung:
+   `din_settings` wird erst beim ersten Umschalten geschrieben (`settings.js` → `save()`),
+   `DEFAULT_SETTINGS` gilt also fuer fast alle Nutzer. `marks: false` haette die Falz- und
+   Lochmarken still fuer jeden abgeschaltet, der den Schalter nie angefasst hat — und das
+   sind funktionale DIN-5008-Elemente (Falzen, Lochen), keine Arbeitshilfe.
+   `guides` ist dagegen eine Lesehilfe auf dem Schirm und war ohnehin als „nur an, wenn
+   gewuenscht" spezifiziert.
+3. **Kein Inline-Block, sondern `website/js/boot-switches.js`.** Die CSP ist
+   `script-src 'self'` **ohne** `'unsafe-inline'` und ohne Hash — ein Inline-Block waere
+   stillschweigend blockiert worden (kein Fehler in der Konsole, nur ein wirkungsloser
+   Block). Das klassische externe Script ist derselbe Weg wie `boot-theme.js`.
+4. **Platzierung im `<head>`, Zustand per `MutationObserver`.** Zwei Messungen haben die
+   naiven Varianten widerlegt (siehe unten): Am Body-Ende und direkt hinter den Schaltern
+   gewinnt mal der Parser, mal der erste Frame. Der Observer laeuft als Microtask, und
+   Microtasks werden vor dem Rendern abgearbeitet — sobald die Checkbox geparst ist, steht
+   ihr Zustand fest, bevor ein Frame entsteht.
+
+**Messung (CDP, `--headless=new`, Frame-Sampler + `first-contentful-paint`):**
+Zustand *zum FCP* muss dem gespeicherten entsprechen, sonst hat der Nutzer den Sprung
+gesehen.
+
+| Variante | guides=true (kalt) |
+| :--- | :--- |
+| Script am Body-Ende | Frame 1 zeigte `true/true`, dann `false/false` |
+| Script hinter den Schaltern | FCP@96 ms zeigte `g=false`, Wechsel danach |
+| Script im `<head>` + Observer | 24/24 Laeufe korrekt, je genau **ein** Zustand |
+
+**Generalisierung:** Ein `checked` im Markup ist eine Behauptung ueber den Zustand, die
+niemand geprueft hat. Sobald CSS per `:has(:checked)` daran haengt, wird aus der Behauptung
+ein sichtbarer Fehler. Der Default im Markup und der Default im Code sind zwei Kopien
+desselben Fakts — sie muessen zusammen geaendert werden, sonst erzeugt die Korrektur den
+naechsten Sprung. Und: ein Script „vor dem ersten Paint" ist keine Frage des Ortes im
+Dokument, sondern der Ausfuehrungsgarantie (Microtask vor Rendern), nicht der Parse-Reihenfolge.

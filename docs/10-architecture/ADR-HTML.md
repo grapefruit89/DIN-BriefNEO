@@ -4,7 +4,7 @@ title: "ADR-HTML: HTML Architecture, Constraints & Single Source of Truth (SSOT)
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-10-16'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -124,7 +124,11 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#btn-style-polite` (Höflich: "Guten Tag... / Freundliche Grüße").
   * `#btn-style-casual` (Locker: "Hallo... / Beste Grüße").
 * **Semantischer Hilfslinien-Schalter:**
-  * `<input type="checkbox" switch id="btn-hilfslinien-switch" checked>`: Nativer Schalter.
+  * `<input type="checkbox" switch id="btn-hilfslinien-switch">`: Nativer Schalter. **Ohne**
+    `checked` im Markup: Der gespeicherte Zustand kommt aus
+    `website/js/boot-switches.js` (blockierend im `<head>`, siehe [[ARCHITECTURE-MAP]]).
+    Ein `checked` im Markup würde vor dem ersten Paint „an" zeigen und danach auf den
+    gespeicherten Wert springen.
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
   * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#postvermerk` (`din-postvermerk`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
   * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.

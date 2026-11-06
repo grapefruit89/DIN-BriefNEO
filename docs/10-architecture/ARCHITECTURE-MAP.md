@@ -48,7 +48,7 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
 | `website/js/debug-panel.js` | Debug-Panels | **nur bei `?debug=json` / `?debug=autocomplete`** | per dynamischem `import()` aus `main.js`; ohne Query-Parameter wird nichts geladen |
 | `website/js/debug-json-panel.js`, `debug-recorder.js` | Kompatibilitäts-Wrapper | nur von Tests | **Test-API**, `test/all.js` importiert sie namentlich — kein Dead Code |
-| `website/addons/testbrief.js` | Testbrief-Generator | **statisch** von `main.js` | künftige Plugin-Grenze; ohne dieses Modul startet `main.js` nicht |
+| `website/addons/testbrief/testbrief.js` | Testbrief-Plugin | **dynamisch** per `import()`, nur bei Klick auf `#btn-testbrief` | Figurendaten liegen im Plugin-Ordner; ohne das Plugin bleibt der Button wirkungslos, die App startet normal |
 | `website/addons/webmcp-bridge.js` | WebMCP-Bridge | **gar nicht** | derzeit nicht eingebunden, in [[STRUCTURE]] entsprechend markiert |
 
 ## 2. Modul-Abhängigkeiten
@@ -60,7 +60,7 @@ document.js    → core.js, persistence.js
 settings.js    → core.js, persistence.js
 salutation.js  → core.js, persistence.js
 address.js     → core.js, document.js, persistence.js
-main.js        → allen oben + addons/testbrief.js (statisch)
+main.js        → allen oben; addons/testbrief/testbrief.js (dynamisch, nur bei Klick)
 debug-panel.js → core.js, persistence.js?v=p1
 ```
 
@@ -101,7 +101,7 @@ Reihenfolge zählt: Spätere Dateien überschreiben frühere bei gleicher Spezif
 
 | Pfad | Zweck | Format | Geladen von |
 | :--- | :--- | :--- | :--- |
-| `website/data/charaktere_konsolidiert.json` | Figurenkatalog, 303 Figuren | JSON | `main.js`, `addons/testbrief.js` |
+| `website/addons/testbrief/charactere.json` | Figurenkatalog, 303 Figuren | JSON | `addons/testbrief/testbrief.js` (modul-relativ via `import.meta.url`) |
 | `website/data/orte.json.gz` | PLZ → Ort, **kanonisch** | gzip-JSON | `js/address.js` |
 | `website/data/de_plz_ort.json.gz` | Kompatibilitätskopie von `orte` | gzip-JSON | `js/address.js` (Fallback) |
 | `website/data/grosskunden.json.gz` | Großempfänger-Index, **kanonisch** | gzip-JSON | `js/address.js` |
@@ -137,8 +137,8 @@ ES-Module laden nicht über `file://`. **Nicht** mit `node test/all.js` aufrufen
    ADR-Zuordnung; diese Map für Lade-Trigger, Abhängigkeiten und Kaskade. Nicht doppelt suchen.
 2. **Kernmodule sind immer geladen.** Änderungen an `core.js`, `persistence.js`,
    `document.js`, `settings.js`, `salutation.js`, `address.js`, `main.js` wirken sofort.
-3. **Add-ons nur auf Trigger.** `testbrief.js` ist statisch importiert; `webmcp-bridge.js`
-   wird gar nicht geladen. Vor Änderungen den Trigger-Pfad in `main.js` prüfen.
+3. **Add-ons nur auf Trigger.** `testbrief.js` wird dynamisch geladen (nur bei Klick);
+   `webmcp-bridge.js` wird gar nicht geladen. Vor Änderungen den Trigger-Pfad in `main.js` prüfen.
 4. **Debug-Module sind nur mit `?debug=` aktiv** — aber Test-API. Nicht löschen, weil sie
    ohne Query-Parameter ungenutzt aussehen.
 5. **CSS in Ladereihenfolge** (`base → sidebar → sheet → print`); `sheet` und

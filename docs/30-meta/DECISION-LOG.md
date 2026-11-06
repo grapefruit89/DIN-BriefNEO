@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-11-05'
+updated: '2026-11-06'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -2237,3 +2237,32 @@ dieselbe Sackgasse geschickt.
 **Generalisierung:** Ein Befund ist eine Hypothese, kein Fakt. Drei von sieben waren falsch —
 und der als „Mittel" einsortierte Punkt war der einzige mit sichtbarer Wirkung. Befunde werden
 gegen den Code geprüft, bevor sie in einen Auftrag wandern.
+
+## 2026-11-06 — Testbrief als eigenstaendiges Plugin ausgelagert
+
+**Kontext:** Der Testbrief war das letzte Add-on, das `main.js` **statisch** importierte —
+ohne `addons/testbrief.js` startete die App nicht. Zugleich lagen sieben Funktionen doppelt
+vor (`main.js` und Add-on), und die Add-on-Version erzeugte Anschriften **ohne PLZ**
+(`resolveOrt` statt `resolveOrtZeile`) und rief `plzNeuWuerfeln()` nicht auf.
+
+**Entscheidung:**
+
+1. `addons/testbrief.js` → `addons/testbrief/testbrief.js` und
+   `data/charaktere_konsolidiert.json` → `addons/testbrief/charactere.json`. Das Plugin ist
+   selbsttragend, die Daten liegen neben dem Code (`import.meta.url`).
+2. `main.js` importiert nichts mehr aus dem Add-on. `initTestData` lädt das Plugin per
+   dynamischem `import()` erst beim Klick; schlägt das fehl, wird der Button deaktiviert,
+   statt eine Ausnahme zu werfen.
+3. Sieben Duplikate entfernt: `loadHeroes`, `shuffle`, `nextHero`, `extractNachname`,
+   `deriveAnrede`, `setField`, `wuerfelTestbrief`. `extractNachname` fehlte in Befund 3.1,
+   weil er nicht exportiert ist.
+4. **Die `main.js`-Semantik gilt:** `resolveOrtZeile` an allen drei Stellen (Absender-Ort,
+   Ruecksendezeile, Empfaenger-Ort) und `plzNeuWuerfeln()` zu Beginn. Die Add-on-Version war
+   fachlich falsch — Briefe haetten die PLZ verloren.
+5. Kein `testbrief.css`: Das Plugin setzt keine CSS-Klassen (`flash-success` gehoert zu
+   `address.js`).
+
+**Generalisierung:** Ein Add-on, das statisch importiert wird, ist kein Add-on, sondern
+Kernlast — den Unterschied sieht man erst, wenn der Import scheitern darf. Und zwei Kopien
+derselben Funktion divergieren nicht zufaellig, sondern **fachlich**: hier fehlte der
+PLZ-Teil, und es fiel nicht auf, weil die Kopie nie lief.

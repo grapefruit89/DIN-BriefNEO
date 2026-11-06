@@ -61,7 +61,7 @@ def get_fitting_street(fig):
 
 def run_consolidation():
     sources = [
-        ('/home/moritz/repos/DIN-BriefNEO/website/data/charaktere_konsolidiert.json', 'basis'),
+        ('/home/moritz/repos/DIN-BriefNEO/website/addons/testbrief/charactere.json', 'basis'),
         ('/home/moritz/repos/DIN-BriefNEO/website/data/charactere von grok.json', 'grok'),
         ('/home/moritz/repos/DIN-BriefNEO/website/data/charactere von chat gpt.json', 'chatgpt'),
         ('/home/moritz/repos/DIN-BriefNEO/website/data/mistral.json', 'mistral')
@@ -178,7 +178,7 @@ def run_consolidation():
 
         final_list.append(c)
 
-    out_file = '/home/moritz/repos/DIN-BriefNEO/website/data/charaktere_konsolidiert.json'
+    out_file = '/home/moritz/repos/DIN-BriefNEO/website/addons/testbrief/charactere.json'
     ausgabe = {}
     if meta:
         meta['figuren'] = len(final_list)

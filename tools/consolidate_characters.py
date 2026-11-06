@@ -94,7 +94,7 @@ def consolidate():
         c['quellenAnzahl'] = len(sources)
         result.append(c)
 
-    out_path = os.path.join(data_dir, 'charaktere_konsolidiert.json')
+    out_path = '/home/moritz/repos/DIN-BriefNEO/website/addons/testbrief/charactere.json'
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump({'figuren': result}, f, ensure_ascii=False, indent=2)
 

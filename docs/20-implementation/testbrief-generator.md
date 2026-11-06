@@ -14,7 +14,7 @@ doc_links:
   - ADR-JS
   - glossary
 code_links:
-  - website/addons/testbrief.js
+  - website/addons/testbrief/testbrief.js
   - website/js/main.js
 error_patterns:
   - testbrief
@@ -34,7 +34,7 @@ depends_on: []
 
 > [!tip] Wozu dieser Guide
 > Er beschreibt die Regeln, nach denen der Knopf „Testbrief" aus den Charakterdaten
-> in `website/data/charaktere_konsolidiert.json` einen Empfängerblock und einen
+> in `website/addons/testbrief/charactere.json` einen Empfängerblock und einen
 > Text baut. Die Regeln sind Laufzeitlogik in `website/addons/testbrief.js`; die JSON
 > bleibt die Quelle der Wahrheit und wird dabei nicht verändert.
 

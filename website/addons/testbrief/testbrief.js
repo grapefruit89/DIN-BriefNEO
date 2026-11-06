@@ -11,9 +11,9 @@
  * es bereinigt und wählt aus. Fehlt ein Fakt, entfällt die Aussage.
  */
 
-import { eventBus, Events } from '../js/core.js';
-import { applyLetterDate } from '../js/persistence.js';
-import { SalutationEngine } from '../js/salutation.js';
+import { eventBus, Events } from '../../js/core.js';
+import { applyLetterDate } from '../../js/persistence.js';
+import { SalutationEngine } from '../../js/salutation.js';
 
 /* =========================================================================================
  * 1. REGELN & HEURISTIKEN (ADRESS- & ANKERLEITER)
@@ -406,7 +406,7 @@ export function generateNerdText(sender, recipient, dritte, themenHook) {
 async function loadHeroes() {
   if (heroesCache) return heroesCache;
   try {
-    const res = await fetch('data/charaktere_konsolidiert.json');
+    const res = await fetch(new URL('./charactere.json', import.meta.url));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     heroesCache = Array.isArray(data) ? data : (data.figuren || []);
@@ -503,6 +503,7 @@ function setField(id, value) {
 export async function wuerfelTestbrief() {
   const heroes = await loadHeroes();
   if (!heroes) return;
+  plzNeuWuerfeln();
   const usableHeroes = heroes.filter(istBriefbar);
   if (usableHeroes.length < 5) {
     console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
@@ -531,11 +532,11 @@ export async function wuerfelTestbrief() {
   // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
   setField('absender-namenszeile', senderName);
   setField('absender-strasse', resolveStrasse(sender));
-  setField('absender-ort', resolveOrt(sender));
+  setField('absender-ort', resolveOrtZeile(sender));
   setField('absender-tel', '+49 228 123456-78');
   setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
 
-  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrt(sender)].filter(Boolean);
+  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
   setField('rucksendezeile', rucksendeTeile.join(' • '));
 
   // 5. Empfänger
@@ -543,7 +544,7 @@ export async function wuerfelTestbrief() {
   setField('empfaenger-firma', resolveFirma(recipient));
   setField('empfaenger-namenszeile', recipientName);
   setField('empfaenger-strasse', resolveStrasse(recipient));
-  setField('empfaenger-ort', resolveOrt(recipient));
+  setField('empfaenger-ort', resolveOrtZeile(recipient));
 
   // 6. Briefkern
   setField('betreff', randomBetreff(themenHook));
@@ -579,3 +580,5 @@ export async function wuerfelTestbrief() {
   // 8. Entwurf persistieren
   eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
 }
+
+export { wuerfelTestbrief as starteTestbrief };

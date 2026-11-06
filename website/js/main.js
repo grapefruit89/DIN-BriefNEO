@@ -2,13 +2,12 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
-import { generateNerdText, getCharHook, istBriefbar, plzNeuWuerfeln, randomBetreff, resolveFirma, resolveOrtZeile, resolveStrasse } from '../addons/testbrief.js';
 import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initSenderSync } from './address.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, DraftManager, UIProtections } from './document.js';
 /* js/main.js */
 import { applyLetterDate, initImportExport, MetadataService, migrateStorage } from './persistence.js';
-import { SalutationEngine, SalutationFeature } from './salutation.js';
+import { SalutationFeature } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
 
 /**
@@ -335,194 +334,22 @@ function initApp() {
     }
   }
 
-/* =========================================================================================
- * TESTDATEN-GENERATOR (TESTBRIEF & FELDER LEEREN)
- * ========================================================================================= */
-
-/** @type {any[] | null} */
-let heroesCache = null;
-/** @type {any[] | null} */
-let heroesPool = null;
-let heroIndex = 0;
-/** @type {any | null} */
-let lastHero = null;
-
 /**
- * Lädt die 325 konsolidierten Figuren einmalig asynchron (Lazy Load beim ersten Klick).
- * @returns {Promise<any[] | null>}
- */
-async function loadHeroes() {
-  if (heroesCache) return heroesCache;
-  try {
-    const res = await fetch('data/charaktere_konsolidiert.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    heroesCache = Array.isArray(data) ? data : (data.figuren || []);
-    return heroesCache;
-  } catch (err) {
-    console.error('[TestData] Fehler beim Laden der Figuren:', err);
-    return null;
-  }
-}
-
-/**
- * Fisher-Yates-Shuffle.
- * @param {any[]} arr
- * @returns {any[]}
- */
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-/**
- * Zieht den nächsten Helden aus dem Pool mit Reshuffle-Ausschluss des letzten Helden.
- * @param {any[]} heroes
- * @returns {any}
- */
-function nextHero(heroes) {
-  if (!heroesPool || heroIndex >= heroesPool.length) {
-    const filtered = lastHero ? heroes.filter(h => h !== lastHero) : heroes;
-    heroesPool = shuffle(filtered);
-    heroIndex = 0;
-  }
-  const hero = heroesPool[heroIndex++];
-  lastHero = hero;
-  return hero;
-}
-
-/**
- * Extrahiert den Nachnamen (letztes Wort vor eventuellen Klammern).
- * @param {string} fullName
- * @returns {string}
- */
-function extractNachname(fullName) {
-  if (!fullName) return '';
-  const clean = fullName.replace(/\s*\([^)]*\)/g, '').trim();
-  const parts = clean.split(/\s+/).filter(Boolean);
-  return parts.length > 0 ? parts[parts.length - 1] : clean;
-}
-
-/**
- * Leitet die Anrede ab: Prüft recipient.geschlecht (m/w/d), nutzt ansonsten
- * die SalutationEngine als Fallback und endet bei neutralem DIN-Standard.
- * @param {any} _sender
- * @param {any} recipient
- * @returns {string}
- */
-function deriveAnrede(_sender, recipient) {
-  if (recipient?.geschlecht) {
-    const nachname = extractNachname(recipient.buergerlicherName || recipient.name);
-    if (recipient.geschlecht === 'm') return `Sehr geehrter Herr ${nachname},`;
-    if (recipient.geschlecht === 'w') return `Sehr geehrte Frau ${nachname},`;
-    if (recipient.geschlecht === 'd') return `Sehr geehrte*r ${nachname},`;
-  }
-  const candidate = recipient.buergerlicherName || recipient.name || '';
-  const derived = SalutationEngine.derive({ rawName: candidate, formality: 'formal' });
-  if (derived && derived !== 'Sehr geehrte Damen und Herren,' && derived !== 'Guten Tag,') {
-    return derived;
-  }
-  return 'Sehr geehrte Damen und Herren,';
-}
-
-/**
- * Setzt den Textinhalt eines Elements und feuert ein bubbelndes input-Event.
- * @param {string} id
- * @param {string} value
- */
-function setField(id, value) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = value || '';
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-}
-
-/**
- * Befüllt alle Felder des Briefes mit zwei Pflichtfiguren und 0..3 Dritten.
- */
-async function wuerfelTestbrief() {
-  const heroes = await loadHeroes();
-  if (!heroes) return;
-  // Jeder Brief wuerfelt die PLZ-Varianten neu (z. B. die 17 Springfields).
-  plzNeuWuerfeln();
-  const usableHeroes = heroes.filter(istBriefbar);
-  if (usableHeroes.length < 5) {
-    console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
-    return;
-  }
-
-  // 1. Pflicht-Charaktere
-  const sender = nextHero(usableHeroes);
-  const recipient = nextHero(usableHeroes);
-
-  // 2. Gewürfelte Dritte (n = 0..3)
-  const numDritte = Math.floor(Math.random() * 4);
-  const dritte = [];
-  for (let i = 0; i < numDritte; i++) {
-    dritte.push(nextHero(usableHeroes));
-  }
-
-  // 3. Thema aus allen beteiligten Charakteren würfeln
-  const allChars = [sender, recipient, ...dritte];
-  const themenChar = allChars[Math.floor(Math.random() * allChars.length)];
-  const themenHook = getCharHook(themenChar);
-
-  const senderName = sender.buergerlicherName || sender.name;
-  const recipientName = recipient.buergerlicherName || recipient.name;
-
-  // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
-  setField('absender-namenszeile', senderName);
-  setField('absender-strasse', resolveStrasse(sender));
-  setField('absender-ort', resolveOrtZeile(sender));
-  setField('absender-tel', '+49 228 123456-78');
-  setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
-
-  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
-  setField('rucksendezeile', rucksendeTeile.join(' • '));
-
-  // 5. Empfänger
-  // Firmenzeile nur bei einer einzelnen belegten Organisation — kein Berufs-Blob.
-  setField('empfaenger-firma', resolveFirma(recipient));
-  setField('empfaenger-namenszeile', recipientName);
-  setField('empfaenger-strasse', resolveStrasse(recipient));
-  setField('empfaenger-ort', resolveOrtZeile(recipient));
-
-  // 6. Briefkern
-  setField('betreff', randomBetreff(themenHook));
-  setField('anrede', deriveAnrede(sender, recipient));
-  setField('text', generateNerdText(sender, recipient, dritte, themenHook));
-  setField('grussformel', 'Mit freundlichen Grüßen');
-  setField('unterschrift', senderName);
-  applyLetterDate();
-
-  // 7. Zusatzblöcke & Postvermerk zurücksetzen
-  const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-  if (anlagenToggle) {
-    anlagenToggle.checked = false;
-    document.getElementById('anlagen-text')?.replaceChildren();
-  }
-  const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
-  if (fussToggle) {
-    fussToggle.checked = false;
-  }
-  syncPostvermerkFromSidebar('');
-
-  // 8. Entwurf persistieren
-  eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-}
-
-/**
- * Verdrahtet den Testbrief-Button.
+ * Verdrahtet den Testbrief-Button. Das Plugin wird erst beim Klick geladen,
+ * damit die Figurendaten nicht im Startpfad liegen.
  */
 function initTestData() {
-  const btnTestbrief = document.getElementById('btn-testbrief');
+  const btnTestbrief = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-testbrief'));
   if (!btnTestbrief) return;
 
-  btnTestbrief.addEventListener('click', () => {
-    wuerfelTestbrief().catch(err => console.error('[TestData] Fehler:', err));
+  btnTestbrief.addEventListener('click', async () => {
+    try {
+      const plugin = await import('../addons/testbrief/testbrief.js');
+      await plugin.starteTestbrief();
+    } catch (error) {
+      console.warn('[Testbrief] Plugin nicht verfügbar:', error);
+      btnTestbrief.disabled = true;
+      btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
+    }
   });
 }

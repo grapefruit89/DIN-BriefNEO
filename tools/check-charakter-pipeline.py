@@ -20,7 +20,7 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DATEN = REPO / 'website' / 'data' / 'charaktere_konsolidiert.json'
+DATEN = REPO / 'website' / 'addons' / 'testbrief' / 'charactere.json'
 ENRICH = REPO / 'tools' / 'enrich_data.py'
 CONSOLIDATE = REPO / 'tools' / 'consolidate_all.py'
 PLZ_GZ = REPO / 'website' / 'data' / 'de_plz_ort.json.gz'

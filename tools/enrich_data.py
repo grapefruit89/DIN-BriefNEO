@@ -681,7 +681,7 @@ ENRICHMENT = {
     }
 }
 
-STANDARD_ZIEL = '/home/moritz/repos/DIN-BriefNEO/website/data/charaktere_konsolidiert.json'
+STANDARD_ZIEL = '/home/moritz/repos/DIN-BriefNEO/website/addons/testbrief/charactere.json'
 # Optionaler Zielpfad fuer Trockenlaeufe: python3 tools/enrich_data.py /tmp/kopie.json
 file_path = sys.argv[1] if len(sys.argv) > 1 else STANDARD_ZIEL
 with open(file_path, 'r', encoding='utf-8') as f:

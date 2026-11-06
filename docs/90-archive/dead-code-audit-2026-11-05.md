@@ -30,8 +30,8 @@ supersedes: []
 # Dead-Code-Audit — geprüfte und korrigierte Befundliste
 
 **Datum:** 2026-11-05 · **Umfang:** Befundliste 4.1–4.7 aus dem externen Audit
-**Modus:** Jeder Befund wurde gegen den Code geprüft. Drei Befunde waren falsch.
-**Ergebnis:** vier Code-Änderungen, drei Doku-Korrekturen, drei Befunde verworfen.
+**Modus:** Jeder Befund wurde gegen den Code geprüft.
+**Ergebnis:** vier bestätigt (4.1, 4.2, 4.3, 4.5) · zwei widerlegt (4.4, 4.6) · einer relativiert (4.7).
 
 > [!info] Warum diese Datei existiert
 > Die ursprüngliche Befundliste hatte keinen Ort im Repo. Damit ihre Korrekturen
@@ -46,7 +46,7 @@ supersedes: []
 | 4.2 | Niedrig | `salutation.js` referenziert `#btn-style-formal/polite/casual`, die es nicht gibt. Gestellt wird der Stil über `#stil-select`. | `salutation.js:260,266,323`; `index.html:102-104` | entfernt |
 | 4.3 | **Hoch** | `js/boot-theme.js` wird nicht geladen. Der Inline-Block setzt nur `data-theme`, **nicht `data-style`**. Wer Stil „kompakt" gespeichert hat, sieht die Seite zuerst im Default und dann umspringen — der FOUC-Schutz war halb abgeschaltet. | `boot-theme.js:16-17` vs. `index.html:23-37`, `settings.js:80,147-148`; Rückbau in `bac3c3c` | behoben (beide HTML-Dateien) |
 | 4.5 | Niedrig | `addons/webmcp-bridge.js` (202 Zeilen) wird nirgends importiert. | einzige Erwähnungen: `tools/build_db.js`, `docs/STRUCTURE.md` | **liegen gelassen**, in [[STRUCTURE]] als „derzeit nicht eingebunden" markiert |
-| 4.7 | Niedrig | `injectFont` prüft Font-Family `'AptosCustom'`, die nirgends definiert wird. **Ursprung: Migrationsschutz** aus `efe5af8` („native Systemschrift-Kaskade (Aptos-First)"). | `settings.js:200,313`; `git log -S AptosCustom` | **nicht angefasst** — erst löschen, wenn die Migration nachweislich abgeschlossen ist |
+| 4.7 | Niedrig | `injectFont` prüft Font-Family `'AptosCustom'`, die nirgends definiert wird. **Ursprung: Migrationsschutz** aus `efe5af8` („native Systemschrift-Kaskade (Aptos-First)"). | `settings.js:200,313`; `git log -S AptosCustom` | **tot, entfernbar** — kein Schreibpfad: nur zwei Vergleichsstellen (`settings.js:200,313`), nirgends wird eine `FontFace` mit dieser Family registriert (nur `CustomUserFont`). `document.fonts` kann sie daher nie enthalten, der Vergleich ist immer falsch. Entfernen in einem separaten Commit |
 | 4.8 | **Hoch** | Archivieren der `webmcp-bridge.js` nach `docs/90-archive/` bricht die TypeScript-Prüfung: `docs/90-archive/webmcp-bridge.js(11,34): error TS2307: Cannot find module '../js/core.js'` — relative Importe lösen sich am neuen Ort nicht mehr auf. Folge: `Fitness Score 99.93 %`, Gate rot. | eigener Gate-Lauf 2026-11-05 | **Option A: liegen lassen.** Ein sauberes Archivieren setzt voraus, dass `jsconfig.json` `docs/` ausschließt **oder** `tools/build_db.js` bereinigt ist — beides ein eigener Auftrag |
 
 ## Widerlegte Befunde
@@ -54,7 +54,7 @@ supersedes: []
 | # | Behauptung | Gegenbeleg |
 | :--- | :--- | :--- |
 | 4.4 | `debug-json-panel.js` und `debug-recorder.js` seien Re-Export-Wrapper ohne Eigenwert | Sie sind **Test-API-Oberfläche**: `test/all.js:1790,1791,1945,1982` importieren `initAutocompleteRecorder` und `initJSONDebugPanel` namentlich. Kein Dead Code. |
-| 4.6 | `DraftManager.#isRestoring` sei ein totes Flag, weil `#restoreState` nie `saveDraft` aufruft | Das Flag schützt gegen einen **debounced** `saveDraft`, der während eines Restores feuern kann. Gesetzt `document.js:876`, geprüft `:829`, zurückgesetzt `:926`; der Debounce-Kontext steht in `:821-829`. Kein toter Code. |
+| 4.6 | `DraftManager.#isRestoring` sei ein totes Flag | Das Flag schützt gegen einen **debounced** `saveDraft`, der während eines Restores feuern kann. Gesetzt `document.js:876`, geprüft `:829`, zurückgesetzt `:926`; der Debounce-Kontext steht in `:821-829`. **Widerlegt — das Flag ist notwendig.** Nicht anfassen. |
 
 ## Neue Befunde (Doku vs. Code)
 

@@ -305,3 +305,19 @@ oder Dead-Code-Commits verursacht.
 
 Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
 UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und [[befundpruefung-2026-11-05]].
+
+### B34 · Schema-Verweis in `llms.txt` zeigt ins Leere · **M** · ⭐⭐
+`website/llms.txt` verweist im JSON-Beispiel auf
+`https://grapefruit89.github.io/DIN-BriefNEO/schema/v2/din-letter.json`. Die Datei
+existiert im Repo **nicht** (`website/schema/` fehlt), live antwortet sie mit **HTTP 404**.
+
+Zwei Wege, einer muss entschieden werden:
+
+1. **Schema-Datei anlegen** (`website/schema/v2/din-letter.json`) — dann hat der Verweis ein
+   Ziel und Werkzeuge können validieren. Aufwand: Schema aus `buildDinLetterPayload`
+   ableiten und im Deploy mit ausliefern.
+2. **`$schema`-Zeile entfernen** — dann beschreibt das Beispiel nur noch das Format, ohne
+   auf ein nicht existierendes Artefakt zu zeigen.
+
+Bis dahin bleibt 6.1 „teilweise behoben": importierbar, aber mit totem Verweis.
+Siehe [[befundpruefung-2026-11-05]].

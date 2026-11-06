@@ -9,47 +9,48 @@ DIN-BriefNEO ist eine reine Client-Side-Webanwendung zur Erstellung und Formatie
 - **Architektur:** 100 % clientseitig, Zero-Dependency, keine externen Frameworks, keine Cloud-Datenspeicherung.
 - **Datenschutz:** Alle Daten verbleiben ausschließlich im Browser des Nutzers (LocalStorage für Entwürfe, In-Memory-Blobs für Signaturen).
 - **Export:** Nativer Browser-Druckdialog (Druck / PDF) mit exakter mm-Typografie via Container Queries und @page.
-- **Datenformat:** Reines Text-JSON (Schema v2, Zero-Base64).
+- **Datenformat:** Reines Text-JSON (Schema v3, ohne Base64).
 
-## Dokumenten-Schema (Schema v2)
+## Dokumenten-Schema (Schema v3)
 
-Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keinerlei Base64- oder Binärdaten:
+Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keine Base64- oder Binärdaten. Signaturbild und eigene Schrift bleiben lokal und sind nicht Teil der Datei; ein Container für beide folgt.
 
 ```json
 {
   "format": "dinletter",
-  "$schema": "https://grapefruit89.github.io/DIN-BriefNEO/schema/v2/din-letter.json",
-  "schema_version": 2,
+  "schema_version": 3,
   "generator": "DIN-BriefNEO",
-  "document": {
-    "layout": "form-b",
+  "generated_at": "2026-11-06T14:32:07+01:00[Europe/Berlin]",
+  "layout": {
+    "form": "form-b",
+    "guides": false,
     "copyfit": false,
-    "guides": true,
-    "fields": {
-      "rucksendeangabe": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
-      "vermerke": "",
-      "empfaenger-firma": "",
-      "empfaenger-name": "Erika Mustermann",
-      "empfaenger-strasse": "Beispielweg 42",
-      "empfaenger-ort": "54321 Beispielstadt",
-      "absender-name": "Max Mustermann",
-      "absender-strasse": "Musterstraße 1",
-      "absender-ort": "12345 Musterstadt",
-      "absender-tel": "+49 123 456789",
-      "absender-mail": "max@example.com",
-      "datum": "12. Oktober 2026",
-      "betreff": "Kündigung des Vertrags Nr. 12345",
-      "anrede": "Sehr geehrte Damen und Herren,",
-      "text": "hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.",
-      "grussformel": "Mit freundlichen Grüßen",
-      "unterschrift": "Max Mustermann",
-      "anlagen-angabe": "<li>Kündigungsbestätigung erbeten</li>"
-    }
+    "marks": true
   },
-  "profile": {
-    "sender": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
-    "theme": "auto",
-    "formality": "formal"
+  "fields": {
+    "rucksendeangabe": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
+    "vermerke": "",
+    "empfaenger-firma": "",
+    "empfaenger-name": "Erika Mustermann",
+    "empfaenger-strasse": "Beispielweg 42",
+    "empfaenger-ort": "54321 Beispielstadt",
+    "absender-name": "Max Mustermann",
+    "absender-strasse": "Musterstraße 1",
+    "absender-ort": "12345 Musterstadt",
+    "absender-tel": "+49 123 456789",
+    "absender-mail": "max@example.com",
+    "datum": "12. Oktober 2026",
+    "betreff": "Kündigung des Vertrags Nr. 12345",
+    "anrede": "Sehr geehrte Damen und Herren,",
+    "text": "<p>hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.</p>",
+    "grussformel": "Mit freundlichen Grüßen",
+    "unterschrift": "Max Mustermann",
+    "anlagen-angabe": "<li>Kündigungsbestätigung erbeten</li>",
+    "fuss-spalte-1": "Beispielfirma GmbH",
+    "fuss-spalte-2": "Amtsgericht Musterstadt · HRB 12345",
+    "fuss-spalte-3": "IBAN DE00 0000 0000 0000 0000 00",
+    "toggle-anlagen": true,
+    "toggle-fuss": true
   },
   "signature": {
     "transform": { "x": 11.9, "y": 96.0, "scale": 0.5, "rot": 0 }

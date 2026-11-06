@@ -139,35 +139,82 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
 });
 
 describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
-  it('buildDinLetterPayload setzt Header mit schema_version + tool-Link', () => {
+  it('buildDinLetterPayload setzt Schema v3 mit generated_at', () => {
     const payload = buildDinLetterPayload({ betreff: 'Test' });
     assertEqual(payload.format, DINLETTER_FORMAT);
     assertEqual(payload.schema_version, Constants.SCHEMA_VERSION);
-    assert(payload.tool.includes('github.com/grapefruit89/DIN-BriefNEO'), 'Tool-Link im Header');
-    assert(payload.created.match(/^\d{4}-\d{2}-\d{2}$/), 'created = ISO-Datum');
-    assert(payload.draft.betreff === 'Test', 'Draft-Payload 1:1');
+    assertEqual(payload.schema_version, 3);
+    assertEqual(payload.generator, 'DIN-BriefNEO');
+    assert(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(payload.generated_at), 'generated_at ist ein Zeitstempel');
+    assertEqual(payload.fields.betreff, 'Test');
+    assert(!('draft' in payload), 'draft ist gestrichen');
+    assert(!('settings' in payload), 'settings ist gestrichen');
+    assert(!('profile' in payload), 'profile ist gestrichen');
+    assert(!('font' in payload), 'font ist gestrichen');
+    assert(!('app' in payload) && !('created' in payload) && !('tool' in payload), 'Meta-Rauschen ist gestrichen');
   });
 
-  it('parseDinLetterPayload akzeptiert ein gültiges Export-Payload (Roundtrip)', () => {
-    const payload = buildDinLetterPayload({ betreff: 'Roundtrip', brieftext: '<b>x</b>' });
+  it('layout.marks wird exportiert (Regression: marks ging beim Export verloren)', () => {
+    assertEqual(buildDinLetterPayload({}, { marks: false }).layout.marks, false, 'marks: false kommt an');
+    assertEqual(buildDinLetterPayload({}, { marks: true }).layout.marks, true, 'marks: true kommt an');
+    assertEqual(buildDinLetterPayload({}).layout.marks, true, 'Default ist true');
+  });
+
+  it('layout.guides ist ohne Einstellungen false (Abgleich mit DEFAULT_SETTINGS)', () => {
+    assertEqual(buildDinLetterPayload({}).layout.guides, false, 'Default guides = false');
+    assertEqual(buildDinLetterPayload({}, { guides: true }).layout.guides, true, 'gesetztes guides kommt an');
+    assertEqual(buildDinLetterPayload({}).layout.copyfit, false, 'copyfit hat keinen Schreiber, Default false');
+    assertEqual(buildDinLetterPayload({}).layout.form, 'form-b', 'Default Form B');
+    assertEqual(buildDinLetterPayload({}, { layout: 'form-a' }).layout.form, 'form-a', 'Form A kommt an');
+    assertEqual(buildDinLetterPayload({}, { layout: 'form-z' }).layout.form, 'form-b', 'ungültige Form fällt auf B zurück');
+  });
+
+  it('Toggles sind Boolean im JSON, vermerke-visible ist kein Feld', () => {
+    const payload = buildDinLetterPayload({ 'toggle-anlagen': 'true', 'toggle-fuss': true, 'vermerke-visible': 'true', vermerke: 'Einschreiben' });
+    assertEqual(payload.fields['toggle-anlagen'], true, 'String "true" wird Boolean');
+    assertEqual(payload.fields['toggle-fuss'], true);
+    assert(!('vermerke-visible' in payload.fields), 'vermerke-visible wird nicht exportiert');
+    assertEqual(buildDinLetterPayload({ 'toggle-anlagen': false }).fields['toggle-anlagen'], false);
+  });
+
+  it('parseDinLetterPayload akzeptiert v3 (Roundtrip)', () => {
+    const payload = buildDinLetterPayload(
+      { betreff: 'Roundtrip', text: '<p>x</p>' },
+      { layout: 'form-a', marks: false, guides: false }
+    );
     const result = parseDinLetterPayload(JSON.stringify(payload));
-    assert(result.ok, 'valides Payload wird akzeptiert');
+    assert(result.ok, 'v3 wird akzeptiert');
     if (result.ok) {
-      assertEqual(result.draft.betreff, 'Roundtrip');
-      assertEqual(result.schemaVersion, Constants.SCHEMA_VERSION);
+      assertEqual(result.fields.betreff, 'Roundtrip');
+      assertEqual(result.layout?.form, 'form-a');
+      assertEqual(result.layout?.marks, false);
+      assertEqual(result.schemaVersion, 3);
     }
   });
 
-  it('parseDinLetterPayload lehnt Mist ab (kein JSON, falsches Format, falsche Version, Feldtypen)', () => {
+  it('parseDinLetterPayload lehnt Schema v1 und v2 mit klarer Meldung ab', () => {
+    const v1 = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { betreff: 'alt' } });
+    const v2 = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 2, document: { fields: { betreff: 'alt' } } });
+    const r1 = parseDinLetterPayload(v1);
+    const r2 = parseDinLetterPayload(v2);
+    assert(!r1.ok, 'v1 abgelehnt');
+    assert(!r2.ok, 'v2 abgelehnt');
+    if (!r1.ok && !r2.ok) {
+      assert(r1.reason.includes('nicht mehr unterstützt'), 'Meldung nennt die fehlende Unterstützung');
+      assert(r2.reason.includes('nicht mehr unterstützt'), 'Meldung auch bei v2');
+    }
+  });
+
+  it('parseDinLetterPayload lehnt Mist ab (kein JSON, falsches Format, Feldtypen)', () => {
     assert(!parseDinLetterPayload('kein json {').ok, 'kein JSON');
     assert(!parseDinLetterPayload('{"format":"anderes"}').ok, 'falsches format');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 99, draft: {} })).ok, 'zu hohe schema_version');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { f: 42 } })).ok, 'nicht-string Feld');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1 })).ok, 'draft fehlt');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 99, fields: {} })).ok, 'fremde schema_version');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { f: 42 } })).ok, 'nicht-string Feld');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3 })).ok, 'fields fehlt');
   });
 
   it('parseDinLetterPayload toleriert UTF-8-BOM (Grok F4)', () => {
-    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { betreff: 'BOM' } });
+    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { betreff: 'BOM' } });
     const result = parseDinLetterPayload(`\uFEFF${payload}`);
     assert(result.ok, 'BOM-präfixtes JSON wird akzeptiert');
   });
@@ -175,144 +222,66 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('parseDinLetterPayload lehnt gefährliche/unplausible Keys ab (Prototyp-Hygiene, Grok F2)', () => {
     /* Achtung: { '__proto__': 'x' } als JS-Objektliteral setzt den Prototyp
      * (kein eigener Key) — die Tests prüfen daher die ROHE Datei-JSON. */
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"__proto__":"x"}}').ok, '__proto__ abgelehnt');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"constructor":"x"}}').ok, 'constructor abgelehnt');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt');
-    const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":1,"draft":{"brieftext":"x"}}');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"__proto__":"x"}}').ok, '__proto__ abgelehnt');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"constructor":"x"}}').ok, 'constructor abgelehnt');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt');
+    const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"betreff":"x"}}');
     assert(ok.ok, 'normale Ids erlaubt');
   });
 
-  it('buildDinLetterPayload und parseDinLetterPayload unterstützen optionale settings und font (Voll-Backup)', () => {
-    const settings = {
-      layout: 'form-a',
-      theme: 'dark',
-      guides: false,
-      formality: 'polite',
-      signatureState: { x: 15, y: 30, scale: 0.8, rot: 5 }
-    };
-    const font = 'data:font/woff2;base64,d09GMgABAAAAAA...';
-    const payload = buildDinLetterPayload({ betreff: 'Mit Settings' }, settings, font);
+  it('parseDinLetterPayload validiert layout und signature defensiv', () => {
+    const base = { format: DINLETTER_FORMAT, schema_version: 3, fields: {} };
+    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { form: 'form-c' } })).ok, 'ungültige form abgelehnt');
+    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { guides: 'ja' } })).ok, 'guides als String abgelehnt');
+    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { marks: 1 } })).ok, 'marks als Zahl abgelehnt');
+    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: [] })).ok, 'layout als Array abgelehnt');
+    assert(!parseDinLetterPayload(JSON.stringify({ ...base, signature: { transform: { x: 'ungueltig', y: 0, scale: 1, rot: 0 } } })).ok, 'ungültige Koordinaten abgelehnt');
+    assert(parseDinLetterPayload(JSON.stringify({ ...base, layout: { form: 'form-a', marks: true } })).ok, 'gültiges layout akzeptiert');
+  });
 
-    assertEqual(payload.settings?.layout, 'form-a');
-    assertEqual(payload.settings?.theme, 'dark');
-    assertEqual(payload.font, font);
-
-    const parsed = parseDinLetterPayload(JSON.stringify(payload));
-    assert(parsed.ok, 'Voll-Backup erfolgreich geparst');
-    if (parsed.ok) {
-      assertEqual(parsed.settings?.layout, 'form-a');
-      assertEqual(parsed.settings?.theme, 'dark');
-      assertEqual(parsed.settings?.guides, false);
-      assertEqual(parsed.settings?.formality, 'polite');
-      assertEqual(parsed.settings?.signatureState?.x, 15);
-      assertEqual(parsed.settings?.signatureState?.scale, 0.8);
-      assertEqual(parsed.font, font);
+  it('layout und signature sind optional', () => {
+    const r = parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { betreff: 'x' } }));
+    assert(r.ok, 'ohne layout/signature ok');
+    if (r.ok) {
+      assertEqual(r.layout, undefined);
+      assertEqual(r.signature, undefined);
     }
   });
 
-  it('parseDinLetterPayload validiert settings und font defensiv (Schutz vor fehlerhaften/manipulierten Werten)', () => {
-    // Ungültiges Layout
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { layout: 'form-c' } })).ok, 'ungültiges Layout abgelehnt');
-    // Ungültiges Theme
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { theme: 'neon' } })).ok, 'ungültiges Theme abgelehnt');
-    // Ungültige Signatur-Koordinaten
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, settings: { signatureState: { x: 'ungueltig', y: 0, scale: 1, rot: 0 } } })).ok, 'ungültige Signatur-Koordinaten abgelehnt');
-    // Ungültiger Font (kein data: URL)
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: {}, font: 'https://evil.com/font.woff2' })).ok, 'externer Font abgelehnt');
-  });
-
-  it('buildDinLetterPayload erzeugt Schema v2 Struktur mit generator, timestamp und document', () => {
-    const payload = buildDinLetterPayload({ betreff: 'V2 Test' }, { layout: 'form-a', copyfit: true, guides: false });
-    assertEqual(payload.schema_version, 2);
-    assertEqual(payload.generator, 'DIN-BriefNEO');
-    assertEqual(payload.document.layout, 'form-a');
-    assertEqual(payload.document.copyfit, true);
-    assertEqual(payload.document.guides, false);
-    assertEqual(payload.document.fields.betreff, 'V2 Test');
+  it('buildDinLetterPayload erzeugt die v3-Struktur (layout, fields, signature)', () => {
+    const payload = buildDinLetterPayload({ betreff: 'V3 Test' }, { layout: 'form-a', copyfit: true, guides: false, marks: false });
+    assertEqual(payload.layout.form, 'form-a');
+    assertEqual(payload.layout.copyfit, true);
+    assertEqual(payload.layout.guides, false);
+    assertEqual(payload.layout.marks, false);
+    assertEqual(payload.fields.betreff, 'V3 Test');
     assert(!('placed' in payload.signature), 'signature.placed ist gestrichen (kein Leser)');
+    assertEqual(typeof payload.signature.transform.x, 'number');
   });
 
   it('buildDINLetterJSON erzeugt exakt dasselbe Datenmodell wie Export-Payload (SSoT / DeepEqual)', () => {
-    saveJSON(STORAGE_KEYS.draft, { empfaenger: 'Max Mustermann', betreff: 'SSoT Test', brieftext: 'Hallo Welt' });
-    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', copyfit: false, guides: true, theme: 'dark' });
+    saveJSON(STORAGE_KEYS.draft, { 'empfaenger-name': 'Max Mustermann', betreff: 'SSoT Test', text: '<p>Hallo Welt</p>', 'toggle-fuss': true });
+    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', copyfit: false, guides: true, marks: false });
 
     const directPayload = buildDinLetterPayload(
       loadJSON(STORAGE_KEYS.draft, {}),
-      loadJSON(STORAGE_KEYS.settings, null),
-      load(STORAGE_KEYS.font, null)
+      loadJSON(STORAGE_KEYS.settings, null)
     );
 
     const unifiedPayload = buildDINLetterJSON();
 
-    // Vergleiche alle fachlichen Felder
     assertEqual(unifiedPayload.format, directPayload.format);
     assertEqual(unifiedPayload.schema_version, directPayload.schema_version);
     assertEqual(unifiedPayload.generator, directPayload.generator);
-    assertEqual(unifiedPayload.document.layout, directPayload.document.layout);
-    assertEqual(unifiedPayload.document.copyfit, directPayload.document.copyfit);
-    assertEqual(unifiedPayload.document.guides, directPayload.document.guides);
-    assertEqual(JSON.stringify(unifiedPayload.document.fields), JSON.stringify(directPayload.document.fields));
-    assertEqual(JSON.stringify(unifiedPayload.profile), JSON.stringify(directPayload.profile));
+    assertEqual(JSON.stringify(unifiedPayload.layout), JSON.stringify(directPayload.layout));
+    assertEqual(JSON.stringify(unifiedPayload.fields), JSON.stringify(directPayload.fields));
     assertEqual(JSON.stringify(unifiedPayload.signature), JSON.stringify(directPayload.signature));
 
     // Teste mit registriertem Collector
     registerDraftCollector(() => ({ betreff: 'Live Collector' }));
     const collectorPayload = buildDINLetterJSON();
-    assertEqual(collectorPayload.document.fields.betreff, 'Live Collector');
+    assertEqual(collectorPayload.fields.betreff, 'Live Collector');
     registerDraftCollector(null);
-  });
-
-  it('parseDinLetterPayload parst Schema v2 und migriert Schema v1 automatisch (Zero-Base64)', () => {
-    // Schema v1 mit altem Base64-Signaturbild (wird sauber verworfen, Geometrie bleibt erhalten)
-    const v1Json = JSON.stringify({
-      format: DINLETTER_FORMAT,
-      schema_version: 1,
-      draft: { betreff: 'Altes Format' },
-      settings: {
-        layout: 'form-b',
-        guides: true,
-        signatureImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-        signatureState: { x: 12, y: 95, scale: 0.5, rot: 0 }
-      }
-    });
-    const res1 = parseDinLetterPayload(v1Json);
-    assert(res1.ok, 'v1 erfolgreich geparst');
-    if (res1.ok) {
-      assertEqual(res1.schemaVersion, 1);
-      assertEqual(res1.draft.betreff, 'Altes Format');
-      assertEqual(res1.settings?.layout, 'form-b');
-      assertEqual(res1.settings?.signatureImage, undefined, 'Base64-Bild wurde verworfen');
-      assertEqual(res1.settings?.signatureState?.x, 12, 'Signatur-Geometrie bleibt erhalten');
-    }
-
-    // Schema v2 (reine Text-Payload, CAD-Geometrie)
-    const v2Json = JSON.stringify({
-      format: DINLETTER_FORMAT,
-      schema_version: 2,
-      generator: 'DIN-BriefNEO',
-      timestamp: '2026-10-12T14:00:00Z',
-      document: {
-        layout: 'form-a',
-        copyfit: true,
-        guides: false,
-        fields: { betreff: 'Neues Format' }
-      },
-      profile: { sender: 'Max Mustermann', theme: 'dark', formality: 'casual' },
-      signature: { placed: true, transform: { x: 5, y: 10, scale: 1, rot: 0 } }
-    });
-    const res2 = parseDinLetterPayload(v2Json);
-    assert(res2.ok, 'v2 erfolgreich geparst');
-    if (res2.ok) {
-      assertEqual(res2.schemaVersion, 2);
-      assertEqual(res2.draft.betreff, 'Neues Format');
-      assertEqual(res2.settings?.layout, 'form-a');
-      assertEqual(res2.settings?.copyfit, true);
-      assertEqual(res2.settings?.guides, false);
-      assertEqual(res2.settings?.theme, 'dark');
-      assertEqual(res2.settings?.formality, 'casual');
-      assertEqual(res2.settings?.signatureState?.x, 5);
-      assertEqual(res2.settings?.signatureState?.scale, 1);
-    }
   });
 });
 

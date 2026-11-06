@@ -4,7 +4,7 @@ title: 'ADR-DATA-PERSISTENCE: Daten-Speicherung & Datumshandling'
 type: adr
 status: active
 created: '2026-07-02'
-updated: '2026-09-30'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -61,8 +61,8 @@ depends_on: []
 ### 3.1 Zustandstrennung & 80/20-Architekturgrenze v1.0
 
 - **Dokumentinhalt (`din_draft_current`):** Enthält ausschließlich Textfelder und den Postvermerk (`seitenleiste-postvermerk-select`), frei von UI-Schaltern.
-- **Einstellungen & Signatur (`din_settings`):** Beherbergt Workspace-Präferenzen (`theme`, `guides`) sowie in v1.0 pragmatisch Form A/B (`layout`) und das canvas-skalierte Signaturbild (`signatureImage`, `signatureState`).
-- **Kompensation:** Der JSON-Export (`buildDinLetterPayload`) exportiert beide Blöcke atomar in eine `.json`-Datei, sodass Dokumente inklusive Form A/B und Signatur vollständig portierbar sind. Eine striktere Entkopplung ist für künftige Multi-Page-Features vorgesehen.
+- **Einstellungen & Signatur (`din_settings`):** Beherbergt Workspace-Präferenzen (`theme`, `guides`, `marks`), Form A/B (`layout`) und die Signaturtransformation (`signatureState`). Das Signaturbild bleibt lokal.
+- **Export (Schema v3):** `buildDinLetterPayload` schreibt ein flaches JSON — `layout` (`form`, `guides`, `copyfit`, `marks`), `fields` (Dokumentinhalt) und `signature.transform`. Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind nicht enthalten; ein separater Container (`.dinletter`) ist vorgesehen. Schema v1/v2 wird beim Import abgelehnt; der LocalStorage-Zustand wird weiterhin über `migrateStorage` behandelt.
 
 ## 4. Consequences
 

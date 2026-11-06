@@ -698,11 +698,6 @@ export function collectDraft() {
     if (sel.id) draft[sel.id] = sel.value;
   });
 
-  const postvermerk = document.getElementById('vermerke');
-  if (postvermerk && postvermerk.getAttribute('data-visible') === 'true') {
-    draft['vermerke-visible'] = 'true';
-  }
-
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenSwitch) {
     draft['toggle-anlagen'] = anlagenSwitch.checked;
@@ -912,9 +907,11 @@ export class DraftManager {
       }
     });
 
+    // Die Sichtbarkeit des Vermerks ist abgeleitet, kein gespeichertes Feld mehr:
+    // leerer Vermerk = unsichtbar, gefuellter Vermerk = sichtbar.
     const postvermerk = document.getElementById('vermerke');
     if (postvermerk) {
-      if (draft['vermerke-visible'] === 'true') {
+      if ((postvermerk.textContent || '').trim() !== '') {
         postvermerk.setAttribute('data-visible', 'true');
       } else {
         postvermerk.removeAttribute('data-visible');

@@ -4,7 +4,7 @@ title: 'IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-09-30'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -23,10 +23,10 @@ error_patterns:
   - din tags
   - custom elements
   - atomare tags
-  - din-absender
+  - din-briefkopf
   - din-anschriftfeld
   - din-kern
-  - din-fuss
+  - din-geschaeftsangaben
   - falzmarke
   - betreff
 supersedes:
@@ -38,9 +38,9 @@ depends_on: []
 
 Die IMR-Registry ist das normative Master-Modell des DIN-Briefes. Sie definiert Vokabular, kanonische Tags, Zonen, Beziehungen und belegte normative Geometrie. HTML implementiert dieses Modell, CSS rendert es, JavaScript erzeugt keine konkurrierende normative Geometriequelle.
 
-Die 45 Atome (`8+8+8+6+12+3`) sind das vollständige fachliche Vokabular. Ein konkreter Brief instantiiert nur die benötigte Teilmenge. Nicht-Vorkommen ist kein Fehler. Ein instantiiertes Atom wird als kanonisches `<din-…>`-Element repräsentiert. Das verlangt keine JavaScript-Registrierung und keine Custom-Element-Klasse.
+Die registrierten Atome (55; 7+9+9+14+13+3, siehe Inventar) sind das vollständige fachliche Vokabular. Ein konkreter Brief instantiiert nur die benötigte Teilmenge. Nicht-Vorkommen ist kein Fehler. Ein instantiiertes Atom wird als kanonisches `<din-…>`-Element repräsentiert. Das verlangt keine JavaScript-Registrierung und keine Custom-Element-Klasse.
 
-Es gibt keine Atome 46 oder 47. Overlay ist keine der 45.
+Die Atomliste steht ausschließlich im Inventar („Maschinenlesbares Inventar"). Prosa nennt keine Anzahl, die nicht dort steht. Overlay ist kein Atom.
 
 > [!NOTE]
 > Das Anschriftfeld hat eine feste Höhe von 45 mm. Überlaufender Text wird durch den Overflow-Alarm visuell markiert. Das Overflow-Verhalten selbst ist Rendering, nicht zusätzliche Atom-Geometrie.
@@ -72,10 +72,10 @@ Diese Registry ist die **einzige normative Quelle** für: kanonische Tags, Atom-
 
 | Kategorie | Umfang | Beispiele |
 |---|---|---|
-| DOCUMENT | 1 | `din-a4` |
-| ZONE | 5 | `din-absender`, `din-anschriftfeld`, `din-infoblock`, `din-kern`, `din-fuss` |
-| ATOM | 42 | `din-betreff`, `din-anrede`, `din-text`, `din-fuss-iban`, … |
-| SYSTEM_ATOM | 3 | `din-falz-oben`, `din-falz-unten`, `din-lochmarke` |
+| DOCUMENT | 1 | `din-blatt` |
+| ZONE | 5 | `din-briefkopf`, `din-anschriftfeld`, `din-infoblock`, `din-kern`, `din-geschaeftsangaben` |
+| ATOM | 52 | `din-betreff`, `din-anrede`, `din-text`, `din-fuss-iban`, … (vollständig im Inventar) |
+| SYSTEM_ATOM | 3 | `din-falzmarke-1`, `din-falzmarke-2`, `din-lochmarke` |
 
 UI-, Rendering- und Kompositions-Bezeichner tragen **keinen** `din-`-Präfix.
 
@@ -138,12 +138,12 @@ Erlaubte und verbotene Nicht-Atom-Bezeichner. **Kein Eintrag dieser Tabelle ist 
 
 | Nicht-kanonischer Name | Typ | Kanonischer Bezug | Status |
 |---|---|---|---|
-| `empfaenger-namenszeile` | Komposition | `din-empfaenger-vorname` + `din-empfaenger-nachname` | erlaubt |
-| `absender-namenszeile` | Komposition | `din-absender-vorname` + `din-absender-nachname` | erlaubt |
+| `empfaenger-name` | Komposition | `din-empfaenger-vorname` + `din-empfaenger-nachname` | erlaubt |
+| `absender-name` | Komposition | `din-absender-vorname` + `din-absender-nachname` | erlaubt |
 | `unterschriftsbild-*` | Satellit | `din-unterschrift` | erlaubt |
 | `brief-ansicht`, `brief-kommentar` | Rendering | — (kein Atom) | erlaubt |
-| `din-empfaenger-name` | Atom (DIN 20.7.4) | Name des Empfängers | erlaubt |
-| `din-absender-name` | Atom (DIN 19.5) | Name des Absenders | erlaubt |
+| `din-empfaenger-name` | Atom (DIN 20.7.4, interpretiert) | Empfängerbezeichnungen | erlaubt |
+| `din-absender-name` | Atom (DIN 19.4.2) | Name oder Bezeichnung des Absenders | erlaubt |
 
 Diese Liste ist maschinenlesbar im JSON-Inventar unter `vocabulary` hinterlegt; `tools/imr.js` prüft sie gegen den Code.
 
@@ -169,7 +169,7 @@ Als `PROJECT` geführt: die 8-mm-Begrenzung der Falz-/Lochmarken, die Kollisions
 
 ## Platzierung Kontakt
 
-Die acht Absender-Atome haben die Default-Zone `din-absender` (Briefkopf).
+Die sieben Absender-Atome haben die Default-Zone `din-briefkopf` (Briefkopf).
 
 Sie MAY in `din-infoblock` liegen, wenn der konkrete Brief den Kontakt rechts führt.
 
@@ -180,51 +180,51 @@ Dieselbe Angabe darf nicht parallel in Briefkopf und Infoblock instantiiert werd
 ## Ebenen
 
 ```
-din-a4                         Dokumentrahmen 210 × 297, kein Atom
-├── din-absender               ZONE Briefkopf (optional)
+din-blatt                      Dokumentrahmen 210 × 297, kein Atom
+├── din-briefkopf              ZONE Briefkopf (optional)
 ├── din-anschriftfeld          ZONE Fenster
 ├── din-infoblock              ZONE rechts
 ├── din-datum                  Atom (Metadaten-Gruppe; DOM-Kindschaft nicht zwingend)
 ├── din-kern                   ZONE Briefkörper
-├── din-fuss                   ZONE Fuß
-├── din-falz-oben              SYSTEM-Atom
-├── din-falz-unten             SYSTEM-Atom
+├── din-geschaeftsangaben      ZONE Fuß
+├── din-falzmarke-1            SYSTEM-Atom
+├── din-falzmarke-2            SYSTEM-Atom
 └── din-lochmarke              SYSTEM-Atom
 ```
 
-Zonen sind keine der 45 Atome.
+Zonen sind keine Atome.
 
 ```mermaid
 graph TD
-    R[din-a4]
-    R --> B[din-absender]
+    R[din-blatt]
+    R --> B[din-briefkopf]
     R --> C[din-anschriftfeld]
     R --> D[din-infoblock]
     R --> E[din-kern]
-    R --> F[din-fuss]
+    R --> F[din-geschaeftsangaben]
     R --> S[System: Falz / Loch]
 ```
 
 ---
 
-## Übersicht 45 Atome
+## Übersicht der Atomgruppen
 
 | Bereich | Anzahl | Zone / Gruppe |
 |---|---|---|
-| Absender | 8 | `<din-absender>` Default; MAY Infoblock |
-| Anschrift | 8 | `<din-anschriftfeld>` |
-| Infoblock | 8 | `<din-infoblock>` / Datum eigene Y |
-| Kern | 6 | `<din-kern>` |
-| Fuß | 12 | `<din-fuss>` |
+| Absender | 7 | `<din-briefkopf>` Default; MAY Infoblock |
+| Anschrift | 9 | `<din-anschriftfeld>` |
+| Infoblock | 9 | `<din-infoblock>` / Datum eigene Y |
+| Kern | 14 | `<din-kern>` |
+| Fuß | 13 | `<din-geschaeftsangaben>` |
 | System | 3 | Blatt, keine Inhaltszone |
-| **Summe** | **45** | |
+| **Summe** | **55** | (Inventar ist die Quelle) |
 
 ---
 
 ## 0. Dokumentrahmen
 
-**Element:** `<din-a4>`  
-**Rolle:** Dokumentwurzel, nicht Teil der 45.  
+**Element:** `<din-blatt>`  
+**Rolle:** Dokumentwurzel, kein Atom.  
 **Normative Fläche:** Breite 210 mm, Höhe 297 mm.
 
 ### Form A und Form B
@@ -233,15 +233,15 @@ Dasselbe Blatt, dieselben Zonen und Atome. Form A und Form B unterscheiden sich 
 
 Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 
-| Objekt | Y Form A | Y Form B |
-|---|---|---|
-| Zone `din-absender` | 27 mm | 45 mm |
-| Zone `din-anschriftfeld` | 34 mm | 51 mm |
-| Zone `din-infoblock` | 34 mm | 51 mm |
-| Atom `din-datum` | 74 mm | 92 mm |
-| Zone `din-kern` | 91 mm | 109 mm |
-| Atom `din-falz-oben` | 87 mm | 105 mm |
-| Atom `din-falz-unten` | 192 mm | 210 mm |
+| Objekt | Y Form A | Y Form B | Herkunft |
+|---|---|---|---|
+| Zone `din-briefkopf` | 27 mm | 45 mm | DIN 19.4.2 nennt die **Feldhöhe** 27/45 mm; sie als Y-Position zu verwenden ist PROJECT |
+| Zone `din-anschriftfeld` | 34 mm | 51 mm | DIN |
+| Zone `din-infoblock` | 34 mm | 51 mm | DIN |
+| Atom `din-datum` | 74 mm | 92 mm | DIN |
+| Zone `din-kern` | 91 mm | 109 mm | DIN |
+| Atom `din-falzmarke-1` | 87 mm | 105 mm | DIN 19.8 |
+| Atom `din-falzmarke-2` | 192 mm | 210 mm | DIN 19.8 |
 
 Unverändert zwischen den Formen, soweit belegt: Blatt 210 × 297, Anschrift W 85 H 45, Infoblock X 125, Kern X 25 W 165, Fuß X 25 Y 241 W 165, Lochung Y 148,5 mm.
 
@@ -251,20 +251,19 @@ Wie HTML den Form-Schalter speichert und wie CSS die Y-Werte umsetzt, ist Render
 
 ## 1. Zone Absender (Briefkopf)
 
-**Zone:** `<din-absender>`  
+**Zone:** `<din-briefkopf>`  
 **Rolle:** optionaler Briefkopf. Keine Pflicht, alle acht Atome zu instantiieren.  
 **Zonen-Geometrie:** X 25 mm. Y Form A 27 mm, Form B 45 mm. Breite und Höhe der Zone: `absolute geometry: not independently specified`.
 
-| Atom | Tag | Ausrichtung | Atom-Geometrie | Modell |
-|---|---|---|---|---|
-| din-branding-logo | `<din-branding-logo>` | rechts | not independently specified | available |
-| din-absender-vorname | `<din-absender-vorname>` | links | not independently specified | Flow in Zonenbox; Komposition mit Nachname zulässig |
-| din-absender-nachname | `<din-absender-nachname>` | links | not independently specified | Flow in Zonenbox; Komposition mit Vorname zulässig |
-| din-absender-strasse | `<din-absender-strasse>` | links | not independently specified | Flow in Zonenbox |
-| din-absender-ort | `<din-absender-ort>` | links | not independently specified | Flow in Zonenbox |
-| din-absender-zusatz | `<din-absender-zusatz>` | links | not independently specified | Flow in Zonenbox |
-| din-absender-mail | `<din-absender-mail>` | links | not independently specified | Flow in Zonenbox; MAY Infoblock |
-| din-absender-tel | `<din-absender-tel>` | links | not independently specified | Flow in Zonenbox; MAY Infoblock |
+| Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
+|---|---|---|---|---|---|
+| `absender-name` | `<din-absender-name>` | 19.4.2 *(interpretiert)* | atom | ja, `#absender-name` | Name oder Bezeichnung des Absenders; Alternative zur Split-Komposition |
+| `absender-vorname` | `<din-absender-vorname>` | 19.4.2 *(interpretiert)* | atom | nein | nur wenn Vor-/Nachname getrennt geführt werden |
+| `absender-nachname` | `<din-absender-nachname>` | 19.4.2 *(interpretiert)* | atom | nein | nur wenn Vor-/Nachname getrennt geführt werden |
+| `absender-strasse` | `<din-absender-strasse>` | 19.4.2 | atom | ja, `#absender-strasse` | Zustell- oder Abholangabe |
+| `absender-ort` | `<din-absender-ort>` | 19.4.2 | atom | ja, `#absender-ort` | PLZ und Ort (Gliederung: 11.3.3) |
+| `absender-mail` | `<din-absender-mail>` | 19.4.2 | atom | ja, `#absender-mail` | Kommunikationsangabe, MAY Infoblock (20.8) |
+| `absender-tel` | `<din-absender-tel>` | 19.4.2 | atom | ja, `#absender-tel` | Kommunikationsangabe, Gliederung 11.3.2 |
 
 Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil dieser Normwerte.
 
@@ -278,16 +277,17 @@ Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil 
 
 Die Höhe 45 mm ist Zonenmaß, keine Atom-Box.
 
-| Atom | Tag | Reihenmodell | Atom-Geometrie | Modell |
-|---|---|---|---|---|
-| din-rucksendezeile | `<din-rucksendezeile>` | Zeile 1 | not independently specified | Kleinstzeile im Fenster; nicht identisch mit Zone `din-absender` |
-| din-postvermerk | `<din-postvermerk>` | Zeile 1–4 | not independently specified | optional |
-| din-empfaenger-firma | `<din-empfaenger-firma>` | Zeile 5–9 | not independently specified | optional |
-| din-empfaenger-abteilung | `<din-empfaenger-abteilung>` | Zeile 5–9 | not independently specified | optional |
-| din-empfaenger-vorname | `<din-empfaenger-vorname>` | Zeile 5–9 | not independently specified | Komposition mit Nachname zulässig |
-| din-empfaenger-nachname | `<din-empfaenger-nachname>` | Zeile 5–9 | not independently specified | Komposition mit Vorname zulässig |
-| din-empfaenger-strasse | `<din-empfaenger-strasse>` | Zeile 5–9 | not independently specified | |
-| din-empfaenger-ort | `<din-empfaenger-ort>` | Zeile 5–9 | not independently specified | |
+| Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
+|---|---|---|---|---|---|
+| `rucksendeangabe` | `<din-rucksendeangabe>` | 19.4.3 | atom | ja, `#rucksendeangabe` | einzeilig, 8 pt, oberste Position der Zusatz- und Vermerkzone |
+| `vermerke` | `<din-vermerke>` | 19.4.3 | atom | ja, `#vermerke` | Zusatz- und Vermerkzone |
+| `empfaenger-firma` | `<din-empfaenger-firma>` | 20.7.2 | atom | ja, `#empfaenger-firma` | Empfängerbezeichnung |
+| `empfaenger-abteilung` | `<din-empfaenger-abteilung>` | 20.7.4 *(interpretiert)* | atom | nein | DIN 19.5 nennt „Abteilung" als Leitwort des Infoblocks |
+| `empfaenger-name` | `<din-empfaenger-name>` | 20.7.4 *(interpretiert)* | atom | ja, `#empfaenger-name` | DIN spricht von „Empfängerbezeichnungen" (mehrzeilig) |
+| `empfaenger-vorname` | `<din-empfaenger-vorname>` | 20.7.4 *(interpretiert)* | atom | nein | Kompositions-Option |
+| `empfaenger-nachname` | `<din-empfaenger-nachname>` | 20.7.4 *(interpretiert)* | atom | nein | Kompositions-Option |
+| `empfaenger-strasse` | `<din-empfaenger-strasse>` | 20.7.2 | atom | ja, `#empfaenger-strasse` | Inlandsanschrift |
+| `empfaenger-ort` | `<din-empfaenger-ort>` | 20.7.2 | atom | ja, `#empfaenger-ort` | PLZ und Ort (Gliederung: 11.3.3) |
 
 Schriftgröße 8 pt der Rücksendezeile ist ein typografischer Parameter, keine Millimeter-Box.
 
@@ -301,16 +301,17 @@ Schriftgröße 8 pt der Rücksendezeile ist ein typografischer Parameter, keine 
 
 Kontakt-Atome der Absendergruppe MAY hier instantiiert werden (siehe Platzierung).
 
-| Atom | Tag | Lage | Atom-Geometrie | Modell |
-|---|---|---|---|---|
-| din-datum | `<din-datum>` | Y Form A 74 mm, Form B 92 mm | Y belegt; X/W/H not independently specified | Metadaten-Gruppe; muss nicht DOM-Kind von `din-infoblock` sein |
-| din-ihr-zeichen | `<din-ihr-zeichen>` | Flow in der Zone | not independently specified | available |
-| din-ihr-schreiben | `<din-ihr-schreiben>` | Flow in der Zone | not independently specified | available |
-| din-unser-zeichen | `<din-unser-zeichen>` | Flow in der Zone | not independently specified | available |
-| din-unser-schreiben | `<din-unser-schreiben>` | Flow in der Zone | not independently specified | available |
-| din-durchwahl | `<din-durchwahl>` | Flow in der Zone | not independently specified | nicht identisch mit `din-absender-tel` |
-| din-email-direkt | `<din-email-direkt>` | Flow in der Zone | not independently specified | nicht identisch mit `din-absender-mail` |
-| din-internet | `<din-internet>` | Flow in der Zone | not independently specified | available |
+| Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
+|---|---|---|---|---|---|
+| `datum` | `<din-datum>` | 20.8 | atom | ja, `#datum` | Leitwort „Datum"; Schreibung 11.4 |
+| `ihr-zeichen` | `<din-ihr-zeichen>` | 20.8 | atom | nein | Leitwort |
+| `ihr-schreiben` | `<din-ihr-schreiben>` | 20.8 | atom | nein | Leitwort „Ihre Nachricht vom" |
+| `unser-zeichen` | `<din-unser-zeichen>` | 20.8 | atom | nein | Leitwort |
+| `unser-schreiben` | `<din-unser-schreiben>` | 20.8 | atom | nein | Leitwort „Unsere Nachricht vom" |
+| `durchwahl` | `<din-durchwahl>` | 20.8 *(interpretiert)* | atom | nein | DIN-Leitwort ist „Telefon" |
+| `email-direkt` | `<din-email-direkt>` | 20.8 | atom | nein | Leitwort „E-Mail" |
+| `internet` | `<din-internet>` | 20.8 | atom | nein | Internetadresse |
+| `bezugszeichen` | `<din-bezugszeichen>` | 20.8 | atom | ja, `#bezugszeichen` | Sammelatom der Leitwörter |
 
 ---
 
@@ -322,14 +323,22 @@ Kontakt-Atome der Absendergruppe MAY hier instantiiert werden (siehe Platzierung
 Der Betreff beginnt fachlich unter der ersten Falzmarke. Die Falz-Y-Werte stehen nur bei den System-Atomen.
 Normative Kollisionsvermeidung (ehemals ADR-BETREFF): Falzmarken dürfen nicht in die Zone `din-kern` hineinragen oder den Betreff optisch durchschneiden. Sie werden am linken Blattrand auf eine funktionale Markierungslänge von 8 mm beschränkt.
 
-| Atom | Tag | Modell | Atom-Geometrie |
-|---|---|---|---|
-| din-betreff | `<din-betreff>` | Flow in der Zone; höchstens zwei Zeilen als fachliche Empfehlung; dynamischer Dateinamen-Anker | not independently specified |
-| din-anrede | `<din-anrede>` | Flow in der Zone | not independently specified |
-| din-text | `<din-text>` | mehrzeilig, wächst in der Zone | not independently specified |
-| din-grussformel | `<din-grussformel>` | Flow in der Zone | not independently specified |
-| din-unterschrift | `<din-unterschrift>` | Flow in der Zone; Bild optional als Satellit | not independently specified |
-| din-anlagen | `<din-anlagen>` | mehrzeilig, optional | not independently specified |
+| Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
+|---|---|---|---|---|---|
+| `betreff` | `<din-betreff>` | 20.9 | atom | ja, `#betreff` | höchstens zwei Zeilen (Empfehlung) |
+| `teilbetreff` | `<din-teilbetreff>` | 20.9.3 | atom | ja, `#teilbetreff` |  |
+| `anrede` | `<din-anrede>` | 20.9.4 | atom | ja, `#anrede` |  |
+| `text` | `<din-text>` | 20.10 | atom | ja, `#text` | mehrzeilig |
+| `grussformel` | `<din-grussformel>` | 20.11 | atom | ja, `#grussformel` | DIN: „Gruß" |
+| `unternehmensbezeichnung` | `<din-unternehmensbezeichnung>` | 20.12 | atom | ja, `#unternehmensbezeichnung` |  |
+| `unterschrift` | `<din-unterschrift>` | 20.13 | atom | ja, `#unterschrift` | DIN: „Angabe der Unterzeichnenden" |
+| `zusaetze` | `<din-zusaetze>` | 20.14 | atom | ja, `#zusaetze` |  |
+| `anlagenvermerk` | `<din-anlagenvermerk>` | 20.15.2 | container | ja, `#anlagenvermerk` | Container; Kinder: din-anlagen-bezeichnung, din-anlagen-angabe |
+| `anlagen-bezeichnung` | `<din-anlagen-bezeichnung>` | 20.15.2 | label | ja | Rendering per ::before oder festem Element |
+| `anlagen-angabe` | `<din-anlagen-angabe>` | 20.15.2 | list | ja, `#anlagen-angabe` | contenteditable, Liste |
+| `verteilvermerk` | `<din-verteilvermerk>` | 20.15.3 | atom | ja, `#verteilvermerk` |  |
+| `beglaubigungsvermerk` | `<din-beglaubigungsvermerk>` | 20.16 | atom | ja, `#beglaubigungsvermerk` |  |
+| `werbliche-elemente` | `<din-werbliche-elemente>` | 20.18 | atom | ja, `#werbliche-elemente` |  |
 
 Blocksatz und Silbentrennung sind Rendering.
 
@@ -337,26 +346,27 @@ Blocksatz und Silbentrennung sind Rendering.
 
 ## 5. Zone Fuß
 
-**Zone:** `<din-fuss>`  
+**Zone:** `<din-geschaeftsangaben>`  
 **ARIA:** `contentinfo`  
 **Zonen-Geometrie:** X 25 mm. Y 241 mm. Breite 165 mm. Höhe der Zone: `absolute geometry: not independently specified`.
 
 Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der Spaltenindex, nicht die Millimeter-X/W der einzelnen Atome.
 
-| Atom | Tag | Spalte | Y (mm) | Atom-X/W/H |
-|---|---|---|---|---|
-| din-fuss-firma | `<din-fuss-firma>` | 1 | 241 | not independently specified |
-| din-fuss-sitz | `<din-fuss-sitz>` | 1 | 246 | not independently specified |
-| din-fuss-gericht | `<din-fuss-gericht>` | 1 | 251 | not independently specified |
-| din-fuss-hrb | `<din-fuss-hrb>` | 1 | 256 | not independently specified |
-| din-fuss-vorstand | `<din-fuss-vorstand>` | 2 | 241 | not independently specified |
-| din-fuss-gf | `<din-fuss-gf>` | 2 | 251 | not independently specified |
-| din-fuss-stnr | `<din-fuss-stnr>` | 3 | 241 | not independently specified |
-| din-fuss-ustid | `<din-fuss-ustid>` | 3 | 246 | not independently specified |
-| din-fuss-bank | `<din-fuss-bank>` | 4 | 241 | not independently specified |
-| din-fuss-iban | `<din-fuss-iban>` | 4 | 246 | not independently specified |
-| din-fuss-bic | `<din-fuss-bic>` | 4 | 251 | not independently specified |
-| din-fuss-anschrift | `<din-fuss-anschrift>` | 4 | 256 | not independently specified |
+| Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
+|---|---|---|---|---|---|
+| `fuss-firma` | `<din-fuss-firma>` | 19.7 | atom | nein | Firmenname laut Handelsregister |
+| `fuss-sitz` | `<din-fuss-sitz>` | 19.7 | atom | nein | Rechtsform und Sitz |
+| `fuss-gericht` | `<din-fuss-gericht>` | 19.7 | atom | nein | Registergericht |
+| `fuss-hrb` | `<din-fuss-hrb>` | 19.7 | atom | nein | Handelsregisternummer |
+| `fuss-vorstand` | `<din-fuss-vorstand>` | 19.7 | atom | nein | Vorsitz und Mitglieder des Vorstands |
+| `fuss-gf` | `<din-fuss-gf>` | 19.7 | atom | nein | Geschäftsführer |
+| `fuss-stnr` | `<din-fuss-stnr>` | 19.6 | atom | nein | Steuernummer |
+| `fuss-ustid` | `<din-fuss-ustid>` | 19.6 | atom | nein | USt-IdNr. |
+| `fuss-bank` | `<din-fuss-bank>` | 19.6 | atom | nein | Kontoverbindung |
+| `fuss-iban` | `<din-fuss-iban>` | 19.6 | atom | nein | Gliederung 11.3.1 |
+| `fuss-bic` | `<din-fuss-bic>` | 19.6 | atom | nein |  |
+| `fuss-anschrift` | `<din-fuss-anschrift>` | 19.6 | atom | nein | Geschäftsräume |
+| `seitennummerierung` | `<din-seitennummerierung>` | 20.17 | atom | ja, `#seitennummerierung` |  |
 
 Spalte 2 hat in diesem Modell keine belegte Zeile bei Y 246. Das bleibt eine Lücke, kein neuer Wert.
 
@@ -366,25 +376,25 @@ Spalte 2 hat in diesem Modell keine belegte Zeile bei Y 246. Das bleibt eine Lü
 
 Genau drei Atome. Sie liegen auf dem Blatt, nicht in einer Inhaltszone.
 
-| Atom | Tag | Belegte Geometrie | Nicht belegt |
-|---|---|---|---|
-| din-falz-oben | `<din-falz-oben>` | Y Form A 87 mm, Form B 105 mm, X 0 mm, W 8 mm | H |
-| din-falz-unten | `<din-falz-unten>` | Y Form A 192 mm, Form B 210 mm, X 0 mm, W 8 mm | H |
-| din-lochmarke | `<din-lochmarke>` | Y 148,5 mm, X 0 mm, W 8 mm | H |
+| Atom | Tag | DIN 5008 | DOM | Belegte Geometrie |
+|---|---|---|---|---|
+| `din-falzmarke-1` | `<din-falzmarke-1>` | 19.8 | ja | Y Form A 87 mm, Form B 105 mm, X 0 mm, W 8 mm |
+| `din-falzmarke-2` | `<din-falzmarke-2>` | 19.8 | ja | Y Form A 192 mm, Form B 210 mm, X 0 mm, W 8 mm |
+| `din-lochmarke` | `<din-lochmarke>` | 19.8 | ja | Y 148,5 mm, X 0 mm, W 8 mm |
 
 Die Breite von exakt 8 mm am linken Papierrand verhindert jede optische Kollision mit dem Betreff- oder Textbereich (ehemals ADR-BETREFF).
 
 ### Overlay (kein Atom)
 
-Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört nicht zu den 45 Atomen und hat keine normative Atom-Geometrie in diesem Modell.
+Eine optionale visuelle Hilfsebene für Layout-Kontrolle. Sie gehört zu keinem Atom und hat keine normative Atom-Geometrie in diesem Modell.
 
 ---
 
 ## Nicht-atomare Bezeichner
 
-Der Präfix `din-` ist reserviert für Atome, Zonen und den Dokumentrahmen (`din-a4`). Alles andere trägt keinen `din-`-Präfix.
+Der Präfix `din-` ist reserviert für Atome, Zonen und den Dokumentrahmen (`din-blatt`). Alles andere trägt keinen `din-`-Präfix.
 
-### Y-Geometrie (Datenschicht am `<din-a4>`)
+### Y-Geometrie (Datenschicht am `<din-blatt>`)
 
 Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und `data-<atom|zone>-y-b` (Form B). Beispiele: `data-kern-y-a`, `data-falz-oben-y-a`, `data-lochmarke-y`. CSS liest sie per `attr()`; der belegte Wert dient nur als Fallback.
 
@@ -401,80 +411,648 @@ Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und
 
 ### Namenszeile (Komposition, kein Atom)
 
-`din-empfaenger-vorname`/`-nachname` und `din-absender-vorname`/`-nachname` dürfen als **eine** Zeile erscheinen (siehe Komposition). Die kombinierte Eingabezeile heißt im Code `empfaenger-namenszeile` bzw. `absender-namenszeile` und erzeugt kein Atom `din-empfaenger-name`/`din-absender-name`.
+`din-empfaenger-vorname`/`-nachname` und `din-absender-vorname`/`-nachname` dürfen als **eine** Zeile erscheinen (siehe Komposition). Die kombinierte Eingabezeile heißt im Code `empfaenger-name` bzw. `absender-name`. Das gleichnamige Atom (`din-empfaenger-name`, `din-absender-name`) ist die registrierte Ein-Zeilen-Form; die Split-Atome instantiieren nur, wer Vor- und Nachname getrennt führt.
 
 ---
 
 ## Maschinenlesbares Inventar
 
-Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Kompositionen. Die Tag-Liste der 45 Atome ergibt sich aus den Atom-Tabellen oben; dieser Block ist die normative Quelle für Geometrie und Beziehungen. `tools/imr.js` validiert das Inventar und leitet daraus die `data-*`-Werte des `<din-a4>` ab.
+Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Kompositionen. Dieser Block ist die normative Quelle für Atome, Zonen, `dinSection`, Geometrie und Beziehungen; die Tabellen oben sind seine lesbare Fassung. `tools/imr.js` validiert das Inventar und leitet daraus die `data-*`-Werte des `<din-blatt>` ab.
 
 <!-- IMR-INVENTORY:START -->
 ```json
 {
-  "sheet": { "width": 210, "height": 297 },
-  "document": "din-blatt",
-  "zones": ["din-absender", "din-anschriftfeld", "din-infoblock", "din-kern", "din-geschaeftsangaben"],
-  "systemAtoms": ["din-falz-oben", "din-falz-unten", "din-lochmarke"],
-  "deprecatedTags": {
-    "din-a4": "din-blatt",
-    "din-falz-oben": "din-falzmarke-1",
-    "din-falz-unten": "din-falzmarke-2",
-    "din-rucksendezeile": "din-rucksendeangabe",
-    "din-postvermerk": "din-vermerke",
-    "din-anlagen": "din-anlagenvermerk",
-    "din-fuss": "din-geschaeftsangaben"
+  "sheet": {
+    "width": 210,
+    "height": 297
   },
-  "registeredTags": [
-    "din-blatt", "din-falzmarke-1", "din-falzmarke-2", "din-rucksendeangabe",
-    "din-vermerke", "din-anlagenvermerk", "din-geschaeftsangaben", "din-briefkopf",
-    "din-bezugszeichen", "din-teilbetreff", "din-unternehmensbezeichnung",
-    "din-zusaetze", "din-verteilvermerk", "din-beglaubigungsvermerk",
-    "din-seitennummerierung", "din-werbliche-elemente", "din-empfaenger-name",
-    "din-absender-name", "din-anlagen-bezeichnung", "din-anlagen-angabe"
+  "document": "din-blatt",
+  "zones": [
+    "din-briefkopf",
+    "din-anschriftfeld",
+    "din-infoblock",
+    "din-kern",
+    "din-geschaeftsangaben"
   ],
+  "systemAtoms": [
+    "din-falzmarke-1",
+    "din-falzmarke-2",
+    "din-lochmarke"
+  ],
+  "deprecatedTags": {},
+  "atoms": {
+    "din-absender-name": {
+      "id": "absender-name",
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN (interpretiert)",
+      "inDom": true,
+      "export": true
+    },
+    "din-absender-vorname": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN (interpretiert)",
+      "inDom": false,
+      "export": false
+    },
+    "din-absender-nachname": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN (interpretiert)",
+      "inDom": false,
+      "export": false
+    },
+    "din-absender-strasse": {
+      "id": "absender-strasse",
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-absender-ort": {
+      "id": "absender-ort",
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-absender-mail": {
+      "id": "absender-mail",
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-absender-tel": {
+      "id": "absender-tel",
+      "role": "atom",
+      "dinSection": "19.4.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-rucksendeangabe": {
+      "id": "rucksendeangabe",
+      "role": "atom",
+      "dinSection": "19.4.3",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-vermerke": {
+      "id": "vermerke",
+      "role": "atom",
+      "dinSection": "19.4.3",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-empfaenger-firma": {
+      "id": "empfaenger-firma",
+      "role": "atom",
+      "dinSection": "20.7.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-empfaenger-abteilung": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.7.4",
+      "source": "DIN (interpretiert)",
+      "inDom": false,
+      "export": false
+    },
+    "din-empfaenger-name": {
+      "id": "empfaenger-name",
+      "role": "atom",
+      "dinSection": "20.7.4",
+      "source": "DIN (interpretiert)",
+      "inDom": true,
+      "export": true
+    },
+    "din-empfaenger-vorname": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.7.4",
+      "source": "DIN (interpretiert)",
+      "inDom": false,
+      "export": false
+    },
+    "din-empfaenger-nachname": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.7.4",
+      "source": "DIN (interpretiert)",
+      "inDom": false,
+      "export": false
+    },
+    "din-empfaenger-strasse": {
+      "id": "empfaenger-strasse",
+      "role": "atom",
+      "dinSection": "20.7.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-empfaenger-ort": {
+      "id": "empfaenger-ort",
+      "role": "atom",
+      "dinSection": "20.7.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-datum": {
+      "id": "datum",
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-ihr-zeichen": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-ihr-schreiben": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-unser-zeichen": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-unser-schreiben": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-durchwahl": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN (interpretiert)",
+      "inDom": false,
+      "export": false
+    },
+    "din-email-direkt": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-internet": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-bezugszeichen": {
+      "id": "bezugszeichen",
+      "role": "atom",
+      "dinSection": "20.8",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-betreff": {
+      "id": "betreff",
+      "role": "atom",
+      "dinSection": "20.9",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-teilbetreff": {
+      "id": "teilbetreff",
+      "role": "atom",
+      "dinSection": "20.9.3",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-anrede": {
+      "id": "anrede",
+      "role": "atom",
+      "dinSection": "20.9.4",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-text": {
+      "id": "text",
+      "role": "atom",
+      "dinSection": "20.10",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-grussformel": {
+      "id": "grussformel",
+      "role": "atom",
+      "dinSection": "20.11",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-unternehmensbezeichnung": {
+      "id": "unternehmensbezeichnung",
+      "role": "atom",
+      "dinSection": "20.12",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-unterschrift": {
+      "id": "unterschrift",
+      "role": "atom",
+      "dinSection": "20.13",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-zusaetze": {
+      "id": "zusaetze",
+      "role": "atom",
+      "dinSection": "20.14",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-anlagenvermerk": {
+      "id": "anlagenvermerk",
+      "role": "container",
+      "dinSection": "20.15.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-anlagen-bezeichnung": {
+      "id": null,
+      "role": "label",
+      "dinSection": "20.15.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-anlagen-angabe": {
+      "id": "anlagen-angabe",
+      "role": "list",
+      "dinSection": "20.15.2",
+      "source": "DIN",
+      "inDom": true,
+      "export": true
+    },
+    "din-verteilvermerk": {
+      "id": "verteilvermerk",
+      "role": "atom",
+      "dinSection": "20.15.3",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-beglaubigungsvermerk": {
+      "id": "beglaubigungsvermerk",
+      "role": "atom",
+      "dinSection": "20.16",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-werbliche-elemente": {
+      "id": "werbliche-elemente",
+      "role": "atom",
+      "dinSection": "20.18",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-fuss-firma": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.7",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-sitz": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.7",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-gericht": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.7",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-hrb": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.7",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-vorstand": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.7",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-gf": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.7",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-stnr": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.6",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-ustid": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.6",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-bank": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.6",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-iban": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.6",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-bic": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.6",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-fuss-anschrift": {
+      "id": null,
+      "role": "atom",
+      "dinSection": "19.6",
+      "source": "DIN",
+      "inDom": false,
+      "export": false
+    },
+    "din-seitennummerierung": {
+      "id": "seitennummerierung",
+      "role": "atom",
+      "dinSection": "20.17",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-falzmarke-1": {
+      "id": null,
+      "role": "system",
+      "dinSection": "19.8",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-falzmarke-2": {
+      "id": null,
+      "role": "system",
+      "dinSection": "19.8",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    },
+    "din-lochmarke": {
+      "id": null,
+      "role": "system",
+      "dinSection": "19.8",
+      "source": "DIN",
+      "inDom": true,
+      "export": false
+    }
+  },
   "geometry": {
-    "din-absender":      { "y": { "A": 27,  "B": 45 } },
-    "din-anschriftfeld": { "y": { "A": 34,  "B": 51 } },
-    "din-infoblock":     { "y": { "A": 34,  "B": 51 } },
-    "din-kern":          { "y": { "A": 91,  "B": 109 } },
-    "din-datum":         { "y": { "A": 74,  "B": 92 } },
-    "din-falz-oben":     { "y": { "A": 87,  "B": 105 } },
-    "din-falz-unten":    { "y": { "A": 192, "B": 210 } },
-    "din-lochmarke":     { "y": { "Y": 148.5 } }
+    "din-briefkopf": {
+      "y": {
+        "A": 27,
+        "B": 45
+      },
+      "source": "DIN 19.4.2 nennt die Feldhoehe (27/45 mm); als Y-Position verwendet ist PROJECT"
+    },
+    "din-anschriftfeld": {
+      "y": {
+        "A": 34,
+        "B": 51
+      }
+    },
+    "din-infoblock": {
+      "y": {
+        "A": 34,
+        "B": 51
+      }
+    },
+    "din-kern": {
+      "y": {
+        "A": 91,
+        "B": 109
+      }
+    },
+    "din-datum": {
+      "y": {
+        "A": 74,
+        "B": 92
+      }
+    },
+    "din-falzmarke-1": {
+      "y": {
+        "A": 87,
+        "B": 105
+      }
+    },
+    "din-falzmarke-2": {
+      "y": {
+        "A": 192,
+        "B": 210
+      }
+    },
+    "din-lochmarke": {
+      "y": {
+        "Y": 148.5
+      }
+    }
   },
   "forbiddenAliases": [],
-  "allowedUiIdentifiers": ["din-info", "din-info-dialog", "din-info-title", "din-info-content"],
+  "allowedUiIdentifiers": [
+    "din-info",
+    "din-info-dialog",
+    "din-info-title",
+    "din-info-content"
+  ],
   "compositions": {
-    "empfaenger-namenszeile": ["din-empfaenger-vorname", "din-empfaenger-nachname"],
-    "absender-namenszeile":   ["din-absender-vorname", "din-absender-nachname"]
+    "empfaenger-name": [
+      "din-empfaenger-vorname",
+      "din-empfaenger-nachname"
+    ],
+    "absender-name": [
+      "din-absender-vorname",
+      "din-absender-nachname"
+    ]
   },
   "vocabulary": {
     "canonical": {
-      "dokument": ["Blatt"],
-      "layout": ["Zone", "Atom", "Falz", "Lochmarke", "Anschriftfeld", "Infoblock", "Briefkern", "Fuss"],
-      "inhalt": ["Text", "Betreff", "Anschrift", "Absender", "Datum", "Unterschrift"],
-      "ui": ["Seitenleiste", "Hinweis", "Aktion", "Schrift", "Ansicht"]
+      "dokument": [
+        "Blatt"
+      ],
+      "layout": [
+        "Zone",
+        "Atom",
+        "Falz",
+        "Lochmarke",
+        "Anschriftfeld",
+        "Infoblock",
+        "Briefkern",
+        "Fuss"
+      ],
+      "inhalt": [
+        "Text",
+        "Betreff",
+        "Anschrift",
+        "Absender",
+        "Datum",
+        "Unterschrift"
+      ],
+      "ui": [
+        "Seitenleiste",
+        "Hinweis",
+        "Aktion",
+        "Schrift",
+        "Ansicht"
+      ]
     },
     "forbidden": [
-      { "term": "paper", "canonical": "Blatt" },
-      { "term": "sheet", "canonical": "Blatt" },
-      { "term": "Brieftext", "canonical": "Text" },
-      { "term": "Briefinhalt", "canonical": "Briefkern" },
-      { "term": "Empfängeradresse", "canonical": "Anschriftfeld" },
-      { "term": "Absenderinformationen", "canonical": "Infoblock" },
-      { "term": "sidebar", "canonical": "Seitenleiste" },
-      { "term": "toast", "canonical": "Hinweis" },
-      { "term": "page-1", "canonical": "seite-1" }
+      {
+        "term": "paper",
+        "canonical": "Blatt"
+      },
+      {
+        "term": "sheet",
+        "canonical": "Blatt"
+      },
+      {
+        "term": "Brieftext",
+        "canonical": "Text"
+      },
+      {
+        "term": "Briefinhalt",
+        "canonical": "Briefkern"
+      },
+      {
+        "term": "Empfängeradresse",
+        "canonical": "Anschriftfeld"
+      },
+      {
+        "term": "Absenderinformationen",
+        "canonical": "Infoblock"
+      },
+      {
+        "term": "sidebar",
+        "canonical": "Seitenleiste"
+      },
+      {
+        "term": "toast",
+        "canonical": "Hinweis"
+      },
+      {
+        "term": "page-1",
+        "canonical": "seite-1"
+      }
     ],
-    "forbiddenTokens": ["--paper-", "--c-paper-", "--c-ink-", "--c-ghost-", "--fold-", "--punch-", "--din-width", "--din-height", "--guide-opacity"],
-    "exceptions": ["sheet.css", "sidebar.css", "32-toast.js"],
-    "notAutoChecked": ["font (native CSS font-family/size/weight/…)", "action (native touch-action / JS-Schluessel)", "Adresse (Input-Parsing: Postadresse/Anschrift-Labels)"]
+    "forbiddenTokens": [
+      "--paper-",
+      "--c-paper-",
+      "--c-ink-",
+      "--c-ghost-",
+      "--fold-",
+      "--punch-",
+      "--din-width",
+      "--din-height",
+      "--guide-opacity"
+    ],
+    "exceptions": [
+      "sheet.css",
+      "sidebar.css",
+      "32-toast.js"
+    ],
+    "notAutoChecked": [
+      "font (native CSS font-family/size/weight/…)",
+      "action (native touch-action / JS-Schluessel)",
+      "Adresse (Input-Parsing: Postadresse/Anschrift-Labels)"
+    ]
   },
   "caseContract": {
     "htmlCss": "kebab-case",
-    "js": { "variables": "camelCase", "functions": "camelCase", "properties": "camelCase", "classes": "PascalCase", "constants": "UPPER_SNAKE_CASE" },
-    "docs": { "filename": "preserved", "id": "kebab-case" }
+    "js": {
+      "variables": "camelCase",
+      "functions": "camelCase",
+      "properties": "camelCase",
+      "classes": "PascalCase",
+      "constants": "UPPER_SNAKE_CASE"
+    },
+    "docs": {
+      "filename": "preserved",
+      "id": "kebab-case"
+    }
   }
 }
 ```

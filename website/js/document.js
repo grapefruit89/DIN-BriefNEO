@@ -29,7 +29,7 @@ import { isPrintTitleActive, loadJSON, STORAGE_KEYS, saveJSON } from './persiste
  * Erzeugung eines DocumentFragment für replaceChildren/collectDraft), die natives
  * setHTML() nicht leistet.
  *
- * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-text) ergänzen die
+ * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-angabe) ergänzen die
  * Basis-Allowlist (ohne Attribute).
  * @param {string} htmlString
  * @param {{ extraTags?: string[] }} [options]
@@ -251,17 +251,17 @@ function prefixLength(digits) {
  * ========================================================================================= */
 
 const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
-  'rucksendezeile': 85,
+  'rucksendeangabe': 85,
   'empfaenger-firma': 50,
-  'empfaenger-namenszeile': 45,
+  'empfaenger-name': 45,
   'empfaenger-strasse': 45,
   'empfaenger-ort': 45,
-  'absender-namenszeile': 40,
+  'absender-name': 40,
   'absender-strasse': 40,
   'absender-ort': 40,
   'absender-tel': 30,
   'absender-mail': 40,
-  'postvermerk': 80,
+  'vermerke': 80,
   'datum': 35,
   'betreff': 140,
   'anrede': 70,
@@ -327,7 +327,7 @@ export class UIProtections {
         } else {
           keyboardEvent.preventDefault();
           const addressFlow = [
-            'empfaenger-namenszeile',
+            'empfaenger-name',
             'empfaenger-strasse',
             'empfaenger-ort',
             'empfaenger-firma',
@@ -452,7 +452,7 @@ export class UIProtections {
   }
 
   protectAnlagenList() {
-    const anlagen = document.getElementById('anlagen-text');
+    const anlagen = document.getElementById('anlagen-angabe');
     if (!anlagen) return;
 
     this.ensureListStructure(anlagen);
@@ -604,7 +604,7 @@ export class UIProtections {
         // Primär: scrollHeight > clientHeight + 1px Puffer
         const isPrimaryOverflow = kern.scrollHeight > kern.clientHeight + 1;
 
-        // Fallback: Letztes sichtbares Kind-Element im Kern (#anlagen oder .unterschrift-zeile)
+        // Fallback: Letztes sichtbares Kind-Element im Kern (#anlagenvermerk oder .unterschrift-zeile)
         let isFallbackOverflow = false;
         const visibleChildren = Array.from(kern.children).filter(
           (el) => el instanceof HTMLElement && el.getBoundingClientRect().height > 0
@@ -668,10 +668,10 @@ const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert
 /**
  * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
  * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert.
- * @returns {Record<string, string>}
+ * @returns {Record<string, string | boolean>}
  */
 export function collectDraft() {
-  /** @type {Record<string, string>} */
+  /** @type {Record<string, string | boolean>} */
   const draft = {};
 
   if (typeof document === 'undefined') return draft;
@@ -698,19 +698,19 @@ export function collectDraft() {
     if (sel.id) draft[sel.id] = sel.value;
   });
 
-  const postvermerk = document.getElementById('postvermerk');
+  const postvermerk = document.getElementById('vermerke');
   if (postvermerk && postvermerk.getAttribute('data-visible') === 'true') {
-    draft['postvermerk-visible'] = 'true';
+    draft['vermerke-visible'] = 'true';
   }
 
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenSwitch) {
-    draft['toggle-anlagen'] = String(anlagenSwitch.checked);
+    draft['toggle-anlagen'] = anlagenSwitch.checked;
   }
 
   const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
   if (fussSwitch) {
-    draft['toggle-fuss'] = String(fussSwitch.checked);
+    draft['toggle-fuss'] = fussSwitch.checked;
   }
 
   return draft;
@@ -869,7 +869,7 @@ export class DraftManager {
 
   /**
    * Stellt einen Snapshot (z. B. aus Undo nach Reset) im DOM wieder her und persistiert ihn.
-   * @param {Record<string, string>} draft
+   * @param {Record<string, string | boolean>} draft
    */
   restoreDraft(draft) {
     if (!draft || typeof draft !== 'object') return;
@@ -878,7 +878,7 @@ export class DraftManager {
   }
 
   /**
-   * @param {Record<string, string>} draft
+   * @param {Record<string, string | boolean>} draft
    */
   #restoreState(draft) {
     this.#isRestoring = true;
@@ -887,6 +887,8 @@ export class DraftManager {
       /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
       if (!elem?.matches(EDITABLE_FIELD_SELECTOR)) return;
       if (elem.dataset.feldtyp === 'systemwert' && elem.id !== 'datum') return;
+      // Boolean-Werte sind Toggle-Zustaende; sie werden weiter unten als `checked` gesetzt.
+      if (typeof draft[id] !== 'string') return;
 
       if (elem instanceof HTMLSelectElement) {
         elem.value = draft[id];
@@ -910,9 +912,9 @@ export class DraftManager {
       }
     });
 
-    const postvermerk = document.getElementById('postvermerk');
+    const postvermerk = document.getElementById('vermerke');
     if (postvermerk) {
-      if (draft['postvermerk-visible'] === 'true') {
+      if (draft['vermerke-visible'] === 'true') {
         postvermerk.setAttribute('data-visible', 'true');
       } else {
         postvermerk.removeAttribute('data-visible');
@@ -925,13 +927,13 @@ export class DraftManager {
 
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch && 'toggle-anlagen' in draft) {
-      anlagenSwitch.checked = draft['toggle-anlagen'] === 'true';
+      anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
     }
 
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     if (fussSwitch) {
       if ('toggle-fuss' in draft) {
-        fussSwitch.checked = draft['toggle-fuss'] === 'true';
+        fussSwitch.checked = draft['toggle-fuss'] === true || draft['toggle-fuss'] === 'true';
       } else {
         // Migration: alte Drafts kennen den Toggle nicht. Vorhandener Text
         // bedeutet "Fusszeile war an" - sonst waere er unsichtbar.
@@ -990,7 +992,7 @@ export class DraftManager {
     document.querySelectorAll('[contenteditable]').forEach(el => {
       if (el.getAttribute('data-feldtyp') === 'systemwert') return;
       if (el.getAttribute('data-feldtyp')?.includes('liste')) {
-        if (el.id === 'anlagen-text') {
+        if (el.id === 'anlagen-angabe') {
           el.replaceChildren();
         } else {
           el.replaceChildren(document.createElement('li'));
@@ -1018,7 +1020,7 @@ export class DraftManager {
       datumEl.removeAttribute('data-dirty');
       datumEl.textContent = '';
     }
-    const postvermerk = document.getElementById('postvermerk');
+    const postvermerk = document.getElementById('vermerke');
     if (postvermerk) {
       postvermerk.removeAttribute('data-visible');
     }

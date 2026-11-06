@@ -30,7 +30,7 @@ error_patterns:
   - commandfor
   - command invoker
   - input switch
-  - din-a4
+  - din-blatt
   - semantik
   - premium ux
   - wysiwyg
@@ -60,13 +60,13 @@ In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer D
 ## 2. Grundlegende Architektur-Entscheidungen
 
 1. **Semantische Custom Elements als erstklassige DOM-Bürger:**
-   Statt nichtssagender `<div>`-Container nutzt das Briefblatt 24 semantische HTML5-Custom-Elements (`<din-a4>`, `<din-anschriftfeld>`, `<din-betreff>`, `<din-text>`, etc.). Dies sorgt für kristallklare DOM-Lesbarkeit und ermöglicht im CSS präzises Scoping via `@scope (din-a4)`.
+   Statt nichtssagender `<div>`-Container nutzt das Briefblatt 37 semantische HTML5-Custom-Elements (`<din-blatt>`, `<din-anschriftfeld>`, `<din-betreff>`, `<din-text>`, etc.). Dies sorgt für kristallklare DOM-Lesbarkeit und ermöglicht im CSS präzises Scoping via `@scope (din-blatt)`.
 2. **Strict WYSIWYG & In-Place Editing:**
    Eingaben finden *ausschließlich* direkt auf dem virtuellen Papierbogen statt. Formularfelder werden nicht redundant in einer Seitenleiste gespiegelt. Die Sidebar dient ausschließlich globalen Konfigurationen (Theming, DIN-Layout-Form, Schriftart, API-Schlüssel, Schalter).
 3. **Hardwarebeschleunigter Eingabeschutz (`plaintext-only` & `enterkeyhint`):**
    Alle 16 einzeiligen Metadaten- und Anschriftfelder sind mit `contenteditable="plaintext-only"` und `enterkeyhint="done"` geschützt. Unerwünschte Formatierungen (Fett, Kursiv, HTML-Tags) und mehrzeilige Zeilenumbrüche werden direkt von der Browser-Engine in C++ geblockt. JS-Keydown- und BeforeInput-Interzeptoren sind vollständig eliminiert (Catalog A55).
 4. **Strikt reglementierte Rich-Text-Zonen:**
-   Ausschließlich der Brieftext (`<din-text id="text">`) und die Anlagenliste (`<ul id="anlagen-text">`) sind mit `contenteditable="true"` deklariert.
+   Ausschließlich der Brieftext (`<din-text id="text">`) und die Anlagenliste (`<ul id="anlagen-angabe">`) sind mit `contenteditable="true"` deklariert.
 5. **Contenteditable Integrity Isolation (Catalog A47):**
    Interaktive oder strukturelle Elemente (wie z. B. `<div id="unterschriftsbild-container">` mit `<img id="unterschriftsbild-vorschau">`) dürfen niemals innerhalb von `contenteditable`-Elementen verschachtelt werden. Sie werden als Geschwister-Elemente in einem isolierten Container platziert, um eine Zerstörung des inneren DOM-Baums bei Texteingaben physisch auszuschließen.
 6. **Top-Layer-Mandat für Overlays (Popover API & `<dialog>`):**
@@ -76,7 +76,7 @@ In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer D
 8. **Semantische Schalter (`<input type="checkbox" switch>`):**
    Der Hilfslinien-Schalter nutzt das native HTML-Attribut `switch` für ein barrierefreies, betriebssystemnahes Toggle-Bedienelement ohne redundante Radio-Container.
 9. **HTML-Attribute als Single Source of Truth für DIN-Geometrie:**
-   Die millimetergenauen Normkoordinaten für Form A und Form B sind als `data-*`-Attribute direkt am `<din-a4>`-Element hinterlegt und werden vom CSS über `attr(data-* type(<number>))` ausgelesen.
+   Die millimetergenauen Normkoordinaten für Form A und Form B sind als `data-*`-Attribute direkt am `<din-blatt>`-Element hinterlegt und werden vom CSS über `attr(data-* type(<number>))` ausgelesen.
 
 ---
 
@@ -130,7 +130,7 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
     Ein `checked` im Markup würde vor dem ersten Paint „an" zeigen und danach auf den
     gespeicherten Wert springen.
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
-  * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#postvermerk` (`din-postvermerk`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
+  * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#vermerke` (`din-vermerke`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
   * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.
 * **Schriftarten-Manager:**
   * `#btn-font-action`: Upload- und Reset-Button für benutzerdefinierte Schriften.
@@ -151,29 +151,29 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
 
 ---
 
-### 3. Der DIN-A4-Bogen (`<din-a4>`, Zeilen 157–233)
+### 3. Der DIN-A4-Bogen (`<din-blatt>`, Zeilen 157–233)
 
-Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 class="paper-theme page-1" role="article" aria-label="DIN 5008 Brief">`.
+Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-blatt class="blatt-theme seite-1" role="article" aria-label="DIN 5008 Brief">`.
 
 #### DIN-Geometrie Data-Attribute (SSOT)
 * `data-width-mm="210"` & `data-height-mm="297"`: DIN A4 Blattgröße.
 * `data-lochmarke-y="148.5"`: Lochmarke zentriert auf Blatthälfte.
-* **Form B (Default):** `data-absender-y-b="45"`, `data-anschriftfeld-y-b="50"`, `data-infoblock-y-b="50"`, `data-datum-y-b="92"`, `data-kern-y-b="109"`, `data-falz-oben-y-b="105"`, `data-falz-unten-y-b="210"`.
-* **Form A:** `data-absender-y-a="27"`, `data-anschriftfeld-y-a="32"`, `data-infoblock-y-a="32"`, `data-datum-y-a="74"`, `data-kern-y-a="91"`, `data-falz-oben-y-a="87"`, `data-falz-unten-y-a="192"`.
+* **Form B (Default):** `data-briefkopf-y-b="45"`, `data-anschriftfeld-y-b="51"`, `data-infoblock-y-b="51"`, `data-datum-y-b="92"`, `data-kern-y-b="109"`, `data-falzmarke-1-y-b="105"`, `data-falzmarke-2-y-b="210"`.
+* **Form A:** `data-briefkopf-y-a="27"`, `data-anschriftfeld-y-a="34"`, `data-infoblock-y-a="34"`, `data-datum-y-a="74"`, `data-kern-y-a="91"`, `data-falzmarke-1-y-a="87"`, `data-falzmarke-2-y-a="192"`.
 
 #### Die 24 Custom Elements & 18 ContentEditable-Felder
-1. `<din-falz-oben>`: Obere Faltmarke (auf 8 mm Randbreite begrenzt).
-2. `<din-falz-unten>`: Untere Faltmarke (auf 8 mm Randbreite begrenzt).
+1. `<din-falzmarke-1>`: Obere Faltmarke (auf 8 mm Randbreite begrenzt).
+2. `<din-falzmarke-2>`: Untere Faltmarke (auf 8 mm Randbreite begrenzt).
 3. `<din-lochmarke>`: Genormte Lochmarke (auf 8 mm Randbreite begrenzt).
-4. `<din-rucksendezeile id="absender">`: Einzeilige Absenderzeile über dem Fenster (`plaintext-only`, `enterkeyhint="done"`).
+4. `<din-rucksendeangabe id="rucksendeangabe">`: Einzeilige Absenderzeile über dem Fenster (`plaintext-only`, `enterkeyhint="done"`).
 5. `<din-anschriftfeld id="empfaenger">` (`role="group"`):
-   * `<din-postvermerk id="postvermerk">`: Postvermerke (`plaintext-only`).
+   * `<din-vermerke id="vermerke">`: Zusatz- und Vermerke (`plaintext-only`).
    * `<din-empfaenger-firma id="empfaenger-firma">`: Firma (`plaintext-only`, `enterkeyhint="done"`).
-   * `<div id="empfaenger-namenszeile">`: Ansprechpartner (`plaintext-only`, `enterkeyhint="done"`).
+   * `<din-empfaenger-name id="empfaenger-name">`: Ansprechpartner (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-empfaenger-strasse id="empfaenger-strasse">`: Straße & Hausnummer (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-empfaenger-ort id="empfaenger-ort">`: PLZ & Ort (`plaintext-only`, `enterkeyhint="done"`).
 6. `<din-infoblock id="infoblock">` (`role="group"`):
-   * `<div id="absender-namenszeile">`: Absender-Name (`plaintext-only`, `enterkeyhint="done"`).
+   * `<din-absender-name id="absender-name">`: Absender-Name (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-absender-strasse id="absender-strasse">`: Absender-Straße (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-absender-ort id="absender-ort">`: Absender-Ort (`plaintext-only`, `enterkeyhint="done"`).
    * `<din-absender-tel id="absender-tel">`: Absender-Telefon (`plaintext-only`, `enterkeyhint="done"`).
@@ -185,7 +185,7 @@ Der virtuelle Papierbogen ist als semantischer Artikel deklariert: `<din-a4 clas
    * `<din-text id="text">`: **Rich-Text Fließtext** (`contenteditable="true"`).
    * `<din-grussformel id="grussformel">`: Grußformel (`plaintext-only`, `enterkeyhint="done"`).
    * `<div class="unterschrift-zeile">` mit `<din-unterschrift id="unterschrift">`: Getippter Name (`plaintext-only`, `enterkeyhint="done"`).
-   * `<din-anlagen id="anlagen">`: Anlagenvermerk mit `<ul id="anlagen-text" contenteditable="true">`.
+   * `<din-anlagenvermerk id="anlagenvermerk">`: Anlagenvermerk mit `<din-anlagen-angabe id="anlagen-angabe" contenteditable="true">`.
 9. `<din-fuss id="fuss">`: Fußzeilenbereich (`role="contentinfo"`).
 10. `#unterschriftsbild-container` (Isoliert außerhalb von ContentEditable):
     * `.unterschriftsbild-rahmen` mit Transformations-Handles (`.top-left`, `.top-right`, `.bottom-left`, `.bottom-right`, `.unterschriftsbild-drehgriff`).
@@ -225,8 +225,8 @@ Folgende HTML-Strukturen und Alt-Muster sind im gesamten Repository **strikt ver
 
 | HTML-Konstrukt / Antipattern | Frühere Verwendung | Status | Verboten durch | Moderner Ersatz (Web Platform 2026) |
 | :--- | :--- | :---: | :--- | :--- |
-| **Generische Div-Suppe** | Reine `<div>`-Verschachtelungen für Briefelemente | 🚫 **HARD BAN** | Longevity Guidelines, ADR-HTML | Semantische HTML5 Custom Elements (`<din-a4>`, `<din-betreff>`, etc.). |
-| **Mirror-Editing in Sidebar** | Doppelte Textfelder in Sidebar und Blatt | 🚫 **HARD BAN** | ADR-HTML Abs. 2, WYSIWYG | Reines In-Place WYSIWYG Editing direkt auf dem `<din-a4>`-Blatt. |
+| **Generische Div-Suppe** | Reine `<div>`-Verschachtelungen für Briefelemente | 🚫 **HARD BAN** | Longevity Guidelines, ADR-HTML | Semantische HTML5 Custom Elements (`<din-blatt>`, `<din-betreff>`, etc.). |
+| **Mirror-Editing in Sidebar** | Doppelte Textfelder in Sidebar und Blatt | 🚫 **HARD BAN** | ADR-HTML Abs. 2, WYSIWYG | Reines In-Place WYSIWYG Editing direkt auf dem `<din-blatt>`-Blatt. |
 | **`contenteditable="true"` auf Einzeilern** | Standard-Editable für Anschrift, Betreff, Datum | 🚫 **HARD BAN** | Catalog A55, Probe P4 | `contenteditable="plaintext-only"` mit `enterkeyhint="done"`. C++ blockiert Formatierung nativ. |
 | **`<img>` innerhalb von `contenteditable`** | Unterschriften-Grafik im Fließtext | 🚫 **HARD BAN** | Immutable Law Catalog A47 | Kapselung in separatem `#unterschriftsbild-container` als Geschwister-Element außerhalb von ContentEditable. |
 | **Eigene `<div>`-Modals mit `z-index`** | Manuell geschichtete Overlays und Dialoge | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover`) und `<dialog>` im Browser-Top-Layer. |

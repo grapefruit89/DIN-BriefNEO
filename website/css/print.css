@@ -60,13 +60,13 @@ din-blatt {
 }
 
 /* DIN 5008: Trennlinie unter Rücksendezeile nur im Druck, wenn befüllt */
-#rucksendezeile {
+#rucksendeangabe {
   border-radius: 0 !important;
   border-bottom: 0.5pt solid oklch(0% 0 0) !important;
   padding-bottom: 1.5pt !important;
 }
 
-#rucksendezeile:empty {
+#rucksendeangabe:empty {
   border-bottom: none !important;
   padding-bottom: 0 !important;
 }

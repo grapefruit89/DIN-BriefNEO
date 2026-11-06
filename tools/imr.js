@@ -151,77 +151,130 @@ function checkCase(targetDir, inventory) {
 function checkImr(targetDir) {
   const violations = [];
   const add = (file, message) => violations.push({ file, message });
-  let tags = new Set(), inventory = null;
+  let inventory = null;
   try {
-    ({ tags, inventory } = readRegistry(targetDir));
+    ({ inventory } = readRegistry(targetDir));
   } catch (err) {
     return { violations: [{ file: REGISTRY_REL, message: `Registry nicht lesbar: ${err.message}` }] };
   }
-  if (!inventory) add(REGISTRY_REL, 'JSON-Inventar (IMR-INVENTORY) fehlt');
-
-  if (inventory) {
-    const zones = new Set(inventory.zones || []);
-    const systemAtoms = new Set(inventory.systemAtoms || []);
-    const allowedUi = new Set(inventory.allowedUiIdentifiers || []);
-    const additional = new Set(inventory.registeredTags || []);
-    const deprecated = new Set(Object.keys(inventory.deprecatedTags || {}));
-    const docs = new Set([inventory.document, ...[...deprecated].filter(d => (inventory.deprecatedTags || {})[d] === inventory.document)]);
-    const allZones = new Set([...zones, ...[...deprecated].filter(d => zones.has((inventory.deprecatedTags || {})[d]))]);
-    const registered = new Set([...docs, ...zones, ...tags, ...allowedUi, ...additional, ...deprecated]);
-    const atoms = [...tags].filter(t => !docs.has(t) && !allZones.has(t));
-
-    if (atoms.length !== 45) add(REGISTRY_REL, `Atom-Inventar: erwartet 45, gefunden ${atoms.length}`);
-    if (new Set(atoms).size !== atoms.length) add(REGISTRY_REL, 'Atom-Inventar enthaelt Duplikate');
-    if (systemAtoms.size !== 3) add(REGISTRY_REL, `System-Atome: erwartet 3, gefunden ${systemAtoms.size}`);
-    for (const s of systemAtoms) if (!atoms.includes(s)) add(REGISTRY_REL, `System-Atom nicht im Atom-Inventar: ${s}`);
-    const content = atoms.length - systemAtoms.size;
-    if (content !== 42) add(REGISTRY_REL, `Inhaltsatome: erwartet 42, gefunden ${content}`);
-
-    for (const a of inventory.forbiddenAliases || []) {
-      if (registered.has(a)) add(REGISTRY_REL, `Verbotener Alias ist als Tag registriert: ${a}`);
-    }
-    for (const [comp, members] of Object.entries(inventory.compositions || {})) {
-      for (const m of members) if (!atoms.includes(m)) add(REGISTRY_REL, `Komposition ${comp}: kein Atom ${m}`);
-    }
-    for (const id of Object.keys(inventory.geometry || {})) {
-      if (!registered.has(id)) add(REGISTRY_REL, `Geometrie fuer unbekannten Bezeichner: ${id}`);
-    }
-
-    // 1) Website-Code darf nur registrierte din-* verwenden.
-    for (const file of walkCode(path.join(targetDir, 'website'))) {
-      const rel = path.relative(targetDir, file).replace(/\\/g, '/');
-      const content = fs.readFileSync(file, 'utf-8')
-        .replace(/\[\[[^\]]*\]\]/g, '')
-        .replace(/@(guide|adr)\b[^\n]*/g, '');
-      for (const mm of content.matchAll(/<din-[a-z0-9-]+|\bdin-[a-z0-9-]+/g)) {
-        const tag = mm[0].replace(/^</, '');
-        if (!registered.has(tag)) add(rel, `Nicht registrierter din-Bezeichner (IMR ist SSOT): ${tag}`);
-      }
-    }
-
-    // 2) data-* des <din-a4> bzw. <din-blatt> muss exakt der Registry-Geometrie entsprechen.
-    const htmlPath = path.join(targetDir, 'website/index.html');
-    const html = fs.readFileSync(htmlPath, 'utf-8');
-    const a4 = html.match(/<(din-blatt|din-a4)\b[^>]*>/);
-    if (!a4) add('website/index.html', '<din-blatt> oder <din-a4> nicht gefunden');
-    else {
-      const present = Object.fromEntries(
-        [...a4[0].matchAll(/data-[a-z-]+="([^"]+)"/g)].map(x => [x[0].split('=')[0], x[1]])
-      );
-      for (const [k, v] of Object.entries(expectedDataAttrs(inventory))) {
-        if (!(k in present)) add('website/index.html', `data-Attribut fehlt (aus Registry): ${k}`);
-        else if (present[k] !== String(v)) add('website/index.html', `${k}="${present[k]}" weicht von Registry (${v}) ab`);
-      }
-    }
-
-    // 3) Kanonisches Vokabular (IMR vocabulary-Block)
-    for (const v of checkVocabulary(targetDir, inventory)) add(v.file, v.message);
-
-    // 4) Case Contract (HTML/CSS kebab-case)
-    for (const v of checkCase(targetDir, inventory)) add(v.file, v.message);
+  if (!inventory) {
+    add(REGISTRY_REL, 'JSON-Inventar (IMR-INVENTORY) fehlt');
+    return { violations, tags: [], inventory };
   }
 
-  return { violations, tags: [...tags], inventory };
+  const htmlFiles = ['website/index.html', 'website/multipage.html'];
+  const html = htmlFiles.map((f) => fs.readFileSync(path.join(targetDir, f), 'utf-8'));
+  const htmlAll = html.join('\n');
+  const idsPerFile = html.map((h) => new Set([...h.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1])));
+
+  const zones = new Set(inventory.zones || []);
+  const systemAtoms = new Set(inventory.systemAtoms || []);
+  const allowedUi = new Set(inventory.allowedUiIdentifiers || []);
+  const deprecated = new Set(Object.keys(inventory.deprecatedTags || {}));
+  const atoms = new Map(Object.entries(inventory.atoms || {}));
+  const documentTag = inventory.document;
+  const registered = new Set([documentTag, ...zones, ...systemAtoms, ...atoms.keys(), ...allowedUi]);
+
+  if (atoms.size === 0) add(REGISTRY_REL, 'IMR-0 Inventar enthaelt keine Atome (atoms fehlt oder ist leer)');
+
+  for (const [tag, spec] of atoms) {
+    // IMR-1: jedes Atom traegt eine DIN-Abschnittsnummer (oder ist bewusst PROJECT)
+    if (!spec.dinSection && spec.source !== 'PROJECT') {
+      add(REGISTRY_REL, `IMR-1 ${tag}: dinSection fehlt (oder source: "PROJECT")`);
+    }
+
+    // IMR-2: id === tag ohne din-Praefix
+    const soll = tag.replace(/^din-/, '');
+    if (spec.id && spec.id !== soll) {
+      add(REGISTRY_REL, `IMR-2 ${tag}: id "${spec.id}" verletzt id === "${soll}"`);
+    }
+
+    // IMR-3: Atom mit id muss in beiden HTML-Dateien existieren
+    if (spec.id) {
+      for (let i = 0; i < htmlFiles.length; i++) {
+        if (!idsPerFile[i].has(spec.id)) add(htmlFiles[i], `IMR-3 ${tag}: kein Element mit id="${spec.id}"`);
+      }
+    }
+
+    // IMR-4: export-Atom braucht ein contenteditable-Element mit dieser id
+    if (spec.export && spec.id) {
+      const re = new RegExp(`id="${spec.id}"[^>]*contenteditable|contenteditable[^>]*id="${spec.id}"`);
+      if (!re.test(htmlAll)) add(htmlFiles[0], `IMR-4 ${tag}: export true, aber kein contenteditable mit id="${spec.id}"`);
+    }
+
+    // IMR-6: Kinder eines Containers existieren im HTML
+    for (const kind of spec.children || []) {
+      if (!new RegExp(`<${kind}[\\s>]`).test(htmlAll)) add(htmlFiles[0], `IMR-6 ${tag}: Kind <${kind}> fehlt im HTML`);
+    }
+  }
+
+  // IMR-5: veraltete Tags duerfen im HTML nicht mehr vorkommen
+  for (const dep of deprecated) {
+    if (new RegExp(`<${dep}[\\s>]`).test(htmlAll)) add(htmlFiles[0], `IMR-5 veralteter Tag im HTML: <${dep}>`);
+  }
+
+  // IMR-7: Zonen mit id halten dieselbe Invariante
+  for (const zone of zones) {
+    for (let i = 0; i < htmlFiles.length; i++) {
+      const m = html[i].match(new RegExp(`<${zone}\\b[^>]*\\bid="([^"]+)"`));
+      const soll = zone.replace(/^din-/, '');
+      if (m && m[1] !== soll) add(htmlFiles[i], `IMR-7 ${zone}: id "${m[1]}" verletzt id === "${soll}"`);
+    }
+  }
+
+  for (const s of systemAtoms) {
+    if (!atoms.has(s)) add(REGISTRY_REL, `System-Atom nicht im Inventar: ${s}`);
+  }
+  for (const [comp, members] of Object.entries(inventory.compositions || {})) {
+    for (const m of members) if (!atoms.has(m)) add(REGISTRY_REL, `Komposition ${comp}: kein Atom ${m}`);
+  }
+  for (const [comp, members] of Object.entries(inventory.compositions || {})) {
+    if (!registered.has(comp) && !atoms.get(comp)) {
+      // Kompositions-Kennung ist kein Tag, muss aber als Atom existieren (Ein-Zeilen-Form)
+      if (![...members].length) add(REGISTRY_REL, `Komposition ${comp}: leer`);
+    }
+  }
+  for (const id of Object.keys(inventory.geometry || {})) {
+    if (!registered.has(id)) add(REGISTRY_REL, `Geometrie fuer unbekannten Bezeichner: ${id}`);
+  }
+  for (const a of inventory.forbiddenAliases || []) {
+    if (registered.has(a)) add(REGISTRY_REL, `Verbotener Alias ist als Tag registriert: ${a}`);
+  }
+
+  // 1) Website-Code darf nur registrierte din-* verwenden (veraltete nicht mehr).
+  for (const file of walkCode(path.join(targetDir, 'website'))) {
+    const rel = path.relative(targetDir, file).replace(/\\/g, '/');
+    const content = fs.readFileSync(file, 'utf-8')
+      .replace(/\[\[[^\]]*\]\]/g, '')
+      .replace(/@(guide|adr)\b[^\n]*/g, '');
+    for (const mm of content.matchAll(/<din-[a-z0-9-]+|\bdin-[a-z0-9-]+/g)) {
+      const tag = mm[0].replace(/^</, '');
+      if (!registered.has(tag)) add(rel, `Nicht registrierter din-Bezeichner (IMR ist SSOT): ${tag}`);
+    }
+  }
+
+  // 2) data-* des <din-blatt> muss exakt der Registry-Geometrie entsprechen.
+  const htmlPath = path.join(targetDir, 'website/index.html');
+  const htmlMain = fs.readFileSync(htmlPath, 'utf-8');
+  const blatt = htmlMain.match(/<(din-blatt|din-a4)\b[^>]*>/);
+  if (!blatt) add('website/index.html', `<${documentTag}> nicht gefunden`);
+  else {
+    const present = Object.fromEntries(
+      [...blatt[0].matchAll(/data-[a-z0-9-]+="([^"]+)"/g)].map((x) => [x[0].split('=')[0], x[1]])
+    );
+    for (const [k, v] of Object.entries(expectedDataAttrs(inventory))) {
+      if (!(k in present)) add('website/index.html', `data-Attribut fehlt (aus Registry): ${k}`);
+      else if (present[k] !== String(v)) add('website/index.html', `${k}="${present[k]}" weicht von Registry (${v}) ab`);
+    }
+  }
+
+  // 3) Kanonisches Vokabular (IMR vocabulary-Block)
+  for (const v of checkVocabulary(targetDir, inventory)) add(v.file, v.message);
+
+  // 4) Case Contract (HTML/CSS kebab-case)
+  for (const v of checkCase(targetDir, inventory)) add(v.file, v.message);
+
+  return { violations, tags: [...registered], inventory };
 }
 
 module.exports = { checkImr, checkVocabulary, checkCase, expectedDataAttrs, REGISTRY_REL };

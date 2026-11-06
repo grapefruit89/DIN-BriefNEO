@@ -140,7 +140,7 @@ globalContext.modelContext.registerTool({
       grussformel: { type: 'string', description: 'Grußformel (z. B. Mit freundlichen Grüßen)' },
       unterschrift: { type: 'string', description: 'Name des Unterzeichners' },
       datum: { type: 'string', description: 'Briefdatum' },
-      postvermerk: { type: 'string', description: 'Postvermerk (z. B. Einschreiben)' },
+      vermerke: { type: 'string', description: 'Postvermerk (z. B. Einschreiben)' },
       empfaenger: {
         type: 'object',
         properties: {
@@ -172,19 +172,19 @@ globalContext.modelContext.registerTool({
     if (args.grussformel) setField('grussformel', args.grussformel);
     if (args.unterschrift) setField('unterschrift', args.unterschrift);
     if (args.datum) setField('datum', args.datum);
-    if (args.postvermerk) setField('postvermerk', args.postvermerk);
+    if (args.vermerke) setField('vermerke', args.vermerke);
 
     // 2. Empfängerblock
     if (args.empfaenger) {
       if (args.empfaenger.firma !== undefined) setField('empfaenger-firma', args.empfaenger.firma);
-      if (args.empfaenger.name !== undefined) setField('empfaenger-namenszeile', args.empfaenger.name);
+      if (args.empfaenger.name !== undefined) setField('empfaenger-name', args.empfaenger.name);
       if (args.empfaenger.strasse !== undefined) setField('empfaenger-strasse', args.empfaenger.strasse);
       if (args.empfaenger.ort !== undefined) setField('empfaenger-ort', args.empfaenger.ort);
     }
 
     // 3. Absenderblock
     if (args.absender) {
-      if (args.absender.name !== undefined) setField('absender-namenszeile', args.absender.name);
+      if (args.absender.name !== undefined) setField('absender-name', args.absender.name);
       if (args.absender.strasse !== undefined) setField('absender-strasse', args.absender.strasse);
       if (args.absender.ort !== undefined) setField('absender-ort', args.absender.ort);
       if (args.absender.tel !== undefined) setField('absender-tel', args.absender.tel);

@@ -139,13 +139,13 @@ body:has(#btn-form-a:checked) #spacer {
   font-style: normal !important;
 }
 
-#rucksendezeile {
+#rucksendeangabe {
   border-radius: 0 !important;
   border-bottom: 0.5pt solid oklch(0% 0 0) !important;
   padding-bottom: 1.5pt !important;
 }
 
-#rucksendezeile:empty {
+#rucksendeangabe:empty {
   border-bottom: none !important;
   padding-bottom: 0 !important;
 }
@@ -197,13 +197,13 @@ body:has(#btn-form-a:checked) #spacer {
 
 .unterschrift-zeile,
 #unterschriftsbild-container,
-#anlagen {
+#anlagenvermerk {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
 
 :root:not(:has(#toggle-anlagen:checked)) din-anlagenvermerk,
-:root:not(:has(#toggle-anlagen:checked)) #anlagen {
+:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk {
   display: none !important;
 }
 

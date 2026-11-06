@@ -19,7 +19,7 @@ function syncPostvermerkFromSidebar(value) {
   const triggerLabel = document.getElementById('postvermerk-trigger-label');
   const triggerBtn = document.getElementById('btn-postvermerk-trigger');
   const popover = document.getElementById('postvermerk-popover');
-  const field = document.getElementById('postvermerk');
+  const field = document.getElementById('vermerke');
   if (!field) return;
 
   const val = typeof value === 'string' ? value : (sel?.value ?? '');
@@ -56,7 +56,7 @@ function initApp() {
     migrateStorage();
     const draftManager = new DraftManager();
     draftManager.loadDraft();
-    const initPv = document.getElementById('postvermerk')?.textContent || '';
+    const initPv = document.getElementById('vermerke')?.textContent || '';
     syncPostvermerkFromSidebar(initPv);
 
     try {
@@ -323,7 +323,7 @@ function initApp() {
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
-        const anlagenEl = document.getElementById('anlagen-text');
+        const anlagenEl = document.getElementById('anlagen-angabe');
         if (anlagenEl && anlagenSwitch.checked && !anlagenEl.textContent?.trim()) {
           const li = document.createElement('li');
           li.textContent = 'Anlage 1';

@@ -1245,10 +1245,10 @@ function abbreviateName(fullName) {
  * and the signature name.
  */
 export function initSenderSync() {
-  const infoName = document.getElementById('absender-namenszeile');
+  const infoName = document.getElementById('absender-name');
   const infoStreet = document.getElementById('absender-strasse');
   const infoCity = document.getElementById('absender-ort');
-  const absender = document.getElementById('rucksendezeile');
+  const absender = document.getElementById('rucksendeangabe');
   const unterschrift = document.getElementById('unterschrift');
 
   if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
@@ -1581,7 +1581,7 @@ export class ClipboardAddressParser {
    */
   static applyCandidate(candidate) {
     const empfFirmaEl = document.getElementById('empfaenger-firma');
-    const empfNameEl = document.getElementById('empfaenger-namenszeile');
+    const empfNameEl = document.getElementById('empfaenger-name');
     const empfStrasseEl = document.getElementById('empfaenger-strasse');
     const empfOrtEl = document.getElementById('empfaenger-ort');
 
@@ -2143,7 +2143,7 @@ export function initAddressServices() {
   });
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias
-  const absenderPlzOrtEl = document.getElementById('absender-ort') || document.getElementById('rucksendezeile');
+  const absenderPlzOrtEl = document.getElementById('absender-ort') || document.getElementById('rucksendeangabe');
   if (absenderPlzOrtEl) {
     /** @type {any} */
     let absenderTimeout = null;

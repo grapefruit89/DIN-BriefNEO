@@ -2312,3 +2312,51 @@ ein sichtbarer Fehler. Der Default im Markup und der Default im Code sind zwei K
 desselben Fakts — sie muessen zusammen geaendert werden, sonst erzeugt die Korrektur den
 naechsten Sprung. Und: ein Script „vor dem ersten Paint" ist keine Frage des Ortes im
 Dokument, sondern der Ausfuehrungsgarantie (Microtask vor Rendern), nicht der Parse-Reihenfolge.
+
+## 2026-11-06 — IMR-Registry auf DIN 5008 zurueckgefuehrt
+
+**Ausgangslage:** Die Registry war eine zweite Wahrheit neben dem HTML. Ihre Atom-Tabellen
+nannten fuenf Namen, die ihr eigenes `deprecatedTags` fuer veraltet erklaerte
+(`din-rucksendezeile`, `din-postvermerk`, `din-anlagen`, `din-falz-oben`, `din-falz-unten`).
+Die Zonen-Liste fuehrte `din-absender`, das im DOM nicht existiert; dort steht `din-briefkopf`.
+`din-a4` war als Dokumentrahmen deklariert, im Code aber laengst `din-blatt`. 18 Tags waren
+registriert, gehoerten aber keiner Kategorie an.
+
+**Entscheidung:**
+
+1. **DIN 5008 ist die Quelle.** Jedes Atom traegt im Inventar `dinSection`. Wo die Norm den
+   Begriff nicht woertlich kennt, steht `source: "DIN … (interpretiert)"` (Empfaenger-Name,
+   Durchwahl, Absender-Name). `din-a4`, `din-branding-logo` und `din-absender-zusatz` sind
+   entfernt — sie hatten keine Grundlage.
+2. **Atomnamen folgen der Norm:** `din-rucksendeangabe` (19.4.3, 26 Treffer im Normtext),
+   `din-vermerke` („Zusatz- und Vermerkzone"), `din-anlagenvermerk` (20.15.2),
+   `din-falzmarke-1/2` (19.8). Die fuenf alten Namen waren keine Migration, sondern Fehler —
+   `deprecatedTags` ist deshalb leer.
+3. **12 Atome ergaenzt**, die vorher nur als registrierte Tags existierten und in DIN 5008
+   belegt sind: Bezugszeichen (20.8), Teilbetreff (20.9.3), Unternehmensbezeichnung (20.12),
+   Zusaetze (20.14), Verteilvermerk (20.15.3), Beglaubigungsvermerk (20.16),
+   Seitennummerierung (20.17), Werbliche Elemente (20.18), Anlagen-Bezeichnung und -Angabe
+   (20.15.2), Empfaenger-Name (20.7.4) und Absender-Name (19.4.2). Atomzahl: 55.
+4. **`din-anlagen*` ist Container + Liste.** `din-anlagenvermerk` haelt die Kinder
+   `din-anlagen-bezeichnung` (Label) und `din-anlagen-angabe` (Liste). Der Toggle-Zustand
+   bleibt als Feld erhalten.
+5. **Invariante:** `id === tag.replace('din-', '')` fuer Atome, Zonen und den Dokumentrahmen.
+   Sieben IDs wurden umbenannt; UI-IDs (`toggle-anlagen`, `fuss-spalte-1/2/3`, …) sind
+   ausgenommen. `din-briefkopf` ersetzt die Zone `din-absender`, `data-absender-y-*` heisst
+   jetzt `data-briefkopf-y-*` (CSS und `expectedDataAttrs` mitgezogen).
+6. **Toggles sind Boolean.** `toggle-anlagen`/`toggle-fuss` werden als `true`/`false`
+   exportiert; der Restore akzeptiert zusaetzlich die alten Strings.
+7. **`tools/imr.js` prueft jetzt die Invariante (IMR-1…IMR-7):** dinSection vorhanden,
+   id ableitbar, Atom mit id im HTML, export-Atom mit `contenteditable`, veraltete Tags im
+   HTML abgelehnt, Container-Kinder vorhanden, Zonen-IDs ableitbar. Die harte „45" ist weg —
+   die Zahl kommt aus dem Inventar.
+
+**Bewusste Abweichung:** Die Zone `din-briefkopf` fuehrt Y 27/45 mm. DIN 19.4.2 nennt diesen
+Wert als **Feldhoehe**, nicht als Position. Der Wert bleibt (das CSS nutzt ihn als `top`),
+ist aber im Inventar als PROJECT-Herkunft ausgewiesen statt als DIN.
+
+**Generalisierung:** Ein Normwerk, das man zweimal aufschreibt — einmal als Tabelle, einmal als
+Maschineninventar — laeuft auseinander, sobald eine Seite korrigiert wird. Hier war es
+umgekehrt: das Inventar war richtig, die Tabellen waren alt. Wer die Wahrheit an eine Stelle
+legt, muss die andere aus ihr erzeugen. `imr.js` prueft seit heute genau die Beziehung, deren
+Fehlen den Drift ermoeglicht hat.

@@ -101,13 +101,13 @@ describe('DraftManager: Undo/Redo', () => {
 });
 
 describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
-  it('UL/LI überleben den Restore im anlagen-text (extraTags)', () => {
+  it('UL/LI überleben den Restore im anlagen-angabe (extraTags)', () => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify({
-      'anlagen-text': '<ul><li>Anlage A</li><li>Anlage B</li></ul>'
+      'anlagen-angabe': '<ul><li>Anlage A</li><li>Anlage B</li></ul>'
     }));
     new DraftManager().loadDraft();
-    const anlagen = document.getElementById('anlagen-text');
-    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-text');
+    const anlagen = document.getElementById('anlagen-angabe');
+    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-angabe');
     const lis = anlagen.querySelectorAll('li');
     assert(lis.length === 2, 'zwei <li> nach dem Restore');
     assert(lis[0].textContent === 'Anlage A', 'Anlage A erhalten');
@@ -116,8 +116,8 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
   });
 
   it('ensureListStructure wickelt Text-Nodes in <li> statt sie zu löschen', () => {
-    const anlagen = document.getElementById('anlagen-text');
-    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-text');
+    const anlagen = document.getElementById('anlagen-angabe');
+    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-angabe');
     anlagen.textContent = 'Rechnung\nVollmacht';
     new UIProtections().ensureListStructure(anlagen);
     const lis = anlagen.querySelectorAll('li');

@@ -230,8 +230,8 @@ export function migrateStorage() {
  */
 export function collectLetterIdentity() {
   const dateStr = currentISODate();
-  const lastName = (document.getElementById('rucksendezeile')?.textContent || '').split(/[•,]/)[0].replace(/\s/g, '') || 'Absender';
-  const empfName = (document.getElementById('empfaenger-namenszeile')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
+  const lastName = (document.getElementById('rucksendeangabe')?.textContent || '').split(/[•,]/)[0].replace(/\s/g, '') || 'Absender';
+  const empfName = (document.getElementById('empfaenger-name')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
   const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
   const recipientName = empfName || empfFirma || 'Empfaenger';
   const rawSubject = (document.getElementById('betreff')?.textContent || 'Brief').replace(/[\x00-\x1f\r\n<>:"/\\|?*]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -341,13 +341,13 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @property {number} schema_version
  * @property {string} generator
  * @property {string} timestamp
- * @property {{ layout: string, copyfit: boolean, guides: boolean, fields: Record<string, string> }} document
+ * @property {{ layout: string, copyfit: boolean, guides: boolean, fields: Record<string, string | boolean> }} document
  * @property {{ sender?: string, theme: string, formality: string }} profile
  * @property {{ transform: { x: number, y: number, scale: number, rot: number } }} signature
  * @property {string} app
  * @property {string} created
  * @property {string} tool
- * @property {Record<string, string>} draft
+ * @property {Record<string, string | boolean>} draft
  * @property {Record<string, any>} [settings]
  * @property {string} [font]
  */
@@ -355,7 +355,7 @@ export const DINLETTER_FORMAT = 'dinletter';
 /**
  * @typedef {object} DinLetterParseSuccess
  * @property {true} ok
- * @property {Record<string, string>} draft
+ * @property {Record<string, string | boolean>} draft
  * @property {Record<string, any>} [settings]
  * @property {string} [font]
  * @property {number} schemaVersion
@@ -374,7 +374,7 @@ export const DINLETTER_FORMAT = 'dinletter';
 /**
  * Baut das Export-Payload (Schema v2 mit v1-Abwärtskompatibilität) aus einem Draft-Objekt
  * und optionalen Einstellungen / Schriften. PURE — unit-testbar.
- * @param {Record<string, string>} draft
+ * @param {Record<string, string | boolean>} draft
  * @param {Record<string, any> | null} [settings]
  * @param {string | null} [font]
  * @returns {DinLetterPayload}
@@ -388,10 +388,11 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
     timestamp = `${isoDate}T00:00:00+01:00`;
   }
 
-  const cleanFields = /** @type {Record<string, string>} */ (Object.create(null));
+  const cleanFields = /** @type {Record<string, string | boolean>} */ (Object.create(null));
   if (draft && typeof draft === 'object') {
     for (const [k, v] of Object.entries(draft)) {
       if (typeof v === 'string') cleanFields[k] = v;
+      else if (typeof v === 'boolean' && k.startsWith('toggle-')) cleanFields[k] = v;
     }
   }
 
@@ -438,7 +439,7 @@ export function buildDinLetterPayload(draft, settings = null, font = null) {
       fields: cleanFields
     },
     profile: {
-      sender: cleanFields.absender || '',
+      sender: typeof cleanFields.absender === 'string' ? cleanFields.absender : '',
       theme: cleanSettings.theme || 'auto',
       formality: cleanSettings.formality || 'formal'
     },
@@ -496,9 +497,10 @@ export function parseDinLetterPayload(text) {
   if (!rawFields || typeof rawFields !== 'object' || Array.isArray(rawFields)) {
     return { ok: false, reason: 'Kein Briefkern in der Datei.' };
   }
-  const draft = /** @type {Record<string, string>} */ (Object.create(null));
+  const draft = /** @type {Record<string, string | boolean>} */ (Object.create(null));
   for (const [key, value] of Object.entries(rawFields)) {
-    if (typeof value !== 'string') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
+    const istToggle = key.startsWith('toggle-') && typeof value === 'boolean';
+    if (typeof value !== 'string' && !istToggle) return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
     if (key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
       return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
     }
@@ -665,12 +667,12 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
   }
 }
 
-/** @type {(() => Record<string, string>) | null} */
+/** @type {(() => Record<string, string | boolean>) | null} */
 let registeredDraftCollector = null;
 
 /**
  * Registriert den Collector für den aktuellen DOM-Draft.
- * @param {(() => Record<string, string>) | null} collector
+ * @param {(() => Record<string, string | boolean>) | null} collector
  */
 export function registerDraftCollector(collector) {
   registeredDraftCollector = collector;
@@ -679,7 +681,7 @@ export function registerDraftCollector(collector) {
 /**
  * Erzeugt das vollständige DIN-Letter-Payload (Objekt), wie es vom Export-Button
  * und vom Live-JSON-Debug-Panel verwendet wird. PURE / SSoT.
- * @param {(() => Record<string, string>) | null} [draftCollector]
+ * @param {(() => Record<string, string | boolean>) | null} [draftCollector]
  * @returns {DinLetterPayload}
  */
 export function buildDINLetterJSON(draftCollector = null) {
@@ -697,7 +699,7 @@ export function buildDINLetterJSON(draftCollector = null) {
 
 /**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog, Keyboard-Shortcut).
- * @param {{ collectDraft?: () => Record<string, string> }} [options]
+ * @param {{ collectDraft?: () => Record<string, string | boolean> }} [options]
  */
 export function initImportExport({ collectDraft } = {}) {
   if (typeof collectDraft === 'function') {

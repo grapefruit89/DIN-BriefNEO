@@ -52,7 +52,7 @@
     status.textContent = `Seite 1 von ${n}`;
 
     // Empfänger-Name für Folgekopf ermitteln
-    const empfName = (document.getElementById('empfaenger-namenszeile')?.textContent || '').trim();
+    const empfName = (document.getElementById('empfaenger-name')?.textContent || '').trim();
     const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').trim();
     const empfaenger = empfName || empfFirma || 'Empfänger';
     const datum = (document.getElementById('datum')?.textContent || '').trim();
@@ -135,7 +135,7 @@
   window.addEventListener('resize', aktualisieren);
   window.addEventListener('beforeprint', aktualisieren);
 
-  for (const id of ['empfaenger-namenszeile', 'empfaenger-firma', 'datum', 'betreff', 'text']) {
+  for (const id of ['empfaenger-name', 'empfaenger-firma', 'datum', 'betreff', 'text']) {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('input', aktualisieren);

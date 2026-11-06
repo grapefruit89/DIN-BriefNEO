@@ -259,7 +259,7 @@ export class SalutationFeature {
 
     this.#seedAuto();
 
-    document.getElementById('empfaenger-namenszeile')?.addEventListener('input', () => this.#update('anrede'));
+    document.getElementById('empfaenger-name')?.addEventListener('input', () => this.#update('anrede'));
     document.getElementById('empfaenger-firma')?.addEventListener('input', () => this.#update('anrede'));
 
     for (const kind of /** @type {const} */ (['anrede', 'grussformel'])) {
@@ -354,7 +354,7 @@ export class SalutationFeature {
   }
 
   #nameText() {
-    const name = (document.getElementById('empfaenger-namenszeile')?.textContent || '').trim();
+    const name = (document.getElementById('empfaenger-name')?.textContent || '').trim();
     if (name) return name;
     return (document.getElementById('empfaenger-firma')?.textContent || '').trim();
   }

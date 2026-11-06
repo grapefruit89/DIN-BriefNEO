@@ -26,13 +26,13 @@ Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keiner
     "copyfit": false,
     "guides": true,
     "fields": {
-      "rucksendezeile": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
-      "postvermerk": "",
+      "rucksendeangabe": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
+      "vermerke": "",
       "empfaenger-firma": "",
-      "empfaenger-namenszeile": "Erika Mustermann",
+      "empfaenger-name": "Erika Mustermann",
       "empfaenger-strasse": "Beispielweg 42",
       "empfaenger-ort": "54321 Beispielstadt",
-      "absender-namenszeile": "Max Mustermann",
+      "absender-name": "Max Mustermann",
       "absender-strasse": "Musterstraße 1",
       "absender-ort": "12345 Musterstadt",
       "absender-tel": "+49 123 456789",
@@ -43,7 +43,7 @@ Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keiner
       "text": "hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.",
       "grussformel": "Mit freundlichen Grüßen",
       "unterschrift": "Max Mustermann",
-      "anlagen-text": "<li>Kündigungsbestätigung erbeten</li>"
+      "anlagen-angabe": "<li>Kündigungsbestätigung erbeten</li>"
     }
   },
   "profile": {

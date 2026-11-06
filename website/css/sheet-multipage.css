@@ -40,25 +40,25 @@ din-blatt {
   --blatt-breite: attr(data-width-mm type(<number>));
   --blatt-hoehe: attr(data-height-mm type(<number>));
 
-  --absender-y: --mm-y(attr(data-absender-y-b type(<number>)));
+  --briefkopf-y: --mm-y(attr(data-briefkopf-y-b type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
   --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
   --datum-y: --mm-y(attr(data-datum-y-b type(<number>)));
   --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
 
-  --falz-oben-y: --mm-y(attr(data-falz-oben-y-b type(<number>)));
-  --falz-unten-y: --mm-y(attr(data-falz-unten-y-b type(<number>)));
+  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-b type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-b type(<number>)));
   --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
 body:has(#btn-form-a:checked) din-blatt {
-  --absender-y: --mm-y(attr(data-absender-y-a type(<number>)));
+  --briefkopf-y: --mm-y(attr(data-briefkopf-y-a type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
   --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
   --datum-y: --mm-y(attr(data-datum-y-a type(<number>)));
   --kern-y: --mm-y(attr(data-kern-y-a type(<number>)));
-  --falz-oben-y: --mm-y(attr(data-falz-oben-y-a type(<number>)));
-  --falz-unten-y: --mm-y(attr(data-falz-unten-y-a type(<number>)));
+  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-a type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-a type(<number>)));
 }
 
 /* Viewport-Scrolling für Mehrseiten */
@@ -153,9 +153,9 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
-  #rucksendezeile {
+  #rucksendeangabe {
     position: absolute;
-    top: var(--absender-y);
+    top: var(--briefkopf-y);
     left: --mm-x(attr(data-x type(<number>)));
     width: --mm-x(attr(data-w type(<number>)));
     height: --mm-y(attr(data-h type(<number>)));
@@ -312,7 +312,7 @@ body:has(#btn-form-a:checked) din-blatt {
     font-weight: 500;
   }
 
-  #anlagen {
+  #anlagenvermerk {
     margin-top: --mm-y(attr(data-margin-top type(<number>)));
     break-inside: avoid;
     page-break-inside: avoid;
@@ -329,7 +329,7 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   /* Fußzeile auf Seite 1 */
-  #fuss {
+  #geschaeftsangaben {
     display: none;
     position: absolute;
     top: 280mm;
@@ -346,7 +346,7 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
-  :root:has(#toggle-fuss:checked) #fuss {
+  :root:has(#toggle-fuss:checked) #geschaeftsangaben {
     display: grid;
   }
 }
@@ -448,7 +448,7 @@ body:has(#btn-form-a:checked):has(#btn-hilfslinien-switch:checked) din-falzmarke
 }
 
 /* Optionale DIN-Blöcke */
-din-vermerke, din-anlagenvermerk, #anlagen, din-geschaeftsangaben {
+din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
   display: none;
 }
 
@@ -457,7 +457,7 @@ din-vermerke, din-anlagenvermerk, #anlagen, din-geschaeftsangaben {
 }
 
 :root:has(#toggle-anlagen:checked) din-anlagenvermerk,
-:root:has(#toggle-anlagen:checked) #anlagen {
+:root:has(#toggle-anlagen:checked) #anlagenvermerk {
   display: block;
 }
 
@@ -483,7 +483,7 @@ din-anlagenvermerk {
 }
 
 .anlagen-heading { font-weight: 700; margin-bottom: 2px; }
-#anlagen-text { margin: 0; padding-left: 0; list-style-position: inside; }
+#anlagen-angabe { margin: 0; padding-left: 0; list-style-position: inside; }
 
 .is-dormant {
   display: none !important;

@@ -530,19 +530,19 @@ export async function wuerfelTestbrief() {
   const recipientName = recipient.buergerlicherName || recipient.name;
 
   // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
-  setField('absender-namenszeile', senderName);
+  setField('absender-name', senderName);
   setField('absender-strasse', resolveStrasse(sender));
   setField('absender-ort', resolveOrtZeile(sender));
   setField('absender-tel', '+49 228 123456-78');
   setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
 
   const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
-  setField('rucksendezeile', rucksendeTeile.join(' • '));
+  setField('rucksendeangabe', rucksendeTeile.join(' • '));
 
   // 5. Empfänger
   // Firmenzeile nur bei einer einzelnen belegten Organisation — kein Berufs-Blob.
   setField('empfaenger-firma', resolveFirma(recipient));
-  setField('empfaenger-namenszeile', recipientName);
+  setField('empfaenger-name', recipientName);
   setField('empfaenger-strasse', resolveStrasse(recipient));
   setField('empfaenger-ort', resolveOrtZeile(recipient));
 
@@ -558,14 +558,14 @@ export async function wuerfelTestbrief() {
   const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenToggle) {
     anlagenToggle.checked = false;
-    document.getElementById('anlagen-text')?.replaceChildren();
+    document.getElementById('anlagen-angabe')?.replaceChildren();
   }
   const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
   if (fussToggle) {
     fussToggle.checked = false;
   }
 
-  const postvermerkField = document.getElementById('postvermerk');
+  const postvermerkField = document.getElementById('vermerke');
   if (postvermerkField) {
     postvermerkField.textContent = '';
     postvermerkField.removeAttribute('data-visible');

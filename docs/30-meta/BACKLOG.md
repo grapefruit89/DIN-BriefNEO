@@ -59,6 +59,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 | **B15** | **DECISION-LOG-Behauptungen geprüft, Append-Only-Nachtrag für KISS + B8 + B17** | s. u. |
 | **B7** | **`attr()`-Geometrie: Fallbacks entfernt, MUST-NOT 5 erfüllt** | s. u. |
 | **B19** | **Adaptive 3-Zonen-Logik aktiv (Phase 1); Phase 2 geschlossen (KISS)** | s. u. |
+| 7.1 | `formatLetterDate` braucht keinen `Intl`-Fallback — Temporal-only, Chrome-only (Chrome 150+) | — |
 
 ---
 
@@ -232,6 +233,67 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 
 ---
 
+### B41 · Zweizeilig-Guard zählt `<br>` nicht als Zeilenumbruch · **S** · ⭐⭐
+`document.js:324` prüft `text.split('\n').length`; `textContent` enthält für ein `<br>`
+kein `\n`. Der Guard feuert dadurch nie. Zählen über `innerText` oder die `<br>`-Anzahl.
+
+### B42 · Postvermerk-Auswahl wird bedingungslos auf Index 0 gesetzt · **S** · ⭐⭐
+`document.js:922` setzt `pvSelect.selectedIndex = 0`, auch wenn ein Vermerk aktiv ist
+(weitere Stellen: `:1005`, `:1027`). Nur zurücksetzen, wenn kein Postvermerk gesetzt ist.
+
+### B43 · `aria-pressed` am Einstellungen-Schalter bleibt bei direktem Klick stehen · **S** · ⭐⭐
+`settings.js:131-142` aktualisiert `aria-pressed` nur im programmatischen Pfad
+`toggleSettingsModus`. Ein direkter Klick auf `#toggle-modus` feuert `change` ohne Listener.
+
+### B44 · `<li>` ohne `<ul>` in `din-anlagen-angabe` · **S** · ⭐⭐
+`index.html:327` führt `<li>Anlage 1</li>` ohne Liste (`role="group"`). Entweder
+`role="list"`/`role="listitem"` oder ein echtes `<ul>`.
+
+### B45 · Eingefügte `<div>`-Kinder in der Anlagenliste bleiben stehen · **S** · ⭐⭐
+`document.js:485-497` normalisiert nur bei `children.length === 0`. Nach einem Paste mit
+`<div>`-Kindern bleibt die Struktur ungültig.
+
+### B46 · `save()`-Rückgabe beim Signaturzustand wird ignoriert · **S** · ⭐⭐
+`settings.js:567-571` reicht an `updateSettings()` → `saveJSON` weiter, ohne die Rückgabe
+zu prüfen. Bei vollem Speicher verschwindet der Zustand still.
+
+### B47 · Doppelter Save-Request beim Export · **S** · ⭐
+`persistence.js:661-662` publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload direkt
+danach aus dem DOM. Der Request ist für den Export funktionslos.
+
+## 🔧 Werkzeuge
+
+### B48 · Test-Runner für maschinenlesbare Ergebnisse · **M** · ⭐⭐⭐
+`tools/test-runner.mjs` existiert nicht. Jeder Lauf braucht ein handgebautes CDP-Skript,
+weil `--dump-dom` die async-Tests abschneidet (`--virtual-time-budget` wartet nicht auf
+IndexedDB-I/O). Ein Runner mit JSON-Ausgabe und Exit-Code würde das ersetzen.
+
+### B49 · Test-Dossier ins Repo · **S** · ⭐⭐
+Die Testlandschafts-Analyse liegt nur im Chat. `docs/audit/2026-11/` enthält allein
+`befundpruefung-2026-11-05.md`; ohne Ablage wird dieselbe Analyse doppelt gemacht.
+
+## 🎨 Polish
+
+### B50 · Mobile Drawer für die Seitenleiste (< 768px) · **L** · ⭐⭐
+`website/css/sidebar.css` hat kein Drawer-Muster; unter 768px bleibt die Seitenleiste
+unbenutzbar. Reines CSS mit `:has()` wäre möglich, ohne JS-Umbau.
+
+### B51 · Design-Tokens in `sidebar.css` durchziehen · **M** · ⭐⭐
+`sidebar.css` enthält 260 rohe `px`-Werte, obwohl Tokens (`--mm-*`, `--pt`) existieren.
+`sheet.css` nutzt sie bereits; die Seitenleiste nicht.
+
+### B52 · Custom-CSS-Plugin für austauschbare Themes · **L** · ⭐
+`website/addons/` kennt nur `testbrief` und `webmcp-bridge` — es gibt keinen Plugin-Punkt,
+über den ein Theme eigenes CSS einhängen könnte.
+
+## 🔬 Forschung
+
+### B53 · Speichern systematisch prüfen (stille Fehler, Rückgaben, Wettläufe) · **M** · ⭐⭐⭐
+Alle Speicherpfade durchgehen: Draft, Signatur, Schrift, Settings, Export, Import, Session,
+Adressbuch, Geoapify-Key, Sender-Coords. Gesucht wird, was still scheitert oder sich
+überholt — bekannte Beispiele: ignorierte `save()`-Rückgaben (`settings.js:567`) und der
+doppelte Save-Request beim Export (`persistence.js:661`).
+
 ## Empfohlene Reihenfolge
 
 1. ~~**B1**, **B2**~~ ✅ erledigt 2026-10-02 (`file://` gestrichen)
@@ -284,7 +346,7 @@ bestehenden JavaScript-Pfad sicher. `@page`-Seitenzahlen warten auf die
 Mehrseiten-Spec; `::highlight()` hat keinen vorhandenen DOM-Highlight-Renderer;
 `subgrid` würde die IMR-Geometrie unnötig riskant umbauen. Keine Produktionsänderung.
 
-### B32 · `mehrseiten-prototyp.html` einordnen · **M** · ⭐⭐
+### B39 · `mehrseiten-prototyp.html` einordnen · **M** · ⭐⭐
 `website/mehrseiten-prototyp.html` (315 Zeilen) ist von nichts im Repo verlinkt
 (`index.html`, `multipage.html` und `docs/` geprüft: keine Verweise) und unterscheidet
 sich in 756 Zeilen von `multipage.html` — also eine ältere, eigenständige Datei. Sie liegt
@@ -293,10 +355,11 @@ aber live im ausgelieferten `website/`-Ordner und ist damit öffentlich erreichb
 `docs/90-archive/` verschieben). Vor einer Löschung prüfen, ob ein externer Link zeigt —
 Referrer-Logs gibt es nicht. Siehe auch [[ARCHITECTURE-MAP]].
 
-### B33 · Vier vorbestehende Testfehler dokumentieren · **M** · ⭐⭐
+### B40 · Vier vorbestehende Testfehler dokumentieren · **M** · ⭐⭐
 Gemessen am 2026-11-05 (Commit `aa4a39b`, reproduziert in eigenem Worktree):
 **122 Tests bestanden, 4 fehlgeschlagen** — vorbestehend, nicht durch die Persistenz-
-oder Dead-Code-Commits verursacht.
+oder Dead-Code-Commits verursacht. Stand 2026-11-06 (`c0bbbaf`): **133 Tests, 129
+bestanden**, dieselben vier rot.
 
 - „ignoriert Metadaten-Zeilen wie Telefon, Fax und Register" — Adress-Parser
 - „entfaltet einzeilige kommagetrennte Adressen (TC-05)" — Adress-Parser
@@ -306,21 +369,11 @@ oder Dead-Code-Commits verursacht.
 Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
 UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und [[befundpruefung-2026-11-05]].
 
-### B36 · Schema-Verweis in `llms.txt` zeigt ins Leere · **M** · ⭐⭐
-`website/llms.txt` verweist im JSON-Beispiel auf
-`https://grapefruit89.github.io/DIN-BriefNEO/schema/v2/din-letter.json`. Die Datei
-existiert im Repo **nicht** (`website/schema/` fehlt), live antwortet sie mit **HTTP 404**.
-
-Zwei Wege, einer muss entschieden werden:
-
-1. **Schema-Datei anlegen** (`website/schema/v2/din-letter.json`) — dann hat der Verweis ein
-   Ziel und Werkzeuge können validieren. Aufwand: Schema aus `buildDinLetterPayload`
-   ableiten und im Deploy mit ausliefern.
-2. **`$schema`-Zeile entfernen** — dann beschreibt das Beispiel nur noch das Format, ohne
-   auf ein nicht existierendes Artefakt zu zeigen.
-
-Bis dahin bleibt 6.1 „teilweise behoben": importierbar, aber mit totem Verweis.
-Siehe [[befundpruefung-2026-11-05]].
+### B36 · Schema-Datei für v3 anlegen oder Verweis endgültig streichen · **N** · ⭐
+Die `$schema`-Zeile in `llms.txt` ist seit `186664c` entfernt (kein 404 mehr).
+Offen ist die Entscheidung: eine `website/schema/v3/din-letter.json` anlegen (dann
+Verweis wieder aufnehmen) oder das Schema dauerhaft nicht ausliefern.
+Kein akuter Bug — nur eine Entscheidung, die irgendwann fallen muss.
 
 ### B37 · View-Transition wirft `InvalidStateError` beim Seitenaufbau · **N** · ⭐
 Beim Laden erscheinen zwei `InvalidStateError: Transition was aborted because of

@@ -42,8 +42,8 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | :--- | :--- | :--- | :--- |
 | `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot-theme.js` + `boot-switches.js` (beide blockierend) + `main.js` (Modul) |
 | `website/multipage.html` | Mehrseiten-Editor, **produktiv** | immer | ~94 % identisch mit `index.html`; eigene Stylesheets, eigener Controller |
-| `website/mehrseiten-prototyp.html` | Prototyp | **nicht verlinkt** | liegt live im Auslieferungsordner — siehe [[BACKLOG]] B15 |
-| `test/index.html` | Test-Runner (122 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
+| `website/mehrseiten-prototyp.html` | Prototyp | **nicht verlinkt** | liegt live im Auslieferungsordner — siehe [[BACKLOG]] B39 |
+| `test/index.html` | Test-Runner (133 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
 | `website/js/boot-theme.js` | Theme- und Stil-Boot | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Setzt `data-theme` **und** `data-style` |
 | `website/js/boot-switches.js` | Schalter-Boot (Hilfslinien, Falz-/Lochmarken) | **blockierend, vor First Paint** | klassisches Script im `<head>`: liest `din_settings` und setzt die Checkboxen per `MutationObserver`, sobald sie geparst sind. Microtasks laufen vor dem Rendern — deshalb kein Wettlauf mit dem ersten Frame. Der HTML-Default muss `DEFAULT_SETTINGS` entsprechen |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
@@ -132,7 +132,7 @@ Pipeline-Ergebnis ist, kein Laufzeit-Datum.
 ES-Module laden nicht über `file://`. **Nicht** mit `node test/all.js` aufrufen:
 `localStorage` fehlt, die Tests brauchen den Browser.
 
-4 Tests sind vorbestehend fehlgeschlagen — siehe [[BACKLOG]] B33.
+4 Tests sind vorbestehend fehlgeschlagen — siehe [[BACKLOG]] B40.
 
 ## 5. Regeln für den Agenten
 

@@ -295,8 +295,9 @@ body:has(#btn-form-a:checked) din-blatt {
     color: var(--blatt-schwach); /* OKLCH Slate Gray */
     /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
     padding-top: --mm-y(attr(data-padding-top type(<number>)));
-    grid-template-columns: repeat(3, 1fr);
-    gap: --mm-x(attr(data-gap type(<number>)));
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, auto);
+    gap: 0 --mm-x(attr(data-gap type(<number>)));
     column-rule: 0.5px solid var(--blatt-schwach);
     column-rule-inset: 2px; /* Bewusst genutzt: Nativ in Chromium 150+ */
   }
@@ -398,6 +399,35 @@ din-vermerke, din-anlagenvermerk, din-geschaeftsangaben {
 
 :root:has(#toggle-fuss:checked) din-geschaeftsangaben {
   display: grid;
+}
+
+/* Fußzone: feste 4-Spalten-Zuordnung. Explizite grid-area statt grid-auto-flow:
+   12 Atome in DOM-Reihenfolge wären bei 4 Spalten nur 3 Spalten geworden, und
+   automatische Platzierung verschiebt leere Felder in fremde Spalten. So bleibt
+   jede Spalte stabil, auch wenn Felder leer sind.
+   Spalte 1 = 19.7 (Register), Spalte 2 = 19.7 (Organe), Spalte 3 = 19.6 (Steuern),
+   Spalte 4 = 19.6 (Bank und Geschäftsräume). */
+din-fuss-firma     { grid-area: 1 / 1; }
+din-fuss-sitz      { grid-area: 2 / 1; }
+din-fuss-gericht   { grid-area: 3 / 1; }
+din-fuss-hrb       { grid-area: 4 / 1; }
+din-fuss-vorstand  { grid-area: 1 / 2; }
+din-fuss-gf        { grid-area: 2 / 2; }
+din-fuss-stnr      { grid-area: 1 / 3; }
+din-fuss-ustid     { grid-area: 2 / 3; }
+din-fuss-bank      { grid-area: 1 / 4; }
+din-fuss-iban      { grid-area: 2 / 4; }
+din-fuss-bic       { grid-area: 3 / 4; }
+din-fuss-anschrift { grid-area: 4 / 4; }
+
+/* Vier Zeilen à 7.5pt müssen in die 15-mm-Zone passen. `.single-line` erzwingt
+   1.4em Höhe (4 × 3.70 mm + 2 mm Padding = 16.8 mm, also 1.8 mm Überlauf).
+   Mit 1.2 Zeilenhöhe: 4 × 3.18 mm + 2 mm = 14.7 mm. */
+din-geschaeftsangaben > .single-line {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  line-height: 1.2;
 }
 
 :root:has(#toggle-anlagen:checked) din-anlagenvermerk {

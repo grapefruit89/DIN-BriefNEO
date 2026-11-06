@@ -239,6 +239,47 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assert(parseDinLetterPayload(JSON.stringify({ ...base, layout: { form: 'form-a', marks: true } })).ok, 'gültiges layout akzeptiert');
   });
 
+  it('Fußzone: die 12 DIN-Atome gehen als Felder durch Build und Parse', () => {
+    const FUSS = ['firma', 'sitz', 'gericht', 'hrb', 'vorstand', 'gf', 'stnr', 'ustid', 'bank', 'iban', 'bic', 'anschrift'];
+    /** @type {Record<string, string | boolean>} */
+    const draft = { 'toggle-fuss': true };
+    for (const f of FUSS) draft[`fuss-${f}`] = `Wert ${f}`;
+
+    const payload = buildDinLetterPayload(draft);
+    for (const f of FUSS) {
+      assertEqual(payload.fields[`fuss-${f}`], `Wert ${f}`, `fuss-${f} im Export`);
+    }
+    assertEqual(payload.fields['toggle-fuss'], true);
+    assertEqual(
+      JSON.stringify(Object.keys(payload.fields).sort()),
+      JSON.stringify([...FUSS.map((f) => `fuss-${f}`), 'toggle-fuss'].sort()),
+      'Feldmenge ist exakt die 12 Fußfelder plus Toggle'
+    );
+
+    const r = parseDinLetterPayload(JSON.stringify(payload));
+    assert(r.ok, 'v3 mit Fußfeldern wird geparst');
+    if (r.ok) {
+      for (const f of FUSS) assertEqual(r.fields[`fuss-${f}`], `Wert ${f}`, `fuss-${f} im Import`);
+    }
+
+    // Roundtrip: 12 rein, 12 raus
+    const wieder = buildDinLetterPayload(r.ok ? r.fields : {});
+    for (const f of FUSS) assertEqual(wieder.fields[`fuss-${f}`], `Wert ${f}`, `Roundtrip fuss-${f}`);
+  });
+
+  it('Fußzone: leere Felder bleiben als leere Strings erhalten', () => {
+    const FUSS = ['firma', 'sitz', 'gericht', 'hrb', 'vorstand', 'gf', 'stnr', 'ustid', 'bank', 'iban', 'bic', 'anschrift'];
+    /** @type {Record<string, string | boolean>} */
+    const leer = {};
+    for (const f of FUSS) leer[`fuss-${f}`] = '';
+    const payload = buildDinLetterPayload({ ...leer, 'toggle-fuss': false });
+    for (const f of FUSS) {
+      assertEqual(payload.fields[`fuss-${f}`], '', `leeres fuss-${f} bleibt Feld`);
+    }
+    assertEqual(payload.fields['toggle-fuss'], false, 'Toggle aus heißt nur unsichtbar, nicht leer');
+    assertEqual(Object.keys(payload.fields).length, 13, '12 Fußfelder plus Toggle');
+  });
+
   it('layout und signature sind optional', () => {
     const r = parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { betreff: 'x' } }));
     assert(r.ok, 'ohne layout/signature ok');

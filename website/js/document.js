@@ -934,8 +934,9 @@ export class DraftManager {
       } else {
         // Migration: alte Drafts kennen den Toggle nicht. Vorhandener Text
         // bedeutet "Fusszeile war an" - sonst waere er unsichtbar.
-        fussSwitch.checked = Array.from(document.querySelectorAll('.fuss-spalte'))
-          .some((sp) => (sp.textContent || '').trim() !== '');
+        fussSwitch.checked = Array.from(
+          document.querySelectorAll('#geschaeftsangaben > [contenteditable]')
+        ).some((sp) => (sp.textContent || '').trim() !== '');
       }
     }
 

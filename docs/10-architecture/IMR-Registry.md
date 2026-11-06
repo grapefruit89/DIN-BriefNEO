@@ -350,22 +350,22 @@ Blocksatz und Silbentrennung sind Rendering.
 **ARIA:** `contentinfo`  
 **Zonen-Geometrie:** X 25 mm. Y 241 mm. Breite 165 mm. Höhe der Zone: `absolute geometry: not independently specified`.
 
-Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der Spaltenindex, nicht die Millimeter-X/W der einzelnen Atome.
+Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der Spaltenindex, nicht die Millimeter-X/W der einzelnen Atome. Die konkrete Zuordnung Atom → Spalte steht als `grid-area` in `website/css/sheet.css` (und gespiegelt in `sheet-multipage.css`) — sie ist Rendering und deshalb bewusst kein Inventarfeld.
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
-| `fuss-firma` | `<din-fuss-firma>` | 19.7 | atom | nein | Firmenname laut Handelsregister |
-| `fuss-sitz` | `<din-fuss-sitz>` | 19.7 | atom | nein | Rechtsform und Sitz |
-| `fuss-gericht` | `<din-fuss-gericht>` | 19.7 | atom | nein | Registergericht |
-| `fuss-hrb` | `<din-fuss-hrb>` | 19.7 | atom | nein | Handelsregisternummer |
-| `fuss-vorstand` | `<din-fuss-vorstand>` | 19.7 | atom | nein | Vorsitz und Mitglieder des Vorstands |
-| `fuss-gf` | `<din-fuss-gf>` | 19.7 | atom | nein | Geschäftsführer |
-| `fuss-stnr` | `<din-fuss-stnr>` | 19.6 | atom | nein | Steuernummer |
-| `fuss-ustid` | `<din-fuss-ustid>` | 19.6 | atom | nein | USt-IdNr. |
-| `fuss-bank` | `<din-fuss-bank>` | 19.6 | atom | nein | Kontoverbindung |
-| `fuss-iban` | `<din-fuss-iban>` | 19.6 | atom | nein | Gliederung 11.3.1 |
-| `fuss-bic` | `<din-fuss-bic>` | 19.6 | atom | nein |  |
-| `fuss-anschrift` | `<din-fuss-anschrift>` | 19.6 | atom | nein | Geschäftsräume |
+| `fuss-firma` | `<din-fuss-firma>` | 19.7 | atom | ja, `#fuss-firma` | Firmenname laut Handelsregister |
+| `fuss-sitz` | `<din-fuss-sitz>` | 19.7 | atom | ja, `#fuss-sitz` | Rechtsform und Sitz |
+| `fuss-gericht` | `<din-fuss-gericht>` | 19.7 | atom | ja, `#fuss-gericht` | Registergericht |
+| `fuss-hrb` | `<din-fuss-hrb>` | 19.7 | atom | ja, `#fuss-hrb` | Handelsregisternummer |
+| `fuss-vorstand` | `<din-fuss-vorstand>` | 19.7 | atom | ja, `#fuss-vorstand` | Vorsitz und Mitglieder des Vorstands |
+| `fuss-gf` | `<din-fuss-gf>` | 19.7 | atom | ja, `#fuss-gf` | Geschäftsführer |
+| `fuss-stnr` | `<din-fuss-stnr>` | 19.6 | atom | ja, `#fuss-stnr` | Steuernummer |
+| `fuss-ustid` | `<din-fuss-ustid>` | 19.6 | atom | ja, `#fuss-ustid` | USt-IdNr. |
+| `fuss-bank` | `<din-fuss-bank>` | 19.6 | atom | ja, `#fuss-bank` | Kontoverbindung |
+| `fuss-iban` | `<din-fuss-iban>` | 19.6 | atom | ja, `#fuss-iban` | Gliederung 11.3.1 |
+| `fuss-bic` | `<din-fuss-bic>` | 19.6 | atom | ja, `#fuss-bic` |  |
+| `fuss-anschrift` | `<din-fuss-anschrift>` | 19.6 | atom | ja, `#fuss-anschrift` | Geschäftsräume |
 | `seitennummerierung` | `<din-seitennummerierung>` | 20.17 | atom | ja, `#seitennummerierung` |  |
 
 Spalte 2 hat in diesem Modell keine belegte Zeile bei Y 246. Das bleibt eine Lücke, kein neuer Wert.
@@ -754,99 +754,99 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "export": false
     },
     "din-fuss-firma": {
-      "id": null,
+      "id": "fuss-firma",
       "role": "atom",
       "dinSection": "19.7",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-sitz": {
-      "id": null,
+      "id": "fuss-sitz",
       "role": "atom",
       "dinSection": "19.7",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-gericht": {
-      "id": null,
+      "id": "fuss-gericht",
       "role": "atom",
       "dinSection": "19.7",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-hrb": {
-      "id": null,
+      "id": "fuss-hrb",
       "role": "atom",
       "dinSection": "19.7",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-vorstand": {
-      "id": null,
+      "id": "fuss-vorstand",
       "role": "atom",
       "dinSection": "19.7",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-gf": {
-      "id": null,
+      "id": "fuss-gf",
       "role": "atom",
       "dinSection": "19.7",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-stnr": {
-      "id": null,
+      "id": "fuss-stnr",
       "role": "atom",
       "dinSection": "19.6",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-ustid": {
-      "id": null,
+      "id": "fuss-ustid",
       "role": "atom",
       "dinSection": "19.6",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-bank": {
-      "id": null,
+      "id": "fuss-bank",
       "role": "atom",
       "dinSection": "19.6",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-iban": {
-      "id": null,
+      "id": "fuss-iban",
       "role": "atom",
       "dinSection": "19.6",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-bic": {
-      "id": null,
+      "id": "fuss-bic",
       "role": "atom",
       "dinSection": "19.6",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-fuss-anschrift": {
-      "id": null,
+      "id": "fuss-anschrift",
       "role": "atom",
       "dinSection": "19.6",
       "source": "DIN",
-      "inDom": false,
+      "inDom": true,
       "export": false
     },
     "din-seitennummerierung": {

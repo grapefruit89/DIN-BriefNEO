@@ -30,10 +30,11 @@ DIN-BriefNEO nutzt semantische Custom Elements, um den normgerechten Briefbogen 
   ├── <din-unterschrift>
   ├── <din-anlagenvermerk>
   │     └── <din-anlagen-angabe role="group">
-  └── <din-geschaeftsangaben id="fuss" role="region">
-        ├── <div id="fuss-spalte-1">
-        ├── <div id="fuss-spalte-2">
-        └── <div id="fuss-spalte-3">
+  └── <din-geschaeftsangaben id="geschaeftsangaben" role="region" data-font="7.5">
+        ├── <din-fuss-firma> <din-fuss-sitz> <din-fuss-gericht> <din-fuss-hrb>   (19.7, Spalte 1)
+        ├── <din-fuss-vorstand> <din-fuss-gf>                                    (19.7, Spalte 2)
+        ├── <din-fuss-stnr> <din-fuss-ustid>                                     (19.6, Spalte 3)
+        └── <din-fuss-bank> <din-fuss-iban> <din-fuss-bic> <din-fuss-anschrift>  (19.6, Spalte 4)
 ```
 
 ## 2. Koordinaten & Maße (Millimeter)

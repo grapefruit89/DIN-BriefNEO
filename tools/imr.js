@@ -202,6 +202,17 @@ function checkImr(targetDir) {
       if (!re.test(htmlAll)) add(htmlFiles[0], `IMR-4 ${tag}: export true, aber kein contenteditable mit id="${spec.id}"`);
     }
 
+    // IMR-8: Traeger einer Atom-ID muss das Atom-Tag selbst sein (kein <div id="atom">)
+    if (spec.id) {
+      for (let i = 0; i < htmlFiles.length; i++) {
+        const m = html[i].match(new RegExp(`<([a-z][a-z0-9-]*)\\b[^>]*\\sid="${escapeRe(spec.id)}"`));
+        if (!m) continue; // fehlendes Element meldet IMR-3
+        if (m[1] !== tag) {
+          add(htmlFiles[i], `IMR-8 ${tag}: ID "${spec.id}" sitzt auf <${m[1]}> statt auf <${tag}> (Komponenten-Regel, ADR-HTML 4.1)`);
+        }
+      }
+    }
+
     // IMR-6: Kinder eines Containers existieren im HTML
     for (const kind of spec.children || []) {
       if (!new RegExp(`<${kind}[\\s>]`).test(htmlAll)) add(htmlFiles[0], `IMR-6 ${tag}: Kind <${kind}> fehlt im HTML`);

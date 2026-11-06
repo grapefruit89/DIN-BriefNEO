@@ -236,6 +236,34 @@ Folgende HTML-Strukturen und Alt-Muster sind im gesamten Repository **strikt ver
 
 ---
 
+## 4.1 Komponenten-Regel: Brief-Feld vs. UI
+
+Ein Element auf dem DIN-A4-Blatt, das ein DIN-5008-Feld instanziiert, ist ein
+`<din-*>`-Custom-Element mit ableitbarer ID (`id === tag.replace('din-', '')`). Das gilt
+für Atome, Zonen und den Dokumentrahmen gleichermaßen.
+
+UI-Elemente (Seitenleiste, Buttons, Dialoge, Wrapper) sind `<div>`, `<button>`, `<aside>`,
+`<dialog>` mit semantischen Klassen und tragen keinen `din-`-Präfix.
+
+| Fall | Beispiel | Zulässig |
+| :--- | :--- | :---: |
+| Brief-Feld (Atom) | `<din-fuss-iban id="fuss-iban">…</din-fuss-iban>` | ✅ |
+| Container auf dem Blatt (Zone) | `<din-anschriftfeld id="anschriftfeld">…</din-anschriftfeld>` | ✅ |
+| UI-Steuerung | `<button id="btn-print" class="btn primary">Drucken</button>` | ✅ |
+| Wrapper ohne DIN-Bezug | `<div class="unterschrift-zeile">…</div>` | ✅ |
+| DIN-Feld als div | `<div id="fuss-spalte-1" class="fuss-spalte">` | 🚫 |
+
+Der letzte Fall ist der Grund für diese Regel: Die Fußzone trug bis 2026-11-06 drei freie
+`<div contenteditable>` statt der zwölf Atome aus [[IMR-Registry]] — der Inhalt war damit
+nicht an die Norm gebunden und die Spaltenzuordnung stand nirgends.
+
+**Durchsetzung (maschinell):** `tools/imr.js` prüft, dass jedes Inventar-Atom mit ID ein
+Element dieses Namens in beiden HTML-Dateien hat (IMR-3) und dass Export-Atome
+`contenteditable` tragen (IMR-4). Seit 2026-11-06 zusätzlich **IMR-8**: Träger einer
+Atom-ID muss ein `<din-*>`-Element sein — ein `<div id="…">` mit Atom-ID bricht das Gate.
+
+---
+
 ## 5. Konsequenzen & Entwickler-Direktiven
 
 1. **Zero Div Soup:** Neue Komponenten müssen semantisch benannt und als eigenständige HTML-Tags realisiert werden.

@@ -2360,3 +2360,47 @@ Maschineninventar — laeuft auseinander, sobald eine Seite korrigiert wird. Hie
 umgekehrt: das Inventar war richtig, die Tabellen waren alt. Wer die Wahrheit an eine Stelle
 legt, muss die andere aus ihr erzeugen. `imr.js` prueft seit heute genau die Beziehung, deren
 Fehlen den Drift ermoeglicht hat.
+
+## 2026-11-06 — Fußzone wird DIN-konform: 3 freie divs → 12 Atome
+
+**Beschluss.** Die Fußzone `<din-geschaeftsangaben>` trug drei freie
+`<div class="fuss-spalte" contenteditable>` („Kommunikation / Web", „Bankverbindung",
+„Geschäftsangaben"). Sie werden durch die zwölf Fuß-Atome aus [[IMR-Registry]] ersetzt:
+`fuss-firma`, `-sitz`, `-gericht`, `-hrb`, `-vorstand`, `-gf` (19.7) sowie `-stnr`, `-ustid`,
+`-bank`, `-iban`, `-bic`, `-anschrift` (19.6). `din-seitennummerierung` bleibt unverändert
+`is-dormant`.
+
+**Warum jetzt.** Die freien divs waren der letzte Rest „div-Suppe auf dem Blatt". Ihr Inhalt
+war an keine Norm gebunden: derselbe Brief konnte an derselben Stelle Bankdaten oder eine
+Webadresse führen, und die Spaltenzuordnung stand in keiner Quelle.
+
+**Schema v3 bleibt Version 3.** Die Änderung ersetzt Feldnamen (`fuss-spalte-1/2/3` →
+`fuss-*`) innerhalb von `fields`; sie erhöht die Version nicht. Ein v3-Export mit den alten
+drei Schlüsseln wird beim Import nicht abgewiesen — unbekannte Feldnamen sind erlaubt, die
+drei Altkeys laufen als Inhaltsfelder mit, bis der Draft neu geschrieben ist.
+
+**Zwei Korrekturen an den Auftragsannahmen.**
+1. Die Sections folgen der Norm, nicht der Erwartung: `firma/sitz/gericht/hrb/vorstand/gf`
+   stehen in **19.7** („Gesellschaftsrechtliche Angaben bei Kapitalgesellschaften"), nur
+   `stnr/ustid/bank/iban/bic/anschrift` in **19.6** (Geschäftsräume, Kontoverbindungen,
+   Steuern). Die Registry war korrekt; korrigiert wurde nichts an ihr.
+2. Das Inventar weist keinen Spaltenindex zu („Layout in vier Spalten ist Rendering"). Die
+   konkrete Zuordnung 4/2/2/4 lebt deshalb als `grid-area` in `website/css/sheet.css` und
+   `sheet-multipage.css` — nicht als Normwert im Inventar.
+
+**Rendering-Entscheidung.** Explizite `grid-area` statt `grid-auto-flow: column`: mit zwölf
+Atomen und vier Spalten hätte auto-flow nur drei Spalten gefüllt, und leere Felder wären in
+fremde Spalten gerutscht. `.single-line` erzwingt 1.4em Höhe; vier Zeilen à 7.5pt hätten die
+15-mm-Zone um 1.8 mm überschritten, deshalb 1.2 Zeilenhöhe innerhalb der Zone (gemessen:
+14.7 mm). Leere Felder bleiben anklickbar (Platzhalter auf dem Schirm), im Druck blenden die
+bestehenden `[data-placeholder]:empty::before`-Regeln sie aus — `display: none` auf `:empty`
+hätte die Felder unsichtbar **und** unbedienbar gemacht.
+
+**Komponenten-Regel maschinell.** Neuer Abschnitt 4.1 in [[ADR-HTML]] („Brief-Feld =
+`<din-*>`, UI = `<div>`") und neuer Check **IMR-8** in `tools/imr.js`: Träger einer Atom-ID
+muss das Atom-Tag sein. Negativprobe belegt: ein `<div id="fuss-iban">` bricht das Gate mit
+`IMR-8 ... sitzt auf <div> statt auf <din-fuss-iban>`.
+
+**Generalisierung.** Eine Zone, deren Kinder keine Registrierung haben, ist eine unsichtbare
+Normlücke: Das Gate war grün, weil niemand diese IDs kannte. Erst die Registrierung macht den
+Verstoß prüfbar. `IMR-8` schließt die Lücke, die der Umbau offengelegt hat.

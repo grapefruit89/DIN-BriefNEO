@@ -114,6 +114,9 @@ body:has(#btn-form-a:checked) din-blatt {
     position: absolute;
     left: 0;
     width: --mm-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
+    /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
+       Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
+       sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
     border-bottom: 0.5pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     pointer-events: none;
   }

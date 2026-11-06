@@ -321,3 +321,23 @@ Zwei Wege, einer muss entschieden werden:
 
 Bis dahin bleibt 6.1 „teilweise behoben": importierbar, aber mit totem Verweis.
 Siehe [[befundpruefung-2026-11-05]].
+
+### B37 · View-Transition wirft `InvalidStateError` beim Seitenaufbau · **N** · ⭐
+Beim Laden erscheinen zwei `InvalidStateError: Transition was aborted because of
+invalid state. Unsupported layout or style`. Kein sichtbarer Effekt für den Nutzer,
+nur Konsole. Vermutlich ruft `startViewTransition()` auf, bevor das Layout bereit
+ist. Zu prüfen: `settings.js` (`applyTheme`, `applyStyle`, `changeLayout`) und
+`boot-switches.js`. Nicht akut — erst nach Schema v3 / Storage prüfen.
+
+### B38 · Chromium klemmt Rahmenbreiten unter 1px auf 1px · **N** · ⭐
+Gemessen in Chromium 156 auf einer leeren `data:`-Seite ohne App-CSS: `0.25pt`,
+`0.5pt`, `0.8pt` und `1pt` liefern alle `1px`, erst `2px` liefert `2px` — auch bei
+DPR 2 unverändert. Die Falzmarken sind auf dem Bildschirm daher **nicht** dünner als
+vorher; im Druck/PDF wirkt `0.5pt` (0,176 mm statt 0,282 mm). Die Änderung in
+`7e59132` ist die Angleichung an `print.css`/`print-multipage.css` (dort war 0.5pt
+schon immer gesetzt) — kein neuer Effekt, sondern Konsistenz.
+**Kein Fix über CSS-Rahmenbreiten möglich** (Chromium-Verhalten: Rahmen werden auf
+ganze Gerätepixel gerundet). Der einzige Weg zu echter Subpixel-Stärke ist der
+SVG-Ansatz aus **B35** (`stroke-width` in mm, `vector-effect="non-scaling-stroke"`).
+Bis dahin nur dokumentieren, damit niemand erwartet, dass 0.5pt auf dem Schirm
+sichtbar dünner ist.

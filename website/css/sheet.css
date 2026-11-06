@@ -114,7 +114,7 @@ body:has(#btn-form-a:checked) din-blatt {
     position: absolute;
     left: 0;
     width: --mm-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
-    border-bottom: 0.8pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
+    border-bottom: 0.5pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     pointer-events: none;
   }
 

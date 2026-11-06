@@ -197,7 +197,7 @@ export class SettingsManager {
     }
     if (typeof document.fonts !== 'undefined') {
       for (const f of Array.from(document.fonts)) {
-        if (f.family === 'CustomUserFont' || f.family === 'AptosCustom') {
+        if (f.family === 'CustomUserFont') {
           document.fonts.delete(f);
         }
       }
@@ -310,7 +310,7 @@ export class SettingsManager {
           remove(STORAGE_KEYS.font);
           if (typeof document.fonts !== 'undefined') {
             for (const face of Array.from(document.fonts)) {
-              if (face.family === 'CustomUserFont' || face.family === 'AptosCustom') {
+              if (face.family === 'CustomUserFont') {
                 document.fonts.delete(face);
               }
             }

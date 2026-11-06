@@ -18,10 +18,13 @@
     return;
   }
 
-  // Dynamic Print Stylesheet for @page margins / top-left header
-  const styleEl = document.createElement('style');
-  styleEl.id = 'print-dyn-style';
-  document.head.appendChild(styleEl);
+  /* Dynamische @page-Regel fuer den PDF-Kopf. Kein inline <style>: unter
+   * CSP `style-src 'self'` bekommt ein per JS erzeugtes <style> gar kein
+   * CSSStyleSheet, textContent und insertRule laufen beide ins Leere.
+   * Ein konstruiertes Stylesheet per adoptedStyleSheets ist kein Inline-Style
+   * und wird von der CSP nicht angefasst. */
+  /** @type {CSSStyleSheet | null} */
+  let pageSheet = null;
 
   function mmZuPx() {
     if (!probe) return 0;
@@ -72,8 +75,14 @@
       folgekoepfe.append(el);
     }
 
-    // Paged-Media Randbox für PDF-Druck dynamisch aktualisieren
-    styleEl.textContent = `@page { @top-left { content: "${esc(kopfText)}"; } }`;
+    // Paged-Media Randbox für PDF-Druck dynamisch aktualisieren.
+    // Altes Sheet zuerst ersetzen, nicht ergaenzen — sonst stapeln sich Regeln.
+    if (pageSheet) {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
+    }
+    pageSheet = new CSSStyleSheet();
+    pageSheet.replaceSync(`@page { @top-left { content: "${esc(kopfText)}"; } }`);
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, pageSheet];
   }
 
   const SAETZE = [

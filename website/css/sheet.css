@@ -271,8 +271,16 @@ body:has(#btn-form-a:checked) din-blatt {
     text-decoration: none;
   }
 
+  /* Absaetze des Generators sind echte <p>-Bloecke (testbrief.js setField).
+     4.5mm = eine Leerzeile bei 10.5pt, identisch zu sheet-multipage.css (dort ebenfalls 4.5mm) */
   #text p {
-    margin: 0;
+    margin: 0 0 4.5mm 0;
+  }
+
+  /* Vor der Grussformel keine zusaetzliche Leerzeile: sie bringt ihren
+     eigenen Abstand ueber data-margin-top mit. */
+  #text p:last-child {
+    margin-bottom: 0;
   }
 
   #text blockquote {

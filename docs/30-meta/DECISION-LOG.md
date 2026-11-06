@@ -2443,3 +2443,38 @@ das Signatur-Asset als `Blob` in IndexedDB liegt und die alten Schlüssel nicht 
 **Generalisierung.** Ein Verbot, das eine Technik pauschal belegt, verhindert irgendwann die
 bessere Lösung für einen Teilfall. A34 war richtig für den Briefzustand und falsch für ein
 Bild. Wer ein Gesetz präzisiert statt es zu kippen, behält die Begründung dort, wo sie trägt.
+
+## 2026-11-06 — Zwei Druck-Fehler: PDF-Kopfzeile und Absätze
+
+**PDF-Kopfzeile (#5-neu).** Die dynamische `@page`-Regel entstand per
+`styleEl.textContent`. Unter `style-src 'self'` bekommt ein per JS erzeugtes `<style>` jedoch
+**gar kein Stylesheet** (`element.sheet` ist `null`) — damit liefen sowohl `textContent` als
+auch das im Auftrag vorgesehene `insertRule` ins Leere. Die Regel entsteht jetzt als
+konstruiertes `CSSStyleSheet` (`new CSSStyleSheet()` + `replaceSync`) und wird über
+`document.adoptedStyleSheets` adoptiert; das alte Sheet wird vorher entfernt, damit sich
+Regeln nicht stapeln. Belegt per `printToPDF` + `pdftotext`: vorher begann Seite 1 mit der
+Anschrift (kein Kopf), nachher mit „Brief an Albert Wesker vom 6. November 2026" auf allen
+drei Seiten. `print-multipage.css` hat `@top-left` nur mit Padding/Font/Farbe, den Text
+liefert ausschließlich die dynamische Regel.
+
+**Absätze (#4).** `generateNerdText` liefert `\n\n`, `setField` schrieb das als `textContent`
+in **einen** Block. `white-space: pre-line` (seit `195999a`) trennt die Absätze optisch
+bereits — die Behauptung „Absätze kollabieren" traf den Stand nicht mehr. Der verbleibende
+Unterschied ist die Umbruchkontrolle: `orphans`/`widows` wirken je Block, also konnten
+Absätze mit einer einzelnen Zeile über die Seitengrenze fallen. Gemessen über sechs
+Textlängen (11/13/15/17/19/21 Absätze, nummerierte Sätze, PDF-Auswertung): Ein-Block
+erzeugte **6 Witwen** (je Lauf eine Zeile allein oben), `<p>` **0** bei identischer
+Seitenzahl. Deshalb jetzt `\n\n` → `<p>`-Kinder in `setField` (nur `id === 'text'`), und
+`sheet.css` bekommt `#text p { margin: 0 0 4.5mm 0 }` plus `:last-child { margin-bottom: 0 }`
+— ohne den Margin-Fix stünden Absätze enger als vorher. `pre-line` bleibt als Fallback für
+alte Drafts.
+
+**Geprüft:** Draft-Roundtrip erhält die `<p>` (Sanitizer erlaubt `P`), Einzelseiten-PDF
+bleibt eine Seite ohne Überlauf (`scrollHeight == clientHeight`), Testbrief erzeugt 3
+Absätze, alle drei Mehrseiten-Seiten tragen den Kopf, keine CSP-Meldung mehr.
+
+**Generalisierung.** „Inline-Style ist verboten" heißt nicht „jede Style-API ist verboten":
+CSSOM-Zuweisungen (`el.style.top`, `style.setProperty`) laufen unter `style-src 'self'`
+unbeanstandet, ein `<style>`-Element dagegen gar nicht. Wer CSP-Fehler behebt, muss die
+Ebene kennen — Element, Sheet oder CSSOM —, sonst tauscht man einen toten Weg gegen einen
+anderen.

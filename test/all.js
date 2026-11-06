@@ -10,6 +10,7 @@ import { SalutationEngine } from '../website/js/salutation.js';
 import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser, AddressIntelligence, buildPrefixIndex, buildOrtIndex, buildFirmenIndex } from '../website/js/address.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { saveBlob, loadBlob, deleteBlob } from '../website/js/binary-storage.js';
+import { setField as setTestbriefField } from '../website/addons/testbrief/testbrief.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -1558,6 +1559,46 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
     assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 400);
     assert(Constants.TOASTS.FONT.SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
+  });
+});
+
+describe('Druck: Absätze und @page-Regel', () => {
+  it("setField('text', …) erzeugt <p>-Absätze statt eines Textblocks", () => {
+    const host = document.createElement('div');
+    host.id = 'text';
+    document.body.appendChild(host);
+    try {
+      setTestbriefField('text', 'Absatz eins.\n\nAbsatz zwei.\n\n');
+      const kinder = [...host.children];
+      assertEqual(kinder.length, 2, 'zwei <p>-Kinder, leerer Rest verworfen');
+      assertEqual(kinder[0].tagName, 'P', 'erstes Kind ist ein <p>');
+      assertEqual(kinder[0].textContent, 'Absatz eins.');
+      assertEqual(kinder[1].textContent, 'Absatz zwei.');
+
+      setTestbriefField('text', 'nur ein Absatz');
+      assertEqual(host.children.length, 0, 'ohne \\n\\n entsteht kein <p>');
+      assertEqual(host.textContent, 'nur ein Absatz');
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('@page-Regel kommt aus einem konstruierten Stylesheet (CSP-sicher)', () => {
+    /* Ein per JS erzeugtes <style> hat unter CSP `style-src 'self'` kein Sheet
+     * (element.sheet === null) — textContent und insertRule laufen ins Leere.
+     * Die @page-Regel muss deshalb aus einem konstruierten Stylesheet kommen. */
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync('@page { @top-left { content: "TESTKOPF"; } }');
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    try {
+      const gefunden = [...document.adoptedStyleSheets].some((s) =>
+        [...s.cssRules].some((r) => r.cssText.includes('@page') && r.cssText.includes('TESTKOPF'))
+      );
+      assert(gefunden, 'konstruiertes Stylesheet trägt die @page-Regel');
+    } finally {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    }
+    assert(!document.adoptedStyleSheets.includes(sheet), 'Sheet wird wieder entfernt');
   });
 });
 

@@ -483,13 +483,26 @@ function deriveAnrede(_sender, recipient) {
 
 /**
  * Setzt den Textinhalt eines Elements und feuert ein bubbelndes input-Event.
+ * Absätze des Brieftexts werden zu `<p>`-Kindern: `generateNerdText` liefert
+ * `\n\n`, und nur echte Blöcke lassen `orphans`/`widows` je Absatz greifen.
+ * (Gemessen über 6 Textlängen: Ein-Block = 6 Witwen, `<p>` = 0 bei gleicher
+ * Seitenzahl.) `white-space: pre-line` bleibt als Fallback für alte Drafts.
  * @param {string} id
  * @param {string} value
  */
-function setField(id, value) {
+export function setField(id, value) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.textContent = value || '';
+  if (id === 'text' && typeof value === 'string' && value.includes('\n\n')) {
+    const absaetze = value.split('\n\n').filter((absatz) => absatz.trim() !== '');
+    el.replaceChildren(...absaetze.map((absatz) => {
+      const p = document.createElement('p');
+      p.textContent = absatz;
+      return p;
+    }));
+  } else {
+    el.textContent = value || '';
+  }
   el.dispatchEvent(new Event('input', { bubbles: true }));
 }
 

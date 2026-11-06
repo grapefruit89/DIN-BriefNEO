@@ -2404,3 +2404,42 @@ muss das Atom-Tag sein. Negativprobe belegt: ein `<div id="fuss-iban">` bricht d
 **Generalisierung.** Eine Zone, deren Kinder keine Registrierung haben, ist eine unsichtbare
 Normlücke: Das Gate war grün, weil niemand diese IDs kannte. Erst die Registrierung macht den
 Verstoß prüfbar. `IMR-8` schließt die Lücke, die der Umbau offengelegt hat.
+
+## 2026-11-06 — Base64 raus: Signatur und Schrift als Blob in IndexedDB
+
+**Beschluss.** Signaturbild und eigene Schrift liegen nicht mehr als Base64-Data-URL in
+`localStorage`, sondern als `Blob` in IndexedDB (Datenbank `briefneo-assets`, Store `assets`,
+Keys `signature` und `font`). Der `localStorage` enthält nur noch strukturierte Daten.
+
+**Der Umweg über das Gesetzbuch war nötig und ist dokumentiert.** A34 verbot IndexedDB
+pauschal und S1 jeden anderen Produktspeicher als `localStorage`; S3 erklärte Base64 für
+lokale WOFF2-Schriften sogar zu PREFERRED. Ohne Änderung war der Auftrag nicht erfüllbar:
+`localStorage` kann nur Strings, und OPFS (A35) wie File System Access (A36) stehen
+ebenfalls unter HARD BAN. A34 wurde deshalb **präzisiert, nicht aufgehoben** (nur strukturierte
+Produktdaten sind betroffen), S1 um die Abgrenzung ergänzt, S3 gestrichen. Amendment-Protokoll
+eingehalten: [[ADR-BINARY-ASSETS]] als ADR, Freigabe durch den Projektverantwortlichen,
+Catalog und Verweise nachgezogen.
+
+**Der Befund, der nur im echten Browser sichtbar wurde.** Der erste End-to-End-Lauf zeigte:
+`blob:`-URLs waren von der **eigenen CSP** blockiert (`img-src 'self' data:`,
+`font-src 'self' data:`). Das Bild blieb leer, `img.decode()` meldete „The source image cannot
+be decoded", die Schrift wurde still verworfen — und in Headless-Chrome sah es wie ein
+Decoder-Problem aus, weil `data:` funktionierte und `blob:` nicht. Ohne den Lauf im echten
+Browser wäre eine tote Funktion ausgeliefert worden, mit grünem Gate. Behoben durch
+`img-src 'self' data: blob:` und `font-src 'self' data: blob:` in beiden HTML-Dateien.
+
+**Folgen.** Der FOUC der eigenen Schrift (~50–100 ms, Systemschrift → Custom) ist bewusst
+akzeptiert; Theme und Layout bleiben synchron. `boot-theme.js` setzt nur noch
+`data-theme`/`data-style`. Alte Schlüssel (`din_custom_font`, `din_signature_asset`) werden
+beim Start gelöscht, nicht migriert — Datenverlust ist gewollt: Signatur und Schrift sind
+lokale Arbeitsmittel, kein Bestandteil der Datei. Das JSON-Schema v3 bleibt unverändert und
+enthält weiterhin nur `signature.transform`.
+
+**Maschinell geprüft.** Antipattern-Regel `P10` bleibt in Kraft und ist ausschließlich für
+`website/js/binary-storage.js` exempt (Negativprobe: `indexedDB.open` in einer anderen Datei
+→ critical). Der bisherige A34-Test wurde umgeschrieben, nicht gelöscht: er prüft jetzt, dass
+das Signatur-Asset als `Blob` in IndexedDB liegt und die alten Schlüssel nicht zurückkehren.
+
+**Generalisierung.** Ein Verbot, das eine Technik pauschal belegt, verhindert irgendwann die
+bessere Lösung für einen Teilfall. A34 war richtig für den Briefzustand und falsch für ein
+Bild. Wer ein Gesetz präzisiert statt es zu kippen, behält die Begründung dort, wo sie trägt.

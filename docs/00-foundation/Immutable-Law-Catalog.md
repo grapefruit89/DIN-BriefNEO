@@ -4,7 +4,7 @@ title: 'Immutable Law Catalog (MUST-USE vs FORBIDDEN)'
 type: reference
 status: active
 created: '2026-06-26'
-updated: '2026-10-02'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - din-briefneo/foundation
@@ -80,9 +80,8 @@ Es gibt keine Pflicht, ein `<meta name="chrome-minimum-version">` als Gesetz zu 
 
 | # | Stufe | MUST-USE | Zweck |
 | :--- | :--- | :--- | :--- |
-| S1 | HARD BAN anderer Produktspeicher | `localStorage` für Produktdaten | **Synchron** (Boot-Restore ohne await, kein FOUC), Zero-Dependency, Datenmenge passt (ein Brief + Einstellungen). Andere Speicher-APIs sind nicht „unbrauchbar“, sondern für diesen Kontext nicht gewählt — siehe [[ADR-RUNTIME-CONTEXT]] |
+| S1 | HARD BAN anderer Produktspeicher | `localStorage` für Produktdaten | **Synchron** (Boot-Restore ohne await, kein FOUC), Zero-Dependency, Datenmenge passt (ein Brief + Einstellungen). Andere Speicher-APIs sind nicht „unbrauchbar“, sondern für diesen Kontext nicht gewählt — siehe [[ADR-RUNTIME-CONTEXT]]. **Binär-Assets (Signaturbild, Schriftdatei) sind keine Produktdaten im Sinne dieser Zeile** — siehe A34 |
 | S2 | PREFERRED | JSON für gespeicherte Strukturen | prüfbares Format |
-| S3 | PREFERRED | Base64 nur für optionale lokale WOFF2-Schriften | kein Font-CDN |
 
 ### Time
 
@@ -150,7 +149,7 @@ Soweit nicht anders markiert: HARD BAN.
 
 | # | Stufe | ANTIPATTERN | Ersatz | Grund |
 | :--- | :--- | :--- | :--- | :--- |
-| A34 | HARD BAN in diesem Produkt | IndexedDB **als Produktspeicher in dieser App** | `localStorage` | Asynchron → Boot-Restore bräuchte await und erzeugt FOUC; Transaktions-Overhead ohne Nutzen bei einem Brief. Kein generelles Verdikt über IndexedDB |
+| A34 | HARD BAN in diesem Produkt | IndexedDB **für strukturierte Produktdaten** (Draft, Einstellungen, Keys, Adressen, Schema-Version) | `localStorage` | Asynchron → Boot-Restore bräuchte await und erzeugt FOUC; Transaktions-Overhead ohne Nutzen bei einem Brief. **Ausnahme (2026-11-06): Binär-Assets (Signaturbild, Schriftdatei als `Blob`) dürfen in IndexedDB liegen** — `localStorage` kann nur Strings, jeder andere Binärweg (OPFS, FSA) bleibt verboten. Festgelegt in [[ADR-BINARY-ASSETS]] |
 | A35 | HARD BAN in diesem Produkt | OPFS als Produktspeicher | `localStorage` | Für den Nutzer unsichtbarer Speicher (nicht im Dateisystem auffindbar), asynchron, Worker-nah — kein Gewinn gegenüber localStorage bei dieser Datenmenge |
 | A36 | HARD BAN in diesem Produkt | File System Access API als **Pflicht**-Speicher | `localStorage` | Erzwingt für jeden Autosave eine Nutzergeste/Permission; als freiwilliger Export-Weg zulässig (siehe `52-import-export.js`) |
 | A37 | HARD BAN in diesem Produkt | Service Worker | relative lokale Pfade | Cache-Invalidierung ist eine dauerhafte Wartungslast (Longevity-Ziel: null Wartung); die App lädt ohnehin rein lokal, es gibt nichts zu cachen |

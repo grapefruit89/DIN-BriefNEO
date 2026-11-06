@@ -4,7 +4,7 @@ title: 'ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext'
 type: reference
 status: active
 created: '2026-10-02'
-updated: '2026-10-02'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -113,6 +113,10 @@ Doku und Normen weiter widersprüchlich lassen.
   (IndexedDB, OPFS, File System Access, Service Worker) bleiben trotzdem bestehen — **neu
   begründet** mit Einfachheit, Zero-Dependency und synchronem Zugriff, nicht mehr mit `file://`.
   Eine spätere Lockerung ist jetzt eine saubere Abwägung statt eines Dogmas.
+- **Nachtrag 2026-11-06:** A34 gilt nur noch für **strukturierte** Produktdaten. Binär-Assets
+  (Signaturbild, Schriftdatei als `Blob`) dürfen in IndexedDB liegen, weil `localStorage` nur
+  Strings speichern kann und jeder andere Binärweg (OPFS, FSA) verboten bleibt. Siehe
+  [[ADR-BINARY-ASSETS]]. A35–A37 bleiben unverändert.
 
 ## 5. Implementation & Verification
 

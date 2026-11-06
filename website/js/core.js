@@ -19,7 +19,7 @@
 export const Constants = {
   LIMITS: {
     HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
-    FONT_SIZE_MAX_KB: 400     // Max size für Base64-Schriftarten (< 400 KB)
+    FONT_SIZE_MAX_KB: 400     // Max size für Schriftdateien (< 400 KB)
   },
   SCHEMA_VERSION: 3,
   TOASTS: {
@@ -37,6 +37,9 @@ export const Constants = {
       SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 400 KB groß sein)',
       FORMAT_ERROR: '❌ Falsches Dateiformat! (Erlaubt: .woff2, .ttf, .otf)',
       SAVE_ERROR: '❌ Fehler beim dauerhaften Speichern der Schriftart'
+    },
+    SIGNATURE: {
+      SAVE_ERROR: '❌ Signaturbild konnte nicht dauerhaft gespeichert werden'
     },
     ADDRESS: {
       /** @param {string} name @returns {string} */

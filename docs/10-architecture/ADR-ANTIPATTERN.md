@@ -4,7 +4,7 @@ title: 'ADR-ANTIPATTERN: aufgelöst in den Immutable Law Catalog'
 type: adr
 status: superseded
 created: '2026-06-26'
-updated: '2026-10-17'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -40,7 +40,7 @@ depends_on: []
 | Abs. 0 | `setHTMLUnsafe()` statt Sanitizer | **H11** |
 | Abs. 1 | Frameworks & Build-Tools | **A51** (vorher nur indirekt über T1) |
 | Abs. 2 | Externe CDNs, Google Fonts | A38, A41 |
-| Abs. 3 | IndexedDB / OPFS / File System Access | S1, A34–A36 |
+| Abs. 3 | IndexedDB (nur strukturierte Daten) / OPFS / File System Access | S1, A34–A36 — A34 seit 2026-11-06 mit Binär-Ausnahme, siehe [[ADR-BINARY-ASSETS]] |
 | Abs. 4 | `document.execCommand` | **A52** |
 | Abs. 5 | Unkontrollierte Viewport-Scrollbalken | A43 |
 | Abs. 6 | Legacy-Datums-APIs | TM1, A48 |

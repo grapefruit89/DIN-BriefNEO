@@ -44,7 +44,7 @@ depends_on: []
 | Option | Beschreibung | Vorteile | Nachteile | Risiken | Bewertung |
 |--------|--------------|----------|-----------|---------|---------|
 | **Option A** (LocalStorage + Temporal) | `localStorage` für Daten, W3C `Temporal` API für Daten | Zero Dependencies, 100% lokal, persistiert über Sessions hinweg, exaktes Datumshandling | Speichergrenze ca. 5MB, Temporal braucht auf alten iOS Geräten Fallbacks | Keine | **Gewählt** |
-| **Option B** (IndexedDB + Moment.js) | `IndexedDB` für große Daten, `Moment.js` für Daten | Viel Speicherplatz | Asynchron (komplex), Library-Abhängigkeit (bricht Zero-Dependency-Regel) | Hohe Wartungskosten | Abgelehnt |
+| **Option B** (IndexedDB + Moment.js) | `IndexedDB` für große Daten, `Moment.js` für Daten | Viel Speicherplatz | Asynchron (komplex), Library-Abhängigkeit (bricht Zero-Dependency-Regel) | Hohe Wartungskosten | Abgelehnt — gilt für **strukturierte** Daten; Binär-Assets liegen seit 2026-11-06 in IndexedDB, siehe [[ADR-BINARY-ASSETS]] |
 
 ## 3. Decision
 
@@ -52,7 +52,7 @@ depends_on: []
 
 ### Begründung
 
-- `localStorage` (via `Storage-API`) ist die einfachste, stabilste und am längsten unterstützte Methode, Key-Value-Daten synchron lokal abzulegen.
+- `localStorage` (via `Storage-API`) ist die einfachste, stabilste und am längsten unterstützte Methode, Key-Value-Daten synchron lokal abzulegen. Das gilt für **strukturierte** Daten; Binär-Assets (Signaturbild, Schriftdatei) liegen als `Blob` in IndexedDB, siehe [[ADR-BINARY-ASSETS]].
 
 - Der aktuelle Briefzustand (Draft) wird in Echtzeit serialisiert und in `localStorage` abgelegt.
 

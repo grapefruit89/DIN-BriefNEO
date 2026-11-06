@@ -9,6 +9,7 @@ import { createEventBus, eventBus, Events, initToastSystem, Constants } from '..
 import { SalutationEngine } from '../website/js/salutation.js';
 import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser, AddressIntelligence, buildPrefixIndex, buildOrtIndex, buildFirmenIndex } from '../website/js/address.js';
 import { SettingsManager } from '../website/js/settings.js';
+import { saveBlob, loadBlob, deleteBlob } from '../website/js/binary-storage.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -34,6 +35,19 @@ const seed = () => mustField().replaceChildren();
 const setField = (text) => { mustField().textContent = text; };
 /** @returns {string} */
 const fieldText = () => mustField().textContent || '';
+
+/**
+ * Wartet bis zu einer Sekunde auf ein asynchrones Ergebnis (IndexedDB-Transaktionen).
+ * @param {() => Promise<boolean>} probe
+ * @returns {Promise<boolean>}
+ */
+const warteAuf = async (probe) => {
+  for (let i = 0; i < 100; i++) {
+    if (await probe()) return true;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  return false;
+};
 
 localStorage.clear();
 
@@ -388,32 +402,36 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version idempotent');
   });
 
-  it('verwaltet das isolierte Signatur-Asset (din_signature_asset) synchron (Law A34)', () => {
-    const dummyWebP = 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoAAP7/2QAA';
-    save(STORAGE_KEYS.signatureAsset, dummyWebP);
-    assertEqual(load(STORAGE_KEYS.signatureAsset, null), dummyWebP, 'Signatur-Asset erfolgreich geladen');
-    assertEqual(load(STORAGE_KEYS.signatureAsset), dummyWebP, 'Im isolierten Schlüssel din_signature_asset abgelegt');
+  it('hält Binär-Assets aus localStorage und legt sie als Blob in IndexedDB ab (A34)', async () => {
+    const bytes = new Uint8Array([82, 73, 70, 70, 12, 0, 0, 0]);
+    const blob = new Blob([bytes], { type: 'image/webp' });
 
-    remove(STORAGE_KEYS.signatureAsset);
-    assertEqual(load(STORAGE_KEYS.signatureAsset, null), null, 'Signatur-Asset erfolgreich gelöscht');
-    assertEqual(load(STORAGE_KEYS.signatureAsset), null, 'Schlüssel din_signature_asset vollständig entfernt');
+    assert(await saveBlob('signature', blob), 'saveBlob meldet Erfolg');
+    const zurueck = await loadBlob('signature');
+    assert(zurueck instanceof Blob, 'Blob kommt unverändert zurück');
+    assertEqual(zurueck?.type, 'image/webp', 'MIME-Typ bleibt erhalten');
+    assertEqual(zurueck?.size, bytes.length, 'Bytegröße bleibt erhalten');
+
+    /* A34 in der Fassung vom 2026-11-06: strukturierte Daten in localStorage,
+     * Binär-Assets in IndexedDB — die alten Base64-Schlüssel dürfen nicht zurückkehren. */
+    assertEqual(localStorage.getItem('din_signature_asset'), null, 'kein Base64-Signaturbild im localStorage');
+    assertEqual(localStorage.getItem('din_custom_font'), null, 'keine Base64-Schrift im localStorage');
+    assert(!('font' in STORAGE_KEYS) && !('signatureAsset' in STORAGE_KEYS), 'STORAGE_KEYS führt keine Binär-Keys');
+
+    assert(await deleteBlob('signature'), 'deleteBlob meldet Erfolg');
+    assertEqual(await loadBlob('signature'), null, 'nach deleteBlob kein Blob mehr');
   });
 
-  it('garantiert Zero-Base64 im Schema-v2-Export trotz vorhandenem Signatur-Asset', () => {
-    const dummyWebP = 'data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAQAcJaACdLoAAP7/2QAA';
-    save(STORAGE_KEYS.signatureAsset, dummyWebP);
-
+  it('Export enthält kein Base64 und kein Signaturbild — nur signature.transform', () => {
     const payload = buildDinLetterPayload(
       { brieftext: 'Testtext' },
       { signatureState: { x: 12, y: 95, scale: 0.6, rot: 5 } }
     );
     const serialized = JSON.stringify(payload);
-    assert(!serialized.includes('data:image/webp'), 'Export-Payload darf keine Bilddaten enthalten');
-    assert(!serialized.includes(dummyWebP), 'Export-Payload darf keine Data-URL enthalten');
-    assert(!('placed' in payload.signature), 'signature.placed ist gestrichen (kein Leser)');
-    assertEqual(payload.signature.transform.x, 12);
-
-    remove(STORAGE_KEYS.signatureAsset);
+    assert(!/base64/i.test(serialized), 'Export enthält kein Base64');
+    assert(!serialized.includes('data:image'), 'Export enthält keine Bilddaten');
+    assert(!('font' in payload), 'kein font-Feld im Export');
+    assertEqual(payload.signature.transform.x, 12, 'die Position ist enthalten');
   });
 });
 
@@ -1520,17 +1538,18 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
     assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('CustomUserFont'), '--active-font-family enthaelt CustomUserFont');
   });
 
-  it('entfernt Schrift synchron bei Klick im Zustand loaded', () => {
+  it('entfernt die Schrift bei Klick aus IndexedDB (kein localStorage)', async () => {
     const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
     const sm = new SettingsManager();
     sm.attachListeners();
-    save(STORAGE_KEYS.font, 'data:font/woff2;base64,AAAA');
+    await saveBlob('font', new Blob([new Uint8Array([0, 1, 0, 0])], { type: 'font/woff2' }));
+    assert((await loadBlob('font')) instanceof Blob, 'Schrift liegt als Blob in IndexedDB');
     sm.updateFontStatusUI(true);
     assertEqual(btn.dataset.fontState, 'loaded');
 
-    // Klick auf den Button löscht die Schrift
     btn.click();
-    assert(load(STORAGE_KEYS.font, null) === null, 'localStorage din_custom_font wurde synchron gelöscht');
+    assert(await warteAuf(async () => (await loadBlob('font')) === null), 'IndexedDB-Eintrag wurde gelöscht');
+    assertEqual(localStorage.getItem('din_custom_font'), null, 'localStorage enthält keine Schrift');
     assertEqual(btn.dataset.fontState, 'empty');
     assert(!document.body.classList.contains('schrift-eigene-aktiv'), 'body Klasse entfernt');
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');

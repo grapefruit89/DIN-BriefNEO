@@ -54,6 +54,12 @@ if (document.readyState === 'loading') {
 function initApp() {
   // Schema-Migration vor dem ersten Restore
     migrateStorage();
+    /* Binär-Assets liegen seit Schema-Umstellung in IndexedDB ([[ADR-BINARY-ASSETS]]).
+     * Die alten Base64-Schlüssel werden bewusst verworfen, nicht migriert. */
+    try {
+      localStorage.removeItem('din_custom_font');
+      localStorage.removeItem('din_signature_asset');
+    } catch {}
     const draftManager = new DraftManager();
     draftManager.loadDraft();
     const initPv = document.getElementById('vermerke')?.textContent || '';

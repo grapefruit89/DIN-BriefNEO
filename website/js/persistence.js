@@ -103,8 +103,6 @@ export const DEFAULT_SETTINGS = {
 export const STORAGE_KEYS = {
   draft: 'din_draft_current',
   settings: 'din_settings',
-  font: 'din_custom_font',
-  signatureAsset: 'din_signature_asset',
   geoapifyKey: 'din_geoapify_key',
   addresses: 'din_local_addresses',
   senderCoords: 'din_sender_coords',

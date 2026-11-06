@@ -161,12 +161,18 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "IndexedDB als Produktspeicher ist Catalog HARD BAN A34. Einziger Produktspeicher ist localStorage.",
+      "description": "IndexedDB fuer strukturierte Produktdaten ist Catalog HARD BAN A34. Strukturierte Daten liegen in localStorage; nur Binaer-Assets (Signaturbild, Schriftdatei als Blob) duerfen in website/js/binary-storage.js nach IndexedDB (ADR-BINARY-ASSETS).",
       "pattern": "\\bindexedDB\\s*\\.\\s*open\\s*\\(|window\\.indexedDB|\\bnew\\s+IDBRequest\\b",
       "file_patterns": [
         "*.js"
       ],
-      "exemptions": []
+      "exemptions": [
+        {
+          "file": "website/js/binary-storage.js",
+          "line_range": "*",
+          "reason": "Einziger erlaubter Ort fuer Binaer-Assets (ADR-BINARY-ASSETS, A34-Ausnahme)"
+        }
+      ]
     },
     {
       "id": "P11",

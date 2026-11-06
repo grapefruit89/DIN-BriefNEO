@@ -55,18 +55,20 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 ## 2. Modul-Abhängigkeiten
 
 ```
-core.js        → (nichts)                       ← einziges echtes Blatt
-persistence.js → core.js
-document.js    → core.js, persistence.js
-settings.js    → core.js, persistence.js
+core.js           → (nichts)                    ← Blatt: Konstanten, Events, Toast
+persistence.js    → core.js
+document.js       → core.js, persistence.js
+settings.js       → core.js, persistence.js, binary-storage.js
+binary-storage.js → (nichts)                    ← Blatt: Blobs in IndexedDB (A34-Ausnahme)
 salutation.js  → core.js, persistence.js
 address.js     → core.js, document.js, persistence.js
 main.js        → allen oben; addons/testbrief/testbrief.js (dynamisch, nur bei Klick)
 debug-panel.js → core.js, persistence.js?v=p1
 ```
 
-`core.js` ist der einzige zirkelfreie Einstieg: Es importiert nichts und liefert
-`eventBus`, `Events`, `Constants`, `showToast`.
+`core.js` ist der zirkelfreie Einstieg in die App-Schicht: Es importiert nichts und liefert
+`eventBus`, `Events`, `Constants`, `showToast`. `binary-storage.js` importiert ebenfalls
+nichts, kennt aber die App nicht — es spricht nur mit IndexedDB.
 
 Zwei häufig gesuchte Einstiegspunkte: `applyLetterDate` liegt in `persistence.js`
 (setzt das Briefdatum), `setCaretToEnd` in `document.js` (Cursor-Helfer, den `address.js` nutzt).

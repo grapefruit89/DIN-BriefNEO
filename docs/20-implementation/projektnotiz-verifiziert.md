@@ -4,7 +4,7 @@ title: 'Projektnotiz — verifizierter Ist-Stand (2026-10-26)'
 type: guide
 status: active
 created: '2026-10-26'
-updated: '2026-10-26'
+updated: '2026-11-06'
 tags:
   - din-briefneo
   - type/guide
@@ -81,7 +81,7 @@ damit Falz- und Lochmarke physisch exakt sitzen.
 | Platzhalter | `[data-placeholder]:empty::before`, Inhalt via `attr()` (`sheet.css:94`) |
 | Rücksendezeile | aus Absenderfeldern abgeleitet, aber editierbar — kein Read-only-Lock |
 | Einzeiler | `contenteditable="plaintext-only"` + `enforceLineLimits` (A55/A49) |
-| Storage | `din_draft_current`, `din_settings`, `din_custom_font`, `din_signature_asset`, `din_geoapify_key`, `din_local_addresses` |
+| Storage | `localStorage`: `din_draft_current`, `din_settings`, `din_geoapify_key`, `din_local_addresses`, `din_sender_coords`, `din_schema_version`. Binär-Assets (Signaturbild, Schrift) als `Blob` in IndexedDB `briefneo-assets` |
 | Debug-UI | `debug-panel.js` nur per dynamischem `import()` — kein Lastpfad für Nutzer |
 
 ## 4. Aus dem Altbestand verworfen

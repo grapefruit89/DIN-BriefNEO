@@ -10,8 +10,9 @@
  *  2. SignatureFeature (ehem. 42-signature.js): Bild-Upload, Kompression, interaktives Drag/Resize/Rotate & Persistenz.
  */
 
+import { deleteBlob, loadBlob, saveBlob } from './binary-storage.js';
 import { Constants, Events, eventBus } from './core.js';
-import { DEFAULT_SETTINGS, load, loadJSON, remove, STORAGE_KEYS, save, saveJSON } from './persistence.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
 /**
  * @param {string} message
@@ -54,6 +55,8 @@ export class SettingsManager {
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
     this.activeFontFace = null;
+    /** @type {string | null} */
+    this.activeFontUrl = null;
     this.isReady = false;
   }
 
@@ -171,26 +174,37 @@ export class SettingsManager {
   }
 
   initFontInjection() {
-    const savedFont = load(STORAGE_KEYS.font, null);
-    if (savedFont) {
-      this.injectFont(savedFont);
-    } else {
-      this.updateFontStatusUI(false);
-    }
+    /* Blob-Restore ist async: die eigene Schrift erscheint nach dem Paint. Der FOUC
+     * (~50–100 ms Systemschrift) ist bewusst akzeptiert ([[ADR-BINARY-ASSETS]]). */
+    loadBlob('font').then((blob) => {
+      if (blob) {
+        this.injectFont(blob);
+      } else {
+        this.updateFontStatusUI(false);
+      }
+    });
   }
 
   /**
    * Native CSS Font Loading API: kein <style>-String, echtes Fehler-Handling
    * (face.load() rejected bei kaputtem Font), sauberes Entladen via document.fonts.delete.
-   * @param {string} base64Font
+   * Die Schrift liegt als Blob in IndexedDB und wird über eine Object-URL geladen.
+   * @param {Blob} fontBlob
    * @returns {Promise<boolean>}
    */
-  async injectFont(base64Font) {
-    const face = new FontFace('CustomUserFont', `url(${base64Font})`);
+  async injectFont(fontBlob) {
+    if (this.activeFontUrl) {
+      URL.revokeObjectURL(this.activeFontUrl);
+      this.activeFontUrl = null;
+    }
+    this.activeFontUrl = URL.createObjectURL(fontBlob);
+    const face = new FontFace('CustomUserFont', `url(${this.activeFontUrl})`);
     try {
       await face.load();
     } catch (e) {
       console.warn('[Settings] Custom font invalid:', e);
+      URL.revokeObjectURL(this.activeFontUrl);
+      this.activeFontUrl = null;
       notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
       this.updateFontStatusUI(false);
       return false;
@@ -307,7 +321,11 @@ export class SettingsManager {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
         if (btn.dataset.fontState === 'loaded' || btn.dataset.schriftModus === 'reset') {
-          remove(STORAGE_KEYS.font);
+          void deleteBlob('font');
+          if (this.activeFontUrl) {
+            URL.revokeObjectURL(this.activeFontUrl);
+            this.activeFontUrl = null;
+          }
           if (typeof document.fonts !== 'undefined') {
             for (const face of Array.from(document.fonts)) {
               if (face.family === 'CustomUserFont') {
@@ -343,23 +361,14 @@ export class SettingsManager {
           target.value = '';
           return;
         }
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const readerTarget = /** @type {FileReader} */ (event.target);
-          const base64Font = readerTarget ? readerTarget.result : null;
-          if (typeof base64Font !== 'string') {
+        void (async () => {
+          const loaded = await this.injectFont(file);
+          if (!loaded) return;
+          const success = await saveBlob('font', file);
+          if (!success) {
             notify(Constants.TOASTS.FONT.SAVE_ERROR, 'error');
-            return;
           }
-          const loaded = await this.injectFont(base64Font);
-          if (loaded) {
-            const success = save(STORAGE_KEYS.font, base64Font);
-            if (!success) {
-              notify(Constants.TOASTS.FONT.SAVE_ERROR, 'error');
-            }
-          }
-        };
-        reader.readAsDataURL(file);
+        })();
       });
     }
   }
@@ -421,12 +430,12 @@ export class SignatureFeature {
 
     this.initWysiwyg();
 
-    // Option B: Synchrone Wiederherstellung des isolierten Signatur-Assets (Law A34 konform)
-    const savedSignature = load(STORAGE_KEYS.signatureAsset, null);
-    if (savedSignature && this.imgElement) {
-      this.imgElement.src = savedSignature;
+    // Bild liegt als Blob in IndexedDB; der Restore ist async und erscheint nach dem Paint.
+    loadBlob('signature').then((blob) => {
+      if (!blob) return;
+      this.#setImageFromBlob(blob);
       this.applyTransform();
-    }
+    });
   }
 
   initWysiwyg() {
@@ -569,7 +578,21 @@ export class SignatureFeature {
   }
 
   /**
-   * Kompaktes WebP im isolierten Schlüssel din_signature_asset (synchron, Law A34 konform).
+   * Setzt das Vorschaubild aus einem Blob und gibt die vorherige Object-URL frei.
+   * @param {Blob} blob
+   */
+  #setImageFromBlob(blob) {
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+    }
+    this.currentBlobUrl = URL.createObjectURL(blob);
+    if (this.imgElement) {
+      this.imgElement.src = this.currentBlobUrl;
+    }
+  }
+
+  /**
+   * Kompaktes WebP als Blob in IndexedDB (Key `signature`, siehe [[ADR-BINARY-ASSETS]]).
    * @param {File} file
    */
   async processFile(file) {
@@ -598,30 +621,13 @@ export class SignatureFeature {
 
     try {
       const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.82 });
-      const dataUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
-      });
-
-      if (!dataUrl) {
-        console.warn('[Signature] FileReader erzeugte keine gültige Data URL');
+      const saved = await saveBlob('signature', blob);
+      if (!saved) {
+        notify(Constants.TOASTS.SIGNATURE.SAVE_ERROR, 'error');
         return;
       }
 
-      if (this.currentBlobUrl) {
-        URL.revokeObjectURL(this.currentBlobUrl);
-        this.currentBlobUrl = null;
-      }
-
-      // Isoliertes Arbeitsplatz-Asset synchron im LocalStorage ablegen
-      save(STORAGE_KEYS.signatureAsset, dataUrl);
-
-      if (this.imgElement) {
-        this.imgElement.src = dataUrl;
-      }
-
+      this.#setImageFromBlob(blob);
       this.saveState();
     } catch (error) {
       console.warn('[Signature] convertToBlob / save failed:', error);
@@ -629,8 +635,7 @@ export class SignatureFeature {
   }
 
   resetImage() {
-    // Isoliertes Arbeitsplatz-Asset synchron aus LocalStorage entfernen
-    remove(STORAGE_KEYS.signatureAsset);
+    void deleteBlob('signature');
 
     if (this.currentBlobUrl) {
       URL.revokeObjectURL(this.currentBlobUrl);

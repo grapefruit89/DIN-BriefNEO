@@ -111,6 +111,21 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 
 ---
 
+### B54 · Speicherfehler-Toast wirft selbst (`ariaNotify` mit ungültigem `priority`) · **S** · ⭐⭐⭐
+`document.js:1059` ruft `document.ariaNotify('Fehler beim Speichern', { priority: 'important' })`.
+Chrome 156 kennt `'important'` nicht; der Aufruf wirft `TypeError`. Weil er in
+`#setSaveStatus('error')` steht, bricht `saveDraft()` **genau im Fehlerfall** ab
+(`document.js:825`): kein Toast, kein `DOCUMENT_SAVE_FAILED`, kein Titel-Update, kein
+Undo-Snapshot. Gemessen mit injiziertem `QuotaExceededError`: Status-Dot `error`, Toast
+keiner, Wurf `TypeError`. Fix: gültigen Wert verwenden oder den Aufruf absichern.
+
+### B55 · Import scheitert lautlos (Fehlerpfad unerreichbar) · **S** · ⭐⭐⭐
+`persistence.js:722-742`: `saveJSON` fängt Quota-Fehler intern ab und gibt `false` zurück,
+wirft also nie. Der umgebende `try/catch` mit `IMPORT_STORAGE_ERROR` (`:737-742`) ist für
+Speicherfehler damit unerreichbar. Der Dialog meldet Erfolg, `location.reload()` verwirft
+den Import — der Nutzer sieht seinen alten Brief, ohne Hinweis. Fix: Rückgabe von
+`saveJSON` prüfen und vor dem Reload abbrechen.
+
 ## 🟡 Priorität 3 — gute Verbesserung, grösserer Eingriff
 
 ### B6 · Feldtypen deklarativ per `data-feldtyp` · **L** · ⭐⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
@@ -291,8 +306,23 @@ unbenutzbar. Reines CSS mit `:has()` wäre möglich, ohne JS-Umbau.
 ### B53 · Speichern systematisch prüfen (stille Fehler, Rückgaben, Wettläufe) · **M** · ⭐⭐⭐
 Alle Speicherpfade durchgehen: Draft, Signatur, Schrift, Settings, Export, Import, Session,
 Adressbuch, Geoapify-Key, Sender-Coords. Gesucht wird, was still scheitert oder sich
-überholt — bekannte Beispiele: ignorierte `save()`-Rückgaben (`settings.js:567`) und der
-doppelte Save-Request beim Export (`persistence.js:661`).
+überholt. Stand 2026-11-06 (Dossier, `331a1f8`) sind die Funde erhoben:
+
+- **13 ignorierte Rückgaben:** `document.js:974` (Undo/Redo), `settings.js:158`
+  (`updateSettings`), `salutation.js:320`, sieben Stellen für den Geoapify-Key
+  (`address.js:1838, 1859, 1872, 1876, 1884, 1891, 2011`), Adressbuch
+  (`address.js:1913`), Sender-Coords (`address.js:2168`). Zwei davon sind eigene
+  Einträge: **B54** (Fehler-Toast wirft) und **B55** (Import-Pfad).
+- **`saveJSON` ruft `navigator.storage.persist()` bei jedem Write** (`persistence.js:191-193`)
+  — beim Tippen etwa einmal pro Sekunde. Funktional harmlos, aber unnötiger Traffic.
+- **Quota-Tests fehlen.** `grep -rn "Quota" test/` ist leer; Fault-Injection über ein
+  überschriebenes `localStorage.setItem` hat sich als brauchbares Muster erwiesen.
+- **`resetDraft()` cleart den Debounce-Timer nicht** (`document.js:989` vs. `:948-949`
+  bei `undo`). Gemessen: nach einem Reset kurz nach dem Tippen folgt ein zusätzlicher
+  Schreibvorgang. Alte Daten kehren dabei nicht zurück (der Timer liest das DOM erneut).
+- **Doppelte Saves:** Export publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload
+  zusätzlich direkt (`persistence.js:661-662`); `undo()`/`redo()` schreiben zweimal
+  (`document.js:950` + `:974`).
 
 ## Empfohlene Reihenfolge
 

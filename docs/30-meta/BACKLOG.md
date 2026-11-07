@@ -252,11 +252,11 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 `document.js:324` prüft `text.split('\n').length`; `textContent` enthält für ein `<br>`
 kein `\n`. Der Guard feuert dadurch nie. Zählen über `innerText` oder die `<br>`-Anzahl.
 
-### B42 · Postvermerk-Auswahl wird bedingungslos auf Index 0 gesetzt · **S** · ⭐⭐
+### B42 · Postvermerk-Auswahl wird bedingungslos auf Index 0 gesetzt · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `document.js:922` setzt `pvSelect.selectedIndex = 0`, auch wenn ein Vermerk aktiv ist
 (weitere Stellen: `:1005`, `:1027`). Nur zurücksetzen, wenn kein Postvermerk gesetzt ist.
 
-### B43 · `aria-pressed` am Einstellungen-Schalter bleibt bei direktem Klick stehen · **S** · ⭐⭐
+### B43 · `aria-pressed` am Einstellungen-Schalter bleibt bei direktem Klick stehen · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `settings.js:131-142` aktualisiert `aria-pressed` nur im programmatischen Pfad
 `toggleSettingsModus`. Ein direkter Klick auf `#toggle-modus` feuert `change` ohne Listener.
 

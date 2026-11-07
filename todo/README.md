@@ -12,9 +12,9 @@
 | **01** | **Mehrseitenunterstützung nach DIN 5008** | L–XL | ⭐⭐⭐⭐⭐ | [`01-mehrseiten-plan.md`](01-mehrseiten-plan.md) | In Vorbereitung (Strategie A) |
 | **02** | **PWA & Offline-App (Chrome 150+)** | M | ⭐⭐⭐⭐⭐ | [`02-pwa-plan.md`](02-pwa-plan.md) | 5-Phasen-Konzept fertig |
 | **03** | **Mobile Ansicht & Touch-UX** | M | ⭐⭐⭐⭐ | [`03-mobile-ansicht-plan.md`](03-mobile-ansicht-plan.md) | Dialog-Bottom-Sheet Konzept |
-| **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`04-telefonnummer-formatierung-plan.md`](04-telefonnummer-formatierung-plan.md) | Ausgearbeitet (Blur / Helper) |
+| **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`04-telefonnummer-formatierung-plan.md`](04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
 | **05** | **Brief-Verlauf & Historie (`din_history`)** | S–M | ⭐⭐⭐⭐ | [`05-brief-history-verlauf-plan.md`](05-brief-history-verlauf-plan.md) | Ausgearbeitet (10er Ringspeicher) |
-| **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`06-subpixel-falzmarken-plan.md`](06-subpixel-falzmarken-plan.md) | Ausgearbeitet (0,25 mm SVG) |
+| **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`06-subpixel-falzmarken-plan.md`](06-subpixel-falzmarken-plan.md) | ✅ Umgesetzt als 0,5-pt-CSS-Border (SVG bewusst verworfen, siehe `sheet.css:117`) |
 | **07** | **Micro-Copyfitting & 1-Seiten-Kompaktsatz** | M | ⭐⭐ | [`07-micro-copyfitting-plan.md`](07-micro-copyfitting-plan.md) | Ausgebaut / Konzeptphase |
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
@@ -38,7 +38,7 @@
 | **27** | **toggleSettingsModus: `title` doppelt zu `aria-label`** | XS | ⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt (nur `aria-label`) |
 | **28** | **Toten `.active`-Fallback nach `showPopover()` entfernen** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (Fallback entfernt) |
 | **29** | **Signatur-Bbox: globalen `pointerdown` durch CSS `:hover`/`:focus-within` ersetzen** | S | ⭐⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | Ein document-Listener weniger |
-| **30** | **`.ac-*`-Typklassen: `data-typ` + CSS für beide Listen** | XS | ⭐⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | Haupt-Popover derzeit ungestylt |
+| **30** | **`.ac-*`-Typklassen: `data-typ` + CSS für beide Listen** | XS | ⭐⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt 2026-11-07 (`data-typ` + `:is()`-Selektoren für beide Listen) |
 | **31** | **Redundanten `window.resize`-Listener entfernen** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (Listener entfernt) |
 | **32** | **Breakpoint 600px zentralisieren** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (`maxSuggestions()`) |
 | **33** | **address.js in 4 Module aufteilen (2176 Z.)** | M | ⭐⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Vier Concerns, ein Modul |

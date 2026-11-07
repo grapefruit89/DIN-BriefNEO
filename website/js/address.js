@@ -1344,7 +1344,7 @@ export function initSenderSync() {
  */
 export class ClipboardAddressParser {
   /** Typische deutsche Rechtsformen und Organisationen (ES2024 /v flag, case-insensitive) */
-  static CORP_REGEX = /(?<!\p{L})(?:gmbh\s*&\s*co\.?\s*kg|gmbh|ag|se|kg|ohg|gbr|universit[äa]t|hochschule|verband|stiftung|beh[öo]rde|finanzamt|amtsgericht|landgericht|institut|verlag|kanzlei|rechtsanw[äa]lte|praxis|apotheke|b[üu]ro|agentur|studio|klinik(?:en|um)?|hotel|restaurant|[\p{L}\-]*bank|sparkasse|verein|e\.\s*v\.|e\.\s*k\.|e\.\s*g\.|haftungsbeschr[äa]nkt)(?!\p{L})/iv;
+  static CORP_REGEX = /(?<!\p{L})(?:gmbh\s*&\s*co\.?\s*kg|kgaa|corp(?:oration)?|inc(?:orporated)?|ltd|limited|llc|plc|gmbh|ag|se|kg|ohg|gbr|universit[äa]t|hochschule|verband|stiftung|beh[öo]rde|finanzamt|amtsgericht|landgericht|institut|verlag|kanzlei|rechtsanw[äa]lte|praxis|apotheke|b[üu]ro|agentur|studio|klinik(?:en|um)?|hotel|restaurant|[\p{L}\-]*bank|sparkasse|verein|e\.\s*v\.|e\.\s*k\.|e\.\s*g\.|haftungsbeschr[äa]nkt)(?!\p{L})/iv;
 
   /** Unternehmergesellschaft (UG) & Genossenschaft (eG) case-sensitive (ohne /i), um Kollisionen mit Geschossen ("ug", "EG") zu verhindern */
   static CORP_UG_REGEX = /(?<!\p{L})(?:UG|eG)(?!\p{L})/v;
@@ -1459,15 +1459,26 @@ export class ClipboardAddressParser {
       const ort = plzMatch[2].trim().split(/[,;(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
       if (i === 0) continue;
 
+      // Kontextregel: Eine Zeile mit Hausnummer direkt über dem PLZ-Anker ist eine
+      // Straße, auch wenn kein Suffix sie auszeichnet ("Technologiepark 1",
+      // "Gewerbegebiet Süd" als eingeschobene Zeile dazwischen). Rechtsformen
+      // bleiben ausgeschlossen, sonst würde "Park Hotel GmbH" zur Straße.
+      /** @param {number} idx @returns {boolean} */
+      const alsStrasse = (idx) => {
+        const kandidat = lines[idx];
+        if (ClipboardAddressParser.isStreetLine(kandidat)) return true;
+        return ClipboardAddressParser.HOUSE_NUMBER_END.test(kandidat)
+          && !ClipboardAddressParser.isCorporate(kandidat);
+      };
+
       let streetLineIndex = i - 1;
       let prevLine = lines[streetLineIndex].trim();
-      let isStreet = ClipboardAddressParser.isStreetLine(prevLine);
+      let isStreet = alsStrasse(streetLineIndex);
 
       if (!isStreet && i >= 2) {
-        const lineBefore = lines[i - 2].trim();
-        if (ClipboardAddressParser.isStreetLine(lineBefore)) {
+        if (alsStrasse(i - 2)) {
           streetLineIndex = i - 2;
-          prevLine = lineBefore;
+          prevLine = lines[i - 2].trim();
           isStreet = true;
         }
       }
@@ -1485,7 +1496,8 @@ export class ClipboardAddressParser {
       const preLines = [];
       for (let j = streetLineIndex - 1; j >= Math.max(0, streetLineIndex - 4); j--) {
         const l = lines[j].trim();
-        if (ClipboardAddressParser.METADATA_LINE_REGEX.test(l) || l.length > 90 || l.includes('|')) break;
+        if (l.length > 90 || l.includes('|')) break;
+        if (ClipboardAddressParser.METADATA_LINE_REGEX.test(l)) continue;
         if (ClipboardAddressParser.PLZ_ORT_REGEX.test(l) || /^\d{5}\b/.test(l)) break; // Stopp bei vorangehender Adresse
         if (ClipboardAddressParser.SECTION_LABEL_REGEX.test(l)) continue;
 
@@ -1570,7 +1582,10 @@ export class ClipboardAddressParser {
       let candName = '';
       let candZusatz = '';
 
-      if (ClipboardAddressParser.isCorporate(first)) {
+      // Ein einzelnes Wort ohne Personen-Prefix ist in einer Einzeiler-Adresse
+      // fast immer ein Firmenname ("Acme"), kein Vor- oder Nachname.
+      const istEinzelwort = first.length > 0 && !/\s/.test(first);
+      if (ClipboardAddressParser.isCorporate(first) || istEinzelwort) {
         candFirma = first;
         if (second) candName = second;
       } else {

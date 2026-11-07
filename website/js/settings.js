@@ -469,17 +469,6 @@ export class SignatureFeature {
     }
     this.applyTransform();
 
-    document.addEventListener('pointerdown', (e) => {
-      const target = /** @type {HTMLElement} */ (e.target);
-      if (bbox.contains(target)) {
-        if (this.imgElement?.src && this.imgElement.src !== window.location.href) {
-          bbox.classList.add('active');
-        }
-      } else {
-        bbox.classList.remove('active');
-      }
-    });
-
     /** @type {{
      *   action: string | null,
      *   startX: number, startY: number,
@@ -496,7 +485,10 @@ export class SignatureFeature {
     };
 
     bbox.addEventListener('pointerdown', (e) => {
-      if (!bbox.classList.contains('active')) return;
+      // :focus-within ersetzt den früheren .active-Zustand. preventDefault
+      // verhindert Textauswahl, unterdrückt aber auch den Standard-Fokus —
+      // deshalb explizit fokussieren.
+      bbox.focus({ preventScroll: true });
       e.preventDefault();
 
       const target = /** @type {HTMLElement} */ (e.target);
@@ -666,7 +658,6 @@ export class SignatureFeature {
     
     this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
     this.applyTransform();
-    if (this.bbox) this.bbox.classList.remove('active');
 
     this.#saveSettings();
   }

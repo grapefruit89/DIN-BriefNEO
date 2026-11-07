@@ -574,7 +574,8 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   touch-action: none;
 }
 
-.unterschriftsbild-rahmen.active {
+.unterschriftsbild-rahmen:focus-within,
+.unterschriftsbild-rahmen:hover {
   outline: 2px dashed var(--accent-color);
 }
 
@@ -593,8 +594,10 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   display: none;
 }
 
-.unterschriftsbild-rahmen.active .unterschriftsbild-griff,
-.unterschriftsbild-rahmen.active .unterschriftsbild-drehgriff {
+.unterschriftsbild-rahmen:focus-within .unterschriftsbild-griff,
+.unterschriftsbild-rahmen:focus-within .unterschriftsbild-drehgriff,
+.unterschriftsbild-rahmen:hover .unterschriftsbild-griff,
+.unterschriftsbild-rahmen:hover .unterschriftsbild-drehgriff {
   display: block;
 }
 

@@ -24,14 +24,14 @@
 | **13** | **Review 2026-11-06: Optimierungen (validiert)** | — | ⭐⭐⭐⭐ | [`13-review-2026-11-06-optimierungen.md`](13-review-2026-11-06-optimierungen.md) | Validiert, Entscheidungen getroffen |
 | **14** | **JSON-Schema für das Brief-Payload (B36)** | S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Validiert; nur bei externem Bedarf |
 | **15** | **Export .txt / .md (.docx zurückgestellt)** | XS–S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Lücke bestätigt (nur JSON + Druck) |
-| **16** | **Quota-Monitoring (`storage.estimate`) + `persist()` entkoppeln** | XS | ⭐⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Überschneidet B54/B55 |
+| **16** | **Quota-Monitoring (`storage.estimate`) + `persist()` entkoppeln** | XS | ⭐⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | ✅ Umgesetzt 2026-11-07 — `persist()` aus `saveJSON` in den Boot-Pfad (`requestIdleCallback`) |
 | **17** | **Web Share API** | XS | ⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Nur mit Plan 03 (Mobile) |
 | **18** | **salutation.js: Namenslisten (951) entfernen oder begrenzen** | S–M | ⭐⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Listen ersatzlos entfernt |
 | **19** | **debug-panel.js reduzieren (1029 → ~50 Zeilen)** | M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Panel samt Wrappern gelöscht (−1029 JS, −485 CSS) |
 | **20** | **Multi-Tab-Sync entfernen oder vollständig bauen** | XS–M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Halbe Lösung |
 | **21** | **Enter-Handler/addressFlow entfernen** | XS | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — blockiert nur noch den Umbruch, Sprung entfällt |
 | **22** | **#seedAuto entfernen** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Geprüft 2026-11-07 — kein `#seedAuto` im Repo (Element nie vorhanden); der private Seeder in `salutation.js` ist funktional und bleibt |
-| **23** | **initApp try/catch bündeln** | S | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Lesbarkeit |
+| **23** | **initApp try/catch bündeln** | S | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — `bootStep`-Pipeline, kritische Barriere + sichtbarer Fallback |
 | **24** | **Toast auf CSS-Auto-Dismiss reduzieren** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Opportunistisch beim core.js-Anfassen |
 | **25** | **Postvermerk: Custom-Popover durch natives `<select>` ersetzen** | M | ⭐⭐⭐⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt 2026-11-07 (natives `<select>`, Button + Popover entfernt) |
 | **26** | **Save-Status: ungenutztes `data-state` entfernen** | XS | ⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt (Attribut entfernt) |
@@ -42,7 +42,7 @@
 | **31** | **Redundanten `window.resize`-Listener entfernen** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (Listener entfernt) |
 | **32** | **Breakpoint 600px zentralisieren** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (`maxSuggestions()`) |
 | **33** | **address.js in 4 Module aufteilen (2176 Z.)** | M | ⭐⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Vier Concerns, ein Modul |
-| **34** | **wireDOM: 110-Z.-Inline-Handler herausziehen** | S | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | 235 Z. Verdrahtung |
+| **34** | **wireDOM: 110-Z.-Inline-Handler herausziehen** | S | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | ✅ Umgesetzt 2026-11-07 — benannte Handler (`#handleDocumentKeydown`, `#handleDocumentPaste`, `#handleInputLimit`) |
 | **35** | **ClipboardAddressParser prüfen (~311 Z.)** | S–M | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Entscheidung nötig |
 | **36** | **Kompatibilitäts-Wrapper entfernen (2× 11 Z.)** | XS | ⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Nur Tests importieren sie |
 | **37** | **webmcp-bridge: entfernen oder verdrahten (CSP vs. `ws://`)** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Tot, aber nicht entschieden |

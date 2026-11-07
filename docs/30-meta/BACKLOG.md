@@ -303,7 +303,7 @@ unbenutzbar. Reines CSS mit `:has()` wäre möglich, ohne JS-Umbau.
 
 ## 🔬 Forschung
 
-### B53 · Speichern systematisch prüfen (stille Fehler, Rückgaben, Wettläufe) · **M** · ⭐⭐⭐
+### B53 · Speichern systematisch prüfen (stille Fehler, Rückgaben, Wettläufe) · **M** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
 Alle Speicherpfade durchgehen: Draft, Signatur, Schrift, Settings, Export, Import, Session,
 Adressbuch, Geoapify-Key, Sender-Coords. Gesucht wird, was still scheitert oder sich
 überholt. Stand 2026-11-06 (Dossier, `331a1f8`) sind die Funde erhoben:

@@ -19,6 +19,53 @@ import { setCaretToEnd } from './document.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 /**
+ * Eine Delegation pro Popover statt zwei Listener pro Eintrag. Die Vorschlags-
+ * listen werden bei jedem Tastendruck neu gebaut (`replaceChildren`); Listener
+ * an den Einträgen würden dabei jedes Mal neu allokiert und verworfen.
+ */
+/** @type {WeakMap<Element, {items: any[], select: (item: any) => void, guard: boolean}>} */
+const listSelectionState = new WeakMap();
+
+/**
+ * @param {HTMLElement | null} popoverEl
+ * @param {any[]} items
+ * @param {(item: any) => void} select
+ */
+function bindListSelection(popoverEl, items, select) {
+  if (!popoverEl) return;
+  listSelectionState.set(popoverEl, { items, select, guard: false });
+  if (popoverEl.dataset.delegated === 'true') return;
+  popoverEl.dataset.delegated = 'true';
+
+  /** @param {Event} e */
+  const handle = (e) => {
+    const target = e.target instanceof Element ? e.target.closest('li[data-index]') : null;
+    if (!(target instanceof HTMLElement)) return;
+    const state = listSelectionState.get(popoverEl);
+    if (!state) return;
+
+    if (e.type === 'keydown') {
+      const ke = /** @type {KeyboardEvent} */ (e);
+      if (ke.key !== 'Enter' && ke.key !== ' ') return;
+      e.preventDefault();
+    } else if (e.type === 'mousedown') {
+      e.preventDefault(); /* Fokus im Eingabefeld halten (Desktop) */
+      state.guard = true;
+      setTimeout(() => { state.guard = false; }, 100);
+    } else if (state.guard) {
+      return; /* click nach mousedown: bereits behandelt */
+    }
+
+    const item = state.items[Number(target.dataset.index)];
+    if (item) state.select(item);
+  };
+
+  popoverEl.addEventListener('mousedown', handle);
+  popoverEl.addEventListener('click', handle);
+  popoverEl.addEventListener('keydown', handle);
+}
+
+/**
  * Vorschlags-Limit: schmale Viewports bekommen weniger Einträge.
  * Die Zahl ist Datenlogik (wie viele Treffer die Liste aufnimmt), keine Layout-Regel —
  * deshalb hier zentral und nicht im CSS.
@@ -1086,6 +1133,25 @@ export class AddressIntelligence {
     const render = () => {
       popoverEl.replaceChildren();
 
+      /** @param {any} item */
+      const selectItem = (item) => {
+        // Stadt mit mehreren PLZs: sofort die PLZ-Liste öffnen.
+        if (item.typ === 'Stadt' && !item.isSinglePlz) {
+          const plzs = AddressIntelligence.lookupCityPlzs(item.city);
+          AddressIntelligence.#renderUniversalSuggestions(plzs, plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
+          return;
+        }
+
+        const res = AddressIntelligence.applySelection(item, ortEl, firmaEl, strasseEl);
+        AddressIntelligence.targetLock = { city: item.city, plz: item.plz };
+        if (res?.note) {
+          eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: res.note, type: 'info' });
+        }
+        setCaretToEnd(anchorEl || ortEl);
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+        AddressIntelligence.#hidePopover(popoverEl);
+      };
+
       matches.forEach((item, index) => {
         const li = document.createElement('li');
         li.className = 'suggestion-item';
@@ -1143,42 +1209,7 @@ export class AddressIntelligence {
           li.appendChild(districtSpan);
         }
 
-        let isSelectionHandled = false;
-        /** @param {Event} [e] */
-        const triggerSelection = (e) => {
-          if (isSelectionHandled) return;
-          isSelectionHandled = true;
-          if (e) e.preventDefault();
-          setTimeout(() => { isSelectionHandled = false; }, 100);
-
-          // Wenn in der Stadtliste eine Stadt mit mehreren PLZs angeklickt wird: sofort PLZ-Liste öffnen!
-          if (item.typ === 'Stadt' && !item.isSinglePlz) {
-            const plzs = AddressIntelligence.lookupCityPlzs(item.city);
-            AddressIntelligence.#renderUniversalSuggestions(plzs, plzs.length, ortEl, firmaEl, strasseEl, popoverEl, anchorEl, true);
-            return;
-          }
-
-          const res = AddressIntelligence.applySelection(item, ortEl, firmaEl, strasseEl);
-          AddressIntelligence.targetLock = { city: item.city, plz: item.plz };
-          if (res?.note) {
-            eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: res.note, type: 'info' });
-          }
-          setCaretToEnd(anchorEl || ortEl);
-          eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-          AddressIntelligence.#hidePopover(popoverEl);
-        };
-
-        // mousedown: Verhindert Fokusverlust (blur) des Eingabefeldes auf dem Desktop
-        li.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          triggerSelection(e);
-        });
-
-        // click: Für Touchscreen-Taps, Screenreader & synthetische Klicks
-        li.addEventListener('click', (e) => {
-          triggerSelection(e);
-        });
-
+        li.dataset.index = String(index);
         popoverEl.appendChild(li);
       });
 
@@ -1194,6 +1225,8 @@ export class AddressIntelligence {
         hintLi.textContent = `${totalCount} Treffer – tippe weiter`;
         popoverEl.appendChild(hintLi);
       }
+
+      bindListSelection(popoverEl, matches, selectItem);
     };
 
     render();
@@ -1688,6 +1721,13 @@ export class ClipboardAddressParser {
           header.textContent = `📋 ${candidates.length} Adressen gefunden:`;
           popover.appendChild(header);
 
+          /** @param {any} cand */
+          const selectCandidate = (cand) => {
+            ClipboardAddressParser.applyCandidate(cand);
+            // @ts-ignore
+            popover.hidePopover();
+          };
+
           candidates.forEach((cand, idx) => {
             const item = document.createElement('li');
             item.className = 'autocomplete-item';
@@ -1705,22 +1745,11 @@ export class ClipboardAddressParser {
             item.appendChild(compSpan);
             item.appendChild(addrSpan);
 
-            const selectCandidate = () => {
-              ClipboardAddressParser.applyCandidate(cand);
-              // @ts-ignore
-              popover.hidePopover();
-            };
-
-            item.addEventListener('click', selectCandidate);
-            item.addEventListener('keydown', (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                selectCandidate();
-              }
-            });
-
+            item.dataset.index = String(idx);
             popover.appendChild(item);
           });
+
+          bindListSelection(popover, candidates, selectCandidate);
 
           // @ts-ignore
           popover.showPopover();
@@ -2093,12 +2122,11 @@ export function initAddressServices() {
         li.appendChild(badge);
       }
       
-      li.addEventListener('click', () => {
-        selectSuggestion(item);
-      });
-
+      li.dataset.index = String(index);
       addressSuggestions.appendChild(li);
     });
+
+    bindListSelection(addressSuggestions, renderedSuggestions, selectSuggestion);
 
     try { (/** @type {HTMLElement & { showPopover: () => void }} */ (addressSuggestions)).showPopover(); } catch {}
   }

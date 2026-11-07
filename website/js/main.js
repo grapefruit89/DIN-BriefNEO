@@ -6,7 +6,7 @@ import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initS
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, DraftManager, UIProtections } from './document.js';
 /* js/main.js */
-import { applyLetterDate, initImportExport, MetadataService, migrateStorage } from './persistence.js';
+import { applyLetterDate, initImportExport, MetadataService, migrateStorage, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
 
@@ -39,94 +39,84 @@ if (document.readyState === 'loading') {
   initApp();
 }
 
-function initApp() {
-  // Schema-Migration vor dem ersten Restore
-    migrateStorage();
-    /* Binär-Assets liegen seit Schema-Umstellung in IndexedDB ([[ADR-BINARY-ASSETS]]).
-     * Die alten Base64-Schlüssel werden bewusst verworfen, nicht migriert. */
-    try {
-      localStorage.removeItem('din_custom_font');
-      localStorage.removeItem('din_signature_asset');
-    } catch {}
-    const draftManager = new DraftManager();
-    draftManager.loadDraft();
-    const initPv = document.getElementById('vermerke')?.textContent || '';
-    syncPostvermerkFromSidebar(initPv);
+/**
+ * Sichtbarer Fallback, wenn ein kritischer Boot-Schritt scheitert. Ohne ihn
+ * bliebe die Seite in einem halb initialisierten Zustand stehen, ohne dass
+ * der Nutzer den Grund sieht.
+ * @param {string} schritt
+ * @param {unknown} fehler
+ */
+function zeigeBootFehler(schritt, fehler) {
+  const box = document.createElement('div');
+  box.setAttribute('role', 'alert');
+  box.style.cssText =
+    'position:fixed;inset:auto 0 0 0;z-index:9999;padding:12px 16px;background:#7f1d1d;color:#fff;' +
+    'font:14px/1.4 system-ui,sans-serif;white-space:pre-wrap';
+  box.textContent =
+    `Start fehlgeschlagen (${schritt}). Die Seite ist nicht vollständig funktionsfähig.\n` +
+    (fehler instanceof Error ? fehler.message : String(fehler));
+  document.body.appendChild(box);
+}
 
-    try {
-      applyLetterDate();
-    } catch (e) {
-      console.warn('[Bootstrap] applyLetterDate fehlgeschlagen:', e);
-    }
-
-    const uiProtections = new UIProtections();
-    try {
-      uiProtections.init();
-    } catch (e) {
-      console.error('[Bootstrap] uiProtections.init fehlgeschlagen:', e);
-    }
-
-    // Layout- und Textanpassung laufen rein über natives CSS ('field-sizing', 'text-fit', 'overflow: clip')
-
-    const settingsManager = new SettingsManager();
-    try {
-      settingsManager.init();
-    } catch (e) {
-      console.error('[Bootstrap] settingsManager.init fehlgeschlagen:', e);
-    }
-
-    attachGlobalListeners(draftManager, uiProtections);
-
-    try {
-      initToastSystem();
-    } catch (e) {
-      console.error('[Bootstrap] initToastSystem fehlgeschlagen:', e);
-    }
-
-    try {
-      initSenderSync();
-    } catch (e) {
-      console.error('[Bootstrap] initSenderSync fehlgeschlagen:', e);
-    }
-
-    try {
-      initAddressServices();
-    } catch (e) {
-      console.error('[Bootstrap] initAddressServices fehlgeschlagen:', e);
-    }
-
-    try {
-      initImportExport({ collectDraft });
-    } catch (e) {
-      console.error('[Bootstrap] initImportExport fehlgeschlagen:', e);
-    }
-
-    try {
-      ClipboardAddressParser.wireSidebarButton();
-    } catch (e) {
-      console.error('[Bootstrap] ClipboardAddressParser.wireSidebarButton fehlgeschlagen:', e);
-    }
-
-    try {
-      const salutation = new SalutationFeature(settingsManager);
-      salutation.init();
-    } catch (e) {
-      console.error('[Bootstrap] SalutationFeature.init fehlgeschlagen:', e);
-    }
-
-    try {
-      const signature = new SignatureFeature(settingsManager);
-      signature.init();
-    } catch (e) {
-      console.error('[Bootstrap] SignatureFeature.init fehlgeschlagen:', e);
-    }
-
-    try {
-      initTestData();
-    } catch (e) {
-      console.error('[Bootstrap] initTestData fehlgeschlagen:', e);
+/**
+ * Führt einen Boot-Schritt aus. Unkritische Fehler werden protokolliert, der
+ * Start läuft weiter; kritische zeigen den Fallback und brechen ab.
+ * @param {string} name
+ * @param {() => void} fn
+ * @param {{ critical?: boolean }} [optionen]
+ */
+function bootStep(name, fn, { critical = false } = {}) {
+  try {
+    fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    if (critical) {
+      zeigeBootFehler(name, fehler);
+      throw fehler;
     }
   }
+}
+
+function initApp() {
+  // Kritische Barriere: ohne Briefblatt und Betreff ist nichts benutzbar.
+  bootStep('DOM-Grundgerüst', () => {
+    if (!document.querySelector('din-blatt') || !document.getElementById('betreff')) {
+      throw new Error('Briefblatt (din-blatt) oder Betreff fehlt im DOM.');
+    }
+  }, { critical: true });
+
+  bootStep('Schema-Migration', () => migrateStorage());
+  bootStep('Altlasten entfernen', () => {
+    /* Binär-Assets liegen seit Schema-Umstellung in IndexedDB ([[ADR-BINARY-ASSETS]]).
+     * Die alten Base64-Schlüssel werden bewusst verworfen, nicht migriert. */
+    localStorage.removeItem('din_custom_font');
+    localStorage.removeItem('din_signature_asset');
+  });
+  bootStep('Dauerhafter Speicher', () => requestPersistentStorage());
+
+  const draftManager = new DraftManager();
+  bootStep('Entwurf laden', () => draftManager.loadDraft());
+  bootStep('Postvermerk', () => {
+    syncPostvermerkFromSidebar(document.getElementById('vermerke')?.textContent || '');
+  });
+  bootStep('Briefdatum', () => applyLetterDate());
+
+  const uiProtections = new UIProtections();
+  bootStep('UI-Schutz', () => uiProtections.init());
+
+  const settingsManager = new SettingsManager();
+  bootStep('Einstellungen', () => settingsManager.init());
+
+  bootStep('Globale Listener', () => attachGlobalListeners(draftManager, uiProtections));
+  bootStep('Toast-System', () => initToastSystem());
+  bootStep('Absender-Sync', () => initSenderSync());
+  bootStep('Adressdienste', () => initAddressServices());
+  bootStep('Import/Export', () => initImportExport({ collectDraft }));
+  bootStep('Clipboard-Button', () => ClipboardAddressParser.wireSidebarButton());
+  bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
+  bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
+  bootStep('Testdaten', () => initTestData());
+}
 
   /**
    * @param {DraftManager} draftManager

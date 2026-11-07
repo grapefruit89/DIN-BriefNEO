@@ -192,12 +192,26 @@ export function loadJSON(key, fallback) {
  */
 export function saveJSON(key, value) {
   try {
-    if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
-      navigator.storage.persist().catch(err => console.debug('[Storage]', err));
-    }
     return save(key, JSON.stringify(value));
   } catch {
     return false;
+  }
+}
+
+/**
+ * Fragt dauerhaften Speicher an — einmal beim Start, nicht bei jedem Schreiben.
+ * saveJSON lief bisher bei jedem Tastendruck-Save durch storage.persist();
+ * der Aufruf gehoert in den Boot-Pfad (Idle), nicht in den Renderpfad (#16).
+ */
+export function requestPersistentStorage() {
+  if (typeof navigator === 'undefined' || !navigator.storage?.persist) return;
+  const anfragen = () => {
+    navigator.storage.persist().catch((err) => console.debug('[Storage]', err));
+  };
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(anfragen, { timeout: 3000 });
+  } else {
+    setTimeout(anfragen, 0);
   }
 }
 

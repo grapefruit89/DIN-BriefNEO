@@ -1790,7 +1790,10 @@ export function initAddressServices() {
   const addressSuggestions = document.getElementById('anschrift-vorschlaege');
   const addressSearchContainer = document.getElementById('anschrift-suche-container');
 
-  if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !geoapifyKeyContainer || !addressSearchContainer) return;
+  // #geoapify-key-container ist seit dem Umbau auf <form id="geoapify-key-form">
+  // nicht mehr vorhanden. Der Knoten darf die Initialisierung nicht blockieren —
+  // sonst laufen AddressIntelligence.init() und wireDOM() weiter unten nie.
+  if (!inputGeoapifyKey || !inputAddressSearch || !addressSuggestions || !addressSearchContainer) return;
 
   /**
    * @param {string} msg
@@ -1841,7 +1844,7 @@ export function initAddressServices() {
 
   if (!savedKey) {
     setGeoapifyState('empty');
-    geoapifyKeyContainer.open = false;
+    if (geoapifyKeyContainer) geoapifyKeyContainer.open = false;
   } else {
     validateKeyWithHeartbeat(savedKey, { isInitial: true });
   }

@@ -29,20 +29,20 @@
     <a href="#viewport" class="skip-link">Zum Briefkern springen</a>
     <div id="app-shell">
       <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
-        <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungsmodus umschalten">
+        <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungen">
         <div class="seitenleiste-header-row">
-          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository" title="GitHub Repository">
+          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
               <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
             </svg>
           </a>
           <div class="seitenleiste-header-actions">
-            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" role="button" aria-label="Einstellungen" title="Einstellungen">
+            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true">
                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>
               </svg>
             </label>
-            <button type="button" id="btn-theme-toggle" class="icon-btn theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-erscheinungsbild="auto" title="Darstellung: Automatisch (System)">
+            <button type="button" id="btn-theme-toggle" class="icon-btn theme-toggle-btn" aria-label="Darstellung: Automatisch (System)" data-erscheinungsbild="auto">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-auto lucide lucide-sun-moon" aria-hidden="true"><path d="M12 2v2"></path><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"></path><path d="M16 12a4 4 0 0 0-4-4"></path><path d="m19 5-1.256 1.256"></path><path d="M20 12h2"></path></svg>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-light lucide lucide-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-dark lucide lucide-moon-star" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></svg>
@@ -214,7 +214,7 @@
                   aria-describedby="geoapify-key-msg">
                 <span class="key-counter" id="geoapify-key-counter" aria-hidden="true">0/32</span>
                 <button type="button" class="key-remove" id="btn-geoapify-clear"
-                        aria-label="Key entfernen" title="Key entfernen">✕</button>
+                        aria-label="Key entfernen">✕</button>
               </div>
 
               <p id="geoapify-key-msg" role="status" aria-live="polite" class="key-msg">
@@ -227,7 +227,7 @@
               </p>
             </form>
 
-            <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" title="DIN 5008 Hilfe" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
+            <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
           </div>
         </section>
 
@@ -394,8 +394,8 @@
           <label class="debug-filter"><input type="checkbox" id="rec-filter-empty" data-role="filter-empty"> Leere ausblenden</label>
           <button type="button" class="debug-btn" id="rec-btn-copy-all" data-action="copy-all">📋 Alles</button>
           <button type="button" class="debug-btn" id="rec-btn-clear" data-action="clear">🗑️ Leeren</button>
-          <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause" aria-label="Aufzeichnung pausieren" title="Aufzeichnung pausieren">⏸️</button>
-          <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize" aria-label="Panel minimieren" title="Panel minimieren">_</button>
+          <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause" aria-label="Aufzeichnung pausieren">⏸️</button>
+          <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize" aria-label="Panel minimieren">_</button>
         </div>
       </header>
       <div class="debug-body" id="rec-body" data-role="body">
@@ -410,7 +410,7 @@
         <div class="debug-actions">
           <button type="button" class="debug-btn" id="json-btn-copy" data-action="copy" title="JSON kopieren">📋 Kopieren</button>
           <button type="button" class="debug-btn" id="json-btn-clear" data-action="clear" title="Anzeige leeren">🗑️ Leeren</button>
-          <button type="button" class="debug-btn" id="json-btn-close" data-action="close" aria-label="Schließen" title="Schließen">✕</button>
+          <button type="button" class="debug-btn" id="json-btn-close" data-action="close" aria-label="Schließen">✕</button>
         </div>
       </header>
       <div class="debug-body" data-role="body"><pre><code id="json-debug-code"></code></pre></div>

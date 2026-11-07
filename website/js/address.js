@@ -1092,13 +1092,9 @@ export class AddressIntelligence {
         li.setAttribute('role', 'option');
         li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
 
-        // Farb-Klasse nach Typ
+        // Typ als Datum ins Markup; das Aussehen entscheidet das CSS (beide Listen).
         const typLower = (item.typ || '').toLowerCase();
-        if (typLower === 'firma') li.classList.add('ac-firma');
-        else if (typLower === 'behörde' || typLower === 'behoerde') li.classList.add('ac-behoerde');
-        else if (typLower === 'gericht') li.classList.add('ac-gericht');
-        else if (typLower === 'institution') li.classList.add('ac-institution');
-        else li.classList.add('ac-city');
+        li.dataset.typ = typLower === 'behörde' ? 'behoerde' : typLower || 'city';
 
         const leftWrapper = document.createElement('span');
         leftWrapper.className = 'suggestion-main';

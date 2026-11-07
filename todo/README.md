@@ -175,4 +175,4 @@
 ## 🚫 Bewusst verworfene Ideen & Anti-Nuggets
 
 Um Feature Creep, Regressionen und wiederholte Schein-Optimierungen zu verhindern, werden verworfene Ansätze und deren Begründungen zentral dokumentiert:
-👉 **[`ANTIPATTERNS-VERWORFEN.md`](ANTIPATTERNS-VERWORFEN.md)** (26 verworfene Anti-Nuggets wie `contenteditable`-Toggle, Timeouts, CSS-Border-Falzmarken, Fremd-Dependencies und Heuristiken).
+👉 **[`ANTIPATTERNS-VERWORFEN.md`](ANTIPATTERNS-VERWORFEN.md)** (33 verworfene Anti-Nuggets wie `contenteditable`-Toggle, Timeouts, CSS-Border-Falzmarken, Fremd-Dependencies und Heuristiken).

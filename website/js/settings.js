@@ -134,11 +134,8 @@ export class SettingsManager {
     const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
     toggle.checked = isChecked;
     toggle.dispatchEvent(new Event('change', { bubbles: true }));
-    const label = document.querySelector('label[for="toggle-modus"]');
-    if (label) {
-      label.setAttribute('aria-pressed', String(isChecked));
-      label.setAttribute('aria-label', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
-    }
+    // Der Zustand liegt ausschließlich in der nativen Checkbox; das Label trägt
+    // weder Rolle noch Zustand (sonst zwei Controls im Accessibility-Tree).
   }
 
   /**

@@ -1082,24 +1082,26 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   gap: 12px;
 }
 
-#plz-suggestions-popover .suggestion-main {
+/* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
+   (#anschrift-vorschlaege und #plz-suggestions-popover). */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-main {
   display: inline-flex;
   gap: 6px;
   align-items: baseline;
   flex-shrink: 0;
 }
 
-#plz-suggestions-popover .plz-val {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .plz-val {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent-color);
 }
 
-#plz-suggestions-popover .city-val {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-val {
   font-weight: 500;
 }
 
-#plz-suggestions-popover .district-val {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .district-val {
   font-size: 0.72rem;
   color: var(--text-muted, oklch(55% 0 0));
   font-style: italic;
@@ -1112,13 +1114,18 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
 }
 
 /* Farbcodierung und Badges für universelles Autocomplete */
-#plz-suggestions-popover .ac-city { color: var(--text-primary); }
-#plz-suggestions-popover .ac-firma { color: oklch(45% 0.16 250); }
-#plz-suggestions-popover .ac-behoerde { color: oklch(50% 0.14 145); }
-#plz-suggestions-popover .ac-gericht { color: oklch(48% 0 0); }
-#plz-suggestions-popover .ac-institution { color: oklch(55% 0.18 45); }
+/* Typ-Farbe gilt in beiden Listen. Das :is() hebt die Spezifität über die
+   bestehenden `#liste li { color: … }`-Regeln (ID + Element), sonst gewinnt
+   dort die Grundfarbe und die Typ-Kennzeichnung bleibt unsichtbar. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="firma"] { color: oklch(45% 0.16 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="behoerde"] { color: oklch(50% 0.14 145); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] { color: oklch(48% 0 0); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] { color: oklch(55% 0.18 45); }
 
-#plz-suggestions-popover .ac-badge {
+/* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
+   kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .ac-badge {
   font-size: 0.65rem;
   font-weight: 600;
   padding: 1px 4px;
@@ -1130,7 +1137,7 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   vertical-align: middle;
 }
 
-#plz-suggestions-popover .city-sub {
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-sub {
   font-size: 0.75rem;
   color: var(--text-muted, oklch(55% 0 0));
   margin-inline-start: 4px;

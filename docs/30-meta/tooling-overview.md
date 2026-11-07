@@ -298,6 +298,26 @@ function indexIsStale(mdFiles, tracked = []) {
 
 **ensureFresh():** **Full rebuild**, kein Incremental. Wenn `indexIsStale()` `true` zurückgibt, wird die komplette DB neu gebuilt (DROP + CREATE + INSERT + VACUUM).
 
+## test-runner.mjs
+
+Headless-Runner für die Unit-Suite (`test/index.html`). Zero-Dependency
+(`node:http`, `node:child_process`, `node:fs`, `node:path`, `node:url`).
+
+- **Server:** eigener `node:http`-Server auf einem freien Port, Wurzel ist das
+  Repo; jede Antwort trägt `Cache-Control: no-store` — die frühere
+  `?v=panelsN`-Pflege in `test/index.html` entfällt.
+- **Browser:** `CHROME_BIN` oder `/usr/bin/helium|chromium|google-chrome`.
+  Start headless mit `--remote-debugging-port=0`; der Port kommt aus
+  `DevToolsActivePort` im temporären Profil.
+- **Ergebnis:** `test/runner.js` legt `window.__TEST_RESULTS`
+  (`total`, `passed`, `failed`, `skipped`, `failures`) an; der Runner holt es
+  per CDP `Runtime.evaluate` ab.
+- **CLI:** `--json`, `--filter=<regex>`, `--timeout=<ms>`,
+  `--allow-missing-browser`.
+- **Exit-Codes:** `0` alles grün, `1` Fehlschlag/Timeout/Laufzeitfehler.
+- **Aufruf:** `node tools/test-runner.mjs` (kein npm-Skript nötig, das Repo
+  bleibt ohne `package.json`).
+
 ## log_session.js
 
 - **Zweck**: Protokolliert Agenten-Aktionen in `agent_session_logs`-Tabelle

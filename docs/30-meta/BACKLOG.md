@@ -278,7 +278,7 @@ danach aus dem DOM. Der Request ist für den Export funktionslos.
 
 ## 🔧 Werkzeuge
 
-### B48 · Test-Runner für maschinenlesbare Ergebnisse · **M** · ⭐⭐⭐
+### B48 · Test-Runner für maschinenlesbare Ergebnisse · **M** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `tools/test-runner.mjs` existiert nicht. Jeder Lauf braucht ein handgebautes CDP-Skript,
 weil `--dump-dom` die async-Tests abschneidet (`--virtual-time-budget` wartet nicht auf
 IndexedDB-I/O). Ein Runner mit JSON-Ausgabe und Exit-Code würde das ersetzen.

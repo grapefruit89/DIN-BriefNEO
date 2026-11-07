@@ -58,7 +58,15 @@ Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir
 
 Geändert wird nur, was der Fitness Gate freigibt. Jede Session wird protokolliert (`tools/log_session.js`), jede Architekturentscheidung landet im [Decision-Log](docs/30-meta/DECISION-LOG.md). Regressionstests laufen live gegen die App im echten Chrome (Viewport, Sidebar, Anrede, Postvermerk) — Details in [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md).
 
-**Unit-Tests (Zero-Dependency):** `test/` enthält einen eigengebauten Mini-Runner (kein Framework, keine npm-Abhängigkeiten) mit Fokus auf den kritischsten Pfad — dem Draft-Sanitizing (XSS-Schutz). Ausführen: `test/index.html` im Browser öffnen (über denselben lokalen Webserver wie die App), Ergebnis erscheint auf der Seite und in der Konsole.
+**Unit-Tests (Zero-Dependency):** `test/` enthält einen eigengebauten Mini-Runner (kein Framework, keine npm-Abhängigkeiten). Ausführen:
+
+```bash
+node tools/test-runner.mjs              # headless, Exit-Code 0/1
+node tools/test-runner.mjs --json      # maschinenlesbar
+node tools/test-runner.mjs --filter=Salutation
+```
+
+Der Runner startet seinen eigenen HTTP-Server mit `Cache-Control: no-store` (kein `?v=`-Hochzählen mehr), findet Chromium über `CHROME_BIN` oder im Standardpfad und liest `window.__TEST_RESULTS` per CDP aus. Ohne Browser: `--allow-missing-browser` (Exit 0 mit SKIP). Alternative ohne CLI: `test/index.html` über den lokalen Webserver öffnen.
 
 ---
 

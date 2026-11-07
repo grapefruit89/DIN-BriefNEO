@@ -10,7 +10,8 @@
 		"includes": [
 			"website/js/**",
 			"website/addons/**",
-			"test/**"
+			"test/**",
+			"tools/test-runner.mjs"
 		]
 	},
 	"formatter": {

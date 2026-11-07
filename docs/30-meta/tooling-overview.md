@@ -318,6 +318,27 @@ Headless-Runner für die Unit-Suite (`test/index.html`). Zero-Dependency
 - **Aufruf:** `node tools/test-runner.mjs` (kein npm-Skript nötig, das Repo
   bleibt ohne `package.json`).
 
+## debug-session.mjs
+
+Interaktive Debug-Sitzung mit garantiertem Virgin-State und Flight-Recorder.
+Zero-Dependency, nutzt `tools/static-server.mjs` und `tools/browser.mjs`.
+
+- **Virgin State:** flüchtiges Profil (`mkdtemp`), beim Start 0 Dateien; wird
+  beim Beenden gelöscht. Kein localStorage, keine Cookies, keine IndexedDB aus
+  früheren Sitzungen. Der Startbericht listet die Schlüssel nach dem Laden —
+  `Virgin State: leer` heißt: nur App-Startschlüssel, kein Entwurf.
+- **Server:** `Cache-Control: no-store` auf jeder Antwort (auch 404).
+- **CDP bleibt offen** (Default 9222, bei Belegung automatisch freier Port);
+  `devtoolsFrontendUrl` und `webSocketDebuggerUrl` werden im Terminal
+  ausgegeben, damit DevTools und MCP-Agenten andocken.
+- **Recorder:** Console/Runtime/Log/Network; Storage-Polling (1 s) auf
+  `din_draft_current` plus DOM-Knotenzahl; Exceptions und Netzwerkfehler.
+- **Trace:** `test/traces/session-<YYYY-MM-DD-HHmmss>.json` mit
+  `meta`, `console`, `network`, `storageMutations`, `errors`
+  (Verzeichnis ist gitignored).
+- **CLI:** `--test` (Testseite), `--headless`, `--port=<http>`,
+  `--cdp-port=<n>`; beenden mit Ctrl+C oder `q`.
+
 ## log_session.js
 
 - **Zweck**: Protokolliert Agenten-Aktionen in `agent_session_logs`-Tabelle

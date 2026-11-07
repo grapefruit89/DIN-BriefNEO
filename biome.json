@@ -11,7 +11,7 @@
 			"website/js/**",
 			"website/addons/**",
 			"test/**",
-			"tools/test-runner.mjs"
+			"tools/*.mjs"
 		]
 	},
 	"formatter": {

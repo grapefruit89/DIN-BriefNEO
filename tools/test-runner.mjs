@@ -15,11 +15,12 @@
 //   node tools/test-runner.mjs --allow-missing-browser   (CI ohne Browser)
 
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
-import http from 'node:http';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findBrowser } from './browser.mjs';
+import { startStaticServer } from './static-server.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const START = Date.now();
@@ -62,88 +63,21 @@ function beenden(ergebnis) {
 
 /* -------------------------------------------------------------------- Server */
 
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
-  '.mjs': 'application/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.webmanifest': 'application/manifest+json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.ico': 'image/x-icon',
-  '.woff2': 'font/woff2',
-  '.woff': 'font/woff',
-  '.ttf': 'font/ttf',
-  '.otf': 'font/otf',
-  '.txt': 'text/plain; charset=utf-8',
-  '.gz': 'application/gzip',
-  '.map': 'application/json; charset=utf-8'
-};
-
-const NO_CACHE = {
-  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-  Pragma: 'no-cache',
-  Expires: '0'
-};
-
-const server = http.createServer((req, res) => {
-  const url = new URL(req.url || '/', 'http://127.0.0.1');
-  let pfad;
-  try {
-    pfad = path.resolve(ROOT, `.${decodeURIComponent(url.pathname)}`);
-  } catch {
-    res.writeHead(400, NO_CACHE).end('Bad Request');
-    return;
-  }
-  if (!pfad.startsWith(ROOT + path.sep) || !existsSync(pfad) || !statSync(pfad).isFile()) {
-    res.writeHead(404, { ...NO_CACHE, 'Content-Type': 'text/plain; charset=utf-8' }).end('Not Found');
-    return;
-  }
-  const typ = MIME[path.extname(pfad).toLowerCase()] || 'application/octet-stream';
-  res.writeHead(200, { ...NO_CACHE, 'Content-Type': typ });
-  res.end(readFileSync(pfad));
-});
-
-const serverPort = await new Promise((resolve, reject) => {
-  server.once('error', reject);
-  server.listen(0, '127.0.0.1', () => resolve(/** @type {import('node:net').AddressInfo} */ (server.address()).port));
-});
+const statik = await startStaticServer(ROOT);
+const serverPort = statik.port;
 
 /* ------------------------------------------------------------------- Browser */
 
-/** Sucht das Binärprogramm; absolute Pfade zuerst, damit kein Wrapper-Skript
- *  (z. B. ~/.local/bin/helium) den Prozessbaum übernimmt und das Killen verhindert. */
-function findeBrowser() {
-  if (process.env.CHROME_BIN && existsSync(process.env.CHROME_BIN)) return process.env.CHROME_BIN;
-  const absolut = [
-    '/usr/bin/helium',
-    '/usr/bin/chromium',
-    '/usr/bin/chromium-browser',
-    '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable',
-    '/opt/google/chrome/chrome'
-  ];
-  for (const p of absolut) if (existsSync(p)) return p;
-  for (const name of ['helium', 'chromium', 'google-chrome']) {
-    for (const dir of (process.env.PATH || '').split(path.delimiter)) {
-      const p = path.join(dir, name);
-      if (existsSync(p)) return p;
-    }
-  }
-  return null;
-}
-
-const browserBin = findeBrowser();
+const browserBin = findBrowser();
 if (!browserBin) {
   const meldung = 'Kein Chromium gefunden. Setze CHROME_BIN oder installiere chromium/google-chrome.';
   if (browserFehltOk) {
     if (alsJson) process.stdout.write(`${JSON.stringify({ ok: true, skipped: true, grund: meldung })}\n`);
     else console.log(farbe.grau(`SKIP: ${meldung}`));
-    server.close();
+    await statik.close();
     process.exit(0);
   }
-  server.close();
+  await statik.close();
   console.error(farbe.rot(`FEHLER: ${meldung}`));
   process.exit(1);
 }
@@ -188,7 +122,7 @@ async function evaluiere(expression) {
 async function aufraeumen() {
   try { if (ws) ws.close(); } catch { /* egal */ }
   try { child.kill('SIGKILL'); } catch { /* egal */ }
-  await new Promise((r) => server.close(r));
+  await statik.close();
   try { rmSync(profil, { recursive: true, force: true }); } catch { /* egal */ }
 }
 

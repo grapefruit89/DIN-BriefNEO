@@ -68,6 +68,19 @@ node tools/test-runner.mjs --filter=Salutation
 
 Der Runner startet seinen eigenen HTTP-Server mit `Cache-Control: no-store` (kein `?v=`-Hochzählen mehr), findet Chromium über `CHROME_BIN` oder im Standardpfad und liest `window.__TEST_RESULTS` per CDP aus. Ohne Browser: `--allow-missing-browser` (Exit 0 mit SKIP). Alternative ohne CLI: `test/index.html` über den lokalen Webserver öffnen.
 
+**Debug-Sitzung (Virgin-State + Aufzeichnung):**
+
+```bash
+node tools/debug-session.mjs            # sichtbares Fenster, App, CDP auf 9222
+node tools/debug-session.mjs --test     # sichtbar, aber test/index.html
+node tools/debug-session.mjs --headless # ohne Fenster
+```
+
+Frisches Profil pro Start (wird beim Beenden gelöscht), Server ohne Cache, CDP-
+und DevTools-URL stehen im Terminal. Konsole, Netzwerk, `din_draft`-Änderungen
+und Exceptions werden mitgeschnitten und beim Beenden als
+`test/traces/session-<Datum>.json` abgelegt.
+
 ---
 
 ## 🗺️ Dokumentation

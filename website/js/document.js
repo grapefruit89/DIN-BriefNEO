@@ -303,148 +303,161 @@ export class UIProtections {
   enforceLineLimits() {
     const root = document.querySelector('din-blatt') || document;
 
-    // Enter-Taste abfangen: Single-Line blockiert Umbruch, maxTwoLines begrenzt auf 2 Zeilen
-    root.addEventListener('keydown', (e) => {
-      const keyboardEvent = /** @type {KeyboardEvent} */ (e);
-      const target = keyboardEvent.target instanceof Element ? keyboardEvent.target.closest('[contenteditable]') : null;
-      if (!target || !(target instanceof HTMLElement)) return;
+    root.addEventListener('keydown', (e) => this.#handleDocumentKeydown(e));
+    root.addEventListener('beforeinput', (e) => this.#handleFormatShortcuts(e));
+    root.addEventListener('paste', (e) => this.#handleDocumentPaste(e));
+    root.addEventListener('input', (e) => this.#handleInputLimit(e));
+  }
 
-      // Rich-Text-Light: Blockquote-Shortcut (Ctrl+Q / Cmd+Q) für Text
-      if (target.id === 'text' && (keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
-        keyboardEvent.preventDefault();
-        this.#toggleBlockquote(target);
-        return;
-      }
+  /**
+   * Alle `contenteditable`-Regeln an einer Stelle: Umbruchschutz, Rich-Text-
+   * Shortcuts und DIN-5008-Verbote. Als benannte Methode testbar.
+   * @param {Event} event
+   */
+  #handleDocumentKeydown(event) {
+    const keyboardEvent = /** @type {KeyboardEvent} */ (event);
+    const target = keyboardEvent.target instanceof Element ? keyboardEvent.target.closest('[contenteditable]') : null;
+    if (!target || !(target instanceof HTMLElement)) return;
 
-      // DIN 5008 13.1: Keine Unterstreichung — Ctrl+U / Cmd+U blockieren
-      if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'u') {
-        keyboardEvent.preventDefault();
-        return;
-      }
+    // Rich-Text-Light: Blockquote-Shortcut (Ctrl+Q / Cmd+Q) für Text
+    if (target.id === 'text' && (keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
+      keyboardEvent.preventDefault();
+      this.#toggleBlockquote(target);
+      return;
+    }
 
-      if (keyboardEvent.key === 'Enter') {
-        if (target.dataset.feldtyp?.includes('mehrzeilig')) {
-          return;
-        } else if (target.dataset.feldtyp?.includes('zweizeilig')) {
-          // textContent kennt weder <br> noch <div> als Umbruch — der Guard feuerte
-          // deshalb nie (B41). Gezählt werden alle drei Umbruchformen, ohne
-          // Layout-Read (innerText würde A49 verletzen).
-          const textUmbruch = (target.textContent || '').split('\n').length - 1;
-          const harteUmbruch = target.querySelectorAll('br').length;
-          const blockUmbruch = target.querySelectorAll(':scope > div, :scope > p').length;
-          if (textUmbruch + harteUmbruch + blockUmbruch >= 1) {
-            keyboardEvent.preventDefault();
-          }
-        } else {
-          // Nur den Umbruch blockieren. Das Weiterspringen übernimmt der Browser
-          // über die Tab-Reihenfolge (DOM-Order), kein nachgebautes Formularverhalten.
-          keyboardEvent.preventDefault();
-        }
-      }
-    });
+    // DIN 5008 13.1: Keine Unterstreichung — Ctrl+U / Cmd+U blockieren
+    if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'u') {
+      keyboardEvent.preventDefault();
+      return;
+    }
 
-    // DIN 5008 13.1: Format-Event für Unterstreichung via Input-Events / Kontextmenü abfangen
-    root.addEventListener('beforeinput', (e) => {
-      const inputEvent = /** @type {InputEvent} */ (e);
-      if (inputEvent.inputType === 'formatUnderline') {
-        inputEvent.preventDefault();
-      }
-    });
+    if (keyboardEvent.key !== 'Enter') return;
+    if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
 
-    // Paste-Handling: Mehrzeiligen Text für Einzeiler einebnen, 2-Zeiler begrenzen
-    root.addEventListener('paste', (e) => {
-      const clipboardEvent = /** @type {ClipboardEvent} */ (e);
-      const target = clipboardEvent.target instanceof Element ? clipboardEvent.target.closest('[contenteditable]') : null;
-      if (!target || !(target instanceof HTMLElement)) return;
+    if (target.dataset.feldtyp?.includes('zweizeilig')) {
+      if (this.#istZweizeiligVoll(target)) keyboardEvent.preventDefault();
+      return;
+    }
 
-      const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
-      let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
-      if (!pastedText) return;
+    // Nur den Umbruch blockieren. Das Weiterspringen übernimmt der Browser
+    // über die Tab-Reihenfolge (DOM-Order), kein nachgebautes Formularverhalten.
+    keyboardEvent.preventDefault();
+  }
 
-      // Rich-Text-Light: Plaintext-Paste im Text erhält Zeilenumbrüche, streift aber fremdes HTML/CSS ab
-      if (target.id === 'text') {
-        clipboardEvent.preventDefault();
-        const selection = window.getSelection();
-        if (!selection?.rangeCount) return;
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
+  /**
+   * Zweizeilig-Guard: textContent kennt weder <br> noch <div> als Umbruch (B41).
+   * Gezählt werden alle drei Formen, ohne Layout-Read (innerText würde A49 verletzen).
+   * @param {HTMLElement} target
+   * @returns {boolean}
+   */
+  #istZweizeiligVoll(target) {
+    const textUmbruch = (target.textContent || '').split('\n').length - 1;
+    const harteUmbruch = target.querySelectorAll('br').length;
+    const blockUmbruch = target.querySelectorAll(':scope > div, :scope > p').length;
+    return textUmbruch + harteUmbruch + blockUmbruch >= 1;
+  }
 
-        const lines = pastedText.split(/\r?\n/);
-        const fragment = document.createDocumentFragment();
-        for (const [i, line] of lines.entries()) {
-          if (i > 0) {
-            fragment.appendChild(document.createElement('br'));
-          }
-          if (line) {
-            fragment.appendChild(document.createTextNode(line));
-          }
-        }
-        const lastChild = fragment.lastChild;
-        range.insertNode(fragment);
-        if (lastChild) {
-          range.setStartAfter(lastChild);
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-        target.dispatchEvent(new Event('input', { bubbles: true }));
-        return;
-      }
+  /**
+   * DIN 5008 13.1: Unterstreichung auch über Input-Events/Kontextmenü blockieren.
+   * @param {Event} event
+   */
+  #handleFormatShortcuts(event) {
+    const inputEvent = /** @type {InputEvent} */ (event);
+    if (inputEvent.inputType === 'formatUnderline') inputEvent.preventDefault();
+  }
 
-      if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
+  /**
+   * Paste: Mehrzeiliges in Einzeiler einebnen, Zweizeiler begrenzen, im
+   * Fließtext Plaintext mit erhaltenen Umbrüchen einsetzen.
+   * @param {Event} event
+   */
+  #handleDocumentPaste(event) {
+    const clipboardEvent = /** @type {ClipboardEvent} */ (event);
+    const target = clipboardEvent.target instanceof Element ? clipboardEvent.target.closest('[contenteditable]') : null;
+    if (!target || !(target instanceof HTMLElement)) return;
 
+    const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
+    let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
+    if (!pastedText) return;
+
+    // Rich-Text-Light: Plaintext-Paste im Text erhält Zeilenumbrüche, streift aber fremdes HTML/CSS ab
+    if (target.id === 'text') {
       clipboardEvent.preventDefault();
-      const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
-
-      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
-
-      if (isTwoLine) {
-        const maxChars = maxLimit || TWO_LINE_PASTE_MAX;
-        pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
-        if (pastedText.length > maxChars) {
-          pastedText = pastedText.substring(0, maxChars);
-        }
-      } else {
-        pastedText = pastedText.replace(/[\r\n]+/g, ' ');
-        if (maxLimit > 0) {
-          const currentLen = (target.textContent || '').length;
-          const remaining = Math.max(0, maxLimit - currentLen);
-          pastedText = pastedText.substring(0, remaining);
-        }
-      }
-
-      if (!pastedText) return;
-
       const selection = window.getSelection();
       if (!selection?.rangeCount) return;
-      selection.deleteFromDocument();
-      selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
-      selection.collapseToEnd();
-      target.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
 
-    // Längenbegrenzung beim direkten Tippen auf Einzeilern durchsetzen
-    root.addEventListener('input', (e) => {
-      const target = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
-      if (!target || !(target instanceof HTMLElement)) return;
-      if (target.id === 'text') return; // Haupttext bleibt flexibel
-      if (target.id === 'datum') target.dataset.dirty = 'true';
-
-      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
-      if (maxLimit > 0) {
-        const text = target.textContent || '';
-        if (text.length > maxLimit) {
-          target.textContent = text.substring(0, maxLimit);
-          // Cursor sicher ans Ende stellen
-          const range = document.createRange();
-          range.selectNodeContents(target);
-          range.collapse(false);
-          const sel = window.getSelection();
-          sel?.removeAllRanges();
-          sel?.addRange(range);
-        }
+      const lines = pastedText.split(/\r?\n/);
+      const fragment = document.createDocumentFragment();
+      for (const [i, line] of lines.entries()) {
+        if (i > 0) fragment.appendChild(document.createElement('br'));
+        if (line) fragment.appendChild(document.createTextNode(line));
       }
-    });
+      const lastChild = fragment.lastChild;
+      range.insertNode(fragment);
+      if (lastChild) {
+        range.setStartAfter(lastChild);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+
+    if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
+
+    clipboardEvent.preventDefault();
+    const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
+    const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
+
+    if (isTwoLine) {
+      const maxChars = maxLimit || TWO_LINE_PASTE_MAX;
+      pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
+      if (pastedText.length > maxChars) pastedText = pastedText.substring(0, maxChars);
+    } else {
+      pastedText = pastedText.replace(/[\r\n]+/g, ' ');
+      if (maxLimit > 0) {
+        const currentLen = (target.textContent || '').length;
+        pastedText = pastedText.substring(0, Math.max(0, maxLimit - currentLen));
+      }
+    }
+
+    if (!pastedText) return;
+
+    const selection = window.getSelection();
+    if (!selection?.rangeCount) return;
+    selection.deleteFromDocument();
+    selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
+    selection.collapseToEnd();
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  /**
+   * Längenbegrenzung beim direkten Tippen auf Einzeilern.
+   * @param {Event} event
+   */
+  #handleInputLimit(event) {
+    const target = event.target instanceof Element ? event.target.closest('[contenteditable]') : null;
+    if (!target || !(target instanceof HTMLElement)) return;
+    if (target.id === 'text') return; // Haupttext bleibt flexibel
+    if (target.id === 'datum') target.dataset.dirty = 'true';
+
+    const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
+    if (maxLimit <= 0) return;
+
+    const text = target.textContent || '';
+    if (text.length <= maxLimit) return;
+
+    target.textContent = text.substring(0, maxLimit);
+    const range = document.createRange();
+    range.selectNodeContents(target);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
   }
 
   protectAnlagenList() {
@@ -759,6 +772,15 @@ export class DraftManager {
   #unsubSaveRequested = null;
   /** @type {(() => void) | null} */
   #unsubSaveFailed = null;
+  /**
+   * Deterministischer Speicherzustand:
+   * pending  = Änderungen im DOM, noch nicht geschrieben
+   * saving   = Schreibvorgang läuft (synchron bei localStorage)
+   * synced   = letzter Schreibvorgang erfolgreich
+   * error    = letzter Schreibvorgang fehlgeschlagen (Quota/Serde)
+   * @type {'pending' | 'saving' | 'synced' | 'error'}
+   */
+  #saveState = 'synced';
 
   /**
    * @param {ReturnType<typeof import('./core.js').createEventBus> | null} [bus]
@@ -793,25 +815,39 @@ export class DraftManager {
   }
 
   #initLifecycleFlush() {
-    const flush = () => {
-      if (this.debounceTimer !== null) {
-        clearTimeout(this.debounceTimer);
-        this.debounceTimer = null;
-        this.saveDraft();
-      }
-    };
+    const flush = () => this.flushPendingSave();
 
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          flush();
-        }
+        if (document.visibilityState === 'hidden') flush();
       });
     }
 
     if (typeof window !== 'undefined') {
       window.addEventListener('pagehide', flush);
+      // beforeunload ist der letzte synchrone Moment vor dem Verwerfen der Seite.
+      window.addEventListener('beforeunload', flush);
     }
+  }
+
+  /** Aktueller Speicherzustand (pending | saving | synced | error). */
+  get saveState() {
+    return this.#saveState;
+  }
+
+  /**
+   * Schreibt anstehende Änderungen sofort. No-op, wenn nichts offen ist —
+   * verhindert zusätzliche Schreibvorgänge beim bloßen Tab-Wechsel.
+   * @returns {boolean} true, wenn geschrieben wurde
+   */
+  flushPendingSave() {
+    if (this.debounceTimer === null && this.#saveState === 'synced') return false;
+    if (this.debounceTimer !== null) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    this.saveDraft();
+    return true;
   }
 
   /* Bewusste Entscheidung: Kein Web-Locks-Mechanismus (Over-Engineering für
@@ -867,7 +903,9 @@ export class DraftManager {
   saveDraft() {
     const draft = collectDraft();
 
+    this.#saveState = 'saving';
     const saved = saveJSON(STORAGE_KEYS.draft, draft);
+    this.#saveState = saved ? 'synced' : 'error';
     this.#setSaveStatus(saved ? 'saved' : 'error');
     this.#updateDocumentTitle();
 
@@ -1087,6 +1125,7 @@ export class DraftManager {
   }
 
   scheduleAutoSave() {
+    this.#saveState = 'pending';
     this.#setSaveStatus('dirty');
     clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {

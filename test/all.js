@@ -154,6 +154,19 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
   });
 });
 
+describe('DraftManager: Speicherzustand (B53)', () => {
+  it('durchläuft pending -> synced und flush ist idempotent', () => {
+    const dm = new DraftManager();
+    assertEqual(dm.saveState, 'synced', 'frisch erzeugt ist synchron');
+    dm.scheduleAutoSave();
+    assertEqual(dm.saveState, 'pending', 'geplantes Speichern ist pending');
+    assert(dm.flushPendingSave(), 'flush schreibt anstehende Änderungen');
+    assertEqual(dm.saveState, 'synced', 'nach dem Schreiben ist der Zustand synced');
+    assertEqual(dm.flushPendingSave(), false, 'zweiter flush ohne Änderung ist ein No-op');
+    dm.destroy();
+  });
+});
+
 describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('buildDinLetterPayload setzt Schema v3 mit generated_at', () => {
     const payload = buildDinLetterPayload({ betreff: 'Test' });

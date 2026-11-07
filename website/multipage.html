@@ -90,6 +90,16 @@
               <label for="btn-hilfslinien-switch" class="seitenleiste-label">DIN 5008 Hilfslinien</label>
               <input type="checkbox" switch id="btn-hilfslinien-switch">
             </div>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-sensibler-betreff" class="seitenleiste-label">Sensibler Betreff (§ 20.9.2)</label>
+              <input type="checkbox" switch id="toggle-sensibler-betreff">
+            </div>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-teilbetreff" class="seitenleiste-label">Teilbetreff (§ 20.9.3)</label>
+              <input type="checkbox" switch id="toggle-teilbetreff">
+            </div>
           </div>
 
           <hr class="seitenleiste-divider">
@@ -106,8 +116,8 @@
             </div>
 
             <div class="seitenleiste-field-group">
-              <label id="label-postvermerk" for="btn-postvermerk-trigger" class="seitenleiste-label">Postvermerk</label>
-              <select id="seitenleiste-postvermerk-select" class="sr-only" aria-label="Postvermerk wählen" tabindex="-1">
+              <label id="label-postvermerk" for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
+              <select id="seitenleiste-postvermerk-select" class="seitenleiste-select" aria-labelledby="label-postvermerk">
                 <option value="">— kein —</option>
                 <optgroup label="Versandarten">
                   <option value="Einschreiben">Einschreiben</option>
@@ -126,50 +136,6 @@
                   <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
                 </optgroup>
               </select>
-
-              <button id="btn-postvermerk-trigger" type="button" class="seitenleiste-select" popovertarget="postvermerk-popover" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="label-postvermerk postvermerk-trigger-label">
-                <span id="postvermerk-trigger-label">— kein —</span>
-                <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-
-              <div id="postvermerk-popover" popover="auto" class="dropdown-popover nicht-drucken" role="listbox" aria-label="Postvermerk Optionen">
-                <button type="button" class="popover-item popover-item-none" role="option" data-value="" aria-selected="true">
-                  <span class="item-icon" aria-hidden="true">✕</span>
-                  <span class="item-label">— kein —</span>
-                </button>
-
-                <div class="popover-group group-versand" role="group" aria-labelledby="postvermerk-group-versand-label">
-                  <div class="popover-group-header" id="postvermerk-group-versand-label">
-                    <svg class="group-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    <span>Versandarten</span>
-                  </div>
-                  <div class="popover-group-items" role="presentation">
-                    <button type="button" class="popover-item" role="option" data-value="Einschreiben">Einschreiben</button>
-                    <button type="button" class="popover-item" role="option" data-value="Einschreiben Einwurf">Einschreiben Einwurf</button>
-                    <button type="button" class="popover-item" role="option" data-value="Einschreiben Rückschein">Einschreiben Rückschein</button>
-                    <button type="button" class="popover-item" role="option" data-value="Einschreiben Wert">Einschreiben Wert</button>
-                    <button type="button" class="popover-item" role="option" data-value="Warensendung">Warensendung</button>
-                    <button type="button" class="popover-item" role="option" data-value="Büchersendung">Büchersendung</button>
-                    <button type="button" class="popover-item" role="option" data-value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</button>
-                  </div>
-                </div>
-
-                <div class="popover-divider" role="separator"></div>
-
-                <div class="popover-group group-vertraulich" role="group" aria-labelledby="postvermerk-group-vertraulich-label">
-                  <div class="popover-group-header" id="postvermerk-group-vertraulich-label">
-                    <svg class="group-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <span>Vertraulichkeit</span>
-                  </div>
-                  <div class="popover-group-items" role="presentation">
-                    <button type="button" class="popover-item" role="option" data-value="Persönlich">Persönlich</button>
-                    <button type="button" class="popover-item" role="option" data-value="Vertraulich">Vertraulich</button>
-                    <button type="button" class="popover-item" role="option" data-value="Persönlich / Vertraulich">Persönlich / Vertraulich</button>
-                    <button type="button" class="popover-item" role="option" data-value="Nicht nachsenden!">Nicht nachsenden!</button>
-                    <button type="button" class="popover-item" role="option" data-value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -327,7 +293,7 @@
             <din-kern id="kern" data-left="25" data-right="20" data-bottom="30" role="region" aria-label="Briefkern">
               <div id="spacer" contenteditable="false" aria-hidden="true"></div>
               <din-betreff id="betreff" data-font="12" data-margin-bottom="8.46" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
-              <din-teilbetreff id="teilbetreff" class="is-dormant"></din-teilbetreff>
+              <din-teilbetreff id="teilbetreff" data-font="10.5" data-margin-bottom="4.23" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Teilbetreff (endet mit Punkt)" aria-label="Teilbetreff"></din-teilbetreff>
               <din-anrede id="anrede" data-font="10.5" data-margin-bottom="4.23" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
               <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes…" aria-label="Text"></din-text>
               <din-grussformel id="grussformel" data-font="10.5" data-margin-top="4.23" data-margin-bottom="12.69" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>

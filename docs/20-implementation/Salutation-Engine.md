@@ -4,7 +4,7 @@ title: 'Salutation & Logic Engine — 80/20 B2B-Standard (SPEC-002)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-09-30'
+updated: '2026-11-07'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -35,7 +35,9 @@ depends_on: []
 
 > [!NOTE] Implementierungsstatus & Architektur-Update (2026-09-04)
 > Die Anrede- und Grußformel-Logik basiert auf dem **radikalen 80/20 B2B-Prinzip**.
-> **Aktiver Code: `website/js/salutation.js` — das ist bereits die V2** (Zero-Click-Geschlecht aus 951 Vornamen, Adelspartikel-Erhalt, 3 B2B-Pärchen, Dirty-Flag + Auto-Reset). Ein separates `*.smart.js` gibt es **nicht** — die V2 wurde in dieselbe Datei promoviert (Commit `cc12e5d`).
+> **Aktiver Code: `website/js/salutation.js`** (Adelspartikel-Erhalt, 3 B2B-Pärchen, Dirty-Flag + Auto-Reset). Ein separates `*.smart.js` gibt es **nicht** — die V2 wurde in dieselbe Datei promoviert (Commit `cc12e5d`).
+>
+> **Seit 2026-11-07 ohne Vornamensliste:** Das Geschlecht kommt ausschließlich aus einem expliziten `Herr`/`Frau` im Namensfeld. Ohne Präfix wird der Name im Text genannt (`Guten Tag Anna Müller,`), aber nie aus dem Vornamen auf das Geschlecht geschlossen. Die frühere Liste mit 951 Vornamen ist entfernt (Backlog #18, siehe [[DECISION-LOG]]).
 >
 > **Kern-Regel:** Klare Standard-Pärchen ohne Titel-Akrobatik. Alles Weitere übersteuert der Nutzer bei Bedarf direkt per ContentEditable auf dem Briefbogen (`data-dirty="true"`).
 
@@ -47,7 +49,7 @@ Um Fehlentscheidungen und wiederkehrende Diskussionen zu vermeiden, dokumentiert
 
 | Aspekt | Früherer Stand (Legacy) | Neuer 80/20 B2B-Standard | Warum geändert? (Begründung) |
 | :--- | :--- | :--- | :--- |
-| **Geschlechtserkennung** | Nur wenn Nutzer explizit `"Herr "` / `"Frau "` voranstellte oder unsichtbare Radio-Buttons klickte. | **Zero-Click:** 951 Vornamen aus `website/data/de_vornamen_gender.json.gz` (~2,9 KB gzip, `NAME_INDEX`). | Bei Eingabe wie „Thomas Müller“ scheiterte die alte Engine und fiel auf „Damen und Herren“ zurück. |
+| **Geschlechtserkennung** | Nur wenn Nutzer explizit `"Herr "` / `"Frau "` voranstellte oder unsichtbare Radio-Buttons klickte. | **Präfix oder neutral:** `Herr`/`Frau` entscheidet. Ohne Präfix nennt die Anrede den Namen (`Guten Tag Anna Müller,`), rät aber kein Geschlecht. Die zwischenzeitliche Vornamensliste (951 Einträge) ist am 2026-11-07 entfallen. | Eine Vornamensliste deckt weder Herkunft noch Schreibweise ab und rät im Zweifel falsch — „lieber neutral als falsch“ ist die Hausregel. |
 | **Der „Herr “-Tippbug** | Bei beginnender Eingabe (`"herr "`) erzeugte der Splitter fehlerhaften Kauderwelsch (`"Hallo herr,"`). | **In-Flight Guard:** Wartet bei reinem Präfix ab und liefert sauberen Zwischenzustand (`"Sehr geehrter Herr,"`). | Verhindert peinliche oder verwirrende Text-Glitches während des Schreibens. |
 | **Titel (Dr., Prof.)** | Greedy Regex versuchte Titel krampfhaft in die Anrede einzubauen (`"Frau Prof. Dr. Schmidt"`). | **Standard ohne Titel:** Titel werden im Standard gestrippt. Manuelle Zusätze trägt der Nutzer direkt per Hand ein. | Reduziert Code-Komplexität drastisch; Titel-Regeln sind im B2B-Alltag hochgradig individuell. |
 | **Adelspartikel** | Schnitt nur das letzte Wort ab: `"von Bismarck"` verlor das `"von"` (`"Herr Bismarck"`). | **Partikel-Erhalt:** Erkennt `von`, `zu`, `van`, `de`, `von und zu` und hängt sie an den Nachnamen an. | Entspricht der korrekten deutschen Höflichkeits- und Namenskonvention (`"Herr von Bismarck"`). |

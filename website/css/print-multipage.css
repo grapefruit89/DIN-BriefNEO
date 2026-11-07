@@ -121,6 +121,10 @@ body:has(#btn-form-a:checked) #spacer {
   height: 80.46mm !important; /* Form A */
 }
 
+din-teilbetreff:empty {
+    display: none !important;
+}
+
 [contenteditable]:empty::before,
 [data-placeholder]:empty::before,
 [placeholder]:empty::before {

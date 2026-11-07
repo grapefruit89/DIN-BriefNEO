@@ -18,6 +18,14 @@ import { Constants, Events, eventBus } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
+/**
+ * Vorschlags-Limit: schmale Viewports bekommen weniger Einträge.
+ * Die Zahl ist Datenlogik (wie viele Treffer die Liste aufnimmt), keine Layout-Regel —
+ * deshalb hier zentral und nicht im CSS.
+ */
+const SUGGESTION_BREAKPOINT_PX = 600;
+const maxSuggestions = () => (window.innerWidth < SUGGESTION_BREAKPOINT_PX ? 8 : 12);
+
 /* =========================================================================================
  * 1. NATIVE GZIP DECOMPRESSION (DecompressionStream API)
  * ========================================================================================= */
@@ -890,7 +898,7 @@ export class AddressIntelligence {
 
       if (debounceTimer) clearTimeout(debounceTimer);
 
-      const maxItems = window.innerWidth < 600 ? 8 : 12;
+      const maxItems = maxSuggestions();
 
       // 0–2 Zeichen: Nichts anzeigen & Popover leeren
       if (rawText.length < 3) {
@@ -968,7 +976,7 @@ export class AddressIntelligence {
           empfOrtEl.textContent = completed;
           empfOrtEl.setAttribute('data-autofilled', 'true');
           AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
-          AddressIntelligence.#moveCaretToEnd(empfOrtEl);
+          setCaretToEnd(empfOrtEl);
           eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
           AddressIntelligence.#hidePopover(suggestionsPopover);
           suggestionsPopover.replaceChildren();
@@ -1003,7 +1011,7 @@ export class AddressIntelligence {
         }
 
         debounceTimer = setTimeout(() => {
-          const maxItems = window.innerWidth < 600 ? 8 : 12;
+          const maxItems = maxSuggestions();
           /** @type {Array<any>} */
           const matches = AddressIntelligence.firmenIndex ? AddressIntelligence.firmenIndex.search(rawText, maxItems) : [];
           if (matches.length > 0) {
@@ -1159,7 +1167,7 @@ export class AddressIntelligence {
           if (res?.note) {
             eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: res.note, type: 'info' });
           }
-          AddressIntelligence.#moveCaretToEnd(anchorEl || ortEl);
+          setCaretToEnd(anchorEl || ortEl);
           eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
           AddressIntelligence.#hidePopover(popoverEl);
         };
@@ -1180,7 +1188,7 @@ export class AddressIntelligence {
 
       // Hinweiszeile wenn mehr Treffer als Limit vorhanden (NICHT bei reinen PLZ-Listen einer Stadt!)
       // Valide ARIA-Hierarchie: Als li[role="option"][aria-disabled="true"] im ul[role="listbox"]
-      const maxItems = window.innerWidth < 600 ? 8 : 12;
+      const maxItems = maxSuggestions();
       if (!isPlzList && totalCount > maxItems) {
         const hintLi = document.createElement('li');
         hintLi.className = 'suggestion-hint';
@@ -1207,14 +1215,6 @@ export class AddressIntelligence {
     try {
       /** @type {HTMLElement & { hidePopover: () => void }} */ (el).hidePopover();
     } catch {}
-  }
-
-  /**
-   * Sets cursor to the end of a contenteditable element.
-   * @param {HTMLElement} el
-   */
-  static #moveCaretToEnd(el) {
-    setCaretToEnd(el);
   }
 }
 
@@ -1711,12 +1711,8 @@ export class ClipboardAddressParser {
 
             const selectCandidate = () => {
               ClipboardAddressParser.applyCandidate(cand);
-              try {
-                // @ts-ignore
-                popover.hidePopover();
-              } catch {
-                popover.classList.remove('active');
-              }
+              // @ts-ignore
+              popover.hidePopover();
             };
 
             item.addEventListener('click', selectCandidate);
@@ -1730,12 +1726,8 @@ export class ClipboardAddressParser {
             popover.appendChild(item);
           });
 
-          try {
-            // @ts-ignore
-            popover.showPopover();
-          } catch {
-            popover.classList.add('active');
-          }
+          // @ts-ignore
+          popover.showPopover();
         } else {
           notify(Constants.TOASTS.CLIPBOARD.MULTIPLE(candidates.length), 'warning');
         }

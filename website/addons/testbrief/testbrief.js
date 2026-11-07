@@ -11,7 +11,7 @@
  * es bereinigt und wählt aus. Fehlt ein Fakt, entfällt die Aussage.
  */
 
-import { eventBus, Events } from '../../js/core.js';
+import { Events, eventBus } from '../../js/core.js';
 import { applyLetterDate } from '../../js/persistence.js';
 import { SalutationEngine } from '../../js/salutation.js';
 

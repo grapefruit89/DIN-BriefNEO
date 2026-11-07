@@ -1,16 +1,17 @@
 // test/all.js — Testdatei für test/index.html. Priorität: der kritischste Pfad
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
-import { describe, it, assert, assertEqual, run } from './runner.js';
-import { DraftManager, UIProtections, formatTelefonnummer } from '../website/js/document.js';
-// @ts-ignore
-import { STORAGE_KEYS, load, save, remove, loadJSON, saveJSON, migrateStorage, buildDinLetterPayload, parseDinLetterPayload, DINLETTER_FORMAT, buildDINLetterJSON, registerDraftCollector } from '../website/js/persistence.js?v=test2';
-import { createEventBus, eventBus, Events, initToastSystem, Constants } from '../website/js/core.js';
-import { SalutationEngine } from '../website/js/salutation.js';
-import { normalizePostcode, resolvePostcode, resolveCity, filterPostcodePrefix, detectPlzInputPattern, ClipboardAddressParser, AddressIntelligence, buildPrefixIndex, buildOrtIndex, buildFirmenIndex } from '../website/js/address.js';
-import { SettingsManager } from '../website/js/settings.js';
-import { saveBlob, loadBlob, deleteBlob } from '../website/js/binary-storage.js';
+
 import { setField as setTestbriefField } from '../website/addons/testbrief/testbrief.js';
+import { AddressIntelligence, buildFirmenIndex, buildOrtIndex, buildPrefixIndex, ClipboardAddressParser, detectPlzInputPattern, filterPostcodePrefix, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
+import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
+import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
+import { DraftManager, formatTelefonnummer, UIProtections } from '../website/js/document.js';
+// @ts-ignore
+import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, load, loadJSON, migrateStorage, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { SalutationEngine } from '../website/js/salutation.js';
+import { SettingsManager } from '../website/js/settings.js';
+import { assert, assertEqual, describe, it, run } from './runner.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
 const DRAFT_KEY = STORAGE_KEYS.draft;
@@ -1176,7 +1177,8 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
   });
 
   it('rekonstruiert Bindestrich-Doppelnamen und Adelspartikel robust (TC-01)', () => {
-    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'formal' }), 'Sehr geehrter Herr von Müller-Lüdenscheidt,');
+    // Ohne Herr/Frau-Präfix wird kein Geschlecht aus dem Vornamen geraten (Backlog #18).
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'formal' }), 'Guten Tag Hans-Peter von Müller-Lüdenscheidt,');
     assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'casual' }), 'Hallo Hans-Peter,');
     assertEqual(SalutationEngine.derive({ rawName: 'Dipl.-Ing. Heinz e.K.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
     assertEqual(SalutationEngine.derive({ rawName: 'Musterholding GmbH & Co. KG', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
@@ -1200,7 +1202,7 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
     // Initialen bei Frau/Herr
     assertEqual(SalutationEngine.derive({ rawName: 'Frau E. K. Meier', formality: 'formal' }), 'Sehr geehrte Frau Meier,');
     assertEqual(SalutationEngine.derive({ rawName: 'Herr Dipl.-Ing. Hans J. Müller', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
-    assertEqual(SalutationEngine.derive({ rawName: 'Müller, M.Sc. Anna', formality: 'formal' }), 'Sehr geehrte Frau Müller,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Müller, M.Sc. Anna', formality: 'formal' }), 'Guten Tag Anna Müller,');
     // Turnverein ohne Herr/Frau bleibt neutral
     assertEqual(SalutationEngine.derive({ rawName: 'Turnverein Bonn 1860', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
     // UG (haftungsbeschränkt) wird als Organisation erkannt

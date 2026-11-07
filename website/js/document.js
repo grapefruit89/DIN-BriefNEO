@@ -250,6 +250,11 @@ function prefixLength(digits) {
  * 2. UI PROTECTIONS (Zeilenlimits, Paste-Schutz, Anlagen-Struktur)
  * ========================================================================================= */
 
+/** Fallback-Länge für Einzeiler ohne eigenen Eintrag in FIELD_MAX_LENGTHS. */
+const SINGLE_LINE_MAX = 50;
+/** Obergrenze für eingefügten Text in zweizeiligen Feldern. */
+const TWO_LINE_PASTE_MAX = 130;
+
 const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'rucksendeangabe': 85,
   'empfaenger-firma': 50,
@@ -264,6 +269,7 @@ const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'vermerke': 80,
   'datum': 35,
   'betreff': 140,
+  'teilbetreff': 140,
   'anrede': 70,
   'grussformel': 45,
   'unterschrift': 45
@@ -400,10 +406,10 @@ export class UIProtections {
       clipboardEvent.preventDefault();
       const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
 
-      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? 50 : 0);
+      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
 
       if (isTwoLine) {
-        const maxChars = maxLimit || 130;
+        const maxChars = maxLimit || TWO_LINE_PASTE_MAX;
         pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
         if (pastedText.length > maxChars) {
           pastedText = pastedText.substring(0, maxChars);
@@ -434,7 +440,7 @@ export class UIProtections {
       if (target.id === 'text') return; // Haupttext bleibt flexibel
       if (target.id === 'datum') target.dataset.dirty = 'true';
 
-      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? 50 : 0);
+      const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
       if (maxLimit > 0) {
         const text = target.textContent || '';
         if (text.length > maxLimit) {
@@ -708,6 +714,11 @@ export function collectDraft() {
     draft['toggle-fuss'] = fussSwitch.checked;
   }
 
+  const teilbetreffSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-teilbetreff'));
+  if (teilbetreffSwitch) {
+    draft['toggle-teilbetreff'] = teilbetreffSwitch.checked;
+  }
+
   return draft;
 }
 
@@ -919,12 +930,20 @@ export class DraftManager {
     }
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {
-      pvSelect.selectedIndex = 0;
+      // Auswahlliste folgt dem Feld — sonst zeigt sie nach einem Restore „kein“,
+      // während der Vermerk im Brief steht.
+      pvSelect.value = (postvermerk?.textContent || '').trim();
+      if (pvSelect.selectedIndex === -1) pvSelect.selectedIndex = 0;
     }
 
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch && 'toggle-anlagen' in draft) {
       anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
+    }
+
+    const teilbetreffSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-teilbetreff'));
+    if (teilbetreffSwitch) {
+      teilbetreffSwitch.checked = draft['toggle-teilbetreff'] === true || draft['toggle-teilbetreff'] === 'true';
     }
 
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
@@ -1051,7 +1070,6 @@ export class DraftManager {
     if (!el) return;
     el.classList.remove('saved', 'dirty', 'error');
     el.classList.add(state);
-    el.dataset.state = state;
     const labels = { saved: 'Gespeichert', dirty: 'Speichern…', error: 'Fehler beim Speichern!' };
     el.textContent = labels[state];
     el.title = labels[state];

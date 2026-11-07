@@ -40,7 +40,14 @@ try {
       marks.checked = settings.marks !== false;
     }
 
-    return Boolean(guides && marks);
+    const sensitive = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('toggle-sensibler-betreff')
+    );
+    if (sensitive) {
+      sensitive.checked = settings.sensitiveSubject === true;
+    }
+
+    return Boolean(guides && marks && sensitive);
   };
 
   // Stehen die Schalter schon (Script nach ihnen geladen)? Dann direkt setzen.

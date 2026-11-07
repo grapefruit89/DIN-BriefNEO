@@ -2478,3 +2478,57 @@ CSSOM-Zuweisungen (`el.style.top`, `style.setProperty`) laufen unter `style-src 
 unbeanstandet, ein `<style>`-Element dagegen gar nicht. Wer CSP-Fehler behebt, muss die
 Ebene kennen — Element, Sheet oder CSSOM —, sonst tauscht man einen toten Weg gegen einen
 anderen.
+
+## 2026-11-07 — Anrede rät kein Geschlecht mehr: Vornamenslisten entfernt
+
+**Kontext.** `website/js/salutation.js` trug zwei Inline-Sets mit 951 deutschen Vornamen
+(408 m, 543 w) in je einer Zeile, während die Dateikopf-Regel 1 „Keine Namensliste“ behauptete.
+Der Widerspruch war im Audit vom 2026-11-05 (Befund 6.3) vermerkt, aber nicht entschieden.
+Zusätzlich behauptete [[Salutation-Engine]], die Namen kämen aus
+`website/data/de_vornamen_gender.json.gz` — diese Datei existiert im Repo nicht.
+
+**Entscheidung.** Beide Sets sind gelöscht, mitsamt der Ableitung „Vorname → Geschlecht“
+(Schritt 6 in `derive()`). Das Geschlecht stammt jetzt ausschließlich aus `Herr`/`Herrn`/`Frau`;
+sonst nennt die Anrede den Namen (`Guten Tag Anna Müller,`) oder bleibt neutral.
+
+**Beleg.** `grep -c "MALE_NAMES\|FEMALE_NAMES" website/js/salutation.js` → 0; Datei 409 → 384
+Zeilen. Zwei Testerwartungen in `test/all.js` auf das neue Verhalten umgestellt; Suite 129/133
+wie vor der Änderung (die 4 Fehlschläge sind vorbestehend, per `git stash` gegengeprüft).
+
+**Grenze.** Ein einwortiger Name („Thomas“) wird nicht mehr als Vorname gedeutet: formal
+„Sehr geehrte Damen und Herren,“, casual „Hallo,“. Ohne Liste ist nicht entscheidbar, ob das
+Wort Vor- oder Nachname ist — neutral ist die ehrlichere Ausgabe.
+
+**Generalisierung.** Eine Heuristik, die 100 % der Fälle abdecken soll, aber nur 80 % trifft,
+ist teurer als keine: sie kostet Pflege, veraltet still und erzeugt falsche Anreden. Für
+`llm_boilerplate`: Nachschlagelisten, die nur raten, gehören nicht in den Startpfad.
+
+## 2026-11-07 — Postvermerk nativ, JS-Reste abgeräumt
+
+**Kontext.** Der Postvermerk war doppelt gebaut: ein verstecktes `<select>` mit allen Optionen
+und Gruppen, daneben ein nachgebautes Popover (Button + 9 Options-Buttons + eigener
+Arrow/Escape-Handler). Die CSS-Regeln `appearance: base-select` und
+`.seitenleiste-select::picker(select)` hingen am **Button**, nicht am `<select>` — sie liefen
+seit dem Einbau ins Leere.
+
+**Änderung.** Das `<select>` ist jetzt das sichtbare Bedienelement (`class="seitenleiste-select"`,
+Label per `aria-labelledby`), Button, Popover, Trigger-Label, `aria-selected`-Pflege und die
+komplette Tastatur-Navigation sind entfernt (`website/index.html`, `website/multipage.html`,
+`website/js/main.js`, `website/css/sidebar.css`). Ein `change`-Listener deckt Maus, Tastatur
+und Picker ab. Beim Restore setzt `DraftManager` die Liste jetzt aus dem Feldtext — vorher
+sprang sie auf „kein“, während der Vermerk im Brief stand.
+
+**Mit abgeräumt (gleiche Ursache: JS baut nach, was CSS/HTML kann).**
+`data-state` am Save-Status (CSS nutzt nur Klassen), doppeltes `title`/`aria-label` am
+Settings-Schalter, toter `.active`-Fallback nach `showPopover()`, redundanter
+`window.resize`-Listener neben dem `ResizeObserver`, dreifach duplizierter 600-px-Breakpoint
+(jetzt `maxSuggestions()`), `#moveCaretToEnd`-Wrapper und die Magic Numbers 50/130
+(`SINGLE_LINE_MAX`, `TWO_LINE_PASTE_MAX`).
+
+**Beleg.** Smoke-Test gegen `http://127.0.0.1:8769/website/index.html` (headless, CDP):
+Select sichtbar, 2 Optgroups, Popover/Button nicht mehr im DOM, Auswahl schreibt
+`Einschreiben` ins Feld mit `data-visible="true"`. Fitness Gate 100 %, Biome 0 Fehler.
+
+**Generalisierung.** „Modernes CSS nutzen“ heißt auch: die Klasse muss am Element hängen, das
+das Feature trägt. Ein `appearance: base-select` auf einem `<button>` ist kein Fallback, sondern
+toter CSS-Text mit dem Anschein von Funktion.

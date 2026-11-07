@@ -51,6 +51,7 @@ export class SettingsManager {
     this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
+    this.btnSensitiveSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-sensibler-betreff'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
@@ -136,7 +137,6 @@ export class SettingsManager {
     const label = document.querySelector('label[for="toggle-modus"]');
     if (label) {
       label.setAttribute('aria-pressed', String(isChecked));
-      label.setAttribute('title', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
       label.setAttribute('aria-label', isChecked ? 'Einstellungen schließen' : 'Einstellungen');
     }
   }
@@ -313,6 +313,15 @@ export class SettingsManager {
       marksSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
         this.settings.marks = marksSwitch.checked;
+        this.updateSettings();
+      });
+    }
+
+    const sensitiveSwitch = this.btnSensitiveSwitch;
+    if (sensitiveSwitch) {
+      sensitiveSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.sensitiveSubject = sensitiveSwitch.checked;
         this.updateSettings();
       });
     }

@@ -11,38 +11,26 @@ import { SalutationFeature } from './salutation.js';
 import { SettingsManager, SignatureFeature } from './settings.js';
 
 /**
- * Synchronisiert die Postvermerk-Auswahl mit dem Blattfeld und dem Popover-Trigger.
+ * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
+ * Das Feld ist die Wahrheit (Sichtbarkeit folgt aus seinem Text), die Liste
+ * ist nur Bedienoberfläche.
  * @param {string} [value]
  */
 function syncPostvermerkFromSidebar(value) {
   const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
-  const triggerLabel = document.getElementById('postvermerk-trigger-label');
-  const triggerBtn = document.getElementById('btn-postvermerk-trigger');
-  const popover = document.getElementById('postvermerk-popover');
   const field = document.getElementById('vermerke');
   if (!field) return;
 
   const val = typeof value === 'string' ? value : (sel?.value ?? '');
+  if (sel && sel.value !== val) sel.value = val;
+
   if (!val) {
     field.textContent = '';
     field.removeAttribute('data-visible');
-    if (sel) sel.value = '';
-    if (triggerLabel) triggerLabel.textContent = '— kein —';
-    if (triggerBtn) triggerBtn.removeAttribute('data-active');
-  } else {
-    field.textContent = val;
-    field.setAttribute('data-visible', 'true');
-    if (sel && sel.value !== val) sel.value = val;
-    if (triggerLabel) triggerLabel.textContent = val;
-    if (triggerBtn) triggerBtn.setAttribute('data-active', 'true');
+    return;
   }
-
-  if (popover) {
-    popover.querySelectorAll('.popover-item').forEach(item => {
-      const isSelected = (item.getAttribute('data-value') || '') === val;
-      item.setAttribute('aria-selected', String(isSelected));
-    });
-  }
+  field.textContent = val;
+  field.setAttribute('data-visible', 'true');
 }
 
 if (document.readyState === 'loading') {
@@ -276,56 +264,15 @@ function initApp() {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }
     });
+    // Natives select: ein change-Event deckt Maus, Tastatur und Picker ab.
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {
-      pvSelect.addEventListener('click', (e) => {
-        const option = e.target instanceof Element ? e.target.closest('option') : null;
-        if (!option) return;
-        syncPostvermerkFromSidebar(/** @type {HTMLOptionElement} */ (option).value);
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
-      });
       pvSelect.addEventListener('change', () => {
         syncPostvermerkFromSidebar(pvSelect.value);
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
 
-    // Native HTML Popover Integration für Postvermerk
-    const pvPopover = /** @type {HTMLElement & { hidePopover: () => void } | null} */ (document.getElementById('postvermerk-popover'));
-    const pvTrigger = document.getElementById('btn-postvermerk-trigger');
-    if (pvPopover && pvTrigger) {
-      pvPopover.addEventListener('toggle', (e) => {
-        const isOpen = /** @type {ToggleEvent} */ (e).newState === 'open';
-        pvTrigger.setAttribute('aria-expanded', String(isOpen));
-      });
-
-      pvPopover.addEventListener('click', (e) => {
-        const btn = /** @type {HTMLElement | null} */ (e.target)?.closest('.popover-item');
-        if (!btn) return;
-        const val = btn.getAttribute('data-value') || '';
-        syncPostvermerkFromSidebar(val);
-        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
-        try { pvPopover.hidePopover(); } catch(_) {}
-      });
-
-      pvPopover.addEventListener('keydown', (e) => {
-        const items = /** @type {HTMLElement[]} */ (Array.from(pvPopover.querySelectorAll('.popover-item')));
-        const active = document.activeElement;
-        const idx = items.indexOf(/** @type {HTMLElement} */ (active));
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          const next = idx < items.length - 1 ? idx + 1 : 0;
-          items[next]?.focus();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          const prev = idx > 0 ? idx - 1 : items.length - 1;
-          items[prev]?.focus();
-        } else if (e.key === 'Escape') {
-          try { pvPopover.hidePopover(); } catch(_) {}
-          pvTrigger.focus();
-        }
-      });
-    }
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {

@@ -80,6 +80,7 @@ export function currentISODate() {
  * @property {boolean} guides
  * @property {boolean} [marks]
  * @property {boolean} [copyfit]
+ * @property {boolean} [sensitiveSubject]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
@@ -94,6 +95,7 @@ export const DEFAULT_SETTINGS = {
   guides: false,
   marks: true,
   copyfit: false,
+  sensitiveSubject: false,
   formality: 'formal'
 };
 

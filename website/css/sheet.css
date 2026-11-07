@@ -225,6 +225,18 @@ body:has(#btn-form-a:checked) din-blatt {
     margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 2 Leerzeilen */
     text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
     flex-shrink: 0;
+    transition: margin-top 0.15s ease-out;
+  }
+
+  /* Teilbetreff nach DIN 5008 § 20.9.3: fett, endet mit Punkt, klebt am Folgetext. */
+  din-teilbetreff {
+    display: block;
+    font-size: --pt(attr(data-font type(<number>)));
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>)));
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   #anrede {
@@ -363,6 +375,21 @@ din-empfaenger-strasse:empty {
 :root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-2,
 :root:not(:has(#toggle-falzmarken:checked)) din-lochmarke {
   display: none !important;
+}
+
+/* --- SENSIBLER BETREFF (DIN 5008 § 20.9.2) ---
+   Zwei zusätzliche Leerzeilen (2 × 4,23 mm) schieben den Betreff aus dem
+   Sichtfenster eines Fensterumschlags. Der Infoblock bleibt unberührt, weil
+   nur der Betreff selbst verschiebt. */
+:root:has(#toggle-sensibler-betreff:checked) #betreff {
+  margin-top: 8.46mm;
+}
+
+/* --- TEILBETREFF (DIN 5008 § 20.9.3) ---
+   Standardmäßig aus: ein Brief ohne Zwischenüberschrift soll keine leere
+   Zeile drucken. Die Sichtbarkeit ist reine CSS-Ableitung aus dem Schalter. */
+:root:not(:has(#toggle-teilbetreff:checked)) din-teilbetreff {
+  display: none;
 }
 
 /* DIN 5008 Maße Overlay an den Marken */

@@ -141,7 +141,6 @@
 
   // Observer & Listener
   new ResizeObserver(aktualisieren).observe(kern);
-  window.addEventListener('resize', aktualisieren);
   window.addEventListener('beforeprint', aktualisieren);
 
   for (const id of ['empfaenger-name', 'empfaenger-firma', 'datum', 'betreff', 'text']) {

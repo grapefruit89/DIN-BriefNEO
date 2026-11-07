@@ -47,6 +47,11 @@ din-blatt {
     display: none !important;
 }
 
+/* Ein eingeschalteter, aber leerer Teilbetreff darf keine Leerzeile drucken. */
+din-teilbetreff:empty {
+    display: none !important;
+}
+
 [contenteditable] {
     outline: none !important;
     box-shadow: none !important;

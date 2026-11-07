@@ -19,8 +19,41 @@
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
 | **10** | **Mikro-Typografie nach DIN 5008 (§ 7.2 & § 8.2)** | S–M | ⭐⭐⭐⭐⭐ | [`10-mikro-typografie-autokorrektur-plan.md`](10-mikro-typografie-autokorrektur-plan.md) | Ausgearbeitet (Geschützte Leerzeichen & Gedankenstrich) |
-| **11** | **Sensibler Betreff (§ 20.9.2 Kuvertschutz)** | XS | ⭐⭐⭐⭐ | [`11-sensibler-betreff-plan.md`](11-sensibler-betreff-plan.md) | Ausgearbeitet (2 Leerzeilen Tieferstellung via CSS `:has`) |
-| **12** | **Teilbetreff nach DIN 5008 (§ 20.9.3)** | XS–S | ⭐⭐⭐ | [`12-teilbetreff-plan.md`](12-teilbetreff-plan.md) | Ausgearbeitet (Zwischenüberschriften im Text) |
+| **11** | **Sensibler Betreff (§ 20.9.2 Kuvertschutz)** | XS | ⭐⭐⭐⭐ | [`11-sensibler-betreff-plan.md`](11-sensibler-betreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + CSS `:has`, `sensitiveSubject`) |
+| **12** | **Teilbetreff nach DIN 5008 (§ 20.9.3)** | XS–S | ⭐⭐⭐ | [`12-teilbetreff-plan.md`](12-teilbetreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + contenteditable, `break-after: avoid`) |
+| **13** | **Review 2026-11-06: Optimierungen (validiert)** | — | ⭐⭐⭐⭐ | [`13-review-2026-11-06-optimierungen.md`](13-review-2026-11-06-optimierungen.md) | Validiert, Entscheidungen getroffen |
+| **14** | **JSON-Schema für das Brief-Payload (B36)** | S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Validiert; nur bei externem Bedarf |
+| **15** | **Export .txt / .md (.docx zurückgestellt)** | XS–S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Lücke bestätigt (nur JSON + Druck) |
+| **16** | **Quota-Monitoring (`storage.estimate`) + `persist()` entkoppeln** | XS | ⭐⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Überschneidet B54/B55 |
+| **17** | **Web Share API** | XS | ⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Nur mit Plan 03 (Mobile) |
+| **18** | **salutation.js: Namenslisten (951) entfernen oder begrenzen** | S–M | ⭐⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Listen ersatzlos entfernt |
+| **19** | **debug-panel.js reduzieren (1029 → ~50 Zeilen)** | M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Nur Debug-Tool |
+| **20** | **Multi-Tab-Sync entfernen oder vollständig bauen** | XS–M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Halbe Lösung |
+| **21** | **Enter-Handler/addressFlow entfernen** | XS | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Tab-Order reicht |
+| **22** | **#seedAuto entfernen** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Nur Optik |
+| **23** | **initApp try/catch bündeln** | S | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Lesbarkeit |
+| **24** | **Toast auf CSS-Auto-Dismiss reduzieren** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Opportunistisch beim core.js-Anfassen |
+| **25** | **Postvermerk: Custom-Popover durch natives `<select>` ersetzen** | M | ⭐⭐⭐⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt 2026-11-07 (natives `<select>`, Button + Popover entfernt) |
+| **26** | **Save-Status: ungenutztes `data-state` entfernen** | XS | ⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt (Attribut entfernt) |
+| **27** | **toggleSettingsModus: `title` doppelt zu `aria-label`** | XS | ⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt (nur `aria-label`) |
+| **28** | **Toten `.active`-Fallback nach `showPopover()` entfernen** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (Fallback entfernt) |
+| **29** | **Signatur-Bbox: globalen `pointerdown` durch CSS `:hover`/`:focus-within` ersetzen** | S | ⭐⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | Ein document-Listener weniger |
+| **30** | **`.ac-*`-Typklassen: `data-typ` + CSS für beide Listen** | XS | ⭐⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | Haupt-Popover derzeit ungestylt |
+| **31** | **Redundanten `window.resize`-Listener entfernen** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (Listener entfernt) |
+| **32** | **Breakpoint 600px zentralisieren** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (`maxSuggestions()`) |
+| **33** | **address.js in 4 Module aufteilen (2176 Z.)** | M | ⭐⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Vier Concerns, ein Modul |
+| **34** | **wireDOM: 110-Z.-Inline-Handler herausziehen** | S | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | 235 Z. Verdrahtung |
+| **35** | **ClipboardAddressParser prüfen (~311 Z.)** | S–M | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Entscheidung nötig |
+| **36** | **Kompatibilitäts-Wrapper entfernen (2× 11 Z.)** | XS | ⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Nur Tests importieren sie |
+| **37** | **webmcp-bridge: entfernen oder verdrahten (CSP vs. `ws://`)** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Tot, aber nicht entschieden |
+| **38** | **charactere.json: Datenfehler, Gzip, Dateiname** | S | ⭐⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Sauron=Tom Riddle, Duplikate, null/"" |
+| **39** | **llms.txt: Container-Ankündigung streichen oder TODO** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Zeile 16, LLM-Crawler |
+| **40** | **Build-Strategie dokumentieren (Zero-Build bewusst oder esbuild)** | XS | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Nirgends dokumentiert |
+| **41** | **sheet-common.css: 43 gemeinsame Selektoren zusammenführen** | S–M | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Druck-Regressionsrisiko |
+| **42** | **Biome-Lauf in die CI hängen (`biome.json` existiert, läuft nie)** | XS | ⭐⭐ | [`21-tooling-review.md`](21-tooling-review.md) | ✅ Umgesetzt (CI-Schritt, Biome 2.6.3) |
+| **43** | **`#moveCaretToEnd`-Wrapper entfernen** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (Wrapper entfernt) |
+| **44** | **Magic Numbers 50/130 als Konstanten** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (benannte Konstanten) |
+| **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | Optional |
 
 ---
 

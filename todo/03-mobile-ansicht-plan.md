@@ -169,3 +169,9 @@ Für `#anschrift-vorschlaege` und `#plz-suggestions-popover` deklarative Fallbac
 | `virtualKeyboardPolicy` | MDN / W3C VirtualKeyboard API |
 | Container Queries und `cqi` | Chrome for Developers / web.dev |
 | Anchor Positioning Fallbacks | Chrome for Developers (Chrome 143+) |
+
+## Messung 2026-11-06
+
+- Seitenleiste fix: --seitenleiste-breite 18.75rem (base.css:172), inline-size/min/max in sidebar.css:13-15.
+- 8 Media Queries im gesamten CSS, keine einzige zu Viewport-Breite (nur print, prefers-reduced-motion, forced-colors).
+- touch-action: pan-y auf der Leiste (sidebar.css:27), touch-action: none auf dem Blatt.

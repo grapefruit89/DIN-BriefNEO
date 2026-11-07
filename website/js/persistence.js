@@ -660,7 +660,8 @@ export function initImportExport({ collectDraft } = {}) {
   const notify = (msg, type = 'info') => eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
 
   const handleExport = async () => {
-    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
+    // Kein DOCUMENT_SAVE_REQUESTED: das Payload entsteht direkt aus dem DOM
+    // (collectDraft). Der Request löste nur einen zweiten Speichervorgang aus (B47).
     const payload = buildDINLetterJSON(collectDraft);
     await exportDocumentToFile(payload);
   };
@@ -721,7 +722,7 @@ export function initImportExport({ collectDraft } = {}) {
       return;
     }
     try {
-      saveJSON(STORAGE_KEYS.draft, pendingImport.fields);
+      const draftGespeichert = saveJSON(STORAGE_KEYS.draft, pendingImport.fields);
       const currentSettings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS) || DEFAULT_SETTINGS;
       /** @type {Record<string, any>} */
       const nextSettings = { ...currentSettings };
@@ -735,7 +736,14 @@ export function initImportExport({ collectDraft } = {}) {
       if (pendingImport.signature?.transform) {
         nextSettings.signatureState = { ...pendingImport.signature.transform };
       }
-      saveJSON(STORAGE_KEYS.settings, nextSettings);
+      const settingsGespeichert = saveJSON(STORAGE_KEYS.settings, nextSettings);
+      // saveJSON gibt bei vollem Speicher false zurück statt zu werfen (B55).
+      // Ohne diese Prüfung meldet der Dialog Erfolg und der Reload verwirft den Import.
+      if (!draftGespeichert || !settingsGespeichert) {
+        notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
+        pendingImport = null;
+        return;
+      }
       migrateStorage();
       pendingImport = null;
       location.reload();

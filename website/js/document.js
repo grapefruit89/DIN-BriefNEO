@@ -326,8 +326,13 @@ export class UIProtections {
         if (target.dataset.feldtyp?.includes('mehrzeilig')) {
           return;
         } else if (target.dataset.feldtyp?.includes('zweizeilig')) {
-          const text = target.textContent ?? '';
-          if (text.split('\n').length >= 2) {
+          // textContent kennt weder <br> noch <div> als Umbruch — der Guard feuerte
+          // deshalb nie (B41). Gezählt werden alle drei Umbruchformen, ohne
+          // Layout-Read (innerText würde A49 verletzen).
+          const textUmbruch = (target.textContent || '').split('\n').length - 1;
+          const harteUmbruch = target.querySelectorAll('br').length;
+          const blockUmbruch = target.querySelectorAll(':scope > div, :scope > p').length;
+          if (textUmbruch + harteUmbruch + blockUmbruch >= 1) {
             keyboardEvent.preventDefault();
           }
         } else {
@@ -488,6 +493,40 @@ export class UIProtections {
       this.#placeCaretIn(anlagen, li);
       return;
     }
+
+    /* Paste aus Fremdquellen liefert <div>-Kinder oder nackte Textknoten. Beides
+       ist in einer Liste ungültig (B45). In-place umhängen, damit keine
+       Formatierung verloren geht; der Caret wird danach ans Listenende gesetzt. */
+    let normalisiert = false;
+    for (const node of Array.from(anlagen.childNodes)) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Ein Textknoten kann mehrere Zeilen tragen ("Rechnung\nVollmacht");
+        // jede Zeile wird ein eigener Listenpunkt.
+        const zeilen = (node.textContent || '').split('\n').map((z) => z.trim()).filter(Boolean);
+        if (zeilen.length === 0) {
+          node.remove();
+          continue;
+        }
+        const lis = zeilen.map((zeile) => {
+          const li = document.createElement('li');
+          li.textContent = zeile;
+          return li;
+        });
+        node.replaceWith(...lis);
+        normalisiert = true;
+      } else if (node instanceof HTMLElement && node.tagName !== 'LI') {
+        const li = document.createElement('li');
+        li.append(...node.childNodes);
+        node.replaceWith(li);
+        normalisiert = true;
+      }
+    }
+    if (normalisiert) {
+      const letztes = anlagen.lastElementChild;
+      if (letztes) this.#placeCaretIn(anlagen, letztes);
+      return;
+    }
+
     if (anlagen.children.length === 0) {
       const lines = (anlagen.textContent || '').split('\n').map(l => l.trim()).filter(Boolean);
       const lis = lines.map(line => {
@@ -733,6 +772,8 @@ export class DraftManager {
   #isRestoring = false;
   /** @type {(() => void) | null} */
   #unsubSaveRequested = null;
+  /** @type {(() => void) | null} */
+  #unsubSaveFailed = null;
 
   /**
    * @param {ReturnType<typeof import('./core.js').createEventBus> | null} [bus]
@@ -757,6 +798,11 @@ export class DraftManager {
         } else {
           this.saveDraft();
         }
+      });
+      // Auch Fehler aus anderen Speicherpfaden (z. B. Einstellungen/Signatur)
+      // müssen am Status-Punkt sichtbar werden, nicht nur als Toast.
+      this.#unsubSaveFailed = this.bus.subscribe(Events.DOCUMENT_SAVE_FAILED, () => {
+        this.#setSaveStatus('error');
       });
     }
   }
@@ -810,6 +856,10 @@ export class DraftManager {
     if (this.#unsubSaveRequested) {
       this.#unsubSaveRequested();
       this.#unsubSaveRequested = null;
+    }
+    if (this.#unsubSaveFailed) {
+      this.#unsubSaveFailed();
+      this.#unsubSaveFailed = null;
     }
   }
 
@@ -1074,7 +1124,13 @@ export class DraftManager {
     el.textContent = labels[state];
     el.title = labels[state];
     if (state === 'error' && typeof document.ariaNotify === 'function') {
-      document.ariaNotify('Fehler beim Speichern', { priority: 'important' });
+      try {
+        // 'important' ist kein gültiger Enum-Wert (Chrome 156: 'high' | 'normal').
+        // Ein Wurf hier würde saveDraft() genau im Fehlerfall abbrechen.
+        document.ariaNotify('Fehler beim Speichern', { priority: 'high' });
+      } catch {
+        /* Experimentelle API darf den Fehlerpfad nicht blockieren. */
+      }
     }
   }
 

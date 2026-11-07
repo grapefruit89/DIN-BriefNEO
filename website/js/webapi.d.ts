@@ -8,7 +8,7 @@ interface CloseWatcherEvent extends Event { }
 
 /** Chrome 141+: programmatische a11y-Ansage (Screenreader), ohne Live-Region-DOM. */
 interface Document {
-  ariaNotify(text: string, options?: { priority?: 'important' | 'nonimportant'; interrupt?: boolean }): void;
+  ariaNotify(text: string, options?: { priority?: 'high' | 'normal'; interrupt?: boolean }): void;
 }
 
 

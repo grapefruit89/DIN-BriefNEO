@@ -111,7 +111,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 
 ---
 
-### B54 · Speicherfehler-Toast wirft selbst (`ariaNotify` mit ungültigem `priority`) · **S** · ⭐⭐⭐
+### B54 · Speicherfehler-Toast wirft selbst (`ariaNotify` mit ungültigem `priority`) · **S** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `document.js:1059` ruft `document.ariaNotify('Fehler beim Speichern', { priority: 'important' })`.
 Chrome 156 kennt `'important'` nicht; der Aufruf wirft `TypeError`. Weil er in
 `#setSaveStatus('error')` steht, bricht `saveDraft()` **genau im Fehlerfall** ab
@@ -119,7 +119,7 @@ Chrome 156 kennt `'important'` nicht; der Aufruf wirft `TypeError`. Weil er in
 Undo-Snapshot. Gemessen mit injiziertem `QuotaExceededError`: Status-Dot `error`, Toast
 keiner, Wurf `TypeError`. Fix: gültigen Wert verwenden oder den Aufruf absichern.
 
-### B55 · Import scheitert lautlos (Fehlerpfad unerreichbar) · **S** · ⭐⭐⭐
+### B55 · Import scheitert lautlos (Fehlerpfad unerreichbar) · **S** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `persistence.js:722-742`: `saveJSON` fängt Quota-Fehler intern ab und gibt `false` zurück,
 wirft also nie. Der umgebende `try/catch` mit `IMPORT_STORAGE_ERROR` (`:737-742`) ist für
 Speicherfehler damit unerreichbar. Der Dialog meldet Erfolg, `location.reload()` verwirft
@@ -248,7 +248,7 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 
 ---
 
-### B41 · Zweizeilig-Guard zählt `<br>` nicht als Zeilenumbruch · **S** · ⭐⭐
+### B41 · Zweizeilig-Guard zählt `<br>` nicht als Zeilenumbruch · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `document.js:324` prüft `text.split('\n').length`; `textContent` enthält für ein `<br>`
 kein `\n`. Der Guard feuert dadurch nie. Zählen über `innerText` oder die `<br>`-Anzahl.
 
@@ -260,19 +260,19 @@ kein `\n`. Der Guard feuert dadurch nie. Zählen über `innerText` oder die `<br
 `settings.js:131-142` aktualisiert `aria-pressed` nur im programmatischen Pfad
 `toggleSettingsModus`. Ein direkter Klick auf `#toggle-modus` feuert `change` ohne Listener.
 
-### B44 · `<li>` ohne `<ul>` in `din-anlagen-angabe` · **S** · ⭐⭐
+### B44 · `<li>` ohne `<ul>` in `din-anlagen-angabe` · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `index.html:327` führt `<li>Anlage 1</li>` ohne Liste (`role="group"`). Entweder
 `role="list"`/`role="listitem"` oder ein echtes `<ul>`.
 
-### B45 · Eingefügte `<div>`-Kinder in der Anlagenliste bleiben stehen · **S** · ⭐⭐
+### B45 · Eingefügte `<div>`-Kinder in der Anlagenliste bleiben stehen · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `document.js:485-497` normalisiert nur bei `children.length === 0`. Nach einem Paste mit
 `<div>`-Kindern bleibt die Struktur ungültig.
 
-### B46 · `save()`-Rückgabe beim Signaturzustand wird ignoriert · **S** · ⭐⭐
+### B46 · `save()`-Rückgabe beim Signaturzustand wird ignoriert · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
 `settings.js:567-571` reicht an `updateSettings()` → `saveJSON` weiter, ohne die Rückgabe
 zu prüfen. Bei vollem Speicher verschwindet der Zustand still.
 
-### B47 · Doppelter Save-Request beim Export · **S** · ⭐
+### B47 · Doppelter Save-Request beim Export · **S** · ⭐ · ✅ ERLEDIGT 2026-11-07
 `persistence.js:661-662` publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload direkt
 danach aus dem DOM. Der Request ist für den Export funktionslos.
 

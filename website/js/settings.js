@@ -152,7 +152,14 @@ export class SettingsManager {
   }
 
   updateSettings() {
-    saveJSON(STORAGE_KEYS.settings, this.settings);
+    const gespeichert = saveJSON(STORAGE_KEYS.settings, this.settings);
+    if (!gespeichert) {
+      // saveJSON schluckt Quota-Fehler und gibt false zurück; ohne diese Prüfung
+      // verschwände der Zustand still (B46).
+      eventBus.publish(Events.DOCUMENT_SAVE_FAILED, {
+        message: 'Einstellungen konnten nicht gespeichert werden (Speicher voll?).'
+      });
+    }
     this.applySettings();
   }
 

@@ -405,7 +405,7 @@ Offen ist die Entscheidung: eine `website/schema/v3/din-letter.json` anlegen (da
 Verweis wieder aufnehmen) oder das Schema dauerhaft nicht ausliefern.
 Kein akuter Bug — nur eine Entscheidung, die irgendwann fallen muss.
 
-### B37 · View-Transition wirft `InvalidStateError` beim Seitenaufbau · **N** · ⭐
+### B37 · View-Transition wirft `InvalidStateError` beim Seitenaufbau · **N** · ⭐ · ✅ ERLEDIGT 2026-11-07
 Beim Laden erscheinen zwei `InvalidStateError: Transition was aborted because of
 invalid state. Unsupported layout or style`. Kein sichtbarer Effekt für den Nutzer,
 nur Konsole. Vermutlich ruft `startViewTransition()` auf, bevor das Layout bereit

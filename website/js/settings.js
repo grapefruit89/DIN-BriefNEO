@@ -29,7 +29,21 @@ function transitionOn(target, fn) {
     fn();
     return;
   }
-  target.startViewTransition(fn).finished.catch(console.debug);
+  // Ohne API, im Hintergrund-Tab oder bei bereits laufender Transition wirft
+  // der Browser InvalidStateError (B37). Ebenso, wenn das Ziel gar keinen
+  // Layout-Kasten hat (z. B. der Schrift-Button im versteckten Einstellungs-
+  // Modus, Breite 0): "Unsupported layout or style". Dann direkt mutieren.
+  const hatKasten = typeof target?.getBoundingClientRect === 'function' && target.getBoundingClientRect().width > 0;
+  if (typeof target.startViewTransition !== 'function' || document.visibilityState !== 'visible' || !hatKasten) {
+    fn();
+    return;
+  }
+  try {
+    target.startViewTransition(fn).finished.catch(() => {});
+  } catch (err) {
+    console.debug('[ViewTransition] übersprungen:', err instanceof Error ? err.name : err);
+    fn();
+  }
 }
 
 /* =========================================================================================

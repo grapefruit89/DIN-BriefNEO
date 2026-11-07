@@ -336,24 +336,9 @@ export class UIProtections {
             keyboardEvent.preventDefault();
           }
         } else {
+          // Nur den Umbruch blockieren. Das Weiterspringen übernimmt der Browser
+          // über die Tab-Reihenfolge (DOM-Order), kein nachgebautes Formularverhalten.
           keyboardEvent.preventDefault();
-          const addressFlow = [
-            'empfaenger-name',
-            'empfaenger-strasse',
-            'empfaenger-ort',
-            'empfaenger-firma',
-            'betreff',
-          ];
-          const idx = addressFlow.indexOf(target.id);
-          if (idx !== -1 && idx < addressFlow.length - 1) {
-            for (let i = idx + 1; i < addressFlow.length; i++) {
-              const nextEl = document.getElementById(addressFlow[i]);
-              if (nextEl && nextEl.offsetParent !== null && window.getComputedStyle(nextEl).display !== 'none') {
-                nextEl.focus();
-                break;
-              }
-            }
-          }
         }
       }
     });

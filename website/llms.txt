@@ -13,7 +13,7 @@ DIN-BriefNEO ist eine reine Client-Side-Webanwendung zur Erstellung und Formatie
 
 ## Dokumenten-Schema (Schema v3)
 
-Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keine Base64- oder Binärdaten. Signaturbild und eigene Schrift bleiben lokal und sind nicht Teil der Datei; ein Container für beide folgt.
+Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keine Base64- oder Binärdaten. Signaturbild und eigene Schrift bleiben lokal (IndexedDB) und sind nicht Teil der Datei. Die App ist reines Client-JavaScript ohne Build-Schritt und ohne Server: `website/` auf einen beliebigen statischen Webserver kopieren genügt.
 
 ```json
 {

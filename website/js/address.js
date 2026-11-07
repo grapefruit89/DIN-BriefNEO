@@ -19,6 +19,24 @@ import { setCaretToEnd } from './document.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 /**
+ * Statische Formular-Knoten einmal auflösen statt bei jedem Event erneut.
+ * `isConnected` fängt den Fall ab, dass ein Element ersetzt wurde (Tests,
+ * Re-Mount) — dann wird genau einmal neu gesucht.
+ * @type {Map<string, HTMLElement | null>}
+ */
+const feldCache = new Map();
+
+/** @param {string} id @returns {HTMLElement | null} */
+function feld(id) {
+  let el = feldCache.get(id);
+  if (!el?.isConnected) {
+    el = document.getElementById(id);
+    feldCache.set(id, el);
+  }
+  return el;
+}
+
+/**
  * Eine Delegation pro Popover statt zwei Listener pro Eintrag. Die Vorschlags-
  * listen werden bei jedem Tastendruck neu gebaut (`replaceChildren`); Listener
  * an den Einträgen würden dabei jedes Mal neu allokiert und verworfen.
@@ -883,16 +901,16 @@ export class AddressIntelligence {
    * Wires the recipient address block in the DOM for instant offline autocomplete.
    */
   static wireDOM() {
-    const empfOrtEl = document.getElementById('empfaenger-ort');
-    const empfFirmaEl = document.getElementById('empfaenger-firma');
-    const empfStrasseEl = document.getElementById('empfaenger-strasse');
+    const empfOrtEl = feld('empfaenger-ort');
+    const empfFirmaEl = feld('empfaenger-firma');
+    const empfStrasseEl = feld('empfaenger-strasse');
 
     if (!empfOrtEl) return;
     if (empfOrtEl.dataset.wired === 'true') return;
     empfOrtEl.dataset.wired = 'true';
 
     // Popover suggestions container
-    const suggestionsPopover = document.getElementById('plz-suggestions-popover');
+    const suggestionsPopover = feld('plz-suggestions-popover');
     if (!suggestionsPopover) return;
 
     /** @type {any} */
@@ -1274,11 +1292,11 @@ function abbreviateName(fullName) {
  * and the signature name.
  */
 export function initSenderSync() {
-  const infoName = document.getElementById('absender-name');
-  const infoStreet = document.getElementById('absender-strasse');
-  const infoCity = document.getElementById('absender-ort');
-  const absender = document.getElementById('rucksendeangabe');
-  const unterschrift = document.getElementById('unterschrift');
+  const infoName = feld('absender-name');
+  const infoStreet = feld('absender-strasse');
+  const infoCity = feld('absender-ort');
+  const absender = feld('rucksendeangabe');
+  const unterschrift = feld('unterschrift');
 
   if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
 
@@ -1624,10 +1642,10 @@ export class ClipboardAddressParser {
    * @param {AddressCandidate} candidate
    */
   static applyCandidate(candidate) {
-    const empfFirmaEl = document.getElementById('empfaenger-firma');
-    const empfNameEl = document.getElementById('empfaenger-name');
-    const empfStrasseEl = document.getElementById('empfaenger-strasse');
-    const empfOrtEl = document.getElementById('empfaenger-ort');
+    const empfFirmaEl = feld('empfaenger-firma');
+    const empfNameEl = feld('empfaenger-name');
+    const empfStrasseEl = feld('empfaenger-strasse');
+    const empfOrtEl = feld('empfaenger-ort');
 
     // 1. Ziel-Sperre in AddressIntelligence setzen
     AddressIntelligence.targetLock = { plz: candidate.plz, city: candidate.ort };
@@ -1660,9 +1678,9 @@ export class ClipboardAddressParser {
 
     // 3. Autocomplete-Dropdowns schließen
     try {
-      const plzPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (document.getElementById('plz-suggestions-popover'));
+      const plzPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (feld('plz-suggestions-popover'));
       if (plzPopover?.hidePopover) plzPopover.hidePopover();
-      const addrPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (document.getElementById('anschrift-vorschlaege'));
+      const addrPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (feld('anschrift-vorschlaege'));
       if (addrPopover?.hidePopover) addrPopover.hidePopover();
     } catch {
       // Ignoriert
@@ -1690,8 +1708,8 @@ export class ClipboardAddressParser {
    * Verdrahtet den Sidebar-Button und das Auswahllisten-Popover.
    */
   static wireSidebarButton() {
-    const btn = document.getElementById('btn-zwischenablage-anschrift');
-    const popover = document.getElementById('clipboard-candidates-popover');
+    const btn = feld('btn-zwischenablage-anschrift');
+    const popover = feld('clipboard-candidates-popover');
     if (!btn) return;
 
     /**
@@ -1797,13 +1815,13 @@ export class ClipboardAddressParser {
  * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
  */
 export function initAddressServices() {
-  const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
-  const geoapifyKeyContainer = /** @type {HTMLDetailsElement | null} */ (document.getElementById('geoapify-key-container'));
-  const btnGeoapifyKey = /** @type {HTMLElement | null} */ (document.getElementById('btn-geoapify-key'));
-  const statusHint = document.getElementById('geoapify-status-hint');
-  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('input-anschrift-suche'));
-  const addressSuggestions = document.getElementById('anschrift-vorschlaege');
-  const addressSearchContainer = document.getElementById('anschrift-suche-container');
+  const inputGeoapifyKey = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
+  const geoapifyKeyContainer = /** @type {HTMLDetailsElement | null} */ (feld('geoapify-key-container'));
+  const btnGeoapifyKey = /** @type {HTMLElement | null} */ (feld('btn-geoapify-key'));
+  const statusHint = feld('geoapify-status-hint');
+  const inputAddressSearch = /** @type {HTMLInputElement | null} */ (feld('input-anschrift-suche'));
+  const addressSuggestions = feld('anschrift-vorschlaege');
+  const addressSearchContainer = feld('anschrift-suche-container');
 
   // #geoapify-key-container ist seit dem Umbau auf <form id="geoapify-key-form">
   // nicht mehr vorhanden. Der Knoten darf die Initialisierung nicht blockieren —
@@ -2044,7 +2062,7 @@ export function initAddressServices() {
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           save(STORAGE_KEYS.geoapifyKey, '');
-          const keyEl = /** @type {HTMLInputElement | null} */ (document.getElementById('input-geoapify-key'));
+          const keyEl = /** @type {HTMLInputElement | null} */ (feld('input-geoapify-key'));
           if (keyEl) keyEl.value = '';
           setGeoapifyState('invalid', 'Key abgelaufen (401/403)');
           if (geoapifyKeyContainer) geoapifyKeyContainer.open = true;
@@ -2153,8 +2171,8 @@ export function initAddressServices() {
    * @param {AddressEntry} item
    */
   function selectSuggestion(item) {
-    const empfStrasse = document.getElementById('empfaenger-strasse');
-    const empfOrt = document.getElementById('empfaenger-ort');
+    const empfStrasse = feld('empfaenger-strasse');
+    const empfOrt = feld('empfaenger-ort');
 
     if (empfStrasse) {
       empfStrasse.textContent = `${item.street} ${item.housenumber}`.trim();
@@ -2177,7 +2195,7 @@ export function initAddressServices() {
   });
 
   // Geoapify für Absender PLZ → speichert Lat/Lon für Proximity Bias
-  const absenderPlzOrtEl = document.getElementById('absender-ort') || document.getElementById('rucksendeangabe');
+  const absenderPlzOrtEl = feld('absender-ort') || feld('rucksendeangabe');
   if (absenderPlzOrtEl) {
     /** @type {any} */
     let absenderTimeout = null;

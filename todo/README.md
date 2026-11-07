@@ -29,8 +29,8 @@
 | **18** | **salutation.js: Namenslisten (951) entfernen oder begrenzen** | S–M | ⭐⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Listen ersatzlos entfernt |
 | **19** | **debug-panel.js reduzieren (1029 → ~50 Zeilen)** | M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Panel samt Wrappern gelöscht (−1029 JS, −485 CSS) |
 | **20** | **Multi-Tab-Sync entfernen oder vollständig bauen** | XS–M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Halbe Lösung |
-| **21** | **Enter-Handler/addressFlow entfernen** | XS | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Tab-Order reicht |
-| **22** | **#seedAuto entfernen** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Nur Optik |
+| **21** | **Enter-Handler/addressFlow entfernen** | XS | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — blockiert nur noch den Umbruch, Sprung entfällt |
+| **22** | **#seedAuto entfernen** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Geprüft 2026-11-07 — kein `#seedAuto` im Repo (Element nie vorhanden); der private Seeder in `salutation.js` ist funktional und bleibt |
 | **23** | **initApp try/catch bündeln** | S | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Lesbarkeit |
 | **24** | **Toast auf CSS-Auto-Dismiss reduzieren** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Opportunistisch beim core.js-Anfassen |
 | **25** | **Postvermerk: Custom-Popover durch natives `<select>` ersetzen** | M | ⭐⭐⭐⭐ | [`16-deklarativ-review.md`](16-deklarativ-review.md) | ✅ Umgesetzt 2026-11-07 (natives `<select>`, Button + Popover entfernt) |
@@ -47,13 +47,13 @@
 | **36** | **Kompatibilitäts-Wrapper entfernen (2× 11 Z.)** | XS | ⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Nur Tests importieren sie |
 | **37** | **webmcp-bridge: entfernen oder verdrahten (CSP vs. `ws://`)** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Tot, aber nicht entschieden |
 | **38** | **charactere.json: Datenfehler, Gzip, Dateiname** | S | ⭐⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Sauron=Tom Riddle, Duplikate, null/"" |
-| **39** | **llms.txt: Container-Ankündigung streichen oder TODO** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Zeile 16, LLM-Crawler |
+| **39** | **llms.txt: Container-Ankündigung streichen oder TODO** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | ✅ Umgesetzt 2026-11-07 — Zero-Build-Architektur statt Container |
 | **40** | **Build-Strategie dokumentieren (Zero-Build bewusst oder esbuild)** | XS | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Nirgends dokumentiert |
 | **41** | **sheet-common.css: 43 gemeinsame Selektoren zusammenführen** | S–M | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Druck-Regressionsrisiko |
 | **42** | **Biome-Lauf in die CI hängen (`biome.json` existiert, läuft nie)** | XS | ⭐⭐ | [`21-tooling-review.md`](21-tooling-review.md) | ✅ Umgesetzt (CI-Schritt, Biome 2.6.3) |
 | **43** | **`#moveCaretToEnd`-Wrapper entfernen** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (Wrapper entfernt) |
 | **44** | **Magic Numbers 50/130 als Konstanten** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (benannte Konstanten) |
-| **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | Optional |
+| **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt 2026-11-07 — `feld()`-Cache mit `isConnected`-Prüfung |
 
 ---
 

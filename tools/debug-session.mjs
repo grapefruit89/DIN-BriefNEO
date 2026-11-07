@@ -199,9 +199,14 @@ function verbindeRecorder() {
     }
 
     if (msg.method === 'Runtime.exceptionThrown') {
-      const text = msg.params.exceptionDetails?.exception?.description || msg.params.exceptionDetails?.text || 'Exception';
+      const details = msg.params.exceptionDetails;
+      const text = details?.exception?.description || details?.text || 'Exception';
       const at = Date.now() - start;
-      trace.errors.push({ at, text });
+      const stack = (details?.stackTrace?.callFrames || [])
+        .slice(0, 4)
+        .map((f) => `${f.functionName || '(anonym)'}@${(f.url || '').split('/').pop()}:${f.lineNumber + 1}`)
+        .join(' ← ');
+      trace.errors.push({ at, text, stack });
       console.log(c.rot(`[${uhr(at)}] ✗ Exception: ${String(text).split('\n')[0]}`));
       return;
     }

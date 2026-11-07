@@ -4,7 +4,7 @@ title: Architecture-Map — Lade-Trigger, Abhängigkeiten, Kaskade
 status: active
 type: reference
 created: '2026-11-05'
-updated: '2026-11-06'
+updated: '2026-11-07'
 tags:
 - din-briefneo
 - architecture
@@ -21,7 +21,6 @@ code_links:
 - 'website/js/main.js'
 - 'website/js/core.js'
 - 'website/js/persistence.js'
-- 'website/js/debug-panel.js'
 depends_on: []
 supersedes: []
 ---
@@ -43,12 +42,10 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot-theme.js` + `boot-switches.js` (beide blockierend) + `main.js` (Modul) |
 | `website/multipage.html` | Mehrseiten-Editor, **produktiv** | immer | ~94 % identisch mit `index.html`; eigene Stylesheets, eigener Controller |
 | `website/mehrseiten-prototyp.html` | Prototyp | **nicht verlinkt** | liegt live im Auslieferungsordner — siehe [[BACKLOG]] B39 |
-| `test/index.html` | Test-Runner (133 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
+| `test/index.html` | Test-Runner (126 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
 | `website/js/boot-theme.js` | Theme- und Stil-Boot | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Setzt `data-theme` **und** `data-style` |
 | `website/js/boot-switches.js` | Schalter-Boot (Hilfslinien, Falz-/Lochmarken) | **blockierend, vor First Paint** | klassisches Script im `<head>`: liest `din_settings` und setzt die Checkboxen per `MutationObserver`, sobald sie geparst sind. Microtasks laufen vor dem Rendern — deshalb kein Wettlauf mit dem ersten Frame. Der HTML-Default muss `DEFAULT_SETTINGS` entsprechen |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
-| `website/js/debug-panel.js` | Debug-Panels | **nur bei `?debug=json` / `?debug=autocomplete`** | per dynamischem `import()` aus `main.js`; ohne Query-Parameter wird nichts geladen |
-| `website/js/debug-json-panel.js`, `debug-recorder.js` | Kompatibilitäts-Wrapper | nur von Tests | **Test-API**, `test/all.js` importiert sie namentlich — kein Dead Code |
 | `website/addons/testbrief/testbrief.js` | Testbrief-Plugin | **dynamisch** per `import()`, nur bei Klick auf `#btn-testbrief` | Figurendaten liegen im Plugin-Ordner; ohne das Plugin bleibt der Button wirkungslos, die App startet normal |
 | `website/addons/webmcp-bridge.js` | WebMCP-Bridge | **gar nicht** | derzeit nicht eingebunden, in [[STRUCTURE]] entsprechend markiert |
 
@@ -63,7 +60,6 @@ binary-storage.js → (nichts)                    ← Blatt: Blobs in IndexedDB 
 salutation.js  → core.js, persistence.js
 address.js     → core.js, document.js, persistence.js
 main.js        → allen oben; addons/testbrief/testbrief.js (dynamisch, nur bei Klick)
-debug-panel.js → core.js, persistence.js?v=p1
 ```
 
 `core.js` ist der zirkelfreie Einstieg in die App-Schicht: Es importiert nichts und liefert
@@ -72,14 +68,6 @@ nichts, kennt aber die App nicht — es spricht nur mit IndexedDB.
 
 Zwei häufig gesuchte Einstiegspunkte: `applyLetterDate` liegt in `persistence.js`
 (setzt das Briefdatum), `setCaretToEnd` in `document.js` (Cursor-Helfer, den `address.js` nutzt).
-
-> [!warning] Zwei `persistence.js`-Instanzen im Debug-Modus
-> `debug-panel.js` importiert `./persistence.js?v=p1`, `main.js` dagegen ohne Query.
-> Die URL ist der Modulspezifizierer — der Browser lädt **zwei** Instanzen mit
-> **zwei getrennten** Modulvariablen (`printTitleActive`, `registeredDraftCollector`).
-> Folge: Das Debug-JSON-Panel sieht den von `main.js` registrierten Collector nicht,
-> und `printTitleActive` ist dort immer `false`. Nur im Debug-Modus relevant.
-> **Nicht reparieren, nur kennen** — die Wrapper sind Test-API.
 
 > [!warning] Duplikat-Falle: zwei HTML-Rümpfe
 > `index.html` und `multipage.html` teilen ~94 % Markup. Gemeinsames Markup muss in

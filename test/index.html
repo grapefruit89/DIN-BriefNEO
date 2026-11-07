@@ -32,40 +32,9 @@
   <div id="empfaenger-ort" contenteditable="true"></div>
   <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken"></ul>
 
-  <!-- Debug Panels Fixtures -->
-  <aside id="panel-autocomplete" class="debug-panel" data-panel="autocomplete" hidden>
-    <header class="debug-header" tabindex="0">
-      <span class="debug-title">Autocomplete Recorder</span>
-      <span class="debug-badge" data-state="live">LIVE</span>
-      <span class="debug-counter" id="rec-counter" data-role="counter">(0 von 0)</span>
-      <div class="debug-actions">
-        <label class="debug-filter"><input type="checkbox" id="rec-filter-empty" data-role="filter-empty"> Leere ausblenden</label>
-        <button type="button" class="debug-btn" id="rec-btn-copy-all" data-action="copy-all">📋 Alles</button>
-        <button type="button" class="debug-btn" id="rec-btn-clear" data-action="clear">🗑️ Leeren</button>
-        <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause">⏸️</button>
-        <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize">_</button>
-      </div>
-    </header>
-    <div class="debug-body" id="rec-body" data-role="body">
-      <div class="debug-empty" id="rec-empty">Warte auf Eingabe in #empfaenger-ort...</div>
-    </div>
-  </aside>
-
-  <aside id="panel-json" class="debug-panel" data-panel="json" hidden>
-    <header class="debug-header" tabindex="0">
-      <span class="debug-title">DIN-Letter JSON</span>
-      <div class="debug-actions">
-        <button type="button" class="debug-btn" id="json-btn-copy" data-action="copy" title="JSON kopieren">📋 Kopieren</button>
-        <button type="button" class="debug-btn" id="json-btn-clear" data-action="clear" title="Anzeige leeren">🗑️ Leeren</button>
-        <button type="button" class="debug-btn" id="json-btn-close" data-action="close" aria-label="Schließen" title="Schließen">✕</button>
-      </div>
-    </header>
-    <div class="debug-body" data-role="body"><pre><code id="json-debug-code"></code></pre></div>
-  </aside>
-
   <h2>Ergebnisse</h2>
   <div id="test-report"></div>
 
-  <script type="module" src="./all.js?v=panels3"></script>
+  <script type="module" src="./all.js?v=panels4"></script>
 </body>
 </html>

@@ -27,7 +27,7 @@
 | **16** | **Quota-Monitoring (`storage.estimate`) + `persist()` entkoppeln** | XS | ⭐⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Überschneidet B54/B55 |
 | **17** | **Web Share API** | XS | ⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Nur mit Plan 03 (Mobile) |
 | **18** | **salutation.js: Namenslisten (951) entfernen oder begrenzen** | S–M | ⭐⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Listen ersatzlos entfernt |
-| **19** | **debug-panel.js reduzieren (1029 → ~50 Zeilen)** | M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Nur Debug-Tool |
+| **19** | **debug-panel.js reduzieren (1029 → ~50 Zeilen)** | M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | ✅ Umgesetzt 2026-11-07 — Panel samt Wrappern gelöscht (−1029 JS, −485 CSS) |
 | **20** | **Multi-Tab-Sync entfernen oder vollständig bauen** | XS–M | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Halbe Lösung |
 | **21** | **Enter-Handler/addressFlow entfernen** | XS | ⭐⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Tab-Order reicht |
 | **22** | **#seedAuto entfernen** | XS | ⭐ | [`15-overengineering-review.md`](15-overengineering-review.md) | Nur Optik |

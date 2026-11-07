@@ -369,36 +369,5 @@
       </div>
     </dialog>
 
-    <!-- Autocomplete-Recorder -->
-    <aside id="panel-autocomplete" class="debug-panel" data-panel="autocomplete" hidden aria-label="Autocomplete Debug-Recorder">
-      <header class="debug-header" tabindex="0">
-        <span class="debug-title">Autocomplete Recorder</span>
-        <span class="debug-badge" data-state="live">LIVE</span>
-        <span class="debug-counter" id="rec-counter" data-role="counter">(0 von 0)</span>
-        <div class="debug-actions">
-          <label class="debug-filter"><input type="checkbox" id="rec-filter-empty" data-role="filter-empty"> Leere ausblenden</label>
-          <button type="button" class="debug-btn" id="rec-btn-copy-all" data-action="copy-all">📋 Alles</button>
-          <button type="button" class="debug-btn" id="rec-btn-clear" data-action="clear">🗑️ Leeren</button>
-          <button type="button" class="debug-btn" id="rec-btn-toggle" data-action="pause" aria-label="Aufzeichnung pausieren">⏸️</button>
-          <button type="button" class="debug-btn" id="rec-btn-min" data-action="minimize" aria-label="Panel minimieren">_</button>
-        </div>
-      </header>
-      <div class="debug-body" id="rec-body" data-role="body">
-        <div class="debug-empty" id="rec-empty">Warte auf Eingabe in #empfaenger-ort...</div>
-      </div>
-    </aside>
-
-    <!-- JSON-Panel -->
-    <aside id="panel-json" class="debug-panel" data-panel="json" hidden aria-label="DIN-Letter JSON Debug-Panel">
-      <header class="debug-header" tabindex="0">
-        <span class="debug-title">DIN-Letter JSON</span>
-        <div class="debug-actions">
-          <button type="button" class="debug-btn" id="json-btn-copy" data-action="copy" title="JSON kopieren">📋 Kopieren</button>
-          <button type="button" class="debug-btn" id="json-btn-clear" data-action="clear" title="Anzeige leeren">🗑️ Leeren</button>
-          <button type="button" class="debug-btn" id="json-btn-close" data-action="close" aria-label="Schließen">✕</button>
-        </div>
-      </header>
-      <div class="debug-body" data-role="body"><pre><code id="json-debug-code"></code></pre></div>
-    </aside>
   </body>
 </html>

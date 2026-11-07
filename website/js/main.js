@@ -126,31 +126,6 @@ function initApp() {
     } catch (e) {
       console.error('[Bootstrap] initTestData fehlgeschlagen:', e);
     }
-
-    // Eingebaute Debug-Funktionen (?debug=autocomplete, ?debug=json oder ?debug=autocomplete,json)
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const debugVal = urlParams.get('debug') || '';
-      const debugModes = debugVal.split(',').map(s => s.trim().toLowerCase());
-
-      if (debugModes.includes('autocomplete')) {
-        const panel = document.getElementById('panel-autocomplete');
-        if (panel) panel.hidden = false;
-        import('./debug-panel.js').then(m => m.mountAutocompletePanel()).catch(err => {
-          console.error('[DebugPanel] Autocomplete Initialisierung fehlgeschlagen:', err);
-        });
-      }
-
-      if (debugModes.includes('json')) {
-        const panel = document.getElementById('panel-json');
-        if (panel) panel.hidden = false;
-        import('./debug-panel.js').then(m => m.mountJsonPanel()).catch(err => {
-          console.error('[DebugPanel] JSON Initialisierung fehlgeschlagen:', err);
-        });
-      }
-    } catch (e) {
-      console.error('[Bootstrap] Debug-Module fehlgeschlagen:', e);
-    }
   }
 
   /**

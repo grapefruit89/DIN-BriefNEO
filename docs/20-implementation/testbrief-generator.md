@@ -211,6 +211,23 @@ Funktionen (`waehleBesetzung`, `getCharHook`, `waehleSzenario`,
 
 Das Skript endet mit Exit-Code 1, sobald eine Grenze verletzt ist.
 
+### 4.3 Fiktive Adressen und die PLZ-Erkennung
+
+Der Ortsindex kennt nur echte deutsche Orte. Programmatisch gesetzte
+Testbrief-Adressen würden deshalb sonst umgeschrieben oder würden ein
+Vorschlags-Popover öffnen: aus „Kleve" wird „47533 Kleve", und bei einer
+Fantasy-Firma startet der Großkunden-Lookup.
+
+`setField()` markiert die vier Adressfelder (`empfaenger-ort`,
+`empfaenger-firma`, `absender-ort`, `rucksendeangabe`) deshalb mit
+`data-autofill-aus`. Die Adress-Erkennung überspringt markierte Felder
+vollständig — Orts-Auflösung, Großkunden-Lookup und die Geoapify-Abfrage
+für die Absender-PLZ.
+
+Die Marke fällt beim ersten echten `input`-Ereignis mit `isTrusted === true`
+wieder weg. Selbst getippte Adressen werden also weiterhin aufgelöst; nur die
+Eingaben des Generators bleiben unangetastet.
+
 ## 5. Testfälle (gemessen am Bestand vom 2026-11-08)
 
 | Figur | Fall | Straßenzeile | Themenquelle |

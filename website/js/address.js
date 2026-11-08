@@ -947,8 +947,13 @@ export class AddressIntelligence {
     /** @param {HTMLElement} el */
     const trackManualInput = (el) => {
       el.addEventListener('input', (/** @type {Event} */ e) => {
-        if (!/** @type {InputEvent} */ (e).isComposing) {
+        const ev = /** @type {InputEvent} */ (e);
+        if (!ev.isComposing) {
           el.removeAttribute('data-autofilled');
+          /* Programmatisch gefuellte Felder (Testbrief, Import) tragen
+           * data-autofill-aus. Erst ein echtes Tastatur-/Paste-Ereignis hebt
+           * die Sperre auf -- isTrusted ist bei dispatchEvent() false. */
+          if (ev.isTrusted) el.removeAttribute('data-autofill-aus');
         }
       });
     };
@@ -957,6 +962,8 @@ export class AddressIntelligence {
 
     // Eingabe im Ort-Feld (Case A & B & Universelles Suchfeld)
     empfOrtEl.addEventListener('input', (/** @type {any} */ e) => {
+      // Fiktive Testbrief-Adresse: nicht aufloesen, nicht ueberschreiben.
+      if (empfOrtEl.hasAttribute('data-autofill-aus')) return;
       if (e?.inputType?.startsWith('delete')) {
         userEditing = true;
       } else if (e?.inputType === 'insertText' && /\d/.test(e.data || '')) {
@@ -1073,6 +1080,8 @@ export class AddressIntelligence {
     // Case C: Eingabe im Firma-Feld (Großkunden & Behörden Direkt-Lookup)
     if (empfFirmaEl) {
       empfFirmaEl.addEventListener('input', () => {
+        // Fiktive Testbrief-Firma: kein Grosskunden-Lookup.
+        if (empfFirmaEl.hasAttribute('data-autofill-aus')) return;
         const rawText = (empfFirmaEl.textContent || "").trim();
 
         if (debounceTimer) clearTimeout(debounceTimer);
@@ -1740,6 +1749,8 @@ export function initAddressServices() {
     /** @type {any} */
     let absenderTimeout = null;
     absenderPlzOrtEl.addEventListener('input', () => {
+      // Fiktiver Testbrief-Ort: kein Geoapify-Abruf fuer eine Fantasie-PLZ.
+      if (absenderPlzOrtEl.hasAttribute('data-autofill-aus')) return;
       if (!navigator.onLine) return;
       clearTimeout(absenderTimeout);
       absenderTimeout = setTimeout(() => {

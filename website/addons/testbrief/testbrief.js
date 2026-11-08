@@ -38,6 +38,9 @@ function normiere(wert) {
   return String(wert ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
+/** Felder, die keine PLZ-/Ort-Erkennung ausloesen duerfen (Testbrief-Daten sind fiktiv). */
+const SPERRE_FELDER = new Set(['empfaenger-ort', 'empfaenger-firma', 'absender-ort', 'rucksendeangabe']);
+
 /** Platzhalter, die „nichts" bedeuten. */
 const PLATZHALTER = new Set(['', '-', 'unbekannt', 'n/a', 'keine']);
 
@@ -583,6 +586,11 @@ function deriveAnrede(_sender, recipient) {
 export function setField(id, value) {
   const el = document.getElementById(id);
   if (!el) return;
+  /* Adressfelder bekommen eine Sperre gegen die PLZ-/Ort-Erkennung: sonst
+   * zieht der echte Ortsindex den fiktiven Ort glatt ("Kleve" -> "47533 Kleve")
+   * oder oeffnet das Vorschlags-Popover. Die Sperre faellt beim ersten echten
+   * Tastendruck wieder weg (address.js, trackManualInput). */
+  if (SPERRE_FELDER.has(id)) el.setAttribute('data-autofill-aus', 'true');
   if (id === 'text' && typeof value === 'string' && value.includes('\n\n')) {
     const absaetze = value.split('\n\n').filter((absatz) => absatz.trim() !== '');
     el.replaceChildren(...absaetze.map((absatz) => {

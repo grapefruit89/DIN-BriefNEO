@@ -969,14 +969,13 @@ input[type="checkbox"][switch] {
   background: oklch(50% 0.2 20 / 10%);
 }
 
-#anschrift-vorschlaege {
+/* Gemeinsamer Glas-Look beider Vorschlagslisten. Nur die abweichende
+   Positionierung und Groesse steht in den einzelnen Bloecken. */
+#anschrift-vorschlaege,
+#plz-suggestions-popover {
   position: absolute;
-  position-anchor: --anchor-anschrift-suche;
-  position-area: bottom span-right;
   position-try-fallbacks: flip-block;
   margin-top: 4px;
-  width: anchor-size(width);
-  max-height: 250px;
   overflow-y: auto;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
@@ -986,6 +985,13 @@ input[type="checkbox"][switch] {
   padding: 4px;
   list-style: none;
   opacity: 0;
+}
+
+#anschrift-vorschlaege {
+  position-anchor: --anchor-anschrift-suche;
+  position-area: bottom span-right;
+  width: anchor-size(width);
+  max-height: 250px;
   transform: translateY(-5px);
   transition: 
     opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1028,23 +1034,11 @@ input[type="checkbox"][switch] {
 
 #plz-suggestions-popover,
 #plz-suggestions-popover[popover] {
-  position: absolute;
   position-anchor: --anchor-ort;
   position-area: block-end span-inline-start;
-  position-try-fallbacks: flip-block;
-  margin-top: 4px;
   min-width: max(300px, anchor-size(width));
   max-width: 440px;
   max-height: 400px;
-  overflow-y: auto;
-  background: var(--bg-seitenleiste-glass);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: var(--shadow-lg);
-  padding: 4px;
-  list-style: none;
-  opacity: 0;
   transition: opacity 0.15s ease-out, display 0.15s allow-discrete,
               overlay 0.15s allow-discrete;
 }

@@ -14,23 +14,12 @@
 }
 
 /* Print overrides for maximum specificity */
-:root, body, din-blatt {
-  color-scheme: light !important;
-  print-color-adjust: exact !important;
-  -webkit-print-color-adjust: exact !important;
-}
+
 html, body { overflow: visible !important; height: auto !important; }
 body { background: oklch(100% 0 0) !important; }
-din-falzmarke-1, din-falzmarke-2, din-lochmarke { opacity: 1 !important; }
-din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after { display: none !important; }
-:root[data-marks="false"] din-falzmarke-1,
-:root[data-marks="false"] din-falzmarke-2,
-:root[data-marks="false"] din-lochmarke {
-  display: none !important;
-}
-#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }
+
 aside, .nicht-drucken, [popover], #hinweis-v4, #font-uploader, .unterschriftsbild-griff, .unterschriftsbild-drehgriff, #anschriftfeld::after { display: none !important; }
-.unterschriftsbild-rahmen { outline: none !important; }
+
 #viewport { padding: 0 !important; background: transparent !important; container-type: normal !important; height: auto !important; overflow: visible !important; }
 din-blatt { 
     transform: none !important; 
@@ -41,40 +30,9 @@ din-blatt {
     height: calc(attr(data-height-mm type(<number>)) * 1mm) !important; 
 }
 
-[contenteditable]:empty::before,
-[data-placeholder]:empty::before,
-[placeholder]:empty::before {
-    display: none !important;
-}
-
 /* Ein eingeschalteter, aber leerer Teilbetreff darf keine Leerzeile drucken. */
-din-teilbetreff:empty {
-    display: none !important;
-}
-
-[contenteditable] {
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    border-radius: 0 !important;
-}
-
-[data-generated] {
-    color: inherit !important;
-    font-style: normal !important;
-}
 
 /* DIN 5008: Trennlinie unter Rücksendezeile nur im Druck, wenn befüllt */
-#rucksendeangabe {
-  border-radius: 0 !important;
-  border-bottom: 0.5pt solid oklch(0% 0 0) !important;
-  padding-bottom: 1.5pt !important;
-}
-
-#rucksendeangabe:empty {
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
-}
 
 /* Umbruch- und typografischer Schutz im Druck */
 #text {
@@ -92,4 +50,3 @@ din-teilbetreff:empty {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
-

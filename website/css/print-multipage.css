@@ -25,12 +25,6 @@
   @top-right { content: none; }
 }
 
-:root, body, din-blatt {
-  color-scheme: light !important;
-  print-color-adjust: exact !important;
-  -webkit-print-color-adjust: exact !important;
-}
-
 html, body {
   overflow: visible !important;
   height: auto !important;
@@ -41,34 +35,10 @@ html, body {
   display: none !important;
 }
 
-din-falzmarke-1, din-falzmarke-2, din-lochmarke {
-  opacity: 1 !important;
-}
-din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after {
-  display: none !important;
-}
-
-:root[data-marks="false"] din-falzmarke-1,
-:root[data-marks="false"] din-falzmarke-2,
-:root[data-marks="false"] din-lochmarke {
-  display: none !important;
-}
-
-#app-shell {
-  display: block !important;
-  width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
 aside, .nicht-drucken, [popover], #hinweis-v4, #font-uploader,
 .unterschriftsbild-griff, .unterschriftsbild-drehgriff,
 #anschriftfeld::after, #folgekoepfe, .folgekopf-screen {
   display: none !important;
-}
-
-.unterschriftsbild-rahmen {
-  outline: none !important;
 }
 
 #viewport {
@@ -119,39 +89,6 @@ din-blatt {
 
 body:has(#btn-form-a:checked) #spacer {
   height: 80.46mm !important; /* Form A */
-}
-
-din-teilbetreff:empty {
-    display: none !important;
-}
-
-[contenteditable]:empty::before,
-[data-placeholder]:empty::before,
-[placeholder]:empty::before {
-  display: none !important;
-}
-
-[contenteditable] {
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-}
-
-[data-generated] {
-  color: inherit !important;
-  font-style: normal !important;
-}
-
-#rucksendeangabe {
-  border-radius: 0 !important;
-  border-bottom: 0.5pt solid oklch(0% 0 0) !important;
-  padding-bottom: 1.5pt !important;
-}
-
-#rucksendeangabe:empty {
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
 }
 
 #betreff {
@@ -210,4 +147,3 @@ din-teilbetreff:empty {
 :root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk {
   display: none !important;
 }
-

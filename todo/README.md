@@ -49,7 +49,7 @@
 | **38** | **charactere.json: Datenfehler, Gzip, Dateiname** | S | ⭐⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Sauron=Tom Riddle, Duplikate, null/"" |
 | **39** | **llms.txt: Container-Ankündigung streichen oder TODO** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | ✅ Umgesetzt 2026-11-07 — Zero-Build-Architektur statt Container |
 | **40** | **Build-Strategie dokumentieren (Zero-Build bewusst oder esbuild)** | XS | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Nirgends dokumentiert |
-| **41** | **sheet-common.css: 43 gemeinsame Selektoren zusammenführen** | S–M | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Druck-Regressionsrisiko |
+| **41** | **sheet-common.css: 43 gemeinsame Selektoren zusammenführen** | S–M | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | ✅ Umgesetzt 2026-11-07 — 72 identische Regeln → `sheet-common.css`, 12 Print-Resets → `base.css` |
 | **42** | **Biome-Lauf in die CI hängen (`biome.json` existiert, läuft nie)** | XS | ⭐⭐ | [`21-tooling-review.md`](21-tooling-review.md) | ✅ Umgesetzt (CI-Schritt, Biome 2.6.3) |
 | **43** | **`#moveCaretToEnd`-Wrapper entfernen** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (Wrapper entfernt) |
 | **44** | **Magic Numbers 50/130 als Konstanten** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (benannte Konstanten) |

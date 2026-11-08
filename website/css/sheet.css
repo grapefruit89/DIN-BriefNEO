@@ -27,16 +27,6 @@ din-blatt {
   --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
-body:has(#btn-form-a:checked) din-blatt {
-  --briefkopf-y: --mm-y(attr(data-briefkopf-y-a type(<number>)));
-  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
-  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
-  --datum-y: --mm-y(attr(data-datum-y-a type(<number>)));
-  --kern-y: --mm-y(attr(data-kern-y-a type(<number>))); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
-  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-a type(<number>)));
-  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-a type(<number>)));
-}
-
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
 @scope (din-blatt) {
   :scope {
@@ -62,52 +52,23 @@ body:has(#btn-form-a:checked) din-blatt {
     box-shadow: 0 16px 48px oklch(from var(--accent-color) calc(l - 0.05) c h / 18%);
   }
 
-  [contenteditable] {
-    /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
-    outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
-    outline-offset: -1px;
-    border-radius: 3px;
-    background: transparent;
-    transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
-  }
+  
 
   /* Wenn der Hilfslinien-Schalter ausgeschaltet ist, verschwinden die gestrichelten Linien im Ruhezustand */
-  :root:not([data-guides="true"]) & [contenteditable]:not(:hover):not(:focus) {
-    outline: none;
-  }
+  
 
-  [contenteditable]:hover:not(:focus) {
-    /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
-    outline: 1.5px solid var(--accent-color);
-    outline-offset: -1.5px;
-    background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
-  }
+  
 
-  [contenteditable]:focus {
-    /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
-    outline: 2px solid var(--accent-color);
-    outline-offset: -2px;
-    background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
-  }
+  
 
   /* Placeholder support for contenteditable */
-  [data-placeholder]:empty::before,
-  [contenteditable][data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: var(--blatt-schwach);
-    font-style: italic;
-    pointer-events: none;
-  }
+  
 
   /* Salutation-Engine: KI-generierter Vorschlag optisch als unbestaetigt markieren
      (data-generated wird von 41-salutation-engine.js gesetzt und beim ersten
      manuellen Edit wieder entfernt). Bewusst echter Text, kein ::before-Ghost --
      sonst wuerde print.css ihn beim Drucken ausblenden. */
-  #anrede[data-generated],
-  #grussformel[data-generated] {
-    color: var(--blatt-schwach);
-    font-style: italic;
-  }
+  
 
   /* --- DIN-MARKEN (System-Atome) --- */
   din-falzmarke-1, din-falzmarke-2, din-lochmarke {
@@ -122,13 +83,9 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   /* Falzmarken & Lochmarken proportionale Koordinaten */
-  din-falzmarke-1 { top: var(--falz-oben-y); } /* Form B default: 105mm */
-  din-falzmarke-2 { top: var(--falz-unten-y); } /* Form B default: var(--blatt-breite)mm */
-  din-lochmarke {
-    top: var(--lochmarke-y);
-    width: --mm-x(attr(data-w type(<number>))); /* Breite: 12mm */
-    border-bottom-style: solid;
-  }
+   /* Form B default: 105mm */
+   /* Form B default: var(--blatt-breite)mm */
+  
 
   /* --- DIN COMPONENT PLACEMENTS (Form B Default) --- */
   /* Rücksendezeile */
@@ -160,29 +117,7 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   /* Umschlag-Fenster-Visier für DIN-Lang (DIN 680: 90x45mm, umschließt Rücksendezeile + Anschriftfeld) */
-  #anschriftfeld::after {
-    content: 'Kuvert-Fenster 90 × 45 mm';
-    font-size: 7pt;
-    font-weight: 500;
-    color: oklch(0.45 0.08 250 / 70%);
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-    padding: 3px 6px;
-    box-sizing: border-box;
-    position: absolute;
-    top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
-    left: 0;
-    width: --mm-x(attr(data-visier-w type(<number>)));
-    height: --mm-y(attr(data-visier-h type(<number>)));
-    border-radius: --mm-x(3);
-    border: 1px dashed oklch(0.5 0.05 250 / 40%);
-    background: oklch(0.5 0.05 250 / 4%);
-    opacity: var(--hilfslinien-deckkraft);
-    pointer-events: none;
-    z-index: 0;
-    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  
 
   /* Info block (Rechte Spalte) */
   #infoblock {
@@ -275,19 +210,13 @@ body:has(#btn-form-a:checked) din-blatt {
   }
 
   /* --- WHATSAPP-STYLE INLINE FORMATS --- */
-  #text b, #text strong {
-    font-weight: 700;
-  }
+  
 
-  #text u {
-    text-decoration: none;
-  }
+  
 
   /* Absaetze des Generators sind echte <p>-Bloecke (testbrief.js setField).
      4.5mm = eine Leerzeile bei 10.5pt, identisch zu sheet-multipage.css (dort ebenfalls 4.5mm) */
-  #text p {
-    margin: 0 0 4.5mm 0;
-  }
+  
 
   /* Vor der Grussformel keine zusaetzliche Leerzeile: sie bringt ihren
      eigenen Abstand ueber data-margin-top mit. */
@@ -295,13 +224,7 @@ body:has(#btn-form-a:checked) din-blatt {
     margin-bottom: 0;
   }
 
-  #text blockquote {
-    margin: 8px 0;
-    padding-left: 12px;
-    border-left: 3px solid var(--blatt-schwach);
-    color: var(--blatt-schwach);
-    font-style: italic;
-  }
+  
 
   /* --- FUSS --- */
   #geschaeftsangaben {
@@ -322,38 +245,14 @@ body:has(#btn-form-a:checked) din-blatt {
     column-rule-inset: 2px; /* Bewusst genutzt: Nativ in Chromium 150+ */
   }
 
-  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
-  :root:has(#toggle-fuss:checked) #geschaeftsangaben {
-    display: grid;
-  }
+  
 }
 
 /* Custom Elements Block-Display (DIN-Normelemente) */
-din-rucksendeangabe,
-din-empfaenger-firma,
-din-empfaenger-strasse,
-din-empfaenger-ort,
-din-absender-strasse,
-din-absender-ort,
-din-absender-tel,
-din-absender-mail,
-din-betreff,
-din-anrede,
-din-grussformel,
-din-unterschrift,
-din-falzmarke-1,
-din-falzmarke-2,
-din-lochmarke {
-  display: block;
-}
 
 /* Leere Anschriftzeilen duerfen keinen Platz behalten. `.single-line` hat eine
    feste Hoehe von 1.4em — ohne diese Regel reisst eine fehlende Strasse Name und
    Ort auseinander (Fall: Figuren ohne belegte Anschrift, Marker in der JSON). */
-din-empfaenger-firma:empty,
-din-empfaenger-strasse:empty {
-  display: none;
-}
 
 /* --- BLATT-BEDINGTE ELEMENTE & UTILITIES --- */
 #brief-ansicht {
@@ -366,74 +265,22 @@ din-empfaenger-strasse:empty {
   container-type: size;
 }
 
-:root[data-guides="true"] {
-  --hilfslinien-deckkraft: 0.55;
-}
-
 /* Schalter: Falz- & Lochmarken ausblenden */
-:root[data-marks="false"] din-falzmarke-1,
-:root[data-marks="false"] din-falzmarke-2,
-:root[data-marks="false"] din-lochmarke {
-  display: none !important;
-}
 
 /* --- SENSIBLER BETREFF (DIN 5008 § 20.9.2) ---
    Zwei zusätzliche Leerzeilen (2 × 4,23 mm) schieben den Betreff aus dem
    Sichtfenster eines Fensterumschlags. Der Infoblock bleibt unberührt, weil
    nur der Betreff selbst verschiebt. */
-:root[data-sensitive-subject="true"] #betreff {
-  margin-top: 8.46mm;
-}
 
 /* --- TEILBETREFF (DIN 5008 § 20.9.3) ---
    Standardmäßig aus: ein Brief ohne Zwischenüberschrift soll keine leere
    Zeile drucken. Die Sichtbarkeit ist reine CSS-Ableitung aus dem Schalter. */
-:root:not(:has(#toggle-teilbetreff:checked)) din-teilbetreff {
-  display: none;
-}
 
 /* DIN 5008 Maße Overlay an den Marken */
-:root[data-guides="true"] din-falzmarke-1::after {
-  content: 'Falz 1 (105 mm)';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: -7px;
-  font-size: 6.5pt;
-  white-space: nowrap;
-  color: oklch(0.45 0.08 250 / 70%);
-  pointer-events: none;
-}
-:root[data-guides="true"] body:has(#btn-form-a:checked) din-falzmarke-1::after {
-  content: 'Falz 1 (87 mm)';
-}
-:root[data-guides="true"] din-lochmarke::after {
-  content: 'Lochung (148,5 mm)';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: -7px;
-  font-size: 6.5pt;
-  white-space: nowrap;
-  color: oklch(0.45 0.08 250 / 70%);
-  pointer-events: none;
-}
-:root[data-guides="true"] din-falzmarke-2::after {
-  content: 'Falz 2 (210 mm)';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: -7px;
-  font-size: 6.5pt;
-  white-space: nowrap;
-  color: oklch(0.45 0.08 250 / 70%);
-  pointer-events: none;
-}
 
 /* Optionale DIN-Blöcke */
 din-vermerke, din-anlagenvermerk, din-geschaeftsangaben {
   display: none;
-}
-
-:root:has(#toggle-fuss:checked) din-geschaeftsangaben {
-  display: grid;
 }
 
 /* Fußzone: feste 4-Spalten-Zuordnung. Explizite grid-area statt grid-auto-flow:
@@ -442,196 +289,20 @@ din-vermerke, din-anlagenvermerk, din-geschaeftsangaben {
    jede Spalte stabil, auch wenn Felder leer sind.
    Spalte 1 = 19.7 (Register), Spalte 2 = 19.7 (Organe), Spalte 3 = 19.6 (Steuern),
    Spalte 4 = 19.6 (Bank und Geschäftsräume). */
-din-fuss-firma     { grid-area: 1 / 1; }
-din-fuss-sitz      { grid-area: 2 / 1; }
-din-fuss-gericht   { grid-area: 3 / 1; }
-din-fuss-hrb       { grid-area: 4 / 1; }
-din-fuss-vorstand  { grid-area: 1 / 2; }
-din-fuss-gf        { grid-area: 2 / 2; }
-din-fuss-stnr      { grid-area: 1 / 3; }
-din-fuss-ustid     { grid-area: 2 / 3; }
-din-fuss-bank      { grid-area: 1 / 4; }
-din-fuss-iban      { grid-area: 2 / 4; }
-din-fuss-bic       { grid-area: 3 / 4; }
-din-fuss-anschrift { grid-area: 4 / 4; }
 
 /* Vier Zeilen à 7.5pt müssen in die 15-mm-Zone passen. `.single-line` erzwingt
    1.4em Höhe (4 × 3.70 mm + 2 mm Padding = 16.8 mm, also 1.8 mm Überlauf).
    Mit 1.2 Zeilenhöhe: 4 × 3.18 mm + 2 mm = 14.7 mm. */
-din-geschaeftsangaben > .single-line {
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  line-height: 1.2;
-}
 
 :root:has(#toggle-anlagen:checked) din-anlagenvermerk {
   display: block;
 }
 
-din-vermerke[data-visible="true"] {
-  display: block;
-  opacity: 1;
-  color: var(--blatt-text);
-}
-
-din-vermerke {
-  font-size: --pt(attr(data-font type(<number>)));
-  font-weight: 500;
-  line-height: 1.4;
-  margin-bottom: 0.5cqh;
-  white-space: pre-wrap;
-  flex-shrink: 0;
-}
-
-din-anlagenvermerk {
-  margin-top: --mm-y(attr(data-margin-top type(<number>)));
-  font-size: 0.9em;
-  page-break-inside: avoid;
-}
-
-.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
-#anlagen-angabe { margin: 0; padding-left: 0; list-style-position: inside; }
-
-.is-dormant {
-  display: none !important;
-}
-
 /* Single-Line: Strikt einzeilig mit unveränderlicher, fixer Zeilenhöhe (Kein Stauchen, Kein Wachsen) */
-.single-line {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  height: 1.4em;
-  min-height: 1.4em;
-  max-height: 1.4em;
-  line-height: 1.4;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.single-line[contenteditable]:focus {
-  /* Kein vertikales Überlaufen benachbarter Zeilen: horizontal mitwandern */
-  text-overflow: clip;
-  overflow-x: auto;
-  scrollbar-width: none;
-  height: 1.4em;
-  min-height: 1.4em;
-  max-height: 1.4em;
-}
-
-.single-line[contenteditable]:focus::-webkit-scrollbar {
-  display: none;
-}
-
-#anschriftfeld > *,
-#infoblock > * {
-  flex-shrink: 0;
-}
 
 /* Anchors auf dem Blatt */
-#empfaenger-ort { anchor-name: --anchor-ort, --anchor-empfaenger-ort; }
-#empfaenger-firma { anchor-name: --anchor-firma, --anchor-empfaenger-firma; }
-#absender-tel { margin-top: 8px; }
-.unterschrift-zeile {
-  position: relative;
-  margin-top: 10px;
-  break-inside: avoid;
-  page-break-inside: avoid;
-  flex-shrink: 0;
-}
 
 /* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
-#unterschriftsbild-vorschau:not([src]),
-#unterschriftsbild-vorschau[src=""],
-#unterschriftsbild-vorschau[src^="data:image/svg"] { display: none; }
-
-#unterschriftsbild-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  translate: var(--sig-x, 11.9cqw) var(--sig-y, 96cqw);
-  scale: var(--sig-scale, 0.5);
-  rotate: var(--sig-rot, 0deg);
-  transform-origin: center center;
-  z-index: 50;
-  pointer-events: auto;
-  display: none;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
-#btn-unterschriftsbild-reset { display: none; }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-reset { display: flex; }
-body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-waehlen { display: none; }
-
-.unterschriftsbild-rahmen {
-  position: relative;
-  display: inline-block;
-  cursor: grab;
-  pointer-events: auto;
-  transform-origin: center center;
-  touch-action: none;
-}
-
-.unterschriftsbild-rahmen:focus-within,
-.unterschriftsbild-rahmen:hover {
-  outline: 2px dashed var(--accent-color);
-}
-
-.unterschriftsbild-rahmen:active {
-  cursor: grabbing;
-}
-
-.unterschriftsbild-griff, .unterschriftsbild-drehgriff {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background-color: var(--blatt-hintergrund);
-  border: 2px solid var(--accent-color);
-  border-radius: 50%;
-  z-index: 10;
-  display: none;
-}
-
-.unterschriftsbild-rahmen:focus-within .unterschriftsbild-griff,
-.unterschriftsbild-rahmen:focus-within .unterschriftsbild-drehgriff,
-.unterschriftsbild-rahmen:hover .unterschriftsbild-griff,
-.unterschriftsbild-rahmen:hover .unterschriftsbild-drehgriff {
-  display: block;
-}
-
-.unterschriftsbild-drehgriff {
-  top: -24px;
-  left: 50%;
-  transform: translateX(-50%);
-  cursor: grab;
-}
-.unterschriftsbild-drehgriff::after {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 2px;
-  height: 12px;
-  background-color: var(--accent-color);
-  transform: translateX(-50%);
-  z-index: -1;
-}
-
-.unterschriftsbild-griff.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
-.unterschriftsbild-griff.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
-.unterschriftsbild-griff.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
-.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
-
-#unterschriftsbild-vorschau {
-  display: block;
-  max-inline-size: 100%;
-  block-size: auto;
-  pointer-events: none;
-  mix-blend-mode: multiply; /* Weißer Papierhintergrund wird unsichtbar */
-  filter: contrast(1.15) brightness(1.05);
-}
 
 /* --- D1: OVERFLOW-INDIKATOR (Zero-Druck-Garantie) --- */
 din-blatt[data-ueberlauf="true"]::after {
@@ -657,7 +328,3 @@ din-blatt[data-ueberlauf="true"]::after {
     display: none !important;
   }
 }
-
-
-
-

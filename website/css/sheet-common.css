@@ -1,0 +1,410 @@
+/* css/sheet-common.css — gemeinsame Blatt-Regeln fuer Einzel- und Mehrseitenansicht.
+ *
+ * Enthaelt die Regeln, die in sheet.css und sheet-multipage.css zeichengleich
+ * standen (72 Regeln, Stand 2026-11-08): Typografie der Briefelemente,
+ * Inline-Formate, Interaktions-Zustaende, Signatur-Overlay und die
+ * Leer-Zustands-Regeln. Beides laedt diese Datei VOR dem jeweiligen
+ * Blatt-Stylesheet; die Blatt-Dateien behalten nur ihre Geometrie.
+ */
+
+
+body:has(#btn-form-a:checked) din-blatt {
+  --briefkopf-y: --mm-y(attr(data-briefkopf-y-a type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
+  --datum-y: --mm-y(attr(data-datum-y-a type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-a type(<number>))); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-a type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-a type(<number>)));
+}
+
+din-rucksendeangabe,
+din-empfaenger-firma,
+din-empfaenger-strasse,
+din-empfaenger-ort,
+din-absender-strasse,
+din-absender-ort,
+din-absender-tel,
+din-absender-mail,
+din-betreff,
+din-anrede,
+din-grussformel,
+din-unterschrift,
+din-falzmarke-1,
+din-falzmarke-2,
+din-lochmarke {
+  display: block;
+}
+
+din-empfaenger-firma:empty,
+din-empfaenger-strasse:empty {
+  display: none;
+}
+
+:root[data-guides="true"] {
+  --hilfslinien-deckkraft: 0.55;
+}
+
+:root[data-marks="false"] din-falzmarke-1,
+:root[data-marks="false"] din-falzmarke-2,
+:root[data-marks="false"] din-lochmarke {
+  display: none !important;
+}
+
+:root[data-sensitive-subject="true"] #betreff {
+  margin-top: 8.46mm;
+}
+
+:root:not(:has(#toggle-teilbetreff:checked)) din-teilbetreff {
+  display: none;
+}
+
+:root[data-guides="true"] din-falzmarke-1::after {
+  content: 'Falz 1 (105 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+
+:root[data-guides="true"] body:has(#btn-form-a:checked) din-falzmarke-1::after {
+  content: 'Falz 1 (87 mm)';
+}
+
+:root[data-guides="true"] din-lochmarke::after {
+  content: 'Lochung (148,5 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+
+:root[data-guides="true"] din-falzmarke-2::after {
+  content: 'Falz 2 (210 mm)';
+  position: absolute;
+  left: calc(100% + 3px);
+  top: -7px;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  color: oklch(0.45 0.08 250 / 70%);
+  pointer-events: none;
+}
+
+:root:has(#toggle-fuss:checked) din-geschaeftsangaben {
+  display: grid;
+}
+
+din-fuss-firma     { grid-area: 1 / 1; }
+
+din-fuss-sitz      { grid-area: 2 / 1; }
+
+din-fuss-gericht   { grid-area: 3 / 1; }
+
+din-fuss-hrb       { grid-area: 4 / 1; }
+
+din-fuss-vorstand  { grid-area: 1 / 2; }
+
+din-fuss-gf        { grid-area: 2 / 2; }
+
+din-fuss-stnr      { grid-area: 1 / 3; }
+
+din-fuss-ustid     { grid-area: 2 / 3; }
+
+din-fuss-bank      { grid-area: 1 / 4; }
+
+din-fuss-iban      { grid-area: 2 / 4; }
+
+din-fuss-bic       { grid-area: 3 / 4; }
+
+din-fuss-anschrift { grid-area: 4 / 4; }
+
+din-geschaeftsangaben > .single-line {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  line-height: 1.2;
+}
+
+din-vermerke[data-visible="true"] {
+  display: block;
+  opacity: 1;
+  color: var(--blatt-text);
+}
+
+din-vermerke {
+  font-size: --pt(attr(data-font type(<number>)));
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 0.5cqh;
+  white-space: pre-wrap;
+  flex-shrink: 0;
+}
+
+din-anlagenvermerk {
+  margin-top: --mm-y(attr(data-margin-top type(<number>)));
+  font-size: 0.9em;
+  page-break-inside: avoid;
+}
+
+.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
+
+#anlagen-angabe { margin: 0; padding-left: 0; list-style-position: inside; }
+
+.is-dormant {
+  display: none !important;
+}
+
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+  line-height: 1.4;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.single-line[contenteditable]:focus {
+  /* Kein vertikales Überlaufen benachbarter Zeilen: horizontal mitwandern */
+  text-overflow: clip;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+}
+
+.single-line[contenteditable]:focus::-webkit-scrollbar {
+  display: none;
+}
+
+#anschriftfeld > *,
+#infoblock > * {
+  flex-shrink: 0;
+}
+
+#empfaenger-ort { anchor-name: --anchor-ort, --anchor-empfaenger-ort; }
+
+#empfaenger-firma { anchor-name: --anchor-firma, --anchor-empfaenger-firma; }
+
+#absender-tel { margin-top: 8px; }
+
+.unterschrift-zeile {
+  position: relative;
+  margin-top: 10px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  flex-shrink: 0;
+}
+
+#unterschriftsbild-vorschau:not([src]),
+#unterschriftsbild-vorschau[src=""],
+#unterschriftsbild-vorschau[src^="data:image/svg"] { display: none; }
+
+#unterschriftsbild-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: var(--sig-x, 11.9cqw) var(--sig-y, 96cqw);
+  scale: var(--sig-scale, 0.5);
+  rotate: var(--sig-rot, 0deg);
+  transform-origin: center center;
+  z-index: 50;
+  pointer-events: auto;
+  display: none;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
+
+#btn-unterschriftsbild-reset { display: none; }
+
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-reset { display: flex; }
+
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #btn-unterschriftsbild-waehlen { display: none; }
+
+.unterschriftsbild-rahmen {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  pointer-events: auto;
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.unterschriftsbild-rahmen:focus-within,
+.unterschriftsbild-rahmen:hover {
+  outline: 2px dashed var(--accent-color);
+}
+
+.unterschriftsbild-rahmen:active {
+  cursor: grabbing;
+}
+
+.unterschriftsbild-griff, .unterschriftsbild-drehgriff {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--blatt-hintergrund);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.unterschriftsbild-rahmen:focus-within .unterschriftsbild-griff,
+.unterschriftsbild-rahmen:focus-within .unterschriftsbild-drehgriff,
+.unterschriftsbild-rahmen:hover .unterschriftsbild-griff,
+.unterschriftsbild-rahmen:hover .unterschriftsbild-drehgriff {
+  display: block;
+}
+
+.unterschriftsbild-drehgriff {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+
+.unterschriftsbild-drehgriff::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.unterschriftsbild-griff.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
+
+.unterschriftsbild-griff.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
+
+.unterschriftsbild-griff.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
+
+.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#unterschriftsbild-vorschau {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  pointer-events: none;
+  mix-blend-mode: multiply; /* Weißer Papierhintergrund wird unsichtbar */
+  filter: contrast(1.15) brightness(1.05);
+}
+
+
+@scope (din-blatt) {
+
+  [contenteditable] {
+      /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
+      outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
+      outline-offset: -1px;
+      border-radius: 3px;
+      background: transparent;
+      transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
+    }
+
+  :root:not([data-guides="true"]) & [contenteditable]:not(:hover):not(:focus) {
+      outline: none;
+    }
+
+  [contenteditable]:hover:not(:focus) {
+      /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
+      outline: 1.5px solid var(--accent-color);
+      outline-offset: -1.5px;
+      background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
+    }
+
+  [contenteditable]:focus {
+      /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
+      outline: 2px solid var(--accent-color);
+      outline-offset: -2px;
+      background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
+    }
+
+  [data-placeholder]:empty::before,
+    [contenteditable][data-placeholder]:empty::before {
+      content: attr(data-placeholder);
+      color: var(--blatt-schwach);
+      font-style: italic;
+      pointer-events: none;
+    }
+
+  #anrede[data-generated],
+    #grussformel[data-generated] {
+      color: var(--blatt-schwach);
+      font-style: italic;
+    }
+
+  din-falzmarke-1 { top: var(--falz-oben-y); }
+
+  din-falzmarke-2 { top: var(--falz-unten-y); }
+
+  din-lochmarke {
+      top: var(--lochmarke-y);
+      width: --mm-x(attr(data-w type(<number>))); /* Breite: 12mm */
+      border-bottom-style: solid;
+    }
+
+  #anschriftfeld::after {
+      content: 'Kuvert-Fenster 90 × 45 mm';
+      font-size: 7pt;
+      font-weight: 500;
+      color: oklch(0.45 0.08 250 / 70%);
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      padding: 3px 6px;
+      box-sizing: border-box;
+      position: absolute;
+      top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
+      left: 0;
+      width: --mm-x(attr(data-visier-w type(<number>)));
+      height: --mm-y(attr(data-visier-h type(<number>)));
+      border-radius: --mm-x(3);
+      border: 1px dashed oklch(0.5 0.05 250 / 40%);
+      background: oklch(0.5 0.05 250 / 4%);
+      opacity: var(--hilfslinien-deckkraft);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+  #text b, #text strong {
+      font-weight: 700;
+    }
+
+  #text u {
+      text-decoration: none;
+    }
+
+  #text p {
+      margin: 0 0 4.5mm 0;
+    }
+
+  #text blockquote {
+      margin: 8px 0;
+      padding-left: 12px;
+      border-left: 3px solid var(--blatt-schwach);
+      color: var(--blatt-schwach);
+      font-style: italic;
+    }
+
+  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+    :root:has(#toggle-fuss:checked) #geschaeftsangaben {
+      display: grid;
+    }
+
+}

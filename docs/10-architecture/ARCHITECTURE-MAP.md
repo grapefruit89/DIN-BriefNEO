@@ -83,13 +83,16 @@ Zwei häufig gesuchte Einstiegspunkte: `applyLetterDate` liegt in `persistence.j
 | :--- | :--- | :--- | :--- |
 | 1 | `css/base.css` | immer | Reset, Design-Tokens, Systemschrift-Kaskade |
 | 2 | `css/sidebar.css` | immer | Seitenleiste, Formulare, Popover |
-| 3 | `css/sheet.css` | **nur `index.html`** | DIN-A4-Geometrie, Satzspiegel, Faltmarken |
-| 3' | `css/sheet-multipage.css` | **nur `multipage.html`** | ersetzt `sheet.css`, nicht ergänzend |
+| 2' | `css/sheet-common.css` | **beide Seiten** | gemeinsame Blatt-Regeln: Typografie der Briefelemente, Inline-Formate, Interaktions-Zustände, Signatur-Overlay, Leer-Zustände |
+| 3 | `css/sheet.css` | **nur `index.html`** | nur noch Geometrie/Positionierung (Einzelseite) |
+| 3' | `css/sheet-multipage.css` | **nur `multipage.html`** | nur noch `column-count`/Paged-Setup |
 | 4 | `css/print.css` | `media="print"` | Drucklayout; `orphans`/`widows`, Umbruchregeln |
 | 4' | `css/print-multipage.css` | `media="print"` | ersetzt `print.css` im Mehrseiten-Modus |
 
 Reihenfolge zählt: Spätere Dateien überschreiben frühere bei gleicher Spezifität.
-`sheet.css` und `sheet-multipage.css` schließen sich **aus** — eine Seite lädt nie beide.
+`sheet.css` und `sheet-multipage.css` schließen sich **aus** — eine Seite lädt nie beide;
+`sheet-common.css` lädt immer davor. Gemeinsame Druck-Resets (App-Shell verstecken,
+Falzmarken, Leer-Zustände) liegen in `base.css` unter `@media print`.
 
 ## 4. Daten (zur Laufzeit geladen, nicht im Bundle)
 

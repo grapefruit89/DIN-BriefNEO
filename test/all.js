@@ -2,7 +2,7 @@
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
-import { setField as setTestbriefField } from '../website/addons/testbrief/testbrief.js';
+import { bezeichne, franchiseKey, generateNerdText, getCharHook, randomBetreff, setField as setTestbriefField, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
 import { AddressIntelligence, buildFirmenIndex, buildOrtIndex, buildPrefixIndex, detectPlzInputPattern, filterPostcodePrefix, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
@@ -1686,6 +1686,73 @@ describe('formatTelefonnummer (DIN 5008 11.3.2)', () => {
     assertEqual(formatTelefonnummer(undefined), '');
     assertEqual(formatTelefonnummer('keine Nummer'), 'keine Nummer');
     assertEqual(formatTelefonnummer('228 123456'), '228 123456');
+  });
+});
+
+describe('Testbrief: Thema, Besetzung und Szenario', () => {
+  /** Figur mit allen drei Anker-Arten, damit die Prioritaet pruefbar ist. */
+  const batman = {
+    name: 'Batman',
+    buergerlicherName: 'Bruce Wayne',
+    alias: ['Dunkler Ritter'],
+    firma: 'Wayne Enterprises',
+    hooks: ['Batarang'],
+    franchise: 'DC Comics',
+    ort: 'Gotham City'
+  };
+  /** @param {string} name @param {string} franchise @returns {any} */
+  const figur = (name, franchise) => ({ name, buergerlicherName: name, alias: [name], firma: '', hooks: ['Dings'], franchise, ort: 'Teststadt' });
+
+  it('getCharHook nimmt den Hook, waehleAnker weiterhin den Alias', () => {
+    assertEqual(getCharHook(batman), 'Batarang');
+    const anker = waehleAnker(batman);
+    assert(anker !== null, 'waehleAnker liefert keinen Anker');
+    assertEqual(anker?.art, 'alias');
+    assertEqual(anker?.text, 'Dunkler Ritter');
+  });
+
+  it('bezeichne bleibt bei der Personenbezeichnung (Alias vor Hook)', () => {
+    assert(bezeichne(batman).includes('auch bekannt als'), 'Alias-Form fehlt');
+    assert(!bezeichne(batman).includes('bekannt für'), 'Hook hat die Personenbezeichnung uebernommen');
+  });
+
+  it('franchiseKey fasst gleiche Universen zusammen', () => {
+    assertEqual(franchiseKey({ franchise: 'Marvel Comics' }), franchiseKey({ franchise: 'Marvel' }));
+    assertEqual(franchiseKey({ franchise: 'Red Dead Redemption 2' }), franchiseKey({ franchise: 'Red Dead Redemption' }));
+    assert(franchiseKey({ franchise: 'Marvel' }) !== franchiseKey({ franchise: 'DC Comics' }));
+  });
+
+  it('waehleBesetzung liefert Hook-Absender und fremdes Franchise', () => {
+    const figuren = [
+      figur('A1', 'Marvel'), figur('A2', 'Marvel'), figur('A3', 'Marvel'),
+      figur('B1', 'DC Comics'), figur('B2', 'DC Comics'), figur('B3', 'DC Comics'),
+      figur('C1', 'Star Wars'), figur('C2', 'Star Wars'), figur('C3', 'Star Wars')
+    ];
+    for (let i = 0; i < 50; i++) {
+      const { sender, recipient, dritte } = waehleBesetzung(figuren);
+      assert(sender !== recipient, 'Absender und Empfaenger sind identisch');
+      assert(franchiseKey(sender) !== franchiseKey(recipient), 'Gleiches Franchise gewuerfelt');
+      assert(Array.isArray(sender.hooks) && sender.hooks.length > 0, 'Absender ohne Hook');
+      assert(dritte.length <= 3, 'Mehr als drei Beteiligte');
+      assert(!dritte.includes(sender) && !dritte.includes(recipient), 'Beteiligter ist Absender oder Empfaenger');
+    }
+  });
+
+  it('wuerfelt sechs Szenarien und haelt Betreff und Text zusammen', () => {
+    /** @type {Set<string>} */
+    const ids = new Set();
+    for (let i = 0; i < 600; i++) {
+      const szenario = waehleSzenario();
+      ids.add(szenario.id);
+      const betreff = randomBetreff('Handtuch', szenario);
+      const text = generateNerdText(batman, figur('B1', 'DC Comics'), [], 'Handtuch', szenario);
+      assert(betreff.includes('Handtuch'), 'Betreff ohne Thema');
+      assert(text.includes('Handtuch'), 'Text ohne Thema');
+      assert(text.startsWith(szenario.text({
+        sName: bezeichne(batman), sOrt: 'Gotham City', rName: 'B1', rOrt: 'Teststadt', thema: 'Handtuch'
+      }).split('\n\n')[0]), 'Text stammt nicht aus dem gewuerfelten Szenario');
+    }
+    assertEqual(ids.size, 6);
   });
 });
 

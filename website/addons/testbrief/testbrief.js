@@ -268,24 +268,65 @@ export function istBriefbar(h) {
 
 /** @type {any[] | null} */
 let heroesCache = null;
-/** @type {any[] | null} */
-let heroesPool = null;
-let heroIndex = 0;
-/** @type {any | null} */
-let lastHero = null;
 
 /**
- * Zieht ein belegtes Thema für den Text.
- * Reihenfolge: Alias → einzelne Organisation → Hook → Franchise.
- * Erfundene Platzhalter entfallen; Franchise ist notfalls der einzige belegte Wert.
+ * Zieht das Thema des Briefes — den Hook der Figur.
+ * Reihenfolge: Hook → Alias → Organisation → Franchise.
+ *
+ * Hooks stehen hier zuerst, weil sie die konkretesten Gegenstände liefern
+ * („Handtuch", „Batmobil"). Die Personenbezeichnung bleibt davon unberührt:
+ * `bezeichne` nutzt weiterhin `waehleAnker`, und dort gilt Alias vor Hook —
+ * sonst stünde im Brief „Bruce Wayne, bekannt für Doppelleben".
+ *
  * @param {any} char
  * @returns {string}
  */
 export function getCharHook(char) {
+  /** @type {unknown[]} */
+  const roh = Array.isArray(char?.hooks) ? char.hooks : [];
+  const hooks = roh.map((h) => String(h ?? '').trim()).filter(Boolean);
+  if (hooks.length > 0) return zufall(hooks);
   const anker = waehleAnker(char);
   if (anker) return anker.text;
   const franchise = String(char?.franchise ?? '').trim();
   return franchise || 'einer dringenden Angelegenheit';
+}
+
+/**
+ * Hat die Figur mindestens einen brauchbaren Hook?
+ * @param {any} char
+ * @returns {boolean}
+ */
+export function hatHooks(char) {
+  /** @type {unknown[]} */
+  const roh = Array.isArray(char?.hooks) ? char.hooks : [];
+  return roh.some((h) => String(h ?? '').trim() !== '');
+}
+
+/**
+ * Franchises, die dasselbe Universum bezeichnen, aber anders heißen.
+ * Ohne diese Tabelle schriebe „Marvel" an „Marvel Comics".
+ */
+const FRANCHISE_ALIAS = {
+  'marvel comics': 'marvel',
+  'das lied von eis und feuer': 'game of thrones',
+  'bioshock infinite': 'bioshock',
+  'red dead redemption 2': 'red dead redemption'
+};
+
+/**
+ * Vergleichsschlüssel für „anderes Franchise". Klammerzusätze entfallen,
+ * bekannt gleiche Universen werden zusammengeführt.
+ * @param {any} char
+ * @returns {string}
+ */
+export function franchiseKey(char) {
+  const roh = String(char?.franchise ?? '')
+    .toLowerCase()
+    .replace(/\s*\(.*?\)\s*/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return FRANCHISE_ALIAS[/** @type {keyof typeof FRANCHISE_ALIAS} */ (roh)] ?? roh;
 }
 
 /**
@@ -328,76 +369,130 @@ function istNamenslangform(kandidat, name) {
   return a === b || a.startsWith(`${b} `) || b.startsWith(`${a} `);
 }
 
+/* =========================================================================================
+ * 2b. BRIEFKERN — SECHS SZENARIEN
+ * ========================================================================================= */
+
 /**
- * Generiert einen passenden Betreff zum gewürfelten Thema.
- * Doppelpunkt-Form: das Thema steht als Nachtrag, damit keine Kasus-Fehler
- * entstehen („bezüglich Netz" wäre falsch).
- * @param {string} themenHook
- * @returns {string}
+ * @typedef {object} BriefKontext
+ * @property {string} sName  Absender, wie er im Satz funktioniert
+ * @property {string} sOrt   belegter Ort des Absenders
+ * @property {string} rName  Empfänger, mit Namen angesprochen
+ * @property {string} rOrt   belegter Ort des Empfängers
+ * @property {string} thema  der Hook des Absenders
  */
-export function randomBetreff(themenHook) {
-  const options = [
-    `Dringende Mitteilung: ${themenHook}`,
-    `Sachstand und Maßnahmenkatalog: ${themenHook}`,
-    `Außerordentliche Kündigung: ${themenHook}`,
-    `Fristsetzung und Aufforderung zur Stellungnahme: ${themenHook}`,
-    `Kooperationsvereinbarung und Beistandspakt: ${themenHook}`
-  ];
-  return options[Math.floor(Math.random() * options.length)];
+
+/**
+ * @typedef {object} Szenario
+ * @property {string} id
+ * @property {(thema: string) => string} betreff
+ * @property {(k: BriefKontext) => string} text
+ */
+
+/**
+ * Sechs Briefgattungen. Betreff und Text stammen aus demselben Szenario, damit
+ * Überschrift und Inhalt nicht auseinanderlaufen (vorher wurden sie getrennt
+ * gewürfelt und passten in der Hälfte der Fälle nicht zusammen).
+ *
+ * Jede Stelle, an der der Hook steht, ist Doppelpunkt-Nachtrag
+ * („… zum Vorgang: Handtuch"). Hooks sind nackte Nomen ohne Artikel — nach
+ * „im Umgang mit" wäre jeder Kasus falsch.
+ *
+ * @type {Szenario[]}
+ */
+const SZENARIEN = [
+  {
+    id: 'kuendigung',
+    betreff: (t) => `Außerordentliche Kündigung: ${t}`,
+    text: (k) =>
+      `hiermit kündige ich die zwischen uns bestehende Vereinbarung fristlos und mit sofortiger Wirkung.\n\n` +
+      `Anlass ist der Vorgang: ${k.thema}. Trotz mehrfacher Aufforderung haben Sie es unterlassen, den ordnungsgemäßen Zustand herzustellen. Als ${k.sName} kann ich Ihnen aus ${k.sOrt} mitteilen, dass mir eine weitere Zusammenarbeit mit Ihnen, ${k.rName}, nicht zumutbar ist.\n\n` +
+      `Ich verlange die vollständige Rückgabe binnen 14 Tagen sowie eine schriftliche Bestätigung der Vertragsauflösung.`
+  },
+  {
+    id: 'beschwerde',
+    betreff: (t) => `Dienstaufsichtsbeschwerde: ${t}`,
+    text: (k) =>
+      `ich wende mich mit einer förmlichen Beschwerde an Sie, ${k.rName}.\n\n` +
+      `Der Vorgang: ${k.thema} ist in einem Maße eskaliert, das jeder sachlichen Grundlage entbehrt. Ihre zuständige Stelle in ${k.rOrt} hat es versäumt, die offensichtlichen Mängel zu beseitigen. Als ${k.sName} sehe ich mich aus ${k.sOrt} gezwungen, die Aufsicht einzuschalten.\n\n` +
+      `Ich erwarte einen Maßnahmenkatalog bis zum Ende der Woche.`
+  },
+  {
+    id: 'schadensersatz',
+    betreff: (t) => `Schadensersatzforderung: ${t}`,
+    text: (k) =>
+      `hiermit mache ich Schadensersatz wegen grober Fahrlässigkeit geltend, ${k.rName}.\n\n` +
+      `Im Zusammenhang mit dem Vorgang: ${k.thema} ist ein Schaden entstanden, der die zumutbare Bagatellgrenze um ein Vielfaches überschreitet. Die von Ihnen in ${k.rOrt} zu verantwortenden Umstände sind dokumentiert und beigefügt.\n\n` +
+      `Ich fordere Sie zur Regulierung binnen 30 Tagen auf; andernfalls ergeht Mahnbescheid.`
+  },
+  {
+    id: 'auskunft',
+    betreff: (t) => `Auskunftsersuchen: ${t}`,
+    text: (k) =>
+      `ich bitte um vollumfängliche Auskunft zum Sachverhalt: ${k.thema}.\n\n` +
+      `Seit dem Vorfall in ${k.rOrt} sind bei mir als ${k.sName} erhebliche Rückfragen offen. Ich setze Ihnen, ${k.rName}, hiermit eine Frist von zehn Werktagen zur schriftlichen Stellungnahme.\n\n` +
+      `Nach fruchtlosem Fristablauf behalte ich mir weitere Schritte ausdrücklich vor.`
+  },
+  {
+    id: 'abmahnung',
+    betreff: (t) => `Abmahnung und Unterlassungsaufforderung: ${t}`,
+    text: (k) =>
+      `hiermit mahne ich Sie, ${k.rName}, wegen des Vorgangs: ${k.thema} ab.\n\n` +
+      `Die mir entstandenen Ausfallzeiten und Sachschäden überschreiten das zumutbare Maß erheblich. Ich fordere Sie auf, bis spätestens Ende der Woche eine strafbewehrte Unterlassungserklärung abzugeben.\n\n` +
+      `Andernfalls werde ich die Angelegenheit ohne weitere Vorwarnung rechtlich eskalieren.`
+  },
+  {
+    id: 'kooperation',
+    betreff: (t) => `Angebot einer gemeinsamen Klärung: ${t}`,
+    text: (k) =>
+      `ich wende mich in einer wenig alltäglichen Angelegenheit an Sie, ${k.rName}.\n\n` +
+      `Seit einiger Zeit beschäftigt mich der Vorgang: ${k.thema}, und ich halte eine gemeinsame Klärung für den vernünftigsten Weg. Von ${k.sOrt} aus würde ich als ${k.sName} es begrüßen, wenn wir die offenen Fragen in Ihrem Zuständigkeitsbereich in ${k.rOrt} gemeinsam durchgehen könnten.\n\n` +
+      `Ich schlage einen Termin in den kommenden zwei Wochen vor und freue mich auf Ihre Rückmeldung.`
+  }
+];
+
+/**
+ * Würfelt eine Briefgattung.
+ * @param {() => number} [rnd] Zufallsquelle, damit die Auswahl testbar bleibt.
+ * @returns {Szenario}
+ */
+export function waehleSzenario(rnd = Math.random) {
+  return SZENARIEN[Math.floor(rnd() * SZENARIEN.length)] ?? SZENARIEN[0];
 }
 
 /**
- * Erzeugt den Text anhand der gewürfelten Familie (n = 0..3 Dritte).
+ * Betreff zum gewürfelten Szenario.
+ * @param {string} themenHook
+ * @param {Szenario} [szenario] Ohne Angabe wird gewürfelt (Altverhalten).
+ * @returns {string}
+ */
+export function randomBetreff(themenHook, szenario = waehleSzenario()) {
+  return szenario.betreff(themenHook);
+}
+
+/**
+ * Erzeugt den Text aus demselben Szenario wie der Betreff.
+ * Die Dritten sind Zeugen beziehungsweise Beteiligte, keine Mit-Absender —
+ * ein Satz am Ende genügt, unabhängig davon, ob es 0 oder 3 sind.
  * @param {any} sender
  * @param {any} recipient
  * @param {any[]} dritte
  * @param {string} themenHook
+ * @param {Szenario} [szenario]
  * @returns {string}
  */
-export function generateNerdText(sender, recipient, dritte, themenHook) {
-  const n = dritte.length;
-  const sName = bezeichne(sender);
-  const sOrt = resolveOrt(sender) || 'hier';
-  const rOrt = resolveOrt(recipient) || 'dort';
-
-  if (n === 0) {
-    const templatesA = [
-      `hiermit kündige ich unsere bisherige Vereinbarung mit sofortiger Wirkung.\n\nDie jüngsten Entwicklungen rund um ${themenHook} machen eine Fortführung für mich schlicht unmöglich. Als ${sName} kann ich die damit verbundenen Risiken in ${sOrt} nicht länger verantworten.\n\nIch bitte um schriftliche Bestätigung über das Vertragsende und den Verbleib aller Unterlagen.`,
-      `bezugnehmend auf unsere Situation unterbreite ich Ihnen einen dringenden Vorschlag zur Zusammenarbeit.\n\nDie Lage bezüglich ${themenHook} erfordert entschlossenes Handeln unserer beiden Seiten. Gerne stelle ich meine Erfahrungen als ${sName} zur Verfügung, um eine geordnete Lösung für ${rOrt} herbeizuführen.\n\nÜber eine kurzfristige Rückmeldung zur Abstimmung der nächsten Schritte freue ich mich.`,
-      `ich wende mich heute mit einem formellen Auskunftsersuchen an Ihre Adresse.\n\nIn den vergangenen Tagen sind vermehrt Fragen zu ${themenHook} aufgetreten, die Ihre Zuständigkeit in ${rOrt} berühren. Zur Wahrung meiner berechtigten Interessen fordere ich Sie hiermit auf, den aktuellen Sachstand darzulegen.\n\nNach fruchtlosem Fristablauf behalte ich mir weitere Schritte vor.`
-    ];
-    return templatesA[Math.floor(Math.random() * templatesA.length)];
-  }
-
-  if (n === 1) {
-    const d0Name = bezeichne(dritte[0]);
-    const d0Ort = resolveOrt(dritte[0]) || 'seinem Quartier';
-    const templatesB = [
-      `ich muss Ihnen heute von einem besorgniserregenden Vorfall berichten.\n\n${d0Name} hat die Lage in Bezug auf ${themenHook} vollkommen eskaliert. Was zunächst harmlos schien, bedroht inzwischen die Ordnung von ${sOrt} bis nach ${rOrt}.\n\nIch ersuche Sie dringend um Beistand und eine gemeinsame Lagebesprechung.`,
-      `auf Empfehlung von ${d0Name} trete ich heute direkt mit Ihnen in Kontakt.\n\nGemeinsam haben wir analysiert, dass ${themenHook} einer neuen Vereinbarung zwischen uns bedarf. Die Expertise aus ${d0Ort} belegt eindeutig, dass ein abgestimmtes Vorgehen unerlässlich ist.\n\nBitte teilen Sie mir zeitnah mit, wann Ihnen ein persönlicher Austausch möglich ist.`
-    ];
-    return templatesB[Math.floor(Math.random() * templatesB.length)];
-  }
-
-  if (n === 2) {
-    const d0Name = bezeichne(dritte[0]);
-    const d1Name = bezeichne(dritte[1]);
-    const templatesC = [
-      `die Ereignisse der letzten Tage zwingen mich zu diesem außerordentlichen Schreiben.\n\n${d0Name} und ${d1Name} haben wegen ${themenHook} einen offenen Konflikt begonnen. Die Auswirkungen sind mittlerweile bis in meine Wirkungsstätte spürbar.\n\nIch fordere Sie als Verantwortliche auf, unverzüglich mäßigend auf beide Parteien einzuwirken.`,
-      `nach vertraulicher Rücksprache mit ${d0Name} sowie ${d1Name} wende ich mich an Sie.\n\nWir sind übereingekommen, dass die Vorkommnisse um ${themenHook} eine gemeinsame Stellungnahme verlangen. Unsere Kräfte stehen bereit, um Schaden von ${rOrt} abzuwenden.\n\nIch erwarte Ihre verbindliche Rückäußerung binnen zehn Werktagen.`
-    ];
-    return templatesC[Math.floor(Math.random() * templatesC.length)];
-  }
-
-  // n === 3
-  const d0Name = bezeichne(dritte[0]);
-  const d1Name = bezeichne(dritte[1]);
-  const d2Name = bezeichne(dritte[2]);
-  const templatesD = [
-    `zur Abwendung einer drohenden Krise berufe ich hiermit eine Dringlichkeitssitzung ein.\n\nSowohl ${d0Name}, ${d1Name} als auch ${d2Name} haben bestätigt, dass ${themenHook} außer Kontrolle geraten ist. Es bedarf unseres geschlossenen Auftretens.\n\nIch bitte Sie, sich unverzüglich für den gemeinsamen Termin bereitzuhalten.`,
-    `hiermit übermittle ich Ihnen den konsolidierten Lagebericht unserer Beobachter.\n\nDie Berichte von ${d0Name}, ${d1Name} und ${d2Name} stimmen überein: Das Thema ${themenHook} erfordert sofortige Schutzmaßnahmen auf beiden Seiten.\n\nBitte bestätigen Sie den Erhalt dieser Mitteilung und leiten Sie die vereinbarten Notfallprotokolle ein.`
-  ];
-  return templatesD[Math.floor(Math.random() * templatesD.length)];
+export function generateNerdText(sender, recipient, dritte, themenHook, szenario = waehleSzenario()) {
+  const kontext = {
+    sName: bezeichne(sender) || 'die absendende Stelle',
+    sOrt: resolveOrt(sender) || 'hier',
+    rName: String(recipient?.name ?? '').trim() || 'die zuständige Stelle',
+    rOrt: resolveOrt(recipient) || 'Ihrem Zuständigkeitsbereich',
+    thema: themenHook
+  };
+  const text = szenario.text(kontext);
+  const beteiligte = (dritte || []).map((d) => String(d?.name ?? '').trim()).filter(Boolean);
+  if (beteiligte.length === 0) return text;
+  return `${text}\n\nBeteiligt sind nach meinem Kenntnisstand: ${beteiligte.join(', ')}.`;
 }
 
 /**
@@ -433,19 +528,13 @@ function shuffle(arr) {
 }
 
 /**
- * Zieht den nächsten Helden aus dem Pool mit Reshuffle-Ausschluss des letzten Helden.
- * @param {any[]} heroes
- * @returns {any}
+ * Ein Element zufällig ziehen (ohne Ausschluss-Logik, ohne globalen Zustand).
+ * @template T
+ * @param {T[]} arr
+ * @returns {T}
  */
-function nextHero(heroes) {
-  if (!heroesPool || heroIndex >= heroesPool.length) {
-    const filtered = lastHero ? heroes.filter(h => h !== lastHero) : heroes;
-    heroesPool = shuffle(filtered);
-    heroIndex = 0;
-  }
-  const hero = heroesPool[heroIndex++];
-  lastHero = hero;
-  return hero;
+function zufall(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 /**
@@ -512,6 +601,37 @@ export function setField(id, value) {
  * ========================================================================================= */
 
 /**
+ * Würfelt eine vollständige Besetzung.
+ *
+ * - Absender: Figur mit eigenem Hook (Fallback: alle), denn der Absender
+ *   liefert das Thema des Briefes.
+ * - Empfänger: aus einem anderen Franchise, damit kein Universum an sich
+ *   selbst schreibt.
+ * - Dritte: 0..3 aus dem Rest; sie werden im Text zu Beteiligten.
+ *
+ * Ausgelagert, damit die Messung (`tools/testbrief-messung.mjs`) dieselbe
+ * Logik prüft wie der Klick — keine zweite Wahrheit im Testcode.
+ *
+ * @param {any[]} heroes
+ * @returns {{ sender: any, recipient: any, dritte: any[] }}
+ */
+export function waehleBesetzung(heroes) {
+  const usable = heroes.filter(istBriefbar);
+  const mitHooks = usable.filter(hatHooks);
+  const senderPool = mitHooks.length > 0 ? mitHooks : usable;
+  const sender = zufall(senderPool);
+
+  const eigenesFranchise = franchiseKey(sender);
+  const fremde = usable.filter((c) => c !== sender && franchiseKey(c) !== eigenesFranchise);
+  const recipientPool = fremde.length > 0 ? fremde : usable.filter((c) => c !== sender);
+  const recipient = zufall(recipientPool);
+
+  const rest = usable.filter((c) => c !== sender && c !== recipient);
+  const numDritte = Math.floor(Math.random() * 4);
+  return { sender, recipient, dritte: shuffle(rest).slice(0, numDritte) };
+}
+
+/**
  * Befüllt alle Felder des Briefes mit zwei Pflichtfiguren und 0..3 Dritten.
  */
 export async function wuerfelTestbrief() {
@@ -524,21 +644,12 @@ export async function wuerfelTestbrief() {
     return;
   }
 
-  // 1. Pflicht-Charaktere
-  const sender = nextHero(usableHeroes);
-  const recipient = nextHero(usableHeroes);
+  // 1. Besetzung würfeln (ausgelagert, damit die Messung dieselbe Logik prüft).
+  const { sender, recipient, dritte } = waehleBesetzung(usableHeroes);
 
-  // 2. Gewürfelte Dritte (n = 0..3)
-  const numDritte = Math.floor(Math.random() * 4);
-  const dritte = [];
-  for (let i = 0; i < numDritte; i++) {
-    dritte.push(nextHero(usableHeroes));
-  }
-
-  // 3. Thema aus allen beteiligten Charakteren würfeln
-  const allChars = [sender, recipient, ...dritte];
-  const themenChar = allChars[Math.floor(Math.random() * allChars.length)];
-  const themenHook = getCharHook(themenChar);
+  // 2. Thema: der Hook des Absenders, nicht ein Zufallstreffer aus der Besetzung.
+  const themenHook = getCharHook(sender);
+  const szenario = waehleSzenario();
 
   const senderName = sender.buergerlicherName || sender.name;
   const recipientName = recipient.buergerlicherName || recipient.name;
@@ -561,9 +672,9 @@ export async function wuerfelTestbrief() {
   setField('empfaenger-ort', resolveOrtZeile(recipient));
 
   // 6. Briefkern
-  setField('betreff', randomBetreff(themenHook));
+  setField('betreff', randomBetreff(themenHook, szenario));
   setField('anrede', deriveAnrede(sender, recipient));
-  setField('text', generateNerdText(sender, recipient, dritte, themenHook));
+  setField('text', generateNerdText(sender, recipient, dritte, themenHook, szenario));
   setField('grussformel', 'Mit freundlichen Grüßen');
   setField('unterschrift', senderName);
   applyLetterDate();

@@ -4,7 +4,7 @@ title: 'Testbrief-Generator — Adressleiter, Ankerleiter und Satzbausteine'
 type: guide
 status: active
 created: '2026-10-26'
-updated: '2026-10-26'
+updated: '2026-11-08'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -81,9 +81,14 @@ Die Scheinanschrift-Erkennung greift nur, wenn der Stamms des Werts **exakt** de
 Figurennamen entspricht. Kanonische Bezeichnungen wie `Hokage-Residenz` oder
 `Broflovski-Residenz` bleiben dadurch erhalten.
 
-## 3. Ankerleiter für den Text
+## 3. Zwei Leitern: Person und Thema
 
-Ein „Anker" ist der belegte Anknüpfungspunkt, aus dem Betreff und Text gebaut werden.
+Ein „Anker" ist der belegte Anknüpfungspunkt. Seit 2026-11-08 gibt es **zwei**
+Leitern, weil Personenbezeichnung und Brief-Thema unterschiedliche Anforderungen
+haben. Vorher zog beides dieselbe Leiter — deshalb stand fast immer ein Alias im
+Betreff und der Gegenstand der Figur kam praktisch nie vor (gemessen: 1,4 %).
+
+**Personenbezeichnung** (`bezeichne()` → `waehleAnker()`):
 
 | Priorität | Feld | Bedingung |
 | :--- | :--- | :--- |
@@ -91,6 +96,20 @@ Ein „Anker" ist der belegte Anknüpfungspunkt, aus dem Betreff und Text gebaut
 | 2 | `firma` | nur wenn der Wert **eine** Organisation benennt |
 | 3 | `hooks` | freie Wahl aus den vorhandenen Stichwörtern |
 | 4 | `franchise` | letzter belegter Wert; immer vorhanden |
+
+**Thema des Briefes** (`getCharHook()`) — Hook zuerst:
+
+| Priorität | Feld | Bedingung |
+| :--- | :--- | :--- |
+| 1 | `hooks` | ein zufälliger Gegenstand der Figur |
+| 2 | `alias` | wie oben |
+| 3 | `firma` | wie oben |
+| 4 | `franchise` | letzter belegter Wert |
+
+Der Grund für die Trennung ist sprachlich: „Bruce Wayne, bekannt für Doppelleben"
+wäre als Personenbezeichnung falsch, „zum Vorgang: Batarang" ist als Thema genau
+richtig. Deshalb bleibt `bezeichne()` bei Alias-first, während `getCharHook()`
+aggressiv auf die Hooks zugreift.
 
 ### 3.1 Warum `firma` gefiltert wird
 
@@ -103,50 +122,104 @@ Arbeitgebers:
 ```
 
 Solche Werte werden verworfen, sobald sie `;`, `/` oder `formerly`/`ehemalig`
-enthalten oder länger als 60 Zeichen sind. Von 273 gefüllten Werten bleiben
-235 für die Firmenzeile nutzbar; Klammerzusätze wie `(freelance)` entfallen.
-
-### 3.2 Warum `alias` vor `hooks` steht
-
-Gemessen am Bestand: `alias` ist bei 304 von 325 Figuren gefüllt, `hooks` nur bei 31.
-Eine Textlogik, die auf `hooks` aufbaut, trägt 9 % der Datenbank. Die Reihenfolge
-folgt der Datenlage, nicht der Erwartung.
+enthalten oder länger als 60 Zeichen sind. Klammerzusätze wie `(freelance)` entfallen.
 
 Ein Alias, der nur den eigenen Namen wiederholt (`Ron` für *Ron Weasley*,
 `Bruce Wayne` für *Batman*), ist kein Thema und wird übersprungen.
 
+### 3.2 Warum `alias` in der Personenbezeichnung vorn bleibt
+
+`alias` ist bei 302 von 303 Figuren gefüllt, `hooks` bei 301. Für die
+Personenbezeichnung ist der Alias die belastbarere Aussage: Er ist ein Name,
+keine Deutung. Ein Hook als Zusatz („bekannt für …") wird nur noch verwendet,
+wenn eine Figur weder Alias noch Organisation hat.
+
+### 3.3 Bestand der Hooks (Stand 2026-11-08)
+
+| Kennzahl | Wert |
+| :--- | :--- |
+| Figuren mit mindestens einem Hook | 301 von 303 (99,3 %) |
+| Hooks insgesamt | 745 |
+| Hooks je Figur | 2,46 im Schnitt |
+
+Aufnahmeregel für neue Hooks: **nur konkrete Gegenstände** (Gegenstand, Werkzeug,
+Waffe, Fahrzeug, Artefakt, Tier, Kleidungsstück, Gericht). Keine Orte, keine
+Konzepte („Doppelleben"), keine Attacken („Rasengan"), kein Eigenname der Figur.
+Grund: Der Hook wird als Doppelpunkt-Nachtrag eingesetzt; Orte und Konzepte lesen
+dort schief, und ein Hook mit Figurnamen macht `bezeichne()` kaputt.
+
+Zwei Figuren haben keine belegbaren Gegenstände (`Dele Adebayo`, `Krachbumm-Ente`).
+Sie können deshalb nicht Absender sein, wohl aber Empfänger oder Beteiligte.
+
 ## 4. Betreff und Text
 
-Der Betreff setzt das Thema als Nachtrag hinter einen Doppelpunkt:
+Der Betreff setzt das Thema als Nachtrag hinter einen Doppelpunkt. Es gibt sechs
+Briefgattungen; **Betreff und Text stammen aus derselben Gattung**, damit
+Überschrift und Inhalt nicht auseinanderlaufen:
 
-```
-Dringende Mitteilung: Der Auserwählte
-Fristsetzung und Aufforderung zur Stellungnahme: Aurorenbüro, Zaubereiministerium
-```
+| Gattung | Betreffmuster |
+| :--- | :--- |
+| Kündigung | `Außerordentliche Kündigung: <Thema>` |
+| Beschwerde | `Dienstaufsichtsbeschwerde: <Thema>` |
+| Schadensersatz | `Schadensersatzforderung: <Thema>` |
+| Auskunft | `Auskunftsersuchen: <Thema>` |
+| Abmahnung | `Abmahnung und Unterlassungsaufforderung: <Thema>` |
+| Kooperation | `Angebot einer gemeinsamen Klärung: <Thema>` |
 
-Grund: Das Thema ist ein Substantiv ohne bekannten Kasus. Formulierungen wie
-„bezüglich Netz" oder „hinsichtlich Wayne Enterprises" wären grammatisch falsch;
-nach einem Doppelpunkt ist der Kasus gleichgültig.
+Grund für den Doppelpunkt: Das Thema ist ein nacktes Substantiv ohne bekannten
+Kasus. „im Umgang mit Handtuch" wäre grammatisch falsch, „zum Vorgang: Handtuch"
+ist kasusneutral und klingt bürokratisch.
 
 Der Text verwendet ausschließlich:
 
-- den bürgerlichen Namen der Figur,
-- den Anker aus §3,
-- den belegten Ort (oder eine neutrale Deixis wie „hier"),
-- die gewürfelten Drittfiguren mit Namen und Anker.
+- den Absender mit Personenbezeichnung aus §3,
+- den Hook **des Absenders** als Thema (nicht den einer zufälligen Figur),
+- den Empfänger mit Namen,
+- die belegten Orte beider Seiten,
+- die gewürfelten Drittfiguren als **Beteiligte** in einem Schlusssatz.
 
-Frei erfunden ist allein die **Handlung** des Briefes (Kündigung, Auskunftsersuchen,
-Lagebericht). Sie ist Fiktion des Testbriefs und behauptet nichts über die Figur.
+Frei erfunden ist allein die **Handlung** des Briefes. Sie ist Fiktion des
+Testbriefs und behauptet nichts über die Figur.
 
-## 5. Testfälle (gemessen am Bestand vom 2026-10-26)
+### 4.1 Besetzung
+
+| Rolle | Regel |
+| :--- | :--- |
+| Absender | Figur mit mindestens einem Hook; Thema ist einer ihrer Hooks |
+| Empfänger | beliebige Figur aus einem **anderen** Franchise |
+| Beteiligte | 0–3 Figuren aus dem Rest, nur im Schlusssatz genannt |
+
+`franchise` wird für den Vergleich normalisiert (`Marvel Comics` → `Marvel`,
+`Das Lied von Eis und Feuer` → `Game of Thrones`, `BioShock Infinite` → `BioShock`,
+`Red Dead Redemption 2` → `Red Dead Redemption`), damit kein Universum an sich
+selbst schreibt.
+
+### 4.2 Messung statt Augenmaß
+
+`tools/testbrief-messung.mjs` erzeugt Briefe über dieselben exportierten
+Funktionen (`waehleBesetzung`, `getCharHook`, `waehleSzenario`,
+`generateNerdText`) und prüft:
+
+| Prüfung | Soll |
+| :--- | :--- |
+| Absender hat Hook | 100 % |
+| Hook im Betreff | 100 % |
+| Hook im Text | 100 % |
+| Franchise-Kreuzung | 100 % |
+| häufigster Hook | < 8 % |
+| Szenarien | je 10–25 % |
+
+Das Skript endet mit Exit-Code 1, sobald eine Grenze verletzt ist.
+
+## 5. Testfälle (gemessen am Bestand vom 2026-11-08)
 
 | Figur | Fall | Straßenzeile | Themenquelle |
 | :--- | :--- | :--- | :--- |
-| Harry Potter | echte Straße + Vorbehalt | `Ligusterweg 4` | `alias` |
-| Ron Weasley | Gebäude, keine Straße | `Der Fuchsbau` | `firma` (Alias „Ron" trivial) |
-| Spider-Man | Straße + Klammerzusatz | `20 Ingram Street` | `alias` |
-| Batman | erfundene Hausnummer | `Wayne Manor` | `alias` |
-| Thanos | Schiff | `Sanctuary` | `alias` |
+| Harry Potter | echte Straße + Vorbehalt | `Ligusterweg 4` | `Feuerblitz` |
+| Ron Weasley | Gebäude, keine Straße | `Der Fuchsbau` | `Deluminator` |
+| Spider-Man | Straße + Klammerzusatz | `20 Ingram Street` | `Netzschleuder` |
+| Batman | erfundene Hausnummer | `Wayne Manor` | `Batarang` |
+| Thanos | Schiff | `Sanctuary` | `Unendlichkeitshandschuh` |
 
 Bestand nach den Regeln: **317 von 325** Figuren sind briefbar. Die 8 übrigen haben
 keinen belegten Ort (`Unbekannt`, `Unbekannte Stadt`) und werden nicht gezogen.

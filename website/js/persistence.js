@@ -81,6 +81,8 @@ export function currentISODate() {
  * @property {boolean} [marks]
  * @property {boolean} [copyfit]
  * @property {boolean} [sensitiveSubject]
+ * @property {boolean} [pluginTestbrief]
+ * @property {boolean} [pluginMultipage]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
@@ -96,6 +98,8 @@ export const DEFAULT_SETTINGS = {
   marks: true,
   copyfit: false,
   sensitiveSubject: false,
+  pluginTestbrief: false,
+  pluginMultipage: false,
   formality: 'formal'
 };
 

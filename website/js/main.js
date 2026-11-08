@@ -110,6 +110,22 @@ function initApp() {
   const settingsManager = new SettingsManager();
   bootStep('Einstellungen', () => settingsManager.init());
 
+  bootStep('Plugins', () => {
+    const controller = () => import('./multipage-controller.js');
+    eventBus.subscribe(Events.PLUGIN_MULTIPAGE_TOGGLED, (payload) => {
+      controller()
+        .then((m) => (payload?.active ? m.mountMultipage() : m.unmountMultipage()))
+        .catch((err) => console.error('[Plugins] Mehrseiten-Umschaltung fehlgeschlagen:', err));
+    });
+    // Der persistierte Zustand wurde beim Settings-Init publiziert, bevor dieses
+    // Abo existierte — deshalb der explizite Start.
+    if (settingsManager.settings.pluginMultipage) {
+      controller()
+        .then((m) => m.mountMultipage())
+        .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
+    }
+  });
+
   bootStep('Globale Listener', () => attachGlobalListeners(draftManager, uiProtections));
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());

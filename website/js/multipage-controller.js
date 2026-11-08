@@ -1,22 +1,39 @@
 // @ts-check
+// @adr [[ADR-JS]]
+// @guide [[din-5008-css-architektur]]
 
 /**
- * Controller für Mehrseitigkeit (CSS Multi-column Layout Level 2)
- * Baseline: Chromium 150+ (Getestet auf Chromium 156)
+ * Mehrseiten-Controller (CSS Multi-column Level 2, Baseline Chromium 150+).
+ *
+ * Kein Selbststart mehr: der Plugin-Schalter `pluginMultipage` publiziert
+ * `Events.PLUGIN_MULTIPAGE_TOGGLED`, `main.js` ruft `mountMultipage()` bzw.
+ * `unmountMultipage()`. Beim Ausschalten werden Observer, Listener und das
+ * dynamische `@page`-Sheet vollstaendig entfernt.
  */
 
-(() => {
-  /** @type {(s: string) => HTMLElement | null} */
-  const $ = (s) => document.querySelector(s);
-  const kern = $('#kern');
-  const text = $('#text');
-  const probe = $('#probe');
-  const status = $('#seiten-status');
-  const folgekoepfe = $('#folgekoepfe');
+/** @type {{ stop: () => void } | null} */
+let aktiv = null;
 
-  if (!kern || !probe || !status || !folgekoepfe) {
-    return;
-  }
+/**
+ * @param {string} s
+ * @returns {string}
+ */
+function esc(s) {
+  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\s+/g, ' ');
+}
+
+export function mountMultipage() {
+  if (aktiv) return;
+
+  const kern = document.getElementById('kern');
+  const text = document.getElementById('text');
+  const probe = document.getElementById('probe');
+  const status = document.getElementById('seiten-status');
+  const folgekoepfe = document.getElementById('folgekoepfe');
+  if (!kern || !probe || !status || !folgekoepfe) return;
+
+  /** @type {Array<() => void>} */
+  const abraeumen = [];
 
   /* Dynamische @page-Regel fuer den PDF-Kopf. Kein inline <style>: unter
    * CSP `style-src 'self'` bekommt ein per JS erzeugtes <style> gar kein
@@ -27,16 +44,7 @@
   let pageSheet = null;
 
   function mmZuPx() {
-    if (!probe) return 0;
-    return probe.getBoundingClientRect().height / 1000;
-  }
-
-  /**
-   * @param {string} s
-   * @returns {string}
-   */
-  function esc(s) {
-    return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\s+/g, ' ');
+    return probe ? probe.getBoundingClientRect().height / 1000 : 0;
   }
 
   function aktualisieren() {
@@ -47,21 +55,19 @@
     const mm = mmZuPx();
     if (!mm) return;
 
-    // Höhe in mm:
+    // Hoehe in mm; N Seiten = N * (seite + luecke) - luecke
     const hoeheMm = kern.getBoundingClientRect().height / mm;
-    // Höhe von N Seiten = N * (seite + luecke) - luecke
     const n = Math.max(1, Math.round((hoeheMm + luecke) / (seite + luecke)));
 
     status.textContent = `Seite 1 von ${n}`;
 
-    // Empfänger-Name für Folgekopf ermitteln
     const empfName = (document.getElementById('empfaenger-name')?.textContent || '').trim();
     const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').trim();
     const empfaenger = empfName || empfFirma || 'Empfänger';
     const datum = (document.getElementById('datum')?.textContent || '').trim();
     const kopfText = `Brief an ${empfaenger} vom ${datum}`;
 
-    // Bildschirm-Folgeköpfe ab Seite 2 aufbauen (DOM-Knoten ohne innerHTML)
+    // Bildschirm-Folgekoepfe ab Seite 2 (DOM-Knoten ohne innerHTML, Law A61)
     folgekoepfe.replaceChildren();
     for (let i = 1; i < n; i++) {
       const el = document.createElement('div');
@@ -75,8 +81,7 @@
       folgekoepfe.append(el);
     }
 
-    // Paged-Media Randbox für PDF-Druck dynamisch aktualisieren.
-    // Altes Sheet zuerst ersetzen, nicht ergaenzen — sonst stapeln sich Regeln.
+    // Paged-Media-Randbox aktualisieren: altes Sheet ersetzen, nicht stapeln.
     if (pageSheet) {
       document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
     }
@@ -97,7 +102,7 @@
   ];
 
   /**
-   * Erzeugt DOM-Absätze für langen Mehrseitentext ohne innerHTML (Law A61)
+   * Erzeugt DOM-Absaetze fuer langen Mehrseitentext ohne innerHTML (Law A61)
    * @returns {HTMLParagraphElement[]}
    */
   function erstelleLangenText() {
@@ -116,40 +121,70 @@
     return absaetze;
   }
 
-  const btnLang = document.getElementById('btn-demo-lang');
-  const btnKurz = document.getElementById('btn-demo-kurz');
+  // --- Listener (jeweils mit Abraeum-Funktion) ---
+  const observer = new ResizeObserver(aktualisieren);
+  observer.observe(kern);
+  abraeumen.push(() => observer.disconnect());
 
-  if (btnLang && text) {
-    btnLang.addEventListener('click', () => {
-      text.replaceChildren(...erstelleLangenText());
-      text.dispatchEvent(new Event('input', { bubbles: true }));
-      aktualisieren();
-    });
-  }
-
-  if (btnKurz && text) {
-    btnKurz.addEventListener('click', () => {
-      const p1 = document.createElement('p');
-      p1.textContent = 'Sehr geehrte Damen und Herren,';
-      const p2 = document.createElement('p');
-      p2.textContent = 'dies ist ein kurzer Testbrief auf einer Seite. Nutzen Sie den Button „Langer Text“ oder tippen Sie weiteren Text ein, um den automatischen Umbruch auf Folgeseiten zu testen.';
-      text.replaceChildren(p1, p2);
-      text.dispatchEvent(new Event('input', { bubbles: true }));
-      aktualisieren();
-    });
-  }
-
-  // Observer & Listener
-  new ResizeObserver(aktualisieren).observe(kern);
   window.addEventListener('beforeprint', aktualisieren);
+  abraeumen.push(() => window.removeEventListener('beforeprint', aktualisieren));
 
   for (const id of ['empfaenger-name', 'empfaenger-firma', 'datum', 'betreff', 'text']) {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', aktualisieren);
+    if (!el) continue;
+    el.addEventListener('input', aktualisieren);
+    abraeumen.push(() => el.removeEventListener('input', aktualisieren));
+  }
+
+  if (text) {
+    const btnLang = document.getElementById('btn-demo-lang');
+    if (btnLang) {
+      const onLang = () => {
+        text.replaceChildren(...erstelleLangenText());
+        text.dispatchEvent(new Event('input', { bubbles: true }));
+        aktualisieren();
+      };
+      btnLang.addEventListener('click', onLang);
+      abraeumen.push(() => btnLang.removeEventListener('click', onLang));
+    }
+
+    const btnKurz = document.getElementById('btn-demo-kurz');
+    if (btnKurz) {
+      const onKurz = () => {
+        const p1 = document.createElement('p');
+        p1.textContent = 'Sehr geehrte Damen und Herren,';
+        const p2 = document.createElement('p');
+        p2.textContent = 'dies ist ein kurzer Testbrief auf einer Seite. Nutzen Sie den Button „Langer Text“ oder tippen Sie weiteren Text ein, um den automatischen Umbruch auf Folgeseiten zu testen.';
+        text.replaceChildren(p1, p2);
+        text.dispatchEvent(new Event('input', { bubbles: true }));
+        aktualisieren();
+      };
+      btnKurz.addEventListener('click', onKurz);
+      abraeumen.push(() => btnKurz.removeEventListener('click', onKurz));
     }
   }
 
-  // Initial ausführen nach vollständigem DOM & Layout
-  setTimeout(aktualisieren, 100);
-})();
+  const initial = setTimeout(aktualisieren, 100);
+  abraeumen.push(() => clearTimeout(initial));
+
+  abraeumen.push(() => {
+    folgekoepfe.replaceChildren();
+    status.textContent = 'Seite 1 von 1';
+    if (pageSheet) {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
+      pageSheet = null;
+    }
+  });
+
+  aktiv = {
+    stop: () => {
+      for (const fn of abraeumen) fn();
+    }
+  };
+}
+
+export function unmountMultipage() {
+  if (!aktiv) return;
+  aktiv.stop();
+  aktiv = null;
+}

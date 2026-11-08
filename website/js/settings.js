@@ -51,6 +51,9 @@ function transitionOn(target, fn) {
 export class SettingsManager {
   /** Erstes applyTheme ist der Initial-Apply — dort ist kein Crossfade sinnvoll. */
   #themeBooted = false;
+  /** Letzter publizierter Plugin-Zustand, damit nicht jeder Apply ein Event wirft. */
+  /** @type {boolean | null} */
+  #lastPluginMultipage = null;
 
   constructor() {
     /** @type {import('./persistence.js').DinSettings & { style?: string }} */
@@ -64,6 +67,9 @@ export class SettingsManager {
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.btnSensitiveSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-sensibler-betreff'));
+    this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+    this.pluginMultipageSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-multipage'));
+    this.sheetLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-sheet'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
@@ -105,8 +111,15 @@ export class SettingsManager {
     if (this.btnSensitiveSwitch) {
       this.btnSensitiveSwitch.checked = Boolean(this.settings.sensitiveSubject);
     }
+    if (this.pluginTestbriefSwitch) {
+      this.pluginTestbriefSwitch.checked = Boolean(this.settings.pluginTestbrief);
+    }
+    if (this.pluginMultipageSwitch) {
+      this.pluginMultipageSwitch.checked = Boolean(this.settings.pluginMultipage);
+    }
 
     this.#spiegleLayoutFlags();
+    this.#applyPlugins();
   }
 
   /**
@@ -115,6 +128,33 @@ export class SettingsManager {
    * Zustand vor dem ersten Paint — hier wird er nach jedem Settings-Update
    * nachgezogen (und korrigiert, falls das Boot-Script scheiterte).
    */
+  /**
+   * Plugin-Schalter: Body-Attribute für CSS, Stylesheet-Hot-Swap und ein
+   * EventBus-Signal, damit main.js den Mehrseiten-Controller laden/stoppen kann.
+   * Alles deklarativ — kein Reload, kein zweites HTML.
+   */
+  #applyPlugins() {
+    const testbrief = Boolean(this.settings.pluginTestbrief);
+    const multipage = Boolean(this.settings.pluginMultipage);
+
+    document.body.setAttribute('data-plugin-testbrief', String(testbrief));
+    document.body.setAttribute('data-plugin-multipage', String(multipage));
+
+    if (this.sheetLink) {
+      const ziel = multipage
+        ? this.sheetLink.dataset.sheetMulti
+        : this.sheetLink.dataset.sheetSingle;
+      if (ziel && this.sheetLink.getAttribute('href') !== ziel) {
+        this.sheetLink.setAttribute('href', ziel);
+      }
+    }
+
+    if (this.#lastPluginMultipage !== multipage) {
+      this.#lastPluginMultipage = multipage;
+      eventBus.publish(Events.PLUGIN_MULTIPAGE_TOGGLED, { active: multipage });
+    }
+  }
+
   #spiegleLayoutFlags() {
     const root = document.documentElement;
     root.setAttribute('data-guides', this.settings.guides ? 'true' : 'false');
@@ -356,6 +396,24 @@ export class SettingsManager {
       sensitiveSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
         this.settings.sensitiveSubject = sensitiveSwitch.checked;
+        this.updateSettings();
+      });
+    }
+
+    const pluginTestbrief = this.pluginTestbriefSwitch;
+    if (pluginTestbrief) {
+      pluginTestbrief.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.pluginTestbrief = pluginTestbrief.checked;
+        this.updateSettings();
+      });
+    }
+
+    const pluginMultipage = this.pluginMultipageSwitch;
+    if (pluginMultipage) {
+      pluginMultipage.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.pluginMultipage = pluginMultipage.checked;
         this.updateSettings();
       });
     }

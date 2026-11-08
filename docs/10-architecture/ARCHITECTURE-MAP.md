@@ -40,8 +40,7 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | Datei | Rolle | Wann geladen | Besonderheit |
 | :--- | :--- | :--- | :--- |
 | `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot.js` (blockierend) + `main.js` (Modul) |
-| `website/multipage.html` | Mehrseiten-Editor, **produktiv** | immer | ~94 % identisch mit `index.html`; eigene Stylesheets, eigener Controller |
-| `website/mehrseiten-prototyp.html` | Prototyp | **nicht verlinkt** | liegt live im Auslieferungsordner — siehe [[BACKLOG]] B39 |
+| `website/index.html` (Plugin-Modus) | Mehrseiten-Editor | **Plugin `pluginMultipage`** | derselbe Rumpf; `#css-sheet` wird auf `sheet-multipage.css` getauscht, `multipage-controller.js` per `import()` gemountet |
 | `test/index.html` | Test-Runner (126 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
 | `website/js/boot.js` | Theme-, Stil- und Layout-Flags | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Liest `din_settings` **einmal** und setzt `data-theme`, `data-style`, `data-guides`, `data-marks`, `data-sensitive-subject`. Die Checkboxen zieht `SettingsManager.applySettings()` nach |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
@@ -76,10 +75,10 @@ nichts, kennt aber die App nicht — es spricht nur mit IndexedDB.
 Zwei häufig gesuchte Einstiegspunkte: `applyLetterDate` liegt in `persistence.js`
 (setzt das Briefdatum), `setCaretToEnd` in `document.js` (Cursor-Helfer, den `address.js` nutzt).
 
-> [!warning] Duplikat-Falle: zwei HTML-Rümpfe
-> `index.html` und `multipage.html` teilen ~94 % Markup. Gemeinsames Markup muss in
-> **beiden** gepflegt werden. Genau daraus entstand der Boot-Block als Kopie, der
-> `data-style` nur an einer Stelle setzte.
+> [!note] Ein Rumpf, zwei Modi
+> Seit 2026-11-08 gibt es nur noch `index.html`. Der Mehrseiten-Modus ist ein Plugin:
+> Schalter in den Einstellungen → `#css-sheet`-Hot-Swap + `mountMultipage()`.
+> Gemeinsames Markup muss damit nur noch an **einer** Stelle gepflegt werden.
 
 ## 3. CSS-Kaskade
 
@@ -141,7 +140,8 @@ ES-Module laden nicht über `file://`. **Nicht** mit `node test/all.js` aufrufen
    `webmcp-bridge.js` wird gar nicht geladen. Vor Änderungen den Trigger-Pfad in `main.js` prüfen.
 4. **Debug-Module sind nur mit `?debug=` aktiv** — aber Test-API. Nicht löschen, weil sie
    ohne Query-Parameter ungenutzt aussehen.
-5. **CSS in Ladereihenfolge** (`base → sidebar → sheet → print`); `sheet` und
-   `print` haben je eine Multipage-Variante, die sich gegenseitig ausschließt.
-6. **Gemeinsames Markup doppelt pflegen:** `index.html` und `multipage.html` teilen den
-   Rumpf. Nach jeder Änderung an gemeinsamem Markup beide Dateien prüfen.
+5. **CSS in Ladereihenfolge** (`base → sidebar → sheet-common → sheet`). `sheet` und
+   `sheet-multipage` schließen sich aus; `#css-sheet` tauscht sie beim Plugin-Schalter.
+6. **Plugin-Elemente:** `#probe`, `#spacer` und `#folgekoepfe` existieren immer im Rumpf,
+   werden aber nur im Mehrseiten-Modus gestylt (CSS-Swap). Nicht löschen — der Controller
+   bricht sonst beim Mounten ab.

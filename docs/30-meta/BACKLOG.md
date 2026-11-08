@@ -376,7 +376,7 @@ bestehenden JavaScript-Pfad sicher. `@page`-Seitenzahlen warten auf die
 Mehrseiten-Spec; `::highlight()` hat keinen vorhandenen DOM-Highlight-Renderer;
 `subgrid` würde die IMR-Geometrie unnötig riskant umbauen. Keine Produktionsänderung.
 
-### B39 · `mehrseiten-prototyp.html` einordnen · **M** · ⭐⭐
+### B39 · `mehrseiten-prototyp.html` einordnen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-11-08 (Datei gelöscht, Mehrseiten ist ein Plugin)
 `website/mehrseiten-prototyp.html` (315 Zeilen) ist von nichts im Repo verlinkt
 (`index.html`, `multipage.html` und `docs/` geprüft: keine Verweise) und unterscheidet
 sich in 756 Zeilen von `multipage.html` — also eine ältere, eigenständige Datei. Sie liegt

@@ -114,9 +114,9 @@
     },
     {
       "file": "js/multipage-controller.js",
-      "adr": "",
-      "guide": "",
-      "desc": "Folgeköpfe & Paged-Media-Regeln (multipage.html)"
+      "adr": "ADR-JS",
+      "guide": "din-5008-css-architektur",
+      "desc": "Mehrseiten-Modus (Plugin): mountMultipage/unmountMultipage"
     },
     {
       "file": "js/webapi.d.ts",

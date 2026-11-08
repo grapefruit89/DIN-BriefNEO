@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="css/base.css?v=live6">
     <link rel="stylesheet" href="css/sidebar.css?v=live6">
     <link rel="stylesheet" href="css/sheet-common.css?v=common1">
-    <link rel="stylesheet" href="css/sheet.css?v=live6">
+    <link rel="stylesheet" id="css-sheet" href="css/sheet.css?v=live6"
+          data-sheet-single="css/sheet.css?v=live6" data-sheet-multi="css/sheet-multipage.css?v=multi1">
     <script src="js/boot.js?v=boot1"></script>
     <script type="module" src="js/main.js?v=live6"></script>
   </head>
@@ -215,6 +216,32 @@
             </form>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
+
+            <hr class="seitenleiste-divider">
+
+            <div class="seitenleiste-subgroup">
+              <p class="seitenleiste-label">Erweiterungen (Plugins)</p>
+              <div class="seitenleiste-switch-row">
+                <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
+                <input type="checkbox" switch id="plugin-testbrief">
+              </div>
+              <div class="seitenleiste-switch-row">
+                <label for="plugin-multipage" class="seitenleiste-label">Mehrseiten-Modus (Beta)</label>
+                <input type="checkbox" switch id="plugin-multipage">
+              </div>
+
+              <!-- Nur sichtbar, wenn das Mehrseiten-Plugin aktiv ist -->
+              <div class="seitenleiste-subgroup workbench-box">
+                <div class="workbench-header">
+                  <strong class="workbench-title">📄 Mehrseiten-Workbench</strong>
+                  <span id="seiten-status" class="workbench-status">Seite 1 von 1</span>
+                </div>
+                <div class="workbench-actions">
+                  <button type="button" id="btn-demo-lang" class="btn" title="Fügt langen 2-3 Seiten Fließtext ein">📝 Langer Text</button>
+                  <button type="button" id="btn-demo-kurz" class="btn" title="Setzt auf kurzen 1-Seiten-Text zurück">↩️ 1 Seite</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -250,6 +277,7 @@
             role="article"
             writingsuggestions="false"
             aria-label="DIN 5008 Brief">
+            <div id="probe" aria-hidden="true"></div>
             <din-falzmarke-1 data-w="8"></din-falzmarke-1>
             <din-falzmarke-2 data-w="8"></din-falzmarke-2>
             <din-lochmarke data-w="12"></din-lochmarke>
@@ -277,6 +305,7 @@
             </din-infoblock>
             <din-datum id="datum" data-x="125" data-w="65" data-font="10" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
             <din-kern id="kern" data-left="25" data-right="20" data-bottom="30" role="region" aria-label="Briefkern">
+              <div id="spacer" contenteditable="false" aria-hidden="true"></div>
               <din-betreff id="betreff" data-font="12" data-margin-bottom="8.46" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
               <din-teilbetreff id="teilbetreff" data-font="10.5" data-margin-bottom="4.23" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Teilbetreff (endet mit Punkt)" aria-label="Teilbetreff"></din-teilbetreff>
               <din-anrede id="anrede" data-font="10.5" data-margin-bottom="4.23" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
@@ -295,6 +324,7 @@
               <din-beglaubigungsvermerk id="beglaubigungsvermerk" class="is-dormant"></din-beglaubigungsvermerk>
               <din-werbliche-elemente id="werbliche-elemente" class="is-dormant"></din-werbliche-elemente>
             </din-kern>
+            <div id="folgekoepfe" aria-hidden="true"></div>
             <din-geschaeftsangaben id="geschaeftsangaben" data-left="25" data-right="20" data-bottom="10" data-h="15" data-padding-top="2" data-gap="10" data-font="7.5" role="region" aria-label="Geschäftsangaben Fußzeile">
               <din-fuss-firma id="fuss-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Muster GmbH" aria-label="Firmenname"></din-fuss-firma>
               <din-fuss-sitz id="fuss-sitz" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Musterstadt" aria-label="Sitz der Gesellschaft"></din-fuss-sitz>

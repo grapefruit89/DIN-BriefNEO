@@ -86,6 +86,7 @@ export const Events = Object.freeze({
   DOCUMENT_SAVE_REQUESTED: 'dinbrief:document.save.requested',
   DOCUMENT_SAVED: 'dinbrief:document.saved',
   DOCUMENT_SAVE_FAILED: 'dinbrief:document.save.failed',
+  PLUGIN_MULTIPAGE_TOGGLED: 'dinbrief:plugin.multipage.toggled',
   DOCUMENT_CHANGED: 'dinbrief:document.changed'
 });
 

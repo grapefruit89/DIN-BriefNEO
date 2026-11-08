@@ -162,7 +162,9 @@ function checkImr(targetDir) {
     return { violations, tags: [], inventory };
   }
 
-  const htmlFiles = ['website/index.html', 'website/multipage.html'];
+  // Seit dem One-App-Merge (2026-11-08) gibt es nur noch eine App-Shell;
+  // der Mehrseiten-Modus teilt sich dasselbe Markup.
+  const htmlFiles = ['website/index.html'];
   const html = htmlFiles.map((f) => fs.readFileSync(path.join(targetDir, f), 'utf-8'));
   const htmlAll = html.join('\n');
   const idsPerFile = html.map((h) => new Set([...h.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1])));

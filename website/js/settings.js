@@ -69,7 +69,7 @@ export class SettingsManager {
     this.btnSensitiveSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-sensibler-betreff'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
     this.pluginMultipageSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-multipage'));
-    this.sheetLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-sheet'));
+    this.blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
     /** @type {FontFace | null} */
@@ -140,12 +140,12 @@ export class SettingsManager {
     document.body.setAttribute('data-plugin-testbrief', String(testbrief));
     document.body.setAttribute('data-plugin-multipage', String(multipage));
 
-    if (this.sheetLink) {
+    if (this.blattLink) {
       const ziel = multipage
-        ? this.sheetLink.dataset.sheetMulti
-        : this.sheetLink.dataset.sheetSingle;
-      if (ziel && this.sheetLink.getAttribute('href') !== ziel) {
-        this.sheetLink.setAttribute('href', ziel);
+        ? this.blattLink.dataset.blattMehrseitig
+        : this.blattLink.dataset.blattEinseitig;
+      if (ziel && this.blattLink.getAttribute('href') !== ziel) {
+        this.blattLink.setAttribute('href', ziel);
       }
     }
 

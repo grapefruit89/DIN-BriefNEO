@@ -431,6 +431,19 @@ fieldset.seitenleiste-field-group > legend {
   display: none;
 }
 
+/* Direktlink zum Geoapify-Dashboard: Key anlegen oder kopieren */
+.key-hint-link {
+  justify-self: start;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.key-hint-link:hover,
+.key-hint-link:focus-visible {
+  color: var(--accent-color);
+}
+
 /* Fallback OHNE JS (data-key-state nicht gesetzt) */
 .key-form:not([data-key-state]):has(input:placeholder-shown) .msg-empty {
   display: inline;

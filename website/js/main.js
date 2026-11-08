@@ -8,7 +8,8 @@ import { collectDraft, DraftManager, UIProtections } from './document.js';
 /* js/main.js */
 import { applyLetterDate, initImportExport, MetadataService, migrateStorage, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
-import { SettingsManager, SignatureFeature } from './settings.js';
+import { SettingsManager } from './settings.js';
+import { SignatureFeature } from './signature.js';
 
 /**
  * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.

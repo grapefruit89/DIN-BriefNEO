@@ -56,6 +56,7 @@ core.js           → (nichts)                    ← Blatt: Konstanten, Events,
 persistence.js    → core.js
 document.js       → core.js, persistence.js
 settings.js       → core.js, persistence.js, binary-storage.js
+signature.js      → core.js, binary-storage.js (settings.js nur als Typ)
 binary-storage.js → (nichts)                    ← Blatt: Blobs in IndexedDB (A34-Ausnahme)
 salutation.js  → core.js, persistence.js
 address.js     → core.js, document.js, persistence.js
@@ -127,7 +128,7 @@ ES-Module laden nicht über `file://`. **Nicht** mit `node test/all.js` aufrufen
 1. **Zwei Nachschlagewerke, zwei Zwecke:** [[STRUCTURE]] für Dateien, Exporte und
    ADR-Zuordnung; diese Map für Lade-Trigger, Abhängigkeiten und Kaskade. Nicht doppelt suchen.
 2. **Kernmodule sind immer geladen.** Änderungen an `core.js`, `persistence.js`,
-   `document.js`, `settings.js`, `salutation.js`, `address.js`, `main.js` wirken sofort.
+   `document.js`, `settings.js`, `signature.js`, `salutation.js`, `address.js`, `main.js` wirken sofort.
 3. **Add-ons nur auf Trigger.** `testbrief.js` wird dynamisch geladen (nur bei Klick);
    `webmcp-bridge.js` wird gar nicht geladen. Vor Änderungen den Trigger-Pfad in `main.js` prüfen.
 4. **Debug-Module sind nur mit `?debug=` aktiv** — aber Test-API. Nicht löschen, weil sie

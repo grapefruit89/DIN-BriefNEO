@@ -194,22 +194,7 @@ Testbriefs und behauptet nichts über die Figur.
 `Red Dead Redemption 2` → `Red Dead Redemption`), damit kein Universum an sich
 selbst schreibt.
 
-### 4.2 Demo-Knöpfe
-
-Neben „Testbrief" liegen zwei feste Beispielbriefe in der Seitenleiste. Sie
-setzen nur die Besetzung (Absender, Empfänger, Hook, Gattung) fest und laufen
-danach durch dieselbe Endstrecke (`fuelleBrief`) wie der Zufallsknopf:
-
-| Knopf | Absender | Thema | Gattung | Empfänger |
-| :--- | :--- | :--- | :--- | :--- |
-| Besen-Kündigung | Harry Potter | `Besen` | Kündigung | Spider-Man |
-| Netzbeschwerde | Spider-Man | `Spinnennetz` | Beschwerde | Jack Sparrow |
-
-Die Knöpfe hängen am Plugin-Schalter `pluginTestbrief` und verschwinden mit ihm.
-Zweck: die Beispielkonstellationen sind vorführbar, ohne auf einen passenden
-Zufall zu warten.
-
-### 4.3 Messung statt Augenmaß
+### 4.2 Messung statt Augenmaß
 
 `tools/testbrief-messung.mjs` erzeugt Briefe über dieselben exportierten
 Funktionen (`waehleBesetzung`, `getCharHook`, `waehleSzenario`,

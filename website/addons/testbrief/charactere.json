@@ -2360,9 +2360,9 @@
       "hinweis": "Der Ligusterweg ist seine Kindheitsadresse bei den Dursleys, nicht sein dauerhafter erwachsener Wohnsitz.",
       "quellenAnzahl": 2,
       "hooks": [
-        "Besen",
         "Zauberstab",
-        "Unsichtbarkeitsumhang"
+        "Nimbus 2000",
+        "Tarnumhang"
       ]
     },
     {
@@ -5570,8 +5570,8 @@
       "quellenAnzahl": 3,
       "hooks": [
         "Netzschleuder",
-        "Spinnennetz",
-        "Spinnenkostüm"
+        "Spinnenkostüm",
+        "Netz-Fluid"
       ]
     },
     {

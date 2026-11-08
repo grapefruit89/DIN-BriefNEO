@@ -289,24 +289,4 @@ function initTestData() {
       btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
     }
   });
-
-  /** Feste Beispielbriefe: gleiche Endstrecke, nur mit vorgegebener Besetzung. */
-  /** @type {Array<{ id: string, sender: string, recipient: string, hook: string, szenario: string }>} */
-  const demos = [
-    { id: 'btn-demo-besen', sender: 'Harry Potter', recipient: 'Spider-Man', hook: 'Besen', szenario: 'kuendigung' },
-    { id: 'btn-demo-netze', sender: 'Spider-Man', recipient: 'Jack Sparrow', hook: 'Spinnennetz', szenario: 'beschwerde' }
-  ];
-  for (const demo of demos) {
-    const btn = /** @type {HTMLButtonElement | null} */ (document.getElementById(demo.id));
-    if (!btn) continue;
-    btn.addEventListener('click', async () => {
-      try {
-        const plugin = await import('../addons/testbrief/testbrief.js');
-        await plugin.starteDemoBrief(demo.sender, demo.recipient, demo.hook, demo.szenario);
-      } catch (error) {
-        console.warn('[Demo] Testbrief-Plugin nicht verfügbar:', error);
-        btn.disabled = true;
-      }
-    });
-  }
 }

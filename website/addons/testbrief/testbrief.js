@@ -720,34 +720,4 @@ export async function wuerfelTestbrief() {
   fuelleBrief(sender, recipient, dritte, getCharHook(sender), waehleSzenario());
 }
 
-/**
- * Erzeugt einen festen Demo-Brief: Absender, Empfänger, Thema und Gattung
- * werden vorgegeben, alles andere läuft durch dieselbe Endstrecke wie der
- * gewürfelte Brief.
- *
- * Zweck: die beiden Beispielkonstellationen („Harry kündigt seinen Besen bei
- * Spider-Man", „Spider-Man beschwert sich über Spinnennetze bei Jack Sparrow")
- * sind jederzeit vorführbar, ohne auf einen passenden Zufall zu warten.
- *
- * @param {string} senderName
- * @param {string} recipientName
- * @param {string} themenHook muss in den Hooks des Absenders stehen
- * @param {string} szenarioId
- */
-export async function starteDemoBrief(senderName, recipientName, themenHook, szenarioId) {
-  const heroes = await loadHeroes();
-  if (!heroes) return;
-  const sender = heroes.find((c) => c.name === senderName);
-  const recipient = heroes.find((c) => c.name === recipientName);
-  if (!sender || !recipient) {
-    console.warn(`[TestData] Demo-Figuren fehlen: ${senderName} / ${recipientName}`);
-    return;
-  }
-  plzNeuWuerfeln();
-  const szenario = SZENARIEN.find((s) => s.id === szenarioId) ?? waehleSzenario();
-  const rest = heroes.filter((c) => c !== sender && c !== recipient && istBriefbar(c));
-  const dritte = shuffle(rest).slice(0, 2);
-  fuelleBrief(sender, recipient, dritte, themenHook, szenario);
-}
-
-export { starteDemoBrief as starteDemo, wuerfelTestbrief as starteTestbrief };
+export { wuerfelTestbrief as starteTestbrief };

@@ -100,7 +100,7 @@ website/index.html (331 Zeilen | 160 Tags | 67 IDs | 50 Klassen)
   * `<link rel="stylesheet" href="css/variables.css" layer="tokens">`
   * `<link rel="stylesheet" href="css/layout.css" layer="layout">`
   * `<link rel="stylesheet" href="css/floating.css" layer="floating">`
-  * `<link rel="stylesheet" href="css/print.css" media="print">`
+  * Druckregeln liegen seit 2026-11-08 als `@media print`-Block am Ende von `css/sheet.css`
 * **Zero-FOUC Inline-Bootstrapper:**
   * Liest `din_settings` synchron aus dem `localStorage` und setzt `colorScheme` (`light` / `dark`) auf `documentElement` noch vor dem ersten Rendern (verhindert FOUC-Blitzen).
   * Injiziert benutzerdefinierte WOFF2-Schriften (`AptosCustom`) als `@font-face` synchron in `document.head`.
@@ -126,7 +126,7 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
 * **Semantischer Hilfslinien-Schalter:**
   * `<input type="checkbox" switch id="btn-hilfslinien-switch">`: Nativer Schalter. **Ohne**
     `checked` im Markup: Der gespeicherte Zustand kommt aus
-    `website/js/boot-switches.js` (blockierend im `<head>`, siehe [[ARCHITECTURE-MAP]]).
+    `website/js/boot.js` (blockierend im `<head>`, siehe [[ARCHITECTURE-MAP]]).
     Ein `checked` im Markup würde vor dem ersten Paint „an" zeigen und danach auf den
     gespeicherten Wert springen.
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**

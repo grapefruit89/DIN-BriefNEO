@@ -37,18 +37,6 @@
       "adr": "ADR-CSS",
       "guide": "din-5008-css-architektur",
       "desc": "Seitenleiste, Formulare, Einstellungen, Popover"
-    },
-    {
-      "file": "css/print.css",
-      "adr": "ADR-CSS",
-      "guide": "din-5008-css-architektur",
-      "desc": "@media print: Drucklayout & PDF-Ausgabe (Einzelseite)"
-    },
-    {
-      "file": "css/print-multipage.css",
-      "adr": "ADR-CSS",
-      "guide": "din-5008-css-architektur",
-      "desc": "@media print: Drucklayout (Mehrseite, Paged Media)"
     }
   ],
   "js": [
@@ -113,22 +101,16 @@
       "desc": "SalutationEngine, SalutationFeature, SALUTATION_TONES"
     },
     {
+      "file": "js/boot.js",
+      "adr": "ADR-JS",
+      "guide": "din-5008-css-architektur",
+      "desc": "Blocking FOUC-Guard: Theme, Stil & Layout-Flags (ein localStorage-Read)"
+    },
+    {
       "file": "js/binary-storage.js",
       "adr": "ADR-BINARY-ASSETS",
       "guide": "glossary",
       "desc": "saveBlob, loadBlob, deleteBlob (IndexedDB)"
-    },
-    {
-      "file": "js/boot-switches.js",
-      "adr": "ADR-JS",
-      "guide": "din-5008-css-architektur",
-      "desc": "Layout-Flags als Attribute (FOUC-Guard, blockierend im Head)"
-    },
-    {
-      "file": "js/boot-theme.js",
-      "adr": "ADR-JS",
-      "guide": "din-5008-css-architektur",
-      "desc": "BootTheme (FOUC-Prävention, blockierend im Head)"
     },
     {
       "file": "js/multipage-controller.js",

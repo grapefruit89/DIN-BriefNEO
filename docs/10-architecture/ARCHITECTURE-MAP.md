@@ -39,12 +39,11 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 
 | Datei | Rolle | Wann geladen | Besonderheit |
 | :--- | :--- | :--- | :--- |
-| `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot-theme.js` + `boot-switches.js` (beide blockierend) + `main.js` (Modul) |
+| `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot.js` (blockierend) + `main.js` (Modul) |
 | `website/multipage.html` | Mehrseiten-Editor, **produktiv** | immer | ~94 % identisch mit `index.html`; eigene Stylesheets, eigener Controller |
 | `website/mehrseiten-prototyp.html` | Prototyp | **nicht verlinkt** | liegt live im Auslieferungsordner — siehe [[BACKLOG]] B39 |
 | `test/index.html` | Test-Runner (126 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
-| `website/js/boot-theme.js` | Theme- und Stil-Boot | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Setzt `data-theme` **und** `data-style` |
-| `website/js/boot-switches.js` | Schalter-Boot (Hilfslinien, Falz-/Lochmarken) | **blockierend, vor First Paint** | klassisches Script im `<head>`: liest `din_settings` und setzt die Checkboxen per `MutationObserver`, sobald sie geparst sind. Microtasks laufen vor dem Rendern — deshalb kein Wettlauf mit dem ersten Frame. Der HTML-Default muss `DEFAULT_SETTINGS` entsprechen |
+| `website/js/boot.js` | Theme-, Stil- und Layout-Flags | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Liest `din_settings` **einmal** und setzt `data-theme`, `data-style`, `data-guides`, `data-marks`, `data-sensitive-subject`. Die Checkboxen zieht `SettingsManager.applySettings()` nach |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
 | `website/addons/testbrief/testbrief.js` | Testbrief-Plugin | **dynamisch** per `import()`, nur bei Klick auf `#btn-testbrief` | Figurendaten liegen im Plugin-Ordner; ohne das Plugin bleibt der Button wirkungslos, die App startet normal |
 | `website/addons/webmcp-bridge.js` | WebMCP-Bridge | **gar nicht** | derzeit nicht eingebunden, in [[STRUCTURE]] entsprechend markiert |
@@ -91,8 +90,7 @@ Zwei häufig gesuchte Einstiegspunkte: `applyLetterDate` liegt in `persistence.j
 | 2' | `css/sheet-common.css` | **beide Seiten** | gemeinsame Blatt-Regeln: Typografie der Briefelemente, Inline-Formate, Interaktions-Zustände, Signatur-Overlay, Leer-Zustände |
 | 3 | `css/sheet.css` | **nur `index.html`** | nur noch Geometrie/Positionierung (Einzelseite) |
 | 3' | `css/sheet-multipage.css` | **nur `multipage.html`** | nur noch `column-count`/Paged-Setup |
-| 4 | `css/print.css` | `media="print"` | Drucklayout; `orphans`/`widows`, Umbruchregeln |
-| 4' | `css/print-multipage.css` | `media="print"` | ersetzt `print.css` im Mehrseiten-Modus |
+| 4 | *Druck* | `@media print` in `sheet.css` / `sheet-multipage.css` | früher eigene `print*.css`; liegt jetzt am Ende des jeweiligen Blatt-Stylesheets (`@page` bleibt top-level) |
 
 Reihenfolge zählt: Spätere Dateien überschreiben frühere bei gleicher Spezifität.
 `sheet.css` und `sheet-multipage.css` schließen sich **aus** — eine Seite lädt nie beide;

@@ -105,7 +105,7 @@ unter HARD BAN.
   `din-briefneo-assets` (Version 1, Object Store `assets`, Key = String, Wert = `Blob`).
 - `settings.js`: Signatur und Schrift werden als `Blob` gespeichert, per
   `URL.createObjectURL()` angezeigt und beim Zurücksetzen freigegeben.
-- `boot-theme.js`: nur noch Theme (`data-theme`, `data-style`), synchron. Die Font-Injektion
+- `boot.js`: nur noch Theme/Stil/Layout-Flags (`data-theme`, `data-style`, …), synchron. Die Font-Injektion
   wandert nach `settings.js` und läuft nach dem Paint (FOUC ~50–100 ms, akzeptiert).
 - **Maschinelle Prüfung:** `tools/antipatterns/project.json` Regel `P10` bleibt bestehen und
   ist ausschließlich für `website/js/binary-storage.js` exempt. `test/all.js` prüft, dass das

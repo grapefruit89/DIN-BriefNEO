@@ -20,7 +20,7 @@ code_links:
   - website/css/base.css
   - website/css/sidebar.css
   - website/css/sheet.css
-  - website/css/print.css
+  - website/css/sheet-multipage.css
 error_patterns:
   - css architektur
   - container queries

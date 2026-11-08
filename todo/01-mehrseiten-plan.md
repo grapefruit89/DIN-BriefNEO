@@ -36,7 +36,7 @@ summary: "Plan zur Mehrseitenunterstützung nach DIN 5008 für den DIN-BriefNEO-
 ## 2. Druck-/PDF-Paginierung vs. `@page { margin: 0 }` Guard
 
 ### Warum DOM-Folgekopf statt `@page` Margin Boxes (`@top-right`)
-Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { content: "Seite " counter(page) " von " counter(pages); }`). In DIN-BriefNEO gilt jedoch in [`/home/moritz/repos/DIN-BriefNEO/website/css/print.css`](../website/css/print.css) der unantastbare **Architectural Guard**:
+Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { content: "Seite " counter(page) " von " counter(pages); }`). In DIN-BriefNEO gilt jedoch in [`/home/moritz/repos/DIN-BriefNEO/website/css/sheet.css`](../website/css/sheet.css) der unantastbare **Architectural Guard**:
 ```css
 @page {
   size: A4;
@@ -50,8 +50,8 @@ Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { c
   - Falz- und Lochmarken sitzen auf allen Seiten millimetergenau an derselben Stelle.
   - Echtes **WYSIWYG**: Der Nutzer sieht den Folgekopf und die Seitenzahl bereits live im Editor und nicht erst in der Druckvorschau.
 
-### Druck-Umbruch in `website/css/print.css`
-Aktuell steht in `website/css/print.css` `din-a4 { page-break-after: avoid; }`. Für Mehrseitigkeit wird dies präzisiert zu:
+### Druck-Umbruch in `website/css/sheet.css` (Druck-Block)
+Aktuell steht im `@media print`-Block von `website/css/sheet.css` `din-a4 { page-break-after: avoid; }`. Für Mehrseitigkeit wird dies präzisiert zu:
 ```css
 din-a4 {
   break-after: page;
@@ -92,7 +92,7 @@ din-a4:last-of-type {
 
 ## 5. Konkrete Umsetzungs-Reihenfolge
 
-1. **Schritt 1 — Druck-CSS (`website/css/print.css`):**
+1. **Schritt 1 — Druck-CSS (`website/css/sheet.css`, Druck-Block):**
    - `din-a4 { break-after: page; }` + `din-a4:last-of-type { break-after: avoid; }` einrichten.
    - Sicherstellen, dass im Druck alle aktiven `<din-a4>`-Elemente unabhängig vom Editor-Tab sichtbar sind.
 2. **Schritt 2 — Zweiter `<din-a4 data-page="2">`-Container & Geometrie (`website/index.html`, `website/css/sheet.css`):**

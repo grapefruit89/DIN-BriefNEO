@@ -31,7 +31,7 @@ code_links:
   - website/css/base.css
   - website/css/sidebar.css
   - website/css/sheet.css
-  - website/css/print.css
+  - website/css/sheet-multipage.css
 depends_on: []
 supersedes:
   - FEATURE-INVENTORY

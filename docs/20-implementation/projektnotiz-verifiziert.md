@@ -68,7 +68,7 @@ Absender-Sync publizieren `{debounce:false}` (`address.js`). Zusätzlich wird be
 
 Druck: `#btn-print` → `window.print()`; `beforeprint` bereitet die Metadaten auf,
 `afterprint` stellt sie zurück (`main.js:171-186`). Das Papierformat ist hart im CSS
-verankert (`@page { size: A4; margin: 0; page-margin-safety: auto }`, `print.css`),
+verankert (`@page { size: A4; margin: 0; page-margin-safety: auto }`, in `sheet.css`),
 damit Falz- und Lochmarke physisch exakt sitzen.
 
 ## 3. Mechaniken, die man sonst falsch annimmt

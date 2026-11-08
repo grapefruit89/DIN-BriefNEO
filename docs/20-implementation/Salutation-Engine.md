@@ -108,4 +108,4 @@ Die Engine überwacht die normgerechte Zeichensetzung automatisch bei Verlassen 
 - **Automatischer Reset:**
   Löscht der Nutzer den Inhalt des Feldes vollständig (z. B. mit Strg+A, Backspace), erkennt die Engine das leere Feld, entfernt das Dirty-Flag und generiert sofort wieder die passende Standardformel.
 - **Ghost-Markierung:**
-  Automatisch generierte, noch unberührte Vorschläge tragen `data-generated="true"`. Dies wird auf dem Bildschirm dezent gekennzeichnet (`--blatt-schwach`), im Ausdruck (`print.css`) jedoch automatisch als normaler Text neutralisiert.
+  Automatisch generierte, noch unberührte Vorschläge tragen `data-generated="true"`. Dies wird auf dem Bildschirm dezent gekennzeichnet (`--blatt-schwach`), im Ausdruck (`@media print` in `sheet.css`) jedoch automatisch als normaler Text neutralisiert.

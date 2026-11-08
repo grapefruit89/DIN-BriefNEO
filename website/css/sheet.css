@@ -328,3 +328,50 @@ din-blatt[data-ueberlauf="true"]::after {
     display: none !important;
   }
 }
+
+/* --- Druck (aus print.css zusammengelegt, 2026-11-08) ---
+   Drucklayout Einzelseite (Paged Media) */
+
+@page {
+  size: A4;
+  margin: 0;
+  page-margin-safety: auto;
+}
+
+
+@media print {
+
+  html, body { overflow: visible !important; height: auto !important; }
+
+  body { background: oklch(100% 0 0) !important; }
+
+  aside, .nicht-drucken, [popover], #hinweis-v4, #font-uploader, .unterschriftsbild-griff, .unterschriftsbild-drehgriff, #anschriftfeld::after { display: none !important; }
+
+  #viewport { padding: 0 !important; background: transparent !important; container-type: normal !important; height: auto !important; overflow: visible !important; }
+
+  din-blatt { 
+      transform: none !important; 
+      box-shadow: none !important; 
+      margin: 0 !important; 
+      page-break-after: avoid; 
+      width: calc(attr(data-width-mm type(<number>)) * 1mm) !important;
+      height: calc(attr(data-height-mm type(<number>)) * 1mm) !important; 
+  }
+
+  #text {
+    orphans: 3 !important;
+    widows: 3 !important;
+  }
+
+  #grussformel {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .unterschrift-zeile,
+  #unterschriftsbild-container {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+}

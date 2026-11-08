@@ -24,7 +24,7 @@ code_links:
   - website/js/address.js
   - website/js/persistence.js
   - website/js/main.js
-  - website/js/boot-theme.js
+  - website/js/boot.js
 error_patterns:
   - javascript constraints
   - js as a crutch

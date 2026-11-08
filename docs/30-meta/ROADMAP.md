@@ -19,7 +19,7 @@ doc_links:
 code_links:
   - website/index.html
   - website/js/address.js
-  - website/css/print.css
+  - website/css/sheet.css
 error_patterns:
   - roadmap
   - zukunft

@@ -1688,16 +1688,16 @@ export class ClipboardAddressParser {
 
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
-    // UX-4: Visuelles Feedback beim erfolgreichen Einfügen aus der Zwischenablage
-    const fieldsToFlash = [empfFirmaEl, empfNameEl, empfStrasseEl, empfOrtEl];
-    for (const f of fieldsToFlash) {
-      if (f) f.classList.add('flash-success');
-    }
-    setTimeout(() => {
-      for (const f of fieldsToFlash) {
-        if (f) f.classList.remove('flash-success');
+    // UX-4: Visuelles Feedback beim Einfügen — Web Animations API statt
+    // CSS-Klasse + setTimeout. Die Animation raeumt sich selbst ab.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const f of [empfFirmaEl, empfNameEl, empfStrasseEl, empfOrtEl]) {
+        f?.animate(
+          [{ background: 'light-dark(oklch(0.92 0.08 145), oklch(0.75 0.10 145))' }, { background: 'transparent' }],
+          { duration: 500, easing: 'ease-out' }
+        );
       }
-    }, 500);
+    }
 
     const label = candidate.firma || candidate.name || candidate.strasse;
     const toastMsg = Constants.TOASTS.CLIPBOARD.APPLIED(label, candidate.ort);

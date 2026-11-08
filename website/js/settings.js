@@ -104,6 +104,24 @@ export class SettingsManager {
     if (this.btnMarksSwitch) {
       this.btnMarksSwitch.checked = this.settings.marks !== false;
     }
+    if (this.btnSensitiveSwitch) {
+      this.btnSensitiveSwitch.checked = Boolean(this.settings.sensitiveSubject);
+    }
+
+    this.#spiegleLayoutFlags();
+  }
+
+  /**
+   * Layout-Flags als data-Attribute am <html>. Das CSS liest sie; die
+   * Checkboxen sind nur noch Bedienoberfläche. Der Boot-Block setzt denselben
+   * Zustand vor dem ersten Paint — hier wird er nach jedem Settings-Update
+   * nachgezogen (und korrigiert, falls das Boot-Script scheiterte).
+   */
+  #spiegleLayoutFlags() {
+    const root = document.documentElement;
+    root.setAttribute('data-guides', this.settings.guides ? 'true' : 'false');
+    root.setAttribute('data-marks', this.settings.marks === false ? 'false' : 'true');
+    root.setAttribute('data-sensitive-subject', this.settings.sensitiveSubject ? 'true' : 'false');
   }
 
   /**

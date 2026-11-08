@@ -644,22 +644,13 @@ export class UIProtections {
       raf(() => {
         if (!blatt || !kern) return;
 
-        // Primär: scrollHeight > clientHeight + 1px Puffer
-        const isPrimaryOverflow = kern.scrollHeight > kern.clientHeight + 1;
-
-        // Fallback: Letztes sichtbares Kind-Element im Kern (#anlagenvermerk oder .unterschrift-zeile)
-        let isFallbackOverflow = false;
-        const visibleChildren = Array.from(kern.children).filter(
-          (el) => el instanceof HTMLElement && el.getBoundingClientRect().height > 0
-        );
-        const lastVisibleChild = visibleChildren[visibleChildren.length - 1];
-        if (lastVisibleChild instanceof HTMLElement) {
-          const kernRect = kern.getBoundingClientRect();
-          const lastRect = lastVisibleChild.getBoundingClientRect();
-          isFallbackOverflow = lastRect.bottom > kernRect.bottom + 0.5;
-        }
-
-        const hasOverflow = isPrimaryOverflow || isFallbackOverflow;
+        // Gemessen (2026-11-08): mit `overflow: clip` meldet scrollHeight den
+        // Inhalt korrekt (238 -> 814 px bei 30 Absätzen); der frühere
+        // getBoundingClientRect-Fallback lag in jedem Fall gleichauf und
+        // erzwang nur einen zusätzlichen Layout-Read. Der ResizeObserver
+        // bleibt: das Blatt skaliert über cqw und #kern wächst mit
+        // (238 -> 358 px bei Viewport 900x700).
+        const hasOverflow = kern.scrollHeight > kern.clientHeight + 1;
 
         if (hasOverflow) {
           blatt.setAttribute('data-ueberlauf', 'true');

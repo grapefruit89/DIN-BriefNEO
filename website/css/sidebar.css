@@ -539,7 +539,8 @@ fieldset.seitenleiste-field-group > legend {
  * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
  * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
  * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
- * Die Statuserkennung erfolgt rein deklarativ über `:root:has(#btn-hilfslinien-switch:checked)`.
+ * Die Statuserkennung erfolgt rein deklarativ über `:root[data-guides="true"]`
+ * (Attribut setzt boot-switches.js vor dem ersten Paint, settings.js hält es synchron).
  * ES IST STRENGSTENS VERBOTEN (Law Catalog A57):
  * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
  * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.

@@ -48,9 +48,9 @@ din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after {
   display: none !important;
 }
 
-:root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-1,
-:root:not(:has(#toggle-falzmarken:checked)) din-falzmarke-2,
-:root:not(:has(#toggle-falzmarken:checked)) din-lochmarke {
+:root[data-marks="false"] din-falzmarke-1,
+:root[data-marks="false"] din-falzmarke-2,
+:root[data-marks="false"] din-lochmarke {
   display: none !important;
 }
 

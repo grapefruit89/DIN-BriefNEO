@@ -2,7 +2,7 @@
   "_meta": {
     "version": "2.0",
     "name": "Figurenkatalog",
-    "stand": "2026-11-05",
+    "stand": "2026-11-08",
     "figuren": 303,
     "schema": [
       "name",
@@ -21,7 +21,8 @@
     ],
     "herkunft": "Kuratiert aus 325 Rohfiguren der Sammel-Pipeline: 25 ohne belegbare Anschrift entfernt, 3 ergaenzt, alle Adressen gegen Quellen geprueft.",
     "marker": "keine feste Anschrift",
-    "hinweis": "plz traegt echte Postleitzahlen je Stadt; mehrere belegte Werte sind mit | getrennt und werden pro Brief neu gewuerfelt. Postlagernd und das Zeichen U+2105 (care of) sind gueltige Zustellwege."
+    "hinweis": "plz traegt echte Postleitzahlen je Stadt; mehrere belegte Werte sind mit | getrennt und werden pro Brief neu gewuerfelt. Postlagernd und das Zeichen U+2105 (care of) sind gueltige Zustellwege.",
+    "hooksRegel": "Nur konkrete Gegenstände (kein Ort, kein Konzept, keine Attacke), 2 bis 3 je Figur, ikonischster zuerst. Im Brief als Doppelpunkt-Nachtrag."
   },
   "figuren": [
     {
@@ -39,7 +40,11 @@
       "rolle": "Antagonist",
       "hinweis": "Ein Agentenprogramm, das sich im Verlauf der Reihe verselbstständigt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Sonnenbrille",
+        "Schwarzer Anzug",
+        "Ohrhörer"
+      ]
     },
     {
       "name": "Ahsoka Tano",
@@ -57,7 +62,11 @@
       "rolle": "Antiheld",
       "hinweis": "Jedi-Kriegerin aus The Clone Wars",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Lichtschwert",
+        "Shoto",
+        "Stirnreif"
+      ]
     },
     {
       "name": "Albert Wesker",
@@ -74,7 +83,11 @@
       "rolle": "Antagonist",
       "hinweis": "Ehemaliger S.T.A.R.S.-Offizier und zentraler Gegenspieler mehrerer Spiele.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Sonnenbrille",
+        "Reagenzglas",
+        "Kampfmesser"
+      ]
     },
     {
       "name": "Albus Dumbledore",
@@ -92,7 +105,11 @@
       "rolle": "Mentor",
       "hinweis": "Schulleiter von Hogwarts; die genaue Lage der Schule ist magisch verborgen.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Holunderstab",
+        "Denkarium",
+        "Feuervogel"
+      ]
     },
     {
       "name": "Alfred Pennyworth",
@@ -111,7 +128,11 @@
       "rolle": "Sidekick",
       "hinweis": "Butler, Vertrauter und medizinischer Helfer von Bruce Wayne; vollständiger Name variiert nach Kontinuität.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Serviertablett",
+        "Teekanne",
+        "Staubwedel"
+      ]
     },
     {
       "name": "Alyx Vance",
@@ -128,7 +149,10 @@
       "rolle": "Sidekick",
       "hinweis": "Wichtige Verbündete von Gordon Freeman und Hauptfigur des Spiels Half-Life: Alyx.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Pistole",
+        "Schwerkrafthandschuhe"
+      ]
     },
     {
       "name": "Andrew Ryan",
@@ -146,7 +170,10 @@
       "rolle": "Antagonist",
       "hinweis": "Gründer der Unterwasserstadt Rapture; der Geburtsname wird in der Spielhandlung enthüllt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Golfschläger",
+        "Bathysphäre"
+      ]
     },
     {
       "name": "Annabeth Chase",
@@ -164,7 +191,10 @@
       "rolle": "Mentor",
       "hinweis": "Tochter der Athene und begabte Strategin.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Yankees-Kappe",
+        "Messer"
+      ]
     },
     {
       "name": "Aquaman",
@@ -183,7 +213,10 @@
       "rolle": "Protagonist",
       "hinweis": "Halb Mensch (Arthur Curry), halb Atlanter (Sohn von Königin Atlanna). Weitere Angabe: Königreich Atlantis.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Dreizack",
+        "Seepferd"
+      ]
     },
     {
       "name": "Aragorn",
@@ -203,7 +236,10 @@
       "rolle": "Protagonist",
       "hinweis": "Wird nach dem Ringkrieg König von Gondor und Arnor.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Anduril",
+        "Bogen"
+      ]
     },
     {
       "name": "Arbiter",
@@ -220,7 +256,11 @@
       "rolle": "Antiheld",
       "hinweis": "Ehemaliger Covenant-Feldherr; wurde zum symbolischen Titel 'Arbiter' und Verbündeten der Menschen. Vadam Keep ist der Sitz des Hauses 'Vadam am Kolaar-Berg auf Sanghelios",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Energieschwert",
+        "Plasmagewehr",
+        "Kampfrüstung"
+      ]
     },
     {
       "name": "Arthur Dent",
@@ -238,12 +278,9 @@
       "hinweis": "Überlebender der zerstörten Erde im Bademantel.",
       "quellenAnzahl": 1,
       "hooks": [
-        "Bademantel",
         "Handtuch",
-        "keine Panik",
-        "Vogonen-Lyrik",
-        "Babelfisch",
-        "Tasse Tee"
+        "Bademantel",
+        "Teebeutel"
       ]
     },
     {
@@ -261,7 +298,11 @@
       "rolle": "Antiheld",
       "hinweis": "Outlaw, dessen Aufenthaltsort im Spiel fortlaufend wechselt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Revolver",
+        "Sattel",
+        "Notizbuch"
+      ]
     },
     {
       "name": "Arya Stark",
@@ -280,7 +321,10 @@
       "rolle": "Protagonist",
       "hinweis": "Weitere Zugehoerigkeit: Faceless Men",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Nadel",
+        "Münze"
+      ]
     },
     {
       "name": "Ash Ketchum",
@@ -300,7 +344,11 @@
       "rolle": "Protagonist",
       "hinweis": "Im japanischen Original heißt die Figur Satoshi.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Pokéball",
+        "Baseballkappe",
+        "Pokédex"
+      ]
     },
     {
       "name": "Ash Williams",
@@ -317,7 +365,11 @@
       "rolle": "Antiheld",
       "hinweis": "Der vollständige Name wird in einzelnen Filmen und Begleitmaterial verwendet.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kettensäge",
+        "Schrotflinte",
+        "Necronomicon"
+      ]
     },
     {
       "name": "Asterix",
@@ -335,7 +387,10 @@
       "rolle": "Protagonist",
       "hinweis": "Hüter des Zaubertranks an der Seite von Obelix.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Zaubertrank",
+        "Flügelhelm"
+      ]
     },
     {
       "name": "Atlas",
@@ -352,7 +407,10 @@
       "rolle": "Antagonist",
       "hinweis": "Atlas ist eine falsche Identität, die Frank Fontaine benutzt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Funkgerät",
+        "Pistole"
+      ]
     },
     {
       "name": "Baron Vladimir Harkonnen",
@@ -369,7 +427,10 @@
       "rolle": "Antagonist",
       "hinweis": "Die genaue Residenz und der Planetensitz werden in den verschiedenen Adaptionen unterschiedlich dargestellt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Schwebegürtel",
+        "Schwarzer Umhang"
+      ]
     },
     {
       "name": "Bart Simpson",
@@ -386,7 +447,11 @@
       "rolle": "Protagonist",
       "hinweis": "El Barto ist sein Graffiti-Pseudonym.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Skateboard",
+        "Schleuder",
+        "Tafelkreide"
+      ]
     },
     {
       "name": "Batgirl",
@@ -404,7 +469,11 @@
       "rolle": "Protagonist",
       "hinweis": "Tochter von Commissioner Jim Gordon, operiert als Batgirl und später als Oracle. Weitere Angabe: Birds of Prey.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Batarang",
+        "Enterhaken",
+        "Motorrad"
+      ]
     },
     {
       "name": "Batman",
@@ -428,12 +497,9 @@
       "hinweis": "Wayne Manor liegt je nach Kontinuität außerhalb des Stadtzentrums. Eine universell gültige Straßenadresse existiert nicht.",
       "quellenAnzahl": 4,
       "hooks": [
-        "Doppelleben",
-        "Gotham bei Nacht",
-        "Wayne Enterprises",
-        "Fledermaushöhle",
-        "Alfred",
-        "Batmobil"
+        "Batmobil",
+        "Batarang",
+        "Batsignal"
       ]
     },
     {
@@ -451,7 +517,10 @@
       "rolle": "Antagonist",
       "hinweis": "Gott der Zerstörung",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Pudding",
+        "Eiscreme"
+      ]
     },
     {
       "name": "Beetlejuice",
@@ -468,7 +537,10 @@
       "rolle": "Antiheld",
       "hinweis": "Ein exzentrischer Geist; die Schreibweise des Namens unterscheidet sich zwischen Film, Serie und Musical.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zebraanzug",
+        "Visitenkarte"
+      ]
     },
     {
       "name": "Bender",
@@ -487,7 +559,11 @@
       "rolle": "Antiheld",
       "hinweis": "Roboter mit ausgeprägter Vorliebe für Alkohol, Glücksspiel und Diebstahl. Seine Apartmentnummer ist 00100100 (Folge \"I, Roommate\").",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Bierflasche",
+        "Zigarre",
+        "Goldkette"
+      ]
     },
     {
       "name": "Bienlein",
@@ -507,7 +583,10 @@
       "rolle": "Support",
       "hinweis": "Schwerhöriger, genialer Erfinder von Haifisch-U-Boot und Mondrakete.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Halsband",
+        "Knochen"
+      ]
     },
     {
       "name": "Bilbo Beutlin",
@@ -528,12 +607,9 @@
       "hinweis": "Onkel von Frodo Beutlin, Verfasser von 'Hin und zurück'.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Auenland",
-        "der Eine Ring",
-        "Hobbit",
-        "Gandalf",
-        "unerwartetes Abenteuer",
-        "Tee um vier"
+        "Stich",
+        "Pfeife",
+        "Tagebuch"
       ]
     },
     {
@@ -551,7 +627,11 @@
       "rolle": "Antagonist",
       "hinweis": "Ein interdimensionales Wesen mit dem Aussehen eines gelben Dreiecks.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zylinder",
+        "Fliege",
+        "Spazierstock"
+      ]
     },
     {
       "name": "Black Panther",
@@ -569,7 +649,11 @@
       "rolle": "Protagonist",
       "hinweis": "T'Challa ist König und Beschützer Wakandas; seine Regierungsrolle variiert über die Comic-Kontinuitäten.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Vibranium",
+        "Kralle",
+        "Kettenhemd"
+      ]
     },
     {
       "name": "Black Widow",
@@ -590,7 +674,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ehemalige sowjetische Spionin, Meisterin der Kampfkunst und Taktik. Weitere Angabe: Avengers.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Handgelenkschützer",
+        "Pistole"
+      ]
     },
     {
       "name": "Booker DeWitt",
@@ -607,7 +694,10 @@
       "rolle": "Antiheld",
       "hinweis": "Seine alternative Identität als Zachary Comstock ist zentral für die Handlung. Apartment in New York, Adresse nie genannt. Frueherer Arbeitgeber: Pinkerton National Detective Agency",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Revolver",
+        "Sky-Hook"
+      ]
     },
     {
       "name": "Bowser",
@@ -626,7 +716,10 @@
       "rolle": "Antagonist",
       "hinweis": "Hauptgegner der Mario-Reihe.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Stachelpanzer",
+        "Kart"
+      ]
     },
     {
       "name": "Bugs Bunny",
@@ -643,7 +736,10 @@
       "rolle": "Protagonist",
       "hinweis": "Eine festgelegte zivile Adresse ist nicht kanonisch etabliert. Teilt sich in \"The Looney Tunes Show\" ein Haus in einer Sackgasse; Strasse unbenannt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Karotte",
+        "Weiße Handschuhe"
+      ]
     },
     {
       "name": "Bulma",
@@ -660,7 +756,10 @@
       "rolle": "Sidekick",
       "hinweis": "Brillante Erfinderin und Tochter des Gründers der Capsule Corporation.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Drachenradar",
+        "Hoi-Poi-Kapsel"
+      ]
     },
     {
       "name": "Captain America",
@@ -681,11 +780,8 @@
       "hinweis": "Supersoldat aus dem Zweiten Weltkrieg, Anführer der Avengers. Weitere Angabe: US Army.",
       "quellenAnzahl": 2,
       "hooks": [
-        "Vibranium-Schild",
-        "Super-Soldat",
-        "Brooklyn",
-        "eingefroren im Eis",
-        "Gerechtigkeit"
+        "Schild",
+        "Motorrad"
       ]
     },
     {
@@ -704,7 +800,10 @@
       "rolle": "Antagonist",
       "hinweis": "Die Schreibweise Lennister stammt aus der deutschen Buchübersetzung; die Serie verwendet häufig Lannister.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Weinbecher",
+        "Krone"
+      ]
     },
     {
       "name": "Charlie Bucket",
@@ -721,7 +820,10 @@
       "rolle": "Protagonist",
       "hinweis": "Armer Junge, der ein goldenes Ticket für die Schokoladenfabrik gewinnt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Goldenes Ticket",
+        "Schokoladentafel"
+      ]
     },
     {
       "name": "Chewbacca",
@@ -738,7 +840,11 @@
       "rolle": "Protagonist",
       "hinweis": "Wookiee-Krieger und loyaler Co-Pilot von Han Solo. Weitere Angabe: Millennium Falcon.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Bowcaster",
+        "Patronengurt",
+        "Schraubenschlüssel"
+      ]
     },
     {
       "name": "Chihiro Ogino",
@@ -755,7 +861,11 @@
       "rolle": "Protagonist",
       "hinweis": "Sen ist der Name, den Yubaba ihr bei der Arbeit im Badehaus gibt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Onigiri",
+        "Bahnfahrkarte",
+        "Schuh"
+      ]
     },
     {
       "name": "Ciri",
@@ -775,7 +885,10 @@
       "rolle": "Protagonist",
       "hinweis": "Prinzessin von Cintra; ihr vollständiger Name stammt aus der Buchreihe.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Schwert Zireael",
+        "Kapuzenumhang"
+      ]
     },
     {
       "name": "Clementine",
@@ -792,7 +905,10 @@
       "rolle": "Protagonist",
       "hinweis": "Hauptfigur der gleichnamigen Adventure-Spielreihe von Telltale Games.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Baseballmütze",
+        "Pistole"
+      ]
     },
     {
       "name": "Commander Shepard",
@@ -811,7 +927,11 @@
       "rolle": "Protagonist",
       "hinweis": "Vorname, Geschlecht und Hintergrund werden vom Spieler bestimmt.; Vorname vom Spieler wählbar",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "N7-Rüstung",
+        "Omni-Werkzeug",
+        "Mako"
+      ]
     },
     {
       "name": "Cortana",
@@ -828,7 +948,10 @@
       "rolle": "Sidekick",
       "hinweis": "Künstliche Intelligenz (KI) mit menschlicher Persönlichkeit; lebt digital im Anzug von Master Chief.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Datenchip",
+        "Hologramm"
+      ]
     },
     {
       "name": "Corvo Attano",
@@ -845,7 +968,11 @@
       "rolle": "Protagonist",
       "hinweis": "Rahmenhandlung: verdeckt operierender Attentäter mit übernatürlichen Outsider-Kräften.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Totenkopfmaske",
+        "Armbrust",
+        "Schwert"
+      ]
     },
     {
       "name": "Daenerys Targaryen",
@@ -869,7 +996,10 @@
       "rolle": "Protagonist",
       "hinweis": "Titel wie 'Sturmtochter aus dem Hause Targaryen' sind kein bürgerlicher Name.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Dracheneier",
+        "Krone"
+      ]
     },
     {
       "name": "Daffy Duck",
@@ -886,7 +1016,10 @@
       "rolle": "Antiheld",
       "hinweis": "Rivale und gelegentlicher Partner von Bugs Bunny. Wohnt in \"The Looney Tunes Show\" bei Bugs in einer unbenannten Sackgasse.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Raumhelm",
+        "Schrotflinte"
+      ]
     },
     {
       "name": "Dagobert Duck",
@@ -909,12 +1042,9 @@
       "hinweis": "Schwimmt im Geld; Glückszehner ist sein größter Schatz. Weitere Angabe: Geldtransport AG.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Geldspeicher",
         "Glückstaler",
-        "Talerbad",
-        "Entenhausen",
         "Zylinder",
-        "Geiz"
+        "Geldscheinbündel"
       ]
     },
     {
@@ -932,7 +1062,10 @@
       "rolle": "Antagonist",
       "hinweis": "Gruppeneintrag für die fiktionalen Dalton-Brüder der Lucky-Luke-Reihe; kein einzelner Charakterdatensatz.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Sträflingsanzug",
+        "Revolver"
+      ]
     },
     {
       "name": "Daniel Düsentrieb",
@@ -950,7 +1083,11 @@
       "rolle": "Support",
       "hinweis": "Erfinder von Helferlein und Phantomias-Ausrüstung. Motto: 'Dem Ingeniör ist nichts zu schwör'.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Denkhaube",
+        "Schraubenschlüssel",
+        "Werkzeugkasten"
+      ]
     },
     {
       "name": "Daredevil",
@@ -968,7 +1105,11 @@
       "rolle": "Protagonist",
       "hinweis": "Erblindeter Anwalt mit geschärften Radarsinnen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Blindenstock",
+        "Schlagstock",
+        "Maske"
+      ]
     },
     {
       "name": "Darth Maul",
@@ -985,7 +1126,10 @@
       "rolle": "Antagonist",
       "hinweis": "Zabrak-Krieger von Dathomir; spätere Handlungen zeigen seine Entwicklung zum unabhängigen Machtspieler.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Doppelklingen-Lichtschwert",
+        "Speeder-Bike"
+      ]
     },
     {
       "name": "Darth Vader",
@@ -1008,11 +1152,9 @@
       "hinweis": "Mustafar ist nur ein einzelner Schauplatz, nicht der Hauptwirkungsort.",
       "quellenAnzahl": 4,
       "hooks": [
-        "Todesstern",
-        "dunkle Seite der Macht",
+        "Lichtschwert",
         "Atemmaske",
-        "Mustafar",
-        "imperiale Flotte"
+        "Todesstern"
       ]
     },
     {
@@ -1030,7 +1172,10 @@
       "rolle": "Sidekick",
       "hinweis": "Android und Offizier der Sternenflotte.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Violine",
+        "Tricorder"
+      ]
     },
     {
       "name": "Davy Jones",
@@ -1047,7 +1192,11 @@
       "rolle": "Antagonist",
       "hinweis": "Übernatürlicher Kapitän, der über die Seelen der Ertrunkenen wacht.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Schatzkiste",
+        "Pfeifenorgel",
+        "Dreispitz"
+      ]
     },
     {
       "name": "Deadpool",
@@ -1067,12 +1216,9 @@
       "hinweis": "Söldner mit Regenerationsfähigkeit und häufigem Durchbrechen der vierten Wand.",
       "quellenAnzahl": 2,
       "hooks": [
-        "Vierte Wand",
-        "Chimichangas",
         "Katanas",
-        "Regeneration",
-        "Kabelsalat",
-        "Einhorn"
+        "Maske",
+        "Pistolen"
       ]
     },
     {
@@ -1110,7 +1256,11 @@
       "rolle": "Protagonist",
       "hinweis": "Die Figur regeneriert sich in unterschiedliche Erscheinungsformen; ein allgemein bekannter bürgerlicher Name ist nicht kanonisch festgelegt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Schallschraubendreher",
+        "TARDIS",
+        "Jellybabys"
+      ]
     },
     {
       "name": "Dexter Morgan",
@@ -1129,7 +1279,11 @@
       "rolle": "Antiheld",
       "hinweis": "Forensischer Blutspurenanalyst und Serienmörder; Wohnorte ändern sich im Verlauf der Reihe.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Messer",
+        "Blutobjektträger",
+        "Plastikplane"
+      ]
     },
     {
       "name": "Din Djarin",
@@ -1147,7 +1301,11 @@
       "rolle": "Protagonist",
       "hinweis": "Sein Raumschiff wird im Serienverlauf ersetzt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Helm",
+        "Jetpack",
+        "Blaster"
+      ]
     },
     {
       "name": "Dipper Pines",
@@ -1164,7 +1322,10 @@
       "rolle": "Protagonist",
       "hinweis": "Dipper ist sein Spitzname; sein Vorname Mason wird im Begleitmaterial bestätigt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Tagebuch 3",
+        "Trucker-Cap mit Pinienbaum"
+      ]
     },
     {
       "name": "Discworld-Tod",
@@ -1182,7 +1343,11 @@
       "rolle": "Sonstiges",
       "hinweis": "Anthropomorphe Personifikation des Todes; wird in der englischen Originalfassung oft in Kapitälchen dargestellt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Sense",
+        "Sanduhr",
+        "Schwarze Kutte"
+      ]
     },
     {
       "name": "Doc Brown",
@@ -1200,11 +1365,9 @@
       "hinweis": "Erfinder der Zeitmaschine; seine Wohn- und Arbeitsorte variieren zwischen den Filmen.",
       "quellenAnzahl": 2,
       "hooks": [
-        "DeLorean",
         "Fluxkompensator",
-        "1.21 Gigawatt",
-        "88 Meilen pro Stunde",
-        "Plutonium"
+        "Plutonium",
+        "DeLorean"
       ]
     },
     {
@@ -1224,7 +1387,11 @@
       "rolle": "Antagonist",
       "hinweis": "Herrscher eines fiktiven europäischen Staates.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Eisenmaske",
+        "Rüstung",
+        "Umhang"
+      ]
     },
     {
       "name": "Doctor Strange",
@@ -1242,7 +1409,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ehemaliger Neurochirurg, Oberster Zauberer der Erde. Weitere Angabe: Sanctum Sanctorum.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Umhang",
+        "Amulett"
+      ]
     },
     {
       "name": "Dr. Eggman",
@@ -1260,7 +1430,10 @@
       "rolle": "Antagonist",
       "hinweis": "Eggman und Robotnik sind regional beziehungsweise historisch unterschiedliche Namensformen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Eggmobile",
+        "Roboter"
+      ]
     },
     {
       "name": "Dr. John Watson",
@@ -1278,7 +1451,11 @@
       "rolle": "Sidekick",
       "hinweis": "Mitbewohner und Chronist der Holmes-Fälle; der zweite Vorname Hamish stammt aus späterer Kontinuitätstradition.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Arztkoffer",
+        "Revolver",
+        "Gehstock"
+      ]
     },
     {
       "name": "Dr. Manhattan",
@@ -1297,7 +1474,10 @@
       "rolle": "Antiheld",
       "hinweis": "Quantenphysiker, besitzt übermenschliche Fähigkeiten",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Wasserstoff-Atom",
+        "Taschenuhr"
+      ]
     },
     {
       "name": "Draco Malfoy",
@@ -1314,7 +1494,10 @@
       "rolle": "Antagonist",
       "hinweis": "Er entwickelt sich im Verlauf der Reihe von einem schulischen Gegenspieler zu einer ambivalenteren Figur.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Weißdornstab",
+        "Nimbus 2001"
+      ]
     },
     {
       "name": "Duke Nukem",
@@ -1331,7 +1514,11 @@
       "rolle": "Antiheld",
       "hinweis": "Überzeichneter Actionheld; eine konsistente zivile Adresse ist nicht kanonisch festgelegt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Raketenwerfer",
+        "Sonnenbrille",
+        "Kaugummi"
+      ]
     },
     {
       "name": "Dutch van der Linde",
@@ -1348,7 +1535,10 @@
       "rolle": "Antagonist",
       "hinweis": "Bandenführer, dessen Ideale und Handlungen zunehmend auseinanderdriften.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Revolver",
+        "Zigarrenkiste"
+      ]
     },
     {
       "name": "Edward Elric",
@@ -1366,7 +1556,10 @@
       "rolle": "Protagonist",
       "hinweis": "Jüngster Staatsalchemist in der Geschichte Amestris'; verliert Arm und Bein durch Alchemie.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Silberne Taschenuhr",
+        "Metallarm"
+      ]
     },
     {
       "name": "Eleven",
@@ -1386,7 +1579,10 @@
       "rolle": "Protagonist",
       "hinweis": "Kanonischer Name ist Eleven; 'Elf' ist eine deutsche Übersetzung, keine kanonische Bezeichnung.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Waffel",
+        "Walkie-Talkie"
+      ]
     },
     {
       "name": "Elizabeth",
@@ -1403,7 +1599,10 @@
       "rolle": "Sidekick",
       "hinweis": "Elizabeth ist der Name, unter dem Booker sie kennt; Anna ist ihr Geburtsname.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Dietrich",
+        "Buch"
+      ]
     },
     {
       "name": "Elizabeth Swann",
@@ -1420,7 +1619,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ihre Rolle verändert sich von der Gouverneurstochter zur Piratenkönigin.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Goldmünze",
+        "Säbel"
+      ]
     },
     {
       "name": "Ellen Ripley",
@@ -1437,7 +1639,11 @@
       "rolle": "Protagonist",
       "hinweis": "Offizierin und Überlebende der Begegnungen mit dem Xenomorph.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Flammenwerfer",
+        "Laderoboter",
+        "Katze"
+      ]
     },
     {
       "name": "Elliot Alderson",
@@ -1454,7 +1660,10 @@
       "rolle": "Antiheld",
       "hinweis": "Hacker mit dissoziativer Identitätsstörung; zielt auf E Corp und die globale Finanzwelt. Weitere Angabe: fsociety.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kapuzenpullover",
+        "Laptop"
+      ]
     },
     {
       "name": "Emil Tischbein",
@@ -1471,7 +1680,10 @@
       "rolle": "Protagonist",
       "hinweis": "Die Handlung führt ihn nach Berlin; Neustadt ist sein Heimatort in der Geschichte. \"Neustadt\" ist im Roman ohne Region; keine belegbare PLZ.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Geldumschlag",
+        "Matrosenanzug"
+      ]
     },
     {
       "name": "Eren Jäger",
@@ -1491,7 +1703,11 @@
       "rolle": "Antiheld",
       "hinweis": "Der deutsche Name Jäger entspricht dem japanischen Yeager in anderen Transkriptionen.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Kellerschlüssel",
+        "ODM-Ausrüstung",
+        "Titan-Spritze"
+      ]
     },
     {
       "name": "Eric Cartman",
@@ -1509,7 +1725,10 @@
       "rolle": "Antiheld",
       "hinweis": "Die konkrete Hausnummer ist nicht über alle Episoden hinweg konsistent belegt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Käsestäbchen",
+        "Wintermütze"
+      ]
     },
     {
       "name": "Ferkel",
@@ -1526,7 +1745,10 @@
       "rolle": "Sidekick",
       "hinweis": "Puuhs bester Freund und eine der Hauptfiguren der Geschichten. Lebt in einem Haus im Buchenbaum im Hundertmorgenwald; das Haus hat keinen Namen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Grüner Luftballon",
+        "Schal"
+      ]
     },
     {
       "name": "Forrest Gump",
@@ -1543,7 +1765,11 @@
       "rolle": "Protagonist",
       "hinweis": "Die fiktive Stadt Greenbow ist nicht mit einer eindeutig festgelegten realen Postanschrift verbunden.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Pralinenschachtel",
+        "Tischtennisschläger",
+        "Rasenmäher"
+      ]
     },
     {
       "name": "Fred Jones",
@@ -1560,7 +1786,11 @@
       "rolle": "Protagonist",
       "hinweis": "Anführer der Mystery Inc.; seine Hintergrundgeschichte variiert je nach Serie.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Halstuch",
+        "Seil",
+        "Taschenlampe"
+      ]
     },
     {
       "name": "Frieza",
@@ -1579,7 +1809,10 @@
       "rolle": "Antagonist",
       "hinweis": "Imperiale Macht",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Schwebethron",
+        "Scouter"
+      ]
     },
     {
       "name": "Frodo Beutlin",
@@ -1598,12 +1831,9 @@
       "hinweis": "Er erbt Beutelsend von Bilbo und übernimmt die Aufgabe, den Einen Ring zu vernichten.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Schicksalsberg",
-        "Auenland",
-        "Bruchbruchtal",
-        "Stich",
-        "Mithril-Kettenhemd",
-        "schwere Bürde"
+        "Der Eine Ring",
+        "Mithrilpanzer",
+        "Stich"
       ]
     },
     {
@@ -1628,11 +1858,9 @@
       "hinweis": "Ein Maia in Gestalt eines Zauberers; Mithrandir ist ein elbischer Name. Gast in Elronds Haus in Bruchtal, wo der Rat abgehalten wird",
       "quellenAnzahl": 3,
       "hooks": [
-        "Feuerwerk im Auenland",
-        "Schattenfell",
-        "Moria",
         "Zauberstab",
-        "du kannst nicht vorbei"
+        "Glamdring",
+        "Feuerwerk"
       ]
     },
     {
@@ -1652,7 +1880,11 @@
       "rolle": "Antagonist",
       "hinweis": "Der Familienname Dragmire stammt aus ergänzendem Material und ist nicht in allen Spielen etabliert.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Kraft-Dreieck",
+        "Krummschwert",
+        "Pferd"
+      ]
     },
     {
       "name": "Garrus Vakarian",
@@ -1669,7 +1901,10 @@
       "rolle": "Sidekick",
       "hinweis": "Turianischer Offizier und enger Verbündeter Shepards.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Scharfschützengewehr",
+        "Omni-Werkzeug"
+      ]
     },
     {
       "name": "Genos",
@@ -1686,7 +1921,10 @@
       "rolle": "Sidekick",
       "hinweis": "Cyborg und Schüler von Saitama; ständig stärkere Aufrüstungen durch Dr. Kuseno.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Armkanone",
+        "Panzerung"
+      ]
     },
     {
       "name": "Gerald Broflovski",
@@ -1703,7 +1941,10 @@
       "rolle": "Sonstiges",
       "hinweis": "Vater von Kyle Broflovski; Rechtsanwalt mit Gerechtigkeitssinn.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Aktenkoffer",
+        "Kaffeetasse"
+      ]
     },
     {
       "name": "Geralt von Riva",
@@ -1728,11 +1969,9 @@
       "hinweis": "Der Beiname 'von Riva' ist zunächst angenommen; er wird später zum Ritter von Riva geschlagen.",
       "quellenAnzahl": 4,
       "hooks": [
-        "zwei Schwerter",
-        "Silber für Monster",
-        "Kaer Morhen",
-        "Plötze",
-        "Hexer-Zeichen"
+        "Silberschwert",
+        "Wolfsmedaillon",
+        "Elixier Schwalbe"
       ]
     },
     {
@@ -1750,7 +1989,10 @@
       "rolle": "Sidekick",
       "hinweis": "Zwerg und Mitglied der Gemeinschaft des Rings; die Glitzernden Grotten werden ihm später als Herrschaftsgebiet zugeordnet.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Axt",
+        "Kriegshelm"
+      ]
     },
     {
       "name": "GLaDOS",
@@ -1767,7 +2009,10 @@
       "rolle": "Antagonist",
       "hinweis": "Künstliche Intelligenz, die die Testkammern des Aperture-Komplexes kontrolliert.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kuchen",
+        "Kartoffel"
+      ]
     },
     {
       "name": "Gojo Satoru",
@@ -1784,7 +2029,11 @@
       "rolle": "Protagonist",
       "hinweis": "Stärkster Jujutsu-Kämpfer",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Augenbinde",
+        "Sonnenbrille",
+        "Mochi"
+      ]
     },
     {
       "name": "Goku",
@@ -1801,7 +2050,11 @@
       "rolle": "Protagonist",
       "hinweis": "Stärkster Kämpfer der Universe",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Drachenkugel",
+        "Fliegende Wolke",
+        "Power-Stab"
+      ]
     },
     {
       "name": "Gollum",
@@ -1818,7 +2071,10 @@
       "rolle": "Antiheld",
       "hinweis": "Lebte jahrhundertelang im Nebelgebirge, bis Bilbo den Ring fand; geteilte Persönlichkeit Sméagol/Gollum.; Stoors-Hobbit",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Der Eine Ring",
+        "Fisch"
+      ]
     },
     {
       "name": "Goofy",
@@ -1835,7 +2091,10 @@
       "rolle": "Sidekick",
       "hinweis": "Sein vollständiger Name und Wohnort sind in verschiedenen Disney-Kontinuitäten nicht einheitlich. In den Comics Mausstadt/Entenhausen, in \"Goof Troop\" Spoonerville; keine Hausadresse.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Angelrute",
+        "Hut"
+      ]
     },
     {
       "name": "Gordon Freeman",
@@ -1854,7 +2113,11 @@
       "rolle": "Protagonist",
       "hinweis": "Theoretischer Physiker und Hauptfigur der Half-Life-Reihe.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Brecheisen",
+        "Schutzanzug",
+        "Gravitationswaffe"
+      ]
     },
     {
       "name": "Gordon Ramsay",
@@ -1871,7 +2134,11 @@
       "rolle": "Mentor",
       "hinweis": "Berühmter für prägnante ('idiots sandwich') Wutausbrüche; realer TV-Personality als fiktionale Popkultur-Ikone.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kochmesser",
+        "Pfanne",
+        "Kochlöffel"
+      ]
     },
     {
       "name": "Green Arrow",
@@ -1890,7 +2157,11 @@
       "rolle": "Protagonist",
       "hinweis": "Milliardär und meisterhafter Bogenschütze mit Trickpfeilen. Weitere Angabe: Team Arrow.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Bogen",
+        "Trickpfeil",
+        "Köcher"
+      ]
     },
     {
       "name": "Green Lantern",
@@ -1910,7 +2181,10 @@
       "rolle": "Protagonist",
       "hinweis": "Testpilot, Träger des mächtigsten Rings im Universum (grüne Willenskraft). Weitere Angabe: Green Lantern Corps.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Ring",
+        "Powerbatterie"
+      ]
     },
     {
       "name": "Grogu",
@@ -1928,7 +2202,11 @@
       "rolle": "Sidekick",
       "hinweis": "Baby Yoda ist ein populärer Spitzname, nicht der kanonische Eigenname.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Schwebewiege",
+        "Frosch",
+        "Keks"
+      ]
     },
     {
       "name": "Gus Fring",
@@ -1945,7 +2223,11 @@
       "rolle": "Antagonist",
       "hinweis": "Betreibt die Fast-Food-Kette Los Pollos Hermanos als bürgerliche Tarnung",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Hähnchen-Eimer",
+        "Teppichmesser",
+        "Schürze"
+      ]
     },
     {
       "name": "Gwen Stacy",
@@ -1964,7 +2246,11 @@
       "rolle": "Protagonist",
       "hinweis": "In ihrem Universum wurde sie (nicht Peter) von der Spinne gebissen; Musikerin und Heldin",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Netzschleuder",
+        "Turnschuhe",
+        "Kapuze"
+      ]
     },
     {
       "name": "Han Solo",
@@ -1982,7 +2268,11 @@
       "rolle": "Antiheld",
       "hinweis": "Schmuggler und späterer General der Rebellenallianz.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Blaster",
+        "Glückswürfel",
+        "Frachter"
+      ]
     },
     {
       "name": "Handy Schlumpf",
@@ -2000,7 +2290,10 @@
       "rolle": "Support",
       "hinweis": "Trägt Latzhose und Bleistift hinterm Ohr; repariert das Dorf.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Werkzeugkasten",
+        "Hammer"
+      ]
     },
     {
       "name": "Hank Schrader",
@@ -2017,7 +2310,11 @@
       "rolle": "Protagonist",
       "hinweis": "DEA-Agent und Schwager von Walter White.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Mineraliensammlung",
+        "Dienstmarke der DEA",
+        "Bierflasche"
+      ]
     },
     {
       "name": "Hannibal Lecter",
@@ -2037,7 +2334,11 @@
       "rolle": "Antagonist",
       "hinweis": "Psychiater und Serienmörder",
       "quellenAnzahl": 4,
-      "hooks": []
+      "hooks": [
+        "Chianti-Flasche",
+        "Küchenmesser",
+        "Fava-Bohnen"
+      ]
     },
     {
       "name": "Harley Quinn",
@@ -2055,7 +2356,11 @@
       "rolle": "Antiheld",
       "hinweis": "Ehemalige Psychiaterin; ihre Rolle reicht von Schurkin bis Antiheldin.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Vorschlaghammer",
+        "Baseballschläger",
+        "Narrenkappe"
+      ]
     },
     {
       "name": "Harry Potter",
@@ -2075,11 +2380,9 @@
       "hinweis": "Der Ligusterweg ist seine Kindheitsadresse bei den Dursleys, nicht sein dauerhafter erwachsener Wohnsitz.",
       "quellenAnzahl": 2,
       "hooks": [
-        "Hogwarts",
-        "Quidditch",
-        "Narben-Blitz",
-        "Zauberstab aus Stechpalme",
-        "Dumbledore"
+        "Zauberstab",
+        "Nimbus 2000",
+        "Tarnumhang"
       ]
     },
     {
@@ -2099,7 +2402,10 @@
       "rolle": "Protagonist",
       "hinweis": "Meisterschütze ohne Superkräfte, loyalster Team-Rückhalt. Weitere Angabe: Avengers.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Bogen",
+        "Trickpfeil"
+      ]
     },
     {
       "name": "Hercule Poirot",
@@ -2116,7 +2422,11 @@
       "rolle": "Protagonist",
       "hinweis": "Belgischer Meisterdetektiv mit ausgeprägtem Ordnungssinn und berühmtem Schnurrbart.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Taschenuhr",
+        "Lackschuhe",
+        "Spazierstock"
+      ]
     },
     {
       "name": "Hermine Granger",
@@ -2135,7 +2445,10 @@
       "rolle": "Protagonist",
       "hinweis": "Die deutsche Buchübersetzung verwendet den Vornamen Hermine. Weitere Zugehoerigkeit: Hogwarts",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Zeitumkehrer",
+        "Weinrebenstab"
+      ]
     },
     {
       "name": "Homer Simpson",
@@ -2154,7 +2467,10 @@
       "rolle": "Protagonist",
       "hinweis": "Haupt-Figur der langlebigsten US-Zeichentrickserie der Welt.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Donut",
+        "Duff-Bier"
+      ]
     },
     {
       "name": "Howl",
@@ -2172,7 +2488,10 @@
       "rolle": "Protagonist",
       "hinweis": "Die Namensform und die Ortsbezeichnungen variieren je nach Buchübersetzung und Filmadaption.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Federumhang",
+        "Zaubertrank"
+      ]
     },
     {
       "name": "Hulk",
@@ -2195,12 +2514,8 @@
       "hinweis": "Genialer Nuklearphysiker mit Wut-induzierter Transformation. Weitere Angabe: Avengers.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Gammastrahlung",
-        "Zorn",
-        "unzerstörbare Hose",
-        "Smash",
-        "Pulsschlag",
-        "Monster im Inneren"
+        "Zerrissene Hose",
+        "Gladiatorrüstung"
       ]
     },
     {
@@ -2219,7 +2534,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ruft 'Flamme an!' (Flame on!). Bruder von Susan Storm. Weitere Angabe: Baxter Foundation.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Blaue Uniform",
+        "Rennwagen"
+      ]
     },
     {
       "name": "Ichigo Kurosaki",
@@ -2237,7 +2555,11 @@
       "rolle": "Protagonist",
       "hinweis": "Schneide- und Rüstungsfähigkeiten",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Riesenschwert",
+        "Hollow-Maske",
+        "Shinigami-Kimono"
+      ]
     },
     {
       "name": "Invisible Woman",
@@ -2255,7 +2577,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ehefrau von Reed Richards, beherrscht Kraftfelder und Unsichtbarkeit. Weitere Angabe: Baxter Foundation.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Blaue Uniform",
+        "Kommunikator"
+      ]
     },
     {
       "name": "Iron Fist",
@@ -2273,7 +2598,10 @@
       "rolle": "Protagonist",
       "hinweis": "Gelehrt in der mystischen Stadt K'un-Lun; bündelt Chi in seinen Fäusten. Weitere Angabe: Heroes for Hire.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Drachen-Tattoo",
+        "Maske"
+      ]
     },
     {
       "name": "Iron Man",
@@ -2294,11 +2622,9 @@
       "hinweis": "Genie, Milliardär, Playboy, Philanthrop. Weitere Angabe: Malibu. Weitere Angabe: Avengers. Stark Tower in Midtown Manhattan, Unternehmens- und Avengers-Sitz",
       "quellenAnzahl": 3,
       "hooks": [
-        "Stark Industries",
-        "Arc-Reaktor",
-        "Jarvis",
-        "Nanotechnologie",
-        "Avengers"
+        "Ark-Reaktor",
+        "Repulsor",
+        "Kampfrüstung"
       ]
     },
     {
@@ -2317,7 +2643,11 @@
       "rolle": "Antiheld",
       "hinweis": "Tötete seinen Clan auf Geheiß, um Krieg zu verhindern; wahrer Held im Verborgenen. Das Uchiha-Viertel liegt am Stadtrand von Konohagakure",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Akatsuki-Umhang",
+        "Kunai",
+        "Krähen"
+      ]
     },
     {
       "name": "Jack",
@@ -2337,7 +2667,10 @@
       "rolle": "Protagonist",
       "hinweis": "Stummer Protagonist; entdeckt die Unterwasser-Dystopie Rapture.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Golfschläger",
+        "Schraubenschlüssel"
+      ]
     },
     {
       "name": "Jack Sparrow",
@@ -2354,7 +2687,11 @@
       "rolle": "Antiheld",
       "hinweis": "Piratenkapitän mit wechselnden Allianzen; die Black Pearl ist sein bekanntestes Schiff.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kompass ohne Norden",
+        "Rumflasche",
+        "Degen"
+      ]
     },
     {
       "name": "James",
@@ -2371,7 +2708,10 @@
       "rolle": "Antagonist",
       "hinweis": "Mitglied von Team Rocket; seine wohlhabende Familie wird in einzelnen Episoden gezeigt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Rote Rose",
+        "Pokéball"
+      ]
     },
     {
       "name": "James Bond",
@@ -2391,10 +2731,8 @@
       "quellenAnzahl": 3,
       "hooks": [
         "Aston Martin",
-        "geschüttelt nicht gerührt",
-        "MI6",
-        "Lizenz zum Töten",
-        "Q-Gadgets"
+        "Walther PPK",
+        "Martini"
       ]
     },
     {
@@ -2412,7 +2750,10 @@
       "rolle": "Protagonist",
       "hinweis": "Kommandant der USS Enterprise in der Originalserie.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Phaser",
+        "Kommunikator"
+      ]
     },
     {
       "name": "Jean Grey",
@@ -2430,7 +2771,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ihre Verbindung zur Phoenix Force ist je nach Comicphase unterschiedlich ausgeprägt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Uniform",
+        "Gelbe Maske"
+      ]
     },
     {
       "name": "Jean-Luc Picard",
@@ -2451,11 +2795,8 @@
       "hinweis": "Die USS Enterprise-D ist ein Schiff, kein Wohnort.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Tee Earl Grey heiß",
-        "Enterprise NCC-1701-D",
-        "Château Picard",
-        "Energie",
-        "Sternenflotte"
+        "Teetasse",
+        "Phaser"
       ]
     },
     {
@@ -2473,7 +2814,11 @@
       "rolle": "Protagonist",
       "hinweis": "Eine kleine Maus, die Tom regelmäßig entkommt. Schauplatz des Kinofilms von 2021 (Royal Gate Hotel, New York); die klassischen Kurzfilme nennen keinen Ort",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Käsestück",
+        "Mausefalle",
+        "Mauseloch"
+      ]
     },
     {
       "name": "Jesse Pinkman",
@@ -2490,7 +2835,11 @@
       "rolle": "Antiheld",
       "hinweis": "Ehemaliger Schüler Walter Whites und dessen Geschäftspartner.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Kapuzenpullover",
+        "Wohnmobil",
+        "Blaues Kristall"
+      ]
     },
     {
       "name": "Jessica Jones",
@@ -2507,7 +2856,11 @@
       "rolle": "Protagonist",
       "hinweis": "Privatdetektivin mit übermenschlicher Kraft und PTBS.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Whiskeyflasche",
+        "Kamera",
+        "Ledermantel"
+      ]
     },
     {
       "name": "Jessie",
@@ -2524,7 +2877,10 @@
       "rolle": "Antagonist",
       "hinweis": "Jessie und James sind Mitglieder von Team Rocket; der Anime gibt ihnen keine durchgehend etablierte bürgerliche Familiennamensform.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Pokéball",
+        "Spiegel"
+      ]
     },
     {
       "name": "Jill Valentine",
@@ -2541,7 +2897,11 @@
       "rolle": "Protagonist",
       "hinweis": "Eine der zentralen Figuren der Resident-Evil-Reihe. Raccoon City; das Spencer-Anwesen ist ihr Einsatzort, nicht ihr Wohnsitz.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Dietrich",
+        "Grüne Kräuter",
+        "Kampfmesser"
+      ]
     },
     {
       "name": "Johnny Silverhand",
@@ -2560,7 +2920,11 @@
       "rolle": "Antiheld",
       "hinweis": "Rockmusiker und digitaler Geist im Bewusstsein von V.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "E-Gitarre",
+        "Silberarm",
+        "Malorian-Pistole"
+      ]
     },
     {
       "name": "Joker",
@@ -2580,12 +2944,9 @@
       "hinweis": "Eine definitive bürgerliche Identität ist in den meisten Comic-Kontinuitäten nicht festgelegt. Einzelne Adaptionen verwenden andere Namen.",
       "quellenAnzahl": 2,
       "hooks": [
-        "Lächeln",
-        "Arkham Asylum",
-        "Kartenspiel",
-        "Chaos",
+        "Spielkarte",
         "Lachgas",
-        "Gotham im Brand"
+        "Blumenspritze"
       ]
     },
     {
@@ -2608,7 +2969,10 @@
       "rolle": "Protagonist",
       "hinweis": "Geboren als Aegon Targaryen, wuchs als unehelicher Sohn von Eddard Stark unter dem Namen Jon Schnee auf.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Langklaue",
+        "Schwarzer Umhang"
+      ]
     },
     {
       "name": "Kapitän Haddock",
@@ -2627,7 +2991,11 @@
       "rolle": "Protagonist",
       "hinweis": "Berühmt für Flüche ('Hunderttausend heulende Höllenhunde!') und Loch-Lomond-Whisky. Weitere Angabe: Schloss Mühlenhof.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Pfeife",
+        "Flasche Whisky",
+        "Käpt'nsmütze"
+      ]
     },
     {
       "name": "Katniss Everdeen",
@@ -2645,7 +3013,11 @@
       "rolle": "Protagonist",
       "hinweis": null,
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Bogen",
+        "Köcher",
+        "Distelfink-Anstecker"
+      ]
     },
     {
       "name": "Kenny McCormick",
@@ -2662,7 +3034,10 @@
       "rolle": "Protagonist",
       "hinweis": "Mysterion ist sein maskiertes Alter Ego.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Orange Parka",
+        "Kapuze"
+      ]
     },
     {
       "name": "King Dedede",
@@ -2679,7 +3054,11 @@
       "rolle": "Antagonist",
       "hinweis": "Dicklicher Pinguin-König mit Hammer; öfter Rivale als echter Bösewicht.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Hammer",
+        "Krone",
+        "Königsmantel"
+      ]
     },
     {
       "name": "Kirby",
@@ -2697,7 +3076,11 @@
       "rolle": "Protagonist",
       "hinweis": "Rosa, kugelförmige Figur mit der Fähigkeit, Gegner einzusaugen und Fähigkeiten zu kopieren.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Warp-Stern",
+        "Sternenrute",
+        "Maxi-Tomate"
+      ]
     },
     {
       "name": "Krabat",
@@ -2714,7 +3097,10 @@
       "rolle": "Protagonist",
       "hinweis": "Figur aus der sorbischen Sagenwelt und aus Otfried Preußlers Roman.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zauberbuch",
+        "Mühlstein"
+      ]
     },
     {
       "name": "Krachbumm-Ente",
@@ -2750,7 +3136,11 @@
       "rolle": "Antiheld",
       "hinweis": "Die Figur entwickelt sich von einem rachsüchtigen Krieger zu einem zurückhaltenden Vater.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Leviathan-Axt",
+        "Chaos-Klingen",
+        "Goldenes Vlies"
+      ]
     },
     {
       "name": "Krusty der Clown",
@@ -2767,7 +3157,10 @@
       "rolle": "Sonstiges",
       "hinweis": "Sein bürgerlicher Name ist in einer Folge ausführlich genannt worden.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zigarre",
+        "Burger"
+      ]
     },
     {
       "name": "Kyle Broflovski",
@@ -2784,7 +3177,10 @@
       "rolle": "Protagonist",
       "hinweis": "Einer der vier zentralen Jungen der Serie.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Grüne Mütze",
+        "Schneeball"
+      ]
     },
     {
       "name": "Kylo Ren",
@@ -2801,7 +3197,10 @@
       "rolle": "Antagonist",
       "hinweis": "Sohn von Leia Organa und Han Solo; trägt maschinenverzerrte Stimme unter Maske. Weitere Zugehoerigkeit: Ritter von Ren",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Crossguard-Lichtschwert",
+        "Helm"
+      ]
     },
     {
       "name": "L",
@@ -2820,7 +3219,10 @@
       "rolle": "Protagonist",
       "hinweis": "Der weltweit bekannte Detektiv verbirgt seine Identität. Sein voller Name wird in Zusatzmaterial als L Lawliet angegeben.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Zuckerwürfel",
+        "Lutscher"
+      ]
     },
     {
       "name": "Lady Jessica",
@@ -2838,7 +3240,10 @@
       "rolle": "Mentor",
       "hinweis": "Bene-Gesserit und Mutter von Paul Atreides.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Schwarzer Schleier",
+        "Wasser des Lebens"
+      ]
     },
     {
       "name": "Lara Croft",
@@ -2856,7 +3261,11 @@
       "rolle": "Protagonist",
       "hinweis": "Archäologin und Abenteurerin; die Lage des Familienanwesens variiert zwischen Kontinuitäten. Weitere Angabe: Archäologie.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Zwillingspistolen",
+        "Enterhaken",
+        "Tagebuch"
+      ]
     },
     {
       "name": "Legolas",
@@ -2873,7 +3282,11 @@
       "rolle": "Support",
       "hinweis": "Sohn des Elbenkönigs Thranduil.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Elbenbogen",
+        "Pfeile",
+        "Messer"
+      ]
     },
     {
       "name": "Leia Organa",
@@ -2891,7 +3304,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ihre Geburtsidentität als Leia Skywalker wird in der Filmreihe enthüllt; Organa ist ihr angenommener Familienname.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Blaster",
+        "Datenkarte"
+      ]
     },
     {
       "name": "Lelouch vi Britannia",
@@ -2908,7 +3324,11 @@
       "rolle": "Antiheld",
       "hinweis": "Verdeckter Ex-Prinz mit Geass-Macht (absoluter Befehl); Schüler an der Ashford-Akademie.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zero-Maske",
+        "Schachfigur",
+        "Umhang"
+      ]
     },
     {
       "name": "Leon S. Kennedy",
@@ -2926,7 +3346,10 @@
       "rolle": "Protagonist",
       "hinweis": "Polizist und später Regierungsagent; seine genaue Dienststelle variiert mit der Handlung.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Silberne Pistole",
+        "Kampfmesser"
+      ]
     },
     {
       "name": "Levi Ackermann",
@@ -2946,7 +3369,11 @@
       "rolle": "Antiheld",
       "hinweis": "Erfahrener Soldat und Kommandant; die genaue Schreibweise variiert nach Übersetzung.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Doppelklinge",
+        "ODM-Ausrüstung",
+        "Putztuch"
+      ]
     },
     {
       "name": "Lex Luthor",
@@ -2966,11 +3393,7 @@
       "quellenAnzahl": 2,
       "hooks": [
         "Kryptonit",
-        "LexCorp",
-        "Glatze",
-        "Machtstreben",
-        "Präsidentschaft",
-        "Genie"
+        "Kampfanzug"
       ]
     },
     {
@@ -2988,7 +3411,11 @@
       "rolle": "Antagonist",
       "hinweis": "Schüler, der mit Death Note tötet",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Death Note",
+        "Kugelschreiber",
+        "Armbanduhr"
+      ]
     },
     {
       "name": "Link",
@@ -3006,7 +3433,11 @@
       "rolle": "Protagonist",
       "hinweis": "Träger des Triforce des Mutes und des Master-Schwerts.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Master-Schwert",
+        "Hylia-Schild",
+        "Okarina"
+      ]
     },
     {
       "name": "Lisa Simpson",
@@ -3023,7 +3454,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ihre musikalischen und akademischen Interessen sind wiederkehrende Handlungselemente.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Saxophon",
+        "Schulbuch"
+      ]
     },
     {
       "name": "Loki",
@@ -3043,11 +3477,9 @@
       "hinweis": "Wird in unterschiedlichen Handlungssträngen als Schurke, Antiheld oder Verbündeter dargestellt.",
       "quellenAnzahl": 1,
       "hooks": [
-        "Gott des Schabernacks",
-        "Illusionen",
-        "Tesserakt",
+        "Zepter",
         "Hörnerhelm",
-        "glorreiche Bestimmung"
+        "Dolch"
       ]
     },
     {
@@ -3066,7 +3498,11 @@
       "rolle": "Protagonist",
       "hinweis": "Ein umherziehender Cowboy ohne dauerhaft kanonische Postanschrift.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Pferd",
+        "Strohhalm",
+        "Colt"
+      ]
     },
     {
       "name": "Luigi",
@@ -3083,7 +3519,11 @@
       "rolle": "Sidekick",
       "hinweis": "Marios Bruder; der Familienname ist nicht in allen offiziellen Spielen etabliert.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Poltergust",
+        "Grüne Mütze",
+        "Go-Kart"
+      ]
     },
     {
       "name": "Luke Cage",
@@ -3101,7 +3541,10 @@
       "rolle": "Protagonist",
       "hinweis": "Unzerstörbare Haut und übermenschliche Stärke. Weitere Angabe: Pop's Barber Shop.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kette",
+        "Kapuzenpulli"
+      ]
     },
     {
       "name": "Luke Skywalker",
@@ -3123,11 +3566,7 @@
       "quellenAnzahl": 3,
       "hooks": [
         "Lichtschwert",
-        "Feuchtfarm",
-        "Tatooine",
-        "die Macht",
-        "X-Wing",
-        "Jedi-Meister"
+        "X-Wing"
       ]
     },
     {
@@ -3146,7 +3585,10 @@
       "rolle": "Mentor",
       "hinweis": "Amtscode M; direkter Vorgesetzte von James Bond.; klassische Buch-Identität",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Aktenkoffer",
+        "Diktiergerät"
+      ]
     },
     {
       "name": "Mabel Pines",
@@ -3163,7 +3605,11 @@
       "rolle": "Protagonist",
       "hinweis": "Zwillingsschwester von Dipper Pines.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Enterhaken",
+        "Stricknadel",
+        "Regenbogen-Pullover"
+      ]
     },
     {
       "name": "Maggie Simpson",
@@ -3180,7 +3626,10 @@
       "rolle": "Sonstiges",
       "hinweis": "Ihr vollständiger Name wird in der Serie und Begleitmaterial nicht durchgehend einheitlich angegeben.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Schnuller",
+        "Teddybär"
+      ]
     },
     {
       "name": "Magneto",
@@ -3199,7 +3648,10 @@
       "rolle": "Antiheld",
       "hinweis": "Seine ursprüngliche Identität und seine politischen Ziele wurden über mehrere Comic-Epochen weiterentwickelt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Helm",
+        "Umhang"
+      ]
     },
     {
       "name": "Majestix",
@@ -3216,7 +3668,10 @@
       "rolle": "Support",
       "hinweis": "Hat nur eine Angst: Dass ihm der Himmel auf den Kopf fällt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Schild",
+        "Häuptlingsumhang"
+      ]
     },
     {
       "name": "Majin Buu",
@@ -3233,7 +3688,10 @@
       "rolle": "Antagonist",
       "hinweis": "Unsterblicher Bösewicht",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Schokolade",
+        "Kaugummi"
+      ]
     },
     {
       "name": "Marge Gunderson",
@@ -3250,7 +3708,10 @@
       "rolle": "Protagonist",
       "hinweis": "Schwangere Polizeichefin mit unverwechselbarem Minnesota-Dialekt ('Oh, you betcha!').",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Dienstmarke",
+        "Dienstpistole"
+      ]
     },
     {
       "name": "Marge Simpson",
@@ -3267,7 +3728,10 @@
       "rolle": "Protagonist",
       "hinweis": "Geborene Bouvier; der genaue US-Bundesstaat Springfields ist in der Serie absichtlich uneindeutig.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Perlenkette",
+        "Grünes Kleid"
+      ]
     },
     {
       "name": "Mario",
@@ -3286,7 +3750,11 @@
       "rolle": "Protagonist",
       "hinweis": "'Mario Mario' stammt aus der Realverfilmung von 1993 und gilt nicht als Spiel-Kanon.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Superpilz",
+        "Feuerblume",
+        "Go-Kart"
+      ]
     },
     {
       "name": "Martian Manhunter",
@@ -3305,7 +3773,10 @@
       "rolle": "Protagonist",
       "hinweis": "Letzter Überlebender des Mars, beherrscht Gestaltwandlung und Telepathie. Schwäche: Feuer. Weitere Angabe: Marsianische Garde.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Chocos-Kekse",
+        "Umhang"
+      ]
     },
     {
       "name": "Marty McFly",
@@ -3323,11 +3794,9 @@
       "hinweis": "Hill Valley ist eine fiktive Stadt; die Filmreihe verwendet unterschiedliche Zeitlinien und Adressen.",
       "quellenAnzahl": 2,
       "hooks": [
+        "DeLorean",
         "Hoverboard",
-        "Skateboard",
-        "Gitarrenverstärker",
-        "Feigling",
-        "Twin Pines Mall"
+        "Sportalmanach"
       ]
     },
     {
@@ -3345,7 +3814,11 @@
       "rolle": "Mentor",
       "hinweis": "Der Kirschbaumweg ist die deutsche Bezeichnung für Cherry Tree Lane; Hausnummern variieren je nach Adaption.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Regenschirm",
+        "Teppichtasche",
+        "Zuckerlöffel"
+      ]
     },
     {
       "name": "Master Chief",
@@ -3364,7 +3837,11 @@
       "rolle": "Protagonist",
       "hinweis": "Bio-technisch verbesserter Supersoldat; bürgerlicher Name nur als 'John' bekannt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Helm mit Goldvisier",
+        "Sturmgewehr",
+        "MJOLNIR-Rüstung"
+      ]
     },
     {
       "name": "Michael Corleone",
@@ -3383,7 +3860,10 @@
       "rolle": "Protagonist",
       "hinweis": "'Der Pate' ist der Filmtitel, kein Alias der Figur.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Revolver",
+        "Zigarre"
+      ]
     },
     {
       "name": "Mickey Maus",
@@ -3400,7 +3880,11 @@
       "rolle": "Protagonist",
       "hinweis": "Wohnort und Nachbarschaft variieren in den zahlreichen Disney-Comic- und Zeichentrickkontinuitäten.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Weiße Handschuhe",
+        "Zauberstab",
+        "Rote Hose"
+      ]
     },
     {
       "name": "Micky Maus",
@@ -3418,7 +3902,11 @@
       "rolle": "Protagonist",
       "hinweis": null,
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Weiße Handschuhe",
+        "Zauberstab",
+        "Rote Hose"
+      ]
     },
     {
       "name": "Mikasa Ackerman",
@@ -3436,7 +3924,11 @@
       "rolle": "Protagonist",
       "hinweis": "Starker Wille, Kriegerin gegen Titanen",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Roter Schal",
+        "Doppelklinge",
+        "ODM-Ausrüstung"
+      ]
     },
     {
       "name": "Mike Ehrmantraut",
@@ -3453,7 +3945,10 @@
       "rolle": "Antiheld",
       "hinweis": "Ehemaliger Polizist; Arbeitet als Problem-Löser für Gus Fring und Saul Goodman.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Revolver",
+        "Schalldämpfer"
+      ]
     },
     {
       "name": "Mikoto Misaka",
@@ -3470,7 +3965,10 @@
       "rolle": "Protagonist",
       "hinweis": "Elektro-Espe der Stufe 5; wird 'Railgun' genannt, weil sie Münzen als Projektile verschießt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Münze",
+        "Schuluniform"
+      ]
     },
     {
       "name": "Minerva McGonagall",
@@ -3487,7 +3985,10 @@
       "rolle": "Mentor",
       "hinweis": "Lehrerin für Verwandlung und später Schulleiterin.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Hexenhut",
+        "Zauberstab"
+      ]
     },
     {
       "name": "Miraculix",
@@ -3505,7 +4006,10 @@
       "rolle": "Mentor",
       "hinweis": "Brauer des Zaubertranks mit der goldenen Sichel. Schneidet Misteln nur im Eichenhain.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Goldene Sichel",
+        "Kessel"
+      ]
     },
     {
       "name": "Miss Marple",
@@ -3522,7 +4026,11 @@
       "rolle": "Protagonist",
       "hinweis": "Scharfsinnige alte Dame, die Kriminalfälle durch Menschenkenntnis löst.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Stricknadeln",
+        "Teetasse",
+        "Fernglas"
+      ]
     },
     {
       "name": "Mister Fantastic",
@@ -3540,7 +4048,10 @@
       "rolle": "Protagonist",
       "hinweis": "Anführer der Fantastic Four, hyper-elastischer Körper. Weitere Angabe: Baxter Foundation.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Weißer Laborkittel",
+        "Flugauto"
+      ]
     },
     {
       "name": "Momo",
@@ -3557,7 +4068,10 @@
       "rolle": "Protagonist",
       "hinweis": "Michael Endes Roman benennt die Stadt nicht ausdrücklich.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zeitblume",
+        "Schildkröte"
+      ]
     },
     {
       "name": "Monkey D. Ruffy",
@@ -3580,7 +4094,11 @@
       "rolle": "Protagonist",
       "hinweis": "Sucht den One Piece",
       "quellenAnzahl": 4,
-      "hooks": []
+      "hooks": [
+        "Strohhut",
+        "Gum-Gum-Frucht",
+        "Fleisch"
+      ]
     },
     {
       "name": "Morpheus",
@@ -3598,7 +4116,11 @@
       "rolle": "Mentor",
       "hinweis": "Führt Neo an die Wahrheit über die Matrix heran.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Rote Pille",
+        "Sonnenbrille",
+        "Ledermantel"
+      ]
     },
     {
       "name": "Morty Smith",
@@ -3615,7 +4137,10 @@
       "rolle": "Sidekick",
       "hinweis": "Der Name Mortimer wird gelegentlich als Langform verwendet, ist aber nicht durchgehend kanonisch.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Gelbes T-Shirt",
+        "Rucksack"
+      ]
     },
     {
       "name": "Mr. Burns",
@@ -3634,7 +4159,10 @@
       "rolle": "Antagonist",
       "hinweis": "Reicher Eigentümer des Atomkraftwerks; sein Alter und seine Biografie werden komödiantisch inkonsistent dargestellt.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Teddybär",
+        "Geldscheinbündel"
+      ]
     },
     {
       "name": "Mr. Krabs",
@@ -3651,7 +4179,10 @@
       "rolle": "Antiheld",
       "hinweis": "Geldgieriger Krabben-Restaurantbesitzer; Erzfeind von Plankton und dessen Chum Bucket.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Krabbenburger",
+        "Geldscheinbündel"
+      ]
     },
     {
       "name": "Mr. Poopybutthole",
@@ -3668,7 +4199,10 @@
       "rolle": "Sonstiges",
       "hinweis": "Nebenfigur mit absichtlich absurd gestaltetem Namen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Gehstock",
+        "Fliege"
+      ]
     },
     {
       "name": "Nami",
@@ -3685,7 +4219,11 @@
       "rolle": "Sidekick",
       "hinweis": "Navigatorin der Strohhutbande.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Wetterstab",
+        "Schatzkarte",
+        "Mandarine"
+      ]
     },
     {
       "name": "Namor",
@@ -3702,7 +4240,10 @@
       "rolle": "Antiheld",
       "hinweis": "Herrscher von Atlantis; Herkunft und Staatszugehörigkeit unterscheiden sich in verschiedenen Kontinuitäten.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Dreizack",
+        "Badehose"
+      ]
     },
     {
       "name": "Naruto Uzumaki",
@@ -3726,7 +4267,11 @@
       "rolle": "Protagonist",
       "hinweis": "Siebtes Hokage, verdient Respekt",
       "quellenAnzahl": 4,
-      "hooks": []
+      "hooks": [
+        "Kopfbinde",
+        "Ramen",
+        "Kunai"
+      ]
     },
     {
       "name": "Ned Flanders",
@@ -3744,7 +4289,10 @@
       "rolle": "Sidekick",
       "hinweis": "Homer Simpsons Nachbar und Besitzer eines Fachgeschäfts für Linkshänder.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Bibel",
+        "Pullover"
+      ]
     },
     {
       "name": "Neo",
@@ -3763,7 +4311,11 @@
       "rolle": "Protagonist",
       "hinweis": "Thomas Anderson ist seine Identität innerhalb der simulierten Welt. Weitere Angabe: Nebuchadnezzar.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Schwarzer Trenchcoat",
+        "Sonnenbrille",
+        "Rote Pille"
+      ]
     },
     {
       "name": "Obelix",
@@ -3782,7 +4334,10 @@
       "rolle": "Protagonist",
       "hinweis": "Als kleines Kind in den Zaubertranktopf gefallen; hat Dauer-Superkraft. Begleitet von Idefix.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Hinkelstein",
+        "Wildschwein"
+      ]
     },
     {
       "name": "Obi-Wan Kenobi",
@@ -3800,7 +4355,10 @@
       "rolle": "Mentor",
       "hinweis": "Lebt nach dem Fall der Jedi in einer abgelegenen Hütte auf Tatooine.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Lichtschwert",
+        "Jedi-Robe"
+      ]
     },
     {
       "name": "Paddington Bär",
@@ -3817,7 +4375,11 @@
       "rolle": "Protagonist",
       "hinweis": "Bär aus dem dunkelsten Peru mit Vorliebe für Orangenmarmelade.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Marmeladensandwich",
+        "Koffer",
+        "Dufflecoat"
+      ]
     },
     {
       "name": "Palpatine",
@@ -3837,7 +4399,10 @@
       "rolle": "Antagonist",
       "hinweis": "Der Vorname Sheev stammt aus ergänzendem kanonischem Material.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Lichtschwert",
+        "Umhang"
+      ]
     },
     {
       "name": "Papa Schlumpf",
@@ -3854,7 +4419,10 @@
       "rolle": "Mentor",
       "hinweis": "Trägt als einziger rote Mütze und weiße Bartpracht; weiser Zauberer und Schutz vor Gargamel.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Rote Mütze",
+        "Brille"
+      ]
     },
     {
       "name": "Patrick Star",
@@ -3871,7 +4439,10 @@
       "rolle": "Sidekick",
       "hinweis": "Seestern und bester Freund von SpongeBob; lebt unter einem Felsen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Blumenshorts",
+        "Eiscreme"
+      ]
     },
     {
       "name": "Paul Atreides",
@@ -3891,7 +4462,11 @@
       "rolle": "Protagonist",
       "hinweis": "Die Titel und Aufenthaltsorte variieren zwischen Romanen und Verfilmungen.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Krysmesser",
+        "Destillanzug",
+        "Sandwurm"
+      ]
     },
     {
       "name": "Percy Jackson",
@@ -3910,7 +4485,10 @@
       "rolle": "Protagonist",
       "hinweis": "Halbgott und Sohn Poseidons; Camp Half-Blood ist ein fiktives Trainingslager.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Kugelschreiber",
+        "Blaues Essen"
+      ]
     },
     {
       "name": "Phantomias",
@@ -3930,7 +4508,10 @@
       "rolle": "Protagonist",
       "hinweis": "Donalds nächtliches Superhelden-Alter-Ego mit dem Kennzeichen 313X.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Umhang",
+        "Augenmaske"
+      ]
     },
     {
       "name": "Philip J. Fry",
@@ -3948,7 +4529,10 @@
       "rolle": "Protagonist",
       "hinweis": "Zieht in Folge \"I, Roommate\" bei Bender ein und wohnt in dessen verstecktem Apartment (00100100).",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Slurm-Dose",
+        "Pizza"
+      ]
     },
     {
       "name": "Piccolo",
@@ -3967,7 +4551,10 @@
       "rolle": "Sidekick",
       "hinweis": "Namekianer, wird zu Freunden mit Goku",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Turban",
+        "Umhang"
+      ]
     },
     {
       "name": "Pikachu",
@@ -3987,7 +4574,10 @@
       "rolle": "Support",
       "hinweis": "Bezieht sich auf Ash Ketchums Partner-Pikachu aus dem Anime; in Videospielen gibt es viele namenlose Pikachu.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Pokéball",
+        "Donnerstein"
+      ]
     },
     {
       "name": "Pippi Langstrumpf",
@@ -4004,7 +4594,11 @@
       "rolle": "Protagonist",
       "hinweis": "Ihr vollständiger Name wird in den deutschsprachigen Ausgaben in dieser Form wiedergegeben.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Goldmünzen",
+        "Äffchen",
+        "Pferd"
+      ]
     },
     {
       "name": "Popeye",
@@ -4021,7 +4615,11 @@
       "rolle": "Protagonist",
       "hinweis": "Bezieht seine Superkraft aus Spinat; Lebensgefährte von Olivia Oyl.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Spinatdose",
+        "Pfeife",
+        "Matrosenmütze"
+      ]
     },
     {
       "name": "Prinzessin Daisy",
@@ -4038,7 +4636,10 @@
       "rolle": "Protagonist",
       "hinweis": "Herrscherin von Sarasaland, sportlich und temperamentvoll.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Blumenkleid",
+        "Krone"
+      ]
     },
     {
       "name": "Prinzessin Peach",
@@ -4055,7 +4656,10 @@
       "rolle": "Protagonist",
       "hinweis": "Princess Toadstool war der englische Name in frühen westlichen Veröffentlichungen.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Krone",
+        "Rosa Kleid"
+      ]
     },
     {
       "name": "Prinzessin Zelda",
@@ -4073,7 +4677,11 @@
       "rolle": "Mentor",
       "hinweis": "Zelda ist eine wiederkehrende Figur mit unterschiedlichen Identitäten und Rollen in verschiedenen Zeitlinien.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Bogen",
+        "Harfe",
+        "Diadem"
+      ]
     },
     {
       "name": "Professor Farnsworth",
@@ -4091,7 +4699,10 @@
       "rolle": "Mentor",
       "hinweis": "Exzentrischer Wissenschaftler und Eigentümer von Planet Express. Arbeitsraeume und Schlafzimmer im Planet-Express-Gebaeude.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Brille",
+        "Labormantel"
+      ]
     },
     {
       "name": "Professor Moriarty",
@@ -4109,7 +4720,10 @@
       "rolle": "Antagonist",
       "hinweis": "Der Vorname James wird in einer Holmes-Erzählung für den Bruder und in späteren Adaptionen für den Professor verwendet.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Taschenuhr",
+        "Gehstock"
+      ]
     },
     {
       "name": "Professor X",
@@ -4127,7 +4741,10 @@
       "rolle": "Mentor",
       "hinweis": "Gründer der X-Men; die Anschrift und der Name der Schule variieren je nach Kontinuität.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Rollstuhl",
+        "Cerebro"
+      ]
     },
     {
       "name": "Q",
@@ -4144,7 +4761,10 @@
       "rolle": "Antiheld",
       "hinweis": "Allmächtiges, übermenschliches Wesen; Adresse nur als Humor zu verstehen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Richterrobe",
+        "Sternenflotten-Uniform"
+      ]
     },
     {
       "name": "Rey",
@@ -4161,7 +4781,11 @@
       "rolle": "Protagonist",
       "hinweis": "Aufgewachsen als Schrottsammlerin auf dem Wüstenplaneten Jakku. Weitere Angabe: Jedi.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Lichtschwert",
+        "Stab",
+        "Blaster"
+      ]
     },
     {
       "name": "Rick Deckard",
@@ -4178,7 +4802,11 @@
       "rolle": "Antiheld",
       "hinweis": "Blade Runner und seine Wohnsituation unterscheiden sich zwischen Film und Romanvorlage.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Blaster",
+        "Origami-Einhorn",
+        "Fotoanalyse-Gerät"
+      ]
     },
     {
       "name": "Rick Sanchez",
@@ -4197,11 +4825,9 @@
       "hinweis": "'Seattle' ist nicht klar kanonisch.",
       "quellenAnzahl": 4,
       "hooks": [
-        "Portal-Kanone",
-        "Dimension C-137",
-        "Gurken-Rick",
-        "Plazma-Laser",
-        "Multiversum"
+        "Portalgun",
+        "Flachmann",
+        "Labormantel"
       ]
     },
     {
@@ -4220,7 +4846,10 @@
       "rolle": "Protagonist",
       "hinweis": "Ein feiger, aber erstaunlich überlebensfähiger Zauberer.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Spitzhut",
+        "Zauberbuch Octavus"
+      ]
     },
     {
       "name": "Robin",
@@ -4239,7 +4868,11 @@
       "rolle": "Sidekick",
       "hinweis": "Erster Robin, wuchs bei Bruce Wayne auf und wurde später eigenständiger Held Nightwing. Weitere Angabe: Teen Titans; Wayne Enterprises.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Domino-Maske",
+        "Kampfstab",
+        "Enterhaken"
+      ]
     },
     {
       "name": "Ron Weasley",
@@ -4256,7 +4889,10 @@
       "rolle": "Sidekick",
       "hinweis": "Der Fuchsbau ist das Haus seiner Familie. Weitere Zugehoerigkeit: Aurorenbüro",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Deluminator",
+        "Schachfiguren"
+      ]
     },
     {
       "name": "Roronoa Zoro",
@@ -4274,7 +4910,11 @@
       "rolle": "Sidekick",
       "hinweis": "Kämpft mit drei Schwertern (Santoryu-Technik); sensationell schlechter Orientierungssinn. Heimatdorf im East Blue; wuchs dort im Dojo mit Kuina auf",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Katana",
+        "Kopftuch",
+        "Sake-Flasche"
+      ]
     },
     {
       "name": "Roronoa Zorro",
@@ -4291,7 +4931,10 @@
       "rolle": "Sidekick",
       "hinweis": "Schwertkämpfer und erstes Mitglied, das sich Ruffy anschließt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Katanas",
+        "Kopftuch"
+      ]
     },
     {
       "name": "Rorschach",
@@ -4308,7 +4951,11 @@
       "rolle": "Antiheld",
       "hinweis": "Lebt in einer fiktionalisierten Version von New York City. Hat ein Apartment in New York; die Adresse wird nie genannt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Notizbuch",
+        "Maske",
+        "Enterhaken"
+      ]
     },
     {
       "name": "Roy Batty",
@@ -4325,7 +4972,11 @@
       "rolle": "Antagonist",
       "hinweis": "Replikant, der gegen seine begrenzte Lebensdauer rebelliert.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Weiße Taube",
+        "Nagel",
+        "Foto"
+      ]
     },
     {
       "name": "Rubeus Hagrid",
@@ -4342,7 +4993,10 @@
       "rolle": "Mentor",
       "hinweis": "Wildhüter und später Lehrer für Pflege magischer Geschöpfe.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Motorrad",
+        "Rosa Regenschirm"
+      ]
     },
     {
       "name": "Ryuk",
@@ -4359,7 +5013,10 @@
       "rolle": "Sonstiges",
       "hinweis": "Ein Todesgott, der ein Death Note in die Menschenwelt fallen lässt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Apfel",
+        "Death Note"
+      ]
     },
     {
       "name": "Sailor Moon",
@@ -4377,7 +5034,11 @@
       "rolle": "Protagonist",
       "hinweis": "Mutige Schügerin, die sich in die Mondkriegerin Sailor Moon verwandelt; liebt Essen.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Mondstab",
+        "Silberkristall",
+        "Transformationsbrosche"
+      ]
     },
     {
       "name": "Saitama",
@@ -4395,7 +5056,10 @@
       "rolle": "Protagonist",
       "hinweis": "Besiegt jeden Gegner mit einem einzigen Schlag; langweilt sich aus Mangel an Herausforderung.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Rote Handschuhe",
+        "Weißer Umhang"
+      ]
     },
     {
       "name": "Sakura Haruno",
@@ -4412,7 +5076,10 @@
       "rolle": "Sidekick",
       "hinweis": "In späteren Handlungen ist sie mit Sasuke Uchiha verheiratet.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Rote Handschuhe",
+        "Kunai"
+      ]
     },
     {
       "name": "Sam Mumm",
@@ -4429,7 +5096,11 @@
       "rolle": "Protagonist",
       "hinweis": "Kommandeur der Stadtwache; humoristische Fantasy-Verkörperung eines Polizeichefs.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zigarrenstummel",
+        "Degen",
+        "Dienstmarke"
+      ]
     },
     {
       "name": "Sam Vimes",
@@ -4446,7 +5117,11 @@
       "rolle": "Protagonist",
       "hinweis": "Leitet die Stadtwache; seine familiäre Wohnsituation entwickelt sich im Verlauf der Romane.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zigarrenstummel",
+        "Kupferhelm",
+        "Dienstmarke"
+      ]
     },
     {
       "name": "Samus Aran",
@@ -4464,7 +5139,11 @@
       "rolle": "Protagonist",
       "hinweis": "Intergalaktische Kopfgeldjägerin; besitzt keine dauerhaft etablierte Postanschrift.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Armkanone",
+        "Kraftanzug",
+        "Morph-Ball"
+      ]
     },
     {
       "name": "Samweis Gamdschie",
@@ -4482,7 +5161,10 @@
       "rolle": "Sidekick",
       "hinweis": "Die Schreibweise und Hausnummer seiner Wohnadresse sind nicht über alle Ausgaben einheitlich; Beutelhaldenweg ist eine deutsche Ortsbezeichnung.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kochtopf",
+        "Elbenseil"
+      ]
     },
     {
       "name": "Sandor Clegane",
@@ -4499,7 +5181,10 @@
       "rolle": "Antiheld",
       "hinweis": "Ein brutaler Kämpfer, dessen Entwicklung ihn zu einer ambivalenten Figur macht.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Hundsheim",
+        "Weinschlauch"
+      ]
     },
     {
       "name": "Sanji",
@@ -4518,7 +5203,10 @@
       "rolle": "Sidekick",
       "hinweis": "Koch der Strohhutbande; Vinsmoke ist sein Familienname.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Zigarette",
+        "Kochmesser"
+      ]
     },
     {
       "name": "Sarah Connor",
@@ -4539,7 +5227,11 @@
       "rolle": "Protagonist",
       "hinweis": "Ihre Biografie und die Ereignisse ihrer Zeitlinie variieren zwischen den Filmfortsetzungen.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Pumpgun",
+        "Kurzhantel",
+        "Pistole"
+      ]
     },
     {
       "name": "Sarah Jane Smith",
@@ -4556,7 +5248,10 @@
       "rolle": "Sidekick",
       "hinweis": "Journalistin und langjährige Begleiterin des Doktors.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Lippenstift-Sonic",
+        "Notizbuch"
+      ]
     },
     {
       "name": "Saren Arterius",
@@ -4573,7 +5268,10 @@
       "rolle": "Antagonist",
       "hinweis": "Turianischer Spectre und Hauptgegner des ersten Mass-Effect-Spiels.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Kybernetischer Arm",
+        "Geth-Implantat"
+      ]
     },
     {
       "name": "Saruman",
@@ -4591,7 +5289,10 @@
       "rolle": "Antagonist",
       "hinweis": "Einer der Istari, der sich gegen den Weißen Rat und schließlich gegen Saurons Gegner stellt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zauberstab",
+        "Palantir"
+      ]
     },
     {
       "name": "Sasuke Uchiha",
@@ -4609,7 +5310,11 @@
       "rolle": "Antiheld",
       "hinweis": "Sein Weg führt von Rache und Gegnerschaft zurück zu einer Verbündetenrolle. Das Uchiha-Viertel liegt am Stadtrand von Konohagakure",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Kusanagi-Schwert",
+        "Kunai",
+        "Akatsuki-Umhang"
+      ]
     },
     {
       "name": "Saul Goodman",
@@ -4627,7 +5332,11 @@
       "rolle": "Antiheld",
       "hinweis": "Die Identitäten Jimmy McGill und Gene Takavic gehören zu unterschiedlichen Lebensphasen; die Büroadresse variiert.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Wegwerfhandy",
+        "Aktenkoffer",
+        "Reklameschild"
+      ]
     },
     {
       "name": "Sauron",
@@ -4653,7 +5362,11 @@
       "rolle": "Antagonist",
       "hinweis": "Dunkler Herrscher von Mittelerde",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Der Eine Ring",
+        "Rüstung",
+        "Streitkolben"
+      ]
     },
     {
       "name": "Schlumpfine",
@@ -4671,7 +5384,10 @@
       "rolle": "Protagonist",
       "hinweis": "Einst von Gargamel geschaffen, durch Papa Schlumpfs Zauber erlöst.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Blume",
+        "Weißes Kleid"
+      ]
     },
     {
       "name": "Schulze & Schultze",
@@ -4689,7 +5405,11 @@
       "rolle": "Support",
       "hinweis": "Unterscheidbar nur am Schnurrbart: Schulze (Dupont) hat gezwirbelte Enden, Schultze gerade.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Melone",
+        "Spazierstock",
+        "Krawatte"
+      ]
     },
     {
       "name": "Scooby-Doo",
@@ -4707,7 +5427,10 @@
       "rolle": "Sidekick",
       "hinweis": "Sprechender Hund; Scoobert ist sein in Begleitmaterial verwendeter voller Name.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Hundekeks",
+        "Halsband"
+      ]
     },
     {
       "name": "Severus Snape",
@@ -4724,7 +5447,10 @@
       "rolle": "Antiheld",
       "hinweis": "Dient als Zaubertrankmeister/Lehrer in Hogwarts, privater Wohnsitz liegt in Spinner's End",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Zaubertrankkessel",
+        "Schwarzumhang"
+      ]
     },
     {
       "name": "Shaggy Rogers",
@@ -4741,7 +5467,10 @@
       "rolle": "Sidekick",
       "hinweis": "Norville ist sein kanonischer Vorname; Shaggy ist sein Spitzname.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Riesen-Sandwich",
+        "Grünes Hemd"
+      ]
     },
     {
       "name": "Shanks",
@@ -4759,7 +5488,10 @@
       "rolle": "Mentor",
       "hinweis": "Gab Ruffy seinen Strohhut; gilt als einer der mächtigsten Piraten der Welt. Weitere Zugehoerigkeit: einer der Vier Kaiser",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Strohhut",
+        "Säbel"
+      ]
     },
     {
       "name": "Sherlock Holmes",
@@ -4779,11 +5511,9 @@
       "hinweis": "Wohnte mit Dr. John Watson bei Mrs. Hudson.",
       "quellenAnzahl": 4,
       "hooks": [
-        "221B Baker Street",
-        "Deduktion",
-        "Violine um Mitternacht",
-        "Dr. Watson",
-        "Moriarty"
+        "Lupe",
+        "Pfeife",
+        "Deerstalker"
       ]
     },
     {
@@ -4802,7 +5532,11 @@
       "rolle": "Protagonist",
       "hinweis": "In einen Kindskörper verwandeltes Detektivgenie; löst Kriminalfälle als 'Conan Edogawa'.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Fliege mit Stimmenverzerrer",
+        "Betäubungsuhr",
+        "Peilsenderbrille"
+      ]
     },
     {
       "name": "Solid Snake",
@@ -4820,7 +5554,11 @@
       "rolle": "Antiheld",
       "hinweis": "Codename und Identität unterscheiden sich je nach Spielphase.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Pappkarton",
+        "Codec-Funkgerät",
+        "Zigarre"
+      ]
     },
     {
       "name": "Son-Gohan",
@@ -4837,7 +5575,10 @@
       "rolle": "Sidekick",
       "hinweis": "Erster Sohn von Goku und Chichi; verkleidet sich als Held 'Großer Saiyaman'.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Superheldenhelm",
+        "Schulbuch"
+      ]
     },
     {
       "name": "Son-Goku",
@@ -4858,7 +5599,11 @@
       "rolle": "Protagonist",
       "hinweis": "Sein Saiyajin-Geburtsname lautet Kakarott; in Japan wird der Familienname Son vorangestellt. Haus am Berg Paozu im Ost-Distrikt 439 (offizielle Dragon-Ball-Seite).",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Fliegende Wolke",
+        "Senzu-Bohne",
+        "Wunderstab"
+      ]
     },
     {
       "name": "Sonic the Hedgehog",
@@ -4875,7 +5620,11 @@
       "rolle": "Protagonist",
       "hinweis": "Die Weltbezeichnung Mobius stammt aus bestimmten Adaptionen; die Spiele verwenden unterschiedliche Weltmodelle.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Goldene Ringe",
+        "Rote Schuhe",
+        "Chaos-Smaragd"
+      ]
     },
     {
       "name": "Spider-Man",
@@ -4900,12 +5649,9 @@
       "hinweis": "Die Wohnadresse ist mit bestimmten Comic-Kontinuitäten verbunden; Peter Parker lebte im Lauf der Serie an verschiedenen Orten.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Queens",
-        "Daily Bugle",
-        "Spinnenkräfte",
-        "Tante May",
-        "Netzschleudern",
-        "große Verantwortung"
+        "Netzschleuder",
+        "Spinnenkostüm",
+        "Netz-Fluid"
       ]
     },
     {
@@ -4926,11 +5672,8 @@
       "hinweis": "Der vollständige vulkanische Name gilt für Menschen als unaussprechlich.",
       "quellenAnzahl": 4,
       "hooks": [
-        "vulkanischer Gruß",
-        "faszinierend",
-        "Logik",
-        "Gedankenverschmelzung",
-        "Nervengriff"
+        "Tricorder",
+        "Phaser"
       ]
     },
     {
@@ -4948,7 +5691,11 @@
       "rolle": "Protagonist",
       "hinweis": "Optimistischer Schwamm in Unterwasser-Stadt; Haustier: Schnecke Gary.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Pfannenwender",
+        "Quallennetz",
+        "Krabbenburger"
+      ]
     },
     {
       "name": "Squidward Tentakels",
@@ -4965,7 +5712,11 @@
       "rolle": "Antiheld",
       "hinweis": "Gereizter Nachbar von SpongeBob; heimlicher Klarinettisten-Künstler (in seinen Augen).",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Klarinette",
+        "Pinsel",
+        "Leinwand"
+      ]
     },
     {
       "name": "Stan Marsh",
@@ -4982,7 +5733,10 @@
       "rolle": "Protagonist",
       "hinweis": "Einer der vier zentralen Jungen der Serie.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Blaue Mütze",
+        "Schneeball"
+      ]
     },
     {
       "name": "Stanford Pines",
@@ -5000,7 +5754,10 @@
       "rolle": "Mentor",
       "hinweis": "Wissenschaftler und Autor der geheimnisvollen Tagebücher.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Tagebuch 1",
+        "Sechsfingriger Handschuh"
+      ]
     },
     {
       "name": "Storm",
@@ -5017,7 +5774,10 @@
       "rolle": "Protagonist",
       "hinweis": "Mutantin mit der Fähigkeit, Wetter zu kontrollieren.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Umhang",
+        "Stirnreif"
+      ]
     },
     {
       "name": "Superman",
@@ -5040,12 +5800,9 @@
       "hinweis": "Geboren als Kal-El auf Krypton, aufgewachsen bei Jonathan und Martha Kent in Smallville. Weitere Angabe: Festung der Einsamkeit.",
       "quellenAnzahl": 3,
       "hooks": [
-        "Daily Planet",
-        "Metropolis",
-        "stählerne Haut",
-        "Krypton",
-        "Lois Lane",
-        "fliegen"
+        "Roter Umhang",
+        "Brille",
+        "Siegel der El"
       ]
     },
     {
@@ -5064,7 +5821,11 @@
       "rolle": "Antiheld",
       "hinweis": "Die Bezeichnung T-800 steht für eine Reihe von Terminator-Modellen, nicht für eine einzelne menschliche Identität.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Lederjacke",
+        "Sonnenbrille",
+        "Schrotflinte"
+      ]
     },
     {
       "name": "Tali'Zorah",
@@ -5082,7 +5843,11 @@
       "rolle": "Sidekick",
       "hinweis": "Der vollständige Name und das Namenssuffix ändern sich entsprechend ihrer Zugehörigkeit.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Umweltanzug",
+        "Helm mit Visier",
+        "Omni-Werkzeug"
+      ]
     },
     {
       "name": "Thanos",
@@ -5101,7 +5866,10 @@
       "rolle": "Antagonist",
       "hinweis": "Sanctuary ist in den Filmadaptionen ein Raumschiff beziehungsweise Stützpunkt; Comic-Aufenthaltsorte variieren.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Unendlichkeitshandschuh",
+        "Doppelklinge"
+      ]
     },
     {
       "name": "The Flash",
@@ -5120,7 +5888,10 @@
       "rolle": "Protagonist",
       "hinweis": "Erhielt seine Superkräfte durch Blitzschlag und Chemikalien.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Ring",
+        "Kosmisches Laufband"
+      ]
     },
     {
       "name": "The Joker",
@@ -5138,12 +5909,9 @@
       "hinweis": "Arch-Nemesis von Batman",
       "quellenAnzahl": 1,
       "hooks": [
-        "Lächeln",
-        "Arkham Asylum",
-        "Kartenspiel",
-        "Chaos",
-        "Lachgas",
-        "Gotham im Brand"
+        "Spielkarte",
+        "Blumenspray",
+        "Revolver"
       ]
     },
     {
@@ -5162,7 +5930,10 @@
       "rolle": "Antagonist",
       "hinweis": "Ein Time Lord und wiederkehrender Gegenspieler des Doktors, der ebenfalls regeneriert.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Laser-Schraubendreher",
+        "Taschenuhr"
+      ]
     },
     {
       "name": "The Thing",
@@ -5180,7 +5951,10 @@
       "rolle": "Protagonist",
       "hinweis": "Kampfruf: 'Jetzt geht's rund!' (It's clobberin' time!). Körper aus lebendem Stein. Weitere Angabe: Baxter Foundation.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zigarre",
+        "Badehose"
+      ]
     },
     {
       "name": "Thor",
@@ -5202,11 +5976,7 @@
       "quellenAnzahl": 2,
       "hooks": [
         "Mjölnir",
-        "Donnergott",
-        "Asgard",
-        "Bifröst",
-        "Metbecher",
-        "Blitz und Donner"
+        "Stormbreaker"
       ]
     },
     {
@@ -5224,7 +5994,10 @@
       "rolle": "Sidekick",
       "hinweis": "Ein energiegeladener Tiger, der gerne auf seinem Schwanz hüpft. Lebt in einem Baumhaus im Hundertmorgenwald; kein Strassenname belegt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Malzextrakt",
+        "Eicheln"
+      ]
     },
     {
       "name": "Tim",
@@ -5243,7 +6016,10 @@
       "rolle": "Protagonist",
       "hinweis": "Furchtloser investigativer Journalist, immer begleitet von Foxterrier Struppi. Weitere Angabe: Schloss Mühlenhof.",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Roter Jeep",
+        "Knickerbocker"
+      ]
     },
     {
       "name": "Tom",
@@ -5261,7 +6037,11 @@
       "rolle": "Antiheld",
       "hinweis": "Der Name Thomas wird in einzelnen Episoden und Begleitmaterial verwendet. Tom und Jerry haben keine kanonische Postanschrift. Schauplatz des Kinofilms von 2021 (Royal Gate Hotel, New York); die klassischen Kurzfilme nennen keinen Ort",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Klavier",
+        "Besen",
+        "Kescher"
+      ]
     },
     {
       "name": "Tony Montana",
@@ -5278,7 +6058,11 @@
       "rolle": "Antiheld",
       "hinweis": "Kubanischer Immigrant, der korrumpiert zum mächtigsten Drogenbaron von Miami aufsteigt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "M16 mit Granatwerfer",
+        "Kokainberg",
+        "weißer Nadelstreifenanzug"
+      ]
     },
     {
       "name": "Tony Soprano",
@@ -5295,7 +6079,11 @@
       "rolle": "Protagonist",
       "hinweis": null,
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zigarre",
+        "Bademantel",
+        "Rennpferd"
+      ]
     },
     {
       "name": "Totoro",
@@ -5313,7 +6101,11 @@
       "rolle": "Sonstiges",
       "hinweis": "Waldgeist aus dem Studio-Ghibli-Film von Hayao Miyazaki.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Regenschirm",
+        "Eicheln",
+        "Katbus"
+      ]
     },
     {
       "name": "Trafalgar D. Water Law",
@@ -5330,7 +6122,10 @@
       "rolle": "Antiheld",
       "hinweis": "Kapitän und Arzt; Aufenthaltsorte ändern sich mit dem Handlungsverlauf. Heimatstadt im North Blue; als Kind geflohen, spaeter zerstoert",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Langes Schwert",
+        "Fleckenhut"
+      ]
     },
     {
       "name": "Troubadix",
@@ -5347,7 +6142,10 @@
       "rolle": "Support",
       "hinweis": "Singt schrecklich und wird beim Festbankett traditionell gefesselt und geknebelt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Leier",
+        "Notenblatt"
+      ]
     },
     {
       "name": "Turanga Leela",
@@ -5365,7 +6163,10 @@
       "rolle": "Protagonist",
       "hinweis": "Eigene Wohnung in New New York; die Adresse ist in keiner Folge belegt. Nicht im Robot Arms Apts. (dort wohnen nur Bender und Fry).",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Laserpistole",
+        "Raumanzug"
+      ]
     },
     {
       "name": "Tyrion Lennister",
@@ -5384,7 +6185,11 @@
       "rolle": "Antiheld",
       "hinweis": "In der englischen Originalfassung heißt die Figur Tyrion Lannister.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Weinbecher",
+        "Armbrust",
+        "Streitaxt"
+      ]
     },
     {
       "name": "Urahara Kisuke",
@@ -5402,7 +6207,11 @@
       "rolle": "Mentor",
       "hinweis": "Exzentrischer Ladenbesitzer; war Kapitän der 12. Kompanie und Gründer des R&D-Instituts.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Faltfächer",
+        "Topfhut",
+        "Geta"
+      ]
     },
     {
       "name": "V",
@@ -5422,7 +6231,11 @@
       "rolle": "Protagonist",
       "hinweis": "V kann je nach Spielauswahl unterschiedliche Vornamen und Hintergründe haben; Megagebäude H10 ist ein früher Wohnort.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Relic-Chip",
+        "Mantis-Klingen",
+        "Motorrad"
+      ]
     },
     {
       "name": "Vegeta",
@@ -5440,7 +6253,10 @@
       "rolle": "Antiheld",
       "hinweis": "Rival von Goku, wird zum Verbündeten",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Saiyajin-Rüstung",
+        "Scouter"
+      ]
     },
     {
       "name": "Velma Dinkley",
@@ -5457,7 +6273,11 @@
       "rolle": "Protagonist",
       "hinweis": "Die analytische Denkerin der Gruppe.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Brille",
+        "Vergrößerungsglas",
+        "Notizbuch"
+      ]
     },
     {
       "name": "Walter White",
@@ -5476,11 +6296,9 @@
       "hinweis": "Die Anschrift wird in der Serie mit dem Wohnhaus der Familie White verbunden; die reale Adresse ist keine zu verwendende Privatanschrift.",
       "quellenAnzahl": 4,
       "hooks": [
-        "blaues Kristall",
-        "Wohnmobil in der Wüste",
-        "Heisenberg",
-        "Los Pollos Hermanos",
-        "Periodensystem"
+        "Schwarzer Hut",
+        "Gasmaske",
+        "Reagenzkolben"
       ]
     },
     {
@@ -5498,7 +6316,10 @@
       "rolle": "Sidekick",
       "hinweis": "Assistent von Mr. Burns.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Aktenkoffer",
+        "Klemmbrett"
+      ]
     },
     {
       "name": "Willy Wonka",
@@ -5515,7 +6336,11 @@
       "rolle": "Mentor",
       "hinweis": "Die Stadt der Fabrik wird in den Buch- und Filmversionen nicht einheitlich benannt. Eigentuemer und Leiter der Fabrik; kein separater Firmenname belegt",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Zylinder",
+        "Gehstock",
+        "Bonbon"
+      ]
     },
     {
       "name": "Winnie Puuh",
@@ -5533,7 +6358,11 @@
       "rolle": "Protagonist",
       "hinweis": "Die deutsche Übersetzung verwendet unterschiedliche Formen des Namens und des Waldes.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Honigtopf",
+        "Rotes T-Shirt",
+        "Luftballon"
+      ]
     },
     {
       "name": "Wolverine",
@@ -5553,12 +6382,9 @@
       "hinweis": "Sein Geburtsname wurde in späteren Comic-Handlungen als James Howlett enthüllt.",
       "quellenAnzahl": 2,
       "hooks": [
-        "Adamantium-Klauen",
-        "X-Men",
-        "Zigarren",
-        "Cerebro",
-        "Waffen-X-Programm",
-        "Heilfaktor"
+        "Adamantiumklauen",
+        "Zigarre",
+        "Hundemarken"
       ]
     },
     {
@@ -5581,7 +6407,11 @@
       "rolle": "Protagonist",
       "hinweis": "Tochter von Königin Hippolyta, bewaffnet mit dem Lasso der Wahrheit und unzerstörbaren Armreifen.; Prinzessin Diana von Themyscira",
       "quellenAnzahl": 3,
-      "hooks": []
+      "hooks": [
+        "Lasso",
+        "Armreifen",
+        "Tiara"
+      ]
     },
     {
       "name": "Xenomorph",
@@ -5599,7 +6429,10 @@
       "rolle": "Antagonist",
       "hinweis": "Spezies mit unterschiedlichen Lebenszyklusformen; kein individueller bürgerlicher Name. Erster Fundort (Acheron), belegt in Alien",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Facehugger",
+        "Ei"
+      ]
     },
     {
       "name": "Yennefer",
@@ -5616,7 +6449,10 @@
       "rolle": "Antiheld",
       "hinweis": "Netflix-Serienadaption der mächtigen Zauberin.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Obsidianstern",
+        "Parfüm Flieder und Stachelbeere"
+      ]
     },
     {
       "name": "Yennefer von Vengerberg",
@@ -5634,7 +6470,10 @@
       "rolle": "Antiheld",
       "hinweis": "Zauberin und wichtige Bezugsperson Geralts und Ciris.",
       "quellenAnzahl": 2,
-      "hooks": []
+      "hooks": [
+        "Obsidianstern",
+        "Parfüm Flieder und Stachelbeere"
+      ]
     },
     {
       "name": "Yoda",
@@ -5653,11 +6492,8 @@
       "hinweis": "900 Jahre alter legendärer Jedi-Meister mit unverwechselbarer Satzstellung. Weitere Angabe: Hoher Rat der Jedi.",
       "quellenAnzahl": 4,
       "hooks": [
-        "Sumpfhütte auf Dagobah",
-        "grüner Meister",
-        "tun oder nicht tun",
-        "alte Weisheit",
-        "Rückwärtssprache"
+        "Lichtschwert",
+        "Gehstock"
       ]
     },
     {
@@ -5675,7 +6511,11 @@
       "rolle": "Protagonist",
       "hinweis": "Heimat ist die Schmiede seines Vaters Martin in Skalitz (Wikipedia: \"his blacksmith father, Martin\").",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Retterschnaps",
+        "Schwert",
+        "Bogen"
+      ]
     },
     {
       "name": "Hans Capon",
@@ -5692,7 +6532,10 @@
       "rolle": "Verbündeter",
       "hinweis": "Rattay entspricht dem heutigen Rataje nad Sázavou; PLZ 285 07 amtlich belegt.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Jagdbogen",
+        "Weinbecher"
+      ]
     },
     {
       "name": "Theresa",
@@ -5707,7 +6550,10 @@
       "rolle": "Verbündete",
       "hinweis": "Lebt bei ihrem Onkel Peshek in der Mühle von Rattay.",
       "quellenAnzahl": 1,
-      "hooks": []
+      "hooks": [
+        "Hund",
+        "Kleid"
+      ]
     }
   ]
 }

@@ -1215,5 +1215,5 @@ aside select {
 /* --- PLUGINS (Schalter in den Einstellungen) ---
    Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
    setzt SettingsManager.#applyPlugins() aus din_settings. */
-body:not([data-plugin-testbrief="true"]) #btn-testbrief { display: none !important; }
+body[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }
 body:not([data-plugin-multipage="true"]) .workbench-box { display: none !important; }

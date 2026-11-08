@@ -98,7 +98,7 @@ export const DEFAULT_SETTINGS = {
   marks: true,
   copyfit: false,
   sensitiveSubject: false,
-  pluginTestbrief: false,
+  pluginTestbrief: true,
   pluginMultipage: false,
   formality: 'formal'
 };

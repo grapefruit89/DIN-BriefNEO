@@ -1,3 +1,6 @@
+/* @adr [[ADR-CSS]] */
+/* @guide [[din-5008-css-architektur]] */
+
 /* 🚨 ARCHITECTURAL GUARD (Print-Vermaßung, Chrome 150+ page-margin-safety):
  * size:A4 pinnt das Papierformat fest (vorher: Druckdialog entschied —
  * US-Letter möglich); margin:0 setzt Falzmarken/Lochmarke an die PHYSISCH

@@ -59,7 +59,74 @@ function escapeSql(str) {
   return str.replace(/'/g, "''");
 }
 
+const REPO_JSON_PATH = path.join(__dirname, '..', 'docs', '10-architecture', 'repository.json');
+
+/** @returns {{html?: any[], css?: any[], js?: any[], addons?: any[], data?: any[]}} */
+function ladeRepository() {
+  return JSON.parse(fs.readFileSync(REPO_JSON_PATH, 'utf8'));
+}
+
+/**
+ * @param {{file: string, adr?: string, guide?: string, desc: string}} eintrag
+ * @returns {string}
+ */
+function tabellenZeile(eintrag) {
+  const adr = eintrag.adr && eintrag.adr.trim() ? eintrag.adr.trim() : '-';
+  const guide = eintrag.guide && eintrag.guide.trim() ? eintrag.guide.trim() : '-';
+  return `| ${eintrag.file} | ${adr} | ${guide} | ${eintrag.desc} |`;
+}
+
+/**
+ * Baut die Tabelle "Produktionscode" aus docs/10-architecture/repository.json.
+ * Neue Dateien brauchen nur dort einen Eintrag.
+ * @returns {string}
+ */
+function produktionscodeTabelle() {
+  const repo = ladeRepository();
+  const zeilen = ['| Datei | @adr | @guide | Haupt-Export |', '|---|---|---|---|'];
+  for (const gruppe of ['html', 'css', 'js', 'addons', 'data']) {
+    for (const eintrag of repo[gruppe] || []) zeilen.push(tabellenZeile(eintrag));
+  }
+  return zeilen.join('\n');
+}
+
+/**
+ * Fail-closed: die @adr/@guide-Angaben in repository.json muessen zu den
+ * Annotationen in den Dateikoepfen passen. Sonst wuerde die generierte
+ * Tabelle luegen — genau das soll die SSoT verhindern.
+ */
+function pruefeRepositoryDrift() {
+  const repo = ladeRepository();
+  const probleme = [];
+  for (const gruppe of ['css', 'js', 'addons']) {
+    for (const eintrag of repo[gruppe] || []) {
+      const pfad = path.join(__dirname, '..', 'website', eintrag.file);
+      if (!fs.existsSync(pfad)) {
+        probleme.push(`${eintrag.file}: Datei existiert nicht`);
+        continue;
+      }
+      const kopf = fs.readFileSync(pfad, 'utf8').split('\n').slice(0, 40).join('\n');
+      const liste = (re) => [...new Set([...kopf.matchAll(re)].map((m) => m[1]))].sort();
+      const adrDatei = liste(/@adr \[\[([^\]]+)\]\]/g);
+      const guideDatei = liste(/@guide \[\[([^\]]+)\]\]/g);
+      const split = (wert) => String(wert || '').split(',').map((s) => s.trim()).filter(Boolean).sort();
+      const adrJson = split(eintrag.adr);
+      const guideJson = split(eintrag.guide);
+      if (adrDatei.join('|') !== adrJson.join('|')) {
+        probleme.push(`${eintrag.file}: @adr JSON [${adrJson.join(', ')}] vs Datei [${adrDatei.join(', ')}]`);
+      }
+      if (guideDatei.join('|') !== guideJson.join('|')) {
+        probleme.push(`${eintrag.file}: @guide JSON [${guideJson.join(', ')}] vs Datei [${guideDatei.join(', ')}]`);
+      }
+    }
+  }
+  if (probleme.length) {
+    throw new Error(`repository.json driftet gegen die Dateien:\n  - ${probleme.join('\n  - ')}`);
+  }
+}
+
 function generateStructureMap(targetDir) {
+  pruefeRepositoryDrift();
   // Datum OHNE Uhrzeit-Zugriff (kein new Date): der letzte Commit, der die
   // Quellen (docs/, ohne dieses Artefakt) geaendert hat. Bleibt ueber Laeufe
   // hinweg stabil -> die Datei ist idempotent; der Vergleich ignoriert `updated:`
@@ -98,32 +165,7 @@ depends_on: []
 # Repo-Struktur — DIN-BriefNEO
 
 ## Produktionscode (\`website/\`)
-| Datei | @adr | @guide | Haupt-Export |
-|---|---|---|---|
-| index.html | ADR-HTML | din-5008-css-architektur | HTML5-Einstiegspunkt & semantische DIN-5008-DOM-Struktur |
-| css/base.css | ADR-CSS | din-5008-css-architektur | CSS-Reset, Typografie, Design Tokens, gemeinsame Druck-Resets |
-| css/sheet-common.css | ADR-CSS | din-5008-css-architektur | Gemeinsame Blatt-Regeln beider Ansichten (Typografie, Inline-Formate, Signatur) |
-| css/sheet.css | ADR-CSS | din-5008-css-architektur | DIN-A4-Geometrie (Einzelseite), Faltmarken, Zero-Scroll |
-| css/sheet-multipage.css | ADR-CSS | din-5008-css-architektur | DIN-A4-Geometrie (Mehrseiten, column-count/Paged) |
-| css/sidebar.css | ADR-CSS | din-5008-css-architektur | Seitenleiste, Formulare, Einstellungen, Popover |
-| css/print.css | ADR-CSS | din-5008-css-architektur | @media print Drucklayout & PDF-Ausgabe |
-| js/address.js | ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | geoapify-autocomplete, din-5008-css-architektur | AddressIntelligence, feld, resolvePostcode |
-| js/clipboard-parser.js | ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS | din-5008-css-architektur | ClipboardAddressParser (Zwischenablage → Anschrift-Kandidaten) |
-| js/boot-switches.js | ADR-JS | din-5008-css-architektur | BootSwitches (FOUC-Schutz der Schalter, blockierend im Head) |
-| js/boot-theme.js | ADR-JS | din-5008-css-architektur | BootTheme (FOUC-Prävention, blockierend im Head) |
-| js/core.js | ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE, ADR-TOAST-SYSTEM | din-5008-css-architektur | eventBus, Events, Constants, showToast |
-| js/document.js | ADR-JS | - | UIProtections, collectDraft, sanitizeRichText, Caret-Helfer |
-| js/draft-manager.js | ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | glossary | DraftManager (Autosave, Undo/Redo, Mehr-Tab-Sync) |
-| js/main.js | ADR-JS | no-scroll-techniques | App-Orchestrator (Init, Event-Wiring) |
-| js/persistence.js | ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | glossary, din-5008-css-architektur | LocalStoragePrimitives, MetadataService, initImportExport, formatLetterDate |
-| js/salutation.js | ADR-JS | - | SalutationEngine, SalutationFeature, SALUTATION_TONES |
-| js/settings.js | ADR-JS | glossary, din-5008-css-architektur | SettingsManager (Layout, Theme, Font-Injection) |
-| js/signature.js | ADR-JS | din-5008-css-architektur | SignatureFeature (Upload, Kompression, Drag/Resize/Rotate) |
-| addons/testbrief/testbrief.js | ADR-JS | testbrief-generator | Testbrief-Plugin (Generator, Adress- & Ankerleiter; Figurendaten in charactere.json) |
-| addons/webmcp-bridge.js | ADR-JS | - | WebMCP Bridge & Polyfill — derzeit nicht eingebunden (WebSocket ws://127.0.0.1:8333) |
-| data/de_plz_ort.json.gz | ADR-OFFLINE-ADDRESS-INTELLIGENCE | - | PLZ-/Ortsverzeichnis (Gzip, Offline Tier 1) |
-| data/de_grosskunden_plz.json.gz | ADR-OFFLINE-ADDRESS-INTELLIGENCE | grossemfaenger-post-und-rechts-spec | Großempfänger-Verzeichnis (Gzip, OLG Frankfurt) |
-
+${produktionscodeTabelle()}
 ## Werkzeuge (\`tools/\`)
 | Datei | Zweck |
 |---|---|

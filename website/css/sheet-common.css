@@ -1,3 +1,6 @@
+/* @adr [[ADR-CSS]] */
+/* @guide [[din-5008-css-architektur]] */
+
 /* css/sheet-common.css — gemeinsame Blatt-Regeln fuer Einzel- und Mehrseitenansicht.
  *
  * Enthaelt die Regeln, die in sheet.css und sheet-multipage.css zeichengleich

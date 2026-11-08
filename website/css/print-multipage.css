@@ -1,3 +1,6 @@
+/* @adr [[ADR-CSS]] */
+/* @guide [[din-5008-css-architektur]] */
+
 /* css/print-multipage.css — Druck-Stylesheet für Mehrseiten (Chromium 150+ Baseline Paged Media) */
 
 @page {

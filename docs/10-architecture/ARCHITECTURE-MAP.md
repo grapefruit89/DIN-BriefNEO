@@ -49,6 +49,11 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | `website/addons/testbrief/testbrief.js` | Testbrief-Plugin | **dynamisch** per `import()`, nur bei Klick auf `#btn-testbrief` | Figurendaten liegen im Plugin-Ordner; ohne das Plugin bleibt der Button wirkungslos, die App startet normal |
 | `website/addons/webmcp-bridge.js` | WebMCP-Bridge | **gar nicht** | derzeit nicht eingebunden, in [[STRUCTURE]] entsprechend markiert |
 
+> **Dateiliste & Rollen:** `docs/10-architecture/repository.json` ist die
+> Single Source of Truth für die Tabelle „Produktionscode" in [[STRUCTURE]].
+> `tools/build_db.js` rendert sie von dort und bricht ab, wenn die `@adr`/`@guide`-
+> Angaben in der JSON nicht zu den Annotationen in den Dateiköpfen passen.
+
 ## 2. Modul-Abhängigkeiten
 
 ```

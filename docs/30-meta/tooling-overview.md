@@ -43,6 +43,16 @@ exponieren kann. Risikoklassen (READ/WRITE/DESTRUCTIVE) und
 IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
 [[tool-result-vocabulary]].
 
+## repository.json (docs/10-architecture/)
+
+Single Source of Truth für die Modul-Tabelle in [[STRUCTURE]]. `build_db.js`
+liest `html`, `css`, `js`, `addons` und `data` von dort und rendert die Zeilen.
+Neue Datei = ein JSON-Eintrag, kein Skript-Edit.
+
+**Fail-closed:** `pruefeRepositoryDrift()` vergleicht die `adr`/`guide`-Felder
+mit den `@adr`/`@guide`-Annotationen der ersten 40 Zeilen jeder Datei und
+wirft bei Abweichung. Damit kann die generierte Tabelle nicht lügen.
+
 ## reconciliation.js
 
 - **Zweck**: Fitness Gate. Prueft Metadata-Vollstaendigkeit (Schema V6),

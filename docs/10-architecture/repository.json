@@ -1,0 +1,174 @@
+{
+  "html": [
+    {
+      "file": "index.html",
+      "adr": "ADR-HTML",
+      "guide": "din-5008-css-architektur",
+      "desc": "HTML5-Einstiegspunkt & semantische DIN-5008-DOM-Struktur"
+    }
+  ],
+  "css": [
+    {
+      "file": "css/base.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "CSS-Reset, Typografie, Design Tokens, gemeinsame Druck-Resets"
+    },
+    {
+      "file": "css/sheet-common.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "Gemeinsame Blatt-Regeln beider Ansichten (Typografie, Inline-Formate, Signatur)"
+    },
+    {
+      "file": "css/sheet.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "DIN-A4-Geometrie (Einzelseite), Faltmarken, Zero-Scroll"
+    },
+    {
+      "file": "css/sheet-multipage.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "DIN-A4-Geometrie (Mehrseiten, column-count/Paged)"
+    },
+    {
+      "file": "css/sidebar.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "Seitenleiste, Formulare, Einstellungen, Popover"
+    },
+    {
+      "file": "css/print.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "@media print: Drucklayout & PDF-Ausgabe (Einzelseite)"
+    },
+    {
+      "file": "css/print-multipage.css",
+      "adr": "ADR-CSS",
+      "guide": "din-5008-css-architektur",
+      "desc": "@media print: Drucklayout (Mehrseite, Paged Media)"
+    }
+  ],
+  "js": [
+    {
+      "file": "js/core.js",
+      "adr": "ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE, ADR-TOAST-SYSTEM",
+      "guide": "din-5008-css-architektur",
+      "desc": "eventBus, Events, Constants, showToast"
+    },
+    {
+      "file": "js/main.js",
+      "adr": "ADR-JS",
+      "guide": "no-scroll-techniques",
+      "desc": "App-Orchestrator (Init, Event-Wiring)"
+    },
+    {
+      "file": "js/document.js",
+      "adr": "ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE",
+      "guide": "",
+      "desc": "UIProtections, collectDraft, sanitizeRichText, Caret-Helfer"
+    },
+    {
+      "file": "js/draft-manager.js",
+      "adr": "ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE",
+      "guide": "glossary",
+      "desc": "DraftManager (Autosave, Undo/Redo, Save-State)"
+    },
+    {
+      "file": "js/address.js",
+      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE",
+      "guide": "geoapify-autocomplete, din-5008-css-architektur",
+      "desc": "AddressIntelligence, feld, resolvePostcode"
+    },
+    {
+      "file": "js/clipboard-parser.js",
+      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS",
+      "guide": "din-5008-css-architektur",
+      "desc": "ClipboardAddressParser (Zwischenablage → Anschrift-Kandidaten)"
+    },
+    {
+      "file": "js/persistence.js",
+      "adr": "ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE",
+      "guide": "glossary, din-5008-css-architektur",
+      "desc": "LocalStoragePrimitives, MetadataService, initImportExport, formatLetterDate"
+    },
+    {
+      "file": "js/settings.js",
+      "adr": "ADR-JS",
+      "guide": "glossary, din-5008-css-architektur",
+      "desc": "SettingsManager (Layout, Theme, Font-Injection)"
+    },
+    {
+      "file": "js/signature.js",
+      "adr": "ADR-JS",
+      "guide": "din-5008-css-architektur",
+      "desc": "SignatureFeature (Upload, Kompression, Drag/Resize/Rotate)"
+    },
+    {
+      "file": "js/salutation.js",
+      "adr": "ADR-JS",
+      "guide": "",
+      "desc": "SalutationEngine, SalutationFeature, SALUTATION_TONES"
+    },
+    {
+      "file": "js/binary-storage.js",
+      "adr": "ADR-BINARY-ASSETS",
+      "guide": "glossary",
+      "desc": "saveBlob, loadBlob, deleteBlob (IndexedDB)"
+    },
+    {
+      "file": "js/boot-switches.js",
+      "adr": "ADR-JS",
+      "guide": "din-5008-css-architektur",
+      "desc": "Layout-Flags als Attribute (FOUC-Guard, blockierend im Head)"
+    },
+    {
+      "file": "js/boot-theme.js",
+      "adr": "ADR-JS",
+      "guide": "din-5008-css-architektur",
+      "desc": "BootTheme (FOUC-Prävention, blockierend im Head)"
+    },
+    {
+      "file": "js/multipage-controller.js",
+      "adr": "",
+      "guide": "",
+      "desc": "Folgeköpfe & Paged-Media-Regeln (multipage.html)"
+    },
+    {
+      "file": "js/webapi.d.ts",
+      "adr": "",
+      "guide": "",
+      "desc": "TypeScript-Ambient-Types (ariaNotify, CloseWatcher)"
+    }
+  ],
+  "addons": [
+    {
+      "file": "addons/testbrief/testbrief.js",
+      "adr": "ADR-JS",
+      "guide": "testbrief-generator",
+      "desc": "Testbrief-Plugin (Generator, Adress- & Ankerleiter; Figurendaten in charactere.json)"
+    },
+    {
+      "file": "addons/webmcp-bridge.js",
+      "adr": "ADR-JS",
+      "guide": "",
+      "desc": "WebMCP Bridge & Polyfill — derzeit nicht eingebunden"
+    }
+  ],
+  "data": [
+    {
+      "file": "data/de_plz_ort.json.gz",
+      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE",
+      "guide": "",
+      "desc": "PLZ-/Ortsverzeichnis (Gzip, Offline Tier 1)"
+    },
+    {
+      "file": "data/de_grosskunden_plz.json.gz",
+      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE",
+      "guide": "grossemfaenger-post-und-rechts-spec",
+      "desc": "Großempfänger-Verzeichnis (Gzip, OLG Frankfurt)"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 // @ts-check
 // @adr [[ADR-JS]]
+// @guide [[testbrief-generator]]
 
 /* addons/testbrief.js — Testbrief-Generator-Addon für DIN-BriefNEO.
  *

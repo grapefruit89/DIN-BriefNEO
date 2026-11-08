@@ -1,5 +1,4 @@
 // @ts-check
-// @adr [[ADR-DATA-PERSISTENCE]] {DraftManager}
 // @adr [[ADR-JS]]
 // @adr [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
 

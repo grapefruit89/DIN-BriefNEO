@@ -4,7 +4,8 @@
 
 import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initSenderSync } from './address.js';
 import { Events, eventBus, initToastSystem } from './core.js';
-import { collectDraft, DraftManager, UIProtections } from './document.js';
+import { collectDraft, UIProtections } from './document.js';
+import { DraftManager } from './draft-manager.js';
 /* js/main.js */
 import { applyLetterDate, initImportExport, MetadataService, migrateStorage, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';

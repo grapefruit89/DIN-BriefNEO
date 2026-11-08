@@ -109,7 +109,8 @@ depends_on: []
 | js/boot-switches.js | ADR-JS | din-5008-css-architektur | BootSwitches (FOUC-Schutz der Schalter, blockierend im Head) |
 | js/boot-theme.js | ADR-JS | din-5008-css-architektur | BootTheme (FOUC-Prävention, blockierend im Head) |
 | js/core.js | ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE, ADR-TOAST-SYSTEM | din-5008-css-architektur | eventBus, Events, Constants, showToast |
-| js/document.js | ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | - | DraftManager, UIProtections, collectDraft, sanitizeRichText |
+| js/document.js | ADR-JS | - | UIProtections, collectDraft, sanitizeRichText, Caret-Helfer |
+| js/draft-manager.js | ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | glossary | DraftManager (Autosave, Undo/Redo, Mehr-Tab-Sync) |
 | js/main.js | ADR-JS | no-scroll-techniques | App-Orchestrator (Init, Event-Wiring) |
 | js/persistence.js | ADR-DATA-PERSISTENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | glossary, din-5008-css-architektur | LocalStoragePrimitives, MetadataService, initImportExport, formatLetterDate |
 | js/salutation.js | ADR-JS | - | SalutationEngine, SalutationFeature, SALUTATION_TONES |

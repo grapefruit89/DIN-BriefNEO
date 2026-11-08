@@ -6,7 +6,8 @@ import { setField as setTestbriefField } from '../website/addons/testbrief/testb
 import { AddressIntelligence, buildFirmenIndex, buildOrtIndex, buildPrefixIndex, ClipboardAddressParser, detectPlzInputPattern, filterPostcodePrefix, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { DraftManager, formatTelefonnummer, UIProtections } from '../website/js/document.js';
+import { formatTelefonnummer, UIProtections } from '../website/js/document.js';
+import { DraftManager } from '../website/js/draft-manager.js';
 // @ts-ignore
 import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, load, loadJSON, migrateStorage, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
 import { SalutationEngine } from '../website/js/salutation.js';

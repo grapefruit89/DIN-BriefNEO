@@ -2532,3 +2532,34 @@ Select sichtbar, 2 Optgroups, Popover/Button nicht mehr im DOM, Auswahl schreibt
 **Generalisierung.** „Modernes CSS nutzen“ heißt auch: die Klasse muss am Element hängen, das
 das Feature trägt. Ein `appearance: base-select` auf einem `<button>` ist kein Fallback, sondern
 toter CSS-Text mit dem Anschein von Funktion.
+
+## 2026-11-08 — Drei Domänen aus den Monolithen geschnitten
+
+**Kontext.** Drei Dateien trugen zwei Fachlichkeiten gleichzeitig:
+`settings.js` (696 Z.) mischte Theme/Layout-Toggles mit der Signatur-Engine
+(WebP-Kompression, `Math.atan2`-Rotation, Blob-Persistenz), `document.js`
+(1157 Z.) DOM-/Caret-Manipulation mit der Speicher-State-Machine, `address.js`
+(2226 Z.) Adressbestände/Geoapify mit dem Zwischenablage-Parser. Zero-Build
+heißt: jeder `import` ist ein HTTP-Request. Drei zusätzliche Module (12 → 15
+Dateien) sind deshalb vertretbar — eine 30-Micro-Modul-Zersplitterung nicht.
+
+**Entscheidung.** Drei Schnitte an den fachlichen Bruchlinien:
+`signature.js` (SignatureFeature), `draft-manager.js` (DraftManager) und
+`clipboard-parser.js` (ClipboardAddressParser). Die Monolithen behalten ihre
+Kernaufgabe; `address.js` bleibt bewusst bei `AddressIntelligence` + Geoapify
+(kein 4-Wege-Split, siehe ANTIPATTERNS).
+
+**Zyklusvermeidung.** `signature.js` referenziert `SettingsManager` nur als
+`@typedef`-Import (kein Laufzeit-Import). `draft-manager.js` importiert aus
+`document.js` (`collectDraft`, Caret-Helfer, `EDITABLE_FIELD_SELECTOR`), nie
+umgekehrt. `clipboard-parser.js` importiert `AddressIntelligence`, `feld` und
+`bindListSelection` aus `address.js`; `address.js` kennt den Parser nicht.
+
+**Beleg.** 127/127 Tests unverändert grün, Biome 0 Fehler, Fitness 100 %.
+`docs/STRUCTURE.md` und `ARCHITECTURE-MAP.md` nachgezogen; der
+ANTIPATTERNS-Eintrag „address.js-Modularisierung" wurde präzisiert statt
+gelöscht (die pauschale Aufteilung bleibt verworfen).
+
+**Generalisierung.** Ein Schnitt lohnt nur, wenn beide Hälften einzeln
+testbar sind und die Importrichtung eindeutig bleibt. Drei Dateien, drei
+Richtungen, kein Zyklus — das ist die Prüffrage vor jedem weiteren Schnitt.

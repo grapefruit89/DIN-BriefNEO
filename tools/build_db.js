@@ -105,7 +105,8 @@ depends_on: []
 | css/sheet.css | ADR-CSS | din-5008-css-architektur | DIN-A4-Geometrie, Faltmarken, Zero-Scroll |
 | css/sidebar.css | ADR-CSS | din-5008-css-architektur | Seitenleiste, Formulare, Einstellungen, Popover |
 | css/print.css | ADR-CSS | din-5008-css-architektur | @media print Drucklayout & PDF-Ausgabe |
-| js/address.js | ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | geoapify-autocomplete, din-5008-css-architektur | AddressIntelligence, ClipboardAddressParser, resolvePostcode |
+| js/address.js | ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE | geoapify-autocomplete, din-5008-css-architektur | AddressIntelligence, feld, resolvePostcode |
+| js/clipboard-parser.js | ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-JS | din-5008-css-architektur | ClipboardAddressParser (Zwischenablage → Anschrift-Kandidaten) |
 | js/boot-switches.js | ADR-JS | din-5008-css-architektur | BootSwitches (FOUC-Schutz der Schalter, blockierend im Head) |
 | js/boot-theme.js | ADR-JS | din-5008-css-architektur | BootTheme (FOUC-Prävention, blockierend im Head) |
 | js/core.js | ADR-JS, ADR-EVENT-DRIVEN-ARCHITECTURE, ADR-TOAST-SYSTEM | din-5008-css-architektur | eventBus, Events, Constants, showToast |

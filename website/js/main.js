@@ -2,7 +2,8 @@
 // @adr [[ADR-JS]] 
 // @guide [[no-scroll-techniques]] 
 
-import { AddressIntelligence, ClipboardAddressParser, initAddressServices, initSenderSync } from './address.js';
+import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
+import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';

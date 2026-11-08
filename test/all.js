@@ -3,7 +3,8 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { setField as setTestbriefField } from '../website/addons/testbrief/testbrief.js';
-import { AddressIntelligence, buildFirmenIndex, buildOrtIndex, buildPrefixIndex, ClipboardAddressParser, detectPlzInputPattern, filterPostcodePrefix, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
+import { AddressIntelligence, buildFirmenIndex, buildOrtIndex, buildPrefixIndex, detectPlzInputPattern, filterPostcodePrefix, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
+import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
 import { formatTelefonnummer, UIProtections } from '../website/js/document.js';

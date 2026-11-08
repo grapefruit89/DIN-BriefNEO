@@ -61,6 +61,7 @@ draft-manager.js  → core.js, persistence.js, document.js (collectDraft, Caret-
 binary-storage.js → (nichts)                    ← Blatt: Blobs in IndexedDB (A34-Ausnahme)
 salutation.js  → core.js, persistence.js
 address.js     → core.js, document.js, persistence.js
+clipboard-parser.js → core.js, address.js (AddressIntelligence.targetLock, feld, bindListSelection)
 main.js        → allen oben; addons/testbrief/testbrief.js (dynamisch, nur bei Klick)
 ```
 

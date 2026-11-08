@@ -634,27 +634,24 @@ export function waehleBesetzung(heroes) {
 /**
  * Befüllt alle Felder des Briefes mit zwei Pflichtfiguren und 0..3 Dritten.
  */
-export async function wuerfelTestbrief() {
-  const heroes = await loadHeroes();
-  if (!heroes) return;
-  plzNeuWuerfeln();
-  const usableHeroes = heroes.filter(istBriefbar);
-  if (usableHeroes.length < 5) {
-    console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
-    return;
-  }
-
-  // 1. Besetzung würfeln (ausgelagert, damit die Messung dieselbe Logik prüft).
-  const { sender, recipient, dritte } = waehleBesetzung(usableHeroes);
-
-  // 2. Thema: der Hook des Absenders, nicht ein Zufallstreffer aus der Besetzung.
-  const themenHook = getCharHook(sender);
-  const szenario = waehleSzenario();
-
+/**
+ * Füllt alle Brief-Felder für eine feste Besetzung.
+ *
+ * Gemeinsame Endstrecke von „Testbrief würfeln" und den Demo-Knöpfen: Adressen,
+ * Anrede, Betreff, Text, Rücksendeangabe und das Zurücksetzen der Zusatzblöcke
+ * dürfen nur an einer Stelle stehen.
+ *
+ * @param {any} sender
+ * @param {any} recipient
+ * @param {any[]} dritte
+ * @param {string} themenHook
+ * @param {Szenario} szenario
+ */
+export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   const senderName = sender.buergerlicherName || sender.name;
   const recipientName = recipient.buergerlicherName || recipient.name;
 
-  // 4. Lucky-Luke-Fix: Keine erfundenen Fallbacks
+  // Lucky-Luke-Fix: Keine erfundenen Fallbacks
   setField('absender-name', senderName);
   setField('absender-strasse', resolveStrasse(sender));
   setField('absender-ort', resolveOrtZeile(sender));
@@ -664,14 +661,14 @@ export async function wuerfelTestbrief() {
   const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
   setField('rucksendeangabe', rucksendeTeile.join(' • '));
 
-  // 5. Empfänger
+  // Empfänger
   // Firmenzeile nur bei einer einzelnen belegten Organisation — kein Berufs-Blob.
   setField('empfaenger-firma', resolveFirma(recipient));
   setField('empfaenger-name', recipientName);
   setField('empfaenger-strasse', resolveStrasse(recipient));
   setField('empfaenger-ort', resolveOrtZeile(recipient));
 
-  // 6. Briefkern
+  // Briefkern
   setField('betreff', randomBetreff(themenHook, szenario));
   setField('anrede', deriveAnrede(sender, recipient));
   setField('text', generateNerdText(sender, recipient, dritte, themenHook, szenario));
@@ -679,7 +676,7 @@ export async function wuerfelTestbrief() {
   setField('unterschrift', senderName);
   applyLetterDate();
 
-  // 7. Zusatzblöcke & Postvermerk zurücksetzen
+  // Zusatzblöcke & Postvermerk zurücksetzen
   const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenToggle) {
     anlagenToggle.checked = false;
@@ -702,8 +699,55 @@ export async function wuerfelTestbrief() {
   const triggerBtn = document.getElementById('btn-postvermerk-trigger');
   if (triggerBtn) triggerBtn.removeAttribute('data-active');
 
-  // 8. Entwurf persistieren
+  // Entwurf persistieren
   eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
 }
 
-export { wuerfelTestbrief as starteTestbrief };
+/**
+ * Befüllt alle Felder mit einer gewürfelten Besetzung.
+ */
+export async function wuerfelTestbrief() {
+  const heroes = await loadHeroes();
+  if (!heroes) return;
+  plzNeuWuerfeln();
+  const usableHeroes = heroes.filter(istBriefbar);
+  if (usableHeroes.length < 5) {
+    console.warn('[TestData] Nicht genug Charaktere mit vollständigen Adressen.');
+    return;
+  }
+
+  const { sender, recipient, dritte } = waehleBesetzung(usableHeroes);
+  fuelleBrief(sender, recipient, dritte, getCharHook(sender), waehleSzenario());
+}
+
+/**
+ * Erzeugt einen festen Demo-Brief: Absender, Empfänger, Thema und Gattung
+ * werden vorgegeben, alles andere läuft durch dieselbe Endstrecke wie der
+ * gewürfelte Brief.
+ *
+ * Zweck: die beiden Beispielkonstellationen („Harry kündigt seinen Besen bei
+ * Spider-Man", „Spider-Man beschwert sich über Spinnennetze bei Jack Sparrow")
+ * sind jederzeit vorführbar, ohne auf einen passenden Zufall zu warten.
+ *
+ * @param {string} senderName
+ * @param {string} recipientName
+ * @param {string} themenHook muss in den Hooks des Absenders stehen
+ * @param {string} szenarioId
+ */
+export async function starteDemoBrief(senderName, recipientName, themenHook, szenarioId) {
+  const heroes = await loadHeroes();
+  if (!heroes) return;
+  const sender = heroes.find((c) => c.name === senderName);
+  const recipient = heroes.find((c) => c.name === recipientName);
+  if (!sender || !recipient) {
+    console.warn(`[TestData] Demo-Figuren fehlen: ${senderName} / ${recipientName}`);
+    return;
+  }
+  plzNeuWuerfeln();
+  const szenario = SZENARIEN.find((s) => s.id === szenarioId) ?? waehleSzenario();
+  const rest = heroes.filter((c) => c !== sender && c !== recipient && istBriefbar(c));
+  const dritte = shuffle(rest).slice(0, 2);
+  fuelleBrief(sender, recipient, dritte, themenHook, szenario);
+}
+
+export { starteDemoBrief as starteDemo, wuerfelTestbrief as starteTestbrief };

@@ -159,8 +159,6 @@ let dom = null;
 let current = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
 let timer = null;
-/** @type {CloseWatcher | null} */
-let closer = null;
 
 export function initToastSystem() {
   const global = document.getElementById('hinweis-v4');
@@ -172,6 +170,14 @@ export function initToastSystem() {
   }
   dom = { global, message, close };
   close.addEventListener('click', hide);
+  // popover="auto" schließt nativ per Esc und Klick außerhalb; dabei muss nur
+  // der Auto-Dismiss-Timer mit aufgeräumt werden.
+  global.addEventListener('toggle', (e) => {
+    if (/** @type {ToggleEvent} */ (e).newState === 'closed' && timer !== null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  });
 
   eventBus.subscribe(Events.NOTIFICATION_REQUESTED, (payload) => {
     if (payload && typeof payload.message === 'string') {
@@ -209,7 +215,6 @@ export function showToast(message, type = 'info') {
   }
 
   startTimer(message);
-  armCloseWatcher();
 }
 
 /** @param {string} message */
@@ -219,16 +224,8 @@ function startTimer(message) {
   timer = setTimeout(hide, duration);
 }
 
-function armCloseWatcher() {
-  closer?.destroy();
-  closer = new CloseWatcher();
-  closer.addEventListener('close', hide);
-}
-
 function hide() {
   if (timer !== null) { clearTimeout(timer); timer = null; }
-  closer?.destroy();
-  closer = null;
   current = null;
   if (dom?.global.matches(':popover-open')) {
     try { dom.global.hidePopover(); } catch {}

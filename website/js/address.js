@@ -37,6 +37,25 @@ function feld(id) {
 }
 
 /**
+ * Bewegt die Auswahl in einer ARIA-Listbox mit Umlauf und markiert sie.
+ * Beide Vorschlagslisten (offline und Geoapify) nutzen dieselbe Routine.
+ * @param {HTMLElement[]} items
+ * @param {number} von Index der aktuellen Auswahl (-1 = keine)
+ * @param {1 | -1} richtung
+ * @returns {number} neuer Index
+ */
+function bewegeAuswahl(items, von, richtung) {
+  const naechster = von < 0
+    ? (richtung > 0 ? 0 : items.length - 1)
+    : (von + richtung + items.length) % items.length;
+  for (const [idx, item] of items.entries()) {
+    item.setAttribute('aria-selected', String(idx === naechster));
+  }
+  items[naechster]?.scrollIntoView({ block: 'nearest' });
+  return naechster;
+}
+
+/**
  * Eine Delegation pro Popover statt zwei Listener pro Eintrag. Die Vorschlags-
  * listen werden bei jedem Tastendruck neu gebaut (`replaceChildren`); Listener
  * an den Einträgen würden dabei jedes Mal neu allokiert und verworfen.
@@ -917,20 +936,9 @@ export class AddressIntelligence {
     let debounceTimer = null;
     let userEditing = false;
 
-    empfOrtEl.addEventListener('beforeinput', (/** @type {any} */ e) => {
-      if (e.inputType?.startsWith('delete')) {
-        userEditing = true;
-      } else if (e.inputType === 'insertText' && /\d/.test(e.data || '')) {
-        userEditing = false;
-      }
-    });
-
-    empfOrtEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        userEditing = true;
-      }
-    });
-
+    // userEditing wird im input-Handler direkt aus event.inputType abgeleitet
+    // (delete vs. insertText). Die früheren beforeinput/keydown-Listener waren
+    // doppelt; nur der Popover-Klick muss den Zustand zurücksetzen.
     suggestionsPopover.addEventListener('mousedown', () => {
       userEditing = false;
     });
@@ -1108,18 +1116,10 @@ export class AddressIntelligence {
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
-        for (const [idx, item] of items.entries()) {
-          item.setAttribute('aria-selected', String(idx === nextIndex));
-        }
-        items[nextIndex]?.scrollIntoView({ block: 'nearest' });
+        bewegeAuswahl(/** @type {HTMLElement[]} */ (items), currentIndex, 1);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
-        for (const [idx, item] of items.entries()) {
-          item.setAttribute('aria-selected', String(idx === prevIndex));
-        }
-        items[prevIndex]?.scrollIntoView({ block: 'nearest' });
+        bewegeAuswahl(/** @type {HTMLElement[]} */ (items), currentIndex, -1);
       } else if (e.key === 'Enter') {
         if (items.length > 0) {
           e.preventDefault();
@@ -1987,11 +1987,9 @@ export function initAddressServices() {
     const key = event.key;
     if (key === 'ArrowDown' || key === 'ArrowUp') {
       event.preventDefault();
-      const direction = key === 'ArrowDown' ? 1 : -1;
-      activeSuggestionIndex = (activeSuggestionIndex + direction + renderedSuggestions.length) % renderedSuggestions.length;
-      addressSuggestions.querySelectorAll('[role=option]').forEach((option, index) => {
-        option.setAttribute('aria-selected', String(index === activeSuggestionIndex));
-      });
+      const optionen = /** @type {HTMLElement[]} */ (Array.from(addressSuggestions.querySelectorAll('[role=option]')));
+      const richtung = /** @type {1 | -1} */ (key === 'ArrowDown' ? 1 : -1);
+      activeSuggestionIndex = bewegeAuswahl(optionen, activeSuggestionIndex, richtung);
       inputAddressSearch.setAttribute('aria-activedescendant', `anschrift-vorschlag-${activeSuggestionIndex}`);
     } else if (key === 'Enter' && activeSuggestionIndex >= 0) {
       event.preventDefault();

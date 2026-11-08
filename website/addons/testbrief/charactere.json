@@ -3,7 +3,7 @@
     "version": "2.0",
     "name": "Figurenkatalog",
     "stand": "2026-11-08",
-    "figuren": 303,
+    "figuren": 297,
     "schema": [
       "name",
       "buergerlicherName",
@@ -22,7 +22,8 @@
     "herkunft": "Kuratiert aus 325 Rohfiguren der Sammel-Pipeline: 25 ohne belegbare Anschrift entfernt, 3 ergaenzt, alle Adressen gegen Quellen geprueft.",
     "marker": "keine feste Anschrift",
     "hinweis": "plz traegt echte Postleitzahlen je Stadt; mehrere belegte Werte sind mit | getrennt und werden pro Brief neu gewuerfelt. Postlagernd und das Zeichen U+2105 (care of) sind gueltige Zustellwege.",
-    "hooksRegel": "Nur konkrete Gegenstände (kein Ort, kein Konzept, keine Attacke), 2 bis 3 je Figur, ikonischster zuerst. Im Brief als Doppelpunkt-Nachtrag."
+    "hooksRegel": "Nur konkrete Gegenstände (kein Ort, kein Konzept, keine Attacke), 2 bis 3 je Figur, ikonischster zuerst. Im Brief als Doppelpunkt-Nachtrag.",
+    "dubletten": "2026-11-08 zusammengelegt (Aliase, Hooks und belegte Anschrift vereint): Roronoa Zorro→Roronoa Zoro, The Joker→Joker, Yennefer→Yennefer von Vengerberg, Mickey Maus→Micky Maus, Sam Vimes→Sam Mumm, Goku→Son-Goku. Sauron war mit Voldemort-Daten verunreinigt (buergerlicherName \"Tom Marvolo Riddle\") und wurde bereinigt."
   },
   "figuren": [
     {
@@ -2036,27 +2037,6 @@
       ]
     },
     {
-      "name": "Goku",
-      "buergerlicherName": "Goku",
-      "alias": [
-        "Kakarot"
-      ],
-      "firma": "Kame House",
-      "strasse": "Capsule Corp",
-      "plz": "",
-      "ort": "Earth",
-      "franchise": "Dragon Ball",
-      "medium": "Anime",
-      "rolle": "Protagonist",
-      "hinweis": "Stärkster Kämpfer der Universe",
-      "quellenAnzahl": 1,
-      "hooks": [
-        "Drachenkugel",
-        "Fliegende Wolke",
-        "Power-Stab"
-      ]
-    },
-    {
       "name": "Gollum",
       "buergerlicherName": "Sméagol",
       "alias": [
@@ -2932,7 +2912,9 @@
       "alias": [
         "Clownprinz des Verbrechens",
         "Harlekin des Hasses",
-        "Der Clownprinz des Verbrechens"
+        "Der Clownprinz des Verbrechens",
+        "The Joker",
+        "Clown Prince"
       ],
       "firma": "Injustice League",
       "strasse": "Arkham Asylum",
@@ -3866,10 +3848,13 @@
       ]
     },
     {
-      "name": "Mickey Maus",
-      "buergerlicherName": "Mickey Mouse",
+      "name": "Micky Maus",
+      "buergerlicherName": "Micky Maus",
       "alias": [
-        "Mickey Mouse"
+        "Mickey Mouse",
+        "Mickey Maus",
+        "Detective Micky",
+        "Meisterdetektiv Micky"
       ],
       "firma": null,
       "strasse": "Postlagernd",
@@ -3879,28 +3864,6 @@
       "medium": "Cartoon",
       "rolle": "Protagonist",
       "hinweis": "Wohnort und Nachbarschaft variieren in den zahlreichen Disney-Comic- und Zeichentrickkontinuitäten.",
-      "quellenAnzahl": 1,
-      "hooks": [
-        "Weiße Handschuhe",
-        "Zauberstab",
-        "Rote Hose"
-      ]
-    },
-    {
-      "name": "Micky Maus",
-      "buergerlicherName": "Micky Maus",
-      "alias": [
-        "Detective Micky",
-        "Meisterdetektiv Micky"
-      ],
-      "firma": null,
-      "strasse": "Mausweg 1",
-      "plz": "",
-      "ort": "Entenhausen",
-      "franchise": "Disney",
-      "medium": "Cartoon",
-      "rolle": "Protagonist",
-      "hinweis": null,
       "quellenAnzahl": 1,
       "hooks": [
         "Weiße Handschuhe",
@@ -4902,9 +4865,9 @@
         "Der Schwertkämpfer"
       ],
       "firma": "Strohhutbande",
-      "strasse": "Postlagernd",
+      "strasse": "Thousand Sunny",
       "plz": "",
-      "ort": "Shimotsuki Village",
+      "ort": "Grandline",
       "franchise": "One Piece",
       "medium": "Anime",
       "rolle": "Sidekick",
@@ -4914,26 +4877,6 @@
         "Katana",
         "Kopftuch",
         "Sake-Flasche"
-      ]
-    },
-    {
-      "name": "Roronoa Zorro",
-      "buergerlicherName": "Roronoa Zorro",
-      "alias": [
-        "Piratenjäger Zorro"
-      ],
-      "firma": "Strohhutbande",
-      "strasse": "Thousand Sunny",
-      "plz": "",
-      "ort": "Grandline",
-      "franchise": "One Piece",
-      "medium": "Anime",
-      "rolle": "Sidekick",
-      "hinweis": "Schwertkämpfer und erstes Mitglied, das sich Ruffy anschließt.",
-      "quellenAnzahl": 1,
-      "hooks": [
-        "Katanas",
-        "Kopftuch"
       ]
     },
     {
@@ -5085,30 +5028,12 @@
       "name": "Sam Mumm",
       "buergerlicherName": "Samuel Mumm",
       "alias": [
-        "Kommandant Mumm"
-      ],
-      "firma": "Ankh-Morpork Stadtwache",
-      "strasse": "Pseudopolis Yard, Wachhäuser",
-      "plz": "",
-      "ort": "Ankh-Morpork, Scheibenwelt",
-      "franchise": "Scheibenwelt",
-      "medium": "Buch",
-      "rolle": "Protagonist",
-      "hinweis": "Kommandeur der Stadtwache; humoristische Fantasy-Verkörperung eines Polizeichefs.",
-      "quellenAnzahl": 1,
-      "hooks": [
-        "Zigarrenstummel",
-        "Degen",
-        "Dienstmarke"
-      ]
-    },
-    {
-      "name": "Sam Vimes",
-      "buergerlicherName": "Samuel Vimes",
-      "alias": [
+        "Sam Vimes",
+        "Samuel Vimes",
+        "Kommandant Mumm",
         "Kommandeur Vimes"
       ],
-      "firma": "Stadtwache von Ankh-Morpork",
+      "firma": "Ankh-Morpork Stadtwache",
       "strasse": "Pseudopolis Yard",
       "plz": "",
       "ort": "Ankh-Morpork",
@@ -5119,9 +5044,10 @@
       "quellenAnzahl": 1,
       "hooks": [
         "Zigarrenstummel",
-        "Kupferhelm",
-        "Dienstmarke"
-      ]
+        "Dienstmarke",
+        "Kupferhelm"
+      ],
+      "himweis": null
     },
     {
       "name": "Samus Aran",
@@ -5340,18 +5266,12 @@
     },
     {
       "name": "Sauron",
-      "buergerlicherName": "Tom Marvolo Riddle",
+      "buergerlicherName": "Mairon",
       "alias": [
         "Der Dunkle Lord",
-        "Morgoth",
-        "Tom Riddle",
-        "Du-weißt-schon-wer",
-        "Der Dunkle Herrscher",
         "Annatar",
         "Gorthaur",
-        "Der Eine Ring",
-        "Tom Vorlost Riddle",
-        "Er weiß, dessen Name nicht genannt werden darf"
+        "Der Dunkle Herrscher"
       ],
       "firma": "",
       "strasse": "Barad-dûr",
@@ -5600,9 +5520,9 @@
       "hinweis": "Sein Saiyajin-Geburtsname lautet Kakarott; in Japan wird der Familienname Son vorangestellt. Haus am Berg Paozu im Ost-Distrikt 439 (offizielle Dragon-Ball-Seite).",
       "quellenAnzahl": 3,
       "hooks": [
+        "Drachenkugel",
         "Fliegende Wolke",
-        "Senzu-Bohne",
-        "Wunderstab"
+        "Senzu-Bohne"
       ]
     },
     {
@@ -5891,27 +5811,6 @@
       "hooks": [
         "Ring",
         "Kosmisches Laufband"
-      ]
-    },
-    {
-      "name": "The Joker",
-      "buergerlicherName": "Arthur Fleck",
-      "alias": [
-        "Clown Prince"
-      ],
-      "firma": null,
-      "strasse": "Arkham Asylum",
-      "plz": "07089",
-      "ort": "Gotham City",
-      "franchise": "DC Comics",
-      "medium": "Comic",
-      "rolle": "Antagonist",
-      "hinweis": "Arch-Nemesis von Batman",
-      "quellenAnzahl": 1,
-      "hooks": [
-        "Spielkarte",
-        "Blumenspray",
-        "Revolver"
       ]
     },
     {
@@ -6435,36 +6334,18 @@
       ]
     },
     {
-      "name": "Yennefer",
-      "buergerlicherName": "Yennefer",
-      "alias": [
-        "Yennefer of Vengerberg"
-      ],
-      "firma": "",
-      "strasse": "Aretusa-Institut, Thanedd-Insel",
-      "plz": "",
-      "ort": "Thanedd, Nördliche Königreiche",
-      "franchise": "The Witcher",
-      "medium": "Serie",
-      "rolle": "Antiheld",
-      "hinweis": "Netflix-Serienadaption der mächtigen Zauberin.",
-      "quellenAnzahl": 1,
-      "hooks": [
-        "Obsidianstern",
-        "Parfüm Flieder und Stachelbeere"
-      ]
-    },
-    {
       "name": "Yennefer von Vengerberg",
       "buergerlicherName": "Yennefer von Vengerberg",
       "alias": [
         "Yen",
-        "Yenna"
+        "Yenna",
+        "Yennefer",
+        "Yennefer of Vengerberg"
       ],
       "firma": "Magierzirkel",
-      "strasse": "Aretusa-Insel, Zauberakademie",
+      "strasse": "Aretusa-Institut, Thanedd-Insel",
       "plz": "",
-      "ort": "Vengerberg, Aedirn",
+      "ort": "Thanedd, Nördliche Königreiche",
       "franchise": "The Witcher",
       "medium": "Buch",
       "rolle": "Antiheld",

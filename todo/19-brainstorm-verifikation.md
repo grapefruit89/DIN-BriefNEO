@@ -37,6 +37,10 @@ Befund (gemessen, 303 Figuren):
   zusaetzlich "Morgoth" (andere Figur) und "Tom Riddle" hinein.
 - Doppelte Figuren: "Mickey Maus" und "Micky Maus"; "Roronoa Zoro" und
   "Roronoa Zorro".
+  ✅ 2026-11-08 zusammengelegt (6 Paare: Zorro→Zoro, The Joker→Joker,
+  Yennefer→Yennefer von Vengerberg, Mickey→Micky, Vimes→Mumm, Goku→Son-Goku).
+  Dabei Sauron bereinigt: buergerlicherName war "Tom Marvolo Riddle" (Voldemort),
+  Aliase mischten Morgoth und Voldemort. Offen bleiben: gzip und Dateiname.
 - firma: 38x null vs. 94x leerer String. plz: 2x null vs. 202x leerer String.
 - Keine charactere.json.gz (die anderen Daten liegen gzipped vor).
 - Dateiname "charactere" (Tippfehler). Referenzen: testbrief.js:409,

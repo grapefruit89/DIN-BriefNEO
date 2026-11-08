@@ -100,7 +100,7 @@ Falzmarken, Leer-Zustände) liegen in `base.css` unter `@media print`.
 
 | Pfad | Zweck | Format | Geladen von |
 | :--- | :--- | :--- | :--- |
-| `website/addons/testbrief/charactere.json` | Figurenkatalog, 303 Figuren | JSON | `addons/testbrief/testbrief.js` (modul-relativ via `import.meta.url`) |
+| `website/addons/testbrief/charactere.json` | Figurenkatalog, 297 Figuren | JSON | `addons/testbrief/testbrief.js` (modul-relativ via `import.meta.url`) |
 | `website/data/orte.json.gz` | PLZ → Ort, **kanonisch** | gzip-JSON | `js/address.js` |
 | `website/data/de_plz_ort.json.gz` | Kompatibilitätskopie von `orte` | gzip-JSON | `js/address.js` (Fallback) |
 | `website/data/grosskunden.json.gz` | Großempfänger-Index, **kanonisch** | gzip-JSON | `js/address.js` |

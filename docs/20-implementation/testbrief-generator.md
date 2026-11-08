@@ -129,7 +129,7 @@ Ein Alias, der nur den eigenen Namen wiederholt (`Ron` für *Ron Weasley*,
 
 ### 3.2 Warum `alias` in der Personenbezeichnung vorn bleibt
 
-`alias` ist bei 302 von 303 Figuren gefüllt, `hooks` bei 301. Für die
+`alias` ist bei 296 von 297 Figuren gefüllt, `hooks` bei 295. Für die
 Personenbezeichnung ist der Alias die belastbarere Aussage: Er ist ein Name,
 keine Deutung. Ein Hook als Zusatz („bekannt für …") wird nur noch verwendet,
 wenn eine Figur weder Alias noch Organisation hat.
@@ -138,9 +138,9 @@ wenn eine Figur weder Alias noch Organisation hat.
 
 | Kennzahl | Wert |
 | :--- | :--- |
-| Figuren mit mindestens einem Hook | 301 von 303 (99,3 %) |
-| Hooks insgesamt | 745 |
-| Hooks je Figur | 2,46 im Schnitt |
+| Figuren mit mindestens einem Hook | 295 von 297 (99,3 %) |
+| Hooks insgesamt | 729 |
+| Hooks je Figur | 2,45 im Schnitt |
 
 Aufnahmeregel für neue Hooks: **nur konkrete Gegenstände** (Gegenstand, Werkzeug,
 Waffe, Fahrzeug, Artefakt, Tier, Kleidungsstück, Gericht). Keine Orte, keine

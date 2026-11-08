@@ -99,7 +99,7 @@ export const DEFAULT_SETTINGS = {
   copyfit: false,
   sensitiveSubject: false,
   pluginTestbrief: true,
-  pluginMultipage: false,
+  pluginMultipage: true,
   formality: 'formal'
 };
 

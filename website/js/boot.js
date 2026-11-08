@@ -18,7 +18,9 @@ try {
     style: 'default',
     guides: false,
     marks: true,
-    sensitiveSubject: false
+    sensitiveSubject: false,
+    pluginTestbrief: true,
+    pluginMultipage: true
   };
 
   let parsed = {};
@@ -35,6 +37,17 @@ try {
   root.setAttribute('data-guides', settings.guides === true ? 'true' : 'false');
   root.setAttribute('data-marks', settings.marks === false ? 'false' : 'true');
   root.setAttribute('data-sensitive-subject', settings.sensitiveSubject === true ? 'true' : 'false');
+
+  /* Mehrseiten-Plugin ist standardmaessig an: Stylesheet schon vor dem ersten
+   * Paint tauschen, sonst springt das Layout sichtbar um, sobald main.js laeuft.
+   * Die Links stehen im <head> vor diesem Block und sind bereits geparst. */
+  if (settings.pluginMultipage === true) {
+    const blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
+    const ziel = blattLink?.dataset.blattMehrseitig;
+    if (blattLink && ziel && blattLink.getAttribute('href') !== ziel) {
+      blattLink.setAttribute('href', ziel);
+    }
+  }
 } catch (e) {
   /* Ohne Boot-Zustand startet die App im falschen Farbschema — sichtbar,
    * aber ohne Ursache. Daher loggen. */

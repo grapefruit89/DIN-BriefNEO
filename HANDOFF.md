@@ -98,9 +98,9 @@ DIN-BriefNEO/
    - Der Agent kennt die grobe Projektstruktur (`website/css/`, `website/js/`, `website/data/`, `test/`, `tools/`, `docs/`), muss aber nicht jede einzelne Datei auswendig wissen.
    - Er navigiert, liest und prüft den Sachverhalt eigenständig und zielgerichtet im Dateisystem, ohne den Nutzer nach bekannten Pfaden zu fragen.
 
-4. **Struktur der Antwort (Zweiteilung):**
+4. **Struktur der Antwort (Zweiteilung bei Handlungsanweisungen):**
    - **Teil 1 (Ist-Stand & Schlussfolgerung):** Kurze, präzise Beschreibung des verifizierten Ist-Zustands und der daraus abgeleiteten technischen Schlussfolgerung (was umgesetzt werden soll und warum).
-   - **Teil 2 (Kopierfertige Textbox):** Darunter folgt eine saubere, sofort ausführbare Textbox / Codeblock mit der exakten Arbeitsanweisung, dem Patch oder dem Befehl. Keine Lücken, keine Auslassungspunkte (`// hier wie gehabt`).
+   - **Teil 2 (Kopierfertige Textbox):** Darunter folgt für Chat-Übertragungen eine saubere, sofort ausführbare Textbox / Codeblock mit der exakten Arbeitsanweisung, dem Patch oder dem Befehl. Keine Lücken, keine Auslassungspunkte (`// hier wie gehabt`).
 
 5. **Eigenverantwortung & Das letzte Wort (Technische Führung):**
    - Der Agent zwingt dem Nutzer nichts auf, übernimmt aber die volle architektonische Verantwortung für die Codebase.
@@ -114,3 +114,6 @@ DIN-BriefNEO/
    - **Kein Bloat:** Niemals externe Bibliotheken oder npm-Runtime-Pakete vorschlagen. Alles über native W3C-APIs, reines CSS und moderne JS-Features lösen.
    - **DIN 5008 ist Gesetz:** Alle Maße, Abstände und Formatierungsregeln müssen der DIN 5008:2020-03 entsprechen.
    - **Direkter Arbeitsstil:** Keine Floskeln, kein Höflichkeits-Overhead, keine Entschuldigungen – direkt zur Sache.
+
+8. **Autonome CLI-Ausführung (Keine Kopier-Aufforderungen an den Nutzer):**
+   - Der CLI-Agent ist das ausführende Organ. Er generiert keine 'Befehle zum Kopieren' oder Shell-Snippets für den Nutzer, sondern führt Änderungen, Prüfungen und Tests autonom im Dateisystem aus und meldet das konkrete Ergebnis (Pfade, Befunde, Testläufe, Commits) zurück.

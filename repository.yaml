@@ -135,13 +135,13 @@ taxonomy:
   roles:
     website: Produkt (HTML/CSS/JS/Daten), kein Build-Step
     docs: Lebende Doku (00-foundation/10-architecture/20-implementation/30-meta)
-    skills: Agent-Skills (Projekt-Skills)
+    skills: Kanonische Agent-Skills & Workflow-Entscheidungslogik (SSoT)
     tools: Build/Gate/Tooling (Node, zero-dep)
     test: Zero-Dependency Unit-Tests
     specs: Full-Mode-Specs (spec.md/plan.md)
     build: generiert, gitignored
     .github: CI-Workflows
-    .agents: Projekt-Skills (opencode-Discovery-Wurzel)
+    .agents: Technische Plattform-Referenz-Guides (HTML/CSS/JS)
     todo: Arbeitsvorrat und Planungsnotizen (keine lebende Doku)
 
 entrypoints:

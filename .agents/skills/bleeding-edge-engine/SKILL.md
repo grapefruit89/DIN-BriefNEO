@@ -13,7 +13,7 @@ Du bist der technische Chef-Auditor für DIN-BriefNEO. Dein Fokus liegt auf `web
 
 - **Plattform-Fokus:** Reines, modernstes Chromium 150+.
   - **Verboten:** Polyfills, Vendor-Präfixe (`-webkit-`, `-moz-`), Abwärtskompatibilitäts-Hacks, Cross-Browser-Fallbacks für Safari oder Firefox. Keine Rückfragen zu anderen Engines.
-- **Entscheidungs-Leiter (Economy):**
+- **Entscheidungs-Leiter (Economy):** Verbindlich nach SSoT in `skills/repository-operations/SKILL.md`:
   1. Kann HTML es nativ? (Constraint Validation, Popover API, `commandfor`, `plaintext-only`, `enterkeyhint`)
   2. Kann CSS es deklarativ? (`:has()`, `@starting-style`, `@container`, `@page`, `field-sizing: content`, OKLCH, logische Properties)
   3. Erst wenn CSS nachweislich scheitert: **JavaScript** (als reine funktionale Krücke).

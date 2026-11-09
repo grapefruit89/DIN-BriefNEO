@@ -20,7 +20,7 @@ doc_links:
   - ADR-OMNITRACEABILITY
   - ADR-OFFLINE-ADDRESS-INTELLIGENCE
   - Salutation-Engine
-  - HYBRID-SPEC-DRIVEN-WORKFLOW
+  - TEMPLATES
 code_links:
   - website/index.html
   - website/js/main.js
@@ -95,7 +95,7 @@ audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zei
 - **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
 - **[[testing-guide]]** — Validierungs-Checklisten für Druckvorschau und responsive Ansichten.
 - **[[glossary]]** — Zentrales Projektglossar (Ubiquitous Language von A bis Z).
-- **[[README-DB]]** — lokale SQLite/FTS5-Wissensdatenbank für KI-Agenten. Die geparkte Vektorsuche liegt als [[sqlite-vec]] in `30-meta/` (Agenten-Tooling, kein Produktwissen).
+- **[[README-DB]]** — lokale SQLite/FTS5-Wissensdatenbank für KI-Agenten. Die geparkte Vektorsuche liegt als [[sqlite-vec]] im Archiv (`docs/90-archive/sqlite-vec.md`).
 
 ---
 
@@ -104,14 +104,14 @@ audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zei
 - **[[DECISION-LOG]]** — die lebende Entscheidungs- und Begründungschronik (append-only). Der alte `CHANGELOG` ist seit 2026-10-02 archiviert.
 - **[[Feature-Matrix]]** — Übersicht aller Features mit Reifegrad und Status.
 - **`docs/30-meta/schema-v6.json`** — das Frontmatter-Schema V6 (Pflichtfelder, erlaubte `type`-Werte), maschinenlesbar und damit die einzige Quelle. Der frühere `OBSIDIAN-SETUP-GUIDE` ist seit 2026-10-02 archiviert.
-- **[[tooling-overview]]** — Bestandsaufnahme aller Hilfswerkzeuge im Ordner `tools/`.
-- **Vorlagen:** **[[ADR-TEMPLATE]]** (für neue Architektur-Entscheidungen) und **[[GUIDE-TEMPLATE]]** (für neue How-Tos).
+- **[[tooling-overview]]** — Bestandsaufnahme aller Hilfswerkzeuge im Ordner `tools/` inklusive kanonischem Tool-Result-Schema & Vokabular.
+- **Vorlagen:** **[[TEMPLATES]]** (Vorlagen für neue Architektur-Entscheidungen und How-To Guides).
 
 ---
 
-### 5. [[30-meta/HYBRID-SPEC-DRIVEN-WORKFLOW|30-meta — Entwicklungsprozess]]
+### 5. Entwicklungsprozess & Arbeitsweise
 *Regelt, WIE am Projekt gearbeitet wird (Verfahrensordnung).*
-- **[[HYBRID-SPEC-DRIVEN-WORKFLOW]]** — Der 7-Schritte-Zyklus: Von Spec-Prüfung über Code-Änderung bis zur Dokumentations-Synchronisation.
+- Siehe **[[AGENTS]]** (§3 Arbeitsmodi, §2 Quality Gates, §5 Kodier- und Arbeitsprinzipien). Der historische Leitfaden [[HYBRID-SPEC-DRIVEN-WORKFLOW]] ist archiviert unter `docs/90-archive/`.
 
 ---
 

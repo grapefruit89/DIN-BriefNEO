@@ -62,7 +62,7 @@ Fuer jede nicht-triviale Aenderung:
 
 1. **Discover/Inspect**: Was existiert bereits, das relevant ist? (`repository.yaml`, `docs/30-meta/tooling-overview.md` konsultieren)
 2. **Think/Research**: Bei technischer Unsicherheit den `web-research`-Skill nutzen (Forschungs-Quellenpyramide, Fragetyp-Routing, Evidence-Level). Context7 ist bei Web-API-Unsicherheit laut AGENTS.md Paragraph 4 verbindlich.
-3. **Validate/Plan**: Vorgehen festlegen, bevor Code geschrieben wird. `plan`-Operation im Sinne von [[tool-result-vocabulary]] — noch keine Ausfuehrung.
+3. **Validate/Plan**: Vorgehen festlegen, bevor Code geschrieben wird. `plan`-Operation im Sinne von [[tooling-overview#Operationsvokabular]] — noch keine Ausfuehrung.
 4. **Execute**: Aenderung vornehmen. Surgical, nicht mehr als noetig.
 5. **Verify**: Fitness Gate (`scripts/start.ps1`) auf 100% pruefen, UND das Ergebnis gegen die urspruengliche Absicht aus Schritt 3 gegenpruefen — nicht nur "Build ist gruen".
 
@@ -85,7 +85,7 @@ der generischen Fragen aus dem Economy Layer oben.
 
 ## Plan -> Execute -> Verify als harte Grenze
 
-Siehe [[tool-result-vocabulary]], Abschnitt "Plan -> Execute -> Verify".
+Siehe [[tooling-overview#Plan -> Execute -> Verify als harte Grenze]].
 Dieser Skill verweist darauf statt es zu duplizieren: eine `plan`-Operation
 fuehrt nichts aus, jede `execute`-Operation wird von einer `verify`-Operation
 gefolgt.

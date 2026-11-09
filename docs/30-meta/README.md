@@ -4,7 +4,7 @@ title: '30-meta — Projektgeschichte, Status & Tooling'
 type: meta
 status: active
 created: '2026-07-07'
-updated: '2026-09-30'
+updated: '2026-11-09'
 tags:
   - din-briefneo
   - din-briefneo/meta
@@ -13,6 +13,8 @@ tags:
 doc_links:
   - DECISION-LOG
   - Feature-Matrix
+  - TEMPLATES
+  - tooling-overview
 error_patterns:
   - meta
   - projektgeschichte
@@ -31,20 +33,19 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 
 ## Projektstatus (aktuell lesen)
 
-- [[README-DB]] — LLM-First SQLite-Wissensdatenbank: Schema, FTS5, MCP-Anbindung (Agenten-Tooling, 2026-10-02 aus `20-implementation/` hierher)
-- [[sqlite-vec]] — geparkter Plan für semantische Vektorsuche (`status: draft`, kein Guide)
-- [[DECISION-LOG]] — die lebende Chronik. (`CHANGELOG` wurde am 2026-10-02 archiviert: seit Juli 2026 ungepflegt.)
+- [[README-DB]] — LLM-First SQLite-Wissensdatenbank: Schema, FTS5, MCP-Anbindung (Agenten-Tooling)
+- [[DECISION-LOG]] — die lebende Chronik (append-only)
 - [[Feature-Matrix]] — Reifegradübersicht der Features
 - [[ROADMAP]] — Zukunftsideen (unverbindlich)
+- [[sqlite-vec]] — geparkter Plan für semantische Vektorsuche (archiviert unter `docs/90-archive/sqlite-vec.md`)
 
-## Obsidian & Wissensmanagement
+## Vorlagen & Wissensmanagement
 
-- `schema-v6.json` — das Frontmatter-Schema, maschinenlesbar. (`OBSIDIAN-SETUP-GUIDE` wurde am 2026-10-02 archiviert: Editor-Setup, kein Projektwissen.)
-- [[GUIDE-TEMPLATE]] — Template für neue How-To Guides
+- `schema-v6.json` — das Frontmatter-Schema, maschinenlesbar
+- [[TEMPLATES|TEMPLATES.md]] — Offizielle Vorlagen für neue ADRs und How-To Guides
 - [[schema-v6.json]] — JSON Schema für VS Code Validierung
 
-## Projekt-Kontext & Hintergrund
+## Projekt-Kontext & Werkzeuge
 
-- [[tooling-overview]] — Build-Skripte & Wiki-Bundler Context-Pack Template
+- [[tooling-overview]] — Bestandsaufnahme der Build-Skripte inkl. kanonischem Tool Result Schema & Vokabular
 - [[research/README|research/]] — Quellen, Messungen und Modern-Web-Recherche
-- [[ROADMAP]] — Zukunftsideen + Chrome 148-151 Modernisierungschancen

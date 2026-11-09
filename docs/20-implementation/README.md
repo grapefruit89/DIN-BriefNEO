@@ -51,4 +51,4 @@ Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen:
 
 ## Templates
 
-- [[GUIDE-TEMPLATE]] — Template für neue How-To Guides (liegt in `30-meta/`)
+- [[TEMPLATES]] — Vorlagen für neue How-To Guides und ADRs (liegt in `docs/30-meta/`)

@@ -124,7 +124,7 @@ Die relevanten Erkenntnisse aus Context7 sind kurz im `DECISION-LOG.md` zu dokum
 
 ## 5. Dokumentations- & Traceability-Pflicht
 
-- Neue ADRs und Guides werden aus den offiziellen Templates erstellt: `docs/30-meta/ADR-TEMPLATE.md` und `docs/30-meta/GUIDE-TEMPLATE.md`.
+- Neue ADRs und Guides werden aus den offiziellen Vorlagen erstellt: `docs/30-meta/TEMPLATES.md`.
 - Jedes neue Dokument muss vollständiges Frontmatter nach Schema V6 enthalten.
 - Die automatisierte Function Traceability Matrix darf **nur** durch `tools/build_db.js` verändert werden.
 - Neue Code-Funktionen müssen Traceability über `@adr` / `@guide` Kommentare herstellen.

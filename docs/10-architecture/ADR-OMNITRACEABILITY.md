@@ -105,7 +105,7 @@ Dieses System ist auf 3–5 Jahre Wartbarkeit ausgelegt. Aktiv am Quellcode vera
 
 ### Szenario A: Neues Feature entwickeln
 
-1. **Entscheidung fällen:** Erstelle ein neues ADR aus `docs/30-meta/ADR-TEMPLATE.md`.
+1. **Entscheidung fällen:** Erstelle ein neues ADR aus `docs/30-meta/TEMPLATES.md`.
 2. **Code schreiben:** Erstelle die Code-Datei, z.B. `website/js/feature.js`.
 3. **Traceability herstellen:** Setze in Zeile 1 den Header-Kommentar:
    ```javascript

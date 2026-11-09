@@ -148,7 +148,7 @@ entrypoints:
   browser_agent: docs/30-meta/AI-AGENTS-CLI.md
   platform_research: docs/30-meta/mcp_research.md
 
-vocabulary_ref: docs/30-meta/tool-result-vocabulary.md
+vocabulary_ref: docs/30-meta/tooling-overview.md
 
 tool_inventory_ref: docs/30-meta/tooling-overview.md
 

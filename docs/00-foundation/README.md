@@ -15,7 +15,6 @@ doc_links:
   - Immutable-Law-Catalog
   - longevity-guidelines
   - spec
-  - HYBRID-SPEC-DRIVEN-WORKFLOW
 error_patterns:
   - fundament
   - gesetze
@@ -61,7 +60,7 @@ Die IMR-Registry liegt in `docs/10-architecture/`. Sie ist das normative DIN-Bri
 | [[spec]] | Anforderungen | WAS DIN-BriefNEO leisten muss |
 | [[longevity-guidelines]] | Technik-Kriterien | Feature-Wahl; **Chrome 150+** |
 
-*Hinweis: Der Arbeitsprozess [[HYBRID-SPEC-DRIVEN-WORKFLOW]] (Light/Full Mode, Fitness Gate) liegt als Prozess-Guide in `docs/30-meta/`.*
+*Hinweis: Der Arbeitsprozess (Light/Full Mode, Fitness Gate) ist in [[AGENTS]] (§3) verbindlich geregelt (historischer Vorläufer [[HYBRID-SPEC-DRIVEN-WORKFLOW]] liegt in `docs/90-archive/`).*
 
 Historische Prüfberichte gehören nicht hierher; sie liegen unter `docs/90-archive/`.
 
@@ -78,7 +77,7 @@ Nicht nur die Struktur, sondern auch die **Benennung** (kanonisches Vokabular un
 ## Verhältnis zu anderen Bereichen
 
 - **`10-architecture/`** enthält die ADRs und die IMR-Registry — Modell und Begründung dessen, was aus diesen Gesetzen folgt.
-- **`30-meta/`** enthält Entwicklungs-Workflows und Prozess-Richtlinien (z. B. `HYBRID-SPEC-DRIVEN-WORKFLOW.md`).
+- **`30-meta/`** enthält Meta-Dokumentation, Tooling-Übersicht und Vorlagen (`docs/30-meta/TEMPLATES.md`).
 - **`docs/90-archive/foundation_inventory.json`** führt die vollständige, maschinenlesbare W-Fragen-Inventur aller 4 Foundation-Dokumente.
 - **`AGENTS.md`** (Root) referenziert Foundation-Dokumente. Es kopiert sie nicht.
 

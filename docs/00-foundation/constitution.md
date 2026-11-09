@@ -14,7 +14,6 @@ doc_links:
   - Immutable-Law-Catalog
   - spec
   - longevity-guidelines
-  - HYBRID-SPEC-DRIVEN-WORKFLOW
   - ADR-RUNTIME-CONTEXT
 code_links: []
 error_patterns:
@@ -81,7 +80,7 @@ Vorschrift zu spiegeln.
 
 Code und Dokumentation müssen die Foundation-Prinzipien reproduzierbar erfüllen.
 Fitness Gate, Änderungsprozess und ADR-Pflicht regelt
-[[HYBRID-SPEC-DRIVEN-WORKFLOW]]; diese Verfassung definiert nicht noch einmal dessen
+[[AGENTS]] (§2 und §3); diese Verfassung definiert nicht noch einmal dessen
 Ablauf.
 
 ### Abweichungen sind explizit
@@ -103,7 +102,7 @@ Die Foundation-Dokumente ergänzen sich, sie duplizieren sich nicht:
 | Was muss das Produkt fachlich leisten? | [[spec]] |
 | Welche Technologie-Baseline gilt? | [[longevity-guidelines]] |
 | Wie sind Atome und DIN-Maße definiert? | [[IMR-Registry]] |
-| Wie wird gearbeitet und verifiziert? | [[HYBRID-SPEC-DRIVEN-WORKFLOW]] |
+| Wie wird gearbeitet und verifiziert? | [[AGENTS]] (§2 Quality Gates, §3 Arbeitsmodi) |
 
 Bei einem Konflikt gilt die Foundation-Hierarchie aus
 [[00-foundation/README|00-foundation]]; technische Detailentscheidungen werden in

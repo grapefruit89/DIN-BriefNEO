@@ -70,7 +70,7 @@ Wenn eine Recherche in einer Behauptung muendet (z. B. im `data`-Feld einer
 `discover`/`analyze`/`audit`-Operation oder in `DECISION-LOG.md`), wird sie
 mit ihrer Tier-Nummer aus der Pyramide oben belegt. Das konkrete
 Feldformat (`evidence_tier`, `source`, `confidence`) steht in
-`docs/30-meta/tool-result-vocabulary.md`, Abschnitt "Evidence-Level bei
+`docs/30-meta/tooling-overview.md`, Abschnitt "Evidence-Level bei
 Recherche-Behauptungen" — hier nicht dupliziert. Das Feld ist optional und
 nur bei Behauptungen mit tatsaechlicher Unsicherheit relevant, nicht bei
 jeder Recherche verpflichtend.
@@ -79,7 +79,7 @@ jeder Recherche verpflichtend.
 
 - `agent/skills/repository-operations/SKILL.md`: Schritt 2 (Think/Research)
   des 5-Schritt-Workflows verweist hierher.
-- `docs/30-meta/tool-result-vocabulary.md`: definiert das konkrete
+- `docs/30-meta/tooling-overview.md`: definiert das konkrete
   Evidence-Level-Feldformat.
 - `AGENTS.md` Paragraph 4: Context7-Pflicht bei den dort genannten vier
   Situationen (Web-API-Unsicherheit, native Loesung pruefen,

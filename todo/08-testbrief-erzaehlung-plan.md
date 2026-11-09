@@ -109,7 +109,7 @@ Die Bausteine folgen den Regeln des bestehenden Generators:
 
 - **Stufe 1 — regelbasiert, ohne KI.** Drei Anlässe, feste Slots, Zufall mit Filter. Ergebnis: nachvollziehbare Briefe, deren Zutaten alle belegt sind.
 - **Stufe 2 — mehrstufige Szenarien.** Mehrere Ereignisse, Verursacher und Helfer, kuratierte Paarungen. Deutlich mehr Rollen und Textvarianten.
-- **Stufe 3 — optional KI.** Nur für freie Übergänge und überraschende Geschichten, **niemals** als Quelle kanonischer Fakten. Zurückgestellt; die Entscheidung gegen Built-in AI steht bereits (`docs/30-meta/decision-built-in-ai.md`), ein Modell käme nur per eigenem Schlüssel.
+- **Stufe 3 — optional KI.** Nur für freie Übergänge und überraschende Geschichten, **niemals** als Quelle kanonischer Fakten. Zurückgestellt; die Entscheidung gegen Built-in AI steht bereits (siehe [[DECISION-LOG]], Eintrag 2026-10-25), ein Modell käme nur per eigenem Schlüssel.
 
 ## 10. Was aus dem Brainstorm nicht übernommen wird
 

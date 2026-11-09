@@ -43,7 +43,7 @@ echo '{"operation":"inspect"}'  | node agent/mcp/dinbrief-mcp/index.js
 ```
 
 Antwortet mit einer Zeile JSON auf stdout, nach dem Schema aus
-`docs/30-meta/tool-result-vocabulary.md`.
+`docs/30-meta/tooling-overview.md`.
 
 ## repository.execute — Allowlist, kein freier Codeaufruf
 

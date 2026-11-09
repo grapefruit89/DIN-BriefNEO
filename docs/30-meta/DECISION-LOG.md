@@ -2119,12 +2119,26 @@ DIN 5008 geprüft.
 ## 2026-10-25 – Built-in AI APIs abgelehnt
 
 Geprüft: Summarizer, Prompt, Proofreader, LanguageModel in Helium
-(Chromium 155). `availability()` liefert `"unavailable"`, `create()`
-wirft `NotSupportedError`. Grund: Helium hat keinen Omaha Component
-Updater, der das Gemini-Nano-Modell bezieht.
+(Chromium 155) als mögliche Option für den Testbrief-Generator (Stufe 2)
+und die Betreff-Generierung.
 
-Entscheidung: Keine Built-in AI. Testbrief Stufe 2 nutzt BYOK
-(Groq/Gemini). Details: `decision-built-in-ai.md`.
+| Prüfpunkt | Ergebnis |
+|---|---|
+| API-Präsenz in Helium (Chromium 155) | `typeof Summarizer === 'function'` |
+| `Summarizer.availability()` | `"unavailable"` |
+| `Summarizer.create()` | `NotSupportedError: no execution config` |
+| Modell-Bezug | Über Googles Omaha Component Updater – Helium hat diese Infrastruktur nicht |
+| Download-Größe | ~4 GB, benötigt 20–22 GB freien Speicher |
+
+**Entscheidung:** Keine Built-in AI.
+1. Helium kann das Modell grundsätzlich nicht beziehen (kein Omaha-Updater).
+2. Ein Zero-Footprint-Button (`hidden`, bis `availability() !== 'unavailable'`)
+   würde in Helium nie erscheinen – toter Code.
+3. Für den Testbrief-Generator (fiktive Charaktere) ist BYOK mit
+   Groq/Gemini ausreichend und datenschutzunkritisch.
+
+**Konsequenz:** Kein `Summarizer`-Button, kein `LanguageModel`-Code, keine
+Built-in-AI-Flags. Testbrief Stufe 2 nutzt **BYOK** (Groq/Gemini).
 
 ## 2026-10-26 – Testbrief: Adressleiter und Ankerleiter statt Volltext-Vorlagen
 

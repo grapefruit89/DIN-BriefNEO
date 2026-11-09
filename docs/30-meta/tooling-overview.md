@@ -4,7 +4,7 @@ title: Tool-Inventur — tools/
 status: active
 type: reference
 created: '2026-08-07'
-updated: '2026-10-16'
+updated: '2026-11-09'
 tags:
 - din-briefneo
 - meta
@@ -12,7 +12,6 @@ tags:
 - agent
 doc_links:
 - '[[AGENTS]]'
-- '[[tool-result-vocabulary]]'
 code_links:
 - 'tools/reconciliation.js'
 - 'tools/build_db.js'
@@ -40,8 +39,8 @@ Abhaengigkeiten, Aufrufer, Risikoklasse. Herkunft: ChatGPT-Brainstorm
 weil sie fuer den kuenftigen MCP-Server (`agent/mcp/dinbrief-mcp/`)
 Voraussetzung ist: Der Server muss wissen was jedes Tool tut, bevor er es
 exponieren kann. Risikoklassen (READ/WRITE/DESTRUCTIVE) und
-IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus
-[[tool-result-vocabulary]].
+IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus dem
+Abschnitt [[#Tool Result Schema & Vokabular]].
 
 ## repository.json (docs/10-architecture/)
 
@@ -353,7 +352,7 @@ Zero-Dependency, nutzt `tools/static-server.mjs` und `tools/browser.mjs`.
 
 - **Zweck**: Protokolliert Agenten-Aktionen in `agent_session_logs`-Tabelle
   der SQLite-DB (`DIN-Brief_docs.db`). Freitext-basiert (`action_type` ist
-  aktuell kein festes Vokabular — siehe [[tool-result-vocabulary]] fuer das Zielbild).
+  aktuell kein festes Vokabular — siehe [[#Statusvokabular]] fuer das Zielbild).
 - **Input**: CLI-Argumente `--agent --action --file --desc`
 - **Output**: neue Zeile in `agent_session_logs` (SQLite)
 - **Abhaengigkeiten**: `node:sqlite` (Node 22.5+) mit Fallback auf npm-Paket `sqlite3`
@@ -434,7 +433,7 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
 ```
 
 **Verbesserungsideen für Agenten:**
-- `action_type` könnte ein festes Vokabular erhalten (siehe [[tool-result-vocabulary]])
+- `action_type` könnte ein festes Vokabular erhalten (siehe [[#Statusvokabular]])
 - `file_path` könnte normalisiert werden (relativ zum Repo-Root)
 - Ein Index auf `file_path` würde Datei-Historien beschleunigen
 
@@ -459,6 +458,101 @@ node tools/log_session.js --agent "opencode" --action "refactor: ..." --file "we
 - **Risikoklasse**: READ (reines Prüfwerkzeug, modifiziert keine Dateien).
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand → gleiches Ergebnis).
 - **Safe-to-delete**: NEIN — präventiver Drift-Wächter zur Qualitätssicherung der ADR-Konsistenz.
+
+## Tool Result Schema & Vokabular
+
+Dieses Kapitel legt fest, in welcher Form Tools/Skripte in diesem Repository ihr Ergebnis berichten sollen und welche Begriffe dabei welche Bedeutung haben (Herkunft: einheitliches Tool-/Result-Protokoll).
+
+### Ist-Stand: Fitness Gate (tools/reconciliation.js)
+
+Der bestehende Fitness Gate nutzt bereits ein festes Vokabular:
+- **Severity-Stufen**: `critical`, `high`, `medium`, `low`
+- **Score-Kategorien**: `metadata`, `coherence`, `conformance`, `features` (Gesamtscore ist Durchschnitt aller vier)
+- **Erfolgskriterium**: `success = true` genau dann, wenn kein Log-Eintrag `severity: critical` hat. Der Fitness-Score-Schwellwert (100 %) ist separat in AGENTS.md verbindlich vorgeschrieben.
+
+### Zielbild: Canonical Tool Result Schema
+
+Jedes neue Tool, jeder Skill und jede MCP-Operation orientiert sich an dieser kanonischen Form:
+
+```json
+{
+  "operation": "validate",
+  "status": "ok",
+  "summary": "Kurzer, einzeiliger Klartext-Satz was passiert ist",
+  "data": {},
+  "artifacts": [],
+  "warnings": [],
+  "errors": [],
+  "metadata": {
+    "tool": "tools/reconciliation.js",
+    "timestamp": "ISO-8601",
+    "duration_ms": 0
+  }
+}
+```
+
+Feldbedeutung:
+- `operation`: welche Operation ausgeführt wurde (siehe Operationsvokabular)
+- `status`: der Ausgang (siehe Statusvokabular)
+- `summary`: für Menschen lesbare Kurzfassung, kein Ersatz für `data`
+- `data`: strukturierte Nutzdaten des Ergebnisses
+- `artifacts`: Pfade zu erzeugten Dateien, falls vorhanden
+- `warnings` / `errors`: Listen von Strings oder Objekten mit Details
+- `metadata`: Herkunft, Zeitstempel, Laufzeit
+
+### Operationsvokabular
+
+Kontrolliertes Vokabular für das Feld `operation`:
+
+| Operation | Bedeutung |
+|---|---|
+| discover | Vorhandenes auffinden, ohne es zu bewerten |
+| inspect | Einen konkreten, bekannten Gegenstand näher untersuchen |
+| analyze | Muster/Zusammenhänge in bereits gefundenen Daten erkennen |
+| plan | Einen Ausführungsschritt vorschlagen, ohne ihn auszuführen |
+| execute | Eine Änderung tatsächlich vornehmen |
+| generate | Neue Datei / neuen Inhalt erzeugen |
+| validate | Gegen eine feste Regel prüfen (z. B. Fitness Gate) |
+| verify | Ein Ergebnis gegen die ursprüngliche Absicht gegenprüfen |
+| test | Automatisierten Test ausführen |
+| audit | Umfassende, meist manuell ausgelöste Tiefenprüfung |
+| migrate | Struktur-/Formatwechsel an bestehenden Daten |
+| report | Ergebnisse für Menschen aufbereiten (kein neuer Fakt) |
+
+### Statusvokabular
+
+Kontrolliertes Vokabular für das Feld `status`:
+
+| Status | Bedeutung |
+|---|---|
+| ok | Erfolgreich, keine Einschränkung |
+| warning | Erfolgreich, aber mit Auffälligkeit, die Aufmerksamkeit verdient |
+| failed | Nicht erfolgreich, aber kontrolliert beendet |
+| blocked | Konnte nicht starten/fortfahren wegen fehlender Voraussetzung |
+| skipped | Bewusst nicht ausgeführt (z. B. weil nicht anwendbar) |
+| changed | Hat den Zustand des Repositories verändert |
+| unchanged | Hat geprüft, aber nichts verändert |
+
+### Evidence-Level bei Recherche-Behauptungen
+
+Wenn eine Operation (`discover`, `analyze`, `audit`) eine faktische Behauptung über Web-Standards oder Browser-Verhalten trifft:
+
+```json
+{
+  "claim": "Popover-API wird von allen evergreen Browsern unterstützt",
+  "evidence_tier": 2,
+  "source": "https://caniuse.com/mdn-api_htmlelement_popover",
+  "confidence": "high"
+}
+```
+
+### Ephemer vs. persistent
+
+Tool-Ergebnisse sind standardmäßig **ephemer** (Rückgabewert des Aufrufs). Nur bewusst erzeugte Artefakte werden unter festen Pfaden persistiert (z. B. `build/import.sql`). Zeitstempel gehören in das `metadata`-Feld, nicht in den Dateinamen.
+
+### Plan -> Execute -> Verify als harte Grenze
+
+Operationen der Kategorie `plan` dürfen niemals im selben Schritt `execute` sein. Nach jedem `execute` folgt ein `verify`-Schritt.
 
 ## Zusammenfassung: Fitness-Gate-Pipeline
 

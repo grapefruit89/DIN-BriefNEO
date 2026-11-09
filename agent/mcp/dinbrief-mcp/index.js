@@ -19,7 +19,7 @@
  * - keine freie Codeausfuehrung -- repository.execute kennt NUR die Aktionen
  *   in der ACTIONS-Registry unten, kein beliebiger Shell-Befehl ist erreichbar
  *
- * Plan -> Execute -> Verify (siehe docs/30-meta/tool-result-vocabulary.md):
+ * Plan -> Execute -> Verify (siehe docs/30-meta/tooling-overview.md):
  * repository.execute verlangt IMMER zuerst einen Aufruf mit {"plan": true},
  * der nur eine Vorschau liefert und NICHTS veraendert (status: "unchanged").
  * Diese Vorschau liefert eine plan_id zurueck, gebunden an einen Hash der
@@ -54,9 +54,9 @@
  * data.verify.intent, zusaetzlich zum weiterhin gepruefeten Fitness Score.
  * Der erzeugte/veraenderte Output-Pfad wird ausserdem in artifacts
  * eingetragen (vorher immer leer, siehe "Ephemer vs. persistent" in
- * docs/30-meta/tool-result-vocabulary.md).
+ * docs/30-meta/tooling-overview.md).
  *
- * Result-Schema und Vokabular: siehe docs/30-meta/tool-result-vocabulary.md
+ * Result-Schema und Vokabular: siehe docs/30-meta/tooling-overview.md
  */
 
 const fs = require('fs');
@@ -327,7 +327,7 @@ function repositoryExecute({ action, plan, planId }) {
   const actionDef = ACTIONS[action];
 
   // Plan-Schritt: NUR Vorschau, veraendert nichts. Siehe "Plan -> Execute ->
-  // Verify" in docs/30-meta/tool-result-vocabulary.md -- eine plan-Anfrage
+  // Verify" in docs/30-meta/tooling-overview.md -- eine plan-Anfrage
   // darf niemals gleichzeitig ausfuehren. Liefert eine plan_id zurueck, die
   // an den aktuellen Hash der betroffenen Dateien gebunden ist.
   if (plan) {
@@ -660,7 +660,7 @@ function handleLegacy(request) {
 // Bewusst kein volles MCP-SDK (siehe Kommentar oben). Nimmt Zeilen von
 // stdin entgegen der Form {"operation": "inspect"|"validate"|"execute", ...}
 // und beantwortet sie mit einer Zeile JSON auf stdout, nach dem Result-
-// Schema aus docs/30-meta/tool-result-vocabulary.md.
+// Schema aus docs/30-meta/tooling-overview.md.
 function main() {
   const rl = readline.createInterface({ input: process.stdin, terminal: false });
   rl.on('line', (line) => {

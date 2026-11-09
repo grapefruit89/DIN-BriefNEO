@@ -3,7 +3,7 @@ name: architecture-drift-audit
 description: >
   Systematischer Soll/Ist-Abgleich des Repositorys gegen das eigene
   Architekturmodell (repository.yaml, AGENTS.md, agent/skills/,
-  agent/mcp/, docs/30-meta/tool-result-vocabulary.md). Findet Drift --
+  agent/mcp/, docs/30-meta/tooling-overview.md). Findet Drift --
   Doku, die nicht mehr zum Code passt, Regeln, die nur behauptet statt
   durchgesetzt werden, Luecken zwischen Zielbild und tatsaechlichem
   Dateiinhalt. Nutzen: periodisch (z.B. nach jedem groesseren
@@ -84,7 +84,7 @@ jede einzelne Aenderung sieht fuer sich genommen klein aus.
 
 - `agent/skills/repository-operations/SKILL.md`: definiert die Schichten,
   die dieser Audit gegeneinander prueft.
-- `docs/30-meta/tool-result-vocabulary.md`: Ephemer/persistent-Regel, an
+- `docs/30-meta/tooling-overview.md`: Ephemer/persistent-Regel, an
   der Artifacts-Funde gemessen werden.
 - `repository.yaml` `open_items`: Funde, die zu konkreten Massnahmen
   werden, landen hier als Eintrag mit `status: open`, nicht nur im

@@ -92,7 +92,7 @@ Die Subsysteme folgen den allgemeinen Architekturregeln und dürfen keine davon 
 - [[ADR-OMNITRACEABILITY]] — Regeln für Code-/Dokumentationsreferenzen und maschinelle Nachvollziehbarkeit.
 - [[GUIDELINES-BROWSER-UPSTREAM]] — Upstream Ground-Truth & maschinenlesbare Browser-Feature-Abfrage (Chromium 150+ Baseline).
 - Function-Traceability — generierte Funktions-Traceability-Matrix (unter `~/.din-briefneo/build/`).
-- [[ADR-TEMPLATE]] — Vorlage für neue Architekturentscheidungen; liegt unter `docs/30-meta/`.
+- [[TEMPLATES]] — Vorlage für neue Architekturentscheidungen und Guides; liegt unter `docs/30-meta/`.
 
 Jede neue oder geänderte ADR muss das vorgeschriebene Frontmatter-Schema einhalten. Bestehende Dateinamen und Frontmatter-IDs bleiben stabil. Code-Referenzen und Fitness Gate werden vor Abschluss einer Änderung geprüft.
 

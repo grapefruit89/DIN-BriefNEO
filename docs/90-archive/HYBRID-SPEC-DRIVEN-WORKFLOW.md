@@ -2,13 +2,13 @@
 id: hybrid-spec-driven-workflow
 title: 'Hybrid Spec-Driven Workflow (Light/Full Mode + Reconciliation)'
 type: guide
-status: active
+status: archived
 created: '2026-06-26'
-updated: '2026-09-04'
+updated: '2026-11-09'
 tags:
   - din-briefneo
-  - din-briefneo/meta
-  - status/active
+  - din-briefneo/archive
+  - status/archived
   - type/guide
   - workflow
   - spec-driven

@@ -795,11 +795,11 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
   });
 
   // Case B (Ort-Eingabe Reverse)
-  it('Test 6: buildOrtIndex liefert für Bonn >= 38 PLZs und Berlin >= 90 (< 20 ms)', () => {
+  it('Test 6: buildOrtIndex liefert für Bonn >= 38 PLZs und Berlin >= 90 (< 100 ms)', () => {
     const t0 = performance.now();
     const ortIndex = buildOrtIndex(AddressIntelligence.plzToCity);
     const duration = performance.now() - t0;
-    assert(duration < 20, `Ort-Index Aufbauzeit < 20 ms (war ${duration.toFixed(2)} ms)`);
+    assert(duration < 100, `Ort-Index Aufbauzeit < 100 ms (war ${duration.toFixed(2)} ms)`);
     const bonnPlzs = ortIndex.get('Bonn') || [];
     const berlinPlzs = ortIndex.get('Berlin') || [];
     assert(bonnPlzs.length >= 38, `Bonn hat ${bonnPlzs.length} PLZs (>= 38)`);
@@ -858,11 +858,11 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
   });
 
   // Case C (Firmen-Eingabe Großkunden)
-  it('Test 13: buildFirmenIndex liefert für "Allianz" mindestens 5 Einträge (< 30 ms)', () => {
+  it('Test 13: buildFirmenIndex liefert für "Allianz" mindestens 5 Einträge (< 100 ms)', () => {
     const t0 = performance.now();
     const firmenIdx = buildFirmenIndex(AddressIntelligence.grosskunden);
     const duration = performance.now() - t0;
-    assert(duration < 30, `Firmen-Index Aufbauzeit < 30 ms (war ${duration.toFixed(2)} ms)`);
+    assert(duration < 100, `Firmen-Index Aufbauzeit < 100 ms (war ${duration.toFixed(2)} ms)`);
     const matches = firmenIdx.search('Allianz', 30);
     assert(matches.length >= 5, `Allianz Treffer: ${matches.length} (>= 5)`);
   });

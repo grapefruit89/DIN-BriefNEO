@@ -25,17 +25,20 @@ This skill combines **macro-architecture** (cascade layers, the 4 stylesheets, A
 
 ---
 
-## 2. The Four Stylesheets of DIN-BriefNEO
+## 2. The Stylesheets of DIN-BriefNEO
 
-All CSS lives in `website/css/` and is versioned via URL query (`?v=live6`):
+All CSS lives in `website/css/` and is linked via `<link rel="stylesheet">`:
 
 ```
 website/css/
-├── base.css      ← Design tokens (OKLCH), typography scale, normalize, @layer setup
-├── sidebar.css   ← App shell, toolbars, sidebar drawer, form controls, key-form, popovers
-├── sheet.css     ← DIN 5008 A4 sheet canvas, millimeter grid, field positioning, folds
-└── print.css     ← Pure print media (@media print): exact A4 isolation, page sizing
+├── base.css            ← Design tokens (OKLCH), typography scale, normalize, @layer setup
+├── sidebar.css         ← App shell, toolbars, sidebar drawer, form controls, key-form, popovers
+├── sheet-common.css    ← Gemeinsame DIN 5008 Blatt-Geometrie, Infoleiste, Falzmarken
+├── sheet.css           ← DIN 5008 A4 Einzelseiten-Canvas, Millimeter-Raster, @media print Isolierung
+└── sheet-multipage.css ← Mehrseiten-Engine (Folgeseiten, Paginierung, dynamische Kopfzeilen)
 ```
+
+*(Hinweis: Druckstile werden normgerecht und wartungsfrei über `@media print` direkt in `sheet.css` und `sheet-common.css` isoliert).*
 
 ---
 
@@ -135,9 +138,12 @@ Consult the reference files in `references/` when diving into deep syntax:
 
 Nach jeder Änderung an Stylesheets muss der konsolidierte Gatekeeper ausgeführt werden:
 ```bash
-python3 tools/gate.py
+node tools/build_db.js -q
+npm test
+npm run check
+npm run check:antipatterns
 ```
 Validiert:
 1. **Hermetik & Isolation (Law A38/A45):** Keine unzulässigen `@import`- oder `url()`-Verweise auf externe Hosts.
 2. **IMR-Registry & Geometrie:** DIN-5008 Blattgeometrie und Selektorkonsistenz.
-3. **Evolutionary Fitness:** 100% Score auf `tools/build_db.js`.
+3. **Evolutionary Fitness:** 100.0% Score auf `node tools/build_db.js -q`.

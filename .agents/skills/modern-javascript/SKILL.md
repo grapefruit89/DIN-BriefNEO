@@ -29,10 +29,11 @@ All client-side code consists of standard, unbundled W3C ECMAScript Modules (`<s
   - Use `document.createElement()`, `element.append()`, or `document.createDocumentFragment()` for structured DOM nodes.
   - If HTML parsing is required, use the sanitized `element.setHTML()` API.
 
-### D. Single Source of Truth for Persistence (Laws A34, A35, A36)
-- **The only application datastore is `localStorage`** (wrapped through `website/js/persistence.js` using the namespace prefix `din_`).
-- IndexedDB (Law A34) and OPFS (Law A35) are prohibited.
-- File System Access API (Law A36) is strictly optional for file export/import, never a mandatory storage mechanism.
+### D. Persistence Architecture & Storage Roles (Laws A34, A35, A36, ADR-BINARY-ASSETS)
+- **LocalStorage ist SSoT für Text-Entwürfe (`din_draft`) und Einstellungen** (gekapselt über `website/js/persistence.js` mit Namespace-Präfix `din_`).
+- **IndexedDB (`website/js/binary-storage.js`) ist der isolierte Speicher für Binär-Blobs** (Fonts, Signaturen) gemäß ADR-BINARY-ASSETS (Zero-Base64-Invariante).
+- OPFS (Law A35) ist verboten.
+- File System Access API (Law A36) ist rein optional für Datei-Export/Import, niemals Pflicht.
 
 ### E. Timezone Safety (Law A50)
 - Always specify an explicit IANA timezone when dealing with dates:
@@ -43,6 +44,9 @@ All client-side code consists of standard, unbundled W3C ECMAScript Modules (`<s
 
 ### F. Zero Base64 Inlining in Code (Law A64 / Rule 11)
 - Never hardcode or inline Base64 data URIs, serialized binary blobs, or inline payloads into JS modules. Code and data remain strictly decoupled.
+
+### G. Schema v4 Tuple-Format (Persistence Contract)
+- Alle Briefdaten und Layout-Konfigurationen werden im normierten Schema v4 Tuple-Format exportiert, importiert und validiert (`DinLetterLayout` / Tuple-Schema in `website/js/persistence.js`).
 
 ---
 
@@ -143,16 +147,15 @@ Consult the specific reference files when inspecting advanced syntax or standard
 
 ## 5. Unified Verification Gatekeeper
 
-After any changes to JavaScript, run the consolidated gatekeeper:
+After any changes to JavaScript, run the consolidated quality gates:
 ```bash
-python3 tools/gate.py
-```
-Or to auto-format with Biome and check in one step:
-```bash
-python3 tools/gate.py --fix
+node tools/build_db.js -q
+npm test
+npm run check
+npm run check:antipatterns
 ```
 Gates enforced:
-1. **Biome Linter & Style:** 0 errors, 0 warnings.
+1. **Biome Linter & Style:** 0 errors, 0 warnings (`npm run check`).
 2. **Hermetic Isolation (A38/A45):** Zero rogue network requests, local assets only.
 3. **IMR 4.0 Registry:** Valid DIN-5008 element interactions.
-4. **Evolutionary Fitness:** 100% score on `tools/build_db.js`.
+4. **Evolutionary Fitness:** 100.0% score on `node tools/build_db.js -q`.

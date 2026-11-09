@@ -193,7 +193,10 @@ Um 100% im Lighthouse Accessibility Audit zu garantieren, beachte diese strengen
 
 Nach jeder Änderung an HTML-Dateien muss der konsolidierte Gatekeeper ausgeführt werden:
 ```bash
-python3 tools/gate.py
+node tools/build_db.js -q
+npm test
+npm run check
+npm run check:antipatterns
 ```
 Er validiert in unter 2 Sekunden:
 1. **Hermetik & Isolation (Law A38/A45):** Keine fremden Host-Referenzen in ladenden Attributen.

@@ -107,10 +107,10 @@ tatsaechlich loest:
 
 ## Bezug zu anderen Skills/Dokumenten
 
-- `agent/skills/repository-operations/SKILL.md`: generische
+- `skills/repository-operations/SKILL.md`: generische
   Ponytail-Entscheidungsleiter und Discipline Layer, gelten weiterhin
   fuer Tooling-Entscheidungen ausserhalb von `website/`.
-- `agent/skills/web-research/SKILL.md`: bei Unsicherheit in Stufe 2/3,
+- `skills/web-research/SKILL.md`: bei Unsicherheit in Stufe 2/3,
   ob eine native HTML/CSS-Loesung existiert.
 - `docs/00-foundation/Immutable-Law-Catalog.md`, Regel A38: die
   tatsaechliche Allowlist fuer externe Verbindungen, massgeblich fuer

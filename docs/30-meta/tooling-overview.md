@@ -128,7 +128,7 @@ Zero-Dependency, nutzt `tools/static-server.mjs` und `tools/browser.mjs`.
 - **Input**: CLI-Argument (Feature-Name, CSS-Property, Selektor, HTML-Attribut), Flags (`--refresh`, `--list-groups`, `--json`, `--help`, `--version`).
 - **Output**: Konsolen-Ausgabe (Feature, Baseline-Status, Chrome-Version, andere Browser, Projekt-Status).
 - **Abhängigkeiten**: Node core + drei isolierte Pakete in `~/.din-briefneo/feature-cache/node_modules/`.
-- **Aufrufer**: Manuell durch Entwickler oder KI-Agenten vor einer Feature-Entscheidung. Auch in `agent/skills/implement-with-economy/`.
+- **Aufrufer**: Manuell durch Entwickler oder KI-Agenten vor einer Feature-Entscheidung. Auch in `skills/implement-with-economy/`.
 - **Risikoklasse**: READ.
 - **Idempotenz**: IDEMPOTENT (gleicher Input → gleicher Output).
 - **Safe-to-delete**: NEIN (Tooling, wird in Skill referenziert).

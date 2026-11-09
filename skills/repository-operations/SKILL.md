@@ -69,7 +69,7 @@ Fuer jede nicht-triviale Aenderung:
 
 Schritt 2 (Think/Research) nutzt bei tatsaechlicher Unsicherheit ueber
 Web-Standards den eigenstaendigen `web-research`-Skill
-(`agent/skills/web-research/SKILL.md`) — Forschungs-Quellenpyramide,
+(`skills/web-research/SKILL.md`) — Forschungs-Quellenpyramide,
 Fragetyp-Routing und Evidence-Level sind dort definiert, nicht hier
 dupliziert. "Context7 first" heisst nicht "Context7 immer": Context7 wird
 gezielt bei tatsaechlicher Unsicherheit eingesetzt (siehe AGENTS.md
@@ -78,7 +78,7 @@ Paragraph 4), nicht routinemaessig bei jeder Aenderung.
 ## Feature-Implementierung in website/
 
 Fuer Schritt 4 (Execute) bei einer Aenderung in `website/` gilt zusaetzlich
-die schaerfere Leiter aus `agent/skills/implement-with-economy/SKILL.md`
+die schaerfere Leiter aus `skills/implement-with-economy/SKILL.md`
 (HTML vor CSS vor bestehendem JS vor neuem JS vor Abhaengigkeit) statt nur
 der generischen Fragen aus dem Economy Layer oben.
 

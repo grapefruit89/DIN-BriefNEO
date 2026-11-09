@@ -6,7 +6,7 @@
  *  - Frontmatter-Listen `doc_links`, `depends_on`, `supersedes`
  * gegen die real existierenden Datei-Namen (Basenames) im Repository.
  *
- * Ausgenommen (bewusst, siehe agent/skills/architecture-drift-audit/references/aufraeum-playbook.md):
+ * Ausgenommen (bewusst, siehe skills/architecture-drift-audit/references/aufraeum-playbook.md):
  *  - Code-Fences (Beispiel-Snippets)
  *  - Inline-Code-Spans (`[[…]]` in Backticks = Beispiel-Syntax)
  *  - Template-Platzhalter (ADR-XXX, ADR-YYY, _Template_Obsidian, ...)

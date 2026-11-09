@@ -77,7 +77,7 @@ jeder Recherche verpflichtend.
 
 ## Bezug zu anderen Skills/Dokumenten
 
-- `agent/skills/repository-operations/SKILL.md`: Schritt 2 (Think/Research)
+- `skills/repository-operations/SKILL.md`: Schritt 2 (Think/Research)
   des 5-Schritt-Workflows verweist hierher.
 - `docs/30-meta/tooling-overview.md`: definiert das konkrete
   Evidence-Level-Feldformat.

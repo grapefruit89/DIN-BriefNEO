@@ -66,18 +66,17 @@ structure:
       docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates, Prozess-/Workflow-Policies)
     schema: docs/30-meta/schema-v6.json
 
-  agent/:
+  skills/:
     purpose: >
-      Agenten-Infrastruktur (Lauf 2). Getrennt von tools/, weil tools/
-      deterministische Skripte sind (das WIE) waehrend agent/ Entscheidungslogik
-      und Capability-Exposition beschreibt (das WANN und WAS).
+      Agenten-Skills und Entscheidungslogik im Projekt-Root.
+      Beschreibt Capability-Exposition, Workflows und Leitplanken (das WANN und WAS).
     subpaths:
-      agent/skills/repository-operations/: Entscheidungslogik fuer Repository-Arbeit (5-Schritt-Workflow, Discipline/Economy Layer)
-      agent/skills/web-research/: Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche (Schritt 2 von repository-operations)
-      agent/skills/implement-with-economy/: HTML-vor-CSS-vor-JS-Entscheidungsleiter fuer Feature-Implementierung in website/, keine externen Abhaengigkeiten ausser A38-Allowlist-Ausnahmen
-      agent/skills/architecture-drift-audit/: Periodischer Soll/Ist-Abgleich der Architektur (siehe docs/90-archive/architecture-drift-audit-2026-08-27.md fuer den ersten Durchlauf)
-    status: in Aufbau seit Lauf 2 (2026-08-27)
-    decided_over: tools/skills/ (siehe ChatGPT-Brainstorm Antwort 13 — agent/skills war der favorisierte Vorschlag)
+      skills/repository-operations/: Entscheidungslogik fuer Repository-Arbeit (5-Schritt-Workflow, Discipline/Economy Layer)
+      skills/web-research/: Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level fuer technische Recherche (Schritt 2 von repository-operations)
+      skills/implement-with-economy/: HTML-vor-CSS-vor-JS-Entscheidungsleiter fuer Feature-Implementierung in website/, keine externen Abhaengigkeiten ausser A38-Allowlist-Ausnahmen
+      skills/architecture-drift-audit/: Periodischer Soll/Ist-Abgleich der Architektur (siehe docs/90-archive/architecture-drift-audit-2026-08-27.md fuer den ersten Durchlauf)
+    status: aktiv
+    decided_over: agent/skills/ (flach im Projekt-Root konsolidiert)
 
   build/:
     purpose: Generierte Artefakte (SQLite-DB-Import, Matrizen). Liegt extern unter ~/.din-briefneo/build/.
@@ -102,7 +101,7 @@ taxonomy:
   allowed_top_level:
     - docs
     - website
-    - agent
+    - skills
     - tools
     - test
     - specs
@@ -138,7 +137,7 @@ taxonomy:
   roles:
     website: Produkt (HTML/CSS/JS/Daten), kein Build-Step
     docs: Lebende Doku (00-foundation/10-architecture/20-implementation/30-meta)
-    agent: Agent-Infra (skills)
+    skills: Agent-Skills (Projekt-Skills)
     tools: Build/Gate/Tooling (Node, zero-dep)
     test: Zero-Dependency Unit-Tests
     specs: Full-Mode-Specs (spec.md/plan.md)

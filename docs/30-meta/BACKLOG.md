@@ -274,10 +274,10 @@ zu prüfen. Bei vollem Speicher verschwindet der Zustand still.
 `persistence.js:661-662` publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload direkt
 danach aus dem DOM. Der Request ist für den Export funktionslos.
 
-### B56 · Dead-Code: Restprüfung auf 'AptosCustom' entfernen · **S** · ⭐
+### B56 · Dead-Code: Restprüfung auf 'AptosCustom' entfernen · **S** · ⭐ · ✅ ERLEDIGT 2026-11-06
 - **Quelle:** `docs/90-archive/dead-code-audit-2026-11-05.md` (Befund 4.7).
-- **Problem:** `settings.js:200,313` vergleicht `fontFamily` gegen `'AptosCustom'`. Es gibt keinen Schreibpfad dafür (nur `CustomUserFont`).
-- **Aufgabe:** Totes Branching in `settings.js` rückstandslos entfernen.
+- **Problem:** `settings.js:200,313` verglich `fontFamily` gegen `'AptosCustom'`. Es gibt keinen Schreibpfad dafür (nur `CustomUserFont`).
+- **Aufgabe:** Totes Branching in `settings.js` in Commit `7e59132` rückstandslos entfernt.
 
 ### B57 · CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren · **S** · ⭐⭐
 - **Quelle:** `docs/90-archive/web-standards-tracking.md`.

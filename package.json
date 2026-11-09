@@ -3,7 +3,7 @@
   "version": "4.1.0",
   "description": "DIN-BriefNEO — Reines natives DIN-5008-Briefsystem nach Web-Baseline Chrome 150+",
   "scripts": {
-    "test": "node tools/test-runner.mjs",
+    "test": "node tools/test-runner.mjs && node test/corpus/run.js",
     "check": "biome check website/",
     "check:antipatterns": "node tools/reconciliation.js --only-rules",
     "check:browser-feature": "node tools/query_chrome_feature.mjs",

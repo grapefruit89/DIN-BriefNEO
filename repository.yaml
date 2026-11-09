@@ -52,6 +52,7 @@ structure:
   tools/:
     purpose: Build-, Validierungs- und Wartungsskripte inkl. Fitness Gate & lokaler Dev-Server
     subpaths:
+      tools/README.md: Inventar und Statuskatalog der Werkzeuge & Automatisierungsskripte
       tools/build_db.js: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
       tools/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
       tools/start.sh: Lokaler Start-Server (Linux/Python HTTP-Server)

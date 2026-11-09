@@ -1,13 +1,8 @@
 #!/bin/sh
-# DIN-BriefNEO post-merge hook
-# ============================
-# Haelt den Retrieval-Index (agent/cache/docs_search.db) nach 'git pull'/
-# 'git merge' frisch, aber NUR wenn sich Dokumentationsdateien unter docs/
-# oder das Index-Skript tools/docs_index.js veraendert haben.
+# DIN-BriefNEO post-merge hook (Silent-on-Success)
 cd "$(git rev-parse --show-toplevel)" 2>/dev/null || exit 0
 
 if git diff-tree -r --name-only ORIG_HEAD HEAD 2>/dev/null | grep -qE "^(docs/|tools/docs_index\.js)"; then
-  echo "[post-merge] Aktualisiere Dokumentations-Index..."
   node -e "require('./tools/docs_index.js').buildIndex({force:true})" >/dev/null 2>&1 || true
 fi
 exit 0

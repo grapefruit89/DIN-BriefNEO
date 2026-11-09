@@ -36,14 +36,14 @@ This workspace contains research, architectural roadmaps, telemetry data, and re
 | Status / Kategorie | Pfad & Datei | Größe | Zweck & Einsatz im Zielzustand | Implementierungs-Status im Repo |
 | :--- | :--- | :--- | :--- | :--- |
 | 🟢 **PRODUKTION** | `roadmap/smart_salutation_engine.js` | 19 KB | **Drop-in Replacement** für `website/js/41-salutation-engine.js` (KISS 80/20 B2B, In-flight-Schutz, Dirty-Flags). | ✅ **100 % PRODUKTIV** (Aktiv in `website/js/41-salutation-engine.js`) |
-| 🟢 **PRODUKTION** | `research_results/de_plz_ort.json.br` | 70.5 KB | **Asset für Website:** Alle 10.831 PLZs + 2.258 Großempfänger für 0,9ms Offline-Autofill im Adressfeld. | ✅ **100 % PRODUKTIV** (Aktiv in `website/data/` & `plz-embedded.js`) |
-| 🟢 **PRODUKTION** | `research_results/de_vornamen_gender.json.br` | 2.55 KB | **Asset für Website:** 951 häufigste deutsche Vornamen für Zero-Click-Geschlechtserkennung ohne Radiobuttons. | ✅ **100 % PRODUKTIV** (Direkt in `website/js/41-salutation-engine.js` integriert) |
-| 🟢 **PIPELINE / CI/CD** | `research_scripts/github_action_update_plz.yml` | 1.6 KB | **GitHub Actions Cron-Workflow** für automatische quartalsweise Open-Data-Updates. | ✅ **100 % PRODUKTIV** (Aktiv als `.github/workflows/update_plz_pipeline.yml`) |
-| 🟢 **PIPELINE / BUILD** | `research_scripts/update_plz_pipeline.py` | 5.1 KB | **Build-Skript:** Lädt Rohdaten, fusioniert Großkunden, erzeugt die 70,5 KB Brotli-Payload. | ✅ **100 % PRODUKTIV** (Aktiv in `research/research_scripts/update_plz_pipeline.py`) |
-| 🟢 **PRODUKTION (NEU)** | `roadmap/SMART_CLIPBOARD_IMPRESSUM_PARSER.md` | ~12 KB | **Smart Clipboard Impressum-Parser** (1-Klick-Übernahme DIN 5008 Empfängeranschriften). | ✅ **100 % PRODUKTIV** (Aktiv in `website/js/46-clipboard-address-parser.js` & Sidebar) |
-| 🟡 **OPTIONAL (ADDON)** | `roadmap/ai_assistant_addon.js` | 6.2 KB | **Opt-In Addon:** 100 % private Gemini Nano On-Device AI für `website/js/addons/`. | ⚪ **Geplant** (Prio 7 / Opt-in) |
-| 🔵 **BLUEPRINTS (DOCS)** | `roadmap/*.md` (17 Spezifikationen) | ~200 KB | **Architektur-Vorgaben** für Entwickler/LLMs (DIN 5008 Normen, KISS 80/20, CSS Snippets, Zero-Scroll). | 📘 **Vollständig referenziert** in ADRs & Roadmap |
-| ⚪ **FORSCHUNG (ARCHIV)** | `research_results/chrome_features_*.json` | **14.3 MB** | **Labor-Rohdaten:** Google ChromeStatus API-Dumps (können archiviert/gelöscht werden, nicht für Produktion!). | 📦 **Archiviert** (Forschungsmaterial) |
+| 🟢 **PRODUKTION** | `website/data/orte.json.gz` | 68 KB | **Asset für Website:** Alle 10.831 PLZs + 2.258 Großempfänger für Offline-Autofill im Adressfeld. | ✅ **100 % PRODUKTIV** (Aktiv in `website/data/`) |
+| 🟢 **PRODUKTION** | `website/js/salutation.js` | 2.55 KB | **Asset für Website:** Häufigste deutsche Vornamen für Zero-Click-Geschlechtserkennung ohne Radiobuttons. | ✅ **100 % PRODUKTIV** (Direkt in `website/js/salutation.js` integriert) |
+| 🟢 **PIPELINE / CI/CD** | `.github/workflows/update_plz_data.yml` | 1.2 KB | **GitHub Actions Cron-Workflow** für automatische quartalsweise Open-Data-Updates. | ✅ **100 % PRODUKTIV** |
+| 🟢 **PIPELINE / BUILD** | `tools/build_plz_data.mjs` | 5.1 KB | **Build-Skript:** Lädt Rohdaten, fusioniert Großkunden, erzeugt die Gzip-Payload. | ✅ **100 % PRODUKTIV** (Aktiv in `tools/build_plz_data.mjs`) |
+| 🟢 **PRODUKTION (NEU)** | `website/js/address.js` | ~12 KB | **Smart Clipboard Impressum-Parser** (1-Klick-Übernahme DIN 5008 Empfängeranschriften). | ✅ **100 % PRODUKTIV** |
+| 🟡 **OPTIONAL (ADDON)** | `website/addons/` | 6.2 KB | **Opt-In Addon:** 100 % private Gemini Nano On-Device AI für `website/addons/`. | ⚪ **Geplant** (Prio 7 / Opt-in) |
+| 🔵 **BLUEPRINTS (DOCS)** | `docs/20-implementation/` | ~200 KB | **Architektur-Vorgaben** für Entwickler/LLMs (DIN 5008 Normen, KISS 80/20, CSS Snippets, Zero-Scroll). | 📘 **Vollständig referenziert** in ADRs & Guides |
+| ⚪ **FORSCHUNG (ARCHIV)** | `Papierkorb/research/` | **14.3 MB** | **Labor-Rohdaten:** Google ChromeStatus API-Dumps und historische Testläufe (nach `Papierkorb/research/` verschoben). | 📦 **Archiviert** (Papierkorb) |
 | ⚪ **FORSCHUNG (TESTS)** | `research_scripts/test_*.py`, `*.js` | ~150 KB | **Labortests:** Benchmarks, Provider-Latenzmessungen, Impressum-Stresstests (nur zur Verifikation). | 🧪 **Abgeschlossen** (Laborverifikation) |
 
 ---

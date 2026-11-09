@@ -41,7 +41,7 @@ Dies führte zu drei kritischen Schwachstellen:
 2. **API-Key- und Online-Zwang:** Ohne aktiven Internetzugang oder ohne konfigurierten Geoapify-API-Key war keine intelligente Unterstützung vorhanden.
 3. **Verstoß gegen das Offline-First-Prinzip:** DIN-Brief Neo muss laut `Immutable-Law-Catalog.md` und `constitution.md` autark und **ohne Internetverbindung** lauffähig sein (netzunabhängig, siehe [[ADR-RUNTIME-CONTEXT]]).
 
-Mit der Erstellung des optimierten, nur **70,5 KB** großen Brotli-gepackten PLZ/Ort-Wörterbuchs (`research/research_results/de_plz_ort.json.br`) steht ein vollständiger Datenbestand aller deutschen Postleitzahlen und Ortsnamen zur Verfügung, der clientseitig in **unter 0,2 ms** abgefragt werden kann.
+Mit der Erstellung des optimierten, nur **68 KB** großen Gzip-gepackten PLZ/Ort-Wörterbuchs (`website/data/orte.json.gz`) steht ein vollständiger Datenbestand aller deutschen Postleitzahlen und Ortsnamen zur Verfügung, der clientseitig in **unter 0,2 ms** abgefragt werden kann.
 
 ## Entscheidung
 

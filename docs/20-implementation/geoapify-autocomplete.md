@@ -106,7 +106,11 @@ Schlägt der Request an Geoapify fehl, werfen wir keinen UI-blockierenden Fehler
 ## 6. Rate Limiting & Performance
 
 Die Geoapify API hat in der kostenlosen Stufe strikte Limits (z.B. 3.000 Requests pro Tag).
-Das strenge Debouncing (300-500ms) und ein **lokales In-Memory-Caching** von Suchbegriffen (`apiCache` in `43-geoapify.js`, verhindert doppelte API-Calls für denselben String) sind unsere primären Abwehrwerkzeuge gegen das Limit.
+Das strenge Debouncing (300-500ms) und ein **lokales In-Memory-Caching** von Suchbegriffen (`apiCache`, verhindert doppelte API-Calls für denselben String) sind unsere primären Abwehrwerkzeuge gegen das Limit.
+
+### Pre-Warming & Verbindungslatenz
+- **Pre-Warming-Effekt:** Bei Kaltstart entfallen rund 75 % der Erstlatenz auf den TCP/TLS-Handshake (~170 ms).
+- **Optimierung:** Ein gezielter DNS-Prefetch / Preconnect auf `https://api-eu.geoapify.com` (sobald das Adressfeld Fokus erhält) reduziert die reale Antwortzeit des ersten Tastendrucks auf unter 50 ms.
 
 ## 7. Datenschutz (Privacy)
 

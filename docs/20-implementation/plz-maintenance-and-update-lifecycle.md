@@ -111,6 +111,7 @@ Was passiert, wenn ein Neubaugebiet entsteht und die PLZ in der 68 KB Gzip-Datei
    Wird dort ein neuer Ort gefunden:
    - Der Ort wird ins Formular eingetragen.
    - Der Eintrag wird im `localStorage` des Nutzers gespeichert (`runtime_plz_cache`). Beim nächsten Mal reagiert die App sofort offline.
+   - **OpenPLZ vs. Zippopotam:** Zippopotam ist als Fallback verworfen (liefert fehlerhafte Koordinaten/AGS für Deutschland und läuft über US-Server). Die OpenPLZ API (.NET/EU-gehostet, 100 % Open Data) ist der autoritative Stufe-2-Fallback.
 3. **Stufe 3 (Geoapify POI / Straßen):**  
    Wird ein Firmenname gesucht, der kein Großempfänger ist, greift wie gewohnt die Adress-Vervollständigung von Geoapify.
 

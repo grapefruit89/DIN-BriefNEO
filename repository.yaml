@@ -73,6 +73,9 @@ structure:
     subpaths:
       skills/repository-operations/: Kanonische Entscheidungslogik fuer Repository-Arbeit (5-Schritt-Workflow, Discipline/Economy Layer, Recherche-Pyramide und HTML->CSS->JS-Leiter)
       skills/architecture-drift-audit/: Periodischer Soll/Ist-Abgleich der Architektur (siehe docs/90-archive/architecture-drift-audit-2026-08-27.md fuer den ersten Durchlauf)
+      skills/modern-css/: Kanonische CSS-Architektur der 4 Stylesheets, 100% OKLCH-Farb-Tokens (Law W4), logische Properties und DIN-5008-Drucksimulation
+      skills/modern-html/: Tier-1 HTML-Leitfaden fuer deklarative Formularvalidierung, Popovers, Invoker Commands, DIN-5008-Custom-Elements und Lighthouse-100 ARIA
+      skills/modern-javascript/: Vanilla JS Architektur fuer Chromium 150+, Law A61 DOM-XSS-Verbot, LocalStorage/IndexedDB, fetchGzipJson und EventBus
     status: aktiv
     decided_over: agent/skills/ (flach im Projekt-Root konsolidiert)
 

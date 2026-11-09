@@ -8,11 +8,19 @@
 
 DIN-BriefNEO ist eine reine **Client-Anwendung** ohne Backend. Es gibt keine Server-Infrastruktur und keine Versionierung mit LTS-Zweigen — Sicherheitsfixes erfolgen ausschließlich auf `main`.
 
-## Datenschutz-Modell
+## Datenschutz- & Speicher-Modell
 
-- **Alle Briefdaten** (Entwürfe, Profile, Einstellungen) verbleiben ausschließlich im `localStorage` des Browsers. Es gibt kein Backend, keine Cloud und kein Tracking.
-- **Netzwerkzugriffe:** Die App lädt keine externen Ressourcen (keine CDNs, keine Fonts). Einzige freiwillige Ausnahme: die Adress-Autovervollständigung (Geoapify/Photon) — sie ist standardmäßig inaktiv und sendet nur Daten, wenn der Nutzer einen API-Key hinterlegt und eine Adresssuche auslöst.
-- **GitHub Pages Deployment:** Die veröffentlichte App wird beim Deployment von der Commithistorie gestempelt (Build-Datum). Es werden keine Nutzerdaten an GitHub gesendet.
+- **Speicher-Trennung (Zero-Base64-Invariante):**
+  - **Text-Entwürfe & Einstellungen:** Verbleiben lokal im `localStorage` des Browsers (`din_draft`, `din_settings`). Es gibt kein Backend, keine Cloud und kein Tracking.
+  - **Binäre Assets:** Eigene Schriftarten (`.woff2`) und Signaturbilder werden strikt als binäre Blobs in der clientseitigen `IndexedDB` (`binary-storage.js`) isoliert. Im `localStorage` werden niemals Base64-Daten abgelegt.
+- **Austausch- und Exportformat (Schema v4):**
+  - Als Dokumentenaustauschformat wird ausschließlich die **Schema-v4-Tuple-Architektur** (`_meta.schema` + `fields`-Wertearray mit 35 Indizes) unterstützt.
+  - Altschemata (v1, v2, v3) und beliebige Key-Value-Objekte werden defensiv abgewiesen, um Prototype-Pollution- und Injektionsrisiken auszuschließen.
+- **Netzwerkzugriffe & Hermetik:**
+  - Die App lädt im Regelbetrieb keine externen Ressourcen (keine CDNs, keine externen Webfonts, kein Tracking, Zero-npm-Runtime).
+  - Einzige freiwillige Ausnahme: Die Adress-Autovervollständigung via Geoapify. Sie ist standardmäßig inaktiv und sendet ausschließlich dann Daten, wenn der Nutzer manuell einen API-Key hinterlegt und eine Adresssuche im Formular auslöst.
+- **GitHub Pages Deployment:**
+  - Die veröffentlichte Web-App wird beim Deployment über GitHub Actions statisch bereitgestellt. Es werden keinerlei Nutzer- oder Telemetriedaten an GitHub gesendet.
 
 ## Sicherheitslücke melden
 
@@ -22,11 +30,11 @@ Erwarte bitte keine feste Reaktionszeit — dies ist ein Ein-Personen-Projekt. M
 
 ## Scope: Was gemeldet werden sollte
 
-- XSS-Vektoren über Briefinhalte (Sanitizing-Pfad im DraftManager) — dieser Pfad ist der kritischste und ist durch Tests abgedeckt (`test/`).
+- XSS-Vektoren über Briefinhalte (Sanitizing-Pfad im DraftManager / Plaintext-Konvertierung) — dieser Pfad ist der kritischste und ist durch Tests abgedeckt (`test/`).
 - Umgehung der MCP-Allowlist (`agent/mcp/dinbrief-mcp/`) oder der Plan-Bindung von `repository.execute`.
-- Unsichere Handhabung von localStorage-Daten (z. B. Prototype Pollution über Draft-JSON).
+- Unsichere Handhabung von Speicher-Payloads (z. B. Injection über Schema-v4-Importe).
 
 ## Out of Scope
 
 - Sicherheitsprobleme des Browsers selbst (Chrome 150+ ist dokumentierte Baseline).
-- `file://`-Aufrufe: Die App **lädt bewusst nicht** über `file://` (CORS-Regeln verlangen einen lokalen Webserver, siehe README). Meldungen zu ``file://``-Einschränkungen sind keine Sicherheitslücken.
+- `file://`-Aufrufe: Die App **lädt bewusst nicht** über `file://` (CORS-Regeln verlangen einen lokalen Webserver, siehe README). Meldungen zu `file://`-Einschränkungen sind keine Sicherheitslücken.

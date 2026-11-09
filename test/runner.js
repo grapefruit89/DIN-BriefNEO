@@ -59,7 +59,7 @@ function leseFilter() {
   try {
     return new RegExp(raw, 'i');
   } catch (e) {
-    console.warn(`[Runner] Ungültiger Filter "${raw}" ignoriert:`, e);
+    console.warn('[Runner] Ungültiger Filter %s ignoriert:', raw, e);
     return null;
   }
 }

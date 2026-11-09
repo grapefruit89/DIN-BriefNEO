@@ -15,7 +15,7 @@
 | **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`done/04-telefonnummer-formatierung-plan.md`](done/04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
 | **05** | **Brief-Verlauf & Historie (`din_history`)** | S–M | ⭐⭐⭐⭐ | [`05-brief-history-verlauf-plan.md`](05-brief-history-verlauf-plan.md) | Ausgearbeitet (10er Ringspeicher) |
 | **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md) | 🚫 Verworfen zugunsten schlankerer CSS-Box-Lösung mit `visibility: hidden;` |
-| **07** | **Micro-Copyfitting & 1-Seiten-Kompaktsatz** | M | ⭐⭐ | [`rejected/07-micro-copyfitting-plan.md`](rejected/07-micro-copyfitting-plan.md) | 🚫 Verworfen (Font-Kollaps bei Live-Editing / zurückgestellt) |
+| **07** | **Zero-JS Kompaktsatz (DIN-5008-Toleranz)** | XS–S | ⭐⭐⭐ | [`07-addon-copyfitting-plan.md`](07-addon-copyfitting-plan.md) | In Konzeption (Zero-JS Schalter, 10pt, 1.30lh, Fluchtlinienerhalt) |
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
 | **10** | **Mikro-Typografie nach DIN 5008 (§ 7.2 & § 8.2)** | S–M | ⭐⭐⭐⭐⭐ | [`done/10-mikro-typografie-autokorrektur-plan.md`](done/10-mikro-typografie-autokorrektur-plan.md) | ✅ Umgesetzt 2026-11-09 (Plan 10: `applyMicroTypography`, geschützte Leerzeichen, Gedankenstriche) |
@@ -114,6 +114,16 @@
   - Beseitigung von Rundungsunschärfen und Hairline-Druckfehlern.
   - Beibehaltung der deklarativen `data-*`-Koordinaten im HTML.
 - **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md)
+
+### 7. Zero-JS Kompaktsatz & Copyfitting (DIN-5008-Toleranzbereich)
+- **Fokus:** Typografische Raumersparnis (4–8 Zeilen) ohne Layout-Kollaps oder Schrift-Quetschung beim Tippen.
+- **Wichtigste Punkte:**
+  - Nativer Switch `#toggle-kompaktsatz` in der Seitenleiste.
+  - Rein deklarative Aktivierung via `:root:has(#toggle-kompaktsatz:checked) din-blatt`.
+  - DIN-5008-Toleranz-Hebel: Schriftgröße 10 pt, Zeilenabstand 1.30, Absatzabstand 0.65lh, Unterschriftsabstand 1lh.
+  - Strikter Erhalt der 25-mm-Fluchtlinie (kein Treppenversatz).
+  - Verfassungskonform: Erfüllt Law A49 (kein JS-Layout-Polling) und Law A60 (kein imperativer JS-Status).
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/07-addon-copyfitting-plan.md`](07-addon-copyfitting-plan.md)
 
 ### 8. Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker
 - **Fokus:** Briefe, in denen eine kanonische Figur mit einer **völlig anderen** Figur oder Institution in Kontakt tritt — die Figur bleibt in ihrer Welt, der Anlass ist Alltag (Reklamation, Termin, Auskunft).

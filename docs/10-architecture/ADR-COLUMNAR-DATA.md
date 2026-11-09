@@ -17,7 +17,7 @@ doc_links:
 code_links:
   - package.json
   - tools/build_plz_data.mjs
-  - tools/build_columnar_data.mjs
+  - tools/build_grosskunden_columnar.mjs
   - tools/data/plz_states.json
   - website/data/orte.json.gz
   - website/data/grosskunden.json.gz

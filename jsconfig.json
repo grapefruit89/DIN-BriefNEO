@@ -8,5 +8,5 @@
     "ignoreDeprecations": "6.0",
     "lib": ["ES2024", "DOM", "DOM.Iterable", "ESNext.Temporal"]
   },
-  "exclude": ["node_modules", "venv", "build", "tools", "agent", "research", "scratch"]
+  "exclude": ["node_modules", "venv", "build", "tools", "agent", "research", "scratch", "Papierkorb"]
 }

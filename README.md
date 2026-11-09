@@ -147,7 +147,7 @@ DIN-BriefNEO verfügt über ein integriertes, 100 % offlinefähiges Postleitzahl
 ### 4. Automatisierter Update-Workflow
 - **Zeitplan:** Vollautomatisch jeden 1. des Monats um 03:00 UTC via GitHub Actions ([`.github/workflows/update_plz_data.yml`](.github/workflows/update_plz_data.yml)).
 - **Manuell:** Unter *Actions* → `update_plz_data` → `Run workflow`.
-- **Validierungs-Gates:** Das Erstellungsskript ([`tools/build_plz_databases.py`](tools/build_plz_databases.py)) prüft vor jedem Commit strikt auf korrekte PLZ-Längen, vollständige Ortsnamen, 0 Firmen in der Ortsspalte und 0 UTF-8-Mojibake. Schlägt ein Gate fehl, bricht die Pipeline mit Fehler ab – **es wird kein fehlerhafter Stand committet**.
+- **Validierungs-Gates:** Das Erstellungsskript ([`tools/build_plz_data.mjs`](tools/build_plz_data.mjs)) prüft vor jedem Commit strikt auf korrekte PLZ-Längen, vollständige Ortsnamen, 0 Firmen in der Ortsspalte und 0 UTF-8-Mojibake. Schlägt ein Gate fehl, bricht die Pipeline mit Fehler ab – **es wird kein fehlerhafter Stand committet**.
 - **Deterministische Hashes:** Durch `mtime=0` und `sort_keys=True` entstehen bei unveränderten Upstream-Quellen keine Git-Diffs.
 
 ## 📜 Lizenz

@@ -13,7 +13,7 @@ tags:
 doc_links:
   - Immutable-Law-Catalog
 code_links:
-  - .github/workflows/update_plz_pipeline.yml
+  - .github/workflows/update_plz_data.yml
   - website/js/address.js
 depends_on: []
 supersedes: []

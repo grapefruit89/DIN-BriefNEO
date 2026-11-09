@@ -2,7 +2,7 @@ name: Update PLZ Data
 
 on:
   schedule:
-    # Monthly on the 1st at 03:00 UTC
+    # Jeden 1. des Monats um 03:00 UTC
     - cron: '0 3 1 * *'
   workflow_dispatch:
 
@@ -16,45 +16,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.12'
+          node-version: '22'
 
-      - name: Download source datasets
+      - name: Build Columnar PLZ & Grosskunden Datasets
         run: |
-          mkdir -p /tmp/geonames
-          curl -fL -s -o /tmp/DE.zip https://download.geonames.org/export/zip/DE.zip
-          unzip -o -q /tmp/DE.zip -d /tmp/geonames/
-          curl -fL -s -o /tmp/bund.json "https://www.service.bund.de/SharedDocs/CSV/Anschriftenverzeichnis-JSON.json?__blob=publicationFile"
-          curl -fL -s -o /tmp/places_courts.jsonl https://huggingface.co/datasets/SNTIQ-Team/amtsgraph/resolve/main/places_courts.jsonl
+          node tools/build_plz_data.mjs --download
+          node tools/build_grosskunden_columnar.mjs
 
-      - name: Convert and validate postal databases
+      - name: Run Integrity Gates
         run: |
-          python tools/build_plz_databases.py \
-            --geonames /tmp/geonames/DE.txt \
-            --bund /tmp/bund.json \
-            --amtsgraph /tmp/places_courts.jsonl \
-            --out website/data/
+          npm test
+          node tools/build_db.js -q
 
       - name: Commit and push changes if data updated
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if ! git diff --quiet website/data/; then
-            git add website/data/*.json.gz
+            git add website/data/orte.json.gz website/data/grosskunden.json.gz
             git commit -m "chore(data): automated monthly update of German PLZ datasets [skip ci]"
             git push
           else
             echo "No data changes detected. Everything is up to date."
           fi
-
-      - name: Upload PLZ datasets as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: plz-databases
-          path: |
-            website/data/orte.json.gz
-            website/data/bundesbehoerden.json.gz
-            website/data/grosskunden.json.gz
-          retention-days: 14

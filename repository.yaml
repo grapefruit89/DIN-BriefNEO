@@ -119,6 +119,7 @@ taxonomy:
     - opencode.json
     - jsconfig.json
     - biome.json
+    - package.json
     - start.bat
     - start.sh
     - envelope.svg

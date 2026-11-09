@@ -1,0 +1,21 @@
+{
+  "name": "din-briefneo",
+  "version": "4.1.0",
+  "description": "DIN-BriefNEO — Reines natives DIN-5008-Briefsystem nach Web-Baseline Chrome 150+",
+  "scripts": {
+    "test": "node tools/test-runner.mjs",
+    "check": "biome check website/",
+    "check:antipatterns": "node tools/reconciliation.js --only-rules",
+    "check:browser-feature": "node tools/query_chrome_feature.mjs",
+    "check:fitness": "node tools/build_db.js -q",
+    "docs:index": "node tools/build_db.js -q",
+    "build:data": "node tools/build_plz_data.mjs"
+  },
+  "keywords": [
+    "din-5008",
+    "letter",
+    "privacy-first",
+    "offline-first"
+  ],
+  "license": "MIT"
+}

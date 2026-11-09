@@ -3,7 +3,6 @@ venv/
 node_modules/
 build/
 Fonts/
-package.json
 
 # Agent / editor local state (Schutzfilter)
 agent/cache/

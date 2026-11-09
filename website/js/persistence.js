@@ -401,11 +401,16 @@ export const DOCUMENT_SCHEMA_V4 = [
  */
 export function stripHtmlToPlaintext(html) {
   if (!html?.includes('<')) return html ? html.trim() : '';
-  return html
+  let str = html
     .replace(/<li[^>]*>/gi, '')
     .replace(/<\/li>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
+    .replace(/<br\s*\/?>/gi, '\n');
+  let prev;
+  do {
+    prev = str;
+    str = str.replace(/<[^>]+>/g, '');
+  } while (str !== prev);
+  return str
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)

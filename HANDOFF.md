@@ -114,6 +114,7 @@ DIN-BriefNEO/
    - **Kein Bloat:** Niemals externe Bibliotheken oder npm-Runtime-Pakete vorschlagen. Alles über native W3C-APIs, reines CSS und moderne JS-Features lösen.
    - **DIN 5008 ist Gesetz:** Alle Maße, Abstände und Formatierungsregeln müssen der DIN 5008:2020-03 entsprechen.
    - **Direkter Arbeitsstil:** Keine Floskeln, kein Höflichkeits-Overhead, keine Entschuldigungen – direkt zur Sache.
+   - **Permanenter Schutz für `Papierkorb/` (Unantastbarkeits-Klausel):** Der Ordner `Papierkorb/` ist eine permanente, unantastbare Ablage. Das Löschen, Leeren oder Verschieben dieses Verzeichnisses ist für alle Agenten strikt verboten.
 
 8. **Autonome CLI-Ausführung & Verbindlicher Tätigkeitsbericht-Vertrag:**
    - **Ausführendes Organ:** Der CLI-Agent führt alle Aktionen, Code-Änderungen, Prüfungen und Tests autonom im Dateisystem aus. Seine Ausgaben enthalten niemals manuelle Shell-Befehle, Snippets oder „Befehle zum Kopieren“ für den Nutzer.

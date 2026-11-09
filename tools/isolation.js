@@ -94,6 +94,7 @@ function checkIsolation(targetDir) {
       LOADING_ATTR.lastIndex = 0;
       let a;
       while ((a = LOADING_ATTR.exec(line)) !== null) {
+        if (/\brel\s*=\s*["']canonical["']/i.test(line)) continue;
         const ref = a[1] || a[2];
         if (!ref || /^data:/i.test(ref)) continue;
         if (/^https?:/i.test(ref)) {

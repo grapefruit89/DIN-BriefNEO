@@ -1,155 +1,101 @@
 <p align="center">
-  <img src="envelope.svg" width="72" alt="DIN-BriefNEO Umschlag-Logo">
+  <img src="envelope.svg" width="72" alt="DIN-BriefNEO Logo">
 </p>
 
-<h1 align="center">DIN-BriefNEO — Pure Refactored Edition</h1>
+<h1 align="center">DIN-BriefNEO</h1>
 
 <p align="center">
-  Die wartungsfreie, <strong>100 % offline-fähige</strong> Web-App für normkonforme DIN-Briefe.<br>
-  Keine Frameworks. Keine npm-Abhängigkeiten. Purer nativer W3C-Standard.
+  <strong>Open-Source DIN-5008-Briefgenerator (Form A & Form B) als reine W3C-Web-Applikation.</strong><br>
+  Wartungsfrei auf Lebenszeit. 100 % offlinefähig. Keine Frameworks. Keine npm-Laufzeitabhängigkeiten.
 </p>
 
 <p align="center">
-  👉 <a href="https://grapefruit89.github.io/DIN-BriefNEO/"><strong>Jetzt losschreiben!</strong></a> 👈
+  <a href="https://grapefruit89.github.io/DIN-BriefNEO/"><strong>🚀 Live-App auf GitHub Pages öffnen</strong></a>
 </p>
 
 ---
 
-## ⚡ Quick Start
+## 🏛️ Die 5 Architektur-Säulen
 
-Die App nutzt modernen, nativen W3C-Code (ES-Modules, isoliertes Boot-Script, natives CSS) und muss deshalb wegen der Browser-CORS-Richtlinien über einen lokalen Webserver gestartet werden — `file://` reicht nicht.
+### 1. Zero-Dependency & Zero-Build
+- **100 % nativer W3C-Standard:** Reines HTML5, modernstes CSS und modulare ES-Module (`<script type="module">`).
+- **Baseline Chromium 150+ (Chrome only):** Wir nutzen modernste Webplattform-APIs ohne Polyfills, ohne Vendor-Präfixe und ohne Altlasten.
+- **Kein Frontend-Build:** Kein Node-Build-Schritt für die Ausführung der Web-App, keine Bundler (kein Vite, kein Webpack, kein Rollup), keine Frameworks (kein React, Vue oder Svelte). Der Code im Editor ist der Code im Browser.
 
-**Als Nutzer (Windows):**
-1. Doppelklick auf [`start.bat`](start.bat) — startet den lokalen Webserver (`tools/dev_server.ps1`, Port 8088, mit Cache-Busting) im Hintergrund und öffnet die App automatisch im Browser.
-2. Losbriefen. Es wird nichts hochgeladen: Kein Tracking, keine Fonts von Fremdservern, keine Requests ins Netz.
+### 2. Single Source of Truth (SSoT) & Columnar Gzip
+- **Kompakt & Blitzschnell:** 10.184 deutsche Postleitzahlen, Orte und Bezirke komprimiert in verlustfreiem Columnar-JSON als [`website/data/orte.json.gz`](website/data/orte.json.gz) (68 KB).
+- **Native Dekomprimierung:** Laden im Browser via standardisierter `DecompressionStream('gzip')`-Streaming-API in unter 1 ms bei Tastendruck.
+- **Data-as-Code Pipeline:** Kompiliert bit-deterministisch mit Level 9 und `mtime=0` über [`tools/build_plz_data.mjs`](tools/build_plz_data.mjs).
+- **Automatisierte Pflege:** Quartalsweise automatische Updates via GitHub Actions ([`.github/workflows/update_plz_data.yml`](.github/workflows/update_plz_data.yml)).
 
-**Als Entwickler / KI-Agent:**
-- Linux: `node tools/build_db.js` (Fitness Gate + Index-Generierung). Lokaler Server via `./start.sh` oder `python3 -m http.server 8088`.
-- Windows: `node tools/build_db.js` (Fitness Gate). Lokaler Server via `start.bat`.
-- Der **Fitness Score muss 100 % betragen** — vor und nach jeder relevanten Änderung.
-- Bindender Verhaltensvertrag: [`AGENTS.md`](AGENTS.md).
+### 3. Schema v4 (Tuple-Architektur)
+- **Kompakte Persistenz:** Speicherung des Brief-Zustands über ein 35-teiliges kanonisches Tuple-Array (`DinLetterLayout` in [`website/js/persistence.js`](website/js/persistence.js)).
+- **Deterministische Versionierung:** Schema v4 garantiert absolute Typ- und Reihenfolgestabilität. Altschemata (v1–v3) werden beim Import defensiv und isoliert migriert.
 
----
+### 4. Datensicherheit & Zero-Base64-Invariante
+- **Clientseitig & Offline-Autark:** Sämtliche Daten verbleiben zu 100 % im Browser des Nutzers. Kein Tracking, keine Telemetrie, keine externen Cloud-Verbindungen.
+- **Strikte Speichertrennung:**
+  - `localStorage` dient als SSoT für reine Text-Entwürfe (`din_draft`) und UI-Einstellungen.
+  - Clientseitige `IndexedDB` ([`website/js/binary-storage.js`](website/js/binary-storage.js)) dient als isolierter Speicher für Binär-Blobs (WOFF2-Fonts, Signatur-Grafiken) – **striktes Verbot von Base64 im LocalStorage**.
 
-## 🏛️ Philosophie: Wartungsfreiheit auf Lebenszeit
+### 5. Die Entscheidungs-Leiter (HTML vor CSS vor JS)
+> **Das unumstößliche Kern-Dogma von DIN-BriefNEO:**  
+> **Alles, was im HTML gemacht werden kann, machen wir im HTML.**  
+> **Alles, was dort nicht geht, machen wir mit CSS.**  
+> **Und erst wenn CSS nachweislich nicht ausreicht, kommt JavaScript:**  
+> 👉 **`JavaScript = Krücke`** — es ist das letzte Mittel, niemals das erste.
 
-Dieses Projekt bricht radikal mit der Kurzlebigkeit moderner Web-Frameworks. Wir vertrauen zu 100 % auf native, standardisierte W3C/WHATWG-Schnittstellen — mit dem Ziel einer Überlebensspanne von vielen Jahren ohne eine einzige Zeile Wartungsaufwand.
-
-- 🚫 **Keine Frameworks:** Weder React, noch Vue, noch Svelte.
-- 🚫 **Keine Compiler/Build-Tools:** Weder Webpack, noch Babel, noch Sass.
-- 🚫 **Keine externen Abhängigkeiten:** Keine CDNs, keine Google Fonts, vollständige Offline-Autarkie (Privacy-first).
-- 🚫 **Kein Inline-Code:** Null Inline-CSS, null Inline-JS — nur externe Dateien.
-- 🚫 **Keine kurzlebigen APIs:** Kein `new Date()` (stattdessen Temporal), keine Legacy-Selektoren, keine veralteten Event-Muster.
-- ✅ **Native Standards:** Container Queries, Popover API, CSS `light-dark()`, CSS Layers, Selection/Range API.
-
-## 🎨 Technologie-Stand (2026-09)
-
-| Bereich | Umsetzung |
-|---|---|
-| Browser-Baseline | Chrome 150+ (aktuellste Empirie schlägt Baseline-Daten — live geprüft via `CSS.supports()`) |
-| Stylesheets | 4 thematisch getrennte CSS-Dateien (`base.css`, `sidebar.css`, `sheet.css`, `print.css`) |
-| JavaScript | Native ES-Modules; 1 blockierendes Classic-Boot-Script (`boot-theme.js` gegen FOUC), Restore via `DraftManager` in `document.js` |
-| UI-Mechanik | Popover API statt JS-Toggles, `:has()`-Selektoren statt JS-State |
-| Farbwelt | Exklusiv OKLCH, semantische Tokens, automatischer Light/Dark-Wechsel via `light-dark()` |
-| Storage | `localStorage` für Brief-Entwurf & Einstellungen, kein Backend |
-| Sichtprüfung | Echte Chrome-DevTools-MCP-Regressionstests gegen die laufende App |
-
-## 🧪 Verifikation statt Hoffnung
-
-Geändert wird nur, was der Fitness Gate freigibt. Jede Session wird protokolliert (`tools/log_session.js`), jede Architekturentscheidung landet im [Decision-Log](docs/30-meta/DECISION-LOG.md). Regressionstests laufen live gegen die App im echten Chrome (Viewport, Sidebar, Anrede, Postvermerk) — Details in [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md).
-
-**Unit-Tests (Zero-Dependency):** `test/` enthält einen eigengebauten Mini-Runner (kein Framework, keine npm-Abhängigkeiten). Ausführen:
-
-```bash
-node tools/test-runner.mjs              # headless, Exit-Code 0/1
-node tools/test-runner.mjs --json      # maschinenlesbar
-node tools/test-runner.mjs --filter=Salutation
-```
-
-Der Runner startet seinen eigenen HTTP-Server mit `Cache-Control: no-store` (kein `?v=`-Hochzählen mehr), findet Chromium über `CHROME_BIN` oder im Standardpfad und liest `window.__TEST_RESULTS` per CDP aus. Ohne Browser: `--allow-missing-browser` (Exit 0 mit SKIP). Alternative ohne CLI: `test/index.html` über den lokalen Webserver öffnen.
-
-**Debug-Sitzung (Virgin-State + Aufzeichnung):**
-
-```bash
-node tools/debug-session.mjs            # sichtbares Fenster, App, CDP auf 9222
-node tools/debug-session.mjs --test     # sichtbar, aber test/index.html
-node tools/debug-session.mjs --headless # ohne Fenster
-```
-
-Frisches Profil pro Start (wird beim Beenden gelöscht), Server ohne Cache, CDP-
-und DevTools-URL stehen im Terminal. Konsole, Netzwerk, `din_draft`-Änderungen
-und Exceptions werden mitgeschnitten und beim Beenden als
-`test/traces/session-<Datum>.json` abgelegt.
+1. **HTML5 First:** Native Formular-Validierung (`pattern`, `minlength`, `maxlength`), Popover API (`popover`, `popovertarget`), native Dialoge mit Invoker Commands (`commandfor`) und `contenteditable="plaintext-only"`.
+2. **CSS Declarative:** State-Modeling über `:has()`, `@starting-style` für Einblendungen, Container Queries (`@container`), OKLCH-Farbraum (`color-mix()`), logische Properties (`margin-block`, `inset-inline`) und A4-Druckisolierung (`@media print`).
+3. **Minimal Surgical JS:** Kein `new Date()` (Ausschließliche Nutzung der standardisierten `Temporal`-API), kein `innerHTML` (strikte XSS-Prävention) und modulares Pub-Sub-System via `eventBus`.
 
 ---
 
-## 🗺️ Dokumentation
+## 💻 Entwickler-Workflow
 
-Das Projekt ist extrem detailliert dokumentiert, um KI-Agenten und Entwicklern einen perfekten Einstieg zu bieten.
+### 1. Lokaler Start
+Wegen nativer ES-Module und CORS-Regeln muss die App über einen statischen HTTP-Server serviert werden (`file://` genügt nicht):
 
-👉 **Zur vollständigen [Dokumenten-Landkarte (docs/index.md)](docs/index.md)**
+```bash
+# Über das mitgelieferte Shell-Skript:
+bash tools/dev_server.sh
 
-Die Landkarte enthält Verweise auf alle Architekturentscheidungen (ADRs), Spezifikationen und Verhaltensregeln (`AGENTS.md`).
+# Oder über einen beliebigen statischen HTTP-Server:
+python3 -m http.server 8088 --directory website/
+```
 
-Für den Einstieg **ohne Dateisuche**: [Architecture-Map](docs/10-architecture/ARCHITECTURE-MAP.md) — Lade-Trigger, Modul-Abhängigkeiten und CSS-Kaskade auf einer Seite.
+Die App ist anschließend unter `http://localhost:8088` erreichbar.
 
-Root-Kurzguides: [`AI-AGENTS-CLI.md`](docs/30-meta/AI-AGENTS-CLI.md) (Browser sehen), [`mcp_research.md`](research/mcp_research.md) (Plattform nachschlagen).
+### 2. Lokale Quality Gates
+Das Repository erzwingt 100 % deterministische Code- und Architekturqualität:
 
-## 🧭 Repository-Contract & Agenten-Infrastruktur
+```bash
+# 1. Biome Linter & Code-Formatierung
+npm run check
 
-- **[`repository.yaml`](repository.yaml)** beschreibt maschinenlesbar, woraus das Repository besteht (Struktur, Entrypoints, offene Punkte). Verbindliche Quelle für Verhaltensregeln bleibt `AGENTS.md`, für Technologie-Regeln der [Immutable Law Catalog](docs/00-foundation/Immutable-Law-Catalog.md) — `repository.yaml` verweist bewusst darauf, statt sie zu duplizieren.
-- **[`agent/`](agent/)** enthält die Agenten-Infrastruktur, getrennt von `tools/` (den deterministischen Skripten):
-  - `agent/skills/repository-operations/SKILL.md` — Entscheidungslogik (wann tue ich was, Discipline/Economy Layer, Plan → Execute → Verify).
-  - `agent/skills/web-research/SKILL.md` — Forschungs-Quellenpyramide, Fragetyp-Routing und Evidence-Level für technische Recherche.
-  - `agent/skills/implement-with-economy/SKILL.md` — HTML-vor-CSS-vor-JS-Entscheidungsleiter für Feature-Implementierung, keine externen Abhängigkeiten außer den erlaubten A38-Ausnahmen.
-  - `agent/skills/architecture-drift-audit/SKILL.md` — periodischer Soll/Ist-Abgleich der Architektur gegen den tatsächlichen Code.
-  - `agent/mcp/dinbrief-mcp/` — dünner MCP-artiger STDIO-Server, exponiert `repository.inspect`, `repository.validate` und `repository.execute` (feste Allowlist, keine freie Codeausführung). `execute` verlangt zwingend einen vorherigen Plan-Aufruf, technisch erzwungen über eine an den Repository-Zustand gebundene `plan_id`.
+# 2. Headless Chrome Test-Suite (174 Unit- und Integrationstests)
+npm test
 
-## 🤖 KI-Entwicklung (Light Mode vs. Full Mode)
+# 3. Antipattern-Prüfung gegen die 36 Immutable Laws
+npm run check:antipatterns
 
-Um Komplexität zu minimieren, nutzen KI-Agenten einen gestuften Workflow:
+# 4. Evolutionäres Fitness Gate (muss 100.0 % clean erreichen)
+node tools/build_db.js -q
+```
 
-| Modus | Wann? | Schritte |
-|---|---|---|
-| 🟢 **Light Mode** | Bugfixes, kleine Anpassungen | Pre-Build → Änderung → Post-Build (100 % Fitness Pflicht!) → Logging (`log_session.js`) → Decision-Log |
-| 🔴 **Full Mode** | Wichtige Features, Architektur | Wie Light Mode, aber **zusätzlich** ein Architektur-Dokument unter `specs/` anlegen. |
+### 3. Git-Hooks scharfschalten
+Zur Absicherung vor versehentlichen Fehl-Commits verfügt das Repository über gehärtete Git-Hooks:
 
-> **Achtung:** Jede Aktion in diesem Projekt muss strikt gegen die [Longevity Guidelines](docs/00-foundation/longevity-guidelines.md) geprüft werden.
+```bash
+# Einmalig im lokalen Klon aktivieren:
+git config core.hooksPath .githooks
+```
 
-## 📮 PLZ- und Adressdaten
+Der `pre-commit`-Hook führt automatisch Linter, Unit-Tests und das Fitness Gate aus.
 
-DIN-BriefNEO verfügt über ein integriertes, 100 % offlinefähiges Postleitzahlen- und Adressverzeichnis (`website/data/`), das beim ersten Tastendruck im Browser per nativer Streaming-Dekomprimierung (`DecompressionStream`) in < 1 ms geladen wird.
+---
 
-### 1. Quellen & Lizenzen
-- **GeoNames** ([`export/zip/DE.zip`](https://download.geonames.org/export/zip/DE.zip), CC BY 4.0) – Primäre Ortsebene (Postleitzahlen bundesweit).
-- **service.bund.de** ([Anschriftenverzeichnis des Bundesverwaltungsamts](https://www.service.bund.de/SharedDocs/CSV/Anschriftenverzeichnis-JSON.json?__blob=publicationFile), DL-DE-BY 2.0) – Alle Bundesbehörden, Ministerien, Ämter und Bundesgerichte.
-- **Amtsgraph** ([`places_courts.jsonl`](https://huggingface.co/datasets/SNTIQ-Team/amtsgraph), CC BY-NC-SA 4.0) – Amtliche Zustell-PLZs und Gerichtsbezirke (rein zur Validierung und Konsistenzsicherung verwendet; nicht-kommerzielle Nutzung).
-- **Großkunden-Verzeichnis** (Kuratierter Datenbestand aus Wikipedia-Großempfängern und Zauberware) – DAX-Konzerne, Großunternehmen, Universitäten und Institutionen.
-- **Stadtteil-Verzeichnis** (`website/data/de_districts.json.gz`) – Enthält 304 Stadtteil-Zuordnungen für Ballungsräume (z. B. Bonn, Berlin, Köln). Dient als lokaler Anzeige-Bonus, stellt keine flächendeckende Abdeckung dar.
+## 📜 Lizenz & Sicherheit
 
-### 2. Datenstruktur (`website/data/`)
-- `orte.json.gz` (68 KB gzip, 10.184 Einträge, Columnar-Schema, 0 Firmen):
-  ```json
-  { "plz": ["01067", "53840"], "ort": ["Dresden", "Troisdorf"], "district": [null, "Spich"], "state": ["SN", "NW"] }
-  ```
-- `grosskunden.json.gz` (56 KB gzip, 2.732 Einträge inkl. aller Bundesbehörden):
-  ```json
-  {
-    "01053": { "name": "Commerzbank AG", "city": "Dresden", "typ": "Firma" },
-    "11011": { "name": "Deutscher Bundestag", "city": "Berlin", "typ": "Behörde" },
-    "45877": { "name": "Volksbank Ruhr Mitte eG", "city": "Gelsenkirchen", "typ": "Firma" }
-  }
-  ```
-
-### 3. Wichtiger Hinweis zu Sonder-PLZs
-`orte.json.gz` enthält **10.184 PLZs** – bestehend aus 8.158 amtlichen Gemeinde-/Zustell-PLZs und 2.026 bereinigten Sonder-PLZs (Postfächer und Großkunden mit reinem Ortsbezug). Sämtliche Firmen-, Behörden- und Institutionsnamen wurden strikt aus `orte.json.gz` entfernt und in `grosskunden.json.gz` konsolidiert. Wenn ein Empfänger eine Großkunden- oder Postfach-PLZ besitzt, wird der korrekte Ortsname (z. B. `01053` → `Dresden`) automatisch aufgelöst, während der Firmenname separat im Firmenfeld platziert wird.
-
-### 4. Automatisierter Update-Workflow
-- **Zeitplan:** Vollautomatisch quartalsweise am 1. des Monats um 03:00 UTC via GitHub Actions ([`.github/workflows/update_plz_data.yml`](.github/workflows/update_plz_data.yml)).
-- **Manuell:** Unter *Actions* → `update_plz_data` → `Run workflow`.
-- **Validierungs-Gates:** Das Erstellungsskript ([`tools/build_plz_data.mjs`](tools/build_plz_data.mjs)) prüft vor jedem Commit strikt auf korrekte PLZ-Längen, vollständige Ortsnamen, 0 Firmen in der Ortsspalte und 0 UTF-8-Mojibake. Schlägt ein Gate fehl, bricht die Pipeline mit Fehler ab – **es wird kein fehlerhafter Stand committet**.
-- **Deterministische Hashes:** Durch `mtime=0` und `sort_keys=True` entstehen bei unveränderten Upstream-Quellen keine Git-Diffs.
-
-## 📜 Lizenz
-
-DIN-BriefNEO steht unter der [MIT-Lizenz](LICENSE) — frei nutzen, verändern und weitergeben, ohne Gewährleistung. Sicherheitsmeldungen bitte über [Private Vulnerability Reporting](SECURITY.md), nicht als öffentliches Issue.
+DIN-BriefNEO steht unter der [MIT-Lizenz](LICENSE) — frei nutzen, modifizieren und weitergeben.  
+Sicherheitsmeldungen bitte vertraulich über [Private Vulnerability Reporting](SECURITY.md) melden.

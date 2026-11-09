@@ -85,8 +85,8 @@ const CUSTOM_CHECKS = {
       const resourceMatch = line.match(/(?:src|href)\s*=\s*['"`](https?:\/\/.*?)['"`]/);
       if (resourceMatch) {
         const url = resourceMatch[1];
-        const isAnchor = line.includes('<a') || line.includes('pointer-events: auto');
-        if (isAnchor) return false;
+        const isNonLoading = line.includes('<a') || line.includes('pointer-events: auto') || line.includes('rel="canonical"') || line.includes("rel='canonical'");
+        if (isNonLoading) return false;
         
         const allowed = ['photon.komoot.io', 'api.geoapify.com', 'api.zippopotam.us', 'www.w3.org', 'myprojects.geoapify.com'];
         if (!allowed.some(domain => url.includes(domain))) {

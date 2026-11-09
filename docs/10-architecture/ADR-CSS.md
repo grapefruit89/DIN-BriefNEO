@@ -4,7 +4,7 @@ title: "ADR-CSS: CSS Architecture, Constraints & Single Source of Truth (SSOT)"
 type: adr
 status: active
 created: '2026-06-26'
-updated: '2026-10-15'
+updated: '2026-11-09'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -19,6 +19,7 @@ doc_links:
 code_links:
   - website/css/base.css
   - website/css/sidebar.css
+  - website/css/sheet-common.css
   - website/css/sheet.css
   - website/css/sheet-multipage.css
 error_patterns:
@@ -91,29 +92,34 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 
 ## 3. Single Source of Truth: Aktive CSS-Dateien & Komponenten-Registry
 
-Das Projekt verfügt über exakt **4 aktive CSS-Dateien** unter `website/css/` (konsolidiert am 2026-10-11, Commit `0621dde`):
+Das Projekt verfügt über **5 aktive CSS-Dateien** unter `website/css/` (modularisiert für Einseiten- und Mehrseitenbetrieb):
 
 ```
 website/css/
-├── base.css       (193 Zeilen | Reset, Design-Tokens, OKLCH, No-Flip, Theming, Viewport-Lockdown & Font-Stacks)
-├── sheet.css      (531 Zeilen | DIN-5008 Blatt-Geometrie, @scope (din-a4), Briefzonen, Text-Fit, Signatur-Canvas)
-├── sidebar.css    (918 Zeilen | Sidebar-Navigation, Custom Inputs, Autocomplete, Popovers/Overlays, Anchor Positioning)
-└── print.css      (86 Zeilen  | @media print, @page, 0mm Margins, DIN-Trennlinie, PDF-Erzeugung)
+├── base.css            (351 Zeilen | Reset, Design-Tokens, OKLCH, Theming, App-Shell Grid, relative @function)
+├── sidebar.css         (1.260 Zeilen | Sidebar-Navigation, Custom Inputs, Autocomplete, Popovers, Anchor Positioning)
+├── sheet-common.css    (426 Zeilen | Gemeinsame DIN-5008-Geometrien, Falt-/Lochmarken, Anschriftfeld, Infoblock)
+├── sheet.css           (299 Zeilen | Einzelseiten-Logik, Skalierungs-Container, @page & Einzelseiten-Druck)
+└── sheet-multipage.css (541 Zeilen | Mehrseiten-Layout, CSS Multicol L2 Spaltenfluss, dynamische Folgeköpfe & Druck)
 
-> Stand 2026-10-15. 4-Domänen-Konsolidierung: Klare Trennung nach Lebenszyklus und Kapselungsgrenzen
-> statt künstlicher Schichten-Splits. Beseitigt Kaskaden-Konflikte und zirkuläre Spezifitäts-Fixes.
+> Stand 2026-11-09. 5-Dateien-Architektur: Saubere Trennung zwischen gemeinsamen DIN-5008-Normmaßen
+> (`sheet-common.css`), Einzelseiten-Spezialisierung (`sheet.css`) und CSS-Multicol-Mehrseitenfluss (`sheet-multipage.css`).
+> Eine separate `print.css` existiert nicht mehr; Druck- und Paged-Media-Regeln (@page) sind direkt in die jeweiligen
+> Sheet-Module und base.css integriert.
 ```
 
 ---
 
 ### 1. `base.css` (Fundament: Reset, Design-Tokens, OKLCH, Theming & App-Shell Grid)
 
-Bündelt die vormaligen Einzeldateien `reset.css`, `variables.css` und `layers.css` sowie das globale App-Shell-Grid:
+Bündelt Reset, mathematische `@function`-Definitionen, Design-Tokens und das globale App-Shell-Grid:
 * **Reset & Viewport-Lockdown:**
   * Universelles Box-Sizing: `*, *::before, *::after { box-sizing: border-box; }`.
   * Absolute Viewport-Sperre: `html, body { width: 100vw; height: 100dvh; overflow: hidden; margin: 0; padding: 0; }`.
   * Typografische Basis & System-Font-Stacks (`system-ui, -apple-system, "Segoe UI", Roboto...`).
   * Accessibility: `@media (prefers-reduced-motion: reduce)` als Kill-Switch für alle Animationen und Transitions.
+* **Mathematische CSS Functions (`@function`):**
+  * Relative Umrechnungsfunktionen (`--mm-rel-x`, `--mm-rel-y`, `--pt-rel`) zur proportionalen Skalierung im Viewport.
 * **Registered Custom Properties (`@property`):**
   * `@property --hilfslinien-deckkraft`: Syntax `<number>`, inherits `true`, initial `0` — flüssige CSS-Interpolation beim Umschalten der Hilfslinien.
 * **Design Tokens & Wahrnehmungsgerechter Farbraum (OKLCH):**
@@ -133,40 +139,9 @@ Bündelt die vormaligen Einzeldateien `reset.css`, `variables.css` und `layers.c
 
 ---
 
-### 2. `sheet.css` (DIN-5008 Blatt-Geometrie, Scoped Isolation, Briefzonen & Signatur-Stage)
+### 2. `sidebar.css` (Sidebar-Navigation, Form-Controls, Floating Popovers & Anchor Positioning)
 
-Bündelt die DIN-5008-Geometrie, ContentEditable-Schutz und die vormalige `signature.css`:
-* **HTML Attribute Parsing via CSS `attr()` (Single Source of Truth):**
-  * `din-a4` liest DIN-Koordinaten direkt aus HTML-Attributen: `attr(data-width-mm type(<number>))` und `attr(data-height-mm type(<number>))`.
-  * Form A / Form B Reaktivität: `:root[data-layout="form-a"] din-a4` bzw. `body:has(#btn-form-a:checked) din-a4` schaltet Faltmarken (`--falz-oben-y`, etc.) und Briefkernstart dynamisch um.
-* **Stage & Scoped Canvas (`@scope (din-a4)`):**
-  * Kapselt alle Blattstile strikt gegen die App-Shell ab.
-  * Fixiert Maße auf `aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe)`, `overflow: clip; contain: strict; container-type: size; container-name: paper;`.
-  * Verhindert horizontales und vertikales Ausbrechen über `width: min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))`.
-* **ContentEditable & Micro-Copyfitting:**
-  * `[contenteditable] { field-sizing: content; outline: 1px dashed oklch(...); }`.
-  * Ghost-Platzhalter: `[contenteditable]:empty::before { content: attr(placeholder); }`.
-  * Fokuszustände mit OKLCH-Aura-Ringen (`box-shadow: 0 0 0 3px oklch(...)`).
-  * Stauchung überlanger Inhalte via CSS: `text-fit: shrink 60%` und `text-fit: shrink`.
-  * Typografische Balance: `text-wrap: balance;` für Betreff, `text-wrap: pretty;` für Fließtext.
-* **DIN-5008 Briefzonen:**
-  * `#rucksendezeile` (Rücksendeangabe 5 mm Höhe, 8pt Schrift).
-  * `#anschriftfeld` (85 × 45 mm, 10pt Schrift).
-  * `#infoblock` (Zusatzinformationen rechtsbündig ab 125 mm).
-  * `#datum` (Datumszeile normgerecht auf 92 mm in Form B).
-  * `#kern` (Fließtextbereich mit Fluchträndern 25 mm links, 20 mm rechts).
-  * `#betreff`, `#anrede`, `#text`, `#grussformel`, `#unterschrift`, `#anlagen`.
-* **Falt- und Lochmarken:**
-  * `din-falz-oben`, `din-falz-unten`, `din-lochmarke`: exakt auf 8 mm begrenzt (`calc(8 / 210 * 100cqw)`), um Betreffkollisionen physisch auszuschließen.
-  * Sichtbarkeit gesteuert über `--hilfslinien-deckkraft`: `:root:has(#btn-hilfslinien-switch:checked) { --hilfslinien-deckkraft: 0.55; }`.
-* **Signatur-Overlay (CAD-Geometrie & Snapping):**
-  * Interaktiver Transformations-Rahmen (`.unterschriftsbild-rahmen`, `.unterschriftsbild-griff`, `.unterschriftsbild-drehgriff`) für stufenloses Skalieren, Verschieben und Rotieren der Signatur.
-
----
-
-### 3. `sidebar.css` (Sidebar-Navigation, Form-Controls, Floating Popovers & Anchor Positioning)
-
-Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die ehemals in `floating.css` ausgelagerten Top-Layer-Overlays:
+Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlays:
 * **Sidebar-Shell & Navigation:**
   * `#seitenleiste`: Feste Breite `290px`, Glassmorphism mit `backdrop-filter: var(--glass-blur);`, `touch-action: pan-y;`, `overscroll-behavior: contain;`.
   * Akkordeon-Bereiche (`.seitenleiste-setup`), Zonengruppierungen und Buttons.
@@ -179,39 +154,65 @@ Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die ehemals in `float
   * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
 * **Top-Layer Popovers & Deklarative Transitions:**
   * `#hinweis-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
-  * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`:
-    ```css
-    @starting-style {
-      #hinweis-v4:popover-open {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-    }
-    ```
+  * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`.
   * `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen; leere Elemente deklarativ versteckt (`:empty { display: none; }`).
 * **Dialoge & Modals:**
   * Native `<dialog>`-Elemente (`#import-dialog`, `#dialog-adressbuch`) im Top-Layer mit abgedunkeltem `::backdrop`.
 
 ---
 
-### 4. `print.css` (Druckarchitektur & PDF-Erzeugung)
+### 3. `sheet-common.css` (Gemeinsame DIN-5008-Geometrien, Faltmarken & Briefzonen)
 
-* **Exakte Druck-Vermaßung (Chrome 150+ Baseline):**
-  * `@page { size: A4; margin: 0; page-margin-safety: auto; }` — pinnt A4 fest, setzt Margen auf 0 (Falzmarken/Lochmarke an physischer DIN-Position) und nutzt `page-margin-safety: auto`.
-* **Print-Spezifität & Viewport-Freistellung:**
-  * `html, body { overflow: visible !important; height: auto !important; }`.
-  * `body { background: oklch(100% 0 0) !important; color-scheme: light !important; }`.
-  * `#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }`.
-* **Chrome- & UI-Ausblendung:**
-  * `aside, .nicht-drucken, [popover], #hinweis-v4, #schrift-uploader, .unterschriftsbild-griff { display: none !important; }`.
-* **DIN-A4 Papiermaße im Druck:**
-  * `din-a4`: `transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; width: calc(attr(data-width-mm type(<number>)) * 1mm) !important; height: calc(attr(data-height-mm type(<number>)) * 1mm) !important;`.
-* **DIN-5008 Druck-Trennlinie:**
-  * `#rucksendezeile { border-bottom: 0.5pt solid oklch(0% 0 0) !important; padding-bottom: 1.5pt !important; }` — erscheint ausschließlich im Druck, wenn die Zeile befüllt ist (`#rucksendezeile:empty { border-bottom: none !important; }`).
-* **Typografischer Schutz:**
-  * `#text { orphans: 3 !important; widows: 3 !important; }`.
-  * `#grussformel { break-after: avoid !important; }`.
-  * `.unterschrift-zeile, #unterschriftsbild-container { break-inside: avoid !important; }`.
+Bündelt alle geteilten Geometriedefinitionen, Form-A/B-Umschaltung und Zonen der DIN 5008:
+* **HTML Attribute Parsing via CSS `attr()` (Single Source of Truth):**
+  * `din-blatt` liest DIN-Koordinaten direkt aus HTML-Attributen: `attr(data-width-mm type(<number>))` und `attr(data-height-mm type(<number>))`.
+  * Form A / Form B Reaktivität: `:root[data-layout="form-a"] din-blatt` bzw. `body:has(#btn-form-a:checked) din-blatt` schaltet Faltmarken (`--falzmarke-1-y`, etc.) und Briefkernstart dynamisch um.
+* **DIN-5008 Briefzonen:**
+  * `#rucksendezeile` (Rücksendeangabe 5 mm Höhe, 8pt Schrift, mit Trennlinie im Druck).
+  * `#anschriftfeld` (85 × 45 mm, 10pt Schrift).
+  * `#infoblock` (Zusatzinformationen rechtsbündig ab 125 mm).
+  * `#datum` (Datumszeile normgerecht auf 92 mm in Form B).
+  * `#betreff`, `#anrede`, `#text`, `#grussformel`, `#unterschrift`, `#anlagen`.
+* **Falt- und Lochmarken:**
+  * `din-falz-oben`, `din-falz-unten`, `din-lochmarke`: exakt auf 8 mm begrenzt, um Betreffkollisionen physisch auszuschließen.
+  * Sichtbarkeit gesteuert über `--hilfslinien-deckkraft`.
+* **Signatur-Overlay (CAD-Geometrie & Snapping):**
+  * Interaktiver Transformations-Rahmen (`.unterschriftsbild-rahmen`, `.unterschriftsbild-griff`, `.unterschriftsbild-drehgriff`) für stufenloses Skalieren, Verschieben und Rotieren der Signatur.
+* **ContentEditable & Micro-Copyfitting:**
+  * Ghost-Platzhalter (`[contenteditable]:empty::before { content: attr(placeholder); }`).
+  * Stauchung überlanger Inhalte via CSS: `text-fit: shrink 60%` und `text-fit: shrink`.
+  * Typografische Balance: `text-wrap: balance;` für Betreff, `text-wrap: pretty;` für Fließtext.
+
+---
+
+### 4. `sheet.css` (Einzelseiten-Logik, Skalierungs-Container & Einzelseiten-Druck)
+
+Spezialisiert auf den einseitigen Standardbrief:
+* **Stage & Scoped Canvas (`@scope (din-blatt)`):**
+  * Kapselt Einseiten-Stile strikt gegen die App-Shell ab.
+  * Fixiert Maße auf `aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe)`, `overflow: clip; contain: strict; container-type: size; container-name: paper;`.
+  * Verhindert horizontales und vertikales Ausbrechen über `width: min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))`.
+* **Einzelseiten-Briefkern (`#kern`):**
+  * Exakter Fließtextbereich mit Fluchträndern (25 mm links, 20 mm rechts).
+* **Integrierte Druckregeln (`@media print` & `@page`):**
+  * `@page { size: A4 portrait; margin: 0; }`.
+  * Viewport-Freistellung: `html, body { overflow: visible !important; height: auto !important; }`.
+  * UI-Ausblendung (`aside, .nicht-drucken, [popover] { display: none !important; }`).
+  * `din-blatt { transform: none !important; box-shadow: none !important; margin: 0 !important; page-break-after: avoid; }`.
+
+---
+
+### 5. `sheet-multipage.css` (Mehrseiten-Layout, CSS Multicol L2 & Dynamische Folgeköpfe)
+
+Spezialisiert auf mehrseitige Dokumente:
+* **CSS Multi-column Level 2:**
+  * Nutzt moderne Spaltenfluss-Eigenschaften (`column-fill: auto; column-width: var(--page-width); column-gap: var(--page-gap);`), um Fließtext nahtlos über mehrere DIN-A4-Seiten umbrechen zu lassen.
+* **Dynamische Folgeblatt-Köpfe:**
+  * Automatisierte Kopfzeilen für Folgeseiten (Seitenzahl, Datum, Betreff-Kurzform) ohne DOM-Duplikate.
+* **Absolute Geometrie-Funktionen (`@function`):**
+  * `--mm-abs-x`, `--mm-abs-y`, `--pt-abs` für mm-genaue Platzierung unabhängig von variablen Container-Breiten.
+* **Mehrseiten-Druckarchitektur:**
+  * Spezifische `@page`-Regeln für fortlaufenden Paged-Media-Druck ohne Leerseiten.
 
 ---
 

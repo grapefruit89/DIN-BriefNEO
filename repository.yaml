@@ -108,7 +108,6 @@ taxonomy:
     - specs
     - .github
     - .githooks
-    - .agents
     - todo
     - build
     - Papierkorb
@@ -144,7 +143,6 @@ taxonomy:
     specs: Full-Mode-Specs (spec.md/plan.md)
     build: generiert, gitignored
     .github: CI-Workflows
-    .agents: Technische Plattform-Referenz-Guides (HTML/CSS/JS)
     todo: Arbeitsvorrat und Planungsnotizen (keine lebende Doku)
 
 entrypoints:

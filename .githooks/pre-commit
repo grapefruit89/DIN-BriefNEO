@@ -11,5 +11,5 @@
 # findet (Exit-Code von tools/build_db.js ist dann != 0).
 set -e
 echo "[pre-commit] Fitness Gate + Index ..."
-node tools/build_db.js
+node tools/build_db.js -q
 echo "[pre-commit] OK."

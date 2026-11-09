@@ -1,7 +1,32 @@
+process.removeAllListeners('warning');
+
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { parseArgs } = require('node:util');
 const { runReconciliation } = require('./reconciliation.js');
+
+const { values: options } = parseArgs({
+  options: {
+    quiet: {
+      type: 'boolean',
+      short: 'q',
+      default: false
+    },
+    silent: {
+      type: 'boolean',
+      default: false
+    },
+    verbose: {
+      type: 'boolean',
+      short: 'v',
+      default: false
+    }
+  },
+  strict: false
+});
+
+const isQuiet = (options.quiet || options.silent || !process.stdout.isTTY) && !options.verbose;
 
 const targetDir = path.resolve(__dirname, '..');
 const DIN_HOME = process.env.DIN_BRIEFNEO_HOME || path.join(os.homedir(), '.din-briefneo');
@@ -225,34 +250,45 @@ ${produktionscodeTabelle()}
 }
 
 function main() {
+  const startTime = performance.now();
   generateStructureMap(targetDir);
-  console.log('Running Reality Reconciliation & Fitness Check...');
+  if (!isQuiet) console.log('Running Reality Reconciliation & Fitness Check...');
   const report = runReconciliation();
 
-  console.log('\n==================================================');
-  console.log(`EVOLUTIONARY FITNESS SCORE: ${report.score}%`);
-  console.log('--------------------------------------------------');
-  console.log(`- Metadata Score:    ${report.dimensions.metadata}%`);
-  console.log(`- Coherence Score:   ${report.dimensions.coherence}%`);
-  console.log(`- Conformance Score: ${report.dimensions.conformance}%`);
-  console.log(`- Features Score:    ${report.dimensions.features}%`);
-  console.log('==================================================\n');
+  if (!isQuiet) {
+    console.log('\n==================================================');
+    console.log(`EVOLUTIONARY FITNESS SCORE: ${report.score}%`);
+    console.log('--------------------------------------------------');
+    console.log(`- Metadata Score:    ${report.dimensions.metadata}%`);
+    console.log(`- Coherence Score:   ${report.dimensions.coherence}%`);
+    console.log(`- Conformance Score: ${report.dimensions.conformance}%`);
+    console.log(`- Features Score:    ${report.dimensions.features}%`);
+    console.log('==================================================\n');
 
-  if (report.logs.length > 0) {
-    console.log('Diagnoses and Violations:');
-    report.logs.forEach(log => {
-      const icon = log.severity === 'critical' ? '🔴 [CRITICAL]' : log.severity === 'high' ? '🟡 [HIGH]' : log.severity === 'medium' ? '🔵 [MEDIUM]' : '⚪ [LOW]';
-      console.log(`${icon} (${log.check_type}) in ${log.file_path || 'Global'}: ${log.message}`);
-    });
-    console.log('');
+    if (report.logs.length > 0) {
+      console.log('Diagnoses and Violations:');
+      report.logs.forEach(log => {
+        const icon = log.severity === 'critical' ? '🔴 [CRITICAL]' : log.severity === 'high' ? '🟡 [HIGH]' : log.severity === 'medium' ? '🔵 [MEDIUM]' : '⚪ [LOW]';
+        console.log(`${icon} (${log.check_type}) in ${log.file_path || 'Global'}: ${log.message}`);
+      });
+      console.log('');
+    }
   }
 
   if (!report.success || report.score < 100) {
-    console.error('🔴 Build failed: Critical architectural violations found or Fitness Score < 100%! Generation stopped.');
+    if (isQuiet) {
+      console.error(`✗ Fitness Score: ${report.score}% (< 100.0%)`);
+      report.logs.forEach(log => {
+        const icon = log.severity === 'critical' ? '🔴 [CRITICAL]' : log.severity === 'high' ? '🟡 [HIGH]' : log.severity === 'medium' ? '🔵 [MEDIUM]' : '⚪ [LOW]';
+        console.error(`${icon} (${log.check_type}) in ${log.file_path || 'Global'}: ${log.message}`);
+      });
+    } else {
+      console.error('🔴 Build failed: Critical architectural violations found or Fitness Score < 100%! Generation stopped.');
+    }
     process.exit(1);
   }
 
-  console.log('Compiling documentation database...');
+  if (!isQuiet) console.log('Compiling documentation database...');
   const files = getFilesRecursively(targetDir);
   let sql = 'PRAGMA foreign_keys = ON;\n\n';
   sql += 'DROP TABLE IF EXISTS document_tags;\n';
@@ -534,7 +570,7 @@ Diese Datei wird automatisch von \`build_db.js\` generiert und bildet alle Quell
   }
 
   fs.writeFileSync(outputSqlFile, sql, 'utf-8');
-  console.log(`Generated ${outputSqlFile} successfully!`);
+  if (!isQuiet) console.log(`Generated ${outputSqlFile} successfully!`);
 
   // Phase 2: EIN Builder — der Retrieval-Index (FTS5 + Datei-Inventar) wird
   // im selben Lauf mitgebaut. agent/cache/docs_search.db ist abgeleitet und
@@ -543,10 +579,13 @@ Diese Datei wird automatisch von \`build_db.js\` generiert und bildet alle Quell
   try {
     const { buildIndex } = require('./docs_index.js');
     const idx = buildIndex({ force: true });
-    console.log(`Index: ${idx.documents} Dokumente, ${idx.sections} Abschnitte, ${idx.files} Dateien, ${idx.links} Links -> ${idx.db_path}`);
+    if (!isQuiet) console.log(`Index: ${idx.documents} Dokumente, ${idx.sections} Abschnitte, ${idx.files} Dateien, ${idx.links} Links -> ${idx.db_path}`);
   } catch (err) {
-    console.error(`⚠️  Index-Build uebersprungen: ${err.message}`);
+    if (!isQuiet) console.error(`⚠️  Index-Build uebersprungen: ${err.message}`);
   }
+
+  const durationMs = Math.round(performance.now() - startTime);
+  console.log(`✓ Fitness Score: 100.0% (clean) [${durationMs}ms]`);
 }
 
 main();

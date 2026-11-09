@@ -81,10 +81,10 @@ node tools/build_db.js -q
    - `fix:` Bugfixes und Fehlerbehebungen
    - `docs:` Dokumentation und Spezifikationen
    - `chore:` Wartung, CI-Anpassungen, Tooling
-4. Öffne einen Pull Request gegen `main`. Fülle die [Pull-Request-Vorlage](.github/PULL_REQUEST_TEMPLATE.md) gewissenhaft aus.
+4. Öffne einen Pull Request gegen `main`. Fülle die [Pull-Request-Vorlage](PULL_REQUEST_TEMPLATE.md) gewissenhaft aus.
 
 ---
 
 ## 🔒 Sicherheit & Schwachstellen
 
-Sicherheitsrelevante Schwachstellen bitte **niemals als öffentliches Issue melden**, sondern vertraulich über GitHubs [Private Vulnerability Reporting](https://github.com/grapefruit89/DIN-BriefNEO/security/advisories/new) einreichen (siehe [`SECURITY.md`](SECURITY.md)).
+Sicherheitsrelevante Schwachstellen bitte **niemals als öffentliches Issue melden**, sondern vertraulich über GitHubs [Private Vulnerability Reporting](https://github.com/grapefruit89/DIN-BriefNEO/security/advisories/new) einreichen (siehe [`SECURITY.md`](../SECURITY.md)).

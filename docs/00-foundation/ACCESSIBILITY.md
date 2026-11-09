@@ -1,3 +1,23 @@
+---
+id: accessibility
+title: 'Barrierefreiheits-Erklärung (Accessibility Statement)'
+type: reference
+status: active
+created: '2026-10-25'
+updated: '2026-11-09'
+tags:
+  - din-briefneo
+  - din-briefneo/foundation
+  - status/active
+  - type/reference
+doc_links:
+  - Immutable-Law-Catalog
+  - din5008
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # Barrierefreiheits-Erklärung (Accessibility Statement)
 
 DIN-BriefNEO verpflichtet sich zur barrierefreien und inklusiven Nutzbarkeit gemäß internationalen und nationalen Standards. Diese Erklärung beschreibt den Umsetzungsstand, die architektonischen Maßnahmen und die Konformität der Anwendung.

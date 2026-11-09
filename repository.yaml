@@ -94,6 +94,8 @@ structure:
       .github/ISSUE_TEMPLATE/feature_request.md: Feature Request Template
       .github/ISSUE_TEMPLATE/config.yml: Issue Template Config
       .github/PULL_REQUEST_TEMPLATE.md: Pull Request Template
+      .github/CODE_OF_CONDUCT.md: Verhaltenskodex fuer Mitwirkende
+      .github/CONTRIBUTING.md: Leitfaden fuer Mitwirkende
 
 taxonomy:
   # Erzwungen vom Fitness Gate (tools/reconciliation.js, check_type "taxonomy"):
@@ -116,9 +118,6 @@ taxonomy:
     - github
     - AGENTS.md
     - README.md
-    - ACCESSIBILITY.md
-    - CONTRIBUTING.md
-    - CODE_OF_CONDUCT.md
     - CLAUDE.md
     - GEMINI.md
     - HANDOFF.md

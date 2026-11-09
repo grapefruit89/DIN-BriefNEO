@@ -112,6 +112,7 @@ taxonomy:
     - README.md
     - CLAUDE.md
     - GEMINI.md
+    - HANDOFF.md
     - LICENSE
     - SECURITY.md
     - repository.yaml

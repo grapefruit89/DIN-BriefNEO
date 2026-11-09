@@ -48,6 +48,9 @@ Wir haben OpenPLZ live gegen die prominentesten Großempfänger getestet:
 - Im amtlichen Gemeindeverzeichnis existiert `11011 Berlin` schlichtweg nicht – für das Katasteramt existiert dort nur die Gemarkung Mitte mit Straßen-PLZ.
 - **Fazit:** Keine einzige offizielle Open-Data-Behördenschnittstelle (weder OpenPLZ, noch GeoNames, noch OpenStreetMap) führt Großempfänger. Sie stammen exklusiv aus den Sortierdaten der Deutschen Post Direkt Datafactory.
 
+### Rechtliche Verbindlichkeit nach DIN 5008 & OLG Frankfurt:
+Gemäß Urteil des **OLG Frankfurt am Main (Az. 6 U 170/13)** und DIN 5008 Kap. 19.4 benötigt ein Großempfänger mit eigener Postleitzahl zwingend **keine Straßen- oder Postfachangabe**. Die eigene Großempfänger-PLZ identifiziert die Organisation postalisch vollständig (siehe auch [[grossemfaenger-post-und-rechts-spec]]).
+
 ---
 
 ## 2. Wie lösen wir das Wartungsproblem ohne Hardcoding?

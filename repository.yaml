@@ -105,7 +105,6 @@ taxonomy:
     - agent
     - tools
     - test
-    - research
     - specs
     - .github
     - .githooks
@@ -142,7 +141,6 @@ taxonomy:
     agent: Agent-Infra (skills)
     tools: Build/Gate/Tooling (Node, zero-dep)
     test: Zero-Dependency Unit-Tests
-    research: Recherche/Daten-Pipeline (results/scripts/roadmap)
     specs: Full-Mode-Specs (spec.md/plan.md)
     build: generiert, gitignored
     .github: CI-Workflows

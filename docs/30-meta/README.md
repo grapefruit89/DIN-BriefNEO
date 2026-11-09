@@ -47,4 +47,4 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 ## Projekt-Kontext & Werkzeuge
 
 - [[tooling-overview]] — Bestandsaufnahme der Build-Skripte inkl. kanonischem Tool Result Schema & Vokabular
-- [[research/README|research/]] — Quellen, Messungen und Modern-Web-Recherche
+- `research/` — Historische Quellen, Messungen und Labor-Artefakte (archiviert in `Papierkorb/research/`)

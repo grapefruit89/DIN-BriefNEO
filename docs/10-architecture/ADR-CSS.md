@@ -64,11 +64,11 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 ## 2. Grundlegende Architektur-Entscheidungen
 
 1. **Reiner CSS-Zoom & Seitenverhältnis (`aspect-ratio`):**
-   Der Briefbogen `<din-a4>` wird über `aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe)` (210 / 297) fixiert und über `min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))` verzerrungsfrei in den Viewport eingepasst.
+   Der Briefbogen `<din-blatt>` wird über `aspect-ratio: var(--blatt-breite) / var(--blatt-hoehe)` (210 / 297) fixiert und über `min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))` verzerrungsfrei in den Viewport eingepasst.
 2. **Container Queries (`cqw`, `cqh`):**
    Sämtliche inneren Maße, Ränder, Faltmarken und typografischen Größen verwenden `cqw` und `cqh`, um proportional zum Papierbogen zu skalieren (`calc(10 * 0.168cqw)` für 10pt Fließtext).
 3. **Absolute Viewport- & Blatt-Sperre (Zero-Scroll-Garantie):**
-   `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-a4>` und `#kern` verbieten jegliches Scrollen physisch. Der Substring `scroll` ist in allen Produktionsdateien unter `website/*.html` und `website/css/*.css` durch das CI-Gate (`tools/start.ps1`) strikt verboten.
+   `overflow: hidden` auf `html`/`body` und `overflow: clip; contain: strict;` auf `<din-blatt>` und `#kern` verbieten jegliches Scrollen physisch. Der Substring `scroll` ist in allen Produktionsdateien unter `website/*.html` und `website/css/*.css` durch das CI-Gate (`tools/start.ps1`) strikt verboten.
 4. **Natives Feldwachstum & Text-Fitting (JS-Kill Phase 1):**
    `field-sizing: content` lässt einzeilige und mehrzeilige Textfelder mitwachsen. `text-fit: shrink 60%` und `text-fit: shrink` stauchen überlange Empfänger- und Betreffzeilen rein deklarativ ohne JS-DOM-Messschleifen (Catalog A49).
 5. **Typografische Umbruchbalance:**
@@ -82,11 +82,17 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 9. **Semantische Schalter (`<input type="checkbox" switch>`):**
    Zustände (z. B. Hilfslinien) werden semantisch gerendert und direkt im CSS via `:root:has(#btn-hilfslinien-switch:checked)` ausgewertet (JS-Kill Phase 2).
 10. **CSS @scope:**
-    Vollständige Kapselung der Briefblatt-Stile (`@scope (din-a4)`), um Leckagen zwischen App-Shell und Briefdokument auszuschließen.
+    Vollständige Kapselung der Briefblatt-Stile (`@scope (din-blatt)`), um Leckagen zwischen App-Shell und Briefdokument auszuschließen.
 11. **Modern Form Control Styling:**
     Auswahllisten nutzen `appearance: base-select` mit nativ gestalteten Dropdown-Icons (`::picker-icon`) und Optionen (`::picker(select)`).
 12. **Nativer Print-Workflow & Dynamischer PDF-Titel:**
     Ausschließliche Nutzung des nativen Browser-Drucks (`window.print()`) mit `@page { size: A4 portrait; margin: 0; }`. Externe PDF-Generatoren sind verboten. Der PDF-Dateiname wird dynamisch vor dem Drucken über `document.title = YYYY-MM-DD_{Empfänger}_{Betreff}` gesetzt.
+13. **W3C CSS Functions (`@function`):**
+    Relative mathematische Funktionen (`@function --mm-rel-x`, `--mm-rel-y`, `--pt-rel`) in `base.css` und absolute Geometriefunktionen (`--mm-abs-x`, `--mm-abs-y`, `--pt-abs`) in `sheet-multipage.css` für hochpräzise, deklarative DIN-5008-Koordinaten ohne JS-Laufzeitkosten.
+14. **CSS Multi-column Level 2 für Mehrseiten-Layout:**
+    Ermöglicht in `sheet-multipage.css` über `column-fill: auto; column-width: var(--page-width); column-gap: var(--page-gap);` das nahtlose Fließen des Fließtexts über beliebig viele DIN-A4-Bögen inklusive dynamischer Folgeblatt-Köpfe.
+15. **Visueller D1-Overflow-Indikator:**
+    Der Selektor `[data-ueberlauf]` signalisiert im Einseiten-Modus (`sheet.css`) rein deklarativ über CSS einen Textüberlauf, um das Abschneiden von Briefinhalten vor dem Druck zu visualisieren.
 
 ---
 
@@ -97,10 +103,10 @@ Das Projekt verfügt über **5 aktive CSS-Dateien** unter `website/css/` (modula
 ```
 website/css/
 ├── base.css            (351 Zeilen | Reset, Design-Tokens, OKLCH, Theming, App-Shell Grid, relative @function)
-├── sidebar.css         (1.260 Zeilen | Sidebar-Navigation, Custom Inputs, Autocomplete, Popovers, Anchor Positioning)
 ├── sheet-common.css    (426 Zeilen | Gemeinsame DIN-5008-Geometrien, Falt-/Lochmarken, Anschriftfeld, Infoblock)
 ├── sheet.css           (299 Zeilen | Einzelseiten-Logik, Skalierungs-Container, @page & Einzelseiten-Druck)
-└── sheet-multipage.css (541 Zeilen | Mehrseiten-Layout, CSS Multicol L2 Spaltenfluss, dynamische Folgeköpfe & Druck)
+├── sheet-multipage.css (541 Zeilen | Mehrseiten-Layout, CSS Multicol L2 Spaltenfluss, dynamische Folgeköpfe & Druck)
+└── sidebar.css         (1.260 Zeilen | Sidebar-Navigation, Custom Inputs, Autocomplete, Popovers, Anchor Positioning)
 
 > Stand 2026-11-09. 5-Dateien-Architektur: Saubere Trennung zwischen gemeinsamen DIN-5008-Normmaßen
 > (`sheet-common.css`), Einzelseiten-Spezialisierung (`sheet.css`) und CSS-Multicol-Mehrseitenfluss (`sheet-multipage.css`).
@@ -139,29 +145,7 @@ Bündelt Reset, mathematische `@function`-Definitionen, Design-Tokens und das gl
 
 ---
 
-### 2. `sidebar.css` (Sidebar-Navigation, Form-Controls, Floating Popovers & Anchor Positioning)
-
-Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlays:
-* **Sidebar-Shell & Navigation:**
-  * `#seitenleiste`: Feste Breite `290px`, Glassmorphism mit `backdrop-filter: var(--glass-blur);`, `touch-action: pan-y;`, `overscroll-behavior: contain;`.
-  * Akkordeon-Bereiche (`.seitenleiste-setup`), Zonengruppierungen und Buttons.
-* **Moderne Form-Controls & Base Select:**
-  * Formular-Controls gestaltet mit nativem `appearance: base-select`, `::picker(select)` und `::picker-icon`.
-  * Semantische HTML-Switches (`input[type="checkbox"][switch]`) für Hilfslinien und Anlagen.
-* **CSS Anchor Positioning für schwebende UI (W3C Standard):**
-  * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
-  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
-  * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
-* **Top-Layer Popovers & Deklarative Transitions:**
-  * `#hinweis-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
-  * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`.
-  * `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen; leere Elemente deklarativ versteckt (`:empty { display: none; }`).
-* **Dialoge & Modals:**
-  * Native `<dialog>`-Elemente (`#import-dialog`, `#dialog-adressbuch`) im Top-Layer mit abgedunkeltem `::backdrop`.
-
----
-
-### 3. `sheet-common.css` (Gemeinsame DIN-5008-Geometrien, Faltmarken & Briefzonen)
+### 2. `sheet-common.css` (Gemeinsame DIN-5008-Geometrien, Faltmarken & Briefzonen)
 
 Bündelt alle geteilten Geometriedefinitionen, Form-A/B-Umschaltung und Zonen der DIN 5008:
 * **HTML Attribute Parsing via CSS `attr()` (Single Source of Truth):**
@@ -185,7 +169,7 @@ Bündelt alle geteilten Geometriedefinitionen, Form-A/B-Umschaltung und Zonen de
 
 ---
 
-### 4. `sheet.css` (Einzelseiten-Logik, Skalierungs-Container & Einzelseiten-Druck)
+### 3. `sheet.css` (Einzelseiten-Logik, Skalierungs-Container & Einzelseiten-Druck)
 
 Spezialisiert auf den einseitigen Standardbrief:
 * **Stage & Scoped Canvas (`@scope (din-blatt)`):**
@@ -194,6 +178,8 @@ Spezialisiert auf den einseitigen Standardbrief:
   * Verhindert horizontales und vertikales Ausbrechen über `width: min(100cqw, calc(100cqh * var(--blatt-breite) / var(--blatt-hoehe)))`.
 * **Einzelseiten-Briefkern (`#kern`):**
   * Exakter Fließtextbereich mit Fluchträndern (25 mm links, 20 mm rechts).
+* **Visueller D1-Overflow-Indikator:**
+  * `[data-ueberlauf]` signalisiert im Einseiten-Modus Textüberlauf und warnt vor Abschneidungen.
 * **Integrierte Druckregeln (`@media print` & `@page`):**
   * `@page { size: A4 portrait; margin: 0; }`.
   * Viewport-Freistellung: `html, body { overflow: visible !important; height: auto !important; }`.
@@ -202,7 +188,7 @@ Spezialisiert auf den einseitigen Standardbrief:
 
 ---
 
-### 5. `sheet-multipage.css` (Mehrseiten-Layout, CSS Multicol L2 & Dynamische Folgeköpfe)
+### 4. `sheet-multipage.css` (Mehrseiten-Layout, CSS Multicol L2 & Dynamische Folgeköpfe)
 
 Spezialisiert auf mehrseitige Dokumente:
 * **CSS Multi-column Level 2:**
@@ -213,6 +199,30 @@ Spezialisiert auf mehrseitige Dokumente:
   * `--mm-abs-x`, `--mm-abs-y`, `--pt-abs` für mm-genaue Platzierung unabhängig von variablen Container-Breiten.
 * **Mehrseiten-Druckarchitektur:**
   * Spezifische `@page`-Regeln für fortlaufenden Paged-Media-Druck ohne Leerseiten.
+
+---
+
+### 5. `sidebar.css` (Sidebar-Navigation, Form-Controls, Floating Popovers & Anchor Positioning)
+
+Bündelt Sidebar-Shell, Form-Controls, Auswahllisten sowie die Top-Layer-Overlays:
+* **Sidebar-Shell & Navigation:**
+  * `#seitenleiste`: Feste Breite `290px`, Glassmorphism mit `backdrop-filter: var(--glass-blur);`, `touch-action: pan-y;`, `overscroll-behavior: contain;`.
+  * Akkordeon-Bereiche (`.seitenleiste-setup`), Zonengruppierungen und Buttons.
+  * Sliding-Pill Segmented Controls via `:has(:checked)`.
+* **Moderne Form-Controls & Base Select:**
+  * Formular-Controls gestaltet mit nativem `appearance: base-select`, `::picker(select)` und `::picker-icon`.
+  * Semantische HTML-Switches (`input[type="checkbox"][switch]`) für Hilfslinien und Anlagen.
+* **CSS Anchor Positioning für schwebende UI (W3C Standard):**
+  * `#format-toolbar`: Verankert an `--selection-anchor` mit `position-area: top center; position-try-fallbacks: flip-block;`.
+  * `#anschrift-vorschlaege`: Verankert an `--anchor-anschrift-suche` (Geoapify Remote-Vorschläge).
+  * `#plz-suggestions-popover`: Verankert an `--anchor-empfaenger-ort` (0,9ms Offline-PLZ/Ort-Vorschläge).
+* **Top-Layer Popovers & Deklarative Transitions:**
+  * `#hinweis-v4`: Natives HTML `popover="manual"`. Rendert im Top-Layer ohne `z-index`.
+  * Ein-/Ausblendung 100 % deklarativ über `@starting-style` und `transition-behavior: allow-discrete`.
+  * `.toast-badge` für Deduplizierungs-Zähler (`x2`, `x3`) und `.toast-action-btn` für Inline-Aktionen; leere Elemente deklarativ versteckt (`:empty { display: none; }`).
+  * `#clipboard-candidates-popover`: Vorschlags-Overlay bei Zwischenablagen-Parsing.
+* **Dialoge & Modals:**
+  * Native `<dialog>`-Elemente (`#import-dialog`, `#dialog-adressbuch`) im Top-Layer mit abgedunkeltem `::backdrop`.
 
 ---
 
@@ -228,7 +238,7 @@ Folgende CSS-Praktiken und Alt-Techniken sind im Projekt **strikt verboten (HARD
 | **Statische Hex/RGB-Farbduplikation** | Manuelle `.dark-mode`-Klassen mit HEX-Dopplung | 🚫 **HARD BAN** | Longevity Guidelines, ADR-CSS | CSS `color-scheme: light dark;`, `light-dark()` und W3C Relative Color Syntax im OKLCH-Farbraum. |
 | **`calc()` Font-Leading Hacks** | Negative Ränder zur Ausgleichung von Schrift-Freiräumen | 🚫 **HARD BAN** | Catalog A49 | Native CSS Half-Leading-Neutralisierung (`text-box-trim: both`, `text-box-edge: cap alphabetic`). |
 | **CSS-Frameworks & Utility-Klassen** | Kein Tailwind, kein Bootstrap, kein Bulma | 🚫 **HARD BAN** | Catalog A45, Longevity Guidelines | 100% Handcrafted Vanilla CSS mit `@layer`, `@scope`, Container Queries und Semantic Tokens. |
-| **`page-break-before: always;`** | Seitenumbruch-Erzwingung auf Container-Ebene | 🚫 **HARD BAN** | Catalog A46 | Erzeugt zwingend leere Seiten im Chromium-Druck-Manager. Strikte Nutzung von `page-break-after: avoid;` auf `<din-a4>`. |
+| **`page-break-before: always;`** | Seitenumbruch-Erzwingung auf Container-Ebene | 🚫 **HARD BAN** | Catalog A46 | Erzeugt zwingend leere Seiten im Chromium-Druck-Manager. Strikte Nutzung von `page-break-after: avoid;` auf `<din-blatt>`. |
 | **Inline-Styles auf Textknoten** | `style="color: red; font-size: 14px"` aus Pastes | 🚫 **HARD BAN** | Catalog A48, A52 | Plaintext-Paste-Filter und Rich-Text-Sanitizer (`01-document.js`) bereinigen alle fremden Inline-Styles. |
 
 ---

@@ -66,13 +66,13 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 1. **Striktes Verbot von JS-Layouting & DOM-Messschleifen:** JS darf keine CSS-Stile für Layout, Elementpositionen oder Textgrößen berechnen (Toolbar nutzt CSS Anchor Positioning, Text-Fit nutzt `field-sizing: content` und `text-fit: shrink`).
 2. **Verbot von `document.execCommand`:** Textformatierungen erfolgen ausschließlich über die standardkonforme W3C Selection & Range API.
 3. **View Transitions API:** Zustandswechsel (z. B. Formularwechsel Form A/B, Theme-Wechsel) nutzen `document.startViewTransition()` statt JS-Animationen.
-4. **Modulkommunikation & EventBus:** Modulübergreifende Benachrichtigungen und Zustandsänderungen erfolgen lose gekoppelt über den nativen EventBus (`website/js/core.js`, `EventTarget`/`CustomEvent`) gemäß [[ADR-EVENT-DRIVEN-ARCHITECTURE]]. Reine fachliche Berechnungen verbleiben in zustandslosen Domain-Funktionen (`website/js/address.js`).
+4. **Modulkommunikation & EventBus:** Modulübergreifende Benachrichtigungen und Zustandsänderungen erfolgen lose gekoppelt über den nativen EventBus (`website/js/core.js`, `EventTarget`/`CustomEvent`) gemäß [[ADR-EVENT-DRIVEN-ARCHITECTURE]]. Reine fachliche Berechnungen verbleiben in zustandslosen Domain-Funktionen (primär in `website/js/address-data.js` und `website/js/format.js`).
 5. **Reglementierte Aufgaben für JavaScript:**
    * W3C Selection & Range API (Textformatierung im Fließtext)
-   * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore)
-   * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('gzip')`
-   * Deterministischer 0,1ms Clipboard-Impressum-Parser mit juristischem Müllfilter
-   * Native Popover-Queue & Lifecycle-Steuerung für Toasts im Top-Layer
+   * Lokale Datenpersistenz via `localStorage` (netzunabhängiger Betrieb, synchroner Boot-Restore) sowie asynchrone `IndexedDB` via `binary-storage.js` für große Binär-Assets (Custom-Fonts, hochauflösende Unterschriften)
+   * Deterministisches Offline-PLZ- und Großempfänger-Lookup via `DecompressionStream('gzip')` (`address-data.js`)
+   * Deterministischer 0,1ms Clipboard-Impressum-Parser mit juristischem Müllfilter (`clipboard-parser.js`)
+   * Native Popover-Queue & Lifecycle-Steuerung für Toasts im Top-Layer (`core.js`)
    * Canvas-Bildkompression für Unterschriften (`createImageBitmap`)
    * Entkoppelte Pub/Sub-Ereignisse über den nativen EventBus (`dinbrief:`-Namespace)
 
@@ -184,14 +184,32 @@ Der EventBus ersetzt keine reine Domain-Funktion und keinen synchron benötigten
 
 Die verbindlichen Topic-Namen und Payload-Verträge sind in [[ADR-EVENT-DRIVEN-ARCHITECTURE]] festgelegt.
 
-### 3.2 Verantwortlichkeiten & Schichten
+### 3.2 Verantwortlichkeiten & Schichtenmodell (L0 bis L4)
 
-- **Composition Root (`main.js`):** Initialisierung und Verdrahtung der Module.
-- **EventBus & Toasts (`core.js`):** Transport vereinbarter Ereignisse und Popover-Toast-System.
-- **Services / Manager:** Koordination von Anwendungsfällen und Zustandsänderungen (`DraftManager`, `SettingsManager`).
-- **Domain-Funktionen & Services (`address.js`):** reine fachliche Berechnungen und Adress-Services.
-- **DOM-Adapter / Views:** Lesen von UI-Eingaben und Darstellung von Ergebnissen.
-- **Storage-Verantwortliche (`persistence.js`):** lokale Persistenz gemäß [[ADR-DATA-PERSISTENCE]].
+Alle 17 Module unter `website/js/` sind strikt hierarchisch in 5 Schichten (Layer 0 bis Layer 4) gegliedert:
+
+- **Layer 4: Orchestrierung (Composition Root & App Lifecycle)**
+  - `main.js`: Zentraler Bootstrapper bei `DOMContentLoaded`, globale Event-Bindings, Tastatur-Shortcuts, Lifecycle-Koordination.
+- **Layer 3: Feature-Controller, UI-Panels & Layout-Engines**
+  - `settings.js`: Einstellungs-Panel, Form A/B, Theme-Switch mit View Transitions, Quota-Anzeige.
+  - `font-feature.js`: Schriftarten-Manager, Preset-Auswahl, WOFF2/TTF/OTF Font-Upload & FontFace-Registrierung.
+  - `signature.js`: Unterschriften- & Stempel-Stage, Canvas-Kompression, WYSIWYG Drag/Rotate.
+  - `multipage-controller.js`: Mehrseiten-Layout-Engine via CSS Multicol L2, CSSStyleSheet-Injektion, Folgeblatt-Köpfe.
+  - `draft-manager.js`: Autosave-Lifecycle (debounced 500ms), Snapshot-Historie, Undo/Redo-Stack.
+  - `clipboard-parser.js`: Heuristischer Impressum- & Zwischenablage-Parser mit Top-Layer-Kandidaten-Vorschau.
+- **Layer 2: Fachlogik, DOM-Adapter & Domänen-Engines**
+  - `address.js`: Adress-Fassade, Autocomplete-UI, Tastatur-Pfeilnavigation, Absender-Synchronisation.
+  - `salutation.js`: 80/20 KISS Smart Salutation Engine (DIN-5008-Anrede/Gruß, Titel, Dirty-Tracking).
+  - `document.js`: DOM-Utilities, Selection/Caret-Offsets, Tastaturschutz (`UIProtections`), Allowlist-Sanitizer.
+- **Layer 1: Persistenz & Daten-Hub**
+  - `persistence.js`: LocalStorage-IO, DINLetter JSON-Payload V4 Import/Export, Temporal-Datum.
+  - `binary-storage.js`: Asynchroner IndexedDB-Speicher für Binär-Blobs (Custom Fonts, Signaturen).
+  - `address-data.js`: Autarke Offline-Suche, DecompressionStream('gzip'), Columnar Binary Search.
+- **Layer 0: Fundament, Typisierung & zustandslose Werkzeuge**
+  - `core.js`: Natives Pub/Sub-Fundament (`eventBus`, `Events`), Top-Layer-Toasts (`#hinweis-v4`), Popover-Guards.
+  - `format.js`: Zustandsloses, normgerechtes Parsen und Formatieren nach DIN 5008 (100% reine Funktionen).
+  - `boot.js`: Synchrones, blockierendes Head-Script für FOUC-Schutz, Pre-Paint-Theme & Sheet-Selektion.
+  - `webapi.d.ts`: Ambient-Typdefinitionen für Chromium 150+ Baseline (`Temporal`, `ariaNotify`).
 
 ### 3.3 Grenzen der Entkopplung
 

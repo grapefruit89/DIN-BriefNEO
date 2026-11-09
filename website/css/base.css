@@ -17,7 +17,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   overflow: hidden;
   font-family: var(--font-system-stack);
@@ -264,7 +264,7 @@ body[data-theme="auto"] {
 #app-shell {
   display: grid;
   grid-template-columns: var(--seitenleiste-breite) 1fr;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   overflow: hidden;
   min-height: 0;
@@ -281,6 +281,8 @@ body[data-theme="auto"] {
   min-height: 0;
   box-sizing: border-box;
   container-type: size;
+  overflow-x: hidden;
+  overscroll-behavior: none;
   view-transition-name: brief-viewport;
 }
 

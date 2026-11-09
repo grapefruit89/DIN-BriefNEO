@@ -7,6 +7,8 @@
 din-blatt {
   max-width: 100%;
   max-height: 100%;
+  overflow: hidden !important;
+  contain: layout size;
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */

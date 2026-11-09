@@ -11,6 +11,12 @@
  */
 
 
+/* --- VIEWPORT & SUBPIXEL-SCHUTZ --- */
+#viewport {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
 /* --- DIN-GEOMETRIE (Single Source of Truth: HTML-Attribute, C3) --- */
 din-blatt {
   font-family: var(--active-font-family, var(--font-system-stack));

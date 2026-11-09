@@ -2694,6 +2694,102 @@ describe('Layout Stability / Zero CLS', () => {
   });
 });
 
+describe('Zero Scrollbars & Subpixel Invariance', () => {
+  it('garantiert Zero-Scrollbar und Zero-CLS am echten gerenderten Dokument bei Toggles', async () => {
+    const iframe = document.createElement('iframe');
+    iframe.src = '../website/index.html';
+    iframe.style.cssText = 'position: fixed; top: 0; left: 0; width: 1280px; height: 900px; border: 0; visibility: hidden; z-index: -999;';
+    document.body.appendChild(iframe);
+
+    try {
+      await new Promise((resolve, reject) => {
+        iframe.onload = () => resolve(undefined);
+        iframe.onerror = (e) => reject(e);
+        setTimeout(() => reject(new Error('Iframe Timeout')), 4000);
+      });
+
+      const win = iframe.contentWindow;
+      const doc = iframe.contentDocument;
+      if (!win || !doc) throw new Error('Iframe Content window/doc geladen');
+
+      // Warten bis Initialisierung / Fonts / Boot durch sind
+      await new Promise((r) => setTimeout(r, 200));
+
+      const blatt = /** @type {HTMLElement | null} */ (doc.querySelector('din-blatt'));
+      const viewport = doc.getElementById('viewport');
+      if (!blatt || !viewport) throw new Error('din-blatt oder #viewport im gerenderten Dokument nicht gefunden');
+
+      // 1. Messung am echten gerenderten Dokument
+      assert(
+        doc.documentElement.scrollWidth <= win.innerWidth,
+        `document.documentElement scrollWidth (${doc.documentElement.scrollWidth}) > innerWidth (${win.innerWidth})`
+      );
+      assertEqual(win.scrollX, 0, `window.scrollX muss 0 sein, erhalten: ${win.scrollX}`);
+      assertEqual(blatt.scrollHeight, blatt.clientHeight, `din-blatt scrollHeight (${blatt.scrollHeight}) !== clientHeight (${blatt.clientHeight})`);
+      assertEqual(blatt.scrollWidth, blatt.clientWidth, `din-blatt scrollWidth (${blatt.scrollWidth}) !== clientWidth (${blatt.clientWidth})`);
+      assert(viewport.scrollWidth <= viewport.clientWidth, `#viewport scrollWidth (${viewport.scrollWidth}) > clientWidth (${viewport.clientWidth})`);
+
+      // 2. PerformanceObserver für CLS während Toggles
+      let clsValue = 0;
+      /** @type {any} */
+      let observer;
+      const PO = /** @type {any} */ (win).PerformanceObserver;
+      if (typeof PO === 'function') {
+        observer = new PO(/** @param {any} list */ (list) => {
+          for (const entry of list.getEntries()) {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+            }
+          }
+        });
+        observer.observe({ type: 'layout-shift', buffered: false });
+      }
+
+      // Toggle Form A
+      const btnFormA = /** @type {HTMLInputElement | null} */ (doc.getElementById('btn-form-a'));
+      if (btnFormA) {
+        btnFormA.click();
+        await new Promise((r) => setTimeout(r, 100));
+        assertEqual(blatt.scrollHeight, blatt.clientHeight, 'Form A: din-blatt scrollHeight !== clientHeight');
+        assertEqual(blatt.scrollWidth, blatt.clientWidth, 'Form A: din-blatt scrollWidth !== clientWidth');
+      }
+
+      // Toggle Form B
+      const btnFormB = /** @type {HTMLInputElement | null} */ (doc.getElementById('btn-form-b'));
+      if (btnFormB) {
+        btnFormB.click();
+        await new Promise((r) => setTimeout(r, 100));
+        assertEqual(blatt.scrollHeight, blatt.clientHeight, 'Form B: din-blatt scrollHeight !== clientHeight');
+        assertEqual(blatt.scrollWidth, blatt.clientWidth, 'Form B: din-blatt scrollWidth !== clientWidth');
+      }
+
+      // Toggle Falzmarken
+      const toggleMarks = /** @type {HTMLInputElement | null} */ (doc.getElementById('toggle-falzmarken'));
+      if (toggleMarks) {
+        toggleMarks.click();
+        await new Promise((r) => setTimeout(r, 50));
+        assertEqual(blatt.scrollHeight, blatt.clientHeight, 'Marks off: din-blatt scrollHeight !== clientHeight');
+        assertEqual(blatt.scrollWidth, blatt.clientWidth, 'Marks off: din-blatt scrollWidth !== clientWidth');
+        toggleMarks.click();
+        await new Promise((r) => setTimeout(r, 50));
+        assertEqual(blatt.scrollHeight, blatt.clientHeight, 'Marks on: din-blatt scrollHeight !== clientHeight');
+        assertEqual(blatt.scrollWidth, blatt.clientWidth, 'Marks on: din-blatt scrollWidth !== clientWidth');
+      }
+
+      if (observer) {
+        observer.takeRecords().forEach(/** @param {any} entry */ (entry) => {
+          if (!entry.hadRecentInput) clsValue += entry.value;
+        });
+        observer.disconnect();
+      }
+
+      assertEqual(clsValue, 0, `CLS bei Toggles muss 0.000 sein, erhalten: ${clsValue}`);
+    } finally {
+      iframe.remove();
+    }
+  });
+});
+
 run().then((ok) => {
   /** @type {any} */ (window).__TESTS_PASSED = ok;
   console.log(ok ? '✓ Alle Tests bestanden' : '✗ FEHLER: Tests fehlgeschlagen');

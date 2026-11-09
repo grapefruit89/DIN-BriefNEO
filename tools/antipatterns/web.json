@@ -82,6 +82,38 @@
         "*.css"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P-NO-OVERFLOW-SCROLL",
+      "catalog_ref": [
+        "A43"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Erzwungene Scrollbalken via overflow: scroll sind verboten. Nur overflow: auto oder hidden zulässig.",
+      "pattern": "overflow(-[xy])?\\s*:\\s*scroll\\b",
+      "file_patterns": [
+        "*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P-NO-100VW",
+      "catalog_ref": [
+        "A43"
+      ],
+      "class": "hard_ban",
+      "severity": "high",
+      "check": "regex",
+      "category": "css",
+      "description": "100vw ignoriert vertikale Scrollleisten und erzeugt horizontale Geister-Scrollbalken. 100% verwenden.",
+      "pattern": "(?<![\\w-])100vw\\b",
+      "file_patterns": [
+        "*.css"
+      ],
+      "exemptions": []
     }
   ]
 }

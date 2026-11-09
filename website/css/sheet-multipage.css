@@ -114,8 +114,8 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 
   body:not([data-seiten]) :scope,
   body[data-seiten="1"] :scope {
-    max-height: calc(100dvh - 30px);
-    width: min(210mm, calc((100dvh - 30px) * 210 / 297));
+    width: 210mm;
+    min-height: 297mm;
     margin: 0 auto !important;
   }
 
@@ -335,10 +335,13 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 }
 
 #probe {
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   visibility: hidden;
   height: 1000mm;
   width: 1px;
+  pointer-events: none;
 }
 
 /* Custom Elements Block-Display (DIN-Normelemente) */

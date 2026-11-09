@@ -60,7 +60,7 @@ Die IMR-Registry liegt in `docs/10-architecture/`. Sie ist das normative DIN-Bri
 | [[spec]] | Anforderungen | WAS DIN-BriefNEO leisten muss |
 | [[longevity-guidelines]] | Technik-Kriterien | Feature-Wahl; **Chrome 150+** |
 
-*Hinweis: Der Arbeitsprozess (Light/Full Mode, Fitness Gate) ist in [[AGENTS]] (§3) verbindlich geregelt (historischer Vorläufer [[HYBRID-SPEC-DRIVEN-WORKFLOW]] liegt in `docs/90-archive/`).*
+*Hinweis: Der Arbeitsprozess (Light/Full Mode, Fitness Gate) ist in [[AGENTS]] (§3) verbindlich geregelt (historischer Vorläufer `HYBRID-SPEC-DRIVEN-WORKFLOW` archiviert).*
 
 Historische Prüfberichte gehören nicht hierher; sie liegen unter `docs/90-archive/`.
 

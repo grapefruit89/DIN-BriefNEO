@@ -126,7 +126,7 @@ supersedes:
 | `@page`-Seitenzahlen | **geparkt** | Einseitige DIN-Brief-Fläche; Mehrseitigkeit ist nicht entschieden |
 | CSS `::highlight()` | **geparkt** | Der aktuelle Code besitzt keinen DOM-Highlight-Renderer, den diese API ersetzen würde |
 | CSS `subgrid` für Anschrift/Infoblock | **geparkt** | Passt derzeit nicht zur absoluten, IMR-geführten DIN-Geometrie |
-| Vektorsuche / sqlite-vec | **geparkt** | Agenten-Tooling, nicht Produktfunktion; siehe [[sqlite-vec]] |
+| Vektorsuche / sqlite-vec | **geparkt** | Agenten-Tooling, nicht Produktfunktion; siehe `sqlite-vec` (archiviert) |
 | Serienbriefe und Mehrseitenbriefe | **offen** | Produktentscheidung und Geometriekonzept fehlen; nicht nebenbei aus Research ableiten |
 
 ## Zuständigkeit der anderen Dokumente

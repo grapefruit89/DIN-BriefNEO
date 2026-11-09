@@ -110,7 +110,7 @@ audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zei
 
 ### 5. Entwicklungsprozess & Arbeitsweise
 *Regelt, WIE am Projekt gearbeitet wird (Verfahrensordnung).*
-- Siehe **[[AGENTS]]** (§3 Arbeitsmodi, §2 Quality Gates, §5 Kodier- und Arbeitsprinzipien). Der historische Leitfaden [[HYBRID-SPEC-DRIVEN-WORKFLOW]] ist archiviert unter `docs/90-archive/`.
+- Siehe **[[AGENTS]]** (§3 Arbeitsmodi, §2 Quality Gates, §5 Kodier- und Arbeitsprinzipien). Der historische Leitfaden `HYBRID-SPEC-DRIVEN-WORKFLOW` ist archiviert.
 
 ---
 

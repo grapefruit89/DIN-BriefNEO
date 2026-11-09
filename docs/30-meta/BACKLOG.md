@@ -14,8 +14,6 @@ doc_links:
 - '[[AGENTS]]'
 - '[[DECISION-LOG]]'
 - '[[ROADMAP]]'
-- '[[code-audit-website-2026-10-02]]'
-- '[[docs-audit-2026-10-02]]'
 code_links:
 - 'website/js/01-document.js'
 - 'website/css/sheet.css'
@@ -26,7 +24,7 @@ supersedes: []
 
 # Backlog — offene Baustellen
 
-Abgeleitet aus [[code-audit-website-2026-10-02]] und [[docs-audit-2026-10-02]].
+Abgeleitet aus den historischen Audits vom 2026-10-02 (archiviert).
 Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen** im
 [[DECISION-LOG]]. Dieses Dokument hält nur, *was noch zu tun ist* und *in welcher Reihenfolge*.
 
@@ -275,6 +273,16 @@ zu prüfen. Bei vollem Speicher verschwindet der Zustand still.
 ### B47 · Doppelter Save-Request beim Export · **S** · ⭐ · ✅ ERLEDIGT 2026-11-07
 `persistence.js:661-662` publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload direkt
 danach aus dem DOM. Der Request ist für den Export funktionslos.
+
+### B56 · Dead-Code: Restprüfung auf 'AptosCustom' entfernen · **S** · ⭐
+- **Quelle:** `docs/90-archive/dead-code-audit-2026-11-05.md` (Befund 4.7).
+- **Problem:** `settings.js:200,313` vergleicht `fontFamily` gegen `'AptosCustom'`. Es gibt keinen Schreibpfad dafür (nur `CustomUserFont`).
+- **Aufgabe:** Totes Branching in `settings.js` rückstandslos entfernen.
+
+### B57 · CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren · **S** · ⭐⭐
+- **Quelle:** `docs/90-archive/web-standards-tracking.md`.
+- **Problem:** Druckertreiber klemmen DIN-5008-Ränder an unbedruckbaren Bereichen ab.
+- **Aufgabe:** Evaluierung des Chrome-150+ Descriptors `@page { page-margin-safety: clamp; }` für Hardware-Rand-Kompensation.
 
 ## 🔧 Werkzeuge
 

@@ -25,6 +25,7 @@ const EXCLUDED = [
   'docs/30-meta/DECISION-LOG.md',// append-only Chronik, Alteintraege sind Zeitdokumente
   'docs/00-foundation/din5008.md', // wortgetreues Normzitat (DIN 5008) -- Quelle, kein Fliesstext von uns
   'research/',                   // Laborarchiv
+  'Papierkorb/',                 // Gelöschte/ausgemusterte Altlasten
   GLOSSARY,                      // enthaelt die verdraengten Varianten per Definition
   'tools/terminology.js'
 ];

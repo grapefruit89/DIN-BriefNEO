@@ -36,7 +36,7 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 - [[DECISION-LOG]] — die lebende Chronik (append-only)
 - [[Feature-Matrix]] — Reifegradübersicht der Features
 - [[ROADMAP]] — Zukunftsideen (unverbindlich)
-- [[sqlite-vec]] — geparkter Plan für semantische Vektorsuche (archiviert unter `docs/90-archive/sqlite-vec.md`)
+- `sqlite-vec` — geparkter Plan für semantische Vektorsuche (archiviert)
 
 ## Vorlagen & Wissensmanagement
 

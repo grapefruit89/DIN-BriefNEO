@@ -1,3 +1,0 @@
-#!/bin/sh
-# DIN-BriefNEO post-merge hook (Silent-on-Success)
-exit 0

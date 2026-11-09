@@ -107,7 +107,7 @@ taxonomy:
     - test
     - specs
     - .github
-    - .githooks
+    - githooks
     - todo
     - build
   allowed_root_files:

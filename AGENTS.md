@@ -84,6 +84,7 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 - **Fitness Gate 100%**: Vor und nach jeder relevanten Änderung muss `node tools/build_db.js` ausgeführt werden (plattformunabhängig). Der Fitness Score **muss 100 %** betragen.
 - **Branchless Workflow**: Nur `main`-Branch. Feature-Branches sind verboten. Experimente erfolgen ausschließlich über `git stash`.
 - **Surgical Changes & KISS**: Nur das ändern, was für die aktuelle Aufgabe strikt notwendig ist. Bevor JavaScript geschrieben wird, muss geprüft werden, ob moderne CSS- oder native Web-APIs ausreichen.
+- **Git-Hooks (`githooks/`)**: Versionierte Pre-Commit-Gates (`git config core.hooksPath githooks`) stellen die 5-Stufen-Integrität vor jedem Commit lokal sicher.
 - **Generalisierbarkeit**: Jede neue Lösung ist auf ihre Übertragbarkeit in die `llm_boilerplate` zu prüfen und zu dokumentieren.
 
 ---

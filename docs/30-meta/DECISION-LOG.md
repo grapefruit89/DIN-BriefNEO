@@ -693,7 +693,7 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Umgesetzt:**
 - **Phase 1 / Taxonomie:** `repository.yaml` → `taxonomy` (`allowed_top_level`, `allowed_root_files`, `roles`). `tools/reconciliation.js` → neuer `check_type "taxonomy"`: liest die Allowlists aus `repository.yaml` (SSOT), prüft per `git ls-files`, meldet Unbekanntes als `critical` (Build bricht ab). Negativtest bestanden (Streudatei → critical/99,88 % → 100 % nach Entfernen). Untracked Müll bleibt irrelevant.
 - **Phase 2 / Ein Builder:** Neu `tools/docs_index.js` — Abschnitts-Chunking (H1–H6, Zeilennummern), Datei-Inventar (`files` per `git ls-files`), `documents`/`sections`/`sections_fts` (FTS5). `tools/build_db.js` baut den Index im Gate-Lauf mit (**ein Kommando = Gate + Index**). `agent/mcp/dinbrief-mcp/docs.js` → dünne Re-Export-Schicht (keine Doppel-Logik).
-- **Phase 3 / Automatik:** `.githooks/pre-commit` (Gate + Index, bricht Commit bei < 100 %) + Aktivierung `git config core.hooksPath .githooks`; `.github/workflows/fitness.yml` als CI-Backstop.
+- **Phase 3 / Automatik:** `githooks/pre-commit` (Gate + Index, bricht Commit bei < 100 %) + Aktivierung `git config core.hooksPath githooks`; `.github/workflows/fitness.yml` als CI-Backstop.
 - **P2:** Abschnitts-Chunking — durch den Index erfüllt.
 - **P3:** `docs/90-archive/` eingeführt; 8 Einmal-Artefakte (2 Grok-Reviews, `chatgpt-review-prompt`, `PROJECT`, `FOUNDATION-RESTORATION-PLAN`, `architecture-drift-audit-2026-08-27`, 2 Inventar-Snapshots) verschoben; Zeiger in `docs/index.md`, `docs/00-foundation/README.md`, `repository.yaml`, `CLAUDE.md` nachgezogen (DECISION-LOG-Altbezüge bewusst NICHT umgeschrieben = Chronik).
 - **P4:** Rollen der zwei Builder klargestellt: `build_db.js` kanonisch, `build_db.py` = optionaler Vektor-Zweig (Phase 4) — in `build_db.py`-Header + `tooling-overview.md`.
@@ -703,7 +703,7 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 
 **Verifikation:** Gate **100 %** nach jeder Phase; MCP `docs_search`/`docs_get` grün; Index 104 Docs / 1138 Abschnitte / 222 Dateien; Hook läuft; CI-YAML vorhanden.
 
-**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Platzierungs-Taxonomie als **kritische Gate-Regel** statt Doku-Konvention, Allowlists aus dem Contract lesen (SSOT); (b) **ein** Builder + Index im Gate-Lauf, MCP nur als Query-Schicht; (c) versionierte Hooks (`.githooks` + `core.hooksPath`) plus CI-Backstop; (d) Abschnitts-Chunking mit Zeilennummern ist der Token-Hebel, nicht das Datenformat.
+**Generalisierbarkeit:** Für `llm_boilerplate`: (a) Platzierungs-Taxonomie als **kritische Gate-Regel** statt Doku-Konvention, Allowlists aus dem Contract lesen (SSOT); (b) **ein** Builder + Index im Gate-Lauf, MCP nur als Query-Schicht; (c) versionierte Hooks (`githooks` + `core.hooksPath`) plus CI-Backstop; (d) Abschnitts-Chunking mit Zeilennummern ist der Token-Hebel, nicht das Datenformat.
 
 ## 2026-09-26 — Suche Stufe 1: FTS5-Prefix + Trigram (statt Vektor)
 

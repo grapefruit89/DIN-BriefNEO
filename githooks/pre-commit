@@ -1,0 +1,46 @@
+#!/bin/sh
+# DIN-BriefNEO pre-commit hook (Silent-on-Success, Verbose-on-Failure)
+# Enforces full 5-stage quality gate before every commit
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+cd "$REPO_ROOT" || exit 1
+
+LOG=$(mktemp)
+trap 'rm -f "$LOG"' EXIT INT TERM
+
+# Stufe 1: Biome Linter & Format-Check
+if ! npm run check > "$LOG" 2>&1; then
+  echo "❌ [pre-commit] Stufe 1: Biome Linter & Format-Check fehlgeschlagen:" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
+
+# Stufe 2: Unit-Tests via Headless Chrome
+if ! npm test > "$LOG" 2>&1; then
+  echo "❌ [pre-commit] Stufe 2: Unit-Tests fehlgeschlagen:" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
+
+# Stufe 3: Adress-Korpus-Gate
+if ! node test/corpus/run.js > "$LOG" 2>&1; then
+  echo "❌ [pre-commit] Stufe 3: Adress-Korpus-Gate fehlgeschlagen:" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
+
+# Stufe 4: Antipattern-Suite
+if ! npm run check:antipatterns > "$LOG" 2>&1; then
+  echo "❌ [pre-commit] Stufe 4: Antipattern-Suite fehlgeschlagen:" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
+
+# Stufe 5: Evolutionary Fitness & SSoT-Sync
+if ! node tools/build_db.js -q > "$LOG" 2>&1; then
+  echo "❌ [pre-commit] Stufe 5: Evolutionary Fitness Gate fehlgeschlagen:" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
+
+exit 0

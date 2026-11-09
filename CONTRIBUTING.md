@@ -42,7 +42,7 @@ git clone https://github.com/grapefruit89/DIN-BriefNEO.git
 cd DIN-BriefNEO
 
 # Einmalig: Lokale Git-Hooks aktivieren
-git config core.hooksPath .githooks
+git config core.hooksPath githooks
 ```
 
 ### 2. App lokal starten

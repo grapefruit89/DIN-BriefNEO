@@ -1,3 +1,0 @@
-#!/bin/sh
-# DIN-BriefNEO post-checkout hook (Silent-on-Success)
-exit 0

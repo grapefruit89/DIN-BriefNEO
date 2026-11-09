@@ -88,7 +88,7 @@ Zur Absicherung vor versehentlichen Fehl-Commits verfügt das Repository über g
 
 ```bash
 # Einmalig im lokalen Klon aktivieren:
-git config core.hooksPath .githooks
+git config core.hooksPath githooks
 ```
 
 Der `pre-commit`-Hook führt automatisch Linter, Unit-Tests und das Fitness Gate aus.

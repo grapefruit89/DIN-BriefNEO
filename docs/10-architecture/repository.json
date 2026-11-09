@@ -130,7 +130,7 @@
       "file": "addons/testbrief/testbrief.js",
       "adr": "ADR-JS",
       "guide": "testbrief-generator",
-      "desc": "Testbrief-Plugin (Generator, Adress- & Ankerleiter; Figurendaten in charactere.json)"
+      "desc": "Testbrief-Plugin (Generator, Adress- & Ankerleiter; Figurendaten in figuren.json)"
     },
     {
       "file": "addons/webmcp-bridge.js",
@@ -141,13 +141,13 @@
   ],
   "data": [
     {
-      "file": "data/de_plz_ort.json.gz",
-      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE",
+      "file": "data/orte.json.gz",
+      "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE, ADR-COLUMNAR-DATA",
       "guide": "",
-      "desc": "PLZ-/Ortsverzeichnis (Gzip, Offline Tier 1)"
+      "desc": "PLZ-/Ortsverzeichnis inkl. Ortsteile & Bundesländer (Columnar Gzip, Offline Tier 1)"
     },
     {
-      "file": "data/de_grosskunden_plz.json.gz",
+      "file": "data/grosskunden.json.gz",
       "adr": "ADR-OFFLINE-ADDRESS-INTELLIGENCE",
       "guide": "grossemfaenger-post-und-rechts-spec",
       "desc": "Großempfänger-Verzeichnis (Gzip, OLG Frankfurt)"

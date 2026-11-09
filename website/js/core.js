@@ -27,6 +27,7 @@ export const Constants = {
       MULTI_TAB: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
       EXPORT_SAVED: '💾 Brief erfolgreich gespeichert.',
       EXPORT_DOWNLOADED: '💾 Brief heruntergeladen.',
+      EXPORT_CLIPBOARD: '📋 Brief-JSON in die Zwischenablage kopiert.',
       EXPORT_ERROR: '❌ Fehler beim Exportieren.',
       IMPORT_SIZE_ERROR: '❌ Import abgelehnt: Datei zu groß (max. 1 MB).',
       /** @param {string} reason @returns {string} */
@@ -154,7 +155,7 @@ export const eventBus = createEventBus();
  * 2. NATIVE TOAST SYSTEM (Popover API & Top-Layer)
  * ========================================================================================= */
 
-/** @type {{ global: HTMLElement, message: HTMLElement, close: HTMLElement } | null} */
+/** @type {{ global: HTMLElement, message: HTMLElement } | null} */
 let dom = null;
 /** @type {{ message: string } | null} */
 let current = null;
@@ -164,19 +165,20 @@ let timer = null;
 export function initToastSystem() {
   const global = document.getElementById('hinweis-v4');
   const message = document.getElementById('hinweis-message');
-  const close = document.getElementById('hinweis-close');
-  if (!global || !message || !close) {
+  if (!global || !message) {
     console.warn('[Toast] DOM elements missing.');
     return;
   }
-  dom = { global, message, close };
-  close.addEventListener('click', hide);
-  // popover="auto" schließt nativ per Esc und Klick außerhalb; dabei muss nur
-  // der Auto-Dismiss-Timer mit aufgeräumt werden.
+  dom = { global, message };
+  // Schließen läuft 100% deklarativ über HTML (popovertargetaction="hide"), Esc oder Klick außerhalb;
+  // das native toggle-Event räumt dabei den Auto-Dismiss-Timer auf.
   global.addEventListener('toggle', (e) => {
-    if (/** @type {ToggleEvent} */ (e).newState === 'closed' && timer !== null) {
-      clearTimeout(timer);
-      timer = null;
+    if (/** @type {ToggleEvent} */ (e).newState === 'closed') {
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      current = null;
     }
   });
 
@@ -200,21 +202,19 @@ export function showToast(message, type = 'info') {
   if (!dom) return;
 
   if (current?.message === message) {
+    if (dom.global.dataset.type !== type) {
+      dom.global.dataset.type = type;
+    }
+    showPopoverSafe(dom.global);
     startTimer(message);
     return;
   }
 
   dom.message.textContent = message;
-  dom.global.className = `hinweis-container type-${type}`;
+  dom.global.dataset.type = type;
   current = { message };
 
-  if (!dom.global.matches(':popover-open')) {
-    try { dom.global.showPopover(); } catch (e) {
-      console.warn('[Toast] Popover API failure:', e);
-      return;
-    }
-  }
-
+  showPopoverSafe(dom.global);
   startTimer(message);
 }
 
@@ -228,7 +228,40 @@ function startTimer(message) {
 function hide() {
   if (timer !== null) { clearTimeout(timer); timer = null; }
   current = null;
-  if (dom?.global.matches(':popover-open')) {
-    try { dom.global.hidePopover(); } catch {}
+  hidePopoverSafe(dom?.global);
+}
+
+/**
+ * Publiziert eine Toast-Benachrichtigung zentral über den EventBus.
+ * @param {string} message
+ * @param {'info' | 'warning' | 'error' | 'success'} [type='info']
+ */
+export function notify(message, type = 'info') {
+  eventBus.publish(Events.NOTIFICATION_REQUESTED, { message, type });
+}
+
+/**
+ * Zeigt ein Popover fehlertolerant an (fängt InvalidStateError ab).
+ * @param {Element | null | undefined} el
+ */
+export function showPopoverSafe(el) {
+  if (!el || typeof (/** @type {any} */ (el)).showPopover !== 'function') return;
+  try {
+    (/** @type {HTMLElement & { showPopover: () => void }} */ (el)).showPopover();
+  } catch (err) {
+    console.debug('[Popover] showPopoverSafe übersprungen:', err);
+  }
+}
+
+/**
+ * Schließt ein Popover fehlertolerant (fängt InvalidStateError ab).
+ * @param {Element | null | undefined} el
+ */
+export function hidePopoverSafe(el) {
+  if (!el || typeof (/** @type {any} */ (el)).hidePopover !== 'function') return;
+  try {
+    (/** @type {HTMLElement & { hidePopover: () => void }} */ (el)).hidePopover();
+  } catch (err) {
+    console.debug('[Popover] hidePopoverSafe übersprungen:', err);
   }
 }

@@ -15,7 +15,10 @@ doc_links:
   - ADR-EVENT-DRIVEN-ARCHITECTURE
   - ADR-JS
   - ADR-TOAST-SYSTEM
+  - ADR-TYPOGRAPHY
+  - ADR-COLUMNAR-DATA
   - ADR-OMNITRACEABILITY
+  - GUIDELINES-BROWSER-UPSTREAM
   - constitution
   - Immutable-Law-Catalog
   - longevity-guidelines
@@ -70,6 +73,7 @@ Die Event-ADR dokumentiert die modulübergreifende Kommunikation. Die JavaScript
 
 - [[ADR-HTML]] — Struktur, Semantik und Editierbarkeit.
 - [[ADR-CSS]] — Layout, Blattdarstellung, Positionierung und visuelle Zustände.
+- [[ADR-TYPOGRAPHY]] — DIN 5008 Font-Subsetting, Typografie-Architektur, Zeichensatz-Allowlist und Kaskade.
 - [[ADR-TOAST-SYSTEM]] — native Popover-basierte Benachrichtigungen, Anzeigeverhalten und Toast-Registry.
 
 UI-Module verantworten ihre Darstellung. Fachmodule kommunizieren über die vereinbarten Schnittstellen, statt fremde UI-Elemente direkt zu manipulieren.
@@ -77,6 +81,7 @@ UI-Module verantworten ihre Darstellung. Fachmodule kommunizieren über die vere
 ## 5. Fachliche Subsysteme
 
 - [[ADR-OFFLINE-ADDRESS-INTELLIGENCE]] — lokale PLZ-/Ort-Auflösung und optionale externe Anreicherung.
+- [[ADR-COLUMNAR-DATA]] — verlustfreies Columnar-JSON & deterministische Daten-Pipeline (Ortsteile & Bundesland-Disambiguierung).
 - [[ADR-SENDER-SYNCHRONIZATION]] — Absender-Synchronisation.
 - [[ADR-DATA-PERSISTENCE]] — lokaler Speicher und Datumsverarbeitung.
 
@@ -85,6 +90,7 @@ Die Subsysteme folgen den allgemeinen Architekturregeln und dürfen keine davon 
 ## 6. Traceability und Verifikation
 
 - [[ADR-OMNITRACEABILITY]] — Regeln für Code-/Dokumentationsreferenzen und maschinelle Nachvollziehbarkeit.
+- [[GUIDELINES-BROWSER-UPSTREAM]] — Upstream Ground-Truth & maschinenlesbare Browser-Feature-Abfrage (Chromium 150+ Baseline).
 - Function-Traceability — generierte Funktions-Traceability-Matrix (unter `~/.din-briefneo/build/`).
 - [[ADR-TEMPLATE]] — Vorlage für neue Architekturentscheidungen; liegt unter `docs/30-meta/`.
 

@@ -10,8 +10,42 @@
  * (2026-11-08): reine String-/Regex-Logik, unabhaengig von den Adressbestaenden.
  */
 
-import { AddressIntelligence, bindListSelection, feld } from './address.js';
-import { Constants, Events, eventBus } from './core.js';
+import { bindListSelection, feld } from './address.js';
+import { AddressData, AddressIntelligence, normalizeText } from './address-data.js';
+import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
+
+/**
+ * Berechnet die Levenshtein-Distanz zwischen zwei normalisierten Strings.
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+function levenshtein(a, b) {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  let curr = new Array(n + 1);
+
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i;
+    const charA = a[i - 1];
+    for (let j = 1; j <= n; j++) {
+      const cost = charA === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(
+        prev[j] + 1,       // deletion
+        curr[j - 1] + 1,   // insertion
+        prev[j - 1] + cost // substitution
+      );
+    }
+    const temp = prev;
+    prev = curr;
+    curr = temp;
+  }
+  return prev[n];
+}
 
 /* =========================================================================================
  * 4. CLIPBOARD ADDRESS PARSER
@@ -27,6 +61,12 @@ import { Constants, Events, eventBus } from './core.js';
  * @property {string} plz
  * @property {string} ort
  * @property {string} [source_type]
+ * @property {boolean} [verified]
+ * @property {boolean} [ortCorrected]
+ * @property {boolean} [ortMismatch]
+ * @property {string} [canonicalOrt]
+ * @property {string} [state]
+ * @property {string} [district]
  */
 
 /**
@@ -43,12 +83,17 @@ export class ClipboardAddressParser {
 
   /**
    * Prüft, ob ein Text eine Firmenbezeichnung oder Rechtsform enthält.
+   * Prüft sowohl bekannte Rechtsformen als auch den indizierten Firmenbestand via AddressData.
    * @param {string} text
    * @returns {boolean}
    */
   static isCorporate(text) {
     if (!text) return false;
-    return ClipboardAddressParser.CORP_REGEX.test(text) || ClipboardAddressParser.CORP_UG_REGEX.test(text);
+    return (
+      ClipboardAddressParser.CORP_REGEX.test(text) ||
+      ClipboardAddressParser.CORP_UG_REGEX.test(text) ||
+      Boolean(AddressData.findFirma(text))
+    );
   }
 
   /** Anreden und Empfänger-Prefixe (ES2024 /v flag) */
@@ -123,6 +168,95 @@ export class ClipboardAddressParser {
   }
 
   /**
+   * Extrahiert PLZ und Ort aus einer Textzeile und gleicht sie gegen die AddressData-Fassade ab.
+   * Verstärker-Prinzip: Unbekannte oder ausländische PLZs (z. B. "75001 Paris") werden nicht verworfen,
+   * sondern mit verified: false beibehalten. Bekannte deutsche PLZs werden angereichert,
+   * auf Tippfehler korrigiert und auf Mismatches geprüft.
+   * @param {string} line
+   * @returns {{
+   *   plz: string,
+   *   ort: string,
+   *   rawOrt: string,
+   *   verified: boolean,
+   *   ortCorrected: boolean,
+   *   ortMismatch: boolean,
+   *   canonicalOrt?: string,
+   *   state?: string,
+   *   district?: string
+   * } | null}
+   */
+  static extractPlzOrt(line) {
+    if (!line || typeof line !== 'string') return null;
+    const match = line.match(ClipboardAddressParser.PLZ_ORT_REGEX);
+    if (!match) return null;
+
+    const plz = match[1];
+    const rawOrt = match[2].trim().split(/[,;(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
+    if (!rawOrt) return null;
+
+    const resolved = AddressData.lookup(plz);
+    if (!resolved) {
+      return {
+        plz,
+        ort: rawOrt,
+        rawOrt,
+        verified: false,
+        ortCorrected: false,
+        ortMismatch: false
+      };
+    }
+
+    const normRaw = normalizeText(rawOrt);
+    const normCanonical = normalizeText(resolved.city);
+
+    if (normRaw === normCanonical) {
+      const isCaseOrUmlautDiff = rawOrt !== resolved.city;
+      return {
+        plz,
+        ort: resolved.city,
+        rawOrt,
+        verified: true,
+        ortCorrected: isCaseOrUmlautDiff,
+        ortMismatch: false,
+        canonicalOrt: resolved.city,
+        state: resolved.state,
+        district: resolved.district
+      };
+    }
+
+    const dist = levenshtein(normRaw, normCanonical);
+    const maxDist = Math.max(1, Math.min(3, Math.floor(normCanonical.length / 3)));
+
+    if (dist <= maxDist) {
+      // Tippfehler (z. B. "Bon" -> "Bonn")
+      return {
+        plz,
+        ort: resolved.city,
+        rawOrt,
+        verified: true,
+        ortCorrected: true,
+        ortMismatch: false,
+        canonicalOrt: resolved.city,
+        state: resolved.state,
+        district: resolved.district
+      };
+    }
+
+    // Mismatch (z. B. PLZ 53111 mit Ort Köln)
+    return {
+      plz,
+      ort: rawOrt,
+      rawOrt,
+      verified: true,
+      ortCorrected: false,
+      ortMismatch: true,
+      canonicalOrt: resolved.city,
+      state: resolved.state,
+      district: resolved.district
+    };
+  }
+
+  /**
    * Extrahiert Adress-Kandidaten aus unstrukturiertem Text.
    * @param {string} text
    * @returns {AddressCandidate[]}
@@ -144,11 +278,10 @@ export class ClipboardAddressParser {
     // PASS 1: Mehrzeilige Adressblöcke (PLZ-Zeile als Anker)
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const plzMatch = line.match(ClipboardAddressParser.PLZ_ORT_REGEX);
-      if (!plzMatch) continue;
+      const plzOrt = ClipboardAddressParser.extractPlzOrt(line);
+      if (!plzOrt) continue;
 
-      const plz = plzMatch[1];
-      const ort = plzMatch[2].trim().split(/[,;(]|\b(Tel|Fax|E-Mail|Telefon)\b/i)[0].trim();
+      const { plz, ort } = plzOrt;
       if (i === 0) continue;
 
       // Kontextregel: Eine Zeile mit Hausnummer direkt über dem PLZ-Anker ist eine
@@ -249,6 +382,12 @@ export class ClipboardAddressParser {
         strasse: street,
         plz,
         ort,
+        verified: plzOrt.verified,
+        ortCorrected: plzOrt.ortCorrected,
+        ortMismatch: plzOrt.ortMismatch,
+        canonicalOrt: plzOrt.canonicalOrt,
+        state: plzOrt.state,
+        district: plzOrt.district,
         source_type: 'multiline'
       });
     }
@@ -260,8 +399,8 @@ export class ClipboardAddressParser {
       if (parts.length < 3) continue;
 
       const lastPart = parts[parts.length - 1];
-      const plzMatch = lastPart.match(ClipboardAddressParser.PLZ_ORT_REGEX);
-      if (!plzMatch) continue;
+      const plzOrt = ClipboardAddressParser.extractPlzOrt(lastPart);
+      if (!plzOrt) continue;
 
       const streetPart = parts[parts.length - 2];
       if (!ClipboardAddressParser.isStreetLine(streetPart)) continue;
@@ -290,8 +429,14 @@ export class ClipboardAddressParser {
         name: candName,
         zusatz: candZusatz,
         strasse: streetPart,
-        plz: plzMatch[1],
-        ort: plzMatch[2].trim(),
+        plz: plzOrt.plz,
+        ort: plzOrt.ort,
+        verified: plzOrt.verified,
+        ortCorrected: plzOrt.ortCorrected,
+        ortMismatch: plzOrt.ortMismatch,
+        canonicalOrt: plzOrt.canonicalOrt,
+        state: plzOrt.state,
+        district: plzOrt.district,
         source_type: 'inline'
       });
     }
@@ -329,36 +474,26 @@ export class ClipboardAddressParser {
       const firmaText = candidate.zusatz ? `${candidate.firma || ''}\n${candidate.zusatz}`.trim() : (candidate.firma || '');
       empfFirmaEl.textContent = firmaText;
       empfFirmaEl.dispatchEvent(new Event('input', { bubbles: true }));
-      empfFirmaEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (empfNameEl) {
       empfNameEl.textContent = candidate.name || '';
       empfNameEl.dispatchEvent(new Event('input', { bubbles: true }));
-      empfNameEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (empfStrasseEl) {
       empfStrasseEl.textContent = candidate.strasse;
       empfStrasseEl.dispatchEvent(new Event('input', { bubbles: true }));
-      empfStrasseEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (empfOrtEl) {
       empfOrtEl.textContent = `${candidate.plz} ${candidate.ort}`;
       empfOrtEl.dispatchEvent(new Event('input', { bubbles: true }));
-      empfOrtEl.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     // 3. Autocomplete-Dropdowns schließen
-    try {
-      const plzPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (feld('plz-suggestions-popover'));
-      if (plzPopover?.hidePopover) plzPopover.hidePopover();
-      const addrPopover = /** @type {HTMLElement & { hidePopover?: () => void }} */ (feld('anschrift-vorschlaege'));
-      if (addrPopover?.hidePopover) addrPopover.hidePopover();
-    } catch {
-      // Ignoriert
-    }
+    hidePopoverSafe(feld('plz-suggestions-popover'));
+    hidePopoverSafe(feld('anschrift-vorschlaege'));
 
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: false });
 
@@ -374,8 +509,12 @@ export class ClipboardAddressParser {
     }
 
     const label = candidate.firma || candidate.name || candidate.strasse;
-    const toastMsg = Constants.TOASTS.CLIPBOARD.APPLIED(label, candidate.ort);
-    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: toastMsg, type: 'success' });
+    if (candidate.ortMismatch && candidate.canonicalOrt) {
+      notify(`⚠️ Anschrift übernommen: PLZ ${candidate.plz} gehört laut Verzeichnis zu ${candidate.canonicalOrt}.`, 'warning');
+    } else {
+      const toastMsg = Constants.TOASTS.CLIPBOARD.APPLIED(label, candidate.ort);
+      notify(toastMsg, 'success');
+    }
   }
 
   /**
@@ -385,14 +524,6 @@ export class ClipboardAddressParser {
     const btn = feld('btn-zwischenablage-anschrift');
     const popover = feld('clipboard-candidates-popover');
     if (!btn) return;
-
-    /**
-     * @param {string} msg
-     * @param {string} [type]
-     */
-    const notify = (msg, type = 'info') => {
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
-    };
 
     btn.addEventListener('click', async () => {
       try {
@@ -431,8 +562,7 @@ export class ClipboardAddressParser {
           /** @param {any} cand */
           const selectCandidate = (cand) => {
             ClipboardAddressParser.applyCandidate(cand);
-            // @ts-ignore
-            popover.hidePopover();
+            hidePopoverSafe(popover);
           };
 
           candidates.forEach((cand, idx) => {
@@ -452,14 +582,25 @@ export class ClipboardAddressParser {
             item.appendChild(compSpan);
             item.appendChild(addrSpan);
 
+            if (!cand.verified) {
+              const unverifiedBadge = document.createElement('span');
+              unverifiedBadge.className = 'unverified-badge';
+              unverifiedBadge.textContent = ' (nicht verifiziert)';
+              item.appendChild(unverifiedBadge);
+            } else if (cand.ortMismatch && cand.canonicalOrt) {
+              const mismatchBadge = document.createElement('span');
+              mismatchBadge.className = 'mismatch-badge';
+              mismatchBadge.textContent = ` ⚠️ PLZ gehört zu ${cand.canonicalOrt}`;
+              item.appendChild(mismatchBadge);
+            }
+
             item.dataset.index = String(idx);
             popover.appendChild(item);
           });
 
           bindListSelection(popover, candidates, selectCandidate);
 
-          // @ts-ignore
-          popover.showPopover();
+          showPopoverSafe(popover);
         } else {
           notify(Constants.TOASTS.CLIPBOARD.MULTIPLE(candidates.length), 'warning');
         }

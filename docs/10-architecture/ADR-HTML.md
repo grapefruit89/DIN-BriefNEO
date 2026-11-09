@@ -137,8 +137,8 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#font-uploader`: Verstecktes Datei-Upload-Element (`accept=".woff2"`).
   * `#font-status-label`: Dynamische Anzeige der aktiven Schriftfamilie.
 * **Signatur-Manager:**
-  * `#btn-unterschriftsbild-waehlen` / `#unterschriftsbild-datei`: Datei-Upload für Unterschriften-Bilder (PNG, JPEG, WebP).
-  * `#btn-unterschriftsbild-reset`: Löscht die hinterlegte Signatur.
+  * `#btn-unterschrift-aktion`: 2-State-Button für Laden und Entfernen der Signatur (`data-state="empty|loaded"`).
+  * `#unterschriftsbild-datei`: Datei-Upload für Unterschriften-Bilder (PNG, JPEG, WebP).
 * **Adressdienste & Intelligenter Zwischenablagen-Parser:**
   * `#input-geoapify-key`: Passwort-Feld für den Geoapify-API-Key.
   * `#input-anschrift-suche`: Autocomplete-Suchfeld für Remote-Adresssuche.

@@ -30,20 +30,25 @@ let dbPromise = null;
  */
 function openDB() {
   if (dbPromise) return dbPromise;
-  const promise = new Promise((resolve, reject) => {
-    if (typeof indexedDB === 'undefined') {
-      reject(new Error('IndexedDB nicht verfügbar'));
-      return;
-    }
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+  if (typeof indexedDB === 'undefined') {
+    return Promise.reject(new Error('IndexedDB nicht verfügbar'));
+  }
+  const { promise, resolve, reject } = Promise.withResolvers();
+  const request = indexedDB.open(DB_NAME, DB_VERSION);
+  request.onupgradeneeded = () => {
+    const db = request.result;
+    if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+  };
+  request.onsuccess = () => {
+    const db = request.result;
+    db.onversionchange = () => {
+      db.close();
+      dbPromise = null;
     };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error || new Error('IndexedDB open fehlgeschlagen'));
-    request.onblocked = () => reject(new Error('IndexedDB blockiert (anderer Tab hält die alte Version)'));
-  });
+    resolve(db);
+  };
+  request.onerror = () => reject(request.error || new Error('IndexedDB open fehlgeschlagen'));
+  request.onblocked = () => reject(new Error('IndexedDB blockiert (anderer Tab hält die alte Version)'));
   dbPromise = promise;
   promise.catch(() => {
     if (dbPromise === promise) dbPromise = null;
@@ -60,15 +65,16 @@ function openDB() {
  * @returns {Promise<boolean>} true bei Erfolg
  */
 export async function saveBlob(key, blob) {
+  if (!(blob instanceof Blob)) return false;
   try {
     const db = await openDB();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readwrite');
-      tx.objectStore(STORE).put(blob, key);
-      tx.oncomplete = () => resolve(undefined);
-      tx.onerror = () => reject(tx.error || new Error('Transaktion fehlgeschlagen'));
-      tx.onabort = () => reject(tx.error || new Error('Transaktion abgebrochen'));
-    });
+    const { promise, resolve, reject } = Promise.withResolvers();
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(blob, key);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error || new Error('Transaktion fehlgeschlagen'));
+    tx.onabort = () => reject(tx.error || new Error('Transaktion abgebrochen'));
+    await promise;
     return true;
   } catch (error) {
     console.warn('[BinaryStorage] Speichern fehlgeschlagen, nichts gespeichert:', error);
@@ -84,15 +90,16 @@ export async function saveBlob(key, blob) {
 export async function loadBlob(key) {
   try {
     const db = await openDB();
-    return await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readonly');
-      const request = tx.objectStore(STORE).get(key);
-      request.onsuccess = () => {
-        const value = request.result;
-        resolve(value instanceof Blob ? value : null);
-      };
-      request.onerror = () => reject(request.error || new Error('Lesen fehlgeschlagen'));
-    });
+    const { promise, resolve, reject } = Promise.withResolvers();
+    const tx = db.transaction(STORE, 'readonly');
+    const request = tx.objectStore(STORE).get(key);
+    request.onsuccess = () => {
+      const value = request.result;
+      resolve(value instanceof Blob ? value : null);
+    };
+    request.onerror = () => reject(request.error || new Error('Lesen fehlgeschlagen'));
+    tx.onabort = () => reject(tx.error || new Error('Transaktion abgebrochen'));
+    return await promise;
   } catch (error) {
     console.warn('[BinaryStorage] Laden fehlgeschlagen:', error);
     return null;
@@ -107,13 +114,13 @@ export async function loadBlob(key) {
 export async function deleteBlob(key) {
   try {
     const db = await openDB();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readwrite');
-      tx.objectStore(STORE).delete(key);
-      tx.oncomplete = () => resolve(undefined);
-      tx.onerror = () => reject(tx.error || new Error('Löschen fehlgeschlagen'));
-      tx.onabort = () => reject(tx.error || new Error('Löschen abgebrochen'));
-    });
+    const { promise, resolve, reject } = Promise.withResolvers();
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).delete(key);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error || new Error('Löschen fehlgeschlagen'));
+    tx.onabort = () => reject(tx.error || new Error('Löschen abgebrochen'));
+    await promise;
     return true;
   } catch (error) {
     console.warn('[BinaryStorage] Löschen fehlgeschlagen:', error);

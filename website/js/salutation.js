@@ -16,12 +16,6 @@
 import { Constants, Events, eventBus } from './core.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
-/** Bekannte akademische Grade und Titel */
-const KNOWN_TITLES = new Set([
-  'dr', 'prof', 'dipl', 'ing', 'mag', 'med', 'jur', 'rer', 'nat',
-  'msc', 'bsc', 'mba', 'phd', 'ba', 'ma', 'hc', 'mult'
-]);
-
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
 
 export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
@@ -57,18 +51,11 @@ const FALLBACK = Object.freeze({
   casual: SALUTATION_TONES.casual.salutationDefault
 });
 
-/** Namenszusätze, die zum Nachnamen gehören ("von", "van der", ...). */
+const FALLBACK_SET = new Set(Object.values(FALLBACK));
+const CLOSINGS_SET = new Set(Object.values(CLOSINGS));
+
+const ORG_WORDS = new Set(['gmbh', 'ag', 'eg', 'ug', 'ev', 'kg', 'ohg', 'gbr', 'kgaa', 'ek']);
 const PARTICLES = new Set(['von', 'vom', 'zu', 'zur', 'zum', 'van', 'der', 'den', 'de', 'ten', 'ter', 'la', 'le', 'du', 'di']);
-
-/** Firmen-, Behörden- und Organisations-Schlagworte für neutrale Anrede. */
-const COMPANY_KEYWORDS = new Set([
-  'gmbh', 'ag', 'ug', 'kg', 'ohg', 'gbr', 'corp', 'inc', 'ltd', 'llc', 'ev', 'e.v.',
-  'stadtwerke', 'amt', 'gericht', 'bundesamt', 'ministerium', 'verwaltung', 'polizei',
-  'feuerwehr', 'krankenhaus', 'klinik', 'universität', 'hochschule', 'schule', 'institut',
-  'akademie', 'bank', 'sparkasse', 'versicherung', 'krankenkasse', 'stiftung', 'verein',
-  'verband', 'genossenschaft', 'redaktion', 'service', 'team', 'abteilung'
-]);
-
 
 /**
  * @param {string | undefined} f
@@ -78,6 +65,72 @@ function toStyle(f) {
   return /** @type {any} */ (STYLES).includes(f) ? /** @type {any} */ (f) : 'formal';
 }
 
+/**
+ * Leitet die Anrede nach DIN 5008 ab (KISS).
+ * @param {string} [rawText]
+ * @param {'formal' | 'polite' | 'casual' | string} [style]
+ * @returns {string}
+ */
+export function deriveSalutation(rawText, style = 'formal') {
+  const normStyle = toStyle(style);
+  let text = String(rawText ?? '').trim();
+  if (!text) return FALLBACK[normStyle];
+
+  // 1. Präfix extrahieren (falls vor dem Komma) & Comma-Swap: "Müller, Hans" -> "Hans Müller"
+  let prefix = '';
+  const m = text.match(/^(herrn?|frau)\s+/i);
+  if (m) {
+    prefix = m[1];
+    text = text.slice(m[0].length).trim();
+  }
+  const comma = text.indexOf(',');
+  if (comma > 0) {
+    text = `${text.slice(comma + 1)} ${text.slice(0, comma)}`.trim();
+  }
+  if (prefix) {
+    text = `${prefix} ${text}`.trim();
+  }
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const lower = words.map((w) => w.toLowerCase().replace(/[^a-zäöüß]/g, ''));
+
+  // 2. Präfix prüfen (Herr / Frau gewinnt immer)
+  const firstLower = lower[0];
+  const isFemale = firstLower === 'frau';
+  const isMale = firstLower === 'herr' || firstLower === 'herrn';
+
+  // 3. Kein Präfix -> Organisations-Check, sonst neutraler DIN-Fallback
+  if ((!isFemale && !isMale) || words.length <= 1) {
+    return FALLBACK[normStyle];
+  }
+
+  // Organisationsteile am Ende abschneiden (z. B. "Herr Bank eG", "Herr Mustermann e.K.")
+  while (words.length > 2 && ORG_WORDS.has(lower[words.length - 1])) {
+    words.pop();
+    lower.pop();
+  }
+
+  // 4. Nachname inkl. Namenspartikel (von, van der, etc.)
+  let lastNameIdx = words.length - 1;
+  while (lastNameIdx > 1 && PARTICLES.has(lower[lastNameIdx - 1])) {
+    lastNameIdx--;
+  }
+  const nachname = words.slice(lastNameIdx).join(' ');
+
+  // 5. Titel zwischen Anrede und Nachname erfassen (Dr., Prof.)
+  const titel = words.slice(1, lastNameIdx).filter((w) => w.includes('.')).join(' ');
+  const zusatz = titel ? ` ${titel}` : '';
+
+  let anrede = isFemale ? 'Sehr geehrte Frau' : 'Sehr geehrter Herr';
+  if (normStyle === 'polite') {
+    anrede = isFemale ? 'Guten Tag Frau' : 'Guten Tag Herr';
+  } else if (normStyle === 'casual') {
+    anrede = isFemale ? 'Hallo Frau' : 'Hallo Herr';
+  }
+
+  return `${anrede}${zusatz} ${nachname},`;
+}
+
 export const SalutationEngine = {
   CLOSINGS,
   SALUTATION_TONES,
@@ -85,113 +138,17 @@ export const SalutationEngine = {
   /**
    * Leitet die Anrede aus dem Namensfeld ab.
    * Unterstützt: "Herr/Frau Nachname", "Herrn Vorname Nachname", Titel
-   * (Dr., Prof., Dipl.-Ing., etc.), Namenszusätze (von, van der, ...) und
-   * "Nachname, Vorname". Ohne Herr/Frau-Präfix wird kein Geschlecht geraten.
-   * @param {{ rawName?: string, formality?: string }} [opts]
+   * (Dr., Prof.), Namenszusätze (von, van der, ...) und "Nachname, Vorname".
+   * Ohne Herr/Frau-Präfix wird kein Geschlecht geraten (DIN 5008 Fallback).
+   * @param {{ rawName?: string, formality?: string } | string} [optsOrName]
+   * @param {string} [maybeFormality]
    * @returns {string}
    */
-  derive({ rawName = '', formality = 'formal' } = {}) {
-    const style = toStyle(formality);
-    let text = (rawName || '').trim();
-    if (!text) return FALLBACK[style];
-
-    // 1. Explizites Herr/Frau (Präfix mit Unicode-Grenze /v) zuerst prüfen
-    /** @type {'m' | 'f' | null} */
-    let gender = null;
-    const prefix = text.match(/^(?:herrn?|frau)(?!\p{L})/iv);
-    if (prefix) {
-      gender = prefix[0].toLowerCase().startsWith('frau') ? 'f' : 'm';
-      text = text.slice(prefix[0].length).trim();
+  derive(optsOrName, maybeFormality) {
+    if (optsOrName && typeof optsOrName === 'object') {
+      return deriveSalutation(optsOrName.rawName, optsOrName.formality);
     }
-
-    // 2. Firmen-, Behörden- und Organisationsprüfung für neutrale Anrede
-    // Echte Rechtsformen (GmbH, AG, SE, KG, OHG, GbR, UG, haftungsbeschränkt etc.) führen immer zur neutralen Anrede
-    const hasOrgForm = /(?<!\p{L})(?:gmbh\s*&\s*co\.?\s*kg|gmbh|ag|se|kg|ohg|gbr|universit[äa]t|hochschule|verband|stiftung|beh[öo]rde|institut|verlag|haftungsbeschr[äa]nkt)(?!\p{L})/iv.test(text)
-      || /(?<!\p{L})UG(?!\p{L})/v.test(text);
-    if (hasOrgForm) {
-      return FALLBACK[style];
-    }
-
-    // Wenn KEIN Herr/Frau-Präfix vorliegt: Auch e.V., e.K., e.G. und Keyword-Nomen (Bank, Hotel, Studio, Praxis, Verein) prüfen.
-    // (Verhindert, dass "Herr Thomas Bank", "Frau Sabine Hotel" oder "Frau E. K. Meier" neutral angesprochen werden)
-    if (!prefix) {
-      if (/(?<!\p{L})(?:e\.\s*v\.|e\.\s*k\.|e\.\s*g\.)(?!\p{L})/iv.test(text)) {
-        return FALLBACK[style];
-      }
-      const rawTokens = text.toLowerCase().split(/[\s,./\\-]+/).filter(Boolean);
-      const hasOrgKeyword = rawTokens.some((t) => 
-        COMPANY_KEYWORDS.has(t) ||
-        t.endsWith('verein') ||
-        t.endsWith('verband') ||
-        t.endsWith('gesellschaft') ||
-        t.endsWith('gemeinschaft') ||
-        t.endsWith('kasse') ||
-        t.endsWith('werk') ||
-        t.endsWith('werke')
-      );
-      if (hasOrgKeyword) {
-        return FALLBACK[style];
-      }
-    }
-
-    // 3. "Nachname, Vorname" -> "Vorname Nachname"
-    const comma = text.indexOf(',');
-    if (comma > 0) text = `${text.slice(comma + 1)} ${text.slice(0, comma)}`;
-
-    // 4. Wort-Tokenisierung & Titel-Entfernung
-    // Zerlegung an Whitespace; Satzzeichen am Wortende strippen (z. B. "Dr." -> "Dr", "Müller," -> "Müller")
-    // Bindestrich-Namen (Hans-Peter) bleiben dabei von Natur aus intakt.
-    const nameTokens = text.trim().split(/\s+/).filter(Boolean);
-    /** @type {string[]} */
-    const tokens = [];
-
-    for (const rawToken of nameTokens) {
-      const cleanEnd = rawToken.replace(/^[,;:(]+|[,;:.)]+$/g, '');
-      if (!cleanEnd) continue;
-
-      // Akademische Grade mit Punkt (z. B. "Dipl.-Ing.", "M.Sc.", "B.A.", "Dr.med.", "h.c.")
-      if (cleanEnd.includes('.')) {
-        continue;
-      }
-
-      const lower = cleanEnd.toLowerCase();
-      if (KNOWN_TITLES.has(lower)) continue;
-
-      // Einzelne Initialen (z. B. "J." in "Hans J. Müller" oder "E." in "E. K. Meier")
-      if (cleanEnd.length === 1 && (/^[A-Za-z]$/.test(cleanEnd) || rawToken.includes('.'))) {
-        continue;
-      }
-
-      tokens.push(cleanEnd);
-    }
-    if (tokens.length === 0) return FALLBACK[style];
-
-    // 5. Nachname inkl. Zusätze (von, van der, ...), Vorname = erstes Wort
-    let i = tokens.length - 1;
-    while (i > 0 && PARTICLES.has(tokens[i - 1].toLowerCase())) i--;
-    const lastName = tokens.slice(i).join(' ');
-    const firstName = i > 0 ? tokens[0] : '';
-
-    // 6. Ausgabe nach Stil. Ohne Herr/Frau-Präfix bleibt das Geschlecht
-    //    unbekannt — dann wird der Name genannt, aber keine Anrede geraten.
-    if (style === 'casual') {
-      if (firstName) return `Hallo ${firstName},`;
-      if (gender) return `${SALUTATION_TONES.casual[gender === 'f' ? 'salutationFemale' : 'salutationMale']} ${lastName},`;
-      return SALUTATION_TONES.casual.salutationDefault;
-    }
-
-    if (style === 'polite') {
-      if (gender === 'f') return `${SALUTATION_TONES.polite.salutationFemale} ${lastName},`;
-      if (gender === 'm') return `${SALUTATION_TONES.polite.salutationMale} ${lastName},`;
-      if (firstName && lastName) return `Guten Tag ${firstName} ${lastName},`;
-      return SALUTATION_TONES.polite.salutationDefault;
-    }
-
-    // formal
-    if (gender === 'f') return `${SALUTATION_TONES.formal.salutationFemale} ${lastName},`;
-    if (gender === 'm') return `${SALUTATION_TONES.formal.salutationMale} ${lastName},`;
-    if (firstName && lastName) return `Guten Tag ${firstName} ${lastName},`;
-    return SALUTATION_TONES.formal.salutationDefault;
+    return deriveSalutation(optsOrName, maybeFormality);
   },
 
   /** @param {string} [formality] */
@@ -307,23 +264,26 @@ export class SalutationFeature {
     const anredeEl = document.getElementById('anrede');
     const anrede = (anredeEl?.textContent || '').trim();
     if (anrede) {
-      const isAutoAnrede = STYLES.some((s) => SalutationEngine.derive({ rawName: name, formality: s }) === anrede)
-        || /** @type {string[]} */ (Object.values(FALLBACK)).includes(anrede)
-        || anrede === 'Sehr geehrte Damen und Herren,'
-        || anrede === 'Guten Tag,'
-        || anrede === 'Hallo,';
-      if (isAutoAnrede && anredeEl?.dataset.dirty !== 'true') {
+      const isAutoAnrede = FALLBACK_SET.has(/** @type {any} */ (anrede))
+        || STYLES.some((s) => SalutationEngine.derive({ rawName: name, formality: s }) === anrede);
+      if (isAutoAnrede && anredeEl) {
+        if (anredeEl.dataset.dirty === 'true') {
+          delete anredeEl.dataset.dirty;
+        }
+        anredeEl.dataset.generated = 'true';
         this.#auto.anrede = anrede;
-        if (anredeEl) anredeEl.dataset.generated = 'true';
       }
     }
     const grussEl = document.getElementById('grussformel');
     const gruss = (grussEl?.textContent || '').trim();
     if (gruss) {
-      const isAutoGruss = /** @type {string[]} */ (Object.values(CLOSINGS)).includes(gruss);
-      if (isAutoGruss && grussEl?.dataset.dirty !== 'true') {
+      const isAutoGruss = CLOSINGS_SET.has(/** @type {any} */ (gruss));
+      if (isAutoGruss && grussEl) {
+        if (grussEl.dataset.dirty === 'true') {
+          delete grussEl.dataset.dirty;
+        }
+        grussEl.dataset.generated = 'true';
         this.#auto.grussformel = gruss;
-        if (grussEl) grussEl.dataset.generated = 'true';
       }
     }
   }

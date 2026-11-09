@@ -175,6 +175,7 @@ ${produktionscodeTabelle()}
 | adr-check.js | Präventiver ADR-Drift-Wächter (Bijektion & Verwaiste Assets) |
 | reconciliation.js | Reality Reconciliation Engine (Evolutionary Fitness Score) |
 | check-feature.js | Portable BCD- und Browser-Feature-Abfrage (CLI) |
+| query_chrome_feature.mjs | Maschinenlesbare Upstream Ground-Truth Abfrage (Chromestatus/BCD) |
 | browser-audit.html | Interaktives Browser-Feature-Audit (GUI) |
 | imr.js | IMR-Registry & DIN-Geometrie-Invarianten |
 | isolation.js | A45 Website-Isolations-Prüfung |

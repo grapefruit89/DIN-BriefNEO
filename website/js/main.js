@@ -4,11 +4,13 @@
 
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
 import { ClipboardAddressParser } from './clipboard-parser.js';
-import { Events, eventBus, initToastSystem } from './core.js';
+import { Events, eventBus, hidePopoverSafe, initToastSystem, showPopoverSafe } from './core.js';
 import { collectDraft, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
+import { FontFeature } from './font-feature.js';
+import { applyLetterDate, formatTelefonnummer } from './format.js';
 /* js/main.js */
-import { applyLetterDate, initImportExport, MetadataService, migrateStorage, requestPersistentStorage } from './persistence.js';
+import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
 import { SalutationFeature } from './salutation.js';
 import { SettingsManager } from './settings.js';
 import { SignatureFeature } from './signature.js';
@@ -88,7 +90,6 @@ function initApp() {
     }
   }, { critical: true });
 
-  bootStep('Schema-Migration', () => migrateStorage());
   bootStep('Altlasten entfernen', () => {
     /* Binär-Assets liegen seit Schema-Umstellung in IndexedDB ([[ADR-BINARY-ASSETS]]).
      * Die alten Base64-Schlüssel werden bewusst verworfen, nicht migriert. */
@@ -98,7 +99,10 @@ function initApp() {
   bootStep('Dauerhafter Speicher', () => requestPersistentStorage());
 
   const draftManager = new DraftManager();
-  bootStep('Entwurf laden', () => draftManager.loadDraft());
+  bootStep('Entwurf laden', () => {
+    draftManager.loadDraft();
+    AddressIntelligence.targetLock = null;
+  });
   bootStep('Postvermerk', () => {
     syncPostvermerkFromSidebar(document.getElementById('vermerke')?.textContent || '');
   });
@@ -106,6 +110,7 @@ function initApp() {
 
   const uiProtections = new UIProtections();
   bootStep('UI-Schutz', () => uiProtections.init());
+  bootStep('Telefon-Formatierung', () => setupPhoneFormatting());
 
   const settingsManager = new SettingsManager();
   bootStep('Einstellungen', () => settingsManager.init());
@@ -126,7 +131,7 @@ function initApp() {
     }
   });
 
-  bootStep('Globale Listener', () => attachGlobalListeners(draftManager, uiProtections));
+  bootStep('Globale Listener', () => attachGlobalListeners(draftManager));
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());
@@ -134,14 +139,14 @@ function initApp() {
   bootStep('Clipboard-Button', () => ClipboardAddressParser.wireSidebarButton());
   bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
   bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
+  bootStep('Schriftart', () => new FontFeature(settingsManager).init());
   bootStep('Testdaten', () => initTestData());
 }
 
   /**
    * @param {DraftManager} draftManager
-   * @param {UIProtections} [_uiProtections]
    */
-  function attachGlobalListeners(draftManager, _uiProtections) {
+  function attachGlobalListeners(draftManager) {
     const btnPrint = document.getElementById('btn-print');
     const btnReset = document.getElementById('btn-reset');
     /** @type {any} */
@@ -168,8 +173,10 @@ function initApp() {
     const undoHinweisClose = /** @type {HTMLButtonElement | null} */ (document.getElementById('undo-hinweis-close'));
     /** @type {any} */
     let undoTimer = null;
+    let hasUndoSnapshot = false;
 
     const clearUndoSnapshot = () => {
+      hasUndoSnapshot = false;
       if (undoTimer) {
         clearTimeout(undoTimer);
         undoTimer = null;
@@ -179,11 +186,7 @@ function initApp() {
       } catch (e) {
         console.warn('[Undo] sessionStorage.removeItem fehlgeschlagen:', e);
       }
-      try {
-        if (undoHinweis?.matches(':popover-open')) {
-          undoHinweis.hidePopover();
-        }
-      } catch (_) {}
+      hidePopoverSafe(undoHinweis);
     };
 
     if (btnReset && resetDialog) {
@@ -207,13 +210,10 @@ function initApp() {
         AddressIntelligence.targetLock = null;
 
         if (snapshotSaved && undoHinweis) {
-          try {
-            undoHinweis.showPopover();
-            if (undoTimer) clearTimeout(undoTimer);
-            undoTimer = setTimeout(clearUndoSnapshot, 5000);
-          } catch (e) {
-            console.warn('[Undo] Popover konnte nicht geöffnet werden:', e);
-          }
+          hasUndoSnapshot = true;
+          showPopoverSafe(undoHinweis);
+          if (undoTimer) clearTimeout(undoTimer);
+          undoTimer = setTimeout(clearUndoSnapshot, 5000);
         }
       });
     }
@@ -225,6 +225,7 @@ function initApp() {
           if (raw) {
             const data = JSON.parse(raw);
             draftManager.restoreDraft(data);
+            AddressIntelligence.targetLock = null;
           }
         } catch (e) {
           console.error('[Undo] Fehler beim Wiederherstellen des Snapshots:', e);
@@ -239,11 +240,9 @@ function initApp() {
 
     const briefblatt = document.querySelector('din-blatt') || document;
     briefblatt.addEventListener('input', (e) => {
-      try {
-        if (sessionStorage.getItem('din_reset_snapshot')) {
-          clearUndoSnapshot();
-        }
-      } catch (_) {}
+      if (hasUndoSnapshot) {
+        clearUndoSnapshot();
+      }
       if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }
@@ -272,21 +271,64 @@ function initApp() {
   }
 
 /**
- * Verdrahtet den Testbrief-Button. Das Plugin wird erst beim Klick geladen,
- * damit die Figurendaten nicht im Startpfad liegen.
+ * Verdrahtet die Testdaten- & Demo-Buttons. Das Plugin wird erst beim Klick geladen,
+ * damit weder Figurendaten noch Demo-Texte im Startpfad liegen.
  */
 function initTestData() {
   const btnTestbrief = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-testbrief'));
-  if (!btnTestbrief) return;
+  if (btnTestbrief) {
+    btnTestbrief.addEventListener('click', async () => {
+      try {
+        const plugin = await import('../addons/testbrief/testbrief.js');
+        await plugin.starteTestbrief();
+      } catch (error) {
+        console.warn('[Testbrief] Plugin nicht verfügbar:', error);
+        btnTestbrief.disabled = true;
+        btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
+      }
+    });
+  }
 
-  btnTestbrief.addEventListener('click', async () => {
-    try {
-      const plugin = await import('../addons/testbrief/testbrief.js');
-      await plugin.starteTestbrief();
-    } catch (error) {
-      console.warn('[Testbrief] Plugin nicht verfügbar:', error);
-      btnTestbrief.disabled = true;
-      btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
+  const btnDemoLang = document.getElementById('btn-demo-lang');
+  if (btnDemoLang) {
+    btnDemoLang.addEventListener('click', async () => {
+      try {
+        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
+        fuelleDemoText('lang');
+      } catch (error) {
+        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
+      }
+    });
+  }
+
+  const btnDemoKurz = document.getElementById('btn-demo-kurz');
+  if (btnDemoKurz) {
+    btnDemoKurz.addEventListener('click', async () => {
+      try {
+        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
+        fuelleDemoText('kurz');
+      } catch (error) {
+        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
+      }
+    });
+  }
+}
+
+/**
+ * DIN 5008 11.3.2: Formatierung deutscher Rufnummern beim Verlassen des Telefonfeldes.
+ * Bewusst nur bei blur, nicht während des Tippens.
+ */
+function setupPhoneFormatting() {
+  const tel = document.getElementById('absender-tel');
+  if (!tel) return;
+  tel.addEventListener('blur', () => {
+    const current = (tel.textContent || '').trim();
+    if (!current) return;
+    const formatted = formatTelefonnummer(current);
+    if (formatted && formatted !== current) {
+      tel.textContent = formatted;
+      tel.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
 }
+

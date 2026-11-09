@@ -26,7 +26,6 @@ export function mountMultipage() {
   if (aktiv) return;
 
   const kern = document.getElementById('kern');
-  const text = document.getElementById('text');
   const probe = document.getElementById('probe');
   const status = document.getElementById('seiten-status');
   const folgekoepfe = document.getElementById('folgekoepfe');
@@ -35,16 +34,33 @@ export function mountMultipage() {
   /** @type {Array<() => void>} */
   const abraeumen = [];
 
-  /* Dynamische @page-Regel fuer den PDF-Kopf. Kein inline <style>: unter
-   * CSP `style-src 'self'` bekommt ein per JS erzeugtes <style> gar kein
-   * CSSStyleSheet, textContent und insertRule laufen beide ins Leere.
+  /* Dynamische @page-Regel fuer den PDF-Kopf (A25: nur einmalig allokieren).
+   * Kein inline <style>: unter CSP `style-src 'self'` bekommt ein per JS erzeugtes
+   * <style> gar kein CSSStyleSheet, textContent und insertRule laufen beide ins Leere.
    * Ein konstruiertes Stylesheet per adoptedStyleSheets ist kein Inline-Style
    * und wird von der CSP nicht angefasst. */
-  /** @type {CSSStyleSheet | null} */
-  let pageSheet = null;
+  const pageSheet = new CSSStyleSheet();
+  document.adoptedStyleSheets = [...document.adoptedStyleSheets, pageSheet];
+  let alteRegel = '';
 
+  let probeWarned = false;
   function mmZuPx() {
-    return probe ? probe.getBoundingClientRect().height / 1000 : 0;
+    if (!probe) {
+      if (!probeWarned) {
+        console.warn('[MultipageController] #probe Element fehlt.');
+        probeWarned = true;
+      }
+      return 0;
+    }
+    const h = probe.getBoundingClientRect().height;
+    if (h <= 0) {
+      if (!probeWarned) {
+        console.warn('[MultipageController] #probe liefert 0px Höhe.');
+        probeWarned = true;
+      }
+      return 0;
+    }
+    return h / 1000;
   }
 
   function aktualisieren() {
@@ -60,6 +76,9 @@ export function mountMultipage() {
     const n = Math.max(1, Math.round((hoeheMm + luecke) / (seite + luecke)));
 
     status.textContent = `Seite 1 von ${n}`;
+    document.body.dataset.seiten = String(n);
+    const vp = document.getElementById('viewport');
+    if (vp) vp.dataset.seiten = String(n);
 
     const empfName = (document.getElementById('empfaenger-name')?.textContent || '').trim();
     const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').trim();
@@ -67,12 +86,12 @@ export function mountMultipage() {
     const datum = (document.getElementById('datum')?.textContent || '').trim();
     const kopfText = `Brief an ${empfaenger} vom ${datum}`;
 
-    // Bildschirm-Folgekoepfe ab Seite 2 (DOM-Knoten ohne innerHTML, Law A61)
+    // Bildschirm-Folgekoepfe ab Seite 2 (DOM-Knoten ohne innerHTML, Law A61, A23 mit CSS-Variable --i)
     folgekoepfe.replaceChildren();
     for (let i = 1; i < n; i++) {
       const el = document.createElement('div');
       el.className = 'folgekopf-screen';
-      el.style.top = `calc(${i} * (var(--seite) + var(--luecke)) + 12mm)`;
+      el.style.setProperty('--i', String(i));
       const links = document.createElement('span');
       links.textContent = kopfText;
       const rechts = document.createElement('span');
@@ -81,44 +100,12 @@ export function mountMultipage() {
       folgekoepfe.append(el);
     }
 
-    // Paged-Media-Randbox aktualisieren: altes Sheet ersetzen, nicht stapeln.
-    if (pageSheet) {
-      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
+    // Paged-Media-Randbox aktualisieren: nur bei tatsächlicher Regel-Änderung syncen (A25)
+    const neueRegel = `@page { @top-left { content: "${esc(kopfText)}"; } }`;
+    if (neueRegel !== alteRegel) {
+      pageSheet.replaceSync(neueRegel);
+      alteRegel = neueRegel;
     }
-    pageSheet = new CSSStyleSheet();
-    pageSheet.replaceSync(`@page { @top-left { content: "${esc(kopfText)}"; } }`);
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, pageSheet];
-  }
-
-  const SAETZE = [
-    'Wir bestätigen den Eingang Ihres Schreibens und danken Ihnen für die ausführliche Darstellung des Sachverhalts.',
-    'Nach Prüfung der vorliegenden Unterlagen ergibt sich, dass die geltend gemachte Forderung dem Grunde nach besteht.',
-    'Die Höhe der Forderung konnten wir anhand der übersandten Belege jedoch nur teilweise nachvollziehen.',
-    'Wir bitten Sie daher, uns die fehlenden Nachweise bis zum Ende des laufenden Monats zukommen zu lassen.',
-    'Sollten sich Rückfragen ergeben, erreichen Sie uns telefonisch zu den üblichen Geschäftszeiten.',
-    'Bis zur Klärung bitten wir um Verständnis, dass wir keine weiteren Zahlungen veranlassen können.',
-    'Die sorgfältige Bearbeitung Ihrer Angelegenheit hat für unser Haus oberste Priorität.',
-    'Bitte beachten Sie auch die beigefügten Hinweise zur Einreichung ergänzender Unterlagen.',
-  ];
-
-  /**
-   * Erzeugt DOM-Absaetze fuer langen Mehrseitentext ohne innerHTML (Law A61)
-   * @returns {HTMLParagraphElement[]}
-   */
-  function erstelleLangenText() {
-    /** @type {HTMLParagraphElement[]} */
-    const absaetze = [];
-    for (let i = 0; i < 14; i++) {
-      let p = '';
-      const anzahl = 4 + (i % 3);
-      for (let j = 0; j < anzahl; j++) {
-        p += `${SAETZE[(i + j) % SAETZE.length]} `;
-      }
-      const pEl = document.createElement('p');
-      pEl.textContent = p.trim();
-      absaetze.push(pEl);
-    }
-    return absaetze;
   }
 
   // --- Listener (jeweils mit Abraeum-Funktion) ---
@@ -136,44 +123,16 @@ export function mountMultipage() {
     abraeumen.push(() => el.removeEventListener('input', aktualisieren));
   }
 
-  if (text) {
-    const btnLang = document.getElementById('btn-demo-lang');
-    if (btnLang) {
-      const onLang = () => {
-        text.replaceChildren(...erstelleLangenText());
-        text.dispatchEvent(new Event('input', { bubbles: true }));
-        aktualisieren();
-      };
-      btnLang.addEventListener('click', onLang);
-      abraeumen.push(() => btnLang.removeEventListener('click', onLang));
-    }
-
-    const btnKurz = document.getElementById('btn-demo-kurz');
-    if (btnKurz) {
-      const onKurz = () => {
-        const p1 = document.createElement('p');
-        p1.textContent = 'Sehr geehrte Damen und Herren,';
-        const p2 = document.createElement('p');
-        p2.textContent = 'dies ist ein kurzer Testbrief auf einer Seite. Nutzen Sie den Button „Langer Text“ oder tippen Sie weiteren Text ein, um den automatischen Umbruch auf Folgeseiten zu testen.';
-        text.replaceChildren(p1, p2);
-        text.dispatchEvent(new Event('input', { bubbles: true }));
-        aktualisieren();
-      };
-      btnKurz.addEventListener('click', onKurz);
-      abraeumen.push(() => btnKurz.removeEventListener('click', onKurz));
-    }
-  }
-
-  const initial = setTimeout(aktualisieren, 100);
-  abraeumen.push(() => clearTimeout(initial));
+  // Initialer Aufruf synchron (A26: redundanter setTimeout entfernt)
+  aktualisieren();
 
   abraeumen.push(() => {
     folgekoepfe.replaceChildren();
     status.textContent = 'Seite 1 von 1';
-    if (pageSheet) {
-      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
-      pageSheet = null;
-    }
+    delete document.body.dataset.seiten;
+    const vp = document.getElementById('viewport');
+    if (vp) delete vp.dataset.seiten;
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
   });
 
   aktiv = {

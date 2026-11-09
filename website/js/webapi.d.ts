@@ -4,28 +4,44 @@
  * Nur für den Typecheck — Runtime-Feature-Detect bleibt in den Modulen selbst.
  */
 
-interface CloseWatcherEvent extends Event { }
-
 /** Chrome 141+: programmatische a11y-Ansage (Screenreader), ohne Live-Region-DOM. */
-interface Document {
-  ariaNotify(text: string, options?: { priority?: 'high' | 'normal'; interrupt?: boolean }): void;
+interface AriaNotifyOptions {
+  priority?: 'high' | 'normal';
 }
 
+interface Document {
+  ariaNotify(text: string, options?: AriaNotifyOptions): void;
+}
 
+interface Element {
+  ariaNotify(text: string, options?: AriaNotifyOptions): void;
+}
 
-declare class CloseWatcher {
-  constructor(options?: { signal?: AbortSignal });
-  oncancel: ((e: CloseWatcherEvent) => void) | null;
-  onclose: ((e: CloseWatcherEvent) => void) | null;
-  requestClose(): void;
-  close(): void;
-  destroy(): void;
-  addEventListener(
-    type: 'close' | 'cancel',
-    listener: (e: CloseWatcherEvent) => void,
-    options?: AddEventListenerOptions | boolean
-  ): void;
-  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): void;
-  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): void;
-  dispatchEvent(event: Event): boolean;
+/**
+ * Minimal-Subset der ECMAScript Temporal API (Chromium 150+ Baseline).
+ * Deklariert die im Projekt produktiv genutzten PlainDate-, ZonedDateTime- und Now-Typen.
+ */
+declare namespace Temporal {
+  class PlainDate {
+    readonly year: number;
+    readonly month: number;
+    readonly day: number;
+    constructor(year: number, month: number, day: number);
+    toString(): string;
+    toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
+    static from(fields: { year: number; month: number; day: number } | string): PlainDate;
+  }
+  class ZonedDateTime {
+    toPlainDate(): PlainDate;
+    toString(): string;
+  }
+  const Now: {
+    zonedDateTimeISO(timeZone: string): ZonedDateTime;
+  };
+}
+
+declare namespace Intl {
+  interface DateTimeFormat {
+    format(date?: Date | number | Temporal.PlainDate): string;
+  }
 }

@@ -15,6 +15,7 @@ doc_links:
 - '[[ADR-JS]]'
 - '[[ADR-DATA-PERSISTENCE]]'
 - '[[ADR-EVENT-DRIVEN-ARCHITECTURE]]'
+- '[[ADR-TYPOGRAPHY]]'
 - '[[BACKLOG]]'
 code_links:
 - 'website/index.html'
@@ -100,13 +101,9 @@ Falzmarken, Leer-Zustände) liegen in `base.css` unter `@media print`.
 
 | Pfad | Zweck | Format | Geladen von |
 | :--- | :--- | :--- | :--- |
-| `website/addons/testbrief/charactere.json` | Figurenkatalog, 297 Figuren | JSON | `addons/testbrief/testbrief.js` (modul-relativ via `import.meta.url`) |
-| `website/data/orte.json.gz` | PLZ → Ort, **kanonisch** | gzip-JSON | `js/address.js` |
-| `website/data/de_plz_ort.json.gz` | Kompatibilitätskopie von `orte` | gzip-JSON | `js/address.js` (Fallback) |
+| `website/addons/testbrief/figuren.json` | Figurenkatalog, 297 Figuren (Schema v2.1 Tuples) | JSON | `addons/testbrief/testbrief.js` (modul-relativ via `import.meta.url`) |
+| `website/data/orte.json.gz` | PLZ → Ort + Ortsteile + Bundesländer (Columnar, [[ADR-COLUMNAR-DATA]]), **kanonisch** | gzip-JSON | `js/address.js` |
 | `website/data/grosskunden.json.gz` | Großempfänger-Index, **kanonisch** | gzip-JSON | `js/address.js` |
-| `website/data/de_grosskunden_plz.json.gz` | Kompatibilitätskopie | gzip-JSON | `js/address.js` (Fallback) |
-| `website/data/de_districts.json.gz` | Ortsteile / Zustellbezirke | gzip-JSON | `js/address.js` |
-| `website/data/bundesbehoerden.json.gz` | Bundesbehörden (498 PLZ) | gzip-JSON | **kein Laufzeit-Leser** — nur Ausgabe von `tools/build_plz_databases.py` |
 
 Die App bündelt **keine** Daten. Alles kommt per `fetch` aus `website/data/` —
 deshalb muss der Ordner beim Deploy mitgehen.
@@ -114,13 +111,8 @@ deshalb muss der Ordner beim Deploy mitgehen.
 ## 4a. Build-Zeit (nicht Laufzeit)
 
 `tools/` enthält Build-Zeit-Skripte; nichts davon läuft im Browser.
-Datenquelle der Adressdaten: `tools/build_plz_databases.py` schreibt `data/*.json.gz`
-(`orte`, `grosskunden`, `bundesbehoerden`, `de_districts` sowie die
-Kompatibilitätskopien `de_*`). Gate, Isolation, Links und IMR liegen ebenfalls dort —
-Einzeleinträge in [[STRUCTURE]].
-
-Konsequenz: `bundesbehoerden.json.gz` hat keinen Laufzeit-Leser, weil sie ein
-Pipeline-Ergebnis ist, kein Laufzeit-Datum.
+Font-Subsetting: `tools/subset_fonts.py` dampft Roh-TTF/OTF aus `Fonts/` in DIN-5008-konforme `.woff2` nach `website/fonts/` ein (siehe [[ADR-TYPOGRAPHY]]).
+Datenquelle der Adressdaten: `tools/build_plz_data.mjs` schreibt `data/orte.json.gz` (Columnar, wertebasiert). `data/grosskunden.json.gz` bündelt alle Firmen und Bundesbehörden. Gate, Isolation, Links und IMR liegen ebenfalls dort — Einzeleinträge in [[STRUCTURE]].
 
 ## 4b. Tests (nur lokal)
 

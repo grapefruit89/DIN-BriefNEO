@@ -137,119 +137,12 @@ export function setCaretToEnd(element) {
   selection.addRange(range);
 }
 
-/**
- * Formatiert deutsche Rufnummern nach DIN 5008 11.3.2: Vorwahl, ein Leerzeichen,
- * Rufnummer, Durchwahl mit Bindestrich. Ohne Vorwahl-Datenbank — die Vorwahl endet am
- * ersten Trenner; ohne Trenner wird sie über die Ziffernzahl geschätzt.
- * Nummern mit fremder Ländervorwahl bleiben bis auf normale Leerzeichen unverändert.
- * @param {string | null | undefined} input
- * @returns {string}
- */
-export function formatTelefonnummer(input) {
-  const original = String(input ?? '').trim();
-  if (!original) return '';
-
-  // 1. Vorbereinigung: "(0)" auflösen, erlaubte Zeichen behalten, Leerraum normalisieren.
-  const cleaned = original
-    .replace(/\(\s*0\s*\)/g, ' ')
-    .replace(/[^0-9+\-/ ]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (!cleaned) return original;
-
-  // 2. Internationale Nummern: 00XX -> +XX. Nur +49 wird national weitergereicht.
-  if (cleaned.startsWith('+') || cleaned.startsWith('00')) {
-    const intl = cleaned.replace(/^00(\d{2})/, '+$1');
-    if (!intl.startsWith('+49')) return intl;
-    const afterCc = intl.slice(3).replace(/[^0-9-]/g, '');
-    if (!afterCc) return intl;
-    const national = afterCc.startsWith('0') ? afterCc : `0${afterCc}`;
-    const formatted = formatNationalNumber(national);
-    return formatted ? `+49 ${formatted.slice(1)}` : intl;
-  }
-
-  // 3. Nationale Nummern nur mit führender 0 — sonst unangetastet lassen.
-  if (!cleaned.startsWith('0')) return original;
-  return formatNationalNumber(cleaned) ?? original;
-}
-
-/**
- * Formatiert eine nationale Rufnummer (führende 0) in Vorwahl + Rufnummer + Durchwahl.
- * @param {string} national
- * @returns {string | null} null, wenn keine verwertbare Nummer vorliegt
- */
-function formatNationalNumber(national) {
-  let s = national.replace(/\s+/g, ' ').trim();
-  if (!/^0\d/.test(s.replace(/\D/g, ''))) return null;
-
-  // Durchwahl: abschließender Bindestrich + höchstens 4 Ziffern ("0228 123456-78").
-  // Ein längerer Rest nach dem Bindestrich ist ein Trenner ("0172-1234567"), keine Durchwahl.
-  let durchwahl = '';
-  const dwMatch = s.match(/^(.*\d)-(\d{1,4})$/);
-  if (dwMatch) {
-    s = dwMatch[1].trim();
-    durchwahl = `-${dwMatch[2]}`;
-  } else {
-    // Durchwahl als letzte, per Leerzeichen abgetrennte 2er-Gruppe ("0228 123456 78").
-    // Mobilnummern werden laut Vorgabe zu einer Gruppe zusammengefasst, daher dort nicht.
-    // Die Gruppe davor muss eine plausible Rufnummer sein (>= 4 Ziffern), sonst würde
-    // eine Gruppierung wie "0170 123 45 67" falsch als Durchwahl gelesen.
-    const groups = s.split(' ');
-    const isMobile = /^01[5-7]\d/.test(s.replace(/[\s/-]+/g, ''));
-    if (!isMobile && groups.length >= 3) {
-      const last = groups[groups.length - 1];
-      const before = groups[groups.length - 2];
-      if (/^\d{2}$/.test(last) && /^\d{4,}$/.test(before)) {
-        s = groups.slice(0, -1).join(' ');
-        durchwahl = `-${last}`;
-      }
-    }
-  }
-
-  // Vorwahl: endet am ersten Trenner (Leerzeichen, / oder -).
-  const sepIndex = s.search(/[ /-]/);
-  const head = sepIndex === -1 ? s : s.slice(0, sepIndex);
-  const headDigits = head.replace(/\D/g, '');
-
-  let vorwahl;
-  let rest;
-  if (headDigits.length >= 3 && headDigits.length <= 6) {
-    vorwahl = headDigits;
-    rest = s.slice(sepIndex === -1 ? s.length : sepIndex).replace(/\D/g, '');
-  } else {
-    // Kein brauchbarer Trenner: Ziffernzahl entscheidet (siehe prefixLength).
-    const digits = s.replace(/\D/g, '');
-    vorwahl = digits.slice(0, prefixLength(digits));
-    rest = digits.slice(vorwahl.length);
-  }
-
-  if (!vorwahl) return null;
-  return rest ? `${vorwahl} ${rest}${durchwahl}` : `${vorwahl}${durchwahl}`;
-}
-
-/**
- * Schätzt die Vorwahl-Länge ohne Datenbank (DIN 5008 erlaubt 2 bis 5 Ziffern nach der 0).
- * Deutsche Ortsnetznummern haben 10 oder 11 Ziffern inklusive Verkehrsausscheidungsziffer;
- * daraus folgt 4 Ziffern Vorwahl bei 10, sonst 5. Bekannte kurze Vorwahlen und Sonder-
- * rufnummern werden vorher erkannt.
- * @param {string} digits
- * @returns {number}
- */
-function prefixLength(digits) {
-  if (/^0(30|40|69|89)\d/.test(digits)) return 3;
-  if (/^01[5-7]\d/.test(digits)) return 4;
-  if (/^0(?:800|900|180|137|700)/.test(digits)) return 4;
-  return digits.length <= 10 ? 4 : 5;
-}
-
 /* =========================================================================================
  * 2. UI PROTECTIONS (Zeilenlimits, Paste-Schutz, Anlagen-Struktur)
  * ========================================================================================= */
 
 /** Fallback-Länge für Einzeiler ohne eigenen Eintrag in FIELD_MAX_LENGTHS. */
 const SINGLE_LINE_MAX = 50;
-/** Obergrenze für eingefügten Text in zweizeiligen Feldern. */
-const TWO_LINE_PASTE_MAX = 130;
 
 const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'rucksendeangabe': 85,
@@ -283,7 +176,6 @@ export class UIProtections {
     this.enforceLineLimits();
     this.protectAnlagenList();
     this.setupPrintProtection();
-    this.setupMobilePhoneFormatting();
     this.setupOverflowDetector();
     this.initialized = true;
   }
@@ -374,7 +266,7 @@ export class UIProtections {
     if (!target || !(target instanceof HTMLElement)) return;
 
     const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
-    let pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
+    const pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
     if (!pastedText) return;
 
     // Rich-Text-Light: Plaintext-Paste im Text erhält Zeilenumbrüche, streift aber fremdes HTML/CSS ab
@@ -405,28 +297,31 @@ export class UIProtections {
 
     if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
 
-    clipboardEvent.preventDefault();
+    // Einzeiler & Zweizeiler (plaintext-only): Umbrüche glätten, wenn nötig
+    const isSingleLine = target.classList.contains('single-line');
     const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
-    const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
 
-    if (isTwoLine) {
-      const maxChars = maxLimit || TWO_LINE_PASTE_MAX;
-      pastedText = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
-      if (pastedText.length > maxChars) pastedText = pastedText.substring(0, maxChars);
-    } else {
-      pastedText = pastedText.replace(/[\r\n]+/g, ' ');
-      if (maxLimit > 0) {
-        const currentLen = (target.textContent || '').length;
-        pastedText = pastedText.substring(0, Math.max(0, maxLimit - currentLen));
-      }
+    if (isSingleLine && /[\r\n]/.test(pastedText)) {
+      clipboardEvent.preventDefault();
+      this.#insertPlainTextAtCursor(pastedText.replace(/[\r\n]+/g, ' '), target);
+    } else if (isTwoLine && pastedText.split(/\r?\n/).length > 2) {
+      clipboardEvent.preventDefault();
+      const twoLines = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
+      this.#insertPlainTextAtCursor(twoLines, target);
     }
+  }
 
-    if (!pastedText) return;
-
+  /**
+   * Fügt Plaintext an der aktuellen Cursorposition ein (Law A52 konform via Selection API).
+   * @param {string} textToInsert
+   * @param {HTMLElement} target
+   */
+  #insertPlainTextAtCursor(textToInsert, target) {
     const selection = window.getSelection();
     if (!selection?.rangeCount) return;
     selection.deleteFromDocument();
-    selection.getRangeAt(0).insertNode(document.createTextNode(pastedText));
+    const node = document.createTextNode(textToInsert);
+    selection.getRangeAt(0).insertNode(node);
     selection.collapseToEnd();
     target.dispatchEvent(new Event('input', { bubbles: true }));
   }
@@ -481,7 +376,9 @@ export class UIProtections {
    * @param {HTMLElement} anlagen
    */
   ensureListStructure(anlagen) {
-    if (anlagen.innerHTML.trim() === '' || anlagen.innerHTML.trim() === '<br>') {
+    const hasText = Boolean((anlagen.textContent || '').trim());
+    const hasLi = Boolean(anlagen.querySelector('li'));
+    if (!hasText && !hasLi) {
       const li = document.createElement('li');
       anlagen.replaceChildren(li);
       this.#placeCaretIn(anlagen, li);
@@ -603,24 +500,6 @@ export class UIProtections {
   }
 
   /**
-   * DIN 5008 11.3.2: Formatierung deutscher Rufnummern beim Verlassen des Telefonfeldes.
-   * Bewusst nur bei blur, nicht während des Tippens.
-   */
-  setupMobilePhoneFormatting() {
-    const tel = document.getElementById('absender-tel');
-    if (!tel) return;
-    tel.addEventListener('blur', () => {
-      const current = (tel.textContent || '').trim();
-      if (!current) return;
-      const formatted = formatTelefonnummer(current);
-      if (formatted && formatted !== current) {
-        tel.textContent = formatted;
-        tel.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    });
-  }
-
-  /**
    * D1: Overflow-Erkennung im Briefkern (#kern).
    * Dual-Check via CSSOM View APIs: scrollHeight + BoundingClientRect-Fallback.
    * Setzt data-ueberlauf und data-ueberlauf-zeilen am din-blatt.
@@ -676,14 +555,24 @@ export class UIProtections {
 
     // ResizeObserver auf #kern für Viewport- und Zoomwechsel
     if (typeof ResizeObserver !== 'undefined') {
-      const ro = new ResizeObserver(() => {
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+      }
+      this.resizeObserver = new ResizeObserver(() => {
         checkOverflow();
       });
-      ro.observe(kern);
+      this.resizeObserver.observe(kern);
     }
 
     // Initialer Check beim Start
     checkOverflow();
+  }
+
+  destroy() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 }
 

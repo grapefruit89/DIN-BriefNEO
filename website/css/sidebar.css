@@ -22,6 +22,8 @@ aside.seitenleiste,
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
   z-index: 10;
   transition: transform 0.3s ease;
   touch-action: pan-y;           /* Erlaubt vertikales Scrollen, blockiert Pinch-Zoom-Gesten auf der Leiste */
@@ -294,7 +296,7 @@ fieldset.seitenleiste-field-group > legend {
   position: absolute;
   position-anchor: --anchor-anschrift-suche;
   position-area: bottom span-x;
-  position-try-options: flip-block;
+  position-try-fallbacks: flip-block;
   top: auto;
   left: auto;
   width: anchor-size(width);
@@ -340,6 +342,33 @@ fieldset.seitenleiste-field-group > legend {
 .autocomplete-sub {
   color: var(--text-muted);
   font-weight: normal;
+}
+
+.unverified-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75em;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
+  border: 1px solid var(--border-color);
+  opacity: 0.85;
+  vertical-align: middle;
+}
+
+.mismatch-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
+  background: light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
+  border: 1px solid light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
+  vertical-align: middle;
 }
 
 /* --- COMMENT FORMAT --- */
@@ -395,154 +424,69 @@ fieldset.seitenleiste-field-group > legend {
   background: color-mix(in oklch, var(--c-danger) 18%, transparent);
 }
 
-/* Geoapify API-Key BYOK Form (Platform-first, Native Constraints) */
-.key-form {
-  display: grid;
-  gap: var(--space-xs, 4px);
-}
-.key-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs, 4px);
-  position: relative;
-}
-.key-row .input-field {
-  flex: 1;
-  min-width: 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.8rem;
-  padding: 6px 10px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm, 4px);
-  background: var(--input-bg, transparent);
+/* Signature / Stamp action button — 2-state look */
+#btn-unterschrift-aktion {
+  background: var(--segment-bg);
   color: var(--text-primary);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* Alle Statusmeldungen standardmäßig aus */
-.key-msg {
-  margin: 2px 0 0;
-  min-height: 1.2em;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-.key-msg .msg {
-  display: none;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
-/* Direktlink zum Geoapify-Dashboard: Key anlegen oder kopieren */
+#btn-unterschrift-aktion:hover {
+  background: var(--segment-active-bg);
+}
+
+#btn-unterschrift-aktion[data-state="loaded"] {
+  background: color-mix(in oklch, var(--c-danger) 10%, transparent);
+  border-color: color-mix(in oklch, var(--c-danger) 30%, transparent);
+  color: var(--c-danger);
+}
+
+#btn-unterschrift-aktion[data-state="loaded"]:hover {
+  background: color-mix(in oklch, var(--c-danger) 18%, transparent);
+}
+
+/* Geoapify API-Key BYOK (100% KISS) */
 .key-hint-link {
   justify-self: start;
   font-size: 0.75rem;
   color: var(--text-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
+  margin-top: 2px;
 }
 .key-hint-link:hover,
 .key-hint-link:focus-visible {
   color: var(--accent-color);
 }
 
-/* Fallback OHNE JS (data-key-state nicht gesetzt) */
-.key-form:not([data-key-state]):has(input:placeholder-shown) .msg-empty {
-  display: inline;
-  color: var(--text-muted);
+.input-status-hint {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  min-height: 1.2em;
+  margin-top: 2px;
 }
-.key-form:not([data-key-state]):has(input:not(:placeholder-shown):invalid) .msg-format {
-  display: inline;
-  color: var(--c-danger);
-}
-.key-form:not([data-key-state]):has(input:not(:placeholder-shown):valid) .msg-format {
-  display: inline;
-  color: var(--c-success);
-}
+.input-status-hint[data-status="valid"] { color: var(--c-success); }
+.input-status-hint[data-status="invalid"] { color: var(--c-danger); }
+.input-status-hint[data-status="pending"] { color: var(--accent-color); }
+.input-status-hint[data-status="error"] { color: var(--c-warning, oklch(0.75 0.14 75)); }
 
-/* Zustände via data-key-state (JS-gesteuert) */
-.key-form[data-key-state="empty"] .msg-empty {
-  display: inline;
-  color: var(--text-muted);
-}
-.key-form[data-key-state="typing"] .msg-format {
-  display: inline;
-  color: var(--text-muted);
-}
-.key-form[data-key-state="pending"] .msg-pending {
-  display: inline;
-  color: var(--accent-color);
-}
-.key-form[data-key-state="valid"] .msg-valid {
-  display: inline;
-  color: light-dark(oklch(0.36 0.14 145), oklch(0.85 0.14 145));
-}
-.key-form[data-key-state="invalid"] .msg-invalid {
-  display: inline;
-  color: light-dark(oklch(0.42 0.18 25), oklch(0.85 0.16 25));
-}
-.key-form[data-key-state="error"] .msg-error {
-  display: inline;
-  color: var(--c-warning, oklch(0.75 0.14 75));
-}
-
-/* Rahmenfarben nach Zustand */
-.key-form[data-key-state="valid"] .key-row input {
+.input-field[data-status="valid"] {
   border-color: var(--c-success);
   box-shadow: 0 0 0 2px color-mix(in oklch, var(--c-success) 20%, transparent);
 }
-.key-form[data-key-state="invalid"] .key-row input {
+.input-field[data-status="invalid"] {
   border-color: var(--c-danger);
   box-shadow: 0 0 0 2px color-mix(in oklch, var(--c-danger) 20%, transparent);
 }
-.key-form[data-key-state="error"] .key-row input {
-  border-color: var(--c-warning, oklch(0.75 0.14 75));
-}
-.key-form:not([data-key-state]):has(input:not(:placeholder-shown):invalid) .key-row input {
-  border-color: var(--c-danger);
-}
-.key-form:not([data-key-state]):has(input:not(:placeholder-shown):valid) .key-row input {
-  border-color: var(--c-success);
-}
-
-/* Zeichenzähler: nur während des Tippens sichtbar */
-.key-counter {
-  display: none;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  min-width: 3.2em;
-  text-align: right;
-}
-.key-form[data-key-state="typing"] .key-counter {
-  display: inline-block;
-}
-
-/* Entfernen-Button: erscheint per :has() automatisch, sobald Feld nicht leer ist */
-.key-remove {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm, 4px);
-  background: var(--segment-bg);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.85rem;
-  line-height: 1;
-  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
-}
-.key-form:has(input:not(:placeholder-shown)) .key-remove {
-  display: inline-flex;
-}
-.key-remove:hover {
-  background: color-mix(in oklch, var(--c-danger) 15%, transparent);
-  color: var(--c-danger);
-  border-color: color-mix(in oklch, var(--c-danger) 40%, transparent);
-}
-.key-remove:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 1px;
+.input-field[data-status="pending"] {
+  border-color: var(--accent-color);
 }
 
 
@@ -749,6 +693,50 @@ input[type="checkbox"][switch] {
 }
 
 /* Modus-Steuerung (Brief vs. Einstellungen via CSS :has) */
+.seitenleiste-setup-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-header-row {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-setup-header {
+  display: flex;
+}
+
+/* Zurück-Button im Setup-Header (Drill-Down) */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--segment-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-back:hover {
+  background: var(--segment-active-bg);
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
+.btn-back:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 #seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup {
   display: none;
 }
@@ -759,14 +747,18 @@ input[type="checkbox"][switch] {
   display: none;
 }
 
+#seitenleiste:has(#toggle-modus:checked) #zone-setup {
+  display: flex;
+  flex-direction: column;
+}
+
 #seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-print,
 #seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset,
 #seitenleiste:has(#toggle-modus:checked) #zone-aktionen .seitenleiste-divider {
   display: none;
 }
 
-#seitenleiste:has(#toggle-modus:checked) #btn-einstellungen,
-#seitenleiste:has(#toggle-modus:checked) label[for="toggle-modus"] {
+#seitenleiste:has(#toggle-modus:checked) #btn-einstellungen {
   background: var(--segment-active-bg, oklch(35% 0.02 260));
   color: var(--accent-color, oklch(75% 0.16 240));
 }
@@ -822,6 +814,7 @@ input[type="checkbox"][switch] {
 }
 
 /* Gespeichert: Klares Grün mit starkem Kontrast in beiden Themes */
+.save-status[data-state="saved"],
 .save-status.saved {
   color: light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
   background: light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
@@ -829,6 +822,7 @@ input[type="checkbox"][switch] {
 }
 
 /* Speichern / Dirty: Warmes Amber */
+.save-status[data-state="dirty"],
 .save-status.dirty {
   color: light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
   background: light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
@@ -836,6 +830,7 @@ input[type="checkbox"][switch] {
 }
 
 /* Fehler: Signal-Rot */
+.save-status[data-state="error"],
 .save-status.error {
   color: light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
   background: light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
@@ -905,10 +900,10 @@ input[type="checkbox"][switch] {
   background: oklch(50% 0.2 20 / 10%);
 }
 
-#hinweis-v4.type-success { border-left: 4px solid var(--c-success); }
-#hinweis-v4.type-error { border-left: 4px solid var(--c-danger); }
-#hinweis-v4.type-info { border-left: 4px solid var(--c-primary); }
-#hinweis-v4.type-warning { border-left: 4px solid var(--c-warning); }
+#hinweis-v4[data-type="success"] { border-left: 4px solid var(--c-success); }
+#hinweis-v4[data-type="error"]   { border-left: 4px solid var(--c-danger); }
+#hinweis-v4[data-type="info"]    { border-left: 4px solid var(--c-primary); }
+#hinweis-v4[data-type="warning"] { border-left: 4px solid var(--c-warning); }
 
 /* Undo-Hinweis nach Reset (Top-Layer Popover) */
 #undo-hinweis {
@@ -982,10 +977,8 @@ input[type="checkbox"][switch] {
   background: oklch(50% 0.2 20 / 10%);
 }
 
-/* Gemeinsamer Glas-Look beider Vorschlagslisten. Nur die abweichende
-   Positionierung und Groesse steht in den einzelnen Bloecken. */
-#anschrift-vorschlaege,
-#plz-suggestions-popover {
+/* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) {
   position: absolute;
   position-try-fallbacks: flip-block;
   margin-top: 4px;
@@ -998,6 +991,20 @@ input[type="checkbox"][switch] {
   padding: 4px;
   list-style: none;
   opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              display 0.15s allow-discrete,
+              overlay 0.15s allow-discrete;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover):popover-open {
+  display: block;
+  opacity: 1;
+}
+
+@starting-style {
+  :is(#anschrift-vorschlaege, #plz-suggestions-popover):popover-open {
+    opacity: 0;
+  }
 }
 
 #anschrift-vorschlaege {
@@ -1005,25 +1012,6 @@ input[type="checkbox"][switch] {
   position-area: bottom span-right;
   width: anchor-size(width);
   max-height: 250px;
-  transform: translateY(-5px);
-  transition: 
-    opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-    display 0.15s allow-discrete,
-    overlay 0.15s allow-discrete;
-}
-
-#anschrift-vorschlaege:popover-open {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@starting-style {
-  #anschrift-vorschlaege:popover-open {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
 }
 
 #anschrift-vorschlaege li {
@@ -1052,27 +1040,12 @@ input[type="checkbox"][switch] {
   min-width: max(300px, anchor-size(width));
   max-width: 440px;
   max-height: 400px;
-  transition: opacity 0.15s ease-out, display 0.15s allow-discrete,
-              overlay 0.15s allow-discrete;
 }
 
 #anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,
 :has(#empfaenger-firma:focus) #plz-suggestions-popover,
 body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
   position-anchor: --anchor-firma;
-}
-
-#plz-suggestions-popover:popover-open,
-#plz-suggestions-popover[popover]:popover-open {
-  display: block;
-  opacity: 1;
-}
-
-@starting-style {
-  #plz-suggestions-popover:popover-open,
-  #plz-suggestions-popover[popover]:popover-open {
-    opacity: 0;
-  }
 }
 
 #plz-suggestions-popover li {
@@ -1169,7 +1142,6 @@ aside input[type="password"],
 aside input[type="search"],
 aside textarea,
 aside select {
-  -webkit-user-select: text;
   user-select: text;
 }
 
@@ -1186,7 +1158,7 @@ aside select {
   outline-offset: -2px;
 }
 
-/* Native Dialoge (Glassmorphism) */
+/* Native Dialoge (Glassmorphism & Top-Layer Transitions gem. animate-to-from-top-layer) */
 .glass-dialog {
   border: 1px solid var(--border-color);
   background: var(--bg-seitenleiste-glass);
@@ -1197,10 +1169,32 @@ aside select {
   padding: 20px;
   max-width: min(90vw, 420px);
   margin: auto;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              display 0.2s allow-discrete,
+              overlay 0.2s allow-discrete;
+}
+.glass-dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
 .glass-dialog::backdrop {
+  opacity: 0;
   background: oklch(0% 0 0 / 40%);
   backdrop-filter: blur(4px);
+  transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+}
+.glass-dialog[open]::backdrop {
+  opacity: 1;
+  @starting-style {
+    opacity: 0;
+  }
 }
 .dialog-actions {
   display: flex;
@@ -1225,8 +1219,41 @@ aside select {
   border-color: oklch(0.38 0.16 28);
 }
 
+/* Workbench UI Styling (C13: aus sheet-multipage.css umgezogen) */
+.workbench-box {
+  border: 1.5px solid var(--accent-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+  background: light-dark(oklch(from var(--accent-color) l c h / 5%), oklch(from var(--accent-color) l c h / 12%));
+}
+.workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+.workbench-title {
+  font-size: 0.85rem;
+  color: var(--accent-color);
+}
+.workbench-status {
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.workbench-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.workbench-actions .btn {
+  flex: 1;
+  font-size: 0.78rem;
+  padding: 4px 6px;
+}
+
 /* --- PLUGINS (Schalter in den Einstellungen) ---
    Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
    setzt SettingsManager.#applyPlugins() aus din_settings. */
-body[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }
-body[data-plugin-multipage="false"] .workbench-box { display: none !important; }
+:root[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }
+:root[data-plugin-multipage="false"] .workbench-box { display: none !important; }

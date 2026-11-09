@@ -1,0 +1,6737 @@
+{
+  "_meta": {
+    "version": "2.1",
+    "name": "Figurenkatalog",
+    "stand": "2026-11-09",
+    "figuren": 297,
+    "schema": [
+      "name",
+      "buergerlicherName",
+      "alias",
+      "geschlecht",
+      "firma",
+      "strasse",
+      "plz",
+      "ort",
+      "franchise",
+      "medium",
+      "rolle",
+      "hinweis",
+      "quellenAnzahl",
+      "hooks"
+    ],
+    "herkunft": "Kuratiert aus 325 Rohfiguren der Sammel-Pipeline: 25 ohne belegbare Anschrift entfernt, 3 ergaenzt, alle Adressen gegen Quellen geprueft.",
+    "marker": "keine feste Anschrift",
+    "hinweis": "plz traegt echte Postleitzahlen je Stadt; mehrere belegte Werte sind mit | getrennt und werden pro Brief neu gewuerfelt. Postlagernd und das Zeichen U+2105 (care of) sind gueltige Zustellwege.",
+    "hooksRegel": "Nur konkrete Gegenstände (kein Ort, kein Konzept, keine Attacke), 2 bis 3 je Figur, ikonischster zuerst. Im Brief als Doppelpunkt-Nachtrag.",
+    "dubletten": "2026-11-08 zusammengelegt (Aliase, Hooks und belegte Anschrift vereint): Roronoa Zorro→Roronoa Zoro, The Joker→Joker, Yennefer→Yennefer von Vengerberg, Mickey Maus→Micky Maus, Sam Vimes→Sam Mumm, Goku→Son-Goku. Sauron war mit Voldemort-Daten verunreinigt (buergerlicherName \"Tom Marvolo Riddle\") und wurde bereinigt."
+  },
+  "figuren": [
+    [
+      "Agent Smith",
+      "Agent Smith",
+      [
+        "Smith"
+      ],
+      "d",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Matrix",
+      "Matrix",
+      "Film",
+      "Antagonist",
+      "Ein Agentenprogramm, das sich im Verlauf der Reihe verselbstständigt.",
+      2,
+      [
+        "Sonnenbrille",
+        "Schwarzer Anzug",
+        "Ohrhörer"
+      ]
+    ],
+    [
+      "Ahsoka Tano",
+      "Ahsoka Tano",
+      [
+        "Asajj Ventress",
+        "Sabine Wren"
+      ],
+      "f",
+      "",
+      "Jedi-Schiff T-6 Shuttle 1",
+      "",
+      "Coruscant",
+      "Star Wars",
+      "Anime",
+      "Antiheld",
+      "Jedi-Kriegerin aus The Clone Wars",
+      1,
+      [
+        "Lichtschwert",
+        "Shoto",
+        "Stirnreif"
+      ]
+    ],
+    [
+      "Albert Wesker",
+      "Albert Wesker",
+      [
+        "Wesker"
+      ],
+      "m",
+      "Umbrella Corporation",
+      "Arklay-Forschungseinrichtung",
+      "",
+      "Raccoon City, Vereinigte Staaten",
+      "Resident Evil",
+      "Videospiel",
+      "Antagonist",
+      "Ehemaliger S.T.A.R.S.-Offizier und zentraler Gegenspieler mehrerer Spiele.",
+      2,
+      [
+        "Sonnenbrille",
+        "Reagenzglas",
+        "Kampfmesser"
+      ]
+    ],
+    [
+      "Albus Dumbledore",
+      "Albus Percival Wulfric Brian Dumbledore",
+      [
+        "Professor Dumbledore",
+        "Der alte Mann mit dem langen Bart"
+      ],
+      "m",
+      "",
+      "Hogwarts-Schule für Hexerei und Zauberei",
+      "PH99 9AA",
+      "Schottland",
+      "Harry Potter",
+      "Buch",
+      "Mentor",
+      "Schulleiter von Hogwarts; die genaue Lage der Schule ist magisch verborgen.",
+      2,
+      [
+        "Holunderstab",
+        "Denkarium",
+        "Feuervogel"
+      ]
+    ],
+    [
+      "Alfred Pennyworth",
+      "Alfred Thaddeus Crane Pennyworth",
+      [
+        "Alfred",
+        "Penny-One",
+        "Der Butler"
+      ],
+      "m",
+      "Wayne-Familie",
+      "Wayne Manor",
+      "07089",
+      "Gotham City",
+      "DC Comics",
+      "Comic",
+      "Sidekick",
+      "Butler, Vertrauter und medizinischer Helfer von Bruce Wayne; vollständiger Name variiert nach Kontinuität.",
+      2,
+      [
+        "Serviertablett",
+        "Teekanne",
+        "Staubwedel"
+      ]
+    ],
+    [
+      "Alyx Vance",
+      "Alyx Vance",
+      [
+        "Alyx"
+      ],
+      "f",
+      "",
+      "Postlagernd",
+      "",
+      "City 17",
+      "Half-Life",
+      "Videospiel",
+      "Sidekick",
+      "Wichtige Verbündete von Gordon Freeman und Hauptfigur des Spiels Half-Life: Alyx.",
+      1,
+      [
+        "Pistole",
+        "Schwerkrafthandschuhe"
+      ]
+    ],
+    [
+      "Andrew Ryan",
+      "Andrei Rianofski",
+      [
+        "Gründer von Rapture",
+        "Der Gründer Raptures"
+      ],
+      "m",
+      "",
+      "Ryan Amusements",
+      "",
+      "Rapture",
+      "BioShock",
+      "Videospiel",
+      "Antagonist",
+      "Gründer der Unterwasserstadt Rapture; der Geburtsname wird in der Spielhandlung enthüllt.",
+      2,
+      [
+        "Golfschläger",
+        "Bathysphäre"
+      ]
+    ],
+    [
+      "Annabeth Chase",
+      "Annabeth Chase",
+      [
+        "Architektin des Olymps",
+        "Wise Girl"
+      ],
+      "f",
+      "",
+      "Camp Half-Blood",
+      "11501",
+      "Long Island, New York",
+      "Percy Jackson",
+      "Buch",
+      "Mentor",
+      "Tochter der Athene und begabte Strategin.",
+      2,
+      [
+        "Yankees-Kappe",
+        "Messer"
+      ]
+    ],
+    [
+      "Aquaman",
+      "Arthur Curry",
+      [
+        "König von Atlantis",
+        "Orin",
+        "Meister der Meere"
+      ],
+      "m",
+      "Justice League",
+      "Königspalast von Atlantis",
+      "",
+      "Atlantis",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Halb Mensch (Arthur Curry), halb Atlanter (Sohn von Königin Atlanna). Weitere Angabe: Königreich Atlantis.",
+      2,
+      [
+        "Dreizack",
+        "Seepferd"
+      ]
+    ],
+    [
+      "Aragorn",
+      "Aragorn II. Elessar",
+      [
+        "Elessar",
+        "Streicher",
+        "König Elessar",
+        "König von Gondor"
+      ],
+      "m",
+      "",
+      "Königspalast",
+      "",
+      "Minas Tirith, Gondor",
+      "Der Herr der Ringe",
+      "Buch",
+      "Protagonist",
+      "Wird nach dem Ringkrieg König von Gondor und Arnor.",
+      2,
+      [
+        "Anduril",
+        "Bogen"
+      ]
+    ],
+    [
+      "Arbiter",
+      "Thel 'Vadamee",
+      [
+        "Thel 'Vadam"
+      ],
+      "m",
+      "Swords of Sanghelios",
+      "Vadam Keep",
+      "",
+      "Sanghelios",
+      "Halo",
+      "Videospiel",
+      "Antiheld",
+      "Ehemaliger Covenant-Feldherr; wurde zum symbolischen Titel 'Arbiter' und Verbündeten der Menschen. Vadam Keep ist der Sitz des Hauses 'Vadam am Kolaar-Berg auf Sanghelios",
+      1,
+      [
+        "Energieschwert",
+        "Plasmagewehr",
+        "Kampfrüstung"
+      ]
+    ],
+    [
+      "Arthur Dent",
+      "Arthur Philip Dent",
+      [
+        "Der Erdenmensch"
+      ],
+      "m",
+      "BBC Radio",
+      "Country Lane",
+      "",
+      "Cottington, West Country",
+      "Per Anhalter durch die Galaxis",
+      "Buch",
+      "Protagonist",
+      "Überlebender der zerstörten Erde im Bademantel.",
+      1,
+      [
+        "Handtuch",
+        "Bademantel",
+        "Teebeutel"
+      ]
+    ],
+    [
+      "Arthur Morgan",
+      "Arthur Morgan",
+      [
+        "Arthur"
+      ],
+      "m",
+      "Van-der-Linde-Bande",
+      "Postlagernd",
+      "",
+      "Valentine, New Hanover",
+      "Red Dead Redemption 2",
+      "Videospiel",
+      "Antiheld",
+      "Outlaw, dessen Aufenthaltsort im Spiel fortlaufend wechselt.",
+      1,
+      [
+        "Revolver",
+        "Sattel",
+        "Notizbuch"
+      ]
+    ],
+    [
+      "Arya Stark",
+      "Arya Stark",
+      [
+        "Arry",
+        "Kein Einer",
+        "Katze der Kanäle"
+      ],
+      "f",
+      "",
+      "Große Burg von Winterfell",
+      "",
+      "Winterfell, Der Norden",
+      "Game of Thrones",
+      "Serie",
+      "Protagonist",
+      "Weitere Zugehoerigkeit: Faceless Men",
+      1,
+      [
+        "Nadel",
+        "Münze"
+      ]
+    ],
+    [
+      "Ash Ketchum",
+      "Ash Ketchum",
+      [
+        "Satoshi (japanischer Name)",
+        "Satoshi",
+        "Pokémon-Meister",
+        "Ash Ketchum"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Alabastia, Kanto",
+      "Pokémon",
+      "Anime",
+      "Protagonist",
+      "Im japanischen Original heißt die Figur Satoshi.",
+      3,
+      [
+        "Pokéball",
+        "Baseballkappe",
+        "Pokédex"
+      ]
+    ],
+    [
+      "Ash Williams",
+      "Ashley Joanna Williams",
+      [
+        "Ash"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "48087",
+      "Michigan, Vereinigte Staaten",
+      "Tanz der Teufel",
+      "Film",
+      "Antiheld",
+      "Der vollständige Name wird in einzelnen Filmen und Begleitmaterial verwendet.",
+      1,
+      [
+        "Kettensäge",
+        "Schrotflinte",
+        "Necronomicon"
+      ]
+    ],
+    [
+      "Asterix",
+      "Asterix",
+      [
+        "Der kleine Krieger",
+        "Der kleine Gallier"
+      ],
+      "m",
+      "",
+      "Dorfplatz 1",
+      "",
+      "Aremorica",
+      "Asterix",
+      "Comic",
+      "Protagonist",
+      "Hüter des Zaubertranks an der Seite von Obelix.",
+      3,
+      [
+        "Zaubertrank",
+        "Flügelhelm"
+      ]
+    ],
+    [
+      "Atlas",
+      "Frank Fontaine",
+      [
+        "Frank Fontaine"
+      ],
+      "m",
+      "Fontaine Futuristics",
+      "Postlagernd",
+      "",
+      "Rapture",
+      "BioShock",
+      "Videospiel",
+      "Antagonist",
+      "Atlas ist eine falsche Identität, die Frank Fontaine benutzt.",
+      1,
+      [
+        "Funkgerät",
+        "Pistole"
+      ]
+    ],
+    [
+      "Baron Vladimir Harkonnen",
+      "Vladimir Harkonnen",
+      [
+        "Der Baron"
+      ],
+      "m",
+      "",
+      "Harkonnen-Festung",
+      "",
+      "Giedi Prime",
+      "Dune",
+      "Film",
+      "Antagonist",
+      "Die genaue Residenz und der Planetensitz werden in den verschiedenen Adaptionen unterschiedlich dargestellt.",
+      2,
+      [
+        "Schwebegürtel",
+        "Schwarzer Umhang"
+      ]
+    ],
+    [
+      "Bart Simpson",
+      "Bartholomew JoJo Simpson",
+      [
+        "El Barto"
+      ],
+      "m",
+      "",
+      "742 Evergreen Terrace",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Protagonist",
+      "El Barto ist sein Graffiti-Pseudonym.",
+      2,
+      [
+        "Skateboard",
+        "Schleuder",
+        "Tafelkreide"
+      ]
+    ],
+    [
+      "Batgirl",
+      "Barbara Gordon",
+      [
+        "Oracle",
+        "Babs"
+      ],
+      "f",
+      "Gotham City Public Library",
+      "Clocktower Plaza 1",
+      "07089",
+      "Gotham City",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Tochter von Commissioner Jim Gordon, operiert als Batgirl und später als Oracle. Weitere Angabe: Birds of Prey.",
+      1,
+      [
+        "Batarang",
+        "Enterhaken",
+        "Motorrad"
+      ]
+    ],
+    [
+      "Batman",
+      "Bruce Wayne",
+      [
+        "Bruce Wayne",
+        "Dunkler Ritter",
+        "Caped Crusader",
+        "Der Mitternachtsdetektiv",
+        "Mitternachtsdetektiv",
+        "The Dark Knight",
+        "The Batman"
+      ],
+      "m",
+      "Wayne Enterprises",
+      "Wayne Manor 1007",
+      "07089",
+      "Gotham City",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Wayne Manor liegt je nach Kontinuität außerhalb des Stadtzentrums. Eine universell gültige Straßenadresse existiert nicht.",
+      4,
+      [
+        "Batmobil",
+        "Batarang",
+        "Batsignal"
+      ]
+    ],
+    [
+      "Beerus",
+      "Beerus",
+      [
+        "Der Gott des Zerstörens"
+      ],
+      "m",
+      "",
+      "Tempel des Gottes der Zerstörung",
+      "",
+      "Universe 7",
+      "Dragon Ball",
+      "Anime",
+      "Antagonist",
+      "Gott der Zerstörung",
+      1,
+      [
+        "Pudding",
+        "Eiscreme"
+      ]
+    ],
+    [
+      "Beetlejuice",
+      "Beetlejuice",
+      [
+        "Betelgeuse"
+      ],
+      "m",
+      "",
+      "BJ's Roadhouse",
+      "",
+      "Jenseits",
+      "Beetlejuice",
+      "Film",
+      "Antiheld",
+      "Ein exzentrischer Geist; die Schreibweise des Namens unterscheidet sich zwischen Film, Serie und Musical.",
+      1,
+      [
+        "Zebraanzug",
+        "Visitenkarte"
+      ]
+    ],
+    [
+      "Bender",
+      "Bender Bending Rodríguez",
+      [
+        "Bender Bending Rodríguez",
+        "Flexo-ähnlicher Blechroboter",
+        "Bending Rodriguez"
+      ],
+      "m",
+      "Planet Express",
+      "Robot Arms Apts., Apartment 00100100",
+      "10001",
+      "New New York",
+      "Futurama",
+      "Cartoon",
+      "Antiheld",
+      "Roboter mit ausgeprägter Vorliebe für Alkohol, Glücksspiel und Diebstahl. Seine Apartmentnummer ist 00100100 (Folge \"I, Roommate\").",
+      2,
+      [
+        "Bierflasche",
+        "Zigarre",
+        "Goldkette"
+      ]
+    ],
+    [
+      "Bienlein",
+      "Tryphon Tournesol",
+      [
+        "Professor Tournesol",
+        "Professor Calculus",
+        "Tryphon Tournesol",
+        "Prof. Bienlein"
+      ],
+      "m",
+      "Schloss Mühlenhof Laboratorium",
+      "Schloss Mühlenhof 1",
+      "",
+      "Moulinsart",
+      "Tim und Struppi",
+      "Comic",
+      "Support",
+      "Schwerhöriger, genialer Erfinder von Haifisch-U-Boot und Mondrakete.",
+      2,
+      [
+        "Halsband",
+        "Knochen"
+      ]
+    ],
+    [
+      "Bilbo Beutlin",
+      "Bilbo Beutlin",
+      [
+        "Meisterdieb",
+        "Finder des Rings",
+        "Bilbo Baggins",
+        "Der alte Ringfinder"
+      ],
+      "m",
+      "",
+      "Beutelsend",
+      "",
+      "Hobbingen, Auenland",
+      "Der Herr der Ringe",
+      "Buch",
+      "Protagonist",
+      "Onkel von Frodo Beutlin, Verfasser von 'Hin und zurück'.",
+      3,
+      [
+        "Stich",
+        "Pfeife",
+        "Tagebuch"
+      ]
+    ],
+    [
+      "Bill Cipher",
+      "Bill Cipher",
+      [
+        "Der Traumdämon"
+      ],
+      "d",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Nightmare Realm",
+      "Gravity Falls",
+      "Cartoon",
+      "Antagonist",
+      "Ein interdimensionales Wesen mit dem Aussehen eines gelben Dreiecks.",
+      1,
+      [
+        "Zylinder",
+        "Fliege",
+        "Spazierstock"
+      ]
+    ],
+    [
+      "Black Panther",
+      "T'Challa",
+      [
+        "König von Wakanda",
+        "Black Panther"
+      ],
+      "m",
+      "",
+      "Königspalast",
+      "",
+      "Wakanda",
+      "Marvel Comics",
+      "Comic",
+      "Protagonist",
+      "T'Challa ist König und Beschützer Wakandas; seine Regierungsrolle variiert über die Comic-Kontinuitäten.",
+      1,
+      [
+        "Vibranium",
+        "Kralle",
+        "Kettenhemd"
+      ]
+    ],
+    [
+      "Black Widow",
+      "Natasha Romanoff",
+      [
+        "Schwarze Witwe",
+        "Natalie Rushman",
+        "Natasha Romanoff",
+        "Natalia Romanova",
+        "Black Widow"
+      ],
+      "f",
+      "S.H.I.E.L.D.",
+      "Avengers Compound",
+      "12099",
+      "Upstate New York",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Ehemalige sowjetische Spionin, Meisterin der Kampfkunst und Taktik. Weitere Angabe: Avengers.",
+      3,
+      [
+        "Handgelenkschützer",
+        "Pistole"
+      ]
+    ],
+    [
+      "Booker DeWitt",
+      "Booker DeWitt",
+      [
+        "Zachary Hale Comstock"
+      ],
+      "m",
+      "DeWitt Investigations",
+      "108 Bowery Street",
+      "10013",
+      "New York City",
+      "BioShock Infinite",
+      "Videospiel",
+      "Antiheld",
+      "Seine alternative Identität als Zachary Comstock ist zentral für die Handlung. Apartment in New York, Adresse nie genannt. Frueherer Arbeitgeber: Pinkerton National Detective Agency",
+      1,
+      [
+        "Revolver",
+        "Sky-Hook"
+      ]
+    ],
+    [
+      "Bowser",
+      "Bowser",
+      [
+        "König der Koopas",
+        "King Koopa",
+        "König Bowser"
+      ],
+      "m",
+      "Koopa-Truppe",
+      "Bowsers Schloss",
+      "",
+      "Koopa-Königreich",
+      "Super Mario",
+      "Videospiel",
+      "Antagonist",
+      "Hauptgegner der Mario-Reihe.",
+      2,
+      [
+        "Stachelpanzer",
+        "Kart"
+      ]
+    ],
+    [
+      "Bugs Bunny",
+      "Bugs Bunny",
+      [
+        "Der schlaue Hase"
+      ],
+      "m",
+      "Warner Bros. Cartoons",
+      "Postlagernd",
+      "",
+      "Looney-Tunes-Welt",
+      "Looney Tunes",
+      "Cartoon",
+      "Protagonist",
+      "Eine festgelegte zivile Adresse ist nicht kanonisch etabliert. Teilt sich in \"The Looney Tunes Show\" ein Haus in einer Sackgasse; Strasse unbenannt.",
+      1,
+      [
+        "Karotte",
+        "Weiße Handschuhe"
+      ]
+    ],
+    [
+      "Bulma",
+      "Bulma",
+      [
+        "Bulma Brief"
+      ],
+      "f",
+      "",
+      "Capsule Corporation",
+      "",
+      "West City, Erde",
+      "Dragon Ball",
+      "Anime",
+      "Sidekick",
+      "Brillante Erfinderin und Tochter des Gründers der Capsule Corporation.",
+      1,
+      [
+        "Drachenradar",
+        "Hoi-Poi-Kapsel"
+      ]
+    ],
+    [
+      "Captain America",
+      "Steven Grant Rogers",
+      [
+        "Cap",
+        "Der erste Rächer",
+        "The Sentinel of Liberty",
+        "Sentinel of Liberty"
+      ],
+      "m",
+      "S.H.I.E.L.D.",
+      "569 Leaman Place",
+      "11201",
+      "Brooklyn, New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Supersoldat aus dem Zweiten Weltkrieg, Anführer der Avengers. Weitere Angabe: US Army.",
+      2,
+      [
+        "Schild",
+        "Motorrad"
+      ]
+    ],
+    [
+      "Cersei Lennister",
+      "Cersei Lannister",
+      [
+        "Königin Cersei",
+        "Regentin der Sieben Königslande"
+      ],
+      "f",
+      "",
+      "Roter Bergfried",
+      "",
+      "Königsmund, Westeros",
+      "Game of Thrones",
+      "Serie",
+      "Antagonist",
+      "Die Schreibweise Lennister stammt aus der deutschen Buchübersetzung; die Serie verwendet häufig Lannister.",
+      2,
+      [
+        "Weinbecher",
+        "Krone"
+      ]
+    ],
+    [
+      "Charlie Bucket",
+      "Charlie Bucket",
+      [
+        "Charlie"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Wonka-Schokoladenfabrik",
+      "Charlie und die Schokoladenfabrik",
+      "Buch",
+      "Protagonist",
+      "Armer Junge, der ein goldenes Ticket für die Schokoladenfabrik gewinnt.",
+      1,
+      [
+        "Goldenes Ticket",
+        "Schokoladentafel"
+      ]
+    ],
+    [
+      "Chewbacca",
+      "Chewbacca",
+      [
+        "Chewie"
+      ],
+      "m",
+      "Rebellenallianz",
+      "Baumstadt",
+      "",
+      "Kashyyyk",
+      "Star Wars",
+      "Film",
+      "Protagonist",
+      "Wookiee-Krieger und loyaler Co-Pilot von Han Solo. Weitere Angabe: Millennium Falcon.",
+      2,
+      [
+        "Bowcaster",
+        "Patronengurt",
+        "Schraubenschlüssel"
+      ]
+    ],
+    [
+      "Chihiro Ogino",
+      "Chihiro Ogino",
+      [
+        "Sen"
+      ],
+      "f",
+      "Badehaus von Yubaba",
+      "Aburaya-Badehaus",
+      "",
+      "Geisterwelt",
+      "Studio Ghibli",
+      "Anime",
+      "Protagonist",
+      "Sen ist der Name, den Yubaba ihr bei der Arbeit im Badehaus gibt.",
+      2,
+      [
+        "Onigiri",
+        "Bahnfahrkarte",
+        "Schuh"
+      ]
+    ],
+    [
+      "Ciri",
+      "Cirilla Fiona Elen Riannon",
+      [
+        "Löwenjunges von Cintra",
+        "Zireael",
+        "Cirilla Fiona Elen Riannon",
+        "Das Kind des Älteren Blutes"
+      ],
+      "f",
+      "",
+      "Schloss",
+      "",
+      "Cintra",
+      "The Witcher",
+      "Buch",
+      "Protagonist",
+      "Prinzessin von Cintra; ihr vollständiger Name stammt aus der Buchreihe.",
+      2,
+      [
+        "Schwert Zireael",
+        "Kapuzenumhang"
+      ]
+    ],
+    [
+      "Clementine",
+      "Clementine",
+      [
+        "Clem"
+      ],
+      "f",
+      "",
+      "Postlagernd",
+      "30197",
+      "Georgia, Vereinigte Staaten",
+      "The Walking Dead",
+      "Videospiel",
+      "Protagonist",
+      "Hauptfigur der gleichnamigen Adventure-Spielreihe von Telltale Games.",
+      1,
+      [
+        "Baseballmütze",
+        "Pistole"
+      ]
+    ],
+    [
+      "Commander Shepard",
+      "Kommandant Shepard",
+      [
+        "Shepard",
+        "Der Held der Citadel",
+        "Commander"
+      ],
+      "d",
+      "Systems Alliance",
+      "Normandy",
+      "",
+      "Milchstraße",
+      "Mass Effect",
+      "Videospiel",
+      "Protagonist",
+      "Vorname, Geschlecht und Hintergrund werden vom Spieler bestimmt.; Vorname vom Spieler wählbar",
+      2,
+      [
+        "N7-Rüstung",
+        "Omni-Werkzeug",
+        "Mako"
+      ]
+    ],
+    [
+      "Cortana",
+      "Cortana",
+      [
+        "KI Cortana"
+      ],
+      "d",
+      "UNSC",
+      "℅ Master Chief",
+      "",
+      "UNSC Infinity",
+      "Halo",
+      "Videospiel",
+      "Sidekick",
+      "Künstliche Intelligenz (KI) mit menschlicher Persönlichkeit; lebt digital im Anzug von Master Chief.",
+      1,
+      [
+        "Datenchip",
+        "Hologramm"
+      ]
+    ],
+    [
+      "Corvo Attano",
+      "Corvo Attano",
+      [
+        "Der königliche Beschützer"
+      ],
+      "m",
+      "Kaiserliches Gericht von Dunwall",
+      "Dunwall Tower",
+      "",
+      "Dunwall, Inselreich Gristol",
+      "Dishonored",
+      "Videospiel",
+      "Protagonist",
+      "Rahmenhandlung: verdeckt operierender Attentäter mit übernatürlichen Outsider-Kräften.",
+      1,
+      [
+        "Totenkopfmaske",
+        "Armbrust",
+        "Schwert"
+      ]
+    ],
+    [
+      "Daenerys Targaryen",
+      "Daenerys Targaryen",
+      [
+        "Drachenmutter",
+        "Khaleesi",
+        "Königin von Meereen",
+        "Die Unverbrannte",
+        "Mhysa",
+        "Mutter der Drachen",
+        "Sturmtochter",
+        "Sturmkönigin"
+      ],
+      "f",
+      "",
+      "Große Pyramide von Meereen",
+      "",
+      "Drachenstein",
+      "Game of Thrones",
+      "Serie",
+      "Protagonist",
+      "Titel wie 'Sturmtochter aus dem Hause Targaryen' sind kein bürgerlicher Name.",
+      3,
+      [
+        "Dracheneier",
+        "Krone"
+      ]
+    ],
+    [
+      "Daffy Duck",
+      "Daffy Duck",
+      [
+        "Daffy"
+      ],
+      "m",
+      "Warner Bros. Cartoons",
+      "Postlagernd",
+      "",
+      "Looney-Tunes-Welt",
+      "Looney Tunes",
+      "Cartoon",
+      "Antiheld",
+      "Rivale und gelegentlicher Partner von Bugs Bunny. Wohnt in \"The Looney Tunes Show\" bei Bugs in einer unbenannten Sackgasse.",
+      1,
+      [
+        "Raumhelm",
+        "Schrotflinte"
+      ]
+    ],
+    [
+      "Dagobert Duck",
+      "Scrooge McDuck",
+      [
+        "Reichste Ente der Welt",
+        "Der Fantastilliardär",
+        "Onkel Dagobert",
+        "Scrooge McDuck",
+        "Der reichste Erpel der Welt",
+        "Dagobert Duck"
+      ],
+      "m",
+      "Duck Enterprises",
+      "Killmotor Hill",
+      "",
+      "Entenhausen",
+      "Entenhausen (Disney)",
+      "Comic",
+      "Protagonist",
+      "Schwimmt im Geld; Glückszehner ist sein größter Schatz. Weitere Angabe: Geldtransport AG.",
+      3,
+      [
+        "Glückstaler",
+        "Zylinder",
+        "Geldscheinbündel"
+      ]
+    ],
+    [
+      "Dalton-Brüder",
+      "Dalton-Brüder",
+      [
+        "Joe, William, Jack und Averell Dalton"
+      ],
+      "d",
+      "",
+      "Verschiedene Gefängnisse",
+      "",
+      "Wilder Westen, Vereinigte Staaten",
+      "Lucky Luke",
+      "Comic",
+      "Antagonist",
+      "Gruppeneintrag für die fiktionalen Dalton-Brüder der Lucky-Luke-Reihe; kein einzelner Charakterdatensatz.",
+      1,
+      [
+        "Sträflingsanzug",
+        "Revolver"
+      ]
+    ],
+    [
+      "Daniel Düsentrieb",
+      "Daniel Düsentrieb",
+      [
+        "Der geniale Ingenieur",
+        "Gyro Gearloose"
+      ],
+      "m",
+      "Erfinder-Werkstatt Düsentrieb",
+      "Erfinderweg 1",
+      "",
+      "Entenhausen",
+      "Entenhausen (Disney)",
+      "Comic",
+      "Support",
+      "Erfinder von Helferlein und Phantomias-Ausrüstung. Motto: 'Dem Ingeniör ist nichts zu schwör'.",
+      3,
+      [
+        "Denkhaube",
+        "Schraubenschlüssel",
+        "Werkzeugkasten"
+      ]
+    ],
+    [
+      "Daredevil",
+      "Matthew Michael Murdock",
+      [
+        "Der Mann ohne Furcht",
+        "Teufel von Hell's Kitchen"
+      ],
+      "m",
+      "Nelson & Murdock",
+      "463 8th Avenue",
+      "10036",
+      "Hell's Kitchen, New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Erblindeter Anwalt mit geschärften Radarsinnen.",
+      1,
+      [
+        "Blindenstock",
+        "Schlagstock",
+        "Maske"
+      ]
+    ],
+    [
+      "Darth Maul",
+      "Maul",
+      [
+        "Maul"
+      ],
+      "m",
+      "Sith-Orden",
+      "Crimson Dawn-Hauptquartier",
+      "",
+      "Dathomir",
+      "Star Wars",
+      "Film",
+      "Antagonist",
+      "Zabrak-Krieger von Dathomir; spätere Handlungen zeigen seine Entwicklung zum unabhängigen Machtspieler.",
+      2,
+      [
+        "Doppelklingen-Lichtschwert",
+        "Speeder-Bike"
+      ]
+    ],
+    [
+      "Darth Vader",
+      "Anakin Skywalker",
+      [
+        "Lord Vader",
+        "Anakin Skywalker",
+        "Der Auserwählte",
+        "Der Dunkle Lord der Sith",
+        "Thomas A. Anderson",
+        "Der Junge, der lebt"
+      ],
+      "m",
+      "Galaktisches Imperium",
+      "Vader-Festung",
+      "",
+      "Mustafar",
+      "Star Wars",
+      "Film",
+      "Antagonist",
+      "Mustafar ist nur ein einzelner Schauplatz, nicht der Hauptwirkungsort.",
+      4,
+      [
+        "Lichtschwert",
+        "Atemmaske",
+        "Todesstern"
+      ]
+    ],
+    [
+      "Data",
+      "Data",
+      [
+        "Lieutenant Commander Data"
+      ],
+      "m",
+      "Sternenflotte",
+      "USS Enterprise-D",
+      "",
+      "Weltraum",
+      "Star Trek",
+      "Serie",
+      "Sidekick",
+      "Android und Offizier der Sternenflotte.",
+      1,
+      [
+        "Violine",
+        "Tricorder"
+      ]
+    ],
+    [
+      "Davy Jones",
+      "Davy Jones",
+      [
+        "Kapitän der Flying Dutchman"
+      ],
+      "m",
+      "",
+      "Flying Dutchman",
+      "",
+      "Karibik",
+      "Fluch der Karibik",
+      "Film",
+      "Antagonist",
+      "Übernatürlicher Kapitän, der über die Seelen der Ertrunkenen wacht.",
+      1,
+      [
+        "Schatzkiste",
+        "Pfeifenorgel",
+        "Dreispitz"
+      ]
+    ],
+    [
+      "Deadpool",
+      "Wade Winston Wilson",
+      [
+        "Merc with a Mouth",
+        "Der Söldner mit der großen Klappe",
+        "Wade Wilson"
+      ],
+      "m",
+      "",
+      "Wohnwagen, Anchor of Mercy Hospital-Gelände",
+      "10001",
+      "New York",
+      "Marvel Comics",
+      "Comic",
+      "Antiheld",
+      "Söldner mit Regenerationsfähigkeit und häufigem Durchbrechen der vierten Wand.",
+      2,
+      [
+        "Katanas",
+        "Maske",
+        "Pistolen"
+      ]
+    ],
+    [
+      "Dele Adebayo",
+      "Dele Adebayo",
+      [
+        "Mr. Adebayo"
+      ],
+      "m",
+      "Adebayo Associates",
+      "1 Adebayo Tower, Main Street",
+      "900001",
+      "Abuja, Nigeria",
+      "Der Undercover-König",
+      "Serie",
+      "Protagonist",
+      "Fiktive Figur für dieses Briefsystem; Beispiel für Nicht-US-Seriencharakter.",
+      1,
+      []
+    ],
+    [
+      "Der Doktor",
+      "Der Doktor",
+      [
+        "The Doctor",
+        "Time Lord",
+        "Doctor Who",
+        "Der Zeitlord"
+      ],
+      "d",
+      "",
+      "TARDIS",
+      "",
+      "Raum und Zeit",
+      "Doctor Who",
+      "Serie",
+      "Protagonist",
+      "Die Figur regeneriert sich in unterschiedliche Erscheinungsformen; ein allgemein bekannter bürgerlicher Name ist nicht kanonisch festgelegt.",
+      2,
+      [
+        "Schallschraubendreher",
+        "TARDIS",
+        "Jellybabys"
+      ]
+    ],
+    [
+      "Dexter Morgan",
+      "Dexter Morgan",
+      [
+        "Bay Harbor Butcher",
+        "Der Bay Harbor Butcher",
+        "Der Dunkle Passagier"
+      ],
+      "m",
+      "Miami Metro Police Department",
+      "Wohnung 10B, 1155 Palmetto Drive",
+      "33101",
+      "Miami, Florida",
+      "Dexter",
+      "Serie",
+      "Antiheld",
+      "Forensischer Blutspurenanalyst und Serienmörder; Wohnorte ändern sich im Verlauf der Reihe.",
+      2,
+      [
+        "Messer",
+        "Blutobjektträger",
+        "Plastikplane"
+      ]
+    ],
+    [
+      "Din Djarin",
+      "Din Djarin",
+      [
+        "Der Mandalorianer",
+        "Mando"
+      ],
+      "m",
+      "Mandalorianer",
+      "Razor Crest",
+      "",
+      "Galaxis",
+      "Star Wars",
+      "Serie",
+      "Protagonist",
+      "Sein Raumschiff wird im Serienverlauf ersetzt.",
+      1,
+      [
+        "Helm",
+        "Jetpack",
+        "Blaster"
+      ]
+    ],
+    [
+      "Dipper Pines",
+      "Mason Pines",
+      [
+        "Dipper"
+      ],
+      "m",
+      "",
+      "Mystery Shack",
+      "",
+      "Gravity Falls, Oregon",
+      "Gravity Falls",
+      "Cartoon",
+      "Protagonist",
+      "Dipper ist sein Spitzname; sein Vorname Mason wird im Begleitmaterial bestätigt.",
+      1,
+      [
+        "Tagebuch 3",
+        "Trucker-Cap mit Pinienbaum"
+      ]
+    ],
+    [
+      "Discworld-Tod",
+      "Discworld-Tod",
+      [
+        "Tod",
+        "DEATH"
+      ],
+      "d",
+      "",
+      "Haus des Todes",
+      "",
+      "Dimension des Todes",
+      "Scheibenwelt",
+      "Buch",
+      "Sonstiges",
+      "Anthropomorphe Personifikation des Todes; wird in der englischen Originalfassung oft in Kapitälchen dargestellt.",
+      1,
+      [
+        "Sense",
+        "Sanduhr",
+        "Schwarze Kutte"
+      ]
+    ],
+    [
+      "Doc Brown",
+      "Emmett Lathrop Brown",
+      [
+        "Dr. Emmett Brown"
+      ],
+      "m",
+      "Brown Industries",
+      "1640 Riverside Drive",
+      "90098",
+      "Hill Valley, Kalifornien",
+      "Zurück in die Zukunft",
+      "Film",
+      "Mentor",
+      "Erfinder der Zeitmaschine; seine Wohn- und Arbeitsorte variieren zwischen den Filmen.",
+      2,
+      [
+        "Fluxkompensator",
+        "Plutonium",
+        "DeLorean"
+      ]
+    ],
+    [
+      "Doctor Doom",
+      "Victor von Doom",
+      [
+        "Victor von Doom",
+        "Herrscher von Latveria",
+        "Dr. Doom"
+      ],
+      "m",
+      "Regierung von Latveria",
+      "Schloss Doom",
+      "",
+      "Doomstadt, Latveria",
+      "Marvel Comics",
+      "Comic",
+      "Antagonist",
+      "Herrscher eines fiktiven europäischen Staates.",
+      2,
+      [
+        "Eisenmaske",
+        "Rüstung",
+        "Umhang"
+      ]
+    ],
+    [
+      "Doctor Strange",
+      "Stephen Vincent Strange",
+      [
+        "Sorcerer Supreme",
+        "Meister der mystischen Künste"
+      ],
+      "m",
+      "Masters of the Mystic Arts",
+      "177A Bleecker Street",
+      "10012",
+      "Greenwich Village, New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Ehemaliger Neurochirurg, Oberster Zauberer der Erde. Weitere Angabe: Sanctum Sanctorum.",
+      1,
+      [
+        "Umhang",
+        "Amulett"
+      ]
+    ],
+    [
+      "Dr. Eggman",
+      "Ivo Robotnik",
+      [
+        "Doctor Robotnik",
+        "Ivo Robotnik"
+      ],
+      "m",
+      "Eggman Empire",
+      "Eggman-Basis",
+      "",
+      "Mobius",
+      "Sonic the Hedgehog",
+      "Videospiel",
+      "Antagonist",
+      "Eggman und Robotnik sind regional beziehungsweise historisch unterschiedliche Namensformen.",
+      1,
+      [
+        "Eggmobile",
+        "Roboter"
+      ]
+    ],
+    [
+      "Dr. John Watson",
+      "John Hamish Watson",
+      [
+        "John H. Watson",
+        "Dr. Watson"
+      ],
+      "m",
+      "",
+      "221B Baker Street",
+      "NW1 6XE",
+      "London, England",
+      "Sherlock Holmes",
+      "Buch",
+      "Sidekick",
+      "Mitbewohner und Chronist der Holmes-Fälle; der zweite Vorname Hamish stammt aus späterer Kontinuitätstradition.",
+      2,
+      [
+        "Arztkoffer",
+        "Revolver",
+        "Gehstock"
+      ]
+    ],
+    [
+      "Dr. Manhattan",
+      "Jon Osterman",
+      [
+        "Dr. Jon Osterman",
+        "Jon Osterman",
+        "Dr. Manhattan"
+      ],
+      "m",
+      "",
+      "Gila Flats",
+      "",
+      "New Mexico",
+      "Watchmen",
+      "Comic",
+      "Antiheld",
+      "Quantenphysiker, besitzt übermenschliche Fähigkeiten",
+      2,
+      [
+        "Wasserstoff-Atom",
+        "Taschenuhr"
+      ]
+    ],
+    [
+      "Draco Malfoy",
+      "Draco Lucius Malfoy",
+      [
+        "Draco"
+      ],
+      "m",
+      "Malfoy-Familie",
+      "Malfoy Manor",
+      "SN99 9ZZ",
+      "Wiltshire, England",
+      "Harry Potter",
+      "Buch",
+      "Antagonist",
+      "Er entwickelt sich im Verlauf der Reihe von einem schulischen Gegenspieler zu einer ambivalenteren Figur.",
+      1,
+      [
+        "Weißdornstab",
+        "Nimbus 2001"
+      ]
+    ],
+    [
+      "Duke Nukem",
+      "Duke Nukem",
+      [
+        "Duke"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Vereinigte Staaten",
+      "Duke Nukem",
+      "Videospiel",
+      "Antiheld",
+      "Überzeichneter Actionheld; eine konsistente zivile Adresse ist nicht kanonisch festgelegt.",
+      1,
+      [
+        "Raketenwerfer",
+        "Sonnenbrille",
+        "Kaugummi"
+      ]
+    ],
+    [
+      "Dutch van der Linde",
+      "Dutch van der Linde",
+      [
+        "Dutch"
+      ],
+      "m",
+      "Van-der-Linde-Bande",
+      "Postlagernd",
+      "",
+      "Valentine, New Hanover",
+      "Red Dead Redemption",
+      "Videospiel",
+      "Antagonist",
+      "Bandenführer, dessen Ideale und Handlungen zunehmend auseinanderdriften.",
+      1,
+      [
+        "Revolver",
+        "Zigarrenkiste"
+      ]
+    ],
+    [
+      "Edward Elric",
+      "Edward Elric",
+      [
+        "Der Stahlalchemistist",
+        "Fullmetal Alchemist"
+      ],
+      "m",
+      "Amestris-Militär",
+      "Hauptquartier Zentral",
+      "",
+      "Zentral, Amestris",
+      "Fullmetal Alchemist",
+      "Anime",
+      "Protagonist",
+      "Jüngster Staatsalchemist in der Geschichte Amestris'; verliert Arm und Bein durch Alchemie.",
+      1,
+      [
+        "Silberne Taschenuhr",
+        "Metallarm"
+      ]
+    ],
+    [
+      "Eleven",
+      "Jane Ives",
+      [
+        "Elfi",
+        "Jane Hopper",
+        "Jane Ives",
+        "El"
+      ],
+      "f",
+      "Hawkins National Laboratory",
+      "Hopper-Hütte",
+      "46099",
+      "Hawkins, Indiana",
+      "Stranger Things",
+      "Serie",
+      "Protagonist",
+      "Kanonischer Name ist Eleven; 'Elf' ist eine deutsche Übersetzung, keine kanonische Bezeichnung.",
+      1,
+      [
+        "Waffel",
+        "Walkie-Talkie"
+      ]
+    ],
+    [
+      "Elizabeth",
+      "Anna DeWitt",
+      [
+        "Anna DeWitt"
+      ],
+      "f",
+      "",
+      "Monument Island",
+      "",
+      "Columbia",
+      "BioShock Infinite",
+      "Videospiel",
+      "Sidekick",
+      "Elizabeth ist der Name, unter dem Booker sie kennt; Anna ist ihr Geburtsname.",
+      1,
+      [
+        "Dietrich",
+        "Buch"
+      ]
+    ],
+    [
+      "Elizabeth Swann",
+      "Elizabeth Swann",
+      [
+        "Elizabeth Turner"
+      ],
+      "f",
+      "",
+      "℅ Gouverneur Swann",
+      "",
+      "Port Royal, Karibik",
+      "Fluch der Karibik",
+      "Film",
+      "Protagonist",
+      "Ihre Rolle verändert sich von der Gouverneurstochter zur Piratenkönigin.",
+      1,
+      [
+        "Goldmünze",
+        "Säbel"
+      ]
+    ],
+    [
+      "Ellen Ripley",
+      "Ellen Louise Ripley",
+      [
+        "Ripley"
+      ],
+      "f",
+      "Weyland-Yutani Corporation",
+      "Postlagernd",
+      "",
+      "Gateway Station",
+      "Alien",
+      "Film",
+      "Protagonist",
+      "Offizierin und Überlebende der Begegnungen mit dem Xenomorph.",
+      3,
+      [
+        "Flammenwerfer",
+        "Laderoboter",
+        "Katze"
+      ]
+    ],
+    [
+      "Elliot Alderson",
+      "Elliot Alderson",
+      [
+        "Mr. Robot"
+      ],
+      "m",
+      "Allsafe Cybersecurity",
+      "217 East Broadway",
+      "10002",
+      "New York City",
+      "Mr. Robot",
+      "Serie",
+      "Antiheld",
+      "Hacker mit dissoziativer Identitätsstörung; zielt auf E Corp und die globale Finanzwelt. Weitere Angabe: fsociety.",
+      1,
+      [
+        "Kapuzenpullover",
+        "Laptop"
+      ]
+    ],
+    [
+      "Emil Tischbein",
+      "Emil Tischbein",
+      [
+        "Emil"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Neustadt, Deutschland",
+      "Emil und die Detektive",
+      "Buch",
+      "Protagonist",
+      "Die Handlung führt ihn nach Berlin; Neustadt ist sein Heimatort in der Geschichte. \"Neustadt\" ist im Roman ohne Region; keine belegbare PLZ.",
+      1,
+      [
+        "Geldumschlag",
+        "Matrosenanzug"
+      ]
+    ],
+    [
+      "Eren Jäger",
+      "Eren Jäger",
+      [
+        "Eren Yeager",
+        "Angriffstitan",
+        "Attack Titan",
+        "Der Gründer"
+      ],
+      "m",
+      "Aufklärungstrupp",
+      "Hauptquartier der Aufklärungstruppe, Strohert-Distrikt",
+      "",
+      "Shiganshina, Paradis",
+      "Attack on Titan",
+      "Anime",
+      "Antiheld",
+      "Der deutsche Name Jäger entspricht dem japanischen Yeager in anderen Transkriptionen.",
+      2,
+      [
+        "Kellerschlüssel",
+        "ODM-Ausrüstung",
+        "Titan-Spritze"
+      ]
+    ],
+    [
+      "Eric Cartman",
+      "Eric Theodore Cartman",
+      [
+        "Cartman",
+        "Der Coon"
+      ],
+      "m",
+      "",
+      "2001 Bonanza Street",
+      "80099",
+      "South Park, Colorado",
+      "South Park",
+      "Cartoon",
+      "Antiheld",
+      "Die konkrete Hausnummer ist nicht über alle Episoden hinweg konsistent belegt.",
+      2,
+      [
+        "Käsestäbchen",
+        "Wintermütze"
+      ]
+    ],
+    [
+      "Ferkel",
+      "Ferkel",
+      [
+        "Piglet"
+      ],
+      "m",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Hundertsechzig-Morgen-Wald",
+      "Winnie Puuh",
+      "Buch",
+      "Sidekick",
+      "Puuhs bester Freund und eine der Hauptfiguren der Geschichten. Lebt in einem Haus im Buchenbaum im Hundertmorgenwald; das Haus hat keinen Namen.",
+      1,
+      [
+        "Grüner Luftballon",
+        "Schal"
+      ]
+    ],
+    [
+      "Forrest Gump",
+      "Forrest Gump",
+      [
+        "Forrest"
+      ],
+      "m",
+      "",
+      "Greenbow-Haus",
+      "",
+      "Greenbow, Alabama",
+      "Forrest Gump",
+      "Film",
+      "Protagonist",
+      "Die fiktive Stadt Greenbow ist nicht mit einer eindeutig festgelegten realen Postanschrift verbunden.",
+      1,
+      [
+        "Pralinenschachtel",
+        "Tischtennisschläger",
+        "Rasenmäher"
+      ]
+    ],
+    [
+      "Fred Jones",
+      "Fred Jones",
+      [
+        "Freddie"
+      ],
+      "m",
+      "Mystery Inc.",
+      "Mystery Machine",
+      "",
+      "Vereinigte Staaten",
+      "Scooby-Doo",
+      "Cartoon",
+      "Protagonist",
+      "Anführer der Mystery Inc.; seine Hintergrundgeschichte variiert je nach Serie.",
+      1,
+      [
+        "Halstuch",
+        "Seil",
+        "Taschenlampe"
+      ]
+    ],
+    [
+      "Frieza",
+      "Frieza",
+      [
+        "Der Herrscher des Raums",
+        "Freezer",
+        "Imperator des Universums"
+      ],
+      "m",
+      "Frieza Force",
+      "Raumschiff der Frieza Force",
+      "",
+      "Planet Vegeta",
+      "Dragon Ball",
+      "Anime",
+      "Antagonist",
+      "Imperiale Macht",
+      2,
+      [
+        "Schwebethron",
+        "Scouter"
+      ]
+    ],
+    [
+      "Frodo Beutlin",
+      "Frodo Beutlin",
+      [
+        "Ringträger",
+        "Frodo Baggins"
+      ],
+      "m",
+      "Die Gefährten des Rings",
+      "Beutelsend 1",
+      "",
+      "Hobbingen, Auenland",
+      "Der Herr der Ringe",
+      "Buch",
+      "Protagonist",
+      "Er erbt Beutelsend von Bilbo und übernimmt die Aufgabe, den Einen Ring zu vernichten.",
+      3,
+      [
+        "Der Eine Ring",
+        "Mithrilpanzer",
+        "Stich"
+      ]
+    ],
+    [
+      "Gandalf",
+      "Olórin",
+      [
+        "Mithrandir",
+        "Olórin",
+        "Grauer Pilger",
+        "Weißer Reiter",
+        "Gandalf der Graue",
+        "Gandalf der Weiße",
+        "Der Graue Wanderer"
+      ],
+      "m",
+      "Istari",
+      "℅ Elronds Haus",
+      "",
+      "Bruchtal",
+      "Der Herr der Ringe",
+      "Buch",
+      "Protagonist",
+      "Ein Maia in Gestalt eines Zauberers; Mithrandir ist ein elbischer Name. Gast in Elronds Haus in Bruchtal, wo der Rat abgehalten wird",
+      3,
+      [
+        "Zauberstab",
+        "Glamdring",
+        "Feuerwerk"
+      ]
+    ],
+    [
+      "Ganondorf",
+      "Ganondorf Dragmire",
+      [
+        "Ganon",
+        "König des Bösen",
+        "Der König der Gerudo-Diebe"
+      ],
+      "m",
+      "",
+      "Gerudo-Festung",
+      "",
+      "Wüste der Gerudo",
+      "The Legend of Zelda",
+      "Videospiel",
+      "Antagonist",
+      "Der Familienname Dragmire stammt aus ergänzendem Material und ist nicht in allen Spielen etabliert.",
+      2,
+      [
+        "Kraft-Dreieck",
+        "Krummschwert",
+        "Pferd"
+      ]
+    ],
+    [
+      "Garrus Vakarian",
+      "Garrus Vakarian",
+      [
+        "Archangel"
+      ],
+      "m",
+      "Turianische Hierarchie",
+      "Postlagernd",
+      "",
+      "Citadel",
+      "Mass Effect",
+      "Videospiel",
+      "Sidekick",
+      "Turianischer Offizier und enger Verbündeter Shepards.",
+      2,
+      [
+        "Scharfschützengewehr",
+        "Omni-Werkzeug"
+      ]
+    ],
+    [
+      "Genos",
+      "Genos",
+      [
+        "Demon Cyborg"
+      ],
+      "m",
+      "Hero Association",
+      "Wohnung bei Saitama",
+      "",
+      "Z-City, Japan",
+      "One Punch Man",
+      "Anime",
+      "Sidekick",
+      "Cyborg und Schüler von Saitama; ständig stärkere Aufrüstungen durch Dr. Kuseno.",
+      1,
+      [
+        "Armkanone",
+        "Panzerung"
+      ]
+    ],
+    [
+      "Gerald Broflovski",
+      "Gerald Broflovski",
+      [
+        "Gerald"
+      ],
+      "m",
+      "Broflovski & Associates",
+      "1002 Avenue de los Mexicanos",
+      "80099",
+      "South Park, Colorado",
+      "South Park",
+      "Cartoon",
+      "Sonstiges",
+      "Vater von Kyle Broflovski; Rechtsanwalt mit Gerechtigkeitssinn.",
+      1,
+      [
+        "Aktenkoffer",
+        "Kaffeetasse"
+      ]
+    ],
+    [
+      "Geralt von Riva",
+      "Geralt",
+      [
+        "Der Weiße Wolf",
+        "Geralt",
+        "Schlächter von Blaviken",
+        "Gwynbleidd",
+        "Hexer",
+        "Weißer Wolf",
+        "Der Weißwolf",
+        "Hexer vom Wolf"
+      ],
+      "m",
+      "Hexerschule des Wolfes",
+      "Festung",
+      "",
+      "Kaer Morhen",
+      "The Witcher",
+      "Buch",
+      "Protagonist",
+      "Der Beiname 'von Riva' ist zunächst angenommen; er wird später zum Ritter von Riva geschlagen.",
+      4,
+      [
+        "Silberschwert",
+        "Wolfsmedaillon",
+        "Elixier Schwalbe"
+      ]
+    ],
+    [
+      "Gimli",
+      "Gimli",
+      [
+        "Gimli Glóins Sohn"
+      ],
+      "m",
+      "",
+      "Glitzernde Grotten",
+      "",
+      "Helms Klamm, Rohan",
+      "Der Herr der Ringe",
+      "Buch",
+      "Sidekick",
+      "Zwerg und Mitglied der Gemeinschaft des Rings; die Glitzernden Grotten werden ihm später als Herrschaftsgebiet zugeordnet.",
+      1,
+      [
+        "Axt",
+        "Kriegshelm"
+      ]
+    ],
+    [
+      "GLaDOS",
+      "GLaDOS",
+      [
+        "Genetic Lifeform and Disk Operating System"
+      ],
+      "d",
+      "",
+      "Aperture Science Enrichment Center",
+      "48087",
+      "Michigan, Vereinigte Staaten",
+      "Portal",
+      "Videospiel",
+      "Antagonist",
+      "Künstliche Intelligenz, die die Testkammern des Aperture-Komplexes kontrolliert.",
+      1,
+      [
+        "Kuchen",
+        "Kartoffel"
+      ]
+    ],
+    [
+      "Gojo Satoru",
+      "Gojo Satoru",
+      [
+        "Der Sechste"
+      ],
+      "m",
+      "Jujutsu High",
+      "Tokyo",
+      "",
+      "Japan",
+      "Jujutsu Kaisen",
+      "Anime",
+      "Protagonist",
+      "Stärkster Jujutsu-Kämpfer",
+      1,
+      [
+        "Augenbinde",
+        "Sonnenbrille",
+        "Mochi"
+      ]
+    ],
+    [
+      "Gollum",
+      "Sméagol",
+      [
+        "Sméagol"
+      ],
+      "m",
+      "",
+      "Höhle unter den Misty Mountains",
+      "",
+      "Nebelgebirge, Mittelerde",
+      "Der Herr der Ringe",
+      "Buch",
+      "Antiheld",
+      "Lebte jahrhundertelang im Nebelgebirge, bis Bilbo den Ring fand; geteilte Persönlichkeit Sméagol/Gollum.; Stoors-Hobbit",
+      1,
+      [
+        "Der Eine Ring",
+        "Fisch"
+      ]
+    ],
+    [
+      "Goofy",
+      "Goofy Goof",
+      [
+        "Goof"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Entenhausen",
+      "Disney",
+      "Cartoon",
+      "Sidekick",
+      "Sein vollständiger Name und Wohnort sind in verschiedenen Disney-Kontinuitäten nicht einheitlich. In den Comics Mausstadt/Entenhausen, in \"Goof Troop\" Spoonerville; keine Hausadresse.",
+      1,
+      [
+        "Angelrute",
+        "Hut"
+      ]
+    ],
+    [
+      "Gordon Freeman",
+      "Gordon Freeman",
+      [
+        "Der stille Wissenschaftler",
+        "Der freie Mann",
+        "Der eine freie Mann"
+      ],
+      "m",
+      "",
+      "Black Mesa Research Facility",
+      "87099",
+      "New Mexico, Vereinigte Staaten",
+      "Half-Life",
+      "Videospiel",
+      "Protagonist",
+      "Theoretischer Physiker und Hauptfigur der Half-Life-Reihe.",
+      2,
+      [
+        "Brecheisen",
+        "Schutzanzug",
+        "Gravitationswaffe"
+      ]
+    ],
+    [
+      "Gordon Ramsay",
+      "Gordon James Ramsay",
+      [
+        "Chef Ramsay"
+      ],
+      "m",
+      "Hell's Kitchen",
+      "Postlagernd",
+      "90001",
+      "Los Angeles, CA",
+      "Hell's Kitchen",
+      "Serie",
+      "Mentor",
+      "Berühmter für prägnante ('idiots sandwich') Wutausbrüche; realer TV-Personality als fiktionale Popkultur-Ikone.",
+      1,
+      [
+        "Kochmesser",
+        "Pfanne",
+        "Kochlöffel"
+      ]
+    ],
+    [
+      "Green Arrow",
+      "Oliver Jonas Queen",
+      [
+        "Der Bogenschütze von Star City",
+        "Ollie",
+        "Emerald Archer"
+      ],
+      "m",
+      "Queen Industries",
+      "Queen Manor",
+      "90098",
+      "Star City",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Milliardär und meisterhafter Bogenschütze mit Trickpfeilen. Weitere Angabe: Team Arrow.",
+      2,
+      [
+        "Bogen",
+        "Trickpfeil",
+        "Köcher"
+      ]
+    ],
+    [
+      "Green Lantern",
+      "Harold 'Hal' Jordan",
+      [
+        "Der Smaragdritter",
+        "Emerald Knight",
+        "Green Lantern Sektor 2814",
+        "Smaragdritter"
+      ],
+      "m",
+      "",
+      "Ferris Aircraft Hangar 3",
+      "90098",
+      "Coast City",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Testpilot, Träger des mächtigsten Rings im Universum (grüne Willenskraft). Weitere Angabe: Green Lantern Corps.",
+      2,
+      [
+        "Ring",
+        "Powerbatterie"
+      ]
+    ],
+    [
+      "Grogu",
+      "Grogu",
+      [
+        "Das Kind",
+        "Baby Yoda"
+      ],
+      "m",
+      "Mandalorianer",
+      "Razor Crest",
+      "",
+      "Galaxis",
+      "Star Wars",
+      "Serie",
+      "Sidekick",
+      "Baby Yoda ist ein populärer Spitzname, nicht der kanonische Eigenname.",
+      1,
+      [
+        "Schwebewiege",
+        "Frosch",
+        "Keks"
+      ]
+    ],
+    [
+      "Gus Fring",
+      "Gustavo Fring",
+      [
+        "Der Hühnermann"
+      ],
+      "m",
+      "Los Pollos Hermanos",
+      "4257 Isleta Boulevard Southwest",
+      "87105",
+      "Albuquerque, NM",
+      "Breaking Bad",
+      "Serie",
+      "Antagonist",
+      "Betreibt die Fast-Food-Kette Los Pollos Hermanos als bürgerliche Tarnung",
+      2,
+      [
+        "Hähnchen-Eimer",
+        "Teppichmesser",
+        "Schürze"
+      ]
+    ],
+    [
+      "Gwen Stacy",
+      "Gwendolyne Maxine Stacy",
+      [
+        "Spider-Gwen",
+        "Spider-Woman",
+        "Ghost-Spider"
+      ],
+      "f",
+      "Mary Janes",
+      "Postlagernd",
+      "",
+      "New York City, Erde-65",
+      "Marvel Comics",
+      "Comic",
+      "Protagonist",
+      "In ihrem Universum wurde sie (nicht Peter) von der Spinne gebissen; Musikerin und Heldin",
+      1,
+      [
+        "Netzschleuder",
+        "Turnschuhe",
+        "Kapuze"
+      ]
+    ],
+    [
+      "Han Solo",
+      "Han Solo",
+      [
+        "Captain Solo",
+        "Schmuggler-Kapitän"
+      ],
+      "m",
+      "Rebellenallianz",
+      "Postlagernd",
+      "",
+      "Corellia",
+      "Star Wars",
+      "Film",
+      "Antiheld",
+      "Schmuggler und späterer General der Rebellenallianz.",
+      2,
+      [
+        "Blaster",
+        "Glückswürfel",
+        "Frachter"
+      ]
+    ],
+    [
+      "Handy Schlumpf",
+      "Handy Schlumpf",
+      [
+        "Bastelschlumpf",
+        "Erfinderschnitt"
+      ],
+      "m",
+      "",
+      "Pilzhaus Nr. 7",
+      "",
+      "Schlumpfhausen",
+      "Die Schlümpfe",
+      "Comic",
+      "Support",
+      "Trägt Latzhose und Bleistift hinterm Ohr; repariert das Dorf.",
+      1,
+      [
+        "Werkzeugkasten",
+        "Hammer"
+      ]
+    ],
+    [
+      "Hank Schrader",
+      "Henry R. Schrader",
+      [
+        "DEA-Agent Schrader"
+      ],
+      "m",
+      "Drug Enforcement Administration",
+      "Postlagernd",
+      "87101",
+      "Albuquerque, New Mexico",
+      "Breaking Bad",
+      "Serie",
+      "Protagonist",
+      "DEA-Agent und Schwager von Walter White.",
+      1,
+      [
+        "Mineraliensammlung",
+        "Dienstmarke der DEA",
+        "Bierflasche"
+      ]
+    ],
+    [
+      "Hannibal Lecter",
+      "Hannibal Lecter",
+      [
+        "Hannibal the Cannibal",
+        "Der Kannibale",
+        "Dr. Lecter",
+        "Hannibal der Kannibale"
+      ],
+      "m",
+      "Psychiatrische Privatpraxis Lecter",
+      "Chandler Street 12",
+      "21201",
+      "Baltimore, Maryland",
+      "Hannibal Lecter",
+      "Buch",
+      "Antagonist",
+      "Psychiater und Serienmörder",
+      4,
+      [
+        "Chianti-Flasche",
+        "Küchenmesser",
+        "Fava-Bohnen"
+      ]
+    ],
+    [
+      "Harley Quinn",
+      "Harleen Frances Quinzel",
+      [
+        "Harleen Quinzel",
+        "Dr. Harleen Quinzel"
+      ],
+      "f",
+      "Suicide Squad",
+      "Joker's Funhouse",
+      "07089",
+      "Gotham City",
+      "DC Comics",
+      "Comic",
+      "Antiheld",
+      "Ehemalige Psychiaterin; ihre Rolle reicht von Schurkin bis Antiheldin.",
+      2,
+      [
+        "Vorschlaghammer",
+        "Baseballschläger",
+        "Narrenkappe"
+      ]
+    ],
+    [
+      "Harry Potter",
+      "Harry James Potter",
+      [
+        "Der Junge, der überlebte",
+        "Der Auserwählte",
+        "Auserwählter"
+      ],
+      "m",
+      "Hogwarts-Schule für Hexerei und Zauberei",
+      "Ligusterweg 4",
+      "",
+      "Little Whinging, Surrey",
+      "Harry Potter",
+      "Buch",
+      "Protagonist",
+      "Der Ligusterweg ist seine Kindheitsadresse bei den Dursleys, nicht sein dauerhafter erwachsener Wohnsitz.",
+      2,
+      [
+        "Zauberstab",
+        "Nimbus 2000",
+        "Tarnumhang"
+      ]
+    ],
+    [
+      "Hawkeye",
+      "Clinton Francis Barton",
+      [
+        "Ronin",
+        "Bester Schütze der Welt",
+        "Meisterschütze"
+      ],
+      "m",
+      "S.H.I.E.L.D.",
+      "Barton Farm",
+      "50677",
+      "Waverly, Iowa",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Meisterschütze ohne Superkräfte, loyalster Team-Rückhalt. Weitere Angabe: Avengers.",
+      2,
+      [
+        "Bogen",
+        "Trickpfeil"
+      ]
+    ],
+    [
+      "Hercule Poirot",
+      "Hercule Poirot",
+      [
+        "Der berühmte Detektiv"
+      ],
+      "m",
+      "",
+      "Whitehaven Mansions, Sandhurst Square 56B",
+      "",
+      "London SW1, Vereinigtes Königreich",
+      "Agatha Christie",
+      "Buch",
+      "Protagonist",
+      "Belgischer Meisterdetektiv mit ausgeprägtem Ordnungssinn und berühmtem Schnurrbart.",
+      1,
+      [
+        "Taschenuhr",
+        "Lackschuhe",
+        "Spazierstock"
+      ]
+    ],
+    [
+      "Hermine Granger",
+      "Hermine Jean Granger",
+      [
+        "Hermy (von Grawp)",
+        "Hermine Granger",
+        "Muggelgeborene"
+      ],
+      "f",
+      "",
+      "Zaubereiministerium",
+      "",
+      "London, England",
+      "Harry Potter",
+      "Buch",
+      "Protagonist",
+      "Die deutsche Buchübersetzung verwendet den Vornamen Hermine. Weitere Zugehoerigkeit: Hogwarts",
+      3,
+      [
+        "Zeitumkehrer",
+        "Weinrebenstab"
+      ]
+    ],
+    [
+      "Homer Simpson",
+      "Homer Jay Simpson",
+      [
+        "Homer Jay Simpson",
+        "Max Power",
+        "Homer"
+      ],
+      "m",
+      "Springfield Kernkraftwerk",
+      "742 Evergreen Terrace",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield, OR",
+      "Die Simpsons",
+      "Cartoon",
+      "Protagonist",
+      "Haupt-Figur der langlebigsten US-Zeichentrickserie der Welt.",
+      3,
+      [
+        "Donut",
+        "Duff-Bier"
+      ]
+    ],
+    [
+      "Howl",
+      "Howl Jenkins Pendragon",
+      [
+        "Howl Jenkins Pendragon",
+        "Zauberer Howl"
+      ],
+      "m",
+      "",
+      "Bewegliches Schloss",
+      "",
+      "Ingary",
+      "Das wandelnde Schloss",
+      "Anime",
+      "Protagonist",
+      "Die Namensform und die Ortsbezeichnungen variieren je nach Buchübersetzung und Filmadaption.",
+      1,
+      [
+        "Federumhang",
+        "Zaubertrank"
+      ]
+    ],
+    [
+      "Hulk",
+      "Robert Bruce Banner",
+      [
+        "Der unglaubliche Hulk",
+        "Der grüne Goliath",
+        "Professor Hulk",
+        "Der Unglaubliche Hulk",
+        "Grüner Goliath",
+        "Der Hulk"
+      ],
+      "m",
+      "Culver University",
+      "University Drive 100",
+      "24099",
+      "Culver, Virginia",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Genialer Nuklearphysiker mit Wut-induzierter Transformation. Weitere Angabe: Avengers.",
+      3,
+      [
+        "Zerrissene Hose",
+        "Gladiatorrüstung"
+      ]
+    ],
+    [
+      "Human Torch",
+      "Jonathan Lowell Spencer Storm",
+      [
+        "Die menschliche Fackel",
+        "Johnny Storm"
+      ],
+      "m",
+      "Fantastic Four",
+      "Baxter Building",
+      "10001",
+      "New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Ruft 'Flamme an!' (Flame on!). Bruder von Susan Storm. Weitere Angabe: Baxter Foundation.",
+      1,
+      [
+        "Blaue Uniform",
+        "Rennwagen"
+      ]
+    ],
+    [
+      "Ichigo Kurosaki",
+      "Ichigo Kurosaki",
+      [
+        "Der Halbtote",
+        "Der Shinigami-Stellvertreter"
+      ],
+      "m",
+      "Soul Society",
+      "Kurosaki-Klinik, Wohnhaus",
+      "",
+      "Karakura Town",
+      "Bleach",
+      "Anime",
+      "Protagonist",
+      "Schneide- und Rüstungsfähigkeiten",
+      2,
+      [
+        "Riesenschwert",
+        "Hollow-Maske",
+        "Shinigami-Kimono"
+      ]
+    ],
+    [
+      "Invisible Woman",
+      "Susan Storm Richards",
+      [
+        "Die Unsichtbare",
+        "Sue Storm"
+      ],
+      "f",
+      "Fantastic Four",
+      "Baxter Building",
+      "10001",
+      "New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Ehefrau von Reed Richards, beherrscht Kraftfelder und Unsichtbarkeit. Weitere Angabe: Baxter Foundation.",
+      1,
+      [
+        "Blaue Uniform",
+        "Kommunikator"
+      ]
+    ],
+    [
+      "Iron Fist",
+      "Daniel Thomas Rand-K'ai",
+      [
+        "Die unsterbliche eiserne Faust",
+        "Danny Rand"
+      ],
+      "m",
+      "Rand Enterprises",
+      "Rand Tower, 485 Lexington Avenue",
+      "10001",
+      "New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Gelehrt in der mystischen Stadt K'un-Lun; bündelt Chi in seinen Fäusten. Weitere Angabe: Heroes for Hire.",
+      1,
+      [
+        "Drachen-Tattoo",
+        "Maske"
+      ]
+    ],
+    [
+      "Iron Man",
+      "Anthony Edward Stark",
+      [
+        "Tony Stark",
+        "Der gepanzerte Rächer",
+        "Shellhead",
+        "Goldene Rächer"
+      ],
+      "m",
+      "Stark Industries",
+      "Stark Tower",
+      "10001",
+      "New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Genie, Milliardär, Playboy, Philanthrop. Weitere Angabe: Malibu. Weitere Angabe: Avengers. Stark Tower in Midtown Manhattan, Unternehmens- und Avengers-Sitz",
+      3,
+      [
+        "Ark-Reaktor",
+        "Repulsor",
+        "Kampfrüstung"
+      ]
+    ],
+    [
+      "Itachi Uchiha",
+      "Itachi Uchiha",
+      [
+        "Der Clan-Mörder",
+        "Akatsuki-Mitglied"
+      ],
+      "m",
+      "Akatsuki",
+      "Uchiha-Viertel",
+      "",
+      "Konohagakure",
+      "Naruto",
+      "Anime",
+      "Antiheld",
+      "Tötete seinen Clan auf Geheiß, um Krieg zu verhindern; wahrer Held im Verborgenen. Das Uchiha-Viertel liegt am Stadtrand von Konohagakure",
+      1,
+      [
+        "Akatsuki-Umhang",
+        "Kunai",
+        "Krähen"
+      ]
+    ],
+    [
+      "Jack",
+      "Jack Ryan",
+      [
+        "Jack Ryan",
+        "Jack of All Trades (Spitzname)",
+        "Naked Snake",
+        "Der Soldat ohne Grenzen"
+      ],
+      "m",
+      "",
+      "Bathysphere-Terminal, Rapture Welcome Center",
+      "",
+      "Rapture, Atlantik",
+      "Bioshock",
+      "Videospiel",
+      "Protagonist",
+      "Stummer Protagonist; entdeckt die Unterwasser-Dystopie Rapture.",
+      1,
+      [
+        "Golfschläger",
+        "Schraubenschlüssel"
+      ]
+    ],
+    [
+      "Jack Sparrow",
+      "Jack Sparrow",
+      [
+        "Captain Jack Sparrow"
+      ],
+      "m",
+      "",
+      "Black Pearl",
+      "",
+      "Karibik",
+      "Fluch der Karibik",
+      "Film",
+      "Antiheld",
+      "Piratenkapitän mit wechselnden Allianzen; die Black Pearl ist sein bekanntestes Schiff.",
+      1,
+      [
+        "Kompass ohne Norden",
+        "Rumflasche",
+        "Degen"
+      ]
+    ],
+    [
+      "James",
+      "James",
+      [
+        "Kojiro"
+      ],
+      "m",
+      "Team Rocket",
+      "Postlagernd",
+      "",
+      "Kanto",
+      "Pokémon",
+      "Anime",
+      "Antagonist",
+      "Mitglied von Team Rocket; seine wohlhabende Familie wird in einzelnen Episoden gezeigt.",
+      1,
+      [
+        "Rote Rose",
+        "Pokéball"
+      ]
+    ],
+    [
+      "James Bond",
+      "James Bond",
+      [
+        "007",
+        "Agent 007"
+      ],
+      "m",
+      "MI6",
+      "1 Whitehall Court",
+      "",
+      "SW1A 2DT London",
+      "James Bond",
+      "Film",
+      "Protagonist",
+      "Die Filmreihe legt keine dauerhaft gültige private Wohnadresse fest.",
+      3,
+      [
+        "Aston Martin",
+        "Walther PPK",
+        "Martini"
+      ]
+    ],
+    [
+      "James T. Kirk",
+      "James Tiberius Kirk",
+      [
+        "Captain Kirk"
+      ],
+      "m",
+      "Sternenflotte",
+      "Postlagernd",
+      "",
+      "Riverside, Iowa",
+      "Star Trek",
+      "Serie",
+      "Protagonist",
+      "Kommandant der USS Enterprise in der Originalserie.",
+      1,
+      [
+        "Phaser",
+        "Kommunikator"
+      ]
+    ],
+    [
+      "Jean Grey",
+      "Jean Elaine Grey",
+      [
+        "Phoenix",
+        "Marvel Girl"
+      ],
+      "f",
+      "X-Men",
+      "Xavier-Institut",
+      "10601",
+      "Westchester County, New York",
+      "Marvel Comics",
+      "Comic",
+      "Protagonist",
+      "Ihre Verbindung zur Phoenix Force ist je nach Comicphase unterschiedlich ausgeprägt.",
+      1,
+      [
+        "Uniform",
+        "Gelbe Maske"
+      ]
+    ],
+    [
+      "Jean-Luc Picard",
+      "Jean-Luc Picard",
+      [
+        "Locutus von Borg",
+        "Captain Picard",
+        "Admiral Picard",
+        "Locutus"
+      ],
+      "m",
+      "Sternenflotte",
+      "Château Picard",
+      "70190",
+      "La Barre, Frankreich",
+      "Star Trek",
+      "Serie",
+      "Protagonist",
+      "Die USS Enterprise-D ist ein Schiff, kein Wohnort.",
+      3,
+      [
+        "Teetasse",
+        "Phaser"
+      ]
+    ],
+    [
+      "Jerry",
+      "Jerry",
+      [
+        "Jerry Mouse"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "10001",
+      "New York City",
+      "Tom und Jerry",
+      "Cartoon",
+      "Protagonist",
+      "Eine kleine Maus, die Tom regelmäßig entkommt. Schauplatz des Kinofilms von 2021 (Royal Gate Hotel, New York); die klassischen Kurzfilme nennen keinen Ort",
+      1,
+      [
+        "Käsestück",
+        "Mausefalle",
+        "Mauseloch"
+      ]
+    ],
+    [
+      "Jesse Pinkman",
+      "Jesse Bruce Pinkman",
+      [
+        "Cap'n Cook"
+      ],
+      "m",
+      "",
+      "Wohnung 302, 316 Margo Street",
+      "87101",
+      "Albuquerque, New Mexico",
+      "Breaking Bad",
+      "Serie",
+      "Antiheld",
+      "Ehemaliger Schüler Walter Whites und dessen Geschäftspartner.",
+      2,
+      [
+        "Kapuzenpullover",
+        "Wohnmobil",
+        "Blaues Kristall"
+      ]
+    ],
+    [
+      "Jessica Jones",
+      "Jessica Campbell Jones-Cage",
+      [
+        "Jewel (ehem.)"
+      ],
+      "f",
+      "Alias Investigations",
+      "463 West 46th Street",
+      "10036",
+      "Hell's Kitchen, New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Privatdetektivin mit übermenschlicher Kraft und PTBS.",
+      1,
+      [
+        "Whiskeyflasche",
+        "Kamera",
+        "Ledermantel"
+      ]
+    ],
+    [
+      "Jessie",
+      "Jessie",
+      [
+        "Musashi"
+      ],
+      "f",
+      "Team Rocket",
+      "Postlagernd",
+      "",
+      "Kanto",
+      "Pokémon",
+      "Anime",
+      "Antagonist",
+      "Jessie und James sind Mitglieder von Team Rocket; der Anime gibt ihnen keine durchgehend etablierte bürgerliche Familiennamensform.",
+      1,
+      [
+        "Pokéball",
+        "Spiegel"
+      ]
+    ],
+    [
+      "Jill Valentine",
+      "Jill Valentine",
+      [
+        "Meisterin des Entkommens"
+      ],
+      "f",
+      "S.T.A.R.S.",
+      "Postlagernd",
+      "",
+      "Raccoon City",
+      "Resident Evil",
+      "Videospiel",
+      "Protagonist",
+      "Eine der zentralen Figuren der Resident-Evil-Reihe. Raccoon City; das Spencer-Anwesen ist ihr Einsatzort, nicht ihr Wohnsitz.",
+      1,
+      [
+        "Dietrich",
+        "Grüne Kräuter",
+        "Kampfmesser"
+      ]
+    ],
+    [
+      "Johnny Silverhand",
+      "Robert John Linder",
+      [
+        "Robert John Linder",
+        "Johnny Silverhand",
+        "Samurai-Frontmann"
+      ],
+      "m",
+      "Samurai",
+      "Postlagernd",
+      "90098",
+      "Night City",
+      "Cyberpunk 2077",
+      "Videospiel",
+      "Antiheld",
+      "Rockmusiker und digitaler Geist im Bewusstsein von V.",
+      2,
+      [
+        "E-Gitarre",
+        "Silberarm",
+        "Malorian-Pistole"
+      ]
+    ],
+    [
+      "Joker",
+      "Joker",
+      [
+        "Clownprinz des Verbrechens",
+        "Harlekin des Hasses",
+        "Der Clownprinz des Verbrechens",
+        "The Joker",
+        "Clown Prince"
+      ],
+      "m",
+      "Injustice League",
+      "Arkham Asylum",
+      "07089",
+      "Gotham City",
+      "DC Comics",
+      "Comic",
+      "Antagonist",
+      "Eine definitive bürgerliche Identität ist in den meisten Comic-Kontinuitäten nicht festgelegt. Einzelne Adaptionen verwenden andere Namen.",
+      2,
+      [
+        "Spielkarte",
+        "Lachgas",
+        "Blumenspritze"
+      ]
+    ],
+    [
+      "Jon Schnee",
+      "Aegon Targaryen",
+      [
+        "Aegon Targaryen",
+        "Lord Schnee",
+        "Der Bastard von Winterfell",
+        "Jon Snow",
+        "Lord Kommandant",
+        "Aemon Targaryen (wahrer Name)"
+      ],
+      "m",
+      "Nachtwache",
+      "Schwarze Festung",
+      "",
+      "Die Mauer",
+      "Game of Thrones",
+      "Serie",
+      "Protagonist",
+      "Geboren als Aegon Targaryen, wuchs als unehelicher Sohn von Eddard Stark unter dem Namen Jon Schnee auf.",
+      3,
+      [
+        "Langklaue",
+        "Schwarzer Umhang"
+      ]
+    ],
+    [
+      "Kapitän Haddock",
+      "Archibald Haddock",
+      [
+        "Kapitän zur See",
+        "Archibald Haddock",
+        "Alter Seebär"
+      ],
+      "m",
+      "Handelsmarine",
+      "Schloss Mühlenhof 1",
+      "",
+      "Moulinsart",
+      "Tim und Struppi",
+      "Comic",
+      "Protagonist",
+      "Berühmt für Flüche ('Hunderttausend heulende Höllenhunde!') und Loch-Lomond-Whisky. Weitere Angabe: Schloss Mühlenhof.",
+      3,
+      [
+        "Pfeife",
+        "Flasche Whisky",
+        "Käpt'nsmütze"
+      ]
+    ],
+    [
+      "Katniss Everdeen",
+      "Katniss Everdeen",
+      [
+        "Der Spottölpel",
+        "Das Mädchen, das in Flammen steht"
+      ],
+      "f",
+      "Distrikt 12 Aufstand",
+      "Dorf der Sieger, Haus 1",
+      "",
+      "Distrikt 12, Panem",
+      "Die Tribute von Panem",
+      "Buch",
+      "Protagonist",
+      "",
+      1,
+      [
+        "Bogen",
+        "Köcher",
+        "Distelfink-Anstecker"
+      ]
+    ],
+    [
+      "Kenny McCormick",
+      "Kenneth McCormick",
+      [
+        "Mysterion"
+      ],
+      "m",
+      "",
+      "635 Avenue de Los Mexicanos",
+      "80099",
+      "South Park, Colorado",
+      "South Park",
+      "Cartoon",
+      "Protagonist",
+      "Mysterion ist sein maskiertes Alter Ego.",
+      2,
+      [
+        "Orange Parka",
+        "Kapuze"
+      ]
+    ],
+    [
+      "King Dedede",
+      "King Dedede",
+      [
+        "Der König von Dream Land"
+      ],
+      "m",
+      "",
+      "Dededes Schloss",
+      "",
+      "Dream Land, Planet Popstar",
+      "Kirby",
+      "Videospiel",
+      "Antagonist",
+      "Dicklicher Pinguin-König mit Hammer; öfter Rivale als echter Bösewicht.",
+      1,
+      [
+        "Hammer",
+        "Krone",
+        "Königsmantel"
+      ]
+    ],
+    [
+      "Kirby",
+      "Kirby",
+      [
+        "Rosa Held",
+        "Der rosa Ball"
+      ],
+      "d",
+      "",
+      "Haus von Kirby",
+      "",
+      "Dream Land, Planet Popstar",
+      "Kirby",
+      "Videospiel",
+      "Protagonist",
+      "Rosa, kugelförmige Figur mit der Fähigkeit, Gegner einzusaugen und Fähigkeiten zu kopieren.",
+      2,
+      [
+        "Warp-Stern",
+        "Sternenrute",
+        "Maxi-Tomate"
+      ]
+    ],
+    [
+      "Krabat",
+      "Krabat",
+      [
+        "Der sorbische Zauberlehrling"
+      ],
+      "m",
+      "",
+      "Schwarze Mühle",
+      "",
+      "Lausitz",
+      "Krabat",
+      "Buch",
+      "Protagonist",
+      "Figur aus der sorbischen Sagenwelt und aus Otfried Preußlers Roman.",
+      1,
+      [
+        "Zauberbuch",
+        "Mühlstein"
+      ]
+    ],
+    [
+      "Krachbumm-Ente",
+      "Fenton Crackshell-Cabrera",
+      [
+        "Gizmoduck",
+        "Robo-Ente"
+      ],
+      "m",
+      "Duck Enterprises",
+      "Wohnwagensiedlung",
+      "",
+      "Entenhausen",
+      "Entenhausen (Disney)",
+      "Cartoon",
+      "Protagonist",
+      "Aktiviert den Exo-Anzug mit dem Codewort 'Zählappell!' (Blathering Blatherskite!).",
+      1,
+      []
+    ],
+    [
+      "Kratos",
+      "Kratos",
+      [
+        "Geist Spartas",
+        "Vater von Atreus"
+      ],
+      "m",
+      "",
+      "Hütte im Wald",
+      "",
+      "Midgard",
+      "God of War",
+      "Videospiel",
+      "Antiheld",
+      "Die Figur entwickelt sich von einem rachsüchtigen Krieger zu einem zurückhaltenden Vater.",
+      1,
+      [
+        "Leviathan-Axt",
+        "Chaos-Klingen",
+        "Goldenes Vlies"
+      ]
+    ],
+    [
+      "Krusty der Clown",
+      "Herschel Shmoikel Pinkus Yerucham Krustofsky",
+      [
+        "Krusty"
+      ],
+      "m",
+      "Krusty Studios",
+      "534 Center Street",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Sonstiges",
+      "Sein bürgerlicher Name ist in einer Folge ausführlich genannt worden.",
+      1,
+      [
+        "Zigarre",
+        "Burger"
+      ]
+    ],
+    [
+      "Kyle Broflovski",
+      "Kyle Broflovski",
+      [
+        "Kyle"
+      ],
+      "m",
+      "",
+      "1002 Avenue de los Mexicanos",
+      "80099",
+      "South Park, Colorado",
+      "South Park",
+      "Cartoon",
+      "Protagonist",
+      "Einer der vier zentralen Jungen der Serie.",
+      2,
+      [
+        "Grüne Mütze",
+        "Schneeball"
+      ]
+    ],
+    [
+      "Kylo Ren",
+      "Ben Solo",
+      [
+        "Ben Solo"
+      ],
+      "m",
+      "Erste Ordnung",
+      "keine feste Anschrift",
+      "",
+      "Finalizer",
+      "Star Wars",
+      "Film",
+      "Antagonist",
+      "Sohn von Leia Organa und Han Solo; trägt maschinenverzerrte Stimme unter Maske. Weitere Zugehoerigkeit: Ritter von Ren",
+      1,
+      [
+        "Crossguard-Lichtschwert",
+        "Helm"
+      ]
+    ],
+    [
+      "L",
+      "L Lawliet",
+      [
+        "Ryuzaki",
+        "Hideki Ryuga",
+        "Detektiv L"
+      ],
+      "m",
+      "Waisenhaus Wammy's House",
+      "Hotel Suite 1213, unterirdisches Hauptquartier",
+      "",
+      "Tokio",
+      "Death Note",
+      "Anime",
+      "Protagonist",
+      "Der weltweit bekannte Detektiv verbirgt seine Identität. Sein voller Name wird in Zusatzmaterial als L Lawliet angegeben.",
+      2,
+      [
+        "Zuckerwürfel",
+        "Lutscher"
+      ]
+    ],
+    [
+      "Lady Jessica",
+      "Jessica",
+      [
+        "Jessica Atreides",
+        "Ehrwürdige Mutter"
+      ],
+      "f",
+      "",
+      "Palast von Arrakeen",
+      "",
+      "Arrakis",
+      "Dune",
+      "Film",
+      "Mentor",
+      "Bene-Gesserit und Mutter von Paul Atreides.",
+      2,
+      [
+        "Schwarzer Schleier",
+        "Wasser des Lebens"
+      ]
+    ],
+    [
+      "Lara Croft",
+      "Lara Croft",
+      [
+        "Tomb Raider",
+        "Die Gräber-Räuberin"
+      ],
+      "f",
+      "Croft Holdings",
+      "Croft Manor",
+      "GU99 9ZZ",
+      "Abinger, Surrey, England",
+      "Tomb Raider",
+      "Videospiel",
+      "Protagonist",
+      "Archäologin und Abenteurerin; die Lage des Familienanwesens variiert zwischen Kontinuitäten. Weitere Angabe: Archäologie.",
+      3,
+      [
+        "Zwillingspistolen",
+        "Enterhaken",
+        "Tagebuch"
+      ]
+    ],
+    [
+      "Legolas",
+      "Legolas",
+      [
+        "Legolas Grünblatt"
+      ],
+      "m",
+      "Gemeinschaft des Rings",
+      "Palast des Waldland-Reichs",
+      "",
+      "Düsterwald",
+      "Der Herr der Ringe",
+      "Buch",
+      "Support",
+      "Sohn des Elbenkönigs Thranduil.",
+      2,
+      [
+        "Elbenbogen",
+        "Pfeile",
+        "Messer"
+      ]
+    ],
+    [
+      "Leia Organa",
+      "Leia Organa",
+      [
+        "Prinzessin Leia",
+        "General Organa"
+      ],
+      "f",
+      "Allianz zur Wiederherstellung der Republik",
+      "Königlicher Palast",
+      "",
+      "Alderaan",
+      "Star Wars",
+      "Film",
+      "Protagonist",
+      "Ihre Geburtsidentität als Leia Skywalker wird in der Filmreihe enthüllt; Organa ist ihr angenommener Familienname.",
+      2,
+      [
+        "Blaster",
+        "Datenkarte"
+      ]
+    ],
+    [
+      "Lelouch vi Britannia",
+      "Lelouch Lamperouge",
+      [
+        "Zero"
+      ],
+      "m",
+      "Order of the Black Knights",
+      "Schülerwohnheim Ashford Academy, Raum 401",
+      "",
+      "Tokio, Heiliges Britannisches Kaiserreich",
+      "Code Geass",
+      "Anime",
+      "Antiheld",
+      "Verdeckter Ex-Prinz mit Geass-Macht (absoluter Befehl); Schüler an der Ashford-Akademie.",
+      1,
+      [
+        "Zero-Maske",
+        "Schachfigur",
+        "Umhang"
+      ]
+    ],
+    [
+      "Leon S. Kennedy",
+      "Leon Scott Kennedy",
+      [
+        "Leon Kennedy",
+        "Agent Kennedy"
+      ],
+      "m",
+      "US-Regierungsdienst",
+      "Raccoon City Police Department",
+      "",
+      "Vereinigte Staaten",
+      "Resident Evil",
+      "Videospiel",
+      "Protagonist",
+      "Polizist und später Regierungsagent; seine genaue Dienststelle variiert mit der Handlung.",
+      2,
+      [
+        "Silberne Pistole",
+        "Kampfmesser"
+      ]
+    ],
+    [
+      "Levi Ackermann",
+      "Levi Ackermann",
+      [
+        "Captain Levi",
+        "Stärkster Soldat der Menschheit",
+        "Korporal Levi",
+        "Der stärkste Soldat der Menschheit"
+      ],
+      "m",
+      "Aufklärungstrupp",
+      "Hauptquartier der Aufklärungstruppe",
+      "",
+      "Paradis",
+      "Attack on Titan",
+      "Anime",
+      "Antiheld",
+      "Erfahrener Soldat und Kommandant; die genaue Schreibweise variiert nach Übersetzung.",
+      2,
+      [
+        "Doppelklinge",
+        "ODM-Ausrüstung",
+        "Putztuch"
+      ]
+    ],
+    [
+      "Lex Luthor",
+      "Alexander Joseph Luthor",
+      [
+        "Lex",
+        "Alexander Luthor"
+      ],
+      "m",
+      "",
+      "LexCorp Tower",
+      "12099",
+      "Metropolis",
+      "DC Comics",
+      "Comic",
+      "Antagonist",
+      "Unternehmer und einer der bekanntesten Gegenspieler Supermans.",
+      2,
+      [
+        "Kryptonit",
+        "Kampfanzug"
+      ]
+    ],
+    [
+      "Light Yagami",
+      "Light Yagami",
+      [
+        "Kira"
+      ],
+      "m",
+      "Kira-Bewegung",
+      "Wohnung der Yagami-Familie, Wohnviertel Tokio",
+      "",
+      "Japan",
+      "Death Note",
+      "Anime",
+      "Antagonist",
+      "Schüler, der mit Death Note tötet",
+      3,
+      [
+        "Death Note",
+        "Kugelschreiber",
+        "Armbanduhr"
+      ]
+    ],
+    [
+      "Link",
+      "Link",
+      [
+        "Held der Zeit",
+        "Held von Hyrule"
+      ],
+      "m",
+      "Königliche Leibgarde von Schloss Hyrule",
+      "Links Haus",
+      "",
+      "Königreich Hyrule",
+      "The Legend of Zelda",
+      "Videospiel",
+      "Protagonist",
+      "Träger des Triforce des Mutes und des Master-Schwerts.",
+      3,
+      [
+        "Master-Schwert",
+        "Hylia-Schild",
+        "Okarina"
+      ]
+    ],
+    [
+      "Lisa Simpson",
+      "Lisa Marie Simpson",
+      [
+        "Lisa Marie Simpson"
+      ],
+      "f",
+      "",
+      "742 Evergreen Terrace",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Protagonist",
+      "Ihre musikalischen und akademischen Interessen sind wiederkehrende Handlungselemente.",
+      1,
+      [
+        "Saxophon",
+        "Schulbuch"
+      ]
+    ],
+    [
+      "Loki",
+      "Loki Laufeyson",
+      [
+        "Gott des Schabernacks",
+        "Laufeyson",
+        "Loki"
+      ],
+      "m",
+      "",
+      "Hütte im Wald",
+      "",
+      "Asgard",
+      "Marvel Comics",
+      "Comic",
+      "Antagonist",
+      "Wird in unterschiedlichen Handlungssträngen als Schurke, Antiheld oder Verbündeter dargestellt.",
+      1,
+      [
+        "Zepter",
+        "Hörnerhelm",
+        "Dolch"
+      ]
+    ],
+    [
+      "Lucky Luke",
+      "Lucky Luke",
+      [
+        "Der Mann, der schneller zieht als sein Schatten",
+        "Der einsame Cowboy"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Wilder Westen, Vereinigte Staaten",
+      "Lucky Luke",
+      "Comic",
+      "Protagonist",
+      "Ein umherziehender Cowboy ohne dauerhaft kanonische Postanschrift.",
+      2,
+      [
+        "Pferd",
+        "Strohhalm",
+        "Colt"
+      ]
+    ],
+    [
+      "Luigi",
+      "Luigi Mario",
+      [
+        "Green Mario"
+      ],
+      "m",
+      "",
+      "Mario Bros. Klempnerbetrieb",
+      "",
+      "Pilz-Königreich",
+      "Super Mario",
+      "Videospiel",
+      "Sidekick",
+      "Marios Bruder; der Familienname ist nicht in allen offiziellen Spielen etabliert.",
+      1,
+      [
+        "Poltergust",
+        "Grüne Mütze",
+        "Go-Kart"
+      ]
+    ],
+    [
+      "Luke Cage",
+      "Carl Lucas",
+      [
+        "Power Man",
+        "Luke Cage"
+      ],
+      "m",
+      "Heroes for Hire",
+      "Pop's Barber Shop, 119th Street",
+      "10027",
+      "Harlem, New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Unzerstörbare Haut und übermenschliche Stärke. Weitere Angabe: Pop's Barber Shop.",
+      1,
+      [
+        "Kette",
+        "Kapuzenpulli"
+      ]
+    ],
+    [
+      "Luke Skywalker",
+      "Luke Skywalker",
+      [
+        "Luke",
+        "Jedi-Ritter",
+        "Sohn der Skywalker-Familie",
+        "Meister Skywalker"
+      ],
+      "m",
+      "Jedi-Orden",
+      "Lars Feuchtfarm",
+      "",
+      "Tatooine",
+      "Star Wars",
+      "Film",
+      "Protagonist",
+      "Wuchs auf der Lars-Farm auf und lebte später an verschiedenen Orten in der Galaxis. Weitere Zugehoerigkeit: Rebellenallianz",
+      3,
+      [
+        "Lichtschwert",
+        "X-Wing"
+      ]
+    ],
+    [
+      "M",
+      "Miles Messervy",
+      [
+        "M",
+        "Miles Messervy (klassischer Name)"
+      ],
+      "m",
+      "",
+      "MI6-Hauptquartier, 85 Albert Embankment",
+      "SE1 0HX",
+      "London SE1, Vereinigtes Königreich",
+      "James Bond",
+      "Film",
+      "Mentor",
+      "Amtscode M; direkter Vorgesetzte von James Bond.; klassische Buch-Identität",
+      1,
+      [
+        "Aktenkoffer",
+        "Diktiergerät"
+      ]
+    ],
+    [
+      "Mabel Pines",
+      "Mabel Pines",
+      [
+        "Mabel"
+      ],
+      "f",
+      "",
+      "Mystery Shack",
+      "",
+      "Gravity Falls, Oregon",
+      "Gravity Falls",
+      "Cartoon",
+      "Protagonist",
+      "Zwillingsschwester von Dipper Pines.",
+      1,
+      [
+        "Enterhaken",
+        "Stricknadel",
+        "Regenbogen-Pullover"
+      ]
+    ],
+    [
+      "Maggie Simpson",
+      "Margaret Evelyn Lenny Simpson",
+      [
+        "Maggie"
+      ],
+      "f",
+      "",
+      "742 Evergreen Terrace",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Sonstiges",
+      "Ihr vollständiger Name wird in der Serie und Begleitmaterial nicht durchgehend einheitlich angegeben.",
+      1,
+      [
+        "Schnuller",
+        "Teddybär"
+      ]
+    ],
+    [
+      "Magneto",
+      "Max Eisenhardt",
+      [
+        "Erik Lehnsherr",
+        "Max Eisenhardt",
+        "Master of Magnetism"
+      ],
+      "m",
+      "Bruderschaft der Mutanten",
+      "Asteroid M",
+      "",
+      "Genosha",
+      "Marvel Comics",
+      "Comic",
+      "Antiheld",
+      "Seine ursprüngliche Identität und seine politischen Ziele wurden über mehrere Comic-Epochen weiterentwickelt.",
+      2,
+      [
+        "Helm",
+        "Umhang"
+      ]
+    ],
+    [
+      "Majestix",
+      "Majestix",
+      [
+        "Häuptling des Dorfes"
+      ],
+      "m",
+      "Gallischer Häuptlingssitz",
+      "Häuptlingshütte",
+      "",
+      "Aremorica",
+      "Asterix",
+      "Comic",
+      "Support",
+      "Hat nur eine Angst: Dass ihm der Himmel auf den Kopf fällt.",
+      1,
+      [
+        "Schild",
+        "Häuptlingsumhang"
+      ]
+    ],
+    [
+      "Majin Buu",
+      "Majin Buu",
+      [
+        "Absorber"
+      ],
+      "m",
+      "",
+      "Buu-Kuppelhaus 1",
+      "",
+      "Earth",
+      "Dragon Ball",
+      "Anime",
+      "Antagonist",
+      "Unsterblicher Bösewicht",
+      1,
+      [
+        "Schokolade",
+        "Kaugummi"
+      ]
+    ],
+    [
+      "Marge Gunderson",
+      "Marge Gunderson",
+      [
+        "Marge"
+      ],
+      "f",
+      "Brainerd Police Department",
+      "Polizeirevier Brainerd",
+      "56401",
+      "Brainerd, Minnesota",
+      "Fargo",
+      "Film",
+      "Protagonist",
+      "Schwangere Polizeichefin mit unverwechselbarem Minnesota-Dialekt ('Oh, you betcha!').",
+      1,
+      [
+        "Dienstmarke",
+        "Dienstpistole"
+      ]
+    ],
+    [
+      "Marge Simpson",
+      "Marjorie Jacqueline Simpson",
+      [
+        "Marge Bouvier"
+      ],
+      "f",
+      "",
+      "742 Evergreen Terrace",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Protagonist",
+      "Geborene Bouvier; der genaue US-Bundesstaat Springfields ist in der Serie absichtlich uneindeutig.",
+      2,
+      [
+        "Perlenkette",
+        "Grünes Kleid"
+      ]
+    ],
+    [
+      "Mario",
+      "Mario",
+      [
+        "Super Mario",
+        "Jumpman",
+        "Mario"
+      ],
+      "m",
+      "",
+      "Mario Bros. Klempnerbetrieb",
+      "",
+      "Pilz-Königreich",
+      "Super Mario",
+      "Videospiel",
+      "Protagonist",
+      "'Mario Mario' stammt aus der Realverfilmung von 1993 und gilt nicht als Spiel-Kanon.",
+      3,
+      [
+        "Superpilz",
+        "Feuerblume",
+        "Go-Kart"
+      ]
+    ],
+    [
+      "Martian Manhunter",
+      "J'onn J'onzz",
+      [
+        "Der Marsmensch",
+        "Das Herz der Justice League",
+        "John Jones"
+      ],
+      "m",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Mars",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Letzter Überlebender des Mars, beherrscht Gestaltwandlung und Telepathie. Schwäche: Feuer. Weitere Angabe: Marsianische Garde.",
+      1,
+      [
+        "Chocos-Kekse",
+        "Umhang"
+      ]
+    ],
+    [
+      "Marty McFly",
+      "Martin Seamus McFly",
+      [
+        "Marty"
+      ],
+      "m",
+      "",
+      "1640 Riverside Drive",
+      "90098",
+      "Hill Valley, Kalifornien",
+      "Zurück in die Zukunft",
+      "Film",
+      "Protagonist",
+      "Hill Valley ist eine fiktive Stadt; die Filmreihe verwendet unterschiedliche Zeitlinien und Adressen.",
+      2,
+      [
+        "DeLorean",
+        "Hoverboard",
+        "Sportalmanach"
+      ]
+    ],
+    [
+      "Mary Poppins",
+      "Mary Poppins",
+      [
+        "Das Kindermädchen"
+      ],
+      "f",
+      "",
+      "17 Kirschbaumweg",
+      "",
+      "London, England",
+      "Mary Poppins",
+      "Buch",
+      "Mentor",
+      "Der Kirschbaumweg ist die deutsche Bezeichnung für Cherry Tree Lane; Hausnummern variieren je nach Adaption.",
+      1,
+      [
+        "Regenschirm",
+        "Teppichtasche",
+        "Zuckerlöffel"
+      ]
+    ],
+    [
+      "Master Chief",
+      "John",
+      [
+        "John-117",
+        "Sierra-117",
+        "Der Demokratie-Held"
+      ],
+      "m",
+      "UNSC",
+      "keine feste Anschrift",
+      "",
+      "UNSC Infinity",
+      "Halo",
+      "Videospiel",
+      "Protagonist",
+      "Bio-technisch verbesserter Supersoldat; bürgerlicher Name nur als 'John' bekannt.",
+      1,
+      [
+        "Helm mit Goldvisier",
+        "Sturmgewehr",
+        "MJOLNIR-Rüstung"
+      ]
+    ],
+    [
+      "Michael Corleone",
+      "Michael Corleone",
+      [
+        "Der Pate",
+        "Don Corleone",
+        "Don Vito"
+      ],
+      "m",
+      "Corleone-Familie",
+      "Corleone Compound",
+      "11561",
+      "Long Beach, New York",
+      "Der Pate",
+      "Film",
+      "Protagonist",
+      "'Der Pate' ist der Filmtitel, kein Alias der Figur.",
+      2,
+      [
+        "Revolver",
+        "Zigarre"
+      ]
+    ],
+    [
+      "Micky Maus",
+      "Micky Maus",
+      [
+        "Mickey Mouse",
+        "Mickey Maus",
+        "Detective Micky",
+        "Meisterdetektiv Micky"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Entenhausen",
+      "Disney",
+      "Cartoon",
+      "Protagonist",
+      "Wohnort und Nachbarschaft variieren in den zahlreichen Disney-Comic- und Zeichentrickkontinuitäten.",
+      1,
+      [
+        "Weiße Handschuhe",
+        "Zauberstab",
+        "Rote Hose"
+      ]
+    ],
+    [
+      "Mikasa Ackerman",
+      "Mikasa Ackermann",
+      [
+        "Mikasa Ackerman",
+        "Mikasa"
+      ],
+      "f",
+      "Aufklärungstrupp",
+      "Hauptquartier der Aufklärungstruppe",
+      "",
+      "Wall Maria",
+      "Attack on Titan",
+      "Anime",
+      "Protagonist",
+      "Starker Wille, Kriegerin gegen Titanen",
+      3,
+      [
+        "Roter Schal",
+        "Doppelklinge",
+        "ODM-Ausrüstung"
+      ]
+    ],
+    [
+      "Mike Ehrmantraut",
+      "Michael Ehrmantraut",
+      [
+        "Der Fixer"
+      ],
+      "m",
+      "",
+      "Madrigal Electromotive GmbH, Zweigstelle",
+      "87101",
+      "Albuquerque, NM",
+      "Better Call Saul",
+      "Serie",
+      "Antiheld",
+      "Ehemaliger Polizist; Arbeitet als Problem-Löser für Gus Fring und Saul Goodman.",
+      1,
+      [
+        "Revolver",
+        "Schalldämpfer"
+      ]
+    ],
+    [
+      "Mikoto Misaka",
+      "Mikoto Misaka",
+      [
+        "Railgun"
+      ],
+      "f",
+      "Tokiwadai Mittelschule",
+      "Tokiwadai-Schülerwohnheim, Raum 208",
+      "",
+      "Academy City, Japan",
+      "A Certain Scientific Railgun",
+      "Anime",
+      "Protagonist",
+      "Elektro-Espe der Stufe 5; wird 'Railgun' genannt, weil sie Münzen als Projektile verschießt.",
+      1,
+      [
+        "Münze",
+        "Schuluniform"
+      ]
+    ],
+    [
+      "Minerva McGonagall",
+      "Minerva McGonagall",
+      [
+        "Professor McGonagall"
+      ],
+      "f",
+      "",
+      "Hogwarts-Schule für Hexerei und Zauberei",
+      "PH99 9AA",
+      "Schottland",
+      "Harry Potter",
+      "Buch",
+      "Mentor",
+      "Lehrerin für Verwandlung und später Schulleiterin.",
+      1,
+      [
+        "Hexenhut",
+        "Zauberstab"
+      ]
+    ],
+    [
+      "Miraculix",
+      "Miraculix",
+      [
+        "Der Druide",
+        "Panoramix"
+      ],
+      "m",
+      "Gallischer Druidenorden",
+      "Druidenhütte am Eichenhain",
+      "",
+      "Aremorica",
+      "Asterix",
+      "Comic",
+      "Mentor",
+      "Brauer des Zaubertranks mit der goldenen Sichel. Schneidet Misteln nur im Eichenhain.",
+      3,
+      [
+        "Goldene Sichel",
+        "Kessel"
+      ]
+    ],
+    [
+      "Miss Marple",
+      "Jane Marple",
+      [
+        "Jane Marple"
+      ],
+      "f",
+      "",
+      "Danemede Cottage",
+      "",
+      "St. Mary Mead, England",
+      "Agatha Christie",
+      "Buch",
+      "Protagonist",
+      "Scharfsinnige alte Dame, die Kriminalfälle durch Menschenkenntnis löst.",
+      1,
+      [
+        "Stricknadeln",
+        "Teetasse",
+        "Fernglas"
+      ]
+    ],
+    [
+      "Mister Fantastic",
+      "Dr. Reed Richards",
+      [
+        "Mr. Fantastic",
+        "Der klügste Mann der Welt"
+      ],
+      "m",
+      "Fantastic Four",
+      "Baxter Building",
+      "10001",
+      "New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Anführer der Fantastic Four, hyper-elastischer Körper. Weitere Angabe: Baxter Foundation.",
+      1,
+      [
+        "Weißer Laborkittel",
+        "Flugauto"
+      ]
+    ],
+    [
+      "Momo",
+      "Momo",
+      [
+        "Momo, das Mädchen"
+      ],
+      "f",
+      "",
+      "Ruine des Amphitheaters",
+      "",
+      "Unbenannte italienische Stadt",
+      "Momo",
+      "Buch",
+      "Protagonist",
+      "Michael Endes Roman benennt die Stadt nicht ausdrücklich.",
+      1,
+      [
+        "Zeitblume",
+        "Schildkröte"
+      ]
+    ],
+    [
+      "Monkey D. Ruffy",
+      "Monkey D. Luffy",
+      [
+        "Strohhut-Ruffy",
+        "Strohhut",
+        "Lucy",
+        "Straw Hat Captain",
+        "Luffy",
+        "Zukünftiger König der Piraten",
+        "Der Mann, der König der Piraten wird"
+      ],
+      "m",
+      "Strohhutpiraten",
+      "Thousand Sunny",
+      "",
+      "Windmühlendorf",
+      "One Piece",
+      "Anime",
+      "Protagonist",
+      "Sucht den One Piece",
+      4,
+      [
+        "Strohhut",
+        "Gum-Gum-Frucht",
+        "Fleisch"
+      ]
+    ],
+    [
+      "Morpheus",
+      "Morpheus",
+      [
+        "Captain Morpheus",
+        "Der Kapitän der Nebuchadnezzar"
+      ],
+      "m",
+      "Widerstand gegen die Maschinen",
+      "Nebuchadnezzar",
+      "",
+      "Matrix und reale Welt",
+      "Matrix",
+      "Film",
+      "Mentor",
+      "Führt Neo an die Wahrheit über die Matrix heran.",
+      2,
+      [
+        "Rote Pille",
+        "Sonnenbrille",
+        "Ledermantel"
+      ]
+    ],
+    [
+      "Morty Smith",
+      "Mortimer Smith",
+      [
+        "Morty"
+      ],
+      "m",
+      "Schüler an der Harry Herpson High School",
+      "Smith-Familienhaus",
+      "",
+      "Seattle-ähnlicher Vorort",
+      "Rick and Morty",
+      "Cartoon",
+      "Sidekick",
+      "Der Name Mortimer wird gelegentlich als Langform verwendet, ist aber nicht durchgehend kanonisch.",
+      2,
+      [
+        "Gelbes T-Shirt",
+        "Rucksack"
+      ]
+    ],
+    [
+      "Mr. Burns",
+      "Charles Montgomery Burns",
+      [
+        "Charles Montgomery Burns",
+        "Monty",
+        "C. Montgomery Burns"
+      ],
+      "m",
+      "Springfield Atomkraftwerk",
+      "Burns Manor",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Antagonist",
+      "Reicher Eigentümer des Atomkraftwerks; sein Alter und seine Biografie werden komödiantisch inkonsistent dargestellt.",
+      2,
+      [
+        "Teddybär",
+        "Geldscheinbündel"
+      ]
+    ],
+    [
+      "Mr. Krabs",
+      "Eugene Harold Krabs",
+      [
+        "Eugene H. Krabs"
+      ],
+      "m",
+      "",
+      "Krusty Krab Restaurant, Bikini Bottom Hauptstraße",
+      "",
+      "Bikini Bottom, Pazifischer Ozean",
+      "SpongeBob Schwammkopf",
+      "Cartoon",
+      "Antiheld",
+      "Geldgieriger Krabben-Restaurantbesitzer; Erzfeind von Plankton und dessen Chum Bucket.",
+      1,
+      [
+        "Krabbenburger",
+        "Geldscheinbündel"
+      ]
+    ],
+    [
+      "Mr. Poopybutthole",
+      "Mr. Poopybutthole",
+      [
+        "Mr. Poopy Butthole"
+      ],
+      "m",
+      "",
+      "℅ Smith-Residenz",
+      "98101",
+      "Seattle, Washington",
+      "Rick and Morty",
+      "Cartoon",
+      "Sonstiges",
+      "Nebenfigur mit absichtlich absurd gestaltetem Namen.",
+      1,
+      [
+        "Gehstock",
+        "Fliege"
+      ]
+    ],
+    [
+      "Nami",
+      "Nami",
+      [
+        "Katzeneinbrecherin"
+      ],
+      "f",
+      "Strohhutbande",
+      "Thousand Sunny",
+      "",
+      "Grandline",
+      "One Piece",
+      "Anime",
+      "Sidekick",
+      "Navigatorin der Strohhutbande.",
+      1,
+      [
+        "Wetterstab",
+        "Schatzkarte",
+        "Mandarine"
+      ]
+    ],
+    [
+      "Namor",
+      "Namor McKenzie",
+      [
+        "Sub-Mariner"
+      ],
+      "m",
+      "",
+      "Atlantischer Palast",
+      "",
+      "Atlantis",
+      "Marvel Comics",
+      "Comic",
+      "Antiheld",
+      "Herrscher von Atlantis; Herkunft und Staatszugehörigkeit unterscheiden sich in verschiedenen Kontinuitäten.",
+      1,
+      [
+        "Dreizack",
+        "Badehose"
+      ]
+    ],
+    [
+      "Naruto Uzumaki",
+      "Naruto Uzumaki",
+      [
+        "Konohas orangefarbener Ninja",
+        "Jinchūriki des Neunschwänzigen",
+        "Siebter Hokage",
+        "Held des versteckten Blattes",
+        "Der Neunte",
+        "Knallkopf-Ninja",
+        "Siebenter Hokage",
+        "Der Ninja aus Konoha"
+      ],
+      "m",
+      "",
+      "Hokage-Residenz",
+      "",
+      "Konohagakure",
+      "Naruto",
+      "Anime",
+      "Protagonist",
+      "Siebtes Hokage, verdient Respekt",
+      4,
+      [
+        "Kopfbinde",
+        "Ramen",
+        "Kunai"
+      ]
+    ],
+    [
+      "Ned Flanders",
+      "Nedward Flanders",
+      [
+        "Neddy",
+        "Neighborino"
+      ],
+      "m",
+      "Leftorium",
+      "744 Evergreen Terrace",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Sidekick",
+      "Homer Simpsons Nachbar und Besitzer eines Fachgeschäfts für Linkshänder.",
+      2,
+      [
+        "Bibel",
+        "Pullover"
+      ]
+    ],
+    [
+      "Neo",
+      "Thomas A. Anderson",
+      [
+        "Der Eine",
+        "The One",
+        "Thomas Anderson"
+      ],
+      "m",
+      "Nebuchadnezzar-Besatzung",
+      "Zion Dock",
+      "",
+      "Zion",
+      "Matrix",
+      "Film",
+      "Protagonist",
+      "Thomas Anderson ist seine Identität innerhalb der simulierten Welt. Weitere Angabe: Nebuchadnezzar.",
+      2,
+      [
+        "Schwarzer Trenchcoat",
+        "Sonnenbrille",
+        "Rote Pille"
+      ]
+    ],
+    [
+      "Obelix",
+      "Obelix",
+      [
+        "Der Hinkelstein-Lieferant",
+        "Der Hinkelsteinlieferant",
+        "Der Menhir-Lieferant"
+      ],
+      "m",
+      "",
+      "Steinbruchweg 1",
+      "",
+      "Aremorica",
+      "Asterix",
+      "Comic",
+      "Protagonist",
+      "Als kleines Kind in den Zaubertranktopf gefallen; hat Dauer-Superkraft. Begleitet von Idefix.",
+      3,
+      [
+        "Hinkelstein",
+        "Wildschwein"
+      ]
+    ],
+    [
+      "Obi-Wan Kenobi",
+      "Obi-Wan Kenobi",
+      [
+        "Ben Kenobi",
+        "Der Verhandlungsmeister"
+      ],
+      "m",
+      "Jedi-Orden",
+      "Einsiedlerhütte",
+      "",
+      "Tatooine",
+      "Star Wars",
+      "Film",
+      "Mentor",
+      "Lebt nach dem Fall der Jedi in einer abgelegenen Hütte auf Tatooine.",
+      2,
+      [
+        "Lichtschwert",
+        "Jedi-Robe"
+      ]
+    ],
+    [
+      "Paddington Bär",
+      "Paddington",
+      [
+        "Paddington Brown"
+      ],
+      "m",
+      "Familie Brown",
+      "32 Windsor Gardens",
+      "W9 3AA",
+      "London",
+      "Paddington Bär",
+      "Buch",
+      "Protagonist",
+      "Bär aus dem dunkelsten Peru mit Vorliebe für Orangenmarmelade.",
+      1,
+      [
+        "Marmeladensandwich",
+        "Koffer",
+        "Dufflecoat"
+      ]
+    ],
+    [
+      "Palpatine",
+      "Sheev Palpatine",
+      [
+        "Darth Sidious",
+        "Imperator",
+        "Kanzler Palpatine",
+        "Der Imperator"
+      ],
+      "m",
+      "Galaktisches Imperium",
+      "Imperialer Palast",
+      "",
+      "Coruscant",
+      "Star Wars",
+      "Film",
+      "Antagonist",
+      "Der Vorname Sheev stammt aus ergänzendem kanonischem Material.",
+      2,
+      [
+        "Lichtschwert",
+        "Umhang"
+      ]
+    ],
+    [
+      "Papa Schlumpf",
+      "Papa Schlumpf",
+      [
+        "Der Dorfälteste"
+      ],
+      "m",
+      "",
+      "Großes Pilzhaus im Zentrum",
+      "",
+      "Schlumpfhausen",
+      "Die Schlümpfe",
+      "Comic",
+      "Mentor",
+      "Trägt als einziger rote Mütze und weiße Bartpracht; weiser Zauberer und Schutz vor Gargamel.",
+      1,
+      [
+        "Rote Mütze",
+        "Brille"
+      ]
+    ],
+    [
+      "Patrick Star",
+      "Patrick Star",
+      [
+        "Patrick"
+      ],
+      "m",
+      "",
+      "Felsen-Haus 120, Conch Street",
+      "",
+      "Bikini Bottom, Pazifischer Ozean",
+      "SpongeBob Schwammkopf",
+      "Cartoon",
+      "Sidekick",
+      "Seestern und bester Freund von SpongeBob; lebt unter einem Felsen.",
+      1,
+      [
+        "Blumenshorts",
+        "Eiscreme"
+      ]
+    ],
+    [
+      "Paul Atreides",
+      "Paul Atreides",
+      [
+        "Muad'Dib",
+        "Usul",
+        "Lisan al-Gaib",
+        "Der Mahdi"
+      ],
+      "m",
+      "",
+      "Palast von Arrakeen",
+      "",
+      "Arrakis",
+      "Dune",
+      "Film",
+      "Protagonist",
+      "Die Titel und Aufenthaltsorte variieren zwischen Romanen und Verfilmungen.",
+      2,
+      [
+        "Krysmesser",
+        "Destillanzug",
+        "Sandwurm"
+      ]
+    ],
+    [
+      "Percy Jackson",
+      "Perseus Jackson",
+      [
+        "Perseus Jackson",
+        "Seaweed Brain",
+        "Der Sohn des Poseidon"
+      ],
+      "m",
+      "",
+      "Camp Half-Blood",
+      "11501",
+      "Long Island, New York",
+      "Percy Jackson",
+      "Buch",
+      "Protagonist",
+      "Halbgott und Sohn Poseidons; Camp Half-Blood ist ein fiktives Trainingslager.",
+      2,
+      [
+        "Kugelschreiber",
+        "Blaues Essen"
+      ]
+    ],
+    [
+      "Phantomias",
+      "Donald Fauntleroy Duck",
+      [
+        "Der Rächer von Entenhausen",
+        "Paperinik",
+        "Donald Fauntleroy Duck",
+        "Donald Duck"
+      ],
+      "m",
+      "O.M.A.",
+      "313 Erpelweg",
+      "",
+      "Entenhausen",
+      "Entenhausen (Disney)",
+      "Comic",
+      "Protagonist",
+      "Donalds nächtliches Superhelden-Alter-Ego mit dem Kennzeichen 313X.",
+      3,
+      [
+        "Umhang",
+        "Augenmaske"
+      ]
+    ],
+    [
+      "Philip J. Fry",
+      "Philip J. Fry",
+      [
+        "Fry",
+        "Philip J. Fry"
+      ],
+      "m",
+      "Planet Express",
+      "Robot Arms Apts., Apartment 00100100",
+      "10001",
+      "New New York",
+      "Futurama",
+      "Cartoon",
+      "Protagonist",
+      "Zieht in Folge \"I, Roommate\" bei Bender ein und wohnt in dessen verstecktem Apartment (00100100).",
+      2,
+      [
+        "Slurm-Dose",
+        "Pizza"
+      ]
+    ],
+    [
+      "Piccolo",
+      "Piccolo",
+      [
+        "Piccolo Jr.",
+        "Dämonenkönig Piccolo",
+        "Ma Junior"
+      ],
+      "m",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Gottes-Palast",
+      "Dragon Ball",
+      "Anime",
+      "Sidekick",
+      "Namekianer, wird zu Freunden mit Goku",
+      3,
+      [
+        "Turban",
+        "Umhang"
+      ]
+    ],
+    [
+      "Pikachu",
+      "Pikachu",
+      [
+        "Elektro-Maus",
+        "Pokémon #025",
+        "Partner-Pokémon",
+        "Pika"
+      ],
+      "m",
+      "",
+      "Reist auf Ashs Schulter",
+      "",
+      "Alabastia, Kanto",
+      "Pokémon",
+      "Anime",
+      "Support",
+      "Bezieht sich auf Ash Ketchums Partner-Pikachu aus dem Anime; in Videospielen gibt es viele namenlose Pikachu.",
+      3,
+      [
+        "Pokéball",
+        "Donnerstein"
+      ]
+    ],
+    [
+      "Pippi Langstrumpf",
+      "Pippilotta Viktualia Rollgardina Pfefferminz Efraimstochter Langstrumpf",
+      [
+        "Pippilotta Viktualia Rollgardina Pfefferminz Efraimstochter Langstrumpf"
+      ],
+      "f",
+      "",
+      "Villa Kunterbunt",
+      "",
+      "Kleinstadt in Schweden",
+      "Pippi Langstrumpf",
+      "Buch",
+      "Protagonist",
+      "Ihr vollständiger Name wird in den deutschsprachigen Ausgaben in dieser Form wiedergegeben.",
+      1,
+      [
+        "Goldmünzen",
+        "Äffchen",
+        "Pferd"
+      ]
+    ],
+    [
+      "Popeye",
+      "Popeye der Matrose",
+      [
+        "Der Seemann"
+      ],
+      "m",
+      "",
+      "Hafenkante, Kreuzwort-Neptun-Bar-Viertel",
+      "",
+      "Sweet Haven, Küstenstadt",
+      "Popeye",
+      "Cartoon",
+      "Protagonist",
+      "Bezieht seine Superkraft aus Spinat; Lebensgefährte von Olivia Oyl.",
+      1,
+      [
+        "Spinatdose",
+        "Pfeife",
+        "Matrosenmütze"
+      ]
+    ],
+    [
+      "Prinzessin Daisy",
+      "Prinzessin Daisy von Sarasaland",
+      [
+        "Daisy"
+      ],
+      "f",
+      "",
+      "Schloss",
+      "",
+      "Sarasaland",
+      "Super Mario",
+      "Videospiel",
+      "Protagonist",
+      "Herrscherin von Sarasaland, sportlich und temperamentvoll.",
+      1,
+      [
+        "Blumenkleid",
+        "Krone"
+      ]
+    ],
+    [
+      "Prinzessin Peach",
+      "Peach",
+      [
+        "Princess Toadstool"
+      ],
+      "f",
+      "",
+      "Schloss Peach",
+      "",
+      "Pilz-Königreich",
+      "Super Mario",
+      "Videospiel",
+      "Protagonist",
+      "Princess Toadstool war der englische Name in frühen westlichen Veröffentlichungen.",
+      2,
+      [
+        "Krone",
+        "Rosa Kleid"
+      ]
+    ],
+    [
+      "Prinzessin Zelda",
+      "Zelda",
+      [
+        "Zelda",
+        "Sheik (Verkleidung)"
+      ],
+      "f",
+      "",
+      "Schloss",
+      "",
+      "Hyrule",
+      "The Legend of Zelda",
+      "Videospiel",
+      "Mentor",
+      "Zelda ist eine wiederkehrende Figur mit unterschiedlichen Identitäten und Rollen in verschiedenen Zeitlinien.",
+      2,
+      [
+        "Bogen",
+        "Harfe",
+        "Diadem"
+      ]
+    ],
+    [
+      "Professor Farnsworth",
+      "Hubert J. Farnsworth",
+      [
+        "Hubert J. Farnsworth",
+        "Professor"
+      ],
+      "m",
+      "",
+      "Planet-Express-Gebäude",
+      "10001",
+      "New New York",
+      "Futurama",
+      "Cartoon",
+      "Mentor",
+      "Exzentrischer Wissenschaftler und Eigentümer von Planet Express. Arbeitsraeume und Schlafzimmer im Planet-Express-Gebaeude.",
+      1,
+      [
+        "Brille",
+        "Labormantel"
+      ]
+    ],
+    [
+      "Professor Moriarty",
+      "James Moriarty",
+      [
+        "Napoleon des Verbrechens",
+        "Der Napoleon des Verbrechens"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "London, England",
+      "Sherlock Holmes",
+      "Buch",
+      "Antagonist",
+      "Der Vorname James wird in einer Holmes-Erzählung für den Bruder und in späteren Adaptionen für den Professor verwendet.",
+      2,
+      [
+        "Taschenuhr",
+        "Gehstock"
+      ]
+    ],
+    [
+      "Professor X",
+      "Charles Francis Xavier",
+      [
+        "Professor Xavier",
+        "Professor Charles Xavier"
+      ],
+      "m",
+      "Xavier-Institut für höhere Bildung",
+      "Xavier-Anwesen, Graymalkin Lane",
+      "",
+      "Salem Center, Westchester County, New York",
+      "Marvel Comics",
+      "Comic",
+      "Mentor",
+      "Gründer der X-Men; die Anschrift und der Name der Schule variieren je nach Kontinuität.",
+      2,
+      [
+        "Rollstuhl",
+        "Cerebro"
+      ]
+    ],
+    [
+      "Q",
+      "Q",
+      [
+        "Q (Kontinuum-Avatar)"
+      ],
+      "m",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Q-Kontinuum",
+      "Star Trek",
+      "Serie",
+      "Antiheld",
+      "Allmächtiges, übermenschliches Wesen; Adresse nur als Humor zu verstehen.",
+      1,
+      [
+        "Richterrobe",
+        "Sternenflotten-Uniform"
+      ]
+    ],
+    [
+      "Rey",
+      "Rey Palpatine",
+      [
+        "Rey Skywalker"
+      ],
+      "f",
+      "Widerstand",
+      "AT-AT-Wrack",
+      "",
+      "Jakku",
+      "Star Wars",
+      "Film",
+      "Protagonist",
+      "Aufgewachsen als Schrottsammlerin auf dem Wüstenplaneten Jakku. Weitere Angabe: Jedi.",
+      1,
+      [
+        "Lichtschwert",
+        "Stab",
+        "Blaster"
+      ]
+    ],
+    [
+      "Rick Deckard",
+      "Rick Deckard",
+      [
+        "Blade Runner"
+      ],
+      "m",
+      "Los Angeles Police Department",
+      "Wohnung 9730, Sector 6, Los Angeles",
+      "90001",
+      "Los Angeles, Kalifornien",
+      "Blade Runner",
+      "Film",
+      "Antiheld",
+      "Blade Runner und seine Wohnsituation unterscheiden sich zwischen Film und Romanvorlage.",
+      2,
+      [
+        "Blaster",
+        "Origami-Einhorn",
+        "Fotoanalyse-Gerät"
+      ]
+    ],
+    [
+      "Rick Sanchez",
+      "Richard Sanchez",
+      [
+        "Rick C-137",
+        "Rick Prime"
+      ],
+      "m",
+      "",
+      "Smith Residenz Garage",
+      "98101",
+      "Seattle, Washington",
+      "Rick and Morty",
+      "Cartoon",
+      "Protagonist",
+      "'Seattle' ist nicht klar kanonisch.",
+      4,
+      [
+        "Portalgun",
+        "Flachmann",
+        "Labormantel"
+      ]
+    ],
+    [
+      "Rincewind",
+      "Rincewind",
+      [
+        "Rincewind der Zauberer",
+        "Der feige Zauberer"
+      ],
+      "m",
+      "",
+      "Unsichtbare Universität",
+      "",
+      "Ankh-Morpork",
+      "Scheibenwelt",
+      "Buch",
+      "Protagonist",
+      "Ein feiger, aber erstaunlich überlebensfähiger Zauberer.",
+      2,
+      [
+        "Spitzhut",
+        "Zauberbuch Octavus"
+      ]
+    ],
+    [
+      "Robin",
+      "Richard John 'Dick' Grayson",
+      [
+        "Nightwing",
+        "Boy Wonder",
+        "Der Wunderknabe"
+      ],
+      "m",
+      "Blüdhaven PD",
+      "Police Department",
+      "07089",
+      "Blüdhaven",
+      "DC Comics",
+      "Comic",
+      "Sidekick",
+      "Erster Robin, wuchs bei Bruce Wayne auf und wurde später eigenständiger Held Nightwing. Weitere Angabe: Teen Titans; Wayne Enterprises.",
+      2,
+      [
+        "Domino-Maske",
+        "Kampfstab",
+        "Enterhaken"
+      ]
+    ],
+    [
+      "Ron Weasley",
+      "Ronald Bilius Weasley",
+      [
+        "Ron"
+      ],
+      "m",
+      "Zaubereiministerium",
+      "Der Fuchsbau",
+      "",
+      "Ottery St Catchpole, Devon",
+      "Harry Potter",
+      "Buch",
+      "Sidekick",
+      "Der Fuchsbau ist das Haus seiner Familie. Weitere Zugehoerigkeit: Aurorenbüro",
+      1,
+      [
+        "Deluminator",
+        "Schachfiguren"
+      ]
+    ],
+    [
+      "Roronoa Zoro",
+      "Roronoa Zoro",
+      [
+        "Piratenjäger Zoro",
+        "Der Schwertkämpfer"
+      ],
+      "m",
+      "Strohhutbande",
+      "Thousand Sunny",
+      "",
+      "Grandline",
+      "One Piece",
+      "Anime",
+      "Sidekick",
+      "Kämpft mit drei Schwertern (Santoryu-Technik); sensationell schlechter Orientierungssinn. Heimatdorf im East Blue; wuchs dort im Dojo mit Kuina auf",
+      1,
+      [
+        "Katana",
+        "Kopftuch",
+        "Sake-Flasche"
+      ]
+    ],
+    [
+      "Rorschach",
+      "Walter Joseph Kovacs",
+      [
+        "Walter Kovacs"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "10001",
+      "New York City",
+      "Watchmen",
+      "Comic",
+      "Antiheld",
+      "Lebt in einer fiktionalisierten Version von New York City. Hat ein Apartment in New York; die Adresse wird nie genannt.",
+      1,
+      [
+        "Notizbuch",
+        "Maske",
+        "Enterhaken"
+      ]
+    ],
+    [
+      "Roy Batty",
+      "Roy Batty",
+      [
+        "Nexus-6-Replikant"
+      ],
+      "m",
+      "Tyrell Corporation",
+      "Untergekommen im Bradbury Building, 304 South Broadway",
+      "90001",
+      "Los Angeles, Kalifornien",
+      "Blade Runner",
+      "Film",
+      "Antagonist",
+      "Replikant, der gegen seine begrenzte Lebensdauer rebelliert.",
+      2,
+      [
+        "Weiße Taube",
+        "Nagel",
+        "Foto"
+      ]
+    ],
+    [
+      "Rubeus Hagrid",
+      "Rubeus Hagrid",
+      [
+        "Hagrid"
+      ],
+      "m",
+      "Hogwarts",
+      "Hagrids Hütte",
+      "",
+      "Hogwarts-Gelände, Schottland",
+      "Harry Potter",
+      "Buch",
+      "Mentor",
+      "Wildhüter und später Lehrer für Pflege magischer Geschöpfe.",
+      1,
+      [
+        "Motorrad",
+        "Rosa Regenschirm"
+      ]
+    ],
+    [
+      "Ryuk",
+      "Ryuk",
+      [
+        "Shinigami"
+      ],
+      "d",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Shinigami-Reich",
+      "Death Note",
+      "Anime",
+      "Sonstiges",
+      "Ein Todesgott, der ein Death Note in die Menschenwelt fallen lässt.",
+      1,
+      [
+        "Apfel",
+        "Death Note"
+      ]
+    ],
+    [
+      "Sailor Moon",
+      "Usagi Tsukino",
+      [
+        "Usagi Tsukino",
+        "Kriegerin des Mondes"
+      ],
+      "f",
+      "Sailor Senshi",
+      "Tsukino-Residenz, Azabu-Juban Bezirk",
+      "105-0001",
+      "Minato, Tokio, Japan",
+      "Sailor Moon",
+      "Anime",
+      "Protagonist",
+      "Mutige Schügerin, die sich in die Mondkriegerin Sailor Moon verwandelt; liebt Essen.",
+      1,
+      [
+        "Mondstab",
+        "Silberkristall",
+        "Transformationsbrosche"
+      ]
+    ],
+    [
+      "Saitama",
+      "Saitama",
+      [
+        "One Punch Man",
+        "Der kahle Held mit Cape"
+      ],
+      "m",
+      "Hero Association",
+      "Wohnung Z-City, Bezirk 4-2",
+      "",
+      "Z-City, Japan",
+      "One Punch Man",
+      "Anime",
+      "Protagonist",
+      "Besiegt jeden Gegner mit einem einzigen Schlag; langweilt sich aus Mangel an Herausforderung.",
+      1,
+      [
+        "Rote Handschuhe",
+        "Weißer Umhang"
+      ]
+    ],
+    [
+      "Sakura Haruno",
+      "Sakura Haruno",
+      [
+        "Sakura Uchiha"
+      ],
+      "f",
+      "",
+      "Postlagernd",
+      "",
+      "Konohagakure, Feuerreich",
+      "Naruto",
+      "Anime",
+      "Sidekick",
+      "In späteren Handlungen ist sie mit Sasuke Uchiha verheiratet.",
+      1,
+      [
+        "Rote Handschuhe",
+        "Kunai"
+      ]
+    ],
+    [
+      "Sam Mumm",
+      "Samuel Mumm",
+      [
+        "Sam Vimes",
+        "Samuel Vimes",
+        "Kommandant Mumm",
+        "Kommandeur Vimes"
+      ],
+      "m",
+      "Ankh-Morpork Stadtwache",
+      "Pseudopolis Yard",
+      "",
+      "Ankh-Morpork",
+      "Scheibenwelt",
+      "Buch",
+      "Protagonist",
+      "Leitet die Stadtwache; seine familiäre Wohnsituation entwickelt sich im Verlauf der Romane.",
+      1,
+      [
+        "Zigarrenstummel",
+        "Dienstmarke",
+        "Kupferhelm"
+      ]
+    ],
+    [
+      "Samus Aran",
+      "Samus Aran",
+      [
+        "Kopfgeldjägerin",
+        "Die Kopfgeldjägerin"
+      ],
+      "f",
+      "",
+      "Gunship",
+      "",
+      "Galaktische Föderation",
+      "Metroid",
+      "Videospiel",
+      "Protagonist",
+      "Intergalaktische Kopfgeldjägerin; besitzt keine dauerhaft etablierte Postanschrift.",
+      2,
+      [
+        "Armkanone",
+        "Kraftanzug",
+        "Morph-Ball"
+      ]
+    ],
+    [
+      "Samweis Gamdschie",
+      "Samweis Gamdschie",
+      [
+        "Sam",
+        "Samwise Gamgee"
+      ],
+      "m",
+      "Gemeinschaft des Rings",
+      "Beutelhaldenweg 3",
+      "",
+      "Hobbingen, Auenland",
+      "Der Herr der Ringe",
+      "Buch",
+      "Sidekick",
+      "Die Schreibweise und Hausnummer seiner Wohnadresse sind nicht über alle Ausgaben einheitlich; Beutelhaldenweg ist eine deutsche Ortsbezeichnung.",
+      1,
+      [
+        "Kochtopf",
+        "Elbenseil"
+      ]
+    ],
+    [
+      "Sandor Clegane",
+      "Sandor Clegane",
+      [
+        "Der Bluthund"
+      ],
+      "m",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Westeros",
+      "Game of Thrones",
+      "Serie",
+      "Antiheld",
+      "Ein brutaler Kämpfer, dessen Entwicklung ihn zu einer ambivalenten Figur macht.",
+      1,
+      [
+        "Hundsheim",
+        "Weinschlauch"
+      ]
+    ],
+    [
+      "Sanji",
+      "Vinsmoke Sanji",
+      [
+        "Schwarzfuß Sanji",
+        "Schwarzfuß-Sanji",
+        "Vinsmoke Sanji"
+      ],
+      "m",
+      "Strohhutbande",
+      "Thousand Sunny",
+      "",
+      "Grandline",
+      "One Piece",
+      "Anime",
+      "Sidekick",
+      "Koch der Strohhutbande; Vinsmoke ist sein Familienname.",
+      2,
+      [
+        "Zigarette",
+        "Kochmesser"
+      ]
+    ],
+    [
+      "Sarah Connor",
+      "Sarah Jeanette Connor",
+      [
+        "Sarah Reese",
+        "Sarah Baum",
+        "Sarah Hamilton",
+        "Sarah Gale",
+        "Mutter des Widerstands"
+      ],
+      "f",
+      "Menschlicher Widerstand gegen Cyberdyne Systems",
+      "Untergrund-Safehouse",
+      "90001",
+      "Los Angeles, Kalifornien",
+      "Terminator",
+      "Film",
+      "Protagonist",
+      "Ihre Biografie und die Ereignisse ihrer Zeitlinie variieren zwischen den Filmfortsetzungen.",
+      3,
+      [
+        "Pumpgun",
+        "Kurzhantel",
+        "Pistole"
+      ]
+    ],
+    [
+      "Sarah Jane Smith",
+      "Sarah Jane Smith",
+      [
+        "Sarah Jane"
+      ],
+      "f",
+      "UNIT",
+      "13 Bannerman Road",
+      "W5 5AA",
+      "London, England",
+      "Doctor Who",
+      "Serie",
+      "Sidekick",
+      "Journalistin und langjährige Begleiterin des Doktors.",
+      1,
+      [
+        "Lippenstift-Sonic",
+        "Notizbuch"
+      ]
+    ],
+    [
+      "Saren Arterius",
+      "Saren Arterius",
+      [
+        "Spectre Saren"
+      ],
+      "m",
+      "SPECTRE",
+      "Postlagernd",
+      "",
+      "Citadel",
+      "Mass Effect",
+      "Videospiel",
+      "Antagonist",
+      "Turianischer Spectre und Hauptgegner des ersten Mass-Effect-Spiels.",
+      1,
+      [
+        "Kybernetischer Arm",
+        "Geth-Implantat"
+      ]
+    ],
+    [
+      "Saruman",
+      "Saruman",
+      [
+        "Saruman der Weiße",
+        "Curunír"
+      ],
+      "m",
+      "",
+      "Orthanc",
+      "",
+      "Isengart, Rohan",
+      "Der Herr der Ringe",
+      "Buch",
+      "Antagonist",
+      "Einer der Istari, der sich gegen den Weißen Rat und schließlich gegen Saurons Gegner stellt.",
+      1,
+      [
+        "Zauberstab",
+        "Palantir"
+      ]
+    ],
+    [
+      "Sasuke Uchiha",
+      "Sasuke Uchiha",
+      [
+        "Letzter Uchiha",
+        "Sasuke"
+      ],
+      "m",
+      "",
+      "Uchiha-Viertel",
+      "",
+      "Konohagakure",
+      "Naruto",
+      "Anime",
+      "Antiheld",
+      "Sein Weg führt von Rache und Gegnerschaft zurück zu einer Verbündetenrolle. Das Uchiha-Viertel liegt am Stadtrand von Konohagakure",
+      2,
+      [
+        "Kusanagi-Schwert",
+        "Kunai",
+        "Akatsuki-Umhang"
+      ]
+    ],
+    [
+      "Saul Goodman",
+      "James Morgan McGill",
+      [
+        "Jimmy McGill",
+        "Gene Takavic"
+      ],
+      "m",
+      "Saul Goodman & Associates",
+      "9800 Montgomery Boulevard",
+      "87101",
+      "Albuquerque, New Mexico",
+      "Better Call Saul",
+      "Serie",
+      "Antiheld",
+      "Die Identitäten Jimmy McGill und Gene Takavic gehören zu unterschiedlichen Lebensphasen; die Büroadresse variiert.",
+      2,
+      [
+        "Wegwerfhandy",
+        "Aktenkoffer",
+        "Reklameschild"
+      ]
+    ],
+    [
+      "Sauron",
+      "Mairon",
+      [
+        "Der Dunkle Lord",
+        "Annatar",
+        "Gorthaur",
+        "Der Dunkle Herrscher"
+      ],
+      "m",
+      "",
+      "Barad-dûr",
+      "",
+      "Mittelerde",
+      "Der Herr der Ringe",
+      "Buch",
+      "Antagonist",
+      "Dunkler Herrscher von Mittelerde",
+      3,
+      [
+        "Der Eine Ring",
+        "Rüstung",
+        "Streitkolben"
+      ]
+    ],
+    [
+      "Schlumpfine",
+      "Schlumpfine",
+      [
+        "Die Blonde Schlumpfine",
+        "Sassette"
+      ],
+      "f",
+      "",
+      "Blumenpilz Nr. 3",
+      "",
+      "Schlumpfhausen",
+      "Die Schlümpfe",
+      "Comic",
+      "Protagonist",
+      "Einst von Gargamel geschaffen, durch Papa Schlumpfs Zauber erlöst.",
+      1,
+      [
+        "Blume",
+        "Weißes Kleid"
+      ]
+    ],
+    [
+      "Schulze & Schultze",
+      "Schulze und Schultze",
+      [
+        "Die Zwillings-Detektive",
+        "Dupont et Dupond"
+      ],
+      "d",
+      "Königliche Kriminalpolizei",
+      "Polizeidirektion",
+      "1000",
+      "Brüssel",
+      "Tim und Struppi",
+      "Comic",
+      "Support",
+      "Unterscheidbar nur am Schnurrbart: Schulze (Dupont) hat gezwirbelte Enden, Schultze gerade.",
+      1,
+      [
+        "Melone",
+        "Spazierstock",
+        "Krawatte"
+      ]
+    ],
+    [
+      "Scooby-Doo",
+      "Scoobert Doo",
+      [
+        "Scoob",
+        "Scooby"
+      ],
+      "m",
+      "Mystery Inc.",
+      "Mystery Machine",
+      "",
+      "Vereinigte Staaten",
+      "Scooby-Doo",
+      "Cartoon",
+      "Sidekick",
+      "Sprechender Hund; Scoobert ist sein in Begleitmaterial verwendeter voller Name.",
+      1,
+      [
+        "Hundekeks",
+        "Halsband"
+      ]
+    ],
+    [
+      "Severus Snape",
+      "Severus Snape",
+      [
+        "Der Halbblutprinz"
+      ],
+      "m",
+      "Hogwarts-Schule für Hexerei und Zauberei",
+      "Spinner's End",
+      "",
+      "Cokeworth",
+      "Harry Potter",
+      "Buch",
+      "Antiheld",
+      "Dient als Zaubertrankmeister/Lehrer in Hogwarts, privater Wohnsitz liegt in Spinner's End",
+      2,
+      [
+        "Zaubertrankkessel",
+        "Schwarzumhang"
+      ]
+    ],
+    [
+      "Shaggy Rogers",
+      "Norville Rogers",
+      [
+        "Shaggy"
+      ],
+      "m",
+      "Mystery Inc.",
+      "Mystery Machine",
+      "",
+      "Vereinigte Staaten",
+      "Scooby-Doo",
+      "Cartoon",
+      "Sidekick",
+      "Norville ist sein kanonischer Vorname; Shaggy ist sein Spitzname.",
+      1,
+      [
+        "Riesen-Sandwich",
+        "Grünes Hemd"
+      ]
+    ],
+    [
+      "Shanks",
+      "Shanks",
+      [
+        "Rotshanks",
+        "Der Rot-Haarige"
+      ],
+      "m",
+      "Rotshaar-Piratenbande",
+      "Rotshaar-Piratenschiff Red Force",
+      "",
+      "Neue Welt, Grand Line",
+      "One Piece",
+      "Anime",
+      "Mentor",
+      "Gab Ruffy seinen Strohhut; gilt als einer der mächtigsten Piraten der Welt. Weitere Zugehoerigkeit: einer der Vier Kaiser",
+      1,
+      [
+        "Strohhut",
+        "Säbel"
+      ]
+    ],
+    [
+      "Sherlock Holmes",
+      "William Sherlock Scott Holmes",
+      [
+        "Meisterdetektiv",
+        "Beratender Detektiv",
+        "Der einzige Beratende Detektiv der Welt"
+      ],
+      "m",
+      "Beratender Detektiv",
+      "221B Baker Street",
+      "",
+      "NW1 6XE London",
+      "Sherlock Holmes",
+      "Buch",
+      "Protagonist",
+      "Wohnte mit Dr. John Watson bei Mrs. Hudson.",
+      4,
+      [
+        "Lupe",
+        "Pfeife",
+        "Deerstalker"
+      ]
+    ],
+    [
+      "Shinichi Kudo",
+      "Shinichi Kudo",
+      [
+        "Conan Edogawa",
+        "Der Detektiv des Ostens"
+      ],
+      "m",
+      "",
+      "Detektei Kudo",
+      "",
+      "Beika-Stadt, Tokio, Japan",
+      "Detektiv Conan",
+      "Comic",
+      "Protagonist",
+      "In einen Kindskörper verwandeltes Detektivgenie; löst Kriminalfälle als 'Conan Edogawa'.",
+      1,
+      [
+        "Fliege mit Stimmenverzerrer",
+        "Betäubungsuhr",
+        "Peilsenderbrille"
+      ]
+    ],
+    [
+      "Solid Snake",
+      "David",
+      [
+        "David",
+        "Old Snake"
+      ],
+      "m",
+      "FOXHOUND",
+      "Shadow Moses Island",
+      "",
+      "Alaska",
+      "Metal Gear",
+      "Videospiel",
+      "Antiheld",
+      "Codename und Identität unterscheiden sich je nach Spielphase.",
+      1,
+      [
+        "Pappkarton",
+        "Codec-Funkgerät",
+        "Zigarre"
+      ]
+    ],
+    [
+      "Son-Gohan",
+      "Son Gohan",
+      [
+        "Der große Saiyaman"
+      ],
+      "m",
+      "",
+      "Haus am Berg Paozu",
+      "",
+      "Berg Paozu, Erde",
+      "Dragon Ball",
+      "Anime",
+      "Sidekick",
+      "Erster Sohn von Goku und Chichi; verkleidet sich als Held 'Großer Saiyaman'.",
+      1,
+      [
+        "Superheldenhelm",
+        "Schulbuch"
+      ]
+    ],
+    [
+      "Son-Goku",
+      "Kakarott",
+      [
+        "Kakarott",
+        "Kakarot",
+        "Super-Saiyajin",
+        "Son Goku",
+        "Goku"
+      ],
+      "m",
+      "Z-Kämpfer",
+      "Berg Paozu",
+      "",
+      "Ost-Distrikt 439",
+      "Dragon Ball",
+      "Anime",
+      "Protagonist",
+      "Sein Saiyajin-Geburtsname lautet Kakarott; in Japan wird der Familienname Son vorangestellt. Haus am Berg Paozu im Ost-Distrikt 439 (offizielle Dragon-Ball-Seite).",
+      3,
+      [
+        "Drachenkugel",
+        "Fliegende Wolke",
+        "Senzu-Bohne"
+      ]
+    ],
+    [
+      "Sonic the Hedgehog",
+      "Sonic",
+      [
+        "Sonic"
+      ],
+      "m",
+      "Freedom Fighters",
+      "Postlagernd",
+      "",
+      "Mobius",
+      "Sonic the Hedgehog",
+      "Videospiel",
+      "Protagonist",
+      "Die Weltbezeichnung Mobius stammt aus bestimmten Adaptionen; die Spiele verwenden unterschiedliche Weltmodelle.",
+      1,
+      [
+        "Goldene Ringe",
+        "Rote Schuhe",
+        "Chaos-Smaragd"
+      ]
+    ],
+    [
+      "Spider-Man",
+      "Peter Parker",
+      [
+        "Spidey",
+        "Die freundliche Spinne aus der Nachbarschaft",
+        "Wandkrabbler",
+        "Der Mann aus Spinnennetz",
+        "Freundliche Nachbar aus Queens",
+        "Web-Slinger",
+        "Spider-Man (Ultimate)",
+        "Kid Arachnid"
+      ],
+      "m",
+      "Daily Bugle",
+      "20 Ingram Street",
+      "11427",
+      "Queens, New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Die Wohnadresse ist mit bestimmten Comic-Kontinuitäten verbunden; Peter Parker lebte im Lauf der Serie an verschiedenen Orten.",
+      3,
+      [
+        "Netzschleuder",
+        "Spinnenkostüm",
+        "Netz-Fluid"
+      ]
+    ],
+    [
+      "Spock",
+      "S'chn T'gai Spock",
+      [
+        "S'chn T'gai Spock",
+        "Mr. Spock",
+        "Der Vulkanier"
+      ],
+      "m",
+      "Sternenflotte",
+      "Postlagernd",
+      "",
+      "ShiKahr, Vulkan",
+      "Star Trek",
+      "Serie",
+      "Protagonist",
+      "Der vollständige vulkanische Name gilt für Menschen als unaussprechlich.",
+      4,
+      [
+        "Tricorder",
+        "Phaser"
+      ]
+    ],
+    [
+      "SpongeBob Schwammkopf",
+      "SpongeBob SquarePants",
+      [
+        "SpongeBob"
+      ],
+      "m",
+      "Krusty Krab",
+      "Ananas-Haus 124, Conch Street",
+      "",
+      "Bikini Bottom, Pazifischer Ozean",
+      "SpongeBob Schwammkopf",
+      "Cartoon",
+      "Protagonist",
+      "Optimistischer Schwamm in Unterwasser-Stadt; Haustier: Schnecke Gary.",
+      1,
+      [
+        "Pfannenwender",
+        "Quallennetz",
+        "Krabbenburger"
+      ]
+    ],
+    [
+      "Squidward Tentakels",
+      "Squidward Q. Tentacles",
+      [
+        "Squidward"
+      ],
+      "m",
+      "Krusty Krab",
+      "Moai-Steinkopf-Haus 122, Conch Street",
+      "",
+      "Bikini Bottom, Pazifischer Ozean",
+      "SpongeBob Schwammkopf",
+      "Cartoon",
+      "Antiheld",
+      "Gereizter Nachbar von SpongeBob; heimlicher Klarinettisten-Künstler (in seinen Augen).",
+      1,
+      [
+        "Klarinette",
+        "Pinsel",
+        "Leinwand"
+      ]
+    ],
+    [
+      "Stan Marsh",
+      "Stanley Randall Marsh",
+      [
+        "Stan"
+      ],
+      "m",
+      "",
+      "260 Avenue de los Mexicanos",
+      "80099",
+      "South Park, Colorado",
+      "South Park",
+      "Cartoon",
+      "Protagonist",
+      "Einer der vier zentralen Jungen der Serie.",
+      2,
+      [
+        "Blaue Mütze",
+        "Schneeball"
+      ]
+    ],
+    [
+      "Stanford Pines",
+      "Stanford Filbrick Pines",
+      [
+        "Ford",
+        "Grunkle Ford"
+      ],
+      "m",
+      "",
+      "Mystery Shack",
+      "",
+      "Gravity Falls, Oregon",
+      "Gravity Falls",
+      "Cartoon",
+      "Mentor",
+      "Wissenschaftler und Autor der geheimnisvollen Tagebücher.",
+      1,
+      [
+        "Tagebuch 1",
+        "Sechsfingriger Handschuh"
+      ]
+    ],
+    [
+      "Storm",
+      "Ororo Munroe",
+      [
+        "Ororo Munroe"
+      ],
+      "f",
+      "X-Men",
+      "Xavier-Institut",
+      "10601",
+      "Westchester County, New York",
+      "Marvel Comics",
+      "Comic",
+      "Protagonist",
+      "Mutantin mit der Fähigkeit, Wetter zu kontrollieren.",
+      1,
+      [
+        "Umhang",
+        "Stirnreif"
+      ]
+    ],
+    [
+      "Superman",
+      "Clark Joseph Kent",
+      [
+        "Mann aus Stahl",
+        "Man of Steel",
+        "Der letzte Sohn von Krypton",
+        "Der Mann aus Stahl",
+        "Kal-El",
+        "Der Letzte Sohn von Krypton"
+      ],
+      "m",
+      "",
+      "Daily Planet Plaza 1",
+      "12099",
+      "Metropolis",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Geboren als Kal-El auf Krypton, aufgewachsen bei Jonathan und Martha Kent in Smallville. Weitere Angabe: Festung der Einsamkeit.",
+      3,
+      [
+        "Roter Umhang",
+        "Brille",
+        "Siegel der El"
+      ]
+    ],
+    [
+      "T-800",
+      "T-800",
+      [
+        "Der Terminator",
+        "Model 101"
+      ],
+      "d",
+      "Cyberdyne Systems",
+      "Postlagernd",
+      "90001",
+      "Los Angeles, Kalifornien",
+      "Terminator",
+      "Film",
+      "Antiheld",
+      "Die Bezeichnung T-800 steht für eine Reihe von Terminator-Modellen, nicht für eine einzelne menschliche Identität.",
+      2,
+      [
+        "Lederjacke",
+        "Sonnenbrille",
+        "Schrotflinte"
+      ]
+    ],
+    [
+      "Tali'Zorah",
+      "Tali'Zorah",
+      [
+        "Tali'Zorah nar Rayya",
+        "Tali'Zorah vas Normandy"
+      ],
+      "f",
+      "Quarianische Flotte",
+      "Normandy",
+      "",
+      "Milchstraße",
+      "Mass Effect",
+      "Videospiel",
+      "Sidekick",
+      "Der vollständige Name und das Namenssuffix ändern sich entsprechend ihrer Zugehörigkeit.",
+      1,
+      [
+        "Umweltanzug",
+        "Helm mit Visier",
+        "Omni-Werkzeug"
+      ]
+    ],
+    [
+      "Thanos",
+      "Thanos",
+      [
+        "Der verrückte Titan",
+        "Der Wahnsinnige Titan",
+        "Der Verrückte Titan"
+      ],
+      "m",
+      "Black Order",
+      "keine feste Anschrift",
+      "",
+      "Titan",
+      "Marvel Comics",
+      "Comic",
+      "Antagonist",
+      "Sanctuary ist in den Filmadaptionen ein Raumschiff beziehungsweise Stützpunkt; Comic-Aufenthaltsorte variieren.",
+      2,
+      [
+        "Unendlichkeitshandschuh",
+        "Doppelklinge"
+      ]
+    ],
+    [
+      "The Flash",
+      "Bartholomew Henry 'Barry' Allen",
+      [
+        "The Scarlet Speedster",
+        "Der schnellste Mensch der Welt",
+        "Scarlet Speedster"
+      ],
+      "m",
+      "Central City Police Department",
+      "CCPD Forensics Lab, 4th Street",
+      "63098",
+      "Central City",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Erhielt seine Superkräfte durch Blitzschlag und Chemikalien.",
+      2,
+      [
+        "Ring",
+        "Kosmisches Laufband"
+      ]
+    ],
+    [
+      "The Master",
+      "The Master",
+      [
+        "Der Meister",
+        "Missy"
+      ],
+      "m",
+      "",
+      "TARDIS",
+      "",
+      "Raum und Zeit",
+      "Doctor Who",
+      "Serie",
+      "Antagonist",
+      "Ein Time Lord und wiederkehrender Gegenspieler des Doktors, der ebenfalls regeneriert.",
+      1,
+      [
+        "Laser-Schraubendreher",
+        "Taschenuhr"
+      ]
+    ],
+    [
+      "The Thing",
+      "Benjamin Jacob Grimm",
+      [
+        "Das Ding",
+        "Der blaue Augenbrocken aus der Yancy Street"
+      ],
+      "m",
+      "Fantastic Four",
+      "Baxter Building",
+      "10001",
+      "New York City",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Kampfruf: 'Jetzt geht's rund!' (It's clobberin' time!). Körper aus lebendem Stein. Weitere Angabe: Baxter Foundation.",
+      1,
+      [
+        "Zigarre",
+        "Badehose"
+      ]
+    ],
+    [
+      "Thor",
+      "Thor Odinson",
+      [
+        "Gott des Donners",
+        "Herr von Mjölnir",
+        "Donnergott",
+        "Odinson"
+      ],
+      "m",
+      "Avengers",
+      "Palast von Valaskjalf",
+      "",
+      "Asgard",
+      "Marvel",
+      "Comic",
+      "Protagonist",
+      "Sohn Odins, Hüter von Mjölnir und Herrscher über Blitze und Sturm. Weitere Angabe: Königreich Asgard.",
+      2,
+      [
+        "Mjölnir",
+        "Stormbreaker"
+      ]
+    ],
+    [
+      "Tigger",
+      "Tigger",
+      [
+        "Tigger"
+      ],
+      "m",
+      "",
+      "keine feste Anschrift",
+      "",
+      "Hundertsechzig-Morgen-Wald",
+      "Winnie Puuh",
+      "Buch",
+      "Sidekick",
+      "Ein energiegeladener Tiger, der gerne auf seinem Schwanz hüpft. Lebt in einem Baumhaus im Hundertmorgenwald; kein Strassenname belegt.",
+      1,
+      [
+        "Malzextrakt",
+        "Eicheln"
+      ]
+    ],
+    [
+      "Tim",
+      "Tim",
+      [
+        "Der junge Reporter",
+        "Tintin",
+        "Tim und Struppi"
+      ],
+      "m",
+      "Le Petit Vingtième",
+      "Labradorstraße 26",
+      "1000",
+      "Brüssel",
+      "Tim und Struppi",
+      "Comic",
+      "Protagonist",
+      "Furchtloser investigativer Journalist, immer begleitet von Foxterrier Struppi. Weitere Angabe: Schloss Mühlenhof.",
+      3,
+      [
+        "Roter Jeep",
+        "Knickerbocker"
+      ]
+    ],
+    [
+      "Tom",
+      "Thomas",
+      [
+        "Thomas Cat",
+        "Tom"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "10001",
+      "New York City",
+      "Tom und Jerry",
+      "Cartoon",
+      "Antiheld",
+      "Der Name Thomas wird in einzelnen Episoden und Begleitmaterial verwendet. Tom und Jerry haben keine kanonische Postanschrift. Schauplatz des Kinofilms von 2021 (Royal Gate Hotel, New York); die klassischen Kurzfilme nennen keinen Ort",
+      2,
+      [
+        "Klavier",
+        "Besen",
+        "Kescher"
+      ]
+    ],
+    [
+      "Tony Montana",
+      "Antonio Montana",
+      [
+        "Scarface"
+      ],
+      "m",
+      "",
+      "Miami Beach Villa, 735 Ocean Drive",
+      "33101",
+      "Miami, Florida",
+      "Scarface",
+      "Film",
+      "Antiheld",
+      "Kubanischer Immigrant, der korrumpiert zum mächtigsten Drogenbaron von Miami aufsteigt.",
+      1,
+      [
+        "M16 mit Granatwerfer",
+        "Kokainberg",
+        "weißer Nadelstreifenanzug"
+      ]
+    ],
+    [
+      "Tony Soprano",
+      "Anthony John Soprano Sr.",
+      [
+        "T"
+      ],
+      "m",
+      "DiMeo-Crime-Familie",
+      "14 Aspen Drive",
+      "07006",
+      "North Caldwell, NJ",
+      "Die Sopranos",
+      "Serie",
+      "Protagonist",
+      "",
+      1,
+      [
+        "Zigarre",
+        "Bademantel",
+        "Rennpferd"
+      ]
+    ],
+    [
+      "Totoro",
+      "Totoro",
+      [
+        "Großer Totoro",
+        "O-Totoro"
+      ],
+      "d",
+      "",
+      "Wald bei Kusakabe",
+      "",
+      "Japan",
+      "Mein Nachbar Totoro",
+      "Anime",
+      "Sonstiges",
+      "Waldgeist aus dem Studio-Ghibli-Film von Hayao Miyazaki.",
+      1,
+      [
+        "Regenschirm",
+        "Eicheln",
+        "Katbus"
+      ]
+    ],
+    [
+      "Trafalgar D. Water Law",
+      "Trafalgar D. Water Law",
+      [
+        "Chirurg des Todes"
+      ],
+      "m",
+      "Heart-Piratenbande",
+      "keine feste Anschrift",
+      "",
+      "Flevance",
+      "One Piece",
+      "Anime",
+      "Antiheld",
+      "Kapitän und Arzt; Aufenthaltsorte ändern sich mit dem Handlungsverlauf. Heimatstadt im North Blue; als Kind geflohen, spaeter zerstoert",
+      1,
+      [
+        "Langes Schwert",
+        "Fleckenhut"
+      ]
+    ],
+    [
+      "Troubadix",
+      "Troubadix",
+      [
+        "Der Barde"
+      ],
+      "m",
+      "Gallischer Bardensitz",
+      "Baumhütte am Dorfrand",
+      "",
+      "Aremorica",
+      "Asterix",
+      "Comic",
+      "Support",
+      "Singt schrecklich und wird beim Festbankett traditionell gefesselt und geknebelt.",
+      1,
+      [
+        "Leier",
+        "Notenblatt"
+      ]
+    ],
+    [
+      "Turanga Leela",
+      "Turanga Leela",
+      [
+        "Leela",
+        "Turanga Leela"
+      ],
+      "f",
+      "",
+      "Planet-Express-Gebäude",
+      "10001",
+      "New New York",
+      "Futurama",
+      "Cartoon",
+      "Protagonist",
+      "Eigene Wohnung in New New York; die Adresse ist in keiner Folge belegt. Nicht im Robot Arms Apts. (dort wohnen nur Bender und Fry).",
+      2,
+      [
+        "Laserpistole",
+        "Raumanzug"
+      ]
+    ],
+    [
+      "Tyrion Lennister",
+      "Tyrion Lennister",
+      [
+        "Der Gnom",
+        "Kobold",
+        "Der Zwerg von Casterlystein"
+      ],
+      "m",
+      "",
+      "Casterlystein",
+      "",
+      "Westlande, Westeros",
+      "Das Lied von Eis und Feuer",
+      "Buch",
+      "Antiheld",
+      "In der englischen Originalfassung heißt die Figur Tyrion Lannister.",
+      2,
+      [
+        "Weinbecher",
+        "Armbrust",
+        "Streitaxt"
+      ]
+    ],
+    [
+      "Urahara Kisuke",
+      "Kisuke Urahara",
+      [
+        "Mr. Hat-and-Clogs",
+        "Der Sandalen-Hut-Mann"
+      ],
+      "m",
+      "Urahara-Shop",
+      "Urahara-Shoten",
+      "",
+      "Karakura-Stadt, Japan",
+      "Bleach",
+      "Anime",
+      "Mentor",
+      "Exzentrischer Ladenbesitzer; war Kapitän der 12. Kompanie und Gründer des R&D-Instituts.",
+      1,
+      [
+        "Faltfächer",
+        "Topfhut",
+        "Geta"
+      ]
+    ],
+    [
+      "V",
+      "V",
+      [
+        "Vincent",
+        "Valerie",
+        "V",
+        "Valerie (Ghost-Identität)"
+      ],
+      "d",
+      "",
+      "Megagebäude H10",
+      "90098",
+      "Night City",
+      "Cyberpunk 2077",
+      "Videospiel",
+      "Protagonist",
+      "V kann je nach Spielauswahl unterschiedliche Vornamen und Hintergründe haben; Megagebäude H10 ist ein früher Wohnort.",
+      2,
+      [
+        "Relic-Chip",
+        "Mantis-Klingen",
+        "Motorrad"
+      ]
+    ],
+    [
+      "Vegeta",
+      "Vegeta",
+      [
+        "Prinz des Saiyajin",
+        "Prinz der Saiyajins"
+      ],
+      "m",
+      "Z-Kämpfer",
+      "Capsule Corporation",
+      "",
+      "Planet Vegeta",
+      "Dragon Ball",
+      "Anime",
+      "Antiheld",
+      "Rival von Goku, wird zum Verbündeten",
+      2,
+      [
+        "Saiyajin-Rüstung",
+        "Scouter"
+      ]
+    ],
+    [
+      "Velma Dinkley",
+      "Velma Dinkley",
+      [
+        "Velma"
+      ],
+      "f",
+      "Mystery Inc.",
+      "Mystery Machine",
+      "",
+      "Vereinigte Staaten",
+      "Scooby-Doo",
+      "Cartoon",
+      "Protagonist",
+      "Die analytische Denkerin der Gruppe.",
+      1,
+      [
+        "Brille",
+        "Vergrößerungsglas",
+        "Notizbuch"
+      ]
+    ],
+    [
+      "Walter White",
+      "Walter Hartwell White Sr.",
+      [
+        "Heisenberg",
+        "Walt"
+      ],
+      "m",
+      "Gray Matter Technologies",
+      "308 Negra Arroyo Lane",
+      "87104",
+      "Albuquerque, NM",
+      "Breaking Bad",
+      "Serie",
+      "Protagonist",
+      "Die Anschrift wird in der Serie mit dem Wohnhaus der Familie White verbunden; die reale Adresse ist keine zu verwendende Privatanschrift.",
+      4,
+      [
+        "Schwarzer Hut",
+        "Gasmaske",
+        "Reagenzkolben"
+      ]
+    ],
+    [
+      "Waylon Smithers",
+      "Waylon Joseph Smithers Jr.",
+      [
+        "Smithers"
+      ],
+      "m",
+      "Springfield Atomkraftwerk",
+      "Postlagernd",
+      "62701 | 01101 | 65801 | 45501 | 97477 | 05156 | 07081 | 19064 | 37172 | 31329 | 68059 | 26763 | 57062 | 56087 | 40069 | 70462 | 81073",
+      "Springfield",
+      "Die Simpsons",
+      "Cartoon",
+      "Sidekick",
+      "Assistent von Mr. Burns.",
+      1,
+      [
+        "Aktenkoffer",
+        "Klemmbrett"
+      ]
+    ],
+    [
+      "Willy Wonka",
+      "Willy Wonka",
+      [
+        "Der Schokoladenfabrikant"
+      ],
+      "m",
+      "",
+      "Postlagernd",
+      "",
+      "Wonka-Schokoladenfabrik",
+      "Charlie und die Schokoladenfabrik",
+      "Buch",
+      "Mentor",
+      "Die Stadt der Fabrik wird in den Buch- und Filmversionen nicht einheitlich benannt. Eigentuemer und Leiter der Fabrik; kein separater Firmenname belegt",
+      1,
+      [
+        "Zylinder",
+        "Gehstock",
+        "Bonbon"
+      ]
+    ],
+    [
+      "Winnie Puuh",
+      "Winnie Puuh",
+      [
+        "Winnie-the-Pooh",
+        "Pu der Bär"
+      ],
+      "m",
+      "",
+      "Hundertsechzig-Morgen-Wald",
+      "",
+      "Hundred Acre Wood",
+      "Winnie Puuh",
+      "Buch",
+      "Protagonist",
+      "Die deutsche Übersetzung verwendet unterschiedliche Formen des Namens und des Waldes.",
+      1,
+      [
+        "Honigtopf",
+        "Rotes T-Shirt",
+        "Luftballon"
+      ]
+    ],
+    [
+      "Wolverine",
+      "James Howlett",
+      [
+        "Logan",
+        "Weapon X",
+        "Patch"
+      ],
+      "m",
+      "X-Men",
+      "Xavier-Institut für höhere Bildung",
+      "",
+      "Salem Center, Westchester County, New York",
+      "Marvel Comics",
+      "Comic",
+      "Antiheld",
+      "Sein Geburtsname wurde in späteren Comic-Handlungen als James Howlett enthüllt.",
+      2,
+      [
+        "Adamantiumklauen",
+        "Zigarre",
+        "Hundemarken"
+      ]
+    ],
+    [
+      "Wonder Woman",
+      "Diana Prince",
+      [
+        "Prinzessin der Amazonen",
+        "Göttin der Wahrheit",
+        "Prinzessin Diana",
+        "Diana von Themyscira",
+        "Diana Prince",
+        "Amazonenprinzessin"
+      ],
+      "f",
+      "Justice League",
+      "Amazonenpalast",
+      "",
+      "Themyscira",
+      "DC Comics",
+      "Comic",
+      "Protagonist",
+      "Tochter von Königin Hippolyta, bewaffnet mit dem Lasso der Wahrheit und unzerstörbaren Armreifen.; Prinzessin Diana von Themyscira",
+      3,
+      [
+        "Lasso",
+        "Armreifen",
+        "Tiara"
+      ]
+    ],
+    [
+      "Xenomorph",
+      "Xenomorph",
+      [
+        "Alien",
+        "Organismus XX121"
+      ],
+      "d",
+      "",
+      "keine feste Anschrift",
+      "",
+      "LV-426",
+      "Alien",
+      "Film",
+      "Antagonist",
+      "Spezies mit unterschiedlichen Lebenszyklusformen; kein individueller bürgerlicher Name. Erster Fundort (Acheron), belegt in Alien",
+      1,
+      [
+        "Facehugger",
+        "Ei"
+      ]
+    ],
+    [
+      "Yennefer von Vengerberg",
+      "Yennefer von Vengerberg",
+      [
+        "Yen",
+        "Yenna",
+        "Yennefer",
+        "Yennefer of Vengerberg"
+      ],
+      "f",
+      "Magierzirkel",
+      "Aretusa-Institut, Thanedd-Insel",
+      "",
+      "Thanedd, Nördliche Königreiche",
+      "The Witcher",
+      "Buch",
+      "Antiheld",
+      "Zauberin und wichtige Bezugsperson Geralts und Ciris.",
+      2,
+      [
+        "Obsidianstern",
+        "Parfüm Flieder und Stachelbeere"
+      ]
+    ],
+    [
+      "Yoda",
+      "Yoda",
+      [
+        "Großmeister des Jedi-Ordens",
+        "Großmeister Yoda"
+      ],
+      "m",
+      "Jedi-Orden",
+      "Sumpfhütte",
+      "",
+      "Dagobah",
+      "Star Wars",
+      "Film",
+      "Mentor",
+      "900 Jahre alter legendärer Jedi-Meister mit unverwechselbarer Satzstellung. Weitere Angabe: Hoher Rat der Jedi.",
+      4,
+      [
+        "Lichtschwert",
+        "Gehstock"
+      ]
+    ],
+    [
+      "Heinrich von Skalitz",
+      "Heinrich",
+      [
+        "Henry of Skalitz"
+      ],
+      "m",
+      "",
+      "Schmiede Martin",
+      "281 67",
+      "Skalitz",
+      "Kingdom Come: Deliverance",
+      "Videospiel",
+      "Protagonist",
+      "Heimat ist die Schmiede seines Vaters Martin in Skalitz (Wikipedia: \"his blacksmith father, Martin\").",
+      1,
+      [
+        "Retterschnaps",
+        "Schwert",
+        "Bogen"
+      ]
+    ],
+    [
+      "Hans Capon",
+      "Hans Capon",
+      [
+        "Hanush"
+      ],
+      "m",
+      "",
+      "Burg Pirkstein",
+      "285 07",
+      "Rattay",
+      "Kingdom Come: Deliverance",
+      "Videospiel",
+      "Verbündeter",
+      "Rattay entspricht dem heutigen Rataje nad Sázavou; PLZ 285 07 amtlich belegt.",
+      1,
+      [
+        "Jagdbogen",
+        "Weinbecher"
+      ]
+    ],
+    [
+      "Theresa",
+      "Theresa",
+      [],
+      "f",
+      "",
+      "Mühle Peshek",
+      "285 07",
+      "Rattay",
+      "Kingdom Come: Deliverance",
+      "Videospiel",
+      "Verbündete",
+      "Lebt bei ihrem Onkel Peshek in der Mühle von Rattay.",
+      1,
+      [
+        "Hund",
+        "Kleid"
+      ]
+    ]
+  ]
+}

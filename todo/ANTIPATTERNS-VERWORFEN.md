@@ -49,6 +49,11 @@ summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Feh
 | **Custom-Popover als `<select>`-Ersatz** | JS-gestützter Nachbau nativer Auswahllisten erzeugt doppelten State, A11y-Races (`aria-selected`, `aria-activedescendant`) und zerstört natives OS-Autofill. Stattdessen echte `<select>`-Elemente oder native Form-Controls verwenden. | **H10**, **WCAG 4.1.2** |
 | **Synthetische Rollen auf nativ gekoppelten Labels** | Ein `<label for="...">` mit `role="button"` und `aria-pressed` über einer Checkbox dupliziert das Steuerelement im Accessibility-Tree. Der Zustand gehört exklusiv auf das native `<input>`. | **WCAG 1.3.1**, **APG** |
 | **Manuelle bedingte Trennstriche (`&shy;` / `¬` nach DIN 5008 § 6.1)** | Durch modernes natives CSS (`hyphens: auto; lang="de"` und `text-wrap: pretty;`) auf Chromium 150+ vollständig obsolet. Manuelle HTML-Trennmarken zerstören den sauberen DOM-Text und machen Änderungen wartungsfeindlich. | **Rule 12 (Chromium 150+)**, **KISS** |
+| **CSS Paged Media `string-set` / `string()`** | In Desktop-Chromium nicht unterstützt; Druckköpfe auf Folgeseiten ausschließlich über dynamische `document.adoptedStyleSheets` steuern. | **P23**, **A46**, **Chromium Baseline** |
+| **Ungeschützte `.showPopover()` / `.hidePopover()`-Aufrufe** | Werfen `InvalidStateError`, wenn der Popover-Zustand bereits übereinstimmt oder das Element nicht im DOM ist. Zwingender Guard via `:popover-open` / try-catch (`showPopoverSafe` / `hidePopoverSafe`). | **P24**, **A60**, **Fail-Safe** |
+| **JavaScript für Popover-Close-Buttons** | Manuelle `click`-Event-Listener sind redundant und erzeugen Speicherlecks/Races. Ausschließliche Nutzung nativer HTML-Attribute `popovertarget="..." popovertargetaction="hide"`. | **P25**, **A60**, **H12 (HTML-First)** |
+| **`display: none` für Druckhilfen / Falzmarken** | Erzeugt unnötigen Reflow und Box-Tree-Neubau beim Ein-/Ausblenden. Stattdessen `visibility: hidden;` nutzen, um Box-Koordinaten stabil im Render-Tree zu halten. | **P26**, **A25**, **Layout Stability** |
+| **`Object.entries()` über große Datenbestände** | Allokiert tausende temporäre Schlüssel-Wert-Arrays im Heap und erzeugt massive Garbage-Collection-Spitzen. Bevorzugung von Columnar-Arrays (`FixedArray` in V8) mit flacher Index-Schleife. | **P27**, **A34**, **V8 Zero-Allocation** |
 
 ---
 

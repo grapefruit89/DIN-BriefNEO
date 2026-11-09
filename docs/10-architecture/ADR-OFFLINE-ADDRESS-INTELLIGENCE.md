@@ -17,7 +17,7 @@ doc_links:
   - longevity-guidelines
 code_links:
   - website/js/address.js
-  - website/data/de_plz_ort.json.gz
+  - website/data/orte.json.gz
 error_patterns:
   - adr-api
   - plz lookup

@@ -139,7 +139,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 
 ### 5. `address.js` (Konsolidierter Adress-, PLZ- & Geocoding-Cluster)
 *Bündelt die vormaligen Einzelmodule `05-gzip.js`, `44-address-domain.js`, `45-address-intelligence.js`, `46-clipboard-address-parser.js` und `43-geoapify.js`:*
-* **Gzip-Decompression (`fetchGzipJson`)**: Nativer `DecompressionStream('gzip')` für `de_plz_ort.json.gz` und `de_grosskunden_plz.json.gz` ohne Fremdbibliotheken.
+* **Gzip-Decompression (`fetchGzipJson`)**: Nativer `DecompressionStream('gzip')` für `orte.json.gz` (Columnar) und `grosskunden.json.gz` ohne Fremdbibliotheken.
 * **Domain Functions (Zustandslos)**:
   * `normalizePostcode(raw)`: Validiert 5-stellige deutsche Postleitzahlen.
   * `resolvePostcode(plz, plzToCityMap, grosskundenMap)`: Zustandsloser PLZ-Lookup inkl. Großempfänger-Erkennung (OLG Frankfurt Az. 6 U 170/13).

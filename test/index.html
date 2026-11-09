@@ -19,12 +19,34 @@
   <!-- Toast-Fixture fuer ToastSystem / EventBus-Tests -->
   <div id="hinweis-v4" popover="auto" class="hinweis-container type-info">
     <span id="hinweis-message"></span>
-    <button type="button" id="hinweis-close">×</button>
+    <button type="button" id="hinweis-close" popovertarget="hinweis-v4" popovertargetaction="hide">×</button>
   </div>
 
+  <!-- Sidebar Mode Toggle Fixture -->
+  <input type="checkbox" id="toggle-modus" class="sr-only">
+  <label for="toggle-modus" id="btn-einstellungen" tabindex="0" role="button"></label>
+  <label for="toggle-modus" id="btn-zurueck" tabindex="0" role="button"></label>
+
   <!-- Font-Manager Fixture -->
+  <select id="select-schriftart" class="seitenleiste-select">
+    <option value="default" selected>Liberation Sans / System-UI</option>
+    <option value="inter">Inter (18pt DIN-Subset)</option>
+    <option value="aptos">Aptos (Lokal)</option>
+    <option value="michelangelus">Michelangelus (Serife)</option>
+  </select>
   <button type="button" id="btn-schrift-aktion" class="btn" data-font-state="empty">🔤 Eigene Schriftart laden</button>
   <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" hidden>
+
+  <!-- Signature-Manager Fixture -->
+  <button type="button" id="btn-unterschrift-aktion" class="btn" data-state="empty">✒️ Unterschrift / Stempel laden</button>
+  <input type="file" id="unterschriftsbild-datei" accept="image/*" hidden>
+  <div id="unterschriftsbild-container">
+    <div id="unterschriftsbild-box" tabindex="0">
+      <div class="unterschriftsbild-griff bottom-right" data-aktion="resize" data-richtung="br"></div>
+      <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
+      <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift">
+    </div>
+  </div>
 
   <!-- Empfänger & Autocomplete Fixture -->
   <div id="empfaenger-firma" contenteditable="true"></div>

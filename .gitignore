@@ -2,6 +2,8 @@
 venv/
 node_modules/
 build/
+Fonts/
+package.json
 
 # Agent / editor local state (Schutzfilter)
 agent/cache/
@@ -37,3 +39,9 @@ research/address-autocomplete-api-openapi-specs.json
 
 # Debug-Session-Traces (Artefakte, kein Code)
 test/traces/
+
+# Secrets & API-Keys (Schutzfilter)
+.secrets/
+*.key
+.env
+.env.*

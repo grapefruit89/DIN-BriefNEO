@@ -323,6 +323,22 @@ nennen („Shipping in Chrome 151"). Ergänzend Context7 nach §4. Live-Empirie 
 - Wird ein Feature, nach dem das Gate in `main.js` sucht, ausgelagert, bleibt dort ein
   Trace-Kommentar zurück: `// Feature Trace: <API> wird jetzt in <Modul> behandelt`.
 
+## Upstream Ground-Truth & Browser-Features (Chromium 150+)
+
+- **Prinzip:** Vor dem Bauen von Workarounds oder JS-Heuristiken MUSS geprüft werden, ob Chromium das Feature nativ beherrscht. Spekulatives oder veraltetes LLM-Trainingswissen ist unzulässig; maßgeblich ist ausschließlich die maschinenlesbare Upstream-Realität.
+- **Maschinenlesbare Endpunkte & Abfrage-Leitfaden:**
+  1. **Chrome Platform Status API:**
+     - URL: `https://chromestatus.com/api/v0/features?milestone=<VERSION>`
+     - Nutzung: Prüfe Status `ENABLED_BY_DEFAULT` für Milestones 140 bis 156.
+  2. **MDN Browser-Compat-Data (BCD Raw JSON):**
+     - Base-URL: `https://raw.githubusercontent.com/mdn/browser-compat-data/main/`
+     - Pfade: `html/elements.json`, `html/global_attributes.json`, `css/properties.json`, `css/selectors.json`, `api/Document.json`, `api/Element.json`, `api/Popover.json`
+     - Kriterium: `support.chrome.version_added >= "140"`
+  3. **WebDX Feature-Index:**
+     - URL: `https://raw.githubusercontent.com/web-platform-dx/web-features/main/index.json`
+     - Nutzung: Standardisierte Baseline-Definitionen und Feature-Keys abgleichen.
+- **Kanonisches CLI-Tool:** `node tools/query_chrome_feature.mjs <feature-name>` liefert in <500 ms den verifizierten Status direkt im Terminal.
+
 ---
 
 ## 8. Protokollierung

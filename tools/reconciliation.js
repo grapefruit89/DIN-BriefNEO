@@ -262,6 +262,23 @@ function readYamlList(raw, key) {
   return out;
 }
 
+function scanCodeFiles(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  list.forEach(file => {
+    const name = path.join(dir, file);
+    if (fs.statSync(name).isDirectory()) {
+      results = results.concat(scanCodeFiles(name));
+    } else {
+      const ext = path.extname(name);
+      if (['.html', '.css', '.js'].includes(ext)) {
+        results.push(name);
+      }
+    }
+  });
+  return results;
+}
+
 function runReconciliation() {
   const logs = [];
   const relations = [];
@@ -765,23 +782,6 @@ function runReconciliation() {
   const metadataScore = metadataChecked > 0 ? (metadataPassed / metadataChecked) * 100 : 100;
   const coherenceScore = linksChecked > 0 ? (linksPassed / linksChecked) * 100 : 100;
   
-  const scanCodeFiles = (dir) => {
-    let results = [];
-    const list = fs.readdirSync(dir);
-    list.forEach(file => {
-      const name = path.join(dir, file);
-      if (fs.statSync(name).isDirectory()) {
-        results = results.concat(scanCodeFiles(name));
-      } else {
-        const ext = path.extname(name);
-        if (['.html', '.css', '.js'].includes(ext)) {
-          results.push(name);
-        }
-      }
-    });
-    return results;
-  };
-
   const codeFiles = scanCodeFiles(websiteDir);
 
   codeFiles.forEach(file => {
@@ -882,3 +882,50 @@ function runReconciliation() {
 module.exports = {
   runReconciliation
 };
+
+function checkAntipatternsOnly() {
+  const codeFiles = scanCodeFiles(websiteDir);
+  let violations = 0;
+  codeFiles.forEach(file => {
+    const relPath = path.relative(targetDir, file).replace(/\\/g, '/');
+    const content = fs.readFileSync(file, 'utf-8');
+    const lines = content.split(/\r?\n/);
+    const ext = path.extname(file);
+
+    ANTIPATTERN_RULES.forEach(rule => {
+      if (!matchFilePattern(relPath, rule.file_patterns)) return;
+      lines.forEach((line, index) => {
+        if (isExempt(rule, relPath, index + 1, line)) return;
+        let hasViolation = false;
+        if (CUSTOM_CHECKS[rule.id]) {
+          hasViolation = CUSTOM_CHECKS[rule.id](line, ext, relPath);
+        } else if (rule.pattern) {
+          const regex = new RegExp(rule.pattern, 'g');
+          hasViolation = regex.test(line);
+        }
+        if (hasViolation) {
+          violations++;
+          console.error(`[${rule.severity.toUpperCase()}] ${relPath}:${index + 1} - [${rule.id}] ${rule.description}`);
+        }
+      });
+    });
+  });
+
+  if (violations > 0) {
+    console.error(`\n❌ ${violations} Antipattern-Verletzung(en) gefunden.`);
+    process.exit(1);
+  } else {
+    console.log(`✓ Alle ${ANTIPATTERN_RULES.length} Antipattern-Regeln erfüllt (0 Verstöße).`);
+    process.exit(0);
+  }
+}
+
+if (require.main === module) {
+  if (process.argv.includes('--only-rules')) {
+    checkAntipatternsOnly();
+  } else {
+    const res = runReconciliation();
+    console.log(`Evolutionary Fitness Score: ${res.score}%`);
+    process.exit(res.success ? 0 : 1);
+  }
+}

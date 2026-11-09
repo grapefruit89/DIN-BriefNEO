@@ -10,9 +10,10 @@
  * die State-Machine hat nichts mit DOM- und Caret-Manipulation zu tun.
  */
 
+import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset } from './document.js';
-import { isPrintTitleActive, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+import { isPrintTitleActive, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
@@ -30,10 +31,9 @@ export class DraftManager {
   /**
    * Deterministischer Speicherzustand:
    * pending  = Änderungen im DOM, noch nicht geschrieben
-   * saving   = Schreibvorgang läuft (synchron bei localStorage)
    * synced   = letzter Schreibvorgang erfolgreich
    * error    = letzter Schreibvorgang fehlgeschlagen (Quota/Serde)
-   * @type {'pending' | 'saving' | 'synced' | 'error'}
+   * @type {'pending' | 'synced' | 'error'}
    */
   #saveState = 'synced';
 
@@ -80,12 +80,10 @@ export class DraftManager {
 
     if (typeof window !== 'undefined') {
       window.addEventListener('pagehide', flush);
-      // beforeunload ist der letzte synchrone Moment vor dem Verwerfen der Seite.
-      window.addEventListener('beforeunload', flush);
     }
   }
 
-  /** Aktueller Speicherzustand (pending | saving | synced | error). */
+  /** Aktueller Speicherzustand (pending | synced | error). */
   get saveState() {
     return this.#saveState;
   }
@@ -157,9 +155,14 @@ export class DraftManager {
 
   saveDraft() {
     const draft = collectDraft();
+    let draftStr = '';
+    try {
+      draftStr = JSON.stringify(draft);
+    } catch {
+      draftStr = '{}';
+    }
 
-    this.#saveState = 'saving';
-    const saved = saveJSON(STORAGE_KEYS.draft, draft);
+    const saved = save(STORAGE_KEYS.draft, draftStr);
     this.#saveState = saved ? 'synced' : 'error';
     this.#setSaveStatus(saved ? 'saved' : 'error');
     this.#updateDocumentTitle();
@@ -170,7 +173,6 @@ export class DraftManager {
 
     if (this.#isRestoring) return saved;
 
-    const draftStr = JSON.stringify(draft);
     let caretInfo = null;
 
     const activeElem = document.activeElement;
@@ -216,6 +218,7 @@ export class DraftManager {
    */
   #restoreState(draft) {
     this.#isRestoring = true;
+    AddressIntelligence.targetLock = null;
     Object.keys(draft).forEach(id => {
       const elem = document.getElementById(id);
       /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
@@ -232,10 +235,23 @@ export class DraftManager {
       // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
       if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
         const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
-        const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
-        elem.replaceChildren(sanitizeRichText(draft[id], extra));
-        if (isListe && elem.children.length === 0) {
-          elem.replaceChildren(document.createElement('li'));
+        if (isListe && typeof draft[id] === 'string' && !draft[id].includes('<li')) {
+          const lines = draft[id].split('\n').map((l) => l.trim()).filter(Boolean);
+          if (lines.length > 0) {
+            elem.replaceChildren(...lines.map((line) => {
+              const li = document.createElement('li');
+              li.textContent = line;
+              return li;
+            }));
+          } else {
+            elem.replaceChildren();
+          }
+        } else {
+          const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
+          elem.replaceChildren(sanitizeRichText(draft[id], extra));
+          if (isListe && elem.children.length === 0) {
+            elem.replaceChildren(document.createElement('li'));
+          }
         }
       } else if (!elem.querySelector('select[data-speichern]')) {
         elem.textContent = draft[id];
@@ -373,6 +389,7 @@ export class DraftManager {
     if (pvSelect) {
       pvSelect.selectedIndex = 0;
     }
+    AddressIntelligence.targetLock = null;
     this.saveDraft();
     if (this.bus && typeof this.bus.publish === 'function') {
       this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
@@ -391,14 +408,13 @@ export class DraftManager {
 
   /**
    * Autosave-Indikator: Status-Dot im Sidebar-Footer.
-   * Zustandsgetrieben über CSS-Klassen .saved / .dirty / .error.
+   * Zustandsgetrieben über data-state="saved" | "dirty" | "error".
    * @param {'saved' | 'dirty' | 'error'} state
    */
   #setSaveStatus(state) {
     const el = /** @type {HTMLElement | null} */ (document.getElementById('save-status'));
     if (!el) return;
-    el.classList.remove('saved', 'dirty', 'error');
-    el.classList.add(state);
+    el.dataset.state = state;
     const labels = { saved: 'Gespeichert', dirty: 'Speichern…', error: 'Fehler beim Speichern!' };
     el.textContent = labels[state];
     el.title = labels[state];

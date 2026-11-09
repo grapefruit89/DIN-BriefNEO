@@ -128,27 +128,21 @@ DIN-BriefNEO verfügt über ein integriertes, 100 % offlinefähiges Postleitzahl
 - **Stadtteil-Verzeichnis** (`website/data/de_districts.json.gz`) – Enthält 304 Stadtteil-Zuordnungen für Ballungsräume (z. B. Bonn, Berlin, Köln). Dient als lokaler Anzeige-Bonus, stellt keine flächendeckende Abdeckung dar.
 
 ### 2. Datenstruktur (`website/data/`)
-- `orte.json.gz` (68 KB gzip, 10.184 Einträge, 0 Firmen):
+- `orte.json.gz` (68 KB gzip, 10.184 Einträge, Columnar-Schema, 0 Firmen):
   ```json
-  { "01053": "Dresden", "53111": "Bonn" }
+  { "plz": ["01067", "53840"], "ort": ["Dresden", "Troisdorf"], "district": [null, "Spich"], "state": ["SN", "NW"] }
   ```
-- `bundesbehoerden.json.gz` (17 KB gzip, 498 PLZs, 1.800 Dienststellen):
-  ```json
-  {
-    "11011": { "name": "Deutscher Bundestag", "city": "Berlin", "typ": "Behörde" },
-    "97209": { "name": "10. Panzerdivision", "city": "Veitshöchheim", "typ": "Behörde", "all_names": ["10. Panzerdivision", "Bundeswehr-Dienstleistungszentrum Veitshöchheim", "Bundeswehrfachschule Würzburg"] }
-  }
-  ```
-- `grosskunden.json.gz` (55 KB gzip, 2.732 Einträge):
+- `grosskunden.json.gz` (56 KB gzip, 2.732 Einträge inkl. aller Bundesbehörden):
   ```json
   {
     "01053": { "name": "Commerzbank AG", "city": "Dresden", "typ": "Firma" },
-    "80920": { "name": "OSRAM GmbH", "city": "München", "typ": "Firma" }
+    "11011": { "name": "Deutscher Bundestag", "city": "Berlin", "typ": "Behörde" },
+    "45877": { "name": "Volksbank Ruhr Mitte eG", "city": "Gelsenkirchen", "typ": "Firma" }
   }
   ```
 
 ### 3. Wichtiger Hinweis zu Sonder-PLZs
-`orte.json.gz` enthält **10.184 PLZs** – bestehend aus 8.158 amtlichen Gemeinde-/Zustell-PLZs und 2.026 bereinigten Sonder-PLZs (Postfächer und Großkunden mit reinem Ortsbezug). Sämtliche 642 Firmen-, Behörden- und Institutionsnamen wurden strikt aus `orte.json.gz` entfernt und in `grosskunden.json.gz` sowie `bundesbehoerden.json.gz` konsolidiert. Wenn ein Empfänger eine Großkunden- oder Postfach-PLZ besitzt, wird der korrekte Ortsname (z. B. `01053` → `Dresden`) automatisch aufgelöst, während der Firmenname separat im Firmenfeld platziert wird.
+`orte.json.gz` enthält **10.184 PLZs** – bestehend aus 8.158 amtlichen Gemeinde-/Zustell-PLZs und 2.026 bereinigten Sonder-PLZs (Postfächer und Großkunden mit reinem Ortsbezug). Sämtliche Firmen-, Behörden- und Institutionsnamen wurden strikt aus `orte.json.gz` entfernt und in `grosskunden.json.gz` konsolidiert. Wenn ein Empfänger eine Großkunden- oder Postfach-PLZ besitzt, wird der korrekte Ortsname (z. B. `01053` → `Dresden`) automatisch aufgelöst, während der Firmenname separat im Firmenfeld platziert wird.
 
 ### 4. Automatisierter Update-Workflow
 - **Zeitplan:** Vollautomatisch jeden 1. des Monats um 03:00 UTC via GitHub Actions ([`.github/workflows/update_plz_data.yml`](.github/workflows/update_plz_data.yml)).

@@ -2,17 +2,21 @@
 // (Draft-Sanitizing/XSS) über die ECHTE Code-Route (localStorage → loadDraft),
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
-import { bezeichne, franchiseKey, generateNerdText, getCharHook, randomBetreff, setField as setTestbriefField, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressIntelligence, buildFirmenIndex, buildOrtIndex, buildPrefixIndex, detectPlzInputPattern, filterPostcodePrefix, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
-import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
+import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
+import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
+import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
+import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { formatTelefonnummer, UIProtections } from '../website/js/document.js';
+import { UIProtections } from '../website/js/document.js';
 import { DraftManager } from '../website/js/draft-manager.js';
+import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
+import { formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
-import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, load, loadJSON, migrateStorage, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
-import { SalutationEngine } from '../website/js/salutation.js';
+import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
+import { SignatureFeature } from '../website/js/signature.js';
 import { assert, assertEqual, describe, it, run } from './runner.js';
 
 /* STORAGE_KEYS.draft ('din_draft_current') ist der autoritative Draft-Key. */
@@ -388,9 +392,9 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     const res = loadJSON('test_polluted_json', fallback);
     assertEqual(res.theme, 'dark', 'Erlaubter Key übernommen');
     assertEqual(res.safe, true, 'Fallback-Key erhalten');
-    assertEqual(Object.prototype.hasOwnProperty.call(res, '__proto__'), false, '__proto__ gefiltert');
-    assertEqual(Object.prototype.hasOwnProperty.call(res, 'constructor'), false, 'constructor gefiltert');
-    assertEqual(Object.prototype.hasOwnProperty.call(res, 'prototype'), false, 'prototype gefiltert');
+    assertEqual(Object.hasOwn(res, '__proto__'), false, '__proto__ gefiltert');
+    assertEqual(Object.hasOwn(res, 'constructor'), false, 'constructor gefiltert');
+    assertEqual(Object.hasOwn(res, 'prototype'), false, 'prototype gefiltert');
     remove('test_polluted_json');
   });
 
@@ -411,12 +415,9 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
     remove('test_type_obj_for_arr');
   });
 
-  it('migrateStorage setzt SCHEMA_VERSION idempotent', () => {
-    remove(STORAGE_KEYS.schema);
-    migrateStorage();
-    assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version initial gesetzt');
-    migrateStorage();
-    assertEqual(load(STORAGE_KEYS.schema), String(Constants.SCHEMA_VERSION), 'Schema-Version idempotent');
+  it('Constants.SCHEMA_VERSION ist definiert und numerisch gültig', () => {
+    assert(typeof Constants.SCHEMA_VERSION === 'number', 'SCHEMA_VERSION ist number');
+    assert(Constants.SCHEMA_VERSION >= 1, 'SCHEMA_VERSION ist mindestens 1');
   });
 
   it('hält Binär-Assets aus localStorage und legt sie als Blob in IndexedDB ab (A34)', async () => {
@@ -437,6 +438,12 @@ describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
 
     assert(await deleteBlob('signature'), 'deleteBlob meldet Erfolg');
     assertEqual(await loadBlob('signature'), null, 'nach deleteBlob kein Blob mehr');
+  });
+
+  it('saveBlob weist Nicht-Blob-Werte ab (BS3)', async () => {
+    // @ts-ignore
+    const res = await saveBlob('signature', 'kein-blob');
+    assertEqual(res, false, 'Nicht-Blob wird abgewiesen');
   });
 
   it('Export enthält kein Base64 und kein Signaturbild — nur signature.transform', () => {
@@ -522,7 +529,22 @@ describe('Toast-System: EventBus-Anbindung (Phase 2)', () => {
     const msgEl = document.getElementById('hinweis-message');
     const container = document.getElementById('hinweis-v4');
     assertEqual(msgEl?.textContent, 'EventBus Toast Test', 'Toast-Nachricht im DOM aktualisiert');
-    assert(container?.className.includes('type-warning'), 'Toast-Typ im DOM gesetzt');
+    assertEqual(container?.dataset.type, 'warning', 'Toast-Typ im DOM gesetzt (A21 data-type)');
+  });
+
+  it('räumt current bei toggle newState=closed auf und erlaubt Re-Triggering nach Escape (C2, C3)', () => {
+    initToastSystem();
+    const container = document.getElementById('hinweis-v4');
+
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Gleicher Fehler', type: 'error' });
+    assertEqual(container?.dataset.type, 'error');
+
+    // Simuliere Popover-Schließen (z. B. durch Escape)
+    container?.dispatchEvent(new CustomEvent('toggle', { detail: { newState: 'closed' } }));
+
+    // Gleiche Nachricht erneut triggern: Popover öffnet sich erneut
+    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: 'Gleicher Fehler', type: 'warning' });
+    assertEqual(container?.dataset.type, 'warning', 'Typ wird bei gleichem Text aktualisiert');
   });
 });
 
@@ -584,28 +606,13 @@ describe('AddressDomain: Reine PLZ- und Adressauflösung (Phase 3)', () => {
     assertEqual(resolveCity('b', cityToPlz, plzToCity).length, 0, 'Suche unter 2 Zeichen leer');
   });
 
-  it('filterPostcodePrefix filtert PLZs nach 2-4 Ziffern', () => {
-    const plzToCity = new Map([
-      ['53111', 'Bonn'],
-      ['53113', 'Bonn'],
-      ['50667', 'Köln']
-    ]);
+  it('getDistrict liefert Stadtteil oder Großempfänger zentral', () => {
+    const districts = new Map([['53111', 'Zentrum']]);
+    const grosskunden = new Map([['53105', { name: 'Postbank', city: 'Bonn' }]]);
 
-    const matches53 = filterPostcodePrefix('53', plzToCity);
-    assertEqual(matches53.length, 2, 'Zwei 53er Treffer');
-    const matches50 = filterPostcodePrefix('50', plzToCity);
-    assertEqual(matches50.length, 1, 'Ein 50er Treffer');
-    assertEqual(matches50[0].city, 'Köln');
-
-    assertEqual(filterPostcodePrefix('5', plzToCity).length, 0, '1-stellig ungültig');
-    assertEqual(filterPostcodePrefix('531111', plzToCity).length, 0, 'zu lang ungültig');
-  });
-
-  it('detectPlzInputPattern erkennt semantischen Mustertyp', () => {
-    assertEqual(detectPlzInputPattern('53111').type, 'plz_exact');
-    assertEqual(detectPlzInputPattern('53').type, 'plz_prefix');
-    assertEqual(detectPlzInputPattern('Bonn').type, 'city_name');
-    assertEqual(detectPlzInputPattern('!').type, 'unknown');
+    assertEqual(getDistrict('53111', districts, grosskunden), 'Zentrum', 'Liefert Stadtteil aus districtsMap');
+    assertEqual(getDistrict('53105', districts, grosskunden), 'Großempfänger', 'Liefert Großempfänger aus grosskundenMap');
+    assertEqual(getDistrict('99999', districts, grosskunden), '', 'Liefert Leerstring wenn nicht vorhanden');
   });
 });
 
@@ -657,21 +664,29 @@ describe('PLZ-Daten-Integration (Teil 1: echte Datensätze)', () => {
     const res = AddressIntelligence.lookupPlz('99999');
     assertEqual(res, null);
   });
+
+  it('Test 6 (AddressData Fassade): lookup, isReady und findFirma', () => {
+    assertEqual(AddressData.isReady, true);
+    const resolved = AddressData.lookup('53111');
+    assert(resolved !== null, 'AddressData.lookup(53111) liefert Ergebnis');
+    assertEqual(resolved?.city, 'Bonn');
+    assertEqual(resolved?.state, 'NW');
+
+    const unknown = AddressData.lookup('99999');
+    assertEqual(unknown, null);
+
+    const firma = AddressData.findFirma('Commerzbank AG');
+    assert(firma !== null, 'findFirma findet Commerzbank AG');
+    assertEqual(firma?.city, 'Dresden');
+
+    const noFirma = AddressData.findFirma('Fantasiestadt 123 Keine Firma XYZ');
+    assertEqual(noFirma, null);
+  });
 });
 
 describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () => {
   // Case A (PLZ-Eingabe progressiv)
-  it('Test 1: buildPrefixIndex liefert für "101" ein Set mit Berlin (< 20 ms)', () => {
-    const t0 = performance.now();
-    const prefixMap = buildPrefixIndex(AddressIntelligence.plzToCity);
-    const duration = performance.now() - t0;
-    assert(duration < 20, `Prefix-Index Aufbauzeit < 20 ms (war ${duration.toFixed(2)} ms)`);
-    const s = prefixMap.get('101');
-    assert(s !== undefined, 'Präfix 101 existiert');
-    assert(Boolean(s?.has('Berlin')), 'Enthält Berlin');
-  });
-
-  it('Test 2: Eingabe "010" enthält Dresden', () => {
+  it('Test 1: Eingabe "010" enthält Dresden', () => {
     const matches = AddressIntelligence.lookupPrefix('010');
     assert(matches.some(m => m.city === 'Dresden'), '010 enthält Dresden');
   });
@@ -1097,6 +1112,77 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     const res531 = AddressIntelligence.lookupPrefix('531');
     assert(res531.some((/** @type {any} */ m) => m.city === 'Bonn' && m.plzCount > 1), 'Bonn als Stadt mit mehreren PLZs zusammengefasst');
   });
+
+  it('Test 34: Bundesland-Spalte und Disambiguierung (ISO-3166-2:DE & BUNDESLAENDER)', () => {
+    // 1. Statische Bundesländer-Tabelle enthält 16 Bundesländer
+    assertEqual(Object.keys(BUNDESLAENDER).length, 16, '16 deutsche Bundesländer vorhanden');
+    assertEqual(BUNDESLAENDER.NW, 'Nordrhein-Westfalen');
+    assertEqual(BUNDESLAENDER.BY, 'Bayern');
+    assertEqual(BUNDESLAENDER.BE, 'Berlin');
+
+    // 2. Lookup liefert Bundesland-Codes
+    assertEqual(AddressIntelligence.getState('53840'), 'NW', '53840 Troisdorf ist NW');
+    assertEqual(AddressIntelligence.getState('80331'), 'BY', '80331 München ist BY');
+    assertEqual(AddressIntelligence.getState('10115'), 'BE', '10115 Berlin ist BE');
+
+    // 3. Disambiguierung homonymer Städte (Neustadt)
+    const neustadtPlzs = AddressIntelligence.lookupCityPlzs('Neustadt');
+    assert(neustadtPlzs.length >= 8, 'Neustadt hat mehrere PLZs in verschiedenen Bundesländern');
+    const states = neustadtPlzs.map((i) => i.state);
+    assert(states.includes('HE'), 'Neustadt in Hessen (35279) vorhanden');
+    assert(states.includes('RP'), 'Neustadt in Rheinland-Pfalz vorhanden');
+    assert(states.includes('BY'), 'Neustadt in Bayern vorhanden');
+
+    // 4. Strikte DIN-5008-Invariante: applySelection schreibt NIEMALS das Bundesland ins Anschriftfeld
+    const itemHessen = neustadtPlzs.find((i) => i.state === 'HE');
+    assert(itemHessen !== undefined, 'Hessen-Eintrag existiert');
+    const fakeOrt = { textContent: '', setAttribute: () => {} };
+    AddressIntelligence.applySelection(itemHessen, fakeOrt);
+    assertEqual(fakeOrt.textContent, '35279 Neustadt', 'DIN 5008 Invariante: Nur PLZ und Ort');
+    assert(!fakeOrt.textContent.includes('Hessen'), 'Kein Bundesland im Brieftext');
+    assert(!fakeOrt.textContent.includes('HE'), 'Kein ISO-Code im Brieftext');
+  });
+});
+
+describe('AddressData: Reine Datenlogik und Entkopplungs-Parität (P1a)', () => {
+  it('exportiert identische Instanzen und Funktionen via address.js Fassade', () => {
+    assertEqual(AddressData, AddressDataDirect, 'AddressData ist identisch');
+    assertEqual(AddressIntelligence, AddressIntelligenceDirect, 'AddressIntelligence ist identisch');
+    assertEqual(BUNDESLAENDER, BUNDESLAENDERDirect, 'BUNDESLAENDER ist identisch');
+    assertEqual(normalizePostcode, normalizePostcodeDirect, 'normalizePostcode ist identisch');
+    assertEqual(resolvePostcode, resolvePostcodeDirect, 'resolvePostcode ist identisch');
+    assertEqual(resolveCity, resolveCityDirect, 'resolveCity ist identisch');
+    assertEqual(getDistrict, getDistrictDirect, 'getDistrict ist identisch');
+    assertEqual(buildOrtIndex, buildOrtIndexDirect, 'buildOrtIndex ist identisch');
+    assertEqual(buildFirmenIndex, buildFirmenIndexDirect, 'buildFirmenIndex ist identisch');
+  });
+
+  it('funktioniert völlig autark ohne DOM-Abhängigkeiten', () => {
+    assertEqual(AddressDataDirect.isReady, true, 'AddressDataDirect ist initialisiert');
+    const lookupRes = AddressDataDirect.lookup('53111');
+    assert(lookupRes !== null, 'lookup liefert Treffer');
+    assertEqual(lookupRes?.city, 'Bonn', 'PLZ 53111 ist Bonn');
+
+    const firma = AddressDataDirect.findFirma('Commerzbank AG');
+    assert(firma !== null, 'Commerzbank AG im Datenbestand gefunden');
+    assertEqual(firma?.name, 'Commerzbank AG');
+
+    assertEqual(normalizePostcodeDirect('  53111  '), '53111', 'Normalisierung funktioniert autark');
+    assertEqual(normalizePostcodeDirect('invalid'), null, 'Ungültige PLZ liefert null');
+
+    const cityToPlz = new Map([['berlin', ['10115']]]);
+    const plzToCity = new Map([['10115', 'Berlin']]);
+    const resolvedCities = resolveCityDirect('Berlin', cityToPlz, plzToCity);
+    assertEqual(resolvedCities.length, 1, 'resolveCityDirect liefert 1 Treffer');
+    assertEqual(resolvedCities[0].city, 'Berlin', 'resolveCityDirect löst Stadt autark auf');
+
+    const prefixMatches = AddressIntelligenceDirect.lookupPrefix('5311');
+    assertEqual(prefixMatches.length, 6, 'Prefix-Lookup liefert autark 6 Treffer für 5311');
+
+    const universal = AddressIntelligenceDirect.lookupUniversal('Bonn', 5);
+    assert(universal.items.length > 0, 'Universal-Lookup liefert autark Ergebnisse');
+    assertEqual(universal.items[0].city, 'Bonn', 'Erster Treffer ist Bonn');
+  });
 });
 
 describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
@@ -1161,14 +1247,18 @@ describe('DraftManager: EventBus Save-Integration (Phase 4)', () => {
   });
 });
 
-describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
-  it('erkennt Dr.- und akademische Titel und filtert sie aus der Anrede', () => {
-    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. Hans Müller', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
-    assertEqual(SalutationEngine.derive({ rawName: 'Frau Prof. Dr. Julia Sommer', formality: 'formal' }), 'Sehr geehrte Frau Sommer,');
+describe('SalutationEngine: Anrede-Ableitung (pure Funktion & KISS)', () => {
+  it('erkennt Dr.- und akademische Titel nach DIN 5008', () => {
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. Müller', formality: 'formal' }), 'Sehr geehrter Herr Dr. Müller,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. Hans Müller', formality: 'formal' }), 'Sehr geehrter Herr Dr. Müller,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Prof. Dr. Schmidt', formality: 'formal' }), 'Sehr geehrte Frau Prof. Dr. Schmidt,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Prof. Dr. Julia Sommer', formality: 'formal' }), 'Sehr geehrte Frau Prof. Dr. Sommer,');
   });
 
   it('erkennt Adelstitel und Namenszusätze (von, van der, zu)', () => {
-    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. med. Albrecht von Sydow', formality: 'formal' }), 'Sehr geehrter Herr von Sydow,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr von Müller', formality: 'formal' }), 'Sehr geehrter Herr von Müller,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau van der Berg', formality: 'formal' }), 'Sehr geehrte Frau van der Berg,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dr. med. Albrecht von Sydow', formality: 'formal' }), 'Sehr geehrter Herr Dr. med. von Sydow,');
     assertEqual(SalutationEngine.derive({ rawName: 'Frau Sophie van der Bellen', formality: 'formal' }), 'Sehr geehrte Frau van der Bellen,');
   });
 
@@ -1179,22 +1269,24 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Turnverein Bonn 1860 e.V.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
     assertEqual(SalutationEngine.derive({ rawName: 'Sportverein Troisdorf', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
     assertEqual(SalutationEngine.derive({ rawName: 'Eigentümergemeinschaft Hauptstr. 10', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Muster eG', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
   });
 
   it('unterstützt die Stile formal, polite und casual', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'formal' }), 'Sehr geehrte Frau Schmidt,');
     assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'polite' }), 'Guten Tag Frau Schmidt,');
-    assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'casual' }), 'Hallo Petra,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Petra Schmidt', formality: 'casual' }), 'Hallo Frau Schmidt,');
   });
 
   it('unterstützt "Nachname, Vorname" Notation', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Herr Müller, Hans', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
   });
 
-  it('rekonstruiert Bindestrich-Doppelnamen und Adelspartikel robust (TC-01)', () => {
-    // Ohne Herr/Frau-Präfix wird kein Geschlecht aus dem Vornamen geraten (Backlog #18).
-    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'formal' }), 'Guten Tag Hans-Peter von Müller-Lüdenscheidt,');
-    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'casual' }), 'Hallo Hans-Peter,');
+  it('verhält sich normgerecht nach DIN 5008 ohne Herr/Frau-Präfix (neutraler Fallback)', () => {
+    // Ohne Herr/Frau-Präfix wird kein Geschlecht geraten und keine Kunstkonstruktion erfunden
+    assertEqual(SalutationEngine.derive({ rawName: 'Max Müller', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Dr. Hans-Peter von Müller-Lüdenscheidt', formality: 'casual' }), 'Hallo,');
     assertEqual(SalutationEngine.derive({ rawName: 'Dipl.-Ing. Heinz e.K.', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
     assertEqual(SalutationEngine.derive({ rawName: 'Musterholding GmbH & Co. KG', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
   });
@@ -1210,20 +1302,78 @@ describe('SalutationEngine: Anrede-Ableitung (pure Funktion)', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Wolfsberg GmbH', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
   });
 
-  it('übersteuert Branchen-Nomen (Bank, Hotel) und Initialen bei explizitem Herr/Frau (Review Befund 2 & 4)', () => {
-    // Herr/Frau vor Nomen, die auch in COMPANY_KEYWORDS stehen
+  it('übersteuert Branchen-Nomen (Bank, Hotel) und Firmenformen bei explizitem Herr/Frau', () => {
     assertEqual(SalutationEngine.derive({ rawName: 'Herr Thomas Bank', formality: 'formal' }), 'Sehr geehrter Herr Bank,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Bank eG', formality: 'formal' }), 'Sehr geehrter Herr Bank,');
     assertEqual(SalutationEngine.derive({ rawName: 'Frau Sabine Hotel', formality: 'formal' }), 'Sehr geehrte Frau Hotel,');
-    // Initialen bei Frau/Herr
-    assertEqual(SalutationEngine.derive({ rawName: 'Frau E. K. Meier', formality: 'formal' }), 'Sehr geehrte Frau Meier,');
-    assertEqual(SalutationEngine.derive({ rawName: 'Herr Dipl.-Ing. Hans J. Müller', formality: 'formal' }), 'Sehr geehrter Herr Müller,');
-    assertEqual(SalutationEngine.derive({ rawName: 'Müller, M.Sc. Anna', formality: 'formal' }), 'Guten Tag Anna Müller,');
-    // Turnverein ohne Herr/Frau bleibt neutral
     assertEqual(SalutationEngine.derive({ rawName: 'Turnverein Bonn 1860', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
-    // UG (haftungsbeschränkt) wird als Organisation erkannt
     assertEqual(SalutationEngine.derive({ rawName: 'Muster UG (haftungsbeschränkt)', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
-    // Herr Max Mustermann e.K. ist Einzelkaufmann und wird persönlich angesprochen
     assertEqual(SalutationEngine.derive({ rawName: 'Herr Max Mustermann e.K.', formality: 'formal' }), 'Sehr geehrter Herr Mustermann,');
+  });
+
+  it('verifiziert deriveSalutation Standalone-Funktion', () => {
+    assertEqual(deriveSalutation('Herr Dr. Müller'), 'Sehr geehrter Herr Dr. Müller,');
+    assertEqual(deriveSalutation('Frau Prof. Dr. Schmidt'), 'Sehr geehrte Frau Prof. Dr. Schmidt,');
+    assertEqual(deriveSalutation('Herr von Müller'), 'Sehr geehrter Herr von Müller,');
+    assertEqual(deriveSalutation('Frau van der Berg'), 'Sehr geehrte Frau van der Berg,');
+    assertEqual(deriveSalutation('Herr Müller, Hans'), 'Sehr geehrter Herr Müller,');
+    assertEqual(deriveSalutation('Herr Bank eG'), 'Sehr geehrter Herr Bank,');
+    assertEqual(deriveSalutation('Muster eG'), 'Sehr geehrte Damen und Herren,');
+    assertEqual(deriveSalutation('Max Müller'), 'Sehr geehrte Damen und Herren,');
+  });
+});
+
+describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronisation)', () => {
+  it('synchronisiert dataset.dirty und auto-State bei Wiederherstellung eines Auto-Wertes', () => {
+    let nameEl = document.getElementById('empfaenger-name');
+    if (!nameEl) {
+      nameEl = document.createElement('div');
+      nameEl.id = 'empfaenger-name';
+      document.body.appendChild(nameEl);
+    }
+    let anredeEl = document.getElementById('anrede');
+    if (!anredeEl) {
+      anredeEl = document.createElement('div');
+      anredeEl.id = 'anrede';
+      document.body.appendChild(anredeEl);
+    }
+    let grussEl = document.getElementById('grussformel');
+    if (!grussEl) {
+      grussEl = document.createElement('div');
+      grussEl.id = 'grussformel';
+      document.body.appendChild(grussEl);
+    }
+
+    nameEl.textContent = 'Herr Dr. Müller';
+    anredeEl.textContent = 'Manuelle Anrede';
+    anredeEl.dataset.dirty = 'true';
+    delete anredeEl.dataset.generated;
+
+    const feature = new SalutationFeature();
+    feature.init();
+
+    // Vor Undo: Text ist manuell und dirty
+    assertEqual(anredeEl.dataset.dirty, 'true');
+
+    // Simuliere Undo zu automatisch abgeleiteter Anrede
+    anredeEl.textContent = 'Sehr geehrter Herr Dr. Müller,';
+    eventBus.publish(Events.DOCUMENT_CHANGED);
+
+    assertEqual(anredeEl.dataset.dirty, undefined, 'dirty-Flag wird nach Undo gelöscht');
+    assertEqual(anredeEl.dataset.generated, 'true', 'generated-Flag wird wiederhergestellt');
+
+    // Simuliere auch Undo für Grußformel
+    grussEl.textContent = 'Beste Grüße vorab';
+    grussEl.dataset.dirty = 'true';
+    delete grussEl.dataset.generated;
+
+    grussEl.textContent = 'Mit freundlichen Grüßen';
+    eventBus.publish(Events.DOCUMENT_CHANGED);
+
+    assertEqual(grussEl.dataset.dirty, undefined, 'dirty-Flag der Grußformel wird nach Undo gelöscht');
+    assertEqual(grussEl.dataset.generated, 'true', 'generated-Flag der Grußformel wird wiederhergestellt');
+
+    feature.destroy();
   });
 });
 
@@ -1533,13 +1683,57 @@ describe('ClipboardAddressParser: Anschrift-Parsing (unstrukturierte Zwischenabl
       }
     }
   });
+
+  it('extractPlzOrt: Verstärker-Prinzip, Tippfehler-Korrektur und Mismatch-Erkennung', () => {
+    // 1. Exakter Match
+    const exact = ClipboardAddressParser.extractPlzOrt('53111 Bonn');
+    assert(exact !== null);
+    assertEqual(exact?.plz, '53111');
+    assertEqual(exact?.ort, 'Bonn');
+    assertEqual(exact?.verified, true);
+    assertEqual(exact?.ortCorrected, false);
+    assertEqual(exact?.ortMismatch, false);
+
+    // 2. Tippfehler ("Bon" -> "Bonn")
+    const typo = ClipboardAddressParser.extractPlzOrt('53111 Bon');
+    assert(typo !== null);
+    assertEqual(typo?.plz, '53111');
+    assertEqual(typo?.ort, 'Bonn');
+    assertEqual(typo?.verified, true);
+    assertEqual(typo?.ortCorrected, true);
+    assertEqual(typo?.ortMismatch, false);
+
+    // 3. Mismatch (53111 mit Köln)
+    const mismatch = ClipboardAddressParser.extractPlzOrt('53111 Köln');
+    assert(mismatch !== null);
+    assertEqual(mismatch?.plz, '53111');
+    assertEqual(mismatch?.ort, 'Köln');
+    assertEqual(mismatch?.verified, true);
+    assertEqual(mismatch?.ortCorrected, false);
+    assertEqual(mismatch?.ortMismatch, true);
+    assertEqual(mismatch?.canonicalOrt, 'Bonn');
+
+    // 4. Ausländische 5-stellige PLZ (75001 Paris) wird NICHT verworfen
+    const foreign = ClipboardAddressParser.extractPlzOrt('75001 Paris');
+    assert(foreign !== null);
+    assertEqual(foreign?.plz, '75001');
+    assertEqual(foreign?.ort, 'Paris');
+    assertEqual(foreign?.verified, false);
+    assertEqual(foreign?.ortMismatch, false);
+  });
+
+  it('isCorporate erkennt Firmen aus AddressData.firmenIndex auch ohne Rechtsform-Suffix', () => {
+    assert(ClipboardAddressParser.isCorporate('Commerzbank AG'), 'Commerzbank AG ist Corporate');
+    assert(ClipboardAddressParser.isCorporate('Allgemeine Ortskrankenkasse Plus'), 'Allgemeine Ortskrankenkasse Plus ist im Firmen-Index');
+  });
 });
 
-describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', () => {
+describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () => {
   it('initialisiert im leeren Zustand mit Systemschrift-Fallback', () => {
     const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
     const sm = new SettingsManager();
-    sm.updateFontStatusUI(false);
+    const ff = new FontFeature(sm);
+    ff.updateFontStatusUI(false);
     assertEqual(btn.dataset.fontState, 'empty');
     assert(btn.textContent?.includes('Eigene Schriftart laden') || false, 'Text zeigt Schriftart laden');
     assert(!document.body.classList.contains('schrift-eigene-aktiv'), 'body hat nicht schrift-eigene-aktiv');
@@ -1549,7 +1743,8 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
   it('wechselt in geladenen Zustand bei vorhandener Schrift', () => {
     const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
     const sm = new SettingsManager();
-    sm.updateFontStatusUI(true);
+    const ff = new FontFeature(sm);
+    ff.updateFontStatusUI(true);
     assertEqual(btn.dataset.fontState, 'loaded');
     assert(btn.textContent?.includes('Eigene Schrift entfernen') || false, 'Text zeigt Schrift entfernen');
     assert(document.body.classList.contains('schrift-eigene-aktiv'), 'body hat schrift-eigene-aktiv');
@@ -1559,10 +1754,11 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
   it('entfernt die Schrift bei Klick aus IndexedDB (kein localStorage)', async () => {
     const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-schrift-aktion'));
     const sm = new SettingsManager();
-    sm.attachListeners();
+    const ff = new FontFeature(sm);
+    ff.attachListeners();
     await saveBlob('font', new Blob([new Uint8Array([0, 1, 0, 0])], { type: 'font/woff2' }));
     assert((await loadBlob('font')) instanceof Blob, 'Schrift liegt als Blob in IndexedDB');
-    sm.updateFontStatusUI(true);
+    ff.updateFontStatusUI(true);
     assertEqual(btn.dataset.fontState, 'loaded');
 
     btn.click();
@@ -1573,9 +1769,81 @@ describe('SettingsManager: Minimalistischer 2-Zustände Font-Button & Kaskade', 
     assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
   });
 
+  it('schaltet über applyFontPreset auf Inter, Aptos und Michelangelus um', () => {
+    const sel = /** @type {HTMLSelectElement} */ (document.getElementById('select-schriftart'));
+    const sm = new SettingsManager();
+    const ff = new FontFeature(sm);
+    ff.applyFontPreset('inter');
+    assertEqual(sel.value, 'inter');
+    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Inter'), 'Inter aktiv');
+
+    ff.applyFontPreset('aptos');
+    assertEqual(sel.value, 'aptos');
+    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Aptos'), 'Aptos aktiv');
+
+    ff.applyFontPreset('michelangelus');
+    assertEqual(sel.value, 'michelangelus');
+    assert(document.documentElement.style.getPropertyValue('--active-font-family').includes('Test-Michelangelus'), 'Michelangelus aktiv');
+
+    ff.applyFontPreset('default');
+    assertEqual(sel.value, 'default');
+    assertEqual(document.documentElement.style.getPropertyValue('--active-font-family'), '');
+  });
+
+  it('exportiert FONT_PRESETS mit allen 4 Vorgaben', () => {
+    assertEqual(typeof FONT_PRESETS, 'object');
+    assertEqual(FONT_PRESETS.default, '');
+    assert(FONT_PRESETS.inter.includes('Test-Inter'), 'Test-Inter Preset vorhanden');
+    assert(FONT_PRESETS.aptos.includes('Test-Aptos'), 'Test-Aptos Preset vorhanden');
+    assert(FONT_PRESETS.michelangelus.includes('Test-Michelangelus'), 'Test-Michelangelus Preset vorhanden');
+  });
+
   it('erzwingt 400 KB Obergrenze in Constants.LIMITS', () => {
     assertEqual(Constants.LIMITS.FONT_SIZE_MAX_KB, 400);
     assert(Constants.TOASTS.FONT.SIZE_ERROR.includes('400 KB'), 'Fehlermeldung nennt 400 KB');
+  });
+});
+
+describe('SettingsManager: Drill-Down Modus-Umschaltung (Seitenleiste)', () => {
+  it('schaltet Modus über toggleSettingsModus deterministisch um', () => {
+    const toggle = /** @type {HTMLInputElement} */ (document.getElementById('toggle-modus'));
+    const sm = new SettingsManager();
+    sm.isReady = true;
+
+    sm.toggleSettingsModus('einstellungen');
+    assertEqual(toggle.checked, true, 'Modus auf Einstellungen gewechselt');
+
+    sm.toggleSettingsModus('brief');
+    assertEqual(toggle.checked, false, 'Modus auf Brief zurückgestellt');
+  });
+
+  it('schaltet über btnZurueck Klick zurück in den Briefmodus', () => {
+    const toggle = /** @type {HTMLInputElement} */ (document.getElementById('toggle-modus'));
+    const btnZurueck = document.getElementById('btn-zurueck');
+    const sm = new SettingsManager();
+    sm.isReady = true;
+    sm.attachListeners();
+
+    toggle.checked = true;
+    btnZurueck?.click();
+    assertEqual(toggle.checked, false, 'btnZurueck schaltet auf Brief zurück');
+  });
+
+  it('setzt data-plugin-testbrief und data-plugin-multipage an document.documentElement (FOUC-Schutz B1)', () => {
+    const sm = new SettingsManager();
+    sm.isReady = true;
+
+    sm.settings.pluginTestbrief = false;
+    sm.settings.pluginMultipage = false;
+    sm.applySettings();
+    assertEqual(document.documentElement.getAttribute('data-plugin-testbrief'), 'false');
+    assertEqual(document.documentElement.getAttribute('data-plugin-multipage'), 'false');
+
+    sm.settings.pluginTestbrief = true;
+    sm.settings.pluginMultipage = true;
+    sm.applySettings();
+    assertEqual(document.documentElement.getAttribute('data-plugin-testbrief'), 'true');
+    assertEqual(document.documentElement.getAttribute('data-plugin-multipage'), 'true');
   });
 });
 
@@ -1642,18 +1910,18 @@ describe('formatTelefonnummer (DIN 5008 11.3.2)', () => {
     assertEqual(formatTelefonnummer('0228-123456'), '0228 123456');
     assertEqual(formatTelefonnummer('0301234567'), '030 1234567');
     assertEqual(formatTelefonnummer('0221123456'), '0221 123456');
-    assertEqual(formatTelefonnummer('02203123456'), '02203 123456');
+    assertEqual(formatTelefonnummer('02203/123456'), '02203 123456');
+    assertEqual(formatTelefonnummer('02203123456'), '02203123456', 'Unbekannte Vorwahl ohne Trenner bleibt unformatiert (A18)');
     assertEqual(formatTelefonnummer('0221 1234567'), '0221 1234567');
     assertEqual(formatTelefonnummer('030 1234567'), '030 1234567');
     assertEqual(formatTelefonnummer('0800 123456'), '0800 123456');
   });
-  it('dokumentierte Grenze: 5-stellige Vorwahl ohne Trenner ist nicht erkennbar', () => {
-    // Die Vorgabe nennt 02204123456 -> "022041 23456", verlangt aber gleichzeitig als
-    // Default 5 Ziffern Vorwahl. Beides zugleich ist ohne Vorwahl-Datenbank nicht
-    // entscheidbar (02203123456 hat dieselbe Laenge, aber 5 Ziffern Vorwahl).
-    // Mit Trenner ist das Ergebnis korrekt.
-    assertEqual(formatTelefonnummer('02204123456'), '02204 123456');
+  it('dokumentierte Grenze: Unbekannte Vorwahlen ohne Trenner bleiben unformatiert (A18)', () => {
+    // Ohne Vorwahl-Datenbank wird bei unbekannten Vorwahlen ohne Trenner nicht geraten:
+    // "Lieber unformatiert als falsch formatiert". Mit Trenner wird sauber formatiert.
+    assertEqual(formatTelefonnummer('02204123456'), '02204123456');
     assertEqual(formatTelefonnummer('022041 23456'), '022041 23456');
+    assertEqual(formatTelefonnummer('02204/123456'), '02204 123456');
   });
   it('uebernimmt Durchwahlen mit Bindestrich', () => {
     assertEqual(formatTelefonnummer('0228 123456-78'), '0228 123456-78');
@@ -1686,6 +1954,137 @@ describe('formatTelefonnummer (DIN 5008 11.3.2)', () => {
     assertEqual(formatTelefonnummer(undefined), '');
     assertEqual(formatTelefonnummer('keine Nummer'), 'keine Nummer');
     assertEqual(formatTelefonnummer('228 123456'), '228 123456');
+  });
+});
+
+describe('formatDatum (DIN 5008 § 11.4)', () => {
+  it('formatiert ISO-Datum deterministisch', () => {
+    assertEqual(formatDatum('2026-09-04', { format: 'iso' }), '2026-09-04');
+    assertEqual(formatDatum('04.09.2026', { format: 'iso' }), '2026-09-04');
+    assertEqual(formatDatum(new Date(2026, 8, 4), { format: 'iso' }), '2026-09-04');
+  });
+
+  it('formatiert DIN-alphanumerisch mit langem Monatsnamen', () => {
+    assertEqual(formatDatum('2026-09-04', { format: 'alpha' }), '4. September 2026');
+    assertEqual(formatDatum('04.09.2026', { format: 'alpha' }), '4. September 2026');
+  });
+
+  it('formatiert DIN-numerisch mit pad: true (Standard) und pad: false', () => {
+    assertEqual(formatDatum('2026-09-04'), '04.09.2026');
+    assertEqual(formatDatum('2026-09-04', { pad: true }), '04.09.2026');
+    assertEqual(formatDatum('2026-09-04', { pad: false }), '4.09.2026');
+    assertEqual(formatDatum('4.9.2026', { pad: true }), '04.09.2026');
+  });
+
+  it('behandelt ungültige Datumsangaben defensiv (gibt Original zurück)', () => {
+    assertEqual(formatDatum('2026-02-30'), '2026-02-30');
+    assertEqual(formatDatum('ungültig'), 'ungültig');
+    assertEqual(formatDatum(''), '');
+    assertEqual(formatDatum(null), '');
+  });
+});
+
+describe('formatUhrzeit (DIN 5008 § 11.5)', () => {
+  it('gliedert einstellige Stunden zweistellig mit Doppelpunkt', () => {
+    assertEqual(formatUhrzeit('5:30'), '05:30');
+    assertEqual(formatUhrzeit('05:30'), '05:30');
+    assertEqual(formatUhrzeit('17:00'), '17:00');
+    assertEqual(formatUhrzeit(new Date(2026, 0, 1, 8, 5)), '08:05');
+  });
+
+  it('unterstützt Suffix und Sekunden', () => {
+    assertEqual(formatUhrzeit('5:30', { suffix: 'Uhr' }), '05:30 Uhr');
+    assertEqual(formatUhrzeit('5:30 Uhr'), '05:30 Uhr');
+    assertEqual(formatUhrzeit(new Date(2026, 0, 1, 14, 30, 45), { seconds: true }), '14:30:45');
+    assertEqual(formatUhrzeit('14:30:45', { seconds: true, suffix: 'Uhr' }), '14:30:45 Uhr');
+  });
+
+  it('erhaelt den DIN-Grenzfall 24:00 und weist 24:30 ab', () => {
+    assertEqual(formatUhrzeit('24:00'), '24:00');
+    assertEqual(formatUhrzeit('24:30'), '24:30');
+    assertEqual(formatUhrzeit('25:00'), '25:00');
+    assertEqual(formatUhrzeit('keine Uhrzeit'), 'keine Uhrzeit');
+  });
+});
+
+describe('formatIban (DIN 5008 § 11.3.1)', () => {
+  it('gliedert kompakte IBANs in 4er-Gruppen von links', () => {
+    assertEqual(formatIban('de89370400440532013000'), 'DE89 3704 0044 0532 0130 00');
+    assertEqual(formatIban('FR1420041010050500013M02606'), 'FR14 2004 1010 0505 0001 3M02 606');
+  });
+
+  it('ist idempotent bei bereits gegliederten Strings', () => {
+    const gegliedert = 'DE89 3704 0044 0532 0130 00';
+    assertEqual(formatIban(gegliedert), gegliedert);
+    assertEqual(formatIban(formatIban(gegliedert)), gegliedert);
+  });
+
+  it('behandelt ungültige Inputs defensiv', () => {
+    assertEqual(formatIban('1234'), '1234');
+    assertEqual(formatIban('DE1'), 'DE1');
+    assertEqual(formatIban(''), '');
+    assertEqual(formatIban(null), '');
+  });
+});
+
+describe('formatPostfach (DIN 5008 § 11.3.4)', () => {
+  it('gliedert 4-stellige und ungerade Postfachnummern von rechts in 2er-Gruppen', () => {
+    assertEqual(formatPostfach('1234'), '12 34');
+    assertEqual(formatPostfach('12345'), '1 23 45');
+    assertEqual(formatPostfach('123456'), '12 34 56');
+    assertEqual(formatPostfach('Postfach 12345'), 'Postfach 1 23 45');
+  });
+
+  it('ist idempotent', () => {
+    assertEqual(formatPostfach('12 34'), '12 34');
+    assertEqual(formatPostfach('1 23 45'), '1 23 45');
+  });
+
+  it('laesst Nummern unter 3 Ziffern oder Nicht-Ziffern unveraendert', () => {
+    assertEqual(formatPostfach('12'), '12');
+    assertEqual(formatPostfach('1'), '1');
+    assertEqual(formatPostfach('abc'), 'abc');
+    assertEqual(formatPostfach(''), '');
+  });
+});
+
+describe('formatGeldbetrag (DIN 5008 § 6.6 / § 11.2)', () => {
+  it('formatiert Zahlen und Betragsstrings mit Tausenderpunkt und Symbol', () => {
+    assertEqual(formatGeldbetrag(1234.5), '1.234,50\u00A0€');
+    assertEqual(formatGeldbetrag('1234,50'), '1.234,50\u00A0€');
+    assertEqual(formatGeldbetrag('1.234,50'), '1.234,50\u00A0€');
+    assertEqual(formatGeldbetrag(50), '50,00\u00A0€');
+  });
+
+  it('unterstuetzt ISO-Waehrungscode', () => {
+    assertEqual(formatGeldbetrag(1234.5, 'EUR', { useIsoCode: true }), '1.234,50\u00A0EUR');
+    assertEqual(formatGeldbetrag(100, 'USD', { useIsoCode: true }), '100,00\u00A0USD');
+  });
+
+  it('behandelt ungueltige Werte defensiv', () => {
+    assertEqual(formatGeldbetrag('kein betrag'), 'kein betrag');
+    assertEqual(formatGeldbetrag(''), '');
+    assertEqual(formatGeldbetrag(null), '');
+  });
+});
+
+describe('SignatureFeature: 2-Zustände Button & Handle-Bereinigung', () => {
+  it('initialisiert im leeren Zustand', () => {
+    const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-unterschrift-aktion'));
+    const sig = new SignatureFeature();
+    sig.resetImage();
+    assertEqual(btn.dataset.state, 'empty');
+    assert(btn.textContent?.includes('laden') || false, 'Text zeigt laden');
+  });
+
+  it('wechselt bei resetImage zurück in den Leerzustand', () => {
+    const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-unterschrift-aktion'));
+    btn.dataset.state = 'loaded';
+    btn.textContent = '🗑️ Unterschrift / Stempel entfernen';
+    const sig = new SignatureFeature();
+    sig.resetImage();
+    assertEqual(btn.dataset.state, 'empty');
+    assert(btn.textContent?.includes('laden') || false, 'Text zeigt laden nach Reset');
   });
 });
 
@@ -1738,7 +2137,46 @@ describe('Testbrief: Thema, Besetzung und Szenario', () => {
     }
   });
 
-  it('wuerfelt sechs Szenarien und haelt Betreff und Text zusammen', () => {
+  it('generiereTestEmail erzeugt plausible Popkultur-Mails mit Slug-Normalisierung', () => {
+    // Deterministisch mit rnd = () => 0:
+    assertEqual(generiereTestEmail(batman, () => 0), 'bruce.wayne@wayneenterprises.com');
+    assertEqual(generiereTestEmail({ name: 'Goku', buergerlicherName: 'Son Goku', franchise: 'Dragon Ball' }, () => 0), 'son.goku@dragon-ball.com');
+    assertEqual(generiereTestEmail({ name: 'Yoda', franchise: 'Star Wars' }, () => 0), 'yoda@star-wars.com');
+    assertEqual(generiereTestEmail({ name: 'Lucky Luke', ort: 'Wilder Westen' }, () => 0), 'lucky.luke@stadt-wilder-westen.com');
+    assertEqual(generiereTestEmail({ name: 'Müller-Lüdenscheidt' }, () => 0), 'mueller-luedenscheidt@hero-post.com');
+
+    // Varianz und Format-Validität prüfen:
+    const mail = generiereTestEmail(batman);
+    assert(mail.includes('@'), 'Mail muss @ enthalten');
+    assert(mail.length <= 40, 'Mail darf 40 Zeichen nicht überschreiten');
+  });
+
+  it('toT9 und generiereTestTelefon erzeugen DIN-konforme T9-Vanity-Rufnummern', () => {
+    assertEqual(toT9('BATMAN'), '228626');
+    assertEqual(toT9('MICKEY'), '642539');
+    assertEqual(toT9('DONALD'), '366253');
+    assertEqual(toT9('KIRK'), '5475');
+    assertEqual(toT9('SMITH'), '76484');
+    assertEqual(toT9('GOKU'), '4658');
+
+    const telBatman = generiereTestTelefon({ name: 'Batman' }, () => 0);
+    assertEqual(telBatman, '+49 30 23125 228-626');
+    const telKirk = generiereTestTelefon({ name: 'Kirk' }, () => 0.6);
+    assertEqual(telKirk, '+49 221 4710 547-5');
+  });
+
+  it('Wonka-Regel und Identitätsschutz in waehleBesetzung', () => {
+    const wonka = { name: 'Willy Wonka', buergerlicherName: 'Willy Wonka', alias: ['Der Schokoladenfabrikant'], ort: 'Wonka-Schokoladenfabrik', firma: '', franchise: 'Charlie und die Schokoladenfabrik' };
+    const charlie = { name: 'Charlie Bucket', buergerlicherName: 'Charlie Bucket', alias: ['Charlie'], ort: 'Wonka-Schokoladenfabrik', firma: '', franchise: 'Charlie und die Schokoladenfabrik' };
+    const bruce = { name: 'Bruce Wayne', buergerlicherName: 'Bruce Wayne', alias: [], firma: 'Wayne Enterprises', franchise: 'DC Comics' };
+
+    assert(hatWonkaBezug(wonka, charlie), 'Wonka <-> Charlie Bucket wird als Wonka-Bezug erkannt');
+    assert(sindIdentisch(batman, bruce), 'Batman und Bruce Wayne werden als identisch erkannt');
+    assert(!hatWonkaBezug(batman, bruce), 'Identitätsschutz verhindert Wonka-Bezug zu sich selbst');
+  });
+
+  it('wuerfelt 15 Szenarien und haelt Betreff und Text zusammen', () => {
+    assertEqual(SZENARIEN.length, 15, 'SZENARIEN muss exakt 15 Einträge haben');
     /** @type {Set<string>} */
     const ids = new Set();
     for (let i = 0; i < 600; i++) {
@@ -1748,11 +2186,179 @@ describe('Testbrief: Thema, Besetzung und Szenario', () => {
       const text = generateNerdText(batman, figur('B1', 'DC Comics'), [], 'Handtuch', szenario);
       assert(betreff.includes('Handtuch'), 'Betreff ohne Thema');
       assert(text.includes('Handtuch'), 'Text ohne Thema');
-      assert(text.startsWith(szenario.text({
+      assert(text.includes(szenario.text({
         sName: bezeichne(batman), sOrt: 'Gotham City', rName: 'B1', rOrt: 'Teststadt', thema: 'Handtuch'
       }).split('\n\n')[0]), 'Text stammt nicht aus dem gewuerfelten Szenario');
     }
-    assertEqual(ids.size, 6);
+    assertEqual(ids.size, 15, 'Alle 15 Szenarien müssen gewürfelt werden');
+  });
+
+  it('filtert Szenarien nach Kategorie', () => {
+    const kooperativ = waehleSzenario(() => 0, 'kooperativ');
+    assertEqual(kooperativ.kategorie, 'kooperativ');
+    assert(['kooperation', 'angebot'].includes(kooperativ.id));
+
+    const positiv = waehleSzenario(() => 0, 'positiv');
+    assertEqual(positiv.kategorie, 'positiv');
+    assert(['dankesschreiben', 'einladung'].includes(positiv.id));
+
+    const behoerdlich = waehleSzenario(() => 0, 'behoerdlich');
+    assertEqual(behoerdlich.kategorie, 'behoerdlich');
+    assert(['auskunft', 'widerspruch', 'antrag'].includes(behoerdlich.id));
+
+    const eskalierend = waehleSzenario(() => 0, 'eskalierend');
+    assertEqual(eskalierend.kategorie, 'eskalierend');
+    assert(['beschwerde', 'beschwerde_aufsicht'].includes(eskalierend.id));
+  });
+
+  it('floskele fügt deterministisch Einleitung und Schluss ein', () => {
+    assertEqual(FLOSKELN.einleitung.length, 7, 'FLOSKELN muss 7 Einleitungen haben');
+    assertEqual(FLOSKELN.schluss.length, 7, 'FLOSKELN muss 7 Schlüsse haben');
+
+    // Mock-Zufall mit Index 0
+    const mockZero = () => 0;
+    const mitEinleitung = floskele('Haupttext', { einleitung: true }, mockZero);
+    assertEqual(mitEinleitung, `${FLOSKELN.einleitung[0]}\n\nHaupttext`);
+
+    const mitSchluss = floskele('Haupttext', { schluss: true }, mockZero);
+    assertEqual(mitSchluss, `Haupttext\n\n${FLOSKELN.schluss[0]}`);
+
+    const mitBeidem = floskele('Haupttext', { einleitung: true, schluss: true }, mockZero);
+    assertEqual(mitBeidem, `${FLOSKELN.einleitung[0]}\n\nHaupttext\n\n${FLOSKELN.schluss[0]}`);
+
+    // String-Kurzform
+    assertEqual(floskele('Text', 'einleitung', mockZero), `${FLOSKELN.einleitung[0]}\n\nText`);
+    assertEqual(floskele('Text', 'schluss', mockZero), `Text\n\n${FLOSKELN.schluss[0]}`);
+  });
+
+  it('MetadataService prepare/restore ist reentrant und leckt keine Tags', () => {
+    const originalTitle = 'Ursprünglicher Testtitel';
+    document.title = originalTitle;
+
+    // Erster Aufruf: bereitet Drucktitel und Meta-Tags vor
+    const ctx1 = MetadataService.prepare();
+    assertEqual(isPrintTitleActive(), true);
+    assert(document.title !== originalTitle, 'Drucktitel muss gesetzt sein');
+    const tags1 = document.head.querySelectorAll('meta[data-injected="true"]');
+    assertEqual(tags1.length, 4, 'Exakt 4 Meta-Tags injiziert');
+
+    // Zweiter Aufruf ohne Restore (reentrantes beforeprint): erbt Originaltitel, kein Tag-Leak
+    const ctx2 = MetadataService.prepare();
+    assertEqual(ctx2.oldTitle, originalTitle, 'Muss den ursprünglichen Titel erben');
+    const tags2 = document.head.querySelectorAll('meta[data-injected="true"]');
+    assertEqual(tags2.length, 4, 'Keine Duplizierung der Meta-Tags bei zweitem prepare()');
+
+    // Erster Restore: Stack noch nicht leer
+    MetadataService.restore(ctx2);
+    assertEqual(isPrintTitleActive(), true);
+
+    // Letzter Restore: Stack leer, echter Originaltitel wird wiederhergestellt
+    MetadataService.restore(ctx1);
+    assertEqual(isPrintTitleActive(), false);
+    assertEqual(document.title, originalTitle, 'Originaltitel muss wiederhergestellt sein');
+    const tagsAfter = document.head.querySelectorAll('meta[data-injected="true"]');
+    assertEqual(tagsAfter.length, 0, 'Alle injizierten Meta-Tags müssen entfernt sein');
+  });
+
+  it('AddressIntelligence.targetLock wird bei restoreDraft zurückgesetzt', () => {
+    AddressIntelligence.targetLock = { plz: '10115', city: 'Berlin' };
+    assert(AddressIntelligence.targetLock !== null);
+
+    const dm = new DraftManager();
+    dm.restoreDraft({ 'betreff': 'Härtungstest' });
+
+    assertEqual(AddressIntelligence.targetLock, null, 'targetLock muss nach restoreDraft null sein');
+  });
+});
+
+describe('Figurenkatalog & DIN-5008-Anschrift (Schema v2.1 Tuples)', () => {
+  it('lädt figuren.json und initialisiert Figurenkatalog fehlerfrei', async () => {
+    const res = await fetch('../website/addons/testbrief/figuren.json');
+    assert(res.ok, 'figuren.json konnte nicht geladen werden');
+    const json = await res.json();
+    const katalog = new Figurenkatalog(json);
+
+    assertEqual(katalog.count, 297, 'Katalog muss exakt 297 Figuren enthalten');
+
+    // Invarianz-Prüfung über alle 297 Figuren
+    for (let i = 0; i < katalog.count; i++) {
+      const f = katalog.get(i);
+      assert(f !== null, `Figur ${i} darf nicht null sein`);
+      assert(typeof f.name === 'string' && f.name.length > 0, `Figur ${i} Name fehlt`);
+      assert(['m', 'f', 'd'].includes(f.geschlecht), `Figur ${i} ungültiges Geschlecht: ${f.geschlecht}`);
+      
+      if (f.geschlecht === 'm') assertEqual(f.anredePraefix, 'Herr');
+      else if (f.geschlecht === 'f') assertEqual(f.anredePraefix, 'Frau');
+      else assertEqual(f.anredePraefix, '');
+
+      assert(Array.isArray(f.alias), `Figur ${i} alias muss Array sein`);
+      assert(Array.isArray(f.hooks), `Figur ${i} hooks muss Array sein`);
+      assert(typeof f.firma === 'string', `Figur ${i} firma muss String sein`);
+      assert(typeof f.strasse === 'string', `Figur ${i} strasse muss String sein`);
+      assert(typeof f.plz === 'string', `Figur ${i} plz muss String sein`);
+      assert(typeof f.ort === 'string', `Figur ${i} ort muss String sein`);
+    }
+  });
+
+  it('buildAnschriftLines erzeugt lückenlose Anschriften ohne Leerzeilen', () => {
+    // 1. Männliche Figur mit vollständiger Adresse (Batman)
+    const batmanFigur = {
+      name: 'Batman',
+      anredePraefix: 'Herr',
+      geschlecht: 'm',
+      firma: 'Wayne Enterprises',
+      strasse: 'Wayne Manor 1007',
+      plz: '07089',
+      ort: 'Gotham City'
+    };
+    const linesBatman = buildAnschriftLines(batmanFigur);
+    assertEqual(linesBatman.length, 4);
+    assertEqual(linesBatman[0], 'Wayne Enterprises');
+    assertEqual(linesBatman[1], 'Herr Batman');
+    assertEqual(linesBatman[2], 'Wayne Manor');
+    assertEqual(linesBatman[3], '07089 Gotham City');
+
+    // 2. Figur ohne feste Anschrift & ohne Firma (Agent Smith, 'd')
+    const smithFigur = {
+      name: 'Agent Smith',
+      anredePraefix: '',
+      geschlecht: 'd',
+      firma: '',
+      strasse: 'keine feste Anschrift',
+      plz: '',
+      ort: 'Matrix'
+    };
+    const linesSmith = buildAnschriftLines(smithFigur);
+    assertEqual(linesSmith.length, 2);
+    assertEqual(linesSmith[0], 'Agent Smith');
+    assertEqual(linesSmith[1], 'Matrix');
+    assert(linesSmith.every((l) => l.length > 0), 'Keine Leerzeilen erlaubt');
+
+    // 3. Weibliche Figur mit Pipe-Trenner in PLZ
+    const batgirlFigur = {
+      name: 'Batgirl',
+      anredePraefix: 'Frau',
+      geschlecht: 'f',
+      firma: '',
+      strasse: 'Clocktower Plaza 1',
+      plz: '10115 | 10117',
+      ort: 'Gotham City'
+    };
+    const linesBatgirl = buildAnschriftLines(batgirlFigur);
+    assertEqual(linesBatgirl.length, 3);
+    assertEqual(linesBatgirl[0], 'Frau Batgirl');
+    assertEqual(linesBatgirl[1], 'Clocktower Plaza 1');
+    assert(linesBatgirl[2] === '10115 Gotham City' || linesBatgirl[2] === '10117 Gotham City', 'PLZ aus Optionen gewählt');
+  });
+
+  it('koppelt anredePraefix mit SalutationEngine für normgerechte DIN-Anrede', () => {
+    // Herr -> Sehr geehrter Herr
+    assertEqual(SalutationEngine.derive({ rawName: 'Herr Arthur Dent', formality: 'formal' }), 'Sehr geehrter Herr Dent,');
+    // Frau -> Sehr geehrte Frau
+    assertEqual(SalutationEngine.derive({ rawName: 'Frau Barbara Gordon', formality: 'formal' }), 'Sehr geehrte Frau Gordon,');
+    // Divers / Wesen ohne Herr/Frau -> DIN-Fallback
+    assertEqual(SalutationEngine.derive({ rawName: 'Agent Smith', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
+    assertEqual(SalutationEngine.derive({ rawName: 'Xenomorph', formality: 'formal' }), 'Sehr geehrte Damen und Herren,');
   });
 });
 

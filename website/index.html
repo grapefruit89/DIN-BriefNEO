@@ -18,11 +18,11 @@
     <title>DIN-BriefNEO | Pure Refactored</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
     <link rel="stylesheet" href="css/base.css?v=live6">
-    <link rel="stylesheet" href="css/sidebar.css?v=live6">
+    <link rel="stylesheet" href="css/sidebar.css?v=live7">
     <link rel="stylesheet" href="css/sheet-common.css?v=common1">
     <link rel="stylesheet" id="css-blatt" href="css/sheet.css?v=live6"
           data-blatt-einseitig="css/sheet.css?v=live6" data-blatt-mehrseitig="css/sheet-multipage.css?v=multi1">
-    <script src="js/boot.js?v=boot1"></script>
+    <script src="js/boot.js?v=boot2"></script>
     <script type="module" src="js/main.js?v=live6"></script>
   </head>
   <body>
@@ -30,6 +30,7 @@
     <div id="app-shell">
       <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
         <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungen">
+        <!-- Normaler Modus Header -->
         <div class="seitenleiste-header-row">
           <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
@@ -37,7 +38,7 @@
             </svg>
           </a>
           <div class="seitenleiste-header-actions">
-            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn">
+            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" tabindex="0" role="button" aria-label="Einstellungen öffnen">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true">
                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>
               </svg>
@@ -48,6 +49,14 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-dark lucide lucide-moon-star" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></svg>
             </button>
           </div>
+        </div>
+
+        <!-- Setup-Modus Header (Drill-Down: Zurück zum Brief) -->
+        <div class="seitenleiste-setup-header">
+          <label for="toggle-modus" id="btn-zurueck" class="btn-back" tabindex="0" role="button" aria-label="Zurück zum Brief">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            <span>Zurück zum Brief</span>
+          </label>
         </div>
 
         <div class="seitenleiste-export-group seitenleiste-btn-row">
@@ -146,9 +155,9 @@
         <!-- Zone 2: Daten & Adressen -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
           <p class="seitenleiste-label">Daten &amp; Adressen</p>
-          <search id="anschrift-suche-container" class="seitenleiste-options-group" role="search">
+          <search id="anschrift-suche-container" class="seitenleiste-options-group">
             <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
             <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
             <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
           </search>
@@ -162,13 +171,24 @@
           <button type="button" id="btn-testbrief" class="btn btn-ghost w-full" title="Zufälligen Testbrief mit zwei Figuren generieren">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Testbrief
           </button>
+          <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 In Zwischenablage (.json)</button>
         </section>
 
         <!-- Zone 3: Grundeinstellungen & Setup -->
         <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup">
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
-              <span class="seitenleiste-sub-label">Schriftart:</span>
+              <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
+              <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
+                <optgroup label="System-Standard">
+                  <option value="default" selected>Liberation Sans / System-UI</option>
+                </optgroup>
+                <optgroup label="Test-Schriften (Lokal)">
+                  <option value="inter">Inter (18pt DIN-Subset)</option>
+                  <option value="aptos">Aptos (Lokal)</option>
+                  <option value="michelangelus">Michelangelus (Serife)</option>
+                </optgroup>
+              </select>
               <button type="button" id="btn-schrift-aktion" class="btn w-full" data-font-state="empty">
                 🔤 Eigene Schriftart laden
               </button>
@@ -177,51 +197,26 @@
 
             <div class="seitenleiste-field-group">
               <span class="seitenleiste-sub-label">Unterschrift / Stempel:</span>
-              <div class="seitenleiste-btn-row">
-                <label id="btn-unterschriftsbild-waehlen" for="unterschriftsbild-datei" class="btn w-full">✒️ Laden</label>
-                <button type="button" id="btn-unterschriftsbild-reset" class="btn btn-danger w-full">🗑️ Löschen</button>
-              </div>
+              <button type="button" id="btn-unterschrift-aktion" class="btn w-full" data-state="empty">
+                ✒️ Unterschrift / Stempel laden
+              </button>
               <input type="file" id="unterschriftsbild-datei" accept="image/*" class="hidden">
             </div>
 
-            <form class="seitenleiste-field-group key-form" id="geoapify-key-form" novalidate>
+            <div class="seitenleiste-field-group">
               <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
-              <div class="key-row">
-                <input
-                  type="password"
-                  id="input-geoapify-key"
-                  name="geoKey"
-                  class="input-field"
-                  pattern="[0-9a-fA-F]{32}"
-                  minlength="32"
-                  maxlength="32"
-                  autocomplete="off"
-                  spellcheck="false"
-                  inputmode="text"
-                  placeholder="Geoapify API-Key eingeben…"
-                  aria-describedby="geoapify-key-msg">
-                <span class="key-counter" id="geoapify-key-counter" aria-hidden="true">0/32</span>
-                <button type="button" class="key-remove" id="btn-geoapify-clear"
-                        aria-label="Key entfernen">✕</button>
-              </div>
-
-              <p id="geoapify-key-msg" role="status" aria-live="polite" class="key-msg">
-                <span class="msg msg-empty">Bitte Key eingeben (32 Hex-Zeichen).</span>
-                <span class="msg msg-format">Format: 32 Hex-Zeichen (0–9, a–f).</span>
-                <span class="msg msg-pending">⏳ Prüfe Key…</span>
-                <span class="msg msg-valid">✓ Key aktiv und gespeichert.</span>
-                <span class="msg msg-invalid">✗ Key ungültig (401/403).</span>
-                <span class="msg msg-error">✗ Netzwerkfehler – Key nicht geprüft.</span>
-              </p>
-
-              <a class="key-hint-link"
-                 href="https://myprojects.geoapify.com/projects"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 title="Geoapify-Dashboard im neuen Tab öffnen: Key anlegen oder kopieren">
+              <input
+                type="password"
+                id="input-geoapify-key"
+                class="input-field"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Key einfügen (optional für Adress-Vorschläge)…">
+              <small id="geoapify-status" class="input-status-hint"></small>
+              <a class="key-hint-link" href="https://myprojects.geoapify.com/projects" target="_blank" rel="noopener noreferrer">
                 Key bei Geoapify erstellen <span aria-hidden="true">↗</span>
               </a>
-            </form>
+            </div>
 
             <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
 
@@ -350,9 +345,6 @@
             </din-geschaeftsangaben>
             <div id="unterschriftsbild-container">
               <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box" tabindex="0" aria-label="Unterschrift verschieben und skalieren">
-                <div class="unterschriftsbild-griff top-left" data-aktion="resize" data-richtung="tl"></div>
-                <div class="unterschriftsbild-griff top-right" data-aktion="resize" data-richtung="tr"></div>
-                <div class="unterschriftsbild-griff bottom-left" data-aktion="resize" data-richtung="bl"></div>
                 <div class="unterschriftsbild-griff bottom-right" data-aktion="resize" data-richtung="br"></div>
                 <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
                 <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift" draggable="false">
@@ -368,7 +360,7 @@
          Verbindlicher Text: js/core.js bei Constants.TOASTS. -->
     <div id="hinweis-v4" popover="auto" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite" aria-atomic="true">
       <span id="hinweis-message"></span>
-      <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen">×</button>
+      <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen" popovertarget="hinweis-v4" popovertargetaction="hide">×</button>
     </div>
     <div id="undo-hinweis" popover="manual" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite">
       <span>Brief zurückgesetzt.</span>

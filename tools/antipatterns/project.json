@@ -369,6 +369,93 @@
         "website/css/*.css"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P23",
+      "catalog_ref": [
+        "A46"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "CSS Paged Media string-set / string() ist in Desktop-Chromium nicht unterstützt. Druckköpfe auf Folgeseiten ausschließlich über dynamische document.adoptedStyleSheets steuern.",
+      "pattern": "string-set\\s*:|content\\s*:\\s*string\\(",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P24",
+      "catalog_ref": [
+        "A60"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Ungeschützte .showPopover() / .hidePopover()-Aufrufe werfen InvalidStateError. Immer über showPopoverSafe() / hidePopoverSafe() mit :popover-open Guard und try/catch kapseln.",
+      "pattern": "(?<!Safe)\\.showPopover\\(\\)|(?<!Safe)\\.hidePopover\\(\\)",
+      "file_patterns": [
+        "website/js/*.js"
+      ],
+      "exemptions": [
+        {
+          "file": "website/js/core.js",
+          "line_range": "*",
+          "reason": "Definition von showPopoverSafe und hidePopoverSafe mit Guard und try/catch"
+        }
+      ]
+    },
+    {
+      "id": "P25",
+      "catalog_ref": [
+        "A60"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "review",
+      "category": "html",
+      "description": "Schließen-Buttons für Popovers dürfen keinen manuellen JS-Click-Listener verwenden, sondern müssen rein deklarativ mit popovertarget='...' popovertargetaction='hide' gesteuert werden.",
+      "pattern": "",
+      "file_patterns": [
+        "website/index.html",
+        "website/js/core.js"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P26",
+      "catalog_ref": [
+        "A25"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "Druckhilfen, Falt- und Lochmarken dürfen nicht mit display: none ausgeblendet werden (vermeidet Reflow und Box-Tree-Neubau). Stattdessen visibility: hidden verwenden.",
+      "pattern": "din-(falzmarke|lochmarke)[^{]*\\{[^}]*display\\s*:\\s*none",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "exemptions": []
+    },
+    {
+      "id": "P27",
+      "catalog_ref": [
+        "A34"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Object.entries() über große In-Memory-Kataloge erzeugt massive GC-Spitzen (Heap-Overhead). Stattdessen spaltenbasierte Columnar-Arrays (FixedArray in V8) mit Index-Schleife nutzen.",
+      "pattern": "Object\\.entries\\((?:plzData|AddressIntelligence\\.plzToCity)\\)",
+      "file_patterns": [
+        "website/js/*.js"
+      ],
+      "exemptions": []
     }
   ]
 }

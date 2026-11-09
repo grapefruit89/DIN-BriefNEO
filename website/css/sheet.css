@@ -3,28 +3,10 @@
 
 /* css/sheet.css — DIN-A4-Blatt (scoped isolation): Geometrie, Briefzonen, Falzmarken, Inline-Formate */
 
-/* --- DIN-GEOMETRIE (Single Source of Truth: HTML-Attribute) --- */
+/* --- DIN-GEOMETRIE (Einzelseite: max-width / max-height; Geometrie-Mapping in sheet-common.css, C3) --- */
 din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
-  font-size-adjust: 0.52;
   max-width: 100%;
   max-height: 100%;
-
-  /* Source of Truth: liest die DIN-5008-Koordinaten direkt aus den data-Attributen
-     am <din-blatt>-Element (siehe index.html). Keine Fallback-Zahlen im CSS (SSoT
-     gemäß IMR MUST-NOT 5; Chrome 150+ Baseline garantiert attr(... type(<number>))). */
-  --blatt-breite: attr(data-width-mm type(<number>));
-  --blatt-hoehe: attr(data-height-mm type(<number>));
-
-  --briefkopf-y: --mm-y(attr(data-briefkopf-y-b type(<number>)));
-  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
-  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
-  --datum-y: --mm-y(attr(data-datum-y-b type(<number>)));
-  --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
-
-  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-b type(<number>)));
-  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-b type(<number>)));
-  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
 /* --- DIN A4 CANVAS (SCOPED ISOLATION) --- */
@@ -74,28 +56,20 @@ din-blatt {
   din-falzmarke-1, din-falzmarke-2, din-lochmarke {
     position: absolute;
     left: 0;
-    width: --mm-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
-    /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
-       Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
-       sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
+    width: --mm-rel-x(attr(data-w type(<number>))); /* Kurz, nicht durch den Text schneidend */
     border-bottom: 0.5pt solid oklch(0.35 0 0); /* Anthrazit/Dunkelgrau */
     pointer-events: none;
   }
-
-  /* Falzmarken & Lochmarken proportionale Koordinaten */
-   /* Form B default: 105mm */
-   /* Form B default: var(--blatt-breite)mm */
-  
 
   /* --- DIN COMPONENT PLACEMENTS (Form B Default) --- */
   /* Rücksendezeile */
   #rucksendeangabe {
     position: absolute;
     top: var(--briefkopf-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    height: --mm-y(attr(data-h type(<number>)));
-    font-size: --pt(attr(data-font type(<number>))); /* 8pt in cqw */
+    left: --mm-rel-x(attr(data-x type(<number>)));
+    width: --mm-rel-x(attr(data-w type(<number>)));
+    height: --mm-rel-y(attr(data-h type(<number>)));
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 8pt in cqw */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -106,26 +80,23 @@ din-blatt {
   #anschriftfeld {
     position: absolute;
     top: var(--anschriftfeld-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    height: --mm-y(attr(data-h type(<number>)));
-    font-size: --pt(attr(data-font type(<number>))); /* 10pt in cqw */
+    left: --mm-rel-x(attr(data-x type(<number>)));
+    width: --mm-rel-x(attr(data-w type(<number>)));
+    height: --mm-rel-y(attr(data-h type(<number>)));
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 10pt in cqw */
     line-height: 1.4;
     display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Kompakte Ausrichtung nach oben */
   }
 
-  /* Umschlag-Fenster-Visier für DIN-Lang (DIN 680: 90x45mm, umschließt Rücksendezeile + Anschriftfeld) */
-  
-
   /* Info block (Rechte Spalte) */
   #infoblock {
     position: absolute;
     top: var(--infoblock-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    font-size: --pt(attr(data-font type(<number>))); /* 8.5pt in cqw */
+    left: --mm-rel-x(attr(data-x type(<number>)));
+    width: --mm-rel-x(attr(data-w type(<number>)));
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 8.5pt in cqw */
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -135,9 +106,9 @@ din-blatt {
   #datum {
     position: absolute;
     top: var(--datum-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    font-size: --pt(attr(data-font type(<number>))); /* 10pt in cqw */
+    left: --mm-rel-x(attr(data-x type(<number>)));
+    width: --mm-rel-x(attr(data-w type(<number>)));
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 10pt in cqw */
     text-align: left;
   }
 
@@ -145,78 +116,65 @@ din-blatt {
   #kern {
     position: absolute;
     top: var(--kern-y);
-    left: --mm-x(attr(data-left type(<number>)));  /* Linker Fluchtrand: 25mm */
-    right: --mm-x(attr(data-right type(<number>))); /* Rechter Rand: 20mm */
-    bottom: --mm-y(attr(data-bottom type(<number>))); /* Abstand nach unten für Footer */
+    left: --mm-rel-x(attr(data-left type(<number>)));  /* Linker Fluchtrand: 25mm */
+    right: --mm-rel-x(attr(data-right type(<number>))); /* Rechter Rand: 20mm */
+    bottom: --mm-rel-y(attr(data-bottom type(<number>))); /* Abstand nach unten für Footer */
     display: flex;
     flex-direction: column;
     overflow: clip; /* Zero-Ueberlauf Garantie */
   }
 
   #betreff {
-    font-size: --pt(attr(data-font type(<number>))); /* 12pt in cqw */
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 12pt in cqw */
     font-weight: 700;
     line-height: 1.4;
-    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 2 Leerzeilen */
+    margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>))); /* 2 Leerzeilen */
     text-wrap: balance; /* Perfekt ausbalancierter Zeilenumbruch */
     flex-shrink: 0;
-    transition: margin-top 0.15s ease-out;
   }
 
   /* Teilbetreff nach DIN 5008 § 20.9.3: fett, endet mit Punkt, klebt am Folgetext. */
   din-teilbetreff {
     display: block;
-    font-size: --pt(attr(data-font type(<number>)));
+    font-size: --pt-rel(attr(data-font type(<number>)));
     font-weight: 700;
     line-height: 1.4;
-    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>)));
+    margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>)));
     break-after: avoid;
     page-break-after: avoid;
   }
 
   #anrede {
-    font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
-    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 1 Leerzeile */
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 10.5pt in cqw */
+    margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>))); /* 1 Leerzeile */
   }
 
   #text {
-    font-size: --pt(attr(data-font type(<number>))); /* 10.5pt in cqw */
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 10.5pt in cqw */
     line-height: 1.4;
-    min-height: --mm-y(40);
+    min-height: --mm-rel-y(40);
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
     orphans: 3;
     widows: 3;
-    /* Absaetze des Generators sind \n\n. Ohne diese Zeile kollabiert der
-       Browser sie zu Leerzeichen: "Schreiben. Rincewind," klebt dann in
-       einer Zeile, statt dass der Name einen neuen Absatz beginnt. */
     white-space: pre-line;
     flex-shrink: 0; /* Verhindert Stauchung und Überlappung mit Grußformel */
   }
 
   #grussformel {
-    font-size: --pt(attr(data-font type(<number>)));
-    margin-top: --mm-y(attr(data-margin-top type(<number>)));
-    margin-bottom: --mm-y(attr(data-margin-bottom type(<number>))); /* 3 Leerzeilen für Unterschrift */
+    font-size: --pt-rel(attr(data-font type(<number>)));
+    margin-top: --mm-rel-y(attr(data-margin-top type(<number>)));
+    margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>))); /* 3 Leerzeilen für Unterschrift */
     break-after: avoid;
     page-break-after: avoid;
     flex-shrink: 0;
   }
 
   #unterschrift {
-    font-size: --pt(attr(data-font type(<number>)));
+    font-size: --pt-rel(attr(data-font type(<number>)));
     font-weight: 500;
   }
-
-  /* --- WHATSAPP-STYLE INLINE FORMATS --- */
-  
-
-  
-
-  /* Absaetze des Generators sind echte <p>-Bloecke (testbrief.js setField).
-     4.5mm = eine Leerzeile bei 10.5pt, identisch zu sheet-multipage.css (dort ebenfalls 4.5mm) */
-  
 
   /* Vor der Grussformel keine zusaetzliche Leerzeile: sie bringt ihren
      eigenen Abstand ueber data-margin-top mit. */
@@ -224,23 +182,20 @@ din-blatt {
     margin-bottom: 0;
   }
 
-  
-
   /* --- FUSS --- */
   #geschaeftsangaben {
     display: none;
     position: absolute;
-    bottom: --mm-y(attr(data-bottom type(<number>))); /* 10mm */
-    left: --mm-x(attr(data-left type(<number>))); /* 25mm */
-    right: --mm-x(attr(data-right type(<number>))); /* 20mm */
-    height: --mm-y(attr(data-h type(<number>))); /* 15mm */
-    font-size: --pt(attr(data-font type(<number>))); /* 7.5pt in cqw */
+    bottom: --mm-rel-y(attr(data-bottom type(<number>))); /* 10mm */
+    left: --mm-rel-x(attr(data-left type(<number>))); /* 25mm */
+    right: --mm-rel-x(attr(data-right type(<number>))); /* 20mm */
+    height: --mm-rel-y(attr(data-h type(<number>))); /* 15mm */
+    font-size: --pt-rel(attr(data-font type(<number>))); /* 7.5pt in cqw */
     color: var(--blatt-schwach); /* OKLCH Slate Gray */
-    /* border-top: 0.5px solid oklch(90% 0 0);  OKLCH Light Gray - temporarily hidden */
-    padding-top: --mm-y(attr(data-padding-top type(<number>)));
+    padding-top: --mm-rel-y(attr(data-padding-top type(<number>)));
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, auto);
-    gap: 0 --mm-x(attr(data-gap type(<number>)));
+    gap: 0 --mm-rel-x(attr(data-gap type(<number>)));
     column-rule: 0.5px solid var(--blatt-schwach);
     column-rule-inset: 2px; /* Bewusst genutzt: Nativ in Chromium 150+ */
   }
@@ -265,44 +220,14 @@ din-blatt {
   container-type: size;
 }
 
-/* Schalter: Falz- & Lochmarken ausblenden */
-
-/* --- SENSIBLER BETREFF (DIN 5008 § 20.9.2) ---
-   Zwei zusätzliche Leerzeilen (2 × 4,23 mm) schieben den Betreff aus dem
-   Sichtfenster eines Fensterumschlags. Der Infoblock bleibt unberührt, weil
-   nur der Betreff selbst verschiebt. */
-
-/* --- TEILBETREFF (DIN 5008 § 20.9.3) ---
-   Standardmäßig aus: ein Brief ohne Zwischenüberschrift soll keine leere
-   Zeile drucken. Die Sichtbarkeit ist reine CSS-Ableitung aus dem Schalter. */
-
-/* DIN 5008 Maße Overlay an den Marken */
-
 /* Optionale DIN-Blöcke */
 din-vermerke, din-anlagenvermerk, din-geschaeftsangaben {
   display: none;
 }
 
-/* Fußzone: feste 4-Spalten-Zuordnung. Explizite grid-area statt grid-auto-flow:
-   12 Atome in DOM-Reihenfolge wären bei 4 Spalten nur 3 Spalten geworden, und
-   automatische Platzierung verschiebt leere Felder in fremde Spalten. So bleibt
-   jede Spalte stabil, auch wenn Felder leer sind.
-   Spalte 1 = 19.7 (Register), Spalte 2 = 19.7 (Organe), Spalte 3 = 19.6 (Steuern),
-   Spalte 4 = 19.6 (Bank und Geschäftsräume). */
-
-/* Vier Zeilen à 7.5pt müssen in die 15-mm-Zone passen. `.single-line` erzwingt
-   1.4em Höhe (4 × 3.70 mm + 2 mm Padding = 16.8 mm, also 1.8 mm Überlauf).
-   Mit 1.2 Zeilenhöhe: 4 × 3.18 mm + 2 mm = 14.7 mm. */
-
 :root:has(#toggle-anlagen:checked) din-anlagenvermerk {
   display: block;
 }
-
-/* Single-Line: Strikt einzeilig mit unveränderlicher, fixer Zeilenhöhe (Kein Stauchen, Kein Wachsen) */
-
-/* Anchors auf dem Blatt */
-
-/* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
 
 /* --- D1: OVERFLOW-INDIKATOR (Zero-Druck-Garantie) --- */
 din-blatt[data-ueberlauf="true"]::after {
@@ -323,12 +248,6 @@ din-blatt[data-ueberlauf="true"]::after {
   line-height: 1.2;
 }
 
-@media print {
-  din-blatt[data-ueberlauf="true"]::after {
-    display: none !important;
-  }
-}
-
 /* --- Druck (aus print.css zusammengelegt, 2026-11-08) ---
    Drucklayout Einzelseite (Paged Media) */
 
@@ -338,8 +257,10 @@ din-blatt[data-ueberlauf="true"]::after {
   page-margin-safety: auto;
 }
 
-
 @media print {
+  din-blatt[data-ueberlauf="true"]::after {
+    display: none !important;
+  }
 
   html, body { overflow: visible !important; height: auto !important; }
 

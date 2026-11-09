@@ -14,7 +14,7 @@
 | **03** | **Mobile Ansicht & Touch-UX** | M | ⭐⭐⭐⭐ | [`03-mobile-ansicht-plan.md`](03-mobile-ansicht-plan.md) | Dialog-Bottom-Sheet Konzept |
 | **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`04-telefonnummer-formatierung-plan.md`](04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
 | **05** | **Brief-Verlauf & Historie (`din_history`)** | S–M | ⭐⭐⭐⭐ | [`05-brief-history-verlauf-plan.md`](05-brief-history-verlauf-plan.md) | Ausgearbeitet (10er Ringspeicher) |
-| **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`06-subpixel-falzmarken-plan.md`](06-subpixel-falzmarken-plan.md) | ✅ Umgesetzt als 0,5-pt-CSS-Border (SVG bewusst verworfen, siehe `sheet.css:117`) |
+| **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md) | 🚫 Verworfen zugunsten schlankerer CSS-Box-Lösung mit `visibility: hidden;` |
 | **07** | **Micro-Copyfitting & 1-Seiten-Kompaktsatz** | M | ⭐⭐ | [`07-micro-copyfitting-plan.md`](07-micro-copyfitting-plan.md) | Ausgebaut / Konzeptphase |
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
@@ -48,12 +48,12 @@
 | **37** | **webmcp-bridge: entfernen oder verdrahten (CSP vs. `ws://`)** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Tot, aber nicht entschieden |
 | **38** | **charactere.json: Datenfehler, Gzip, Dateiname** | S | ⭐⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Sauron=Tom Riddle, Duplikate, null/"" |
 | **39** | **llms.txt: Container-Ankündigung streichen oder TODO** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | ✅ Umgesetzt 2026-11-07 — Zero-Build-Architektur statt Container |
-| **40** | **Build-Strategie dokumentieren (Zero-Build bewusst oder esbuild)** | XS | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | Nirgends dokumentiert |
-| **41** | **sheet-common.css: 43 gemeinsame Selektoren zusammenführen** | S–M | ⭐⭐ | [`20-grundbausteine-review.md`](20-grundbausteine-review.md) | ✅ Umgesetzt 2026-11-07 — 72 identische Regeln → `sheet-common.css`, 12 Print-Resets → `base.css` |
+| **40** | **Build-Strategie dokumentieren (Zero-Build bewusst oder esbuild)** | XS | ⭐⭐ | [`done/20-grundbausteine-review.md`](done/20-grundbausteine-review.md) | ✅ Umgesetzt 2026-11-09 — Data-as-Code Pipeline (`build_plz_data.mjs`) & `package.json` |
+| **41** | **sheet-common.css: 43 gemeinsame Selektoren zusammenführen** | S–M | ⭐⭐ | [`done/20-grundbausteine-review.md`](done/20-grundbausteine-review.md) | ✅ Umgesetzt 2026-11-07 — 72 identische Regeln → `sheet-common.css`, 12 Print-Resets → `base.css` |
 | **42** | **Biome-Lauf in die CI hängen (`biome.json` existiert, läuft nie)** | XS | ⭐⭐ | [`21-tooling-review.md`](21-tooling-review.md) | ✅ Umgesetzt (CI-Schritt, Biome 2.6.3) |
-| **43** | **`#moveCaretToEnd`-Wrapper entfernen** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (Wrapper entfernt) |
-| **44** | **Magic Numbers 50/130 als Konstanten** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt (benannte Konstanten) |
-| **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`22-mikro-optimierungen.md`](22-mikro-optimierungen.md) | ✅ Umgesetzt 2026-11-07 — `feld()`-Cache mit `isConnected`-Prüfung |
+| **43** | **`#moveCaretToEnd`-Wrapper entfernen** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt (Wrapper entfernt) |
+| **44** | **Magic Numbers 50/130 als Konstanten** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt (benannte Konstanten) |
+| **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt 2026-11-07 — `feld()`-Cache mit `isConnected`-Prüfung |
 
 ---
 
@@ -113,7 +113,7 @@
   - Ersatz von CSS-Border (`1px solid`) durch inline SVG mit fester Stärke `0.25mm`.
   - Beseitigung von Rundungsunschärfen und Hairline-Druckfehlern.
   - Beibehaltung der deklarativen `data-*`-Koordinaten im HTML.
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/06-subpixel-falzmarken-plan.md`](06-subpixel-falzmarken-plan.md)
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md)
 
 ### 8. Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker
 - **Fokus:** Briefe, in denen eine kanonische Figur mit einer **völlig anderen** Figur oder Institution in Kontakt tritt — die Figur bleibt in ihrer Welt, der Anlass ist Alltag (Reklamation, Termin, Auskunft).

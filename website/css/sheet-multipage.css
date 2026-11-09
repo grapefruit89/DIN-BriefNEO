@@ -18,49 +18,75 @@
   --spacer-hoehe: calc(98.46mm - var(--rand-o)); /* Form B: 73.46mm */
 }
 
+:root[data-layout="form-a"],
 body:has(#btn-form-a:checked) {
   --spacer-hoehe: calc(80.46mm - var(--rand-o)); /* Form A: 55.46mm */
 }
 
-/* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout */
-@function --mm-x(--mm) {
+/* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout (C1: explizit --mm-abs-*) */
+@function --mm-abs-x(--mm) {
   result: calc(var(--mm) * 1mm);
 }
-@function --mm-y(--mm) {
+@function --mm-abs-y(--mm) {
   result: calc(var(--mm) * 1mm);
 }
-@function --pt(--points) {
+@function --pt-abs(--points) {
   result: calc(var(--points) * 1pt);
 }
 
-/* --- DIN-GEOMETRIE --- */
-din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
-
-  --blatt-breite: attr(data-width-mm type(<number>));
-  --blatt-hoehe: attr(data-height-mm type(<number>));
-
-  --briefkopf-y: --mm-y(attr(data-briefkopf-y-b type(<number>)));
-  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
-  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
-  --datum-y: --mm-y(attr(data-datum-y-b type(<number>)));
-  --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
-
-  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-b type(<number>)));
-  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-b type(<number>)));
-  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
+@function --mm-x(--mm) {
+  result: --mm-abs-x(var(--mm));
+}
+@function --mm-y(--mm) {
+  result: --mm-abs-y(var(--mm));
+}
+@function --pt(--points) {
+  result: --pt-abs(var(--points));
 }
 
-/* Viewport-Scrolling für Mehrseiten */
+/* Viewport-Scrolling für Mehrseiten (A43 Zero-Scroll Invariante)
+   Explizit nur dann vertikales Scrollen im Viewport, wenn mehr als eine Seite beschrieben wird! */
 #viewport {
-  overflow-y: auto !important;
   overflow-x: hidden !important;
-  display: block !important;
-  padding: 40px 20px 80px !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
   min-height: 0 !important;
 }
 
-#brief-ansicht {
+/* Seite 1: Zentriert und ohne unnoetiges Scrollen (Zero-Scroll-Garantie) */
+body:not([data-seiten]) #viewport,
+body[data-seiten="1"] #viewport,
+#viewport:not([data-seiten]),
+#viewport[data-seiten="1"] {
+  overflow-y: hidden !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 10px 20px !important;
+}
+
+/* Erst ab Seite 2 wird das vertikale Scrollen im Viewport freigegeben */
+body[data-seiten]:not([data-seiten="1"]) #viewport,
+#viewport[data-seiten]:not([data-seiten="1"]) {
+  overflow-y: auto !important;
+  display: block !important;
+  padding: 40px 20px 80px !important;
+}
+
+body:not([data-seiten]) #brief-ansicht,
+body[data-seiten="1"] #brief-ansicht,
+#viewport:not([data-seiten]) #brief-ansicht,
+#viewport[data-seiten="1"] #brief-ansicht {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  width: 100% !important;
+  container-type: normal !important;
+}
+
+body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
+#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht {
   display: flex !important;
   justify-content: center !important;
   align-items: flex-start !important;
@@ -86,6 +112,13 @@ din-blatt {
     box-sizing: border-box;
   }
 
+  body:not([data-seiten]) :scope,
+  body[data-seiten="1"] :scope {
+    max-height: calc(100dvh - 30px);
+    width: min(210mm, calc((100dvh - 30px) * 210 / 297));
+    margin: 0 auto !important;
+  }
+
   
 
   
@@ -102,7 +135,7 @@ din-blatt {
   din-falzmarke-1, din-falzmarke-2, din-lochmarke {
     position: absolute;
     left: 0;
-    width: --mm-x(attr(data-w type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
     /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
        Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
        sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
@@ -111,18 +144,14 @@ din-blatt {
     z-index: 10;
   }
 
-  
-  
-  
-
   /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
   #rucksendeangabe {
     position: absolute;
     top: var(--briefkopf-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    height: --mm-y(attr(data-h type(<number>)));
-    font-size: --pt(attr(data-font type(<number>)));
+    left: --mm-abs-x(attr(data-x type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    height: --mm-abs-y(attr(data-h type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -133,10 +162,10 @@ din-blatt {
   #anschriftfeld {
     position: absolute;
     top: var(--anschriftfeld-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    height: --mm-y(attr(data-h type(<number>)));
-    font-size: --pt(attr(data-font type(<number>)));
+    left: --mm-abs-x(attr(data-x type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    height: --mm-abs-y(attr(data-h type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -144,14 +173,12 @@ din-blatt {
     z-index: 10;
   }
 
-  
-
   #infoblock {
     position: absolute;
     top: var(--infoblock-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    font-size: --pt(attr(data-font type(<number>)));
+    left: --mm-abs-x(attr(data-x type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
     line-height: 1.4;
     display: flex;
     flex-direction: column;
@@ -162,9 +189,9 @@ din-blatt {
   #datum {
     position: absolute;
     top: var(--datum-y);
-    left: --mm-x(attr(data-x type(<number>)));
-    width: --mm-x(attr(data-w type(<number>)));
-    font-size: --pt(attr(data-font type(<number>)));
+    left: --mm-abs-x(attr(data-x type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
     text-align: left;
     z-index: 10;
   }
@@ -206,7 +233,6 @@ din-blatt {
     line-height: 1.4;
     margin-bottom: 8.46mm;
     text-wrap: balance;
-    transition: margin-top 0.15s ease-out;
   }
 
   /* Teilbetreff nach DIN 5008 § 20.9.3: fett, endet mit Punkt, klebt am Folgetext. */
@@ -264,14 +290,10 @@ din-blatt {
   }
 
   #anlagenvermerk {
-    margin-top: --mm-y(attr(data-margin-top type(<number>)));
+    margin-top: --mm-abs-y(attr(data-margin-top type(<number>)));
     break-inside: avoid;
     page-break-inside: avoid;
   }
-
-  
-  
-  
 
   /* Fußzeile auf Seite 1 */
   #geschaeftsangaben {
@@ -281,7 +303,7 @@ din-blatt {
     left: var(--rand-l);
     right: var(--rand-r);
     height: 15mm;
-    font-size: --pt(attr(data-font type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
     color: var(--blatt-schwach);
     padding-top: 2mm;
     grid-template-columns: repeat(4, 1fr);
@@ -297,6 +319,7 @@ din-blatt {
 /* Folgekopf auf Bildschirm (ab Seite 2) */
 .folgekopf-screen {
   position: absolute;
+  top: calc(var(--i, 1) * (var(--seite) + var(--luecke)) + 12mm);
   left: var(--rand-l);
   right: var(--rand-r);
   display: flex;
@@ -357,111 +380,6 @@ din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
 /* In Mehrseitenansicht: Kein 1-Seiten-Überlauf-Hinweis, da Mehrseitigkeit gewollt ist */
 din-blatt[data-ueberlauf="true"]::after {
   display: none !important;
-}
-
-/* Workbench UI Styling */
-.workbench-box {
-  border: 1.5px solid var(--accent-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-top: var(--space-sm);
-  background: light-dark(oklch(from var(--accent-color) l c h / 5%), oklch(from var(--accent-color) l c h / 12%));
-}
-.workbench-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-xs);
-}
-.workbench-title {
-  font-size: 0.85rem;
-  color: var(--accent-color);
-}
-.workbench-status {
-  font-weight: 700;
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-}
-.workbench-actions {
-  display: flex;
-  gap: var(--space-xs);
-}
-.workbench-actions .btn {
-  flex: 1;
-  font-size: 0.78rem;
-  padding: 4px 6px;
-}
-
-/* ============================================================
-   DRUCK-REGELN (Chromium 150+ Baseline Paged Media & Randboxen)
-   ============================================================ */
-@page {
-  size: A4;
-  margin: 25mm 20mm 20mm 25mm;
-  @top-left {
-    font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
-    vertical-align: middle;
-  }
-  @top-right {
-    font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
-    vertical-align: middle;
-    content: "Seite " counter(page) " von " counter(pages);
-  }
-}
-
-@page :first {
-  margin: 0 20mm 20mm 25mm;
-  @top-left { content: none; }
-  @top-right { content: none; }
-}
-
-@media print {
-  body {
-    background: oklch(100% 0 0) !important;
-  }
-  #app-shell {
-    display: block !important;
-    width: auto !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-  #seitenleiste, .seitenleiste, .nicht-drucken, #folgekoepfe, .folgekopf-screen {
-    display: none !important;
-  }
-  #viewport {
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: block !important;
-  }
-  #brief-ansicht {
-    margin: 0 !important;
-    width: 100% !important;
-    display: block !important;
-  }
-  din-blatt {
-    margin: 0 !important;
-    width: 100% !important;
-    box-shadow: none !important;
-  }
-  #kern {
-    min-height: 0 !important;
-    padding: 0 !important;
-    column-count: auto !important;
-    column-height: auto !important;
-    column-wrap: nowrap !important;
-    row-gap: normal !important;
-    background: none !important;
-    filter: none !important;
-  }
-  #spacer {
-    height: 98.46mm !important; /* Form B */
-  }
-  body:has(#btn-form-a:checked) #spacer {
-    height: 80.46mm !important; /* Form A */
-  }
 }
 
 /* --- Druck (aus print-multipage.css zusammengelegt, 2026-11-08) ---
@@ -557,6 +475,7 @@ din-blatt[data-ueberlauf="true"]::after {
     height: 98.46mm !important; /* Form B: Betreff auf Seite 1 */
   }
 
+  :root[data-layout="form-a"] #spacer,
   body:has(#btn-form-a:checked) #spacer {
     height: 80.46mm !important; /* Form A */
   }

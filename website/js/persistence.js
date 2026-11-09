@@ -14,60 +14,8 @@
  *  4. ImportExport (ehem. 52-import-export.js): JSON-Export/Import mit Metadaten-Header und Validierung.
  */
 
-import { Constants, Events, eventBus } from './core.js';
-
-/* =========================================================================================
- * 1. DATE & TIME FORMATTING (Temporal API & DIN 5008)
- * ========================================================================================= */
-
-// dateStyle: 'long' = de-DE-ICU liefert "4. September 2026" (ohne führende Null, DIN 5008).
-const letterDateFmt = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' });
-
-/**
- * Formatiert das heutige Datum DIN-5008-konform ("4. September 2026", ohne führende Null).
- * @returns {string}
- */
-export function formatLetterDate() {
-  try {
-    const zdt = Temporal.Now.zonedDateTimeISO('Europe/Berlin');
-    return letterDateFmt.format(/** @type {any} */ (zdt.toPlainDate()));
-  } catch (err) {
-    console.warn('[DateFormat] formatLetterDate fehlgeschlagen:', err);
-    return '';
-  }
-}
-
-/**
- * Befüllt das Datumsfeld (#datum) des Briefes beim Laden.
- */
-export function applyLetterDate() {
-  const el = document.getElementById('datum');
-  if (!el) return;
-  // Ein selbst eingetragenes Datum gewinnt: sonst ueberschreibt jeder Aufruf
-  // die Eingabe, und sie waere nach dem Reload verloren (Befund 1.2).
-  const manuallySet = el.dataset.dirty === 'true' && (el.textContent || '').trim() !== '';
-  if (manuallySet) return;
-  const formatted = formatLetterDate();
-  if (formatted) {
-    el.textContent = formatted;
-  }
-}
-
-/**
- * „Heute" als ISO-String (YYYY-MM-DD) in Berliner Zeit — Single Source of Truth
- * für alle maschinenlesbaren Datums-Ableitungen (z. B. PDF-Dateiname).
- * Bewusst zoned (nicht plainDateISO(), das UTC-basiert ist und nachts 00:00–02:00
- * deutscher Zeit den Vortag liefern würde).
- * @returns {string}
- */
-export function currentISODate() {
-  try {
-    return Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString();
-  } catch (err) {
-    console.warn('[DateFormat] currentISODate fehlgeschlagen:', err);
-    return '';
-  }
-}
+import { Constants, notify } from './core.js';
+import { currentISODate } from './format.js';
 
 /* =========================================================================================
  * 2. STORAGE PRIMITIVES, CONSTANTS & MIGRATION
@@ -83,6 +31,7 @@ export function currentISODate() {
  * @property {boolean} [sensitiveSubject]
  * @property {boolean} [pluginTestbrief]
  * @property {boolean} [pluginMultipage]
+ * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
@@ -100,6 +49,7 @@ export const DEFAULT_SETTINGS = {
   sensitiveSubject: false,
   pluginTestbrief: true,
   pluginMultipage: true,
+  previewFont: 'default',
   formality: 'formal'
 };
 
@@ -219,15 +169,6 @@ export function requestPersistentStorage() {
   }
 }
 
-/**
- * Führt anstehende Schema-Migrationen sequenziell und idempotent aus.
- */
-export function migrateStorage() {
-  const version = Number(load(STORAGE_KEYS.schema, '0')) || 0;
-  if (version === Constants.SCHEMA_VERSION) return;
-  save(STORAGE_KEYS.schema, String(Constants.SCHEMA_VERSION));
-}
-
 /* =========================================================================================
  * 3. METADATA & DOCUMENT IDENTITY BRIDGE
  * ========================================================================================= */
@@ -273,26 +214,40 @@ export function buildLetterFileName() {
 }
 
 /**
- * Steuerung von document.title: Gibt dem Druck-Dateinamen Vorrang vor dem
- * Autosave-Titel des DraftManagers, während der Druckdialog geöffnet ist.
+ * Kontext-Stack für reentrante beforeprint/afterprint-Zyklen.
+ * Verhindert Deadlocks und Metadaten-Leaks bei asynchronen oder mehrfachen beforeprint-Events.
+ * @type {Array<{ oldTitle: string, injectedTags: HTMLMetaElement[] }>}
  */
-let printTitleActive = false;
+const printContextStack = [];
 
 /**
  * Darf der Draft-Autosave den Dokumenttitel gerade setzen?
  * @returns {boolean}
  */
 export function isPrintTitleActive() {
-  return printTitleActive;
+  return printContextStack.length > 0;
 }
 
 export const MetadataService = {
+  /**
+   * Bereitet Titel und Meta-Tags vor dem Drucken vor.
+   * Reentrant: Push auf den Kontext-Stack; ein verschachteltes beforeprint erbt
+   * den echten Originaltitel des äußersten Aufrufs.
+   */
   prepare() {
-    const { fileName, dateStr, lastName, recipientName, subjectClean } = collectLetterIdentity();
+    this._cleanupInjectedTags();
 
-    const oldTitle = document.title;
-    document.title = fileName;
-    printTitleActive = true;
+    // Originaltitel: Wenn der Stack leer ist, ist document.title der echte Originaltitel.
+    // Bei verschachteltem Aufruf erbt der neue Kontext den ursprünglichen Titel des ersten Eintrags.
+    const currentTitle = typeof document !== 'undefined' ? document.title : '';
+    const originalTitle = printContextStack.length > 0
+      ? printContextStack[0].oldTitle
+      : currentTitle;
+
+    const { fileName, dateStr, lastName, recipientName, subjectClean } = collectLetterIdentity();
+    if (typeof document !== 'undefined') {
+      document.title = fileName;
+    }
 
     const metaData = {
       author: lastName,
@@ -302,8 +257,21 @@ export const MetadataService = {
     };
 
     const injectedTags = this._injectMetaTags(metaData);
+    const ctx = { oldTitle: originalTitle, injectedTags };
+    printContextStack.push(ctx);
 
-    return { oldTitle, injectedTags };
+    return ctx;
+  },
+
+  /**
+   * Entfernt alle im Head injizierten Print-Metatags.
+   */
+  _cleanupInjectedTags() {
+    if (typeof document === 'undefined') return;
+    const existing = document.head.querySelectorAll('meta[data-injected="true"]');
+    for (const tag of existing) {
+      tag.remove();
+    }
   },
 
   /**
@@ -311,6 +279,7 @@ export const MetadataService = {
    * @returns {HTMLMetaElement[]}
    */
   _injectMetaTags(data) {
+    if (typeof document === 'undefined') return [];
     /** @type {HTMLMetaElement[]} */
     const tags = [];
     const mapping = {
@@ -332,15 +301,24 @@ export const MetadataService = {
   },
 
   /**
-   * @param {{ oldTitle: string, injectedTags: HTMLMetaElement[] } | null} context
+   * Stellt Originaltitel wieder her und räumt injizierte Meta-Tags auf.
+   * @param {{ oldTitle?: string, injectedTags?: HTMLMetaElement[] } | null} [context]
    */
-  restore(context) {
-    printTitleActive = false;
-    if (!context) return;
-    document.title = context.oldTitle;
-    if (context.injectedTags) {
-      for (const tag of context.injectedTags) {
-        tag.remove();
+  restore(context = null) {
+    if (context && printContextStack.includes(/** @type {any} */ (context))) {
+      const idx = printContextStack.indexOf(/** @type {any} */ (context));
+      printContextStack.splice(idx, 1);
+    } else if (printContextStack.length > 0) {
+      printContextStack.pop();
+    }
+
+    this._cleanupInjectedTags();
+
+    // Wenn der Stack wieder komplett leer ist, stellen wir den echten Originaltitel wieder her
+    if (printContextStack.length === 0) {
+      const restoreTitle = context?.oldTitle;
+      if (restoreTitle && typeof document !== 'undefined') {
+        document.title = restoreTitle;
       }
     }
   }
@@ -400,9 +378,28 @@ export const DINLETTER_FORMAT = 'dinletter';
  */
 
 /**
+ * Bereinigt HTML-Strings (wie <li> in Listenfeldern) zu lesbarem Plaintext für den JSON-Export.
+ * @param {string} html
+ * @returns {string}
+ */
+export function stripHtmlToPlaintext(html) {
+  if (!html?.includes('<')) return html ? html.trim() : '';
+  return html
+    .replace(/<li[^>]*>/gi, '')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+/**
  * Baut das Export-Payload (Schema v3) aus einem Draft-Objekt und den Einstellungen.
  * Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind bewusst nicht enthalten —
  * sie gehören in den separaten Container. PURE — unit-testbar.
+ * Leere String-Elemente werden im Export übersprungen (Teil 2: kompakte Serialisierung).
  * @param {Record<string, string | boolean>} draft
  * @param {Record<string, any> | null} [settings]
  * @returns {DinLetterPayload}
@@ -419,14 +416,20 @@ export function buildDinLetterPayload(draft, settings = null) {
   const cleanFields = /** @type {Record<string, string | boolean>} */ (Object.create(null));
   if (draft && typeof draft === 'object') {
     for (const [k, v] of Object.entries(draft)) {
-      if (typeof v === 'string') cleanFields[k] = v;
-      else if (typeof v === 'boolean' && k.startsWith('toggle-')) cleanFields[k] = v;
+      if (k === 'vermerke-visible') continue;
+      if (typeof v === 'string') {
+        const val = k === 'anlagen-angabe' ? stripHtmlToPlaintext(v) : v.trim();
+        if (val !== '' || k.startsWith('fuss-')) {
+          cleanFields[k] = val;
+        }
+      } else if (typeof v === 'boolean' && k.startsWith('toggle-')) {
+        cleanFields[k] = v;
+      }
     }
   }
 
   // Toggle-Zustaende sind im JSON Boolean — auch wenn sie als String hereinkommen.
   // `vermerke-visible` ist kein Feld mehr: die Sichtbarkeit folgt aus `vermerke`.
-  delete cleanFields['vermerke-visible'];
   for (const key of ['toggle-anlagen', 'toggle-fuss']) {
     if (key in cleanFields) {
       const value = cleanFields[key];
@@ -463,8 +466,7 @@ export function buildDinLetterPayload(draft, settings = null) {
 
 /**
  * Validiert und parsed eine DIN-Brief-JSON-Datei (Schema v3). Ältere Versionen werden
- * abgelehnt — das Dateiformat ist nicht migrationspflichtig (der LocalStorage-Zustand
- * wird separat über `migrateStorage` behandelt). PURE — unit-testbar.
+ * abgelehnt — das Dateiformat ist nicht migrationspflichtig. PURE — unit-testbar.
  * @param {string} text
  * @returns {DinLetterParseResult}
  */
@@ -598,7 +600,7 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
       const writable = await handle.createWritable();
       await writable.write(jsonContent);
       await writable.close();
-      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.DRAFT.EXPORT_SAVED, type: 'info' });
+      notify(Constants.TOASTS.DRAFT.EXPORT_SAVED, 'info');
       return true;
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -617,11 +619,11 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
     anchor.download = fullName;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.DRAFT.EXPORT_DOWNLOADED, type: 'info' });
+    notify(Constants.TOASTS.DRAFT.EXPORT_DOWNLOADED, 'info');
     return true;
   } catch (err) {
     console.error('[Export] Download fehlgeschlagen:', err);
-    eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.DRAFT.EXPORT_ERROR, type: 'error' });
+    notify(Constants.TOASTS.DRAFT.EXPORT_ERROR, 'error');
     return false;
   }
 }
@@ -665,17 +667,12 @@ export function initImportExport({ collectDraft } = {}) {
   }
 
   const exportBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-export-dinletter'));
+  const copyBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-copy-dinletter'));
   const importBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-import-dinletter'));
   const importInput = /** @type {HTMLInputElement | null} */ (document.getElementById('dinletter-uploader'));
   const importDialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('import-dialog'));
   const importFileName = document.getElementById('import-file-name');
   if (!exportBtn || !importBtn || !importInput || !importDialog) return;
-
-  /**
-   * @param {string} msg
-   * @param {string} [type]
-   */
-  const notify = (msg, type = 'info') => eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: msg, type });
 
   const handleExport = async () => {
     // Kein DOCUMENT_SAVE_REQUESTED: das Payload entsteht direkt aus dem DOM
@@ -685,6 +682,20 @@ export function initImportExport({ collectDraft } = {}) {
   };
 
   exportBtn.addEventListener('click', handleExport);
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        const payload = buildDINLetterJSON(collectDraft);
+        const jsonContent = JSON.stringify(payload, null, 2);
+        await navigator.clipboard.writeText(jsonContent);
+        notify(Constants.TOASTS.DRAFT.EXPORT_CLIPBOARD, 'info');
+      } catch (err) {
+        console.error('[Export] Kopieren in Zwischenablage fehlgeschlagen:', err);
+        notify(Constants.TOASTS.DRAFT.EXPORT_ERROR, 'error');
+      }
+    });
+  }
 
   // Globaler Tastatur-Shortcut: Ctrl + S / Cmd + S triggert exportDocumentToFile
   window.addEventListener('keydown', (e) => {
@@ -762,7 +773,6 @@ export function initImportExport({ collectDraft } = {}) {
         pendingImport = null;
         return;
       }
-      migrateStorage();
       pendingImport = null;
       location.reload();
     } catch {

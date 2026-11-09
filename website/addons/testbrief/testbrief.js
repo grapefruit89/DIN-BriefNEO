@@ -13,7 +13,7 @@
  */
 
 import { Events, eventBus } from '../../js/core.js';
-import { applyLetterDate } from '../../js/persistence.js';
+import { applyLetterDate } from '../../js/format.js';
 import { SalutationEngine } from '../../js/salutation.js';
 
 /* =========================================================================================
@@ -27,7 +27,7 @@ const KEINE_ANSCHRIFT = /kein(?:e|en|er)?\s*fest|unterwegs|unbekannt|wandernd|re
 const SUFFIX_DE = /(?:weg|straße|strasse|gasse|platz|allee|boulevard|ring|damm|ufer|steig|pfad)$/i;
 
 /** Englische Straßen-Suffixe (eigenständige Wörter). */
-const SUFFIX_EN = /\b(?:street|avenue|terrace|drive|lane|road|court|circle|square|row|boulevard|place|parkway|highway)\b/i;
+const SUFFIX_EN = /\b(?:street|avenue|terrace|drive|lane|road|court|circle|square|row|boulevard|place|parkway|highway|plaza|way|alley)\b/i;
 
 /**
  * Vereinheitlicht Text für Vergleiche: klein, ohne Sonderzeichen.
@@ -342,13 +342,11 @@ export function franchiseKey(char) {
  * @returns {string}
  */
 export function bezeichne(char) {
-  const name = String(char?.buergerlicherName || char?.name || '').trim();
+  const name = String(char?.name || char?.buergerlicherName || '').trim();
   if (!name) return '';
   const anker = waehleAnker(char);
   if (anker && !istNamenslangform(anker.text, name)) {
     if (anker.art === 'alias') return `${name}, auch bekannt als „${anker.text}“`;
-    // "bei" passt fuer Arbeitgeber und fuer Mitgliedschaften: "bei Allsafe
-    // Cybersecurity" wie "bei X-Men". "von" klang bei Teams falsch.
     if (anker.art === 'firma') return `${name} bei ${anker.text}`;
     return `${name}, bekannt für ${anker.text}`;
   }
@@ -373,8 +371,56 @@ function istNamenslangform(kandidat, name) {
 }
 
 /* =========================================================================================
- * 2b. BRIEFKERN — SECHS SZENARIEN
+ * 2b. BRIEFKERN — FLOSKEL-BAUKASTEN & FÜNFZEHN SZENARIEN
  * ========================================================================================= */
+
+/**
+ * Modulare Textbausteine für formelle Einleitungen und Schlüsse.
+ */
+export const FLOSKELN = {
+  einleitung: [
+    'ich beziehe mich auf den bisherigen Schriftwechsel und darf Ihnen Folgendes mitteilen:',
+    'in vorbezeichneter Angelegenheit komme ich auf den Vorgang zurück.',
+    'unter Bezugnahme auf die jüngsten Entwicklungen wende ich mich an Sie.',
+    'namens und im Auftrag der Beteiligten nehme ich wie folgt Stellung:',
+    'zur Vermeidung weiterer Missverständnisse halte ich Folgendes fest:',
+    'nach eingehender Prüfung der Sach- und Rechtslage teile ich Ihnen mit:',
+    'in der vorbezeichneten Sache nehme ich Bezug auf die vorliegenden Unterlagen.'
+  ],
+  schluss: [
+    'Für eine zeitnahe Rückmeldung wäre ich Ihnen dankbar.',
+    'Ich sehe Ihrer geschätzten Rückäußerung mit Interesse entgegen.',
+    'Bitte bestätigen Sie mir den Eingang dieses Schreibens schriftlich.',
+    'Ich gehe davon aus, dass die Angelegenheit damit einvernehmlich geregelt ist.',
+    'Für Rückfragen stehe ich Ihnen jederzeit zur Verfügung.',
+    'Ich danke Ihnen vorab für Ihre Unterstützung in dieser Angelegenheit.',
+    'Bitte behandeln Sie diesen Vorgang mit der gebotenen Vertraulichkeit.'
+  ]
+};
+
+/**
+ * Bindet Einleitungs- und/oder Schlussbausteine deterministisch ein.
+ * @param {string} text
+ * @param {{ einleitung?: boolean, schluss?: boolean } | string} [opt]
+ * @param {() => number} [rnd]
+ * @returns {string}
+ */
+export function floskele(text, opt = {}, rnd = Math.random) {
+  const options = typeof opt === 'string' ? { [opt]: true } : (opt || {});
+  let result = text;
+
+  if (options.einleitung && FLOSKELN.einleitung.length > 0) {
+    const idx = Math.floor(rnd() * FLOSKELN.einleitung.length);
+    result = `${FLOSKELN.einleitung[idx]}\n\n${result}`;
+  }
+
+  if (options.schluss && FLOSKELN.schluss.length > 0) {
+    const idx = Math.floor(rnd() * FLOSKELN.schluss.length);
+    result = `${result}\n\n${FLOSKELN.schluss[idx]}`;
+  }
+
+  return result;
+}
 
 /**
  * @typedef {object} BriefKontext
@@ -388,89 +434,301 @@ function istNamenslangform(kandidat, name) {
 /**
  * @typedef {object} Szenario
  * @property {string} id
- * @property {(thema: string) => string} betreff
+ * @property {string} kategorie
+ * @property {(thema: string, rnd?: () => number) => string} betreff
  * @property {(k: BriefKontext) => string} text
  */
 
 /**
- * Sechs Briefgattungen. Betreff und Text stammen aus demselben Szenario, damit
- * Überschrift und Inhalt nicht auseinanderlaufen (vorher wurden sie getrennt
- * gewürfelt und passten in der Hälfte der Fälle nicht zusammen).
- *
- * Jede Stelle, an der der Hook steht, ist Doppelpunkt-Nachtrag
- * („… zum Vorgang: Handtuch"). Hooks sind nackte Nomen ohne Artikel — nach
- * „im Umgang mit" wäre jeder Kasus falsch.
+ * Hilfsfunktion zur Zufallsauswahl einer Betreff-Variante.
+ * @param {Array<(t: string) => string>} varianten
+ * @param {string} thema
+ * @param {() => number} rnd
+ * @returns {string}
+ */
+function waehleBetreff(varianten, thema, fallback = '', rnd = Math.random) {
+  const th = String(thema ?? '').trim();
+  if (!th) return fallback;
+  const tpl = varianten[Math.floor(rnd() * varianten.length)] ?? varianten[0];
+  return tpl(th);
+}
+
+/**
+ * Fünfzehn vielseitige Briefgattungen nach thematischen Kategorien.
+ * Jede Stelle, an der der Hook steht, ist Doppelpunkt-Nachtrag.
  *
  * @type {Szenario[]}
  */
-const SZENARIEN = [
+export const SZENARIEN = [
   {
     id: 'kuendigung',
-    betreff: (t) => `Außerordentliche Kündigung: ${t}`,
+    kategorie: 'konfrontativ',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Kündigung der Verwahrungsvereinbarung für den Gegenstand „${th}“`,
+      (th) => `Beendigung der Vereinbarung zur Verwahrung des Gegenstands „${th}“`,
+      (th) => `Kündigung des Verwahrungsverhältnisses bezüglich ${th}`
+    ], t, 'Fristlose Kündigung des Vertragsverhältnisses', rnd),
     text: (k) =>
       `hiermit kündige ich die zwischen uns bestehende Vereinbarung fristlos und mit sofortiger Wirkung.\n\n` +
-      `Anlass ist der Vorgang: ${k.thema}. Trotz mehrfacher Aufforderung haben Sie es unterlassen, den ordnungsgemäßen Zustand herzustellen. Als ${k.sName} kann ich Ihnen aus ${k.sOrt} mitteilen, dass mir eine weitere Zusammenarbeit mit Ihnen, ${k.rName}, nicht zumutbar ist.\n\n` +
-      `Ich verlange die vollständige Rückgabe binnen 14 Tagen sowie eine schriftliche Bestätigung der Vertragsauflösung.`
+      `Gegenstand dieser Maßnahme ist die Verwahrung und Nutzung des Gegenstands „${k.thema}“. Trotz mehrfacher Aufforderung haben Sie es unterlassen, den ordnungsgemäßen Zustand herzustellen. Als ${k.sName} teile ich Ihnen von unserem Standort „${k.sOrt}“ aus mit, dass mir eine weitere Überlassung an Sie nicht zumutbar ist.\n\n` +
+      `Ich verlange die unverzügliche Rückgabe des Gegenstands binnen 14 Tagen sowie eine schriftliche Bestätigung der Vertragsauflösung.`
   },
   {
     id: 'beschwerde',
-    betreff: (t) => `Dienstaufsichtsbeschwerde: ${t}`,
+    kategorie: 'eskalierend',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Förmliche Rüge wegen unsachgemäßer Handhabung: ${th}`,
+      (th) => `Dienstaufsichtsbeschwerde zur Verwendung von ${th}`,
+      (th) => `Dringende Beschwerde über Pflichtverletzung bezüglich ${th}`
+    ], t, 'Dienstaufsichtsbeschwerde wegen grober Pflichtverletzung', rnd),
     text: (k) =>
-      `ich wende mich mit einer förmlichen Beschwerde an Sie, ${k.rName}.\n\n` +
-      `Der Vorgang: ${k.thema} ist in einem Maße eskaliert, das jeder sachlichen Grundlage entbehrt. Ihre zuständige Stelle in ${k.rOrt} hat es versäumt, die offensichtlichen Mängel zu beseitigen. Als ${k.sName} sehe ich mich aus ${k.sOrt} gezwungen, die Aufsicht einzuschalten.\n\n` +
-      `Ich erwarte einen Maßnahmenkatalog bis zum Ende der Woche.`
+      `ich wende mich mit einer förmlichen Beschwerde an Sie.\n\n` +
+      `Der Vorfall bezüglich des Gegenstands „${k.thema}“ ist in einem Maße eskaliert, das jeder sachlichen Grundlage entbehrt. Ihre zuständige Stelle am Standort „${k.rOrt}“ hat es versäumt, die offensichtlichen Mängel zu beseitigen. Als ${k.sName} sehe ich mich gezwungen, die zuständige Aufsicht einzuschalten.\n\n` +
+      `Ich erwarte einen verbindlichen Maßnahmenkatalog bis zum Ende der laufenden Woche.`
   },
   {
     id: 'schadensersatz',
-    betreff: (t) => `Schadensersatzforderung: ${t}`,
+    kategorie: 'semi-konfrontativ',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Schadensmeldung und Ersatzansprüche bezüglich ${th}`,
+      (th) => `Geltendmachung von Schadensersatz wegen Beschädigung: ${th}`,
+      (th) => `Zahlungsaufforderung zum Schadensfall an ${th}`
+    ], t, 'Geltendmachung von Ersatzansprüchen wegen Sachschaden', rnd),
     text: (k) =>
-      `hiermit mache ich Schadensersatz wegen grober Fahrlässigkeit geltend, ${k.rName}.\n\n` +
-      `Im Zusammenhang mit dem Vorgang: ${k.thema} ist ein Schaden entstanden, der die zumutbare Bagatellgrenze um ein Vielfaches überschreitet. Die von Ihnen in ${k.rOrt} zu verantwortenden Umstände sind dokumentiert und beigefügt.\n\n` +
+      `hiermit mache ich Schadensersatz wegen grober Fahrlässigkeit geltend.\n\n` +
+      `Im Zusammenhang mit der Beschädigung des Gegenstands „${k.thema}“ ist ein Schaden entstanden, der die zumutbare Bagatellgrenze um ein Vielfaches überschreitet. Die von Ihnen am Standort „${k.rOrt}“ zu verantwortenden Umstände sowie der detaillierte Schadensbericht sind diesem Schreiben als Anlage beigefügt.\n\n` +
       `Ich fordere Sie zur Regulierung binnen 30 Tagen auf; andernfalls ergeht Mahnbescheid.`
   },
   {
     id: 'auskunft',
-    betreff: (t) => `Auskunftsersuchen: ${t}`,
+    kategorie: 'behoerdlich',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Auskunftsersuchen zum Verbleib von ${th}`,
+      (th) => `Antrag auf Akteneinsicht und Auskunft bezüglich ${th}`,
+      (th) => `Amtliches Ersuchen um Sachstandsmitteilung zu ${th}`
+    ], t, 'Antrag auf Akteneinsicht und Sachstandsmitteilung', rnd),
     text: (k) =>
-      `ich bitte um vollumfängliche Auskunft zum Sachverhalt: ${k.thema}.\n\n` +
-      `Seit dem Vorfall in ${k.rOrt} sind bei mir als ${k.sName} erhebliche Rückfragen offen. Ich setze Ihnen, ${k.rName}, hiermit eine Frist von zehn Werktagen zur schriftlichen Stellungnahme.\n\n` +
-      `Nach fruchtlosem Fristablauf behalte ich mir weitere Schritte ausdrücklich vor.`
+      `ich bitte um vollumfängliche Auskunft zum Sachverhalt betreffend „${k.thema}“.\n\n` +
+      `Hinsichtlich des Verbleibs und der weiteren Nutzung seit dem Vorfall am Standort „${k.rOrt}“ sind bei mir als ${k.sName} erhebliche Rückfragen offen. Ich setze Ihnen hiermit eine Frist von zehn Werktagen zur schriftlichen Stellungnahme.\n\n` +
+      `Nach fruchtlosem Fristablauf behalte ich mir weitere rechtliche Schritte ausdrücklich vor.`
   },
   {
     id: 'abmahnung',
-    betreff: (t) => `Abmahnung und Unterlassungsaufforderung: ${t}`,
+    kategorie: 'semi-konfrontativ',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Abmahnung und Unterlassungsaufforderung bezüglich ${th}`,
+      (th) => `Förmliche Abmahnung wegen unbefugter Nutzung: ${th}`,
+      (th) => `Dringende Aufforderung zur Unterlassung im Vorgang ${th}`
+    ], t, 'Förmliche Abmahnung und Unterlassungsaufforderung', rnd),
     text: (k) =>
-      `hiermit mahne ich Sie, ${k.rName}, wegen des Vorgangs: ${k.thema} ab.\n\n` +
-      `Die mir entstandenen Ausfallzeiten und Sachschäden überschreiten das zumutbare Maß erheblich. Ich fordere Sie auf, bis spätestens Ende der Woche eine strafbewehrte Unterlassungserklärung abzugeben.\n\n` +
+      `hiermit mahne ich Sie im Vorgang bezüglich „${k.thema}“ ab.\n\n` +
+      `Die von Ihnen zu verantwortende unberechtigte Nutzung sowie die daraus entstandenen Schäden überschreiten jedes zumutbare Maß. Ich fordere Sie auf, bis spätestens Ende der Woche eine strafbewehrte Unterlassungserklärung abzugeben.\n\n` +
       `Andernfalls werde ich die Angelegenheit ohne weitere Vorwarnung rechtlich eskalieren.`
   },
   {
     id: 'kooperation',
-    betreff: (t) => `Angebot einer gemeinsamen Klärung: ${t}`,
+    kategorie: 'kooperativ',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Vorschlag zur kooperativen Abstimmung bezüglich ${th}`,
+      (th) => `Angebot einer gemeinsamen Klärung im Vorgang ${th}`,
+      (th) => `Initiative zur partnerschaftlichen Zusammenarbeit über ${th}`
+    ], t, 'Vorschlag zur kooperativen Abstimmung', rnd),
     text: (k) =>
-      `ich wende mich in einer wenig alltäglichen Angelegenheit an Sie, ${k.rName}.\n\n` +
-      `Seit einiger Zeit beschäftigt mich der Vorgang: ${k.thema}, und ich halte eine gemeinsame Klärung für den vernünftigsten Weg. Von ${k.sOrt} aus würde ich als ${k.sName} es begrüßen, wenn wir die offenen Fragen in Ihrem Zuständigkeitsbereich in ${k.rOrt} gemeinsam durchgehen könnten.\n\n` +
+      `ich wende mich in einer wenig alltäglichen Angelegenheit an Sie.\n\n` +
+      `Seit einiger Zeit beschäftigt mich der sachgerechte Einsatz bezüglich „${k.thema}“, und ich halte eine gemeinsame Klärung für den vernünftigsten Weg. Ich würde es als ${k.sName} sehr begrüßen, wenn wir die offenen Fragen in Ihrem Zuständigkeitsbereich am Standort „${k.rOrt}“ gemeinsam durchgehen könnten.\n\n` +
       `Ich schlage einen Termin in den kommenden zwei Wochen vor und freue mich auf Ihre Rückmeldung.`
+  },
+  {
+    id: 'angebot',
+    kategorie: 'kooperativ',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Unverbindliches Angebot zur Bereitstellung von ${th}`,
+      (th) => `Konditionen und Leistungsumfang für ${th}`,
+      (th) => `Freibleibendes Projektangebot bezüglich ${th}`
+    ], t, 'Unverbindliches Angebot über Dienstleistungen', rnd),
+    text: (k) =>
+      `sehr gerne unterbreite ich Ihnen ein verbindliches Angebot bezüglich „${k.thema}“.\n\n` +
+      `Nach Auswertung der Gegebenheiten am Standort „${k.rOrt}“ habe ich als ${k.sName} ein maßgeschneidertes Konzept ausgearbeitet. Unser Leistungsspektrum garantiert Ihnen höchste Zuverlässigkeit und transparente Umsetzung.\n\n` +
+      `Dieses Angebot ist freibleibend gültig für vier Wochen ab Erhalt.`
+  },
+  {
+    id: 'bestellung',
+    kategorie: 'geschaeftlich',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Verbindliche Bestellung von ${th}`,
+      (th) => `Auftragserteilung gemäß Vereinbarung zu ${th}`,
+      (th) => `Bestellung zur unverzüglichen Lieferung von ${th}`
+    ], t, 'Verbindliche Bestellung gemäß Vereinbarung', rnd),
+    text: (k) =>
+      `hiermit erteile ich Ihnen verbindlich den Auftrag zur Lieferung bezüglich „${k.thema}“.\n\n` +
+      `Bitte veranlassen Sie die Bereitstellung des vorgenannten Artikels gemäß den vereinbarten Parametern. Die entsprechende Bestellspezifikation ist diesem Schreiben als Anlage beigefügt. Als ${k.sName} erwarte ich die Lieferung an unsere Anschrift am Standort „${k.sOrt}“.\n\n` +
+      `Ich bitte Sie daher um zeitnahe Zusendung einer Auftragsbestätigung.`
+  },
+  {
+    id: 'mahnung',
+    kategorie: 'semi-konfrontativ',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Zahlungserinnerung und Mahnung zum Vorgang ${th}`,
+      (th) => `Erste Mahnung wegen Ausstands bezüglich ${th}`,
+      (th) => `Dringende Zahlungsaufforderung zum Posten ${th}`
+    ], t, 'Erste Mahnung wegen Zahlungsverzugs', rnd),
+    text: (k) =>
+      `bei Durchsicht meiner Unterlagen habe ich festgestellt, dass der Vorgang betreffend „${k.thema}“ noch offen ist.\n\n` +
+      `Trotz Fälligkeit der Vergütung für die Überlassung von „${k.thema}“ konnte bisher kein entsprechender Zahlungseingang verbucht werden. Ich darf Sie daher höflich an den offenen Betrag erinnern und bitte um Begleichung binnen zehn Tagen.\n\n` +
+      `Sollte sich diese Zahlungserinnerung mit Ihrer zwischenzeitlichen Anweisung überschnitten haben, betrachten Sie dieses Schreiben bitte als gegenstandslos.`
+  },
+  {
+    id: 'widerspruch',
+    kategorie: 'behoerdlich',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Förmlicher Widerspruch gegen die Verfügung zu ${th}`,
+      (th) => `Widerspruch gegen den Bescheid betreffend ${th}`,
+      (th) => `Rechtsbehelf und Antrag auf Aussetzung bezüglich ${th}`
+    ], t, 'Förmlicher Widerspruch gegen den Bescheid', rnd),
+    text: (k) =>
+      `gegen die getroffene Feststellung im Vorgang bezüglich „${k.thema}“ lege ich hiermit form- und fristgerecht Widerspruch ein.\n\n` +
+      `Die Begründung stützt sich auf unvollständige Ermittlungen hinsichtlich des vorgenannten Gegenstands. Als ${k.sName} mache ich von unserem Standort „${k.sOrt}“ aus geltend, dass wesentliche Umstände unberücksichtigt geblieben sind.\n\n` +
+      `Ich beantrage, die Vollziehung auszusetzen und den Bescheid Ihnen gegenüber vollumfänglich aufzuheben.`
+  },
+  {
+    id: 'antrag',
+    kategorie: 'behoerdlich',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Antrag auf behördliche Genehmigung für ${th}`,
+      (th) => `Förmlicher Antrag zur Zulassung von ${th}`,
+      (th) => `Genehmigungsantrag im Zusammenhang mit ${th}`
+    ], t, 'Antrag auf behördliche Genehmigung', rnd),
+    text: (k) =>
+      `hiermit stelle ich förmlich Antrag auf behördliche Genehmigung bezüglich „${k.thema}“.\n\n` +
+      `Die gesetzlichen Voraussetzungen für die Zulassung von „${k.thema}“ sind nachweislich erfüllt. Als ${k.sName} habe ich alle erforderlichen Nachweise zusammengetragen und übermittle diese an Ihre Dienststelle am Standort „${k.rOrt}“. Die Unterlagen sind als Anlage beigefügt.\n\n` +
+      `Ich ersuche Sie daher um Ausstellung eines rechtsmittelfähigen Bescheids.`
+  },
+  {
+    id: 'bewerbung',
+    kategorie: 'persoenlich',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Initiativbewerbung mit Schwerpunkt auf ${th}`,
+      (th) => `Bewerbung um Zusammenarbeit im Bereich ${th}`,
+      (th) => `Interessenbekundung zur Mitwirkung an ${th}`
+    ], t, 'Initiativbewerbung und Interessenbekundung', rnd),
+    text: (k) =>
+      `mit großem Interesse habe ich Ihre Aktivitäten bezüglich „${k.thema}“ verfolgt.\n\n` +
+      `Als ${k.sName} verfüge ich über fundierte Erfahrungen und profunde Kenntnisse im Umgang mit „${k.thema}“, die ich gewinnbringend in Ihr Team am Standort „${k.rOrt}“ einbringen kann. Ein kollegialer Austausch mit Ihnen würde neue Perspektiven eröffnen.\n\n` +
+      `Über die Gelegenheit zu einem persönlichen Gespräch freue ich mich sehr.`
+  },
+  {
+    id: 'dankesschreiben',
+    kategorie: 'positiv',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Herzlichen Dank für die Unterstützung bei ${th}`,
+      (th) => `Dank und Anerkennung im Zusammenhang mit ${th}`,
+      (th) => `Persönlicher Dank für Ihren Einsatz bezüglich ${th}`
+    ], t, 'Herzlichen Dank für die angenehme Zusammenarbeit', rnd),
+    text: (k) =>
+      `ich möchte die Gelegenheit nutzen, um mich herzlich für Ihren Einsatz zu bedanken.\n\n` +
+      `Ihr herausragendes Engagement bei der Handhabung bezüglich „${k.thema}“ hat maßgeblich zum erfolgreichen Abschluss beigetragen. Als ${k.sName} wissen wir die hervorragende Kooperation mit Ihrer Stelle am Standort „${k.rOrt}“ sehr zu schätzen.\n\n` +
+      `Für die zukünftigen Vorhaben wünsche ich Ihnen weiterhin viel Erfolg.`
+  },
+  {
+    id: 'einladung',
+    kategorie: 'positiv',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Einladung zum Fachsymposium über ${th}`,
+      (th) => `Förmliche Einladung zur Fachtagung bezüglich ${th}`,
+      (th) => `Einladung zum fachlichen Austausch über ${th}`
+    ], t, 'Förmliche Einladung zur Fachtagung', rnd),
+    text: (k) =>
+      `es ist mir eine besondere Freude, Sie zu unserer Veranstaltung einzuladen.\n\n` +
+      `Im Mittelpunkt der Tagung steht der zukunftsweisende Gegenstand „${k.thema}“. Als ${k.sName} würde ich mich freuen, Sie als geschätzten Gast bei uns am Standort „${k.sOrt}“ begrüßen zu dürfen.\n\n` +
+      `Bitte teilen Sie mir bis zum Monatsende mit, ob wir mit Ihrer Teilnahme rechnen dürfen.`
+  },
+  {
+    id: 'beschwerde_aufsicht',
+    kategorie: 'eskalierend',
+    betreff: (t, rnd = Math.random) => waehleBetreff([
+      (th) => `Eskalationsanzeige an die Fachaufsicht wegen ${th}`,
+      (th) => `Beschwerde über Missstände im Vorgang ${th}`,
+      (th) => `Aufsichtsbeschwerde zur vorschriftswidrigen Nutzung: ${th}`
+    ], t, 'Eskalationsanzeige an die zuständige Fachaufsicht', rnd),
+    text: (k) =>
+      `hiermit zeige ich schwere Mängel in der Bearbeitung des Vorgangs betreffend „${k.thema}“ an.\n\n` +
+      `Wiederholte Hinweise bezüglich der vorschriftswidrigen Behandlung wurden von Ihrer Seite am Standort „${k.rOrt}“ ignoriert. Als ${k.sName} sehe ich mich gezwungen, das Fehlverhalten nunmehr unmittelbar der übergeordneten Aufsichtsbehörde vorzulegen.\n\n` +
+      `Ich fordere Sie ultimativ zur Abhilfe binnen fünf Werktagen auf.`
   }
 ];
 
 /**
  * Würfelt eine Briefgattung.
  * @param {() => number} [rnd] Zufallsquelle, damit die Auswahl testbar bleibt.
+ * @param {string | null} [kategorie] Optionale Filterung nach Kategorie.
  * @returns {Szenario}
  */
-export function waehleSzenario(rnd = Math.random) {
-  return SZENARIEN[Math.floor(rnd() * SZENARIEN.length)] ?? SZENARIEN[0];
+export function waehleSzenario(rnd = Math.random, kategorie = null) {
+  const pool = kategorie
+    ? SZENARIEN.filter((s) => s.kategorie === kategorie)
+    : SZENARIEN;
+  const list = pool.length > 0 ? pool : SZENARIEN;
+  return list[Math.floor(rnd() * list.length)] ?? list[0];
+}
+
+/**
+ * Ermittelt den passenden Anlagen-Eintrag für ein Szenario.
+ * Transaktionale/materielle Szenarien erhalten den Hook als reale DIN-Anlage.
+ * @param {Szenario} [szenario]
+ * @param {string} [themenHook]
+ * @returns {string | null}
+ */
+export function resolveAnlagenEintrag(szenario, themenHook) {
+  const th = String(themenHook ?? '').trim();
+  if (!th) return null;
+  switch (szenario?.id) {
+    case 'kuendigung':
+      return `1x ${th} (zur Rückgabe)`;
+    case 'schadensersatz':
+      return `1x Schadensdokumentation (${th})`;
+    case 'bestellung':
+      return `1x Bestellspezifikation (${th})`;
+    case 'antrag':
+      return `1x Nachweisdokumente (${th})`;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Ermittelt den passenden DIN-Postvermerk für ein Szenario.
+ * @param {Szenario} [szenario]
+ * @returns {string}
+ */
+export function resolvePostvermerk(szenario) {
+  switch (szenario?.id) {
+    case 'kuendigung':
+    case 'abmahnung':
+    case 'beschwerde_aufsicht':
+      return 'Vertraulich';
+    case 'bewerbung':
+      return 'Persönlich / Vertraulich';
+    case 'mahnung':
+    case 'widerspruch':
+    case 'schadensersatz':
+      return 'Einschreiben Rückschein';
+    case 'beschwerde':
+    case 'antrag':
+      return 'Einschreiben';
+    default:
+      return '';
+  }
 }
 
 /**
  * Betreff zum gewürfelten Szenario.
  * @param {string} themenHook
  * @param {Szenario} [szenario] Ohne Angabe wird gewürfelt (Altverhalten).
+ * @param {() => number} [rnd] Optionale Zufallsquelle
  * @returns {string}
  */
-export function randomBetreff(themenHook, szenario = waehleSzenario()) {
-  return szenario.betreff(themenHook);
+export function randomBetreff(themenHook, szenario = waehleSzenario(), rnd = Math.random) {
+  return szenario.betreff(themenHook, rnd);
 }
 
 /**
@@ -482,33 +740,145 @@ export function randomBetreff(themenHook, szenario = waehleSzenario()) {
  * @param {any[]} dritte
  * @param {string} themenHook
  * @param {Szenario} [szenario]
+ * @param {() => number} [rnd]
  * @returns {string}
  */
-export function generateNerdText(sender, recipient, dritte, themenHook, szenario = waehleSzenario()) {
+export function generateNerdText(sender, recipient, dritte, themenHook, szenario = waehleSzenario(), rnd = Math.random) {
+  const rBase = String(recipient?.name || recipient?.buergerlicherName || '').trim();
+  const rFormal = recipient?.anredePraefix ? `${recipient.anredePraefix} ${extractNachname(rBase)}` : rBase;
   const kontext = {
     sName: bezeichne(sender) || 'die absendende Stelle',
     sOrt: resolveOrt(sender) || 'hier',
-    rName: String(recipient?.name ?? '').trim() || 'die zuständige Stelle',
+    rName: rFormal || 'die zuständige Stelle',
     rOrt: resolveOrt(recipient) || 'Ihrem Zuständigkeitsbereich',
     thema: themenHook
   };
-  const text = szenario.text(kontext);
+  let text = szenario.text(kontext);
+
+  // Floskeln einstreuen (~40% Chance bei formellen Tonalitäten)
+  const isFormell = szenario.kategorie !== 'positiv' && szenario.kategorie !== 'kooperativ';
+  if (isFormell) {
+    const einleitungAktiv = rnd() < 0.4;
+    const schlussAktiv = rnd() < 0.4;
+    if (einleitungAktiv || schlussAktiv) {
+      text = floskele(text, { einleitung: einleitungAktiv, schluss: schlussAktiv }, rnd);
+    }
+  }
+
   const beteiligte = (dritte || []).map((d) => String(d?.name ?? '').trim()).filter(Boolean);
   if (beteiligte.length === 0) return text;
-  return `${text}\n\nBeteiligt sind nach meinem Kenntnisstand: ${beteiligte.join(', ')}.`;
+  return `${text}\n\nEine gleichlautende Durchschrift dieses Vorgangs wird zur Kenntnisnahme an ${beteiligte.join(', ')} übermittelt.`;
+}
+
+export class Figurenkatalog {
+  #schema;
+  #data;
+
+  /**
+   * @param {{ _meta: { schema: string[] }, figuren: any[][] }} json
+   */
+  constructor(json) {
+    this.#schema = Object.fromEntries(json._meta.schema.map((key, idx) => [key, idx]));
+    this.#data = json.figuren;
+  }
+
+  get count() {
+    return this.#data.length;
+  }
+
+  /**
+   * @param {number} index
+   * @returns {any}
+   */
+  get(index) {
+    const row = this.#data[index];
+    if (!row) return null;
+    const s = this.#schema;
+    const g = row[s.geschlecht];
+    return {
+      name: row[s.name],
+      buergerlicherName: row[s.buergerlicherName],
+      alias: row[s.alias],
+      geschlecht: g,
+      anredePraefix: g === 'f' ? 'Frau' : (g === 'm' ? 'Herr' : ''),
+      firma: row[s.firma],
+      strasse: row[s.strasse],
+      plz: row[s.plz],
+      ort: row[s.ort],
+      franchise: row[s.franchise],
+      medium: row[s.medium],
+      rolle: row[s.rolle],
+      hinweis: row[s.hinweis],
+      hooks: row[s.hooks]
+    };
+  }
+
+  getRandom() {
+    const idx = Math.floor(Math.random() * this.#data.length);
+    return this.get(idx);
+  }
 }
 
 /**
- * Lädt die 325 konsolidierten Figuren einmalig asynchron (Lazy Load beim ersten Klick).
+ * DIN-5008 Anschriftfeld-Renderer.
+ * Erzeugt lückenlose Anschriften ohne Leerzeilen bei fehlenden Lore-Feldern.
+ * @param {any} figur
+ * @returns {string[]}
+ */
+export function buildAnschriftLines(figur) {
+  const lines = [];
+
+  // 1. Firma (durchläuft resolveFirma: nur belegte Organisationen, keine Rollen-Blobs)
+  const firma = resolveFirma(figur);
+  if (firma) {
+    lines.push(firma);
+  }
+
+  // 2. Name mit Präfix (Herr/Frau nur bei m/f, sonst reiner Name)
+  // Verwendet bewusst den Alias (figur.name), nicht den bürgerlichen Namen, weil der Testbrief-Charakter
+  // die Absurdität ist. „Herr Batman" ist grammatisch falsch und soll es sein.
+  const nameZeile = figur.anredePraefix 
+    ? `${figur.anredePraefix} ${figur.name}` 
+    : figur.name;
+  if (nameZeile?.trim()) {
+    lines.push(nameZeile.trim());
+  }
+
+  // 3. Straße / Zustellangabe (durchläuft resolveStrasse: Scheinanschriften, Platzhalter & Verneinungen filtern)
+  const strasse = resolveStrasse(figur);
+  if (strasse) {
+    lines.push(strasse);
+  }
+
+  // 4. PLZ & Ort (zentral über resolveOrtZeile inkl. plzWahl-Cache)
+  const ortszeile = resolveOrtZeile(figur);
+  if (ortszeile) {
+    lines.push(ortszeile);
+  }
+
+  // DIN 5008: Maximal 7 Zeilen in der Empfängerzone, keine Leerzeilen
+  return lines.filter((l) => l.length > 0).slice(0, 7);
+}
+
+/** @type {Figurenkatalog | null} */
+let figurenkatalogCache = null;
+
+/**
+ * Lädt die 297 konsolidierten Figuren einmalig asynchron (Lazy Load beim ersten Klick).
  * @returns {Promise<any[] | null>}
  */
 async function loadHeroes() {
   if (heroesCache) return heroesCache;
   try {
-    const res = await fetch(new URL('./charactere.json', import.meta.url));
+    const res = await fetch(new URL('./figuren.json', import.meta.url));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    heroesCache = Array.isArray(data) ? data : (data.figuren || []);
+    if (data._meta?.schema && Array.isArray(data.figuren)) {
+      figurenkatalogCache = new Figurenkatalog(data);
+      heroesCache = Array.from({ length: figurenkatalogCache.count }, (_, i) => figurenkatalogCache?.get(i));
+    } else {
+      heroesCache = Array.isArray(data) ? data : (data.figuren || []);
+    }
     return heroesCache;
   } catch (err) {
     console.error('[TestData] Fehler beim Laden der Figuren:', err);
@@ -557,19 +927,33 @@ function extractNachname(fullName) {
  * die SalutationEngine als Fallback und endet bei neutralem DIN-Standard.
  * @param {any} _sender
  * @param {any} recipient
+ * @param {'formal' | 'polite' | 'casual' | string} [style]
  * @returns {string}
  */
-function deriveAnrede(_sender, recipient) {
-  if (recipient?.geschlecht) {
-    const nachname = extractNachname(recipient.buergerlicherName || recipient.name);
-    if (recipient.geschlecht === 'm') return `Sehr geehrter Herr ${nachname},`;
-    if (recipient.geschlecht === 'w') return `Sehr geehrte Frau ${nachname},`;
-    if (recipient.geschlecht === 'd') return `Sehr geehrte*r ${nachname},`;
+function deriveAnrede(_sender, recipient, style = 'formal') {
+  const rName = recipient?.name || recipient?.buergerlicherName || '';
+  const hatPraefix = Boolean(recipient?.anredePraefix);
+
+  if (recipient?.geschlecht && hatPraefix) {
+    const nachname = extractNachname(rName);
+    if (recipient.geschlecht === 'm') {
+      return style === 'polite' ? `Guten Tag Herr ${nachname},` : `Sehr geehrter Herr ${nachname},`;
+    }
+    if (recipient.geschlecht === 'f' || recipient.geschlecht === 'w') {
+      return style === 'polite' ? `Guten Tag Frau ${nachname},` : `Sehr geehrte Frau ${nachname},`;
+    }
+    if (recipient.geschlecht === 'd') {
+      if (style === 'polite') return 'Guten Tag,';
+      if (style === 'casual') return 'Hallo,';
+      return 'Sehr geehrte Damen und Herren,';
+    }
   }
-  const candidate = recipient.buergerlicherName || recipient.name || '';
-  const derived = SalutationEngine.derive({ rawName: candidate, formality: 'formal' });
-  if (derived && derived !== 'Sehr geehrte Damen und Herren,' && derived !== 'Guten Tag,') {
-    return derived;
+
+  if (style === 'casual') {
+    return rName ? `Hallo ${rName},` : 'Hallo,';
+  }
+  if (style === 'polite') {
+    return 'Guten Tag,';
   }
   return 'Sehr geehrte Damen und Herren,';
 }
@@ -605,7 +989,230 @@ export function setField(id, value) {
 }
 
 /* =========================================================================================
- * 3. EXPORTIERTE HAUPTFUNKTION
+ * 3. KONTAKT-GENERATOREN & IMMERSION
+ * ========================================================================================= */
+
+/**
+ * Erzeugt einen URL- und E-Mail-konformen Slug (Kleinbuchstaben, ASCII, Trennzeichen).
+ * Umlaute werden transliteriert, Sonderzeichen entfernt.
+ * @param {unknown} wert
+ * @param {string} [sep]
+ * @returns {string}
+ */
+export function slugify(wert, sep = '.') {
+  let s = String(wert ?? '').toLowerCase();
+  s = s.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+  s = s.replace(/[^a-z0-9]+/g, sep);
+  const esc = sep === '.' ? '\\.' : sep;
+  const reD = new RegExp(`${esc}+`, 'g');
+  const reE = new RegExp(`^${esc}+|${esc}+$`, 'g');
+  return s.replace(reD, sep).replace(reE, '');
+}
+
+/**
+ * Bereinigt Strings für E-Mail-Komponenten (nur a-z0-9, Trenner vereinheitlichen).
+ * Umlaute werden DIN-gerecht transliteriert, diakritische Zeichen entfernt.
+ * @param {unknown} wert
+ * @returns {string}
+ */
+export function emailSlug(wert) {
+  return String(wert ?? '')
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 24);
+}
+
+/**
+ * Erzeugt hochgradig abwechslungsreiche Popkultur-Mailadressen aus allen
+ * verfügbaren Feldern eines Charakters (Name, bürgerlicher Name, Alias, Firma, Franchise).
+ *
+ * @param {any} figur
+ * @param {() => number} [rnd=Math.random]
+ * @returns {string}
+ */
+export function generiereTestEmail(figur, rnd = Math.random) {
+  const pick = (/** @type {any[]} */ arr) => arr[Math.floor(rnd() * arr.length)];
+
+  // 1. Namensfragmente sammeln (Künstlername, bürgerlicher Name, Aliase)
+  const bTeile = String(figur?.buergerlicherName || '').split(/\s+/).map(emailSlug).filter(Boolean);
+  const nTeile = String(figur?.name || '').split(/\s+/).map(emailSlug).filter(Boolean);
+  const namen = bTeile.length >= 2 ? bTeile : (nTeile.length >= 2 ? nTeile : (bTeile.length ? bTeile : nTeile));
+
+  const rawAlias = Array.isArray(figur?.alias) ? figur.alias : [figur?.alias];
+  const aliase = [...rawAlias, (figur?.buergerlicherName && figur?.name !== figur?.buergerlicherName ? figur?.name : null)]
+    .filter(Boolean)
+    .map(emailSlug)
+    .filter(Boolean);
+
+  // 2. Local-Part-Pool aufbauen (Initialen, Vor-/Nachname, Aliase)
+  const localPool = [];
+
+  if (namen.length >= 2) {
+    const vorname = namen[0];
+    const nachname = namen[namen.length - 1];
+    localPool.push(
+      `${vorname}.${nachname}`,         // clark.kent
+      `${vorname[0]}.${nachname}`,       // c.kent
+      `${vorname}.${nachname[0]}`,       // clark.k
+      `${vorname[0]}${nachname}`,        // ckent
+      `${nachname}.${vorname}`          // kent.clark
+    );
+  } else if (namen.length === 1) {
+    localPool.push(namen[0]);
+  }
+
+  // Aliase (z. B. "superman", "dark-knight") einstreuen
+  for (const al of aliase) {
+    localPool.push(al.replace(/-/g, '.'), al.replace(/-/g, ''));
+  }
+
+  const localPart = localPool.length > 0 ? pick(localPool) : 'kontakt';
+
+  // 3. Domain-Pool aufbauen (Firma, Franchise, Ort, Fiktionsanker)
+  const domainPool = [];
+
+  const firma = resolveFirma(figur);
+  if (firma) {
+    const fSlug = emailSlug(firma).replace(/-/g, '');
+    if (fSlug) domainPool.push(fSlug, `${fSlug}-corp`, `${fSlug}-holding`);
+  }
+
+  if (figur?.franchise) {
+    const frSlug = emailSlug(figur.franchise);
+    if (frSlug) domainPool.push(frSlug, frSlug.replace(/-/g, ''), `${frSlug}-universe`);
+  }
+
+  if (figur?.ort) {
+    const ortSlug = emailSlug(String(figur.ort).split(',')[0]);
+    if (ortSlug) domainPool.push(`stadt-${ortSlug}`, ortSlug);
+  }
+
+  // Fallback, falls die Figur weder Firma, Franchise noch Ort besitzt
+  if (domainPool.length === 0) {
+    domainPool.push('hero-post', 'brief-zustellung', 'botendienst');
+  }
+
+  const domain = pick(domainPool);
+
+  // 4. TLDs würfeln
+  const tlds = ['com', 'org', 'net', 'de', 'io', 'xyz', 'app'];
+  const tld = pick(tlds);
+
+  // 5. DIN-Infoleisten-Schutz: Gesamtlänge darf 38 Zeichen nicht überschreiten
+  const domainPart = `${domain}.${tld}`;
+  const maxLocalLen = Math.max(4, 38 - 1 - domainPart.length);
+  const safeLocal = localPart.length > maxLocalLen
+    ? localPart.slice(0, maxLocalLen).replace(/[-.]+$/, '')
+    : localPart;
+
+  return `${safeLocal}@${domainPart}`;
+}
+
+/** @type {Record<string, string>} */
+const T9_MAP = {
+  A: '2', B: '2', C: '2',
+  D: '3', E: '3', F: '3',
+  G: '4', H: '4', I: '4',
+  J: '5', K: '5', L: '5',
+  M: '6', N: '6', O: '6',
+  P: '7', Q: '7', R: '7', S: '7',
+  T: '8', U: '8', V: '8',
+  W: '9', X: '9', Y: '9', Z: '9'
+};
+
+const BNETZA_DRAMA_VORWAHLEN = [
+  '+49 30 23125',
+  '+49 40 66969',
+  '+49 69 90009',
+  '+49 221 4710',
+  '+49 89 99998'
+];
+
+/**
+ * Wandelt einen Text via ITU-T E.161 in T9-Ziffern um.
+ * @param {string} str
+ * @returns {string}
+ */
+export function toT9(str) {
+  const clean = String(str || '')
+    .toUpperCase()
+    .replace(/Ä/g, 'AE')
+    .replace(/Ö/g, 'OE')
+    .replace(/Ü/g, 'UE')
+    .replace(/ß/g, 'SS')
+    .replace(/[^A-Z]/g, '');
+  return Array.from(clean).map((c) => T9_MAP[c] || '').join('');
+}
+
+/**
+ * Erzeugt eine synthetische T9-Vanity-Telefonnummer mit offizieller BNetzA-Drama-Vorwahl.
+ * Die ersten 3 Ziffern des Hauptnamens bilden die Basisnummer, bis zu 4 Folgeziffern
+ * die DIN-5008-Durchwahl.
+ * @param {any} figur
+ * @param {() => number} [rnd]
+ * @returns {string}
+ */
+export function generiereTestTelefon(figur, rnd = Math.random) {
+  const vorwahl = BNETZA_DRAMA_VORWAHLEN[Math.floor(rnd() * BNETZA_DRAMA_VORWAHLEN.length)];
+  const rohName = String(figur?.name || figur?.buergerlicherName || 'DIN').trim();
+  const teile = rohName.split(/\s+/).filter(Boolean);
+  const haupt = teile.length > 1 ? teile[teile.length - 1] : teile[0];
+  let t9 = toT9(haupt || 'DIN');
+  if (t9.length < 3) t9 = t9.padEnd(3, '0');
+  const basis = t9.slice(0, 3);
+  let durchwahl = t9.slice(3) || '0';
+  if (durchwahl.length > 4) durchwahl = durchwahl.slice(0, 4);
+  return `${vorwahl} ${basis}-${durchwahl}`;
+}
+
+/**
+ * Erkennt, ob zwei Figuren dieselbe Person darstellen (gleicher Name, bürgerlicher Name oder Alias).
+ * Verhindert Identitätskollisionen (z. B. Batman <-> Bruce Wayne).
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+export function sindIdentisch(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const namenA = [a.name, a.buergerlicherName, ...(Array.isArray(a.alias) ? a.alias : [])]
+    .map(normiere).filter(Boolean);
+  const namenB = [b.name, b.buergerlicherName, ...(Array.isArray(b.alias) ? b.alias : [])]
+    .map(normiere).filter(Boolean);
+  return namenA.some((nA) => namenB.includes(nA));
+}
+
+/**
+ * Erkennt eine zulässige Figurenbeziehung innerhalb desselben Franchises (Wonka-Regel):
+ * Die Firma oder der Ort der einen Figur enthält den Namen oder ein Namenselement der anderen Figur.
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+export function hatWonkaBezug(a, b) {
+  if (!a || !b || sindIdentisch(a, b)) return false;
+  const bezugA = normiere(a.firma || a.ort);
+  const bezugB = normiere(b.firma || b.ort);
+  const bTokens = [b.name, b.buergerlicherName, ...(Array.isArray(b.alias) ? b.alias : [])]
+    .flatMap((s) => (s ? normiere(s).split(/\s+/) : []))
+    .filter((w) => w.length >= 3 && !['herr', 'frau', 'prof', 'doktor', 'doctor'].includes(w));
+  const aTokens = [a.name, a.buergerlicherName, ...(Array.isArray(a.alias) ? a.alias : [])]
+    .flatMap((s) => (s ? normiere(s).split(/\s+/) : []))
+    .filter((w) => w.length >= 3 && !['herr', 'frau', 'prof', 'doktor', 'doctor'].includes(w));
+
+  return bTokens.some((t) => bezugA.includes(t)) || aTokens.some((t) => bezugB.includes(t));
+}
+
+/* =========================================================================================
+ * 4. EXPORTIERTE HAUPTFUNKTION
  * ========================================================================================= */
 
 /**
@@ -613,8 +1220,9 @@ export function setField(id, value) {
  *
  * - Absender: Figur mit eigenem Hook (Fallback: alle), denn der Absender
  *   liefert das Thema des Briefes.
- * - Empfänger: aus einem anderen Franchise, damit kein Universum an sich
- *   selbst schreibt.
+ * - Empfänger: aus einem anderen Franchise (oder via Wonka-Regel bei Firmenbezug),
+ *   damit kein Universum an sich selbst schreibt.
+ * - Identitäts-Schutz: Schließt Figuren mit identischer Identität aus (z. B. Batman <-> Bruce Wayne).
  * - Dritte: 0..3 aus dem Rest; sie werden im Text zu Beteiligten.
  *
  * Ausgelagert, damit die Messung (`tools/testbrief-messung.mjs`) dieselbe
@@ -630,11 +1238,15 @@ export function waehleBesetzung(heroes) {
   const sender = zufall(senderPool);
 
   const eigenesFranchise = franchiseKey(sender);
-  const fremde = usable.filter((c) => c !== sender && franchiseKey(c) !== eigenesFranchise);
-  const recipientPool = fremde.length > 0 ? fremde : usable.filter((c) => c !== sender);
+  const erlaubteEmpfaenger = usable.filter(
+    (c) => c !== sender && !sindIdentisch(sender, c) && (franchiseKey(c) !== eigenesFranchise || hatWonkaBezug(sender, c))
+  );
+  const recipientPool = erlaubteEmpfaenger.length > 0
+    ? erlaubteEmpfaenger
+    : usable.filter((c) => c !== sender && !sindIdentisch(sender, c));
   const recipient = zufall(recipientPool);
 
-  const rest = usable.filter((c) => c !== sender && c !== recipient);
+  const rest = usable.filter((c) => c !== sender && c !== recipient && !sindIdentisch(sender, c) && !sindIdentisch(recipient, c));
   const numDritte = Math.floor(Math.random() * 4);
   return { sender, recipient, dritte: shuffle(rest).slice(0, numDritte) };
 }
@@ -656,59 +1268,156 @@ export function waehleBesetzung(heroes) {
  * @param {Szenario} szenario
  */
 export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
-  const senderName = sender.buergerlicherName || sender.name;
-  const recipientName = recipient.buergerlicherName || recipient.name;
+  // Verwendet bewusst den Alias (sender.name / recipient.name), nicht den bürgerlichen Namen,
+  // weil der Testbrief-Charakter die Absurdität ist. „Herr Batman" ist grammatisch falsch und soll es sein.
+  const senderName = sender.name || sender.buergerlicherName;
+  const recipientName = recipient.name || recipient.buergerlicherName;
 
-  // Lucky-Luke-Fix: Keine erfundenen Fallbacks
+  // Kontakt-Immersion: Synthetische T9-Vanity-Rufnummer & Popkultur-Mail
   setField('absender-name', senderName);
   setField('absender-strasse', resolveStrasse(sender));
   setField('absender-ort', resolveOrtZeile(sender));
-  setField('absender-tel', '+49 228 123456-78');
-  setField('absender-mail', `${senderName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@beispiel.de`);
+  setField('absender-tel', sender.telefon || generiereTestTelefon(sender));
+  setField('absender-mail', sender.mail || generiereTestEmail(sender));
 
   const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
   setField('rucksendeangabe', rucksendeTeile.join(' • '));
 
   // Empfänger
   // Firmenzeile nur bei einer einzelnen belegten Organisation — kein Berufs-Blob.
+  const recipientNameWithPrefix = recipient.anredePraefix
+    ? `${recipient.anredePraefix} ${recipientName}`
+    : recipientName;
   setField('empfaenger-firma', resolveFirma(recipient));
-  setField('empfaenger-name', recipientName);
+  setField('empfaenger-name', recipientNameWithPrefix);
   setField('empfaenger-strasse', resolveStrasse(recipient));
   setField('empfaenger-ort', resolveOrtZeile(recipient));
 
   // Briefkern
+  const currentStyle = (/** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'))?.value) || 'formal';
   setField('betreff', randomBetreff(themenHook, szenario));
-  setField('anrede', deriveAnrede(sender, recipient));
+  setField('anrede', deriveAnrede(sender, recipient, currentStyle));
   setField('text', generateNerdText(sender, recipient, dritte, themenHook, szenario));
-  setField('grussformel', 'Mit freundlichen Grüßen');
+  setField('grussformel', SalutationEngine.getClosing(currentStyle));
   setField('unterschrift', senderName);
   applyLetterDate();
 
-  // Zusatzblöcke & Postvermerk zurücksetzen
-  const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-  if (anlagenToggle) {
-    anlagenToggle.checked = false;
-    document.getElementById('anlagen-angabe')?.replaceChildren();
+  // Auto-Text-Status für SalutationFeature sichern (kein fälschlicher dirty-Lock)
+  const anredeEl = document.getElementById('anrede');
+  if (anredeEl) {
+    delete anredeEl.dataset.dirty;
+    anredeEl.dataset.generated = 'true';
   }
+  const grussEl = document.getElementById('grussformel');
+  if (grussEl) {
+    delete grussEl.dataset.dirty;
+    grussEl.dataset.generated = 'true';
+  }
+
+  // Zusatzblöcke: Anlagen dynamisch steuern
+  const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+  const anlagenEl = document.getElementById('anlagen-angabe');
+  const anlagenText = resolveAnlagenEintrag(szenario, themenHook);
+  if (anlagenText) {
+    if (anlagenToggle) anlagenToggle.checked = true;
+    if (anlagenEl) {
+      const li = document.createElement('li');
+      li.textContent = anlagenText;
+      anlagenEl.replaceChildren(li);
+    }
+  } else {
+    if (anlagenToggle) anlagenToggle.checked = false;
+    if (anlagenEl) anlagenEl.replaceChildren();
+  }
+
   const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
   if (fussToggle) {
     fussToggle.checked = false;
   }
 
+  // Postvermerk dynamisch steuern
+  const postvermerk = resolvePostvermerk(szenario);
   const postvermerkField = document.getElementById('vermerke');
-  if (postvermerkField) {
-    postvermerkField.textContent = '';
-    postvermerkField.removeAttribute('data-visible');
-  }
   const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
-  if (pvSelect) pvSelect.value = '';
   const triggerLabel = document.getElementById('postvermerk-trigger-label');
-  if (triggerLabel) triggerLabel.textContent = '— kein —';
   const triggerBtn = document.getElementById('btn-postvermerk-trigger');
-  if (triggerBtn) triggerBtn.removeAttribute('data-active');
 
-  // Entwurf persistieren
+  if (postvermerk) {
+    if (postvermerkField) {
+      postvermerkField.textContent = postvermerk;
+      postvermerkField.setAttribute('data-visible', 'true');
+    }
+    if (pvSelect) pvSelect.value = postvermerk;
+    if (triggerLabel) triggerLabel.textContent = postvermerk;
+    if (triggerBtn) triggerBtn.setAttribute('data-active', 'true');
+  } else {
+    if (postvermerkField) {
+      postvermerkField.textContent = '';
+      postvermerkField.removeAttribute('data-visible');
+    }
+    if (pvSelect) pvSelect.value = '';
+    if (triggerLabel) triggerLabel.textContent = '— kein —';
+    if (triggerBtn) triggerBtn.removeAttribute('data-active');
+  }
+
+  // Briefzustand & Entwurf aktualisieren
+  eventBus.publish(Events.DOCUMENT_CHANGED);
   eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+}
+
+/* =========================================================================================
+ * 5. MEHRSEITEN-DEMOTEXT (QA / BENCHMARK)
+ * ========================================================================================= */
+
+const DEMO_SAETZE = [
+  'Wir bestätigen den Eingang Ihres Schreibens und danken Ihnen für die ausführliche Darstellung des Sachverhalts.',
+  'Nach Prüfung der vorliegenden Unterlagen ergibt sich, dass die geltend gemachte Forderung dem Grunde nach besteht.',
+  'Die Höhe der Forderung konnten wir anhand der übersandten Belege jedoch nur teilweise nachvollziehen.',
+  'Wir bitten Sie daher, uns die fehlenden Nachweise bis zum Ende des laufenden Monats zukommen zu lassen.',
+  'Sollten sich Rückfragen ergeben, erreichen Sie uns telefonisch zu den üblichen Geschäftszeiten.',
+  'Bis zur Klärung bitten wir um Verständnis, dass wir keine weiteren Zahlungen veranlassen können.',
+  'Die sorgfältige Bearbeitung Ihrer Angelegenheit hat für unser Haus oberste Priorität.',
+  'Bitte beachten Sie auch die beigefügten Hinweise zur Einreichung ergänzender Unterlagen.',
+];
+
+/**
+ * Erzeugt DOM-Absätze für langen Mehrseitentext ohne innerHTML (Law A61).
+ * @returns {HTMLParagraphElement[]}
+ */
+export function erstelleLangenDemoText() {
+  /** @type {HTMLParagraphElement[]} */
+  const absaetze = [];
+  for (let i = 0; i < 14; i++) {
+    let p = '';
+    const anzahl = 4 + (i % 3);
+    for (let j = 0; j < anzahl; j++) {
+      p += `${DEMO_SAETZE[(i + j) % DEMO_SAETZE.length]} `;
+    }
+    const pEl = document.createElement('p');
+    pEl.textContent = p.trim();
+    absaetze.push(pEl);
+  }
+  return absaetze;
+}
+
+/**
+ * Befüllt das Text-Feld mit Demo-Text ('lang' oder 'kurz').
+ * @param {'lang' | 'kurz'} modus
+ */
+export function fuelleDemoText(modus) {
+  const text = document.getElementById('text');
+  if (!text) return;
+
+  if (modus === 'lang') {
+    text.replaceChildren(...erstelleLangenDemoText());
+  } else {
+    const p1 = document.createElement('p');
+    p1.textContent = 'Sehr geehrte Damen und Herren,';
+    const p2 = document.createElement('p');
+    p2.textContent = 'dies ist ein kurzer Testbrief auf einer Seite. Nutzen Sie den Button „Langer Text“ oder tippen Sie weiteren Text ein, um den automatischen Umbruch auf Folgeseiten zu testen.';
+    text.replaceChildren(p1, p2);
+  }
+  text.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 /**

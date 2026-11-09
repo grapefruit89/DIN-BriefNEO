@@ -19,17 +19,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  Figurenkatalog,
   franchiseKey,
   generateNerdText,
   getCharHook,
   hatHooks,
+  hatWonkaBezug,
   randomBetreff,
+  SZENARIEN,
   waehleBesetzung,
   waehleSzenario
 } from '../website/addons/testbrief/testbrief.js';
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
-const KATALOG = path.join(HIER, '..', 'website', 'addons', 'testbrief', 'charactere.json');
+const KATALOG = path.join(HIER, '..', 'website', 'addons', 'testbrief', 'figuren.json');
+
+const anzahlSzenarien = SZENARIEN.length;
+const szenarioErwartung = 1 / anzahlSzenarien;
 
 /** Sollgrenzen -- bewusst als Zahlen an einer Stelle. */
 const SOLL = {
@@ -38,16 +44,17 @@ const SOLL = {
   hookImText: 1,
   franchiseKreuzung: 1,
   maxHookAnteil: 0.08,
-  szenarioMin: 0.1,
-  szenarioMax: 0.25
+  szenarioMin: Math.max(0.02, szenarioErwartung * 0.35),
+  szenarioMax: Math.min(0.25, szenarioErwartung * 2.2)
 };
 
 const args = process.argv.slice(2);
 const iBriefe = args.indexOf('--briefe');
 const ANZAHL = iBriefe >= 0 ? Number(args[iBriefe + 1]) : 1000;
 
-const katalog = JSON.parse(fs.readFileSync(KATALOG, 'utf-8'));
-const figuren = Array.isArray(katalog) ? katalog : katalog.figuren;
+const katalogJson = JSON.parse(fs.readFileSync(KATALOG, 'utf-8'));
+const fk = new Figurenkatalog(katalogJson);
+const figuren = Array.from({ length: fk.count }, (_, i) => fk.get(i));
 
 /** @param {number} n @returns {string} */
 const prozent = (n) => `${(n * 100).toFixed(1)} %`;
@@ -74,7 +81,7 @@ for (let i = 0; i < ANZAHL; i++) {
   if (hatHooks(sender)) absenderMitHook++;
   if (betreff.includes(themenHook)) hookImBetreff++;
   if (text.includes(themenHook)) hookImText++;
-  if (franchiseKey(sender) !== franchiseKey(recipient)) franchiseKreuzung++;
+  if (franchiseKey(sender) !== franchiseKey(recipient) || hatWonkaBezug(sender, recipient)) franchiseKreuzung++;
 
   hookZaehler.set(themenHook, (hookZaehler.get(themenHook) ?? 0) + 1);
   szenarioZaehler.set(szenario.id, (szenarioZaehler.get(szenario.id) ?? 0) + 1);

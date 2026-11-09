@@ -32,16 +32,28 @@ try {
   const settings = parsed && typeof parsed === 'object' ? { ...defaults, ...parsed } : defaults;
   const root = document.documentElement;
 
-  root.setAttribute('data-theme', settings.theme || 'auto');
+  /** @type {(v: any, def: boolean) => boolean} */
+  const asBool = (v, def) => (v === undefined ? def : v === true || v === 'true');
+
+  const THEME_WHITELIST = new Set(['auto', 'light', 'dark']);
+  const LAYOUT_WHITELIST = new Set(['form-a', 'form-b']);
+
+  const theme = THEME_WHITELIST.has(settings.theme) ? settings.theme : 'auto';
+  const layout = LAYOUT_WHITELIST.has(settings.layout) ? settings.layout : 'form-b';
+
+  root.setAttribute('data-theme', theme);
+  root.setAttribute('data-layout', layout);
   root.setAttribute('data-style', settings.style || 'default');
-  root.setAttribute('data-guides', settings.guides === true ? 'true' : 'false');
-  root.setAttribute('data-marks', settings.marks === false ? 'false' : 'true');
-  root.setAttribute('data-sensitive-subject', settings.sensitiveSubject === true ? 'true' : 'false');
+  root.setAttribute('data-guides', asBool(settings.guides, false) ? 'true' : 'false');
+  root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
+  root.setAttribute('data-sensitive-subject', asBool(settings.sensitiveSubject, false) ? 'true' : 'false');
+  root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
+  root.setAttribute('data-plugin-multipage', asBool(settings.pluginMultipage, true) ? 'true' : 'false');
 
   /* Mehrseiten-Plugin ist standardmaessig an: Stylesheet schon vor dem ersten
    * Paint tauschen, sonst springt das Layout sichtbar um, sobald main.js laeuft.
    * Die Links stehen im <head> vor diesem Block und sind bereits geparst. */
-  if (settings.pluginMultipage === true) {
+  if (asBool(settings.pluginMultipage, true)) {
     const blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
     const ziel = blattLink?.dataset.blattMehrseitig;
     if (blattLink && ziel && blattLink.getAttribute('href') !== ziel) {

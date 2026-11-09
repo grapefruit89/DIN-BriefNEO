@@ -9,16 +9,10 @@
  */
 
 import { deleteBlob, loadBlob, saveBlob } from './binary-storage.js';
-import { Constants, Events, eventBus } from './core.js';
+import { Constants, notify } from './core.js';
 
 /** Typ-Referenz auf den SettingsManager (nur Typ, kein Laufzeit-Import). */
 /** @typedef {import('./settings.js').SettingsManager} SettingsManager */
-
-/**
- * @param {string} message
- * @param {string} [type]
- */
-const notify = (message, type = 'info') => eventBus.publish(Events.NOTIFICATION_REQUESTED, { message, type });
 
 export class SignatureFeature {
   /**
@@ -30,8 +24,7 @@ export class SignatureFeature {
     this.settings = settingsManager ? settingsManager.settings : {};
     this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('unterschriftsbild-vorschau'));
     this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('unterschriftsbild-datei'));
-    this.btnTrigger = document.getElementById('btn-unterschriftsbild-waehlen');
-    this.btnReset = document.getElementById('btn-unterschriftsbild-reset');
+    this.btnAktion = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-unterschrift-aktion'));
     
     /** @type {{x: number, y: number, scale: number, rot: number}} */
     this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
@@ -64,9 +57,13 @@ export class SignatureFeature {
       if (target) target.value = '';
     });
 
-    if (this.btnReset) {
-      this.btnReset.addEventListener('click', () => {
-        this.resetImage();
+    if (this.btnAktion) {
+      this.btnAktion.addEventListener('click', () => {
+        if (this.btnAktion?.dataset.state === 'loaded') {
+          this.resetImage();
+        } else {
+          this.uploader?.click();
+        }
       });
     }
 
@@ -77,6 +74,7 @@ export class SignatureFeature {
       if (!blob) return;
       this.#setImageFromBlob(blob);
       this.applyTransform();
+      this.#updateButtonState(true);
     });
   }
 
@@ -103,6 +101,7 @@ export class SignatureFeature {
      *   startX: number, startY: number,
      *   centerX: number, centerY: number,
      *   startAngle: number, startDistance: number,
+     *   pxToCqw?: number,
      *   initial: {x: number, y: number, scale: number, rot: number} | null
      * }} */
     const interaction = {
@@ -110,6 +109,7 @@ export class SignatureFeature {
       startX: 0, startY: 0,
       centerX: 0, centerY: 0,
       startAngle: 0, startDistance: 0,
+      pxToCqw: 0.125,
       initial: null
     };
 
@@ -134,6 +134,10 @@ export class SignatureFeature {
       interaction.startAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
       interaction.startDistance = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
 
+      const blatt = document.querySelector('din-blatt');
+      const blattWidth = blatt ? blatt.getBoundingClientRect().width : 800;
+      interaction.pxToCqw = 100 / (blattWidth || 1);
+
       bbox.setPointerCapture(e.pointerId);
     });
 
@@ -145,9 +149,7 @@ export class SignatureFeature {
       e.preventDefault();
 
       if (interaction.action === 'drag') {
-        const blatt = document.querySelector('din-blatt');
-        const blattWidth = blatt ? blatt.getBoundingClientRect().width : 800;
-        const pxToCqw = 100 / (blattWidth || 1);
+        const pxToCqw = interaction.pxToCqw || 0.125;
         this.state.x = interaction.initial.x + (e.clientX - interaction.startX) * pxToCqw;
         this.state.y = interaction.initial.y + (e.clientY - interaction.startY) * pxToCqw;
       } else if (interaction.action === 'rotate') {
@@ -263,8 +265,24 @@ export class SignatureFeature {
 
       this.#setImageFromBlob(blob);
       this.saveState();
+      this.#updateButtonState(true);
     } catch (error) {
       console.warn('[Signature] convertToBlob / save failed:', error);
+    }
+  }
+
+  /**
+   * Aktualisiert den 2-Zustände-Button in der Seitenleiste.
+   * @param {boolean} hasImage
+   */
+  #updateButtonState(hasImage) {
+    if (!this.btnAktion) return;
+    if (hasImage) {
+      this.btnAktion.dataset.state = 'loaded';
+      this.btnAktion.textContent = '🗑️ Unterschrift / Stempel entfernen';
+    } else {
+      this.btnAktion.dataset.state = 'empty';
+      this.btnAktion.textContent = '✒️ Unterschrift / Stempel laden';
     }
   }
 
@@ -288,6 +306,7 @@ export class SignatureFeature {
     this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
     this.applyTransform();
 
+    this.#updateButtonState(false);
     this.#saveSettings();
   }
 }

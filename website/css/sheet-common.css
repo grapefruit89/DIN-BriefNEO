@@ -42,6 +42,11 @@ body:has(#btn-form-a:checked) din-blatt {
   --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-a type(<number>)));
 }
 
+/* Neutralisiert #spacer gegen vertikales Einknicken / FOUC im DOM-Fluss */
+#spacer {
+  display: none;
+}
+
 din-rucksendeangabe,
 din-empfaenger-firma,
 din-empfaenger-strasse,

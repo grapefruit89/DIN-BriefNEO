@@ -219,18 +219,13 @@ export class SettingsManager {
   }
 
   /**
-   * Layout-Wechsel (Form A/B) mit element-scoped View Transition auf dem Blatt (~0,25s).
+   * Layout-Wechsel (Form A/B): Synchrones Umschalten ohne FOUC/Morphing.
    * @param {'form-a' | 'form-b'} layout
    */
   changeLayout(layout) {
     this.settings.layout = layout;
     document.documentElement.setAttribute('data-layout', layout);
-    const blatt = /** @type {HTMLElement | null} */ (document.querySelector('din-blatt'));
-    if (blatt) {
-      transitionOn(blatt, () => this.updateSettings());
-    } else {
-      this.updateSettings();
-    }
+    this.updateSettings();
   }
 
   attachListeners() {

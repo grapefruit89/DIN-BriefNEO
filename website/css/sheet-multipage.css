@@ -220,8 +220,11 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   }
 
   #spacer {
+    display: block !important;
     height: var(--spacer-hoehe);
-    display: block;
+    min-height: var(--spacer-hoehe);
+    max-height: var(--spacer-hoehe);
+    box-sizing: border-box;
     user-select: none;
     pointer-events: none;
   }

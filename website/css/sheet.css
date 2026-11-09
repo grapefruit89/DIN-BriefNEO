@@ -124,6 +124,10 @@ din-blatt {
     overflow: clip; /* Zero-Ueberlauf Garantie */
   }
 
+  #spacer {
+    display: none !important;
+  }
+
   #betreff {
     font-size: --pt-rel(attr(data-font type(<number>))); /* 12pt in cqw */
     font-weight: 700;

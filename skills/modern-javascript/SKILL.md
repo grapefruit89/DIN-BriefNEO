@@ -131,17 +131,20 @@ eventBus.subscribe(Events.NOTIFICATION_REQUESTED, ({ message, type }) => {
 
 ---
 
-## 4. References
+## 4. Modul-Graph & Import-Disziplin (L0–L4)
 
-Consult the specific reference files when inspecting advanced syntax or standard behavior:
+Die JavaScript-Module in `website/js/` sind strikt in hierarchische Layer unterteilt. Ein Modul darf ausschließlich Module derselben oder einer **niedrigeren** Ebene importieren — niemals aufwärts oder zirkulär (`A -> B -> A`):
 
-| Reference | Topic |
-|---|---|
-| `references/CHEATSHEET.md` | Array methods, Set methods, Object grouping, copy-by-mutation |
-| `references/PROMISES.md` | `Promise.allSettled`, `Promise.withResolvers`, microtask order |
-| `references/CONCURRENCY.md` | Async iterators, cancellation patterns, worker communication |
-| `references/ES2025.md` | Set methods (`union`, `intersection`, `difference`), Iterator helpers |
-| `references/ES2026.md` | `Array.fromAsync`, latest standardized methods |
+- **L0 (Foundation):** `core.js`, `format.js`, `boot.js`
+- **L1 (Data & Storage):** `address-data.js`, `binary-storage.js`, `persistence.js`
+- **L2 (Domain Engines):** `salutation.js`, `document.js`
+- **L3 (UI & Controller):** `address.js`, `clipboard-parser.js`, `settings.js`, `font-feature.js`, `signature.js`, `draft-manager.js`, `multipage-controller.js`
+- **L4 (App Orchestrator):** `main.js`
+
+### Regeln der Import-Disziplin:
+1. **Keine Aufwärtsbezüge:** Ein L1-Speichermodul oder L2-Domainmodul darf niemals L3-Controller oder den L4-Orchestrator importieren.
+2. **Keine zirkulären Abhängigkeiten:** Geteilte Konstanten, Enums oder Event-Typen werden stets in L0 (`core.js`) oder L1 extrahiert.
+3. **Entkopplung via EventBus:** Querverbindungen zwischen UI-Controllern (L3) erfolgen ausnahmslos lose gekoppelt über den zentralen `eventBus` in `core.js`.
 
 ---
 

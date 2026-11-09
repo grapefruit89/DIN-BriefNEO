@@ -59,7 +59,21 @@ Für jede nicht-triviale Änderung am Repository:
 1. **Discover / Inspect**: Was existiert bereits? (`repository.yaml`, `docs/30-meta/tooling-overview.md` prüfen, echten Code öffnen).
 2. **Think / Research**: Bei technischer Unsicherheit systematisch recherchieren (siehe [[#5. Recherche: Quellenpyramide & Fragetyp-Routing]]). Context7 ist bei Web-API-Unsicherheit laut `AGENTS.md` §4 verbindlich.
 3. **Validate / Plan**: Vorgehen präzise festlegen, bevor Code geschrieben wird (`plan`-Operation).
-4. **Execute**: Änderung minimal und chirurgisch umsetzen (für `website/` gilt zwingend die [[#6. Feature-Implementierung in website/ (HTML → CSS → JS)]]).
+4. **Execute**: Änderung minimal und chirurgisch umsetzen (für `website/` gilt zwingend die [[#6. Feature-Implementierung in website/ (HTML → CSS → JS)]]) nach dem **2-Stufen-Interventionsmodell**:
+   - **Stufe 1: Surgical Fast-Track (Autonome Sofort-Korrektur):**
+     Triviale Mängel und eindeutige Bugs ohne Nachfrage sofort im Code umsetzen:
+     * Ersetzen physischer CSS-Properties durch logische (`margin-top` $\rightarrow$ `margin-block-start`, `left/right` $\rightarrow$ `inset-inline`).
+     * Entfernen toter CSS-Klassen, ungenutzter Selektoren oder alter Vendor-Präfixe.
+     * Ersetzen von Legacy-JS-Aufrufen (`Date` $\rightarrow$ `Temporal`, `caretRangeFromPoint` $\rightarrow$ `caretPositionFromPoint`).
+     * Ersetzen von JS-Scroll/Resize-Loops durch `field-sizing: content`.
+     * Schließen von Memory-Leaks (`AbortController`, Event-Listener Cleanup).
+     * Triviales Entwirren von Import-Zyklen durch Verschieben reiner Konstanten nach L0/L1.
+   - **Stufe 2: Review-Track (Architektur- & Modell-Entscheidungen):**
+     Sobald ein Befund das Datenmodell berührt, Layout-Geometrien nach DIN 5008 verschiebt oder mehrere valide Lösungswege mit Trade-offs existieren, **stoppen** und dem Nutzer strikt in folgendem Schema vorlegen:
+     1. **Befund:** Konkrete Datei, Zeile, Problemursache.
+     2. **Option A (Best Practice / W3C-Standard):** Die modernste, normgerechteste Lösung.
+     3. **Option B (Minimalistisch / KISS):** Die kleinste, risikoärmste Änderung mit dem geringsten Diff.
+     4. **Konsequenzen & Trade-offs:** Was bedeutet Option A vs. B für Performance, DOM-Größe und Wartbarkeit?
 5. **Verify & Report**:
    - Quality Gates ausführen: Fitness Gate (`node tools/build_db.js -q`), Unit-Tests (`npm test`) und Antipattern-Prüfung (`npm run check:antipatterns`).
    - Verbindlicher Tätigkeitsbericht nach dem projektweiten 5-Punkte-Vertrag (HANDOFF.md §6 / AGENTS.md §7a):

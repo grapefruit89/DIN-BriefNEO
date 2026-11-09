@@ -6,12 +6,5 @@
     "bash": {
       "node tools/*": "allow"
     }
-  },
-  "mcp": {
-    "dinbrief": {
-      "type": "local",
-      "command": ["node", "agent/mcp/dinbrief-mcp/index.js"],
-      "enabled": true
-    }
   }
 }

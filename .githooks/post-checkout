@@ -1,14 +1,3 @@
 #!/bin/sh
 # DIN-BriefNEO post-checkout hook (Silent-on-Success)
-[ "$3" = "1" ] || exit 0
-cd "$(git rev-parse --show-toplevel)" 2>/dev/null || exit 0
-
-OLD_REF="$1"
-NEW_REF="$2"
-
-if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
-  if git diff-tree -r --name-only "$OLD_REF" "$NEW_REF" 2>/dev/null | grep -qE "^(docs/|tools/docs_index\.js)"; then
-    node -e "require('./tools/docs_index.js').buildIndex({force:true})" >/dev/null 2>&1 || true
-  fi
-fi
 exit 0

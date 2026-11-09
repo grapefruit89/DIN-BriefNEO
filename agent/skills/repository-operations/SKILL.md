@@ -14,12 +14,11 @@ Herkunft: ChatGPT-Brainstorm "Repo Struktur Refactoring", mehrere Antworten
 Forschungs-Quellenpyramide, 5-Schritt-Workflow). Dieser Skill fasst sie zu
 einer einzigen anwendbaren Entscheidungslogik zusammen.
 
-## Verhaeltnis zu AGENTS.md, repository.yaml und dem MCP-Server
+## Verhaeltnis zu AGENTS.md, repository.yaml und Tools
 
-Drei Schichten, nicht austauschbar:
+Zwei Schichten, nicht austauschbar:
 
 - **Skill (dieses Dokument)** = Entscheidungslogik. Beantwortet "wann tue ich was".
-- **MCP (`agent/mcp/dinbrief-mcp/`)** = Capability-Exposition. Beantwortet "was kann ausgefuehrt werden".
 - **Tool/Script (`tools/*.js`, `tools/*.py`)** = deterministische Implementierung. Beantwortet "wie wird es konkret gemacht".
 
 `repository.yaml` ist die Datenquelle, auf die sich alle drei Schichten

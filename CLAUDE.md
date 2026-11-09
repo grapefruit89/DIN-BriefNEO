@@ -73,4 +73,4 @@ start.bat                 # lokaler Webserver auf Port 8088 (Windows)
 node tools/build_db.js    # Fitness Gate — muss 100 % melden, vor und nach jeder Änderung
 ```
 
-Protokollpflicht nach jeder Änderung: `node tools/log_session.js` (siehe [[AGENTS]] §8).
+Protokollierung: Präzise Git-Commits und Begründungen in [[DECISION-LOG]] (siehe [[AGENTS]] §8).

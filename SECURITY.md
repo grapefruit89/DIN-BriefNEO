@@ -31,7 +31,6 @@ Erwarte bitte keine feste Reaktionszeit — dies ist ein Ein-Personen-Projekt. M
 ## Scope: Was gemeldet werden sollte
 
 - XSS-Vektoren über Briefinhalte (Sanitizing-Pfad im DraftManager / Plaintext-Konvertierung) — dieser Pfad ist der kritischste und ist durch Tests abgedeckt (`test/`).
-- Umgehung der MCP-Allowlist (`agent/mcp/dinbrief-mcp/`) oder der Plan-Bindung von `repository.execute`.
 - Unsichere Handhabung von Speicher-Payloads (z. B. Injection über Schema-v4-Importe).
 
 ## Out of Scope

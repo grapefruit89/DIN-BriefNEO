@@ -43,7 +43,7 @@ function getFilesRecursively(dir, fileList = []) {
   for (const file of files) {
     const name = path.join(dir, file);
     if (fs.statSync(name).isDirectory()) {
-      const ignoredDirs = ['website', '.git', 'tools', 'build', 'venv', 'node_modules', '.agents', '.claude'];
+      const ignoredDirs = ['website', '.git', 'tools', 'build', 'venv', 'node_modules', '.agents', '.claude', 'Papierkorb'];
       if (!ignoredDirs.includes(file)) {
         getFilesRecursively(name, fileList);
       }
@@ -194,9 +194,8 @@ ${produktionscodeTabelle()}
 ## Werkzeuge (\`tools/\`)
 | Datei | Zweck |
 |---|---|
-| build_db.js | Fitness Gate + Index-Builder & SSoT-Sync |
+| build_db.js | Fitness Gate + SSoT-Sync |
 | agent_gateway.py | Lokales WebMCP-Gateway für Bash-/Agenten-Anbindung |
-| docs_index.js | SQLite-FTS5-Retrieval-Index (search, get, related) |
 | adr-check.js | Präventiver ADR-Drift-Wächter (Bijektion & Verwaiste Assets) |
 | reconciliation.js | Reality Reconciliation Engine (Evolutionary Fitness Score) |
 | check-feature.js | Portable BCD- und Browser-Feature-Abfrage (CLI) |
@@ -209,7 +208,6 @@ ${produktionscodeTabelle()}
 | structural-laws.js | AST-/DOM-Prüfung struktureller Gesetze (A42, A57, A58 etc.) |
 | terminology.js | Kanonische Terminologie-Prüfung nach Glossar |
 | filematch.js | Pfad- und Glob-Matching-Hilfsmodul |
-| log_session.js | Append-Only Session- und Aktions-Logging |
 | dev_server.ps1 | Live-Reload-Webserver auf Port 8088 (PowerShell/.NET) |
 | setup-din-home.sh | Arbeitsverzeichnis ~/.din-briefneo initialisieren (Linux) |
 | setup-din-home.ps1 | Arbeitsverzeichnis ~/.din-briefneo initialisieren (Windows) |
@@ -571,18 +569,6 @@ Diese Datei wird automatisch von \`build_db.js\` generiert und bildet alle Quell
 
   fs.writeFileSync(outputSqlFile, sql, 'utf-8');
   if (!isQuiet) console.log(`Generated ${outputSqlFile} successfully!`);
-
-  // Phase 2: EIN Builder — der Retrieval-Index (FTS5 + Datei-Inventar) wird
-  // im selben Lauf mitgebaut. agent/cache/docs_search.db ist abgeleitet und
-  // jederzeit neu baubar. Ein Index-Fehler darf das Gate nicht kippen, wird
-  // aber laut gemeldet.
-  try {
-    const { buildIndex } = require('./docs_index.js');
-    const idx = buildIndex({ force: true });
-    if (!isQuiet) console.log(`Index: ${idx.documents} Dokumente, ${idx.sections} Abschnitte, ${idx.files} Dateien, ${idx.links} Links -> ${idx.db_path}`);
-  } catch (err) {
-    if (!isQuiet) console.error(`⚠️  Index-Build uebersprungen: ${err.message}`);
-  }
 
   const durationMs = Math.round(performance.now() - startTime);
   console.log(`✓ Fitness Score: 100.0% (clean) [${durationMs}ms]`);

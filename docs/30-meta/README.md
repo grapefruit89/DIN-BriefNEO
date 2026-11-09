@@ -33,7 +33,6 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 
 ## Projektstatus (aktuell lesen)
 
-- [[README-DB]] — LLM-First SQLite-Wissensdatenbank: Schema, FTS5, MCP-Anbindung (Agenten-Tooling)
 - [[DECISION-LOG]] — die lebende Chronik (append-only)
 - [[Feature-Matrix]] — Reifegradübersicht der Features
 - [[ROADMAP]] — Zukunftsideen (unverbindlich)

@@ -13,7 +13,6 @@ tags:
   - tech/llm
 doc_links:
   - constitution
-  - README-DB
 code_links:
   - tools/reconciliation.js
   - tools/build_db.js
@@ -136,7 +135,7 @@ Das Frontmatter aller `docs/`-Dateien und die Header-Kommentare der `website/`-D
 SELECT title FROM tbl_concepts WHERE type = 'adr' AND status = 'active';
 ```
 
-Siehe [[README-DB]] für vollständiges Schema und Build-Befehle.
+Siehe [[tooling-overview]] für vollständige Werkzeug-Inventur.
 
 ## 8. Implementation & Verification
 

@@ -11,8 +11,7 @@ Case-Contract, Baseline-Sweep, Doppelpflege-Entfernung, Traceability-Anker).
 2. **Klassifizieren** — Prüfklassen §1; Ausnahmen §3 aussortieren.
 3. **Fixen** — eine Klasse pro Commit-Gruppe, nie vermischen.
 4. **Beweisen** — Scan erneut (0 ungewollte Treffer), Gate 100 %, `node tools/imr.js`.
-5. **Protokollieren** — `node tools/log_session.js`, Append in
-   `docs/30-meta/DECISION-LOG.md`, Commit + Diff-Check, Push.
+5. **Protokollieren** — Append in `docs/30-meta/DECISION-LOG.md`, Commit + Diff-Check, Push.
 
 ## 1. Prüfklassen
 

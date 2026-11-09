@@ -15,8 +15,7 @@ tags:
 doc_links:
   - CLAUDE
   - AGENTS
-code_links:
-  - 'tools/log_session.js'
+code_links: []
 error_patterns:
   - obsidian
   - frontmatter

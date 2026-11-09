@@ -19,15 +19,13 @@ git config core.hooksPath .githooks
 ### A. `pre-commit` (Gatekeeper)
 Führt vor jedem lokalen Commit eine dreistufige Validierung aus:
 1. **Biome Linter & Style-Check:** `npm run check --silent`
-2. **Headless Test-Suite:** `npm test --silent` (174 Tests in Chrome)
-3. **Fitness Gate & Indexer:** `node tools/build_db.js -q` (muss 100.0 % Score erreichen)
+2. **Headless Test-Suite:** `npm test --silent` (180 Tests in Chrome)
+3. **Fitness Gate:** `node tools/build_db.js -q` (muss 100.0 % Score erreichen)
 
 Bricht der Commit bei einem Fehler, einem fehlschlagenden Test oder einem Score < 100.0 % sofort mit Exit-Code `!= 0` ab.
 
-### B. `post-merge` & `post-checkout` (Selektiver Doku-Cache)
-Hält die Volltext- und Embedding-Suche (`agent/cache/docs_search.db`) aktuell:
-- Springt **nur** an, wenn sich Dateien unter `docs/` oder `tools/docs_index.js` geändert haben (gefiltert per `git diff-tree`).
-- Verhindert unnötige I/O- und CPU-Last bei reinen Code- oder Style-Änderungen.
+### B. `post-merge` & `post-checkout`
+Schlanke No-Op Hooks mit Exit-Code 0. Reserviert für zukünftige Workspace-Synchronisationen.
 
 ---
 

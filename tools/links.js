@@ -19,7 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const IGNORE_DIRS = ['.git', 'node_modules', 'venv', 'cache', '.agents', '.opencode', '.claude'];
+const IGNORE_DIRS = ['.git', 'node_modules', 'venv', 'cache', '.agents', '.opencode', '.claude', 'Papierkorb'];
 const STRIP_EXT = /\.(md|json|js|css|html|canvas|ya?ml)$/i;
 const PLACEHOLDER = /^(adr-x+$|adr-y+$|_template|\.{3}|…)$/i;
 const SCAN_SKIP = [

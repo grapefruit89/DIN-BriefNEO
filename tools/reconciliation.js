@@ -140,7 +140,7 @@ function getFilesRecursively(dir, fileList = []) {
   for (const file of files) {
     const name = path.join(dir, file);
     if (fs.statSync(name).isDirectory()) {
-      const ignoredDirs = ['website', '.git', 'tools', 'build', 'venv', 'node_modules', '.agents', '.claude', 'cache'];
+      const ignoredDirs = ['website', '.git', 'tools', 'build', 'venv', 'node_modules', '.agents', '.claude', 'cache', 'Papierkorb'];
       if (!ignoredDirs.includes(file)) {
         getFilesRecursively(name, fileList);
       }

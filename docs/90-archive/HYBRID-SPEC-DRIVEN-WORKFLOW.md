@@ -20,7 +20,6 @@ doc_links:
   - DECISION-LOG
 code_links:
   - 'tools/build_db.js'
-  - 'tools/log_session.js'
   - 'tools/reconciliation.js'
 error_patterns:
   - workflow

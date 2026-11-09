@@ -95,7 +95,6 @@ audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zei
 - **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
 - **[[testing-guide]]** — Validierungs-Checklisten für Druckvorschau und responsive Ansichten.
 - **[[glossary]]** — Zentrales Projektglossar (Ubiquitous Language von A bis Z).
-- **[[README-DB]]** — lokale SQLite/FTS5-Wissensdatenbank für KI-Agenten. Die geparkte Vektorsuche liegt als [[sqlite-vec]] im Archiv (`docs/90-archive/sqlite-vec.md`).
 
 ---
 

@@ -17,8 +17,7 @@ doc_links:
 - '[[Immutable-Law-Catalog]]'
 - '[[DECISION-LOG]]'
 - '[[longevity-guidelines]]'
-code_links:
-- 'tools/log_session.js'
+code_links: []
 ---
 
 # AGENTS.md — DIN-BriefNEO
@@ -93,11 +92,10 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 
 ### Light Mode (Default)
 1. Fitness Gate ausführen (Pre-Build, siehe §2: `node tools/build_db.js`)
-2. Kontext abfragen: Volltext- und Symbolsuche via `docs_search.db` (FTS5 SQLite, wird von `build_db.js` automatisch aktualisiert)
+2. Kontext abfragen: Repo-Struktur in `docs/STRUCTURE.md` und Architektur-ADRs lesen
 3. Änderung durchführen
 4. Fitness Gate ausführen → **Fitness Score muss 100 %** sein
-5. Mit `node tools/log_session.js` protokollieren
-6. Generalisierungs-Vermerk in `DECISION-LOG.md` schreiben
+5. Dokumentation & Generalisierungs-Vermerk in `DECISION-LOG.md` pflegen
 
 ### Full Mode
 Zusätzlich:
@@ -343,11 +341,9 @@ nennen („Shipping in Chrome 151"). Ergänzend Context7 nach §4. Live-Empirie 
 
 ## 8. Protokollierung
 
-Jede relevante Aktion muss direkt nach erfolgreichem Post-Build protokolliert werden:
-
-```bash
-node tools/log_session.js --agent "<Name>" --action "<Aktion>" --file "<Datei>" --desc "<Was + Warum + Generalisierbarkeit + ggf. Context7-Erkenntnis>"
-```
+Jede relevante Aktion wird transparent dokumentiert:
+- **Git Commit:** Präzise, konventionelle Commit-Messages (`feat:`, `fix:`, `refactor:`, `chore:`).
+- **Architektur & Governance:** Begründete Einträge im [[DECISION-LOG]].
 
 ## 9. Zusammenfassung der harten Regeln
 

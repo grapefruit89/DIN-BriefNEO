@@ -11,8 +11,7 @@ tags:
   - status/archived
   - type/project-plan
   - tech/sqlite
-doc_links:
-  - README-DB
+doc_links: []
 code_links:
   - tools/build_db.js
 error_patterns:

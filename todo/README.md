@@ -19,7 +19,7 @@
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
 | **10** | **Mikro-Typografie nach DIN 5008 (§ 7.2 & § 8.2)** | S–M | ⭐⭐⭐⭐⭐ | [`10-mikro-typografie-autokorrektur-plan.md`](10-mikro-typografie-autokorrektur-plan.md) | Ausgearbeitet (Geschützte Leerzeichen & Gedankenstrich) |
-| **11** | **Sensibler Betreff (§ 20.9.2 Kuvertschutz)** | XS | ⭐⭐⭐⭐ | [`11-sensibler-betreff-plan.md`](11-sensibler-betreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + CSS `:has`, `sensitiveSubject`) |
+| **11** | **Sensibler Betreff (§ 20.9.2 Kuvertschutz)** | XS | ⭐⭐⭐⭐ | [`done/11-sensibler-betreff-plan.md`](done/11-sensibler-betreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + CSS `:has`, `sensitiveSubject`) |
 | **12** | **Teilbetreff nach DIN 5008 (§ 20.9.3)** | XS–S | ⭐⭐⭐ | [`12-teilbetreff-plan.md`](12-teilbetreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + contenteditable, `break-after: avoid`) |
 | **13** | **Review 2026-11-06: Optimierungen (validiert)** | — | ⭐⭐⭐⭐ | [`13-review-2026-11-06-optimierungen.md`](13-review-2026-11-06-optimierungen.md) | Validiert, Entscheidungen getroffen |
 | **14** | **JSON-Schema für das Brief-Payload (B36)** | S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Validiert; nur bei externem Bedarf |
@@ -147,7 +147,7 @@
   - Nativer Switch `#toggle-sensibler-betreff` in der Seitenleiste.
   - Rein deklaratives CSS via `:root:has(#toggle-sensibler-betreff:checked) #betreff`.
   - Persistenz in `din_settings`.
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/11-sensibler-betreff-plan.md`](11-sensibler-betreff-plan.md)
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/done/11-sensibler-betreff-plan.md`](done/11-sensibler-betreff-plan.md)
 
 ### 12. Teilbetreff nach DIN 5008 (§ 20.9.3)
 - **Fokus:** Gliederung längerer Briefe durch fettgedruckte Zwischenüberschriften, die mit einem Punkt enden.

@@ -337,6 +337,7 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @property {boolean} guides
  * @property {boolean} copyfit
  * @property {boolean} marks
+ * @property {boolean} [sensitiveSubject]
  */
 
 /**
@@ -475,7 +476,8 @@ export function buildDinLetterPayload(draft, settings = null) {
       form: (s.layout === 'form-a' || s.layout === 'form-b') ? s.layout : 'form-b',
       guides: typeof s.guides === 'boolean' ? s.guides : false,
       copyfit: typeof s.copyfit === 'boolean' ? s.copyfit : false,
-      marks: typeof s.marks === 'boolean' ? s.marks : true
+      marks: typeof s.marks === 'boolean' ? s.marks : true,
+      sensitiveSubject: typeof s.sensitiveSubject === 'boolean' ? s.sensitiveSubject : false
     },
     fields,
     signature: { transform }
@@ -573,6 +575,10 @@ export function parseDinLetterPayload(input) {
     if (raw.marks !== undefined) {
       if (typeof raw.marks !== 'boolean') return { ok: false, reason: 'Ungültiger layout.marks-Wert (Boolean erwartet).', error: 'Ungültiger layout.marks-Wert (Boolean erwartet).' };
       layout.marks = raw.marks;
+    }
+    if (raw.sensitiveSubject !== undefined) {
+      if (typeof raw.sensitiveSubject !== 'boolean') return { ok: false, reason: 'Ungültiger layout.sensitiveSubject-Wert (Boolean erwartet).', error: 'Ungültiger layout.sensitiveSubject-Wert (Boolean erwartet).' };
+      layout.sensitiveSubject = raw.sensitiveSubject;
     }
   }
 
@@ -802,6 +808,7 @@ export function initImportExport({ collectDraft } = {}) {
         if (layout.guides !== undefined) nextSettings.guides = layout.guides;
         if (layout.copyfit !== undefined) nextSettings.copyfit = layout.copyfit;
         if (layout.marks !== undefined) nextSettings.marks = layout.marks;
+        if (layout.sensitiveSubject !== undefined) nextSettings.sensitiveSubject = layout.sensitiveSubject;
       }
       if (pendingImport.signature?.transform) {
         nextSettings.signatureState = { ...pendingImport.signature.transform };

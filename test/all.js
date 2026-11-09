@@ -423,6 +423,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       guides: false,
       copyfit: false,
       marks: true,
+      sensitiveSubject: true,
       signatureState: { x: 15.5, y: 102.3, scale: 0.75, rot: 2 }
     };
 
@@ -435,6 +436,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       assertEqual(parsed.schemaVersion, 4);
       assertEqual(parsed.layout?.form, 'form-a');
       assertEqual(parsed.layout?.marks, true);
+      assertEqual(parsed.layout?.sensitiveSubject, true);
       assertEqual(parsed.signature?.transform?.scale, 0.75);
 
       for (const [key, expectedVal] of Object.entries(originalDraft)) {

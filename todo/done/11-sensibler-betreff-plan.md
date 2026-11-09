@@ -1,5 +1,5 @@
 ---
-status: draft
+status: done
 type: concept
 tags: [din5008, briefneo, plan, betreff, datenschutz, fensterbriefumschlag]
 summary: "Plan für die DIN-5008-Option 'Sensibler Betreff' (§ 20.9.2): Tieferstellen des Betreffs um 1-2 Leerzeilen zum Schutz vertraulicher Daten im Sichtfenster."

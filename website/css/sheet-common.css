@@ -75,8 +75,10 @@ din-empfaenger-strasse:empty {
   visibility: hidden;
 }
 
-:root[data-sensitive-subject="true"] #betreff {
+:root[data-sensitive-subject="true"] #betreff,
+:root:has(#toggle-sensibler-betreff:checked) #betreff {
   margin-top: 8.46mm;
+  transition: margin-top 0.15s ease-out;
 }
 
 :root:not(:has(#toggle-teilbetreff:checked)) din-teilbetreff {

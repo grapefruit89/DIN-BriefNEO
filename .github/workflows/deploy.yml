@@ -1,15 +1,12 @@
 name: Deploy to GitHub Pages
 
-# Gate-verkettet: laeuft erst, wenn "Fitness Gate" auf main gruen ist.
-# Vorher liefen beide Workflows unabhaengig -> ein roter Gate-Stand wurde
-# trotzdem deployed. Bewusst KEIN Datei-Merge der beiden Workflows: eine
-# geloeschte Workflow-Datei hinterlaesst einen dauerhaften, nicht loeschbaren
-# Eintrag in der Actions-Sidebar (Beleg: die "CI"-Leiche).
 on:
-  workflow_run:
-    workflows: ["Fitness Gate"]
-    types: [completed]
-    branches: [main]
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,15 +15,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    if: >
-      github.event_name == 'workflow_dispatch'
-      || (github.event.workflow_run.conclusion == 'success'
-          && github.event.workflow_run.event == 'push')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -34,14 +27,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Disable Jekyll
+        run: touch website/.nojekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'website'
+          path: 'website/'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

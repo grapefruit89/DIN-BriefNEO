@@ -166,7 +166,7 @@ async function run() {
   // Zuerst bestehende Orte übernehmen
   for (const [plz, ort] of Object.entries(existingOrte)) {
     const dist = existingDistricts[plz] || null;
-    let state = STATE_OVERRIDES[plz] || existingStates[plz] || sourceData[plz]?.state || '';
+    const state = STATE_OVERRIDES[plz] || existingStates[plz] || sourceData[plz]?.state || '';
     mergedMap.set(plz, { ort, district: dist, state });
   }
 
@@ -205,8 +205,8 @@ async function run() {
 
   // 5. Invarianz-Prüfung (Troisdorf, Berlin, Neustadt)
   console.log('[4/5] Führe normative Invarianz-Prüfungen durch...');
-  const t40 = columnar.plz.indexOf('53840');
-  const t42 = columnar.plz.indexOf('53842');
+  const _t40 = columnar.plz.indexOf('53840');
+  const _t42 = columnar.plz.indexOf('53842');
   const t44 = columnar.plz.indexOf('53844');
   const n35 = columnar.plz.indexOf('35279');
   const n53 = columnar.plz.indexOf('53577');

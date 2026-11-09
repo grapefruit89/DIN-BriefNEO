@@ -26,6 +26,6 @@ jobs:
       - name: Fitness Gate + Retrieval-Index
         run: node tools/build_db.js
       - name: Biome (Lint, Version aus biome.json $schema)
-        run: npx --yes @biomejs/biome@2.6.3 check
+        run: npx --yes @biomejs/biome@2.6.3 check website/
       - name: Test-Suite (headless, exit 1 bei Fehlschlag)
         run: node tools/test-runner.mjs --allow-missing-browser

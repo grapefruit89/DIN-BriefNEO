@@ -103,7 +103,7 @@ for (let i = 0; i < tupleFigures.length; i++) {
   }
 }
 
-const jsonString = JSON.stringify(output, null, 2) + '\n';
+const jsonString = `${JSON.stringify(output, null, 2)}\n`;
 writeFileSync(TARGET_FIGUREN, jsonString, 'utf8');
 
 console.log(`✓ Erfolgreich ${tupleFigures.length} Figuren nach Schema v2.1 migriert.`);

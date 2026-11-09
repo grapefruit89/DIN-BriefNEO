@@ -1,6 +1,6 @@
 # Werkzeuge & Automatisierung (tools/)
 
-## Geprüfte Werkzeuge (Batch 1 bis 3)
+## Geprüfte Werkzeuge (Batch 1 bis 4)
 - [01] adr-check.js — [GEPRÜFT: WARTUNG] Manuelles On-Demand-Audit-Tool für ADR-Bijektion
 - [02] agent_gateway.py — [GEPRÜFT: WARTUNG] Lokaler WebMCP-WebSocket-Server (Port 8333) für Browser-Kopplung
 - [03] bench_plz_formats.mjs — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Entscheidung in ADR-COLUMNAR-DATA fixiert)
@@ -17,14 +17,14 @@
 - [14] debug-session.mjs — [GEPRÜFT: WARTUNG] Isolierte Test-Sitzung mit flüchtigem Profil und Flight-Recorder
 - [15] dev_server.ps1 — [GEPRÜFT: AKTIV] Zero-Dep Live-Reload-Webserver für Windows (Port 8088)
 - [16] enrich_data.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Zielpfade obsolet)
+- [17] filematch.js — [GEPRÜFT: AKTIV] Glob-to-RegExp Hilfsmodul für reconciliation.js und lawcoverage.js
+- [18] gate.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (obsolet; ruft archivierte Charakter-Pipeline auf)
+- [19] imr.js — [GEPRÜFT: AKTIV] Kern-Wächter für IMR-Registry, 45 DIN-Atome, data-*-Geometrie & Case-Contract
+- [20] isolation.js — [GEPRÜFT: AKTIV] Kern-Wächter für Law A45/A38 (hermetische Isolation von website/)
+- [21] lawcoverage.js — [GEPRÜFT: AKTIV] Meta-Gate zur lückenlosen Abdeckung des Immutable Law Catalogs
+- [22] links.js — [GEPRÜFT: AKTIV] Integritätswächter für Wikilinks, Frontmatter-Links und @adr/@guide-Tags
 
 ## Ausstehende Prüfung (Nächste Batches)
-- [OFFEN] filematch.js
-- [OFFEN] gate.py
-- [OFFEN] imr.js
-- [OFFEN] isolation.js
-- [OFFEN] lawcoverage.js
-- [OFFEN] links.js
 - [OFFEN] migrate_figuren_tuples.mjs
 - [OFFEN] query_chrome_feature.mjs
 - [OFFEN] reconciliation.js

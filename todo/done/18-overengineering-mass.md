@@ -1,6 +1,6 @@
 # 18 · Over-Engineering: Massenbefund (validiert)
 
-Status: offen · Typ: audit · Erstellt: 2026-11-06
+Status: erledigt · Typ: audit · Erstellt: 2026-11-06
 Quelle: Nachmessung nach 15. Gesucht: die groessten Konstruktionen, gemessen
 an Zeilen und Verantwortlichkeiten.
 

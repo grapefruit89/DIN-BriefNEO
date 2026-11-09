@@ -1,5 +1,5 @@
 ---
-status: draft
+status: done
 type: concept
 tags: [din5008, briefneo, plan, telefon, blur, durchwahl]
 summary: "Plan zur Telefonnummern-Formatierung nach DIN 5008 (Blur-Handler / Format-Logik & Durchwahl-Bindestrich)."

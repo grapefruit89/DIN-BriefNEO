@@ -1,5 +1,5 @@
 ---
-status: draft
+status: rejected
 type: concept
 tags: [din5008, briefneo, plan, pwa]
 summary: "Plan zur PWA-Fähigkeit des DIN-BriefNEO-Generators unter der Baseline Chrome 150+."

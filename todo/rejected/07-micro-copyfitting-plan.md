@@ -1,6 +1,6 @@
 # 07 — Micro-Copyfitting & 1-Seiten-Kompaktsatz (Plan & Konzeption)
 
-> **Status:** Zurückgestellt / Konzeptphase  
+> **Status:** Verworfen  
 > **Kontext:** Der ursprüngliche Switch `#toggle-copyfit` („Kompaktsatz (1 Seite)“) und experimentelles CSS `text-fit` wurden am 2026-10-24 vollständig aus dem Produktivcode entfernt, da sie unkontrollierte Schrumpfungen auf bis zu 30% der Zeilenhöhe im aktiven Schreibzustand verursachten und das Layout zerstörten.  
 > **Ziel:** Saubere, deterministische Konzeption für den Fall, dass ein Brieftext kontrolliert auf genau eine Seite eingepasst werden soll — ohne Font-Kollaps während der Bearbeitung.
 
@@ -20,7 +20,7 @@
 1. **Kein automatisches Live-Schrumpfen beim Tippen:**
    - Während der Bearbeitung bleibt die Schriftgröße aller Felder zu 100% starr auf dem DIN-5008-Standard (10pt bzw. 10.5pt, Einzeiler 1.4 Zeilenhöhe).
 2. **Mehrseiten-Unterstützung geht vor Schrift-Quetschung:**
-   - Ein Brief, der den Satzspiegel sprengt, soll normgerecht auf Seite 2 umbrechen ([`01-mehrseiten-plan.md`](01-mehrseiten-plan.md)), anstatt unleserlich zusammengepresst zu werden.
+   - Ein Brief, der den Satzspiegel sprengt, soll normgerecht auf Seite 2 umbrechen ([`01-mehrseiten-plan.md`](../01-mehrseiten-plan.md)), anstatt unleserlich zusammengepresst zu werden.
 3. **Diskrete typografische Stufen statt stufenlosem `text-fit`:**
    - Wenn ein Kompaktsatz aktiv angefordert wird, dürfen nur typografisch definierte, standardkonforme Parameter dezent variieren:
      - Zeilenabstand: `1.4` → `1.32`
@@ -36,5 +36,5 @@
 
 ## 3. Offene Fragen & Kriterien vor Re-Implementierung
 
-- [ ] Ist Kompaktsatz überhaupt noch nötig, sobald [`01-mehrseiten-plan.md`](01-mehrseiten-plan.md) implementiert ist? (Ein sauberer zweiter Bogen ist nach DIN 5008 typografisch sauberer als gequetschter Satz).
+- [ ] Ist Kompaktsatz überhaupt noch nötig, sobald [`01-mehrseiten-plan.md`](../01-mehrseiten-plan.md) implementiert ist? (Ein sauberer zweiter Bogen ist nach DIN 5008 typografisch sauberer als gequetschter Satz).
 - [ ] Wenn ja: Reine Schalter-Logik über eine geprüfte CSS-Klasse `.layout-compact` auf `<din-blatt>`, die strikt nur auf `#text` wirkt und niemals Einzeiler oder Adressfelder berührt.

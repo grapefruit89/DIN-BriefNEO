@@ -10,17 +10,17 @@
 | # | Vorhaben | Aufwand | ROI | Detailplan / Referenz | Status |
 |---|---|---|---|---|---|
 | **01** | **Mehrseitenunterstützung nach DIN 5008** | L–XL | ⭐⭐⭐⭐⭐ | [`01-mehrseiten-plan.md`](01-mehrseiten-plan.md) | In Vorbereitung (Strategie A) |
-| **02** | **PWA & Offline-App (Chrome 150+)** | M | ⭐⭐⭐⭐⭐ | [`02-pwa-plan.md`](02-pwa-plan.md) | 5-Phasen-Konzept fertig |
+| **02** | **PWA & Offline-App (Chrome 150+)** | M | ⭐⭐⭐⭐⭐ | [`rejected/02-pwa-plan.md`](rejected/02-pwa-plan.md) | 🚫 Verworfen (Law A37 HARD BAN: Service Worker verboten) |
 | **03** | **Mobile Ansicht & Touch-UX** | M | ⭐⭐⭐⭐ | [`03-mobile-ansicht-plan.md`](03-mobile-ansicht-plan.md) | Dialog-Bottom-Sheet Konzept |
-| **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`04-telefonnummer-formatierung-plan.md`](04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
+| **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`done/04-telefonnummer-formatierung-plan.md`](done/04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
 | **05** | **Brief-Verlauf & Historie (`din_history`)** | S–M | ⭐⭐⭐⭐ | [`05-brief-history-verlauf-plan.md`](05-brief-history-verlauf-plan.md) | Ausgearbeitet (10er Ringspeicher) |
 | **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md) | 🚫 Verworfen zugunsten schlankerer CSS-Box-Lösung mit `visibility: hidden;` |
-| **07** | **Micro-Copyfitting & 1-Seiten-Kompaktsatz** | M | ⭐⭐ | [`07-micro-copyfitting-plan.md`](07-micro-copyfitting-plan.md) | Ausgebaut / Konzeptphase |
+| **07** | **Micro-Copyfitting & 1-Seiten-Kompaktsatz** | M | ⭐⭐ | [`rejected/07-micro-copyfitting-plan.md`](rejected/07-micro-copyfitting-plan.md) | 🚫 Verworfen (Font-Kollaps bei Live-Editing / zurückgestellt) |
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
 | **10** | **Mikro-Typografie nach DIN 5008 (§ 7.2 & § 8.2)** | S–M | ⭐⭐⭐⭐⭐ | [`done/10-mikro-typografie-autokorrektur-plan.md`](done/10-mikro-typografie-autokorrektur-plan.md) | ✅ Umgesetzt 2026-11-09 (Plan 10: `applyMicroTypography`, geschützte Leerzeichen, Gedankenstriche) |
 | **11** | **Sensibler Betreff (§ 20.9.2 Kuvertschutz)** | XS | ⭐⭐⭐⭐ | [`done/11-sensibler-betreff-plan.md`](done/11-sensibler-betreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + CSS `:has`, `sensitiveSubject`) |
-| **12** | **Teilbetreff nach DIN 5008 (§ 20.9.3)** | XS–S | ⭐⭐⭐ | [`12-teilbetreff-plan.md`](12-teilbetreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + contenteditable, `break-after: avoid`) |
+| **12** | **Teilbetreff nach DIN 5008 (§ 20.9.3)** | XS–S | ⭐⭐⭐ | [`done/12-teilbetreff-plan.md`](done/12-teilbetreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + contenteditable, `break-after: avoid`) |
 | **13** | **Review 2026-11-06: Optimierungen (validiert)** | — | ⭐⭐⭐⭐ | [`13-review-2026-11-06-optimierungen.md`](13-review-2026-11-06-optimierungen.md) | Validiert, Entscheidungen getroffen |
 | **14** | **JSON-Schema für das Brief-Payload (B36)** | S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Validiert; nur bei externem Bedarf |
 | **15** | **Export .txt / .md (.docx zurückgestellt)** | XS–S | ⭐⭐ | [`14-format-grundbausteine-review.md`](14-format-grundbausteine-review.md) | Lücke bestätigt (nur JSON + Druck) |
@@ -41,10 +41,10 @@
 | **30** | **`.ac-*`-Typklassen: `data-typ` + CSS für beide Listen** | XS | ⭐⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt 2026-11-07 (`data-typ` + `:is()`-Selektoren für beide Listen) |
 | **31** | **Redundanten `window.resize`-Listener entfernen** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (Listener entfernt) |
 | **32** | **Breakpoint 600px zentralisieren** | XS | ⭐ | [`17-js-vs-css-rest.md`](17-js-vs-css-rest.md) | ✅ Umgesetzt (`maxSuggestions()`) |
-| **33** | **address.js in 4 Module aufteilen (2176 Z.)** | M | ⭐⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Vier Concerns, ein Modul |
-| **34** | **wireDOM: 110-Z.-Inline-Handler herausziehen** | S | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | ✅ Umgesetzt 2026-11-07 — benannte Handler (`#handleDocumentKeydown`, `#handleDocumentPaste`, `#handleInputLimit`) |
-| **35** | **ClipboardAddressParser prüfen (~311 Z.)** | S–M | ⭐⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Entscheidung nötig |
-| **36** | **Kompatibilitäts-Wrapper entfernen (2× 11 Z.)** | XS | ⭐ | [`18-overengineering-mass.md`](18-overengineering-mass.md) | Nur Tests importieren sie |
+| **33** | **address.js in 4 Module aufteilen (2176 Z.)** | M | ⭐⭐⭐ | [`done/18-overengineering-mass.md`](done/18-overengineering-mass.md) | ✅ Umgesetzt (Split in `address-data.js` & `address.js`) |
+| **34** | **wireDOM: 110-Z.-Inline-Handler herausziehen** | S | ⭐⭐ | [`done/18-overengineering-mass.md`](done/18-overengineering-mass.md) | ✅ Umgesetzt 2026-11-07 — benannte Handler (`#handleDocumentKeydown`, `#handleDocumentPaste`, `#handleInputLimit`) |
+| **35** | **ClipboardAddressParser prüfen (~311 Z.)** | S–M | ⭐⭐ | [`done/18-overengineering-mass.md`](done/18-overengineering-mass.md) | Entscheidung nötig |
+| **36** | **Kompatibilitäts-Wrapper entfernen (2× 11 Z.)** | XS | ⭐ | [`done/18-overengineering-mass.md`](done/18-overengineering-mass.md) | ✅ Umgesetzt (Wrapper gelöscht) |
 | **37** | **webmcp-bridge: entfernen oder verdrahten (CSP vs. `ws://`)** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Tot, aber nicht entschieden |
 | **38** | **charactere.json: Datenfehler, Gzip, Dateiname** | S | ⭐⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | Sauron=Tom Riddle, Duplikate, null/"" |
 | **39** | **llms.txt: Container-Ankündigung streichen oder TODO** | XS | ⭐⭐ | [`19-brainstorm-verifikation.md`](19-brainstorm-verifikation.md) | ✅ Umgesetzt 2026-11-07 — Zero-Build-Architektur statt Container |
@@ -77,7 +77,7 @@
   - Dateiverknüpfung (`file_handlers`) für `.dinbrief.json`.
   - Service Worker `sw.js` mit Chrome 150+ Static Routing API (`event.addRoutes()`).
   - Cache-Versionierung und `navigator.storage.persist()`.
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/02-pwa-plan.md`](02-pwa-plan.md)
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/rejected/02-pwa-plan.md`](rejected/02-pwa-plan.md)
 
 ### 3. Mobile Ansicht & Touch-UX
 - **Fokus:** Hervorragende Bedienbarkeit auf Smartphones und Tablets.
@@ -96,7 +96,7 @@
   - Trennung: Bindestrich vor dem Strippen isolieren und formatiert wieder anhängen (`-DW`).
   - Sichere Mobilfunk-Erkennung (`015x`–`017x`).
   - Offene Nutzerentscheidung: Durchwahl-Bindestrich auch bei Mobilfunk, sowie BNetzA-Ortsnetz-Lookup vs. Mobilfunk-only.
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/04-telefonnummer-formatierung-plan.md`](04-telefonnummer-formatierung-plan.md)
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/done/04-telefonnummer-formatierung-plan.md`](done/04-telefonnummer-formatierung-plan.md)
 
 ### 5. Brief-Verlauf & Historie (`din_history`)
 - **Fokus:** Schutz vor Datenverlust & Versionierung der letzten Entwürfe.
@@ -155,7 +155,7 @@
   - Format-Snippet oder Tastatur-Shortcut für `.din-teilbetreff`.
   - Direkter Übergang in den nachfolgenden Text ohne Leerzeile.
   - CSS-Umbruchschutz (`break-after: avoid;`).
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/12-teilbetreff-plan.md`](12-teilbetreff-plan.md)
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/done/12-teilbetreff-plan.md`](done/12-teilbetreff-plan.md)
 
 ---
 

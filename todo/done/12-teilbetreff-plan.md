@@ -1,5 +1,5 @@
 ---
-status: draft
+status: done
 type: concept
 tags: [din5008, briefneo, plan, teilbetreff, zwischenueberschrift, textgliederung]
 summary: "Plan für die Unterstützung von normgerechten Teilbetreffen (§ 20.9.3) als strukturierende Zwischenüberschriften in längeren Briefen."

@@ -18,7 +18,7 @@
 | **07** | **Micro-Copyfitting & 1-Seiten-Kompaktsatz** | M | ⭐⭐ | [`07-micro-copyfitting-plan.md`](07-micro-copyfitting-plan.md) | Ausgebaut / Konzeptphase |
 | **08** | **Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker** | L | ⭐⭐⭐⭐⭐ | [`08-testbrief-erzaehlung-plan.md`](08-testbrief-erzaehlung-plan.md) | Konzept (adaptiert, 3 Startanlässe) |
 | **09** | **Modernisierung der Text- und Address Intelligence** | M | ⭐⭐⭐⭐⭐ | [`09-text-parsing-modernization-plan.md`](09-text-parsing-modernization-plan.md) | Konzept (Segmenter / RegExp /v / 3-Stufen) |
-| **10** | **Mikro-Typografie nach DIN 5008 (§ 7.2 & § 8.2)** | S–M | ⭐⭐⭐⭐⭐ | [`10-mikro-typografie-autokorrektur-plan.md`](10-mikro-typografie-autokorrektur-plan.md) | Ausgearbeitet (Geschützte Leerzeichen & Gedankenstrich) |
+| **10** | **Mikro-Typografie nach DIN 5008 (§ 7.2 & § 8.2)** | S–M | ⭐⭐⭐⭐⭐ | [`done/10-mikro-typografie-autokorrektur-plan.md`](done/10-mikro-typografie-autokorrektur-plan.md) | ✅ Umgesetzt 2026-11-09 (Plan 10: `applyMicroTypography`, geschützte Leerzeichen, Gedankenstriche) |
 | **11** | **Sensibler Betreff (§ 20.9.2 Kuvertschutz)** | XS | ⭐⭐⭐⭐ | [`done/11-sensibler-betreff-plan.md`](done/11-sensibler-betreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + CSS `:has`, `sensitiveSubject`) |
 | **12** | **Teilbetreff nach DIN 5008 (§ 20.9.3)** | XS–S | ⭐⭐⭐ | [`12-teilbetreff-plan.md`](12-teilbetreff-plan.md) | ✅ Umgesetzt 2026-11-07 (Schalter + contenteditable, `break-after: avoid`) |
 | **13** | **Review 2026-11-06: Optimierungen (validiert)** | — | ⭐⭐⭐⭐ | [`13-review-2026-11-06-optimierungen.md`](13-review-2026-11-06-optimierungen.md) | Validiert, Entscheidungen getroffen |
@@ -139,7 +139,7 @@
   - Zahlen mit Einheiten und Währungscodes (`100 EUR`, `25,00 €`, `15 %`, `50 km/h`).
   - Paragrafen und Gesetzesbezeichnungen (`§ 25`, `Art. 1`).
   - Gedankenstriche (`Wort – Wort` mit geschütztem Leerzeichen davor).
-- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/10-mikro-typografie-autokorrektur-plan.md`](10-mikro-typografie-autokorrektur-plan.md)
+- **Dokumentation:** [`/home/moritz/repos/DIN-BriefNEO/todo/done/10-mikro-typografie-autokorrektur-plan.md`](done/10-mikro-typografie-autokorrektur-plan.md)
 
 ### 11. Sensibler Betreff (§ 20.9.2 Kuvertschutz)
 - **Fokus:** Tieferstellen des Betreffs um 2 Leerzeilen (8,46 mm), um vertrauliche Daten bei Verrutschen im Fensterumschlag vor Blicken zu schützen.

@@ -405,3 +405,42 @@ export function applyLetterDate() {
   }
 }
 
+/* =========================================================================================
+ * 8. MIKRO-TYPOGRAFIE NACH DIN 5008 (§ 7.2 & § 8.2)
+ * ========================================================================================= */
+
+/**
+ * Wendet DIN-5008-Mikrotypografie (geschützte Leerzeichen) an (§ 7.2 & § 8.2).
+ * Ersetzt gewöhnliche Leerzeichen durch geschützte Leerzeichen (\u00A0) bei:
+ * 1. Mehrteiligen Abkürzungen (z. B., d. h., u. a., e. V., i. d. R., o. Ä., s. o., i. V., i. A., etc. pp.)
+ * 2. Paragrafen & Normangaben (§ 24, §§ 38 f., Art. 1, Abs. 2, Satz 1, Nr. 3, Az. ...)
+ * 3. Zahlen mit Einheiten & Währungen (100 EUR, 25,50 €, 19 %, 10 kg, 500 m, 120 km/h)
+ * 4. Gedankenstrichen (Wort\u00A0– Wort)
+ *
+ * Die Funktion ist rein funktional, idempotent und verhält sich defensiv bei leeren Eingaben.
+ * @param {string | null | undefined} text
+ * @returns {string}
+ */
+export function applyMicroTypography(text) {
+  if (!text || typeof text !== 'string') return String(text ?? '');
+  const NBSP = '\u00A0';
+
+  return text
+    // 1. Mehrteilige Abkürzungen (§ 6.5 & § 7.2)
+    .replace(/\b(z|d|u|s)\.[ \t\u00A0]+(B|h|a|o|u)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(i)\.[ \t\u00A0]+(d)\.[ \t\u00A0]+(R)\./gi, `$1.${NBSP}$2.${NBSP}$3.`)
+    .replace(/\b(i)\.[ \t\u00A0]+(V|A)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(e)\.[ \t\u00A0]+(V)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(u|o)\.[ \t\u00A0]+(Ä)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(etc)\.[ \t\u00A0]+(pp)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(u)\.[ \t\u00A0]+(a)\.[ \t\u00A0]+(m)\./gi, `$1.${NBSP}$2.${NBSP}$3.`)
+    // 2. Paragrafen & Normangaben (§ 9.1 & § 7.2)
+    .replace(/(§§?|Art\.|Abs\.|Satz|Nr\.|S\.)[ \t\u00A0]+(\d+)/g, `$1${NBSP}$2`)
+    .replace(/\b(Az\.)[ \t\u00A0]+([A-Z0-9/.-]+)/gi, `$1${NBSP}$2`)
+    // 3. Zahlen mit Einheiten & Währungen (§ 6.6 & § 7.2)
+    .replace(/(\d+(?:[.,]\d+)?)[ \t\u00A0]+(?:(EUR|CHF|USD|GBP|km\/h|kWh|kW|mm|cm|dm|km|kg|mg|g|t|°C|V|A|W|h|min|s|m)\b|(€|\$|£|%|‰))/g, (_m, num, u1, u2) => `${num}${NBSP}${u1 || u2}`)
+    // 4. Gedankenstrich (§ 8.2)
+    .replace(/(?:(?<=\S)|^)[ \t\u00A0]+[-–—][ \t\u00A0]+(?=\S)/g, `${NBSP}– `);
+}
+
+

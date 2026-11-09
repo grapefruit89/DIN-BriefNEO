@@ -80,9 +80,9 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
   - Native Toast-Verwaltung über die Popover-API (`#hinweis-v4`) ohne externe Bibliotheken.
   - Sichere Popover-Transitionen mit `try/catch`-Guards (`showPopoverSafe`/`hidePopoverSafe`).
 
-#### [`format.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/format.js) (356 Zeilen)
+#### [`format.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/format.js) (446 Zeilen)
 * **Zweck:** Zustandsloses, normgerechtes Parsen und Formatieren nach DIN 5008.
-* **Exports:** `formatTelefonnummer()`, `formatDatum()`, `formatUhrzeit()`, `formatIban()`, `formatPostfach()`, `formatGeldbetrag()`.
+* **Exports:** `formatTelefonnummer()`, `formatDatum()`, `formatUhrzeit()`, `formatIban()`, `formatPostfach()`, `formatGeldbetrag()`, `applyLetterDate()`, `applyMicroTypography()`.
 * **Details:**
   - 100 % reine Funktionen ohne Seiteneffekte, kein DOM-Zugriff.
   - Nutzt `Intl.DateTimeFormat`, `Intl.NumberFormat` und `Temporal.PlainDate`.
@@ -116,9 +116,9 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
   - Erkennt Namenspartikel (`von`, `van der`), dreht Komma-Notation (`Müller, Hans`) und übernimmt akademische Grade (`Dr.`, `Prof.`).
   - Synchronisiert `dataset.dirty` sauber nach Undo/Redo-Aktionen.
 
-#### [`document.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/document.js) (660 Zeilen)
-* **Zweck:** DOM-Operationen im Briefblatt, Rich-Text-Schutz und Caret-Steuerung.
-* **Exports:** `UIProtections`, `sanitizeRichText()`, `getCaretCharacterOffset()`, `setCaretCharacterOffset()`, `setCaretToEnd()`, `collectDraft()`.
+#### [`document.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/document.js) (680 Zeilen)
+* **Zweck:** DOM-Operationen im Briefblatt, Rich-Text-Schutz, Caret-Steuerung und Mikro-Typografie.
+* **Exports:** `UIProtections`, `formatElementMicroTypography()`, `sanitizeRichText()`, `getCaretCharacterOffset()`, `setCaretCharacterOffset()`, `setCaretToEnd()`, `collectDraft()`.
 * **Details:**
   - Verhindert das Einschleusen von Formatierungs-Müll beim Pasten (`text/plain` Injection via Range-API).
   - Verhindert versehentliches Löschen von Pflicht-Elementen (Backspace-Guards).

@@ -8,10 +8,10 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { UIProtections } from '../website/js/document.js';
+import { formatElementMicroTypography, UIProtections } from '../website/js/document.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
-import { formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
+import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
 import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
@@ -2150,6 +2150,80 @@ describe('formatGeldbetrag (DIN 5008 § 6.6 / § 11.2)', () => {
     assertEqual(formatGeldbetrag('kein betrag'), 'kein betrag');
     assertEqual(formatGeldbetrag(''), '');
     assertEqual(formatGeldbetrag(null), '');
+  });
+});
+
+describe('applyMicroTypography & formatElementMicroTypography (DIN 5008 § 7.2 & § 8.2 — Plan 10)', () => {
+  it('ersetzt Leerzeichen bei mehrteiligen Abkuerzungen durch geschuetzte Leerzeichen', () => {
+    assertEqual(applyMicroTypography('z. B. im Test'), 'z.\u00A0B. im Test');
+    assertEqual(applyMicroTypography('d. h. das gilt'), 'd.\u00A0h. das gilt');
+    assertEqual(applyMicroTypography('u. a. dies'), 'u.\u00A0a. dies');
+    assertEqual(applyMicroTypography('Verein e. V. hier'), 'Verein e.\u00A0V. hier');
+    assertEqual(applyMicroTypography('i. d. R. immer'), 'i.\u00A0d.\u00A0R. immer');
+    assertEqual(applyMicroTypography('o. Ä. Dinge'), 'o.\u00A0Ä. Dinge');
+    assertEqual(applyMicroTypography('siehe s. o. oben'), 'siehe s.\u00A0o. oben');
+    assertEqual(applyMicroTypography('Unterschrift i. V. Schmidt'), 'Unterschrift i.\u00A0V. Schmidt');
+    assertEqual(applyMicroTypography('Unterschrift i. A. Meier'), 'Unterschrift i.\u00A0A. Meier');
+    assertEqual(applyMicroTypography('usw. etc. pp. Ende'), 'usw. etc.\u00A0pp. Ende');
+    assertEqual(applyMicroTypography('Brief u. a. m. fertig'), 'Brief u.\u00A0a.\u00A0m. fertig');
+  });
+
+  it('formatiert Paragrafen und Normangaben mit geschuetztem Leerzeichen', () => {
+    assertEqual(applyMicroTypography('Gemaess § 24 BGB'), 'Gemaess §\u00A024 BGB');
+    assertEqual(applyMicroTypography('nach §§ 38 f. ZPO'), 'nach §§\u00A038 f. ZPO');
+    assertEqual(applyMicroTypography('laut Art. 12 GG'), 'laut Art.\u00A012 GG');
+    assertEqual(applyMicroTypography('nach Abs. 2 Satz 1'), 'nach Abs.\u00A02 Satz\u00A01');
+    assertEqual(applyMicroTypography('in Nr. 4 der Liste'), 'in Nr.\u00A04 der Liste');
+    assertEqual(applyMicroTypography('auf S. 42 nachzulesen'), 'auf S.\u00A042 nachzulesen');
+    assertEqual(applyMicroTypography('unter Az. 12-C-45/26 erfasst'), 'unter Az.\u00A012-C-45/26 erfasst');
+  });
+
+  it('formatiert Zahlen mit Einheiten und Waehrungen normgerecht', () => {
+    assertEqual(applyMicroTypography('Kosten: 100 EUR netto'), 'Kosten: 100\u00A0EUR netto');
+    assertEqual(applyMicroTypography('Betrag von 25,50 € faellig'), 'Betrag von 25,50\u00A0€ faellig');
+    assertEqual(applyMicroTypography('MwSt. 19 % berechnet'), 'MwSt. 19\u00A0% berechnet');
+    assertEqual(applyMicroTypography('Gewicht 10 kg genau'), 'Gewicht 10\u00A0kg genau');
+    assertEqual(applyMicroTypography('Geschwindigkeit 50 km/h erlaubt'), 'Geschwindigkeit 50\u00A0km/h erlaubt');
+    assertEqual(applyMicroTypography('Strecke 120 m lang'), 'Strecke 120\u00A0m lang');
+    assertEqual(applyMicroTypography('Spannung 230 V Wechselstrom'), 'Spannung 230\u00A0V Wechselstrom');
+  });
+
+  it('wandelt Gedankenstriche in Halbgeviertstrich mit vorangehendem geschuetzten Leerzeichen um', () => {
+    assertEqual(applyMicroTypography('Dies ist - ein Gedanke'), 'Dies ist\u00A0– ein Gedanke');
+    assertEqual(applyMicroTypography('Wort – weiteres Wort'), 'Wort\u00A0– weiteres Wort');
+    assertEqual(applyMicroTypography('Wort — em-dash Wort'), 'Wort\u00A0– em-dash Wort');
+  });
+
+  it('verhaelt sich idempotent und defensiv bei Sonderfaellen', () => {
+    const input = 'Gemaess § 24 Abs. 2 i. d. R. 100 EUR - das gilt z. B.';
+    const once = applyMicroTypography(input);
+    const twice = applyMicroTypography(once);
+    assertEqual(once, twice);
+    assertEqual(applyMicroTypography(''), '');
+    assertEqual(applyMicroTypography(null), '');
+    assertEqual(applyMicroTypography(undefined), '');
+  });
+
+  it('formatElementMicroTypography formatiert DOM-Elemente sicher ohne Tag-Zerstörung', () => {
+    // 1. Plaintext-Element
+    const elPlain = document.createElement('div');
+    elPlain.setAttribute('contenteditable', 'plaintext-only');
+    elPlain.textContent = 'Siehe z. B. § 24 BGB';
+    formatElementMicroTypography(elPlain);
+    assertEqual(elPlain.textContent, 'Siehe z.\u00A0B. §\u00A024 BGB');
+
+    // 2. Rich-Text Element mit HTML-Tags
+    const elRich = document.createElement('div');
+    elRich.setAttribute('contenteditable', 'true');
+    elRich.innerHTML = '<p>Sehr geehrte Damen und Herren,</p><p>gemaess <b>§ 24 BGB</b> fordern wir <i>100 EUR</i> - zahlbar sofort.</p>';
+    formatElementMicroTypography(elRich);
+
+    assertEqual(elRich.querySelectorAll('p').length, 2);
+    assertEqual(elRich.querySelectorAll('b').length, 1);
+    assertEqual(elRich.querySelectorAll('i').length, 1);
+    assertEqual(elRich.querySelector('b')?.textContent, '§\u00A024 BGB');
+    assertEqual(elRich.querySelector('i')?.textContent, '100\u00A0EUR');
+    assert(elRich.textContent.includes('\u00A0– zahlbar'), 'Gedankenstrich korrekt formatiert');
   });
 });
 

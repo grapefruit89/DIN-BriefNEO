@@ -10,6 +10,8 @@
  *  3. DraftManager liegt seit 2026-11-08 in `draft-manager.js`.
  */
 
+import { applyMicroTypography } from './format.js';
+
 /* =========================================================================================
  * 0. RICH TEXT SANITIZER (Allowlist Guard)
  * ========================================================================================= */
@@ -72,6 +74,38 @@ export function sanitizeRichText(htmlString, options = {}) {
     frag.appendChild(sanitizeNode(child));
   });
   return frag;
+}
+
+/* =========================================================================================
+ * 0.1 MIKRO-TYPOGRAFIE (DIN 5008 § 7.2 & § 8.2)
+ * ========================================================================================= */
+
+/**
+ * Wendet DIN-5008-Mikrotypografie (geschützte Leerzeichen) auf ein HTML-Element an (§ 7.2 & § 8.2).
+ * Traversiert Textknoten sicher via TreeWalker oder setzt textContent bei Plaintext.
+ * @param {HTMLElement | Element} element
+ */
+export function formatElementMicroTypography(element) {
+  if (!element || !(element instanceof HTMLElement)) return;
+  if (element.getAttribute('contenteditable') === 'plaintext-only') {
+    const raw = element.textContent || '';
+    const formatted = applyMicroTypography(raw);
+    if (raw !== formatted) {
+      element.textContent = formatted;
+    }
+    return;
+  }
+  const doc = element.ownerDocument || document;
+  const walker = doc.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+    if (node.nodeValue) {
+      const val = node.nodeValue;
+      const formatted = applyMicroTypography(val);
+      if (val !== formatted) {
+        node.nodeValue = formatted;
+      }
+    }
+  }
 }
 
 /* =========================================================================================
@@ -185,6 +219,9 @@ export class UIProtections {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
+      document.querySelectorAll('[contenteditable]').forEach((el) => {
+        formatElementMicroTypography(el);
+      });
     });
   }
 
@@ -195,6 +232,12 @@ export class UIProtections {
     root.addEventListener('beforeinput', (e) => this.#handleFormatShortcuts(e));
     root.addEventListener('paste', (e) => this.#handleDocumentPaste(e));
     root.addEventListener('input', (e) => this.#handleInputLimit(e));
+    root.addEventListener('focusout', (e) => {
+      const target = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
+      if (target instanceof HTMLElement) {
+        formatElementMicroTypography(target);
+      }
+    });
   }
 
   /**

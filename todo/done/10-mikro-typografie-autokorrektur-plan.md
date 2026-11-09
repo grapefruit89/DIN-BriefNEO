@@ -1,5 +1,5 @@
 ---
-status: draft
+status: done
 type: concept
 tags: [din5008, briefneo, typografie, geschuetztes-leerzeichen, autokorrektur, microtypography]
 summary: "Plan für die automatisierte Mikro-Typografie nach DIN 5008 (§ 7.2 und § 8.2): Geschützte Leerzeichen bei Abkürzungen, Einheiten, Paragrafen und Gedankenstrichen."
@@ -78,8 +78,8 @@ export function formatMicroTypography(text) {
 ---
 
 ## 4. Akzeptanzkriterien & Verifikation
-- [ ] `z. B.` wird im Textfluss niemals zwischen `z.` und `B.` umgebrochen.
-- [ ] `150 EUR` bricht bei schmaler Spalte als Gesamteinheit in die nächste Zeile um.
-- [ ] Gedankenstriche stehen niemals isoliert am Anfang einer Druckzeile.
-- [ ] Keine Cursor-Sprünge beim normalen Tippen im Editor.
-- [ ] 100% Konformität mit Säule 1 (Biome) und Säule 3c (Gate).
+- [x] `z. B.` wird im Textfluss niemals zwischen `z.` und `B.` umgebrochen.
+- [x] `150 EUR` bricht bei schmaler Spalte als Gesamteinheit in die nächste Zeile um.
+- [x] Gedankenstriche stehen niemals isoliert am Anfang einer Druckzeile.
+- [x] Keine Cursor-Sprünge beim normalen Tippen im Editor.
+- [x] 100% Konformität mit Säule 1 (Biome) und Säule 3c (Gate).

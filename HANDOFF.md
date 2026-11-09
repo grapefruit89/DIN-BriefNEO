@@ -16,6 +16,7 @@ Du bist leitender System-Architekt und Co-Entwickler für DIN-BriefNEO. Nutze di
   - KEINE Abwärtskompatibilität („Zero Legacy“): Es gibt keine externen Altnutzer. Sämtliche Altdaten-Migrationen (v1/v2/v3) sind strikt verboten; ausschließlich Schema v4 ist zulässig.
   - KEIN Base64 in Daten oder Code (Zero-Base64-Invariante).
 - **Nativer Stack:** Native ES-Modules (`import`/`export`), Container Queries (`cqw`, `cqh`), Popover API, CSS `light-dark()`, native `DecompressionStream('gzip')` für Adressdaten, OKLCH-Farbraum.
+- **Sichtbare GitHub-Konfiguration:** Alle GitHub-Workflows und -Vorlagen (`.github/`) sind zusätzlich transparent über den sichtbaren Einstiegspunkt `github/` (Symlink-Bridge) erreichbar.
 
 ---
 

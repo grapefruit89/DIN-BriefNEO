@@ -108,10 +108,12 @@ taxonomy:
     - specs
     - .github
     - githooks
+    - github
     - todo
     - build
     - Papierkorb
   allowed_root_files:
+    - github
     - AGENTS.md
     - README.md
     - ACCESSIBILITY.md

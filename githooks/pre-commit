@@ -8,6 +8,16 @@ cd "$REPO_ROOT" || exit 1
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT INT TERM
 
+# --- PAPIERKORB-SCHUTZ: Unumgehbarer Abbruch ---
+if [ ! -d "Papierkorb" ] || [ $(find Papierkorb -type f | wc -l) -eq 0 ]; then
+  echo "❌ [pre-commit] FATAL: 'Papierkorb/' fehlt oder ist leer! Commit abgebrochen." >&2
+  exit 1
+fi
+if git diff --cached --name-only --diff-filter=D | grep -q '^Papierkorb/'; then
+  echo "❌ [pre-commit] FATAL: Das Löschen von Dateien aus 'Papierkorb/' ist strikt verboten!" >&2
+  exit 1
+fi
+
 # Stufe 1: Biome Linter & Format-Check
 if ! npm run check > "$LOG" 2>&1; then
   echo "❌ [pre-commit] Stufe 1: Biome Linter & Format-Check fehlgeschlagen:" >&2

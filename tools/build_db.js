@@ -203,6 +203,11 @@ ${produktionscodeTabelle()}
 
 function main() {
   const startTime = performance.now();
+  const trashDir = path.join(targetDir, 'Papierkorb');
+  if (!fs.existsSync(trashDir) || fs.readdirSync(trashDir).length === 0) {
+    console.error("🔴 Build failed: Invariante verletzt — 'Papierkorb/' existiert nicht oder ist leer!");
+    process.exit(1);
+  }
   generateStructureMap(targetDir);
   if (!isQuiet) console.log('Running Reality Reconciliation & Fitness Check...');
   const report = runReconciliation();

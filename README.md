@@ -98,4 +98,4 @@ Der `pre-commit`-Hook führt automatisch Linter, Unit-Tests und das Fitness Gate
 ## 📜 Lizenz & Sicherheit
 
 DIN-BriefNEO steht unter der [MIT-Lizenz](LICENSE) — frei nutzen, modifizieren und weitergeben.  
-Sicherheitsmeldungen bitte vertraulich über [Private Vulnerability Reporting](SECURITY.md) melden.
+Sicherheitsmeldungen bitte vertraulich über [Private Vulnerability Reporting](.github/SECURITY.md) melden.

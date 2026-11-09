@@ -87,4 +87,4 @@ node tools/build_db.js -q
 
 ## 🔒 Sicherheit & Schwachstellen
 
-Sicherheitsrelevante Schwachstellen bitte **niemals als öffentliches Issue melden**, sondern vertraulich über GitHubs [Private Vulnerability Reporting](https://github.com/grapefruit89/DIN-BriefNEO/security/advisories/new) einreichen (siehe [`SECURITY.md`](../SECURITY.md)).
+Sicherheitsrelevante Schwachstellen bitte **niemals als öffentliches Issue melden**, sondern vertraulich über GitHubs [Private Vulnerability Reporting](https://github.com/grapefruit89/DIN-BriefNEO/security/advisories/new) einreichen (siehe [`SECURITY.md`](SECURITY.md)).

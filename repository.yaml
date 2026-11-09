@@ -76,6 +76,7 @@ structure:
       skills/modern-css/: Kanonische CSS-Architektur der 4 Stylesheets, 100% OKLCH-Farb-Tokens (Law W4), logische Properties und DIN-5008-Drucksimulation
       skills/modern-html/: Tier-1 HTML-Leitfaden fuer deklarative Formularvalidierung, Popovers, Invoker Commands, DIN-5008-Custom-Elements und Lighthouse-100 ARIA
       skills/modern-javascript/: Vanilla JS Architektur fuer Chromium 150+, Law A61 DOM-XSS-Verbot, LocalStorage/IndexedDB, fetchGzipJson und EventBus
+      skills/skills-lock.json: Lockfile fuer externe Agent-Skills
     status: aktiv
     decided_over: agent/skills/ (flach im Projekt-Root konsolidiert)
 
@@ -96,6 +97,7 @@ structure:
       .github/PULL_REQUEST_TEMPLATE.md: Pull Request Template
       .github/CODE_OF_CONDUCT.md: Verhaltenskodex fuer Mitwirkende
       .github/CONTRIBUTING.md: Leitfaden fuer Mitwirkende
+      .github/SECURITY.md: Sicherheitsrichtlinie und Meldekanal
 
 taxonomy:
   # Erzwungen vom Fitness Gate (tools/reconciliation.js, check_type "taxonomy"):
@@ -122,7 +124,6 @@ taxonomy:
     - GEMINI.md
     - HANDOFF.md
     - LICENSE
-    - SECURITY.md
     - repository.yaml
     - opencode.json
     - jsconfig.json
@@ -132,7 +133,6 @@ taxonomy:
     - start.sh
     - envelope.svg
     - TODO.md
-    - skills-lock.json
     - .gitignore
     - .gitattributes
   roles:

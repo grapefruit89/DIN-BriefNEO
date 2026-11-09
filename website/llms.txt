@@ -9,58 +9,62 @@ DIN-BriefNEO ist eine reine Client-Side-Webanwendung zur Erstellung und Formatie
 - **Architektur:** 100 % clientseitig, Zero-Dependency, keine externen Frameworks, keine Cloud-Datenspeicherung.
 - **Datenschutz:** Alle Daten verbleiben ausschließlich im Browser des Nutzers (LocalStorage für Entwürfe, In-Memory-Blobs für Signaturen).
 - **Export:** Nativer Browser-Druckdialog (Druck / PDF) mit exakter mm-Typografie via Container Queries und @page.
-- **Datenformat:** Reines Text-JSON (Schema v3, ohne Base64).
+- **Datenformat:** Reines Text-JSON (Schema v4 Tuple-Format, ohne Base64; abwärtskompatibel zu v3).
 
-## Dokumenten-Schema (Schema v3)
+## Dokumenten-Schema (Schema v4, Tuple-Format)
 
-Das Dokumentenformat `.json` ist vollständig menschenlesbar und enthält keine Base64- oder Binärdaten. Signaturbild und eigene Schrift bleiben lokal (IndexedDB) und sind nicht Teil der Datei. Die App ist reines Client-JavaScript ohne Build-Schritt und ohne Server: `website/` auf einen beliebigen statischen Webserver kopieren genügt.
+Das Dokumentenformat `.json` folgt derselben hocheffizienten Tabular-/Tuple-Architektur wie `figuren.json` (`_meta.schema` + Werte-Array `fields`), statt redundante Feldbezeichner als Key-Value-Blob mitzuschleifen. Es ist vollständig menschenlesbar und enthält keine Base64- oder Binärdaten. Signaturbild und eigene Schrift bleiben lokal (IndexedDB) und sind nicht Teil der Datei. Die App ist reines Client-JavaScript ohne Build-Schritt und ohne Server: `website/` auf einen beliebigen statischen Webserver kopieren genügt.
 
 ```json
 {
   "format": "dinletter",
-  "schema_version": 3,
+  "schema_version": 4,
   "generator": "DIN-BriefNEO",
-  "generated_at": "2026-11-06T14:32:07+01:00[Europe/Berlin]",
+  "generated_at": "2026-11-09T14:32:07+01:00[Europe/Berlin]",
+  "_meta": {
+    "schema": [
+      "rucksendeangabe", "vermerke",
+      "empfaenger-firma", "empfaenger-name", "empfaenger-strasse", "empfaenger-ort",
+      "absender-name", "absender-strasse", "absender-ort", "absender-tel", "absender-mail",
+      "datum", "spacer", "betreff", "teilbetreff", "anrede", "text", "grussformel", "unterschrift",
+      "anlagen-angabe",
+      "fuss-firma", "fuss-sitz", "fuss-gericht", "fuss-hrb", "fuss-vorstand", "fuss-gf",
+      "fuss-stnr", "fuss-ustid", "fuss-bank", "fuss-iban", "fuss-bic", "fuss-anschrift",
+      "toggle-anlagen", "toggle-fuss", "toggle-teilbetreff"
+    ]
+  },
   "layout": {
     "form": "form-b",
     "guides": false,
     "copyfit": false,
     "marks": true
   },
-  "fields": {
-    "rucksendeangabe": "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
-    "vermerke": "",
-    "empfaenger-firma": "",
-    "empfaenger-name": "Erika Mustermann",
-    "empfaenger-strasse": "Beispielweg 42",
-    "empfaenger-ort": "54321 Beispielstadt",
-    "absender-name": "Max Mustermann",
-    "absender-strasse": "Musterstraße 1",
-    "absender-ort": "12345 Musterstadt",
-    "absender-tel": "+49 123 456789",
-    "absender-mail": "max@example.com",
-    "datum": "12. Oktober 2026",
-    "betreff": "Kündigung des Vertrags Nr. 12345",
-    "anrede": "Sehr geehrte Damen und Herren,",
-    "text": "<p>hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.</p>",
-    "grussformel": "Mit freundlichen Grüßen",
-    "unterschrift": "Max Mustermann",
-    "anlagen-angabe": "<li>Kündigungsbestätigung erbeten</li>",
-    "fuss-firma": "",
-    "fuss-sitz": "",
-    "fuss-gericht": "",
-    "fuss-hrb": "",
-    "fuss-vorstand": "",
-    "fuss-gf": "",
-    "fuss-stnr": "",
-    "fuss-ustid": "",
-    "fuss-bank": "",
-    "fuss-iban": "",
-    "fuss-bic": "",
-    "fuss-anschrift": "",
-    "toggle-anlagen": true,
-    "toggle-fuss": true
-  },
+  "fields": [
+    "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
+    "",
+    "",
+    "Erika Mustermann",
+    "Beispielweg 42",
+    "54321 Beispielstadt",
+    "Max Mustermann",
+    "Musterstraße 1",
+    "12345 Musterstadt",
+    "+49 123 456789",
+    "max@example.com",
+    "12. Oktober 2026",
+    "",
+    "Kündigung des Vertrags Nr. 12345",
+    "",
+    "Sehr geehrte Damen und Herren,",
+    "<p>hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.</p>",
+    "Mit freundlichen Grüßen",
+    "Max Mustermann",
+    "Kündigungsbestätigung erbeten",
+    "", "", "", "", "", "", "", "", "", "", "", "",
+    true,
+    true,
+    false
+  ],
   "signature": {
     "transform": { "x": 11.9, "y": 96.0, "scale": 0.5, "rot": 0 }
   }

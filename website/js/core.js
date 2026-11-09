@@ -21,7 +21,7 @@ export const Constants = {
     HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
     FONT_SIZE_MAX_KB: 400     // Max size für Schriftdateien (< 400 KB)
   },
-  SCHEMA_VERSION: 3,
+  SCHEMA_VERSION: 4,
   TOASTS: {
     DRAFT: {
       MULTI_TAB: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',

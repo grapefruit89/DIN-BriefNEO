@@ -353,8 +353,9 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @property {number} schema_version
  * @property {string} generator
  * @property {string} generated_at
+ * @property {{ schema: string[] }} [_meta]
  * @property {DinLetterLayout} layout
- * @property {Record<string, string | boolean>} fields
+ * @property {(string | boolean)[] | Record<string, string | boolean>} fields
  * @property {{ transform: DinLetterSignatureTransform }} signature
  */
 
@@ -378,6 +379,21 @@ export const DINLETTER_FORMAT = 'dinletter';
  */
 
 /**
+ * Kanonische Schema-Definition für Briefdokumente (Schema v4, Tuple-Format).
+ * Definiert die exakte Index-Reihenfolge aller Dokumentenfelder im serialisierten Array.
+ */
+export const DOCUMENT_SCHEMA_V4 = [
+  'rucksendeangabe', 'vermerke',
+  'empfaenger-firma', 'empfaenger-name', 'empfaenger-strasse', 'empfaenger-ort',
+  'absender-name', 'absender-strasse', 'absender-ort', 'absender-tel', 'absender-mail',
+  'datum', 'spacer', 'betreff', 'teilbetreff', 'anrede', 'text', 'grussformel', 'unterschrift',
+  'anlagen-angabe',
+  'fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
+  'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift',
+  'toggle-anlagen', 'toggle-fuss', 'toggle-teilbetreff'
+];
+
+/**
  * Bereinigt HTML-Strings (wie <li> in Listenfeldern) zu lesbarem Plaintext für den JSON-Export.
  * @param {string} html
  * @returns {string}
@@ -396,10 +412,11 @@ export function stripHtmlToPlaintext(html) {
 }
 
 /**
- * Baut das Export-Payload (Schema v3) aus einem Draft-Objekt und den Einstellungen.
+ * Baut das Export-Payload (Schema v4, Tuple-Format) aus einem Draft-Objekt und den Einstellungen.
+ * Folgt derselben hocheffizienten Tabular-/Tuple-Architektur wie figuren.json (_meta.schema + Werte-Array),
+ * statt redundante Feldbezeichner als Key-Value-Blob mitzuschleifen.
  * Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind bewusst nicht enthalten —
  * sie gehören in den separaten Container. PURE — unit-testbar.
- * Leere String-Elemente werden im Export übersprungen (Teil 2: kompakte Serialisierung).
  * @param {Record<string, string | boolean>} draft
  * @param {Record<string, any> | null} [settings]
  * @returns {DinLetterPayload}
@@ -413,29 +430,21 @@ export function buildDinLetterPayload(draft, settings = null) {
     generatedAt = `${currentISODate()}T00:00:00+01:00`;
   }
 
-  const cleanFields = /** @type {Record<string, string | boolean>} */ (Object.create(null));
-  if (draft && typeof draft === 'object') {
-    for (const [k, v] of Object.entries(draft)) {
-      if (k === 'vermerke-visible') continue;
-      if (typeof v === 'string') {
-        const val = k === 'anlagen-angabe' ? stripHtmlToPlaintext(v) : v.trim();
-        if (val !== '' || k.startsWith('fuss-')) {
-          cleanFields[k] = val;
-        }
-      } else if (typeof v === 'boolean' && k.startsWith('toggle-')) {
-        cleanFields[k] = v;
-      }
-    }
-  }
+  const draftObj = (draft && typeof draft === 'object') ? draft : {};
 
-  // Toggle-Zustaende sind im JSON Boolean — auch wenn sie als String hereinkommen.
-  // `vermerke-visible` ist kein Feld mehr: die Sichtbarkeit folgt aus `vermerke`.
-  for (const key of ['toggle-anlagen', 'toggle-fuss']) {
-    if (key in cleanFields) {
-      const value = cleanFields[key];
-      cleanFields[key] = value === true || value === 'true';
+  // Extrahiere Werte in der kanonischen Reihenfolge von DOCUMENT_SCHEMA_V4
+  /** @type {(string | boolean)[]} */
+  const fields = DOCUMENT_SCHEMA_V4.map((field) => {
+    if (field.startsWith('toggle-')) {
+      const val = draftObj[field];
+      return val === true || val === 'true';
     }
-  }
+    const val = draftObj[field];
+    if (typeof val === 'string') {
+      return field === 'anlagen-angabe' ? stripHtmlToPlaintext(val) : val.trim();
+    }
+    return '';
+  });
 
   const s = (settings && typeof settings === 'object') ? settings : {};
   const sig = s.signatureState;
@@ -453,20 +462,24 @@ export function buildDinLetterPayload(draft, settings = null) {
     schema_version: Constants.SCHEMA_VERSION,
     generator: 'DIN-BriefNEO',
     generated_at: generatedAt,
+    _meta: {
+      schema: [...DOCUMENT_SCHEMA_V4]
+    },
     layout: {
       form: (s.layout === 'form-a' || s.layout === 'form-b') ? s.layout : 'form-b',
       guides: typeof s.guides === 'boolean' ? s.guides : false,
       copyfit: typeof s.copyfit === 'boolean' ? s.copyfit : false,
       marks: typeof s.marks === 'boolean' ? s.marks : true
     },
-    fields: cleanFields,
+    fields,
     signature: { transform }
   };
 }
 
 /**
- * Validiert und parsed eine DIN-Brief-JSON-Datei (Schema v3). Ältere Versionen werden
- * abgelehnt — das Dateiformat ist nicht migrationspflichtig. PURE — unit-testbar.
+ * Validiert und parsed eine DIN-Brief-JSON-Datei (Schema v4 Tuple oder Schema v3 Key-Value).
+ * Ältere Versionen (v1, v2) werden abgelehnt — das Dateiformat ist nicht migrationspflichtig.
+ * PURE — unit-testbar.
  * @param {string} text
  * @returns {DinLetterParseResult}
  */
@@ -486,26 +499,52 @@ export function parseDinLetterPayload(text) {
     return { ok: false, reason: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.` };
   }
   const version = Number(data.schema_version);
-  if (!Number.isInteger(version) || version !== Constants.SCHEMA_VERSION) {
+  if (!Number.isInteger(version) || (version !== 4 && version !== 3)) {
     return { ok: false, reason: `Schema v${data.schema_version} wird nicht mehr unterstützt — Datei bitte mit der aktuellen Version neu exportieren.` };
   }
 
   const rawFields = data.fields;
-  if (!rawFields || typeof rawFields !== 'object' || Array.isArray(rawFields)) {
+  if (!rawFields || (typeof rawFields !== 'object' && !Array.isArray(rawFields))) {
     return { ok: false, reason: 'Kein Briefkern in der Datei (fields fehlt).' };
   }
 
   const fields = /** @type {Record<string, string | boolean>} */ (Object.create(null));
-  for (const [key, value] of Object.entries(rawFields)) {
-    // v2-Rest: Sichtbarkeit ist aus `vermerke` ableitbar und kein Feld mehr.
-    if (key === 'vermerke-visible') continue;
-    const istToggle = key.startsWith('toggle-');
-    if (typeof value !== 'string' && typeof value !== 'boolean') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
-    if (typeof value === 'boolean' && !istToggle) return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
-    if (key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
-      return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
+
+  if (Array.isArray(rawFields)) {
+    // Schema v4: Tuple-Format
+    const schema = (data._meta && Array.isArray(data._meta.schema)) ? data._meta.schema : DOCUMENT_SCHEMA_V4;
+    for (let i = 0; i < schema.length; i++) {
+      const key = schema[i];
+      if (typeof key !== 'string' || key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
+        return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
+      }
+      const val = rawFields[i];
+      const istToggle = key.startsWith('toggle-');
+      if (istToggle) {
+        if (val !== undefined && typeof val !== 'boolean' && typeof val !== 'string') {
+          return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
+        }
+        fields[key] = val === true || val === 'true';
+      } else {
+        if (val !== undefined && val !== null && typeof val !== 'string') {
+          return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
+        }
+        fields[key] = typeof val === 'string' ? val : '';
+      }
     }
-    fields[key] = istToggle ? (value === true || value === 'true') : value;
+  } else {
+    // Schema v3: Key-Value-Objekt
+    for (const [key, value] of Object.entries(rawFields)) {
+      // v2-Rest: Sichtbarkeit ist aus `vermerke` ableitbar und kein Feld mehr.
+      if (key === 'vermerke-visible') continue;
+      const istToggle = key.startsWith('toggle-');
+      if (typeof value !== 'string' && typeof value !== 'boolean') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
+      if (typeof value === 'boolean' && !istToggle) return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
+      if (key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
+        return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
+      }
+      fields[key] = istToggle ? (value === true || value === 'true') : value;
+    }
   }
 
   /** @type {Partial<DinLetterLayout>} */

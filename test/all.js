@@ -13,7 +13,7 @@ import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
-import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -174,14 +174,18 @@ describe('DraftManager: Speicherzustand (B53)', () => {
 });
 
 describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
-  it('buildDinLetterPayload setzt Schema v3 mit generated_at', () => {
+  it('buildDinLetterPayload setzt Schema v4 mit generated_at und Tuple-Feldern', () => {
     const payload = buildDinLetterPayload({ betreff: 'Test' });
     assertEqual(payload.format, DINLETTER_FORMAT);
     assertEqual(payload.schema_version, Constants.SCHEMA_VERSION);
-    assertEqual(payload.schema_version, 3);
+    assertEqual(payload.schema_version, 4);
     assertEqual(payload.generator, 'DIN-BriefNEO');
     assert(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(payload.generated_at), 'generated_at ist ein Zeitstempel');
-    assertEqual(payload.fields.betreff, 'Test');
+    assert(Array.isArray(payload.fields), 'fields ist ein Array');
+    assertEqual(payload.fields.length, DOCUMENT_SCHEMA_V4.length, 'exakt 35 Schema-Felder');
+    assertEqual(payload._meta?.schema?.length, DOCUMENT_SCHEMA_V4.length, 'exakt 35 Schema-Header');
+    const idxBetreff = payload._meta.schema.indexOf('betreff');
+    assertEqual(payload.fields[idxBetreff], 'Test');
     assert(!('draft' in payload), 'draft ist gestrichen');
     assert(!('settings' in payload), 'settings ist gestrichen');
     assert(!('profile' in payload), 'profile ist gestrichen');
@@ -206,23 +210,47 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
   it('Toggles sind Boolean im JSON, vermerke-visible ist kein Feld', () => {
     const payload = buildDinLetterPayload({ 'toggle-anlagen': 'true', 'toggle-fuss': true, 'vermerke-visible': 'true', vermerke: 'Einschreiben' });
-    assertEqual(payload.fields['toggle-anlagen'], true, 'String "true" wird Boolean');
-    assertEqual(payload.fields['toggle-fuss'], true);
-    assert(!('vermerke-visible' in payload.fields), 'vermerke-visible wird nicht exportiert');
-    assertEqual(buildDinLetterPayload({ 'toggle-anlagen': false }).fields['toggle-anlagen'], false);
+    const idxAnlagen = payload._meta.schema.indexOf('toggle-anlagen');
+    const idxFuss = payload._meta.schema.indexOf('toggle-fuss');
+    assertEqual(payload.fields[idxAnlagen], true, 'String "true" wird Boolean');
+    assertEqual(payload.fields[idxFuss], true);
+    assert(!payload._meta.schema.includes('vermerke-visible'), 'vermerke-visible wird nicht exportiert');
+    const p2 = buildDinLetterPayload({ 'toggle-anlagen': false });
+    assertEqual(p2.fields[idxAnlagen], false);
   });
 
-  it('parseDinLetterPayload akzeptiert v3 (Roundtrip)', () => {
+  it('parseDinLetterPayload liest v4-Tuple-Payloads fehlerfrei ein (Roundtrip)', () => {
     const payload = buildDinLetterPayload(
       { betreff: 'Roundtrip', text: '<p>x</p>' },
       { layout: 'form-a', marks: false, guides: false }
     );
     const result = parseDinLetterPayload(JSON.stringify(payload));
-    assert(result.ok, 'v3 wird akzeptiert');
+    assert(result.ok, 'v4 wird akzeptiert');
     if (result.ok) {
       assertEqual(result.fields.betreff, 'Roundtrip');
+      assertEqual(result.fields.text, '<p>x</p>');
       assertEqual(result.layout?.form, 'form-a');
       assertEqual(result.layout?.marks, false);
+      assertEqual(result.schemaVersion, 4);
+    }
+  });
+
+  it('parseDinLetterPayload behält volle Abwärtskompatibilität zu Schema v3 (Key-Value)', () => {
+    const v3Payload = {
+      format: DINLETTER_FORMAT,
+      schema_version: 3,
+      generator: 'DIN-BriefNEO',
+      generated_at: '2026-11-06T14:32:07+01:00',
+      layout: { form: 'form-a', marks: false, guides: false, copyfit: false },
+      fields: { betreff: 'Legacy v3', text: '<p>v3 text</p>', 'toggle-fuss': true }
+    };
+    const result = parseDinLetterPayload(JSON.stringify(v3Payload));
+    assert(result.ok, 'v3 wird akzeptiert');
+    if (result.ok) {
+      assertEqual(result.fields.betreff, 'Legacy v3');
+      assertEqual(result.fields.text, '<p>v3 text</p>');
+      assertEqual(result.fields['toggle-fuss'], true);
+      assertEqual(result.layout?.form, 'form-a');
       assertEqual(result.schemaVersion, 3);
     }
   });
@@ -243,13 +271,14 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('parseDinLetterPayload lehnt Mist ab (kein JSON, falsches Format, Feldtypen)', () => {
     assert(!parseDinLetterPayload('kein json {').ok, 'kein JSON');
     assert(!parseDinLetterPayload('{"format":"anderes"}').ok, 'falsches format');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 99, fields: {} })).ok, 'fremde schema_version');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { f: 42 } })).ok, 'nicht-string Feld');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3 })).ok, 'fields fehlt');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 99, fields: [] })).ok, 'fremde schema_version');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, fields: [42] })).ok, 'nicht-string Feld v4');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { f: 42 } })).ok, 'nicht-string Feld v3');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4 })).ok, 'fields fehlt');
   });
 
   it('parseDinLetterPayload toleriert UTF-8-BOM (Grok F4)', () => {
-    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { betreff: 'BOM' } });
+    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, fields: ['BOM'] });
     const result = parseDinLetterPayload(`\uFEFF${payload}`);
     assert(result.ok, 'BOM-präfixtes JSON wird akzeptiert');
   });
@@ -257,15 +286,18 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('parseDinLetterPayload lehnt gefährliche/unplausible Keys ab (Prototyp-Hygiene, Grok F2)', () => {
     /* Achtung: { '__proto__': 'x' } als JS-Objektliteral setzt den Prototyp
      * (kein eigener Key) — die Tests prüfen daher die ROHE Datei-JSON. */
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"__proto__":"x"}}').ok, '__proto__ abgelehnt');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"constructor":"x"}}').ok, 'constructor abgelehnt');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt');
-    const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"betreff":"x"}}');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"__proto__":"x"}}').ok, '__proto__ abgelehnt (v3)');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"constructor":"x"}}').ok, 'constructor abgelehnt (v3)');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt (v3)');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":4,"_meta":{"schema":["__proto__"]},"fields":["x"]}').ok, '__proto__ in Schema abgelehnt (v4)');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":4,"_meta":{"schema":["constructor"]},"fields":["x"]}').ok, 'constructor in Schema abgelehnt (v4)');
+    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":4,"_meta":{"schema":["a b"]},"fields":["x"]}').ok, 'Leerzeichen in Schema abgelehnt (v4)');
+    const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":4,"fields":["x"]}');
     assert(ok.ok, 'normale Ids erlaubt');
   });
 
   it('parseDinLetterPayload validiert layout und signature defensiv', () => {
-    const base = { format: DINLETTER_FORMAT, schema_version: 3, fields: {} };
+    const base = { format: DINLETTER_FORMAT, schema_version: 4, fields: [] };
     assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { form: 'form-c' } })).ok, 'ungültige form abgelehnt');
     assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { guides: 'ja' } })).ok, 'guides als String abgelehnt');
     assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { marks: 1 } })).ok, 'marks als Zahl abgelehnt');
@@ -282,24 +314,24 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
     const payload = buildDinLetterPayload(draft);
     for (const f of FUSS) {
-      assertEqual(payload.fields[`fuss-${f}`], `Wert ${f}`, `fuss-${f} im Export`);
+      const idx = payload._meta.schema.indexOf(`fuss-${f}`);
+      assertEqual(payload.fields[idx], `Wert ${f}`, `fuss-${f} im Export`);
     }
-    assertEqual(payload.fields['toggle-fuss'], true);
-    assertEqual(
-      JSON.stringify(Object.keys(payload.fields).sort()),
-      JSON.stringify([...FUSS.map((f) => `fuss-${f}`), 'toggle-fuss'].sort()),
-      'Feldmenge ist exakt die 12 Fußfelder plus Toggle'
-    );
+    const idxToggle = payload._meta.schema.indexOf('toggle-fuss');
+    assertEqual(payload.fields[idxToggle], true);
 
     const r = parseDinLetterPayload(JSON.stringify(payload));
-    assert(r.ok, 'v3 mit Fußfeldern wird geparst');
+    assert(r.ok, 'v4 mit Fußfeldern wird geparst');
     if (r.ok) {
       for (const f of FUSS) assertEqual(r.fields[`fuss-${f}`], `Wert ${f}`, `fuss-${f} im Import`);
     }
 
     // Roundtrip: 12 rein, 12 raus
     const wieder = buildDinLetterPayload(r.ok ? r.fields : {});
-    for (const f of FUSS) assertEqual(wieder.fields[`fuss-${f}`], `Wert ${f}`, `Roundtrip fuss-${f}`);
+    for (const f of FUSS) {
+      const idx = wieder._meta.schema.indexOf(`fuss-${f}`);
+      assertEqual(wieder.fields[idx], `Wert ${f}`, `Roundtrip fuss-${f}`);
+    }
   });
 
   it('Fußzone: leere Felder bleiben als leere Strings erhalten', () => {
@@ -309,14 +341,16 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     for (const f of FUSS) leer[`fuss-${f}`] = '';
     const payload = buildDinLetterPayload({ ...leer, 'toggle-fuss': false });
     for (const f of FUSS) {
-      assertEqual(payload.fields[`fuss-${f}`], '', `leeres fuss-${f} bleibt Feld`);
+      const idx = payload._meta.schema.indexOf(`fuss-${f}`);
+      assertEqual(payload.fields[idx], '', `leeres fuss-${f} bleibt Feld`);
     }
-    assertEqual(payload.fields['toggle-fuss'], false, 'Toggle aus heißt nur unsichtbar, nicht leer');
-    assertEqual(Object.keys(payload.fields).length, 13, '12 Fußfelder plus Toggle');
+    const idxToggle = payload._meta.schema.indexOf('toggle-fuss');
+    assertEqual(payload.fields[idxToggle], false, 'Toggle aus heißt nur unsichtbar, nicht leer');
+    assertEqual(payload.fields.length, DOCUMENT_SCHEMA_V4.length, '35 Schema-Felder');
   });
 
   it('layout und signature sind optional', () => {
-    const r = parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { betreff: 'x' } }));
+    const r = parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, fields: ['x'] }));
     assert(r.ok, 'ohne layout/signature ok');
     if (r.ok) {
       assertEqual(r.layout, undefined);
@@ -324,13 +358,14 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     }
   });
 
-  it('buildDinLetterPayload erzeugt die v3-Struktur (layout, fields, signature)', () => {
-    const payload = buildDinLetterPayload({ betreff: 'V3 Test' }, { layout: 'form-a', copyfit: true, guides: false, marks: false });
+  it('buildDinLetterPayload erzeugt die v4-Struktur (layout, _meta, fields, signature)', () => {
+    const payload = buildDinLetterPayload({ betreff: 'V4 Test' }, { layout: 'form-a', copyfit: true, guides: false, marks: false });
     assertEqual(payload.layout.form, 'form-a');
     assertEqual(payload.layout.copyfit, true);
     assertEqual(payload.layout.guides, false);
     assertEqual(payload.layout.marks, false);
-    assertEqual(payload.fields.betreff, 'V3 Test');
+    const idxBetreff = payload._meta.schema.indexOf('betreff');
+    assertEqual(payload.fields[idxBetreff], 'V4 Test');
     assert(!('placed' in payload.signature), 'signature.placed ist gestrichen (kein Leser)');
     assertEqual(typeof payload.signature.transform.x, 'number');
   });
@@ -349,6 +384,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assertEqual(unifiedPayload.format, directPayload.format);
     assertEqual(unifiedPayload.schema_version, directPayload.schema_version);
     assertEqual(unifiedPayload.generator, directPayload.generator);
+    assertEqual(JSON.stringify(unifiedPayload._meta), JSON.stringify(directPayload._meta));
     assertEqual(JSON.stringify(unifiedPayload.layout), JSON.stringify(directPayload.layout));
     assertEqual(JSON.stringify(unifiedPayload.fields), JSON.stringify(directPayload.fields));
     assertEqual(JSON.stringify(unifiedPayload.signature), JSON.stringify(directPayload.signature));
@@ -356,8 +392,73 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     // Teste mit registriertem Collector
     registerDraftCollector(() => ({ betreff: 'Live Collector' }));
     const collectorPayload = buildDINLetterJSON();
-    assertEqual(collectorPayload.fields.betreff, 'Live Collector');
+    const idxBetreff = collectorPayload._meta.schema.indexOf('betreff');
+    assertEqual(collectorPayload.fields[idxBetreff], 'Live Collector');
     registerDraftCollector(null);
+  });
+
+  it('Roundtrip: buildDinLetterPayload -> JSON -> parseDinLetterPayload restauriert alle Felder', () => {
+    const originalDraft = {
+      rucksendeangabe: 'Wayne Enterprises, Gotham City',
+      vermerke: 'Einschreiben eigenhändig',
+      'empfaenger-firma': 'LexCorp Industries',
+      'empfaenger-name': 'Alexander Joseph Luthor',
+      'empfaenger-strasse': 'LexCorp Tower 1',
+      'empfaenger-ort': 'Metropolis',
+      'absender-name': 'Bruce Wayne',
+      'absender-strasse': 'Mountain Drive 1007',
+      'absender-ort': 'Gotham City',
+      'absender-tel': '+49 30 23125-929',
+      'absender-mail': 'bruce.wayne@wayne-enterprises.com',
+      datum: '9. November 2026',
+      spacer: '',
+      betreff: 'Verschmelzungsvertrag Wayne Enterprises / LexCorp',
+      teilbetreff: 'Az: WE-2026-X1',
+      anrede: 'Sehr geehrter Herr Luthor,',
+      text: '<p>in Bezug auf die anstehende Konsolidierung teilen wir folgendes mit.</p>',
+      grussformel: 'Mit vorzüglicher Hochachtung',
+      unterschrift: 'Bruce Wayne',
+      'anlagen-angabe': 'Vertragsentwurf (2-fach)\nGutachten',
+      'fuss-firma': 'Wayne Enterprises Inc.',
+      'fuss-sitz': 'Gotham City',
+      'fuss-gericht': 'Amtsgericht Gotham',
+      'fuss-hrb': 'HRB 007007',
+      'fuss-vorstand': 'Bruce Wayne',
+      'fuss-gf': 'Lucius Fox',
+      'fuss-stnr': '007/123/45678',
+      'fuss-ustid': 'DE999999999',
+      'fuss-bank': 'Gotham National Bank',
+      'fuss-iban': 'DE89370400440532013000',
+      'fuss-bic': 'BYLADEM1001',
+      'fuss-anschrift': 'Wayne Tower, Gotham City',
+      'toggle-anlagen': true,
+      'toggle-fuss': true,
+      'toggle-teilbetreff': true
+    };
+
+    const settings = {
+      layout: 'form-a',
+      guides: false,
+      copyfit: false,
+      marks: true,
+      signatureState: { x: 15.5, y: 102.3, scale: 0.75, rot: 2 }
+    };
+
+    const payload = buildDinLetterPayload(originalDraft, settings);
+    const serialized = JSON.stringify(payload);
+    const parsed = parseDinLetterPayload(serialized);
+
+    assert(parsed.ok, 'Roundtrip-Parse erfolgreich');
+    if (parsed.ok) {
+      assertEqual(parsed.schemaVersion, 4);
+      assertEqual(parsed.layout?.form, 'form-a');
+      assertEqual(parsed.layout?.marks, true);
+      assertEqual(parsed.signature?.transform?.scale, 0.75);
+
+      for (const [key, expectedVal] of Object.entries(originalDraft)) {
+        assertEqual(parsed.fields[key], expectedVal, `Roundtrip-Feld '${key}'`);
+      }
+    }
   });
 });
 

@@ -292,8 +292,7 @@ weil `--dump-dom` die async-Tests abschneidet (`--virtual-time-budget` wartet ni
 IndexedDB-I/O). Ein Runner mit JSON-Ausgabe und Exit-Code würde das ersetzen.
 
 ### B49 · Test-Dossier ins Repo · **S** · ⭐⭐
-Die Testlandschafts-Analyse liegt nur im Chat. `docs/audit/2026-11/` enthält allein
-`befundpruefung-2026-11-05.md`; ohne Ablage wird dieselbe Analyse doppelt gemacht.
+Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (archiviert); ohne Ablage wird dieselbe Analyse doppelt gemacht.
 
 ## 🎨 Polish
 
@@ -405,7 +404,7 @@ bestanden**, dieselben vier rot.
 - „erfüllt alle UI-Refactor Anforderungen (keine per-step Buttons, Confirm bei …)" — UI-Policy
 
 Zu entscheiden: fixen oder als akzeptiert markieren. Betrifft Adress-Parser und
-UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und [[befundpruefung-2026-11-05]].
+UI-Policy, nicht den Kern. Siehe [[ARCHITECTURE-MAP]] und `befundpruefung-2026-11-05` (archiviert).
 
 ### B36 · Schema-Datei für v3 anlegen oder Verweis endgültig streichen · **N** · ⭐
 Die `$schema`-Zeile in `llms.txt` ist seit `186664c` entfernt (kein 404 mehr).

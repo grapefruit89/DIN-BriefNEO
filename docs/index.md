@@ -126,14 +126,6 @@ Werkzeug zur Sichtprüfung:
 
 ---
 
-## 🔍 Sprint- & Audit-Dokumentation (`docs/audit/`)
-
-Zeitbezogene Arbeitsstände, Feature-Spezifikationen und Architektur-Reviews (nach Jahr-Monat strukturiert, analog mediNix-Muster):
-- `docs/audit/2026-10/specs/2026-09-10-boot-path-shrink/` — Spezifikation & Plan zur Boot-Path-Verkürzung
-- `docs/audit/2026-10/specs/2026-10-11-architektur-review/` — Architektur-Review, Refactoring-Blaupause & Prompt
-
----
-
 ## 🗄️ Archiv (`docs/90-archive/`)
 
 Historische Einmal-Artefakte (Reviews, Audits, Snapshots) — nicht Teil des aktiven Doku-Satzes, aber aus Nachvollziehbarkeit behalten:

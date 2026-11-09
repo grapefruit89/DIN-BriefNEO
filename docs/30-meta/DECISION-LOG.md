@@ -93,7 +93,7 @@ Entscheidung revidiert, entsteht ein **neuer** Eintrag, der die alte per Datum r
 ist der Schutz vor Wiederholung.
 
 Wird der Live-Log zu groß, wird er **nach Zeitfenster** ausgelagert (zuletzt 2026-09-30:
-Einträge bis 2026-08 → [[decision-log-archiv-2026-05-08]]), niemals thematisch ausgedünnt.
+Einträge bis 2026-08 → [[DECISION-LOG-2026-H1]]), niemals thematisch ausgedünnt.
 
 ### Was diesen Log kaputt macht
 
@@ -106,7 +106,7 @@ Einträge bis 2026-08 → [[decision-log-archiv-2026-05-08]]), niemals thematisc
 ---
 
 > **Archiv:** Einträge **bis 2026-08** (Mai–August) wurden ausgelagert nach
-> [[decision-log-archiv-2026-05-08|DECISION-LOG Archiv Mai–August 2026]].
+> [[DECISION-LOG-2026-H1|DECISION-LOG Archiv Mai–August 2026]].
 
 ## 📅 Chronologie der Entscheidungen (ab 2026-09)
 

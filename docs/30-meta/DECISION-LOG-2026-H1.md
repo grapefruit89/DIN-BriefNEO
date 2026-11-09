@@ -1,5 +1,7 @@
 ---
-id: decision-log-archiv-2026-05-08
+id: decision-log-2026-h1
+aliases:
+  - DECISION-LOG-2026-H1
 title: 'DECISION-LOG Archiv — Mai–August 2026'
 type: reference
 status: archived

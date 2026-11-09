@@ -1,0 +1,216 @@
+{
+  "meta": {
+    "startedAt": "2026-11-08T14:25:11.188Z",
+    "url": "http://127.0.0.1:42905/website/index.html",
+    "headless": true,
+    "browser": "Chrome/156.0.8078.47",
+    "cdpPort": 9222,
+    "httpPort": 42905,
+    "profil": "/tmp/din-virgin-ffg9fD",
+    "durationMs": 5880,
+    "reason": "SIGTERM"
+  },
+  "console": [],
+  "network": [
+    {
+      "at": 141,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/index.html",
+      "status": 200,
+      "mimeType": "text/html",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 154,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/css/base.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 155,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/css/sidebar.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 155,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/css/sheet.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 155,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/boot-theme.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 155,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/css/print.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 11,
+      "fromCache": false
+    },
+    {
+      "at": 163,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/boot-switches.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 3,
+      "fromCache": false
+    },
+    {
+      "at": 168,
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 168,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/main.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/address.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/salutation.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/core.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/draft-manager.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/document.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/clipboard-parser.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/persistence.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/settings.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 169,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/signature.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 178,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/js/binary-storage.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 245,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/data/orte.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 246,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/data/grosskunden.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 246,
+      "method": "GET",
+      "url": "http://127.0.0.1:42905/website/data/de_districts.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 4,
+      "fromCache": false
+    }
+  ],
+  "storageMutations": [],
+  "errors": []
+}

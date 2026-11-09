@@ -38,6 +38,7 @@ research/address-autocomplete-api-openapi-specs.json
 
 # Debug-Session-Traces (Artefakte, kein Code)
 test/traces/
+test/traces/*.json
 
 # Secrets & API-Keys (Schutzfilter)
 .secrets/

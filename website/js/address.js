@@ -27,6 +27,7 @@ import {
   resolveCity,
   resolvePostcode
 } from './address-data.js';
+import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
@@ -37,6 +38,7 @@ export {
   BUNDESLAENDER,
   buildFirmenIndex,
   buildOrtIndex,
+  ClipboardAddressParser,
   fetchGzipJson,
   getDistrict,
   lowerBound,

@@ -1,10 +1,10 @@
 ---
 id: testing-guide
-title: 'Guide: Interaktiver Test-Leitfaden'
+title: 'Test-Architektur & Qualitätssicherung'
 type: guide
 status: active
 created: '2026-06-26'
-updated: '2026-09-30'
+updated: '2026-11-09'
 tags:
   - din-briefneo
   - din-briefneo/implementation
@@ -14,212 +14,110 @@ doc_links:
   - Salutation-Engine
   - glossary
   - spec
-code_links: []
+code_links:
+  - test/all.js
+  - tools/test-runner.mjs
+  - test/corpus/run.js
+  - test/corpus/address-cases.json
 error_patterns:
   - testing
   - testfaelle
   - qa protokoll
-  - testfall
-  - manuell
-  - toast notification
-  - adress-autocomplete
+  - testrunner
+  - regression
 supersedes: []
 depends_on: []
 ---
 
-# Interaktiver Test-Leitfaden: testing-guide.md
+# Test-Architektur & Qualitätssicherung: testing-guide.md
 
-> [!info] Testing Guide
-> Dieser Testing-Guide beschreibt alle manuellen Testfälle, um die Refactored Baseline-Features von **DIN-BriefNEO** systematisch und reproduzierbar auf Fehler zu überprüfen.
-
----
-
-## 🧪 Manuelle Testfälle (QA-Protokoll)
-
-### 1. Textverarbeitung & Formatierung
-
-#### Testfall 1: Plaintext-Paste-Filter
-
-*   **Ausgangssituation:** Das Feld „Brieftext“ (`#text`) ist leer oder befüllt.
-
-*   **Aktion:** Einen formatierten Text kopieren und einfügen.
-
-*   **Erwartetes Ergebnis:** Bedingungslose Befreiung von Formatierungen, Farben, fremden Schriften und Links. Reiner Plaintext.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 2: Plaintext-Drag-and-Drop-Filter
-
-*   **Ausgangssituation:** Das Feld „Brieftext“ (`#text`) ist aktiv.
-
-*   **Aktion:** Formatierten Text via Drag-and-Drop in das Feld ziehen.
-
-*   **Erwartetes Ergebnis:** Reiner Text, alle Format-Reste rückstandslos entfernt.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 3: WhatsApp-Style Selection Popover Toolbar
-
-*   **Ausgangssituation:** Der Brieftext enthält Text.
-
-*   **Aktion:** Text markieren. Auf B (Fett) oder U (Unterstrichen) klicken. Erneut markieren.
-
-*   **Erwartetes Ergebnis:** Toolbar schwebt im Top-Layer. Buttons leuchten auf bei aktivem Status.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 4: Blockquote-Toggling (Range API Unwrap)
-
-*   **Ausgangssituation:** Ein Absatz im Brieftext ist markiert.
-
-*   **Aktion:** Zitat-Symbol klicken. Erneut klicken.
-
-*   **Erwartetes Ergebnis:** Zitat wird zum `<blockquote>`. Beim zweiten Klick wird der `<blockquote>`-Tag sicher entfernt, der Text bleibt als normaler Fließtext erhalten (Unwrap ohne Textverdopplung).
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 13: Keyboard-only Bedienung der Toolbar
-
-*   **Ausgangssituation:** Der Brieftext ist aktiv.
-
-*   **Aktion:** Text mit Umschalt+Pfeiltasten markieren, Toolbar muss per Tabulator/Tastatur-Shortcuts nutzbar sein.
-
-*   **Erwartetes Ergebnis:** Barrierefreie Nutzung ohne Maus möglich.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
+DIN-BriefNEO setzt auf ein kompromissloses, zweistufiges Testkonzept: Eine headless Chromium-gestützte Unit-Testsuite für DOM-, State- und Storage-Interaktionen sowie ein isolierter Node.js-Regressionstest für Adress-, Straßen- und Anrede-Parser.
 
 ---
 
-### 2. Layout & Interaktion
+## 🏛️ Die zwei Säulen der Test-Architektur
 
-#### Testfall 5: Toast-Notification Queue (Stacking-Schutz)
-
-*   **Aktion:** 5- bis 10-mal sehr schnell auf Sidebar-Buttons klicken.
-
-*   **Erwartetes Ergebnis:** Kein hässliches Übereinanderstapeln. Meldungen erscheinen sauber nacheinander.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 10: A4-Überlaufwarnung **[Prio 1]**
-
-*   **Aktion:** Viel Text einfügen, bis das Seitenende berührt wird.
-
-*   **Erwartetes Ergebnis:** Gestrichelter roter Rahmen, Warn-Badge, Toast-Meldung.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 11: Sehr langer Betreff (Überlauf) **[Prio 1]**
-
-*   **Aktion:** Betreff über 2 Zeilen füllen und Enter drücken.
-
-*   **Erwartetes Ergebnis:** Blockiert Eingabe, roter Warnrahmen bei Zeile 3.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 14: Form A vs Form B Wechsel mit Inhalt
-
-*   **Aktion:** Brief füllen, dann in Sidebar Form wechseln.
-
-*   **Erwartetes Ergebnis:** Inhalt bleibt exakt erhalten, Positionen (Falzmarken, Fenster) wechseln nahtlos per CSS-Variable.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      Säule 1: Unit-Testsuite                            │
+│  test/all.js (183 Tests) in test/index.html                            │
+│  ➔ Headless Chromium 150+ via tools/test-runner.mjs (CDP Protocol)      │
+│  ➔ Befehl: npm test                                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+                                     │
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      Säule 2: Adress- & Anrede-Korpus                   │
+│  test/corpus/address-cases.json + run.js                                │
+│  ➔ Schneller Regressionslauf für Namens-, Straßen- & Impressumserkennung │
+│  ➔ Befehl: node test/corpus/run.js                                      │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### 3. Schriften & APIs
+## 1. Säule 1: Headless Unit-Testsuite (`test/all.js`)
 
-#### Testfall 6: Schriftarten-Wechsel (System Stacks)
+Die Unit-Testsuite validiert alle Module unter realen Browserbedingungen gegen die DOM- und Web-Plattform-APIs von Chromium 150+.
 
-*   **Aktion:** Zwischen Sans, Serif, Mono wechseln.
+### Testumfang & Kategorien
+- **DraftManager & Speicherschutz (B53, B54):** Autosave-Debounce, EventBus-Synchronisation, QuotaExceededError-Schutz und `ariaNotify`-Fallback.
+- **Import & Export (B55):** Schema v4 Validierung, atomare Speicherabsicherung vor `location.reload()`.
+- **SalutationEngine:** 80/20 B2B-Anrede-Erkennung, Adelstitel, akademische Grade, Doppelnamen und Stil-Umschaltung (`formal`, `polite`, `casual`).
+- **Mikro-Typografie (DIN 5008):** Geschützte Leerzeichen bei Abkürzungen (`z. B.`), Geldbeträgen, Paragrafen und Einheiten.
+- **Font- & Signatur-Manager:** IndexedDB-Blob-Persistenz, Drag-and-Drop, Skalierungs- und Rotations-Matrizen.
 
-*   **Erwartetes Ergebnis:** Schriftart des gesamten Briefs ändert sich synchron.
+### Ausführung & CLI-Flags
 
-*   **Status:**
+```bash
+# Vollständige Suite headless ausführen
+npm test
 
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
+# Gezielte Testgruppen filtern (Regex)
+node tools/test-runner.mjs --filter="Salutation"
+node tools/test-runner.mjs --filter="B54|B55"
 
-#### Testfall 7: WOFF2-Uploader
+# CI-Modus (überspringen, falls kein Browser installiert ist)
+node tools/test-runner.mjs --allow-missing-browser
 
-*   **Aktion:** Lokale Schrift hochladen, F5 drücken.
+# Maschinenlesbare JSON-Ausgabe
+node tools/test-runner.mjs --json
+```
 
-*   **Erwartetes Ergebnis:** Schrift wird sofort angewendet und überlebt einen Reload via Base64 LocalStorage.
+---
 
-*   **Status:**
+## 2. Säule 2: Adress- & Korpus-Regression (`test/corpus/`)
 
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
+Das Adress-Korpus prüft den heuristischen `ClipboardAddressParser` und die Namenszerlegung gegen reale Adress- und Impressumstexte.
 
-#### Testfall 8: Dual-Provider Adress-Autocomplete **[Prio 1]**
+### Struktur des Testkorpus
+- **Testdefinition:** `test/corpus/address-cases.json` enthält reale Datensätze mit erwarteten Feldern (`name`, `strasse`, `plz`, `ort`, `anrede`).
+- **Testkategorien:**
+  - `street`: Straßen- und Hausnummernerkennung (inkl. Bindestriche, Zusätze wie „UG“, „Hinterhaus“).
+  - `floor`: Stockwerks- und Gebäudeteilangaben.
+  - `metadata`: Zuverlässiges Ignorieren von Telefon-, Fax-, Mail- und Registerzeilen.
+  - `negative`: Schutz vor Fehlinterpretationen von reinen Firmen- oder Vereinsnamen.
+  - `postfach`: Postfach-Adressen nach DIN 5008.
+  - `unfolding`: Entfaltung kommagetrennter, einzeiliger Adressen.
+  - `salutation`: Korrekte Anrederive nach Namensparsing.
 
-*   **Aktion:** API testen, Keys eintragen.
+### Ausführung
 
-*   **Erwartetes Ergebnis:** Wechsel funktioniert, fehlender Key blockiert Suche sauber.
+```bash
+# Adress-Korpus ausführen
+node test/corpus/run.js
+```
 
-*   **Status:**
+---
 
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
+## 3. Manuelle Validierungs-Checkliste (Smoke Tests)
 
-#### Testfall 9: PLZ-Proximity-Biasing & Zippopotam
+Für visuelle Endkontrollen vor Releases:
 
-*   **Aktion:** Absender-PLZ eintragen und dann Empfänger suchen.
-
-*   **Erwartetes Ergebnis:** Lokale Adressen werden präferiert; Zippopotam löst PLZ korrekt auf.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
-
-#### Testfall 12: Sonderzeichen in Adresse
-
-*   **Aktion:** Adresse mit Umlauten (ä,ö,ü) und "ß" in die Suche eingeben.
-
-*   **Erwartetes Ergebnis:** Adress-API verarbeitet und rendert Sonderzeichen korrekt im DOM ohne Encoding-Fehler.
-
-*   **Status:**
-
-    | Status | Getestet am | Tester | Ergebnis |
-    | :--- | :--- | :--- | :--- |
-    | ⏳ Offen | - | - | - |
+1. **DIN-5008 Layout & Faltmarken:**
+   - Briefbogen auf DIN-A4-Darstellung prüfen (210 × 297 mm).
+   - Prüfen, ob Faltmarke 1 (105 mm) und Faltmarke 2 (210 mm) sowie Lochmarke (148,5 mm) exakt sitzen.
+2. **Druckvorschau (`Ctrl + P` / `Cmd + P`):**
+   - Header, Footer, Seitenleiste und UI-Buttons müssen via `@media print` ausgeblendet sein.
+   - Kein zweiter, leerer Seitenüberlauf bei Standardbriefen (Zero-Scroll-Garantie).
+3. **Responsive Seitenleiste:**
+   - Schalter „Einstellungen“ toggelt Sidebar via `:has()` sauber ohne Layout-Sprünge.

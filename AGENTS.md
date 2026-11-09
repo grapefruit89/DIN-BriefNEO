@@ -298,6 +298,12 @@ Keine Normen — Normen stehen im Law Catalog.
 - Fremden toten Code **melden**, nicht löschen. Eigenen Müll aufräumen.
 - Test: Jede geänderte Zeile muss sich auf den Auftrag zurückführen lassen.
 
+### Anti-Alzheimer-Protokoll (Diff- & Zeilen-Disziplin)
+- Vollständiges Neugenerieren/Überschreiben bestehender Dateien (>50 Zeilen) ist strikt verboten. Ausschließlich punktuelle Block-Edits auf den Zielbereich.
+- Zeilen-Audit: Vor dem Edit 'wc -l <datei>', nach dem Edit 'wc -l <datei>'. Unerklärter Zeilenschwund ist ein sofortiger Abbruchgrund.
+- Diff-Prüfung: Vor dem Staging muss via 'git diff -U1' verifiziert werden, dass keine unbeteiligten Abschnitte, Kommentare oder Fallbacks verloren gegangen sind.
+- Im Tätigkeitsbericht ist für jede editierte Datei die Zeilenmetrik anzugeben: [Vorher: X | Nachher: Y | Netto: +/-Z].
+
 ### Verifizierbare Ziele
 Aufgabe in ein prüfbares Ziel übersetzen („Bug beheben" → „Test schreiben, der ihn
 reproduziert, dann grün machen"). Bei mehrstufigen Aufgaben kurzen Plan nennen:

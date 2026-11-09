@@ -31,8 +31,8 @@ Du bist der technische Chef-Auditor für DIN-BriefNEO. Dein Fokus liegt auf `web
 Module sind strikt in Ebenen unterteilt. Ein Modul darf nur Module derselben oder einer niedrigeren Ebene importieren – niemals aufwärts oder im Kreis:
 - **L0 (Foundation):** `core.js`, `format.js`, `boot.js`
 - **L1 (Data & Storage):** `address-data.js`, `binary-storage.js`, `persistence.js`
-- **L2 (Domain Engines):** `salutation.js`, `document.js`, `clipboard-parser.js`
-- **L3 (UI & Controller):** `address.js`, `settings.js`, `font-feature.js`, `signature.js`, `draft-manager.js`, `multipage-controller.js`
+- **L2 (Domain Engines):** `salutation.js`, `document.js`
+- **L3 (UI & Controller):** `address.js`, `clipboard-parser.js`, `settings.js`, `font-feature.js`, `signature.js`, `draft-manager.js`, `multipage-controller.js`
 - **L4 (App Orchestrator):** `main.js`
 
 **Prüfung:** Parse alle `import`-Statements. Zirkuläre Abhängigkeiten (`A -> B -> A`) werden aufgelöst, indem geteilte Konstanten oder Event-Publisher in `core.js` oder dedizierte L0/L1-Helfer extrahiert werden.

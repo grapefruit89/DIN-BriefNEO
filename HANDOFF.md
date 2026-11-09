@@ -62,8 +62,7 @@ DIN-BriefNEO/
 │   ├── corpus/            # 80 Adress-Korpus-Fälle (run.js + address-cases.json)
 │   └── runner.js          # Headless CDP-Runner
 ├── tools/                 # Deterministische Build-, Gate- und Indexierungs-Skripte
-├── docs/                  # 00-foundation, 10-architecture, 20-implementation, 30-meta
-└── Papierkorb/            # Strukturierter Ablageort für historisierte Skripte und Altlasten
+└── docs/                  # 00-foundation, 10-architecture, 20-implementation, 30-meta
 ```
 
 ---

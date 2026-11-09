@@ -110,7 +110,6 @@ taxonomy:
     - .githooks
     - todo
     - build
-    - Papierkorb
   allowed_root_files:
     - AGENTS.md
     - README.md

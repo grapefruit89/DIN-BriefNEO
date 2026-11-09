@@ -13,7 +13,7 @@ import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
-import { buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -170,6 +170,106 @@ describe('DraftManager: Speicherzustand (B53)', () => {
     assertEqual(dm.saveState, 'synced', 'nach dem Schreiben ist der Zustand synced');
     assertEqual(dm.flushPendingSave(), false, 'zweiter flush ohne Änderung ist ein No-op');
     dm.destroy();
+  });
+});
+
+describe('DraftManager: Stabilitäts-Audit & Quota-Fehlerbehandlung (B54)', () => {
+  it('fängt QuotaExceededError und ariaNotify-Fehler sauber ab, setzt error-Status und publiziert DOCUMENT_SAVE_FAILED', () => {
+    seed();
+    setField('Quota Test');
+
+    const origSetItem = localStorage.setItem;
+    // @ts-ignore
+    const origAriaNotify = document.ariaNotify;
+
+    let failedEventReceived = false;
+    const bus = createEventBus();
+    bus.subscribe(Events.DOCUMENT_SAVE_FAILED, () => {
+      failedEventReceived = true;
+    });
+
+    const dm = new DraftManager(bus);
+
+    try {
+      // 1. Simuliere QuotaExceededError
+      localStorage.setItem = () => {
+        throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+      };
+
+      // 2. Simuliere werfendes ariaNotify (z. B. ungültige Parameter)
+      // @ts-ignore
+      document.ariaNotify = () => {
+        throw new TypeError("Failed to execute 'ariaNotify' on 'Document': Invalid priority 'important'");
+      };
+
+      const saveResult = dm.saveDraft();
+      assertEqual(saveResult, false, 'saveDraft liefert false bei QuotaExceededError');
+      assertEqual(dm.saveState, 'error', 'saveState wechselt deterministisch auf error');
+      assert(failedEventReceived, 'DOCUMENT_SAVE_FAILED Event wurde über den EventBus publiziert');
+
+      const statusEl = document.getElementById('save-status');
+      if (statusEl) {
+        assertEqual(statusEl.dataset.state, 'error', 'save-status Element hat data-state="error"');
+        assertEqual(statusEl.getAttribute('role'), 'alert', 'Fallback role="alert" gesetzt');
+        assertEqual(statusEl.getAttribute('aria-live'), 'assertive', 'aria-live="assertive" gesetzt');
+      }
+    } finally {
+      localStorage.setItem = origSetItem;
+      // @ts-ignore
+      document.ariaNotify = origAriaNotify;
+      dm.destroy();
+    }
+  });
+});
+
+describe('Persistence: Import-Speichervorgang & Fehlerschutz vor Reload (B55)', () => {
+  it('bricht bei fehlgeschlagenem saveJSON sofort ab und führt keinen Reload aus', () => {
+    const origSetItem = localStorage.setItem;
+    let reloadTriggered = false;
+
+    try {
+      // Simuliere vollen / gesperrten Speicher
+      localStorage.setItem = () => {
+        throw new DOMException('Storage is full', 'QuotaExceededError');
+      };
+
+      const payload = {
+        ok: true,
+        format: DINLETTER_FORMAT,
+        schema_version: 4,
+        fields: { betreff: 'Wichtiger Import' }
+      };
+
+      const success = applyImportedData(payload, {
+        reloadFn: () => {
+          reloadTriggered = true;
+        }
+      });
+
+      assertEqual(success, false, 'applyImportedData liefert false bei Speicherfehler');
+      assertEqual(reloadTriggered, false, 'location.reload wird bei Speicherfehler niemals ausgeführt');
+    } finally {
+      localStorage.setItem = origSetItem;
+    }
+  });
+
+  it('führt bei erfolgreichem Speichern den Reload-Callback aus', () => {
+    let reloadTriggered = false;
+    const payload = {
+      ok: true,
+      format: DINLETTER_FORMAT,
+      schema_version: 4,
+      fields: { betreff: 'Erfolgreicher Import' }
+    };
+
+    const success = applyImportedData(payload, {
+      reloadFn: () => {
+        reloadTriggered = true;
+      }
+    });
+
+    assertEqual(success, true, 'applyImportedData liefert true bei Erfolg');
+    assertEqual(reloadTriggered, true, 'Reload-Callback wird bei Erfolg ausgeführt');
   });
 });
 

@@ -3,7 +3,19 @@ name: Fitness Gate
 on:
   push:
     branches: [main]
+    paths:
+      - 'website/**'
+      - 'tools/**'
+      - 'test/**'
+      - 'package.json'
+      - '.github/workflows/fitness.yml'
   pull_request:
+    paths:
+      - 'website/**'
+      - 'tools/**'
+      - 'test/**'
+      - 'package.json'
+      - '.github/workflows/fitness.yml'
   workflow_dispatch:
 
 concurrency:

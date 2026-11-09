@@ -164,11 +164,25 @@ export class DraftManager {
 
     const saved = save(STORAGE_KEYS.draft, draftStr);
     this.#saveState = saved ? 'synced' : 'error';
-    this.#setSaveStatus(saved ? 'saved' : 'error');
-    this.#updateDocumentTitle();
+
+    try {
+      this.#setSaveStatus(saved ? 'saved' : 'error');
+    } catch {
+      /* Status-Rendering darf den Fehlerpfad niemals abbrechen (B54) */
+    }
+
+    try {
+      this.#updateDocumentTitle();
+    } catch {
+      /* Titel-Update darf den Fehlerpfad nicht unterbrechen */
+    }
 
     if (this.bus && typeof this.bus.publish === 'function') {
-      this.bus.publish(saved ? Events.DOCUMENT_SAVED : Events.DOCUMENT_SAVE_FAILED, { draft });
+      try {
+        this.bus.publish(saved ? Events.DOCUMENT_SAVED : Events.DOCUMENT_SAVE_FAILED, { draft });
+      } catch (err) {
+        console.warn('[DraftManager] Event-Publish fehlgeschlagen:', err);
+      }
     }
 
     if (this.#isRestoring) return saved;
@@ -418,13 +432,24 @@ export class DraftManager {
     const labels = { saved: 'Gespeichert', dirty: 'Speichern…', error: 'Fehler beim Speichern!' };
     el.textContent = labels[state];
     el.title = labels[state];
-    if (state === 'error' && typeof document.ariaNotify === 'function') {
+
+    // Fallback auf ARIA-Live-Regionen (B54: Screenreader auch ohne ariaNotify informieren)
+    if (state === 'error') {
+      el.setAttribute('role', 'alert');
+      el.setAttribute('aria-live', 'assertive');
+    } else {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+    }
+
+    if (state === 'error') {
       try {
-        // 'important' ist kein gültiger Enum-Wert (Chrome 156: 'high' | 'normal').
-        // Ein Wurf hier würde saveDraft() genau im Fehlerfall abbrechen.
-        document.ariaNotify('Fehler beim Speichern', { priority: 'high' });
+        if (typeof document.ariaNotify === 'function') {
+          // Standard-konforme Priorität 'high' oder 'normal' (Chrome 156+, B54)
+          document.ariaNotify('Fehler beim Speichern', { priority: 'high' });
+        }
       } catch {
-        /* Experimentelle API darf den Fehlerpfad nicht blockieren. */
+        /* Experimentelle API darf den Fehlerpfad niemals blockieren (B54) */
       }
     }
   }

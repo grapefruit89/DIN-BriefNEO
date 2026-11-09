@@ -32,7 +32,7 @@ export const Constants = {
       IMPORT_SIZE_ERROR: '❌ Import abgelehnt: Datei zu groß (max. 1 MB).',
       /** @param {string} reason @returns {string} */
       IMPORT_REJECTED: (reason) => `❌ Import abgelehnt: ${reason}`,
-      IMPORT_STORAGE_ERROR: '❌ Import fehlgeschlagen (Storage voll?).'
+      IMPORT_STORAGE_ERROR: '❌ Fehler beim Speichern des Imports (Speicher voll oder gesperrt).'
     },
     FONT: {
       SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 400 KB groß sein)',

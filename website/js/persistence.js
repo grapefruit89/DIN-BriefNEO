@@ -705,6 +705,48 @@ export function buildDINLetterJSON(draftCollector = null) {
 }
 
 /**
+ * Wendet einen geprüften Import an und persistiert ihn im localStorage.
+ * Bricht bei Speicherfehlern (saveJSON -> false) sofort ab, ohne reload auszulösen (B55).
+ * @param {any} pendingImport
+ * @param {{ reloadFn?: () => void }} [options]
+ * @returns {boolean} true bei Erfolg, false bei Speicherfehler
+ */
+export function applyImportedData(pendingImport, { reloadFn = () => location.reload() } = {}) {
+  if (!pendingImport?.ok) return false;
+  try {
+    const draftGespeichert = saveJSON(STORAGE_KEYS.draft, pendingImport.fields);
+    const currentSettings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS) || DEFAULT_SETTINGS;
+    /** @type {Record<string, any>} */
+    const nextSettings = { ...currentSettings };
+    const layout = pendingImport.layout;
+    if (layout) {
+      if (layout.form !== undefined) nextSettings.layout = layout.form;
+      if (layout.guides !== undefined) nextSettings.guides = layout.guides;
+      if (layout.copyfit !== undefined) nextSettings.copyfit = layout.copyfit;
+      if (layout.marks !== undefined) nextSettings.marks = layout.marks;
+      if (layout.sensitiveSubject !== undefined) nextSettings.sensitiveSubject = layout.sensitiveSubject;
+    }
+    if (pendingImport.signature?.transform) {
+      nextSettings.signatureState = { ...pendingImport.signature.transform };
+    }
+    const settingsGespeichert = saveJSON(STORAGE_KEYS.settings, nextSettings);
+    // saveJSON gibt bei vollem Speicher false zurück statt zu werfen (B55).
+    // Ohne diese Prüfung meldet der Dialog Erfolg und der Reload verwirft den Import.
+    if (!draftGespeichert || !settingsGespeichert) {
+      notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
+      return false;
+    }
+    if (typeof reloadFn === 'function') {
+      reloadFn();
+    }
+    return true;
+  } catch {
+    notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
+    return false;
+  }
+}
+
+/**
  * Verdrahtet Export/Import-UI (Sidebar-Buttons, Datei-Input, Confirm-Dialog, Keyboard-Shortcut).
  * @param {{ collectDraft?: () => Record<string, string | boolean> }} [options]
  */
@@ -797,34 +839,8 @@ export function initImportExport({ collectDraft } = {}) {
       pendingImport = null;
       return;
     }
-    try {
-      const draftGespeichert = saveJSON(STORAGE_KEYS.draft, pendingImport.fields);
-      const currentSettings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS) || DEFAULT_SETTINGS;
-      /** @type {Record<string, any>} */
-      const nextSettings = { ...currentSettings };
-      const layout = pendingImport.layout;
-      if (layout) {
-        if (layout.form !== undefined) nextSettings.layout = layout.form;
-        if (layout.guides !== undefined) nextSettings.guides = layout.guides;
-        if (layout.copyfit !== undefined) nextSettings.copyfit = layout.copyfit;
-        if (layout.marks !== undefined) nextSettings.marks = layout.marks;
-        if (layout.sensitiveSubject !== undefined) nextSettings.sensitiveSubject = layout.sensitiveSubject;
-      }
-      if (pendingImport.signature?.transform) {
-        nextSettings.signatureState = { ...pendingImport.signature.transform };
-      }
-      const settingsGespeichert = saveJSON(STORAGE_KEYS.settings, nextSettings);
-      // saveJSON gibt bei vollem Speicher false zurück statt zu werfen (B55).
-      // Ohne diese Prüfung meldet der Dialog Erfolg und der Reload verwirft den Import.
-      if (!draftGespeichert || !settingsGespeichert) {
-        notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
-        pendingImport = null;
-        return;
-      }
-      pendingImport = null;
-      location.reload();
-    } catch {
-      notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
-    }
+    const toApply = pendingImport;
+    pendingImport = null;
+    applyImportedData(toApply);
   });
 }

@@ -97,7 +97,7 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
 
 #### [`persistence.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/persistence.js) (758 Zeilen)
 * **Zweck:** Textuelle Persistenz in `localStorage`, Schema-Serialisierung und Dateitransfer.
-* **Exports:** `loadJSON()`, `saveJSON()`, `buildDinLetterPayload()`, `parseDinLetterPayload()`, `buildDINLetterJSON()`, `registerDraftCollector()`, `initImportExport()`, `applyLetterDate()`.
+* **Exports:** `loadJSON()`, `saveJSON()`, `buildDinLetterPayload()`, `parseDinLetterPayload()`, `buildDINLetterJSON()`, `registerDraftCollector()`, `initImportExport()`, `applyLetterDate()`, `applyImportedData()`.
 * **Details:**
   - Standardisiertes `application/vnd.din-brief+json` Austauschformat.
   - Registry-Pattern für Draft-Kollektoren (`registerDraftCollector`).

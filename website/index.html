@@ -17,7 +17,7 @@
     <meta property="og:type" content="website">
     <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
          in layers.css verlagert, Boot als externes Classic-Script
-         (js/boot-theme.js), daher kein Inline-Hash noetig. connect-src erlaubt
+         (js/boot.js), daher kein Inline-Hash noetig. connect-src erlaubt
          nur die A38-Allowlist (optionale Tier-2-Fach-API, ohne Key tot). -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data: blob:; img-src 'self' data: blob:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
     <title>DIN-BriefNEO | Pure Refactored</title>
@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="css/base.css?v=live6">
     <link rel="stylesheet" href="css/sidebar.css?v=live7">
     <link rel="stylesheet" href="css/sheet-common.css?v=common1">
-    <link rel="stylesheet" id="css-blatt" href="css/sheet.css?v=live6"
+    <link rel="stylesheet" id="css-blatt" href="css/sheet-multipage.css?v=multi1"
           data-blatt-einseitig="css/sheet.css?v=live6" data-blatt-mehrseitig="css/sheet-multipage.css?v=multi1">
     <script src="js/boot.js?v=boot2"></script>
     <script type="module" src="js/main.js?v=live6"></script>

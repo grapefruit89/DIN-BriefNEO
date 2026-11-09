@@ -50,14 +50,16 @@ try {
   root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
   root.setAttribute('data-plugin-multipage', asBool(settings.pluginMultipage, true) ? 'true' : 'false');
 
-  /* Mehrseiten-Plugin ist standardmaessig an: Stylesheet schon vor dem ersten
-   * Paint tauschen, sonst springt das Layout sichtbar um, sobald main.js laeuft.
-   * Die Links stehen im <head> vor diesem Block und sind bereits geparst. */
-  if (asBool(settings.pluginMultipage, true)) {
-    const blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
-    const ziel = blattLink?.dataset.blattMehrseitig;
-    if (blattLink && ziel && blattLink.getAttribute('href') !== ziel) {
-      blattLink.setAttribute('href', ziel);
+  /* Das Mehrseiten-Stylesheet ist standardmaessig im HTML verlinkt (Zero-FOUC).
+   * Nur wenn explizit Einzelseite konfiguriert ist (pluginMultipage === false),
+   * wird synchron vor dem ersten Paint gewechselt. */
+  const blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
+  if (blattLink) {
+    const targetHref = settings.pluginMultipage === false
+      ? (blattLink.dataset.blattEinseitig || 'css/sheet.css')
+      : (blattLink.dataset.blattMehrseitig || 'css/sheet-multipage.css');
+    if (blattLink.getAttribute('href') !== targetHref) {
+      blattLink.href = targetHref;
     }
   }
 } catch (e) {

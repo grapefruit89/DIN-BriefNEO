@@ -2621,6 +2621,79 @@ describe('Figurenkatalog & DIN-5008-Anschrift (Schema v2.1 Tuples)', () => {
   });
 });
 
+describe('Layout Stability / Zero CLS', () => {
+  it('PerformanceObserver mit layout-shift ist verfügbar', () => {
+    assert(typeof window.PerformanceObserver === 'function', 'window.PerformanceObserver verfügbar');
+    assert(
+      Array.isArray(PerformanceObserver.supportedEntryTypes) &&
+        PerformanceObserver.supportedEntryTypes.includes('layout-shift'),
+      'layout-shift wird als Performance-Entry unterstützt'
+    );
+  });
+
+  it('verifiziert stabilen Aufbau und rendert Standard-Zonen ohne unerwarteten Layout-Shift', async () => {
+    let totalShift = 0;
+    /** @type {PerformanceObserver | undefined} */
+    let observer;
+    const container = document.createElement('div');
+    container.id = 'cls-test-container';
+    container.style.cssText = 'position: relative; width: 210mm; min-height: 297mm;';
+
+    if (
+      typeof window.PerformanceObserver === 'function' &&
+      Array.isArray(PerformanceObserver.supportedEntryTypes) &&
+      PerformanceObserver.supportedEntryTypes.includes('layout-shift')
+    ) {
+      observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          // @ts-ignore
+          if (!entry.hadRecentInput) {
+            // @ts-ignore
+            totalShift += entry.value;
+          }
+        }
+      });
+      observer.observe({ type: 'layout-shift', buffered: false });
+    }
+
+    try {
+      const blatt = document.createElement('din-blatt');
+      const kern = document.createElement('div');
+      kern.id = 'kern';
+      const anschrift = document.createElement('div');
+      anschrift.id = 'anschrift';
+      anschrift.textContent = 'Musterfirma GmbH\nMusterstraße 1\n12345 Musterstadt';
+      const betreff = document.createElement('div');
+      betreff.id = 'betreff';
+      betreff.textContent = 'Kündigung des Vertrags';
+      const text = document.createElement('div');
+      text.id = 'text';
+      text.textContent = 'Sehr geehrte Damen und Herren,\n\nhiermit kündige ich den Vertrag fristgerecht.';
+
+      kern.appendChild(anschrift);
+      kern.appendChild(betreff);
+      kern.appendChild(text);
+      blatt.appendChild(kern);
+      container.appendChild(blatt);
+      document.body.appendChild(container);
+
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
+
+      if (observer) {
+        observer.takeRecords().forEach((entry) => {
+          // @ts-ignore
+          if (!entry.hadRecentInput) totalShift += entry.value;
+        });
+      }
+
+      assertEqual(totalShift, 0, `Unerwarteter Layout-Shift aufgetreten: ${totalShift}`);
+    } finally {
+      if (observer) observer.disconnect();
+      container.remove();
+    }
+  });
+});
+
 run().then((ok) => {
   /** @type {any} */ (window).__TESTS_PASSED = ok;
   console.log(ok ? '✓ Alle Tests bestanden' : '✗ FEHLER: Tests fehlgeschlagen');

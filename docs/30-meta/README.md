@@ -15,6 +15,7 @@ doc_links:
   - Feature-Matrix
   - TEMPLATES
   - tooling-overview
+  - HANDOFF
 error_patterns:
   - meta
   - projektgeschichte
@@ -46,5 +47,6 @@ Freie Mitte im Dezimalrahmen. Hier liegt alles was den Projektstatus dokumentier
 
 ## Projekt-Kontext & Werkzeuge
 
+- [[HANDOFF|HANDOFF.md]] — Verbindliches Projekt-Briefing und LLM-Handoff-Vertrag
 - [[tooling-overview]] — Bestandsaufnahme der Build-Skripte inkl. kanonischem Tool Result Schema & Vokabular
 - `research/` — Historische Quellen, Messungen und Labor-Artefakte (archiviert in `Papierkorb/research/`)

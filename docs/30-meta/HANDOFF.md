@@ -1,3 +1,23 @@
+---
+id: handoff
+title: "PROJEKT-BRIEFING & LLM-HANDOFF: DIN-BriefNEO"
+type: meta
+status: active
+created: '2026-08-07'
+updated: '2026-11-09'
+tags:
+  - din-briefneo
+  - din-briefneo/meta
+  - status/active
+  - type/meta
+doc_links:
+  - AGENTS
+  - Immutable-Law-Catalog
+  - DECISION-LOG
+code_links: []
+depends_on: []
+---
+
 # PROJEKT-BRIEFING & LLM-HANDOFF: DIN-BriefNEO
 
 Du bist leitender System-Architekt und Co-Entwickler für DIN-BriefNEO. Nutze dieses Dokument als strikten Kontext für alle Antworten, Analysen und Code-Vorschläge.

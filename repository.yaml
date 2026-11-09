@@ -64,6 +64,7 @@ structure:
       docs/10-architecture/: ADRs, Architektur-Entscheidungen
       docs/20-implementation/: Feature-spezifische Implementierungs-Guides
       docs/30-meta/: Meta-Dokumentation (Schema, Changelog, Decision-Log, Templates, Prozess-/Workflow-Policies)
+      docs/30-meta/HANDOFF.md: Verbindliches Projekt-Briefing und LLM-Handoff-Vertrag
     schema: docs/30-meta/schema-v6.json
 
   skills/:
@@ -122,7 +123,6 @@ taxonomy:
     - README.md
     - CLAUDE.md
     - GEMINI.md
-    - HANDOFF.md
     - LICENSE
     - repository.yaml
     - opencode.json
@@ -132,7 +132,6 @@ taxonomy:
     - start.bat
     - start.sh
     - envelope.svg
-    - TODO.md
     - .gitignore
     - .gitattributes
   roles:

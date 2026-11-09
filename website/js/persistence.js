@@ -353,9 +353,9 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @property {number} schema_version
  * @property {string} generator
  * @property {string} generated_at
- * @property {{ schema: string[] }} [_meta]
+ * @property {{ schema: string[] }} _meta
  * @property {DinLetterLayout} layout
- * @property {(string | boolean)[] | Record<string, string | boolean>} fields
+ * @property {(string | boolean)[]} fields
  * @property {{ transform: DinLetterSignatureTransform }} signature
  */
 
@@ -372,6 +372,7 @@ export const DINLETTER_FORMAT = 'dinletter';
  * @typedef {object} DinLetterParseError
  * @property {false} ok
  * @property {string} reason
+ * @property {string} [error]
  */
 
 /**
@@ -477,73 +478,69 @@ export function buildDinLetterPayload(draft, settings = null) {
 }
 
 /**
- * Validiert und parsed eine DIN-Brief-JSON-Datei (Schema v4 Tuple oder Schema v3 Key-Value).
- * Ältere Versionen (v1, v2) werden abgelehnt — das Dateiformat ist nicht migrationspflichtig.
- * PURE — unit-testbar.
- * @param {string} text
+ * Validiert und parsed ein DIN-Brief-JSON-Dokument (ausschließlich Schema v4 Tuple-Format).
+ * Frühere Schemata werden nicht mehr unterstützt. PURE — unit-testbar.
+ * @param {string | object} input
  * @returns {DinLetterParseResult}
  */
-export function parseDinLetterPayload(text) {
-  text = text.replace(/^\uFEFF/, '');
+export function parseDinLetterPayload(input) {
   /** @type {any} */
   let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    return { ok: false, reason: 'Keine gültige JSON-Datei.' };
-  }
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return { ok: false, reason: 'Keine gültige DIN-Brief-Datei (.json, Objekt erwartet).' };
-  }
-  if (data.format !== DINLETTER_FORMAT) {
-    return { ok: false, reason: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.` };
-  }
-  const version = Number(data.schema_version);
-  if (!Number.isInteger(version) || (version !== 4 && version !== 3)) {
-    return { ok: false, reason: `Schema v${data.schema_version} wird nicht mehr unterstützt — Datei bitte mit der aktuellen Version neu exportieren.` };
-  }
-
-  const rawFields = data.fields;
-  if (!rawFields || (typeof rawFields !== 'object' && !Array.isArray(rawFields))) {
-    return { ok: false, reason: 'Kein Briefkern in der Datei (fields fehlt).' };
-  }
-
-  const fields = /** @type {Record<string, string | boolean>} */ (Object.create(null));
-
-  if (Array.isArray(rawFields)) {
-    // Schema v4: Tuple-Format
-    const schema = (data._meta && Array.isArray(data._meta.schema)) ? data._meta.schema : DOCUMENT_SCHEMA_V4;
-    for (let i = 0; i < schema.length; i++) {
-      const key = schema[i];
-      if (typeof key !== 'string' || key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
-        return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
-      }
-      const val = rawFields[i];
-      const istToggle = key.startsWith('toggle-');
-      if (istToggle) {
-        if (val !== undefined && typeof val !== 'boolean' && typeof val !== 'string') {
-          return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
-        }
-        fields[key] = val === true || val === 'true';
-      } else {
-        if (val !== undefined && val !== null && typeof val !== 'string') {
-          return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
-        }
-        fields[key] = typeof val === 'string' ? val : '';
-      }
+  if (typeof input === 'object' && input !== null) {
+    data = input;
+  } else if (typeof input === 'string') {
+    const text = input.replace(/^\uFEFF/, '');
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return { ok: false, reason: 'Keine gültige JSON-Datei.', error: 'Keine gültige JSON-Datei.' };
     }
   } else {
-    // Schema v3: Key-Value-Objekt
-    for (const [key, value] of Object.entries(rawFields)) {
-      // v2-Rest: Sichtbarkeit ist aus `vermerke` ableitbar und kein Feld mehr.
-      if (key === 'vermerke-visible') continue;
-      const istToggle = key.startsWith('toggle-');
-      if (typeof value !== 'string' && typeof value !== 'boolean') return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
-      if (typeof value === 'boolean' && !istToggle) return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.` };
-      if (key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
-        return { ok: false, reason: `Ungültiger Feldname '${key}'.` };
+    return { ok: false, reason: 'Ungültiges Argument (String oder Objekt erwartet).', error: 'Ungültiges Argument (String oder Objekt erwartet).' };
+  }
+
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return { ok: false, reason: 'Keine gültige DIN-Brief-Datei (.json, Objekt erwartet).', error: 'Keine gültige DIN-Brief-Datei (.json, Objekt erwartet).' };
+  }
+  if (data.format !== DINLETTER_FORMAT) {
+    return { ok: false, reason: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.`, error: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.` };
+  }
+  if (data.schema_version !== 4) {
+    return {
+      ok: false,
+      reason: `Nur Schema v4 wird unterstützt (erhalten: v${data.schema_version}).`,
+      error: `Nur Schema v4 wird unterstützt (erhalten: v${data.schema_version}).`
+    };
+  }
+  if (!Array.isArray(data.fields) || !Array.isArray(data._meta?.schema)) {
+    return {
+      ok: false,
+      reason: 'Ungültiges Schema-v4-Dokument: fields (Array) und _meta.schema (Array) sind zwingend erforderlich.',
+      error: 'Ungültiges Schema-v4-Dokument: fields (Array) und _meta.schema (Array) sind zwingend erforderlich.'
+    };
+  }
+
+  const schema = data._meta.schema;
+  const rawFields = data.fields;
+  const fields = /** @type {Record<string, string | boolean>} */ (Object.create(null));
+
+  for (let i = 0; i < schema.length; i++) {
+    const key = schema[i];
+    if (typeof key !== 'string' || key === 'constructor' || key === 'prototype' || key === '__proto__' || !/^[A-Za-z][\w-]*$/.test(key)) {
+      return { ok: false, reason: `Ungültiger Feldname '${key}'.`, error: `Ungültiger Feldname '${key}'.` };
+    }
+    const val = rawFields[i];
+    const istToggle = key.startsWith('toggle-');
+    if (istToggle) {
+      if (val !== undefined && typeof val !== 'boolean') {
+        return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.`, error: `Ungültiger Feldtyp bei '${key}'.` };
       }
-      fields[key] = istToggle ? (value === true || value === 'true') : value;
+      fields[key] = val === true;
+    } else {
+      if (val !== undefined && val !== null && typeof val !== 'string') {
+        return { ok: false, reason: `Ungültiger Feldtyp bei '${key}'.`, error: `Ungültiger Feldtyp bei '${key}'.` };
+      }
+      fields[key] = typeof val === 'string' ? val : '';
     }
   }
 
@@ -552,24 +549,24 @@ export function parseDinLetterPayload(text) {
   if (data.layout !== undefined) {
     const raw = data.layout;
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-      return { ok: false, reason: 'Ungültiges layout-Objekt in der Datei.' };
+      return { ok: false, reason: 'Ungültiges layout-Objekt in der Datei.', error: 'Ungültiges layout-Objekt in der Datei.' };
     }
     if (raw.form !== undefined) {
       if (raw.form !== 'form-a' && raw.form !== 'form-b') {
-        return { ok: false, reason: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).' };
+        return { ok: false, reason: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).', error: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).' };
       }
       layout.form = raw.form;
     }
     if (raw.guides !== undefined) {
-      if (typeof raw.guides !== 'boolean') return { ok: false, reason: 'Ungültiger layout.guides-Wert (Boolean erwartet).' };
+      if (typeof raw.guides !== 'boolean') return { ok: false, reason: 'Ungültiger layout.guides-Wert (Boolean erwartet).', error: 'Ungültiger layout.guides-Wert (Boolean erwartet).' };
       layout.guides = raw.guides;
     }
     if (raw.copyfit !== undefined) {
-      if (typeof raw.copyfit !== 'boolean') return { ok: false, reason: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).' };
+      if (typeof raw.copyfit !== 'boolean') return { ok: false, reason: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).', error: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).' };
       layout.copyfit = raw.copyfit;
     }
     if (raw.marks !== undefined) {
-      if (typeof raw.marks !== 'boolean') return { ok: false, reason: 'Ungültiger layout.marks-Wert (Boolean erwartet).' };
+      if (typeof raw.marks !== 'boolean') return { ok: false, reason: 'Ungültiger layout.marks-Wert (Boolean erwartet).', error: 'Ungültiger layout.marks-Wert (Boolean erwartet).' };
       layout.marks = raw.marks;
     }
   }
@@ -578,12 +575,12 @@ export function parseDinLetterPayload(text) {
   let signature;
   if (data.signature !== undefined && data.signature !== null) {
     if (typeof data.signature !== 'object' || Array.isArray(data.signature)) {
-      return { ok: false, reason: 'Ungültiges signature-Objekt in der Datei.' };
+      return { ok: false, reason: 'Ungültiges signature-Objekt in der Datei.', error: 'Ungültiges signature-Objekt in der Datei.' };
     }
     const t = data.signature.transform;
     if (t !== undefined && t !== null) {
       if (typeof t !== 'object' || Array.isArray(t)) {
-        return { ok: false, reason: 'Ungültige Signatur-Transformation.' };
+        return { ok: false, reason: 'Ungültige Signatur-Transformation.', error: 'Ungültige Signatur-Transformation.' };
       }
       if (
         typeof t.x !== 'number' || !Number.isFinite(t.x) ||
@@ -591,7 +588,7 @@ export function parseDinLetterPayload(text) {
         typeof t.scale !== 'number' || !Number.isFinite(t.scale) ||
         typeof t.rot !== 'number' || !Number.isFinite(t.rot)
       ) {
-        return { ok: false, reason: 'Ungültige Koordinaten in signature.transform.' };
+        return { ok: false, reason: 'Ungültige Koordinaten in signature.transform.', error: 'Ungültige Koordinaten in signature.transform.' };
       }
       signature = {
         transform: {
@@ -609,7 +606,7 @@ export function parseDinLetterPayload(text) {
     fields,
     layout: Object.keys(layout).length > 0 ? layout : undefined,
     signature,
-    schemaVersion: version
+    schemaVersion: 4
   };
 }
 

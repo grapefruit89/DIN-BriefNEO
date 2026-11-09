@@ -235,75 +235,56 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     }
   });
 
-  it('parseDinLetterPayload behält volle Abwärtskompatibilität zu Schema v3 (Key-Value)', () => {
-    const v3Payload = {
-      format: DINLETTER_FORMAT,
-      schema_version: 3,
-      generator: 'DIN-BriefNEO',
-      generated_at: '2026-11-06T14:32:07+01:00',
-      layout: { form: 'form-a', marks: false, guides: false, copyfit: false },
-      fields: { betreff: 'Legacy v3', text: '<p>v3 text</p>', 'toggle-fuss': true }
-    };
-    const result = parseDinLetterPayload(JSON.stringify(v3Payload));
-    assert(result.ok, 'v3 wird akzeptiert');
-    if (result.ok) {
-      assertEqual(result.fields.betreff, 'Legacy v3');
-      assertEqual(result.fields.text, '<p>v3 text</p>');
-      assertEqual(result.fields['toggle-fuss'], true);
-      assertEqual(result.layout?.form, 'form-a');
-      assertEqual(result.schemaVersion, 3);
-    }
+  it('parseDinLetterPayload lehnt Payloads mit schema_version !== 4 oder fehlendem _meta.schema ab', () => {
+    // Ungültige/Veraltete Versionen
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 3, _meta: { schema: [] }, fields: [] }).ok, 'v3 abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 2, _meta: { schema: [] }, fields: [] }).ok, 'v2 abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 1, _meta: { schema: [] }, fields: [] }).ok, 'v1 abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 99, _meta: { schema: [] }, fields: [] }).ok, 'v99 abgelehnt');
+
+    // Fehlendes oder ungültiges _meta.schema
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, fields: [] }).ok, '_meta fehlt komplett');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: {}, fields: [] }).ok, '_meta.schema fehlt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: 'ungueltig' }, fields: [] }).ok, '_meta.schema ist kein Array');
+
+    // Fehlende oder ungültige fields
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: [] } }).ok, 'fields fehlt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: [] }, fields: { betreff: 'x' } }).ok, 'fields als Objekt abgelehnt');
   });
 
-  it('parseDinLetterPayload lehnt Schema v1 und v2 mit klarer Meldung ab', () => {
-    const v1 = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 1, draft: { betreff: 'alt' } });
-    const v2 = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 2, document: { fields: { betreff: 'alt' } } });
-    const r1 = parseDinLetterPayload(v1);
-    const r2 = parseDinLetterPayload(v2);
-    assert(!r1.ok, 'v1 abgelehnt');
-    assert(!r2.ok, 'v2 abgelehnt');
-    if (!r1.ok && !r2.ok) {
-      assert(r1.reason.includes('nicht mehr unterstützt'), 'Meldung nennt die fehlende Unterstützung');
-      assert(r2.reason.includes('nicht mehr unterstützt'), 'Meldung auch bei v2');
-    }
-  });
-
-  it('parseDinLetterPayload lehnt Mist ab (kein JSON, falsches Format, Feldtypen)', () => {
+  it('parseDinLetterPayload lehnt ungültige Typen und defekte JSON-Daten ab', () => {
     assert(!parseDinLetterPayload('kein json {').ok, 'kein JSON');
     assert(!parseDinLetterPayload('{"format":"anderes"}').ok, 'falsches format');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 99, fields: [] })).ok, 'fremde schema_version');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, fields: [42] })).ok, 'nicht-string Feld v4');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 3, fields: { f: 42 } })).ok, 'nicht-string Feld v3');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4 })).ok, 'fields fehlt');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['betreff'] }, fields: [42] })).ok, 'nicht-string Feld v4');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['toggle-fuss'] }, fields: ['nicht-boolean'] })).ok, 'nicht-boolean Toggle v4');
+    // @ts-ignore
+    assert(!parseDinLetterPayload(12345).ok, 'Zahl als Input abgelehnt');
   });
 
   it('parseDinLetterPayload toleriert UTF-8-BOM (Grok F4)', () => {
-    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, fields: ['BOM'] });
+    const payload = JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['betreff'] }, fields: ['BOM'] });
     const result = parseDinLetterPayload(`\uFEFF${payload}`);
     assert(result.ok, 'BOM-präfixtes JSON wird akzeptiert');
+    assertEqual(result.fields.betreff, 'BOM');
   });
 
-  it('parseDinLetterPayload lehnt gefährliche/unplausible Keys ab (Prototyp-Hygiene, Grok F2)', () => {
-    /* Achtung: { '__proto__': 'x' } als JS-Objektliteral setzt den Prototyp
-     * (kein eigener Key) — die Tests prüfen daher die ROHE Datei-JSON. */
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"__proto__":"x"}}').ok, '__proto__ abgelehnt (v3)');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"constructor":"x"}}').ok, 'constructor abgelehnt (v3)');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":3,"fields":{"a b":"x"}}').ok, 'Leerzeichen-Key abgelehnt (v3)');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":4,"_meta":{"schema":["__proto__"]},"fields":["x"]}').ok, '__proto__ in Schema abgelehnt (v4)');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":4,"_meta":{"schema":["constructor"]},"fields":["x"]}').ok, 'constructor in Schema abgelehnt (v4)');
-    assert(!parseDinLetterPayload('{"format":"dinletter","schema_version":4,"_meta":{"schema":["a b"]},"fields":["x"]}').ok, 'Leerzeichen in Schema abgelehnt (v4)');
-    const ok = parseDinLetterPayload('{"format":"dinletter","schema_version":4,"fields":["x"]}');
+  it('parseDinLetterPayload lehnt gefährliche/unplausible Keys im Schema ab (Prototyp-Hygiene, Grok F2)', () => {
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['__proto__'] }, fields: ['x'] }).ok, '__proto__ in Schema abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['constructor'] }, fields: ['x'] }).ok, 'constructor in Schema abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['a b'] }, fields: ['x'] }).ok, 'Leerzeichen in Schema abgelehnt');
+    const ok = parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['betreff'] }, fields: ['x'] });
     assert(ok.ok, 'normale Ids erlaubt');
+    assertEqual(ok.fields.betreff, 'x');
   });
 
   it('parseDinLetterPayload validiert layout und signature defensiv', () => {
-    const base = { format: DINLETTER_FORMAT, schema_version: 4, fields: [] };
-    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { form: 'form-c' } })).ok, 'ungültige form abgelehnt');
-    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { guides: 'ja' } })).ok, 'guides als String abgelehnt');
-    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: { marks: 1 } })).ok, 'marks als Zahl abgelehnt');
-    assert(!parseDinLetterPayload(JSON.stringify({ ...base, layout: [] })).ok, 'layout als Array abgelehnt');
-    assert(!parseDinLetterPayload(JSON.stringify({ ...base, signature: { transform: { x: 'ungueltig', y: 0, scale: 1, rot: 0 } } })).ok, 'ungültige Koordinaten abgelehnt');
-    assert(parseDinLetterPayload(JSON.stringify({ ...base, layout: { form: 'form-a', marks: true } })).ok, 'gültiges layout akzeptiert');
+    const base = { format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: [] }, fields: [] };
+    assert(!parseDinLetterPayload({ ...base, layout: { form: 'form-c' } }).ok, 'ungültige form abgelehnt');
+    assert(!parseDinLetterPayload({ ...base, layout: { guides: 'ja' } }).ok, 'guides als String abgelehnt');
+    assert(!parseDinLetterPayload({ ...base, layout: { marks: 1 } }).ok, 'marks als Zahl abgelehnt');
+    assert(!parseDinLetterPayload({ ...base, layout: [] }).ok, 'layout als Array abgelehnt');
+    assert(!parseDinLetterPayload({ ...base, signature: { transform: { x: 'ungueltig', y: 0, scale: 1, rot: 0 } } }).ok, 'ungültige Koordinaten abgelehnt');
+    assert(parseDinLetterPayload({ ...base, layout: { form: 'form-a', marks: true } }).ok, 'gültiges layout akzeptiert');
   });
 
   it('Fußzone: die 12 DIN-Atome gehen als Felder durch Build und Parse', () => {
@@ -350,11 +331,12 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   });
 
   it('layout und signature sind optional', () => {
-    const r = parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, fields: ['x'] }));
+    const r = parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['betreff'] }, fields: ['x'] });
     assert(r.ok, 'ohne layout/signature ok');
     if (r.ok) {
       assertEqual(r.layout, undefined);
       assertEqual(r.signature, undefined);
+      assertEqual(r.fields.betreff, 'x');
     }
   });
 

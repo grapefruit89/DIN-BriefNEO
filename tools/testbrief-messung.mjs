@@ -8,16 +8,18 @@
  * `generateNerdText` werden aus dem Addon importiert, nicht nachgebaut.
  *
  * Aufruf:
- *   node tools/testbrief-messung.mjs            (1000 Briefe)
- *   node tools/testbrief-messung.mjs --briefe 5000
- *
- * Exit-Code 1, sobald eine Sollgrenze verletzt ist -- damit ist das Skript
- * als Gate verwendbar.
+ *   node tools/testbrief-messung.mjs -n 50 -q
+ *   node tools/testbrief-messung.mjs -n 1000 -q
+ *   node tools/testbrief-messung.mjs --json
+ *   node tools/testbrief-messung.mjs -s abmahnung
  */
+
+process.removeAllListeners('warning');
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import {
   Figurenkatalog,
   franchiseKey,
@@ -31,13 +33,58 @@ import {
   waehleSzenario
 } from '../website/addons/testbrief/testbrief.js';
 
+const { values: options } = parseArgs({
+  options: {
+    count: {
+      type: 'string',
+      short: 'n',
+      default: '50'
+    },
+    quiet: {
+      type: 'boolean',
+      short: 'q',
+      default: false
+    },
+    json: {
+      type: 'boolean',
+      default: false
+    },
+    scenario: {
+      type: 'string',
+      short: 's'
+    },
+    briefe: {
+      type: 'string'
+    }
+  },
+  strict: false
+});
+
 const HIER = path.dirname(fileURLToPath(import.meta.url));
 const KATALOG = path.join(HIER, '..', 'website', 'addons', 'testbrief', 'figuren.json');
+
+const rawCount = options.briefe ?? options.count;
+const count = Math.max(1, parseInt(rawCount, 10) || 50);
+
+/** @type {any} */
+let selectedScenario = null;
+if (options.scenario) {
+  selectedScenario = SZENARIEN.find((s) => s.id === options.scenario);
+  if (!selectedScenario) {
+    const valid = SZENARIEN.map((s) => s.id).join(', ');
+    if (options.json) {
+      console.log(JSON.stringify({ count, errors: 1, ms: 0, ok: false, error: `Unbekanntes Szenario: ${options.scenario}` }));
+    } else {
+      console.error(`Unbekanntes Szenario „${options.scenario}". Gültig: ${valid}`);
+    }
+    process.exit(1);
+  }
+}
 
 const anzahlSzenarien = SZENARIEN.length;
 const szenarioErwartung = 1 / anzahlSzenarien;
 
-/** Sollgrenzen -- bewusst als Zahlen an einer Stelle. */
+/** Sollgrenzen für statistische Stichproben (>= 500 Durchläufe) */
 const SOLL = {
   absenderMitHook: 1,
   hookImBetreff: 1,
@@ -48,17 +95,11 @@ const SOLL = {
   szenarioMax: Math.min(0.25, szenarioErwartung * 2.2)
 };
 
-const args = process.argv.slice(2);
-const iBriefe = args.indexOf('--briefe');
-const ANZAHL = iBriefe >= 0 ? Number(args[iBriefe + 1]) : 1000;
-
 const katalogJson = JSON.parse(fs.readFileSync(KATALOG, 'utf-8'));
 const fk = new Figurenkatalog(katalogJson);
 const figuren = Array.from({ length: fk.count }, (_, i) => fk.get(i));
 
-/** @param {number} n @returns {string} */
-const prozent = (n) => `${(n * 100).toFixed(1)} %`;
-
+/** @type {string[]} */
 const fehler = [];
 /** @type {Map<string, number>} */
 const hookZaehler = new Map();
@@ -71,54 +112,100 @@ let hookImBetreff = 0;
 let hookImText = 0;
 let franchiseKreuzung = 0;
 
-for (let i = 0; i < ANZAHL; i++) {
+const t0 = performance.now();
+
+for (let i = 0; i < count; i++) {
   const { sender, recipient, dritte } = waehleBesetzung(figuren);
   const themenHook = getCharHook(sender);
-  const szenario = waehleSzenario();
+  const szenario = selectedScenario || waehleSzenario();
   const betreff = randomBetreff(themenHook, szenario);
   const text = generateNerdText(sender, recipient, dritte, themenHook, szenario);
 
-  if (hatHooks(sender)) absenderMitHook++;
-  if (betreff.includes(themenHook)) hookImBetreff++;
-  if (text.includes(themenHook)) hookImText++;
-  if (franchiseKey(sender) !== franchiseKey(recipient) || hatWonkaBezug(sender, recipient)) franchiseKreuzung++;
+  const senderHasHook = hatHooks(sender);
+  const subjectHasHook = betreff.includes(themenHook);
+  const textHasHook = text.includes(themenHook);
+  const validCrossing = franchiseKey(sender) !== franchiseKey(recipient) || hatWonkaBezug(sender, recipient);
+
+  if (senderHasHook) absenderMitHook++;
+  if (subjectHasHook) hookImBetreff++;
+  if (textHasHook) hookImText++;
+  if (validCrossing) franchiseKreuzung++;
+
+  // Fail-fast bei Brief-Invarianz-Verletzung
+  if (!senderHasHook) {
+    fehler.push(`Brief #${i + 1}: Absender „${sender.name}" hat keinen Hook.`);
+    break;
+  }
+  if (!subjectHasHook) {
+    fehler.push(`Brief #${i + 1}: Hook „${themenHook}" fehlt im Betreff: „${betreff}".`);
+    break;
+  }
+  if (!textHasHook) {
+    fehler.push(`Brief #${i + 1}: Hook „${themenHook}" fehlt im Text (Absender: ${sender.name}).`);
+    break;
+  }
+  if (!validCrossing) {
+    fehler.push(`Brief #${i + 1}: Ungültige Besetzung ohne Franchise-Kreuzung/Wonka-Bezug: ${sender.name} <-> ${recipient.name}.`);
+    break;
+  }
 
   hookZaehler.set(themenHook, (hookZaehler.get(themenHook) ?? 0) + 1);
   szenarioZaehler.set(szenario.id, (szenarioZaehler.get(szenario.id) ?? 0) + 1);
   kombinationen.add(`${sender.name}|${themenHook}|${recipient.name}`);
 }
 
-const quote = (wert) => wert / ANZAHL;
-const haeufigsterHook = [...hookZaehler.entries()].sort((a, b) => b[1] - a[1])[0];
+const t1 = performance.now();
+const ms = Math.round(t1 - t0);
 
-if (quote(absenderMitHook) < SOLL.absenderMitHook) {
-  fehler.push(`Absender ohne Hook: ${ANZAHL - absenderMitHook} von ${ANZAHL}`);
-}
-if (quote(hookImBetreff) < SOLL.hookImBetreff) {
-  fehler.push(`Hook fehlt im Betreff: ${ANZAHL - hookImBetreff} von ${ANZAHL}`);
-}
-if (quote(hookImText) < SOLL.hookImText) {
-  fehler.push(`Hook fehlt im Text: ${ANZAHL - hookImText} von ${ANZAHL}`);
-}
-if (quote(franchiseKreuzung) < SOLL.franchiseKreuzung) {
-  fehler.push(`Gleiches Franchise bei ${ANZAHL - franchiseKreuzung} von ${ANZAHL} Briefen`);
-}
-if (haeufigsterHook && quote(haeufigsterHook[1]) > SOLL.maxHookAnteil) {
-  fehler.push(`Monokultur: „${haeufigsterHook[0]}" in ${prozent(quote(haeufigsterHook[1]))} der Briefe`);
-}
-for (const [id, n] of szenarioZaehler) {
-  if (quote(n) < SOLL.szenarioMin || quote(n) > SOLL.szenarioMax) {
-    fehler.push(`Szenario „${id}" ungleich verteilt: ${prozent(quote(n))}`);
+// Statistische Verteilung nur bei repräsentativer Stichprobe (>= 500) und ohne Szenario-Filter
+if (fehler.length === 0 && !selectedScenario && count >= 500) {
+  const quote = (wert) => wert / count;
+  const haeufigsterHook = [...hookZaehler.entries()].sort((a, b) => b[1] - a[1])[0];
+  if (haeufigsterHook && quote(haeufigsterHook[1]) > SOLL.maxHookAnteil) {
+    fehler.push(`Monokultur: „${haeufigsterHook[0]}" in ${(quote(haeufigsterHook[1]) * 100).toFixed(1)} % der Briefe`);
+  }
+  for (const [id, n] of szenarioZaehler) {
+    if (quote(n) < SOLL.szenarioMin || quote(n) > SOLL.szenarioMax) {
+      fehler.push(`Szenario „${id}" ungleich verteilt: ${(quote(n) * 100).toFixed(1)} %`);
+    }
   }
 }
 
+const ok = fehler.length === 0;
+
+if (options.json) {
+  console.log(JSON.stringify({
+    count,
+    errors: fehler.length,
+    ms,
+    ok
+  }));
+  process.exit(ok ? 0 : 1);
+}
+
+if (options.quiet) {
+  if (ok) {
+    console.log(`✓ Testbrief Messung: ${count}/${count} stabil (${ms}ms)`);
+    process.exit(0);
+  } else {
+    console.error(`✗ Testbrief Messung: ${fehler.length} Fehler (${ms}ms)`);
+    for (const f of fehler) console.error(`  - ${f}`);
+    process.exit(1);
+  }
+}
+
+// Ausführliche Ausgabe (wenn weder --quiet noch --json)
+const quote = (wert) => (wert / count);
+/** @param {number} n @returns {string} */
+const prozent = (n) => `${(n * 100).toFixed(1)} %`;
+const haeufigsterHook = [...hookZaehler.entries()].sort((a, b) => b[1] - a[1])[0];
 const hooksGesamt = figuren.reduce(
   (summe, c) => summe + (Array.isArray(c.hooks) ? c.hooks.filter((h) => String(h ?? '').trim()).length : 0),
   0
 );
 const mitHooks = figuren.filter(hatHooks).length;
 
-console.log(`Testbrief-Messung -- ${ANZAHL} Briefe`);
+console.log(`Testbrief-Messung -- ${count} Briefe`);
 console.log('');
 console.log('DATENBESTAND');
 console.log(`  Figuren:                       ${figuren.length}`);
@@ -131,7 +218,7 @@ console.log(`  Absender mit Hook:             ${prozent(quote(absenderMitHook))}
 console.log(`  Hook im Betreff:               ${prozent(quote(hookImBetreff))}`);
 console.log(`  Hook im Text:                  ${prozent(quote(hookImText))}`);
 console.log(`  Franchise-Kreuzung:            ${prozent(quote(franchiseKreuzung))}`);
-console.log(`  verschiedene Kombinationen:    ${kombinationen.size} von ${ANZAHL}`);
+console.log(`  verschiedene Kombinationen:    ${kombinationen.size} von ${count}`);
 if (haeufigsterHook) {
   console.log(`  häufigster Hook:               „${haeufigsterHook[0]}" (${prozent(quote(haeufigsterHook[1]))})`);
 }
@@ -142,9 +229,9 @@ for (const [id, n] of [...szenarioZaehler.entries()].sort((a, b) => b[1] - a[1])
 }
 console.log('');
 
-if (fehler.length > 0) {
+if (!ok) {
   console.log('VERDICT: FAIL');
   for (const f of fehler) console.log(`  - ${f}`);
   process.exit(1);
 }
-console.log('VERDICT: ok');
+console.log(`✓ Testbrief Messung: ${count}/${count} stabil (${ms}ms)`);

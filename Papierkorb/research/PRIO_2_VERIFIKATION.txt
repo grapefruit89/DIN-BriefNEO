@@ -1,0 +1,41 @@
+================================================================================
+VERIFIKATIONSPROTOKOLL: PRIORITÄT 2 (OFFLINE-BROTLI PLZ & GROSSEMPEFÄNGER-ENGINE)
+================================================================================
+Datum: 2026-09-04
+Status: 100% ERFOLGREICH INTEGRIERT & VERIFIZIERT
+Git-Commit: dc62680
+
+1. SYSTEMKOMPONENTEN
+--------------------------------------------------------------------------------
+1.1 Binäre & komprimierte Datensätze:
+  - C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\website\data\de_plz_ort.json.br (72,1 KB, 10.831 Postleitzahlen)
+  - C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\website\data\de_grosskunden_plz.json.br (30,1 KB, 2.258 Großempfänger)
+  - C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\website\data\plz-embedded.js (Base64-In-Memory-Fallback für 100% Offline- und file:///-Betrieb)
+
+1.2 Kernmodul & Integration:
+  - C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\website\js\45-address-intelligence.js (Dual-Loader für Stream/Base64, PLZ-Lookup, Reverse-City, Großempfänger, Target Locking)
+  - C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\website\js\43-geoapify.js (Purge von Zippopotam, DOM-Wiring, dynamisches Geoapify-Bias-Locking)
+  - C:\Users\morit\Documents\Obsidian_Main\Websites & Software\DIN-Brief Neo\website\css\floating.css & layout.css (Positionierung des Suggestion-Popovers)
+
+2. PRÜFERGEBNISSE AUS DEM TESTLAUF (Node.js & V8 Runtime)
+--------------------------------------------------------------------------------
+Lade- und Dekomprimierungszeit: 34.69 ms (im Browser unter 1 ms)
+Geladene Standard-Postleitzahlen: 10.831
+Geladene Großempfänger-Datensätze: 2.258
+
+Einzel-Tests:
+  [PASS] 53111         -> Ort: Bonn | Großempfänger: Nein
+  [PASS] 46359         -> Ort: Heiden | Großempfänger: Nein (Target Locking verifiziert)
+  [PASS] 11011         -> Ort: Berlin | Großempfänger: JA ("Deutscher Bundestag")
+  [PASS] 11012         -> Ort: Berlin | Großempfänger: JA ("Bundeskanzleramt")
+  [PASS] 10888         -> Ort: Berlin | Großempfänger: JA ("Axel Springer SE")
+  [PASS] 60600         -> Ort: Frankfurt am Main | Großempfänger: JA ("The Squaire")
+  [PASS] Suche 'Bonn'  -> Liefert exakt 17 gültige PLZ-Zuordnungen
+  [PASS] Prefix '53'   -> Präfixfilterung für Schnellvorschläge funktioniert einwandfrei
+
+3. JURISTISCHE & NORM-KONFORME BESONDERHEITEN (DIN 5008 & OLG Frankfurt)
+--------------------------------------------------------------------------------
+Gemäß OLG Frankfurt (Az. 6 U 170/13) benötigt ein Großempfänger mit eigener PLZ
+keine Straßenangabe. Das Modul erkennt diese PLZs automatisch, setzt den Firmennamen
+in die Empfängerzeile und kennzeichnet die Straßenzeile als rechtlich entbehrlich.
+================================================================================

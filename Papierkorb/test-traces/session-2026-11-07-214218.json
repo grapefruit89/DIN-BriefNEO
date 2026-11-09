@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "startedAt": "2026-11-07T20:42:12.491Z",
+    "url": "http://127.0.0.1:42697/website/index.html",
+    "headless": true,
+    "browser": "Chrome/156.0.8078.47",
+    "cdpPort": 9222,
+    "httpPort": 42697,
+    "profil": "/tmp/din-virgin-k5WYVU",
+    "durationMs": 5872,
+    "reason": "SIGTERM"
+  },
+  "console": [],
+  "network": [
+    {
+      "at": 152,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/index.html",
+      "status": 200,
+      "mimeType": "text/html",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 166,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/css/base.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 166,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/css/sidebar.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 166,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/css/sheet.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 166,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/boot-theme.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 166,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/css/print.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 172,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/boot-switches.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 174,
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 174,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/main.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 175,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/core.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 175,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/document.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 175,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/persistence.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 175,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/address.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 175,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/salutation.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 175,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/settings.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 183,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/js/binary-storage.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 253,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/data/orte.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 253,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/data/grosskunden.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 253,
+      "method": "GET",
+      "url": "http://127.0.0.1:42697/website/data/de_districts.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 5,
+      "fromCache": false
+    }
+  ],
+  "storageMutations": [],
+  "errors": [
+    {
+      "at": 307,
+      "text": "InvalidStateError: Transition was aborted because of invalid state. Unsupported layout or style",
+      "stack": ""
+    }
+  ]
+}

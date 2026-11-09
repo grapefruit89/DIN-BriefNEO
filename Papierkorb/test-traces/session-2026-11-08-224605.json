@@ -1,0 +1,1018 @@
+{
+  "meta": {
+    "startedAt": "2026-11-08T16:02:17.503Z",
+    "url": "http://127.0.0.1:34095/website/index.html",
+    "headless": false,
+    "browser": "Chrome/156.0.8078.47",
+    "cdpPort": 9222,
+    "httpPort": 34095,
+    "profil": "/tmp/din-virgin-5tp2L5",
+    "durationMs": 20628174,
+    "reason": "browser-exit"
+  },
+  "console": [],
+  "network": [
+    {
+      "at": 315,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/index.html",
+      "status": 200,
+      "mimeType": "text/html",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 331,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/base.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 331,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sidebar.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 331,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-common.css?v=common1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 331,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 331,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/boot.js?v=boot1",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 346,
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 346,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/main.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 348,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/address.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 348,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/core.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 348,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/clipboard-parser.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 349,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/settings.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 349,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/draft-manager.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 348,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/document.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 11,
+      "fromCache": false
+    },
+    {
+      "at": 349,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/persistence.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 349,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/salutation.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 349,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/signature.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 358,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/binary-storage.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 426,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/orte.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 426,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/grosskunden.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 426,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/de_districts.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 83047,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/addons/testbrief/testbrief.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 83054,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/addons/testbrief/charactere.json",
+      "status": 200,
+      "mimeType": "application/json",
+      "ms": 3,
+      "fromCache": false
+    },
+    {
+      "at": 8067560,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/index.html",
+      "status": 200,
+      "mimeType": "text/html",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8067574,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/base.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8067574,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sidebar.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8067574,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-common.css?v=common1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8067574,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8067574,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/boot.js?v=boot1",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8067583,
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 8067582,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-multipage.css?v=multi1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8067583,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/main.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 10,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/clipboard-parser.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/draft-manager.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/address.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/core.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/document.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/persistence.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/settings.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/salutation.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 8067594,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/signature.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 9,
+      "fromCache": false
+    },
+    {
+      "at": 8067603,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/binary-storage.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 3,
+      "fromCache": false
+    },
+    {
+      "at": 8067620,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/multipage-controller.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 8067620,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/orte.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 8067620,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/grosskunden.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 8067620,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/de_districts.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 8068161,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/index.html",
+      "status": 200,
+      "mimeType": "text/html",
+      "ms": 3,
+      "fromCache": false
+    },
+    {
+      "at": 8068173,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/base.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 8068173,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sidebar.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8068173,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-common.css?v=common1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8068173,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8068173,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/boot.js?v=boot1",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8068181,
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 8068181,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-multipage.css?v=multi1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 8068181,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/main.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 1,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/address.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/clipboard-parser.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/core.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/document.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/draft-manager.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/salutation.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068183,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/persistence.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068184,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/settings.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068184,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/signature.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068192,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/binary-storage.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8068200,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/multipage-controller.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8068200,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/orte.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8068200,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/grosskunden.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8068200,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/de_districts.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8068596,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/index.html",
+      "status": 200,
+      "mimeType": "text/html",
+      "ms": 3,
+      "fromCache": false
+    },
+    {
+      "at": 8068607,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/base.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 8068607,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sidebar.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8068607,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-common.css?v=common1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8068607,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet.css?v=live6",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8068608,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/boot.js?v=boot1",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8068616,
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E",
+      "status": 200,
+      "mimeType": "image/svg+xml",
+      "ms": 0,
+      "fromCache": false
+    },
+    {
+      "at": 8068614,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/css/sheet-multipage.css?v=multi1",
+      "status": 200,
+      "mimeType": "text/css",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068616,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/main.js?v=live6",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 5,
+      "fromCache": false
+    },
+    {
+      "at": 8068625,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/address.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 6,
+      "fromCache": false
+    },
+    {
+      "at": 8068625,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/clipboard-parser.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068625,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/core.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068625,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/draft-manager.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068625,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/document.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068625,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/persistence.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068626,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/salutation.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8068626,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/settings.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068626,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/signature.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 8,
+      "fromCache": false
+    },
+    {
+      "at": 8068634,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/binary-storage.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8068642,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/orte.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 8068642,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/grosskunden.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 8068642,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/js/multipage-controller.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 4,
+      "fromCache": false
+    },
+    {
+      "at": 8068642,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/data/de_districts.json.gz",
+      "status": 200,
+      "mimeType": "application/gzip",
+      "ms": 7,
+      "fromCache": false
+    },
+    {
+      "at": 8070529,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/addons/testbrief/testbrief.js",
+      "status": 200,
+      "mimeType": "application/javascript",
+      "ms": 2,
+      "fromCache": false
+    },
+    {
+      "at": 8070531,
+      "method": "GET",
+      "url": "http://127.0.0.1:34095/website/addons/testbrief/charactere.json",
+      "status": 200,
+      "mimeType": "application/json",
+      "ms": 2,
+      "fromCache": false
+    }
+  ],
+  "storageMutations": [
+    {
+      "at": 5461,
+      "key": "din_draft_current",
+      "bytes": 684,
+      "nodes": 249
+    },
+    {
+      "at": 7462,
+      "key": "din_draft_current",
+      "bytes": 687,
+      "nodes": 264
+    },
+    {
+      "at": 8463,
+      "key": "din_draft_current",
+      "bytes": 698,
+      "nodes": 249
+    },
+    {
+      "at": 12465,
+      "key": "din_draft_current",
+      "bytes": 684,
+      "nodes": 249
+    },
+    {
+      "at": 13466,
+      "key": "din_draft_current",
+      "bytes": 686,
+      "nodes": 277
+    },
+    {
+      "at": 15468,
+      "key": "din_draft_current",
+      "bytes": 687,
+      "nodes": 278
+    },
+    {
+      "at": 23476,
+      "key": "din_draft_current",
+      "bytes": 761,
+      "nodes": 249
+    },
+    {
+      "at": 28481,
+      "key": "din_draft_current",
+      "bytes": 752,
+      "nodes": 249
+    },
+    {
+      "at": 29482,
+      "key": "din_draft_current",
+      "bytes": 754,
+      "nodes": 277
+    },
+    {
+      "at": 57509,
+      "key": "din_draft_current",
+      "bytes": 753,
+      "nodes": 418
+    },
+    {
+      "at": 67518,
+      "key": "din_draft_current",
+      "bytes": 749,
+      "nodes": 418
+    },
+    {
+      "at": 73524,
+      "key": "din_draft_current",
+      "bytes": 750,
+      "nodes": 418
+    },
+    {
+      "at": 85536,
+      "key": "din_draft_current",
+      "bytes": 1333,
+      "nodes": 251
+    },
+    {
+      "at": 2531954,
+      "key": "din_draft_current",
+      "bytes": 1363,
+      "nodes": 251
+    },
+    {
+      "at": 2533956,
+      "key": "din_draft_current",
+      "bytes": 1386,
+      "nodes": 251
+    },
+    {
+      "at": 2540964,
+      "key": "din_draft_current",
+      "bytes": 1374,
+      "nodes": 251
+    },
+    {
+      "at": 2542967,
+      "key": "din_draft_current",
+      "bytes": 1301,
+      "nodes": 251
+    },
+    {
+      "at": 2552976,
+      "key": "din_draft_current",
+      "bytes": 1425,
+      "nodes": 251
+    },
+    {
+      "at": 2572996,
+      "key": "din_draft_current",
+      "bytes": 1399,
+      "nodes": 251
+    },
+    {
+      "at": 2573997,
+      "key": "din_draft_current",
+      "bytes": 1354,
+      "nodes": 251
+    },
+    {
+      "at": 8071398,
+      "key": "din_draft_current",
+      "bytes": 1559,
+      "nodes": 274
+    },
+    {
+      "at": 8072399,
+      "key": "din_draft_current",
+      "bytes": 1575,
+      "nodes": 274
+    }
+  ],
+  "errors": [
+    {
+      "at": 8068203,
+      "text": "Network net::ERR_ABORTED: http://127.0.0.1:34095/website/data/orte.json.gz"
+    },
+    {
+      "at": 8068204,
+      "text": "Network net::ERR_ABORTED: http://127.0.0.1:34095/website/data/grosskunden.json.gz"
+    },
+    {
+      "at": 8068204,
+      "text": "Network net::ERR_ABORTED: http://127.0.0.1:34095/website/data/de_districts.json.gz"
+    },
+    {
+      "at": 8068649,
+      "text": "Network net::ERR_ABORTED: http://127.0.0.1:34095/website/data/orte.json.gz"
+    },
+    {
+      "at": 8068649,
+      "text": "Network net::ERR_ABORTED: http://127.0.0.1:34095/website/data/grosskunden.json.gz"
+    }
+  ]
+}

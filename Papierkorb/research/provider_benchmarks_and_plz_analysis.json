@@ -1,0 +1,77 @@
+{
+  "benchmarks": [
+    {
+      "name": "Komoot Photon (Bonn Search)",
+      "url": "https://photon.komoot.io/api/?q=Bonn+Poststrasse&lat=50.7374&lon=7.0982&limit=5&lang=de",
+      "status": 200,
+      "min_ms": 192.2,
+      "avg_ms": 219.6,
+      "error": null,
+      "has_results": true,
+      "sample_preview": "{'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'properties': {'osm_type': 'W', 'osm_id': 4886464, 'osm_key': 'highway', 'osm_value': '"
+    },
+    {
+      "name": "OpenPLZ API (Bonn Streets)",
+      "url": "https://openplzapi.org/de/Streets?name=%5EPoststr.*&locality=Bonn",
+      "status": 200,
+      "min_ms": 100.2,
+      "avg_ms": 108.4,
+      "error": null,
+      "has_results": true,
+      "sample_preview": "[{'name': 'Poststr.', 'postalCode': '53111', 'locality': 'Bonn', 'borough': 'Stadtbezirk Bonn', 'suburb': 'Bonn-Zentrum', 'municipality': {'key': '053"
+    },
+    {
+      "name": "Zippopotam.us (PLZ 53111)",
+      "url": "https://api.zippopotam.us/de/53111",
+      "status": 200,
+      "min_ms": 105.9,
+      "avg_ms": 164.8,
+      "error": null,
+      "has_results": true,
+      "sample_preview": "{'country': 'Germany', 'country abbreviation': 'DE', 'post code': '53111', 'places': [{'place name': 'Bonn', 'longitude': '50.7362', 'latitude': '0531"
+    },
+    {
+      "name": "Geoapify EU Cluster",
+      "url": "https://api-eu.geoapify.com/v1/geocode/autocomplete?text=Bonn",
+      "status": 401,
+      "min_ms": 93.0,
+      "avg_ms": 132.8,
+      "error": "HTTP 401: Unauthorized",
+      "has_results": false,
+      "sample_preview": null
+    },
+    {
+      "name": "Geoapify Global Cluster",
+      "url": "https://api.geoapify.com/v1/geocode/autocomplete?text=Bonn",
+      "status": 401,
+      "min_ms": 111.0,
+      "avg_ms": 134.3,
+      "error": "HTTP 401: Unauthorized",
+      "has_results": false,
+      "sample_preview": null
+    },
+    {
+      "name": "HERE Technologies Autocomplete",
+      "url": "https://autocomplete.search.hereapi.com/v1/autocomplete?q=Bonn",
+      "status": 401,
+      "min_ms": 123.6,
+      "avg_ms": 138.8,
+      "error": "HTTP 401: Unauthorized",
+      "has_results": false,
+      "sample_preview": null
+    }
+  ],
+  "plz_preloading_analysis": {
+    "total_german_plz_count": 8170,
+    "format_a_simple_plz_to_city": {
+      "uncompressed_kb": 191.5,
+      "gzip_compressed_kb": 20.8,
+      "brotli_estimate_kb": 17.1
+    },
+    "format_b_rich_with_coordinates": {
+      "uncompressed_kb": 398.9,
+      "gzip_compressed_kb": 20.1,
+      "brotli_estimate_kb": 16.0
+    }
+  }
+}

@@ -1,0 +1,123 @@
+import json
+
+with open(r"C:\Users\morit\Documents\dinbrief-temp\roadmap_targeted_findings.json", "r", encoding="utf-8") as f:
+    findings = json.load(f)
+
+print(f"Lese {len(findings)} Findings...")
+
+# Strukturierter Bericht
+report_path = r"C:\Users\morit\Documents\dinbrief-temp\roadmap_modernization_2026.txt"
+
+lines = []
+lines.append("=" * 90)
+lines.append("MODERNISIERUNGS-ROADMAP: JAVASCRIPT ERSETZEN DURCH CHROME / WEB FEATURES 2026")
+lines.append("Projekt: DIN-Brief NEO")
+lines.append("=" * 90)
+lines.append("")
+lines.append("ZIELSETZUNG:")
+lines.append("Ablösung von projektspezifischem JavaScript-Code durch native HTML5-, CSS4/5- und moderne")
+lines.append("Browser-APIs aus dem Chrome 2026 Katalog zur Reduktion von Bundle-Größe, Latenz und Wartungsaufwand.")
+lines.append("")
+lines.append("=" * 90)
+lines.append("KATEGORIE 1: VOLLSTÄNDIGER JS-ERSATZ (100% NATIVE LÖSUNG)")
+lines.append("=" * 90)
+lines.append("")
+
+lines.append("1.1 Schalter & Toggles in Settings (02-settings-manager.js)")
+lines.append("   - Aktueller JS-Code: Eigene Event-Listener, Klassen-Toggles (.is-active), ARIA-Status-Updates")
+lines.append("                        für Darkmode, Hilfslinien und DIN-Falzmarken.")
+lines.append("   - Natives 2026 Feature: <input type=\"checkbox\" switch> (ID: 5178587742339072)")
+lines.append("   - Nutzen: Vollständig nativer OS-/Browser-Schalter ohne zusätzliche Div-Wrapper, ohne Hilfs-JS")
+lines.append("             und mit nativer Accessibility/Keyboard-Unterstützung.")
+lines.append("   - Ersetzt: Ca. 30-40 Zeilen JS & CSS-Wrapper-Markup.")
+lines.append("")
+
+lines.append("1.2 Text-Größenanpassung & Auto-Expand (48-text-fit.js / 03-ui-protections.js)")
+lines.append("   - Aktueller JS-Code: Polling & MutationObserver auf scrollWidth vs. clientWidth, um Felder dynamisch")
+lines.append("                        anzupassen oder Zeilenumbrüche zu unterbinden.")
+lines.append("   - Natives 2026 Feature: CSS 'field-sizing: content'")
+lines.append("   - Nutzen: Textareas und Inputs wachsen und schrumpfen rein deklarativ in CSS exakt mit dem Inhalt.")
+lines.append("             Kein JS-Listener auf 'input', kein DOM-Messung-Reflow (Layout Thrashing).")
+lines.append("   - Ersetzt: Große Teile von 48-text-fit.js (scanDOM, isOverflowing, MutationObserver).")
+lines.append("")
+
+lines.append("1.3 Plaintext-Eingabeschutz (03-ui-protections.js: enforceLineLimits)")
+lines.append("   - Aktueller JS-Code: Keydown-Abfangen für Enter, Regex-Bereinigung von eingefügten Zeilenumbrüchen")
+lines.append("                        in einzeiligen Feldern (Betreff, Datum, Postvermerk).")
+lines.append("   - Natives 2026 Feature: contenteditable=\"plaintext-only\" & inputmode / enterkeyhint=\"done\"")
+lines.append("   - Nutzen: Browser verbietet Rich-Text und blockiert Zeilenumbrüche nativ auf Parser-Ebene.")
+lines.append("   - Ersetzt: Komplettes Abfangen von Enter / Paste in einzeiligen editierbaren Feldern.")
+lines.append("")
+
+lines.append("1.4 HTML-Sanitization (31-format-toolbar.js: sanitizeNode)")
+lines.append("   - Aktueller JS-Code: Rekursive JavaScript-Funktion traverseNodes() / sanitizeNode(), die unerlaubte")
+lines.append("                        Tags, Inline-Styles und Attribute aus Kopier-Aktionen entfernt.")
+lines.append("   - Natives 2026 Feature: Native HTML Sanitizer API / Element.setHTMLUnsafe() & Safe DOM Handling")
+lines.append("   - Nutzen: Hochperformante, C++-native Bereinigung gegen XSS und Format-Verschmutzung direkt")
+lines.append("             durch die Browser-Engine.")
+lines.append("   - Ersetzt: 60+ Zeilen fehleranfälliges DOM-Parsing in sanitizeNode().")
+lines.append("")
+
+lines.append("1.5 Toast-Einblendung & Positionierung (32-toast.js)")
+lines.append("   - Aktueller JS-Code: Manuelle z-index-Verwaltung, DOM-Mounting, CSS-Klassen für Ein-/Ausblend-Animationen")
+lines.append("                        und Timeout-Tracking.")
+lines.append("   - Natives 2026 Feature: Popover API (popover=\"manual\") + CSS Anchor Positioning + @starting-style")
+lines.append("   - Nutzen: Native Einblendung im Top-Layer (über jedem z-index). CSS @starting-style erlaubt")
+lines.append("             weiche CSS-Transitions ohne JS-Hilfsklassen für Entry/Exit-Animationen.")
+lines.append("   - Ersetzt: DOM-Mounting-Logik, z-Index-Hacks und Transitions-Timing in 32-toast.js.")
+lines.append("")
+
+lines.append("=" * 90)
+lines.append("KATEGORIE 2: SIGNIFIKANTE MINIMIERUNG & ARCHITEKTUR-OPTIMIERUNG")
+lines.append("=" * 90)
+lines.append("")
+
+lines.append("2.1 Toolbar- & Menü-Trigger (31-format-toolbar.js / main.js)")
+lines.append("   - Aktueller JS-Code: button.addEventListener('click', () => { toggleDialog / toggleFormat ... })")
+lines.append("   - Natives 2026 Feature: Invoker Buttons (invoketarget, command, commandfor)")
+lines.append("   - Nutzen: Buttons steuern Popovers, Dialoge und Aktionen rein deklarativ in HTML:")
+lines.append("             <button commandfor=\"dialog-settings\" command=\"show-modal\">Einstellungen</button>")
+lines.append("   - Ersetzt: Dutzende Klick-Event-Listener im Frontend.")
+lines.append("")
+
+lines.append("2.2 Typografie & DIN-Layout (48-text-fit.js / CSS)")
+lines.append("   - Aktueller JS-Code: Feinkalibrierung von Schriftabständen, Zeilenhöhen und DIN-Grenzen.")
+lines.append("   - Natives 2026 Feature: CSS 'text-box-trim' & 'text-box-edge' sowie 'text-wrap: balance / pretty'")
+lines.append("   - Nutzen: Entfernt die unerwünschten virtuellen Ränder von Schriftarten (Ascender/Descender-Padding)")
+lines.append("             vollautomatisch in CSS. Dadurch stimmen DIN 5008 Abstände (z.B. exakt 45mm zur Anschrift)")
+lines.append("             ohne JS-Kompensationsberechnungen.")
+lines.append("")
+
+lines.append("2.3 Bildkompression & Signatur-Verarbeitung (42-signature.js)")
+lines.append("   - Aktueller JS-Code: Canvas-Kontext-Manipulation, manuelle Skalierung & Base64-Encoding.")
+lines.append("   - Natives 2026 Feature: WebP/AVIF Encoding Streams & createImageBitmap Verbesserungen")
+lines.append("   - Nutzen: Signaturbilder werden direkt asynchron komprimiert und im Arbeitsspeicher gehalten,")
+lines.append("             ohne den Haupt-Thread mit Canvas 2D Draw-Calls zu belasten.")
+lines.append("")
+
+lines.append("2.4 Datumsformatierung nach DIN 5008 (47-date-format.js)")
+lines.append("   - Aktueller JS-Code: Manuelles Zusammenbauen von Tag, Monat und Jahr via Date-Objekt.")
+lines.append("   - Natives 2026 Feature: Intl.DateTimeFormat mit 'de-DE' und DIN-spezifischen Optionen oder")
+lines.append("                           die neue JavaScript Temporal API (Temporal.Now.plainDateISO()).")
+lines.append("   - Nutzen: Robuste, standardkonforme Datumsausgabe ohne String-Padding-Boilerplate.")
+lines.append("")
+
+lines.append("=" * 90)
+lines.append("KONKRETER CODE-EINSPARUNGS-VERGLEICH (ESTIMATION):")
+lines.append("=" * 90)
+lines.append("Datei                      | Aktuell (Zeilen) | Mit 2026 Features | Einsparung")
+lines.append("---------------------------+------------------+-------------------+-----------")
+lines.append("02-settings-manager.js     |       ~180       |       ~70         |   - 61 %  (durch <input switch>)")
+lines.append("03-ui-protections.js       |       ~160       |       ~45         |   - 72 %  (durch plaintext-only)")
+lines.append("31-format-toolbar.js       |       ~420       |       ~210        |   - 50 %  (durch Sanitizer API & Invoker)")
+lines.append("32-toast.js                |       ~290       |       ~110        |   - 62 %  (durch Popover & @starting-style)")
+lines.append("48-text-fit.js             |       ~150       |       ~30         |   - 80 %  (durch field-sizing & text-box-trim)")
+lines.append("47-date-format.js          |       ~25        |       ~8          |   - 68 %  (durch Intl / Temporal)")
+lines.append("---------------------------+------------------+-------------------+-----------")
+lines.append("GESAMT GESCHÄTZT           |      ~1225       |       ~473        |   - 61 %  JavaScript-Code-Reduktion")
+lines.append("=" * 90)
+
+with open(report_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(lines))
+
+print(f"Roadmap erfolgreich erstellt: {report_path}")

@@ -1,6 +1,6 @@
 ---
-id: projektnotiz-verifiziert
-title: 'Projektnotiz — verifizierter Ist-Stand (2026-10-26)'
+id: datenfluss-und-laufzeit
+title: 'Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand'
 type: guide
 status: active
 created: '2026-10-26'
@@ -31,7 +31,7 @@ error_patterns:
   - persistenz
 ---
 
-# Projektnotiz — verifizierter Ist-Stand
+# Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand
 
 Zweck: Einstieg in den tatsächlichen Code, geprüft am 2026-10-26 gegen HEAD `a57a754`.
 Diese Notiz **dupliziert keine Normen**: Geometrie steht in der [[IMR-Registry]],

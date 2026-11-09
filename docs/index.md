@@ -91,6 +91,7 @@ audit/              --> Sprint- & Audit-Artefakte (Spezifikationen, Reviews, zei
 ### 3. [[20-implementation/README|20-implementation — Praktische Guides & How-Tos]]
 *Konkretes Implementierungswissen für den Quelltext (`website/js/` und `website/css/`).* 
 - **[[Salutation-Engine]]** — Anrede-Logik: Neuer 80/20 B2B-Standard, 3 verbindliche Pärchen, Offline-Vornamenerkennung, Adelspartikel und Auto-Reset.
+- **[[datenfluss-und-laufzeit]]** — Datenfluss & Laufzeitverhalten: verifizierter Ist-Stand.
 - **[[din-5008-css-architektur]]** — DIN-5008-Layout, Druckvorstufe (@media print) und Container Queries.
 - **[[no-scroll-techniques]]** — Zero-Scroll-Garantie: TextFit-Squeezing und A4-Viewport-Anpassung.
 - **[[testing-guide]]** — Validierungs-Checklisten für Druckvorschau und responsive Ansichten.

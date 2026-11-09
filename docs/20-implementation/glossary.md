@@ -157,7 +157,7 @@ wäre ein Fehler — sie auseinanderzuhalten ist die eigentliche Arbeit.
 
 *   **Kurzdefinition:** Die stabilste und universellste Offline-Speicher-API im Browser zur persistenten Speicherung von Zeichenketten.
 
-*   **Nutzen im Projekt:** Sichert Entwürfe, Einstellungen, API-Keys und Base64-Schriftarten lokal ab – **die einzige persistente Datenquelle der App** — synchron lesbar, daher Boot-Restore ohne `await` und ohne FOUC (siehe [[ADR-RUNTIME-CONTEXT]]).
+*   **Nutzen im Projekt:** Sichert Entwürfe, Einstellungen und API-Keys lokal ab – synchrone Datenquelle für textuelle Zustände (gemäß Zero-Base64-Invariante liegen Binär-Assets wie Schriftarten und Signaturen als Blobs in der IndexedDB), daher Boot-Restore ohne `await` und ohne FOUC (siehe [[ADR-RUNTIME-CONTEXT]]).
 
 *   **Verweis:** Siehe [[ADR-JS#2-reglementierte-aufgabenbereiche-fur-javascript|ADR-JS.md]] und [[ADR-ANTIPATTERN#3-komplexere-lokale-storage-apis-opfs-indexeddb-file-system-api|ADR-ANTIPATTERN.md]].
 

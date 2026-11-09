@@ -4,17 +4,24 @@ title: '20-implementation — Praktische Anleitungen & How-Tos'
 type: meta
 status: active
 created: '2026-07-07'
-updated: '2026-09-30'
+updated: '2026-11-09'
 tags:
   - din-briefneo
   - din-briefneo/implementation
   - status/active
   - type/meta
 doc_links:
+  - din-5008-css-architektur
+  - no-scroll-techniques
   - Salutation-Engine
+  - testbrief-generator
+  - geoapify-autocomplete
+  - plz-maintenance-and-update-lifecycle
+  - datenfluss-und-laufzeit
+  - icon-system-und-quellen
   - glossary
   - testing-guide
-  - icon-system-und-quellen
+  - TEMPLATES
 error_patterns:
   - implementation
   - guide
@@ -30,24 +37,20 @@ code_links: []
 
 Freie Mitte im Dezimalrahmen (`_2–_8`). Hier liegt das Implementierungswissen: Guides, Feature-Dokumentation, Glossar.
 
-## Feature-Dokumentation
-
-- [[Salutation-Engine]] — Anrede-Logik: Auto-Detection, Fallbacks, SPEC-002
-- [[glossary]] — Projektbegriffe und Definitionen
-- [[testing-guide]] — Test-Anleitung und -Strategie
-
-## Technische Guides
+## Übersicht der Implementierungs-Guides
 
 | Guide | Thema |
 |---|---|
 | [[din-5008-css-architektur]] | DIN 5008 Layout-Philosophie + Chrome 150+ CSS-Feature-Referenz |
+| [[no-scroll-techniques]] | Zero-Scroll-Policy: Techniken und CSS-Patterns |
+| [[Salutation-Engine]] | Anrede-Logik: Auto-Detection, Fallbacks, SPEC-002 |
+| [[testbrief-generator]] | Testbrief-Generator, Dummy-Daten & Dev-Testing |
+| [[geoapify-autocomplete]] | Adress-Autocomplete (Geoapify + Photon Fallback) |
+| [[plz-maintenance-and-update-lifecycle]] | Wartung & Lifecycle der PLZ- und Großempfänger-Datenbank |
+| [[datenfluss-und-laufzeit]] | Datenfluss & Laufzeitverhalten — verifizierter Ist-Stand |
 | [[icon-system-und-quellen]] | Icon-System & SVG-Quellen (Lucide Icons & Design-System) |
-| [[geoapify-autocomplete]] | Adress-Autocomplete (Geoapify + Photon) |
-| [[no-scroll-techniques]] | Zero-Scroll-Policy: Techniken und Patterns |
-
-## Forschung / Roadmap
-
-
+| [[glossary]] | Projektbegriffe und kanonische Vokabulare |
+| [[testing-guide]] | Test-Anleitung, Assertion-Suite und Headless-Runner |
 
 ## Templates
 

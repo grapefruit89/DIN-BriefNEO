@@ -24,7 +24,7 @@ supersedes: []
 > **Status:** Verbindliche Architektur-Spezifikation für Wartung, CI/CD-Updates und API-Fallback.  
 > **Kernfragen:**  
 > 1. Ist das alles in OpenPLZ drin?  
-> 2. Wie verhindern wir starres Hardcoding und machen die JSON/Brotli-Datenbank austauschbar und updatebar?
+> 2. Wie verhindern wir starres Hardcoding und machen die JSON/Gzip-Datenbank austauschbar und updatebar?
 
 ---
 
@@ -57,15 +57,15 @@ Ein starres Einbetten von Daten im Quellcode ist ein Anti-Pattern. Die Lösung b
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                      1. Build- & Update-Pipeline                        │
-│ tools/update_plz_data.js (Holt Open-Data + DPAG Mitteilungsblatt)      │
-│ ➔ Generiert de_plz_ort.json.br (71 KB) + de_grosskunden_plz.json       │
+│ tools/build_plz_data.mjs (Holt Open-Data + DPAG Mitteilungsblatt)       │
+│ ➔ Generiert orte.json.gz (68 KB) + grosskunden.json.gz (52 KB)          │
 └────────────────────────────────────┬────────────────────────────────────┘
                                      │ Generiert
                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                      2. Statische Asset-Ebene                           │
-│ website/data/de_plz_ort.json.br?v=2026.1                                │
-│ website/data/de_grosskunden_plz.json?v=2026.1                           │
+│ website/data/orte.json.gz?v=2026.1                                      │
+│ website/data/grosskunden.json.gz?v=2026.1                               │
 └────────────────────────────────────┬────────────────────────────────────┘
                                      │ Client-seitiger Fetch (ETag / Cache)
                                      ▼
@@ -74,7 +74,8 @@ Ein starres Einbetten von Daten im Quellcode ist ein Anti-Pattern. Die Lösung b
 │                                                                         │
 │  Eingabe PLZ                                                            │
 │       │                                                                 │
-│       ├── Stufe 1: Lokaler Brotli-Cache (0,001 ms) ➔ 99,9 % Treffer     │
+│       ├── Stufe 1: Lokaler Gzip-Cache (DecompressionStream, 0,001 ms)   │
+│       │            ➔ 99,9 % Treffer                                     │
 │       │                                                                 │
 │       ├── Stufe 2: OpenPLZ Live-API (107 ms) ➔ Für brandneue Wohn-PLZ   │
 │       │            (Ergebnis wird im localStorage gecacht)              │
@@ -87,24 +88,24 @@ Ein starres Einbetten von Daten im Quellcode ist ein Anti-Pattern. Die Lösung b
 
 ## 3. Die 4 Säulen der Wartungs-Architektur im Detail
 
-### Säule A: Das Build-Script-Prinzip (`tools/update_plz_data.js`)
+### Säule A: Das Build-Script-Prinzip (`tools/build_plz_data.mjs`)
 Statt jemals eine JSON-Datei von Hand zu editieren, gehört in das Projekt ein automatisches Wartungsskript:
 1. Das Skript lädt den aktuellen Basis-Datensatz aus der Open-Source-Quelle.
 2. Es lädt das quartalsweise erscheinende Mitteilungsblatt der Deutschen Post (`dp-mtb-ge-zugaenge.pdf`).
-3. Es bereinigt Dubletten, normalisiert Umlaute und komprimiert das Ergebnis nach Brotli (Quality 11).
-4. Das Skript wird nahtlos in `npm run update-plz` oder in `tools/build_db.js` eingehängt.
+3. Es bereinigt Dubletten, normalisiert Umlaute und komprimiert das Ergebnis per Gzip (`.json.gz`).
+4. Das Skript wird nahtlos in `npm run build:data` eingehängt.
 ➔ **Wartungsaufwand:** 1 Konsolenbefehl pro Jahr oder Quartal.
 
 ### Säule B: ETag & Versioniertes Cache-Busting
 Damit Nutzer im Web oder in der PWA sofort die aktualisierten Daten erhalten:
 - Die Asset-URL wird mit einem Versions-Query-Parameter versehen:  
-  `fetch('data/de_plz_ort.json.br?v=' + APP_VERSION)`
+  `fetch('data/orte.json.gz?v=' + APP_VERSION)`
 - Der Webserver liefert standardmäßige HTTP-Header (`ETag` und `Cache-Control: public, max-age=31536000, immutable`).
-- Ändert sich die Datei beim nächsten Release, lädt der Browser die winzigen 71 KB automatisch einmalig herunter und hält sie danach wieder offline im Speicher.
+- Ändert sich die Datei beim nächsten Release, lädt der Browser die komprimierten Daten automatisch einmalig herunter, dekomprimiert sie via `DecompressionStream('gzip')` und hält sie danach wieder offline im Speicher.
 
 ### Säule C: Das Stufen-Fallback (Niemals ins Leere laufen)
-Was passiert, wenn ein Neubaugebiet entsteht und die PLZ in der 71 KB Brotli-Datei noch fehlt?
-1. **Stufe 1 (Lokal, 0,001 ms):** Die App schlägt in der In-Memory-Brotli-Tabelle nach. In 99,9 % der Fälle ist die PLZ sofort da.
+Was passiert, wenn ein Neubaugebiet entsteht und die PLZ in der 68 KB Gzip-Datei noch fehlt?
+1. **Stufe 1 (Lokal, 0,001 ms):** Die App schlägt in der In-Memory-Gzip-Tabelle nach. In 99,9 % der Fälle ist die PLZ sofort da.
 2. **Stufe 2 (Live OpenPLZ API, 107 ms):**  
    Wird die PLZ lokal nicht gefunden (Cache Miss), fragt ein asynchroner Hintergrund-Call `https://openplzapi.org/de/Localities?postalCode={plz}` ab.  
    Wird dort ein neuer Ort gefunden:

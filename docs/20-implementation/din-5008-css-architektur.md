@@ -106,7 +106,7 @@ Da die App Chrome 150+ voraussetzt, nutzen wir hochmoderne Web-Plattform-Feature
 > Relevanz: **Hoch.** Für die schwebende Formatierungsleiste (Fett, Kursiv) über dem Text.
 
 **CSS Anchor Positioning** — Positioniert ein Element relativ zu einem Anker-Element ohne DOM-Verschachtelung.
-> Relevanz: **Niedrig (aktuell).** Zukünftig für Dropdowns bei der Adress-Autovervollständigung.
+> Relevanz: **Aktiv.** Positioniert das Adress-Vorschlags-Dropdown in `layout.css`.
 
 ### 2.4 Feature-Stabilität
 

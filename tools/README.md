@@ -1,39 +1,144 @@
-# Werkzeuge & Automatisierung (tools/)
+# Werkzeuge & Automatisierung (`tools/`)
 
-## Geprüfte Werkzeuge (Vollständiges Inventar [01] bis [36])
-- [01] adr-check.js — [GEPRÜFT: WARTUNG] Manuelles On-Demand-Audit-Tool für ADR-Bijektion
-- [02] agent_gateway.py — [GEPRÜFT: WARTUNG] Lokaler WebMCP-WebSocket-Server (Port 8333) für Browser-Kopplung
-- [03] bench_plz_formats.mjs — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Entscheidung in ADR-COLUMNAR-DATA fixiert)
-- [04] boilerplate.config.json — [GEPRÜFT: AKTIV] Konfigurationsdatei für reconciliation.js
-- [05] browser.mjs — [GEPRÜFT: AKTIV] CDP-Browser-Erkennungsmodul für Chrome/Chromium/Helium
-- [06] browser-audit.html — [GEPRÜFT: AKTIV] Standalone-GUI zur Prüfung moderner Web-Features
-- [07] build_db.js — [GEPRÜFT: AKTIV] Kern-Build & Fitness-Gate (Generiert STRUCTURE.md, berechnet Fitness-Score)
-- [08] build_grosskunden_columnar.mjs — [GEPRÜFT: WARTUNG] Kompiliert Behördenverzeichnis nach grosskunden.json.gz
-- [09] build_plz_data.mjs — [GEPRÜFT: AKTIV] CI-Pipeline für orte.json.gz (npm run build:data)
-- [10] check-charakter-pipeline.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Zielpfade obsolet)
-- [11] check-feature.js — [GEPRÜFT: AKTIV] CLI-Recherche gegen Chrome-150-Baseline und BCD
-- [12] consolidate_all.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Zielpfade obsolet)
-- [13] consolidate_characters.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Zielpfade obsolet)
-- [14] debug-session.mjs — [GEPRÜFT: WARTUNG] Isolierte Test-Sitzung mit flüchtigem Profil und Flight-Recorder
-- [15] dev_server.ps1 — [GEPRÜFT: AKTIV] Zero-Dep Live-Reload-Webserver für Windows (Port 8088)
-- [16] enrich_data.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Zielpfade obsolet)
-- [17] filematch.js — [GEPRÜFT: AKTIV] Glob-to-RegExp Hilfsmodul für reconciliation.js und lawcoverage.js
-- [18] gate.py — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (obsolet; ruft archivierte Charakter-Pipeline auf)
-- [19] imr.js — [GEPRÜFT: AKTIV] Kern-Wächter für IMR-Registry, 45 DIN-Atome, data-*-Geometrie & Case-Contract
-- [20] isolation.js — [GEPRÜFT: AKTIV] Kern-Wächter für Law A45/A38 (hermetische Isolation von website/)
-- [21] lawcoverage.js — [GEPRÜFT: AKTIV] Meta-Gate zur lückenlosen Abdeckung des Immutable Law Catalogs
-- [22] links.js — [GEPRÜFT: AKTIV] Integritätswächter für Wikilinks, Frontmatter-Links und @adr/@guide-Tags
-- [23] migrate_figuren_tuples.mjs — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Einmal-Migration auf Tuple-Format v2.1 erledigt)
-- [24] query_chrome_feature.mjs — [GEPRÜFT: AKTIV] CLI für Chrome Platform Status API (npm run check:browser-feature)
-- [25] setup-din-home.ps1 — [GEPRÜFT: WARTUNG] Idempotentes Setup für ~/.din-briefneo unter Windows
-- [26] setup-din-home.sh — [GEPRÜFT: AKTIV] Idempotentes Setup für ~/.din-briefneo unter Linux und in CI
-- [27] start.bat — [GEPRÜFT: AKTIV] Lokaler Server-Starter für Windows (Port 8088 via dev_server.ps1)
-- [28] start.sh — [GEPRÜFT: AKTIV] Lokaler Server- und CDP-Starter für Linux (Port 8088 / 9222)
-- [29] static-server.mjs — [GEPRÜFT: AKTIV] Zero-Dependency No-Cache HTTP-Server für Test- und Debug-Läufe
-- [30] structural-laws.js — [GEPRÜFT: AKTIV] Strukturwächter für Gesetze A24, A42, A57, A58, A59
-- [31] structure-stand.js — [GEPRÜFT: AKTIV] Deterministischer SHA-256-Hasher für docs/STRUCTURE.md
-- [32] reconciliation.js — [GEPRÜFT: AKTIV] Reality Reconciliation Engine & Antipattern-Suite (npm run check:antipatterns)
-- [33] subset_fonts.py — [GEPRÜFT: WARTUNG] Font-Subsetting (Anhang H/F) via fontTools nach website/fonts/
-- [34] terminology.js — [GEPRÜFT: AKTIV] Vokabular-Gate ("Ein Sachverhalt, ein Begriff") gegen docs/20-implementation/glossary.md
-- [35] testbrief-messung.mjs — [GEPRÜFT: WARTUNG] Headless-Benchmark für Testbrief-Generierung und Besetzung
-- [36] test-runner.mjs — [GEPRÜFT: AKTIV] Zero-Dependency Headless Chrome Test-Runner (npm test)
+Dieses Verzeichnis enthält die Build-, Test-, Validierungs- und Entwicklungswerkzeuge von **DIN-BriefNEO**.
+
+> **Architektur-Hinweis (Law A45):**
+> Die Skripte in `tools/` sind **reine Entwicklungsumgebung**. Sie werden nicht im Browser ausgeliefert. Die eigentliche Webanwendung (`website/`) läuft vollständig autark und hermetisch isoliert.
+
+---
+
+## 1. Übersicht nach Funktionsbereichen
+
+### 🏗️ Kern-Build & Fitness-Gate
+
+Verbindliche Schranken vor jedem Commit (`AGENTS.md` §2).
+
+* **`build_db.js`**
+  * **Was es tut:** Führt die Reality Reconciliation durch, prüft Verfassungsinvarianten (z. B. Vorhandensein von `Papierkorb/`) und generiert `docs/STRUCTURE.md` deterministisch.
+  * **Aufruf:** `node tools/build_db.js -q` (bzw. `npm run check:fitness`)
+
+* **`reconciliation.js`**
+  * **Was es tut:** Die Reality-Reconciliation-Engine. Wertet Metadaten, Link-Integrität, Typisierungen und alle 36 Antipattern-Regeln aus und berechnet den *Evolutionary Fitness Score*.
+  * **Aufruf:** `node tools/reconciliation.js --only-rules` (bzw. `npm run check:antipatterns`)
+
+* **`structure-stand.js`**
+  * **Was es tut:** Berechnet einen zeitinvarianten SHA-256-Hash über den Rumpf von `docs/STRUCTURE.md`, um Git-Drift zu verhindern.
+
+---
+
+### 🛡️ Architektur- & Verfassungswächter (Gates)
+
+Sichern die Einhaltung der Gesetze aus `Immutable-Law-Catalog.md`.
+
+* **`adr-check.js`**
+  * **Was es tut:** Manuelles On-Demand-Audit-Tool. Prüft die Bijektion zwischen `code_links` in den ADRs und realen Dateien in `website/`, Header-Annotationen und Dateizähler.
+  * **Aufruf:** `node tools/adr-check.js`
+
+* **`imr.js`**
+  * **Was es tut:** Prüft die 45 DIN-Atome, DIN-Geometrien, Zonen, Case-Contract (Kebab-Case) und das kanonische Vokabular gegen `docs/10-architecture/IMR-Registry.md`.
+
+* **`isolation.js`**
+  * **Was es tut:** Setzt Law A45 und A38 durch. Prüft, dass kein Pfad aus `website/` herausführt und keine verbotenen Fremd-Hosts geladen werden.
+
+* **`structural-laws.js`**
+  * **Was es tut:** AST- und DOM-Prüfung struktureller Gesetze: eindeutige IDs (A42), keine Binär-Radios als Schalter (A57), zyklischer Theme-Toggle (A58), CSS-Tokens (A24) und Verbot von Theme-Variablen auf dem DIN-Blatt (A59).
+
+* **`links.js`**
+  * **Was es tut:** Prüft alle Wikilinks `[[...]]`, Frontmatter-Links und `@adr`/`@guide`-Tags gegen existierende Dateien.
+
+* **`lawcoverage.js`**
+  * **Was es tut:** Meta-Gate. Stellt sicher, dass Antipattern-Regeln auf echte Gesetze verweisen und keine „toten Sonden“ existieren.
+
+* **`terminology.js`**
+  * **Was es tut:** Setzt „Ein Sachverhalt, ein Begriff“ durch. Gleicht Dokumente mit den Begriffspaaren aus `docs/20-implementation/glossary.md` ab.
+
+* **`filematch.js`**
+  * **Was es tut:** Geteiltes Glob-to-RegExp-Hilfsmodul für `reconciliation.js` und `lawcoverage.js`.
+
+---
+
+### 🧪 Test-Runner & Diagnose
+
+Prüfen Funktionalität und Browser-Kompatibilität.
+
+* **`test-runner.mjs`**
+  * **Was es tut:** Startet einen Headless-Chromium via CDP, führt alle 183 Tests in `test/index.html` aus und wertet sie im Terminal aus.
+  * **Aufruf:** `npm test` oder `node tools/test-runner.mjs`
+
+* **`browser.mjs`**
+  * **Was es tut:** Erkennt installierte Browser (Helium, Chromium, Google Chrome) plattformübergreifend.
+
+* **`static-server.mjs`**
+  * **Was es tut:** Zero-Dependency No-Cache HTTP-Server für lokale Test- und Debug-Läufe.
+
+* **`debug-session.mjs`**
+  * **Was es tut:** Startet eine sichtbare Browsersitzung mit flüchtigem Profil (`mkdtemp`) und schneidet Konsole, Netzwerk und Storage-Mutations mit.
+
+* **`testbrief-messung.mjs`**
+  * **Was es tut:** Headless-Stochastiktest für Testbrief-Szenarien, Franchises und Hooks.
+
+* **`browser-audit.html`**
+  * **Was es tut:** Grafische Oberfläche zur Live-Erkennung moderner CSS/HTML-Features direkt im Browser.
+
+---
+
+### 🌐 Upstream-Recherche & WebMCP
+
+* **`query_chrome_feature.mjs`**
+  * **Was es tut:** Fragt die offizielle Chrome Platform Status API (`chromestatus.com`) ab.
+  * **Aufruf:** `node tools/query_chrome_feature.mjs "popover"`
+
+* **`check-feature.js`**
+  * **Was es tut:** Prüft lokale BCD- und Baseline-Kompatibilität gegen Chrome 150+.
+
+* **`agent_gateway.py`**
+  * **Was es tut:** Lokaler WebSocket-Server (Port 8333), um KI-Agenten direkt an offene Tabs in Helium anzudocken.
+
+---
+
+### 📦 Daten- & Schrift-Pipelines
+
+* **`build_plz_data.mjs`**
+  * **Was es tut:** Kompiliert 10.184 Postleitzahlen deterministisch nach `website/data/orte.json.gz`.
+  * **Aufruf:** `npm run build:data`
+
+* **`build_grosskunden_columnar.mjs`**
+  * **Was es tut:** Kompiliert das Behörden- und Firmenverzeichnis nach `website/data/grosskunden.json.gz`.
+
+* **`subset_fonts.py`**
+  * **Was es tut:** Extrahiert den exakten DIN-5008-Zeichensatz (Anhang H/F) via `fontTools` in WOFF2-Dateien.
+
+---
+
+### 🚀 Lokale Starter & Umgebungs-Setup
+
+* **`start.sh`** & **`start.bat`**
+  * **Was sie tun:** 1-Klick-Starter für Linux (Python HTTP + Helium CDP) bzw. Windows (`dev_server.ps1` + Chrome).
+
+* **`dev_server.ps1`**
+  * **Was es tut:** Windows Live-Reload-Webserver auf Port 8088 (reines PowerShell/.NET).
+
+* **`setup-din-home.sh`** & **`setup-din-home.ps1`**
+  * **Was sie tun:** Initialisieren das Benutzerverzeichnis `~/.din-briefneo` für Caches und Tools.
+
+---
+
+### 🗄️ Daten- & Konfigurationsdateien im Ordner
+
+* **`antipatterns/` (`base.json`, `web.json`, `project.json`):** Die 36 maschinenlesbaren Scrub-Regeln.
+* **`data/plz_states.json`:** Statische Zuordnungstabelle von Postleitzahlen zu Bundesländern als Build-Input.
+* **`boilerplate.config.json`:** Konfiguration der aktiven Prüfschichten für das Fitness-Gate.
+
+---
+
+## 2. Was mit den alten Skripten passiert ist (Archiv)
+
+Folgende 7 Altskripte wurden im Zuge der Inventur nach **`Papierkorb/scripts/`** verschoben:
+
+1. `bench_plz_formats.mjs` (V8-Benchmark erledigt, Entscheidung in `ADR-COLUMNAR-DATA.md`)
+2. `check-charakter-pipeline.py` (veraltete Pfade auf gelöschte `charactere.json`)
+3. `consolidate_all.py` (obsolete Popkultur-Pipeline)
+4. `consolidate_characters.py` (obsolete Popkultur-Pipeline)
+5. `enrich_data.py` (obsolete Popkultur-Pipeline)
+6. `gate.py` (Legacy-Gatekeeper, der archivierte Skripte aufrief)
+7. `migrate_figuren_tuples.mjs` (Einmal-Migration auf Tuple-Format v2.1 abgeschlossen)

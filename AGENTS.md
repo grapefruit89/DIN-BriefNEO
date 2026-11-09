@@ -321,6 +321,17 @@ nennen („Shipping in Chrome 151"). Ergänzend Context7 nach §4. Live-Empirie 
 - Wird ein Feature, nach dem das Gate in `main.js` sucht, ausgelagert, bleibt dort ein
   Trace-Kommentar zurück: `// Feature Trace: <API> wird jetzt in <Modul> behandelt`.
 
+### Autonome CLI-Ausführung & Tätigkeitsbericht-Vertrag
+
+Projektweiter, verbindlicher Standard für alle Agenten-Schnittstellen (CLI, Antigravity, OpenCode, Claude Code):
+- **Der CLI-Agent ist das ausführende Organ:** Er generiert niemals manuelle Shell-Befehle oder „Befehle zum Kopieren“ für den Nutzer, sondern führt Änderungen, Prüfungen, Gate-Läufe und Git-Operationen autonom im Dateisystem durch.
+- **Verbindliches Berichts-Schema (5 Pflicht-Punkte):**
+  1. **Angefasste Dateien & Pfade:** Vollständige absolute Pfadliste aller geänderten, erstellten oder gelöschten Dateien inkl. Status (`git mv`, `git rm`, `edit`).
+  2. **Gefundene Probleme & Konflikte:** Identifizierte Invarianten-Verstöße, Inkonsistenzen oder Regressionsrisiken (bzw. Bestätigung: *„Keine Konflikte“*).
+  3. **Vollzugsnachweis & Testmetriken:** Konkrete Ergebnisse der Testläufe (Unit-Tests bestanden/gesamt, Adress-Korpus-Gate bestanden/known, Antipattern-Prüfung 36/36).
+  4. **Fitness-Score:** Evolutionary Fitness Score via `node tools/build_db.js -q` (Soll: 100.0% clean).
+  5. **Commit-Hash & Push-Bestätigung:** SHA-Hash des Git-Commits und Bestätigung des Pushes auf `main`.
+
 ## Upstream Ground-Truth & Browser-Features (Chromium 150+)
 
 - **Prinzip:** Vor dem Bauen von Workarounds oder JS-Heuristiken MUSS geprüft werden, ob Chromium das Feature nativ beherrscht. Spekulatives oder veraltetes LLM-Trainingswissen ist unzulässig; maßgeblich ist ausschließlich die maschinenlesbare Upstream-Realität.

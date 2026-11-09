@@ -60,7 +60,15 @@ Für jede nicht-triviale Änderung am Repository:
 2. **Think / Research**: Bei technischer Unsicherheit systematisch recherchieren (siehe [[#5. Recherche: Quellenpyramide & Fragetyp-Routing]]). Context7 ist bei Web-API-Unsicherheit laut `AGENTS.md` §4 verbindlich.
 3. **Validate / Plan**: Vorgehen präzise festlegen, bevor Code geschrieben wird (`plan`-Operation).
 4. **Execute**: Änderung minimal und chirurgisch umsetzen (für `website/` gilt zwingend die [[#6. Feature-Implementierung in website/ (HTML → CSS → JS)]]).
-5. **Verify**: Fitness Gate (`node tools/build_db.js -q`) und Test-Suite (`npm test`) ausführen und das Ergebnis gegen die Absicht verifizieren.
+5. **Verify & Report**:
+   - Quality Gates ausführen: Fitness Gate (`node tools/build_db.js -q`), Unit-Tests (`npm test`) und Antipattern-Prüfung (`npm run check:antipatterns`).
+   - Verbindlicher Tätigkeitsbericht nach dem projektweiten 5-Punkte-Vertrag (HANDOFF.md §6 / AGENTS.md §7a):
+     1. Angefasste Dateien & Pfade (vollständige Pfadliste, Status `git mv`, `git rm`, `edit`)
+     2. Gefundene Probleme & Konflikte (oder Bestätigung: keine Konflikte)
+     3. Vollzugsnachweis & Testmetriken (Unit-Tests bestanden/gesamt, Adress-Korpus 80 Fälle, Antipatterns 36/36)
+     4. Fitness-Score (Soll: 100.0% clean via `tools/build_db.js -q`)
+     5. Commit-Hash & Push-Bestätigung (SHA + Remote-Sync)
+   - **Verbot von Nutzer-Aufforderungen:** Der CLI-Agent führt alle Schritte autonom aus und gibt niemals manuelle Shell-Befehle oder Snippets zum Kopieren an den Nutzer aus.
 
 ---
 

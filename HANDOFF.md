@@ -115,5 +115,11 @@ DIN-BriefNEO/
    - **DIN 5008 ist Gesetz:** Alle Maße, Abstände und Formatierungsregeln müssen der DIN 5008:2020-03 entsprechen.
    - **Direkter Arbeitsstil:** Keine Floskeln, kein Höflichkeits-Overhead, keine Entschuldigungen – direkt zur Sache.
 
-8. **Autonome CLI-Ausführung (Keine Kopier-Aufforderungen an den Nutzer):**
-   - Der CLI-Agent ist das ausführende Organ. Er generiert keine 'Befehle zum Kopieren' oder Shell-Snippets für den Nutzer, sondern führt Änderungen, Prüfungen und Tests autonom im Dateisystem aus und meldet das konkrete Ergebnis (Pfade, Befunde, Testläufe, Commits) zurück.
+8. **Autonome CLI-Ausführung & Verbindlicher Tätigkeitsbericht-Vertrag:**
+   - **Ausführendes Organ:** Der CLI-Agent führt alle Aktionen, Code-Änderungen, Prüfungen und Tests autonom im Dateisystem aus. Seine Ausgaben enthalten niemals manuelle Shell-Befehle, Snippets oder „Befehle zum Kopieren“ für den Nutzer.
+   - **Verbindliches Berichts-Schema (5 Pflicht-Punkte):**
+     1. **Angefasste Dateien & Pfade:** Vollständige absolute Pfade aller geänderten, erstellten oder gelöschten Dateien inkl. Status (`git mv`, `git rm`, `edit`).
+     2. **Gefundene Probleme & Konflikte:** Identifizierte Invarianten-Verstöße, Inkonsistenzen oder Regressionsrisiken (bzw. Bestätigung: *„Keine Konflikte“*).
+     3. **Vollzugsnachweis & Testmetriken:** Konkrete Ergebnisse der Testläufe (Unit-Tests bestanden/gesamt, Adress-Korpus-Gate bestanden/known, Antipattern-Prüfung 36/36).
+     4. **Fitness-Score:** Evolutionary Fitness Score via `node tools/build_db.js -q` (Soll: 100.0% clean).
+     5. **Commit-Hash & Push-Bestätigung:** SHA-Hash des Git-Commits und Bestätigung des Pushes auf `main`.

@@ -30,8 +30,8 @@ Alle Gesetze, Verbote und MUST-USE-Regeln sind in **[[Immutable-Law-Catalog]]** 
 ## Start & Verifikation
 
 ```bash
-start.bat                 # lokaler Webserver auf Port 8088 (Windows)
-./start.sh                # lokaler Webserver auf Port 8088 (Linux)
+tools/start.bat           # lokaler Webserver auf Port 8088 (Windows)
+./tools/start.sh          # lokaler Webserver auf Port 8088 (Linux)
 npm test                  # Headless Chrome Unit-Tests & Korpus-Gate
 node tools/build_db.js    # SSoT-Build & Fitness Gate (muss 100.0% clean melden)
 ```

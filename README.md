@@ -57,8 +57,11 @@
 Wegen nativer ES-Module und CORS-Regeln muss die App über einen statischen HTTP-Server serviert werden (`file://` genügt nicht):
 
 ```bash
-# Über das mitgelieferte Shell-Skript:
-bash tools/dev_server.sh
+# Linux (Python-HTTP-Server & Debug-Browser mit CDP):
+./tools/start.sh
+
+# Windows (PowerShell-Live-Reload-Server):
+tools\start.bat
 
 # Oder über einen beliebigen statischen HTTP-Server:
 python3 -m http.server 8088 --directory website/

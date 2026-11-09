@@ -36,7 +36,7 @@ Dieser Vertrag ist nicht verhandelbar. Verstöße führen zur Ablehnung der Änd
 `file://` funktioniert nicht — ES-Module, `fetch` und `localStorage` sind dort eingeschränkt.
 Jeder manuelle Test braucht einen HTTP-Server.
 
-**Bequem (empfohlen):** `./start.sh` startet den Server auf Port 8088 und öffnet Helium mit
+**Bequem (empfohlen):** `./tools/start.sh` startet den Server auf Port 8088 und öffnet Helium mit
 DevTools-Protokoll auf Port 9222. Das Skript nutzt ein eigenes Profil
 (`~/.local/share/helium-din-briefneo`): Läuft Helium bereits, entstünde sonst nur ein Tab im
 bestehenden Prozess und der CDP-Port gar nicht. Nutzer-Tabs werden nicht angefasst.
@@ -55,7 +55,7 @@ export XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/us
 setsid /home/moritz/.local/bin/helium http://127.0.0.1:8765/index.html >/dev/null 2>&1 &
 ```
 
-**Konsole und DOM per CDP lesen** (läuft, wenn `start.sh` aktiv ist):
+**Konsole und DOM per CDP lesen** (läuft, wenn `tools/start.sh` aktiv ist):
 ```bash
 curl -s http://127.0.0.1:9222/json/list   # Targets inkl. webSocketDebuggerUrl
 ```

@@ -7,7 +7,7 @@ echo   DIN-BriefNEO wird gestartet...
 echo ============================================
 echo.
 
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo [INFO] Pruefe auf alte Prozesse (Port 8088)...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8088') do (
@@ -17,7 +17,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8088') do (
 )
 
 echo [OK] Starte Live-Reload-Dev-Server (PowerShell)...
-start "" /B powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\dev_server.ps1"
+start "" /B powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0dev_server.ps1"
 ping 127.0.0.1 -n 2 >nul
 
 if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" (

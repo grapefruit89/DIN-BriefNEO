@@ -54,6 +54,8 @@ structure:
     subpaths:
       tools/build_db.js: Fitness-Check + Build, Pflicht vor/nach jeder Aenderung (AGENTS.md Paragraph 2)
       tools/dev_server.ps1: Live-Reload-Webserver (Port 8088), reines PowerShell/.NET, kein Python/Node.js noetig
+      tools/start.sh: Lokaler Start-Server (Linux/Python HTTP-Server)
+      tools/start.bat: Lokaler Start-Server (Windows/PowerShell Dev-Server)
       tools/antipatterns/: JSON-Regeldateien fuer den Scrub-Check (base/web/project layered)
     inventory_doc: docs/30-meta/tooling-overview.md
 
@@ -129,8 +131,6 @@ taxonomy:
     - jsconfig.json
     - biome.json
     - package.json
-    - start.bat
-    - start.sh
     - envelope.svg
     - .gitignore
     - .gitattributes
@@ -147,8 +147,8 @@ taxonomy:
 
 entrypoints:
   build: tools/build_db.js
-  serve: start.bat
-  serve_linux: start.sh
+  serve: tools/start.bat
+  serve_linux: tools/start.sh
   browser_agent: docs/30-meta/AI-AGENTS-CLI.md
   platform_research: docs/30-meta/mcp_research.md
 

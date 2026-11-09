@@ -29,7 +29,7 @@ depends_on: []
 code_links:
   - 'website/index.html'
   - 'website/js/address.js'
-  - 'start.bat'
+  - 'tools/start.bat'
 ---
 
 # ADR-RUNTIME-CONTEXT: Lokaler Webserver als einziger Laufzeitkontext

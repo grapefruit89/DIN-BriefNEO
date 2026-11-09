@@ -17,6 +17,9 @@ code_links:
 - 'tools/build_db.js'
 - 'tools/adr-check.js'
 - 'tools/check-feature.js'
+- 'tools/test-runner.mjs'
+- 'tools/build_plz_data.mjs'
+- 'tools/subset_fonts.py'
 depends_on: []
 supersedes: []
 ---
@@ -27,10 +30,14 @@ supersedes: []
 > `log_session.js` und MCP-Server entfallen. Diese Inventur
 > beschreibt den aktuellen Ist-Stand der deterministischen Werkzeuge.
 
-Strukturierte Uebersicht aller Skripte in `tools/`: Zweck, Ein-/Ausgabe,
-Abhaengigkeiten, Aufrufer, Risikoklasse. Risikoklassen (READ/WRITE/DESTRUCTIVE) und
-IDEMPOTENT/NON_IDEMPOTENT-Kennzeichnung folgen dem Vokabular aus dem
-Abschnitt [[#Tool Result Schema & Vokabular]].
+## Aktives Kern-Tooling
+
+| Säule / Bereich | Primärer Aufruf | Beteiligte Module & Rolle |
+|---|---|---|
+| **Gate & Governance** | `node tools/build_db.js -q` | Ruft `reconciliation.js` mit `structural-laws.js`, `terminology.js` und `structure-stand.js` auf. Berechnet den Fitness-Score und erzwingt Antipattern-Freiheit. |
+| **Test-Infrastruktur** | `node tools/test-runner.mjs` | Nutzt `static-server.mjs` und steuert Chromium via CDP (183 Unit-Tests). Gebündelt in `npm test` mit `node test/corpus/run.js` (80 Adress-Fälle). |
+| **Daten-Pipeline** | `node tools/build_plz_data.mjs` | Kompiliert Columnar-JSON-Daten nach `website/data/orte.json.gz` & `website/data/grosskunden.json.gz` (Data-as-Code). |
+| **Typografie-Asset-Pipeline** | `tools/subset_fonts.py` | DIN-5008 WOFF2 Subsetting via `fontTools` (Anhang H/F: tnum, Umlaute, ẞ, Brüche, Sonderzeichen). |
 
 ## repository.json (docs/10-architecture/)
 
@@ -44,29 +51,30 @@ wirft bei Abweichung. Damit kann die generierte Tabelle nicht lügen.
 
 ## reconciliation.js
 
-- **Zweck**: Fitness Gate. Prueft Metadata-Vollstaendigkeit (Schema V6),
-  Link-Koharenz, Konformitaet gegen Antipattern-Regeln (`tools/antipatterns/`)
-  und Feature-Checks. Liefert den Fitness Score.
+- **Zweck**: Fitness Gate. Prüft Metadata-Vollständigkeit (Schema V6),
+  Link-Kohärenz, Konformität gegen Antipattern-Regeln (`tools/antipatterns/`)
+  und Feature-Checks. Bindet `structural-laws.js`, `terminology.js` und `structure-stand.js` ein. Liefert den Fitness Score.
 - **Input**: `docs/**/*.md`, `website/**`, `tools/antipatterns/{base,web,project}.json`,
   `docs/30-meta/schema-v6.json`
 - **Output**: Score-Objekt `{score, dimensions: {metadata, coherence, conformance, features}, success, logs, relations, rules}`,
-  wird von `build_db.js` importiert (nicht nur ueber CLI aufgerufen)
-- **Abhaengigkeiten**: keine externen npm-Pakete, reines Node core (`fs`, `path`, `child_process`)
-- **Aufrufer**: `tools/build_db.js` (per `require('./reconciliation.js')`), `scripts/start.ps1` (Zeile 89, indirekt ueber build_db.js, ungecacht -- Fitness Gate laeuft immer)
+  wird von `build_db.js` importiert (nicht nur über CLI aufgerufen)
+- **Abhängigkeiten**: keine externen npm-Pakete, reines Node core (`fs`, `path`, `child_process`)
+- **Aufrufer**: `tools/build_db.js` (per `require('./reconciliation.js')`), `npm run check:fitness`, `npm run check:antipatterns`
 - **Risikoklasse**: READ (liest nur, schreibt nichts)
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand -> gleiches Ergebnis)
 - **Safe-to-delete**: NEIN — zentrales Gate, von AGENTS.md als verbindlich vorausgesetzt
 
 ## build_db.js
- 
-- **Zweck**: Ruft `reconciliation.js` auf, erzeugt daraus `import.sql`
-  (SQLite-Import-Statements fuer die Function Traceability Matrix) sowie
+
+- **Zweck**: Gate & Governance (`node tools/build_db.js -q`). Ruft `reconciliation.js`
+  mit `structural-laws.js`, `terminology.js` und `structure-stand.js` auf,
+  erzeugt daraus `import.sql` (SQLite-Import-Statements für die Function Traceability Matrix) sowie
   `Code-Referenzen.md` und `Function-Traceability.md` im externen Build-Verzeichnis (`~/.din-briefneo/build/`).
 - **Input**: Ergebnis von `runReconciliation()`, `docs/**/*.md` Frontmatter (`code_links`)
 - **Output**: `~/.din-briefneo/build/import.sql`, `~/.din-briefneo/build/Code-Referenzen.md`, `~/.din-briefneo/build/Function-Traceability.md`
-- **Abhaengigkeiten**: `tools/reconciliation.js` (intern), Node core
-- **Aufrufer**: `scripts/start.ps1` (Zeile 89, ungecacht -- Fitness Gate laeuft immer)
-- **Risikoklasse**: WRITE (erzeugt/ueberschreibt generierte Artefakte, keine Quelldateien)
+- **Abhängigkeiten**: `tools/reconciliation.js` (intern), Node core
+- **Aufrufer**: Gate in pre-commit und CI (`npm run check:fitness`, `node tools/build_db.js -q`)
+- **Risikoklasse**: WRITE (erzeugt/überschreibt generierte Artefakte, keine Quelldateien)
 - **Idempotenz**: IDEMPOTENT (deterministische Neuerzeugung aus demselben Repo-Stand)
 - **Safe-to-delete**: NEIN — Teil der Build-Pipeline
 
@@ -77,12 +85,10 @@ wirft bei Abweichung. Damit kann die generierte Tabelle nicht lügen.
 
 ## test-runner.mjs
 
-Headless-Runner für die Unit-Suite (`test/index.html`). Zero-Dependency
-(`node:http`, `node:child_process`, `node:fs`, `node:path`, `node:url`).
-
-- **Server:** eigener `node:http`-Server auf einem freien Port, Wurzel ist das
-  Repo; jede Antwort trägt `Cache-Control: no-store` — die frühere
-  `?v=panelsN`-Pflege in `test/index.html` entfällt.
+- **Zweck**: Test-Infrastruktur (`node tools/test-runner.mjs`). Headless-Runner für die Unit-Suite (`test/index.html`). Zero-Dependency
+  (`node:http`, `node:child_process`, `node:fs`, `node:path`, `node:url`).
+- **Server:** Nutzt `tools/static-server.mjs` bzw. eigenen `node:http`-Server auf einem freien Port, Wurzel ist das
+  Repo; jede Antwort trägt `Cache-Control: no-store`.
 - **Browser:** `CHROME_BIN` oder `/usr/bin/helium|chromium|google-chrome`.
   Start headless mit `--remote-debugging-port=0`; der Port kommt aus
   `DevToolsActivePort` im temporären Profil.
@@ -92,7 +98,7 @@ Headless-Runner für die Unit-Suite (`test/index.html`). Zero-Dependency
 - **CLI:** `--json`, `--filter=<regex>`, `--timeout=<ms>`,
   `--allow-missing-browser`.
 - **Exit-Codes:** `0` alles grün, `1` Fehlschlag/Timeout/Laufzeitfehler.
-- **Aufruf:** `node tools/test-runner.mjs` (kein npm-Skript nötig, das Repo
+- **Aufruf:** `npm test` (bündelt `tools/test-runner.mjs` und `test/corpus/run.js`) oder `node tools/test-runner.mjs`.
   bleibt ohne `package.json`).
 
 ## debug-session.mjs
@@ -137,6 +143,28 @@ Zero-Dependency, nutzt `tools/static-server.mjs` und `tools/browser.mjs`.
 - **Risikoklasse**: READ (reines Prüfwerkzeug, modifiziert keine Dateien).
 - **Idempotenz**: IDEMPOTENT (gleicher Repo-Zustand → gleiches Ergebnis).
 - **Safe-to-delete**: NEIN — präventiver Drift-Wächter zur Qualitätssicherung der ADR-Konsistenz.
+
+## build_plz_data.mjs
+
+- **Zweck**: Daten-Pipeline (`node tools/build_plz_data.mjs`). Generiert `website/data/orte.json.gz` und `website/data/grosskunden.json.gz` als kompaktes, verlustfreies Columnar-Format (Data-as-Code).
+- **Input**: Lokaler Rohdatenbestand oder GeoNames (`--download`).
+- **Output**: `website/data/orte.json.gz`, `website/data/de_districts.json.gz`, `website/data/grosskunden.json.gz`.
+- **Abhängigkeiten**: Node core (`node:fs`, `node:path`, `node:zlib`). Zero-Dependency.
+- **Aufrufer**: Manuell bei Datenaktualisierungen (`npm run build:data`).
+- **Risikoklasse**: WRITE (erzeugt/aktualisiert komprimierte Datensätze).
+- **Idempotenz**: IDEMPOTENT (deterministischer Rebuild).
+- **Safe-to-delete**: NEIN — autoritative Daten-Pipeline für PLZ- und Ortsdaten.
+
+## subset_fonts.py
+
+- **Zweck**: Typografie-Asset-Pipeline (`tools/subset_fonts.py`). DIN-5008 WOFF2 Subsetting via `fontTools`. Extrahiert den lückenlosen DIN-5008-Zeichensatz (Anhang H/F: Latein, Umlaute, ẞ, tnum, Maße, Brüche, Sonderzeichen) aus Rohschriftarten nach `website/fonts/`.
+- **Input**: `Fonts/*.ttf`, `Fonts/*.otf`.
+- **Output**: Hochgradig optimierte `.woff2`-Dateien in `website/fonts/`.
+- **Abhängigkeiten**: Python 3, `fontTools` / `brotli`.
+- **Aufrufer**: Manuell bei Schriftart-Aktualisierungen.
+- **Risikoklasse**: WRITE (erzeugt optimierte Webfonts).
+- **Idempotenz**: IDEMPOTENT.
+- **Safe-to-delete**: NEIN — Kern-Pipeline zur Erzeugung minimaler, DSGVO-konformer Offline-Webfonts.
 
 ## Tool Result Schema & Vokabular
 

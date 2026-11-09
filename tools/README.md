@@ -1,6 +1,6 @@
 # Werkzeuge & Automatisierung (tools/)
 
-## Geprüfte Werkzeuge (Batch 1 bis 4)
+## Geprüfte Werkzeuge (Batch 1 bis 5)
 - [01] adr-check.js — [GEPRÜFT: WARTUNG] Manuelles On-Demand-Audit-Tool für ADR-Bijektion
 - [02] agent_gateway.py — [GEPRÜFT: WARTUNG] Lokaler WebMCP-WebSocket-Server (Port 8333) für Browser-Kopplung
 - [03] bench_plz_formats.mjs — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Entscheidung in ADR-COLUMNAR-DATA fixiert)
@@ -23,18 +23,18 @@
 - [20] isolation.js — [GEPRÜFT: AKTIV] Kern-Wächter für Law A45/A38 (hermetische Isolation von website/)
 - [21] lawcoverage.js — [GEPRÜFT: AKTIV] Meta-Gate zur lückenlosen Abdeckung des Immutable Law Catalogs
 - [22] links.js — [GEPRÜFT: AKTIV] Integritätswächter für Wikilinks, Frontmatter-Links und @adr/@guide-Tags
+- [23] migrate_figuren_tuples.mjs — [GEPRÜFT: ARCHIVIERT] Nach Papierkorb/scripts/ verschoben (Einmal-Migration auf Tuple-Format v2.1 erledigt)
+- [24] query_chrome_feature.mjs — [GEPRÜFT: AKTIV] CLI für Chrome Platform Status API (npm run check:browser-feature)
+- [25] setup-din-home.ps1 — [GEPRÜFT: WARTUNG] Idempotentes Setup für ~/.din-briefneo unter Windows
+- [26] setup-din-home.sh — [GEPRÜFT: AKTIV] Idempotentes Setup für ~/.din-briefneo unter Linux und in CI
+- [27] start.bat — [GEPRÜFT: AKTIV] Lokaler Server-Starter für Windows (Port 8088 via dev_server.ps1)
+- [28] start.sh — [GEPRÜFT: AKTIV] Lokaler Server- und CDP-Starter für Linux (Port 8088 / 9222)
+- [29] static-server.mjs — [GEPRÜFT: AKTIV] Zero-Dependency No-Cache HTTP-Server für Test- und Debug-Läufe
+- [30] structural-laws.js — [GEPRÜFT: AKTIV] Strukturwächter für Gesetze A24, A42, A57, A58, A59
+- [31] structure-stand.js — [GEPRÜFT: AKTIV] Deterministischer SHA-256-Hasher für docs/STRUCTURE.md
 
 ## Ausstehende Prüfung (Nächste Batches)
-- [OFFEN] migrate_figuren_tuples.mjs
-- [OFFEN] query_chrome_feature.mjs
 - [OFFEN] reconciliation.js
-- [OFFEN] setup-din-home.ps1
-- [OFFEN] setup-din-home.sh
-- [OFFEN] start.bat
-- [OFFEN] start.sh
-- [OFFEN] static-server.mjs
-- [OFFEN] structural-laws.js
-- [OFFEN] structure-stand.js
 - [OFFEN] subset_fonts.py
 - [OFFEN] terminology.js
 - [OFFEN] testbrief-messung.mjs

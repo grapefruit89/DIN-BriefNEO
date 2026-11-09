@@ -42,9 +42,9 @@ def test_narrowing():
                     "city": ct
                 })
 
-    print(f"Found {len(candidates)} unique '{street}' locations across Germany:\n")
+    print(f"Found {len(candidates)} unique locations across Germany:\n")
     for c in candidates:
-        print(f"  - {c['street']} {c['housenumber']}, {c['postcode']} {c['city']}")
+        print(f"  - candidate location masked")
 
     print("\n--- SIMULATING USER TYPING PLZ PREFIX STEP-BY-STEP ---")
     for prefix in plz_steps:
@@ -54,12 +54,12 @@ def test_narrowing():
             m = matching[0]
             print(f"  >>> [EINDEUTIG / ZERO-CLICK AUTOFILL TRIGGERED!]")
             print(f"      Sofortige automatische Einsetzung ohne Klick oder Enter:")
-            print(f"      Straße: {m['street']} {m['housenumber']}")
-            print(f"      PLZ/Ort: {m['postcode']} {m['city']}")
+            print(f"      Straße: [MASKED]")
+            print(f"      PLZ/Ort: [MASKED]")
             break
         else:
             for m in matching[:4]:
-                print(f"      * {m['postcode']} {m['city']}")
+                print(f"      * [MASKED]")
 
 if __name__ == "__main__":
     test_narrowing()

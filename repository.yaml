@@ -91,7 +91,6 @@ structure:
       .github/workflows/deploy.yml: GitHub Pages Deployment
       .github/workflows/fitness.yml: Fitness Gate CI
       .github/workflows/update_plz_data.yml: Quartalsweises PLZ-Update
-      .github/workflows/codeql.yml: CodeQL Static Security Analysis
 
 taxonomy:
   # Erzwungen vom Fitness Gate (tools/reconciliation.js, check_type "taxonomy"):

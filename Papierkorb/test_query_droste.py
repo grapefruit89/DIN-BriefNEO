@@ -37,7 +37,7 @@ for idx, f in enumerate(features[:8], 1):
     postcode = props.get('postcode', '')
     city = props.get('city', props.get('town', props.get('village', '')))
     state = props.get('state', '')
-    print(f"  [{idx}] {street} {housenumber} | PLZ: {postcode} {city} ({state})")
+    print(f"  [{idx}] [MASKED]")
 
 print("\n=== 2. Photon Search: 'Droste-Hülshoff-Straße 9, 46359 Heiden' ===")
 features_heiden = query_photon("Droste-Hülshoff-Straße 9, 46359 Heiden")
@@ -48,10 +48,10 @@ for idx, f in enumerate(features_heiden, 1):
     housenumber = props.get('housenumber', '')
     postcode = props.get('postcode', '')
     city = props.get('city', props.get('town', props.get('village', '')))
-    print(f"  [{idx}] {street} {housenumber} | PLZ: {postcode} {city}")
+    print(f"  [{idx}] [MASKED]")
 
 print("\n=== 3. OpenPLZ Search for 'Droste-Hülshoff-Straße' in Heiden ===")
 streets_heiden = query_openplz_streets("Droste-Hülshoff-Straße", "Heiden")
 print(f"Total results: {len(streets_heiden)}")
 for s in streets_heiden:
-    print(f"  Name: {s.get('name')} | PLZ: {s.get('postalCode')} | Ort: {s.get('locality')}")
+    print(f"  Name: [MASKED] | PLZ: [MASKED] | Ort: [MASKED]")

@@ -48,6 +48,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
 | Antipattern-Regel, Gate | `tools/reconciliation.js`, `tools/antipatterns/project.json` | `node tools/reconciliation.js --only-rules` | beide |
+| contenteditable-Feld migrieren | `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
 
 ## 2. Module in einem Satz
 
@@ -102,7 +103,11 @@ Nie direkt aus dem DOM exportieren.
   Kein manuelles Kopieren nach `website/fonts/`.
 - **Antipattern-Ratsche:** `max_violations` in `tools/antipatterns/*.json` ist ein
   Budget. Baseline nur **senken**, nie anheben, um grün zu werden.
-- **Tests filtern:** `node tools/test-runner.mjs --filter=<regex>` (Suite: 189 Fälle).
+- **contenteditable-Migration:** Lies
+  `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` vor dem ersten Feld.
+  13 Fallstricke, die der Anlagen-Pilot aufgedeckt hat. Die Ratsche `P38` meldet
+  jedes einzeilige `contenteditable` als `warning` (kein Gate, nur Sichtbarkeit).
+- **Tests filtern:** `node tools/test-runner.mjs --filter=<regex>` (Suite: 222 Fälle).
 - **Die Briefansicht nicht ausblenden.** Das Pop-in-Fenster ist 8–20 ms; ein Gate
   würde ~160 ms Unsichtbarkeit und einen Fail-closed-Zustand erzeugen.
 - **`website/` ist hermetisch** (A45): kein Pfad darf aus dem Ordner herausführen.

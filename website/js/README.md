@@ -153,9 +153,9 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
 
 ### 3.3 UI-Controller & Layout (Layer 3 & 4)
 
-#### [`multipage-controller.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/multipage-controller.js) (150 Zeilen)
+#### [`multipage-controller.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/multipage-controller.js) (126 Zeilen)
 * **Zweck:** Verwaltung von Folgeseiten und normgerechten Folgeköpfen (DIN 5008 Form A/B).
-* **Exports:** `mountMultipage()`, `unmountMultipage()`.
+* **Exports:** `mountMultipage()` — einmaliger Mount, kein Teardown (ADR-EINSEITEN-STILLGELEGT).
 * **Details:**
   - Injiziert dynamische CSS-Regeln via einmalig instanziiertes `CSSStyleSheet` (`replaceSync`).
   - Arbeitet mit CSS Custom Properties (`--i`, `--seite`, `--luecke`) statt inline JS-Top-Styles.

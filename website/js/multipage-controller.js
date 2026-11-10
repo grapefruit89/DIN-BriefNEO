@@ -6,14 +6,15 @@
  * Mehrseiten-Controller (CSS Multi-column Level 2, Baseline Chromium 150+).
  *
  * Der Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]):
- * `main.js` mountet den Controller immer. `unmountMultipage()` bleibt als
- * sauberer Rueckweg erhalten (Observer, Listener und das dynamische
- * `@page`-Sheet werden dabei vollstaendig entfernt), wird aber nicht mehr
- * durch einen Schalter ausgeloest.
+ * `main.js` mountet den Controller genau einmal. Ein Rueckweg existiert nur
+ * noch ueber die Git-Historie — der frueher hier stehende `unmountMultipage()`
+ * hatte nach dem Stilllegen keinen erreichbaren Aufrufer mehr.
  */
 
-/** @type {{ stop: () => void } | null} */
-let aktiv = null;
+/* Einmal-Mount: der Controller lebt so lange wie die Seite. Es gibt kein
+ * Teardown mehr (ADR-EINSEITEN-STILLGELEGT) — daher genuegt ein Flag statt
+ * einer Sammlung von Abraeum-Funktionen, die niemand mehr aufrufen kann. */
+let gestartet = false;
 
 /**
  * @param {string} s
@@ -24,16 +25,13 @@ function esc(s) {
 }
 
 export function mountMultipage() {
-  if (aktiv) return;
+  if (gestartet) return;
 
   const kern = document.getElementById('kern');
   const probe = document.getElementById('probe');
   const status = document.getElementById('seiten-status');
   const folgekoepfe = document.getElementById('folgekoepfe');
   if (!kern || !probe || !status || !folgekoepfe) return;
-
-  /** @type {Array<() => void>} */
-  const abraeumen = [];
 
   /* Dynamische @page-Regel fuer den PDF-Kopf (A25: nur einmalig allokieren).
    * Kein inline <style>: unter CSP `style-src 'self'` bekommt ein per JS erzeugtes
@@ -112,39 +110,17 @@ export function mountMultipage() {
   // --- Listener (jeweils mit Abraeum-Funktion) ---
   const observer = new ResizeObserver(aktualisieren);
   observer.observe(kern);
-  abraeumen.push(() => observer.disconnect());
 
   window.addEventListener('beforeprint', aktualisieren);
-  abraeumen.push(() => window.removeEventListener('beforeprint', aktualisieren));
 
   for (const id of ['empfaenger-name', 'empfaenger-firma', 'datum', 'betreff', 'text']) {
     const el = document.getElementById(id);
     if (!el) continue;
     el.addEventListener('input', aktualisieren);
-    abraeumen.push(() => el.removeEventListener('input', aktualisieren));
   }
 
   // Initialer Aufruf synchron (A26: redundanter setTimeout entfernt)
   aktualisieren();
 
-  abraeumen.push(() => {
-    folgekoepfe.replaceChildren();
-    status.textContent = 'Seite 1 von 1';
-    delete document.body.dataset.seiten;
-    const vp = document.getElementById('viewport');
-    if (vp) delete vp.dataset.seiten;
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== pageSheet);
-  });
-
-  aktiv = {
-    stop: () => {
-      for (const fn of abraeumen) fn();
-    }
-  };
-}
-
-export function unmountMultipage() {
-  if (!aktiv) return;
-  aktiv.stop();
-  aktiv = null;
+  gestartet = true;
 }

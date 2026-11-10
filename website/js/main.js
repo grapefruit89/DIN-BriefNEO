@@ -116,14 +116,9 @@ function initApp() {
   bootStep('Einstellungen', () => settingsManager.init());
 
   bootStep('Plugins', () => {
-    const controller = () => import('./multipage-controller.js');
-    eventBus.subscribe(Events.PLUGIN_MULTIPAGE_TOGGLED, (payload) => {
-      controller()
-        .then((m) => (payload?.active ? m.mountMultipage() : m.unmountMultipage()))
-        .catch((err) => console.error('[Plugins] Mehrseiten-Umschaltung fehlgeschlagen:', err));
-    });
     // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
-    controller()
+    // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.
+    import('./multipage-controller.js')
       .then((m) => m.mountMultipage())
       .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
   });

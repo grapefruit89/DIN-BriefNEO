@@ -42,9 +42,6 @@ function transitionOn(target, fn) {
 export class SettingsManager {
   /** Erstes applyTheme ist der Initial-Apply — dort ist kein Crossfade sinnvoll. */
   #themeBooted = false;
-  /** Letzter publizierter Plugin-Zustand, damit nicht jeder Apply ein Event wirft. */
-  /** @type {boolean | null} */
-  #multipageGestartet = false;
 
   constructor() {
     /** @type {import('./persistence.js').DinSettings & { style?: string, previewFont?: string }} */
@@ -120,11 +117,6 @@ export class SettingsManager {
 
     document.documentElement.setAttribute('data-plugin-testbrief', String(testbrief));
     document.documentElement.setAttribute('data-plugin-multipage', 'true');
-
-    if (!this.#multipageGestartet) {
-      this.#multipageGestartet = true;
-      eventBus.publish(Events.PLUGIN_MULTIPAGE_TOGGLED, { active: true });
-    }
   }
 
   #spiegleLayoutFlags() {

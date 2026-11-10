@@ -65,8 +65,10 @@ Der Einzelseiten-Modus wird **stillgelegt**, nicht gelöscht:
 - Es gibt keinen Stylesheet-Tausch mehr; `sheet-multipage.css` ist fest
   verlinkt und render-blockierend.
 - `main.js` mountet den Mehrseiten-Controller immer.
-- `website/css/sheet.css` und `unmountMultipage()` bleiben unverändert
-  erhalten (Rückweg offen, keine Datei gelöscht).
+- `website/css/sheet.css` bleibt unverändert erhalten (keine Datei gelöscht).
+  Der Rückweg für den Modus führt ausschließlich über die Git-Historie:
+  `unmountMultipage()` wurde entfernt, weil es nach dem Stilllegen keinen
+  erreichbaren Aufrufer mehr hatte.
 
 ## Begründung
 

@@ -116,7 +116,7 @@
       "file": "js/multipage-controller.js",
       "adr": "ADR-JS",
       "guide": "din-5008-css-architektur",
-      "desc": "Mehrseiten-Modus (Plugin): mountMultipage/unmountMultipage"
+      "desc": "Mehrseiten-Modus (fest aktiv): mountMultipage"
     },
     {
       "file": "js/webapi.d.ts",

@@ -1086,25 +1086,36 @@ describe('W1 — Kommentare', () => {
   });
 });
 
-describe('Popover: geschlossener Undo-Hinweis blockiert keine Klickfläche', () => {
+describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
   it('belegt im geschlossenen Zustand keinen Layout-Kasten', () => {
-    const el = /** @type {HTMLElement} */ (document.getElementById('undo-hinweis'));
-    assert(el, 'Fixture #undo-hinweis vorhanden');
-    if (el.matches(':popover-open')) el.hidePopover();
-    const s = getComputedStyle(el);
-    assertEqual(s.display, 'none', 'display:none (UA-Regel greift)');
-    assertEqual(s.pointerEvents, 'none', 'keine Klickfläche');
+    const popovers = [...document.querySelectorAll('[popover]')];
+    assert(popovers.length >= 2, 'Popover-Fixtures vorhanden');
+    for (const el of popovers) {
+      const h = /** @type {HTMLElement} */ (el);
+      if (h.matches(':popover-open')) h.hidePopover();
+      const s = getComputedStyle(h);
+      const name = h.id || h.tagName;
+      assertEqual(s.display, 'none', `${name}: display:none (UA-Regel greift)`);
+      /* Für die Hinweis-Toasts zusätzlich pointer-events: none — sie lagen
+         unsichtbar über dem Brief und schluckten Textauswahl (2026-11-10). */
+      if (name === 'hinweis-v4' || name === 'undo-hinweis') {
+        assertEqual(s.pointerEvents, 'none', `${name}: keine Klickfläche`);
+      }
+    }
   });
 
   it('ist im geöffneten Zustand sichtbar und klickbar', () => {
-    const el = /** @type {HTMLElement} */ (document.getElementById('undo-hinweis'));
-    el.showPopover();
-    try {
-      const s = getComputedStyle(el);
-      assertEqual(s.display, 'flex', 'sichtbar als Flex-Kasten');
-      assertEqual(s.pointerEvents, 'auto', 'Klicks werden angenommen');
-    } finally {
-      el.hidePopover();
+    const popovers = [...document.querySelectorAll('[popover]')];
+    for (const el of popovers) {
+      const h = /** @type {HTMLElement} */ (el);
+      h.showPopover();
+      try {
+        const s = getComputedStyle(h);
+        assert(s.display !== 'none', `${h.id}: im geöffneten Zustand sichtbar`);
+        assertEqual(s.pointerEvents, 'auto', `${h.id}: Klicks werden angenommen`);
+      } finally {
+        h.hidePopover();
+      }
     }
   });
 });

@@ -845,6 +845,9 @@ input[type="checkbox"][switch] {
 }
 
 /* --- SCHWEBENDE UI: TOASTS, POPOVERS & DIALOGE (aus ehemals floating.css) --- */
+/* Der Toast hängt am selben Strick wie #undo-hinweis: kein `display` im
+   Grundzustand, sonst überschreibt es `[popover]:not(:popover-open)
+   { display: none }` und der unsichtbare Block fängt Klicks auf dem Brief ab. */
 #hinweis-v4 {
   position: fixed;
   top: 24px;
@@ -859,8 +862,7 @@ input[type="checkbox"][switch] {
   font-size: 0.875rem;
   font-weight: 600;
   box-shadow: var(--shadow-lg);
-  pointer-events: auto;
-  display: flex;
+  pointer-events: none;
   align-items: center;
   gap: 12px;
   opacity: 0;
@@ -874,6 +876,7 @@ input[type="checkbox"][switch] {
 
 #hinweis-v4:popover-open {
   display: flex;
+  pointer-events: auto;
   opacity: 1;
   transform: translateY(0);
 }

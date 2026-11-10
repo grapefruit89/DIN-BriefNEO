@@ -2577,3 +2577,26 @@ gelöscht (die pauschale Aufteilung bleibt verworfen).
 **Generalisierung.** Ein Schnitt lohnt nur, wenn beide Hälften einzeln
 testbar sind und die Importrichtung eindeutig bleibt. Drei Dateien, drei
 Richtungen, kein Zyklus — das ist die Prüffrage vor jedem weiteren Schnitt.
+
+## 2026-11-10 — Web-Plattform-Behauptungen geprüft: fünf verworfen
+
+Zwölf Behauptungen aus einer externen Diskussion wurden gegen Code, Chrome Platform Status,
+MDN-Compat-Daten, CSSWG-Drafts und eine Live-Messung in Chrome 156 geprüft. Ergebnis:
+sechs bestätigt, fünf verworfen, eine spekulativ.
+
+Verworfen: `text-fit` für den Betreff (normwidrig, wirkt nur bei Überlauf), `margin-trim`
+als Ersatz für String-Trimming (Margins ≠ Zeichen; im Zielkontext zusätzlich wirkungslos),
+Sanitizer API als Ersatz für den Klassenfilter (filtert Attribute, keine Klassenwerte),
+`focusgroup` als Ersatz der Pfeiltasten-Navigation (hinter Flag, anderes Interaktionsmodell)
+und die `<usermedia>`/`<camera>`/`<microphone>`-Elemente (nur „Proposed", keine Auslieferung).
+
+Bestätigt und ohne Handlungsbedarf: `commandfor` (Safari 26.2, Chrome 135), das
+6-Zeilen-Limit von `text-wrap: balance`, drei `beforeprint`- und zwei Dialog-Listener.
+
+Als offene Kandidaten notiert: Autosave für Fuss- und Teilbetreff-Schalter (kein
+`change`-Listener), Überschreiben der Rücksendezeile nach Undo (bewusste Entscheidung
+nötig) und das fehlende `data-erscheinungsbild` im Boot-Pfad (kosmetisch).
+
+**Beleg.** Ausführlicher Prüfbericht mit Quellen und Messwerten:
+`docs/90-archive/upstream-befund-2026-11-10.md`. Keine Code-Änderung,
+186/186 Tests, Fitness 100 %, Biome 0.

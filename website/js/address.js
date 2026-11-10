@@ -538,8 +538,14 @@ export function initSenderSync() {
 
   if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
 
+  /** @type {string|null} */
   let lastSyncedRucksendezeile = (absender.textContent || '').trim();
+  /** @type {string|null} */
   let lastSyncedUnterschrift = (unterschrift.textContent || '').trim();
+
+  /** @param {string} name @param {string} street @param {string} city */
+  const baueRueckzeile = (name, street, city) =>
+    [abbreviateName(name), street, city].filter((p) => p.length > 0).join(' • ');
 
   function sync() {
     if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
@@ -548,9 +554,8 @@ export function initSenderSync() {
     const city = (infoCity.textContent || '').trim();
 
     // 1. Sync to Rücksendezeile (absender) with abbreviated name
-    const shortName = abbreviateName(name);
-    const parts = [shortName, street, city].filter(p => p.length > 0);
-    const newRucksendezeile = parts.join(' • ');
+    // 1. Sync to Rücksendezeile (absender) with abbreviated name
+    const newRucksendezeile = baueRueckzeile(name, street, city);
     const currentAbsender = (absender.textContent || '').trim();
     if (!currentAbsender || currentAbsender === lastSyncedRucksendezeile) {
       absender.textContent = newRucksendezeile;
@@ -572,8 +577,17 @@ export function initSenderSync() {
   infoCity.addEventListener('input', sync);
 
   eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
-    lastSyncedRucksendezeile = (absender.textContent || '').trim();
-    lastSyncedUnterschrift = (unterschrift.textContent || '').trim();
+    /* Undo/Redo und Reset stellen einen fremden Stand wieder her. Nur wenn die
+     * Zeile exakt unserer erzeugten Form entspricht, darf sie beim naechsten
+     * Edit ueberschrieben werden. Alles andere ist Nutzertext und bleibt stehen
+     * (sonst ueberschreibt ein Namens-Edit die Handzeile nach jedem Undo). */
+    const name = (infoName.textContent || '').trim();
+    const street = (infoStreet.textContent || '').trim();
+    const city = (infoCity.textContent || '').trim();
+    const aktuell = (absender.textContent || '').trim();
+    lastSyncedRucksendezeile = aktuell === baueRueckzeile(name, street, city) ? aktuell : null;
+    const aktuelleUnterschrift = (unterschrift.textContent || '').trim();
+    lastSyncedUnterschrift = aktuelleUnterschrift === name ? name : null;
   });
 }
 

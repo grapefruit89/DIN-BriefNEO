@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, initSenderSync, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -218,6 +218,61 @@ describe('DraftManager: Stabilitäts-Audit & Quota-Fehlerbehandlung (B54)', () =
       // @ts-ignore
       document.ariaNotify = origAriaNotify;
       dm.destroy();
+    }
+  });
+
+  it('setzt im Regelbetrieb keine Live-Region (kein Screenreader-Spam bei jedem Autosave)', () => {
+    const el = document.createElement('span');
+    el.id = 'save-status';
+    document.body.append(el);
+    const dm = new DraftManager(createEventBus());
+    try {
+      seed();
+      setField('Spam-Test');
+      dm.saveDraft();
+      assertEqual(el.dataset.state, 'saved', 'Status steht auf saved');
+      assertEqual(el.getAttribute('role'), null, 'kein role im Regelbetrieb');
+      assertEqual(el.getAttribute('aria-live'), null, 'kein aria-live im Regelbetrieb');
+    } finally {
+      dm.destroy();
+      el.remove();
+    }
+  });
+});
+
+describe('initSenderSync: Nutzertext überlebt Undo/Restore', () => {
+  it('überschreibt eine von Hand geänderte Rücksendezeile nach DOCUMENT_CHANGED nicht', () => {
+    const ids = ['absender-name', 'absender-strasse', 'absender-ort', 'rucksendeangabe', 'unterschrift'];
+    const els = ids.map((id) => {
+      const el = document.createElement('div');
+      el.id = id;
+      el.setAttribute('contenteditable', 'plaintext-only');
+      document.body.append(el);
+      return el;
+    });
+    const [name, strasse, ort, rueck, unterschrift] = els;
+    /** @param {HTMLElement} el @param {string} text */
+    const tippe = (el, text) => {
+      el.textContent = text;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    try {
+      initSenderSync();
+      tippe(name, 'Max Mustermann');
+      tippe(strasse, 'Musterweg 1');
+      tippe(ort, '12345 Musterstadt');
+      assertEqual(rueck.textContent, 'M. Mustermann • Musterweg 1 • 12345 Musterstadt', 'Auto-Zeile entsteht');
+      assertEqual(unterschrift.textContent, 'Max Mustermann', 'Maschinenschrift übernimmt den Namen');
+
+      tippe(rueck, 'EIGENE ZEILE VON HAND');
+      // Undo/Redo und Reset publizieren genau dieses Event.
+      eventBus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
+      tippe(name, 'Moritz Baumeister');
+
+      assertEqual(rueck.textContent, 'EIGENE ZEILE VON HAND', 'Handzeile bleibt nach dem Namens-Edit stehen');
+      assertEqual(unterschrift.textContent, 'Moritz Baumeister', 'Maschinenschrift folgt weiterhin dem Namen');
+    } finally {
+      els.forEach((el) => el.remove());
     }
   });
 });

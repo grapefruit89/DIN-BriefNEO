@@ -438,8 +438,11 @@ export class DraftManager {
       el.setAttribute('role', 'alert');
       el.setAttribute('aria-live', 'assertive');
     } else {
-      el.setAttribute('role', 'status');
-      el.setAttribute('aria-live', 'polite');
+      /* Im Regelbetrieb keine Live-Region: sonst kuendigt jeder Autosave
+       * (~500 ms) "Speichern…" und "Gespeichert" an. Nur Fehler werden
+       * angekuendigt — der Status bleibt visuell unveraendert. */
+      el.removeAttribute('role');
+      el.removeAttribute('aria-live');
     }
 
     if (state === 'error') {

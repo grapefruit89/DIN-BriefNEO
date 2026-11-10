@@ -1143,6 +1143,43 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
   });
 });
 
+describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
+  const ERLAUBT = ['text', 'betreff', 'teilbetreff', 'vermerke'];
+
+  /* Dieselbe Semantik wie tools/reconciliation.js: Pattern trifft, Ausnahmen
+     (Datei + Zeilenmuster) heben auf. Geprueft wird die echte index.html. */
+  const pruefeHtml = async () => {
+    const [regelRes, htmlRes] = await Promise.all([
+      fetch('/tools/antipatterns/project.json'),
+      fetch('/website/index.html'),
+    ]);
+    const regel = (await regelRes.json()).rules.find((/** @type {any} */ r) => r.id === 'P38');
+    const zeilen = (await htmlRes.text()).split(/\r?\n/);
+    const trifft = (/** @type {string} */ zeile) => {
+      if (!new RegExp(regel.pattern).test(zeile)) return false;
+      return !(regel.exemptions || []).some(
+        (/** @type {any} */ ex) => ex.file === 'website/index.html' && new RegExp(ex.pattern).test(zeile),
+      );
+    };
+    return { regel, treffer: zeilen.filter(trifft) };
+  };
+
+  it('meldet ein offenes Feld (#empfaenger-name) als warning', async () => {
+    const { regel, treffer } = await pruefeHtml();
+    assert(regel, 'Regel P38 existiert');
+    assertEqual(regel.severity, 'warning', 'Severity ist warning (kein Gate)');
+    assert(treffer.some((z) => z.includes('id="empfaenger-name"')), '#empfaenger-name wird gemeldet');
+  });
+
+  it('laesst die vier erlaubten Felder in Ruhe', async () => {
+    const { treffer } = await pruefeHtml();
+    for (const id of ERLAUBT) {
+      assert(!treffer.some((z) => z.includes(`id="${id}"`)), `#${id} wird nicht gemeldet`);
+    }
+    assertEqual(treffer.length, 26, 'genau 26 offene Felder');
+  });
+});
+
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
   it('save und load speichern und lesen Plain Strings', () => {
     save('test_str_key', 'plain_value');

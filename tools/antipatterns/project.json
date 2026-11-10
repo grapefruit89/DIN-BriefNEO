@@ -622,6 +622,31 @@
       "max_violations": 0,
       "replacement": "Kein Bedarf: Kamera und Mikrofon sind nicht Teil des Briefeditors.",
       "exemptions": []
+    },
+    {
+      "id": "P38",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: contenteditable ist im Law Catalog nicht verboten; die Sonde macht den Migrationsstand sichtbar (ADR-CONTENTEDITABLE-MIGRATION). Bewusst norm-frei.",
+      "class": "preferred",
+      "severity": "warning",
+      "check": "regex",
+      "category": "html",
+      "description": "contenteditable auf einem einzeiligen Feld: Migration zu <input> steht aus (ADR-CONTENTEDITABLE-MIGRATION).",
+      "pattern": "contenteditable=\"(?:true|plaintext-only)\"",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "input[data-feldtyp]; nur #text, #betreff, #teilbetreff und #vermerke bleiben contenteditable",
+      "exemptions": [
+        {
+          "file": "website/index.html",
+          "pattern": "id=\"(?:text|betreff|teilbetreff|vermerke)\"[\\s>]"
+        },
+        {
+          "file": "website/index.html",
+          "pattern": "^\\s*<!--"
+        }
+      ]
     }
   ]
 }

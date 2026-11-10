@@ -105,6 +105,11 @@ activeLayers.forEach(layer => {
 
 const ANTIPATTERN_RULES = Array.from(ruleMap.values());
 
+/* Severities, die melden, aber nicht blockieren. Sie zaehlen auch nicht in den
+ * Fitness-Nenner: sonst faellt der Score unter 100 %, obwohl die Regel bewusst
+ * kein Gate ist (so sind W4/W5/W6 und P2 schon deklariert). */
+const NEUTRAL_SEVERITIES = new Set(['warning', 'info']);
+
 const CUSTOM_CHECKS = {
   'A38': (line, ext, relPath) => {
     if (ext === '.js') {
@@ -335,6 +340,7 @@ function evaluateAntipatterns(codeFiles) {
   const logs = [];
   let checked = 0;
   let passed = 0;
+  let neutral = 0;
 
   ruleHits.forEach(({ rule, hits }) => {
     checked++;
@@ -343,6 +349,9 @@ function evaluateAntipatterns(codeFiles) {
       passed++;
       return;
     }
+    /* Hinweis-Regeln werden gemeldet, aber weder als bestanden noch als
+     * durchgefallen gezaehlt (siehe NEUTRAL_SEVERITIES). */
+    if (NEUTRAL_SEVERITIES.has(rule.severity)) neutral++;
     const ersatz = rule.replacement ? ` Ersatz: ${rule.replacement}` : '';
     for (const hit of hits) {
       logs.push({
@@ -356,7 +365,7 @@ function evaluateAntipatterns(codeFiles) {
     }
   });
 
-  return { checked, passed, logs };
+  return { checked, passed, neutral, logs };
 }
 
 // Liest eine einfache YAML-Liste (Key auf eigener Zeile, darunter eingerueckte
@@ -905,7 +914,9 @@ function runReconciliation() {
   const codeFiles = scanCodeFiles(websiteDir);
 
   const antipatterns = evaluateAntipatterns(codeFiles);
-  conformanceChecked += antipatterns.checked;
+  /* Hinweis-Regeln zaehlen weder als bestanden noch als durchgefallen —
+   * sie blockieren nicht und duerfen den Score nicht druecken. */
+  conformanceChecked += antipatterns.checked - antipatterns.neutral;
   conformancePassed += antipatterns.passed;
   logs.push(...antipatterns.logs);
 
@@ -969,16 +980,21 @@ module.exports = {
 
 function checkAntipatternsOnly() {
   const codeFiles = scanCodeFiles(websiteDir);
-  const { checked, logs } = evaluateAntipatterns(codeFiles);
+  const { checked, neutral, logs } = evaluateAntipatterns(codeFiles);
 
-  if (logs.length > 0) {
-    for (const log of logs) {
-      console.error(`[${log.severity.toUpperCase()}] ${log.file_path}:${log.line} - ${log.message}`);
-    }
-    console.error(`\n❌ ${logs.length} Antipattern-Verletzung(en) gefunden.`);
+  for (const log of logs) {
+    const marker = NEUTRAL_SEVERITIES.has(log.severity) ? 'HINWEIS' : log.severity.toUpperCase();
+    console.error(`[${marker}] ${log.file_path}:${log.line} - ${log.message}`);
+  }
+
+  const blockierend = logs.filter(log => !NEUTRAL_SEVERITIES.has(log.severity));
+  if (blockierend.length > 0) {
+    console.error(`\n❌ ${blockierend.length} blockierende Antipattern-Verletzung(en) gefunden.`);
     process.exit(1);
   }
-  console.log(`✓ Alle ${checked} Antipattern-Regeln im Budget (0 Verstöße).`);
+
+  const hinweis = neutral > 0 ? `, ${neutral} Hinweis-Regel(n) ausserhalb des Budgets` : '';
+  console.log(`✓ ${checked} Antipattern-Regeln geprüft: 0 blockierende Verstöße${hinweis}.`);
   process.exit(0);
 }
 

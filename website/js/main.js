@@ -5,7 +5,7 @@
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
 import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Events, eventBus, hidePopoverSafe, initToastSystem, showPopoverSafe } from './core.js';
-import { collectDraft, UIProtections } from './document.js';
+import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
 import { FontFeature } from './font-feature.js';
 import { applyLetterDate, formatTelefonnummer } from './format.js';
@@ -278,6 +278,23 @@ function initApp() {
       schalter.addEventListener('change', () => {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
+    }
+
+    // Textformatierung (B, I, ❝): Range-API, kein nativer Editing-Befehl (A52). pointerdown
+    // + preventDefault haelt Fokus und Selection im #text, sonst wirkt der
+    // Umbau ins Leere und auf Touch kollabiert die Auswahl.
+    const btnBold = document.getElementById('btn-bold');
+    const btnItalic = document.getElementById('btn-italic');
+    const btnQuote = document.getElementById('btn-quote');
+    const textEl = document.getElementById('text');
+    if (btnBold && btnItalic && btnQuote && textEl) {
+      for (const btn of [btnBold, btnItalic, btnQuote]) {
+        btn.addEventListener('pointerdown', (e) => e.preventDefault());
+      }
+      btnBold.addEventListener('click', () => toggleInlineFormat(textEl, 'b'));
+      btnItalic.addEventListener('click', () => toggleInlineFormat(textEl, 'i'));
+      btnQuote.addEventListener('click', () => toggleBlockquote(textEl));
+      initFormatSync();
     }
   }
 

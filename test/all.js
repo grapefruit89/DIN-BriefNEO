@@ -8,7 +8,7 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { formatElementMicroTypography, UIProtections } from '../website/js/document.js';
+import { formatElementMicroTypography, sanitizeRichText, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
@@ -45,6 +45,18 @@ const setField = (text) => { mustField().textContent = text; };
 const fieldText = () => mustField().textContent || '';
 
 /**
+ * Erster Textknoten eines Elements; wirft, wenn Element oder Textknoten fehlen.
+ * @param {Element | null} el
+ * @returns {Node}
+ */
+const textNode = (el) => {
+  if (!el) throw new Error('Test-Fixture: Element fehlt');
+  const node = el.firstChild;
+  if (!node) throw new Error('Test-Fixture: kein Textknoten');
+  return node;
+};
+
+/**
  * Wartet bis zu einer Sekunde auf ein asynchrones Ergebnis (IndexedDB-Transaktionen).
  * @param {() => Promise<boolean>} probe
  * @returns {Promise<boolean>}
@@ -61,11 +73,12 @@ localStorage.clear();
 
 describe('DraftManager: Sanitizing (XSS-Schutz, echte Route localStorage → loadDraft)', () => {
   it('entfernt <script> und erlaubte/verbotene Tags korrekt', () => {
-    setDraft('<b>fett</b><script>alert(1)</script><em>kursiv</em><span class="brief-kommentar">Anmerkung</span>');
+    setDraft('<b>fett</b><script>alert(1)</script><span class="fremd">kursiv</span><span class="brief-kommentar">Anmerkung</span>');
     new DraftManager().loadDraft();
     const html = mustField().innerHTML;
     assert(!html.includes('script'), 'kein <script> im DOM');
-    assert(!html.includes('em>'), 'verbotenes <em> ist entfernt (nur Textinhalt bleibt)');
+    assert(!html.includes('class="fremd"'), 'Attribute fremder spans werden gestrippt');
+    assert(html.includes('kursiv'), 'Textinhalt des fremden span bleibt');
     assert(html.includes('<b>fett</b>'), 'erlaubtes <b> bleibt');
     assert(html.includes('brief-kommentar'), 'span.brief-kommentar bleibt erhalten');
     assert(html.includes('Anmerkung'), 'Textinhalte von verbotenen Tags bleiben');
@@ -89,6 +102,354 @@ describe('DraftManager: Sanitizing (XSS-Schutz, echte Route localStorage → loa
     }
     assert(!html.includes('<u>') && !html.includes('</u>'), 'u-Tag wird gestrippt');
     assert(html.includes('b'), 'Inhalt des u-Tags bleibt erhalten');
+  });
+});
+
+describe('sanitizeRichText — Kursiv', () => {
+  /** @param {DocumentFragment} frag */
+  const alsHtml = (frag) => {
+    const d = document.createElement('div');
+    d.appendChild(frag);
+    return d.innerHTML;
+  };
+
+  it('behält <i>', () => {
+    assert(alsHtml(sanitizeRichText('<i>Kursiv</i>')).includes('<i>'), 'i bleibt erhalten');
+  });
+
+  it('behält <em>', () => {
+    assert(alsHtml(sanitizeRichText('<em>Betonung</em>')).includes('<em>'), 'em bleibt erhalten');
+  });
+
+  it('behält <b> und <i> gemeinsam', () => {
+    const html = alsHtml(sanitizeRichText('<b>Fett</b><i>Kursiv</i>'));
+    assert(html.includes('<b>'), 'b bleibt erhalten');
+    assert(html.includes('<i>'), 'i bleibt erhalten');
+  });
+
+  it('Regression: <script> wird entfernt', () => {
+    const html = alsHtml(sanitizeRichText('<script>x</script>'));
+    assert(!html.includes('<script>'), 'script-Tag wird gestrippt');
+  });
+});
+
+describe('toggleInlineFormat — Bold', () => {
+  /** @param {HTMLElement} el @param {number} start @param {number} ende */
+  const auswahl = (el, start, ende) => {
+    el.focus();
+    const node = textNode(el);
+    const range = document.createRange();
+    range.setStart(node, start);
+    range.setEnd(node, ende);
+    const sel = /** @type {Selection} */ (getSelection());
+    sel.removeAllRanges();
+    sel.addRange(range);
+  };
+  /** @param {HTMLElement} el */
+  /** @param {HTMLElement} el @param {Node} [container] */
+  const kollabiere = (el, container = textNode(el)) => {
+    el.focus();
+    const range = document.createRange();
+    range.setStart(container, 2);
+    range.collapse(true);
+    const sel = /** @type {Selection} */ (getSelection());
+    sel.removeAllRanges();
+    sel.addRange(range);
+  };
+  const bauen = () => {
+    const el = document.createElement('div');
+    el.id = 'text';
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('data-feldtyp', 'rich mehrzeilig');
+    document.body.append(el);
+    return el;
+  };
+
+  it('wickelt die Auswahl in <b>', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = 'Hallo Welt';
+      auswahl(el, 6, 10);
+      toggleInlineFormat(el, 'b');
+      assert(el.innerHTML.includes('<b>'), `b entsteht: ${el.innerHTML}`);
+    } finally {
+      el.remove();
+    }
+  });
+
+  it('entpackt eine Auswahl in <b> wieder', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = 'Hallo Welt';
+      auswahl(el, 6, 10);
+      toggleInlineFormat(el, 'b');
+      toggleInlineFormat(el, 'b');
+      assert(!el.innerHTML.includes('<b>'), `b ist entpackt: ${el.innerHTML}`);
+      assert(el.textContent.includes('Hallo Welt'), 'Text bleibt erhalten');
+    } finally {
+      el.remove();
+    }
+  });
+
+  it('entpackt auch <strong>', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = 'Hallo <strong>Welt</strong>';
+      const node = textNode(el.querySelector('strong'));
+      el.focus();
+      const range = document.createRange();
+      range.setStart(node, 0);
+      range.setEnd(node, 4);
+      const sel = /** @type {Selection} */ (getSelection());
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      toggleInlineFormat(el, 'b');
+      assert(!el.innerHTML.includes('<strong>'), `strong ist entpackt: ${el.innerHTML}`);
+    } finally {
+      el.remove();
+    }
+  });
+
+  it('tut bei kollabiertem Cursor nichts', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = '<b>Welt</b>';
+      kollabiere(el, textNode(el.querySelector('b')));
+      const vorher = el.innerHTML;
+      toggleInlineFormat(el, 'b');
+      assertEqual(el.innerHTML, vorher, 'kollabierter Cursor entpackt nicht');
+    } finally {
+      el.remove();
+    }
+  });
+});
+
+describe('toggleInlineFormat — Italic', () => {
+  const bauen = () => {
+    const el = document.createElement('div');
+    el.id = 'text';
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('data-feldtyp', 'rich mehrzeilig');
+    document.body.append(el);
+    return el;
+  };
+  /** @param {HTMLElement} el @param {number} start @param {number} ende */
+  const auswahl = (el, start, ende) => {
+    el.focus();
+    const range = document.createRange();
+    range.setStart(textNode(el), start);
+    range.setEnd(textNode(el), ende);
+    const sel = /** @type {Selection} */ (getSelection());
+    sel.removeAllRanges();
+    sel.addRange(range);
+  };
+
+  it('wickelt die Auswahl in <i>', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = 'Hallo Welt';
+      auswahl(el, 6, 10);
+      toggleInlineFormat(el, 'i');
+      assert(el.innerHTML.includes('<i>'), `i entsteht: ${el.innerHTML}`);
+    } finally {
+      el.remove();
+    }
+  });
+
+  it('entpackt eine Auswahl in <i> wieder', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = 'Hallo Welt';
+      auswahl(el, 6, 10);
+      toggleInlineFormat(el, 'i');
+      toggleInlineFormat(el, 'i');
+      assert(!el.innerHTML.includes('<i>'), `i ist entpackt: ${el.innerHTML}`);
+    } finally {
+      el.remove();
+    }
+  });
+
+  it('entpackt auch <em>', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = 'Hallo <em>Welt</em>';
+      const node = textNode(el.querySelector('em'));
+      el.focus();
+      const range = document.createRange();
+      range.setStart(node, 0);
+      range.setEnd(node, 4);
+      const sel = /** @type {Selection} */ (getSelection());
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      toggleInlineFormat(el, 'i');
+      assert(!el.innerHTML.includes('<em>'), `em ist entpackt: ${el.innerHTML}`);
+    } finally {
+      el.remove();
+    }
+  });
+
+  it('tut bei kollabiertem Cursor nichts', () => {
+    const el = bauen();
+    try {
+      el.innerHTML = '<i>Welt</i>';
+      el.focus();
+      const range = document.createRange();
+      range.setStart(textNode(el.querySelector('i')), 2);
+      range.collapse(true);
+      const sel = /** @type {Selection} */ (getSelection());
+      sel.removeAllRanges();
+      sel.addRange(range);
+      const vorher = el.innerHTML;
+      toggleInlineFormat(el, 'i');
+      assertEqual(el.innerHTML, vorher, 'kollabierter Cursor entpackt nicht');
+    } finally {
+      el.remove();
+    }
+  });
+});
+
+describe('toggleInlineFormat — Edge-Cases', () => {
+  it('wickelt eine Auswahl über mehrere Knoten ohne Fehler', () => {
+    const el = document.createElement('div');
+    el.id = 'text';
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('data-feldtyp', 'rich mehrzeilig');
+    document.body.append(el);
+    try {
+      el.innerHTML = 'Hallo <b>Welt</b>';
+      el.focus();
+      const range = document.createRange();
+      range.setStart(textNode(el), 2);
+      range.setEnd(textNode(el.querySelector('b')), 2);
+      const sel = /** @type {Selection} */ (getSelection());
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      toggleInlineFormat(el, 'b');
+      assert(el.innerHTML.includes('<b>'), `b bleibt/entsteht: ${el.innerHTML}`);
+      assert(el.textContent.replace(/\s+/g, ' ').trim() === 'Hallo Welt', 'Text bleibt erhalten');
+    } finally {
+      el.remove();
+    }
+  });
+});
+
+describe('#restoreState — Kursiv', () => {
+  it('stellt <i> aus dem Entwurf wieder her', () => {
+    const el = document.createElement('div');
+    el.id = 'text';
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('data-feldtyp', 'rich mehrzeilig');
+    document.body.append(el);
+
+    const dm = new DraftManager(createEventBus());
+    try {
+      dm.restoreDraft({ text: '<i>Kursiv</i>' });
+      assert(el.innerHTML.includes('<i>'), 'i überlebt den Restore');
+    } finally {
+      dm.destroy();
+      el.remove();
+    }
+  });
+});
+
+describe('Textformatierung — Toolbar', () => {
+  const bauen = () => {
+    const el = document.createElement('div');
+    el.id = 'text';
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('data-feldtyp', 'rich mehrzeilig');
+
+    const wrap = document.createElement('div');
+    for (const [id, label] of [['btn-bold', 'B'], ['btn-italic', 'I'], ['btn-quote', '❝']]) {
+      const b = document.createElement('button');
+      b.id = id;
+      b.type = 'button';
+      b.textContent = label;
+      b.setAttribute('aria-pressed', 'false');
+      wrap.appendChild(b);
+    }
+    document.body.append(el, wrap);
+    return { el, wrap };
+  };
+
+  /** @param {HTMLElement} el @param {number} start @param {number} ende */
+  const auswahl = (el, start, ende) => {
+    el.focus();
+    const range = document.createRange();
+    range.setStart(textNode(el), start);
+    range.setEnd(textNode(el), ende);
+    const sel = /** @type {Selection} */ (getSelection());
+    sel.removeAllRanges();
+    sel.addRange(range);
+  };
+
+  /** @param {{el: HTMLElement, wrap: HTMLElement}} t */
+  const aufraeumen = (t) => {
+    t.el.remove();
+    t.wrap.remove();
+    /** @type {Selection} */ (getSelection()).removeAllRanges();
+  };
+
+  it('toggleInlineFormat setzt <b> auf die Auswahl', () => {
+    const t = bauen();
+    try {
+      t.el.innerHTML = 'Hallo Welt';
+      auswahl(t.el, 6, 10);
+      toggleInlineFormat(t.el, 'b');
+      assert(t.el.innerHTML.includes('<b>'), `b entsteht: ${t.el.innerHTML}`);
+    } finally {
+      aufraeumen(t);
+    }
+  });
+
+  it('Regression: toggleBlockquote setzt weiterhin ein Zitat', () => {
+    const t = bauen();
+    try {
+      t.el.innerHTML = 'Hallo Welt';
+      auswahl(t.el, 0, 10);
+      toggleBlockquote(t.el);
+      assert(t.el.innerHTML.includes('<blockquote>'), `blockquote entsteht: ${t.el.innerHTML}`);
+    } finally {
+      aufraeumen(t);
+    }
+  });
+
+  it('syncFormatState setzt aria-pressed am Fett-Button', () => {
+    const t = bauen();
+    try {
+      t.el.innerHTML = 'Hallo <b>Welt</b>';
+      t.el.focus();
+      const b = t.el.querySelector('b');
+      const range = document.createRange();
+      range.setStart(textNode(b), 2);
+      range.collapse(true);
+      const sel = /** @type {Selection} */ (getSelection());
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      syncFormatState();
+      const btn = /** @type {HTMLElement} */ (document.getElementById('btn-bold'));
+      assertEqual(btn.getAttribute('aria-pressed'), 'true', 'Fett-Button ist gedrückt');
+    } finally {
+      aufraeumen(t);
+    }
+  });
+
+  it('Regression: Ctrl+B wird von der Tastenlogik nicht blockiert', () => {
+    const t = bauen();
+    const uip = new UIProtections();
+    uip.init();
+    try {
+      t.el.focus();
+      const ev = new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, bubbles: true, cancelable: true });
+      t.el.dispatchEvent(ev);
+      assertEqual(ev.defaultPrevented, false, 'Ctrl+B bleibt der nativen Engine überlassen');
+    } finally {
+      aufraeumen(t);
+    }
   });
 });
 
@@ -190,6 +551,12 @@ describe('DraftManager: Stabilitäts-Audit & Quota-Fehlerbehandlung (B54)', () =
 
     const dm = new DraftManager(bus);
 
+    /* Fixture: #setSaveStatus schreibt in dieses Element. Ohne es liefen die
+     * Zusicherungen unten ins Leere — genau das war der tote Guard. */
+    const statusEl = document.createElement('span');
+    statusEl.id = 'save-status';
+    document.body.append(statusEl);
+
     try {
       // 1. Simuliere QuotaExceededError
       localStorage.setItem = () => {
@@ -207,17 +574,15 @@ describe('DraftManager: Stabilitäts-Audit & Quota-Fehlerbehandlung (B54)', () =
       assertEqual(dm.saveState, 'error', 'saveState wechselt deterministisch auf error');
       assert(failedEventReceived, 'DOCUMENT_SAVE_FAILED Event wurde über den EventBus publiziert');
 
-      const statusEl = document.getElementById('save-status');
-      if (statusEl) {
-        assertEqual(statusEl.dataset.state, 'error', 'save-status Element hat data-state="error"');
-        assertEqual(statusEl.getAttribute('role'), 'alert', 'Fallback role="alert" gesetzt');
-        assertEqual(statusEl.getAttribute('aria-live'), 'assertive', 'aria-live="assertive" gesetzt');
-      }
+      assertEqual(statusEl.dataset.state, 'error', 'save-status Element hat data-state="error"');
+      assertEqual(statusEl.getAttribute('role'), 'alert', 'Fallback role="alert" gesetzt');
+      assertEqual(statusEl.getAttribute('aria-live'), 'assertive', 'aria-live="assertive" gesetzt');
     } finally {
       localStorage.setItem = origSetItem;
       // @ts-ignore
       document.ariaNotify = origAriaNotify;
       dm.destroy();
+      statusEl.remove();
     }
   });
 

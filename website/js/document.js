@@ -34,7 +34,7 @@ import { applyMicroTypography } from './format.js';
  * @returns {DocumentFragment}
  */
 export function sanitizeRichText(htmlString, options = {}) {
-  const allowedTags = ['B', 'STRONG', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', ...(options.extraTags || [])];
+  const allowedTags = ['B', 'STRONG', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', 'I', 'EM', ...(options.extraTags || [])];
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString || '', 'text/html');
 
@@ -198,6 +198,149 @@ const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'unterschrift': 45
 }));
 
+/**
+ * Rich-Text-Light: Schaltet Zitat (<blockquote>) im Text per W3C Range API um.
+ * Öffentlich, weil die Sidebar-Toolbar denselben Weg nutzt wie Ctrl+Q —
+ * die native formatBlock-Variante ist per A52 gesperrt und erzeugt zudem <p>.
+ * @param {HTMLElement} textEl
+ */
+export function toggleBlockquote(textEl) {
+  const selection = window.getSelection();
+  if (!selection?.anchorNode || !textEl.contains(selection.anchorNode)) return;
+
+  const elem = selection.anchorNode instanceof Element ? selection.anchorNode : selection.anchorNode.parentElement;
+  const bq = elem ? elem.closest('blockquote') : null;
+
+  if (bq && textEl.contains(bq)) {
+    const parent = bq.parentNode;
+    if (parent) {
+      const fragment = document.createDocumentFragment();
+      while (bq.firstChild) {
+        fragment.appendChild(bq.firstChild);
+      }
+      parent.replaceChild(fragment, bq);
+    }
+  } else {
+    if (selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    const newBq = document.createElement('blockquote');
+
+    if (!selection.isCollapsed) {
+      try {
+        newBq.appendChild(range.extractContents());
+        range.insertNode(newBq);
+        selection.selectAllChildren(newBq);
+      } catch (err) {
+        console.warn('[RichTextLight] Blockquote wrap failed:', err);
+      }
+    } else {
+      const br = document.createElement('br');
+      newBq.appendChild(br);
+      range.insertNode(newBq);
+      const newRange = document.createRange();
+      newRange.setStart(newBq, 0);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
+  }
+
+  textEl.normalize();
+  textEl.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/**
+ * Findet das nächste Vorfahren-Element mit dem gesuchten Tag.
+ * @param {Node | null} node
+ * @param {'b' | 'i'} tagName
+ * @param {HTMLElement} boundary
+ * @returns {Element | null}
+ */
+function findAncestor(node, tagName, boundary) {
+  const aliases = tagName === 'b' ? ['B', 'STRONG'] : ['I', 'EM'];
+  let el = node instanceof Element ? node : node?.parentElement;
+  while (el && el !== boundary) {
+    if (aliases.includes(el.tagName)) return el;
+    el = el.parentElement;
+  }
+  return null;
+}
+
+/**
+ * Wickelt die aktuelle Selektion in <tagName> oder entpackt sie wieder.
+ * Range-API, A52-konform: kein nativer Editing-Befehl, keine Zustandsabfrage.
+ * @param {HTMLElement} textEl
+ * @param {'b' | 'i'} tagName
+ */
+export function toggleInlineFormat(textEl, tagName) {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return;
+  if (!sel.anchorNode || !textEl.contains(sel.anchorNode)) return;
+
+  /* Kollabierter Cursor: nichts tun. Der Test auf einen Vorfahren muesste sonst
+   * das ganze <b>/<i> entpacken, in dem der Cursor steht — und "Fett-Modus fuer
+   * das naechste Zeichen" ist bewusst nicht gebaut. */
+  if (sel.isCollapsed) return;
+
+  const existing = findAncestor(sel.anchorNode, tagName, textEl);
+
+  if (existing) {
+    const parent = existing.parentNode;
+    if (!parent) return;
+    while (existing.firstChild) parent.insertBefore(existing.firstChild, existing);
+    parent.removeChild(existing);
+    parent.normalize();
+  } else {
+    const range = sel.getRangeAt(0);
+    const wrapper = document.createElement(tagName);
+    try {
+      range.surroundContents(wrapper);
+    } catch {
+      /* Range ueberspannt mehrere Knoten oder ragt in ein Nachbarelement:
+       * dann extrahieren und einsetzen statt umschliessen. */
+      wrapper.appendChild(range.extractContents());
+      range.insertNode(wrapper);
+    }
+    sel.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(wrapper);
+    sel.addRange(newRange);
+  }
+
+  textEl.normalize();
+  textEl.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/** Spiegelt den Formatierungszustand an die drei Sidebar-Buttons. */
+export function syncFormatState() {
+  const textEl = document.getElementById('text');
+  if (!textEl) return;
+  if (document.activeElement !== textEl) return;
+  const bold = document.getElementById('btn-bold');
+  const italic = document.getElementById('btn-italic');
+  const quote = document.getElementById('btn-quote');
+  if (!bold || !italic || !quote) return;
+
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return;
+  const node = sel.anchorNode;
+  if (!node || !textEl.contains(node)) return;
+
+  /* Keine Zustandsabfrage (A52): der Zustand wird am DOM abgelesen. */
+  const el = node instanceof Element ? node : node.parentElement;
+  bold.setAttribute('aria-pressed', String(Boolean(el?.closest('b, strong'))));
+  italic.setAttribute('aria-pressed', String(Boolean(el?.closest('i, em'))));
+  quote.setAttribute('aria-pressed', String(Boolean(el?.closest('blockquote'))));
+}
+
+/** Verdrahtet Fokus- und Selection-Sync. Aufruf aus main.js. */
+export function initFormatSync() {
+  const textEl = document.getElementById('text');
+  if (!textEl) return;
+  textEl.addEventListener('focus', syncFormatState);
+  document.addEventListener('selectionchange', syncFormatState);
+}
+
 export class UIProtections {
   constructor() {
     /** @type {HTMLElement | null} */
@@ -253,7 +396,7 @@ export class UIProtections {
     // Rich-Text-Light: Blockquote-Shortcut (Ctrl+Q / Cmd+Q) für Text
     if (target.id === 'text' && (keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
       keyboardEvent.preventDefault();
-      this.#toggleBlockquote(target);
+      toggleBlockquote(target);
       return;
     }
 
@@ -491,55 +634,6 @@ export class UIProtections {
         selection.addRange(range);
       }
     }
-  }
-
-  /**
-   * Rich-Text-Light: Schaltet Zitat (<blockquote>) im Text per W3C Range API um.
-   * @param {HTMLElement} textEl
-   */
-  #toggleBlockquote(textEl) {
-    const selection = window.getSelection();
-    if (!selection?.anchorNode || !textEl.contains(selection.anchorNode)) return;
-
-    const elem = selection.anchorNode instanceof Element ? selection.anchorNode : selection.anchorNode.parentElement;
-    const bq = elem ? elem.closest('blockquote') : null;
-
-    if (bq && textEl.contains(bq)) {
-      const parent = bq.parentNode;
-      if (parent) {
-        const fragment = document.createDocumentFragment();
-        while (bq.firstChild) {
-          fragment.appendChild(bq.firstChild);
-        }
-        parent.replaceChild(fragment, bq);
-      }
-    } else {
-      if (selection.rangeCount === 0) return;
-      const range = selection.getRangeAt(0);
-      const newBq = document.createElement('blockquote');
-
-      if (!selection.isCollapsed) {
-        try {
-          newBq.appendChild(range.extractContents());
-          range.insertNode(newBq);
-          selection.selectAllChildren(newBq);
-        } catch (err) {
-          console.warn('[RichTextLight] Blockquote wrap failed:', err);
-        }
-      } else {
-        const br = document.createElement('br');
-        newBq.appendChild(br);
-        range.insertNode(newBq);
-        const newRange = document.createRange();
-        newRange.setStart(newBq, 0);
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-      }
-    }
-
-    textEl.normalize();
-    textEl.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   /**

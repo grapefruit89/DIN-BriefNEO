@@ -551,6 +551,27 @@ export function parseDinLetterPayload(input) {
     }
   }
 
+  /* Kanonische Reihenfolge prüfen (P4, 2026-11-10): Ohne diese Prüfung würde
+   * eine Datei mit vertauschten Feldnamen importiert und die Werte still
+   * falsch zugeordnet. Die Form-Prüfung oben bleibt zuerst, damit ein kaputter
+   * Feldname die spezifischere Meldung bekommt. */
+  if (schema.length !== DOCUMENT_SCHEMA_V4.length) {
+    return {
+      ok: false,
+      reason: `_meta.schema hat ${schema.length} Felder, erwartet ${DOCUMENT_SCHEMA_V4.length}.`,
+      error: `_meta.schema hat ${schema.length} Felder, erwartet ${DOCUMENT_SCHEMA_V4.length}.`
+    };
+  }
+  for (let i = 0; i < DOCUMENT_SCHEMA_V4.length; i++) {
+    if (schema[i] !== DOCUMENT_SCHEMA_V4[i]) {
+      return {
+        ok: false,
+        reason: `_meta.schema[${i}] ist '${schema[i]}', erwartet '${DOCUMENT_SCHEMA_V4[i]}'.`,
+        error: `_meta.schema[${i}] ist '${schema[i]}', erwartet '${DOCUMENT_SCHEMA_V4[i]}'.`
+      };
+    }
+  }
+
   /** @type {Partial<DinLetterLayout>} */
   const layout = Object.create(null);
   if (data.layout !== undefined) {

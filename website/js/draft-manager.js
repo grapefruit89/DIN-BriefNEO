@@ -154,6 +154,12 @@ export class DraftManager {
   }
 
   saveDraft() {
+    /* Ein expliziter Save macht einen geplanten Debounce-Save gegenstandslos:
+     * sonst schreibt der Timer kurz danach denselben Stand ein zweites Mal. */
+    if (this.debounceTimer !== null) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
     const draft = collectDraft();
     let draftStr = '';
     try {
@@ -404,10 +410,19 @@ export class DraftManager {
       pvSelect.selectedIndex = 0;
     }
     AddressIntelligence.targetLock = null;
-    this.saveDraft();
-    if (this.bus && typeof this.bus.publish === 'function') {
-      this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
+    /* Erst publizieren, dann speichern: Listener (Anrede- und Gruss-Seed)
+     * schreiben ihren Folgezustand ins DOM, danach wird der fertige Stand in
+     * EINEM Zug gesichert. Vorher entstanden zwei Schreibvorgaenge: leer, dann
+     * geseedet. Der Publish steht im try/catch, damit ein fehlerhafter Listener
+     * das Zuruecksetzen nicht unspeicherbar macht. */
+    try {
+      if (this.bus && typeof this.bus.publish === 'function') {
+        this.bus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
+      }
+    } catch (err) {
+      console.warn('[DraftManager] DOCUMENT_CHANGED nach Reset fehlgeschlagen:', err);
     }
+    this.saveDraft();
   }
 
   scheduleAutoSave() {

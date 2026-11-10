@@ -211,16 +211,13 @@ export class SalutationFeature {
       el.addEventListener('blur', () => this.#hint(kind, el));
     }
 
-    // Nach "Brief zurücksetzen" (main.js leert vorher die Felder) wieder befüllen.
-    const resetDialog = /** @type {HTMLDialogElement | null} */ (document.getElementById('reset-dialog'));
-    resetDialog?.addEventListener('close', () => {
-      const confirmed = resetDialog.returnValue === 'confirm';
-      queueMicrotask(() => { resetDialog.returnValue = ''; });
-      if (confirmed) this.refresh();
-    });
-
+    /* Reset und Undo/Redo melden sich als DOCUMENT_CHANGED. Ein eigener
+     * Dialog-Listener waere ein zweiter Pfad fuer denselben Zustand (und ein
+     * zweiter Speicherimpuls). Deshalb haengt hier beides: erst vorhandenen
+     * Auto-Text als solchen markieren, dann leere Felder fuellen. */
     this.#unsubDocChanged = eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
       this.#seedAuto();
+      this.refresh();
     });
 
     this.refresh();

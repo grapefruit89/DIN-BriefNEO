@@ -162,9 +162,10 @@ export class SettingsManager {
       }
 
       if (this.btnThemeToggle) {
-        /* Sichtbares Label rendert CSS (floating.css, data-erscheinungsbild-Selektoren). */
+        /* Die Icon-Auswahl haengt an :root[data-theme] — boot.js setzt das
+         * Attribut blockierend vor dem ersten Paint. Hier nur noch Titel und
+         * Label, die ein aria-Live-freier Zustand nicht vorwegnehmen kann. */
         const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
-        this.btnThemeToggle.setAttribute('data-erscheinungsbild', active);
         this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
         this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
       }

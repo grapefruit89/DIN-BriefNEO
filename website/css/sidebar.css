@@ -554,20 +554,22 @@ input[type="checkbox"][switch] {
   }
 }
 
-/* Theme-Icons Umschaltung */
+/* Theme-Icons Umschaltung. Quelle ist :root[data-theme], das boot.js noch im
+   <head> setzt — die Schaltflaeche existiert zu diesem Zeitpunkt noch nicht,
+   ihr Attribut waere erst nach dem Modulstart korrekt (sichtbarer Icon-Swap). */
 .theme-icon {
   display: none;
 }
 
-#btn-theme-toggle[data-erscheinungsbild="auto"] .theme-icon-auto {
+:root[data-theme="auto"] #btn-theme-toggle .theme-icon-auto {
   display: block;
 }
 
-#btn-theme-toggle[data-erscheinungsbild="light"] .theme-icon-light {
+:root[data-theme="light"] #btn-theme-toggle .theme-icon-light {
   display: block;
 }
 
-#btn-theme-toggle[data-erscheinungsbild="dark"] .theme-icon-dark {
+:root[data-theme="dark"] #btn-theme-toggle .theme-icon-dark {
   display: block;
 }
 

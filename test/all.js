@@ -1615,6 +1615,41 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
 
     feature.destroy();
   });
+
+  it('füllt leere Anrede und Grußformel nach DOCUMENT_CHANGED (Reset-Pfad)', () => {
+    /** @param {string} id */
+    const hole = (id) => {
+      let el = /** @type {HTMLElement | null} */ (document.getElementById(id));
+      if (!el) {
+        el = document.createElement('div');
+        el.id = id;
+        document.body.append(el);
+      }
+      return el;
+    };
+    const nameEl = hole('empfaenger-name');
+    const anredeEl = hole('anrede');
+    const grussEl = hole('grussformel');
+
+    nameEl.textContent = 'Herr Dr. Müller';
+    anredeEl.textContent = '';
+    grussEl.textContent = '';
+    for (const el of [anredeEl, grussEl]) {
+      delete el.dataset.dirty;
+      delete el.dataset.generated;
+    }
+
+    const feature = new SalutationFeature();
+    feature.init();
+    try {
+      // resetDraft() und Undo/Redo publizieren genau dieses Event.
+      eventBus.publish(Events.DOCUMENT_CHANGED, { draft: {} });
+      assertEqual(anredeEl.textContent.trim(), 'Sehr geehrter Herr Dr. Müller,', 'Anrede wird aus dem Namen abgeleitet');
+      assertEqual(grussEl.textContent.trim(), 'Mit freundlichen Grüßen', 'Grußformel wird formal gesetzt');
+    } finally {
+      feature.destroy();
+    }
+  });
 });
 
 describe('ClipboardAddressParser: Anschrift-Parsing (unstrukturierte Zwischenablage)', () => {

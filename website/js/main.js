@@ -268,6 +268,17 @@ function initApp() {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }
+
+    // Fuss- und Teilbetreff-Schalter haben keine eigene UI-Logik (die Sichtbarkeit
+    // steuert CSS ueber :has()), brauchen aber denselben Speicherimpuls: ohne ihn
+    // landet ihr Zustand nie im Entwurf und ist nach einem Neuladen weg.
+    for (const id of ['toggle-fuss', 'toggle-teilbetreff']) {
+      const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
+      if (!schalter) continue;
+      schalter.addEventListener('change', () => {
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
   }
 
 /**

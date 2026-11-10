@@ -25,9 +25,12 @@ code_links: []
 **BINDENDER VERHALTENSVERTRAG FÜR ALLE KI-AGENTEN**  
 Dieser Vertrag ist nicht verhandelbar. Verstöße führen zur Ablehnung der Änderung.
 
-> **Schritt 0 — Repo-Struktur kennen:**
-> Vor jeder Dateisuche `docs/STRUCTURE.md` lesen. Nur greppen, wenn das gesuchte Symbol dort nicht verzeichnet ist. Die Datei wird bei jedem `node tools/build_db.js` automatisch regeneriert.
-> Für Lade-Trigger, Modul-Abhängigkeiten und CSS-Kaskade: `docs/10-architecture/ARCHITECTURE-MAP.md`.
+> **Schritt 0 — Aufgabe → Datei (erste Pflichtlektüre):**
+> Vor jeder Dateisuche `docs/30-meta/AUFGABEN-WEGWEISER.md` lesen: Absicht → Datei →
+> Testfilter → Gate. Grep erst, wenn die Aufgabe dort nicht steht — und den Eintrag
+> danach ergänzen (Selbstheilungs-Regel, Sektion 6).
+> Nachschlagewerk bleibt `docs/STRUCTURE.md` (generiert); für Lade-Trigger und
+> CSS-Kaskade `docs/10-architecture/ARCHITECTURE-MAP.md`.
 
 ---
 
@@ -86,6 +89,18 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 - **Surgical Changes & KISS**: Nur das ändern, was für die aktuelle Aufgabe strikt notwendig ist. Bevor JavaScript geschrieben wird, muss geprüft werden, ob moderne CSS- oder native Web-APIs ausreichen.
 - **Git-Hooks (`githooks/`)**: Versionierte Pre-Commit-Gates (`git config core.hooksPath githooks`) stellen die 5-Stufen-Integrität vor jedem Commit lokal sicher.
 - **Generalisierbarkeit**: Jede neue Lösung ist auf ihre Übertragbarkeit in die `llm_boilerplate` zu prüfen und zu dokumentieren.
+
+---
+
+## 2a. Verworfen bleibt verworfen (Ratsche)
+
+- **Gedächtnis:** `todo/ANTIPATTERNS-VERWORFEN.md` führt abgelehnte Ideen mit Grund
+  und Datum. Vor einem „neuen" Vorschlag dort nachsehen — Wiederaufnahme nur, wenn
+  sich die Grundlage geändert hat (Chrome-Version, Projekt-Scope).
+- **Maschinell:** `tools/antipatterns/*.json` mit `max_violations` ist eine Ratsche.
+  Das Budget wird **gesenkt**, nie angehoben, um grün zu werden.
+- **Eine Auswertung:** `tools/reconciliation.js` → `evaluateAntipatterns()`; das
+  Fitness Gate und `--only-rules` (pre-commit Stufe 4) nutzen dieselbe Funktion.
 
 ---
 

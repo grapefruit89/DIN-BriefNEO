@@ -208,6 +208,17 @@ function main() {
     console.error("🔴 Build failed: Invariante verletzt — 'Papierkorb/' existiert nicht oder ist leer!");
     process.exit(1);
   }
+  // Wegweiser-Gate (E3): genannte Pfade existieren, jedes JS-Modul ist erwaehnt.
+  try {
+    const { execSync } = require('child_process');
+    execSync('node tools/repo-map-check.mjs', { cwd: targetDir, stdio: 'pipe', encoding: 'utf8' });
+  } catch (err) {
+    const detail = `${err.stdout || ''}${err.stderr || ''}`.trim();
+    console.error('🔴 Build failed: Wegweiser-Gate (tools/repo-map-check.mjs):');
+    console.error(detail || err.message);
+    process.exit(1);
+  }
+
   generateStructureMap(targetDir);
   if (!isQuiet) console.log('Running Reality Reconciliation & Fitness Check...');
   const report = runReconciliation();

@@ -42,7 +42,10 @@ function walk(dir, out = []) {
 }
 
 function resolves(target, targetDir, stems) {
-  const clean = target.replace(STRIP_EXT, '');
+  /* Frontmatter-Links tragen teils [[Klammern]] (Obsidian-Stil), teils nicht.
+   * Ohne dieses Strippen wurden sie je nach Einrueckung stillschweigend
+   * uebersprungen — ein Gate, das Links nicht prueft, ist keins. */
+  const clean = target.replace(/^\[\[|\]\]$/g, '').replace(STRIP_EXT, '');
   if (target.includes('/')) {
     return (
       fs.existsSync(path.join(targetDir, target)) ||

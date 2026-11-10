@@ -57,6 +57,44 @@ summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Feh
 
 ---
 
+## 2026-11-10 — Durch Messung und Architektur verworfen
+
+> **Wiederaufnahme-Regel:** Einen Eintrag erst prüfen, wenn sich die Grundlage
+> geändert hat (Chrome-Version, Projekt-Scope). Sonst: verworfen lassen.
+> Messwerte und Quellen der Punkte P1–P12 stehen ausführlich in
+> [`docs/90-archive/upstream-befund-2026-11-10.md`](../docs/90-archive/upstream-befund-2026-11-10.md).
+
+| Was (Vorschlag / Idee) | Warum verworfen (Begründung) | Norm / Gesetz / Beleg |
+|---|---|---|
+| **Listener-Delegation R4–R8** (Sender-Sync, Mehrseiten, Anrede, Tastaturnavigation, manuelle Eingabe) | Gemessen: 14 direkte Listener, **keine Dubletten**, `#infoblock` und `#anschriftfeld` tragen heute 0. Delegation spart 10 Listener, kostet aber **+3 Zeilen** (Ziel, `matches()`-Wächter, Abräum-Funktion). `#empfaenger-firma` hat vier `input`-Listener mit vier verschiedenen Aufgaben (Seitenumbruch, Anrede, Dirty-Tracking, Großkunden-Lookup) — Zusammenlegen wäre Kopplung. Risiko in `address.js` (Autocomplete, PLZ, Geoapify, Popover) ohne sichtbaren Gewinn. | **Messung 2026-11-10** (`getEventListeners`), **KISS**, **Surgical Changes** |
+| **FOUC-Hydration-Gate** (`data-hydrated` für `#brief-ansicht`) | Pop-in-Fenster gemessen: 10 ms warm, 8 ms kalt, 20 ms kalt + CPU 6×. Das Gate hätte ~160 ms Unsichtbarkeit erzeugt (Boot-Ende + 150 ms Fade), also das 8- bis 16-Fache, und wäre **fail-closed**: bei JS-Ladefehler bliebe der Brief dauerhaft unsichtbar. Der Fade fällt stärker auf als der Sprung. | **Messung 2026-11-10** (MutationObserver ab Dokumentstart), **Fail-Safe** |
+| **`text-fit` für die Betreffzeile** | Steht in **CSS Text Level 5**, nicht Level 4. Wirkt nur bei echtem Überlauf (`nowrap`): gemessen 613 → 200 px `scrollWidth`; bei normalem Umbruch 16 px/90 px unverändert. Bei 12 pt ist die Schriftgröße normativ — Auto-Shrink wäre ein Norm-Verstoß. | **CSS Text 5**, **Messung P1**, **DIN 5008** |
+| **`margin-trim` als Ersatz für `.trim()`** | Trimmt Kind-Margins, nicht Zeichen. Im Zielkontext wirkungslos gemessen: `#text` 76 → 76 px, auch mit Border und `overflow`; isoliert wirkte es (86 → 54 px). | **Messung P2**, **CSS Box 4** |
+| **`text-overflow: "<string>"`** | Semantisch unpassend: Ein Brief enthält keinen „[mehr]"-Hinweis, das ist Oberflächensprache. | **Nutzerentscheid 2026-11-10**, **KISS** |
+| **`<camera>` / `<microphone>` / `<usermedia>`** | Chromium-Status „Proposed", `milestone: null`; kein „Enabled by default", keine Release-Note. | **chromestatus 2026-11-10**, **P4** |
+| **`<textarea>` für den Briefkern** | Replaced Element, nicht fragmentierbar. Der Text muss über CSS Multi-Column über Seiten fließen. | **Nutzerentscheid 2026-11-10**, **ADR-CSS** |
+| **Briefkern auf `contenteditable="plaintext-only"`** | Formatierung (Fett, Kursiv, Blockquote) bleibt bewusst; DIN 5008 erlaubt beides, nur Unterstreichung ist blockiert. Die Formatierungs-Maschinerie ist der bewusste Preis. | **Nutzerentscheid 2026-11-10**, **DIN 5008** |
+| **`#datum` als `<input type="date">`** | Zeigt ISO-/Locale-Format, nicht die DIN-Alphaform („4. September 2026"). Bestandsdaten sind deutsch formatiert. | **Nutzerentscheid 2026-11-10**, **DIN 5008** |
+| **Dynamische `<input>`-Felder für mehrzeiligen Betreff** | Enter/Tab/Fokus müssten selbst nachgebaut werden — zu brüchig. | **Nutzerentscheid 2026-11-10**, **KISS** |
+| **`<datalist>` statt eigenem Vorschlags-Popover** | UX-Verlust: Großkunden-Kennzeichnung, Bundesland-Disambiguierung, zweite Zeile entfallen. Die Ersparnis rechtfertigt das nicht. | **Nutzerentscheid 2026-11-10**, **H10**, **A11y** |
+| **Safari-Kompatibilität als Ziel** | Projekt-Baseline ist Chromium 150+. Safari-Exkurse ändern keinen Buchstaben am Produkt. | **Nutzerentscheid 2026-11-10**, **Longevity-Guidelines** |
+
+**Bereits oben erfasst, durch die Messung nur bestätigt:** Sanitizer API als Ersatz für
+`sanitizeRichText` (filtert keine Klassen-Werte), `focusgroup` (in Chrome 150 hinter Flag,
+live `false`), `contenteditable` → `<input>`.
+
+**`field-sizing: content`:** für diese App gegenstandslos — es gibt **kein** `<textarea>` in
+`website/`, und die Brief-Felder sind `contenteditable`. Der Eintrag oben bleibt gültig; die
+Empfehlung im Playbook (A49) betrifft Textareas, nicht dieses Dokument.
+
+### Bestätigt — nicht anfassen (2026-11-10)
+
+- **`commandfor` / `closedby="any"`:** bereits optimal (Safari 26.2 / Chrome 135, für uns irrelevant).
+- **`text-wrap: balance`:** wirkt bis 6 Zeilen; an der Betreffzeile gemessen 6 = Änderung, 7 = keine.
+- **Drei `beforeprint`-Listener:** getrennte Zuständigkeiten (Titel, Mikro-Typografie, Umbruch), kein Konflikt.
+
+---
+
 ## 🔗 Verwandte Referenzen im Repository
 
 - **Maschinell erzwungene Gesetze:** [`/home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md`](../docs/00-foundation/Immutable-Law-Catalog.md)

@@ -2600,3 +2600,20 @@ nötig) und das fehlende `data-erscheinungsbild` im Boot-Pfad (kosmetisch).
 **Beleg.** Ausführlicher Prüfbericht mit Quellen und Messwerten:
 `docs/90-archive/upstream-befund-2026-11-10.md`. Keine Code-Änderung,
 186/186 Tests, Fitness 100 %, Biome 0.
+
+## 2026-11-10 — Listener-Delegation und FOUC-Gate verworfen
+
+Zwei Umbauvorschläge wurden gemessen und verworfen. **Listener-Delegation
+R4–R8:** 14 direkte Listener, keine Dubletten; Delegation spart zehn Listener,
+kostet aber drei Zeilen mehr und würde in `address.js` vier Zuständigkeiten
+am Empfänger-Firmenfeld koppeln. **FOUC-Gate für die Briefansicht:** das
+Pop-in-Fenster ist 8–20 ms; das Gate hätte ~160 ms Unsichtbarkeit erzeugt und
+wäre bei einem JS-Ladefehler fail-closed (Brief dauerhaft unsichtbar).
+
+Beide Einträge liegen mit Messwerten und Wiederaufnahme-Regel im Register
+`todo/ANTIPATTERNS-VERWORFEN.md`. Dort sind außerdem die Architektur-Verwürfe
+des Tages gebündelt (`<textarea>`, `plaintext-only`, `<input type="date">`,
+`<datalist>`, Safari-Ziel).
+
+**Beleg.** Messungen 2026-11-10 (Chrome 156); P1–P12 ausführlich in
+`docs/90-archive/upstream-befund-2026-11-10.md`. Keine Code-Änderung.

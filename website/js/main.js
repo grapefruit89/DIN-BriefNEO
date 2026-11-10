@@ -141,6 +141,13 @@ function initApp() {
   bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
   bootStep('Schriftart', () => new FontFeature(settingsManager).init());
   bootStep('Testdaten', () => initTestData());
+
+  /* Letzter Schritt: Platzhalter freigeben (FOUC-Schutz, sheet-common.css).
+   * Erst hier sind Entwurf, Briefdatum und Unterschrift gesetzt — vorher
+   * wuerden die Platzhaltertexte kurz auf dem Papier stehen. */
+  bootStep('Darstellung freigeben', () => {
+    document.documentElement.dataset.ready = 'true';
+  });
 }
 
   /**

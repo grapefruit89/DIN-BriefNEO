@@ -53,6 +53,13 @@ try {
   /* Das Mehrseiten-Stylesheet ist standardmaessig im HTML verlinkt (Zero-FOUC).
    * Nur wenn explizit Einzelseite konfiguriert ist (pluginMultipage === false),
    * wird synchron vor dem ersten Paint gewechselt. */
+  /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
+   * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft
+   * verschwinden. Nach 2 s wird freigegeben, komme was mag. */
+  setTimeout(() => {
+    if (!root.dataset.ready) root.dataset.ready = 'true';
+  }, 2000);
+
   const blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
   if (blattLink) {
     const targetHref = settings.pluginMultipage === false

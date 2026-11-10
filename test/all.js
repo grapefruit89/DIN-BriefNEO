@@ -1129,6 +1129,18 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
     assert(css.includes(`${gemeinsam}:hover:not(:focus)`), 'Hover-Regel teilt den Selektor');
     assert(css.includes(`${gemeinsam}:focus`), 'Fokus-Regel teilt den Selektor');
   });
+
+  /* Kein DOM-Test moeglich: die Fixture laedt sheet-common.css nicht, und die
+   * Regeln liegen in @scope (din-blatt). Geprueft wird deshalb der Vertrag im
+   * Quelltext; der Beweis am laufenden Objekt steht im Commit (CDP-Messung). */
+  it('blendet Platzhalter bis zum Boot-Ende aus (FOUC-Schutz)', async () => {
+    const res = await fetch('/website/css/sheet-common.css');
+    const css = await res.text();
+    assert(css.includes(':root:not([data-ready="true"]) & [data-placeholder]:empty::before'),
+      'contenteditable-Platzhalter haengt an data-ready');
+    assert(css.includes(':root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder'),
+      'textarea-Platzhalter haengt an data-ready');
+  });
 });
 
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {

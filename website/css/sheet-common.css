@@ -392,6 +392,21 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       pointer-events: none;
     }
 
+  /* FOUC-Schutz (gemessen 2026-11-10): Vor dem Restore sind #datum und
+     #unterschrift leer, also standen ihre Platzhalter ("2. September 2026",
+     "Ihr getippter Name") für ~36 ms auf dem Papier, bevor der echte Wert
+     kam. Platzhalter erscheinen deshalb erst, wenn das Booten fertig ist
+     (html[data-ready], gesetzt am Ende von initApp; Sicherheitsnetz in
+     boot.js). Die Feld-Geometrie ist davon unberührt — nur der Text fehlt. */
+  :root:not([data-ready="true"]) & [data-placeholder]:empty::before,
+    :root:not([data-ready="true"]) & [contenteditable][data-placeholder]:empty::before {
+      content: none;
+    }
+
+  :root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder {
+      color: transparent;
+    }
+
   #anrede[data-generated],
     #grussformel[data-generated] {
       color: var(--blatt-schwach);

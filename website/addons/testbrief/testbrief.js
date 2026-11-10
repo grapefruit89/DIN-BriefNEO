@@ -1320,14 +1320,12 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   const anlagenText = resolveAnlagenEintrag(szenario, themenHook);
   if (anlagenText) {
     if (anlagenToggle) anlagenToggle.checked = true;
-    if (anlagenEl) {
-      const li = document.createElement('li');
-      li.textContent = anlagenText;
-      anlagenEl.replaceChildren(li);
+    if (anlagenEl instanceof HTMLTextAreaElement) {
+      anlagenEl.value = anlagenText;
     }
   } else {
     if (anlagenToggle) anlagenToggle.checked = false;
-    if (anlagenEl) anlagenEl.replaceChildren();
+    if (anlagenEl instanceof HTMLTextAreaElement) anlagenEl.value = '';
   }
 
   const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));

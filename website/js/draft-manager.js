@@ -13,7 +13,8 @@
 import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset } from './document.js';
-import { isPrintTitleActive, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
+import { Field } from './field.js';
+import { isPrintTitleActive, loadJSON, STORAGE_KEYS, save, saveJSON, stripHtmlToPlaintext } from './persistence.js';
 
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
@@ -252,8 +253,15 @@ export class DraftManager {
         return;
       }
 
+      if (Field.isNative(elem)) {
+        /* Migration alter Drafts: <li>-HTML -> \n-Text (einmalig). */
+        let val = draft[id];
+        if (elem.id === 'anlagen-angabe' && typeof val === 'string' && val.includes('<')) {
+          val = stripHtmlToPlaintext(val);
+        }
+        Field.setValue(elem, val);
       // HTML-Restore ausschließlich über sanitizeRichText (Allowlist)
-      if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
+      } else if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
         const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
         if (isListe && typeof draft[id] === 'string' && !draft[id].includes('<li')) {
           const lines = draft[id].split('\n').map((l) => l.trim()).filter(Boolean);
@@ -370,9 +378,11 @@ export class DraftManager {
   }
 
   resetDraft() {
-    document.querySelectorAll('[contenteditable]').forEach(el => {
+    document.querySelectorAll('[contenteditable], textarea[data-feldtyp]').forEach(el => {
       if (el.getAttribute('data-feldtyp') === 'systemwert') return;
-      if (el.getAttribute('data-feldtyp')?.includes('liste')) {
+      if (Field.isNative(el)) {
+        Field.setValue(el, '');
+      } else if (el.getAttribute('data-feldtyp')?.includes('liste')) {
         if (el.id === 'anlagen-angabe') {
           el.replaceChildren();
         } else {

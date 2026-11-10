@@ -12,9 +12,9 @@
 
   <!-- Minimal-Fixture: DraftManager arbeitet gegen die echten Feld-IDs.
        Alle [contenteditable]-Elemente hier werden von saveDraft erfasst.
-       anlagen-angabe spiegelt die App-Struktur (UL-Container, contenteditable=true). -->
+       anlagen-angabe spiegelt die App-Struktur (natives textarea, Plaintext). -->
   <div id="brieftext" data-feldtyp="rich mehrzeilig" contenteditable="true"></div>
-  <ul id="anlagen-angabe" data-feldtyp="rich liste mehrzeilig" contenteditable="true"><li>Anlage 1</li></ul>
+  <textarea id="anlagen-angabe" data-feldtyp="mehrzeilig">Anlage 1</textarea>
 
   <!-- Toast-Fixture fuer ToastSystem / EventBus-Tests -->
   <div id="hinweis-v4" popover="auto" class="hinweis-container type-info">

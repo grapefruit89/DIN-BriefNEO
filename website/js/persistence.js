@@ -448,7 +448,7 @@ export function buildDinLetterPayload(draft, settings = null) {
     }
     const val = draftObj[field];
     if (typeof val === 'string') {
-      return field === 'anlagen-angabe' ? stripHtmlToPlaintext(val) : val.trim();
+      return val.trim();
     }
     return '';
   });

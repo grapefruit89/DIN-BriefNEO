@@ -8,7 +8,8 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { formatElementMicroTypography, sanitizeRichText, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
+import { collectDraft, formatElementMicroTypography, sanitizeRichText, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
+import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
@@ -484,29 +485,20 @@ describe('DraftManager: Undo/Redo', () => {
 });
 
 describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
-  it('UL/LI überleben den Restore im anlagen-angabe (extraTags)', () => {
+  it('migriert altes <li>-HTML beim Laden in Textarea-Text', () => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify({
       'anlagen-angabe': '<ul><li>Anlage A</li><li>Anlage B</li></ul>'
     }));
     new DraftManager().loadDraft();
-    const anlagen = document.getElementById('anlagen-angabe');
-    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-angabe');
-    const lis = anlagen.querySelectorAll('li');
-    assert(lis.length === 2, 'zwei <li> nach dem Restore');
-    assert(lis[0].textContent === 'Anlage A', 'Anlage A erhalten');
-    assert(lis[1].textContent === 'Anlage B', 'Anlage B erhalten');
-    assert(lis[0].attributes.length === 0, 'keine Attribute an den <li>');
+    const anlagen = /** @type {HTMLTextAreaElement} */ (document.getElementById('anlagen-angabe'));
+    assert(anlagen instanceof HTMLTextAreaElement, 'textarea-Fixture');
+    assertEqual(anlagen.value, 'Anlage A\nAnlage B', 'zwei Zeilen migriert');
   });
 
-  it('ensureListStructure wickelt Text-Nodes in <li> statt sie zu löschen', () => {
-    const anlagen = document.getElementById('anlagen-angabe');
-    if (!anlagen) throw new Error('Test-Fixture fehlt: #anlagen-angabe');
-    anlagen.textContent = 'Rechnung\nVollmacht';
-    new UIProtections().ensureListStructure(anlagen);
-    const lis = anlagen.querySelectorAll('li');
-    assert(lis.length === 2, 'zwei <li> aus Text-Nodes gewickelt');
-    assert(lis[0].textContent === 'Rechnung', 'Text 1 erhalten');
-    assert(lis[1].textContent === 'Vollmacht', 'Text 2 erhalten');
+  it('Anlagen-Feld ist ein natives textarea ohne contenteditable', () => {
+    const anlagen = /** @type {HTMLTextAreaElement} */ (document.getElementById('anlagen-angabe'));
+    assert(anlagen instanceof HTMLTextAreaElement, 'textarea-Fixture');
+    assert(!anlagen.hasAttribute('contenteditable'), 'kein contenteditable mehr');
   });
 
   it('setupPrintProtection entfernt Fokus vor dem Druckdialog (beforeprint blur)', () => {
@@ -518,6 +510,43 @@ describe('DraftManager: Anlagen-Restore (M2 Datenverlust-Fix)', () => {
     uip.setupPrintProtection();
     window.dispatchEvent(new Event('beforeprint'));
     assert(document.activeElement !== input, 'Fokus wurde vor dem Druckdialog entfernt');
+  });
+});
+
+describe('Anlagen-Migration', () => {
+  it('Field.getValue liefert den textarea-Wert', () => {
+    const ta = document.createElement('textarea');
+    ta.value = 'A\nB';
+    assertEqual(Field.getValue(ta), 'A\nB', 'value statt textContent');
+  });
+
+  it('collectDraft speichert den textarea-Wert', () => {
+    const anlagen = /** @type {HTMLTextAreaElement} */ (document.getElementById('anlagen-angabe'));
+    assert(anlagen instanceof HTMLTextAreaElement, 'textarea-Fixture');
+    const vorher = anlagen.value;
+    try {
+      anlagen.value = 'Rechnung\nVollmacht';
+      assertEqual(collectDraft()['anlagen-angabe'], 'Rechnung\nVollmacht', 'Wert landet im Draft');
+    } finally {
+      anlagen.value = vorher;
+    }
+  });
+
+  it('restoreDraft migriert altes <li>-HTML zu Zeilen', () => {
+    const dm = new DraftManager(createEventBus());
+    const anlagen = /** @type {HTMLTextAreaElement} */ (document.getElementById('anlagen-angabe'));
+    try {
+      dm.restoreDraft({ 'anlagen-angabe': '<ul><li>A</li><li>B</li></ul>' });
+      assertEqual(anlagen.value, 'A\nB', 'HTML zu zwei Zeilen');
+    } finally {
+      dm.destroy();
+    }
+  });
+
+  it('Export lässt Plaintext unverändert (kein doppeltes Strippen)', () => {
+    const payload = buildDinLetterPayload({ 'anlagen-angabe': 'A\nB' });
+    const i = payload._meta.schema.indexOf('anlagen-angabe');
+    assertEqual(payload.fields[i], 'A\nB', 'Zeilen bleiben erhalten');
   });
 });
 

@@ -10,6 +10,7 @@
  *  3. DraftManager liegt seit 2026-11-08 in `draft-manager.js`.
  */
 
+import { Field } from './field.js';
 import { applyMicroTypography } from './format.js';
 
 /* =========================================================================================
@@ -351,7 +352,6 @@ export class UIProtections {
   init() {
     if (this.initialized) return;
     this.enforceLineLimits();
-    this.protectAnlagenList();
     this.setupPrintProtection();
     this.setupOverflowDetector();
     this.initialized = true;
@@ -537,105 +537,6 @@ export class UIProtections {
     sel?.addRange(range);
   }
 
-  protectAnlagenList() {
-    const anlagen = document.getElementById('anlagen-angabe');
-    if (!anlagen) return;
-
-    this.ensureListStructure(anlagen);
-
-    anlagen.addEventListener('input', () => {
-      this.ensureListStructure(anlagen);
-    });
-
-    anlagen.addEventListener('keydown', (e) => {
-      const keyboardEvent = /** @type {KeyboardEvent} */ (e);
-      if (keyboardEvent.key === 'Backspace' || keyboardEvent.key === 'Delete') {
-        const lis = anlagen.querySelectorAll('li');
-        if (lis.length === 1 && lis[0].textContent && lis[0].textContent.trim() === '') {
-          keyboardEvent.preventDefault();
-        }
-      }
-    });
-  }
-
-  /**
-   * @param {HTMLElement} anlagen
-   */
-  ensureListStructure(anlagen) {
-    const hasText = Boolean((anlagen.textContent || '').trim());
-    const hasLi = Boolean(anlagen.querySelector('li'));
-    if (!hasText && !hasLi) {
-      const li = document.createElement('li');
-      anlagen.replaceChildren(li);
-      this.#placeCaretIn(anlagen, li);
-      return;
-    }
-
-    /* Paste aus Fremdquellen liefert <div>-Kinder oder nackte Textknoten. Beides
-       ist in einer Liste ungültig (B45). In-place umhängen, damit keine
-       Formatierung verloren geht; der Caret wird danach ans Listenende gesetzt. */
-    let normalisiert = false;
-    for (const node of Array.from(anlagen.childNodes)) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        // Ein Textknoten kann mehrere Zeilen tragen ("Rechnung\nVollmacht");
-        // jede Zeile wird ein eigener Listenpunkt.
-        const zeilen = (node.textContent || '').split('\n').map((z) => z.trim()).filter(Boolean);
-        if (zeilen.length === 0) {
-          node.remove();
-          continue;
-        }
-        const lis = zeilen.map((zeile) => {
-          const li = document.createElement('li');
-          li.textContent = zeile;
-          return li;
-        });
-        node.replaceWith(...lis);
-        normalisiert = true;
-      } else if (node instanceof HTMLElement && node.tagName !== 'LI') {
-        const li = document.createElement('li');
-        li.append(...node.childNodes);
-        node.replaceWith(li);
-        normalisiert = true;
-      }
-    }
-    if (normalisiert) {
-      const letztes = anlagen.lastElementChild;
-      if (letztes) this.#placeCaretIn(anlagen, letztes);
-      return;
-    }
-
-    if (anlagen.children.length === 0) {
-      const lines = (anlagen.textContent || '').split('\n').map(l => l.trim()).filter(Boolean);
-      const lis = lines.map(line => {
-        const li = document.createElement('li');
-        li.textContent = line;
-        return li;
-      });
-      if (lis.length) {
-        anlagen.replaceChildren(...lis);
-        this.#placeCaretIn(anlagen, lis[lis.length - 1]);
-      }
-    }
-  }
-
-  /**
-   * Platziert den Caret am Ende des Elements.
-   * @param {HTMLElement} anlagen
-   * @param {Element} li
-   */
-  #placeCaretIn(anlagen, li) {
-    if (document.activeElement === anlagen) {
-      const selection = window.getSelection();
-      if (selection) {
-        const range = document.createRange();
-        range.selectNodeContents(li);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    }
-  }
-
   /**
    * D1: Overflow-Erkennung im Briefkern (#kern).
    * Dual-Check via CSSOM View APIs: scrollHeight + BoundingClientRect-Fallback.
@@ -719,7 +620,7 @@ export class UIProtections {
 
 /* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
  * Matcht contenteditable-Blattfelder UND speicherbare Formular-Selects (z. B. Postvermerk). */
-export const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), select[data-speichern]';
+export const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], select[data-speichern]';
 
 /**
  * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
@@ -732,7 +633,7 @@ export function collectDraft() {
 
   if (typeof document === 'undefined') return draft;
 
-  document.querySelectorAll('[contenteditable]').forEach(elem => {
+  document.querySelectorAll('[contenteditable], textarea[data-feldtyp]').forEach(elem => {
     // #datum ist ein Systemwert, den der Nutzer bewusst aendern darf (Befund 1.2).
     // Der Anlagentext wird immer gespeichert, auch bei ausgeschaltetem Toggle (1.3) -
     // sonst ist er nach dem naechsten Reload endgueltig weg.
@@ -745,7 +646,7 @@ export function collectDraft() {
       container.appendChild(cleanFrag);
       draft[elem.id] = container.innerHTML;
     } else {
-      draft[elem.id] = elem.textContent || '';
+      draft[elem.id] = Field.getValue(elem);
     }
   });
 

@@ -190,9 +190,33 @@ din-anlagenvermerk {
   page-break-inside: avoid;
 }
 
-.anlagen-heading { font-weight: 700; margin-bottom: 2px; }
+.anlagen-heading {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0;
+  cursor: pointer;
+}
 
-#anlagen-angabe { margin: 0; padding-left: 0; list-style-position: inside; }
+din-anlagen-angabe {
+  display: block;
+}
+
+#anlagen-angabe {
+  display: block;
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+  min-height: 1.4em;
+}
 
 .is-dormant {
   display: none !important;

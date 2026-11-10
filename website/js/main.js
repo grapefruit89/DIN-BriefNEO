@@ -260,10 +260,8 @@ function initApp() {
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
         const anlagenEl = document.getElementById('anlagen-angabe');
-        if (anlagenEl && anlagenSwitch.checked && !anlagenEl.textContent?.trim()) {
-          const li = document.createElement('li');
-          li.textContent = 'Anlage 1';
-          anlagenEl.replaceChildren(li);
+        if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
+          anlagenEl.value = 'Anlage 1';
         }
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });

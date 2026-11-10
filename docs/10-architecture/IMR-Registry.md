@@ -333,9 +333,8 @@ Normative Kollisionsvermeidung (ehemals ADR-BETREFF): Falzmarken dürfen nicht i
 | `unternehmensbezeichnung` | `<din-unternehmensbezeichnung>` | 20.12 | atom | ja, `#unternehmensbezeichnung` |  |
 | `unterschrift` | `<din-unterschrift>` | 20.13 | atom | ja, `#unterschrift` | DIN: „Angabe der Unterzeichnenden" |
 | `zusaetze` | `<din-zusaetze>` | 20.14 | atom | ja, `#zusaetze` |  |
-| `anlagenvermerk` | `<din-anlagenvermerk>` | 20.15.2 | container | ja, `#anlagenvermerk` | Container; Kinder: din-anlagen-bezeichnung, din-anlagen-angabe |
-| `anlagen-bezeichnung` | `<din-anlagen-bezeichnung>` | 20.15.2 | label | ja | Rendering per ::before oder festem Element |
-| `anlagen-angabe` | `<din-anlagen-angabe>` | 20.15.2 | list | ja, `#anlagen-angabe` | contenteditable, Liste |
+| `anlagenvermerk` | `<din-anlagenvermerk>` | 20.15.2 | container | ja, `#anlagenvermerk` | Container; Kinder: `label.anlagen-heading`, `din-anlagen-angabe` (Wrapper) |
+| `anlagen-angabe` | `<din-anlagen-angabe>` | 20.15.2 | container | nein | Wrapper um `<textarea id="anlagen-angabe">`; kein contenteditable ([[ADR-ANLAGEN-TEXTAREA]]) |
 | `verteilvermerk` | `<din-verteilvermerk>` | 20.15.3 | atom | ja, `#verteilvermerk` |  |
 | `beglaubigungsvermerk` | `<din-beglaubigungsvermerk>` | 20.16 | atom | ja, `#beglaubigungsvermerk` |  |
 | `werbliche-elemente` | `<din-werbliche-elemente>` | 20.18 | atom | ja, `#werbliche-elemente` |  |
@@ -713,21 +712,14 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "inDom": true,
       "export": false
     },
-    "din-anlagen-bezeichnung": {
-      "id": null,
-      "role": "label",
-      "dinSection": "20.15.2",
-      "source": "DIN",
-      "inDom": true,
-      "export": false
-    },
     "din-anlagen-angabe": {
-      "id": "anlagen-angabe",
-      "role": "list",
+      "id": null,
+      "role": "container",
       "dinSection": "20.15.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": false,
+      "note": "Wrapper um <textarea id=\"anlagen-angabe\">; kein contenteditable (ADR-ANLAGEN-TEXTAREA)"
     },
     "din-verteilvermerk": {
       "id": "verteilvermerk",

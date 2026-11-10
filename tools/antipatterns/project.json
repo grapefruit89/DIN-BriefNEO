@@ -606,6 +606,22 @@
       "max_violations": 0,
       "replacement": "contenteditable=\"true\" (Formatierung bleibt).",
       "exemptions": []
+    },
+    {
+      "id": "P37",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee (Capability Elements) ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "Die Capability Elements camera, microphone und usermedia sind als Idee verworfen: in Chromium nur Proposed, kein Enabled by default, keine Release-Note.",
+      "pattern": "<(camera|microphone|usermedia)\\b",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "Kein Bedarf: Kamera und Mikrofon sind nicht Teil des Briefeditors.",
+      "exemptions": []
     }
   ]
 }

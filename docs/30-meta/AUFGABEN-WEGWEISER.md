@@ -108,10 +108,12 @@ Nie direkt aus dem DOM exportieren.
 
 ## 5. Stand (bewusst flüchtig)
 
+**Nach jedem größeren Batch nachziehen** — Datum, Testzahl, Regelzahl, Fitness.
+
 ```text
-2026-11-10 @ f1545aa
+2026-11-10 (zuletzt gepflegt)
 Testsuite:        189 Fälle
-Antipattern:      47 Regeln (4 base + 7 web + 36 project), Ratsche aktiv
+Antipattern:      48 Regeln (4 base + 7 web + 37 project), Ratsche aktiv
 Fitness:          100.0 % (clean)
 Figurenkatalog:   297 Figuren, 729 Hooks, Tupel-Schema 2.1
 Schriften:        Aptos, Inter 18pt (regular/bold), Michelangelus als WOFF2 gebündelt

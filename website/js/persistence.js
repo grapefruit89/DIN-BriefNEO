@@ -30,7 +30,6 @@ import { currentISODate } from './format.js';
  * @property {boolean} [copyfit]
  * @property {boolean} [sensitiveSubject]
  * @property {boolean} [pluginTestbrief]
- * @property {boolean} [pluginMultipage]
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
@@ -48,7 +47,6 @@ export const DEFAULT_SETTINGS = {
   copyfit: false,
   sensitiveSubject: false,
   pluginTestbrief: true,
-  pluginMultipage: true,
   previewFont: 'default',
   formality: 'formal'
 };

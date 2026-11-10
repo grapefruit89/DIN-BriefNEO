@@ -25,8 +25,7 @@
     <link rel="stylesheet" href="css/base.css?v=live6">
     <link rel="stylesheet" href="css/sidebar.css?v=live7">
     <link rel="stylesheet" href="css/sheet-common.css?v=common1">
-    <link rel="stylesheet" id="css-blatt" href="css/sheet-multipage.css?v=multi1"
-          data-blatt-einseitig="css/sheet.css?v=live6" data-blatt-mehrseitig="css/sheet-multipage.css?v=multi1">
+    <link rel="stylesheet" id="css-blatt" href="css/sheet-multipage.css?v=multi1">
     <script src="js/boot.js?v=boot2"></script>
     <script type="module" src="js/main.js?v=live6"></script>
   </head>
@@ -257,12 +256,8 @@
                 <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
                 <input type="checkbox" switch id="plugin-testbrief" checked>
               </div>
-              <div class="seitenleiste-switch-row">
-                <label for="plugin-multipage" class="seitenleiste-label">Mehrseiten-Modus (Beta)</label>
-                <input type="checkbox" switch id="plugin-multipage" checked>
-              </div>
-
-              <!-- Nur sichtbar, wenn das Mehrseiten-Plugin aktiv ist -->
+              <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
+                   stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
               <div class="seitenleiste-subgroup workbench-box">
                 <div class="workbench-header">
                   <strong class="workbench-title">📄 Mehrseiten-Workbench</strong>

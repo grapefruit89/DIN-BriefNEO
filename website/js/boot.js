@@ -19,8 +19,7 @@ try {
     guides: false,
     marks: true,
     sensitiveSubject: false,
-    pluginTestbrief: true,
-    pluginMultipage: true
+    pluginTestbrief: true
   };
 
   let parsed = {};
@@ -48,27 +47,18 @@ try {
   root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
   root.setAttribute('data-sensitive-subject', asBool(settings.sensitiveSubject, false) ? 'true' : 'false');
   root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
-  root.setAttribute('data-plugin-multipage', asBool(settings.pluginMultipage, true) ? 'true' : 'false');
+  /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):
+   * das Attribut bleibt fuer CSS/Tests gesetzt, ist aber immer 'true', und
+   * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt
+   * liegen (nichts geloescht). */
+  root.setAttribute('data-plugin-multipage', 'true');
 
-  /* Das Mehrseiten-Stylesheet ist standardmaessig im HTML verlinkt (Zero-FOUC).
-   * Nur wenn explizit Einzelseite konfiguriert ist (pluginMultipage === false),
-   * wird synchron vor dem ersten Paint gewechselt. */
   /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
    * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft
    * verschwinden. Nach 2 s wird freigegeben, komme was mag. */
   setTimeout(() => {
     if (!root.dataset.ready) root.dataset.ready = 'true';
   }, 2000);
-
-  const blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
-  if (blattLink) {
-    const targetHref = settings.pluginMultipage === false
-      ? (blattLink.dataset.blattEinseitig || 'css/sheet.css')
-      : (blattLink.dataset.blattMehrseitig || 'css/sheet-multipage.css');
-    if (blattLink.getAttribute('href') !== targetHref) {
-      blattLink.href = targetHref;
-    }
-  }
 } catch (e) {
   /* Ohne Boot-Zustand startet die App im falschen Farbschema — sichtbar,
    * aber ohne Ursache. Daher loggen. */

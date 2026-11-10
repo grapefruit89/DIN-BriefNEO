@@ -5,10 +5,11 @@
 /**
  * Mehrseiten-Controller (CSS Multi-column Level 2, Baseline Chromium 150+).
  *
- * Kein Selbststart mehr: der Plugin-Schalter `pluginMultipage` publiziert
- * `Events.PLUGIN_MULTIPAGE_TOGGLED`, `main.js` ruft `mountMultipage()` bzw.
- * `unmountMultipage()`. Beim Ausschalten werden Observer, Listener und das
- * dynamische `@page`-Sheet vollstaendig entfernt.
+ * Der Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]):
+ * `main.js` mountet den Controller immer. `unmountMultipage()` bleibt als
+ * sauberer Rueckweg erhalten (Observer, Listener und das dynamische
+ * `@page`-Sheet werden dabei vollstaendig entfernt), wird aber nicht mehr
+ * durch einen Schalter ausgeloest.
  */
 
 /** @type {{ stop: () => void } | null} */

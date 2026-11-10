@@ -41,7 +41,7 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | Datei | Rolle | Wann geladen | Besonderheit |
 | :--- | :--- | :--- | :--- |
 | `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot.js` (blockierend) + `main.js` (Modul) |
-| `website/index.html` (Plugin-Modus) | Mehrseiten-Editor | **Plugin `pluginMultipage`** | derselbe Rumpf; `#css-sheet` wird auf `sheet-multipage.css` getauscht, `multipage-controller.js` per `import()` gemountet |
+| `website/index.html` (Mehrseiten-Modus) | Mehrseiten-Editor, **fester Standard** | immer (das Einzelseiten-Stylesheet ist stillgelegt) | `sheet-multipage.css` ist fest verlinkt; `multipage-controller.js` wird per `import()` gemountet |
 | `test/index.html` | Test-Runner (126 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
 | `website/js/boot.js` | Theme-, Stil- und Layout-Flags | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Liest `din_settings` **einmal** und setzt `data-theme`, `data-style`, `data-guides`, `data-marks`, `data-sensitive-subject`. Die Checkboxen zieht `SettingsManager.applySettings()` nach |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |

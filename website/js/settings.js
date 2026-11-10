@@ -44,7 +44,7 @@ export class SettingsManager {
   #themeBooted = false;
   /** Letzter publizierter Plugin-Zustand, damit nicht jeder Apply ein Event wirft. */
   /** @type {boolean | null} */
-  #lastPluginMultipage = null;
+  #multipageGestartet = false;
 
   constructor() {
     /** @type {import('./persistence.js').DinSettings & { style?: string, previewFont?: string }} */
@@ -59,8 +59,7 @@ export class SettingsManager {
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.btnSensitiveSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-sensibler-betreff'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
-    this.pluginMultipageSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-multipage'));
-    this.blattLink = /** @type {HTMLLinkElement | null} */ (document.getElementById('css-blatt'));
+
     this.isReady = false;
   }
 
@@ -99,9 +98,6 @@ export class SettingsManager {
     if (this.pluginTestbriefSwitch) {
       this.pluginTestbriefSwitch.checked = Boolean(this.settings.pluginTestbrief);
     }
-    if (this.pluginMultipageSwitch) {
-      this.pluginMultipageSwitch.checked = Boolean(this.settings.pluginMultipage);
-    }
 
     this.#spiegleLayoutFlags();
     this.#applyPlugins();
@@ -114,29 +110,20 @@ export class SettingsManager {
    * nachgezogen (und korrigiert, falls das Boot-Script scheiterte).
    */
   /**
-   * Plugin-Schalter: Body-Attribute für CSS, Stylesheet-Hot-Swap und ein
-   * EventBus-Signal, damit main.js den Mehrseiten-Controller laden/stoppen kann.
-   * Alles deklarativ — kein Reload, kein zweites HTML.
+   * Plugin-Schalter: Body-Attribut fuer CSS. Der Mehrseiten-Modus ist fest
+   * eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]): kein Stylesheet-Tausch,
+   * kein Umschalt-Signal mehr — ein altes `pluginMultipage: false` im
+   * localStorage wird bewusst ignoriert.
    */
   #applyPlugins() {
     const testbrief = Boolean(this.settings.pluginTestbrief);
-    const multipage = Boolean(this.settings.pluginMultipage);
 
     document.documentElement.setAttribute('data-plugin-testbrief', String(testbrief));
-    document.documentElement.setAttribute('data-plugin-multipage', String(multipage));
+    document.documentElement.setAttribute('data-plugin-multipage', 'true');
 
-    if (this.blattLink) {
-      const ziel = multipage
-        ? this.blattLink.dataset.blattMehrseitig
-        : this.blattLink.dataset.blattEinseitig;
-      if (ziel && this.blattLink.getAttribute('href') !== ziel) {
-        this.blattLink.setAttribute('href', ziel);
-      }
-    }
-
-    if (this.#lastPluginMultipage !== multipage) {
-      this.#lastPluginMultipage = multipage;
-      eventBus.publish(Events.PLUGIN_MULTIPAGE_TOGGLED, { active: multipage });
+    if (!this.#multipageGestartet) {
+      this.#multipageGestartet = true;
+      eventBus.publish(Events.PLUGIN_MULTIPAGE_TOGGLED, { active: true });
     }
   }
 
@@ -308,13 +295,5 @@ export class SettingsManager {
       });
     }
 
-    const pluginMultipage = this.pluginMultipageSwitch;
-    if (pluginMultipage) {
-      pluginMultipage.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.pluginMultipage = pluginMultipage.checked;
-        this.updateSettings();
-      });
-    }
   }
 }

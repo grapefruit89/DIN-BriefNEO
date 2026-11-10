@@ -1267,4 +1267,3 @@ aside select {
    Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
    setzt SettingsManager.#applyPlugins() aus din_settings. */
 :root[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }
-:root[data-plugin-multipage="false"] .workbench-box { display: none !important; }

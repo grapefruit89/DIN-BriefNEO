@@ -2646,18 +2646,21 @@ describe('SettingsManager: Drill-Down Modus-Umschaltung (Seitenleiste)', () => {
     assertEqual(toggle.checked, false, 'btnZurueck schaltet auf Brief zurück');
   });
 
-  it('setzt data-plugin-testbrief und data-plugin-multipage an document.documentElement (FOUC-Schutz B1)', () => {
+  it('setzt data-plugin-testbrief, haelt data-plugin-multipage aber fest auf true', () => {
     const sm = new SettingsManager();
     sm.isReady = true;
 
     sm.settings.pluginTestbrief = false;
-    sm.settings.pluginMultipage = false;
+    /* Alt-Einstellung aus frueheren Versionen: der Einzelseiten-Modus ist
+       stillgelegt (ADR-EINSEITEN-STILLGELEGT), das Feld wird ignoriert.
+       Der Cast ist Absicht — das Feld existiert im Typ nicht mehr. */
+    /** @type {any} */ (sm.settings).pluginMultipage = false;
     sm.applySettings();
     assertEqual(document.documentElement.getAttribute('data-plugin-testbrief'), 'false');
-    assertEqual(document.documentElement.getAttribute('data-plugin-multipage'), 'false');
+    assertEqual(document.documentElement.getAttribute('data-plugin-multipage'), 'true',
+      'Alt-Einstellung pluginMultipage=false wird ignoriert');
 
     sm.settings.pluginTestbrief = true;
-    sm.settings.pluginMultipage = true;
     sm.applySettings();
     assertEqual(document.documentElement.getAttribute('data-plugin-testbrief'), 'true');
     assertEqual(document.documentElement.getAttribute('data-plugin-multipage'), 'true');

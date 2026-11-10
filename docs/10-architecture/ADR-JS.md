@@ -85,7 +85,7 @@ Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS
 ### 1. `boot.js` (Blocking Head-Script: FOUC-Schutz, Pre-Paint-Theme & Font-Initialisierung)
 * Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme` und `data-style` auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz).
 * Liest gespeicherte Benutzereinstellungen synchron aus dem `localStorage`.
-* Schaltet das Sheet-Tag (`<link id="css-blatt">`) synchron auf Mehrseiten-Betrieb um, falls aktiviert.
+* Setzt `data-plugin-multipage` fest auf `true` und tauscht **kein** Stylesheet mehr: der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]).
 * Validiert gespeicherte Custom-Fonts und registriert diese via `FontFace` API.
 
 ### 2. `webapi.d.ts` (Ambient TypeScript-Definitionen)

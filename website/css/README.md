@@ -32,10 +32,8 @@ Die Stylesheets werden bewusst und ausschließlich über statische `<link rel="s
 <!-- 3. Gemeinsame DIN-5008-Blattgeometrie & Faltmarken -->
 <link rel="stylesheet" href="css/sheet-common.css">
 
-<!-- 4. Dynamische Blatt-Schnittstelle: Einseitig vs. Mehrseitig -->
-<link rel="stylesheet" id="css-blatt" href="css/sheet.css"
-      data-blatt-einseitig="css/sheet.css"
-      data-blatt-mehrseitig="css/sheet-multipage.css">
+<!-- 4. Blatt-Schnittstelle: fest mehrseitig (Einzelseiten-Modus stillgelegt) -->
+<link rel="stylesheet" id="css-blatt" href="css/sheet-multipage.css">
 ```
 
 ### Cascade-Hierarchie:
@@ -82,10 +80,9 @@ Die Stylesheets werden bewusst und ausschließlich über statische `<link rel="s
 
 ### 4.1 Zirkuläre Importe & Lade-Konflikte
 - **`@import`-Audit:** **0 Vorkommen.** Keine einzige Datei nutzt `@import`. Dadurch entfallen Netzwerkkaskaden und Latenzen auf dem Critical Rendering Path (FCP) vollständig.
-- **Dynamischer Sheet-Austausch:**
-  - Der Wechsel zwischen Einseiten-Modus (`sheet.css`) und Mehrseiten-Modus (`sheet-multipage.css`) erfolgt über das Element `<link id="css-blatt">`.
-  - [`website/js/boot.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/boot.js) prüft das gespeicherte Setting synchron im `<head>` vor dem ersten Paint und setzt `href` auf `data-blatt-mehrseitig`. Dadurch wird jeglicher FOUC (Flash of Unstyled Content) oder sichtbares Springen verhindert.
-  - [`website/js/settings.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/settings.js) schaltet `href` bei Nutzerinteraktion zur Laufzeit unterbrechungsfrei um.
+- **Kein Sheet-Austausch mehr:** `sheet-multipage.css` ist fest verlinkt und damit render-blockierend — es gibt keinen Pfad mehr, auf dem ein zweites Layout nach dem ersten Paint nachrücken könnte.
+  - Der Einzelseiten-Modus (`sheet.css`) ist stillgelegt, die Datei bleibt ungenutzt liegen: siehe [ADR-EINSEITEN-STILLGELEGT](file:///home/moritz/repos/DIN-BriefNEO/docs/10-architecture/ADR-EINSEITEN-STILLGELEGT.md).
+  - Ein `link.href`-Tausch ist **nicht** render-blockierend; genau daran hing der gemessene FOUC (38 ms nackter Dokumentfluss, danach Blattlayout).
 
 ### 4.2 Custom Properties Single Source of Truth (SSoT)
 - **Root-Definitionen:**

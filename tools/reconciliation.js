@@ -45,6 +45,30 @@ function loadRulesFile(filePath, isOptional = false) {
       console.error(`FATAL: Rule ${rule.id} has invalid severity "${rule.severity}".`);
       process.exit(1);
     }
+    if (rule.max_violations !== undefined) {
+      if (!Number.isInteger(rule.max_violations) || rule.max_violations < 0) {
+        console.error(`FATAL: Rule ${rule.id} has invalid max_violations "${rule.max_violations}" (integer >= 0 expected).`);
+        process.exit(1);
+      }
+    }
+    if (rule.replacement !== undefined && typeof rule.replacement !== 'string') {
+      console.error(`FATAL: Rule ${rule.id} has invalid replacement (string expected).`);
+      process.exit(1);
+    }
+    for (const ex of rule.exemptions || []) {
+      if (!ex || typeof ex.file !== 'string' || !ex.file) {
+        console.error(`FATAL: Rule ${rule.id} has an exemption without "file".`);
+        process.exit(1);
+      }
+      if (ex.pattern !== undefined) {
+        try {
+          new RegExp(ex.pattern);
+        } catch {
+          console.error(`FATAL: Rule ${rule.id} has an exemption with an invalid pattern.`);
+          process.exit(1);
+        }
+      }
+    }
     try {
       new RegExp(rule.pattern || '^$', 'g');
     } catch (e) {
@@ -216,7 +240,17 @@ function isExempt(rule, filePath, line, lineContent) {
     const normFilePath = filePath.replace(/\\/g, '/');
     
     if (!normFilePath.endsWith(normExFile)) return false;
-    
+
+    /* Muster-Ausnahme (B1): exemptiert alle Zeilen, auf die das Muster passt.
+     * Robuster als Zeilennummern, die bei jeder Refaktorierung verrutschen. */
+    if (ex.pattern) {
+      try {
+        return new RegExp(ex.pattern).test(lineContent);
+      } catch {
+        return false;
+      }
+    }
+
     if (ex.line_range) {
       if (ex.line_range === '*') return true;
       const rangeMatch = ex.line_range.match(/^(\d+)-(\d+)$/);
@@ -237,6 +271,75 @@ function isExempt(rule, filePath, line, lineContent) {
     
     return false;
   });
+}
+
+/**
+ * Einzige Auswertung der Antipattern-Regeln — von der vollen Reconciliation
+ * (Fitness Gate) UND von `--only-rules` (pre-commit Stufe 4) genutzt. Zwei
+ * getrennte Schleifen gab es bis 2026-11-10; sie liefen auseinander, sobald
+ * eine Regel mehr konnte als die andere (max_violations wurde nur hier gelesen).
+ *
+ * Treffer werden pro REGEL ueber alle Dateien gesammelt, nicht pro Datei: nur so
+ * ist eine Ratsche formulierbar ("25 bekannte Stellen erlaubt, die 26. bricht").
+ * @param {string[]} codeFiles
+ */
+function evaluateAntipatterns(codeFiles) {
+  const ruleHits = new Map();
+  ANTIPATTERN_RULES.forEach(rule => ruleHits.set(rule.id, { rule, hits: [] }));
+
+  codeFiles.forEach(file => {
+    const relPath = path.relative(targetDir, file).replace(/\\/g, '/');
+    const content = fs.readFileSync(file, 'utf-8');
+    const lines = content.split(/\r?\n/);
+    const ext = path.extname(file);
+
+    ANTIPATTERN_RULES.forEach(rule => {
+      if (!matchFilePattern(relPath, rule.file_patterns)) return;
+      const stat = ruleHits.get(rule.id);
+
+      lines.forEach((line, index) => {
+        if (isExempt(rule, relPath, index + 1, line)) return;
+
+        let hasViolation = false;
+        if (CUSTOM_CHECKS[rule.id]) {
+          hasViolation = CUSTOM_CHECKS[rule.id](line, ext, relPath);
+        } else if (rule.pattern) {
+          const regex = new RegExp(rule.pattern, 'g');
+          hasViolation = regex.test(line);
+        }
+
+        if (hasViolation) {
+          stat.hits.push({ file_path: relPath, line: index + 1 });
+        }
+      });
+    });
+  });
+
+  const logs = [];
+  let checked = 0;
+  let passed = 0;
+
+  ruleHits.forEach(({ rule, hits }) => {
+    checked++;
+    const max = Number.isInteger(rule.max_violations) ? rule.max_violations : 0;
+    if (hits.length <= max) {
+      passed++;
+      return;
+    }
+    const ersatz = rule.replacement ? ` Ersatz: ${rule.replacement}` : '';
+    for (const hit of hits) {
+      logs.push({
+        file_path: hit.file_path,
+        check_type: 'antipattern',
+        severity: rule.severity,
+        antipattern_id: rule.id,
+        line: hit.line,
+        message: `[${rule.id}] Verstoss gegen "${rule.description}" in Zeile ${hit.line} (${hits.length} Treffer, erlaubt ${max}).${ersatz}`
+      });
+    }
+  });
+
+  return { checked, passed, logs };
 }
 
 // Liest eine einfache YAML-Liste (Key auf eigener Zeile, darunter eingerueckte
@@ -784,46 +887,10 @@ function runReconciliation() {
   
   const codeFiles = scanCodeFiles(websiteDir);
 
-  codeFiles.forEach(file => {
-    const relPath = path.relative(targetDir, file).replace(/\\/g, '/');
-    const content = fs.readFileSync(file, 'utf-8');
-    const lines = content.split(/\r?\n/);
-    const ext = path.extname(file);
-
-    ANTIPATTERN_RULES.forEach(rule => {
-      if (!matchFilePattern(relPath, rule.file_patterns)) return;
-
-      conformanceChecked++;
-      let ruleViolationCount = 0;
-
-      lines.forEach((line, index) => {
-        if (isExempt(rule, relPath, index + 1, line)) return;
-
-        let hasViolation = false;
-        if (CUSTOM_CHECKS[rule.id]) {
-          hasViolation = CUSTOM_CHECKS[rule.id](line, ext, relPath);
-        } else if (rule.pattern) {
-          const regex = new RegExp(rule.pattern, 'g');
-          hasViolation = regex.test(line);
-        }
-
-        if (hasViolation) {
-          ruleViolationCount++;
-          logs.push({
-            file_path: relPath,
-            check_type: 'antipattern',
-            severity: rule.severity,
-            antipattern_id: rule.id,
-            message: `[${rule.id}] Verstoff gegen "${rule.description}" in Zeile ${index + 1}`
-          });
-        }
-      });
-
-      if (ruleViolationCount === 0) {
-        conformancePassed++;
-      }
-    });
-  });
+  const antipatterns = evaluateAntipatterns(codeFiles);
+  conformanceChecked += antipatterns.checked;
+  conformancePassed += antipatterns.passed;
+  logs.push(...antipatterns.logs);
 
   const conformanceScore = conformanceChecked > 0 ? (conformancePassed / conformanceChecked) * 100 : 100;
 
@@ -885,39 +952,17 @@ module.exports = {
 
 function checkAntipatternsOnly() {
   const codeFiles = scanCodeFiles(websiteDir);
-  let violations = 0;
-  codeFiles.forEach(file => {
-    const relPath = path.relative(targetDir, file).replace(/\\/g, '/');
-    const content = fs.readFileSync(file, 'utf-8');
-    const lines = content.split(/\r?\n/);
-    const ext = path.extname(file);
+  const { checked, logs } = evaluateAntipatterns(codeFiles);
 
-    ANTIPATTERN_RULES.forEach(rule => {
-      if (!matchFilePattern(relPath, rule.file_patterns)) return;
-      lines.forEach((line, index) => {
-        if (isExempt(rule, relPath, index + 1, line)) return;
-        let hasViolation = false;
-        if (CUSTOM_CHECKS[rule.id]) {
-          hasViolation = CUSTOM_CHECKS[rule.id](line, ext, relPath);
-        } else if (rule.pattern) {
-          const regex = new RegExp(rule.pattern, 'g');
-          hasViolation = regex.test(line);
-        }
-        if (hasViolation) {
-          violations++;
-          console.error(`[${rule.severity.toUpperCase()}] ${relPath}:${index + 1} - [${rule.id}] ${rule.description}`);
-        }
-      });
-    });
-  });
-
-  if (violations > 0) {
-    console.error(`\n❌ ${violations} Antipattern-Verletzung(en) gefunden.`);
+  if (logs.length > 0) {
+    for (const log of logs) {
+      console.error(`[${log.severity.toUpperCase()}] ${log.file_path}:${log.line} - ${log.message}`);
+    }
+    console.error(`\n❌ ${logs.length} Antipattern-Verletzung(en) gefunden.`);
     process.exit(1);
-  } else {
-    console.log(`✓ Alle ${ANTIPATTERN_RULES.length} Antipattern-Regeln erfüllt (0 Verstöße).`);
-    process.exit(0);
   }
+  console.log(`✓ Alle ${checked} Antipattern-Regeln im Budget (0 Verstöße).`);
+  process.exit(0);
 }
 
 if (require.main === module) {

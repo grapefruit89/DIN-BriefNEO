@@ -456,6 +456,156 @@
         "website/js/*.js"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P28",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "text-fit fuer die Betreffzeile ist verworfen: wirkt nur bei echtem Ueberlauf und wuerde die normative Schriftgroesse unterschreiten.",
+      "pattern": "\\btext-fit\\s*:",
+      "file_patterns": [
+        "website/css/*.css",
+        "website/js/*.js",
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "12 pt normgerecht umbrechen (text-wrap: balance), kein Auto-Shrink.",
+      "exemptions": []
+    },
+    {
+      "id": "P29",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "margin-trim ist als Ersatz fuer String-Trimming verworfen (Margins sind keine Zeichen) und im Zielkontext wirkungslos gemessen.",
+      "pattern": "\\bmargin-trim\\s*:",
+      "file_patterns": [
+        "website/css/*.css",
+        "website/js/*.js",
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "#text p:last-child { margin-bottom: 0 } bleibt.",
+      "exemptions": []
+    },
+    {
+      "id": "P30",
+      "catalog_ref": [
+        "A61"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Die native Sanitizer API ist als Ersatz fuer sanitizeRichText verworfen: sie filtert Attribute, aber keine Klassenwerte. Der Kommentar in document.js nennt setHTML() nur als PREFERRED-Bezug.",
+      "pattern": "\\.\\s*setHTML\\s*\\(|\\bnew\\s+Sanitizer\\b",
+      "file_patterns": [
+        "website/js/*.js"
+      ],
+      "max_violations": 0,
+      "replacement": "sanitizeRichText (Allowlist inkl. span.brief-kommentar).",
+      "exemptions": []
+    },
+    {
+      "id": "P31",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "focusgroup ist als Ersatz der Pfeiltasten-Navigation verworfen: in Chrome 150 hinter einem Flag, anderes Interaktionsmodell (roving tabindex vs. aktiver Listenindex).",
+      "pattern": "\\bfocusgroup\\b",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "Vorhandene Pfeiltasten-Handler im Vorschlags-Popover.",
+      "exemptions": []
+    },
+    {
+      "id": "P32",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "datalist ist als Ersatz des eigenen Vorschlags-Popovers verworfen: Es fehlen Grosskunden-Kennzeichnung, Bundesland-Disambiguierung und zweite Zeile.",
+      "pattern": "<datalist\\b",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "Eigenes Popover bleibt.",
+      "exemptions": []
+    },
+    {
+      "id": "P33",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "text-overflow mit Zeichenkette ist verworfen: Ein Brief enthaelt keinen [mehr]-Hinweis, das ist Oberflaechensprache.",
+      "pattern": "text-overflow\\s*:\\s*['\"]",
+      "file_patterns": [
+        "website/css/*.css"
+      ],
+      "max_violations": 0,
+      "replacement": "text-overflow: ellipsis bleibt, wo noetig.",
+      "exemptions": []
+    },
+    {
+      "id": "P34",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "Ein textarea fuer den Briefkern ist verworfen: Replaced Element, nicht fragmentierbar; der Text muss per Multi-Column ueber Seiten fliessen.",
+      "pattern": "<textarea[^>]*id\\s*=\\s*[\"']text[\"']",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "contenteditable mit CSS Multi-Column.",
+      "exemptions": []
+    },
+    {
+      "id": "P35",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "input type=date fuer das Briefdatum ist verworfen: Es zeigt ISO/Locale, nicht die DIN-Alphaform.",
+      "pattern": "<input(?=[^>]*type\\s*=\\s*[\"']date[\"'])(?=[^>]*id\\s*=\\s*[\"']datum[\"'])[^>]*>",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "DIN-Alphaform in contenteditable (applyLetterDate).",
+      "exemptions": []
+    },
+    {
+      "id": "P36",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-10: abgelehnte Idee ohne Law-Catalog-Gesetz.",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "html",
+      "description": "plaintext-only auf dem Briefkern ist verworfen: Fett, Kursiv und Blockquote bleiben bewusst erlaubt.",
+      "pattern": "<[^>]*id\\s*=\\s*[\"']text[\"'][^>]*contenteditable\\s*=\\s*[\"']plaintext-only[\"'][^>]*>",
+      "file_patterns": [
+        "website/index.html"
+      ],
+      "max_violations": 0,
+      "replacement": "contenteditable=\"true\" (Formatierung bleibt).",
+      "exemptions": []
     }
   ]
 }

@@ -32,7 +32,7 @@ din-blatt {
   }
 
   /* :has()-Vorfahrenselektor fuer dynamische Blatt-Fokuszustaende */
-  &:has([contenteditable]:focus) {
+  &:has(:is([contenteditable], textarea[data-feldtyp]):focus) {
     box-shadow: 0 16px 48px oklch(from var(--accent-color) calc(l - 0.05) c h / 18%);
   }
 

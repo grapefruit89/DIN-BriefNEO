@@ -22,6 +22,15 @@
     <button type="button" id="hinweis-close" popovertarget="hinweis-v4" popovertargetaction="hide">×</button>
   </div>
 
+  <!-- Undo-Popover-Fixture: geschlossen darf es KEINE Klickfläche belegen.
+       Regression 2026-11-10: `display: flex` am Grundzustand überschrieb die
+       UA-Regel [popover]:not(:popover-open) { display: none }, der unsichtbare
+       Block lag über der Grußformel und schluckte Textauswahl. -->
+  <div id="undo-hinweis" popover="manual" class="hinweis-container type-info">
+    <span>Brief zurückgesetzt.</span>
+    <button type="button" id="btn-undo-reset" class="btn btn-ghost">Rückgängig</button>
+  </div>
+
   <!-- Sidebar Mode Toggle Fixture -->
   <input type="checkbox" id="toggle-modus" class="sr-only">
   <label for="toggle-modus" id="btn-einstellungen" tabindex="0" role="button"></label>

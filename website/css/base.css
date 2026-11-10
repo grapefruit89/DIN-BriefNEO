@@ -327,11 +327,17 @@ din-teilbetreff:empty {
     display: none !important;
 }
 
-[contenteditable] {
+[contenteditable],
+:is(textarea[data-feldtyp]) {
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
     border-radius: 0 !important;
+}
+
+/* Natives Placeholder-Hilfsmittel darf nie auf Papier landen. */
+textarea[data-feldtyp]::placeholder {
+    color: transparent !important;
 }
 
 [data-generated] {

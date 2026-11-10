@@ -907,7 +907,13 @@ input[type="checkbox"][switch] {
 #hinweis-v4[data-type="info"]    { border-left: 4px solid var(--c-primary); }
 #hinweis-v4[data-type="warning"] { border-left: 4px solid var(--c-warning); }
 
-/* Undo-Hinweis nach Reset (Top-Layer Popover) */
+/* Undo-Hinweis nach Reset (Top-Layer Popover).
+   WICHTIG: Hier steht bewusst KEIN `display` — die UA-Regel
+   `[popover]:not(:popover-open) { display: none }` muss greifen. Ein
+   `display: flex` an dieser Stelle überschreibt sie, das geschlossene
+   Popover bleibt mit opacity: 0 im Layout und fängt als unsichtbare
+   Fläche alle Klicks auf dem Brief ab (gemessen 2026-11-10: der Block lag
+   über der Grußformel, Textauswahl traf "Rückgängig"). */
 #undo-hinweis {
   position: fixed;
   top: 24px;
@@ -923,8 +929,7 @@ input[type="checkbox"][switch] {
   font-size: 0.875rem;
   font-weight: 500;
   box-shadow: var(--shadow-lg);
-  pointer-events: auto;
-  display: flex;
+  pointer-events: none;
   align-items: center;
   gap: 12px;
   opacity: 0;
@@ -938,6 +943,7 @@ input[type="checkbox"][switch] {
 
 #undo-hinweis:popover-open {
   display: flex;
+  pointer-events: auto;
   opacity: 1;
   transform: translateY(0);
 }

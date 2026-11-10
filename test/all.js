@@ -1086,6 +1086,40 @@ describe('W1 — Kommentare', () => {
   });
 });
 
+describe('Popover: geschlossener Undo-Hinweis blockiert keine Klickfläche', () => {
+  it('belegt im geschlossenen Zustand keinen Layout-Kasten', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('undo-hinweis'));
+    assert(el, 'Fixture #undo-hinweis vorhanden');
+    if (el.matches(':popover-open')) el.hidePopover();
+    const s = getComputedStyle(el);
+    assertEqual(s.display, 'none', 'display:none (UA-Regel greift)');
+    assertEqual(s.pointerEvents, 'none', 'keine Klickfläche');
+  });
+
+  it('ist im geöffneten Zustand sichtbar und klickbar', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('undo-hinweis'));
+    el.showPopover();
+    try {
+      const s = getComputedStyle(el);
+      assertEqual(s.display, 'flex', 'sichtbar als Flex-Kasten');
+      assertEqual(s.pointerEvents, 'auto', 'Klicks werden angenommen');
+    } finally {
+      el.hidePopover();
+    }
+  });
+});
+
+describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
+  it('nutzt einen gemeinsamen Selektor für Ruhe, Hover und Fokus', async () => {
+    const res = await fetch('/website/css/sheet-common.css');
+    const css = await res.text();
+    const gemeinsam = ':is([contenteditable], textarea[data-feldtyp])';
+    assert(css.includes(gemeinsam), 'Grundzustand teilt den Selektor');
+    assert(css.includes(`${gemeinsam}:hover:not(:focus)`), 'Hover-Regel teilt den Selektor');
+    assert(css.includes(`${gemeinsam}:focus`), 'Fokus-Regel teilt den Selektor');
+  });
+});
+
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
   it('save und load speichern und lesen Plain Strings', () => {
     save('test_str_key', 'plain_value');

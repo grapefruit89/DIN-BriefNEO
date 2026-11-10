@@ -194,7 +194,6 @@ din-anlagenvermerk {
   display: block;
   font-weight: 700;
   margin-bottom: 0;
-  cursor: pointer;
 }
 
 din-anlagen-angabe {
@@ -204,7 +203,8 @@ din-anlagen-angabe {
 #anlagen-angabe {
   display: block;
   appearance: none;
-  background: transparent;
+  /* Kein `background` hier: die ID-Spezifität würde sonst die Hover-/Fokus-
+     Tönung aus dem gemeinsamen Feld-Chrom (@scope din-blatt) überstimmen. */
   border: none;
   padding: 0;
   margin: 0;
@@ -354,7 +354,10 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
 
 @scope (din-blatt) {
 
-  [contenteditable] {
+  /* Ein gemeinsamer Selektor für alle Blattfelder: contenteditable-Felder UND
+     native Felder (textarea[data-feldtyp], z. B. anlagen-angabe). Sonst hätte ein
+     natives Feld einen anderen Ruhe-/Hover-/Fokuszustand als seine Nachbarn. */
+  :is([contenteditable], textarea[data-feldtyp]) {
       /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
       outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
       outline-offset: -1px;
@@ -363,18 +366,18 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
     }
 
-  :root:not([data-guides="true"]) & [contenteditable]:not(:hover):not(:focus) {
+  :root:not([data-guides="true"]) & :is([contenteditable], textarea[data-feldtyp]):not(:hover):not(:focus) {
       outline: none;
     }
 
-  [contenteditable]:hover:not(:focus) {
+  :is([contenteditable], textarea[data-feldtyp]):hover:not(:focus) {
       /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
       outline: 1.5px solid var(--accent-color);
       outline-offset: -1.5px;
       background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
     }
 
-  [contenteditable]:focus {
+  :is([contenteditable], textarea[data-feldtyp]):focus {
       /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
       outline: 2px solid var(--accent-color);
       outline-offset: -2px;

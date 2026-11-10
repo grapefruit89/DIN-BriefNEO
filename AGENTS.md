@@ -345,8 +345,27 @@ Was **nicht** als „Bug" gilt: fehlende Features, Performance-Optimierungen,
 Stil-Änderungen, „das könnte man besser machen". Diese gehören nach `todo/`,
 nicht in einen Sofort-Fix.
 
-### Commits
+### Pixel-Perfect-Nachweis bei Element-Umbauten
 
+Bei jedem Umbau, der ein sichtbares Element ersetzt (contenteditable → input/textarea,
+div → span, custom element → natives Element), ist ein Vorher/Nachher-Nachweis Pflicht:
+
+1. **Vor dem Umbau:** `getBoundingClientRect()` für das Element und seinen Container
+   messen (x, y, width, height). Werte notieren.
+2. Umbau.
+3. **Nach dem Umbau:** dieselben Messungen.
+4. **Delta-Tabelle im Output:** Element | x vorher | x nachher | Δx | y | Δy | width |
+   Δwidth | height | Δheight.
+5. **Akzeptanz:** Δ ≤ 0.5 px in allen Dimensionen. Wenn größer: Ursache finden
+   (CSS-Reset, Box-Modell, baseline) und fixen, bevor der Umbau als fertig gilt.
+6. **Messung mit CDP/F12, nicht nach Augenmaß.** Der Debug-Browser
+   (`tools/browser.mjs` oder gleichwertig) ist das Werkzeug.
+
+Gilt **nicht** für: reine Farb-/Schrift-Änderungen, neue Elemente ohne Vorgänger,
+Elemente außerhalb des Briefblatts (Sidebar).
+Gilt **für**: jedes Element, das auf dem Papier sichtbar ist.
+
+### Commits
 Der Agent committet selbst, sobald alle Gates grün sind. Die Prüfliste steht im
 Tätigkeitsbericht-Vertrag weiter unten (Fitness 100 %, Tests grün, Biome 0,
 Antipattern im Budget) — hier nicht wiederholt.

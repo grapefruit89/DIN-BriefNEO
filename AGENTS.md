@@ -324,6 +324,45 @@ Aufgabe in ein prüfbares Ziel übersetzen („Bug beheben" → „Test schreibe
 reproduziert, dann grün machen"). Bei mehrstufigen Aufgaben kurzen Plan nennen:
 `1. [Schritt] → Prüfung: [Check]`.
 
+### Bugs sofort beseitigen — ohne Kollateralschaden
+
+Wenn du beim Arbeiten einen Bug findest (fehlgeschlagene Zusicherung, toter Guard,
+falsche Typ-Annahme, stiller Fehlschlag, subtiler Datenfehler), beseitige ihn sofort —
+ohne zu fragen. Aber:
+
+1. **Isoliere den Fix.** Kein Refactoring „nebenbei", keine Verhaltensänderung
+   außerhalb des Bugs.
+2. **Schreibe einen Test, der den Bug reproduziert** (rot vor dem Fix, grün danach).
+   Wenn kein Test möglich ist: dokumentiere, warum.
+3. **Gates nach dem Fix:** `build_db -q`, `test-runner`, `biome`. Bei rot:
+   zurückrollen, Ursache melden.
+4. **Melde den Bug im Output:** Datei:Zeile, Symptom, Fix, Test.
+5. **Wenn der Fix einen Vertrag ändert** (z. B. eine bestehende Zusicherung
+   angepasst werden muss): dokumentiere die Vertragsänderung explizit, wie bei der
+   Allowlist-Erweiterung (I/EM) geschehen.
+
+Was **nicht** als „Bug" gilt: fehlende Features, Performance-Optimierungen,
+Stil-Änderungen, „das könnte man besser machen". Diese gehören nach `todo/`,
+nicht in einen Sofort-Fix.
+
+### Commits
+
+Der Agent committet selbst, sobald alle Gates grün sind. Die Prüfliste steht im
+Tätigkeitsbericht-Vertrag weiter unten (Fitness 100 %, Tests grün, Biome 0,
+Antipattern im Budget) — hier nicht wiederholt.
+
+**Commit-Message-Format:**
+- Zeile 1: kurz, deutsch, max. 72 Zeichen
+- Leerzeile
+- Body: Was, Warum, welche Dateien
+- Kein „Co-authored-by", keine Emojis im Body
+- Stil analog zu `93140cb`, `f1545aa`, `55936b5`
+
+**Push:** nur wenn der Auftrag es explizit sagt oder der Nutzer im laufenden
+Dialog „push" sagt. Sonst: Commit ja, Push nein.
+
+Nach jedem Commit: `git status` prüfen. Arbeitsbaum muss sauber sein.
+
 ### Experimentelle APIs absichern
 Moderne APIs sind ausdrücklich erwünscht (`Temporal`, `startViewTransition`), müssen aber
 feature-detected oder in `try/catch` laufen. Im Boot-Pfad (`DOMContentLoaded`) darf ein

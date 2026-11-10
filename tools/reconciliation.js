@@ -55,6 +55,18 @@ function loadRulesFile(filePath, isOptional = false) {
       console.error(`FATAL: Rule ${rule.id} has invalid replacement (string expected).`);
       process.exit(1);
     }
+    if (rule.ignore_line_pattern !== undefined) {
+      if (typeof rule.ignore_line_pattern !== 'string' || !rule.ignore_line_pattern) {
+        console.error(`FATAL: Rule ${rule.id} has invalid ignore_line_pattern (non-empty string expected).`);
+        process.exit(1);
+      }
+      try {
+        new RegExp(rule.ignore_line_pattern);
+      } catch {
+        console.error(`FATAL: Rule ${rule.id} has an invalid ignore_line_pattern regex.`);
+        process.exit(1);
+      }
+    }
     for (const ex of rule.exemptions || []) {
       if (!ex || typeof ex.file !== 'string' || !ex.file) {
         console.error(`FATAL: Rule ${rule.id} has an exemption without "file".`);
@@ -296,8 +308,13 @@ function evaluateAntipatterns(codeFiles) {
     ANTIPATTERN_RULES.forEach(rule => {
       if (!matchFilePattern(relPath, rule.file_patterns)) return;
       const stat = ruleHits.get(rule.id);
+      /* Kommentarzeilen vor der Regel-Prüfung verwerfen (optional, pro Regel).
+       * Bewusst konservativ: nur Zeilen, die mit //, * oder /* beginnen —
+       * Inline-Kommentare bleiben ein (selteneres) False Negative. */
+      const ignoreRe = rule.ignore_line_pattern ? new RegExp(rule.ignore_line_pattern) : null;
 
       lines.forEach((line, index) => {
+        if (ignoreRe && ignoreRe.test(line)) return;
         if (isExempt(rule, relPath, index + 1, line)) return;
 
         let hasViolation = false;

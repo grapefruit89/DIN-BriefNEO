@@ -32,6 +32,7 @@
       "category": "javascript",
       "description": "document.execCommand()/queryCommandState() in jeder Form ist Catalog HARD BAN A52 (deprecated, inkonsistent zwischen Engines). Ersatz: gezielte DOM-Mutation + Selection API.",
       "pattern": "\\bexecCommand\\(|\\bqueryCommandState\\(",
+      "ignore_line_pattern": "^\\s*(?://|\\*|/\\*)",
       "file_patterns": [
         "*.js"
       ],

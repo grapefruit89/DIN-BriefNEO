@@ -1027,6 +1027,36 @@ describe('parseDinLetterPayload — Schema-Reihenfolge', () => {
   });
 });
 
+describe('W1 — Kommentare', () => {
+  /** @type {any} */
+  let w1 = null;
+  const ladeW1 = async () => {
+    if (w1) return w1;
+    const res = await fetch('/tools/antipatterns/base.json');
+    const data = await res.json();
+    w1 = data.rules.find((/** @type {any} */ r) => r.id === 'W1');
+    return w1;
+  };
+
+  it('ignoriert Kommentarzeilen (kein False Positive)', async () => {
+    const rule = await ladeW1();
+    assert(rule, 'W1 existiert');
+    assert(typeof rule.ignore_line_pattern === 'string', 'ignore_line_pattern ist gesetzt');
+    const re = new RegExp(rule.ignore_line_pattern);
+    assert(re.test("// document.execCommand('bold')"), 'Zeilenkommentar wird ignoriert');
+    assert(re.test(' * queryCommandState()'), 'JSDoc-Zeile wird ignoriert');
+    assert(re.test('  /* execCommand() */'), 'Blockkommentar wird ignoriert');
+  });
+
+  it('trifft echten Code weiterhin (Regression)', async () => {
+    const rule = await ladeW1();
+    const ignoreRe = new RegExp(rule.ignore_line_pattern);
+    const code = "document.execCommand('bold');";
+    assert(!ignoreRe.test(code), 'Codezeile wird nicht ignoriert');
+    assert(new RegExp(rule.pattern).test(code), 'W1-Pattern trifft die Codezeile weiterhin');
+  });
+});
+
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
   it('save und load speichern und lesen Plain Strings', () => {
     save('test_str_key', 'plain_value');

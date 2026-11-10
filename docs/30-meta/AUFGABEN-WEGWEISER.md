@@ -113,11 +113,13 @@ Nie direkt aus dem DOM exportieren.
 
 ```text
 2026-11-10 (zuletzt gepflegt)
-Testsuite:        189 Fälle
+Testsuite:        222 Fälle
 Antipattern:      48 Regeln (4 base + 7 web + 37 project), Ratsche aktiv
 Fitness:          100.0 % (clean)
 Figurenkatalog:   297 Figuren, 729 Hooks, Tupel-Schema 2.1
 Schriften:        Aptos, Inter 18pt (regular/bold), Michelangelus als WOFF2 gebündelt
+Stillgelegt:      Einzelseiten-Modus — website/css/sheet.css ungenutzt
+                  (ADR-EINSEITEN-STILLGELEGT)
 ```
 
 ## 6. Wenn die Aufgabe nicht in Sektion 1 steht

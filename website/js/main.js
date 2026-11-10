@@ -139,10 +139,9 @@ function initApp() {
   bootStep('Schriftart', () => new FontFeature(settingsManager).init());
   bootStep('Testdaten', () => initTestData());
 
-  /* Letzter Schritt: Platzhalter freigeben (FOUC-Schutz, sheet-common.css).
-   * Erst hier sind Entwurf, Briefdatum und Unterschrift gesetzt — vorher
-   * wuerden die Platzhaltertexte kurz auf dem Papier stehen. */
   bootStep('Darstellung freigeben', () => {
+    // data-ready schaltet die Platzhalter frei (siehe sheet-common.css).
+    // Bei Fehlschlag dieses Schritts versteckt boot.js sie nach 2 s (Sicherheitsnetz).
     document.documentElement.dataset.ready = 'true';
   });
 }

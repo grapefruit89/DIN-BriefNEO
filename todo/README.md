@@ -54,6 +54,7 @@
 | **43** | **`#moveCaretToEnd`-Wrapper entfernen** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt (Wrapper entfernt) |
 | **44** | **Magic Numbers 50/130 als Konstanten** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt (benannte Konstanten) |
 | **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt 2026-11-07 — `feld()`-Cache mit `isConnected`-Prüfung |
+| **46** | **`sheet.css` endgültig entfernen (Einzelseiten-Modus)** | XS | ⭐ | [`ADR-EINSEITEN-STILLGELEGT`](../docs/10-architecture/ADR-EINSEITEN-STILLGELEGT.md) | Offen — prüfen ab 2027-01-10 (8 Wochen nach Stilllegung 2026-11-10): wenn niemand den Modus vermisst, `sheet.css` löschen; sonst Stilllegung bestätigen |
 
 ---
 

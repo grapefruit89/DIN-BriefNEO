@@ -1246,6 +1246,24 @@ describe('Rücksendeangabe — Text-Breite', () => {
   });
 });
 
+describe('din-geschaeftsangaben — kein toter data-bottom', () => {
+  /* Gemessen (2026-11-11): die Print-Regel setzt top: 280mm und height: 15mm.
+   * Ein zusaetzliches bottom ist bei absolut positionierten Elementen
+   * over-constrained und wird ignoriert — erzwungenes `bottom: 100mm
+   * !important` aenderte die Fusszeile nicht (282,07..294,77mm unveraendert).
+   * data-bottom="10" war also im Mehrseiten-Modus toter Code. */
+  it('Fusszeile und Kern tragen kein data-bottom mehr', async () => {
+    const src = await (await fetch('/website/index.html')).text();
+    const fuss = (src.match(/<din-geschaeftsangaben[^>]*>/) || [])[0] ?? '';
+    assert(fuss !== '', 'din-geschaeftsangaben gefunden');
+    assert(fuss.includes('data-bottom') === false, 'kein data-bottom auf din-geschaeftsangaben');
+    const kern = (src.match(/<din-kern[^>]*>/) || [])[0] ?? '';
+    assert(kern.includes('data-bottom') === false, 'Regression: din-kern bleibt ohne data-bottom');
+    // Die Geometrie kommt weiterhin aus data-h (15mm) und der Print-Regel.
+    assert(fuss.includes('data-h="15"'), 'data-h="15" bleibt erhalten');
+  });
+});
+
 describe('#kern — kein toter data-bottom', () => {
   /* Gemessen (2026-11-11): #kern ist im Mehrseiten-Modus `position: relative`
    * (sheet-multipage.css), dort wirkt `bottom` nicht. data-bottom="30" wurde
@@ -1258,9 +1276,11 @@ describe('#kern — kein toter data-bottom', () => {
     const kern = (src.match(/<din-kern[^>]*>/) || [])[0] ?? '';
     assert(kern !== '', 'din-kern gefunden');
     assert(kern.includes('data-bottom') === false, 'kein data-bottom auf #kern');
-    // Schutz gegen zu viel Loeschen: die Fusszeile braucht ihr eigenes Attribut.
-    const fuss = (src.match(/<din-geschaeftsangaben[^>]*>/) || [])[0] ?? '';
-    assert(fuss.includes('data-bottom="10"'), 'din-geschaeftsangaben behaelt data-bottom="10"');
+    /* Vertragsänderung 2026-11-11: hier stand zuvor "din-geschaeftsangaben
+     * behaelt data-bottom=10" als Schutz gegen zu viel Loeschen. Die Messung
+     * in Teil A hat gezeigt, dass auch dort `bottom` ignoriert wird — das
+     * Attribut ist entfernt, die Schutzassertion steht jetzt im
+     * geschaeftsangaben-Test. */
   });
 });
 

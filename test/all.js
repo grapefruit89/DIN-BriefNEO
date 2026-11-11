@@ -1428,6 +1428,36 @@ describe('Betreff — Abstand zum Infoblock', () => {
   });
 });
 
+describe('WYSIWYG — Bildschirm und Druck gleich', () => {
+  /* Gemessen (2026-11-11): der Betreff stand auf dem Bildschirm 25mm tiefer als
+   * im PDF (105,11 vs 80,11mm), weil #kern im Screen padding-top: 25mm
+   * (--rand-o) hatte, im Druck 0. Zusaetzlich behauptete eine Print-Regel
+   * `#spacer { height: 98.46mm !important }` eine andere Spacer-Hoehe, wurde
+   * aber von `max-height: var(--spacer-hoehe)` geklemmt (No-Op). */
+  it('keine !important-Hoehe auf #spacer (max-height klemmt sie ohnehin)', async () => {
+    const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
+    /* Kommentare zuerst entfernen: die geloeschten Regeln sind dort zitiert,
+       und ein Regex ohne Kommentar-Strip wuerde die Zitate finden. */
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const treffer = css.match(/#spacer\s*\{[^}]*?height:\s*[\d.]+mm\s*!important/g) || [];
+    assertEqual(treffer.length, 0, 'kein #spacer mit !important-Hoehe');
+    // Die Hoehe kommt allein aus der Variablen, die beide Pfade lesen.
+    assert(/--spacer-hoehe:\s*calc\(98\.46mm - var\(--rand-o\)\)/.test(css),
+      '--spacer-hoehe bleibt 98.46mm - rand-o (73,46mm)');
+  });
+
+  it('das Print-Override fuer #kern traegt keinen zusaetzlichen oberen Rand', async () => {
+    const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const basis = (css.match(/#kern\s*\{([^}]*)\}/) || [])[1] ?? '';
+    const pad = (basis.match(/padding:\s*([^;]+);/) || [])[1] ?? '';
+    assert(pad.trim().startsWith('0 '), `Basis-Padding beginnt mit 0 (ist "${pad.trim()}")`);
+    // Der Druck setzt ebenfalls padding-top 0 — kein Pfad darf 25mm addieren.
+    assert(/padding:\s*0 20mm var\(--rand-u\) 25mm !important/.test(css),
+      'Print-Override bleibt bei padding-top 0');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

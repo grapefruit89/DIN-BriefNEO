@@ -226,7 +226,12 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     position: relative;
     width: 210mm;
     min-height: var(--seite);
-    padding: var(--rand-o) var(--rand-r) var(--rand-u) var(--rand-l);
+    /* padding-top 0 in BEIDEN Pfaden: der Abstand zum Blattrand kommt aus
+       #spacer (--spacer-hoehe), nicht zusaetzlich aus dem Padding. Vorher
+       hatte der Bildschirm hier 25mm (--rand-o), der Druck 0 — deshalb stand
+       der Betreff auf dem Schirm 25mm tiefer als im PDF (gemessen 2026-11-11:
+       105,11 vs 80,11mm). */
+    padding: 0 var(--rand-r) var(--rand-u) var(--rand-l);
     column-count: 1;
     column-height: var(--nutz);
     column-wrap: wrap;
@@ -522,14 +527,14 @@ din-blatt[data-ueberlauf="true"]::after {
     display: block !important;
   }
 
-  #spacer {
-    height: 98.46mm !important; /* Form B: Betreff auf Seite 1 */
-  }
-
-  :root[data-layout="form-a"] #spacer,
-  body:has(#btn-form-a:checked) #spacer {
-    height: 80.46mm !important; /* Form A */
-  }
+  /* Hier standen zwei wirkungslose Regeln:
+       #spacer { height: 98.46mm !important; }        (Form B)
+       … [data-layout="form-a"] #spacer { height: 80.46mm !important; }
+     Beide wurden von `max-height: var(--spacer-hoehe)` (73,46 bzw. 55,46mm,
+     ohne !important) geklemmt — ein normaler max-height schlaegt ein
+     !important-height. Sie lieferten also nie 98,46mm, sondern behaupteten
+     es nur. Der Abstand kommt jetzt ausschliesslich aus --spacer-hoehe
+     (2026-11-11 entfernt). */
 
   #betreff {
     display: block !important;

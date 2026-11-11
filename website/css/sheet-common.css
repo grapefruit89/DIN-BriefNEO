@@ -86,9 +86,17 @@ din-empfaenger-strasse:empty {
   visibility: hidden;
 }
 
+/* DIN 5008 § 20.9.2 (Normtext Z. 1956): „Sofern im Betreff vertrauliche oder
+   sensible Daten angegeben werden … empfiehlt es sich, den Betreff um den
+   Abstand von ein bis zwei Leerzeilen tiefer beginnen zu lassen." Also
+   RELATIV zur normalen Betreff-Position — zwei Leerzeilen à 4,23mm = 8,46mm.
+   Vorher stand hier der Absolutwert 8.46mm (Basis war damals 6,65mm); seit der
+   Betreff auf 107mm sitzt, hätte das den sensiblen Betreff 25mm nach OBEN in
+   den Infoblock gerissen (gemessen 2026-11-11). Darum Basis + 8,46 = 42,00mm
+   -> 115,46mm. */
 :root[data-sensitive-subject="true"] #betreff,
 :root:has(#toggle-sensibler-betreff:checked) #betreff {
-  margin-top: 8.46mm;
+  margin-top: calc(33.54mm + 8.46mm);
   transition: margin-top 0.15s ease-out;
 }
 

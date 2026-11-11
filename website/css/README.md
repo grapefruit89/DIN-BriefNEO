@@ -33,7 +33,7 @@ Die Stylesheets werden bewusst und ausschließlich über statische `<link rel="s
 <link rel="stylesheet" href="css/sheet-common.css">
 
 <!-- 4. Blatt-Schnittstelle: fest mehrseitig (Einzelseiten-Modus stillgelegt) -->
-<link rel="stylesheet" id="css-blatt" href="css/sheet-multipage.css">
+<link rel="stylesheet" href="css/sheet-multipage.css">
 ```
 
 ### Cascade-Hierarchie:

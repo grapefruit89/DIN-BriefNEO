@@ -354,6 +354,15 @@ alten Dateien?"-Frage. Schema-Änderungen (z. B. v4 → v5)
 brechen alte Dateien bewusst: Alte JSONs werden abgelehnt,
 nicht migriert. Der Agent fragt nicht nach Abwärtskompatibilität.
 
+Verifiziertes Verhalten (2026-11-11), damit niemand raten muss:
+
+- **Entwürfe im LocalStorage sind versionslos.** `din_draft_current` ist ein
+  Feld-Objekt ohne `schema_version`; der Loader liest nur bekannte Schlüssel.
+  Ein Alt-Wert (z. B. `teilbetreff`) wird ignoriert, das Booten blockiert nie.
+- **Export-Dateien sind versioniert.** Der Import prüft `schema_version` und
+  `_meta.schema` und lehnt einen fremden Stand mit sichtbarer Meldung ab —
+  nie halb eingelesen, nie stillschweigend umgedeutet.
+
 ### Pixel-Perfect-Nachweis bei Element-Umbauten
 
 Bei jedem Umbau, der ein sichtbares Element ersetzt (contenteditable → input/textarea,
@@ -422,7 +431,7 @@ Projektweiter, verbindlicher Standard für alle Agenten-Schnittstellen (CLI, Ant
 - **Verbindliches Berichts-Schema (5 Pflicht-Punkte):**
   1. **Angefasste Dateien & Pfade:** Vollständige absolute Pfadliste aller geänderten, erstellten oder gelöschten Dateien inkl. Status (`git mv`, `git rm`, `edit`).
   2. **Gefundene Probleme & Konflikte:** Identifizierte Invarianten-Verstöße, Inkonsistenzen oder Regressionsrisiken (bzw. Bestätigung: *„Keine Konflikte“*).
-  3. **Vollzugsnachweis & Testmetriken:** Konkrete Ergebnisse der Testläufe (Unit-Tests bestanden/gesamt, Adress-Korpus-Gate bestanden/known, Antipattern-Prüfung 36/36).
+  3. **Vollzugsnachweis & Testmetriken:** Konkrete Ergebnisse der Testläufe (Unit-Tests bestanden/gesamt, Adress-Korpus-Gate bestanden/known, Antipattern-Prüfung 49 Regeln, 0 blockierende).
   4. **Fitness-Score:** Evolutionary Fitness Score via `node tools/build_db.js -q` (Soll: 100.0% clean).
   5. **Commit-Hash & Push-Bestätigung:** SHA-Hash des Git-Commits und Bestätigung des Pushes auf `main`.
 

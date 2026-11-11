@@ -234,6 +234,23 @@ din-anlagen-angabe {
   flex-shrink: 0;
 }
 
+/* DIN 5008 Tab. B.1, Fussnote a: "Zeilenhöhe 4,23 mm (= 12 Punkt)". Die vier
+   Empfaengerzeilen brauchen dieses Raster: ab der ersten Zeile der
+   Anschriftzone (63,5 mm) laufen sie mit 1.4em (4,94 mm) bei vier Zeilen bis
+   83,3 mm und damit in den Betreff (80,63 mm, gemessen 2026-11-11). Andere
+   .single-line-Felder (Absender, Fusszeile, Datum) behalten 1.4em.
+   IDs statt Tag-Selektoren, weil `.single-line` als Klasse (0,1,0) eine
+   Element-Regel (0,0,1) schlaegt. */
+#empfaenger-firma,
+#empfaenger-name,
+#empfaenger-strasse,
+#empfaenger-ort {
+  height: 1.2em;
+  min-height: 1.2em;
+  max-height: 1.2em;
+  line-height: 1.2;
+}
+
 .single-line[contenteditable]:focus {
   /* Kein vertikales Überlaufen benachbarter Zeilen: horizontal mitwandern */
   text-overflow: clip;
@@ -434,12 +451,13 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       padding: 3px 6px;
       box-sizing: border-box;
       position: absolute;
-      /* data-visier-top meint den Abstand zur ANSCHRIFTZONE, nicht zur
-         Blockoberkante. Seit 9716cff beginnt der Block bei der Rücksendezeile
-         (--briefkopf-y) und die Anschriftzone erst padding-top tiefer —
-         ohne diesen Versatz sitzt das Label 6 mm (Form A: 7 mm) zu hoch
-         (gemessen 2026-11-11: 40,00 mm statt 46,00 mm). */
-      top: calc(var(--anschriftfeld-y) - var(--briefkopf-y) - --mm-y(attr(data-visier-top type(<number>))));
+      /* data-visier-top meint den Abstand zur OBERKANTE DER ANSCHRIFTZONE.
+         Seit dem DIN-Fix (2026-11-11) beginnt #anschriftfeld selbst auf der
+         obersten Zeile der Zusatz-/Vermerkzone (--anschriftfeld-y,
+         Tab. B.1: 33,9/50,8), das Visier sitzt visier-top darueber. Vorher
+         lag der Block 6mm (Form A: 7mm) hoeher (--briefkopf-y), und die Formel
+         musste den Versatz beider Bezugslinien herausrechnen. */
+      top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
       left: 0;
       width: --mm-x(attr(data-visier-w type(<number>)));
       height: --mm-y(attr(data-visier-h type(<number>)));

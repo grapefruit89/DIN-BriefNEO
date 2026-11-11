@@ -1395,19 +1395,67 @@ describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
 });
 
 describe('Kuvert-Label — relativ zur Anschriftzone', () => {
-  /* Gemessen (2026-11-11): nach dem Gruppieren des Anschriftfelds (9716cff)
-   * saß das Label bei 40,00 mm (Form B) statt 46,00 mm, weil ::after relativ
-   * zur Blockoberkante positioniert war. data-visier-top meint aber den
-   * Abstand zur Anschriftzone. */
-  it('::after beruecksichtigt den Versatz zwischen Block und Anschriftzone', async () => {
+  /* Gemessen (2026-11-11): seit dem DIN-Fix beginnt #anschriftfeld selbst auf
+   * der obersten Zeile der Zusatz-/Vermerkzone (--anschriftfeld-y, Tab. B.1:
+   * 33,9/50,8mm). Das Visier sitzt data-visier-top darueber, also braucht die
+   * Formel keinen Block-Versatz mehr — Label bleibt bei 46,00mm (Form B). */
+  it('::after sitzt visier-top ueber der Anschriftzone, ohne Block-Versatz', async () => {
     const css = await (await fetch('/website/css/sheet-common.css')).text();
     const regel = (css.match(/#anschriftfeld::after\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(regel !== '', 'Regel #anschriftfeld::after gefunden');
     const top = (regel.match(/top:\s*([^;]+);/) || [])[1] ?? '';
-    assert(top.includes('var(--anschriftfeld-y) - var(--briefkopf-y)'),
-      'top enthält den Block-Versatz (anschriftfeld-y − briefkopf-y)');
-    assert(top.includes('data-visier-top'), 'data-visier-top bleibt die Bezugsgröße');
-    assert(top.startsWith('calc(-1') === false, 'kein nacktes -visier-top mehr');
+    assert(top.includes('--mm-y(attr(data-visier-top'), 'data-visier-top bleibt die Bezugsgroesse');
+    assert(top.includes('--briefkopf-y') === false,
+      'kein Block-Versatz mehr (der Block beginnt jetzt auf der Anschriftzone)');
+    assert(top.includes('-1 *'), 'negativer Versatz: Label sitzt ueber der Zonenkante');
+  });
+});
+
+describe('Anschriftfeld — DIN-Zone reserviert', () => {
+  /* DIN 5008 Tab. B.1: oberste Zeile Zusatz-/Vermerkzone Form A 33,9 / Form B
+   * 50,8mm; erste Zeile Anschriftzone 46,6 / 63,5mm (§ 19.4.3: Feld 17,7mm
+   * hoch). Gemessen (2026-11-11, 7d3d565): der Block begann bei --briefkopf-y
+   * (27/45), die Ruecksendezeile stand bei 45,16 statt 50,8 und die Empfaenger
+   * bei 51,36 statt 63,5. */
+  it('beginnt auf --anschriftfeld-y und reserviert 12,7mm bis zur Anschriftzone', async () => {
+    const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const block = (css.match(/#anschriftfeld\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(block !== '', 'Regel #anschriftfeld gefunden');
+    assert(/top:\s*var\(--anschriftfeld-y\)/.test(block), 'top = --anschriftfeld-y (50,8/33,9)');
+    assert(block.includes('--briefkopf-y') === false, 'nicht mehr --briefkopf-y (45/27)');
+    assert(block.includes('padding-top: 12.7mm'), 'padding-top 12,7mm (63,5 - 50,8)');
+    assert(block.includes('height: --mm-abs-y(attr(data-h'), 'Hoehe bleibt data-h (45mm)');
+  });
+
+  it('positioniert den Postvermerk absolut unter der Ruecksendezeile', async () => {
+    const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const block = (css.match(/#vermerke\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(block !== '', 'Regel #vermerke gefunden');
+    assert(block.includes('position: absolute'), 'absolut: verschiebt die Anschriftzone nicht');
+    assert(block.includes('top: 1.4em'), 'top 1.4em (direkt unter der Ruecksendezeile)');
+  });
+});
+
+describe('Empfaengerzeilen — DIN-Raster 4,23 mm', () => {
+  /* DIN Tab. B.1, Fussnote a: Zeilenhoehe 4,23mm = 12pt. Gemessen
+   * (2026-11-11): mit .single-line (1.4em = 4,94mm) endeten vier
+   * Empfaengerzeilen ab 63,5mm bei 83,3mm und liefen in den Betreff
+   * (80,63mm). 1.2em bei 10pt = 12pt = 4,23mm. */
+  it('setzt die vier Empfaengerzeilen auf 1.2em, andere .single-line-Felder bleiben', async () => {
+    const roh = await (await fetch('/website/css/sheet-common.css')).text();
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const block =
+      (css.match(/#empfaenger-firma,\s*#empfaenger-name,\s*#empfaenger-strasse,\s*#empfaenger-ort\s*\{([^}]*)\}/) ||
+        [])[1] ?? '';
+    assert(block !== '', 'Sammelregel fuer die vier Empfaengerzeilen gefunden');
+    assert(block.includes('height: 1.2em'), 'height 1.2em (4,23mm bei 10pt)');
+    assert(block.includes('line-height: 1.2'), 'line-height 1.2');
+    const single = [...css.matchAll(/\.single-line\s*\{([^}]*)\}/g)]
+      .map((m) => m[1])
+      .find((b) => b.includes('white-space: nowrap')) ?? '';
+    assert(single.includes('height: 1.4em'), '.single-line bleibt global bei 1.4em');
   });
 });
 

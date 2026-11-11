@@ -172,15 +172,22 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 
   #anschriftfeld {
     position: absolute;
-    /* DIN 19.4.3/4: EIN Block. Er beginnt bei der Rücksendezeile
-       (--briefkopf-y, 45mm) statt 6mm darunter; die Empfängerzeilen behalten
-       ihre y-Position durch padding-top = Abstand beider Bezugslinien.
-       Keine Magic Number: Form A und B liefern ihre eigenen Attribute. */
-    top: var(--briefkopf-y);
+    /* DIN 19.4.3/4: EIN Block aus Zusatz-/Vermerkzone + Anschriftzone.
+       Der Block beginnt auf der OBERSTEN ZEILE der Zusatz- und Vermerkzone
+       (Tab. B.1: Form A 33,9mm / Form B 50,8mm) — das ist
+       --anschriftfeld-y (data-anschriftfeld-y 34/51, Delta 0,1/0,2).
+       Frueher stand hier --briefkopf-y (27/45), also 6mm zu hoch; deshalb
+       sass die Ruecksendezeile bei 45,16 statt 50,8 und die Empfaenger bei
+       51,36 statt 63,5 (gemessen 2026-11-11).
+       Das Innen-Padding ist die Hoehe der Zusatz-/Vermerkzone bis zur ersten
+       Zeile der Anschriftzone: 63,5 - 50,8 = 12,7mm (Tab. B.1, Zeilen 13 -> 16
+       = 3 Zeilen a 4,23mm). Beide Formen teilen diesen Wert, weil Tab. B.1
+       die Differenz in beiden Formen mit 12,7mm angibt (46,6 - 33,9). */
+    top: var(--anschriftfeld-y);
     left: --mm-abs-x(attr(data-x type(<number>)));
     width: --mm-abs-x(attr(data-w type(<number>)));
     height: --mm-abs-y(attr(data-h type(<number>)));
-    padding-top: calc(var(--anschriftfeld-y) - var(--briefkopf-y));
+    padding-top: 12.7mm;
     font-size: --pt-abs(attr(data-font type(<number>)));
     line-height: 1.4;
     display: flex;
@@ -192,6 +199,20 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     box-sizing: border-box;
     padding-right: 5mm;
     z-index: 10;
+  }
+
+  #vermerke {
+    /* Erste Zeile nach der Ruecksendeangabe, die laut § 19.4.3 „an oberster
+       Position" des 17,7mm hohen Feldes steht (Normtext Z. 1760). Absolut
+       positioniert, damit der Postvermerk die Anschriftzone NICHT verschiebt:
+       im Fluss sassen die Empfaengerzeilen mit Postvermerk 5,36mm tiefer als
+       ohne (gemessen 2026-11-11: 56,36 vs 51,00). */
+    position: absolute;
+    top: 1.4em;
+    left: 0;
+    width: 100%;
+    padding-right: 5mm;
+    box-sizing: border-box;
   }
 
   #infoblock {

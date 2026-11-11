@@ -411,7 +411,9 @@ din-blatt[data-ueberlauf="true"]::after {
 }
 
 @page :first {
-  margin: 0 0 20mm 0;
+  /* Das Blatt IST die A4-Seite (210x297mm, Fusszeile bei ~285mm): jeder
+     Seitenrand schiebt es auf eine zweite Seite (gemessen 2026-11-11). */
+  margin: 0;
   @top-left { content: none; }
   @top-right { content: none; }
 }
@@ -435,7 +437,11 @@ din-blatt[data-ueberlauf="true"]::after {
     display: none !important;
   }
 
-  #viewport {
+  /* Spezifitaet: die Screen-Regeln `body[data-seiten="1"] #viewport` (1,1,1)
+     schlagen `#viewport` (1,0,0) trotz !important — daher hier derselbe
+     Selektor, nur spaeter in der Datei. */
+  #viewport,
+  body[data-seiten="1"] #viewport {
     padding: 0 !important;
     background: transparent !important;
     height: auto !important;
@@ -444,7 +450,8 @@ din-blatt[data-ueberlauf="true"]::after {
     container-type: normal !important;
   }
 
-  #brief-ansicht {
+  #brief-ansicht,
+  body[data-seiten="1"] #brief-ansicht {
     margin: 0 !important;
     width: 210mm !important;
     display: block !important;

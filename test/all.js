@@ -1180,6 +1180,31 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
   });
 });
 
+describe('Druck: A4-Seite ohne Ueberlauf (Print-CSS-Vertrag)', () => {
+  /* Gerendert geprueft per CDP (2026-11-11): vor dem Fix kam ein einseitiger
+   * Brief auf 2 PDF-Seiten, weil die erste Seite 20mm Unterrand hatte und der
+   * Viewport sein 10px-Padding behielt. Hier steht der Vertrag, damit es nicht
+   * zurueckkommt — der DOM-Test kann @page nicht rendern. */
+  let css = '';
+  const lade = async () => {
+    if (!css) css = await (await fetch('/website/css/sheet-multipage.css')).text();
+    return css;
+  };
+
+  it('erste Seite ist randlos, Folgeseiten behalten 25/20 mm', async () => {
+    const src = await lade();
+    assert(/@page :first\s*\{[^}]*margin:\s*0;/.test(src), '@page :first hat margin: 0');
+    assert(/[^:]first[\s\S]{0,80}margin:\s*0 0 20mm 0/.test(src) === false, 'kein 20mm-Unterrand auf Seite 1');
+    assert(/@page\s*\{[^}]*margin:\s*25mm 0 20mm 0;/.test(src), 'Folgeseiten: 25mm oben, 20mm unten');
+  });
+
+  it('Viewport und Briefansicht verlieren ihr Bildschirm-Layout im Druck', async () => {
+    const src = await lade();
+    assert(src.includes('body[data-seiten="1"] #viewport'), 'Viewport-Regel mit Spezifitaet 1,1,1');
+    assert(src.includes('body[data-seiten="1"] #brief-ansicht'), 'Ansicht-Regel mit Spezifitaet 1,1,1');
+  });
+});
+
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
   it('save und load speichern und lesen Plain Strings', () => {
     save('test_str_key', 'plain_value');

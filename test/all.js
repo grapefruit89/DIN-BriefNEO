@@ -1408,6 +1408,26 @@ describe('Kuvert-Label — relativ zur Anschriftzone', () => {
   });
 });
 
+describe('Betreff — Abstand zum Infoblock', () => {
+  /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
+   * nach dem Informationsblock zu schreiben." Raster 4,23mm (Tab. B.1,
+   * Fußnote a) -> 8,46mm. Gemessen im PDF (2026-11-11): Infoblock endet bei
+   * 72,21mm, der Betreff stand bei 74,02mm (1,81mm Abstand) und gehört auf
+   * 80,67mm. */
+  it('setzt margin-top 6.65mm am Betreff, nicht am Spacer', async () => {
+    const css = await (await fetch('/website/css/sheet-multipage.css')).text();
+    const regel = (css.match(/#betreff\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(regel !== '', 'Regel #betreff gefunden');
+    const oben = (regel.match(/margin-top:\s*([\d.]+)mm/) || [])[1];
+    assertEqual(oben, '6.65', 'margin-top = 6.65mm (6,65 + 1,81 = 8,46 = zwei Leerzeilen)');
+    // Der Abstand nach dem Betreff bleibt unangetastet (zwei Leerzeilen bis zur Anrede).
+    assert(regel.includes('margin-bottom: 8.46mm'), 'margin-bottom bleibt 8.46mm');
+    // Gegenprobe: die Spacer-Höhe darf nicht mitgewachsen sein (Briefkopf unverändert).
+    const spacer = (css.match(/--spacer-hoehe:\s*calc\(([^)]*)\)/) || [])[1] ?? '';
+    assert(spacer.includes('98.46mm'), 'Spacer bleibt bei 98.46mm (Briefkopf unverändert)');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

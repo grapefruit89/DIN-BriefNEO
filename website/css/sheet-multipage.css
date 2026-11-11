@@ -255,6 +255,14 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     font-size: 12pt;
     font-weight: 700;
     line-height: 1.4;
+    /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
+       nach dem Informationsblock zu schreiben." Zeilenraster 4,23mm (Tab. B.1,
+       Fußnote a) -> 2 x 4,23 = 8,46mm. Der Infoblock endet gemessen bei
+       72,21mm, der Betreff gehört auf 80,67mm (gemessen 2026-11-11: er stand
+       bei 74,02mm, also 6,65mm zu hoch). Der Wert sitzt hier und nicht am
+       #spacer, weil die Norm den Abstand nach dem Infoblock meint — nicht die
+       Höhe des Briefkopfs. */
+    margin-top: 6.65mm;
     margin-bottom: 8.46mm;
     text-wrap: balance;
   }

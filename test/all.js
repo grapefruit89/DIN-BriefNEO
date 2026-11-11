@@ -1284,6 +1284,33 @@ describe('#kern — kein toter data-bottom', () => {
   });
 });
 
+describe('tools/print-messung.mjs', () => {
+  /* Das Werkzeug ist kein Produktcode, soll aber nicht still kaputtgehen:
+   * es traegt die Messung fuer TODO #47/#48. Der Browser-Test kann keinen
+   * Prozess starten (kein child_process), deshalb Quelltext-Vertrag —
+   * Exit-Codes und --help sind in der Shell belegt (siehe Commit-Message). */
+  it('liegt im Repo und beginnt mit einer Shebang-Zeile', async () => {
+    const antwort = await fetch('/tools/print-messung.mjs');
+    assert(antwort.ok, `Datei ist erreichbar (HTTP ${antwort.status})`);
+    const quelle = await antwort.text();
+    assert(quelle.startsWith('#!/usr/bin/env node'), 'beginnt mit #!/usr/bin/env node');
+    assert(quelle.includes('YMAX') === false, 'keine Platzhalter mehr im Quelltext');
+  });
+
+  it('kennt die Flags --saetze, --rand-u, --json und --keep-pdf', async () => {
+    const quelle = await (await fetch('/tools/print-messung.mjs')).text();
+    for (const flagge of ['--saetze', '--rand-u', '--json', '--keep-pdf', '--help']) {
+      assert(quelle.includes(flagge), `Flag ${flagge} dokumentiert und geparst`);
+    }
+    // Voraussetzungen mit eigenem Exit-Code, damit Aufrufer sie unterscheiden koennen.
+    for (const meldung of ['kein Browser gefunden', 'poppler-utils', 'antwortet nicht']) {
+      assert(quelle.includes(meldung), `Voraussetzung meldet sich: ${meldung}`);
+    }
+    assert(quelle.includes('process.exit(2)'), 'Exit 2 fuer fehlende Voraussetzungen');
+    assert(quelle.includes('process.exitCode = 3'), 'Exit 3 fuer fehlgeschlagenen PDF-Render');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

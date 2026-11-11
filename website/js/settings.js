@@ -96,6 +96,15 @@ export class SettingsManager {
       this.pluginTestbriefSwitch.checked = Boolean(this.settings.pluginTestbrief);
     }
 
+    /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
+     * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
+     * (20mm) zurueck. */
+    const randU = this.settings.randU === 30 ? 30 : 20;
+    this.settings.randU = randU;
+    document.documentElement.style.setProperty('--rand-u', `${randU}mm`);
+    const randUSwitch = document.getElementById('btn-rand-u-30');
+    if (randUSwitch instanceof HTMLInputElement) randUSwitch.checked = randU === 30;
+
     this.#spiegleLayoutFlags();
     this.#applyPlugins();
   }
@@ -208,6 +217,15 @@ export class SettingsManager {
     this.updateSettings();
   }
 
+  /**
+   * Unterrand umschalten (20mm DIN 5008 | 30mm).
+   * @param {number} wert
+   */
+  changeRandU(wert) {
+    this.settings.randU = wert === 30 ? 30 : 20;
+    this.updateSettings();
+  }
+
   attachListeners() {
     if (this.btnFormA) {
       this.btnFormA.addEventListener('change', () => {
@@ -275,6 +293,14 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.sensitiveSubject = sensitiveSwitch.checked;
         this.updateSettings();
+      });
+    }
+
+    const randUSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
+    if (randUSwitch) {
+      randUSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeRandU(randUSwitch.checked ? 30 : 20);
       });
     }
 

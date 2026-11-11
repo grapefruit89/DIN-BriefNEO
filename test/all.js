@@ -14,7 +14,7 @@ import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
-import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -1284,6 +1284,46 @@ describe('#kern — kein toter data-bottom', () => {
   });
 });
 
+describe('Unterrand (20/30)', () => {
+  /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
+   * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008
+   * (20mm) zurueck. Steuerung: Setup-Radio, Boot setzt den Wert vor dem
+   * ersten Paint. */
+  /** @param {number} wert @returns {string} */
+  const setzeRandU = (wert) => {
+    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ ...DEFAULT_SETTINGS, randU: wert }));
+    new SettingsManager().applySettings();
+    return getComputedStyle(document.documentElement).getPropertyValue('--rand-u').trim();
+  };
+
+  it('randU=20 setzt --rand-u auf 20mm, der Druck liest die Variable', async () => {
+    try {
+      assertEqual(setzeRandU(20), '20mm', '--rand-u = 20mm');
+      const css = await (await fetch('/website/css/sheet-multipage.css')).text();
+      assert(/#kern\s*\{[^}]*padding:\s*0 20mm var\(--rand-u\) 25mm/.test(css),
+        'padding-bottom kommt aus --rand-u');
+    } finally {
+      document.documentElement.style.removeProperty('--rand-u');
+    }
+  });
+
+  it('randU=30 setzt --rand-u auf 30mm', () => {
+    try {
+      assertEqual(setzeRandU(30), '30mm', '--rand-u = 30mm');
+    } finally {
+      document.documentElement.style.removeProperty('--rand-u');
+    }
+  });
+
+  it('randU=25 (ungueltig) faellt auf 20mm zurueck', () => {
+    try {
+      assertEqual(setzeRandU(25), '20mm', 'ungueltiger Wert -> DIN-Standard');
+    } finally {
+      document.documentElement.style.removeProperty('--rand-u');
+    }
+  });
+});
+
 describe('Druck — Unterrand und Fußzeile', () => {
   /* Gerendert per PDF geprueft (2026-11-11): vor dem Fix lief der Fliesstext
    * auf Seite 1 bis 294,99mm (2mm vor der Kante) und ueberlappte den Fussblock
@@ -1309,8 +1349,13 @@ describe('Druck — Unterrand und Fußzeile', () => {
   });
 
   it('2: #kern reserviert 20mm Unterrand im Druck', async () => {
+    /* Vertragsänderung 2026-11-11: der Unterrand ist einstellbar (20/30mm).
+     * Die Regel liest --rand-u, der Default bleibt DIN 5008 = 20mm. */
     const druck = await druckBlock();
-    assert(/#kern\s*\{[^}]*padding:\s*0 20mm 20mm 25mm/.test(druck), 'padding-bottom 20mm auf #kern');
+    assert(/#kern\s*\{[^}]*padding:\s*0 20mm var\(--rand-u\) 25mm/.test(druck),
+      'Unterrand kommt aus --rand-u');
+    const src = ohneKommentare(await lade());
+    assert(/:root\s*\{[^}]*--rand-u:\s*20mm/.test(src), 'Default --rand-u: 20mm (DIN 5008)');
   });
 
   it('3: der Unterrand gilt auf jeder Seite, nicht nur der letzten', async () => {
@@ -1327,7 +1372,8 @@ describe('Druck — Unterrand und Fußzeile', () => {
     assert(fussRegel !== '', '#geschaeftsangaben-Regel gefunden');
     const top = Number((fussRegel.match(/top:\s*([\d.]+)mm/) || [])[1]);
     const druck = await druckBlock();
-    const padUnten = Number((druck.match(/#kern\s*\{[^}]*padding:\s*0 20mm ([\d.]+)mm/) || [])[1]);
+    // Default aus :root, weil der Druck die Variable liest (einstellbar 20/30mm)
+    const padUnten = Number((src.match(/--rand-u:\s*([\d.]+)mm/) || [])[1]);
     assert(top > 0 && padUnten > 0, `Werte lesbar (top=${top}mm, padding=${padUnten}mm)`);
     assert(297 - padUnten <= top,
       `Textende ${297 - padUnten}mm muss ueber Fussbeginn ${top}mm liegen`);

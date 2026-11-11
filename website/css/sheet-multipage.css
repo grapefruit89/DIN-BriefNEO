@@ -479,7 +479,7 @@ din-blatt[data-ueberlauf="true"]::after {
 
   #kern {
     min-height: 0 !important;
-    padding: 0 20mm 20mm 25mm !important;
+    padding: 0 20mm var(--rand-u) 25mm !important; /* Unterrand: 20mm DIN oder 30mm (Setup) */
     /* Unterrand fuer JEDE Seite, nicht nur die letzte: ein fragmentierter
        Block bekommt padding-bottom sonst nur am Blockende (gemessen
        2026-11-11: padding-bottom allein aenderte nichts, Seite 1 lief

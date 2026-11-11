@@ -19,7 +19,8 @@ try {
     guides: false,
     marks: true,
     sensitiveSubject: false,
-    pluginTestbrief: true
+    pluginTestbrief: true,
+    randU: 20
   };
 
   let parsed = {};
@@ -52,6 +53,12 @@ try {
    * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt
    * liegen (nichts geloescht). */
   root.setAttribute('data-plugin-multipage', 'true');
+
+  /* Unterrand 20/30mm vor dem ersten Paint setzen (FOUC-Schutz): die
+   * Druckregel von #kern liest --rand-u. Nur 20 und 30 sind zulaessig. */
+  const RAND_U_WHITELIST = new Set([20, 30]);
+  const randU = RAND_U_WHITELIST.has(Number(settings.randU)) ? Number(settings.randU) : 20;
+  root.style.setProperty('--rand-u', `${randU}mm`);
 
   /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
    * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft

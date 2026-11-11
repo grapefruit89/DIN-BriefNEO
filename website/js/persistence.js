@@ -32,6 +32,7 @@ import { currentISODate } from './format.js';
  * @property {boolean} [pluginTestbrief]
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
+ * @property {20 | 30 | number} [randU]
  * @property {{ x: number, y: number, scale: number, rot: number }} [signatureState]
  */
 
@@ -48,7 +49,8 @@ export const DEFAULT_SETTINGS = {
   sensitiveSubject: false,
   pluginTestbrief: true,
   previewFont: 'default',
-  formality: 'formal'
+  formality: 'formal',
+  randU: 20
 };
 
 /**

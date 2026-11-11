@@ -14,7 +14,7 @@ import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
-import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V4, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -685,7 +685,7 @@ describe('Persistence: Import-Speichervorgang & Fehlerschutz vor Reload (B55)', 
       const payload = {
         ok: true,
         format: DINLETTER_FORMAT,
-        schema_version: 4,
+        schema_version: 5,
         fields: { betreff: 'Wichtiger Import' }
       };
 
@@ -707,7 +707,7 @@ describe('Persistence: Import-Speichervorgang & Fehlerschutz vor Reload (B55)', 
     const payload = {
       ok: true,
       format: DINLETTER_FORMAT,
-      schema_version: 4,
+      schema_version: 5,
       fields: { betreff: 'Erfolgreicher Import' }
     };
 
@@ -724,30 +724,30 @@ describe('Persistence: Import-Speichervorgang & Fehlerschutz vor Reload (B55)', 
 
 describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   /* Kanonischer v4-Payload (P4): seit 2026-11-10 muss _meta.schema exakt
-   * DOCUMENT_SCHEMA_V4 entsprechen. Die alten Tests nutzten reduzierte
+   * DOCUMENT_SCHEMA_V5 entsprechen. Die alten Tests nutzten reduzierte
    * Schemata und pruefen jetzt mit dieser Fixture dieselben Aussagen. */
   /** @param {Record<string, string | boolean>} [werte] */
   const v4Payload = (werte = {}) => {
-    const schema = [...DOCUMENT_SCHEMA_V4];
+    const schema = [...DOCUMENT_SCHEMA_V5];
     /** @type {Array<string | boolean>} */
     const fields = schema.map((k) => (k.startsWith('toggle-') ? false : ''));
     for (const [k, v] of Object.entries(werte)) {
       const i = schema.indexOf(k);
       if (i >= 0) fields[i] = v;
     }
-    return { format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema }, fields };
+    return { format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema }, fields };
   };
 
   it('buildDinLetterPayload setzt Schema v4 mit generated_at und Tuple-Feldern', () => {
     const payload = buildDinLetterPayload({ betreff: 'Test' });
     assertEqual(payload.format, DINLETTER_FORMAT);
     assertEqual(payload.schema_version, Constants.SCHEMA_VERSION);
-    assertEqual(payload.schema_version, 4);
+    assertEqual(payload.schema_version, 5);
     assertEqual(payload.generator, 'DIN-BriefNEO');
     assert(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(payload.generated_at), 'generated_at ist ein Zeitstempel');
     assert(Array.isArray(payload.fields), 'fields ist ein Array');
-    assertEqual(payload.fields.length, DOCUMENT_SCHEMA_V4.length, 'exakt 35 Schema-Felder');
-    assertEqual(payload._meta?.schema?.length, DOCUMENT_SCHEMA_V4.length, 'exakt 35 Schema-Header');
+    assertEqual(payload.fields.length, DOCUMENT_SCHEMA_V5.length, 'exakt 33 Schema-Felder');
+    assertEqual(payload._meta?.schema?.length, DOCUMENT_SCHEMA_V5.length, 'exakt 33 Schema-Header');
     const idxBetreff = payload._meta.schema.indexOf('betreff');
     assertEqual(payload.fields[idxBetreff], 'Test');
     assert(!('draft' in payload), 'draft ist gestrichen');
@@ -793,7 +793,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       assertEqual(result.fields.text, '<p>x</p>');
       assertEqual(result.layout?.form, 'form-a');
       assertEqual(result.layout?.marks, false);
-      assertEqual(result.schemaVersion, 4);
+      assertEqual(result.schemaVersion, 5);
     }
   });
 
@@ -805,20 +805,20 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 99, _meta: { schema: [] }, fields: [] }).ok, 'v99 abgelehnt');
 
     // Fehlendes oder ungültiges _meta.schema
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, fields: [] }).ok, '_meta fehlt komplett');
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: {}, fields: [] }).ok, '_meta.schema fehlt');
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: 'ungueltig' }, fields: [] }).ok, '_meta.schema ist kein Array');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, fields: [] }).ok, '_meta fehlt komplett');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: {}, fields: [] }).ok, '_meta.schema fehlt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: 'ungueltig' }, fields: [] }).ok, '_meta.schema ist kein Array');
 
     // Fehlende oder ungültige fields
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: [] } }).ok, 'fields fehlt');
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: [] }, fields: { betreff: 'x' } }).ok, 'fields als Objekt abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: [] } }).ok, 'fields fehlt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: [] }, fields: { betreff: 'x' } }).ok, 'fields als Objekt abgelehnt');
   });
 
   it('parseDinLetterPayload lehnt ungültige Typen und defekte JSON-Daten ab', () => {
     assert(!parseDinLetterPayload('kein json {').ok, 'kein JSON');
     assert(!parseDinLetterPayload('{"format":"anderes"}').ok, 'falsches format');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['betreff'] }, fields: [42] })).ok, 'nicht-string Feld v4');
-    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['toggle-fuss'] }, fields: ['nicht-boolean'] })).ok, 'nicht-boolean Toggle v4');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: ['betreff'] }, fields: [42] })).ok, 'nicht-string Feld v4');
+    assert(!parseDinLetterPayload(JSON.stringify({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: ['toggle-fuss'] }, fields: ['nicht-boolean'] })).ok, 'nicht-boolean Toggle v4');
     // @ts-ignore
     assert(!parseDinLetterPayload(12345).ok, 'Zahl als Input abgelehnt');
   });
@@ -831,9 +831,9 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   });
 
   it('parseDinLetterPayload lehnt gefährliche/unplausible Keys im Schema ab (Prototyp-Hygiene, Grok F2)', () => {
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['__proto__'] }, fields: ['x'] }).ok, '__proto__ in Schema abgelehnt');
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['constructor'] }, fields: ['x'] }).ok, 'constructor in Schema abgelehnt');
-    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 4, _meta: { schema: ['a b'] }, fields: ['x'] }).ok, 'Leerzeichen in Schema abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: ['__proto__'] }, fields: ['x'] }).ok, '__proto__ in Schema abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: ['constructor'] }, fields: ['x'] }).ok, 'constructor in Schema abgelehnt');
+    assert(!parseDinLetterPayload({ format: DINLETTER_FORMAT, schema_version: 5, _meta: { schema: ['a b'] }, fields: ['x'] }).ok, 'Leerzeichen in Schema abgelehnt');
     const ok = parseDinLetterPayload(v4Payload({ betreff: 'x' }));
     assert(ok.ok, 'normale Ids erlaubt');
     assertEqual(ok.fields.betreff, 'x');
@@ -888,7 +888,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     }
     const idxToggle = payload._meta.schema.indexOf('toggle-fuss');
     assertEqual(payload.fields[idxToggle], false, 'Toggle aus heißt nur unsichtbar, nicht leer');
-    assertEqual(payload.fields.length, DOCUMENT_SCHEMA_V4.length, '35 Schema-Felder');
+    assertEqual(payload.fields.length, DOCUMENT_SCHEMA_V5.length, '33 Schema-Felder');
   });
 
   it('layout und signature sind optional', () => {
@@ -955,7 +955,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       datum: '9. November 2026',
       spacer: '',
       betreff: 'Verschmelzungsvertrag Wayne Enterprises / LexCorp',
-      teilbetreff: 'Az: WE-2026-X1',
       anrede: 'Sehr geehrter Herr Luthor,',
       text: '<p>in Bezug auf die anstehende Konsolidierung teilen wir folgendes mit.</p>',
       grussformel: 'Mit vorzüglicher Hochachtung',
@@ -974,8 +973,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       'fuss-bic': 'BYLADEM1001',
       'fuss-anschrift': 'Wayne Tower, Gotham City',
       'toggle-anlagen': true,
-      'toggle-fuss': true,
-      'toggle-teilbetreff': true
+      'toggle-fuss': true
     };
 
     const settings = {
@@ -991,7 +989,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
     assert(parsed.ok, 'Roundtrip-Parse erfolgreich');
     if (parsed.ok) {
-      assertEqual(parsed.schemaVersion, 4);
+      assertEqual(parsed.schemaVersion, 5);
       assertEqual(parsed.layout?.form, 'form-a');
       assertEqual(parsed.layout?.marks, true);
       assertEqual(parsed.signature?.transform?.scale, 0.75);
@@ -1007,18 +1005,18 @@ describe('parseDinLetterPayload — Schema-Reihenfolge', () => {
   /** @param {string[]} schema */
   const payloadMit = (schema) => ({
     format: DINLETTER_FORMAT,
-    schema_version: 4,
+    schema_version: 5,
     fields: schema.map((k) => (k.startsWith('toggle-') ? false : '')),
     _meta: { schema }
   });
 
   it('akzeptiert die kanonische Reihenfolge', () => {
-    const res = parseDinLetterPayload(payloadMit([...DOCUMENT_SCHEMA_V4]));
+    const res = parseDinLetterPayload(payloadMit([...DOCUMENT_SCHEMA_V5]));
     assertEqual(res.ok, true, `gültig: ${res.reason || ''}`);
   });
 
   it('lehnt vertauschte Reihenfolge ab', () => {
-    const schema = [...DOCUMENT_SCHEMA_V4];
+    const schema = [...DOCUMENT_SCHEMA_V5];
     [schema[0], schema[1]] = [schema[1], schema[0]];
     const res = parseDinLetterPayload(payloadMit(schema));
     assertEqual(res.ok, false, 'vertauscht wird abgelehnt');
@@ -1026,7 +1024,7 @@ describe('parseDinLetterPayload — Schema-Reihenfolge', () => {
   });
 
   it('lehnt ein fehlendes Feld ab', () => {
-    const schema = [...DOCUMENT_SCHEMA_V4];
+    const schema = [...DOCUMENT_SCHEMA_V5];
     schema.pop();
     const res = parseDinLetterPayload(payloadMit(schema));
     assertEqual(res.ok, false, 'fehlendes Feld wird abgelehnt');
@@ -1034,14 +1032,14 @@ describe('parseDinLetterPayload — Schema-Reihenfolge', () => {
   });
 
   it('lehnt ein zusätzliches Feld ab', () => {
-    const schema = [...DOCUMENT_SCHEMA_V4, 'extra'];
+    const schema = [...DOCUMENT_SCHEMA_V5, 'extra'];
     const res = parseDinLetterPayload(payloadMit(schema));
     assertEqual(res.ok, false, 'zusätzliches Feld wird abgelehnt');
     assert(res.reason.includes('erwartet'), `Meldung nennt die Erwartung: ${res.reason}`);
   });
 
   it('Regression: ungültiger Feldname wird weiter spezifisch gemeldet', () => {
-    const schema = [...DOCUMENT_SCHEMA_V4];
+    const schema = [...DOCUMENT_SCHEMA_V5];
     schema[0] = '__proto__';
     const res = parseDinLetterPayload(payloadMit(schema));
     assertEqual(res.ok, false, 'Prototype-Key wird abgelehnt');
@@ -1137,7 +1135,7 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
 });
 
 describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
-  const ERLAUBT = ['text', 'betreff', 'teilbetreff', 'vermerke'];
+  const ERLAUBT = ['text', 'betreff', 'vermerke'];
 
   /* Dieselbe Semantik wie tools/reconciliation.js: Pattern trifft, Ausnahmen
      (Datei + Zeilenmuster) heben auf. Geprueft wird die echte index.html. */

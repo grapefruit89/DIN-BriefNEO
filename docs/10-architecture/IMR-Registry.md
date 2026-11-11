@@ -392,7 +392,6 @@ Normative Kollisionsvermeidung (ehemals ADR-BETREFF): Falzmarken dürfen nicht i
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
 | `betreff` | `<din-betreff>` | 20.9 | atom | ja, `#betreff` | höchstens zwei Zeilen (Empfehlung) |
-| `teilbetreff` | `<din-teilbetreff>` | 20.9.3 | atom | ja, `#teilbetreff` |  |
 | `anrede` | `<din-anrede>` | 20.9.4 | atom | ja, `#anrede` |  |
 | `text` | `<din-text>` | 20.10 | atom | ja, `#text` | mehrzeilig |
 | `grussformel` | `<din-grussformel>` | 20.11 | atom | ja, `#grussformel` | DIN: „Gruß" |
@@ -713,14 +712,6 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "source": "DIN",
       "inDom": true,
       "export": true
-    },
-    "din-teilbetreff": {
-      "id": "teilbetreff",
-      "role": "atom",
-      "dinSection": "20.9.3",
-      "source": "DIN",
-      "inDom": true,
-      "export": false
     },
     "din-anrede": {
       "id": "anrede",

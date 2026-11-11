@@ -149,17 +149,6 @@ din-blatt {
     flex-shrink: 0;
   }
 
-  /* Teilbetreff nach DIN 5008 § 20.9.3: fett, endet mit Punkt, klebt am Folgetext. */
-  din-teilbetreff {
-    display: block;
-    font-size: --pt-rel(attr(data-font type(<number>)));
-    font-weight: 700;
-    line-height: 1.4;
-    margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>)));
-    break-after: avoid;
-    page-break-after: avoid;
-  }
-
   #anrede {
     font-size: --pt-rel(attr(data-font type(<number>))); /* 10.5pt in cqw */
     margin-bottom: --mm-rel-y(attr(data-margin-bottom type(<number>))); /* 1 Leerzeile */

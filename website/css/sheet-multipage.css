@@ -300,17 +300,6 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     text-wrap: balance;
   }
 
-  /* Teilbetreff nach DIN 5008 § 20.9.3: fett, endet mit Punkt, klebt am Folgetext. */
-  din-teilbetreff {
-    display: block;
-    font-size: 10.5pt;
-    font-weight: 700;
-    line-height: 1.4;
-    margin-bottom: 4.23mm;
-    break-after: avoid;
-    page-break-after: avoid;
-  }
-
   #anrede {
     display: block;
     font-size: 10.5pt;

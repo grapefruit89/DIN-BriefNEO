@@ -26,11 +26,11 @@ Das Dokumentenformat `.json` folgt derselben hocheffizienten Tabular-/Tuple-Arch
       "rucksendeangabe", "vermerke",
       "empfaenger-firma", "empfaenger-name", "empfaenger-strasse", "empfaenger-ort",
       "absender-name", "absender-strasse", "absender-ort", "absender-tel", "absender-mail",
-      "datum", "spacer", "betreff", "teilbetreff", "anrede", "text", "grussformel", "unterschrift",
+      "datum", "spacer", "betreff", "anrede", "text", "grussformel", "unterschrift",
       "anlagen-angabe",
       "fuss-firma", "fuss-sitz", "fuss-gericht", "fuss-hrb", "fuss-vorstand", "fuss-gf",
       "fuss-stnr", "fuss-ustid", "fuss-bank", "fuss-iban", "fuss-bic", "fuss-anschrift",
-      "toggle-anlagen", "toggle-fuss", "toggle-teilbetreff"
+      "toggle-anlagen", "toggle-fuss"
     ]
   },
   "layout": {

@@ -82,10 +82,6 @@ din-empfaenger-strasse:empty {
   visibility: hidden;
 }
 
-:root:not(:has(#toggle-teilbetreff:checked)) din-teilbetreff {
-  display: none;
-}
-
 :root:has(#toggle-fuss:checked) din-geschaeftsangaben {
   display: grid;
 }

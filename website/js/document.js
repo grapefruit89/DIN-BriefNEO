@@ -193,7 +193,6 @@ const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'vermerke': 80,
   'datum': 35,
   'betreff': 140,
-  'teilbetreff': 140,
   'anrede': 70,
   'grussformel': 45,
   'unterschrift': 45
@@ -663,11 +662,6 @@ export function collectDraft() {
   const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
   if (fussSwitch) {
     draft['toggle-fuss'] = fussSwitch.checked;
-  }
-
-  const teilbetreffSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-teilbetreff'));
-  if (teilbetreffSwitch) {
-    draft['toggle-teilbetreff'] = teilbetreffSwitch.checked;
   }
 
   return draft;

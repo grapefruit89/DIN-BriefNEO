@@ -49,8 +49,8 @@ Die Migration erfolgt in Gruppen (Empfänger, Absender, Fuss, Rest), jeweils mit
 Pixel-Perfect-Nachweis (Δ ≤ 0,5 px) gemäß `AGENTS.md`.
 
 **Bleibt `contenteditable="true"`:** `#text` (Formatierung: fett, kursiv, Zitat).
-**Bleiben `contenteditable="plaintext-only"`:** `#betreff`, `#teilbetreff`,
-`#vermerke` (sie brauchen `text-wrap: balance` und den Platzhalter-Ghost, den
+**Bleiben `contenteditable="plaintext-only"`:** `#betreff`, `#vermerke`
+(sie brauchen `text-wrap: balance` und den Platzhalter-Ghost, den
 ein `<input>` nicht kennt).
 
 ## Fallstricke (aus dem Anlagen-Pilot)

@@ -91,7 +91,7 @@ DIN-BriefNEO/
 
 ## 5. Kern-Module in `website/js/`
 - `core.js`: EventBus (`dinbrief:*`), Popover-Toasts (`#hinweis-v4`), Konstanten (`Constants.SCHEMA_VERSION = 4`).
-- `persistence.js`: LocalStorage IO, Schema v4 Tuple Serializer & Parser (`DOCUMENT_SCHEMA_V4` mit 35 Indizes).
+- `persistence.js`: LocalStorage IO, Schema v5 Tuple Serializer & Parser (`DOCUMENT_SCHEMA_V5` mit 33 Indizes).
 - `address-data.js`: 100 % DOM-freie In-Memory-Adresssuche, Gzip-Streaming via `DecompressionStream`, Columnar Binary Search.
 - `address.js`: Popover-UI für Autocomplete & Tastaturnavigation, Re-Export von `ClipboardAddressParser`.
 - `clipboard-parser.js`: Intelligenter Multiline-Adress- und Impressumsparser.

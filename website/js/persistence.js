@@ -378,15 +378,15 @@ export const DINLETTER_FORMAT = 'dinletter';
  * Kanonische Schema-Definition für Briefdokumente (Schema v4, Tuple-Format).
  * Definiert die exakte Index-Reihenfolge aller Dokumentenfelder im serialisierten Array.
  */
-export const DOCUMENT_SCHEMA_V4 = [
+export const DOCUMENT_SCHEMA_V5 = [
   'rucksendeangabe', 'vermerke',
   'empfaenger-firma', 'empfaenger-name', 'empfaenger-strasse', 'empfaenger-ort',
   'absender-name', 'absender-strasse', 'absender-ort', 'absender-tel', 'absender-mail',
-  'datum', 'spacer', 'betreff', 'teilbetreff', 'anrede', 'text', 'grussformel', 'unterschrift',
+  'datum', 'spacer', 'betreff', 'anrede', 'text', 'grussformel', 'unterschrift',
   'anlagen-angabe',
   'fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
   'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift',
-  'toggle-anlagen', 'toggle-fuss', 'toggle-teilbetreff'
+  'toggle-anlagen', 'toggle-fuss'
 ];
 
 /**
@@ -433,9 +433,9 @@ export function buildDinLetterPayload(draft, settings = null) {
 
   const draftObj = (draft && typeof draft === 'object') ? draft : {};
 
-  // Extrahiere Werte in der kanonischen Reihenfolge von DOCUMENT_SCHEMA_V4
+  // Extrahiere Werte in der kanonischen Reihenfolge von DOCUMENT_SCHEMA_V5
   /** @type {(string | boolean)[]} */
-  const fields = DOCUMENT_SCHEMA_V4.map((field) => {
+  const fields = DOCUMENT_SCHEMA_V5.map((field) => {
     if (field.startsWith('toggle-')) {
       const val = draftObj[field];
       return val === true || val === 'true';
@@ -464,7 +464,7 @@ export function buildDinLetterPayload(draft, settings = null) {
     generator: 'DIN-BriefNEO',
     generated_at: generatedAt,
     _meta: {
-      schema: [...DOCUMENT_SCHEMA_V4]
+      schema: [...DOCUMENT_SCHEMA_V5]
     },
     layout: {
       form: (s.layout === 'form-a' || s.layout === 'form-b') ? s.layout : 'form-b',
@@ -504,11 +504,11 @@ export function parseDinLetterPayload(input) {
   if (data.format !== DINLETTER_FORMAT) {
     return { ok: false, reason: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.`, error: `Falsches Format — erwartet '${DINLETTER_FORMAT}'.` };
   }
-  if (data.schema_version !== 4) {
+  if (data.schema_version !== 5) {
     return {
       ok: false,
-      reason: `Nur Schema v4 wird unterstützt (erhalten: v${data.schema_version}).`,
-      error: `Nur Schema v4 wird unterstützt (erhalten: v${data.schema_version}).`
+      reason: `Nur Schema v5 wird unterstützt (erhalten: v${data.schema_version}).`,
+      error: `Nur Schema v5 wird unterstützt (erhalten: v${data.schema_version}).`
     };
   }
   if (!Array.isArray(data.fields) || !Array.isArray(data._meta?.schema)) {
@@ -547,19 +547,19 @@ export function parseDinLetterPayload(input) {
    * eine Datei mit vertauschten Feldnamen importiert und die Werte still
    * falsch zugeordnet. Die Form-Prüfung oben bleibt zuerst, damit ein kaputter
    * Feldname die spezifischere Meldung bekommt. */
-  if (schema.length !== DOCUMENT_SCHEMA_V4.length) {
+  if (schema.length !== DOCUMENT_SCHEMA_V5.length) {
     return {
       ok: false,
-      reason: `_meta.schema hat ${schema.length} Felder, erwartet ${DOCUMENT_SCHEMA_V4.length}.`,
-      error: `_meta.schema hat ${schema.length} Felder, erwartet ${DOCUMENT_SCHEMA_V4.length}.`
+      reason: `_meta.schema hat ${schema.length} Felder, erwartet ${DOCUMENT_SCHEMA_V5.length}.`,
+      error: `_meta.schema hat ${schema.length} Felder, erwartet ${DOCUMENT_SCHEMA_V5.length}.`
     };
   }
-  for (let i = 0; i < DOCUMENT_SCHEMA_V4.length; i++) {
-    if (schema[i] !== DOCUMENT_SCHEMA_V4[i]) {
+  for (let i = 0; i < DOCUMENT_SCHEMA_V5.length; i++) {
+    if (schema[i] !== DOCUMENT_SCHEMA_V5[i]) {
       return {
         ok: false,
-        reason: `_meta.schema[${i}] ist '${schema[i]}', erwartet '${DOCUMENT_SCHEMA_V4[i]}'.`,
-        error: `_meta.schema[${i}] ist '${schema[i]}', erwartet '${DOCUMENT_SCHEMA_V4[i]}'.`
+        reason: `_meta.schema[${i}] ist '${schema[i]}', erwartet '${DOCUMENT_SCHEMA_V5[i]}'.`,
+        error: `_meta.schema[${i}] ist '${schema[i]}', erwartet '${DOCUMENT_SCHEMA_V5[i]}'.`
       };
     }
   }
@@ -622,7 +622,7 @@ export function parseDinLetterPayload(input) {
     fields,
     layout: Object.keys(layout).length > 0 ? layout : undefined,
     signature,
-    schemaVersion: 4
+    schemaVersion: Constants.SCHEMA_VERSION
   };
 }
 

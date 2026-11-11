@@ -313,11 +313,6 @@ export class DraftManager {
       anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
     }
 
-    const teilbetreffSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-teilbetreff'));
-    if (teilbetreffSwitch) {
-      teilbetreffSwitch.checked = draft['toggle-teilbetreff'] === true || draft['toggle-teilbetreff'] === 'true';
-    }
-
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     if (fussSwitch) {
       if ('toggle-fuss' in draft) {

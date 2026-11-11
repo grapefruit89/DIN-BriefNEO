@@ -314,10 +314,6 @@ din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after { visibilit
     display: none !important;
 }
 
-din-teilbetreff:empty {
-    display: none !important;
-}
-
 [contenteditable],
 :is(textarea[data-feldtyp]) {
     outline: none !important;

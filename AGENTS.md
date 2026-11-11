@@ -345,6 +345,15 @@ Was **nicht** als „Bug" gilt: fehlende Features, Performance-Optimierungen,
 Stil-Änderungen, „das könnte man besser machen". Diese gehören nach `todo/`,
 nicht in einen Sofort-Fix.
 
+### Keine Abwärtskompatibilität
+
+DIN-BriefNEO hat keinen Altbestand an JSON-Exporten, Drafts
+oder externen Datenformaten. Es gibt keine Migrationspflicht,
+keine Schema-Kompatibilitätsprüfung, keine „was passiert mit
+alten Dateien?"-Frage. Schema-Änderungen (z. B. v4 → v5)
+brechen alte Dateien bewusst: Alte JSONs werden abgelehnt,
+nicht migriert. Der Agent fragt nicht nach Abwärtskompatibilität.
+
 ### Pixel-Perfect-Nachweis bei Element-Umbauten
 
 Bei jedem Umbau, der ein sichtbares Element ersetzt (contenteditable → input/textarea,

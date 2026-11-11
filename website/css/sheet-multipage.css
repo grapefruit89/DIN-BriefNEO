@@ -229,16 +229,14 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   }
 
   #datum {
-    position: absolute;
-    top: var(--datum-y);
-    left: --mm-abs-x(attr(data-x type(<number>)));
-    width: --mm-abs-x(attr(data-w type(<number>)));
+    /* DIN 19.5: das Datum ist das letzte Leitwort des Informationsblocks —
+       kein eigenes position/top/left/width mehr. Es fliesst als Flex-Kind in
+       #infoblock und erbt dessen linke Kante (125mm) und Ausrichtung; data-x
+       und data-w am Feld sind entfallen. Die eigene Schriftgroesse bleibt:
+       data-font 10pt hebt das Datum gegen die 8,5pt des Blocks ab (Nutzer-
+       entscheidung, hervorgehobenes Leitwort). Gemessen 2026-11-11: vorher
+       y 92,37mm (absolut), jetzt letzte Zeile des Blocks. */
     font-size: --pt-abs(attr(data-font type(<number>)));
-    /* Rechtsbuendig: die Box reicht von data-x 125mm bis 190mm, also 20mm vor
-       den Blattrand (Projekt-Konvention; DIN nennt keine Datum-Y, siehe
-       IMR-Registry). */
-    text-align: right;
-    z-index: 10;
   }
 
   /* ============================================================
@@ -285,11 +283,12 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     font-weight: 700;
     line-height: 1.4;
     /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
-       nach dem Informationsblock zu schreiben." Der Infoblock endet beim Datum
-       (data-datum-y 92mm + Zeile = 96,25mm, gemessen), zwei Leerzeilen ergeben
-       104,71mm. Genau dort liegt Falzmarke 1 (105mm) — deshalb beginnt der
-       Betreff 2mm darunter, damit die Falte nicht durch den Text geht:
-       105 + 2 = 107mm (Form B), 87 + 2 = 89mm (Form A).
+       nach dem Informationsblock zu schreiben." Der Infoblock endet seit dem
+       Datum-Umzug (2026-11-11) mit dem Datum als letzter Zeile bei 80,90mm
+       (Ink, gemessen); das DIN-Minimum waere 80,90 + 8,46 = 89,36mm.
+       Der Betreff steht bewusst tiefer: Falzmarke 1 (105mm) plus 2mm, damit
+       die Falte nicht durch den Text geht — 107mm (Form B), 87 + 2 = 89mm
+       (Form A).
        Der Wert ist fuer BEIDE Formen 33,54mm, weil sich --spacer-hoehe um
        exakt 18mm unterscheidet (98,46 - 80,46) und das Ziel-Delta identisch
        ist; das haelt Bildschirm und Druck deckungsgleich.

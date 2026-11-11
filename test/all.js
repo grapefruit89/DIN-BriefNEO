@@ -1414,8 +1414,9 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
 
 describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
   /* DIN 5008 § 20.9.2: zwei Leerzeilen nach dem Informationsblock. Der
-   * Infoblock endet beim Datum (data-datum-y 92 + 4,23 = 96,23mm, gemessen
-   * 96,25), zwei Leerzeilen ergeben 104,71mm — dort liegt Falzmarke 1 (105).
+   * Infoblock endet seit dem Datum-Umzug (2026-11-11) bei 80,90mm (Ink,
+   * gemessen); das DIN-Minimum waere 89,36mm. Der Betreff liegt tiefer,
+   * weil er 2mm unter Falzmarke 1 (105mm) beginnt.
    * Der Betreff beginnt 2mm darunter (107/89mm), damit die Falte nicht durch
    * den Text geht. Gemessen (2026-11-11): vorher 80,11mm, also -15,62mm
    * Abstand zum Infoblock-Ende (Betreff mitten im Infoblock). */
@@ -1443,16 +1444,23 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
     assert(/data-layout="form-a"[^{]*\{[^}]*betreff/.test(css) === false, 'kein eigenes Betreff-Margin fuer Form A');
   });
 
-  it('Betreff-Box liegt unter dem Infoblock-Ende (strukturelle Trennung)', async () => {
+  it('Datum ist die letzte Zeile des Infoblocks (DIN 19.5)', async () => {
     const html = await (await fetch('/website/index.html')).text();
-    /** @param {string} name */
-    const y = (name) => Number((html.match(new RegExp(`data-${name}-y-[ab]="(\\d+)"`)) || [])[1]);
-    const datumB = Number((html.match(/data-datum-y-b="(\d+)"/) || [])[1]) || y('datum');
+    const block = (html.match(/<din-infoblock[\s\S]*?<\/din-infoblock>/) || [])[0] ?? '';
+    assert(block !== '', 'Infoblock gefunden');
+    assert(block.includes('id="datum"'), 'Datum ist Kind von #infoblock');
+    assert(block.indexOf('id="datum"') > block.indexOf('id="absender-mail"'), 'Datum folgt auf die E-Mail');
+    assert(html.includes('data-datum-y') === false, 'keine eigene Datum-Y mehr am din-blatt');
+    assert(/<din-datum[^>]*data-x=/.test(html) === false, 'kein eigenes data-x am Datum');
+  });
+
+  it('Betreff-Box liegt unter dem Infoblock-Ende (strukturelle Trennung)', () => {
+    /* Gemessen (2026-11-11, PDF): Infoblock endet mit dem Datum bei 80,90mm
+     * (vorher 96,25mm mit eigener Datum-Y); Betreff-Box 107,00mm. */
+    const infoblockEndeB = 80.9;
     const betreffBoxB = 107;
-    assertEqual(datumB, 92, 'Datum Form B = 92mm');
-    // Datum + eine Zeile (4,23mm) = Infoblock-Ende; der Betreff muss darunter liegen.
-    assert(betreffBoxB >= datumB + 4.23, `Betreff ${betreffBoxB} >= Infoblock-Ende ${datumB + 4.23}`);
-    assert(betreffBoxB - (datumB + 4.23) >= 8, 'mindestens zwei Leerzeilen Abstand (>= 8mm)');
+    assert(betreffBoxB - infoblockEndeB >= 8.46,
+      `Abstand ${(betreffBoxB - infoblockEndeB).toFixed(2)}mm >= zwei Leerzeilen (8,46mm)`);
   });
 
   it('Bildschirm und Druck lesen denselben Wert (kein margin-top im Print-Override)', async () => {
@@ -1465,20 +1473,20 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
   });
 });
 
-describe('Datum — rechtsbuendig', () => {
-  /* data-x 125 + data-w 65 = 190mm, also 20mm vor dem Blattrand (Projekt-
-   * Konvention; DIN nennt keine Datum-Y, siehe IMR-Registry). Gemessen
-   * (2026-11-11): mit text-align: left endete das Datum bei 155,25mm (54,75mm
-   * Rand), rechtsbuendig bei 190,04mm (19,96mm Rand); y bleibt 92,37mm. */
-  it('setzt text-align: right in beiden Blaettern', async () => {
+describe('Datum — letztes Leitwort im Infoblock (DIN 19.5)', () => {
+  /* Bis 2026-11-11 stand das Datum absolut bei y 92,37mm (rechtsbuendig auf
+   * 190mm, Projekt-Konvention). Seit dem Umzug ist es Flex-Kind von
+   * #infoblock: keine eigene Y, keine eigene x/w, linksbuendig wie die
+   * uebrigen Leitwoerter. Gemessen (2026-11-11, PDF): y 77,03mm. */
+  it('hat keine eigene Positionierung mehr (beide Blaetter)', async () => {
     for (const datei of ['/website/css/sheet.css', '/website/css/sheet-multipage.css']) {
       const roh = await (await fetch(datei)).text();
       const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
       const block = (css.match(/#datum\s*\{([^}]*)\}/) || [])[1] ?? '';
       assert(block !== '', `${datei}: Regel #datum gefunden`);
-      assert(block.includes('text-align: right'), `${datei}: text-align: right`);
-      assert(block.includes('text-align: left') === false, `${datei}: kein text-align: left mehr`);
-      assert(/top:\s*var\(--datum-y\)/.test(block), `${datei}: y bleibt --datum-y`);
+      assert(block.includes('position: absolute') === false, `${datei}: kein position: absolute`);
+      assert(block.includes('--datum-y') === false, `${datei}: keine eigene Y mehr`);
+      assert(block.includes('text-align: right') === false, `${datei}: nicht mehr rechtsbuendig`);
     }
   });
 });
@@ -1507,10 +1515,9 @@ describe('Empfaengerzeilen — DIN-Raster 4,23 mm', () => {
 describe('Betreff — Abstand zum Infoblock', () => {
   /* Historie: 312cc67 setzte margin-top 6.65mm, weil der Betreff damals bei
    * 74,02mm stand und auf 80,67mm sollte (zwei Leerzeilen nach dem Infoblock).
-   * Das war die Rechnung gegen den MAIL-Anschlag des Infoblocks; das Datum
-   * steht aber bei 92mm und damit tiefer. Seit 2026-11-11 richtet sich der
-   * Betreff nach dem Infoblock-Ende (Datum + Zeile = 96,25mm) und der
-   * Falzmarke: margin-top 33,54mm -> 107mm. Der Wert am Element bleibt
+   * Seit dem Datum-Umzug in den Infoblock (2026-11-11) endet der Block bei
+   * 80,90mm (Ink), das DIN-Minimum waere 89,36mm. Der Betreff richtet sich
+   * nach Falzmarke 1: margin-top 33,54mm -> 107mm. Der Wert am Element bleibt
    * (Semantik der Norm), nur die Zahl ist neu. */
   it('setzt margin-top 33.54mm am Betreff, nicht am Spacer', async () => {
     const css = await (await fetch('/website/css/sheet-multipage.css')).text();

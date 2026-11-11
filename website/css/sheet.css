@@ -113,15 +113,9 @@ din-blatt {
   }
 
   #datum {
-    position: absolute;
-    top: var(--datum-y);
-    left: --mm-rel-x(attr(data-x type(<number>)));
-    width: --mm-rel-x(attr(data-w type(<number>)));
+    /* DIN 19.5: letztes Leitwort des Infoblocks, keine eigene Y (siehe
+       sheet-multipage.css). Dieser Pfad ist stillgelegt. */
     font-size: --pt-rel(attr(data-font type(<number>))); /* 10pt in cqw */
-    /* Rechtsbuendig: die Box reicht von data-x 125mm bis 190mm, also 20mm vor
-       den Blattrand (Projekt-Konvention; DIN nennt keine Datum-Y, siehe
-       IMR-Registry). */
-    text-align: right;
   }
 
   /* Briefkern */

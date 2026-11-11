@@ -29,7 +29,6 @@ din-blatt {
   --briefkopf-y: --mm-y(attr(data-briefkopf-y-b type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
   --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
-  --datum-y: --mm-y(attr(data-datum-y-b type(<number>)));
   --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
 
   --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-b type(<number>)));
@@ -42,7 +41,6 @@ body:has(#btn-form-a:checked) din-blatt {
   --briefkopf-y: --mm-y(attr(data-briefkopf-y-a type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
   --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
-  --datum-y: --mm-y(attr(data-datum-y-a type(<number>)));
   --kern-y: --mm-y(attr(data-kern-y-a type(<number>))); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
   --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-a type(<number>)));
   --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-a type(<number>)));

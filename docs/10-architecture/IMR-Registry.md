@@ -184,7 +184,7 @@ din-blatt                      Dokumentrahmen 210 × 297, kein Atom
 ├── din-briefkopf              ZONE Briefkopf (optional)
 ├── din-anschriftfeld          ZONE Fenster
 ├── din-infoblock              ZONE rechts
-├── din-datum                  Atom (Metadaten-Gruppe; DOM-Kindschaft nicht zwingend)
+│   └── din-datum              Atom (letzte Zeile des Blocks, keine eigene Y)
 ├── din-kern                   ZONE Briefkörper
 ├── din-geschaeftsangaben      ZONE Fuß
 ├── din-falzmarke-1            SYSTEM-Atom
@@ -238,7 +238,6 @@ Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 | Zone `din-briefkopf` | 27 mm | 45 mm | DIN 19.4.2 nennt die **Feldhöhe** 27/45 mm; sie als Y-Position zu verwenden ist PROJECT |
 | Zone `din-anschriftfeld` | 27 mm | 45 mm | DIN 19.4.3 — Oberkante = Rücksendezeile; die Anschriftzone (Empfänger) beginnt bei 34/51 mm |
 | Zone `din-infoblock` | 34 mm | 51 mm | DIN |
-| Atom `din-datum` | 74 mm | 92 mm | DIN |
 | Zone `din-kern` | 91 mm | 109 mm | DIN |
 | Atom `din-falzmarke-1` | 87 mm | 105 mm | DIN 19.8 |
 | Atom `din-falzmarke-2` | 192 mm | 210 mm | DIN 19.8 |
@@ -369,7 +368,7 @@ Kontakt-Atome der Absendergruppe MAY hier instantiiert werden (siehe Platzierung
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
-| `datum` | `<din-datum>` | 20.8 | atom | ja, `#datum` | Leitwort „Datum"; Schreibung 11.4 |
+| `datum` | `<din-datum>` | 20.8 | atom | ja, `#datum` | letzte Zeile des Infoblocks (19.5), keine eigene Y; Schreibung 11.4 |
 | `ihr-zeichen` | `<din-ihr-zeichen>` | 20.8 | atom | nein | Leitwort |
 | `ihr-schreiben` | `<din-ihr-schreiben>` | 20.8 | atom | nein | Leitwort „Ihre Nachricht vom" |
 | `unser-zeichen` | `<din-unser-zeichen>` | 20.8 | atom | nein | Leitwort |
@@ -954,12 +953,6 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "y": {
         "A": 91,
         "B": 109
-      }
-    },
-    "din-datum": {
-      "y": {
-        "A": 74,
-        "B": 92
       }
     },
     "din-falzmarke-1": {

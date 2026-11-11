@@ -16,7 +16,6 @@ try {
     theme: 'auto',
     layout: 'form-b',
     style: 'default',
-    guides: false,
     marks: true,
     pluginTestbrief: true,
     randU: 20
@@ -43,7 +42,6 @@ try {
   root.setAttribute('data-theme', theme);
   root.setAttribute('data-layout', layout);
   root.setAttribute('data-style', settings.style || 'default');
-  root.setAttribute('data-guides', asBool(settings.guides, false) ? 'true' : 'false');
   root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
   root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):

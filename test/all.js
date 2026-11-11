@@ -763,9 +763,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
     assertEqual(buildDinLetterPayload({}).layout.marks, true, 'Default ist true');
   });
 
-  it('layout.guides ist ohne Einstellungen false (Abgleich mit DEFAULT_SETTINGS)', () => {
-    assertEqual(buildDinLetterPayload({}).layout.guides, false, 'Default guides = false');
-    assertEqual(buildDinLetterPayload({}, { guides: true }).layout.guides, true, 'gesetztes guides kommt an');
+  it('layout.copyfit und layout.form haben die erwarteten Defaults', () => {
     assertEqual(buildDinLetterPayload({}).layout.copyfit, false, 'copyfit hat keinen Schreiber, Default false');
     assertEqual(buildDinLetterPayload({}).layout.form, 'form-b', 'Default Form B');
     assertEqual(buildDinLetterPayload({}, { layout: 'form-a' }).layout.form, 'form-a', 'Form A kommt an');
@@ -786,7 +784,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('parseDinLetterPayload liest v4-Tuple-Payloads fehlerfrei ein (Roundtrip)', () => {
     const payload = buildDinLetterPayload(
       { betreff: 'Roundtrip', text: '<p>x</p>' },
-      { layout: 'form-a', marks: false, guides: false }
+      { layout: 'form-a', marks: false }
     );
     const result = parseDinLetterPayload(JSON.stringify(payload));
     assert(result.ok, 'v4 wird akzeptiert');
@@ -844,7 +842,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   it('parseDinLetterPayload validiert layout und signature defensiv', () => {
     const base = v4Payload();
     assert(!parseDinLetterPayload({ ...base, layout: { form: 'form-c' } }).ok, 'ungültige form abgelehnt');
-    assert(!parseDinLetterPayload({ ...base, layout: { guides: 'ja' } }).ok, 'guides als String abgelehnt');
     assert(!parseDinLetterPayload({ ...base, layout: { marks: 1 } }).ok, 'marks als Zahl abgelehnt');
     assert(!parseDinLetterPayload({ ...base, layout: [] }).ok, 'layout als Array abgelehnt');
     assert(!parseDinLetterPayload({ ...base, signature: { transform: { x: 'ungueltig', y: 0, scale: 1, rot: 0 } } }).ok, 'ungültige Koordinaten abgelehnt');
@@ -905,10 +902,9 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
   });
 
   it('buildDinLetterPayload erzeugt die v4-Struktur (layout, _meta, fields, signature)', () => {
-    const payload = buildDinLetterPayload({ betreff: 'V4 Test' }, { layout: 'form-a', copyfit: true, guides: false, marks: false });
+    const payload = buildDinLetterPayload({ betreff: 'V4 Test' }, { layout: 'form-a', copyfit: true, marks: false });
     assertEqual(payload.layout.form, 'form-a');
     assertEqual(payload.layout.copyfit, true);
-    assertEqual(payload.layout.guides, false);
     assertEqual(payload.layout.marks, false);
     const idxBetreff = payload._meta.schema.indexOf('betreff');
     assertEqual(payload.fields[idxBetreff], 'V4 Test');
@@ -918,7 +914,7 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
   it('buildDINLetterJSON erzeugt exakt dasselbe Datenmodell wie Export-Payload (SSoT / DeepEqual)', () => {
     saveJSON(STORAGE_KEYS.draft, { 'empfaenger-name': 'Max Mustermann', betreff: 'SSoT Test', text: '<p>Hallo Welt</p>', 'toggle-fuss': true });
-    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', copyfit: false, guides: true, marks: false });
+    saveJSON(STORAGE_KEYS.settings, { layout: 'form-b', copyfit: false, marks: false });
 
     const directPayload = buildDinLetterPayload(
       loadJSON(STORAGE_KEYS.draft, {}),
@@ -984,7 +980,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
 
     const settings = {
       layout: 'form-a',
-      guides: false,
       copyfit: false,
       marks: true,
       signatureState: { x: 15.5, y: 102.3, scale: 0.75, rot: 2 }
@@ -1389,23 +1384,6 @@ describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
     // bewusste Nutzerentscheidung (2026-11-11), damit die Rücksendezeile kleiner
     // steht als der 8-pt-Postvermerk darunter.
     assertEqual(zeile.match(/data-font="([\d.]+)"/)?.[1], '7', 'Schriftgroesse 7pt am Feld');
-  });
-});
-
-describe('Kuvert-Label — relativ zur Anschriftzone', () => {
-  /* Gemessen (2026-11-11): seit dem DIN-Fix beginnt #anschriftfeld selbst auf
-   * der obersten Zeile der Zusatz-/Vermerkzone (--anschriftfeld-y, Tab. B.1:
-   * 33,9/50,8mm). Das Visier sitzt data-visier-top darueber, also braucht die
-   * Formel keinen Block-Versatz mehr — Label bleibt bei 46,00mm (Form B). */
-  it('::after sitzt visier-top ueber der Anschriftzone, ohne Block-Versatz', async () => {
-    const css = await (await fetch('/website/css/sheet-common.css')).text();
-    const regel = (css.match(/#anschriftfeld::after\s*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(regel !== '', 'Regel #anschriftfeld::after gefunden');
-    const top = (regel.match(/top:\s*([^;]+);/) || [])[1] ?? '';
-    assert(top.includes('--mm-y(attr(data-visier-top'), 'data-visier-top bleibt die Bezugsgroesse');
-    assert(top.includes('--briefkopf-y') === false,
-      'kein Block-Versatz mehr (der Block beginnt jetzt auf der Anschriftzone)');
-    assert(top.includes('-1 *'), 'negativer Versatz: Label sitzt ueber der Zonenkante');
   });
 });
 

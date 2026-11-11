@@ -52,7 +52,6 @@ export class SettingsManager {
     this.btnZurueck = document.getElementById('btn-zurueck');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
-    this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
 
@@ -82,9 +81,6 @@ export class SettingsManager {
     const currentStyle = this.settings.style || 'default';
     this.applyStyle(currentStyle);
 
-    if (this.btnGuidesSwitch) {
-      this.btnGuidesSwitch.checked = Boolean(this.settings.guides);
-    }
     if (this.btnMarksSwitch) {
       this.btnMarksSwitch.checked = this.settings.marks !== false;
     }
@@ -126,7 +122,6 @@ export class SettingsManager {
 
   #spiegleLayoutFlags() {
     const root = document.documentElement;
-    root.setAttribute('data-guides', this.settings.guides ? 'true' : 'false');
     root.setAttribute('data-marks', this.settings.marks === false ? 'false' : 'true');
   }
 
@@ -260,15 +255,6 @@ export class SettingsManager {
         if (!this.isReady) return;
         const val = this.styleSelect ? this.styleSelect.value : 'default';
         this.applyStyle(val);
-        this.updateSettings();
-      });
-    }
-
-    const guidesSwitch = this.btnGuidesSwitch;
-    if (guidesSwitch) {
-      guidesSwitch.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.guides = guidesSwitch.checked;
         this.updateSettings();
       });
     }

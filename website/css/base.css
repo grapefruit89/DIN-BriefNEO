@@ -104,18 +104,10 @@ body {
 }
 
 /* --- 2. DESIGN TOKENS (OKLCH & NO-FLIP) --- */
-@property --hilfslinien-deckkraft {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-
 :root {
   color-scheme: light dark;
   interpolate-size: allow-keywords;
   view-transition-name: none;
-
-  transition: --hilfslinien-deckkraft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* --- TAGMODUS --- */
   --c-viewport-day: oklch(0.96 0.01 250);
@@ -175,7 +167,6 @@ body {
   --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
   --glass-blur: blur(20px);
 
-  --hilfslinien-deckkraft: 0;
   --font-system-stack: "Aptos", "Aptos Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
   --active-font-family: var(--font-system-stack);
   --schrift-stack: var(--font-system-stack);

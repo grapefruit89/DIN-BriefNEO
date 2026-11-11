@@ -76,10 +76,6 @@ din-empfaenger-strasse:empty {
   display: none;
 }
 
-:root[data-guides="true"] {
-  --hilfslinien-deckkraft: 0.55;
-}
-
 :root[data-marks="false"] din-falzmarke-1,
 :root[data-marks="false"] din-falzmarke-2,
 :root[data-marks="false"] din-lochmarke {
@@ -88,44 +84,6 @@ din-empfaenger-strasse:empty {
 
 :root:not(:has(#toggle-teilbetreff:checked)) din-teilbetreff {
   display: none;
-}
-
-:root[data-guides="true"] din-falzmarke-1::after {
-  content: 'Falz 1 (105 mm)';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: -7px;
-  font-size: 6.5pt;
-  white-space: nowrap;
-  color: oklch(0.45 0.08 250 / 70%);
-  pointer-events: none;
-}
-
-:root[data-guides="true"][data-layout="form-a"] din-falzmarke-1::after,
-:root[data-guides="true"] body:has(#btn-form-a:checked) din-falzmarke-1::after {
-  content: 'Falz 1 (87 mm)';
-}
-
-:root[data-guides="true"] din-lochmarke::after {
-  content: 'Lochung (148,5 mm)';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: -7px;
-  font-size: 6.5pt;
-  white-space: nowrap;
-  color: oklch(0.45 0.08 250 / 70%);
-  pointer-events: none;
-}
-
-:root[data-guides="true"] din-falzmarke-2::after {
-  content: 'Falz 2 (210 mm)';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: -7px;
-  font-size: 6.5pt;
-  white-space: nowrap;
-  color: oklch(0.45 0.08 250 / 70%);
-  pointer-events: none;
 }
 
 :root:has(#toggle-fuss:checked) din-geschaeftsangaben {
@@ -377,7 +335,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
     }
 
-  :root:not([data-guides="true"]) & :is([contenteditable], textarea[data-feldtyp]):not(:hover):not(:focus) {
+  :is([contenteditable], textarea[data-feldtyp]):not(:hover):not(:focus) {
       outline: none;
     }
 
@@ -432,36 +390,6 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       top: var(--lochmarke-y);
       width: --mm-x(attr(data-w type(<number>))); /* Breite: 12mm */
       border-bottom-style: solid;
-    }
-
-  #anschriftfeld::after {
-      content: 'Kuvert-Fenster 90 × 45 mm';
-      font-size: 7pt;
-      font-weight: 500;
-      color: oklch(0.45 0.08 250 / 70%);
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-      padding: 3px 6px;
-      box-sizing: border-box;
-      position: absolute;
-      /* data-visier-top meint den Abstand zur OBERKANTE DER ANSCHRIFTZONE.
-         Seit dem DIN-Fix (2026-11-11) beginnt #anschriftfeld selbst auf der
-         obersten Zeile der Zusatz-/Vermerkzone (--anschriftfeld-y,
-         Tab. B.1: 33,9/50,8), das Visier sitzt visier-top darueber. Vorher
-         lag der Block 6mm (Form A: 7mm) hoeher (--briefkopf-y), und die Formel
-         musste den Versatz beider Bezugslinien herausrechnen. */
-      top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
-      left: 0;
-      width: --mm-x(attr(data-visier-w type(<number>)));
-      height: --mm-y(attr(data-visier-h type(<number>)));
-      border-radius: --mm-x(3);
-      border: 1px dashed oklch(0.5 0.05 250 / 40%);
-      background: oklch(0.5 0.05 250 / 4%);
-      opacity: var(--hilfslinien-deckkraft);
-      pointer-events: none;
-      z-index: 0;
-      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
   #text b, #text strong {

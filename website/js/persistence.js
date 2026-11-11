@@ -25,7 +25,6 @@ import { currentISODate } from './format.js';
  * @typedef {object} DinSettings
  * @property {'auto' | 'light' | 'dark' | string} theme
  * @property {'form-a' | 'form-b' | string} layout
- * @property {boolean} guides
  * @property {boolean} [marks]
  * @property {boolean} [copyfit]
  * @property {boolean} [pluginTestbrief]
@@ -42,7 +41,6 @@ import { currentISODate } from './format.js';
 export const DEFAULT_SETTINGS = {
   theme: 'auto',
   layout: 'form-b',
-  guides: false,
   marks: true,
   copyfit: false,
   pluginTestbrief: true,
@@ -332,7 +330,6 @@ export const DINLETTER_FORMAT = 'dinletter';
 /**
  * @typedef {object} DinLetterLayout
  * @property {'form-a' | 'form-b'} form
- * @property {boolean} guides
  * @property {boolean} copyfit
  * @property {boolean} marks
  */
@@ -471,7 +468,6 @@ export function buildDinLetterPayload(draft, settings = null) {
     },
     layout: {
       form: (s.layout === 'form-a' || s.layout === 'form-b') ? s.layout : 'form-b',
-      guides: typeof s.guides === 'boolean' ? s.guides : false,
       copyfit: typeof s.copyfit === 'boolean' ? s.copyfit : false,
       marks: typeof s.marks === 'boolean' ? s.marks : true
     },
@@ -580,10 +576,6 @@ export function parseDinLetterPayload(input) {
         return { ok: false, reason: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).', error: 'Ungültiger layout.form-Wert (form-a oder form-b erwartet).' };
       }
       layout.form = raw.form;
-    }
-    if (raw.guides !== undefined) {
-      if (typeof raw.guides !== 'boolean') return { ok: false, reason: 'Ungültiger layout.guides-Wert (Boolean erwartet).', error: 'Ungültiger layout.guides-Wert (Boolean erwartet).' };
-      layout.guides = raw.guides;
     }
     if (raw.copyfit !== undefined) {
       if (typeof raw.copyfit !== 'boolean') return { ok: false, reason: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).', error: 'Ungültiger layout.copyfit-Wert (Boolean erwartet).' };
@@ -734,7 +726,6 @@ export function applyImportedData(pendingImport, { reloadFn = () => location.rel
     const layout = pendingImport.layout;
     if (layout) {
       if (layout.form !== undefined) nextSettings.layout = layout.form;
-      if (layout.guides !== undefined) nextSettings.guides = layout.guides;
       if (layout.copyfit !== undefined) nextSettings.copyfit = layout.copyfit;
       if (layout.marks !== undefined) nextSettings.marks = layout.marks;
     }

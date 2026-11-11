@@ -14,7 +14,7 @@ import { AddressIntelligence } from './address.js';
 import { Constants, Events, eventBus } from './core.js';
 import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset } from './document.js';
 import { Field } from './field.js';
-import { isPrintTitleActive, loadJSON, STORAGE_KEYS, save, saveJSON, stripHtmlToPlaintext } from './persistence.js';
+import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON, stripHtmlToPlaintext } from './persistence.js';
 
 export class DraftManager {
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
@@ -420,6 +420,13 @@ export class DraftManager {
       pvSelect.selectedIndex = 0;
     }
     AddressIntelligence.targetLock = null;
+    /* Privacy: die lokale Adress-Historie haelt bis zu 50 zuletzt gewaehlte
+     * Empfaengeradressen und gehoert damit zum Brief, nicht zu den
+     * Praeferenzen. Der Reset muss sie mitnehmen, sonst bleiben echte
+     * Adressen auf einem geteilten Rechner stehen (gemessen 2026-11-11).
+     * din_settings/din_geoapify_key/din_sender_coords bleiben bewusst.
+     * `remove()` faengt einen gesperrten Storage selbst ab. */
+    remove(STORAGE_KEYS.addresses);
     /* Erst publizieren, dann speichern: Listener (Anrede- und Gruss-Seed)
      * schreiben ihren Folgezustand ins DOM, danach wird der fertige Stand in
      * EINEM Zug gesichert. Vorher entstanden zwei Schreibvorgaenge: leer, dann

@@ -3487,6 +3487,30 @@ describe('Zero Scrollbars & Subpixel Invariance', () => {
   });
 });
 
+describe('resetDraft — Privacy (Briefdaten vs. Präferenzen)', () => {
+  /* Gemessen per CDP (2026-11-11): nach "Brief zurücksetzen" war
+   * din_draft_current korrekt geleert, aber din_local_addresses stand mit
+   * vollständiger Empfängeradresse weiter im localStorage. Die Adress-Historie
+   * gehört zum Brief (bis zu 50 zuletzt gewählte Empfänger), keine Präferenz. */
+
+  it('entfernt die lokale Adress-Historie aus localStorage', () => {
+    localStorage.setItem(STORAGE_KEYS.addresses, JSON.stringify([
+      { formatted: 'Teststr. 1, 12345 Teststadt' }
+    ]));
+    new DraftManager().resetDraft();
+    assertEqual(localStorage.getItem(STORAGE_KEYS.addresses), null,
+      'din_local_addresses ist nach resetDraft entfernt');
+  });
+
+  it('behält Präferenzen (din_settings) nach dem Reset', () => {
+    const settings = JSON.stringify({ theme: 'dark' });
+    localStorage.setItem(STORAGE_KEYS.settings, settings);
+    new DraftManager().resetDraft();
+    assertEqual(localStorage.getItem(STORAGE_KEYS.settings), settings,
+      'din_settings bleibt nach resetDraft erhalten');
+  });
+});
+
 run().then((ok) => {
   /** @type {any} */ (window).__TESTS_PASSED = ok;
   console.log(ok ? '✓ Alle Tests bestanden' : '✗ FEHLER: Tests fehlgeschlagen');

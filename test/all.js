@@ -1222,6 +1222,56 @@ describe('Druck: A4-Seite ohne Ueberlauf (Print-CSS-Vertrag)', () => {
   });
 });
 
+describe('Druck — Unterrand und Fußzeile', () => {
+  /* Gerendert per PDF geprueft (2026-11-11): vor dem Fix lief der Fliesstext
+   * auf Seite 1 bis 294,99mm (2mm vor der Kante) und ueberlappte den Fussblock
+   * (2 Wort-Kollisionen auf der Grundlinie 295,0mm: "unsere" x HRB, "12345" x
+   * Qualitaetssicherung). Nach dem Fix endet Seite 1 bei 272,50mm, der
+   * Fussblock beginnt bei 285,25mm, 0 Kollisionen, weiterhin 2 Seiten.
+   * Der DOM-Runner kann keine PDFs paginieren — hier steht der CSS-Vertrag,
+   * der beides bewirkt. */
+  let css = '';
+  const lade = async () => {
+    if (!css) css = await (await fetch('/website/css/sheet-multipage.css')).text();
+    return css;
+  };
+  /** @param {string} s @returns {string} */
+  const ohneKommentare = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
+  const druckBlock = async () => ohneKommentare((await lade()).slice((await lade()).indexOf('@media print')));
+
+  it('1: einseitiger Fix aus 9204041 bleibt erhalten', async () => {
+    const src = ohneKommentare(await lade());
+    assert(/@page :first\s*\{[^}]*margin:\s*0;/.test(src), '@page :first hat margin: 0');
+    assert(/@page :first\s*\{[^}]*margin:\s*0 0 20mm 0/.test(src) === false,
+      'kein 20mm-Seitenrand auf Seite 1 (wuerde die leere Seite 2 zurueckbringen)');
+  });
+
+  it('2: #kern reserviert 20mm Unterrand im Druck', async () => {
+    const druck = await druckBlock();
+    assert(/#kern\s*\{[^}]*padding:\s*0 20mm 20mm 25mm/.test(druck), 'padding-bottom 20mm auf #kern');
+  });
+
+  it('3: der Unterrand gilt auf jeder Seite, nicht nur der letzten', async () => {
+    /* padding-bottom allein wirkt am fragmentierten Block nur am Blockende
+     * (gemessen: identische PDF-Ausgabe). `clone` wiederholt es pro Seite. */
+    const druck = await druckBlock();
+    assert(/#kern\s*\{[^}]*box-decoration-break:\s*clone/.test(druck),
+      'box-decoration-break: clone auf #kern');
+  });
+
+  it('4: Fußzeile beginnt unterhalb des Textbereichs', async () => {
+    const src = ohneKommentare(await lade());
+    const fussRegel = (src.match(/#geschaeftsangaben\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(fussRegel !== '', '#geschaeftsangaben-Regel gefunden');
+    const top = Number((fussRegel.match(/top:\s*([\d.]+)mm/) || [])[1]);
+    const druck = await druckBlock();
+    const padUnten = Number((druck.match(/#kern\s*\{[^}]*padding:\s*0 20mm ([\d.]+)mm/) || [])[1]);
+    assert(top > 0 && padUnten > 0, `Werte lesbar (top=${top}mm, padding=${padUnten}mm)`);
+    assert(297 - padUnten <= top,
+      `Textende ${297 - padUnten}mm muss ueber Fussbeginn ${top}mm liegen`);
+  });
+});
+
 describe('51-storage: Primitive KISS Funktionen & STORAGE_KEYS', () => {
   it('save und load speichern und lesen Plain Strings', () => {
     save('test_str_key', 'plain_value');

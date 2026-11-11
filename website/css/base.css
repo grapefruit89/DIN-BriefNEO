@@ -345,14 +345,12 @@ textarea[data-feldtyp]::placeholder {
     font-style: normal !important;
 }
 
+/* Die Rücksendezeile bekommt KEINEN Unterstrich: DIN 5008 § 19.4.3 macht sie
+   zur obersten Zeile der Zusatz- und Vermerkzone — abgegrenzt durch ihre
+   Position, nicht durch eine Linie. Hier stand ein `border-bottom: 0.5pt`
+   (plus `padding-bottom: 1.5pt` als Abstand dazu) nur im Druck, weshalb der
+   Bildschirm ohne Linie war und das PDF mit (2026-11-11 entfernt). */
 #rucksendeangabe {
   border-radius: 0 !important;
-  border-bottom: 0.5pt solid oklch(0% 0 0) !important;
-  padding-bottom: 1.5pt !important;
-}
-
-#rucksendeangabe:empty {
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
 }
 }

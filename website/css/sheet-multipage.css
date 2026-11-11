@@ -149,8 +149,8 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     /* Erstes Kind von #anschriftfeld (DIN 19.4.3): Position kommt aus dem
        Container, nicht mehr aus eigenen data-x/data-w. Absolut bei top:0,
        damit die Empfängerzeilen im Flex-Flow exakt stehen bleiben.
-       width:100% bezieht sich auf die Padding-Box des Containers (85mm) —
-       der Unterstrich bleibt damit 85mm, der Text max. 80mm (padding-right). */
+       width:100% bezieht sich auf die Padding-Box des Containers (85mm);
+       der Text belegt max. 80mm (padding-right), eine Linie gibt es nicht. */
     position: absolute;
     top: 0;
     left: 0;
@@ -158,9 +158,9 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     height: 1.4em;
     line-height: 1.4;
     font-size: --pt-abs(attr(data-font type(<number>)));
-    /* Wie im Screen-Pfad: Box 85mm (Unterstrich bleibt), Text max. 80mm
-       (Tab. A.1, Zeilenende 105mm). Beide Pfade muessen gleich sein, sonst
-       weicht der Druck vom Bildschirm ab. */
+    /* Wie im Screen-Pfad: Box 85mm, Text max. 80mm (Tab. A.1, Zeilenende
+       105mm). Beide Pfade muessen gleich sein, sonst weicht der Druck vom
+       Bildschirm ab. */
     box-sizing: border-box;
     padding-right: 5mm;
     white-space: nowrap;
@@ -187,8 +187,8 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     flex-direction: column;
     justify-content: flex-start;
     /* 80-mm-Textgrenze fuer alle Kinder (DIN Tab. A.1: Zeilenende 105mm).
-       border-box haelt die Box bei 85mm — der Unterstrich der Rücksendezeile
-       bleibt damit 85mm lang. */
+       border-box haelt die Box bei 85mm; eine Linie zeichnet die Box nicht
+       (§ 19.4.3). */
     box-sizing: border-box;
     padding-right: 5mm;
     z-index: 10;

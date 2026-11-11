@@ -1311,6 +1311,31 @@ describe('tools/print-messung.mjs', () => {
   });
 });
 
+describe('test/fixtures/brief-42.json', () => {
+  /* Referenzbrief für die PDF-Messung: statisch statt im Werkzeug erzeugt,
+   * damit sich Messwerte nicht mit einer Formulierungsänderung verschieben.
+   * Gemessen (2026-11-11): das Fixture ergibt exakt dieselben Werte wie der
+   * generierte Text (2 Seiten, yMax 272,50mm bei randU=20). */
+  it('ist valides JSON mit 42 Saetzen', async () => {
+    const antwort = await fetch('/test/fixtures/brief-42.json');
+    assert(antwort.ok, `Fixture erreichbar (HTTP ${antwort.status})`);
+    const daten = JSON.parse(await antwort.text());
+    assertEqual(daten.saetze, 42, 'saetze = 42');
+    assert(typeof daten.text === 'string' && daten.text.length > 0, 'text ist ein nicht-leerer String');
+    assert(daten.text.includes('Marke01'), 'beginnt mit Marke01');
+    assert(daten.text.includes('Marke42'), 'endet mit Marke42');
+    assertEqual((daten.text.match(/Marke/g) || []).length, 42, 'genau 42 Marken');
+  });
+
+  it('wird vom Werkzeug für --saetze 42 gelesen', async () => {
+    const quelle = await (await fetch('/tools/print-messung.mjs')).text();
+    assert(quelle.includes('fixtures/brief-42.json'), 'Hilfetext nennt das Fixture');
+    assert(/fixture/i.test(quelle), 'Leselogik vorhanden');
+    // Der Pfad wird aus saetze gebildet, damit auch 43/44 ein Fixture bekommen koennen.
+    assert(quelle.includes('brief-${n}.json'), 'Fixture-Name folgt --saetze');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

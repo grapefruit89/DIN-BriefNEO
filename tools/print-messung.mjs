@@ -25,6 +25,9 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 /* ------------------------------------------------------------------ Argumente */
 
@@ -47,7 +50,10 @@ Voraussetzung — Server auf Port 8099:
 
 Gemessen wird im PDF (pdftotext -bbox), nicht im DOM:
   yMax-S1       höchste Unterkante eines Worts auf Seite 1
-  Unterrand     297 - yMax-S1 (Platz bis zur Blattkante)`;
+  Unterrand     297 - yMax-S1 (Platz bis zur Blattkante)
+
+Referenzbrief: liegt test/fixtures/brief-42.json (statisch), so wird
+dessen text für --saetze 42 verwendet — sonst werden die Sätze erzeugt.`;
 
 const argv = process.argv.slice(2);
 const flag = (name) => argv.includes(name);
@@ -168,6 +174,28 @@ async function verbinde(port) {
 const satz = (n) =>
   `Marke${String(n).padStart(2, '0')} Die Lieferung der vereinbarten Testmuster erfolgt innerhalb von zehn Werktagen nach Auftragseingang und wird durch unsere Qualitaetssicherung dokumentiert.`;
 
+/**
+ * Fließtext für N Sätze. Der Referenzbrief (42 Sätze) liegt als statisches
+ * Fixture bei, damit die Messung reproduzierbar ist und nicht von der hier
+ * erzeugten Formulierung abhängt. Fehlt es, wird generiert — das Ergebnis
+ * ist identisch, nur nicht gegen Textänderungen abgesichert.
+ * @param {number} n
+ * @returns {string}
+ */
+function briefText(n) {
+  const fixture = path.join(ROOT, 'test', 'fixtures', `brief-${n}.json`);
+  if (existsSync(fixture)) {
+    try {
+      const daten = JSON.parse(readFileSync(fixture, 'utf8'));
+      if (daten.saetze === n && typeof daten.text === 'string' && daten.text.length > 0) return daten.text;
+      console.error(`WARNUNG: ${fixture} passt nicht zu --saetze ${n}, Sätze werden generiert.`);
+    } catch (fehler) {
+      console.error(`WARNUNG: ${fixture} ist kein valides JSON (${fehler.message}), Sätze werden generiert.`);
+    }
+  }
+  return Array.from({ length: n }, (_, i) => satz(i + 1)).join(' ');
+}
+
 const pdfPfad = keepPdf ? `/tmp/print-messung-${saetze}.pdf` : path.join(os.tmpdir(), `print-messung-${process.pid}.pdf`);
 const profil = mkdtempSync(path.join(os.tmpdir(), 'print-messung-profil-'));
 let browser = null;
@@ -219,7 +247,7 @@ try {
     if (await ev(`Boolean(document.getElementById('text'))`)) break;
   }
 
-  const inhalt = Array.from({ length: saetze }, (_, i) => satz(i + 1)).join(' ');
+  const inhalt = briefText(saetze);
   await ev(`(() => {
     const setze = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
     setze('empfaenger-name', 'Frau Erika Mustermann');

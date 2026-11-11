@@ -279,7 +279,7 @@ Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erst
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
-| `rucksendeangabe` | `<din-rucksendeangabe>` | 19.4.3 | atom | ja, `#rucksendeangabe` | einzeilig, 8 pt, oberste Position der Zusatz- und Vermerkzone |
+| `rucksendeangabe` | `<din-rucksendeangabe>` | 19.4.3 | atom | ja, `#rucksendeangabe` | einzeilig, 7 pt (Nutzerentscheidung, DIN-Ausnahmebereich 6–8 pt), oberste Position der Zusatz- und Vermerkzone |
 | `vermerke` | `<din-vermerke>` | 19.4.3 | atom | ja, `#vermerke` | Zusatz- und Vermerkzone |
 | `empfaenger-firma` | `<din-empfaenger-firma>` | 20.7.2 | atom | ja, `#empfaenger-firma` | Empfängerbezeichnung |
 | `empfaenger-abteilung` | `<din-empfaenger-abteilung>` | 20.7.4 *(interpretiert)* | atom | nein | DIN 19.5 nennt „Abteilung" als Leitwort des Infoblocks |
@@ -289,7 +289,7 @@ Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erst
 | `empfaenger-strasse` | `<din-empfaenger-strasse>` | 20.7.2 | atom | ja, `#empfaenger-strasse` | Inlandsanschrift |
 | `empfaenger-ort` | `<din-empfaenger-ort>` | 20.7.2 | atom | ja, `#empfaenger-ort` | PLZ und Ort (Gliederung: 11.3.3) |
 
-Schriftgröße 8 pt der Rücksendezeile ist ein typografischer Parameter, keine Millimeter-Box.
+Schriftgröße der Rücksendezeile ist ein typografischer Parameter, keine Millimeter-Box. Aktuell 7 pt (`data-font="7"`) — DIN 19.4.3 nennt 8 pt als Standard und 6 pt als Minimum; 7 pt liegt im Ausnahmebereich und ist eine bewusste Nutzerentscheidung (2026-11-11).
 
 ---
 

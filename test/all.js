@@ -1387,7 +1387,10 @@ describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
     const blockTag = (src.match(/<din-anschriftfeld[^>]*>/) || [])[0] ?? '';
     assertEqual(blockTag.match(/data-h="(\d+)"/)?.[1], '45', 'Container bleibt 45mm hoch');
     // Der Unterstrich darf nicht auf die Textbreite schrumpfen (Invariante aus 543a4d8).
-    assert(zeile.includes('data-font="8"'), 'Schriftgroesse 8pt bleibt am Feld');
+    // Schriftgröße: DIN 19.4.3 nennt 8 pt Standard / 6 pt Minimum; 7 pt ist die
+    // bewusste Nutzerentscheidung (2026-11-11), damit die Rücksendezeile kleiner
+    // steht als der 8-pt-Postvermerk darunter.
+    assertEqual(zeile.match(/data-font="([\d.]+)"/)?.[1], '7', 'Schriftgroesse 7pt am Feld');
   });
 });
 

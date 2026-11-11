@@ -1246,6 +1246,24 @@ describe('Rücksendeangabe — Text-Breite', () => {
   });
 });
 
+describe('#kern — kein toter data-bottom', () => {
+  /* Gemessen (2026-11-11): #kern ist im Mehrseiten-Modus `position: relative`
+   * (sheet-multipage.css), dort wirkt `bottom` nicht. data-bottom="30" wurde
+   * nur vom stillgelegten Einzelseiten-Pfad (sheet.css) gelesen und war damit
+   * toter Code. Die wirksame Unterkante ist padding-bottom: 20mm (7c524cc).
+   *
+   * Die Testseite hat kein #kern-Fixture — deshalb Quelltext-Vertrag. */
+  it('das Kern-Element traegt kein data-bottom mehr', async () => {
+    const src = await (await fetch('/website/index.html')).text();
+    const kern = (src.match(/<din-kern[^>]*>/) || [])[0] ?? '';
+    assert(kern !== '', 'din-kern gefunden');
+    assert(kern.includes('data-bottom') === false, 'kein data-bottom auf #kern');
+    // Schutz gegen zu viel Loeschen: die Fusszeile braucht ihr eigenes Attribut.
+    const fuss = (src.match(/<din-geschaeftsangaben[^>]*>/) || [])[0] ?? '';
+    assert(fuss.includes('data-bottom="10"'), 'din-geschaeftsangaben behaelt data-bottom="10"');
+  });
+});
+
 describe('Druck — Unterrand und Fußzeile', () => {
   /* Gerendert per PDF geprueft (2026-11-11): vor dem Fix lief der Fliesstext
    * auf Seite 1 bis 294,99mm (2mm vor der Kante) und ueberlappte den Fussblock

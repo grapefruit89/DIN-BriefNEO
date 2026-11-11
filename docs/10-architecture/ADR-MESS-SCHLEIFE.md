@@ -196,6 +196,39 @@ Ein visueller Fix ist akzeptiert, wenn:
   `printBackground`; DOM-Rects sind scroll- und zentrierungsverfälscht und
   ersetzen die PDF-Messung nicht.
 
+## Paging-Erkenntnisse (gemessen 2026-11-11, 6cad5bf)
+
+Vier invariante Eigenschaften des Mehrseiten-Pagings. Wer eine davon ändert,
+bricht das Paging ohne Fehlermeldung.
+
+### 1. #kern-Höhe ist abgeleitet, nicht setzbar
+
+`multipage-controller.js:67–75` berechnet die Seitenzahl aus
+`kern.getBoundingClientRect().height` — es gibt keine Formel-Kopie im JS.
+Die Kette ist CSS → `#kern`-Höhe → Paging. Wer `height` auf `#kern` setzt,
+bricht die Ableitung still. Die CSS-Variable `--nutz` wirkt über
+`column-height` auf das Layout, nicht direkt auf das Paging.
+
+### 2. #kern-Höhe ist auf das Seiteraster quantisiert
+
+Gemessen: 602,00 / 906,99 / 1211,99 mm = `n × 297 + (n−1) × 8`. Das erklärt,
+warum 42, 45 und 47 Sätze bei randU=20 dieselbe Höhe ergeben (alle 602 mm) —
+die Höhe springt auf ganze Seitenschritte, nicht kontinuierlich.
+
+### 3. --nutz ist nicht als mm-Wert abfragbar
+
+`getPropertyValue('--nutz')` liefert den Tokenstrom
+(`calc(297mm - 25mm - 20mm)`), nicht `252mm` — die Property ist nicht per
+`@property` registriert. Für Messungen `columnHeight` oder `columnHeightMm`
+(aufgelöst) nutzen, nicht den Property-Wert.
+
+### 4. row-gap: var(--zeilenabstand) hat keinen messbaren Einfluss
+
+Gemessen: `--zeilenabstand` springt bei randU=30 von 53 auf 63 mm, aber
+`#kern`-Höhe und Seitenzahl bleiben unverändert. Die Höhe kommt aus dem
+Seiteraster (§2), nicht aus row-gap. Ungeklärt, ob das so gewollt ist —
+eigener Auftrag, falls relevant.
+
 ## Verwandte ADRs
 
 - [[ADR-CONTENTEDITABLE-MIGRATION]] — Pixel-Perfect bei Element-Umbauten

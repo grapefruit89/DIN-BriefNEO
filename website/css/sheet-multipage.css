@@ -152,6 +152,11 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     width: --mm-abs-x(attr(data-w type(<number>)));
     height: --mm-abs-y(attr(data-h type(<number>)));
     font-size: --pt-abs(attr(data-font type(<number>)));
+    /* Wie im Screen-Pfad: Box 85mm (Unterstrich bleibt), Text max. 80mm
+       (Tab. A.1, Zeilenende 105mm). Beide Pfade muessen gleich sein, sonst
+       weicht der Druck vom Bildschirm ab. */
+    box-sizing: border-box;
+    padding-right: 5mm;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

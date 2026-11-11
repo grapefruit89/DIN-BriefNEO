@@ -1222,6 +1222,30 @@ describe('Druck: A4-Seite ohne Ueberlauf (Print-CSS-Vertrag)', () => {
   });
 });
 
+describe('Rücksendeangabe — Text-Breite', () => {
+  /* Gemessen im PDF (2026-11-11): ohne Fix lief die Rücksendezeile bis
+   * xMax=109,44mm (Ellipse am Boxrand 110mm). Der Text darf laut Tab. A.1 nur
+   * 80mm belegen (25 + 80 = 105mm). Mit padding-right:5mm + box-sizing:
+   * border-box endet er bei 104,82mm, der Unterstrich bleibt 84,84mm lang.
+   *
+   * Die Testseite laedt nur base.css und sidebar.css (Minimal-Fixtures), das
+   * Element existiert dort nicht — deshalb Vertragstest auf beide Blaetter. */
+  it('beide Pfade begrenzen den Text auf 80mm, die Box bleibt 85mm', async () => {
+    /** @param {string} datei @returns {Promise<string>} */
+    const regel = async (datei) => {
+      const src = await (await fetch(datei)).text();
+      return (src.match(/#rucksendeangabe\s*\{([^}]*)\}/) || [])[1] ?? '';
+    };
+    for (const datei of ['/website/css/sheet.css', '/website/css/sheet-multipage.css']) {
+      const block = await regel(datei);
+      assert(block.includes('padding-right: 5mm'), `${datei}: padding-right 5mm`);
+      assert(block.includes('box-sizing: border-box'), `${datei}: box-sizing border-box`);
+    }
+    // Geometrie: linke Kante 25mm + Textbreite 80mm = Zeilenende 105mm
+    assertEqual(25 + 80, 105, 'Tab. A.1: Zeilenende 105mm');
+  });
+});
+
 describe('Druck — Unterrand und Fußzeile', () => {
   /* Gerendert per PDF geprueft (2026-11-11): vor dem Fix lief der Fliesstext
    * auf Seite 1 bis 294,99mm (2mm vor der Kante) und ueberlappte den Fussblock

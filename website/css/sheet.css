@@ -72,6 +72,12 @@ din-blatt {
     width: --mm-rel-x(attr(data-w type(<number>)));
     height: --mm-rel-y(attr(data-h type(<number>)));
     font-size: --pt-rel(attr(data-font type(<number>))); /* 8pt in cqw */
+    /* DIN 5008 Tab. A.1: Zeilenende bei 105mm (x=25 + 80). Die Box ist 85mm
+       (data-w, 19.4.3/4) und behaelt ihren Unterstrich — der Text darf nur
+       80mm belegen, sonst schneidet die Ellipse erst am Boxrand (gemessen
+       2026-11-11: xMax 109,44mm statt <=105mm). */
+    box-sizing: border-box;
+    padding-right: 5mm;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

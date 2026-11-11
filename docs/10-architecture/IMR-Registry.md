@@ -293,6 +293,72 @@ Schriftgröße 8 pt der Rücksendezeile ist ein typografischer Parameter, keine 
 
 ---
 
+## 2a. Anschriftfeld — Ist vs. DIN Tab. B.1 (gemessen 2026-11-11, `1c7c38f`)
+
+Gemessen im PDF (`pdftotext -bbox`, erster Buchstabe der jeweiligen Zeile), nicht im DOM.
+
+| Element | Form A Ist | Form A DIN | Δ | Form B Ist | Form B DIN | Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| Rücksendeangabe | 27,12 mm | 33,9 mm | −6,78 | 45,11 mm | 50,8 mm | −5,69 |
+| Empfängeranschrift | 34,43 mm | 46,6 mm | −12,17 | 51,36 mm | 63,5 mm | −12,14 |
+| Informationsblock | 34,37 mm | 33,9 mm | +0,47 | 51,30 mm | 50,8 mm | +0,50 |
+
+**Ursache der Abweichung.** Die `data-*`-Attribute sind DIN-konform, werden aber
+anders gelesen als benannt:
+
+| Attribut | Wert A/B | DIN Tab. B.1 | Δ | Wird im CSS verwendet als |
+|---|---:|---:|---:|---|
+| `data-anschriftfeld-y` | 34 / 51 | Rücksendezeile 33,9 / 50,8 | +0,1 / +0,2 | Beginn der **Anschriftzone** (`padding-top`-Bezug) |
+| `data-anschriftfeld-y` + 12,7 | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | — (nicht modelliert) |
+| `data-briefkopf-y` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | Oberkante des Blocks = Rücksendezeile |
+
+Der Attributwert trifft die DIN-Rücksendezeile auf 0,1–0,2 mm; addiert man die
+12,7 mm der Zusatz-/Vermerkzone, trifft er die DIN-Empfängeranschrift ebenso genau.
+Die App setzt den Wert jedoch als **Adresszonen-Beginn** ein und legt die Rücksendezeile
+`data-briefkopf-y` (45/27 mm) darüber. Dadurch fehlt die Zone: die Empfängeranschrift
+beginnt 12,1 mm zu hoch, die Rücksendezeile 5,7–6,8 mm zu hoch.
+
+**Zweitursache:** `#vermerke` ist bei leerem Feld `display: none`
+(`website/css/sheet-multipage.css:381`) — die 17,7-mm-Zone wird also nicht reserviert,
+sondern nur der Restabstand (`padding-top` = `anschriftfeld-y − briefkopf-y`, 6/7 mm).
+Mit sichtbarem Postvermerk wandert die erste Empfängerzeile nur um 0,2 mm; der
+12,7-mm-Fehler bleibt.
+
+**Status:** bewusste Abweichung, Entscheidung offen — [[AUFGABEN-WEGWEISER]] → `todo/README.md` #49.
+
+### Optionen (keine davon umgesetzt)
+
+**Option A — Zone immer reservieren (DIN strikt).** `#vermerke` bekommt eine feste
+Höhe (17,7 mm) statt `display: none`; Blockoberkante wandert auf 50,8/33,9 mm,
+Empfängeranschrift auf 63,5/46,6 mm.
+*Konsequenz:* 17,7 mm Weißraum bei leerem Vermerk; **alle** PDF-Referenzen im Repo
+verschieben sich (Briefkopf +5,7 mm, Empfänger +12,1 mm, Betreff/Anrede/Textkern
+folgen, Seitenzahl kann kippen — bei randU=30 liegt die Grenze 2→3 Seiten heute bei
+46 Sätzen, gemessen in `6cad5bf`).
+
+**Option B — Zone weglassen (nicht DIN).** `#vermerke` bleibt `display: none`.
+*Konsequenz:* Empfängeranschrift 12,1 mm zu hoch; ein Fensterbrief nach DIN 680
+trifft die Anschrift nicht mehr mittig. Nicht normkonform — der heutige Zustand.
+
+**Option C — Zone reservieren, Weißraum als Briefabstand.** Wie A, aber die Zone wird
+gestaltet statt nur reserviert: Rücksendezeile oben in der Zone, Empfängeranschrift
+unten, dazwischen unmarkierter Weißraum.
+*Konsequenz:* DIN-konform und optisch unauffällig, aber mehr Umbau als `min-height`
+(CSS der Zone, `padding-top` entfällt, `::after`-Bezug neu) und dieselbe Verschiebung
+aller Messwerte wie A.
+
+### Empfehlung
+
+**Option C**, wenn DIN-Konformität das Ziel ist: Sie liefert die Normgeometrie, ohne
+dass ein leerer Vermerk als Loch wirkt. Voraussetzung ist ein eigener Auftrag mit
+neuer Referenzmessung, weil A und C jede bisherige y-Referenz im Repo entwerten —
+die Soll-Tabelle oben ist der Anker dafür. **Option B** ist nur vertretbar, wenn die
+Abweichung bewusst bleibt; dann sollte sie hier als `PROJECT` markiert werden statt
+als offener Fehler zu gelten. **Option A** ist die billigste normkonforme Variante,
+optisch aber die schlechteste.
+
+---
+
 ## 3. Zone Infoblock (Metadaten)
 
 **Zone:** `<din-infoblock>`  

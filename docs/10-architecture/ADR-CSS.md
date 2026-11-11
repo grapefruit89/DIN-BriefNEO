@@ -80,7 +80,7 @@ Um maximale Langlebigkeit, Robustheit und 0 ms Render-Latenz zu garantieren, wer
 8. **Top-Layer Popovers & Deklarative Transitions:**
    Overlays (`#hinweis-v4`, `#anschrift-vorschlaege`, `#plz-suggestions-popover`) nutzen die native HTML Popover API und rendern im Browser-Top-Layer. Transitions laufen 100% deklarativ über CSS `@starting-style` und `transition-behavior: allow-discrete`.
 9. **Semantische Schalter (`<input type="checkbox" switch>`):**
-   Zustände (z. B. Hilfslinien) werden semantisch gerendert und direkt im CSS via `:root:has(#btn-hilfslinien-switch:checked)` ausgewertet (JS-Kill Phase 2).
+   Zustände (z. B. Fußzeile) werden semantisch gerendert und direkt im CSS via `:root:has(#toggle-fuss:checked)` ausgewertet (JS-Kill Phase 2).
 10. **CSS @scope:**
     Vollständige Kapselung der Briefblatt-Stile (`@scope (din-blatt)`), um Leckagen zwischen App-Shell und Briefdokument auszuschließen.
 11. **Modern Form Control Styling:**
@@ -126,8 +126,6 @@ Bündelt Reset, mathematische `@function`-Definitionen, Design-Tokens und das gl
   * Accessibility: `@media (prefers-reduced-motion: reduce)` als Kill-Switch für alle Animationen und Transitions.
 * **Mathematische CSS Functions (`@function`):**
   * Relative Umrechnungsfunktionen (`--mm-rel-x`, `--mm-rel-y`, `--pt-rel`) zur proportionalen Skalierung im Viewport.
-* **Registered Custom Properties (`@property`):**
-  * `@property --hilfslinien-deckkraft`: Syntax `<number>`, inherits `true`, initial `0` — flüssige CSS-Interpolation beim Umschalten der Hilfslinien.
 * **Design Tokens & Wahrnehmungsgerechter Farbraum (OKLCH):**
   * Sämtliche Farben im OKLCH-Farbraum definiert (`--c-viewport-day`, `--c-viewport-night`, etc.).
   * Reines Weiß (`oklch(100% 0 0)`) und Tiefschwarz (`oklch(0% 0 0)`).
@@ -159,7 +157,7 @@ Bündelt alle geteilten Geometriedefinitionen, Form-A/B-Umschaltung und Zonen de
   * `#betreff`, `#anrede`, `#text`, `#grussformel`, `#unterschrift`, `#anlagen`.
 * **Falt- und Lochmarken:**
   * `din-falz-oben`, `din-falz-unten`, `din-lochmarke`: exakt auf 8 mm begrenzt, um Betreffkollisionen physisch auszuschließen.
-  * Sichtbarkeit gesteuert über `--hilfslinien-deckkraft`.
+  * Sichtbarkeit gesteuert über den Schalter „Falz- & Lochmarken“ (`data-marks`).
 * **Signatur-Overlay (CAD-Geometrie & Snapping):**
   * Interaktiver Transformations-Rahmen (`.unterschriftsbild-rahmen`, `.unterschriftsbild-griff`, `.unterschriftsbild-drehgriff`) für stufenloses Skalieren, Verschieben und Rotieren der Signatur.
 * **ContentEditable & Micro-Copyfitting:**

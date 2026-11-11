@@ -123,12 +123,6 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#btn-style-formal` (Förmlich: "Sehr geehrte(r)... / Mit freundlichen Grüßen").
   * `#btn-style-polite` (Höflich: "Guten Tag... / Freundliche Grüße").
   * `#btn-style-casual` (Locker: "Hallo... / Beste Grüße").
-* **Semantischer Hilfslinien-Schalter:**
-  * `<input type="checkbox" switch id="btn-hilfslinien-switch">`: Nativer Schalter. **Ohne**
-    `checked` im Markup: Der gespeicherte Zustand kommt aus
-    `website/js/boot.js` (blockierend im `<head>`, siehe [[ARCHITECTURE-MAP]]).
-    Ein `checked` im Markup würde vor dem ersten Paint „an" zeigen und danach auf den
-    gespeicherten Wert springen.
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
   * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#vermerke` (`din-vermerke`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
   * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.
@@ -231,7 +225,7 @@ Folgende HTML-Strukturen und Alt-Muster sind im gesamten Repository **strikt ver
 | **`<img>` innerhalb von `contenteditable`** | Unterschriften-Grafik im Fließtext | 🚫 **HARD BAN** | Immutable Law Catalog A47 | Kapselung in separatem `#unterschriftsbild-container` als Geschwister-Element außerhalb von ContentEditable. |
 | **Eigene `<div>`-Modals mit `z-index`** | Manuell geschichtete Overlays und Dialoge | 🚫 **HARD BAN** | Catalog A56, Probe P5 | Native HTML Popover API (`popover`) und `<dialog>` im Browser-Top-Layer. |
 | **JS-Event-Listener für Dialog-Öffnung** | `btn.addEventListener('click', () => dialog.showModal())` | 🚫 **HARD BAN** | Modern DOM Standards 2026 | Deklarative HTML Command Invokers (`commandfor="reset-dialog" command="show-modal"`). |
-| **Radio-Controls für Binärschalter** | Segmented Control ("An" / "Aus") für Hilfslinien | ⚠️ **DEPRECATED** | Catalog A57, Prio 5 | Semantisches `<input type="checkbox" switch id="btn-hilfslinien-switch">`. |
+| **Radio-Controls für Binärschalter** | Segmented Control ("An" / "Aus") für Schalter in der Seitenleiste | ⚠️ **DEPRECATED** | Catalog A57, Prio 5 | Semantisches `<input type="checkbox" switch id="toggle-falzmarken">`. |
 | **`scroll`-relevante Attribute / Tags** | Scroll-Container, `overflow-scroll`-Klassen | 🚫 **HARD BAN** | Zero-Scroll-Mandat, CI-Gate | Physisches A4-Papier scrollt niemals. Der Begriff `scroll` ist in `website/*.html` komplett verboten. |
 
 ---

@@ -61,8 +61,8 @@ depends_on: []
 ### 3.1 Zustandstrennung & 80/20-Architekturgrenze v1.0
 
 - **Dokumentinhalt (`din_draft_current`):** Enthält ausschließlich Textfelder und den Postvermerk (`seitenleiste-postvermerk-select`), frei von UI-Schaltern.
-- **Einstellungen & Signatur (`din_settings`):** Beherbergt Workspace-Präferenzen (`theme`, `guides`, `marks`), Form A/B (`layout`) und die Signaturtransformation (`signatureState`). Das Signaturbild bleibt lokal.
-- **Export (Schema v3):** `buildDinLetterPayload` schreibt ein flaches JSON — `layout` (`form`, `guides`, `copyfit`, `marks`), `fields` (Dokumentinhalt) und `signature.transform`. Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind nicht enthalten; ein separater Container (`.dinletter`) ist vorgesehen. Schema v1/v2 wird beim Import abgelehnt; der LocalStorage-Zustand wird weiterhin über `migrateStorage` behandelt.
+- **Einstellungen & Signatur (`din_settings`):** Beherbergt Workspace-Präferenzen (`theme`, `marks`), Form A/B (`layout`) und die Signaturtransformation (`signatureState`). Das Signaturbild bleibt lokal.
+- **Export (Schema v5):** `buildDinLetterPayload` schreibt ein flaches JSON — `layout` (`form`, `copyfit`, `marks`), `fields` (Dokumentinhalt) und `signature.transform`. Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind nicht enthalten; ein separater Container (`.dinletter`) ist vorgesehen. Ältere Schemata (v4 und früher) werden beim Import abgelehnt; der LocalStorage-Zustand wird weiterhin über `migrateStorage` behandelt.
 
 ## 4. Consequences
 

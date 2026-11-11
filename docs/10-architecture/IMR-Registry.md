@@ -469,7 +469,6 @@ Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und
 | `brief-ansicht` | Viewport-/Scroll-Wrapper des Blattes |
 | `brief-kommentar` | Inline-Kommentar-Markierung im Text (kein Atom) |
 | `--blatt-breite`, `--blatt-hoehe` | Blattmaße aus `data-width-mm`/`data-height-mm` |
-| `--hilfslinien-deckkraft` | Deckkraft der System-Atome (Falz/Loch) |
 | `unterschriftsbild-*` | Satellit von `din-unterschrift` (Bild, Rahmen, Griffe) |
 | `din-info-*` | UI-Modal für DIN 5008 Leitfaden (Dialog, Titel, Content) |
 

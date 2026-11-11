@@ -54,7 +54,6 @@ export class SettingsManager {
     this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
     this.btnGuidesSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-hilfslinien-switch'));
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
-    this.btnSensitiveSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-sensibler-betreff'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
 
     this.isReady = false;
@@ -88,9 +87,6 @@ export class SettingsManager {
     }
     if (this.btnMarksSwitch) {
       this.btnMarksSwitch.checked = this.settings.marks !== false;
-    }
-    if (this.btnSensitiveSwitch) {
-      this.btnSensitiveSwitch.checked = Boolean(this.settings.sensitiveSubject);
     }
     if (this.pluginTestbriefSwitch) {
       this.pluginTestbriefSwitch.checked = Boolean(this.settings.pluginTestbrief);
@@ -132,7 +128,6 @@ export class SettingsManager {
     const root = document.documentElement;
     root.setAttribute('data-guides', this.settings.guides ? 'true' : 'false');
     root.setAttribute('data-marks', this.settings.marks === false ? 'false' : 'true');
-    root.setAttribute('data-sensitive-subject', this.settings.sensitiveSubject ? 'true' : 'false');
   }
 
   /**
@@ -283,15 +278,6 @@ export class SettingsManager {
       marksSwitch.addEventListener('change', () => {
         if (!this.isReady) return;
         this.settings.marks = marksSwitch.checked;
-        this.updateSettings();
-      });
-    }
-
-    const sensitiveSwitch = this.btnSensitiveSwitch;
-    if (sensitiveSwitch) {
-      sensitiveSwitch.addEventListener('change', () => {
-        if (!this.isReady) return;
-        this.settings.sensitiveSubject = sensitiveSwitch.checked;
         this.updateSettings();
       });
     }

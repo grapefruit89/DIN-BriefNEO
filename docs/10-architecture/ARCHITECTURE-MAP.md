@@ -43,7 +43,7 @@ Wann wird eine Datei geladen? Wer hängt von wem ab? In welcher Reihenfolge wirk
 | `website/index.html` | Einzelseiten-Editor, **produktiv** | immer | lädt `boot.js` (blockierend) + `main.js` (Modul) |
 | `website/index.html` (Mehrseiten-Modus) | Mehrseiten-Editor, **fester Standard** | immer (das Einzelseiten-Stylesheet ist stillgelegt) | `sheet-multipage.css` ist fest verlinkt; `multipage-controller.js` wird per `import()` gemountet |
 | `test/index.html` | Test-Runner (126 Fälle) | nur lokal | braucht einen HTTP-Server, ES-Module laden nicht über `file://` |
-| `website/js/boot.js` | Theme-, Stil- und Layout-Flags | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Liest `din_settings` **einmal** und setzt `data-theme`, `data-style`, `data-guides`, `data-marks`, `data-sensitive-subject`. Die Checkboxen zieht `SettingsManager.applySettings()` nach |
+| `website/js/boot.js` | Theme-, Stil- und Layout-Flags | **blockierend, vor First Paint** | klassisches Script, kein Modul: Module sind deferred und kämen zu spät. Liest `din_settings` **einmal** und setzt `data-theme`, `data-style`, `data-guides`, `data-marks`. Die Checkboxen zieht `SettingsManager.applySettings()` nach |
 | `website/js/main.js` | App-Start (Orchestrator) | Modul, deferred | verdrahtet alle Kernmodule; enthält keine Fachlogik |
 | `website/addons/testbrief/testbrief.js` | Testbrief-Plugin | **dynamisch** per `import()`, nur bei Klick auf `#btn-testbrief` | Figurendaten liegen im Plugin-Ordner; ohne das Plugin bleibt der Button wirkungslos, die App startet normal |
 | `website/addons/webmcp-bridge.js` | WebMCP-Bridge | **gar nicht** | derzeit nicht eingebunden, in [[STRUCTURE]] entsprechend markiert |

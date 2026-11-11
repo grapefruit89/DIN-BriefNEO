@@ -987,7 +987,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       guides: false,
       copyfit: false,
       marks: true,
-      sensitiveSubject: true,
       signatureState: { x: 15.5, y: 102.3, scale: 0.75, rot: 2 }
     };
 
@@ -1000,7 +999,6 @@ describe('Import/Export: DIN-Brief-JSON-Payload (pure Funktionen)', () => {
       assertEqual(parsed.schemaVersion, 4);
       assertEqual(parsed.layout?.form, 'form-a');
       assertEqual(parsed.layout?.marks, true);
-      assertEqual(parsed.layout?.sensitiveSubject, true);
       assertEqual(parsed.signature?.transform?.scale, 0.75);
 
       for (const [key, expectedVal] of Object.entries(originalDraft)) {
@@ -1488,28 +1486,6 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
     assert(betreffPrint !== '', 'Print-Override fuer #betreff gefunden');
     assert(betreffPrint.includes('margin-top') === false,
       'Print-Override setzt kein margin-top -> Basiswert 33,54mm gilt in beiden Pfaden');
-  });
-});
-
-describe('Sensibler Betreff — tiefer, nicht hoeher (DIN 20.9.2)', () => {
-  /* Normtext Z. 1956: „Sofern im Betreff vertrauliche oder sensible Daten
-   * angegeben werden … empfiehlt es sich, den Betreff um den Abstand von ein
-   * bis zwei Leerzeilen tiefer beginnen zu lassen." Also relativ zur normalen
-   * Position. Gemessen (2026-11-11): die Regel stand auf dem Absolutwert
-   * 8,46mm (Basis war 6,65mm); nach dem Umzug auf 107mm riss sie den sensiblen
-   * Betreff auf 81,92mm — 25mm nach oben in den Infoblock hinein. */
-  it('verschiebt den Betreff um 1-2 Leerzeilen nach unten, relativ zur Basis', async () => {
-    const gemeinsam = (await (await fetch('/website/css/sheet-common.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const blatt = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const basis = Number((blatt.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)mm/) || [])[1]);
-    const regel = (gemeinsam.match(/:root\[data-sensitive-subject="true"\] #betreff[^{]*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(regel !== '', 'Regel fuer den sensiblen Betreff gefunden');
-    const calc = (regel.match(/margin-top:\s*calc\(\s*([\d.]+)mm\s*\+\s*([\d.]+)mm\s*\)/) || []).slice(1).map(Number);
-    assertEqual(calc.length, 2, 'margin-top ist ein calc(Basis + Leerzeilen)');
-    assertEqual(calc[0], basis, 'Basiswert identisch mit #betreff (kein zweiter Absolutwert)');
-    assert(calc[1] >= 4.23 && calc[1] <= 8.46, `Zuschlag ${calc[1]}mm liegt zwischen 1 und 2 Leerzeilen (4,23-8,46)`);
-    // Gegenprobe gegen den alten Fehler: Ergebnis muss TIEFER liegen als die Basis.
-    assert(basis + calc[1] > basis, 'sensibler Betreff liegt tiefer, nicht hoeher');
   });
 });
 

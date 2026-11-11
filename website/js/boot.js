@@ -18,7 +18,6 @@ try {
     style: 'default',
     guides: false,
     marks: true,
-    sensitiveSubject: false,
     pluginTestbrief: true,
     randU: 20
   };
@@ -46,7 +45,6 @@ try {
   root.setAttribute('data-style', settings.style || 'default');
   root.setAttribute('data-guides', asBool(settings.guides, false) ? 'true' : 'false');
   root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
-  root.setAttribute('data-sensitive-subject', asBool(settings.sensitiveSubject, false) ? 'true' : 'false');
   root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):
    * das Attribut bleibt fuer CSS/Tests gesetzt, ist aber immer 'true', und

@@ -236,7 +236,7 @@ Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 | Objekt | Y Form A | Y Form B | Herkunft |
 |---|---|---|---|
 | Zone `din-briefkopf` | 27 mm | 45 mm | DIN 19.4.2 nennt die **Feldhöhe** 27/45 mm; sie als Y-Position zu verwenden ist PROJECT |
-| Zone `din-anschriftfeld` | 34 mm | 51 mm | DIN |
+| Zone `din-anschriftfeld` | 27 mm | 45 mm | DIN 19.4.3 — Oberkante = Rücksendezeile; die Anschriftzone (Empfänger) beginnt bei 34/51 mm |
 | Zone `din-infoblock` | 34 mm | 51 mm | DIN |
 | Atom `din-datum` | 74 mm | 92 mm | DIN |
 | Zone `din-kern` | 91 mm | 109 mm | DIN |
@@ -273,9 +273,9 @@ Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil 
 
 **Zone:** `<din-anschriftfeld>`  
 **ARIA:** `group`  
-**Zonen-Geometrie:** X 25 mm. Y Form A 34 mm, Form B 51 mm. Breite 85 mm. Höhe 45 mm (fix).
+**Zonen-Geometrie:** X 25 mm. Blockoberkante (= Rücksendezeile) Form A 27 mm, Form B 45 mm; darunter die Anschriftzone mit Y Form A 34 mm, Form B 51 mm. Breite 85 mm. Höhe 45 mm (fix).
 
-Die Höhe 45 mm ist Zonenmaß, keine Atom-Box.
+Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erste Kind der Zone und liegt auf ihrer Oberkante (DIN 19.4.3: Zusatz- und Vermerkzone inklusive Rücksendeangabe, darunter die Anschriftzone).
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|

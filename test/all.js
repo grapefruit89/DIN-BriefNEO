@@ -1358,6 +1358,39 @@ describe('print-messung.mjs --modus bildschirm', () => {
   });
 });
 
+describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
+  /* DIN 5008 19.4.3/4: ein Block. Gemessen im PDF (2026-11-11): die
+   * Rücksendezeile liegt jetzt bei 45,11mm als erste Zeile des Blocks, die
+   * Empfängerzeilen unverändert bei 51,36 / 56,12 / 61,15 / 66,18mm, der
+   * Block misst 44,98mm (vorher ragte die Zeile 6mm darüber hinaus).
+   * Die Testseite hat kein Anschriftfeld-Fixture — deshalb Quelltext-Vertrag. */
+  it('ist erstes Kind von #anschriftfeld', async () => {
+    const src = await (await fetch('/website/index.html')).text();
+    const block = (src.match(/<din-anschriftfeld[\s\S]*?<\/din-anschriftfeld>/) || [])[0] ?? '';
+    assert(block !== '', 'din-anschriftfeld gefunden');
+    const innen = block.replace(/^<din-anschriftfeld[^>]*>/, '');
+    const kinder = [...innen.matchAll(/<(din-[a-z-]+)\s+id="([^"]+)"/g)].map((m) => m[2]);
+    assertEqual(kinder[0], 'rucksendeangabe', 'Rücksendeangabe ist das erste Kind');
+    assertEqual(kinder[1], 'vermerke', 'danach folgen die Vermerke');
+    // Ausserhalb des Blocks darf sie nicht mehr stehen.
+    const vorBlock = src.slice(0, src.indexOf('<din-anschriftfeld'));
+    assert(vorBlock.includes('id="rucksendeangabe"') === false, 'kein zweites Vorkommen ausserhalb');
+  });
+
+  it('erbt Geometrie vom Container und behaelt 45mm Blockhoehe', async () => {
+    const src = await (await fetch('/website/index.html')).text();
+    const zeile = (src.match(/<din-rucksendeangabe[^>]*>/) || [])[0] ?? '';
+    assert(zeile !== '', 'din-rucksendeangabe gefunden');
+    assert(zeile.includes('data-x=') === false, 'kein eigenes data-x (SSoT im Container)');
+    assert(zeile.includes('data-w=') === false, 'kein eigenes data-w');
+    assertEqual(zeile.match(/data-h="(\d+)"/)?.[1], '0', 'data-h="0": keine eigene Höhe');
+    const blockTag = (src.match(/<din-anschriftfeld[^>]*>/) || [])[0] ?? '';
+    assertEqual(blockTag.match(/data-h="(\d+)"/)?.[1], '45', 'Container bleibt 45mm hoch');
+    // Der Unterstrich darf nicht auf die Textbreite schrumpfen (Invariante aus 543a4d8).
+    assert(zeile.includes('data-font="8"'), 'Schriftgroesse 8pt bleibt am Feld');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

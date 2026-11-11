@@ -146,11 +146,17 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 
   /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
   #rucksendeangabe {
+    /* Erstes Kind von #anschriftfeld (DIN 19.4.3): Position kommt aus dem
+       Container, nicht mehr aus eigenen data-x/data-w. Absolut bei top:0,
+       damit die Empfängerzeilen im Flex-Flow exakt stehen bleiben.
+       width:100% bezieht sich auf die Padding-Box des Containers (85mm) —
+       der Unterstrich bleibt damit 85mm, der Text max. 80mm (padding-right). */
     position: absolute;
-    top: var(--briefkopf-y);
-    left: --mm-abs-x(attr(data-x type(<number>)));
-    width: --mm-abs-x(attr(data-w type(<number>)));
-    height: --mm-abs-y(attr(data-h type(<number>)));
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1.4em;
+    line-height: 1.4;
     font-size: --pt-abs(attr(data-font type(<number>)));
     /* Wie im Screen-Pfad: Box 85mm (Unterstrich bleibt), Text max. 80mm
        (Tab. A.1, Zeilenende 105mm). Beide Pfade muessen gleich sein, sonst
@@ -166,15 +172,25 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 
   #anschriftfeld {
     position: absolute;
-    top: var(--anschriftfeld-y);
+    /* DIN 19.4.3/4: EIN Block. Er beginnt bei der Rücksendezeile
+       (--briefkopf-y, 45mm) statt 6mm darunter; die Empfängerzeilen behalten
+       ihre y-Position durch padding-top = Abstand beider Bezugslinien.
+       Keine Magic Number: Form A und B liefern ihre eigenen Attribute. */
+    top: var(--briefkopf-y);
     left: --mm-abs-x(attr(data-x type(<number>)));
     width: --mm-abs-x(attr(data-w type(<number>)));
     height: --mm-abs-y(attr(data-h type(<number>)));
+    padding-top: calc(var(--anschriftfeld-y) - var(--briefkopf-y));
     font-size: --pt-abs(attr(data-font type(<number>)));
     line-height: 1.4;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    /* 80-mm-Textgrenze fuer alle Kinder (DIN Tab. A.1: Zeilenende 105mm).
+       border-box haelt die Box bei 85mm — der Unterstrich der Rücksendezeile
+       bleibt damit 85mm lang. */
+    box-sizing: border-box;
+    padding-right: 5mm;
     z-index: 10;
   }
 

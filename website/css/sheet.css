@@ -118,7 +118,10 @@ din-blatt {
     left: --mm-rel-x(attr(data-x type(<number>)));
     width: --mm-rel-x(attr(data-w type(<number>)));
     font-size: --pt-rel(attr(data-font type(<number>))); /* 10pt in cqw */
-    text-align: left;
+    /* Rechtsbuendig: die Box reicht von data-x 125mm bis 190mm, also 20mm vor
+       den Blattrand (Projekt-Konvention; DIN nennt keine Datum-Y, siehe
+       IMR-Registry). */
+    text-align: right;
   }
 
   /* Briefkern */

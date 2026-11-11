@@ -1438,6 +1438,24 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
   });
 });
 
+describe('Datum — rechtsbuendig', () => {
+  /* data-x 125 + data-w 65 = 190mm, also 20mm vor dem Blattrand (Projekt-
+   * Konvention; DIN nennt keine Datum-Y, siehe IMR-Registry). Gemessen
+   * (2026-11-11): mit text-align: left endete das Datum bei 155,25mm (54,75mm
+   * Rand), rechtsbuendig bei 190,04mm (19,96mm Rand); y bleibt 92,37mm. */
+  it('setzt text-align: right in beiden Blaettern', async () => {
+    for (const datei of ['/website/css/sheet.css', '/website/css/sheet-multipage.css']) {
+      const roh = await (await fetch(datei)).text();
+      const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+      const block = (css.match(/#datum\s*\{([^}]*)\}/) || [])[1] ?? '';
+      assert(block !== '', `${datei}: Regel #datum gefunden`);
+      assert(block.includes('text-align: right'), `${datei}: text-align: right`);
+      assert(block.includes('text-align: left') === false, `${datei}: kein text-align: left mehr`);
+      assert(/top:\s*var\(--datum-y\)/.test(block), `${datei}: y bleibt --datum-y`);
+    }
+  });
+});
+
 describe('Empfaengerzeilen — DIN-Raster 4,23 mm', () => {
   /* DIN Tab. B.1, Fussnote a: Zeilenhoehe 4,23mm = 12pt. Gemessen
    * (2026-11-11): mit .single-line (1.4em = 4,94mm) endeten vier

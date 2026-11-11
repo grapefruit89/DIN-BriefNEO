@@ -234,7 +234,10 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     left: --mm-abs-x(attr(data-x type(<number>)));
     width: --mm-abs-x(attr(data-w type(<number>)));
     font-size: --pt-abs(attr(data-font type(<number>)));
-    text-align: left;
+    /* Rechtsbuendig: die Box reicht von data-x 125mm bis 190mm, also 20mm vor
+       den Blattrand (Projekt-Konvention; DIN nennt keine Datum-Y, siehe
+       IMR-Registry). */
+    text-align: right;
     z-index: 10;
   }
 

@@ -39,6 +39,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Zwischenablage-Parsing | `website/js/clipboard-parser.js` | `--filter=Clipboard` | test-runner |
 | Persistenz, Export/Import, Undo | `website/js/persistence.js`, `website/js/draft-manager.js`, `website/js/binary-storage.js` | `--filter="DraftManager|Import/Export|51-storage"` | beide |
 | Form A/B, Mehrseiten, Umbruch | `website/css/sheet.css`, `website/css/sheet-multipage.css`, `website/js/multipage-controller.js`, `website/js/settings.js` | `--filter="Layout|Scrollbars"` (nur indirekt) | beide |
+| Druck-/Layout-Bug (visuell) | `docs/10-architecture/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css` | `--filter=Druck` | test-runner |
 | Anrede, Grußformel, Stil | `website/js/salutation.js` | `--filter=Salutation` | test-runner |
 | Telefon/Datum/IBAN/Geld | `website/js/format.js` | `--filter=format` | test-runner |
 | Unterschrift, Stempel | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` | test-runner |
@@ -108,6 +109,12 @@ Nie direkt aus dem DOM exportieren.
   13 Fallstricke, die der Anlagen-Pilot aufgedeckt hat. Die Ratsche `P38` meldet
   jedes einzeilige `contenteditable` als `warning` (kein Gate, nur Sichtbarkeit).
 - **Tests filtern:** `node tools/test-runner.mjs --filter=<regex>` (Suite: 222 Fälle).
+- **Visuelle Bugs (Druck, Layout, Umbruch):** Lies
+  `docs/10-architecture/ADR-MESS-SCHLEIFE.md`. Heatmap als Prozess (wo ist der
+  Unterschied?), `pdftotext -bbox` in Millimetern als Messmethode, Wort-Kollision
+  und Anker-Verschiebung als Diagnose, Mechanismus statt Symptom als Fix.
+  Rot-Nachweis ist Pflicht. Die Print-Emulation liefert nur Hinweise, das PDF
+  ist die Wahrheit.
 - **Die Briefansicht nicht ausblenden.** Das Pop-in-Fenster ist 8–20 ms; ein Gate
   würde ~160 ms Unsichtbarkeit und einen Fail-closed-Zustand erzeugen.
 - **`website/` ist hermetisch** (A45): kein Pfad darf aus dem Ordner herausführen.

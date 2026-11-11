@@ -360,6 +360,11 @@ div → span, custom element → natives Element), ist ein Vorher/Nachher-Nachwe
    (CSS-Reset, Box-Modell, baseline) und fixen, bevor der Umbau als fertig gilt.
 6. **Messung mit CDP/F12, nicht nach Augenmaß.** Der Debug-Browser
    (`tools/browser.mjs` oder gleichwertig) ist das Werkzeug.
+7. **Der Harness bildet den Nutzerpfad nach** (Seite im Bildschirmmodus laden,
+   füllen, dann drucken). Weicht er ab, sind `data-seiten`, Viewport-Padding und
+   `#probe`-Höhe im Output zu protokollieren — sonst misst man einen Zustand, den
+   es für den Nutzer nicht gibt. Verfahren für Druck und Seitenumbruch:
+   [[ADR-MESS-SCHLEIFE]].
 
 Gilt **nicht** für: reine Farb-/Schrift-Änderungen, neue Elemente ohne Vorgänger,
 Elemente außerhalb des Briefblatts (Sidebar).

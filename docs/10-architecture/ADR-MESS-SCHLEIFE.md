@@ -180,6 +180,22 @@ Ein visueller Fix ist akzeptiert, wenn:
 - Der Aufwand pro Runde sinkt: die Zonen-Ausgabe der Heatmap beendet die
   Isolierschleife, bevor sie beginnt.
 
+## Werkzeuge
+
+- `tools/print-messung.mjs` — parametrisierte PDF-Messung:
+  `--saetze N`, `--rand-u 20|30`, `--json`. Liefert Seitenzahl, `yMax` pro
+  Seite und den Unterrand (`297 − yMax`); Referenzbrief aus
+  `test/fixtures/brief-42.json`. Aufruf setzt einen Server auf
+  `127.0.0.1:8099` voraus. Für #47/#48.
+- `pdftotext -bbox`, `pdfinfo` — PDF-Analyse (poppler-utils). Wortkoordinaten
+  in Punkt, für Millimeter mit `× 25,4 / 72` umrechnen.
+- `pdftoppm` — PNG-Rendering für Pixel-Messungen (Falzmarken, Laufkopf,
+  Unterstrich-Längen); Schwelle für „geändert" ist ein Pixel-Diff > 10.
+- Chrome DevTools Protocol (`Page.printToPDF`, `Runtime.evaluate`) — Rendering
+  und DOM-Messung. `printToPDF` mit `preferCSSPageSize` und
+  `printBackground`; DOM-Rects sind scroll- und zentrierungsverfälscht und
+  ersetzen die PDF-Messung nicht.
+
 ## Verwandte ADRs
 
 - [[ADR-CONTENTEDITABLE-MIGRATION]] — Pixel-Perfect bei Element-Umbauten

@@ -1438,6 +1438,59 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
   });
 });
 
+describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
+  /* DIN 5008 § 20.9.2: zwei Leerzeilen nach dem Informationsblock. Der
+   * Infoblock endet beim Datum (data-datum-y 92 + 4,23 = 96,23mm, gemessen
+   * 96,25), zwei Leerzeilen ergeben 104,71mm — dort liegt Falzmarke 1 (105).
+   * Der Betreff beginnt 2mm darunter (107/89mm), damit die Falte nicht durch
+   * den Text geht. Gemessen (2026-11-11): vorher 80,11mm, also -15,62mm
+   * Abstand zum Infoblock-Ende (Betreff mitten im Infoblock). */
+  /** @param {string} s */
+  const zahl = (s) => Number(String(s).replace(',', '.'));
+
+  it('Form B: 98,46mm Briefkopf - rand-o + margin-top = 107,0mm', async () => {
+    const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
+    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)mm/) || [])[1]);
+    const briefkopf = zahl((css.match(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/) || [])[1]);
+    assertEqual(margin, 33.54, 'margin-top 33,54mm');
+    assertEqual(briefkopf, 98.46, 'Form-B-Briefkopf 98,46mm');
+    assertEqual(+(briefkopf - 25 + margin).toFixed(2), 107, 'Betreff-Box = 107,00mm (rand-o 25mm)');
+  });
+
+  it('Form A: 80,46mm Briefkopf - rand-o + margin-top = 89,0mm', async () => {
+    const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
+    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)mm/) || [])[1]);
+    const spacers = [...css.matchAll(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/g)].map((m) => zahl(m[1]));
+    assertEqual(spacers.length, 2, 'zwei Briefkopf-Varianten (Form A und B)');
+    assertEqual(spacers[0], 98.46, 'Form-B-Briefkopf 98,46mm');
+    assertEqual(spacers[1], 80.46, 'Form-A-Briefkopf 80,46mm');
+    assertEqual(+(spacers[1] - 25 + margin).toFixed(2), 89, 'Betreff-Box = 89,00mm (18mm Falzmarken-Delta)');
+    // Kein form-A-Sonderfall: derselbe margin-top gilt fuer beide Formen.
+    assert(/data-layout="form-a"[^{]*\{[^}]*betreff/.test(css) === false, 'kein eigenes Betreff-Margin fuer Form A');
+  });
+
+  it('Betreff-Box liegt unter dem Infoblock-Ende (strukturelle Trennung)', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    /** @param {string} name */
+    const y = (name) => Number((html.match(new RegExp(`data-${name}-y-[ab]="(\\d+)"`)) || [])[1]);
+    const datumB = Number((html.match(/data-datum-y-b="(\d+)"/) || [])[1]) || y('datum');
+    const betreffBoxB = 107;
+    assertEqual(datumB, 92, 'Datum Form B = 92mm');
+    // Datum + eine Zeile (4,23mm) = Infoblock-Ende; der Betreff muss darunter liegen.
+    assert(betreffBoxB >= datumB + 4.23, `Betreff ${betreffBoxB} >= Infoblock-Ende ${datumB + 4.23}`);
+    assert(betreffBoxB - (datumB + 4.23) >= 8, 'mindestens zwei Leerzeilen Abstand (>= 8mm)');
+  });
+
+  it('Bildschirm und Druck lesen denselben Wert (kein margin-top im Print-Override)', async () => {
+    const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
+    const printBlock = css.slice(css.indexOf('@media print'));
+    const betreffPrint = (printBlock.match(/#betreff\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(betreffPrint !== '', 'Print-Override fuer #betreff gefunden');
+    assert(betreffPrint.includes('margin-top') === false,
+      'Print-Override setzt kein margin-top -> Basiswert 33,54mm gilt in beiden Pfaden');
+  });
+});
+
 describe('Datum — rechtsbuendig', () => {
   /* data-x 125 + data-w 65 = 190mm, also 20mm vor dem Blattrand (Projekt-
    * Konvention; DIN nennt keine Datum-Y, siehe IMR-Registry). Gemessen
@@ -1478,17 +1531,19 @@ describe('Empfaengerzeilen — DIN-Raster 4,23 mm', () => {
 });
 
 describe('Betreff — Abstand zum Infoblock', () => {
-  /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
-   * nach dem Informationsblock zu schreiben." Raster 4,23mm (Tab. B.1,
-   * Fußnote a) -> 8,46mm. Gemessen im PDF (2026-11-11): Infoblock endet bei
-   * 72,21mm, der Betreff stand bei 74,02mm (1,81mm Abstand) und gehört auf
-   * 80,67mm. */
-  it('setzt margin-top 6.65mm am Betreff, nicht am Spacer', async () => {
+  /* Historie: 312cc67 setzte margin-top 6.65mm, weil der Betreff damals bei
+   * 74,02mm stand und auf 80,67mm sollte (zwei Leerzeilen nach dem Infoblock).
+   * Das war die Rechnung gegen den MAIL-Anschlag des Infoblocks; das Datum
+   * steht aber bei 92mm und damit tiefer. Seit 2026-11-11 richtet sich der
+   * Betreff nach dem Infoblock-Ende (Datum + Zeile = 96,25mm) und der
+   * Falzmarke: margin-top 33,54mm -> 107mm. Der Wert am Element bleibt
+   * (Semantik der Norm), nur die Zahl ist neu. */
+  it('setzt margin-top 33.54mm am Betreff, nicht am Spacer', async () => {
     const css = await (await fetch('/website/css/sheet-multipage.css')).text();
     const regel = (css.match(/#betreff\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(regel !== '', 'Regel #betreff gefunden');
     const oben = (regel.match(/margin-top:\s*([\d.]+)mm/) || [])[1];
-    assertEqual(oben, '6.65', 'margin-top = 6.65mm (6,65 + 1,81 = 8,46 = zwei Leerzeilen)');
+    assertEqual(oben, '33.54', 'margin-top = 33.54mm (Briefkopf 73,46 -> 107,00mm)');
     // Der Abstand nach dem Betreff bleibt unangetastet (zwei Leerzeilen bis zur Anrede).
     assert(regel.includes('margin-bottom: 8.46mm'), 'margin-bottom bleibt 8.46mm');
     // Gegenprobe: die Spacer-Höhe darf nicht mitgewachsen sein (Briefkopf unverändert).

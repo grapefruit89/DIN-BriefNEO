@@ -285,13 +285,17 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     font-weight: 700;
     line-height: 1.4;
     /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
-       nach dem Informationsblock zu schreiben." Zeilenraster 4,23mm (Tab. B.1,
-       Fußnote a) -> 2 x 4,23 = 8,46mm. Der Infoblock endet gemessen bei
-       72,21mm, der Betreff gehört auf 80,67mm (gemessen 2026-11-11: er stand
-       bei 74,02mm, also 6,65mm zu hoch). Der Wert sitzt hier und nicht am
-       #spacer, weil die Norm den Abstand nach dem Infoblock meint — nicht die
-       Höhe des Briefkopfs. */
-    margin-top: 6.65mm;
+       nach dem Informationsblock zu schreiben." Der Infoblock endet beim Datum
+       (data-datum-y 92mm + Zeile = 96,25mm, gemessen), zwei Leerzeilen ergeben
+       104,71mm. Genau dort liegt Falzmarke 1 (105mm) — deshalb beginnt der
+       Betreff 2mm darunter, damit die Falte nicht durch den Text geht:
+       105 + 2 = 107mm (Form B), 87 + 2 = 89mm (Form A).
+       Der Wert ist fuer BEIDE Formen 33,54mm, weil sich --spacer-hoehe um
+       exakt 18mm unterscheidet (98,46 - 80,46) und das Ziel-Delta identisch
+       ist; das haelt Bildschirm und Druck deckungsgleich.
+       Vorher stand hier 6.65mm (312cc67) — das ergab 80,11mm und damit
+       -15,62mm Abstand zum Infoblock-Ende, also mitten im Infoblock. */
+    margin-top: 33.54mm;
     margin-bottom: 8.46mm;
     text-wrap: balance;
   }

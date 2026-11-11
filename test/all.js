@@ -1391,6 +1391,23 @@ describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
   });
 });
 
+describe('Kuvert-Label — relativ zur Anschriftzone', () => {
+  /* Gemessen (2026-11-11): nach dem Gruppieren des Anschriftfelds (9716cff)
+   * saß das Label bei 40,00 mm (Form B) statt 46,00 mm, weil ::after relativ
+   * zur Blockoberkante positioniert war. data-visier-top meint aber den
+   * Abstand zur Anschriftzone. */
+  it('::after beruecksichtigt den Versatz zwischen Block und Anschriftzone', async () => {
+    const css = await (await fetch('/website/css/sheet-common.css')).text();
+    const regel = (css.match(/#anschriftfeld::after\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(regel !== '', 'Regel #anschriftfeld::after gefunden');
+    const top = (regel.match(/top:\s*([^;]+);/) || [])[1] ?? '';
+    assert(top.includes('var(--anschriftfeld-y) - var(--briefkopf-y)'),
+      'top enthält den Block-Versatz (anschriftfeld-y − briefkopf-y)');
+    assert(top.includes('data-visier-top'), 'data-visier-top bleibt die Bezugsgröße');
+    assert(top.startsWith('calc(-1') === false, 'kein nacktes -visier-top mehr');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

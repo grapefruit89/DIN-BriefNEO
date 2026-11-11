@@ -434,7 +434,12 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       padding: 3px 6px;
       box-sizing: border-box;
       position: absolute;
-      top: calc(-1 * --mm-y(attr(data-visier-top type(<number>))));
+      /* data-visier-top meint den Abstand zur ANSCHRIFTZONE, nicht zur
+         Blockoberkante. Seit 9716cff beginnt der Block bei der Rücksendezeile
+         (--briefkopf-y) und die Anschriftzone erst padding-top tiefer —
+         ohne diesen Versatz sitzt das Label 6 mm (Form A: 7 mm) zu hoch
+         (gemessen 2026-11-11: 40,00 mm statt 46,00 mm). */
+      top: calc(var(--anschriftfeld-y) - var(--briefkopf-y) - --mm-y(attr(data-visier-top type(<number>))));
       left: 0;
       width: --mm-x(attr(data-visier-w type(<number>)));
       height: --mm-y(attr(data-visier-h type(<number>)));

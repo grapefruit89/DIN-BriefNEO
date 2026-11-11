@@ -56,7 +56,7 @@
 | **45** | **`getElementById`-Wiederholungen in address.js** | XS | ⭐ | [`done/22-mikro-optimierungen.md`](done/22-mikro-optimierungen.md) | ✅ Umgesetzt 2026-11-07 — `feld()`-Cache mit `isConnected`-Prüfung |
 | **46** | **`sheet.css` endgültig entfernen (Einzelseiten-Modus)** | XS | ⭐ | [`ADR-EINSEITEN-STILLGELEGT`](../docs/10-architecture/ADR-EINSEITEN-STILLGELEGT.md) | Offen — prüfen ab 2027-01-10 (8 Wochen nach Stilllegung 2026-11-10): wenn niemand den Modus vermisst, `sheet.css` löschen; sonst Stilllegung bestätigen |
 | **47** | **randU=30: Seitenzahl bei knapp passenden Briefen prüfen** | S | ⭐⭐ | [aa26f97](https://github.com/grapefruit89/DIN-BriefNEO/commit/aa26f97) | ✅ Geprüft 2026-11-11: randU=30 erzeugt bei 40–44 Sätzen keine dritte Seite — Seite 1 endet in allen fünf Fällen bei 263,50 mm (= Grenze 267,0 minus eine Zeilenhöhe), nur Seite 2 wächst (40 → 200,27 mm, 44 → 231,75 mm). Kein Fix nötig. |
-| **48** | **--rand-u → --nutz: Bildschirm-Paging bei randU=30 messen** | XS | ⭐ | [aa26f97](https://github.com/grapefruit89/DIN-BriefNEO/commit/aa26f97) | Offen — messen: `--nutz = 297 − 25 − var(--rand-u)` (252 → 242 mm bei randU=30). Prüfen, ob der Bildschirm-Paging-Mechanismus (`multipage-controller.js`, `body[data-seiten]`) korrekt reagiert oder ob `--nutz` dort hart kodiert ist. Konsistent, aber nicht separat gemessen. |
+| **48** | **--rand-u → --nutz: Bildschirm-Paging bei randU=30 messen** | XS | ⭐ | [aa26f97](https://github.com/grapefruit89/DIN-BriefNEO/commit/aa26f97) | ✅ Geprüft 2026-11-11: `--nutz` wirkt — `columnHeight` 252 → 242 mm, und die Grenze 2→3 Seiten verschiebt sich von 48 Sätzen (randU=20) auf 46 (randU=30). Bei 42 Sätzen bleibt es in beiden Fällen bei 2 Seiten. Kein Bug. |
 
 ---
 

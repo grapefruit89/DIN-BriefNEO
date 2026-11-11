@@ -33,24 +33,36 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const HILFE = `print-messung.mjs — Brief mit N Sätzen rendern, Druck-Geometrie messen
 
+Misst zwei Dinge am selben Lauf:
+  --modus pdf         (Default) PDF: Seiten, yMax, Unterrand
+  --modus bildschirm  Bildschirm: --nutz, data-seiten, Folgeköpfe, #kern-Höhe
+
 Aufruf:
   node tools/print-messung.mjs --saetze 42
   node tools/print-messung.mjs --saetze 42 --rand-u 30
   node tools/print-messung.mjs --saetze 42 --json
+  node tools/print-messung.mjs --saetze 42 --rand-u 30 --modus bildschirm
 
 Flags:
   --saetze N      Anzahl Sätze im Fließtext (Pflicht)
   --rand-u 20|30  Unterrand in mm, Default 20 (DIN 5008)
+  --modus M       pdf (Default) oder bildschirm
   --json          JSON statt Tabelle
-  --keep-pdf      PDF unter /tmp/print-messung-<N>.pdf behalten
+  --keep-pdf      PDF unter /tmp/print-messung-<N>.pdf behalten (nur --modus pdf)
   --help          diese Hilfe
 
 Voraussetzung — Server auf Port 8099:
   python3 -m http.server 8099 --bind 127.0.0.1
 
-Gemessen wird im PDF (pdftotext -bbox), nicht im DOM:
+--modus pdf (pdftotext -bbox, nicht DOM):
   yMax-S1       höchste Unterkante eines Worts auf Seite 1
   Unterrand     297 - yMax-S1 (Platz bis zur Blattkante)
+
+--modus bildschirm (ohne Print-Emulation):
+  nutz          --nutz als Tokenstrom (calc(...)); die aufgelöste Spaltenhöhe
+                steht in columnHeightMm (252mm bei randU=20, 242mm bei 30)
+  data-seiten   body[data-seiten] aus multipage-controller.js
+  folgekoepfe   Anzahl .folgekopf-screen
 
 Referenzbrief: liegt test/fixtures/brief-42.json (statisch), so wird
 dessen text für --saetze 42 verwendet — sonst werden die Sätze erzeugt.`;
@@ -65,6 +77,12 @@ const wert = (name) => {
 if (flag('--help') || argv.length === 0) {
   console.log(HILFE);
   process.exit(0);
+}
+
+const modus = (wert('--modus') ?? 'pdf') === 'bildschirm' ? 'bildschirm' : 'pdf';
+if (wert('--modus') && !['pdf', 'bildschirm'].includes(wert('--modus'))) {
+  console.error(`FEHLER: --modus ${wert('--modus')} unbekannt (pdf | bildschirm).`);
+  process.exit(2);
 }
 
 const saetze = Number(wert('--saetze'));
@@ -266,56 +284,112 @@ try {
   /* Paginierung abwarten: der Controller setzt body[data-seiten] asynchron. */
   await sleep(1400);
 
-  await send('Emulation.setEmulatedMedia', { media: 'print' });
-  await sleep(450);
-
-  const stand = JSON.parse(
-    await ev(`(() => {
-      const kern = document.getElementById('kern');
-      return JSON.stringify({
-        variabel: getComputedStyle(document.documentElement).getPropertyValue('--rand-u').trim(),
-        paddingUnten: getComputedStyle(kern).paddingBottom,
-        dataSeiten: document.body.dataset.seiten || ''
-      });
-    })()`)
-  );
-
-  const pdf = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: true });
-  if (!pdf.result?.data) throw new Error(`printToPDF ohne Daten${pdf.error ? `: ${pdf.error.message}` : ''}`);
-  writeFileSync(pdfPfad, Buffer.from(pdf.result.data, 'base64'));
-  ws.close();
-
-  const seiten = Number(
-    (execFileSync('/usr/bin/pdfinfo', [pdfPfad], { encoding: 'utf8' }).match(/^Pages:\s+(\d+)/m) || [])[1]
-  );
-
-  /* Alle Seiten in einem Aufruf: yMax je Seite, umgerechnet in mm. */
-  const xml = execFileSync('/usr/bin/pdftotext', ['-bbox', pdfPfad, '-'], { encoding: 'utf8' });
-  const yMaxProSeite = xml
-    .split('<page ')
-    .slice(1)
-    .map((abschnitt) => {
-      const werte = [...abschnitt.matchAll(/<word [^>]*yMax="([\d.]+)"/g)].map((m) => Number(m[1]));
-      return werte.length ? punkt(Math.max(...werte)) : null;
-    })
-    .filter((v) => v !== null);
-
-  const yMaxS1 = yMaxProSeite[0] ?? null;
-  const unterrand = yMaxS1 === null ? null : Math.round((297 - yMaxS1) * 100) / 100;
-  const ergebnis = { saetze, randU, seiten, yMaxS1, unterrand, yMaxProSeite, stand };
-
-  if (alsJson) {
-    console.log(JSON.stringify(ergebnis, null, 2));
-  } else {
-    const zahl = (v) => (v === null ? '—' : v.toFixed(2).replace('.', ','));
-    console.log('Saetze  RandU  Seiten  yMax-S1(mm)  Unterrand(mm)  PDF');
-    console.log(
-      `${String(saetze).padEnd(7)} ${String(randU).padEnd(6)} ${String(seiten).padEnd(7)} ${zahl(yMaxS1).padEnd(12)} ${zahl(unterrand).padEnd(14)} ${keepPdf ? pdfPfad : '(temp)'}`
+  if (modus === 'bildschirm') {
+    /* Kein Emulation.setEmulatedMedia: gemessen wird der Bildschirmzustand.
+     * #48 fragt, ob --nutz dort ankommt, wo die Seitenzahl entsteht. */
+    const stand = JSON.parse(
+      await ev(`(() => {
+        const root = getComputedStyle(document.documentElement);
+        const kern = document.getElementById('kern');
+        const probe = document.getElementById('probe');
+        const mm = probe ? probe.getBoundingClientRect().height / 1000 : 0;
+        const spalte = kern ? getComputedStyle(kern).columnHeight : '';
+        return JSON.stringify({
+          nutz: root.getPropertyValue('--nutz').trim(),
+          randU: root.getPropertyValue('--rand-u').trim(),
+          dataSeiten: document.body.dataset.seiten || '',
+          folgekoepfe: document.querySelectorAll('.folgekopf-screen').length,
+          kernHoeheMm: kern && mm ? Number((kern.getBoundingClientRect().height / mm).toFixed(2)) : null,
+          columnHeight: spalte,
+          columnHeightMm: spalte && mm ? Number((Number.parseFloat(spalte) / mm).toFixed(2)) : null,
+          status: (document.getElementById('seiten-status')?.textContent || '').trim()
+        });
+      })()`)
     );
-  }
 
-  if (stand.variabel !== `${randU}mm`) {
-    console.error(`WARNUNG: --rand-u ist ${stand.variabel}, erwartet ${randU}mm (Boot hat den Wert nicht übernommen).`);
+    if (alsJson) {
+      /* Explizit statt Spread: stand.randU ("20mm") darf die Zahl nicht ueberschreiben. */
+      console.log(
+        JSON.stringify(
+          {
+            modus,
+            saetze,
+            randU,
+            nutz: stand.nutz,
+            randUQuelle: stand.randU,
+            dataSeiten: stand.dataSeiten,
+            folgekoepfe: stand.folgekoepfe,
+            kernHoeheMm: stand.kernHoeheMm,
+            columnHeight: stand.columnHeight,
+            columnHeightMm: stand.columnHeightMm,
+            status: stand.status
+          },
+          null,
+          2
+        )
+      );
+    } else {
+      console.log('Modus   saetze  randU  nutz      data-seiten  folgekoepfe  kern-mm');
+      console.log(
+        `${'screen'.padEnd(7)} ${String(saetze).padEnd(7)} ${String(randU).padEnd(6)} ${stand.nutz.padEnd(9)} ${stand.dataSeiten.padEnd(12)} ${String(stand.folgekoepfe).padEnd(12)} ${stand.kernHoeheMm ?? '—'}`
+      );
+    }
+
+    if (stand.randU !== `${randU}mm`) {
+      console.error(`WARNUNG: --rand-u ist ${stand.randU}, erwartet ${randU}mm (Boot hat den Wert nicht übernommen).`);
+    }
+  } else {
+    await send('Emulation.setEmulatedMedia', { media: 'print' });
+    await sleep(450);
+
+    const stand = JSON.parse(
+      await ev(`(() => {
+        const kern = document.getElementById('kern');
+        return JSON.stringify({
+          variabel: getComputedStyle(document.documentElement).getPropertyValue('--rand-u').trim(),
+          paddingUnten: getComputedStyle(kern).paddingBottom,
+          dataSeiten: document.body.dataset.seiten || ''
+        });
+      })()`)
+    );
+
+    const pdf = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: true });
+    if (!pdf.result?.data) throw new Error(`printToPDF ohne Daten${pdf.error ? `: ${pdf.error.message}` : ''}`);
+    writeFileSync(pdfPfad, Buffer.from(pdf.result.data, 'base64'));
+    ws.close();
+
+    const seiten = Number(
+      (execFileSync('/usr/bin/pdfinfo', [pdfPfad], { encoding: 'utf8' }).match(/^Pages:\s+(\d+)/m) || [])[1]
+    );
+
+    /* Alle Seiten in einem Aufruf: yMax je Seite, umgerechnet in mm. */
+    const xml = execFileSync('/usr/bin/pdftotext', ['-bbox', pdfPfad, '-'], { encoding: 'utf8' });
+    const yMaxProSeite = xml
+      .split('<page ')
+      .slice(1)
+      .map((abschnitt) => {
+        const werte = [...abschnitt.matchAll(/<word [^>]*yMax="([\d.]+)"/g)].map((m) => Number(m[1]));
+        return werte.length ? punkt(Math.max(...werte)) : null;
+      })
+      .filter((v) => v !== null);
+
+    const yMaxS1 = yMaxProSeite[0] ?? null;
+    const unterrand = yMaxS1 === null ? null : Math.round((297 - yMaxS1) * 100) / 100;
+    const ergebnis = { saetze, randU, seiten, yMaxS1, unterrand, yMaxProSeite, stand };
+
+    if (alsJson) {
+      console.log(JSON.stringify(ergebnis, null, 2));
+    } else {
+      const zahl = (v) => (v === null ? '—' : v.toFixed(2).replace('.', ','));
+      console.log('Saetze  RandU  Seiten  yMax-S1(mm)  Unterrand(mm)  PDF');
+      console.log(
+        `${String(saetze).padEnd(7)} ${String(randU).padEnd(6)} ${String(seiten).padEnd(7)} ${zahl(yMaxS1).padEnd(12)} ${zahl(unterrand).padEnd(14)} ${keepPdf ? pdfPfad : '(temp)'}`
+      );
+    }
+
+    if (stand.variabel !== `${randU}mm`) {
+      console.error(`WARNUNG: --rand-u ist ${stand.variabel}, erwartet ${randU}mm (Boot hat den Wert nicht übernommen).`);
+    }
   }
 } catch (fehler) {
   console.error(`FEHLER: PDF-Render fehlgeschlagen — ${fehler.message}`);

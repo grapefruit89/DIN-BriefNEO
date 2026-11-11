@@ -1336,6 +1336,28 @@ describe('test/fixtures/brief-42.json', () => {
   });
 });
 
+describe('print-messung.mjs --modus bildschirm', () => {
+  /* #48: greift --rand-u -> --nutz auch im Bildschirm-Paging? Gemessen
+   * (2026-11-11): ja — columnHeight 252 -> 242mm, und die Grenze 2->3 Seiten
+   * verschiebt sich von 48 auf 46 Sätze. Deshalb braucht das Werkzeug einen
+   * zweiten Modus statt eines zweiten Skripts (der Browser-Start ist der
+   * teuerste Teil). */
+  it('kennt --modus mit beiden Werten und den Bildschirm-Feldern', async () => {
+    const quelle = await (await fetch('/tools/print-messung.mjs')).text();
+    assert(quelle.includes('--modus'), 'Flag --modus vorhanden');
+    assert(quelle.includes("=== 'bildschirm'"), 'Bildschirm-Zweig vorhanden');
+    for (const feld of ['columnHeight', 'dataSeiten', 'folgekopf-screen', '--nutz']) {
+      assert(quelle.includes(feld), `Bildschirm-Modus liest ${feld}`);
+    }
+  });
+
+  it('Help-Text nennt --modus bildschirm', async () => {
+    const quelle = await (await fetch('/tools/print-messung.mjs')).text();
+    assert(quelle.includes('--modus bildschirm'), 'Hilfe nennt --modus bildschirm');
+    assert(quelle.includes('--modus pdf'), 'Hilfe nennt den PDF-Default');
+  });
+});
+
 describe('Unterrand (20/30)', () => {
   /* Feature 2026-11-11: --rand-u steuert das padding-bottom von #kern im
    * Druck. Nur zwei Werte sind zulaessig; alles andere faellt auf DIN 5008

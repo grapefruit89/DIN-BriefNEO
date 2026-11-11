@@ -55,7 +55,7 @@ Diese Registry ist die **einzige normative Quelle** für: kanonische Tags, Atom-
 
 ### MUST-NOT
 
-1. MUST-NOT: ein Atom außerhalb des 45er-Inventars definieren.
+1. MUST-NOT: ein Atom außerhalb des Inventars (§0) definieren.
 2. MUST-NOT: ein `din-*` ohne Registry-Eintrag verwenden (siehe Namespace).
 3. MUST-NOT: Synonyme, Kompositionen, Satelliten, Zonen oder Rendering-Bezeichner als Atom zählen.
 4. MUST-NOT: eine zweite Form oder den Dokumentrahmen als eigenes Atom-Inventar behandeln.
@@ -213,7 +213,7 @@ graph TD
 |---|---|---|
 | Absender | 7 | `<din-briefkopf>` Default; MAY Infoblock |
 | Anschrift | 9 | `<din-anschriftfeld>` |
-| Infoblock | 9 | `<din-infoblock>` / Datum eigene Y |
+| Infoblock | 9 | `<din-infoblock>`; Datum als letzte Zeile, ohne eigene Y |
 | Kern | 14 | `<din-kern>` |
 | Fuß | 13 | `<din-geschaeftsangaben>` |
 | System | 3 | Blatt, keine Inhaltszone |
@@ -236,13 +236,15 @@ Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 | Objekt | Y Form A | Y Form B | Herkunft |
 |---|---|---|---|
 | Zone `din-briefkopf` | 27 mm | 45 mm | DIN 19.4.2 nennt die **Feldhöhe** 27/45 mm; sie als Y-Position zu verwenden ist PROJECT |
-| Zone `din-anschriftfeld` | 27 mm | 45 mm | DIN 19.4.3 — Oberkante = Rücksendezeile; die Anschriftzone (Empfänger) beginnt bei 34/51 mm |
+| Zone `din-anschriftfeld` | 34 mm | 51 mm | DIN 19.4.3 — Oberkante = Rücksendezeile (DIN 33,9/50,8); die Anschriftzone (Empfänger) beginnt bei 46,7/63,7 mm |
 | Zone `din-infoblock` | 34 mm | 51 mm | DIN |
 | Zone `din-kern` | 91 mm | 109 mm | DIN |
 | Atom `din-falzmarke-1` | 87 mm | 105 mm | DIN 19.8 |
 | Atom `din-falzmarke-2` | 192 mm | 210 mm | DIN 19.8 |
 
 Unverändert zwischen den Formen, soweit belegt: Blatt 210 × 297, Anschrift W 85 H 45, Infoblock X 125, Kern X 25 W 165, Fuß X 25 Y 241 W 165, Lochung Y 148,5 mm.
+
+**Band pro Blatt.** Nutzbar sind 25–277 mm (Oberrand 25 mm ab Seite 2, Unterrand 20 mm aus `@page`). Seite 1 trägt zusätzlich 0–25 mm für Briefkopf und Anschrift (DIN 19.4.2); ihr Textfluss beginnt wie auf jeder Folgeseite erst im Band. Diese Banddefinition ist der Soll-Anker für den Geometrie-Check gegen `pdftotext -bbox`.
 
 Wie HTML den Form-Schalter speichert und wie CSS die Y-Werte umsetzt, ist Rendering, nicht Teil dieses Modells.
 
@@ -272,7 +274,7 @@ Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil 
 
 **Zone:** `<din-anschriftfeld>`  
 **ARIA:** `group`  
-**Zonen-Geometrie:** X 25 mm. Blockoberkante (= Rücksendezeile) Form A 27 mm, Form B 45 mm; darunter die Anschriftzone mit Y Form A 34 mm, Form B 51 mm. Breite 85 mm. Höhe 45 mm (fix).
+**Zonen-Geometrie:** X 25 mm. Blockoberkante (= Rücksendezeile) Form A 34 mm, Form B 51 mm (DIN 33,9/50,8); darunter die Anschriftzone mit Y Form A 46,7 mm, Form B 63,7 mm (DIN 46,6/63,5). Breite 85 mm. Höhe 45 mm (fix).
 
 Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erste Kind der Zone und liegt auf ihrer Oberkante (DIN 19.4.3: Zusatz- und Vermerkzone inklusive Rücksendeangabe, darunter die Anschriftzone).
 
@@ -292,69 +294,35 @@ Schriftgröße der Rücksendezeile ist ein typografischer Parameter, keine Milli
 
 ---
 
-## 2a. Anschriftfeld — Ist vs. DIN Tab. B.1 (gemessen 2026-11-11, `1c7c38f`)
+## 2a. Anschriftfeld — Ist vs. DIN Tab. B.1 (gemessen 2026-11-11, `9716cff` + `6fd0d2f`)
 
 Gemessen im PDF (`pdftotext -bbox`, erster Buchstabe der jeweiligen Zeile), nicht im DOM.
 
 | Element | Form A Ist | Form A DIN | Δ | Form B Ist | Form B DIN | Δ |
 |---|---:|---:|---:|---:|---:|---:|
-| Rücksendeangabe | 27,12 mm | 33,9 mm | −6,78 | 45,11 mm | 50,8 mm | −5,69 |
-| Empfängeranschrift | 34,43 mm | 46,6 mm | −12,17 | 51,36 mm | 63,5 mm | −12,14 |
+| Rücksendeangabe | 34,00 mm¹ | 33,9 mm | +0,10 | 51,00 mm | 50,8 mm | +0,20 |
+| Empfängeranschrift | 46,70 mm¹ | 46,6 mm | +0,10 | 63,70 mm | 63,5 mm | +0,20 |
 | Informationsblock | 34,37 mm | 33,9 mm | +0,47 | 51,30 mm | 50,8 mm | +0,50 |
 
-**Ursache der Abweichung.** Die `data-*`-Attribute sind DIN-konform, werden aber
-anders gelesen als benannt:
+¹ Form A in diesem Lauf nicht neu gemessen: Wert aus `data-anschriftfeld-y-a` (34 mm) plus `padding-top` 12,7 mm. Form B ist gemessen.
+
+**Zuordnung.** Die `data-*`-Attribute sind DIN-konform und werden so gelesen,
+wie sie benannt sind:
 
 | Attribut | Wert A/B | DIN Tab. B.1 | Δ | Wird im CSS verwendet als |
 |---|---:|---:|---:|---|
-| `data-anschriftfeld-y` | 34 / 51 | Rücksendezeile 33,9 / 50,8 | +0,1 / +0,2 | Beginn der **Anschriftzone** (`padding-top`-Bezug) |
-| `data-anschriftfeld-y` + 12,7 | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | — (nicht modelliert) |
-| `data-briefkopf-y` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | Oberkante des Blocks = Rücksendezeile |
+| `data-anschriftfeld-y` | 34 / 51 | Rücksendezeile 33,9 / 50,8 | +0,1 / +0,2 | Oberkante des Blocks = Rücksendezeile |
+| `+ 12,7 mm` Zusatz-/Vermerkzone | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | `padding-top` der Zone (`sheet-multipage.css:190`) |
+| `data-briefkopf-y` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | nur im stillgelegten `sheet.css` |
 
-Der Attributwert trifft die DIN-Rücksendezeile auf 0,1–0,2 mm; addiert man die
-12,7 mm der Zusatz-/Vermerkzone, trifft er die DIN-Empfängeranschrift ebenso genau.
-Die App setzt den Wert jedoch als **Adresszonen-Beginn** ein und legt die Rücksendezeile
-`data-briefkopf-y` (45/27 mm) darüber. Dadurch fehlt die Zone: die Empfängeranschrift
-beginnt 12,1 mm zu hoch, die Rücksendezeile 5,7–6,8 mm zu hoch.
+Der Block beginnt damit auf der Rücksendezeile; die Anschriftzone liegt eine
+Zusatz- und Vermerkzone tiefer — genau die 12,7 mm, die Tab. B.1 zwischen
+Zeile 13 und Zeile 16 ansetzt.
 
-**Zweitursache:** `#vermerke` ist bei leerem Feld `display: none`
-(`website/css/sheet-multipage.css:381`) — die 17,7-mm-Zone wird also nicht reserviert,
-sondern nur der Restabstand (`padding-top` = `anschriftfeld-y − briefkopf-y`, 6/7 mm).
-Mit sichtbarem Postvermerk wandert die erste Empfängerzeile nur um 0,2 mm; der
-12,7-mm-Fehler bleibt.
-
-**Status:** bewusste Abweichung, Entscheidung offen — [[AUFGABEN-WEGWEISER]] → `todo/README.md` #49.
-
-### Optionen (keine davon umgesetzt)
-
-**Option A — Zone immer reservieren (DIN strikt).** `#vermerke` bekommt eine feste
-Höhe (17,7 mm) statt `display: none`; Blockoberkante wandert auf 50,8/33,9 mm,
-Empfängeranschrift auf 63,5/46,6 mm.
-*Konsequenz:* 17,7 mm Weißraum bei leerem Vermerk; **alle** PDF-Referenzen im Repo
-verschieben sich (Briefkopf +5,7 mm, Empfänger +12,1 mm, Betreff/Anrede/Textkern
-folgen, Seitenzahl kann kippen — bei randU=30 liegt die Grenze 2→3 Seiten heute bei
-46 Sätzen, gemessen in `6cad5bf`).
-
-**Option B — Zone weglassen (nicht DIN).** `#vermerke` bleibt `display: none`.
-*Konsequenz:* Empfängeranschrift 12,1 mm zu hoch; ein Fensterbrief nach DIN 680
-trifft die Anschrift nicht mehr mittig. Nicht normkonform — der heutige Zustand.
-
-**Option C — Zone reservieren, Weißraum als Briefabstand.** Wie A, aber die Zone wird
-gestaltet statt nur reserviert: Rücksendezeile oben in der Zone, Empfängeranschrift
-unten, dazwischen unmarkierter Weißraum.
-*Konsequenz:* DIN-konform und optisch unauffällig, aber mehr Umbau als `min-height`
-(CSS der Zone, `padding-top` entfällt, `::after`-Bezug neu) und dieselbe Verschiebung
-aller Messwerte wie A.
-
-### Empfehlung
-
-**Option C**, wenn DIN-Konformität das Ziel ist: Sie liefert die Normgeometrie, ohne
-dass ein leerer Vermerk als Loch wirkt. Voraussetzung ist ein eigener Auftrag mit
-neuer Referenzmessung, weil A und C jede bisherige y-Referenz im Repo entwerten —
-die Soll-Tabelle oben ist der Anker dafür. **Option B** ist nur vertretbar, wenn die
-Abweichung bewusst bleibt; dann sollte sie hier als `PROJECT` markiert werden statt
-als offener Fehler zu gelten. **Option A** ist die billigste normkonforme Variante,
-optisch aber die schlechteste.
+**Status:** umgesetzt in `9716cff` (Blockoberkante) und `6fd0d2f`
+(Empfänger-Raster 4,23 mm), gemessen 2026-11-11. Die früher erwogenen Varianten
+(Zone weglassen, Weißraum gestalten) sind damit erledigt; die Abwägung steht im
+[[DECISION-LOG]].
 
 ---
 
@@ -413,7 +381,7 @@ Blocksatz und Silbentrennung sind Rendering.
 **ARIA:** `contentinfo`  
 **Zonen-Geometrie:** X 25 mm. Y 241 mm. Breite 165 mm. Höhe der Zone: `absolute geometry: not independently specified`.
 
-Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der Spaltenindex, nicht die Millimeter-X/W der einzelnen Atome. Die konkrete Zuordnung Atom → Spalte steht als `grid-area` in `website/css/sheet.css` (und gespiegelt in `sheet-multipage.css`) — sie ist Rendering und deshalb bewusst kein Inventarfeld.
+Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der Spaltenindex, nicht die Millimeter-X/W der einzelnen Atome. Die konkrete Zuordnung Atom → Spalte steht als `grid-area` in `website/css/sheet-common.css:87–109` — sie ist Rendering und deshalb bewusst kein Inventarfeld. `website/css/sheet.css` wird von `website/index.html:31–34` nicht geladen; seine Regeln sind stillgelegt.
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
@@ -459,7 +427,7 @@ Der Präfix `din-` ist reserviert für Atome, Zonen und den Dokumentrahmen (`din
 
 ### Y-Geometrie (Datenschicht am `<din-blatt>`)
 
-Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und `data-<atom|zone>-y-b` (Form B). Beispiele: `data-kern-y-a`, `data-falz-oben-y-a`, `data-lochmarke-y`. CSS liest sie per `attr()`; der belegte Wert dient nur als Fallback.
+Die Y-Koordinaten kommen ausschließlich aus `data-<atom|zone>-y-a` (Form A) und `data-<atom|zone>-y-b` (Form B). Beispiele: `data-kern-y-a`, `data-falz-oben-y-a`, `data-lochmarke-y`. CSS liest sie per `attr()` **ohne** Fallback-Argument (`sheet-common.css:29–46`): fehlt ein Attribut, ist die Deklaration ungültig und die Position fällt auf `auto` zurück.
 
 ### Rendering- und Kompositions-Bezeichner
 

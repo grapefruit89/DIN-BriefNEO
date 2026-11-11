@@ -161,7 +161,7 @@ dorthin verlinken, nicht wiederholen. Wenn es dort falsch steht — dort korrigi
 | Norm, Verbot, MUST-USE | `docs/00-foundation/Immutable-Law-Catalog.md` | dauerhaft, ADR-pflichtig änderbar |
 | Fachliche Produktanforderung | `docs/00-foundation/spec.md` | WAS das Produkt leistet |
 | Architekturentscheidung (thematisch) | `docs/10-architecture/ADR-*.md` | abgeschlossen, referenzierbar |
-| Geometrie, 45 Atome, DIN-Millimeter | `docs/10-architecture/IMR-Registry.md` | **SSoT**, nie duplizieren |
+| Geometrie, 55 Atome, DIN-Millimeter | `docs/10-architecture/IMR-Registry.md` | **SSoT**, nie duplizieren |
 | „So macht man das" (Code-nah) | `docs/20-implementation/*.md` | Guide, aus Template |
 | Begriffe | `docs/20-implementation/glossary.md` | Ubiquitous Language |
 | Begründung / Historie / Irrtümer | `docs/30-meta/DECISION-LOG.md` | append-only Chronik |
@@ -221,7 +221,7 @@ Drei Gruppen dürfen nicht gelöscht, verschoben oder umbenannt werden. Alle dre
 | Gruppe | Schutz |
 | :--- | :--- |
 | Die vom Code per `@adr`/`@guide` referenzierten Dokumente | `tools/links.js` scannt seit 2026-10-02 auch `website/**.{js,css,html}`. Fehlt das Ziel, meldet das Gate CRITICAL. |
-| [[IMR-Registry]] (SSoT für die 45 Atome und die DIN-Geometrie) | `tools/imr.js` prüft die Registry-Invarianten und den Abgleich mit dem Code. |
+| [[IMR-Registry]] (SSoT für die 55 Atome und die DIN-Geometrie) | `tools/imr.js` prüft die Registry-Invarianten und den Abgleich mit dem Code. |
 | [[DECISION-LOG]] und `docs/90-archive/` | Append-only bzw. eingefroren. Von Link-, Terminologie- und Größenprüfung ausgenommen, damit Alteinträge Zeitdokumente bleiben dürfen. |
 
 > [!warning] Warum der Code-Scan nötig war

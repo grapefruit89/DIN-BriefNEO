@@ -1200,8 +1200,25 @@ describe('Druck: A4-Seite ohne Ueberlauf (Print-CSS-Vertrag)', () => {
 
   it('Viewport und Briefansicht verlieren ihr Bildschirm-Layout im Druck', async () => {
     const src = await lade();
-    assert(src.includes('body[data-seiten="1"] #viewport'), 'Viewport-Regel mit Spezifitaet 1,1,1');
+    assert(src.includes('#app-shell #viewport'), 'Viewport-Regel mit Spezifitaet 2,0,0');
     assert(src.includes('body[data-seiten="1"] #brief-ansicht'), 'Ansicht-Regel mit Spezifitaet 1,1,1');
+  });
+
+  it('Viewport-Padding ist im Druck unabhaengig vom data-seiten-Zustand', async () => {
+    /* Gemessen per CDP/PDF (2026-11-11): Bei data-seiten="2" gewinnt die
+     * Bildschirm-Regel `body[data-seiten]:not([data-seiten="1"]) #viewport`
+     * (1,2,1) gegen `#viewport` (1,0,0) und `body[data-seiten="1"] #viewport`
+     * (1,1,1). Folge: 40px/20px/80px Padding blieben im Druck stehen, der
+     * Briefkopf sass je nach Zustand bei 51,36 / 54,01 / 61,94 mm und ein
+     * kurzer Brief bekam eine leere Seite 2. `#app-shell #viewport` (2,0,0)
+     * schlaegt jeden Zustands-Selektor. */
+    const src = await lade();
+    // Kommentare ausblenden: sie nennen den verfehlten Selektor als Begruendung.
+    const druck = src.slice(src.indexOf('@media print')).replace(/\/\*[\s\S]*?\*\//g, '');
+    assert(/#app-shell #viewport\s*\{[^}]*padding:\s*0 !important/.test(druck),
+      '#app-shell #viewport setzt padding: 0 !important');
+    assert(druck.includes('body[data-seiten="1"] #viewport') === false,
+      'kein Zustands-Selektor, der data-seiten="2" verfehlt');
   });
 });
 

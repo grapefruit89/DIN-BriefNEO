@@ -437,11 +437,13 @@ din-blatt[data-ueberlauf="true"]::after {
     display: none !important;
   }
 
-  /* Spezifitaet: die Screen-Regeln `body[data-seiten="1"] #viewport` (1,1,1)
-     schlagen `#viewport` (1,0,0) trotz !important — daher hier derselbe
-     Selektor, nur spaeter in der Datei. */
-  #viewport,
-  body[data-seiten="1"] #viewport {
+  /* Spezifitaet: die Bildschirm-Regeln setzen das Padding in JEDEM
+     data-seiten-Zustand — bei n >= 2 mit
+     `body[data-seiten]:not([data-seiten="1"]) #viewport` (1,2,1). Das schlaegt
+     sowohl `#viewport` (1,0,0) als auch `body[data-seiten="1"] #viewport`
+     (1,1,1). `#app-shell #viewport` (2,0,0) deckt alle Zustaende ab, ohne sie
+     einzeln aufzuzaehlen (gemessen 2026-11-11: Pad blieb 40px/20px/80px). */
+  #app-shell #viewport {
     padding: 0 !important;
     background: transparent !important;
     height: auto !important;

@@ -40,6 +40,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Persistenz, Export/Import, Undo | `website/js/persistence.js`, `website/js/draft-manager.js`, `website/js/binary-storage.js` | `--filter="DraftManager|Import/Export|51-storage"` | beide |
 | Form A/B, Mehrseiten, Umbruch | `website/css/sheet.css`, `website/css/sheet-multipage.css`, `website/js/multipage-controller.js`, `website/js/settings.js` | `--filter="Layout|Scrollbars"` (nur indirekt) | beide |
 | Druck-/Layout-Bug (visuell) | `docs/10-architecture/ADR-MESS-SCHLEIFE.md`, `website/css/sheet-multipage.css` | `--filter=Druck` | test-runner |
+| Prompt für eine Aufgabe schreiben | `docs/30-meta/PERFEKTER-PROMPT.md` (Pflichtfelder, Anti-Patterns) | — | — |
 | Anrede, Grußformel, Stil | `website/js/salutation.js` | `--filter=Salutation` | test-runner |
 | Telefon/Datum/IBAN/Geld | `website/js/format.js` | `--filter=format` | test-runner |
 | Unterschrift, Stempel | `website/js/signature.js`, `website/css/sheet-common.css` | `--filter=Signature` | test-runner |

@@ -49,8 +49,27 @@ Code; dann diesen Wegweiser korrigieren.
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/testbrief-messung.mjs` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
+| Dev-Server + Debug-Browser | `tools/dev.sh` (= `din-dev`) | `din-dev --status`, Tabs via CDP `:9222` | — |
 | Antipattern-Regel, Gate | `tools/reconciliation.js`, `tools/antipatterns/project.json` | `node tools/reconciliation.js --only-rules` | beide |
 | contenteditable-Feld migrieren | `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
+
+## 1b. Immer zuerst: `din-dev`
+
+Ein Aufruf räumt auf und startet beides neu — **das ist der Standardweg**, nicht
+`node tools/serve.mjs` von Hand:
+
+```
+din-dev            # [0] alte Instanzen weg  [1] Dev-Server  [2] Debug-Browser (CDP 9222)
+din-dev --stop     # nur stoppen
+din-dev --status   # Ports + offene Tabs
+```
+
+Warum: ein alter Server auf Port 8088 liefert sonst einen veralteten Stand
+(ES-Module ohne Version), und ein Browser **ohne** `--remote-debugging-port`
+kann nicht nachgemessen werden. `din-dev` benutzt ein eigenes Profil
+(`~/.local/share/din-briefneo/debug-profil`) und fasst den normalen
+Alltags-Browser nicht an — es sterben nur Prozesse mit diesem Profil und die
+eigenen `serve.mjs`-Instanzen.
 
 ## 2. Module in einem Satz
 

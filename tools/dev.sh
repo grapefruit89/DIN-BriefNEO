@@ -124,6 +124,7 @@ din-dev — Dev-Server + Debug-Browser für DIN-BriefNEO
   din-dev mess [id ...]   Messwerte des laufenden Tabs, eine Zeile JSON in mm
                           Beispiel: din-dev mess betreff unterschrift
   din-dev mess --print    dasselbe in Druck-Emulation (eigener headless-Browser)
+  din-dev key [--port N]  Geoapify-Key aus ~/.secrets/geoapify in den Browser legen
   din-dev help            diese Hilfe
 
 Mess-Ergebnis:
@@ -145,6 +146,10 @@ case "${1:-}" in
   --stop|stop)   echo "Stoppe (nur dieses Werkzeug):"; stoppe; status; exit 0 ;;
   --status|status) status; exit 0 ;;
   --help|-h|help) hilfe; exit 0 ;;
+  --key|key)
+    cd "$REPO" && node tools/seed-geoapify.mjs "${@:2}"
+    exit $?
+    ;;
   --mess|mess)
     shift
     if [ "${1:-}" = "--print" ]; then
@@ -192,6 +197,10 @@ for i in $(seq 1 40); do
   sleep 0.25
 done
 echo "  CDP auf http://127.0.0.1:$CDP"
+
+# Geoapify-Key aus ~/.secrets/geoapify in den localStorage legen (nie im Repo).
+node "$REPO/tools/seed-geoapify.mjs" --port "$CDP"
+
 [ -n "${TAB:-}" ] && echo "  Tab: $URL" || echo "  Tab noch nicht gemeldet — Log: $BROWSER_LOG"
 
 echo

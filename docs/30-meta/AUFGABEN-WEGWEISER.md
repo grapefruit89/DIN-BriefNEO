@@ -66,6 +66,7 @@ din-dev stop            # nur stoppen
 din-dev status          # Ports + offene Tabs
 din-dev mess [id ...]   # Messwerte, eine Zeile JSON in mm
 din-dev mess --print    # dasselbe in Druck-Emulation
+din-dev key             # Geoapify-Key aus ~/.secrets/geoapify in den Browser
 din-dev help            # alles im Kopf, inkl. MCP-Aufruf
 ```
 

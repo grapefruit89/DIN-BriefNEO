@@ -103,3 +103,41 @@ Import, Export, Draft-Collector. Kein Fehler, aber der breiteste Punkt im Repo.
 - **B3-F4**: kein `online`-Listener — nach Offline-Rückkehr startet die Suche erst beim nächsten Tastendruck. Feature, kein Bug.
 - **B3-Punkt 5** (Leerzeichen als Textknoten, `address.js:436`): `.suggestion-main` ist `inline-flex` mit `gap: 6px`, der Textknoten erzeugt ein zusätzliches Flex-Item. Entfernen ändert den Abstand sichtbar → nur mit Messung.
 - **`clipboard-parser.js:75`**: „95%-KISS" ist eine Scope-Entscheidung (DECISION-LOG 2026-10-06), keine Trefferquote. Umformulieren, wenn die Datei ohnehin dran ist.
+
+## B5-Audit (2026-11-12)
+
+### Sofort behoben
+
+| Befund | Fix |
+|---|---|
+| B5-01 `#nameText()` las `textContent` auf einem `<input>` → automatische Anrede fiel still auf die neutrale Form zurück | `Field.getValue()` für Name und Firma. Live belegt: `Herr Max Mustermann` → „Sehr geehrter Herr Mustermann," |
+| B5-02 `setCaretCharacterOffset(el, 0)` fokussierte nur | Range am Elementanfang bzw. `setSelectionRange(0,0)` bei nativen Feldern |
+| B5-03 Längenlimit griff bei `input[data-atom]` nie (`textContent` leer) | `Field.getValue()` + `setSelectionRange` bei nativen Feldern. Live belegt: 80 Zeichen per JS gesetzt → auf `maxlength` gekürzt |
+| B5-09 Abschnittstitel behauptete „DRAFT MANAGER" | richtiggestellt: DRAFT COLLECTION |
+
+### Geprüft und verworfen
+
+| Befund | Warum nicht |
+|---|---|
+| B5-07 `#seedAuto` ruft `Field.getValue()` vor dem Null-Check | `Field.getValue(null)` gibt `''` zurück (`field.js:16`); beide Elemente sind danach zusätzlich geprüft. Kein Absturz. |
+| B5-08 `CLOSINGS`/`FALLBACK` duplizieren `SALUTATION_TONES` | Sie sind **abgeleitet** (`salutation.js:43-53`), nicht kopiert. Kein Drift möglich. |
+
+### Offen — Entscheidung nötig
+
+**K5 — `destroy()` räumt DOM-Listener nicht ab (`UIProtections`, `SalutationFeature`).**
+
+- **A)** so lassen: `destroy()` wird nur in Tests gerufen; im Produktivpfad gibt es kein Re-Init
+- **B)** Listener über einen `AbortController` registrieren und in `destroy()` abbrechen (~10 Zeilen je Klasse)
+
+**K6 — `formatLetterDate()` ohne Temporal-Fallback.**
+
+`currentISODate()` nutzt ausschließlich `Temporal.Now.zonedDateTimeISO('Europe/Berlin')`;
+`formatDatum()` hat dagegen einen Fallback. Ohne Temporal bleibt `#datum` leer.
+
+- **A)** so lassen: Temporal ist Projekt-Baseline (Chrome 150+), und `A48`/`A50` verbieten
+  zonenlose `Date`-Pfade — ein Fallback würde genau das wieder einführen
+- **B)** Fallback auf `formatDatum()`'s Logik
+
+**K7 — Der echte JS-Hebel bleibt D7** (21 `contenteditable` → `<input>`/`<textarea>`):
+`FIELD_MAX_LENGTHS`, `#handleInputLimit` und Teile von `#handleDocumentPaste` würden
+weitgehend durch `maxlength` ersetzt. Kein eigener Punkt, nur der Vollständigkeit halber.

@@ -134,8 +134,23 @@ export function getCaretCharacterOffset(element) {
  * @param {number} offset
  */
 export function setCaretCharacterOffset(element, offset) {
+  element.focus();
+  /* offset 0 hiess bisher nur "fokussieren" — dann entscheidet der Browser,
+     wo der Caret landet. Fuer native Felder setSelectionRange, fuer
+     contenteditable ein Range am Elementanfang (B5-Review 2026-11-12). */
   if (offset <= 0) {
-    element.focus();
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+      element.setSelectionRange(0, 0);
+      return;
+    }
+    const docRef = element.ownerDocument;
+    const sel = docRef.defaultView?.getSelection();
+    if (!sel) return;
+    const r = docRef.createRange();
+    r.setStart(element, 0);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
     return;
   }
   const documentRef = element.ownerDocument;
@@ -526,10 +541,18 @@ export class UIProtections {
     const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
     if (maxLimit <= 0) return;
 
-    const text = target.textContent || '';
+    /* Field.getValue statt textContent: der Selektor oben verspricht
+       input[data-atom], dort ist textContent immer leer und das Limit griff nie
+       (B5-Review 2026-11-12). */
+    const text = Field.getValue(target);
     if (text.length <= maxLimit) return;
 
-    Field.setValue(target, text.substring(0, maxLimit));
+    const gekuerzt = text.substring(0, maxLimit);
+    Field.setValue(target, gekuerzt);
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      target.setSelectionRange(gekuerzt.length, gekuerzt.length);
+      return;
+    }
     const range = document.createRange();
     range.selectNodeContents(target);
     range.collapse(false);
@@ -616,7 +639,8 @@ export class UIProtections {
 }
 
 /* =========================================================================================
- * 3. DRAFT MANAGER (Single-Writer für localStorage, Undo/Redo, Autosave)
+ * 3. DRAFT COLLECTION (Feldwerte einsammeln, Selektor, Laengenlimits)
+ *    DraftManager selbst liegt in draft-manager.js.
  * ========================================================================================= */
 
 /* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):

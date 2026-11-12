@@ -287,9 +287,13 @@ export class SalutationFeature {
   }
 
   #nameText() {
-    const name = (document.getElementById('empfaenger-name')?.textContent || '').trim();
+    /* Field.getValue, nicht textContent: die Anschriftfelder sind seit
+      2026-11-12 native <input>, dort ist textContent immer leer. Die
+      automatische Anrede fiel dadurch still auf die neutrale Form zurueck
+      (B5-Review 2026-11-12). */
+    const name = Field.getValue(document.getElementById('empfaenger-name')).trim();
     if (name) return name;
-    return (document.getElementById('empfaenger-firma')?.textContent || '').trim();
+    return Field.getValue(document.getElementById('empfaenger-firma')).trim();
   }
 
   /**

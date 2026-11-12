@@ -355,7 +355,8 @@ din-anlagen-angabe {
   position: absolute;
   top: 0;
   left: 0;
-  translate: var(--sig-x, 11.9cqw) var(--sig-y, 96cqw);
+  /* mm statt cqw: cqw haengt am Query-Container (#viewport), nicht am Blatt. */
+  translate: var(--sig-x, 25mm) var(--sig-y, 201.6mm);
   scale: var(--sig-scale, 0.5);
   rotate: var(--sig-rot, 0deg);
   transform-origin: center center;

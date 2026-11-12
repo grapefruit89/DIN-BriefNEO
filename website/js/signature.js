@@ -134,9 +134,9 @@ export class SignatureFeature {
       interaction.startAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
       interaction.startDistance = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
 
-      const blatt = document.querySelector('din-blatt');
-      const blattWidth = blatt ? blatt.getBoundingClientRect().width : 800;
-      interaction.pxToCqw = 100 / (blattWidth || 1);
+      /* 1 CSS-Pixel = 25,4/96 mm; die Zustandswerte sind Prozent der
+         Blattbreite (210mm). Viewport-unabhaengig, im Gegensatz zu cqw. */
+      interaction.pxToCqw = (25.4 / 96) / 2.1;
 
       bbox.setPointerCapture(e.pointerId);
     });
@@ -193,8 +193,14 @@ export class SignatureFeature {
 
   applyTransform() {
     if (this.container) {
-      this.container.style.setProperty('--sig-x', `${this.state.x}cqw`);
-      this.container.style.setProperty('--sig-y', `${this.state.y}cqw`);
+      /* Physikalische Millimeter statt cqw: `cqw` loest gegen den naechsten
+         Query-Container auf - und das ist `#viewport`, nicht das Blatt. Auf
+         einem breiten Fenster landete die Unterschrift damit unter dem Papier
+         (gemessen 2026-11-12: 1912px Fenster -> y 1509px bei 1123px Blatthoehe).
+         Die gespeicherten Werte sind Prozent der Blattbreite (100 = 210mm). */
+      const MM_JE_PROZENT = 2.1;
+      this.container.style.setProperty('--sig-x', `${(this.state.x * MM_JE_PROZENT).toFixed(2)}mm`);
+      this.container.style.setProperty('--sig-y', `${(this.state.y * MM_JE_PROZENT).toFixed(2)}mm`);
       this.container.style.setProperty('--sig-scale', `${this.state.scale}`);
       this.container.style.setProperty('--sig-rot', `${this.state.rot}deg`);
     }

@@ -4081,6 +4081,20 @@ describe('Rücksendezeile — Spiegelung mit Initialen', () => {
     assertEqual(e.letzterAutowert, 'Miraculix • Druidenhütte am Eichenhain • Aremorica', 'ohne Initiale');
   });
 
+  it('Automatikwert ohne Strasse (nur Name und Ort) wird erkannt', () => {
+    /* Bug 2026-11-12: "T. D. Water Law • Flevance" hat zwei Teile und galt
+       als Nutzertext — nach dem Testbrief blieb die alte Zeile stehen. */
+    const e = spiegelEntscheidung(
+      lage({
+        aktuell: 'T. D. Water Law • Flevance',
+        street: '',
+        city: 'Flevance',
+        auto: 'T. D. Water Law • Flevance'
+      })
+    );
+    assertEqual(e.modus, 'auto', 'wird als Automatik erkannt');
+  });
+
   it('unveraenderte Automatikzeile: kein Schreibvorgang, keine Schleife', () => {
     const auto = 'L. Yagami • Wohnung der Yagami-Familie • Japan';
     const e = spiegelEntscheidung(lage({ modus: 'auto', letzterAutowert: auto, aktuell: auto }));

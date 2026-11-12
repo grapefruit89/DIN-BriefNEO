@@ -543,9 +543,16 @@ export function spiegelEntscheidung(lage) {
   if (aktuell === '') return { modus: 'auto', schreiben: auto !== '', letzterAutowert: auto };
 
   if (modus === 'unklar') {
+    /* Automatikwerte haben 2 oder 3 Teile: "Name • Ort" wenn keine Strasse
+       gesetzt ist, sonst "Name • Strasse • Ort". Die alte 3-Teile-Regel hielt
+       "T. D. Water Law • Flevance" fuer Nutzertext und liess sie stehen
+       (gemessen 2026-11-12). */
     const teile = aktuell.split(' • ').map((teil) => teil.trim());
     const siehtAutomatischAus =
-      aktuell === '' || (teile.length >= 3 && teile.at(-1) === city && teile.at(-2) === street);
+      aktuell === '' ||
+      (teile.length >= 2 &&
+        teile.at(-1) === city &&
+        (teile.length < 3 || teile.at(-2) === street));
     modus = siehtAutomatischAus ? 'auto' : 'manuell';
     if (modus === 'auto') letzterAutowert = aktuell;
   }

@@ -1281,8 +1281,11 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   setField('absender-tel', sender.telefon || generiereTestTelefon(sender));
   setField('absender-mail', sender.mail || generiereTestEmail(sender));
 
-  const rucksendeTeile = [senderName, resolveStrasse(sender), resolveOrtZeile(sender)].filter(Boolean);
-  setField('rucksendeangabe', rucksendeTeile.join(' • '));
+  /* Rücksendezeile bewusst NICHT selbst schreiben: initSenderSync spiegelt
+   * sie aus Absender-Name/-Strasse/-Ort und setzt dabei die Initiale
+   * ("U. Kisuke", nicht "Urahara Kisuke"). Vorher schrieb der Testbrief den
+   * vollen Namen und die Spiegelung hielt das fuer Nutzertext (gemessen
+   * 2026-11-12). */
 
   // Empfänger
   // Firmenzeile nur bei einer einzelnen belegten Organisation — kein Berufs-Blob.

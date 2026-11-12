@@ -30,12 +30,15 @@ function syncPostvermerkFromSidebar(value) {
   const val = typeof value === 'string' ? value : (sel?.value ?? '');
   if (sel && sel.value !== val) sel.value = val;
 
+  /* Field statt textContent: #vermerke ist seit 2026-11-12 ein <input>.
+     Mit textContent blieb das Feld leer und zeigte nur seinen Platzhalter
+     ("Postvermerk") - gemeldet 2026-11-12. */
   if (!val) {
-    field.textContent = '';
+    Field.setValue(field, '');
     field.removeAttribute('data-visible');
     return;
   }
-  field.textContent = val;
+  Field.setValue(field, val);
   field.setAttribute('data-visible', 'true');
 }
 

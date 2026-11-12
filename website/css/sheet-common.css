@@ -508,11 +508,11 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       color: transparent;
     }
 
-  #anrede[data-generated],
-    #grussformel[data-generated] {
-      color: var(--blatt-schwach);
-      font-style: italic;
-    }
+  /* Hier stand eine grau-kursive Markierung fuer automatisch erzeugte Anrede
+     und Grussformel (`[data-generated]`). Seit die Felder <input> mit
+     Platzhalter sind, sah der echte Text dadurch wie ein Platzhalter aus
+     (gemeldet 2026-11-12: "bleiben im placeholder styling stecken"). Das
+     Attribut bleibt als Zustand fuer salutation.js, die Optik ist normal. */
 
   din-falzmarke-1 { top: var(--falz-oben-y); }
 

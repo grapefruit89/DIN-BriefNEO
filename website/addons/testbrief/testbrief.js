@@ -1297,6 +1297,18 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   const senderName = sender.name || sender.buergerlicherName;
   const recipientName = recipient.name || recipient.buergerlicherName;
 
+  /* Testbrief = Neustart: eine als "manuell" markierte Ruecksendezeile (der
+     Nutzer hat sie einmal angefasst oder geleert) blockiert die Spiegelung -
+     das Feld bliebe leer und zeigte nur seinen Platzhalter (gemeldet
+     2026-11-12). Marker weg, Feld leeren, Zustand neu entscheiden lassen;
+     erst danach die Absenderfelder schreiben, damit sync() sie fuellt. */
+  const ruecksende = document.getElementById('rucksendeangabe');
+  if (ruecksende) {
+    ruecksende.removeAttribute('data-quelle');
+    Field.setValue(ruecksende, '');
+    eventBus.publish(Events.DOCUMENT_CHANGED);
+  }
+
   // Kontakt-Immersion: Synthetische T9-Vanity-Rufnummer & Popkultur-Mail
   setField('absender-name', senderName);
   setField('absender-strasse', resolveStrasse(sender));

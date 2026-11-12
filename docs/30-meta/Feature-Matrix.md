@@ -99,7 +99,7 @@ supersedes:
 | Funktion | Status | Ist-Stand / kanonische Quelle |
 |---|---|---|
 | JSON-Export | **aktiv** | Selbstbeschreibendes JSON mit Metadaten; siehe `52-import-export.js` |
-| JSON- und Legacy-Import | **aktiv** | Import akzeptiert `.json` und `.dinletter`; Inhalte werden vor dem Restore bereinigt |
+| JSON- und Legacy-Import | **aktiv** | Import akzeptiert `.json`; Inhalte werden vor dem Restore bereinigt |
 | Clipboard-Impressum-Parser | **aktiv** | Deterministischer Offline-Parser mit Kandidaten-Popover; siehe `46-clipboard-address-parser.js` |
 | Mehrere Clipboard-Kandidaten | **aktiv** | Nutzer wählt bei mehreren erkannten Anschriften über natives Popover |
 | Briefarchiv mit mehreren Profilen | **geparkt** | Derzeit bewusst kein Produktfeature; `localStorage` bleibt auf einen Entwurf und Einstellungen begrenzt |

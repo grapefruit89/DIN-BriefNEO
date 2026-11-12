@@ -645,7 +645,7 @@ export async function exportDocumentToFile(payload, fileName = buildLetterFileNa
         types: [{
           description: 'DIN-Brief Dokument',
           accept: {
-            'application/json': ['.json', '.dinletter']
+            'application/json': ['.json']
           }
         }]
       });

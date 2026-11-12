@@ -62,7 +62,7 @@ depends_on: []
 
 - **Dokumentinhalt (`din_draft_current`):** Enthält ausschließlich Textfelder und den Postvermerk (`seitenleiste-postvermerk-select`), frei von UI-Schaltern.
 - **Einstellungen & Signatur (`din_settings`):** Beherbergt Workspace-Präferenzen (`theme`, `marks`), Form A/B (`layout`) und die Signaturtransformation (`signatureState`). Das Signaturbild bleibt lokal.
-- **Export (Schema v5):** `buildDinLetterPayload` schreibt ein flaches JSON — `layout` (`form`, `copyfit`, `marks`), `fields` (Dokumentinhalt) und `signature.transform`. Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind nicht enthalten; ein separater Container (`.dinletter`) ist vorgesehen. Ältere Schemata (v4 und früher) werden beim Import abgelehnt; der LocalStorage-Zustand wird weiterhin über `migrateStorage` behandelt.
+- **Export (Schema v5):** `buildDinLetterPayload` schreibt ein flaches JSON — `layout` (`form`, `copyfit`, `marks`), `fields` (Dokumentinhalt) und `signature.transform`. Nichtbinäre Anteile (Signaturbild, eigene Schrift) sind nicht enthalten; ein separater Container (`.dinletter`) war vorgesehen und wurde **nicht** eingeführt: der Export ist reines `.json` (Nachtrag 2026-11-12, damit die Endung als JSON erkennbar bleibt). Ältere Schemata (v4 und früher) werden beim Import abgelehnt; der LocalStorage-Zustand wird weiterhin über `migrateStorage` behandelt.
 
 ## 4. Consequences
 

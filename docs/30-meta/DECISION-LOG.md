@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-11-06'
+updated: '2026-11-12'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -2617,3 +2617,30 @@ des Tages gebündelt (`<textarea>`, `plaintext-only`, `<input type="date">`,
 
 **Beleg.** Messungen 2026-11-10 (Chrome 156); P1–P12 ausführlich in
 `docs/90-archive/upstream-befund-2026-11-10.md`. Keine Code-Änderung.
+
+## 2026-11-12 — A49-Ausnahme: die Feldbreite begrenzt die Eingabe
+
+**Befund.** Ein einzeiliges Feld klippt still: 140 Zeichen im Betreff passen
+sichtbar nur bis zum Rand, im Druck fehlt der Rest. Eine feste `maxlength`
+löst das nicht — bei 624 px Feldbreite passen 140× „i", aber nur 53× „R"
+(gemessen per `measureText`, Spanne **2,6×**).
+
+**Der von A49 vorgeschriebene CSS-Weg trägt hier nicht.** `text-fit: shrink 60%`
+wird in Chrome 156 geparst (`CSS.supports` → `true`), aber nicht angewandt:
+Schriftgröße bleibt 16 px, `scrollWidth` 971 > 624 — an `<input>` **und** an
+einem `<div>` mit fester Breite gemessen. Zusätzlich wäre er fachlich falsch:
+er verkleinert die Schrift, ein Brief bekäme viele verschiedene Schriftgrößen.
+
+**Entscheidung.** Die Eingabe wird gesperrt, sobald die Feldbreite erreicht ist.
+`scrollWidth > clientWidth` wird **einmal pro `input`** gelesen (kein Polling,
+kein `MutationObserver`, kein Timer); ein Zeichen, das nicht mehr passt, wird
+zurückgenommen. Auswahl ersetzen und Löschen bleiben erlaubt — was im Feld
+steht, bleibt im Feld, statt beim Weitertippen herauszurutschen.
+
+**Umsetzung.** `website/js/document.js` (`#istVoll`, `#handleFormatShortcuts`,
+`#handleInputLimit`); Ausnahme für P3 in `tools/antipatterns/project.json`
+(Datei `website/js/document.js`).
+
+**Beleg.** 200 Anschläge auf `#betreff`: 54 Zeichen im Feld, `scrollWidth` 624 =
+`clientWidth` 624, kein Überlauf; ein Zeichen löschen schafft sofort wieder
+Platz. Kein Eingriff in `maxlength` (bleibt als Grob-Deckel).

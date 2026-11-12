@@ -234,6 +234,10 @@ Optionen:
   Ausnahme in `tools/antipatterns/project.json`.
 - **C)** so lassen: Text klippt still mit Ellipse.
 
-**Empfehlung: B**, wenn die Warnung gewünscht ist — der Grund für A49 ist
-Layout-Thrashing durch Polling; ein einzelner `scrollWidth`-Lesevorgang je
-Tastendruck ist das nicht. Sonst A mit den Werten oben.
+**Entschieden 2026-11-12: B.** Kein Marker, sondern **Sperre**: die Eingabe
+wird verworfen, sobald die Feldbreite erreicht ist (`scrollWidth > clientWidth`,
+einmal pro `input`). Option A scheidet aus, weil die Spanne 2,6× ist; Option C
+schiebt den Text beim Weitertippen aus dem Feld. A49-Ausnahme und Begründung
+stehen im `docs/30-meta/DECISION-LOG.md`, die Ausnahme in
+`tools/antipatterns/project.json` (P3). Beleg: 200 Anschläge → 54 Zeichen,
+`scrollWidth` = `clientWidth` = 624.

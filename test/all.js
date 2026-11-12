@@ -1189,6 +1189,27 @@ describe('Textfelder sind native <input> (Migration 2026-11-12)', () => {
   });
 });
 
+describe('Eingabe-Sperre bei voller Feldbreite (A49-Ausnahme)', () => {
+  /* Entscheidung 2026-11-12 (DECISION-LOG): die Feldbreite begrenzt die
+     Eingabe. text-fit: shrink faellt aus (Schriftgroessen-Zoo, wirkt in
+     Chrome 156 ohnehin nicht), eine Zeichen-Maximallaenge scheitert an der
+     2,6-fachen Breitenspanne (i vs R). */
+  it('document.js misst die Breite und nimmt das Zeichen zurueck', async () => {
+    const src = await (await fetch('/website/js/document.js')).text();
+    assert(/scrollWidth\s*>\s*\w+\.clientWidth/.test(src), 'Breitenmessung vorhanden');
+    assert(src.includes('#istVoll('), 'Hilfsfunktion #istVoll');
+    assert(src.includes("startsWith('insert')"), 'nur Einfuegen wird gesperrt');
+    assert(src.includes('letzterStand'), 'Ruecknahme nutzt den Schnappschuss');
+  });
+
+  it('die Ausnahme steht in der Antipattern-Regel P3', async () => {
+    const regel = await (await fetch('/tools/antipatterns/project.json')).json();
+    const p3 = regel.rules.find((/** @type {any} */ r) => r.id === 'P3');
+    assert(p3, 'P3 existiert');
+    assert((p3.exemptions || []).some((/** @type {any} */ e) => e.file === 'website/js/document.js'), 'Ausnahme fuer document.js');
+  });
+});
+
 describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
   /* Seit 2026-11-12 sind Betreff, Vermerk, Anrede, Grussformel und Unterschrift
      native <input>; nur der Rich-Text bleibt contenteditable. */

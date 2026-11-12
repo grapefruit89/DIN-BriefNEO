@@ -53,7 +53,13 @@
       "file_patterns": [
         "website/js/*.js"
       ],
-      "exemptions": []
+      "exemptions": [
+        {
+          "file": "website/js/document.js",
+          "pattern": "istVoll\\(|scrollWidth\\s*>\\s*\\w+\\.clientWidth"
+        }
+      ],
+      "replacement": "A49-Ausnahme 2026-11-12 (DECISION-LOG): Feldbreite als Grenze, Eingabe wird verworfen. Kein Polling, kein Textfitting."
     },
     {
       "id": "P4",

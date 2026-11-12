@@ -210,6 +210,15 @@ export function setCaretToEnd(element) {
 /** Fallback-Länge für Einzeiler ohne eigenen Eintrag in FIELD_MAX_LENGTHS. */
 const SINGLE_LINE_MAX = 50;
 
+/**
+ * Letzter gueltiger Stand je Feld, aufgenommen bei `beforeinput`.
+ * Grund (A49-Ausnahme, siehe DECISION-LOG 2026-11-12): ein Feld, das die
+ * Breite fuellt, darf keine Eingabe mehr annehmen — sonst schiebt der Browser
+ * den Text aus dem Feld und das zuerst Geschriebene verschwindet.
+ * @type {WeakMap<HTMLElement, {wert: string, start: number, ende: number}>}
+ */
+const letzterStand = new WeakMap();
+
 const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'rucksendeangabe': 85,
   'empfaenger-firma': 50,
@@ -470,7 +479,38 @@ export class UIProtections {
    */
   #handleFormatShortcuts(event) {
     const inputEvent = /** @type {InputEvent} */ (event);
-    if (inputEvent.inputType === 'formatUnderline') inputEvent.preventDefault();
+    if (inputEvent.inputType === 'formatUnderline') {
+      inputEvent.preventDefault();
+      return;
+    }
+
+    /* A49-Ausnahme (DECISION-LOG 2026-11-12): Feldbreite ist die Grenze.
+       Was drin steht, bleibt drin; der Text wird nicht aus dem Feld geschoben. */
+    const ziel = inputEvent.target;
+    if (!(ziel instanceof HTMLInputElement || ziel instanceof HTMLTextAreaElement)) return;
+
+    letzterStand.set(ziel, {
+      wert: ziel.value,
+      start: ziel.selectionStart ?? 0,
+      ende: ziel.selectionEnd ?? 0
+    });
+
+    if (!(inputEvent.inputType ?? '').startsWith('insert')) return;
+    /* Auswahl ersetzen ist erlaubt - das kuerzt den Text, statt ihn zu schieben. */
+    const hatAuswahl = (ziel.selectionStart ?? 0) !== (ziel.selectionEnd ?? 0);
+    if (!hatAuswahl && this.#istVoll(ziel)) inputEvent.preventDefault();
+  }
+
+  /**
+   * Text passt nicht mehr in die Feldbreite.
+   * `scrollWidth > clientWidth` ist die einzige verlaessliche Messung: eine
+   * Zeichen-Maximallaenge scheitert an der 2,6-fachen Breitenspanne zwischen
+   * "i" und "R" (gemessen 2026-11-12: 624px Feld = 140x i, aber 53x R).
+   * @param {HTMLElement} feld
+   * @returns {boolean}
+   */
+  #istVoll(feld) {
+    return feld.scrollWidth > feld.clientWidth + 1;
   }
 
   /**
@@ -557,26 +597,31 @@ export class UIProtections {
     if (target.id === 'datum') target.dataset.dirty = 'true';
 
     const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
-    if (maxLimit <= 0) return;
 
-    /* Field.getValue statt textContent: der Selektor oben verspricht
+    /* 1) Zeichen-Deckel.
+       Field.getValue statt textContent: der Selektor oben verspricht
        input[data-atom], dort ist textContent immer leer und das Limit griff nie
        (B5-Review 2026-11-12). */
-    const text = Field.getValue(target);
-    if (text.length <= maxLimit) return;
-
-    const gekuerzt = text.substring(0, maxLimit);
-    Field.setValue(target, gekuerzt);
-    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-      target.setSelectionRange(gekuerzt.length, gekuerzt.length);
-      return;
+    if (maxLimit > 0) {
+      const text = Field.getValue(target);
+      if (text.length > maxLimit) {
+        const gekuerzt = text.substring(0, maxLimit);
+        Field.setValue(target, gekuerzt);
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+          target.setSelectionRange(gekuerzt.length, gekuerzt.length);
+        }
+      }
     }
-    const range = document.createRange();
-    range.selectNodeContents(target);
-    range.collapse(false);
-    const sel = window.getSelection();
-    sel?.removeAllRanges();
-    sel?.addRange(range);
+
+    /* 2) Breiten-Deckel (A49-Ausnahme): ein Zeichen, das nicht mehr passt,
+       wird zurueckgenommen. Sonst scrollt das Feld und der Anfang verschwindet. */
+    if ((target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) && this.#istVoll(target)) {
+      const alt = letzterStand.get(target);
+      if (alt) {
+        Field.setValue(target, alt.wert);
+        target.setSelectionRange(alt.start, alt.ende);
+      }
+    }
   }
 
   /**

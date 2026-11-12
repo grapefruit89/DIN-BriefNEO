@@ -1064,6 +1064,22 @@ body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] { color: oklch(48% 0 0); }
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] { color: oklch(55% 0.18 45); }
 
+/* Ortsfarbe: gleiche Stadt = gleicher Ton, sanft hinterlegt plus 3px-Balken.
+   Deterministisch aus dem Ortsnamen (address.js, farbeFuerOrt), damit die
+   Liste bei jedem Tippen gleich aussieht. Die Typ-Farbe sitzt auf `color` und
+   bleibt unberuehrt; Hover/Auswahl ueberschreiben nur den Hintergrund. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item {
+  --ort-ton: oklch(0.72 0.06 250);
+  box-shadow: inset 3px 0 0 var(--ort-ton);
+  background: color-mix(in oklch, var(--ort-ton) 9%, transparent);
+}
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.78 0.12 55); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.74 0.10 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.78 0.11 150); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.76 0.10 300); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.78 0.09 195); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.78 0.11 15); }
+
 /* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
    kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) .ac-badge {

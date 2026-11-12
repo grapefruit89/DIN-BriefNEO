@@ -384,6 +384,66 @@ AddressIntelligence.wireDOM = function wireDOM() {
 };
 
 /**
+ * Ab dieser PLZ-Zahl lohnt eine Stadt-Zeile mit Unterliste.
+ *
+ * Darunter ist die Unterliste nur ein zusaetzlicher Klick fuer dieselbe
+ * Information: "troi" zeigte eine Zeile "Troisdorf (3 PLZs)", die man erst
+ * aufklappen musste (gemeldet 2026-11-12). Bis 7 PLZs stehen sie direkt in
+ * der Liste, ab 8 bleibt die Zeile (sonst wird die Liste lang und unruhig).
+ */
+export const GRUPPE_AB_PLZ = 8;
+
+/**
+ * Klappt Stadt-Zeilen mit wenigen PLZs direkt in die Liste aus.
+ *
+ * Entfernt dabei Dubletten: `resolveCityInput('troi')` liefert sowohl
+ * "Troisdorf (3 PLZs)" als auch "Troisdorf 53840" — nach dem Ausklappen waere
+ * die 53840 zweimal da. Der Schluessel enthaelt den Typ, damit eine Behoerde
+ * mit derselben PLZ nicht verschwindet.
+ * @param {Array<any>} liste
+ * @returns {Array<any>}
+ */
+export function flacheVorschlaege(liste) {
+  const out = [];
+  const gesehen = new Set();
+  for (const item of liste) {
+    const plzAnzahl = item.plzCount || 0;
+    const ausklappen = item.typ === 'Stadt' && !item.isSinglePlz && plzAnzahl > 1 && plzAnzahl < GRUPPE_AB_PLZ;
+    for (const eintrag of ausklappen ? AddressIntelligence.lookupCityPlzs(item.city) : [item]) {
+      const schluessel = `${eintrag.typ || ''}|${eintrag.plz || eintrag.name || ''}`;
+      if (gesehen.has(schluessel)) continue;
+      gesehen.add(schluessel);
+      out.push(eintrag);
+    }
+  }
+  return out;
+}
+
+/** Anzahl der Pastelltoene fuer die Ortsunterscheidung. */
+export const ORT_FARBEN = 6;
+
+/**
+ * Ordnet einem Ort stabil eine Pastellfarbe zu (1..ORT_FARBEN).
+ *
+ * Der Zusatz (Bundesland/Stadtteil) gehoert in den Schluessel: "neustadt"
+ * liefert neun Orte mit demselben Namen, die sich nur im Bundesland
+ * unterscheiden — ohne Zusatz bekaemen alle dieselbe Farbe (gemessen
+ * 2026-11-12). Deterministisch, damit derselbe Ort beim naechsten Tippen
+ * denselben Ton behaelt. Kein Zufall, kein Speicher. Die Farbe landet als
+ * `data-ort-farbe` am Listeneintrag; CSS macht daraus den Hintergrund
+ * (CSP: keine Inline-Styles).
+ * @param {string} ort
+ * @param {string} [zusatz] Bundesland-Kuerzel oder Stadtteil
+ * @returns {string}
+ */
+export function farbeFuerOrt(ort, zusatz = '') {
+  const text = `${String(ort || '')}|${String(zusatz || '')}`;
+  let h = 0;
+  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) % 9973;
+  return String((h % ORT_FARBEN) + 1);
+}
+
+/**
  * Renders the suggestions popover with type badges and color coding.
  * @param {Array<any>} matches
  * @param {number} totalCount
@@ -414,11 +474,16 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       hidePopoverSafe(popoverEl);
     };
 
-    matches.forEach((item, index) => {
+    const eintraege = flacheVorschlaege(matches);
+
+    eintraege.forEach((item, index) => {
       const li = document.createElement('li');
       li.className = 'suggestion-item';
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+      /* Ortsfarbe: gleiche Stadt = gleicher Ton, damit mehrere Orte in einer
+         Liste sofort unterscheidbar sind. */
+      li.dataset.ortFarbe = farbeFuerOrt(item.city || item.name || '', item.state || item.district || '');
 
       // Typ als Datum ins Markup; das Aussehen entscheidet das CSS (beide Listen).
       const typLower = (item.typ || '').toLowerCase();
@@ -498,7 +563,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       popoverEl.appendChild(hintLi);
     }
 
-    bindListSelection(popoverEl, matches, selectItem);
+    bindListSelection(popoverEl, eintraege, selectItem);
   };
 
   render();

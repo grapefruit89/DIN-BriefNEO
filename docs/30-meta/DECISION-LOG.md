@@ -2761,3 +2761,22 @@ dort nie greifen. Ein Deckel waere eine Produktentscheidung, kein Bugfix.
 weiter den alten Zustand, weil die Seite nach der CSS-Aenderung nicht neu
 geladen war. Erst der Reload machte den Fix sichtbar. Regeln: nach CSS-Edits
 immer neu laden, bevor gemessen wird.
+
+### 2026-11-13 — PLZ-Vorschlaege: Ausklappen ab 8, Farbe je Ort
+
+**Entscheidung (Nutzerwunsch).** Eine Stadt-Zeile mit Unterliste lohnt erst ab
+8 PLZs. Darunter stehen die PLZs direkt in der Liste — "troi" zeigte vorher
+"Troisdorf (3 PLZs)", das war ein Klick fuer nichts. Beim Ausklappen werden
+Dubletten entfernt (`resolveCityInput` liefert die Stadt-Zeile *und* eine
+einzelne PLZ derselben Stadt).
+
+**Ortsfarbe.** Jeder Eintrag bekommt `data-ort-farbe` (1..6). Der Schluessel
+ist Ort **plus** Bundesland/Stadtteil: "neustadt" liefert neun gleichnamige
+Orte, die sich nur im Bundesland unterscheiden — ohne Zusatz bekaemen alle
+dieselbe Farbe (gemessen 2026-11-13). Deterministisch gehasht, damit derselbe
+Ort stabil bleibt. Die Farbe setzt CSS (`--ort-ton`, sanfter Hintergrund plus
+3px-Balken), **kein Inline-Style** (CSP `style-src 'self'`).
+
+**Grenze:** 6 Pastelltoene, Kollisionen sind moeglich, aber nie zwischen
+benachbarten Gruppen derselben Stadt. Bei mehr als 6 Orten in einer Liste
+wiederholen sich Toene — bewusst, eine groessere Palette wird unruhig.

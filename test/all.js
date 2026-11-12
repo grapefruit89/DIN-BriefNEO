@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, initAddressServices, initSenderSync, normalizePostcode, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbeFuerOrt, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -4521,6 +4521,42 @@ describe('B3-Fixes: Ziel-Sperre und veraltete Suchantworten', () => {
       remove(STORAGE_KEYS.geoapifyKey);
       suchfeld.value = '';
     }
+  });
+});
+
+describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
+  /* "troi" zeigte eine Zeile "Troisdorf (3 PLZs)", die man erst aufklappen
+     musste — ein Klick fuer nichts. Bis 7 PLZs stehen sie direkt in der Liste. */
+  it('Stadt mit 3 PLZs wird flach ausgeklappt und dublettenfrei', async () => {
+    await AddressIntelligence.init();
+    const eingabe = [
+      { typ: 'Stadt', name: 'Troisdorf', city: 'Troisdorf', isSinglePlz: false, plzCount: 3 },
+      { typ: 'Stadt', name: 'Troisdorf', city: 'Troisdorf', plz: '53840', isSinglePlz: true, plzCount: 1 },
+    ];
+    const raus = flacheVorschlaege(eingabe);
+    assertEqual(raus.length, 3, 'drei PLZ-Zeilen');
+    assertEqual(new Set(raus.map((e) => e.plz)).size, 3, 'keine Dublette (53840 nur einmal)');
+    assert(raus.every((e) => String(e.plz).startsWith('538')), 'nur Troisdorf-PLZs');
+  });
+
+  it('Stadt ab 8 PLZs bleibt eine Zeile (Unterliste lohnt dann)', () => {
+    const raus = flacheVorschlaege([
+      { typ: 'Stadt', name: 'Bonn', city: 'Bonn', isSinglePlz: false, plzCount: 38 },
+    ]);
+    assertEqual(raus.length, 1, 'Bonn bleibt eine Zeile mit Unterliste');
+  });
+
+  it('Ortsfarbe ist stabil, im Bereich und trennt Gleichnamige nach Bundesland', () => {
+    assertEqual(farbeFuerOrt('Bonn'), farbeFuerOrt('Bonn'), 'stabil');
+    assert(farbeFuerOrt('Neustadt', 'HE') !== farbeFuerOrt('Neustadt', 'BY'), 'Hessen != Bayern');
+    for (const ort of ['Bonn', 'Troisdorf', '']) {
+      const n = Number(farbeFuerOrt(ort));
+      assert(n >= 1 && n <= ORT_FARBEN, `Farbe ${n} im Bereich 1..${ORT_FARBEN}`);
+    }
+  });
+
+  it('Schwelle ist 8 (Entscheidung 2026-11-13)', () => {
+    assertEqual(GRUPPE_AB_PLZ, 8);
   });
 });
 

@@ -404,6 +404,7 @@ export class UIProtections {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
+      this.#normalisiereAbsaetze();
       document.querySelectorAll('[contenteditable], input[data-atom], textarea[data-feldtyp]').forEach((el) => {
         formatElementMicroTypography(el);
       });
@@ -423,6 +424,7 @@ export class UIProtections {
         : null;
       if (target instanceof HTMLElement) {
         formatElementMicroTypography(target);
+        if (target.id === 'text') this.#normalisiereAbsaetze();
       }
     });
   }
@@ -477,7 +479,101 @@ export class UIProtections {
   }
 
   /**
-   * DIN 5008 13.1: Unterstreichung auch über Input-Events/Kontextmenü blockieren.
+   * Wandelt eingefuegten/GETIPPTEN Fliesstext in Absatz-Elemente um.
+   *
+   * Warum: `#text` hat `white-space: pre-line`. Zwei Zeilenumbrueche ergeben
+   * dort eine VOLLE Leerzeile (4,5 mm), waehrend die Generator-Absaetze als
+   * `<p>` nur den Absatzabstand (2,9 mm) bekommen. Derselbe Brief sah je nach
+   * Herkunft des Textes unterschiedlich aus (gemeldet 2026-11-12: "der Abstand
+   * ist ja eine komplette Zeile").
+   *
+   * Laeuft beim Verlassen des Feldes, nicht bei jedem Tastendruck — sonst
+   * wuerde das Umschreiben den Cursor verschieben.
+   */
+  #normalisiereAbsaetze() {
+    const text = this.text;
+    if (!text) return;
+    /* Nur reiner Text: sobald Absaetze/Zitate da sind, ist alles gut. */
+    if (text.querySelector('p, blockquote, ul, ol')) return;
+    /* Reine Blockstruktur (Enter erzeugt <div>): Inhalt verschieben, damit
+       Fett/Kursiv erhalten bleibt - kein Neuaufbau aus Text. */
+    const kinder = [...text.children];
+    const bloecke = kinder.filter((k) => k.tagName === 'DIV' || k.tagName === 'P');
+    if (bloecke.length > 0 && bloecke.length === kinder.length) {
+      for (const block of bloecke) {
+        if (block.tagName === 'P') continue;
+        const p = document.createElement('p');
+        p.append(...block.childNodes);
+        block.replaceWith(p);
+      }
+      if (document.activeElement === text) setCaretToEnd(text);
+      text.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+
+    /* Text mit Leerzeilen: nur anfassen, wenn ausser <br> nichts drin ist -
+       sonst ginge Inline-Formatierung verloren. */
+    if (kinder.some((k) => k.tagName !== 'BR')) return;
+    const roh = this.#textMitUmbruechen(text);
+    if (!roh.includes('\n\n')) return;
+
+    const absaetze = roh.split(/\n{2,}/).map((a) => a.trim()).filter((a) => a.length > 0);
+    if (absaetze.length < 2) return;
+
+    const hatteFokus = document.activeElement === text;
+    text.replaceChildren(
+      ...absaetze.map((absatz) => {
+        const p = document.createElement('p');
+        const zeilen = absatz.split('\n');
+        zeilen.forEach((zeile, i) => {
+          if (i > 0) p.appendChild(document.createElement('br'));
+          p.appendChild(document.createTextNode(zeile));
+        });
+        return p;
+      })
+    );
+    if (hatteFokus) setCaretToEnd(text);
+    text.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  /**
+   * Text mit Absatz-Umbruechen aus dem DOM — ohne `innerText`.
+   *
+   * `innerText` wuerde rendern (Layout-Read, A49-Naehe) und Biome verbietet es.
+   * Fuer unsere Zwecke reicht die Struktur: `<br>` ist ein Zeilenumbruch,
+   * ein Blockknoten (`div`, `p`, `li`, `blockquote`) ist ein Absatz und
+   * bekommt eine Leerzeile als Trenner.
+   * @param {HTMLElement} wurzel
+   * @returns {string}
+   */
+  #textMitUmbruechen(wurzel) {
+    let aus = '';
+    /** @param {Node} knoten */
+    const gehe = (knoten) => {
+      for (const kind of knoten.childNodes) {
+        if (kind.nodeType === Node.TEXT_NODE) {
+          aus += kind.nodeValue ?? '';
+          continue;
+        }
+        if (!(kind instanceof HTMLElement)) continue;
+        if (kind.tagName === 'BR') {
+          aus += '\n';
+          continue;
+        }
+        const istBlock = ['DIV', 'P', 'LI', 'BLOCKQUOTE'].includes(kind.tagName);
+        if (istBlock && aus && !aus.endsWith('\n\n')) aus += '\n\n';
+        gehe(kind);
+        if (istBlock && !aus.endsWith('\n\n')) aus += '\n\n';
+      }
+    };
+    gehe(wurzel);
+    return aus;
+  }
+
+  /**
+   * DIN 5008 13.1: Unterstreichung blockieren; sonst nur durchreichen.
+   * Enthaelt die Eingabe-Sperre bei voller Feldbreite und den Absatz-Aufraeumer
+   * fuer #text.
    * @param {Event} event
    */
   #handleFormatShortcuts(event) {
@@ -485,6 +581,16 @@ export class UIProtections {
     if (inputEvent.inputType === 'formatUnderline') {
       inputEvent.preventDefault();
       return;
+    }
+
+    /* Absaetze: nach Einfuegen oder einem Absatzumbruch einmal aufraeumen
+       (nicht bei jedem Zeichen - innerText kostet Layout). Steht VOR der
+       input/textarea-Pruefung: #text ist ein contenteditable. */
+    if (inputEvent.target instanceof HTMLElement && inputEvent.target.id === 'text'
+        && ['insertFromPaste', 'insertParagraph', 'insertLineBreak'].includes(inputEvent.inputType ?? '')) {
+      /* setTimeout statt requestAnimationFrame: in Hintergrund-Tabs wird rAF
+         gedrosselt, dann bliebe der Text unnormalisiert (gemessen 2026-11-12). */
+      window.setTimeout(() => this.#normalisiereAbsaetze(), 0);
     }
 
     /* A49-Ausnahme (DECISION-LOG 2026-11-12): Feldbreite ist die Grenze.

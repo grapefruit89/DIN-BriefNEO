@@ -507,6 +507,17 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
     }
 
+  /* Mehrzeilige Felder: Rahmen NACH AUSSEN. Bei outline-offset -2px lag die
+     Linie auf der ersten/letzten Zeile (gemeldet 2026-11-12: "Rahmen zu klein,
+     ueberlagert die Schrift"). Null Padding bleibt, damit das mm-Raster nicht
+     wandert. */
+  #text,
+  #anlagen-angabe,
+  #text:focus,
+  #anlagen-angabe:focus {
+    outline-offset: 2px;
+  }
+
   :is([contenteditable], textarea[data-feldtyp], input[data-atom]):focus {
       /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
       outline: 2px solid var(--accent-color);

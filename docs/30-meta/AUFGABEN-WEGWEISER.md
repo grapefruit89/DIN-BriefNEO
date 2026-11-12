@@ -50,6 +50,8 @@ Code; dann diesen Wegweiser korrigieren.
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
 | Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
 | Dev-Server + Debug-Browser | `tools/dev.sh` (= `din-dev`) | `din-dev --status`, Tabs via CDP `:9222` | — |
+| Messen am Bildschirm (ohne Bild) | `tools/mess.js` | MCP `evaluate_script` mit `sourcePath`, `format:"function"` | — |
+| Messen im Druck (ohne PDF) | `tools/mess-print.mjs` | `node tools/mess-print.mjs [url] [breite]` | — |
 | Antipattern-Regel, Gate | `tools/reconciliation.js`, `tools/antipatterns/project.json` | `node tools/reconciliation.js --only-rules` | beide |
 | contenteditable-Feld migrieren | `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
 
@@ -70,6 +72,23 @@ kann nicht nachgemessen werden. `din-dev` benutzt ein eigenes Profil
 (`~/.local/share/din-briefneo/debug-profil`) und fasst den normalen
 Alltags-Browser nicht an — es sterben nur Prozesse mit diesem Profil und die
 eigenen `serve.mjs`-Instanzen.
+
+## 1c. Messen statt Screenshot
+
+Ein Screenshot kostet Bild-Token und liefert **keine Zahl**. Für Geometrie,
+Verschiebungen und Überlauf reicht ein Aufruf, der Millimeter zurückgibt:
+
+```
+evaluate_script({ sourcePath: ".../tools/mess.js", format: "function", pageId: 1 })
+  → {"b":[297,null],"f":{"betreff":[86.2,5.9,1],"anrede":[100.5,5.2,1], ...}}
+     b = [Blatthöhe_mm, data-ueberlauf], f = { id: [y_mm, h_mm, sichtbar] }
+
+node tools/mess-print.mjs        # dasselbe in Druck-Emulation (headless, 3 s)
+```
+
+Andere Felder: vorher `window.__messIds = ['id1','id2']` setzen. Bild nur, wenn
+es wirklich um Optik geht — dann `take_screenshot` mit `uid` (Element) statt
+`fullPage`.
 
 ## 2. Module in einem Satz
 

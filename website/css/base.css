@@ -14,6 +14,24 @@
   display: none !important;
 }
 
+/* --- 1a. KEIN UEBERGANG VOR DEM ERSTEN FRAME (FOUC-Sperre) ---
+ * Beim Laden setzt der Seeder (boot.js im Head, boot-state.js am Body-Ende)
+ * den Zustand NACH dem ersten Style-Durchlauf. Jede Eigenschaft, die daran
+ * haengt, blendet dann ueber 150-200 ms "auf" — quer ueber den ersten Paint.
+ * Gemessen 2026-11-12 (CDP, Cache aus): FCP 64 ms, aber der Postvermerk-Select
+ * lief mit background-color/box-shadow von 30 ms bis ueber 139 ms, ebenso
+ * eine Label-Farbe. Das war das sichtbare Wackeln bei Strg+F5.
+ * Loesung: bis der Zustand steht (data-seeded, Netz data-ready), gibt es
+ * keine Uebergaenge. Danach sind sie unveraendert da (Hover, Fokus, Klick).
+ * NICHT ENTFERNEN und NICHT auf einzelne Selektoren verengen: die naechste
+ * zustandsabhaengige Eigenschaft faellt sonst in dieselbe Falle. Die Wahrheit
+ * steht vor dem Paint als Attribut am <html> (siehe DECISION-LOG). */
+:root:not([data-seeded="true"]):not([data-ready="true"]) *,
+:root:not([data-seeded="true"]):not([data-ready="true"]) *::before,
+:root:not([data-seeded="true"]):not([data-ready="true"]) *::after {
+  transition: none !important;
+}
+
 html, body {
   margin: 0;
   padding: 0;

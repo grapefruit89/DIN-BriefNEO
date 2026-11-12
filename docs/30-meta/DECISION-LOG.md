@@ -2689,3 +2689,23 @@ Erst-Load abschalten. Es macht mehr als Feldwerte (Fußzeilen-Migration,
 `data-quelle`, Vermerk-Sichtbarkeit, Select, Undo-Stack). Wer das ändert, muss
 diese Aufgaben vorher in `boot-state.js` übernehmen — sonst entsteht die
 nächste stille Doppelung. Offener Punkt: `todo/22` K15.
+
+### Nachtrag 2 (gleicher Tag): Uebergaenge vor dem ersten Frame sind gesperrt
+
+**Befund (CDP-Messung, Cache aus, 1912x1007):** CLS war 0, die Seitenleiste
+konstant 1007/1007 — also kein Layout-Shift. Das Wackeln war eine
+**CSS-Transition**: `.seitenleiste-select` blendete `background-color` und
+`box-shadow` von 30 ms bis ueber 139 ms (FCP 64 ms), eine Label-Farbe ebenso.
+Ursache: der gefuellte Zustand haengt an `:has(option:checked:not([value=""]))`,
+der Wert kommt aber erst vom Seeder — die Aenderung animiert quer ueber den
+ersten Paint.
+
+**Regel (nicht zurueckbauen):** Bis `data-seeded` (Netz: `data-ready`) gibt es
+**keine** Uebergaenge: `base.css` Abschnitt 1a setzt `transition: none` auf
+`*`, `*::before`, `*::after`. Danach sind alle Uebergaenge unveraendert aktiv.
+Die Regel bewusst global und nicht pro Selektor — sonst faellt die naechste
+zustandsabhaengige Eigenschaft in dieselbe Falle.
+
+**Messung nach dem Fix:** FCP 76 ms, Frames mit laufenden Animationen: 0
+(vorher 15). Nach dem Seeding: select `background, color, border-color,
+box-shadow`, Label `color`, Schalter `all` — Hover/Klick animieren weiter.

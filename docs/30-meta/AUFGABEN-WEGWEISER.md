@@ -61,9 +61,12 @@ Ein Aufruf räumt auf und startet beides neu — **das ist der Standardweg**, ni
 `node tools/serve.mjs` von Hand:
 
 ```
-din-dev            # [0] alte Instanzen weg  [1] Dev-Server  [2] Debug-Browser (CDP 9222)
-din-dev --stop     # nur stoppen
-din-dev --status   # Ports + offene Tabs
+din-dev                 # [0] alte Instanzen weg  [1] Server  [2] Debug-Browser (CDP 9222)
+din-dev stop            # nur stoppen
+din-dev status          # Ports + offene Tabs
+din-dev mess [id ...]   # Messwerte, eine Zeile JSON in mm
+din-dev mess --print    # dasselbe in Druck-Emulation
+din-dev help            # alles im Kopf, inkl. MCP-Aufruf
 ```
 
 Warum: ein alter Server auf Port 8088 liefert sonst einen veralteten Stand
@@ -79,11 +82,14 @@ Ein Screenshot kostet Bild-Token und liefert **keine Zahl**. Für Geometrie,
 Verschiebungen und Überlauf reicht ein Aufruf, der Millimeter zurückgibt:
 
 ```
-evaluate_script({ sourcePath: ".../tools/mess.js", format: "function", pageId: 1 })
-  → {"b":[297,null],"f":{"betreff":[86.2,5.9,1],"anrede":[100.5,5.2,1], ...}}
+din-dev mess betreff anrede
+  → {"b":[297,null],"f":{"betreff":[86.2,5.9,1],"anrede":[100.5,5.2,1]}}
      b = [Blatthöhe_mm, data-ueberlauf], f = { id: [y_mm, h_mm, sichtbar] }
 
-node tools/mess-print.mjs        # dasselbe in Druck-Emulation (headless, 3 s)
+din-dev mess --print            # Druck-Emulation (eigener headless-Browser)
+
+Im Chat alternativ über den MCP:
+evaluate_script({ sourcePath: ".../tools/mess.js", format: "function", pageId: 1 })
 ```
 
 Andere Felder: vorher `window.__messIds = ['id1','id2']` setzen. Bild nur, wenn

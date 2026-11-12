@@ -35,6 +35,33 @@ export DISPLAY="${DISPLAY:-:0}"
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
 
 pids() { ps -eo pid,args | grep -F -- "$1" | grep -v grep | awk '{print $1}'; }
+# Altes Profil aus der ersten Fassung dieses Skripts: muss ebenfalls weg,
+# sonst haelt es Port 9222 und der neue Browser kann nicht binden (gemessen
+# 2026-11-12: Port antwortete, obwohl der neue Browser gar nicht lief).
+PROFIL_ALT="$HOME/.local/share/din-briefneo/debug-profil"
+
+# Port freimachen, wenn ihn ein Helium haelt, das nicht zu unserem Profil gehoert.
+# Das Arbeitsprofil (Debug auf 9223) wird nie angefasst.
+freie_port() {
+  local port="$1" pid
+  port_offen "$port" || return 0
+  pid=$(ss -ltnp 2>/dev/null | grep -E "[:.]$port[[:space:]]" | grep -o 'pid=[0-9]*' | head -1 | cut -d= -f2)
+  if [ -z "${pid:-}" ]; then
+    echo "  WARNUNG: Port $port belegt, Halter nicht feststellbar"
+    return 1
+  fi
+  if tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q helium; then
+    echo "  Port $port war von Helium belegt (PID $pid) — beendet"
+    kill "$pid" 2>/dev/null
+    sleep 0.4
+    port_offen "$port" && kill -9 "$pid" 2>/dev/null
+    warte_port "$port" auf >/dev/null 2>&1
+    return 0
+  fi
+  echo "  WARNUNG: Port $port gehoert PID $pid (kein Helium) — nicht angefasst"
+  return 1
+}
+
 # Nur der Hauptprozess des Browsers: Kinder tragen --type=..., der Vater nicht.
 # Einzelne Kinder zu killen laesst den Vater sie neu starten (gemessen 2026-11-12).
 browser_haupt() {
@@ -64,6 +91,11 @@ stoppe() {
     for p in $(pids "user-data-dir=$PROFIL"); do kill -9 "$p" 2>/dev/null; done
     warte_port "$CDP" auf >/dev/null 2>&1
   fi
+  # Altprofil der ersten Fassung (nur falls noch am Leben)
+  for p in $(pids "--user-data-dir=$PROFIL_ALT"); do
+    kill "$p" 2>/dev/null && echo "  alter Debug-Browser beendet (PID $p)"
+  done
+  freie_port "$CDP" || true
   for p in $(pids "tools/serve.mjs"); do
     kill "$p" 2>/dev/null && echo "  Dev-Server beendet (PID $p)"
   done
@@ -82,11 +114,49 @@ status() {
   fi
 }
 
+hilfe() {
+  cat <<'HILFE'
+din-dev — Dev-Server + Debug-Browser für DIN-BriefNEO
+
+  din-dev                 alles neu: alte Instanzen weg → Server → Debug-Browser
+  din-dev stop            nur stoppen (Server + Debug-Browser dieses Werkzeugs)
+  din-dev status          Ports + offene Tabs
+  din-dev mess [id ...]   Messwerte des laufenden Tabs, eine Zeile JSON in mm
+                          Beispiel: din-dev mess betreff unterschrift
+  din-dev mess --print    dasselbe in Druck-Emulation (eigener headless-Browser)
+  din-dev help            diese Hilfe
+
+Mess-Ergebnis:
+  {"b":[297,null],"f":{"betreff":[86.2,5.9,1], ...}}
+  b = [Blatthöhe_mm, data-ueberlauf] · f = { id: [y_mm, höhe_mm, sichtbar] }
+
+Statt Bild (Token sparen): mess misst Geometrie numerisch. Ein Screenshot nur
+bei echter Optik-Frage — dann elementscharf, nie fullPage.
+
+Im Agenten-Chat (chrome-devtools-MCP, hängt an Port 9222):
+  evaluate_script({ sourcePath: "/home/moritz/repos/DIN-BriefNEO/tools/mess.js",
+                    format: "function", pageId: 1 })
+
+Eigenes Profil: ~/.config/net.imput.helium-llm · Arbeitsprofil (9223) bleibt unberührt.
+HILFE
+}
+
 case "${1:-}" in
-  --stop)   echo "Stoppe (nur dieses Werkzeug):"; stoppe; status; exit 0 ;;
-  --status) status; exit 0 ;;
-  ""|--start) ;;
-  *) echo "Unbekannt: $1 (erlaubt: --stop, --status)"; exit 2 ;;
+  --stop|stop)   echo "Stoppe (nur dieses Werkzeug):"; stoppe; status; exit 0 ;;
+  --status|status) status; exit 0 ;;
+  --help|-h|help) hilfe; exit 0 ;;
+  --mess|mess)
+    shift
+    if [ "${1:-}" = "--print" ]; then
+      shift
+      cd "$REPO" && node tools/mess-print.mjs "$@"
+    else
+      cd "$REPO" && node tools/mess.mjs "$@"
+    fi
+    exit $?
+    ;;
+  ""|--start|start) ;;
+  *) echo "Unbekannt: $1"; echo; hilfe; exit 2 ;;
 esac
 
 echo "[0/2] Alte Instanzen"
@@ -102,6 +172,7 @@ fi
 echo "  PID $SERVER_PID auf http://127.0.0.1:$PORT (no-cache)"
 
 echo "[2/2] Debug-Browser"
+freie_port "$CDP" || true
 HAUPT=$(browser_haupt)
 if [ -n "$HAUPT" ]; then
   echo "  alter Browser haengt noch — hart beendet (PID $HAUPT)"

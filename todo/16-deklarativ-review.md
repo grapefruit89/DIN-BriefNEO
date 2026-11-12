@@ -1,6 +1,6 @@
 # 16 · Deklarativ-Review (JS statt CSS/HTML) — validiert
 
-Status: offen · Typ: audit · Erstellt: 2026-11-06
+Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06
 Quelle: vierte externe Ideenliste. Jeder Punkt gegen den Code geprueft.
 
 ## Validierung

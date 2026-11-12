@@ -1,6 +1,6 @@
 # 21 · Tooling-Review (Lint/Format/Dead-Code) — validiert
 
-Status: offen · Typ: audit · Erstellt: 2026-11-06
+Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06
 Quelle: achter Vorschlag (Biome, Knip, Oxlint, dprint, jsconfig). Geprueft.
 
 ## Validierung

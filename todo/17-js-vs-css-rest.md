@@ -1,6 +1,6 @@
 # 17 · JS-macht-CSS: Restbestand (validiert)
 
-Status: offen · Typ: audit · Erstellt: 2026-11-06
+Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06
 Quelle: Nachmessung nach 16. Gesucht: JS, das native CSS/HTML-Aufgaben nachbaut.
 
 ## Korrektur zur Vorrunde

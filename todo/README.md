@@ -3,15 +3,18 @@
 > **Zentrale Sammelstelle für alle offenen Aufgaben, Pläne und Roadmap-Themen.**  
 > Alle Detailpläne liegen direkt hier in diesem Ordner (`/home/moritz/repos/DIN-BriefNEO/todo/`).
 
+> **Hinweis (2026-11-12):** Die Dateien `13`–`21` sind **Audit-Protokolle** (Verdikte),
+> keine offenen Arbeitslisten. Ob ein Punkt erledigt ist, steht **hier** in der Tabelle.
+
 ---
 
 ## 🎯 Schnelle Übersicht & Prioritäten
 
 | # | Vorhaben | Aufwand | ROI | Detailplan / Referenz | Status |
 |---|---|---|---|---|---|
-| **01** | **Mehrseitenunterstützung nach DIN 5008** | L–XL | ⭐⭐⭐⭐⭐ | [`01-mehrseiten-plan.md`](01-mehrseiten-plan.md) | In Vorbereitung (Strategie A) |
+| **01** | **Mehrseitenunterstützung nach DIN 5008** | L–XL | ⭐⭐⭐⭐⭐ | [`01-mehrseiten-plan.md`](01-mehrseiten-plan.md) | ✅ Läuft (`mountMultipage` in `main.js`, Mehrspalten-Layout); Plan-Datei bleibt als Historie |
 | **02** | **PWA & Offline-App (Chrome 150+)** | M | ⭐⭐⭐⭐⭐ | [`rejected/02-pwa-plan.md`](rejected/02-pwa-plan.md) | 🚫 Verworfen (Law A37 HARD BAN: Service Worker verboten) |
-| **03** | **Mobile Ansicht & Touch-UX** | M | ⭐⭐⭐⭐ | [`03-mobile-ansicht-plan.md`](03-mobile-ansicht-plan.md) | Dialog-Bottom-Sheet Konzept |
+| **03** | **Mobile Ansicht & Touch-UX** | M | ⭐⭐⭐⭐ | [`03-mobile-ansicht-plan.md`](03-mobile-ansicht-plan.md) | Teilweise: je eine `@media`-Regel in `sidebar.css`/`sheet-common.css`; Bottom-Sheet offen |
 | **04** | **Telefonnummer-Formatierung DIN 5008** | M | ⭐⭐ | [`done/04-telefonnummer-formatierung-plan.md`](done/04-telefonnummer-formatierung-plan.md) | ✅ Umgesetzt (verifiziert 2026-11-07: `formatTelefonnummer` + blur; Durchwahl/Mobil im Code entschieden) |
 | **05** | **Brief-Verlauf & Historie (`din_history`)** | S–M | ⭐⭐⭐⭐ | [`05-brief-history-verlauf-plan.md`](05-brief-history-verlauf-plan.md) | Ausgearbeitet (10er Ringspeicher) |
 | **06** | **Subpixel-Falzmarken (SVG vs. CSS)** | S | ⭐⭐⭐ | [`rejected/06-subpixel-falzmarken-plan.md`](rejected/06-subpixel-falzmarken-plan.md) | 🚫 Verworfen zugunsten schlankerer CSS-Box-Lösung mit `visibility: hidden;` |

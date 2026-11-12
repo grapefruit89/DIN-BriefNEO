@@ -1,6 +1,6 @@
 # 14 · Format- und Grundbausteine-Review (validiert)
 
-Status: offen · Typ: audit · Erstellt: 2026-11-06
+Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06
 Quelle: zweite externe Ideenliste (6 Punkte, dort TODO-11 bis TODO-16).
 Jeder Punkt wurde gegen den Code geprüft.
 

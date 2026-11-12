@@ -17,6 +17,11 @@
  */
 
 () => {
+  /* Alle Werte RELATIV ZUM BLATT (Blattkante = 0). Viewport-Y haengt von
+     Scrollposition und Fensterhoehe ab - damit war "Betreff 73,7mm" nur eine
+     zufaellige Scrolllage (gemessen 2026-11-12). */
+  const blatt = document.querySelector('din-blatt');
+  const blattRect = blatt?.getBoundingClientRect() ?? { top: 0, left: 0, height: 0 };
   const px2mm = 25.4 / 96;
   /** @param {number} v */
   const mm = (v) => Number((v * px2mm).toFixed(1));
@@ -46,14 +51,11 @@
     }
     const b = el.getBoundingClientRect();
     const s = getComputedStyle(el);
-    felder[id] = [mm(b.y), mm(b.height), s.display === 'none' || b.height === 0 ? 0 : 1];
+    felder[id] = [mm(b.y - blattRect.top), mm(b.height), s.display === 'none' || b.height === 0 ? 0 : 1];
   }
 
-  const blatt = document.querySelector('din-blatt');
-  const bb = blatt?.getBoundingClientRect();
-
   return JSON.stringify({
-    b: bb ? [mm(bb.height), blatt?.getAttribute('data-ueberlauf') ?? null] : null,
+    b: blatt ? [mm(blattRect.height), blatt.getAttribute('data-ueberlauf') ?? null] : null,
     f: felder,
   });
 }

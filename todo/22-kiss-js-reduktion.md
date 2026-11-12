@@ -43,6 +43,36 @@ Heute: `maxSuggestions()` liest `window.innerWidth` und liefert 8 oder 12
 - **A)** so lassen (0 Zeilen, funktioniert, kein Resize-Handler)
 - **B)** fester Wert (15) + `max-height`/`overflow-y` im Popover, CSS kürzt (~6 Zeilen weniger, etwas mehr DOM-Knoten)
 
+**K4 — Export-Format: Objekt statt Tuple (Schema v6)?** *(offen, entschieden: A jetzt, C wenn das Format angefasst wird; B verworfen)*
+
+Heute: `_meta.schema` trägt die Spaltennamen, `fields` die Werte in
+kanonischer Reihenfolge. Die Reihenfolge-Prüfung (`persistence.js:546`,
+Regel P4 / 2026-11-10) existiert nur, weil die Position Bedeutung trägt.
+
+**C** heißt konkret:
+
+```json
+{ "format": "dinletter", "schema_version": 6, "app": "...", "created": "...",
+  "fields": { "betreff": "...", "anrede": "...", "empfaenger-ort": "..." },
+  "layout": { "form": "form-b", "copyfit": false, "marks": true },
+  "signature": { "transform": { "x": 0, "y": 0, "scale": 1, "rot": 0 } } }
+```
+
+| | Wirkung |
+|---|---|
+| Feldbedeutung | am **Namen**, nicht an der Position → Falschzuordnung strukturell unmöglich |
+| P4-Reihenfolge-Prüfung | entfällt (−15 Zeilen) |
+| Feld hinzufügen | additiv: unbekannte Felder ignorieren (Warnung), fehlende auf Default |
+| Dateigröße | +525 Zeichen (33 Feldnamen von 360 Zeichen) — bei ~5 KB Brief ≈ 10 % |
+| Alte Dateien | v5 wird abgewiesen — Projektregel „keine Abwärtskompatibilität", keine Migration |
+
+**B** (Tuple behalten, Import ordnet über die Namen zu) löst beides halb und
+wird nicht verfolgt.
+
+Auslöser für C: sobald das Export-Format ohnehin angefasst wird. **Dann gehört
+der Beschluss in den `DECISION-LOG`** (append-only), nicht nur hierher — sonst
+steht die Regel implizit im Code.
+
 **K2 — `persistence.js` aufteilen?** *(entschieden: A — bleibt eine Datei)*
 
 Was „teilen" konkret hieße: `storage.js` (load/save/loadJSON/saveJSON/remove),

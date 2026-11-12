@@ -124,7 +124,7 @@ Die Sidebar beherbergt ausschließlich globale Einstellungen und Werkzeuge:
   * `#btn-style-polite` (Höflich: "Guten Tag... / Freundliche Grüße").
   * `#btn-style-casual` (Locker: "Hallo... / Beste Grüße").
 * **Postvermerk & Zusatzfunktionen (`.sidebar-zusatz-row`):**
-  * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#vermerke` (`din-vermerke`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
+  * `#sidebar-postvermerk-select`: Vollwertiges Dropdown mit `appearance: base-select` und normgerechten Postvermerken (Einschreiben, Persönlich/Vertraulich, Warensendung, etc.). **Einziger Schreiber** — das Papierfeld `#vermerke` (`<input id="vermerke">`) ist reine Anzeige (kein `contenteditable`, kein Hidden-Checkbox-Zwitter); Sichtbarkeit per `:root:has(#sidebar-postvermerk-select option:checked:not([value=""]))`.
   * `#toggle-anlagen`: Natives `switch`-Checkbox (`sidebar-switch-row`), Sichtbarkeit per `:root:has(#toggle-anlagen:checked)`.
 * **Schriftarten-Manager:**
   * `#btn-font-action`: Upload- und Reset-Button für benutzerdefinierte Schriften.

@@ -412,7 +412,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 /* DIN 5008 Maße Overlay an den Marken */
 
 /* Optionale DIN-Blöcke */
-din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
+#vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
   display: none;
 }
 

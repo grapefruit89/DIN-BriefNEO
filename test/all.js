@@ -1129,7 +1129,9 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
   it('nutzt einen gemeinsamen Selektor für Ruhe, Hover und Fokus', async () => {
     const res = await fetch('/website/css/sheet-common.css');
     const css = await res.text();
-    const gemeinsam = ':is([contenteditable], textarea[data-feldtyp])';
+    /* Vertrag 2026-11-12: auch die neuen <input>-Felder (Betreff, Anrede,
+       Gruss, Unterschrift, Adressfelder) bekommen denselben Fokusrahmen. */
+    const gemeinsam = ':is([contenteditable], textarea[data-feldtyp], input[data-atom])';
     assert(css.includes(gemeinsam), 'Grundzustand teilt den Selektor');
     assert(css.includes(`${gemeinsam}:hover:not(:focus)`), 'Hover-Regel teilt den Selektor');
     assert(css.includes(`${gemeinsam}:focus`), 'Fokus-Regel teilt den Selektor');
@@ -1148,8 +1150,49 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
   });
 });
 
+describe('Textfelder sind native <input> (Migration 2026-11-12)', () => {
+  /* Betreff, Vermerk, Anrede, Grussformel und Unterschrift waren die letzten
+     contenteditable-Einzeiler. Sie sind jetzt <input> - verlorene
+     Zweizeiligkeit beim Betreff ist bewusst akzeptiert (Entscheid 2026-11-12). */
+  const MAXIMUM = { vermerke: 80, betreff: 140, anrede: 70, grussformel: 45, unterschrift: 45 };
+
+  const ladeDoc = async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    return new DOMParser().parseFromString(html, 'text/html');
+  };
+
+  it('alle fuenf sind <input type="text"> mit data-atom, Platzhalter und maxlength', async () => {
+    const doc = await ladeDoc();
+    for (const [id, max] of Object.entries(MAXIMUM)) {
+      const el = /** @type {HTMLInputElement | null} */ (doc.getElementById(id));
+      assert(el instanceof HTMLInputElement, `#${id} ist ein <input>`);
+      if (!el) continue;
+      assertEqual(el.getAttribute('type'), 'text', `#${id} type=text`);
+      assert(el.hasAttribute('data-atom'), `#${id} hat data-atom (Speicher-Selektor)`);
+      assert(el.getAttribute('placeholder'), `#${id} hat einen Platzhalter`);
+      assertEqual(el.getAttribute('maxlength'), String(max), `#${id} maxlength ${max}`);
+      assert(!el.hasAttribute('contenteditable'), `#${id} ist nicht mehr contenteditable`);
+      assert(el.matches(EDITABLE_FIELD_SELECTOR), `#${id} wird von collectDraft erfasst`);
+    }
+  });
+
+  it('alle migrierten Felder sind frei von contenteditable', async () => {
+    /* Die 12 Fusszeilen-Felder sind noch offen (P38-Ratsche zaehlt sie). */
+    const doc = await ladeDoc();
+    const migriert = [
+      ...Object.keys(MAXIMUM),
+      'empfaenger-firma', 'empfaenger-name', 'empfaenger-strasse', 'empfaenger-ort',
+      'absender-name', 'absender-strasse', 'absender-ort', 'absender-tel', 'absender-mail', 'datum',
+    ];
+    const offen = migriert.filter((id) => doc.getElementById(id)?.hasAttribute('contenteditable'));
+    assertEqual(offen.length, 0, `noch contenteditable: ${offen.join(', ')}`);
+  });
+});
+
 describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
-  const ERLAUBT = ['text', 'betreff', 'vermerke'];
+  /* Seit 2026-11-12 sind Betreff, Vermerk, Anrede, Grussformel und Unterschrift
+     native <input>; nur der Rich-Text bleibt contenteditable. */
+  const ERLAUBT = ['text'];
 
   /* Dieselbe Semantik wie tools/reconciliation.js: Pattern trifft, Ausnahmen
      (Datei + Zeilenmuster) heben auf. Geprueft wird die echte index.html. */
@@ -1176,15 +1219,15 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     assert(treffer.some((z) => z.includes('id="fuss-firma"')), '#fuss-firma wird gemeldet');
   });
 
-  it('laesst die vier erlaubten Felder in Ruhe', async () => {
+  it('laesst den Rich-Text in Ruhe', async () => {
     const { treffer } = await pruefeHtml();
     for (const id of ERLAUBT) {
       assert(!treffer.some((z) => z.includes(`id="${id}"`)), `#${id} wird nicht gemeldet`);
     }
-    /* Vertrag 2026-11-12: 5 Empfaengerfelder + 5 Absenderfelder + Datum sind
-       native <input>; 15 offene contenteditable bleiben (Anrede, Gruss,
-       Unterschrift, Fusszeile, Vermerke/Betreff/Text ausgenommen). */
-    assertEqual(treffer.length, 15, 'genau 15 offene Felder (11 sind <input>)');
+    /* Vertrag 2026-11-12 (Migration): Empfaenger, Absender, Datum, Betreff,
+       Vermerk, Anrede, Grussformel und Unterschrift sind native <input>.
+       Offen bleiben nur die 12 Fusszeilen-Felder; #text ist ausgenommen. */
+    assertEqual(treffer.length, 12, 'genau 12 offene Felder (alle Fusszeilen)');
   });
 });
 

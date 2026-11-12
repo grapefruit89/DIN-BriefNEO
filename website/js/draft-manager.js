@@ -534,7 +534,7 @@ export class DraftManager {
 
   #updateDocumentTitle() {
     if (isPrintTitleActive()) return;
-    const betreff = (document.getElementById('betreff')?.textContent || '').replace(/[\x00-\x1f\r\n]/g, ' ').replace(/\s+/g, ' ').trim() || 'Unbenannt';
+    const betreff = Field.getValue(document.getElementById('betreff')).replace(/[\x00-\x1f\r\n]/g, ' ').replace(/\s+/g, ' ').trim() || 'Unbenannt';
     document.title = betreff;
   }
 }

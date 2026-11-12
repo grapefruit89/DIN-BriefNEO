@@ -55,10 +55,6 @@ din-rucksendeangabe,
 din-empfaenger-firma,
 din-empfaenger-strasse,
 din-empfaenger-ort,
-din-betreff,
-din-anrede,
-din-grussformel,
-din-unterschrift,
 din-falzmarke-1,
 din-falzmarke-2,
 din-lochmarke {
@@ -104,7 +100,12 @@ din-lochmarke {
   #absender-ort::placeholder,
   #absender-tel::placeholder,
   #absender-mail::placeholder,
-  #datum::placeholder {
+  #datum::placeholder,
+  #betreff::placeholder,
+  #anrede::placeholder,
+  #grussformel::placeholder,
+  #unterschrift::placeholder,
+  #vermerke::placeholder {
     color: transparent;
   }
 }
@@ -150,18 +151,18 @@ din-geschaeftsangaben > .single-line {
   line-height: 1.2;
 }
 
-din-vermerke[data-visible="true"] {
+#vermerke[data-visible="true"] {
   display: block;
   opacity: 1;
   color: var(--blatt-text);
 }
 
-din-vermerke {
+#vermerke {
   font-size: --pt(attr(data-font type(<number>)));
   font-weight: 500;
   line-height: 1.4;
   margin-bottom: 0.5cqh;
-  white-space: pre-wrap;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
@@ -267,6 +268,47 @@ din-anlagen-angabe {
   min-height: 1.4em;
   max-height: 1.4em;
   line-height: 1.4;
+}
+
+/* Betreff, Anrede, Grussformel, Unterschrift: native <input> (2026-11-12).
+   Browser-Optik zuruecksetzen; Hoehe 1.4em entspricht der bisherigen
+   .single-line-Regel, damit das mm-Raster unveraendert bleibt. */
+#betreff,
+#anrede,
+#grussformel,
+#unterschrift {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  letter-spacing: inherit;
+  appearance: none;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+  line-height: 1.4;
+}
+
+/* Postvermerk: sichtbar erst mit data-visible (main.js/draft-manager setzen es,
+   sobald ein Vermerk im Feld steht). Die Rasterhoehe 4,23mm kommt aus
+   sheet-multipage.css (#rucksendeangabe, #vermerke). */
+#vermerke {
+  display: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  letter-spacing: inherit;
+  appearance: none;
 }
 
 /* Entscheidung 2026-11-12: nur das Datum steht rechtsbuendig (an der
@@ -399,7 +441,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   /* Ein gemeinsamer Selektor für alle Blattfelder: contenteditable-Felder UND
      native Felder (textarea[data-feldtyp], z. B. anlagen-angabe). Sonst hätte ein
      natives Feld einen anderen Ruhe-/Hover-/Fokuszustand als seine Nachbarn. */
-  :is([contenteditable], textarea[data-feldtyp]) {
+  :is([contenteditable], textarea[data-feldtyp], input[data-atom]) {
       /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
       outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
       outline-offset: -1px;
@@ -408,23 +450,39 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
     }
 
-  :is([contenteditable], textarea[data-feldtyp]):not(:hover):not(:focus) {
+  :is([contenteditable], textarea[data-feldtyp], input[data-atom]):not(:hover):not(:focus) {
       outline: none;
     }
 
-  :is([contenteditable], textarea[data-feldtyp]):hover:not(:focus) {
+  :is([contenteditable], textarea[data-feldtyp], input[data-atom]):hover:not(:focus) {
       /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
       outline: 1.5px solid var(--accent-color);
       outline-offset: -1.5px;
       background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
     }
 
-  :is([contenteditable], textarea[data-feldtyp]):focus {
+  :is([contenteditable], textarea[data-feldtyp], input[data-atom]):focus {
       /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
       outline: 2px solid var(--accent-color);
       outline-offset: -2px;
       background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
     }
+
+  /* Native Platzhalter (Betreff/Anrede/Gruss/Unterschrift/Vermerk) sehen aus
+     wie die bisherigen contenteditable-Platzhalter. Nur auf dem Schirm: im
+     Druck sind sie transparent (Regel im @media print-Block oben, gleiche
+     Spezifitaet - ohne diese Klammer gewaenne die spaetere Regel). */
+  @media screen {
+    #betreff::placeholder,
+    #anrede::placeholder,
+    #grussformel::placeholder,
+    #unterschrift::placeholder,
+    #vermerke::placeholder {
+      color: var(--blatt-schwach);
+      font-style: italic;
+      opacity: 1;
+    }
+  }
 
   [data-placeholder]:empty::before,
     [contenteditable][data-placeholder]:empty::before {
@@ -445,7 +503,8 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       content: none;
     }
 
-  :root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder {
+  :root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,
+    :root:not([data-ready="true"]) & input[data-atom]::placeholder {
       color: transparent;
     }
 

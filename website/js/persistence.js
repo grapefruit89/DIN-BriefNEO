@@ -185,11 +185,14 @@ export function requestPersistentStorage() {
  */
 export function collectLetterIdentity() {
   const dateStr = currentISODate();
-  const lastName = (document.getElementById('rucksendeangabe')?.textContent || '').split(/[•,]/)[0].replace(/\s/g, '') || 'Absender';
-  const empfName = (document.getElementById('empfaenger-name')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
-  const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
+  /* Field.getValue statt textContent: alle vier Felder sind native <input>
+     (2026-11-12). textContent ist dort immer leer - der Dateiname hiess
+     dadurch immer "Absender an Empfaenger". */
+  const lastName = Field.getValue(document.getElementById('rucksendeangabe')).split(/[•,]/)[0].replace(/\s/g, '') || 'Absender';
+  const empfName = Field.getValue(document.getElementById('empfaenger-name')).replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
+  const empfFirma = Field.getValue(document.getElementById('empfaenger-firma')).replace(/[^\p{L}\p{N}]/gv, '').substring(0, 30);
   const recipientName = empfName || empfFirma || 'Empfaenger';
-  const rawSubject = (document.getElementById('betreff')?.textContent || 'Brief').replace(/[\x00-\x1f\r\n<>:"/\\|?*]/g, ' ').replace(/\s+/g, ' ').trim();
+  const rawSubject = (Field.getValue(document.getElementById('betreff')) || 'Brief').replace(/[\x00-\x1f\r\n<>:"/\\|?*]/g, ' ').replace(/\s+/g, ' ').trim();
   const subjectClean = (rawSubject || 'Brief').substring(0, 50);
   return {
     dateStr,

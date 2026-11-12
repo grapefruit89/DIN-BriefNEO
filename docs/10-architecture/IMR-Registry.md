@@ -4,7 +4,7 @@ title: 'IMR 4.0 — DIN 5008 Tag-Registry (normatives Master-Modell)'
 type: reference
 status: active
 created: '2026-07-03'
-updated: '2026-11-06'
+updated: '2026-11-12'
 tags:
   - din-briefneo
   - din-briefneo/architecture
@@ -285,7 +285,7 @@ Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erst
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
 | `rucksendeangabe` | `<din-rucksendeangabe>` | 19.4.3 | atom | ja, `#rucksendeangabe` | einzeilig, 7 pt (Nutzerentscheidung, DIN-Ausnahmebereich 6–8 pt), oberste belegte Zeile des Blocks |
-| `vermerke` | `<din-vermerke>` | 19.4.3 | atom | ja, `#vermerke` | Zusatz- und Vermerkzone |
+| `vermerke` | `<input id="vermerke">` | 19.4.3 | atom | ja, `#vermerke` | Zusatz- und Vermerkzone |
 | `empfaenger-firma` | `<din-empfaenger-firma>` | 20.7.2 | atom | ja, `#empfaenger-firma` | Empfängerbezeichnung |
 | `empfaenger-abteilung` | `<din-empfaenger-abteilung>` | 20.7.4 *(interpretiert)* | atom | nein | DIN 19.5 nennt „Abteilung" als Leitwort des Infoblocks |
 | `empfaenger-name` | `<din-empfaenger-name>` | 20.7.4 *(interpretiert)* | atom | ja, `#empfaenger-name` | DIN spricht von „Empfängerbezeichnungen" (mehrzeilig) |
@@ -363,12 +363,12 @@ Normative Kollisionsvermeidung (ehemals ADR-BETREFF): Falzmarken dürfen nicht i
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
-| `betreff` | `<din-betreff>` | 20.9 | atom | ja, `#betreff` | höchstens zwei Zeilen (Empfehlung) |
-| `anrede` | `<din-anrede>` | 20.9.4 | atom | ja, `#anrede` |  |
+| `betreff` | `<input id="betreff">` | 20.9 | atom | ja, `#betreff` | höchstens zwei Zeilen (Empfehlung) |
+| `anrede` | `<input id="anrede">` | 20.9.4 | atom | ja, `#anrede` |  |
 | `text` | `<din-text>` | 20.10 | atom | ja, `#text` | mehrzeilig |
-| `grussformel` | `<din-grussformel>` | 20.11 | atom | ja, `#grussformel` | DIN: „Gruß" |
+| `grussformel` | `<input id="grussformel">` | 20.11 | atom | ja, `#grussformel` | DIN: „Gruß" |
 | `unternehmensbezeichnung` | `<din-unternehmensbezeichnung>` | 20.12 | atom | ja, `#unternehmensbezeichnung` |  |
-| `unterschrift` | `<din-unterschrift>` | 20.13 | atom | ja, `#unterschrift` | DIN: „Angabe der Unterzeichnenden" |
+| `unterschrift` | `<input id="unterschrift">` | 20.13 | atom | ja, `#unterschrift` | DIN: „Angabe der Unterzeichnenden" |
 | `zusaetze` | `<din-zusaetze>` | 20.14 | atom | ja, `#zusaetze` |  |
 | `anlagenvermerk` | `<din-anlagenvermerk>` | 20.15.2 | container | ja, `#anlagenvermerk` | Container; Kinder: `label.anlagen-heading`, `din-anlagen-angabe` (Wrapper) |
 | `anlagen-angabe` | `<din-anlagen-angabe>` | 20.15.2 | container | nein | Wrapper um `<textarea id="anlagen-angabe">`; kein contenteditable ([[ADR-ANLAGEN-TEXTAREA]]) |
@@ -552,7 +552,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.3",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-empfaenger-firma": {
       "id": "empfaenger-firma",
@@ -693,7 +694,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.9",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-anrede": {
       "id": "anrede",
@@ -701,7 +703,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.9.4",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-text": {
       "id": "text",
@@ -717,7 +720,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.11",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-unternehmensbezeichnung": {
       "id": "unternehmensbezeichnung",
@@ -733,7 +737,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.13",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-zusaetze": {
       "id": "zusaetze",

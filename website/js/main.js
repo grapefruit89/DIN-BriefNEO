@@ -7,6 +7,7 @@ import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
+import { Field } from './field.js';
 import { FontFeature } from './font-feature.js';
 import { applyLetterDate, formatTelefonnummer } from './format.js';
 /* js/main.js */
@@ -130,7 +131,7 @@ function initApp() {
     AddressIntelligence.targetLock = null;
   }, { critical: true });
   bootStep('Postvermerk', () => {
-    syncPostvermerkFromSidebar(document.getElementById('vermerke')?.textContent || '');
+    syncPostvermerkFromSidebar(Field.getValue(document.getElementById('vermerke')));
   });
   bootStep('Briefdatum', () => applyLetterDate());
 
@@ -321,11 +322,14 @@ function setupPhoneFormatting() {
   const tel = document.getElementById('absender-tel');
   if (!tel) return;
   tel.addEventListener('blur', () => {
-    const current = (tel.textContent || '').trim();
+    /* Field statt textContent: `#absender-tel` ist seit 2026-11-12 ein
+       <input>. textContent ist dort immer leer - die Formatierung lief
+       dadurch nie (gemeldet 2026-11-12 im Umfeld des Empfaenger-Feldes). */
+    const current = Field.getValue(tel).trim();
     if (!current) return;
     const formatted = formatTelefonnummer(current);
     if (formatted && formatted !== current) {
-      tel.textContent = formatted;
+      Field.setValue(tel, formatted);
       tel.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });

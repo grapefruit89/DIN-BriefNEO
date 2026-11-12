@@ -636,11 +636,11 @@
         "website/index.html"
       ],
       "max_violations": 0,
-      "replacement": "input[data-feldtyp]; nur #text, #betreff und #vermerke bleiben contenteditable",
+      "replacement": "input[data-atom]; nur #text (Rich-Text) bleibt contenteditable",
       "exemptions": [
         {
           "file": "website/index.html",
-          "pattern": "id=\"(?:text|betreff|vermerke)\"[\\s>]"
+          "pattern": "id=\"text\"[\\s>]"
         },
         {
           "file": "website/index.html",

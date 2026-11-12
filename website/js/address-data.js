@@ -216,6 +216,31 @@ function findeStadt(name) {
 }
 
 /**
+ * Schreibt in ein Feld, egal ob natives <input>/<textarea> oder contenteditable.
+ * `address-data.js` bleibt ohne DOM-Abfragen - die Unterscheidung ist Duck-Typing
+ * auf `value`. Seit der Umstellung der Empfaengerfelder auf <input> (2026-11-12)
+ * lief `textContent` ins Leere: ein Klick auf einen Vorschlag aenderte das Feld
+ * nicht (gemeldet 2026-11-12: "neustad" -> PLZ-Liste -> Klick ohne Wirkung).
+ * @param {any} el
+ * @param {string} text
+ */
+function schreibeFeld(el, text) {
+  if (!el) return;
+  if ('value' in el) el.value = text;
+  else el.textContent = text;
+}
+
+/**
+ * Liest den sichtbaren Wert eines Feldes (<input> oder contenteditable).
+ * @param {any} el
+ * @returns {string}
+ */
+function feldWert(el) {
+  if (!el) return '';
+  return String(('value' in el ? el.value : el.textContent) ?? '').trim();
+}
+
+/**
  * Erzeugt den Ort-Index (Stadtname -> Liste von PLZs) (Case B).
  * @param {Map<string, string>} plzToCityMap
  * @returns {Map<string, string[]>}
@@ -906,24 +931,20 @@ export class AddressIntelligence {
     if (!item) return {};
 
     if (item.typ === 'Stadt') {
-      if (item.plz) {
-        ortEl.textContent = `${item.plz} ${item.city}`;
-      } else {
-        ortEl.textContent = item.city;
-      }
+      schreibeFeld(ortEl, item.plz ? `${item.plz} ${item.city}` : item.city);
       ortEl.setAttribute?.('data-autofilled', 'true');
       return {};
     }
 
     if (item.plz && item.city) {
-      ortEl.textContent = `${item.plz} ${item.city}`;
+      schreibeFeld(ortEl, `${item.plz} ${item.city}`);
       ortEl.setAttribute?.('data-autofilled', 'true');
     }
     if (firmaEl) {
-      firmaEl.textContent = item.name;
+      schreibeFeld(firmaEl, item.name);
       firmaEl.setAttribute?.('data-autofilled', 'true');
     }
-    if (strasseEl && !(strasseEl.textContent || '').trim()) {
+    if (strasseEl && !feldWert(strasseEl)) {
       strasseEl.setAttribute?.('data-placeholder', '(Großempfänger – Straße entfällt)');
     }
     return {};

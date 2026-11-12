@@ -317,7 +317,7 @@
               data-x="25" data-w="85" data-h="45" data-font="10">
               <div id="zusatzzone" role="group" aria-label="Zusatz- und Vermerkzone">
                 <input type="text" id="rucksendeangabe" data-font="7" data-atom placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="120">
-                <din-vermerke id="vermerke" data-font="8" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-vermerke>
+                <input type="text" id="vermerke" data-atom data-font="8" placeholder="Postvermerk" aria-label="Postvermerk" autocomplete="off" spellcheck="false" autocapitalize="words" maxlength="80">
               </div>
               <div id="anschriftzone" role="group" aria-label="Anschriftzone">
                 <input type="text" id="empfaenger-firma" data-atom placeholder="Firma / Institution (optional)" aria-label="Firma" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="50">
@@ -337,14 +337,14 @@
             </din-infoblock>
             <din-kern id="kern" data-left="25" data-right="20" role="region" aria-label="Briefkern">
               <div id="spacer" contenteditable="false" aria-hidden="true"></div>
-              <din-betreff id="betreff" data-font="12" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
-              <din-anrede id="anrede" data-font="10.5" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <input type="text" id="betreff" data-atom data-font="12" class="single-line" placeholder="Betreffzeile hier eingeben" aria-label="Betreff" autocomplete="off" spellcheck="true" autocapitalize="sentences" maxlength="140">
+              <input type="text" id="anrede" data-atom data-font="10.5" class="single-line" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede" autocomplete="off" spellcheck="false" autocapitalize="sentences" maxlength="70">
               <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes…" aria-label="Text"></din-text>
-              <din-grussformel id="grussformel" data-font="10.5" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+              <input type="text" id="grussformel" data-atom data-font="10.5" class="single-line" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel" autocomplete="off" spellcheck="false" autocapitalize="sentences" maxlength="45">
               <din-unternehmensbezeichnung id="unternehmensbezeichnung" class="is-dormant"></din-unternehmensbezeichnung>
               <div class="unterschrift-zeile">
                 <din-zusaetze id="zusaetze" class="is-dormant"></din-zusaetze>
-                <din-unterschrift id="unterschrift" data-font="10.5" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+                <input type="text" id="unterschrift" data-atom data-font="10.5" class="single-line" enterkeyhint="done" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift" autocomplete="off" spellcheck="false" autocapitalize="words" maxlength="45">
               </div>
               <din-anlagenvermerk id="anlagenvermerk" data-margin-top="12.69">
                 <label for="anlagen-angabe" class="anlagen-heading">Anlagen</label>

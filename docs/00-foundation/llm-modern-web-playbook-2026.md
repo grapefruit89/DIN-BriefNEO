@@ -35,7 +35,7 @@ supersedes: []
 | **Command Invoker API** (`commandfor`, `command="show-modal" \| "close"`) | `#btn-reset` öffnet `#reset-dialog` nativ ohne Klick-Listener; Schließen per `<form method="dialog">`. | 🚫 `addEventListener('click')` zum reinen Öffnen/Schließen von Modals; Bootstrap-/jQuery-Modals. |
 | **Top-Layer Popover API** (`popover="auto" \| "manual" \| "hint"`) | `#hinweis-v4` (Toast, `popover="manual"`), Adressvorschläge (`popover="auto"`), Toolbar (`popover="hint"`). | 🚫 `z-index: 9999`-Kriege, manuelle Light-Dismiss-Click-Listener auf `document`. |
 | **Semantische Schalter** (`<input type="checkbox" switch>`) | `#toggle-falzmarken` und `#toggle-anlagen` als native OS-Toggles. | 🚫 Segmented Radio-Buttons („An“/„Aus“), künstliche `div.switch-slider`-Hacks. |
-| **Nativer Plaintext-Schutz** (`contenteditable="plaintext-only"`) | Alle 16 Einzeiler (Anschrift, Betreff, Datum, Fußzeile); blockiert Format-Pastes in C++. | 🚫 `keydown`/`beforeinput`-Abfangschleifen mit `e.preventDefault()`; manuelle Paste-Regex-Filter. |
+| **Nativer Plaintext-Schutz** (`contenteditable="plaintext-only"`) | Die 12 Fußzeilen-Einzeiler; blockiert Format-Pastes in C++. Für alles andere: `<input type="text">` (Anschrift, Absender, Datum, Betreff, Anrede, Gruß, Unterschrift, Vermerk). | 🚫 `keydown`/`beforeinput`-Abfangschleifen mit `e.preventDefault()`; manuelle Paste-Regex-Filter. |
 | **Mobile Tastatur-Ergonomie** (`enterkeyhint`, `inputmode`) | `enterkeyhint="done"` auf Feldern; `inputmode="numeric"` für PLZ; `inputmode="tel"` für Telefon. | 🚫 Enter-Key-Filterung per JS-Event; generische Standard-Tastaturen für Sonderdaten. |
 | **Autonome Custom Elements** (`<din-*>`) | 37 semantische Tags (`<din-briefbogen>`, `<din-anschriftfeld>`, `<din-betreff>`) mit IMR-3/8 Gate. | 🚫 Generische Div-Suppen (`<div class="anschrift">`); unstrukturierte Inline-Spans. |
 
@@ -211,7 +211,7 @@ supersedes: []
 - ✅ **PFLICHT-IMPLEMENTIERUNG (Natives HTML):**
   Das HTML-Attribut `contenteditable="plaintext-only"` nutzen:
   ```html
-  <din-betreff id="betreff" contenteditable="plaintext-only" enterkeyhint="done" aria-label="Betreff"></din-betreff>
+  <input type="text" id="betreff" data-atom maxlength="140" placeholder="Betreffzeile hier eingeben" aria-label="Betreff">
   ```
 - **Wo in DIN-BriefNEO:** In allen 16 einzeiligen Feldern in `website/index.html`.
 

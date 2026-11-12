@@ -48,10 +48,16 @@ eine Kommentarzeile und `#spacer` mit `contenteditable="false"`.)
 Die Migration erfolgt in Gruppen (Empfänger, Absender, Fuss, Rest), jeweils mit
 Pixel-Perfect-Nachweis (Δ ≤ 0,5 px) gemäß `AGENTS.md`.
 
+**Stand 2026-11-12:** Empfänger (4), Absender (5), Datum, `#betreff`,
+`#vermerke`, `#anrede`, `#grussformel` und `#unterschrift` sind migriert
+(`<input type="text" data-atom>`). Offen sind nur noch die 12
+Fußzeilen-Felder (`#fuss-*`) — sie stehen in der P38-Ratsche.
+
+**Bewusst akzeptiert:** `#betreff` ist damit einzeilig; die frühere
+Zweizeiligkeit (`data-feldtyp="zweizeilig"`, `text-wrap: balance`) entfällt
+(Entscheid 2026-11-12, Nutzerwunsch: „erstmal egal, ich will vorankommen").
+
 **Bleibt `contenteditable="true"`:** `#text` (Formatierung: fett, kursiv, Zitat).
-**Bleiben `contenteditable="plaintext-only"`:** `#betreff`, `#vermerke`
-(sie brauchen `text-wrap: balance` und den Platzhalter-Ghost, den
-ein `<input>` nicht kennt).
 
 ## Fallstricke (aus dem Anlagen-Pilot)
 

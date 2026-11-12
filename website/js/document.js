@@ -88,6 +88,15 @@ export function sanitizeRichText(htmlString, options = {}) {
  */
 export function formatElementMicroTypography(element) {
   if (!element || !(element instanceof HTMLElement)) return;
+  /* Native Felder (Betreff, Anrede, Gruss, Unterschrift, Adressfelder):
+     Wert ueber `value` statt TreeWalker - ein <input> hat keine Textknoten
+     (Migration 2026-11-12). */
+  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+    const roh = element.value || '';
+    const formatiert = applyMicroTypography(roh);
+    if (roh !== formatiert) Field.setValue(element, formatiert);
+    return;
+  }
   if (element.getAttribute('contenteditable') === 'plaintext-only') {
     const raw = element.textContent || '';
     const formatted = applyMicroTypography(raw);
@@ -178,6 +187,13 @@ export function setCaretCharacterOffset(element, offset) {
  * @param {HTMLElement} element
  */
 export function setCaretToEnd(element) {
+  /* Native Felder: Range am Element funktioniert dort nicht, der Cursor
+     springt ans Ende nur ueber setSelectionRange (Migration 2026-11-12). */
+  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+    const ende = element.value.length;
+    element.setSelectionRange(ende, ende);
+    return;
+  }
   const selection = element.ownerDocument.defaultView?.getSelection();
   if (!selection) return;
   const range = element.ownerDocument.createRange();
@@ -376,7 +392,7 @@ export class UIProtections {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
-      document.querySelectorAll('[contenteditable]').forEach((el) => {
+      document.querySelectorAll('[contenteditable], input[data-atom], textarea[data-feldtyp]').forEach((el) => {
         formatElementMicroTypography(el);
       });
     });
@@ -390,7 +406,9 @@ export class UIProtections {
     root.addEventListener('paste', (e) => this.#handleDocumentPaste(e));
     root.addEventListener('input', (e) => this.#handleInputLimit(e));
     root.addEventListener('focusout', (e) => {
-      const target = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
+      const target = e.target instanceof Element
+        ? e.target.closest('[contenteditable], input[data-atom], textarea[data-feldtyp]')
+        : null;
       if (target instanceof HTMLElement) {
         formatElementMicroTypography(target);
       }

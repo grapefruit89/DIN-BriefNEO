@@ -1,0 +1,192 @@
+FOUC-INVENTUR — jede Stelle, die den ersten Frame veraendern kann
+
+Stand: 2026-11-12 (Snapshot zum Review-Auftrag B11). Die Datei ist die
+vollstaendige Landkarte dieses Stands. Neue Stellen werden ergaenzt, nicht ersetzt.
+
+**Kurzfassung:** FOUC entsteht hier nicht durch fehlendes CSS, sondern durch
+**Zustand, der nach dem ersten Paint ins DOM geschrieben wird** und von CSS
+gelesen wird. Drei Ausprägungen:
+
+1. CSS liest einen Formularzustand (`:checked`), der erst später gesetzt wird.
+2. CSS liest ein Attribut am `<html>`, das erst später gesetzt wird.
+3. Eine Eigenschaft ändert sich nach dem Paint, und eine `transition` animiert
+   die Änderung sichtbar (auch „Aufblenden" ist FOUC).
+
+Die Regel dagegen steht in `DECISION-LOG.md` (Eintrag 2026-11-12): **Zustand
+einmal vor dem Paint setzen, danach nur bestätigen; CSS für Blatt-/Regler-
+Sichtbarkeit liest Attribute, nicht `:checked`.**
+
+---
+
+## 1. Boot-Kette (Reihenfolge ist Teil der Regel)
+
+| # | Datei | Zeile | Wirkung |
+|---|---|---|---|
+| 1 | `website/index.html` | 31–34 | Stylesheets (blockierend) |
+| 2 | `website/index.html` | 35 | `<script src="js/boot.js">` im `<head>` |
+| 3 | `website/js/boot.js` | 42 | `data-theme` |
+| 4 | `website/js/boot.js` | 43 | `data-layout` |
+| 5 | `website/js/boot.js` | 49 | `data-style` (Whitelist) |
+| 6 | `website/js/boot.js` | 50 | `data-marks` |
+| 7 | `website/js/boot.js` | 51 | `data-plugin-testbrief` |
+| 8 | `website/js/boot.js` | 56 | `data-plugin-multipage` |
+| 9 | `website/js/boot.js` | 75–76 | `data-anlagen`, `data-fuss` (aus `din_draft_current`) |
+| 10 | `website/index.html` | 427 | `<script src="js/boot-state.js">` am Body-Ende |
+| 11 | `website/js/boot-state.js` | 39–41 | Layout-Radio |
+| 12 | `website/js/boot-state.js` | 44–45 | `#toggle-falzmarken` |
+| 13 | `website/js/boot-state.js` | 49–57 | `#vermerke` + Postvermerk-Select |
+| 14 | `website/js/boot-state.js` | 64–65 | `#toggle-anlagen`, `#toggle-fuss` |
+| 15 | `website/js/boot-state.js` | 74–77 | alle Textfelder |
+| 16 | `website/js/boot-state.js` | 90 | **`data-seeded`** (Sperre endet) |
+| 17 | `website/js/main.js` | 112 ff. | `initApp()` — darf nur noch bestätigen |
+| 18 | `website/js/main.js` | ~200 | `data-ready` (Netz, 2 s in `boot.js`) |
+
+**Sperre für Übergänge:** `website/css/base.css` Zeile 17–33. Bis `data-seeded`
+(Netz: `data-ready`) gilt `transition: none !important` auf `*`, `*::before`,
+`*::after`. Nicht entfernen, nicht auf einzelne Selektoren verengen.
+
+**Formwechsel-Animation:** `website/css/sheet-common.css` Zeile 54–80
+(`top` der Blattzonen + `height/min-height/max-height` von `#spacer`), gleiche
+Kurve/Dauer wie die Pille (`0.28s`), nur `@media screen` und
+`prefers-reduced-motion: no-preference`, gegated auf `data-seeded`.
+
+---
+
+## 2. Regler: wer setzt was, wann? (vollständig)
+
+| Regler | `index.html` | Zustand aus | Schreiber | Zeitpunkt | Von CSS gelesen? |
+|---|---|---|---|---|---|
+| `#btn-form-a/b` | 85/87 | `din_settings.layout` | boot-state 39–41, settings 94/97 | **pre-paint** | `data-layout` (sheet-common 39) + `body:has(#btn-form-a:checked)` (40) |
+| `#toggle-falzmarken` | 94 | `din_settings.marks` | boot-state 44–45, settings 107 | **pre-paint** | `data-marks` (sheet-common 112) |
+| `#stil-select` | 105 | `din_settings.formality` | **nur** salutation.js 186 | **post-paint** ❌ | `:has(option:checked…)` sidebar 636 |
+| `#seitenleiste-postvermerk-select` | 114 | `din_draft_current.vermerke` | boot-state 55–57 | **pre-paint** | `:has(option:checked…)` sidebar 636 |
+| `#toggle-anlagen` | 165 | `din_draft_current` | boot-state 64–65 | **pre-paint** | `data-anlagen` (multipage 431, common 160) |
+| `#toggle-fuss` | 170 | `din_draft_current` | boot-state 64–65 | **pre-paint** | `data-fuss` (common 160) |
+| `#select-schriftart` | 202 | `din_settings.previewFont` | **nur** font-feature.js 87 | **post-paint** ❌ | keine (nur Optik des Selects) |
+| `#btn-rand-u-30` | 221 | `din_settings.randU` | **nur** settings.js 116 | **post-paint** ❌ | `--rand-u` (pre-paint? nein) |
+| `#plugin-testbrief` | 257 | `din_settings.pluginTestbrief` | boot.js 51 (Attribut) + settings 108 (Schalter) | Attribut pre-paint, **Schalter post-paint** ⚠️ | `data-plugin-testbrief` |
+| `#toggle-modus` | 43 | keiner (Nutzeraktion) | settings.js 185–190 | Nutzeraktion | `:has(#toggle-modus:checked)` sidebar 730–788 |
+
+❌ = belegter Defekt (siehe Abschnitt 5). ⚠️ = Attribut stimmt, Schalter-Optik
+kommt nach.
+
+---
+
+## 3. CSS, das Formularzustand liest (38 Treffer mit `:checked`/`:has(`)
+
+Verteilung: `sidebar.css` 30, `sheet-common.css` 4, `sheet.css` 3,
+`sheet-multipage.css` 1.
+
+**Unkritisch** (der Nutzer löst die Änderung selbst aus, nach dem ersten Paint):
+Hover/Fokus/Aktiv-Stile, `.segmented-control::before` (Pille), Autocomplete-
+Einträge, Dialoge, `#hinweis-v4`, `.save-status`, Feld-Fokus.
+
+**Kritisch — Zustand kommt aus dem Speicher:**
+
+| Datei:Zeile | Selektor | Warum |
+|---|---|---|
+| `sidebar.css:636` | `.seitenleiste-select:has(option:checked:not([value=""]))` | „gefüllt"-Optik hängt am Select-Wert → bei spätem Seeding entsteht die Aufblend-Transition |
+| `sidebar.css:730–788` | `#seitenleiste:has(#toggle-modus:checked) …` | schaltet ganze Zonen; nur bei Nutzeraktion ok, weil `#toggle-modus` nie beim Laden gesetzt wird |
+| `sheet-common.css:40` | `body:has(#btn-form-a:checked) din-blatt` | Doppelweg zu `data-layout`; Radio wird pre-paint gesetzt, aber es ist ein zweiter Schreiber |
+| `sheet.css:227` | `:root:has(#toggle-anlagen:checked) din-anlagenvermerk` | **Datei wird nicht geladen** (kein `<link>`, kein `@import`) — Altlast |
+
+`website/css/sheet.css` ist insgesamt nicht eingebunden. Sie wird nur in einem
+Kommentar von `sheet-common.css:6` erwähnt. Wer dort etwas ändert, ändert nichts.
+
+---
+
+## 4. Übergänge und Animationen (Inventar, 24 CSS-Übergänge + 3 JS-Bewegungen)
+
+Bewertung nach der Nutzerregel 2026-11-12: **nur der Formwechsel darf den Brief
+bewegen**; alles andere darf existieren, wenn es ausschließlich durch
+Nutzeraktion entsteht.
+
+| Ort | Was | Auslöser | Urteil |
+|---|---|---|---|
+| `base.css:17–33` | Sperre bis `data-seeded` | — | **behalten** (strukturell) |
+| `base.css:117` | `body` background-color/color 0.4 s | Theme-Umschaltung | behalten |
+| `sidebar.css:28` | `#seitenleiste` transform 0.3 s | **nie** (kein `transform` wird je gesetzt) | **löschen** (toter Code) |
+| `sidebar.css:109` | `.btn` | Hover/Press | behalten |
+| `sidebar.css:127` | `.btn-ghost` | Hover | behalten |
+| `sidebar.css:194` | `.segmented-control::before` | Formwechsel | **behalten** (die erlaubte Animation) |
+| `sidebar.css:215` | `.segmented-control label` color | Formwechsel | behalten (Teil derselben Bewegung) |
+| `sidebar.css:268` | `.input-field` | Fokus | behalten |
+| `sidebar.css:337` | Autocomplete `li` | Hover | behalten |
+| `sidebar.css:421/448` | `#btn-schrift-aktion`, `#btn-unterschrift-aktion` | Hover | behalten |
+| `sidebar.css:623` | `.seitenleiste-select` | Hover/Fokus; **war** der FOUC-Herd | behalten (Sperre deckt Laden ab) |
+| `sidebar.css:702` | `.icon-btn` | Hover | behalten |
+| `sidebar.css:753` | `.btn-back` | Hover | behalten |
+| `sidebar.css:833` | `.save-status` | Speicherzustand | behalten (durch Nutzeraktion) |
+| `sidebar.css:895/925` | `#hinweis-v4`, `#hinweis-close` | Popover | behalten |
+| `sidebar.css:952/981/1015` | Vorschlags-Popover + `li` | Nutzeraktion | behalten |
+| `sidebar.css:1132/1149` | `.glass-dialog` + `::backdrop` | Dialog öffnen | behalten |
+| `sheet-common.css:549` | Blattfelder outline/background/box-shadow | Fokus | behalten |
+| `sheet-common.css:512–535` | `@keyframes feld-voll-stopp` 180 ms | Feld voll (Tippen) | behalten (A49, Nutzerwunsch) |
+| `clipboard-parser.js:506` | `.animate()` grüner Flash 500 ms | Einfügen | behalten, evtl. kürzen |
+| `settings.js:173` | `transitionOn(document)` (View Transition) | Theme-Wechsel | behalten |
+| `font-feature.js:194` | `transitionOn(btn)` | Schrift-Präset | behalten |
+
+Kein `@keyframes` beim Laden, keine JS-Einblendung beim Start.
+
+---
+
+## 5. Belegte Rest-Defekte (Stand 2026-11-12, gemessen)
+
+Messung `#stil-select` (CDP, Cache aus, FCP 64 ms):
+
+```
+ 27 ms  seeded=null  wert="formal"   ← HTML-Standard im ersten Frame
+ 79 ms  seeded=true  wert="polite"   ← erst salutation.js setzt den Speicherwert
+```
+
+Sichtbar: der Select zeigt kurz „Förmlich (Sehr geehrte(r)…)" und springt dann
+auf „Höflich (Guten Tag…)". Dieselbe Klasse, nicht derselbe Selektor wie beim
+Postvermerk-Select.
+
+Betroffen, gleiche Ursache:
+
+1. `#stil-select` — `salutation.js:186` (`styleSelect.value = this.settings.formality`)
+2. `#select-schriftart` — `font-feature.js:87` (`this.selectFont.value = activePreset`)
+3. `#btn-rand-u-30` — `settings.js:116` (Schalter-Optik nach Paint; `--rand-u`
+   setzt `settings.js:115` ebenfalls erst dort)
+4. `#plugin-testbrief` — `settings.js:108` (Attribut ist pre-paint, Schalter nicht)
+
+Nicht betroffen: alles, was in Abschnitt 2 „pre-paint" ist.
+
+---
+
+## 6. Messprotokoll (was ein Prüfer reproduzieren muss)
+
+Voraussetzungen: `din-dev` (Dev-Server 8088, Debug-Browser CDP 9222),
+Seite im **Vordergrund** (sonst liefert `requestAnimationFrame` nichts).
+
+1. **Sonde in die Seite injizieren** (`Page.addScriptToEvaluateOnNewDocument`):
+   pro Frame `performance.now()`, `data-seeded`, `data-ready`, Wert/`checked`
+   jedes Reglers, `getComputedStyle` der sichtbaren Eigenschaften und
+   `document.getAnimations()` mit `transitionProperty` + Ziel.
+2. **`Page.bringToFront`** vor `Page.navigate` mit Cache-Buster.
+3. **`PerformanceObserver`** für `paint` und `layout-shift` mitlaufen lassen.
+4. **Genau ein Messlauf pro Registerkarte.** Zwei parallele Skripte teilen sich
+   denselben Tab und liefern widersprüchliche Zahlen (2026-11-12 passiert).
+5. **Nicht drei Elemente prüfen, sondern alle** aus Abschnitt 2.
+
+Bewertung: `data-seeded` muss **vor** `first-contentful-paint` liegen; nach FCP
+darf sich kein Reglerwert und keine sichtbare Eigenschaft mehr ändern, und
+`document.getAnimations()` muss leer sein.
+
+---
+
+## 7. Offene Punkte (Reihenfolge)
+
+1. `#stil-select`, `#select-schriftart`, `#btn-rand-u-30`, `#plugin-testbrief`
+   in `boot-state.js` mitseeden (vor `data-seeded`). Danach sind die vier
+   Defekte aus Abschnitt 5 strukturell weg.
+2. `sidebar.css:636` auf ein Attribut umstellen (`data-gesetzt`), damit die
+   Optik nicht mehr am Formularzustand hängt.
+3. `sheet-common.css:40` (`body:has(#btn-form-a:checked)`) entfernen — nur
+   `data-layout` soll das Blatt steuern.
+4. `sidebar.css:28` (toter `transform`-Übergang) entfernen.
+5. `website/css/sheet.css` als nicht eingebundene Datei kennzeichnen oder
+   löschen — sie enthält weiterhin `:has(#toggle-anlagen:checked)` (Zeile 227)
+   und führt Prüfer in die Irre.
+6. Messung aus Abschnitt 6 über **alle** Regler wiederholen, nicht über drei.

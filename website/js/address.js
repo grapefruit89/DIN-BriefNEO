@@ -536,23 +536,21 @@ function abbreviateName(fullName) {
  */
 export function spiegelEntscheidung(lage) {
   let { modus, letzterAutowert } = lage;
-  const { aktuell, auto, street, city } = lage;
+  const { aktuell, auto } = lage;
 
   /* Leeres Feld ist immer "noch nicht gefuellt": wer die Zeile loescht, bekommt
      sie beim naechsten Absender-Edit zurueck (Entscheidung 2026-11-12). */
   if (aktuell === '') return { modus: 'auto', schreiben: auto !== '', letzterAutowert: auto };
 
   if (modus === 'unklar') {
-    /* Automatikwerte haben 2 oder 3 Teile: "Name • Ort" wenn keine Strasse
-       gesetzt ist, sonst "Name • Strasse • Ort". Die alte 3-Teile-Regel hielt
-       "T. D. Water Law • Flevance" fuer Nutzertext und liess sie stehen
-       (gemessen 2026-11-12). */
+    /* Automatikwerte sind "Name • Strasse • Ort" (2 oder 3 Teile). Der
+       Vergleich mit Strasse/Ort taugt nicht: maxlength schneidet die Zeile ab,
+       dann passt der Schwanz nicht mehr und die Zeile galt als Nutzertext
+       (gemessen 2026-11-12 an "Professor X • … • Salem Center, Westchester
+       County, New" — 85 Zeichen, hart gekuerzt). Deshalb entscheidet das
+       Format: zwei oder mehr " • "-Teile = vom Helfer. */
     const teile = aktuell.split(' • ').map((teil) => teil.trim());
-    const siehtAutomatischAus =
-      aktuell === '' ||
-      (teile.length >= 2 &&
-        teile.at(-1) === city &&
-        (teile.length < 3 || teile.at(-2) === street));
+    const siehtAutomatischAus = aktuell === '' || teile.length >= 2;
     modus = siehtAutomatischAus ? 'auto' : 'manuell';
     if (modus === 'auto') letzterAutowert = aktuell;
   }

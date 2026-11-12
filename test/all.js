@@ -4199,7 +4199,7 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
 
   it('begrenzt die Laenge nativ per maxlength', async () => {
     const doc = await ladeDoc();
-    const erwartet = { rucksendeangabe: 85, 'empfaenger-firma': 50, 'empfaenger-name': 45, 'empfaenger-strasse': 45, 'empfaenger-ort': 45 };
+    const erwartet = { rucksendeangabe: 120, 'empfaenger-firma': 50, 'empfaenger-name': 45, 'empfaenger-strasse': 45, 'empfaenger-ort': 45 };
     for (const [id, max] of Object.entries(erwartet)) {
       const el = doc.getElementById(id);
       assertEqual(el?.getAttribute('maxlength'), String(max), `${id}: maxlength ${max}`);

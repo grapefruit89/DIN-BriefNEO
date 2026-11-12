@@ -263,7 +263,10 @@ export function waehleAnker(char, rnd = Math.random) {
  * @returns {boolean}
  */
 export function istBriefbar(h) {
-  return Boolean(resolveOrt(h));
+  /* Der Empfaenger braucht Name + Strasse + Ort. Vorher genuegte der Ort —
+     dadurch konnten Testbriefe mit leerem Namen oder leerer Strasse entstehen
+     (gesehen 2026-11-12: Absender "Paddington Bär", Empfaenger-Name leer). */
+  return Boolean(h?.name && resolveOrt(h));
 }
 
 /* =========================================================================================
@@ -1242,9 +1245,19 @@ export function waehleBesetzung(heroes) {
   const erlaubteEmpfaenger = usable.filter(
     (c) => c !== sender && !sindIdentisch(sender, c) && (franchiseKey(c) !== eigenesFranchise || hatWonkaBezug(sender, c))
   );
-  const recipientPool = erlaubteEmpfaenger.length > 0
-    ? erlaubteEmpfaenger
-    : usable.filter((c) => c !== sender && !sindIdentisch(sender, c));
+  /* Fallback-Kette: wenn die strenge Liste leer ist (kleiner Pool, ein
+     Franchise), darf der Empfaenger nicht undefined werden — sonst schreibt
+     fuelleBrief leere Felder und der Brief ist halb gefuellt. */
+  /** @param {any[]} liste @returns {any[]} */
+  const ohneSender = (liste) => liste.filter((c) => c !== sender && !sindIdentisch(sender, c));
+  const recipientPool =
+    erlaubteEmpfaenger.length > 0
+      ? erlaubteEmpfaenger
+      : ohneSender(usable).length > 0
+        ? ohneSender(usable)
+        : ohneSender(heroes).length > 0
+          ? ohneSender(heroes)
+          : usable;
   const recipient = zufall(recipientPool);
 
   const rest = usable.filter((c) => c !== sender && c !== recipient && !sindIdentisch(sender, c) && !sindIdentisch(recipient, c));

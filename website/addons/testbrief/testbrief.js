@@ -263,9 +263,12 @@ export function waehleAnker(char, rnd = Math.random) {
  * @returns {boolean}
  */
 export function istBriefbar(h) {
-  /* Der Empfaenger braucht Name + Strasse + Ort. Vorher genuegte der Ort —
-     dadurch konnten Testbriefe mit leerem Namen oder leerer Strasse entstehen
-     (gesehen 2026-11-12: Absender "Paddington Bär", Empfaenger-Name leer). */
+  /* Der Empfaenger braucht Name + Ort. Die Strasse ist bewusst NICHT
+     Bedingung: `resolveStrasse` verwirft Scheinanschriften ("keine feste
+     Anschrift") und liefert dann '', obwohl die Figur gueltig ist — ein
+     Strassen-Kriterium wuerde solche Figuren ausschliessen, statt die Zeile
+     leer zu lassen. Der Name ist Bedingung, weil ein Brief ohne Empfaengername
+     unbrauchbar ist (gesehen 2026-11-12: "Paddington Bär", Name leer). */
   return Boolean(h?.name && resolveOrt(h));
 }
 

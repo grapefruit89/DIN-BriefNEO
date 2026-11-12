@@ -238,7 +238,7 @@ Belegte Y-Paare (bereits in den Zonen- und Systemabschnitten):
 | Objekt | Y Form A | Y Form B | Herkunft |
 |---|---|---|---|
 | Zone `din-briefkopf` | 27 mm | 45 mm | DIN 19.4.2 nennt die **Feldhöhe** 27/45 mm; sie als Y-Position zu verwenden ist PROJECT |
-| Zone `din-anschriftfeld` | 34 mm | 51 mm | DIN 19.4.3 — Oberkante = Rücksendezeile (DIN 33,9/50,8); die Anschriftzone (Empfänger) beginnt bei 46,7/63,7 mm |
+| Zone `din-anschriftfeld` | 28,9 mm | 45,8 mm | DIN 19.4.3 — Feldoberkante, 5,0 mm über der ersten Schreibzeile (33,9/50,8); Anschriftzone beginnt bei 46,6/63,5 mm |
 | Zone `din-infoblock` | 34 mm | 51 mm | DIN |
 | Zone `din-kern` | 91 mm | 109 mm | DIN |
 | Atom `din-falzmarke-1` | 87 mm | 105 mm | DIN 19.8 |
@@ -276,7 +276,7 @@ Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil 
 
 **Zone:** `<din-anschriftfeld>`  
 **ARIA:** `group`  
-**Zonen-Geometrie:** X 25 mm, Breite 85 mm (Feld), Textlauf 25–105 mm = 80 mm (Tab. A.1). Blockoberkante Form A 34 mm, Form B 51 mm (DIN 33,9/50,8); darunter die Anschriftzone mit Y Form A 46,7 mm, Form B 63,7 mm (DIN 46,6/63,5). Höhe 45 mm (fix) für beide Zonen zusammen.
+**Zonen-Geometrie:** X 25 mm, Breite 85 mm (Feld), Textlauf 25–105 mm = 80 mm (Tab. A.1). Blockoberkante Form A 28,9 mm, Form B 45,8 mm (Feldkante; DIN 33,9/50,8 sind die ersten Schreibzeilen); darunter die Anschriftzone mit Y Form A 46,7 mm, Form B 63,7 mm (DIN 46,6/63,5). Höhe 45 mm (fix) für beide Zonen zusammen.
 
 **Zusatz-/Vermerkzone.** 17,7 × 85 mm, davon 5,0 mm Rand über der ersten Schreibzeile; Schreibraster 3 Zeilen à 4,23 mm (Tab. B.1: 50,8 / 59,2 / 63,5 mm, Zeilen 13–15). Der Block beschriftet sich von unten nach oben (DIN 20.7.1): Rücksendeangabe ist die oberste *belegte* Zeile, Vermerke stehen darunter, der Block schiebt sich zeilenweise nach oben. Belegt werden 1–2 Zeilen (binär: ohne/mit Postvermerk).
 
@@ -304,18 +304,18 @@ Gemessen im PDF (`pdftotext -bbox`, erster Buchstabe der jeweiligen Zeile), nich
 
 | Element | Form A Ist | Form A DIN | Δ | Form B Ist | Form B DIN | Δ |
 |---|---:|---:|---:|---:|---:|---:|
-| Rücksendeangabe | 42,46 mm¹ | 42,3 mm | +0,16 | 59,46 mm | 59,2 mm | +0,26 |
-| Empfängeranschrift | 46,70 mm¹ | 46,6 mm | +0,10 | 63,70 mm | 63,5 mm | +0,20 |
+| Rücksendeangabe | 42,37 mm¹ | 42,3 mm | +0,07 | 59,27 mm | 59,2 mm | +0,07 |
+| Empfängeranschrift | 46,60 mm¹ | 46,6 mm | ±0,00 | 63,50 mm | 63,5 mm | ±0,00 |
 | Informationsblock | 34,37 mm | 33,9 mm | +0,47 | 51,30 mm | 50,8 mm | +0,50 |
 
-¹ Form A in diesem Lauf nicht neu gemessen: Wert aus `data-anschriftfeld-y-a` (34 mm) plus `padding-top` 12,7 mm. Form B ist gemessen.
+¹ Form A nicht neu gemessen: Feldkante 28,9 mm + 17,7 mm Zusatzzone = 46,6 mm (Empfänger), Rücksendezeile eine Rasterzeile darüber = 42,3 mm. Form B ist gemessen.
 
 **Zuordnung.** Die `data-*`-Attribute sind DIN-konform und werden so gelesen,
 wie sie benannt sind:
 
 | Attribut | Wert A/B | DIN Tab. B.1 | Δ | Wird im CSS verwendet als |
 |---|---:|---:|---:|---|
-| `data-anschriftfeld-y` | 34 / 51 | Blockoberkante 33,9 / 50,8 | +0,1 / +0,2 | Oberkante des Blocks (Feldrand, 5 mm über Zeile 13) |
+| `data-anschriftfeld-y` | 28,9 / 45,8 | Feldoberkante (5,0 mm über Zeile 13) | ±0,0 | Oberkante des Feldes; die Zonen tragen 17,7 + 27,3 mm |
 | `+ 12,7 mm` = 3 Schreibzeilen (Tab. B.1: 50,8 / 59,2 / 63,5) | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | `padding-top` der Zone (`sheet-multipage.css:190`) |
 | `data-briefkopf-y` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | nur im stillgelegten `sheet.css` |
 
@@ -538,8 +538,9 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.3",
       "source": "DIN",
       "inDom": true,
-      "export": true
-    , "eingabe": "input"},
+      "export": true,
+      "eingabe": "input"
+    },
     "din-vermerke": {
       "id": "vermerke",
       "role": "atom",
@@ -554,8 +555,9 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.7.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
-    , "eingabe": "input"},
+      "export": true,
+      "eingabe": "input"
+    },
     "din-empfaenger-abteilung": {
       "id": null,
       "role": "atom",
@@ -570,8 +572,9 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.7.4",
       "source": "DIN (interpretiert)",
       "inDom": true,
-      "export": true
-    , "eingabe": "input"},
+      "export": true,
+      "eingabe": "input"
+    },
     "din-empfaenger-vorname": {
       "id": null,
       "role": "atom",
@@ -594,16 +597,18 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.7.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
-    , "eingabe": "input"},
+      "export": true,
+      "eingabe": "input"
+    },
     "din-empfaenger-ort": {
       "id": "empfaenger-ort",
       "role": "atom",
       "dinSection": "20.7.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
-    , "eingabe": "input"},
+      "export": true,
+      "eingabe": "input"
+    },
     "din-datum": {
       "id": "datum",
       "role": "atom",
@@ -912,9 +917,10 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
     },
     "din-anschriftfeld": {
       "y": {
-        "A": 34,
-        "B": 51
-      }
+        "A": 28.9,
+        "B": 45.8
+      },
+      "note": "Feldoberkante: 5,0 mm ueber der ersten Schreibzeile (DIN 19.4.3). Zusatz-/Vermerkzone 17,7 mm, Anschriftzone 27,3 mm, Summe 45 mm."
     },
     "din-infoblock": {
       "y": {

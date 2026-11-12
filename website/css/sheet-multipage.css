@@ -145,91 +145,75 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   }
 
   /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
-  #rucksendeangabe {
-    /* Erstes Kind von #anschriftfeld (DIN 19.4.3): Position kommt aus dem
-       Container, nicht mehr aus eigenen data-x/data-w. Absolut bei top:0,
-       damit die Empfängerzeilen im Flex-Flow exakt stehen bleiben.
-       width:100% bezieht sich auf die Padding-Box des Containers (85mm);
-       der Text belegt max. 80mm (padding-right), eine Linie gibt es nicht. */
-    position: absolute;
-    /* Unterste Schreibzeile (DIN Tab. B.1: „Unterste Zeile Zusatz- und
-       Vermerkzone (Schreibbeginn)" = 59,2mm Form B / 42,3mm Form A).
-       Vorher stand hier top: 0 — die Rücksendezeile klebte oben und liess
-       bis zur Anschrift 9,24mm Weissraum (gemessen 2026-11-12).
-       Der Block beschriftet sich von unten (DIN 20.7.1). */
-    top: 8.46mm;
-    left: 0;
-    width: 100%;
-    height: 1.4em;
-    line-height: 1.4;
-    font-size: --pt-abs(attr(data-font type(<number>)));
-    /* Wie im Screen-Pfad: Box 85mm, Text max. 80mm (Tab. A.1, Zeilenende
-       105mm). Beide Pfade muessen gleich sein, sonst weicht der Druck vom
-       Bildschirm ab. */
-    box-sizing: border-box;
-    padding-right: 5mm;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-radius: 0;
-    z-index: 10;
-  }
-
+  /* Das Anschriftfeld besteht aus ZWEI Feldern (DIN 19.4.3/19.4.4):
+     Zusatz-/Vermerkzone 85x17,7mm, darunter unmittelbar die Anschriftzone
+     85x27,3mm. Die Zonen sind echte Wrapper — dadurch ist die Geometrie
+     deklarativ statt aus padding-top + top-Arithmetik zusammengerechnet. */
   #anschriftfeld {
     position: absolute;
-    /* DIN 19.4.3/4: EIN Block aus Zusatz-/Vermerkzone + Anschriftzone.
-       Der Block beginnt auf der OBERSTEN ZEILE der Zusatz- und Vermerkzone
-       (Tab. B.1: Form A 33,9mm / Form B 50,8mm) — das ist
-       --anschriftfeld-y (data-anschriftfeld-y 34/51, Delta 0,1/0,2).
-       Frueher stand hier --briefkopf-y (27/45), also 6mm zu hoch; deshalb
-       sass die Ruecksendezeile bei 45,16 statt 50,8 und die Empfaenger bei
-       51,36 statt 63,5 (gemessen 2026-11-11).
-       Das Innen-Padding ist die Hoehe der Zusatz-/Vermerkzone bis zur ersten
-       Zeile der Anschriftzone: 63,5 - 50,8 = 12,7mm (Tab. B.1, Zeilen 13 -> 16
-       = 3 Zeilen a 4,23mm). Beide Formen teilen diesen Wert, weil Tab. B.1
-       die Differenz in beiden Formen mit 12,7mm angibt (46,6 - 33,9). */
+    /* Feldoberkante: 45,8mm (Form B) / 28,9mm (Form A). Das ist NICHT die
+       erste Schreibzeile (50,8/33,9), sondern 5,0mm darueber — der Rand, den
+       19.4.3 im 17,7mm hohen Feld nennt. Tab. B.1 bleibt damit exakt:
+       Feldkante 45,8 + 17,7 = 63,5 (erste Zeile Anschriftzone). */
     top: var(--anschriftfeld-y);
     left: --mm-abs-x(attr(data-x type(<number>)));
     width: --mm-abs-x(attr(data-w type(<number>)));
     height: --mm-abs-y(attr(data-h type(<number>)));
-    padding-top: 12.7mm;
     font-size: --pt-abs(attr(data-font type(<number>)));
     line-height: 1.4;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    /* 80-mm-Textgrenze fuer alle Kinder (DIN Tab. A.1: Zeilenende 105mm).
-       border-box haelt die Box bei 85mm; eine Linie zeichnet die Box nicht
-       (§ 19.4.3). */
+    /* 80-mm-Textgrenze fuer alle Kinder (DIN Tab. A.1: Zeilenende 105mm). */
     box-sizing: border-box;
     padding-right: 5mm;
     z-index: 10;
   }
 
-  /* Mit Postvermerk rueckt die Rücksendezeile genau eine Zeile hoch,
-     der Vermerk nimmt die unterste Zeile. Binaer, keine 5-Zeilen-Zone. */
-  #anschriftfeld:has(#vermerke[data-visible="true"]) #rucksendeangabe {
-    top: 4.23mm;
+  /* Zusatz-/Vermerkzone: 17,7mm hoch. Der Inhalt sitzt unten und beschriftet
+     sich von unten nach oben (DIN 20.7.1) — deshalb justify-content: flex-end.
+     Rücksendeangabe ist die oberste belegte Zeile, der Vermerk steht darunter. */
+  #zusatzzone {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 17.7mm;
+    flex: 0 0 17.7mm;
   }
 
+  /* Anschriftzone: 27,3mm hoch, schliesst unmittelbar an. */
+  #anschriftzone {
+    display: flex;
+    flex-direction: column;
+    height: 27.3mm;
+    flex: 0 0 27.3mm;
+  }
+
+  /* Eine Schreibzeile = 4,23mm (DIN Tab. B.1, Fussnote a). */
+  #rucksendeangabe,
   #vermerke {
-    /* Erste Zeile nach der Ruecksendeangabe, die laut § 19.4.3 „an oberster
-       Position" des 17,7mm hohen Feldes steht (Normtext Z. 1760). Absolut
-       positioniert, damit der Postvermerk die Anschriftzone NICHT verschiebt:
-       im Fluss sassen die Empfaengerzeilen mit Postvermerk 5,36mm tiefer als
-       ohne (gemessen 2026-11-11: 56,36 vs 51,00). */
-    position: absolute;
-    /* Unterste Schreibzeile (Schreibbeginn), nicht mehr 1.4em unter der
-       Rücksendezeile — sonst waechst der Vermerk in die Anschriftzone. */
-    top: 8.46mm;
-    left: 0;
     width: 100%;
-    padding-right: 5mm;
+    height: 4.23mm;
+    min-height: 4.23mm;
+    max-height: 4.23mm;
+    line-height: 4.23mm;
+    /* Kein Margin: jede Zeile ist genau eine Rasterzeile, sonst schiebt der
+       Vermerk-Margin (0,59mm) die Rücksendezeile aus dem Raster. */
+    margin: 0;
+    font-size: --pt-abs(attr(data-font type(<number>)));
     box-sizing: border-box;
-    /* Genau eine Zeile (KISS): kein Umbruch in den Empfaengerblock. */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    z-index: 10;
+  }
+
+  #rucksendeangabe {
+    padding-right: 0;
+  }
+
+  /* Genau eine Zeile (KISS): kein Umbruch in die Anschriftzone. */
+  #vermerke {
+    padding-right: 0;
   }
 
   #infoblock {

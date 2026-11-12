@@ -1250,11 +1250,14 @@ describe('Rücksendeangabe — Text-Breite', () => {
       const src = await (await fetch(datei)).text();
       return (src.match(/#rucksendeangabe\s*\{([^}]*)\}/) || [])[1] ?? '';
     };
-    for (const datei of ['/website/css/sheet.css', '/website/css/sheet-multipage.css']) {
-      const block = await regel(datei);
-      assert(block.includes('padding-right: 5mm'), `${datei}: padding-right 5mm`);
-      assert(block.includes('box-sizing: border-box'), `${datei}: box-sizing border-box`);
-    }
+    /* Seit dem Zonenmodell (2026-11-12) sitzt die 80-mm-Grenze am Container:
+       #anschriftfeld traegt padding-right: 5mm, die Zeilen sind 100% breit. */
+    const frame = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
+    const container = (frame.match(/#anschriftfeld\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(container.includes('padding-right: 5mm'), 'Container: padding-right 5mm');
+    assert(container.includes('box-sizing: border-box'), 'Container: box-sizing border-box');
+    const alt = await regel('/website/css/sheet.css');
+    assert(alt.includes('padding-right: 5mm'), 'sheet.css (stilgelegt): padding-right 5mm');
     // Geometrie: linke Kante 25mm + Textbreite 80mm = Zeilenende 105mm
     assertEqual(25 + 80, 105, 'Tab. A.1: Zeilenende 105mm');
   });
@@ -1416,15 +1419,28 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
    * hoch). Gemessen (2026-11-11, 7d3d565): der Block begann bei --briefkopf-y
    * (27/45), die Ruecksendezeile stand bei 45,16 statt 50,8 und die Empfaenger
    * bei 51,36 statt 63,5. */
-  it('beginnt auf --anschriftfeld-y und reserviert 12,7mm bis zur Anschriftzone', async () => {
+  it('besteht aus zwei Zonen: 17,7mm Zusatz + 27,3mm Anschrift (DIN 19.4.3/4)', async () => {
     const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
     const block = (css.match(/#anschriftfeld\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(block !== '', 'Regel #anschriftfeld gefunden');
-    assert(/top:\s*var\(--anschriftfeld-y\)/.test(block), 'top = --anschriftfeld-y (50,8/33,9)');
-    assert(block.includes('--briefkopf-y') === false, 'nicht mehr --briefkopf-y (45/27)');
-    assert(block.includes('padding-top: 12.7mm'), 'padding-top 12,7mm (63,5 - 50,8)');
+    assert(/top:\s*var\(--anschriftfeld-y\)/.test(block), 'top = --anschriftfeld-y (45,8/28,9)');
+    assert(block.includes('padding-top') === false, 'kein padding-top mehr (Zonen statt Arithmetik)');
     assert(block.includes('height: --mm-abs-y(attr(data-h'), 'Hoehe bleibt data-h (45mm)');
+    const zusatz = (css.match(/#zusatzzone\s*\{([^}]*)\}/) || [])[1] ?? '';
+    const anschrift = (css.match(/#anschriftzone\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(/height:\s*17\.7mm/.test(zusatz), 'Zusatz-/Vermerkzone 17,7mm');
+    assert(/height:\s*27\.3mm/.test(anschrift), 'Anschriftzone 27,3mm');
+    assert(/justify-content:\s*flex-end/.test(zusatz), 'Zusatzzone beschriftet von unten (20.7.1)');
+    assertEqual(17.7 + 27.3, 45, 'Summe = Feldhoehe 45mm');
+  });
+
+  it('Blockkante liegt 5,0mm ueber der ersten Schreibzeile', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const b = Number((html.match(/data-anschriftfeld-y-b="([\d.]+)"/) || [])[1]);
+    const a = Number((html.match(/data-anschriftfeld-y-a="([\d.]+)"/) || [])[1]);
+    assertEqual(+b.toFixed(2), 45.8, 'Form B: 50,8 - 5,0');
+    assertEqual(+a.toFixed(2), 28.9, 'Form A: 33,9 - 5,0');
   });
 
   /* Vertrag 2026-11-12: der Block beschriftet sich von unten (DIN 20.7.1).
@@ -1434,12 +1450,13 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
   it('beschriftet die Zone von unten: Rücksende auf der untersten Zeile', async () => {
     const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
-    const block = (css.match(/#rucksendeangabe\s*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(block !== '', 'Regel #rucksendeangabe gefunden');
-    assert(/top:\s*8\.46mm/.test(block), 'top 8,46mm = unterste Schreibzeile (12,7 - 4,23)');
-    const vermerk = (css.match(/#vermerke\s*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(/top:\s*8\.46mm/.test(vermerk), 'Vermerk liegt auf derselben untersten Zeile');
-    assert(vermerk.includes('white-space: nowrap'), 'Vermerk bleibt eine Zeile');
+    /* Zonenmodell: die Zeilen sind 4,23mm hoch und sitzen per flex-end unten. */
+    const zeile = (css.match(/#rucksendeangabe,\s*#vermerke\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(zeile !== '', 'Sammelregel fuer beide Zeilen gefunden');
+    assert(/height:\s*4\.23mm/.test(zeile), 'Zeilentakt 4,23mm (Tab. B.1 Fussnote a)');
+    assert(zeile.includes('white-space: nowrap'), 'Vermerk bleibt eine Zeile');
+    const zusatz = (css.match(/#zusatzzone\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(/justify-content:\s*flex-end/.test(zusatz), 'unterste Zeile ist der Anker');
   });
 
   it('hält leere Anschriftzeilen auf dem Schirm klickbar, blendet sie nur im Druck aus', async () => {
@@ -1457,20 +1474,25 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
   it('schiebt die Rücksendezeile bei gesetztem Vermerk eine Zeile hoch', async () => {
     const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
-    const regel = (css.match(/#anschriftfeld:has\(#vermerke\[data-visible="true"\]\)[^{]*\{([^}]*)\}/) || [])[1] ?? '';
-    assert(regel !== '', 'Regel fuer gesetzten Vermerk gefunden');
-    assert(/top:\s*4\.23mm/.test(regel), 'Rücksende rueckt genau eine Zeile (4,23mm) hoch');
+    /* Ohne :has()-Regel: der Vermerk ist das zweite Flex-Kind, die Rücksende-
+       zeile darueber rutscht automatisch um eine Zeile nach oben. */
+    assert(css.includes('#anschriftfeld:has') === false, 'keine :has()-Arithmetik mehr');
+    const html = await (await fetch('/website/index.html')).text();
+    const zusatz = (html.match(/<div id="zusatzzone"[\s\S]*?<\/div>/) || [])[0] ?? '';
+    const reihenfolge = [...zusatz.matchAll(/id="(rucksendeangabe|vermerke)"/g)].map((m) => m[1]);
+    assertEqual(reihenfolge.join(','), 'rucksendeangabe,vermerke', 'Rücksende vor dem Vermerk');
   });
 
   it('positioniert den Postvermerk absolut unter der Ruecksendezeile', async () => {
     const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    /* Zonenmodell: der Vermerk ist Flex-Kind der Zusatzzone und kann die
+       Anschriftzone nicht verschieben (eigene, feste Hoehe). */
     const block = (css.match(/#vermerke\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(block !== '', 'Regel #vermerke gefunden');
-    assert(block.includes('position: absolute'), 'absolut: verschiebt die Anschriftzone nicht');
-    /* Vertrag 2026-11-12: nicht mehr 1.4em unter der Rücksendezeile, sondern
-       die unterste Schreibzeile (DIN Tab. B.1: Schreibbeginn 59,2mm). */
-    assert(/top:\s*8\.46mm/.test(block), 'top 8,46mm (unterste Schreibzeile)');
+    assert(block.includes('position: absolute') === false, 'nicht mehr absolut (Zonen-Flex)');
+    const zusatz = (css.match(/#zusatzzone\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(/height:\s*17\.7mm/.test(zusatz), 'Zusatzzone hat feste Hoehe');
   });
 });
 

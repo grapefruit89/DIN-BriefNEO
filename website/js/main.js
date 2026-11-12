@@ -186,7 +186,7 @@ function initApp() {
     briefblatt.addEventListener('input', (e) => {
       if (
         e.target instanceof Element &&
-        e.target.closest('[contenteditable], input[data-feldtyp], textarea[data-feldtyp]')
+        e.target.closest('[contenteditable], input[data-atom], textarea[data-feldtyp]')
       ) {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }

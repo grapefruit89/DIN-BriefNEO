@@ -4170,9 +4170,9 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
     }
   });
 
-  it('Autosave-Zuhoerer im App-Code deckt input[data-feldtyp] ab', async () => {
+  it('Autosave-Zuhoerer im App-Code deckt input[data-atom] ab', async () => {
     const js = await (await fetch('/website/js/main.js')).text();
-    assert(/input\[data-feldtyp\]/.test(js), 'Autosave-Listener kennt die Input-Felder');
+    assert(/input\[data-atom\]/.test(js), 'Autosave-Listener kennt die Atom-Felder');
   });
 
   it('begrenzt die Laenge nativ per maxlength', async () => {

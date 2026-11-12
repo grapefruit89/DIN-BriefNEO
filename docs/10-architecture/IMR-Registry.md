@@ -38,6 +38,8 @@ depends_on: []
 
 Die IMR-Registry ist das normative Master-Modell des DIN-Briefes. Sie definiert Vokabular, kanonische Tags, Zonen, Beziehungen und belegte normative Geometrie. HTML implementiert dieses Modell, CSS rendert es, JavaScript erzeugt keine konkurrierende normative Geometriequelle.
 
+**Atom-Träger im DOM.** Ist die Eingabe eines Atoms nativ, trägt das Element `data-atom` (z. B. `<input data-atom id="empfaenger-name">`); das Inventar führt dazu `"eingabe": "input"`. `data-feldtyp` bleibt ausschließlich für abweichendes Verhalten (`zweizeilig`, `mehrzeilig`, `rich …`, `liste`, `systemwert`) — der Wert `einzeilig` existiert nicht mehr, weil ein `<input type="text">` per Definition einzeilig ist.
+
 Die registrierten Atome (55; 7+9+9+14+13+3, siehe Inventar) sind das vollständige fachliche Vokabular. Ein konkreter Brief instantiiert nur die benötigte Teilmenge. Nicht-Vorkommen ist kein Fehler. Ein instantiiertes Atom wird als kanonisches `<din-…>`-Element repräsentiert. Das verlangt keine JavaScript-Registrierung und keine Custom-Element-Klasse.
 
 Die Atomliste steht ausschließlich im Inventar („Maschinenlesbares Inventar"). Prosa nennt keine Anzahl, die nicht dort steht. Overlay ist kein Atom.

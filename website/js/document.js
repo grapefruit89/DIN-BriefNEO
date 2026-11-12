@@ -517,7 +517,7 @@ export class UIProtections {
    */
   #handleInputLimit(event) {
     const target = event.target instanceof Element
-      ? event.target.closest('[contenteditable], input[data-feldtyp]')
+      ? event.target.closest('[contenteditable], input[data-atom]')
       : null;
     if (!target || !(target instanceof HTMLElement)) return;
     if (target.id === 'text') return; // Haupttext bleibt flexibel
@@ -622,7 +622,7 @@ export class UIProtections {
 /* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
  * Matcht contenteditable-Blattfelder UND speicherbare Formular-Selects (z. B. Postvermerk). */
 export const EDITABLE_FIELD_SELECTOR =
-  '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-feldtyp], select[data-speichern]';
+  '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
 
 /**
  * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
@@ -635,7 +635,7 @@ export function collectDraft() {
 
   if (typeof document === 'undefined') return draft;
 
-  document.querySelectorAll('[contenteditable], textarea[data-feldtyp], input[data-feldtyp]').forEach(elem => {
+  document.querySelectorAll('[contenteditable], textarea[data-feldtyp], input[data-atom]').forEach(elem => {
     // #datum ist ein Systemwert, den der Nutzer bewusst aendern darf (Befund 1.2).
     // Der Anlagentext wird immer gespeichert, auch bei ausgeschaltetem Toggle (1.3) -
     // sonst ist er nach dem naechsten Reload endgueltig weg.

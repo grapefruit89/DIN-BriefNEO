@@ -25,6 +25,7 @@ THEMEN = {
     'B1': 'Geometrie-CSS', 'B2': 'HTML + Boot', 'B3': 'Adresslogik',
     'B4': 'Speichern/Undo', 'B5': 'Textkern', 'B6': 'UI/Signatur',
     'B7': 'Testbrief', 'B8': 'Adressdaten',
+    'B9 - PWA-Manifest': 'PWA-Manifest ohne Service Worker',
 }
 ORDER = {'.html': 0, '.css': 1, '.js': 2, '.txt': 3, '.json': 4}
 

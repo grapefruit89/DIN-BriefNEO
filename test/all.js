@@ -2323,11 +2323,26 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(res.items[0].plz, '53111');
   });
 
-  it('Test 23: "bonnd" → sofort "79848 Bonndorf" (1 PLZ, kein Dropdown nötig)', () => {
+  /* Vertragsaenderung 2026-11-12: Praefixe fuellen nicht mehr sofort. Wer
+     "roisdorf" tippen will, wurde nach "roi" auf "74255 Roigheim" gesetzt -
+     das Feld war mitten im Wort uebersprungen. Jetzt kommt die Vorschlagsliste,
+     die Auswahl passiert per Klick. */
+  it('Test 23: "bonnd" → Vorschlagsliste mit Bonndorf (kein Ueberspringen)', () => {
     const res = AddressIntelligence.resolveCityInput('bonnd');
+    assertEqual(res.mode, 'city_list');
+    assert(res.items.some((/** @type {any} */ i) => i.city === 'Bonndorf'), 'Bonndorf ist in der Liste');
+  });
+
+  it('Test 23b: "roi" ueberspringt das Tippen nicht mehr', () => {
+    const res = AddressIntelligence.resolveCityInput('roi');
+    assertEqual(res.mode, 'city_list');
+    assert(res.items.some((/** @type {any} */ i) => i.city === 'Roigheim'), 'Roigheim wird angeboten');
+  });
+
+  it('Test 23c: ein vollstaendiger, eindeutiger Name fuellt weiterhin sofort', () => {
+    const res = AddressIntelligence.resolveCityInput('aerzen');
     assertEqual(res.mode, 'single_fill');
-    assertEqual(res.city, 'Bonndorf');
-    assertEqual(res.plz, '79848');
+    assertEqual(res.city, 'Aerzen');
   });
 
   it('Test 24: "bon" → Stadt-Dropdown (Bonn, Bonndorf, ...)', () => {

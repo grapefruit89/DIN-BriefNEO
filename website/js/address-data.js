@@ -870,7 +870,16 @@ export class AddressIntelligence {
     // Regel 1: Exakter Match auf Stadtname
     if (exactCity) {
       const plzs = AddressIntelligence.ortIndex.get(exactCity) || [];
-      if (plzs.length === 1) {
+      /* Sofort fuellen nur, wenn der Name der EINZIGE Treffer ist. Ist er
+         Praefix einer zweiten Stadt, wuerde das Feld mitten im Tippen
+         uebersprungen (gemeldet 2026-11-12: "roi" -> "74255 Roigheim,
+         waehrend "roisdorf" getippt werden sollte).
+         Geprueft wird die Schreibweise, nicht die Faltung: "munster" ist kein
+         Praefix von "Münster", auch wenn beide zu "munster" falten. */
+      const gleichnamige = AddressIntelligence.ortList.filter(
+        (c) => c.toLowerCase().startsWith(text.toLowerCase())
+      );
+      if (plzs.length === 1 && gleichnamige.length === 1) {
         return {
           mode: 'single_fill',
           city: exactCity,
@@ -888,20 +897,11 @@ export class AddressIntelligence {
       };
     }
 
-    // Regel 2: Präfix mit genau 1 Stadt-Match und 1 PLZ -> sofort füllen
-    if (matchingCities.length === 1) {
-      const targetCity = matchingCities[0];
-      const plzs = AddressIntelligence.ortIndex.get(targetCity) || [];
-      if (plzs.length === 1) {
-        return {
-          mode: 'single_fill',
-          city: targetCity,
-          plz: plzs[0],
-          items: [],
-          totalCount: 1
-        };
-      }
-    }
+    /* Hier stand Regel 2: Praefix mit genau 1 Stadt-Match und 1 PLZ wurde
+       sofort gefuellt ("bonnd" -> "79848 Bonndorf"). Das ueberspringt aber
+       jeden laengeren Namen, der mit demselben Praefix beginnt - wer "roisdorf"
+       tippen will, stand nach drei Zeichen in Roigheim (gemeldet 2026-11-12).
+       Jetzt: Vorschlagsliste, Auswahl per Klick. */
 
     // Regel 3: Reiner Text liefert die Stadt-Auswahlliste
     const univ = AddressIntelligence.lookupUniversal(suchtext, limit);

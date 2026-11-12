@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, initSenderSync, normalizePostcode, resolveCity, resolvePostcode } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, initSenderSync, normalizePostcode, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -4026,6 +4026,76 @@ describe('resetDraft — Privacy (Briefdaten vs. Präferenzen)', () => {
     new DraftManager().resetDraft();
     assertEqual(localStorage.getItem(STORAGE_KEYS.settings), settings,
       'din_settings bleibt nach resetDraft erhalten');
+  });
+});
+
+
+describe('Rücksendezeile — Spiegelung mit Initialen', () => {
+  /* Bug 2026-11-12: eine aus dem Entwurf geladene Zeile ("Light Yagami • …")
+   * galt per Textvergleich als Nutzertext und wurde nie wieder mit Initialen
+   * geschrieben. Die Entscheidung liegt jetzt in einer reinen Funktion. */
+  const lage = (over = {}) => ({
+    modus: /** @type {any} */ ('unklar'),
+    letzterAutowert: null,
+    aktuell: '',
+    auto: 'L. Yagami • Wohnung der Yagami-Familie • Japan',
+    street: 'Wohnung der Yagami-Familie',
+    city: 'Japan',
+    ...over
+  });
+
+  it('leeres Feld: schreibt den Automatikwert mit Initialen', () => {
+    const e = spiegelEntscheidung(lage());
+    assert(e.schreiben, 'schreibt beim ersten Sync');
+    assertEqual(e.modus, 'auto', 'Modus auto');
+  });
+
+  it('Entwurf mit altem Automatikwert: wird uebernommen und neu geschrieben', () => {
+    const e = spiegelEntscheidung(lage({ aktuell: 'Light Yagami • Wohnung der Yagami-Familie • Japan' }));
+    assert(e.schreiben, 'schreibt neu (Initialen)');
+  });
+
+  it('Nutzertext: bleibt unangetastet', () => {
+    const eigen = 'Eigene Zeile, 12345 Ort';
+    const e = spiegelEntscheidung(lage({ aktuell: eigen }));
+    assert(!e.schreiben, 'schreibt nicht');
+    assertEqual(e.modus, 'manuell', 'Modus manuell');
+  });
+
+  it('geloeschte Zeile: bleibt leer', () => {
+    const e = spiegelEntscheidung(
+      lage({ modus: 'auto', letzterAutowert: 'L. Yagami • Wohnung der Yagami-Familie • Japan', aktuell: '' })
+    );
+    assert(!e.schreiben, 'fuellt nicht wieder auf');
+    assertEqual(e.modus, 'manuell', 'Modus manuell');
+  });
+
+  it('unveraenderte Automatikzeile: kein Schreibvorgang, keine Schleife', () => {
+    const auto = 'L. Yagami • Wohnung der Yagami-Familie • Japan';
+    const e = spiegelEntscheidung(lage({ modus: 'auto', letzterAutowert: auto, aktuell: auto }));
+    assert(!e.schreiben, 'kein Schreiben noetig');
+  });
+});
+
+
+describe('Testbrief: direkter Snapshot, nur die PLZ-Erkennung ist gesperrt', () => {
+  /* Entscheidung 2026-11-12: der Button schreibt die Werte direkt ins Feld
+   * (kein getippter Editiervorgang). Einzige Ausnahme: die PLZ-/Ortserkennung
+   * darf den fiktiven Ort nicht durch einen echten ersetzen. */
+  it('setzt die PLZ-Sperre auf Orts- und Firmenfeldern', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    el.removeAttribute('data-autofill-aus');
+    setTestbriefField('empfaenger-ort', 'Japan');
+    assertEqual(el.getAttribute('data-autofill-aus'), 'true', 'PLZ-Erkennung gesperrt');
+    assertEqual(el.textContent, 'Japan', 'Wert steht direkt im Feld');
+  });
+
+  it('sperrt Felder ohne PLZ-Bezug nicht', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('anrede'));
+    el.removeAttribute('data-autofill-aus');
+    setTestbriefField('anrede', 'Sehr geehrte Damen und Herren,');
+    assertEqual(el.getAttribute('data-autofill-aus'), null, 'keine Sperre noetig');
+    assertEqual(el.textContent, 'Sehr geehrte Damen und Herren,', 'Wert steht direkt im Feld');
   });
 });
 

@@ -526,6 +526,34 @@ function abbreviateName(fullName) {
 }
 
 /**
+ * Entscheidet, ob die Ruecksendezeile neu geschrieben werden darf.
+ * Reine Funktion, damit die vier Faelle ohne DOM-Zustand testbar sind:
+ * leer/Entwurf -> schreiben, Nutzertext -> stehen lassen, geloescht -> leer lassen.
+ * @param {{ modus: 'unklar'|'auto'|'manuell', letzterAutowert: string|null,
+ *           aktuell: string, auto: string, street: string, city: string }} lage
+ * @returns {{ modus: 'unklar'|'auto'|'manuell', schreiben: boolean, letzterAutowert: string|null }}
+ */
+export function spiegelEntscheidung(lage) {
+  let { modus, letzterAutowert } = lage;
+  const { aktuell, auto, street, city } = lage;
+
+  if (modus === 'unklar') {
+    const teile = aktuell.split(' • ').map((teil) => teil.trim());
+    const siehtAutomatischAus =
+      aktuell === '' || (teile.length >= 3 && teile.at(-1) === city && teile.at(-2) === street);
+    modus = siehtAutomatischAus ? 'auto' : 'manuell';
+    if (modus === 'auto') letzterAutowert = aktuell;
+  }
+  if (modus !== 'auto') return { modus, schreiben: false, letzterAutowert };
+  /* Von Hand geaendert oder geloescht: ab jetzt Nutzertext. */
+  if (letzterAutowert !== null && aktuell !== letzterAutowert) {
+    return { modus: 'manuell', schreiben: false, letzterAutowert };
+  }
+  if (auto === aktuell) return { modus, schreiben: false, letzterAutowert };
+  return { modus, schreiben: true, letzterAutowert: auto };
+}
+
+/**
  * Synchronizes the sender information from the info block to the return address line
  * and the signature name.
  */
@@ -538,38 +566,74 @@ export function initSenderSync() {
 
   if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
 
-  /** @type {string|null} */
-  let lastSyncedRucksendezeile = (absender.textContent || '').trim();
-  /** @type {string|null} */
-  let lastSyncedUnterschrift = (unterschrift.textContent || '').trim();
+  /** @param {HTMLElement | null} el @returns {string} */
+  const lies = (el) => (el?.textContent || '').trim();
 
   /** @param {string} name @param {string} street @param {string} city */
   const baueRueckzeile = (name, street, city) =>
     [abbreviateName(name), street, city].filter((p) => p.length > 0).join(' • ');
 
+  /* Drei Zustaende statt Textvergleich. Textvergleich war die Ursache dafuer,
+   * dass eine aus dem Entwurf geladene Zeile ("Light Yagami • …") als
+   * Nutzertext galt und nie wieder mit Initialen geschrieben wurde
+   * (gemessen 2026-11-12).
+   *   unklar  — direkt nach dem Laden, wird beim ersten Sync entschieden
+   *   auto    — der Helfer besitzt die Zeile und darf sie ersetzen
+   *   manuell — der Nutzer hat sie angefasst; sie bleibt stehen
+   * "manuell" entsteht durch jede Eingabe in das Feld, also auch durch
+   * Loeschen: dann bleibt die Zeile leer. */
+  /** @type {'unklar'|'auto'|'manuell'} */
+  let rueckModus = 'unklar';
+  /** @type {'unklar'|'auto'|'manuell'} */
+  let unterschriftModus = 'unklar';
+  /** @type {string|null} */
+  let letzterAutowert = null;
+  let schreibeGerade = false;
+
+  /** @param {HTMLElement | null} el @param {string} wert */
+  const schreibe = (el, wert) => {
+    if (!el) return;
+    schreibeGerade = true;
+    el.textContent = wert;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    schreibeGerade = false;
+  };
+
+  for (const el of [absender, unterschrift]) {
+    if (!el) continue;
+    el.addEventListener('input', () => {
+      if (schreibeGerade) return; // eigener Schreibvorgang, kein Nutzer
+      if (el === absender) rueckModus = 'manuell';
+      else unterschriftModus = 'manuell';
+    });
+  }
+
   function sync() {
-    if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
-    const name = (infoName.textContent || '').trim();
-    const street = (infoStreet.textContent || '').trim();
-    const city = (infoCity.textContent || '').trim();
+    const name = lies(infoName);
+    const street = lies(infoStreet);
+    const city = lies(infoCity);
+    const auto = baueRueckzeile(name, street, city);
+    const aktuell = lies(absender);
 
-    // 1. Sync to Rücksendezeile (absender) with abbreviated name
-    // 1. Sync to Rücksendezeile (absender) with abbreviated name
-    const newRucksendezeile = baueRueckzeile(name, street, city);
-    const currentAbsender = (absender.textContent || '').trim();
-    if (!currentAbsender || currentAbsender === lastSyncedRucksendezeile) {
-      absender.textContent = newRucksendezeile;
-      lastSyncedRucksendezeile = newRucksendezeile;
-      absender.dispatchEvent(new Event('input', { bubbles: true }));
-    }
+    // 1. Ruecksendezeile
+    const entscheidung = spiegelEntscheidung({
+      modus: rueckModus,
+      letzterAutowert,
+      aktuell,
+      auto,
+      street,
+      city
+    });
+    rueckModus = entscheidung.modus;
+    letzterAutowert = entscheidung.letzterAutowert;
+    if (entscheidung.schreiben) schreibe(absender, auto);
 
-    // 2. Sync to Maschinenschrift (unterschrift) with full name
-    const currentUnterschrift = (unterschrift.textContent || '').trim();
-    if (!currentUnterschrift || currentUnterschrift === lastSyncedUnterschrift) {
-      unterschrift.textContent = name;
-      lastSyncedUnterschrift = name;
-      unterschrift.dispatchEvent(new Event('input', { bubbles: true }));
+    // 2. Maschinenschrift (voller Name, ohne Initialen)
+    const jetztUnterschrift = lies(unterschrift);
+    if (unterschriftModus === 'unklar') {
+      unterschriftModus = jetztUnterschrift === '' || jetztUnterschrift === name ? 'auto' : 'manuell';
     }
+    if (unterschriftModus === 'auto' && jetztUnterschrift !== name) schreibe(unterschrift, name);
   }
 
   infoName.addEventListener('input', sync);
@@ -577,17 +641,14 @@ export function initSenderSync() {
   infoCity.addEventListener('input', sync);
 
   eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
-    /* Undo/Redo und Reset stellen einen fremden Stand wieder her. Nur wenn die
-     * Zeile exakt unserer erzeugten Form entspricht, darf sie beim naechsten
-     * Edit ueberschrieben werden. Alles andere ist Nutzertext und bleibt stehen
-     * (sonst ueberschreibt ein Namens-Edit die Handzeile nach jedem Undo). */
-    const name = (infoName.textContent || '').trim();
-    const street = (infoStreet.textContent || '').trim();
-    const city = (infoCity.textContent || '').trim();
-    const aktuell = (absender.textContent || '').trim();
-    lastSyncedRucksendezeile = aktuell === baueRueckzeile(name, street, city) ? aktuell : null;
-    const aktuelleUnterschrift = (unterschrift.textContent || '').trim();
-    lastSyncedUnterschrift = aktuelleUnterschrift === name ? name : null;
+    /* Undo/Redo und Reset stellen einen fremden Stand wieder her: Zustand neu
+     * entscheiden lassen, statt ihn zu raten. */
+    /* Nur die Rücksendezeile neu entscheiden: sie kann per Undo einen
+       fremden Stand zurueckbekommen. Die Maschinenschrift bleibt eine reine
+       Spiegelung des Namens (Test: "Maschinenschrift folgt weiterhin dem
+       Namen"). */
+    rueckModus = 'unklar';
+    letzterAutowert = null;
   });
 }
 

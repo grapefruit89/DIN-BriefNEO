@@ -118,6 +118,7 @@ taxonomy:
     - githooks
     - github
     - todo
+    - batches
     - build
     - Papierkorb
   allowed_root_files:

@@ -1,0 +1,1 @@
+../../website/js/binary-storage.js

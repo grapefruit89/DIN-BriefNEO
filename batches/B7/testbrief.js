@@ -1,0 +1,1 @@
+../../website/addons/testbrief/testbrief.js

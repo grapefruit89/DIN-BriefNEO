@@ -8,7 +8,7 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, sanitizeRichText, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
+import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, getCaretCharacterOffset, sanitizeRichText, setCaretCharacterOffset, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
@@ -4521,6 +4521,53 @@ describe('B3-Fixes: Ziel-Sperre und veraltete Suchantworten', () => {
       remove(STORAGE_KEYS.geoapifyKey);
       suchfeld.value = '';
     }
+  });
+});
+
+describe('Caret in nativen Feldern (Befund B12)', () => {
+  /* Nach der Migration sind fast alle Felder <input>. window.getSelection()
+     beschreibt deren Caret nicht — Undo/Redo setzte den Cursor an den Anfang
+     oder das Ende. Die Helfer und ihre Verdrahtung sind hier festgehalten. */
+  const mk = (typ = 'text') => {
+    const el = document.createElement('input');
+    el.type = typ;
+    document.body.append(el);
+    return el;
+  };
+
+  it('getCaretCharacterOffset liest selectionStart', () => {
+    const el = mk();
+    el.value = 'Erster Text';
+    el.setSelectionRange(4, 4);
+    assertEqual(getCaretCharacterOffset(el), 4);
+    el.remove();
+  });
+
+  it('setCaretCharacterOffset setzt den Cursor im <input>', () => {
+    const el = mk();
+    el.value = 'Erster Text';
+    setCaretCharacterOffset(el, 6);
+    assertEqual(el.selectionStart, 6);
+    assertEqual(el.selectionEnd, 6);
+    el.remove();
+  });
+
+  it('type=email hat keine Textauswahl und wirft nicht', () => {
+    const el = mk('email');
+    el.value = 'a@b.de';
+    setCaretCharacterOffset(el, 3);
+    assertEqual(document.activeElement, el, 'Fokus sitzt trotzdem');
+    el.remove();
+  });
+
+  it('draft-manager prueft den Feldtyp ueber Field.isNative (Ratsche)', async () => {
+    const src = await (await fetch('/website/js/draft-manager.js')).text();
+    assert(src.includes('Field.isNative(activeElem)'), 'Caret fuer native Felder gemerkt');
+  });
+
+  it('Druck-Reset in base.css erfasst input[data-atom] (Ratsche)', async () => {
+    const css = await (await fetch('/website/css/base.css')).text();
+    assert(css.includes('input[data-atom]'), 'input[data-atom] im Druck-Reset');
   });
 });
 

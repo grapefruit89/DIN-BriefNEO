@@ -2732,3 +2732,32 @@ Seit 6ed2759 stehen dort `<input>` → `some()` immer false, Alt-Entwuerfe ohne
 **Dritter Befund.** `#datum` war im ersten Frame leer, wenn der Entwurf kein
 Datum enthielt — `applyLetterDate()` laeuft erst nach dem Paint. `boot-state.js`
 setzt jetzt denselben Text (Temporal, Zone Europe/Berlin, `dateStyle: 'long'`).
+
+### Nachtrag 4 (2026-11-12): Feldtyp — was die Migration still kaputt gemacht hat
+
+Der Review zu B12 fand fünf Stellen, an denen Code noch `contenteditable`
+annahm, obwohl dort `<input>` steht. Vier davon waren echte Ausfaelle:
+
+- **Caret bei Undo/Redo** (`draft-manager`): gemerkt wurde nur fuer
+  `hasAttribute('contenteditable')`; in Einzeilern sprang der Cursor an den
+  Rand. Jetzt entscheidet `Field.isNative`, und die Helfer in `document.js`
+  lesen `selectionStart` bzw. rufen `setSelectionRange` (mit `try/catch`, weil
+  `type=email` keine Textauswahl hat).
+- **Druck-Reset** (`base.css`): `[contenteditable], :is(textarea[data-feldtyp])`
+  erfasste die migrierten `<input>` nicht. Jetzt `input[data-atom]` dabei.
+- **Fokus im Druck**: die Fokus-Optik steht in `@scope (din-blatt)` und gewann
+  gegen den Reset. Sie ist jetzt `@media screen` — Fokus ist eine
+  Schirm-Rueckmeldung, kein Papiermerkmal.
+- **Tote Regel** `.single-line[contenteditable]:focus` entfernt: kein Element
+  traegt beide Merkmale (`.single-line` sitzt auf `<input>`, `#text` hat die
+  Klasse nicht).
+
+**Bewusst NICHT geaendert:** `#anlagen-angabe` (textarea) bleibt ohne
+Zeichen-/Breitendeckel. `#istVoll` misst `scrollWidth > clientWidth`, und eine
+mehrzeilige Textarea bricht um statt horizontal zu scrollen — der Deckel wuerde
+dort nie greifen. Ein Deckel waere eine Produktentscheidung, kein Bugfix.
+
+**Messfalle:** `CSS.getMatchedStylesForNode` und `getComputedStyle` zeigten
+weiter den alten Zustand, weil die Seite nach der CSS-Aenderung nicht neu
+geladen war. Erst der Reload machte den Fix sichtbar. Regeln: nach CSS-Edits
+immer neu laden, bevor gemessen wird.

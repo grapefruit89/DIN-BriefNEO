@@ -328,8 +328,12 @@ din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after { visibilit
     display: none !important;
 }
 
+/* Druck-Reset fuer ALLE Blattfelder. `input[data-atom]` fehlte, seit die
+   Einzeiler migriert sind (Befund B12/S3) — im Regelfall faellt es nicht auf,
+   weil beforeprint blurrt, aber die Regel soll nicht von diesem Zufall
+   abhaengen. */
 [contenteditable],
-:is(textarea[data-feldtyp]) {
+:is(textarea[data-feldtyp], input[data-atom]) {
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;

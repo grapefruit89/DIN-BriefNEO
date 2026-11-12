@@ -128,6 +128,13 @@ export function formatElementMicroTypography(element) {
  * @returns {number}
  */
 export function getCaretCharacterOffset(element) {
+  /* Native Felder zuerst: window.getSelection() beschreibt den Caret in einem
+     <input> nicht (liefert 0). Seit der Migration 2026-11-12 sind fast alle
+     Felder <input> — vorher wurde der Caret dort nie gemerkt (Befund B12/S1).
+     type=email/number haben keine Textauswahl, selectionStart ist dann null. */
+  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+    return typeof element.selectionStart === 'number' ? element.selectionStart : 0;
+  }
   const selection = element.ownerDocument?.defaultView?.getSelection();
   if (!selection || selection.rangeCount === 0) return 0;
   const range = selection.getRangeAt(0);
@@ -144,14 +151,21 @@ export function getCaretCharacterOffset(element) {
  */
 export function setCaretCharacterOffset(element, offset) {
   element.focus();
-  /* offset 0 hiess bisher nur "fokussieren" — dann entscheidet der Browser,
-     wo der Caret landet. Fuer native Felder setSelectionRange, fuer
-     contenteditable ein Range am Elementanfang (B5-Review 2026-11-12). */
-  if (offset <= 0) {
-    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-      element.setSelectionRange(0, 0);
-      return;
+  /* Native Felder: setSelectionRange statt Range/TreeWalker. try/catch, weil
+     type=email und type=number keine Textauswahl besitzen (InvalidStateError);
+     dort bleibt es beim reinen Fokussieren. */
+  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+    try {
+      element.setSelectionRange(offset, offset);
+    } catch {
+      /* Feldtyp ohne Textauswahl: Fokus genuegt */
     }
+    return;
+  }
+  /* offset 0 hiess bisher nur "fokussieren" — dann entscheidet der Browser,
+     wo der Caret landet. Fuer contenteditable ein Range am Elementanfang
+     (B5-Review 2026-11-12). */
+  if (offset <= 0) {
     const docRef = element.ownerDocument;
     const sel = docRef.defaultView?.getSelection();
     if (!sel) return;
@@ -858,7 +872,9 @@ export class UIProtections {
  * ========================================================================================= */
 
 /* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
- * Matcht contenteditable-Blattfelder UND speicherbare Formular-Selects (z. B. Postvermerk). */
+ * Matcht contenteditable-Blattfelder (#text), native Blattfelder
+ * (input[data-atom], textarea[data-feldtyp]) und speicherbare Formular-Selects
+ * (Postvermerk). Der Kommentar nannte frueher nur contenteditable (B12/S5). */
 export const EDITABLE_FIELD_SELECTOR =
   '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
 

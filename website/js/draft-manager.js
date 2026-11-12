@@ -214,7 +214,13 @@ export class DraftManager {
     let caretInfo = null;
 
     const activeElem = document.activeElement;
-    if (activeElem?.hasAttribute('contenteditable') && activeElem.id && activeElem.id !== 'datum') {
+    /* Beide Feldtypen: nativ (input/textarea) ueber selectionStart, #text als
+       Rich-Text ueber Range. Vorher war die Bedingung `hasAttribute(
+       'contenteditable')` — in Einzeilern wurde der Caret nie gemerkt und
+       sprang nach Undo/Redo (Befund B12/S1). */
+    const istFeld = activeElem instanceof HTMLElement
+      && (Field.isNative(activeElem) || activeElem.hasAttribute('contenteditable'));
+    if (istFeld && activeElem.id && activeElem.id !== 'datum') {
       caretInfo = { id: activeElem.id, offset: getCaretCharacterOffset(activeElem) };
     }
 

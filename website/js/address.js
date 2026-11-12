@@ -1078,9 +1078,9 @@ export function initAddressServices() {
         const key = load(STORAGE_KEYS.geoapifyKey, '');
         if (!key) return;
         /* Field.getValue, nicht textContent: bei einem <input> ist textContent
-           immer leer (B3-Review 2026-11-12). Heute ist das Feld ein
-           contenteditable, die geplante Migration wuerde den Lookup sonst
-           still abschalten. */
+           immer leer. Das Feld ist seit 2026-11-12 ein <input> — der Zugriff
+           ueber Field ist deshalb Pflicht, nicht Vorsorge (B3-Review, Befund
+           B12/S6). */
         const text = Field.getValue(absenderPlzOrtEl).trim();
         const match = text.match(/(\d{5})/);
         if (match) {

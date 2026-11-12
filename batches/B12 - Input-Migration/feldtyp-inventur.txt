@@ -131,3 +131,28 @@ Seeder-Ratsche (gleicher Tag):
 Das sind Quelltext-Pruefungen: sie finden eine geloeschte Zeile, aber nicht
 einen falschen Feldtyp in einer NEUEN Zeile. Genau diese Luecke soll der
 Batch benennen.
+
+-------------------------------------------------------------------------------
+F) Stand nach Umsetzung (2026-11-12)
+-------------------------------------------------------------------------------
+
+Behoben (Commit folgt):
+  S1 Caret fuer native Felder: Field.isNative im draft-manager, selectionStart
+     in getCaretCharacterOffset, setSelectionRange in setCaretCharacterOffset
+     (try/catch fuer type=email). Live geprueft: Undo in #betreff stellt Wert
+     "AAA" und caret=3 wieder her.
+  S3 Druck-Reset in base.css erfasst input[data-atom].
+  S3b Fokus-Optik auf @media screen begrenzt — sie gewann im Druck gegen den
+     Reset (Emulation print: mit Fokus "solid", nach dem Fix "none").
+  S4 Tote Regel .single-line[contenteditable]:focus entfernt.
+  S5 Kommentar zu EDITABLE_FIELD_SELECTOR korrigiert.
+  S6 Kommentar in address.js korrigiert (Feld ist laengst <input>).
+
+Bewusst nicht geaendert:
+  S2 textarea in #handleInputLimit. #istVoll misst scrollWidth > clientWidth;
+     eine mehrzeilige Textarea bricht um, der Deckel greift nie. Ein
+     Zeichendeckel fuer #anlagen-angabe waere eine Produktentscheidung.
+
+Neue Tests (5): Caret-Helfer lesen/setzen, type=email ohne Auswahl, zwei
+Quelltext-Ratschen (draft-manager nutzt Field.isNative, base.css nennt
+input[data-atom]).

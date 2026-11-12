@@ -51,6 +51,34 @@ body:has(#btn-form-a:checked) din-blatt {
   display: none;
 }
 
+/* --- Formwechsel animiert das BLATT, nicht nur die Pille ---
+ * Nutzerentscheidung 2026-11-12: der Wechsel Form A/B soll den ganzen Brief
+ * nach oben/unten schieben. Die Bewegung entsteht aus den Positions-Variablen
+ * (--briefkopf-y/--anschriftfeld-y/--infoblock-y/--kern-y), die an data-layout
+ * haengen; zusaetzlich aendert sich die Spacer-Hoehe (Textfluss in #kern).
+ * Alle bewegten Teile laufen mit DERSELBEN Kurve und Dauer, damit die Summe
+ * (Kern-Position + Spacer) monoton und ruckelfrei ist.
+ * Nur am Bildschirm, nur nach dem Seeding (kein Load-FOUC) und nicht bei
+ * reduzierter Bewegung. Im Druck gibt es keine Uebergaenge — das PDF bleibt
+ * exakt. NICHT auf die Pille beschraenken: sonst springt das Blatt. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  :root[data-seeded="true"] #rucksendeangabe,
+  :root[data-seeded="true"] #anschriftfeld,
+  :root[data-seeded="true"] #infoblock,
+  :root[data-seeded="true"] #kern,
+  :root[data-seeded="true"] din-falzmarke-1,
+  :root[data-seeded="true"] din-falzmarke-2 {
+    transition: top 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  :root[data-seeded="true"] #spacer {
+    transition:
+      height 0.28s cubic-bezier(0.25, 1, 0.5, 1),
+      min-height 0.28s cubic-bezier(0.25, 1, 0.5, 1),
+      max-height 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+}
+
 din-rucksendeangabe,
 din-empfaenger-firma,
 din-empfaenger-strasse,

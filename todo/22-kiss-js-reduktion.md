@@ -125,11 +125,23 @@ Import, Export, Draft-Collector. Kein Fehler, aber der breiteste Punkt im Repo.
 ### Offen — Entscheidung nötig
 
 **K5 — `destroy()` räumt DOM-Listener nicht ab (`UIProtections`, `SalutationFeature`).**
+*(entschieden 2026-11-12: **A** — so lassen)*
 
-- **A)** so lassen: `destroy()` wird nur in Tests gerufen; im Produktivpfad gibt es kein Re-Init
+Beleg: beide werden in `main.js` **genau einmal** erzeugt
+(`new UIProtections()` Z. 137, `new SalutationFeature(...)` Z. 161). Es gibt
+keinen Re-Init-Pfad im Produktivcode; `destroy()` existiert nur für Tests, die
+jeweils eine frische Instanz bauen. Kein Leak erreichbar.
+
+- **A)** so lassen (gewählt)
 - **B)** Listener über einen `AbortController` registrieren und in `destroy()` abbrechen (~10 Zeilen je Klasse)
 
 **K6 — `formatLetterDate()` ohne Temporal-Fallback.**
+*(entschieden 2026-11-12: **A** — kein Fallback)*
+
+Beleg (im laufenden Browser gemessen): `typeof Temporal === 'object'`,
+`typeof Temporal.Now.zonedDateTimeISO === 'function'`. Temporal ist im
+Zielbrowser vorhanden; ein Fallback würde zonenloses `Date` einführen, was
+`A48`/`A50` verbietet.
 
 `currentISODate()` nutzt ausschließlich `Temporal.Now.zonedDateTimeISO('Europe/Berlin')`;
 `formatDatum()` hat dagegen einen Fallback. Ohne Temporal bleibt `#datum` leer.

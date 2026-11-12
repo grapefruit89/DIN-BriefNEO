@@ -25,7 +25,6 @@ THEMEN = {
     'B1': 'Geometrie-CSS', 'B2': 'HTML + Boot', 'B3': 'Adresslogik',
     'B4': 'Speichern/Undo', 'B5': 'Textkern', 'B6': 'UI/Signatur',
     'B7': 'Testbrief', 'B8': 'Adressdaten',
-    'B2b': 'Orchestrierung & Lebenszyklus',
 }
 ORDER = {'.html': 0, '.css': 1, '.js': 2, '.txt': 3, '.json': 4}
 
@@ -44,7 +43,10 @@ def git_kopf() -> str:
         ).stdout.strip()
     except Exception:
         commit = '?'
-    return f'Quellstand: HEAD {commit}. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.'
+    return (
+        f'Quellstand: Arbeitsbaum auf Basis HEAD {commit}. '
+        'Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.'
+    )
 
 
 def messwerte(text: str) -> dict:

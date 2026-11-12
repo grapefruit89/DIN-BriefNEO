@@ -1,6 +1,6 @@
 # Verträge zu B2
 
-Dieser Batch enthält 4 Module. Alles, was er importiert und
+Dieser Batch enthält 5 Module. Alles, was er importiert und
 nicht enthält, steht unten mit **Signatur und Rolle, ohne Code**. Das ist
 Absicht: die Naht ist prüfbar, die Implementierung gehört in ihren eigenen
 Batch. Beurteile, ob dieser Batch den Vertrag richtig benutzt — nicht, ob

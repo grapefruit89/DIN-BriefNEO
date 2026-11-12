@@ -3,7 +3,7 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD e5290cf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: Arbeitsbaum auf Basis HEAD 81d5197. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```

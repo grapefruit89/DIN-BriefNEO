@@ -20,6 +20,16 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 - `website/js/boot.js`  (75 Zeilen) — klassisches Skript im `<head>`, blockierend
 - `website/js/field.js`  (32 Zeilen) — Naht input ↔ contenteditable
 - `website/llms.txt`  (76 Zeilen) — Feldvertrag (Beilage, kein Code)
+- `website/css/sheet-common.css`  (454 Zeilen) — **Beilage**: die Regeln, die
+  `data-ready` und die Platzhalter steuern (`:root:not([data-ready="true"])`).
+  Ohne sie ist F5 nicht beurteilbar.
+
+## Beilage (nicht reviewen)
+
+`website/css/sheet-common.css` ist nur für F5 dabei: dort stehen die
+Platzhalterregeln (`:root:not([data-ready="true"]) …`) und der
+`:placeholder-shown`-Reset. Bewerte dieses Stylesheet nicht als Ganzes — es
+gehört zu B1. Lies es nur, um den FOUC-Mechanismus zu verstehen.
 
 ## Zuerst lesen: KONTRAKT.md
 
@@ -80,10 +90,14 @@ implementiert — was bricht? Szenario, nicht Bug.
 ein Leser (CSS, Test), wenn `initApp` kurz vor Ablauf der 2 s fertig wird?
 
 **F5 — `boot.js` als klassisches Skript.** Der Kommentar begründet es mit FOUC
-(gemessener FCP 96 ms). Gibt es bei Baseline Chrome 150+ einen Weg zum selben
-Effekt ohne zweites, blockierendes Skript — oder ist das die richtige Lösung?
-Nur antworten, wenn du den FOUC-Mechanismus in HTML/CSS wirklich siehst;
-sonst „nicht beurteilbar".
+(gemessener FCP 96 ms). Die Platzhalterregeln liegen jetzt bei
+(`sheet-common.css`, Abschnitt mit `:root:not([data-ready="true"])`), damit du
+den Mechanismus sehen kannst, statt ihn zu vermuten.
+
+Gibt es bei Baseline Chrome 150+ einen Weg zum selben Effekt ohne zweites,
+blockierendes Skript — oder ist das die richtige Lösung? Wenn du den
+Zusammenhang zwischen `boot.js`, `data-ready` und den Platzhalterregeln nach
+dem Lesen immer noch nicht siehst, antworte „nicht beurteilbar, weil <Grund>".
 
 ## Harte Regeln
 - Jeder Befund braucht eine Fundstelle: `datei` **plus wörtliche Zeile** aus dem

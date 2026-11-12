@@ -1,0 +1,1833 @@
+# B6 — UI/Signatur
+
+Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
+damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
+
+## Inhalt
+```
+B6/
+├── sidebar.css                   1191 Zeilen
+├── settings.js                    289 Zeilen
+├── signature.js                   312 Zeilen
+└── prompt.md                    (nicht enthalten — separat anklicken)
+```
+
+## Quellen (Snapshot)
+| Datei | Pfad im Repo | Zeilen | SHA256 |
+|---|---|---:|---|
+| `sidebar.css` | `website/css/sidebar.css` | 1191 | `5b3bde12` |
+| `settings.js` | `website/js/settings.js` | 289 | `0cd62f41` |
+| `signature.js` | `website/js/signature.js` | 312 | `5d2a89f8` |
+
+Gesamt: 53497 Zeichen ≈ 13k Token.
+
+
+==============================================================================
+===== sidebar.css  (website/css/sidebar.css, 1191 Zeilen, sha256:5b3bde12)
+==============================================================================
+
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-css-architektur]]  */
+
+/* css/sidebar.css — Sidebar: Navigation, Custom Inputs, Autocomplete, Adressbuch, Geoapify, Guides */
+
+/* --- SIDEBAR --- */
+aside,
+aside.seitenleiste,
+#seitenleiste {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  inline-size: var(--seitenleiste-breite);
+  max-inline-size: var(--seitenleiste-breite);
+  min-inline-size: var(--seitenleiste-breite);
+  box-sizing: border-box;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--border-color);
+  padding: var(--space-2xl);
+  gap: var(--space-xl);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  z-index: 10;
+  transition: transform 0.3s ease;
+  touch-action: pan-y;           /* Erlaubt vertikales Scrollen, blockiert Pinch-Zoom-Gesten auf der Leiste */
+  overscroll-behavior: contain;  /* Verhindert Scroll-Chaining zum Hauptdokument */
+  flex-shrink: 0;                /* Verhindert horizontales Zusammendrücken */
+  user-select: none;             /* Verhindert versehentliches Markieren von UI-Labels */
+}
+
+.seitenleiste-zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.seitenleiste-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.seitenleiste-divider {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+
+.seitenleiste-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+fieldset.seitenleiste-field-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+fieldset.seitenleiste-field-group > legend {
+  padding: 0;
+}
+
+.seitenleiste-btn-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.seitenleiste-setup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.seitenleiste-setup-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.seitenleiste-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Premium Segmented Controls & Buttons */
+.btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in oklch, var(--text-muted), transparent 90%);
+  color: var(--text-primary);
+}
+
+.btn.primary {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: oklch(1 0 0); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
+  font-weight: 600;
+}
+
+.btn.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.segmented-control {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--segment-bg);
+  padding: var(--space-xs);
+  border-radius: var(--radius-lg);
+  gap: 0; /* Remove gap for perfect math */
+  position: relative;
+  isolation: isolate;
+
+  /* Dynamically calculated items and active index */
+  --items: 2;
+  --active-idx: 0;
+}
+
+/* Count items */
+.segmented-control:has(input[type="radio"]:nth-of-type(3)) { --items: 3; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4)) { --items: 4; }
+
+/* Active index tracking (Index des :checked-Kindes ist nicht nach oben hebringbar) */
+.segmented-control:has(input[type="radio"]:nth-of-type(1):checked) { --active-idx: 0; }
+.segmented-control:has(input[type="radio"]:nth-of-type(2):checked) { --active-idx: 1; }
+.segmented-control:has(input[type="radio"]:nth-of-type(3):checked) { --active-idx: 2; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4):checked) { --active-idx: 3; }
+
+/* The sliding pill */
+.segmented-control::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--items));
+  translate: calc(var(--active-idx) * 100%);
+  
+  background: var(--segment-active-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--segment-active-shadow);
+  transition: translate 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+  z-index: -1;
+  opacity: 1;
+}
+
+/* Hide pill if nothing is selected (during hydration) */
+.segmented-control:not(:has(:checked)):not(:has([aria-pressed="true"]))::before {
+  opacity: 0;
+}
+
+.segmented-control button,
+.segmented-control label {
+  border: none;
+  background: transparent; /* Clean transparent to let pill show */
+  padding: var(--space-md) var(--space-xl);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.segmented-control button[aria-pressed="true"],
+.segmented-control input[type="radio"]:checked + label {
+  color: oklch(0 0 0);
+  font-weight: 700;
+  /* Box-shadow and background are now handled by ::before */
+}
+
+/* Tastatur-Fokusindikator (WCAG 2.2 SC 2.4.7) */
+.segmented-control input[type="radio"]:focus-visible + label {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Motion-Präferenz: Animationen bei reduzierter Bewegung deaktivieren */
+@media (prefers-reduced-motion: reduce) {
+  .segmented-control::before,
+  .btn,
+  .btn-ghost,
+  .input-field,
+  .select-chevron {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Windows High Contrast Mode / Forced Colors */
+@media (forced-colors: active) {
+  .segmented-control::before {
+    outline: 2px solid Highlight;
+  }
+  .segmented-control input[type="radio"]:checked + label {
+    color: HighlightText;
+  }
+}
+
+/* --- SIDEBAR CUSTOM INPUTS & AUTOCOMPLETE --- */
+.input-field {
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-field:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.input-field::placeholder {
+  color: oklch(0.42 0.03 260); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
+  opacity: 1;
+}
+
+.input-field:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.input-field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#input-anschrift-suche {
+  anchor-name: --anchor-anschrift-suche;
+}
+
+#btn-zwischenablage-anschrift {
+  anchor-name: --clipboard-btn;
+}
+
+#clipboard-candidates-popover {
+  position-anchor: --clipboard-btn;
+  width: max(anchor-size(width), 280px);
+}
+
+/* Glassmorphic Dropdown for Geoapify address suggestions */
+.autocomplete-dropdown {
+  position: absolute;
+  position-anchor: --anchor-anschrift-suche;
+  position-area: bottom span-x;
+  position-try-fallbacks: flip-block;
+  top: auto;
+  left: auto;
+  width: anchor-size(width);
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  margin: 4px 0 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+}
+
+.autocomplete-dropdown li {
+  padding: 8px 12px;
+  font-size: 0.725rem;
+  border-radius: 6px;
+  
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.autocomplete-dropdown li:hover {
+  background: var(--border-color);
+  color: var(--accent-color);
+}
+
+.autocomplete-header {
+  font-weight: bold;
+  cursor: default;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.autocomplete-sub {
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.unverified-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75em;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
+  border: 1px solid var(--border-color);
+  opacity: 0.85;
+  vertical-align: middle;
+}
+
+.mismatch-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
+  background: light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
+  border: 1px solid light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
+  vertical-align: middle;
+}
+
+/* --- COMMENT FORMAT --- */
+.brief-kommentar {
+  border-left: 3px solid var(--border-color);
+  padding-left: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin: 4px 0;
+  width: 100%;
+}
+
+/* --- SIDEBAR UTILITIES --- */
+.seitenleiste-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seitenleiste-sub-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Font action button — 2-state look (Schriftarten-Manager) */
+#btn-schrift-aktion {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+#btn-schrift-aktion:hover {
+  background: var(--segment-active-bg);
+}
+
+#btn-schrift-aktion[data-font-state="loaded"] {
+  background: color-mix(in oklch, var(--c-danger) 10%, transparent);
+  border-color: color-mix(in oklch, var(--c-danger) 30%, transparent);
+  color: var(--c-danger);
+}
+
+#btn-schrift-aktion[data-font-state="loaded"]:hover {
+  background: color-mix(in oklch, var(--c-danger) 18%, transparent);
+}
+
+/* Signature / Stamp action button — 2-state look */
+#btn-unterschrift-aktion {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+#btn-unterschrift-aktion:hover {
+  background: var(--segment-active-bg);
+}
+
+#btn-unterschrift-aktion[data-state="loaded"] {
+  background: color-mix(in oklch, var(--c-danger) 10%, transparent);
+  border-color: color-mix(in oklch, var(--c-danger) 30%, transparent);
+  color: var(--c-danger);
+}
+
+#btn-unterschrift-aktion[data-state="loaded"]:hover {
+  background: color-mix(in oklch, var(--c-danger) 18%, transparent);
+}
+
+/* Geoapify API-Key BYOK (100% KISS) */
+.key-hint-link {
+  justify-self: start;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-top: 2px;
+}
+.key-hint-link:hover,
+.key-hint-link:focus-visible {
+  color: var(--accent-color);
+}
+
+.input-status-hint {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  min-height: 1.2em;
+  margin-top: 2px;
+}
+.input-status-hint[data-status="valid"] { color: var(--c-success); }
+.input-status-hint[data-status="invalid"] { color: var(--c-danger); }
+.input-status-hint[data-status="pending"] { color: var(--accent-color); }
+.input-status-hint[data-status="error"] { color: var(--c-warning, oklch(0.75 0.14 75)); }
+
+.input-field[data-status="valid"] {
+  border-color: var(--c-success);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--c-success) 20%, transparent);
+}
+.input-field[data-status="invalid"] {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--c-danger) 20%, transparent);
+}
+.input-field[data-status="pending"] {
+  border-color: var(--accent-color);
+}
+
+
+/* =========================================================================================
+ * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCHES (Native HTML5)
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
+ * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
+ * Die Statuserkennung erfolgt rein deklarativ über Attribute am `<html>`
+ * (`data-marks`, gesetzt von `boot.js` vor dem ersten Paint; `settings.js` hält es synchron).
+ * ES IST STRENGSTENS VERBOTEN (Law Catalog A57):
+ * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
+ * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
+ * ========================================================================================= */
+.seitenleiste-switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+.seitenleiste-switch-row .seitenleiste-label {
+  margin: 0;
+  cursor: pointer;
+}
+
+.seitenleiste-switch-row:has(input:disabled) {
+  opacity: 0.5;
+}
+input[type="checkbox"][switch] {
+  appearance: auto;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  width: 36px;
+  height: 20px;
+}
+.badge-local {
+  float: right;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  background: var(--segment-bg);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+
+/* Accessibility: Windows High Contrast / forced-colors. Ohne diesen Guard
+   verlieren Buttons ihren Hintergrund und sind mit `transparent`-Border
+   unsichtbar. Systemfarben (ButtonFace/ButtonText) sind hier der Standardweg. */
+@media (forced-colors: active) {
+  .btn {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  .btn-ghost {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  input[type="checkbox"][switch] {
+    forced-color-adjust: none;
+    accent-color: var(--accent-color);
+  }
+}
+
+/* Theme-Icons Umschaltung. Quelle ist :root[data-theme], das boot.js noch im
+   <head> setzt — die Schaltflaeche existiert zu diesem Zeitpunkt noch nicht,
+   ihr Attribut waere erst nach dem Modulstart korrekt (sichtbarer Icon-Swap). */
+.theme-icon {
+  display: none;
+}
+
+:root[data-theme="auto"] #btn-theme-toggle .theme-icon-auto {
+  display: block;
+}
+
+:root[data-theme="light"] #btn-theme-toggle .theme-icon-light {
+  display: block;
+}
+
+:root[data-theme="dark"] #btn-theme-toggle .theme-icon-dark {
+  display: block;
+}
+
+/* --- UI-SHELL & FORM CONTROLS (aus ehemals layout.css) --- */
+.seitenleiste-select {
+  display: flex;
+  appearance: base-select;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.seitenleiste-select:hover {
+  background: color-mix(in oklch, var(--segment-bg) 85%, var(--accent-color));
+  border-color: var(--text-muted);
+}
+
+.seitenleiste-select:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.seitenleiste-select:has(option:checked:not([value=""])) {
+  background: var(--segment-active-bg);
+  color: var(--text-primary);
+  box-shadow: var(--segment-active-shadow);
+}
+
+.seitenleiste-select::picker(select) {
+  appearance: base-select;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+}
+
+.seitenleiste-select::picker-icon {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--text-muted);
+}
+
+:is([hidden], .hidden) { display: none; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.w-full { width: 100%; }
+
+.seitenleiste-header-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.seitenleiste-header-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* --- ICON BUTTONS (Zeile 0, Beszel-inspiriert) --- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.icon-btn:hover {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.icon-btn[aria-pressed="true"] {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+}
+
+/* Modus-Steuerung (Brief vs. Einstellungen via CSS :has) */
+.seitenleiste-setup-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-header-row {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-setup-header {
+  display: flex;
+}
+
+/* Zurück-Button im Setup-Header (Drill-Down) */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--segment-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-back:hover {
+  background: var(--segment-active-bg);
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
+.btn-back:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+#seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #zone-dokument,
+#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-export-group {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #zone-setup {
+  display: flex;
+  flex-direction: column;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-print,
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset,
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen .seitenleiste-divider {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #btn-einstellungen {
+  background: var(--segment-active-bg, oklch(35% 0.02 260));
+  color: var(--accent-color, oklch(75% 0.16 240));
+}
+
+#toggle-modus:focus-visible ~ .seitenleiste-header-row #btn-einstellungen,
+#btn-einstellungen:focus-visible {
+  outline: 2px solid var(--accent-color, oklch(75% 0.16 240));
+  outline-offset: 2px;
+}
+
+.seitenleiste-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-top: auto;
+}
+
+.btn-danger-subtle {
+  align-self: center;
+  width: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: light-dark(oklch(0.28 0.20 28), oklch(0.25 0.22 28));
+  padding: 6px 12px;
+}
+
+.btn-danger-subtle:hover {
+  background: color-mix(in oklch, oklch(0.40 0.20 28) 12%, transparent);
+  color: light-dark(oklch(0.28 0.24 28), oklch(0.25 0.26 28));
+}
+
+/* Autosave-Indikator */
+.save-status-row {
+  display: flex;
+  justify-content: center;
+}
+.save-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.save-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Gespeichert: Klares Grün mit starkem Kontrast in beiden Themes */
+.save-status[data-state="saved"],
+.save-status.saved {
+  color: light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
+  background: light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
+  border: 1px solid light-dark(oklch(0.85 0.06 145), oklch(0.35 0.08 145));
+}
+
+/* Speichern / Dirty: Warmes Amber */
+.save-status[data-state="dirty"],
+.save-status.dirty {
+  color: light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
+  background: light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
+  border: 1px solid light-dark(oklch(0.85 0.08 65), oklch(0.38 0.08 65));
+}
+
+/* Fehler: Signal-Rot */
+.save-status[data-state="error"],
+.save-status.error {
+  color: light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
+  background: light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
+  border: 1px solid light-dark(oklch(0.85 0.08 25), oklch(0.40 0.10 25));
+}
+.import-file-name {
+  font-size: 0.85em;
+  color: light-dark(oklch(0.45 0.02 250), oklch(0.7 0.02 250));
+  word-break: break-all;
+}
+
+/* --- SCHWEBENDE UI: TOASTS, POPOVERS & DIALOGE (aus ehemals floating.css) --- */
+/* Kein `display` im Grundzustand: es überschreibt
+   `[popover]:not(:popover-open) { display: none }`, und der unsichtbare Block
+   fängt Klicks auf dem Brief ab (gemessen 2026-11-10). */
+#hinweis-v4 {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: 
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
+    overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#hinweis-v4:popover-open {
+  display: flex;
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #hinweis-v4:popover-open {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+#hinweis-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+#hinweis-close:hover {
+  color: var(--c-danger);
+  background: oklch(50% 0.2 20 / 10%);
+}
+
+#hinweis-v4[data-type="success"] { border-left: 4px solid var(--c-success); }
+#hinweis-v4[data-type="error"]   { border-left: 4px solid var(--c-danger); }
+#hinweis-v4[data-type="info"]    { border-left: 4px solid var(--c-primary); }
+#hinweis-v4[data-type="warning"] { border-left: 4px solid var(--c-warning); }
+
+/* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) {
+  position: absolute;
+  position-try-fallbacks: flip-block;
+  margin-top: 4px;
+  overflow-y: auto;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  list-style: none;
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              display 0.15s allow-discrete,
+              overlay 0.15s allow-discrete;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover):popover-open {
+  display: block;
+  opacity: 1;
+}
+
+@starting-style {
+  :is(#anschrift-vorschlaege, #plz-suggestions-popover):popover-open {
+    opacity: 0;
+  }
+}
+
+#anschrift-vorschlaege {
+  position-anchor: --anchor-anschrift-suche;
+  position-area: bottom span-right;
+  width: anchor-size(width);
+  max-height: 250px;
+}
+
+#anschrift-vorschlaege li {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  line-height: 1.3;
+}
+
+#anschrift-vorschlaege li:hover {
+  background: var(--segment-bg);
+}
+
+#anschrift-vorschlaege li b {
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+#plz-suggestions-popover,
+#plz-suggestions-popover[popover] {
+  position-anchor: --anchor-ort;
+  position-area: block-end span-inline-start;
+  min-width: max(300px, anchor-size(width));
+  max-width: 440px;
+  max-height: 400px;
+}
+
+#anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,
+:has(#empfaenger-firma:focus) #plz-suggestions-popover,
+body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
+  position-anchor: --anchor-firma;
+}
+
+#plz-suggestions-popover li {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  line-height: 1.3;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
+   (#anschrift-vorschlaege und #plz-suggestions-popover). */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-main {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  flex-shrink: 0;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .plz-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-color);
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-val {
+  font-weight: 500;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .district-val {
+  font-size: 0.72rem;
+  color: var(--text-muted, oklch(55% 0 0));
+  font-style: italic;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  max-width: 220px;
+}
+
+/* Farbcodierung und Badges für universelles Autocomplete */
+/* Typ-Farbe gilt in beiden Listen. Das :is() hebt die Spezifität über die
+   bestehenden `#liste li { color: … }`-Regeln (ID + Element), sonst gewinnt
+   dort die Grundfarbe und die Typ-Kennzeichnung bleibt unsichtbar. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="firma"] { color: oklch(45% 0.16 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="behoerde"] { color: oklch(50% 0.14 145); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] { color: oklch(48% 0 0); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] { color: oklch(55% 0.18 45); }
+
+/* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
+   kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .ac-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  margin-inline: 4px;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted, oklch(55% 0 0));
+  margin-inline-start: 4px;
+}
+
+#plz-suggestions-popover .suggestion-hint,
+#anschrift-vorschlaege .suggestion-hint {
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted, oklch(55% 0 0));
+  font-style: italic;
+  cursor: default;
+}
+
+#plz-suggestions-popover li:not(.suggestion-hint):hover,
+#anschrift-vorschlaege li:not(.suggestion-hint):hover {
+  background: var(--segment-bg);
+}
+
+aside input[type="text"],
+aside input[type="password"],
+aside input[type="search"],
+aside textarea,
+aside select {
+  user-select: text;
+}
+
+::search-text {
+  background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);
+  color: oklch(15% 0 0);
+}
+
+#anschrift-vorschlaege li[aria-selected="true"],
+#anschrift-vorschlaege li:focus-visible,
+#plz-suggestions-popover li[aria-selected="true"] {
+  background: color-mix(in oklch, var(--accent-color) 18%, transparent);
+  outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);
+  outline-offset: -2px;
+}
+
+/* Native Dialoge (Glassmorphism & Top-Layer Transitions gem. animate-to-from-top-layer) */
+.glass-dialog {
+  border: 1px solid var(--border-color);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 12px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  max-width: min(90vw, 420px);
+  margin: auto;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              display 0.2s allow-discrete,
+              overlay 0.2s allow-discrete;
+}
+.glass-dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.glass-dialog::backdrop {
+  opacity: 0;
+  background: oklch(0% 0 0 / 40%);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+}
+.glass-dialog[open]::backdrop {
+  opacity: 1;
+  @starting-style {
+    opacity: 0;
+  }
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+#din-info-dialog .din-info-title { margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; }
+#din-info-dialog .din-info-content { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
+#din-info-dialog .din-info-content strong { color: var(--text-primary); }
+#din-info-dialog .dialog-actions { margin-top: 16px; }
+.btn.danger,
+.btn-danger {
+  border-color: oklch(0.45 0.18 28);
+  color: oklch(0.38 0.16 28); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
+  font-weight: 600;
+}
+.btn.danger:hover,
+.btn-danger:hover {
+  background: color-mix(in oklch, oklch(45% 0.22 25) 15%, var(--bg-card));
+  color: oklch(0.28 0.14 28);
+  border-color: oklch(0.38 0.16 28);
+}
+
+/* Workbench UI Styling (C13: aus sheet-multipage.css umgezogen) */
+.workbench-box {
+  border: 1.5px solid var(--accent-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+  background: light-dark(oklch(from var(--accent-color) l c h / 5%), oklch(from var(--accent-color) l c h / 12%));
+}
+.workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+.workbench-title {
+  font-size: 0.85rem;
+  color: var(--accent-color);
+}
+.workbench-status {
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.workbench-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.workbench-actions .btn {
+  flex: 1;
+  font-size: 0.78rem;
+  padding: 4px 6px;
+}
+
+/* --- PLUGINS (Schalter in den Einstellungen) ---
+   Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
+   setzt SettingsManager.#applyPlugins() aus din_settings. */
+:root[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }
+
+
+==============================================================================
+===== settings.js  (website/js/settings.js, 289 Zeilen, sha256:0cd62f41)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]] {SettingsManager}
+// @guide [[glossary]]
+// @guide [[din-5008-css-architektur]]
+
+/**
+ * @file settings.js — Layout, Theme, Hilfslinien und Plugins (SettingsManager).
+ * Die Signatur-Engine liegt in `signature.js`, das Font-Management in `font-feature.js`.
+ */
+
+import { Events, eventBus } from './core.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+
+export { FONT_PRESETS } from './font-feature.js';
+
+/**
+ * @param {any} target
+ * @param {() => void} fn
+ */
+function transitionOn(target, fn) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    fn();
+    return;
+  }
+  const hatKasten = typeof target?.getBoundingClientRect === 'function' && target.getBoundingClientRect().width > 0;
+  if (typeof target.startViewTransition !== 'function' || document.visibilityState !== 'visible' || !hatKasten) {
+    fn();
+    return;
+  }
+  try {
+    target.startViewTransition(fn).finished.catch(() => {});
+  } catch (err) {
+    console.debug('[ViewTransition] übersprungen:', err instanceof Error ? err.name : err);
+    fn();
+  }
+}
+
+/* =========================================================================================
+ * 1. SETTINGS MANAGER
+ * ========================================================================================= */
+
+export class SettingsManager {
+  /** Erstes applyTheme ist der Initial-Apply — dort ist kein Crossfade sinnvoll. */
+  #themeBooted = false;
+
+  constructor() {
+    /** @type {import('./persistence.js').DinSettings & { style?: string, previewFont?: string }} */
+    this.settings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+    this.btnFormA = document.getElementById('btn-form-a');
+    this.btnFormB = document.getElementById('btn-form-b');
+    this.seitenleiste = document.getElementById('seitenleiste');
+    this.btnZurueck = document.getElementById('btn-zurueck');
+    this.btnThemeToggle = document.getElementById('btn-theme-toggle');
+    this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
+    this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
+    this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+
+    this.isReady = false;
+  }
+
+  init() {
+    this.applySettings();
+    this.attachListeners();
+    this.isReady = true;
+  }
+
+  applySettings() {
+    const layout = this.settings.layout || 'form-b';
+    document.documentElement.setAttribute('data-layout', layout);
+    if (this.btnFormA && this.btnFormB) {
+      if (layout === 'form-a') {
+        /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;
+      } else {
+        /** @type {HTMLInputElement} */ (this.btnFormB).checked = true;
+      }
+    }
+
+    const currentTheme = this.settings.theme || 'auto';
+    this.applyTheme(currentTheme);
+
+    const currentStyle = this.settings.style || 'default';
+    this.applyStyle(currentStyle);
+
+    if (this.btnMarksSwitch) {
+      this.btnMarksSwitch.checked = this.settings.marks !== false;
+    }
+    if (this.pluginTestbriefSwitch) {
+      this.pluginTestbriefSwitch.checked = Boolean(this.settings.pluginTestbrief);
+    }
+
+    /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
+     * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
+     * (20mm) zurueck. */
+    const randU = this.settings.randU === 30 ? 30 : 20;
+    this.settings.randU = randU;
+    document.documentElement.style.setProperty('--rand-u', `${randU}mm`);
+    const randUSwitch = document.getElementById('btn-rand-u-30');
+    if (randUSwitch instanceof HTMLInputElement) randUSwitch.checked = randU === 30;
+
+    this.#spiegleLayoutFlags();
+    this.#applyPlugins();
+  }
+
+  /**
+   * Layout-Flags als data-Attribute am <html>. Das CSS liest sie; die
+   * Checkboxen sind nur noch Bedienoberfläche. Der Boot-Block setzt denselben
+   * Zustand vor dem ersten Paint — hier wird er nach jedem Settings-Update
+   * nachgezogen (und korrigiert, falls das Boot-Script scheiterte).
+   */
+  /**
+   * Plugin-Schalter: Body-Attribut fuer CSS. Der Mehrseiten-Modus ist fest
+   * eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]): kein Stylesheet-Tausch,
+   * kein Umschalt-Signal mehr — ein altes `pluginMultipage: false` im
+   * localStorage wird bewusst ignoriert.
+   */
+  #applyPlugins() {
+    const testbrief = Boolean(this.settings.pluginTestbrief);
+
+    document.documentElement.setAttribute('data-plugin-testbrief', String(testbrief));
+    document.documentElement.setAttribute('data-plugin-multipage', 'true');
+  }
+
+  #spiegleLayoutFlags() {
+    const root = document.documentElement;
+    root.setAttribute('data-marks', this.settings.marks === false ? 'false' : 'true');
+  }
+
+  /**
+   * @param {'auto' | 'light' | 'dark' | string} theme
+   */
+  applyTheme(theme) {
+    const validThemes = ['auto', 'light', 'dark'];
+    const active = validThemes.includes(theme) ? theme : 'auto';
+    this.settings.theme = active;
+
+    const updateDOM = () => {
+      document.documentElement.setAttribute('data-theme', active);
+      if (document.body) {
+        document.body.setAttribute('data-theme', active);
+      }
+
+      if (this.btnThemeToggle) {
+        /* Die Icon-Auswahl haengt an :root[data-theme] — boot.js setzt das
+         * Attribut blockierend vor dem ersten Paint. Hier nur noch Titel und
+         * Label, die ein aria-Live-freier Zustand nicht vorwegnehmen kann. */
+        const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
+        this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
+        this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
+      }
+    };
+
+    const themeUnchanged = document.documentElement.getAttribute('data-theme') === active && (!document.body || document.body.getAttribute('data-theme') === active);
+    if (!themeUnchanged && this.isReady && this.#themeBooted) {
+      transitionOn(document, updateDOM);
+    } else {
+      updateDOM();
+    }
+    this.#themeBooted = true;
+  }
+
+  /**
+   * Schaltet zwischen Brief-Modus und Einstellungs-Modus der Seitenleiste um.
+   * @param {'brief' | 'einstellungen'} [force]
+   */
+  toggleSettingsModus(force) {
+    const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
+    if (!toggle) return;
+    const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
+    toggle.checked = isChecked;
+    toggle.dispatchEvent(new Event('change', { bubbles: true }));
+    // Der Zustand liegt ausschließlich in der nativen Checkbox; das Label trägt
+    // weder Rolle noch Zustand (sonst zwei Controls im Accessibility-Tree).
+  }
+
+  /**
+   * @param {'default' | 'compact' | string} style
+   */
+  applyStyle(style) {
+    const validStyles = ['default', 'compact'];
+    const active = validStyles.includes(style) ? style : 'default';
+    this.settings.style = active;
+    document.documentElement.setAttribute('data-style', active);
+    if (this.styleSelect) {
+      this.styleSelect.value = active;
+    }
+  }
+
+  updateSettings() {
+    const gespeichert = saveJSON(STORAGE_KEYS.settings, this.settings);
+    if (!gespeichert) {
+      // saveJSON schluckt Quota-Fehler und gibt false zurück; ohne diese Prüfung
+      // verschwände der Zustand still (B46).
+      eventBus.publish(Events.DOCUMENT_SAVE_FAILED, {
+        message: 'Einstellungen konnten nicht gespeichert werden (Speicher voll?).'
+      });
+    }
+    this.applySettings();
+  }
+
+  /**
+   * Layout-Wechsel (Form A/B): Synchrones Umschalten ohne FOUC/Morphing.
+   * @param {'form-a' | 'form-b'} layout
+   */
+  changeLayout(layout) {
+    this.settings.layout = layout;
+    document.documentElement.setAttribute('data-layout', layout);
+    this.updateSettings();
+  }
+
+  /**
+   * Unterrand umschalten (20mm DIN 5008 | 30mm).
+   * @param {number} wert
+   */
+  changeRandU(wert) {
+    this.settings.randU = wert === 30 ? 30 : 20;
+    this.updateSettings();
+  }
+
+  attachListeners() {
+    if (this.btnFormA) {
+      this.btnFormA.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeLayout('form-a');
+      });
+    }
+    if (this.btnFormB) {
+      this.btnFormB.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeLayout('form-b');
+      });
+    }
+
+    if (this.btnZurueck) {
+      this.btnZurueck.addEventListener('click', (e) => {
+        if (!this.isReady) return;
+        e.preventDefault();
+        this.toggleSettingsModus('brief');
+      });
+    }
+
+    if (this.btnThemeToggle) {
+      this.btnThemeToggle.addEventListener('click', () => {
+        if (!this.isReady) return;
+        /** @type {Record<string, string>} */
+        const cycle = { auto: 'light', light: 'dark', dark: 'auto' };
+        const current = this.settings.theme || 'auto';
+        const next = cycle[current] || 'auto';
+        this.settings.theme = next;
+        this.updateSettings();
+      });
+    }
+
+    if (this.styleSelect) {
+      this.styleSelect.addEventListener('change', () => {
+        if (!this.isReady) return;
+        const val = this.styleSelect ? this.styleSelect.value : 'default';
+        this.applyStyle(val);
+        this.updateSettings();
+      });
+    }
+
+    const marksSwitch = this.btnMarksSwitch;
+    if (marksSwitch) {
+      marksSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.marks = marksSwitch.checked;
+        this.updateSettings();
+      });
+    }
+
+    const randUSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
+    if (randUSwitch) {
+      randUSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeRandU(randUSwitch.checked ? 30 : 20);
+      });
+    }
+
+    const pluginTestbrief = this.pluginTestbriefSwitch;
+    if (pluginTestbrief) {
+      pluginTestbrief.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.pluginTestbrief = pluginTestbrief.checked;
+        this.updateSettings();
+      });
+    }
+
+  }
+}
+
+
+==============================================================================
+===== signature.js  (website/js/signature.js, 312 Zeilen, sha256:5d2a89f8)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]] {SignatureFeature}
+// @guide [[din-5008-css-architektur]]
+
+/**
+ * @file signature.js — Bild-Upload, Kompression, interaktives Drag/Resize/Rotate
+ * und Persistenz der Unterschrift. Aus `settings.js` ausgelagert (2026-11-08):
+ * die Signatur-Engine teilt fachlich nichts mit Theme- und Layout-Toggles.
+ */
+
+import { deleteBlob, loadBlob, saveBlob } from './binary-storage.js';
+import { Constants, notify } from './core.js';
+
+/** Typ-Referenz auf den SettingsManager (nur Typ, kein Laufzeit-Import). */
+/** @typedef {import('./settings.js').SettingsManager} SettingsManager */
+
+export class SignatureFeature {
+  /**
+   * @param {SettingsManager | { settings: any, updateSettings?: () => void } | null} [settingsManager]
+   */
+  constructor(settingsManager = null) {
+    this.settingsManager = settingsManager;
+    /** @type {any} */
+    this.settings = settingsManager ? settingsManager.settings : {};
+    this.imgElement = /** @type {HTMLImageElement | null} */ (document.getElementById('unterschriftsbild-vorschau'));
+    this.uploader = /** @type {HTMLInputElement | null} */ (document.getElementById('unterschriftsbild-datei'));
+    this.btnAktion = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-unterschrift-aktion'));
+    
+    /** @type {{x: number, y: number, scale: number, rot: number}} */
+    this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
+
+    this.bbox = document.getElementById('unterschriftsbild-box');
+    this.container = document.getElementById('unterschriftsbild-container');
+
+    // Config: Maximale Dimension für hochauflösende Druck-/PDF-Wiedergabe (< 15 KB WebP)
+    this.MAX_DIM = 800;
+
+    /** @type {string | null} */
+    this.currentBlobUrl = null;
+  }
+
+  init() {
+    if (!this.uploader || !this.imgElement) return;
+
+    // Zero-Base64: Alte Base64-Signaturbilder aus Settings restlos bereinigen
+    if (this.settings?.signatureImage) {
+      this.settings.signatureImage = undefined;
+      this.#saveSettings();
+    }
+
+    this.uploader.addEventListener('change', (e) => {
+      const target = /** @type {HTMLInputElement} */ (e.target);
+      const file = target?.files?.[0] ?? null;
+      if (file) {
+        this.processFile(file);
+      }
+      if (target) target.value = '';
+    });
+
+    if (this.btnAktion) {
+      this.btnAktion.addEventListener('click', () => {
+        if (this.btnAktion?.dataset.state === 'loaded') {
+          this.resetImage();
+        } else {
+          this.uploader?.click();
+        }
+      });
+    }
+
+    this.initWysiwyg();
+
+    // Bild liegt als Blob in IndexedDB; der Restore ist async und erscheint nach dem Paint.
+    loadBlob('signature').then((blob) => {
+      if (!blob) return;
+      this.#setImageFromBlob(blob);
+      this.applyTransform();
+      this.#updateButtonState(true);
+    });
+  }
+
+  initWysiwyg() {
+    const bbox = this.bbox;
+    const container = this.container;
+    if (!bbox || !container) return;
+
+    const savedState = this.settings?.signatureState || this.settings?.signature?.transform;
+    if (savedState) {
+      this.state = {
+        x: typeof savedState.x === 'number' && Number.isFinite(savedState.x) ? savedState.x : 11.9,
+        y: typeof savedState.y === 'number' && Number.isFinite(savedState.y) ? savedState.y : 96.0,
+        scale: typeof savedState.scale === 'number' && Number.isFinite(savedState.scale)
+          ? Math.max(0.15, Math.min(4.5, savedState.scale))
+          : 0.5,
+        rot: typeof savedState.rot === 'number' && Number.isFinite(savedState.rot) ? savedState.rot : 0
+      };
+    }
+    this.applyTransform();
+
+    /** @type {{
+     *   action: string | null,
+     *   startX: number, startY: number,
+     *   centerX: number, centerY: number,
+     *   startAngle: number, startDistance: number,
+     *   pxToCqw?: number,
+     *   initial: {x: number, y: number, scale: number, rot: number} | null
+     * }} */
+    const interaction = {
+      action: null,
+      startX: 0, startY: 0,
+      centerX: 0, centerY: 0,
+      startAngle: 0, startDistance: 0,
+      pxToCqw: 0.125,
+      initial: null
+    };
+
+    bbox.addEventListener('pointerdown', (e) => {
+      // :focus-within ersetzt den früheren .active-Zustand. preventDefault
+      // verhindert Textauswahl, unterdrückt aber auch den Standard-Fokus —
+      // deshalb explizit fokussieren.
+      bbox.focus({ preventScroll: true });
+      e.preventDefault();
+
+      const target = /** @type {HTMLElement} */ (e.target);
+      interaction.action = target.dataset.aktion || 'drag';
+
+      interaction.startX = e.clientX;
+      interaction.startY = e.clientY;
+      interaction.initial = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
+
+      const rect = bbox.getBoundingClientRect();
+      interaction.centerX = rect.left + rect.width / 2;
+      interaction.centerY = rect.top + rect.height / 2;
+
+      interaction.startAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
+      interaction.startDistance = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
+
+      const blatt = document.querySelector('din-blatt');
+      const blattWidth = blatt ? blatt.getBoundingClientRect().width : 800;
+      interaction.pxToCqw = 100 / (blattWidth || 1);
+
+      bbox.setPointerCapture(e.pointerId);
+    });
+
+    const SNAP_TARGETS = [0, 54.74, -54.74, 90, -90, 180, -180];
+    const SNAP_TOLERANCE = 2.5;
+
+    bbox.addEventListener('pointermove', (e) => {
+      if (!interaction.action || !interaction.initial) return;
+      e.preventDefault();
+
+      if (interaction.action === 'drag') {
+        const pxToCqw = interaction.pxToCqw || 0.125;
+        this.state.x = interaction.initial.x + (e.clientX - interaction.startX) * pxToCqw;
+        this.state.y = interaction.initial.y + (e.clientY - interaction.startY) * pxToCqw;
+      } else if (interaction.action === 'rotate') {
+        const currentAngle = Math.atan2(e.clientY - interaction.centerY, e.clientX - interaction.centerX);
+        const deltaRot = (currentAngle - interaction.startAngle) * (180 / Math.PI);
+        const rawRot = interaction.initial.rot + deltaRot;
+
+        // Magnetisches Snapping (CAD-Modus)
+        const normalized = ((rawRot + 180) % 360 + 360) % 360 - 180;
+        let snapped = rawRot;
+        for (const target of SNAP_TARGETS) {
+          if (Math.abs(normalized - target) <= SNAP_TOLERANCE) {
+            snapped = rawRot + (target - normalized);
+            break;
+          }
+        }
+        this.state.rot = snapped;
+      } else if (interaction.action === 'resize') {
+        const currentDist = Math.hypot(e.clientX - interaction.centerX, e.clientY - interaction.centerY);
+        const scaleFactor = currentDist / (interaction.startDistance || 1);
+        const newScale = interaction.initial.scale * scaleFactor;
+        this.state.scale = Math.max(0.15, Math.min(4.5, newScale));
+      }
+      this.applyTransform();
+    });
+
+    bbox.addEventListener('pointerup', (e) => {
+      if (interaction.action) {
+        bbox.releasePointerCapture(e.pointerId);
+        interaction.action = null;
+        this.saveState();
+      }
+    });
+    bbox.addEventListener('pointercancel', (e) => {
+      if (interaction.action) {
+        bbox.releasePointerCapture(e.pointerId);
+        interaction.action = null;
+      }
+    });
+  }
+
+  applyTransform() {
+    if (this.container) {
+      this.container.style.setProperty('--sig-x', `${this.state.x}cqw`);
+      this.container.style.setProperty('--sig-y', `${this.state.y}cqw`);
+      this.container.style.setProperty('--sig-scale', `${this.state.scale}`);
+      this.container.style.setProperty('--sig-rot', `${this.state.rot}deg`);
+    }
+  }
+
+  #saveSettings() {
+    if (this.settingsManager && typeof this.settingsManager.updateSettings === 'function') {
+      this.settingsManager.updateSettings();
+    }
+  }
+
+  saveState() {
+    if (!this.settings) this.settings = {};
+    this.settings.signatureState = { x: this.state.x, y: this.state.y, scale: this.state.scale, rot: this.state.rot };
+    this.settings.signatureImage = undefined;
+    this.#saveSettings();
+  }
+
+  /**
+   * Setzt das Vorschaubild aus einem Blob und gibt die vorherige Object-URL frei.
+   * @param {Blob} blob
+   */
+  #setImageFromBlob(blob) {
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+    }
+    this.currentBlobUrl = URL.createObjectURL(blob);
+    if (this.imgElement) {
+      this.imgElement.src = this.currentBlobUrl;
+    }
+  }
+
+  /**
+   * Kompaktes WebP als Blob in IndexedDB (Key `signature`, siehe [[ADR-BINARY-ASSETS]]).
+   * @param {File} file
+   */
+  async processFile(file) {
+    /** @type {ImageBitmap} */
+    let bitmap;
+    try {
+      bitmap = await createImageBitmap(file);
+    } catch (error) {
+      console.warn('[Signature] createImageBitmap failed:', error);
+      return;
+    }
+
+    const maxDim = this.MAX_DIM || 800;
+    const scale = Math.min(1, maxDim / bitmap.width, maxDim / bitmap.height);
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = new OffscreenCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    try {
+      const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.82 });
+      const saved = await saveBlob('signature', blob);
+      if (!saved) {
+        notify(Constants.TOASTS.SIGNATURE.SAVE_ERROR, 'error');
+        return;
+      }
+
+      this.#setImageFromBlob(blob);
+      this.saveState();
+      this.#updateButtonState(true);
+    } catch (error) {
+      console.warn('[Signature] convertToBlob / save failed:', error);
+    }
+  }
+
+  /**
+   * Aktualisiert den 2-Zustände-Button in der Seitenleiste.
+   * @param {boolean} hasImage
+   */
+  #updateButtonState(hasImage) {
+    if (!this.btnAktion) return;
+    if (hasImage) {
+      this.btnAktion.dataset.state = 'loaded';
+      this.btnAktion.textContent = '🗑️ Unterschrift / Stempel entfernen';
+    } else {
+      this.btnAktion.dataset.state = 'empty';
+      this.btnAktion.textContent = '✒️ Unterschrift / Stempel laden';
+    }
+  }
+
+  resetImage() {
+    void deleteBlob('signature');
+
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+      this.currentBlobUrl = null;
+    }
+
+    if (this.imgElement) {
+      this.imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+    }
+
+    if (this.settings) {
+      this.settings.signatureImage = undefined;
+      this.settings.signatureState = undefined;
+    }
+    
+    this.state = { x: 11.9, y: 96.0, scale: 0.5, rot: 0 };
+    this.applyTransform();
+
+    this.#updateButtonState(false);
+    this.#saveSettings();
+  }
+}
+

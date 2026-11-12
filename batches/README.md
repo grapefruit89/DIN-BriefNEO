@@ -15,6 +15,20 @@ Stand geben.** Nach Änderungen im Repo ist nichts nachzuziehen.
 | B7 | Testbrief | addons/testbrief/testbrief.js | 14,4k |
 | B8 | Adressdaten | address-data.js, font-feature.js | 10,3k |
 
+## Merge-Dateien
+
+In jedem Batch liegt zusätzlich `B<x>-merged.txt`: **alle** Quelldateien in
+einer Datei, mit Tree und SHA256-Kurzform je Quelle im Kopf. `prompt.md` ist
+bewusst nicht enthalten — den klickst du separat an.
+
+```bash
+python3 /home/moritz/repos/DIN-BriefNEO/batches/merge.py      # alle neu bauen
+python3 /home/moritz/repos/DIN-BriefNEO/batches/merge.py B2   # nur einer
+```
+
+Die Datei ist ein **Snapshot**: nach Änderungen im Repo neu bauen, sonst zeigt
+der SHA256 im Kopf, dass sie nicht mehr passt.
+
 ## Benutzung
 
 1. Dateien für den Chat bereitstellen (Symlinks in echte Dateien auflösen):

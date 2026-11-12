@@ -1,0 +1,1498 @@
+# B5 — Textkern
+
+Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
+damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
+
+## Inhalt
+```
+B5/
+├── document.js                    671 Zeilen
+├── format.js                      446 Zeilen
+├── salutation.js                  342 Zeilen
+└── prompt.md                    (nicht enthalten — separat anklicken)
+```
+
+## Quellen (Snapshot)
+| Datei | Pfad im Repo | Zeilen | SHA256 |
+|---|---|---:|---|
+| `document.js` | `website/js/document.js` | 671 | `88ba5bff` |
+| `format.js` | `website/js/format.js` | 446 | `b923506d` |
+| `salutation.js` | `website/js/salutation.js` | 342 | `5e936d45` |
+
+Gesamt: 53642 Zeichen ≈ 13k Token.
+
+
+==============================================================================
+===== document.js  (website/js/document.js, 671 Zeilen, sha256:88ba5bff)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]]
+// @adr [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
+
+/**
+ * @file document.js — Konsolidierter Dokumenten- und Editor-Core für DIN-BriefNEO.
+ * Bündelt:
+ *  1. Native Selection- und Caret-Helfer (W3C Range / TreeWalker)
+ *  2. UIProtections (Zeilenlimits, Paste-Flattening, Blockquote-Shortcut, Anlagen-Liste)
+ *  3. DraftManager liegt seit 2026-11-08 in `draft-manager.js`.
+ */
+
+import { Field } from './field.js';
+import { applyMicroTypography } from './format.js';
+
+/* =========================================================================================
+ * 0. RICH TEXT SANITIZER (Allowlist Guard)
+ * ========================================================================================= */
+
+/**
+ * Einzige Sicherheitsgrenze für Rich-Text: DOMParser + exakte Element-Allowlist.
+ * Wird von DraftManager (Draft-Restore) und collectDraft genutzt.
+ *
+ * Bezug: Law Catalog H11 (PREFERRED) & Einleitung (FALLBACK-Klausel):
+ * H11 setzt setHTML() als PREFERRED. sanitizeRichText bildet domänenspezifische
+ * Anforderungen ab (vollständiges Strippen aller Inline-Attribute, Erhalt der
+ * Spezialklasse <span class="brief-kommentar"> bei generischer SPAN-Entfernung,
+ * Erzeugung eines DocumentFragment für replaceChildren/collectDraft), die natives
+ * setHTML() nicht leistet.
+ *
+ * Extra-Tags (z. B. UL/LI für Listenfelder wie anlagen-angabe) ergänzen die
+ * Basis-Allowlist (ohne Attribute).
+ * @param {string} htmlString
+ * @param {{ extraTags?: string[] }} [options]
+ * @returns {DocumentFragment}
+ */
+export function sanitizeRichText(htmlString, options = {}) {
+  const allowedTags = ['B', 'STRONG', 'S', 'BLOCKQUOTE', 'BR', 'DIV', 'P', 'I', 'EM', ...(options.extraTags || [])];
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString || '', 'text/html');
+
+  /**
+   * @param {Node} node
+   * @returns {Node}
+   */
+  const sanitizeNode = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return document.createTextNode(Field.getValue(node));
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return document.createTextNode('');
+    }
+    const element = /** @type {Element} */ (node);
+    let newNode;
+    if (allowedTags.includes(element.nodeName)) {
+      newNode = document.createElement(element.nodeName.toLowerCase());
+    } else if (element.nodeName === 'SPAN' && element.classList.contains('brief-kommentar')) {
+      newNode = document.createElement('span');
+      newNode.className = 'brief-kommentar';
+    } else {
+      const frag = document.createDocumentFragment();
+      element.childNodes.forEach((child) => {
+        frag.appendChild(sanitizeNode(child));
+      });
+      return frag;
+    }
+    element.childNodes.forEach((child) => {
+      newNode.appendChild(sanitizeNode(child));
+    });
+    return newNode;
+  };
+
+  const frag = document.createDocumentFragment();
+  doc.body.childNodes.forEach((child) => {
+    frag.appendChild(sanitizeNode(child));
+  });
+  return frag;
+}
+
+/* =========================================================================================
+ * 0.1 MIKRO-TYPOGRAFIE (DIN 5008 § 7.2 & § 8.2)
+ * ========================================================================================= */
+
+/**
+ * Wendet DIN-5008-Mikrotypografie (geschützte Leerzeichen) auf ein HTML-Element an (§ 7.2 & § 8.2).
+ * Traversiert Textknoten sicher via TreeWalker oder setzt textContent bei Plaintext.
+ * @param {HTMLElement | Element} element
+ */
+export function formatElementMicroTypography(element) {
+  if (!element || !(element instanceof HTMLElement)) return;
+  if (element.getAttribute('contenteditable') === 'plaintext-only') {
+    const raw = element.textContent || '';
+    const formatted = applyMicroTypography(raw);
+    if (raw !== formatted) {
+      Field.setValue(element, formatted);
+    }
+    return;
+  }
+  const doc = element.ownerDocument || document;
+  const walker = doc.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+    if (node.nodeValue) {
+      const val = node.nodeValue;
+      const formatted = applyMicroTypography(val);
+      if (val !== formatted) {
+        node.nodeValue = formatted;
+      }
+    }
+  }
+}
+
+/* =========================================================================================
+ * 1. SELECTION & CARET UTILITIES (W3C Standard)
+ * ========================================================================================= */
+
+/**
+ * Ermittelt den relativen Zeichen-Offset des Carets innerhalb eines Elements.
+ * @param {Element} element
+ * @returns {number}
+ */
+export function getCaretCharacterOffset(element) {
+  const selection = element.ownerDocument?.defaultView?.getSelection();
+  if (!selection || selection.rangeCount === 0) return 0;
+  const range = selection.getRangeAt(0);
+  const before = range.cloneRange();
+  before.selectNodeContents(element);
+  before.setEnd(range.endContainer, range.endOffset);
+  return before.toString().length;
+}
+
+/**
+ * Setzt das Caret präzise an einen Zeichen-Offset innerhalb eines Elements (via TreeWalker).
+ * @param {HTMLElement} element
+ * @param {number} offset
+ */
+export function setCaretCharacterOffset(element, offset) {
+  if (offset <= 0) {
+    element.focus();
+    return;
+  }
+  const documentRef = element.ownerDocument;
+  const selection = documentRef.defaultView?.getSelection();
+  if (!selection) return;
+  const range = documentRef.createRange();
+  const walker = documentRef.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let remaining = offset;
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+    const length = node.textContent?.length || 0;
+    if (remaining <= length) {
+      range.setStart(node, remaining);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return;
+    }
+    remaining -= length;
+  }
+  setCaretToEnd(element);
+}
+
+/**
+ * Platziert das Caret am Ende des Elements.
+ * @param {HTMLElement} element
+ */
+export function setCaretToEnd(element) {
+  const selection = element.ownerDocument.defaultView?.getSelection();
+  if (!selection) return;
+  const range = element.ownerDocument.createRange();
+  range.selectNodeContents(element);
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+/* =========================================================================================
+ * 2. UI PROTECTIONS (Zeilenlimits, Paste-Schutz, Anlagen-Struktur)
+ * ========================================================================================= */
+
+/** Fallback-Länge für Einzeiler ohne eigenen Eintrag in FIELD_MAX_LENGTHS. */
+const SINGLE_LINE_MAX = 50;
+
+const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
+  'rucksendeangabe': 85,
+  'empfaenger-firma': 50,
+  'empfaenger-name': 45,
+  'empfaenger-strasse': 45,
+  'empfaenger-ort': 45,
+  'absender-name': 40,
+  'absender-strasse': 40,
+  'absender-ort': 40,
+  'absender-tel': 30,
+  'absender-mail': 40,
+  'vermerke': 80,
+  'datum': 35,
+  'betreff': 140,
+  'anrede': 70,
+  'grussformel': 45,
+  'unterschrift': 45
+}));
+
+/**
+ * Rich-Text-Light: Schaltet Zitat (<blockquote>) im Text per W3C Range API um.
+ * Öffentlich, weil die Sidebar-Toolbar denselben Weg nutzt wie Ctrl+Q —
+ * die native formatBlock-Variante ist per A52 gesperrt und erzeugt zudem <p>.
+ * @param {HTMLElement} textEl
+ */
+export function toggleBlockquote(textEl) {
+  const selection = window.getSelection();
+  if (!selection?.anchorNode || !textEl.contains(selection.anchorNode)) return;
+
+  const elem = selection.anchorNode instanceof Element ? selection.anchorNode : selection.anchorNode.parentElement;
+  const bq = elem ? elem.closest('blockquote') : null;
+
+  if (bq && textEl.contains(bq)) {
+    const parent = bq.parentNode;
+    if (parent) {
+      const fragment = document.createDocumentFragment();
+      while (bq.firstChild) {
+        fragment.appendChild(bq.firstChild);
+      }
+      parent.replaceChild(fragment, bq);
+    }
+  } else {
+    if (selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    const newBq = document.createElement('blockquote');
+
+    if (!selection.isCollapsed) {
+      try {
+        newBq.appendChild(range.extractContents());
+        range.insertNode(newBq);
+        selection.selectAllChildren(newBq);
+      } catch (err) {
+        console.warn('[RichTextLight] Blockquote wrap failed:', err);
+      }
+    } else {
+      const br = document.createElement('br');
+      newBq.appendChild(br);
+      range.insertNode(newBq);
+      const newRange = document.createRange();
+      newRange.setStart(newBq, 0);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
+  }
+
+  textEl.normalize();
+  textEl.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/**
+ * Findet das nächste Vorfahren-Element mit dem gesuchten Tag.
+ * @param {Node | null} node
+ * @param {'b' | 'i'} tagName
+ * @param {HTMLElement} boundary
+ * @returns {Element | null}
+ */
+function findAncestor(node, tagName, boundary) {
+  const aliases = tagName === 'b' ? ['B', 'STRONG'] : ['I', 'EM'];
+  let el = node instanceof Element ? node : node?.parentElement;
+  while (el && el !== boundary) {
+    if (aliases.includes(el.tagName)) return el;
+    el = el.parentElement;
+  }
+  return null;
+}
+
+/**
+ * Wickelt die aktuelle Selektion in <tagName> oder entpackt sie wieder.
+ * Range-API, A52-konform: kein nativer Editing-Befehl, keine Zustandsabfrage.
+ * @param {HTMLElement} textEl
+ * @param {'b' | 'i'} tagName
+ */
+export function toggleInlineFormat(textEl, tagName) {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return;
+  if (!sel.anchorNode || !textEl.contains(sel.anchorNode)) return;
+
+  /* Kollabierter Cursor: nichts tun. Der Test auf einen Vorfahren muesste sonst
+   * das ganze <b>/<i> entpacken, in dem der Cursor steht — und "Fett-Modus fuer
+   * das naechste Zeichen" ist bewusst nicht gebaut. */
+  if (sel.isCollapsed) return;
+
+  const existing = findAncestor(sel.anchorNode, tagName, textEl);
+
+  if (existing) {
+    const parent = existing.parentNode;
+    if (!parent) return;
+    while (existing.firstChild) parent.insertBefore(existing.firstChild, existing);
+    parent.removeChild(existing);
+    parent.normalize();
+  } else {
+    const range = sel.getRangeAt(0);
+    const wrapper = document.createElement(tagName);
+    try {
+      range.surroundContents(wrapper);
+    } catch {
+      /* Range ueberspannt mehrere Knoten oder ragt in ein Nachbarelement:
+       * dann extrahieren und einsetzen statt umschliessen. */
+      wrapper.appendChild(range.extractContents());
+      range.insertNode(wrapper);
+    }
+    sel.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(wrapper);
+    sel.addRange(newRange);
+  }
+
+  textEl.normalize();
+  textEl.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/** Spiegelt den Formatierungszustand an die drei Sidebar-Buttons. */
+export function syncFormatState() {
+  const textEl = document.getElementById('text');
+  if (!textEl) return;
+  if (document.activeElement !== textEl) return;
+  const bold = document.getElementById('btn-bold');
+  const italic = document.getElementById('btn-italic');
+  const quote = document.getElementById('btn-quote');
+  if (!bold || !italic || !quote) return;
+
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return;
+  const node = sel.anchorNode;
+  if (!node || !textEl.contains(node)) return;
+
+  /* Keine Zustandsabfrage (A52): der Zustand wird am DOM abgelesen. */
+  const el = node instanceof Element ? node : node.parentElement;
+  bold.setAttribute('aria-pressed', String(Boolean(el?.closest('b, strong'))));
+  italic.setAttribute('aria-pressed', String(Boolean(el?.closest('i, em'))));
+  quote.setAttribute('aria-pressed', String(Boolean(el?.closest('blockquote'))));
+}
+
+/** Verdrahtet Fokus- und Selection-Sync. Aufruf aus main.js. */
+export function initFormatSync() {
+  const textEl = document.getElementById('text');
+  if (!textEl) return;
+  textEl.addEventListener('focus', syncFormatState);
+  document.addEventListener('selectionchange', syncFormatState);
+}
+
+export class UIProtections {
+  constructor() {
+    /** @type {HTMLElement | null} */
+    this.text = document.getElementById('text');
+    this.initialized = false;
+  }
+
+  init() {
+    if (this.initialized) return;
+    this.enforceLineLimits();
+    this.setupPrintProtection();
+    this.setupOverflowDetector();
+    this.initialized = true;
+  }
+
+  setupPrintProtection() {
+    window.addEventListener('beforeprint', () => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      document.querySelectorAll('[contenteditable]').forEach((el) => {
+        formatElementMicroTypography(el);
+      });
+    });
+  }
+
+  enforceLineLimits() {
+    const root = document.querySelector('din-blatt') || document;
+
+    root.addEventListener('keydown', (e) => this.#handleDocumentKeydown(e));
+    root.addEventListener('beforeinput', (e) => this.#handleFormatShortcuts(e));
+    root.addEventListener('paste', (e) => this.#handleDocumentPaste(e));
+    root.addEventListener('input', (e) => this.#handleInputLimit(e));
+    root.addEventListener('focusout', (e) => {
+      const target = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
+      if (target instanceof HTMLElement) {
+        formatElementMicroTypography(target);
+      }
+    });
+  }
+
+  /**
+   * Alle `contenteditable`-Regeln an einer Stelle: Umbruchschutz, Rich-Text-
+   * Shortcuts und DIN-5008-Verbote. Als benannte Methode testbar.
+   * @param {Event} event
+   */
+  #handleDocumentKeydown(event) {
+    const keyboardEvent = /** @type {KeyboardEvent} */ (event);
+    const target = keyboardEvent.target instanceof Element ? keyboardEvent.target.closest('[contenteditable]') : null;
+    if (!target || !(target instanceof HTMLElement)) return;
+
+    // Rich-Text-Light: Blockquote-Shortcut (Ctrl+Q / Cmd+Q) für Text
+    if (target.id === 'text' && (keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'q') {
+      keyboardEvent.preventDefault();
+      toggleBlockquote(target);
+      return;
+    }
+
+    // DIN 5008 13.1: Keine Unterstreichung — Ctrl+U / Cmd+U blockieren
+    if ((keyboardEvent.ctrlKey || keyboardEvent.metaKey) && keyboardEvent.key.toLowerCase() === 'u') {
+      keyboardEvent.preventDefault();
+      return;
+    }
+
+    if (keyboardEvent.key !== 'Enter') return;
+    if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
+
+    if (target.dataset.feldtyp?.includes('zweizeilig')) {
+      if (this.#istZweizeiligVoll(target)) keyboardEvent.preventDefault();
+      return;
+    }
+
+    // Nur den Umbruch blockieren. Das Weiterspringen übernimmt der Browser
+    // über die Tab-Reihenfolge (DOM-Order), kein nachgebautes Formularverhalten.
+    keyboardEvent.preventDefault();
+  }
+
+  /**
+   * Zweizeilig-Guard: textContent kennt weder <br> noch <div> als Umbruch (B41).
+   * Gezählt werden alle drei Formen, ohne Layout-Read (innerText würde A49 verletzen).
+   * @param {HTMLElement} target
+   * @returns {boolean}
+   */
+  #istZweizeiligVoll(target) {
+    const textUmbruch = Field.getValue(target).split('\n').length - 1;
+    const harteUmbruch = target.querySelectorAll('br').length;
+    const blockUmbruch = target.querySelectorAll(':scope > div, :scope > p').length;
+    return textUmbruch + harteUmbruch + blockUmbruch >= 1;
+  }
+
+  /**
+   * DIN 5008 13.1: Unterstreichung auch über Input-Events/Kontextmenü blockieren.
+   * @param {Event} event
+   */
+  #handleFormatShortcuts(event) {
+    const inputEvent = /** @type {InputEvent} */ (event);
+    if (inputEvent.inputType === 'formatUnderline') inputEvent.preventDefault();
+  }
+
+  /**
+   * Paste: Mehrzeiliges in Einzeiler einebnen, Zweizeiler begrenzen, im
+   * Fließtext Plaintext mit erhaltenen Umbrüchen einsetzen.
+   * @param {Event} event
+   */
+  #handleDocumentPaste(event) {
+    const clipboardEvent = /** @type {ClipboardEvent} */ (event);
+    const target = clipboardEvent.target instanceof Element ? clipboardEvent.target.closest('[contenteditable]') : null;
+    if (!target || !(target instanceof HTMLElement)) return;
+
+    const clipboardData = clipboardEvent.clipboardData || /** @type {any} */ (clipboardEvent).originalEvent?.clipboardData;
+    const pastedText = clipboardData ? clipboardData.getData('text/plain') : '';
+    if (!pastedText) return;
+
+    // Rich-Text-Light: Plaintext-Paste im Text erhält Zeilenumbrüche, streift aber fremdes HTML/CSS ab
+    if (target.id === 'text') {
+      clipboardEvent.preventDefault();
+      const selection = window.getSelection();
+      if (!selection?.rangeCount) return;
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+
+      const lines = pastedText.split(/\r?\n/);
+      const fragment = document.createDocumentFragment();
+      for (const [i, line] of lines.entries()) {
+        if (i > 0) fragment.appendChild(document.createElement('br'));
+        if (line) fragment.appendChild(document.createTextNode(line));
+      }
+      const lastChild = fragment.lastChild;
+      range.insertNode(fragment);
+      if (lastChild) {
+        range.setStartAfter(lastChild);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+
+    if (target.dataset.feldtyp?.includes('mehrzeilig')) return;
+
+    // Einzeiler & Zweizeiler (plaintext-only): Umbrüche glätten, wenn nötig
+    const isSingleLine = target.classList.contains('single-line');
+    const isTwoLine = target.dataset.feldtyp?.includes('zweizeilig');
+
+    if (isSingleLine && /[\r\n]/.test(pastedText)) {
+      clipboardEvent.preventDefault();
+      this.#insertPlainTextAtCursor(pastedText.replace(/[\r\n]+/g, ' '), target);
+    } else if (isTwoLine && pastedText.split(/\r?\n/).length > 2) {
+      clipboardEvent.preventDefault();
+      const twoLines = pastedText.split(/\r?\n/).slice(0, 2).join('\n');
+      this.#insertPlainTextAtCursor(twoLines, target);
+    }
+  }
+
+  /**
+   * Fügt Plaintext an der aktuellen Cursorposition ein (Law A52 konform via Selection API).
+   * @param {string} textToInsert
+   * @param {HTMLElement} target
+   */
+  #insertPlainTextAtCursor(textToInsert, target) {
+    const selection = window.getSelection();
+    if (!selection?.rangeCount) return;
+    selection.deleteFromDocument();
+    const node = document.createTextNode(textToInsert);
+    selection.getRangeAt(0).insertNode(node);
+    selection.collapseToEnd();
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  /**
+   * Längenbegrenzung beim direkten Tippen auf Einzeilern.
+   * @param {Event} event
+   */
+  #handleInputLimit(event) {
+    const target = event.target instanceof Element
+      ? event.target.closest('[contenteditable], input[data-atom]')
+      : null;
+    if (!target || !(target instanceof HTMLElement)) return;
+    if (target.id === 'text') return; // Haupttext bleibt flexibel
+    if (target.id === 'datum') target.dataset.dirty = 'true';
+
+    const maxLimit = FIELD_MAX_LENGTHS[target.id] || (target.classList.contains('single-line') ? SINGLE_LINE_MAX : 0);
+    if (maxLimit <= 0) return;
+
+    const text = target.textContent || '';
+    if (text.length <= maxLimit) return;
+
+    Field.setValue(target, text.substring(0, maxLimit));
+    const range = document.createRange();
+    range.selectNodeContents(target);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  }
+
+  /**
+   * D1: Overflow-Erkennung im Briefkern (#kern).
+   * Dual-Check via CSSOM View APIs: scrollHeight + BoundingClientRect-Fallback.
+   * Setzt data-ueberlauf und data-ueberlauf-zeilen am din-blatt.
+   */
+  setupOverflowDetector() {
+    const blatt = document.querySelector('din-blatt');
+    const kern = document.getElementById('kern');
+    const text = document.getElementById('text');
+    if (!blatt || !kern) return;
+
+    /** @type {(cb: FrameRequestCallback) => number} */
+    const raf = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
+      ? window.requestAnimationFrame.bind(window)
+      : (cb) => /** @type {number} */ (/** @type {unknown} */ (setTimeout(cb, 0)));
+
+    const checkOverflow = () => {
+      raf(() => {
+        if (!blatt || !kern) return;
+
+        // Gemessen (2026-11-08): mit `overflow: clip` meldet scrollHeight den
+        // Inhalt korrekt (238 -> 814 px bei 30 Absätzen); der frühere
+        // getBoundingClientRect-Fallback lag in jedem Fall gleichauf und
+        // erzwang nur einen zusätzlichen Layout-Read. Der ResizeObserver
+        // bleibt: das Blatt skaliert über cqw und #kern wächst mit
+        // (238 -> 358 px bei Viewport 900x700).
+        const hasOverflow = kern.scrollHeight > kern.clientHeight + 1;
+
+        if (hasOverflow) {
+          blatt.setAttribute('data-ueberlauf', 'true');
+          const computedLineHeight = text ? Number.parseFloat(window.getComputedStyle(text).lineHeight) : 18;
+          const lineHeight = Number.isFinite(computedLineHeight) && computedLineHeight > 0 ? computedLineHeight : 18;
+          const overflowPixels = Math.max(0, kern.scrollHeight - kern.clientHeight);
+          const estimatedLines = Math.max(1, Math.ceil(overflowPixels / lineHeight));
+          blatt.setAttribute('data-ueberlauf-zeilen', String(estimatedLines));
+        } else {
+          blatt.removeAttribute('data-ueberlauf');
+          blatt.removeAttribute('data-ueberlauf-zeilen');
+        }
+      });
+    };
+
+    // Debounced Trigger für Benutzereingaben im Text (200ms)
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    let debounceTimer = null;
+    const debouncedCheck = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(checkOverflow, 200);
+    };
+
+    if (text) {
+      text.addEventListener('input', debouncedCheck);
+    }
+
+    // ResizeObserver auf #kern für Viewport- und Zoomwechsel
+    if (typeof ResizeObserver !== 'undefined') {
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+      }
+      this.resizeObserver = new ResizeObserver(() => {
+        checkOverflow();
+      });
+      this.resizeObserver.observe(kern);
+    }
+
+    // Initialer Check beim Start
+    checkOverflow();
+  }
+
+  destroy() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+  }
+}
+
+/* =========================================================================================
+ * 3. DRAFT MANAGER (Single-Writer für localStorage, Undo/Redo, Autosave)
+ * ========================================================================================= */
+
+/* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
+ * Matcht contenteditable-Blattfelder UND speicherbare Formular-Selects (z. B. Postvermerk). */
+export const EDITABLE_FIELD_SELECTOR =
+  '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
+
+/**
+ * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
+ * Rich-Text-Felder werden vor der Ausgabe mit sanitizeRichText abgesichert.
+ * @returns {Record<string, string | boolean>}
+ */
+export function collectDraft() {
+  /** @type {Record<string, string | boolean>} */
+  const draft = {};
+
+  if (typeof document === 'undefined') return draft;
+
+  document.querySelectorAll('[contenteditable], textarea[data-feldtyp], input[data-atom]').forEach(elem => {
+    // #datum ist ein Systemwert, den der Nutzer bewusst aendern darf (Befund 1.2).
+    // Der Anlagentext wird immer gespeichert, auch bei ausgeschaltetem Toggle (1.3) -
+    // sonst ist er nach dem naechsten Reload endgueltig weg.
+    if (!elem.id || (elem.getAttribute('data-feldtyp') === 'systemwert' && elem.id !== 'datum')) return;
+    if (elem.getAttribute('data-feldtyp')?.includes('rich')) {
+      const isListe = Boolean(elem.getAttribute('data-feldtyp')?.includes('liste'));
+      const extra = isListe ? { extraTags: ['UL', 'OL', 'LI'] } : undefined;
+      const cleanFrag = sanitizeRichText(elem.innerHTML, extra);
+      const container = document.createElement('div');
+      container.appendChild(cleanFrag);
+      draft[elem.id] = container.innerHTML;
+    } else {
+      draft[elem.id] = Field.getValue(elem);
+    }
+  });
+
+  document.querySelectorAll('select[data-speichern]').forEach(elem => {
+    const sel = /** @type {HTMLSelectElement} */ (elem);
+    if (sel.id) draft[sel.id] = sel.value;
+  });
+
+  const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+  if (anlagenSwitch) {
+    draft['toggle-anlagen'] = anlagenSwitch.checked;
+  }
+
+  const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
+  if (fussSwitch) {
+    draft['toggle-fuss'] = fussSwitch.checked;
+  }
+
+  return draft;
+}
+
+
+==============================================================================
+===== format.js  (website/js/format.js, 446 Zeilen, sha256:b923506d)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]]
+// @guide [[glossary]]
+
+/**
+ * @file format.js — Reine Formatierungsfunktionen nach DIN 5008 (Telefonnummern, Text-Formatierung).
+ */
+
+/**
+ * Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und
+ * Ortsnetz-Vorwahlen per Leerzeichen abgesetzt, Durchwahl mit Bindestrich).
+ * @param {string | null | undefined} input
+ * @returns {string}
+ */
+export function formatTelefonnummer(input) {
+  const original = String(input ?? '').trim();
+  if (!original) return '';
+
+  // 1. Vorbereinigung: "(0)" auflösen, erlaubte Zeichen behalten, Leerraum normalisieren.
+  const cleaned = original
+    .replace(/\(\s*0\s*\)/g, ' ')
+    .replace(/[^0-9+\-/ ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return original;
+
+  // 2. Internationale Nummern: 00XX -> +XX. Nur +49 wird national weitergereicht.
+  if (cleaned.startsWith('+') || cleaned.startsWith('00')) {
+    const intl = cleaned.replace(/^00(\d{2})/, '+$1');
+    if (!intl.startsWith('+49')) return intl;
+    const afterCc = intl.slice(3).replace(/[^0-9-]/g, '');
+    if (!afterCc) return intl;
+    const national = afterCc.startsWith('0') ? afterCc : `0${afterCc}`;
+    const formatted = formatNationalNumber(national);
+    return formatted ? `+49 ${formatted.slice(1)}` : intl;
+  }
+
+  // 3. Nationale Nummern nur mit führender 0 — sonst unangetastet lassen.
+  if (!cleaned.startsWith('0')) return original;
+  return formatNationalNumber(cleaned) ?? original;
+}
+
+/**
+ * Formatiert eine nationale Rufnummer (führende 0) in Vorwahl + Rufnummer + Durchwahl.
+ * @param {string} national
+ * @returns {string | null} null, wenn keine verwertbare Nummer vorliegt
+ */
+function formatNationalNumber(national) {
+  let s = national.replace(/\s+/g, ' ').trim();
+  if (!/^0\d/.test(s.replace(/\D/g, ''))) return null;
+
+  // Durchwahl: abschließender Bindestrich + höchstens 4 Ziffern ("0228 123456-78").
+  // Ein längerer Rest nach dem Bindestrich ist ein Trenner ("0172-1234567"), keine Durchwahl.
+  let durchwahl = '';
+  const dwMatch = s.match(/^(.*\d)-(\d{1,4})$/);
+  if (dwMatch) {
+    s = dwMatch[1].trim();
+    durchwahl = `-${dwMatch[2]}`;
+  } else {
+    // Durchwahl als letzte, per Leerzeichen abgetrennte 2er-Gruppe ("0228 123456 78").
+    // Mobilnummern werden laut Vorgabe zu einer Gruppe zusammengefasst, daher dort nicht.
+    // Die Gruppe davor muss eine plausible Rufnummer sein (>= 4 Ziffern), sonst würde
+    // eine Gruppierung wie "0170 123 45 67" falsch als Durchwahl gelesen.
+    const groups = s.split(' ');
+    const isMobile = /^01[5-7]\d/.test(s.replace(/[\s/-]+/g, ''));
+    if (!isMobile && groups.length >= 3) {
+      const last = groups[groups.length - 1];
+      const before = groups[groups.length - 2];
+      if (/^\d{2}$/.test(last) && /^\d{4,}$/.test(before)) {
+        s = groups.slice(0, -1).join(' ');
+        durchwahl = `-${last}`;
+      }
+    }
+  }
+
+  // Vorwahl: endet am ersten Trenner (Leerzeichen, / oder -).
+  const sepIndex = s.search(/[ /-]/);
+  const head = sepIndex === -1 ? s : s.slice(0, sepIndex);
+  const headDigits = head.replace(/\D/g, '');
+
+  let vorwahl = '';
+  let rest = '';
+  if (sepIndex !== -1 && headDigits.length >= 3 && headDigits.length <= 6) {
+    // Expliziter Trenner vorhanden: Vorwahl wird direkt aus dem Head übernommen
+    vorwahl = headDigits;
+    rest = s.slice(sepIndex).replace(/\D/g, '');
+  } else {
+    // Kein expliziter Trenner: KEIN Raten anhand der Gesamtziffernzahl (A18)!
+    // Formatiere nur, wenn die Ziffern mit einer eindeutig bekannten Vorwahl beginnen.
+    const digits = s.replace(/\D/g, '');
+    const prefixLen = getKnownPrefixLength(digits);
+    if (!prefixLen) {
+      return null; // Lieber unformatiert als falsch formatiert
+    }
+    vorwahl = digits.slice(0, prefixLen);
+    rest = digits.slice(prefixLen);
+  }
+
+  if (!vorwahl) return null;
+  return rest ? `${vorwahl} ${rest}${durchwahl}` : `${vorwahl}${durchwahl}`;
+}
+
+/**
+ * Prüft auf eindeutig bekannte Vorwahlen ohne Datenbank (A18).
+ * Liefert die Vorwahllänge oder 0, wenn keine bekannte Vorwahl vorliegt.
+ * @param {string} digits
+ * @returns {number}
+ */
+function getKnownPrefixLength(digits) {
+  // 3-stellig: Großstädte (030 Berlin, 040 Hamburg, 069 Frankfurt, 089 München)
+  if (/^0(30|40|69|89)\d/.test(digits)) return 3;
+  // 4-stellig: Mobilfunk (015x, 016x, 017x)
+  if (/^01[5-7]\d{2,}/.test(digits)) return 4;
+  // 4-stellig: Sondernummern (0800, 0900, 0180, 0137, 0700)
+  if (/^0(?:800|900|180|137|700)\d/.test(digits)) return 4;
+  // 4-stellig: Eindeutig bekannte Großstadt-Vorwahlen
+  // 0201 Essen, 0211 Düsseldorf, 0221 Köln, 0228 Bonn, 0231 Dortmund,
+  // 0341 Leipzig, 0351 Dresden, 0421 Bremen, 0511 Hannover, 0621 Mannheim,
+  // 0711 Stuttgart, 0911 Nürnberg
+  if (/^0(?:201|211|221|228|231|341|351|421|511|621|711|911)\d/.test(digits)) return 4;
+
+  return 0;
+}
+
+/**
+ * Prüft auf ein gültiges gregorianisches Kalenderdatum ohne Legacy-Date-Objekt (ADR-JS / B2).
+ * @param {number} year
+ * @param {number} month
+ * @param {number} day
+ * @returns {boolean}
+ */
+function isValidCalendarDate(year, month, day) {
+  if (month < 1 || month > 12 || day < 1 || year < 1000 || year > 9999) return false;
+  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const daysInMonth = [0, 31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return day <= daysInMonth[month];
+}
+
+/**
+ * Formatiert ein Datum nach DIN 5008 § 11.4.
+ * Unterstützt ISO-Format (JJJJ-MM-TT via Temporal), DIN-alphanumerisch (z. B. "4. September 2026")
+ * und DIN-numerisch (TT.MM.JJJJ mit optional führender Null am Tag).
+ * @param {string | number | any} input
+ * @param {{ format?: 'numeric' | 'alpha' | 'iso', pad?: boolean }} [opts]
+ * @returns {string}
+ */
+export function formatDatum(input, opts = {}) {
+  const { format = 'numeric', pad = true } = opts;
+  if (!input) return String(input ?? '');
+
+  let year = 0;
+  let month = 0;
+  let day = 0;
+
+  if (typeof Temporal !== 'undefined' && typeof Temporal.PlainDate !== 'undefined' && input instanceof Temporal.PlainDate) {
+    year = input.year;
+    month = input.month;
+    day = input.day;
+  } else if (input && typeof input.getFullYear === 'function') {
+    year = input.getFullYear();
+    month = input.getMonth() + 1;
+    day = input.getDate();
+  } else if (typeof input === 'string') {
+    const trimmed = input.trim();
+    const isoMatch = trimmed.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s].*)?$/);
+    const deMatch = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+
+    if (isoMatch) {
+      year = Number.parseInt(isoMatch[1], 10);
+      month = Number.parseInt(isoMatch[2], 10);
+      day = Number.parseInt(isoMatch[3], 10);
+    } else if (deMatch) {
+      day = Number.parseInt(deMatch[1], 10);
+      month = Number.parseInt(deMatch[2], 10);
+      year = Number.parseInt(deMatch[3], 10);
+    } else {
+      return input;
+    }
+  } else {
+    return String(input);
+  }
+
+  if (!isValidCalendarDate(year, month, day)) {
+    return typeof input === 'string' ? input : String(input);
+  }
+
+  if (typeof Temporal !== 'undefined' && typeof Temporal.PlainDate !== 'undefined') {
+    const pd = new Temporal.PlainDate(year, month, day);
+    if (format === 'iso') {
+      return pd.toString();
+    }
+    if (format === 'alpha') {
+      return pd.toLocaleString('de-DE', { dateStyle: 'long' });
+    }
+    // DIN-numerisch (TT.MM.JJJJ)
+    return pd.toLocaleString('de-DE', {
+      day: pad ? '2-digit' : 'numeric',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  // Fallback (z. B. Node.js CLI-Runner ohne Temporal-Flag)
+  if (format === 'iso') {
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+  if (format === 'alpha') {
+    const monatsNamen = [
+      '', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+    ];
+    return `${day}. ${monatsNamen[month]} ${year}`;
+  }
+  const dayStr = pad ? String(day).padStart(2, '0') : String(day);
+  const monthStr = String(month).padStart(2, '0');
+  return `${dayStr}.${monthStr}.${year}`;
+}
+
+/**
+ * Formatiert eine Uhrzeit nach DIN 5008 § 11.5.
+ * Normgerecht zweistellig mit Doppelpunkt gegliedert (z. B. "05:30", "05:30 Uhr").
+ * Der End-of-Day-Grenzfall "24:00" bleibt als legitime DIN-Angabe erhalten.
+ * @param {string | any} input
+ * @param {{ suffix?: string, seconds?: boolean }} [opts]
+ * @returns {string}
+ */
+export function formatUhrzeit(input, opts = {}) {
+  const { suffix = '', seconds = false } = opts;
+  if (!input && input !== 0) return String(input ?? '');
+
+  let h = 0;
+  let m = 0;
+  /** @type {number | null} */
+  let s = null;
+  let parsedSuffix = suffix;
+
+  if (input && typeof input.getHours === 'function') {
+    h = input.getHours();
+    m = input.getMinutes();
+    s = input.getSeconds();
+  } else if (typeof input === 'string') {
+    const trimmed = input.trim();
+    const match = trimmed.match(/^(\d{1,2})[:.](\d{2})(?:[:.](\d{2}))?(?:\s*(uhr))?$/i);
+    if (!match) return input;
+
+    h = Number.parseInt(match[1], 10);
+    m = Number.parseInt(match[2], 10);
+    s = match[3] !== undefined ? Number.parseInt(match[3], 10) : null;
+    if (match[4] && !suffix) {
+      parsedSuffix = 'Uhr';
+    }
+  } else {
+    return String(input);
+  }
+
+  // 24:00 Grenzfall: nur 24:00(:00) ist zulässig, 24:30 ist ungültig
+  if (h === 24) {
+    if (m !== 0 || (s !== null && s !== 0)) return typeof input === 'string' ? input : String(input);
+  } else if (h < 0 || h > 23) {
+    return typeof input === 'string' ? input : String(input);
+  }
+
+  if (m < 0 || m > 59) return typeof input === 'string' ? input : String(input);
+  if (s !== null && (s < 0 || s > 59)) return typeof input === 'string' ? input : String(input);
+
+  let formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  if (seconds) {
+    formatted += `:${String(s ?? 0).padStart(2, '0')}`;
+  }
+  if (parsedSuffix) {
+    formatted += ` ${parsedSuffix.trim()}`;
+  }
+  return formatted;
+}
+
+/**
+ * Formatiert eine IBAN nach DIN 5008 § 11.3.1 in 4er-Gruppen von links.
+ * @param {string | any} input
+ * @returns {string}
+ */
+export function formatIban(input) {
+  if (!input || typeof input !== 'string') return String(input ?? '');
+  const cleaned = input.replace(/\s+/g, '').toUpperCase();
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$/.test(cleaned)) {
+    return input;
+  }
+  return cleaned.replace(/(.{4})(?=.)/g, '$1 ');
+}
+
+/**
+ * Formatiert eine Postfachnummer nach DIN 5008 § 11.3.4 von rechts in 2er-Gruppen.
+ * @param {string | number | any} input
+ * @returns {string}
+ */
+export function formatPostfach(input) {
+  if (input === null || input === undefined) return String(input ?? '');
+  const s = String(input).trim();
+  const prefixMatch = s.match(/^(postfach\s+)/i);
+  const prefix = prefixMatch ? prefixMatch[1] : '';
+  const numPart = prefixMatch ? s.slice(prefix.length) : s;
+  const digits = numPart.replace(/\s+/g, '');
+
+  if (!/^\d{3,}$/.test(digits)) {
+    return typeof input === 'string' ? input : String(input);
+  }
+
+  const groups = [];
+  for (let i = digits.length; i > 0; i -= 2) {
+    groups.unshift(digits.slice(Math.max(0, i - 2), i));
+  }
+  return `${prefix}${groups.join(' ')}`;
+}
+
+/**
+ * Formatiert einen Geldbetrag nach DIN 5008 § 6.6 / § 11.2 mit Tausender-Punkt
+ * und geschütztem Leerzeichen vor dem Währungssymbol bzw. ISO-Code.
+ * @param {number | string | any} input
+ * @param {string} [waehrung='EUR']
+ * @param {{ useIsoCode?: boolean, minimumFractionDigits?: number, maximumFractionDigits?: number }} [opts]
+ * @returns {string}
+ */
+export function formatGeldbetrag(input, waehrung = 'EUR', opts = {}) {
+  const { useIsoCode = false, minimumFractionDigits = 2, maximumFractionDigits = 2 } = opts;
+  if (input === null || input === undefined || input === '') return String(input ?? '');
+
+  let num;
+  if (typeof input === 'number') {
+    num = input;
+  } else if (typeof input === 'string') {
+    const cleaned = input.trim().replace(/\s+/g, '');
+    if (/^-?\d{1,3}(?:\.\d{3})*,\d+$/.test(cleaned)) {
+      num = Number.parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
+    } else if (/^-?\d+,\d+$/.test(cleaned)) {
+      num = Number.parseFloat(cleaned.replace(',', '.'));
+    } else if (/^-?\d+(?:\.\d+)?$/.test(cleaned)) {
+      num = Number.parseFloat(cleaned);
+    } else {
+      return input;
+    }
+  } else {
+    return String(input);
+  }
+
+  if (Number.isNaN(num)) return typeof input === 'string' ? input : String(input);
+
+  const nf = new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: waehrung,
+    currencyDisplay: useIsoCode ? 'code' : 'symbol',
+    minimumFractionDigits,
+    maximumFractionDigits
+  });
+
+  return nf.format(num);
+}
+
+/* =========================================================================================
+ * 7. BRIEFDATUM & ISO-DATUM (Temporal API & DIN 5008)
+ * ========================================================================================= */
+
+/**
+ * „Heute" als ISO-String (YYYY-MM-DD) in Berliner Zeit — Single Source of Truth
+ * für alle maschinenlesbaren Datums-Ableitungen (z. B. PDF-Dateiname).
+ * Bewusst zoned (nicht plainDateISO(), das UTC-basiert ist und nachts 00:00–02:00
+ * deutscher Zeit den Vortag liefern würde).
+ * @returns {string}
+ */
+export function currentISODate() {
+  try {
+    return Temporal.Now.zonedDateTimeISO('Europe/Berlin').toPlainDate().toString();
+  } catch (err) {
+    console.warn('[DateFormat] currentISODate fehlgeschlagen:', err);
+    return '';
+  }
+}
+
+/**
+ * Formatiert das heutige Datum DIN-5008-konform ("4. September 2026", ohne führende Null).
+ * @returns {string}
+ */
+export function formatLetterDate() {
+  try {
+    const iso = currentISODate();
+    if (!iso) return '';
+    return formatDatum(iso, { format: 'alpha' });
+  } catch (err) {
+    console.warn('[DateFormat] formatLetterDate fehlgeschlagen:', err);
+    return '';
+  }
+}
+
+/**
+ * Befüllt das Datumsfeld (#datum) des Briefes beim Laden.
+ */
+export function applyLetterDate() {
+  const el = document.getElementById('datum');
+  if (!el) return;
+  // Ein selbst eingetragenes Datum gewinnt: sonst überschreibt jeder Aufruf
+  // die Eingabe, und sie wäre nach dem Reload verloren (Befund 1.2).
+  const manuallySet = el.dataset.dirty === 'true' && (el.textContent || '').trim() !== '';
+  if (manuallySet) return;
+  const formatted = formatLetterDate();
+  if (formatted) {
+    el.textContent = formatted;
+  }
+}
+
+/* =========================================================================================
+ * 8. MIKRO-TYPOGRAFIE NACH DIN 5008 (§ 7.2 & § 8.2)
+ * ========================================================================================= */
+
+/**
+ * Wendet DIN-5008-Mikrotypografie (geschützte Leerzeichen) an (§ 7.2 & § 8.2).
+ * Ersetzt gewöhnliche Leerzeichen durch geschützte Leerzeichen (\u00A0) bei:
+ * 1. Mehrteiligen Abkürzungen (z. B., d. h., u. a., e. V., i. d. R., o. Ä., s. o., i. V., i. A., etc. pp.)
+ * 2. Paragrafen & Normangaben (§ 24, §§ 38 f., Art. 1, Abs. 2, Satz 1, Nr. 3, Az. ...)
+ * 3. Zahlen mit Einheiten & Währungen (100 EUR, 25,50 €, 19 %, 10 kg, 500 m, 120 km/h)
+ * 4. Gedankenstrichen (Wort\u00A0– Wort)
+ *
+ * Die Funktion ist rein funktional, idempotent und verhält sich defensiv bei leeren Eingaben.
+ * @param {string | null | undefined} text
+ * @returns {string}
+ */
+export function applyMicroTypography(text) {
+  if (!text || typeof text !== 'string') return String(text ?? '');
+  const NBSP = '\u00A0';
+
+  return text
+    // 1. Mehrteilige Abkürzungen (§ 6.5 & § 7.2)
+    .replace(/\b(z|d|u|s)\.[ \t\u00A0]+(B|h|a|o|u)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(i)\.[ \t\u00A0]+(d)\.[ \t\u00A0]+(R)\./gi, `$1.${NBSP}$2.${NBSP}$3.`)
+    .replace(/\b(i)\.[ \t\u00A0]+(V|A)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(e)\.[ \t\u00A0]+(V)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(u|o)\.[ \t\u00A0]+(Ä)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(etc)\.[ \t\u00A0]+(pp)\./gi, `$1.${NBSP}$2.`)
+    .replace(/\b(u)\.[ \t\u00A0]+(a)\.[ \t\u00A0]+(m)\./gi, `$1.${NBSP}$2.${NBSP}$3.`)
+    // 2. Paragrafen & Normangaben (§ 9.1 & § 7.2)
+    .replace(/(§§?|Art\.|Abs\.|Satz|Nr\.|S\.)[ \t\u00A0]+(\d+)/g, `$1${NBSP}$2`)
+    .replace(/\b(Az\.)[ \t\u00A0]+([A-Z0-9/.-]+)/gi, `$1${NBSP}$2`)
+    // 3. Zahlen mit Einheiten & Währungen (§ 6.6 & § 7.2)
+    .replace(/(\d+(?:[.,]\d+)?)[ \t\u00A0]+(?:(EUR|CHF|USD|GBP|km\/h|kWh|kW|mm|cm|dm|km|kg|mg|g|t|°C|V|A|W|h|min|s|m)\b|(€|\$|£|%|‰))/g, (_m, num, u1, u2) => `${num}${NBSP}${u1 || u2}`)
+    // 4. Gedankenstrich (§ 8.2)
+    .replace(/(?:(?<=\S)|^)[ \t\u00A0]+[-–—][ \t\u00A0]+(?=\S)/g, `${NBSP}– `);
+}
+
+
+==============================================================================
+===== salutation.js  (website/js/salutation.js, 342 Zeilen, sha256:5e936d45)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]] {SalutationEngine}
+// Anrede & Grußformel — bewusst klein (80/20), dafür verlässlich.
+//
+// Regeln:
+//  1. Das Geschlecht kommt NUR aus einem expliziten "Herr/Herrn/Frau" im
+//     Namensfeld. Ohne Präfix wird neutral angesprochen — lieber neutral als
+//     falsch geraten. Keine Namensliste, kein Datei-Laden. Vornamen werden
+//     nicht gedeutet (Entscheidung 2026-11-07, Backlog #18): eine Liste
+//     deutscher Vornamen deckt weder Herkunft noch Schreibweise ab und rät
+//     im Zweifel falsch.
+//  2. Auto-Text wird nur geschrieben, solange das Feld leer ist oder noch genau
+//     den zuletzt generierten Text enthält. Manuelle Eingaben bleiben unberührt.
+//  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
+
+import { Constants, Events, eventBus } from './core.js';
+import { Field } from './field.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+
+const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
+
+export const SALUTATION_TONES = Object.freeze(/** @type {const} */ ({
+  formal: {
+    salutationDefault: 'Sehr geehrte Damen und Herren,',
+    salutationMale: 'Sehr geehrter Herr',
+    salutationFemale: 'Sehr geehrte Frau',
+    closing: 'Mit freundlichen Grüßen'
+  },
+  polite: {
+    salutationDefault: 'Guten Tag,',
+    salutationMale: 'Guten Tag Herr',
+    salutationFemale: 'Guten Tag Frau',
+    closing: 'Freundliche Grüße'
+  },
+  casual: {
+    salutationDefault: 'Hallo,',
+    salutationMale: 'Hallo Herr',
+    salutationFemale: 'Hallo Frau',
+    closing: 'Beste Grüße'
+  }
+}));
+
+const CLOSINGS = Object.freeze({
+  formal: SALUTATION_TONES.formal.closing,
+  polite: SALUTATION_TONES.polite.closing,
+  casual: SALUTATION_TONES.casual.closing
+});
+
+const FALLBACK = Object.freeze({
+  formal: SALUTATION_TONES.formal.salutationDefault,
+  polite: SALUTATION_TONES.polite.salutationDefault,
+  casual: SALUTATION_TONES.casual.salutationDefault
+});
+
+const FALLBACK_SET = new Set(Object.values(FALLBACK));
+const CLOSINGS_SET = new Set(Object.values(CLOSINGS));
+
+const ORG_WORDS = new Set(['gmbh', 'ag', 'eg', 'ug', 'ev', 'kg', 'ohg', 'gbr', 'kgaa', 'ek']);
+const PARTICLES = new Set(['von', 'vom', 'zu', 'zur', 'zum', 'van', 'der', 'den', 'de', 'ten', 'ter', 'la', 'le', 'du', 'di']);
+
+/**
+ * @param {string | undefined} f
+ * @returns {'formal' | 'polite' | 'casual'}
+ */
+function toStyle(f) {
+  return /** @type {any} */ (STYLES).includes(f) ? /** @type {any} */ (f) : 'formal';
+}
+
+/**
+ * Leitet die Anrede nach DIN 5008 ab (KISS).
+ * @param {string} [rawText]
+ * @param {'formal' | 'polite' | 'casual' | string} [style]
+ * @returns {string}
+ */
+export function deriveSalutation(rawText, style = 'formal') {
+  const normStyle = toStyle(style);
+  let text = String(rawText ?? '').trim();
+  if (!text) return FALLBACK[normStyle];
+
+  // 1. Präfix extrahieren (falls vor dem Komma) & Comma-Swap: "Müller, Hans" -> "Hans Müller"
+  let prefix = '';
+  const m = text.match(/^(herrn?|frau)\s+/i);
+  if (m) {
+    prefix = m[1];
+    text = text.slice(m[0].length).trim();
+  }
+  const comma = text.indexOf(',');
+  if (comma > 0) {
+    text = `${text.slice(comma + 1)} ${text.slice(0, comma)}`.trim();
+  }
+  if (prefix) {
+    text = `${prefix} ${text}`.trim();
+  }
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const lower = words.map((w) => w.toLowerCase().replace(/[^a-zäöüß]/g, ''));
+
+  // 2. Präfix prüfen (Herr / Frau gewinnt immer)
+  const firstLower = lower[0];
+  const isFemale = firstLower === 'frau';
+  const isMale = firstLower === 'herr' || firstLower === 'herrn';
+
+  // 3. Kein Präfix -> Organisations-Check, sonst neutraler DIN-Fallback
+  if ((!isFemale && !isMale) || words.length <= 1) {
+    return FALLBACK[normStyle];
+  }
+
+  // Organisationsteile am Ende abschneiden (z. B. "Herr Bank eG", "Herr Mustermann e.K.")
+  while (words.length > 2 && ORG_WORDS.has(lower[words.length - 1])) {
+    words.pop();
+    lower.pop();
+  }
+
+  // 4. Nachname inkl. Namenspartikel (von, van der, etc.)
+  let lastNameIdx = words.length - 1;
+  while (lastNameIdx > 1 && PARTICLES.has(lower[lastNameIdx - 1])) {
+    lastNameIdx--;
+  }
+  const nachname = words.slice(lastNameIdx).join(' ');
+
+  // 5. Titel zwischen Anrede und Nachname erfassen (Dr., Prof.)
+  const titel = words.slice(1, lastNameIdx).filter((w) => w.includes('.')).join(' ');
+  const zusatz = titel ? ` ${titel}` : '';
+
+  let anrede = isFemale ? 'Sehr geehrte Frau' : 'Sehr geehrter Herr';
+  if (normStyle === 'polite') {
+    anrede = isFemale ? 'Guten Tag Frau' : 'Guten Tag Herr';
+  } else if (normStyle === 'casual') {
+    anrede = isFemale ? 'Hallo Frau' : 'Hallo Herr';
+  }
+
+  return `${anrede}${zusatz} ${nachname},`;
+}
+
+export const SalutationEngine = {
+  CLOSINGS,
+  SALUTATION_TONES,
+
+  /**
+   * Leitet die Anrede aus dem Namensfeld ab.
+   * Unterstützt: "Herr/Frau Nachname", "Herrn Vorname Nachname", Titel
+   * (Dr., Prof.), Namenszusätze (von, van der, ...) und "Nachname, Vorname".
+   * Ohne Herr/Frau-Präfix wird kein Geschlecht geraten (DIN 5008 Fallback).
+   * @param {{ rawName?: string, formality?: string } | string} [optsOrName]
+   * @param {string} [maybeFormality]
+   * @returns {string}
+   */
+  derive(optsOrName, maybeFormality) {
+    if (optsOrName && typeof optsOrName === 'object') {
+      return deriveSalutation(optsOrName.rawName, optsOrName.formality);
+    }
+    return deriveSalutation(optsOrName, maybeFormality);
+  },
+
+  /** @param {string} [formality] */
+  getClosing(formality = 'formal') {
+    return CLOSINGS[toStyle(formality)];
+  },
+
+  /** @param {string} [formality] */
+  getFallback(formality = 'formal') {
+    return FALLBACK[toStyle(formality)];
+  }
+};
+
+/* @adr [[ADR-JS]] {SalutationFeature} */
+export class SalutationFeature {
+  /** @type {import('./settings.js').SettingsManager | null} */
+  #settingsManager;
+  /** Zuletzt automatisch geschriebener Text je Feld (Key = Element-ID). */
+  #auto = { anrede: '', grussformel: '' };
+  /** @type {(() => void) | null} */
+  #unsubDocChanged = null;
+
+  /**
+   * @param {import('./settings.js').SettingsManager | null} [settingsManager]
+   */
+  constructor(settingsManager = null) {
+    this.#settingsManager = settingsManager;
+    this.settings = settingsManager ? settingsManager.settings : loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+    this.settings.formality = toStyle(this.settings.formality);
+  }
+
+  init() {
+    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    if (styleSelect) {
+      styleSelect.value = this.settings.formality;
+      styleSelect.addEventListener('change', () => {
+        this.#setStyle(toStyle(styleSelect.value));
+      });
+    }
+
+    this.#seedAuto();
+
+    document.getElementById('empfaenger-name')?.addEventListener('input', () => this.#update('anrede'));
+    document.getElementById('empfaenger-firma')?.addEventListener('input', () => this.#update('anrede'));
+
+    for (const kind of /** @type {const} */ (['anrede', 'grussformel'])) {
+      const el = document.getElementById(kind);
+      if (!el) continue;
+      // Tippt der Nutzer etwas Eigenes, ist es kein Auto-Text mehr (Optik: [data-generated]).
+      el.addEventListener('input', () => {
+        const text = Field.getValue(el).trim();
+        if (text && text !== this.#auto[kind]) {
+          delete el.dataset.generated;
+          el.dataset.dirty = 'true';
+        } else {
+          delete el.dataset.dirty;
+          el.dataset.generated = 'true';
+        }
+      });
+      el.addEventListener('blur', () => this.#hint(kind, el));
+    }
+
+    /* Reset und Undo/Redo melden sich als DOCUMENT_CHANGED. Ein eigener
+     * Dialog-Listener waere ein zweiter Pfad fuer denselben Zustand (und ein
+     * zweiter Speicherimpuls). Deshalb haengt hier beides: erst vorhandenen
+     * Auto-Text als solchen markieren, dann leere Felder fuellen. */
+    this.#unsubDocChanged = eventBus.subscribe(Events.DOCUMENT_CHANGED, () => {
+      this.#seedAuto();
+      this.refresh();
+    });
+
+    this.refresh();
+  }
+
+  destroy() {
+    if (this.#unsubDocChanged) {
+      this.#unsubDocChanged();
+      this.#unsubDocChanged = null;
+    }
+  }
+
+  /** Leere Felder mit Auto-Text füllen; Eigenes bleibt stehen. */
+  refresh() {
+    this.#update('anrede', true);
+    this.#update('grussformel', true);
+  }
+
+  /** @param {'formal' | 'polite' | 'casual'} style */
+  #setStyle(style) {
+    this.settings.formality = style;
+    const styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    if (styleSelect?.value !== style) {
+      if (styleSelect) styleSelect.value = style;
+    }
+    if (this.#settingsManager) {
+      this.#settingsManager.updateSettings();
+    } else {
+      saveJSON(STORAGE_KEYS.settings, this.settings);
+    }
+    this.#update('anrede');
+    this.#update('grussformel');
+  }
+
+  /**
+   * Nach einem Reload steht der alte Auto-Text schon im Feld. Entspricht er
+   * dem, was die Engine erzeugen würde (oder Standard-Fallbacks), bleibt er "automatisch".
+   */
+  #seedAuto() {
+    const name = this.#nameText();
+    const anredeEl = document.getElementById('anrede');
+    const anrede = Field.getValue(anredeEl).trim();
+    if (anrede) {
+      const isAutoAnrede = FALLBACK_SET.has(/** @type {any} */ (anrede))
+        || STYLES.some((s) => SalutationEngine.derive({ rawName: name, formality: s }) === anrede);
+      if (isAutoAnrede && anredeEl) {
+        if (anredeEl.dataset.dirty === 'true') {
+          delete anredeEl.dataset.dirty;
+        }
+        anredeEl.dataset.generated = 'true';
+        this.#auto.anrede = anrede;
+      }
+    }
+    const grussEl = document.getElementById('grussformel');
+    const gruss = Field.getValue(grussEl).trim();
+    if (gruss) {
+      const isAutoGruss = CLOSINGS_SET.has(/** @type {any} */ (gruss));
+      if (isAutoGruss && grussEl) {
+        if (grussEl.dataset.dirty === 'true') {
+          delete grussEl.dataset.dirty;
+        }
+        grussEl.dataset.generated = 'true';
+        this.#auto.grussformel = gruss;
+      }
+    }
+  }
+
+  #nameText() {
+    const name = (document.getElementById('empfaenger-name')?.textContent || '').trim();
+    if (name) return name;
+    return (document.getElementById('empfaenger-firma')?.textContent || '').trim();
+  }
+
+  /**
+   * Schreibt den Auto-Text, außer der Nutzer hat das Feld selbst befüllt.
+   * @param {'anrede' | 'grussformel'} kind
+   * @param {boolean} [onlyIfEmpty]
+   */
+  #update(kind, onlyIfEmpty = false) {
+    const el = document.getElementById(kind);
+    if (!el || document.activeElement === el) return;
+
+    const current = Field.getValue(el).trim();
+    if (!current) {
+      delete el.dataset.dirty;
+    }
+    // Nutzer-Text respektieren: wenn explizit vom Nutzer manuell editiert
+    if (el.dataset.dirty === 'true' && current) return;
+    if (current && onlyIfEmpty) return;
+
+    const style = this.settings.formality;
+    const value = kind === 'anrede'
+      ? SalutationEngine.derive({ rawName: this.#nameText(), formality: style })
+      : SalutationEngine.getClosing(style);
+
+    this.#auto[kind] = value;
+    if (value === current) {
+      el.dataset.generated = 'true';
+      return;
+    }
+    Field.setValue(el, value);
+    el.dataset.generated = 'true';
+    delete el.dataset.dirty;
+    eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+  }
+
+  /**
+   * DIN-5008-Hinweis nur für selbst getippten Text.
+   * @param {'anrede' | 'grussformel'} kind
+   * @param {HTMLElement} el
+   */
+  #hint(kind, el) {
+    const text = Field.getValue(el).trim();
+    if (!text || text === this.#auto[kind]) return;
+    if (kind === 'anrede' && !text.endsWith(',')) {
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.PUNCTUATION, type: 'warning' });
+    } else if (kind === 'grussformel' && /[,.]$/.test(text)) {
+      eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.CLOSING_PUNCTUATION, type: 'warning' });
+    }
+  }
+}
+

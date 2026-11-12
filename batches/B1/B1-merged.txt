@@ -1,0 +1,1472 @@
+# B1 — Geometrie-CSS
+
+Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
+damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
+
+## Inhalt
+```
+B1/
+├── base.css                       343 Zeilen
+├── sheet-common.css               454 Zeilen
+├── sheet-multipage.css            634 Zeilen
+└── prompt.md                    (nicht enthalten — separat anklicken)
+```
+
+## Quellen (Snapshot)
+| Datei | Pfad im Repo | Zeilen | SHA256 |
+|---|---|---:|---|
+| `base.css` | `website/css/base.css` | 343 | `f22beefb` |
+| `sheet-common.css` | `website/css/sheet-common.css` | 454 | `4a470bdc` |
+| `sheet-multipage.css` | `website/css/sheet-multipage.css` | 634 | `60c7ecc4` |
+
+Gesamt: 43177 Zeichen ≈ 10k Token.
+
+
+==============================================================================
+===== base.css  (website/css/base.css, 343 Zeilen, sha256:f22beefb)
+==============================================================================
+
+/* @adr [[ADR-CSS]] */
+/* @guide [[din-5008-css-architektur]] */
+
+/* =========================================================================================
+ * css/base.css — Fundament: Reset, Design-Tokens (OKLCH, No-Flip), DIN-Mathematik & App-Shell
+ * ========================================================================================= */
+
+/* --- 1. RESET --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: var(--font-system-stack);
+}
+
+/* Accessibility: prefers-reduced-motion — Kill-Switch für alle CSS-Animationen */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Accessibility: Skip-Link für Tastaturnavigation */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  padding: 8px 16px;
+  background: var(--accent-color, oklch(40% 0.14 260));
+  color: oklch(100% 0 0);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 6px 0;
+  box-shadow: 0 4px 12px oklch(0% 0 0 / 25%);
+  outline: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 0;
+  outline: 2px solid oklch(100% 0 0);
+  outline-offset: -2px;
+}
+
+/* --- LOKALE TEST-SCHRIFTEN (DIN-5008-SUBSET) --- */
+@font-face {
+  font-family: "Test-Inter";
+  src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Inter";
+  src: url("../fonts/inter_18pt-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Aptos";
+  src: url("../fonts/aptos.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Michelangelus";
+  src: url("../fonts/michelangelus-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+din-blatt {
+  font-family: var(--active-font-family, var(--font-system-stack));
+  font-size-adjust: 0.52;
+  font-variant-numeric: tabular-nums;
+}
+body.schrift-eigene-aktiv din-blatt {
+  font-family: var(--active-font-family, var(--font-system-stack));
+}
+
+body {
+  background-color: var(--bg-viewport);
+  color: var(--text-primary);
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- 2. DESIGN TOKENS (OKLCH & NO-FLIP) --- */
+:root {
+  color-scheme: light dark;
+  interpolate-size: allow-keywords;
+  view-transition-name: none;
+
+  /* --- TAGMODUS --- */
+  --c-viewport-day: oklch(0.96 0.01 250);
+  --c-seitenleiste-day: oklch(0.98 0.005 250);
+  --c-card-day: oklch(1 0 0);
+  --c-border-day: oklch(0.90 0.01 250);
+  --c-text-day: oklch(0.15 0.02 250);
+  --c-muted-day: oklch(0.45 0.02 250);
+  --c-accent-day: oklch(0.40 0.14 260);
+  --c-danger-day: oklch(0.55 0.22 25);
+  --c-segment-day: oklch(0.92 0.01 250);
+  --c-blatt-day: oklch(100% 0 0);
+  --c-tinte-day: oklch(0% 0 0);
+  --c-schwach-day: oklch(50% 0 0);
+
+  /* --- NACHTMODUS (NO-FLIP: Konsistente dunkle Schrift, blendfrei heruntergedimmt) --- */
+  --c-viewport-night: oklch(0.68 0.01 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
+  --c-seitenleiste-night: oklch(0.74 0.015 250);   /* Mattes, ruhiges Werkzeug-Grau */
+  --c-card-night: oklch(0.79 0.01 250);           /* Input-Karten heben sich dezent ab */
+  --c-border-night: oklch(0.60 0.02 250);         /* Saubere Konturlinien */
+  --c-text-night: oklch(0.15 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
+  --c-muted-night: oklch(0.35 0.02 250);          /* Gedämpftere Beschriftungen */
+  --c-accent-night: oklch(0.35 0.13 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
+  --c-danger-night: oklch(0.35 0.20 25);
+  --c-segment-night: oklch(0.69 0.015 250);       /* Schalter-Vertiefungen */
+  --c-blatt-night: oklch(0.85 0.005 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
+  --c-tinte-night: oklch(0.12 0.01 250);          /* Dunkle Tinte auf Papier */
+  --c-schwach-night: oklch(0.40 0.01 250);        /* Hilfslinien und Platzhalter */
+
+  /* --- DYNAMISCHE TOKEN-AUFLÖSUNG (light-dark) --- */
+  --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));
+  --bg-seitenleiste: light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night));
+  --bg-seitenleiste-glass: color-mix(in oklch, light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night)) 80%, transparent);
+  --bg-card: light-dark(var(--c-card-day), var(--c-card-night));
+  --border-color: light-dark(var(--c-border-day), var(--c-border-night));
+  --text-primary: light-dark(var(--c-text-day), var(--c-text-night));
+  --text-muted: light-dark(var(--c-muted-day), var(--c-muted-night));
+
+  --blatt-hintergrund: light-dark(var(--c-blatt-day), var(--c-blatt-night));
+  --blatt-text: light-dark(var(--c-tinte-day), var(--c-tinte-night));
+  --blatt-schwach: light-dark(var(--c-schwach-day), var(--c-schwach-night));
+
+  --accent-color: light-dark(var(--c-accent-day), var(--c-accent-night));
+  --accent-hover: color-mix(in oklch, var(--accent-color) 90%, oklch(0% 0 0));
+  --accent-glow: color-mix(in oklch, var(--accent-color) 15%, transparent);
+
+  --segment-bg: light-dark(var(--c-segment-day), var(--c-segment-night));
+  --segment-active-bg: light-dark(var(--c-card-day), var(--c-border-night));
+  --segment-active-text: var(--text-primary);
+  --segment-active-shadow: 0 1px 3px oklch(0 0 0 / 8%);
+
+  --c-primary: var(--accent-color);
+  --c-success: light-dark(oklch(0.40 0.14 145), oklch(0.82 0.14 145));
+  --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
+  --c-danger: light-dark(var(--c-danger-day), var(--c-danger-night));
+
+  --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
+  --glass-blur: blur(20px);
+
+  --font-system-stack: "Aptos", "Aptos Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
+  --active-font-family: var(--font-system-stack);
+  --schrift-stack: var(--font-system-stack);
+
+  /* --- 3. SPACING (2px-Raster, rem-basiert) --- */
+  --space-2xs: 0.125rem;  /*  2px */
+  --space-xs:  0.25rem;   /*  4px */
+  --space-sm:  0.375rem;  /*  6px */
+  --space-md:  0.5rem;    /*  8px */
+  --space-lg:  0.625rem;  /* 10px */
+  --space-xl:  0.75rem;   /* 12px */
+  --space-2xl: 1rem;      /* 16px */
+  --space-3xl: 1.25rem;   /* 20px */
+
+  /* --- 4. RADII (rem-basiert) --- */
+  --radius-xs:   0.25rem;   /*  4px */
+  --radius-sm:   0.375rem;  /*  6px */
+  --radius-md:   0.5rem;    /*  8px */
+  --radius-lg:   0.625rem;  /* 10px */
+  --radius-xl:   0.75rem;   /* 12px */
+  --radius-full: 999px;     /* Pillen */
+
+  /* --- 5. LAYOUT --- */
+  --seitenleiste-breite: 18.75rem; /* 300px */
+}
+
+/* --- THEME: COMPACT --- */
+[data-style="compact"] {
+  --space-2xl: 0.75rem;   /* 16px -> 12px */
+  --space-xl:  0.5rem;    /* 12px -> 8px  */
+  --space-lg:  0.375rem;  /* 10px -> 6px  */
+  --space-md:  0.25rem;   /*  8px -> 4px  */
+  --space-xs:  0.125rem;  /*  4px -> 2px  */
+
+  --radius-lg: 0.25rem;   /* 10px -> 4px */
+  --radius-md: 0.25rem;   /*  8px -> 4px */
+  --radius-sm: 0.125rem;  /*  6px -> 2px */
+
+  /* --seitenleiste-breite bleibt unverändert 18.75rem */
+}
+
+/* --- 3. DIN-MATHEMATIK (@function) --- */
+@function --mm-rel-x(--mm) {
+  result: calc(var(--mm) / var(--blatt-breite) * 100cqw);
+}
+@function --mm-rel-y(--mm) {
+  result: calc(var(--mm) / var(--blatt-hoehe) * 100cqh);
+}
+@function --pt-rel(--points) {
+  result: calc(var(--points) * 0.3528 / var(--blatt-breite) * 100cqw);
+}
+
+@function --mm-x(--mm) {
+  result: --mm-rel-x(var(--mm));
+}
+@function --mm-y(--mm) {
+  result: --mm-rel-y(var(--mm));
+}
+@function --pt(--points) {
+  result: --pt-rel(var(--points));
+}
+
+:root[data-theme="light"],
+[data-theme="light"] body,
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] body,
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="auto"],
+[data-theme="auto"] body,
+body[data-theme="auto"] {
+  color-scheme: light dark;
+}
+
+[popover] {
+  color-scheme: inherit;
+}
+
+/* --- 4. APP SHELL & VIEWPORT GRID --- */
+#app-shell {
+  display: grid;
+  grid-template-columns: var(--seitenleiste-breite) 1fr;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  min-height: 0;
+}
+
+#viewport {
+  height: 100%;
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  position: relative;
+  background: var(--bg-viewport);
+  padding: 2vh 1.5vw;
+  min-height: 0;
+  box-sizing: border-box;
+  container-type: size;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  view-transition-name: brief-viewport;
+}
+
+html:active-view-transition::view-transition-old(brief-viewport),
+html:active-view-transition::view-transition-new(brief-viewport) {
+  animation-duration: 0.6s;
+}
+::view-transition {
+  pointer-events: none;
+}
+
+/* --- Gemeinsame Druck-Resets (Einzel- und Mehrseitenansicht) ---
+   Liegen zentral in base.css, weil beide Druck-Stylesheets sie brauchten;
+   die print-Dateien behalten nur ihre Geometrie. */
+@media print {
+:root, body, din-blatt {
+  color-scheme: light !important;
+  print-color-adjust: exact !important;
+}
+
+din-falzmarke-1, din-falzmarke-2, din-lochmarke { opacity: 1 !important; }
+
+din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after { visibility: hidden !important; }
+
+:root[data-marks="false"] din-falzmarke-1,
+:root[data-marks="false"] din-falzmarke-2,
+:root[data-marks="false"] din-lochmarke {
+  visibility: hidden !important;
+}
+
+#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }
+
+.unterschriftsbild-rahmen { outline: none !important; }
+
+[contenteditable]:empty::before,
+[data-placeholder]:empty::before,
+[placeholder]:empty::before {
+    display: none !important;
+}
+
+[contenteditable],
+:is(textarea[data-feldtyp]) {
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+/* Natives Placeholder-Hilfsmittel darf nie auf Papier landen. */
+textarea[data-feldtyp]::placeholder {
+    color: transparent !important;
+}
+
+[data-generated] {
+    color: inherit !important;
+    font-style: normal !important;
+}
+
+/* Die Rücksendezeile bekommt KEINEN Unterstrich: DIN 5008 § 19.4.3 macht sie
+   zur obersten Zeile der Zusatz- und Vermerkzone — abgegrenzt durch ihre
+   Position, nicht durch eine Linie. Hier stand ein `border-bottom: 0.5pt`
+   (plus `padding-bottom: 1.5pt` als Abstand dazu) nur im Druck, weshalb der
+   Bildschirm ohne Linie war und das PDF mit (2026-11-11 entfernt). */
+#rucksendeangabe {
+  border-radius: 0 !important;
+}
+}
+
+
+==============================================================================
+===== sheet-common.css  (website/css/sheet-common.css, 454 Zeilen, sha256:4a470bdc)
+==============================================================================
+
+/* @adr [[ADR-CSS]] */
+/* @guide [[din-5008-css-architektur]] */
+
+/* css/sheet-common.css — gemeinsame Blatt-Regeln fuer Einzel- und Mehrseitenansicht.
+ *
+ * Enthaelt die Regeln, die in sheet.css und sheet-multipage.css zeichengleich
+ * standen (72 Regeln, Stand 2026-11-08): Typografie der Briefelemente,
+ * Inline-Formate, Interaktions-Zustaende, Signatur-Overlay und die
+ * Leer-Zustands-Regeln. Beides laedt diese Datei VOR dem jeweiligen
+ * Blatt-Stylesheet; die Blatt-Dateien behalten nur ihre Geometrie.
+ */
+
+
+/* --- VIEWPORT & SUBPIXEL-SCHUTZ --- */
+#viewport {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+/* --- DIN-GEOMETRIE (Single Source of Truth: HTML-Attribute, C3) --- */
+din-blatt {
+  font-family: var(--active-font-family, var(--font-system-stack));
+  font-size-adjust: 0.52;
+  font-variant-numeric: tabular-nums;
+
+  --blatt-breite: attr(data-width-mm type(<number>));
+  --blatt-hoehe: attr(data-height-mm type(<number>));
+
+  --briefkopf-y: --mm-y(attr(data-briefkopf-y-b type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-b type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-b type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-b type(<number>)));
+
+  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-b type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-b type(<number>)));
+  --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
+}
+
+:root[data-layout="form-a"] din-blatt,
+body:has(#btn-form-a:checked) din-blatt {
+  --briefkopf-y: --mm-y(attr(data-briefkopf-y-a type(<number>)));
+  --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
+  --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));
+  --kern-y: --mm-y(attr(data-kern-y-a type(<number>))); /* Muss zwingend UNTER Falzmarke 1 (87mm) liegen */
+  --falz-oben-y: --mm-y(attr(data-falzmarke-1-y-a type(<number>)));
+  --falz-unten-y: --mm-y(attr(data-falzmarke-2-y-a type(<number>)));
+}
+
+/* Neutralisiert #spacer gegen vertikales Einknicken / FOUC im DOM-Fluss */
+#spacer {
+  display: none;
+}
+
+din-rucksendeangabe,
+din-empfaenger-firma,
+din-empfaenger-strasse,
+din-empfaenger-ort,
+din-absender-strasse,
+din-absender-ort,
+din-absender-tel,
+din-absender-mail,
+din-betreff,
+din-anrede,
+din-grussformel,
+din-unterschrift,
+din-falzmarke-1,
+din-falzmarke-2,
+din-lochmarke {
+  display: block;
+}
+
+/* Paket A (2026-11-12): die Anschriftfelder sind echte <input>. Ein Input
+   braucht keinen Reset der Browser-Optik — sonst verschiebt der Rahmen das
+   mm-Raster. Alle Werte bleiben aus den ID-Regeln (Hoehe 1.2em, 4,23mm). */
+#rucksendeangabe {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  appearance: none;
+}
+
+/* Leere Zeilen behalten KEINEN Platz — aber nur im Druck. Auf dem Schirm
+   muss jede Zeile anklickbar sein (gemessen 2026-11-12). `:placeholder-shown`
+   ist bei <input> das belastbare Merkmal; `:empty` zaehlt DOM-Knoten und
+   kippte nach jedem Tippen+Loeschen (<br>). */
+@media print {
+  #empfaenger-firma:placeholder-shown,
+  #empfaenger-strasse:placeholder-shown {
+    display: none;
+  }
+}
+
+:root[data-marks="false"] din-falzmarke-1,
+:root[data-marks="false"] din-falzmarke-2,
+:root[data-marks="false"] din-lochmarke {
+  visibility: hidden;
+}
+
+:root:has(#toggle-fuss:checked) din-geschaeftsangaben {
+  display: grid;
+}
+
+din-fuss-firma     { grid-area: 1 / 1; }
+
+din-fuss-sitz      { grid-area: 2 / 1; }
+
+din-fuss-gericht   { grid-area: 3 / 1; }
+
+din-fuss-hrb       { grid-area: 4 / 1; }
+
+din-fuss-vorstand  { grid-area: 1 / 2; }
+
+din-fuss-gf        { grid-area: 2 / 2; }
+
+din-fuss-stnr      { grid-area: 1 / 3; }
+
+din-fuss-ustid     { grid-area: 2 / 3; }
+
+din-fuss-bank      { grid-area: 1 / 4; }
+
+din-fuss-iban      { grid-area: 2 / 4; }
+
+din-fuss-bic       { grid-area: 3 / 4; }
+
+din-fuss-anschrift { grid-area: 4 / 4; }
+
+din-geschaeftsangaben > .single-line {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  line-height: 1.2;
+}
+
+din-vermerke[data-visible="true"] {
+  display: block;
+  opacity: 1;
+  color: var(--blatt-text);
+}
+
+din-vermerke {
+  font-size: --pt(attr(data-font type(<number>)));
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 0.5cqh;
+  white-space: pre-wrap;
+  flex-shrink: 0;
+}
+
+din-anlagenvermerk {
+  margin-top: --mm-y(attr(data-margin-top type(<number>)));
+  font-size: 0.9em;
+  page-break-inside: avoid;
+}
+
+.anlagen-heading {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+din-anlagen-angabe {
+  display: block;
+}
+
+#anlagen-angabe {
+  display: block;
+  appearance: none;
+  /* Kein `background` hier: die ID-Spezifität würde sonst die Hover-/Fokus-
+     Tönung aus dem gemeinsamen Feld-Chrom (@scope din-blatt) überstimmen. */
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+  min-height: 1.4em;
+}
+
+.is-dormant {
+  display: none !important;
+}
+
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+  line-height: 1.4;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* DIN 5008 Tab. B.1, Fussnote a: "Zeilenhöhe 4,23 mm (= 12 Punkt)". Die vier
+   Empfaengerzeilen brauchen dieses Raster: ab der ersten Zeile der
+   Anschriftzone (63,5 mm) laufen sie mit 1.4em (4,94 mm) bei vier Zeilen bis
+   83,3 mm und damit in den Betreff (80,63 mm, gemessen 2026-11-11). Andere
+   .single-line-Felder (Absender, Fusszeile, Datum) behalten 1.4em.
+   IDs statt Tag-Selektoren, weil `.single-line` als Klasse (0,1,0) eine
+   Element-Regel (0,0,1) schlaegt. */
+#empfaenger-firma,
+#empfaenger-name,
+#empfaenger-strasse,
+#empfaenger-ort {
+  /* Paket A: echte <input> — Browser-Optik zuruecksetzen, Raster bleibt. */
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  appearance: none;
+  height: 1.2em;
+  min-height: 1.2em;
+  max-height: 1.2em;
+  line-height: 1.2;
+}
+
+.single-line[contenteditable]:focus {
+  /* Kein vertikales Überlaufen benachbarter Zeilen: horizontal mitwandern */
+  text-overflow: clip;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+}
+
+#anschriftfeld > *,
+#infoblock > * {
+  flex-shrink: 0;
+}
+
+#empfaenger-ort { anchor-name: --anchor-ort, --anchor-empfaenger-ort; }
+
+#empfaenger-firma { anchor-name: --anchor-firma, --anchor-empfaenger-firma; }
+
+#absender-tel { margin-top: 8px; }
+
+.unterschrift-zeile {
+  position: relative;
+  margin-top: 10px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  flex-shrink: 0;
+}
+
+#unterschriftsbild-vorschau:not([src]),
+#unterschriftsbild-vorschau[src=""],
+#unterschriftsbild-vorschau[src^="data:image/svg"] { display: none; }
+
+#unterschriftsbild-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: var(--sig-x, 11.9cqw) var(--sig-y, 96cqw);
+  scale: var(--sig-scale, 0.5);
+  rotate: var(--sig-rot, 0deg);
+  transform-origin: center center;
+  z-index: 50;
+  pointer-events: auto;
+  display: none;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/svg"])) #unterschriftsbild-container { display: block; }
+
+
+.unterschriftsbild-rahmen {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  pointer-events: auto;
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.unterschriftsbild-rahmen:focus-within,
+.unterschriftsbild-rahmen:hover {
+  outline: 2px dashed var(--accent-color);
+}
+
+.unterschriftsbild-rahmen:active {
+  cursor: grabbing;
+}
+
+.unterschriftsbild-griff, .unterschriftsbild-drehgriff {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--blatt-hintergrund);
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 10;
+  display: none;
+}
+
+.unterschriftsbild-rahmen:focus-within .unterschriftsbild-griff,
+.unterschriftsbild-rahmen:focus-within .unterschriftsbild-drehgriff,
+.unterschriftsbild-rahmen:hover .unterschriftsbild-griff,
+.unterschriftsbild-rahmen:hover .unterschriftsbild-drehgriff {
+  display: block;
+}
+
+.unterschriftsbild-drehgriff {
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+
+.unterschriftsbild-drehgriff::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background-color: var(--accent-color);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+#unterschriftsbild-vorschau {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  pointer-events: none;
+  mix-blend-mode: multiply; /* Weißer Papierhintergrund wird unsichtbar */
+  filter: contrast(1.15) brightness(1.05);
+}
+
+
+@scope (din-blatt) {
+
+  /* Ein gemeinsamer Selektor für alle Blattfelder: contenteditable-Felder UND
+     native Felder (textarea[data-feldtyp], z. B. anlagen-angabe). Sonst hätte ein
+     natives Feld einen anderen Ruhe-/Hover-/Fokuszustand als seine Nachbarn. */
+  :is([contenteditable], textarea[data-feldtyp]) {
+      /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
+      outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
+      outline-offset: -1px;
+      border-radius: 3px;
+      background: transparent;
+      transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
+    }
+
+  :is([contenteditable], textarea[data-feldtyp]):not(:hover):not(:focus) {
+      outline: none;
+    }
+
+  :is([contenteditable], textarea[data-feldtyp]):hover:not(:focus) {
+      /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
+      outline: 1.5px solid var(--accent-color);
+      outline-offset: -1.5px;
+      background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
+    }
+
+  :is([contenteditable], textarea[data-feldtyp]):focus {
+      /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
+      outline: 2px solid var(--accent-color);
+      outline-offset: -2px;
+      background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
+    }
+
+  [data-placeholder]:empty::before,
+    [contenteditable][data-placeholder]:empty::before {
+      content: attr(data-placeholder);
+      color: var(--blatt-schwach);
+      font-style: italic;
+      pointer-events: none;
+    }
+
+  /* FOUC-Schutz (gemessen 2026-11-10): Vor dem Restore sind #datum und
+     #unterschrift leer, also standen ihre Platzhalter ("2. September 2026",
+     "Ihr getippter Name") für ~36 ms auf dem Papier, bevor der echte Wert
+     kam. Platzhalter erscheinen deshalb erst, wenn das Booten fertig ist
+     (html[data-ready], gesetzt am Ende von initApp; Sicherheitsnetz in
+     boot.js). Die Feld-Geometrie ist davon unberührt — nur der Text fehlt. */
+  :root:not([data-ready="true"]) & [data-placeholder]:empty::before,
+    :root:not([data-ready="true"]) & [contenteditable][data-placeholder]:empty::before {
+      content: none;
+    }
+
+  :root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder {
+      color: transparent;
+    }
+
+  #anrede[data-generated],
+    #grussformel[data-generated] {
+      color: var(--blatt-schwach);
+      font-style: italic;
+    }
+
+  din-falzmarke-1 { top: var(--falz-oben-y); }
+
+  din-falzmarke-2 { top: var(--falz-unten-y); }
+
+  din-lochmarke {
+      top: var(--lochmarke-y);
+      width: --mm-x(attr(data-w type(<number>))); /* Breite: 12mm */
+      border-bottom-style: solid;
+    }
+
+  #text b, #text strong {
+      font-weight: 700;
+    }
+
+  #text u {
+      text-decoration: none;
+    }
+
+  #text p {
+      margin: 0 0 2.25mm 0; /* halbe Zeile: DIN 5008 laesst den Absatzabstand der Software (Z. 1410) */
+    }
+
+  #text blockquote {
+      margin: 8px 0;
+      padding-left: 12px;
+      border-left: 3px solid var(--blatt-schwach);
+      color: var(--blatt-schwach);
+      font-style: italic;
+    }
+
+  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+    :root:has(#toggle-fuss:checked) #geschaeftsangaben {
+      display: grid;
+    }
+
+  /* Folgekopf auf Bildschirm (ab Seite 2, A23) */
+  .folgekopf-screen {
+    top: calc(var(--i, 1) * (var(--seite) + var(--luecke)) + 12mm);
+  }
+
+}
+
+
+==============================================================================
+===== sheet-multipage.css  (website/css/sheet-multipage.css, 634 Zeilen, sha256:60c7ecc4)
+==============================================================================
+
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-css-architektur]]  */
+
+/* css/sheet-multipage.css — DIN-A4-Blatt Mehrseiten-Layout (Multicol Level 2) */
+
+:root {
+  --seite: 297mm;
+  --luecke: 8mm;                 /* sichtbarer Abstand zwischen zwei Blättern auf dem Bildschirm */
+  --rand-o: 25mm;                /* oberer Rand ab Seite 2 */
+  --rand-u: 20mm;                /* unterer Rand, alle Seiten */
+  --rand-l: 25mm;                /* linker Rand */
+  --rand-r: 20mm;                /* rechter Rand */
+
+  --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u)); /* 252mm */
+  --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
+
+  /* Spacer-Höhe auf Seite 1: schiebt den Betreff exakt an die DIN-5008-Position */
+  --spacer-hoehe: calc(107mm - var(--rand-o)); /* Betreff 107mm (Form B) */
+}
+
+:root[data-layout="form-a"],
+body:has(#btn-form-a:checked) {
+  --spacer-hoehe: calc(89mm - var(--rand-o)); /* Betreff 89mm (Form A) */
+}
+
+/* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout (C1: explizit --mm-abs-*) */
+@function --mm-abs-x(--mm) {
+  result: calc(var(--mm) * 1mm);
+}
+@function --mm-abs-y(--mm) {
+  result: calc(var(--mm) * 1mm);
+}
+@function --pt-abs(--points) {
+  result: calc(var(--points) * 1pt);
+}
+
+@function --mm-x(--mm) {
+  result: --mm-abs-x(var(--mm));
+}
+@function --mm-y(--mm) {
+  result: --mm-abs-y(var(--mm));
+}
+@function --pt(--points) {
+  result: --pt-abs(var(--points));
+}
+
+/* Viewport-Scrolling für Mehrseiten (A43 Zero-Scroll Invariante)
+   Explizit nur dann vertikales Scrollen im Viewport, wenn mehr als eine Seite beschrieben wird! */
+#viewport {
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  min-height: 0 !important;
+}
+
+/* Seite 1: Zentriert und ohne unnoetiges Scrollen (Zero-Scroll-Garantie) */
+body:not([data-seiten]) #viewport,
+body[data-seiten="1"] #viewport,
+#viewport:not([data-seiten]),
+#viewport[data-seiten="1"] {
+  overflow-y: hidden !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 10px 20px !important;
+}
+
+/* Erst ab Seite 2 wird das vertikale Scrollen im Viewport freigegeben */
+body[data-seiten]:not([data-seiten="1"]) #viewport,
+#viewport[data-seiten]:not([data-seiten="1"]) {
+  overflow-y: auto !important;
+  display: block !important;
+  padding: 40px 20px 80px !important;
+}
+
+body:not([data-seiten]) #brief-ansicht,
+body[data-seiten="1"] #brief-ansicht,
+#viewport:not([data-seiten]) #brief-ansicht,
+#viewport[data-seiten="1"] #brief-ansicht {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  width: 100% !important;
+  container-type: normal !important;
+}
+
+body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
+#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  min-height: 100% !important;
+  height: auto !important;
+  width: 100% !important;
+  container-type: normal !important;
+}
+
+/* --- DIN A4 MULTIPAGE CANVAS --- */
+@scope (din-blatt) {
+  :scope {
+    display: block;
+    position: relative;
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0 auto 40px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    color: var(--blatt-text);
+    box-sizing: border-box;
+  }
+
+  body:not([data-seiten]) :scope,
+  body[data-seiten="1"] :scope {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto !important;
+  }
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  /* --- DIN-MARKEN (System-Atome auf Seite 1) --- */
+  din-falzmarke-1, din-falzmarke-2, din-lochmarke {
+    position: absolute;
+    left: 0;
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
+       Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
+       sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
+    border-bottom: 0.5pt solid oklch(0.35 0 0);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
+  /* Das Anschriftfeld besteht aus ZWEI Feldern (DIN 19.4.3/19.4.4):
+     Zusatz-/Vermerkzone 85x17,7mm, darunter unmittelbar die Anschriftzone
+     85x27,3mm. Die Zonen sind echte Wrapper — dadurch ist die Geometrie
+     deklarativ statt aus padding-top + top-Arithmetik zusammengerechnet. */
+  #anschriftfeld {
+    position: absolute;
+    /* Feldoberkante: 45,8mm (Form B) / 28,9mm (Form A). Das ist NICHT die
+       erste Schreibzeile (50,8/33,9), sondern 5,0mm darueber — der Rand, den
+       19.4.3 im 17,7mm hohen Feld nennt. Tab. B.1 bleibt damit exakt:
+       Feldkante 45,8 + 17,7 = 63,5 (erste Zeile Anschriftzone). */
+    top: var(--anschriftfeld-y);
+    left: --mm-abs-x(attr(data-x type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    height: --mm-abs-y(attr(data-h type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    /* 80-mm-Textgrenze fuer alle Kinder (DIN Tab. A.1: Zeilenende 105mm). */
+    box-sizing: border-box;
+    padding-right: 5mm;
+    z-index: 10;
+  }
+
+  /* Zusatz-/Vermerkzone: 17,7mm hoch. Der Inhalt sitzt unten und beschriftet
+     sich von unten nach oben (DIN 20.7.1) — deshalb justify-content: flex-end.
+     Rücksendeangabe ist die oberste belegte Zeile, der Vermerk steht darunter. */
+  #zusatzzone {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 17.7mm;
+    flex: 0 0 17.7mm;
+  }
+
+  /* Anschriftzone: 27,3mm hoch, schliesst unmittelbar an. */
+  #anschriftzone {
+    display: flex;
+    flex-direction: column;
+    height: 27.3mm;
+    flex: 0 0 27.3mm;
+  }
+
+  /* Eine Schreibzeile = 4,23mm (DIN Tab. B.1, Fussnote a). */
+  #rucksendeangabe,
+  #vermerke {
+    width: 100%;
+    height: 4.23mm;
+    min-height: 4.23mm;
+    max-height: 4.23mm;
+    line-height: 4.23mm;
+    /* Kein Margin: jede Zeile ist genau eine Rasterzeile, sonst schiebt der
+       Vermerk-Margin (0,59mm) die Rücksendezeile aus dem Raster. */
+    margin: 0;
+    font-size: --pt-abs(attr(data-font type(<number>)));
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 10;
+  }
+
+  #rucksendeangabe {
+    padding-right: 0;
+  }
+
+  /* Genau eine Zeile (KISS): kein Umbruch in die Anschriftzone. */
+  #vermerke {
+    padding-right: 0;
+  }
+
+  #infoblock {
+    position: absolute;
+    top: var(--infoblock-y);
+    left: --mm-abs-x(attr(data-x type(<number>)));
+    width: --mm-abs-x(attr(data-w type(<number>)));
+    font-size: --pt-abs(attr(data-font type(<number>)));
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 10;
+  }
+
+  #datum {
+    /* DIN 19.5: das Datum ist das letzte Leitwort des Informationsblocks —
+       kein eigenes position/top/left/width mehr. Es fliesst als Flex-Kind in
+       #infoblock und erbt dessen linke Kante (125mm) und Ausrichtung; data-x
+       und data-w am Feld sind entfallen. Die eigene Schriftgroesse bleibt:
+       data-font 10pt hebt das Datum gegen die 8,5pt des Blocks ab (Nutzer-
+       entscheidung, hervorgehobenes Leitwort). Gemessen 2026-11-11: vorher
+       y 92,37mm (absolut), jetzt letzte Zeile des Blocks. */
+    font-size: --pt-abs(attr(data-font type(<number>)));
+  }
+
+  /* ============================================================
+     BRIEFKERN: CSS Multi-column Layout Level 2 (Chromium 150+)
+     column-count: 1; column-height: var(--nutz); column-wrap: wrap;
+     Lässt überlaufenden Text nahtlos in Spalte 2 (= Seite 2) fließen.
+     ============================================================ */
+  #kern {
+    position: relative;
+    width: 210mm;
+    min-height: var(--seite);
+    /* padding-top 0 in BEIDEN Pfaden: der Abstand zum Blattrand kommt aus
+       #spacer (--spacer-hoehe), nicht zusaetzlich aus dem Padding. Vorher
+       hatte der Bildschirm hier 25mm (--rand-o), der Druck 0 — deshalb stand
+       der Betreff auf dem Schirm 25mm tiefer als im PDF (gemessen 2026-11-11:
+       105,11 vs 80,11mm). */
+    padding: 25mm var(--rand-r) 0 var(--rand-l);
+    background-origin: border-box;
+    column-count: 1;
+    column-height: var(--nutz);
+    column-wrap: wrap;
+    row-gap: var(--zeilenabstand);
+    background:
+      linear-gradient(var(--blatt-hintergrund) 0 var(--seite), transparent var(--seite))
+      0 0 / 100% calc(var(--seite) + var(--luecke)) repeat-y;
+    filter: drop-shadow(0 4px 14px oklch(0 0 0 / 12%));
+    box-sizing: border-box;
+    display: block;
+    overflow: visible;
+  }
+
+  #spacer {
+    display: block !important;
+    height: var(--spacer-hoehe);
+    min-height: var(--spacer-hoehe);
+    max-height: var(--spacer-hoehe);
+    box-sizing: border-box;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  #betreff {
+    display: block;
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.4;
+    /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
+       nach dem Informationsblock zu schreiben." Der Infoblock endet seit dem
+       Datum-Umzug (2026-11-11) mit dem Datum als letzter Zeile bei 80,90mm
+       (Ink, gemessen); das DIN-Minimum waere 80,90 + 8,46 = 89,36mm.
+       Der Betreff steht bewusst tiefer: Falzmarke 1 (105mm) plus 2mm, damit
+       die Falte nicht durch den Text geht — 107mm (Form B), 87 + 2 = 89mm
+       (Form A).
+       Der Wert ist fuer BEIDE Formen 33,54mm, weil sich --spacer-hoehe um
+       exakt 18mm unterscheidet (98,46 - 80,46) und das Ziel-Delta identisch
+       ist; das haelt Bildschirm und Druck deckungsgleich.
+       Vorher stand hier 6.65mm (312cc67) — das ergab 80,11mm und damit
+       -15,62mm Abstand zum Infoblock-Ende, also mitten im Infoblock. */
+    margin-top: 0;
+    margin-bottom: 8.46mm;
+    text-wrap: balance;
+  }
+
+  #anrede {
+    display: block;
+    font-size: 10.5pt;
+    line-height: 1.4;
+    margin-bottom: 4.23mm;
+  }
+
+  #text {
+    display: block;
+    font-size: 10.5pt;
+    line-height: 4.5mm;
+    min-height: 20mm;
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+    /* Absaetze des Generators sind \n\n — ohne pre-line kollabieren sie. */
+    white-space: pre-line;
+  }
+
+  
+
+  #grussformel {
+    display: block;
+    font-size: 10.5pt;
+    margin-top: 4.23mm;
+    margin-bottom: 12.69mm;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .unterschrift-zeile {
+    display: block;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  #unterschrift {
+    font-size: 10.5pt;
+    font-weight: 500;
+  }
+
+  #anlagenvermerk {
+    margin-top: --mm-abs-y(attr(data-margin-top type(<number>)));
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Fußzeile auf Seite 1 */
+  #geschaeftsangaben {
+    display: none;
+    position: absolute;
+    top: 241mm;
+    left: var(--rand-l);
+    right: var(--rand-r);
+    height: 15mm;
+    font-size: --pt-abs(attr(data-font type(<number>)));
+    color: var(--blatt-schwach);
+    padding-top: 2mm;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, auto);
+    gap: 0 10mm;
+    column-rule: 0.5px solid var(--blatt-schwach);
+    z-index: 10;
+  }
+
+  
+}
+
+/* Folgekopf auf Bildschirm (ab Seite 2) */
+.folgekopf-screen {
+  position: absolute;
+  top: calc(var(--i, 1) * (var(--seite) + var(--luecke)) + 12mm);
+  left: var(--rand-l);
+  right: var(--rand-r);
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: var(--blatt-schwach);
+  pointer-events: none;
+  z-index: 10;
+  font-family: inherit;
+}
+
+#probe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  height: 1000mm;
+  width: 1px;
+  pointer-events: none;
+}
+
+/* Custom Elements Block-Display (DIN-Normelemente) */
+
+/* Leere Anschriftzeilen duerfen keinen Platz behalten. `.single-line` hat eine
+   feste Hoehe von 1.4em — ohne diese Regel reisst eine fehlende Strasse Name und
+   Ort auseinander (Fall: Figuren ohne belegte Anschrift, Marker in der JSON). */
+
+/* --- BLATT-BEDINGTE ELEMENTE & UTILITIES --- */
+
+/* Schalter: Falz- & Lochmarken ausblenden */
+
+/* DIN 5008 Maße Overlay an den Marken */
+
+/* Optionale DIN-Blöcke */
+din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
+  display: none;
+}
+
+/* Fußzone: feste 4-Spalten-Zuordnung. Explizite grid-area statt grid-auto-flow:
+   12 Atome in DOM-Reihenfolge wären bei 4 Spalten nur 3 Spalten geworden, und
+   automatische Platzierung verschiebt leere Felder in fremde Spalten. So bleibt
+   jede Spalte stabil, auch wenn Felder leer sind.
+   Spalte 1 = 19.7 (Register), Spalte 2 = 19.7 (Organe), Spalte 3 = 19.6 (Steuern),
+   Spalte 4 = 19.6 (Bank und Geschäftsräume). */
+
+/* Vier Zeilen à 7.5pt müssen in die 15-mm-Zone passen. `.single-line` erzwingt
+   1.4em Höhe (4 × 3.70 mm + 2 mm Padding = 16.8 mm, also 1.8 mm Überlauf).
+   Mit 1.2 Zeilenhöhe: 4 × 3.18 mm + 2 mm = 14.7 mm. */
+
+:root:has(#toggle-anlagen:checked) din-anlagenvermerk,
+:root:has(#toggle-anlagen:checked) #anlagenvermerk {
+  display: block;
+}
+
+/* Single-Line: Strikt einzeilig mit unveränderlicher, fixer Zeilenhöhe (Kein Stauchen, Kein Wachsen) */
+
+/* Anchors auf dem Blatt */
+
+/* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
+
+/* In Mehrseitenansicht: Kein 1-Seiten-Überlauf-Hinweis, da Mehrseitigkeit gewollt ist */
+din-blatt[data-ueberlauf="true"]::after {
+  display: none !important;
+}
+
+/* --- Druck (aus print-multipage.css zusammengelegt, 2026-11-08) ---
+   Drucklayout Mehrseite (Paged Media) */
+
+@page {
+  size: A4;
+  margin: 25mm 0 var(--rand-u) 0;
+  page-margin-safety: auto;
+  @top-left {
+    padding-left: 25mm;
+    font: 9pt var(--font-system-stack, sans-serif);
+    color: oklch(25% 0 0);
+    vertical-align: middle;
+  }
+  @top-right {
+    padding-right: 20mm;
+    font: 9pt var(--font-system-stack, sans-serif);
+    color: oklch(25% 0 0);
+    vertical-align: middle;
+    content: "Seite " counter(page) " von " counter(pages);
+  }
+}
+
+@page :first {
+  /* Oberrand wie auf jeder Folgeseite: der Textfluss beginnt im Band
+     (25-277mm). Das Blatt selbst wird per margin-top: -25mm auf die
+     Papierkante zurueckgezogen, damit die absoluten Blattkoordinaten
+     (Betreff 107/89mm, Fuss 241mm) stimmen. Nur der Unterrand kommt aus
+     @page, nicht aus geklontem Padding (gemessen 2026-11-12). */
+  margin: 25mm 0 var(--rand-u) 0;
+  @top-left { content: none !important; }
+  @top-right { content: none !important; }
+}
+
+
+@media print {
+
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+    background: oklch(100% 0 0) !important;
+  }
+
+  #probe {
+    display: none !important;
+  }
+
+  aside, .nicht-drucken, [popover], #hinweis-v4, #font-uploader,
+  .unterschriftsbild-griff, .unterschriftsbild-drehgriff,
+  #anschriftfeld::after, #folgekoepfe, .folgekopf-screen {
+    display: none !important;
+  }
+
+  /* Spezifitaet: die Bildschirm-Regeln setzen das Padding in JEDEM
+     data-seiten-Zustand — bei n >= 2 mit
+     `body[data-seiten]:not([data-seiten="1"]) #viewport` (1,2,1). Das schlaegt
+     sowohl `#viewport` (1,0,0) als auch `body[data-seiten="1"] #viewport`
+     (1,1,1). `#app-shell #viewport` (2,0,0) deckt alle Zustaende ab, ohne sie
+     einzeln aufzuzaehlen (gemessen 2026-11-11: Pad blieb 40px/20px/80px). */
+  #app-shell #viewport {
+    padding: 0 !important;
+    background: transparent !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+    container-type: normal !important;
+  }
+
+  #brief-ansicht,
+  body[data-seiten="1"] #brief-ansicht {
+    margin: 0 !important;
+    width: 210mm !important;
+    display: block !important;
+    container-type: normal !important;
+  }
+
+  din-blatt {
+    position: relative !important;
+    transform: none !important;
+    box-shadow: none !important;
+    /* -25mm: hebt den Oberrand aus @page wieder auf, damit das Blatt bei
+       Papierkante 0 beginnt (sonst wandern alle absoluten Y-Werte um 25mm). */
+    margin: -25mm 0 0 0 !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-width: 210mm !important;
+    height: auto !important;
+    /* ohne das ragt das 297mm-Blatt 20mm ueber die Seite und erzeugt ein
+       leeres Zusatzblatt (gemessen 2026-11-12: 5 Saetze -> 2 PDF-Seiten). */
+    min-height: 0 !important;
+    container-type: normal !important;
+  }
+
+  #kern {
+    min-height: 0 !important;
+    padding: 25mm 20mm 0 25mm !important; /* Oberrand aus dem Band, Unterrand aus @page */
+    /* Unterrand fuer JEDE Seite, nicht nur die letzte: ein fragmentierter
+       Block bekommt padding-bottom sonst nur am Blockende (gemessen
+       2026-11-11: padding-bottom allein aenderte nichts, Seite 1 lief
+       weiter bis 294,99mm). `clone` wiederholt die Box-Dekoration an jeder
+       Seitengrenze -> Seite 1 endet bei 272,50mm, der Fussblock ab 285mm
+       ueberlappt nicht mehr. */
+    box-decoration-break: slice !important; /* clone wuerde das obere Padding auf jeder Seite wiederholen */
+    width: 210mm !important;
+    box-sizing: border-box !important;
+    column-count: auto !important;
+    column-height: auto !important;
+    column-wrap: nowrap !important;
+    row-gap: normal !important;
+    background: none !important;
+    filter: none !important;
+    display: block !important;
+  }
+
+  /* Hier standen zwei wirkungslose Regeln:
+       #spacer { height: 98.46mm !important; }        (Form B)
+       … [data-layout="form-a"] #spacer { height: 80.46mm !important; }
+     Beide wurden von `max-height: var(--spacer-hoehe)` (73,46 bzw. 55,46mm,
+     ohne !important) geklemmt — ein normaler max-height schlaegt ein
+     !important-height. Sie lieferten also nie 98,46mm, sondern behaupteten
+     es nur. Der Abstand kommt jetzt ausschliesslich aus --spacer-hoehe
+     (2026-11-11 entfernt). */
+
+  #betreff {
+    display: block !important;
+    font-size: 12pt !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    margin-bottom: 8.46mm !important;
+    text-wrap: balance !important;
+  }
+
+  #anrede {
+    display: block !important;
+    font-size: 10.5pt !important;
+    line-height: 1.4 !important;
+    margin-bottom: 4.23mm !important;
+  }
+
+  #text {
+    display: block !important;
+    font-size: 10.5pt !important;
+    line-height: 4.5mm !important;
+    text-align: justify !important;
+    hyphens: auto !important;
+    text-wrap: pretty !important;
+    orphans: 2 !important;
+    widows: 2 !important;
+  }
+
+  #text p {
+    /* halbe Zeile statt voller: DIN 5008 laesst den Absatzabstand der Software */
+    margin: 0 0 2.25mm 0 !important;
+  }
+
+  #grussformel {
+    display: block !important;
+    font-size: 10.5pt !important;
+    margin-top: 4.23mm !important;
+    margin-bottom: 12.69mm !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  #unterschrift {
+    font-size: 10.5pt !important;
+    font-weight: 500 !important;
+  }
+
+  .unterschrift-zeile,
+  #unterschriftsbild-container,
+  #anlagenvermerk {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  :root:not(:has(#toggle-anlagen:checked)) din-anlagenvermerk,
+  :root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk {
+    display: none !important;
+  }
+
+}
+
+/* Ein-Seiten-Pfad: `body[data-seiten="1"] :scope { margin: 0 auto }` gewinnt
+   ueber Scope-Naehe gegen die Druckregel oben. Override gehoert in denselben
+   Scope, sonst bleibt das Blatt 25mm zu tief (gemessen 2026-11-12). */
+@media print {
+  @scope (din-blatt) {
+    body[data-seiten="1"] :scope {
+      margin: -25mm 0 0 0 !important;
+    }
+  }
+}
+

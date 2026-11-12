@@ -373,7 +373,7 @@ export class DraftManager {
   }
 
   resetDraft() {
-    document.querySelectorAll('[contenteditable], textarea[data-feldtyp]').forEach(el => {
+    document.querySelectorAll(EDITABLE_FIELD_SELECTOR).forEach(el => {
       if (el.getAttribute('data-feldtyp') === 'systemwert') return;
       if (Field.isNative(el)) {
         Field.setValue(el, '');

@@ -8,7 +8,7 @@ import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelli
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
 import { Constants, createEventBus, Events, eventBus, initToastSystem } from '../website/js/core.js';
-import { collectDraft, formatElementMicroTypography, sanitizeRichText, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
+import { collectDraft, EDITABLE_FIELD_SELECTOR, formatElementMicroTypography, sanitizeRichText, syncFormatState, toggleBlockquote, toggleInlineFormat, UIProtections } from '../website/js/document.js';
 import { Field } from '../website/js/field.js';
 import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
@@ -4146,6 +4146,42 @@ describe('Absatzabstand im Fließtext', () => {
     const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
     const mass = Number((block.match(/margin:\s*0 0 ([\d.]+)mm/) || [])[1]);
     assert(mass > 0 && mass < 4.5, `Absatzabstand ${mass}mm liegt unter der Zeilenhoehe`);
+  });
+});
+
+
+describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
+  /* Die Testseite hat keine Brief-DOM — geprueft wird die echte index.html. */
+  const ladeDoc = async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    return new DOMParser().parseFromString(html, 'text/html');
+  };
+  const FELDER = ['rucksendeangabe', 'empfaenger-firma', 'empfaenger-name', 'empfaenger-strasse', 'empfaenger-ort'];
+
+  it('der Speicher-Selektor erfasst die Input-Felder (Reset + collectDraft)', async () => {
+    /* resetDraft nutzt seit 2026-11-12 EDITABLE_FIELD_SELECTOR; vorher stand
+       dort eine eigene Liste mit [contenteditable] — die neuen <input> waeren
+       beim Zuruecksetzen stehen geblieben. */
+    const doc = await ladeDoc();
+    for (const id of FELDER) {
+      const el = doc.getElementById(id);
+      assert(el, `${id} vorhanden`);
+      assert(/** @type {Element} */ (el).matches(EDITABLE_FIELD_SELECTOR), `${id} im Speicher-Selektor`);
+    }
+  });
+
+  it('Autosave-Zuhoerer im App-Code deckt input[data-feldtyp] ab', async () => {
+    const js = await (await fetch('/website/js/main.js')).text();
+    assert(/input\[data-feldtyp\]/.test(js), 'Autosave-Listener kennt die Input-Felder');
+  });
+
+  it('begrenzt die Laenge nativ per maxlength', async () => {
+    const doc = await ladeDoc();
+    const erwartet = { rucksendeangabe: 85, 'empfaenger-firma': 50, 'empfaenger-name': 45, 'empfaenger-strasse': 45, 'empfaenger-ort': 45 };
+    for (const [id, max] of Object.entries(erwartet)) {
+      const el = doc.getElementById(id);
+      assertEqual(el?.getAttribute('maxlength'), String(max), `${id}: maxlength ${max}`);
+    }
   });
 });
 

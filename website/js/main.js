@@ -184,7 +184,10 @@ function initApp() {
 
     const briefblatt = document.querySelector('din-blatt') || document;
     briefblatt.addEventListener('input', (e) => {
-      if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
+      if (
+        e.target instanceof Element &&
+        e.target.closest('[contenteditable], input[data-feldtyp], textarea[data-feldtyp]')
+      ) {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }
     });

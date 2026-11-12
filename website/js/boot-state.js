@@ -56,10 +56,13 @@
     );
     if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = vermerk;
 
-    /* 4. Anlagen-/Fusszeilen-Schalter (Draft speichert sie als Text). */
+    /* 4. Anlagen-/Fusszeilen-Schalter. Der Entwurf speichert sie als Boolean
+       (draft-manager akzeptiert true und 'true'); ein reiner String-Vergleich
+       machte aus true ein false und der Schalter sprang nach dem Restore um
+       (gemessen 2026-11-12). */
     for (const id of ['toggle-anlagen', 'toggle-fuss']) {
       const box = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
-      if (box) box.checked = draft[id] === 'true';
+      if (box) box.checked = draft[id] === true || draft[id] === 'true';
     }
 
     /* 5. Alle Feldwerte aus dem Entwurf — sonst ist der erste Frame leer und

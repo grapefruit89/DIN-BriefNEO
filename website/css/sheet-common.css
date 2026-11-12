@@ -388,15 +388,31 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   cursor: grabbing;
 }
 
+/* Anfasser: 20px statt 12px. Die Signatur haengt an `scale: 0.5`, ein 12px-
+   Punkt ist auf dem Papier also nur 6px gross - zu klein zum Treffen
+   (gemeldet 2026-11-12). Zusaetzlich vergroessert ::before die Trefferflaeche
+   unsichtbar um 8px je Seite, ohne die Optik zu veraendern. */
 .unterschriftsbild-griff, .unterschriftsbild-drehgriff {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background-color: var(--blatt-hintergrund);
-  border: 2px solid var(--accent-color);
+  width: 24px;
+  height: 24px;
+  /* Vollflaechig statt Ring: auf dem Papier (und bei scale 0.5) ist ein
+     2px-Ring kaum zu treffen. Weisser Rand trennt den Punkt vom Blatt. */
+  background-color: var(--accent-color);
+  border: 3px solid var(--blatt-hintergrund);
   border-radius: 50%;
   z-index: 10;
   display: none;
+  touch-action: none;
+  box-shadow: 0 1px 3px color-mix(in oklch, var(--accent-color) 35%, transparent);
+}
+
+.unterschriftsbild-griff::before,
+.unterschriftsbild-drehgriff::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
 }
 
 .unterschriftsbild-rahmen:focus-within .unterschriftsbild-griff,
@@ -407,7 +423,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
 }
 
 .unterschriftsbild-drehgriff {
-  top: -24px;
+  top: -44px;
   left: 50%;
   transform: translateX(-50%);
   cursor: grab;
@@ -416,16 +432,16 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
 .unterschriftsbild-drehgriff::after {
   content: '';
   position: absolute;
-  top: 10px;
+  top: 23px;
   left: 50%;
   width: 2px;
-  height: 12px;
+  height: 21px;
   background-color: var(--accent-color);
   transform: translateX(-50%);
   z-index: -1;
 }
 
-.unterschriftsbild-griff.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.unterschriftsbild-griff.bottom-right { bottom: -12px; right: -12px; cursor: nwse-resize; }
 
 #unterschriftsbild-vorschau {
   display: block;

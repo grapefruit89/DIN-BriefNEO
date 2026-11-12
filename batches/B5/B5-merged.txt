@@ -3,6 +3,8 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
+Quellstand: HEAD 2b74d66. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+
 ## Inhalt
 ```
 B5/
@@ -20,6 +22,22 @@ B5/
 | `salutation.js` | `website/js/salutation.js` | 342 | `5e936d45` |
 
 Gesamt: 53642 Zeichen ≈ 13k Token.
+
+## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
+
+| Datei | Zeilen | export | Funktionen | addEventListener | DOM-Abfragen |
+|---|---:|---:|---:|---:|---:|
+| `document.js` | 671 | 12 | 30 | 9 | 17 |
+| `format.js` | 446 | 10 | 14 | 0 | 1 |
+| `salutation.js` | 342 | 4 | 12 | 5 | 10 |
+
+- Benannte Funktionen/Konstanten im Batch: 31
+- davon mit genau einer Aufrufstelle: 10
+- davon ohne erkennbare Aufrufstelle: 15
+
+Gezählt per Textsuche auf `name(`. Aufrufe per Callback, Alias,
+`window[name]` oder dynamischem Dispatch sind **nicht** erkannt — die
+Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
 
 
 ==============================================================================

@@ -3,6 +3,8 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
+Quellstand: HEAD 2b74d66. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+
 ## Inhalt
 ```
 B7/
@@ -16,6 +18,20 @@ B7/
 | `testbrief.js` | `website/addons/testbrief/testbrief.js` | 1455 | `512b7b6d` |
 
 Gesamt: 58465 Zeichen ≈ 14k Token.
+
+## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
+
+| Datei | Zeilen | export | Funktionen | addEventListener | DOM-Abfragen |
+|---|---:|---:|---:|---:|---:|
+| `testbrief.js` | 1455 | 39 | 163 | 0 | 12 |
+
+- Benannte Funktionen/Konstanten im Batch: 49
+- davon mit genau einer Aufrufstelle: 24
+- davon ohne erkennbare Aufrufstelle: 8
+
+Gezählt per Textsuche auf `name(`. Aufrufe per Callback, Alias,
+`window[name]` oder dynamischem Dispatch sind **nicht** erkannt — die
+Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
 
 
 ==============================================================================

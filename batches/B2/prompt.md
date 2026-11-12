@@ -14,11 +14,12 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 - Historie: contenteditable → `<input>` für fünf Anschriftfelder (2026-11-12).
 
 ## Dateien dieses Batches
-- `website/index.html`  (427 Zeilen)
-- `website/js/core.js`  (267 Zeilen)
-- `website/js/boot.js`  (69 Zeilen)
-- `website/js/field.js`  (32 Zeilen)
-- `website/llms.txt`  (76 Zeilen)
+- `website/index.html`  (427 Zeilen) — DOM-Vertrag, lädt zwei Skripte
+- `website/js/main.js`  (304 Zeilen) — der Modul-Einstieg, 11 Importe
+- `website/js/core.js`  (267 Zeilen) — EventBus, Toast, Popover
+- `website/js/boot.js`  (69 Zeilen) — klassisches Skript im `<head>`, blockierend
+- `website/js/field.js`  (32 Zeilen) — Naht input ↔ contenteditable
+- `website/llms.txt`  (76 Zeilen) — Feldvertrag (Beilage, kein Code)
 
 ## Prüfauftrag, in dieser Reihenfolge
 1. **KORREKTHEIT** — Logiklücken, Randfälle, stille Datenverluste, Zustandsfehler,
@@ -32,7 +33,9 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
    doppeltes Event.
 
 ## Harte Regeln
-- Jeder Befund braucht eine Fundstelle: `datei:ZEILE`. Ohne Zeile kein Befund.
+- Jeder Befund braucht eine Fundstelle: `datei` **plus wörtliche Zeile** aus dem
+  Code, kopiert und nicht gezählt. Dieses Dokument hat keine Zeilennummern —
+  die Nummer wird beim Triage nachgesetzt, deine Kopie ist der Beleg.
 - Keine Behauptung über Code, den du nicht siehst. Fehlt eine Datei, schreibe
   „fehlt: <datei>" und prüfe den Punkt nicht.
 - Keine Rewrites, keine Frameworks, kein „man könnte mal". Vorschlag = kleinste
@@ -45,14 +48,21 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 ## Output
 Tabelle:
 
-| # | Typ | Datei:Zeile | Befund (1 Satz) | Warum es zählt | Kleinste Behebung | Aufwand S/M/L | Risiko |
+| # | Typ | Datei + Zitat | Befund (1 Satz) | Warum es zählt | Kleinste Behebung | Aufwand S/M/L | Risiko |
 
 Danach:
 1. **TOP 3** — die drei, die du zuerst beheben würdest, je 2 Sätze.
-2. **JS-BUDGET** — konkrete Zahlen aus dem Batch: Zeilen JS, Event-Listener,
-   Funktionen mit genau einem Aufrufer, Closures pro Modul. Wo ließe sich JS
-   durch CSS/HTML ersetzen, und wie viele Zeilen wären das?
+2. **JS-BUDGET** — die Zahlen stehen im Kopf dieses Dokuments unter
+   „Messwerte". Zähle sie **nicht** selbst nach, das geht im Fließtext schief;
+   interpretiere sie: wo ist Aufwand ohne Nutzen, wo ließe sich JS durch
+   CSS/HTML ersetzen, und wie viele Zeilen wären das? Fehlt eine Zahl, schreibe
+   „fehlt: <Zahl>" statt zu schätzen.
 3. **OFFENE FRAGEN** — max 3, nur wenn die Antwort den Befund ändert.
 
 ## Zusatzfrage für diesen Batch
-Trägt index.html Verantwortung, die in CSS/JS gehört? Welche Attribute/Marker liest niemand? Ist der Boot-Pfad deterministisch (Reihenfolge, Fehlerfall, doppeltes Init)?
+Der Start läuft über zwei Skripte: `js/boot.js` (klassisch, blockierend, im
+`<head>`) und `js/main.js` (Modul, `defer`-Verhalten). Ist dieser Boot-Pfad
+deterministisch — Reihenfolge, doppeltes Init, Fehlerfall in einem Modul?
+Welches der beiden Skripte müsste etwas wissen, das es nicht weiß? Trägt
+`index.html` außerdem Verantwortung, die in CSS oder JS gehört, und welche
+Attribute/Marker liest niemand?

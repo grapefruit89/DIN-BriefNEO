@@ -33,6 +33,25 @@ geschätzt. Beurteile, ob der Batch seine Verträge richtig benutzt. Beurteile
 **nicht**, wie die fremden Module intern aussehen: ihr Code ist absichtlich
 nicht dabei, und „die Datei ist nicht da" ist kein Befund.
 
+## Stand der Technik (wichtig für dein Urteil)
+
+Das Projekt liegt bewusst auf Bleeding Edge: **Baseline Chrome 150+**, kein
+Framework, kein Build. Diese Features sind vorhanden und **Absicht** — melde
+sie nicht als "modern/ungewöhnlich":
+
+- **CSS:** `@function` (eigene CSS-Funktionen, `--mm-y()`/`--mm-x()`),
+  `attr(… type(<number>))` (Geometrie kommt aus HTML-Attributen), `:has()`,
+  `:is()/:where()`, `@scope`, `@starting-style`, Anchor Positioning,
+  `field-sizing`, `interpolate-size`, View Transitions.
+- **HTML:** `popover` + `popovertargetaction`, `command`/`commandfor`
+  (Invoker Commands), `closedby`, `<dialog>`, `<input switch>`.
+- **JS:** `Temporal`, `AbortSignal.any()`/`AbortSignal.timeout()`,
+  `Promise.withResolvers()`, `document.ariaNotify()`, `requestIdleCallback`.
+
+Konsequenz: Prüfe **nicht**, ob diese Wege tragbar sind — sie sind es. Prüfe,
+ob sie **konsequent** genutzt werden, und wo stattdessen noch von Hand
+nachgebaut wird.
+
 ## Prüfauftrag, in dieser Reihenfolge
 1. **KORREKTHEIT** — Logiklücken, Randfälle, stille Datenverluste, Zustandsfehler,
    doppelte Wahrheiten, Reihenfolge-/Race-Probleme.
@@ -43,6 +62,33 @@ nicht dabei, und „die Datei ist nicht da" ist kein Befund.
 5. **DUPLIKATE** — gleiche Logik an mehreren Stellen, kopierte Konstanten.
 6. **FEHLERBEHANDLUNG** — fehlendes Element, leerer Wert, abgebrochener Fetch,
    doppeltes Event.
+
+## Overengineering-Scan (eigener Abschnitt im Output)
+
+Suche Stellen, an denen 120 % gegeben werden, wo 100 % reichen — und zwar
+besonders dort, wo die Zusatzarbeit in **JavaScript** landet, obwohl HTML oder
+CSS sie trägt. Konkrete Suchfragen:
+
+- Wird ein Zustand doppelt geführt (Attribut **und** Variable, Klasse **und**
+  `data-*`, zwei Enums für denselben Sachverhalt)?
+- Wird etwas in JS nachgebaut, was ein natives Attribut/Element schon tut
+  (`maxlength`, `required`, `pattern`, `popover`, `<dialog>`, `:has()`,
+  `<label for>`, `<input type=…>`)?
+- Gibt es Helfer, Fallbacks oder Abstraktionen für **einen** Aufrufer?
+- Gibt es Konfigurierbarkeit ohne Konfiguration, Optionen ohne Aufrufer?
+- Gibt es Fallbacks für Fälle, die im Zielbrowser (Chrome 150+) nicht eintreten?
+- Gibt es Kommentare, die eine Entscheidung erklären, die niemand mehr braucht?
+
+Für jeden Fund: **was fällt weg** (Zeilen), **was bleibt** (Verhalten),
+**Preis** (Risiko oder Verlust). Kein "könnte man", nur "kann weg, weil …".
+Was du **nicht** als Overengineering siehst, obwohl es so aussieht: ein Satz
+Begründung genügt — das ist genauso wertvoll.
+
+**Wo die Brechstange in diesem Batch ansetzt:** Die DIN-Millimeter kommen
+über `attr(… type(<number>))` und `@function --mm-y()` ins CSS. Prüfe, ob
+Werte doppelt gepflegt werden (HTML-Attribut **und** CSS-Variable **und**
+`@function`), und welche Regeln überhaupt ein Element treffen — `index.html`
+liegt als Beilage bei.
 
 ## Harte Regeln
 - Jeder Befund braucht eine Fundstelle: `datei` **plus wörtliche Zeile** aus dem
@@ -70,6 +116,8 @@ Danach:
    CSS/HTML ersetzen, und wie viele Zeilen wären das? Fehlt eine Zahl, schreibe
    „fehlt: <Zahl>" statt zu schätzen.
 3. **OFFENE FRAGEN** — max 3, nur wenn die Antwort den Befund ändert.
+4. **OVERENGINEERING** — je Fund: was wegfällt (Zeilen), was bleibt,
+   Preis. Dazu ein kurzer Abschnitt "was ausdrücklich bleibt und warum".
 
 ## Zusatzfrage für diesen Batch
 Sind die mm-Werte ableitbar statt an fünf Stellen wiederholt? Wieviel CSS ist nachweislich tot (keine Regel greift auf ein existierendes Element)?

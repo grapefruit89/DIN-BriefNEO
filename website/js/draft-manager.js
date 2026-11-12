@@ -17,6 +17,10 @@ import { Field } from './field.js';
 import { isPrintTitleActive, loadJSON, remove, STORAGE_KEYS, save, saveJSON, stripHtmlToPlaintext } from './persistence.js';
 
 export class DraftManager {
+  /* Undo/Redo liegt bewusst NUR im RAM (entschieden 2026-11-13, B13).
+     Der letzte Stand ist durch saveDraft() gesichert; Undo ueber einen Reload
+     hinweg waere ein neues Feature und kostet Quota plus Multi-Tab-Kohaerenz.
+     Wer es einbaut, muss beides mitloesen - nicht nur einen Ring schreiben. */
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */
   #undoStack = [];
   /** @type {Array<{draftStr: string, caretInfo: {id: string, offset: number} | null}>} */

@@ -75,7 +75,9 @@ export class SignatureFeature {
        data:image/svg-Platzhalter im src aus (sheet-common.css). Er erscheint
        mit dem Bild und verschiebt das Blatt nicht, weil er aus dem Fluss ist.
        Akzeptiert wie der Systemschrift-FOUC in font-feature.js (Befund B13:
-       die Begruendung "Platz reserviert" war falsch, die Entscheidung richtig). */
+       die Begruendung "Platz reserviert" war falsch, die Entscheidung richtig).
+       Ein Ladefehler bleibt bewusst STILL (entschieden 2026-11-13): Signatur
+       ist optional, Speichern meldet Fehler dagegen sichtbar (Toast). */
     loadBlob('signature').then((blob) => {
       if (!blob) return;
       this.#setImageFromBlob(blob);

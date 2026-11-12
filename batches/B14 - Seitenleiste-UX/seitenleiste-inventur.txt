@@ -123,3 +123,33 @@ D) Was dieser Batch beantworten soll
    Anzahl Regler pro Gruppe, Scrollhoehe bei 1007 px, Klicks bis zur
    haeufigsten Aenderung. Vorher/Nachher, ohne Screenshots.
 7. Schmale Viewports: was passiert unter 600 px?
+
+-------------------------------------------------------------------------------
+E) Stand nach Umsetzung (2026-11-13)
+-------------------------------------------------------------------------------
+
+BEHOBEN (a11y, ohne Umbau):
+  Der Modus-Schalter ist jetzt EIN Tab-Stopp. Das sichtbare Label trug
+  role="button" und tabindex="0", war aber per Enter/Space wirkungslos
+  (gemessen: checked blieb false) — und die sr-only-Checkbox war ein zweiter
+  Stopp. Jetzt: Label ohne Rolle/tabindex, Checkbox ist der Schalter
+  (Space schaltet nativ), Fokusring liegt per CSS auf dem sichtbaren Label,
+  Escape fuehrt zurueck.
+  Messung: 1 Stopp, Fokusring "solid 2px", Space -> checked true,
+  Escape -> checked false.
+
+BESTAETIGT, aber offen (Entscheidung noetig):
+  - keine Ueberschriften (0), 11 Flach-Labels
+  - Reihenfolge beginnt mit Geometrie statt Adressen
+  - kein Media Query unter 600 px; --seitenleiste-breite ist FIX 18.75rem
+    (min/max gleich) -> die Leiste kann nicht schrumpfen
+  - eine Statuszeile fuer globale Einstellungen fehlt
+
+ABGELEHNT:
+  - :has(#toggle-modus:checked) durch data-modus zu ersetzen. Der Schalter ist
+    nutzergetrieben (kein Boot-Zustand), das Muster funktioniert; der Umbau
+    kostet 10 CSS-Regeln Aenderung ohne Nutzen. A57 schuetzt ausserdem die
+    nativen Schalter vor JS-Klassen-Toggles.
+  - Form A/B in die Einstellungen zu verschieben. Der Wechsel ist haeufig und
+    wirkt direkt aufs Blatt - nach dem Kriterium des Reviews selbst gehoert er
+    in den Brief-Modus.

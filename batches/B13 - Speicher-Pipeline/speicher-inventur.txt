@@ -128,3 +128,43 @@ F) Fragen, die dieser Batch beantworten soll
    Publish waehrend Publish, Listener-Leichen bei Neu-Instanziierung.
 8. Signatur/Schrift: Ladezeitpunkt, Platz, Loeschen/Ersetzen, Verhalten wenn
    IndexedDB fehlt. Den offenen FOUC aus E bewerten.
+
+-------------------------------------------------------------------------------
+G) Entschieden am 2026-11-13 (bitte nicht erneut aufbringen)
+-------------------------------------------------------------------------------
+
+Nach dem Review zu B13. Jede Entscheidung steht auch im Code bzw. im
+DECISION-LOG, damit sie nicht nur im Chat existiert.
+
+1. UNDO/REDO BLEIBT NUR IM RAM.
+   Der letzte Stand ist durch saveDraft() gesichert; Undo ueber einen Reload
+   waere ein neues Feature. Kosten eines Rings: zusaetzliche Schreibvorgaenge,
+   Quota, Multi-Tab-Kohaerenz. Wer es einbaut, muss alle drei mitloesen.
+   Ort: draft-manager.js, Kommentar bei #undoStack.
+
+2. LADEFEHLER VON SIGNATUR/SCHRIFT BLEIBEN STILL.
+   Beide sind optional, und der wahrscheinlichste Fall (IndexedDB von einem
+   anderen Tab blockiert) bietet dem Nutzer beim Oeffnen keine Handlung an.
+   Speichern ist die Gegenrichtung: dort ist der Toast Pflicht und vorhanden.
+   Ort: signature.js und font-feature.js, Kommentar am loadBlob.
+
+3. EVENT-BUS WIRFT WEITER BEI FALSCHEM TOPIC.
+   Der Vorschlag "console.warn statt throw" wurde abgelehnt: test/all.js:2014
+   prueft den TypeError fuer publish UND subscribe. Der Guard ist Absicht —
+   ein Tippfehler soll laut knallen, nicht still verschluckt werden.
+
+4. BEHOBEN: IMPORT IST ATOMAR.
+   Vorher: Entwurf geschrieben, dann Einstellungen; bei Quota im zweiten
+   Schritt blieb ein Mischzustand. Jetzt werden beide alten Rohwerte vorher
+   gelesen und bei Fehler zurueckgeschrieben (auch im catch). Test: setItem
+   wirft fuer din_settings, Entwurf bleibt unveraendert.
+
+5. KORRIGIERT: SIGNATUR-FOUC-BEGRUENDUNG.
+   Die Review-Begruendung "Platz reserviert, Container sichtbar" war falsch:
+   das CSS schliesst den data:image/svg-Platzhalter aus, der Container ist
+   anfangs display:none. Die Entscheidung "akzeptieren" bleibt richtig, weil
+   der Container absolut positioniert ist und das Blatt nicht verschiebt.
+
+6. NICHT OBSERVIERBAR (kein Bug): "kurzes falsches Gespeichert" beim Undo.
+   #restoreState setzt den Status, #applyHistoryState prueft und korrigiert —
+   beides im selben Task, dazwischen liegt kein Paint.

@@ -4613,6 +4613,24 @@ describe('Import ist atomar (Befund B13)', () => {
   });
 });
 
+describe('Modus-Schalter ist ein Tab-Stopp (Befund B14)', () => {
+  /* Vorher: sr-only-Checkbox UND sichtbares Label mit role=button/tabindex=0 -
+     zwei Stopps fuer eine Funktion, und Enter/Space auf dem Label tat nichts. */
+  it('Label traegt keine Rolle und keinen tabindex, die Checkbox ist der Schalter', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    for (const id of ['btn-einstellungen', 'btn-zurueck']) {
+      const el = doc.getElementById(id);
+      assert(el, `#${id} existiert`);
+      assert(!el?.hasAttribute('tabindex'), `#${id} ist kein Tab-Stopp`);
+      assert(!el?.hasAttribute('role'), `#${id} traegt keine Button-Rolle`);
+    }
+    const schalter = doc.getElementById('toggle-modus');
+    assert(schalter instanceof HTMLInputElement, 'Checkbox ist der Schalter');
+    assertEqual(schalter?.getAttribute('type'), 'checkbox');
+  });
+});
+
 describe('Caret in nativen Feldern (Befund B12)', () => {
   /* Nach der Migration sind fast alle Felder <input>. window.getSelection()
      beschreibt deren Caret nicht — Undo/Redo setzte den Cursor an den Anfang

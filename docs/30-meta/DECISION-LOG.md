@@ -2780,3 +2780,44 @@ Ort stabil bleibt. Die Farbe setzt CSS (`--ort-ton`, sanfter Hintergrund plus
 **Grenze:** 6 Pastelltoene, Kollisionen sind moeglich, aber nie zwischen
 benachbarten Gruppen derselben Stadt. Bei mehr als 6 Orten in einer Liste
 wiederholen sich Toene — bewusst, eine groessere Palette wird unruhig.
+
+### 2026-11-13 — Speicher: was bewusst so bleibt
+
+Nach dem Review zu B13 (Speicher-Pipeline) drei Entscheidungen, die nicht
+wieder aufgemacht werden sollen:
+
+- **Undo/Redo bleibt flüchtig (nur RAM).** Der letzte Stand ist gesichert;
+  ein persistenter Ring kostet Quota und Multi-Tab-Kohaerenz.
+- **Ladefehler von Signatur/Schrift bleiben still.** Beide sind optional, der
+  häufigste Fall (IndexedDB von einem anderen Tab blockiert) ist beim Öffnen
+  nicht handelbar; Speichern meldet Fehler dagegen sichtbar.
+- **Der Event-Bus wirft weiter bei falschem Topic.** `console.warn` würde
+  einen getesteten Vertrag brechen (`test/all.js:2014`).
+
+Behoben wurde der **Teilimport**: `applyImportedData` rollt jetzt beide
+Schlüssel zurück, wenn der zweite Schreibvorgang scheitert (Befund: Entwurf
+neu, Einstellungen alt nach einem Quota-Fehler).
+
+### 2026-11-13 — Seitenleiste: ein Tab-Stopp fuer den Modus-Schalter
+
+Der Review zu B14 hat zwei echte Barrierefreiheits-Fehler gefunden, beide
+gemessen und behoben:
+
+- **Zwei Tab-Stopps fuer eine Funktion**: die sr-only-Checkbox und das
+  sichtbare Label (`role="button" tabindex="0"`). Das Label war per
+  Enter/Space wirkungslos (`checked` blieb false) — der einzige Tastaturweg
+  war der unsichtbare Stopp. Jetzt: Label ohne Rolle/tabindex, Checkbox ist
+  der Schalter (Space schaltet nativ), Fokusring per CSS auf dem sichtbaren
+  Label, Escape fuehrt zurueck.
+  Messung: 1 Stopp, Ring `solid 2px`, Space → an, Escape → aus.
+
+**Abgelehnt:** `:has(#toggle-modus:checked)` durch `data-modus` ersetzen.
+Der Schalter ist nutzergetrieben (kein Boot-Zustand), das Muster funktioniert,
+und der Umbau kostet 10 CSS-Regeln ohne Nutzen. A57 schuetzt die nativen
+Schalter zusaetzlich vor JS-Klassen-Toggles. Ebenso abgelehnt: Form A/B in die
+Einstellungen zu verschieben — haeufig und direkt blattwirksam, also nach dem
+Kriterium des Reviews selbst Brief-Modus.
+
+**Offen (Entscheidung):** Ueberschriften/Hierarchie, Reihenfolge nach
+Schreibablauf, Statuszeile fuer globale Einstellungen, Off-Canvas unter 600 px
+(`--seitenleiste-breite` ist fix 18.75rem, min/max gleich).

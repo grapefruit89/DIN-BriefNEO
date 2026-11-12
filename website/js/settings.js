@@ -187,8 +187,10 @@ export class SettingsManager {
     const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
     toggle.checked = isChecked;
     toggle.dispatchEvent(new Event('change', { bubbles: true }));
-    // Der Zustand liegt ausschließlich in der nativen Checkbox; das Label trägt
-    // weder Rolle noch Zustand (sonst zwei Controls im Accessibility-Tree).
+    /* Der Zustand liegt ausschliesslich in der nativen Checkbox — ein Tab-Stopp,
+       Space schaltet nativ. Das sichtbare Label traegt keine Rolle und keinen
+       tabindex (sonst zwei Controls im Accessibility-Tree; Befund B14: vorher
+       hatte es beides und war per Tastatur wirkungslos). */
   }
 
   /**
@@ -236,6 +238,19 @@ export class SettingsManager {
   }
 
   attachListeners() {
+    /* Escape fuehrt aus dem Einstellungs-Modus zurueck. Der Schalter ist ein
+       Ansichtswechsel; ohne Tastenausgang sitzt man dort fest. Bindung hier,
+       nicht in toggleSettingsModus: der Modus wird rein ueber die native
+       Checkbox geschaltet (CSS), toggleSettingsModus laeuft dabei nie. */
+    const modusSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
+    if (modusSchalter) {
+      modusSchalter.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !modusSchalter.checked) return;
+        event.preventDefault();
+        this.toggleSettingsModus('brief');
+      });
+    }
+
     if (this.btnFormA) {
       this.btnFormA.addEventListener('change', () => {
         if (!this.isReady) return;

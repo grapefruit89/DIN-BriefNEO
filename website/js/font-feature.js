@@ -114,7 +114,11 @@ export class FontFeature {
 
   initFontInjection() {
     /* Blob-Restore ist async: die eigene Schrift erscheint nach dem Paint. Der FOUC
-     * (~50–100 ms Systemschrift) ist bewusst akzeptiert ([[ADR-BINARY-ASSETS]]). */
+     * (~50–100 ms Systemschrift) ist bewusst akzeptiert ([[ADR-BINARY-ASSETS]]).
+     * Ein Ladefehler bleibt bewusst STILL (entschieden 2026-11-13, B13): die
+     * Schrift ist optional, und ein Toast bei jedem Oeffnen (z. B. blockierte
+     * IndexedDB durch einen anderen Tab) waere Laerm ohne Handlungsoption.
+     * Speichern ist die andere Richtung: dort ist der Toast Pflicht. */
     loadBlob('font').then((blob) => {
       if (blob) {
         this.injectFont(blob);

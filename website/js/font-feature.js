@@ -85,11 +85,22 @@ export class FontFeature {
       this.selectFont.value = activePreset;
     }
     if (!this.activeFontFace) {
-      if (activePreset !== 'default' && FONT_PRESETS[activePreset]) {
-        document.documentElement.style.setProperty('--active-font-family', FONT_PRESETS[activePreset]);
-      } else {
-        document.documentElement.style.removeProperty('--active-font-family');
-      }
+      this.#applyPresetCss(activePreset);
+    }
+  }
+
+  /**
+   * Setzt die Preset-Schrift als CSS-Variable - die EINE Stelle dafuer.
+   * Vorher stand dieselbe Bedingung in applyInitialFont, updateFontStatusUI
+   * und applyFontPreset (B8-Review 2026-11-12).
+   * @param {string} [preset]
+   */
+  #applyPresetCss(preset) {
+    const name = preset || 'default';
+    if (name !== 'default' && FONT_PRESETS[name]) {
+      document.documentElement.style.setProperty('--active-font-family', FONT_PRESETS[name]);
+    } else {
+      document.documentElement.style.removeProperty('--active-font-family');
     }
   }
 
@@ -162,23 +173,19 @@ export class FontFeature {
           document.body.classList.add('schrift-eigene-aktiv');
         }
         if (btn) {
+          /* Ein Zustandsattribut: `data-font-state` ist das, was CSS und
+             index.html lesen. `data-schrift-modus` fuehrte denselben Zustand
+             ein zweites Mal (B8-Review 2026-11-12). */
           btn.dataset.fontState = 'loaded';
-          btn.dataset.schriftModus = 'reset';
           btn.textContent = '🗑️ Eigene Schrift entfernen';
         }
       } else {
-        const preset = this.settings.previewFont || 'default';
-        if (preset !== 'default' && FONT_PRESETS[preset]) {
-          document.documentElement.style.setProperty('--active-font-family', FONT_PRESETS[preset]);
-        } else {
-          document.documentElement.style.removeProperty('--active-font-family');
-        }
+        this.#applyPresetCss(this.settings.previewFont || 'default');
         if (document.body) {
           document.body.classList.remove('schrift-eigene-aktiv');
         }
         if (btn) {
           btn.dataset.fontState = 'empty';
-          btn.dataset.schriftModus = 'upload';
           btn.textContent = '🔤 Eigene Schriftart laden';
         }
       }
@@ -203,11 +210,7 @@ export class FontFeature {
     }
 
     if (!this.activeFontFace) {
-      if (choice !== 'default' && FONT_PRESETS[choice]) {
-        document.documentElement.style.setProperty('--active-font-family', FONT_PRESETS[choice]);
-      } else {
-        document.documentElement.style.removeProperty('--active-font-family');
-      }
+      this.#applyPresetCss(choice);
     }
     this.#saveSettings();
   }
@@ -243,7 +246,7 @@ export class FontFeature {
     if (this.btnFontAction) {
       this.btnFontAction.addEventListener('click', () => {
         const btn = /** @type {HTMLButtonElement} */ (this.btnFontAction);
-        if (btn.dataset.fontState === 'loaded' || btn.dataset.schriftModus === 'reset') {
+        if (btn.dataset.fontState === 'loaded') {
           this.resetFont();
         } else {
           this.fontUploader?.click();

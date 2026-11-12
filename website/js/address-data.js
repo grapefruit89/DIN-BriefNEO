@@ -212,16 +212,10 @@ export function buildOrtIndex(plzToCityMap) {
       ortIndex.set(canonical, list);
     }
     list.push(plz);
-
-    const lower = canonical.toLowerCase();
-    if (lower !== canonical) {
-      let lList = ortIndex.get(lower);
-      if (!lList) {
-        lList = [];
-        ortIndex.set(lower, lList);
-      }
-      lList.push(plz);
-    }
+    /* Keine Kleinbuchstaben-Aliase mehr: `ortIndex` wird ausschliesslich mit
+       kanonischen Namen aus `ortList` gelesen (lookupCityPlzs, lookupUniversal,
+       applySelection). Die Aliase waren toter Ballast und machten jede Stadt
+       doppelt sichtbar (B8-Review 2026-11-12). */
   }
   return ortIndex;
 }
@@ -420,11 +414,15 @@ export class AddressIntelligence {
         AddressIntelligence.plzList = plz;
 
         if (AddressIntelligence.plzList.length > 1) {
-          for (let i = 1; i < AddressIntelligence.plzList.length; i++) {
-            if (AddressIntelligence.plzList[i - 1] >= AddressIntelligence.plzList[i]) {
-              console.error('[AddressIntelligence] plzList ist nicht aufsteigend sortiert! Binary Search kompromittiert.');
-              break;
-            }
+          const aufsteigend = AddressIntelligence.plzList.every((p, i, a) => i === 0 || a[i - 1] < p);
+          if (!aufsteigend) {
+            /* Nicht nur melden: eine Binaersuche auf unsortierten Daten liefert
+               still falsche Treffer. Sortieren kostet nur im Fehlerfall etwas
+               (B8-Review 2026-11-12). Der Build (build_plz_data.mjs) sortiert
+               bereits; ein Test wacht zusaetzlich darueber. */
+            console.error('[AddressIntelligence] plzList war nicht aufsteigend sortiert - sortiere nach.');
+            AddressIntelligence.plzList = [...AddressIntelligence.plzList]
+              .sort((a, b) => a.localeCompare(b, 'de', { numeric: true }));
           }
         }
 
@@ -666,8 +664,13 @@ export class AddressIntelligence {
 
     // 2. Firmen/Behörden-Suche (3. Firmen/Behörden alphabetisch)
     /** @type {Array<any>} */
-    const firmenMatches = AddressIntelligence.firmenIndex ? AddressIntelligence.firmenIndex.search(searchPrefix, limit * 2) : [];
-    const firmenItems = firmenMatches.map((/** @type {any} */ f) => ({
+    /* Ohne Deckel zaehlen, aber nur die ersten limit*2 aufbereiten: der
+       Hinweis "N Treffer - tippe weiter" zeigte sonst die gekappte Zahl
+       (B8-Review 2026-11-12). */
+    const firmenMatches = AddressIntelligence.firmenIndex
+      ? AddressIntelligence.firmenIndex.search(searchPrefix, Number.MAX_SAFE_INTEGER)
+      : [];
+    const firmenItems = firmenMatches.slice(0, limit * 2).map((/** @type {any} */ f) => ({
       plz: f.plz,
       name: f.name,
       city: f.city,
@@ -677,7 +680,7 @@ export class AddressIntelligence {
     }));
     const sortedFirmenItems = firmenItems.toSorted((a, b) => a.name.localeCompare(b.name, 'de'));
 
-    const totalCount = sortedCityItems.length + sortedFirmenItems.length;
+    const totalCount = sortedCityItems.length + firmenMatches.length;
     // Städte immer zuerst, danach Firmen/Behörden
     const items = [...sortedCityItems, ...sortedFirmenItems].slice(0, limit);
 
@@ -782,9 +785,43 @@ export class AddressIntelligence {
     }
 
     // 2. Fall: Reiner Text (z. B. "bonn", "bonnd", "bon")
-    const nq = normalizeText(text);
-    const exactCity = AddressIntelligence.ortList.find(c => normalizeText(c) === nq);
-    const matchingCities = AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(nq));
+    let nq = normalizeText(text);
+    let exactCity = AddressIntelligence.ortList.find(c => normalizeText(c) === nq);
+    let matchingCities = AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(nq));
+    let suchtext = text;
+
+    /* Umlaut-Schreibweise (B8-Review 2026-11-12): `normalizeText` faltet ä/ö/ü,
+       aber nicht ae/oe/ue - "muenchen" und "koeln" fanden nichts. Eine globale
+       Umschrift waere falsch: sie kollidiert mit echten Namen (Munster/
+       Muenster, Neuenkirchen/Neunkirchen - gemessen: 130 geaenderte Keys,
+       5 neue Kollisionen).
+       Regel: die tatsaechliche Schreibweise gewinnt. Wer "neuenkirchen" oder
+       "baesweiler" tippt, meint die gleichnamige Stadt. Erst wenn keine Stadt
+       genau so heisst, wird die Umlautform probiert - und nur, wenn die
+       Rohform gar nichts findet, auch als Praefix. */
+    if (/ae|oe|ue/i.test(text)) {
+      const mitUmlaut = text.replace(/ae/gi, 'ä').replace(/oe/gi, 'ö').replace(/ue/gi, 'ü');
+      const nqUmlaut = normalizeText(mitUmlaut);
+      const gleichGeschrieben = AddressIntelligence.ortList.find(c => c.toLowerCase() === text.toLowerCase());
+      /* Erst die Schreibweise treffen ("münster" -> Münster), dann die Faltung.
+         Nur die Faltung reicht nicht: "munster" und "münster" falten beide zu
+         "munster", `find` nimmt dann die erste Stadt der Liste. */
+      const exactUmlaut = AddressIntelligence.ortList.find(c => c.toLowerCase() === mitUmlaut.toLowerCase())
+        ?? AddressIntelligence.ortList.find(c => normalizeText(c) === nqUmlaut);
+      if (exactUmlaut && !gleichGeschrieben) {
+        suchtext = mitUmlaut;
+        nq = nqUmlaut;
+        exactCity = exactUmlaut;
+        matchingCities = [exactUmlaut];
+      } else if (!exactCity && matchingCities.length === 0) {
+        const prefixUmlaut = AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(nqUmlaut));
+        if (prefixUmlaut.length > 0) {
+          suchtext = mitUmlaut;
+          nq = nqUmlaut;
+          matchingCities = prefixUmlaut;
+        }
+      }
+    }
 
     // Regel 1: Exakter Match auf Stadtname
     if (exactCity) {
@@ -823,7 +860,7 @@ export class AddressIntelligence {
     }
 
     // Regel 3: Reiner Text liefert die Stadt-Auswahlliste
-    const univ = AddressIntelligence.lookupUniversal(text, limit);
+    const univ = AddressIntelligence.lookupUniversal(suchtext, limit);
     // Wenn Städte matchen: reine Stadtliste anzeigen (Firmen nur wenn keine Städte matchen)
     const hasCities = univ.items.some(i => i.typ === 'Stadt');
     const items = hasCities ? univ.items.filter(i => i.typ === 'Stadt') : univ.items;

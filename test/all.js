@@ -2116,6 +2116,17 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     const berlinPlzs = ortIndex.get('Berlin') || [];
     assert(bonnPlzs.length >= 38, `Bonn hat ${bonnPlzs.length} PLZs (>= 38)`);
     assert(berlinPlzs.length >= 90, `Berlin hat ${berlinPlzs.length} PLZs (>= 90)`);
+    /* Keine Kleinbuchstaben-Aliase mehr: gelesen wird nur mit kanonischen
+       Namen aus ortList (B8-Review 2026-11-12). */
+    assertEqual(ortIndex.has('bonn'), false, 'kein Alias "bonn"');
+    assertEqual(ortIndex.has('Bonn'), true, 'kanonischer Key "Bonn"');
+  });
+
+  it('Test 6b: die gelieferte PLZ-Liste ist aufsteigend sortiert (Binaersuche)', () => {
+    const liste = AddressIntelligence.plzList;
+    assert(liste.length > 10000, `${liste.length} PLZs geladen`);
+    const kaputt = liste.findIndex((/** @type {string} */ p, /** @type {number} */ i) => i > 0 && liste[i - 1] >= p);
+    assertEqual(kaputt, -1, `erste Verletzung bei Index ${kaputt}`);
   });
 
   it('Test 7: Eingabe "Bon" findet Bonn und Bonndorf', () => {
@@ -2289,6 +2300,30 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(res.city, 'Bonn');
     assert(res.items.length > 0, 'Treffer vorhanden');
     assert(res.items.every((/** @type {any} */ i) => i.plz.startsWith('53')), 'Alle PLZs beginnen mit 53');
+  });
+
+  /* B8-Review 2026-11-12: ae/oe/ue fanden nichts ("muenchen" -> 0 Treffer).
+     Die Umlautform ist ein Rueckfall, keine globale Umschrift - sonst kollidieren
+     echte Namen (Munster/Münster, Neuenkirchen/Neunkirchen). */
+  it('Test 25a: "muenchen" und "koeln" finden die Umlautstadt', () => {
+    const muenchen = AddressIntelligence.resolveCityInput('muenchen');
+    assertEqual(muenchen.city, 'München');
+    assert(muenchen.items.length > 100, `München liefert ${muenchen.items.length} PLZs`);
+    const koeln = AddressIntelligence.resolveCityInput('koeln');
+    assertEqual(koeln.city, 'Köln');
+    assert(koeln.items.length > 50, `Köln liefert ${koeln.items.length} PLZs`);
+  });
+
+  it('Test 25b: "muenster" → Münster, "munster" bleibt Munster', () => {
+    assertEqual(AddressIntelligence.resolveCityInput('muenster').city, 'Münster');
+    assertEqual(AddressIntelligence.resolveCityInput('munster').city, 'Munster');
+  });
+
+  it('Test 25c: echte Namen mit "ue" gewinnen gegen die Umlautform', () => {
+    /* "neuenkirchen" ist eine Stadt; die Umlautform waere "neunkirchen". */
+    assertEqual(AddressIntelligence.resolveCityInput('neuenkirchen').city, 'Neuenkirchen');
+    assertEqual(AddressIntelligence.resolveCityInput('neunkirchen').city, 'Neunkirchen');
+    assertEqual(AddressIntelligence.resolveCityInput('baesweiler').city, 'Baesweiler');
   });
 
   it('Test 26: Auswahl "53111 Bonn" → Ort-Feld = "53111 Bonn"', () => {

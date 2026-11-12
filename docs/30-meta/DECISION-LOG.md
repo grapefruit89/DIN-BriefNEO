@@ -2641,6 +2641,15 @@ steht, bleibt im Feld, statt beim Weitertippen herauszurutschen.
 `#handleInputLimit`); Ausnahme für P3 in `tools/antipatterns/project.json`
 (Datei `website/js/document.js`).
 
+**Rückmeldung (Nutzerwunsch 2026-11-12).** Ein verworfener Anschlag bleibt nicht
+stumm: das Feld bekommt für 450 ms `data-voll` — 2 px Warnrahmen in
+`oklch(0.55 0.22 25)` plus 180-ms-Ruckeln (2 px), danach wieder normal. Kein
+Toast. Screenreader hören „Feld voll, kein Platz mehr" über `ariaNotify`,
+gedrosselt auf einmal pro 1,5 s. Bei `prefers-reduced-motion` entfällt das
+Ruckeln, der Rahmen bleibt.
+
 **Beleg.** 200 Anschläge auf `#betreff`: 54 Zeichen im Feld, `scrollWidth` 624 =
 `clientWidth` 624, kein Überlauf; ein Zeichen löschen schafft sofort wieder
-Platz. Kein Eingriff in `maxlength` (bleibt als Grob-Deckel).
+Platz. Kein Eingriff in `maxlength` (bleibt als Grob-Deckel). Rahmen gemessen:
+`solid 2px oklch(0.55 0.22 25)`, Animation `feld-voll-stopp 0.18s`, nach 450 ms
+Attribut und Rahmen weg.

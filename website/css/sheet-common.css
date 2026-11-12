@@ -453,6 +453,35 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
 }
 
 
+/* „Feld voll": roter Rahmen + kurzes Ruckeln, kein Toast (Nutzerwunsch
+   2026-11-12). Nur am Bildschirm und ohne Bewegung, wenn das System
+   reduzierte Bewegung verlangt. Wird von document.js (#meldeVoll) gesetzt. */
+@keyframes feld-voll-stopp {
+  0%, 100% { translate: 0 0; }
+  25% { translate: -2px 0; }
+  75% { translate: 2px 0; }
+}
+
+@media screen {
+  input[data-voll="true"],
+  textarea[data-voll="true"] {
+    /* Literale Warnfarbe statt var(--c-danger): die Variable liefert
+       light-dark(...) und wurde im outline-Shorthand verworfen (gemessen
+       2026-11-12: errechnet blieb die UA-Fokusoptik, 3px dunkel). */
+    outline: 2px solid oklch(0.55 0.22 25) !important;
+    outline-offset: -2px;
+    border-radius: 3px;
+    animation: feld-voll-stopp 180ms ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input[data-voll="true"],
+  textarea[data-voll="true"] {
+    animation: none;
+  }
+}
+
 @scope (din-blatt) {
 
   /* Ein gemeinsamer Selektor für alle Blattfelder: contenteditable-Felder UND

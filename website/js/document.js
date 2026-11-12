@@ -382,6 +382,9 @@ export function initFormatSync() {
 }
 
 export class UIProtections {
+  /** Drossel fuer die Screenreader-Ansage (einmal pro 1,5 s reicht). */
+  #letzteVollMeldung = 0;
+
   constructor() {
     /** @type {HTMLElement | null} */
     this.text = document.getElementById('text');
@@ -498,7 +501,36 @@ export class UIProtections {
     if (!(inputEvent.inputType ?? '').startsWith('insert')) return;
     /* Auswahl ersetzen ist erlaubt - das kuerzt den Text, statt ihn zu schieben. */
     const hatAuswahl = (ziel.selectionStart ?? 0) !== (ziel.selectionEnd ?? 0);
-    if (!hatAuswahl && this.#istVoll(ziel)) inputEvent.preventDefault();
+    if (!hatAuswahl && this.#istVoll(ziel)) {
+      inputEvent.preventDefault();
+      this.#meldeVoll(ziel);
+    }
+  }
+
+  /**
+   * „Feld voll": kurzer optischer Stopp und eine Ansage fuer Screenreader.
+   * Bewusst kein Toast (Nutzerwunsch 2026-11-12) — das Feld selbst zeigt den
+   * Stopp: roter Rahmen plus 180-ms-Ruckeln, danach wieder normal.
+   * @param {HTMLElement} feld
+   */
+  #meldeVoll(feld) {
+    feld.setAttribute('data-voll', 'true');
+    /* Attribut nach kurzer Zeit wegnehmen: so startet der naechste Versuch die
+       Animation neu. Timeout statt animationend, damit auch
+       prefers-reduced-motion (keine Animation) den Rahmen wieder abraeumt. */
+    window.setTimeout(() => feld.removeAttribute('data-voll'), 450);
+
+    /* performance.now(): die Legacy-Datums-API ist per A48/TM1 verboten. */
+    const jetzt = performance.now();
+    if (jetzt - this.#letzteVollMeldung < 1500) return;
+    this.#letzteVollMeldung = jetzt;
+    try {
+      if (typeof document.ariaNotify === 'function') {
+        document.ariaNotify('Feld voll, kein Platz mehr', { priority: 'normal' });
+      }
+    } catch {
+      /* Experimentelle API darf den Eingabepfad nie blockieren. */
+    }
   }
 
   /**
@@ -620,6 +652,7 @@ export class UIProtections {
       if (alt) {
         Field.setValue(target, alt.wert);
         target.setSelectionRange(alt.start, alt.ende);
+        this.#meldeVoll(target);
       }
     }
   }

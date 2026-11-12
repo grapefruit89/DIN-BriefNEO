@@ -48,7 +48,7 @@
       "severity": "critical",
       "check": "regex",
       "category": "javascript",
-      "description": "JS text-fitting or DOM layout loops (scrollWidth > clientWidth, TextFitEngine) are Catalog HARD BAN A49. Use CSS field-sizing: content and text-fit: shrink.",
+      "description": "JS text-fitting or DOM layout loops (scrollWidth > clientWidth, TextFitEngine) are Catalog HARD BAN A49 - AUSNAHME 2026-11-12 fuer die Eingabe-Sperre: die Feldbreite begrenzt die Eingabe, kein Textfitting.",
       "pattern": "\\bnew\\s+TextFitEngine\\b|import.*TextFitEngine|\\.scrollWidth\\s*>\\s*\\w*\\.clientWidth",
       "file_patterns": [
         "website/js/*.js"
@@ -59,7 +59,7 @@
           "pattern": "istVoll\\(|scrollWidth\\s*>\\s*\\w+\\.clientWidth"
         }
       ],
-      "replacement": "A49-Ausnahme 2026-11-12 (DECISION-LOG): Feldbreite als Grenze, Eingabe wird verworfen. Kein Polling, kein Textfitting."
+      "replacement": "A49-Ausnahme 2026-11-12 (DECISION-LOG): Eingabe wird bei voller Feldbreite verworfen. text-fit ist Projekt-HARD-BAN P39."
     },
     {
       "id": "P4",
@@ -653,6 +653,22 @@
           "pattern": "^\\s*<!--"
         }
       ]
+    },
+    {
+      "id": "P39",
+      "no_catalog_ref_reason": "Projektentscheid 2026-11-12: text-fit verkleinert die Schrift, im Brief entstuenden viele verschiedene Schriftgroessen (Zoo). Die Feldbreite begrenzt stattdessen die Eingabe (DECISION-LOG 2026-11-12, A49-Ausnahme).",
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "css",
+      "description": "text-fit ist Projekt-HARD-BAN: es skaliert die Schrift und erzeugt mehrere Schriftgroessen im Brief. In Chrome 156 wird es geparst, aber nicht angewandt (gemessen an input und div). Ersatz: Eingabe-Sperre bei voller Feldbreite.",
+      "pattern": "text-fit\\s*:",
+      "file_patterns": [
+        "*.css",
+        "*.js",
+        "*.html"
+      ],
+      "exemptions": []
     }
   ]
 }

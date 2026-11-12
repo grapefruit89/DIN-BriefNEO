@@ -1210,6 +1210,36 @@ describe('Eingabe-Sperre bei voller Feldbreite (A49-Ausnahme)', () => {
   });
 });
 
+describe('text-fit ist verboten (P39)', () => {
+  /* Entscheid 2026-11-12: text-fit skaliert die Schrift -> viele
+     Schriftgroessen im Brief. In Chrome 156 ohnehin wirkungslos (gemessen an
+     input und div). Ersatz ist die Eingabe-Sperre bei voller Feldbreite. */
+  it('keine text-fit-Deklaration im ausgelieferten CSS/JS/HTML', async () => {
+    const dateien = [
+      '/website/css/base.css',
+      '/website/css/sheet-common.css',
+      '/website/css/sheet-multipage.css',
+      '/website/css/sidebar.css',
+      '/website/js/document.js',
+      '/website/js/main.js',
+      '/website/index.html',
+    ];
+    for (const datei of dateien) {
+      const text = await (await fetch(datei)).text();
+      assert(!/text-fit\s*:/.test(text), `${datei} enthaelt eine text-fit-Deklaration`);
+    }
+  });
+
+  it('P39 ist als hard_ban registriert', async () => {
+    const regel = await (await fetch('/tools/antipatterns/project.json')).json();
+    const p39 = regel.rules.find((/** @type {any} */ r) => r.id === 'P39');
+    assert(p39, 'P39 existiert');
+    assertEqual(p39.class, 'hard_ban', 'Klasse hard_ban');
+    assertEqual(p39.severity, 'critical', 'Severity critical');
+    assert(/text-fit/.test(p39.pattern), 'Pattern nennt text-fit');
+  });
+});
+
 describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
   /* Seit 2026-11-12 sind Betreff, Vermerk, Anrede, Grussformel und Unterschrift
      native <input>; nur der Rich-Text bleibt contenteditable. */

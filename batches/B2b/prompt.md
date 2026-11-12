@@ -26,6 +26,15 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 - `website/js/core.js`  (267 Zeilen) — EventBus, Toast, Popover
 - `website/js/field.js`  (32 Zeilen) — Feld-Abstraktion
 
+## Zuerst lesen: KONTRAKT.md
+
+`KONTRAKT.md` steht oben in diesem Dokument, vor dem Code. Es nennt für jedes
+Modul **außerhalb** dieses Batches die genutzten Symbole und umgekehrt die
+Module, die diesen Batch benutzen — erzeugt aus dem echten Importgraph, nicht
+geschätzt. Beurteile, ob der Batch seine Verträge richtig benutzt. Beurteile
+**nicht**, wie die fremden Module intern aussehen: ihr Code ist absichtlich
+nicht dabei, und „die Datei ist nicht da" ist kein Befund.
+
 ## Bereits geprüft — nicht wiederholen
 Alles unten ist am Code entschieden (Commit-Stand siehe Kopf der Merge-Datei).
 

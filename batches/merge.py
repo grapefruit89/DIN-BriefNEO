@@ -136,7 +136,7 @@ def baue(bid: str) -> pathlib.Path:
     teile += [
         '## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)',
         '',
-        '| Datei | Zeilen | export | Funktionen | addEventListener | DOM-Abfragen |',
+        '| Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |',
         '|---|---:|---:|---:|---:|---:|',
     ]
     for name, _, zeilen, _, text in kopf_dateien:

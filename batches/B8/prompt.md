@@ -17,6 +17,15 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 - `website/js/address-data.js`  (918 Zeilen)
 - `website/js/font-feature.js`  (283 Zeilen)
 
+## Zuerst lesen: KONTRAKT.md
+
+`KONTRAKT.md` steht oben in diesem Dokument, vor dem Code. Es nennt für jedes
+Modul **außerhalb** dieses Batches die genutzten Symbole und umgekehrt die
+Module, die diesen Batch benutzen — erzeugt aus dem echten Importgraph, nicht
+geschätzt. Beurteile, ob der Batch seine Verträge richtig benutzt. Beurteile
+**nicht**, wie die fremden Module intern aussehen: ihr Code ist absichtlich
+nicht dabei, und „die Datei ist nicht da" ist kein Befund.
+
 ## Prüfauftrag, in dieser Reihenfolge
 1. **KORREKTHEIT** — Logiklücken, Randfälle, stille Datenverluste, Zustandsfehler,
    doppelte Wahrheiten, Reihenfolge-/Race-Probleme.

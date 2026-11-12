@@ -3,33 +3,472 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD 2b74d66. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: HEAD 8e31aaf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
 B1/
+├── index.html                     427 Zeilen
 ├── base.css                       343 Zeilen
 ├── sheet-common.css               454 Zeilen
 ├── sheet-multipage.css            634 Zeilen
+├── KONTRAKT.md                     21 Zeilen
 └── prompt.md                    (nicht enthalten — separat anklicken)
 ```
 
 ## Quellen (Snapshot)
 | Datei | Pfad im Repo | Zeilen | SHA256 |
 |---|---|---:|---|
+| `index.html` | `website/index.html` | 427 | `18666528` |
 | `base.css` | `website/css/base.css` | 343 | `f22beefb` |
 | `sheet-common.css` | `website/css/sheet-common.css` | 454 | `4a470bdc` |
 | `sheet-multipage.css` | `website/css/sheet-multipage.css` | 634 | `60c7ecc4` |
+| `KONTRAKT.md` | `batches/B1/KONTRAKT.md` | 21 | `400fcf13` |
 
-Gesamt: 43177 Zeichen ≈ 10k Token.
+Gesamt: 79281 Zeichen ≈ 19k Token.
 
 ## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
 
-| Datei | Zeilen | export | Funktionen | addEventListener | DOM-Abfragen |
+| Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |
 |---|---:|---:|---:|---:|---:|
+| `index.html` | 427 | 0 | 0 | 0 | 0 |
 | `base.css` | 343 | 0 | 0 | 0 | 0 |
 | `sheet-common.css` | 454 | 0 | 0 | 0 | 0 |
 | `sheet-multipage.css` | 634 | 0 | 0 | 0 | 0 |
+| `KONTRAKT.md` | 21 | 0 | 0 | 0 | 0 |
+
+
+==============================================================================
+===== index.html  (website/index.html, 427 Zeilen, sha256:18666528)
+==============================================================================
+
+<!-- @adr [[ADR-HTML]]  -->
+<!-- @guide [[din-5008-css-architektur]]  -->
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f7fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2025">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="description" content="Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 für geschäftliche und private Korrespondenz. Daten bleiben lokal (Adress-Suche optional extern).">
+    <link rel="canonical" href="https://grapefruit89.github.io/DIN-BriefNEO/">
+    <meta property="og:url" content="https://grapefruit89.github.io/DIN-BriefNEO/">
+    <meta property="og:title" content="DIN-BriefNEO | Normgerechter DIN-5008-Briefgenerator">
+    <meta property="og:description" content="Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 für geschäftliche und private Korrespondenz.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://grapefruit89.github.io/DIN-BriefNEO/website/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="DIN-BriefNEO – Brief-Editor nach DIN 5008">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://grapefruit89.github.io/DIN-BriefNEO/website/og-image.png">
+    <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
+         in layers.css verlagert, Boot als externes Classic-Script
+         (js/boot.js), daher kein Inline-Hash noetig. connect-src erlaubt
+         nur die A38-Allowlist (optionale Tier-2-Fach-API, ohne Key tot). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data: blob:; img-src 'self' data: blob:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
+    <title>DIN-BriefNEO | Pure Refactored</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
+    <link rel="stylesheet" href="css/base.css?v=live6">
+    <link rel="stylesheet" href="css/sidebar.css?v=live7">
+    <link rel="stylesheet" href="css/sheet-common.css?v=common1">
+    <link rel="stylesheet" href="css/sheet-multipage.css?v=multi1">
+    <script src="js/boot.js?v=boot2"></script>
+    <script type="module" src="js/main.js?v=live6"></script>
+  </head>
+  <body>
+    <a href="#viewport" class="skip-link">Zum Briefkern springen</a>
+    <div id="app-shell">
+      <div id="probe" aria-hidden="true"></div>
+      <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
+        <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungen">
+        <!-- Normaler Modus Header -->
+        <div class="seitenleiste-header-row">
+          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
+            </svg>
+          </a>
+          <div class="seitenleiste-header-actions">
+            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" tabindex="0" role="button" aria-label="Einstellungen öffnen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </label>
+            <button type="button" id="btn-theme-toggle" class="icon-btn theme-toggle-btn" aria-label="Darstellung: Automatisch (System)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-auto lucide lucide-sun-moon" aria-hidden="true"><path d="M12 2v2"></path><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"></path><path d="M16 12a4 4 0 0 0-4-4"></path><path d="m19 5-1.256 1.256"></path><path d="M20 12h2"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-light lucide lucide-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-dark lucide lucide-moon-star" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Setup-Modus Header (Drill-Down: Zurück zum Brief) -->
+        <div class="seitenleiste-setup-header">
+          <label for="toggle-modus" id="btn-zurueck" class="btn-back" tabindex="0" role="button" aria-label="Zurück zum Brief">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            <span>Zurück zum Brief</span>
+          </label>
+        </div>
+
+        <div class="seitenleiste-export-group seitenleiste-btn-row">
+          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
+          <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
+        </div>
+
+        <!-- Zone 1: Brief-Steuerung -->
+        <section id="zone-dokument" class="seitenleiste-zone">
+          <!-- 1. Format & Ansicht -->
+          <div class="seitenleiste-subgroup">
+            <fieldset class="seitenleiste-field-group">
+              <legend class="seitenleiste-label">DIN-Brief Layout</legend>
+              <div class="segmented-control">
+                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+                <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
+                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+                <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
+              </div>
+            </fieldset>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-falzmarken" class="seitenleiste-label">Falz- &amp; Lochmarken</label>
+              <input type="checkbox" switch id="toggle-falzmarken" checked>
+            </div>
+
+          </div>
+
+          <hr class="seitenleiste-divider">
+
+          <!-- 2. Briefelemente -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-field-group">
+              <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
+              <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
+                <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
+                <option value="polite">Höflich (Guten Tag...)</option>
+                <option value="casual">Locker (Hallo...)</option>
+              </select>
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <label id="label-postvermerk" for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
+              <select id="seitenleiste-postvermerk-select" class="seitenleiste-select" aria-labelledby="label-postvermerk">
+                <option value="">— kein —</option>
+                <optgroup label="Versandarten">
+                  <option value="Einschreiben">Einschreiben</option>
+                  <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                  <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                  <option value="Einschreiben Wert">Einschreiben Wert</option>
+                  <option value="Warensendung">Warensendung</option>
+                  <option value="Büchersendung">Büchersendung</option>
+                  <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+                </optgroup>
+                <optgroup label="Vertraulichkeit">
+                  <option value="Persönlich">Persönlich</option>
+                  <option value="Vertraulich">Vertraulich</option>
+                  <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                  <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                  <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <hr class="seitenleiste-divider">
+
+          <!-- 3. Textformatierung -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-field-group">
+              <span class="seitenleiste-label">Textformatierung</span>
+              <div class="seitenleiste-btn-row" role="group" aria-label="Textformatierung">
+                <button type="button" id="btn-bold" class="icon-btn"
+                        aria-pressed="false" aria-label="Fett (Strg+B)" title="Fett (Strg+B)">
+                  <b aria-hidden="true">B</b>
+                </button>
+                <button type="button" id="btn-italic" class="icon-btn"
+                        aria-pressed="false" aria-label="Kursiv (Strg+I)" title="Kursiv (Strg+I)">
+                  <i aria-hidden="true">I</i>
+                </button>
+                <button type="button" id="btn-quote" class="icon-btn"
+                        aria-pressed="false" aria-label="Zitat (Strg+Q)" title="Zitat (Strg+Q)">
+                  <span aria-hidden="true">❝</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <hr class="seitenleiste-divider">
+
+          <!-- 4. Zusatzblöcke -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-anlagen" class="seitenleiste-label">Anlagen</label>
+              <input type="checkbox" switch id="toggle-anlagen">
+            </div>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-fuss" class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</label>
+              <input type="checkbox" switch id="toggle-fuss">
+            </div>
+          </div>
+        </section>
+
+        <!-- Zone 2: Daten & Adressen -->
+        <section id="zone-werkzeuge" class="seitenleiste-zone">
+          <p class="seitenleiste-label">Daten &amp; Adressen</p>
+          <search id="anschrift-suche-container" class="seitenleiste-options-group">
+            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
+            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
+            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+          </search>
+
+          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
+          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
+
+          <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
+          <input type="file" id="dinletter-uploader" accept=".json,.dinletter,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
+
+          <button type="button" id="btn-testbrief" class="btn btn-ghost w-full" title="Zufälligen Testbrief mit zwei Figuren generieren">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Testbrief
+          </button>
+          <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 In Zwischenablage (.json)</button>
+        </section>
+
+        <!-- Zone 3: Grundeinstellungen & Setup -->
+        <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup">
+          <div class="seitenleiste-setup-content">
+            <div class="seitenleiste-field-group">
+              <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
+              <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
+                <optgroup label="System-Standard">
+                  <option value="default" selected>Liberation Sans / System-UI</option>
+                </optgroup>
+                <optgroup label="Test-Schriften (Lokal)">
+                  <option value="inter">Inter (18pt DIN-Subset)</option>
+                  <option value="aptos">Aptos (Lokal)</option>
+                  <option value="michelangelus">Michelangelus (Serife)</option>
+                </optgroup>
+              </select>
+              <button type="button" id="btn-schrift-aktion" class="btn w-full" data-font-state="empty">
+                🔤 Eigene Schriftart laden
+              </button>
+              <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden" aria-label="Schriftart-Datei auswählen">
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <div class="seitenleiste-switch-row">
+                <label for="btn-rand-u-30" class="seitenleiste-label">Unterrand 30 mm</label>
+                <input type="checkbox" switch id="btn-rand-u-30">
+              </div>
+              <p class="seitenleiste-sub-label">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <span class="seitenleiste-sub-label">Unterschrift / Stempel:</span>
+              <button type="button" id="btn-unterschrift-aktion" class="btn w-full" data-state="empty">
+                ✒️ Unterschrift / Stempel laden
+              </button>
+              <input type="file" id="unterschriftsbild-datei" accept="image/*" class="hidden">
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+              <input
+                type="password"
+                id="input-geoapify-key"
+                class="input-field"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Key einfügen (optional für Adress-Vorschläge)…">
+              <small id="geoapify-status" class="input-status-hint"></small>
+              <a class="key-hint-link" href="https://myprojects.geoapify.com/projects" target="_blank" rel="noopener noreferrer">
+                Key bei Geoapify erstellen <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+
+            <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
+
+            <hr class="seitenleiste-divider">
+
+            <div class="seitenleiste-subgroup">
+              <p class="seitenleiste-label">Erweiterungen (Plugins)</p>
+              <div class="seitenleiste-switch-row">
+                <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
+                <input type="checkbox" switch id="plugin-testbrief" checked>
+              </div>
+              <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
+                   stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
+              <div class="seitenleiste-subgroup workbench-box">
+                <div class="workbench-header">
+                  <strong class="workbench-title">📄 Mehrseiten-Workbench</strong>
+                  <span id="seiten-status" class="workbench-status">Seite 1 von 1</span>
+                </div>
+                <div class="workbench-actions">
+                  <button type="button" id="btn-demo-lang" class="btn" title="Fügt langen 2-3 Seiten Fließtext ein">📝 Langer Text</button>
+                  <button type="button" id="btn-demo-kurz" class="btn" title="Setzt auf kurzen 1-Seiten-Text zurück">↩️ 1 Seite</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Zone 4: Fester Fußbereich -->
+        <div id="zone-aktionen" class="seitenleiste-footer">
+          <div class="save-status-row">
+            <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
+          </div>
+          <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
+        </div>
+      </aside>
+      <main id="viewport">
+        <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>
+        <div id="brief-ansicht">
+          <din-blatt class="blatt-theme seite-1"
+            data-width-mm="210"
+            data-height-mm="297"
+            data-lochmarke-y="148.5"
+            data-briefkopf-y-b="45"
+            data-anschriftfeld-y-b="45.8"
+            data-infoblock-y-b="51"
+            data-kern-y-b="109"
+            data-falzmarke-1-y-b="105"
+            data-falzmarke-2-y-b="210"
+            data-briefkopf-y-a="27"
+            data-anschriftfeld-y-a="28.9"
+            data-infoblock-y-a="34"
+            data-kern-y-a="91"
+            data-falzmarke-1-y-a="87"
+            data-falzmarke-2-y-a="192"
+            role="article"
+            writingsuggestions="false"
+            aria-label="DIN 5008 Brief">
+            <din-falzmarke-1 data-w="8"></din-falzmarke-1>
+            <din-falzmarke-2 data-w="8"></din-falzmarke-2>
+            <din-lochmarke data-w="12"></din-lochmarke>
+            <din-briefkopf class="is-dormant"></din-briefkopf>
+            <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
+                 nativ gesperrt — die Sperre lebt in enforceLineLimits.
+                 Verbindlicher Text: js/document.js — Law Catalog A55/A49. -->
+            <!-- DIN 5008 19.4.3/4: EIN Block. Die Rücksendeangabe ist die oberste
+                 Zeile des Anschriftfelds (17,7-mm-Zusatz-/Vermerkzone), kein
+                 eigenes Element daneben. data-x/data-w erbt sie vom Container
+                 (SSoT). -->
+            <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
+              data-x="25" data-w="85" data-h="45" data-font="10"
+              data-visier-top="5" data-visier-w="90" data-visier-h="45">
+              <div id="zusatzzone" role="group" aria-label="Zusatz- und Vermerkzone">
+                <input type="text" id="rucksendeangabe" data-font="7" data-atom placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="120">
+                <din-vermerke id="vermerke" data-font="8" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-vermerke>
+              </div>
+              <div id="anschriftzone" role="group" aria-label="Anschriftzone">
+                <input type="text" id="empfaenger-firma" data-atom placeholder="Firma / Institution (optional)" aria-label="Firma" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="50">
+                <input type="text" id="empfaenger-name" data-atom placeholder="Empfänger Name" aria-label="Name des Empfängers" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="45">
+                <input type="text" id="empfaenger-strasse" data-atom placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="45">
+                <input type="text" id="empfaenger-ort" data-atom placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="45">
+              </div>
+            </din-anschriftfeld>
+            <din-infoblock id="infoblock" data-x="125" data-w="65" data-font="8.5" role="group" aria-label="Infoblock">
+              <din-absender-name id="absender-name" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Vor- und Nachname" aria-label="Name"></din-absender-name>
+              <din-absender-strasse id="absender-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
+              <din-absender-ort id="absender-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
+              <din-absender-tel id="absender-tel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" inputmode="tel" spellcheck="false" writingsuggestions="false" data-placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
+              <din-absender-mail id="absender-mail" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" inputmode="email" spellcheck="false" autocapitalize="none" writingsuggestions="false" data-placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
+              <din-datum id="datum" data-font="10" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
+              <din-bezugszeichen id="bezugszeichen" class="is-dormant"></din-bezugszeichen>
+            </din-infoblock>
+            <din-kern id="kern" data-left="25" data-right="20" role="region" aria-label="Briefkern">
+              <div id="spacer" contenteditable="false" aria-hidden="true"></div>
+              <din-betreff id="betreff" data-font="12" data-margin-bottom="8.46" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Betreffzeile hier eingeben" aria-label="Betreff"></din-betreff>
+              <din-anrede id="anrede" data-font="10.5" data-margin-bottom="4.23" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede"></din-anrede>
+              <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes…" aria-label="Text"></din-text>
+              <din-grussformel id="grussformel" data-font="10.5" data-margin-top="4.23" data-margin-bottom="12.69" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Mit freundlichen Grüßen" aria-label="Grußformel"></din-grussformel>
+              <din-unternehmensbezeichnung id="unternehmensbezeichnung" class="is-dormant"></din-unternehmensbezeichnung>
+              <div class="unterschrift-zeile">
+                <din-zusaetze id="zusaetze" class="is-dormant"></din-zusaetze>
+                <din-unterschrift id="unterschrift" data-font="10.5" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift"></din-unterschrift>
+              </div>
+              <din-anlagenvermerk id="anlagenvermerk" data-margin-top="12.69">
+                <label for="anlagen-angabe" class="anlagen-heading">Anlagen</label>
+                <din-anlagen-angabe>
+                  <textarea id="anlagen-angabe" name="anlagen-angabe" rows="2" data-feldtyp="mehrzeilig" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" aria-label="Anlagen – eine pro Zeile" placeholder="eine Anlage pro Zeile"></textarea>
+                </din-anlagen-angabe>
+              </din-anlagenvermerk>
+              <din-verteilvermerk id="verteilvermerk" class="is-dormant"></din-verteilvermerk>
+              <din-beglaubigungsvermerk id="beglaubigungsvermerk" class="is-dormant"></din-beglaubigungsvermerk>
+              <din-werbliche-elemente id="werbliche-elemente" class="is-dormant"></din-werbliche-elemente>
+            </din-kern>
+            <div id="folgekoepfe" aria-hidden="true"></div>
+            <din-geschaeftsangaben id="geschaeftsangaben" data-left="25" data-right="20" data-h="15" data-padding-top="2" data-gap="10" data-font="7.5" role="region" aria-label="Geschäftsangaben Fußzeile">
+              <din-fuss-firma id="fuss-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Muster GmbH" aria-label="Firmenname"></din-fuss-firma>
+              <din-fuss-sitz id="fuss-sitz" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Musterstadt" aria-label="Sitz der Gesellschaft"></din-fuss-sitz>
+              <din-fuss-gericht id="fuss-gericht" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Amtsgericht Musterstadt" aria-label="Registergericht"></din-fuss-gericht>
+              <din-fuss-hrb id="fuss-hrb" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="HRB 12345" aria-label="Handelsregisternummer"></din-fuss-hrb>
+              <din-fuss-vorstand id="fuss-vorstand" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Vorsitzender: Erika Mustermann" aria-label="Vorstand"></din-fuss-vorstand>
+              <din-fuss-gf id="fuss-gf" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Geschäftsführer: Max Mustermann" aria-label="Geschäftsführung"></din-fuss-gf>
+              <din-fuss-stnr id="fuss-stnr" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="12/345/67890" aria-label="Steuernummer"></din-fuss-stnr>
+              <din-fuss-ustid id="fuss-ustid" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="DE123456789" aria-label="USt-IdNr."></din-fuss-ustid>
+              <din-fuss-bank id="fuss-bank" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="Musterbank" aria-label="Bankverbindung"></din-fuss-bank>
+              <din-fuss-iban id="fuss-iban" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="DE00 0000 0000 0000 0000 00" aria-label="IBAN"></din-fuss-iban>
+              <din-fuss-bic id="fuss-bic" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" writingsuggestions="false" data-placeholder="ABCDDEFFXXX" aria-label="BIC"></din-fuss-bic>
+              <din-fuss-anschrift id="fuss-anschrift" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="Musterstraße 1, 12345 Musterstadt" aria-label="Geschäftsräume"></din-fuss-anschrift>
+              <din-seitennummerierung id="seitennummerierung" class="is-dormant"></din-seitennummerierung>
+            </din-geschaeftsangaben>
+            <div id="unterschriftsbild-container">
+              <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box" tabindex="0" aria-label="Unterschrift verschieben und skalieren">
+                <div class="unterschriftsbild-griff bottom-right" data-aktion="resize" data-richtung="br"></div>
+                <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
+                <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift" draggable="false">
+              </div>
+            </div>
+          </din-blatt>
+        </div>
+      </main>
+    </div>
+    <!-- Guard: nativer Popover-Toast im Top-Layer, Uebergaenge via @starting-style.
+         Verbindlicher Text: js/core.js — Law Catalog A56. -->
+    <!-- Guard: role="status"/aria-live="polite" ist Pflicht, keine Success-Toasts.
+         Verbindlicher Text: js/core.js bei Constants.TOASTS. -->
+    <div id="hinweis-v4" popover="auto" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite" aria-atomic="true">
+      <span id="hinweis-message"></span>
+      <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen" popovertarget="hinweis-v4" popovertargetaction="hide">×</button>
+    </div>
+    <dialog id="reset-dialog" class="glass-dialog nicht-drucken" closedby="any">
+      <form method="dialog">
+        <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn danger">Zurücksetzen</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="import-dialog" class="glass-dialog nicht-drucken" closedby="any">
+      <form method="dialog">
+        <p>Diesen Brief importieren und den aktuellen Inhalt ersetzen?</p>
+        <p class="import-file-name" id="import-file-name"></p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn primary">Importieren</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="din-info-dialog" class="glass-dialog nicht-drucken" closedby="any" aria-labelledby="din-info-title">
+      <h2 id="din-info-title" class="din-info-title">DIN 5008 Standard-Leitfaden</h2>
+      <div class="din-info-content">
+        <p><strong>Form A vs. Form B:</strong> Form A hat einen 27-mm-Briefkopf (mehr Platz für Text). Form B nutzt 45 mm (Standard für Privatbriefe mit Absenderblock oder Logo).</p>
+        <p><strong>Fensterumschlag (DIN Lang):</strong> Das Anschriftfeld (85 × 45 mm) ist exakt so platziert, dass es bei korrekter Faltung im 90 × 45 mm Sichtfenster liegt.</p>
+        <p><strong>Falz- & Lochmarken:</strong> Falzmarke 1 (105 mm, Form A: 87 mm) und Falzmarke 2 (210 mm, Form A: 192 mm) teilen das Blatt in Drittel (Zickzack- oder Wickelfalz). Die Lochmarke (148,5 mm) zentriert das Blatt im Ordner.</p>
+      </div>
+      <div class="dialog-actions">
+        <form method="dialog"><button class="btn primary">Verstanden</button></form>
+      </div>
+    </dialog>
+
+  </body>
+</html>
 
 
 ==============================================================================
@@ -1479,4 +1918,30 @@ din-blatt[data-ueberlauf="true"]::after {
     }
   }
 }
+
+
+==============================================================================
+===== KONTRAKT.md  (batches/B1/KONTRAKT.md, 21 Zeilen, sha256:400fcf13)
+==============================================================================
+
+# Verträge zu B1
+
+Dieser Batch enthält 3 Module. Alles, was er importiert und
+nicht enthält, steht unten mit **Signatur und Rolle, ohne Code**. Das ist
+Absicht: die Naht ist prüfbar, die Implementierung gehört in ihren eigenen
+Batch. Beurteile, ob dieser Batch den Vertrag richtig benutzt — nicht, ob
+es die Module gibt, und nicht, wie sie intern aussehen.
+
+## Was dieser Batch von außen braucht
+
+Keine — dieser Batch ist in sich geschlossen.
+
+
+## Wer diesen Batch von außen benutzt
+
+Niemand — dieser Batch wird nur intern benutzt.
+
+## Export-Fläche dieses Batches
+
+(Was die Außenwelt erwarten darf. Gezählt aus den `export`-Zeilen.)
 

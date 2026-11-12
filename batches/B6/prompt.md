@@ -18,6 +18,21 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 - `website/js/settings.js`  (289 Zeilen)
 - `website/js/signature.js`  (312 Zeilen)
 
+## Beilage (nicht reviewen)
+
+- `website/index.html` (427 Zeilen) — nur damit du prüfen kannst, ob eine
+  CSS-Regel überhaupt ein Element trifft. Enthält kein CSS und ist nicht
+  Gegenstand dieser Prüfung.
+
+## Zuerst lesen: KONTRAKT.md
+
+`KONTRAKT.md` steht oben in diesem Dokument, vor dem Code. Es nennt für jedes
+Modul **außerhalb** dieses Batches die genutzten Symbole und umgekehrt die
+Module, die diesen Batch benutzen — erzeugt aus dem echten Importgraph, nicht
+geschätzt. Beurteile, ob der Batch seine Verträge richtig benutzt. Beurteile
+**nicht**, wie die fremden Module intern aussehen: ihr Code ist absichtlich
+nicht dabei, und „die Datei ist nicht da" ist kein Befund.
+
 ## Prüfauftrag, in dieser Reihenfolge
 1. **KORREKTHEIT** — Logiklücken, Randfälle, stille Datenverluste, Zustandsfehler,
    doppelte Wahrheiten, Reihenfolge-/Race-Probleme.

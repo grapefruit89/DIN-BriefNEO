@@ -1,18 +1,21 @@
-# B1 — Geometrie-CSS
+# B2 — HTML + Boot
 
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: Arbeitsbaum auf Basis HEAD 027e319. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
+Quellstand: Arbeitsbaum auf Basis HEAD 3ec4195. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
-B1/
+B2/
 ├── index.html                     426 Zeilen
-├── base.css                       343 Zeilen
 ├── sheet-common.css               454 Zeilen
-├── sheet-multipage.css            634 Zeilen
-├── KONTRAKT.md                     21 Zeilen
+├── boot.js                         80 Zeilen
+├── core.js                        274 Zeilen
+├── field.js                        32 Zeilen
+├── main.js                        333 Zeilen
+├── llms.txt                        76 Zeilen
+├── KONTRAKT.md                     51 Zeilen
 └── prompt.md                    (nicht enthalten — separat anklicken)
 ```
 
@@ -20,22 +23,36 @@ B1/
 | Datei | Pfad im Repo | Zeilen | SHA256 |
 |---|---|---:|---|
 | `index.html` | `website/index.html` | 426 | `0500a649` |
-| `base.css` | `website/css/base.css` | 343 | `f22beefb` |
 | `sheet-common.css` | `website/css/sheet-common.css` | 454 | `4a470bdc` |
-| `sheet-multipage.css` | `website/css/sheet-multipage.css` | 634 | `60c7ecc4` |
-| `KONTRAKT.md` | `batches/B1/KONTRAKT.md` | 21 | `400fcf13` |
+| `boot.js` | `website/js/boot.js` | 80 | `e453d479` |
+| `core.js` | `website/js/core.js` | 274 | `bbd9fd93` |
+| `field.js` | `website/js/field.js` | 32 | `7efd84e0` |
+| `main.js` | `website/js/main.js` | 333 | `14822fa1` |
+| `llms.txt` | `website/llms.txt` | 76 | `ef30bd91` |
+| `KONTRAKT.md` | `batches/B2/KONTRAKT.md` | 51 | `2105bfad` |
 
-Gesamt: 79190 Zeichen ≈ 19k Token.
+Gesamt: 82076 Zeichen ≈ 20k Token.
 
 ## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
 
 | Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |
 |---|---:|---:|---:|---:|---:|
 | `index.html` | 426 | 0 | 0 | 0 | 0 |
-| `base.css` | 343 | 0 | 0 | 0 | 0 |
 | `sheet-common.css` | 454 | 0 | 0 | 0 | 0 |
-| `sheet-multipage.css` | 634 | 0 | 0 | 0 | 0 |
-| `KONTRAKT.md` | 21 | 0 | 0 | 0 | 0 |
+| `boot.js` | 80 | 0 | 3 | 0 | 0 |
+| `core.js` | 274 | 10 | 22 | 2 | 2 |
+| `field.js` | 32 | 1 | 0 | 0 | 0 |
+| `main.js` | 333 | 0 | 53 | 17 | 21 |
+| `llms.txt` | 76 | 0 | 0 | 0 | 0 |
+| `KONTRAKT.md` | 51 | 0 | 0 | 0 | 0 |
+
+- Benannte Funktionen/Konstanten im Batch: 20
+- davon mit genau einer Aufrufstelle: 8
+- davon ohne erkennbare Aufrufstelle: 5
+
+Gezählt per Textsuche auf `name(`. Aufrufe per Callback, Alias,
+`window[name]` oder dynamischem Dispatch sind **nicht** erkannt — die
+Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
 
 
 ==============================================================================
@@ -468,355 +485,6 @@ Gesamt: 79190 Zeichen ≈ 19k Token.
 
   </body>
 </html>
-
-
-==============================================================================
-===== base.css  (website/css/base.css, 343 Zeilen, sha256:f22beefb)
-==============================================================================
-
-/* @adr [[ADR-CSS]] */
-/* @guide [[din-5008-css-architektur]] */
-
-/* =========================================================================================
- * css/base.css — Fundament: Reset, Design-Tokens (OKLCH, No-Flip), DIN-Mathematik & App-Shell
- * ========================================================================================= */
-
-/* --- 1. RESET --- */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-[hidden] {
-  display: none !important;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100dvh;
-  overflow: hidden;
-  font-family: var(--font-system-stack);
-}
-
-/* Accessibility: prefers-reduced-motion — Kill-Switch für alle CSS-Animationen */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transition-delay: 0ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Accessibility: Skip-Link für Tastaturnavigation */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 10000;
-  padding: 8px 16px;
-  background: var(--accent-color, oklch(40% 0.14 260));
-  color: oklch(100% 0 0);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-radius: 0 0 6px 0;
-  box-shadow: 0 4px 12px oklch(0% 0 0 / 25%);
-  outline: none;
-}
-
-.skip-link:focus,
-.skip-link:focus-visible {
-  left: 0;
-  outline: 2px solid oklch(100% 0 0);
-  outline-offset: -2px;
-}
-
-/* --- LOKALE TEST-SCHRIFTEN (DIN-5008-SUBSET) --- */
-@font-face {
-  font-family: "Test-Inter";
-  src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Inter";
-  src: url("../fonts/inter_18pt-bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Aptos";
-  src: url("../fonts/aptos.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Test-Michelangelus";
-  src: url("../fonts/michelangelus-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
-  font-size-adjust: 0.52;
-  font-variant-numeric: tabular-nums;
-}
-body.schrift-eigene-aktiv din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
-}
-
-body {
-  background-color: var(--bg-viewport);
-  color: var(--text-primary);
-  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* --- 2. DESIGN TOKENS (OKLCH & NO-FLIP) --- */
-:root {
-  color-scheme: light dark;
-  interpolate-size: allow-keywords;
-  view-transition-name: none;
-
-  /* --- TAGMODUS --- */
-  --c-viewport-day: oklch(0.96 0.01 250);
-  --c-seitenleiste-day: oklch(0.98 0.005 250);
-  --c-card-day: oklch(1 0 0);
-  --c-border-day: oklch(0.90 0.01 250);
-  --c-text-day: oklch(0.15 0.02 250);
-  --c-muted-day: oklch(0.45 0.02 250);
-  --c-accent-day: oklch(0.40 0.14 260);
-  --c-danger-day: oklch(0.55 0.22 25);
-  --c-segment-day: oklch(0.92 0.01 250);
-  --c-blatt-day: oklch(100% 0 0);
-  --c-tinte-day: oklch(0% 0 0);
-  --c-schwach-day: oklch(50% 0 0);
-
-  /* --- NACHTMODUS (NO-FLIP: Konsistente dunkle Schrift, blendfrei heruntergedimmt) --- */
-  --c-viewport-night: oklch(0.68 0.01 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
-  --c-seitenleiste-night: oklch(0.74 0.015 250);   /* Mattes, ruhiges Werkzeug-Grau */
-  --c-card-night: oklch(0.79 0.01 250);           /* Input-Karten heben sich dezent ab */
-  --c-border-night: oklch(0.60 0.02 250);         /* Saubere Konturlinien */
-  --c-text-night: oklch(0.15 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
-  --c-muted-night: oklch(0.35 0.02 250);          /* Gedämpftere Beschriftungen */
-  --c-accent-night: oklch(0.35 0.13 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
-  --c-danger-night: oklch(0.35 0.20 25);
-  --c-segment-night: oklch(0.69 0.015 250);       /* Schalter-Vertiefungen */
-  --c-blatt-night: oklch(0.85 0.005 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
-  --c-tinte-night: oklch(0.12 0.01 250);          /* Dunkle Tinte auf Papier */
-  --c-schwach-night: oklch(0.40 0.01 250);        /* Hilfslinien und Platzhalter */
-
-  /* --- DYNAMISCHE TOKEN-AUFLÖSUNG (light-dark) --- */
-  --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));
-  --bg-seitenleiste: light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night));
-  --bg-seitenleiste-glass: color-mix(in oklch, light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night)) 80%, transparent);
-  --bg-card: light-dark(var(--c-card-day), var(--c-card-night));
-  --border-color: light-dark(var(--c-border-day), var(--c-border-night));
-  --text-primary: light-dark(var(--c-text-day), var(--c-text-night));
-  --text-muted: light-dark(var(--c-muted-day), var(--c-muted-night));
-
-  --blatt-hintergrund: light-dark(var(--c-blatt-day), var(--c-blatt-night));
-  --blatt-text: light-dark(var(--c-tinte-day), var(--c-tinte-night));
-  --blatt-schwach: light-dark(var(--c-schwach-day), var(--c-schwach-night));
-
-  --accent-color: light-dark(var(--c-accent-day), var(--c-accent-night));
-  --accent-hover: color-mix(in oklch, var(--accent-color) 90%, oklch(0% 0 0));
-  --accent-glow: color-mix(in oklch, var(--accent-color) 15%, transparent);
-
-  --segment-bg: light-dark(var(--c-segment-day), var(--c-segment-night));
-  --segment-active-bg: light-dark(var(--c-card-day), var(--c-border-night));
-  --segment-active-text: var(--text-primary);
-  --segment-active-shadow: 0 1px 3px oklch(0 0 0 / 8%);
-
-  --c-primary: var(--accent-color);
-  --c-success: light-dark(oklch(0.40 0.14 145), oklch(0.82 0.14 145));
-  --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
-  --c-danger: light-dark(var(--c-danger-day), var(--c-danger-night));
-
-  --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
-  --glass-blur: blur(20px);
-
-  --font-system-stack: "Aptos", "Aptos Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
-  --active-font-family: var(--font-system-stack);
-  --schrift-stack: var(--font-system-stack);
-
-  /* --- 3. SPACING (2px-Raster, rem-basiert) --- */
-  --space-2xs: 0.125rem;  /*  2px */
-  --space-xs:  0.25rem;   /*  4px */
-  --space-sm:  0.375rem;  /*  6px */
-  --space-md:  0.5rem;    /*  8px */
-  --space-lg:  0.625rem;  /* 10px */
-  --space-xl:  0.75rem;   /* 12px */
-  --space-2xl: 1rem;      /* 16px */
-  --space-3xl: 1.25rem;   /* 20px */
-
-  /* --- 4. RADII (rem-basiert) --- */
-  --radius-xs:   0.25rem;   /*  4px */
-  --radius-sm:   0.375rem;  /*  6px */
-  --radius-md:   0.5rem;    /*  8px */
-  --radius-lg:   0.625rem;  /* 10px */
-  --radius-xl:   0.75rem;   /* 12px */
-  --radius-full: 999px;     /* Pillen */
-
-  /* --- 5. LAYOUT --- */
-  --seitenleiste-breite: 18.75rem; /* 300px */
-}
-
-/* --- THEME: COMPACT --- */
-[data-style="compact"] {
-  --space-2xl: 0.75rem;   /* 16px -> 12px */
-  --space-xl:  0.5rem;    /* 12px -> 8px  */
-  --space-lg:  0.375rem;  /* 10px -> 6px  */
-  --space-md:  0.25rem;   /*  8px -> 4px  */
-  --space-xs:  0.125rem;  /*  4px -> 2px  */
-
-  --radius-lg: 0.25rem;   /* 10px -> 4px */
-  --radius-md: 0.25rem;   /*  8px -> 4px */
-  --radius-sm: 0.125rem;  /*  6px -> 2px */
-
-  /* --seitenleiste-breite bleibt unverändert 18.75rem */
-}
-
-/* --- 3. DIN-MATHEMATIK (@function) --- */
-@function --mm-rel-x(--mm) {
-  result: calc(var(--mm) / var(--blatt-breite) * 100cqw);
-}
-@function --mm-rel-y(--mm) {
-  result: calc(var(--mm) / var(--blatt-hoehe) * 100cqh);
-}
-@function --pt-rel(--points) {
-  result: calc(var(--points) * 0.3528 / var(--blatt-breite) * 100cqw);
-}
-
-@function --mm-x(--mm) {
-  result: --mm-rel-x(var(--mm));
-}
-@function --mm-y(--mm) {
-  result: --mm-rel-y(var(--mm));
-}
-@function --pt(--points) {
-  result: --pt-rel(var(--points));
-}
-
-:root[data-theme="light"],
-[data-theme="light"] body,
-body[data-theme="light"] {
-  color-scheme: light;
-}
-
-:root[data-theme="dark"],
-[data-theme="dark"] body,
-body[data-theme="dark"] {
-  color-scheme: dark;
-}
-
-:root[data-theme="auto"],
-[data-theme="auto"] body,
-body[data-theme="auto"] {
-  color-scheme: light dark;
-}
-
-[popover] {
-  color-scheme: inherit;
-}
-
-/* --- 4. APP SHELL & VIEWPORT GRID --- */
-#app-shell {
-  display: grid;
-  grid-template-columns: var(--seitenleiste-breite) 1fr;
-  width: 100%;
-  height: 100dvh;
-  overflow: hidden;
-  min-height: 0;
-}
-
-#viewport {
-  height: 100%;
-  display: flex;
-  align-items: safe center;
-  justify-content: safe center;
-  position: relative;
-  background: var(--bg-viewport);
-  padding: 2vh 1.5vw;
-  min-height: 0;
-  box-sizing: border-box;
-  container-type: size;
-  overflow-x: hidden;
-  overscroll-behavior: none;
-  view-transition-name: brief-viewport;
-}
-
-html:active-view-transition::view-transition-old(brief-viewport),
-html:active-view-transition::view-transition-new(brief-viewport) {
-  animation-duration: 0.6s;
-}
-::view-transition {
-  pointer-events: none;
-}
-
-/* --- Gemeinsame Druck-Resets (Einzel- und Mehrseitenansicht) ---
-   Liegen zentral in base.css, weil beide Druck-Stylesheets sie brauchten;
-   die print-Dateien behalten nur ihre Geometrie. */
-@media print {
-:root, body, din-blatt {
-  color-scheme: light !important;
-  print-color-adjust: exact !important;
-}
-
-din-falzmarke-1, din-falzmarke-2, din-lochmarke { opacity: 1 !important; }
-
-din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after { visibility: hidden !important; }
-
-:root[data-marks="false"] din-falzmarke-1,
-:root[data-marks="false"] din-falzmarke-2,
-:root[data-marks="false"] din-lochmarke {
-  visibility: hidden !important;
-}
-
-#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }
-
-.unterschriftsbild-rahmen { outline: none !important; }
-
-[contenteditable]:empty::before,
-[data-placeholder]:empty::before,
-[placeholder]:empty::before {
-    display: none !important;
-}
-
-[contenteditable],
-:is(textarea[data-feldtyp]) {
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    border-radius: 0 !important;
-}
-
-/* Natives Placeholder-Hilfsmittel darf nie auf Papier landen. */
-textarea[data-feldtyp]::placeholder {
-    color: transparent !important;
-}
-
-[data-generated] {
-    color: inherit !important;
-    font-style: normal !important;
-}
-
-/* Die Rücksendezeile bekommt KEINEN Unterstrich: DIN 5008 § 19.4.3 macht sie
-   zur obersten Zeile der Zusatz- und Vermerkzone — abgegrenzt durch ihre
-   Position, nicht durch eine Linie. Hier stand ein `border-bottom: 0.5pt`
-   (plus `padding-bottom: 1.5pt` als Abstand dazu) nur im Druck, weshalb der
-   Bildschirm ohne Linie war und das PDF mit (2026-11-11 entfernt). */
-#rucksendeangabe {
-  border-radius: 0 !important;
-}
-}
 
 
 ==============================================================================
@@ -1280,652 +948,836 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
 
 
 ==============================================================================
-===== sheet-multipage.css  (website/css/sheet-multipage.css, 634 Zeilen, sha256:60c7ecc4)
+===== boot.js  (website/js/boot.js, 80 Zeilen, sha256:e453d479)
 ==============================================================================
 
-/* @adr [[ADR-CSS]]  */
-/* @guide [[din-5008-css-architektur]]  */
+// @ts-check
+// @adr [[ADR-JS]] {Boot}
+// @guide [[din-5008-css-architektur]]
 
-/* css/sheet-multipage.css — DIN-A4-Blatt Mehrseiten-Layout (Multicol Level 2) */
+/*
+ * Blocking classic script (head): setzt Theme, Stil und Layout-Flags VOR dem
+ * ersten Paint (FOUC-Schutz). Aus boot-theme.js und boot-switches.js
+ * zusammengelegt (2026-11-08): beide lasen denselben localStorage-Eintrag,
+ * der Browser blockierte den FCP zweimal und parste das JSON zweimal.
+ *
+ * Warum kein Modul: Module sind deferred und kaemen nach dem ersten Paint
+ * (gemessen: FCP bei 96 ms, Zustand dort noch "aus").
+ */
+try {
+  const defaults = {
+    theme: 'auto',
+    layout: 'form-b',
+    style: 'default',
+    marks: true,
+    pluginTestbrief: true,
+    randU: 20
+  };
 
-:root {
-  --seite: 297mm;
-  --luecke: 8mm;                 /* sichtbarer Abstand zwischen zwei Blättern auf dem Bildschirm */
-  --rand-o: 25mm;                /* oberer Rand ab Seite 2 */
-  --rand-u: 20mm;                /* unterer Rand, alle Seiten */
-  --rand-l: 25mm;                /* linker Rand */
-  --rand-r: 20mm;                /* rechter Rand */
-
-  --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u)); /* 252mm */
-  --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
-
-  /* Spacer-Höhe auf Seite 1: schiebt den Betreff exakt an die DIN-5008-Position */
-  --spacer-hoehe: calc(107mm - var(--rand-o)); /* Betreff 107mm (Form B) */
-}
-
-:root[data-layout="form-a"],
-body:has(#btn-form-a:checked) {
-  --spacer-hoehe: calc(89mm - var(--rand-o)); /* Betreff 89mm (Form A) */
-}
-
-/* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout (C1: explizit --mm-abs-*) */
-@function --mm-abs-x(--mm) {
-  result: calc(var(--mm) * 1mm);
-}
-@function --mm-abs-y(--mm) {
-  result: calc(var(--mm) * 1mm);
-}
-@function --pt-abs(--points) {
-  result: calc(var(--points) * 1pt);
-}
-
-@function --mm-x(--mm) {
-  result: --mm-abs-x(var(--mm));
-}
-@function --mm-y(--mm) {
-  result: --mm-abs-y(var(--mm));
-}
-@function --pt(--points) {
-  result: --pt-abs(var(--points));
-}
-
-/* Viewport-Scrolling für Mehrseiten (A43 Zero-Scroll Invariante)
-   Explizit nur dann vertikales Scrollen im Viewport, wenn mehr als eine Seite beschrieben wird! */
-#viewport {
-  overflow-x: hidden !important;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
-  min-height: 0 !important;
-}
-
-/* Seite 1: Zentriert und ohne unnoetiges Scrollen (Zero-Scroll-Garantie) */
-body:not([data-seiten]) #viewport,
-body[data-seiten="1"] #viewport,
-#viewport:not([data-seiten]),
-#viewport[data-seiten="1"] {
-  overflow-y: hidden !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  padding: 10px 20px !important;
-}
-
-/* Erst ab Seite 2 wird das vertikale Scrollen im Viewport freigegeben */
-body[data-seiten]:not([data-seiten="1"]) #viewport,
-#viewport[data-seiten]:not([data-seiten="1"]) {
-  overflow-y: auto !important;
-  display: block !important;
-  padding: 40px 20px 80px !important;
-}
-
-body:not([data-seiten]) #brief-ansicht,
-body[data-seiten="1"] #brief-ansicht,
-#viewport:not([data-seiten]) #brief-ansicht,
-#viewport[data-seiten="1"] #brief-ansicht {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  height: 100% !important;
-  width: 100% !important;
-  container-type: normal !important;
-}
-
-body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
-#viewport[data-seiten]:not([data-seiten="1"]) #brief-ansicht {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: flex-start !important;
-  min-height: 100% !important;
-  height: auto !important;
-  width: 100% !important;
-  container-type: normal !important;
-}
-
-/* --- DIN A4 MULTIPAGE CANVAS --- */
-@scope (din-blatt) {
-  :scope {
-    display: block;
-    position: relative;
-    width: 210mm;
-    max-width: 210mm;
-    margin: 0 auto 40px;
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
-    color: var(--blatt-text);
-    box-sizing: border-box;
+  let parsed = {};
+  try {
+    parsed = JSON.parse(localStorage.getItem('din_settings') || '{}');
+  } catch {
+    /* kaputtes JSON: mit Defaults weiter */
   }
+  const settings = parsed && typeof parsed === 'object' ? { ...defaults, ...parsed } : defaults;
+  const root = document.documentElement;
 
-  body:not([data-seiten]) :scope,
-  body[data-seiten="1"] :scope {
-    width: 210mm;
-    min-height: 297mm;
-    margin: 0 auto !important;
-  }
+  /** @type {(v: any, def: boolean) => boolean} */
+  const asBool = (v, def) => (v === undefined ? def : v === true || v === 'true');
 
-  
+  const THEME_WHITELIST = new Set(['auto', 'light', 'dark']);
+  const LAYOUT_WHITELIST = new Set(['form-a', 'form-b']);
 
-  
+  const theme = THEME_WHITELIST.has(settings.theme) ? settings.theme : 'auto';
+  const layout = LAYOUT_WHITELIST.has(settings.layout) ? settings.layout : 'form-b';
 
-  
+  root.setAttribute('data-theme', theme);
+  root.setAttribute('data-layout', layout);
+  /* Whitelist wie bei theme und layout: `settings.js` fuehrt dieselbe Liste
+   * (`validStyles`), aber hier muss sie stehen, weil dieses Skript klassisch
+   * ist und keine Module importieren kann. Ohne sie landet ein beliebiger
+   * String aus localStorage in einem Attribut, auf das CSS keyed. */
+  const STYLE_WHITELIST = new Set(['default', 'compact']);
+  root.setAttribute('data-style', STYLE_WHITELIST.has(settings.style) ? settings.style : 'default');
+  root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
+  root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
+  /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):
+   * das Attribut bleibt fuer CSS/Tests gesetzt, ist aber immer 'true', und
+   * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt
+   * liegen (nichts geloescht). */
+  root.setAttribute('data-plugin-multipage', 'true');
 
-  
+  /* Unterrand 20/30mm vor dem ersten Paint setzen (FOUC-Schutz): die
+   * Druckregel von #kern liest --rand-u. Nur 20 und 30 sind zulaessig. */
+  const RAND_U_WHITELIST = new Set([20, 30]);
+  const randU = RAND_U_WHITELIST.has(Number(settings.randU)) ? Number(settings.randU) : 20;
+  root.style.setProperty('--rand-u', `${randU}mm`);
 
-  
-
-  
-
-  /* --- DIN-MARKEN (System-Atome auf Seite 1) --- */
-  din-falzmarke-1, din-falzmarke-2, din-lochmarke {
-    position: absolute;
-    left: 0;
-    width: --mm-abs-x(attr(data-w type(<number>)));
-    /* 0.5pt = 0,176 mm im Druck. Chromium klemmt sub-pixel Rahmenbreiten auf dem
-       Bildschirm auf 1px (auch bei DPR 2) — der Unterschied ist nur im Druck/PDF
-       sichtbar. Wert deckt sich mit print.css / print-multipage.css. */
-    border-bottom: 0.5pt solid oklch(0.35 0 0);
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* --- DIN ELEMENTE SEITE 1 (Absolut) --- */
-  /* Das Anschriftfeld besteht aus ZWEI Feldern (DIN 19.4.3/19.4.4):
-     Zusatz-/Vermerkzone 85x17,7mm, darunter unmittelbar die Anschriftzone
-     85x27,3mm. Die Zonen sind echte Wrapper — dadurch ist die Geometrie
-     deklarativ statt aus padding-top + top-Arithmetik zusammengerechnet. */
-  #anschriftfeld {
-    position: absolute;
-    /* Feldoberkante: 45,8mm (Form B) / 28,9mm (Form A). Das ist NICHT die
-       erste Schreibzeile (50,8/33,9), sondern 5,0mm darueber — der Rand, den
-       19.4.3 im 17,7mm hohen Feld nennt. Tab. B.1 bleibt damit exakt:
-       Feldkante 45,8 + 17,7 = 63,5 (erste Zeile Anschriftzone). */
-    top: var(--anschriftfeld-y);
-    left: --mm-abs-x(attr(data-x type(<number>)));
-    width: --mm-abs-x(attr(data-w type(<number>)));
-    height: --mm-abs-y(attr(data-h type(<number>)));
-    font-size: --pt-abs(attr(data-font type(<number>)));
-    line-height: 1.4;
-    display: flex;
-    flex-direction: column;
-    /* 80-mm-Textgrenze fuer alle Kinder (DIN Tab. A.1: Zeilenende 105mm). */
-    box-sizing: border-box;
-    padding-right: 5mm;
-    z-index: 10;
-  }
-
-  /* Zusatz-/Vermerkzone: 17,7mm hoch. Der Inhalt sitzt unten und beschriftet
-     sich von unten nach oben (DIN 20.7.1) — deshalb justify-content: flex-end.
-     Rücksendeangabe ist die oberste belegte Zeile, der Vermerk steht darunter. */
-  #zusatzzone {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 17.7mm;
-    flex: 0 0 17.7mm;
-  }
-
-  /* Anschriftzone: 27,3mm hoch, schliesst unmittelbar an. */
-  #anschriftzone {
-    display: flex;
-    flex-direction: column;
-    height: 27.3mm;
-    flex: 0 0 27.3mm;
-  }
-
-  /* Eine Schreibzeile = 4,23mm (DIN Tab. B.1, Fussnote a). */
-  #rucksendeangabe,
-  #vermerke {
-    width: 100%;
-    height: 4.23mm;
-    min-height: 4.23mm;
-    max-height: 4.23mm;
-    line-height: 4.23mm;
-    /* Kein Margin: jede Zeile ist genau eine Rasterzeile, sonst schiebt der
-       Vermerk-Margin (0,59mm) die Rücksendezeile aus dem Raster. */
-    margin: 0;
-    font-size: --pt-abs(attr(data-font type(<number>)));
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    z-index: 10;
-  }
-
-  #rucksendeangabe {
-    padding-right: 0;
-  }
-
-  /* Genau eine Zeile (KISS): kein Umbruch in die Anschriftzone. */
-  #vermerke {
-    padding-right: 0;
-  }
-
-  #infoblock {
-    position: absolute;
-    top: var(--infoblock-y);
-    left: --mm-abs-x(attr(data-x type(<number>)));
-    width: --mm-abs-x(attr(data-w type(<number>)));
-    font-size: --pt-abs(attr(data-font type(<number>)));
-    line-height: 1.4;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    z-index: 10;
-  }
-
-  #datum {
-    /* DIN 19.5: das Datum ist das letzte Leitwort des Informationsblocks —
-       kein eigenes position/top/left/width mehr. Es fliesst als Flex-Kind in
-       #infoblock und erbt dessen linke Kante (125mm) und Ausrichtung; data-x
-       und data-w am Feld sind entfallen. Die eigene Schriftgroesse bleibt:
-       data-font 10pt hebt das Datum gegen die 8,5pt des Blocks ab (Nutzer-
-       entscheidung, hervorgehobenes Leitwort). Gemessen 2026-11-11: vorher
-       y 92,37mm (absolut), jetzt letzte Zeile des Blocks. */
-    font-size: --pt-abs(attr(data-font type(<number>)));
-  }
-
-  /* ============================================================
-     BRIEFKERN: CSS Multi-column Layout Level 2 (Chromium 150+)
-     column-count: 1; column-height: var(--nutz); column-wrap: wrap;
-     Lässt überlaufenden Text nahtlos in Spalte 2 (= Seite 2) fließen.
-     ============================================================ */
-  #kern {
-    position: relative;
-    width: 210mm;
-    min-height: var(--seite);
-    /* padding-top 0 in BEIDEN Pfaden: der Abstand zum Blattrand kommt aus
-       #spacer (--spacer-hoehe), nicht zusaetzlich aus dem Padding. Vorher
-       hatte der Bildschirm hier 25mm (--rand-o), der Druck 0 — deshalb stand
-       der Betreff auf dem Schirm 25mm tiefer als im PDF (gemessen 2026-11-11:
-       105,11 vs 80,11mm). */
-    padding: 25mm var(--rand-r) 0 var(--rand-l);
-    background-origin: border-box;
-    column-count: 1;
-    column-height: var(--nutz);
-    column-wrap: wrap;
-    row-gap: var(--zeilenabstand);
-    background:
-      linear-gradient(var(--blatt-hintergrund) 0 var(--seite), transparent var(--seite))
-      0 0 / 100% calc(var(--seite) + var(--luecke)) repeat-y;
-    filter: drop-shadow(0 4px 14px oklch(0 0 0 / 12%));
-    box-sizing: border-box;
-    display: block;
-    overflow: visible;
-  }
-
-  #spacer {
-    display: block !important;
-    height: var(--spacer-hoehe);
-    min-height: var(--spacer-hoehe);
-    max-height: var(--spacer-hoehe);
-    box-sizing: border-box;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  #betreff {
-    display: block;
-    font-size: 12pt;
-    font-weight: 700;
-    line-height: 1.4;
-    /* DIN 5008 § 20.9.2: „Der Wortlaut des Betreffs ist nach zwei Leerzeilen
-       nach dem Informationsblock zu schreiben." Der Infoblock endet seit dem
-       Datum-Umzug (2026-11-11) mit dem Datum als letzter Zeile bei 80,90mm
-       (Ink, gemessen); das DIN-Minimum waere 80,90 + 8,46 = 89,36mm.
-       Der Betreff steht bewusst tiefer: Falzmarke 1 (105mm) plus 2mm, damit
-       die Falte nicht durch den Text geht — 107mm (Form B), 87 + 2 = 89mm
-       (Form A).
-       Der Wert ist fuer BEIDE Formen 33,54mm, weil sich --spacer-hoehe um
-       exakt 18mm unterscheidet (98,46 - 80,46) und das Ziel-Delta identisch
-       ist; das haelt Bildschirm und Druck deckungsgleich.
-       Vorher stand hier 6.65mm (312cc67) — das ergab 80,11mm und damit
-       -15,62mm Abstand zum Infoblock-Ende, also mitten im Infoblock. */
-    margin-top: 0;
-    margin-bottom: 8.46mm;
-    text-wrap: balance;
-  }
-
-  #anrede {
-    display: block;
-    font-size: 10.5pt;
-    line-height: 1.4;
-    margin-bottom: 4.23mm;
-  }
-
-  #text {
-    display: block;
-    font-size: 10.5pt;
-    line-height: 4.5mm;
-    min-height: 20mm;
-    text-align: justify;
-    hyphens: auto;
-    text-wrap: pretty;
-    orphans: 2;
-    widows: 2;
-    /* Absaetze des Generators sind \n\n — ohne pre-line kollabieren sie. */
-    white-space: pre-line;
-  }
-
-  
-
-  #grussformel {
-    display: block;
-    font-size: 10.5pt;
-    margin-top: 4.23mm;
-    margin-bottom: 12.69mm;
-    break-after: avoid;
-    page-break-after: avoid;
-  }
-
-  .unterschrift-zeile {
-    display: block;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  #unterschrift {
-    font-size: 10.5pt;
-    font-weight: 500;
-  }
-
-  #anlagenvermerk {
-    margin-top: --mm-abs-y(attr(data-margin-top type(<number>)));
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  /* Fußzeile auf Seite 1 */
-  #geschaeftsangaben {
-    display: none;
-    position: absolute;
-    top: 241mm;
-    left: var(--rand-l);
-    right: var(--rand-r);
-    height: 15mm;
-    font-size: --pt-abs(attr(data-font type(<number>)));
-    color: var(--blatt-schwach);
-    padding-top: 2mm;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, auto);
-    gap: 0 10mm;
-    column-rule: 0.5px solid var(--blatt-schwach);
-    z-index: 10;
-  }
-
-  
-}
-
-/* Folgekopf auf Bildschirm (ab Seite 2) */
-.folgekopf-screen {
-  position: absolute;
-  top: calc(var(--i, 1) * (var(--seite) + var(--luecke)) + 12mm);
-  left: var(--rand-l);
-  right: var(--rand-r);
-  display: flex;
-  justify-content: space-between;
-  font-size: 9pt;
-  color: var(--blatt-schwach);
-  pointer-events: none;
-  z-index: 10;
-  font-family: inherit;
-}
-
-#probe {
-  position: fixed;
-  top: 0;
-  left: 0;
-  visibility: hidden;
-  height: 1000mm;
-  width: 1px;
-  pointer-events: none;
-}
-
-/* Custom Elements Block-Display (DIN-Normelemente) */
-
-/* Leere Anschriftzeilen duerfen keinen Platz behalten. `.single-line` hat eine
-   feste Hoehe von 1.4em — ohne diese Regel reisst eine fehlende Strasse Name und
-   Ort auseinander (Fall: Figuren ohne belegte Anschrift, Marker in der JSON). */
-
-/* --- BLATT-BEDINGTE ELEMENTE & UTILITIES --- */
-
-/* Schalter: Falz- & Lochmarken ausblenden */
-
-/* DIN 5008 Maße Overlay an den Marken */
-
-/* Optionale DIN-Blöcke */
-din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
-  display: none;
-}
-
-/* Fußzone: feste 4-Spalten-Zuordnung. Explizite grid-area statt grid-auto-flow:
-   12 Atome in DOM-Reihenfolge wären bei 4 Spalten nur 3 Spalten geworden, und
-   automatische Platzierung verschiebt leere Felder in fremde Spalten. So bleibt
-   jede Spalte stabil, auch wenn Felder leer sind.
-   Spalte 1 = 19.7 (Register), Spalte 2 = 19.7 (Organe), Spalte 3 = 19.6 (Steuern),
-   Spalte 4 = 19.6 (Bank und Geschäftsräume). */
-
-/* Vier Zeilen à 7.5pt müssen in die 15-mm-Zone passen. `.single-line` erzwingt
-   1.4em Höhe (4 × 3.70 mm + 2 mm Padding = 16.8 mm, also 1.8 mm Überlauf).
-   Mit 1.2 Zeilenhöhe: 4 × 3.18 mm + 2 mm = 14.7 mm. */
-
-:root:has(#toggle-anlagen:checked) din-anlagenvermerk,
-:root:has(#toggle-anlagen:checked) #anlagenvermerk {
-  display: block;
-}
-
-/* Single-Line: Strikt einzeilig mit unveränderlicher, fixer Zeilenhöhe (Kein Stauchen, Kein Wachsen) */
-
-/* Anchors auf dem Blatt */
-
-/* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
-
-/* In Mehrseitenansicht: Kein 1-Seiten-Überlauf-Hinweis, da Mehrseitigkeit gewollt ist */
-din-blatt[data-ueberlauf="true"]::after {
-  display: none !important;
-}
-
-/* --- Druck (aus print-multipage.css zusammengelegt, 2026-11-08) ---
-   Drucklayout Mehrseite (Paged Media) */
-
-@page {
-  size: A4;
-  margin: 25mm 0 var(--rand-u) 0;
-  page-margin-safety: auto;
-  @top-left {
-    padding-left: 25mm;
-    font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
-    vertical-align: middle;
-  }
-  @top-right {
-    padding-right: 20mm;
-    font: 9pt var(--font-system-stack, sans-serif);
-    color: oklch(25% 0 0);
-    vertical-align: middle;
-    content: "Seite " counter(page) " von " counter(pages);
-  }
-}
-
-@page :first {
-  /* Oberrand wie auf jeder Folgeseite: der Textfluss beginnt im Band
-     (25-277mm). Das Blatt selbst wird per margin-top: -25mm auf die
-     Papierkante zurueckgezogen, damit die absoluten Blattkoordinaten
-     (Betreff 107/89mm, Fuss 241mm) stimmen. Nur der Unterrand kommt aus
-     @page, nicht aus geklontem Padding (gemessen 2026-11-12). */
-  margin: 25mm 0 var(--rand-u) 0;
-  @top-left { content: none !important; }
-  @top-right { content: none !important; }
+  /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
+   * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft
+   * verschwinden. Nach 2 s wird freigegeben, komme was mag.
+   *
+   * Bewusst im selben try: vor dieser Zeile kann nur `documentElement` oder
+   * `setProperty` werfen, und beides ist praktisch ausgeschlossen (geprueft
+   * 2026-11-12). Der Timer ist ausserdem KEIN Nachweis eines erfolgreichen
+   * Starts — er gibt nur die Platzhalter frei. Wer hier einen Startbeweis
+   * braucht, muss ihn an `data-ready` haengen, nicht an diese 2 Sekunden. */
+  setTimeout(() => {
+    if (!root.dataset.ready) root.dataset.ready = 'true';
+  }, 2000);
+} catch (e) {
+  /* Ohne Boot-Zustand startet die App im falschen Farbschema — sichtbar,
+   * aber ohne Ursache. Daher loggen. */
+  console.error('[Boot] Initialisierung fehlgeschlagen:', e);
 }
 
 
-@media print {
+==============================================================================
+===== core.js  (website/js/core.js, 274 Zeilen, sha256:bbd9fd93)
+==============================================================================
 
-  html, body {
-    overflow: visible !important;
-    height: auto !important;
-    background: oklch(100% 0 0) !important;
+// @ts-check
+// @adr [[ADR-JS]]
+// @adr [[ADR-EVENT-DRIVEN-ARCHITECTURE]]
+// @adr [[ADR-TOAST-SYSTEM]]
+// @guide [[din-5008-css-architektur]]
+
+/**
+ * @file core.js — Fundamentale Infrastruktur für DIN-BriefNEO: Nativer EventBus & Toast-System.
+ * Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung.
+ */
+
+/* =========================================================================================
+ * 0. SYSTEM- & VALIDIERUNGS-KONSTANTEN & TOASTS
+ * ========================================================================================= */
+
+/**
+ * System- und Validierungs-Konstanten.
+ */
+export const Constants = {
+  LIMITS: {
+    HISTORY_MAX_ITEMS: 50,    // Undo/Redo Cap
+    FONT_SIZE_MAX_KB: 400     // Max size für Schriftdateien (< 400 KB)
+  },
+  SCHEMA_VERSION: 5,
+  TOASTS: {
+    DRAFT: {
+      MULTI_TAB: 'ℹ️ Der Brief wurde in einem anderen Tab aktualisiert.',
+      EXPORT_SAVED: '💾 Brief erfolgreich gespeichert.',
+      EXPORT_DOWNLOADED: '💾 Brief heruntergeladen.',
+      EXPORT_CLIPBOARD: '📋 Brief-JSON in die Zwischenablage kopiert.',
+      EXPORT_ERROR: '❌ Fehler beim Exportieren.',
+      IMPORT_SIZE_ERROR: '❌ Import abgelehnt: Datei zu groß (max. 1 MB).',
+      /** @param {string} reason @returns {string} */
+      IMPORT_REJECTED: (reason) => `❌ Import abgelehnt: ${reason}`,
+      IMPORT_STORAGE_ERROR: '❌ Fehler beim Speichern des Imports (Speicher voll oder gesperrt).'
+    },
+    FONT: {
+      SIZE_ERROR: '❌ Datei zu groß! (Schriftarten dürfen maximal 400 KB groß sein)',
+      FORMAT_ERROR: '❌ Falsches Dateiformat! (Erlaubt: .woff2, .ttf, .otf)',
+      SAVE_ERROR: '❌ Fehler beim dauerhaften Speichern der Schriftart'
+    },
+    SIGNATURE: {
+      SAVE_ERROR: '❌ Signaturbild konnte nicht dauerhaft gespeichert werden'
+    },
+    ADDRESS: {
+      /** @param {string} name @returns {string} */
+      GROSSKUNDE_RECOGNIZED: (name) => `🏛️ Großempfänger erkannt: ${name} (Straße entfällt nach DIN 5008)`
+    },
+    CLIPBOARD: {
+      /** @param {string} label @param {string} ort @returns {string} */
+      APPLIED: (label, ort) => `📋 Adresse übernommen: ${label} (${ort})`,
+      UNSUPPORTED: '⚠️ Zwischenablage-Zugriff wird von diesem Browser nicht unterstützt.',
+      EMPTY: '⚠️ Die Zwischenablage ist leer.',
+      NO_ADDRESS: '⚠️ Keine gültige Anschrift in der Zwischenablage gefunden.',
+      /** @param {number} n @returns {string} */
+      MULTIPLE: (n) => `⚠️ ${n} Adressen gefunden. Bitte Auswahlliste nutzen oder Anschrift manuell einfügen.`,
+      PERMISSION_DENIED: '⚠️ Zugriff auf die Zwischenablage verweigert oder blockiert.'
+    },
+    GEOAPIFY: {
+      KEY_INVALID: '❌ Geoapify Key ungültig',
+      KEY_EXPIRED: '❌ Geoapify API-Key ist ungültig oder abgelaufen! Bitte neu eintragen.',
+      /** @param {number | string} status @returns {string} */
+      UNAVAILABLE: (status) => `⚠️ Geoapify vorübergehend nicht erreichbar (Status ${status}).`,
+      NETWORK_ERROR: '⚠️ Geoapify-Suche fehlgeschlagen (Netzwerk?). Der Key bleibt erhalten.'
+    },
+    SALUTATION: {
+      PUNCTUATION: '⚠️ Anrede sollte mit einem Komma enden (DIN 5008)',
+      CLOSING_PUNCTUATION: '⚠️ Grußformel sollte ohne Komma oder Punkt enden (DIN 5008)'
+    },
+    SYSTEM: {
+      SAVE_ERROR: '❌ Fehler beim Speichern!'
+    }
   }
+};
 
-  #probe {
-    display: none !important;
-  }
+/* =========================================================================================
+ * 1. NATIVE EVENT BUS (Standard Web APIs: EventTarget & CustomEvent)
+ * ========================================================================================= */
 
-  aside, .nicht-drucken, [popover], #hinweis-v4, #font-uploader,
-  .unterschriftsbild-griff, .unterschriftsbild-drehgriff,
-  #anschriftfeld::after, #folgekoepfe, .folgekopf-screen {
-    display: none !important;
-  }
+export const EVENT_PREFIX = 'dinbrief:';
 
-  /* Spezifitaet: die Bildschirm-Regeln setzen das Padding in JEDEM
-     data-seiten-Zustand — bei n >= 2 mit
-     `body[data-seiten]:not([data-seiten="1"]) #viewport` (1,2,1). Das schlaegt
-     sowohl `#viewport` (1,0,0) als auch `body[data-seiten="1"] #viewport`
-     (1,1,1). `#app-shell #viewport` (2,0,0) deckt alle Zustaende ab, ohne sie
-     einzeln aufzuzaehlen (gemessen 2026-11-11: Pad blieb 40px/20px/80px). */
-  #app-shell #viewport {
-    padding: 0 !important;
-    background: transparent !important;
-    height: auto !important;
-    overflow: visible !important;
-    display: block !important;
-    container-type: normal !important;
-  }
+/**
+ * Zentrale typisierte Event-Namen für das Pub/Sub-System.
+ */
+export const Events = Object.freeze({
+  NOTIFICATION_REQUESTED: 'dinbrief:notification.requested',
+  DOCUMENT_SAVE_REQUESTED: 'dinbrief:document.save.requested',
+  DOCUMENT_SAVED: 'dinbrief:document.saved',
+  DOCUMENT_SAVE_FAILED: 'dinbrief:document.save.failed',
+  PLUGIN_MULTIPAGE_TOGGLED: 'dinbrief:plugin.multipage.toggled',
+  DOCUMENT_CHANGED: 'dinbrief:document.changed'
+});
 
-  #brief-ansicht,
-  body[data-seiten="1"] #brief-ansicht {
-    margin: 0 !important;
-    width: 210mm !important;
-    display: block !important;
-    container-type: normal !important;
-  }
+/**
+ * Erzeugt eine isolierte EventBus-Instanz.
+ * @param {EventTarget} [target]
+ */
+export function createEventBus(target = new EventTarget()) {
+  return Object.freeze({
+    /**
+     * Publiziert ein typisiertes Event an alle aktiven Subscriber.
+     * @param {string} topic
+     * @param {Record<string, unknown>} [payload]
+     */
+    publish(topic, payload = {}) {
+      if (!topic.startsWith(EVENT_PREFIX)) {
+        throw new TypeError(`Ungültiges Event-Topic: "${topic}". Topic muss mit "${EVENT_PREFIX}" beginnen.`);
+      }
 
-  din-blatt {
-    position: relative !important;
-    transform: none !important;
-    box-shadow: none !important;
-    /* -25mm: hebt den Oberrand aus @page wieder auf, damit das Blatt bei
-       Papierkante 0 beginnt (sonst wandern alle absoluten Y-Werte um 25mm). */
-    margin: -25mm 0 0 0 !important;
-    width: 210mm !important;
-    max-width: 210mm !important;
-    min-width: 210mm !important;
-    height: auto !important;
-    /* ohne das ragt das 297mm-Blatt 20mm ueber die Seite und erzeugt ein
-       leeres Zusatzblatt (gemessen 2026-11-12: 5 Saetze -> 2 PDF-Seiten). */
-    min-height: 0 !important;
-    container-type: normal !important;
-  }
+      target.dispatchEvent(
+        new CustomEvent(topic, {
+          detail: payload
+        })
+      );
+    },
 
-  #kern {
-    min-height: 0 !important;
-    padding: 25mm 20mm 0 25mm !important; /* Oberrand aus dem Band, Unterrand aus @page */
-    /* Unterrand fuer JEDE Seite, nicht nur die letzte: ein fragmentierter
-       Block bekommt padding-bottom sonst nur am Blockende (gemessen
-       2026-11-11: padding-bottom allein aenderte nichts, Seite 1 lief
-       weiter bis 294,99mm). `clone` wiederholt die Box-Dekoration an jeder
-       Seitengrenze -> Seite 1 endet bei 272,50mm, der Fussblock ab 285mm
-       ueberlappt nicht mehr. */
-    box-decoration-break: slice !important; /* clone wuerde das obere Padding auf jeder Seite wiederholen */
-    width: 210mm !important;
-    box-sizing: border-box !important;
-    column-count: auto !important;
-    column-height: auto !important;
-    column-wrap: nowrap !important;
-    row-gap: normal !important;
-    background: none !important;
-    filter: none !important;
-    display: block !important;
-  }
+    /**
+     * Registriert einen Handler für ein bestimmtes Topic.
+     * @param {string} topic
+     * @param {(detail: any) => void} handler
+     * @param {{ signal?: AbortSignal }} [options]
+     * @returns {() => void} Unsubscribe-Funktion
+     */
+    subscribe(topic, handler, options = {}) {
+      if (!topic.startsWith(EVENT_PREFIX)) {
+        throw new TypeError(`Ungültiges Event-Topic: "${topic}". Topic muss mit "${EVENT_PREFIX}" beginnen.`);
+      }
 
-  /* Hier standen zwei wirkungslose Regeln:
-       #spacer { height: 98.46mm !important; }        (Form B)
-       … [data-layout="form-a"] #spacer { height: 80.46mm !important; }
-     Beide wurden von `max-height: var(--spacer-hoehe)` (73,46 bzw. 55,46mm,
-     ohne !important) geklemmt — ein normaler max-height schlaegt ein
-     !important-height. Sie lieferten also nie 98,46mm, sondern behaupteten
-     es nur. Der Abstand kommt jetzt ausschliesslich aus --spacer-hoehe
-     (2026-11-11 entfernt). */
+      /**
+       * @param {Event} event
+       */
+      const listener = (event) => {
+        if (event instanceof CustomEvent) {
+          handler(event.detail);
+        }
+      };
 
-  #betreff {
-    display: block !important;
-    font-size: 12pt !important;
-    font-weight: 700 !important;
-    line-height: 1.4 !important;
-    margin-bottom: 8.46mm !important;
-    text-wrap: balance !important;
-  }
+      target.addEventListener(topic, /** @type {EventListener} */ (listener), {
+        signal: options.signal
+      });
 
-  #anrede {
-    display: block !important;
-    font-size: 10.5pt !important;
-    line-height: 1.4 !important;
-    margin-bottom: 4.23mm !important;
-  }
-
-  #text {
-    display: block !important;
-    font-size: 10.5pt !important;
-    line-height: 4.5mm !important;
-    text-align: justify !important;
-    hyphens: auto !important;
-    text-wrap: pretty !important;
-    orphans: 2 !important;
-    widows: 2 !important;
-  }
-
-  #text p {
-    /* halbe Zeile statt voller: DIN 5008 laesst den Absatzabstand der Software */
-    margin: 0 0 2.25mm 0 !important;
-  }
-
-  #grussformel {
-    display: block !important;
-    font-size: 10.5pt !important;
-    margin-top: 4.23mm !important;
-    margin-bottom: 12.69mm !important;
-    break-after: avoid !important;
-    page-break-after: avoid !important;
-  }
-
-  #unterschrift {
-    font-size: 10.5pt !important;
-    font-weight: 500 !important;
-  }
-
-  .unterschrift-zeile,
-  #unterschriftsbild-container,
-  #anlagenvermerk {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
-  :root:not(:has(#toggle-anlagen:checked)) din-anlagenvermerk,
-  :root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk {
-    display: none !important;
-  }
-
+      return () => {
+        target.removeEventListener(topic, /** @type {EventListener} */ (listener));
+      };
+    }
+  });
 }
 
-/* Ein-Seiten-Pfad: `body[data-seiten="1"] :scope { margin: 0 auto }` gewinnt
-   ueber Scope-Naehe gegen die Druckregel oben. Override gehoert in denselben
-   Scope, sonst bleibt das Blatt 25mm zu tief (gemessen 2026-11-12). */
-@media print {
-  @scope (din-blatt) {
-    body[data-seiten="1"] :scope {
-      margin: -25mm 0 0 0 !important;
+/**
+ * App-weiter Default-EventBus für die Modul-Orchestrierung.
+ */
+export const eventBus = createEventBus();
+
+/* =========================================================================================
+ * 2. NATIVE TOAST SYSTEM (Popover API & Top-Layer)
+ * ========================================================================================= */
+
+/** @type {{ global: HTMLElement, message: HTMLElement } | null} */
+let dom = null;
+/** @type {{ message: string } | null} */
+let current = null;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let timer = null;
+/* Einmal-Initialisierung: im Boot-Pfad gibt es genau einen Aufrufer, aber ein
+   spaeterer Re-Init (Einstellungen neu anwenden) wuerde sonst ein zweites
+   `toggle`-Abo und zwei EventBus-Abos auf dasselbe Element legen. Ein
+   doppelter Toast waere die Folge, ohne dass ein Fehler sichtbar wird. */
+let toastInitialisiert = false;
+
+export function initToastSystem() {
+  if (toastInitialisiert) return;
+  const global = document.getElementById('hinweis-v4');
+  const message = document.getElementById('hinweis-message');
+  if (!global || !message) {
+    console.warn('[Toast] DOM elements missing.');
+    return;
+  }
+  toastInitialisiert = true;
+  dom = { global, message };
+  // Schließen läuft 100% deklarativ über HTML (popovertargetaction="hide"), Esc oder Klick außerhalb;
+  // das native toggle-Event räumt dabei den Auto-Dismiss-Timer auf.
+  global.addEventListener('toggle', (e) => {
+    if (/** @type {ToggleEvent} */ (e).newState === 'closed') {
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      current = null;
+    }
+  });
+
+  eventBus.subscribe(Events.NOTIFICATION_REQUESTED, (payload) => {
+    if (payload && typeof payload.message === 'string') {
+      showToast(payload.message, payload.type || 'info');
+    }
+  });
+
+  eventBus.subscribe(Events.DOCUMENT_SAVE_FAILED, (payload) => {
+    const msg = (payload && typeof payload.message === 'string') ? payload.message : Constants.TOASTS.SYSTEM.SAVE_ERROR;
+    showToast(msg, 'error');
+  });
+}
+
+/**
+ * @param {string} message
+ * @param {string} [type]
+ */
+export function showToast(message, type = 'info') {
+  if (!dom) return;
+
+  if (current?.message === message) {
+    if (dom.global.dataset.type !== type) {
+      dom.global.dataset.type = type;
+    }
+    showPopoverSafe(dom.global);
+    startTimer(message);
+    return;
+  }
+
+  dom.message.textContent = message;
+  dom.global.dataset.type = type;
+  current = { message };
+
+  showPopoverSafe(dom.global);
+  startTimer(message);
+}
+
+/** @param {string} message */
+function startTimer(message) {
+  if (timer !== null) clearTimeout(timer);
+  const duration = Math.min(5000, 2000 + message.length * 30);
+  timer = setTimeout(hide, duration);
+}
+
+function hide() {
+  if (timer !== null) { clearTimeout(timer); timer = null; }
+  current = null;
+  hidePopoverSafe(dom?.global);
+}
+
+/**
+ * Publiziert eine Toast-Benachrichtigung zentral über den EventBus.
+ * @param {string} message
+ * @param {'info' | 'warning' | 'error' | 'success'} [type='info']
+ */
+export function notify(message, type = 'info') {
+  eventBus.publish(Events.NOTIFICATION_REQUESTED, { message, type });
+}
+
+/**
+ * Zeigt ein Popover fehlertolerant an (fängt InvalidStateError ab).
+ * @param {Element | null | undefined} el
+ */
+export function showPopoverSafe(el) {
+  if (!el || typeof (/** @type {any} */ (el)).showPopover !== 'function') return;
+  try {
+    (/** @type {HTMLElement & { showPopover: () => void }} */ (el)).showPopover();
+  } catch (err) {
+    console.debug('[Popover] showPopoverSafe übersprungen:', err);
+  }
+}
+
+/**
+ * Schließt ein Popover fehlertolerant (fängt InvalidStateError ab).
+ * @param {Element | null | undefined} el
+ */
+export function hidePopoverSafe(el) {
+  if (!el || typeof (/** @type {any} */ (el)).hidePopover !== 'function') return;
+  try {
+    (/** @type {HTMLElement & { hidePopover: () => void }} */ (el)).hidePopover();
+  } catch (err) {
+    console.debug('[Popover] hidePopoverSafe übersprungen:', err);
+  }
+}
+
+
+==============================================================================
+===== field.js  (website/js/field.js, 32 Zeilen, sha256:7efd84e0)
+==============================================================================
+
+// @ts-check
+/**
+ * Minimale Feld-Abstraktion. Wird bei der Migration zur vollen
+ * Field-API ausgebaut. Heute: input/textarea vs. contenteditable.
+ */
+export const Field = {
+  /** @param {Node | Element | null} el */
+  isNative(el) {
+    return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
+  },
+  /**
+   * @param {Node | Element | null} el
+   * @returns {string}
+   */
+  getValue(el) {
+    if (!el) return '';
+    if (Field.isNative(el)) return /** @type {HTMLInputElement | HTMLTextAreaElement} */ (el).value;
+    return el.textContent || '';
+  },
+  /**
+   * @param {Node | Element | null} el
+   * @param {string} v
+   */
+  setValue(el, v) {
+    if (!el) return;
+    if (Field.isNative(el)) {
+      /** @type {HTMLInputElement | HTMLTextAreaElement} */ (el).value = v;
+    } else {
+      el.textContent = v;
+    }
+  }
+};
+
+
+==============================================================================
+===== main.js  (website/js/main.js, 333 Zeilen, sha256:14822fa1)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]] 
+// @guide [[no-scroll-techniques]] 
+
+import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
+import { ClipboardAddressParser } from './clipboard-parser.js';
+import { Events, eventBus, initToastSystem } from './core.js';
+import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
+import { DraftManager } from './draft-manager.js';
+import { FontFeature } from './font-feature.js';
+import { applyLetterDate, formatTelefonnummer } from './format.js';
+/* js/main.js */
+import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
+import { SalutationFeature } from './salutation.js';
+import { SettingsManager } from './settings.js';
+import { SignatureFeature } from './signature.js';
+
+/**
+ * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
+ * Das Feld ist die Wahrheit (Sichtbarkeit folgt aus seinem Text), die Liste
+ * ist nur Bedienoberfläche.
+ * @param {string} [value]
+ */
+function syncPostvermerkFromSidebar(value) {
+  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+  const field = document.getElementById('vermerke');
+  if (!field) return;
+
+  const val = typeof value === 'string' ? value : (sel?.value ?? '');
+  if (sel && sel.value !== val) sel.value = val;
+
+  if (!val) {
+    field.textContent = '';
+    field.removeAttribute('data-visible');
+    return;
+  }
+  field.textContent = val;
+  field.setAttribute('data-visible', 'true');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+/**
+ * Sichtbarer Fallback, wenn ein kritischer Boot-Schritt scheitert. Ohne ihn
+ * bliebe die Seite in einem halb initialisierten Zustand stehen, ohne dass
+ * der Nutzer den Grund sieht.
+ * @param {string} schritt
+ * @param {unknown} fehler
+ */
+function zeigeBootFehler(schritt, fehler) {
+  const box = document.createElement('div');
+  box.setAttribute('role', 'alert');
+  box.style.cssText =
+    'position:fixed;inset:auto 0 0 0;z-index:9999;padding:12px 16px;background:#7f1d1d;color:#fff;' +
+    'font:14px/1.4 system-ui,sans-serif;white-space:pre-wrap';
+  box.textContent =
+    `Start fehlgeschlagen (${schritt}). Die Seite ist nicht vollständig funktionsfähig.\n` +
+    (fehler instanceof Error ? fehler.message : String(fehler));
+  document.body.appendChild(box);
+}
+
+/**
+ * Führt einen Boot-Schritt aus. Unkritische Fehler werden protokolliert, der
+ * Start läuft weiter; kritische zeigen den Fallback und brechen ab.
+ * @param {string} name
+ * @param {() => void} fn
+ * @param {{ critical?: boolean }} [optionen]
+ */
+function bootStep(name, fn, { critical = false } = {}) {
+  try {
+    fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    if (critical) {
+      zeigeBootFehler(name, fehler);
+      throw fehler;
     }
   }
 }
 
+/**
+ * Wie `bootStep`, aber liefert den Wert und meldet den Fehler sichtbar.
+ *
+ * Warum es das gibt: `new DraftManager()` stand vorher nackt in `initApp`. Der
+ * Konstruktor haengt die Speicher-Abos (`draft-manager.js`, `#initEventBus`);
+ * wirft er, bricht `initApp` ohne jede Meldung ab — die Seite sieht normal aus
+ * und speichert nichts. Gemessen 2026-11-12: das Abo auf
+ * `DOCUMENT_SAVE_REQUESTED` entsteht ausschliesslich im Konstruktor.
+ * @template T
+ * @param {string} name
+ * @param {() => T} fn
+ * @returns {T}
+ */
+function kritischerWert(name, fn) {
+  try {
+    return fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    zeigeBootFehler(name, fehler);
+    throw fehler;
+  }
+}
+
+function initApp() {
+  // Kritische Barriere: ohne Briefblatt und Betreff ist nichts benutzbar.
+  bootStep('DOM-Grundgerüst', () => {
+    if (!document.querySelector('din-blatt') || !document.getElementById('betreff')) {
+      throw new Error('Briefblatt (din-blatt) oder Betreff fehlt im DOM.');
+    }
+  }, { critical: true });
+
+  bootStep('Altlasten entfernen', () => {
+    /* Binär-Assets liegen seit Schema-Umstellung in IndexedDB ([[ADR-BINARY-ASSETS]]).
+     * Die alten Base64-Schlüssel werden bewusst verworfen, nicht migriert. */
+    localStorage.removeItem('din_custom_font');
+    localStorage.removeItem('din_signature_asset');
+  });
+  bootStep('Dauerhafter Speicher', () => requestPersistentStorage());
+
+  const draftManager = kritischerWert('Speicher-Abos', () => new DraftManager());
+  /* Kritisch, weil ein stiller Fehlschlag hier den gespeicherten Entwurf
+     verbirgt: die Seite startet leer, der naechste Tastendruck speichert darueber.
+     Besser sichtbar abbrechen als den Entwurf ueberschreiben. */
+  bootStep('Entwurf laden', () => {
+    draftManager.loadDraft();
+    AddressIntelligence.targetLock = null;
+  }, { critical: true });
+  bootStep('Postvermerk', () => {
+    syncPostvermerkFromSidebar(document.getElementById('vermerke')?.textContent || '');
+  });
+  bootStep('Briefdatum', () => applyLetterDate());
+
+  const uiProtections = kritischerWert('UI-Schutz-Objekt', () => new UIProtections());
+  bootStep('UI-Schutz', () => uiProtections.init());
+  bootStep('Telefon-Formatierung', () => setupPhoneFormatting());
+
+  const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
+  bootStep('Einstellungen', () => settingsManager.init());
+
+  bootStep('Plugins', () => {
+    // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
+    // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.
+    import('./multipage-controller.js')
+      .then((m) => m.mountMultipage())
+      .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
+  });
+
+  /* Kritisch: hier entsteht der Listener input -> Speichern. Faellt er aus,
+     tippt der Nutzer in eine vollstaendig wirkende App, und nichts wird
+     gespeichert (main.js:191, gemessen 2026-11-12). */
+  bootStep('Globale Listener', () => attachGlobalListeners(draftManager), { critical: true });
+  bootStep('Toast-System', () => initToastSystem());
+  bootStep('Absender-Sync', () => initSenderSync());
+  bootStep('Adressdienste', () => initAddressServices());
+  bootStep('Import/Export', () => initImportExport({ collectDraft }));
+  bootStep('Clipboard-Button', () => ClipboardAddressParser.wireSidebarButton());
+  bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
+  bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
+  bootStep('Schriftart', () => new FontFeature(settingsManager).init());
+  bootStep('Testdaten', () => initTestData());
+
+  bootStep('Darstellung freigeben', () => {
+    // data-ready schaltet die Platzhalter frei (siehe sheet-common.css).
+    // Bei Fehlschlag dieses Schritts versteckt boot.js sie nach 2 s (Sicherheitsnetz).
+    document.documentElement.dataset.ready = 'true';
+  });
+}
+
+  /**
+   * @param {DraftManager} draftManager
+   */
+  function attachGlobalListeners(draftManager) {
+    const btnPrint = document.getElementById('btn-print');
+    const btnReset = document.getElementById('btn-reset');
+    /** @type {any} */
+    let metaCtx = null;
+    window.addEventListener('beforeprint', () => {
+      metaCtx = MetadataService.prepare();
+    });
+    window.addEventListener('afterprint', () => {
+      if (metaCtx) {
+        MetadataService.restore(metaCtx);
+        metaCtx = null;
+      }
+    });
+
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
+
+    if (btnReset && resetDialog) {
+      resetDialog.addEventListener('close', () => {
+        const confirmed = resetDialog.returnValue === 'confirm';
+        queueMicrotask(() => { resetDialog.returnValue = ''; });
+        if (!confirmed) return;
+
+        /* Kein zweites Undo-Popover: der Dialog fragt bereits „Möchtest du
+           alle Texte wirklich zurücksetzen?". Ein „Rückgängig"-Hinweis danach
+           erklärt den Nutzer für unmündig (Entscheidung 2026-11-12). */
+        draftManager.resetDraft();
+        applyLetterDate();
+        AddressIntelligence.targetLock = null;
+      });
+    }
+
+    const briefblatt = document.querySelector('din-blatt') || document;
+    briefblatt.addEventListener('input', (e) => {
+      if (
+        e.target instanceof Element &&
+        e.target.closest('[contenteditable], input[data-atom], textarea[data-feldtyp]')
+      ) {
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      }
+    });
+    // Natives select: ein change-Event deckt Maus, Tastatur und Picker ab.
+    const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+    if (pvSelect) {
+      pvSelect.addEventListener('change', () => {
+        syncPostvermerkFromSidebar(pvSelect.value);
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
+
+    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+    if (anlagenSwitch) {
+      anlagenSwitch.addEventListener('change', () => {
+        const anlagenEl = document.getElementById('anlagen-angabe');
+        if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
+          anlagenEl.value = 'Anlage 1';
+        }
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
+
+    // Der Fuss-Schalter hat keine eigene UI-Logik, braucht aber denselben
+    // Speicherimpuls: ohne ihn landet sein Zustand nie im Entwurf und ist nach
+    // einem Neuladen weg.
+    for (const id of ['toggle-fuss']) {
+      const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
+      if (!schalter) continue;
+      schalter.addEventListener('change', () => {
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
+
+    // Textformatierung (B, I, ❝): Range-API, kein nativer Editing-Befehl (A52). pointerdown
+    // + preventDefault haelt Fokus und Selection im #text, sonst wirkt der
+    // Umbau ins Leere und auf Touch kollabiert die Auswahl.
+    const btnBold = document.getElementById('btn-bold');
+    const btnItalic = document.getElementById('btn-italic');
+    const btnQuote = document.getElementById('btn-quote');
+    const textEl = document.getElementById('text');
+    if (btnBold && btnItalic && btnQuote && textEl) {
+      for (const btn of [btnBold, btnItalic, btnQuote]) {
+        btn.addEventListener('pointerdown', (e) => e.preventDefault());
+      }
+      btnBold.addEventListener('click', () => toggleInlineFormat(textEl, 'b'));
+      btnItalic.addEventListener('click', () => toggleInlineFormat(textEl, 'i'));
+      btnQuote.addEventListener('click', () => toggleBlockquote(textEl));
+      initFormatSync();
+    }
+  }
+
+/**
+ * Verdrahtet die Testdaten- & Demo-Buttons. Das Plugin wird erst beim Klick geladen,
+ * damit weder Figurendaten noch Demo-Texte im Startpfad liegen.
+ */
+function initTestData() {
+  const btnTestbrief = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-testbrief'));
+  if (btnTestbrief) {
+    btnTestbrief.addEventListener('click', async () => {
+      try {
+        const plugin = await import('../addons/testbrief/testbrief.js');
+        await plugin.starteTestbrief();
+      } catch (error) {
+        console.warn('[Testbrief] Plugin nicht verfügbar:', error);
+        btnTestbrief.disabled = true;
+        btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
+      }
+    });
+  }
+
+  const btnDemoLang = document.getElementById('btn-demo-lang');
+  if (btnDemoLang) {
+    btnDemoLang.addEventListener('click', async () => {
+      try {
+        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
+        fuelleDemoText('lang');
+      } catch (error) {
+        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
+      }
+    });
+  }
+
+  const btnDemoKurz = document.getElementById('btn-demo-kurz');
+  if (btnDemoKurz) {
+    btnDemoKurz.addEventListener('click', async () => {
+      try {
+        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
+        fuelleDemoText('kurz');
+      } catch (error) {
+        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
+      }
+    });
+  }
+}
+
+/**
+ * DIN 5008 11.3.2: Formatierung deutscher Rufnummern beim Verlassen des Telefonfeldes.
+ * Bewusst nur bei blur, nicht während des Tippens.
+ */
+function setupPhoneFormatting() {
+  const tel = document.getElementById('absender-tel');
+  if (!tel) return;
+  tel.addEventListener('blur', () => {
+    const current = (tel.textContent || '').trim();
+    if (!current) return;
+    const formatted = formatTelefonnummer(current);
+    if (formatted && formatted !== current) {
+      tel.textContent = formatted;
+      tel.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  });
+}
+
 
 ==============================================================================
-===== KONTRAKT.md  (batches/B1/KONTRAKT.md, 21 Zeilen, sha256:400fcf13)
+===== llms.txt  (website/llms.txt, 76 Zeilen, sha256:ef30bd91)
 ==============================================================================
 
-# Verträge zu B1
+# DIN-BriefNEO
 
-Dieser Batch enthält 3 Module. Alles, was er importiert und
+> Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 (Form A und Form B) für geschäftliche und private Korrespondenz.
+
+## Übersicht
+
+DIN-BriefNEO ist eine reine Client-Side-Webanwendung zur Erstellung und Formatierung von Briefen nach der deutschen Industrienorm DIN 5008.
+
+- **Architektur:** 100 % clientseitig, Zero-Dependency, keine externen Frameworks, keine Cloud-Datenspeicherung.
+- **Datenschutz:** Alle Daten verbleiben im Browser des Nutzers (LocalStorage für Entwürfe, In-Memory-Blobs für Signaturen). Eine Ausnahme: die optionale Adress-Suche sendet die Eingabe an `api.geoapify.com`, sobald ein API-Key hinterlegt ist; ohne Key findet kein externer Aufruf statt.
+- **Export:** Nativer Browser-Druckdialog (Druck / PDF) mit exakter mm-Typografie via Container Queries und @page.
+- **Datenformat:** Reines Text-JSON (Schema v5 Tuple-Format, ohne Base64).
+- **Nicht unterstützt:** Teilbetreff (DIN 20.9.3) — 2026-11-11 bewusst entfernt. Der Unterrand ist optional auf 30 mm umstellbar; in dieser Einstellung ist der Brief nicht mehr DIN-konform.
+
+## Dokumenten-Schema (Schema v5, Tuple-Format)
+
+Das Dokumentenformat `.json` folgt derselben hocheffizienten Tabular-/Tuple-Architektur wie `figuren.json` (`_meta.schema` + Werte-Array `fields`), statt redundante Feldbezeichner als Key-Value-Blob mitzuschleifen. Es ist vollständig menschenlesbar und enthält keine Base64- oder Binärdaten. Signaturbild und eigene Schrift bleiben lokal (IndexedDB) und sind nicht Teil der Datei. Die App ist reines Client-JavaScript ohne Build-Schritt und ohne Server: `website/` auf einen beliebigen statischen Webserver kopieren genügt.
+
+```json
+{
+  "format": "dinletter",
+  "schema_version": 5,
+  "generator": "DIN-BriefNEO",
+  "generated_at": "2026-11-09T14:32:07+01:00[Europe/Berlin]",
+  "_meta": {
+    "schema": [
+      "rucksendeangabe", "vermerke",
+      "empfaenger-firma", "empfaenger-name", "empfaenger-strasse", "empfaenger-ort",
+      "absender-name", "absender-strasse", "absender-ort", "absender-tel", "absender-mail",
+      "datum", "spacer", "betreff", "anrede", "text", "grussformel", "unterschrift",
+      "anlagen-angabe",
+      "fuss-firma", "fuss-sitz", "fuss-gericht", "fuss-hrb", "fuss-vorstand", "fuss-gf",
+      "fuss-stnr", "fuss-ustid", "fuss-bank", "fuss-iban", "fuss-bic", "fuss-anschrift",
+      "toggle-anlagen", "toggle-fuss"
+    ]
+  },
+  "layout": {
+    "form": "form-b",
+    "copyfit": false,
+    "marks": true
+  },
+  "fields": [
+    "Max Mustermann, Musterstraße 1, 12345 Musterstadt",
+    "",
+    "",
+    "Erika Mustermann",
+    "Beispielweg 42",
+    "54321 Beispielstadt",
+    "Max Mustermann",
+    "Musterstraße 1",
+    "12345 Musterstadt",
+    "+49 123 456789",
+    "max@example.com",
+    "12. Oktober 2026",
+    "",
+    "Kündigung des Vertrags Nr. 12345",
+    "Sehr geehrte Damen und Herren,",
+    "<p>hiermit kündige ich den oben genannten Vertrag fristgerecht zum nächstmöglichen Termin.</p>",
+    "Mit freundlichen Grüßen",
+    "Max Mustermann",
+    "Kündigungsbestätigung erbeten",
+    "", "", "", "", "", "", "", "", "", "", "", "",
+    true,
+    true
+  ],
+  "signature": {
+    "transform": { "x": 11.9, "y": 96.0, "scale": 0.5, "rot": 0 }
+  }
+}
+```
+
+## DIN 5008 Geometrie & Normvorgaben
+
+- **Form A:** Hoher Briefkopf (Anschriftfeld-Oberkante 34 mm, Empfängeranschrift 46,7 mm, Falzmarke 1 bei 87 mm).
+- **Form B:** Tiefer Briefkopf (Anschriftfeld-Oberkante 51 mm, Empfängeranschrift 63,7 mm, Falzmarke 1 bei 105 mm). Standard für Fensterbriefumschläge DIN lang (DL).
+- **Fluchtlinie:** Linker Blattrand 25 mm für alle Anschrift- und Textfelder.
+
+
+==============================================================================
+===== KONTRAKT.md  (batches/B2/KONTRAKT.md, 51 Zeilen, sha256:2105bfad)
+==============================================================================
+
+# Verträge zu B2
+
+Dieser Batch enthält 5 Module. Alles, was er importiert und
 nicht enthält, steht unten mit **Signatur und Rolle, ohne Code**. Das ist
 Absicht: die Naht ist prüfbar, die Implementierung gehört in ihren eigenen
 Batch. Beurteile, ob dieser Batch den Vertrag richtig benutzt — nicht, ob
@@ -1933,14 +1785,45 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 
 ## Was dieser Batch von außen braucht
 
-Keine — dieser Batch ist in sich geschlossen.
+| Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
+|---|---:|---|---|
+| `website/js/address.js` | 1063 | Re-exportiert die rein datengetriebenen Lookup-Funktionen aus `address-data.js` | `AddressIntelligence`, `initAddressServices`, `initSenderSync` |
+| `website/js/clipboard-parser.js` | 615 | (Impressum, Google-Maps-Copy, CSV) in Anschrift-Kandidaten und bietet die | `ClipboardAddressParser` |
+| `website/js/document.js` | 671 | Native Selection- und Caret-Helfer (W3C Range / TreeWalker) | `UIProtections`, `collectDraft`, `initFormatSync`, `toggleBlockquote`, `toggleInlineFormat` |
+| `website/js/draft-manager.js` | 492 | die State-Machine hat nichts mit DOM- und Caret-Manipulation zu tun | `DraftManager` |
+| `website/js/font-feature.js` | 283 | CSS Font Loading API Injection und Persistenz (FontFeature) | `FontFeature` |
+| `website/js/format.js` | 446 | Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und | `applyLetterDate`, `formatTelefonnummer` |
+| `website/js/persistence.js` | 849 | DateFormat (ehem. 47-date-format.js): DIN-Datum via Intl.DateTimeFormat & Temporal API | `MetadataService`, `initImportExport`, `requestPersistentStorage` |
+| `website/js/salutation.js` | 342 | Anrede & Grußformel — bewusst klein (80/20), dafür verlässlich | `SalutationFeature` |
+| `website/js/settings.js` | 289 | Die Signatur-Engine liegt in `signature.js`, das Font-Management in `font-feature.js` | `SettingsManager` |
+| `website/js/signature.js` | 312 | die Signatur-Engine teilt fachlich nichts mit Theme- und Layout-Toggles | `SignatureFeature` |
 
+Die Kopfzeile kann irreführen: mehrere Module bündeln mehrere Abschnitte
+(z. B. `persistence.js`). Maßgeblich ist die Spalte „genutzte Symbole".
 
 ## Wer diesen Batch von außen benutzt
 
-Niemand — dieser Batch wird nur intern benutzt.
+| Modul | nutzt |
+|---|---|
+| `website/addons/testbrief/testbrief.js` | `Events`, `Field`, `eventBus` |
+| `website/addons/webmcp-bridge.js` | `Events`, `eventBus` |
+| `website/js/address.js` | `Constants`, `Events`, `Field`, `eventBus`, `hidePopoverSafe`, `notify`, `showPopoverSafe` |
+| `website/js/clipboard-parser.js` | `Constants`, `Events`, `Field`, `eventBus`, `hidePopoverSafe`, `notify`, `showPopoverSafe` |
+| `website/js/document.js` | `Field` |
+| `website/js/draft-manager.js` | `Constants`, `Events`, `Field`, `eventBus` |
+| `website/js/font-feature.js` | `Constants`, `notify` |
+| `website/js/multipage-controller.js` | `Field` |
+| `website/js/persistence.js` | `Constants`, `Field`, `notify` |
+| `website/js/salutation.js` | `Constants`, `Events`, `Field`, `eventBus` |
+| `website/js/settings.js` | `Events`, `eventBus` |
+| `website/js/signature.js` | `Constants`, `notify` |
 
 ## Export-Fläche dieses Batches
 
 (Was die Außenwelt erwarten darf. Gezählt aus den `export`-Zeilen.)
+
+- `boot.js`: nur Seiteneffekte
+- `core.js`: `Constants`, `EVENT_PREFIX`, `Events`, `createEventBus`, `eventBus`, `initToastSystem`, `showToast`, `notify`, `showPopoverSafe`, `hidePopoverSafe`
+- `field.js`: `Field`
+- `main.js`: nur Seiteneffekte
 

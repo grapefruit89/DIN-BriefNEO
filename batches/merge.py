@@ -82,7 +82,7 @@ def aufrufstellen(texte: list) -> tuple:
 def quellen(ordner: pathlib.Path):
     dateien = []
     for f in ordner.iterdir():
-        if f.name == 'prompt.md' or f.name.endswith('-merged.txt') or f.suffix == '.py':
+        if f.name == 'prompt.md' or '-merged' in f.name or f.suffix == '.py':
             continue
         if f.suffix == '.md' and f.name != 'prompt.md':
             dateien.append(f)
@@ -171,7 +171,17 @@ def baue(bid: str) -> pathlib.Path:
             '',
         ]
 
-    ziel = ordner / f'{bid}-merged.txt'
+    # Der Dateiname traegt den Commit: ein veralteter Anhang ist dann am Namen
+    # erkennbar, bevor er im Chat landet (zwei Review-Laeufe 2026-11-12 haben
+    # eine alte B2-merged.txt ohne main.js bekommen). Alte Fassungen fliegen
+    # raus, damit nie zwei Staende nebeneinander liegen.
+    for alt_datei in ordner.glob(f'{bid}-merged*.txt'):
+        alt_datei.unlink()
+    commit = subprocess.run(
+        ['git', '-C', str(BASIS), 'rev-parse', '--short', 'HEAD'],
+        capture_output=True, text=True
+    ).stdout.strip() or 'unbekannt'
+    ziel = ordner / f'{bid}-merged-{commit}.txt'
     ziel.write_text('\n'.join(teile) + '\n', encoding='utf-8')
     return ziel
 

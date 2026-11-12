@@ -72,18 +72,20 @@ Repo-Änderung erzeugt byte-gleiche Dateien.
    # -> /tmp/din-review/B2/ mit echten Dateien + prompt.md
    ```
 
-   Oder ZIP zum Anhängen — **der Name trägt Commit und Zeitpunkt**:
+   **Nur .txt, kein ZIP.** Die Merge-Datei trägt den Commit im Namen
+   (`B3-merged-a1b2c3d.txt`), damit ein veralteter Anhang am Dateinamen
+   erkennbar ist, ohne ihn zu öffnen:
 
    ```bash
-   bash /home/moritz/repos/DIN-BriefNEO/batches/collect.sh B2 --zip
-   # -> /tmp/din-review/B2-027e319-20261112-1534.zip
-   #    + Fingerabdruck: Commit, Blockzahl, Bytes, SHA256 der Merge-Datei
+   bash /home/moritz/repos/DIN-BriefNEO/batches/collect.sh B3
+   # kopiert alles nach /tmp/din-review/B3/ und druckt:
+   #   Datei, Blöcke, Bytes, SHA256
    ```
 
    Anlass: zwei Review-Läufe (2026-11-12) bekamen eine veraltete
    `B2-merged.txt` ohne `main.js` und `KONTRAKT.md` — 53 KiB statt 86 KiB.
-   Der Inhalt war richtig, der Versand alt. Mit Commit im Dateinamen ist das
-   am Anhang erkennbar, ohne ihn zu öffnen.
+   Der Inhalt war richtig, der Versand alt. Alte Fassungen werden beim Bauen
+   gelöscht, es liegt immer genau ein Stand im Ordner.
 
 2. `prompt.md` aus dem Ordner in den Chat kopieren, Dateien anhängen.
 3. Ergebnis nicht sofort umsetzen: **BUG** → Auftrag, **RISIKO** → Messung,

@@ -3,14 +3,15 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: Arbeitsbaum auf Basis HEAD 027e319. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
+Quellstand: Arbeitsbaum auf Basis HEAD 3ec4195. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
 B3/
 ├── address.js                    1063 Zeilen
 ├── clipboard-parser.js            615 Zeilen
-├── KONTRAKT.md                     34 Zeilen
+├── field.js                        32 Zeilen
+├── KONTRAKT.md                     39 Zeilen
 └── prompt.md                    (nicht enthalten — separat anklicken)
 ```
 
@@ -19,9 +20,10 @@ B3/
 |---|---|---:|---|
 | `address.js` | `website/js/address.js` | 1063 | `f6e5194b` |
 | `clipboard-parser.js` | `website/js/clipboard-parser.js` | 615 | `2c00076b` |
-| `KONTRAKT.md` | `batches/B3/KONTRAKT.md` | 34 | `494cb318` |
+| `field.js` | `website/js/field.js` | 32 | `7efd84e0` |
+| `KONTRAKT.md` | `batches/B3/KONTRAKT.md` | 39 | `d31a6e44` |
 
-Gesamt: 64805 Zeichen ≈ 16k Token.
+Gesamt: 65806 Zeichen ≈ 16k Token.
 
 ## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
 
@@ -29,7 +31,8 @@ Gesamt: 64805 Zeichen ≈ 16k Token.
 |---|---:|---:|---:|---:|---:|
 | `address.js` | 1063 | 6 | 63 | 18 | 3 |
 | `clipboard-parser.js` | 615 | 1 | 9 | 1 | 0 |
-| `KONTRAKT.md` | 34 | 0 | 0 | 0 | 0 |
+| `field.js` | 32 | 1 | 0 | 0 | 0 |
+| `KONTRAKT.md` | 39 | 0 | 0 | 0 | 0 |
 
 - Benannte Funktionen/Konstanten im Batch: 34
 - davon mit genau einer Aufrufstelle: 11
@@ -1731,12 +1734,50 @@ export class ClipboardAddressParser {
 
 
 ==============================================================================
-===== KONTRAKT.md  (batches/B3/KONTRAKT.md, 34 Zeilen, sha256:494cb318)
+===== field.js  (website/js/field.js, 32 Zeilen, sha256:7efd84e0)
+==============================================================================
+
+// @ts-check
+/**
+ * Minimale Feld-Abstraktion. Wird bei der Migration zur vollen
+ * Field-API ausgebaut. Heute: input/textarea vs. contenteditable.
+ */
+export const Field = {
+  /** @param {Node | Element | null} el */
+  isNative(el) {
+    return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
+  },
+  /**
+   * @param {Node | Element | null} el
+   * @returns {string}
+   */
+  getValue(el) {
+    if (!el) return '';
+    if (Field.isNative(el)) return /** @type {HTMLInputElement | HTMLTextAreaElement} */ (el).value;
+    return el.textContent || '';
+  },
+  /**
+   * @param {Node | Element | null} el
+   * @param {string} v
+   */
+  setValue(el, v) {
+    if (!el) return;
+    if (Field.isNative(el)) {
+      /** @type {HTMLInputElement | HTMLTextAreaElement} */ (el).value = v;
+    } else {
+      el.textContent = v;
+    }
+  }
+};
+
+
+==============================================================================
+===== KONTRAKT.md  (batches/B3/KONTRAKT.md, 39 Zeilen, sha256:d31a6e44)
 ==============================================================================
 
 # Verträge zu B3
 
-Dieser Batch enthält 2 Module. Alles, was er importiert und
+Dieser Batch enthält 3 Module. Alles, was er importiert und
 nicht enthält, steht unten mit **Signatur und Rolle, ohne Code**. Das ist
 Absicht: die Naht ist prüfbar, die Implementierung gehört in ihren eigenen
 Batch. Beurteile, ob dieser Batch den Vertrag richtig benutzt — nicht, ob
@@ -1749,7 +1790,6 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 | `website/js/address-data.js` | 918 | Native Gzip-Decompression (DecompressionStream API) von `orte.json.gz` und `grosskunden.json.gz` | `AddressData`, `AddressIntelligence`, `BUNDESLAENDER`, `buildFirmenIndex`, `buildOrtIndex`, `fetchGzipJson`, `getDistrict`, `lowerBound`, `normalizePostcode`, `normalizeText`, `resolveCity`, `resolvePostcode` |
 | `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus`, `hidePopoverSafe`, `notify`, `showPopoverSafe` |
 | `website/js/document.js` | 671 | Native Selection- und Caret-Helfer (W3C Range / TreeWalker) | `setCaretToEnd` |
-| `website/js/field.js` | 32 | Minimale Feld-Abstraktion. Wird bei der Migration zur vollen | `Field` |
 | `website/js/persistence.js` | 849 | DateFormat (ehem. 47-date-format.js): DIN-Datum via Intl.DateTimeFormat & Temporal API | `STORAGE_KEYS`, `load`, `loadJSON`, `save`, `saveJSON` |
 
 Die Kopfzeile kann irreführen: mehrere Module bündeln mehrere Abschnitte
@@ -1759,8 +1799,13 @@ Die Kopfzeile kann irreführen: mehrere Module bündeln mehrere Abschnitte
 
 | Modul | nutzt |
 |---|---|
-| `website/js/draft-manager.js` | `AddressIntelligence` |
+| `website/addons/testbrief/testbrief.js` | `Field` |
+| `website/js/document.js` | `Field` |
+| `website/js/draft-manager.js` | `AddressIntelligence`, `Field` |
 | `website/js/main.js` | `AddressIntelligence`, `ClipboardAddressParser`, `initAddressServices`, `initSenderSync` |
+| `website/js/multipage-controller.js` | `Field` |
+| `website/js/persistence.js` | `Field` |
+| `website/js/salutation.js` | `Field` |
 
 ## Export-Fläche dieses Batches
 
@@ -1768,4 +1813,5 @@ Die Kopfzeile kann irreführen: mehrere Module bündeln mehrere Abschnitte
 
 - `address.js`: `feld`, `bindListSelection`, `spiegelEntscheidung`, `initSenderSync`, `initAddressServices`, `AddressData`, `AddressIntelligence`, `BUNDESLAENDER`, `buildFirmenIndex`, `buildOrtIndex`, `ClipboardAddressParser`, `fetchGzipJson`, `getDistrict`, `lowerBound`, `normalizePostcode`, `normalizeText`, `resolveCity`, `resolvePostcode`
 - `clipboard-parser.js`: `ClipboardAddressParser`
+- `field.js`: `Field`
 

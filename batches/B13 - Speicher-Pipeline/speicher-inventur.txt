@@ -1,0 +1,130 @@
+SPEICHER-INVENTUR — Schreibpfade, Fehlerfaelle, Event-Bus
+
+Stand: 2026-11-13. Belegdatei zum Review-Auftrag B13.
+Alles hier ist am Code oder am laufenden Objekt gemessen, nicht erinnert.
+
+-------------------------------------------------------------------------------
+A) Wo wird geschrieben?
+-------------------------------------------------------------------------------
+
+Rohwert-Schreiben gibt es genau einmal:
+
+  persistence.js:86   localStorage.setItem(key, value)   in save(key, value) -> boolean
+
+Alles andere geht durch save/saveJSON/remove. save() faengt die Ausnahme und
+liefert false; saveJSON() meldet ueber Events.DOCUMENT_SAVE_FAILED (B46).
+
+Schluessel (STORAGE_KEYS): settings, draft, geoapifyKey, letzter Stand u. a.
+Entwurf: `din_draft_current` (versionslos, Feldobjekt).
+Einstellungen: `din_settings`.
+
+Binaerdaten liegen NICHT im localStorage, sondern in IndexedDB:
+
+  binary-storage.js    openDB / saveBlob / loadBlob / deleteBlob
+  genutzt von          signature.js (Signaturbild), font-feature.js (Schriftdatei)
+
+IndexedDB-Fehler, die im Code behandelt werden:
+  - open fehlgeschlagen   -> reject(Error)              (Zeile 50)
+  - open blockiert        -> reject('anderer Tab haelt die alte Version') (51)
+  - devicememory/Quota    -> ?
+  - onversionchange       -> db.close(), dbPromise = null
+
+-------------------------------------------------------------------------------
+B) Wer schreibt wann?
+-------------------------------------------------------------------------------
+
+draft-manager.js
+  saveDraft()           collectDraft -> saveJSON; Undo-Stack; Caret merken
+  scheduleAutoSave()    Debounce; Timer in `this.debounceTimer`
+  flushPendingSave()    sofort schreiben (Lifecycle)
+  #initLifecycleFlush() beforeunload / visibilitychange?
+  loadDraft()           Entwurf lesen und anwenden (auch bei Multi-Tab)
+  undo() / redo()       #applyHistoryState -> #restoreState + saveJSON
+  resetDraft()          Felder leeren, Datum zuruecksetzen
+
+Undo/Redo liegt AUSSCHLIESSLICH im RAM:
+  #undoStack = []  ·  HISTORY_MAX_ITEMS (core.js Constants)
+
+Multi-Tab (bewusst, kommentiert in draft-manager.js:110-114):
+  - aktiver Tab gewinnt, "letzter Schreiber gewinnt"
+  - Hintergrund-Tab ohne ungespeicherte Eingaben laedt den fremden Stand
+  - sonst nur ein Toast (Constants.TOASTS.DRAFT.MULTI_TAB)
+  - kein Web-Locks, kein Merge, kein Konflikt-Erkennen
+
+-------------------------------------------------------------------------------
+C) Event-Bus (core.js, 275 Zeilen; Bus-Anteil ~60)
+-------------------------------------------------------------------------------
+
+createEventBus(target = new EventTarget())
+  publish(topic, payload)     dispatchet CustomEvent, synchron
+  subscribe(topic, handler, {signal}) -> unsubscribe-Funktion
+
+Gemessen 2026-11-13 im laufenden Browser:
+
+  bus.subscribe('dinbrief:test', () => { throw new Error('kaputt') });
+  bus.subscribe('dinbrief:test', () => { gesehen.push('zwei') });
+  bus.publish('dinbrief:test', {});
+  -> gesehen = ["eins","zwei"], publish warf NICHT
+
+  Also: EventTarget isoliert werfende Listener (Fehler landet als uncaught
+  error in der Konsole), nachfolgende Subscriber laufen weiter. Der Publisher
+  merkt nichts.
+
+  ABER: publish() wirft synchron TypeError, wenn das Topic nicht mit
+  `dinbrief:` beginnt. Ein Tippfehler im Topic bricht also den Aufrufer ab —
+  mitten im Boot-Pfad oder im Save-Pfad.
+
+Subscriber, die heute direkt am Speicher haengen:
+  DOCUMENT_SAVE_REQUESTED, DOCUMENT_SAVED, DOCUMENT_SAVE_FAILED,
+  DOCUMENT_CHANGED, NOTIFICATION_REQUESTED.
+
+Lebenszyklus: subscribe() gibt eine Abmelde-Funktion zurueck; genutzt wird sie
+in `destroy()` (draft-manager). Wer sie ignoriert, laesst Listener stehen —
+besonders relevant, wenn Module neu instanziiert werden (Tests, Undo-Reset,
+Theme-Wechsel mit View Transition).
+
+-------------------------------------------------------------------------------
+D) Bekannte Soll-Zustaende / Entscheidungen
+-------------------------------------------------------------------------------
+
+- Quota-Fehler: getestet (test/all.js:566, B54) — QuotaExceededError wird
+  gefangen, Status 'error', DOCUMENT_SAVE_FAILED publiziert.
+- Multi-Tab: bewusst "letzter Schreiber gewinnt", Risiko dokumentiert.
+- Save-Status: 'saved' | 'saving' | 'error' (draft-manager #setSaveStatus).
+- Datum: dirty-Flag entscheidet, ob der Nutzerwert gewinnt (format.js).
+- Undo: nur RAM. Ob das so bleiben soll, ist eine offene Produktfrage.
+
+-------------------------------------------------------------------------------
+E) Offener Punkt aus B11 (gehoert hierher)
+-------------------------------------------------------------------------------
+
+#unterschriftsbild-vorschau[src] wird asynchron aus IndexedDB gesetzt
+(signature.js:73 loadBlob('signature').then(...) -> imgElement.src = blobUrl).
+CSS: `body:has(#unterschriftsbild-vorschau[src]:not([src=""])...)` zeigt den
+Container. Im ersten Frame ist die Signatur also NICHT da und erscheint
+~50-150 ms spaeter auf dem Blatt — der letzte offene sichtbare FOUC.
+
+Frage an den Review: Laesst sich das ohne Blockieren loesen (z. B. Merker in
+localStorage "Signatur vorhanden" + Platz reservieren), oder ist es bewusst
+akzeptiert wie die Systemschrift in font-feature.js?
+
+-------------------------------------------------------------------------------
+F) Fragen, die dieser Batch beantworten soll
+-------------------------------------------------------------------------------
+
+1. Schreibpfad-Matrix: welcher Pfad schreibt wann, und was passiert bei einem
+   Fehler in der Mitte (Debounce laeuft, Tab stirbt, Quota voll)?
+2. Gibt es eine Reihenfolge, in der ein neuerer Stand von einem aelteren
+   ueberschrieben wird (Debounce vs. flushPendingSave vs. Multi-Tab vs. Undo)?
+3. Save-Status: kann "gespeichert" angezeigt werden, waehrend der Speicher den
+   alten Stand haelt? Wo genau?
+4. IndexedDB: privater Modus, blockierte Datenbank, geloeschte DB, Quota.
+   Was sieht der Nutzer davon, was bleibt still?
+5. Import/Export: Was wird geprueft, bevor geschrieben wird? Kann ein
+   Teilimport halbe Daten hinterlassen? Gibt es ein Groessenlimit?
+6. Undo ueber Reload: bewusst fluechtig — oder Luecke? Was waere der kleinste
+   Weg, es haltbar zu machen (und was kostet er)?
+7. Event-Bus: Topic-Tippfehler (TypeError), Fehler-Isolation, Doppel-Subscribe,
+   Publish waehrend Publish, Listener-Leichen bei Neu-Instanziierung.
+8. Signatur/Schrift: Ladezeitpunkt, Platz, Loeschen/Ersetzen, Verhalten wenn
+   IndexedDB fehlt. Den offenen FOUC aus E bewerten.

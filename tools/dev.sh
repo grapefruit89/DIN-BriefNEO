@@ -18,7 +18,10 @@ set -u
 REPO="/home/moritz/repos/DIN-BriefNEO"
 PORT="${DIN_DEV_PORT:-8088}"
 CDP="${DIN_DEV_CDP:-9222}"
-PROFIL="${DIN_DEV_PROFILE:-$HOME/.local/share/din-briefneo/debug-profil}"
+# Bewusst das LLM-Profil: darauf zeigt der chrome-devtools-MCP
+# (--browserUrl http://127.0.0.1:9222). So koennen MCP und dieses Skript
+# denselben Browser benutzen, statt zwei Profile zu pflegen.
+PROFIL="${DIN_DEV_PROFILE:-$HOME/.config/net.imput.helium-llm}"
 SERVER_LOG="/tmp/opencode/din-dev-server.log"
 BROWSER_LOG="/tmp/opencode/din-dev-browser.log"
 URL="http://127.0.0.1:${PORT}/index.html"
@@ -106,7 +109,8 @@ if [ -n "$HAUPT" ]; then
   for p in $(pids "user-data-dir=$PROFIL"); do kill -9 "$p" 2>/dev/null; done
   sleep 0.6
 fi
-nohup helium --remote-debugging-port="$CDP" --user-data-dir="$PROFIL" "$URL" >"$BROWSER_LOG" 2>&1 &
+# helium-llm setzt Profil + Debug-Port 9222 selbst (siehe ~/.local/bin/helium-llm)
+nohup helium-llm "$URL" >"$BROWSER_LOG" 2>&1 &
 if ! warte_port "$CDP" an; then
   echo "  FEHLER: Debug-Port $CDP antwortet nicht. Log: $BROWSER_LOG"; tail -5 "$BROWSER_LOG"; exit 1
 fi

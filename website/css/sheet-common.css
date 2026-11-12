@@ -69,13 +69,30 @@ din-lochmarke {
   display: block;
 }
 
+/* Paket A (2026-11-12): die Anschriftfelder sind echte <input>. Ein Input
+   braucht keinen Reset der Browser-Optik — sonst verschiebt der Rahmen das
+   mm-Raster. Alle Werte bleiben aus den ID-Regeln (Hoehe 1.2em, 4,23mm). */
+#rucksendeangabe {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  appearance: none;
+}
+
 /* Leere Zeilen behalten KEINEN Platz — aber nur im Druck. Auf dem Schirm
-   muss jede Zeile anklickbar sein, sonst sind Firma und Strasse nicht
-   erreichbar (gemessen 2026-11-12: display:none macht sie aus der
-   Tab-Reihenfolge unerreichbar). */
+   muss jede Zeile anklickbar sein (gemessen 2026-11-12). `:placeholder-shown`
+   ist bei <input> das belastbare Merkmal; `:empty` zaehlt DOM-Knoten und
+   kippte nach jedem Tippen+Loeschen (<br>). */
 @media print {
-  din-empfaenger-firma:empty,
-  din-empfaenger-strasse:empty {
+  #empfaenger-firma:placeholder-shown,
+  #empfaenger-strasse:placeholder-shown {
     display: none;
   }
 }
@@ -197,6 +214,18 @@ din-anlagen-angabe {
 #empfaenger-name,
 #empfaenger-strasse,
 #empfaenger-ort {
+  /* Paket A: echte <input> — Browser-Optik zuruecksetzen, Raster bleibt. */
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  appearance: none;
   height: 1.2em;
   min-height: 1.2em;
   max-height: 1.2em;
@@ -401,7 +430,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
     }
 
   #text p {
-      margin: 0 0 4.5mm 0;
+      margin: 0 0 2.25mm 0; /* halbe Zeile: DIN 5008 laesst den Absatzabstand der Software (Z. 1410) */
     }
 
   #text blockquote {

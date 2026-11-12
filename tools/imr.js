@@ -198,10 +198,17 @@ function checkImr(targetDir) {
       }
     }
 
-    // IMR-4: export-Atom braucht ein contenteditable-Element mit dieser id
+    // IMR-4: export-Atom braucht ein Eingabeelement mit dieser id.
+    // Die Eingabeform steht im Inventar (`eingabe`): "input" (natives Feld,
+    // seit Paket A 2026-11-12) oder Default contenteditable.
     if (spec.export && spec.id) {
-      const re = new RegExp(`id="${spec.id}"[^>]*contenteditable|contenteditable[^>]*id="${spec.id}"`);
-      if (!re.test(htmlAll)) add(htmlFiles[0], `IMR-4 ${tag}: export true, aber kein contenteditable mit id="${spec.id}"`);
+      const istInput = spec.eingabe === 'input';
+      const re = istInput
+        ? new RegExp(`<input\\b[^>]*\\sid="${spec.id}"`)
+        : new RegExp(`id="${spec.id}"[^>]*contenteditable|contenteditable[^>]*id="${spec.id}"`);
+      if (!re.test(htmlAll)) {
+        add(htmlFiles[0], `IMR-4 ${tag}: export true, aber kein ${istInput ? '<input>' : 'contenteditable'} mit id="${spec.id}"`);
+      }
     }
 
     // IMR-8: Traeger einer Atom-ID muss das Atom-Tag selbst sein (kein <div id="atom">)
@@ -209,7 +216,10 @@ function checkImr(targetDir) {
       for (let i = 0; i < htmlFiles.length; i++) {
         const m = html[i].match(new RegExp(`<([a-z][a-z0-9-]*)\\b[^>]*\\sid="${escapeRe(spec.id)}"`));
         if (!m) continue; // fehlendes Element meldet IMR-3
-        if (m[1] !== tag) {
+        /* Zwei zulaessige Traeger: das Atom-Tag selbst oder — wenn das Inventar
+           `eingabe: "input"` sagt — ein natives <input>. */
+        const erlaubt = m[1] === tag || (spec.eingabe === 'input' && m[1] === 'input');
+        if (!erlaubt) {
           add(htmlFiles[i], `IMR-8 ${tag}: ID "${spec.id}" sitzt auf <${m[1]}> statt auf <${tag}> (Komponenten-Regel, ADR-HTML 4.1)`);
         }
       }

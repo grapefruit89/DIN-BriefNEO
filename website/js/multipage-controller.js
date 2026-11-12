@@ -1,3 +1,5 @@
+import { Field } from './field.js';
+
 // @ts-check
 // @adr [[ADR-JS]]
 // @guide [[din-5008-css-architektur]]
@@ -74,7 +76,7 @@ export function mountMultipage() {
     const hoeheMm = kern.getBoundingClientRect().height / mm;
     const n = Math.max(1, Math.round((hoeheMm + luecke) / (seite + luecke)));
 
-    status.textContent = `Seite 1 von ${n}`;
+    Field.setValue(status, `Seite 1 von ${n}`);
     document.body.dataset.seiten = String(n);
     const vp = document.getElementById('viewport');
     if (vp) vp.dataset.seiten = String(n);
@@ -92,9 +94,9 @@ export function mountMultipage() {
       el.className = 'folgekopf-screen';
       el.style.setProperty('--i', String(i));
       const links = document.createElement('span');
-      links.textContent = kopfText;
+      Field.setValue(links, kopfText);
       const rechts = document.createElement('span');
-      rechts.textContent = `Seite ${i + 1} von ${n}`;
+      Field.setValue(rechts, `Seite ${i + 1} von ${n}`);
       el.append(links, rechts);
       folgekoepfe.append(el);
     }

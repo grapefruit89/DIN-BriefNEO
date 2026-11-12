@@ -316,12 +316,12 @@
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
               data-x="25" data-w="85" data-h="45" data-font="10"
               data-visier-top="5" data-visier-w="90" data-visier-h="45">
-              <din-rucksendeangabe id="rucksendeangabe" data-h="0" data-font="7" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)"></din-rucksendeangabe>
+              <input type="text" id="rucksendeangabe" class="single-line" data-font="7" data-feldtyp="einzeilig" placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)">
               <din-vermerke id="vermerke" data-font="8" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-vermerke>
-              <din-empfaenger-firma id="empfaenger-firma" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Firma / Institution (optional)" aria-label="Firma"></din-empfaenger-firma>
-              <din-empfaenger-name id="empfaenger-name" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Empfänger Name" aria-label="Name des Empfängers"></din-empfaenger-name>
-              <din-empfaenger-strasse id="empfaenger-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer"></din-empfaenger-strasse>
-              <din-empfaenger-ort id="empfaenger-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort"></din-empfaenger-ort>
+              <input type="text" id="empfaenger-firma" class="single-line" data-feldtyp="einzeilig" placeholder="Firma / Institution (optional)" aria-label="Firma">
+              <input type="text" id="empfaenger-name" class="single-line" data-feldtyp="einzeilig" placeholder="Empfänger Name" aria-label="Name des Empfängers">
+              <input type="text" id="empfaenger-strasse" class="single-line" data-feldtyp="einzeilig" placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer">
+              <input type="text" id="empfaenger-ort" class="single-line" data-feldtyp="einzeilig" placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort">
             </din-anschriftfeld>
             <din-infoblock id="infoblock" data-x="125" data-w="65" data-font="8.5" role="group" aria-label="Infoblock">
               <din-absender-name id="absender-name" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Vor- und Nachname" aria-label="Name"></din-absender-name>

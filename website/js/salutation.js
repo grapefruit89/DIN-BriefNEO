@@ -14,6 +14,7 @@
 //  3. derive() ist eine reine Funktion (kein DOM, kein Netz) und damit testbar.
 
 import { Constants, Events, eventBus } from './core.js';
+import { Field } from './field.js';
 import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
 const STYLES = /** @type {const} */ (['formal', 'polite', 'casual']);
@@ -199,7 +200,7 @@ export class SalutationFeature {
       if (!el) continue;
       // Tippt der Nutzer etwas Eigenes, ist es kein Auto-Text mehr (Optik: [data-generated]).
       el.addEventListener('input', () => {
-        const text = (el.textContent || '').trim();
+        const text = Field.getValue(el).trim();
         if (text && text !== this.#auto[kind]) {
           delete el.dataset.generated;
           el.dataset.dirty = 'true';
@@ -259,7 +260,7 @@ export class SalutationFeature {
   #seedAuto() {
     const name = this.#nameText();
     const anredeEl = document.getElementById('anrede');
-    const anrede = (anredeEl?.textContent || '').trim();
+    const anrede = Field.getValue(anredeEl).trim();
     if (anrede) {
       const isAutoAnrede = FALLBACK_SET.has(/** @type {any} */ (anrede))
         || STYLES.some((s) => SalutationEngine.derive({ rawName: name, formality: s }) === anrede);
@@ -272,7 +273,7 @@ export class SalutationFeature {
       }
     }
     const grussEl = document.getElementById('grussformel');
-    const gruss = (grussEl?.textContent || '').trim();
+    const gruss = Field.getValue(grussEl).trim();
     if (gruss) {
       const isAutoGruss = CLOSINGS_SET.has(/** @type {any} */ (gruss));
       if (isAutoGruss && grussEl) {
@@ -300,7 +301,7 @@ export class SalutationFeature {
     const el = document.getElementById(kind);
     if (!el || document.activeElement === el) return;
 
-    const current = (el.textContent || '').trim();
+    const current = Field.getValue(el).trim();
     if (!current) {
       delete el.dataset.dirty;
     }
@@ -318,7 +319,7 @@ export class SalutationFeature {
       el.dataset.generated = 'true';
       return;
     }
-    el.textContent = value;
+    Field.setValue(el, value);
     el.dataset.generated = 'true';
     delete el.dataset.dirty;
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
@@ -330,7 +331,7 @@ export class SalutationFeature {
    * @param {HTMLElement} el
    */
   #hint(kind, el) {
-    const text = (el.textContent || '').trim();
+    const text = Field.getValue(el).trim();
     if (!text || text === this.#auto[kind]) return;
     if (kind === 'anrede' && !text.endsWith(',')) {
       eventBus.publish(Events.NOTIFICATION_REQUESTED, { message: Constants.TOASTS.SALUTATION.PUNCTUATION, type: 'warning' });

@@ -268,7 +268,7 @@ export class DraftManager {
           if (lines.length > 0) {
             elem.replaceChildren(...lines.map((line) => {
               const li = document.createElement('li');
-              li.textContent = line;
+              Field.setValue(li, line);
               return li;
             }));
           } else {
@@ -282,7 +282,7 @@ export class DraftManager {
           }
         }
       } else if (!elem.querySelector('select[data-speichern]')) {
-        elem.textContent = draft[id];
+        Field.setValue(elem, draft[id]);
         if (elem.id === 'datum') {
           // Gemerkt: der Wert stammt vom Nutzer, applyLetterDate darf ihn nicht ueberschreiben.
           if ((draft[id] || '').trim() !== '') elem.dataset.dirty = 'true';
@@ -294,7 +294,7 @@ export class DraftManager {
     // leerer Vermerk = unsichtbar, gefuellter Vermerk = sichtbar.
     const postvermerk = document.getElementById('vermerke');
     if (postvermerk) {
-      if ((postvermerk.textContent || '').trim() !== '') {
+      if (Field.getValue(postvermerk).trim() !== '') {
         postvermerk.setAttribute('data-visible', 'true');
       } else {
         postvermerk.removeAttribute('data-visible');
@@ -304,7 +304,7 @@ export class DraftManager {
     if (pvSelect) {
       // Auswahlliste folgt dem Feld — sonst zeigt sie nach einem Restore „kein“,
       // während der Vermerk im Brief steht.
-      pvSelect.value = (postvermerk?.textContent || '').trim();
+      pvSelect.value = Field.getValue(postvermerk).trim();
       if (pvSelect.selectedIndex === -1) pvSelect.selectedIndex = 0;
     }
 
@@ -322,7 +322,7 @@ export class DraftManager {
         // bedeutet "Fusszeile war an" - sonst waere er unsichtbar.
         fussSwitch.checked = Array.from(
           document.querySelectorAll('#geschaeftsangaben > [contenteditable]')
-        ).some((sp) => (sp.textContent || '').trim() !== '');
+        ).some((sp) => Field.getValue(sp).trim() !== '');
       }
     }
 
@@ -385,7 +385,7 @@ export class DraftManager {
         }
       } else {
         el.replaceChildren();
-        el.textContent = '';
+        Field.setValue(el, '');
       }
     });
     document.querySelectorAll('select[data-speichern]').forEach(el => {
@@ -404,7 +404,7 @@ export class DraftManager {
     const datumEl = document.getElementById('datum');
     if (datumEl) {
       datumEl.removeAttribute('data-dirty');
-      datumEl.textContent = '';
+      Field.setValue(datumEl, '');
     }
     const postvermerk = document.getElementById('vermerke');
     if (postvermerk) {
@@ -457,7 +457,7 @@ export class DraftManager {
     if (!el) return;
     el.dataset.state = state;
     const labels = { saved: 'Gespeichert', dirty: 'Speichern…', error: 'Fehler beim Speichern!' };
-    el.textContent = labels[state];
+    Field.setValue(el, labels[state]);
     el.title = labels[state];
 
     // Fallback auf ARIA-Live-Regionen (B54: Screenreader auch ohne ariaNotify informieren)

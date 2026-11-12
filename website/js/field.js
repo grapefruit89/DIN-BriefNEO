@@ -4,12 +4,12 @@
  * Field-API ausgebaut. Heute: input/textarea vs. contenteditable.
  */
 export const Field = {
-  /** @param {Element | null} el */
+  /** @param {Node | Element | null} el */
   isNative(el) {
     return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
   },
   /**
-   * @param {Element | null} el
+   * @param {Node | Element | null} el
    * @returns {string}
    */
   getValue(el) {
@@ -18,7 +18,7 @@ export const Field = {
     return el.textContent || '';
   },
   /**
-   * @param {Element | null} el
+   * @param {Node | Element | null} el
    * @param {string} v
    */
   setValue(el, v) {

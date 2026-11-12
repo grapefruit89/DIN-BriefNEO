@@ -606,7 +606,8 @@ din-blatt[data-ueberlauf="true"]::after {
   }
 
   #text p {
-    margin: 0 0 4.5mm 0 !important;
+    /* halbe Zeile statt voller: DIN 5008 laesst den Absatzabstand der Software */
+    margin: 0 0 2.25mm 0 !important;
   }
 
   #grussformel {

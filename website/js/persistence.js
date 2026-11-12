@@ -15,8 +15,8 @@
  */
 
 import { Constants, notify } from './core.js';
+import { Field } from './field.js';
 import { currentISODate } from './format.js';
-
 /* =========================================================================================
  * 2. STORAGE PRIMITIVES, CONSTANTS & MIGRATION
  * ========================================================================================= */
@@ -830,7 +830,7 @@ export function initImportExport({ collectDraft } = {}) {
       if (details.length > 0) {
         info += ` (${details.join(', ')})`;
       }
-      importFileName.textContent = info;
+      Field.setValue(importFileName, info);
     }
     importDialog.showModal();
   });

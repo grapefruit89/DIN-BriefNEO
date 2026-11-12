@@ -30,6 +30,7 @@ import {
 import { ClipboardAddressParser } from './clipboard-parser.js';
 import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
 import { setCaretToEnd } from './document.js';
+import { Field } from './field.js';
 import { load, loadJSON, STORAGE_KEYS, save, saveJSON } from './persistence.js';
 
 export {
@@ -212,7 +213,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
       userEditing = false;
     }
 
-    const rawText = (empfOrtEl.textContent || "").trim();
+    const rawText = Field.getValue(empfOrtEl).trim();
 
     if (!rawText) {
       userEditing = false;
@@ -245,18 +246,18 @@ AddressIntelligence.wireDOM = function wireDOM() {
         }
 
         const completed = `${res.plz} ${res.city}`;
-        empfOrtEl.textContent = completed;
+        Field.setValue(empfOrtEl, completed);
         empfOrtEl.setAttribute('data-autofilled', 'true');
 
         AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
 
         // Großkunde / Behörde Automatik
         if (res.isGrosskunde && res.grosskunde) {
-          if (empfFirmaEl && (!(empfFirmaEl.textContent || "").trim() || empfFirmaEl.getAttribute('data-autofilled') === 'true')) {
-            empfFirmaEl.textContent = res.grosskunde.name;
+          if (empfFirmaEl && (!Field.getValue(empfFirmaEl).trim() || empfFirmaEl.getAttribute('data-autofilled') === 'true')) {
+            Field.setValue(empfFirmaEl, res.grosskunde.name);
             empfFirmaEl.setAttribute('data-autofilled', 'true');
           }
-          if (empfStrasseEl && !(empfStrasseEl.textContent || "").trim()) {
+          if (empfStrasseEl && !Field.getValue(empfStrasseEl).trim()) {
             empfStrasseEl.setAttribute('data-placeholder', '(Großempfänger – Straße entfällt)');
           }
           const toastMsg = Constants.TOASTS.ADDRESS.GROSSKUNDE_RECOGNIZED(res.grosskunde.name);
@@ -292,7 +293,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
       const res = AddressIntelligence.resolveCityInput(rawText, maxItems);
       if (res.mode === 'single_fill' && res.plz && res.city && !userEditing) {
         const completed = `${res.plz} ${res.city}`;
-        empfOrtEl.textContent = completed;
+        Field.setValue(empfOrtEl, completed);
         empfOrtEl.setAttribute('data-autofilled', 'true');
         AddressIntelligence.targetLock = { plz: res.plz, city: res.city };
         setCaretToEnd(empfOrtEl);
@@ -318,7 +319,7 @@ AddressIntelligence.wireDOM = function wireDOM() {
     empfFirmaEl.addEventListener('input', () => {
       // Fiktive Testbrief-Firma: kein Grosskunden-Lookup.
       if (empfFirmaEl.hasAttribute('data-autofill-aus')) return;
-      const rawText = (empfFirmaEl.textContent || "").trim();
+      const rawText = Field.getValue(empfFirmaEl).trim();
 
       if (firmaDebounceTimer) clearTimeout(firmaDebounceTimer);
 
@@ -428,7 +429,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       if (item.plz) {
         const plzSpan = document.createElement('span');
         plzSpan.className = 'plz-val';
-        plzSpan.textContent = item.plz;
+        Field.setValue(plzSpan, item.plz);
         leftWrapper.appendChild(plzSpan);
         leftWrapper.appendChild(document.createTextNode(' '));
       }
@@ -436,24 +437,24 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       // Name
       const nameSpan = document.createElement('span');
       nameSpan.className = 'city-val';
-      nameSpan.textContent = item.name;
+      Field.setValue(nameSpan, item.name);
       leftWrapper.appendChild(nameSpan);
 
       // Typ-Badge wenn nicht Stadt
       if (item.typ && item.typ !== 'Stadt') {
         const badge = document.createElement('span');
         badge.className = 'ac-badge';
-        badge.textContent = `[${item.typ}]`;
+        Field.setValue(badge, `[${item.typ}]`);
         leftWrapper.appendChild(badge);
 
         const citySub = document.createElement('span');
         citySub.className = 'city-sub';
-        citySub.textContent = item.city;
+        Field.setValue(citySub, item.city);
         leftWrapper.appendChild(citySub);
       } else if (!item.isSinglePlz && (item.plzCount || 0) > 1) {
         const countSub = document.createElement('span');
         countSub.className = 'city-sub';
-        countSub.textContent = `(${item.plzCount} PLZs)`;
+        Field.setValue(countSub, `(${item.plzCount} PLZs)`);
         leftWrapper.appendChild(countSub);
       }
 
@@ -474,7 +475,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
         li.appendChild(document.createTextNode(' '));
         const districtSpan = document.createElement('span');
         districtSpan.className = 'district-val';
-        districtSpan.textContent = extraText;
+        Field.setValue(districtSpan, extraText);
         li.appendChild(districtSpan);
       }
 
@@ -491,7 +492,7 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
       hintLi.setAttribute('role', 'option');
       hintLi.setAttribute('aria-disabled', 'true');
       hintLi.setAttribute('aria-selected', 'false');
-      hintLi.textContent = `${totalCount} Treffer – tippe weiter`;
+      Field.setValue(hintLi, `${totalCount} Treffer – tippe weiter`);
       popoverEl.appendChild(hintLi);
     }
 
@@ -537,6 +538,10 @@ export function spiegelEntscheidung(lage) {
   let { modus, letzterAutowert } = lage;
   const { aktuell, auto, street, city } = lage;
 
+  /* Leeres Feld ist immer "noch nicht gefuellt": wer die Zeile loescht, bekommt
+     sie beim naechsten Absender-Edit zurueck (Entscheidung 2026-11-12). */
+  if (aktuell === '') return { modus: 'auto', schreiben: auto !== '', letzterAutowert: auto };
+
   if (modus === 'unklar') {
     const teile = aktuell.split(' • ').map((teil) => teil.trim());
     const siehtAutomatischAus =
@@ -567,7 +572,7 @@ export function initSenderSync() {
   if (!infoName || !infoStreet || !infoCity || !absender || !unterschrift) return;
 
   /** @param {HTMLElement | null} el @returns {string} */
-  const lies = (el) => (el?.textContent || '').trim();
+  const lies = (el) => Field.getValue(el).trim();
 
   /** @param {string} name @param {string} street @param {string} city */
   const baueRueckzeile = (name, street, city) =>
@@ -594,7 +599,7 @@ export function initSenderSync() {
   const schreibe = (el, wert) => {
     if (!el) return;
     schreibeGerade = true;
-    el.textContent = wert;
+    Field.setValue(el, wert);
     el.dispatchEvent(new Event('input', { bubbles: true }));
     schreibeGerade = false;
   };
@@ -686,7 +691,7 @@ export function initAddressServices() {
     if (inputGeoapifyKey) inputGeoapifyKey.dataset.status = status;
     if (statusEl) {
       statusEl.dataset.status = status;
-      statusEl.textContent = text;
+      Field.setValue(statusEl, text);
     }
   }
 
@@ -961,7 +966,7 @@ export function initAddressServices() {
       statusLi.setAttribute('role', 'option');
       statusLi.setAttribute('aria-disabled', 'true');
       statusLi.setAttribute('aria-selected', 'false');
-      statusLi.textContent = `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`;
+      Field.setValue(statusLi, `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`);
       addressSuggestions.appendChild(statusLi);
       showPopoverSafe(addressSuggestions);
       return;
@@ -972,11 +977,11 @@ export function initAddressServices() {
       li.id = `anschrift-vorschlag-${index}`;
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', 'false');
-      li.textContent = item.formatted;
+      Field.setValue(li, item.formatted);
       
       if (item.source === 'local') {
         const badge = document.createElement('span');
-        badge.textContent = '⭐ Lokal';
+        Field.setValue(badge, '⭐ Lokal');
         badge.className = 'badge-local';
         li.appendChild(badge);
       }
@@ -998,10 +1003,10 @@ export function initAddressServices() {
     const empfOrt = feld('empfaenger-ort');
 
     if (empfStrasse) {
-      empfStrasse.textContent = `${item.street} ${item.housenumber}`.trim();
+      Field.setValue(empfStrasse, `${item.street} ${item.housenumber}`.trim());
     }
     if (empfOrt) {
-      empfOrt.textContent = `${item.postcode} ${item.city}`.trim();
+      Field.setValue(empfOrt, `${item.postcode} ${item.city}`.trim());
     }
 
     hidePopoverSafe(addressSuggestions);

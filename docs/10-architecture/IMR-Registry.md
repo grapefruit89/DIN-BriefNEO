@@ -537,7 +537,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "source": "DIN",
       "inDom": true,
       "export": true
-    },
+    , "eingabe": "input"},
     "din-vermerke": {
       "id": "vermerke",
       "role": "atom",
@@ -553,7 +553,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "source": "DIN",
       "inDom": true,
       "export": true
-    },
+    , "eingabe": "input"},
     "din-empfaenger-abteilung": {
       "id": null,
       "role": "atom",
@@ -569,7 +569,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "source": "DIN (interpretiert)",
       "inDom": true,
       "export": true
-    },
+    , "eingabe": "input"},
     "din-empfaenger-vorname": {
       "id": null,
       "role": "atom",
@@ -593,7 +593,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "source": "DIN",
       "inDom": true,
       "export": true
-    },
+    , "eingabe": "input"},
     "din-empfaenger-ort": {
       "id": "empfaenger-ort",
       "role": "atom",
@@ -601,7 +601,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "source": "DIN",
       "inDom": true,
       "export": true
-    },
+    , "eingabe": "input"},
     "din-datum": {
       "id": "datum",
       "role": "atom",

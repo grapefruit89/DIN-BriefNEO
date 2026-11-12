@@ -1173,7 +1173,7 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     const { regel, treffer } = await pruefeHtml();
     assert(regel, 'Regel P38 existiert');
     assertEqual(regel.severity, 'warning', 'Severity ist warning (kein Gate)');
-    assert(treffer.some((z) => z.includes('id="empfaenger-name"')), '#empfaenger-name wird gemeldet');
+    assert(treffer.some((z) => z.includes('id="absender-name"')), '#absender-name wird gemeldet');
   });
 
   it('laesst die vier erlaubten Felder in Ruhe', async () => {
@@ -1181,7 +1181,7 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     for (const id of ERLAUBT) {
       assert(!treffer.some((z) => z.includes(`id="${id}"`)), `#${id} wird nicht gemeldet`);
     }
-    assertEqual(treffer.length, 26, 'genau 26 offene Felder');
+    assertEqual(treffer.length, 21, 'genau 21 offene Felder (5 Anschriftfelder sind <input>)');
   });
 });
 
@@ -1383,7 +1383,7 @@ describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
     const block = (src.match(/<din-anschriftfeld[\s\S]*?<\/din-anschriftfeld>/) || [])[0] ?? '';
     assert(block !== '', 'din-anschriftfeld gefunden');
     const innen = block.replace(/^<din-anschriftfeld[^>]*>/, '');
-    const kinder = [...innen.matchAll(/<(din-[a-z-]+)\s+id="([^"]+)"/g)].map((m) => m[2]);
+    const kinder = [...innen.matchAll(/<(?:din-[a-z-]+|input)\b[^>]*?\sid="([^"]+)"/g)].map((m) => m[1]);
     assertEqual(kinder[0], 'rucksendeangabe', 'Rücksendeangabe ist das erste Kind');
     assertEqual(kinder[1], 'vermerke', 'danach folgen die Vermerke');
     // Ausserhalb des Blocks darf sie nicht mehr stehen.
@@ -1393,11 +1393,13 @@ describe('Anschriftfeld — Rücksendeangabe gruppiert', () => {
 
   it('erbt Geometrie vom Container und behaelt 45mm Blockhoehe', async () => {
     const src = await (await fetch('/website/index.html')).text();
-    const zeile = (src.match(/<din-rucksendeangabe[^>]*>/) || [])[0] ?? '';
-    assert(zeile !== '', 'din-rucksendeangabe gefunden');
+    /* Paket A: das Feld ist ein <input>; die Geometrie kommt weiter aus dem
+       Container (SSoT), das Feld selbst traegt keine data-x/data-w/data-h. */
+    const zeile = (src.match(/<input[^>]*id="rucksendeangabe"[^>]*>/) || [])[0] ?? '';
+    assert(zeile !== '', 'input#rucksendeangabe gefunden');
     assert(zeile.includes('data-x=') === false, 'kein eigenes data-x (SSoT im Container)');
     assert(zeile.includes('data-w=') === false, 'kein eigenes data-w');
-    assertEqual(zeile.match(/data-h="(\d+)"/)?.[1], '0', 'data-h="0": keine eigene Höhe');
+    assert(zeile.includes('data-h=') === false, 'kein eigenes data-h');
     const blockTag = (src.match(/<din-anschriftfeld[^>]*>/) || [])[0] ?? '';
     assertEqual(blockTag.match(/data-h="(\d+)"/)?.[1], '45', 'Container bleibt 45mm hoch');
     // Der Unterstrich darf nicht auf die Textbreite schrumpfen (Invariante aus 543a4d8).
@@ -1444,7 +1446,7 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
     /* Gemessen 2026-11-12: `display: none` nahm Firma und Strasse aus der
        Tab-Reihenfolge — sie waren nicht eingebbar, solange sie leer waren. */
     const css = await (await fetch('/website/css/sheet-common.css')).text();
-    const idx = css.indexOf('din-empfaenger-firma:empty');
+    const idx = css.indexOf('#empfaenger-firma:placeholder-shown');
     assert(idx > 0, 'Ausblende-Regel gefunden');
     const umfeld = css.slice(Math.max(0, idx - 400), idx);
     assert(umfeld.includes('@media print'), 'Ausblenden steht in @media print');
@@ -4062,12 +4064,21 @@ describe('Rücksendezeile — Spiegelung mit Initialen', () => {
     assertEqual(e.modus, 'manuell', 'Modus manuell');
   });
 
-  it('geloeschte Zeile: bleibt leer', () => {
+  it('geloeschte Zeile: wird beim naechsten Absender-Edit wieder aufgefuellt', () => {
     const e = spiegelEntscheidung(
       lage({ modus: 'auto', letzterAutowert: 'L. Yagami • Wohnung der Yagami-Familie • Japan', aktuell: '' })
     );
-    assert(!e.schreiben, 'fuellt nicht wieder auf');
-    assertEqual(e.modus, 'manuell', 'Modus manuell');
+    assert(e.schreiben, 'leeres Feld wird gefuellt');
+    assertEqual(e.modus, 'auto', 'Modus auto');
+  });
+
+  it('einteilige Namen bekommen keine Initialen', () => {
+    /* "Miraculix" hat keinen zweiten Namen — ein Punkt waere erfunden. */
+    const e = spiegelEntscheidung(
+      lage({ aktuell: '', auto: 'Miraculix • Druidenhütte am Eichenhain • Aremorica', street: 'Druidenhütte am Eichenhain', city: 'Aremorica' })
+    );
+    assert(e.schreiben, 'schreibt den Namen');
+    assertEqual(e.letzterAutowert, 'Miraculix • Druidenhütte am Eichenhain • Aremorica', 'ohne Initiale');
   });
 
   it('unveraenderte Automatikzeile: kein Schreibvorgang, keine Schleife', () => {
@@ -4096,6 +4107,31 @@ describe('Testbrief: direkter Snapshot, nur die PLZ-Erkennung ist gesperrt', () 
     setTestbriefField('anrede', 'Sehr geehrte Damen und Herren,');
     assertEqual(el.getAttribute('data-autofill-aus'), null, 'keine Sperre noetig');
     assertEqual(el.textContent, 'Sehr geehrte Damen und Herren,', 'Wert steht direkt im Feld');
+  });
+});
+
+
+describe('Absatzabstand im Fließtext', () => {
+  /* DIN 5008 (Z. 1410): "Absaetze sind ... durch einen in der verwendeten
+   * Software eingestellten Absatzabstand (falls so nicht moeglich durch eine
+   * Leerzeile) zu trennen." Die Leerzeile ist also der Notfall, nicht das Ziel.
+   * Vorher: margin-bottom 4,5mm = genau eine Zeilenhöhe -> sah wie eine
+   * Leerzeile aus (gemessen 2026-11-12: 5,03mm Abstand). */
+  it('setzt den Absatzabstand auf eine halbe Zeile statt auf eine ganze', async () => {
+    for (const datei of ['/website/css/sheet-common.css', '/website/css/sheet-multipage.css']) {
+      const css = await (await fetch(datei)).text();
+      const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
+      assert(block !== '', `Regel #text p in ${datei}`);
+      assert(/margin:\s*0 0 2\.25mm 0/.test(block), `halbe Zeile (${datei})`);
+      assert(/margin:\s*0 0 4\.5mm 0/.test(block) === false, `keine ganze Zeile mehr (${datei})`);
+    }
+  });
+
+  it('haelt den Absatzabstand kleiner als die Zeilenhoehe (4,5mm)', async () => {
+    const css = await (await fetch('/website/css/sheet-common.css')).text();
+    const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
+    const mass = Number((block.match(/margin:\s*0 0 ([\d.]+)mm/) || [])[1]);
+    assert(mass > 0 && mass < 4.5, `Absatzabstand ${mass}mm liegt unter der Zeilenhoehe`);
   });
 });
 

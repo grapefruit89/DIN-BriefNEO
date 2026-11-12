@@ -14,6 +14,8 @@ import { bindListSelection, feld } from './address.js';
 import { AddressData, AddressIntelligence, normalizeText } from './address-data.js';
 import { Constants, Events, eventBus, hidePopoverSafe, notify, showPopoverSafe } from './core.js';
 
+import { Field } from './field.js';
+
 /**
  * Berechnet die Levenshtein-Distanz zwischen zwei normalisierten Strings.
  * @param {string} a
@@ -472,22 +474,22 @@ export class ClipboardAddressParser {
     // 2. Felder befüllen und Events triggern
     if (empfFirmaEl) {
       const firmaText = candidate.zusatz ? `${candidate.firma || ''}\n${candidate.zusatz}`.trim() : (candidate.firma || '');
-      empfFirmaEl.textContent = firmaText;
+      Field.setValue(empfFirmaEl, firmaText);
       empfFirmaEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     if (empfNameEl) {
-      empfNameEl.textContent = candidate.name || '';
+      Field.setValue(empfNameEl, candidate.name || '');
       empfNameEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     if (empfStrasseEl) {
-      empfStrasseEl.textContent = candidate.strasse;
+      Field.setValue(empfStrasseEl, candidate.strasse);
       empfStrasseEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     if (empfOrtEl) {
-      empfOrtEl.textContent = `${candidate.plz} ${candidate.ort}`;
+      Field.setValue(empfOrtEl, `${candidate.plz} ${candidate.ort}`);
       empfOrtEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
@@ -556,7 +558,7 @@ export class ClipboardAddressParser {
 
           const header = document.createElement('li');
           header.className = 'autocomplete-header';
-          header.textContent = `📋 ${candidates.length} Adressen gefunden:`;
+          Field.setValue(header, `📋 ${candidates.length} Adressen gefunden:`);
           popover.appendChild(header);
 
           /** @param {any} cand */
@@ -573,11 +575,11 @@ export class ClipboardAddressParser {
 
             const compSpan = document.createElement('strong');
             const mainLabel = cand.firma || cand.name || 'Empfänger';
-            compSpan.textContent = `${idx + 1}. ${mainLabel}`;
+            Field.setValue(compSpan, `${idx + 1}. ${mainLabel}`);
 
             const addrSpan = document.createElement('span');
             addrSpan.className = 'autocomplete-sub';
-            addrSpan.textContent = ` • ${cand.strasse}, ${cand.plz} ${cand.ort}`;
+            Field.setValue(addrSpan, ` • ${cand.strasse}, ${cand.plz} ${cand.ort}`);
 
             item.appendChild(compSpan);
             item.appendChild(addrSpan);
@@ -585,12 +587,12 @@ export class ClipboardAddressParser {
             if (!cand.verified) {
               const unverifiedBadge = document.createElement('span');
               unverifiedBadge.className = 'unverified-badge';
-              unverifiedBadge.textContent = ' (nicht verifiziert)';
+              Field.setValue(unverifiedBadge, ' (nicht verifiziert)');
               item.appendChild(unverifiedBadge);
             } else if (cand.ortMismatch && cand.canonicalOrt) {
               const mismatchBadge = document.createElement('span');
               mismatchBadge.className = 'mismatch-badge';
-              mismatchBadge.textContent = ` ⚠️ PLZ gehört zu ${cand.canonicalOrt}`;
+              Field.setValue(mismatchBadge, ` ⚠️ PLZ gehört zu ${cand.canonicalOrt}`);
               item.appendChild(mismatchBadge);
             }
 

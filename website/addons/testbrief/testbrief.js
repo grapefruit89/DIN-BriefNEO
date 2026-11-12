@@ -13,6 +13,7 @@
  */
 
 import { Events, eventBus } from '../../js/core.js';
+import { Field } from '../../js/field.js';
 import { applyLetterDate } from '../../js/format.js';
 import { SalutationEngine } from '../../js/salutation.js';
 
@@ -979,11 +980,11 @@ export function setField(id, value) {
     const absaetze = value.split('\n\n').filter((absatz) => absatz.trim() !== '');
     el.replaceChildren(...absaetze.map((absatz) => {
       const p = document.createElement('p');
-      p.textContent = absatz;
+      Field.setValue(p, absatz);
       return p;
     }));
   } else {
-    el.textContent = value || '';
+    Field.setValue(el, value || '');
   }
   el.dispatchEvent(new Event('input', { bubbles: true }));
 }
@@ -1342,19 +1343,19 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
 
   if (postvermerk) {
     if (postvermerkField) {
-      postvermerkField.textContent = postvermerk;
+      Field.setValue(postvermerkField, postvermerk);
       postvermerkField.setAttribute('data-visible', 'true');
     }
     if (pvSelect) pvSelect.value = postvermerk;
-    if (triggerLabel) triggerLabel.textContent = postvermerk;
+    if (triggerLabel) Field.setValue(triggerLabel, postvermerk);
     if (triggerBtn) triggerBtn.setAttribute('data-active', 'true');
   } else {
     if (postvermerkField) {
-      postvermerkField.textContent = '';
+      Field.setValue(postvermerkField, '');
       postvermerkField.removeAttribute('data-visible');
     }
     if (pvSelect) pvSelect.value = '';
-    if (triggerLabel) triggerLabel.textContent = '— kein —';
+    if (triggerLabel) Field.setValue(triggerLabel, '— kein —');
     if (triggerBtn) triggerBtn.removeAttribute('data-active');
   }
 
@@ -1392,7 +1393,7 @@ export function erstelleLangenDemoText() {
       p += `${DEMO_SAETZE[(i + j) % DEMO_SAETZE.length]} `;
     }
     const pEl = document.createElement('p');
-    pEl.textContent = p.trim();
+    Field.setValue(pEl, p.trim());
     absaetze.push(pEl);
   }
   return absaetze;
@@ -1410,9 +1411,9 @@ export function fuelleDemoText(modus) {
     text.replaceChildren(...erstelleLangenDemoText());
   } else {
     const p1 = document.createElement('p');
-    p1.textContent = 'Sehr geehrte Damen und Herren,';
+    Field.setValue(p1, 'Sehr geehrte Damen und Herren,');
     const p2 = document.createElement('p');
-    p2.textContent = 'dies ist ein kurzer Testbrief auf einer Seite. Nutzen Sie den Button „Langer Text“ oder tippen Sie weiteren Text ein, um den automatischen Umbruch auf Folgeseiten zu testen.';
+    Field.setValue(p2, 'dies ist ein kurzer Testbrief auf einer Seite. Nutzen Sie den Button „Langer Text“ oder tippen Sie weiteren Text ein, um den automatischen Umbruch auf Folgeseiten zu testen.');
     text.replaceChildren(p1, p2);
   }
   text.dispatchEvent(new Event('input', { bubbles: true }));

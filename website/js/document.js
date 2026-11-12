@@ -45,7 +45,7 @@ export function sanitizeRichText(htmlString, options = {}) {
    */
   const sanitizeNode = (node) => {
     if (node.nodeType === Node.TEXT_NODE) {
-      return document.createTextNode(node.textContent || '');
+      return document.createTextNode(Field.getValue(node));
     }
     if (node.nodeType !== Node.ELEMENT_NODE) {
       return document.createTextNode('');
@@ -92,7 +92,7 @@ export function formatElementMicroTypography(element) {
     const raw = element.textContent || '';
     const formatted = applyMicroTypography(raw);
     if (raw !== formatted) {
-      element.textContent = formatted;
+      Field.setValue(element, formatted);
     }
     return;
   }
@@ -425,7 +425,7 @@ export class UIProtections {
    * @returns {boolean}
    */
   #istZweizeiligVoll(target) {
-    const textUmbruch = (target.textContent || '').split('\n').length - 1;
+    const textUmbruch = Field.getValue(target).split('\n').length - 1;
     const harteUmbruch = target.querySelectorAll('br').length;
     const blockUmbruch = target.querySelectorAll(':scope > div, :scope > p').length;
     return textUmbruch + harteUmbruch + blockUmbruch >= 1;
@@ -516,7 +516,9 @@ export class UIProtections {
    * @param {Event} event
    */
   #handleInputLimit(event) {
-    const target = event.target instanceof Element ? event.target.closest('[contenteditable]') : null;
+    const target = event.target instanceof Element
+      ? event.target.closest('[contenteditable], input[data-feldtyp]')
+      : null;
     if (!target || !(target instanceof HTMLElement)) return;
     if (target.id === 'text') return; // Haupttext bleibt flexibel
     if (target.id === 'datum') target.dataset.dirty = 'true';
@@ -527,7 +529,7 @@ export class UIProtections {
     const text = target.textContent || '';
     if (text.length <= maxLimit) return;
 
-    target.textContent = text.substring(0, maxLimit);
+    Field.setValue(target, text.substring(0, maxLimit));
     const range = document.createRange();
     range.selectNodeContents(target);
     range.collapse(false);
@@ -619,7 +621,8 @@ export class UIProtections {
 
 /* Komma ist CSS-Selektor-Listen-Vereinigung (ODER, nicht UND):
  * Matcht contenteditable-Blattfelder UND speicherbare Formular-Selects (z. B. Postvermerk). */
-export const EDITABLE_FIELD_SELECTOR = '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], select[data-speichern]';
+export const EDITABLE_FIELD_SELECTOR =
+  '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-feldtyp], select[data-speichern]';
 
 /**
  * Sammelt den aktuellen Zustand aller editierbaren Felder direkt aus dem Live-DOM.
@@ -632,7 +635,7 @@ export function collectDraft() {
 
   if (typeof document === 'undefined') return draft;
 
-  document.querySelectorAll('[contenteditable], textarea[data-feldtyp]').forEach(elem => {
+  document.querySelectorAll('[contenteditable], textarea[data-feldtyp], input[data-feldtyp]').forEach(elem => {
     // #datum ist ein Systemwert, den der Nutzer bewusst aendern darf (Befund 1.2).
     // Der Anlagentext wird immer gespeichert, auch bei ausgeschaltetem Toggle (1.3) -
     // sonst ist er nach dem naechsten Reload endgueltig weg.

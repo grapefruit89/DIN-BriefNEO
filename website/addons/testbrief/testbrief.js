@@ -1343,16 +1343,16 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
 
   // Zusatzblöcke: Anlagen dynamisch steuern
   const anlagenToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
-  const anlagenEl = document.getElementById('anlagen-angabe');
   const anlagenText = resolveAnlagenEintrag(szenario, themenHook);
+  /* Ueber setField, wie alle anderen Felder: sonst gilt jede spaetere
+     Ergaenzung dort (z. B. Sperren, Events) fuer Anlagen und Postvermerk
+     nicht (Review 2026-11-12). */
   if (anlagenText) {
     if (anlagenToggle) anlagenToggle.checked = true;
-    if (anlagenEl instanceof HTMLTextAreaElement) {
-      anlagenEl.value = anlagenText;
-    }
+    setField('anlagen-angabe', anlagenText);
   } else {
     if (anlagenToggle) anlagenToggle.checked = false;
-    if (anlagenEl instanceof HTMLTextAreaElement) anlagenEl.value = '';
+    setField('anlagen-angabe', '');
   }
 
   const fussToggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
@@ -1369,7 +1369,7 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
 
   if (postvermerk) {
     if (postvermerkField) {
-      Field.setValue(postvermerkField, postvermerk);
+      setField('vermerke', postvermerk);
       postvermerkField.setAttribute('data-visible', 'true');
     }
     if (pvSelect) pvSelect.value = postvermerk;
@@ -1377,7 +1377,7 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
     if (triggerBtn) triggerBtn.setAttribute('data-active', 'true');
   } else {
     if (postvermerkField) {
-      Field.setValue(postvermerkField, '');
+      setField('vermerke', '');
       postvermerkField.removeAttribute('data-visible');
     }
     if (pvSelect) pvSelect.value = '';

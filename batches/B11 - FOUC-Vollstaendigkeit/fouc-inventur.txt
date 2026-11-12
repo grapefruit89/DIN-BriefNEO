@@ -130,6 +130,15 @@ Nutzeraktion entsteht.
 
 Kein `@keyframes` beim Laden, keine JS-Einblendung beim Start.
 
+**Was beim Laden NICHT passieren darf** (aus der Modern-CSS-Referenz
+`ANIMATION.md`, Papierkorb, gegen den FOUC-Fall gelesen): `@starting-style`
+ist per Definition eine Animation des ersten Frames, ebenso der rAF-Doppelwrap
+und `transition-behavior: allow-discrete` auf einem initial sichtbaren Element.
+Alle drei sind hier verboten — nicht weil sie schlecht sind, sondern weil
+"Zustand steht schon" und "erster Frame animiert" sich ausschliessen.
+Erlaubt bleibt View Transitions, aber nur durch Nutzeraktion ausgeloest
+(siehe settings.js/font-feature.js).
+
 ---
 
 ## 5. Belegte Rest-Defekte (Stand 2026-11-12, gemessen)

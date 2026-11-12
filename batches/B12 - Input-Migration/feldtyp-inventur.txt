@@ -1,0 +1,133 @@
+FELDTYP-INVENTUR — welche Stelle noch von contenteditable ausgeht
+
+Stand: 2026-11-12. Belegdatei zum Review-Auftrag B12.
+Gezaehlt im Code, nicht aus dem Gedaechtnis:
+  index.html: 28 x input[data-atom], 1 x textarea[data-feldtyp], 1 x contenteditable (#text)
+
+DIE MIGRATION IST ABGESCHLOSSEN (Commits 6ed2759 + fruer), aber der Code ist
+es nicht ueberall. Beweis, dass die Fehlerklasse real ist:
+
+  draft-manager.js, toggle-fuss-Migration, suchte noch
+      '#geschaeftsangaben > [contenteditable]'
+  Dort stehen seit dem Fusszeilen-Umbau <input>. `some()` war immer false,
+  Alt-Entwuerfe ohne `toggle-fuss` verloren ihre Fusszeile. Behoben am
+  2026-11-12 (Commit 0e647a8), Test haelt den Selektor fest.
+
+Das ist der Grund fuer diesen Batch: nicht "ist die Migration fertig?", sondern
+"welche Annahme ueber den Feldtyp gilt noch — und welche ist still falsch?"
+
+-------------------------------------------------------------------------------
+A) Stellen, die BEIDE Typen behandeln (vermutlich korrekt)
+-------------------------------------------------------------------------------
+
+website/js/field.js
+  isNative() / getValue() / setValue() — verzweigt input/textarea vs. Rest.
+  Kern der Abstraktion. Wer hier etwas aendert, aendert alle Pfade.
+
+website/js/document.js
+  EDITABLE_FIELD_SELECTOR =
+    '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp],
+     input[data-atom], select[data-speichern]'
+  Sammelstelle fuer collectDraft, Dirty-Tracking, Save-Trigger (L420, L435, L743, L876).
+
+website/js/address-data.js (L219, L234)
+  Schreibt/liest "egal ob natives Element oder contenteditable".
+
+website/js/main.js (L243)
+  Save-Trigger: closest('[contenteditable], input[data-atom], textarea[data-feldtyp]').
+
+website/js/boot-state.js (L106)
+  Seeder: input/textarea -> value, sonst isContentEditable -> DOMParser.
+
+website/css/sheet-common.css (L572-603)
+  Gemeinsamer Selektor :is([contenteditable], textarea[data-feldtyp], input[data-atom])
+  fuer Feld-Chrom, Hover, Fokus.
+
+-------------------------------------------------------------------------------
+B) Stellen, die NUR contenteditable behandeln — einzeln zu pruefen
+-------------------------------------------------------------------------------
+
+website/js/document.js
+  L100   getAttribute('contenteditable') === 'plaintext-only'  (Umbruchschutz)
+  L149   caret am Elementanfang (Range) — gilt das noch fuer <input>?
+  L445   "Alle contenteditable-Regeln an einer Stelle" (Enter, Umbruch, Rich-Text)
+  L451   closest('[contenteditable]') fuer Tastaturregeln
+  L673   Paste-Sanitizing: closest('[contenteditable]')
+         -> <input> bekommt natives Paste ohne sanitizeRichText. Risiko?
+  L861   Kommentar zu EDITABLE_FIELD_SELECTOR ("contenteditable-Blattfelder UND ...")
+
+website/js/draft-manager.js
+  L217   activeElem.hasAttribute('contenteditable') && id !== 'datum'
+         -> Caret-Restore. Fuer <input> greift ein anderer Pfad (selectionStart?)
+  L365   Behoben (siehe oben).
+
+website/js/address.js (L1082)
+  Kommentar: "contenteditable, die geplante Migration wuerde den Lookup sonst ..."
+  -> Aussage pruefen: stimmt sie noch, jetzt wo migriert ist?
+
+website/css/base.css (L325, L331)
+  [contenteditable]:empty::before  (Platzhalter)
+  [contenteditable]               (was genau? Zeile lesen)
+
+website/css/sheet-common.css
+  L403   .single-line[contenteditable]:focus  -> Klasse existiert die noch?
+  L639   [contenteditable][data-placeholder]:empty::before  (Platzhalter)
+  L653   :root:not([data-ready="true"]) ... (FOUC-Netz fuer Platzhalter und <input>?)
+
+website/css/sheet.css
+  L35, L48  contenteditable in Druckregeln — Datei ist NICHT eingebunden
+            (kein <link>, kein @import). Nur als Befund, nicht als Quelle.
+
+-------------------------------------------------------------------------------
+C) Bekannte Eigenheiten der neuen <input>-Felder (aus fruheren Messungen)
+-------------------------------------------------------------------------------
+
+- Ein <input> erbt font-size NICHT (UA 13,33 px). Ohne `font-size: inherit`
+  wird aus einer 3,2-mm-Zeile eine 4,2-mm-Zeile. Steht in sheet-common.css.
+- maxlength der <input> muss zu FIELD_MAX_LENGTHS in document.js passen;
+  A49-Eingabesperre (Breitenmessung) greift zusaetzlich.
+- Platzhalter: <input> nutzt ::placeholder (Styling + Druck transparent),
+  contenteditable nutzt ::before + :empty. Zwei Mechanismen — beide muessen
+  im Druck unsichtbar sein.
+- Doppelte Leerzeichen/Umbrueche: contenteditable kann <div>/<p> erzeugen,
+  <input> nicht. Die Absatz-Normalisierung in document.js betrifft nur #text.
+
+-------------------------------------------------------------------------------
+D) Fragen, die dieser Batch beantworten soll
+-------------------------------------------------------------------------------
+
+1. Ist EDITABLE_FIELD_SELECTOR die einzige Wahrheit fuer "ist ein Brief-Feld"?
+   Wo wird stattdessen direkt nach contenteditable oder data-atom gefragt?
+2. Gibt es Pfade, die fuer <input> stillschweigend nichts tun (weil sie
+   contenteditable erwarten) — ohne Fehler, ohne Log? (Genau der Migrationsfall.)
+3. Gibt es Pfade, die fuer #text jetzt <input>-Verhalten annehmen?
+4. Ist das Paste-Verhalten der <input>-Felder sicher (kein HTML, keine
+   Attribut-Injektion) und ist das belegt?
+5. Welche CSS-Regeln behandeln nur einen der beiden Typen, obwohl sie beide
+   meinen? (Platzhalter, Fokus, Druck, FOUC-Netz.)
+6. Wird der Feldtyp irgendwo aus dem Markup geraten (tagName-Vergleich), statt
+   ueber die Abstraktion? Aufzaehlen.
+7. Was haelt die Migration fest (Tests/Ratschen), und welche Regel fehlt noch?
+
+-------------------------------------------------------------------------------
+E) Was die Migration heute festhaelt (zitiert, weil test/all.js nicht beiliegt)
+-------------------------------------------------------------------------------
+
+P38-Ratsche (test/all.js, describe "contenteditable auf offenen Feldern"):
+  it('meldet kein offenes Feld mehr (Migration abgeschlossen)')
+    -> assertEqual(treffer.length, 0, 'keine offenen contenteditable-Felder')
+  Erlaubt-Liste: nur #text (Rich-Text).
+
+Migrations-Ratsche (2026-11-12, nach dem stillen Ausfall):
+  it('Draft-Migration prueft die input-Felder der Fusszeile')
+    assert(src.includes('#geschaeftsangaben > input'))
+    assert(!src.includes("'#geschaeftsangaben > [contenteditable]'"))
+
+Seeder-Ratsche (gleicher Tag):
+  it('boot-state.js seedet alle gespeicherten Regler und das Datum')
+    prueft 'stil-select', 'select-schriftart', 'btn-rand-u-30',
+           'plugin-testbrief', 'datum' und 'data-gesetzt' im Quelltext.
+
+Das sind Quelltext-Pruefungen: sie finden eine geloeschte Zeile, aber nicht
+einen falschen Feldtyp in einer NEUEN Zeile. Genau diese Luecke soll der
+Batch benennen.

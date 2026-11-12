@@ -19,6 +19,7 @@ Stand geben.** Nach Änderungen im Repo ist nichts nachzuziehen.
 | B11 - FOUC-Vollstaendigkeit | Welcher Zustand kommt zu spät? | boot.js, boot-state.js, main.js, settings.js, salutation.js, font-feature.js, draft-manager.js, index.html, 4 CSS + FOUC-Inventur | 55k |
 | B12 - Input-Migration | Welche Annahme über den Feldtyp gilt noch? | field.js, document.js, draft-manager.js, boot-state.js, main.js, format.js, persistence.js, salutation.js, clipboard-parser.js, index.html, 2 CSS + Feldtyp-Inventur | 60k |
 | B13 - Speicher-Pipeline | Datenverlust, Speicherstatus, Event-Bus | persistence.js, draft-manager.js, binary-storage.js, signature.js, font-feature.js, main.js, core.js, index.html + Speicher-Inventur | 55k |
+| B14 - Seitenleiste-UX | Informationsarchitektur, Einstellungs-Umschalter | index.html, sidebar.css, settings.js, main.js, document.js + Seitenleisten-Inventur | 45k |
 
 Jeder Batch enthält zusätzlich `KONTRAKT.md` (aus dem echten Importgraph
 erzeugt): was er von außen braucht, wer ihn von außen benutzt, und seine

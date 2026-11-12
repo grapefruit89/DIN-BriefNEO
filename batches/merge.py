@@ -30,6 +30,7 @@ THEMEN = {
     'B11 - FOUC-Vollstaendigkeit': 'FOUC-Vollstaendigkeit: welcher Zustand kommt zu spaet?',
     'B12 - Input-Migration': 'input vs. contenteditable: welche Annahme gilt noch?',
     'B13 - Speicher-Pipeline': 'Datenverlust, Speicherstatus und Event-Bus',
+    'B14 - Seitenleiste-UX': 'Informationsarchitektur und Einstellungs-Umschalter',
 }
 ORDER = {'.html': 0, '.css': 1, '.js': 2, '.txt': 3, '.json': 4}
 

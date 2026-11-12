@@ -1,0 +1,125 @@
+SEITENLEISTEN-INVENTUR — Ist-Zustand, gemessen am 2026-11-13
+
+Viewport bei der Messung: 1912 x 1007 (Debug-Browser, Dev-Server 8088).
+Alles hier ist gezaehlt oder abgelesen, nicht geschaetzt.
+
+-------------------------------------------------------------------------------
+A) Zonen und Reihenfolge (Brief-Modus, also Umschalter AUS)
+-------------------------------------------------------------------------------
+
+Kopfzeile
+  label#btn-einstellungen   (Zahnrad, oeffnet Einstellungen)
+  label#btn-zurueck         (nur im Einstellungs-Modus sichtbar)
+  button#btn-print          "Drucken / PDF"   <- liegt im KOPF, nicht im Fuss
+
+zone-dokument       (10 fokussierbare Regler, sichtbar)
+  fieldset + legend "DIN-Brief Layout"        Radio-Pille Form A / Form B
+  label "Falz- & Lochmarken"                  input switch
+  label "Brief-Stil & Anrede"                 select#stil-select
+  label "Postvermerk"                         select#seitenleiste-postvermerk-select
+  label "Textformatierung"                    Buttons fett/kursiv/Zitat ...
+  label "Anlagen"                             input switch
+  label "Fußzeile (§ 35a GmbHG)"              input switch
+
+zone-werkzeuge      (5 Regler, sichtbar)
+  label "Daten & Adressen"
+    input#input-anschrift-suche               (Adress-Autocomplete)
+    input#dinletter-uploader                  (Import)
+
+zone-setup          (14 Regler, im Brief-Modus NICHT sichtbar)
+  select#select-schriftart
+  input#font-uploader
+  label "Unterrand 30 mm"                     input switch
+  input#unterschriftsbild-datei
+  input#input-geoapify-key
+  label "Erweiterungen (Plugins)"
+  label "Testdaten-Generator"                 input switch
+
+zone-aktionen       (Fusszeile, 1 sichtbarer Regler)
+  button#btn-reset
+  (Drucken steht NICHT hier, sondern im Kopf)
+
+Zaehlung: 33 fokussierbare Elemente insgesamt, 19 sichtbar im Brief-Modus,
+14 im Einstellungs-Modus. Seitenleiste scrollt bei 1007 px Hoehe nicht
+(scrollHeight == clientHeight), ist aber `overflow-y: auto`.
+
+Tab-Reihenfolge: #btn-print ist der 4. sichtbare Stopp (Index 3) - die
+Hauptaktion ist also frueh erreichbar, obwohl sie optisch oben steht.
+
+-------------------------------------------------------------------------------
+B) Der Umschalter (Kern des Auftrags)
+-------------------------------------------------------------------------------
+
+Markup (index.html):
+
+  <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungen">
+  <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" tabindex="0"
+         role="button" aria-label="Einstellungen öffnen">...</label>
+  <label for="toggle-modus" id="btn-zurueck" class="btn-back" tabindex="0"
+         role="button" aria-label="Zurück zum Brief">...</label>
+
+Mechanik in CSS (sidebar.css, 10 Regeln):
+  #seitenleiste:has(#toggle-modus:checked) ...   blendet Kopfzeile, Zonen und
+  #seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup { display: none }
+
+Beobachtungen (Fakten, keine Bewertung):
+  - Der Modus-Schalter ist ein reiner Checkbox, OHNE das `switch`-Attribut.
+    Die 10 Options-Schalter daneben nutzen `<input switch>`.
+  - Zwei Labels mit `role="button"` und `tabindex="0"` haengen an derselben
+    Checkbox; eins ist je Modus sichtbar.
+  - Zustand (an/aus) wird nur ueber das Icon vermittelt; kein `aria-expanded`,
+    kein `aria-pressed`, kein `switch`-Rollenmodell.
+  - Kein Escape-Handler gefunden (settings.js kennt `toggleSettingsModus(force)`,
+    aber keinen Tastenpfad zurueck).
+  - Fokus wandert beim Umschalten nicht aktiv in die neue Zone.
+
+-------------------------------------------------------------------------------
+C) Informationsarchitektur (Ist)
+-------------------------------------------------------------------------------
+
+Es gibt 11 `seitenleiste-label`, 2 `fieldset`/`legend` und 0 Ueberschriften
+(h1-h3) in der Leiste. Die Ebenen sind also flach: jedes Label steht auf
+derselben Stufe, obwohl inhaltlich drei Ebenen existieren:
+
+  1. Dokument-Geometrie      Layout, Falzmarken, Unterrand
+  2. Dokument-Inhalt         Stil/Anrede, Postvermerk, Textformatierung,
+                             Anlagen, Fusszeile
+  3. Werkzeuge/Daten         Adresssuche, Import, Schrift, Unterschrift,
+                             Geoapify-Key, Testdaten
+
+Heutige Reihenfolge im Brief-Modus:
+  Layout -> Falzmarken -> Stil -> Postvermerk -> Textformatierung -> Anlagen
+  -> Fusszeile -> Daten & Adressen
+
+Der Buchstabe entsteht aber in anderer Reihenfolge (Adressen und Text stehen
+auf dem Blatt, nicht in der Leiste). Die Leiste beginnt mit einer
+Geometrie-Einstellung (Form A/B), nicht mit dem, was man beim Schreiben
+zuerst braucht.
+
+Hinweise auf gemischte Zustaendigkeiten:
+  - "Drucken" steht im Kopf, "Zuruecksetzen" im Fuss - zwei Aktionsorte.
+  - "Daten & Adressen" (Import) liegt zwischen Fusszeile und Fusszeile-Aktionen.
+  - Schrift, Unterschrift und Unterrand sind Dokument-Eigenschaften, sitzen
+    aber im Einstellungs-Modus; Form A/B ist genauso global und sitzt im
+    Brief-Modus.
+
+-------------------------------------------------------------------------------
+D) Was dieser Batch beantworten soll
+-------------------------------------------------------------------------------
+
+1. Soll die Reihenfolge dem Schreibablauf folgen (Timeline), und wenn ja:
+   welche Stationen? Empfaenger -> Datum/Betreff -> Text -> Anlagen ->
+   Gruss/Unterschrift -> Fusszeile -> Layout/Stil -> Export?
+2. Was gehoert in den Brief-Modus, was in die Einstellungen? Kriterium:
+   Haeufigkeit, Rueckholbarkeit, Sichtbarkeit auf dem Blatt.
+3. Wie sollte der Umschalter gebaut sein (Checkbox+Label, Button+Panel,
+   `<details>`, Disclosure-Pattern, `switch`-Rolle)? Was sagt ARIA APG,
+   was WCAG 2.2, was die Plattform (HTML `switch`)?
+4. Braucht die Leiste eine Hierarchie (Ueberschriften, fieldsets, Gruppen)
+   und wie tief?
+5. Progressive Disclosure: was bleibt immer sichtbar, was klappt auf, was
+   gehoert hinter "Erweitert"? Wann ist Verstecken ein Fehler?
+6. Messbare Kriterien fuer "besser": Tab-Stopps bis zur Hauptaktion,
+   Anzahl Regler pro Gruppe, Scrollhoehe bei 1007 px, Klicks bis zur
+   haeufigsten Aenderung. Vorher/Nachher, ohne Screenshots.
+7. Schmale Viewports: was passiert unter 600 px?

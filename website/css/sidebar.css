@@ -845,9 +845,9 @@ input[type="checkbox"][switch] {
 }
 
 /* --- SCHWEBENDE UI: TOASTS, POPOVERS & DIALOGE (aus ehemals floating.css) --- */
-/* Der Toast hängt am selben Strick wie #undo-hinweis: kein `display` im
-   Grundzustand, sonst überschreibt es `[popover]:not(:popover-open)
-   { display: none }` und der unsichtbare Block fängt Klicks auf dem Brief ab. */
+/* Kein `display` im Grundzustand: es überschreibt
+   `[popover]:not(:popover-open) { display: none }`, und der unsichtbare Block
+   fängt Klicks auf dem Brief ab (gemessen 2026-11-10). */
 #hinweis-v4 {
   position: fixed;
   top: 24px;
@@ -909,84 +909,6 @@ input[type="checkbox"][switch] {
 #hinweis-v4[data-type="error"]   { border-left: 4px solid var(--c-danger); }
 #hinweis-v4[data-type="info"]    { border-left: 4px solid var(--c-primary); }
 #hinweis-v4[data-type="warning"] { border-left: 4px solid var(--c-warning); }
-
-/* Undo-Hinweis nach Reset (Top-Layer Popover).
-   WICHTIG: Hier steht bewusst KEIN `display` — die UA-Regel
-   `[popover]:not(:popover-open) { display: none }` muss greifen. Ein
-   `display: flex` an dieser Stelle überschreibt sie, das geschlossene
-   Popover bleibt mit opacity: 0 im Layout und fängt als unsichtbare
-   Fläche alle Klicks auf dem Brief ab (gemessen 2026-11-10: der Block lag
-   über der Grußformel, Textauswahl traf "Rückgängig"). */
-#undo-hinweis {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  padding: 8px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  border-left: 4px solid var(--accent-color);
-  background: var(--bg-seitenleiste-glass);
-  backdrop-filter: var(--glass-blur);
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  box-shadow: var(--shadow-lg);
-  pointer-events: none;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: 
-    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
-    overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
-}
-
-#undo-hinweis:popover-open {
-  display: flex;
-  pointer-events: auto;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@starting-style {
-  #undo-hinweis:popover-open {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-}
-
-#btn-undo-reset {
-  font-weight: 600;
-  color: var(--accent-color);
-  padding: 4px 8px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
-#btn-undo-reset:hover {
-  background: color-mix(in oklch, var(--accent-color) 12%, transparent);
-}
-
-#undo-hinweis-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0 4px;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
-}
-
-#undo-hinweis-close:hover {
-  color: var(--c-danger);
-  background: oklch(50% 0.2 20 / 10%);
-}
 
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) {

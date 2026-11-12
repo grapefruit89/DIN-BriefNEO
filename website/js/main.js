@@ -4,7 +4,7 @@
 
 import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
 import { ClipboardAddressParser } from './clipboard-parser.js';
-import { Events, eventBus, hidePopoverSafe, initToastSystem, showPopoverSafe } from './core.js';
+import { Events, eventBus, initToastSystem } from './core.js';
 import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
 import { DraftManager } from './draft-manager.js';
 import { FontFeature } from './font-feature.js';
@@ -166,26 +166,6 @@ function initApp() {
     }
 
     const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
-    const undoHinweis = /** @type {HTMLElement | null} */ (document.getElementById('undo-hinweis'));
-    const btnUndoReset = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-undo-reset'));
-    const undoHinweisClose = /** @type {HTMLButtonElement | null} */ (document.getElementById('undo-hinweis-close'));
-    /** @type {any} */
-    let undoTimer = null;
-    let hasUndoSnapshot = false;
-
-    const clearUndoSnapshot = () => {
-      hasUndoSnapshot = false;
-      if (undoTimer) {
-        clearTimeout(undoTimer);
-        undoTimer = null;
-      }
-      try {
-        sessionStorage.removeItem('din_reset_snapshot');
-      } catch (e) {
-        console.warn('[Undo] sessionStorage.removeItem fehlgeschlagen:', e);
-      }
-      hidePopoverSafe(undoHinweis);
-    };
 
     if (btnReset && resetDialog) {
       resetDialog.addEventListener('close', () => {
@@ -193,54 +173,17 @@ function initApp() {
         queueMicrotask(() => { resetDialog.returnValue = ''; });
         if (!confirmed) return;
 
-        // Nur der letzte Reset ist rückgängig. Ein weiterer Reset überschreibt den Snapshot.
-        let snapshotSaved = false;
-        try {
-          const snapshot = collectDraft();
-          sessionStorage.setItem('din_reset_snapshot', JSON.stringify(snapshot));
-          snapshotSaved = true;
-        } catch (e) {
-          console.warn('[Undo] Snapshot konnte nicht in sessionStorage gesichert werden:', e);
-        }
-
+        /* Kein zweites Undo-Popover: der Dialog fragt bereits „Möchtest du
+           alle Texte wirklich zurücksetzen?". Ein „Rückgängig"-Hinweis danach
+           erklärt den Nutzer für unmündig (Entscheidung 2026-11-12). */
         draftManager.resetDraft();
         applyLetterDate();
         AddressIntelligence.targetLock = null;
-
-        if (snapshotSaved && undoHinweis) {
-          hasUndoSnapshot = true;
-          showPopoverSafe(undoHinweis);
-          if (undoTimer) clearTimeout(undoTimer);
-          undoTimer = setTimeout(clearUndoSnapshot, 5000);
-        }
       });
-    }
-
-    if (btnUndoReset) {
-      btnUndoReset.addEventListener('click', () => {
-        try {
-          const raw = sessionStorage.getItem('din_reset_snapshot');
-          if (raw) {
-            const data = JSON.parse(raw);
-            draftManager.restoreDraft(data);
-            AddressIntelligence.targetLock = null;
-          }
-        } catch (e) {
-          console.error('[Undo] Fehler beim Wiederherstellen des Snapshots:', e);
-        }
-        clearUndoSnapshot();
-      });
-    }
-
-    if (undoHinweisClose) {
-      undoHinweisClose.addEventListener('click', clearUndoSnapshot);
     }
 
     const briefblatt = document.querySelector('din-blatt') || document;
     briefblatt.addEventListener('input', (e) => {
-      if (hasUndoSnapshot) {
-        clearUndoSnapshot();
-      }
       if (e.target instanceof Element && e.target.closest('[contenteditable]')) {
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       }

@@ -15,12 +15,12 @@
   --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
 
   /* Spacer-Höhe auf Seite 1: schiebt den Betreff exakt an die DIN-5008-Position */
-  --spacer-hoehe: calc(98.46mm - var(--rand-o)); /* Form B: 73.46mm */
+  --spacer-hoehe: calc(107mm - var(--rand-o)); /* Betreff 107mm (Form B) */
 }
 
 :root[data-layout="form-a"],
 body:has(#btn-form-a:checked) {
-  --spacer-hoehe: calc(80.46mm - var(--rand-o)); /* Form A: 55.46mm */
+  --spacer-hoehe: calc(89mm - var(--rand-o)); /* Betreff 89mm (Form A) */
 }
 
 /* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout (C1: explizit --mm-abs-*) */
@@ -253,7 +253,8 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
        hatte der Bildschirm hier 25mm (--rand-o), der Druck 0 — deshalb stand
        der Betreff auf dem Schirm 25mm tiefer als im PDF (gemessen 2026-11-11:
        105,11 vs 80,11mm). */
-    padding: 0 var(--rand-r) var(--rand-u) var(--rand-l);
+    padding: 25mm var(--rand-r) 0 var(--rand-l);
+    background-origin: border-box;
     column-count: 1;
     column-height: var(--nutz);
     column-wrap: wrap;
@@ -294,7 +295,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
        ist; das haelt Bildschirm und Druck deckungsgleich.
        Vorher stand hier 6.65mm (312cc67) — das ergab 80,11mm und damit
        -15,62mm Abstand zum Infoblock-Ende, also mitten im Infoblock. */
-    margin-top: 33.54mm;
+    margin-top: 0;
     margin-bottom: 8.46mm;
     text-wrap: balance;
   }
@@ -352,7 +353,7 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
   #geschaeftsangaben {
     display: none;
     position: absolute;
-    top: 280mm;
+    top: 241mm;
     left: var(--rand-l);
     right: var(--rand-r);
     height: 15mm;
@@ -443,7 +444,7 @@ din-blatt[data-ueberlauf="true"]::after {
 
 @page {
   size: A4;
-  margin: 25mm 0 20mm 0;
+  margin: 25mm 0 var(--rand-u) 0;
   page-margin-safety: auto;
   @top-left {
     padding-left: 25mm;
@@ -461,11 +462,14 @@ din-blatt[data-ueberlauf="true"]::after {
 }
 
 @page :first {
-  /* Das Blatt IST die A4-Seite (210x297mm, Fusszeile bei ~285mm): jeder
-     Seitenrand schiebt es auf eine zweite Seite (gemessen 2026-11-11). */
-  margin: 0;
-  @top-left { content: none; }
-  @top-right { content: none; }
+  /* Oberrand wie auf jeder Folgeseite: der Textfluss beginnt im Band
+     (25-277mm). Das Blatt selbst wird per margin-top: -25mm auf die
+     Papierkante zurueckgezogen, damit die absoluten Blattkoordinaten
+     (Betreff 107/89mm, Fuss 241mm) stimmen. Nur der Unterrand kommt aus
+     @page, nicht aus geklontem Padding (gemessen 2026-11-12). */
+  margin: 25mm 0 var(--rand-u) 0;
+  @top-left { content: none !important; }
+  @top-right { content: none !important; }
 }
 
 
@@ -514,24 +518,29 @@ din-blatt[data-ueberlauf="true"]::after {
     position: relative !important;
     transform: none !important;
     box-shadow: none !important;
-    margin: 0 !important;
+    /* -25mm: hebt den Oberrand aus @page wieder auf, damit das Blatt bei
+       Papierkante 0 beginnt (sonst wandern alle absoluten Y-Werte um 25mm). */
+    margin: -25mm 0 0 0 !important;
     width: 210mm !important;
     max-width: 210mm !important;
     min-width: 210mm !important;
     height: auto !important;
+    /* ohne das ragt das 297mm-Blatt 20mm ueber die Seite und erzeugt ein
+       leeres Zusatzblatt (gemessen 2026-11-12: 5 Saetze -> 2 PDF-Seiten). */
+    min-height: 0 !important;
     container-type: normal !important;
   }
 
   #kern {
     min-height: 0 !important;
-    padding: 0 20mm var(--rand-u) 25mm !important; /* Unterrand: 20mm DIN oder 30mm (Setup) */
+    padding: 25mm 20mm 0 25mm !important; /* Oberrand aus dem Band, Unterrand aus @page */
     /* Unterrand fuer JEDE Seite, nicht nur die letzte: ein fragmentierter
        Block bekommt padding-bottom sonst nur am Blockende (gemessen
        2026-11-11: padding-bottom allein aenderte nichts, Seite 1 lief
        weiter bis 294,99mm). `clone` wiederholt die Box-Dekoration an jeder
        Seitengrenze -> Seite 1 endet bei 272,50mm, der Fussblock ab 285mm
        ueberlappt nicht mehr. */
-    box-decoration-break: clone !important;
+    box-decoration-break: slice !important; /* clone wuerde das obere Padding auf jeder Seite wiederholen */
     width: 210mm !important;
     box-sizing: border-box !important;
     column-count: auto !important;
@@ -609,4 +618,15 @@ din-blatt[data-ueberlauf="true"]::after {
     display: none !important;
   }
 
+}
+
+/* Ein-Seiten-Pfad: `body[data-seiten="1"] :scope { margin: 0 auto }` gewinnt
+   ueber Scope-Naehe gegen die Druckregel oben. Override gehoert in denselben
+   Scope, sonst bleibt das Blatt 25mm zu tief (gemessen 2026-11-12). */
+@media print {
+  @scope (din-blatt) {
+    body[data-seiten="1"] :scope {
+      margin: -25mm 0 0 0 !important;
+    }
+  }
 }

@@ -1089,10 +1089,24 @@ describe('Popover: geschlossene Overlays blockieren keine Klickfläche', () => {
       assertEqual(s.display, 'none', `${name}: display:none (UA-Regel greift)`);
       /* Für die Hinweis-Toasts zusätzlich pointer-events: none — sie lagen
          unsichtbar über dem Brief und schluckten Textauswahl (2026-11-10). */
-      if (name === 'hinweis-v4' || name === 'undo-hinweis') {
+      if (name === 'hinweis-v4') {
         assertEqual(s.pointerEvents, 'none', `${name}: keine Klickfläche`);
       }
     }
+  });
+
+  it('Reset bietet kein zweites Undo-Popover', async () => {
+    /* Entscheidung 2026-11-12: der Bestätigungsdialog ist die Sicherung.
+       Ein zusätzliches „Rückgängig"-Popover nach dem Reset erklärt den Nutzer
+       für unmündig und hält einen Snapshot im sessionStorage vor. */
+    const [html, js] = await Promise.all([
+      fetch('/website/index.html').then((r) => r.text()),
+      fetch('/website/js/main.js').then((r) => r.text())
+    ]);
+    assert(html.includes('id="undo-hinweis"') === false, 'kein #undo-hinweis im HTML');
+    assert(html.includes('id="btn-undo-reset"') === false, 'kein Rückgängig-Knopf im HTML');
+    assert(js.includes('din_reset_snapshot') === false, 'kein Reset-Snapshot im sessionStorage');
+    assert(js.includes('undoHinweis') === false, 'keine Undo-Popover-Verdrahtung in main.js');
   });
 
   it('ist im geöffneten Zustand sichtbar und klickbar', () => {
@@ -1182,11 +1196,20 @@ describe('Druck: A4-Seite ohne Ueberlauf (Print-CSS-Vertrag)', () => {
     return css;
   };
 
-  it('erste Seite ist randlos, Folgeseiten behalten 25/20 mm', async () => {
+  it('jede Seite beginnt im Band (25mm oben), Unterrand aus --rand-u', async () => {
+    /* Vertragsänderung 2026-11-12 (Bandmodell): Seite 1 hatte margin: 0 und
+     * damit keinen Oberrand; der Oberrand hing am Padding von #kern, das im
+     * Druck nicht auf Folgeseiten wiederholt wurde. Jetzt traegt @page den
+     * Oberrand fuer alle Seiten, das Blatt wird um genau diesen Betrag
+     * zurueckgezogen (absolute Y-Werte bleiben) und der Unterrand kommt aus
+     * --rand-u statt aus geklontem Padding. */
     const src = await lade();
-    assert(/@page :first\s*\{[^}]*margin:\s*0;/.test(src), '@page :first hat margin: 0');
-    assert(/[^:]first[\s\S]{0,80}margin:\s*0 0 20mm 0/.test(src) === false, 'kein 20mm-Unterrand auf Seite 1');
-    assert(/@page\s*\{[^}]*margin:\s*25mm 0 20mm 0;/.test(src), 'Folgeseiten: 25mm oben, 20mm unten');
+    assert(/@page :first\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(src),
+      '@page :first hat denselben Oberrand wie die Folgeseiten');
+    assert(/@page\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(src),
+      'Folgeseiten: 25mm oben, Unterrand aus --rand-u');
+    assert(/din-blatt\s*\{[^}]*margin:\s*-25mm 0 0 0 !important/.test(src),
+      'Blatt wird um den Oberrand zurueckgezogen');
   });
 
   it('Viewport und Briefansicht verlieren ihr Bildschirm-Layout im Druck', async () => {
@@ -1423,23 +1446,23 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
   /** @param {string} s */
   const zahl = (s) => Number(String(s).replace(',', '.'));
 
-  it('Form B: 98,46mm Briefkopf - rand-o + margin-top = 107,0mm', async () => {
+  it('Form B: Oberrand 25mm + Spacer 82mm = 107,0mm', async () => {
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)mm/) || [])[1]);
-    const briefkopf = zahl((css.match(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/) || [])[1]);
-    assertEqual(margin, 33.54, 'margin-top 33,54mm');
-    assertEqual(briefkopf, 98.46, 'Form-B-Briefkopf 98,46mm');
-    assertEqual(+(briefkopf - 25 + margin).toFixed(2), 107, 'Betreff-Box = 107,00mm (rand-o 25mm)');
+    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)(?:mm)?/) || [])[1]);
+    const spacer = zahl((css.match(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/) || [])[1]);
+    assertEqual(margin, 0, 'kein eigener Zuschlag am Betreff');
+    assertEqual(spacer, 107, 'Spacer endet auf der Falzmarken-Zielhoehe 107mm');
+    assertEqual(+(25 + (spacer - 25) + margin).toFixed(2), 107, 'Betreff-Box = 107,00mm (rand-o 25mm)');
   });
 
   it('Form A: 80,46mm Briefkopf - rand-o + margin-top = 89,0mm', async () => {
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)mm/) || [])[1]);
+    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)(?:mm)?/) || [])[1]);
     const spacers = [...css.matchAll(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/g)].map((m) => zahl(m[1]));
-    assertEqual(spacers.length, 2, 'zwei Briefkopf-Varianten (Form A und B)');
-    assertEqual(spacers[0], 98.46, 'Form-B-Briefkopf 98,46mm');
-    assertEqual(spacers[1], 80.46, 'Form-A-Briefkopf 80,46mm');
-    assertEqual(+(spacers[1] - 25 + margin).toFixed(2), 89, 'Betreff-Box = 89,00mm (18mm Falzmarken-Delta)');
+    assertEqual(spacers.length, 2, 'zwei Form-Varianten (Form A und B)');
+    assertEqual(spacers[0], 107, 'Form-B-Spacer 107mm');
+    assertEqual(spacers[1], 89, 'Form-A-Spacer 89mm');
+    assertEqual(+(25 + (spacers[1] - 25) + margin).toFixed(2), 89, 'Betreff-Box = 89,00mm (18mm Falzmarken-Delta)');
     // Kein form-A-Sonderfall: derselbe margin-top gilt fuer beide Formen.
     assert(/data-layout="form-a"[^{]*\{[^}]*betreff/.test(css) === false, 'kein eigenes Betreff-Margin fuer Form A');
   });
@@ -1519,17 +1542,17 @@ describe('Betreff — Abstand zum Infoblock', () => {
    * 80,90mm (Ink), das DIN-Minimum waere 89,36mm. Der Betreff richtet sich
    * nach Falzmarke 1: margin-top 33,54mm -> 107mm. Der Wert am Element bleibt
    * (Semantik der Norm), nur die Zahl ist neu. */
-  it('setzt margin-top 33.54mm am Betreff, nicht am Spacer', async () => {
+  it('setzt keinen Zuschlag am Betreff — die Position kommt aus dem Spacer', async () => {
     const css = await (await fetch('/website/css/sheet-multipage.css')).text();
     const regel = (css.match(/#betreff\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(regel !== '', 'Regel #betreff gefunden');
-    const oben = (regel.match(/margin-top:\s*([\d.]+)mm/) || [])[1];
-    assertEqual(oben, '33.54', 'margin-top = 33.54mm (Briefkopf 73,46 -> 107,00mm)');
+    const oben = (regel.match(/margin-top:\s*([\d.]+)(?:mm)?/) || [])[1];
+    assertEqual(oben, '0', 'margin-top = 0 (vorher 33.54mm als zweiter Zuschlag)');
     // Der Abstand nach dem Betreff bleibt unangetastet (zwei Leerzeilen bis zur Anrede).
     assert(regel.includes('margin-bottom: 8.46mm'), 'margin-bottom bleibt 8.46mm');
-    // Gegenprobe: die Spacer-Höhe darf nicht mitgewachsen sein (Briefkopf unverändert).
+    // Der Betreff-Anker ist die Falzmarke, nicht die alte Briefkopf-Rechnung.
     const spacer = (css.match(/--spacer-hoehe:\s*calc\(([^)]*)\)/) || [])[1] ?? '';
-    assert(spacer.includes('98.46mm'), 'Spacer bleibt bei 98.46mm (Briefkopf unverändert)');
+    assert(spacer.includes('107mm'), 'Spacer rechnet ab 107mm (Falzmarke 1 + 2mm)');
   });
 });
 
@@ -1547,8 +1570,8 @@ describe('WYSIWYG — Bildschirm und Druck gleich', () => {
     const treffer = css.match(/#spacer\s*\{[^}]*?height:\s*[\d.]+mm\s*!important/g) || [];
     assertEqual(treffer.length, 0, 'kein #spacer mit !important-Hoehe');
     // Die Hoehe kommt allein aus der Variablen, die beide Pfade lesen.
-    assert(/--spacer-hoehe:\s*calc\(98\.46mm - var\(--rand-o\)\)/.test(css),
-      '--spacer-hoehe bleibt 98.46mm - rand-o (73,46mm)');
+    assert(/--spacer-hoehe:\s*calc\(107mm - var\(--rand-o\)\)/.test(css),
+      '--spacer-hoehe rechnet ab 107mm - rand-o (82mm)');
   });
 
   it('das Print-Override fuer #kern traegt keinen zusaetzlichen oberen Rand', async () => {
@@ -1556,10 +1579,11 @@ describe('WYSIWYG — Bildschirm und Druck gleich', () => {
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
     const basis = (css.match(/#kern\s*\{([^}]*)\}/) || [])[1] ?? '';
     const pad = (basis.match(/padding:\s*([^;]+);/) || [])[1] ?? '';
-    assert(pad.trim().startsWith('0 '), `Basis-Padding beginnt mit 0 (ist "${pad.trim()}")`);
-    // Der Druck setzt ebenfalls padding-top 0 — kein Pfad darf 25mm addieren.
-    assert(/padding:\s*0 20mm var\(--rand-u\) 25mm !important/.test(css),
-      'Print-Override bleibt bei padding-top 0');
+    assert(pad.trim().startsWith('25mm'), `Basis-Padding beginnt mit 25mm (ist "${pad.trim()}")`);
+    /* Druck: derselbe Oberrand wie der Schirm. Der Unterrand kommt aus @page
+       (sonst wiederholt ihn box-decoration-break oder er fehlt ganz). */
+    assert(/padding:\s*25mm 20mm 0 25mm !important/.test(css),
+      'Print-Override traegt denselben 25mm-Oberrand, Unterrand 0');
   });
 });
 
@@ -1579,8 +1603,8 @@ describe('Unterrand (20/30)', () => {
     try {
       assertEqual(setzeRandU(20), '20mm', '--rand-u = 20mm');
       const css = await (await fetch('/website/css/sheet-multipage.css')).text();
-      assert(/#kern\s*\{[^}]*padding:\s*0 20mm var\(--rand-u\) 25mm/.test(css),
-        'padding-bottom kommt aus --rand-u');
+      assert(/@page\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(css),
+        'der Unterrand kommt aus --rand-u (in @page, nicht im Padding)');
     } finally {
       document.documentElement.style.removeProperty('--rand-u');
     }
@@ -1622,18 +1646,18 @@ describe('Druck — Unterrand und Fußzeile', () => {
 
   it('1: einseitiger Fix aus 9204041 bleibt erhalten', async () => {
     const src = ohneKommentare(await lade());
-    assert(/@page :first\s*\{[^}]*margin:\s*0;/.test(src), '@page :first hat margin: 0');
-    assert(/@page :first\s*\{[^}]*margin:\s*0 0 20mm 0/.test(src) === false,
-      'kein 20mm-Seitenrand auf Seite 1 (wuerde die leere Seite 2 zurueckbringen)');
+    assert(/@page :first\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(src),
+      '@page :first traegt denselben Oberrand wie die Folgeseiten');
+    assert(/din-blatt\s*\{[^}]*margin:\s*-25mm 0 0 0 !important/.test(src),
+      'Blatt wird um den Oberrand zurueckgezogen (kein leeres Zusatzblatt)');
   });
 
   it('2: #kern reserviert 20mm Unterrand im Druck', async () => {
     /* Vertragsänderung 2026-11-11: der Unterrand ist einstellbar (20/30mm).
      * Die Regel liest --rand-u, der Default bleibt DIN 5008 = 20mm. */
-    const druck = await druckBlock();
-    assert(/#kern\s*\{[^}]*padding:\s*0 20mm var\(--rand-u\) 25mm/.test(druck),
-      'Unterrand kommt aus --rand-u');
     const src = ohneKommentare(await lade());
+    assert(/@page\s*\{[^}]*margin:\s*25mm 0 var\(--rand-u\) 0;/.test(src),
+      'Unterrand kommt aus --rand-u (@page)');
     assert(/:root\s*\{[^}]*--rand-u:\s*20mm/.test(src), 'Default --rand-u: 20mm (DIN 5008)');
   });
 
@@ -1641,8 +1665,8 @@ describe('Druck — Unterrand und Fußzeile', () => {
     /* padding-bottom allein wirkt am fragmentierten Block nur am Blockende
      * (gemessen: identische PDF-Ausgabe). `clone` wiederholt es pro Seite. */
     const druck = await druckBlock();
-    assert(/#kern\s*\{[^}]*box-decoration-break:\s*clone/.test(druck),
-      'box-decoration-break: clone auf #kern');
+    assert(/#kern\s*\{[^}]*box-decoration-break:\s*slice/.test(druck),
+      'box-decoration-break: slice auf #kern (clone wiederholte den Oberrand pro Seite)');
   });
 
   it('4: Fußzeile beginnt unterhalb des Textbereichs', async () => {
@@ -1653,9 +1677,12 @@ describe('Druck — Unterrand und Fußzeile', () => {
     const druck = await druckBlock();
     // Default aus :root, weil der Druck die Variable liest (einstellbar 20/30mm)
     const padUnten = Number((src.match(/--rand-u:\s*([\d.]+)mm/) || [])[1]);
-    assert(top > 0 && padUnten > 0, `Werte lesbar (top=${top}mm, padding=${padUnten}mm)`);
-    assert(297 - padUnten <= top,
-      `Textende ${297 - padUnten}mm muss ueber Fussbeginn ${top}mm liegen`);
+    const hoehe = Number((fussRegel.match(/height:\s*([\d.]+)mm/) || [])[1]);
+    assert(top > 0 && padUnten > 0 && hoehe > 0, `Werte lesbar (top=${top}mm, hoehe=${hoehe}mm, padding=${padUnten}mm)`);
+    /* Vertragsänderung 2026-11-12: der Fuss muss INNERHALB des Bands
+       (25-277mm) liegen. 280mm lag ausserhalb und wurde abgeschnitten. */
+    assert(top > 25 && top + hoehe <= 297 - padUnten,
+      `Fuss ${top}..${top + hoehe}mm muss im Band bis ${297 - padUnten}mm liegen`);
   });
 });
 

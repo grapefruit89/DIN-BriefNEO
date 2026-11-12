@@ -11,6 +11,7 @@
 | Datei | Zeilen | Typ | Primäre Verantwortung | Abhängigkeiten (Imports) |
 |---|:---:|---|---|---|
 | [`boot.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/boot.js) | 67 | Script / Head | FOUC-Schutz, Pre-Paint-Theme & Font-Initialisierung | *keine* (synchron vor DOM) |
+| [`boot-state.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/boot-state.js) | 67 | Script / Body | Setzt den gespeicherten UI-Zustand (Form, Postvermerk, Schalter) vor dem ersten Paint | *keine* (synchron, liest localStorage) |
 | [`webapi.d.ts`](file:///home/moritz/repos/DIN-BriefNEO/website/js/webapi.d.ts) | 47 | Typisierung | Ambient Types für Bleeding-Edge-APIs (`Temporal`, `ariaNotify`) | *keine* |
 | [`binary-storage.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/binary-storage.js) | 129 | Service | IndexedDB-Speicher für Blobs (Custom Fonts, Unterschriften) | *keine* (autark) |
 | [`multipage-controller.js`](file:///home/moritz/repos/DIN-BriefNEO/website/js/multipage-controller.js) | 149 | Layout-Engine | Mehrseiten-Brief (CSSStyleSheet-Injektion, Folgeköpfe) | *keine* (DOM/CSSOM) |
@@ -62,7 +63,7 @@ Die Module folgen einem hierarchischen Schichtenmodell (von unbeeinflussten Grun
 ┌───────────────────▼────────────────────────────────────────────────────┐
 │ Layer 0: Fundament & zustandslose Werkzeuge                            │
 │   core.js (EventBus, Popover-Toasts, Constants)                        │
-│   format.js (Pure DIN-5008 Formatters) · boot.js (FOUC Head-Script)    │
+│   format.js (Pure DIN-5008 Formatters) · boot.js/boot-state.js (FOUC) │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 

@@ -48,7 +48,7 @@ Code; dann diesen Wegweiser korrigieren.
 | Testbrief-Generator | `website/addons/testbrief/testbrief.js`, `website/addons/testbrief/figuren.json`, `docs/20-implementation/testbrief-generator.md` | `node tools/testbrief-messung.mjs` | Messgate |
 | Neue Figur oder Hook | `website/addons/testbrief/figuren.json` | `node tools/testbrief-messung.mjs` | Messgate |
 | Seitenleiste, Dialoge, Theme | `website/index.html`, `website/css/sidebar.css`, `website/js/settings.js` | `--filter=SettingsManager` | test-runner |
-| Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
+| Boot, FOUC, Reihenfolge | `website/js/boot.js`, `website/js/boot-state.js`, `website/js/main.js` | `--filter="Zero Scrollbars"` (lädt die App) | beide |
 | Antipattern-Regel, Gate | `tools/reconciliation.js`, `tools/antipatterns/project.json` | `node tools/reconciliation.js --only-rules` | beide |
 | contenteditable-Feld migrieren | `docs/10-architecture/ADR-CONTENTEDITABLE-MIGRATION.md` (13 Fallstricke), `website/js/field.js` | `--filter="Anlagen-Migration|Field"` | test-runner |
 
@@ -56,6 +56,7 @@ Code; dann diesen Wegweiser korrigieren.
 
 ```
 website/js/boot.js               FOUC-Guard, blockierend im <head>, VOR dem DOM
+website/js/boot-state.js         UI-Zustand (Form, Postvermerk) am Body-Ende, VOR dem ersten Paint
 website/js/main.js               Orchestrator: bootStep()-Kette, verdrahtet alle Module
 website/js/core.js               EventBus + Hinweise + Constants. KEINE Fachlogik.
 website/js/document.js           contenteditable, Sanitizer, Caret, Feldlimits, collectDraft()

@@ -58,13 +58,15 @@ Kurve/Dauer wie die Pille (`0.28s`), nur `@media screen` und
 |---|---|---|---|---|---|
 | `#btn-form-a/b` | 85/87 | `din_settings.layout` | boot-state 39–41, settings 94/97 | **pre-paint** | `data-layout` (sheet-common 39) + `body:has(#btn-form-a:checked)` (40) |
 | `#toggle-falzmarken` | 94 | `din_settings.marks` | boot-state 44–45, settings 107 | **pre-paint** | `data-marks` (sheet-common 112) |
-| `#stil-select` | 105 | `din_settings.formality` | **nur** salutation.js 186 | **post-paint** ❌ | `:has(option:checked…)` sidebar 636 |
+| `#stil-select` | 105 | `din_settings.formality` | boot-state (neu) + salutation.js 186 | **pre-paint** | `data-gesetzt` (sidebar 640) |
 | `#seitenleiste-postvermerk-select` | 114 | `din_draft_current.vermerke` | boot-state 55–57 | **pre-paint** | `:has(option:checked…)` sidebar 636 |
 | `#toggle-anlagen` | 165 | `din_draft_current` | boot-state 64–65 | **pre-paint** | `data-anlagen` (multipage 431, common 160) |
 | `#toggle-fuss` | 170 | `din_draft_current` | boot-state 64–65 | **pre-paint** | `data-fuss` (common 160) |
-| `#select-schriftart` | 202 | `din_settings.previewFont` | **nur** font-feature.js 87 | **post-paint** ❌ | keine (nur Optik des Selects) |
-| `#btn-rand-u-30` | 221 | `din_settings.randU` | **nur** settings.js 116 | **post-paint** ❌ | `--rand-u` (pre-paint? nein) |
-| `#plugin-testbrief` | 257 | `din_settings.pluginTestbrief` | boot.js 51 (Attribut) + settings 108 (Schalter) | Attribut pre-paint, **Schalter post-paint** ⚠️ | `data-plugin-testbrief` |
+| `#select-schriftart` | 202 | `din_settings.previewFont` | boot-state (neu) + font-feature.js 87 | **pre-paint** | `data-gesetzt` |
+| `#btn-rand-u-30` | 221 | `din_settings.randU` | boot-state (neu) + settings.js 116 | **pre-paint** | `data-gesetzt` (Optik) |
+| `#plugin-testbrief` | 257 | `din_settings.pluginTestbrief` | boot.js 51 (Attribut) + boot-state (neu) + settings 108 | **pre-paint** | `data-plugin-testbrief` |
+| `#datum` | 145 | `din_draft_current.datum` bzw. heute | boot-state (neu) + `applyLetterDate()` | **pre-paint** | keiner (Feldwert) |
+| `#unterschriftsbild-vorschau[src]` | — | IndexedDB (`loadBlob('signature')`) | signature.js 73/232 (async) | **post-paint, offen** | `body:has(#…[src]…)` (sheet-common) |
 | `#toggle-modus` | 43 | keiner (Nutzeraktion) | settings.js 185–190 | Nutzeraktion | `:has(#toggle-modus:checked)` sidebar 730–788 |
 
 ❌ = belegter Defekt (siehe Abschnitt 5). ⚠️ = Attribut stimmt, Schalter-Optik
@@ -85,7 +87,7 @@ Einträge, Dialoge, `#hinweis-v4`, `.save-status`, Feld-Fokus.
 
 | Datei:Zeile | Selektor | Warum |
 |---|---|---|
-| `sidebar.css:636` | `.seitenleiste-select:has(option:checked:not([value=""]))` | „gefüllt"-Optik hängt am Select-Wert → bei spätem Seeding entsteht die Aufblend-Transition |
+| `sidebar.css` (jetzt `[data-gesetzt="true"]`) | war `.seitenleiste-select:has(option:checked:not([value=""]))` | „gefüllt"-Optik hing am Select-Wert → Aufblend-Transition; jetzt Attribut aus boot-state.js |
 | `sidebar.css:730–788` | `#seitenleiste:has(#toggle-modus:checked) …` | schaltet ganze Zonen; nur bei Nutzeraktion ok, weil `#toggle-modus` nie beim Laden gesetzt wird |
 | `sheet-common.css:40` | `body:has(#btn-form-a:checked) din-blatt` | Doppelweg zu `data-layout`; Radio wird pre-paint gesetzt, aber es ist ein zweiter Schreiber |
 | `sheet.css:227` | `:root:has(#toggle-anlagen:checked) din-anlagenvermerk` | **Datei wird nicht geladen** (kein `<link>`, kein `@import`) — Altlast |
@@ -152,6 +154,18 @@ Betroffen, gleiche Ursache:
 4. `#plugin-testbrief` — `settings.js:108` (Attribut ist pre-paint, Schalter nicht)
 
 Nicht betroffen: alles, was in Abschnitt 2 „pre-paint" ist.
+
+**Nachgetragen am 2026-11-12 (Review zu B11):** `#datum` (leer → heute),
+`#btn-schrift-aktion[data-font-state]` (async Blob, liegt in `#zone-setup`,
+latent), `#unterschriftsbild-vorschau[src]` (async aus IndexedDB, **auf dem
+Blatt sichtbar**, offen), `--active-font-family` (bewusst akzeptiert,
+~50–100 ms Systemschrift).
+
+**Falle, die alle Seeder betrifft:** Attribut-Aenderung und `data-seeded` im
+selben Task = ein Recalc = CSS sieht „Wert neu + Uebergaenge an" und startet
+die Transition trotz Sperre. `boot-state.js` erzwingt deshalb einen einzelnen
+Style-Read vor der Freigabe. Messung danach: 0 Aenderungen nach FCP,
+0 Frames mit Animation (47 Regler erfasst).
 
 ---
 

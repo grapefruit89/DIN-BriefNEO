@@ -17,6 +17,20 @@ import { SettingsManager } from './settings.js';
 import { SignatureFeature } from './signature.js';
 
 /**
+ * Spiegelt die "gefuellt"-Optik einer Auswahlliste ins Attribut.
+ *
+ * CSS liest `data-gesetzt` (pre-paint aus boot-state.js), nicht den
+ * Formularzustand: `:has(option:checked)` blendete die Aenderung nach dem
+ * Paint auf (gemessen 2026-11-12). Nur bei Abweichung schreiben.
+ * @param {HTMLSelectElement | null | undefined} sel
+ */
+function spiegleSelectGesetzt(sel) {
+  if (!sel) return;
+  const wert = sel.value !== '' ? 'true' : 'false';
+  if (sel.getAttribute('data-gesetzt') !== wert) sel.setAttribute('data-gesetzt', wert);
+}
+
+/**
  * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
  * Das Feld ist die Wahrheit (Sichtbarkeit folgt aus seinem Text), die Liste
  * ist nur Bedienoberfläche.
@@ -29,6 +43,7 @@ function syncPostvermerkFromSidebar(value) {
 
   const val = typeof value === 'string' ? value : (sel?.value ?? '');
   if (sel && sel.value !== val) sel.value = val;
+  spiegleSelectGesetzt(sel);
 
   /* Field statt textContent: #vermerke ist seit 2026-11-12 ein <input>.
      Mit textContent blieb das Feld leer und zeigte nur seinen Platzhalter
@@ -237,6 +252,13 @@ function initApp() {
         syncPostvermerkFromSidebar(pvSelect.value);
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
+    }
+
+    /* "Gefuellt"-Optik aller Auswahllisten folgt dem Wert, auch wenn der
+       Nutzer waehlt oder die Liste programmatisch gesetzt wird. */
+    for (const liste of document.querySelectorAll('select.seitenleiste-select')) {
+      const select = /** @type {HTMLSelectElement} */ (liste);
+      select.addEventListener('change', () => spiegleSelectGesetzt(select));
     }
 
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));

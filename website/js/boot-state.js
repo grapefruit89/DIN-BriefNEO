@@ -44,6 +44,34 @@
     const marks = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     if (marks) marks.checked = settings.marks !== false;
 
+    /* 2b. Die restlichen gespeicherten Regler. Sie standen bis 2026-11-12 nur
+       in settings.js / font-feature.js / salutation.js - also NACH dem ersten
+       Paint. Belegt an #stil-select: erster Frame "formal" (HTML-Default),
+       15 ms nach FCP sprang er auf den Speicherwert. Jeder Wert wird gegen die
+       vorhandenen Optionen geprueft, damit nichts Fremdes aus localStorage in
+       ein Control wandert. Die alten Stellen bleiben (idempotent). */
+    const stil = /** @type {HTMLSelectElement | null} */ (document.getElementById('stil-select'));
+    if (stil && [...stil.options].some((o) => o.value === settings.formality)) {
+      stil.value = String(settings.formality);
+    }
+    const schrift = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
+    if (schrift && [...schrift.options].some((o) => o.value === settings.previewFont)) {
+      schrift.value = String(settings.previewFont);
+    }
+    const randU = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
+    if (randU) randU.checked = settings.randU === 30;
+    const testbrief = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+    if (testbrief) testbrief.checked = settings.pluginTestbrief !== false;
+
+    /* 2c. "Gefuellt"-Optik der Auswahllisten: CSS las dafuer
+       `:has(option:checked...)` und blendete die Aenderung nach dem Paint auf
+       (gemessen 2026-11-12: background-color 30 -> 139 ms). Jetzt Attribut,
+       das hier vor dem Paint steht; CSS liest nur noch `data-gesetzt`. */
+    for (const liste of document.querySelectorAll('select.seitenleiste-select')) {
+      const wahl = /** @type {HTMLSelectElement} */ (liste);
+      liste.setAttribute('data-gesetzt', wahl.value !== '' ? 'true' : 'false');
+    }
+
     /* 3. Postvermerk: Auswahlliste und Blattfeld zeigen denselben Wert. */
     const vermerk = typeof draft.vermerke === 'string' ? draft.vermerke : '';
     const feld = /** @type {HTMLInputElement | null} */ (document.getElementById('vermerke'));
@@ -82,6 +110,27 @@
         el.replaceChildren(...geparst.body.childNodes);
       }
     }
+    /* 5b. Briefdatum: fehlt `datum` im Entwurf, blieb das Feld bis
+       applyLetterDate() (main.js, nach dem Paint) leer - im Infoblock sichtbar
+       (Befund B11). Hier denselben Text vorbelegen, den format.js erzeugt:
+       gleiche Quelle wie currentISODate(), also Temporal mit expliziter Zone
+       und dateStyle 'long' (A48/TM1 und A50 verlangen das so, auch in
+       Kommentaren). Wer format.js aendert, muss diese Zeile mitpruefen. */
+    const datum = /** @type {HTMLInputElement | null} */ (document.getElementById('datum'));
+    if (datum && !datum.value.trim() && typeof Temporal !== 'undefined') {
+      datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')
+        .toPlainDate()
+        .toLocaleString('de-DE', { dateStyle: 'long' });
+    }
+
+    /* Einmal Style/Layout erzwingen, BEVOR die Sperre faellt. Sonst landen die
+       Attribut-Aenderungen und die Freigabe der Uebergaenge im selben Recalc -
+       CSS sieht "Wert neu + Uebergaenge an" und startet die Transition trotz
+       Sperre (gemessen 2026-11-12: #stil-select blendete von 0 bis 200 ms auf,
+       obwohl data-seeded erst am Ende gesetzt wird). Ein einzelner Read,
+       kein Polling (A49). */
+    void document.documentElement.offsetHeight;
+
     /* Signal fuer CSS: Zustand steht. Die Regler, deren Wert aus localStorage
        kommt, sind bis hierher unsichtbar (siehe sidebar.css). NICHT an
        data-ready haengen: das setzt main.js erst am Ende von initApp, also

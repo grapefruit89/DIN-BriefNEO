@@ -36,8 +36,9 @@ din-blatt {
   --lochmarke-y: --mm-y(attr(data-lochmarke-y type(<number>)));
 }
 
-:root[data-layout="form-a"] din-blatt,
-body:has(#btn-form-a:checked) din-blatt {
+/* Nur data-layout steuert das Blatt. Der zweite Pfad ueber
+   `body:has(#btn-form-a:checked)` war ein doppelter Schreiber (Befund B11). */
+:root[data-layout="form-a"] din-blatt {
   --briefkopf-y: --mm-y(attr(data-briefkopf-y-a type(<number>)));
   --anschriftfeld-y: --mm-y(attr(data-anschriftfeld-y-a type(<number>)));
   --infoblock-y: --mm-y(attr(data-infoblock-y-a type(<number>)));

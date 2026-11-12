@@ -1272,6 +1272,25 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     assertEqual(treffer.length, 0, `noch offen: ${treffer.length}`);
   });
 
+  it('Draft-Migration prueft die input-Felder der Fusszeile (Regressionsschutz)', async () => {
+    /* Befund B11: die Migration suchte '#geschaeftsangaben > [contenteditable]'.
+       Seit dem Fusszeilen-Umbau (2026-11-12) stehen dort <input>, some() war
+       immer false und Alt-Entwuerfe ohne toggle-fuss verloren die Fusszeile. */
+    const src = await (await fetch('/website/js/draft-manager.js')).text();
+    assert(src.includes('#geschaeftsangaben > input'), 'input-Felder im Migrations-Selektor');
+    assert(!src.includes("'#geschaeftsangaben > [contenteditable]'"), 'alter Selektor ist entfernt');
+  });
+
+  it('boot-state.js seedet alle gespeicherten Regler und das Datum', async () => {
+    /* Ratsche gegen die Rueckkehr des FOUC: jeder dieser Werte stand schon
+       einmal erst nach dem Paint im DOM (Befund B11). */
+    const src = await (await fetch('/website/js/boot-state.js')).text();
+    for (const id of ['stil-select', 'select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
+      assert(src.includes(`'${id}'`), `#${id} wird vor dem Paint gesetzt`);
+    }
+    assert(src.includes('data-gesetzt'), 'Auswahllisten-Optik laeuft ueber das Attribut');
+  });
+
   it('laesst den Rich-Text in Ruhe', async () => {
     const { treffer } = await pruefeHtml();
     for (const id of ERLAUBT) {

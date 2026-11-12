@@ -361,8 +361,12 @@ export class DraftManager {
       } else {
         // Migration: alte Drafts kennen den Toggle nicht. Vorhandener Text
         // bedeutet "Fusszeile war an" - sonst waere er unsichtbar.
+        /* `#geschaeftsangaben` enthaelt seit 2026-11-12 native <input>
+           (fuss-*), keine contenteditable-Felder mehr. Der alte Selektor fand
+           nichts, `some()` war immer false und Alt-Entwuerfe ohne
+           `toggle-fuss` verloren ihre Fusszeile (Befund B11). */
         fussSwitch.checked = Array.from(
-          document.querySelectorAll('#geschaeftsangaben > [contenteditable]')
+          document.querySelectorAll('#geschaeftsangaben > input, #geschaeftsangaben > [contenteditable]')
         ).some((sp) => Field.getValue(sp).trim() !== '');
       }
     }

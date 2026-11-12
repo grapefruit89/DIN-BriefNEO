@@ -2709,3 +2709,26 @@ zustandsabhaengige Eigenschaft in dieselbe Falle.
 **Messung nach dem Fix:** FCP 76 ms, Frames mit laufenden Animationen: 0
 (vorher 15). Nach dem Seeding: select `background, color, border-color,
 box-shadow`, Label `color`, Schalter `all` — Hover/Klick animieren weiter.
+
+### Nachtrag 3 (2026-11-12): die Sperre und die Aenderung im selben Recalc
+
+**Befund.** Nach dem Seeding der vier Regler war `#stil-select` im ersten Frame
+richtig, blendete aber weiter auf: `data-gesetzt` (Optik) und `data-seeded`
+(Sperre) landeten im **selben** Style-Recalc. CSS sieht dann "Wert neu +
+Uebergaenge an" und startet die Transition — die Sperre greift nicht, weil zum
+Zeitpunkt der Aenderung schon kein Uebergang mehr gesperrt ist.
+
+**Fix.** `boot-state.js` erzwingt vor dem Setzen von `data-seeded` einen
+einzelnen Style-/Layout-Read (`offsetHeight`). Danach ist die Sperre im
+naechsten Recalc noch aktiv, die Freigabe selbst animiert nichts. Kein Polling,
+kein Timer (A49).
+
+**Zweiter Befund (Regression aus dem Fusszeilen-Umbau).** `draft-manager`
+suchte in der `toggle-fuss`-Migration `#geschaeftsangaben > [contenteditable]`.
+Seit 6ed2759 stehen dort `<input>` → `some()` immer false, Alt-Entwuerfe ohne
+`toggle-fuss` verloren ihre Fusszeile. Jetzt werden `input` **und**
+`contenteditable` geprueft; ein Test haelt den Selektor fest.
+
+**Dritter Befund.** `#datum` war im ersten Frame leer, wenn der Entwurf kein
+Datum enthielt — `applyLetterDate()` laeuft erst nach dem Paint. `boot-state.js`
+setzt jetzt denselben Text (Temporal, Zone Europe/Berlin, `dateStyle: 'long'`).

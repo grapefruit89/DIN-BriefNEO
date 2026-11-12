@@ -427,8 +427,11 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
    1.4em Höhe (4 × 3.70 mm + 2 mm Padding = 16.8 mm, also 1.8 mm Überlauf).
    Mit 1.2 Zeilenhöhe: 4 × 3.18 mm + 2 mm = 14.7 mm. */
 
-:root:has(#toggle-anlagen:checked) din-anlagenvermerk,
-:root:has(#toggle-anlagen:checked) #anlagenvermerk {
+/* Sichtbarkeit aus data-anlagen (boot.js, pre-paint). NICHT auf
+   :has(#toggle-anlagen:checked) zurueckstellen: der Schalter wird erst am
+   Body-Ende gesetzt, das Blatt war damit im ersten Frame falsch. */
+:root[data-anlagen="true"] din-anlagenvermerk,
+:root[data-anlagen="true"] #anlagenvermerk {
   display: block;
 }
 
@@ -619,8 +622,8 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
     page-break-inside: avoid !important;
   }
 
-  :root:not(:has(#toggle-anlagen:checked)) din-anlagenvermerk,
-  :root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk {
+  :root:not([data-anlagen="true"]) din-anlagenvermerk,
+  :root:not([data-anlagen="true"]) #anlagenvermerk {
     display: none !important;
   }
 

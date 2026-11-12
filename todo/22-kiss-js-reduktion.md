@@ -241,3 +241,15 @@ schiebt den Text beim Weitertippen aus dem Feld. A49-Ausnahme und Begründung
 stehen im `docs/30-meta/DECISION-LOG.md`, die Ausnahme in
 `tools/antipatterns/project.json` (P3). Beleg: 200 Anschläge → 54 Zeichen,
 `scrollWidth` = `clientWidth` = 624.
+
+---
+
+## K15 — `draft-manager.#restoreState` beim Erst-Load abschalten (offen)
+
+Der Batch B10 schlägt vor, den zweiten Restore-Pfad beim Initial-Load zu
+deaktivieren, damit nur `boot-state.js` den Zustand setzt. **Nicht ohne
+Vorarbeit:** `#restoreState` macht zusätzlich Fußzeilen-Migration,
+`data-quelle`, Vermerk-Sichtbarkeit, Select-Sync und die Undo-Initialisierung.
+Diese Aufgaben müssten zuerst nach `boot-state.js` wandern, sonst entsteht
+eine neue stille Doppelung. Aufwand M, Risiko hoch — zuletzt umsetzen, mit
+eigener rAF-Messung.

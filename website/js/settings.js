@@ -14,6 +14,29 @@ import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistenc
 export { FONT_PRESETS } from './font-feature.js';
 
 /**
+ * Setzt ein Attribut nur, wenn es abweicht.
+ *
+ * Der Zustand wird EINMAL vor dem Paint gesetzt (boot.js im <head>,
+ * boot-state.js am Body-Ende). Nach dem Paint darf dieselbe Stelle ihn
+ * hoechstens bestaetigen — sonst entstehen zwei Schreiber und damit die
+ * FOUC-Klasse, die wir 2026-11-12 mehrfach hatten (DECISION-LOG).
+ * @param {Element} el
+ * @param {string} name
+ * @param {string} wert
+ */
+function setzeAttribut(el, name, wert) {
+  if (el.getAttribute(name) !== wert) el.setAttribute(name, wert);
+}
+
+/**
+ * @param {HTMLInputElement | null} box
+ * @param {boolean} wert
+ */
+function setzeSchalter(box, wert) {
+  if (box && box.checked !== wert) box.checked = wert;
+}
+
+/**
  * @param {any} target
  * @param {() => void} fn
  */
@@ -66,13 +89,13 @@ export class SettingsManager {
 
   applySettings() {
     const layout = this.settings.layout || 'form-b';
-    document.documentElement.setAttribute('data-layout', layout);
-    if (this.btnFormA && this.btnFormB) {
-      if (layout === 'form-a') {
-        /** @type {HTMLInputElement} */ (this.btnFormA).checked = true;
-      } else {
-        /** @type {HTMLInputElement} */ (this.btnFormB).checked = true;
-      }
+    setzeAttribut(document.documentElement, 'data-layout', layout);
+    if (layout === 'form-a') {
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormA), true);
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormB), false);
+    } else {
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormA), false);
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormB), true);
     }
 
     const currentTheme = this.settings.theme || 'auto';
@@ -81,12 +104,8 @@ export class SettingsManager {
     const currentStyle = this.settings.style || 'default';
     this.applyStyle(currentStyle);
 
-    if (this.btnMarksSwitch) {
-      this.btnMarksSwitch.checked = this.settings.marks !== false;
-    }
-    if (this.pluginTestbriefSwitch) {
-      this.pluginTestbriefSwitch.checked = Boolean(this.settings.pluginTestbrief);
-    }
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), this.settings.marks !== false);
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), Boolean(this.settings.pluginTestbrief));
 
     /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
      * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
@@ -95,7 +114,7 @@ export class SettingsManager {
     this.settings.randU = randU;
     document.documentElement.style.setProperty('--rand-u', `${randU}mm`);
     const randUSwitch = document.getElementById('btn-rand-u-30');
-    if (randUSwitch instanceof HTMLInputElement) randUSwitch.checked = randU === 30;
+    if (randUSwitch instanceof HTMLInputElement) setzeSchalter(randUSwitch, randU === 30);
 
     this.#spiegleLayoutFlags();
     this.#applyPlugins();
@@ -122,7 +141,7 @@ export class SettingsManager {
 
   #spiegleLayoutFlags() {
     const root = document.documentElement;
-    root.setAttribute('data-marks', this.settings.marks === false ? 'false' : 'true');
+    setzeAttribut(root, 'data-marks', this.settings.marks === false ? 'false' : 'true');
   }
 
   /**
@@ -203,7 +222,7 @@ export class SettingsManager {
    */
   changeLayout(layout) {
     this.settings.layout = layout;
-    document.documentElement.setAttribute('data-layout', layout);
+    setzeAttribut(document.documentElement, 'data-layout', layout);
     this.updateSettings();
   }
 

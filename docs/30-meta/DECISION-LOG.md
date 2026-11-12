@@ -2653,3 +2653,32 @@ Ruckeln, der Rahmen bleibt.
 Platz. Kein Eingriff in `maxlength` (bleibt als Grob-Deckel). Rahmen gemessen:
 `solid 2px oklch(0.55 0.22 25)`, Animation `feld-voll-stopp 0.18s`, nach 450 ms
 Attribut und Rahmen weg.
+
+## 2026-11-12 — Zustand: einmal vor dem Paint, danach nur bestätigen
+
+**Regel (nicht zurückbauen).** Jeder Zustand, den CSS sieht, steht als Attribut
+am `<html>` und wird **genau einmal** gesetzt: in `boot.js` (head) oder
+`boot-state.js` (Body-Ende). Nach dem Paint darf eine Stelle ihn höchstens
+**bestätigen** (`setzeAttribut`/`setzeSchalter` schreiben nur bei Abweichung).
+CSS liest für Blatt-Verhalten **nur Attribute**, nicht `:checked`.
+
+**Warum.** Vier FOUC-Runden an einem Tag (erster Frame leer, Form-Pille falsch,
+Schalter falsch, Postvermerk falsch) kamen aus derselben Doppelung:
+`data-layout` hatte 3 Schreiber, `.checked` 10 Stellen, `:checked` stand in 31
+CSS-Selektoren, und es gab zwei Restore-Pfade (`boot-state.js` vor dem Paint,
+`draft-manager`/`settings` danach).
+
+**Konkret geändert (2026-11-12):**
+- `data-anlagen` / `data-fuss` neu; `boot.js` liest den Entwurf und setzt sie
+  vor dem Paint. `sheet-common.css` und `sheet-multipage.css` lesen sie statt
+  `:has(#toggle-…:checked)`.
+- `settings.js` schreibt Attribute/`.checked` nur bei Abweichung; `main.js`
+  schreibt den Postvermerk nur, wenn Liste und Feld auseinanderlaufen.
+- `draft-manager` spiegelt die Schalter-Attribute nach Undo/Multi-Tab/Import
+  und beim Reset; `data-quelle` bekommt eine Whitelist (`auto`/`manuell`).
+
+**Was bewusst NICHT gemacht wurde:** `draft-manager.#restoreState` beim
+Erst-Load abschalten. Es macht mehr als Feldwerte (Fußzeilen-Migration,
+`data-quelle`, Vermerk-Sichtbarkeit, Select, Undo-Stack). Wer das ändert, muss
+diese Aufgaben vorher in `boot-state.js` übernehmen — sonst entsteht die
+nächste stille Doppelung. Offener Punkt: `todo/22` K15.

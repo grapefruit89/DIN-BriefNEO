@@ -116,7 +116,13 @@ din-lochmarke {
   visibility: hidden;
 }
 
-:root:has(#toggle-fuss:checked) din-geschaeftsangaben {
+/* Sichtbarkeit kommt aus data-fuss (boot.js, pre-paint), NICHT aus dem
+   Schalter: `:has(#toggle-fuss:checked)` war im ersten Frame falsch.
+   Beide Selektoren, weil `#geschaeftsangaben` als ID (1,0,0) eine reine
+   Element-Regel schlaegt — die alte :has()-Regel war durch den ID im :has
+   staerker (1,1,0). */
+:root[data-fuss="true"] din-geschaeftsangaben,
+:root[data-fuss="true"] #geschaeftsangaben {
   display: grid;
 }
 
@@ -610,8 +616,8 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       font-style: italic;
     }
 
-  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
-    :root:has(#toggle-fuss:checked) #geschaeftsangaben {
+  :root[data-fuss="true"] din-geschaeftsangaben,
+    :root[data-fuss="true"] #geschaeftsangaben {
       display: grid;
     }
 

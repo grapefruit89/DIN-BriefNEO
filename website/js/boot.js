@@ -55,6 +55,26 @@ try {
    * liegen (nichts geloescht). */
   root.setAttribute('data-plugin-multipage', 'true');
 
+  /* Anlagen und Fusszeile stehen im ENTWURF, nicht in den Einstellungen. Auch
+   * sie muessen vor dem ersten Paint als Attribut am <html> stehen: CSS haengt
+   * die Sichtbarkeit daran (data-anlagen/data-fuss). Vorher las CSS
+   * `:has(#toggle-anlagen:checked)` — der Schalter wird aber erst am Body-Ende
+   * gesetzt, also war das Blatt im ersten Frame falsch (gemessen 2026-11-12).
+   * NICHT auf `:has(:checked)` zurueckstellen: das ist der Fehler, nicht die
+   * Abkuerzung. Zustand kommt aus localStorage, Darstellung aus dem Attribut. */
+  /** @type {Record<string, unknown>} */
+  let entwurf = {};
+  try {
+    const roh = JSON.parse(localStorage.getItem('din_draft_current') || '{}');
+    entwurf = roh && typeof roh === 'object' ? roh : {};
+  } catch {
+    entwurf = {};
+  }
+  const istAn = entwurf['toggle-anlagen'] === true || entwurf['toggle-anlagen'] === 'true';
+  const istFuss = entwurf['toggle-fuss'] === true || entwurf['toggle-fuss'] === 'true';
+  root.setAttribute('data-anlagen', istAn ? 'true' : 'false');
+  root.setAttribute('data-fuss', istFuss ? 'true' : 'false');
+
   /* Unterrand 20/30mm vor dem ersten Paint setzen (FOUC-Schutz): die
    * Druckregel von #kern liest --rand-u. Nur 20 und 30 sind zulaessig. */
   const RAND_U_WHITELIST = new Set([20, 30]);

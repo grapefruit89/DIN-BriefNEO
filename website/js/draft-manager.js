@@ -271,7 +271,13 @@ export class DraftManager {
     Object.keys(draft).forEach(id => {
       if (id.endsWith('__quelle')) {
         const ziel = document.getElementById(id.slice(0, -'__quelle'.length));
-        if (ziel && typeof draft[id] === 'string') ziel.dataset.quelle = draft[id];
+        /* Whitelist: der Wert kommt aus localStorage und landet in einem
+           Attribut. Nur die zwei erlaubten Herkuenfte durchlassen (A61-Naehe:
+           nichts Ungeprueftes aus dem Speicher ins DOM). */
+        const ERLAUBTE_QUELLEN = new Set(['auto', 'manuell']);
+        if (ziel && typeof draft[id] === 'string' && ERLAUBTE_QUELLEN.has(draft[id])) {
+          ziel.dataset.quelle = draft[id];
+        }
         return;
       }
       const elem = document.getElementById(id);
@@ -345,6 +351,8 @@ export class DraftManager {
     if (anlagenSwitch && 'toggle-anlagen' in draft) {
       anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
     }
+    /* Attribut ist die Wahrheit fuer CSS; nach Undo/Multi-Tab/Import neu setzen. */
+    document.documentElement.setAttribute('data-anlagen', anlagenSwitch?.checked ? 'true' : 'false');
 
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     if (fussSwitch) {
@@ -358,6 +366,7 @@ export class DraftManager {
         ).some((sp) => Field.getValue(sp).trim() !== '');
       }
     }
+    document.documentElement.setAttribute('data-fuss', fussSwitch?.checked ? 'true' : 'false');
 
     this.#isRestoring = false;
     this.#setSaveStatus('saved');
@@ -443,6 +452,9 @@ export class DraftManager {
     if (fussSwitch) {
       fussSwitch.checked = false;
     }
+    /* Reset ist auch ein Zustandswechsel: Attribute (CSS-Wahrheit) mitziehen. */
+    document.documentElement.setAttribute('data-anlagen', 'false');
+    document.documentElement.setAttribute('data-fuss', 'false');
     // Datum: Markierung loeschen und Feld leeren, damit applyLetterDate wieder "heute" setzt.
     const datumEl = document.getElementById('datum');
     if (datumEl) {

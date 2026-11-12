@@ -134,7 +134,13 @@ function initApp() {
     AddressIntelligence.targetLock = null;
   }, { critical: true });
   bootStep('Postvermerk', () => {
-    syncPostvermerkFromSidebar(Field.getValue(document.getElementById('vermerke')));
+    /* Zustand steht schon aus boot-state.js (vor dem Paint). Nur schreiben,
+       wenn Liste und Feld wirklich auseinanderlaufen — sonst zweiter Schreiber. */
+    const pvWert = Field.getValue(document.getElementById('vermerke')).trim();
+    const pvAuswahl = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('seitenleiste-postvermerk-select')
+    );
+    if (!pvAuswahl || pvAuswahl.value !== pvWert) syncPostvermerkFromSidebar(pvWert);
   });
   bootStep('Briefdatum', () => applyLetterDate());
 
@@ -236,6 +242,9 @@ function initApp() {
     const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
     if (anlagenSwitch) {
       anlagenSwitch.addEventListener('change', () => {
+        /* Attribut ist die Wahrheit fuer CSS (pre-paint gesetzt), der Schalter
+           ist das Eingabegeraet - beide hier synchron halten. */
+        document.documentElement.setAttribute('data-anlagen', anlagenSwitch.checked ? 'true' : 'false');
         const anlagenEl = document.getElementById('anlagen-angabe');
         if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
           anlagenEl.value = 'Anlage 1';
@@ -251,6 +260,7 @@ function initApp() {
       const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
       if (!schalter) continue;
       schalter.addEventListener('change', () => {
+        document.documentElement.setAttribute('data-fuss', schalter.checked ? 'true' : 'false');
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }

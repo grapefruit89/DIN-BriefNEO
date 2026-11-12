@@ -3,12 +3,12 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD 8e31aaf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: HEAD e5290cf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
 B6/
-├── index.html                     427 Zeilen
+├── index.html                     426 Zeilen
 ├── sidebar.css                   1191 Zeilen
 ├── settings.js                    289 Zeilen
 ├── signature.js                   312 Zeilen
@@ -19,19 +19,19 @@ B6/
 ## Quellen (Snapshot)
 | Datei | Pfad im Repo | Zeilen | SHA256 |
 |---|---|---:|---|
-| `index.html` | `website/index.html` | 427 | `18666528` |
+| `index.html` | `website/index.html` | 426 | `0500a649` |
 | `sidebar.css` | `website/css/sidebar.css` | 1191 | `5b3bde12` |
 | `settings.js` | `website/js/settings.js` | 289 | `0cd62f41` |
 | `signature.js` | `website/js/signature.js` | 312 | `5d2a89f8` |
-| `KONTRAKT.md` | `batches/B6/KONTRAKT.md` | 32 | `9dc0d76b` |
+| `KONTRAKT.md` | `batches/B6/KONTRAKT.md` | 32 | `6a892a09` |
 
-Gesamt: 90561 Zeichen ≈ 22k Token.
+Gesamt: 90470 Zeichen ≈ 22k Token.
 
 ## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
 
 | Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |
 |---|---:|---:|---:|---:|---:|
-| `index.html` | 427 | 0 | 0 | 0 | 0 |
+| `index.html` | 426 | 0 | 0 | 0 | 0 |
 | `sidebar.css` | 1191 | 0 | 0 | 0 | 0 |
 | `settings.js` | 289 | 2 | 12 | 8 | 11 |
 | `signature.js` | 312 | 1 | 8 | 6 | 6 |
@@ -47,7 +47,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
 
 
 ==============================================================================
-===== index.html  (website/index.html, 427 Zeilen, sha256:18666528)
+===== index.html  (website/index.html, 426 Zeilen, sha256:0500a649)
 ==============================================================================
 
 <!-- @adr [[ADR-HTML]]  -->
@@ -366,8 +366,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
                  eigenes Element daneben. data-x/data-w erbt sie vom Container
                  (SSoT). -->
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
-              data-x="25" data-w="85" data-h="45" data-font="10"
-              data-visier-top="5" data-visier-w="90" data-visier-h="45">
+              data-x="25" data-w="85" data-h="45" data-font="10">
               <div id="zusatzzone" role="group" aria-label="Zusatz- und Vermerkzone">
                 <input type="text" id="rucksendeangabe" data-font="7" data-atom placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="120">
                 <din-vermerke id="vermerke" data-font="8" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-vermerke>
@@ -427,7 +426,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
             </din-geschaeftsangaben>
             <div id="unterschriftsbild-container">
               <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box" tabindex="0" aria-label="Unterschrift verschieben und skalieren">
-                <div class="unterschriftsbild-griff bottom-right" data-aktion="resize" data-richtung="br"></div>
+                <div class="unterschriftsbild-griff bottom-right" data-aktion="resize"></div>
                 <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
                 <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift" draggable="false">
               </div>
@@ -2290,7 +2289,7 @@ export class SignatureFeature {
 
 
 ==============================================================================
-===== KONTRAKT.md  (batches/B6/KONTRAKT.md, 32 Zeilen, sha256:9dc0d76b)
+===== KONTRAKT.md  (batches/B6/KONTRAKT.md, 32 Zeilen, sha256:6a892a09)
 ==============================================================================
 
 # Verträge zu B6
@@ -2306,7 +2305,7 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 | Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
 |---|---:|---|---|
 | `website/js/binary-storage.js` | 129 | `localStorage` kann nur Strings speichern; Base64 bläht Binärdaten um ~33 % auf und ist | `deleteBlob`, `loadBlob`, `saveBlob` |
-| `website/js/core.js` | 267 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus`, `notify` |
+| `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus`, `notify` |
 | `website/js/font-feature.js` | 283 | CSS Font Loading API Injection und Persistenz (FontFeature) | `FONT_PRESETS` |
 | `website/js/persistence.js` | 849 | DateFormat (ehem. 47-date-format.js): DIN-Datum via Intl.DateTimeFormat & Temporal API | `DEFAULT_SETTINGS`, `STORAGE_KEYS`, `loadJSON`, `saveJSON` |
 

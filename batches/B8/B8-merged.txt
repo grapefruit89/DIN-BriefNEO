@@ -3,7 +3,7 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD 8e31aaf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: HEAD e5290cf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
@@ -19,7 +19,7 @@ B8/
 |---|---|---:|---|
 | `address-data.js` | `website/js/address-data.js` | 918 | `86b40db5` |
 | `font-feature.js` | `website/js/font-feature.js` | 283 | `9cc1641e` |
-| `KONTRAKT.md` | `batches/B8/KONTRAKT.md` | 34 | `09c3801a` |
+| `KONTRAKT.md` | `batches/B8/KONTRAKT.md` | 34 | `9fe8096a` |
 
 Gesamt: 43003 Zeichen ≈ 10k Token.
 
@@ -1254,7 +1254,7 @@ export class FontFeature {
 
 
 ==============================================================================
-===== KONTRAKT.md  (batches/B8/KONTRAKT.md, 34 Zeilen, sha256:09c3801a)
+===== KONTRAKT.md  (batches/B8/KONTRAKT.md, 34 Zeilen, sha256:9fe8096a)
 ==============================================================================
 
 # Verträge zu B8
@@ -1270,7 +1270,7 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 | Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
 |---|---:|---|---|
 | `website/js/binary-storage.js` | 129 | `localStorage` kann nur Strings speichern; Base64 bläht Binärdaten um ~33 % auf und ist | `deleteBlob`, `loadBlob`, `saveBlob` |
-| `website/js/core.js` | 267 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `notify` |
+| `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `notify` |
 | `website/js/persistence.js` | 849 | DateFormat (ehem. 47-date-format.js): DIN-Datum via Intl.DateTimeFormat & Temporal API | `DEFAULT_SETTINGS`, `STORAGE_KEYS`, `loadJSON`, `saveJSON` |
 
 Die Kopfzeile kann irreführen: mehrere Module bündeln mehrere Abschnitte

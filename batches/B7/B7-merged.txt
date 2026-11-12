@@ -3,7 +3,7 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD 8e31aaf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: HEAD e5290cf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
@@ -17,7 +17,7 @@ B7/
 | Datei | Pfad im Repo | Zeilen | SHA256 |
 |---|---|---:|---|
 | `testbrief.js` | `website/addons/testbrief/testbrief.js` | 1455 | `512b7b6d` |
-| `KONTRAKT.md` | `batches/B7/KONTRAKT.md` | 29 | `3cc5a55a` |
+| `KONTRAKT.md` | `batches/B7/KONTRAKT.md` | 29 | `d6038c6b` |
 
 Gesamt: 60476 Zeichen ≈ 15k Token.
 
@@ -1499,7 +1499,7 @@ export { wuerfelTestbrief as starteTestbrief };
 
 
 ==============================================================================
-===== KONTRAKT.md  (batches/B7/KONTRAKT.md, 29 Zeilen, sha256:3cc5a55a)
+===== KONTRAKT.md  (batches/B7/KONTRAKT.md, 29 Zeilen, sha256:d6038c6b)
 ==============================================================================
 
 # Verträge zu B7
@@ -1514,7 +1514,7 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 
 | Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
 |---|---:|---|---|
-| `website/js/core.js` | 267 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Events`, `eventBus` |
+| `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Events`, `eventBus` |
 | `website/js/field.js` | 32 | Minimale Feld-Abstraktion. Wird bei der Migration zur vollen | `Field` |
 | `website/js/format.js` | 446 | Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und | `applyLetterDate` |
 | `website/js/salutation.js` | 342 | Anrede & Grußformel — bewusst klein (80/20), dafür verlässlich | `SalutationEngine` |

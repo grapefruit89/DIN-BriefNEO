@@ -3,7 +3,7 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD 8e31aaf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: HEAD e5290cf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
@@ -21,7 +21,7 @@ B5/
 | `document.js` | `website/js/document.js` | 671 | `88ba5bff` |
 | `format.js` | `website/js/format.js` | 446 | `b923506d` |
 | `salutation.js` | `website/js/salutation.js` | 342 | `5e936d45` |
-| `KONTRAKT.md` | `batches/B5/KONTRAKT.md` | 36 | `837a4d7f` |
+| `KONTRAKT.md` | `batches/B5/KONTRAKT.md` | 36 | `01ac6d6d` |
 
 Gesamt: 55984 Zeichen ≈ 13k Token.
 
@@ -1519,7 +1519,7 @@ export class SalutationFeature {
 
 
 ==============================================================================
-===== KONTRAKT.md  (batches/B5/KONTRAKT.md, 36 Zeilen, sha256:837a4d7f)
+===== KONTRAKT.md  (batches/B5/KONTRAKT.md, 36 Zeilen, sha256:01ac6d6d)
 ==============================================================================
 
 # Verträge zu B5
@@ -1534,7 +1534,7 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 
 | Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
 |---|---:|---|---|
-| `website/js/core.js` | 267 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus` |
+| `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus` |
 | `website/js/field.js` | 32 | Minimale Feld-Abstraktion. Wird bei der Migration zur vollen | `Field` |
 | `website/js/persistence.js` | 849 | DateFormat (ehem. 47-date-format.js): DIN-Datum via Intl.DateTimeFormat & Temporal API | `DEFAULT_SETTINGS`, `STORAGE_KEYS`, `loadJSON`, `saveJSON` |
 

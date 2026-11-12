@@ -11,7 +11,7 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 | Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
 |---|---:|---|---|
 | `website/js/address.js` | 1063 | Re-exportiert die rein datengetriebenen Lookup-Funktionen aus `address-data.js` | `AddressIntelligence` |
-| `website/js/core.js` | 267 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus`, `notify` |
+| `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Constants`, `Events`, `eventBus`, `notify` |
 | `website/js/document.js` | 671 | Native Selection- und Caret-Helfer (W3C Range / TreeWalker) | `EDITABLE_FIELD_SELECTOR`, `collectDraft`, `getCaretCharacterOffset`, `sanitizeRichText`, `setCaretCharacterOffset` |
 | `website/js/field.js` | 32 | Minimale Feld-Abstraktion. Wird bei der Migration zur vollen | `Field` |
 | `website/js/format.js` | 446 | Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und | `currentISODate` |

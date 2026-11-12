@@ -3,16 +3,16 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: HEAD 8e31aaf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
+Quellstand: HEAD e5290cf. Passt der SHA256 einer Datei unten nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
 B2/
-├── index.html                     427 Zeilen
-├── boot.js                         69 Zeilen
-├── core.js                        267 Zeilen
+├── index.html                     426 Zeilen
+├── boot.js                         75 Zeilen
+├── core.js                        274 Zeilen
 ├── field.js                        32 Zeilen
-├── main.js                        304 Zeilen
+├── main.js                        333 Zeilen
 ├── llms.txt                        76 Zeilen
 ├── KONTRAKT.md                     51 Zeilen
 └── prompt.md                    (nicht enthalten — separat anklicken)
@@ -21,30 +21,30 @@ B2/
 ## Quellen (Snapshot)
 | Datei | Pfad im Repo | Zeilen | SHA256 |
 |---|---|---:|---|
-| `index.html` | `website/index.html` | 427 | `18666528` |
-| `boot.js` | `website/js/boot.js` | 69 | `97fe60a5` |
-| `core.js` | `website/js/core.js` | 267 | `6c41aef5` |
+| `index.html` | `website/index.html` | 426 | `0500a649` |
+| `boot.js` | `website/js/boot.js` | 75 | `313ec169` |
+| `core.js` | `website/js/core.js` | 274 | `bbd9fd93` |
 | `field.js` | `website/js/field.js` | 32 | `7efd84e0` |
-| `main.js` | `website/js/main.js` | 304 | `48deae4d` |
+| `main.js` | `website/js/main.js` | 333 | `14822fa1` |
 | `llms.txt` | `website/llms.txt` | 76 | `ef30bd91` |
 | `KONTRAKT.md` | `batches/B2/KONTRAKT.md` | 51 | `1ab38522` |
 
-Gesamt: 67162 Zeichen ≈ 16k Token.
+Gesamt: 69185 Zeichen ≈ 17k Token.
 
 ## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
 
 | Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |
 |---|---:|---:|---:|---:|---:|
-| `index.html` | 427 | 0 | 0 | 0 | 0 |
-| `boot.js` | 69 | 0 | 3 | 0 | 0 |
-| `core.js` | 267 | 10 | 22 | 2 | 2 |
+| `index.html` | 426 | 0 | 0 | 0 | 0 |
+| `boot.js` | 75 | 0 | 3 | 0 | 0 |
+| `core.js` | 274 | 10 | 22 | 2 | 2 |
 | `field.js` | 32 | 1 | 0 | 0 | 0 |
-| `main.js` | 304 | 0 | 48 | 17 | 21 |
+| `main.js` | 333 | 0 | 53 | 17 | 21 |
 | `llms.txt` | 76 | 0 | 0 | 0 | 0 |
 | `KONTRAKT.md` | 51 | 0 | 0 | 0 | 0 |
 
-- Benannte Funktionen/Konstanten im Batch: 19
-- davon mit genau einer Aufrufstelle: 9
+- Benannte Funktionen/Konstanten im Batch: 20
+- davon mit genau einer Aufrufstelle: 8
 - davon ohne erkennbare Aufrufstelle: 5
 
 Gezählt per Textsuche auf `name(`. Aufrufe per Callback, Alias,
@@ -53,7 +53,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
 
 
 ==============================================================================
-===== index.html  (website/index.html, 427 Zeilen, sha256:18666528)
+===== index.html  (website/index.html, 426 Zeilen, sha256:0500a649)
 ==============================================================================
 
 <!-- @adr [[ADR-HTML]]  -->
@@ -372,8 +372,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
                  eigenes Element daneben. data-x/data-w erbt sie vom Container
                  (SSoT). -->
             <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
-              data-x="25" data-w="85" data-h="45" data-font="10"
-              data-visier-top="5" data-visier-w="90" data-visier-h="45">
+              data-x="25" data-w="85" data-h="45" data-font="10">
               <div id="zusatzzone" role="group" aria-label="Zusatz- und Vermerkzone">
                 <input type="text" id="rucksendeangabe" data-font="7" data-atom placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="120">
                 <din-vermerke id="vermerke" data-font="8" data-feldtyp="zweizeilig" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" aria-label="Postvermerk"></din-vermerke>
@@ -433,7 +432,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
             </din-geschaeftsangaben>
             <div id="unterschriftsbild-container">
               <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box" tabindex="0" aria-label="Unterschrift verschieben und skalieren">
-                <div class="unterschriftsbild-griff bottom-right" data-aktion="resize" data-richtung="br"></div>
+                <div class="unterschriftsbild-griff bottom-right" data-aktion="resize"></div>
                 <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
                 <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift" draggable="false">
               </div>
@@ -486,7 +485,7 @@ Zahlen sind eine Untergrenze. Nicht nachzaehlen, sondern interpretieren.
 
 
 ==============================================================================
-===== boot.js  (website/js/boot.js, 69 Zeilen, sha256:97fe60a5)
+===== boot.js  (website/js/boot.js, 75 Zeilen, sha256:313ec169)
 ==============================================================================
 
 // @ts-check
@@ -549,7 +548,13 @@ try {
 
   /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
    * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft
-   * verschwinden. Nach 2 s wird freigegeben, komme was mag. */
+   * verschwinden. Nach 2 s wird freigegeben, komme was mag.
+   *
+   * Bewusst im selben try: vor dieser Zeile kann nur `documentElement` oder
+   * `setProperty` werfen, und beides ist praktisch ausgeschlossen (geprueft
+   * 2026-11-12). Der Timer ist ausserdem KEIN Nachweis eines erfolgreichen
+   * Starts — er gibt nur die Platzhalter frei. Wer hier einen Startbeweis
+   * braucht, muss ihn an `data-ready` haengen, nicht an diese 2 Sekunden. */
   setTimeout(() => {
     if (!root.dataset.ready) root.dataset.ready = 'true';
   }, 2000);
@@ -561,7 +566,7 @@ try {
 
 
 ==============================================================================
-===== core.js  (website/js/core.js, 267 Zeilen, sha256:6c41aef5)
+===== core.js  (website/js/core.js, 274 Zeilen, sha256:bbd9fd93)
 ==============================================================================
 
 // @ts-check
@@ -727,14 +732,21 @@ let dom = null;
 let current = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
 let timer = null;
+/* Einmal-Initialisierung: im Boot-Pfad gibt es genau einen Aufrufer, aber ein
+   spaeterer Re-Init (Einstellungen neu anwenden) wuerde sonst ein zweites
+   `toggle`-Abo und zwei EventBus-Abos auf dasselbe Element legen. Ein
+   doppelter Toast waere die Folge, ohne dass ein Fehler sichtbar wird. */
+let toastInitialisiert = false;
 
 export function initToastSystem() {
+  if (toastInitialisiert) return;
   const global = document.getElementById('hinweis-v4');
   const message = document.getElementById('hinweis-message');
   if (!global || !message) {
     console.warn('[Toast] DOM elements missing.');
     return;
   }
+  toastInitialisiert = true;
   dom = { global, message };
   // Schließen läuft 100% deklarativ über HTML (popovertargetaction="hide"), Esc oder Klick außerhalb;
   // das native toggle-Event räumt dabei den Auto-Dismiss-Timer auf.
@@ -872,7 +884,7 @@ export const Field = {
 
 
 ==============================================================================
-===== main.js  (website/js/main.js, 304 Zeilen, sha256:48deae4d)
+===== main.js  (website/js/main.js, 333 Zeilen, sha256:14822fa1)
 ==============================================================================
 
 // @ts-check
@@ -959,6 +971,29 @@ function bootStep(name, fn, { critical = false } = {}) {
   }
 }
 
+/**
+ * Wie `bootStep`, aber liefert den Wert und meldet den Fehler sichtbar.
+ *
+ * Warum es das gibt: `new DraftManager()` stand vorher nackt in `initApp`. Der
+ * Konstruktor haengt die Speicher-Abos (`draft-manager.js`, `#initEventBus`);
+ * wirft er, bricht `initApp` ohne jede Meldung ab — die Seite sieht normal aus
+ * und speichert nichts. Gemessen 2026-11-12: das Abo auf
+ * `DOCUMENT_SAVE_REQUESTED` entsteht ausschliesslich im Konstruktor.
+ * @template T
+ * @param {string} name
+ * @param {() => T} fn
+ * @returns {T}
+ */
+function kritischerWert(name, fn) {
+  try {
+    return fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    zeigeBootFehler(name, fehler);
+    throw fehler;
+  }
+}
+
 function initApp() {
   // Kritische Barriere: ohne Briefblatt und Betreff ist nichts benutzbar.
   bootStep('DOM-Grundgerüst', () => {
@@ -975,21 +1010,24 @@ function initApp() {
   });
   bootStep('Dauerhafter Speicher', () => requestPersistentStorage());
 
-  const draftManager = new DraftManager();
+  const draftManager = kritischerWert('Speicher-Abos', () => new DraftManager());
+  /* Kritisch, weil ein stiller Fehlschlag hier den gespeicherten Entwurf
+     verbirgt: die Seite startet leer, der naechste Tastendruck speichert darueber.
+     Besser sichtbar abbrechen als den Entwurf ueberschreiben. */
   bootStep('Entwurf laden', () => {
     draftManager.loadDraft();
     AddressIntelligence.targetLock = null;
-  });
+  }, { critical: true });
   bootStep('Postvermerk', () => {
     syncPostvermerkFromSidebar(document.getElementById('vermerke')?.textContent || '');
   });
   bootStep('Briefdatum', () => applyLetterDate());
 
-  const uiProtections = new UIProtections();
+  const uiProtections = kritischerWert('UI-Schutz-Objekt', () => new UIProtections());
   bootStep('UI-Schutz', () => uiProtections.init());
   bootStep('Telefon-Formatierung', () => setupPhoneFormatting());
 
-  const settingsManager = new SettingsManager();
+  const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
   bootStep('Einstellungen', () => settingsManager.init());
 
   bootStep('Plugins', () => {
@@ -1000,7 +1038,10 @@ function initApp() {
       .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
   });
 
-  bootStep('Globale Listener', () => attachGlobalListeners(draftManager));
+  /* Kritisch: hier entsteht der Listener input -> Speichern. Faellt er aus,
+     tippt der Nutzer in eine vollstaendig wirkende App, und nichts wird
+     gespeichert (main.js:191, gemessen 2026-11-12). */
+  bootStep('Globale Listener', () => attachGlobalListeners(draftManager), { critical: true });
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());

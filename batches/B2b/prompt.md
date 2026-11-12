@@ -42,20 +42,26 @@ Alles unten ist am Code entschieden (Commit-Stand siehe Kopf der Merge-Datei).
 |---|---|
 | „localStorage-Fehler landet im äußeren Catch und überspringt den Boot" | **Falsch.** `boot.js` hat einen eigenen inneren `try` um `getItem` *und* `JSON.parse`; Defaults greifen. |
 | „2-Sekunden-Fallback liegt im äußeren `try`" | **Richtig, aber praktisch unerreichbar**: vor Zeile 62 kann nur `document.documentElement` oder `setProperty` werfen. Der Fallback gibt außerdem nur Platzhalter frei — er ist **kein** Nachweis eines erfolgreichen Starts. |
-| „`initToastSystem()` kann mehrfach laufen" | **Ein Aufrufer** (`main.js`, Schritt „Toast-System"), kein Retry, `initApp` läuft einmal. Latent, nicht aktiv. |
-| „Labels simulieren Buttons per `role`/`tabindex`" | **Richtig**, aber an zwei anderen Stellen als zitiert: die zwei `role="button"`-Labels. Das zitierte Segment-Control nutzt bereits native Radios. |
+| „`initToastSystem()` kann mehrfach laufen" | **Behoben.** Ein Aufrufer, kein Retry; zusätzlich Guard `toastInitialisiert` als Vorsorge für einen späteren Re-Init. |
+| „Labels simulieren Buttons per `role`/`tabindex`" | **Richtig**, aber an zwei anderen Stellen als zitiert (`index.html`: die zwei `role="button"`-Labels; das zitierte Segment-Control nutzt native Radios). **Entschieden: bleiben** — ein `<button>` müsste die Checkbox per JS klicken. |
 | „`field.js` nur behalten, wenn mehrere Verbraucher" | **8 Verbraucher** (address, clipboard-parser, document, draft-manager, multipage-controller, persistence, salutation, testbrief). |
-| „HTML-Marker möglicherweise unbenutzt" | **Maschinell geprüft**: von 35 `data-*`-Attributen liest der Code 31. Ungelesen sind nur `data-visier-top`, `data-visier-w`, `data-visier-h`, `data-richtung`. |
+| „HTML-Marker möglicherweise unbenutzt" | **Erledigt.** Von 35 `data-*`-Attributen las der Code 31; die vier ungelesenen (`data-visier-top/w/h`, `data-richtung`) sind gelöscht. Repo-weit geprüft: 0 Lesestellen. |
+| „Popover-Helfer fangen parallele Popover ab" | **Widerlegt per Messung** (2026-11-12, Chromium): doppeltes `show`/`hide` wirft nichts, Light Dismiss schließt den ersten still. Sie fangen `InvalidStateError` (Element nicht im DOM) und `NotSupportedError` (kein `popover`-Attribut) — beides Markup-Fehler. Entschieden: bleiben. |
 | „Geometrie doppelt in HTML und Registry?" | **Gegatet**: `tools/imr.js` vergleicht `data-*`-Geometrie in `index.html` mit dem IMR-Inventar; Abweichung = Gate rot. |
 
 ## Die offenen Fragen (das ist der Auftrag)
 
-**F1 — Critical-Selection.** Es gibt 21 Boot-Schritte, genau einer ist
-`critical: true` (das DOM-Grundgerüst). Alle anderen fängt `bootStep` mit
-`console.error` ab und macht weiter. Welche Schritte sind faktisch
-tragend — welcher Ausfall hinterlässt eine App, die *normal aussieht* und
-still Daten verliert (Entwurf laden, Einstellungen, Speichern, Absender-Sync)?
-Nenne pro Kandidat den Schaden, nicht die Kategorie.
+**F1 — Ist die Critical-Auswahl richtig?** Von 21 Boot-Schritten sind jetzt
+drei `critical: true`: DOM-Grundgerüst, „Entwurf laden", „Globale Listener";
+zusätzlich laufen die drei Konstruktoren (DraftManager, UIProtections,
+SettingsManager) durch `kritischerWert()`, das bei Fehler sichtbar abbricht.
+Begründung: ein Fehlschlag bei „Entwurf laden" verbirgt den gespeicherten
+Entwurf, und der nächste Tastendruck überschreibt ihn; ein Fehlschlag bei
+„Globale Listener" lässt die App ohne Speichern weiterlaufen.
+
+Prüfe die Auswahl, nicht die Mechanik: fehlt ein Schritt, ist einer zu viel,
+und ist der Preis für „Entwurf laden" (roter Balken plus halb initialisierte
+Seite) verhältnismäßig? Nenne pro Kandidat den Schaden, nicht die Kategorie.
 
 **F2 — Reihenfolge.** Welche Schritte setzen voraus, dass ein früherer
 erfolgreich war? Wo hängt ein späterer Schritt an einem *nicht*-kritischen
@@ -66,17 +72,12 @@ EventBus-Abos, Modulzustand (`dom`, `timer`, `current`, Caches)? Wenn jemand
 später „Einstellungen neu anwenden" als Re-Init implementiert — was bricht?
 Prüfe das als Szenario, nicht als Bug.
 
-**F4 — Die vier toten Marker.** `data-visier-top/w/h` und `data-richtung`
-werden von keiner JS- oder CSS-Stelle gelesen. Entfernen, dokumentieren oder
-Absicht? Was wäre der billigste Nachweis, dass sie nicht doch per
-Attributselektor in einem Druck-Stylesheet gebraucht werden?
+**F4 — `data-ready` hat zwei Schreiber.** `boot.js` setzt es nach 2 s, `main.js`
+im letzten Boot-Schritt. Ist das eine doppelte Wahrheit, und was passiert, wenn
+`initApp` kurz vor Ablauf der 2 s fertig wird? Wer darf es später lesen (CSS,
+Tests), und was sähe ein solcher Leser in beiden Fällen?
 
-**F5 — Popover-Helfer.** `core.js` hat `showPopoverSafe`/`hidePopoverSafe` mit
-Feature-Prüfung. Bei Baseline Chrome 150+ — welchen Fall fangen sie ab, und ist
-dieser Fall in diesem Projekt erreichbar? Wenn nicht: wie viele Zeilen fallen,
-und was kostet das an Robustheit?
-
-**F6 — `boot.js` als klassisches Skript.** Der Kommentar begründet es mit FOUC
+**F5 — `boot.js` als klassisches Skript.** Der Kommentar begründet es mit FOUC
 (gemessener FCP 96 ms). Gibt es heute (Chrome 150+) einen Weg, denselben Effekt
 ohne zweites, blockierendes Skript zu erreichen — oder ist das die richtige
 Lösung? Nur antworten, wenn du den FOUC-Mechanismus im HTML/CSS wirklich
@@ -95,7 +96,7 @@ siehst; sonst „nicht beurteilbar".
 - Unterscheide **BUG** (falsches Verhalten) von **RISIKO** (kann brechen) von
   **SMELL** (teuer, aber korrekt). Ein Befund ohne heutigen Auslöser ist
   SMELL, nicht BUG — sag das dann auch so.
-- Wenn eine der Fragen F1–F6 mit den Dateien **nicht** beantwortbar ist, ist
+- Wenn eine der Fragen F1–F5 mit den Dateien **nicht** beantwortbar ist, ist
   „nicht beantwortbar, weil <Grund>" die richtige Antwort. Rate nicht.
 
 ## Output
@@ -104,7 +105,7 @@ Tabelle:
 | # | Typ | Datei + Zitat | Befund (1 Satz) | Warum es zählt | Kleinste Behebung | Aufwand S/M/L | Risiko |
 
 Danach:
-1. **F1–F6** — je eine Zeile Antwort, auch wenn die Antwort „nicht
+1. **F1–F5** — je eine Zeile Antwort, auch wenn die Antwort „nicht
    beantwortbar" lautet.
 2. **TOP 3** — die drei, die du zuerst beheben würdest, je 2 Sätze.
 3. **JS-BUDGET** — Zahlen stehen im Kopf der Merge-Datei unter „Messwerte".

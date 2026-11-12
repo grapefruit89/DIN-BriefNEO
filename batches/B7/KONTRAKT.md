@@ -10,7 +10,7 @@ es die Module gibt, und nicht, wie sie intern aussehen.
 
 | Modul | Zeilen | erste Kopfzeile (kein Anspruch auf Vollständigkeit) | genutzte Symbole |
 |---|---:|---|---|
-| `website/js/core.js` | 267 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Events`, `eventBus` |
+| `website/js/core.js` | 274 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung | `Events`, `eventBus` |
 | `website/js/field.js` | 32 | Minimale Feld-Abstraktion. Wird bei der Migration zur vollen | `Field` |
 | `website/js/format.js` | 446 | Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und | `applyLetterDate` |
 | `website/js/salutation.js` | 342 | Anrede & Grußformel — bewusst klein (80/20), dafür verlässlich | `SalutationEngine` |

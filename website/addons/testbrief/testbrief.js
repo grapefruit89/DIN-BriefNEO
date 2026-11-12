@@ -160,7 +160,8 @@ export function resolvePlz(char) {
   if (!roh) return '';
   const teile = roh.split('|').map((t) => t.trim()).filter(Boolean);
   if (teile.length === 0) return '';
-  if (typeof char !== 'object' || char === null) return teile[0];
+  /* Kein Nicht-Objekt-Zweig: `char?.plz` ist bei null/String bereits leer, die
+     Funktion kehrt oben zurueck (toter Zweig, entfernt 2026-11-12). */
   const gemerkt = plzWahl.get(char);
   if (gemerkt !== undefined) return gemerkt;
   const gewaehlt = teile[Math.floor(Math.random() * teile.length)] ?? teile[0];
@@ -734,6 +735,9 @@ export function resolvePostvermerk(szenario) {
  * @param {() => number} [rnd] Optionale Zufallsquelle
  * @returns {string}
  */
+/* `szenario` behaelt seinen Default: ohne ihn ist der Wert `undefined` und
+   TypeScript markiert jede Nutzung. Der Default ist also kein toter Code,
+   sondern die Null-Absicherung (geprueft 2026-11-12). */
 export function randomBetreff(themenHook, szenario = waehleSzenario(), rnd = Math.random) {
   return szenario.betreff(themenHook, rnd);
 }

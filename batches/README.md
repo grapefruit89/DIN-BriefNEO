@@ -8,7 +8,7 @@ Stand geben.** Nach Änderungen im Repo ist nichts nachzuziehen.
 |---|---|---|---|
 | B1 | Geometrie-CSS | base.css, sheet-common.css, sheet-multipage.css + index.html (Beilage) | 20k |
 | B2 | HTML + Boot (Folgefragen) | index.html, main.js, core.js, boot.js, field.js (+ llms.txt) | 17k |
-| B3 | Adresslogik | address.js, clipboard-parser.js | 16k |
+| B3 | Adresslogik | address.js, clipboard-parser.js, field.js | 17k |
 | B4 | Speichern/Undo | persistence.js, draft-manager.js, binary-storage.js | 14k |
 | B5 | Textkern | document.js, format.js, salutation.js | 14k |
 | B6 | UI/Signatur | sidebar.css, settings.js, signature.js + index.html (Beilage) | 23k |
@@ -30,64 +30,56 @@ Befunden, und darunter fünf **Folgefragen** (Critical-Auswahl, Reihenfolge,
 Idempotenz, `data-ready`, klassisches Boot-Skript). Ein zweiter Batch `B2b` gab
 es kurzzeitig; er ist in B2 aufgegangen, weil er dieselben Dateien brauchte.
 
-## Merge-Dateien
+## Pro Batch genau zwei Dateien
 
-In jedem Batch liegt zusätzlich `B<x>-merged.txt`: **alle** Quelldateien in
-einer Datei, mit Tree und SHA256-Kurzform je Quelle im Kopf. `prompt.md` ist
-bewusst nicht enthalten — den klickst du separat an.
+```
+batches/B3/
+├── prompt.md      ← in den Chat kopieren
+├── merge.txt      ← anhängen (alles andere steckt darin)
+├── KONTRAKT.md    ┐
+├── address.js     │ Zutaten für merge.txt — nicht einzeln anhängen
+├── clipboard-parser.js │
+└── field.js       ┘
+```
 
-Der Kopf trägt drei Dinge, die ein Reviewer nicht selbst ermitteln kann:
+`merge.txt` enthält **jede** Datei des Ordners außer `prompt.md` — in einer
+Datei, mit Tree und SHA256 je Quelle im Kopf. `merge.py` prüft nach dem Bau,
+ob die Blockzahl zur Dateizahl im Ordner passt, und bricht sonst ab: ein
+unvollständiger Anhang kann so nicht mehr entstehen.
+
+### Warum der Kopf so aussieht
 
 | Kopfzeile | Warum |
 |---|---|
-| `Quellstand: HEAD <hash>` | ein Befund bleibt einem Code-Stand zuordenbar |
+| `Quellstand: Arbeitsbaum auf Basis HEAD <hash>` | ein Befund bleibt einem Code-Stand zuordenbar |
+| Tree | zeigt sofort, welche Dateien drin sind — und welche fehlen |
 | SHA256 je Datei | veralteter Snapshot ist mechanisch erkennbar, nicht durch Raten |
 | `## Messwerte` | Zeilen, Exporte, Listener, Aufrufstellen — gezählt, nicht geschätzt |
 
-Die Merge-Datei enthält **keine Zeilennummern**. Deshalb verlangt der Prompt
-„Datei + wörtliche Zeile" statt „datei:ZEILE": ein Modell kann in 427 Zeilen
-nicht zuverlässig bis Zeile 331 zählen, ein Zitat dagegen ist per `grep -n`
-prüfbar.
+`merge.txt` hat **keine Zeilennummern**. Deshalb verlangt der Prompt „Datei +
+wörtliche Zeile" statt „datei:ZEILE": ein Modell kann in 400 Zeilen nicht
+zuverlässig bis Zeile 331 zählen, ein Zitat ist per `grep -n` prüfbar.
+
+### Neu bauen
 
 ```bash
-python3 /home/moritz/repos/DIN-BriefNEO/batches/kontrakt.py   # Verträge neu erzeugen
-python3 /home/moritz/repos/DIN-BriefNEO/batches/merge.py      # alle neu bauen
-python3 /home/moritz/repos/DIN-BriefNEO/batches/merge.py B2   # nur einer
+python3 /home/moritz/repos/DIN-BriefNEO/batches/kontrakt.py   # KONTRAKT.md
+python3 /home/moritz/repos/DIN-BriefNEO/batches/merge.py      # alle merge.txt
+python3 /home/moritz/repos/DIN-BriefNEO/batches/merge.py B3   # nur einer
 ```
 
 `kontrakt.py` liest die Importe der Symlinks (aufgelöst, nicht relativ zum
 Link) und schreibt `KONTRAKT.md` in jeden Batch. Nach Umbauten am Importgraph
 neu laufen lassen — sonst beschreibt der Vertrag einen alten Stand.
 
-Die Datei ist ein **Snapshot**: nach Änderungen im Repo neu bauen, sonst zeigt
-der SHA256 im Kopf, dass sie nicht mehr passt. Ein zweiter Lauf ohne
-Repo-Änderung erzeugt byte-gleiche Dateien.
+`merge.txt` ist Build-Output (`.gitignore`): es wird bei jedem Bau neu erzeugt,
+es liegt immer genau ein Stand im Ordner. Ein zweiter Lauf ohne Repo-Änderung
+erzeugt byte-gleiche Dateien.
 
 ## Benutzung
 
-1. Dateien für den Chat bereitstellen (Symlinks in echte Dateien auflösen):
-
-   ```bash
-   bash /home/moritz/repos/DIN-BriefNEO/batches/collect.sh B2
-   # -> /tmp/din-review/B2/ mit echten Dateien + prompt.md
-   ```
-
-   **Nur .txt, kein ZIP.** Die Merge-Datei trägt den Commit im Namen
-   (`B3-merged-a1b2c3d.txt`), damit ein veralteter Anhang am Dateinamen
-   erkennbar ist, ohne ihn zu öffnen:
-
-   ```bash
-   bash /home/moritz/repos/DIN-BriefNEO/batches/collect.sh B3
-   # kopiert alles nach /tmp/din-review/B3/ und druckt:
-   #   Datei, Blöcke, Bytes, SHA256
-   ```
-
-   Anlass: zwei Review-Läufe (2026-11-12) bekamen eine veraltete
-   `B2-merged.txt` ohne `main.js` und `KONTRAKT.md` — 53 KiB statt 86 KiB.
-   Der Inhalt war richtig, der Versand alt. Alte Fassungen werden beim Bauen
-   gelöscht, es liegt immer genau ein Stand im Ordner.
-
-2. `prompt.md` aus dem Ordner in den Chat kopieren, Dateien anhängen.
+1. `batches/<Bn>/prompt.md` in den Chat kopieren.
+2. `batches/<Bn>/merge.txt` anhängen — sonst nichts.
 3. Ergebnis nicht sofort umsetzen: **BUG** → Auftrag, **RISIKO** → Messung,
    **SMELL** → Backlog.
 4. Befunde sammeln in `todo/18-review-<datum>-<thema>.md`.

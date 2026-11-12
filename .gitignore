@@ -46,7 +46,7 @@ test/traces/*.json
 .env
 .env.*
 
-# Merge-Dateien der Review-Batches sind Build-Output: sie tragen den Commit
+# merge.txt der Review-Batches ist Build-Output: sie tragen den Commit
 # im Namen und werden bei jedem Bau erneuert. Wuerde man sie committen,
 # hiesse die Datei nach dem Commit wieder anders als HEAD.
-batches/**/B*-merged-*.txt
+batches/**/merge.txt

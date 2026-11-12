@@ -82,7 +82,7 @@ def aufrufstellen(texte: list) -> tuple:
 def quellen(ordner: pathlib.Path):
     dateien = []
     for f in ordner.iterdir():
-        if f.name == 'prompt.md' or '-merged' in f.name or f.suffix == '.py':
+        if f.name in ('prompt.md', 'merge.txt') or '-merged' in f.name or f.suffix == '.py':
             continue
         if f.suffix == '.md' and f.name != 'prompt.md':
             dateien.append(f)
@@ -177,16 +177,27 @@ def baue(bid: str) -> pathlib.Path:
     # raus, damit nie zwei Staende nebeneinander liegen.
     for alt_datei in ordner.glob(f'{bid}-merged*.txt'):
         alt_datei.unlink()
+    for alt_datei in ordner.glob('merge.txt'):
+        alt_datei.unlink()
     commit = subprocess.run(
         ['git', '-C', str(BASIS), 'rev-parse', '--short', 'HEAD'],
         capture_output=True, text=True
     ).stdout.strip() or 'unbekannt'
-    ziel = ordner / f'{bid}-merged-{commit}.txt'
+    ziel = ordner / 'merge.txt'
     ziel.write_text('\n'.join(teile) + '\n', encoding='utf-8')
-    return ziel
+
+    # Selbstkontrolle: jede Datei aus dem Ordner muss als Block drin sein.
+    # Sonst entsteht still ein unvollstaendiger Anhang — genau der Fehler, der
+    # zwei Review-Laeufe gekostet hat.
+    # Nur echte Blockkoepfe zaehlen ("===== name  (pfad, ..."): CSS-Dateien
+    # enthalten selbst Bannerzeilen mit '=====', die sonst mitzaehlen.
+    bloecke = len(re.findall(r'^===== \S+  \(', ziel.read_text(encoding='utf-8'), re.M))
+    if bloecke != len(kopf_dateien):
+        raise SystemExit(f'{bid}: {bloecke} Bloecke fuer {len(kopf_dateien)} Dateien — Abbruch')
+    return ziel, len(kopf_dateien)
 
 
 ziele = sys.argv[1:] or sorted(THEMEN)
 for bid in ziele:
-    p = baue(bid)
-    print(f'{bid}: {p.name}  {p.stat().st_size / 1024:.0f} KiB')
+    p, n = baue(bid)
+    print(f'{bid}: {p.name}  {n} Dateien  {p.stat().st_size / 1024:.0f} KiB')

@@ -237,7 +237,11 @@ export class SignatureFeature {
     try {
       bitmap = await createImageBitmap(file);
     } catch (error) {
+      /* Sichtbar machen: ein nicht decodierbares Bild (z. B. HEIC vom Handy)
+         scheiterte bisher nur in der Konsole - der Klick auf "laden" tat
+         scheinbar nichts (gemeldet 2026-11-12). */
       console.warn('[Signature] createImageBitmap failed:', error);
+      notify(Constants.TOASTS.SIGNATURE.DECODE_ERROR, 'error');
       return;
     }
 

@@ -265,6 +265,39 @@ export function buildOrtIndex(plzToCityMap) {
 }
 
 /**
+ * Erzeugt den Ortsteil-Index (Ortsteil -> PLZ + Stadt) aus der Spalte `district`.
+ * Die Datenbank fuehrt Ortsteile als Text: "Bornheim (Roisdorf, Hersel, Merten,
+ * Sechtem)" oder "Troisdorf-Mitte, Oberlar, FWH". Ohne diesen Index findet die
+ * Suche "Roisdorf" nicht, obwohl der Ortsteil in den Daten steht.
+ * @param {Map<string, string>} districtsMap
+ * @returns {Map<string, Array<{ plz: string, city: string, name: string }>>}
+ */
+export function buildOrtsteilIndex(districtsMap) {
+  /** @type {Map<string, Array<{ plz: string, city: string, name: string }>>} */
+  const index = new Map();
+  for (const [plz, roh] of districtsMap.entries()) {
+    const city = AddressIntelligence.plzToCity.get(plz) || '';
+    const stadtNorm = normalizeText(city);
+    const teile = String(roh || '')
+      .replace(/[()]/g, ', ')
+      .split(/[,;/]/)
+      .map((teil) => teil.trim())
+      .filter((teil) => teil.length >= 3);
+    for (const teil of teile) {
+      const norm = normalizeText(teil);
+      if (!norm || norm === stadtNorm) continue;
+      let liste = index.get(norm);
+      if (!liste) {
+        liste = [];
+        index.set(norm, liste);
+      }
+      if (!liste.some((eintrag) => eintrag.plz === plz)) liste.push({ plz, city, name: teil });
+    }
+  }
+  return index;
+}
+
+/**
  * Erzeugt den durchsuchbaren Firmen- & Großkunden-Index aus grosskunden.json.gz (Case C).
  * Indexiert auch all_names (Behörden-Mehrfachbelegungen).
  * @param {Map<string, GrosskundeEntry>} grosskundenMap
@@ -382,6 +415,8 @@ export class AddressIntelligence {
 
   /** @type {Map<string, string[]>} */
   static ortIndex = new Map();
+  /** @type {Map<string, Array<{ plz: string, city: string, name: string }>>} */
+  static ortsteilIndex = new Map();
 
   /** @type {string[]} */
   static ortList = [];
@@ -524,6 +559,7 @@ export class AddressIntelligence {
 
         // Indizes für Case A, B, C aufbauen (< 15 ms)
         AddressIntelligence.ortIndex = buildOrtIndex(AddressIntelligence.plzToCity);
+        AddressIntelligence.ortsteilIndex = buildOrtsteilIndex(AddressIntelligence.districts);
         AddressIntelligence.ortList = Array.from(new Set(AddressIntelligence.plzToCity.values())).toSorted((a, b) => a.localeCompare(b, 'de'));
         AddressIntelligence.firmenIndex = buildFirmenIndex(AddressIntelligence.grosskunden);
 
@@ -685,6 +721,31 @@ export class AddressIntelligence {
       }
     }
 
+    /* 1b. Ortsteile: "Roisdorf" -> 53332 Bornheim. Die Spalte `district`
+       fuehrt sie als Text; der Index macht sie durchsuchbar. Sie stehen NACH
+       den Staedten, damit "troisdorf" weiter die Stadt zuerst zeigt. */
+    /** @type {typeof cityItems} */
+    const ortsteilItems = [];
+    const schonDrin = new Set(cityItems.map((i) => `${i.plz || ''}|${i.city}`));
+    for (const [ortsteil, treffer] of AddressIntelligence.ortsteilIndex) {
+      if (!ortsteil.startsWith(searchPrefix)) continue;
+      for (const eintrag of treffer) {
+        const schluessel = `${eintrag.plz}|${eintrag.city}`;
+        if (schonDrin.has(schluessel)) continue;
+        schonDrin.add(schluessel);
+        ortsteilItems.push({
+          plz: eintrag.plz,
+          name: eintrag.city,
+          city: eintrag.city,
+          typ: 'Stadt',
+          district: eintrag.name,
+          state: AddressIntelligence.getState(eintrag.plz),
+          isSinglePlz: true,
+          plzCount: 1
+        });
+      }
+    }
+
     // Sortierung Städte:
     // 1. Exakter Stadt-Treffer zuerst
     // 2. Städte mit mehreren PLZs (Großstädte/Zentren) vor 1-PLZ-Orten
@@ -724,9 +785,10 @@ export class AddressIntelligence {
     }));
     const sortedFirmenItems = firmenItems.toSorted((a, b) => a.name.localeCompare(b.name, 'de'));
 
-    const totalCount = sortedCityItems.length + firmenMatches.length;
+    const sortedOrtsteilItems = ortsteilItems.toSorted((a, b) => a.name.localeCompare(b.name, 'de'));
+    const totalCount = sortedCityItems.length + sortedOrtsteilItems.length + firmenMatches.length;
     // Städte immer zuerst, danach Firmen/Behörden
-    const items = [...sortedCityItems, ...sortedFirmenItems].slice(0, limit);
+    const items = [...sortedCityItems, ...sortedOrtsteilItems, ...sortedFirmenItems].slice(0, limit);
 
     return { totalCount, items };
   }

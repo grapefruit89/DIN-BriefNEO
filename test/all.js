@@ -2400,6 +2400,29 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assert(gefiltert.items.every((/** @type {any} */ i) => i.plz.startsWith('48')), 'nur 48xxx');
   });
 
+  /* Ortsteile standen schon in den Daten (Spalte `district`), waren aber nicht
+     durchsuchbar: "Roisdorf" ist ein Ortsteil von Bornheim (53332). */
+  it('Test 25e: Ortsteile sind durchsuchbar (Roisdorf, Sieglar)', () => {
+    const roisdorf = AddressIntelligence.resolveCityInput('roisdorf');
+    assertEqual(roisdorf.mode, 'city_list');
+    const treffer = /** @type {any} */ (roisdorf.items[0]);
+    assertEqual(treffer.plz, '53332');
+    assertEqual(treffer.city, 'Bornheim');
+    assert(String(treffer.district).includes('Roisdorf'), `Ortsteil im Treffer: ${treffer.district}`);
+
+    const sieglar = AddressIntelligence.resolveCityInput('sieglar');
+    const s = /** @type {any} */ (sieglar.items[0]);
+    assertEqual(s.plz, '53844');
+    assertEqual(s.city, 'Troisdorf');
+  });
+
+  it('Test 25f: der Stadtname bleibt vor seinen Ortsteilen', () => {
+    const res = AddressIntelligence.resolveCityInput('troisdorf');
+    assertEqual(res.mode, 'city_plzs');
+    assertEqual(res.city, 'Troisdorf');
+    assertEqual(res.items.length, 3);
+  });
+
   it('Test 26: Auswahl "53111 Bonn" → Ort-Feld = "53111 Bonn"', () => {
     const item = { plz: '53111', city: 'Bonn', name: 'Bonn', typ: 'Stadt' };
     const fakeOrt = { textContent: '', setAttribute: () => {} };

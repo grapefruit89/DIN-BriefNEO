@@ -40,7 +40,8 @@ export const Constants = {
       SAVE_ERROR: '❌ Fehler beim dauerhaften Speichern der Schriftart'
     },
     SIGNATURE: {
-      SAVE_ERROR: '❌ Signaturbild konnte nicht dauerhaft gespeichert werden'
+      SAVE_ERROR: '❌ Signaturbild konnte nicht dauerhaft gespeichert werden',
+      DECODE_ERROR: '❌ Bild nicht lesbar — bitte PNG, JPG oder WebP verwenden'
     },
     ADDRESS: {
       /** @param {string} name @returns {string} */

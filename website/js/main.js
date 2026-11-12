@@ -82,6 +82,29 @@ function bootStep(name, fn, { critical = false } = {}) {
   }
 }
 
+/**
+ * Wie `bootStep`, aber liefert den Wert und meldet den Fehler sichtbar.
+ *
+ * Warum es das gibt: `new DraftManager()` stand vorher nackt in `initApp`. Der
+ * Konstruktor haengt die Speicher-Abos (`draft-manager.js`, `#initEventBus`);
+ * wirft er, bricht `initApp` ohne jede Meldung ab — die Seite sieht normal aus
+ * und speichert nichts. Gemessen 2026-11-12: das Abo auf
+ * `DOCUMENT_SAVE_REQUESTED` entsteht ausschliesslich im Konstruktor.
+ * @template T
+ * @param {string} name
+ * @param {() => T} fn
+ * @returns {T}
+ */
+function kritischerWert(name, fn) {
+  try {
+    return fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    zeigeBootFehler(name, fehler);
+    throw fehler;
+  }
+}
+
 function initApp() {
   // Kritische Barriere: ohne Briefblatt und Betreff ist nichts benutzbar.
   bootStep('DOM-Grundgerüst', () => {
@@ -98,21 +121,24 @@ function initApp() {
   });
   bootStep('Dauerhafter Speicher', () => requestPersistentStorage());
 
-  const draftManager = new DraftManager();
+  const draftManager = kritischerWert('Speicher-Abos', () => new DraftManager());
+  /* Kritisch, weil ein stiller Fehlschlag hier den gespeicherten Entwurf
+     verbirgt: die Seite startet leer, der naechste Tastendruck speichert darueber.
+     Besser sichtbar abbrechen als den Entwurf ueberschreiben. */
   bootStep('Entwurf laden', () => {
     draftManager.loadDraft();
     AddressIntelligence.targetLock = null;
-  });
+  }, { critical: true });
   bootStep('Postvermerk', () => {
     syncPostvermerkFromSidebar(document.getElementById('vermerke')?.textContent || '');
   });
   bootStep('Briefdatum', () => applyLetterDate());
 
-  const uiProtections = new UIProtections();
+  const uiProtections = kritischerWert('UI-Schutz-Objekt', () => new UIProtections());
   bootStep('UI-Schutz', () => uiProtections.init());
   bootStep('Telefon-Formatierung', () => setupPhoneFormatting());
 
-  const settingsManager = new SettingsManager();
+  const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
   bootStep('Einstellungen', () => settingsManager.init());
 
   bootStep('Plugins', () => {
@@ -123,7 +149,10 @@ function initApp() {
       .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
   });
 
-  bootStep('Globale Listener', () => attachGlobalListeners(draftManager));
+  /* Kritisch: hier entsteht der Listener input -> Speichern. Faellt er aus,
+     tippt der Nutzer in eine vollstaendig wirkende App, und nichts wird
+     gespeichert (main.js:191, gemessen 2026-11-12). */
+  bootStep('Globale Listener', () => attachGlobalListeners(draftManager), { critical: true });
   bootStep('Toast-System', () => initToastSystem());
   bootStep('Absender-Sync', () => initSenderSync());
   bootStep('Adressdienste', () => initAddressServices());

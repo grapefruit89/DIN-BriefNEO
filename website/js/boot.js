@@ -58,7 +58,13 @@ try {
 
   /* Sicherheitsnetz fuer den Platzhalter-FOUC-Schutz (sheet-common.css):
    * Bleibt initApp haengen, duerfen die Platzhalter nicht dauerhaft
-   * verschwinden. Nach 2 s wird freigegeben, komme was mag. */
+   * verschwinden. Nach 2 s wird freigegeben, komme was mag.
+   *
+   * Bewusst im selben try: vor dieser Zeile kann nur `documentElement` oder
+   * `setProperty` werfen, und beides ist praktisch ausgeschlossen (geprueft
+   * 2026-11-12). Der Timer ist ausserdem KEIN Nachweis eines erfolgreichen
+   * Starts — er gibt nur die Platzhalter frei. Wer hier einen Startbeweis
+   * braucht, muss ihn an `data-ready` haengen, nicht an diese 2 Sekunden. */
   setTimeout(() => {
     if (!root.dataset.ready) root.dataset.ready = 'true';
   }, 2000);

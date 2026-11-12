@@ -161,14 +161,21 @@ let dom = null;
 let current = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
 let timer = null;
+/* Einmal-Initialisierung: im Boot-Pfad gibt es genau einen Aufrufer, aber ein
+   spaeterer Re-Init (Einstellungen neu anwenden) wuerde sonst ein zweites
+   `toggle`-Abo und zwei EventBus-Abos auf dasselbe Element legen. Ein
+   doppelter Toast waere die Folge, ohne dass ein Fehler sichtbar wird. */
+let toastInitialisiert = false;
 
 export function initToastSystem() {
+  if (toastInitialisiert) return;
   const global = document.getElementById('hinweis-v4');
   const message = document.getElementById('hinweis-message');
   if (!global || !message) {
     console.warn('[Toast] DOM elements missing.');
     return;
   }
+  toastInitialisiert = true;
   dom = { global, message };
   // Schließen läuft 100% deklarativ über HTML (popovertargetaction="hide"), Esc oder Klick außerhalb;
   // das native toggle-Event räumt dabei den Auto-Dismiss-Timer auf.

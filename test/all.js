@@ -1440,6 +1440,18 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
     assert(vermerk.includes('white-space: nowrap'), 'Vermerk bleibt eine Zeile');
   });
 
+  it('hält leere Anschriftzeilen auf dem Schirm klickbar, blendet sie nur im Druck aus', async () => {
+    /* Gemessen 2026-11-12: `display: none` nahm Firma und Strasse aus der
+       Tab-Reihenfolge — sie waren nicht eingebbar, solange sie leer waren. */
+    const css = await (await fetch('/website/css/sheet-common.css')).text();
+    const idx = css.indexOf('din-empfaenger-firma:empty');
+    assert(idx > 0, 'Ausblende-Regel gefunden');
+    const umfeld = css.slice(Math.max(0, idx - 400), idx);
+    assert(umfeld.includes('@media print'), 'Ausblenden steht in @media print');
+    assert(css.lastIndexOf('@media print', idx) > css.lastIndexOf('@media screen', idx),
+      'kein @media screen dazwischen');
+  });
+
   it('schiebt die Rücksendezeile bei gesetztem Vermerk eine Zeile hoch', async () => {
     const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');

@@ -69,9 +69,15 @@ din-lochmarke {
   display: block;
 }
 
-din-empfaenger-firma:empty,
-din-empfaenger-strasse:empty {
-  display: none;
+/* Leere Zeilen behalten KEINEN Platz — aber nur im Druck. Auf dem Schirm
+   muss jede Zeile anklickbar sein, sonst sind Firma und Strasse nicht
+   erreichbar (gemessen 2026-11-12: display:none macht sie aus der
+   Tab-Reihenfolge unerreichbar). */
+@media print {
+  din-empfaenger-firma:empty,
+  din-empfaenger-strasse:empty {
+    display: none;
+  }
 }
 
 :root[data-marks="false"] din-falzmarke-1,

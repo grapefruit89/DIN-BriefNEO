@@ -473,8 +473,17 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       text-decoration: none;
     }
 
+  /* Absatzabstand 0,65 Zeilen (2,9 mm bezogen auf 4,5 mm Zeilenhoehe). Drei
+     Messpunkte vom 2026-11-12: 4,5 mm wirkte wie eine ganze Leerzeile (5,03 mm
+     Luft), 2,25 mm klebte die Absaetze zusammen (2,78 mm Luft). 0,65 lh ist
+     der in todo/07 dokumentierte DIN-Toleranzwert und liegt dazwischen. */
   #text p {
-      margin: 0 0 2.25mm 0; /* halbe Zeile: DIN 5008 laesst den Absatzabstand der Software (Z. 1410) */
+      margin: 0 0 2.9mm 0;
+    }
+
+  /* Der Abstand zur Grussformel kommt aus deren margin-top, nicht doppelt. */
+  #text p:last-child {
+      margin-bottom: 0;
     }
 
   #text blockquote {

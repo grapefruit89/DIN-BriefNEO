@@ -4159,26 +4159,26 @@ describe('Testbrief: direkter Snapshot, nur die PLZ-Erkennung ist gesperrt', () 
 
 
 describe('Absatzabstand im Fließtext', () => {
-  /* DIN 5008 (Z. 1410): "Absaetze sind ... durch einen in der verwendeten
-   * Software eingestellten Absatzabstand (falls so nicht moeglich durch eine
-   * Leerzeile) zu trennen." Die Leerzeile ist also der Notfall, nicht das Ziel.
-   * Vorher: margin-bottom 4,5mm = genau eine Zeilenhöhe -> sah wie eine
-   * Leerzeile aus (gemessen 2026-11-12: 5,03mm Abstand). */
-  it('setzt den Absatzabstand auf eine halbe Zeile statt auf eine ganze', async () => {
+  /* DIN 5008 (Z. 1410) laesst den Absatzabstand der Software; die Leerzeile ist
+   * nur der Notfall. Drei Messpunkte am 2026-11-12 (Zeilenhöhe 4,5mm):
+   *   4,5mm  -> 5,03mm Luft, wirkte wie eine ganze Leerzeile
+   *   2,25mm -> 2,78mm Luft, Absaetze klebten zusammen ("unfoermig")
+   *   2,9mm  -> 10,95px (2,9mm) Luft, das ist 0,65 lh - der Toleranzwert aus
+   *             todo/07-addon-copyfitting-plan.md. */
+  const ABSATZ = 2.9;
+
+  it('setzt in Bildschirm und Druck denselben Absatzabstand (0,65 Zeilen)', async () => {
     for (const datei of ['/website/css/sheet-common.css', '/website/css/sheet-multipage.css']) {
       const css = await (await fetch(datei)).text();
       const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
       assert(block !== '', `Regel #text p in ${datei}`);
-      assert(/margin:\s*0 0 2\.25mm 0/.test(block), `halbe Zeile (${datei})`);
-      assert(/margin:\s*0 0 4\.5mm 0/.test(block) === false, `keine ganze Zeile mehr (${datei})`);
+      assert(/margin:\s*0 0 2\.9mm 0/.test(block), `2,9mm (${datei})`);
+      assert(/margin:\s*0 0 2\.25mm 0/.test(block) === false, `keine halbe Zeile mehr (${datei})`);
     }
   });
 
-  it('haelt den Absatzabstand kleiner als die Zeilenhoehe (4,5mm)', async () => {
-    const css = await (await fetch('/website/css/sheet-common.css')).text();
-    const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
-    const mass = Number((block.match(/margin:\s*0 0 ([\d.]+)mm/) || [])[1]);
-    assert(mass > 0 && mass < 4.5, `Absatzabstand ${mass}mm liegt unter der Zeilenhoehe`);
+  it('bleibt unter der Zeilenhoehe (4,5mm) und ueber null', () => {
+    assert(ABSATZ > 2.25 && ABSATZ < 4.5, `Absatzabstand ${ABSATZ}mm liegt zwischen halber und ganzer Zeile`);
   });
 });
 

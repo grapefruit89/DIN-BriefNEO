@@ -271,7 +271,12 @@ export class FontFeature {
         }
         void (async () => {
           const loaded = await this.injectFont(file);
-          if (!loaded) return;
+          if (!loaded) {
+            /* Feld leeren: sonst loest dieselbe Datei kein change mehr aus und
+               der Nutzer muss erst eine andere waehlen (B8-Review 2026-11-12). */
+            target.value = '';
+            return;
+          }
           const success = await saveBlob('font', file);
           if (!success) {
             notify(Constants.TOASTS.FONT.SAVE_ERROR, 'error');

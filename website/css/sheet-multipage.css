@@ -588,8 +588,14 @@ din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
   }
 
   #text p {
-    /* halbe Zeile statt voller: DIN 5008 laesst den Absatzabstand der Software */
-    margin: 0 0 2.25mm 0 !important;
+    /* 0,65 Zeilen (2,9 mm bei 4,5 mm Zeilenhoehe) - gleicher Wert wie auf dem
+       Schirm, DIN-Toleranz nach todo/07. 4,5 mm wirkte wie eine Leerzeile,
+       2,25 mm klebte (beides gemessen 2026-11-12). */
+    margin: 0 0 2.9mm 0 !important;
+  }
+
+  #text p:last-child {
+    margin-bottom: 0 !important;
   }
 
   #grussformel {

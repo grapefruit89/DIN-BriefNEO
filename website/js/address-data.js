@@ -352,7 +352,6 @@ export class AddressIntelligence {
   static plzList = [];
 
   /** @type {string[]} */
-  static sortedPlzArray = [];
 
   /** @type {any} */
   static firmenIndex = null;
@@ -416,8 +415,9 @@ export class AddressIntelligence {
         }
 
         const { plz, ort, district, state } = plzData;
-        AddressIntelligence.plzList = Array.isArray(plzData.plz) ? plzData.plz : Object.keys(plzData).sort();
-        AddressIntelligence.sortedPlzArray = AddressIntelligence.plzList;
+        /* Columnar-Schema ist oben hart geprueft - der Object.keys-Fallback war
+           unerreichbar (B8-Review 2026-11-12). */
+        AddressIntelligence.plzList = plz;
 
         if (AddressIntelligence.plzList.length > 1) {
           for (let i = 1; i < AddressIntelligence.plzList.length; i++) {
@@ -493,6 +493,13 @@ export class AddressIntelligence {
       }
     })();
 
+    /* Fehlschlag nicht cachen: sonst bleibt die PLZ-Engine fuer den Rest der
+       Seitenlebensdauer tot, obwohl ein spaeterer Versuch (z.B. nach kurzem
+       Netzausfall) erfolgreich waere (B8-Review 2026-11-12). */
+    void AddressIntelligence.#initPromise.then((ok) => {
+      if (!ok) AddressIntelligence.#initPromise = null;
+    });
+
     return AddressIntelligence.#initPromise;
   }
 
@@ -533,9 +540,8 @@ export class AddressIntelligence {
     /** @type {Map<string, string[]>} */
     const cityMap = new Map();
 
-    const plzs = AddressIntelligence.plzList.length > 0
-      ? AddressIntelligence.plzList
-      : AddressIntelligence.sortedPlzArray;
+    /* sortedPlzArray war dieselbe Referenz wie plzList - der Fallback war tot. */
+    const plzs = AddressIntelligence.plzList;
 
     // Binary Search (lowerBound) für O(log n) Direkteinstieg im sortierten PLZ-Array
     const low = lowerBound(plzs, p);
@@ -872,6 +878,9 @@ export class AddressIntelligence {
    * Wird in address.js implementiert.
    * @type {() => void}
    */
+  /* Deklarations-Stub: address.js weist dieser Klasse spaeter die echte
+     wireDOM-Funktion zu. Ohne den Stub verweigert die Typpruefung die
+     Zuweisung (B8-Review 2026-11-12: "leer" ist Absicht, nicht toter Code). */
   static wireDOM() {}
 }
 

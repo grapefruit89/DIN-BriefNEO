@@ -93,10 +93,6 @@ din-blatt {
   font-size-adjust: 0.52;
   font-variant-numeric: tabular-nums;
 }
-body.schrift-eigene-aktiv din-blatt {
-  font-family: var(--active-font-family, var(--font-system-stack));
-}
-
 body {
   background-color: var(--bg-viewport);
   color: var(--text-primary);

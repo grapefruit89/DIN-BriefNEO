@@ -87,8 +87,13 @@ din-lochmarke {
    ist bei <input> das belastbare Merkmal; `:empty` zaehlt DOM-Knoten und
    kippte nach jedem Tippen+Loeschen (<br>). */
 @media print {
+  /* Alle vier Empfaengerzeilen: leere Zeilen behalten im Druck keinen Platz
+     (auf dem Schirm muessen sie anklickbar bleiben). Vorher fehlten Name und
+     Ort - ein leeres Feld riss eine Luecke ins Anschriftfeld. */
   #empfaenger-firma:placeholder-shown,
-  #empfaenger-strasse:placeholder-shown {
+  #empfaenger-name:placeholder-shown,
+  #empfaenger-strasse:placeholder-shown,
+  #empfaenger-ort:placeholder-shown {
     display: none;
   }
 
@@ -484,10 +489,5 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
     :root:has(#toggle-fuss:checked) #geschaeftsangaben {
       display: grid;
     }
-
-  /* Folgekopf auf Bildschirm (ab Seite 2, A23) */
-  .folgekopf-screen {
-    top: calc(var(--i, 1) * (var(--seite) + var(--luecke)) + 12mm);
-  }
 
 }

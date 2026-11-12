@@ -4207,6 +4207,28 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
   });
 });
 
+describe('B4: Undo-Historie nach fremdem Entwurf', () => {
+  it('loadDraft entwertet die Historie, Undo holt kein fremdes Dokument zurueck', () => {
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    const dm = new DraftManager();
+
+    el.textContent = 'ERSTER';
+    dm.saveDraft();
+    el.textContent = 'ZWEITER';
+    dm.saveDraft(); // jetzt liegt ERSTER auf dem Undo-Stapel
+
+    /* Fremder Stand, wie ihn der Multi-Tab-Sync oder ein Reload bringt. */
+    saveJSON(STORAGE_KEYS.draft, { 'empfaenger-ort': 'FREMD' });
+    dm.loadDraft();
+    assertEqual(el.textContent, 'FREMD', 'fremder Stand geladen');
+
+    dm.undo();
+    assertEqual(el.textContent, 'FREMD', 'Undo hat den fremden Stand nicht ueberschrieben');
+    el.textContent = '';
+    dm.destroy();
+  });
+});
+
 describe('E1: Herkunft der Rücksendezeile gehört in den Entwurf', () => {
   it('collectDraft nimmt data-quelle mit, loadDraft setzt sie zurueck', () => {
     /* Der Traeger ist beliebig - der Mechanismus ist generisch (data-quelle

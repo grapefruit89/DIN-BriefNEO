@@ -161,12 +161,24 @@ export class DraftManager {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
     }
-    const draft = collectDraft();
+    /** @type {Record<string, string | boolean>} */
+    let draft;
     let draftStr = '';
     try {
+      draft = collectDraft();
       draftStr = JSON.stringify(draft);
-    } catch {
-      draftStr = '{}';
+    } catch (fehler) {
+      /* NICHT speichern: fruehere Fassung schrieb '{}' und meldete Erfolg —
+         der letzte gute Entwurf war damit weg, obwohl ein Fehler vorlag
+         (B4-Review 2026-11-12). */
+      console.error('[DraftManager] Entwurf nicht serialisierbar:', fehler);
+      this.#saveState = 'error';
+      try {
+        this.#setSaveStatus('error');
+      } catch {
+        /* Status-Rendering darf den Fehlerpfad nicht abbrechen (B54) */
+      }
+      return false;
     }
 
     const saved = save(STORAGE_KEYS.draft, draftStr);
@@ -219,6 +231,11 @@ export class DraftManager {
     const draft = loadJSON(STORAGE_KEYS.draft, null);
     if (!draft) return false;
 
+    /* Ein fremder Stand (Reload, Multi-Tab) macht die eigene Historie
+       ungueltig: ohne das holt Undo Texte aus einem anderen Dokument zurueck
+       (B4-Review 2026-11-12). */
+    this.#undoStack = [];
+    this.#redoStack = [];
     this.#currentState = { draftStr: JSON.stringify(draft), caretInfo: null };
     this.#restoreState(draft);
     return true;
@@ -368,7 +385,17 @@ export class DraftManager {
     if (!stateObj) return;
     const draft = JSON.parse(stateObj.draftStr);
     this.#restoreState(draft);
-    saveJSON(STORAGE_KEYS.draft, draft);
+    /* Rueckgabe pruefen: sonst zeigt der Status "gespeichert", waehrend der
+       Speicher den alten Stand haelt und der naechste Reload den Undo-Schritt
+       verliert (B4-Review 2026-11-12). */
+    if (!saveJSON(STORAGE_KEYS.draft, draft)) {
+      this.#saveState = 'error';
+      try {
+        this.#setSaveStatus('error');
+      } catch {
+        /* Status-Rendering darf den Fehlerpfad nicht abbrechen (B54) */
+      }
+    }
 
     if (stateObj.caretInfo) {
       const elem = document.getElementById(stateObj.caretInfo.id);

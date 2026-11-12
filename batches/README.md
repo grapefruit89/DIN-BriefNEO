@@ -7,8 +7,7 @@ Stand geben.** Nach Änderungen im Repo ist nichts nachzuziehen.
 | Batch | Thema | Dateien | ~Token |
 |---|---|---|---|
 | B1 | Geometrie-CSS | base.css, sheet-common.css, sheet-multipage.css + index.html (Beilage) | 20k |
-| B2 | HTML + Boot | index.html, main.js, core.js, boot.js, field.js (+ llms.txt) | 17k |
-| B2b | Orchestrierung | index.html, main.js, boot.js, core.js, field.js | 17k |
+| B2 | HTML + Boot (Folgefragen) | index.html, main.js, core.js, boot.js, field.js (+ llms.txt) | 17k |
 | B3 | Adresslogik | address.js, clipboard-parser.js | 16k |
 | B4 | Speichern/Undo | persistence.js, draft-manager.js, binary-storage.js | 14k |
 | B5 | Textkern | document.js, format.js, salutation.js | 14k |
@@ -25,8 +24,11 @@ B1 und B6 bekommen `index.html` als **Beilage**: ihre Frage („welche Regel
 trifft kein Element?") ist ohne Markup nicht beantwortbar. Das Markup steht
 dort ausdrücklich außerhalb der Bewertung.
 
-**B2b** ist der Folgeauftrag zu B2 und enthält eine Liste bereits am Code
-widerlegter Befunde, damit sie nicht erneut berichtet werden.
+**B2** ist zweistufig aufgebaut: der Prompt enthält eine Tabelle „Was die erste
+Runde ergeben hat" mit allen bereits am Code widerlegten oder entschiedenen
+Befunden, und darunter fünf **Folgefragen** (Critical-Auswahl, Reihenfolge,
+Idempotenz, `data-ready`, klassisches Boot-Skript). Ein zweiter Batch `B2b` gab
+es kurzzeitig; er ist in B2 aufgegangen, weil er dieselben Dateien brauchte.
 
 ## Merge-Dateien
 

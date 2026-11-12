@@ -14,10 +14,10 @@ du berichtest. Deine Aufgabe ist, Schwächen zu finden, bevor sie teuer werden.
 - Historie: contenteditable → `<input>` für fünf Anschriftfelder (2026-11-12).
 
 ## Dateien dieses Batches
-- `website/index.html`  (427 Zeilen) — DOM-Vertrag, lädt zwei Skripte
-- `website/js/main.js`  (304 Zeilen) — der Modul-Einstieg, 11 Importe
-- `website/js/core.js`  (267 Zeilen) — EventBus, Toast, Popover
-- `website/js/boot.js`  (69 Zeilen) — klassisches Skript im `<head>`, blockierend
+- `website/index.html`  (426 Zeilen) — DOM-Vertrag, lädt zwei Skripte
+- `website/js/main.js`  (333 Zeilen) — der Modul-Einstieg, 21 Boot-Schritte
+- `website/js/core.js`  (274 Zeilen) — EventBus, Toast, Popover
+- `website/js/boot.js`  (75 Zeilen) — klassisches Skript im `<head>`, blockierend
 - `website/js/field.js`  (32 Zeilen) — Naht input ↔ contenteditable
 - `website/llms.txt`  (76 Zeilen) — Feldvertrag (Beilage, kein Code)
 
@@ -30,16 +30,60 @@ geschätzt. Beurteile, ob der Batch seine Verträge richtig benutzt. Beurteile
 **nicht**, wie die fremden Module intern aussehen: ihr Code ist absichtlich
 nicht dabei, und „die Datei ist nicht da" ist kein Befund.
 
-## Prüfauftrag, in dieser Reihenfolge
-1. **KORREKTHEIT** — Logiklücken, Randfälle, stille Datenverluste, Zustandsfehler,
-   doppelte Wahrheiten, Reihenfolge-/Race-Probleme.
-2. **STRUKTUR** — Kopplung, Verantwortlichkeiten, Zyklen, versteckte Abhängigkeiten.
-3. **KISS/YAGNI** — wo wird Aufwand für Nutzen gebaut, den niemand braucht?
-4. **JAVASCRIPT-REDUKTION** — was könnte nativ (HTML/CSS/ARIA/Formular) statt JS?
-   Nenne pro Befund die gesparten Zeilen.
-5. **DUPLIKATE** — gleiche Logik an mehreren Stellen, kopierte Konstanten.
-6. **FEHLERBEHANDLUNG** — fehlendes Element, leerer Wert, abgebrochener Fetch,
-   doppeltes Event.
+## Was die erste Runde ergeben hat — nicht wiederholen
+
+Runde 1 (gleiche Dateien, ohne `main.js`) hat fünf Befunde gemeldet. Jeder ist
+inzwischen am Code geprüft; das hier ist der Stand:
+
+| Behauptung aus Runde 1 | Stand |
+|---|---|
+| localStorage-Fehler springt in den äußeren `try` und bricht den Boot ab | **widerlegt** — `boot.js` hat einen inneren `try` um `getItem` *und* `JSON.parse`; Defaults greifen |
+| Der 2-s-Fallback liegt im äußeren `try` und fällt bei Fehler aus | **bestätigt, entschieden**: bleibt. Der Kommentar sagt jetzt, dass er nur Platzhalter freigibt und kein Startbeweis ist |
+| `initToastSystem()` kann doppelt initialisieren | **behoben**: Guard `toastInitialisiert` |
+| Labels simulieren Buttons per `role`/`tabindex` | **bestätigt** (zwei Labels in `index.html`), **entschieden**: bleiben — ein `<button>` müsste die Checkbox per JS klicken |
+| `field.js` nur behalten, wenn mehrere Verbraucher | **beantwortet**: 8 Verbraucher |
+| HTML-Marker möglicherweise unbenutzt | **erledigt**: 4 ungelesene Attribute gelöscht |
+| Popover-Helfer als Sicherheitsnetz | **gemessen**: doppeltes `show`/`hide` wirft nichts; sie fangen nur Markup-Fehler. **Entschieden**: bleiben |
+
+Zur Geometrie: die `data-*`-Werte in `index.html` werden von `tools/imr.js`
+gegen das IMR-Inventar geprüft. Doppelpflege ist damit Gate-Sache, kein
+Review-Thema.
+
+## Folgeauftrag — die fünf offenen Fragen
+
+Das ist **kein neues Gesamtinventar**. Beantworte diese fünf Fragen; Befunde
+nur, wenn dir beim Antworten ein echter Fehler auffällt.
+
+**F1 — Ist die Critical-Auswahl richtig?** Von 21 Boot-Schritten sind drei
+`critical: true`: DOM-Grundgerüst, „Entwurf laden", „Globale Listener".
+Zusätzlich laufen die drei Konstruktoren (DraftManager, UIProtections,
+SettingsManager) durch `kritischerWert()`, das bei Fehler sichtbar abbricht.
+Begründung: scheitert „Entwurf laden", startet die Seite leer und der nächste
+Tastendruck überschreibt den Entwurf; scheitert „Globale Listener", tippt man
+in eine App, die nichts speichert.
+
+Prüfe die Auswahl, nicht die Mechanik: fehlt ein Schritt, ist einer zu viel,
+und ist der Preis für „Entwurf laden" (roter Balken, halb initialisierte
+Seite) verhältnismäßig? Nenne pro Kandidat den Schaden, nicht die Kategorie.
+
+**F2 — Reihenfolge.** Welche Schritte setzen voraus, dass ein früherer
+erfolgreich war? Wo hängt ein späterer Schritt an einem *nicht*-kritischen
+Vorläufer, sodass der Fehler erst viel später sichtbar wird?
+
+**F3 — Idempotenz.** Was überlebt einen zweiten `initApp()`-Lauf: Listener,
+EventBus-Abos, Modulzustand (`dom`, `timer`, `current`, `toastInitialisiert`,
+Caches)? Wenn später jemand „Einstellungen neu anwenden" als Re-Init
+implementiert — was bricht? Szenario, nicht Bug.
+
+**F4 — `data-ready` hat zwei Schreiber.** `boot.js` setzt es nach 2 s,
+`main.js` im letzten Boot-Schritt. Doppelte Wahrheit oder harmlos? Was sieht
+ein Leser (CSS, Test), wenn `initApp` kurz vor Ablauf der 2 s fertig wird?
+
+**F5 — `boot.js` als klassisches Skript.** Der Kommentar begründet es mit FOUC
+(gemessener FCP 96 ms). Gibt es bei Baseline Chrome 150+ einen Weg zum selben
+Effekt ohne zweites, blockierendes Skript — oder ist das die richtige Lösung?
+Nur antworten, wenn du den FOUC-Mechanismus in HTML/CSS wirklich siehst;
+sonst „nicht beurteilbar".
 
 ## Harte Regeln
 - Jeder Befund braucht eine Fundstelle: `datei` **plus wörtliche Zeile** aus dem
@@ -55,23 +99,16 @@ nicht dabei, und „die Datei ist nicht da" ist kein Befund.
   **SMELL** (teuer, aber korrekt).
 
 ## Output
-Tabelle:
 
-| # | Typ | Datei + Zitat | Befund (1 Satz) | Warum es zählt | Kleinste Behebung | Aufwand S/M/L | Risiko |
+1. **F1–F5** — je eine Zeile Antwort, auch wenn sie „nicht beantwortbar" lautet
+   (dann mit Grund).
+2. **Befunde** — *nur* wenn dir beim Beantworten ein echter Fehler auffällt:
 
-Danach:
-1. **TOP 3** — die drei, die du zuerst beheben würdest, je 2 Sätze.
-2. **JS-BUDGET** — die Zahlen stehen im Kopf dieses Dokuments unter
-   „Messwerte". Zähle sie **nicht** selbst nach, das geht im Fließtext schief;
-   interpretiere sie: wo ist Aufwand ohne Nutzen, wo ließe sich JS durch
-   CSS/HTML ersetzen, und wie viele Zeilen wären das? Fehlt eine Zahl, schreibe
-   „fehlt: <Zahl>" statt zu schätzen.
-3. **OFFENE FRAGEN** — max 3, nur wenn die Antwort den Befund ändert.
+   | # | Typ | Datei + Zitat | Befund (1 Satz) | Warum es zählt | Kleinste Behebung | Aufwand S/M/L | Risiko |
 
-## Zusatzfrage für diesen Batch
-Der Start läuft über zwei Skripte: `js/boot.js` (klassisch, blockierend, im
-`<head>`) und `js/main.js` (Modul, `defer`-Verhalten). Ist dieser Boot-Pfad
-deterministisch — Reihenfolge, doppeltes Init, Fehlerfall in einem Modul?
-Welches der beiden Skripte müsste etwas wissen, das es nicht weiß? Trägt
-`index.html` außerdem Verantwortung, die in CSS oder JS gehört, und welche
-Attribute/Marker liest niemand?
+   Eine leere Tabelle ist ein gutes Ergebnis. Kein Auffüllen mit Beobachtungen,
+   die keine der fünf Fragen berühren.
+3. **TOP 3** — nur wenn es Befunde gibt, je 2 Sätze.
+
+„Nicht beantwortbar, weil <Grund>" ist eine vollwertige Antwort und besser als
+eine Vermutung.

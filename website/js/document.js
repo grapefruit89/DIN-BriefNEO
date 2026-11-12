@@ -235,7 +235,19 @@ const FIELD_MAX_LENGTHS = Object.freeze(/** @type {Record<string, number>} */ ({
   'betreff': 140,
   'anrede': 70,
   'grussformel': 45,
-  'unterschrift': 45
+  'unterschrift': 45,
+  'fuss-firma': 60,
+  'fuss-sitz': 40,
+  'fuss-gericht': 60,
+  'fuss-hrb': 30,
+  'fuss-vorstand': 60,
+  'fuss-gf': 60,
+  'fuss-stnr': 30,
+  'fuss-ustid': 20,
+  'fuss-bank': 40,
+  'fuss-iban': 34,
+  'fuss-bic': 11,
+  'fuss-anschrift': 60
 }));
 
 /**

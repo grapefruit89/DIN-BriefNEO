@@ -390,18 +390,18 @@ Layout in vier Spalten ist Rendering. Normativ belegt sind die Y-Reihen und der 
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
-| `fuss-firma` | `<din-fuss-firma>` | 19.7 | atom | ja, `#fuss-firma` | Firmenname laut Handelsregister |
-| `fuss-sitz` | `<din-fuss-sitz>` | 19.7 | atom | ja, `#fuss-sitz` | Rechtsform und Sitz |
-| `fuss-gericht` | `<din-fuss-gericht>` | 19.7 | atom | ja, `#fuss-gericht` | Registergericht |
-| `fuss-hrb` | `<din-fuss-hrb>` | 19.7 | atom | ja, `#fuss-hrb` | Handelsregisternummer |
-| `fuss-vorstand` | `<din-fuss-vorstand>` | 19.7 | atom | ja, `#fuss-vorstand` | Vorsitz und Mitglieder des Vorstands |
-| `fuss-gf` | `<din-fuss-gf>` | 19.7 | atom | ja, `#fuss-gf` | Geschäftsführer |
-| `fuss-stnr` | `<din-fuss-stnr>` | 19.6 | atom | ja, `#fuss-stnr` | Steuernummer |
-| `fuss-ustid` | `<din-fuss-ustid>` | 19.6 | atom | ja, `#fuss-ustid` | USt-IdNr. |
-| `fuss-bank` | `<din-fuss-bank>` | 19.6 | atom | ja, `#fuss-bank` | Kontoverbindung |
-| `fuss-iban` | `<din-fuss-iban>` | 19.6 | atom | ja, `#fuss-iban` | Gliederung 11.3.1 |
-| `fuss-bic` | `<din-fuss-bic>` | 19.6 | atom | ja, `#fuss-bic` |  |
-| `fuss-anschrift` | `<din-fuss-anschrift>` | 19.6 | atom | ja, `#fuss-anschrift` | Geschäftsräume |
+| `fuss-firma` | `<input id="fuss-firma">` | 19.7 | atom | ja, `#fuss-firma` | Firmenname laut Handelsregister |
+| `fuss-sitz` | `<input id="fuss-sitz">` | 19.7 | atom | ja, `#fuss-sitz` | Rechtsform und Sitz |
+| `fuss-gericht` | `<input id="fuss-gericht">` | 19.7 | atom | ja, `#fuss-gericht` | Registergericht |
+| `fuss-hrb` | `<input id="fuss-hrb">` | 19.7 | atom | ja, `#fuss-hrb` | Handelsregisternummer |
+| `fuss-vorstand` | `<input id="fuss-vorstand">` | 19.7 | atom | ja, `#fuss-vorstand` | Vorsitz und Mitglieder des Vorstands |
+| `fuss-gf` | `<input id="fuss-gf">` | 19.7 | atom | ja, `#fuss-gf` | Geschäftsführer |
+| `fuss-stnr` | `<input id="fuss-stnr">` | 19.6 | atom | ja, `#fuss-stnr` | Steuernummer |
+| `fuss-ustid` | `<input id="fuss-ustid">` | 19.6 | atom | ja, `#fuss-ustid` | USt-IdNr. |
+| `fuss-bank` | `<input id="fuss-bank">` | 19.6 | atom | ja, `#fuss-bank` | Kontoverbindung |
+| `fuss-iban` | `<input id="fuss-iban">` | 19.6 | atom | ja, `#fuss-iban` | Gliederung 11.3.1 |
+| `fuss-bic` | `<input id="fuss-bic">` | 19.6 | atom | ja, `#fuss-bic` |  |
+| `fuss-anschrift` | `<input id="fuss-anschrift">` | 19.6 | atom | ja, `#fuss-anschrift` | Geschäftsräume |
 | `seitennummerierung` | `<din-seitennummerierung>` | 20.17 | atom | ja, `#seitennummerierung` |  |
 
 Spalte 2 hat in diesem Modell keine belegte Zeile bei Y 246. Das bleibt eine Lücke, kein neuer Wert.
@@ -795,6 +795,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.7",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-sitz": {
@@ -803,6 +804,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.7",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-gericht": {
@@ -811,6 +813,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.7",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-hrb": {
@@ -819,6 +822,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.7",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-vorstand": {
@@ -827,6 +831,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.7",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-gf": {
@@ -835,6 +840,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.7",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-stnr": {
@@ -843,6 +849,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.6",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-ustid": {
@@ -851,6 +858,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.6",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-bank": {
@@ -859,6 +867,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.6",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-iban": {
@@ -867,6 +876,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.6",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-bic": {
@@ -875,6 +885,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.6",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-fuss-anschrift": {
@@ -883,6 +894,7 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.6",
       "source": "DIN",
       "inDom": true,
+      "eingabe": "input",
       "export": false
     },
     "din-seitennummerierung": {

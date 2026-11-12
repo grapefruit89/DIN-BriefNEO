@@ -1177,12 +1177,14 @@ describe('Textfelder sind native <input> (Migration 2026-11-12)', () => {
   });
 
   it('alle migrierten Felder sind frei von contenteditable', async () => {
-    /* Die 12 Fusszeilen-Felder sind noch offen (P38-Ratsche zaehlt sie). */
+    /* Stand 2026-11-12: alle Einzeiler sind migriert, offen ist nur #text. */
     const doc = await ladeDoc();
     const migriert = [
       ...Object.keys(MAXIMUM),
       'empfaenger-firma', 'empfaenger-name', 'empfaenger-strasse', 'empfaenger-ort',
       'absender-name', 'absender-strasse', 'absender-ort', 'absender-tel', 'absender-mail', 'datum',
+      'fuss-firma', 'fuss-sitz', 'fuss-gericht', 'fuss-hrb', 'fuss-vorstand', 'fuss-gf',
+      'fuss-stnr', 'fuss-ustid', 'fuss-bank', 'fuss-iban', 'fuss-bic', 'fuss-anschrift',
     ];
     const offen = migriert.filter((id) => doc.getElementById(id)?.hasAttribute('contenteditable'));
     assertEqual(offen.length, 0, `noch contenteditable: ${offen.join(', ')}`);
@@ -1263,11 +1265,11 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     return { regel, treffer: zeilen.filter(trifft) };
   };
 
-  it('meldet ein offenes Feld (#empfaenger-name) als warning', async () => {
+  it('meldet kein offenes Feld mehr (Migration abgeschlossen)', async () => {
     const { regel, treffer } = await pruefeHtml();
     assert(regel, 'Regel P38 existiert');
     assertEqual(regel.severity, 'warning', 'Severity ist warning (kein Gate)');
-    assert(treffer.some((z) => z.includes('id="fuss-firma"')), '#fuss-firma wird gemeldet');
+    assertEqual(treffer.length, 0, `noch offen: ${treffer.length}`);
   });
 
   it('laesst den Rich-Text in Ruhe', async () => {
@@ -1275,10 +1277,9 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     for (const id of ERLAUBT) {
       assert(!treffer.some((z) => z.includes(`id="${id}"`)), `#${id} wird nicht gemeldet`);
     }
-    /* Vertrag 2026-11-12 (Migration): Empfaenger, Absender, Datum, Betreff,
-       Vermerk, Anrede, Grussformel und Unterschrift sind native <input>.
-       Offen bleiben nur die 12 Fusszeilen-Felder; #text ist ausgenommen. */
-    assertEqual(treffer.length, 12, 'genau 12 offene Felder (alle Fusszeilen)');
+    /* Vertrag 2026-11-12 (Migration abgeschlossen): alle Einzeiler sind native
+       <input>; #text ist als Rich-Text ausgenommen. */
+    assertEqual(treffer.length, 0, 'keine offenen contenteditable-Felder');
   });
 });
 

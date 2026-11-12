@@ -27,7 +27,15 @@ bzw. in den Commits.
 
 ## Offen — Entscheidung nötig
 
-**K1 — Vorschlagsliste: Anzahl im JS oder im CSS?**
+### Entschieden 2026-11-12
+
+| | Entscheidung | Begründung |
+|---|---|---|
+| **K1** | **A — bleibt** (`window.innerWidth`, 8/12) | Kein Bug, kein Gewinn durch Verschieben nach CSS; der Breakpoint ist ein echter UX-Wert |
+| **K2** | **A — `persistence.js` bleibt eine Datei** | 6 Module importieren daraus (font-feature, main, settings, address, draft-manager, salutation). Teilen hieße 7 Dateien anfassen für 0 Funktionsgewinn — Zerfaserung ohne Nutzen |
+| **K3** | **A — Markup bleibt im JS** | `renderUniversalSuggestions` 111 Z., `renderSuggestions` 47 Z.; ein Template ersetzt nur die Element-Erzeugung (real ~25–40 Z.), nicht Filter, ARIA und Handler — bei zwei Renderern, die parallel gepflegt werden müssten |
+
+**K1 — Vorschlagsliste: Anzahl im JS oder im CSS?** *(entschieden: A)*
 
 Heute: `maxSuggestions()` liest `window.innerWidth` und liefert 8 oder 12
 (`address.js:142`, drei Aufrufstellen). Das ist eine Layout-Entscheidung im JS.
@@ -35,7 +43,12 @@ Heute: `maxSuggestions()` liest `window.innerWidth` und liefert 8 oder 12
 - **A)** so lassen (0 Zeilen, funktioniert, kein Resize-Handler)
 - **B)** fester Wert (15) + `max-height`/`overflow-y` im Popover, CSS kürzt (~6 Zeilen weniger, etwas mehr DOM-Knoten)
 
-**K2 — `persistence.js` aufteilen?**
+**K2 — `persistence.js` aufteilen?** *(entschieden: A — bleibt eine Datei)*
+
+Was „teilen" konkret hieße: `storage.js` (load/save/loadJSON/saveJSON/remove),
+`print-metadata.js` (MetadataService, Print-Titel), `dinletter-io.js`
+(build/parse/apply, Datei-Picker). Sechs Importeure müssten ihre Import-Zeilen
+ändern, das Testfile ebenfalls.
 
 849 Zeilen, 22 Exporte, fünf Verantwortungen: Storage, Metadaten/Print,
 Import, Export, Draft-Collector. Kein Fehler, aber der breiteste Punkt im Repo.

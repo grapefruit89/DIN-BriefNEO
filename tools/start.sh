@@ -38,7 +38,9 @@ elif command -v lsof >/dev/null 2>&1; then
 fi
 
 # 2. HTTP-Server starten (website/ als Document Root)
-python3 -m http.server "$PORT_HTTP" --directory website > /tmp/din-server.log 2>&1 &
+# No-Cache-Server statt python3 http.server: sonst cachen Browser ES-Module
+# heuristisch und der Tab laeuft mit alter JS-Version (gemessen 2026-11-12).
+node tools/serve.mjs website "$PORT_HTTP" > /tmp/din-server.log 2>&1 &
 SERVER_PID=$!
 echo "[OK] Server: ${URL}/ (PID ${SERVER_PID})"
 

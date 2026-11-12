@@ -77,6 +77,10 @@
 
         <!-- Zone 1: Brief-Steuerung -->
         <section id="zone-dokument" class="seitenleiste-zone">
+          <!-- Ueberschriften-Ebene: h1 (Seite, sr-only) -> h2 Zone -> h3 Gruppe.
+               Reine Struktur fuer Screenreader und die Gliederung; die Labels
+               an den Reglern bleiben Labels. -->
+          <h2 class="seitenleiste-h2">Brief</h2>
           <!-- 1. Format & Ansicht -->
           <div class="seitenleiste-subgroup">
             <fieldset class="seitenleiste-field-group">
@@ -138,7 +142,7 @@
           <!-- 3. Textformatierung -->
           <div class="seitenleiste-subgroup">
             <div class="seitenleiste-field-group">
-              <span class="seitenleiste-label">Textformatierung</span>
+              <h3 class="seitenleiste-label">Textformatierung</h3>
               <div class="seitenleiste-btn-row" role="group" aria-label="Textformatierung">
                 <button type="button" id="btn-bold" class="icon-btn"
                         aria-pressed="false" aria-label="Fett (Strg+B)" title="Fett (Strg+B)">
@@ -174,7 +178,7 @@
 
         <!-- Zone 2: Daten & Adressen -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
-          <p class="seitenleiste-label">Daten &amp; Adressen</p>
+          <h2 class="seitenleiste-h2">Daten &amp; Adressen</h2>
           <search id="anschrift-suche-container" class="seitenleiste-options-group">
             <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
             <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
@@ -196,6 +200,7 @@
 
         <!-- Zone 3: Grundeinstellungen & Setup -->
         <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup">
+          <h2 class="seitenleiste-h2">Einstellungen</h2>
           <div class="seitenleiste-setup-content">
             <div class="seitenleiste-field-group">
               <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
@@ -251,7 +256,7 @@
             <hr class="seitenleiste-divider">
 
             <div class="seitenleiste-subgroup">
-              <p class="seitenleiste-label">Erweiterungen (Plugins)</p>
+              <h3 class="seitenleiste-label">Erweiterungen (Plugins)</h3>
               <div class="seitenleiste-switch-row">
                 <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
                 <input type="checkbox" switch id="plugin-testbrief" checked>
@@ -274,6 +279,7 @@
 
         <!-- Zone 4: Fester Fußbereich -->
         <div id="zone-aktionen" class="seitenleiste-footer">
+          <h2 class="sr-only">Aktionen</h2>
           <div class="save-status-row">
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
           </div>

@@ -4613,6 +4613,28 @@ describe('Import ist atomar (Befund B13)', () => {
   });
 });
 
+describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
+  /* Vorher: 0 Ueberschriften in der Leiste. Jetzt h1 (Seite) -> h2 (Zone)
+     -> h3 (Gruppentitel). Regler-Labels bleiben <label>, sonst verliert das
+     Control seine Beschriftung. */
+  it('vier Zonen-h2, zwei Gruppen-h3, keine Ueberspruenge', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const aside = doc.querySelector('aside');
+    assert(aside, 'Seitenleiste vorhanden');
+    if (!aside) return;
+    const h2 = [...aside.querySelectorAll('h2')];
+    const h3 = [...aside.querySelectorAll('h3')];
+    assertEqual(h2.length, 4, 'h2 je Zone');
+    assertEqual(h3.length, 2, 'h3 fuer die Gruppentitel, die keine Labels sind');
+    assert(h2.every((h) => h.textContent.trim().length > 0), 'h2 haben Text');
+    assert(h3.every((h) => !h.hasAttribute('for')), 'h3 ist kein Label-Ersatz');
+    /* Reihenfolge im DOM: jeder h3 folgt einem h2, kein h3 am Anfang. */
+    const ueberschriften = [...aside.querySelectorAll('h2, h3')];
+    assertEqual(ueberschriften[0]?.tagName, 'H2', 'beginnt mit h2');
+  });
+});
+
 describe('Modus-Schalter ist ein Tab-Stopp (Befund B14)', () => {
   /* Vorher: sr-only-Checkbox UND sichtbares Label mit role=button/tabindex=0 -
      zwei Stopps fuer eine Funktion, und Enter/Space auf dem Label tat nichts. */

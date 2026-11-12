@@ -607,6 +607,18 @@ input[type="checkbox"][switch] {
   visibility: hidden;
 }
 
+/* Zonen-Ueberschrift. Bewusst klein und gedämpft: sie gliedert, sie schreit
+   nicht. Die Gruppen-Titel sind h3 mit derselben Optik wie bisher
+   (.seitenleiste-label), die Regler-Labels bleiben <label>. */
+.seitenleiste-h2 {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .seitenleiste-select {
   display: flex;
   appearance: base-select;

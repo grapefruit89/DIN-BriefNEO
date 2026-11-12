@@ -482,7 +482,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.2",
       "source": "DIN (interpretiert)",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-absender-vorname": {
       "id": null,
@@ -506,7 +507,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-absender-ort": {
       "id": "absender-ort",
@@ -514,7 +516,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-absender-mail": {
       "id": "absender-mail",
@@ -522,7 +525,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-absender-tel": {
       "id": "absender-tel",
@@ -530,7 +534,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "19.4.2",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-rucksendeangabe": {
       "id": "rucksendeangabe",
@@ -615,7 +620,8 @@ Normative maschinenlesbare Fassung für Geometrie, verbotene Aliase und Komposit
       "dinSection": "20.8",
       "source": "DIN",
       "inDom": true,
-      "export": true
+      "export": true,
+      "eingabe": "input"
     },
     "din-ihr-zeichen": {
       "id": null,

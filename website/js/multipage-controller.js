@@ -81,10 +81,13 @@ export function mountMultipage() {
     const vp = document.getElementById('viewport');
     if (vp) vp.dataset.seiten = String(n);
 
-    const empfName = (document.getElementById('empfaenger-name')?.textContent || '').trim();
-    const empfFirma = (document.getElementById('empfaenger-firma')?.textContent || '').trim();
+    /* Field.getValue: Empfaengerfelder und Datum sind native <input>, dort ist
+       textContent immer leer - die Folgekoepfe zeigten sonst "Brief an Empfänger
+       vom" ohne Inhalt (gemessen 2026-11-12). */
+    const empfName = Field.getValue(document.getElementById('empfaenger-name')).trim();
+    const empfFirma = Field.getValue(document.getElementById('empfaenger-firma')).trim();
     const empfaenger = empfName || empfFirma || 'Empfänger';
-    const datum = (document.getElementById('datum')?.textContent || '').trim();
+    const datum = Field.getValue(document.getElementById('datum')).trim();
     const kopfText = `Brief an ${empfaenger} vom ${datum}`;
 
     // Bildschirm-Folgekoepfe ab Seite 2 (DOM-Knoten ohne innerHTML, Law A61, A23 mit CSS-Variable --i)

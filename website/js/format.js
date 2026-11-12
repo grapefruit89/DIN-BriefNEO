@@ -5,6 +5,7 @@
 /**
  * @file format.js — Reine Formatierungsfunktionen nach DIN 5008 (Telefonnummern, Text-Formatierung).
  */
+import { Field } from './field.js';
 
 /**
  * Formatiert eine eingegebene Telefonnummer nach DIN 5008 11.3.2 (Funktions- und
@@ -397,11 +398,14 @@ export function applyLetterDate() {
   if (!el) return;
   // Ein selbst eingetragenes Datum gewinnt: sonst überschreibt jeder Aufruf
   // die Eingabe, und sie wäre nach dem Reload verloren (Befund 1.2).
-  const manuallySet = el.dataset.dirty === 'true' && (el.textContent || '').trim() !== '';
+  /* Field.getValue/setValue statt textContent: #datum ist seit 2026-11-12 ein
+     <input>, dort ist textContent immer leer und ein Schreibversuch wirkungslos
+     (gemessen: Datum blieb leer). */
+  const manuallySet = el.dataset.dirty === 'true' && Field.getValue(el).trim() !== '';
   if (manuallySet) return;
   const formatted = formatLetterDate();
   if (formatted) {
-    el.textContent = formatted;
+    Field.setValue(el, formatted);
   }
 }
 

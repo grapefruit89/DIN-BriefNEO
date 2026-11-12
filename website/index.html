@@ -327,12 +327,12 @@
               </div>
             </din-anschriftfeld>
             <din-infoblock id="infoblock" data-x="125" data-w="65" data-font="8.5" role="group" aria-label="Infoblock">
-              <din-absender-name id="absender-name" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Vor- und Nachname" aria-label="Name"></din-absender-name>
-              <din-absender-strasse id="absender-strasse" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer"></din-absender-strasse>
-              <din-absender-ort id="absender-ort" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" spellcheck="false" autocapitalize="words" writingsuggestions="false" data-placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort"></din-absender-ort>
-              <din-absender-tel id="absender-tel" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="next" inputmode="tel" spellcheck="false" writingsuggestions="false" data-placeholder="Telefon (optional)" aria-label="Telefonnummer"></din-absender-tel>
-              <din-absender-mail id="absender-mail" class="single-line" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" inputmode="email" spellcheck="false" autocapitalize="none" writingsuggestions="false" data-placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse"></din-absender-mail>
-              <din-datum id="datum" data-font="10" class="single-line" data-feldtyp="systemwert" role="textbox" contenteditable="plaintext-only" enterkeyhint="done" spellcheck="false" writingsuggestions="false" data-placeholder="2. September 2026" aria-label="Datum"></din-datum>
+              <input type="text" id="absender-name" data-atom class="single-line" placeholder="Vor- und Nachname" aria-label="Name" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="text" id="absender-strasse" data-atom class="single-line" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="text" id="absender-ort" data-atom class="single-line" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="tel" id="absender-tel" data-atom class="single-line" placeholder="Telefon (optional)" aria-label="Telefonnummer" autocomplete="off" inputmode="tel" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="email" id="absender-mail" data-atom class="single-line" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false" enterkeyhint="done" maxlength="50">
+              <input type="text" id="datum" data-atom data-font="10" class="single-line" data-feldtyp="systemwert" placeholder="2. September 2026" aria-label="Datum" autocomplete="off" spellcheck="false" enterkeyhint="done" maxlength="30">
               <din-bezugszeichen id="bezugszeichen" class="is-dormant"></din-bezugszeichen>
             </din-infoblock>
             <din-kern id="kern" data-left="25" data-right="20" role="region" aria-label="Briefkern">

@@ -1173,7 +1173,7 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     const { regel, treffer } = await pruefeHtml();
     assert(regel, 'Regel P38 existiert');
     assertEqual(regel.severity, 'warning', 'Severity ist warning (kein Gate)');
-    assert(treffer.some((z) => z.includes('id="absender-name"')), '#absender-name wird gemeldet');
+    assert(treffer.some((z) => z.includes('id="fuss-firma"')), '#fuss-firma wird gemeldet');
   });
 
   it('laesst die vier erlaubten Felder in Ruhe', async () => {
@@ -1181,7 +1181,10 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     for (const id of ERLAUBT) {
       assert(!treffer.some((z) => z.includes(`id="${id}"`)), `#${id} wird nicht gemeldet`);
     }
-    assertEqual(treffer.length, 21, 'genau 21 offene Felder (5 Anschriftfelder sind <input>)');
+    /* Vertrag 2026-11-12: 5 Empfaengerfelder + 5 Absenderfelder + Datum sind
+       native <input>; 15 offene contenteditable bleiben (Anrede, Gruss,
+       Unterschrift, Fusszeile, Vermerke/Betreff/Text ausgenommen). */
+    assertEqual(treffer.length, 15, 'genau 15 offene Felder (11 sind <input>)');
   });
 });
 

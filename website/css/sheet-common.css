@@ -55,10 +55,6 @@ din-rucksendeangabe,
 din-empfaenger-firma,
 din-empfaenger-strasse,
 din-empfaenger-ort,
-din-absender-strasse,
-din-absender-ort,
-din-absender-tel,
-din-absender-mail,
 din-betreff,
 din-anrede,
 din-grussformel,
@@ -94,6 +90,17 @@ din-lochmarke {
   #empfaenger-firma:placeholder-shown,
   #empfaenger-strasse:placeholder-shown {
     display: none;
+  }
+
+  /* Platzhalter nicht drucken, Zeilenhoehe bleibt: dieselbe Wirkung wie
+     [data-placeholder]:empty::before bei den contenteditable-Feldern. */
+  #absender-name::placeholder,
+  #absender-strasse::placeholder,
+  #absender-ort::placeholder,
+  #absender-tel::placeholder,
+  #absender-mail::placeholder,
+  #datum::placeholder {
+    color: transparent;
   }
 }
 
@@ -230,6 +237,38 @@ din-anlagen-angabe {
   min-height: 1.2em;
   max-height: 1.2em;
   line-height: 1.2;
+}
+
+/* Absenderblock + Datum: native Felder (2026-11-12). Browser-Optik
+   zuruecksetzen, Raster von .single-line halten (1.4em). */
+#absender-name,
+#absender-strasse,
+#absender-ort,
+#absender-tel,
+#absender-mail,
+#datum {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  appearance: none;
+  height: 1.4em;
+  min-height: 1.4em;
+  max-height: 1.4em;
+  line-height: 1.4;
+}
+
+/* Entscheidung 2026-11-12: nur das Datum steht rechtsbuendig (an der
+   Blockkante), Absenderzeilen bleiben links. Der Block selbst sitzt schon
+   rechts (125-190 mm), geaendert wird nur die Textausrichtung. */
+#datum {
+  text-align: right;
 }
 
 .single-line[contenteditable]:focus {

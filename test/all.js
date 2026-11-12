@@ -1425,13 +1425,38 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
     assert(block.includes('height: --mm-abs-y(attr(data-h'), 'Hoehe bleibt data-h (45mm)');
   });
 
+  /* Vertrag 2026-11-12: der Block beschriftet sich von unten (DIN 20.7.1).
+   * Ohne Vermerk steht die Rücksendezeile auf der untersten Schreibzeile
+   * (59,2mm Form B), mit Vermerk eine Zeile darueber; der Vermerk nimmt die
+   * unterste. Vorher stand sie bei 0 (51,00mm) und liess 9,24mm Weissraum. */
+  it('beschriftet die Zone von unten: Rücksende auf der untersten Zeile', async () => {
+    const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const block = (css.match(/#rucksendeangabe\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(block !== '', 'Regel #rucksendeangabe gefunden');
+    assert(/top:\s*8\.46mm/.test(block), 'top 8,46mm = unterste Schreibzeile (12,7 - 4,23)');
+    const vermerk = (css.match(/#vermerke\s*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(/top:\s*8\.46mm/.test(vermerk), 'Vermerk liegt auf derselben untersten Zeile');
+    assert(vermerk.includes('white-space: nowrap'), 'Vermerk bleibt eine Zeile');
+  });
+
+  it('schiebt die Rücksendezeile bei gesetztem Vermerk eine Zeile hoch', async () => {
+    const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
+    const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
+    const regel = (css.match(/#anschriftfeld:has\(#vermerke\[data-visible="true"\]\)[^{]*\{([^}]*)\}/) || [])[1] ?? '';
+    assert(regel !== '', 'Regel fuer gesetzten Vermerk gefunden');
+    assert(/top:\s*4\.23mm/.test(regel), 'Rücksende rueckt genau eine Zeile (4,23mm) hoch');
+  });
+
   it('positioniert den Postvermerk absolut unter der Ruecksendezeile', async () => {
     const roh = await (await fetch('/website/css/sheet-multipage.css')).text();
     const css = roh.replace(/\/\*[\s\S]*?\*\//g, '');
     const block = (css.match(/#vermerke\s*\{([^}]*)\}/) || [])[1] ?? '';
     assert(block !== '', 'Regel #vermerke gefunden');
     assert(block.includes('position: absolute'), 'absolut: verschiebt die Anschriftzone nicht');
-    assert(block.includes('top: 1.4em'), 'top 1.4em (direkt unter der Ruecksendezeile)');
+    /* Vertrag 2026-11-12: nicht mehr 1.4em unter der Rücksendezeile, sondern
+       die unterste Schreibzeile (DIN Tab. B.1: Schreibbeginn 59,2mm). */
+    assert(/top:\s*8\.46mm/.test(block), 'top 8,46mm (unterste Schreibzeile)');
   });
 });
 

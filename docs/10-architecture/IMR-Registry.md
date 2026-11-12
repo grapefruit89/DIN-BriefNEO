@@ -274,13 +274,15 @@ Fachliche Bezüge: DIN 5008 Absenderangaben. Keine CSS-Custom-Property ist Teil 
 
 **Zone:** `<din-anschriftfeld>`  
 **ARIA:** `group`  
-**Zonen-Geometrie:** X 25 mm. Blockoberkante (= Rücksendezeile) Form A 34 mm, Form B 51 mm (DIN 33,9/50,8); darunter die Anschriftzone mit Y Form A 46,7 mm, Form B 63,7 mm (DIN 46,6/63,5). Breite 85 mm. Höhe 45 mm (fix).
+**Zonen-Geometrie:** X 25 mm, Breite 85 mm (Feld), Textlauf 25–105 mm = 80 mm (Tab. A.1). Blockoberkante Form A 34 mm, Form B 51 mm (DIN 33,9/50,8); darunter die Anschriftzone mit Y Form A 46,7 mm, Form B 63,7 mm (DIN 46,6/63,5). Höhe 45 mm (fix) für beide Zonen zusammen.
 
-Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erste Kind der Zone und liegt auf ihrer Oberkante (DIN 19.4.3: Zusatz- und Vermerkzone inklusive Rücksendeangabe, darunter die Anschriftzone).
+**Zusatz-/Vermerkzone.** 17,7 × 85 mm, davon 5,0 mm Rand über der ersten Schreibzeile; Schreibraster 3 Zeilen à 4,23 mm (Tab. B.1: 50,8 / 59,2 / 63,5 mm, Zeilen 13–15). Der Block beschriftet sich von unten nach oben (DIN 20.7.1): Rücksendeangabe ist die oberste *belegte* Zeile, Vermerke stehen darunter, der Block schiebt sich zeilenweise nach oben. Belegt werden 1–2 Zeilen (binär: ohne/mit Postvermerk).
+
+Die Höhe 45 mm ist Zonenmaß, keine Atom-Box. Die Rücksendeangabe ist das erste Kind der Zone und besetzt die oberste belegte Zeile des von unten beschrifteten Blocks (DIN 19.4.3/20.7.1: Rücksendeangabe oben, Vermerke darunter).
 
 | Atom | Tag | DIN 5008 | Rolle | DOM / ID | Anmerkung |
 |---|---|---|---|---|---|
-| `rucksendeangabe` | `<din-rucksendeangabe>` | 19.4.3 | atom | ja, `#rucksendeangabe` | einzeilig, 7 pt (Nutzerentscheidung, DIN-Ausnahmebereich 6–8 pt), oberste Position der Zusatz- und Vermerkzone |
+| `rucksendeangabe` | `<din-rucksendeangabe>` | 19.4.3 | atom | ja, `#rucksendeangabe` | einzeilig, 7 pt (Nutzerentscheidung, DIN-Ausnahmebereich 6–8 pt), oberste belegte Zeile des Blocks |
 | `vermerke` | `<din-vermerke>` | 19.4.3 | atom | ja, `#vermerke` | Zusatz- und Vermerkzone |
 | `empfaenger-firma` | `<din-empfaenger-firma>` | 20.7.2 | atom | ja, `#empfaenger-firma` | Empfängerbezeichnung |
 | `empfaenger-abteilung` | `<din-empfaenger-abteilung>` | 20.7.4 *(interpretiert)* | atom | nein | DIN 19.5 nennt „Abteilung" als Leitwort des Infoblocks |
@@ -300,7 +302,7 @@ Gemessen im PDF (`pdftotext -bbox`, erster Buchstabe der jeweiligen Zeile), nich
 
 | Element | Form A Ist | Form A DIN | Δ | Form B Ist | Form B DIN | Δ |
 |---|---:|---:|---:|---:|---:|---:|
-| Rücksendeangabe | 34,00 mm¹ | 33,9 mm | +0,10 | 51,00 mm | 50,8 mm | +0,20 |
+| Rücksendeangabe | 42,46 mm¹ | 42,3 mm | +0,16 | 59,46 mm | 59,2 mm | +0,26 |
 | Empfängeranschrift | 46,70 mm¹ | 46,6 mm | +0,10 | 63,70 mm | 63,5 mm | +0,20 |
 | Informationsblock | 34,37 mm | 33,9 mm | +0,47 | 51,30 mm | 50,8 mm | +0,50 |
 
@@ -311,13 +313,14 @@ wie sie benannt sind:
 
 | Attribut | Wert A/B | DIN Tab. B.1 | Δ | Wird im CSS verwendet als |
 |---|---:|---:|---:|---|
-| `data-anschriftfeld-y` | 34 / 51 | Rücksendezeile 33,9 / 50,8 | +0,1 / +0,2 | Oberkante des Blocks = Rücksendezeile |
-| `+ 12,7 mm` Zusatz-/Vermerkzone | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | `padding-top` der Zone (`sheet-multipage.css:190`) |
+| `data-anschriftfeld-y` | 34 / 51 | Blockoberkante 33,9 / 50,8 | +0,1 / +0,2 | Oberkante des Blocks (Feldrand, 5 mm über Zeile 13) |
+| `+ 12,7 mm` = 3 Schreibzeilen (Tab. B.1: 50,8 / 59,2 / 63,5) | 46,7 / 63,7 | Empfängeranschrift 46,6 / 63,5 | +0,1 / +0,2 | `padding-top` der Zone (`sheet-multipage.css:190`) |
 | `data-briefkopf-y` | 27 / 45 | (19.4.2 nennt nur die Feldhöhe) | — | nur im stillgelegten `sheet.css` |
 
-Der Block beginnt damit auf der Rücksendezeile; die Anschriftzone liegt eine
-Zusatz- und Vermerkzone tiefer — genau die 12,7 mm, die Tab. B.1 zwischen
-Zeile 13 und Zeile 16 ansetzt.
+Die Anschriftzone liegt 12,7 mm unter der Blockoberkante — genau drei
+Schreibzeilen, die Tab. B.1 zwischen Zeile 13 und Zeile 16 ansetzt. Die
+Rücksendezeile sitzt nicht auf der Oberkante, sondern auf der untersten
+belegten Zeile (59,2/42,3 mm, DIN 20.7.1).
 
 **Status:** umgesetzt in `9716cff` (Blockoberkante) und `6fd0d2f`
 (Empfänger-Raster 4,23 mm), gemessen 2026-11-11. Die früher erwogenen Varianten

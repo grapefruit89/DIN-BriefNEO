@@ -61,6 +61,24 @@
       const box = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
       if (box) box.checked = draft[id] === 'true';
     }
+
+    /* 5. Alle Feldwerte aus dem Entwurf — sonst ist der erste Frame leer und
+       der Text ploppt nach dem Draft-Restore rein (gemessen 2026-11-12:
+       FCP 156 ms, Werte erst 161 ms). `text` liegt als HTML im Entwurf,
+       alles andere als Wert. */
+    for (const [id, wert] of Object.entries(draft)) {
+      if (id.endsWith('__quelle') || typeof wert !== 'string') continue;
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+        el.value = wert;
+      } else if (el.isContentEditable) {
+        /* Kein schreibender innerHTML-Zugriff (A61): DOMParser + replaceChildren
+           erhaelt das Markup des Entwurfs unveraendert. */
+        const geparst = new DOMParser().parseFromString(wert, 'text/html');
+        el.replaceChildren(...geparst.body.childNodes);
+      }
+    }
   } catch {
     /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her. */
   }

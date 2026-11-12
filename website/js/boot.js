@@ -41,7 +41,12 @@ try {
 
   root.setAttribute('data-theme', theme);
   root.setAttribute('data-layout', layout);
-  root.setAttribute('data-style', settings.style || 'default');
+  /* Whitelist wie bei theme und layout: `settings.js` fuehrt dieselbe Liste
+   * (`validStyles`), aber hier muss sie stehen, weil dieses Skript klassisch
+   * ist und keine Module importieren kann. Ohne sie landet ein beliebiger
+   * String aus localStorage in einem Attribut, auf das CSS keyed. */
+  const STYLE_WHITELIST = new Set(['default', 'compact']);
+  root.setAttribute('data-style', STYLE_WHITELIST.has(settings.style) ? settings.style : 'default');
   root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
   root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):

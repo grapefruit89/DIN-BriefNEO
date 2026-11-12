@@ -3,14 +3,14 @@
 Dieses Dokument enthaelt alle Quelldateien des Batches in EINER Datei,
 damit ein Agent ohne Einzelanhaenge arbeiten kann. Reihenfolge = Tree.
 
-Quellstand: Arbeitsbaum auf Basis HEAD 81d5197. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
+Quellstand: Arbeitsbaum auf Basis HEAD 9fd0ba0. Verbindlich ist die SHA256-Tabelle unten: passt sie nicht, ist der Snapshot veraltet.
 
 ## Inhalt
 ```
 B2/
 ├── index.html                     426 Zeilen
 ├── sheet-common.css               454 Zeilen
-├── boot.js                         75 Zeilen
+├── boot.js                         80 Zeilen
 ├── core.js                        274 Zeilen
 ├── field.js                        32 Zeilen
 ├── main.js                        333 Zeilen
@@ -24,14 +24,14 @@ B2/
 |---|---|---:|---|
 | `index.html` | `website/index.html` | 426 | `0500a649` |
 | `sheet-common.css` | `website/css/sheet-common.css` | 454 | `4a470bdc` |
-| `boot.js` | `website/js/boot.js` | 75 | `313ec169` |
+| `boot.js` | `website/js/boot.js` | 80 | `e453d479` |
 | `core.js` | `website/js/core.js` | 274 | `bbd9fd93` |
 | `field.js` | `website/js/field.js` | 32 | `7efd84e0` |
 | `main.js` | `website/js/main.js` | 333 | `14822fa1` |
 | `llms.txt` | `website/llms.txt` | 76 | `ef30bd91` |
 | `KONTRAKT.md` | `batches/B2/KONTRAKT.md` | 51 | `2105bfad` |
 
-Gesamt: 81680 Zeichen ≈ 20k Token.
+Gesamt: 82076 Zeichen ≈ 20k Token.
 
 ## Messwerte (maschinell gezaehlt — nicht schaetzen, hier nachlesen)
 
@@ -39,7 +39,7 @@ Gesamt: 81680 Zeichen ≈ 20k Token.
 |---|---:|---:|---:|---:|---:|
 | `index.html` | 426 | 0 | 0 | 0 | 0 |
 | `sheet-common.css` | 454 | 0 | 0 | 0 | 0 |
-| `boot.js` | 75 | 0 | 3 | 0 | 0 |
+| `boot.js` | 80 | 0 | 3 | 0 | 0 |
 | `core.js` | 274 | 10 | 22 | 2 | 2 |
 | `field.js` | 32 | 1 | 0 | 0 | 0 |
 | `main.js` | 333 | 0 | 53 | 17 | 21 |
@@ -948,7 +948,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
 
 
 ==============================================================================
-===== boot.js  (website/js/boot.js, 75 Zeilen, sha256:313ec169)
+===== boot.js  (website/js/boot.js, 80 Zeilen, sha256:e453d479)
 ==============================================================================
 
 // @ts-check
@@ -994,7 +994,12 @@ try {
 
   root.setAttribute('data-theme', theme);
   root.setAttribute('data-layout', layout);
-  root.setAttribute('data-style', settings.style || 'default');
+  /* Whitelist wie bei theme und layout: `settings.js` fuehrt dieselbe Liste
+   * (`validStyles`), aber hier muss sie stehen, weil dieses Skript klassisch
+   * ist und keine Module importieren kann. Ohne sie landet ein beliebiger
+   * String aus localStorage in einem Attribut, auf das CSS keyed. */
+  const STYLE_WHITELIST = new Set(['default', 'compact']);
+  root.setAttribute('data-style', STYLE_WHITELIST.has(settings.style) ? settings.style : 'default');
   root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
   root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):

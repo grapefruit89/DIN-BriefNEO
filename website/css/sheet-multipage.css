@@ -13,14 +13,17 @@
 
   --nutz: calc(var(--seite) - var(--rand-o) - var(--rand-u)); /* 252mm */
   --zeilenabstand: calc(var(--rand-o) + var(--rand-u) + var(--luecke)); /* 53mm */
-
-  /* Spacer-Höhe auf Seite 1: schiebt den Betreff exakt an die DIN-5008-Position */
-  --spacer-hoehe: calc(107mm - var(--rand-o)); /* Betreff 107mm (Form B) */
 }
 
-:root[data-layout="form-a"],
-body:has(#btn-form-a:checked) {
-  --spacer-hoehe: calc(89mm - var(--rand-o)); /* Betreff 89mm (Form A) */
+/* Spacer-Höhe auf Seite 1: schiebt den Betreff an die DIN-5008-Position.
+   Ableitung statt Doppelpflege — die Falzmarke ist die Quelle, der Betreff
+   liegt 2 mm darunter (Form B 105+2=107, Form A 87+2=89). Bewusst auf
+   `din-blatt`: dort lebt `--falz-oben-y` (sheet-common.css), auf `:root` wäre
+   die Variable unbekannt und der Spacer kollabiert auf 0 (gemessen
+   2026-11-12). Das Ausblenden der Marken ist nur `visibility`, das Attribut
+   bleibt lesbar. */
+din-blatt {
+  --spacer-hoehe: calc(var(--falz-oben-y) + 2mm - var(--rand-o));
 }
 
 /* Exakte physische Millimeter-Umrechnung für Mehrseiten-Layout (C1: explizit --mm-abs-*) */
@@ -434,11 +437,6 @@ din-vermerke, din-anlagenvermerk, #anlagenvermerk, din-geschaeftsangaben {
 /* Anchors auf dem Blatt */
 
 /* --- SIGNATUR-OVERLAY (CAD-Geometrie & Snapping) --- */
-
-/* In Mehrseitenansicht: Kein 1-Seiten-Überlauf-Hinweis, da Mehrseitigkeit gewollt ist */
-din-blatt[data-ueberlauf="true"]::after {
-  display: none !important;
-}
 
 /* --- Druck (aus print-multipage.css zusammengelegt, 2026-11-08) ---
    Drucklayout Mehrseite (Paged Media) */

@@ -1499,6 +1499,10 @@ describe('Anschriftfeld — DIN-Zone reserviert', () => {
   });
 });
 
+/* Vertrag 2026-11-12: der Betreff-Spacer leitet sich aus Falzmarke 1 ab (+2mm).
+   Ein Ausdruck fuer alle Stellen, damit die Tests nicht auseinanderlaufen. */
+const SPACER = /--spacer-hoehe:\s*calc\(var\(--falz-oben-y\) \+ 2mm - var\(--rand-o\)\)/;
+
 describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
   /* DIN 5008 § 20.9.2: zwei Leerzeilen nach dem Informationsblock. Der
    * Infoblock endet seit dem Datum-Umzug (2026-11-11) bei 80,90mm (Ink,
@@ -1510,24 +1514,29 @@ describe('Betreff — unter Falzmarke 1 (DIN 20.9.2)', () => {
   /** @param {string} s */
   const zahl = (s) => Number(String(s).replace(',', '.'));
 
-  it('Form B: Oberrand 25mm + Spacer 82mm = 107,0mm', async () => {
+  /* Vertrag 2026-11-12: der Spacer leitet sich aus Falzmarke 1 ab (+2mm), statt
+     107/89mm doppelt zu pflegen. Geprueft wird beides: der Ausdruck und die
+     Zahl, die aus dem HTML-Attribut folgt. */
+  it('Form B: Spacer = Falzmarke 1 (105mm) + 2mm = 107mm', async () => {
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
+    const html = await (await fetch('/website/index.html')).text();
     const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)(?:mm)?/) || [])[1]);
-    const spacer = zahl((css.match(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/) || [])[1]);
+    const falzB = zahl((html.match(/data-falzmarke-1-y-b="([\d.]+)"/) || [])[1]);
     assertEqual(margin, 0, 'kein eigener Zuschlag am Betreff');
-    assertEqual(spacer, 107, 'Spacer endet auf der Falzmarken-Zielhoehe 107mm');
-    assertEqual(+(25 + (spacer - 25) + margin).toFixed(2), 107, 'Betreff-Box = 107,00mm (rand-o 25mm)');
+    assert(SPACER.test(css), 'Spacer liest --falz-oben-y + 2mm');
+    assertEqual(falzB + 2, 107, 'Falzmarke 1 (Form B) + 2mm = 107mm');
   });
 
-  it('Form A: 80,46mm Briefkopf - rand-o + margin-top = 89,0mm', async () => {
+  it('Form A: derselbe Ausdruck, Falzmarke schaltet sich um (87 + 2 = 89mm)', async () => {
     const css = (await (await fetch('/website/css/sheet-multipage.css')).text()).replace(/\/\*[\s\S]*?\*\//g, '');
-    const margin = zahl((css.match(/#betreff\s*\{[^}]*?margin-top:\s*([\d.]+)(?:mm)?/) || [])[1]);
-    const spacers = [...css.matchAll(/--spacer-hoehe:\s*calc\(([\d.]+)mm - var\(--rand-o\)\)/g)].map((m) => zahl(m[1]));
-    assertEqual(spacers.length, 2, 'zwei Form-Varianten (Form A und B)');
-    assertEqual(spacers[0], 107, 'Form-B-Spacer 107mm');
-    assertEqual(spacers[1], 89, 'Form-A-Spacer 89mm');
-    assertEqual(+(25 + (spacers[1] - 25) + margin).toFixed(2), 89, 'Betreff-Box = 89,00mm (18mm Falzmarken-Delta)');
-    // Kein form-A-Sonderfall: derselbe margin-top gilt fuer beide Formen.
+    const html = await (await fetch('/website/index.html')).text();
+    const falzA = zahl((html.match(/data-falzmarke-1-y-a="([\d.]+)"/) || [])[1]);
+    assertEqual(falzA + 2, 89, 'Falzmarke 1 (Form A) + 2mm = 89mm');
+
+    /* Nur EINE Spacer-Definition: die Form-Variante steckt in --falz-oben-y,
+       nicht in einem zweiten calc(). */
+    assertEqual((css.match(/--spacer-hoehe:/g) || []).length, 1, 'genau eine Spacer-Definition');
+    // Kein form-A-Sonderfall fuer den Betreff.
     assert(/data-layout="form-a"[^{]*\{[^}]*betreff/.test(css) === false, 'kein eigenes Betreff-Margin fuer Form A');
   });
 
@@ -1615,8 +1624,7 @@ describe('Betreff — Abstand zum Infoblock', () => {
     // Der Abstand nach dem Betreff bleibt unangetastet (zwei Leerzeilen bis zur Anrede).
     assert(regel.includes('margin-bottom: 8.46mm'), 'margin-bottom bleibt 8.46mm');
     // Der Betreff-Anker ist die Falzmarke, nicht die alte Briefkopf-Rechnung.
-    const spacer = (css.match(/--spacer-hoehe:\s*calc\(([^)]*)\)/) || [])[1] ?? '';
-    assert(spacer.includes('107mm'), 'Spacer rechnet ab 107mm (Falzmarke 1 + 2mm)');
+    assert(SPACER.test(css), 'Spacer leitet sich aus Falzmarke 1 + 2mm ab');
   });
 });
 
@@ -1634,8 +1642,8 @@ describe('WYSIWYG — Bildschirm und Druck gleich', () => {
     const treffer = css.match(/#spacer\s*\{[^}]*?height:\s*[\d.]+mm\s*!important/g) || [];
     assertEqual(treffer.length, 0, 'kein #spacer mit !important-Hoehe');
     // Die Hoehe kommt allein aus der Variablen, die beide Pfade lesen.
-    assert(/--spacer-hoehe:\s*calc\(107mm - var\(--rand-o\)\)/.test(css),
-      '--spacer-hoehe rechnet ab 107mm - rand-o (82mm)');
+    assert(SPACER.test(css),
+      '--spacer-hoehe leitet sich aus Falzmarke 1 + 2mm ab');
   });
 
   it('das Print-Override fuer #kern traegt keinen zusaetzlichen oberen Rand', async () => {

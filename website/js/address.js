@@ -190,13 +190,15 @@ AddressIntelligence.wireDOM = function wireDOM() {
       const ev = /** @type {InputEvent} */ (e);
       if (!ev.isComposing) {
         el.removeAttribute('data-autofilled');
-        if (el === empfOrtEl) {
-          AddressIntelligence.targetLock = null;
+        /* Nur ein echtes Nutzereingreifen raeumt die Ziel-Sperre ab und hebt
+         * data-autofill-aus auf. Sonst loescht ein programmatisch gefuelltes
+         * Feld seine eigene Sperre: der Clipboard-Import setzt targetLock und
+         * schickt danach ein synthetisches input-Event (B3-01, geprueft
+         * 2026-11-12). `isTrusted` ist bei dispatchEvent() false. */
+        if (ev.isTrusted) {
+          if (el === empfOrtEl) AddressIntelligence.targetLock = null;
+          el.removeAttribute('data-autofill-aus');
         }
-        /* Programmatisch gefuellte Felder (Testbrief, Import) tragen
-         * data-autofill-aus. Erst ein echtes Tastatur-/Paste-Ereignis hebt
-         * die Sperre auf -- isTrusted ist bei dispatchEvent() false. */
-        if (ev.isTrusted) el.removeAttribute('data-autofill-aus');
       }
     });
   };
@@ -702,6 +704,11 @@ export function initAddressServices() {
 
   /** @type {AbortController | null} */
   let activeAbortController = null;
+  /* Zaehlt jede Eingabe im Suchfeld. Eine Antwort darf nur rendern, wenn ihre
+   * Generation noch die aktuelle ist (B3-03): der Abort greift nur, wenn
+   * danach ein NEUER Request startet — bei "Feld geleert" oder "< 3 Zeichen"
+   * startet keiner, und die alte Antwort blieb stehen. */
+  let suchGeneration = 0;
   /** @type {any} */
   let debounceSearchTimeout = null;
   /** @type {any} */
@@ -840,8 +847,10 @@ export function initAddressServices() {
   inputAddressSearch.addEventListener('input', () => {
     clearTimeout(debounceSearchTimeout);
     const query = inputAddressSearch.value.trim();
+    const generation = ++suchGeneration;
 
     if (query.length < 3) {
+      if (activeAbortController) activeAbortController.abort();
       hidePopoverSafe(addressSuggestions);
       return;
     }
@@ -855,15 +864,16 @@ export function initAddressServices() {
 
     // 2. REMOTE SEARCH (Debounced)
     debounceSearchTimeout = setTimeout(() => {
-      performAddressSearch(query, localMatches);
+      performAddressSearch(query, localMatches, generation);
     }, 200);
   });
 
   /**
    * @param {string} query
    * @param {AddressEntry[]} localMatches
+   * @param {number} generation
    */
-  async function performAddressSearch(query, localMatches) {
+  async function performAddressSearch(query, localMatches, generation) {
     if (activeAbortController) activeAbortController.abort();
     activeAbortController = new AbortController();
 
@@ -921,6 +931,9 @@ export function initAddressServices() {
       }).filter((/** @type {AddressEntry} */ s) => s.street && s.city);
 
       apiCache.set(cacheKey, parsedSuggestions);
+      /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
+       * oder das Feld geleert (B3-03). */
+      if (generation !== suchGeneration) return;
       mergeAndRender(localMatches, parsedSuggestions, query);
     } catch (err) {
       const error = /** @type {Error} */ (err);

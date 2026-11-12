@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, initSenderSync, normalizePostcode, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, getDistrict, initAddressServices, initSenderSync, normalizePostcode, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -4203,6 +4203,67 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
     for (const [id, max] of Object.entries(erwartet)) {
       const el = doc.getElementById(id);
       assertEqual(el?.getAttribute('maxlength'), String(max), `${id}: maxlength ${max}`);
+    }
+  });
+});
+
+describe('B3-Fixes: Ziel-Sperre und veraltete Suchantworten', () => {
+  it('B3-01: programmatisches Befuellen loescht die Ziel-Sperre nicht', () => {
+    AddressIntelligence.wireDOM();
+    const el = /** @type {HTMLInputElement} */ (document.getElementById('empfaenger-ort'));
+    el.value = '';
+    AddressIntelligence.targetLock = { plz: '53111', city: 'Bonn' };
+
+    /* Genau der Clipboard-Weg: Wert setzen, dann synthetisches input-Event. */
+    el.value = '53111 Bonn';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    assert(AddressIntelligence.targetLock !== null, 'Sperre ueberlebt synthetisches input');
+    AddressIntelligence.targetLock = null;
+    el.value = '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  it('B3-03: Antwort auf eine ueberholte Suche rendert nichts', async () => {
+    AddressIntelligence.wireDOM();
+    /* Die Adresssuche haengt in initAddressServices(), nicht in wireDOM(). */
+    initAddressServices();
+    const suchfeld = /** @type {HTMLInputElement} */ (document.getElementById('input-anschrift-suche'));
+    const liste = /** @type {HTMLElement} */ (document.getElementById('anschrift-vorschlaege'));
+    const originalFetch = window.fetch;
+    /** @type {((v: any) => void) | null} */
+    let aufloesen = null;
+    // @ts-ignore -- Fetch wird nur fuer diesen Test ersetzt
+    window.fetch = () => new Promise((resolve) => { aufloesen = resolve; });
+    save(STORAGE_KEYS.geoapifyKey, 'test-key');
+
+    try {
+      suchfeld.value = 'bonn';
+      suchfeld.dispatchEvent(new Event('input', { bubbles: true }));
+      const lokal = liste.children.length;
+      await new Promise((r) => setTimeout(r, 260)); // Debounce 200 ms
+      assert(aufloesen !== null, 'Fetch wurde gestartet');
+
+      /* Nutzer kuerzt auf zwei Zeichen: kein neuer Request, nur die Generation
+         steigt. Die alte Antwort darf deshalb nichts mehr rendern. */
+      suchfeld.value = 'ab';
+      suchfeld.dispatchEvent(new Event('input', { bubbles: true }));
+      const vorher = liste.children.length;
+
+      const aufloeser = /** @type {(v: any) => void} */ (/** @type {unknown} */ (aufloesen));
+      aufloeser({
+        ok: true,
+        json: async () => ({
+          results: [{ street: 'Bonner Strasse', housenumber: '1', postcode: '53111', city: 'Bonn', formatted: 'Bonner Strasse 1, 53111 Bonn' }]
+        })
+      });
+      await new Promise((r) => setTimeout(r, 40));
+
+      assertEqual(liste.children.length, vorher, 'ueberholte Antwort hat nichts gerendert');
+    } finally {
+      window.fetch = originalFetch;
+      remove(STORAGE_KEYS.geoapifyKey);
+      suchfeld.value = '';
     }
   });
 });

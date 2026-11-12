@@ -62,6 +62,15 @@
   <div id="empfaenger-strasse" contenteditable="true"></div>
   <div id="empfaenger-ort" contenteditable="true"></div>
   <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken"></ul>
+  <!-- Fixture fuer die Adresssuche: ohne diese beiden Elemente laesst sich der
+       Input-Handler nicht verdrahten (B3-01/B3-03) und die Tests waeren leer. -->
+  <input id="input-anschrift-suche" aria-label="Adresssuche (Test)">
+  <ul id="anschrift-vorschlaege" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken"></ul>
+  <!-- wireDOM() verdrahtet die Adresssuche nur, wenn alle vier Elemente da
+       sind (input-geoapify-key, input-anschrift-suche, anschrift-vorschlaege,
+       anschrift-suche-container). Ohne sie waeren B3-01/B3-03 nicht testbar. -->
+  <input id="input-geoapify-key" aria-label="Geoapify-Key (Test)">
+  <div id="anschrift-suche-container"></div>
 
   <h2>Ergebnisse</h2>
   <div id="test-report"></div>

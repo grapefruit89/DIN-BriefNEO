@@ -650,6 +650,13 @@ export function collectDraft() {
     } else {
       draft[elem.id] = Field.getValue(elem);
     }
+
+    /* Herkunft eines gespiegelten Feldes ("auto"/"manuell") mitnehmen, damit
+     * sie Undo/Redo und den Draft-Reload ueberlebt (E1, 2026-11-12). Ohne sie
+     * ist nach dem Laden nicht mehr entscheidbar, ob eine Rücksendezeile vom
+     * Helfer stammt oder vom Nutzer. */
+    const quelle = elem.getAttribute('data-quelle');
+    if (quelle) draft[`${elem.id}__quelle`] = quelle;
   });
 
   document.querySelectorAll('select[data-speichern]').forEach(elem => {

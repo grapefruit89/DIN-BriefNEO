@@ -240,7 +240,18 @@ export class DraftManager {
   #restoreState(draft) {
     this.#isRestoring = true;
     AddressIntelligence.targetLock = null;
+    /* Herkunftsmarker haengen an der Entwurfsdatei, nicht am Feldwert. Erst
+     * alle loeschen: sonst bliebe nach einem Reset die alte Herkunft stehen
+     * und die Rücksendezeile bliebe faelschlich gesperrt (E1, 2026-11-12). */
+    document.querySelectorAll('[data-quelle]').forEach(el => {
+      el.removeAttribute('data-quelle');
+    });
     Object.keys(draft).forEach(id => {
+      if (id.endsWith('__quelle')) {
+        const ziel = document.getElementById(id.slice(0, -'__quelle'.length));
+        if (ziel && typeof draft[id] === 'string') ziel.dataset.quelle = draft[id];
+        return;
+      }
       const elem = document.getElementById(id);
       /* Schutz vor UI-Zerstörung durch fremde/manipulierte IDs: nur editierbare Felder beschreiben */
       if (!elem?.matches(EDITABLE_FIELD_SELECTOR)) return;
@@ -415,6 +426,11 @@ export class DraftManager {
       pvSelect.selectedIndex = 0;
     }
     AddressIntelligence.targetLock = null;
+    /* Herkunft der gespiegelten Felder mit loeschen: nach dem Reset ist nichts
+     * mehr "vom Nutzer getippt" (E1, 2026-11-12). */
+    document.querySelectorAll('[data-quelle]').forEach(el => {
+      el.removeAttribute('data-quelle');
+    });
     /* Privacy: die lokale Adress-Historie haelt bis zu 50 zuletzt gewaehlte
      * Empfaengeradressen und gehoert damit zum Brief, nicht zu den
      * Praeferenzen. Der Reset muss sie mitnehmen, sonst bleiben echte

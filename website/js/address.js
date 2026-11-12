@@ -615,8 +615,10 @@ export function initSenderSync() {
     if (!el) continue;
     el.addEventListener('input', () => {
       if (schreibeGerade) return; // eigener Schreibvorgang, kein Nutzer
-      if (el === absender) rueckModus = 'manuell';
-      else unterschriftModus = 'manuell';
+      if (el === absender) {
+        rueckModus = 'manuell';
+        absender.dataset.quelle = 'manuell';
+      } else unterschriftModus = 'manuell';
     });
   }
 
@@ -637,6 +639,12 @@ export function initSenderSync() {
       city
     });
     rueckModus = entscheidung.modus;
+    /* Herkunft am Feld markieren: collectDraft() nimmt sie als
+       `<id>__quelle` in den Entwurf, #restoreState() setzt sie zurueck. */
+    if (absender) {
+      if (rueckModus === 'unklar') absender.removeAttribute('data-quelle');
+      else absender.dataset.quelle = rueckModus;
+    }
     letzterAutowert = entscheidung.letzterAutowert;
     if (entscheidung.schreiben) schreibe(absender, auto);
 
@@ -659,7 +667,10 @@ export function initSenderSync() {
        fremden Stand zurueckbekommen. Die Maschinenschrift bleibt eine reine
        Spiegelung des Namens (Test: "Maschinenschrift folgt weiterhin dem
        Namen"). */
-    rueckModus = 'unklar';
+    /* Die Herkunft steht im Entwurf (`data-quelle`), also nicht raten: nur
+     * wenn sie fehlt (Altbestand, Reset), bleibt der Modus offen. */
+    const gespeichert = absender?.getAttribute('data-quelle');
+    rueckModus = gespeichert === 'auto' || gespeichert === 'manuell' ? gespeichert : 'unklar';
     letzterAutowert = null;
   });
 }
@@ -930,6 +941,12 @@ export function initAddressServices() {
         };
       }).filter((/** @type {AddressEntry} */ s) => s.street && s.city);
 
+      /* Deckel gegen monoton wachsenden Speicher (SMELL aus dem Review):
+         aeltester Eintrag fliegt raus, wenn der Cache voll ist. */
+      const aeltesterSchluessel = apiCache.keys().next().value;
+      if (apiCache.size >= 100 && typeof aeltesterSchluessel === 'string') {
+        apiCache.delete(aeltesterSchluessel);
+      }
       apiCache.set(cacheKey, parsedSuggestions);
       /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
        * oder das Feld geleert (B3-03). */
@@ -1028,7 +1045,14 @@ export function initAddressServices() {
     }
 
     hidePopoverSafe(addressSuggestions);
-    if (inputAddressSearch) inputAddressSearch.value = '';
+    /* Zustand mit aufraeumen: sonst zeigen ArrowDown/Enter auf Treffer einer
+     * Suche, die der Nutzer schon abgeschlossen hat (Befund aus F4). */
+    renderedSuggestions = [];
+    activeSuggestionIndex = -1;
+    if (inputAddressSearch) {
+      inputAddressSearch.value = '';
+      inputAddressSearch.removeAttribute('aria-activedescendant');
+    }
 
     saveToLocalAddressBook(item);
 
@@ -1053,7 +1077,11 @@ export function initAddressServices() {
       absenderTimeout = setTimeout(() => {
         const key = load(STORAGE_KEYS.geoapifyKey, '');
         if (!key) return;
-        const text = absenderPlzOrtEl.textContent ? absenderPlzOrtEl.textContent.trim() : '';
+        /* Field.getValue, nicht textContent: bei einem <input> ist textContent
+           immer leer (B3-Review 2026-11-12). Heute ist das Feld ein
+           contenteditable, die geplante Migration wuerde den Lookup sonst
+           still abschalten. */
+        const text = Field.getValue(absenderPlzOrtEl).trim();
         const match = text.match(/(\d{5})/);
         if (match) {
           const plz = match[1];

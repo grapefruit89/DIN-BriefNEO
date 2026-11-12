@@ -4207,6 +4207,26 @@ describe('Anschriftfelder als <input>: Speichern, Reset, Grenzen', () => {
   });
 });
 
+describe('E1: Herkunft der Rücksendezeile gehört in den Entwurf', () => {
+  it('collectDraft nimmt data-quelle mit, loadDraft setzt sie zurueck', () => {
+    /* Der Traeger ist beliebig - der Mechanismus ist generisch (data-quelle
+       an einem editierbaren Feld). Das Fixture hat kein #rucksendeangabe. */
+    const el = /** @type {HTMLElement} */ (document.getElementById('empfaenger-ort'));
+    el.dataset.quelle = 'manuell';
+
+    const draft = collectDraft();
+    assertEqual(draft['empfaenger-ort__quelle'], 'manuell', 'Herkunft steht im Entwurf');
+
+    /* Zuruecksetzen und aus dem Entwurf laden: die Herkunft muss wiederkommen. */
+    el.removeAttribute('data-quelle');
+    saveJSON(STORAGE_KEYS.draft, draft);
+    new DraftManager().loadDraft();
+    assertEqual(el.dataset.quelle, 'manuell', 'Herkunft nach loadDraft wieder da');
+
+    el.removeAttribute('data-quelle');
+  });
+});
+
 describe('B3-Fixes: Ziel-Sperre und veraltete Suchantworten', () => {
   it('B3-01: programmatisches Befuellen loescht die Ziel-Sperre nicht', () => {
     AddressIntelligence.wireDOM();

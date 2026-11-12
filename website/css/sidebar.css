@@ -590,8 +590,12 @@ input[type="checkbox"][switch] {
    2 s). Bis dahin lieber unsichtbar als falsch — der Platz bleibt erhalten.
    Textfelder sind davon nicht betroffen: boot-state.js fuellt sie schon vor
    dem Paint. */
-:root:not([data-ready="true"]) #seitenleiste-postvermerk-select,
-:root:not([data-ready="true"]) #seitenleiste input[switch] {
+/* Sichtbar, sobald boot-state.js geseedet hat (data-seeded). NICHT an
+   data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler
+   nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,
+   falls der Seeder ausfaellt (boot.js setzt es notfalls nach 2 s). */
+:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,
+:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {
   visibility: hidden;
 }
 

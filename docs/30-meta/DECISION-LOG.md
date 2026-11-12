@@ -2677,6 +2677,13 @@ CSS-Selektoren, und es gab zwei Restore-Pfade (`boot-state.js` vor dem Paint,
 - `draft-manager` spiegelt die Schalter-Attribute nach Undo/Multi-Tab/Import
   und beim Reset; `data-quelle` bekommt eine Whitelist (`auto`/`manuell`).
 
+**Nachtrag (gleicher Tag):** Die Regler mit Speicher-Zustand (Postvermerk,
+Schalter) waren bis `data-ready` unsichtbar — das war selbst ein FOUC: FCP
+56 ms, sichtbar erst 73 ms, also ein leeres Feld im ersten Frame. Jetzt setzt
+`boot-state.js` am Ende `data-seeded`; die Regler sind ab ~26 ms sichtbar und
+tragen bereits den gespeicherten Wert. `data-ready` bleibt als Netz (boot.js
+setzt es notfalls nach 2 s).
+
 **Was bewusst NICHT gemacht wurde:** `draft-manager.#restoreState` beim
 Erst-Load abschalten. Es macht mehr als Feldwerte (Fußzeilen-Migration,
 `data-quelle`, Vermerk-Sichtbarkeit, Select, Undo-Stack). Wer das ändert, muss

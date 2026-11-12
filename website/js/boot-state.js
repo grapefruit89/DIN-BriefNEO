@@ -82,6 +82,12 @@
         el.replaceChildren(...geparst.body.childNodes);
       }
     }
+    /* Signal fuer CSS: Zustand steht. Die Regler, deren Wert aus localStorage
+       kommt, sind bis hierher unsichtbar (siehe sidebar.css). NICHT an
+       data-ready haengen: das setzt main.js erst am Ende von initApp, also
+       ~20 ms nach dem ersten Paint — dann ploppen sie sichtbar nach
+       (gemessen 2026-11-12: FCP 56 ms, sichtbar erst 73 ms). */
+    document.documentElement.setAttribute('data-seeded', 'true');
   } catch {
     /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her. */
   }

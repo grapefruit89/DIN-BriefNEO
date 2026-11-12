@@ -4579,6 +4579,40 @@ describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
   });
 });
 
+describe('Import ist atomar (Befund B13)', () => {
+  /* Vorher: erst Draft geschrieben, dann Einstellungen. Schlug der zweite
+     Schreibvorgang fehl (Quota), blieb der Draft bereits neu — ein
+     Mischzustand, den der Fehler-Toast nicht erklaert. */
+  it('schlaegt der zweite Schreibvorgang fehl, bleibt der alte Draft', () => {
+    const alt = JSON.stringify({ betreff: 'ALT' });
+    saveJSON(STORAGE_KEYS.draft, { betreff: 'ALT' });
+    saveJSON(STORAGE_KEYS.settings, { ...DEFAULT_SETTINGS });
+    const vorher = localStorage.getItem(STORAGE_KEYS.draft);
+
+    const origSetItem = localStorage.setItem;
+    // @ts-ignore
+    localStorage.setItem = function (key, wert) {
+      if (key === STORAGE_KEYS.settings) {
+        throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+      }
+      return origSetItem.call(this, key, wert);
+    };
+    let ok = null;
+    try {
+      ok = applyImportedData(
+        { ok: true, fields: { betreff: 'NEU' }, layout: { form: 'form-a' } },
+        { reloadFn: () => {} }
+      );
+    } finally {
+      localStorage.setItem = origSetItem;
+    }
+
+    assertEqual(ok, false, 'Import meldet Fehler');
+    assertEqual(localStorage.getItem(STORAGE_KEYS.draft), vorher, 'Draft unveraendert');
+    assertEqual(alt, JSON.stringify({ betreff: 'ALT' }), 'Fixture unveraendert');
+  });
+});
+
 describe('Caret in nativen Feldern (Befund B12)', () => {
   /* Nach der Migration sind fast alle Felder <input>. window.getSelection()
      beschreibt deren Caret nicht — Undo/Redo setzte den Cursor an den Anfang

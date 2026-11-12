@@ -713,14 +713,34 @@ export function buildDINLetterJSON(draftCollector = null) {
 }
 
 /**
+ * Setzt einen Schluessel auf den vorher gelesenen Rohwert zurueck.
+ * `null` heisst: war vorher nicht vorhanden -> entfernen.
+ * @param {string} key
+ * @param {string | null} alt
+ */
+function stelleAltenStandWiederHer(key, alt) {
+  if (alt === null) remove(key);
+  else save(key, alt);
+}
+
+/**
  * Wendet einen geprüften Import an und persistiert ihn im localStorage.
  * Bricht bei Speicherfehlern (saveJSON -> false) sofort ab, ohne reload auszulösen (B55).
+ * Seit 2026-11-13 atomar: schlaegt der zweite Schreibvorgang fehl, wird der
+ * alte Stand wiederhergestellt (Befund B13: halber Import).
  * @param {any} pendingImport
  * @param {{ reloadFn?: () => void }} [options]
  * @returns {boolean} true bei Erfolg, false bei Speicherfehler
  */
 export function applyImportedData(pendingImport, { reloadFn = () => location.reload() } = {}) {
   if (!pendingImport?.ok) return false;
+  /* Alter Stand fuer den Rueckfall. Ohne ihn bleibt bei einem Fehler im
+     zweiten Schreibvorgang ein halber Import stehen: Draft neu, Einstellungen
+     alt — nach dem Reload ein Mischzustand, den niemand mehr zuordnen kann
+     (Befund B13). Die Rueckfall-Schreibvorgaenge koennen selbst scheitern
+     (gleiche Quota); dann bleibt wenigstens der Versuch dokumentiert. */
+  const altDraft = load(STORAGE_KEYS.draft);
+  const altSettings = load(STORAGE_KEYS.settings);
   try {
     const draftGespeichert = saveJSON(STORAGE_KEYS.draft, pendingImport.fields);
     const currentSettings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS) || DEFAULT_SETTINGS;
@@ -739,6 +759,8 @@ export function applyImportedData(pendingImport, { reloadFn = () => location.rel
     // saveJSON gibt bei vollem Speicher false zurück statt zu werfen (B55).
     // Ohne diese Prüfung meldet der Dialog Erfolg und der Reload verwirft den Import.
     if (!draftGespeichert || !settingsGespeichert) {
+      stelleAltenStandWiederHer(STORAGE_KEYS.draft, altDraft);
+      stelleAltenStandWiederHer(STORAGE_KEYS.settings, altSettings);
       notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
       return false;
     }
@@ -747,6 +769,8 @@ export function applyImportedData(pendingImport, { reloadFn = () => location.rel
     }
     return true;
   } catch {
+    stelleAltenStandWiederHer(STORAGE_KEYS.draft, altDraft);
+    stelleAltenStandWiederHer(STORAGE_KEYS.settings, altSettings);
     notify(Constants.TOASTS.DRAFT.IMPORT_STORAGE_ERROR, 'error');
     return false;
   }

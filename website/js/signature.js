@@ -70,6 +70,12 @@ export class SignatureFeature {
     this.initWysiwyg();
 
     // Bild liegt als Blob in IndexedDB; der Restore ist async und erscheint nach dem Paint.
+    /* Blob-Restore ist async: der Container (#unterschriftsbild-container) ist
+       absolut positioniert und anfangs display:none — das CSS schliesst den
+       data:image/svg-Platzhalter im src aus (sheet-common.css). Er erscheint
+       mit dem Bild und verschiebt das Blatt nicht, weil er aus dem Fluss ist.
+       Akzeptiert wie der Systemschrift-FOUC in font-feature.js (Befund B13:
+       die Begruendung "Platz reserviert" war falsch, die Entscheidung richtig). */
     loadBlob('signature').then((blob) => {
       if (!blob) return;
       this.#setImageFromBlob(blob);

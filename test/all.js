@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbeFuerOrt, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -4546,13 +4546,32 @@ describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
     assertEqual(raus.length, 1, 'Bonn bleibt eine Zeile mit Unterliste');
   });
 
-  it('Ortsfarbe ist stabil, im Bereich und trennt Gleichnamige nach Bundesland', () => {
-    assertEqual(farbeFuerOrt('Bonn'), farbeFuerOrt('Bonn'), 'stabil');
-    assert(farbeFuerOrt('Neustadt', 'HE') !== farbeFuerOrt('Neustadt', 'BY'), 'Hessen != Bayern');
-    for (const ort of ['Bonn', 'Troisdorf', '']) {
-      const n = Number(farbeFuerOrt(ort));
-      assert(n >= 1 && n <= ORT_FARBEN, `Farbe ${n} im Bereich 1..${ORT_FARBEN}`);
-    }
+  it('verschiedene Orte bekommen verschiedene Farben (kein Hash-Zufall)', () => {
+    /* Gemeldet 2026-11-13: "ten" -> Teningen und Tensfeld beide gruen. */
+    const farben = farbenFuerListe([
+      { city: 'Tengen', state: 'BW' },
+      { city: 'Teningen', state: 'BW' },
+      { city: 'Tensfeld', state: 'SH' },
+    ]);
+    assertEqual(new Set(farben).size, 3, `drei verschiedene Toene (${farben.join(',')})`);
+    for (const f of farben) assert(Number(f) >= 1 && Number(f) <= ORT_FARBEN, 'im Bereich');
+  });
+
+  it('gleiche Orte behalten ihre Farbe, Gleichnamige werden nach Bundesland getrennt', () => {
+    const farben = farbenFuerListe([
+      { city: 'Bonn', state: 'NW' },
+      { city: 'Bonn', state: 'NW' },
+      { city: 'Neustadt', state: 'HE' },
+      { city: 'Neustadt', state: 'BY' },
+    ]);
+    assertEqual(farben[0], farben[1], 'gleiche Stadt, gleiche Farbe');
+    assert(farben[2] !== farben[3], 'Neustadt HE != BY');
+  });
+
+  it('mehr Orte als Farben wiederholen sich (dokumentierte Grenze)', () => {
+    const viele = Array.from({ length: ORT_FARBEN + 2 }, (_, i) => ({ city: `Ort${i}`, state: 'X' }));
+    const farben = farbenFuerListe(viele);
+    assertEqual(new Set(farben).size, ORT_FARBEN, `genau ${ORT_FARBEN} Toene`);
   });
 
   it('Schwelle ist 8 (Entscheidung 2026-11-13)', () => {

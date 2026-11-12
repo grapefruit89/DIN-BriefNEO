@@ -423,24 +423,31 @@ export function flacheVorschlaege(liste) {
 export const ORT_FARBEN = 6;
 
 /**
- * Ordnet einem Ort stabil eine Pastellfarbe zu (1..ORT_FARBEN).
+ * Vergibt die Pastellfarben (1..ORT_FARBEN) in der Reihenfolge der Liste.
  *
- * Der Zusatz (Bundesland/Stadtteil) gehoert in den Schluessel: "neustadt"
- * liefert neun Orte mit demselben Namen, die sich nur im Bundesland
- * unterscheiden — ohne Zusatz bekaemen alle dieselbe Farbe (gemessen
- * 2026-11-12). Deterministisch, damit derselbe Ort beim naechsten Tippen
- * denselben Ton behaelt. Kein Zufall, kein Speicher. Die Farbe landet als
- * `data-ort-farbe` am Listeneintrag; CSS macht daraus den Hintergrund
- * (CSP: keine Inline-Styles).
- * @param {string} ort
- * @param {string} [zusatz] Bundesland-Kuerzel oder Stadtteil
- * @returns {string}
+ * Nicht per Hash: dabei fielen zwei verschiedene Orte regelmaessig auf
+ * denselben Ton ("ten" -> Teningen und Tensfeld beide gruen, gemeldet
+ * 2026-11-13). Hier bekommt jeder NEUE Ort den naechsten freien Ton, gleiche
+ * Orte (auch spaeter in der Liste) denselben. Damit sind benachbarte Gruppen
+ * immer unterscheidbar, solange die Liste nicht mehr als ORT_FARBEN Orte hat;
+ * danach wiederholen sich die Toene.
+ *
+ * Der Schluessel enthaelt Bundesland/Stadtteil: "neustadt" liefert neun Orte
+ * mit demselben Namen, die sich nur im Bundesland unterscheiden.
+ * @param {Array<any>} eintraege
+ * @returns {string[]} Farbe je Eintrag, gleiche Laenge wie `eintraege`
  */
-export function farbeFuerOrt(ort, zusatz = '') {
-  const text = `${String(ort || '')}|${String(zusatz || '')}`;
-  let h = 0;
-  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) % 9973;
-  return String((h % ORT_FARBEN) + 1);
+export function farbenFuerListe(eintraege) {
+  const jeOrt = new Map();
+  let naechste = 1;
+  return eintraege.map((eintrag) => {
+    const ort = `${eintrag.city || eintrag.name || ''}|${eintrag.state || eintrag.district || ''}`;
+    if (!jeOrt.has(ort)) {
+      jeOrt.set(ort, String(naechste));
+      naechste = (naechste % ORT_FARBEN) + 1;
+    }
+    return jeOrt.get(ort);
+  });
 }
 
 /**
@@ -475,15 +482,16 @@ function renderUniversalSuggestions(matches, totalCount, ortEl, firmaEl, strasse
     };
 
     const eintraege = flacheVorschlaege(matches);
+    const farben = farbenFuerListe(eintraege);
 
     eintraege.forEach((item, index) => {
       const li = document.createElement('li');
       li.className = 'suggestion-item';
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-      /* Ortsfarbe: gleiche Stadt = gleicher Ton, damit mehrere Orte in einer
-         Liste sofort unterscheidbar sind. */
-      li.dataset.ortFarbe = farbeFuerOrt(item.city || item.name || '', item.state || item.district || '');
+      /* Ortsfarbe: verschiedene Orte = verschiedene Toene, gleiche Stadt
+         durchgehend gleich (siehe farbenFuerListe). */
+      li.dataset.ortFarbe = farben[index];
 
       // Typ als Datum ins Markup; das Aussehen entscheidet das CSS (beide Listen).
       const typLower = (item.typ || '').toLowerCase();

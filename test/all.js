@@ -2326,6 +2326,22 @@ describe('PLZ-Autocomplete UI-Cases (Teil 6: Case A, B, C & Doppel-Fill)', () =>
     assertEqual(AddressIntelligence.resolveCityInput('baesweiler').city, 'Baesweiler');
   });
 
+  it('Test 25d: Münster und Munster bleiben getrennt (Faltung darf nicht gewinnen)', () => {
+    /* Vor dem Fix loeste `find` beide zu "munster" auf und nahm die erste
+       Stadt der Liste: "Münster" fuellte 29633 Munster, "Münster 48" kam leer
+       zurueck, lookupCityPlzs gab 1 statt 23 PLZ (gemessen 2026-11-12). */
+    const muenster = AddressIntelligence.resolveCityInput('Münster');
+    assertEqual(muenster.city, 'Münster');
+    assert(muenster.items.length >= 20, `Münster hat ${muenster.items.length} PLZs`);
+    const munster = AddressIntelligence.resolveCityInput('munster');
+    assertEqual(munster.city, 'Munster');
+    assertEqual(munster.mode, 'single_fill');
+    const gefiltert = AddressIntelligence.resolveCityInput('Münster 48');
+    assertEqual(gefiltert.city, 'Münster');
+    assert(gefiltert.items.length > 0, 'PLZ-Filter liefert Treffer');
+    assert(gefiltert.items.every((/** @type {any} */ i) => i.plz.startsWith('48')), 'nur 48xxx');
+  });
+
   it('Test 26: Auswahl "53111 Bonn" → Ort-Feld = "53111 Bonn"', () => {
     const item = { plz: '53111', city: 'Bonn', name: 'Bonn', typ: 'Stadt' };
     const fakeOrt = { textContent: '', setAttribute: () => {} };

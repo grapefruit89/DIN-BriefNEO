@@ -197,6 +197,25 @@ export function normalizeText(text) {
 }
 
 /**
+ * Findet den kanonischen Stadtnamen: erst die tatsaechliche Schreibweise,
+ * dann die Faltung. Notwendig, weil "Munster" und "Münster" beide zu "munster"
+ * falten und `find` sonst die erste Stadt der Liste nimmt.
+ * Gemessen 2026-11-12 vor dem Fix: `resolveCityInput('Münster')` fuellte
+ * "29633 Munster", `'Münster 48'` lieferte eine leere PLZ-Liste und
+ * `lookupCityPlzs('Münster')` gab 1 statt 23 PLZ.
+ * @param {string} name
+ * @returns {string | null}
+ */
+function findeStadt(name) {
+  const gesucht = String(name || '').trim();
+  if (!gesucht) return null;
+  const gleich = AddressIntelligence.ortList.find((c) => c.toLowerCase() === gesucht.toLowerCase());
+  if (gleich) return gleich;
+  const norm = normalizeText(gesucht);
+  return AddressIntelligence.ortList.find((c) => normalizeText(c) === norm) ?? null;
+}
+
+/**
  * Erzeugt den Ort-Index (Stadtname -> Liste von PLZs) (Case B).
  * @param {Map<string, string>} plzToCityMap
  * @returns {Map<string, string[]>}
@@ -696,7 +715,7 @@ export class AddressIntelligence {
    */
   static lookupCityPlzs(cityName, plzPrefix = '') {
     const normTarget = normalizeText(cityName);
-    const canonicalCity = AddressIntelligence.ortList.find(c => normalizeText(c) === normTarget) || cityName;
+    const canonicalCity = findeStadt(cityName) || cityName;
     const allPlzs = AddressIntelligence.ortIndex.get(canonicalCity) || [];
     const prefix = String(plzPrefix || '').trim();
 
@@ -769,7 +788,7 @@ export class AddressIntelligence {
       const plzPrefix = cityPlzMatch[2].trim();
       const normPart = normalizeText(cityPart);
 
-      const exactCity = AddressIntelligence.ortList.find(c => normalizeText(c) === normPart);
+      const exactCity = findeStadt(cityPart);
       const prefixCities = !exactCity ? AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(normPart)) : [];
       const targetCity = exactCity || (prefixCities.length === 1 ? prefixCities[0] : null);
 
@@ -786,7 +805,7 @@ export class AddressIntelligence {
 
     // 2. Fall: Reiner Text (z. B. "bonn", "bonnd", "bon")
     let nq = normalizeText(text);
-    let exactCity = AddressIntelligence.ortList.find(c => normalizeText(c) === nq);
+    let exactCity = findeStadt(text);
     let matchingCities = AddressIntelligence.ortList.filter(c => normalizeText(c).startsWith(nq));
     let suchtext = text;
 

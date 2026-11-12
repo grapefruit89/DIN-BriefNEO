@@ -65,6 +65,11 @@ export class DraftManager {
       // Auch Fehler aus anderen Speicherpfaden (z. B. Einstellungen/Signatur)
       // müssen am Status-Punkt sichtbar werden, nicht nur als Toast.
       this.#unsubSaveFailed = this.bus.subscribe(Events.DOCUMENT_SAVE_FAILED, () => {
+        /* Auch die interne Wahrheit setzen: vorher zeigte die Leiste "Fehler",
+           waehrend `saveState` weiter "synced" meldete (B4-Review 2026-11-12,
+           O1). Scheitert ein fremder Pfad (Einstellungen, Signatur), ist der
+           Speicherzustand des Dokuments ebenfalls nicht mehr "synchron". */
+        this.#saveState = 'error';
         this.#setSaveStatus('error');
       });
     }

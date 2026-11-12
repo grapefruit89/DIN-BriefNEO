@@ -199,3 +199,41 @@ Empfängerfelder. Der einzige Aufrufer (`wuerfelTestbrief`) prüft vorher
 
 - **A)** `null` zurückgeben und den Aufrufer prüfen lassen (API-Änderung, S)
 - **B)** so lassen — der Aufrufer ist die einzige Stelle
+
+---
+
+## K14 — Feldtext klippt: Maximallaenge, Marker oder nichts? (offen)
+
+Gemessen 2026-11-12 am laufenden Brief (canvas `measureText` mit der echten
+Schrift, Feldbreite aus `getBoundingClientRect`):
+
+| Feld | Breite px | passt mit `i` | mit `R` | realistischer Text | maxlength heute |
+|---|---:|---:|---:|---:|---:|
+| Betreff | 624 | 140 | 53 | 78 | 140 |
+| Anrede / Gruß / Unterschrift | 624 | 200 | 61 | 94 | 70 / 45 / 45 |
+| Rücksendezeile | 302 | 97 | 29 | 45 | 120 |
+| Empfänger (Name/Straße/Ort) | 302 | 97 | 29 | 45 | 45 |
+| Empfänger Firma | 302 | 97 | 29 | 45 | 50 |
+| Absender (Name/Straße/Ort/Tel/Mail) | 246 | 78 | 24 | 37 | 50 |
+| Datum | 246 | 78 | 24 | 37 | 30 |
+
+Eine feste Zeichenzahl kann „passt" nicht garantieren: die Spanne zwischen
+schmalen und breiten Buchstaben ist **2,6×**.
+
+Der exakte Test wäre ein Vergleich (`scrollWidth > clientWidth`) — **A49
+verbietet ihn** (HARD BAN: JS-Textfitting/Layout-Polling). Der von A49
+vorgeschlagene CSS-Weg trägt in Chrome 156 nicht: `text-fit: shrink 60%` wird
+geparst (`CSS.supports` → true), aber nicht angewandt (Schriftgröße bleibt
+16 px, Text läuft über) — an `<input>` **und** an `<div>` gemessen.
+
+Optionen:
+- **A)** `maxlength` auf den „breite Buchstaben"-Wert senken (Betreff 53,
+  Empfänger 29, Absender 24 …). Gesetz-konform, aber harte Deckel.
+- **B)** Ausnahme von A49 für EINE Messung pro `input`-Event (kein Polling,
+  keine MutationObserver). Braucht Eintrag im DECISION-LOG und eine
+  Ausnahme in `tools/antipatterns/project.json`.
+- **C)** so lassen: Text klippt still mit Ellipse.
+
+**Empfehlung: B**, wenn die Warnung gewünscht ist — der Grund für A49 ist
+Layout-Thrashing durch Polling; ein einzelner `scrollWidth`-Lesevorgang je
+Tastendruck ist das nicht. Sonst A mit den Werten oben.

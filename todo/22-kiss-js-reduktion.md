@@ -153,3 +153,49 @@ Zielbrowser vorhanden; ein Fallback würde zonenloses `Date` einführen, was
 **K7 — Der echte JS-Hebel bleibt D7** (21 `contenteditable` → `<input>`/`<textarea>`):
 `FIELD_MAX_LENGTHS`, `#handleInputLimit` und Teile von `#handleDocumentPaste` würden
 weitgehend durch `maxlength` ersetzt. Kein eigener Punkt, nur der Vollständigkeit halber.
+
+---
+
+## B7/B8 — Restentscheidungen (Stand 2026-11-12)
+
+### Erledigt in B8 (`71cfce3`)
+
+| Befund | Was passiert ist |
+|---|---|
+| B8-01 Init-Fehler dauerhaft gecacht | `#initPromise` wird bei `false` zurückgesetzt; ein späterer Versuch lädt erneut |
+| B8-02 unsortierte `plzList` nur geloggt | wird jetzt einmal sortiert (nur im Fehlerfall) + Test 6b über die gelieferten 10184 PLZ |
+| B8-04 Font-Input nach Fehlschlag | `target.value = ''` vor dem `return` |
+| B8-05 `ae/oe/ue` fanden nichts | Rückfall auf die Umlautform; echte Namen gewinnen (Munster/Münster, Neuenkirchen/Neunkirchen) |
+| B8-06 doppelter Button-Zustand | nur noch `data-font-state` |
+| B8-07 Preset-CSS dreimal | `#applyPresetCss()` |
+| B8-08 Lowercase-Aliase im `ortIndex` | entfernt (wird nur kanonisch gelesen) |
+| B8-09 `totalCount` gekappt | zählt jetzt alle Firmen-Treffer |
+| B8-10/#12 tote Fallbacks | `plzList`-Ternary und `sortedPlzArray` weg |
+| B8-11 leeres `wireDOM()` | bleibt, mit Begründung (Deklarations-Stub für `address.js`) |
+
+### Geprüft und verworfen
+
+| Befund | Warum nicht |
+|---|---|
+| B8-03 eindeutiger Stadtpräfix → `city_list` statt `city_plzs` | Kein Bug: `berli` liefert `city_list` mit Berlin (284 PLZ); `address.js:404` öffnet beim Klick die PLZ-Liste. Ein Klick mehr, kein Datenverlust. |
+| B7-01 „99 Zeilen tote Exporte" | `slugify` und `buildAnschriftLines` werden von `test/all.js` benutzt, `fuelleDemoText` von `main.js`. Nur `erstelleLangenDemoText` + `DEMO_SAETZE` sind ohne Aufrufer. |
+| B7-08 toter Default bei `randomBetreff` | Ohne Default ist `szenario` „possibly undefined" (tsc); der Default ist die Absicherung. |
+
+### Offen — Entscheidung nötig
+
+**K12 — B7-04: `SZENARIEN`/`FLOSKELN` nach JSON (M).**
+Rund 330 Zeilen Textbausteine stehen als JS-Literale im Modul, obwohl
+`figuren.json` das Muster „Daten liegen in JSON" etabliert. `SZENARIEN` enthält
+aber **Funktionen** (`betreff`, `text`), keine reinen Strings — JSON braucht
+eine Template-Engine (Platzhalter `{{thema}}`, `{{sName}}`, `{{rOrt}}`).
+
+- **A)** so lassen — Text und Logik bleiben an einem Ort, kein Engine-Bau
+- **B)** nach JSON + kleine Platzhalter-Ersetzung (M, ~1 Tag inkl. Tests)
+
+**K13 — B7-07: `waehleBesetzung` gibt bei leerem Pool `[]` zurück (S).**
+`zufall([])` liefert `undefined`, `fuelleBrief` schreibt dann leere
+Empfängerfelder. Der einzige Aufrufer (`wuerfelTestbrief`) prüft vorher
+`usableHeroes.length < 5`, die Invariante steht aber nur dort.
+
+- **A)** `null` zurückgeben und den Aufrufer prüfen lassen (API-Änderung, S)
+- **B)** so lassen — der Aufrufer ist die einzige Stelle

@@ -943,9 +943,12 @@ function extractNachname(fullName) {
  */
 function deriveAnrede(_sender, recipient, style = 'formal') {
   const rName = recipient?.name || recipient?.buergerlicherName || '';
-  const hatPraefix = Boolean(recipient?.anredePraefix);
 
-  if (recipient?.geschlecht && hatPraefix) {
+  /* Geschlecht ist die EINZIGE Quelle fuer Herr/Frau: es steht in
+     figuren.json (m 224 / f 58 / d 15, gemessen 2026-11-12) und wird nur hier
+     abgeleitet. Kein zweiter Weg, kein manuelles Setzen - der frueher hier
+     stehende Zusatzcheck auf `anredePraefix` sagte dasselbe noch einmal. */
+  if (recipient?.geschlecht) {
     const nachname = extractNachname(rName);
     if (recipient.geschlecht === 'm') {
       return style === 'polite' ? `Guten Tag Herr ${nachname},` : `Sehr geehrter Herr ${nachname},`;

@@ -26,6 +26,7 @@ THEMEN = {
     'B4': 'Speichern/Undo', 'B5': 'Textkern', 'B6': 'UI/Signatur',
     'B7': 'Testbrief', 'B8': 'Adressdaten',
     'B9 - PWA-Manifest': 'PWA-Manifest ohne Service Worker',
+    'B10 - Boot-Zustand': 'Boot-Zustand, FOUC und doppelte Wahrheit',
 }
 ORDER = {'.html': 0, '.css': 1, '.js': 2, '.txt': 3, '.json': 4}
 

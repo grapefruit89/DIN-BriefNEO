@@ -1,0 +1,95 @@
+Messungen am laufenden System — Boot, Paint, Zustand
+=====================================================
+
+Protokoll: Page.addScriptToEvaluateOnNewDocument + requestAnimationFrame,
+Cache deaktiviert, keine Polling-Latenz (die Sonde laeuft im Dokument selbst).
+Gemessen 2026-11-12 in Chrome 156, Helium, App unter http://127.0.0.1:8088.
+
+1) VOR dem ersten Fix (nur Bedienelemente geseedet)
+---------------------------------------------------
+
+first-contentful-paint: 156 ms
+
+ t(ms)  ready  formA  postvermerk    betreff  empfaenger  text
+   54   false  false  ""                     0           0     0
+   70   false  true   "Einschreiben"         0           0     0
+   87   false  true   "Einschreiben"         0           0     0
+  161   true   true   "Einschreiben"        54          17   620
+
+=> Erster Frame: Form und Postvermerk richtig, aber das Blatt war leer.
+
+2) NACH dem Seed aller Feldwerte (boot-state.js)
+------------------------------------------------
+
+first-contentful-paint: 68 ms
+
+ t(ms)  ready  formA  postvermerk    betreff  empfaenger  text
+   25   false  false  ""                     0           0     0
+   35   false  true   "Einschreiben"        54          17   620
+   66   true   true   "Einschreiben"        54          17   620
+
+=> Erster Frame enthaelt den ganzen Brief.
+
+3) Schalter (Anlagen/Fusszeile) — gefundener Seeder-Fehler
+-----------------------------------------------------------
+
+first-contentful-paint: 56 ms
+
+ t(ms)  ready  anlagen  fuss  marks  anlagenvermerk  fusszeile  formA
+   30   false  false    false  true  none            none       false
+   33   false  true     true   false  block           grid       true
+
+Ursache: boot-state.js verglich `draft['toggle-anlagen'] === 'true'`.
+Der Entwurf speichert einen Boolean (`true`); daraus wurde `false`.
+draft-manager akzeptiert beides (`=== true || === 'true'`).
+
+4) Doppelte Wahrheit — gezaehlt im Repo
+----------------------------------------
+
+data-layout wird geschrieben von:
+  website/js/boot.js:43
+  website/js/settings.js:69
+  website/js/settings.js:206
+
+data-marks wird geschrieben von:
+  website/js/boot.js:50
+  website/js/settings.js:125
+
+.checked = wird gesetzt von:
+  website/js/boot-state.js:41  (Form-Radio)
+  website/js/boot-state.js:45  (Falzmarken)
+  website/js/boot-state.js:65  (Anlagen/Fuss)
+  website/js/draft-manager.js:346, 352, 440, 444
+  website/js/settings.js:72, 74
+
+:checked wird gelesen in:
+  website/css/sidebar.css            22 Selektoren
+  website/css/sheet-common.css        4
+  website/css/sheet-multipage.css     4
+  website/css/base.css                0
+
+Zustaende und ihre Darstellungen:
+
+  Zustand        localStorage      <html>-Attribut     Formular-Control
+  Briefform      settings.layout   data-layout          Radio A/B (:checked)
+  Falzmarken     settings.marks    data-marks           Checkbox switch
+  Anlagen        draft.toggle-…    (fehlt)              Checkbox switch
+  Fusszeile      draft.toggle-…    (fehlt)              Checkbox switch
+  Postvermerk    draft.vermerke    (fehlt)              Select + Blattfeld
+  Feldwerte      draft[id]         (fehlt)              input/contenteditable
+
+5) Zwei Restore-Pfade
+----------------------
+
+Pfad A (vor dem Paint): website/js/boot-state.js am Body-Ende.
+  Liest din_settings und din_draft_current, setzt Radios, Select, Schalter,
+  Vermerk und alle Feldwerte.
+
+Pfad B (nach dem Paint): main.js bootStep-Kette ->
+  draft-manager #restoreState (setzt dieselben Felder erneut, inkl.
+  data-quelle), settings.init (setzt Radios/Attribute erneut), applyLetterDate.
+
+Klassische Scripts warten auf die CSSOM. Ein Script am Body-Ende laeuft daher
+nach den Stylesheets und (in den Messungen) vor dem ersten Paint. Verlaesst man
+sich darauf, ist die Reihenfolge richtig — aber jede Aenderung an einem der
+beiden Pfade muss die andere Seite kennen.

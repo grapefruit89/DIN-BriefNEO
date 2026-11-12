@@ -14,6 +14,8 @@ Stand geben.** Nach Änderungen im Repo ist nichts nachzuziehen.
 | B6 | UI/Signatur | sidebar.css, settings.js, signature.js + index.html (Beilage) | 23k |
 | B7 | Testbrief | addons/testbrief/testbrief.js | 15k |
 | B8 | Adressdaten | address-data.js, font-feature.js | 11k |
+| B9 - PWA-Manifest | Installierbar ohne Service Worker? | web.dev add-manifest + install-criteria (Rohtext), index.html, 02-pwa-plan.md, Law-Catalog | 15k |
+| B10 - Boot-Zustand | FOUC und doppelte Wahrheit | boot.js, boot-state.js, main.js, settings.js, draft-manager.js, persistence.js, index.html, 3 CSS + Messprotokoll | 49k |
 
 Jeder Batch enthält zusätzlich `KONTRAKT.md` (aus dem echten Importgraph
 erzeugt): was er von außen braucht, wer ihn von außen benutzt, und seine

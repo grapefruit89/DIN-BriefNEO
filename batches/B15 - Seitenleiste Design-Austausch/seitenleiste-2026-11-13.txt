@@ -1,0 +1,121 @@
+SEITENLEISTE — MESSWERTE 2026-11-13 (HEAD b502f41)
+
+Aufnahme: Chrome 150, CDP, Viewport 1912 x 1007, Seite /index.html auf
+http://127.0.0.1:8088 (din-dev). Jede Zeile ist gemessen, nicht geschlossen.
+Sichtbarkeit = getClientRects().length > 0 im jeweiligen Modus.
+
+
+1. UMFANG
+
+  aside#seitenleiste
+  sidebar.css            1290 Zeilen
+  base.css                73 Custom Properties (Token-Schicht)
+  scrollHeight/clientHeight   1037 / 1007   -> 30 px Ueberlauf, es scrollt
+
+
+2. DIREKTE KINDER VON <aside>, DOM-REIHENFOLGE
+
+  Element                                   In Zone?        Brief  Einstellungen
+  input#toggle-modus.sr-only                keine           ja     ja
+  div.seitenleiste-header-row               keine           ja     nein
+  div.seitenleiste-setup-header             keine           nein   ja
+  div.seitenleiste-export-group             KEINE           ja     nein
+  p.seitenleiste-zustand                    KEINE           ja     nein
+  section#zone-dokument.seitenleiste-zone   ja              ja     nein
+  section#zone-werkzeuge.seitenleiste-zone  ja              ja     nein
+  section#zone-setup.seitenleiste-zone      ja              nein   ja
+  div#zone-aktionen.seitenleiste-footer     "Zone" im Namen ja     ja
+
+  Auffaellig:
+  - 3 echte Zonen (<section class="seitenleiste-zone">)
+  - 1 Zone nur dem Namen nach (<div id="zone-aktionen">, keine section, kein
+    seitenleiste-zone; traegt trotzdem eine sr-only-H2 "Aktionen")
+  - 2 Elemente ganz ohne Zone, aber im Brief-Modus bedienbar:
+    .seitenleiste-export-group (Drucken, Speichern) und .seitenleiste-zustand
+  - #zone-aktionen bleibt im Einstellungs-Modus sichtbar (nur #btn-reset wird
+    dort per :has-Regel ausgeblendet, der Speicherstatus bleibt stehen)
+
+
+3. UEBERSCHRIFTEN IM ASIDE
+
+  H2  "Brief"                    sichtbar
+  H3  "Textformatierung"         sichtbar
+  H2  "Daten"                    sr-only
+  H2  "Einstellungen"            sichtbar
+  H3  "Erweiterungen (Plugins)"  sichtbar
+  H2  "Aktionen"                 sr-only
+
+  2 von 4 Zonen haben nur eine sr-only-Ueberschrift. Die sr-only-H2 traegt
+  damit Semantik, die optisch nicht existiert (fuer Linse A relevant).
+
+
+4. FOKUS-ZIELE (Tab-Stopps), DOM-Reihenfolge = visuelle Reihenfolge
+
+  Brief-Modus: 22
+     1  toggle-modus                 KEINE ZONE
+     2  GitHub-Link                  KEINE ZONE
+     3  btn-theme-toggle             KEINE ZONE
+     4  btn-print                    KEINE ZONE
+     5  btn-export-dinletter         KEINE ZONE
+     6  btn-zustand-aendern          KEINE ZONE
+     7  input-anschrift-suche        zone-dokument
+     8  btn-zwischenablage-anschrift zone-dokument
+     9  stil-select                  zone-dokument
+    10  seitenleiste-postvermerk-select zone-dokument
+    11  btn-bold                     zone-dokument
+    12  btn-italic                   zone-dokument
+    13  btn-quote                    zone-dokument
+    14  toggle-anlagen               zone-dokument
+    15  toggle-fuss                  zone-dokument
+    16  btn-form-a                   zone-dokument
+    17  btn-form-b                   zone-dokument
+    18  toggle-falzmarken            zone-dokument
+    19  btn-import-dinletter         zone-werkzeuge
+    20  btn-testbrief                zone-werkzeuge
+    21  btn-copy-dinletter           zone-werkzeuge
+    22  btn-reset                    zone-aktionen
+
+  6 von 22 liegen in keiner Zone.
+
+  Einstellungs-Modus: 11
+     1  toggle-modus                 KEINE ZONE
+     2  select-schriftart            zone-setup
+     3  btn-schrift-aktion           zone-setup
+     4  btn-rand-u-30                zone-setup
+     5  btn-unterschrift-aktion      zone-setup
+     6  input-geoapify-key           zone-setup
+     7  GitHub-Link                  zone-setup
+     8  btn-din-info                 zone-setup
+     9  plugin-testbrief             zone-setup
+    10  btn-demo-lang                zone-setup
+    11  btn-demo-kurz                zone-setup
+
+
+5. KOPPLUNG AN DEN MODUSSCHALTER (#toggle-modus:checked)
+
+  7 Regeln in sidebar.css, davon 6 mit Design-Adressen:
+
+  1  #seitenleiste:has(...) .seitenleiste-header-row        Klasse
+  2  #seitenleiste:has(...) .seitenleiste-setup-header      Klasse
+  3  #seitenleiste:not(:has(...)) #zone-setup               ID
+  4  #seitenleiste:has(...) #zone-dokument, #zone-werkzeuge,
+     .seitenleiste-export-group, .seitenleiste-zustand      2 IDs + 2 Klassen
+  5  #seitenleiste:has(...) #zone-setup                      ID
+  6  #seitenleiste:has(...) #zone-aktionen #btn-reset        ID + ID
+  7  #seitenleiste:has(...) #btn-einstellungen               ID
+
+  JS-Seite: settings.js und main.js rufen classList.add/remove/toggle
+  NULL Mal auf. Der gesamte Moduswechsel lebt in CSS, ausgeloest von einer
+  nativen Checkbox.
+
+
+6. NAMENSBEFUNDE
+
+  "Daten"        (H2, sr-only)      enthaelt Oeffnen, Testbrief, Kopieren
+  "Aktionen"     (H2, sr-only)      enthaelt ZURUECKSETZEN + Speicherstatus
+  seitenleiste-export-group         enthaelt Drucken UND Speichern (.json)
+  Zwischenablage 2x                 btn-zwischenablage-anschrift (Adresse),
+                                    btn-copy-dinletter (Brief-JSON)
+  Status 2x                         #save-status (Speichern) und
+                                    #zustand-text (Form/Marken/Schrift/Rand)
+  "Einstellungen"                   Zonen-Titel UND Modus-Name

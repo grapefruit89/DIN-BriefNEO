@@ -1,1 +1,0 @@
-../../website/js/clipboard-parser.js

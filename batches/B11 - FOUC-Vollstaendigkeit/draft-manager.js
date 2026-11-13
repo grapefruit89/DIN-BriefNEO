@@ -1,1 +1,0 @@
-../../website/js/draft-manager.js

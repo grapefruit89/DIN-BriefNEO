@@ -1,1 +1,0 @@
-../../todo/rejected/02-pwa-plan.md

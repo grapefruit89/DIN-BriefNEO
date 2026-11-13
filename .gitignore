@@ -46,7 +46,7 @@ test/traces/*.json
 .env
 .env.*
 
-# merge.txt der Review-Batches ist Build-Output: sie tragen den Commit
-# im Namen und werden bei jedem Bau erneuert. Wuerde man sie committen,
-# hiesse die Datei nach dem Commit wieder anders als HEAD.
-batches/**/merge.txt
+# merge.txt einer Review-Scheibe ist Build-Output: der Kopf traegt den Commit,
+# und SHA256-Tabelle plus Blockzahl werden bei jedem Bau neu erzeugt. Wuerde
+# man die Datei committen, hiesse sie nach dem Commit wieder anders als HEAD.
+reviews/**/merge.txt

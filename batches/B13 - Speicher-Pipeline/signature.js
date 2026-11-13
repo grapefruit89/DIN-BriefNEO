@@ -1,1 +1,0 @@
-../../website/js/signature.js

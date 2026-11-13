@@ -31,7 +31,6 @@ THEMEN = {
     'B12 - Input-Migration': 'input vs. contenteditable: welche Annahme gilt noch?',
     'B13 - Speicher-Pipeline': 'Datenverlust, Speicherstatus und Event-Bus',
     'B14 - Seitenleiste-UX': 'Informationsarchitektur und Einstellungs-Umschalter',
-    'B15 - Seitenleiste Design-Austausch': 'Austauschbares Design und logischer Aufbau',
 }
 ORDER = {'.html': 0, '.css': 1, '.js': 2, '.txt': 3, '.json': 4}
 
@@ -89,7 +88,7 @@ def aufrufstellen(texte: list) -> tuple:
 def quellen(ordner: pathlib.Path):
     dateien = []
     for f in ordner.iterdir():
-        if f.name in ('prompt.md', 'merge.txt') or '-merged' in f.name or f.suffix == '.py':
+        if f.name in ('prompt.md', 'merge.txt', 'folgeprompt.txt') or '-merged' in f.name or f.suffix == '.py':
             continue
         if f.suffix == '.md' and f.name != 'prompt.md':
             dateien.append(f)

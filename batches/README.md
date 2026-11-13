@@ -20,7 +20,6 @@ Stand geben.** Nach Änderungen im Repo ist nichts nachzuziehen.
 | B12 - Input-Migration | Welche Annahme über den Feldtyp gilt noch? | field.js, document.js, draft-manager.js, boot-state.js, main.js, format.js, persistence.js, salutation.js, clipboard-parser.js, index.html, 2 CSS + Feldtyp-Inventur | 60k |
 | B13 - Speicher-Pipeline | Datenverlust, Speicherstatus, Event-Bus | persistence.js, draft-manager.js, binary-storage.js, signature.js, font-feature.js, main.js, core.js, index.html + Speicher-Inventur | 55k |
 | B14 - Seitenleiste-UX | Informationsarchitektur, Einstellungs-Umschalter | index.html, sidebar.css, settings.js, main.js, document.js + Seitenleisten-Inventur | 45k |
-| B15 - Seitenleiste Design-Austausch | Austauschbare Optik, logischer Aufbau | index.html, sidebar.css, base.css, settings.js, main.js + Messwerte | 125k |
 
 Jeder Batch enthält zusätzlich `KONTRAKT.md` (aus dem echten Importgraph
 erzeugt): was er von außen braucht, wer ihn von außen benutzt, und seine
@@ -48,6 +47,11 @@ batches/B3/
 ├── clipboard-parser.js │
 └── field.js       ┘
 ```
+
+`folgeprompt.txt` ist ein **Anhang zu einem laufenden Review**: der Folgeauftrag
+plus genau die Dateien, die im vorigen Snapshot fehlen oder veraltet sind.
+Sie wird von `merge.py` nicht als Quelle eingesammelt und ersetzt `merge.txt`
+nicht — beide dürfen nebeneinander liegen.
 
 `merge.txt` enthält **jede** Datei des Ordners außer `prompt.md` — in einer
 Datei, mit Tree und SHA256 je Quelle im Kopf. `merge.py` prüft nach dem Bau,

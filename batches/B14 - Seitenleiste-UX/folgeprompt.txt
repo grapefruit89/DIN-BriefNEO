@@ -1,0 +1,3132 @@
+# Folgeauftrag zu B14 — Seitenleiste: austauschbares Design und logischer Aufbau
+
+Quellstand: Arbeitsbaum auf Basis HEAD 0b6ac9c. Verbindlich ist die SHA256-Tabelle
+unten: passt sie nicht, ist der Anhang veraltet und du sagst das, statt zu raten.
+
+Dies ist **kein neuer Batch**. Du hast B14 im Kontext (Snapshot `51533d5`).
+Dieser Auftrag ergänzt zwei Linsen, die B14 nicht hatte, und liefert genau die
+Dateien nach, die in B14 fehlen oder veraltet sind.
+
+## Was du bereits hast (aus B14)
+
+`index.html`, `sidebar.css`, `document.js`, `main.js`, `settings.js`,
+`seitenleiste-inventur.txt`, `KONTRAKT.md` — Stand `51533d5`.
+
+**Wichtig:** Die Zahlen in `seitenleiste-inventur.txt` sind vom alten Stand
+(33 Regler, 19 sichtbar, `#btn-print` im Kopf, „0 Überschriften", „scrollt
+nicht"). Sie sind überholt. Maßgeblich ist der Block **Messwerte 2026-11-13**
+weiter unten. Alles, was du in diesem Auftrag über Zahlen sagst, stammt aus
+diesem Block oder aus den angehängten Dateien.
+
+## Was sich seit dem Snapshot geändert hat
+
+Diese vier Befunde deines B14-Reviews sind **behoben** — bitte nicht erneut
+melden:
+
+| Befund | Stand heute |
+|---|---|
+| Layout-Block lag außerhalb `zone-dokument`, verwaistes `</section>` | Block und `<hr>` sind in der Zone; `<section>` 3 offen / 3 geschlossen |
+| Statuszeile blieb im Einstellungs-Modus stehen | ausgeblendet, `getClientRects()` = 0 |
+| Escape nur bei Fokus auf der Checkbox | hängt an `#seitenleiste`, offene Popover haben Vorrang, danach `focus()` |
+| `role="group" aria-label` doppelte den `h3`; statisches `aria-label` überschrieb beide Labels | `aria-labelledby`; gemessener Schalter-Name: „Einstellungen öffnen Zurück zum Brief" |
+
+Zusätzlich: Mobil-Variante entfernt (Entscheidung: Chrome-150+-Desktop),
+Feld-Optik vereinheitlicht (`sheet-common.css`, nicht Teil dieses Auftrags).
+
+## Rolle
+
+Senior UX-Architekt mit Schwerpunkt **Designsysteme und Informationsarchitektur**.
+Du änderst **nichts**. Leitfrage: *Was bleibt richtig, wenn die Optik ausgetauscht
+wird — und ist der Aufbau aus einer benennbaren Regel ableitbar?*
+
+Kontext bleibt: Ein-Zweck-App, kein Framework, kein Build, ES-Module direkt,
+Baseline Chrome 150+, CSP `script-src 'self'; style-src 'self'`.
+
+# Linse A — Design austauschbar
+
+Denk es radikal: `sidebar.css` wird durch ein fremdes Designsystem ersetzt —
+andere Farben, Abstände, Radien, Klassennamen, vielleicht Utility-Klassen statt
+IDs. **Was muss dann noch stimmen?** DOM-Reihenfolge, ARIA, Text, Zustand,
+Bedienbarkeit, Moduswechsel. Alles andere darf weg.
+
+Gemessene Ausgangslage:
+
+```
+JS manipuliert 0 Klassen (classList in settings.js/main.js: keine Treffer)
+7 CSS-Regeln tragen den Moduswechsel, 6 davon selektieren nach IDs/Klassen
+(base.css: 73 Custom Properties; der Modus haengt an :has(#toggle-modus:checked))
+```
+
+**A1 — Klassifikation der 7 Modus-Regeln.** Für jede: trägt sie *Struktur*
+(was sichtbar/bedienbar ist, wo der Fokus landet) oder *Darstellung*? Für jede
+strukturtragende: was müsste ein neues Design nachbauen, damit der Modus nicht
+verloren geht?
+
+**A2 — Semantik in CSS-Kleidern.** Wo hängt Bedeutung an einer
+Darstellungs-Entscheidung? Kandidaten: `sr-only`-Überschriften als Zonen-Namen,
+`.seitenleiste-*`-Klassen als Zonen-Bezeichner, `data-*` vs. Klassen,
+`<div id="zone-aktionen" class="seitenleiste-footer">` als Zone ohne `section`.
+Je Fall: akzeptabel, heilbar, Fehler.
+
+**A3 — Grenzziehung.** Regel formulieren: welche Adressen (IDs) darf JS besitzen,
+welche Klassen darf ein Design besitzen, was darf keins von beidem? Kosten in
+Zahlen nennen (betroffene Selektoren/Attribute/Zeilen).
+
+**A4 — Gegenprobe.** Drei Mutationen, die ein Designwechsel nicht brechen darf
+(Beispiel: Einstellungs-Modus an → `#zone-dokument` hat `offsetParent === null`).
+Sag je Mutation, welcher Nachweis heute fehlt und wie er in einem Satz geprüft würde.
+
+# Linse B — Logisch aufgebaut
+
+Nicht „sieht sauber aus", sondern: **aus welcher Regel folgt die Reihenfolge?**
+Beurteile gegen deine eigene Regel, nicht gegen Geschmack.
+
+**B1 — Ordnungsregel.** Eine Regel benennen (pro Brief / pro Absenderprofil /
+pro Gerät / Entwickler / global), alle 22 Regler zuordnen, nicht einordenbare
+markieren. Aus der Matrix folgt die Reihenfolge — oder der Beweis, dass die
+heutige falsch ist.
+
+**B2 — Ist „Zone" ein Konzept oder ein Zufall?** 3 × `<section class="seitenleiste-zone">`,
+1 × `<div id="zone-aktionen">`, 2 bedienbare Elemente **ohne** Zone. Welche Rolle
+spielt die Zone (Sprungmarke, Ausblend-Einheit, Überschriften-Träger, Semantik)?
+Was müsste ein neues Design über Zonen wissen — und was, wenn es das nicht weiß?
+
+**B3 — Namen prüfen.** „Daten" enthält Öffnen/Testbrief/Kopieren; „Aktionen"
+enthält Zurücksetzen plus Speicherstatus; `.seitenleiste-export-group` enthält
+Drucken **und** Speichern. Wo lügt ein Name, und was folgt daraus für Suche,
+Vorlesen und ein neues Design?
+
+**B4 — Auffindbarkeit.** Tab-Reihenfolge gegen die visuelle Reihenfolge
+(Messwerte unten). Sprünge, Umwege, Scroll-Stellen, ein Stopp vor der
+Hauptaktion? Nenne Nummern, keine Meinung.
+
+**B5 — Doppelungen.** Zwischenablage 2×, Status 2× (Speicherstatus und
+Zustandszeile), „Einstellungen" ist Zone **und** Modus. Welche Doppelung ist
+legitim, welche ein Fehler?
+
+**B6 — Messbare Kriterien.** 4–6 Zahlen mit Ist-Wert und Zielwert.
+
+## Form deiner Antwort
+
+- Kurz, keine Dateizusammenfassung.
+- Jede Behauptung mit Beleg: Datei + wörtliches Zitat, oder Messwert aus dem
+  Block unten. Ohne Beleg: **ungeprüft** markieren und Gegenprobe nennen.
+- Standards mit Fundstelle (APG-Pattern-Name, WCAG-Nummer, HTML-Spez).
+- Drei Blöcke am Ende:
+  1. **Designschicht** — Tabelle: Regel/Element × Struktur oder Darstellung ×
+     Nachbau-Aufwand für ein neues Design,
+  2. **Ordnungsmatrix** — Regler × Phase × Zone × Begründung,
+  3. **Schritte** — nummeriert, je Datei → Änderung → Gegenprobe → Zielwert.
+- Schließe mit einem Absatz **„Was aus B14 weiter gilt"** (die dort getroffenen
+  Entscheidungen, die du nicht neu aufmachst).
+
+## Was du NICHT tun sollst
+
+- Kein Framework, kein Build, kein npm, kein Design-System einführen.
+- Kein Service Worker (`A37`), kein `text-fit` (`P39`).
+- **Kein Mobil.** Entschieden: Chrome-150+-Desktop. Schmale Viewports nur als
+  Befund, ohne Umbauvorschlag.
+- Keine Wiederholung der vier erledigten Befunde (Tabelle oben).
+- Entschiedene Themen (Radiogruppe statt Checkbox, `<details>` für
+  Entwicklerwerkzeuge, Falzmarken in die Einstellungen) nur erneut aufmachen,
+  wenn du einen **neuen Messwert** lieferst, der die Entscheidung kippt.
+- **A57 beachten:** binäre Ein/Aus-Schalter sind als Radio-Nachbau verboten;
+  `<input switch>` + `:has()` ist der Ersatz. Form A/B ist bestandsgeschützt.
+  Ein Modus-Schalter ist zwei Zustände — wenn du ihn anders willst, sag, wie das
+  mit A57 vereinbar ist, statt die Regel zu ignorieren.
+- Keine Screenshots als Beweis fordern — Zahlen und Zitate reichen.
+- `website/css/sheet.css` ist **nicht eingebunden** (kein `<link>`, kein
+  `@import`): als Befund melden, nie als Quelle behandeln.
+- Keine erfundenen Standards.
+
+## Messwerte 2026-11-13 (HEAD 0b6ac9c)
+
+Aufnahme: Chrome 150, CDP, Viewport 1912 × 1007, `http://127.0.0.1:8088/index.html`.
+Sichtbarkeit = `getClientRects().length > 0`.
+
+### Umfang und Überlauf
+
+```
+aside#seitenleiste · sidebar.css 1290 Zeilen · base.css 73 Custom Properties
+scrollHeight/clientHeight  1037 / 1007   -> 30 px Ueberlauf, es scrollt
+```
+
+### Direkte Kinder von `<aside>`, DOM-Reihenfolge
+
+```
+Element                                   In Zone?   Brief   Einstellungen
+input#toggle-modus.sr-only                keine      ja      ja
+div.seitenleiste-header-row               keine      ja      nein
+div.seitenleiste-setup-header             keine      nein    ja
+div.seitenleiste-export-group             KEINE      ja      nein
+p.seitenleiste-zustand                    KEINE      ja      nein
+section#zone-dokument.seitenleiste-zone   ja         ja      nein
+section#zone-werkzeuge.seitenleiste-zone  ja         ja      nein
+section#zone-setup.seitenleiste-zone      ja         nein    ja
+div#zone-aktionen.seitenleiste-footer     "Zone" i. N.  ja   ja
+```
+
+### Überschriften im `<aside>`
+
+```
+H2 "Brief"                     sichtbar
+H3 "Textformatierung"          sichtbar
+H2 "Daten"                     sr-only
+H2 "Einstellungen"             sichtbar
+H3 "Erweiterungen (Plugins)"   sichtbar
+H2 "Aktionen"                  sr-only
+```
+
+### Fokus-Ziele (Tab-Stopps), DOM-Reihenfolge = visuelle Reihenfolge
+
+```
+Brief-Modus: 22
+   1 toggle-modus                   KEINE ZONE      12 btn-italic          zone-dokument
+   2 GitHub-Link                    KEINE ZONE      13 btn-quote           zone-dokument
+   3 btn-theme-toggle               KEINE ZONE      14 toggle-anlagen      zone-dokument
+   4 btn-print                      KEINE ZONE      15 toggle-fuss         zone-dokument
+   5 btn-export-dinletter           KEINE ZONE      16 btn-form-a          zone-dokument
+   6 btn-zustand-aendern            KEINE ZONE      17 btn-form-b          zone-dokument
+   7 input-anschrift-suche          zone-dokument   18 toggle-falzmarken   zone-dokument
+   8 btn-zwischenablage-anschrift   zone-dokument   19 btn-import-dinletter zone-werkzeuge
+   9 stil-select                    zone-dokument   20 btn-testbrief       zone-werkzeuge
+  10 seitenleiste-postvermerk-select zone-dokument  21 btn-copy-dinletter  zone-werkzeuge
+  11 btn-bold                       zone-dokument   22 btn-reset           zone-aktionen
+
+6 von 22 liegen in keiner Zone.
+
+Einstellungs-Modus: 11  (1 ohne Zone: toggle-modus; 10 in #zone-setup)
+```
+
+### Höhen und Radien der Bedienelemente (Designsprache)
+
+```
+Segmented-Container (Form A/B)   38 px    10 px
+Segment-Pille                    30 px     6 px
+Switch (Falzmarken, Anlagen …)   20 px    nativ (Browser malt)
+Select (Stil, Postvermerk)       32 px     8 px
+Icon-Button (Fett, Theme)        36 px     8 px
+Primär-Button (Drucken)          50 px    10 px
+"ändern" in der Statuszeile      15 px     0 px
+```
+
+8 verschiedene Höhen, 6 verschiedene Radien. `--radius-xs/sm/md/lg` = 4/6/8/10,
+`--space-*` = 2…20 px. Der Switch ist per `A57` auf `appearance: auto` festgelegt
+und lässt sich nur über Größe und `accent-color` beeinflussen.
+
+### Kopplung an den Modusschalter
+
+```
+7 Regeln mit :has(#toggle-modus:checked) bzw. :not(:has(…)) in sidebar.css
+davon 6 mit Design-Adressen:
+  .seitenleiste-header-row, .seitenleiste-setup-header, #zone-setup,
+  #zone-dokument, #zone-werkzeuge, .seitenleiste-export-group,
+  .seitenleiste-zustand, #zone-aktionen #btn-reset, #btn-einstellungen
+JS-Seite: classList.add/remove/toggle in settings.js und main.js: 0 Aufrufe
+```
+
+### Namensbefunde
+
+```
+"Daten" (H2, sr-only)     enthält Öffnen, Testbrief, Kopieren
+"Aktionen" (H2, sr-only)  enthält Zurücksetzen + Speicherstatus
+seitenleiste-export-group enthält Drucken UND Speichern (.json)
+Zwischenablage 2x         btn-zwischenablage-anschrift (Adresse) / btn-copy-dinletter (JSON)
+Status 2x                 #save-status (Speichern) / #zustand-text (Form, Marken, Schrift, Rand)
+"Einstellungen"           Zonen-Titel UND Modus-Name
+```
+
+## Angehängte Dateien — nur was fehlt oder veraltet ist
+
+| Datei | Pfad im Repo | Zeilen | SHA256 | Warum dabei |
+|---|---|---:|---|---|
+
+| `index.html` | `website/index.html` | 455 | `269e56d9` | veraltet — in B14 im Stand 51533d5 |
+| `sidebar.css` | `website/css/sidebar.css` | 1290 | `5e84508d` | veraltet — in B14 im Stand 51533d5 |
+| `settings.js` | `website/js/settings.js` | 371 | `2f24c5cf` | veraltet — in B14 im Stand 51533d5 |
+| `main.js` | `website/js/main.js` | 372 | `0f30109c` | veraltet — in B14 im Stand 51533d5 |
+| `base.css` | `website/css/base.css` | 360 | `a0d7f684` | neu — nie in B14 |
+
+**Nicht angehängt, weil unverändert und schon in B14:** `document.js`.
+**Nicht angehängt, weil nicht Teil dieses Auftrags:** `sheet-common.css`
+(Feld-Optik, geändert in `7c7041d`/`72b09d0`).
+**Ersetzt:** `seitenleiste-inventur.txt` aus B14 — die Zahlen dort sind vom
+Stand `51533d5` und überholt.
+
+
+==============================================================================
+===== index.html  (website/index.html, 455 Zeilen, sha256:269e56d9)
+==============================================================================
+
+<!-- @adr [[ADR-HTML]]  -->
+<!-- @guide [[din-5008-css-architektur]]  -->
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f7fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e2025">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="description" content="Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 für geschäftliche und private Korrespondenz. Daten bleiben lokal (Adress-Suche optional extern).">
+    <link rel="canonical" href="https://grapefruit89.github.io/DIN-BriefNEO/">
+    <meta property="og:url" content="https://grapefruit89.github.io/DIN-BriefNEO/">
+    <meta property="og:title" content="DIN-BriefNEO | Normgerechter DIN-5008-Briefgenerator">
+    <meta property="og:description" content="Normgerechter, datenschutzfreundlicher Brief-Editor nach DIN 5008 für geschäftliche und private Korrespondenz.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://grapefruit89.github.io/DIN-BriefNEO/website/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="DIN-BriefNEO – Brief-Editor nach DIN 5008">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://grapefruit89.github.io/DIN-BriefNEO/website/og-image.png">
+    <!-- CSP (Grok H4/M4): keine 'unsafe-inline'/'unsafe-eval' — Inline-<style>
+         in layers.css verlagert, Boot als externes Classic-Script
+         (js/boot.js), daher kein Inline-Hash noetig. connect-src erlaubt
+         nur die A38-Allowlist (optionale Tier-2-Fach-API, ohne Key tot). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self' data: blob:; img-src 'self' data: blob:; connect-src 'self' https://api.geoapify.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'">
+    <title>DIN-BriefNEO | Pure Refactored</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'26'%20y%3D'5'%20fill%3D'%23ccd6dd'%20rx%3D'4'%2F%3E%3Cpath%20stroke%3D'%2399aab5'%20stroke-linecap%3D'round'%20stroke-width%3D'2'%20d%3D'm2%2029%2013-13m6%200%2013%2013'%2F%3E%3Cpath%20fill%3D'%2399aab5'%20d%3D'M4%205h28a4%204%200%200%201%204%204v2L21%2025a5%205%200%200%201-6%200L0%2011V9a4%204%200%200%201%204-4'%2F%3E%3Cpath%20fill%3D'%23e1e8ed'%20d%3D'M4%205h28a4%204%200%200%201%204%204L21%2022a4%204%200%200%201-6%200L0%209a4%204%200%200%201%204-4'%2F%3E%3C%2Fsvg%3E">
+    <link rel="stylesheet" href="css/base.css?v=live6">
+    <link rel="stylesheet" href="css/sidebar.css?v=live7">
+    <link rel="stylesheet" href="css/sheet-common.css?v=common1">
+    <link rel="stylesheet" href="css/sheet-multipage.css?v=multi1">
+    <script src="js/boot.js?v=boot2"></script>
+    <script type="module" src="js/main.js?v=live6"></script>
+  </head>
+  <body>
+    <a href="#viewport" class="skip-link">Zum Briefkern springen</a>
+    <div id="app-shell">
+      <div id="probe" aria-hidden="true"></div>
+      <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
+        <!-- Name aus BEIDEN sichtbaren Labels: "Einstellungen oeffnen" (Zahnrad)
+             und "Zurueck zum Brief". Ein statisches aria-label ueberschrieb
+             beide und hiess im Einstellungs-Modus falsch (Befund B14). -->
+        <input type="checkbox" id="toggle-modus" class="sr-only" aria-labelledby="btn-einstellungen btn-zurueck">
+        <!-- Normaler Modus Header -->
+        <div class="seitenleiste-header-row">
+          <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
+            </svg>
+          </a>
+          <div class="seitenleiste-header-actions">
+            <label for="toggle-modus" id="btn-einstellungen" class="icon-btn" aria-label="Einstellungen öffnen">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </label>
+            <button type="button" id="btn-theme-toggle" class="icon-btn theme-toggle-btn" aria-label="Darstellung: Automatisch (System)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-auto lucide lucide-sun-moon" aria-hidden="true"><path d="M12 2v2"></path><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"></path><path d="M16 12a4 4 0 0 0-4-4"></path><path d="m19 5-1.256 1.256"></path><path d="M20 12h2"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-light lucide lucide-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon theme-icon-dark lucide lucide-moon-star" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Setup-Modus Header (Drill-Down: Zurück zum Brief) -->
+        <div class="seitenleiste-setup-header">
+          <label for="toggle-modus" id="btn-zurueck" class="btn-back" aria-label="Zurück zum Brief">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            <span>Zurück zum Brief</span>
+          </label>
+        </div>
+
+        <div class="seitenleiste-export-group seitenleiste-btn-row">
+          <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
+          <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
+        </div>
+
+        <!-- Statuszeile: globale Einstellungen liegen im Einstellungs-Modus und
+             sind hier sonst unsichtbar. Zeigt den Ist-Stand, ohne hinzugehen;
+             "ändern" springt dorthin. Werte kommen aus data-layout/data-marks
+             und den Einstellungen - kein neuer Zustand. -->
+        <p class="seitenleiste-zustand">
+          <span id="zustand-text">Form B · Falzmarken an · Schrift: System · Unterrand 20 mm</span>
+          <button type="button" id="btn-zustand-aendern" class="zustand-aendern">ändern</button>
+        </p>
+
+        <!-- Zone 1: Brief-Steuerung -->
+        <section id="zone-dokument" class="seitenleiste-zone">
+          <!-- Ueberschriften-Ebene: h1 (Seite, sr-only) -> h2 Zone -> h3 Gruppe.
+               Reine Struktur fuer Screenreader und die Gliederung; die Labels
+               an den Reglern bleiben Labels. -->
+          <h2 class="seitenleiste-h2">Brief</h2>
+
+          <!-- Adressen zuerst: der Brief beginnt mit dem Empfaenger. -->
+<search id="anschrift-suche-container" class="seitenleiste-options-group">
+            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
+            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
+            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+          </search>
+
+          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
+          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
+
+          <hr class="seitenleiste-divider">
+
+<!-- 2. Briefelemente -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-field-group">
+              <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
+              <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
+                <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
+                <option value="polite">Höflich (Guten Tag...)</option>
+                <option value="casual">Locker (Hallo...)</option>
+              </select>
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <label id="label-postvermerk" for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
+              <select id="seitenleiste-postvermerk-select" class="seitenleiste-select" aria-labelledby="label-postvermerk">
+                <option value="">— kein —</option>
+                <optgroup label="Versandarten">
+                  <option value="Einschreiben">Einschreiben</option>
+                  <option value="Einschreiben Einwurf">Einschreiben Einwurf</option>
+                  <option value="Einschreiben Rückschein">Einschreiben Rückschein</option>
+                  <option value="Einschreiben Wert">Einschreiben Wert</option>
+                  <option value="Warensendung">Warensendung</option>
+                  <option value="Büchersendung">Büchersendung</option>
+                  <option value="Einschreiben / Rückschein / Persönlich">Einschreiben / Rückschein / Persönlich</option>
+                </optgroup>
+                <optgroup label="Vertraulichkeit">
+                  <option value="Persönlich">Persönlich</option>
+                  <option value="Vertraulich">Vertraulich</option>
+                  <option value="Persönlich / Vertraulich">Persönlich / Vertraulich</option>
+                  <option value="Nicht nachsenden!">Nicht nachsenden!</option>
+                  <option value="Bei Umzug mit neuer Anschrift zurück">Bei Umzug mit neuer Anschrift zurück</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <hr class="seitenleiste-divider">
+
+          <!-- 3. Textformatierung -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-field-group">
+              <h3 class="seitenleiste-label" id="titel-textformatierung">Textformatierung</h3>
+              <!-- aria-labelledby statt aria-label: der Name kommt aus der
+                   sichtbaren Ueberschrift und wird nicht zweimal vorgelesen. -->
+              <div class="seitenleiste-btn-row" role="group" aria-labelledby="titel-textformatierung">
+                <button type="button" id="btn-bold" class="icon-btn"
+                        aria-pressed="false" aria-label="Fett (Strg+B)" title="Fett (Strg+B)">
+                  <b aria-hidden="true">B</b>
+                </button>
+                <button type="button" id="btn-italic" class="icon-btn"
+                        aria-pressed="false" aria-label="Kursiv (Strg+I)" title="Kursiv (Strg+I)">
+                  <i aria-hidden="true">I</i>
+                </button>
+                <button type="button" id="btn-quote" class="icon-btn"
+                        aria-pressed="false" aria-label="Zitat (Strg+Q)" title="Zitat (Strg+Q)">
+                  <span aria-hidden="true">❝</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <hr class="seitenleiste-divider">
+
+          <!-- 4. Zusatzblöcke -->
+          <div class="seitenleiste-subgroup">
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-anlagen" class="seitenleiste-label">Anlagen</label>
+              <input type="checkbox" switch id="toggle-anlagen">
+            </div>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-fuss" class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</label>
+              <input type="checkbox" switch id="toggle-fuss">
+            </div>
+          </div>
+          <!-- Layout zuletzt: global, selten, wirkt auf das ganze Blatt. -->
+          <!-- 1. Format & Ansicht -->
+          <div class="seitenleiste-subgroup">
+            <fieldset class="seitenleiste-field-group">
+              <legend class="seitenleiste-label">DIN-Brief Layout</legend>
+              <div class="segmented-control">
+                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+                <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
+                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+                <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
+              </div>
+            </fieldset>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-falzmarken" class="seitenleiste-label">Falz- &amp; Lochmarken</label>
+              <input type="checkbox" switch id="toggle-falzmarken" checked>
+            </div>
+
+          </div>
+
+          <hr class="seitenleiste-divider">
+        </section>
+
+        <!-- Zone 2: Daten & Adressen -->
+        <section id="zone-werkzeuge" class="seitenleiste-zone">
+          <h2 class="sr-only">Daten</h2>
+          
+
+          <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
+          <input type="file" id="dinletter-uploader" accept=".json,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">
+
+          <button type="button" id="btn-testbrief" class="btn btn-ghost w-full" title="Zufälligen Testbrief mit zwei Figuren generieren">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg> Testbrief
+          </button>
+          <button type="button" id="btn-copy-dinletter" class="btn w-full" title="Kopiert das vollständige Brief-JSON direkt in die Zwischenablage">📋 In Zwischenablage (.json)</button>
+        </section>
+
+        <!-- Zone 3: Grundeinstellungen & Setup -->
+        <section id="zone-setup" class="seitenleiste-zone seitenleiste-setup">
+          <h2 class="seitenleiste-h2">Einstellungen</h2>
+          <div class="seitenleiste-setup-content">
+            <div class="seitenleiste-field-group">
+              <label for="select-schriftart" class="seitenleiste-sub-label">Schriftart / Stil:</label>
+              <select id="select-schriftart" class="seitenleiste-select w-full" aria-label="Schriftart für DIN-Brief wählen">
+                <optgroup label="System-Standard">
+                  <option value="default" selected>Liberation Sans / System-UI</option>
+                </optgroup>
+                <optgroup label="Test-Schriften (Lokal)">
+                  <option value="inter">Inter (18pt DIN-Subset)</option>
+                  <option value="aptos">Aptos (Lokal)</option>
+                  <option value="michelangelus">Michelangelus (Serife)</option>
+                </optgroup>
+              </select>
+              <button type="button" id="btn-schrift-aktion" class="btn w-full" data-font-state="empty">
+                🔤 Eigene Schriftart laden
+              </button>
+              <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden" aria-label="Schriftart-Datei auswählen">
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <div class="seitenleiste-switch-row">
+                <label for="btn-rand-u-30" class="seitenleiste-label">Unterrand 30 mm</label>
+                <input type="checkbox" switch id="btn-rand-u-30">
+              </div>
+              <p class="seitenleiste-sub-label">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <span class="seitenleiste-sub-label">Unterschrift / Stempel:</span>
+              <button type="button" id="btn-unterschrift-aktion" class="btn w-full" data-state="empty">
+                ✒️ Unterschrift / Stempel laden
+              </button>
+              <input type="file" id="unterschriftsbild-datei" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden">
+            </div>
+
+            <div class="seitenleiste-field-group">
+              <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
+              <input
+                type="password"
+                id="input-geoapify-key"
+                class="input-field"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Key einfügen (optional für Adress-Vorschläge)…">
+              <small id="geoapify-status" class="input-status-hint"></small>
+              <a class="key-hint-link" href="https://myprojects.geoapify.com/projects" target="_blank" rel="noopener noreferrer">
+                Key bei Geoapify erstellen <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+
+            <button type="button" id="btn-din-info" class="btn w-full btn-ghost" commandfor="din-info-dialog" command="show-modal" aria-label="DIN 5008 Hilfe">ℹ️ DIN 5008 Leitfaden</button>
+
+            <hr class="seitenleiste-divider">
+
+            <div class="seitenleiste-subgroup">
+              <h3 class="seitenleiste-label">Erweiterungen (Plugins)</h3>
+              <div class="seitenleiste-switch-row">
+                <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
+                <input type="checkbox" switch id="plugin-testbrief" checked>
+              </div>
+              <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
+                   stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->
+              <div class="seitenleiste-subgroup workbench-box">
+                <div class="workbench-header">
+                  <strong class="workbench-title">📄 Mehrseiten-Workbench</strong>
+                  <span id="seiten-status" class="workbench-status">Seite 1 von 1</span>
+                </div>
+                <div class="workbench-actions">
+                  <button type="button" id="btn-demo-lang" class="btn" title="Fügt langen 2-3 Seiten Fließtext ein">📝 Langer Text</button>
+                  <button type="button" id="btn-demo-kurz" class="btn" title="Setzt auf kurzen 1-Seiten-Text zurück">↩️ 1 Seite</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Zone 4: Fester Fußbereich -->
+        <div id="zone-aktionen" class="seitenleiste-footer">
+          <h2 class="sr-only">Aktionen</h2>
+          <div class="save-status-row">
+            <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
+          </div>
+          <button type="button" id="btn-reset" class="btn btn-ghost btn-danger-subtle w-full" commandfor="reset-dialog" command="show-modal">🗑️ Brief zurücksetzen</button>
+        </div>
+      </aside>
+      <main id="viewport">
+        <h1 class="sr-only">DIN-BriefNEO – Brief-Editor nach DIN 5008</h1>
+        <div id="brief-ansicht">
+          <din-blatt class="blatt-theme seite-1"
+            data-width-mm="210"
+            data-height-mm="297"
+            data-lochmarke-y="148.5"
+            data-briefkopf-y-b="45"
+            data-anschriftfeld-y-b="45.8"
+            data-infoblock-y-b="51"
+            data-kern-y-b="109"
+            data-falzmarke-1-y-b="105"
+            data-falzmarke-2-y-b="210"
+            data-briefkopf-y-a="27"
+            data-anschriftfeld-y-a="28.9"
+            data-infoblock-y-a="34"
+            data-kern-y-a="91"
+            data-falzmarke-1-y-a="87"
+            data-falzmarke-2-y-a="192"
+            role="article"
+            writingsuggestions="false"
+            aria-label="DIN 5008 Brief">
+            <din-falzmarke-1 data-w="8"></din-falzmarke-1>
+            <din-falzmarke-2 data-w="8"></din-falzmarke-2>
+            <din-lochmarke data-w="12"></din-lochmarke>
+            <din-briefkopf class="is-dormant"></din-briefkopf>
+            <!-- Guard: contenteditable="plaintext-only" + enterkeyhint. Umbrueche sind NICHT
+                 nativ gesperrt — die Sperre lebt in enforceLineLimits.
+                 Verbindlicher Text: js/document.js — Law Catalog A55/A49. -->
+            <!-- DIN 5008 19.4.3/4: EIN Block. Die Rücksendeangabe ist die oberste
+                 Zeile des Anschriftfelds (17,7-mm-Zusatz-/Vermerkzone), kein
+                 eigenes Element daneben. data-x/data-w erbt sie vom Container
+                 (SSoT). -->
+            <din-anschriftfeld id="anschriftfeld" role="group" aria-label="Anschriftfeld"
+              data-x="25" data-w="85" data-h="45" data-font="10">
+              <div id="zusatzzone" role="group" aria-label="Zusatz- und Vermerkzone">
+                <input type="text" id="rucksendeangabe" data-font="7" data-atom placeholder="Ihr Name, Ihre Straße 1, 12345 Musterstadt" aria-label="Absender (Rücksendezeile)" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="120">
+                <input type="text" id="vermerke" data-atom data-font="8" placeholder="Postvermerk" aria-label="Postvermerk" autocomplete="off" spellcheck="false" autocapitalize="words" maxlength="80">
+              </div>
+              <div id="anschriftzone" role="group" aria-label="Anschriftzone">
+                <input type="text" id="empfaenger-firma" data-atom placeholder="Firma / Institution (optional)" aria-label="Firma" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="50">
+                <input type="text" id="empfaenger-name" data-atom placeholder="Empfänger Name" aria-label="Name des Empfängers" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="45">
+                <input type="text" id="empfaenger-strasse" data-atom placeholder="Straße &amp; Hausnummer" aria-label="Straße und Hausnummer" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="45">
+                <input type="text" id="empfaenger-ort" data-atom placeholder="PLZ &amp; Ort" aria-label="Postleitzahl und Ort" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="45">
+              </div>
+            </din-anschriftfeld>
+            <din-infoblock id="infoblock" data-x="125" data-w="65" data-font="8.5" role="group" aria-label="Infoblock">
+              <input type="text" id="absender-name" data-atom class="single-line" placeholder="Vor- und Nachname" aria-label="Name" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="text" id="absender-strasse" data-atom class="single-line" placeholder="Straße und Hausnummer" aria-label="Straße und Hausnummer" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="text" id="absender-ort" data-atom class="single-line" placeholder="PLZ und Ort" aria-label="Postleitzahl und Ort" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="tel" id="absender-tel" data-atom class="single-line" placeholder="Telefon (optional)" aria-label="Telefonnummer" autocomplete="off" inputmode="tel" spellcheck="false" enterkeyhint="next" maxlength="50">
+              <input type="email" id="absender-mail" data-atom class="single-line" placeholder="E-Mail (optional)" aria-label="E-Mail-Adresse" autocomplete="off" inputmode="email" autocapitalize="none" spellcheck="false" enterkeyhint="done" maxlength="50">
+              <input type="text" id="datum" data-atom data-font="10" class="single-line" data-feldtyp="systemwert" placeholder="2. September 2026" aria-label="Datum" autocomplete="off" spellcheck="false" enterkeyhint="done" maxlength="30">
+              <din-bezugszeichen id="bezugszeichen" class="is-dormant"></din-bezugszeichen>
+            </din-infoblock>
+            <din-kern id="kern" data-left="25" data-right="20" role="region" aria-label="Briefkern">
+              <div id="spacer" contenteditable="false" aria-hidden="true"></div>
+              <input type="text" id="betreff" data-atom data-font="12" class="single-line" placeholder="Betreffzeile hier eingeben" aria-label="Betreff" autocomplete="off" spellcheck="true" autocapitalize="sentences" maxlength="140">
+              <input type="text" id="anrede" data-atom data-font="10.5" class="single-line" placeholder="Sehr geehrte Damen und Herren," aria-label="Anrede" autocomplete="off" spellcheck="false" autocapitalize="sentences" maxlength="70">
+              <din-text id="text" data-font="10.5" data-feldtyp="rich mehrzeilig" role="textbox" aria-multiline="true" contenteditable="true" enterkeyhint="enter" spellcheck="true" autocapitalize="sentences" writingsuggestions="false" data-placeholder="Schreiben Sie hier den eigentlichen Inhalt Ihres Briefes…" aria-label="Text"></din-text>
+              <input type="text" id="grussformel" data-atom data-font="10.5" class="single-line" placeholder="Mit freundlichen Grüßen" aria-label="Grußformel" autocomplete="off" spellcheck="false" autocapitalize="sentences" maxlength="45">
+              <din-unternehmensbezeichnung id="unternehmensbezeichnung" class="is-dormant"></din-unternehmensbezeichnung>
+              <div class="unterschrift-zeile">
+                <din-zusaetze id="zusaetze" class="is-dormant"></din-zusaetze>
+                <input type="text" id="unterschrift" data-atom data-font="10.5" class="single-line" enterkeyhint="done" placeholder="Ihr getippter Name" aria-label="Getippter Name unter der Unterschrift" autocomplete="off" spellcheck="false" autocapitalize="words" maxlength="45">
+              </div>
+              <din-anlagenvermerk id="anlagenvermerk" data-margin-top="12.69">
+                <label for="anlagen-angabe" class="anlagen-heading">Anlagen</label>
+                <din-anlagen-angabe>
+                  <textarea id="anlagen-angabe" name="anlagen-angabe" rows="2" data-feldtyp="mehrzeilig" spellcheck="false" autocapitalize="sentences" writingsuggestions="false" aria-label="Anlagen – eine pro Zeile" placeholder="eine Anlage pro Zeile"></textarea>
+                </din-anlagen-angabe>
+              </din-anlagenvermerk>
+              <din-verteilvermerk id="verteilvermerk" class="is-dormant"></din-verteilvermerk>
+              <din-beglaubigungsvermerk id="beglaubigungsvermerk" class="is-dormant"></din-beglaubigungsvermerk>
+              <din-werbliche-elemente id="werbliche-elemente" class="is-dormant"></din-werbliche-elemente>
+            </din-kern>
+            <div id="folgekoepfe" aria-hidden="true"></div>
+            <din-geschaeftsangaben id="geschaeftsangaben" data-left="25" data-right="20" data-h="15" data-padding-top="2" data-gap="10" data-font="7.5" role="region" aria-label="Geschäftsangaben Fußzeile">
+              <input type="text" id="fuss-firma" data-atom class="single-line" placeholder="Muster GmbH" aria-label="Firmenname" autocomplete="off" spellcheck="false" maxlength="60">
+              <input type="text" id="fuss-sitz" data-atom class="single-line" placeholder="Musterstadt" aria-label="Sitz der Gesellschaft" autocomplete="off" spellcheck="false" maxlength="40">
+              <input type="text" id="fuss-gericht" data-atom class="single-line" placeholder="Amtsgericht Musterstadt" aria-label="Registergericht" autocomplete="off" spellcheck="false" maxlength="60">
+              <input type="text" id="fuss-hrb" data-atom class="single-line" placeholder="HRB 12345" aria-label="Handelsregisternummer" autocomplete="off" spellcheck="false" maxlength="30">
+              <input type="text" id="fuss-vorstand" data-atom class="single-line" placeholder="Vorsitzender: Erika Mustermann" aria-label="Vorstand" autocomplete="off" spellcheck="false" maxlength="60">
+              <input type="text" id="fuss-gf" data-atom class="single-line" placeholder="Geschäftsführer: Max Mustermann" aria-label="Geschäftsführung" autocomplete="off" spellcheck="false" maxlength="60">
+              <input type="text" id="fuss-stnr" data-atom class="single-line" placeholder="12/345/67890" aria-label="Steuernummer" autocomplete="off" spellcheck="false" maxlength="30">
+              <input type="text" id="fuss-ustid" data-atom class="single-line" placeholder="DE123456789" aria-label="USt-IdNr." autocomplete="off" spellcheck="false" maxlength="20">
+              <input type="text" id="fuss-bank" data-atom class="single-line" placeholder="Musterbank" aria-label="Bankverbindung" autocomplete="off" spellcheck="false" maxlength="40">
+              <input type="text" id="fuss-iban" data-atom class="single-line" placeholder="DE00 0000 0000 0000 0000 00" aria-label="IBAN" autocomplete="off" spellcheck="false" maxlength="34">
+              <input type="text" id="fuss-bic" data-atom class="single-line" placeholder="ABCDDEFFXXX" aria-label="BIC" autocomplete="off" spellcheck="false" maxlength="11">
+              <input type="text" id="fuss-anschrift" data-atom class="single-line" placeholder="Musterstraße 1, 12345 Musterstadt" aria-label="Geschäftsräume" autocomplete="off" spellcheck="false" maxlength="60">
+              <din-seitennummerierung id="seitennummerierung" class="is-dormant"></din-seitennummerierung>
+            </din-geschaeftsangaben>
+            <div id="unterschriftsbild-container">
+              <div class="unterschriftsbild-rahmen" id="unterschriftsbild-box" tabindex="0" aria-label="Unterschrift verschieben und skalieren">
+                <div class="unterschriftsbild-griff bottom-right" data-aktion="resize"></div>
+                <div class="unterschriftsbild-drehgriff" data-aktion="rotate"></div>
+                <img id="unterschriftsbild-vorschau" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E" alt="Unterschrift" draggable="false">
+              </div>
+            </div>
+          </din-blatt>
+        </div>
+      </main>
+    </div>
+    <!-- Guard: nativer Popover-Toast im Top-Layer, Uebergaenge via @starting-style.
+         Verbindlicher Text: js/core.js — Law Catalog A56. -->
+    <!-- Guard: role="status"/aria-live="polite" ist Pflicht, keine Success-Toasts.
+         Verbindlicher Text: js/core.js bei Constants.TOASTS. -->
+    <div id="hinweis-v4" popover="auto" class="hinweis-container type-info nicht-drucken" role="status" aria-live="polite" aria-atomic="true">
+      <span id="hinweis-message"></span>
+      <button type="button" id="hinweis-close" class="btn-icon" aria-label="Schließen" popovertarget="hinweis-v4" popovertargetaction="hide">×</button>
+    </div>
+    <dialog id="reset-dialog" class="glass-dialog nicht-drucken" closedby="any">
+      <form method="dialog">
+        <p>Möchtest du alle Texte wirklich zurücksetzen?</p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn danger">Zurücksetzen</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="import-dialog" class="glass-dialog nicht-drucken" closedby="any">
+      <form method="dialog">
+        <p>Diesen Brief importieren und den aktuellen Inhalt ersetzen?</p>
+        <p class="import-file-name" id="import-file-name"></p>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn">Abbrechen</button>
+          <button value="confirm" class="btn primary">Importieren</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="din-info-dialog" class="glass-dialog nicht-drucken" closedby="any" aria-labelledby="din-info-title">
+      <h2 id="din-info-title" class="din-info-title">DIN 5008 Standard-Leitfaden</h2>
+      <div class="din-info-content">
+        <p><strong>Form A vs. Form B:</strong> Form A hat einen 27-mm-Briefkopf (mehr Platz für Text). Form B nutzt 45 mm (Standard für Privatbriefe mit Absenderblock oder Logo).</p>
+        <p><strong>Fensterumschlag (DIN Lang):</strong> Das Anschriftfeld (85 × 45 mm) ist exakt so platziert, dass es bei korrekter Faltung im 90 × 45 mm Sichtfenster liegt.</p>
+        <p><strong>Falz- & Lochmarken:</strong> Falzmarke 1 (105 mm, Form A: 87 mm) und Falzmarke 2 (210 mm, Form A: 192 mm) teilen das Blatt in Drittel (Zickzack- oder Wickelfalz). Die Lochmarke (148,5 mm) zentriert das Blatt im Ordner.</p>
+      </div>
+      <div class="dialog-actions">
+        <form method="dialog"><button class="btn primary">Verstanden</button></form>
+      </div>
+    </dialog>
+
+    <!-- Setzt den gespeicherten UI-Zustand (Form, Postvermerk, Schalter) vor
+         dem ersten Paint; ohne ihn springt die Anzeige beim Hard-Reload. -->
+    <script src="js/boot-state.js?v=bs2"></script>
+  </body>
+</html>
+
+
+==============================================================================
+===== sidebar.css  (website/css/sidebar.css, 1290 Zeilen, sha256:5e84508d)
+==============================================================================
+
+/* @adr [[ADR-CSS]]  */
+/* @guide [[din-5008-css-architektur]]  */
+
+/* css/sidebar.css — Sidebar: Navigation, Custom Inputs, Autocomplete, Adressbuch, Geoapify, Guides */
+
+/* --- SIDEBAR --- */
+aside,
+aside.seitenleiste,
+#seitenleiste {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  inline-size: var(--seitenleiste-breite);
+  max-inline-size: var(--seitenleiste-breite);
+  min-inline-size: var(--seitenleiste-breite);
+  box-sizing: border-box;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--border-color);
+  padding: var(--space-2xl);
+  gap: var(--space-xl);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  z-index: 10;
+  touch-action: pan-y;           /* Erlaubt vertikales Scrollen, blockiert Pinch-Zoom-Gesten auf der Leiste */
+  overscroll-behavior: contain;  /* Verhindert Scroll-Chaining zum Hauptdokument */
+  flex-shrink: 0;                /* Verhindert horizontales Zusammendrücken */
+  user-select: none;             /* Verhindert versehentliches Markieren von UI-Labels */
+}
+
+.seitenleiste-zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.seitenleiste-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.seitenleiste-divider {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+
+.seitenleiste-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+fieldset.seitenleiste-field-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+fieldset.seitenleiste-field-group > legend {
+  padding: 0;
+}
+
+.seitenleiste-btn-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.seitenleiste-setup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.seitenleiste-setup-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.seitenleiste-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Premium Segmented Controls & Buttons */
+.btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in oklch, var(--text-muted), transparent 90%);
+  color: var(--text-primary);
+}
+
+.btn.primary {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: oklch(1 0 0); /* Hochkontrast-Weiss auf dunklem Primaer-Akzent */
+  font-weight: 600;
+}
+
+.btn.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.segmented-control {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--segment-bg);
+  padding: var(--space-xs);
+  border-radius: var(--radius-lg);
+  gap: 0; /* Remove gap for perfect math */
+  position: relative;
+  isolation: isolate;
+
+  /* Dynamically calculated items and active index */
+  --items: 2;
+  --active-idx: 0;
+}
+
+/* Count items */
+.segmented-control:has(input[type="radio"]:nth-of-type(3)) { --items: 3; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4)) { --items: 4; }
+
+/* Active index tracking (Index des :checked-Kindes ist nicht nach oben hebringbar) */
+.segmented-control:has(input[type="radio"]:nth-of-type(1):checked) { --active-idx: 0; }
+.segmented-control:has(input[type="radio"]:nth-of-type(2):checked) { --active-idx: 1; }
+.segmented-control:has(input[type="radio"]:nth-of-type(3):checked) { --active-idx: 2; }
+.segmented-control:has(input[type="radio"]:nth-of-type(4):checked) { --active-idx: 3; }
+
+/* Briefform: die gespeicherte Wahl steht als data-layout am <html> — gesetzt
+   von boot.js im <head>, also VOR dem ersten Paint. Ohne diese Regel zeigt der
+   Schalter bis zum body-end-Script die HTML-Defaults (Form B), obwohl Form A
+   gespeichert ist (gemeldet 2026-11-12). Die :checked-Regeln bleiben fuer
+   Tastatur/Noscript. */
+:root[data-layout="form-a"] .segmented-control:has(input[name="layout-form"]) { --active-idx: 0; }
+:root[data-layout="form-b"] .segmented-control:has(input[name="layout-form"]) { --active-idx: 1; }
+
+/* The sliding pill */
+.segmented-control::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--items));
+  translate: calc(var(--active-idx) * 100%);
+  
+  background: var(--segment-active-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--segment-active-shadow);
+  transition: translate 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+  z-index: -1;
+  opacity: 1;
+}
+
+/* Hide pill if nothing is selected (during hydration) */
+.segmented-control:not(:has(:checked)):not(:has([aria-pressed="true"]))::before {
+  opacity: 0;
+}
+
+.segmented-control button,
+.segmented-control label {
+  border: none;
+  background: transparent; /* Clean transparent to let pill show */
+  padding: var(--space-md) var(--space-xl);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Nachgeschaerft von var(--text-muted) fuer > 5:1 Kontrast */
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Aktives Label ebenfalls aus data-layout (pre-paint), nicht nur aus :checked. */
+:root[data-layout="form-a"] .segmented-control label[for="btn-form-a"],
+:root[data-layout="form-b"] .segmented-control label[for="btn-form-b"],
+.segmented-control button[aria-pressed="true"],
+.segmented-control input[type="radio"]:checked + label {
+  color: oklch(0 0 0);
+  font-weight: 700;
+  /* Box-shadow and background are now handled by ::before */
+}
+
+/* Tastatur-Fokusindikator (WCAG 2.2 SC 2.4.7) */
+.segmented-control input[type="radio"]:focus-visible + label {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Motion-Präferenz: Animationen bei reduzierter Bewegung deaktivieren */
+@media (prefers-reduced-motion: reduce) {
+  .segmented-control::before,
+  .btn,
+  .btn-ghost,
+  .input-field,
+  .select-chevron {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Windows High Contrast Mode / Forced Colors */
+@media (forced-colors: active) {
+  .segmented-control::before {
+    outline: 2px solid Highlight;
+  }
+  .segmented-control input[type="radio"]:checked + label {
+    color: HighlightText;
+  }
+}
+
+/* --- SIDEBAR CUSTOM INPUTS & AUTOCOMPLETE --- */
+.input-field {
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Sattes Anthrazit fuer hohen Kontrast */
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-field:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.input-field::placeholder {
+  color: oklch(0.42 0.03 260); /* WCAG 2.1 AA Kontrast >= 4.5:1 auf --bg-card */
+  opacity: 1;
+}
+
+.input-field:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.input-field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#input-anschrift-suche {
+  anchor-name: --anchor-anschrift-suche;
+}
+
+#btn-zwischenablage-anschrift {
+  anchor-name: --clipboard-btn;
+}
+
+#clipboard-candidates-popover {
+  position-anchor: --clipboard-btn;
+  width: max(anchor-size(width), 280px);
+}
+
+/* Glassmorphic Dropdown for Geoapify address suggestions */
+.autocomplete-dropdown {
+  position: absolute;
+  position-anchor: --anchor-anschrift-suche;
+  position-area: bottom span-x;
+  position-try-fallbacks: flip-block;
+  top: auto;
+  left: auto;
+  width: anchor-size(width);
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  margin: 4px 0 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+}
+
+.autocomplete-dropdown li {
+  padding: 8px 12px;
+  font-size: 0.725rem;
+  border-radius: 6px;
+  
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.autocomplete-dropdown li:hover {
+  background: var(--border-color);
+  color: var(--accent-color);
+}
+
+.autocomplete-header {
+  font-weight: bold;
+  cursor: default;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.autocomplete-sub {
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.unverified-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75em;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: light-dark(oklch(0.94 0.01 260), oklch(0.25 0.01 260));
+  border: 1px solid var(--border-color);
+  opacity: 0.85;
+  vertical-align: middle;
+}
+
+.mismatch-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: light-dark(oklch(0.45 0.18 50), oklch(0.85 0.18 70));
+  background: light-dark(oklch(0.96 0.05 60), oklch(0.28 0.08 55));
+  border: 1px solid light-dark(oklch(0.82 0.12 60), oklch(0.48 0.12 55));
+  vertical-align: middle;
+}
+
+/* --- COMMENT FORMAT --- */
+.brief-kommentar {
+  border-left: 3px solid var(--border-color);
+  padding-left: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin: 4px 0;
+  width: 100%;
+}
+
+/* --- SIDEBAR UTILITIES --- */
+.seitenleiste-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seitenleiste-sub-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Font action button — 2-state look (Schriftarten-Manager) */
+#btn-schrift-aktion {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+#btn-schrift-aktion:hover {
+  background: var(--segment-active-bg);
+}
+
+#btn-schrift-aktion[data-font-state="loaded"] {
+  background: color-mix(in oklch, var(--c-danger) 10%, transparent);
+  border-color: color-mix(in oklch, var(--c-danger) 30%, transparent);
+  color: var(--c-danger);
+}
+
+#btn-schrift-aktion[data-font-state="loaded"]:hover {
+  background: color-mix(in oklch, var(--c-danger) 18%, transparent);
+}
+
+/* Signature / Stamp action button — 2-state look */
+#btn-unterschrift-aktion {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+#btn-unterschrift-aktion:hover {
+  background: var(--segment-active-bg);
+}
+
+#btn-unterschrift-aktion[data-state="loaded"] {
+  background: color-mix(in oklch, var(--c-danger) 10%, transparent);
+  border-color: color-mix(in oklch, var(--c-danger) 30%, transparent);
+  color: var(--c-danger);
+}
+
+#btn-unterschrift-aktion[data-state="loaded"]:hover {
+  background: color-mix(in oklch, var(--c-danger) 18%, transparent);
+}
+
+/* Geoapify API-Key BYOK (100% KISS) */
+.key-hint-link {
+  justify-self: start;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-top: 2px;
+}
+.key-hint-link:hover,
+.key-hint-link:focus-visible {
+  color: var(--accent-color);
+}
+
+.input-status-hint {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  min-height: 1.2em;
+  margin-top: 2px;
+}
+.input-status-hint[data-status="valid"] { color: var(--c-success); }
+.input-status-hint[data-status="invalid"] { color: var(--c-danger); }
+.input-status-hint[data-status="pending"] { color: var(--accent-color); }
+.input-status-hint[data-status="error"] { color: var(--c-warning, oklch(0.75 0.14 75)); }
+
+.input-field[data-status="valid"] {
+  border-color: var(--c-success);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--c-success) 20%, transparent);
+}
+.input-field[data-status="invalid"] {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--c-danger) 20%, transparent);
+}
+.input-field[data-status="pending"] {
+  border-color: var(--accent-color);
+}
+
+
+/* =========================================================================================
+ * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCHES (Native HTML5)
+ *
+ * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
+ * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
+ * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
+ * Die Statuserkennung erfolgt rein deklarativ über Attribute am `<html>`
+ * (`data-marks`, gesetzt von `boot.js` vor dem ersten Paint; `settings.js` hält es synchron).
+ * ES IST STRENGSTENS VERBOTEN (Law Catalog A57):
+ * 1. Dies durch JS-Klassen-Toggles (.is-active) oder Radio-Button-Workarounds zu ersetzen!
+ * 2. Unnötige Wrapper-Divs oder Polyfill-Bibliotheken hinzuzufügen.
+ * ========================================================================================= */
+.seitenleiste-switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+.seitenleiste-switch-row .seitenleiste-label {
+  margin: 0;
+  cursor: pointer;
+}
+
+.seitenleiste-switch-row:has(input:disabled) {
+  opacity: 0.5;
+}
+input[type="checkbox"][switch] {
+  appearance: auto;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  width: 36px;
+  height: 20px;
+}
+.badge-local {
+  margin-inline-start: 6px;
+  float: right;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  background: var(--segment-bg);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+
+/* Accessibility: Windows High Contrast / forced-colors. Ohne diesen Guard
+   verlieren Buttons ihren Hintergrund und sind mit `transparent`-Border
+   unsichtbar. Systemfarben (ButtonFace/ButtonText) sind hier der Standardweg. */
+@media (forced-colors: active) {
+  .btn {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  .btn-ghost {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  input[type="checkbox"][switch] {
+    forced-color-adjust: none;
+    accent-color: var(--accent-color);
+  }
+}
+
+/* Theme-Icons Umschaltung. Quelle ist :root[data-theme], das boot.js noch im
+   <head> setzt — die Schaltflaeche existiert zu diesem Zeitpunkt noch nicht,
+   ihr Attribut waere erst nach dem Modulstart korrekt (sichtbarer Icon-Swap). */
+.theme-icon {
+  display: none;
+}
+
+:root[data-theme="auto"] #btn-theme-toggle .theme-icon-auto {
+  display: block;
+}
+
+:root[data-theme="light"] #btn-theme-toggle .theme-icon-light {
+  display: block;
+}
+
+:root[data-theme="dark"] #btn-theme-toggle .theme-icon-dark {
+  display: block;
+}
+
+/* --- UI-SHELL & FORM CONTROLS (aus ehemals layout.css) --- */
+/* FOUC: Werte aus localStorage (Postvermerk, Schalter) stehen erst mit
+   data-ready fest (boot.js setzt es am Ende von initApp, Sicherheitsnetz nach
+   2 s). Bis dahin lieber unsichtbar als falsch — der Platz bleibt erhalten.
+   Textfelder sind davon nicht betroffen: boot-state.js fuellt sie schon vor
+   dem Paint. */
+/* Sichtbar, sobald boot-state.js geseedet hat (data-seeded). NICHT an
+   data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler
+   nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,
+   falls der Seeder ausfaellt (boot.js setzt es notfalls nach 2 s). */
+/* Der Modus-Schalter ist EIN Tab-Stopp: die native Checkbox (sr-only). Damit
+   der Fokus nicht unsichtbar bleibt, traegt das jeweils sichtbare Label den
+   Ring. Vorher hatten Checkbox UND Label tabindex - zwei Stopps fuer eine
+   Funktion, und Enter/Space auf dem Label tat nichts (WCAG 2.1.1, Befund B14). */
+#seitenleiste:has(#toggle-modus:focus-visible) label[for="toggle-modus"]:not([hidden]) {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,
+:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {
+  visibility: hidden;
+}
+
+/* Zonen-Ueberschrift. Bewusst klein und gedämpft: sie gliedert, sie schreit
+   nicht. Die Gruppen-Titel sind h3 mit derselben Optik wie bisher
+   (.seitenleiste-label), die Regler-Labels bleiben <label>. */
+.seitenleiste-h2 {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Statuszeile: eine Zeile, ruhig, mit Sprung in die Einstellungen. */
+.seitenleiste-zustand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: var(--text-muted);
+}
+
+.zustand-aendern {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--accent-color);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.seitenleiste-select {
+  display: flex;
+  appearance: base-select;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--segment-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.seitenleiste-select:hover {
+  background: color-mix(in oklch, var(--segment-bg) 85%, var(--accent-color));
+  border-color: var(--text-muted);
+}
+
+.seitenleiste-select:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* "Gefuellt"-Optik aus dem Attribut (boot-state.js, pre-paint), NICHT aus
+   `:has(option:checked...)`: der Wert kam vom Seeder und die Aenderung blendete
+   nach dem Paint auf (gemessen 2026-11-12, FCP 64 ms, Aufblenden bis 139 ms).
+   NICHT auf :has(:checked) zurueckstellen. */
+.seitenleiste-select[data-gesetzt="true"] {
+  background: var(--segment-active-bg);
+  color: var(--text-primary);
+  box-shadow: var(--segment-active-shadow);
+}
+
+.seitenleiste-select::picker(select) {
+  appearance: base-select;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+}
+
+.seitenleiste-select::picker-icon {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--text-muted);
+}
+
+:is([hidden], .hidden) { display: none; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.w-full { width: 100%; }
+
+.seitenleiste-header-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.seitenleiste-header-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* --- ICON BUTTONS (Zeile 0, Beszel-inspiriert) --- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.icon-btn:hover {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.icon-btn[aria-pressed="true"] {
+  background: var(--segment-bg);
+  color: var(--text-primary);
+}
+
+/* Modus-Steuerung (Brief vs. Einstellungen via CSS :has) */
+.seitenleiste-setup-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-header-row {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-setup-header {
+  display: flex;
+}
+
+/* Zurück-Button im Setup-Header (Drill-Down) */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--segment-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-back:hover {
+  background: var(--segment-active-bg);
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
+.btn-back:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+#seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #zone-dokument,
+#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-export-group,
+/* Statuszeile auch ausblenden: sie zeigt den Brief-Zustand, und "aendern"
+   waere im Einstellungs-Modus ein Knopf ohne Ziel (gemessen 2026-11-13). */
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-zustand {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #zone-setup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nur #btn-reset liegt noch in #zone-aktionen; die beiden anderen Selektoren
+   trafen seit der Umsortierung nichts mehr (Befund B14). */
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset {
+  display: none;
+}
+
+#seitenleiste:has(#toggle-modus:checked) #btn-einstellungen {
+  background: var(--segment-active-bg, oklch(35% 0.02 260));
+  color: var(--accent-color, oklch(75% 0.16 240));
+}
+
+#toggle-modus:focus-visible ~ .seitenleiste-header-row #btn-einstellungen {
+  outline: 2px solid var(--accent-color, oklch(75% 0.16 240));
+  outline-offset: 2px;
+}
+
+.seitenleiste-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-top: auto;
+}
+
+.btn-danger-subtle {
+  align-self: center;
+  width: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: light-dark(oklch(0.28 0.20 28), oklch(0.25 0.22 28));
+  padding: 6px 12px;
+}
+
+.btn-danger-subtle:hover {
+  background: color-mix(in oklch, oklch(0.40 0.20 28) 12%, transparent);
+  color: light-dark(oklch(0.28 0.24 28), oklch(0.25 0.26 28));
+}
+
+/* Autosave-Indikator */
+.save-status-row {
+  display: flex;
+  justify-content: center;
+}
+.save-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.save-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Gespeichert: Klares Grün mit starkem Kontrast in beiden Themes */
+.save-status[data-state="saved"],
+.save-status.saved {
+  color: light-dark(oklch(0.38 0.12 145), oklch(0.85 0.14 145));
+  background: light-dark(oklch(0.94 0.04 145), oklch(0.24 0.05 145));
+  border: 1px solid light-dark(oklch(0.85 0.06 145), oklch(0.35 0.08 145));
+}
+
+/* Speichern / Dirty: Warmes Amber */
+.save-status[data-state="dirty"],
+.save-status.dirty {
+  color: light-dark(oklch(0.42 0.14 65), oklch(0.88 0.14 65));
+  background: light-dark(oklch(0.95 0.05 65), oklch(0.26 0.06 65));
+  border: 1px solid light-dark(oklch(0.85 0.08 65), oklch(0.38 0.08 65));
+}
+
+/* Fehler: Signal-Rot */
+.save-status[data-state="error"],
+.save-status.error {
+  color: light-dark(oklch(0.40 0.18 25), oklch(0.90 0.15 25));
+  background: light-dark(oklch(0.95 0.05 25), oklch(0.26 0.08 25));
+  border: 1px solid light-dark(oklch(0.85 0.08 25), oklch(0.40 0.10 25));
+}
+.import-file-name {
+  font-size: 0.85em;
+  color: light-dark(oklch(0.45 0.02 250), oklch(0.7 0.02 250));
+  word-break: break-all;
+}
+
+/* --- SCHWEBENDE UI: TOASTS, POPOVERS & DIALOGE (aus ehemals floating.css) --- */
+/* Kein `display` im Grundzustand: es überschreibt
+   `[popover]:not(:popover-open) { display: none }`, und der unsichtbare Block
+   fängt Klicks auf dem Brief ab (gemessen 2026-11-10). */
+#hinweis-v4 {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: 
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    display 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete,
+    overlay 0.25s cubic-bezier(0.16, 1, 0.3, 1) allow-discrete;
+}
+
+#hinweis-v4:popover-open {
+  display: flex;
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #hinweis-v4:popover-open {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+#hinweis-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+#hinweis-close:hover {
+  color: var(--c-danger);
+  background: oklch(50% 0.2 20 / 10%);
+}
+
+#hinweis-v4[data-type="success"] { border-left: 4px solid var(--c-success); }
+#hinweis-v4[data-type="error"]   { border-left: 4px solid var(--c-danger); }
+#hinweis-v4[data-type="info"]    { border-left: 4px solid var(--c-primary); }
+#hinweis-v4[data-type="warning"] { border-left: 4px solid var(--c-warning); }
+
+/* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) {
+  position: absolute;
+  /* UA-Popover setzt inset: 0 und margin: auto; mit gesetztem left/top wird
+     das Element dann im Restraum zentriert und landet neben dem Feld
+     (gemessen 2026-11-13: PLZ-Popover bei x=1072 statt 730). */
+  inset: auto;
+  margin: 4px 0 0;
+  overflow-y: auto;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  list-style: none;
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              display 0.15s allow-discrete,
+              overlay 0.15s allow-discrete;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover):popover-open {
+  display: block;
+  opacity: 1;
+}
+
+@starting-style {
+  :is(#anschrift-vorschlaege, #plz-suggestions-popover):popover-open {
+    opacity: 0;
+  }
+}
+
+/* position-area loeste hier falsch auf (gemessen 2026-11-13: das Popover
+   landete bei x=1497 statt x=16, also unten rechts am Schirm). Mit
+   anchor()-Funktionen sitzt es direkt unter dem Feld. */
+#anschrift-vorschlaege {
+  position-anchor: --anchor-anschrift-suche;
+  top: anchor(bottom);
+  left: anchor(left);
+  width: anchor-size(width);
+  max-height: min(250px, 40vh);
+}
+
+#anschrift-vorschlaege li {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  line-height: 1.3;
+}
+
+#anschrift-vorschlaege li:hover {
+  background: var(--segment-bg);
+}
+
+#anschrift-vorschlaege li b {
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+#plz-suggestions-popover,
+#plz-suggestions-popover[popover] {
+  position-anchor: --anchor-ort;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: max(300px, anchor-size(width));
+  max-width: 440px;
+  max-height: min(400px, 45vh);
+}
+
+#anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,
+:has(#empfaenger-firma:focus) #plz-suggestions-popover,
+body:has(#empfaenger-firma:focus) #plz-suggestions-popover {
+  position-anchor: --anchor-firma;
+}
+
+#plz-suggestions-popover li {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  line-height: 1.3;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Der gemeinsame Renderer erzeugt diese Unterelemente in beiden Listen
+   (#anschrift-vorschlaege und #plz-suggestions-popover). */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-main {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  flex-shrink: 0;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .plz-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-color);
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-val {
+  font-weight: 500;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .district-val {
+  font-size: 0.72rem;
+  color: var(--text-muted, oklch(55% 0 0));
+  font-style: italic;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  max-width: 220px;
+}
+
+/* Farbcodierung und Badges für universelles Autocomplete */
+/* Typ-Farbe gilt in beiden Listen. Das :is() hebt die Spezifität über die
+   bestehenden `#liste li { color: … }`-Regeln (ID + Element), sonst gewinnt
+   dort die Grundfarbe und die Typ-Kennzeichnung bleibt unsichtbar. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="city"] { color: var(--text-primary); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="firma"] { color: oklch(45% 0.16 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="behoerde"] { color: oklch(50% 0.14 145); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="gericht"] { color: oklch(48% 0 0); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-typ="institution"] { color: oklch(55% 0.18 45); }
+
+/* Ortsfarbe: gleiche Stadt = gleicher Ton, sanft hinterlegt plus 3px-Balken.
+   Deterministisch aus dem Ortsnamen (address.js, farbeFuerOrt), damit die
+   Liste bei jedem Tippen gleich aussieht. Die Typ-Farbe sitzt auf `color` und
+   bleibt unberuehrt; Hover/Auswahl ueberschreiben nur den Hintergrund. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item {
+  --ort-ton: oklch(0.72 0.06 250);
+  box-shadow: inset 3px 0 0 var(--ort-ton);
+  background: color-mix(in oklch, var(--ort-ton) 9%, transparent);
+}
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="1"] { --ort-ton: oklch(0.78 0.12 55); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="2"] { --ort-ton: oklch(0.74 0.10 250); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="3"] { --ort-ton: oklch(0.78 0.11 150); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="4"] { --ort-ton: oklch(0.76 0.10 300); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="5"] { --ort-ton: oklch(0.78 0.09 195); }
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .suggestion-item[data-ort-farbe="6"] { --ort-ton: oklch(0.78 0.11 15); }
+
+/* Das Badge erscheint über denselben Renderer in beiden Listen; die Farbe
+   kommt aus `currentColor` und folgt damit der Typ-Farbe oben. */
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .ac-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  margin-inline: 4px;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+:is(#anschrift-vorschlaege, #plz-suggestions-popover) .city-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted, oklch(55% 0 0));
+  margin-inline-start: 4px;
+}
+
+#plz-suggestions-popover .suggestion-hint,
+#anschrift-vorschlaege .suggestion-hint {
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted, oklch(55% 0 0));
+  font-style: italic;
+  cursor: default;
+}
+
+#plz-suggestions-popover li:not(.suggestion-hint):hover,
+#anschrift-vorschlaege li:not(.suggestion-hint):hover {
+  background: var(--segment-bg);
+}
+
+aside input[type="text"],
+aside input[type="password"],
+aside input[type="search"],
+aside textarea,
+aside select {
+  user-select: text;
+}
+
+::search-text {
+  background-color: oklch(from var(--accent-color) calc(l + 0.35) c h / 90%);
+  color: oklch(15% 0 0);
+}
+
+#anschrift-vorschlaege li[aria-selected="true"],
+#anschrift-vorschlaege li:focus-visible,
+#plz-suggestions-popover li[aria-selected="true"] {
+  background: color-mix(in oklch, var(--accent-color) 18%, transparent);
+  outline: 2px solid color-mix(in oklch, var(--accent-color) 65%, transparent);
+  outline-offset: -2px;
+}
+
+/* Native Dialoge (Glassmorphism & Top-Layer Transitions gem. animate-to-from-top-layer) */
+.glass-dialog {
+  border: 1px solid var(--border-color);
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 12px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  max-width: min(90vw, 420px);
+  margin: auto;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              display 0.2s allow-discrete,
+              overlay 0.2s allow-discrete;
+}
+.glass-dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.glass-dialog::backdrop {
+  opacity: 0;
+  background: oklch(0% 0 0 / 40%);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+}
+.glass-dialog[open]::backdrop {
+  opacity: 1;
+  @starting-style {
+    opacity: 0;
+  }
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+#din-info-dialog .din-info-title { margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; }
+#din-info-dialog .din-info-content { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
+#din-info-dialog .din-info-content strong { color: var(--text-primary); }
+#din-info-dialog .dialog-actions { margin-top: 16px; }
+.btn.danger,
+.btn-danger {
+  border-color: oklch(0.45 0.18 28);
+  color: oklch(0.38 0.16 28); /* WCAG 2.1 AA: Dunkles Karminrot fuer > 5.5:1 Kontrast auf hellem Hintergrund */
+  font-weight: 600;
+}
+.btn.danger:hover,
+.btn-danger:hover {
+  background: color-mix(in oklch, oklch(45% 0.22 25) 15%, var(--bg-card));
+  color: oklch(0.28 0.14 28);
+  border-color: oklch(0.38 0.16 28);
+}
+
+/* Workbench UI Styling (C13: aus sheet-multipage.css umgezogen) */
+.workbench-box {
+  border: 1.5px solid var(--accent-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+  background: light-dark(oklch(from var(--accent-color) l c h / 5%), oklch(from var(--accent-color) l c h / 12%));
+}
+.workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+.workbench-title {
+  font-size: 0.85rem;
+  color: var(--accent-color);
+}
+.workbench-status {
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.workbench-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.workbench-actions .btn {
+  flex: 1;
+  font-size: 0.78rem;
+  padding: 4px 6px;
+}
+
+/* --- PLUGINS (Schalter in den Einstellungen) ---
+   Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
+   setzt SettingsManager.#applyPlugins() aus din_settings. */
+:root[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }
+
+
+==============================================================================
+===== settings.js  (website/js/settings.js, 371 Zeilen, sha256:2f24c5cf)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]] {SettingsManager}
+// @guide [[glossary]]
+// @guide [[din-5008-css-architektur]]
+
+/**
+ * @file settings.js — Layout, Theme, Hilfslinien und Plugins (SettingsManager).
+ * Die Signatur-Engine liegt in `signature.js`, das Font-Management in `font-feature.js`.
+ */
+
+import { Events, eventBus } from './core.js';
+import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+
+export { FONT_PRESETS } from './font-feature.js';
+
+/**
+ * Setzt ein Attribut nur, wenn es abweicht.
+ *
+ * Der Zustand wird EINMAL vor dem Paint gesetzt (boot.js im <head>,
+ * boot-state.js am Body-Ende). Nach dem Paint darf dieselbe Stelle ihn
+ * hoechstens bestaetigen — sonst entstehen zwei Schreiber und damit die
+ * FOUC-Klasse, die wir 2026-11-12 mehrfach hatten (DECISION-LOG).
+ * @param {Element} el
+ * @param {string} name
+ * @param {string} wert
+ */
+function setzeAttribut(el, name, wert) {
+  if (el.getAttribute(name) !== wert) el.setAttribute(name, wert);
+}
+
+/**
+ * @param {HTMLInputElement | null} box
+ * @param {boolean} wert
+ */
+function setzeSchalter(box, wert) {
+  if (box && box.checked !== wert) box.checked = wert;
+}
+
+/**
+ * @param {any} target
+ * @param {() => void} fn
+ */
+function transitionOn(target, fn) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    fn();
+    return;
+  }
+  const hatKasten = typeof target?.getBoundingClientRect === 'function' && target.getBoundingClientRect().width > 0;
+  if (typeof target.startViewTransition !== 'function' || document.visibilityState !== 'visible' || !hatKasten) {
+    fn();
+    return;
+  }
+  try {
+    target.startViewTransition(fn).finished.catch(() => {});
+  } catch (err) {
+    console.debug('[ViewTransition] übersprungen:', err instanceof Error ? err.name : err);
+    fn();
+  }
+}
+
+/* =========================================================================================
+ * 1. SETTINGS MANAGER
+ * ========================================================================================= */
+
+export class SettingsManager {
+  /** Erstes applyTheme ist der Initial-Apply — dort ist kein Crossfade sinnvoll. */
+  #themeBooted = false;
+
+  constructor() {
+    /** @type {import('./persistence.js').DinSettings & { style?: string, previewFont?: string }} */
+    this.settings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+    this.btnFormA = document.getElementById('btn-form-a');
+    this.btnFormB = document.getElementById('btn-form-b');
+    this.seitenleiste = document.getElementById('seitenleiste');
+    this.btnZurueck = document.getElementById('btn-zurueck');
+    this.btnThemeToggle = document.getElementById('btn-theme-toggle');
+    this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
+    this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
+    this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+
+    this.isReady = false;
+  }
+
+  init() {
+    this.applySettings();
+    this.attachListeners();
+    this.isReady = true;
+  }
+
+  applySettings() {
+    const layout = this.settings.layout || 'form-b';
+    setzeAttribut(document.documentElement, 'data-layout', layout);
+    if (layout === 'form-a') {
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormA), true);
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormB), false);
+    } else {
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormA), false);
+      setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormB), true);
+    }
+
+    const currentTheme = this.settings.theme || 'auto';
+    this.applyTheme(currentTheme);
+
+    const currentStyle = this.settings.style || 'default';
+    this.applyStyle(currentStyle);
+
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), this.settings.marks !== false);
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), Boolean(this.settings.pluginTestbrief));
+
+    /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
+     * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
+     * (20mm) zurueck. */
+    const randU = this.settings.randU === 30 ? 30 : 20;
+    this.settings.randU = randU;
+    document.documentElement.style.setProperty('--rand-u', `${randU}mm`);
+    const randUSwitch = document.getElementById('btn-rand-u-30');
+    if (randUSwitch instanceof HTMLInputElement) setzeSchalter(randUSwitch, randU === 30);
+
+    this.#spiegleLayoutFlags();
+    this.#applyPlugins();
+    /* Erst NACH dem Attribut-Spiegel: rendereZustand liest data-layout und
+       data-marks. Vorher stand der Aufruf davor und die Zeile zeigte den
+       alten Stand (gemessen 2026-11-13). */
+    this.rendereZustand();
+  }
+
+  /**
+   * Layout-Flags als data-Attribute am <html>. Das CSS liest sie; die
+   * Checkboxen sind nur noch Bedienoberfläche. Der Boot-Block setzt denselben
+   * Zustand vor dem ersten Paint — hier wird er nach jedem Settings-Update
+   * nachgezogen (und korrigiert, falls das Boot-Script scheiterte).
+   */
+  /**
+   * Plugin-Schalter: Body-Attribut fuer CSS. Der Mehrseiten-Modus ist fest
+   * eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]): kein Stylesheet-Tausch,
+   * kein Umschalt-Signal mehr — ein altes `pluginMultipage: false` im
+   * localStorage wird bewusst ignoriert.
+   */
+  #applyPlugins() {
+    const testbrief = Boolean(this.settings.pluginTestbrief);
+
+    document.documentElement.setAttribute('data-plugin-testbrief', String(testbrief));
+    document.documentElement.setAttribute('data-plugin-multipage', 'true');
+  }
+
+  #spiegleLayoutFlags() {
+    const root = document.documentElement;
+    setzeAttribut(root, 'data-marks', this.settings.marks === false ? 'false' : 'true');
+  }
+
+  /**
+   * @param {'auto' | 'light' | 'dark' | string} theme
+   */
+  applyTheme(theme) {
+    const validThemes = ['auto', 'light', 'dark'];
+    const active = validThemes.includes(theme) ? theme : 'auto';
+    this.settings.theme = active;
+
+    const updateDOM = () => {
+      document.documentElement.setAttribute('data-theme', active);
+      if (document.body) {
+        document.body.setAttribute('data-theme', active);
+      }
+
+      if (this.btnThemeToggle) {
+        /* Die Icon-Auswahl haengt an :root[data-theme] — boot.js setzt das
+         * Attribut blockierend vor dem ersten Paint. Hier nur noch Titel und
+         * Label, die ein aria-Live-freier Zustand nicht vorwegnehmen kann. */
+        const titles = /** @type {Record<string, string>} */ ({ auto: 'Darstellung: Automatisch (System)', light: 'Darstellung: Helles Design', dark: 'Darstellung: Dunkles Design' });
+        this.btnThemeToggle.setAttribute('title', titles[active] || 'Darstellung: Automatisch');
+        this.btnThemeToggle.setAttribute('aria-label', titles[active] || 'Darstellung: Automatisch');
+      }
+    };
+
+    const themeUnchanged = document.documentElement.getAttribute('data-theme') === active && (!document.body || document.body.getAttribute('data-theme') === active);
+    if (!themeUnchanged && this.isReady && this.#themeBooted) {
+      transitionOn(document, updateDOM);
+    } else {
+      updateDOM();
+    }
+    this.#themeBooted = true;
+  }
+
+  /**
+   * Schaltet zwischen Brief-Modus und Einstellungs-Modus der Seitenleiste um.
+   * @param {'brief' | 'einstellungen'} [force]
+   */
+  toggleSettingsModus(force) {
+    const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
+    if (!toggle) return;
+    const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
+    toggle.checked = isChecked;
+    toggle.dispatchEvent(new Event('change', { bubbles: true }));
+    /* Der Zustand liegt ausschliesslich in der nativen Checkbox — ein Tab-Stopp,
+       Space schaltet nativ. Das sichtbare Label traegt keine Rolle und keinen
+       tabindex (sonst zwei Controls im Accessibility-Tree; Befund B14: vorher
+       hatte es beides und war per Tastatur wirkungslos). */
+  }
+
+  /**
+   * @param {'default' | 'compact' | string} style
+   */
+  applyStyle(style) {
+    const validStyles = ['default', 'compact'];
+    const active = validStyles.includes(style) ? style : 'default';
+    this.settings.style = active;
+    document.documentElement.setAttribute('data-style', active);
+    if (this.styleSelect) {
+      this.styleSelect.value = active;
+    }
+  }
+
+  updateSettings() {
+    const gespeichert = saveJSON(STORAGE_KEYS.settings, this.settings);
+    if (!gespeichert) {
+      // saveJSON schluckt Quota-Fehler und gibt false zurück; ohne diese Prüfung
+      // verschwände der Zustand still (B46).
+      eventBus.publish(Events.DOCUMENT_SAVE_FAILED, {
+        message: 'Einstellungen konnten nicht gespeichert werden (Speicher voll?).'
+      });
+    }
+    this.applySettings();
+  }
+
+  /**
+   * Layout-Wechsel (Form A/B): Synchrones Umschalten ohne FOUC/Morphing.
+   * @param {'form-a' | 'form-b'} layout
+   */
+  changeLayout(layout) {
+    this.settings.layout = layout;
+    setzeAttribut(document.documentElement, 'data-layout', layout);
+    this.updateSettings();
+  }
+
+  /**
+   * Unterrand umschalten (20mm DIN 5008 | 30mm).
+   * @param {number} wert
+   */
+  changeRandU(wert) {
+    this.settings.randU = wert === 30 ? 30 : 20;
+    this.updateSettings();
+  }
+
+  /**
+   * Schreibt den Ist-Stand der globalen Einstellungen in die Statuszeile.
+   *
+   * Reine Anzeige: die Quelle bleibt data-layout / data-marks / die
+   * Einstellungen. Damit sieht man im Brief-Modus, warum das Blatt so
+   * aussieht, ohne in die Einstellungen zu wechseln.
+   */
+  rendereZustand() {
+    const ziel = document.getElementById('zustand-text');
+    if (!ziel) return;
+    const root = document.documentElement;
+    const layout = root.dataset.layout === 'form-a' ? 'Form A' : 'Form B';
+    const marks = root.dataset.marks === 'false' ? 'Falzmarken aus' : 'Falzmarken an';
+    const randU = this.settings.randU === 30 ? '30' : '20';
+    /* Schrift: den sichtbaren Eintrag der Auswahlliste lesen, statt die
+       Font-Presets zu importieren - die Liste ist die Anzeige-Wahrheit. */
+    const schriftSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
+    /* Options-Text kann "Liberation Sans / System-UI" heissen - fuer eine
+       Statuszeile reicht der erste Name. */
+    const schrift = (schriftSelect?.selectedOptions?.[0]?.textContent || 'System').split('/')[0].trim();
+    ziel.textContent = `${layout} · ${marks} · Schrift: ${schrift} · Unterrand ${randU} mm`;
+  }
+
+  attachListeners() {
+    /* Escape fuehrt aus dem Einstellungs-Modus zurueck. Der Schalter ist ein
+       Ansichtswechsel; ohne Tastenausgang sitzt man dort fest. Bindung hier,
+       nicht in toggleSettingsModus: der Modus wird rein ueber die native
+       Checkbox geschaltet (CSS), toggleSettingsModus laeuft dabei nie. */
+    const zustandKnopf = document.getElementById('btn-zustand-aendern');
+    if (zustandKnopf) {
+      zustandKnopf.addEventListener('click', () => this.toggleSettingsModus('einstellungen'));
+    }
+    /* Schriftwechsel laeuft ueber font-feature.js; hier nur die Anzeige
+       nachziehen (zweiter Listener, kein zweiter Schreiber). */
+    const schriftSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
+    if (schriftSelect) {
+      schriftSelect.addEventListener('change', () => this.rendereZustand());
+    }
+
+    const modusSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
+    /* Escape haengt an der Leiste, nicht an der Checkbox. Vorher kam man nur
+       heraus, wenn der Fokus auf dem Schalter stand; wer in der Schriftart-
+       Liste oder im Key-Feld stand, sass fest (Befund B14, gemessen 2026-11-13).
+       Offene Popover schliessen zuerst - die liegen im Top-Layer, aber im DOM
+       in der Leiste, also wuerde Escape sonst zwei Dinge gleichzeitig tun. */
+    const leiste = document.getElementById('seitenleiste');
+    if (leiste) {
+      leiste.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        if (document.querySelector(':popover-open')) return;
+        if (!modusSchalter?.checked) return;
+        event.preventDefault();
+        this.toggleSettingsModus('brief');
+        /* Der Fokus darf nicht in der gerade ausgeblendeten Zone bleiben. */
+        modusSchalter.focus();
+      });
+    }
+
+    if (this.btnFormA) {
+      this.btnFormA.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeLayout('form-a');
+      });
+    }
+    if (this.btnFormB) {
+      this.btnFormB.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeLayout('form-b');
+      });
+    }
+
+    if (this.btnZurueck) {
+      this.btnZurueck.addEventListener('click', (e) => {
+        if (!this.isReady) return;
+        e.preventDefault();
+        this.toggleSettingsModus('brief');
+      });
+    }
+
+    if (this.btnThemeToggle) {
+      this.btnThemeToggle.addEventListener('click', () => {
+        if (!this.isReady) return;
+        /** @type {Record<string, string>} */
+        const cycle = { auto: 'light', light: 'dark', dark: 'auto' };
+        const current = this.settings.theme || 'auto';
+        const next = cycle[current] || 'auto';
+        this.settings.theme = next;
+        this.updateSettings();
+      });
+    }
+
+    if (this.styleSelect) {
+      this.styleSelect.addEventListener('change', () => {
+        if (!this.isReady) return;
+        const val = this.styleSelect ? this.styleSelect.value : 'default';
+        this.applyStyle(val);
+        this.updateSettings();
+      });
+    }
+
+    const marksSwitch = this.btnMarksSwitch;
+    if (marksSwitch) {
+      marksSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.marks = marksSwitch.checked;
+        this.updateSettings();
+      });
+    }
+
+    const randUSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
+    if (randUSwitch) {
+      randUSwitch.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.changeRandU(randUSwitch.checked ? 30 : 20);
+      });
+    }
+
+    const pluginTestbrief = this.pluginTestbriefSwitch;
+    if (pluginTestbrief) {
+      pluginTestbrief.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.pluginTestbrief = pluginTestbrief.checked;
+        this.updateSettings();
+      });
+    }
+
+  }
+}
+
+
+==============================================================================
+===== main.js  (website/js/main.js, 372 Zeilen, sha256:0f30109c)
+==============================================================================
+
+// @ts-check
+// @adr [[ADR-JS]] 
+// @guide [[no-scroll-techniques]] 
+
+import { AddressIntelligence, initAddressServices, initSenderSync } from './address.js';
+import { ClipboardAddressParser } from './clipboard-parser.js';
+import { Events, eventBus, initToastSystem } from './core.js';
+import { collectDraft, initFormatSync, toggleBlockquote, toggleInlineFormat, UIProtections } from './document.js';
+import { DraftManager } from './draft-manager.js';
+import { Field } from './field.js';
+import { FontFeature } from './font-feature.js';
+import { applyLetterDate, formatTelefonnummer } from './format.js';
+/* js/main.js */
+import { initImportExport, MetadataService, requestPersistentStorage } from './persistence.js';
+import { SalutationFeature } from './salutation.js';
+import { SettingsManager } from './settings.js';
+import { SignatureFeature } from './signature.js';
+
+/**
+ * Spiegelt die "gefuellt"-Optik einer Auswahlliste ins Attribut.
+ *
+ * CSS liest `data-gesetzt` (pre-paint aus boot-state.js), nicht den
+ * Formularzustand: `:has(option:checked)` blendete die Aenderung nach dem
+ * Paint auf (gemessen 2026-11-12). Nur bei Abweichung schreiben.
+ * @param {HTMLSelectElement | null | undefined} sel
+ */
+function spiegleSelectGesetzt(sel) {
+  if (!sel) return;
+  const wert = sel.value !== '' ? 'true' : 'false';
+  if (sel.getAttribute('data-gesetzt') !== wert) sel.setAttribute('data-gesetzt', wert);
+}
+
+/**
+ * Setzt den Postvermerk im Blattfeld und hält die Auswahlliste synchron.
+ * Das Feld ist die Wahrheit (Sichtbarkeit folgt aus seinem Text), die Liste
+ * ist nur Bedienoberfläche.
+ * @param {string} [value]
+ */
+function syncPostvermerkFromSidebar(value) {
+  const sel = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+  const field = document.getElementById('vermerke');
+  if (!field) return;
+
+  const val = typeof value === 'string' ? value : (sel?.value ?? '');
+  if (sel && sel.value !== val) sel.value = val;
+  spiegleSelectGesetzt(sel);
+
+  /* Field statt textContent: #vermerke ist seit 2026-11-12 ein <input>.
+     Mit textContent blieb das Feld leer und zeigte nur seinen Platzhalter
+     ("Postvermerk") - gemeldet 2026-11-12. */
+  if (!val) {
+    Field.setValue(field, '');
+    field.removeAttribute('data-visible');
+    return;
+  }
+  Field.setValue(field, val);
+  field.setAttribute('data-visible', 'true');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+/**
+ * Sichtbarer Fallback, wenn ein kritischer Boot-Schritt scheitert. Ohne ihn
+ * bliebe die Seite in einem halb initialisierten Zustand stehen, ohne dass
+ * der Nutzer den Grund sieht.
+ * @param {string} schritt
+ * @param {unknown} fehler
+ */
+function zeigeBootFehler(schritt, fehler) {
+  const box = document.createElement('div');
+  box.setAttribute('role', 'alert');
+  box.style.cssText =
+    'position:fixed;inset:auto 0 0 0;z-index:9999;padding:12px 16px;background:#7f1d1d;color:#fff;' +
+    'font:14px/1.4 system-ui,sans-serif;white-space:pre-wrap';
+  box.textContent =
+    `Start fehlgeschlagen (${schritt}). Die Seite ist nicht vollständig funktionsfähig.\n` +
+    (fehler instanceof Error ? fehler.message : String(fehler));
+  document.body.appendChild(box);
+}
+
+/**
+ * Führt einen Boot-Schritt aus. Unkritische Fehler werden protokolliert, der
+ * Start läuft weiter; kritische zeigen den Fallback und brechen ab.
+ * @param {string} name
+ * @param {() => void} fn
+ * @param {{ critical?: boolean }} [optionen]
+ */
+function bootStep(name, fn, { critical = false } = {}) {
+  try {
+    fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    if (critical) {
+      zeigeBootFehler(name, fehler);
+      throw fehler;
+    }
+  }
+}
+
+/**
+ * Wie `bootStep`, aber liefert den Wert und meldet den Fehler sichtbar.
+ *
+ * Warum es das gibt: `new DraftManager()` stand vorher nackt in `initApp`. Der
+ * Konstruktor haengt die Speicher-Abos (`draft-manager.js`, `#initEventBus`);
+ * wirft er, bricht `initApp` ohne jede Meldung ab — die Seite sieht normal aus
+ * und speichert nichts. Gemessen 2026-11-12: das Abo auf
+ * `DOCUMENT_SAVE_REQUESTED` entsteht ausschliesslich im Konstruktor.
+ * @template T
+ * @param {string} name
+ * @param {() => T} fn
+ * @returns {T}
+ */
+function kritischerWert(name, fn) {
+  try {
+    return fn();
+  } catch (fehler) {
+    console.error(`[Bootstrap] ${name} fehlgeschlagen:`, fehler);
+    zeigeBootFehler(name, fehler);
+    throw fehler;
+  }
+}
+
+function initApp() {
+  // Kritische Barriere: ohne Briefblatt und Betreff ist nichts benutzbar.
+  bootStep('DOM-Grundgerüst', () => {
+    if (!document.querySelector('din-blatt') || !document.getElementById('betreff')) {
+      throw new Error('Briefblatt (din-blatt) oder Betreff fehlt im DOM.');
+    }
+  }, { critical: true });
+
+  bootStep('Altlasten entfernen', () => {
+    /* Binär-Assets liegen seit Schema-Umstellung in IndexedDB ([[ADR-BINARY-ASSETS]]).
+     * Die alten Base64-Schlüssel werden bewusst verworfen, nicht migriert. */
+    localStorage.removeItem('din_custom_font');
+    localStorage.removeItem('din_signature_asset');
+  });
+  bootStep('Dauerhafter Speicher', () => requestPersistentStorage());
+
+  const draftManager = kritischerWert('Speicher-Abos', () => new DraftManager());
+  /* Kritisch, weil ein stiller Fehlschlag hier den gespeicherten Entwurf
+     verbirgt: die Seite startet leer, der naechste Tastendruck speichert darueber.
+     Besser sichtbar abbrechen als den Entwurf ueberschreiben. */
+  bootStep('Entwurf laden', () => {
+    draftManager.loadDraft();
+    AddressIntelligence.targetLock = null;
+  }, { critical: true });
+  bootStep('Postvermerk', () => {
+    /* Zustand steht schon aus boot-state.js (vor dem Paint). Nur schreiben,
+       wenn Liste und Feld wirklich auseinanderlaufen — sonst zweiter Schreiber. */
+    const pvWert = Field.getValue(document.getElementById('vermerke')).trim();
+    const pvAuswahl = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('seitenleiste-postvermerk-select')
+    );
+    if (!pvAuswahl || pvAuswahl.value !== pvWert) syncPostvermerkFromSidebar(pvWert);
+  });
+  bootStep('Briefdatum', () => applyLetterDate());
+
+  const uiProtections = kritischerWert('UI-Schutz-Objekt', () => new UIProtections());
+  bootStep('UI-Schutz', () => uiProtections.init());
+  bootStep('Telefon-Formatierung', () => setupPhoneFormatting());
+
+  const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
+  bootStep('Einstellungen', () => settingsManager.init());
+
+  bootStep('Plugins', () => {
+    // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
+    // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.
+    import('./multipage-controller.js')
+      .then((m) => m.mountMultipage())
+      .catch((err) => console.error('[Plugins] Mehrseiten-Start fehlgeschlagen:', err));
+  });
+
+  /* Kritisch: hier entsteht der Listener input -> Speichern. Faellt er aus,
+     tippt der Nutzer in eine vollstaendig wirkende App, und nichts wird
+     gespeichert (main.js:191, gemessen 2026-11-12). */
+  bootStep('Globale Listener', () => attachGlobalListeners(draftManager), { critical: true });
+  bootStep('Toast-System', () => initToastSystem());
+  bootStep('Absender-Sync', () => initSenderSync());
+  bootStep('Adressdienste', () => initAddressServices());
+  bootStep('Import/Export', () => initImportExport({ collectDraft }));
+  bootStep('Clipboard-Button', () => ClipboardAddressParser.wireSidebarButton());
+  bootStep('Anrede', () => new SalutationFeature(settingsManager).init());
+  bootStep('Signatur', () => new SignatureFeature(settingsManager).init());
+  bootStep('Schriftart', () => new FontFeature(settingsManager).init());
+  bootStep('Testdaten', () => initTestData());
+
+  bootStep('Darstellung freigeben', () => {
+    // data-ready schaltet die Platzhalter frei (siehe sheet-common.css).
+    // Bei Fehlschlag dieses Schritts versteckt boot.js sie nach 2 s (Sicherheitsnetz).
+    document.documentElement.dataset.ready = 'true';
+  });
+}
+
+  /**
+   * @param {DraftManager} draftManager
+   */
+  function attachGlobalListeners(draftManager) {
+    const btnPrint = document.getElementById('btn-print');
+    const btnReset = document.getElementById('btn-reset');
+    /** @type {any} */
+    let metaCtx = null;
+    window.addEventListener('beforeprint', () => {
+      metaCtx = MetadataService.prepare();
+    });
+    window.addEventListener('afterprint', () => {
+      if (metaCtx) {
+        MetadataService.restore(metaCtx);
+        metaCtx = null;
+      }
+    });
+
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    const resetDialog = /** @type {HTMLDialogElement} */ (document.getElementById('reset-dialog'));
+
+    if (btnReset && resetDialog) {
+      resetDialog.addEventListener('close', () => {
+        const confirmed = resetDialog.returnValue === 'confirm';
+        queueMicrotask(() => { resetDialog.returnValue = ''; });
+        if (!confirmed) return;
+
+        /* Kein zweites Undo-Popover: der Dialog fragt bereits „Möchtest du
+           alle Texte wirklich zurücksetzen?". Ein „Rückgängig"-Hinweis danach
+           erklärt den Nutzer für unmündig (Entscheidung 2026-11-12). */
+        draftManager.resetDraft();
+        applyLetterDate();
+        AddressIntelligence.targetLock = null;
+      });
+    }
+
+    const briefblatt = document.querySelector('din-blatt') || document;
+    briefblatt.addEventListener('input', (e) => {
+      if (
+        e.target instanceof Element &&
+        e.target.closest('[contenteditable], input[data-atom], textarea[data-feldtyp]')
+      ) {
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      }
+    });
+    // Natives select: ein change-Event deckt Maus, Tastatur und Picker ab.
+    const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
+    if (pvSelect) {
+      pvSelect.addEventListener('change', () => {
+        syncPostvermerkFromSidebar(pvSelect.value);
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
+
+    /* "Gefuellt"-Optik aller Auswahllisten folgt dem Wert, auch wenn der
+       Nutzer waehlt oder die Liste programmatisch gesetzt wird. */
+    for (const liste of document.querySelectorAll('select.seitenleiste-select')) {
+      const select = /** @type {HTMLSelectElement} */ (liste);
+      select.addEventListener('change', () => spiegleSelectGesetzt(select));
+    }
+
+    const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
+    if (anlagenSwitch) {
+      anlagenSwitch.addEventListener('change', () => {
+        /* Attribut ist die Wahrheit fuer CSS (pre-paint gesetzt), der Schalter
+           ist das Eingabegeraet - beide hier synchron halten. */
+        document.documentElement.setAttribute('data-anlagen', anlagenSwitch.checked ? 'true' : 'false');
+        const anlagenEl = document.getElementById('anlagen-angabe');
+        if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
+          anlagenEl.value = 'Anlage 1';
+        }
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
+
+    // Der Fuss-Schalter hat keine eigene UI-Logik, braucht aber denselben
+    // Speicherimpuls: ohne ihn landet sein Zustand nie im Entwurf und ist nach
+    // einem Neuladen weg.
+    for (const id of ['toggle-fuss']) {
+      const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
+      if (!schalter) continue;
+      schalter.addEventListener('change', () => {
+        document.documentElement.setAttribute('data-fuss', schalter.checked ? 'true' : 'false');
+        eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
+      });
+    }
+
+    // Textformatierung (B, I, ❝): Range-API, kein nativer Editing-Befehl (A52). pointerdown
+    // + preventDefault haelt Fokus und Selection im #text, sonst wirkt der
+    // Umbau ins Leere und auf Touch kollabiert die Auswahl.
+    const btnBold = document.getElementById('btn-bold');
+    const btnItalic = document.getElementById('btn-italic');
+    const btnQuote = document.getElementById('btn-quote');
+    const textEl = document.getElementById('text');
+    if (btnBold && btnItalic && btnQuote && textEl) {
+      for (const btn of [btnBold, btnItalic, btnQuote]) {
+        btn.addEventListener('pointerdown', (e) => e.preventDefault());
+      }
+      btnBold.addEventListener('click', () => toggleInlineFormat(textEl, 'b'));
+      btnItalic.addEventListener('click', () => toggleInlineFormat(textEl, 'i'));
+      btnQuote.addEventListener('click', () => toggleBlockquote(textEl));
+      initFormatSync();
+    }
+  }
+
+/**
+ * Verdrahtet die Testdaten- & Demo-Buttons. Das Plugin wird erst beim Klick geladen,
+ * damit weder Figurendaten noch Demo-Texte im Startpfad liegen.
+ */
+function initTestData() {
+  const btnTestbrief = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-testbrief'));
+  if (btnTestbrief) {
+    btnTestbrief.addEventListener('click', async () => {
+      try {
+        const plugin = await import('../addons/testbrief/testbrief.js');
+        await plugin.starteTestbrief();
+      } catch (error) {
+        console.warn('[Testbrief] Plugin nicht verfügbar:', error);
+        btnTestbrief.disabled = true;
+        btnTestbrief.title = 'Testbrief-Plugin nicht gefunden';
+      }
+    });
+  }
+
+  const btnDemoLang = document.getElementById('btn-demo-lang');
+  if (btnDemoLang) {
+    btnDemoLang.addEventListener('click', async () => {
+      try {
+        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
+        fuelleDemoText('lang');
+      } catch (error) {
+        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
+      }
+    });
+  }
+
+  const btnDemoKurz = document.getElementById('btn-demo-kurz');
+  if (btnDemoKurz) {
+    btnDemoKurz.addEventListener('click', async () => {
+      try {
+        const { fuelleDemoText } = await import('../addons/testbrief/testbrief.js');
+        fuelleDemoText('kurz');
+      } catch (error) {
+        console.warn('[Testbrief] Demo-Text nicht verfügbar:', error);
+      }
+    });
+  }
+}
+
+/**
+ * DIN 5008 11.3.2: Formatierung deutscher Rufnummern beim Verlassen des Telefonfeldes.
+ * Bewusst nur bei blur, nicht während des Tippens.
+ */
+function setupPhoneFormatting() {
+  const tel = document.getElementById('absender-tel');
+  if (!tel) return;
+  tel.addEventListener('blur', () => {
+    /* Field statt textContent: `#absender-tel` ist seit 2026-11-12 ein
+       <input>. textContent ist dort immer leer - die Formatierung lief
+       dadurch nie (gemeldet 2026-11-12 im Umfeld des Empfaenger-Feldes). */
+    const current = Field.getValue(tel).trim();
+    if (!current) return;
+    const formatted = formatTelefonnummer(current);
+    if (formatted && formatted !== current) {
+      Field.setValue(tel, formatted);
+      tel.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  });
+}
+
+
+==============================================================================
+===== base.css  (website/css/base.css, 360 Zeilen, sha256:a0d7f684)
+==============================================================================
+
+/* @adr [[ADR-CSS]] */
+/* @guide [[din-5008-css-architektur]] */
+
+/* =========================================================================================
+ * css/base.css — Fundament: Reset, Design-Tokens (OKLCH, No-Flip), DIN-Mathematik & App-Shell
+ * ========================================================================================= */
+
+/* --- 1. RESET --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* --- 1a. KEIN UEBERGANG VOR DEM ERSTEN FRAME (FOUC-Sperre) ---
+ * Beim Laden setzt der Seeder (boot.js im Head, boot-state.js am Body-Ende)
+ * den Zustand NACH dem ersten Style-Durchlauf. Jede Eigenschaft, die daran
+ * haengt, blendet dann ueber 150-200 ms "auf" — quer ueber den ersten Paint.
+ * Gemessen 2026-11-12 (CDP, Cache aus): FCP 64 ms, aber der Postvermerk-Select
+ * lief mit background-color/box-shadow von 30 ms bis ueber 139 ms, ebenso
+ * eine Label-Farbe. Das war das sichtbare Wackeln bei Strg+F5.
+ * Loesung: bis der Zustand steht (data-seeded, Netz data-ready), gibt es
+ * keine Uebergaenge. Danach sind sie unveraendert da (Hover, Fokus, Klick).
+ * NICHT ENTFERNEN und NICHT auf einzelne Selektoren verengen: die naechste
+ * zustandsabhaengige Eigenschaft faellt sonst in dieselbe Falle. Die Wahrheit
+ * steht vor dem Paint als Attribut am <html> (siehe DECISION-LOG). */
+:root:not([data-seeded="true"]):not([data-ready="true"]) *,
+:root:not([data-seeded="true"]):not([data-ready="true"]) *::before,
+:root:not([data-seeded="true"]):not([data-ready="true"]) *::after {
+  transition: none !important;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: var(--font-system-stack);
+}
+
+/* Accessibility: prefers-reduced-motion — Kill-Switch für alle CSS-Animationen */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Accessibility: Skip-Link für Tastaturnavigation */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  padding: 8px 16px;
+  background: var(--accent-color, oklch(40% 0.14 260));
+  color: oklch(100% 0 0);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 6px 0;
+  box-shadow: 0 4px 12px oklch(0% 0 0 / 25%);
+  outline: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 0;
+  outline: 2px solid oklch(100% 0 0);
+  outline-offset: -2px;
+}
+
+/* --- LOKALE TEST-SCHRIFTEN (DIN-5008-SUBSET) --- */
+@font-face {
+  font-family: "Test-Inter";
+  src: url("../fonts/inter_18pt-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Inter";
+  src: url("../fonts/inter_18pt-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Aptos";
+  src: url("../fonts/aptos.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test-Michelangelus";
+  src: url("../fonts/michelangelus-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+din-blatt {
+  font-family: var(--active-font-family, var(--font-system-stack));
+  font-size-adjust: 0.52;
+  font-variant-numeric: tabular-nums;
+}
+body {
+  background-color: var(--bg-viewport);
+  color: var(--text-primary);
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- 2. DESIGN TOKENS (OKLCH & NO-FLIP) --- */
+:root {
+  color-scheme: light dark;
+  interpolate-size: allow-keywords;
+  view-transition-name: none;
+
+  /* --- TAGMODUS --- */
+  --c-viewport-day: oklch(0.96 0.01 250);
+  --c-seitenleiste-day: oklch(0.98 0.005 250);
+  --c-card-day: oklch(1 0 0);
+  --c-border-day: oklch(0.90 0.01 250);
+  --c-text-day: oklch(0.15 0.02 250);
+  --c-muted-day: oklch(0.45 0.02 250);
+  --c-accent-day: oklch(0.40 0.14 260);
+  --c-danger-day: oklch(0.55 0.22 25);
+  --c-segment-day: oklch(0.92 0.01 250);
+  --c-blatt-day: oklch(100% 0 0);
+  --c-tinte-day: oklch(0% 0 0);
+  --c-schwach-day: oklch(50% 0 0);
+
+  /* --- NACHTMODUS (NO-FLIP: Konsistente dunkle Schrift, blendfrei heruntergedimmt) --- */
+  --c-viewport-night: oklch(0.68 0.01 250);       /* Dunklerer Schreibtisch (gibt dem Blatt Tiefe) */
+  --c-seitenleiste-night: oklch(0.74 0.015 250);   /* Mattes, ruhiges Werkzeug-Grau */
+  --c-card-night: oklch(0.79 0.01 250);           /* Input-Karten heben sich dezent ab */
+  --c-border-night: oklch(0.60 0.02 250);         /* Saubere Konturlinien */
+  --c-text-night: oklch(0.15 0.02 250);           /* 🚨 KEIN FLIP! Sattes Anthrazit-Dunkel */
+  --c-muted-night: oklch(0.35 0.02 250);          /* Gedämpftere Beschriftungen */
+  --c-accent-night: oklch(0.35 0.13 260);         /* Dunkleres Akzent-Blau/Violett (lesbar auf Grau) */
+  --c-danger-night: oklch(0.35 0.20 25);
+  --c-segment-night: oklch(0.69 0.015 250);       /* Schalter-Vertiefungen */
+  --c-blatt-night: oklch(0.85 0.005 250);         /* Gedimmtes Papier (blendfrei, wie Papier unter Abendlampe) */
+  --c-tinte-night: oklch(0.12 0.01 250);          /* Dunkle Tinte auf Papier */
+  --c-schwach-night: oklch(0.40 0.01 250);        /* Hilfslinien und Platzhalter */
+
+  /* --- DYNAMISCHE TOKEN-AUFLÖSUNG (light-dark) --- */
+  --bg-viewport: light-dark(var(--c-viewport-day), var(--c-viewport-night));
+  --bg-seitenleiste: light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night));
+  --bg-seitenleiste-glass: color-mix(in oklch, light-dark(var(--c-seitenleiste-day), var(--c-seitenleiste-night)) 80%, transparent);
+  --bg-card: light-dark(var(--c-card-day), var(--c-card-night));
+  --border-color: light-dark(var(--c-border-day), var(--c-border-night));
+  --text-primary: light-dark(var(--c-text-day), var(--c-text-night));
+  --text-muted: light-dark(var(--c-muted-day), var(--c-muted-night));
+
+  --blatt-hintergrund: light-dark(var(--c-blatt-day), var(--c-blatt-night));
+  --blatt-text: light-dark(var(--c-tinte-day), var(--c-tinte-night));
+  --blatt-schwach: light-dark(var(--c-schwach-day), var(--c-schwach-night));
+
+  --accent-color: light-dark(var(--c-accent-day), var(--c-accent-night));
+  --accent-hover: color-mix(in oklch, var(--accent-color) 90%, oklch(0% 0 0));
+  --accent-glow: color-mix(in oklch, var(--accent-color) 15%, transparent);
+
+  --segment-bg: light-dark(var(--c-segment-day), var(--c-segment-night));
+  --segment-active-bg: light-dark(var(--c-card-day), var(--c-border-night));
+  --segment-active-text: var(--text-primary);
+  --segment-active-shadow: 0 1px 3px oklch(0 0 0 / 8%);
+
+  --c-primary: var(--accent-color);
+  --c-success: light-dark(oklch(0.40 0.14 145), oklch(0.82 0.14 145));
+  --c-warning: light-dark(oklch(0.75 0.14 75), oklch(0.80 0.12 75));
+  --c-danger: light-dark(var(--c-danger-day), var(--c-danger-night));
+
+  --shadow-lg: 0 16px 40px oklch(0% 0 0 / 12%);
+  --glass-blur: blur(20px);
+
+  --font-system-stack: "Aptos", "Aptos Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
+  --active-font-family: var(--font-system-stack);
+  --schrift-stack: var(--font-system-stack);
+
+  /* --- 3. SPACING (2px-Raster, rem-basiert) --- */
+  --space-2xs: 0.125rem;  /*  2px */
+  --space-xs:  0.25rem;   /*  4px */
+  --space-sm:  0.375rem;  /*  6px */
+  --space-md:  0.5rem;    /*  8px */
+  --space-lg:  0.625rem;  /* 10px */
+  --space-xl:  0.75rem;   /* 12px */
+  --space-2xl: 1rem;      /* 16px */
+  --space-3xl: 1.25rem;   /* 20px */
+
+  /* --- 4. RADII (rem-basiert) --- */
+  --radius-xs:   0.25rem;   /*  4px */
+  --radius-sm:   0.375rem;  /*  6px */
+  --radius-md:   0.5rem;    /*  8px */
+  --radius-lg:   0.625rem;  /* 10px */
+  --radius-xl:   0.75rem;   /* 12px */
+  --radius-full: 999px;     /* Pillen */
+
+  /* --- 5. LAYOUT --- */
+  --seitenleiste-breite: 18.75rem; /* 300px */
+}
+
+/* --- THEME: COMPACT --- */
+[data-style="compact"] {
+  --space-2xl: 0.75rem;   /* 16px -> 12px */
+  --space-xl:  0.5rem;    /* 12px -> 8px  */
+  --space-lg:  0.375rem;  /* 10px -> 6px  */
+  --space-md:  0.25rem;   /*  8px -> 4px  */
+  --space-xs:  0.125rem;  /*  4px -> 2px  */
+
+  --radius-lg: 0.25rem;   /* 10px -> 4px */
+  --radius-md: 0.25rem;   /*  8px -> 4px */
+  --radius-sm: 0.125rem;  /*  6px -> 2px */
+
+  /* --seitenleiste-breite bleibt unverändert 18.75rem */
+}
+
+/* --- 3. DIN-MATHEMATIK (@function) --- */
+@function --mm-rel-x(--mm) {
+  result: calc(var(--mm) / var(--blatt-breite) * 100cqw);
+}
+@function --mm-rel-y(--mm) {
+  result: calc(var(--mm) / var(--blatt-hoehe) * 100cqh);
+}
+@function --pt-rel(--points) {
+  result: calc(var(--points) * 0.3528 / var(--blatt-breite) * 100cqw);
+}
+
+@function --mm-x(--mm) {
+  result: --mm-rel-x(var(--mm));
+}
+@function --mm-y(--mm) {
+  result: --mm-rel-y(var(--mm));
+}
+@function --pt(--points) {
+  result: --pt-rel(var(--points));
+}
+
+:root[data-theme="light"],
+[data-theme="light"] body,
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] body,
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="auto"],
+[data-theme="auto"] body,
+body[data-theme="auto"] {
+  color-scheme: light dark;
+}
+
+[popover] {
+  color-scheme: inherit;
+}
+
+/* --- 4. APP SHELL & VIEWPORT GRID --- */
+#app-shell {
+  display: grid;
+  grid-template-columns: var(--seitenleiste-breite) 1fr;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  min-height: 0;
+}
+#viewport {
+  height: 100%;
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  position: relative;
+  background: var(--bg-viewport);
+  padding: 2vh 1.5vw;
+  min-height: 0;
+  box-sizing: border-box;
+  container-type: size;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  view-transition-name: brief-viewport;
+}
+
+html:active-view-transition::view-transition-old(brief-viewport),
+html:active-view-transition::view-transition-new(brief-viewport) {
+  animation-duration: 0.6s;
+}
+::view-transition {
+  pointer-events: none;
+}
+
+/* --- Gemeinsame Druck-Resets (Einzel- und Mehrseitenansicht) ---
+   Liegen zentral in base.css, weil beide Druck-Stylesheets sie brauchten;
+   die print-Dateien behalten nur ihre Geometrie. */
+@media print {
+:root, body, din-blatt {
+  color-scheme: light !important;
+  print-color-adjust: exact !important;
+}
+
+din-falzmarke-1, din-falzmarke-2, din-lochmarke { opacity: 1 !important; }
+
+din-falzmarke-1::after, din-falzmarke-2::after, din-lochmarke::after { visibility: hidden !important; }
+
+:root[data-marks="false"] din-falzmarke-1,
+:root[data-marks="false"] din-falzmarke-2,
+:root[data-marks="false"] din-lochmarke {
+  visibility: hidden !important;
+}
+
+#app-shell { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; }
+
+.unterschriftsbild-rahmen { outline: none !important; }
+
+[contenteditable]:empty::before,
+[data-placeholder]:empty::before,
+[placeholder]:empty::before {
+    display: none !important;
+}
+
+/* Druck-Reset fuer ALLE Blattfelder. `input[data-atom]` fehlte, seit die
+   Einzeiler migriert sind (Befund B12/S3) — im Regelfall faellt es nicht auf,
+   weil beforeprint blurrt, aber die Regel soll nicht von diesem Zufall
+   abhaengen. */
+[contenteditable],
+:is(textarea[data-feldtyp], input[data-atom]) {
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+/* Natives Placeholder-Hilfsmittel darf nie auf Papier landen. */
+textarea[data-feldtyp]::placeholder {
+    color: transparent !important;
+}
+
+[data-generated] {
+    color: inherit !important;
+    font-style: normal !important;
+}
+
+/* Die Rücksendezeile bekommt KEINEN Unterstrich: DIN 5008 § 19.4.3 macht sie
+   zur obersten Zeile der Zusatz- und Vermerkzone — abgegrenzt durch ihre
+   Position, nicht durch eine Linie. Hier stand ein `border-bottom: 0.5pt`
+   (plus `padding-bottom: 1.5pt` als Abstand dazu) nur im Druck, weshalb der
+   Bildschirm ohne Linie war und das PDF mit (2026-11-11 entfernt). */
+#rucksendeangabe {
+  border-radius: 0 !important;
+}
+}
+

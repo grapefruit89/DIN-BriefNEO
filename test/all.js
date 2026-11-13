@@ -4538,14 +4538,28 @@ describe('Adresssuche: Relevanz statt Antwort-Reihenfolge (2026-11-13)', () => {
 
   it('Stadt- und PLZ-Treffer werden nicht verworfen (Ratsche)', async () => {
     const src = await (await fetch('/website/js/address.js')).text();
-    assert(src.includes('s.city || s.postcode'), 'Filter laesst Treffer ohne Strasse durch');
+    assert(src.includes('!s.city && !s.postcode'), 'Filter laesst Treffer ohne Strasse durch');
     assert(!src.includes('s.street && s.city'), 'alter Filter ist entfernt');
     assert(src.includes('adressRelevanz(a, query) - adressRelevanz(b, query)'), 'Sortierung nach Relevanz');
   });
 
   it('ein Stadt-Treffer leert das Strassenfeld nicht (Ratsche)', async () => {
     const src = await (await fetch('/website/js/address.js')).text();
-    assert(src.includes('empfStrasse && (item.street || item.housenumber)'), 'Strasse nur bei Strassentreffer');
+    assert(src.includes('empfStrasse && item.street'), 'Strasse nur bei Strassentreffer');
+  });
+
+  it('ohne API-Key sucht das Ortsverzeichnis (PLZ und Ort)', async () => {
+    const src = await (await fetch('/website/js/address.js')).text();
+    assert(src.includes('plzToCity.get(q)'), 'exakte PLZ ohne Netz');
+    assert(src.includes('lookupPrefix(q, 8)'), 'PLZ-Praefix ohne Netz');
+    assert(src.includes('lookupUniversal(query, 8)'), 'Ort/Name ohne Netz');
+  });
+
+  it('Hausnummern stehen nicht in den Vorschlaegen (Ratsche)', async () => {
+    /* Nutzerwunsch 2026-11-13: nur korrekte Strassennamen, keine Nummern. */
+    const src = await (await fetch('/website/js/address.js')).text();
+    assert(!src.includes('p.housenumber'), 'Geoapify-Hausnummer wird nicht uebernommen');
+    assert(src.includes("[street, [postcode, city]"), 'Anzeige ist Strasse + PLZ + Ort');
   });
 });
 

@@ -899,6 +899,52 @@ export function initAddressServices() {
     }
   }
 
+  /**
+   * Sucht im eingebauten PLZ-/Ortsverzeichnis (ohne Netz, ohne Key).
+   * Liefert nur Ort/PLZ - das Verzeichnis kennt keine Strassennamen.
+   * @param {string} query
+   * @returns {AddressEntry[]}
+   */
+  function sucheOffline(query) {
+    try {
+      const q = String(query || '').trim();
+      /* PLZ-Suche: lookupUniversal durchsucht nur Namen. 5 Ziffern = exakt,
+         3-4 = Praefix (lookupPrefix kennt nur diesen Bereich). */
+      if (/^\d{5}$/.test(q)) {
+        const stadt = AddressIntelligence.plzToCity.get(q);
+        if (stadt) return [{ street: '', housenumber: '', postcode: q, city: stadt, formatted: `${q} ${stadt}`, source: 'offline' }];
+        return [];
+      }
+      if (/^\d{3,4}$/.test(q)) {
+        /** @type {AddressEntry[]} */
+        const treffer = (AddressIntelligence.lookupPrefix(q, 8) || []).map((t) => {
+          const plz = String(t.plz || '');
+          const stadt = String(t.city || '');
+          return { street: '', housenumber: '', postcode: plz, city: stadt, formatted: `${plz} ${stadt}`.trim(), source: 'offline' };
+        });
+        return treffer;
+      }
+      const res = AddressIntelligence.lookupUniversal(query, 8);
+      return (res.items || []).map((i) => {
+        const plz = i.plz || '';
+        const stadt = i.city || i.name || '';
+        const istOrt = i.typ === 'Stadt';
+        return {
+          street: '',
+          housenumber: '',
+          postcode: plz,
+          city: stadt,
+          formatted: istOrt
+            ? [plz, stadt].filter(Boolean).join(' ')
+            : `${i.name}${plz ? `, ${plz} ${stadt}` : ''}`,
+          source: 'offline'
+        };
+      });
+    } catch {
+      return [];
+    }
+  }
+
   // --- LOCAL ADDRESS BOOK FEATURE ---
   /**
    * @returns {AddressEntry[]}
@@ -969,18 +1015,22 @@ export function initAddressServices() {
     for (const m of localMatches) {
       m.source = 'local';
     }
-    /* Ohne API-Schlüssel und ohne gespeicherte Adresse blieb das Popover zu -
-       das Feld wirkte defekt. Statt es zu deaktivieren (die lokalen Adressen
-       funktionieren ja), sagen wir, warum nichts kommt. */
-    if (!localMatches.length && !load(STORAGE_KEYS.geoapifyKey, '')) {
-      zeigeSuchHinweis('Ohne API-Schlüssel: nur gespeicherte Adressen. Key in den Einstellungen setzen.');
+    /* Ohne API-Key war das Feld praktisch tot: nur das persoenliche
+       Adressbuch wurde durchsucht. Jetzt kommt das eingebaute PLZ-/Orts-
+       verzeichnis dazu - es kennt Orte, PLZ, Ortsteile und Firmen, aber
+       KEINE Strassennamen. Strassen brauchen weiter den Key. */
+    const offlineMatches = sucheOffline(query);
+    const sofort = mischeNachRelevanz([localMatches, offlineMatches], query);
+
+    if (!sofort.length && !load(STORAGE_KEYS.geoapifyKey, '')) {
+      zeigeSuchHinweis('Keine Treffer im Ortsverzeichnis. Strassen suchen braucht einen API-Schlüssel (Einstellungen).');
     } else {
-      renderSuggestions(localMatches, query, false);
+      renderSuggestions(sofort, query, false);
     }
 
     // 2. REMOTE SEARCH (Debounced)
     debounceSearchTimeout = setTimeout(() => {
-      performAddressSearch(query, localMatches, generation);
+      performAddressSearch(query, sofort, generation);
     }, 200);
   });
 
@@ -1034,17 +1084,30 @@ export function initAddressServices() {
       }
       const data = await response.json();
 
+      /* Hausnummern raus (Nutzerwunsch 2026-11-13): es geht um die korrekten
+         Strassennamen. Die Anzeige ist Strasse + PLZ + Ort, ohne Nummer; so
+         fallen auch die vielen Treffer derselben Strasse zu einem zusammen. */
+      const gesehen = new Set();
       /** @type {AddressEntry[]} */
       const parsedSuggestions = (data.results || []).map((/** @type {any} */ p) => {
+        const street = p.street || '';
+        const postcode = p.postcode || '';
+        const city = p.city || '';
         return {
-          street: p.street || '',
-          housenumber: p.housenumber || '',
-          postcode: p.postcode || '',
-          city: p.city || '',
-          formatted: p.formatted || [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(', '),
+          street,
+          housenumber: '',
+          postcode,
+          city,
+          formatted: [street, [postcode, city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
           source: 'geoapify'
         };
-      }).filter((/** @type {AddressEntry} */ s) => s.city || s.postcode);
+      }).filter((/** @type {AddressEntry} */ s) => {
+        if (!s.city && !s.postcode) return false;
+        const schluessel = `${s.street}|${s.postcode}`;
+        if (gesehen.has(schluessel)) return false;
+        gesehen.add(schluessel);
+        return true;
+      });
       /* Frueher mussten Strasse UND Stadt vorhanden sein; jede Stadt- oder
          PLZ-Suche (ohne Strasse) fiel damit komplett raus - "Troisdorf" und
          "53840" zeigten gar nichts (gemeldet 2026-11-13). */
@@ -1074,19 +1137,32 @@ export function initAddressServices() {
    * @param {AddressEntry[]} remoteMatches 
    * @param {string} query 
    */
-  function mergeAndRender(localMatches, remoteMatches, query) {
+  /**
+   * Mischt Quellen dublettenfrei und sortiert nach Relevanz.
+   * @param {AddressEntry[][]} quellen
+   * @param {string} query
+   * @returns {AddressEntry[]}
+   */
+  function mischeNachRelevanz(quellen, query) {
     /** @type {AddressEntry[]} */
-    const combined = [...localMatches];
-    remoteMatches.forEach(ps => {
-      if (!combined.find(c => c.formatted === ps.formatted)) {
-        combined.push(ps);
+    const combined = [];
+    for (const quelle of quellen) {
+      for (const eintrag of quelle) {
+        if (combined.some((c) => c.formatted === eintrag.formatted)) continue;
+        combined.push(eintrag);
       }
-    });
-    /* Relevanz statt Antwort-Reihenfolge: PLZ exakt, PLZ-Praefix, Strasse,
-       Stadt, irgendwo enthalten. Bei Gleichstand bleibt die Einfuege-Reihenfolge
-       (sort ist stabil), also lokale Treffer vor remote. */
+    }
     combined.sort((a, b) => adressRelevanz(a, query) - adressRelevanz(b, query));
-    renderSuggestions(combined, query, true);
+    return combined;
+  }
+
+  /**
+   * @param {AddressEntry[]} localMatches
+   * @param {AddressEntry[]} remoteMatches
+   * @param {string} query
+   */
+  function mergeAndRender(localMatches, remoteMatches, query) {
+    renderSuggestions(mischeNachRelevanz([localMatches, remoteMatches], query), query, true);
   }
 
   /**
@@ -1171,8 +1247,8 @@ export function initAddressServices() {
 
     /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
        keine Strasse und darf das Empfaengerfeld nicht leeren. */
-    if (empfStrasse && (item.street || item.housenumber)) {
-      Field.setValue(empfStrasse, `${item.street} ${item.housenumber}`.trim());
+    if (empfStrasse && item.street) {
+      Field.setValue(empfStrasse, item.street);
     }
     if (empfOrt && (item.postcode || item.city)) {
       Field.setValue(empfOrt, `${item.postcode} ${item.city}`.trim());

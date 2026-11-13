@@ -2856,3 +2856,23 @@ bewusst nicht: Media Query in `base.css`, ein Request, eine Kaskade.
 
 **Folge:** Die Seitenleiste scrollt bei 1007 px Hoehe jetzt um 30 px
 (1037). Bewusst akzeptiert — Statuszeile und Reihenfolge waren die Anforderung.
+
+### 2026-11-13 — Adresssuche: Position, Hausnummern, Offline-Betrieb
+
+Drei Nutzerbefunde, alle am laufenden Objekt reproduziert:
+
+1. **Dropdown unten rechts** (gemessen: x=1497 statt x=16). Zwei Ursachen:
+   `position-area` loeste in dieser Kombination falsch auf, und das UA-Popover
+   setzt `inset: 0` + `margin: auto`, wodurch das Element mit gesetztem
+   `left`/`top` im Restraum zentriert wird. Jetzt: `position-anchor` +
+   `top: anchor(bottom); left: anchor(left)`, `inset: auto`, `margin: 4px 0 0`.
+   Messung: Suchliste Desktop [16,272], mobil [16,312], PLZ-Liste [730,250] —
+   jeweils direkt unter dem Feld.
+2. **Hausnummern raus** (Nutzerwunsch): die Anzeige ist Strasse + PLZ + Ort,
+   ohne Nummer; gleiche Strasse mit verschiedenen Nummern faellt zu einem
+   Treffer zusammen. Beim Uebernehmen wird nur der Strassenname geschrieben.
+3. **Ohne API-Key** war das Feld praktisch tot (nur das persoenliche Adressbuch).
+   Jetzt kommt das eingebaute Verzeichnis dazu: Ort, Ortsteil, Firma, exakte
+   PLZ (5 Ziffern) und PLZ-Praefix (3-4). **Strassen brauchen weiter den Key** —
+   das Verzeichnis kennt keine Strassennamen. Ist beides leer, sagt eine
+   Hinweiszeile im Popover, warum.

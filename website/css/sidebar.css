@@ -535,6 +535,7 @@ input[type="checkbox"][switch] {
   height: 20px;
 }
 .badge-local {
+  margin-inline-start: 6px;
   float: right;
   font-size: 0.65rem;
   color: var(--accent-color);
@@ -985,8 +986,11 @@ input[type="checkbox"][switch] {
 /* C7: Gemeinsamer Glas-Look und Transition beider Vorschlagslisten */
 :is(#anschrift-vorschlaege, #plz-suggestions-popover) {
   position: absolute;
-  position-try-fallbacks: flip-block;
-  margin-top: 4px;
+  /* UA-Popover setzt inset: 0 und margin: auto; mit gesetztem left/top wird
+     das Element dann im Restraum zentriert und landet neben dem Feld
+     (gemessen 2026-11-13: PLZ-Popover bei x=1072 statt 730). */
+  inset: auto;
+  margin: 4px 0 0;
   overflow-y: auto;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
@@ -1012,11 +1016,15 @@ input[type="checkbox"][switch] {
   }
 }
 
+/* position-area loeste hier falsch auf (gemessen 2026-11-13: das Popover
+   landete bei x=1497 statt x=16, also unten rechts am Schirm). Mit
+   anchor()-Funktionen sitzt es direkt unter dem Feld. */
 #anschrift-vorschlaege {
   position-anchor: --anchor-anschrift-suche;
-  position-area: bottom span-right;
+  top: anchor(bottom);
+  left: anchor(left);
   width: anchor-size(width);
-  max-height: 250px;
+  max-height: min(250px, 40vh);
 }
 
 #anschrift-vorschlaege li {
@@ -1041,10 +1049,11 @@ input[type="checkbox"][switch] {
 #plz-suggestions-popover,
 #plz-suggestions-popover[popover] {
   position-anchor: --anchor-ort;
-  position-area: block-end span-inline-start;
+  top: anchor(bottom);
+  left: anchor(left);
   min-width: max(300px, anchor-size(width));
   max-width: 440px;
-  max-height: 400px;
+  max-height: min(400px, 45vh);
 }
 
 #anschriftfeld:has(#empfaenger-firma:focus) ~ #plz-suggestions-popover,

@@ -40,7 +40,10 @@
     <div id="app-shell">
       <div id="probe" aria-hidden="true"></div>
       <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
-        <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungen">
+        <!-- Name aus BEIDEN sichtbaren Labels: "Einstellungen oeffnen" (Zahnrad)
+             und "Zurueck zum Brief". Ein statisches aria-label ueberschrieb
+             beide und hiess im Einstellungs-Modus falsch (Befund B14). -->
+        <input type="checkbox" id="toggle-modus" class="sr-only" aria-labelledby="btn-einstellungen btn-zurueck">
         <!-- Normaler Modus Header -->
         <div class="seitenleiste-header-row">
           <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
@@ -144,8 +147,10 @@
           <!-- 3. Textformatierung -->
           <div class="seitenleiste-subgroup">
             <div class="seitenleiste-field-group">
-              <h3 class="seitenleiste-label">Textformatierung</h3>
-              <div class="seitenleiste-btn-row" role="group" aria-label="Textformatierung">
+              <h3 class="seitenleiste-label" id="titel-textformatierung">Textformatierung</h3>
+              <!-- aria-labelledby statt aria-label: der Name kommt aus der
+                   sichtbaren Ueberschrift und wird nicht zweimal vorgelesen. -->
+              <div class="seitenleiste-btn-row" role="group" aria-labelledby="titel-textformatierung">
                 <button type="button" id="btn-bold" class="icon-btn"
                         aria-pressed="false" aria-label="Fett (Strg+B)" title="Fett (Strg+B)">
                   <b aria-hidden="true">B</b>
@@ -176,9 +181,8 @@
               <input type="checkbox" switch id="toggle-fuss">
             </div>
           </div>
-        </section>
           <!-- Layout zuletzt: global, selten, wirkt auf das ganze Blatt. -->
-<!-- 1. Format & Ansicht -->
+          <!-- 1. Format & Ansicht -->
           <div class="seitenleiste-subgroup">
             <fieldset class="seitenleiste-field-group">
               <legend class="seitenleiste-label">DIN-Brief Layout</legend>
@@ -198,7 +202,7 @@
           </div>
 
           <hr class="seitenleiste-divider">
-</section>
+        </section>
 
         <!-- Zone 2: Daten & Adressen -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">

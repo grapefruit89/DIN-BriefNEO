@@ -4663,6 +4663,59 @@ describe('Statuszeile und mobile Schublade (2026-11-13)', () => {
 
 });
 
+describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
+  it('jede Zone wird geoeffnet und geschlossen, Layout-Regler liegen in zone-dokument', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const roh = html.slice(html.indexOf('<aside'), html.indexOf('</aside>'));
+    assert(
+      (roh.match(/<section/g) || []).length === (roh.match(/<\/section>/g) || []).length,
+      'kein verwaistes </section> (der Parser repariert das still, deshalb Rohtext)'
+    );
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const leiste = doc.getElementById('seitenleiste');
+    assert(leiste, 'Seitenleiste im Markup');
+    if (!leiste) return;
+    assert(leiste.querySelectorAll('section.seitenleiste-zone').length >= 3, 'mindestens drei Zonen');
+    assert(leiste.querySelector('#zone-dokument #btn-form-a'), 'Form A liegt in zone-dokument');
+    assert(leiste.querySelector('#zone-dokument #toggle-falzmarken'), 'Falzmarken liegen in zone-dokument');
+  });
+
+  it('Statuszeile ist im Einstellungs-Modus ausgeblendet', async () => {
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    const ab = css.indexOf('#seitenleiste:has(#toggle-modus:checked) #zone-dokument');
+    assert(ab > -1, 'Ausblendregel vorhanden');
+    const block = css.slice(ab, css.indexOf('}', ab));
+    assert(block.includes('.seitenleiste-zustand'), 'Statuszeile wird mit ausgeblendet');
+  });
+
+  it('Escape haengt an der Leiste, nicht an der Checkbox', async () => {
+    const src = await (await fetch('/website/js/settings.js')).text();
+    assert(src.includes("leiste.addEventListener('keydown'"), 'Listener an der Leiste');
+    assert(!src.includes("modusSchalter.addEventListener('keydown'"), 'kein Listener nur an der Checkbox');
+    assert(src.includes("querySelector(':popover-open')"), 'offene Popover gewinnen Escape');
+  });
+
+  it('Textformatierung wird einmal benannt, der Modusschalter traegt beide Labels', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const gruppe = doc.querySelector('.seitenleiste-btn-row[role="group"]');
+    assert(gruppe, 'Formatierungsgruppe vorhanden');
+    if (gruppe) {
+      assert(gruppe.getAttribute('aria-labelledby') === 'titel-textformatierung', 'aria-labelledby statt aria-label');
+    }
+    assert(doc.getElementById('titel-textformatierung'), 'Titel-Element existiert');
+    const schalter = doc.getElementById('toggle-modus');
+    assert(schalter, 'Modusschalter vorhanden');
+    if (schalter) {
+      assert(
+        schalter.getAttribute('aria-labelledby') === 'btn-einstellungen btn-zurueck',
+        'Name kommt aus beiden sichtbaren Labels'
+      );
+      assert(!schalter.getAttribute('aria-label'), 'kein statisches aria-label');
+    }
+  });
+});
+
 describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
   /* Vorher: 0 Ueberschriften in der Leiste. Jetzt h1 (Seite) -> h2 (Zone)
      -> h3 (Gruppentitel). Regler-Labels bleiben <label>, sonst verliert das

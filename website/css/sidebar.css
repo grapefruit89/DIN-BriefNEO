@@ -818,7 +818,10 @@ input[type="checkbox"][switch] {
 
 #seitenleiste:has(#toggle-modus:checked) #zone-dokument,
 #seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
-#seitenleiste:has(#toggle-modus:checked) .seitenleiste-export-group {
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-export-group,
+/* Statuszeile auch ausblenden: sie zeigt den Brief-Zustand, und "aendern"
+   waere im Einstellungs-Modus ein Knopf ohne Ziel (gemessen 2026-11-13). */
+#seitenleiste:has(#toggle-modus:checked) .seitenleiste-zustand {
   display: none;
 }
 
@@ -827,9 +830,9 @@ input[type="checkbox"][switch] {
   flex-direction: column;
 }
 
-#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-print,
-#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset,
-#seitenleiste:has(#toggle-modus:checked) #zone-aktionen .seitenleiste-divider {
+/* Nur #btn-reset liegt noch in #zone-aktionen; die beiden anderen Selektoren
+   trafen seit der Umsortierung nichts mehr (Befund B14). */
+#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset {
   display: none;
 }
 
@@ -838,8 +841,7 @@ input[type="checkbox"][switch] {
   color: var(--accent-color, oklch(75% 0.16 240));
 }
 
-#toggle-modus:focus-visible ~ .seitenleiste-header-row #btn-einstellungen,
-#btn-einstellungen:focus-visible {
+#toggle-modus:focus-visible ~ .seitenleiste-header-row #btn-einstellungen {
   outline: 2px solid var(--accent-color, oklch(75% 0.16 240));
   outline-offset: 2px;
 }

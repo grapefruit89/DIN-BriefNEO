@@ -281,11 +281,21 @@ export class SettingsManager {
     }
 
     const modusSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
-    if (modusSchalter) {
-      modusSchalter.addEventListener('keydown', (event) => {
-        if (event.key !== 'Escape' || !modusSchalter.checked) return;
+    /* Escape haengt an der Leiste, nicht an der Checkbox. Vorher kam man nur
+       heraus, wenn der Fokus auf dem Schalter stand; wer in der Schriftart-
+       Liste oder im Key-Feld stand, sass fest (Befund B14, gemessen 2026-11-13).
+       Offene Popover schliessen zuerst - die liegen im Top-Layer, aber im DOM
+       in der Leiste, also wuerde Escape sonst zwei Dinge gleichzeitig tun. */
+    const leiste = document.getElementById('seitenleiste');
+    if (leiste) {
+      leiste.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        if (document.querySelector(':popover-open')) return;
+        if (!modusSchalter?.checked) return;
         event.preventDefault();
         this.toggleSettingsModus('brief');
+        /* Der Fokus darf nicht in der gerade ausgeblendeten Zone bleiben. */
+        modusSchalter.focus();
       });
     }
 

@@ -2906,3 +2906,36 @@ rund.
 Jetzt: `--feld-radius: 4px` in der gemeinsamen Feld-Regel, die sechs
 `border-radius: 0` entfernt. Gemessen: alle Feldtypen liefern 4 px.
 Der Druck bleibt eckig (`border-radius: 0 !important` im Print-Reset).
+\n
+### 2026-11-13 — B14-Reparaturen: Zonen, Statuszeile, Escape, ARIA
+
+Vier belegte Befunde (aus dem B14-Review, am HEAD `72b09d0` nachgemessen):
+
+1. **Zonen-Struktur.** Beim Umsortieren war der Layout-Block (Form A/B,
+   Falzmarken) hinter das `</section>` von `zone-dokument` gerutscht, dazu ein
+   verwaistes `</section>` (3 offen, 4 geschlossen — der HTML-Parser repariert
+   das still). Folge: die Regler hingen in keiner Zone und blieben im
+   Einstellungs-Modus sichtbar. Jetzt: Block und `<hr>` wieder in der Zone,
+   Zählung 3/3. Gemessen: `#btn-form-a` und `#toggle-falzmarken` sind in
+   `#zone-dokument`, im Einstellungs-Modus unsichtbar.
+2. **Statuszeile im Einstellungs-Modus.** Sie zeigt den Brief-Zustand, und ihr
+   „ändern" hätte dort kein Ziel. Jetzt Teil der Ausblendregel
+   (`getClientRects()` = 0 im Einstellungs-Modus).
+3. **Escape.** Der Handler hing an der Checkbox; wer in `#select-schriftart`
+   oder im Key-Feld stand, kam nicht zurück. Jetzt an `#seitenleiste`, mit
+   Vorrang für offene Popover (`:popover-open`) und anschließendem
+   `focus()` auf den Schalter, damit der Fokus nicht in einer ausgeblendeten
+   Zone bleibt. Gemessen: Fokus in der Schriftart-Liste → Escape → `checked`
+   false, `activeElement` = `toggle-modus`.
+4. **ARIA.** `role="group" aria-label="Textformatierung"` stand direkt unter
+   einem `<h3>` mit demselben Text (doppelt vorgelesen) → `aria-labelledby`.
+   Der Modusschalter hatte ein statisches `aria-label="Einstellungen"`, das
+   **beide** sichtbaren Labels überschrieb („Einstellungen öffnen" am Zahnrad,
+   „Zurück zum Brief" im Einstellungs-Modus) — WCAG 2.5.3. Jetzt
+   `aria-labelledby="btn-einstellungen btn-zurueck"`; gemessener Name:
+   „Einstellungen öffnen Zurück zum Brief".
+
+Erledigt mit vier Ratschen (Zonen-Zählung im Rohtext, Statuszeilen-Regel,
+Escape-Bindung, ARIA-Namen). Nicht übernommen: Radiogruppe statt Checkbox,
+`<details>` für Entwicklerwerkzeuge, Falzmarken in die Einstellungen — das
+sind Umbauten ohne belegten Schaden.

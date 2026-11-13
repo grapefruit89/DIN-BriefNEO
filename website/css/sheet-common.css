@@ -567,7 +567,11 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   :is([contenteditable], textarea[data-feldtyp], input[data-atom]) {
       /* Ruhezustand: Hauchzart gestrichelt zur dezenten Orientierung der Felder */
       outline: 1px dashed color-mix(in oklch, var(--blatt-schwach) 35%, transparent);
-      outline-offset: -1px;
+      /* Rahmen NACH AUSSEN, damit er nicht auf der Schrift liegt (Nutzerwunsch
+         2026-11-13). Einzeiler liegen 16 px auseinander - mehr als 2 px wuerde
+         in die Nachbarzeile schneiden; die Mehrzeiler bekommen weiter unten
+         mehr Luft. */
+      outline-offset: 2px;
       border-radius: 3px;
       background: transparent;
       transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
@@ -580,19 +584,18 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   :is([contenteditable], textarea[data-feldtyp], input[data-atom]):hover:not(:focus) {
       /* Hover: Klare durchgezogene Linie zur eindeutigen Feldfokussierung */
       outline: 1.5px solid var(--accent-color);
-      outline-offset: -1.5px;
+      outline-offset: 2px;
       background-color: light-dark(oklch(from var(--accent-color) l c h / 4%), oklch(from var(--accent-color) l c h / 8%));
     }
 
-  /* Mehrzeilige Felder: Rahmen NACH AUSSEN. Bei outline-offset -2px lag die
-     Linie auf der ersten/letzten Zeile (gemeldet 2026-11-12: "Rahmen zu klein,
-     ueberlagert die Schrift"). Null Padding bleibt, damit das mm-Raster nicht
-     wandert. */
+  /* Mehrzeilige Felder haben Platz: 4 px Abstand zur Schrift statt 2. Vorher
+     war #text der einzige Sonderfall - jetzt ist es dieselbe Optik mit mehr
+     Luft, weil hier keine Nachbarzeile im Weg ist. */
   #text,
   #anlagen-angabe,
   #text:focus,
   #anlagen-angabe:focus {
-    outline-offset: 2px;
+    outline-offset: 6px;
   }
 
   /* Fokus ist eine Schirm-Rueckmeldung, kein Papiermerkmal. Ohne diese Klammer
@@ -602,7 +605,7 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
     :is([contenteditable], textarea[data-feldtyp], input[data-atom]):focus {
         /* Fokus: Prägnante 2px Voll-Linie mit dezenter Feld-Hervorhebung */
         outline: 2px solid var(--accent-color);
-        outline-offset: -2px;
+        outline-offset: 2px;
         background-color: light-dark(oklch(from var(--accent-color) l c h / 3%), oklch(from var(--accent-color) l c h / 6%));
       }
   }

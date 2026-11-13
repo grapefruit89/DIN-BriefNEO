@@ -2876,3 +2876,20 @@ Drei Nutzerbefunde, alle am laufenden Objekt reproduziert:
    PLZ (5 Ziffern) und PLZ-Praefix (3-4). **Strassen brauchen weiter den Key** —
    das Verzeichnis kennt keine Strassennamen. Ist beides leer, sagt eine
    Hinweiszeile im Popover, warum.
+
+### 2026-11-13 — Einheitliche Feld-Optik: Rahmen aussen
+
+Nutzerwunsch: der Rahmen von `#text` (Hover/Fokus) war der einzige schoene, aber
+zu nah an der Schrift — und er soll fuer **alle** Blattfelder gelten.
+
+- Alle Felder: `outline-offset: 2px` (Rahmen **aussen** statt innen).
+  Einzeiler liegen 16 px auseinander; mehr als 2 px wuerde in die Nachbarzeile
+  schneiden.
+- `#text` und `#anlagen-angabe`: `outline-offset: 6px`, weil dort Platz ist.
+  Gleiche Optik (Farbe, Stärke, Rundung), nur mehr Luft.
+- Der frühere Sonderfall `#text`/`#anlagen` (offset 2) ist damit Geschichte;
+  die Ausnahme ist jetzt die *Luft*, nicht die *Optik*.
+
+Geprueft mit Screenshot (Hover auf Einzeiler, Fokus auf #text): Rahmen liegt
+aussen, keine Schrift wird uebermalt, Nachbarzeile bleibt lesbar. Druck
+unveraendert (Fokus ist `@media screen`, der Print-Reset gewinnt).

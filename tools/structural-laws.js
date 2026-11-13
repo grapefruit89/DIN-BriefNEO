@@ -55,9 +55,16 @@ function checkStructuralLaws(repoRoot) {
     }
   }
 
-  // A57: Binäre Radio-Gruppe als Schalter (Form A/B ist begründeter 2-Wert-Dokumentenmodus)
+  // A57: Binäre Radio-Gruppe als Schalter.
+  // Ausnahmen sind in A57 (Immutable-Law-Catalog) fachlich begründet und hier
+  // absichtlich namentlich genannt — nicht als Regex, damit jede neue Gruppe
+  // sichtbar durch diese Liste muss:
+  //   layout-form   Dokumentenmodus (Form A/B), blattwirksam, Bestandsschutz
+  //   ansicht-modus Ansichtswechsel (Brief | Einstellungen): Wahl des Inhalts,
+  //                 keine Einstellung; Zustand steckt im Namen (WCAG 2.5.3)
+  const A57_AUSNAHMEN = new Set(['layout-form', 'ansicht-modus']);
   for (const [name, radios] of radioGroups) {
-    if (radios.length === 2 && name !== 'layout-form') {
+    if (radios.length === 2 && !A57_AUSNAHMEN.has(name)) {
       violations.push({ file: 'website/index.html', line: radios[0].line, message: `A57: binäre Radio-Gruppe "${name}" als Schalter — Checkbox switch verwenden oder fachlich begründete Ausnahme dokumentieren.` });
     }
   }

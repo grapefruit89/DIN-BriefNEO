@@ -95,8 +95,12 @@ fieldset.seitenleiste-field-group > legend {
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
-  padding: var(--space-md) var(--space-xl);
-  border-radius: var(--radius-lg);
+  min-height: var(--ctl-h-aktion);
+  /* line-height gesetzt, weil die Emoji-Glyphen (🖨️, 💾) eine Line-Box von
+     34 px erzeugen; sonst wird der Button 46 px statt der Steuerhoehe 40. */
+  line-height: 1.2;
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: oklch(0.20 0.02 260); /* WCAG 2.1 AA: Mindestens 4.5:1 Kontrast auf hellen Button-Hintergruenden */
@@ -145,11 +149,12 @@ fieldset.seitenleiste-field-group > legend {
 
 .segmented-control {
   display: grid;
+  min-height: var(--ctl-h);
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   background: var(--segment-bg);
   padding: var(--space-xs);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   gap: 0; /* Remove gap for perfect math */
   position: relative;
   isolation: isolate;
@@ -202,9 +207,14 @@ fieldset.seitenleiste-field-group > legend {
 
 .segmented-control button,
 .segmented-control label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: transparent; /* Clean transparent to let pill show */
-  padding: var(--space-md) var(--space-xl);
+  /* Keine Block-Polsterung: die Hoehe kommt aus --ctl-h, sonst waechst der
+     Container ueber die Steuerhoehe hinaus (vorher 38 px statt 32). */
+  padding: 0 var(--space-xl);
   font-family: inherit;
   font-size: 0.75rem;
   font-weight: 600;
@@ -227,7 +237,8 @@ fieldset.seitenleiste-field-group > legend {
   /* Box-shadow and background are now handled by ::before */
 }
 
-/* Tastatur-Fokusindikator (WCAG 2.2 SC 2.4.7) */
+/* Tastatur-Fokusindikator (WCAG 2.2 SC 2.4.7). Gilt fuer Form A/B und fuer die
+   Ansicht-Radiogruppe, weil beide dieselbe Segment-Optik nutzen. */
 .segmented-control input[type="radio"]:focus-visible + label {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
@@ -504,8 +515,13 @@ fieldset.seitenleiste-field-group > legend {
  * 🛡️ BLEEDING EDGE ARCHITECTURE GUARD: SEMANTIC W3C SWITCHES (Native HTML5)
  *
  * ⚠️ ACHTUNG FÜR ZUKÜNFTIGE KIs / LLMs / DEVELOPER:
- * `<input type="checkbox" switch>` ist der native W3C-Standard für Toggles.
- * Der Schalter wird nativ durch die Rendering-Engine dargestellt.
+ * `<input type="checkbox" switch>` ist der W3C-Standard für Toggles — er ist
+ * aber in KEINEM ausgelieferten Browser implementiert (MDN BCD: chrome
+ * `version_added: false`; in Chromium 156 ist `'switch' in input` false).
+ * Bis dahin rendert der Browser eine normale Checkbox mit Haken. Das Attribut
+ * bleibt trotzdem stehen (vorwaertskompatibel), und die Groesse bleibt beim
+ * Haken: eine auf 36x20 gestreckte Checkbox wurde als dunkles Quadrat gemalt
+ * (gemessen 2026-11-13, Screenshot).
  * Die Statuserkennung erfolgt rein deklarativ über Attribute am `<html>`
  * (`data-marks`, gesetzt von `boot.js` vor dem ersten Paint; `settings.js` hält es synchron).
  * ES IST STRENGSTENS VERBOTEN (Law Catalog A57):
@@ -516,8 +532,9 @@ fieldset.seitenleiste-field-group > legend {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0;
-  margin-bottom: 8px;
+  min-height: var(--ctl-h);
+  padding: 0;
+  margin-bottom: var(--space-md);
 }
 .seitenleiste-switch-row .seitenleiste-label {
   margin: 0;
@@ -531,8 +548,10 @@ input[type="checkbox"][switch] {
   appearance: auto;
   cursor: pointer;
   accent-color: var(--accent-color);
-  width: 36px;
-  height: 20px;
+  /* Quadratisch statt 36x20: der Haken bleibt erkennbar und rastet sichtbar
+     ein. Die Zeile ist var(--ctl-h) hoch, der Haken sitzt darin zentriert. */
+  inline-size: 20px;
+  block-size: 20px;
 }
 .badge-local {
   margin-inline-start: 6px;
@@ -594,15 +613,6 @@ input[type="checkbox"][switch] {
    data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler
    nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,
    falls der Seeder ausfaellt (boot.js setzt es notfalls nach 2 s). */
-/* Der Modus-Schalter ist EIN Tab-Stopp: die native Checkbox (sr-only). Damit
-   der Fokus nicht unsichtbar bleibt, traegt das jeweils sichtbare Label den
-   Ring. Vorher hatten Checkbox UND Label tabindex - zwei Stopps fuer eine
-   Funktion, und Enter/Space auf dem Label tat nichts (WCAG 2.1.1, Befund B14). */
-#seitenleiste:has(#toggle-modus:focus-visible) label[for="toggle-modus"]:not([hidden]) {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
 :root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,
 :root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {
   visibility: hidden;
@@ -623,7 +633,7 @@ input[type="checkbox"][switch] {
 /* Statuszeile: eine Zeile, ruhig, mit Sprung in die Einstellungen. */
 .seitenleiste-zustand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 6px;
   margin: 0 0 6px;
@@ -634,6 +644,8 @@ input[type="checkbox"][switch] {
 
 .zustand-aendern {
   flex: 0 0 auto;
+  /* Klickziel: 24 px Mindesthoehe (WCAG 2.5.8); vorher 15 px. */
+  min-height: 24px;
   padding: 0;
   border: 0;
   background: none;
@@ -739,8 +751,8 @@ input[type="checkbox"][switch] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--ctl-h);
+  height: var(--ctl-h);
   padding: 0;
   border: none;
   background: transparent;
@@ -767,83 +779,37 @@ input[type="checkbox"][switch] {
   color: var(--text-primary);
 }
 
-/* Modus-Steuerung (Brief vs. Einstellungen via CSS :has) */
-.seitenleiste-setup-header {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+/* Modus-Steuerung: Radiogruppe im Segment-Design (Brief | Einstellungen).
+   Kein eigener Zustand, keine Klasse - die :checked-Regel traegt alles. */
+.seitenleiste-modus {
+  min-inline-size: 0;
+  margin: 0 0 var(--space-sm);
+  padding: 0;
+  border: 0;
 }
 
-#seitenleiste:has(#toggle-modus:checked) .seitenleiste-header-row {
-  display: none;
-}
-
-#seitenleiste:has(#toggle-modus:checked) .seitenleiste-setup-header {
-  display: flex;
-}
-
-/* Zurück-Button im Setup-Header (Drill-Down) */
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  background: var(--segment-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  text-decoration: none;
-  user-select: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.btn-back:hover {
-  background: var(--segment-active-bg);
-  border-color: var(--accent-color);
-  color: var(--text-primary);
-}
-
-.btn-back:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
-#seitenleiste:not(:has(#toggle-modus:checked)) #zone-setup {
+#seitenleiste:not(:has(#modus-einstellungen:checked)) #zone-setup {
   display: none;
 }
 
-#seitenleiste:has(#toggle-modus:checked) #zone-dokument,
-#seitenleiste:has(#toggle-modus:checked) #zone-werkzeuge,
-#seitenleiste:has(#toggle-modus:checked) .seitenleiste-export-group,
+#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument,
+#seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge,
+#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group,
 /* Statuszeile auch ausblenden: sie zeigt den Brief-Zustand, und "aendern"
    waere im Einstellungs-Modus ein Knopf ohne Ziel (gemessen 2026-11-13). */
-#seitenleiste:has(#toggle-modus:checked) .seitenleiste-zustand {
+#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand {
   display: none;
 }
 
-#seitenleiste:has(#toggle-modus:checked) #zone-setup {
+#seitenleiste:has(#modus-einstellungen:checked) #zone-setup {
   display: flex;
   flex-direction: column;
 }
 
 /* Nur #btn-reset liegt noch in #zone-aktionen; die beiden anderen Selektoren
    trafen seit der Umsortierung nichts mehr (Befund B14). */
-#seitenleiste:has(#toggle-modus:checked) #zone-aktionen #btn-reset {
+#seitenleiste:has(#modus-einstellungen:checked) #zone-aktionen #btn-reset {
   display: none;
-}
-
-#seitenleiste:has(#toggle-modus:checked) #btn-einstellungen {
-  background: var(--segment-active-bg, oklch(35% 0.02 260));
-  color: var(--accent-color, oklch(75% 0.16 240));
-}
-
-#toggle-modus:focus-visible ~ .seitenleiste-header-row #btn-einstellungen {
-  outline: 2px solid var(--accent-color, oklch(75% 0.16 240));
-  outline-offset: 2px;
 }
 
 .seitenleiste-footer {

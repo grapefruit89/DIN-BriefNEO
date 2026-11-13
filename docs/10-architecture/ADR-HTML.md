@@ -59,8 +59,23 @@ In DIN-Brief Neo ist die HTML-Architektur als **minimalistischer, semantischer D
 
 ## 2. Grundlegende Architektur-Entscheidungen
 
-1. **Semantische Custom Elements als erstklassige DOM-Bürger:**
-   Statt nichtssagender `<div>`-Container nutzt das Briefblatt 37 semantische HTML5-Custom-Elements (`<din-blatt>`, `<din-anschriftfeld>`, `<din-betreff>`, `<din-text>`, etc.). Dies sorgt für kristallklare DOM-Lesbarkeit und ermöglicht im CSS präzises Scoping via `@scope (din-blatt)`.
+1. **Semantische Element-Haken als erstklassige DOM-Bürger:**
+   Statt nichtssagender `<div>`-Container nutzt das Briefblatt 37 Elemente mit
+   eigenem Namen (`<din-blatt>`, `<din-anschriftfeld>`, `<din-betreff>`,
+   `<din-text>`, etc.). Dies sorgt für kristallklare DOM-Lesbarkeit und
+   ermöglicht im CSS präzises Scoping via `@scope (din-blatt)`.
+
+   **Präzisierung (2026-11-13):** Das sind **keine** registrierten Custom
+   Elements. `customElements.define` wird im ganzen Projekt nicht aufgerufen;
+   `document.querySelector('din-text').matches(':defined')` ist `false`. Ein
+   Name mit Bindestrich ist ein *potenzielles* Custom Element und als solches
+   gültiges HTML — unregistriert bleibt das Element ohne Lifecycle, ohne
+   Shadow DOM und ohne `:defined`. Das ist Absicht: die Namen sind semantische
+   Haken für DOM-Lesbarkeit und `@scope`, keine Komponenten. Eine
+   Registrierung wäre schädlich, weil der Upgrade asynchron läuft und mit dem
+   Vor-Paint-Seeding (`data-seeded`) kollidiert. Rollen sind explizit gesetzt
+   (`role="textbox"`, `role="article"`), der Accessibility-Tree ist also
+   unabhängig von einer Definition.
 2. **Strict WYSIWYG & In-Place Editing:**
    Eingaben finden *ausschließlich* direkt auf dem virtuellen Papierbogen statt. Formularfelder werden nicht redundant in einer Seitenleiste gespiegelt. Die Sidebar dient ausschließlich globalen Konfigurationen (Theming, DIN-Layout-Form, Schriftart, API-Schlüssel, Schalter).
 3. **Hardwarebeschleunigter Eingabeschutz (`plaintext-only` & `enterkeyhint`):**

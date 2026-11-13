@@ -200,6 +200,11 @@ body {
   --radius-sm:   0.375rem;  /*  6px */
   --radius-md:   0.5rem;    /*  8px */
   --radius-lg:   0.625rem;  /* 10px */
+
+  /* Steuerhoehen der Seitenleiste. Vorher hatte jedes Element seine eigene
+     (15/20/30/32/34/36/38/50 px) - siehe DECISION-LOG 2026-11-13. */
+  --ctl-h:        2rem;      /* 32px: Select, Segmented, Icon-Button, Schalter-Zeile */
+  --ctl-h-aktion: 2.5rem;    /* 40px: Drucken, Speichern, Oeffnen, Kopieren */
   --radius-xl:   0.75rem;   /* 12px */
   --radius-full: 999px;     /* Pillen */
 

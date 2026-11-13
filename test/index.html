@@ -31,10 +31,16 @@
     <button type="button" id="btn-undo-reset" class="btn btn-ghost">Rückgängig</button>
   </div>
 
-  <!-- Sidebar Mode Toggle Fixture -->
-  <input type="checkbox" id="toggle-modus" class="sr-only">
-  <label for="toggle-modus" id="btn-einstellungen" tabindex="0" role="button"></label>
-  <label for="toggle-modus" id="btn-zurueck" tabindex="0" role="button"></label>
+  <!-- Fixture: Ansicht-Radiogruppe (statt Checkbox, Befund B14) -->
+  <fieldset class="seitenleiste-modus">
+    <legend class="sr-only">Ansicht</legend>
+    <div class="segmented-control">
+      <input type="radio" name="ansicht-modus" id="modus-brief" value="brief" class="sr-only" checked>
+      <label for="modus-brief">Brief</label>
+      <input type="radio" name="ansicht-modus" id="modus-einstellungen" value="einstellungen" class="sr-only">
+      <label for="modus-einstellungen">Einstellungen</label>
+    </div>
+  </fieldset>
 
   <!-- Font-Manager Fixture -->
   <select id="select-schriftart" class="seitenleiste-select">

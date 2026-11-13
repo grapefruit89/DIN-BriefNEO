@@ -3440,28 +3440,32 @@ describe('FontFeature: Minimalistischer 2-Zustände Font-Button & Kaskade', () =
 });
 
 describe('SettingsManager: Drill-Down Modus-Umschaltung (Seitenleiste)', () => {
-  it('schaltet Modus über toggleSettingsModus deterministisch um', () => {
-    const toggle = /** @type {HTMLInputElement} */ (document.getElementById('toggle-modus'));
+  it('schaltet Modus über toggleSettingsModus deterministisch um (Radiogruppe)', () => {
+    const brief = /** @type {HTMLInputElement} */ (document.getElementById('modus-brief'));
+    const einstellungen = /** @type {HTMLInputElement} */ (document.getElementById('modus-einstellungen'));
     const sm = new SettingsManager();
     sm.isReady = true;
 
     sm.toggleSettingsModus('einstellungen');
-    assertEqual(toggle.checked, true, 'Modus auf Einstellungen gewechselt');
+    assertEqual(einstellungen.checked, true, 'Modus auf Einstellungen gewechselt');
+    assertEqual(brief.checked, false, 'Brief-Radio ist nativ abgewaehlt');
 
     sm.toggleSettingsModus('brief');
-    assertEqual(toggle.checked, false, 'Modus auf Brief zurückgestellt');
+    assertEqual(brief.checked, true, 'Modus auf Brief zurückgestellt');
+    assertEqual(einstellungen.checked, false, 'Einstellungen-Radio ist abgewaehlt');
   });
 
-  it('schaltet über btnZurueck Klick zurück in den Briefmodus', () => {
-    const toggle = /** @type {HTMLInputElement} */ (document.getElementById('toggle-modus'));
-    const btnZurueck = document.getElementById('btn-zurueck');
+  it('Klick auf das Brief-Label schaltet nativ zurueck (Radiogruppe)', () => {
+    const brief = /** @type {HTMLInputElement} */ (document.getElementById('modus-brief'));
+    const einstellungen = /** @type {HTMLInputElement} */ (document.getElementById('modus-einstellungen'));
     const sm = new SettingsManager();
     sm.isReady = true;
-    sm.attachListeners();
+    sm.toggleSettingsModus('einstellungen');
+    assertEqual(einstellungen.checked, true, 'Ausgangslage: Einstellungen');
 
-    toggle.checked = true;
-    btnZurueck?.click();
-    assertEqual(toggle.checked, false, 'btnZurueck schaltet auf Brief zurück');
+    /** @type {HTMLLabelElement | null} */ (document.querySelector('label[for="modus-brief"]'))?.click();
+    assertEqual(brief.checked, true, 'Label-Klick setzt das Radio nativ');
+    assertEqual(einstellungen.checked, false, 'anderes Radio wird nativ abgewaehlt');
   });
 
   it('setzt data-plugin-testbrief, haelt data-plugin-multipage aber fest auf true', () => {
@@ -4682,20 +4686,21 @@ describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
 
   it('Statuszeile ist im Einstellungs-Modus ausgeblendet', async () => {
     const css = await (await fetch('/website/css/sidebar.css')).text();
-    const ab = css.indexOf('#seitenleiste:has(#toggle-modus:checked) #zone-dokument');
+    const ab = css.indexOf('#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument');
     assert(ab > -1, 'Ausblendregel vorhanden');
     const block = css.slice(ab, css.indexOf('}', ab));
     assert(block.includes('.seitenleiste-zustand'), 'Statuszeile wird mit ausgeblendet');
   });
 
-  it('Escape haengt an der Leiste, nicht an der Checkbox', async () => {
+  it('Escape haengt an der Leiste, nicht am Modusschalter', async () => {
     const src = await (await fetch('/website/js/settings.js')).text();
     assert(src.includes("leiste.addEventListener('keydown'"), 'Listener an der Leiste');
-    assert(!src.includes("modusSchalter.addEventListener('keydown'"), 'kein Listener nur an der Checkbox');
+    assert(!src.includes("modusEinstellungen.addEventListener('keydown'"), 'kein Listener nur am Schalter');
     assert(src.includes("querySelector(':popover-open')"), 'offene Popover gewinnen Escape');
+    assert(src.includes("modusBrief?.focus()"), 'Fokus landet im Brief-Radio');
   });
 
-  it('Textformatierung wird einmal benannt, der Modusschalter traegt beide Labels', async () => {
+  it('Textformatierung wird einmal benannt, die Ansicht ist eine Radiogruppe', async () => {
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const gruppe = doc.querySelector('.seitenleiste-btn-row[role="group"]');
@@ -4704,15 +4709,19 @@ describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
       assert(gruppe.getAttribute('aria-labelledby') === 'titel-textformatierung', 'aria-labelledby statt aria-label');
     }
     assert(doc.getElementById('titel-textformatierung'), 'Titel-Element existiert');
-    const schalter = doc.getElementById('toggle-modus');
-    assert(schalter, 'Modusschalter vorhanden');
-    if (schalter) {
-      assert(
-        schalter.getAttribute('aria-labelledby') === 'btn-einstellungen btn-zurueck',
-        'Name kommt aus beiden sichtbaren Labels'
-      );
-      assert(!schalter.getAttribute('aria-label'), 'kein statisches aria-label');
-    }
+
+    /* Ansicht: eine Gruppe, zwei Radios, ein Name. Der Wert steckt im Namen,
+       darum braucht es kein aria-labelledby mehr (WCAG 2.5.3). */
+    const radios = [...doc.querySelectorAll('input[name="ansicht-modus"]')];
+    assertEqual(radios.length, 2, 'zwei Ansicht-Radios');
+    assert(radios.every((r) => r.getAttribute('type') === 'radio'), 'alle sind Radios');
+    assertEqual(radios.filter((r) => r.hasAttribute('checked')).length, 1, 'genau eine Ansicht ist gewaehlt');
+    const legend = doc.querySelector('fieldset.seitenleiste-modus > legend');
+    assert(legend, 'Gruppe hat eine legend');
+    assertEqual(legend?.textContent?.trim(), 'Ansicht', 'Gruppenname ist "Ansicht"');
+    assert(!doc.getElementById('toggle-modus'), 'Checkbox ist weg');
+    assert(!doc.getElementById('btn-einstellungen'), 'Zahnrad-Label ist weg');
+    assert(!doc.getElementById('btn-zurueck'), 'Zurueck-Label ist weg');
   });
 });
 
@@ -4738,21 +4747,45 @@ describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
   });
 });
 
-describe('Modus-Schalter ist ein Tab-Stopp (Befund B14)', () => {
-  /* Vorher: sr-only-Checkbox UND sichtbares Label mit role=button/tabindex=0 -
-     zwei Stopps fuer eine Funktion, und Enter/Space auf dem Label tat nichts. */
-  it('Label traegt keine Rolle und keinen tabindex, die Checkbox ist der Schalter', async () => {
+describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', () => {
+  it('der Schalter ist quadratisch und nutzt accent-color', async () => {
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    const ab = css.indexOf('input[type="checkbox"][switch] {');
+    assert(ab > -1, 'Schalter-Regel vorhanden');
+    const block = css.slice(ab, css.indexOf('}', ab));
+    assert(block.includes('inline-size: 20px'), 'quadratisch, nicht 36px breit');
+    assert(block.includes('block-size: 20px'), 'Hoehe = Breite');
+    assert(!block.includes('36px'), 'keine gestreckte Box (malte ein dunkles Quadrat)');
+    assert(block.includes('accent-color'), 'Zustand ueber accent-color');
+  });
+});
+
+describe('Ansicht ist eine Radiogruppe, kein Checkbox-Trick (Befund B14)', () => {
+  /* Vorher: sr-only-Checkbox mit zwei sichtbaren Labels (Zahnrad + "Zurueck zum
+     Brief"), Name "Einstellungen" und dann per aria-labelledby aus beiden Labels
+     zusammengesetzt. Jetzt: eine Radiogruppe, ein Tab-Stopp, Pfeiltasten nativ. */
+  it('die Labels sind keine eigenen Stopps, die Radios sind der Schalter', async () => {
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    for (const id of ['btn-einstellungen', 'btn-zurueck']) {
-      const el = doc.getElementById(id);
-      assert(el, `#${id} existiert`);
-      assert(!el?.hasAttribute('tabindex'), `#${id} ist kein Tab-Stopp`);
-      assert(!el?.hasAttribute('role'), `#${id} traegt keine Button-Rolle`);
+    const labels = [...doc.querySelectorAll('fieldset.seitenleiste-modus label')];
+    assertEqual(labels.length, 2, 'zwei sichtbare Labels');
+    for (const el of labels) {
+      assert(!el.hasAttribute('tabindex'), 'Label ist kein Tab-Stopp');
+      assert(!el.hasAttribute('role'), 'Label traegt keine Button-Rolle');
     }
-    const schalter = doc.getElementById('toggle-modus');
-    assert(schalter instanceof HTMLInputElement, 'Checkbox ist der Schalter');
-    assertEqual(schalter?.getAttribute('type'), 'checkbox');
+    const radios = [...doc.querySelectorAll('fieldset.seitenleiste-modus input')];
+    assertEqual(radios.length, 2, 'zwei Radios');
+    assert(
+      radios.every((r) => !r.hasAttribute('aria-labelledby') && !r.hasAttribute('aria-label')),
+      'kein ARIA-Ersatzname noetig'
+    );
+  });
+
+  it('die Modus-CSS haengt an #modus-einstellungen:checked, nicht an der Checkbox', async () => {
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    assert(!css.includes('toggle-modus'), 'kein Rest des Checkbox-Schalters');
+    assert(css.includes(':has(#modus-einstellungen:checked)'), 'Modus ueber die Radio-Gruppe');
+    assert(css.includes('fieldset') === false || css.includes('.seitenleiste-modus'), 'Modus-Gruppe gestylt');
   });
 });
 

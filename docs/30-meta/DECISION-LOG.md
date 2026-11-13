@@ -2939,3 +2939,59 @@ Erledigt mit vier Ratschen (Zonen-Zählung im Rohtext, Statuszeilen-Regel,
 Escape-Bindung, ARIA-Namen). Nicht übernommen: Radiogruppe statt Checkbox,
 `<details>` für Entwicklerwerkzeuge, Falzmarken in die Einstellungen — das
 sind Umbauten ohne belegten Schaden.
+\n
+### 2026-11-13 — Ansicht als Radiogruppe, ein Satz zu den „Custom Elements", Steuer-Token
+
+**Ansicht statt Checkbox.** `#toggle-modus` (sr-only Checkbox + Zahnrad-Label +
+„Zurück zum Brief"-Label, Name per `aria-labelledby` aus beiden Labels
+zusammengesetzt) ist ersetzt durch eine Radiogruppe im Segment-Design:
+
+```
+fieldset.seitenleiste-modus > legend (sr-only "Ansicht")
+  input#modus-brief          + label "Brief"          (checked)
+  input#modus-einstellungen  + label "Einstellungen"
+```
+
+Warum: der Zustand steht im Namen (WCAG 2.5.3 ohne Trick), die Gruppe ist **ein**
+Tab-Stopp mit nativen Pfeiltasten, und es gibt **ein** sichtbares Label statt
+zwei. CSS-only bleibt: die zehn Modus-Regeln hängen jetzt an
+`:has(#modus-einstellungen:checked)`, JS setzt nur `checked`. A57 ist um einen
+Satz ergänzt (Ansicht = Inhalt, keine Einstellung). Entfallen:
+`.seitenleiste-setup-header`, `.btn-back`, Zahnrad-Label, Sibling-Fokusregel.
+Gemessen: Umschalten per Label-Klick und per Escape aus `#select-schriftart`
+(`modus-brief` gewählt, Fokus dort), AX-Baum: `group "Ansicht"`.
+
+**Custom Elements (Doku-Korrektur, kein Code).** `ADR-HTML.md` sprach von „37
+semantischen HTML5-Custom-Elements". Sie sind nicht registriert
+(`customElements.define`: 0 Aufrufe, `:defined` = false). Gültiges HTML, aber
+semantische Haken, keine Komponenten — eine Registrierung würde mit dem
+Vor-Paint-Seeding konkurrieren. Satz ergänzt, Verhalten unverändert.
+
+**Steuer-Token (Variante A).** Vorher hatte jedes Bedienelement seine eigene
+Höhe und seinen eigenen Radius (15/20/30/32/34/36/38/50 px; 0/4/6/8/10/12/999).
+Jetzt zwei Token in `base.css`:
+
+```
+--ctl-h:        32px   Select, Segment-Control, Icon-Button, Schalter-Zeile
+--ctl-h-aktion: 40px   Drucken, Speichern, Öffnen, Kopieren (Untergrenze)
+```
+
+Gemessen danach: Segment-Container 32 (Pille 24), Select 32, Icon-Button 32,
+Schalter-Zeile 32, „ändern" 24 (Klickziel, WCAG 2.5.8), Buttons 40 als
+Untergrenze. Die Buttons bleiben bei 48, weil „🖨️ Drucken / PDF" und
+„💾 Speichern (.json)" in der 2-Spalten-Reihe umbrechen — Höhe kommt dort aus
+dem Inhalt, nicht aus dem Token. Radien: ein `--radius-md` (8 px) für Container
+und Buttons, 6 px für die Pille im Container (Innenradius).
+
+**Schalter: 36×20 war ein gestreckter Checkbox-Haken.** `<input switch>` ist in
+keinem ausgelieferten Browser implementiert (MDN BCD: `chrome.version_added =
+false`; Laufzeitcheck in Chromium 156: `'switch' in input` → false). In der
+36×20-Box malte der Browser deshalb einen gestauchten Haken, der wie ein dunkles
+Quadrat aussah (Screenshot 2026-11-13). Jetzt 20×20: aus = ruhiges Quadrat,
+an = Akzentfläche mit weißem Haken — „ein Schalter, der sichtbar einrastet".
+Das `switch`-Attribut bleibt für den Tag, an dem es Implementierungen gibt.
+
+**Nebenwirkung, offen:** Die Leiste scrollt im Brief-Modus jetzt 93 px statt
+30 px (neuer Regler 32 px + 12 px Flex-Gap). Der Fuß mit „Zurücksetzen" liegt
+damit unter der Kante. Nicht eigenmächtig gelöst — Kandidaten: Flex-Gap 12 → 8
+(‑28 px), `#zone-aktionen` sticky, oder Regler in die Kopfzeile.

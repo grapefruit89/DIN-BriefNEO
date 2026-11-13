@@ -186,15 +186,17 @@ export class SettingsManager {
    * @param {'brief' | 'einstellungen'} [force]
    */
   toggleSettingsModus(force) {
-    const toggle = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
-    if (!toggle) return;
-    const isChecked = force !== undefined ? force === 'einstellungen' : !toggle.checked;
-    toggle.checked = isChecked;
-    toggle.dispatchEvent(new Event('change', { bubbles: true }));
-    /* Der Zustand liegt ausschliesslich in der nativen Checkbox — ein Tab-Stopp,
-       Space schaltet nativ. Das sichtbare Label traegt keine Rolle und keinen
-       tabindex (sonst zwei Controls im Accessibility-Tree; Befund B14: vorher
-       hatte es beides und war per Tastatur wirkungslos). */
+    const brief = /** @type {HTMLInputElement | null} */ (document.getElementById('modus-brief'));
+    const einstellungen = /** @type {HTMLInputElement | null} */ (document.getElementById('modus-einstellungen'));
+    if (!brief || !einstellungen) return;
+    const ziel = force === undefined
+      ? (einstellungen.checked ? brief : einstellungen)
+      : (force === 'einstellungen' ? einstellungen : brief);
+    /* Radiogruppe: checked auf einem Radio loest das andere nativ. Die Gruppe
+       ist EIN Tab-Stopp, Pfeiltasten schalten, der Zustand steckt im Namen.
+       Kein JS-Zustand, keine Klasse, kein zweites Label (Befund B14). */
+    ziel.checked = true;
+    ziel.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   /**
@@ -280,7 +282,8 @@ export class SettingsManager {
       schriftSelect.addEventListener('change', () => this.rendereZustand());
     }
 
-    const modusSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
+    const modusEinstellungen = /** @type {HTMLInputElement | null} */ (document.getElementById('modus-einstellungen'));
+    const modusBrief = /** @type {HTMLInputElement | null} */ (document.getElementById('modus-brief'));
     /* Escape haengt an der Leiste, nicht an der Checkbox. Vorher kam man nur
        heraus, wenn der Fokus auf dem Schalter stand; wer in der Schriftart-
        Liste oder im Key-Feld stand, sass fest (Befund B14, gemessen 2026-11-13).
@@ -291,11 +294,11 @@ export class SettingsManager {
       leiste.addEventListener('keydown', (event) => {
         if (event.key !== 'Escape') return;
         if (document.querySelector(':popover-open')) return;
-        if (!modusSchalter?.checked) return;
+        if (!modusEinstellungen?.checked) return;
         event.preventDefault();
         this.toggleSettingsModus('brief');
         /* Der Fokus darf nicht in der gerade ausgeblendeten Zone bleiben. */
-        modusSchalter.focus();
+        modusBrief?.focus();
       });
     }
 

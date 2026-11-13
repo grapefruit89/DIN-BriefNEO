@@ -717,19 +717,6 @@ input[type="checkbox"][switch] {
   color: var(--text-muted);
 }
 
-:is([hidden], .hidden) { display: none; }
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
 .w-full { width: 100%; }
 
 .seitenleiste-header-row {
@@ -801,10 +788,8 @@ input[type="checkbox"][switch] {
   display: none;
 }
 
-#seitenleiste:has(#modus-einstellungen:checked) #zone-setup {
-  display: flex;
-  flex-direction: column;
-}
+/* Kein eigenes display hier: #zone-setup traegt .seitenleiste-setup, das
+   display:flex/column schon setzt. Die Regel war doppelt (Befund B15/A1). */
 
 /* Nur #btn-reset liegt noch in #zone-aktionen; die beiden anderen Selektoren
    trafen seit der Umsortierung nichts mehr (Befund B14). */

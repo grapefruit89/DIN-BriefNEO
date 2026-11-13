@@ -4760,6 +4760,46 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
   });
 });
 
+describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () => {
+  it('.sr-only und .hidden stehen in base.css, nicht in sidebar.css', async () => {
+    const [base, sidebar] = await Promise.all([
+      (await fetch('/website/css/base.css')).text(),
+      (await fetch('/website/css/sidebar.css')).text()
+    ]);
+    assert(base.includes('.sr-only {'), '.sr-only in base.css');
+    assert(base.includes('.hidden'), '.hidden in base.css');
+    assert(!sidebar.includes('.sr-only {'), 'sidebar.css definiert .sr-only nicht mehr');
+    assert(!sidebar.includes(':is([hidden], .hidden)'), 'sidebar.css definiert .hidden nicht mehr');
+  });
+
+  it('Postvermerk steht vor Brief-Stil (Schreibablauf)', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const labels = [...doc.querySelectorAll('#zone-dokument .seitenleiste-label')].map((e) => e.textContent.trim());
+    const post = labels.indexOf('Postvermerk');
+    const stil = labels.findIndex((l) => l.startsWith('Brief-Stil'));
+    assert(post > -1 && stil > -1, 'beide Labels vorhanden');
+    assert(post < stil, 'Postvermerk vor Brief-Stil (gehoert ins Anschriftfeld)');
+  });
+
+  it('Hinweise sind verbunden, der Key-Status ist eine Live-Region', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    assert(doc.getElementById('btn-rand-u-30')?.getAttribute('aria-describedby') === 'unterrand-hinweis', 'Unterrand verweist auf Hinweis');
+    assert(doc.getElementById('unterrand-hinweis'), 'Hinweis-Element existiert');
+    assert(doc.getElementById('geoapify-status')?.getAttribute('role') === 'status', 'Status ist role=status');
+    assert(doc.getElementById('input-geoapify-key')?.getAttribute('aria-describedby') === 'geoapify-status', 'Key-Feld verweist auf Status');
+  });
+
+  it('die Status-Zone nennt beide Inhalte', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const h2 = doc.querySelector('#zone-aktionen h2');
+    assert(h2, 'Zonen-Ueberschrift vorhanden');
+    assertEqual(h2?.textContent?.trim(), 'Status & Zurücksetzen', 'Name nennt Status und Zuruecksetzen');
+  });
+});
+
 describe('Ansicht ist eine Radiogruppe, kein Checkbox-Trick (Befund B14)', () => {
   /* Vorher: sr-only-Checkbox mit zwei sichtbaren Labels (Zahnrad + "Zurueck zum
      Brief"), Name "Einstellungen" und dann per aria-labelledby aus beiden Labels

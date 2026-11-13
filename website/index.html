@@ -107,15 +107,6 @@
 <!-- 2. Briefelemente -->
           <div class="seitenleiste-subgroup">
             <div class="seitenleiste-field-group">
-              <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
-              <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
-                <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
-                <option value="polite">Höflich (Guten Tag...)</option>
-                <option value="casual">Locker (Hallo...)</option>
-              </select>
-            </div>
-
-            <div class="seitenleiste-field-group">
               <label id="label-postvermerk" for="seitenleiste-postvermerk-select" class="seitenleiste-label">Postvermerk</label>
               <select id="seitenleiste-postvermerk-select" class="seitenleiste-select" aria-labelledby="label-postvermerk">
                 <option value="">— kein —</option>
@@ -137,6 +128,16 @@
                 </optgroup>
               </select>
             </div>
+
+            <div class="seitenleiste-field-group">
+              <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
+              <select id="stil-select" class="seitenleiste-select" aria-label="Brief-Stil &amp; Anrede">
+                <option value="formal">Förmlich (Sehr geehrte(r)...)</option>
+                <option value="polite">Höflich (Guten Tag...)</option>
+                <option value="casual">Locker (Hallo...)</option>
+              </select>
+            </div>
+
           </div>
 
           <hr class="seitenleiste-divider">
@@ -240,9 +241,9 @@
             <div class="seitenleiste-field-group">
               <div class="seitenleiste-switch-row">
                 <label for="btn-rand-u-30" class="seitenleiste-label">Unterrand 30 mm</label>
-                <input type="checkbox" switch id="btn-rand-u-30">
+                <input type="checkbox" switch id="btn-rand-u-30" aria-describedby="unterrand-hinweis">
               </div>
-              <p class="seitenleiste-sub-label">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
+              <p class="seitenleiste-sub-label" id="unterrand-hinweis">Aus = 20 mm (DIN-5008-Standard). An = 30 mm, mehr Abstand zum Fußblock (nicht normgerecht, aber zulässig).</p>
             </div>
 
             <div class="seitenleiste-field-group">
@@ -257,12 +258,12 @@
               <label for="input-geoapify-key" class="seitenleiste-sub-label">Geoapify API-Key:</label>
               <input
                 type="password"
-                id="input-geoapify-key"
+                id="input-geoapify-key" aria-describedby="geoapify-status"
                 class="input-field"
                 autocomplete="off"
                 spellcheck="false"
                 placeholder="Key einfügen (optional für Adress-Vorschläge)…">
-              <small id="geoapify-status" class="input-status-hint"></small>
+              <small id="geoapify-status" class="input-status-hint" role="status"></small>
               <a class="key-hint-link" href="https://myprojects.geoapify.com/projects" target="_blank" rel="noopener noreferrer">
                 Key bei Geoapify erstellen <span aria-hidden="true">↗</span>
               </a>
@@ -296,7 +297,10 @@
 
         <!-- Zone 4: Fester Fußbereich -->
         <div id="zone-aktionen" class="seitenleiste-footer">
-          <h2 class="sr-only">Aktionen</h2>
+          <!-- Name nennt beide Inhalte: der Speicherstatus und das Zuruecksetzen.
+               "Aktionen" verschwieg den Status, "Status" das Zuruecksetzen
+               (Befund B15/B3). -->
+          <h2 class="sr-only">Status &amp; Zurücksetzen</h2>
           <div class="save-status-row">
             <span id="save-status" class="save-status saved" title="Alle Änderungen gespeichert">Gespeichert</span>
           </div>

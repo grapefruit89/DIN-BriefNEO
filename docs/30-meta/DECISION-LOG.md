@@ -2995,3 +2995,38 @@ Das `switch`-Attribut bleibt für den Tag, an dem es Implementierungen gibt.
 30 px (neuer Regler 32 px + 12 px Flex-Gap). Der Fuß mit „Zurücksetzen" liegt
 damit unter der Kante. Nicht eigenmächtig gelöst — Kandidaten: Flex-Gap 12 → 8
 (‑28 px), `#zone-aktionen` sticky, oder Regler in die Kopfzeile.
+\n
+### 2026-11-13 — B15 A+B: Strukturvertrag aus dem Design geholt, Reihenfolge, Hinweise
+
+**Struktur-Utilities (A).** `.sr-only` und `.hidden` lagen in `sidebar.css`,
+werden aber quer durch `index.html` gebraucht: `.sr-only` 9× (Zonen-h2, das
+`<h1>` im `<main>`, die Radios der Ansicht), `.hidden` an zwei Datei-Inputs.
+Ein Design-Austausch hätte damit Überschriften und Radios sichtbar gemacht.
+Beide stehen jetzt in `base.css`.
+Gegenprobe (Mutationstest M2 aus dem B15-Review): `sidebar.css` per
+`styleSheets[i].disabled = true` abschalten → `.sr-only` bleibt
+`position:absolute`, 1px, `clip: rect(0,0,0,0)`; beide Datei-Inputs bleiben
+`display:none`.
+
+**Doppelte display-Regel (A).** `:has(#modus-einstellungen:checked) #zone-setup
+{ display:flex; flex-direction:column }` wiederholte nur `.seitenleiste-setup`.
+Entfernt; gemessen danach im Einstellungs-Modus `display:flex` /
+`flex-direction:column` aus der Klassenregel.
+
+**Reihenfolge (A).** Der Postvermerk stand hinter „Brief-Stil & Anrede", obwohl
+er ins Anschriftfeld gehört (Phase 1) und die Anrede Phase 3 ist. Jetzt davor —
+die einzige echte Inversion in der Reihenfolge, die am 2026-11-13 gebaut wurde.
+
+**Hinweise (B).** Der Unterrand-Hinweis hängt jetzt per `aria-describedby` am
+Schalter, `#geoapify-status` ist `role="status"` und dient dem Key-Feld als
+Beschreibung. Gemessen im AX-Baum: Checkbox mit Beschreibung („Aus = 20 mm …"),
+Textfeld mit Beschreibung („Key aktiv und gespeichert"). Vorher hingen beide
+nur an der Position (WCAG 1.3.1/4.1.3).
+
+**Zonenname (B).** „Aktionen" verschwieg den Speicherstatus, „Status" das
+Zurücksetzen. Jetzt `Status & Zurücksetzen` (weiterhin nur `sr-only`).
+
+**Nicht gemacht (bewusst):** `data-nur`-Strukturvertrag für alle Modus-Regeln,
+`<details>` für Entwicklerwerkzeuge, Reset in die Datei-Gruppe, GitHub-Link in
+die Einstellungen. Kein belegter Schaden, dafür Umbau der Moduslogik bzw.
+reine Geschmacksfrage.

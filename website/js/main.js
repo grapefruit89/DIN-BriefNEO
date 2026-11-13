@@ -166,24 +166,6 @@ function initApp() {
   const settingsManager = kritischerWert('Einstellungen-Objekt', () => new SettingsManager());
   bootStep('Einstellungen', () => settingsManager.init());
 
-  /* Mobile Schublade: derselbe Knopf oeffnet und schliesst. Escape schliesst.
-     Kein Zustand im Speicher - die Leiste ist am Handy ein Werkzeug, keine
-     Einstellung. */
-  bootStep('Mobile-Leiste', () => {
-    const knopf = document.getElementById('mobil-werkzeuge');
-    const leiste = document.getElementById('seitenleiste');
-    if (!knopf || !leiste) return;
-    /** @param {boolean} offen */
-    const setze = (offen) => {
-      leiste.setAttribute('data-mobil-offen', offen ? 'true' : 'false');
-      knopf.setAttribute('aria-expanded', String(offen));
-    };
-    knopf.addEventListener('click', () => setze(leiste.getAttribute('data-mobil-offen') !== 'true'));
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && leiste.getAttribute('data-mobil-offen') === 'true') setze(false);
-    });
-  });
-
   bootStep('Plugins', () => {
     // Mehrseiten-Modus ist fest eingeschaltet ([[ADR-EINSEITEN-STILLGELEGT]]).
     // Kein Umschalt-Signal mehr: der Controller wird genau einmal gemountet.

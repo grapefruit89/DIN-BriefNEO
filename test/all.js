@@ -4661,12 +4661,6 @@ describe('Statuszeile und mobile Schublade (2026-11-13)', () => {
     assert(knopf instanceof HTMLButtonElement, 'echter Button (Tastatur bedienbar)');
   });
 
-  it('schmale Viewports: Schublade und Blattskalierung per CSS', async () => {
-    const css = await (await fetch('/website/css/base.css')).text();
-    assert(css.includes('width < 900px'), 'Media Query fuer schmale Viewports');
-    assert(css.includes('data-mobil-offen'), 'Schublade ueber Attribut');
-    assert(css.includes('zoom: calc('), 'Blatt wird auf die Breite skaliert');
-  });
 });
 
 describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {

@@ -142,8 +142,9 @@ INZWISCHEN UMGESETZT (2026-11-13):
   - Ueberschriften: h2 je Zone, h3 fuer Gruppentitel
   - Reihenfolge: Adressen -> Inhalt -> Layout, "Daten" darunter
   - Statuszeile mit Ist-Stand und Sprung in die Einstellungen
-  - Handy: Schublade + Blattskalierung per Media Query in base.css
-    (keine eigene CSS-Datei)
+  - Handy: bewusst NICHT umgesetzt (Entscheidung 2026-11-13). Die App ist
+    eine Chrome-150+-Desktop-Anwendung; ein Zwischenstand mit Schublade und
+    Blattskalierung wurde wieder entfernt, weil er hier nicht debugbar ist.
 
 BEWUSST SO GELASSEN:
   - Textformatierung bleibt immer sichtbar (Nutzerentscheid, wie in Word)

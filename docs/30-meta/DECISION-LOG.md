@@ -2848,11 +2848,11 @@ Einstellungen ("Form B · Falzmarken aus · Schrift: Liberation Sans · Unterran
 20 mm") mit "ändern" als Sprung in die Einstellungen. Quelle sind
 data-layout/data-marks und die Einstellungen — kein neuer Zustand.
 
-**Handy.** Bisher unbenutzbar (gemessen 412 px: Leiste 300, Blatt 794, Rest
-112). Jetzt: Leiste als Schublade (Attribut `data-mobil-offen`, Knopf
-"☰ Werkzeuge", Escape schliesst) und Blatt per `zoom: calc(100cqw / 794px)`
-auf die Inhaltsbreite skaliert. Eine eigene CSS-Datei fuer Mobil gibt es
-bewusst nicht: Media Query in `base.css`, ein Request, eine Kaskade.
+**Handy: vorerst NICHT (Entscheidung 2026-11-13).** Ein Zwischenstand mit
+Schublade und Blattskalierung wurde wieder entfernt. Grund: Die App ist
+bewusst eine Chrome-150+-Desktop-Anwendung; eine Mobil-Variante laesst sich
+hier nicht debuggen, und ungetesteter Responsive-Code ist Ballast. Wer sie
+baut, macht das als eigenes Vorhaben mit eigener Messung.
 
 **Folge:** Die Seitenleiste scrollt bei 1007 px Hoehe jetzt um 30 px
 (1037). Bewusst akzeptiert — Statuszeile und Reihenfolge waren die Anforderung.

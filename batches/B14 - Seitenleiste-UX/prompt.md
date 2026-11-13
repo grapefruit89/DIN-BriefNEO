@@ -90,7 +90,11 @@ Escape-Pfad, kein Fokuswechsel in die geöffnete Zone.
    wird (z. B. Tab-Stopps bis zur Hauptaktion, Klicks bis zur häufigsten
    Änderung, Regler pro Gruppe, Scrollhöhe bei 1007 px, Zahl der Zonen).
    Nenne die Ist-Werte aus der Inventur und die Zielwerte.
-7. **Schmale Viewports.** Was passiert unter 600 px, und was sollte passieren?
+7. **Schmale Viewports — nur als Befund.** Entschieden am 2026-11-13: keine
+   Mobil-Variante. Die App ist eine Chrome-150+-Desktop-Anwendung; ein
+   Zwischenstand (Schublade, Blattskalierung) wurde wieder entfernt, weil er
+   sich hier nicht debuggen lässt. Beschreibe den Zustand unter 600 px, aber
+   schlage keinen Umbau vor.
 8. **Migrationsplan.** Kleinste Schritte, jeder einzeln widerlegbar
    (Datei → Änderung → Messung). Sag auch, was ausdrücklich **so bleiben
    soll** — inklusive CSS-only-Lösungen.

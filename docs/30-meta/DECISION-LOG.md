@@ -2821,3 +2821,38 @@ Kriterium des Reviews selbst Brief-Modus.
 **Offen (Entscheidung):** Ueberschriften/Hierarchie, Reihenfolge nach
 Schreibablauf, Statuszeile fuer globale Einstellungen, Off-Canvas unter 600 px
 (`--seitenleiste-breite` ist fix 18.75rem, min/max gleich).
+
+### 2026-11-13 — Adresssuche, Reihenfolge, Statuszeile, Handy
+
+**Adresssuche (Bug).** Zwei Ursachen fuer den Eindruck "zufaellig":
+1. Der Filter verlangte Strasse **und** Stadt — jede Stadt- oder PLZ-Suche fiel
+   komplett raus ("Troisdorf", "53840" zeigten nichts). Jetzt genuegt Stadt
+   oder PLZ.
+2. `mergeAndRender` mischte lokal + remote in Antwort-Reihenfolge. Jetzt
+   `adressRelevanz`: PLZ exakt (0), PLZ-Praefix (1), Strasse (2), Stadt (3),
+   irgendwo enthalten (4). Bei mehr als 5 Treffern werden die besten 5
+   gezeigt **plus** Hinweis (vorher: nur der Hinweis, nichts anklickbar).
+   Ein Stadt-Treffer leert das Strassenfeld nicht mehr.
+
+**Kein `disabled` ohne API-Key.** Die lokalen Adressen funktionieren ohne Key;
+statt das Feld zu sperren, sagt eine Hinweiszeile im Popover, warum nichts
+kommt. Begruendung: Sperren wuerde ein funktionierendes Feature entfernen.
+
+**Reihenfolge (Nutzerentscheid).** Adressen zuerst, dann Stil/Postvermerk,
+Text, Anlagen, Fusszeile, zuletzt Layout/Falzmarken; Import/Testbrief in der
+Zone "Daten" darunter. Textformatierung bleibt sichtbar (Nutzer: "bei Word sind
+die doch auch nicht einfach weg") — keine kontextuelle Toolbar.
+
+**Statuszeile.** Unter den Aktionsknoepfen steht der Ist-Stand der globalen
+Einstellungen ("Form B · Falzmarken aus · Schrift: Liberation Sans · Unterrand
+20 mm") mit "ändern" als Sprung in die Einstellungen. Quelle sind
+data-layout/data-marks und die Einstellungen — kein neuer Zustand.
+
+**Handy.** Bisher unbenutzbar (gemessen 412 px: Leiste 300, Blatt 794, Rest
+112). Jetzt: Leiste als Schublade (Attribut `data-mobil-offen`, Knopf
+"☰ Werkzeuge", Escape schliesst) und Blatt per `zoom: calc(100cqw / 794px)`
+auf die Inhaltsbreite skaliert. Eine eigene CSS-Datei fuer Mobil gibt es
+bewusst nicht: Media Query in `base.css`, ein Request, eine Kaskade.
+
+**Folge:** Die Seitenleiste scrollt bei 1007 px Hoehe jetzt um 30 px
+(1037). Bewusst akzeptiert — Statuszeile und Reihenfolge waren die Anforderung.

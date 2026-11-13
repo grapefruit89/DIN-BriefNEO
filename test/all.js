@@ -3,7 +3,7 @@
 // plus Draft-Roundtrip und Undo/Redo. Kein Framework, keine Mocks.
 
 import { bezeichne, buildAnschriftLines, Figurenkatalog, FLOSKELN, floskele, franchiseKey, generateNerdText, generiereTestEmail, generiereTestTelefon, getCharHook, hatWonkaBezug, randomBetreff, sindIdentisch, slugify, SZENARIEN, setField as setTestbriefField, toT9, waehleAnker, waehleBesetzung, waehleSzenario } from '../website/addons/testbrief/testbrief.js';
-import { AddressData, AddressIntelligence, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
+import { AddressData, AddressIntelligence, adressRelevanz, BUNDESLAENDER, buildFirmenIndex, buildOrtIndex, farbenFuerListe, flacheVorschlaege, getDistrict, GRUPPE_AB_PLZ, initAddressServices, initSenderSync, normalizePostcode, ORT_FARBEN, resolveCity, resolvePostcode, spiegelEntscheidung } from '../website/js/address.js';
 import { AddressData as AddressDataDirect, AddressIntelligence as AddressIntelligenceDirect, BUNDESLAENDER as BUNDESLAENDERDirect, buildFirmenIndex as buildFirmenIndexDirect, buildOrtIndex as buildOrtIndexDirect, getDistrict as getDistrictDirect, normalizePostcode as normalizePostcodeDirect, resolveCity as resolveCityDirect, resolvePostcode as resolvePostcodeDirect } from '../website/js/address-data.js';
 import { deleteBlob, loadBlob, saveBlob } from '../website/js/binary-storage.js';
 import { ClipboardAddressParser } from '../website/js/clipboard-parser.js';
@@ -4524,6 +4524,31 @@ describe('B3-Fixes: Ziel-Sperre und veraltete Suchantworten', () => {
   });
 });
 
+describe('Adresssuche: Relevanz statt Antwort-Reihenfolge (2026-11-13)', () => {
+  /* Gemeldet: Vorschlaege wirkten zufaellig; "Troisdorf" und "53840" zeigten
+     gar nichts, weil der Filter Treffer ohne Strasse verwarf. */
+  it('ordnet exakte PLZ vor Praefix, Strasse, Stadt, Rest', () => {
+    assertEqual(adressRelevanz({ postcode: '53840', city: 'Troisdorf' }, '53840'), 0, 'PLZ exakt');
+    assertEqual(adressRelevanz({ postcode: '53842', city: 'Troisdorf' }, '5384'), 1, 'PLZ-Praefix');
+    assertEqual(adressRelevanz({ street: 'Hauptstrasse', city: 'X' }, 'haupt'), 2, 'Strasse');
+    assertEqual(adressRelevanz({ street: 'A', city: 'Bonn' }, 'bonn'), 3, 'Stadt');
+    assertEqual(adressRelevanz({ formatted: 'Irgendwas mit Bonn' }, 'bonn'), 4, 'enthalten');
+    assertEqual(adressRelevanz({ formatted: 'Nix' }, 'bonn'), 5, 'kein Treffer');
+  });
+
+  it('Stadt- und PLZ-Treffer werden nicht verworfen (Ratsche)', async () => {
+    const src = await (await fetch('/website/js/address.js')).text();
+    assert(src.includes('s.city || s.postcode'), 'Filter laesst Treffer ohne Strasse durch');
+    assert(!src.includes('s.street && s.city'), 'alter Filter ist entfernt');
+    assert(src.includes('adressRelevanz(a, query) - adressRelevanz(b, query)'), 'Sortierung nach Relevanz');
+  });
+
+  it('ein Stadt-Treffer leert das Strassenfeld nicht (Ratsche)', async () => {
+    const src = await (await fetch('/website/js/address.js')).text();
+    assert(src.includes('empfStrasse && (item.street || item.housenumber)'), 'Strasse nur bei Strassentreffer');
+  });
+});
+
 describe('PLZ-Vorschlaege: Ausklappen ab 8, Ortsfarben (2026-11-13)', () => {
   /* "troi" zeigte eine Zeile "Troisdorf (3 PLZs)", die man erst aufklappen
      musste — ein Klick fuer nichts. Bis 7 PLZs stehen sie direkt in der Liste. */
@@ -4610,6 +4635,23 @@ describe('Import ist atomar (Befund B13)', () => {
     assertEqual(ok, false, 'Import meldet Fehler');
     assertEqual(localStorage.getItem(STORAGE_KEYS.draft), vorher, 'Draft unveraendert');
     assertEqual(alt, JSON.stringify({ betreff: 'ALT' }), 'Fixture unveraendert');
+  });
+});
+
+describe('Statuszeile und mobile Schublade (2026-11-13)', () => {
+  it('Statuszeile ist ein echter Button mit Ziel, kein Label', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    assert(doc.getElementById('zustand-text'), 'Text-Element vorhanden');
+    const knopf = doc.getElementById('btn-zustand-aendern');
+    assert(knopf instanceof HTMLButtonElement, 'echter Button (Tastatur bedienbar)');
+  });
+
+  it('schmale Viewports: Schublade und Blattskalierung per CSS', async () => {
+    const css = await (await fetch('/website/css/base.css')).text();
+    assert(css.includes('width < 900px'), 'Media Query fuer schmale Viewports');
+    assert(css.includes('data-mobil-offen'), 'Schublade ueber Attribut');
+    assert(css.includes('zoom: calc('), 'Blatt wird auf die Breite skaliert');
   });
 });
 

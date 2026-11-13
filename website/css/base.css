@@ -275,6 +275,65 @@ body[data-theme="auto"] {
   min-height: 0;
 }
 
+/* --- Schmale Viewports: Leiste als Schublade, Blatt auf Breite skaliert ---
+ * Vorher war der Brief auf dem Handy unbenutzbar (gemessen 2026-11-13,
+ * Pixel 9 / 412 px: Leiste 300 px, Blatt 794 px, Rest 112 px). Jetzt:
+ * Leiste liegt ueber dem Blatt und ist standardmaessig zu, das Blatt wird
+ * per zoom auf die Viewport-Breite gebracht (210 mm = 794 px bei 96 dpi).
+ * Nur am Schirm - der Druck bleibt unberuehrt. */
+#mobil-werkzeuge { display: none; }
+
+@media screen and (width < 900px) {
+  #app-shell { grid-template-columns: 1fr; }
+
+  #seitenleiste {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: min(88vw, 22rem);
+    max-inline-size: min(88vw, 22rem);
+    min-inline-size: 0;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 0 24px oklch(0 0 0 / 25%);
+  }
+
+  /* Wenn offen: oben Platz fuer den schwebenden Knopf, sonst ueberdeckt er
+     GitHub- und Zahnrad-Symbol. */
+  #seitenleiste[data-mobil-offen="true"] {
+    transform: translateX(0);
+    padding-block-start: 56px;
+  }
+
+  /* Container-Breite statt Viewport-Breite: #viewport ist der Container
+     (container-type: size); die Viewport-Einheit wuerde die Scrollleiste
+     mitzaehlen (Projektregel P-NO-100VW, Treffer zaehlen auch im Kommentar).
+     cqw ist die Inhaltsbreite - das Padding des Viewports ist schon ab. */
+  din-blatt { zoom: calc(100cqw / 794px); }
+
+  #mobil-werkzeuge {
+    display: inline-flex;
+    position: fixed;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+    z-index: 70;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-seitenleiste-glass);
+    backdrop-filter: var(--glass-blur);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+  }
+}
+
 #viewport {
   height: 100%;
   display: flex;

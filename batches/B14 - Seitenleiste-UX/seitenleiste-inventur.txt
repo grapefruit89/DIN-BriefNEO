@@ -138,12 +138,18 @@ BEHOBEN (a11y, ohne Umbau):
   Messung: 1 Stopp, Fokusring "solid 2px", Space -> checked true,
   Escape -> checked false.
 
-BESTAETIGT, aber offen (Entscheidung noetig):
-  - keine Ueberschriften (0), 11 Flach-Labels
-  - Reihenfolge beginnt mit Geometrie statt Adressen
-  - kein Media Query unter 600 px; --seitenleiste-breite ist FIX 18.75rem
-    (min/max gleich) -> die Leiste kann nicht schrumpfen
-  - eine Statuszeile fuer globale Einstellungen fehlt
+INZWISCHEN UMGESETZT (2026-11-13):
+  - Ueberschriften: h2 je Zone, h3 fuer Gruppentitel
+  - Reihenfolge: Adressen -> Inhalt -> Layout, "Daten" darunter
+  - Statuszeile mit Ist-Stand und Sprung in die Einstellungen
+  - Handy: Schublade + Blattskalierung per Media Query in base.css
+    (keine eigene CSS-Datei)
+
+BEWUSST SO GELASSEN:
+  - Textformatierung bleibt immer sichtbar (Nutzerentscheid, wie in Word)
+  - Form A/B bleibt im Brief-Modus (haeufig, blattwirksam)
+  - :has(#toggle-modus:checked) bleibt (nutzergetrieben, A57 schuetzt
+    native Schalter vor JS-Klassen-Toggles)
 
 ABGELEHNT:
   - :has(#toggle-modus:checked) durch data-modus zu ersetzen. Der Schalter ist

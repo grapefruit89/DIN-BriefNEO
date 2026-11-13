@@ -763,6 +763,31 @@ export function initSenderSync() {
  */
 
 /**
+ * Relevanz eines Geoapify-Treffers fuer die eingegebene Suche (0 = bester).
+ *
+ * Vorher standen die Treffer in Antwort-Reihenfolge (bei lokal zuerst, dann
+ * remote) — fuer den Nutzer wirkte das zufaellig. PLZ-Treffer zaehlen vor
+ * Stadt vor "irgendwo enthalten".
+ * @param {{ street?: string, postcode?: string, city?: string, formatted?: string }} item
+ * @param {string} query
+ * @returns {number} 0..5
+ */
+export function adressRelevanz(item, query) {
+  const q = String(query || '').trim().toLowerCase();
+  const plz = String(item.postcode || '');
+  const street = String(item.street || '').toLowerCase();
+  const city = String(item.city || '').toLowerCase();
+  const alles = String(item.formatted || '').toLowerCase();
+  if (!q) return 5;
+  if (/^\d+$/.test(q) && plz === q) return 0;
+  if (/^\d+$/.test(q) && plz.startsWith(q)) return 1;
+  if (street.startsWith(q)) return 2;
+  if (city.startsWith(q)) return 3;
+  if (alles.includes(q)) return 4;
+  return 5;
+}
+
+/**
  * Initialisiert Adress-Dienste (Geoapify, Offline-Intelligence, Absender-Proximity).
  */
 export function initAddressServices() {
@@ -944,7 +969,14 @@ export function initAddressServices() {
     for (const m of localMatches) {
       m.source = 'local';
     }
-    renderSuggestions(localMatches, query, false);
+    /* Ohne API-Schlüssel und ohne gespeicherte Adresse blieb das Popover zu -
+       das Feld wirkte defekt. Statt es zu deaktivieren (die lokalen Adressen
+       funktionieren ja), sagen wir, warum nichts kommt. */
+    if (!localMatches.length && !load(STORAGE_KEYS.geoapifyKey, '')) {
+      zeigeSuchHinweis('Ohne API-Schlüssel: nur gespeicherte Adressen. Key in den Einstellungen setzen.');
+    } else {
+      renderSuggestions(localMatches, query, false);
+    }
 
     // 2. REMOTE SEARCH (Debounced)
     debounceSearchTimeout = setTimeout(() => {
@@ -1012,7 +1044,10 @@ export function initAddressServices() {
           formatted: p.formatted || [p.street, p.housenumber, p.postcode, p.city].filter(Boolean).join(', '),
           source: 'geoapify'
         };
-      }).filter((/** @type {AddressEntry} */ s) => s.street && s.city);
+      }).filter((/** @type {AddressEntry} */ s) => s.city || s.postcode);
+      /* Frueher mussten Strasse UND Stadt vorhanden sein; jede Stadt- oder
+         PLZ-Suche (ohne Strasse) fiel damit komplett raus - "Troisdorf" und
+         "53840" zeigten gar nichts (gemeldet 2026-11-13). */
 
       /* Deckel gegen monoton wachsenden Speicher (SMELL aus dem Review):
          aeltester Eintrag fliegt raus, wenn der Cache voll ist. */
@@ -1047,6 +1082,10 @@ export function initAddressServices() {
         combined.push(ps);
       }
     });
+    /* Relevanz statt Antwort-Reihenfolge: PLZ exakt, PLZ-Praefix, Strasse,
+       Stadt, irgendwo enthalten. Bei Gleichstand bleibt die Einfuege-Reihenfolge
+       (sort ist stabil), also lokale Treffer vor remote. */
+    combined.sort((a, b) => adressRelevanz(a, query) - adressRelevanz(b, query));
     renderSuggestions(combined, query, true);
   }
 
@@ -1067,18 +1106,9 @@ export function initAddressServices() {
       return;
     }
 
-    if (allowZeroClick && suggestions.length > 5) {
-      renderedSuggestions = [];
-      const statusLi = document.createElement('li');
-      statusLi.className = 'suggestion-hint';
-      statusLi.setAttribute('role', 'option');
-      statusLi.setAttribute('aria-disabled', 'true');
-      statusLi.setAttribute('aria-selected', 'false');
-      Field.setValue(statusLi, `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`);
-      addressSuggestions.appendChild(statusLi);
-      showPopoverSafe(addressSuggestions);
-      return;
-    }
+    /* Bei mehr als 5 Treffern stand hier NUR der Hinweis - man konnte nichts
+       anklicken. Jetzt: die besten 5 plus Hinweis als letzte Zeile. */
+    const mehrAlsFuenf = allowZeroClick && suggestions.length > 5;
 
     renderedSuggestions.forEach((item, index) => {
       const li = document.createElement('li');
@@ -1098,8 +1128,37 @@ export function initAddressServices() {
       addressSuggestions.appendChild(li);
     });
 
+    if (mehrAlsFuenf) {
+      const statusLi = document.createElement('li');
+      statusLi.className = 'suggestion-hint';
+      statusLi.setAttribute('role', 'option');
+      statusLi.setAttribute('aria-disabled', 'true');
+      statusLi.setAttribute('aria-selected', 'false');
+      Field.setValue(statusLi, `${suggestions.length} Treffer – bitte PLZ oder Straße ergänzen`);
+      addressSuggestions.appendChild(statusLi);
+    }
+
     bindListSelection(addressSuggestions, renderedSuggestions, selectSuggestion);
 
+    showPopoverSafe(addressSuggestions);
+  }
+
+  /**
+   * Eine einzelne, nicht anklickbare Hinweiszeile im Vorschlags-Popover.
+   * @param {string} text
+   */
+  function zeigeSuchHinweis(text) {
+    if (!addressSuggestions) return;
+    addressSuggestions.replaceChildren();
+    renderedSuggestions = [];
+    activeSuggestionIndex = -1;
+    const li = document.createElement('li');
+    li.className = 'suggestion-hint';
+    li.setAttribute('role', 'option');
+    li.setAttribute('aria-disabled', 'true');
+    li.setAttribute('aria-selected', 'false');
+    Field.setValue(li, text);
+    addressSuggestions.appendChild(li);
     showPopoverSafe(addressSuggestions);
   }
 
@@ -1110,10 +1169,12 @@ export function initAddressServices() {
     const empfStrasse = feld('empfaenger-strasse');
     const empfOrt = feld('empfaenger-ort');
 
-    if (empfStrasse) {
+    /* Nur fuellen, was der Treffer wirklich hat: ein Stadt-/PLZ-Treffer hat
+       keine Strasse und darf das Empfaengerfeld nicht leeren. */
+    if (empfStrasse && (item.street || item.housenumber)) {
       Field.setValue(empfStrasse, `${item.street} ${item.housenumber}`.trim());
     }
-    if (empfOrt) {
+    if (empfOrt && (item.postcode || item.city)) {
       Field.setValue(empfOrt, `${item.postcode} ${item.city}`.trim());
     }
 

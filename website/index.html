@@ -39,6 +39,8 @@
     <a href="#viewport" class="skip-link">Zum Briefkern springen</a>
     <div id="app-shell">
       <div id="probe" aria-hidden="true"></div>
+      <!-- Nur unter 900px sichtbar: oeffnet die Leiste als Schublade. -->
+      <button type="button" id="mobil-werkzeuge" aria-controls="seitenleiste" aria-expanded="false">☰ Werkzeuge</button>
       <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
         <input type="checkbox" id="toggle-modus" class="sr-only" aria-label="Einstellungen">
         <!-- Normaler Modus Header -->
@@ -75,34 +77,36 @@
           <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
         </div>
 
+        <!-- Statuszeile: globale Einstellungen liegen im Einstellungs-Modus und
+             sind hier sonst unsichtbar. Zeigt den Ist-Stand, ohne hinzugehen;
+             "ändern" springt dorthin. Werte kommen aus data-layout/data-marks
+             und den Einstellungen - kein neuer Zustand. -->
+        <p class="seitenleiste-zustand">
+          <span id="zustand-text">Form B · Falzmarken an · Schrift: System · Unterrand 20 mm</span>
+          <button type="button" id="btn-zustand-aendern" class="zustand-aendern">ändern</button>
+        </p>
+
         <!-- Zone 1: Brief-Steuerung -->
         <section id="zone-dokument" class="seitenleiste-zone">
           <!-- Ueberschriften-Ebene: h1 (Seite, sr-only) -> h2 Zone -> h3 Gruppe.
                Reine Struktur fuer Screenreader und die Gliederung; die Labels
                an den Reglern bleiben Labels. -->
           <h2 class="seitenleiste-h2">Brief</h2>
-          <!-- 1. Format & Ansicht -->
-          <div class="seitenleiste-subgroup">
-            <fieldset class="seitenleiste-field-group">
-              <legend class="seitenleiste-label">DIN-Brief Layout</legend>
-              <div class="segmented-control">
-                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
-                <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
-                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
-                <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
-              </div>
-            </fieldset>
 
-            <div class="seitenleiste-switch-row">
-              <label for="toggle-falzmarken" class="seitenleiste-label">Falz- &amp; Lochmarken</label>
-              <input type="checkbox" switch id="toggle-falzmarken" checked>
-            </div>
+          <!-- Adressen zuerst: der Brief beginnt mit dem Empfaenger. -->
+<search id="anschrift-suche-container" class="seitenleiste-options-group">
+            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
+            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
+            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
+            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
+          </search>
 
-          </div>
+          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
+          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
 
           <hr class="seitenleiste-divider">
 
-          <!-- 2. Briefelemente -->
+<!-- 2. Briefelemente -->
           <div class="seitenleiste-subgroup">
             <div class="seitenleiste-field-group">
               <label for="stil-select" class="seitenleiste-label">Brief-Stil &amp; Anrede</label>
@@ -175,19 +179,33 @@
             </div>
           </div>
         </section>
+          <!-- Layout zuletzt: global, selten, wirkt auf das ganze Blatt. -->
+<!-- 1. Format & Ansicht -->
+          <div class="seitenleiste-subgroup">
+            <fieldset class="seitenleiste-field-group">
+              <legend class="seitenleiste-label">DIN-Brief Layout</legend>
+              <div class="segmented-control">
+                <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
+                <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
+                <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>
+                <label for="btn-form-b" title="Form B: Tiefer Briefkopf (45mm)">Form B</label>
+              </div>
+            </fieldset>
+
+            <div class="seitenleiste-switch-row">
+              <label for="toggle-falzmarken" class="seitenleiste-label">Falz- &amp; Lochmarken</label>
+              <input type="checkbox" switch id="toggle-falzmarken" checked>
+            </div>
+
+          </div>
+
+          <hr class="seitenleiste-divider">
+</section>
 
         <!-- Zone 2: Daten & Adressen -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
-          <h2 class="seitenleiste-h2">Daten &amp; Adressen</h2>
-          <search id="anschrift-suche-container" class="seitenleiste-options-group">
-            <label for="input-anschrift-suche" class="seitenleiste-sub-label">Anschrift suchen:</label>
-            <input type="search" id="input-anschrift-suche" class="input-field w-full" placeholder="Straße, PLZ, Ort…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="anschrift-vorschlaege" aria-expanded="false">
-            <ul id="anschrift-vorschlaege" popover="auto" class="autocomplete-dropdown nicht-drucken" role="listbox" aria-label="Adressvorschläge"></ul>
-            <ul id="plz-suggestions-popover" popover="auto" class="anschrift-vorschlaege-liste nicht-drucken" role="listbox" aria-label="PLZ-Vorschläge"></ul>
-          </search>
-
-          <button type="button" id="btn-zwischenablage-anschrift" class="btn w-full" title="Liest kopierte Anschrift- oder Impressumsdaten aus der Zwischenablage">📋 Anschrift aus Zwischenablage</button>
-          <ul id="clipboard-candidates-popover" class="autocomplete-dropdown nicht-drucken" popover="auto"></ul>
+          <h2 class="sr-only">Daten</h2>
+          
 
           <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
           <input type="file" id="dinletter-uploader" accept=".json,application/json" hidden tabindex="-1" aria-label="DIN-Brief JSON-Datei auswählen">

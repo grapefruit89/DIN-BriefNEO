@@ -118,6 +118,10 @@ export class SettingsManager {
 
     this.#spiegleLayoutFlags();
     this.#applyPlugins();
+    /* Erst NACH dem Attribut-Spiegel: rendereZustand liest data-layout und
+       data-marks. Vorher stand der Aufruf davor und die Zeile zeigte den
+       alten Stand (gemessen 2026-11-13). */
+    this.rendereZustand();
   }
 
   /**
@@ -237,11 +241,45 @@ export class SettingsManager {
     this.updateSettings();
   }
 
+  /**
+   * Schreibt den Ist-Stand der globalen Einstellungen in die Statuszeile.
+   *
+   * Reine Anzeige: die Quelle bleibt data-layout / data-marks / die
+   * Einstellungen. Damit sieht man im Brief-Modus, warum das Blatt so
+   * aussieht, ohne in die Einstellungen zu wechseln.
+   */
+  rendereZustand() {
+    const ziel = document.getElementById('zustand-text');
+    if (!ziel) return;
+    const root = document.documentElement;
+    const layout = root.dataset.layout === 'form-a' ? 'Form A' : 'Form B';
+    const marks = root.dataset.marks === 'false' ? 'Falzmarken aus' : 'Falzmarken an';
+    const randU = this.settings.randU === 30 ? '30' : '20';
+    /* Schrift: den sichtbaren Eintrag der Auswahlliste lesen, statt die
+       Font-Presets zu importieren - die Liste ist die Anzeige-Wahrheit. */
+    const schriftSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
+    /* Options-Text kann "Liberation Sans / System-UI" heissen - fuer eine
+       Statuszeile reicht der erste Name. */
+    const schrift = (schriftSelect?.selectedOptions?.[0]?.textContent || 'System').split('/')[0].trim();
+    ziel.textContent = `${layout} · ${marks} · Schrift: ${schrift} · Unterrand ${randU} mm`;
+  }
+
   attachListeners() {
     /* Escape fuehrt aus dem Einstellungs-Modus zurueck. Der Schalter ist ein
        Ansichtswechsel; ohne Tastenausgang sitzt man dort fest. Bindung hier,
        nicht in toggleSettingsModus: der Modus wird rein ueber die native
        Checkbox geschaltet (CSS), toggleSettingsModus laeuft dabei nie. */
+    const zustandKnopf = document.getElementById('btn-zustand-aendern');
+    if (zustandKnopf) {
+      zustandKnopf.addEventListener('click', () => this.toggleSettingsModus('einstellungen'));
+    }
+    /* Schriftwechsel laeuft ueber font-feature.js; hier nur die Anzeige
+       nachziehen (zweiter Listener, kein zweiter Schreiber). */
+    const schriftSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
+    if (schriftSelect) {
+      schriftSelect.addEventListener('change', () => this.rendereZustand());
+    }
+
     const modusSchalter = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-modus'));
     if (modusSchalter) {
       modusSchalter.addEventListener('keydown', (event) => {

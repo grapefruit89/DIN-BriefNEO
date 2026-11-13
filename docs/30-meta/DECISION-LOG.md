@@ -248,7 +248,7 @@ Audit-Fund: 2 Inline-`<script>`-Blöcke in index.html (Z. 27 FOUC-Theme/Font-Boo
 **Fix im selben Zug (Inline-CSS-Ausräumung):** ai-assistant.js 4× `style.display` → `classList.toggle('hidden')` (`.hidden { display:none !important; }`); Phantomklasse `.opacity-50` (nirgends definiert!) → CSS `sidebar.css`: `.sidebar-switch-row:has(input:disabled) { opacity: 0.5; }`; 02-settings 2× `style.colorScheme` gelöscht (variables.css hat komplette `[data-theme]`-color-scheme-Regeln); 31-format-toolbar `style.top/left` → `--sel-y/--sel-x` Custom Props + `#selection-anchor { top: var(--sel-y, auto); left: var(--sel-x, auto); }`.
 
 ### Verifikation
-Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei Load, Theme-Toggle → root VT ×1 + kein Toast, Form A/B → sheet VT ×1 + root VT 0, Selektion → `--sel-x/--sel-y` gesetzt + Toolbar `:popover-open` (Anchor-Positioning via CSS), Draft-Restore (121 Z. Brieftext), Radio-Sync (layout form-a), `din-custom-font-style` nur bei gespeicherter Font, 4 externe Scripts, 0 inline.
+Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei Load, Theme-Toggle → root VT ×1 + kein Toast, Form A/B → sheet VT ×1 + root VT 0, Selektion → `--sel-x/--sel-y` gesetzt + Toolbar `:popover-open` (Anchor-Positioning via CSS), Draft-Restore (121 Z. Text), Radio-Sync (layout form-a), `din-custom-font-style` nur bei gespeicherter Font, 4 externe Scripts, 0 inline.
 
 **Generalisierbarkeit (llm_boilerplate):** (1) „Boot-VTs unterdrücken (isReady-Flag), nicht nur `.finished.catch`" — jedes VT-Feature braucht einen Boot-Guard. (2) „FOUC-/Restore-Boot-Code als externe blockierende Classic-Scripts statt Inline" — Zero-Inline-Policy kompatibel mit Timing-Anforderungen. (3) `:has(input:disabled)` statt JS-Styling-Opacity. (4) Chrome-only-Spezialisierung als alternative Longevity-Strategie zur Multi-Browser-Matrix.
 
@@ -767,7 +767,7 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Änderung:**
 1. **Blatt vereinheitlicht** (DIN-nah „Briefblatt", Registry „DIN-A4-Blatt"): `--paper-bg/-text/-ghost` → `--blatt-hintergrund/-text/-schwach`; `--c-paper-*`→`--c-blatt-*`, `--c-ink-*`→`--c-tinte-*`, `--c-ghost-*`→`--c-schwach-*`; `class="paper-theme"`→`blatt-theme`; Kommentare „Paper/FOOTER/sheet"→„Blatt/FUSS".
 2. **container-name-Ballast entfernt:** alle `container-name`-Deklarationen gelöscht (kein `@container` im Projekt → ungenutzt; der Doppelname auf `#viewport` war ein toter Konflikt). `container-type` bleibt (cqw/cqh).
-3. **aria-labels auf IMR-Namen:** „Brieftext"→„Text", „Briefinhalt"→„Briefkern", „Empfängeradresse"→„Anschriftfeld", „Absenderinformationen"→„Infoblock".
+3. **aria-labels auf IMR-Namen:** „Text"→„Text", „Briefinhalt"→„Briefkern", „Empfängeradresse"→„Anschriftfeld", „Absenderinformationen"→„Infoblock".
 4. **„Adresse"→„Anschrift"** in UI-Texten (Ausnahme „E-Mail-Adresse").
 5. **UI-Englisch verdeutscht:** `font`→`schrift` (explizite Identifier; `font-family`/`FontFace`/`fontsource` unberührt), `toast`→`hinweis` (Datei `32-toast.js` + kapitales JS-API `showToast`/`TOASTS` unberührt), `sidebar`→`seitenleiste` (Datei `sidebar.css` unberührt); `data-appearance/persist/dir/font-mode/action`→`data-erscheinungsbild/speichern/richtung/schrift-modus/aktion`; `page-1`→`seite-1`, `no-print`→`nicht-drucken`.
 6. **Bugfix aus dem Rename:** JS-`dataset`-Zugriffe angepasst (`dataset.action`→`dataset.aktion`, `dataset.fontMode`→`dataset.schriftModus`) — sonst wären Signatur-Handles/Font-Umschalter stillschweigend kaputt. Bewusst gelassen: reine CSS-Konvention (`hidden`/`w-full`/`sr-only`/`single-line`, Farb-Rollen `--c-primary/-danger/-success/-warning`, `type-*`) — kein Vokabular, KISS.
@@ -781,9 +781,9 @@ Fitness Gate 100 % (pre/post). Live (Chrome 151, frischer Tab): KEINE FEHLER bei
 **Kontext:** Der Sweep zeigte: `imr.js` kontrollierte bisher nur die `din-*`-Struktur, nicht das übrige Projektvokabular. Ziel: die IMR definiert **auch die erlaubte Sprache**, und das Gate prüft sie — damit kein manueller Sweep mehr nötig ist.
 
 **Änderung:**
-1. **IMR-Inventar** um `vocabulary` erweitert: `canonical`, `forbidden` (paper→Blatt, sheet→Blatt, Brieftext→Text, Briefinhalt→Briefkern, Empfängeradresse→Anschriftfeld, Absenderinformationen→Infoblock, sidebar→Seitenleiste, toast→Hinweis, page-1→seite-1), `forbiddenTokens` (`--paper-`/`--c-paper-`/`--c-ink-`/`--c-ghost-`/`--fold-`/`--punch-`/`--din-width`/`--din-height`/`--guide-opacity`), `exceptions` (Dateinamen), `notAutoChecked` (font/action/Adresse wegen native API bzw. Input-Parsing).
+1. **IMR-Inventar** um `vocabulary` erweitert: `canonical`, `forbidden` (paper→Blatt, sheet→Blatt, Text→Text, Briefinhalt→Briefkern, Empfängeradresse→Anschriftfeld, Absenderinformationen→Infoblock, sidebar→Seitenleiste, toast→Hinweis, page-1→seite-1), `forbiddenTokens` (`--paper-`/`--c-paper-`/`--c-ink-`/`--c-ghost-`/`--fold-`/`--punch-`/`--din-width`/`--din-height`/`--guide-opacity`), `exceptions` (Dateinamen), `notAutoChecked` (font/action/Adresse wegen native API bzw. Input-Parsing).
 2. **`tools/imr.js`**: neue `checkVocabulary` — **case-sensitive** (kapitalisierte API-/Brand-Namen bleiben unberührt), Wortgrenzen mit `-`/`_`/`.`, überspringt `.js`/`.css`-Tokens und die Ausnahmen; `forbiddenTokens` als Literal-Scan. Verstöße sind Gate-`critical`.
-3. **Residuen bereinigt:** Kommentar „Brieftext"→„Text", Meldung „Briefinhalt"→„Briefkern", JS-Variablen `sheet`→`blatt` (draft-manager/settings-manager), Kommentar „sheet"→„Blatt".
+3. **Residuen bereinigt:** Kommentar „Text"→„Text", Meldung „Briefinhalt"→„Briefkern", JS-Variablen `sheet`→`blatt` (draft-manager/settings-manager), Kommentar „sheet"→„Blatt".
 
 **Verifikation:** `node tools/imr.js` → „IMR OK"; Negativtest greift (`paper`/`sheet`/`sidebar`/`toast` geflaggt) und respektiert Ausnahmen (`font-family`, `touch-action`, `css/sidebar.css`, `showToast`, `32-toast.js`); Gate 100 %; `node --check` ok.
 
@@ -1131,7 +1131,7 @@ toter Fallback-Zweig in `45-address-intelligence.js`/`41-salutation-engine.js` u
 - `fetch()` lokaler Dateien unter `file://` ebenfalls blockiert → die `.gz`-Datenpfade sterben.
 - `localStorage` **funktioniert** unter `file://`, aber Chromium ignoriert dabei den Pfad der
   URL (langjähriger offener Chromium-Bug): **alle** lokal geöffneten HTML-Dateien teilen sich
-  einen Namespace. Für dieses Produkt heißt das: Absenderdaten, Empfänger, Brieftext und
+  einen Namespace. Für dieses Produkt heißt das: Absenderdaten, Empfänger, Text und
   Base64-Unterschrift wären von jeder beliebigen lokal geöffneten HTML-Datei les- und
   überschreibbar. Das kollidiert frontal mit dem Privacy-Versprechen des Projekts.
 - Ein Single-File-Build wäre ca. **381 KB** (51 CSS + 145 JS + 21 HTML + 164 Daten-Base64).
@@ -1284,7 +1284,7 @@ Sachverhalt an fünf Orten: Law Catalog, `ADR-ANTIPATTERN`, `GEMINI.md`, `CLAUDE
    Feature-Detection, Codestruktur) stehen jetzt in `AGENTS.md` §7a; `AGENTS.md` §7 führt
    keine Verbotsliste mehr, sondern verweist.
 3. **B16 — Terminologie-Kanon.** [[glossary]] bekam „Kanonische Begriffe" mit Spalte „statt",
-   dazu bewusst **nicht** zusammengelegte Paare (Briefkern/Brieftext, Briefbogen/`<din-a4>`,
+   dazu bewusst **nicht** zusammengelegte Paare (Briefkern/Text, Briefbogen/`<din-a4>`,
    Entwurf/Autosave, netzunabhängig/serverlos). Neu `tools/terminology.js`, eingehängt in
    `reconciliation.js` wie `links.js`/`imr.js`.
 
@@ -1300,7 +1300,7 @@ Zehn Zitate auf `ADR-ANTIPATTERN Abs. N` in `ADR-CSS`/`ADR-HTML`/`ADR-JS` und f�
 geworden, also exakt der Fehler, den er verhindern soll.
 
 **Bewusst NICHT geändert:** `Briefbogen` bleibt (DIN-5008-Fachbegriff in `spec.md`/`ADR-CSS`,
-kein Synonym für `<din-a4>`). `Briefkern` und `Brieftext` bleiben getrennt — Zone vs. Feld.
+kein Synonym für `<din-a4>`). `Briefkern` und `Text` bleiben getrennt — Zone vs. Feld.
 `DIN-Brief-Architektur.canvas` zeigt auf den veralteten Pfad `ADR/ADR-ANTIPATTERN.md`; der war
 schon vorher falsch und gehört zu einem eigenen Vorgang. Alteinträge in diesem Log und
 `docs/90-archive/` bleiben unberührt.
@@ -2893,3 +2893,16 @@ zu nah an der Schrift — und er soll fuer **alle** Blattfelder gelten.
 Geprueft mit Screenshot (Hover auf Einzeiler, Fokus auf #text): Rahmen liegt
 aussen, keine Schrift wird uebermalt, Nachbarzeile bleibt lesbar. Druck
 unveraendert (Fokus ist `@media screen`, der Print-Reset gewinnt).
+
+### 2026-11-13 — Ein Radius fuer alle Blattfelder
+
+Nach dem Rahmen kam der nächste Inkonsistenz-Punkt: `#text` und die
+Anlagen-Textarea hatten 3 px, **alle** `<input>` 0 px — sechs
+`border-radius: 0`-Zeilen in den Feld-Resets (Empfänger, Absender/Datum,
+Fußzeile, Betreff-Gruppe, Vermerke, Rücksendezeile) gewannen gegen die
+gemeinsame Regel. Der Rahmen war also bei Einzeilern eckig und beim Textfeld
+rund.
+
+Jetzt: `--feld-radius: 4px` in der gemeinsamen Feld-Regel, die sechs
+`border-radius: 0` entfernt. Gemessen: alle Feldtypen liefern 4 px.
+Der Druck bleibt eckig (`border-radius: 0 !important` im Print-Reset).

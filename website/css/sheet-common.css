@@ -99,7 +99,6 @@ din-lochmarke {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -280,7 +279,6 @@ din-anlagen-angabe {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -305,7 +303,6 @@ din-anlagen-angabe {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -336,7 +333,6 @@ din-anlagen-angabe {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   color: inherit;
   font-family: inherit;
@@ -364,7 +360,6 @@ din-anlagen-angabe {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   color: inherit;
   font-family: inherit;
@@ -385,7 +380,6 @@ din-anlagen-angabe {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   color: inherit;
   font-family: inherit;
@@ -572,7 +566,11 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
          in die Nachbarzeile schneiden; die Mehrzeiler bekommen weiter unten
          mehr Luft. */
       outline-offset: 2px;
-      border-radius: 3px;
+      /* EIN Radius fuer alle Blattfelder. Vorher: #text 3 px, alle Inputs 0 px,
+         weil die Feld-Resets border-radius: 0 setzten - der Rahmen war bei den
+         Einzeilern eckig und beim Textfeld rund (gemessen 2026-11-13). */
+      --feld-radius: 4px;
+      border-radius: var(--feld-radius);
       background: transparent;
       transition: outline 0.12s ease-out, background-color 0.12s ease-out, box-shadow 0.12s ease-out;
     }

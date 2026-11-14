@@ -229,18 +229,18 @@ export class SettingsManager {
   }
 
   /**
-   * Schreibt den Ist-Stand der globalen Einstellungen in die Statuszeile.
+   * Schreibt die Werte in die Statuszeile, die im Brief-Modus NICHT als Regler
+   * sichtbar sind.
    *
-   * Reine Anzeige: die Quelle bleibt data-layout / data-marks / die
-   * Einstellungen. Damit sieht man im Brief-Modus, warum das Blatt so
-   * aussieht, ohne in die Einstellungen zu wechseln.
+   * Befund B74 (gemessen 2026-11-14): Form und Falzmarken standen doppelt —
+   * einmal in der Statuszeile, einmal als Regler direkt darunter. Schrift und
+   * Unterrand dagegen liegen in der Zone "Einstellungen", die im Brief-Modus
+   * ausgeblendet ist. Die Zeile zeigt deshalb nur diese zwei; sie ist die
+   * einzige Stelle, an der sie im Brief-Modus zu sehen sind.
    */
   rendereZustand() {
     const ziel = document.getElementById('zustand-text');
     if (!ziel) return;
-    const root = document.documentElement;
-    const layout = root.dataset.layout === 'form-a' ? 'Form A' : 'Form B';
-    const marks = root.dataset.marks === 'false' ? 'Falzmarken aus' : 'Falzmarken an';
     const randU = this.settings.randU === 30 ? '30' : '20';
     /* Schrift: den sichtbaren Eintrag der Auswahlliste lesen, statt die
        Font-Presets zu importieren - die Liste ist die Anzeige-Wahrheit. */
@@ -248,7 +248,7 @@ export class SettingsManager {
     /* Options-Text kann "Liberation Sans / System-UI" heissen - fuer eine
        Statuszeile reicht der erste Name. */
     const schrift = (schriftSelect?.selectedOptions?.[0]?.textContent || 'System').split('/')[0].trim();
-    ziel.textContent = `${layout} · ${marks} · Schrift: ${schrift} · Unterrand ${randU} mm`;
+    ziel.textContent = `Schrift: ${schrift} · Unterrand ${randU} mm`;
   }
 
   attachListeners() {

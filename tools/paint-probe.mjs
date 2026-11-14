@@ -146,8 +146,10 @@ await send('Emulation.setCPUThrottlingRate', { rate: 1 });
 await send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
 ws.close();
 
-/* Rohdaten gehoeren zur Scheibe, die sie belegt - nicht in die Repo-Wurzel. */
-const datei = join(ROOT, 'batch/02-boot-pfad', `paint-probe-${new Date().toISOString().slice(0, 10)}.json`);
+/* Rohdaten gehoeren zur Scheibe, die sie belegt - nicht in die Repo-Wurzel.
+   Laeufe und Profil stehen im Namen: sonst ueberschreibt ein Kontrolllauf mit
+   fuenf Laeufen die Beweisreihe mit neunzig (passiert am 2026-11-14, B78). */
+const datei = join(ROOT, 'batch/02-boot-pfad', `paint-probe-${new Date().toISOString().slice(0, 10)}-r${RUNS}-${PROFIL}.json`);
 writeFileSync(datei, JSON.stringify(ergebnis, null, 2));
 console.log(`Rohdaten: ${datei}`);
 if (JSON_OUT) console.log(JSON.stringify(ergebnis, null, 2));

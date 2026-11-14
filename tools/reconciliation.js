@@ -779,6 +779,10 @@ function runReconciliation() {
         // ("other frameworks do X"), not a recommendation to use the named tech.
         const scrubEnumerationPattern = /\b(?:React|Vue)\b[^.\n]{0,40}\betc\.?/i;
         const lines = content.split(/\r?\n/);
+        /* Zeilenzahl ohne die leere Zelle hinter dem letzten Newline: eine Datei
+           mit 405 Zeilen endet auf "\n", split() liefert dann 406 Eintraege und
+           meldete "406 Zeilen" fuer eine 405-Zeilen-Datei (B79). */
+        const zeilenZahl = lines.length - (content.endsWith('\n') ? 1 : 0);
         lines.forEach((line, index) => {
           // Look one line back too: a "Warum kein Framework?"-style heading or lead-in
           // right above the match also establishes negation context for the paragraph.
@@ -798,18 +802,18 @@ function runReconciliation() {
         // P5: Doku-Groessenwarnung (>400 Zeilen). Ausnahmen: DECISION-LOG
         // (append-only Chronik), generierte Code-Referenzen und die IMR-Registry
         // (normative SSOT des Fachmodells — darf nicht gesplittet werden).
-        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/30-meta/DECISION-LOG-2026-H1.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md', 'docs/00-foundation/din5008.md'];
+        const docSizeExempt = ['docs/30-meta/DECISION-LOG.md', 'docs/30-meta/DECISION-LOG-2026-H1.md', 'docs/30-meta/BACKLOG-ARCHIV.md', 'docs/10-architecture/Code-Referenzen.md', 'docs/10-architecture/IMR-Registry.md', 'docs/00-foundation/din5008.md'];
         /* Bereits archivierte Dokumente sind von der Groessenregel ausgenommen:
          * Die Regel fordert als Abhilfe genau den Umzug nach docs/90-archive/ —
          * sie dort weiter zu melden ist eine unerfuellbare Forderung (das Archiv
          * ist eingefroren und wird bewusst nicht nachtraeglich gesplittet). */
         const isArchived = relPath.includes('90-archive/') || relPath.includes('audit/');
-        if (lines.length > 400 && !docSizeExempt.includes(relPath) && !isArchived) {
+        if (zeilenZahl > 400 && !docSizeExempt.includes(relPath) && !isArchived) {
           logs.push({
             file_path: relPath,
             check_type: 'doc-size',
             severity: 'low',
-            message: `Doku-Datei hat ${lines.length} Zeilen (>400). Aufteilen oder nach docs/90-archive/ verschieben (Ausnahme: DECISION-LOG).`
+            message: `Doku-Datei hat ${zeilenZahl} Zeilen (>400). Aufteilen oder nach docs/90-archive/ verschieben (Ausnahme: DECISION-LOG).`
           });
         }
 

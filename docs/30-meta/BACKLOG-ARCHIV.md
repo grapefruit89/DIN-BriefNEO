@@ -465,3 +465,104 @@ gibt es kein Aufblenden.
 **Entfernt:** 1 CSS-Leser → nativer Selektor, 2 Writer
 (`boot-state.js` Abschnitt 2c, `main.js` `spiegleSelectGesetzt` samt
 `change`-Listener). Kein JS mehr für eine reine Optik-Frage.
+
+### B74 · Seitenleiste: 93 px Überlauf und doppelte Statuszeile · **S** · ⭐⭐
+Im Brief-Modus scrollt die Leiste 93 px (1100/1007), der Fuß mit
+„Zurücksetzen" liegt unter der Kante. Kandidaten: Flex-Gap 12 → 8 (−28 px),
+`#zone-aktionen` sticky, Regler in die Kopfzeile. Dazu: die Statuszeile zeigt
+2 von 4 Werten (Form, Falzmarken), die im Brief-Modus direkt darunter als
+Regler stehen — entweder Statuszeile kürzen oder Regler verschieben.
+
+✅ ERLEDIGT 2026-11-14 — drei Änderungen, alle gemessen (CDP, Cache aus,
+`#seitenleiste` clientHeight vs. scrollHeight):
+
+| Fensterhöhe | vorher | nachher |
+|---:|---:|---:|
+| 1007 px | 93 px Überlauf | **4 px** |
+| 965 px | 135 px | 46 px |
+| 900 px | ~200 px | 111 px |
+
+1. **Abstände:** `#seitenleiste` und `.seitenleiste-zone` 12 → 8 px
+   (`--space-md`), `.seitenleiste-subgroup` 10 → 8 px. Der doppelte
+   `margin-bottom: 6px` an der Statuszeile ist weg (die Leiste hat `gap`).
+2. **Fuß erreichbar:** `#zone-aktionen` ist `position: sticky; bottom: 0` mit
+   Hintergrund. Vorher lag „Zurücksetzen" unter der Kante; jetzt ist er in
+   allen drei Höhen im Bild (`fussImBild: true`).
+3. **Doppelte Statuszeile:** die Zeile zeigte „Form B · Falzmarken aus ·
+   Schrift · Unterrand". Gemessen im Brief-Modus: Form und Falzmarken sind
+   **sichtbar** (Regler direkt darunter), Schrift und Unterrand **versteckt**
+   (Zone „Einstellungen" ist dort aus). Die Zeile zeigt jetzt nur noch
+   „Schrift: … · Unterrand … mm" — die zwei Werte, für die sie die einzige
+   Quelle ist.
+
+### B75 · Seitenleiste: Fokusziele ohne Zone und der Name „Daten" · **S** · ⭐
+6 von 21 Fokuszielen liegen außerhalb jeder Zone (Modus, GitHub, Theme,
+Drucken, Speichern, „ändern"). Die Zone „Daten" enthält den Testbrief, aber
+nicht das Speichern — der Name deckt den Inhalt nicht. Beides ist eine
+Ordnungsfrage, keine Optik; gehört in Review-Batch 04.
+
+✅ ERLEDIGT 2026-11-14 — jedes Fokusziel hat jetzt eine benannte Gruppe.
+Vorher 6 von 21 ohne Zone, nachher **0** (im Browser über
+`closest('section, fieldset, [role="group"]')` geprüft).
+
+| Element | vorher | jetzt |
+|---|---|---|
+| GitHub + Theme | `.seitenleiste-header-row`, namenlos | `role="group" aria-label="Allgemein"` |
+| Drucken + Speichern | `.seitenleiste-export-group`, namenlos | `role="group" aria-label="Ausgabe"` |
+| „ändern" | Knopf ohne Zweck im Namen | `aria-label="Ansicht ändern"` |
+| Statuszeile | `<p>` ohne Gruppe | `role="group" aria-label="Aktueller Stand"` |
+| Fußzeile | `<div>` ohne Gruppe | `role="group" aria-label="Aktionen"` |
+| Zone „Daten" | enthielt Öffnen, Testbrief, Zwischenablage — aber nicht Speichern | **„Dateien & Testbrief"** |
+
+Der Modus-Schalter war nie ein Findelkind: das `fieldset` hat
+`<legend class="sr-only">Ansicht</legend>`. Die frühere Zählung suchte nur
+`.seitenleiste-zone` und übersah `fieldset`/`role=group`.
+
+### B77 · `fakten.md` aus Scheibe 01 behauptet „maschinell erzeugt", wird aber nicht erzeugt · **S** · ⭐⭐
+**Problem:** `batch/01-architektur-vertrag/fakten.md` trägt im Kopf „maschinell erzeugt, 2026-11-14" — es gibt aber kein Skript dafür. Die Zahlen sind bereits falsch: JS-Module **20** (tatsächlich 18), Zeilen HTML **457** (460), Tests **332** (340), Antipattern-Regeln **50** (51). `tools/batch-facts.mjs` deckt nur Scheibe 02 ab.
+**Lösung:** Entweder den Generator auf Scheibe 01 erweitern (Zahlen aus `git ls-files` + `wc -l` + Testlauf) oder den Kopf ehrlich machen und das Blatt als Momentaufnahme markieren. Ersteres passt zur Regel „Messwerte generieren, nicht tippen" (B73).
+
+✅ ERLEDIGT 2026-11-14 — `tools/batch-facts.mjs --scheibe 01` erzeugt
+`batch/01-architektur-vertrag/fakten.md` jetzt wirklich aus dem Quelltext:
+Dateizahlen und Zeilen aus `website/`, Top 15, CSS-Kennzahlen (`!important`,
+ID-Selektoren, Custom Properties, `@scope`, `@function`), DOM-Zustands-Schreiber
+und Importgraph. `--check` bricht bei Abweichung ab.
+
+Was das Blatt **nicht** mehr behauptet: Testzahl aus einem Lauf und
+Fitness-Score — beides entsteht nur, wenn die Suite läuft. Die Testzahl ist
+jetzt die Zahl der `it(`-Aufrufe (340, aktuell deckungsgleich), ausdrücklich als
+statisch gezählt markiert.
+
+Vorher standen im handgetippten Blatt: JS-Module 20 (richtig), HTML 457 (460),
+Tests 332 (340), Regeln 50 (51).
+
+### B78 · `tools/paint-probe.mjs` überschreibt seine eigene Beweislage · **S** · ⭐⭐
+**Problem:** Der Dateiname enthält nur das Datum (`paint-probe-2026-11-14.json`), nicht die Läufe. Ein Kontrolllauf mit `--runs 5` hat am 2026-11-14 eine 90-Läufe-Reihe ersetzt; sie musste neu gefahren werden (die Zahlen wichen ab: `seeded` 6× CPU 15/30 vs. 11/30).
+**Lösung:** Läufe und Profil in den Dateinamen (`paint-probe-2026-11-14-r30-all.json`) oder ein `--out` verlangen. Zusätzlich: beim Überschreiben einer Datei mit mehr Läufen warnen.
+
+✅ ERLEDIGT 2026-11-14 — der Dateiname enthält Läufe und Profil:
+`paint-probe-2026-11-14-r90-all.json` statt `paint-probe-2026-11-14.json`. Ein
+Kontrolllauf mit `--runs 5` kann die 90-Läufe-Reihe nicht mehr überschreiben
+(genau das war am selben Tag passiert; die Zahlen wichen ab: `seeded` 6× CPU
+15/30 vs. 11/30).
+
+### B79 · `doc-size`-Gate meldet einmalig 406 Zeilen für eine 405-Zeilen-Datei · **S** · ⭐
+**Status: ungeklärt, nicht reproduziert.** Am 2026-11-14 meldete `node tools/build_db.js -q` eine LOW-Warnung für `docs/30-meta/PERFEKTER-PROMPT.md` mit 406 Zeilen, `wc -l` sagt 405 und drei unmittelbar folgende Läufe waren sauber (Fitness 100,0 %). Die Datei war in diesem Lauf nicht geändert.
+**Zu klären:** zählt der Zähler in `tools/reconciliation.js` anders (z. B. `split('\n')` inkl. letzter Leerzeile) oder wurde ein paralleler Schreibvorgang gesehen? Ohne Reproduktion keine Änderung — aber auch kein stilles Vergessen.
+
+✅ ERLEDIGT 2026-11-14 — die Ursache war ein **Off-by-one**, und der
+Eintrag war falsch: die Meldung kam nicht einmalig, sie kam **jedes Mal**. Sie
+war nur unsichtbar, weil `build_db.js -q` LOW-Diagnosen nicht ausgibt und meine
+Prüfungen mit `grep` auf `Fitness|CRITICAL|HIGH` gefiltert waren.
+
+`content.split(/\r?\n/).length` liefert für eine Datei mit 405 Zeilen und
+abschließendem Newline **406** Einträge (der leere hinter dem letzten `\n`).
+`tools/reconciliation.js` zählt jetzt echte Zeilen (`zeilenZahl`) und meldet
+405. Zusätzlich ist `docs/30-meta/BACKLOG-ARCHIV.md` von der Größenregel
+ausgenommen — es ist ein Archiv, und die Regel fordert als Abhilfe genau den
+Umzug ins Archiv.
+
+**Bleibt als echte Meldung:** `docs/30-meta/PERFEKTER-PROMPT.md` hat 405 Zeilen
+(Limit 400). Das ist jetzt korrekt gezählt und absichtlich nicht geglättet —
+LOW-Diagnosen senken den Fitness-Score nicht (100,0 %). Ob gekürzt oder
+ausgenommen wird, ist eine Inhaltsentscheidung.

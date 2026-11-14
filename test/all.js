@@ -4713,7 +4713,10 @@ describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
   it('Textformatierung wird einmal benannt, die Ansicht ist eine Radiogruppe', async () => {
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    const gruppe = doc.querySelector('.seitenleiste-btn-row[role="group"]');
+    /* Seit B75 gibt es mehrere benannte Gruppen (.seitenleiste-btn-row traegt
+       z. B. auch die Ausgabe). Deshalb gezielt die Formatierungsgruppe ueber
+       ihren Titel greifen, nicht ueber die Reihenfolge im Markup. */
+    const gruppe = doc.querySelector('.seitenleiste-btn-row[aria-labelledby="titel-textformatierung"]');
     assert(gruppe, 'Formatierungsgruppe vorhanden');
     if (gruppe) {
       assert(gruppe.getAttribute('aria-labelledby') === 'titel-textformatierung', 'aria-labelledby statt aria-label');
@@ -4883,6 +4886,27 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
     const h2 = doc.querySelector('#zone-aktionen h2');
     assert(h2, 'Zonen-Ueberschrift vorhanden');
     assertEqual(h2?.textContent?.trim(), 'Status & Zurücksetzen', 'Name nennt Status und Zuruecksetzen');
+  });
+});
+
+describe('Jedes Fokusziel hat eine benannte Gruppe (B75)', () => {
+  it('Kopfzeile, Ausgabe und Statuszeile sind benannt', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    assertEqual(doc.querySelector('.seitenleiste-header-row')?.getAttribute('aria-label'), 'Allgemein', 'Kopfzeile');
+    assertEqual(doc.querySelector('.seitenleiste-export-group')?.getAttribute('aria-label'), 'Ausgabe', 'Drucken/Speichern');
+    assertEqual(doc.querySelector('.seitenleiste-zustand')?.getAttribute('aria-label'), 'Aktueller Stand', 'Statuszeile');
+    assertEqual(doc.querySelector('#zone-aktionen')?.getAttribute('aria-label'), 'Aktionen', 'Fusszeile');
+    assertEqual(doc.getElementById('btn-zustand-aendern')?.getAttribute('aria-label'), 'Ansicht ändern', 'aendern-Knopf');
+  });
+
+  it('die Zone heisst nicht mehr "Daten" (deckte den Inhalt nicht)', async () => {
+    const html = await (await fetch('/website/index.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const h2 = doc.querySelector('#zone-werkzeuge h2');
+    assert(h2, 'Zonen-Ueberschrift vorhanden');
+    assert(!/^Daten$/.test(h2?.textContent?.trim() || ''), 'Name "Daten" ist ersetzt');
+    assertEqual(h2?.textContent?.trim(), 'Dateien & Testbrief', 'neuer Name');
   });
 });
 

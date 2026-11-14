@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-28 offene Punkte. Details unterhalb, nach Art gruppiert.
+23 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -76,12 +76,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
 | **B63** | `data-layout`: zwei Spuren auf eine | M | ⭐ |
 | **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
-| **B74** | Seitenleiste: 93 px Überlauf und doppelte Statuszeile | S | ⭐⭐ |
-| **B75** | Seitenleiste: Fokusziele ohne Zone und der Name „Daten" | S | ⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
-| **B77** | `fakten.md` aus Scheibe 01 behauptet „maschinell erzeugt", wird aber nicht erzeugt | S | ⭐⭐ |
-| **B78** | `tools/paint-probe.mjs` überschreibt seine eigene Beweislage | S | ⭐⭐ |
-| **B79** | `doc-size`-Gate meldet einmalig 406 Zeilen für eine 405-Zeilen-Datei | S | ⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -170,29 +165,6 @@ Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
 Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
 **ohne** ihn zu lösen, sonst wird sie nicht angefasst.
 Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
-
-### B74 · Seitenleiste: 93 px Überlauf und doppelte Statuszeile · **S** · ⭐⭐
-Im Brief-Modus scrollt die Leiste 93 px (1100/1007), der Fuß mit
-„Zurücksetzen" liegt unter der Kante. Kandidaten: Flex-Gap 12 → 8 (−28 px),
-`#zone-aktionen` sticky, Regler in die Kopfzeile. Dazu: die Statuszeile zeigt
-2 von 4 Werten (Form, Falzmarken), die im Brief-Modus direkt darunter als
-Regler stehen — entweder Statuszeile kürzen oder Regler verschieben.
-
-### B75 · Seitenleiste: Fokusziele ohne Zone und der Name „Daten" · **S** · ⭐
-6 von 21 Fokuszielen liegen außerhalb jeder Zone (Modus, GitHub, Theme,
-Drucken, Speichern, „ändern"). Die Zone „Daten" enthält den Testbrief, aber
-nicht das Speichern — der Name deckt den Inhalt nicht. Beides ist eine
-Ordnungsfrage, keine Optik; gehört in Review-Batch 04.
-
-### B77 · `fakten.md` aus Scheibe 01 behauptet „maschinell erzeugt", wird aber nicht erzeugt · **S** · ⭐⭐
-**Problem:** `batch/01-architektur-vertrag/fakten.md` trägt im Kopf „maschinell erzeugt, 2026-11-14" — es gibt aber kein Skript dafür. Die Zahlen sind bereits falsch: JS-Module **20** (tatsächlich 18), Zeilen HTML **457** (460), Tests **332** (340), Antipattern-Regeln **50** (51). `tools/batch-facts.mjs` deckt nur Scheibe 02 ab.
-**Lösung:** Entweder den Generator auf Scheibe 01 erweitern (Zahlen aus `git ls-files` + `wc -l` + Testlauf) oder den Kopf ehrlich machen und das Blatt als Momentaufnahme markieren. Ersteres passt zur Regel „Messwerte generieren, nicht tippen" (B73).
-### B78 · `tools/paint-probe.mjs` überschreibt seine eigene Beweislage · **S** · ⭐⭐
-**Problem:** Der Dateiname enthält nur das Datum (`paint-probe-2026-11-14.json`), nicht die Läufe. Ein Kontrolllauf mit `--runs 5` hat am 2026-11-14 eine 90-Läufe-Reihe ersetzt; sie musste neu gefahren werden (die Zahlen wichen ab: `seeded` 6× CPU 15/30 vs. 11/30).
-**Lösung:** Läufe und Profil in den Dateinamen (`paint-probe-2026-11-14-r30-all.json`) oder ein `--out` verlangen. Zusätzlich: beim Überschreiben einer Datei mit mehr Läufen warnen.
-### B79 · `doc-size`-Gate meldet einmalig 406 Zeilen für eine 405-Zeilen-Datei · **S** · ⭐
-**Status: ungeklärt, nicht reproduziert.** Am 2026-11-14 meldete `node tools/build_db.js -q` eine LOW-Warnung für `docs/30-meta/PERFEKTER-PROMPT.md` mit 406 Zeilen, `wc -l` sagt 405 und drei unmittelbar folgende Läufe waren sauber (Fitness 100,0 %). Die Datei war in diesem Lauf nicht geändert.
-**Zu klären:** zählt der Zähler in `tools/reconciliation.js` anders (z. B. `split('\n')` inkl. letzter Leerzeile) oder wurde ein paralleler Schreibvorgang gesehen? Ohne Reproduktion keine Änderung — aber auch kein stilles Vergessen.
 
 ## ✨ Neue Features
 

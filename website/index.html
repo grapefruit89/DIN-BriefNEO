@@ -42,7 +42,7 @@
       <div id="probe" aria-hidden="true"></div>
       <aside id="seitenleiste" class="seitenleiste nicht-drucken" aria-label="Seitenleiste Werkzeuge">
         <!-- Normaler Modus Header -->
-        <div class="seitenleiste-header-row">
+        <div class="seitenleiste-header-row" role="group" aria-label="Allgemein">
           <a href="https://github.com/grapefruit89/DIN-BriefNEO" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub Repository">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github" aria-hidden="true">
               <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
@@ -71,18 +71,19 @@
           </div>
         </fieldset>
 
-        <div class="seitenleiste-export-group seitenleiste-btn-row">
+        <div class="seitenleiste-export-group seitenleiste-btn-row" role="group" aria-label="Ausgabe">
           <button type="button" id="btn-print" class="btn primary w-full">🖨️ Drucken / PDF</button>
           <button type="button" id="btn-export-dinletter" class="btn w-full" title="Speichert den Brief als .json-Datei">💾 Speichern (.json)</button>
         </div>
 
-        <!-- Statuszeile: globale Einstellungen liegen im Einstellungs-Modus und
-             sind hier sonst unsichtbar. Zeigt den Ist-Stand, ohne hinzugehen;
-             "ändern" springt dorthin. Werte kommen aus data-layout/data-marks
-             und den Einstellungen - kein neuer Zustand. -->
-        <p class="seitenleiste-zustand">
-          <span id="zustand-text">Form B · Falzmarken an · Schrift: System · Unterrand 20 mm</span>
-          <button type="button" id="btn-zustand-aendern" class="zustand-aendern">ändern</button>
+        <!-- Statuszeile: zeigt nur, was im Brief-Modus NICHT als Regler
+             sichtbar ist (Schrift, Unterrand) - Form und Falzmarken stehen
+             direkt darunter und sind hier entfernt (B74, gemessen 2026-11-14).
+             "ändern" springt in die Einstellungen. Kein neuer Zustand: die
+             Werte kommen aus den Einstellungen. -->
+        <p class="seitenleiste-zustand" role="group" aria-label="Aktueller Stand">
+          <span id="zustand-text">Schrift: System · Unterrand 20 mm</span>
+          <button type="button" id="btn-zustand-aendern" class="zustand-aendern" aria-label="Ansicht ändern">ändern</button>
         </p>
 
         <!-- Zone 1: Brief-Steuerung -->
@@ -203,9 +204,12 @@
           <hr class="seitenleiste-divider">
         </section>
 
-        <!-- Zone 2: Daten & Adressen -->
+        <!-- Zone 2: Dateien & Testbrief. Hies "Daten" und deckte den Inhalt
+             nicht: die Zone enthaelt Oeffnen, Testbrief und In-Zwischenablage,
+             waehrend Speichern/Drucken in der Gruppe "Ausgabe" oben liegen
+             (B75). -->
         <section id="zone-werkzeuge" class="seitenleiste-zone">
-          <h2 class="sr-only">Daten</h2>
+          <h2 class="sr-only">Dateien &amp; Testbrief</h2>
           
 
           <button type="button" id="btn-import-dinletter" class="btn w-full" title="Importiert eine .json-Datei und ersetzt den aktuellen Brief">📤 Öffnen (.json)</button>
@@ -300,7 +304,7 @@
         </section>
 
         <!-- Zone 4: Fester Fußbereich -->
-        <div id="zone-aktionen" class="seitenleiste-footer">
+        <div role="group" id="zone-aktionen" class="seitenleiste-footer" aria-label="Aktionen">
           <!-- Name nennt beide Inhalte: der Speicherstatus und das Zuruecksetzen.
                "Aktionen" verschwieg den Status, "Status" das Zuruecksetzen
                (Befund B15/B3). -->

@@ -8,9 +8,13 @@
  * das Zeilennummern nennt, muss aus den Zeilen entstehen, nicht aus dem
  * Gedaechtnis.
  *
+ * Zwei Blaetter:
+ *   --scheibe 02  (Standard)  batch/02-boot-pfad/fakten.md
+ *   --scheibe 01              batch/01-architektur-vertrag/fakten.md
+ *
  * Aufruf:
- *   node tools/batch-facts.mjs            # schreiben
- *   node tools/batch-facts.mjs --check     # Exit 1, wenn das Blatt abweicht
+ *   node tools/batch-facts.mjs [--scheibe 01|02] [--check]
+ *   --check gibt Exit 1, wenn ein Blatt nicht mehr zum Quelltext passt.
  *
  * Kein Zeitstempel im Kopf: sonst ist die Datei bei jedem Lauf anders und
  * `--check` unbrauchbar. Verbindlich ist die Zahl der Treffer, nicht das Datum.
@@ -20,8 +24,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const ZIEL = join(ROOT, 'batch/02-boot-pfad/fakten.md');
 const CHECK = process.argv.includes('--check');
+const iScheibe = process.argv.indexOf('--scheibe');
+const SCHEIBE = iScheibe > -1 && process.argv[iScheibe + 1] ? process.argv[iScheibe + 1] : '02';
+const ZIEL = join(ROOT, SCHEIBE === '01' ? 'batch/01-architektur-vertrag' : 'batch/02-boot-pfad', 'fakten.md');
 
 const lies = (rel) => readFileSync(join(ROOT, rel), 'utf-8');
 const zeilen = (rel) => lies(rel).split('\n');
@@ -120,11 +126,158 @@ function messung() {
 
 /* -------------------------------------------------------------- Ausgabe */
 
+/* ================================================================== Scheibe 01
+ * Ist-Zustand des Repos: Umfang, groesste Dateien, CSS-Kennzahlen,
+ * DOM-Zustands-Schreiber, Importgraph. Alles aus dem Dateisystem gezaehlt.
+ *
+ * Bewusst NICHT enthalten: Testzahl aus einem Lauf und der Fitness-Score.
+ * Beides entsteht nur, wenn die Suite laeuft; ein Blatt, das sie behauptet,
+ * waere wieder getippt. Die Testzahl hier ist die Zahl der `it(`-Aufrufe im
+ * Quelltext (aktuell deckungsgleich mit dem Lauf, aber statisch gezaehlt).
+ */
+
+/** @param {string} dir @param {string[]} [out] @returns {string[]} */
+function dateienUnter(dir, out = []) {
+  for (const eintrag of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
+    const rel = `${dir}/${eintrag.name}`;
+    if (eintrag.isDirectory()) {
+      if (!['node_modules', '.git', 'verweise'].includes(eintrag.name)) dateienUnter(rel, out);
+    } else if (/\.(js|css|html)$/.test(eintrag.name)) {
+      out.push(rel);
+    }
+  }
+  return out.sort();
+}
+
+function scheibe01() {
+  const alle = dateienUnter('website');
+  const js = alle.filter((f) => f.endsWith('.js'));
+  const css = alle.filter((f) => f.endsWith('.css'));
+  const html = alle.filter((f) => f.endsWith('.html'));
+  const zeilenVon = (f) => zeilen(f).length - (lies(f).endsWith('\n') ? 1 : 0);
+  const summe = (liste) => liste.reduce((s, f) => s + zeilenVon(f), 0);
+
+  const tests = zeilen('test/all.js').filter((z) => /^\s*it\(/.test(z)).length;
+  const regeln = ['base.json', 'project.json', 'web.json']
+    .map((f) => JSON.parse(lies(`tools/antipatterns/${f}`)).rules.length)
+    .reduce((a, b) => a + b, 0);
+
+  const groesste = [...alle]
+    .map((f) => ({ f, n: zeilenVon(f) }))
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 15);
+
+  const cssKennzahlen = css.map((f) => {
+    const inhalt = lies(f);
+    return {
+      f,
+      n: zeilenVon(f),
+      important: (inhalt.match(/!important/g) || []).length,
+      ids: (inhalt.match(/#[a-zA-Z][a-zA-Z0-9_-]*/g) || []).length,
+      variablen: new Set(inhalt.match(/--[a-zA-Z0-9-]+\s*:/g) || []).size,
+      scope: (inhalt.match(/@scope/g) || []).length,
+      funktion: (inhalt.match(/@function/g) || []).length,
+    };
+  });
+
+  /* DOM-Zustand: dieselben Muster wie im Boot-Blatt. Objekt-interne Felder
+     (`this.#state.dirty`) werden bewusst nicht mitgezaehlt - sie sind per Regex
+     nicht sicher von lokalen Variablen zu trennen. */
+  const schreiber = new Map();
+  for (const f of js) {
+    for (const s of schreibzugriffe(f)) {
+      if (!['setAttribute', 'dataset', 'style.setProperty'].includes(s.was)) continue;
+      if (s.ziel === '—') continue;
+      const kurz = f.replace('website/', '');
+      if (!schreiber.has(s.ziel)) schreiber.set(s.ziel, new Map());
+      const proDatei = schreiber.get(s.ziel);
+      proDatei.set(kurz, (proDatei.get(kurz) || 0) + 1);
+    }
+  }
+  const schreiberZeilen = [...schreiber.entries()]
+    .map(([ziel, proDatei]) => ({
+      ziel,
+      gesamt: [...proDatei.values()].reduce((a, b) => a + b, 0),
+      dateien: [...proDatei.entries()].sort((a, b) => b[1] - a[1]),
+    }))
+    .sort((a, b) => b.gesamt - a.gesamt || a.ziel.localeCompare(b.ziel));
+
+  /* Importgraph: wer importiert welches Modul? */
+  const importeure = new Map();
+  let kanten = 0;
+  for (const f of js) {
+    for (const z of zeilen(f)) {
+      const m = z.match(/from\s+'\.\.?\/(?:js\/)?([a-z0-9-]+)\.js'/i);
+      if (!m) continue;
+      kanten++;
+      const ziel = `${m[1]}.js`;
+      if (!importeure.has(ziel)) importeure.set(ziel, []);
+      importeure.get(ziel).push(f.replace('website/js/', ''));
+    }
+  }
+  const graph = [...importeure.entries()]
+    .map(([ziel, von]) => ({ ziel, von: [...new Set(von)] }))
+    .sort((a, b) => b.von.length - a.von.length || a.ziel.localeCompare(b.ziel));
+  const ohneEingehende = js
+    .map((f) => f.split('/').pop())
+    .filter((f) => !importeure.has(f))
+    .sort();
+
+  return `# Fakten zum Ist-Zustand
+
+**Erzeugt von \`tools/batch-facts.mjs --scheibe 01\` — nicht von Hand bearbeiten.**
+\`node tools/batch-facts.mjs --scheibe 01 --check\` bricht ab, wenn das Blatt
+nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
+
+## Umfang
+
+- HTML-Dateien: ${html.length}, JS-Dateien: ${js.length}, CSS-Dateien: ${css.length}
+- Zeilen gesamt: HTML ${summe(html)}, JS ${summe(js)}, CSS ${summe(css)}
+- Tests: ${tests} (\`it(\`-Aufrufe in \`test/all.js\`, statisch gezaehlt)
+- Antipattern-Regeln: ${regeln} (Summe aus \`tools/antipatterns/*.json\`)
+- Fitness-Score: bewusst nicht hier — entsteht nur durch \`node tools/build_db.js\`
+
+## Groesste Dateien (Top 15)
+
+| Datei | Zeilen |
+|---|---:|
+${groesste.map((g) => `| \`${g.f}\` | ${g.n} |`).join('\n')}
+
+## CSS: Kennzahlen je Datei
+
+| Datei | Zeilen | \`!important\` | ID-Selektoren | Custom Properties | \`@scope\` | \`@function\` |
+|---|---:|---:|---:|---:|---:|---:|
+${cssKennzahlen.map((k) => `| \`${k.f}\` | ${k.n} | ${k.important} | ${k.ids} | ${k.variablen} | ${k.scope} | ${k.funktion} |`).join('\n')}
+
+## DOM-Zustands-Schreiber in JS
+
+Grundlage fuer Issue #17/#18. Gezaehlt werden nur Schreibzugriffe auf Attribute,
+\`dataset\` und Custom Properties — objekt-interne Felder (\`this.#state.dirty\`)
+sind per Regex nicht sicher von lokalen Variablen zu trennen und bleiben draussen.
+
+| Zustand | Schreibzugriffe | Dateien |
+|---|---:|---|
+${schreiberZeilen
+  .map((s) => `| \`${s.ziel}\` | ${s.gesamt} | ${s.dateien.map(([d, n]) => `${d} (${n})`).join(', ')} |`)
+  .join('\n')}
+
+## Importgraph (wer wird am haeufigsten importiert)
+
+| Modul | Importeure |
+|---|---:|
+${graph.map((g) => `| \`${g.ziel}\` | ${g.von.length} |`).join('\n')}
+
+- Kanten gesamt: ${kanten}
+- Module ohne eingehende Importe (Einstiegspunkte oder tot): ${ohneEingehende.map((f) => `\`${f}\``).join(', ')}
+`;
+}
+
 const SKRIPTE = skripte();
 const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
 
 const bloecke = [];
-bloecke.push(`# Fakten zum Boot-Pfad
+if (SCHEIBE === '01') bloecke.push(scheibe01());
+else bloecke.push(`# Fakten zum Boot-Pfad
 
 **Erzeugt von \`tools/batch-facts.mjs\` — nicht von Hand bearbeiten.**
 \`node tools/batch-facts.mjs --check\` bricht ab, wenn dieses Blatt nicht mehr
@@ -144,7 +297,7 @@ Gezählt werden **Aufrufstellen**, nicht Ausführungen: der Helfer \`lies()\` in
 falsch („2× JSON.parse", tatsächlich 3).
 `);
 
-for (const datei of DATEIEN) {
+for (const datei of SCHEIBE === '01' ? [] : DATEIEN) {
   const treffer = schreibzugriffe(datei);
   const parses = zeilen(datei).filter((z) => z.includes('JSON.parse') && !z.trim().startsWith('*')).length;
   bloecke.push(`## 2. Schreibzugriffe in \`${datei.replace('website/js/', '')}\`
@@ -157,6 +310,7 @@ ${treffer.map((t) => `| ${t.zeile} | ${t.was} | \`${t.ziel}\` | \`${esc(t.quelle
 `);
 }
 
+if (SCHEIBE === '02') {
 const seeded = markerRegeln('data-seeded');
 const ready = markerRegeln('data-ready');
 bloecke.push(`## 3. Marker im CSS
@@ -197,19 +351,21 @@ Lesart: \`seeded\` steht in allen Profilen frueher als \`ready\`. Im Profil \`sl
 liegen **beide** nach dem Paint — der Body-End-Seeder ist dann von der
 Netzlieferung abhaengig, nicht von der Parse-Reihenfolge.
 `);
+}
 
 const soll = bloecke.join('\n');
 const ist = existsSync(ZIEL) ? readFileSync(ZIEL, 'utf-8') : '';
 const sollTrim = `${soll.replace(/\n{3,}/g, '\n\n').trimEnd()}\n`;
 
+const relativ = ZIEL.replace(`${ROOT}/`, '');
 if (ist === sollTrim) {
-  console.log('fakten.md ist aktuell.');
+  console.log(`${relativ} ist aktuell.`);
   process.exit(0);
 }
 if (CHECK) {
-  console.error('batch/02-boot-pfad/fakten.md weicht vom Quelltext ab.');
+  console.error(`${relativ} weicht vom Quelltext ab.`);
   console.error('Neu schreiben: node tools/batch-facts.mjs');
   process.exit(1);
 }
 writeFileSync(ZIEL, sollTrim, 'utf-8');
-console.log(`batch/02-boot-pfad/fakten.md neu erzeugt (${sollTrim.split('\n').length} Zeilen).`);
+console.log(`${relativ} neu erzeugt (${sollTrim.split('\n').length} Zeilen).`);

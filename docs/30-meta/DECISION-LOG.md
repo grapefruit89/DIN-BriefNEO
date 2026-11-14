@@ -3213,3 +3213,41 @@ die niemand im Kopf hat. Wo CSS den Zustand selbst abfragen kann (`:has`,
 `:checked`, `:placeholder-shown`), ist die Abfrage die billigere Wahrheit.
 Die Ausnahme bleibt der Paint: Attribute, die **vor** dem ersten Frame stehen
 müssen, kann CSS nicht abfragen, weil die Elemente noch nicht existieren.
+
+---
+
+## 2026-11-14 — Seitenleiste: Überlauf, Fuß, Namen (B74 + B75)
+
+**Messung (CDP, `#seitenleiste` clientHeight vs. scrollHeight, Brief-Modus).**
+
+| Fensterhöhe | Überlauf vorher | nachher |
+|---:|---:|---:|
+| 1007 px | 93 | **4** |
+| 965 px | 135 | 46 |
+| 900 px | ~200 | 111 |
+
+Der Fuß mit „Zurücksetzen" lag unter der Kante. Er ist jetzt
+`position: sticky; bottom: 0` mit Hintergrund und in allen drei Höhen im Bild.
+**Preis, bewusst akzeptiert:** bei 965 px scrollen 46 px Inhalt unter dem Fuß
+durch. Geprüft an beiden Enden: am Scroll-Ende ist nichts verdeckt, oben liegt
+nur der letzte Knopf der Werkzeug-Zone darunter — er ist ohne Scrollen ohnehin
+nicht im Bild.
+
+**Abstände.** `#seitenleiste` und `.seitenleiste-zone` 12 → 8 px,
+`.seitenleiste-subgroup` 10 → 8 px, plus der doppelte `margin-bottom` an der
+Statuszeile. Das sind reine Abstände zwischen Blöcken; die Blöcke selbst sind
+unverändert (A48-Geometrie, Druck und Blatt sind nicht berührt).
+
+**Doppelte Statuszeile.** Gemessen im Brief-Modus: Form und Falzmarken sind
+sichtbar (Regler direkt darunter), Schrift und Unterrand sind versteckt (ihre
+Zone „Einstellungen" ist in diesem Modus aus). Die Zeile zeigt deshalb nur noch
+`Schrift: … · Unterrand … mm` — die zwei Werte, für die sie die einzige Quelle
+ist. Kein Wert ist damit unsichtbar geworden.
+
+**Namen statt Zonen-Detektivarbeit (B75).** Kopfzeile, Ausgabe, Statuszeile und
+Fuß sind benannte Gruppen (`role="group"` + `aria-label`), der Knopf „ändern"
+heißt für Screenreader „Ansicht ändern", die Zone „Daten" heißt
+**„Dateien & Testbrief"** — sie enthält Öffnen, Testbrief und
+In-Zwischenablage, während Speichern und Drucken in der Gruppe „Ausgabe"
+liegen. Danach hat **kein** Fokusziel mehr eine namenlose Umgebung
+(vorher 6 von 21).

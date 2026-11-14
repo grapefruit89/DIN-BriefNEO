@@ -17,8 +17,11 @@ aside.seitenleiste,
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border-color);
+  /* B74: 8px statt 12px zwischen den Bloecken; gemessen 2026-11-14 spart das
+     24px bei sieben sichtbaren Kindern und 44px zwischen den elf Kindern von
+     #zone-dokument. Die Optik der Bloecke selbst bleibt unveraendert. */
   padding: var(--space-2xl);
-  gap: var(--space-xl);
+  gap: var(--space-md);
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -34,13 +37,16 @@ aside.seitenleiste,
 .seitenleiste-zone {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  /* B74: 8px (vorher 12px) - in #zone-dokument liegen elf Kinder, das sind
+     44px. Die Untergruppen behalten ihren eigenen Rhythmus. */
+  gap: var(--space-md);
 }
 
 .seitenleiste-subgroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  /* B74: 8px (vorher 10px). Vier Untergruppen mit je drei bis fuenf Kindern. */
+  gap: var(--space-md);
 }
 
 .seitenleiste-divider {
@@ -636,7 +642,8 @@ input[type="checkbox"][switch] {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  margin: 0 0 6px;
+  /* B74: kein zusaetzlicher Bodenabstand - die Leiste hat flex-gap. */
+  margin: 0;
   font-size: 0.7rem;
   line-height: 1.3;
   color: var(--text-muted);
@@ -808,6 +815,13 @@ input[type="checkbox"][switch] {
   flex-direction: column;
   gap: var(--space-lg);
   margin-top: auto;
+  /* B74: der Fuss mit "Zuruecksetzen" lag unter der Kante. Sticky haelt ihn
+     am unteren Rand erreichbar, auch wenn die Leiste noch scrollt; der
+     Hintergrund verhindert, dass Regler durch ihn durchscheinen. */
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-seitenleiste-glass);
+  backdrop-filter: var(--glass-blur);
 }
 
 .btn-danger-subtle {

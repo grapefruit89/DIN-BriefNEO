@@ -9,12 +9,14 @@ Review-Scheiben — nicht der Chat.
 |---|---|---|---|---|---|
 | 01 | Architektur-Vertrag: Schichten, Verstöße, prüfbare Regeln | ✅ | ✅ | ✅ teilweise | 3 / 55 KiB |
 | 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ⬜ offen | – | 4 / 30 KiB |
-| 03 | CSS-Kaskade: `sheet-multipage.css` (642 Z., 100 `!important`) | ⬜ | – | – | geplant |
-| 04 | `sidebar.css`: Optik und Struktur trennen (1241 Z., 118 IDs) | ⬜ | – | – | geplant |
-| 05 | `draft-manager.js` + dynamische Importe (Claudes Restfragen) | ⬜ | – | – | geplant |
-| 06 | PDF-Export als Addon | ⬜ | – | – | zurückgestellt (Nutzerentscheidung) |
+| 03 | CSS-Kaskade: `!important` und `@layer` | Skizze ✅ | – | – | `batch/03-kaskade/` |
+| 04 | `sidebar.css`: Optik und Struktur trennen | Skizze ✅ | – | – | `batch/04-seitenleiste-struktur/` |
+| 05 | Zustand und Restore: die offenen Reste | Skizze ✅ | – | – | `batch/05-zustand-restore/` |
+| 06 | PDF-Export als Addon | Skizze ✅ | – | – | zurückgestellt (Nutzerentscheidung) |
 
-**Regel:** Batch 03 erst schneiden, wenn 02 ausgewertet ist. Jede Scheibe
+**Regel:** Die Skizzen enthalten nur die Fragen und Messpunkte — kein
+vollständiger Auftrag. Ausformuliert wird erst, wenn die Scheibe dran ist
+(files.txt, generierte Fakten, Anhang ≤ 30 KiB). Jede Scheibe
 braucht 2–4 Dateien und einen Messblock; bei mehr als 30 KiB Anhang prüfen, ob
 der Schnitt zu grob ist.
 

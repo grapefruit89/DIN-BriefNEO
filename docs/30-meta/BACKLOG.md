@@ -296,9 +296,12 @@ Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (a
 
 ## 🎨 Polish
 
-### B50 · Mobile Drawer für die Seitenleiste (< 768px) · **L** · ⭐⭐
+### B50 · Mobile Drawer für die Seitenleiste (< 768px) · **L** · ⛔ ABGELEHNT 2026-11-13
 `website/css/sidebar.css` hat kein Drawer-Muster; unter 768px bleibt die Seitenleiste
 unbenutzbar. Reines CSS mit `:has()` wäre möglich, ohne JS-Umbau.
+**Entschieden am 2026-11-13: keine Mobil-Variante.** Die App ist eine
+Chrome-150+-Desktop-Anwendung; ungetesteter Responsive-Code ist Ballast. Ein
+Zwischenstand (Schublade + Blattskalierung) wurde wieder entfernt.
 
 ### B51 · Design-Tokens in `sidebar.css` durchziehen · **M** · ⭐⭐
 `sidebar.css` enthält 260 rohe `px`-Werte, obwohl Tokens (`--mm-*`, `--pt`) existieren.
@@ -501,3 +504,80 @@ Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
 Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
 **ohne** ihn zu lösen, sonst wird sie nicht angefasst.
 Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
+
+### B65 · Boolean-Semantik vereinheitlichen · **S** · ⭐⭐
+Derselbe Einstellungswert wird an drei Stellen unterschiedlich gelesen:
+`asBool` (boot.js:33, `undefined` → Default), `!== false` (boot-state.js:45, 64;
+settings.js:102, `null` → true) und `Boolean()` (settings.js:103, 135, `null` →
+false). Folge: `marks: null` setzt `data-marks="false"`, lässt den Schalter aber
+an. Ein Kommentar in `persistence.js` (DEFAULT_SETTINGS) entscheidet, welche
+Semantik gilt; danach alle drei angleichen. Ändert kein Speicherformat.
+
+### B66 · `settings.js` schreibt `layout` ohne Whitelist · **S** · ⭐
+`settings.js:89–90` setzt `data-layout` direkt aus den Einstellungen. `boot.js`
+hat eine `LAYOUT_WHITELIST`. Ein manipulierter oder alter Wert landet heute
+un geprüft im Attribut, auf das die Blattgeometrie hört.
+
+### B67 · Seeder-Ausfall ist unsichtbar · **S** · ⭐⭐
+`boot-state.js:141–143` hat ein leeres `catch {}`. Fällt der Seeder aus, bleiben
+die Regler bis `data-ready` versteckt und niemand sieht warum. Vorschlag:
+`console.error` wie in `boot.js`, plus ein Hinweis-Test (T2 aus Batch 02).
+
+### B68 · `typeof Temporal` entfernen · **S** · ⭐
+`boot-state.js:120` prüft `typeof Temporal !== 'undefined'`. Baseline ist
+Chrome 150+, Temporal ist vorhanden. Die Prüfung suggeriert eine Kompatibilität,
+die es nicht gibt.
+
+### B69 · Zweite Restore-Logik im Seeder prüfen · **M** · ⭐⭐
+`boot-state.js:100–112` setzt jeden Schlüssel aus `din_draft_current` per
+`getElementById`, ohne Allowlist und ohne Sanitizer — obwohl der Dateikopf
+„keine zweite Restore-Logik" behauptet. Ob `draft-manager.js` beides hat, ist
+ungeprüft. Vergleich beider Pfade, dann entweder gemeinsame Funktion oder
+Allowlist im Seeder.
+
+### B70 · Marker-Frage: `data-seeded` vs. `data-ready` · **M** · ⭐⭐
+13 CSS-Regeln hängen an `data-seeded`, 7 an `data-ready`. Messung 2026-11-14:
+beide Marker vor dem ersten Paint (12/12). Der Kommentar in `boot-state.js:134`
+sagt dagegen „`data-ready` ~20 ms nach dem Paint". Entscheidung erst nach
+T1/T2 (B72): Zwei Marker sind nur nötig, wenn ein Lauf `seeded=true,
+ready=false` zeigt, in dem eine `ready`-Regel etwas Falsches darstellt.
+
+### B71 · `boot.js` und `boot-state.js` zusammenlegen? · **M** · ⭐
+Die Zweiteilung ist nach **Element-Verfügbarkeit** begründet, nicht nach zwei
+Dateien: `boot.js` (Head) kann die Controls nicht setzen, `boot-state.js`
+(Body-Ende) könnte beides. Zusammenlegen spart ~50 Zeilen, einen Request und
+einen `JSON.parse`. Preis: `data-theme` käme erst nach dem Body-Parse — ob das
+einen hellen Frame erzeugt, ist ungemessen. Erst nach T1 (B72).
+
+### B72 · Messprotokoll für den ersten Paint · **M** · ⭐⭐⭐
+Heute wird „vor dem Paint" mit einer Abfrage **nach** dem `firstPaint`-Event
+belegt — racy. Nötig: `performance.mark('seeded')` und `mark('ready')`, dann
+`getEntriesByType('paint')` mit Zeitstempeln vergleichen. 3 Profile × 30 Läufe
+(lokal, CPU 6× gedrosselt, Netz 150 ms RTT), Cache aus, voller Entwurf.
+Zusätzlich T2: `throw` im Seeder injizieren und Zeit bis „Regler sichtbar"
+messen. Ergebnis ist die Grundlage für B70/B71.
+
+### B73 · Messwerte generieren, nicht tippen · **S** · ⭐⭐
+Das `fakten.md` aus Batch 02 behauptete „alle Schreibzugriffe" und listete die
+Hälfte. Konsequenz: die Fakten-Datei jeder Scheibe wird von einem Skript
+erzeugt (wie in Batch 01), das Schreibzugriffe, Leser und Zeilen aus dem Code
+zieht — kein handgeschriebener Fließtext.
+
+### B74 · Seitenleiste: 93 px Überlauf und doppelte Statuszeile · **S** · ⭐⭐
+Im Brief-Modus scrollt die Leiste 93 px (1100/1007), der Fuß mit
+„Zurücksetzen" liegt unter der Kante. Kandidaten: Flex-Gap 12 → 8 (−28 px),
+`#zone-aktionen` sticky, Regler in die Kopfzeile. Dazu: die Statuszeile zeigt
+2 von 4 Werten (Form, Falzmarken), die im Brief-Modus direkt darunter als
+Regler stehen — entweder Statuszeile kürzen oder Regler verschieben.
+
+### B75 · Seitenleiste: Fokusziele ohne Zone und der Name „Daten" · **S** · ⭐
+6 von 21 Fokuszielen liegen außerhalb jeder Zone (Modus, GitHub, Theme,
+Drucken, Speichern, „ändern"). Die Zone „Daten" enthält den Testbrief, aber
+nicht das Speichern — der Name deckt den Inhalt nicht. Beides ist eine
+Ordnungsfrage, keine Optik; gehört in Review-Batch 04.
+
+### B76 · PDF-Export als Addon · **M** · ⭐⭐
+Der DeepSeek-Mitschnitt (2026-11-14) schlägt `window.print()` plus Metadaten
+vor, alternativ `pdf-lib` per CDN. Entscheidung: eigener Addon-Pfad unter
+`website/addons/`, geladen per `import()` beim Klick, **nicht** im Boot-Pfad
+(Muster: `testbrief.js`). Voraussetzung ist der Plugin-Punkt aus B52.

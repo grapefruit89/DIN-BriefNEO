@@ -13,6 +13,7 @@ tags:
 doc_links:
 - '[[AGENTS]]'
 - '[[DECISION-LOG]]'
+- '[[BACKLOG-ARCHIV]]'
 - '[[ROADMAP]]'
 code_links:
 - 'website/js/01-document.js'
@@ -22,7 +23,12 @@ depends_on: []
 supersedes: []
 ---
 
-# Backlog — offene Baustellen
+# Backlog — offene Aufgaben (To-do)
+
+**Diese Datei ist die To-do-Liste: nur offene Punkte.** Erledigtes wird beim
+Abschluss nach [[BACKLOG-ARCHIV]] verschoben, nicht hier abgehakt. Wer hier
+etwas sucht, sucht eine Aufgabe — keine Historie. Die Historie der
+Entscheidungen steht im [[DECISION-LOG]].
 
 Abgeleitet aus den historischen Audits vom 2026-10-02 (archiviert).
 Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen** im
@@ -33,40 +39,8 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 
 ---
 
-## ✅ Bereits erledigt (2026-10-02)
-
-| ID | Was | Commit |
-| :--- | :--- | :--- |
-| — | Fitness Gate repariert (war auf `main` rot, 99,88 %) | `5c4a4de` |
-| — | Doku-Quick-Wins: 154 KB stale JSONs, Archiv-Status, `index.md` | `5c4a4de` |
-| P1-1 | Metadata: doppelte Namensableitung → `collectLetterIdentity()` | `a30cdfc` |
-| P1-2 | Settings-Race: `SalutationFeature` bekommt Owner injiziert | `a30cdfc` |
-| — | Doku-Governance `AGENTS.md` §5 + DECISION-LOG-Schema | `5996411` |
-| P1-3 | Postvermerk: drei Listener → ein Owner | `7d52cbe` |
-| P2-2 | gzip-Pipeline 3× kopiert → `05-gzip.js` | `7d52cbe` |
-| P2-5 | `setTimeout(…,100)` → natives `afterprint` | `7d52cbe` |
-| P2-6 | `document.title`: zwei Schreiber → Vorrangregel | `7d52cbe` |
-| **B1** | **`file://` als Laufzeitziel gestrichen** ([[ADR-RUNTIME-CONTEXT]]) | s. u. |
-| **B2** | **`plz-embedded.js` (164 KB) + alle Protokoll-Guards entfernt** | s. u. |
-| **B3** | **`ADR-ANTIPATTERN` aufgelöst → `A51`–`A62`, `H11` im Law Catalog** | s. u. |
-| **B4** | **`GEMINI.md`/`CLAUDE.md` auf Wegweiser reduziert, Regeln nach `AGENTS.md`/Catalog** | s. u. |
-| **B16** | **Terminologie-Kanon im Glossar + Gate-Durchsetzung (`tools/terminology.js`)** | s. u. |
-| **B5** | **Agenten-Tooling nach `30-meta/`; `CHANGELOG` + `OBSIDIAN-SETUP-GUIDE` archiviert** | s. u. |
-| **B8** | **Alle 12 Screen-`!important` aufgelöst + CSS-Ursachen bereinigt** | `809eb15` |
-| **B17** | **Strukturprüfungen für Gesetze ausgebaut (Abdeckung 21 → 30 von 35)** | `a16899c` |
-| **B15** | **DECISION-LOG-Behauptungen geprüft, Append-Only-Nachtrag für KISS + B8 + B17** | s. u. |
-| **B7** | **`attr()`-Geometrie: Fallbacks entfernt, MUST-NOT 5 erfüllt** | s. u. |
-| **B19** | **Adaptive 3-Zonen-Logik aktiv (Phase 1); Phase 2 geschlossen (KISS)** | s. u. |
-| 7.1 | `formatLetterDate` braucht keinen `Intl`-Fallback — Temporal-only, Chrome-only (Chrome 150+) | — |
-
----
-
-## 🔴 Priorität 1 — blockiert anderes
-
-*Derzeit leer — B1 ist am 2026-10-02 entschieden und umgesetzt
-([[ADR-RUNTIME-CONTEXT]]), B2 damit erledigt. Nichts blockiert mehr.*
-
----
+**Erledigte und abgelehnte Einträge** stehen in [[BACKLOG-ARCHIV]] — mit
+denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
 
@@ -109,46 +83,7 @@ Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen*
 
 ---
 
-### B54 · Speicherfehler-Toast wirft selbst (`ariaNotify` mit ungültigem `priority`) · **S** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`document.js:1059` ruft `document.ariaNotify('Fehler beim Speichern', { priority: 'important' })`.
-Chrome 156 kennt `'important'` nicht; der Aufruf wirft `TypeError`. Weil er in
-`#setSaveStatus('error')` steht, bricht `saveDraft()` **genau im Fehlerfall** ab
-(`document.js:825`): kein Toast, kein `DOCUMENT_SAVE_FAILED`, kein Titel-Update, kein
-Undo-Snapshot. Gemessen mit injiziertem `QuotaExceededError`: Status-Dot `error`, Toast
-keiner, Wurf `TypeError`. Fix: gültigen Wert verwenden oder den Aufruf absichern.
-
-### B55 · Import scheitert lautlos (Fehlerpfad unerreichbar) · **S** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`persistence.js:722-742`: `saveJSON` fängt Quota-Fehler intern ab und gibt `false` zurück,
-wirft also nie. Der umgebende `try/catch` mit `IMPORT_STORAGE_ERROR` (`:737-742`) ist für
-Speicherfehler damit unerreichbar. Der Dialog meldet Erfolg, `location.reload()` verwirft
-den Import — der Nutzer sieht seinen alten Brief, ohne Hinweis. Fix: Rückgabe von
-`saveJSON` prüfen und vor dem Reload abbrechen.
-
 ## 🟡 Priorität 3 — gute Verbesserung, grösserer Eingriff
-
-### B6 · Feldtypen deklarativ per `data-feldtyp` · **L** · ⭐⭐⭐ · ✅ PHASE 1 ERLEDIGT 2026-10-02
-**Problem:** Mehrere Module kannten Feld-Sonderfälle über ID-Listen.
-**Änderung:** `data-feldtyp` ist jetzt im HTML die Quelle für `rich`, `mehrzeilig`,
-`zweizeilig`, `liste` und `systemwert`. Draft-Restore, Boot-Restore und UI-Schutz lesen
-diese Eigenschaften statt parallele Feldlisten zu führen. Die gemeinsame Caret-Logik liegt
-in `selection-utils.js`.
-**Rest:** Ein vollständiger `fields.js`-Iterator ist erst sinnvoll, wenn weitere Feldtypen
-hinzukommen; vorerst wäre er zusätzliche Abstraktion ohne weiteren Nutzerwert.
-
-### B7 · `attr()`-Geometrie statt doppelter mm-Werte · **L** · ⭐⭐ · ✅ ERLEDIGT 2026-10-15
-Liest die DIN-5008-Koordinaten via `attr(data-* type(<number>))` direkt aus den HTML-Attributen (SSoT aus IMR-Registry). Alle redundanten CSS-Fallback-Zahlen in `sheet.css` und `print.css` wurden entfernt. Damit ist Regel MUST-NOT 5 der IMR-Registry („normative Geometrie nicht in CSS duplizieren") vollständig erfüllt; CSS enthält null Millimeter-Werte.
-
-### B8 · Die 12 Nicht-Print-`!important` auflösen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
-Alle 12 Screen-`!important` in den Autoren-Styles (`floating.css`, `layout.css`, `sidebar.css`, `signature.css`)
-restlos aufgelöst (Commit `809eb15`). Root-Causes bereinigt: verfehlt platzierte Seitenleisten-Labels
-nach `sidebar.css`, DIN-Elemente nach `sheet.css`, Postvermerk-Styling in `layout.css` konsolidiert,
-`.hidden` und `#btn-ai-rewrite` über Layer-Hierarchie und native Spezifität gelöst.
-Nur die 5 normativen `prefers-reduced-motion`-Resets in `reset.css` und die 18 in `print.css` bleiben bestehen.
-
-### B9 · Caret-Utilities zusammenführen + `TreeWalker` · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
-Die gemeinsame native Selection-/Caret-Logik liegt in `website/js/selection-utils.js`.
-DraftManager und Offline-Adressintelligenz verwenden jetzt denselben Utility-Pfad;
-der manuelle rekursive Node-Walk wurde durch `TreeWalker` ersetzt.
 
 ### B25 · Vorkonfigurierte Brief-Vorlagen (JSON-Muster) · **M** · ⭐⭐⭐
 **Kontext:** Übernommen aus GitHub-Issue #13. Ein leerer Briefeditor ist für Erstnutzer eine Hürde.
@@ -185,39 +120,6 @@ der manuelle rekursive Node-Walk wurde durch `TreeWalker` ersetzt.
 
 ## 🟢 Priorität 4 — Hygiene
 
-### B10 · `research/` **statuskennzeichnen** (NICHT auslagern) · **M** · ⭐⭐⭐ · ✅ TEIL BEREINIGT 2026-10-17
-**Neu gefasst 2026-10-02 nach Inventur** — siehe `[[research-inventar-2026-10-02]]`.
-Die alte Fassung („1,1 MB auslagern") war falsch gestellt: 476 KB davon sind die beiden
-DIN-5008-Normgeometrie-SVGs, und der Ordner enthält **nicht umgesetzte** UX-Spezifikationen
-(→ B18, B19). Ungelesenes Auslagern hätte dieses Wissen vernichtet.
-**Aktualisierung 2026-10-17:** Der Ordner `research/roadmap/` (38 Dateien) wurde vollständig bereinigt und konsolidiert: 13 implementierte Features und 7 verworfene Ansätze wurden nach Überführung in Law Catalog / ADR gelöscht, 5 Spezifikationen in BACKLOG (B27–B31) und ROADMAP überführt, 12 Referenzdokumente nach `docs/` und das Diagnose-Tool nach `tools/browser-audit.html` verschoben.
-
-### B11 · `_`-Prefix → `#private` vereinheitlichen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
-`01`, `41`, `53` mischen `#private`, `_underscore` und public. Rein mechanisch, kein
-Verhaltensrisiko.
-
-### B12 · Logging-Konvention · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
-21 `console.*` ohne einheitliches Präfix. Vorschlag `[DIN-BriefNEO/<Modul>]`.
-Zusätzlich: die beiden leeren `catch (e) {}` in `boot-theme.js`/`boot-state.js` loggen lassen —
-aktuell sind Boot-Fehler inklusive Draft-Verlust unsichtbar.
-
-### B13 · Guard-Kommentare entdoppeln · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
-Fünf „🛡️ ARCHITECTURE GUARD"-Blöcke stehen wortgleich in `index.html` **und** im Modul
-(~60 Z. Redundanz). Guard-Text ins Modul, HTML bekommt einen Einzeiler-Verweis
-(`AGENTS.md` §5.4).
-
-### B14 · Vier ungenutzte IDs entfernen · **S** · ⭐ — ✅ ERLEDIGT 2026-10-02
-`btn-confirm-import`, `btn-confirm-reset`, `seitenleiste-ai-switch-row`,
-`zwischenablage-anschrift-wrapper`.
-**Korrektur 2026-11-05:** Der damalige Zusatz war falsch. `btn-style-formal|polite|casual`
-werden **nicht** „per Template-String gebaut" — `getElementById('btn-style-…')` **sucht** ein
-Element, es baut keines. Die IDs existieren nirgends; der Stil läuft über `#stil-select`.
-Die Radio-Zweige in `salutation.js` sind am 2026-11-05 entfernt.
-Siehe [[dead-code-audit-2026-11-05]].
-
-### B15 · Log-Behauptungen gegen den Code prüfen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
-DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append-Only-Eintrag für die 5 KISS-Optimierungen (Event-Delegation, Caret-SSoT, Gzip-Pipeline, `.closest()`-Ancestor, StorageManager-Kapselung), den B8-Vollzug (`!important`-Beseitigung) und den B17-Phase-2-Gate-Ausbau (30/35 Gesetze) eingepflegt. Ältere historische Einträge bleiben gemäß DECISION-LOG-Governance strikt unverändert (Append-only).
-
 ### B23 · Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) · **S** · ⭐
 **Problem:** `tools/lawcoverage.js` meldet eine LOW-Warnung: 30/35 A-Gesetze maschinell geprüft, 5 ungeprüft (A43, A44, A47, A60, A62).
 **Hintergrund:** Diese 5 Gesetze sind reine Gestaltungs- und UX-Prinzipien, die sich nicht sinnvoll per Regex prüfen lassen.
@@ -246,39 +148,6 @@ DECISION-LOG gegen den aktuellen Code-Stand abgeglichen. Neuer normativer Append
 
 ---
 
-### B41 · Zweizeilig-Guard zählt `<br>` nicht als Zeilenumbruch · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`document.js:324` prüft `text.split('\n').length`; `textContent` enthält für ein `<br>`
-kein `\n`. Der Guard feuert dadurch nie. Zählen über `innerText` oder die `<br>`-Anzahl.
-
-### B42 · Postvermerk-Auswahl wird bedingungslos auf Index 0 gesetzt · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`document.js:922` setzt `pvSelect.selectedIndex = 0`, auch wenn ein Vermerk aktiv ist
-(weitere Stellen: `:1005`, `:1027`). Nur zurücksetzen, wenn kein Postvermerk gesetzt ist.
-
-### B43 · `aria-pressed` am Einstellungen-Schalter bleibt bei direktem Klick stehen · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`settings.js:131-142` aktualisiert `aria-pressed` nur im programmatischen Pfad
-`toggleSettingsModus`. Ein direkter Klick auf `#toggle-modus` feuert `change` ohne Listener.
-
-### B44 · `<li>` ohne `<ul>` in `din-anlagen-angabe` · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`index.html:327` führt `<li>Anlage 1</li>` ohne Liste (`role="group"`). Entweder
-`role="list"`/`role="listitem"` oder ein echtes `<ul>`.
-
-### B45 · Eingefügte `<div>`-Kinder in der Anlagenliste bleiben stehen · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`document.js:485-497` normalisiert nur bei `children.length === 0`. Nach einem Paste mit
-`<div>`-Kindern bleibt die Struktur ungültig.
-
-### B46 · `save()`-Rückgabe beim Signaturzustand wird ignoriert · **S** · ⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`settings.js:567-571` reicht an `updateSettings()` → `saveJSON` weiter, ohne die Rückgabe
-zu prüfen. Bei vollem Speicher verschwindet der Zustand still.
-
-### B47 · Doppelter Save-Request beim Export · **S** · ⭐ · ✅ ERLEDIGT 2026-11-07
-`persistence.js:661-662` publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload direkt
-danach aus dem DOM. Der Request ist für den Export funktionslos.
-
-### B56 · Dead-Code: Restprüfung auf 'AptosCustom' entfernen · **S** · ⭐ · ✅ ERLEDIGT 2026-11-06
-- **Quelle:** `docs/90-archive/dead-code-audit-2026-11-05.md` (Befund 4.7).
-- **Problem:** `settings.js:200,313` verglich `fontFamily` gegen `'AptosCustom'`. Es gibt keinen Schreibpfad dafür (nur `CustomUserFont`).
-- **Aufgabe:** Totes Branching in `settings.js` in Commit `7e59132` rückstandslos entfernt.
-
 ### B57 · CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren · **S** · ⭐⭐
 - **Quelle:** `docs/90-archive/web-standards-tracking.md`.
 - **Problem:** Druckertreiber klemmen DIN-5008-Ränder an unbedruckbaren Bereichen ab.
@@ -286,22 +155,10 @@ danach aus dem DOM. Der Request ist für den Export funktionslos.
 
 ## 🔧 Werkzeuge
 
-### B48 · Test-Runner für maschinenlesbare Ergebnisse · **M** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
-`tools/test-runner.mjs` existiert nicht. Jeder Lauf braucht ein handgebautes CDP-Skript,
-weil `--dump-dom` die async-Tests abschneidet (`--virtual-time-budget` wartet nicht auf
-IndexedDB-I/O). Ein Runner mit JSON-Ausgabe und Exit-Code würde das ersetzen.
-
 ### B49 · Test-Dossier ins Repo · **S** · ⭐⭐
 Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (archiviert); ohne Ablage wird dieselbe Analyse doppelt gemacht.
 
 ## 🎨 Polish
-
-### B50 · Mobile Drawer für die Seitenleiste (< 768px) · **L** · ⛔ ABGELEHNT 2026-11-13
-`website/css/sidebar.css` hat kein Drawer-Muster; unter 768px bleibt die Seitenleiste
-unbenutzbar. Reines CSS mit `:has()` wäre möglich, ohne JS-Umbau.
-**Entschieden am 2026-11-13: keine Mobil-Variante.** Die App ist eine
-Chrome-150+-Desktop-Anwendung; ungetesteter Responsive-Code ist Ballast. Ein
-Zwischenstand (Schublade + Blattskalierung) wurde wieder entfernt.
 
 ### B51 · Design-Tokens in `sidebar.css` durchziehen · **M** · ⭐⭐
 `sidebar.css` enthält 260 rohe `px`-Werte, obwohl Tokens (`--mm-*`, `--pt`) existieren.
@@ -319,88 +176,6 @@ und die WebMCP-Bridge. Bedingung: ein Addon darf den Boot-Pfad nicht belasten,
 also Registrierung nach `data-ready` und Code erst beim Aufruf.
 
 ## 🔬 Forschung
-
-### B53 · Speichern systematisch prüfen (stille Fehler, Rückgaben, Wettläufe) · **M** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07
-Alle Speicherpfade durchgehen: Draft, Signatur, Schrift, Settings, Export, Import, Session,
-Adressbuch, Geoapify-Key, Sender-Coords. Gesucht wird, was still scheitert oder sich
-überholt. Stand 2026-11-06 (Dossier, `331a1f8`) sind die Funde erhoben:
-
-- **13 ignorierte Rückgaben:** `document.js:974` (Undo/Redo), `settings.js:158`
-  (`updateSettings`), `salutation.js:320`, sieben Stellen für den Geoapify-Key
-  (`address.js:1838, 1859, 1872, 1876, 1884, 1891, 2011`), Adressbuch
-  (`address.js:1913`), Sender-Coords (`address.js:2168`). Zwei davon sind eigene
-  Einträge: **B54** (Fehler-Toast wirft) und **B55** (Import-Pfad).
-- **`saveJSON` ruft `navigator.storage.persist()` bei jedem Write** (`persistence.js:191-193`)
-  — beim Tippen etwa einmal pro Sekunde. Funktional harmlos, aber unnötiger Traffic.
-- **Quota-Tests fehlen.** `grep -rn "Quota" test/` ist leer; Fault-Injection über ein
-  überschriebenes `localStorage.setItem` hat sich als brauchbares Muster erwiesen.
-- **`resetDraft()` cleart den Debounce-Timer nicht** (`document.js:989` vs. `:948-949`
-  bei `undo`). Gemessen: nach einem Reset kurz nach dem Tippen folgt ein zusätzlicher
-  Schreibvorgang. Alte Daten kehren dabei nicht zurück (der Timer liest das DOM erneut).
-- **Doppelte Saves:** Export publiziert `DOCUMENT_SAVE_REQUESTED` und baut das Payload
-  zusätzlich direkt (`persistence.js:661-662`); `undo()`/`redo()` schreiben zweimal
-  (`document.js:950` + `:974`).
-
-## Empfohlene Reihenfolge
-
-1. ~~**B1**, **B2**~~ ✅ erledigt 2026-10-02 (`file://` gestrichen)
-2. ~~**B3**, **B4**, **B16**~~ ✅ erledigt 2026-10-02 (Kanonisierung: eine Quelle, ein Begriff)
-3. ~~**B5**~~ ✅ erledigt 2026-10-02
-4. ~~**B12, B13, B14, B11**~~ ✅ erledigt 2026-10-02
-5. ~~**B10**~~ ✅ Research klassifiziert 2026-10-02 (`research/STATUS.md`)
-6. ~~**B6**~~ ✅ Phase 1 erledigt 2026-10-02 (`data-feldtyp` + Caret-SSoT)
-7. ~~**B8**~~ ✅ erledigt 2026-10-02 (`809eb15`), ~~**B15**~~ ✅ erledigt 2026-10-02, ~~**B17**~~ ✅ erledigt 2026-10-02 (`a16899c`)
-8. ~~**B7**~~ ✅ erledigt 2026-10-15 (attr()-Fallbacks entfernt, MUST-NOT 5); ~~**B19 Phase 2**~~ ❌ geschlossen (KISS)
-9. **B22** (`check-geometry.js` — Guard gegen hardcodierte Geometriewerte)
-10. **B23** (`law_coverage` 30/35) + **B24** (`tooling-overview` doc-size)
-11. **B25** (Brief-Vorlagen) + **B26** (DIN-Validatoren Anschrift/IBAN)
-12. **B32** (History/Verlauf `din_history`) + **B33** (Telefonnummer-Formatierer) + **B35** (Subpixel-Falzmarken)
-13. **B27** (Mehrseitige Briefe inkl. **B34** Folgeseiten-Paginierung) + **B28** (Multi-Provider Geocoding) + **B29**–**B31** (Geoapify-Tuning, Bias & Native APIs)
-
-### B17 · Strukturprüfungen für die 14 nicht-regexfähigen Gesetze · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-10-02
-Vollständig umgesetzt (Commit `a16899c`):
-1. `tools/structural-laws.js` prüft nun **A42** (doppelte IDs), **A57** (binäre Radios als Schalter), **A58** (Theme-Wahl als Radio), **A24** (Token ohne `:root`-Definition) und **A59** (Theme-Variablen auf dem DIN-A4-Blatt).
-2. `tools/antipatterns/project.json` ergänzt um Sonden **P18** (A46: `page-break-before: always`), **P19** (A39: Icon-CDNs), **P20** (A21: CSS-Preprozessoren) und **P21** (A22: CSS-in-JS).
-3. `tools/lawcoverage.js` verdrahtet die neuen Prüfer in `TOOL_ENFORCED`.
-4. Gesetzliche Abdeckung von 21/35 auf **30/35 (85,7 %)** gesteigert. Die 5 verbleibenden Normen (A43, A44, A47, A60, A62) sind reine Gestaltungs-/UX-Grundsätze und werden bewusst nur berichtet.
-
-### B18 · Adress-Dropdown mit der Tastatur bedienbar machen · **M** · ⭐⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
-**Härtester Fund der Research-Inventur und unabhängig von ihr gültig.**
-`43-geoapify.js` → `renderSuggestions()` hängt ausschliesslich einen `click`-Listener an
-jedes `<li>`. Kein `keydown`, kein `ArrowDown`/`ArrowUp`, kein `Enter`, kein
-`role="listbox"`/`role="option"`, kein `aria-activedescendant`. Wer die Maus nicht
-benutzt, kann keine Adresse übernehmen. Das wiegt schwerer als jedes offene CSS-Feature.
-Umsetzung vor B19, weil B19 darauf aufbaut.
-
-### B19 · Adaptive 3-Zonen-Logik + Zero-Click-Autofill · **L** · ⭐⭐⭐⭐ · ✅ ERLEDIGT (PHASE 1) / GESCHLOSSEN (PHASE 2) 2026-10-02
-Quelle: ehemals `research/roadmap/ADAPTIVE_DROPDOWN_THRESHOLD_SPEC.md` und
-`ZERO_CLICK_UNIQUE_AUTOCOMPLETE_UX.md` (konsolidiert). Phase 1 ist umgesetzt: > 5 Treffer zeigen
-nur einen Eingrenzungshinweis, 2–5 Treffer erscheinen als Liste, genau 1 Treffer wird
-nach dem vollständigen lokalen/Remote-Abgleich automatisch übernommen. Die vorherige
-willkürliche `slice(0, 6)`-Anzeige ist entfernt. Phase 2 (bidirektionales Orchestrieren „Straße zuerst")
-wird dauerhaft geschlossen: Die 1.500 Zeilen Adresslogik tragen bereits erhebliche Komplexität
-und dürfen ohne dedizierte Unit-Tests nicht mit weiterem State-Sync-Overhead belastet werden (KISS-Prinzip).
-
-### B20 · `fetch()`-Zeitlimits in `43-geoapify.js` · **S** · ⭐⭐⭐⭐ · ✅ ERLEDIGT 2026-10-02
-Alle drei Geoapify-Anfragen haben jetzt ein natives 8-Sekunden-Limit über
-`AbortSignal.timeout()`; die laufende Suche kombiniert es mit dem bestehenden
-`AbortController` über `AbortSignal.any()`. Der H2-Guard (Key nur bei 401/403 löschen)
-bleibt unverändert.
-
-### B21 · Offene CSS-Features bewerten: `@page`-Seitenzahlen, `::highlight()`, `subgrid` · **M** · ⭐⭐ · ✅ BEWERTET 2026-10-02
-Die drei Kandidaten ersetzen im aktuellen Ein-Seiten-/absoluten DIN-Layout keinen
-bestehenden JavaScript-Pfad sicher. `@page`-Seitenzahlen warten auf die
-Mehrseiten-Spec; `::highlight()` hat keinen vorhandenen DOM-Highlight-Renderer;
-`subgrid` würde die IMR-Geometrie unnötig riskant umbauen. Keine Produktionsänderung.
-
-### B39 · `mehrseiten-prototyp.html` einordnen · **M** · ⭐⭐ · ✅ ERLEDIGT 2026-11-08 (Datei gelöscht, Mehrseiten ist ein Plugin)
-`website/mehrseiten-prototyp.html` (315 Zeilen) ist von nichts im Repo verlinkt
-(`index.html`, `multipage.html` und `docs/` geprüft: keine Verweise) und unterscheidet
-sich in 756 Zeilen von `multipage.html` — also eine ältere, eigenständige Datei. Sie liegt
-aber live im ausgelieferten `website/`-Ordner und ist damit öffentlich erreichbar.
-**Zu entscheiden:** vergessene Live-Seite (dann verlinken) oder Dead Code (dann nach
-`docs/90-archive/` verschieben). Vor einer Löschung prüfen, ob ein externer Link zeigt —
-Referrer-Logs gibt es nicht. Siehe auch [[ARCHITECTURE-MAP]].
 
 ### B40 · Vier vorbestehende Testfehler dokumentieren · **M** · ⭐⭐
 Gemessen am 2026-11-05 (Commit `aa4a39b`, reproduziert in eigenem Worktree):
@@ -421,13 +196,6 @@ Die `$schema`-Zeile in `llms.txt` ist seit `186664c` entfernt (kein 404 mehr).
 Offen ist die Entscheidung: eine `website/schema/v3/din-letter.json` anlegen (dann
 Verweis wieder aufnehmen) oder das Schema dauerhaft nicht ausliefern.
 Kein akuter Bug — nur eine Entscheidung, die irgendwann fallen muss.
-
-### B37 · View-Transition wirft `InvalidStateError` beim Seitenaufbau · **N** · ⭐ · ✅ ERLEDIGT 2026-11-07
-Beim Laden erscheinen zwei `InvalidStateError: Transition was aborted because of
-invalid state. Unsupported layout or style`. Kein sichtbarer Effekt für den Nutzer,
-nur Konsole. Vermutlich ruft `startViewTransition()` auf, bevor das Layout bereit
-ist. Zu prüfen: `settings.js` (`applyTheme`, `changeLayout`) und
-`boot-switches.js`. Nicht akut — erst nach Schema v3 / Storage prüfen.
 
 ### B38 · Chromium klemmt Rahmenbreiten unter 1px auf 1px · **N** · ⭐
 Gemessen in Chromium 156 auf einer leeren `data:`-Seite ohne App-CSS: `0.25pt`,
@@ -466,14 +234,6 @@ bis der Inhaber entscheidet. Es enthält kein `@function` —
 die Behauptung einer Namenskollision mit `sheet-multipage.css` ist widerlegt
 (2026-11-14). Zwei Wege: löschen (Doku nachziehen) oder einbinden. Bis dahin
 ist es eine Falle für jeden, der die Doku liest.
-
-### B61 · `data-anlagen`/`data-fuss` migriert (2026-11-14) · **M** · ⭐⭐ · ✅ ERLEDIGT
-Größter Zustands-Hebel: je **4 Writer** (`boot.js`, `main.js`,
-`draft-manager.js`), Ziel ist `:has(#toggle-anlagen:checked)` im CSS. Messung vor dem Umbau: 30/30 kalte Läufe, `:root:has(...)` traf am
-`firstPaint` bereits zu (Paint 48–96 ms). Nach dem Umbau dieselbe Messung:
-30/30, Anlagen und Fußzeile sichtbar, keine Attribute mehr auf `<html>`,
-Paint 40–88 ms. Entfernt: der Entwurfs-`JSON.parse` in `boot.js` (kritischer
-Pfad) und sechs Spiegel-Zeilen in `main.js`/`draft-manager.js`.
 
 ### B62 · `data-gesetzt` migrieren · **S** · ⭐⭐
 Letzter einfacher Zustands-Spiegel. Stand 2026-11-14: **2 Writer**

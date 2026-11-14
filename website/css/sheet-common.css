@@ -199,7 +199,7 @@ din-geschaeftsangaben > .single-line {
 
 /* Sichtbarkeit kommt aus dem Feld selbst: :placeholder-shown ist genau dann
    false, wenn ein Wert drinsteht. Vorher spiegelten vier Stellen (main.js,
-   draft-manager.js, boot-state.js, testbrief.js) den Zustand in data-visible;
+   frueheren Fassungen den Zustand in data-visible;
    jetzt gibt es keinen Schreiber mehr (Befund Batch 01 / Issue #17). */
 #vermerke:not(:placeholder-shown) {
   display: block;

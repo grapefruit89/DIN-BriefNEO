@@ -155,10 +155,10 @@ export class SettingsManager {
     this.settings.theme = active;
 
     const updateDOM = () => {
+      /* Nur am <html>: `:root[data-theme]` plus `[data-theme] body` deckt den
+         Body bereits ab. Das zweite Attribut am <body> war eine Dublette und
+         wurde zusaetzlich erst nach dem Paint gesetzt (Befund Batch 02). */
       document.documentElement.setAttribute('data-theme', active);
-      if (document.body) {
-        document.body.setAttribute('data-theme', active);
-      }
 
       if (this.btnThemeToggle) {
         /* Die Icon-Auswahl haengt an :root[data-theme] — boot.js setzt das
@@ -170,7 +170,7 @@ export class SettingsManager {
       }
     };
 
-    const themeUnchanged = document.documentElement.getAttribute('data-theme') === active && (!document.body || document.body.getAttribute('data-theme') === active);
+    const themeUnchanged = document.documentElement.getAttribute('data-theme') === active;
     if (!themeUnchanged && this.isReady && this.#themeBooted) {
       transitionOn(document, updateDOM);
     } else {

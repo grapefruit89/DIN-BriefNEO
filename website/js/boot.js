@@ -8,8 +8,11 @@
  * zusammengelegt (2026-11-08): beide lasen denselben localStorage-Eintrag,
  * der Browser blockierte den FCP zweimal und parste das JSON zweimal.
  *
- * Warum kein Modul: Module sind deferred und kaemen nach dem ersten Paint
- * (gemessen: FCP bei 96 ms, Zustand dort noch "aus").
+ * Warum klassisch im Kopf: die Attribute muessen stehen, bevor der Body
+ * existiert - ein Modul koennte das nicht, weil es erst nach dem Parse laeuft.
+ * (Die fruehere Begruendung "Module kaemen nach dem ersten Paint, gemessen FCP
+ * 96 ms" ist ueberholt: am 2026-11-14 lief initApp in 30 von 30 kalten Laeufen
+ * vollstaendig vor dem ersten Paint. Siehe B71.)
  */
 try {
   const defaults = {

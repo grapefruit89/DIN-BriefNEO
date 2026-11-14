@@ -251,20 +251,17 @@ body {
 }
 
 :root[data-theme="light"],
-[data-theme="light"] body,
-body[data-theme="light"] {
+[data-theme="light"] body {
   color-scheme: light;
 }
 
 :root[data-theme="dark"],
-[data-theme="dark"] body,
-body[data-theme="dark"] {
+[data-theme="dark"] body {
   color-scheme: dark;
 }
 
 :root[data-theme="auto"],
-[data-theme="auto"] body,
-body[data-theme="auto"] {
+[data-theme="auto"] body {
   color-scheme: light dark;
 }
 

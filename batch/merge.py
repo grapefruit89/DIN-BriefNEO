@@ -113,25 +113,31 @@ def baue(ordner: pathlib.Path) -> tuple:
         teile.append(f'| `{name}` | `{rel}` | {n} | `{kurz}` |')
     teile += ['', f'Gesamt: {gesamt} Zeichen ≈ {gesamt // 4 // 1000}k Token.', '']
 
-    teile += [
-        '## Messwerte (maschinell gezaehlt — hier nachlesen statt schaetzen)',
-        '',
-        '| Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |',
-        '|---|---:|---:|---:|---:|---:|',
-    ]
-    for name, _, n, _, text in zeilen_kopf:
-        m = messwerte(text)
-        teile.append(
-            f'| `{name}` | {n} | {m["export"]} | {m["funktionen"]} '
-            f'| {m["listener"]} | {m["dom"]} |'
-        )
-    teile += [
-        '',
-        'Gezählt per Textsuche auf `name(`. Aufrufe über Callback, Alias,',
-        '`window[name]` oder dynamisches Dispatch sind **nicht** erkannt — die',
-        'Zahlen sind eine Untergrenze. Nicht nachzählen, sondern interpretieren.',
-        '',
-    ]
+    # Die Messwerte sind JS-spezifisch (export, Funktionen, Listener, DOM).
+    # Fuer eine reine CSS-Scheibe waeren alle Spalten null - das ist Rauschen,
+    # nicht Information, also entfaellt die Tabelle dann ganz.
+    if any(name.endswith('.js') for name, _, _, _, _ in zeilen_kopf):
+        teile += [
+            '## Messwerte (maschinell gezaehlt — hier nachlesen statt schaetzen)',
+            '',
+            '| Datei | Zeilen | export-Zeilen | Funktionen | addEventListener | DOM-Abfragen |',
+            '|---|---:|---:|---:|---:|---:|',
+        ]
+        for name, _, n, _, text in zeilen_kopf:
+            if not name.endswith('.js'):
+                continue
+            m = messwerte(text)
+            teile.append(
+                f'| `{name}` | {n} | {m["export"]} | {m["funktionen"]} '
+                f'| {m["listener"]} | {m["dom"]} |'
+            )
+        teile += [
+            '',
+            'Gezählt per Textsuche auf `name(`. Aufrufe über Callback, Alias,',
+            '`window[name]` oder dynamisches Dispatch sind **nicht** erkannt — die',
+            'Zahlen sind eine Untergrenze. Nicht nachzählen, sondern interpretieren.',
+            '',
+        ]
 
     for name, rel, n, kurz, text in zeilen_kopf:
         teile += [

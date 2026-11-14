@@ -27,7 +27,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CHECK = process.argv.includes('--check');
 const iScheibe = process.argv.indexOf('--scheibe');
 const SCHEIBE = iScheibe > -1 && process.argv[iScheibe + 1] ? process.argv[iScheibe + 1] : '02';
-const ZIEL = join(ROOT, SCHEIBE === '01' ? 'batch/01-architektur-vertrag' : 'batch/02-boot-pfad', 'fakten.md');
+const ZIEL = join(
+  ROOT,
+  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade' }[SCHEIBE] || 'batch/02-boot-pfad',
+  'fakten.md',
+);
 
 const lies = (rel) => readFileSync(join(ROOT, rel), 'utf-8');
 const zeilen = (rel) => lies(rel).split('\n');
@@ -272,11 +276,159 @@ ${graph.map((g) => `| \`${g.ziel}\` | ${g.von.length} |`).join('\n')}
 `;
 }
 
+/* ================================================================== Scheibe 03
+ * Kaskade: welche Datei gewinnt wogegen, und wo steht `!important`.
+ *
+ * Gescannt wird zeilenweise mit Klammerzaehlung. Das ist kein CSS-Parser: es
+ * erkennt Bloecke, in denen die oeffnende Klammer am Zeilenende steht, und
+ * `@media`-Kontexte. Verschachtelte Selektoren in einer Zeile, die nicht auf
+ * `{` endet (z. B. einzeilige Regeln), werden uebersehen - das steht als
+ * Grenze im Blatt, nicht als stille Annahme.
+ */
+
+/** @param {string} css */
+function cssKennzahlenAus(css) {
+  const zeilen = css.split('\n');
+  let tiefe = 0;
+  let printTiefe = null;
+  let selektor = '—';
+  const important = [];
+  const atPrint = [];
+  let ids = 0;
+  zeilen.forEach((z, i) => {
+    const nr = i + 1;
+    const zeile = z.trim();
+    if (zeile.startsWith('@media print')) {
+      atPrint.push(nr);
+      printTiefe = tiefe + 1;
+    }
+    /* Selektoren stehen vor der oeffnenden Klammer und enden mit "{". */
+    const m = z.match(/^\s*([^@\s][^{]*?)\s*\{\s*$/);
+    if (m) selektor = m[1].trim();
+
+    if (zeile.includes('{')) tiefe += zeile.split('{').length - 1;
+    if (zeile.includes('}')) {
+      tiefe -= zeile.split('}').length - 1;
+      if (printTiefe !== null && tiefe < printTiefe) printTiefe = null;
+    }
+
+    for (const _ of z.matchAll(/!important/g)) {
+      important.push({
+        nr,
+        selektor: selektor.slice(0, 60),
+        eigenschaft: z.split(':')[0].trim().slice(0, 48),
+        imPrint: printTiefe !== null,
+      });
+    }
+    for (const _ of z.matchAll(/#[a-zA-Z][a-zA-Z0-9_-]*/g)) ids++;
+  });
+  return {
+    zeilen: zeilen.length - (css.endsWith('\n') ? 1 : 0),
+    occurrences: important.length,
+    important,
+    ids,
+    atPrint,
+    variablen: new Set(css.match(/--[a-zA-Z0-9-]+\s*:/g) || []).size,
+    layer: (css.match(/@layer/g) || []).length,
+    scope: (css.match(/@scope/g) || []).length,
+    funktion: (css.match(/@function/g) || []).length,
+  };
+}
+
+function scheibe03() {
+  const dateien = readdirSync(join(ROOT, 'website/css')).filter((f) => f.endsWith('.css')).sort();
+  const links = [];
+  zeilen('website/index.html').forEach((z, i) => {
+    const m = z.match(/<link[^>]+href="([^"]+\.css[^"]*)"/);
+    if (m) links.push({ nr: i + 1, datei: m[1].split('?')[0] });
+  });
+
+  const kennzahlen = dateien.map((f) => ({ f, ...cssKennzahlenAus(lies(`website/css/${f}`)) }));
+  const mp = kennzahlen.find((k) => k.f === 'sheet-multipage.css');
+  const printBereiche = mp ? mp.atPrint : [];
+
+  /* Eigenschaften, auf denen !important sitzt - zeigt, worum es geht. */
+  const proEigenschaft = new Map();
+  for (const k of kennzahlen) {
+    for (const w of k.important) {
+      const e = w.eigenschaft || '(unbekannt)';
+      proEigenschaft.set(e, (proEigenschaft.get(e) || 0) + 1);
+    }
+  }
+  const eigenschaften = [...proEigenschaft.entries()].sort((a, b) => b[1] - a[1]);
+
+  let imPrint = 0;
+  let gesamt = 0;
+  for (const k of kennzahlen) {
+    if (k.f === 'sheet.css') continue;
+    gesamt += k.occurrences;
+    imPrint += k.important.filter((w) => w.imprint || w.imPrint).length;
+  }
+
+  return `# Fakten zur Kaskade
+
+**Erzeugt von \`tools/batch-facts.mjs --scheibe 03\` — nicht von Hand bearbeiten.**
+Alle Zahlen und Zeilen sind aus den CSS-Dateien gelesen. Gezaehlt werden
+**Vorkommen** von \`!important\`, nicht Zeilen (eine Zeile kann zwei tragen).
+
+## 1. Ladereihenfolge
+
+| Zeile in \`index.html\` | Datei |
+|---:|---|
+${links.map((l) => `| ${l.nr} | \`${l.datei}\` |`).join('\n')}
+
+Quelle der Wahrheit ist die Reihenfolge der \`<link>\`-Elemente: bei gleicher
+Spezifitaet gewinnt die spaetere Datei. \`sheet.css\` wird **nicht** geladen.
+
+## 2. Kennzahlen je Datei
+
+| Datei | Zeilen | \`!important\` | davon in \`@media print\` | ID-Selektoren | Custom Properties | \`@layer\` | \`@scope\` | \`@function\` |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+${kennzahlen
+  .map((k) => {
+    const pr = k.important.filter((w) => w.imPrint).length;
+    return `| \`${k.f}\`${k.f === 'sheet.css' ? ' (stillgelegt)' : ''} | ${k.zeilen} | ${k.occurrences} | ${pr} | ${k.ids} | ${k.variablen} | ${k.layer} | ${k.scope} | ${k.funktion} |`;
+  })
+  .join('\n')}
+
+Im Betrieb (ohne \`sheet.css\`): **${gesamt}** \`!important\`, davon **${imPrint}**
+in \`@media print\`-Kontexten. \`@layer\` kommt **${kennzahlen.reduce((s, k) => s + k.layer, 0)}**-mal vor.
+
+## 3. \`!important\` nach Eigenschaft
+
+| Eigenschaft | Vorkommen |
+|---|---:|
+${eigenschaften.slice(0, 15).map(([e, n]) => `| \`${e}\` | ${n} |`).join('\n')}
+
+## 4. Die \`!important\`-Regeln in \`sheet-multipage.css\`
+
+Block = der zuletzt gesehene Selektor (bei \`@media\`-Kontexten der Selektor
+davor). "print" heisst: steht in einem \`@media print\`-Block
+(Zeilen ${printBereiche.join(', ') || '—'}).
+
+| Zeile | print | Selektor | Eigenschaft |
+|---:|:---:|---|---|
+${(mp ? mp.important : [])
+  .map((w) => `| ${w.nr} | ${w.imPrint ? 'ja' : '—'} | \`${w.selektor}\` | \`${w.eigenschaft}\` |`)
+  .join('\n')}
+
+## 5. Grenzen dieses Blatts
+
+- Der Scanner erkennt Bloecke, deren \`{\` am Zeilenende steht, und den
+  \`@media print\`-Kontext. Einzeilige Regeln und verschachtelte Selektoren in
+  einer Zeile werden nicht aufgeloest.
+- **Keine Spezifitaetsberechnung.** Welche \`!important\`-Regel eine andere
+  schlaegt, steht hier nicht — dafuer braucht es Selektorvergleich, nicht Regex.
+  Das ist eine Aufgabe des Reviews, nicht des Blatts.
+`;
+}
+
 const SKRIPTE = skripte();
 const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
 
 const bloecke = [];
 if (SCHEIBE === '01') bloecke.push(scheibe01());
+else if (SCHEIBE === '03') bloecke.push(scheibe03());
 else bloecke.push(`# Fakten zum Boot-Pfad
 
 **Erzeugt von \`tools/batch-facts.mjs\` — nicht von Hand bearbeiten.**
@@ -297,7 +449,7 @@ Gezählt werden **Aufrufstellen**, nicht Ausführungen: der Helfer \`lies()\` in
 falsch („2× JSON.parse", tatsächlich 3).
 `);
 
-for (const datei of SCHEIBE === '01' ? [] : DATEIEN) {
+for (const datei of SCHEIBE === '02' ? DATEIEN : []) {
   const treffer = schreibzugriffe(datei);
   const parses = zeilen(datei).filter((z) => z.includes('JSON.parse') && !z.trim().startsWith('*')).length;
   bloecke.push(`## 2. Schreibzugriffe in \`${datei.replace('website/js/', '')}\`

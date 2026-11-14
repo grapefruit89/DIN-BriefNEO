@@ -9,7 +9,7 @@ Review-Scheiben — nicht der Chat.
 |---|---|---|---|---|---|
 | 01 | Architektur-Vertrag: Schichten, Verstöße, prüfbare Regeln | ✅ | ✅ | ✅ teilweise | 3 / 55 KiB |
 | 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ✅ | ✅ vollständig | 4 / 30 KiB |
-| 03 | CSS-Kaskade: `!important` und `@layer` | Skizze ✅ | – | – | `batch/03-kaskade/` |
+| 03 | CSS-Kaskade: `!important` und `@layer` | ✅ 2 / 28 KiB | ⬜ offen | – | `batch/03-kaskade/` |
 | 04 | `sidebar.css`: Optik und Struktur trennen | Skizze ✅ | – | – | `batch/04-seitenleiste-struktur/` |
 | 05 | Zustand und Restore: die offenen Reste | Skizze ✅ | – | – | `batch/05-zustand-restore/` |
 | 06 | PDF-Export als Addon | Skizze ✅ | – | – | zurückgestellt (Nutzerentscheidung) |

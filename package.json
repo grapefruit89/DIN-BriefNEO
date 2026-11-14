@@ -10,7 +10,8 @@
     "check:fitness": "node tools/build_db.js -q",
     "docs:index": "node tools/build_db.js -q",
     "build:data": "node tools/build_plz_data.mjs",
-    "docs:backlog": "node tools/backlog-sync.mjs"
+    "docs:backlog": "node tools/backlog-sync.mjs",
+    "docs:facts": "node tools/batch-facts.mjs && node tools/batch-facts.mjs --scheibe 01 && node tools/batch-facts.mjs --scheibe 03"
   },
   "keywords": [
     "din-5008",

@@ -1,0 +1,6 @@
+# Batch 03 — Kaskade
+# base.css, sheet-common.css und sidebar.css stehen NICHT im Anhang: ihre
+# Kennzahlen stehen mit Zeile in fakten.md, ihre Rolle in KONTRAKT.md. Der
+# Anhang bleibt damit unter 30 KiB.
+/home/moritz/repos/DIN-BriefNEO/website/css/sheet-multipage.css
+/home/moritz/repos/DIN-BriefNEO/batch/03-kaskade/fakten.md

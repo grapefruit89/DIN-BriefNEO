@@ -1,0 +1,5 @@
+# Batch 02 — Boot-Pfad
+/home/moritz/repos/DIN-BriefNEO/website/js/boot.js
+/home/moritz/repos/DIN-BriefNEO/website/js/boot-state.js
+/home/moritz/repos/DIN-BriefNEO/website/js/settings.js
+/home/moritz/repos/DIN-BriefNEO/batch/02-boot-pfad/fakten.md

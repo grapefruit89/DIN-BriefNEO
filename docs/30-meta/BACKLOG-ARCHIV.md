@@ -297,3 +297,18 @@ Chrome 150+, Temporal ist vorhanden. Die Prüfung suggeriert eine Kompatibilitä
 die es nicht gibt.
 
 ✅ ERLEDIGT 2026-11-14 — `typeof Temporal !== 'undefined'` entfernt; Baseline ist Chrome 150+, gemessen im Browser (`typeof Temporal` = object).
+
+### B60 · `sheet.css` entscheiden · **S** · ⭐⭐
+298 Zeilen, **nirgends eingebunden** (kein `<link>`, kein `@import`), aber in
+acht Doku-Dateien als Architektur beschrieben. Seit 2026-11-14 trägt die Datei
+einen Statuskopf, der genau das erklärt — **nicht löschen, nicht einbinden**,
+bis der Inhaber entscheidet. Es enthält kein `@function` —
+die Behauptung einer Namenskollision mit `sheet-multipage.css` ist widerlegt
+(2026-11-14). Zwei Wege: löschen (Doku nachziehen) oder einbinden. Bis dahin
+ist es eine Falle für jeden, der die Doku liest.
+
+✅ ERLEDIGT 2026-11-14 — Entscheidung gefallen: **die Datei bleibt und wird
+nicht eingebunden.** `website/css/sheet.css` trägt seit `9f65067` einen
+55-zeiligen Statuskopf („NICHT LÖSCHEN, NICHT EINBINDEN") mit Zahlen, Risiken,
+Prüfschritten und den zwei widerlegten Gerüchten. Für 0 Byte Netzlast ist damit
+alles gesagt; die Löschung wäre eine Entscheidung ohne Nutzen.

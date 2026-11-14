@@ -27,7 +27,7 @@ const eintraege = [...text.matchAll(/^### (B\d+) · (.+?) · \*\*([SMLN])\*\* ·
 const tabelle = [
   '## Übersicht',
   '',
-  `${eintraege.length} offene Punkte. Details unterhalb, nach Priorität gruppiert.`,
+  `${eintraege.length} offene Punkte. Details unterhalb, nach Art gruppiert.`,
   '',
   '| Nr | Aufgabe | Aufwand | Nutzen |',
   '|---|---|:---:|:---:|',

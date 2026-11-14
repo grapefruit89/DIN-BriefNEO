@@ -56,6 +56,24 @@ werden beim Abschluss aus dem Backlog hierher verschoben.
 
 ---
 
+## Altbestand — IDs aus dem ersten Backlog (2026-10-02)
+
+Der Umbau am 2026-11-14 hat erledigte Einträge ins Archiv **verschoben**. Sechs
+IDs waren schon vorher **gelöscht** worden statt verschoben (aus dem ersten
+Backlog `700fa35`, „Backlog der offenen Baustellen (B1-B15)"). Verweise darauf —
+etwa im [[DECISION-LOG]] — lösten dadurch ins Leere. Sie stehen hier mit dem
+Commit, der sie geschlossen hat; die Lücke im Nummernkreis ist damit erklärt,
+nicht gefüllt.
+
+| ID | Eintrag | geschlossen in |
+|---|---|---|
+| B1 | `file://`-Grundsatzentscheidung | `608f747` |
+| B2 | Toten `file://`-Fallback + 164 KB entfernen | `608f747` |
+| B3 | `ADR-ANTIPATTERN` in den Law Catalog auflösen | `197e47d` |
+| B4 | `GEMINI.md` + `CLAUDE.md`-Verbote in `AGENTS.md` auflösen | `197e47d` |
+| B5 | Agenten-Tooling-Docs nach `30-meta/` | `28704f4` |
+| B16 | hatte nie einen eigenen Eintrag; mit B3/B4 erledigt | `197e47d` |
+
 ## Einzelne Einträge
 
 ### B54 · Speicherfehler-Toast wirft selbst (`ariaNotify` mit ungültigem `priority`) · **S** · ⭐⭐⭐ · ✅ ERLEDIGT 2026-11-07

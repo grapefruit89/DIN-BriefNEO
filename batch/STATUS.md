@@ -28,7 +28,7 @@ der Schnitt zu grob ist.
 | S1 `data-layout` → eine Spur | ⬜ offen (B63) | Attribut an 3 Stellen + zweite `--active-idx`-Spur |
 | S2 `@layer` statt `!important` | ⬜ offen (B59) | 0 `@layer`, 152 `!important`, 354 ID-Referenzen |
 | S3 `sheet.css` entscheiden | ⬜ offen (B60) | 297 Z., 0 Einbindungen — **Entscheidung des Nutzers** |
-| S3 `sidebar.css` trennen | ⬜ offen | 1241 Z., 118 ID-Selektoren; Batch 04 |
+| S3 `sidebar.css` trennen | ⬜ offen (B64) | 1241 Z., 118 ID-Selektoren; Batch 04 |
 | S4 Druck/Token/Animation | ⛔ nicht anfassen | Nutzerentscheidung |
 
 ## Was aus Batch 01 offen blieb

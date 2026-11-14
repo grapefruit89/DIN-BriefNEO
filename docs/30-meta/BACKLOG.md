@@ -475,14 +475,27 @@ Letzter einfacher Zustands-Spiegel. Stand 2026-11-14: **2 Writer**
 (`boot-state.js:72` pre-paint, `main.js:30` bei jeder Änderung) und **1
 CSS-Leser** (`.seitenleiste-select[data-gesetzt="true"]`, `sidebar.css:696`).
 Ziel: `.seitenleiste-select:has(option:checked:not([value=""]))`.
+Zeilenstand 2026-11-14 nachgeprüft: `boot-state.js:72`, `main.js:30`,
+CSS-Leser `sidebar.css:696`.
 Vorsicht: In Batch 01 stand der Verdacht, dass die Optik nach dem Paint
 aufblendete — damals war es die `background`-Transition, nicht der Zustand.
 Vor dem Umbau 30 kalte Reloads (Protokoll wie B61), danach dieselbe Messung.
 
 ### B63 · `data-layout`: zwei Spuren auf eine · **M** · ⭐
-Stand 2026-11-14: das Attribut wird an drei Stellen geschrieben (`boot.js:42`,
-`settings.js:90` und `:215`), und `sidebar.css:177` führt eine zweite
+Stand 2026-11-14 (nachgeprüft): Attribut an drei Stellen (`boot.js:42`,
+`settings.js:90` und `:215`), und `sidebar.css:182` führt eine zweite
 `--active-idx`-Spur nur für `data-layout`, obwohl die `:checked`-Regeln
 darüber dasselbe leisten. Ziel: eine Spur. Achtung: `sheet-common.css` und
 `sheet-multipage.css` lesen `[data-layout]` für die Blattgeometrie — die
 Migration berührt DIN-Maße und braucht deshalb einen eigenen Messnachweis.
+
+### B64 · `sidebar.css`: Optik und Struktur trennen · **L** · ⭐⭐
+1241 Zeilen, **118 ID-Selektor-Vorkommen**, und darin liegen zwei Dinge
+gleichzeitig: die Gestaltung der Leiste **und** der Strukturvertrag des
+Modus-Wechsels (`:has(#modus-einstellungen:checked)` auf Zonen und Gruppen).
+Stand 2026-11-14: 7 Modus-Regeln, davon 6 mit Design-Adressen.
+Ziel: der Strukturvertrag (was ist in welchem Modus sichtbar) liegt bei den
+Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
+Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
+**ohne** ihn zu lösen, sonst wird sie nicht angefasst.
+Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).

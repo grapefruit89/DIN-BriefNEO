@@ -49,7 +49,8 @@ try {
   root.setAttribute('data-plugin-multipage', 'true');
 
   /* Anlagen und Fusszeile liest CSS direkt aus den Schaltern (:has). Die
-   * Checkbox setzt boot-state.js (Modul am Body-Ende) vor dem ersten Paint;
+   * Checkbox setzt boot-state.js (klassisches Skript am Body-Ende) vor dem
+   * ersten Paint;
    * gemessen 2026-11-14: 30 von 30 kalten Laeufen, :has() traf am firstPaint
    * bereits zu (Paint 48-96 ms). Damit faellt hier ein JSON.parse auf dem
    * kritischen Pfad weg. */

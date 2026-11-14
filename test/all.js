@@ -1297,7 +1297,13 @@ describe('Ratsche P38: contenteditable auf offenen Feldern', () => {
     for (const id of ['stil-select', 'select-schriftart', 'btn-rand-u-30', 'plugin-testbrief', 'datum']) {
       assert(src.includes(`'${id}'`), `#${id} wird vor dem Paint gesetzt`);
     }
-    assert(src.includes('data-gesetzt'), 'Auswahllisten-Optik laeuft ueber das Attribut');
+    /* B62: die Optik kommt aus :has(option:checked...), nicht aus einem
+       JS-Attribut. Das Attribut wurde vor dem Setzen des Werts berechnet und
+       war in 30 von 30 kalten Reloads falsch (2026-11-14). */
+    assert(!src.includes('data-gesetzt'), 'kein data-gesetzt-Attribut mehr');
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    assert(css.includes('.seitenleiste-select:has(option:checked:not([value=""]))'),
+      'Gefuellt-Optik laeuft ueber :has(option:checked)');
   });
 
   it('laesst den Rich-Text in Ruhe', async () => {

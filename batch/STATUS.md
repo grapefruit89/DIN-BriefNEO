@@ -26,7 +26,7 @@ der Schnitt zu grob ist.
 |---|---|---|
 | S1 `data-anlagen`/`data-fuss` → `:has()` | ✅ erledigt | `ac62e65`, 30/30 vor und nach |
 | S1 `data-visible` → `:not(:placeholder-shown)` | ✅ erledigt | `ac62e65`, 4 Writer entfernt |
-| S1 `data-gesetzt` → `:has(option:checked…)` | ⬜ offen (B62) | 2 Writer, 1 CSS-Leser |
+| S1 `data-gesetzt` → `:has(option:checked…)` | ✅ erledigt (B62) | 30/30 statt 0/30 gefüllt, 2 Writer entfernt |
 | S1 `data-layout` → eine Spur | ⬜ offen (B63) | Attribut an 3 Stellen + zweite `--active-idx`-Spur |
 | S2 `@layer` statt `!important` | ⬜ offen (B59) | 0 `@layer`, 152 `!important`, 354 ID-Referenzen |
 | S3 `sheet.css` entscheiden | ✅ entschieden (B60) | bleibt, nicht eingebunden, Statuskopf; 0 Byte Netzlast |

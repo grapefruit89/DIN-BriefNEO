@@ -433,3 +433,35 @@ Marker-Regeln aus den CSS-Dateien, Messwerte aus `paint-probe-*.json`.
 Tages falsch (2 statt 3 `JSON.parse`-Stellen, Zeile 30 statt 25, sechs
 fehlende Schreibzugriffe: `stil-select`, `select-schriftart`, `vermerke`,
 Postvermerk-Auswahl, Entwurfsfelder, Datum).
+
+### B62 · `data-gesetzt` migrieren · **S** · ⭐⭐
+Letzter einfacher Zustands-Spiegel. Stand 2026-11-14: **2 Writer**
+(`boot-state.js:72` pre-paint, `main.js:30` bei jeder Änderung) und **1
+CSS-Leser** (`.seitenleiste-select[data-gesetzt="true"]`, `sidebar.css:696`).
+Ziel: `.seitenleiste-select:has(option:checked:not([value=""]))`.
+Zeilenstand 2026-11-14 nachgeprüft: `boot-state.js:72`, `main.js:30`,
+CSS-Leser `sidebar.css:696`.
+Vorsicht: In Batch 01 stand der Verdacht, dass die Optik nach dem Paint
+aufblendete — damals war es die `background`-Transition, nicht der Zustand.
+Vor dem Umbau 30 kalte Reloads (Protokoll wie B61), danach dieselbe Messung.
+
+✅ ERLEDIGT 2026-11-14 — das Attribut ist weg, die Optik kommt aus
+`.seitenleiste-select:has(option:checked:not([value=""]))` (`sidebar.css`).
+
+**Warum es weg musste:** der Seeder berechnete `data-gesetzt` in Abschnitt 2c,
+**bevor** Abschnitt 3 den Postvermerk setzte. Ergebnis: die Liste stand auf
+`false`, während `:has()` `true` sagte — „Einschreiben" in der Optik einer leeren
+Auswahl. 30 kalte Reloads vorher: **0/30** gefüllt, Attribut in 30/30 falsch.
+Nachher: **30/30** gefüllt, bei allen drei Listen.
+
+**Warum der alte Grund entfiel:** der Kommentar im CSS verbot `:has()`
+ausdrücklich, weil die Änderung nach dem Paint aufblendete (2026-11-12:
+background-color 30 → 139 ms). Dieser Grund wurde noch am selben Tag von der
+Übergangs-Sperre in `base.css` erledigt: bis `data-seeded` ist
+`transition: none` — gemessen 2026-11-14 am Postvermerk-Select (`0s` ohne
+Marker, `0.15s` mit). Der Seeder setzt den Wert **vor** `data-seeded`, also
+gibt es kein Aufblenden.
+
+**Entfernt:** 1 CSS-Leser → nativer Selektor, 2 Writer
+(`boot-state.js` Abschnitt 2c, `main.js` `spiegleSelectGesetzt` samt
+`change`-Listener). Kein JS mehr für eine reine Optik-Frage.

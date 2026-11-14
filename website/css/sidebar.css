@@ -689,11 +689,17 @@ input[type="checkbox"][switch] {
   outline-offset: 2px;
 }
 
-/* "Gefuellt"-Optik aus dem Attribut (boot-state.js, pre-paint), NICHT aus
-   `:has(option:checked...)`: der Wert kam vom Seeder und die Aenderung blendete
-   nach dem Paint auf (gemessen 2026-11-12, FCP 64 ms, Aufblenden bis 139 ms).
-   NICHT auf :has(:checked) zurueckstellen. */
-.seitenleiste-select[data-gesetzt="true"] {
+/* "Gefuellt"-Optik direkt aus dem Formularzustand (B62, 2026-11-14).
+   Vorher spiegelte ein JS-Attribut (`data-gesetzt`) den Wert, weil die
+   Aenderung nach dem Paint aufblendete (gemessen 2026-11-12: background-color
+   30 -> 139 ms). Dieser Grund ist entfallen: seit demselben Tag sperrt
+   base.css alle Uebergaenge bis `data-seeded`, und der Seeder setzt die Werte
+   vorher. Das Attribut brachte dagegen einen eigenen Fehler mit - es wurde
+   berechnet, BEVOR der Seeder den Postvermerk setzte, und blieb deshalb auf
+   "false" (30 von 30 kalten Reloads, gemessen 2026-11-14): die Liste zeigte
+   "Einschreiben" in der Optik einer leeren Auswahl. `:has()` fragt den
+   Zustand, statt ihn zu kopieren, und kennt diese Reihenfolge nicht. */
+.seitenleiste-select:has(option:checked:not([value=""])) {
   background: var(--segment-active-bg);
   color: var(--text-primary);
   box-shadow: var(--segment-active-shadow);

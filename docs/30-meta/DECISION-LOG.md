@@ -3181,3 +3181,35 @@ Zeile 30 statt 25, sechs fehlende Schreibzugriffe). Jetzt erzeugt
 `tools/batch-facts.mjs` das Blatt aus dem Quelltext (Zeilennummern, Zähler,
 Marker-Regeln, Messwerte aus `paint-probe-*.json`) und `--check` bricht bei
 Abweichung ab. Kein Datum im Kopf — sonst wäre `--check` täglich rot.
+
+---
+
+## 2026-11-14 — `data-gesetzt` gelöscht: `:has()` fragt den Zustand, statt ihn zu kopieren
+
+**Befund (30 kalte Reloads, CDP, Cache aus).** Der Seeder berechnete
+`data-gesetzt` in Abschnitt 2c, bevor Abschnitt 3 den Postvermerk setzte. Der
+Wert „Einschreiben" stand damit in einer Liste mit der Optik einer leeren
+Auswahl: `data-gesetzt="false"`, `:has()` `true`, Hintergrund
+`oklch(0.69 0.015 250)` statt `oklch(0.6 0.02 250)`. Messung vorher: 0/30
+geführt, Attribut in 30/30 falsch; die beiden anderen Listen waren korrekt,
+weil ihre Werte vor der Attribut-Schleife gesetzt wurden.
+
+**Warum das Attribut überhaupt existierte.** Der Kommentar in `sidebar.css`
+verbot `:has()` ausdrücklich: „die Änderung blendete nach dem Paint auf
+(gemessen 2026-11-12, FCP 64 ms, Aufblenden bis 139 ms)". Nachgerechnet war das
+kein Zustandsproblem, sondern eine **CSS-Transition** — und die wurde am
+selben Tag global erledigt: bis `data-seeded` gilt `transition: none`.
+Gegengeprüft 2026-11-14 am Select selbst: ohne Marker `0s`/`none`, mit Marker
+`0.15s` auf `background, color, border-color, box-shadow`.
+
+**Entscheidung.** Die Sperre deckt den Fall bereits ab, also darf CSS den
+Formularzustand direkt lesen. Entfernt: der CSS-Leser (jetzt
+`:has(option:checked:not([value=""]))`), beide Writer und der
+`change`-Listener. Nachher: 30/30 gefüllt bei allen drei Listen.
+
+**Regel für später.** Ein Zustands-Attribut, das einen Wert nur **kopiert**,
+muss zur richtigen Zeit geschrieben werden — und das ist eine Reihenfolge-Frage,
+die niemand im Kopf hat. Wo CSS den Zustand selbst abfragen kann (`:has`,
+`:checked`, `:placeholder-shown`), ist die Abfrage die billigere Wahrheit.
+Die Ausnahme bleibt der Paint: Attribute, die **vor** dem ersten Frame stehen
+müssen, kann CSS nicht abfragen, weil die Elemente noch nicht existieren.

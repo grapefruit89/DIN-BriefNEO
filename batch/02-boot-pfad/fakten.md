@@ -35,7 +35,7 @@ falsch („2× JSON.parse", tatsächlich 3).
 
 ## 2. Schreibzugriffe in `boot-state.js`
 
-186 Zeilen · 16 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
+183 Zeilen · 15 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
 
 | Zeile | Art | Ziel | Quelle |
 |---:|---|---|---|
@@ -46,28 +46,26 @@ falsch („2× JSON.parse", tatsächlich 3).
 | 79 | value | `—` | `schrift.value = String(settings.previewFont);` |
 | 82 | checked | `—` | `if (randU) randU.checked = settings.randU === 30;` |
 | 84 | checked | `—` | `if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);` |
-| 92 | setAttribute | `data-gesetzt` | `liste.setAttribute('data-gesetzt', wahl.value !== '' ? 'true' : 'false');` |
-| 100 | value | `—` | `feld.value = vermerk;` |
-| 105 | value | `—` | `if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = verm` |
-| 113 | checked | `—` | `if (box) box.checked = draft[id] === true \|\| draft[id] === 'true';` |
-| 140 | value | `—` | `el.value = wert;` |
-| 145 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
-| 157 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
-| 177 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
-| 178 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
+| 97 | value | `—` | `feld.value = vermerk;` |
+| 102 | value | `—` | `if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = verm` |
+| 110 | checked | `—` | `if (box) box.checked = draft[id] === true \|\| draft[id] === 'true';` |
+| 137 | value | `—` | `el.value = wert;` |
+| 142 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
+| 154 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
+| 174 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
+| 175 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
 
 ## 2. Schreibzugriffe in `main.js`
 
-366 Zeilen · 6 Schreibzugriffe · 0× `JSON.parse` (Aufrufstellen)
+344 Zeilen · 5 Schreibzugriffe · 0× `JSON.parse` (Aufrufstellen)
 
 | Zeile | Art | Ziel | Quelle |
 |---:|---|---|---|
-| 30 | setAttribute | `data-gesetzt` | `if (sel.getAttribute('data-gesetzt') !== wert) sel.setAttribute('data-gesetzt', wert);` |
-| 45 | value | `—` | `if (sel && sel.value !== val) sel.value = val;` |
-| 69 | setAttribute | `role` | `box.setAttribute('role', 'alert');` |
-| 188 | mark | `ready` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('ready');` |
-| 189 | dataset | `ready` | `document.documentElement.dataset.ready = 'true';` |
-| 266 | value | `—` | `anlagenEl.value = 'Anlage 1';` |
+| 31 | value | `—` | `if (sel && sel.value !== val) sel.value = val;` |
+| 54 | setAttribute | `role` | `box.setAttribute('role', 'alert');` |
+| 173 | mark | `ready` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('ready');` |
+| 174 | dataset | `ready` | `document.documentElement.dataset.ready = 'true';` |
+| 244 | value | `—` | `anlagenEl.value = 'Anlage 1';` |
 
 ## 3. Marker im CSS
 
@@ -77,7 +75,7 @@ steht", `data-ready` heisst „Booten fertig oder aufgegeben (2-s-Timer in
 
 | Marker | Treffer in CSS |
 |---|---|
-| `data-seeded` | 18 |
+| `data-seeded` | 19 |
 | `data-ready` | 15 |
 
 ### `data-seeded`
@@ -102,6 +100,7 @@ steht", `data-ready` heisst „Booten fertig oder aufgegeben (2-s-Timer in
 | `sheet-common.css` | 667 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {` |
 | `sidebar.css` | 616 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
 | `sidebar.css` | 617 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
+| `sidebar.css` | 696 | `base.css alle Uebergaenge bis `data-seeded`, und der Seeder setzt die Werte` |
 
 ### `data-ready`
 

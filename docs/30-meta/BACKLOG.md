@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-29 offene Punkte. Details unterhalb, nach Art gruppiert.
+28 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -74,7 +74,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B57** | CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren | S | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
-| **B62** | `data-gesetzt` migrieren | S | ⭐⭐ |
 | **B63** | `data-layout`: zwei Spuren auf eine | M | ⭐ |
 | **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
 | **B74** | Seitenleiste: 93 px Überlauf und doppelte Statuszeile | S | ⭐⭐ |
@@ -152,17 +151,6 @@ enthält 100 `!important`. `@layer` (Chrome 99+, nativ) macht die Reihenfolge
 explizit und erlaubt, einen großen Teil davon zu streichen. Gehört zu S2 aus dem
 Batch-01-Review. Vorher: Reihenfolge der heutigen Kaskade dokumentieren, sonst
 verschiebt der Umbau ungewollt Spezifität.
-
-### B62 · `data-gesetzt` migrieren · **S** · ⭐⭐
-Letzter einfacher Zustands-Spiegel. Stand 2026-11-14: **2 Writer**
-(`boot-state.js:72` pre-paint, `main.js:30` bei jeder Änderung) und **1
-CSS-Leser** (`.seitenleiste-select[data-gesetzt="true"]`, `sidebar.css:696`).
-Ziel: `.seitenleiste-select:has(option:checked:not([value=""]))`.
-Zeilenstand 2026-11-14 nachgeprüft: `boot-state.js:72`, `main.js:30`,
-CSS-Leser `sidebar.css:696`.
-Vorsicht: In Batch 01 stand der Verdacht, dass die Optik nach dem Paint
-aufblendete — damals war es die `background`-Transition, nicht der Zustand.
-Vor dem Umbau 30 kalte Reloads (Protokoll wie B61), danach dieselbe Messung.
 
 ### B63 · `data-layout`: zwei Spuren auf eine · **M** · ⭐
 Stand 2026-11-14 (nachgeprüft): Attribut an drei Stellen (`boot.js:42`,

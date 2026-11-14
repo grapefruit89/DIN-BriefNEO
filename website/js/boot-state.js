@@ -83,14 +83,11 @@
     const testbrief = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
     if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);
 
-    /* 2c. "Gefuellt"-Optik der Auswahllisten: CSS las dafuer
-       `:has(option:checked...)` und blendete die Aenderung nach dem Paint auf
-       (gemessen 2026-11-12: background-color 30 -> 139 ms). Jetzt Attribut,
-       das hier vor dem Paint steht; CSS liest nur noch `data-gesetzt`. */
-    for (const liste of document.querySelectorAll('select.seitenleiste-select')) {
-      const wahl = /** @type {HTMLSelectElement} */ (liste);
-      liste.setAttribute('data-gesetzt', wahl.value !== '' ? 'true' : 'false');
-    }
+    /* 2c. Die "Gefuellt"-Optik der Auswahllisten braucht hier nichts mehr:
+       sie kommt aus `:has(option:checked:not([value=""]))` (B62, siehe
+       sidebar.css). Das fruehere Attribut wurde an dieser Stelle berechnet,
+       BEVOR Abschnitt 3 den Postvermerk setzte - und blieb deshalb falsch.
+    */
 
     /* 3. Postvermerk: Auswahlliste und Blattfeld zeigen denselben Wert. */
     const vermerk = typeof draft.vermerke === 'string' ? draft.vermerke : '';

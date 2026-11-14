@@ -4732,7 +4732,15 @@ describe('Seitenleiste hat eine Ueberschriften-Hierarchie (Befund B14)', () => {
     if (!aside) return;
     const h2 = [...aside.querySelectorAll('h2')];
     const h3 = [...aside.querySelectorAll('h3')];
-    assertEqual(h2.length, 4, 'h2 je Zone');
+    /* Drei h2: Brief, Daten (sr-only), Status & Zuruecksetzen (sr-only).
+       Die Einstellungen-Zone hat keine sichtbare Ueberschrift mehr - der
+       Modus-Schalter darueber nennt sie bereits (2026-11-14). */
+    assertEqual(h2.length, 3, 'h2 je Zone ohne die doppelte Einstellungen-Zeile');
+    assertEqual(
+      doc.getElementById('zone-setup')?.getAttribute('aria-label'),
+      'Einstellungen',
+      'Zone behaelt ihren Namen als aria-label'
+    );
     assertEqual(h3.length, 2, 'h3 fuer die Gruppentitel, die keine Labels sind');
     assert(h2.every((h) => h.textContent.trim().length > 0), 'h2 haben Text');
     assert(h3.every((h) => !h.hasAttribute('for')), 'h3 ist kein Label-Ersatz');

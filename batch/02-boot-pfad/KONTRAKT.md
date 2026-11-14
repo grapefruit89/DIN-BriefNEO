@@ -14,7 +14,8 @@ was ein fremdes Modul selbst importiert, steht hier nicht.
 | Modul | Zeilen | Rolle (Dateikopf) | genutzte Symbole |
 |---|---:|---|---|
 | `website/js/core.js` | 276 | Bildet das entkoppelte Zero-Dependency-Rückgrat der Anwendung. | `Events`, `eventBus` |
-| `website/js/persistence.js` | 877 | Bündelt die bisherigen 4 Module: | `DEFAULT_SETTINGS`, `STORAGE_KEYS`, `loadJSON`, `saveJSON` |
+| `website/js/persistence.js` | 899 | Bündelt die bisherigen 4 Module: | `DEFAULT_SETTINGS`, `istAn`, `STORAGE_KEYS`, `loadJSON`, `saveJSON` |
+| `website/js/settings.js` | 344 | Reparaturpfad nach dem Paint (nicht im Anhang) | `SettingsManager`; schreibt `data-layout`, `data-theme`, `data-plugin-*`, `--rand-u`, die Form-Radios und den Testbrief-Schalter |
 
 ## Wer diese Scheibe von aussen benutzt
 

@@ -1,5 +1,7 @@
 # Batch 02 — Boot-Pfad
+# settings.js steht NICHT im Anhang: es ist der Reparaturpfad nach dem Paint,
+# beschrieben in KONTRAKT.md und mit allen Zeilen in fakten.md §2. Der Anhang
+# bleibt damit unter 30 KiB.
 /home/moritz/repos/DIN-BriefNEO/website/js/boot.js
 /home/moritz/repos/DIN-BriefNEO/website/js/boot-state.js
-/home/moritz/repos/DIN-BriefNEO/website/js/settings.js
 /home/moritz/repos/DIN-BriefNEO/batch/02-boot-pfad/fakten.md

@@ -67,14 +67,12 @@ export class SettingsManager {
   #themeBooted = false;
 
   constructor() {
-    /** @type {import('./persistence.js').DinSettings & { style?: string, previewFont?: string }} */
+    /** @type {import('./persistence.js').DinSettings & { previewFont?: string }} */
     this.settings = loadJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
     this.btnFormA = document.getElementById('btn-form-a');
     this.btnFormB = document.getElementById('btn-form-b');
     this.seitenleiste = document.getElementById('seitenleiste');
-    this.btnZurueck = document.getElementById('btn-zurueck');
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
-    this.styleSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('style-select'));
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
 
@@ -100,9 +98,6 @@ export class SettingsManager {
 
     const currentTheme = this.settings.theme || 'auto';
     this.applyTheme(currentTheme);
-
-    const currentStyle = this.settings.style || 'default';
-    this.applyStyle(currentStyle);
 
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), this.settings.marks !== false);
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), Boolean(this.settings.pluginTestbrief));
@@ -197,19 +192,6 @@ export class SettingsManager {
        Kein JS-Zustand, keine Klasse, kein zweites Label (Befund B14). */
     ziel.checked = true;
     ziel.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-
-  /**
-   * @param {'default' | 'compact' | string} style
-   */
-  applyStyle(style) {
-    const validStyles = ['default', 'compact'];
-    const active = validStyles.includes(style) ? style : 'default';
-    this.settings.style = active;
-    document.documentElement.setAttribute('data-style', active);
-    if (this.styleSelect) {
-      this.styleSelect.value = active;
-    }
   }
 
   updateSettings() {
@@ -315,14 +297,6 @@ export class SettingsManager {
       });
     }
 
-    if (this.btnZurueck) {
-      this.btnZurueck.addEventListener('click', (e) => {
-        if (!this.isReady) return;
-        e.preventDefault();
-        this.toggleSettingsModus('brief');
-      });
-    }
-
     if (this.btnThemeToggle) {
       this.btnThemeToggle.addEventListener('click', () => {
         if (!this.isReady) return;
@@ -331,15 +305,6 @@ export class SettingsManager {
         const current = this.settings.theme || 'auto';
         const next = cycle[current] || 'auto';
         this.settings.theme = next;
-        this.updateSettings();
-      });
-    }
-
-    if (this.styleSelect) {
-      this.styleSelect.addEventListener('change', () => {
-        if (!this.isReady) return;
-        const val = this.styleSelect ? this.styleSelect.value : 'default';
-        this.applyStyle(val);
         this.updateSettings();
       });
     }

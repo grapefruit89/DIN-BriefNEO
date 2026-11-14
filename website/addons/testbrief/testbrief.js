@@ -1373,12 +1373,10 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   const anredeEl = document.getElementById('anrede');
   if (anredeEl) {
     delete anredeEl.dataset.dirty;
-    anredeEl.dataset.generated = 'true';
   }
   const grussEl = document.getElementById('grussformel');
   if (grussEl) {
     delete grussEl.dataset.dirty;
-    grussEl.dataset.generated = 'true';
   }
 
   // Zusatzblöcke: Anlagen dynamisch steuern

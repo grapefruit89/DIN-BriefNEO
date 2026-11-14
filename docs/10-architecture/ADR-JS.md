@@ -83,7 +83,7 @@ Historisch führte die direkte Kopplung über Callbacks (`onToast`, `onSaveDraft
 Das Projekt verfügt über eine flache Modulstruktur unter `website/js/` (AGENTS.md §7a, keine Unterordner). Die **17 real existierenden Dateien** sind nach fachlichen Domänen, Schichten und Verantwortlichkeiten gegliedert:
 
 ### 1. `boot.js` (Blocking Head-Script: FOUC-Schutz, Pre-Paint-Theme & Font-Initialisierung)
-* Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme` und `data-style` auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz).
+* Blocking classic script im `<head>` (kein ES-Modul): setzt `data-theme`, `data-layout`, `data-marks`, `data-plugin-testbrief` und die Entwurfs-Flags (`data-anlagen`, `data-fuss`) auf dem `<html>`-Element VOR dem First Paint (FOUC-Schutz). `data-style` gibt es seit 2026-11-14 nicht mehr: die Einstellung „kompakt" hatte nie eine Oberfläche, `applyStyle` und der CSS-Block waren toter Code (Issue #17).
 * Liest gespeicherte Benutzereinstellungen synchron aus dem `localStorage`.
 * Setzt `data-plugin-multipage` fest auf `true` und tauscht **kein** Stylesheet mehr: der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]).
 * Validiert gespeicherte Custom-Fonts und registriert diese via `FontFace` API.

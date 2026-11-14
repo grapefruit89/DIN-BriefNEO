@@ -3030,3 +3030,31 @@ Zurücksetzen. Jetzt `Status & Zurücksetzen` (weiterhin nur `sr-only`).
 `<details>` für Entwicklerwerkzeuge, Reset in die Datei-Gruppe, GitHub-Link in
 die Einstellungen. Kein belegter Schaden, dafür Umbau der Moduslogik bzw.
 reine Geschmacksfrage.
+\n
+### 2026-11-14 — Toter Zustand entfernt: data-style, data-generated, btn-zurueck
+
+Drei Stellen aus Issue #17, alle vorher geprüft (grep + Browser):
+
+- **`data-style` / `applyStyle`.** `#style-select` existiert in `index.html`
+  nicht, `this.styleSelect` war immer `null`, `applySettings` rief
+  `applyStyle('default')` und setzte damit immer denselben Wert. Der
+  `[data-style="compact"]`-Block in `base.css` war entsprechend nie erreichbar.
+  Entfernt: `boot.js` (Default, `STYLE_WHITELIST`, `setAttribute`),
+  `settings.js` (Feld, Methode, Listener, Typangabe), `base.css` (9
+  Token-Überschreibungen).
+- **`data-generated`.** Geschrieben an 6 Stellen, gelesen nur von
+  `[data-generated] { color: inherit !important; font-style: normal !important }`
+  — ein Druck-Neutralisierer ohne sichtbare Wirkung. Kein JS las es; das
+  Verhalten hängt an `data-dirty`. Entfernt in `salutation.js`,
+  `addons/testbrief/testbrief.js`, `base.css` und drei Test-Asserts. Im Browser
+  gegengeprüft: Anrede entsteht aus dem Namen, manuelles Editieren setzt
+  `dirty=true` und wird nicht mehr überschrieben.
+- **`#btn-zurueck`.** Rest der Radiogruppen-Umstellung (`3408e64`): Element weg,
+  `settings.js` band noch einen Listener daran.
+
+**Messung für den nächsten Schritt (`data-anlagen`/`data-fuss`):** 10 Reloads mit
+gespeichertem Entwurf (`anlagen=true`, HTML-Default `unchecked`), Auswertung am
+`firstPaint`-Event: in 10/10 Läufen war `#toggle-anlagen.checked` bereits `true`,
+`:root:has(#toggle-anlagen:checked)` traf zu und `data-anlagen` stand auf `true`
+(Paint 53–68 ms). Das stützt die Migration, ersetzt aber nicht die 30 kalten
+Läufe aus dem Plan in Issue #18.

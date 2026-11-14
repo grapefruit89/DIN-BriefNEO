@@ -104,8 +104,12 @@ Die Engine überwacht die normgerechte Zeichensetzung automatisch bei Verlassen 
 ## 🔒 ContentEditable-Schutz & Auto-Reset
 
 - **Manueller Schutz (`data-dirty="true"`):**
-  Sobald der Nutzer ein automatisch erzeugtes Feld (`#anrede` oder `#grussformel`) manuell editiert, wird `dataset.dirty = "true"` gesetzt und das Attribut `data-generated="true"` gelöscht. Fortan überschreiben Namens- oder Einstellungsänderungen diesen Text nicht mehr.
+  Sobald der Nutzer ein automatisch erzeugtes Feld (`#anrede` oder `#grussformel`) manuell editiert, wird `dataset.dirty = "true"` gesetzt. Fortan überschreiben Namens- oder Einstellungsänderungen diesen Text nicht mehr.
 - **Automatischer Reset:**
   Löscht der Nutzer den Inhalt des Feldes vollständig (z. B. mit Strg+A, Backspace), erkennt die Engine das leere Feld, entfernt das Dirty-Flag und generiert sofort wieder die passende Standardformel.
-- **Ghost-Markierung:**
-  Automatisch generierte, noch unberührte Vorschläge tragen `data-generated="true"`. Dies wird auf dem Bildschirm dezent gekennzeichnet (`--blatt-schwach`), im Ausdruck (`@media print` in `sheet.css`) jedoch automatisch als normaler Text neutralisiert.
+- **Keine Ghost-Markierung mehr:**
+  Bis 2026-11-12 trugen automatisch erzeugte Vorschläge `data-generated="true"` und
+  wurden grau-kursiv dargestellt. Seit die Felder `<input>` mit Platzhalter sind,
+  sah der echte Text dadurch wie ein Platzhalter aus; die Optik ist normal. Das
+  Flag wurde am 2026-11-14 ganz entfernt (Issue #17): es wurde geschrieben, aber
+  von keiner Stelle gelesen.

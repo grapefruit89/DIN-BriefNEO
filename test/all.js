@@ -2947,7 +2947,6 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
     nameEl.textContent = 'Herr Dr. Müller';
     anredeEl.textContent = 'Manuelle Anrede';
     anredeEl.dataset.dirty = 'true';
-    delete anredeEl.dataset.generated;
 
     const feature = new SalutationFeature();
     feature.init();
@@ -2960,18 +2959,15 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
     eventBus.publish(Events.DOCUMENT_CHANGED);
 
     assertEqual(anredeEl.dataset.dirty, undefined, 'dirty-Flag wird nach Undo gelöscht');
-    assertEqual(anredeEl.dataset.generated, 'true', 'generated-Flag wird wiederhergestellt');
 
     // Simuliere auch Undo für Grußformel
     grussEl.textContent = 'Beste Grüße vorab';
     grussEl.dataset.dirty = 'true';
-    delete grussEl.dataset.generated;
 
     grussEl.textContent = 'Mit freundlichen Grüßen';
     eventBus.publish(Events.DOCUMENT_CHANGED);
 
     assertEqual(grussEl.dataset.dirty, undefined, 'dirty-Flag der Grußformel wird nach Undo gelöscht');
-    assertEqual(grussEl.dataset.generated, 'true', 'generated-Flag der Grußformel wird wiederhergestellt');
 
     feature.destroy();
   });
@@ -2996,7 +2992,6 @@ describe('SalutationFeature: Auto-Seed & Undo-Härtung (dataset.dirty Synchronis
     grussEl.textContent = '';
     for (const el of [anredeEl, grussEl]) {
       delete el.dataset.dirty;
-      delete el.dataset.generated;
     }
 
     const feature = new SalutationFeature();
@@ -4757,6 +4752,33 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
     assert(block.includes('block-size: 20px'), 'Hoehe = Breite');
     assert(!block.includes('36px'), 'keine gestreckte Box (malte ein dunkles Quadrat)');
     assert(block.includes('accent-color'), 'Zustand ueber accent-color');
+  });
+});
+
+describe('Tote Zustaende bleiben weg (Issue #17, 2026-11-14)', () => {
+  it('data-style ist entfernt (die Einstellung hatte nie eine Oberflaeche)', async () => {
+    for (const datei of ['/website/js/boot.js', '/website/js/settings.js']) {
+      const src = await (await fetch(datei)).text();
+      assert(!src.includes('data-style'), `${datei} setzt data-style nicht mehr`);
+      assert(!src.includes('applyStyle'), `${datei} hat kein applyStyle mehr`);
+      assert(!src.includes('style-select'), `${datei} sucht kein #style-select mehr`);
+    }
+    const css = await (await fetch('/website/css/base.css')).text();
+    assert(!css.includes('[data-style'), 'base.css hat keinen COMPACT-Block mehr');
+  });
+
+  it('data-generated wird nicht mehr geschrieben oder gestylt', async () => {
+    for (const datei of ['/website/js/salutation.js', '/website/addons/testbrief/testbrief.js']) {
+      const src = await (await fetch(datei)).text();
+      assert(!src.includes('dataset.generated'), `${datei} schreibt das Flag nicht mehr`);
+    }
+    const css = await (await fetch('/website/css/base.css')).text();
+    assert(!css.includes('[data-generated]'), 'base.css liest das Flag nicht mehr');
+  });
+
+  it('kein toter Verweis auf den entfernten Zurueck-Knopf', async () => {
+    const src = await (await fetch('/website/js/settings.js')).text();
+    assert(!src.includes('btn-zurueck'), 'settings.js sucht #btn-zurueck nicht mehr');
   });
 });
 

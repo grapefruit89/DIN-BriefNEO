@@ -198,15 +198,13 @@ export class SalutationFeature {
     for (const kind of /** @type {const} */ (['anrede', 'grussformel'])) {
       const el = document.getElementById(kind);
       if (!el) continue;
-      // Tippt der Nutzer etwas Eigenes, ist es kein Auto-Text mehr (Optik: [data-generated]).
+      // Tippt der Nutzer etwas Eigenes, ist es kein Auto-Text mehr.
       el.addEventListener('input', () => {
         const text = Field.getValue(el).trim();
         if (text && text !== this.#auto[kind]) {
-          delete el.dataset.generated;
           el.dataset.dirty = 'true';
         } else {
           delete el.dataset.dirty;
-          el.dataset.generated = 'true';
         }
       });
       el.addEventListener('blur', () => this.#hint(kind, el));
@@ -268,7 +266,6 @@ export class SalutationFeature {
         if (anredeEl.dataset.dirty === 'true') {
           delete anredeEl.dataset.dirty;
         }
-        anredeEl.dataset.generated = 'true';
         this.#auto.anrede = anrede;
       }
     }
@@ -280,7 +277,6 @@ export class SalutationFeature {
         if (grussEl.dataset.dirty === 'true') {
           delete grussEl.dataset.dirty;
         }
-        grussEl.dataset.generated = 'true';
         this.#auto.grussformel = gruss;
       }
     }
@@ -320,11 +316,9 @@ export class SalutationFeature {
 
     this.#auto[kind] = value;
     if (value === current) {
-      el.dataset.generated = 'true';
       return;
     }
     Field.setValue(el, value);
-    el.dataset.generated = 'true';
     delete el.dataset.dirty;
     eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
   }

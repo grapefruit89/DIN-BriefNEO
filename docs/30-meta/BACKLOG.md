@@ -416,7 +416,7 @@ Kein akuter Bug — nur eine Entscheidung, die irgendwann fallen muss.
 Beim Laden erscheinen zwei `InvalidStateError: Transition was aborted because of
 invalid state. Unsupported layout or style`. Kein sichtbarer Effekt für den Nutzer,
 nur Konsole. Vermutlich ruft `startViewTransition()` auf, bevor das Layout bereit
-ist. Zu prüfen: `settings.js` (`applyTheme`, `applyStyle`, `changeLayout`) und
+ist. Zu prüfen: `settings.js` (`applyTheme`, `changeLayout`) und
 `boot-switches.js`. Nicht akut — erst nach Schema v3 / Storage prüfen.
 
 ### B38 · Chromium klemmt Rahmenbreiten unter 1px auf 1px · **N** · ⭐

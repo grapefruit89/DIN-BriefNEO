@@ -9,7 +9,8 @@
     "check:browser-feature": "node tools/query_chrome_feature.mjs",
     "check:fitness": "node tools/build_db.js -q",
     "docs:index": "node tools/build_db.js -q",
-    "build:data": "node tools/build_plz_data.mjs"
+    "build:data": "node tools/build_plz_data.mjs",
+    "docs:backlog": "node tools/backlog-sync.mjs"
   },
   "keywords": [
     "din-5008",

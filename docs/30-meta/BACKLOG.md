@@ -32,15 +32,64 @@ Entscheidungen steht im [[DECISION-LOG]].
 
 Abgeleitet aus den historischen Audits vom 2026-10-02 (archiviert).
 Nicht normativ — die **Regeln** stehen in [[AGENTS]] §5, die **Begründungen** im
-[[DECISION-LOG]]. Dieses Dokument hält nur, *was noch zu tun ist* und *in welcher Reihenfolge*.
+[[DECISION-LOG]]. Dieses Dokument hält nur, *was noch zu tun ist*.
 
-**Aufwand:** S ≤ 1 Sitzung · M = 1–2 Sitzungen · L = Full Mode mit `specs/` + ADR
+**Aufwand:** S ≤ 1 Sitzung · M = 1–2 Sitzungen · L = Full Mode mit `specs/` + ADR · N = nur Entscheidung/Doku
 **ROI:** Nutzen pro Aufwand — ⭐⭐⭐ hoch, ⭐ niedrig
 
 ---
 
+Die Übersicht wird aus den Einträgen erzeugt: `node tools/backlog-sync.mjs`
+(`--check` prüft, ob Tabelle und Einträge auseinanderlaufen).
+
 **Erledigte und abgelehnte Einträge** stehen in [[BACKLOG-ARCHIV]] — mit
 denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
+
+## Übersicht
+
+39 offene Punkte. Details unterhalb, nach Priorität gruppiert.
+
+| Nr | Aufgabe | Aufwand | Nutzen |
+|---|---|:---:|:---:|
+| **B22** | Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) | M | ⭐⭐ |
+| **B23** | Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) | S | ⭐ |
+| **B24** | Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit | S | ⭐ |
+| **B25** | Vorkonfigurierte Brief-Vorlagen (JSON-Muster) | M | ⭐⭐⭐ |
+| **B26** | Optionale DIN-5008-Validatoren (Anschrift-Zeilenlimit & IBAN) | S | ⭐⭐ |
+| **B27** | Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) | L | ⭐⭐⭐⭐ |
+| **B28** | Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) | M | ⭐⭐⭐ |
+| **B29** | Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) | S | ⭐⭐⭐ |
+| **B30** | Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) | S | ⭐⭐ |
+| **B31** | Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker | S | ⭐⭐ |
+| **B32** | History / Brief-Verlauf (Archiv der letzten 10 Briefe) | S | ⭐⭐⭐⭐ |
+| **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
+| **B34** | DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) | S | ⭐⭐⭐⭐ |
+| **B35** | Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) | S | ⭐⭐⭐ |
+| **B36** | Schema-Datei für v3 anlegen oder Verweis endgültig streichen | N | ⭐ |
+| **B38** | Chromium klemmt Rahmenbreiten unter 1px auf 1px | N | ⭐ |
+| **B40** | Vier vorbestehende Testfehler dokumentieren | M | ⭐⭐ |
+| **B49** | Test-Dossier ins Repo | S | ⭐⭐ |
+| **B51** | Design-Tokens in `sidebar.css` durchziehen | M | ⭐⭐ |
+| **B52** | Plugin-Punkt für `website/addons/` | L | ⭐⭐ |
+| **B57** | CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren | S | ⭐⭐ |
+| **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
+| **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
+| **B60** | `sheet.css` entscheiden | S | ⭐⭐ |
+| **B62** | `data-gesetzt` migrieren | S | ⭐⭐ |
+| **B63** | `data-layout`: zwei Spuren auf eine | M | ⭐ |
+| **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
+| **B65** | Boolean-Semantik vereinheitlichen | S | ⭐⭐ |
+| **B66** | `settings.js` schreibt `layout` ohne Whitelist | S | ⭐ |
+| **B67** | Seeder-Ausfall ist unsichtbar | S | ⭐⭐ |
+| **B68** | `typeof Temporal` entfernen | S | ⭐ |
+| **B69** | Zweite Restore-Logik im Seeder prüfen | M | ⭐⭐ |
+| **B70** | Marker-Frage: `data-seeded` vs. `data-ready` | M | ⭐⭐ |
+| **B71** | `boot.js` und `boot-state.js` zusammenlegen? | M | ⭐ |
+| **B72** | Messprotokoll für den ersten Paint | M | ⭐⭐⭐ |
+| **B73** | Messwerte generieren, nicht tippen | S | ⭐⭐ |
+| **B74** | Seitenleiste: 93 px Überlauf und doppelte Statuszeile | S | ⭐⭐ |
+| **B75** | Seitenleiste: Fokusziele ohne Zone und der Name „Daten" | S | ⭐ |
+| **B76** | PDF-Export als Addon | M | ⭐⭐ |
 
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
 

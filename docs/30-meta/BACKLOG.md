@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-23 offene Punkte. Details unterhalb, nach Art gruppiert.
+22 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -63,7 +63,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B31** | Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker | S | ⭐⭐ |
 | **B32** | History / Brief-Verlauf (Archiv der letzten 10 Briefe) | S | ⭐⭐⭐⭐ |
 | **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
-| **B34** | DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) | S | ⭐⭐⭐⭐ |
 | **B35** | Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) | S | ⭐⭐⭐ |
 | **B36** | Schema-Datei für v3 anlegen oder Verweis endgültig streichen | N | ⭐ |
 | **B38** | Chromium klemmt Rahmenbreiten unter 1px auf 1px | N | ⭐ |
@@ -225,14 +224,6 @@ angefasst, solange irgendetwas anderes offen ist.
 - **KISS-Bedienung:** Kein fehleranfälliges `oninput`- oder `onblur`-Auto-Formatting (verhindert Cursor-Jumping und Falschkorrekturen bei Sonderrufnummern).
 - **UI:** Expliziter Aktions-Button `#btn-format-tel` direkt am Telefonnummern-Eingabefeld.
 - **Defensives Parsing:** Kann eine Nummer nicht eindeutig zerlegt werden, bleibt der Originaltext unberührt und es wird ein dezenter Warnhinweis ausgegeben.
-
-### B34 · DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) · **S** · ⭐⭐⭐⭐
-**Kontext:** Gekoppelt an [[ROADMAP#Priorität 1 — Mehrseitige Briefe]] und [[BACKLOG#B27]]. DIN 5008 Kap. 20.17 schreibt für mehrseitige Briefe eine fortlaufende Seitennummerierung vor.
-**Ziel:** Standardisierte Paginierung auf Folgeseiten:
-- **Komponente:** Semantisches Element `<din-seitenangabe>` im Folgeseitenkopf (`<din-folgeseitenkopf>`).
-- **Position & Layout:** Oberkante exakt 20 mm von der oberen Blattkante, wahlweise rechtsbündig oder zentriert.
-- **Normtext:** „Seite X von Y“ oder „Seite X“.
-- **Reaktivität:** Automatische Zählung von `X` und `Y` gekoppelt an die tatsächliche Anzahl der `<din-a4>`-Seiten-Container.
 
 ### B35 · Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) · **S** · ⭐⭐⭐
 **Kontext:** DIN 5008 Kap. 20.3 (Falzmarken Form A/B und Lochmarke).

@@ -13,6 +13,7 @@ tags:
 doc_links:
   - spec
   - BACKLOG
+  - BACKLOG-ARCHIV
   - Feature-Matrix
   - longevity-guidelines
   - research/README
@@ -56,7 +57,7 @@ exportieren können.
 - Zero-Scroll-Garantie im Editor: Horizontales Karussell / Paging-Stepper mit View Transitions API statt vertikalem Scrollen.
 - Textfluss: Modell 1 (Explizite Folgeseite per Strg+Enter / Button) statt instabiler DOM-Messschleifen (A49).
 - Druckarchitektur: Nativer Umbruch via `page-break-after: always; break-after: page;` und `din-a4:last-of-type { page-break-after: avoid; }`.
-- Paginierung nach DIN 5008 Kap. 20.17: Semantische Komponente `<din-seitenangabe>` im Folgeseitenkopf (20 mm) mit „Seite X von Y“ (siehe [[BACKLOG#B34]]).
+- Paginierung nach DIN 5008 Kap. 20.17: **erledigt** als natives `@page`-Marginfeld (`counter(page)` / `counter(pages)`) mit „Seite X von Y“, auf der Erstseite unterdrückt (siehe [[BACKLOG-ARCHIV#B34]]). Kein `<din-seitenangabe>`-Element: der Browser zählt die Druckseiten selbst.
 - Schlussblock-Integrität: Grußformel und Unterschrift wandern auf die letzte Seite (unter Beachtung der Schusterjungen-Regel).
 
 

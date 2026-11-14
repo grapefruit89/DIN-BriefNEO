@@ -566,3 +566,33 @@ Umzug ins Archiv.
 (Limit 400). Das ist jetzt korrekt gezählt und absichtlich nicht geglättet —
 LOW-Diagnosen senken den Fitness-Score nicht (100,0 %). Ob gekürzt oder
 ausgenommen wird, ist eine Inhaltsentscheidung.
+
+### B34 · DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) · **S** · ⭐⭐⭐⭐
+**Kontext:** Gekoppelt an [[ROADMAP#Priorität 1 — Mehrseitige Briefe]] und [[BACKLOG#B27]]. DIN 5008 Kap. 20.17 schreibt für mehrseitige Briefe eine fortlaufende Seitennummerierung vor.
+**Ziel:** Standardisierte Paginierung auf Folgeseiten:
+- **Komponente:** Semantisches Element `<din-seitenangabe>` im Folgeseitenkopf (`<din-folgeseitenkopf>`).
+- **Position & Layout:** Oberkante exakt 20 mm von der oberen Blattkante, wahlweise rechtsbündig oder zentriert.
+- **Normtext:** „Seite X von Y“ oder „Seite X“.
+- **Reaktivität:** Automatische Zählung von `X` und `Y` gekoppelt an die tatsächliche Anzahl der `<din-a4>`-Seiten-Container.
+
+✅ ERLEDIGT 2026-11-14 — **die Funktion existiert, das vorgeschlagene Element nicht.**
+Gedruckt und im PDF-Text nachgewiesen (2-seitiger Brief, `Page.printToPDF` +
+`pdftotext`):
+
+```
+Seite 2:  "Brief an Herr Green Arrow vom 14. November 2026     Seite 2 von 2"
+Seite 1:  keine Seitenangabe  (@page :first unterdrückt sie)
+```
+
+Umgesetzt nativ per CSS Paged Media in `website/css/sheet-multipage.css`:
+`@top-right { content: "Seite " counter(page) " von " counter(pages); }`.
+Das erfüllt das Ziel („fortlaufend, X und Y automatisch gezählt") ohne
+`<din-seitenangabe>`, ohne JS und ohne Kopplung an `din-a4`-Container — der
+Browser zählt die Druckseiten selbst.
+
+**Bewusst nicht geändert (Nutzerentscheidung 2026-11-14):** die vertikale
+Position. Gemessen mit `pdftotext -bbox`: die Kopfzeile steht bei
+**10,6–14,2 mm** von der Oberkante, der eigene Spec nennt **20 mm**. Das ist
+Druckgeometrie und wird nicht ohne ausdrückliche Freigabe angefasst. Wer sie
+ziehen will, ändert `@page`-`margin-top` bzw. `vertical-align` der Margin-Box —
+und muss danach neu drucken und nachmessen, nicht schätzen.

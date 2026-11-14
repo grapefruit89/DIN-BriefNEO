@@ -48,13 +48,7 @@ function syncPostvermerkFromSidebar(value) {
   /* Field statt textContent: #vermerke ist seit 2026-11-12 ein <input>.
      Mit textContent blieb das Feld leer und zeigte nur seinen Platzhalter
      ("Postvermerk") - gemeldet 2026-11-12. */
-  if (!val) {
-    Field.setValue(field, '');
-    field.removeAttribute('data-visible');
-    return;
-  }
   Field.setValue(field, val);
-  field.setAttribute('data-visible', 'true');
 }
 
 if (document.readyState === 'loading') {
@@ -266,7 +260,6 @@ function initApp() {
       anlagenSwitch.addEventListener('change', () => {
         /* Attribut ist die Wahrheit fuer CSS (pre-paint gesetzt), der Schalter
            ist das Eingabegeraet - beide hier synchron halten. */
-        document.documentElement.setAttribute('data-anlagen', anlagenSwitch.checked ? 'true' : 'false');
         const anlagenEl = document.getElementById('anlagen-angabe');
         if (anlagenEl instanceof HTMLTextAreaElement && anlagenSwitch.checked && !anlagenEl.value.trim()) {
           anlagenEl.value = 'Anlage 1';
@@ -277,12 +270,11 @@ function initApp() {
 
     // Der Fuss-Schalter hat keine eigene UI-Logik, braucht aber denselben
     // Speicherimpuls: ohne ihn landet sein Zustand nie im Entwurf und ist nach
-    // einem Neuladen weg.
+    // einem Neuladen weg. Die Sichtbarkeit liest CSS direkt (:has).
     for (const id of ['toggle-fuss']) {
       const schalter = /** @type {HTMLInputElement | null} */ (document.getElementById(id));
       if (!schalter) continue;
       schalter.addEventListener('change', () => {
-        document.documentElement.setAttribute('data-fuss', schalter.checked ? 'true' : 'false');
         eventBus.publish(Events.DOCUMENT_SAVE_REQUESTED, { debounce: true });
       });
     }

@@ -1408,7 +1408,6 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   if (postvermerk) {
     if (postvermerkField) {
       setField('vermerke', postvermerk);
-      postvermerkField.setAttribute('data-visible', 'true');
     }
     if (pvSelect) pvSelect.value = postvermerk;
     if (triggerLabel) Field.setValue(triggerLabel, postvermerk);
@@ -1416,7 +1415,6 @@ export function fuelleBrief(sender, recipient, dritte, themenHook, szenario) {
   } else {
     if (postvermerkField) {
       setField('vermerke', '');
-      postvermerkField.removeAttribute('data-visible');
     }
     if (pvSelect) pvSelect.value = '';
     if (triggerLabel) Field.setValue(triggerLabel, '— kein —');

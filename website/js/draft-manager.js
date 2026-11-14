@@ -339,16 +339,7 @@ export class DraftManager {
       }
     });
 
-    // Die Sichtbarkeit des Vermerks ist abgeleitet, kein gespeichertes Feld mehr:
-    // leerer Vermerk = unsichtbar, gefuellter Vermerk = sichtbar.
     const postvermerk = document.getElementById('vermerke');
-    if (postvermerk) {
-      if (Field.getValue(postvermerk).trim() !== '') {
-        postvermerk.setAttribute('data-visible', 'true');
-      } else {
-        postvermerk.removeAttribute('data-visible');
-      }
-    }
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {
       // Auswahlliste folgt dem Feld — sonst zeigt sie nach einem Restore „kein“,
@@ -361,8 +352,8 @@ export class DraftManager {
     if (anlagenSwitch && 'toggle-anlagen' in draft) {
       anlagenSwitch.checked = draft['toggle-anlagen'] === true || draft['toggle-anlagen'] === 'true';
     }
-    /* Attribut ist die Wahrheit fuer CSS; nach Undo/Multi-Tab/Import neu setzen. */
-    document.documentElement.setAttribute('data-anlagen', anlagenSwitch?.checked ? 'true' : 'false');
+    /* Sichtbarkeit: CSS liest :has(#toggle-anlagen:checked); der Schalter oben
+       ist die Wahrheit, kein Attribut. */
 
     const fussSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-fuss'));
     if (fussSwitch) {
@@ -380,7 +371,6 @@ export class DraftManager {
         ).some((sp) => Field.getValue(sp).trim() !== '');
       }
     }
-    document.documentElement.setAttribute('data-fuss', fussSwitch?.checked ? 'true' : 'false');
 
     this.#isRestoring = false;
     this.#setSaveStatus('saved');
@@ -467,17 +457,11 @@ export class DraftManager {
       fussSwitch.checked = false;
     }
     /* Reset ist auch ein Zustandswechsel: Attribute (CSS-Wahrheit) mitziehen. */
-    document.documentElement.setAttribute('data-anlagen', 'false');
-    document.documentElement.setAttribute('data-fuss', 'false');
     // Datum: Markierung loeschen und Feld leeren, damit applyLetterDate wieder "heute" setzt.
     const datumEl = document.getElementById('datum');
     if (datumEl) {
       datumEl.removeAttribute('data-dirty');
       Field.setValue(datumEl, '');
-    }
-    const postvermerk = document.getElementById('vermerke');
-    if (postvermerk) {
-      postvermerk.removeAttribute('data-visible');
     }
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));
     if (pvSelect) {

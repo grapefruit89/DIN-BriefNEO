@@ -3058,3 +3058,42 @@ gespeichertem Entwurf (`anlagen=true`, HTML-Default `unchecked`), Auswertung am
 `:root:has(#toggle-anlagen:checked)` traf zu und `data-anlagen` stand auf `true`
 (Paint 53–68 ms). Das stützt die Migration, ersetzt aber nicht die 30 kalten
 Läufe aus dem Plan in Issue #18.
+\n
+### 2026-11-14 — Zustand ohne Spiegel: data-visible und data-anlagen/data-fuss
+
+Ausgangspunkt war das Batch-01-Review (Issue #17): Zustände, die JS in Attribute
+spiegelt, damit CSS sie lesen kann. Drei Migrationen, jede gemessen.
+
+**`data-visible` → `:not(:placeholder-shown)`.** `#vermerke` ist ein `<input>`
+mit `placeholder`; die Sichtbarkeit folgt jetzt aus dem Feld selbst. Vier
+Schreiber entfernt (`main.js`, `draft-manager.js` ×2, `boot-state.js`,
+`testbrief.js` ×2). Gemessen im Browser: leer = `display:none`,
+Wert = `display:block`, geleert = wieder `none`.
+
+**`data-anlagen`/`data-fuss` → `:root:has(#toggle-anlagen:checked)`.** Je vier
+Schreiber (`boot.js`, `main.js`, `draft-manager.js` ×2) entfernt. In `boot.js`
+fällt dadurch ein `JSON.parse` von `din_draft_current` auf dem kritischen Pfad
+weg — der Grund, warum das Attribut 2026-11-12 überhaupt eingeführt wurde, war
+eine Checkbox, die erst nach dem Paint gesetzt wurde. Das erledigt seit dem
+FOUC-Umbau `boot-state.js`.
+
+Messprotokoll (30 kalte Reloads, Cache aus, Entwurf mit `toggle-anlagen=true`
+und `toggle-fuss=true`, HTML-Default jeweils `unchecked`):
+
+| | vorher | nachher |
+|---|---|---|
+| `:root:has(...)` am `firstPaint` | 30/30 | 30/30 |
+| Anlagen sichtbar | 30/30 | 30/30 |
+| Fußzeile sichtbar | 30/30 | 30/30 |
+| `data-anlagen`/`data-fuss` gesetzt | 30/30 | 0/30 |
+| Paint | 48–96 ms | 40–88 ms |
+
+**`is-dormant` → `hidden`.** Acht Elemente trugen eine Klasse, die niemand
+setzte oder entfernte; definiert war sie mit `display:none !important`. Jetzt
+das native `hidden`-Attribut (`base.css`), die CSS-Regel ist weg.
+
+**`layers.css`-Kommentar.** Der CSP-Kommentar in `index.html` verwies auf eine
+Datei, die es nicht gibt. Korrigiert.
+
+**Nicht umgesetzt:** `data-gesetzt` (Transition-Verdacht, eigene Messung nötig)
+und `data-layout` (doppelte Mechanik, Geometrie-Nähe). Beide stehen im Backlog.

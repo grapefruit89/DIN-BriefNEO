@@ -4763,6 +4763,47 @@ describe('Ein/Aus-Schalter bleiben Haken, keine gestreckte Pille (2026-11-13)', 
   });
 });
 
+describe('Anlagen und Fusszeile ohne JS-Spiegel (Batch 01, 2026-11-14)', () => {
+  it('kein data-anlagen/data-fuss mehr in JS, CSS liest :has(:checked)', async () => {
+    for (const datei of ['/website/js/boot.js', '/website/js/main.js', '/website/js/draft-manager.js']) {
+      const src = await (await fetch(datei)).text();
+      assert(!src.includes('data-anlagen'), `${datei} schreibt kein data-anlagen`);
+      assert(!src.includes('data-fuss'), `${datei} schreibt kein data-fuss`);
+    }
+    const [common, multi] = await Promise.all([
+      (await fetch('/website/css/sheet-common.css')).text(),
+      (await fetch('/website/css/sheet-multipage.css')).text()
+    ]);
+    assert(common.includes(':root:has(#toggle-fuss:checked)'), 'Fusszeile aus dem Schalter');
+    assert(multi.includes(':root:has(#toggle-anlagen:checked)'), 'Anlagen aus dem Schalter');
+    assert(!common.includes('[data-fuss='), 'kein Attribut-Leser mehr (fuss)');
+    assert(!multi.includes('[data-anlagen='), 'kein Attribut-Leser mehr (anlagen)');
+  });
+});
+
+describe('Sichtbarkeit ohne JS-Spiegel (Batch 01, 2026-11-14)', () => {
+  it('data-visible existiert nicht mehr, CSS nutzt :placeholder-shown', async () => {
+    for (const datei of ['/website/js/main.js', '/website/js/draft-manager.js',
+                         '/website/js/boot-state.js', '/website/addons/testbrief/testbrief.js']) {
+      const src = await (await fetch(datei)).text();
+      assert(!src.includes('data-visible'), `${datei} schreibt data-visible nicht mehr`);
+    }
+    const css = await (await fetch('/website/css/sheet-common.css')).text();
+    assert(css.includes('#vermerke:not(:placeholder-shown)'), 'CSS leitet die Sichtbarkeit aus dem Feld ab');
+  });
+
+  it('is-dormant ist durch das hidden-Attribut ersetzt', async () => {
+    const [html, css] = await Promise.all([
+      (await fetch('/website/index.html')).text(),
+      (await fetch('/website/css/sheet-common.css')).text()
+    ]);
+    assert(!html.includes('is-dormant'), 'kein is-dormant im Markup');
+    assert(!css.includes('.is-dormant'), 'keine is-dormant-Regel');
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    assert(doc.querySelector('din-briefkopf')?.hasAttribute('hidden'), 'dormante Elemente tragen hidden');
+  });
+});
+
 describe('Tote Zustaende bleiben weg (Issue #17, 2026-11-14)', () => {
   it('data-style ist entfernt (die Einstellung hatte nie eine Oberflaeche)', async () => {
     for (const datei of ['/website/js/boot.js', '/website/js/settings.js']) {

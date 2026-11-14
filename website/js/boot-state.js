@@ -76,8 +76,8 @@
     const vermerk = typeof draft.vermerke === 'string' ? draft.vermerke : '';
     const feld = /** @type {HTMLInputElement | null} */ (document.getElementById('vermerke'));
     if (feld) {
+      /* Sichtbarkeit folgt aus dem Wert (:placeholder-shown) - kein Attribut. */
       feld.value = vermerk;
-      if (vermerk) feld.setAttribute('data-visible', 'true');
     }
     const auswahl = /** @type {HTMLSelectElement | null} */ (
       document.getElementById('seitenleiste-postvermerk-select')

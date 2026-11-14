@@ -431,3 +431,34 @@ ganze Gerätepixel gerundet). Der einzige Weg zu echter Subpixel-Stärke ist der
 SVG-Ansatz aus **B35** (`stroke-width` in mm, `vector-effect="non-scaling-stroke"`).
 Bis dahin nur dokumentieren, damit niemand erwartet, dass 0.5pt auf dem Schirm
 sichtbar dünner ist.
+
+### B39 · Gzip/Minify als Abschluss-Option · **S** · ⭐
+Nicht jetzt. Gemessen am 2026-11-14: JS 314 KB roh → 134 KB minifiziert (gzip
+~90 → 44 KB), CSS 92 → 61 KB. Gesamt gzip heute 144 KB. Ein Bundler würde
+außerdem 15 Requests sparen — auf HTTP/2 irrelevant. Der einzige echte Gewinn
+wäre Cache-Busting per Hash. Entscheidung: bleibt offen bis zum Abschluss;
+dann als eigenes Experiment messen (LCP/FCP vorher/nachher), nicht als
+Voraussetzung für die Architekturarbeit.
+
+### B40 · Kaskade über `@layer` statt `!important` · **M** · ⭐⭐
+Ist-Zustand (gemessen 2026-11-14): **153 × `!important`** und **346
+ID-Selektor-Vorkommen** in 1.000 Zeilen CSS; allein `sheet-multipage.css`
+enthält 100 `!important`. `@layer` (Chrome 99+, nativ) macht die Reihenfolge
+explizit und erlaubt, einen großen Teil davon zu streichen. Gehört zu S2 aus dem
+Batch-01-Review. Vorher: Reihenfolge der heutigen Kaskade dokumentieren, sonst
+verschiebt der Umbau ungewollt Spezifität.
+
+### B41 · `sheet.css` entscheiden · **S** · ⭐⭐
+298 Zeilen, **nirgends eingebunden** (kein `<link>`, kein `@import`), aber in
+acht Doku-Dateien als Architektur beschrieben. Es enthält kein `@function` —
+die Behauptung einer Namenskollision mit `sheet-multipage.css` ist widerlegt
+(2026-11-14). Zwei Wege: löschen (Doku nachziehen) oder einbinden. Bis dahin
+ist es eine Falle für jeden, der die Doku liest.
+
+### B42 · `data-anlagen`/`data-fuss` migriert (2026-11-14) · **M** · ⭐⭐ · ✅ ERLEDIGT
+Größter Zustands-Hebel: je **4 Writer** (`boot.js`, `main.js`,
+`draft-manager.js`), Ziel ist `:has(#toggle-anlagen:checked)` im CSS. Messung vor dem Umbau: 30/30 kalte Läufe, `:root:has(...)` traf am
+`firstPaint` bereits zu (Paint 48–96 ms). Nach dem Umbau dieselbe Messung:
+30/30, Anlagen und Fußzeile sichtbar, keine Attribute mehr auf `<html>`,
+Paint 40–88 ms. Entfernt: der Entwurfs-`JSON.parse` in `boot.js` (kritischer
+Pfad) und sechs Spiegel-Zeilen in `main.js`/`draft-manager.js`.

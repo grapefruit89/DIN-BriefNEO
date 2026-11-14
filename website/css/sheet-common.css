@@ -156,13 +156,13 @@ din-lochmarke {
   visibility: hidden;
 }
 
-/* Sichtbarkeit kommt aus data-fuss (boot.js, pre-paint), NICHT aus dem
+/* Sichtbarkeit kommt direkt aus dem Schalter (:has), NICHT aus einem
    Schalter: `:has(#toggle-fuss:checked)` war im ersten Frame falsch.
    Beide Selektoren, weil `#geschaeftsangaben` als ID (1,0,0) eine reine
    Element-Regel schlaegt — die alte :has()-Regel war durch den ID im :has
    staerker (1,1,0). */
-:root[data-fuss="true"] din-geschaeftsangaben,
-:root[data-fuss="true"] #geschaeftsangaben {
+:root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+:root:has(#toggle-fuss:checked) #geschaeftsangaben {
   display: grid;
 }
 
@@ -197,7 +197,11 @@ din-geschaeftsangaben > .single-line {
   line-height: 1.2;
 }
 
-#vermerke[data-visible="true"] {
+/* Sichtbarkeit kommt aus dem Feld selbst: :placeholder-shown ist genau dann
+   false, wenn ein Wert drinsteht. Vorher spiegelten vier Stellen (main.js,
+   draft-manager.js, boot-state.js, testbrief.js) den Zustand in data-visible;
+   jetzt gibt es keinen Schreiber mehr (Befund Batch 01 / Issue #17). */
+#vermerke:not(:placeholder-shown) {
   display: block;
   opacity: 1;
   color: var(--blatt-text);
@@ -244,10 +248,6 @@ din-anlagen-angabe {
   overflow: hidden;
   field-sizing: content;
   min-height: 1.4em;
-}
-
-.is-dormant {
-  display: none !important;
 }
 
 .single-line {
@@ -371,9 +371,9 @@ din-anlagen-angabe {
   line-height: 1.4;
 }
 
-/* Postvermerk: sichtbar erst mit data-visible (main.js/draft-manager setzen es,
-   sobald ein Vermerk im Feld steht). Die Rasterhoehe 4,23mm kommt aus
-   sheet-multipage.css (#rucksendeangabe, #vermerke). */
+/* Postvermerk: sichtbar, sobald ein Wert im Feld steht (:placeholder-shown).
+   Die Rasterhoehe 4,23mm kommt aus sheet-multipage.css (#rucksendeangabe,
+   #vermerke). */
 #vermerke {
   display: none;
   width: 100%;
@@ -705,8 +705,8 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       font-style: italic;
     }
 
-  :root[data-fuss="true"] din-geschaeftsangaben,
-    :root[data-fuss="true"] #geschaeftsangaben {
+  :root:has(#toggle-fuss:checked) din-geschaeftsangaben,
+    :root:has(#toggle-fuss:checked) #geschaeftsangaben {
       display: grid;
     }
 

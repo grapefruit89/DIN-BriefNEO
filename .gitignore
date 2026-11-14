@@ -49,4 +49,5 @@ test/traces/*.json
 # merge.txt einer Review-Scheibe ist Build-Output: der Kopf traegt den Commit,
 # und SHA256-Tabelle plus Blockzahl werden bei jedem Bau neu erzeugt. Wuerde
 # man die Datei committen, hiesse sie nach dem Commit wieder anders als HEAD.
-reviews/**/merge.txt
+batch/**/merge.txt
+batch/**/verweise/

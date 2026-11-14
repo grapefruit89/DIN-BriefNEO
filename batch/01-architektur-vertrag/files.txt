@@ -1,0 +1,5 @@
+# Batch 01 — Architektur-Vertrag
+# Pfade relativ zum Repo-Wurzelverzeichnis; absolute Pfade sind ebenfalls erlaubt.
+/home/moritz/repos/DIN-BriefNEO/website/index.html
+/home/moritz/repos/DIN-BriefNEO/website/js/main.js
+/home/moritz/repos/DIN-BriefNEO/batch/01-architektur-vertrag/fakten.md

@@ -1,4 +1,4 @@
-# Reviews in Scheiben
+# Batch-Arbeitsweise
 
 Ein Review ist hier **kein** Gesamturteil über das Projekt, sondern ein
 Ausschnitt: eine Frage, zwei bis vier Dateien, ein Messblock. Diese Datei

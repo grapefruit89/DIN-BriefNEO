@@ -23,6 +23,10 @@ einhält, ist die Frage — nicht, ob man es noch einmal aufschreiben kann.
 Harte Randbedingungen (bestätigt, nicht verhandelbar in diesem Auftrag):
 
 - kein Framework, kein Bundler, keine neue Abhängigkeit
+- kein Build-Schritt (kein TypeScript-Emit, keine Bündelung). Die Typprüfung
+  läuft über `jsconfig.json` + `tsc --noEmit` im Gate — ohne Build.
+- **Die Optik bleibt unverändert.** Dieser Auftrag ändert Struktur, nicht
+  Aussehen: keine Farben, Abstände, Radien, Animationen.
 - kein Service Worker
 - Der Druck (DIN-5008-Geometrie) ist in diesem Auftrag **tabu** — lies ihn,
   bewerte ihn nicht.

@@ -457,7 +457,9 @@ verschiebt der Umbau ungewollt Spezifität.
 
 ### B60 · `sheet.css` entscheiden · **S** · ⭐⭐
 298 Zeilen, **nirgends eingebunden** (kein `<link>`, kein `@import`), aber in
-acht Doku-Dateien als Architektur beschrieben. Es enthält kein `@function` —
+acht Doku-Dateien als Architektur beschrieben. Seit 2026-11-14 trägt die Datei
+einen Statuskopf, der genau das erklärt — **nicht löschen, nicht einbinden**,
+bis der Inhaber entscheidet. Es enthält kein `@function` —
 die Behauptung einer Namenskollision mit `sheet-multipage.css` ist widerlegt
 (2026-11-14). Zwei Wege: löschen (Doku nachziehen) oder einbinden. Bis dahin
 ist es eine Falle für jeden, der die Doku liest.

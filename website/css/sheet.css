@@ -1,6 +1,63 @@
 /* @adr [[ADR-CSS]]  */
 /* @guide [[din-5008-css-architektur]]  */
 
+/* ============================================================================
+ * STATUS: STILLGELEGT — NICHT LÖSCHEN, NICHT EINBINDEN
+ * Stand: 2026-11-14 · Entscheidung offen (Backlog B60)
+ * ============================================================================
+ *
+ * WAS DAS HIER IST
+ * Die erste Blatt-CSS des Projekts: DIN-A4-Geometrie, Briefzonen, Falzmarken,
+ * Inline-Formate. 298 Zeilen, 23 x !important, ein @scope (din-blatt),
+ * null @function.
+ *
+ * WARUM SIE NICHT GELADEN WIRD
+ * In index.html gibt es kein <link> auf diese Datei und kein @import. Geladen
+ * werden genau vier: `base.css`, `sidebar.css`, `sheet-common.css`,
+ * `sheet-multipage.css`. Diese Datei ist im Betrieb wirkungslos — 0 Byte
+ * Netzlast, 0 Regeln in der Kaskade.
+ *
+ * WARUM SIE TROTZDEM DALIEGT
+ * Weil die Entscheidung "löschen oder einbinden" offen ist und niemand sie
+ * vorschnell treffen soll. Der Inhalt ist dokumentierte Historie: hier stand
+ * die Blattgeometrie, bevor sie nach sheet-common.css und
+ * sheet-multipage.css gewandert ist. Teile davon sind sichtbar ausgeräumt
+ * (leere Regelrümpfe, Kommentare zu Attributen, die es nicht mehr gibt).
+ *
+ * RISIKO, WENN JEMAND SIE EINBINDET
+ * - 23 x !important gegen die Regeln, die heute in sheet-common.css stehen:
+ *   die Kaskade entscheidet dann über die Reihenfolge der <link>-Tags, nicht
+ *   über Absicht.
+ * - Ein @scope (din-blatt) überlappt mit dem gleichnamigen Scope in
+ *   `sheet-common.css` und `sheet-multipage.css`.
+ * - Ein Teil der Regeln ist veraltet (Verweise auf data-generated, auf
+ *   Zustände, die es nicht mehr gibt). Einbinden heißt: jede Regel einzeln
+ *   gegen den heutigen Stand prüfen.
+ *
+ * WAS VOR EINEM EINBINDEN ZU PRÜFEN WÄRE
+ * 1. Jede Regel gegen sheet-common.css und sheet-multipage.css stellen:
+ *    Dublette, Ergänzung oder veraltet?
+ * 2. Die 23 !important einzeln begründen (Druck braucht sie, Bildschirm
+ *    meist nicht).
+ * 3. Geometrie vorher/nachher in mm messen, nicht schätzen.
+ * 4. Erst dann: einbinden und die vier <link>s neu ordnen — oder löschen und
+ *    die acht Doku-Dateien nachziehen, die diese Datei noch beschreiben.
+ *
+ * ZWEI GERÜCHTE, DIE HIER WIDERRUFEN SEIEN
+ * - "Die @function-Namen kollidieren mit sheet-multipage.css": falsch. Diese
+ *   Datei enthält kein @function. Die Funktionen liegen in base.css (--mm-x,
+ *   --mm-rel-x, --pt) und sheet-multipage.css (--mm-abs-*), bereits getrennt.
+ * - "Ohne diese Datei fehlt das Blatt": falsch. Gemessen im laufenden Betrieb
+ *   (2026-11-14, ohne diese Datei): geladen werden nur base.css, sidebar.css,
+ *   sheet-common.css und sheet-multipage.css; die Blattbreite ist 794 px
+ *   (= 210 mm), die Höhe kommt inhaltsabhängig aus sheet-multipage.css
+ *   (Mehrseiten-Modus), nicht aus dieser Datei.
+ *
+ * ENTSCHEIDUNG
+ * Liegt beim Projektinhaber. Bis dahin: nicht löschen, nicht einbinden,
+ * nicht "aufräumen". Wer den Status ändert, trägt ihn hier und in B60 ein.
+ * ========================================================================= */
+
 /* css/sheet.css — DIN-A4-Blatt (scoped isolation): Geometrie, Briefzonen, Falzmarken, Inline-Formate */
 
 /* --- DIN-GEOMETRIE (Einzelseite: max-width / max-height; Geometrie-Mapping in sheet-common.css, C3) --- */

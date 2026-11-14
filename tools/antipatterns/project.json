@@ -669,6 +669,22 @@
         "*.html"
       ],
       "exemptions": []
+    },
+    {
+      "id": "P40",
+      "catalog_ref": [
+        "A62"
+      ],
+      "class": "hard_ban",
+      "severity": "critical",
+      "check": "regex",
+      "category": "javascript",
+      "description": "Aktive Zustaende von Bedienelementen ueber classList.add('active') statt aria-pressed (A62). Eine Quelle fuer Semantik und Styling; Screenreader bekommen den Zustand geschenkt.",
+      "pattern": "classList\\.(?:add|toggle)\\(\\s*['\"]active['\"]",
+      "file_patterns": [
+        "*.js"
+      ],
+      "exemptions": []
     }
   ]
 }

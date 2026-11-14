@@ -255,3 +255,45 @@ Größter Zustands-Hebel: je **4 Writer** (`boot.js`, `main.js`,
 30/30, Anlagen und Fußzeile sichtbar, keine Attribute mehr auf `<html>`,
 Paint 40–88 ms. Entfernt: der Entwurfs-`JSON.parse` in `boot.js` (kritischer
 Pfad) und sechs Spiegel-Zeilen in `main.js`/`draft-manager.js`.
+
+### B23 · Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) · **S** · ⭐
+**Problem:** `tools/lawcoverage.js` meldet eine LOW-Warnung: 30/35 A-Gesetze maschinell geprüft, 5 ungeprüft (A43, A44, A47, A60, A62).
+**Hintergrund:** Diese 5 Gesetze sind reine Gestaltungs- und UX-Prinzipien, die sich nicht sinnvoll per Regex prüfen lassen.
+**Lösung:** Einführung einer `MANUAL_REVIEW_LAWS`-Konstante in `tools/lawcoverage.js`, die diese 5 Gesetze als bewusst manuell geprüft und dokumentiert führt, um die LOW-Warnung im Fitness Gate auf 0 Diagnosen zu senken.
+
+✅ ERLEDIGT 2026-11-14 — Sonde **P40** prüft A62 (`classList.add('active')`), `MANUAL_REVIEW` in `tools/lawcoverage.js` führt A44 und A47 mit Begründung. Abdeckung: 36/36, keine `law_coverage`-Warnung mehr. 51 Antipattern-Regeln.
+
+### B24 · Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit · **S** · ⭐
+**Problem:** `docs/30-meta/tooling-overview.md` hat aktuell 482 Zeilen und löst die `doc-size`-Warnung (> 400 Zeilen) im Fitness Gate aus.
+**Lösungsmöglichkeiten:**
+- Option A: Aufteilung der Datei (z. B. historische/archivierte Tools nach `tooling-overview-legacy.md` auslagern).
+- Option B: Konfiguriertes Limit in `tools/reconciliation.js` für `tooling-overview.md` auf 500 Zeilen anheben (begründet durch den Charakter als zentrale Tooling-SSoT, analog zur bestehenden Ausnahme für `DECISION-LOG.md`).
+
+✅ ERLEDIGT 2026-11-14 — `docs/30-meta/tooling-overview.md` hat heute **272 Zeilen** (Limit 400). Die `doc-size`-Warnung ist weg, ohne Limit-Anhebung.
+
+### B27 · Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) · **L** · ⭐⭐⭐⭐
+**Kontext:** Konsolidiert aus `MULTI_PAGE_ARCHITECTURE_SPEC.md` (zugeordnet zu [[ROADMAP#Priorität 1 — Mehrseitige Briefe]]).
+**Ziel:** Saubere Trennung zwischen Erstseite (Kopf/Anschrift/Falzmarken) und Folgeseiten (Folgeseiten-Kopf bei 20 mm). Horizontales Paging-Karussell im Editor mit View Transitions API (Zero-Scroll-Garantie). Explizite Folgeseiten-Generierung statt instabiler DOM-Messschleifen (A49). Nativer Druckumbruch per `page-break-after: always; break-after: page;`.
+
+✅ ERLEDIGT — der Mehrseiten-Modus ist der **aktuelle** Zustand: `website/js/multipage-controller.js`, `website/css/sheet-multipage.css`, `data-plugin-multipage` fest auf `true` ([[ADR-EINSEITEN-STILLGELEGT]]). Karussell/View-Transitions und Folgeseiten-Kopf sind implementiert. Der Eintrag beschrieb einen Plan, der inzwischen Realität ist.
+
+### B66 · `settings.js` schreibt `layout` ohne Whitelist · **S** · ⭐
+`settings.js:89–90` setzt `data-layout` direkt aus den Einstellungen. `boot.js`
+hat eine `LAYOUT_WHITELIST`. Ein manipulierter oder alter Wert landet heute
+un geprüft im Attribut, auf das die Blattgeometrie hört.
+
+✅ ERLEDIGT 2026-11-14 — `settings.js` prüft `layout` jetzt wie `boot.js`: `=== 'form-a' ? 'form-a' : 'form-b'`. Kein ungeprüfter Wert mehr im Attribut, auf das die Blattgeometrie hört.
+
+### B67 · Seeder-Ausfall ist unsichtbar · **S** · ⭐⭐
+`boot-state.js:141–143` hat ein leeres `catch {}`. Fällt der Seeder aus, bleiben
+die Regler bis `data-ready` versteckt und niemand sieht warum. Vorschlag:
+`console.error` wie in `boot.js`, plus ein Hinweis-Test (T2 aus Batch 02).
+
+✅ ERLEDIGT 2026-11-14 — das leere `catch {}` in `boot-state.js` schreibt jetzt `console.error('[Boot-State] Seeder fehlgeschlagen:', e)`. Ein Ausfall ist sichtbar.
+
+### B68 · `typeof Temporal` entfernen · **S** · ⭐
+`boot-state.js:120` prüft `typeof Temporal !== 'undefined'`. Baseline ist
+Chrome 150+, Temporal ist vorhanden. Die Prüfung suggeriert eine Kompatibilität,
+die es nicht gibt.
+
+✅ ERLEDIGT 2026-11-14 — `typeof Temporal !== 'undefined'` entfernt; Baseline ist Chrome 150+, gemessen im Browser (`typeof Temporal` = object).

@@ -47,16 +47,13 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-39 offene Punkte. Details unterhalb, nach Priorität gruppiert.
+33 offene Punkte. Details unterhalb, nach Priorität gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
 | **B22** | Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) | M | ⭐⭐ |
-| **B23** | Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) | S | ⭐ |
-| **B24** | Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit | S | ⭐ |
 | **B25** | Vorkonfigurierte Brief-Vorlagen (JSON-Muster) | M | ⭐⭐⭐ |
 | **B26** | Optionale DIN-5008-Validatoren (Anschrift-Zeilenlimit & IBAN) | S | ⭐⭐ |
-| **B27** | Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) | L | ⭐⭐⭐⭐ |
 | **B28** | Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) | M | ⭐⭐⭐ |
 | **B29** | Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) | S | ⭐⭐⭐ |
 | **B30** | Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) | S | ⭐⭐ |
@@ -79,9 +76,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B63** | `data-layout`: zwei Spuren auf eine | M | ⭐ |
 | **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
 | **B65** | Boolean-Semantik vereinheitlichen | S | ⭐⭐ |
-| **B66** | `settings.js` schreibt `layout` ohne Whitelist | S | ⭐ |
-| **B67** | Seeder-Ausfall ist unsichtbar | S | ⭐⭐ |
-| **B68** | `typeof Temporal` entfernen | S | ⭐ |
 | **B69** | Zweite Restore-Logik im Seeder prüfen | M | ⭐⭐ |
 | **B70** | Marker-Frage: `data-seeded` vs. `data-ready` | M | ⭐⭐ |
 | **B71** | `boot.js` und `boot-state.js` zusammenlegen? | M | ⭐ |
@@ -90,7 +84,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B74** | Seitenleiste: 93 px Überlauf und doppelte Statuszeile | S | ⭐⭐ |
 | **B75** | Seitenleiste: Fokusziele ohne Zone und der Name „Daten" | S | ⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
-
 ## 🟠 Priorität 2 — hoher Nutzen, klar abgegrenzt
 
 ### B22 · Automatisierter Guard gegen hartcodierte Geometriewerte (`tools/check-geometry.js`) · **M** · ⭐⭐
@@ -149,9 +142,9 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 1. **6-Zeilen-Limit im Anschriftfeld:** DIN 5008 Kap. 19.4.3 begrenzt den Inhalt des Anschriftfeldes auf maximal 6 Zeilen (Zusatz- und Vermerkzone 3 Zeilen + Anschriftzone 6 Zeilen = 9 Zeilen Gesamtraum). Eine optische Warnung (z. B. via Pseudo-Element oder sanftem Toast), wenn der Text 6 Zeilen übersteigt.
 2. **IBAN-Prüfziffer (Modulo-97):** Reine Syntax- und Prüfziffern-Validierung für im Brieftext oder Fußbereich erkannte IBANs nach ISO 7064 (Modulo-97-10) zur Vermeidung von Zahlendrehern.
 
-### B27 · Mehrseitige DIN-5008-Briefe (Karussell, Folgeseiten-Kopf, Überlauf-Erkennung) · **L** · ⭐⭐⭐⭐
-**Kontext:** Konsolidiert aus `MULTI_PAGE_ARCHITECTURE_SPEC.md` (zugeordnet zu [[ROADMAP#Priorität 1 — Mehrseitige Briefe]]).
-**Ziel:** Saubere Trennung zwischen Erstseite (Kopf/Anschrift/Falzmarken) und Folgeseiten (Folgeseiten-Kopf bei 20 mm). Horizontales Paging-Karussell im Editor mit View Transitions API (Zero-Scroll-Garantie). Explizite Folgeseiten-Generierung statt instabiler DOM-Messschleifen (A49). Nativer Druckumbruch per `page-break-after: always; break-after: page;`.
+**Priorität: ZZZ — zuletzt.** Bewusst geparkt: reine Komfort-Validierung
+(Zeilenlimit-Anzeige, IBAN-Modulo-97), kein Schaden belegt. Wird nicht
+angefasst, solange irgendetwas anderes offen ist.
 
 ### B34 · DIN-5008-Folgeseiten-Nummerierung (`<din-seitenangabe>`) · **S** · ⭐⭐⭐⭐
 **Kontext:** Gekoppelt an [[ROADMAP#Priorität 1 — Mehrseitige Briefe]] und [[BACKLOG#B27]]. DIN 5008 Kap. 20.17 schreibt für mehrseitige Briefe eine fortlaufende Seitennummerierung vor.
@@ -168,17 +161,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 ---
 
 ## 🟢 Priorität 4 — Hygiene
-
-### B23 · Fitness Gate: 5 A-Gesetze ohne maschinelle Prüfung (`law_coverage`) · **S** · ⭐
-**Problem:** `tools/lawcoverage.js` meldet eine LOW-Warnung: 30/35 A-Gesetze maschinell geprüft, 5 ungeprüft (A43, A44, A47, A60, A62).
-**Hintergrund:** Diese 5 Gesetze sind reine Gestaltungs- und UX-Prinzipien, die sich nicht sinnvoll per Regex prüfen lassen.
-**Lösung:** Einführung einer `MANUAL_REVIEW_LAWS`-Konstante in `tools/lawcoverage.js`, die diese 5 Gesetze als bewusst manuell geprüft und dokumentiert führt, um die LOW-Warnung im Fitness Gate auf 0 Diagnosen zu senken.
-
-### B24 · Fitness Gate: `tooling-overview.md` überschreitet 400-Zeilen-Limit · **S** · ⭐
-**Problem:** `docs/30-meta/tooling-overview.md` hat aktuell 482 Zeilen und löst die `doc-size`-Warnung (> 400 Zeilen) im Fitness Gate aus.
-**Lösungsmöglichkeiten:**
-- Option A: Aufteilung der Datei (z. B. historische/archivierte Tools nach `tooling-overview-legacy.md` auslagern).
-- Option B: Konfiguriertes Limit in `tools/reconciliation.js` für `tooling-overview.md` auf 500 Zeilen anheben (begründet durch den Charakter als zentrale Tooling-SSoT, analog zur bestehenden Ausnahme für `DECISION-LOG.md`).
 
 ### B29 · Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) · **S** · ⭐⭐⭐
 **Kontext:** Konsolidiert aus `GEOAPIFY_OPTIMIZATION_CONCEPT.md`.
@@ -321,21 +303,6 @@ settings.js:102, `null` → true) und `Boolean()` (settings.js:103, 135, `null` 
 false). Folge: `marks: null` setzt `data-marks="false"`, lässt den Schalter aber
 an. Ein Kommentar in `persistence.js` (DEFAULT_SETTINGS) entscheidet, welche
 Semantik gilt; danach alle drei angleichen. Ändert kein Speicherformat.
-
-### B66 · `settings.js` schreibt `layout` ohne Whitelist · **S** · ⭐
-`settings.js:89–90` setzt `data-layout` direkt aus den Einstellungen. `boot.js`
-hat eine `LAYOUT_WHITELIST`. Ein manipulierter oder alter Wert landet heute
-un geprüft im Attribut, auf das die Blattgeometrie hört.
-
-### B67 · Seeder-Ausfall ist unsichtbar · **S** · ⭐⭐
-`boot-state.js:141–143` hat ein leeres `catch {}`. Fällt der Seeder aus, bleiben
-die Regler bis `data-ready` versteckt und niemand sieht warum. Vorschlag:
-`console.error` wie in `boot.js`, plus ein Hinweis-Test (T2 aus Batch 02).
-
-### B68 · `typeof Temporal` entfernen · **S** · ⭐
-`boot-state.js:120` prüft `typeof Temporal !== 'undefined'`. Baseline ist
-Chrome 150+, Temporal ist vorhanden. Die Prüfung suggeriert eine Kompatibilität,
-die es nicht gibt.
 
 ### B69 · Zweite Restore-Logik im Seeder prüfen · **M** · ⭐⭐
 `boot-state.js:100–112` setzt jeden Schlüssel aus `din_draft_current` per

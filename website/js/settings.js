@@ -86,7 +86,10 @@ export class SettingsManager {
   }
 
   applySettings() {
-    const layout = this.settings.layout || 'form-b';
+    /* Whitelist wie in boot.js: nur form-a/form-b. Ohne sie landet ein
+       beliebiger Wert aus localStorage im Attribut, auf das die Blattgeometrie
+       hoert (Befund Batch 02, B66). */
+    const layout = this.settings.layout === 'form-a' ? 'form-a' : 'form-b';
     setzeAttribut(document.documentElement, 'data-layout', layout);
     if (layout === 'form-a') {
       setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnFormA), true);

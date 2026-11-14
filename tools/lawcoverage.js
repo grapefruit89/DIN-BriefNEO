@@ -51,6 +51,17 @@ const TOOL_ENFORCED = {
   A59: 'tools/structural-laws.js',
 };
 
+/**
+ * Gesetze, die bewusst **manuell** geprueft werden: kein Regex und kein eigenes
+ * Modul kann sie entscheiden. Sie zaehlen als abgedeckt, bleiben aber im
+ * Bericht sichtbar (kein stilles Abschalten). Jeder Eintrag braucht einen
+ * Grund, der ohne den Code lesbar ist.
+ */
+const MANUAL_REVIEW = {
+  A44: 'generisches div/span fuer ein Registry-Atom: braucht den Abgleich HTML-Tag gegen IMR-Registry, nicht ein Muster',
+  A47: 'komplexe UI in contenteditable: Browser loescht Innenstruktur; Beurteilung braucht den Blick auf den Edit-Root',
+};
+
 /** Liest alle normativen IDs (erste Tabellenspalte) samt Typ aus dem Katalog. */
 function readCatalog(repoRoot) {
   const file = path.join(repoRoot, CATALOG);
@@ -164,6 +175,9 @@ function checkLawCoverage(repoRoot) {
       if (!enforced.has(lawId)) enforced.set(lawId, []);
       enforced.get(lawId).push(tool);
     }
+  }
+  for (const [lawId, grund] of Object.entries(MANUAL_REVIEW)) {
+    if (catalog.has(lawId) && !enforced.has(lawId)) enforced.set(lawId, [`manuell: ${grund}`]);
   }
   const covered = laws.filter((id) => enforced.has(id));
   const coverage = {

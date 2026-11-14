@@ -117,7 +117,8 @@
        und dateStyle 'long' (A48/TM1 und A50 verlangen das so, auch in
        Kommentaren). Wer format.js aendert, muss diese Zeile mitpruefen. */
     const datum = /** @type {HTMLInputElement | null} */ (document.getElementById('datum'));
-    if (datum && !datum.value.trim() && typeof Temporal !== 'undefined') {
+    /* Baseline ist Chrome 150+; Temporal ist dort vorhanden (B68). */
+    if (datum && !datum.value.trim()) {
       datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')
         .toPlainDate()
         .toLocaleString('de-DE', { dateStyle: 'long' });
@@ -137,7 +138,10 @@
        ~20 ms nach dem ersten Paint — dann ploppen sie sichtbar nach
        (gemessen 2026-11-12: FCP 56 ms, sichtbar erst 73 ms). */
     document.documentElement.setAttribute('data-seeded', 'true');
-  } catch {
-    /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her. */
+  } catch (e) {
+    /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her.
+       Aber nicht still: ohne Seeder bleiben die Regler bis data-ready
+       versteckt, und niemand sieht warum (B67). */
+    console.error('[Boot-State] Seeder fehlgeschlagen:', e);
   }
 })();

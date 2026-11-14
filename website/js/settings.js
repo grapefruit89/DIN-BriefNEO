@@ -9,7 +9,7 @@
  */
 
 import { Events, eventBus } from './core.js';
-import { DEFAULT_SETTINGS, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
+import { DEFAULT_SETTINGS, istAn, loadJSON, STORAGE_KEYS, saveJSON } from './persistence.js';
 
 export { FONT_PRESETS } from './font-feature.js';
 
@@ -102,8 +102,8 @@ export class SettingsManager {
     const currentTheme = this.settings.theme || 'auto';
     this.applyTheme(currentTheme);
 
-    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), this.settings.marks !== false);
-    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), Boolean(this.settings.pluginTestbrief));
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), istAn(this.settings.marks));
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), istAn(this.settings.pluginTestbrief));
 
     /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
      * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
@@ -135,7 +135,7 @@ export class SettingsManager {
    * localStorage wird bewusst ignoriert.
    */
   #applyPlugins() {
-    const testbrief = Boolean(this.settings.pluginTestbrief);
+    const testbrief = istAn(this.settings.pluginTestbrief);
 
     document.documentElement.setAttribute('data-plugin-testbrief', String(testbrief));
     document.documentElement.setAttribute('data-plugin-multipage', 'true');

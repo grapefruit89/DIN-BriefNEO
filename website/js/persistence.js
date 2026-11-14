@@ -50,6 +50,29 @@ export const DEFAULT_SETTINGS = {
 };
 
 /**
+ * Eine Semantik für gespeicherte Schalter (B65).
+ *
+ * Gespeichert wird echtes JSON-Boolean. **Nur ein explizites `false` schaltet
+ * aus**; fehlt der Wert oder ist er `null`, gilt der Default der Einstellung —
+ * für `marks` und `pluginTestbrief` ist das `true` (siehe DEFAULT_SETTINGS).
+ *
+ * Vorher lagen drei Semantiken nebeneinander: `asBool` (boot.js),
+ * `!== false` (boot-state.js) und `Boolean()` (settings.js). Bei fehlendem
+ * `pluginTestbrief` ergaben sie true / true / false — der Schalter sprang
+ * beim Booten um, und `settings.js` überschrieb das Attribut mit dem
+ * falschen Wert. `'false'` als String bleibt akzeptiert, damit ein von Hand
+ * geschriebener Wert in localStorage nicht als „an" gelesen wird.
+ *
+ * `boot.js` und `boot-state.js` sind klassische Skripte und können nicht
+ * importieren; sie tragen dieselbe Zeile lokal. Ein Test hält alle drei
+ * Fassungen deckungsgleich (`test/all.js`, „Schalter-Semantik").
+ *
+ * @param {unknown} v
+ * @returns {boolean}
+ */
+export const istAn = (v) => v !== false && v !== 'false';
+
+/**
  * Zentrale LocalStorage-Schlüssel.
  */
 export const STORAGE_KEYS = {

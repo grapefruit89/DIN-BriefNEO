@@ -647,16 +647,24 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
   /* FOUC-Schutz (gemessen 2026-11-10): Vor dem Restore sind #datum und
      #unterschrift leer, also standen ihre Platzhalter ("2. September 2026",
      "Ihr getippter Name") für ~36 ms auf dem Papier, bevor der echte Wert
-     kam. Platzhalter erscheinen deshalb erst, wenn das Booten fertig ist
-     (html[data-ready], gesetzt am Ende von initApp; Sicherheitsnetz in
-     boot.js). Die Feld-Geometrie ist davon unberührt — nur der Text fehlt. */
-  :root:not([data-ready="true"]) & [data-placeholder]:empty::before,
-    :root:not([data-ready="true"]) & [contenteditable][data-placeholder]:empty::before {
+     kam.
+
+     Anker ist `data-seeded`, nicht `data-ready` (B70, gemessen 2026-11-14):
+     `data-ready` kommt erst am Ende von initApp und lag in 21 von 30 lokalen
+     Laeufen nach dem ersten Paint, unter 6x CPU-Drosselung in 29 von 30 und
+     im langsamen Netz in 30 von 30 (bis 1,9 s spaeter). `data-seeded` ist der
+     Punkt, an dem die Werte stehen — genau der Moment, in dem der Platzhalter
+     wieder erlaubt sein muss, sonst fehlt er bei leeren Feldern sichtbar.
+     `data-ready` bleibt als Netz: faellt der Seeder aus, setzt boot.js es nach
+     2 s und die Platzhalter erscheinen trotzdem. Die Feld-Geometrie ist von
+     beidem unberuehrt — nur der Text fehlt. */
+  :root:not([data-seeded="true"]):not([data-ready="true"]) & [data-placeholder]:empty::before,
+    :root:not([data-seeded="true"]):not([data-ready="true"]) & [contenteditable][data-placeholder]:empty::before {
       content: none;
     }
 
-  :root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,
-    :root:not([data-ready="true"]) & input[data-atom]::placeholder {
+  :root:not([data-seeded="true"]):not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,
+    :root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {
       color: transparent;
     }
 

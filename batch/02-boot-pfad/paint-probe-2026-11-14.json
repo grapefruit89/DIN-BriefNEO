@@ -1,0 +1,782 @@
+{
+  "local": {
+    "laeufe": 30,
+    "seededVorFirstPaint": 30,
+    "readyVorFirstPaint": 14,
+    "readyVorFcp": 14,
+    "seederFensterMs": {
+      "min": 3,
+      "max": 8
+    },
+    "abstandReadyZuFpMs": {
+      "min": -13,
+      "max": 20
+    },
+    "firstPaintMs": {
+      "min": 44,
+      "max": 100
+    },
+    "roh": [
+      {
+        "seederStart": 33.09999999962747,
+        "seeded": 38,
+        "ready": 55.09999999962747,
+        "fp": 72,
+        "fcp": 72,
+        "domContentLoaded": 55.299999999813735
+      },
+      {
+        "seederStart": 34.200000000186265,
+        "seeded": 37.200000000186265,
+        "ready": 48.89999999944121,
+        "fp": 48,
+        "fcp": 48,
+        "domContentLoaded": 49
+      },
+      {
+        "seederStart": 42.5,
+        "seeded": 45.39999999944121,
+        "ready": 69,
+        "fp": 56,
+        "fcp": 56,
+        "domContentLoaded": 69.19999999925494
+      },
+      {
+        "seederStart": 33.90000000037253,
+        "seeded": 36.700000000186265,
+        "ready": 56.10000000055879,
+        "fp": 48,
+        "fcp": 48,
+        "domContentLoaded": 56.200000000186265
+      },
+      {
+        "seederStart": 68.6000000005588,
+        "seeded": 72.90000000037253,
+        "ready": 92.5,
+        "fp": 92,
+        "fcp": 92,
+        "domContentLoaded": 92.79999999981374
+      },
+      {
+        "seederStart": 45.90000000037253,
+        "seeded": 49.700000000186265,
+        "ready": 63.40000000037253,
+        "fp": 64,
+        "fcp": 64,
+        "domContentLoaded": 63.60000000055879
+      },
+      {
+        "seederStart": 49.799999999813735,
+        "seeded": 52.90000000037253,
+        "ready": 72.5,
+        "fp": 68,
+        "fcp": 68,
+        "domContentLoaded": 72.59999999962747
+      },
+      {
+        "seederStart": 47.90000000037253,
+        "seeded": 53.60000000055879,
+        "ready": 66.79999999981374,
+        "fp": 72,
+        "fcp": 72,
+        "domContentLoaded": 67
+      },
+      {
+        "seederStart": 74.09999999962747,
+        "seeded": 82.09999999962747,
+        "ready": 107,
+        "fp": 100,
+        "fcp": 100,
+        "domContentLoaded": 107.20000000018626
+      },
+      {
+        "seederStart": 38.19999999925494,
+        "seeded": 41.09999999962747,
+        "ready": 59.89999999944121,
+        "fp": 52,
+        "fcp": 52,
+        "domContentLoaded": 60.09999999962747
+      },
+      {
+        "seederStart": 24,
+        "seeded": 27.5,
+        "ready": 56.09999999962747,
+        "fp": 44,
+        "fcp": 44,
+        "domContentLoaded": 56.299999999813735
+      },
+      {
+        "seederStart": 39.299999999813735,
+        "seeded": 43.299999999813735,
+        "ready": 58.69999999925494,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 58.89999999944121
+      },
+      {
+        "seederStart": 47.200000000186265,
+        "seeded": 49.89999999944121,
+        "ready": 74.3999999994412,
+        "fp": 68,
+        "fcp": 68,
+        "domContentLoaded": 74.59999999962747
+      },
+      {
+        "seederStart": 47.89999999944121,
+        "seeded": 51.700000000186265,
+        "ready": 65.09999999962747,
+        "fp": 72,
+        "fcp": 72,
+        "domContentLoaded": 65.29999999981374
+      },
+      {
+        "seederStart": 50.40000000037253,
+        "seeded": 53,
+        "ready": 71.5,
+        "fp": 64,
+        "fcp": 64,
+        "domContentLoaded": 71.70000000018626
+      },
+      {
+        "seederStart": 38.09999999962747,
+        "seeded": 41.09999999962747,
+        "ready": 68.79999999981374,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 69.09999999962747
+      },
+      {
+        "seederStart": 36.09999999962747,
+        "seeded": 39.5,
+        "ready": 52.59999999962747,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 52.799999999813735
+      },
+      {
+        "seederStart": 47.200000000186265,
+        "seeded": 50.40000000037253,
+        "ready": 74,
+        "fp": 68,
+        "fcp": 68,
+        "domContentLoaded": 74.20000000018626
+      },
+      {
+        "seederStart": 43,
+        "seeded": 46,
+        "ready": 67.5,
+        "fp": 56,
+        "fcp": 56,
+        "domContentLoaded": 67.80000000074506
+      },
+      {
+        "seederStart": 46.09999999962747,
+        "seeded": 49.09999999962747,
+        "ready": 71.20000000018626,
+        "fp": 64,
+        "fcp": 64,
+        "domContentLoaded": 71.5
+      },
+      {
+        "seederStart": 30.100000000558794,
+        "seeded": 32.700000000186265,
+        "ready": 50.10000000055879,
+        "fp": 56,
+        "fcp": 56,
+        "domContentLoaded": 50.30000000074506
+      },
+      {
+        "seederStart": 56.09999999962747,
+        "seeded": 59.09999999962747,
+        "ready": 77.90000000037253,
+        "fp": 80,
+        "fcp": 80,
+        "domContentLoaded": 78.09999999962747
+      },
+      {
+        "seederStart": 47.59999999962747,
+        "seeded": 50.39999999944121,
+        "ready": 64.20000000018626,
+        "fp": 68,
+        "fcp": 68,
+        "domContentLoaded": 64.5
+      },
+      {
+        "seederStart": 42.19999999925494,
+        "seeded": 45.799999999813735,
+        "ready": 59,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 59.09999999962747
+      },
+      {
+        "seederStart": 28.299999999813735,
+        "seeded": 32.09999999962747,
+        "ready": 44.200000000186265,
+        "fp": 64,
+        "fcp": 64,
+        "domContentLoaded": 44.299999999813735
+      },
+      {
+        "seederStart": 41.69999999925494,
+        "seeded": 44.39999999944121,
+        "ready": 58,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 58.09999999962747
+      },
+      {
+        "seederStart": 46.799999999813735,
+        "seeded": 49.700000000186265,
+        "ready": 68,
+        "fp": 64,
+        "fcp": 64,
+        "domContentLoaded": 68.09999999962747
+      },
+      {
+        "seederStart": 57.5,
+        "seeded": 60.60000000055879,
+        "ready": 92.6000000005588,
+        "fp": 84,
+        "fcp": 84,
+        "domContentLoaded": 92.79999999981374
+      },
+      {
+        "seederStart": 35.09999999962747,
+        "seeded": 39.5,
+        "ready": 53.90000000037253,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 54.09999999962747
+      },
+      {
+        "seederStart": 33.40000000037253,
+        "seeded": 36.299999999813735,
+        "ready": 58.200000000186265,
+        "fp": 60,
+        "fcp": 60,
+        "domContentLoaded": 58.40000000037253
+      }
+    ]
+  },
+  "cpu6": {
+    "laeufe": 30,
+    "seededVorFirstPaint": 11,
+    "readyVorFirstPaint": 0,
+    "readyVorFcp": 0,
+    "seederFensterMs": {
+      "min": 15,
+      "max": 38
+    },
+    "abstandReadyZuFpMs": {
+      "min": -103,
+      "max": -8
+    },
+    "firstPaintMs": {
+      "min": 108,
+      "max": 196
+    },
+    "roh": [
+      {
+        "seederStart": 114.29999999981374,
+        "seeded": 132.3999999994412,
+        "ready": 206,
+        "fp": 132,
+        "fcp": 132,
+        "domContentLoaded": 207.3999999994412
+      },
+      {
+        "seederStart": 105.70000000018626,
+        "seeded": 123.70000000018626,
+        "ready": 187.20000000018626,
+        "fp": 124,
+        "fcp": 124,
+        "domContentLoaded": 188.3999999994412
+      },
+      {
+        "seederStart": 113.1000000005588,
+        "seeded": 131.20000000018626,
+        "ready": 211.1000000005588,
+        "fp": 132,
+        "fcp": 132,
+        "domContentLoaded": 211.80000000074506
+      },
+      {
+        "seederStart": 106.20000000018626,
+        "seeded": 124.09999999962747,
+        "ready": 196.59999999962747,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 197.90000000037253
+      },
+      {
+        "seederStart": 107,
+        "seeded": 125.8999999994412,
+        "ready": 206,
+        "fp": 128,
+        "fcp": 128,
+        "domContentLoaded": 207.5
+      },
+      {
+        "seederStart": 120,
+        "seeded": 140.29999999981374,
+        "ready": 209,
+        "fp": 128,
+        "fcp": 128,
+        "domContentLoaded": 210.29999999981374
+      },
+      {
+        "seederStart": 84,
+        "seeded": 121.70000000018626,
+        "ready": 211.8999999994412,
+        "fp": 196,
+        "fcp": 196,
+        "domContentLoaded": 213.20000000018626
+      },
+      {
+        "seederStart": 122.29999999981374,
+        "seeded": 140.19999999925494,
+        "ready": 239.3999999994412,
+        "fp": 136,
+        "fcp": 136,
+        "domContentLoaded": 240.69999999925494
+      },
+      {
+        "seederStart": 124.1000000005588,
+        "seeded": 140.70000000018626,
+        "ready": 239.29999999981374,
+        "fp": 144,
+        "fcp": 144,
+        "domContentLoaded": 240.5
+      },
+      {
+        "seederStart": 125.5,
+        "seeded": 141.90000000037253,
+        "ready": 217.1000000005588,
+        "fp": 144,
+        "fcp": 144,
+        "domContentLoaded": 218.20000000018626
+      },
+      {
+        "seederStart": 101.19999999925494,
+        "seeded": 118.3999999994412,
+        "ready": 191.29999999981374,
+        "fp": 116,
+        "fcp": 116,
+        "domContentLoaded": 192.79999999981374
+      },
+      {
+        "seederStart": 103.20000000018626,
+        "seeded": 120,
+        "ready": 193.70000000018626,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 195
+      },
+      {
+        "seederStart": 110,
+        "seeded": 129.19999999925494,
+        "ready": 197.19999999925494,
+        "fp": 116,
+        "fcp": 116,
+        "domContentLoaded": 198.29999999981374
+      },
+      {
+        "seederStart": 104.70000000018626,
+        "seeded": 122.59999999962747,
+        "ready": 195,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 195.8999999994412
+      },
+      {
+        "seederStart": 104.20000000018626,
+        "seeded": 122.40000000037253,
+        "ready": 191.20000000018626,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 192.09999999962747
+      },
+      {
+        "seederStart": 107,
+        "seeded": 124.6000000005588,
+        "ready": 197.5,
+        "fp": 120,
+        "fcp": 120,
+        "domContentLoaded": 198.79999999981374
+      },
+      {
+        "seederStart": 109.8999999994412,
+        "seeded": 126.5,
+        "ready": 198.59999999962747,
+        "fp": 124,
+        "fcp": 124,
+        "domContentLoaded": 199.70000000018626
+      },
+      {
+        "seederStart": 101.8999999994412,
+        "seeded": 119.5,
+        "ready": 180.09999999962747,
+        "fp": 172,
+        "fcp": 172,
+        "domContentLoaded": 181.3999999994412
+      },
+      {
+        "seederStart": 102.5,
+        "seeded": 120.40000000037253,
+        "ready": 181.29999999981374,
+        "fp": 112,
+        "fcp": 112,
+        "domContentLoaded": 182.40000000037253
+      },
+      {
+        "seederStart": 127.40000000037253,
+        "seeded": 144,
+        "ready": 234,
+        "fp": 140,
+        "fcp": 140,
+        "domContentLoaded": 235.40000000037253
+      },
+      {
+        "seederStart": 124.69999999925494,
+        "seeded": 139.8999999994412,
+        "ready": 227.59999999962747,
+        "fp": 140,
+        "fcp": 140,
+        "domContentLoaded": 228.59999999962747
+      },
+      {
+        "seederStart": 98.29999999981374,
+        "seeded": 114,
+        "ready": 182,
+        "fp": 112,
+        "fcp": 112,
+        "domContentLoaded": 183.20000000018626
+      },
+      {
+        "seederStart": 94.79999999981374,
+        "seeded": 111.8999999994412,
+        "ready": 179.79999999981374,
+        "fp": 116,
+        "fcp": 116,
+        "domContentLoaded": 181.8999999994412
+      },
+      {
+        "seederStart": 112.30000000074506,
+        "seeded": 129,
+        "ready": 193.80000000074506,
+        "fp": 124,
+        "fcp": 124,
+        "domContentLoaded": 194.80000000074506
+      },
+      {
+        "seederStart": 98,
+        "seeded": 114.20000000018626,
+        "ready": 182.90000000037253,
+        "fp": 112,
+        "fcp": 112,
+        "domContentLoaded": 183.90000000037253
+      },
+      {
+        "seederStart": 96,
+        "seeded": 111.79999999981374,
+        "ready": 185.19999999925494,
+        "fp": 116,
+        "fcp": 116,
+        "domContentLoaded": 187.09999999962747
+      },
+      {
+        "seederStart": 105,
+        "seeded": 121.59999999962747,
+        "ready": 183.8999999994412,
+        "fp": 112,
+        "fcp": 112,
+        "domContentLoaded": 185.20000000018626
+      },
+      {
+        "seederStart": 129.20000000018626,
+        "seeded": 145.80000000074506,
+        "ready": 235,
+        "fp": 140,
+        "fcp": 140,
+        "domContentLoaded": 236.6000000005588
+      },
+      {
+        "seederStart": 111.3999999994412,
+        "seeded": 128.59999999962747,
+        "ready": 190.29999999981374,
+        "fp": 128,
+        "fcp": 128,
+        "domContentLoaded": 191.3999999994412
+      },
+      {
+        "seederStart": 96.70000000018626,
+        "seeded": 112,
+        "ready": 178.70000000018626,
+        "fp": 108,
+        "fcp": 108,
+        "domContentLoaded": 180.20000000018626
+      }
+    ]
+  },
+  "slow": {
+    "laeufe": 30,
+    "seededVorFirstPaint": 1,
+    "readyVorFirstPaint": 0,
+    "readyVorFcp": 0,
+    "seederFensterMs": {
+      "min": 3,
+      "max": 16
+    },
+    "abstandReadyZuFpMs": {
+      "min": -1945,
+      "max": -1674
+    },
+    "firstPaintMs": {
+      "min": 900,
+      "max": 1212
+    },
+    "roh": [
+      {
+        "seederStart": 1121,
+        "seeded": 1132.9000000003725,
+        "ready": 2830.4000000003725,
+        "fp": 900,
+        "fcp": 900,
+        "domContentLoaded": 2830.9000000003725
+      },
+      {
+        "seederStart": 1175.7000000001863,
+        "seeded": 1187,
+        "ready": 2887.2000000001863,
+        "fp": 952,
+        "fcp": 952,
+        "domContentLoaded": 2887.7000000001863
+      },
+      {
+        "seederStart": 1168,
+        "seeded": 1177.1000000005588,
+        "ready": 2885.600000000559,
+        "fp": 1212,
+        "fcp": 1212,
+        "domContentLoaded": 2886.100000000559
+      },
+      {
+        "seederStart": 1160.5999999996275,
+        "seeded": 1172.8999999994412,
+        "ready": 2884.7999999998137,
+        "fp": 940,
+        "fcp": 940,
+        "domContentLoaded": 2885.399999999441
+      },
+      {
+        "seederStart": 1149.7000000001863,
+        "seeded": 1155.2000000001863,
+        "ready": 2867.5999999996275,
+        "fp": 932,
+        "fcp": 932,
+        "domContentLoaded": 2868.2999999998137
+      },
+      {
+        "seederStart": 1161.7999999998137,
+        "seeded": 1172.7999999998137,
+        "ready": 2868.7999999998137,
+        "fp": 960,
+        "fcp": 960,
+        "domContentLoaded": 2869.5
+      },
+      {
+        "seederStart": 1143.6000000005588,
+        "seeded": 1153.1000000005588,
+        "ready": 2855.9000000003725,
+        "fp": 928,
+        "fcp": 928,
+        "domContentLoaded": 2856.7999999998137
+      },
+      {
+        "seederStart": 1158,
+        "seeded": 1170.0999999996275,
+        "ready": 2860.9000000003725,
+        "fp": 940,
+        "fcp": 940,
+        "domContentLoaded": 2861.2999999998137
+      },
+      {
+        "seederStart": 1161.3999999994412,
+        "seeded": 1171.2999999998137,
+        "ready": 2881,
+        "fp": 948,
+        "fcp": 948,
+        "domContentLoaded": 2881.7999999998137
+      },
+      {
+        "seederStart": 1171.8999999994412,
+        "seeded": 1183.7999999998137,
+        "ready": 2879.7000000001863,
+        "fp": 952,
+        "fcp": 952,
+        "domContentLoaded": 2880
+      },
+      {
+        "seederStart": 1145.9000000003725,
+        "seeded": 1161.800000000745,
+        "ready": 2861.4000000003725,
+        "fp": 932,
+        "fcp": 932,
+        "domContentLoaded": 2862
+      },
+      {
+        "seederStart": 1134.4000000003725,
+        "seeded": 1139.5,
+        "ready": 2851.2000000001863,
+        "fp": 920,
+        "fcp": 920,
+        "domContentLoaded": 2851.800000000745
+      },
+      {
+        "seederStart": 1154.800000000745,
+        "seeded": 1165.800000000745,
+        "ready": 2873.4000000003725,
+        "fp": 928,
+        "fcp": 928,
+        "domContentLoaded": 2874
+      },
+      {
+        "seederStart": 1148.5999999996275,
+        "seeded": 1159.2999999998137,
+        "ready": 2868.7999999998137,
+        "fp": 928,
+        "fcp": 928,
+        "domContentLoaded": 2869.5
+      },
+      {
+        "seederStart": 1164.8999999994412,
+        "seeded": 1177.8999999994412,
+        "ready": 2875,
+        "fp": 948,
+        "fcp": 948,
+        "domContentLoaded": 2875.5999999996275
+      },
+      {
+        "seederStart": 1165.9000000003725,
+        "seeded": 1178.0999999996275,
+        "ready": 2875.0999999996275,
+        "fp": 944,
+        "fcp": 944,
+        "domContentLoaded": 2875.5
+      },
+      {
+        "seederStart": 1147.699999999255,
+        "seeded": 1159.5999999996275,
+        "ready": 2865.7999999998137,
+        "fp": 936,
+        "fcp": 936,
+        "domContentLoaded": 2866.5
+      },
+      {
+        "seederStart": 1165.7000000001863,
+        "seeded": 1178.2000000001863,
+        "ready": 2883.399999999441,
+        "fp": 944,
+        "fcp": 944,
+        "domContentLoaded": 2883.899999999441
+      },
+      {
+        "seederStart": 1164.2000000001863,
+        "seeded": 1178.1000000005588,
+        "ready": 2875.2000000001863,
+        "fp": 948,
+        "fcp": 948,
+        "domContentLoaded": 2875.600000000559
+      },
+      {
+        "seederStart": 1168.3999999994412,
+        "seeded": 1181.8999999994412,
+        "ready": 2887.7999999998137,
+        "fp": 964,
+        "fcp": 964,
+        "domContentLoaded": 2888.2999999998137
+      },
+      {
+        "seederStart": 1163.5,
+        "seeded": 1175.7000000001863,
+        "ready": 2881.4000000003725,
+        "fp": 948,
+        "fcp": 948,
+        "domContentLoaded": 2882.300000000745
+      },
+      {
+        "seederStart": 1157.3999999994412,
+        "seeded": 1171.3999999994412,
+        "ready": 2870,
+        "fp": 944,
+        "fcp": 944,
+        "domContentLoaded": 2870.7999999998137
+      },
+      {
+        "seederStart": 1162,
+        "seeded": 1165,
+        "ready": 2865.100000000559,
+        "fp": 940,
+        "fcp": 940,
+        "domContentLoaded": 2865.600000000559
+      },
+      {
+        "seederStart": 1157.6000000005588,
+        "seeded": 1168.6000000005588,
+        "ready": 2888.5,
+        "fp": 944,
+        "fcp": 944,
+        "domContentLoaded": 2888.9000000003725
+      },
+      {
+        "seederStart": 1147.3999999994412,
+        "seeded": 1150.5,
+        "ready": 2869.7000000001863,
+        "fp": 936,
+        "fcp": 936,
+        "domContentLoaded": 2870.5
+      },
+      {
+        "seederStart": 1163.7000000001863,
+        "seeded": 1176.2999999998137,
+        "ready": 2874.5,
+        "fp": 948,
+        "fcp": 948,
+        "domContentLoaded": 2875.2000000001863
+      },
+      {
+        "seederStart": 1156.2000000001863,
+        "seeded": 1158.8999999994412,
+        "ready": 2868.7000000001863,
+        "fp": 948,
+        "fcp": 948,
+        "domContentLoaded": 2869.2000000001863
+      },
+      {
+        "seederStart": 1164.6000000005588,
+        "seeded": 1177.4000000003725,
+        "ready": 2871.5,
+        "fp": 940,
+        "fcp": 940,
+        "domContentLoaded": 2871.7999999998137
+      },
+      {
+        "seederStart": 1169.2999999998137,
+        "seeded": 1174.7999999998137,
+        "ready": 2888.0999999996275,
+        "fp": 952,
+        "fcp": 952,
+        "domContentLoaded": 2888.5
+      },
+      {
+        "seederStart": 1167.6000000005588,
+        "seeded": 1180.300000000745,
+        "ready": 2878.7000000001863,
+        "fp": 952,
+        "fcp": 952,
+        "domContentLoaded": 2879.300000000745
+      }
+    ]
+  }
+}

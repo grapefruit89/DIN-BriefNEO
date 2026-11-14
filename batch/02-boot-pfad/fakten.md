@@ -1,76 +1,139 @@
-# Fakten zum Boot-Pfad (2026-11-14)
+# Fakten zum Boot-Pfad
 
-Gemessen und gelesen, nicht geschlossen. Quellen sind die zwei angehängten
-Dateien; Zahlen aus Messläufen sind als solche gekennzeichnet.
+**Erzeugt von `tools/batch-facts.mjs` — nicht von Hand bearbeiten.**
+`node tools/batch-facts.mjs --check` bricht ab, wenn dieses Blatt nicht mehr
+zum Quelltext passt. Alle Zeilennummern sind aus den Dateien gelesen.
 
 ## 1. Ladereihenfolge
 
-| Wann | Was | Zeile in `index.html` |
+| Zeile in `index.html` | Typ | Quelle |
 |---|---|---|
-| `<head>`, blockierend | `<script src="js/boot.js?v=boot2">` (klassisch, kein Modul) | 36 |
-| Ende `<body>` | `<script src="js/boot-state.js?v=bs2">` (klassisch) | 458 |
+| 36 | klassisch | `js/boot.js?v=boot2` |
+| 37 | Modul (deferred) | `js/main.js?v=live6` |
+| 458 | klassisch | `js/boot-state.js?v=bs2` |
 
-Beide sind **klassische** Skripte, keine Module. `boot.js` blockiert den Parser
-und läuft vor dem Body; `boot-state.js` läuft nach dem Parsen, aber vor
-`DOMContentLoaded`.
+Klassische Skripte blockieren den Parser; Module laufen nach dem Parse.
 
-## 2. Was `boot.js` schreibt (79 Zeilen, `try/catch` um alles)
+Gezählt werden **Aufrufstellen**, nicht Ausführungen: der Helfer `lies()` in
+`boot-state.js` hat eine Aufrufstelle und läuft zweimal (`din_settings`,
+`din_draft_current`). Genau diese Verwechslung machte das handgetippte Blatt
+falsch („2× JSON.parse", tatsächlich 3).
 
-| Ziel | Wert | Zeile |
-|---|---|---|
-| `data-theme` | `auto` \| `light` \| `dark` (Whitelist) | 41 |
-| `data-layout` | `form-a` \| `form-b` (Whitelist) | 42 |
-| `data-marks` | `true` \| `false` | 43 |
-| `data-plugin-testbrief` | `true` \| `false` | 44 |
-| `data-plugin-multipage` | fest `true` (Modus stillgelegt) | 49 |
-| `--rand-u` (style) | `20mm` \| `30mm` (Whitelist) | 61 |
-| `data-ready` | Notfall-Timer nach 2000 ms, nur wenn nicht schon gesetzt | 72–74 |
+## 2. Schreibzugriffe in `boot.js`
 
-Quelle ist `localStorage['din_settings']`, **ein** `JSON.parse` (Z. 30).
+87 Zeilen · 7 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
 
-## 3. Was `boot-state.js` schreibt (143 Zeilen, IIFE)
+| Zeile | Art | Ziel | Quelle |
+|---:|---|---|---|
+| 47 | setAttribute | `data-theme` | `root.setAttribute('data-theme', theme);` |
+| 48 | setAttribute | `data-layout` | `root.setAttribute('data-layout', layout);` |
+| 49 | setAttribute | `data-marks` | `root.setAttribute('data-marks', istAn(settings.marks) ? 'true' : 'false');` |
+| 50 | setAttribute | `data-plugin-testbrief` | `root.setAttribute('data-plugin-testbrief', istAn(settings.pluginTestbrief) ? 'true' : 'fal` |
+| 55 | setAttribute | `data-plugin-multipage` | `root.setAttribute('data-plugin-multipage', 'true');` |
+| 68 | style.setProperty | `--rand-u` | `root.style.setProperty('--rand-u', `${randU}mm`);` |
+| 80 | dataset | `ready` | `if (!root.dataset.ready) root.dataset.ready = 'true';` |
 
-| Ziel | Wert | Zeile |
-|---|---|---|
-| `#btn-form-a` / `#btn-form-b` | `checked` aus Settings | 41 |
-| `#toggle-falzmarken` | `checked` aus Settings | 45 |
-| `#btn-rand-u-30` | `checked` aus Settings | 62 |
-| `#plugin-testbrief` | `checked` aus Settings | 64 |
-| `.seitenleiste-select` | `data-gesetzt` aus dem Wert | 72 |
-| `#toggle-anlagen`, `#toggle-fuss` | `checked` aus dem Entwurf | 93 |
-| `data-seeded` | `true` am Ende | 139 |
+## 2. Schreibzugriffe in `boot-state.js`
 
-Quelle sind `din_settings` **und** `din_draft_current` (zweiter `JSON.parse`).
-Es werden bewusst **keine** `input`-Events gefeuert (Kommentar Z. 15–17).
+186 Zeilen · 16 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
 
-## 4. Die CSS-Wächter, die an den Markern hängen
+| Zeile | Art | Ziel | Quelle |
+|---:|---|---|---|
+| 35 | mark | `seeder-start` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeder-start` |
+| 61 | checked | `—` | `if (radio) radio.checked = true;` |
+| 65 | checked | `—` | `if (marks) marks.checked = istAn(settings.marks);` |
+| 75 | value | `—` | `stil.value = String(settings.formality);` |
+| 79 | value | `—` | `schrift.value = String(settings.previewFont);` |
+| 82 | checked | `—` | `if (randU) randU.checked = settings.randU === 30;` |
+| 84 | checked | `—` | `if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);` |
+| 92 | setAttribute | `data-gesetzt` | `liste.setAttribute('data-gesetzt', wahl.value !== '' ? 'true' : 'false');` |
+| 100 | value | `—` | `feld.value = vermerk;` |
+| 105 | value | `—` | `if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = verm` |
+| 113 | checked | `—` | `if (box) box.checked = draft[id] === true \|\| draft[id] === 'true';` |
+| 140 | value | `—` | `el.value = wert;` |
+| 145 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
+| 157 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
+| 177 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
+| 178 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
 
-| Marker | Regeln | Zweck |
-|---|---|---|
-| `data-seeded` | `base.css` 3 Regeln (alles unsichtbar), `sheet-common.css` 8 Selektoren (Blattzonen), `sidebar.css` 2 Selektoren (Postvermerk-Auswahl, alle `input[switch]`) | nichts zeigen, bevor der gespeicherte Zustand steht |
-| `data-ready` | `base.css` (dieselben 3 Regeln als Oder-Zweig), `sheet-common.css` 3 Regeln (Platzhalter), `sidebar.css` (Oder-Zweig) | Sicherheitsnetz, falls der Seeder ausfällt |
+## 2. Schreibzugriffe in `main.js`
 
-## 5. Messung: was steht beim ersten Paint? (12 kalte Reloads, Cache aus)
+366 Zeilen · 6 Schreibzugriffe · 0× `JSON.parse` (Aufrufstellen)
 
-Erhoben am `Page.lifecycleEvent: firstPaint`, Abfrage direkt danach.
+| Zeile | Art | Ziel | Quelle |
+|---:|---|---|---|
+| 30 | setAttribute | `data-gesetzt` | `if (sel.getAttribute('data-gesetzt') !== wert) sel.setAttribute('data-gesetzt', wert);` |
+| 45 | value | `—` | `if (sel && sel.value !== val) sel.value = val;` |
+| 69 | setAttribute | `role` | `box.setAttribute('role', 'alert');` |
+| 188 | mark | `ready` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('ready');` |
+| 189 | dataset | `ready` | `document.documentElement.dataset.ready = 'true';` |
+| 266 | value | `—` | `anlagenEl.value = 'Anlage 1';` |
 
-| Kennzahl | Ergebnis |
+## 3. Marker im CSS
+
+`data-seeded` und `data-ready` sind keine Dubletten: `seeded` heisst „Zustand
+steht", `data-ready` heisst „Booten fertig oder aufgegeben (2-s-Timer in
+`boot.js`)". Die Messung in §4 zeigt, wie weit die beiden auseinanderliegen.
+
+| Marker | Treffer in CSS |
 |---|---|
-| `data-seeded` bereits `true` | **12 / 12** |
-| `data-ready` bereits `true` | **12 / 12** |
-| Regler sichtbar (Wächter schon offen) | **12 / 12** |
-| Zeit bis `firstPaint` | 57–77 ms |
+| `data-seeded` | 18 |
+| `data-ready` | 15 |
 
-Auffällig: `data-ready` wird laut Code erst am Ende von `initApp` gesetzt (oder
-nach 2 s als Notfall). In allen 12 Läufen war es **vor** dem ersten Paint
-gesetzt — `initApp` lief also vollständig vor dem Paint. Der 2-Sekunden-Timer
-kam nie zum Zug. Ob das eine Eigenschaft dieses Rechners (warm, lokal, ohne
-Netz) ist oder allgemein gilt, ist **ungeprüft**.
+### `data-seeded`
 
-## 6. Offene Fragen, die aus dem vorigen Batch übrig sind
+| Datei | Zeile | Regel |
+|---|---:|---|
+| `base.css` | 46 | `:root:not([data-seeded="true"]):not([data-ready="true"]) *,` |
+| `base.css` | 47 | `:root:not([data-seeded="true"]):not([data-ready="true"]) *::before,` |
+| `base.css` | 48 | `:root:not([data-seeded="true"]):not([data-ready="true"]) *::after {` |
+| `sheet-common.css` | 66 | `:root[data-seeded="true"] #rucksendeangabe,` |
+| `sheet-common.css` | 67 | `:root[data-seeded="true"] #anschriftfeld,` |
+| `sheet-common.css` | 68 | `:root[data-seeded="true"] #infoblock,` |
+| `sheet-common.css` | 69 | `:root[data-seeded="true"] #kern,` |
+| `sheet-common.css` | 70 | `:root[data-seeded="true"] din-falzmarke-1,` |
+| `sheet-common.css` | 71 | `:root[data-seeded="true"] din-falzmarke-2 {` |
+| `sheet-common.css` | 75 | `:root[data-seeded="true"] #spacer {` |
+| `sheet-common.css` | 652 | `Anker ist `data-seeded`, nicht `data-ready` (B70, gemessen 2026-11-14):` |
+| `sheet-common.css` | 655 | `im langsamen Netz in 30 von 30 (bis 1,9 s spaeter). `data-seeded` ist der` |
+| `sheet-common.css` | 661 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & [data-placeholder]:empty::before,` |
+| `sheet-common.css` | 662 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & [contenteditable][data-placeholder]:empty` |
+| `sheet-common.css` | 666 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,` |
+| `sheet-common.css` | 667 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {` |
+| `sidebar.css` | 616 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
+| `sidebar.css` | 617 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
 
-- `sheet.css` ist nicht eingebunden (kein `<link>`, kein `@import`) — bestätigt.
-- `webmcp-bridge.js` ist geparkt und absichtlich nicht geladen (Statuskopf in
-  der Datei).
-- `aria-pressed` wird dynamisch von `document.js` (Z. 397–399) geschrieben; die
-  statischen `false`-Werte im HTML sind der Startzustand.
+### `data-ready`
+
+| Datei | Zeile | Regel |
+|---|---:|---|
+| `base.css` | 46 | `:root:not([data-seeded="true"]):not([data-ready="true"]) *,` |
+| `base.css` | 47 | `:root:not([data-seeded="true"]):not([data-ready="true"]) *::before,` |
+| `base.css` | 48 | `:root:not([data-seeded="true"]):not([data-ready="true"]) *::after {` |
+| `sheet-common.css` | 652 | `Anker ist `data-seeded`, nicht `data-ready` (B70, gemessen 2026-11-14):` |
+| `sheet-common.css` | 653 | ``data-ready` kommt erst am Ende von initApp und lag in 21 von 30 lokalen` |
+| `sheet-common.css` | 658 | ``data-ready` bleibt als Netz: faellt der Seeder aus, setzt boot.js es nach` |
+| `sheet-common.css` | 661 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & [data-placeholder]:empty::before,` |
+| `sheet-common.css` | 662 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & [contenteditable][data-placeholder]:empty` |
+| `sheet-common.css` | 666 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,` |
+| `sheet-common.css` | 667 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {` |
+| `sidebar.css` | 608 | `data-ready fest (boot.js setzt es am Ende von initApp, Sicherheitsnetz nach` |
+| `sidebar.css` | 613 | `data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler` |
+| `sidebar.css` | 614 | `nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,` |
+| `sidebar.css` | 616 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
+| `sidebar.css` | 617 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
+
+## 4. Messung: steht der Zustand vor dem ersten Paint?
+
+Quelle: `paint-probe-2026-11-14.json` (erzeugt von
+`tools/paint-probe.mjs`, CDP, Cache aus, voller Entwurf).
+
+| Profil | Läufe | `seeded` vor Paint | `ready` vor Paint | Paint | Paint (Median) | `ready` (Median) |
+|---|---:|---:|---:|---:|---:|---:|
+| local | 30 | 30/30 | 14/30 | 44–100 | 64 | 65 |
+| cpu6 | 30 | 11/30 | 0/30 | 108–196 | 124 | 197 |
+| slow | 30 | 1/30 | 0/30 | 900–1212 | 944 | 2875 |
+
+Lesart: `seeded` steht in allen Profilen frueher als `ready`. Im Profil `slow`
+liegen **beide** nach dem Paint — der Body-End-Seeder ist dann von der
+Netzlieferung abhaengig, nicht von der Parse-Reihenfolge.

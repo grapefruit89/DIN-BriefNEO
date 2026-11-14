@@ -12,8 +12,8 @@
  *   node tools/backlog-sync.mjs --check   # nur prüfen (Exit 1 bei Drift)
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DATEI = join(ROOT, 'docs/30-meta/BACKLOG.md');
@@ -53,5 +53,5 @@ if (CHECK) {
   process.exit(1);
 }
 
-writeFileSync(DATEI, text.replace(treffer[0], soll + '\n'), 'utf-8');
+writeFileSync(DATEI, text.replace(treffer[0], `${soll}\n`), 'utf-8');
 console.log(`Backlog-Tabelle neu geschrieben (${eintraege.length} Einträge).`);

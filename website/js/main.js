@@ -185,6 +185,7 @@ function initApp() {
   bootStep('Darstellung freigeben', () => {
     // data-ready schaltet die Platzhalter frei (siehe sheet-common.css).
     // Bei Fehlschlag dieses Schritts versteckt boot.js sie nach 2 s (Sicherheitsnetz).
+    if (typeof performance !== 'undefined' && performance.mark) performance.mark('ready');
     document.documentElement.dataset.ready = 'true';
   });
 }

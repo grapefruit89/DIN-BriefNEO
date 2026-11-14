@@ -8,7 +8,7 @@ Review-Scheiben — nicht der Chat.
 | Batch | Thema | Gebaut | Review | Ausgewertet | Dateien / Größe |
 |---|---|---|---|---|---|
 | 01 | Architektur-Vertrag: Schichten, Verstöße, prüfbare Regeln | ✅ | ✅ | ✅ teilweise | 3 / 55 KiB |
-| 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ⬜ offen | – | 4 / 30 KiB |
+| 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ✅ | ✅ vollständig | 4 / 30 KiB |
 | 03 | CSS-Kaskade: `!important` und `@layer` | Skizze ✅ | – | – | `batch/03-kaskade/` |
 | 04 | `sidebar.css`: Optik und Struktur trennen | Skizze ✅ | – | – | `batch/04-seitenleiste-struktur/` |
 | 05 | Zustand und Restore: die offenen Reste | Skizze ✅ | – | – | `batch/05-zustand-restore/` |
@@ -29,7 +29,7 @@ der Schnitt zu grob ist.
 | S1 `data-gesetzt` → `:has(option:checked…)` | ⬜ offen (B62) | 2 Writer, 1 CSS-Leser |
 | S1 `data-layout` → eine Spur | ⬜ offen (B63) | Attribut an 3 Stellen + zweite `--active-idx`-Spur |
 | S2 `@layer` statt `!important` | ⬜ offen (B59) | 0 `@layer`, 152 `!important`, 354 ID-Referenzen |
-| S3 `sheet.css` entscheiden | ⬜ offen (B60) | 297 Z., 0 Einbindungen — **Entscheidung des Nutzers** |
+| S3 `sheet.css` entscheiden | ✅ entschieden (B60) | bleibt, nicht eingebunden, Statuskopf; 0 Byte Netzlast |
 | S3 `sidebar.css` trennen | ⬜ offen (B64) | 1241 Z., 118 ID-Selektoren; Batch 04 |
 | S4 Druck/Token/Animation | ⛔ nicht anfassen | Nutzerentscheidung |
 
@@ -44,14 +44,28 @@ der Schnitt zu grob ist.
 | `webmcp-bridge.js` | beantwortet: geparkt, Statuskopf in der Datei |
 | `sheet.css` Ladeweg | beantwortet: tot |
 
+## Was Batch 02 ergeben hat (ausgewertet 2026-11-14)
+
+Acht Befunde, alle geschlossen. Belege in `fakten.md` (generiert) und im
+DECISION-LOG-Eintrag „Der erste Paint ist keine Zusage".
+
+| Befund | Ausgang |
+|---|---|
+| „nach `firstPaint`" ist racy | ✅ `tools/paint-probe.mjs` (3 Profile × 30, B72) |
+| Zweite Restore-Logik ohne Allowlist | ✅ Seeder prüft `EDITABLE_FIELD_SELECTOR` (B69) |
+| `fakten.md` §3 unvollständig | ✅ Blatt wird erzeugt, `--check` (B73) |
+| Drei Boolean-Semantiken | ✅ `istAn` überall (B65) |
+| `settings.js` ohne Layout-Whitelist | ✅ `2af7e9f` |
+| `body[data-theme]` nur nach dem Paint | ✅ Dublette entfernt, `8b445e7` |
+| Leerer `catch {}` | ✅ `console.error`, `2af7e9f` |
+| `typeof Temporal` überflüssig | ✅ entfernt, `2af7e9f` |
+
 ## Entscheidungen, die nur der Nutzer treffen kann
 
-1. **`sheet.css`:** löschen oder einbinden (B60). 297 Zeilen, in 8 Dokus
-   beschrieben, im Betrieb wirkungslos.
-2. **`@layer` (B59):** Freigabe für einen Umbau der Kaskade. Ohne sie bleibt es
+1. **`@layer` (B59):** Freigabe für einen Umbau der Kaskade. Ohne sie bleibt es
    bei 152 `!important`.
-3. **`sidebar.css` (Batch 04):** Soll die Modus-Sichtbarkeit aus der
+2. **`sidebar.css` (Batch 04):** Soll die Modus-Sichtbarkeit aus der
    Design-Datei heraus (Strukturvertrag in `base.css`)? Das war im Batch 01 als
    `data-nur`-Vorschlag abgelehnt — bleibt abgelehnt, solange es keinen neuen
    Messwert gibt.
-4. **PDF-Export:** eigener Batch, erst wenn die Struktur steht.
+3. **PDF-Export:** eigener Batch, erst wenn die Struktur steht.

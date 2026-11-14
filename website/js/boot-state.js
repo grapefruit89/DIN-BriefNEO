@@ -3,8 +3,18 @@
 // @guide [[din-5008-css-architektur]]
 
 /*
- * Classic script am Ende von <body>: setzt den GESPEICHERTEN UI-Zustand vor
- * dem ersten Paint.
+ * Classic script am Ende von <body>: setzt den GESPEICHERTEN UI-Zustand so
+ * frueh wie moeglich - im schnellen Fall vor dem ersten Paint, im langsamen
+ * nicht (gemessen 2026-11-14, tools/paint-probe.mjs, 3 Profile x 30 Laeufe:
+ * lokal 30/30 vor dem Paint, 6x CPU 11/30, 150 ms RTT 1/30 - dort kam das
+ * Skript im Median 228 ms nach dem Paint). Ein klassisches Skript am
+ * Body-Ende blockiert den Parser, nicht das Rendern; die Garantie "unsichtbar
+ * bis fertig" leisten die Waechter-Regeln, nicht dieses Skript.
+ *
+ * Deshalb bleibt es bei zwei Dateien (B71): boot.js muss im <head> laufen
+ * (data-theme vor dem ersten Frame, sonst heller Blitz im Dunkelmodus),
+ * dieser Seeder braucht den fertigen Body. Zusammenlegen ginge nur, indem
+ * eins von beiden seine Aufgabe verliert.
  *
  * Warum: `boot.js` laeuft im <head> und kann nur Attribute auf <html> setzen
  * (Theme, Layout, Marks) - die Bedienelemente existieren dort noch nicht.
@@ -19,6 +29,10 @@
 
 (() => {
   try {
+    /* Messmarke INNERHALB des try: stand sie davor, war sie die einzige
+       Zeile, die ohne Fehlerpfad werfen konnte (T2, gemessen 2026-11-14) —
+       der catch unten deckt jetzt auch sie ab. */
+    if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeder-start');
     /** @param {string} key @returns {Record<string, unknown>} */
     const lies = (key) => {
       try {
@@ -29,6 +43,12 @@
         return {};
       }
     };
+
+    /* Gleiche Regel wie persistence.js#istAn (klassisches Skript, kein
+       Import). Vorher stand hier `!== false` neben `asBool` in boot.js und
+       `Boolean()` in settings.js - drei Antworten auf dieselbe Frage (B65). */
+    /** @param {unknown} v */
+    const istAn = (v) => v !== false && v !== 'false';
 
     const settings = lies('din_settings');
     const draft = lies('din_draft_current');
@@ -42,7 +62,7 @@
 
     /* 2. Falz-/Lochmarken: Schalter folgt der gespeicherten Einstellung. */
     const marks = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
-    if (marks) marks.checked = settings.marks !== false;
+    if (marks) marks.checked = istAn(settings.marks);
 
     /* 2b. Die restlichen gespeicherten Regler. Sie standen bis 2026-11-12 nur
        in settings.js / font-feature.js / salutation.js - also NACH dem ersten
@@ -61,7 +81,7 @@
     const randU = /** @type {HTMLInputElement | null} */ (document.getElementById('btn-rand-u-30'));
     if (randU) randU.checked = settings.randU === 30;
     const testbrief = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
-    if (testbrief) testbrief.checked = settings.pluginTestbrief !== false;
+    if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);
 
     /* 2c. "Gefuellt"-Optik der Auswahllisten: CSS las dafuer
        `:has(option:checked...)` und blendete die Aenderung nach dem Paint auf
@@ -96,11 +116,26 @@
     /* 5. Alle Feldwerte aus dem Entwurf — sonst ist der erste Frame leer und
        der Text ploppt nach dem Draft-Restore rein (gemessen 2026-11-12:
        FCP 156 ms, Werte erst 161 ms). `text` liegt als HTML im Entwurf,
-       alles andere als Wert. */
+       alles andere als Wert.
+
+       Allowlist (B69): geschrieben wird nur in Elemente, die ein Entwurfsfeld
+       SIND — nicht in jedes Element, dessen `id` zufaellig als Schluessel im
+       Entwurf steht. Vorher genuegte `getElementById(id)`: ein manipulierter
+       oder veralteter Entwurf konnte jeden Wert in ein beliebiges Control
+       schreiben. Der Selektor ist derselbe wie EDITABLE_FIELD_SELECTOR in
+       document.js; weil diese Datei ein klassisches Skript ist und nicht
+       importieren kann, steht er hier lokal. `test/all.js`
+       ("Draft-Feld-Selektor") haelt beide Fassungen deckungsgleich.
+
+       Kein zweiter Sanitizer: was hier ankommt, ist bereits gesaeubert —
+       collectDraft (document.js) ruft sanitizeRichText vor dem Speichern auf.
+       Dieser Block materialisiert nur, was so gespeichert wurde. */
+    const FELD_SELECTOR =
+      '[contenteditable]:not([data-feldtyp="systemwert"]), textarea[data-feldtyp], input[data-atom], select[data-speichern]';
     for (const [id, wert] of Object.entries(draft)) {
       if (id.endsWith('__quelle') || typeof wert !== 'string') continue;
       const el = document.getElementById(id);
-      if (!el) continue;
+      if (!el?.matches(FELD_SELECTOR)) continue;
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
         el.value = wert;
       } else if (el.isContentEditable) {
@@ -137,6 +172,9 @@
        data-ready haengen: das setzt main.js erst am Ende von initApp, also
        ~20 ms nach dem ersten Paint — dann ploppen sie sichtbar nach
        (gemessen 2026-11-12: FCP 56 ms, sichtbar erst 73 ms). */
+    /* Messmarke fuer tools/paint-probe.mjs: erlaubt den Zeitvergleich mit
+       firstPaint (B72). Kostet nichts und laeuft nur einmal. */
+    if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');
     document.documentElement.setAttribute('data-seeded', 'true');
   } catch (e) {
     /* Kein Blocker: main.js stellt denselben Zustand gleich noch einmal her.

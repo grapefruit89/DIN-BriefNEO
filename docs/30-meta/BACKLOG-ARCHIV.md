@@ -312,3 +312,106 @@ nicht eingebunden.** `website/css/sheet.css` trägt seit `9f65067` einen
 55-zeiligen Statuskopf („NICHT LÖSCHEN, NICHT EINBINDEN") mit Zahlen, Risiken,
 Prüfschritten und den zwei widerlegten Gerüchten. Für 0 Byte Netzlast ist damit
 alles gesagt; die Löschung wäre eine Entscheidung ohne Nutzen.
+
+### B65 · Boolean-Semantik vereinheitlichen · **S** · ⭐⭐
+Derselbe Einstellungswert wird an drei Stellen unterschiedlich gelesen:
+`asBool` (boot.js:33, `undefined` → Default), `!== false` (boot-state.js:45, 64;
+settings.js:102, `null` → true) und `Boolean()` (settings.js:103, 135, `null` →
+false). Folge: `marks: null` setzt `data-marks="false"`, lässt den Schalter aber
+an. Ein Kommentar in `persistence.js` (DEFAULT_SETTINGS) entscheidet, welche
+Semantik gilt; danach alle drei angleichen. Ändert kein Speicherformat.
+
+✅ ERLEDIGT 2026-11-14 — **eine** Semantik: `istAn(v) = v !== false && v !== 'false'`
+(kanonisch in `website/js/persistence.js`, lokal gespiegelt in `boot.js` und
+`boot-state.js`, per Test deckungsgleich gehalten). Nur ein explizites `false`
+schaltet aus; fehlt der Wert, gilt der Default (`true` für `marks` und
+`pluginTestbrief`). Gegenprobe im Browser mit `marks: null` und fehlendem
+`pluginTestbrief`: Attribut und Schalter waren vorher gemischt (false/true,
+true/false), jetzt gleich (true/true, true/true).
+
+### B69 · Zweite Restore-Logik im Seeder prüfen · **M** · ⭐⭐
+`boot-state.js:100–112` setzt jeden Schlüssel aus `din_draft_current` per
+`getElementById`, ohne Allowlist und ohne Sanitizer — obwohl der Dateikopf
+„keine zweite Restore-Logik" behauptet. Ob `draft-manager.js` beides hat, ist
+ungeprüft. Vergleich beider Pfade, dann entweder gemeinsame Funktion oder
+Allowlist im Seeder.
+
+✅ ERLEDIGT 2026-11-14 — der Seeder schreibt nur noch in Elemente, die
+`EDITABLE_FIELD_SELECTOR` matchen (`boot-state.js`, `el.matches(FELD_SELECTOR)`).
+Der Selektor ist lokal gespiegelt (klassisches Skript, kein Import) und durch
+einen Test gegen `document.js` gepinnt. Kein zweiter Sanitizer: `collectDraft`
+ruft `sanitizeRichText` **vor dem Speichern** auf, der Seeder materialisiert nur
+Gespeichertes. Die Behauptung im Dateikopf („keine zweite Restore-Logik")
+bleibt bewusst bestehen — der Seeder ist ein Vorlauf, die Wahrheit liegt bei
+`draft-manager.js`; deshalb Dokumentation statt Zusammenlegen (siehe DECISION-LOG
+2026-11-12, „Was bewusst NICHT gemacht wurde").
+
+### B70 · Marker-Frage: `data-seeded` vs. `data-ready` · **M** · ⭐⭐
+13 CSS-Regeln hängen an `data-seeded`, 7 an `data-ready`. Messung 2026-11-14:
+beide Marker vor dem ersten Paint (12/12). Der Kommentar in `boot-state.js:134`
+sagt dagegen „`data-ready` ~20 ms nach dem Paint". Entscheidung erst nach
+T1/T2 (B72): Zwei Marker sind nur nötig, wenn ein Lauf `seeded=true,
+ready=false` zeigt, in dem eine `ready`-Regel etwas Falsches darstellt.
+
+✅ ERLEDIGT 2026-11-14 — **zwei Marker bleiben, mit getrennten Aufgaben.**
+`data-seeded` = „Zustand steht", `data-ready` = „Booten fertig oder aufgegeben".
+Messung (`tools/paint-probe.mjs`, 3 Profile × 30): `ready` liegt in 16/30
+(lokal), 30/30 (6× CPU) und 30/30 (150 ms RTT) **nach** dem ersten Paint, das
+Fenster `seeded`→`ready` reicht bis 1720 ms (Median 1704 ms im langsamen Netz). Die frühere Angabe „12/12 vor dem
+Paint" war eine lokale Einzelmessung. Geändert: die Platzhalter-Sperre in
+`sheet-common.css` hing allein an `data-ready` und verschwand bis zu 1,9 s nach
+dem Seeding — sie hängt jetzt an `:not([data-seeded]):not([data-ready])`.
+T2 (Seeder künstlich zum Absturz gebracht): Regler sichtbar nach 88 ms, gesetzt
+von `initApp`/`settings.js`; der 2-s-Timer in `boot.js` ist die letzte Instanz,
+falls auch `main.js` ausfällt.
+
+### B71 · `boot.js` und `boot-state.js` zusammenlegen? · **M** · ⭐
+Die Zweiteilung ist nach **Element-Verfügbarkeit** begründet, nicht nach zwei
+Dateien: `boot.js` (Head) kann die Controls nicht setzen, `boot-state.js`
+(Body-Ende) könnte beides. Zusammenlegen spart ~50 Zeilen, einen Request und
+einen `JSON.parse`. Preis: `data-theme` käme erst nach dem Body-Parse — ob das
+einen hellen Frame erzeugt, ist ungemessen. Erst nach T1 (B72).
+
+✅ ERLEDIGT (ENTSCHIEDEN, nicht gebaut) 2026-11-14 — **zwei Dateien bleiben.**
+`boot.js` muss im `<head>` laufen (`data-theme` vor dem ersten Frame, sonst
+heller Blitz im Dunkelmodus); der Seeder braucht den fertigen Body
+(`getElementById` liefert im `<head>` null). Zusammenlegen ginge nur, indem eine
+der beiden Aufgaben verloren geht: als Body-Skript kommt `data-theme` nach dem
+Paint (im langsamen Netz gemessen: Seeder im Median 228 ms nach dem Paint,
+`ready` 1930 ms nach dem Paint). Der Preis
+wäre genau der FOUC, der 2026-11-08 behoben wurde. Der Kopfkommentar von
+`boot-state.js` behauptete trotzdem „vor dem ersten Paint" — ersetzt durch die
+Messung (lokal 30/30, 6× CPU 11/30, 150 ms RTT 1/30).
+
+### B72 · Messprotokoll für den ersten Paint · **M** · ⭐⭐⭐
+Heute wird „vor dem Paint" mit einer Abfrage **nach** dem `firstPaint`-Event
+belegt — racy. Nötig: `performance.mark('seeded')` und `mark('ready')`, dann
+`getEntriesByType('paint')` mit Zeitstempeln vergleichen. 3 Profile × 30 Läufe
+(lokal, CPU 6× gedrosselt, Netz 150 ms RTT), Cache aus, voller Entwurf.
+Zusätzlich T2: `throw` im Seeder injizieren und Zeit bis „Regler sichtbar"
+messen. Ergebnis ist die Grundlage für B70/B71.
+
+✅ ERLEDIGT 2026-11-14 — `tools/paint-probe.mjs` misst per CDP mit
+`performance.mark` (im Code: `seeder-start`, `seeded`, `ready`) gegen
+`getEntriesByType('paint')`. 3 Profile × 30 Läufe, Cache aus, voller Entwurf
+(4250 Byte, 34 Felder). Ergebnis: `seeded` vor Paint 30/30 · 11/30 · 1/30,
+`ready` vor Paint 14/30 · 0/30 · 0/30. Rohdaten:
+`paint-probe-2026-11-14.json`. T2 ebenfalls gefahren (siehe B70). Nebenbefund
+und behoben: die Marke `seeder-start` stand **außerhalb** des `try` und war
+damit die einzige Zeile ohne Fehlerpfad — jetzt innerhalb, der `catch` aus B67
+greift.
+
+### B73 · Messwerte generieren, nicht tippen · **S** · ⭐⭐
+Das `fakten.md` aus Batch 02 behauptete „alle Schreibzugriffe" und listete die
+Hälfte. Konsequenz: die Fakten-Datei jeder Scheibe wird von einem Skript
+erzeugt (wie in Batch 01), das Schreibzugriffe, Leser und Zeilen aus dem Code
+zieht — kein handgeschriebener Fließtext.
+
+✅ ERLEDIGT 2026-11-14 — `tools/batch-facts.mjs` erzeugt
+`batch/02-boot-pfad/fakten.md` aus dem Quelltext: Ladereihenfolge aus
+`index.html`, Schreibzugriffe mit Zeilennummern, `JSON.parse`-Aufrufstellen,
+Marker-Regeln aus den CSS-Dateien, Messwerte aus `paint-probe-*.json`.
+`--check` bricht bei Abweichung ab. Das handgetippte Blatt war binnen eines
+Tages falsch (2 statt 3 `JSON.parse`-Stellen, Zeile 30 statt 25, sechs
+fehlende Schreibzugriffe: `stil-select`, `select-schriftart`, `vermerke`,
+Postvermerk-Auswahl, Entwurfsfelder, Datum).

@@ -32,8 +32,11 @@ try {
   const settings = parsed && typeof parsed === 'object' ? { ...defaults, ...parsed } : defaults;
   const root = document.documentElement;
 
-  /** @type {(v: any, def: boolean) => boolean} */
-  const asBool = (v, def) => (v === undefined ? def : v === true || v === 'true');
+  /* Gleiche Regel wie persistence.js#istAn (klassisches Skript, kein Import).
+     Nur ein explizites `false` schaltet aus; die Defaults aus
+     DEFAULT_SETTINGS sind fuer marks und pluginTestbrief `true`. */
+  /** @param {any} v */
+  const istAn = (v) => v !== false && v !== 'false';
 
   const THEME_WHITELIST = new Set(['auto', 'light', 'dark']);
   const LAYOUT_WHITELIST = new Set(['form-a', 'form-b']);
@@ -43,8 +46,8 @@ try {
 
   root.setAttribute('data-theme', theme);
   root.setAttribute('data-layout', layout);
-  root.setAttribute('data-marks', asBool(settings.marks, true) ? 'true' : 'false');
-  root.setAttribute('data-plugin-testbrief', asBool(settings.pluginTestbrief, true) ? 'true' : 'false');
+  root.setAttribute('data-marks', istAn(settings.marks) ? 'true' : 'false');
+  root.setAttribute('data-plugin-testbrief', istAn(settings.pluginTestbrief) ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):
    * das Attribut bleibt fuer CSS/Tests gesetzt, ist aber immer 'true', und
    * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt

@@ -3097,3 +3097,87 @@ Datei, die es nicht gibt. Korrigiert.
 
 **Nicht umgesetzt:** `data-gesetzt` (Transition-Verdacht, eigene Messung nötig)
 und `data-layout` (doppelte Mechanik, Geometrie-Nähe). Beide stehen im Backlog.
+
+---
+
+## 2026-11-14 — Der erste Paint ist keine Zusage: drei Marker-Entscheidungen
+
+**Anlass.** Das Faktenblatt zum Boot-Pfad behauptete „12 von 12 Läufen vor dem
+Paint" für `data-ready`. Eine zweite Messung widersprach. Statt eine dritte
+Meinung zu produzieren, wurde gemessen: `tools/paint-probe.mjs` (rohes CDP,
+`performance.mark` im Code, `getEntriesByType('paint')` des Browsers, Cache
+aus, voller Entwurf, 3 Profile × 30 Läufe).
+
+| Profil | `seeded` vor Paint | `ready` vor Paint | Paint | `ready` nach Paint |
+|---|---:|---:|---|---:|
+| local | 30/30 | 14/30 | 44–100 ms | 16/30 |
+| 6× CPU | 11/30 | 0/30 | 108–196 ms | 30/30 |
+| 150 ms RTT | 1/30 | 0/30 | 900–1212 ms | 30/30 |
+
+Zahlen der gespeicherten Messreihe (`batch/02-boot-pfad/paint-probe-2026-11-14.json`).
+Eine zweite Reihe desselben Tages lag bei 11/30 bzw. 1/30 — die **Streuung** ist
+Teil des Ergebnisses, die Aussage nicht: `ready` liegt überwiegend nach dem
+Paint, im gedrosselten und im langsamen Profil praktisch immer.
+
+**Befund 1 — die alte Zahl war eine lokale, keine allgemeine.** `data-ready`
+liegt in 16 von 30 lokalen Läufen, in 30 von 30 gedrosselten und in 30 von 30
+langsamen **nach** dem ersten Paint. Die Aussage „vor dem Paint" gilt für
+`boot.js` per Konstruktion (blockierend im `<head>`) — für den Body-End-Seeder
+nur, solange das Netz mitspielt. Ein klassisches Skript am Body-Ende blockiert
+den Parser, nicht das Rendern.
+
+**Befund 2 — das Fenster ist groß.** `seeded` → `ready` (Median): 19 ms
+(lokal), 72 ms (6× CPU), **1704 ms** (150 ms RTT, Maximum 1720 ms). In diesem
+Fenster steht der Entwurf bereits, aber jede Regel, die an `data-ready` hängt,
+ist noch aus.
+
+**Entscheidung A — zwei Marker bleiben, mit getrennten Aufgaben (B70).**
+`data-seeded` heißt „Zustand steht", `data-ready` heißt „Booten fertig oder
+aufgegeben" (2-s-Timer in `boot.js`). Sie sind keine Dublette: ohne das Netz
+blieben bei einem Seeder-Ausfall Regler und Platzhalter dauerhaft unsichtbar.
+Geändert wurde nur, **woran die sichtbaren Regeln hängen**: die
+Platzhalter-Sperre in `sheet-common.css` hing allein an `data-ready` und
+verschwand damit bis zu 1,9 s nach dem Seeding. Sie hängt jetzt an
+`:not([data-seeded]):not([data-ready])` — sichtbar wird es, sobald die Werte
+stehen, und das Netz greift weiterhin.
+
+**Entscheidung B — `boot.js` und `boot-state.js` bleiben getrennt (B71).**
+`boot.js` muss im `<head>` laufen (`data-theme` vor dem ersten Frame, sonst
+heller Blitz im Dunkelmodus); der Seeder braucht den fertigen Body
+(`getElementById` liefert im `<head>` null). Zusammenlegen ginge nur, indem
+eine der beiden Aufgaben verloren geht. Der Kopfkommentar von `boot-state.js`
+behauptete trotzdem „vor dem ersten Paint" — ersetzt durch die Messung.
+
+**T2 — was passiert, wenn der Seeder stirbt.** Künstlich zum Absturz gebracht
+(`performance.mark` wirft beim ersten Aufruf): `data-seeded` bleibt aus, die
+Meldung `[Boot-State] Seeder fehlgeschlagen` erscheint, und die Regler werden
+nach **88 ms** sichtbar — `initApp`/`settings.js` setzen `data-ready` und den
+Zustand. Der 2-s-Timer in `boot.js` ist also die **dritte** Instanz, nicht die
+zweite. Nebenbefund, behoben: die Marke `seeder-start` stand außerhalb des
+`try` und war damit die einzige Zeile ohne Fehlerpfad — sie wirft jetzt in den
+`catch` von B67 hinein.
+
+**Entscheidung C — eine Schalter-Semantik (B65).** Drei Semantiken lagen
+nebeneinander: `asBool` (`boot.js`), `!== false` (`boot-state.js`),
+`Boolean()` (`settings.js`). Bei fehlendem `pluginTestbrief` ergaben sie
+true / true / **false** — `settings.js` überschrieb das Attribut nach dem
+Paint mit dem falschen Wert. Jetzt überall `istAn(v) = v !== false && v !==
+'false'` (kanonisch in `persistence.js`, lokal in den beiden klassischen
+Skripten, per Test deckungsgleich gehalten). Gegenprobe im Browser mit
+`marks: null` und fehlendem `pluginTestbrief`: Attribut und Schalter sind
+jeweils gleich (`true/true`, `true/true`) statt gemischt.
+
+**Entscheidung D — der Seeder schreibt nur in Entwurfsfelder (B69).** Vorher
+genügte `getElementById(id)`: jeder Schlüssel im Entwurf schrieb in ein
+beliebiges Element mit dieser ID. Jetzt muss das Element
+`EDITABLE_FIELD_SELECTOR` matchen (lokal gespiegelt, per Test gegen
+`document.js` geprüft). Kein zweiter Sanitizer nötig — `collectDraft`
+entscheidet vor dem Speichern über `sanitizeRichText`, der Seeder
+materialisiert nur Gespeichertes.
+
+**Entscheidung E — Fakten werden erzeugt (B73).** `batch/02-boot-pfad/fakten.md`
+war handgetippt und binnen eines Tages falsch (2 statt 3 `JSON.parse`-Stellen,
+Zeile 30 statt 25, sechs fehlende Schreibzugriffe). Jetzt erzeugt
+`tools/batch-facts.mjs` das Blatt aus dem Quelltext (Zeilennummern, Zähler,
+Marker-Regeln, Messwerte aus `paint-probe-*.json`) und `--check` bricht bei
+Abweichung ab. Kein Datum im Kopf — sonst wäre `--check` täglich rot.

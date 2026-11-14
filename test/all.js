@@ -14,7 +14,7 @@ import { DraftManager } from '../website/js/draft-manager.js';
 import { FONT_PRESETS, FontFeature } from '../website/js/font-feature.js';
 import { applyMicroTypography, formatDatum, formatGeldbetrag, formatIban, formatPostfach, formatTelefonnummer, formatUhrzeit } from '../website/js/format.js';
 // @ts-ignore
-import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test2';
+import { applyImportedData, buildDINLetterJSON, buildDinLetterPayload, DEFAULT_SETTINGS, DINLETTER_FORMAT, DOCUMENT_SCHEMA_V5, isPrintTitleActive, istAn, load, loadJSON, MetadataService, parseDinLetterPayload, registerDraftCollector, remove, STORAGE_KEYS, save, saveJSON } from '../website/js/persistence.js?v=test3';
 import { deriveSalutation, SalutationEngine, SalutationFeature } from '../website/js/salutation.js';
 import { SettingsManager } from '../website/js/settings.js';
 import { SignatureFeature } from '../website/js/signature.js';
@@ -1140,13 +1140,22 @@ describe('CSS: Feld-Chrom gilt für contenteditable UND native Felder', () => {
   /* Kein DOM-Test moeglich: die Fixture laedt sheet-common.css nicht, und die
    * Regeln liegen in @scope (din-blatt). Geprueft wird deshalb der Vertrag im
    * Quelltext; der Beweis am laufenden Objekt steht im Commit (CDP-Messung). */
-  it('blendet Platzhalter bis zum Boot-Ende aus (FOUC-Schutz)', async () => {
+  it('blendet Platzhalter bis zum Seeding aus (FOUC-Schutz)', async () => {
+    /* Anker ist seit 2026-11-14 `data-seeded` mit `data-ready` als Netz (B70).
+       Grund ist gemessen, nicht angenommen: `data-ready` kam in 21 von 30
+       lokalen Laeufen nach dem ersten Paint (6x CPU 29/30, langsames Netz
+       30/30, bis 1,9 s). Ein Platzhalter, der erst dann erscheint, fehlt bei
+       leeren Feldern sichtbar lange. Beide Marker bleiben noetig - faellt der
+       Seeder aus, setzt boot.js `data-ready` nach 2 s. */
     const res = await fetch('/website/css/sheet-common.css');
     const css = await res.text();
-    assert(css.includes(':root:not([data-ready="true"]) & [data-placeholder]:empty::before'),
-      'contenteditable-Platzhalter haengt an data-ready');
-    assert(css.includes(':root:not([data-ready="true"]) & textarea[data-feldtyp]::placeholder'),
-      'textarea-Platzhalter haengt an data-ready');
+    const netz = ':root:not([data-seeded="true"]):not([data-ready="true"])';
+    assert(css.includes(`${netz} & [data-placeholder]:empty::before`),
+      'contenteditable-Platzhalter haengt an data-seeded (Netz data-ready)');
+    assert(css.includes(`${netz} & textarea[data-feldtyp]::placeholder`),
+      'textarea-Platzhalter haengt an data-seeded (Netz data-ready)');
+    assert(!css.includes(':root:not([data-ready="true"]) & [data-placeholder]'),
+      'kein Platzhalter-Regelwerk mehr, das nur auf data-ready wartet');
   });
 });
 
@@ -4944,6 +4953,57 @@ describe('Caret in nativen Feldern (Befund B12)', () => {
   it('Druck-Reset in base.css erfasst input[data-atom] (Ratsche)', async () => {
     const css = await (await fetch('/website/css/base.css')).text();
     assert(css.includes('input[data-atom]'), 'input[data-atom] im Druck-Reset');
+  });
+});
+
+describe('Schalter-Semantik: eine Regel statt drei (B65)', () => {
+  const werte = [true, false, null, undefined, 0, 1, '', 'true', 'false', [], {}];
+
+  it('istAn: nur explizites false schaltet aus', () => {
+    const faelle = [
+      [true, true], [false, false], [null, true], [undefined, true],
+      [0, true], [1, true], ['', true], ['true', true], ['false', false],
+    ];
+    let geprueft = 0;
+    for (const [eingabe, erwartet] of faelle) {
+      if (!werte.some((w) => Object.is(w, eingabe) || (typeof w === 'object' && typeof eingabe === 'object'))) {
+        throw new Error('Testwert nicht in der Matrix: ' + String(eingabe));
+      }
+      assertEqual(istAn(eingabe), erwartet, `istAn(${JSON.stringify(eingabe)})`);
+      geprueft++;
+    }
+    assertEqual(geprueft, 9);
+  });
+
+  it('boot.js und boot-state.js tragen dieselbe Zeile (Ratsche)', async () => {
+    const zeile = 'const istAn = (v) => v !== false && v !== \'false\';';
+    const boot = await (await fetch('/website/js/boot.js')).text();
+    const seeder = await (await fetch('/website/js/boot-state.js')).text();
+    assert(boot.includes(zeile), 'boot.js: istAn-Zeile');
+    assert(seeder.includes(zeile), 'boot-state.js: istAn-Zeile');
+  });
+
+  it('settings.js benutzt istAn statt Boolean()/!== false', async () => {
+    const src = await (await fetch('/website/js/settings.js')).text();
+    assert(src.includes('istAn(this.settings.marks)'), 'marks ueber istAn');
+    assert(src.includes('istAn(this.settings.pluginTestbrief)'), 'pluginTestbrief ueber istAn');
+    assert(!src.includes('Boolean(this.settings.pluginTestbrief)'), 'kein Boolean() mehr');
+  });
+});
+
+describe('Draft-Feld-Selektor bleibt deckungsgleich (B69)', () => {
+  it('boot-state.js FELD_SELECTOR == document.js EDITABLE_FIELD_SELECTOR', async () => {
+    const src = await (await fetch('/website/js/boot-state.js')).text();
+    const treffer = src.match(/const FELD_SELECTOR =\s*'([^']+)'/);
+    assert(treffer !== null, 'FELD_SELECTOR in boot-state.js gefunden');
+    if (!treffer) return;
+    assertEqual(treffer[1], EDITABLE_FIELD_SELECTOR, 'Selektor identisch');
+  });
+
+  it('Seeder schreibt nur in Felder, die den Selektor matchen', async () => {
+    const src = await (await fetch('/website/js/boot-state.js')).text();
+    assert(src.includes('matches(FELD_SELECTOR)'), 'Allowlist im Schreibpfad');
+    assert(!src.includes('if (!el) continue;'), 'kein blanker getElementById-Pfad mehr');
   });
 });
 

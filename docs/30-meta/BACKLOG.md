@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-32 offene Punkte. Details unterhalb, nach Art gruppiert.
+26 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -77,12 +77,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B62** | `data-gesetzt` migrieren | S | ⭐⭐ |
 | **B63** | `data-layout`: zwei Spuren auf eine | M | ⭐ |
 | **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
-| **B65** | Boolean-Semantik vereinheitlichen | S | ⭐⭐ |
-| **B69** | Zweite Restore-Logik im Seeder prüfen | M | ⭐⭐ |
-| **B70** | Marker-Frage: `data-seeded` vs. `data-ready` | M | ⭐⭐ |
-| **B71** | `boot.js` und `boot-state.js` zusammenlegen? | M | ⭐ |
-| **B72** | Messprotokoll für den ersten Paint | M | ⭐⭐⭐ |
-| **B73** | Messwerte generieren, nicht tippen | S | ⭐⭐ |
 | **B74** | Seitenleiste: 93 px Überlauf und doppelte Statuszeile | S | ⭐⭐ |
 | **B75** | Seitenleiste: Fokusziele ohne Zone und der Name „Daten" | S | ⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
@@ -185,49 +179,6 @@ Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
 Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
 **ohne** ihn zu lösen, sonst wird sie nicht angefasst.
 Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
-
-### B65 · Boolean-Semantik vereinheitlichen · **S** · ⭐⭐
-Derselbe Einstellungswert wird an drei Stellen unterschiedlich gelesen:
-`asBool` (boot.js:33, `undefined` → Default), `!== false` (boot-state.js:45, 64;
-settings.js:102, `null` → true) und `Boolean()` (settings.js:103, 135, `null` →
-false). Folge: `marks: null` setzt `data-marks="false"`, lässt den Schalter aber
-an. Ein Kommentar in `persistence.js` (DEFAULT_SETTINGS) entscheidet, welche
-Semantik gilt; danach alle drei angleichen. Ändert kein Speicherformat.
-
-### B69 · Zweite Restore-Logik im Seeder prüfen · **M** · ⭐⭐
-`boot-state.js:100–112` setzt jeden Schlüssel aus `din_draft_current` per
-`getElementById`, ohne Allowlist und ohne Sanitizer — obwohl der Dateikopf
-„keine zweite Restore-Logik" behauptet. Ob `draft-manager.js` beides hat, ist
-ungeprüft. Vergleich beider Pfade, dann entweder gemeinsame Funktion oder
-Allowlist im Seeder.
-
-### B70 · Marker-Frage: `data-seeded` vs. `data-ready` · **M** · ⭐⭐
-13 CSS-Regeln hängen an `data-seeded`, 7 an `data-ready`. Messung 2026-11-14:
-beide Marker vor dem ersten Paint (12/12). Der Kommentar in `boot-state.js:134`
-sagt dagegen „`data-ready` ~20 ms nach dem Paint". Entscheidung erst nach
-T1/T2 (B72): Zwei Marker sind nur nötig, wenn ein Lauf `seeded=true,
-ready=false` zeigt, in dem eine `ready`-Regel etwas Falsches darstellt.
-
-### B71 · `boot.js` und `boot-state.js` zusammenlegen? · **M** · ⭐
-Die Zweiteilung ist nach **Element-Verfügbarkeit** begründet, nicht nach zwei
-Dateien: `boot.js` (Head) kann die Controls nicht setzen, `boot-state.js`
-(Body-Ende) könnte beides. Zusammenlegen spart ~50 Zeilen, einen Request und
-einen `JSON.parse`. Preis: `data-theme` käme erst nach dem Body-Parse — ob das
-einen hellen Frame erzeugt, ist ungemessen. Erst nach T1 (B72).
-
-### B72 · Messprotokoll für den ersten Paint · **M** · ⭐⭐⭐
-Heute wird „vor dem Paint" mit einer Abfrage **nach** dem `firstPaint`-Event
-belegt — racy. Nötig: `performance.mark('seeded')` und `mark('ready')`, dann
-`getEntriesByType('paint')` mit Zeitstempeln vergleichen. 3 Profile × 30 Läufe
-(lokal, CPU 6× gedrosselt, Netz 150 ms RTT), Cache aus, voller Entwurf.
-Zusätzlich T2: `throw` im Seeder injizieren und Zeit bis „Regler sichtbar"
-messen. Ergebnis ist die Grundlage für B70/B71.
-
-### B73 · Messwerte generieren, nicht tippen · **S** · ⭐⭐
-Das `fakten.md` aus Batch 02 behauptete „alle Schreibzugriffe" und listete die
-Hälfte. Konsequenz: die Fakten-Datei jeder Scheibe wird von einem Skript
-erzeugt (wie in Batch 01), das Schreibzugriffe, Leser und Zeilen aus dem Code
-zieht — kein handgeschriebener Fließtext.
 
 ### B74 · Seitenleiste: 93 px Überlauf und doppelte Statuszeile · **S** · ⭐⭐
 Im Brief-Modus scrollt die Leiste 93 px (1100/1007), der Fuß mit

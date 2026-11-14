@@ -6,6 +6,13 @@
  * Verbindet den Browser-Tab direkt und ohne Erweiterung mit einem lokalen
  * Bash-Agenten über ws://127.0.0.1:8333.
  * Stellt window.modelContext bereit (W3C WebMCP Standard).
+ *
+ * ⚠️ STATUS: GEPARKT — ABSICHTLICH NICHT GELADEN (Stand 2026-11-14).
+ * Es gibt weder ein <script> in index.html noch einen import in js/main.js.
+ * Das ist kein toter Code und kein Versehen: die Nutzung ist noch nicht
+ * entschieden, und ohne Plugin-Punkt ([[B52]]) würde ein Import den Addon-Code
+ * fest in den Boot-Pfad ziehen. Kosten im Betrieb heute: 0 Byte.
+ * Wer das hier als "ungenutzt" meldet: bitte zuerst B52 im Backlog lesen.
  */
 
 import { Events, eventBus } from '../js/core.js';

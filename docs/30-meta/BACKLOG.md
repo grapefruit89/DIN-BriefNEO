@@ -304,9 +304,16 @@ unbenutzbar. Reines CSS mit `:has()` wäre möglich, ohne JS-Umbau.
 `sidebar.css` enthält 260 rohe `px`-Werte, obwohl Tokens (`--mm-*`, `--pt`) existieren.
 `sheet.css` nutzt sie bereits; die Seitenleiste nicht.
 
-### B52 · Custom-CSS-Plugin für austauschbare Themes · **L** · ⭐
-`website/addons/` kennt nur `testbrief` und `webmcp-bridge` — es gibt keinen Plugin-Punkt,
-über den ein Theme eigenes CSS einhängen könnte.
+### B52 · Plugin-Punkt für `website/addons/` · **L** · ⭐⭐
+`website/addons/` kennt nur `testbrief` und `webmcp-bridge` — es gibt keinen
+Plugin-Punkt, über den ein Addon sich registriert. `testbrief` wird direkt per
+`import()` in `main.js` geladen (drei Stellen), `webmcp-bridge.js` ist bewusst
+**geparkt und nicht geladen** (Statuskopf in der Datei).
+
+Derselbe Andockpunkt würde drei Dinge tragen, die heute einzeln gelöst sind:
+austauschbares Theme-CSS, PDF-Export (siehe DeepSeek-Mitschrift 2026-11-14)
+und die WebMCP-Bridge. Bedingung: ein Addon darf den Boot-Pfad nicht belasten,
+also Registrierung nach `data-ready` und Code erst beim Aufruf.
 
 ## 🔬 Forschung
 

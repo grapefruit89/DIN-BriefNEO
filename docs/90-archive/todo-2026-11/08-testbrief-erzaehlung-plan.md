@@ -1,3 +1,21 @@
+---
+id: "08-testbrief-erzaehlung-plan"
+title: "08 — Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker (Plan & Konzeption)"
+status: "archived"
+type: "concept"
+created: "2026-11-04"
+updated: "2026-11-14"
+tags:
+- din-briefneo
+- archiv
+- todo-2026-11
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # 08 — Testbrief-Erzählung: Anlass × Besetzung × Lore-Anker (Plan & Konzeption)
 
 > **Status:** Konzept / nicht begonnen  

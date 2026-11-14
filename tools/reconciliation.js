@@ -887,7 +887,7 @@ function runReconciliation() {
             resolvedTarget = path.normalize(urlPath);
           }
         } else {
-          // Bei Symlinks (TODO.md -> todo/README.md) muss relativ zum ZIEL
+          // Bei Symlinks muss relativ zum ZIEL
           // aufgeloest werden, sonst ist eine der beiden Ansichten immer rot.
           let basis;
           try {

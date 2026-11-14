@@ -1,7 +1,22 @@
 ---
-status: done
-type: concept
-tags: [din5008, briefneo, plan, telefon, blur, durchwahl]
+id: "04-telefonnummer-formatierung-plan"
+title: "Telefonnummern-Formatierung nach DIN 5008 (Blur-Handler & Durchwahl-Erhalt)"
+status: "done"
+type: "concept"
+created: "2026-11-09"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- telefon
+- blur
+- durchwahl
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Plan zur Telefonnummern-Formatierung nach DIN 5008 (Blur-Handler / Format-Logik & Durchwahl-Bindestrich)."
 ---
 

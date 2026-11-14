@@ -1,7 +1,20 @@
 ---
-status: draft
-type: concept
-tags: [din5008, briefneo, plan, mobile]
+id: "03-mobile-ansicht-plan"
+title: "Mobile Ansicht & Touch-UX – Plan für DIN-BriefNEO (Baseline Chrome 150+)"
+status: "draft"
+type: "concept"
+created: "2026-10-26"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- mobile
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Plan für mobile Ansicht und Touch-UX des DIN-BriefNEO-Generators."
 ---
 

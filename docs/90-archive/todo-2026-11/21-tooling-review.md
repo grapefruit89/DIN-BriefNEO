@@ -1,3 +1,21 @@
+---
+id: "21-tooling-review"
+title: "21 · Tooling-Review (Lint/Format/Dead-Code) — validiert"
+status: "archived"
+type: "reference"
+created: "2026-11-07"
+updated: "2026-11-14"
+tags:
+- din-briefneo
+- archiv
+- todo-2026-11
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # 21 · Tooling-Review (Lint/Format/Dead-Code) — validiert
 
 Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06

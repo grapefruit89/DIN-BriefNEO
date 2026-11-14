@@ -596,3 +596,45 @@ Position. Gemessen mit `pdftotext -bbox`: die Kopfzeile steht bei
 Druckgeometrie und wird nicht ohne ausdrückliche Freigabe angefasst. Wer sie
 ziehen will, ändert `@page`-`margin-top` bzw. `vertical-align` der Margin-Box —
 und muss danach neu drucken und nachmessen, nicht schätzen.
+
+### B63 · `data-layout`: zwei Spuren auf eine · **M** · ⭐
+Stand 2026-11-14 (nachgeprüft): Attribut an drei Stellen (`boot.js:42`,
+`settings.js:90` und `:215`), und `sidebar.css:182` führt eine zweite
+`--active-idx`-Spur nur für `data-layout`, obwohl die `:checked`-Regeln
+darüber dasselbe leisten. Ziel: eine Spur. Achtung: `sheet-common.css` und
+`sheet-multipage.css` lesen `[data-layout]` für die Blattgeometrie — die
+Migration berührt DIN-Maße und braucht deshalb einen eigenen Messnachweis.
+
+✅ ERLEDIGT 2026-11-14 — **eine Spur** für den Form-Schalter, und es ist die
+Attribute-Spur, nicht `:checked`.
+
+**Messung vor und nach dem Umbau** (`6x CPU`, 10 kalte Läufe je Form,
+`--active-idx` am Layout-Control und `data-layout` verglichen):
+
+| | frühster Frame falsch | nach Seeding falsch |
+|---|---:|---:|
+| vorher, form-a | 0/10 | 0/10 |
+| vorher, form-b | 0/10 | 0/10 |
+| nachher, form-a | 0/10 | 0/10 |
+| nachher, form-b | 0/10 | 0/10 |
+
+Entscheidend ist der Zustand **vor** dem Seeding: bei gespeichertem `form-a`
+war der erste ausgewertete Frame `checked="btn-form-b"` (HTML-Default), aber
+`data-layout="form-a"` — die Pille stand trotzdem auf 0. Die `:checked`-Regel
+hätte hier die falsche Position gezeigt. **Deshalb ist die Attribute-Spur
+nicht die Dublette, sondern die tragende.**
+
+**Geändert:**
+- `sidebar.css`: die generischen `:checked`-Regeln gelten nicht mehr für den
+  Layout-Schalter (`:not(.segmented-control-layout)`) — sie waren für ihn
+  toter Code, der durch Spezifität verloren hat und beim nächsten Umbau wie
+  eine Alternative aussah.
+- `index.html`: das Control trägt `segmented-control-layout`.
+- `settings.js`: der zweite `data-layout`-Schreiber in `changeLayout` ist weg;
+  `updateSettings()` → `applySettings()` setzt das Attribut im selben Task.
+
+**Nicht angefasst:** die Blattgeometrie (`sheet-common.css`,
+`sheet-multipage.css` lesen `[data-layout]`). Sie bleibt einzige Spur dort.
+Interaktionsprobe danach: Klick auf Form A → Attribut `form-a`, Pille 0,
+`--briefkopf-y` 27 mm; zurück auf B → `form-b`, 1, 45 mm; der Ansicht-Schalter
+läuft weiter über `:checked` (0 → 1).

@@ -2611,7 +2611,7 @@ Pop-in-Fenster ist 8–20 ms; das Gate hätte ~160 ms Unsichtbarkeit erzeugt und
 wäre bei einem JS-Ladefehler fail-closed (Brief dauerhaft unsichtbar).
 
 Beide Einträge liegen mit Messwerten und Wiederaufnahme-Regel im Register
-`todo/ANTIPATTERNS-VERWORFEN.md`. Dort sind außerdem die Architektur-Verwürfe
+`docs/90-archive/todo-2026-11/ANTIPATTERNS-VERWORFEN.md`. Dort sind außerdem die Architektur-Verwürfe
 des Tages gebündelt (`<textarea>`, `plaintext-only`, `<input type="date">`,
 `<datalist>`, Safari-Ziel).
 
@@ -2688,7 +2688,7 @@ setzt es notfalls nach 2 s).
 Erst-Load abschalten. Es macht mehr als Feldwerte (Fußzeilen-Migration,
 `data-quelle`, Vermerk-Sichtbarkeit, Select, Undo-Stack). Wer das ändert, muss
 diese Aufgaben vorher in `boot-state.js` übernehmen — sonst entsteht die
-nächste stille Doppelung. Offener Punkt: `todo/22` K15.
+nächste stille Doppelung. Offener Punkt: `docs/90-archive/todo-2026-11/22-kiss-js-reduktion.md` K15.
 
 ### Nachtrag 2 (gleicher Tag): Uebergaenge vor dem ersten Frame sind gesperrt
 

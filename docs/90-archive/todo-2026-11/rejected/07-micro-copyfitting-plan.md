@@ -1,3 +1,21 @@
+---
+id: "07-micro-copyfitting-plan"
+title: "07 — Micro-Copyfitting & 1-Seiten-Kompaktsatz (Plan & Konzeption)"
+status: "archived"
+type: "concept"
+created: "2026-11-09"
+updated: "2026-11-14"
+tags:
+- din-briefneo
+- archiv
+- todo-2026-11
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # 07 — Micro-Copyfitting & 1-Seiten-Kompaktsatz (Plan & Konzeption)
 
 > **Status:** Verworfen  

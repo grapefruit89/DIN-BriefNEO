@@ -1,7 +1,20 @@
 ---
-status: draft
-type: concept
-tags: [din5008, briefneo, plan, mehrseiten]
+id: "01-mehrseiten-plan"
+title: "Mehrseitenunterstützung nach DIN 5008 – Plan für DIN-BriefNEO (Baseline Chrome 150+)"
+status: "draft"
+type: "concept"
+created: "2026-10-26"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- mehrseiten
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Plan zur Mehrseitenunterstützung nach DIN 5008 für den DIN-BriefNEO-Generator."
 ---
 
@@ -36,7 +49,7 @@ summary: "Plan zur Mehrseitenunterstützung nach DIN 5008 für den DIN-BriefNEO-
 ## 2. Druck-/PDF-Paginierung vs. `@page { margin: 0 }` Guard
 
 ### Warum DOM-Folgekopf statt `@page` Margin Boxes (`@top-right`)
-Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { content: "Seite " counter(page) " von " counter(pages); }`). In DIN-BriefNEO gilt jedoch in [`/home/moritz/repos/DIN-BriefNEO/website/css/sheet.css`](../website/css/sheet.css) der unantastbare **Architectural Guard**:
+Chrome 131+ / 150+ unterstützt zwar nativ `@page`-Margin-Boxen (`@top-right { content: "Seite " counter(page) " von " counter(pages); }`). In DIN-BriefNEO gilt jedoch in [`/home/moritz/repos/DIN-BriefNEO/website/css/sheet.css`](../../../website/css/sheet.css) der unantastbare **Architectural Guard**:
 ```css
 @page {
   size: A4;

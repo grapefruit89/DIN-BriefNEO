@@ -1,7 +1,20 @@
 ---
-status: rejected
-type: concept
-tags: [din5008, briefneo, plan, pwa]
+id: "02-pwa-plan"
+title: "PWA-Plan für DIN-BriefNEO – Baseline Chrome 150+"
+status: "rejected"
+type: "concept"
+created: "2026-11-09"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- pwa
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Plan zur PWA-Fähigkeit des DIN-BriefNEO-Generators unter der Baseline Chrome 150+."
 ---
 

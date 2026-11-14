@@ -1,7 +1,22 @@
 ---
-status: rejected
-type: concept
-tags: [din5008, briefneo, plan, svg, falzmarken, verworfen]
+id: "06-subpixel-falzmarken-plan"
+title: "Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) – [VERWORFEN]"
+status: "rejected"
+type: "concept"
+created: "2026-11-09"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- svg
+- falzmarken
+- verworfen
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Plan zur Umstellung von Falz- und Lochmarken auf SVG-Vektoren — VERWORFEN zugunsten der schlankeren CSS-Box-Lösung mit visibility: hidden; und Standard-Millimeter-Rastern. Inline-SVGs mit non-scaling-stroke erzeugen unnötigen DOM-Overhead ohne messbaren Mehrwert im PDF-Druck."
 reason_rejected: "Verworfen zugunsten der schlankeren CSS-Box-Lösung mit visibility: hidden; und Standard-Millimeter-Rastern. Inline-SVGs mit non-scaling-stroke erzeugen unnötigen DOM-Overhead ohne messbaren Mehrwert im PDF-Druck."
 ---

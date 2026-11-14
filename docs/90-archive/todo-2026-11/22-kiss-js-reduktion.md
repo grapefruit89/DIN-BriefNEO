@@ -1,3 +1,21 @@
+---
+id: "22-kiss-js-reduktion"
+title: "22 — KISS/JS-Reduktion: geprüfte Vorschläge, offene Entscheidungen"
+status: "archived"
+type: "concept"
+created: "2026-11-12"
+updated: "2026-11-14"
+tags:
+- din-briefneo
+- archiv
+- todo-2026-11
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # 22 — KISS/JS-Reduktion: geprüfte Vorschläge, offene Entscheidungen
 
 Belegt am Code (2026-11-12). Hier steht nur, was **nicht** sofort umgesetzt wurde,

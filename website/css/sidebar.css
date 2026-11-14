@@ -174,19 +174,27 @@ fieldset.seitenleiste-field-group > legend {
 .segmented-control:has(input[type="radio"]:nth-of-type(3)) { --items: 3; }
 .segmented-control:has(input[type="radio"]:nth-of-type(4)) { --items: 4; }
 
-/* Active index tracking (Index des :checked-Kindes ist nicht nach oben hebringbar) */
-.segmented-control:has(input[type="radio"]:nth-of-type(1):checked) { --active-idx: 0; }
-.segmented-control:has(input[type="radio"]:nth-of-type(2):checked) { --active-idx: 1; }
-.segmented-control:has(input[type="radio"]:nth-of-type(3):checked) { --active-idx: 2; }
-.segmented-control:has(input[type="radio"]:nth-of-type(4):checked) { --active-idx: 3; }
+/* Active index tracking (Index des :checked-Kindes ist nicht nach oben hebringbar).
+   `:not(.segmented-control-layout)`: der Form-Schalter hat genau EINE Spur
+   (`data-layout`, siehe unten). Vorher setzten beide Regeln denselben Wert;
+   die :checked-Variante verlor nur durch Spezifitaet und war damit toter Code,
+   der beim naechsten Umbau wie eine Alternative ausgesehen haette (B63). */
+.segmented-control:not(.segmented-control-layout):has(input[type="radio"]:nth-of-type(1):checked) { --active-idx: 0; }
+.segmented-control:not(.segmented-control-layout):has(input[type="radio"]:nth-of-type(2):checked) { --active-idx: 1; }
+.segmented-control:not(.segmented-control-layout):has(input[type="radio"]:nth-of-type(3):checked) { --active-idx: 2; }
+.segmented-control:not(.segmented-control-layout):has(input[type="radio"]:nth-of-type(4):checked) { --active-idx: 3; }
 
 /* Briefform: die gespeicherte Wahl steht als data-layout am <html> — gesetzt
    von boot.js im <head>, also VOR dem ersten Paint. Ohne diese Regel zeigt der
-   Schalter bis zum body-end-Script die HTML-Defaults (Form B), obwohl Form A
-   gespeichert ist (gemeldet 2026-11-12). Die :checked-Regeln bleiben fuer
-   Tastatur/Noscript. */
-:root[data-layout="form-a"] .segmented-control:has(input[name="layout-form"]) { --active-idx: 0; }
-:root[data-layout="form-b"] .segmented-control:has(input[name="layout-form"]) { --active-idx: 1; }
+   Schalter bis zum Seeding die HTML-Defaults (Form B), obwohl Form A
+   gespeichert ist. Messung 2026-11-14 (6x CPU, 10 Laeufe): beim ersten
+   ausgewerteten Frame war :checked noch "btn-form-b", data-layout aber schon
+   "form-a" - die Pille stand trotzdem richtig.
+
+   Deshalb ist das hier KEINE zweite Spur neben :checked, sondern die einzige.
+   Wer sie durch :checked ersetzt, holt den FOUC vom 2026-11-12 zurueck. */
+:root[data-layout="form-a"] .segmented-control-layout { --active-idx: 0; }
+:root[data-layout="form-b"] .segmented-control-layout { --active-idx: 1; }
 
 /* The sliding pill */
 .segmented-control::before {
@@ -233,11 +241,12 @@ fieldset.seitenleiste-field-group > legend {
   z-index: 1;
 }
 
-/* Aktives Label ebenfalls aus data-layout (pre-paint), nicht nur aus :checked. */
-:root[data-layout="form-a"] .segmented-control label[for="btn-form-a"],
-:root[data-layout="form-b"] .segmented-control label[for="btn-form-b"],
+/* Aktives Label ebenfalls aus data-layout (pre-paint) - fuer den Form-Schalter
+   die einzige Spur; `:checked`-Variante bewusst ausgenommen (B63). */
+:root[data-layout="form-a"] .segmented-control-layout label[for="btn-form-a"],
+:root[data-layout="form-b"] .segmented-control-layout label[for="btn-form-b"],
 .segmented-control button[aria-pressed="true"],
-.segmented-control input[type="radio"]:checked + label {
+.segmented-control:not(.segmented-control-layout) input[type="radio"]:checked + label {
   color: oklch(0 0 0);
   font-weight: 700;
   /* Box-shadow and background are now handled by ::before */

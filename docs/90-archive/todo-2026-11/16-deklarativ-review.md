@@ -1,3 +1,21 @@
+---
+id: "16-deklarativ-review"
+title: "16 · Deklarativ-Review (JS statt CSS/HTML) — validiert"
+status: "archived"
+type: "reference"
+created: "2026-11-07"
+updated: "2026-11-14"
+tags:
+- din-briefneo
+- archiv
+- todo-2026-11
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # 16 · Deklarativ-Review (JS statt CSS/HTML) — validiert
 
 Status: abgeschlossen (Verdikte) · Geprüft: 2026-11-12 · Typ: audit · Erstellt: 2026-11-06

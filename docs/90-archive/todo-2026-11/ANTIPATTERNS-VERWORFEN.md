@@ -1,7 +1,21 @@
 ---
-status: active
-type: reference
-tags: [din5008, briefneo, antipattern, verworfen, anti-nuggets]
+id: "antipatterns-verworfen"
+title: "Verworfen / Anti-Nuggets — Was wir nicht bauen (und warum)"
+status: "active"
+type: "reference"
+created: "2026-10-26"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- antipattern
+- verworfen
+- anti-nuggets
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Fehlkonzepte mit Begründung."
 ---
 
@@ -62,7 +76,7 @@ summary: "Kompakte Übersicht aller verworfenen Funktionen, Anti-Nuggets und Feh
 > **Wiederaufnahme-Regel:** Einen Eintrag erst prüfen, wenn sich die Grundlage
 > geändert hat (Chrome-Version, Projekt-Scope). Sonst: verworfen lassen.
 > Messwerte und Quellen der Punkte P1–P12 stehen ausführlich in
-> [`docs/90-archive/upstream-befund-2026-11-10.md`](../docs/90-archive/upstream-befund-2026-11-10.md).
+> [`docs/90-archive/upstream-befund-2026-11-10.md`](../../90-archive/upstream-befund-2026-11-10.md).
 
 | Was (Vorschlag / Idee) | Warum verworfen (Begründung) | Norm / Gesetz / Beleg |
 |---|---|---|
@@ -97,6 +111,6 @@ Empfehlung im Playbook (A49) betrifft Textareas, nicht dieses Dokument.
 
 ## 🔗 Verwandte Referenzen im Repository
 
-- **Maschinell erzwungene Gesetze:** [`/home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md`](../docs/00-foundation/Immutable-Law-Catalog.md)
-- **Historische Beschluss-Chronik:** [`/home/moritz/repos/DIN-BriefNEO/docs/30-meta/DECISION-LOG.md`](../docs/30-meta/DECISION-LOG.md)
-- **Zentrale Aufgaben & Roadmap:** [`/home/moritz/repos/DIN-BriefNEO/todo/README.md`](README.md)
+- **Maschinell erzwungene Gesetze:** [`/home/moritz/repos/DIN-BriefNEO/docs/00-foundation/Immutable-Law-Catalog.md`](../../00-foundation/Immutable-Law-Catalog.md)
+- **Historische Beschluss-Chronik:** [`/home/moritz/repos/DIN-BriefNEO/docs/30-meta/DECISION-LOG.md`](../../30-meta/DECISION-LOG.md)
+- **Zentrale Aufgaben & Roadmap:** [`/home/moritz/repos/DIN-BriefNEO/docs/90-archive/todo-2026-11/README.md`](README.md)

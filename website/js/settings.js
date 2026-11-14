@@ -215,7 +215,9 @@ export class SettingsManager {
    */
   changeLayout(layout) {
     this.settings.layout = layout;
-    setzeAttribut(document.documentElement, 'data-layout', layout);
+    /* Kein eigenes setzeAttribut mehr: updateSettings() laeuft im selben Task
+       und ruft applySettings(), das das Attribut setzt. Zwei Schreiber fuer
+       denselben Wert waren der Rest der zweiten Spur (B63). */
     this.updateSettings();
   }
 

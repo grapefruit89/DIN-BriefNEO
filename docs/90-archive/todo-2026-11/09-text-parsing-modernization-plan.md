@@ -1,14 +1,30 @@
 ---
-status: draft
-type: concept
-tags: [din5008, briefneo, plan, intl-segmenter, regexp-v, text-parsing, address-intelligence]
+id: "09-text-parsing-modernization-plan"
+title: "09 — Modernisierung der Text- und Address Intelligence (Intl.Segmenter, RegExp /v & 3-Stufen-Pipeline)"
+status: "draft"
+type: "concept"
+created: "2026-11-04"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- intl-segmenter
+- regexp-v
+- text-parsing
+- address-intelligence
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Modernisierungskonzept für Text- und Adress-Parsing in DIN-BriefNEO via Intl.Segmenter (ECMA-402), RegExp /v unicodeSets (ES2024) und einer deterministischen 3-Stufen-Pipeline für die Zwischenablage."
 ---
 
 # 09 — Modernisierung der Text- und Address Intelligence (Intl.Segmenter, RegExp /v & 3-Stufen-Pipeline)
 
 > **Status:** Konzept / Architektur-Plan  
-> **Kontext:** DIN-BriefNEO verarbeitet im Browser Empfängernamen, Adressen, Titel und Zwischenablage-Inhalte rein clientseitig ohne Node.js-Backend und ohne externe Bibliotheken. Bisherige Parser in [`/home/moritz/repos/DIN-BriefNEO/website/js/salutation.js`](../website/js/salutation.js) und [`/home/moritz/repos/DIN-BriefNEO/website/js/address.js`](../website/js/address.js) stützen sich auf String-Splits (`split(/\s+/)`) und reguläre Ausdrücke im ASCII-Modus mit Word-Boundaries (`\b`), was bei Umlauten, Bindestrich-Namen, Titeln mit Punkten (`Dr.`, `e.V.`) und unstrukturierten E-Mail-Signaturen an Grenzen stößt.  
+> **Kontext:** DIN-BriefNEO verarbeitet im Browser Empfängernamen, Adressen, Titel und Zwischenablage-Inhalte rein clientseitig ohne Node.js-Backend und ohne externe Bibliotheken. Bisherige Parser in [`/home/moritz/repos/DIN-BriefNEO/website/js/salutation.js`](../../../website/js/salutation.js) und [`/home/moritz/repos/DIN-BriefNEO/website/js/address.js`](../../../website/js/address.js) stützen sich auf String-Splits (`split(/\s+/)`) und reguläre Ausdrücke im ASCII-Modus mit Word-Boundaries (`\b`), was bei Umlauten, Bindestrich-Namen, Titeln mit Punkten (`Dr.`, `e.V.`) und unstrukturierten E-Mail-Signaturen an Grenzen stößt.  
 > **Ziel:** Umfassende Modernisierung auf Basis moderner ECMAScript-Standards (ECMA-402 `Intl.Segmenter` und ECMAScript 2024 RegExp `/v` `unicodeSets`) sowie Etablierung einer deterministischen 3-Stufen-Pipeline für die Zwischenablage — voll kompatibel mit dem Projekt-Target **Baseline Chrome 150+** und dem Zero-Dependency-Gebot.
 
 ---
@@ -94,7 +110,7 @@ Das Verhalten von `Intl.Segmenter('de', { granularity: 'word' })` weist im Deuts
 
 ### 2.4 Konkreter Blueprint für `salutation.js`
 
-In [`/home/moritz/repos/DIN-BriefNEO/website/js/salutation.js`](../website/js/salutation.js) ersetzt der nachfolgende Segmenter-Tokenizer das bisherige fehleranfällige `text.split(/\s+/).filter(...)`:
+In [`/home/moritz/repos/DIN-BriefNEO/website/js/salutation.js`](../../../website/js/salutation.js) ersetzt der nachfolgende Segmenter-Tokenizer das bisherige fehleranfällige `text.split(/\s+/).filter(...)`:
 
 ```js
 // /home/moritz/repos/DIN-BriefNEO/website/js/salutation.js

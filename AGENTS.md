@@ -94,7 +94,7 @@ Jeder Agent muss den aktuellen Stand des Law Catalogs kennen und respektieren.
 
 ## 2a. Verworfen bleibt verworfen (Ratsche)
 
-- **Gedächtnis:** `todo/ANTIPATTERNS-VERWORFEN.md` führt abgelehnte Ideen mit Grund
+- **Gedächtnis:** `docs/90-archive/todo-2026-11/ANTIPATTERNS-VERWORFEN.md` führt abgelehnte Ideen mit Grund
   und Datum. Vor einem „neuen" Vorschlag dort nachsehen — Wiederaufnahme nur, wenn
   sich die Grundlage geändert hat (Chrome-Version, Projekt-Scope).
 - **Maschinell:** `tools/antipatterns/*.json` mit `max_violations` ist eine Ratsche.
@@ -342,8 +342,8 @@ ohne zu fragen. Aber:
    Allowlist-Erweiterung (I/EM) geschehen.
 
 Was **nicht** als „Bug" gilt: fehlende Features, Performance-Optimierungen,
-Stil-Änderungen, „das könnte man besser machen". Diese gehören nach `todo/`,
-nicht in einen Sofort-Fix.
+Stil-Änderungen, „das könnte man besser machen". Diese gehören ins Backlog
+(`docs/30-meta/BACKLOG.md`), nicht in einen Sofort-Fix.
 
 ### Keine Abwärtskompatibilität
 

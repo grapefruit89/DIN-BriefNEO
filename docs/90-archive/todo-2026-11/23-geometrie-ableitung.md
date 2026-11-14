@@ -1,3 +1,21 @@
+---
+id: "23-geometrie-ableitung"
+title: "23 — Geometrie-Ableitung (B1-Rest)"
+status: "archived"
+type: "concept"
+created: "2026-11-12"
+updated: "2026-11-14"
+tags:
+- din-briefneo
+- archiv
+- todo-2026-11
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
+---
+
 # 23 — Geometrie-Ableitung (B1-Rest)
 
 Offene Punkte aus dem B1-Review, die **nicht** sofort umgesetzt wurden, weil sie

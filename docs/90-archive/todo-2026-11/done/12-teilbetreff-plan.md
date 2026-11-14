@@ -1,7 +1,22 @@
 ---
-status: done
-type: concept
-tags: [din5008, briefneo, plan, teilbetreff, zwischenueberschrift, textgliederung]
+id: "12-teilbetreff-plan"
+title: "Teilbetreff (§ 20.9.3) — Zwischenüberschriften nach DIN 5008"
+status: "done"
+type: "concept"
+created: "2026-11-09"
+updated: "2026-11-14"
+tags:
+- din5008
+- briefneo
+- plan
+- teilbetreff
+- zwischenueberschrift
+- textgliederung
+doc_links:
+- [[BACKLOG]]
+code_links: []
+depends_on: []
+supersedes: []
 summary: "Plan für die Unterstützung von normgerechten Teilbetreffen (§ 20.9.3) als strukturierende Zwischenüberschriften in längeren Briefen."
 ---
 

@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-22 offene Punkte. Details unterhalb, nach Art gruppiert.
+29 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -73,9 +73,16 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B57** | CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren | S | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
-| **B63** | `data-layout`: zwei Spuren auf eine | M | ⭐ |
 | **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
+| **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
+| **B81** | Multi-Tab-Sync: entscheiden statt halb | S | ⭐⭐ |
+| **B82** | Toast: Auto-Dismiss in CSS statt JS-Timer | S | ⭐ |
+| **B83** | Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen | S | ⭐⭐ |
+| **B84** | `ClipboardAddressParser` bewerten: behalten oder aufteilen | M | ⭐⭐ |
+| **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
+| **B86** | Tote Einstellung `copyfit` entfernen oder implementieren | S | ⭐⭐ |
+| **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -146,14 +153,6 @@ explizit und erlaubt, einen großen Teil davon zu streichen. Gehört zu S2 aus d
 Batch-01-Review. Vorher: Reihenfolge der heutigen Kaskade dokumentieren, sonst
 verschiebt der Umbau ungewollt Spezifität.
 
-### B63 · `data-layout`: zwei Spuren auf eine · **M** · ⭐
-Stand 2026-11-14 (nachgeprüft): Attribut an drei Stellen (`boot.js:42`,
-`settings.js:90` und `:215`), und `sidebar.css:182` führt eine zweite
-`--active-idx`-Spur nur für `data-layout`, obwohl die `:checked`-Regeln
-darüber dasselbe leisten. Ziel: eine Spur. Achtung: `sheet-common.css` und
-`sheet-multipage.css` lesen `[data-layout]` für die Blattgeometrie — die
-Migration berührt DIN-Maße und braucht deshalb einen eigenen Messnachweis.
-
 ### B64 · `sidebar.css`: Optik und Struktur trennen · **L** · ⭐⭐
 1241 Zeilen, **118 ID-Selektor-Vorkommen**, und darin liegen zwei Dinge
 gleichzeitig: die Gestaltung der Leiste **und** der Strukturvertrag des
@@ -164,6 +163,31 @@ Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
 Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
 **ohne** ihn zu lösen, sonst wird sie nicht angefasst.
 Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
+
+### B80 · Export als `.txt` und `.md` · **S** · ⭐⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/14-format-grundbausteine-review.md` (Punkt 15), am 2026-11-14 geprüft: weiterhin offen.
+**Problem:** Es gibt genau zwei Ausgabeformen — Druck/PDF und `.json`. Wer den Brief in einem Mailprogramm oder einer Textdatei braucht, muss den Text von Hand markieren.
+**Lösung:** Zwei Knöpfe im Ausgabe-Block: `.txt` (reiner Text, `stripHtmlToPlaintext` existiert) und `.md` (Überschriften und Absätze aus dem Rich-Text). Download über `Blob` + `URL.createObjectURL`, kein neuer Zustand. `.docx` bleibt zurückgestellt.
+
+### B81 · Multi-Tab-Sync: entscheiden statt halb · **S** · ⭐⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 20), geprüft: `draft-manager.js` hört auf `storage`, aber nur lesend.
+**Problem:** Zwei Tabs auf demselben Brief überschreiben sich. Der Listener existiert, die Regel fehlt: Wer gewinnt bei gleichzeitigen Änderungen? Heute gewinnt der letzte Schreibvorgang, ohne Warnung.
+**Lösung:** Entweder vollständig (Version im Entwurf, Konflikt-Hinweis per Toast, Übernahme nur auf Klick) oder ganz entfernen. Beides ist ehrlicher als der halbe Zustand.
+
+### B82 · Toast: Auto-Dismiss in CSS statt JS-Timer · **S** · ⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 24).
+**Problem:** `core.js` führt einen `setTimeout` und räumt ihn im `toggle`-Handler auf. Das kann CSS heute selbst: `animation` mit `animation-fill-mode` und `animationend` bzw. `@starting-style` — kein Timer, kein Aufräumpfad.
+**Nutzen:** Eine Zustandsmaschine weniger, die man bei Gelegenheit vergisst. Nur beim nächsten Anfassen von `core.js`.
+
+### B83 · Signatur: globalen `pointerdown`-Listener durch `:hover`/`:focus-within` ersetzen · **S** · ⭐⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/17-js-vs-css-rest.md` (Punkt 29), geprüft: `pointerdown` steht noch in `signature.js`.
+**Problem:** Ein `document`-Listener auf jeder Zeigerbewegung nur dafür, die Signatur-Box ein- und auszublenden.
+**Lösung:** CSS `:hover`/`:focus-within` auf dem Signatur-Bereich. Vorher messen, dass die Bbox im PDF unverändert bleibt (Geometrie!).
+
+### B84 · `ClipboardAddressParser` bewerten: behalten oder aufteilen · **M** · ⭐⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/done/18-overengineering-mass.md` (Punkt 35), geprüft: Modul lebt, 615 Zeilen.
+**Problem:** Das Modul ist die größte Einzeldatei nach `address.js` und trägt Parsing, Normalisierung und UI-Anbindung. Ob das eine Verantwortung ist, wurde nie entschieden.
+**Lösung:** Eine Messung (wie viele Pfade, wie viele Tests) und dann eine Entscheidung: behalten mit Begründung oder in Parser + Anbindung teilen.
 
 ## ✨ Neue Features
 
@@ -241,6 +265,15 @@ vor, alternativ `pdf-lib` per CDN. Entscheidung: eigener Addon-Pfad unter
 `website/addons/`, geladen per `import()` beim Klick, **nicht** im Boot-Pfad
 (Muster: `testbrief.js`). Voraussetzung ist der Plugin-Punkt aus B52.
 
+### B86 · Tote Einstellung `copyfit` entfernen oder implementieren · **S** · ⭐⭐
+**Befund 2026-11-14:** `copyfit` steht in `DEFAULT_SETTINGS`, im Persistenz-Schema (`persistence.js:497`, `:606`) und in `website/llms.txt` — **niemand liest den Wert**. Es gibt keinen Code, der bei `copyfit: true` irgendetwas täte. Das Konzept liegt in `docs/90-archive/todo-2026-11/07-addon-copyfitting-plan.md`.
+**Lösung:** Entweder implementieren (Kompaktsatz nach DIN-5008-Toleranz) oder Feld samt Schema-Zweig und `llms.txt`-Satz entfernen. Ein Schalter, der nichts schaltet, ist die schlechteste Variante.
+
+### B87 · Text- und Adress-Parsing modernisieren (Konzept) · **M** · ⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/09-text-parsing-modernization-plan.md`, geprüft: kein `Intl.Segmenter` und kein `RegExp`-`v`-Flag im Code.
+**Inhalt:** Dreistufige Pipeline für die Zwischenablage (Segmentierung via `Intl.Segmenter`, Muster via `RegExp` mit `v`-Flag, deterministische Adress-Zuordnung) statt der heutigen Kette aus `split`/Regex.
+**Warum ⭐:** Kein belegter Schaden, reine Modernisierung. Erst anfassen, wenn `clipboard-parser.js` ohnehin geändert wird (siehe B84).
+
 ## 📚 Entscheidungen & Doku
 
 Offene Entscheidungen und Dokumentationslücken. Brauchen eine Antwort, keinen Code.
@@ -266,3 +299,8 @@ sichtbar dünner ist.
 
 ### B49 · Test-Dossier ins Repo · **S** · ⭐⭐
 Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (archiviert); ohne Ablage wird dieselbe Analyse doppelt gemacht.
+
+### B85 · Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? · **M** · ⭐⭐⭐
+**Herkunft:** `docs/90-archive/todo-2026-11/README.md` (Punkt 49), unverändert offen.
+**Problem:** Die Rücksendezeile steht 5,7–6,8 mm und die Empfängeranschrift 12,1 mm zu hoch (gemessen 2026-11-11). `data-anschriftfeld-y` trifft die DIN-Rücksendezeile auf 0,1–0,2 mm, wird aber als Beginn der Adresszone gelesen; `#vermerke` reserviert die 17,7-mm-Zone nicht (`display: none`). Optionen A/B/C stehen in `docs/10-architecture/IMR-Registry.md` §2a.
+**Warum offen:** Jede normkonforme Variante verschiebt alle PDF-Referenzen und braucht eine neue Referenzmessung. Das ist eine Nutzerentscheidung, keine Codefrage.

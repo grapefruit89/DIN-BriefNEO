@@ -186,7 +186,9 @@
           <div class="seitenleiste-subgroup">
             <fieldset class="seitenleiste-field-group">
               <legend class="seitenleiste-label">DIN-Brief Layout</legend>
-              <div class="segmented-control">
+              <!-- Eigene Klasse: dieser Schalter haengt an `data-layout` (B63),
+                   nicht an :checked. Begruendung in sidebar.css. -->
+              <div class="segmented-control segmented-control-layout">
                 <input type="radio" name="layout-form" id="btn-form-a" value="form-a" class="sr-only">
                 <label for="btn-form-a" title="Form A: Hoher Briefkopf (27mm)">Form A</label>
                 <input type="radio" name="layout-form" id="btn-form-b" value="form-b" class="sr-only" checked>

@@ -4381,7 +4381,7 @@ describe('Absatzabstand im Fließtext', () => {
    *   4,5mm  -> 5,03mm Luft, wirkte wie eine ganze Leerzeile
    *   2,25mm -> 2,78mm Luft, Absaetze klebten zusammen ("unfoermig")
    *   2,9mm  -> 10,95px (2,9mm) Luft, das ist 0,65 lh - der Toleranzwert aus
-   *             todo/07-addon-copyfitting-plan.md. */
+   *             docs/90-archive/todo-2026-11/07-addon-copyfitting-plan.md. */
   const ABSATZ = 2.9;
 
   it('setzt in Bildschirm und Druck denselben Absatzabstand (0,65 Zeilen)', async () => {

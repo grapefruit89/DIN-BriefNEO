@@ -106,6 +106,20 @@ def baue(ordner: pathlib.Path) -> tuple:
         *tree,
         '```',
         '',
+    ]
+
+    # Der Auftrag gehoert in DIESE Datei und VOR die SHA-Tabelle: eine gekuerzte
+    # Ansicht (2026-11-15: der Reviewer sah nur Zeilen 122-1088) muss den
+    # Auftrag trotzdem zeigen. Ein Snapshot ohne Auftrag ist nicht reviewbar.
+    auftrag = ordner / 'prompt.md'
+    if auftrag.exists():
+        teile += ['---', '', '## Auftrag', '', auftrag.read_text(encoding='utf-8').rstrip(), '']
+    else:
+        teile += ['---', '', '## Auftrag', '', '**FEHLT: prompt.md** — Scheibe ohne Auftrag.', '']
+
+    teile += [
+        '---',
+        '',
         '## Quellen (Snapshot)',
         '| Datei | Pfad im Repo | Zeilen | SHA256 |',
         '|---|---|---:|---|',
@@ -114,21 +128,6 @@ def baue(ordner: pathlib.Path) -> tuple:
         teile.append(f'| `{name}` | `{rel}` | {n} | `{kurz}` |')
     teile += ['', f'Gesamt: {gesamt} Zeichen ≈ {gesamt // 4 // 1000}k Token.', '']
 
-    # Der Auftrag gehoert in DIESE Datei. Am 2026-11-15 kam bei einem Reviewer
-    # nur der Anhang an, die Nachricht war leer — prompt.md lag „daneben" und
-    # fehlte. Ein Snapshot ohne Auftrag ist nicht reviewbar.
-    auftrag = ordner / 'prompt.md'
-    if auftrag.exists():
-        teile += [
-            '---',
-            '',
-            '## Auftrag',
-            '',
-            auftrag.read_text(encoding='utf-8').rstrip(),
-            '',
-        ]
-    else:
-        teile += ['---', '', '## Auftrag', '', '**FEHLT: prompt.md** — Scheibe ohne Auftrag.', '']
 
     # Die Messwerte sind JS-spezifisch (export, Funktionen, Listener, DOM).
     # Fuer eine reine CSS-Scheibe waeren alle Spalten null - das ist Rauschen,
@@ -178,6 +177,29 @@ def baue(ordner: pathlib.Path) -> tuple:
     return ziel, len(zeilen_kopf)
 
 
+def pruefe(ordner: pathlib.Path, ziel: pathlib.Path) -> list:
+    """Selbstkontrolle einer fertigen Scheibe. Gibt die Fehlerliste zurueck."""
+    fehler = []
+    if not (ordner / 'prompt.md').exists():
+        fehler.append('prompt.md fehlt')
+    if not (ordner / 'files.txt').exists():
+        fehler.append('files.txt fehlt')
+    if not (ordner / 'KONTRAKT.md').exists():
+        fehler.append('KONTRAKT.md fehlt (python3 batch/kontrakt.py <ordner>)')
+    text = ziel.read_text(encoding='utf-8') if ziel.exists() else ''
+    if '## Auftrag' not in text:
+        fehler.append('merge.txt enthaelt keinen Abschnitt "Auftrag"')
+    if '**FEHLT: prompt.md**' in text:
+        fehler.append('merge.txt meldet fehlenden Auftrag')
+    # Der Auftrag muss VOR den Quellen stehen, sonst sieht ihn eine gekuerzte
+    # Ansicht nicht (2026-11-15: Reviewer sah nur Zeilen 122-1088).
+    i_auftrag = text.find('## Auftrag')
+    i_quellen = text.find('## Quellen (Snapshot)')
+    if i_auftrag > -1 and i_quellen > -1 and i_auftrag > i_quellen:
+        fehler.append('Auftrag steht NACH der SHA-Tabelle (gehoert davor)')
+    return fehler
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args:
@@ -185,9 +207,15 @@ def main() -> None:
         raise SystemExit(2)
     ordner = sorted(p for p in REVIEWS.iterdir() if p.is_dir() and (p / 'files.txt').exists()) \
         if args[0] == '--alle' else [pathlib.Path(a).resolve() for a in args]
+    gesamt_fehler = 0
     for o in ordner:
         ziel, n = baue(o)
-        print(f'{o.name}: {ziel.name}  {n} Dateien  {ziel.stat().st_size / 1024:.0f} KiB')
+        fehler = pruefe(o, ziel)
+        status = 'OK' if not fehler else 'FEHLER: ' + '; '.join(fehler)
+        print(f'{o.name}: {ziel.name}  {n} Dateien  {ziel.stat().st_size / 1024:.0f} KiB  [{status}]')
+        gesamt_fehler += len(fehler)
+    if gesamt_fehler:
+        raise SystemExit(1)
 
 
 if __name__ == '__main__':

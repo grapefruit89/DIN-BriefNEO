@@ -378,6 +378,19 @@ div → span, custom element → natives Element), ist ein Vorher/Nachher-Nachwe
    (CSS-Reset, Box-Modell, baseline) und fixen, bevor der Umbau als fertig gilt.
 6. **Messung mit CDP/F12, nicht nach Augenmaß.** Der Debug-Browser
    (`tools/browser.mjs` oder gleichwertig) ist das Werkzeug.
+
+   **Der Debug-Browser bleibt offen, solange an diesem Projekt gearbeitet wird**
+   (Nutzeranweisung 2026-11-15). Ist Port 9222 oder 8088 zu, wird er **sofort**
+   neu gestartet — nicht später, nicht „wenn ich ihn brauche":
+
+   ```
+   cd /home/moritz/repos/DIN-BriefNEO && din-dev
+   ```
+
+   `din-dev` startet Dev-Server (8088, no-cache) und Debug-Browser (CDP 9222)
+   und meldet beide Zustände. Prüfung ohne Umweg:
+   `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9222/json/version`
+   (Soll: 200). Kein eigener Browser, kein neues Profil, kein Tab schließen.
 7. **Der Harness bildet den Nutzerpfad nach** (Seite im Bildschirmmodus laden,
    füllen, dann drucken). Weicht er ab, sind `data-seiten`, Viewport-Padding und
    `#probe`-Höhe im Output zu protokollieren — sonst misst man einen Zustand, den

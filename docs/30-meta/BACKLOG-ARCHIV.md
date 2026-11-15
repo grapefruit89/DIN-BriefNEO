@@ -638,3 +638,53 @@ nicht die Dublette, sondern die tragende.**
 Interaktionsprobe danach: Klick auf Form A → Attribut `form-a`, Pille 0,
 `--briefkopf-y` 27 mm; zurück auf B → `form-b`, 1, 45 mm; der Ansicht-Schalter
 läuft weiter über `:checked` (0 → 1).
+
+### B89 · Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen · **S** · ⭐⭐
+**Herkunft:** GitHub #22 — eine Liste neuer Web-Plattform-Features für Chrome 157 bis 160.
+
+**Warum das auf den Tisch muss:** Der Testlauf meldet heute **Chrome 156** (`test-runner`). Behauptungen über 157–160 betreffen also **noch nicht veröffentlichte** Versionen. Bei diesem Projekt gab es das schon einmal: von zwölf Behauptungen hielten fünf nicht (`docs/90-archive/upstream-befund-2026-11-10.md`). Ein Design, das auf einer erfundenen API aufsetzt, kostet einen Tag.
+
+**Was zu tun ist:** Jede Zeile einzeln gegen die Primärquelle (`chromestatus.com/api/v0/features`, BCD, `web-features`) prüfen und mit „belegt / erfunden / noch nicht ausgeliefert" markieren. Danach bleibt erfahrungsgemäß wenig übrig — realistisch zwei bis drei Sätze für die Feature-Liste, kein Umbau.
+
+**Relevanz-Vorfilter:** Für dieses Projekt sind nur drei Zeilen überhaupt interessant — `Sanitizer`-Erweiterung (könnte `sanitizeRichText` vereinfachen), `text-decoration-inset` (Typografie), `::highlight(*)` (Live-Validierung). Der Rest ist Mobilfunk, Canvas oder Install-Prompt.
+
+✅ ERLEDIGT 2026-11-15 — **kein Prüfauftrag, sondern eine Watchlist.**
+Die Liste aus GitHub #22 betrifft Chrome 157–160; der Testlauf meldet Chrome
+**156**. Zukunft lässt sich nicht „einmal prüfen", sie muss beobachtet werden.
+
+Neu: `docs/30-meta/PLATTFORM-WATCHLIST.md` — alle 26 Behauptungen mit
+Version, Relevanz für dieses Projekt und Status `ungeprüft`. Regel im Kopf:
+**bei Auslieferung einmal gegen `chromestatus` prüfen, Ergebnis in den
+DECISION-LOG, Zeile aus der Watchlist löschen.** Drei Zeilen sind für uns
+überhaupt interessant (Sanitizer-Erweiterung, `::highlight(*)`,
+`appendHTML`); der Rest ist Mobilfunk, Canvas oder Install-Prompt.
+
+Warum nicht jetzt prüfen: von zwölf Behauptungen einer früheren Liste hielten
+fünf nicht (`docs/90-archive/upstream-befund-2026-11-10.md`). Ein Design auf
+einer erfundenen API kostet einen Tag.
+
+### B90 · `data-generated` ist tot, `--rand-u` könnte CSS lesen · **S** · ⭐
+**Herkunft:** GitHub #17 — eine „JS→CSS"-Analyse. **Sieben der acht Punkte sind erledigt** und standen trotzdem als offen im Issue; nur diese zwei bleiben:
+
+| Punkt aus #17 | Stand heute |
+|---|---|
+| `data-anlagen`/`data-fuss` | erledigt (Batch 01, `:has()`) |
+| `data-gesetzt` | erledigt (B62, `:has(option:checked…`) |
+| `data-visible` | erledigt (`:not(:placeholder-shown)`) |
+| `data-layout` | erledigt (B63, eine Spur) |
+| `data-generated` | **tot**: kein Schreiber, kein Leser — nur noch Kommentare in `sheet-common.css:672` und in der stillgelegten `sheet.css` |
+| Font-Presets | `font-feature.js` setzt `--active-font-family` — eine `:has()`-Variante wäre möglich, aber ohne Messwert keinen Umbau wert |
+| `--rand-u` | 2 Schreiber (`boot.js:68`, `settings.js:113`), CSS liest es nur im Druck (`#kern` padding). `:has(#btn-rand-u-30:checked)` wäre möglich — **aber** es ist Druckgeometrie, also nur mit PDF-Gegenprobe |
+
+**Lösung:** Die zwei toten Kommentare entfernen (Zeilenangabe oben) und `--rand-u` nur anfassen, wenn ohnehin ein PDF-Diff ansteht. Der Rest des Issues ist geschlossen.
+
+✅ ERLEDIGT 2026-11-15 — der tote Zustand ist bereinigt.
+`data-generated` wird **nirgends** mehr gesetzt oder gelesen (geprüft:
+`salutation.js` und `testbrief.js` schreiben es nicht, `base.css` liest es
+nicht). Der Kommentar in `sheet-common.css` behauptete noch „bleibt als
+Zustand für salutation.js" — das war falsch und ist richtiggestellt.
+
+**Bewusst nicht gemacht:** `--rand-u` über `:has(#btn-rand-u-30:checked)`
+lesen. Es ist Druckgeometrie; ein Umbau ohne PDF-Gegenprobe (12 Referenzen,
+0,5 px) wäre genau der Fehler, den dieses Projekt schon dreimal hatte. Bleibt
+im DECISION-LOG als bewusste Nicht-Änderung.

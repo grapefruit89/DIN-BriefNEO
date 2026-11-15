@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-32 offene Punkte. Details unterhalb, nach Art gruppiert.
+31 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -84,8 +84,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B86** | Tote Einstellung `copyfit` entfernen oder implementieren | S | ⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 | **B88** | Kaskade: 35 spiegelnde `!important` auflösen | M | ⭐⭐⭐ |
-| **B89** | Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen | S | ⭐⭐ |
-| **B90** | `data-generated` ist tot, `--rand-u` könnte CSS lesen | S | ⭐ |
+| **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -216,21 +215,6 @@ Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
 
 **Messung:** 12 PDFs (Form A/B × 1/2/3 Seiten × Anlagen an/aus), `pdftotext -bbox`, Toleranz 0,5 px; Pixelgegenprobe per `pdftoppm -r 300` + `compare`.
 
-### B90 · `data-generated` ist tot, `--rand-u` könnte CSS lesen · **S** · ⭐
-**Herkunft:** GitHub #17 — eine „JS→CSS"-Analyse. **Sieben der acht Punkte sind erledigt** und standen trotzdem als offen im Issue; nur diese zwei bleiben:
-
-| Punkt aus #17 | Stand heute |
-|---|---|
-| `data-anlagen`/`data-fuss` | erledigt (Batch 01, `:has()`) |
-| `data-gesetzt` | erledigt (B62, `:has(option:checked…`) |
-| `data-visible` | erledigt (`:not(:placeholder-shown)`) |
-| `data-layout` | erledigt (B63, eine Spur) |
-| `data-generated` | **tot**: kein Schreiber, kein Leser — nur noch Kommentare in `sheet-common.css:672` und in der stillgelegten `sheet.css` |
-| Font-Presets | `font-feature.js` setzt `--active-font-family` — eine `:has()`-Variante wäre möglich, aber ohne Messwert keinen Umbau wert |
-| `--rand-u` | 2 Schreiber (`boot.js:68`, `settings.js:113`), CSS liest es nur im Druck (`#kern` padding). `:has(#btn-rand-u-30:checked)` wäre möglich — **aber** es ist Druckgeometrie, also nur mit PDF-Gegenprobe |
-
-**Lösung:** Die zwei toten Kommentare entfernen (Zeilenangabe oben) und `--rand-u` nur anfassen, wenn ohnehin ein PDF-Diff ansteht. Der Rest des Issues ist geschlossen.
-
 ## ✨ Neue Features
 
 Produktideen. Sie ändern, **was** die App kann — nicht, wie sie gebaut ist.
@@ -259,7 +243,7 @@ angefasst, solange irgendetwas anderes offen ist.
 - **Formatieren** ist reine Algorithmik und existiert (`formatIban` in `format.js`) — nichts zu tun.
 - **IBAN prüfen** ist Modulo-97 über BigInt, ein paar Zeilen — das ist der Kern dieses Eintrags.
 - **BIC formal prüfen** ist ein Regex (`^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$`), 0 Byte Daten — passt dazu, gleicher Aufwand.
-- **Bankname zu BIC** bräuchte eine Bundesbank-JSON (~80–120 KB, lazy geladen). Das ist ein eigener Eintrag, wenn es je gewünscht wird — eine Datenquelle ist ein Versprechen auf Pflege, keine Zeile Code.
+- **Bankname zu BIC** ist ein eigenes Vorhaben und steht als B91 im Abschnitt „Neue Features" — eine Datenquelle ist ein Pflegeversprechen, keine Zeile Code.
 
 ### B28 · Multi-Provider Geocoding Abstraktionsschicht (Nominatim, Photon, BKG) · **M** · ⭐⭐⭐
 **Kontext:** Konsolidiert aus `MULTI_PROVIDER_INTEGRATION_BLUEPRINT.md`.
@@ -322,6 +306,28 @@ vor, alternativ `pdf-lib` per CDN. Entscheidung: eigener Addon-Pfad unter
 **Inhalt:** Dreistufige Pipeline für die Zwischenablage (Segmentierung via `Intl.Segmenter`, Muster via `RegExp` mit `v`-Flag, deterministische Adress-Zuordnung) statt der heutigen Kette aus `split`/Regex.
 **Warum ⭐:** Kein belegter Schaden, reine Modernisierung. Erst anfassen, wenn `clipboard-parser.js` ohnehin geändert wird (siehe B84).
 
+### B91 · BIC → Bankname als Erweiterung (Addon) · **M** · ⭐⭐
+**Herkunft:** GitHub #21. Material für eine Erweiterung, nicht für den Kern.
+
+**Was es wäre:** Wer eine IBAN eintippt, sieht den Banknamen — und wer eine BIC
+tippt, bekommt sie auf gültige Form geprüft.
+
+| Teil | Aufwand | Daten |
+|---|---|---|
+| BIC **formal** prüfen (`^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$`) | Minuten | 0 Byte |
+| BLZ → BIC + Bankname (Deutschland) | Tage | Bundesbank-CSV ~0,3 MB → extrahierte JSON **80–120 KB** |
+| Internationale Banknamen (`lobax/banknames`, pro Land) | Tage | pro Land ähnlich; nur was unterstützt wird |
+
+**Die eigentliche Entscheidung ist nicht der Code, sondern die Daten:** eine
+mitgelieferte Tabelle ist ein Pflegeversprechen (Bankfusionen, neue BLZ). Sie
+muss entweder versioniert mit Quelle und Datum im Repo liegen (dann ist sie
+Teil des Produkts) oder gar nicht. Ein externer Dienst scheidet aus —
+Offline-First und Zero-Dependency sind Gesetz (A1, A37).
+
+**Bedingung:** nur lazy laden (beim Fokussieren des BIC-Felds), nicht beim
+Start; sonst kostet die Idee 80–120 KB auf dem kritischen Pfad, die 99 % der
+Briefe nie brauchen.
+
 ## 📚 Entscheidungen & Doku
 
 Offene Entscheidungen und Dokumentationslücken. Brauchen eine Antwort, keinen Code.
@@ -352,13 +358,3 @@ Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (a
 **Herkunft:** `docs/90-archive/todo-2026-11/README.md` (Punkt 49), unverändert offen.
 **Problem:** Die Rücksendezeile steht 5,7–6,8 mm und die Empfängeranschrift 12,1 mm zu hoch (gemessen 2026-11-11). `data-anschriftfeld-y` trifft die DIN-Rücksendezeile auf 0,1–0,2 mm, wird aber als Beginn der Adresszone gelesen; `#vermerke` reserviert die 17,7-mm-Zone nicht (`display: none`). Optionen A/B/C stehen in `docs/10-architecture/IMR-Registry.md` §2a.
 **Warum offen:** Jede normkonforme Variante verschiebt alle PDF-Referenzen und braucht eine neue Referenzmessung. Das ist eine Nutzerentscheidung, keine Codefrage.
-
-### B89 · Chrome-157–160-Behauptungen prüfen, bevor sie ins Design gehen · **S** · ⭐⭐
-**Herkunft:** GitHub #22 — eine Liste neuer Web-Plattform-Features für Chrome 157 bis 160.
-
-**Warum das auf den Tisch muss:** Der Testlauf meldet heute **Chrome 156** (`test-runner`). Behauptungen über 157–160 betreffen also **noch nicht veröffentlichte** Versionen. Bei diesem Projekt gab es das schon einmal: von zwölf Behauptungen hielten fünf nicht (`docs/90-archive/upstream-befund-2026-11-10.md`). Ein Design, das auf einer erfundenen API aufsetzt, kostet einen Tag.
-
-**Was zu tun ist:** Jede Zeile einzeln gegen die Primärquelle (`chromestatus.com/api/v0/features`, BCD, `web-features`) prüfen und mit „belegt / erfunden / noch nicht ausgeliefert" markieren. Danach bleibt erfahrungsgemäß wenig übrig — realistisch zwei bis drei Sätze für die Feature-Liste, kein Umbau.
-
-**Relevanz-Vorfilter:** Für dieses Projekt sind nur drei Zeilen überhaupt interessant — `Sanitizer`-Erweiterung (könnte `sanitizeRichText` vereinfachen), `text-decoration-inset` (Typografie), `::highlight(*)` (Live-Validierung). Der Rest ist Mobilfunk, Canvas oder Install-Prompt.
-

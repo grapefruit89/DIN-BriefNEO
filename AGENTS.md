@@ -388,9 +388,20 @@ div → span, custom element → natives Element), ist ein Vorher/Nachher-Nachwe
    ```
 
    `din-dev` startet Dev-Server (8088, no-cache) und Debug-Browser (CDP 9222)
-   und meldet beide Zustände. Prüfung ohne Umweg:
-   `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9222/json/version`
-   (Soll: 200). Kein eigener Browser, kein neues Profil, kein Tab schließen.
+   und meldet beide Zustände. **Immer mit `setsid`**, sonst reißt das Aufräumen
+   der Prozessgruppe am Ende eines Shell-Aufrufs den Browser mit (passiert am
+   2026-11-15: `nohup` schützt gegen SIGHUP, nicht gegen SIGKILL an die Gruppe):
+
+   ```
+   cd /home/moritz/repos/DIN-BriefNEO
+   curl -s -o /dev/null http://127.0.0.1:9222/json/version \
+     || setsid nohup bash -c 'din-dev' >/tmp/opencode/din-dev.log 2>&1 </dev/null &
+   ```
+
+   Prüfung: `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9222/json/version`
+   (Soll: 200). Vor **jedem** CDP-Lauf prüfen und in derselben Befehlszeile
+   neu starten, wenn er zu ist. Kein eigener Browser, kein neues Profil, kein
+   Tab schließen. Der Lauf endet nicht, solange dieses Fenster offen ist.
 7. **Der Harness bildet den Nutzerpfad nach** (Seite im Bildschirmmodus laden,
    füllen, dann drucken). Weicht er ab, sind `data-seiten`, Viewport-Padding und
    `#probe`-Höhe im Output zu protokollieren — sonst misst man einen Zustand, den

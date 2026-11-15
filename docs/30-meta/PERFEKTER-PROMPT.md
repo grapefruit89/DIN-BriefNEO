@@ -106,7 +106,7 @@ Was NICHT tun:
 ```
 
 **Wenn es fehlt:** Ich optimiere mit. „Wenn du schon dabei bist" ist die
-teuerste Nebenkostenposition in dieser Session.
+teuerste Kostenposition in dieser Session.
 
 ### 1.4 Gates — Befehl **und** Sollwert
 

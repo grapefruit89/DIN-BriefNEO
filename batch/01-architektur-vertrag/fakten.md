@@ -7,8 +7,8 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 ## Umfang
 
 - HTML-Dateien: 1, JS-Dateien: 21, CSS-Dateien: 5
-- Zeilen gesamt: HTML 473, JS 10582, CSS 3349
-- Tests: 343 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
+- Zeilen gesamt: HTML 473, JS 10603, CSS 3349
+- Tests: 346 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
 - Antipattern-Regeln: 51 (Summe aus `tools/antipatterns/*.json`)
 - Fitness-Score: bewusst nicht hier — entsteht nur durch `node tools/build_db.js`
 
@@ -20,12 +20,12 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 | `website/js/address.js` | 1383 |
 | `website/css/sidebar.css` | 1263 |
 | `website/js/address-data.js` | 1066 |
-| `website/js/document.js` | 932 |
+| `website/js/document.js` | 940 |
 | `website/js/persistence.js` | 895 |
 | `website/css/sheet-common.css` | 725 |
 | `website/js/clipboard-parser.js` | 615 |
 | `website/css/sheet-multipage.css` | 605 |
-| `website/js/draft-manager.js` | 550 |
+| `website/js/draft-manager.js` | 559 |
 | `website/index.html` | 473 |
 | `website/js/format.js` | 450 |
 | `website/js/font-feature.js` | 416 |
@@ -50,8 +50,8 @@ sind per Regex nicht sicher von lokalen Variablen zu trennen und bleiben drausse
 
 | Zustand | Schreibzugriffe | Dateien |
 |---|---:|---|
+| `dirty` | 8 | js/salutation.js (4), js/document.js (2), js/draft-manager.js (1), js/format.js (1) |
 | `role` | 8 | js/address.js (5), js/clipboard-parser.js (1), js/draft-manager.js (1), js/main.js (1) |
-| `dirty` | 7 | js/salutation.js (4), js/document.js (1), js/draft-manager.js (1), js/format.js (1) |
 | `aria-selected` | 6 | js/address.js (6) |
 | `state` | 4 | js/signature.js (3), js/draft-manager.js (1) |
 | `aria-disabled` | 3 | js/address.js (3) |

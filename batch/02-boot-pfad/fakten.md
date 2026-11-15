@@ -35,7 +35,7 @@ falsch („2× JSON.parse", tatsächlich 3).
 
 ## 2. Schreibzugriffe in `boot-state.js`
 
-183 Zeilen · 15 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
+187 Zeilen · 15 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
 
 | Zeile | Art | Ziel | Quelle |
 |---:|---|---|---|
@@ -49,11 +49,11 @@ falsch („2× JSON.parse", tatsächlich 3).
 | 97 | value | `—` | `feld.value = vermerk;` |
 | 102 | value | `—` | `if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = verm` |
 | 110 | checked | `—` | `if (box) box.checked = draft[id] === true \|\| draft[id] === 'true';` |
-| 137 | value | `—` | `el.value = wert;` |
-| 142 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
-| 154 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
-| 174 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
-| 175 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
+| 141 | value | `—` | `el.value = el.id === 'vermerke' ? wert.trim() : wert;` |
+| 146 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
+| 158 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
+| 178 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
+| 179 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
 
 ## 2. Schreibzugriffe in `main.js`
 

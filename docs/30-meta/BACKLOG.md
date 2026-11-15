@@ -77,7 +77,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 | **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
-| **B93** | `targetLock` wird viermal geleert, zweimal davon umsonst | S | ⭐ |
+| **B93** | `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen | S | ⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -173,33 +173,36 @@ Grenze: `!important` gegen **Inline-Style** (JS setzt `style=`) und der
 `*`-Kill-Switch in `@media (prefers-reduced-motion)` sind strukturell nicht
 durch `@layer` ersetzbar — dort bleibt `!important`.
 
-### B93 · `targetLock` wird viermal geleert, zweimal davon umsonst · **S** · ⭐
-**Herkunft:** Batch 05, `batch/05-zustand-restore/fakten.md` §2 (gemessen
-2026-11-15).
+### B93 · `targetLock` wird viermal geleert — Redundanz **nicht** bewiesen · **S** · ⭐
+**Herkunft:** Batch 05 (`fakten.md` §2, gemessen 2026-11-15). **Zurückgestuft**
+nach dem Batch-05-Review: die erste Fassung dieses Punktes behauptete, die zwei
+`main.js`-Zeilen seien redundant. Das war aus der **Reihenfolge** geschlossen,
+nicht gemessen.
 
 `AddressIntelligence.targetLock` wird an **vier** Stellen auf `null` gesetzt:
 
 | Stelle | Kontext |
 |---|---|
-| `website/js/draft-manager.js:274` | `#restoreState()` |
-| `website/js/draft-manager.js:470` | `resetDraft()` |
+| `website/js/draft-manager.js:274` | `#restoreState()`, **vor** den Feldschreibungen |
+| `website/js/draft-manager.js:470` | `resetDraft()`, **nach** dem Leeren der Felder |
 | `website/js/main.js:128` | nach `draftManager.loadDraft()` |
 | `website/js/main.js:215` | nach `draftManager.resetDraft()` |
 
-**Befund:** die zwei Zeilen in `main.js` sind redundant.
-`loadDraft()` (245) ruft `#restoreState()` (255 → 274); kehrt es früh zurück,
-weil **kein** Entwurf existiert, ist der statische Startwert ohnehin `null`
-(`website/js/address-data.js:433`). `resetDraft()` setzt ihn in seinem Rumpf
-(470) selbst. Beide `main.js`-Zeilen tun also nichts, was nicht schon
-geschieht — sie sind ein zweiter Aufräumpfad für dieselbe Variable.
+**Warum „redundant" nicht belegt ist:** `resetDraft()` published
+`DOCUMENT_CHANGED` **erst nach** dem `null` (`:489 ff.`) — ein Listener kann den
+Lock danach wieder setzen, dann ist `main.js:215` die einzige Aufräumstelle.
+`loadDraft()` kann `false` liefern (`:247`, kein Entwurf), dann läuft
+`#restoreState` gar nicht. Ob `Field.setValue` Events auslöst, die den Lock
+setzen, ist ebenfalls offen (`field.js`/`address.js` nicht betrachtet).
 
-**Aufgabe:** die zwei Zeilen entfernen, danach die Ratsche in `test/all.js`
-(„Zustand nach Reset") und `q`-freie Gegenprobe: Entwurf laden → Empfänger
-wählen → Sperre greift? Reset → Sperre weg? Beides vorher/nachher im Browser.
+**Aufgabe (erst messen, dann entscheiden):** Setter-Falle per CDP —
+`Object.defineProperty` auf `AddressIntelligence.targetLock` mit Stack-Log,
+vier Szenarien: (1) kein Entwurf, (2) Entwurf, (3) Undo, (4) Reset. Erst wenn
+in allen vier Fällen keine der beiden `main.js`-Zeilen etwas bewirkt, werden
+sie entfernt.
 
-**Risiko:** klein, aber nicht null — falls ein späterer Pfad `loadDraft()`
-überspringt und `targetLock` vorher gesetzt wurde, war die Zeile eine
-Versicherung. Deshalb Gegenprobe statt Annahme.
+**Bis dahin:** nicht anfassen. Zwei Zeilen sparen keinen Nutzen, der ein
+Risiko rechtfertigt.
 
 ### B80 · Export als `.txt` und `.md` · **S** · ⭐⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/14-format-grundbausteine-review.md` (Punkt 15), am 2026-11-14 geprüft: weiterhin offen.

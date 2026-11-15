@@ -1,6 +1,6 @@
 ---
 id: "test-dossier"
-title: "Test-Dossier: was die 343 Fälle abdecken"
+title: "Test-Dossier: was die 346 Fälle abdecken"
 status: "active"
 type: "reference"
 created: "2026-11-15"
@@ -25,7 +25,7 @@ supersedes: []
 `node tools/test-dossier.mjs --check` bricht ab, wenn dieses Verzeichnis nicht
 mehr zu `test/all.js` passt.
 
-**Zahl:** 343 Fälle in 90 Gruppen.
+**Zahl:** 346 Fälle in 91 Gruppen.
 Gezählt per Textsuche über `describe(`/`it(` am Zeilenanfang — auskommentierte
 und dynamisch erzeugte Fälle zählen **nicht** mit. Die Einzelfälle stehen im
 Lauf (`node tools/test-runner.mjs`); hier steht, **wo** sie liegen und **wie
@@ -64,6 +64,7 @@ dick** ein Bereich abgedeckt ist.
 | toggleInlineFormat — Bold | 4 |
 | toggleInlineFormat — Italic | 4 |
 | Anschriftfelder als <input>: Speichern, Reset, Grenzen | 3 |
+| Datum überlebt den Reload (F5, Batch 05) | 3 |
 | DraftManager: Anlagen-Restore (M2 Datenverlust-Fix) | 3 |
 | DraftManager: Sanitizing (XSS-Schutz, echte Route localStorage → loadDraft) | 3 |
 | Druck: A4-Seite ohne Ueberlauf (Print-CSS-Vertrag) | 3 |

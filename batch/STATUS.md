@@ -11,7 +11,7 @@ Review-Scheiben — nicht der Chat.
 | 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ✅ | ✅ vollständig | 4 / 30 KiB |
 | 03 | CSS-Kaskade: `!important` und `@layer` | ✅ | ✅ Review #1 **ausgewertet** | ✅ **B88 + B92** | 3 / 28 KiB |
 | 04 | `sidebar.css`: Optik und Struktur trennen | ✅ | ✅ **ausgewertet** | ✅ **B64 umgesetzt** | 2 / **42 KiB** |
-| 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ **15.11.** | ⬜ offen | – | 3 / **37 KiB** |
+| 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ | ✅ **ausgewertet** | ✅ **F5 + Vermerk behoben** | 3 / **37 KiB** |
 | 06 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
 
 **Regel:** Die Skizzen enthalten nur die Fragen und Messpunkte — kein
@@ -44,6 +44,18 @@ Alle Zahlen stehen mit Zeile in `batch/05-zustand-restore/fakten.md`
 | dynamische `import()` | **vier**: `main.js:151` (Multipage-Controller, im `bootStep` „Plugins", **ohne** `await`), `:288/302/314` (Testbrief-Addon, lazy im Klick). JSDoc-`typeof import()` zählt nicht mit. |
 | `DEFAULT_SETTINGS` | **7** Schlüssel, benutzt werden **9**: `signatureState` (2 Stellen) und `signatureImage` (3 Stellen) fehlen. `signatureState` hat im Lesepfad harte Fallbacks (`11.9/96.0/0.5`), `signatureImage` wird nur auf `undefined` gesetzt. |
 | Seeder-Allowlist | seit B69 vorhanden: `boot-state.js` prüft `EDITABLE_FIELD_SELECTOR` (Zeile 122 ff.), zwei Prüfstellen auch im Draft-Manager (`fakten.md` §6). Damit ist der alte Skizzen-Punkt „Seeder hat keine Allowlist" **erledigt**. |
+
+## Was Batch 05 ergeben hat (ausgewertet 2026-11-15)
+
+| Befund | Ausgang |
+|---|---|
+| F5: Datum wird beim Reload überschrieben | ✅ **behoben** — `datum__dirty` speichert die Absicht (`document.js:927`, `draft-manager.js:346`), 3 Tests |
+| Vermerk: Seeder zeigt Rand-Leerzeichen | ✅ **behoben** — `boot-state.js` trimmt `#vermerke` vor dem Paint |
+| F1/F6: „Selects fallen durch" | ❌ **gegenstandslos** — kein Element trägt `data-speichern`, nur der Selektor-String existiert |
+| F3: XSS über ungesäubertes HTML | ❌ **nicht reproduziert** — Probe mit `<img onerror>`: `window.__xss` blieb `null` |
+| B93: `targetLock`-Doppel „redundant" | ⚠️ **zurückgestuft** — `DOCUMENT_CHANGED` kommt nach dem `null`, ein Listener kann neu setzen |
+| Legacy-Liste zeigt Roh-Markup bis zum Paint | 🟡 **akzeptiert** — Migration im Seeder erzwänge einen zweiten Sanitizer |
+| A: Differenztest | ✅ **`tools/seeder-diff.mjs`** — 7 Fixtures, 3 erwartete Abweichungen, 0 unerwartet |
 
 ## Architekturarbeit (S1–S4 aus Batch 01)
 

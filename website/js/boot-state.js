@@ -134,7 +134,11 @@
       const el = document.getElementById(id);
       if (!el?.matches(FELD_SELECTOR)) continue;
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-        el.value = wert;
+        /* Der Restore liest den Vermerk getrimmt (draft-manager.js, Select-Sync).
+           Ohne denselben Schnitt zeigt der Seeder "  Unser Zeichen: 4711  " und
+           der Restore danach "Unser Zeichen: 4711" — gemessen mit
+           tools/seeder-diff.mjs (Fall `vermerk-leerzeichen`). */
+        el.value = el.id === 'vermerke' ? wert.trim() : wert;
       } else if (el.isContentEditable) {
         /* Kein schreibender innerHTML-Zugriff (A61): DOMParser + replaceChildren
            erhaelt das Markup des Entwurfs unveraendert. */

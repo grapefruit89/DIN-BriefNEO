@@ -1,5 +1,11 @@
 # Batch 05 — Zustand und Restore: sind die zwei Pfade gleich?
 
+> **STATUS: Der Review zu dieser Scheibe ist gelaufen und ausgewertet (2026-11-15).**
+> Ergebnis: **F5 behoben** (Datum überlebt den Reload über `datum__dirty`),
+> Vermerk-Leerzeichen im Seeder getrimmt, **F1/F6 gegenstandslos** (kein
+> Element trägt `data-speichern`), **F3 nicht reproduziert**. Das Werkzeug
+> `tools/seeder-diff.mjs` ist daraus entstanden. Nicht erneut verschicken.
+
 ## Rolle
 
 Du bist JavaScript-Architekt für **Zustandsspeicherung in einer Ein-Datei-App**

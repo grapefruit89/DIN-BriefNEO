@@ -918,6 +918,14 @@ export function collectDraft() {
     if (sel.id) draft[sel.id] = sel.value;
   });
 
+  /* Absicht statt Wert: `data-dirty` am Datum sagt „der Nutzer hat das Datum
+   * gesetzt". Ohne diesen Schluessel ist nach dem Reload nicht mehr
+   * entscheidbar, ob "1. März 2020" getippt wurde oder ob dort noch der
+   * Tagesstand vom letzten Speichern steht (F5, Batch 05). Additiv: alte
+   * Entwuerfe ohne den Schluessel verhalten sich wie bisher. */
+  const datumFeld = document.getElementById('datum');
+  if (datumFeld?.dataset.dirty === 'true') draft['datum__dirty'] = true;
+
   const anlagenSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-anlagen'));
   if (anlagenSwitch) {
     draft['toggle-anlagen'] = anlagenSwitch.checked;

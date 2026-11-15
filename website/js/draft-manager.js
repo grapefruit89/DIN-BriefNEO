@@ -332,12 +332,21 @@ export class DraftManager {
         }
       } else if (!elem.querySelector('select[data-speichern]')) {
         Field.setValue(elem, draft[id]);
-        if (elem.id === 'datum') {
-          // Gemerkt: der Wert stammt vom Nutzer, applyLetterDate darf ihn nicht ueberschreiben.
-          if ((draft[id] || '').trim() !== '') elem.dataset.dirty = 'true';
-        }
       }
     });
+
+    /* Das Datum traegt den Nutzerwunsch, nicht den Tagesstand: `applyLetterDate`
+     * (format.js:404) ueberschreibt nur, wenn `data-dirty` fehlt. Die Markierung
+     * stand vorher im `else`-Zweig fuer NICHT-native Felder — #datum ist aber
+     * ein <input>, also lief sie nie, und jeder Reload setzte „heute"
+     * (gemessen 2026-11-15: Entwurf "1. März 2020" -> "15. November 2026").
+     * Jetzt entscheidet die gespeicherte Absicht (`datum__dirty`), nicht das
+     * blosse Vorhandensein eines Werts — sonst bliebe das Datum fuer immer
+     * stehen, auch wenn der Nutzer es nie angefasst hat. */
+    if (draft['datum__dirty'] === true) {
+      const datumEl = document.getElementById('datum');
+      if (datumEl) datumEl.dataset.dirty = 'true';
+    }
 
     const postvermerk = document.getElementById('vermerke');
     const pvSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('seitenleiste-postvermerk-select'));

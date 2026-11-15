@@ -8,16 +8,16 @@ nicht mehr zum Quelltext passt. Alle Zeilennummern sind aus den Dateien gelesen.
 
 | Datei | Zeilen | Methoden | freie Funktionen | Rolle |
 |---|---:|---:|---:|---|
-| `boot-state.js` | 183 | 0 | 0 | Seeder vor dem ersten Paint (klassisches Skript) |
-| `draft-manager.js` | 551 | 18 | 0 | Entwurf laden, speichern, zuruecksetzen |
+| `boot-state.js` | 187 | 0 | 0 | Seeder vor dem ersten Paint (klassisches Skript) |
+| `draft-manager.js` | 560 | 18 | 0 | Entwurf laden, speichern, zuruecksetzen |
 | `persistence.js` | 896 | 4 | 18 | DEFAULT_SETTINGS, STORAGE_KEYS, loadJSON/saveJSON, istAn |
 | `main.js` | 344 | 0 | 7 | Boot-Reihenfolge (bootStep) und die Aufrufstellen |
 
 ### Methoden und Funktionen mit Zeile
 
-**boot-state.js** — IIFE 30–182 (klassisches Skript, kann nichts importieren)
+**boot-state.js** — IIFE 30–186 (klassisches Skript, kann nichts importieren)
 
-**draft-manager.js** — `constructor` (48), `#initEventBus` (60), `#initLifecycleFlush` (82), `flushPendingSave` (106), `#initMultiTabSync` (120), `destroy` (137), `#initShortcuts` (150), `saveDraft` (166), `loadDraft` (245), `restoreDraft` (263), `#restoreState` (272), `undo` (379), `redo` (389), `#applyHistoryState` (402), `resetDraft` (431), `scheduleAutoSave` (498), `#setSaveStatus` (513), `#updateDocumentTitle` (545)
+**draft-manager.js** — `constructor` (48), `#initEventBus` (60), `#initLifecycleFlush` (82), `flushPendingSave` (106), `#initMultiTabSync` (120), `destroy` (137), `#initShortcuts` (150), `saveDraft` (166), `loadDraft` (245), `restoreDraft` (263), `#restoreState` (272), `undo` (388), `redo` (398), `#applyHistoryState` (411), `resetDraft` (440), `scheduleAutoSave` (507), `#setSaveStatus` (522), `#updateDocumentTitle` (554)
 
 **persistence.js** — `prepare` (262), `_cleanupInjectedTags` (294), `_injectMetaTags` (306), `restore` (332), `load` (96), `save` (110), `remove` (124), `loadJSON` (140), `saveJSON` (169), `requestPersistentStorage` (182), `collectLetterIdentity` (212), `buildLetterFileName` (237), `isPrintTitleActive` (252), `stripHtmlToPlaintext` (425), `buildDinLetterPayload` (453), `parseDinLetterPayload` (512), `exportDocumentToFile` (659), `registerDraftCollector` (713), `buildDINLetterJSON` (723), `stelleAltenStandWiederHer` (741), `applyImportedData` (755), `initImportExport` (802)
 
@@ -30,7 +30,7 @@ Gesucht nach `AddressIntelligence.targetLock =` in allen JavaScript-Dateien.
 | Datei | Zeile | Zeile im Quelltext |
 |---|---:|---|
 | `draft-manager.js` | 274 | `AddressIntelligence.targetLock = null;` |
-| `draft-manager.js` | 470 | `AddressIntelligence.targetLock = null;` |
+| `draft-manager.js` | 479 | `AddressIntelligence.targetLock = null;` |
 | `main.js` | 128 | `AddressIntelligence.targetLock = null;` |
 | `main.js` | 215 | `AddressIntelligence.targetLock = null;` |
 
@@ -81,7 +81,7 @@ Nicht in `DEFAULT_SETTINGS`:
 |---:|---|
 | 15 | `import { collectDraft, EDITABLE_FIELD_SELECTOR, getCaretCharacterOffset, sanitizeRichText,` |
 | 295 | `if (!elem?.matches(EDITABLE_FIELD_SELECTOR)) return;` |
-| 432 | `document.querySelectorAll(EDITABLE_FIELD_SELECTOR).forEach(el => {` |
+| 441 | `document.querySelectorAll(EDITABLE_FIELD_SELECTOR).forEach(el => {` |
 
 Das ist die Allowlist, die der Seeder (`boot-state.js`) seit B69 ebenfalls
 benutzt — dort als lokale Kopie des Selektors, weil ein klassisches Skript

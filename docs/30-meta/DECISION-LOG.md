@@ -3419,3 +3419,68 @@ beim nächsten Umbau zurück. Zwei bestehende Tests lasen die Regeln noch aus
 #btn-testbrief` (heute `sidebar.css:1281`). Sie hängt an `din_settings` und
 `SettingsManager.#applyPlugins()` — das ist Zustand, nicht Modus-Struktur.
 Bleibt, wo sie ist.
+
+---
+
+## 2026-11-15 — Batch 05 ausgewertet: ein echter Fehler, zwei Altlasten, ein Werkzeug
+
+Das Review zu Scheibe 05 kam zurück. Ausgewertet heisst hier: jede Behauptung
+am Code nachgerechnet, nicht übernommen.
+
+**Behoben — F5, das Datum.** Der Restore setzte `data-dirty` nur im Zweig für
+**nicht-native** Felder. `#datum` ist ein `<input>` (`index.html:379`), der
+Zweig lief nie, und `applyLetterDate()` (`format.js:404`) überschrieb beim Boot
+mit „heute". Gemessen: Entwurf `datum: "1. März 2020"` → nach dem Reload
+**„15. November 2026"**. Ein vom Nutzer eingetragenes Datum war weg.
+
+Die erste Fassung des Fixes („markiere, sobald ein Datum im Entwurf steht") war
+zu grob: sie hätte das Datum **auf ewig** eingefroren, weil auch der
+automatisch gesetzte Tagesstand in jedem Entwurf steht (nachgemessen: ein
+frisches Profil wurde dadurch „dirty").
+
+Richtig ist die **Absicht** statt des Werts: `collectDraft()` speichert
+`datum__dirty: true`, wenn der Nutzer das Feld angefasst hat
+(`document.js:927`), der Restore setzt daraus `data-dirty`
+(`draft-manager.js:346`). Additiv, alte Entwürfe ohne den Schlüssel verhalten
+sich wie bisher. Drei Tests halten beide Richtungen fest (mit Absicht → bleibt,
+ohne Absicht → rollt auf den Tag).
+
+**Gemessen, nicht vermutet — was NICHT stimmt:**
+
+| Behauptung aus dem Review | Prüfung | Ergebnis |
+|---|---|---|
+| F1: „Selects fallen im Seeder durch" | `grep data-speichern` über das ganze Projekt | **kein Element** trägt das Attribut — nur der Selektor-String. Der Pfad ist tot, kein Live-Fehler |
+| F3: „ungesäubertes HTML vor dem Paint (XSS)" | Probe mit `<img src=x onerror=window.__xss=1>` im Entwurf | `xss: null`, das `img` war bei `ready` weg. Der bestehende Test „stript Event-Handler-Attribute" deckt denselben Weg |
+| B93: „die zwei `targetLock`-Zeilen sind redundant" | Aufrufkette + Publish-Reihenfolge | **zurückgestuft**. `resetDraft()` published `DOCUMENT_CHANGED` erst **nach** dem `null`; ein Listener kann den Lock erneut setzen |
+
+**Gemessen und behoben — der Vermerk.** Der Seeder schrieb
+`"  Unser Zeichen: 4711  "`, der Restore zeigte `"Unser Zeichen: 4711"`.
+Jetzt trimmt der Seeder vor dem Paint (`boot-state.js`, ein `id === 'vermerke'`).
+
+**Bewusst nicht behoben:** Alt-Entwürfe mit `<li>`-HTML in der Anlagen-Angabe
+zeigen bis zum Paint das Roh-Markup, danach den migrierten Text
+(`tools/seeder-diff.mjs`, Fall `legacy-liste`). Die Migration im Seeder
+erzwänge eine zweite Kopie von `stripHtmlToPlaintext` in einem klassischen
+Skript — zwei Sanitizer sind schlechter als ein sichtbarer, einmaliger Sprung.
+
+**Neues Werkzeug: `tools/seeder-diff.mjs`.** Der Review schlug als A einen
+Differenztest Seeder gegen Restore vor; das ist er. Sieben Fixtures (leer, voll,
+ohne Fußschalter, Legacy-Liste, leeres Datum, Vermerk mit Rand, `__quelle`),
+Snapshot im Moment von `data-seeded` **und** bei `data-ready`, Vergleich
+Feld für Feld. Erwartete Abweichungen sind **deklariert** — nur unerwartete
+lassen das Werkzeug mit Exit 1 abbrechen. Stand jetzt: **3 Abweichungen, 0
+unerwartet**.
+
+Zwei Fallen im Werkzeug selbst, beide gefunden und behoben, weil sie ein
+falsches Grün liefern können:
+
+1. Der Snapshot-Haken war ein `Element.prototype.setAttribute`-Override —
+   `el.dataset.x = 'true'` läuft**nicht** darüber. Jetzt MutationObserver.
+2. `document.documentElement` ist beim Document-Start `null`; `observe(null)`
+   wirft, der ganze Block stirbt, und zwei leere Snapshots sind „gleich".
+   Deshalb: auf `documentElement` warten, und ein fehlender Snapshot zählt als
+   **MESSFEHLER**, nicht als 0 Abweichungen.
+3. Der Fixture wurde vor der Navigation gesetzt — die alte Seite speichert
+   beim Verlassen (`flushPendingSave`) und überschreibt ihn. Jetzt per
+   `Page.addScriptToEvaluateOnNewDocument` im **neuen** Dokument, vor
+   `boot-state.js`.

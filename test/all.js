@@ -454,6 +454,73 @@ describe('Textformatierung — Toolbar', () => {
   });
 });
 
+describe('Datum überlebt den Reload (F5, Batch 05)', () => {
+  /* Befund aus dem Batch-05-Review, gemessen am 2026-11-15: der Restore setzte
+   * `data-dirty` nur im Zweig für NICHT-native Felder — #datum ist ein <input>,
+   * die Markierung lief also nie, und `applyLetterDate` (format.js) setzte beim
+   * Boot "heute". Gemessen: Entwurf "1. März 2020" -> "15. November 2026". */
+  /**
+   * @param {Record<string, unknown>} draft
+   * @param {(el: HTMLInputElement, applyLetterDate: () => void) => void} pruefung
+   */
+  const mitDatum = async (draft, pruefung) => {
+    const { applyLetterDate } = await import('../website/js/format.js');
+    const el = document.createElement('input');
+    el.id = 'datum';
+    el.setAttribute('data-atom', '');
+    el.setAttribute('data-feldtyp', 'systemwert');
+    document.body.append(el);
+    try {
+      localStorage.setItem('din_draft_current', JSON.stringify(draft));
+      new DraftManager().loadDraft();
+      pruefung(el, applyLetterDate);
+    } finally {
+      el.remove();
+      localStorage.clear();
+    }
+  };
+
+  it('ein vom Nutzer gesetztes Datum überlebt den Reload (datum__dirty)', async () => {
+    await mitDatum({ datum: '1. März 2020', 'datum__dirty': true }, (el, applyLetterDate) => {
+      assertEqual(el.value, '1. März 2020', 'Restore setzt den gespeicherten Wert');
+      assertEqual(el.dataset.dirty, 'true', 'data-dirty kommt aus der gespeicherten Absicht');
+      applyLetterDate();
+      assertEqual(el.value, '1. März 2020', 'applyLetterDate laesst ihn stehen');
+    });
+  });
+
+  it('ein nur automatisch gefuelltes Datum rollt weiter (kein datum__dirty)', async () => {
+    /* Genau der Unterschied: ein Wert im Entwurf heisst NICHT "vom Nutzer".
+     * Sonst bliebe das Datum fuer immer auf dem Tag des letzten Speicherns. */
+    await mitDatum({ datum: '1. März 2020' }, (el, applyLetterDate) => {
+      assert(el.dataset.dirty === undefined, 'ohne Absicht keine Markierung');
+      assertEqual(el.value, '1. März 2020', 'Restore setzt den gespeicherten Wert');
+      applyLetterDate();
+      assert(el.dataset.dirty === undefined, 'applyLetterDate setzt keine Markierung');
+      assert(el.value.trim() !== '', 'Datum bleibt gefuellt');
+      assert(el.value !== '1. März 2020', 'ohne Absicht rollt es auf den Tagesstand');
+    });
+  });
+
+  it('collectDraft speichert die Absicht, nicht nur den Wert', () => {
+    const el = document.createElement('input');
+    el.id = 'datum';
+    el.setAttribute('data-atom', '');
+    el.setAttribute('data-feldtyp', 'systemwert');
+    el.value = '1. März 2020';
+    document.body.append(el);
+    try {
+      const ohne = collectDraft();
+      assert(ohne['datum__dirty'] === undefined, 'ohne data-dirty kein Schluessel');
+      el.dataset.dirty = 'true';
+      const mit = collectDraft();
+      assertEqual(mit['datum__dirty'], true, 'mit data-dirty wird die Absicht gespeichert');
+    } finally {
+      el.remove();
+    }
+  });
+});
+
 describe('DraftManager: localStorage-Roundtrip', () => {
   it('saveDraft schreibt alle contenteditable-Felder nach localStorage', () => {
     seed();

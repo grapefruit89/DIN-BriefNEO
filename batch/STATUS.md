@@ -10,7 +10,7 @@ Review-Scheiben — nicht der Chat.
 | 01 | Architektur-Vertrag: Schichten, Verstöße, prüfbare Regeln | ✅ | ✅ | ✅ teilweise | 3 / 55 KiB |
 | 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ✅ | ✅ vollständig | 4 / 30 KiB |
 | 03 | CSS-Kaskade: `!important` und `@layer` | ✅ | ⬜ offen | – | 3 / 28 KiB |
-| 04 | `sidebar.css`: Optik und Struktur trennen | Skizze ✅ (aktualisiert 15.11.) | – | – | `batch/04-seitenleiste-struktur/prompt.md` |
+| 04 | `sidebar.css`: Optik und Struktur trennen | ✅ **15.11.** | ⬜ offen | – | 2 / **42 KiB** |
 | 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ **15.11.** | ⬜ offen | – | 3 / **37 KiB** |
 | 06 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
 
@@ -20,9 +20,10 @@ vollständiger Auftrag. Ausformuliert wird erst, wenn die Scheibe dran ist
 braucht 2–4 Dateien und einen Messblock; bei mehr als 30 KiB Anhang prüfen, ob
 der Schnitt zu grob ist.
 
-**Ausnahme 05:** 37 KiB, weil die Frage zwei **vollständige** Pfade braucht
-(183 + 551 Zeilen). Eine Datei wegzulassen hieße, die Hälfte der Frage
-wegzulassen. Der Schnitt ist nicht grob, er ist dicht.
+**Ausnahmen 04 und 05:** 42 bzw. 37 KiB. Beide Fragen brauchen die
+**vollständigen** Dateien: 05 zwei Pfade (183 + 551 Zeilen), 04 eine Datei, die
+selbst der Gegenstand ist (1.281 Zeilen — ein Auszug schnitte genau die
+Modus-Regeln weg, um die es geht). Der Schnitt ist nicht grob, er ist dicht.
 
 ## Was Batch 05 an Messwerten gebracht hat (15.11., vor dem Prompt)
 
@@ -94,6 +95,7 @@ DECISION-LOG-Eintrag „Der erste Paint ist keine Zusage".
 | 01 | `node tools/batch-facts.mjs --scheibe 01` |
 | 02 | `node tools/batch-facts.mjs` (Standard) |
 | 03 | `node tools/batch-facts.mjs --scheibe 03` |
+| 04 | `node tools/batch-facts.mjs --scheibe 04` |
 | 05 | `node tools/batch-facts.mjs --scheibe 05` |
 
 Jeweils mit `--check` im Gate; `npm run docs:all` prüft Backlog-Tabelle,

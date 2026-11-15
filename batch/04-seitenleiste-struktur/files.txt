@@ -1,0 +1,7 @@
+# Batch 04 — Seitenleiste: Struktur und Optik trennen
+# sidebar.css ist der Gegenstand selbst (1.281 Zeilen, 39,5 KiB) - ein Auszug
+# wuerde genau die Modus-Regeln wegschneiden, um die es geht. index.html steht
+# NICHT im Anhang (36 KiB): Zonen und Modusschalter stehen mit Zeile in
+# fakten.md.
+/home/moritz/repos/DIN-BriefNEO/website/css/sidebar.css
+/home/moritz/repos/DIN-BriefNEO/batch/04-seitenleiste-struktur/fakten.md

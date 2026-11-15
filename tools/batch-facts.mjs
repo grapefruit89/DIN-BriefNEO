@@ -29,7 +29,7 @@ const iScheibe = process.argv.indexOf('--scheibe');
 const SCHEIBE = iScheibe > -1 && process.argv[iScheibe + 1] ? process.argv[iScheibe + 1] : '02';
 const ZIEL = join(
   ROOT,
-  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore' }[SCHEIBE] || 'batch/02-boot-pfad',
+  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore', '04': 'batch/04-seitenleiste-struktur' }[SCHEIBE] || 'batch/02-boot-pfad',
   'fakten.md',
 );
 
@@ -648,6 +648,158 @@ nichts importieren kann.
 `;
 }
 
+function scheibe04() {
+  /* Seitenleiste: Struktur (Modus-Sichtbarkeit) gegen Optik trennen.
+   * Alle Zahlen aus dem Quelltext, keine abgetippten Werte. */
+  const css = lies('website/css/sidebar.css');
+  const html = zeilen('website/index.html');
+  const cssZeilen = ohneKommentare(css);
+
+  /* 1. Kennzahlen */
+  let ids = 0;
+  let important = 0;
+  let has = 0;
+  let medien = 0;
+  const eigenschaften = new Set();
+  const definiert = new Set();
+  const benutzt = new Set();
+  cssZeilen.forEach((z) => {
+    ids += (z.match(/#[a-zA-Z][\w-]*/g) || []).length;
+    important += (z.match(/!important/g) || []).length;
+    has += (z.match(/:has\(/g) || []).length;
+    if (/^\s*@media\b/.test(z)) medien++;
+    for (const m of z.matchAll(/(--[a-zA-Z][\w-]*)\s*:/g)) definiert.add(m[1]);
+    for (const m of z.matchAll(/var\((--[a-zA-Z][\w-]*)/g)) benutzt.add(m[1]);
+    const dekl = z.match(/^\s*([a-z-]+)\s*:/);
+    if (dekl) eigenschaften.add(dekl[1]);
+  });
+
+  /* 2. Alle Regeln, die den Modus steuern.
+   * Eine Regel kann mehrere Selektoren haben (Zeilen 804-806 sind EINE Regel),
+   * deshalb wird bis zur oeffnenden Klammer gesammelt und dann der Rumpf. */
+  const modusMitInhalt = [];
+  for (let i = 0; i < cssZeilen.length; i++) {
+    if (!cssZeilen[i].includes(':has(#modus')) continue;
+    const selektoren = [];
+    let j = i;
+    while (j < cssZeilen.length && !cssZeilen[j].includes('{')) {
+      selektoren.push(cssZeilen[j].trim());
+      j++;
+    }
+    if (j < cssZeilen.length) selektoren.push(cssZeilen[j].replace('{', '').trim());
+    const rumpf = [];
+    let k = j + 1;
+    while (k < cssZeilen.length && !cssZeilen[k].includes('}')) {
+      if (cssZeilen[k].trim()) rumpf.push(cssZeilen[k].trim());
+      k++;
+    }
+    if (k < cssZeilen.length) rumpf.push(cssZeilen[k].replace('}', '').trim());
+    modusMitInhalt.push({
+      nr: i + 1,
+      selektoren: selektoren.filter(Boolean),
+      rumpf: rumpf.filter(Boolean).join(' '),
+    });
+    i = k; // diese Regel ist gelesen
+  }
+
+  /* 3. Zonen und Modusschalter aus index.html */
+  const zonen = [];
+  html.forEach((z, i) => {
+    const m = z.match(/<(section|div|fieldset)[^>]*id="(zone-[\w-]+)"[^>]*>/);
+    if (m) {
+      const label = m[0].match(/aria-label="([^"]*)"/);
+      zonen.push({ tag: m[1], id: m[2], nr: i + 1, label: label ? label[1] : '—' });
+    }
+  });
+  const schalter = [];
+  html.forEach((z, i) => {
+    const m = z.match(/<input[^>]*type="radio"[^>]*name="ansicht-modus"[^>]*id="([\w-]+)"/);
+    if (m) schalter.push({ id: m[1], nr: i + 1, checked: /checked/.test(z) });
+  });
+
+  /* 4. Fokussierbares (statisch gezaehlt — kein Tab-Walk) */
+  const fokus = { input: 0, button: 0, select: 0, textarea: 0, a: 0 };
+  html.forEach((z) => {
+    fokus.input += (z.match(/<input\b/g) || []).length;
+    fokus.button += (z.match(/<button\b/g) || []).length;
+    fokus.select += (z.match(/<select\b/g) || []).length;
+    fokus.textarea += (z.match(/<textarea\b/g) || []).length;
+    fokus.a += (z.match(/<a\s/g) || []).length;
+  });
+  const fokusSumme = Object.values(fokus).reduce((a, b) => a + b, 0);
+
+  return `# Fakten zu 04-seitenleiste-struktur
+
+**Erzeugt von \`tools/batch-facts.mjs --scheibe 04\` — nicht von Hand bearbeiten.**
+\`node tools/batch-facts.mjs --scheibe 04 --check\` bricht ab, wenn dieses Blatt
+nicht mehr zum Quelltext passt.
+
+## 1. \`sidebar.css\`
+
+| Kennzahl | Wert |
+|---|---:|
+| Zeilen | ${css.split('\n').length - 1} |
+| Blöcke mit geschweifter Klammer (inkl. @media) | ${cssZeilen.join('\n').match(/\{/g).length} |
+| ID-Selektoren | ${ids} |
+| \`!important\` | ${important} |
+| \`:has(\` | ${has} |
+| \`@media\`-Blöcke | ${medien} |
+| verschiedene CSS-Eigenschaften | ${eigenschaften.size} |
+| selbst definierte Custom Properties | ${definiert.size} |
+| benutzte Custom Properties | ${benutzt.size} |
+
+## 2. Die Modus-Regeln (das ist der Strukturvertrag)
+
+**${modusMitInhalt.length}** Regeln mit **${modusMitInhalt.reduce((n, r) => n + r.selektoren.length, 0)}** Selektoren tragen die
+Sichtbarkeit der beiden Modi. Sie liegen alle in einem Block ab
+Zeile ${modusMitInhalt.length ? modusMitInhalt[0].nr : '—'}.
+
+Die Zahl aus Batch 01 („7 Modus-Regeln") ist damit **veraltet**: aus sieben
+Regeln sind drei geworden, weil vier davon seit dem Umbau vom 2026-11-13
+nichts mehr trafen und entfernt wurden (B14).
+
+| Zeile | Selektoren | Deklaration |
+|---:|---|---|
+${modusMitInhalt
+  .map(
+    (r) =>
+      `| ${r.nr} | ${r.selektoren
+        .map((s) => `\`${esc(s)}\``)
+        .join('<br>')} | \`${esc(r.rumpf) || '—'}\` |`,
+  )
+  .join('\n')}
+
+## 3. Modusschalter in \`index.html\`
+
+| Zeile | \`id\` | vorausgewählt |
+|---:|---|---|
+${schalter.map((s) => `| ${s.nr} | \`${s.id}\` | ${s.checked ? 'ja' : 'nein'} |`).join('\n')}
+
+## 4. Zonen in \`index.html\`
+
+| Zeile | Element | \`id\` | \`aria-label\` |
+|---:|---|---|---|
+${zonen.map((z) => `| ${z.nr} | \`<${z.tag}>\` | \`${z.id}\` | ${z.label === '—' ? '—' : `„${z.label}"`} |`).join('\n')}
+
+## 5. Fokussierbares in \`index.html\` (statisch gezählt)
+
+| Element | Anzahl |
+|---|---:|
+| \`<input>\` | ${fokus.input} |
+| \`<button>\` | ${fokus.button} |
+| \`<select>\` | ${fokus.select} |
+| \`<textarea>\` | ${fokus.textarea} |
+| \`<a>\` | ${fokus.a} |
+| **Summe** | **${fokusSumme}** |
+
+**Diese Zahl ist keine Tab-Reihenfolge.** Sie zählt Elemente im Quelltext,
+nicht erreichbare Ziele: \`sr-only\`, \`hidden\`, \`disabled\` und der jeweils
+ausgeblendete Modus zählen hier mit. Wer die Fokusfolge beurteilen will, muss
+im Browser tabben (Messmethode im Auftrag, Aufgabe 3) — genau diese
+Verwechslung hat am 2026-11-13 eine Zahl um eins verschoben.
+`;
+}
+
 const SKRIPTE = skripte();
 const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
 
@@ -655,6 +807,7 @@ const bloecke = [];
 if (SCHEIBE === '01') bloecke.push(scheibe01());
 else if (SCHEIBE === '03') bloecke.push(scheibe03());
 else if (SCHEIBE === '05') bloecke.push(scheibe05());
+else if (SCHEIBE === '04') bloecke.push(scheibe04());
 else bloecke.push(`# Fakten zum Boot-Pfad
 
 **Erzeugt von \`tools/batch-facts.mjs\` — nicht von Hand bearbeiten.**

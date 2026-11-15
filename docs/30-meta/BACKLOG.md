@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-26 offene Punkte. Details unterhalb, nach Art gruppiert.
+24 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -62,10 +62,8 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B32** | Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) | S | ⭐⭐⭐⭐ |
 | **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
 | **B35** | Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) | S | ⭐⭐⭐ |
-| **B36** | Schema-Datei für v3 anlegen oder Verweis endgültig streichen | N | ⭐ |
 | **B38** | Chromium klemmt Rahmenbreiten unter 1px auf 1px | N | ⭐ |
 | **B40** | Vier vorbestehende Testfehler dokumentieren | M | ⭐⭐ |
-| **B49** | Test-Dossier ins Repo | S | ⭐⭐ |
 | **B51** | Design-Tokens in `sidebar.css` durchziehen | M | ⭐⭐ |
 | **B52** | Plugin-Punkt für `website/addons/` | L | ⭐⭐ |
 | **B57** | CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren | S | ⭐⭐ |
@@ -229,6 +227,14 @@ angefasst, solange irgendetwas anderes offen ist.
 
 ---
 
+**Zurückgestellt (2026-11-15, Nutzerentscheidung: „auf Eis").** Kein
+Multi-Provider (Nominatim, Photon, BKG). Grund: der Ausfall ist heute schon
+abgedeckt (B30: Failover auf den zweiten Geoapify-Host), und jeder weitere
+Anbieter bringt eigene Nutzungsbedingungen, eigene Grenzen und eigene
+Datenqualität — drei Adressen, die sich unterschiedlich verhalten, sind
+schlechter als eine, die ausfällt und zurückkommt. Wird nicht angefasst,
+solange Geoapify reicht.
+
 ### B31 · Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker · **S** · ⭐⭐
 **Kontext:** Konsolidiert aus `CHROME_METRICS_HIDDEN_GEMS.md` (Chromium Web Features UseCounter Telemetrie).
 **Ziel:** Direkte Integration moderner, nativer Browser-APIs:
@@ -339,20 +345,6 @@ Briefe nie brauchen.
 
 Offene Entscheidungen und Dokumentationslücken. Brauchen eine Antwort, keinen Code.
 
-### B36 · Schema-Datei für v3 anlegen oder Verweis endgültig streichen · **N** · ⭐
-Die `$schema`-Zeile in `website/llms.txt` ist seit `186664c` entfernt (kein
-404 mehr). Offen ist nur die Entscheidung:
-
-| Option | Kosten | Nutzen |
-|---|---|---|
-| `website/schema/v3/din-letter.json` anlegen | ~100 Zeilen JSON-Schema, muss bei jeder Feldänderung mitgepflegt werden | fremde Werkzeuge können Dateien validieren |
-| Verweis dauerhaft streichen | 0 | – |
-
-**Empfehlung: streichen.** Es gibt keinen Konsumenten (kein Build, kein
-externer Parser), und `parseDinLetterPayload` ist die Wahrheit — ein zweites
-Schema daneben driftet garantiert. Wenn jemand fremdes die Dateien validieren
-will, ist das der Moment, es anzulegen, nicht vorher.
-
 ### B38 · Chromium klemmt Rahmenbreiten unter 1px auf 1px · **N** · ⭐
 Gemessen in Chromium 156 auf einer leeren `data:`-Seite ohne App-CSS: `0.25pt`,
 `0.5pt`, `0.8pt` und `1pt` liefern alle `1px`, erst `2px` liefert `2px` — auch bei
@@ -365,9 +357,6 @@ ganze Gerätepixel gerundet). Der einzige Weg zu echter Subpixel-Stärke ist der
 SVG-Ansatz aus **B35** (`stroke-width` in mm, `vector-effect="non-scaling-stroke"`).
 Bis dahin nur dokumentieren, damit niemand erwartet, dass 0.5pt auf dem Schirm
 sichtbar dünner ist.
-
-### B49 · Test-Dossier ins Repo · **S** · ⭐⭐
-Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (archiviert); ohne Ablage wird dieselbe Analyse doppelt gemacht.
 
 ### B85 · Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? · **M** · ⭐⭐⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/README.md` (Punkt 49), unverändert offen.

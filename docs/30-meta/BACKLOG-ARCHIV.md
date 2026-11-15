@@ -887,3 +887,48 @@ Failover greift, ohne Konsolenfehler.
 
 **Preis:** eine zweite Origin in der CSP. Bewusst: derselbe Anbieter, dieselbe
 API, nur ein anderer Edge-Standort.
+
+### B36 · Schema-Datei für v3 anlegen oder Verweis endgültig streichen · **N** · ⭐
+Die `$schema`-Zeile in `website/llms.txt` ist seit `186664c` entfernt (kein
+404 mehr). Offen ist nur die Entscheidung:
+
+| Option | Kosten | Nutzen |
+|---|---|---|
+| `website/schema/v3/din-letter.json` anlegen | ~100 Zeilen JSON-Schema, muss bei jeder Feldänderung mitgepflegt werden | fremde Werkzeuge können Dateien validieren |
+| Verweis dauerhaft streichen | 0 | – |
+
+**Empfehlung: streichen.** Es gibt keinen Konsumenten (kein Build, kein
+externer Parser), und `parseDinLetterPayload` ist die Wahrheit — ein zweites
+Schema daneben driftet garantiert. Wenn jemand fremdes die Dateien validieren
+will, ist das der Moment, es anzulegen, nicht vorher.
+
+✅ ERLEDIGT 2026-11-15 — **gestrichen, wie empfohlen.**
+Es wird kein `website/schema/v3/din-letter.json` angelegt. Gründe:
+`parseDinLetterPayload` ist die Wahrheit über das Format (mit Tests), und ein
+zweites Schema daneben driftet bei der ersten Feldänderung. Es gibt keinen
+Konsumenten (kein Build, kein externer Parser). Die `$schema`-Zeile in
+`website/llms.txt` bleibt entfernt.
+
+Zur Abgrenzung: `docs/30-meta/schema-v6.json` ist etwas anderes — das
+**Frontmatter**-Schema für Markdown-Dokumente, nicht das Brief-Format. Es
+bleibt, wo es ist, und wird von `docs/30-meta/README.md` erklärt.
+
+### B49 · Test-Dossier ins Repo · **S** · ⭐⭐
+Die Testlandschafts-Analyse liegt nur im Chat. `befundpruefung-2026-11-05.md` (archiviert); ohne Ablage wird dieselbe Analyse doppelt gemacht.
+
+✅ ERLEDIGT 2026-11-15 — `docs/30-meta/TEST-DOSSIER.md`, erzeugt von
+`tools/test-dossier.mjs` (`npm run docs:tests`, `--check` bei Drift).
+
+**Inhalt:** 342 Fälle in 90 Gruppen als Tabelle, nach Fallzahl sortiert — man
+sieht auf einen Blick, wo die Abdeckung dick ist (DraftManager, Adresssuche,
+Persistenz) und wo dünn.
+
+**Bewusst keine Einzelfälle:** 342 Zeilen wären ein zweites Testverzeichnis,
+das bei jeder Umbenennung nachgezogen werden müsste. Die Namen stehen im Lauf
+(`node tools/test-runner.mjs`), das Dossier beantwortet „ist Bereich X
+abgedeckt und wie dick?".
+
+**Erste Fassung war falsch:** sie gruppierte über `});`-Zeilen und warf 254 von
+342 Fällen in „(ohne Gruppe)". Jetzt schließt eine Gruppe über ihre
+**Einrückung** — Hausformatierung von `test/all.js`, und `it(`-Blöcke tiefer
+stören nicht. Ergebnis: 0 Fälle ohne Gruppe.

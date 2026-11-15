@@ -975,9 +975,86 @@ export function initAddressServices() {
     return book.filter(item => item.formatted.toLowerCase().includes(q)).slice(0, 5);
   }
 
-  // Geoapify In-Memory Cache
+  /* Geoapify laeuft auf zwei erreichbaren Hosts mit identischer API
+     (geprueft 2026-11-15: beide antworten auf eine ungueltige Key-Anfrage mit
+     demselben 401-Body). Der zweite wird nur benutzt, wenn der erste mit
+     5xx oder Netzwerkfehler ausfaellt — bei 4xx ist die Anfrage falsch, dann
+     hilft kein anderer Host. */
+  const GEOAPIFY_HOSTS = ['https://api.geoapify.com', 'https://api-eu.geoapify.com'];
+
+  /**
+   * Holt JSON mit Host-Failover. Pro Versuch ein eigener Timeout, sonst waere
+   * der zweite Versuch schon abgelaufen, wenn der erste ihn verbraucht hat.
+   * @param {string} pfad Pfad inkl. Query, beginnend mit "/"
+   * @param {AbortController} controller
+   * @returns {Promise<{ antwort: Response, host: string }>}
+   */
+  async function holeJsonMitFailover(pfad, controller) {
+    let letzterFehler = null;
+    for (const host of GEOAPIFY_HOSTS) {
+      try {
+        const antwort = await fetch(host + pfad, {
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8000)]),
+        });
+        if (antwort.ok || antwort.status < 500) return { antwort, host };
+        letzterFehler = new Error(`HTTP ${antwort.status} von ${host}`);
+      } catch (err) {
+        if (/** @type {Error} */ (err).name === 'AbortError') throw err;
+        letzterFehler = err;
+      }
+    }
+    throw letzterFehler ?? new Error('Kein Geoapify-Host erreichbar');
+  }
+
+  // Geoapify In-Memory Cache (LRU: Treffer ruecken nach vorn)
   /** @type {Map<string, AddressEntry[]>} */
   const apiCache = new Map();
+  const CACHE_MAX = 100;
+
+  /** @param {string} key @returns {AddressEntry[] | undefined} */
+  function cacheHole(key) {
+    const wert = apiCache.get(key);
+    if (wert) {
+      apiCache.delete(key);
+      apiCache.set(key, wert);
+    }
+    return wert;
+  }
+
+  /** @param {string} key @param {AddressEntry[]} wert */
+  function cacheSetze(key, wert) {
+    if (apiCache.size >= CACHE_MAX) {
+      const aeltester = apiCache.keys().next().value;
+      if (typeof aeltester === 'string') apiCache.delete(aeltester);
+    }
+    apiCache.set(key, wert);
+  }
+
+  /* Verbindung vorwaermen, sobald der Nutzer das Feld anfasst: der erste
+     Tastendruck trifft dann auf eine offene Verbindung statt auf DNS+TLS.
+     Bewusst per JS statt als <link rel="preconnect"> in index.html: A38
+     verbietet dort jeden externen Verweis. Hier oeffnet es nur einen Socket
+     zu einem Origin, den die CSP ohnehin fuer fetch erlaubt. */
+  let vorgewaermt = false;
+  function waermeVerbindungVor() {
+    if (vorgewaermt) return;
+    vorgewaermt = true;
+    for (const host of GEOAPIFY_HOSTS) {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = host;
+      link.crossOrigin = 'anonymous';
+      document.head.append(link);
+    }
+  }
+
+  /* Kein `once`: hat das Feld beim Laden schon den Fokus (Autofokus, Reload mit
+     gespeichertem Fokus), ist das `focus`-Event längst vorbei und ein
+     `once`-Listener liefe nie — im Test genau so passiert. Die Funktion ist
+     über `vorgewaermt` ohnehin idempotent. */
+  inputAddressSearch.addEventListener('focus', waermeVerbindungVor);
+  inputAddressSearch.addEventListener('input', waermeVerbindungVor);
+  if (document.activeElement === inputAddressSearch) waermeVerbindungVor();
 
   // Tastatursteuerung für das native Listbox-Popover
   inputAddressSearch.addEventListener('keydown', (event) => {
@@ -1051,24 +1128,22 @@ export function initAddressServices() {
     // 3. CACHE HIT: Sofortiges Rendering ohne Netzwerk!
     const lock = AddressIntelligence.targetLock;
     const cacheKey = `${lock ? `${lock.plz} ` : ''}${query}`.toLowerCase();
-    if (apiCache.has(cacheKey)) {
-      mergeAndRender(localMatches, apiCache.get(cacheKey) || [], query);
+    const ausCache = cacheHole(cacheKey);
+    if (ausCache) {
+      mergeAndRender(localMatches, ausCache, query);
       return;
     }
 
-    const fetchOptions = {
-      signal: AbortSignal.any([activeAbortController.signal, AbortSignal.timeout(8000)]),
-    };
     const coords = /** @type {{ lat: number, lon: number } | null} */ (loadJSON(STORAGE_KEYS.senderCoords, null));
 
     const searchText = lock ? `${query}, ${lock.plz} ${lock.city}` : query;
-    let url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
+    let pfad = `/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${encodeURIComponent(key)}&lang=de&limit=5&format=json&filter=countrycode:de`;
     if (!lock && coords?.lat && coords?.lon) {
-      url += `&bias=proximity:${coords.lon},${coords.lat}`;
+      pfad += `&bias=proximity:${coords.lon},${coords.lat}`;
     }
 
     try {
-      const response = await fetch(url, fetchOptions);
+      const { antwort: response } = await holeJsonMitFailover(pfad, activeAbortController);
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           save(STORAGE_KEYS.geoapifyKey, '');
@@ -1112,13 +1187,7 @@ export function initAddressServices() {
          PLZ-Suche (ohne Strasse) fiel damit komplett raus - "Troisdorf" und
          "53840" zeigten gar nichts (gemeldet 2026-11-13). */
 
-      /* Deckel gegen monoton wachsenden Speicher (SMELL aus dem Review):
-         aeltester Eintrag fliegt raus, wenn der Cache voll ist. */
-      const aeltesterSchluessel = apiCache.keys().next().value;
-      if (apiCache.size >= 100 && typeof aeltesterSchluessel === 'string') {
-        apiCache.delete(aeltesterSchluessel);
-      }
-      apiCache.set(cacheKey, parsedSuggestions);
+      cacheSetze(cacheKey, parsedSuggestions);
       /* Ueberholte Antwort verwerfen: der Nutzer hat inzwischen weitergetippt
        * oder das Feld geleert (B3-03). */
       if (generation !== suchGeneration) return;

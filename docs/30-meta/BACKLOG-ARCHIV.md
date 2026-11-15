@@ -834,3 +834,56 @@ Zeitangabe; die Regel soll Bewegung abschalten, nicht Information verschlucken.
 Nebenbei: `--toast-dauer`/`toast-lebensdauer` hießen zuerst so — die
 IMR-Regel verbietet „Toast" im CSS (kanonisch: „Hinweis"). Alle Vorkommen
 umbenannt, Fitness blieb danach grün.
+
+### B29 · Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) · **S** · ⭐⭐⭐
+**Kontext:** Konsolidiert aus `GEOAPIFY_OPTIMIZATION_CONCEPT.md`.
+**Ziel:** Feinabstimmung der Remote-Adressabfrage: Verbindungsvorwärmung (`preconnect`/DNS-Prefetch bei Fokus auf das Straßenfeld), dynamischer Session-Debounce (500 ms) und In-Memory LRU-Cache für wiederholte Tastenanschläge zur Minimierung von API-Calls.
+
+✅ ERLEDIGT 2026-11-15 — drei Viertel war schon da, der Rest ist gebaut.
+
+**Schon vorhanden (geprüft, nicht neu gebaut):** Debounce 200 ms, In-Memory-Cache
+mit Deckel (100 Einträge), `filter=countrycode:de`.
+
+**Neu:**
+- **LRU statt FIFO.** Ein Cache-Treffer rückt den Schlüssel nach vorn; vorher
+  flog der *älteste eingetragene*, nicht der *am längsten unbenutzte*.
+- **Verbindung vorwärmen.** Beim ersten Fokus/Tastendruck werden
+  `<link rel="preconnect">` für beide Hosts eingesetzt. Bewusst per JS und
+  nicht statisch in `index.html`: A38 verbietet dort jeden externen Verweis
+  (Fitness-Gate schlug bei `dns-prefetch` sofort CRITICAL).
+
+**Bewusst nicht geändert:** Debounce bleibt bei 200 ms, nicht 500 ms wie im
+Konzept. 500 ms fühlt sich beim Tippen träge an; der Cache fängt die
+Wiederholungen ohnehin ab. Wer Requests sparen will, dreht an der Zahl — eine
+Zeile, aber eine Entscheidung, keine Verbesserung.
+
+**Messung:** Im Browser (127.0.0.1:8088) feuert der Fokus zwei
+`preconnect`-Elemente; das ist nur mit `Emulation.setFocusEmulationEnabled`
+beobachtbar, weil ein Fenster ohne Fokus keine `focus`-Events verteilt — die
+erste Fassung mit `{ once: true }` lief deshalb nie, wenn das Feld beim Laden
+schon den Fokus hatte (jetzt idempotent über ein Flag).
+
+### B30 · Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) · **S** · ⭐⭐
+**Kontext:** Konsolidiert aus `GEOAPIFY_REGION_BIAS_SPEC.md`.
+**Ziel:** Geografischer Such-Bias auf Basis der bereits aufgelösten PLZ/Ort (Bounding Box oder Koordinaten-Bias) und konfigurierbare Ausfallsicherheit (automatischer Failover zwischen EU- und Global-Clustern bei Timeouts/HTTP 5xx).
+
+✅ ERLEDIGT 2026-11-15 — **Bias war schon da, Failover ist neu und echt.**
+
+**Bias (war schon implementiert):** `bias=proximity:<lon>,<lat>` aus
+`din_sender_coords`, plus `filter=countrycode:de`. Bei gesetztem Ziel-Lock
+kommt `PLZ Ort` in den Suchtext. Nachgeprüft, nicht neu gebaut.
+
+**Failover (neu):** `api-eu.geoapify.com` ist ein **echter** zweiter Endpunkt —
+geprüft mit einer ungültigen Key-Anfrage: beide Hosts antworten mit demselben
+`401`-Body. Also: erst `api.geoapify.com`, bei Netzwerkfehler/Timeout/5xx der
+EU-Host. Bei 4xx **kein** Failover (die Anfrage ist falsch, ein anderer Host
+hilft nicht). Pro Versuch ein eigener 8-s-Timeout, sonst wäre der zweite
+Versuch schon abgelaufen.
+
+**CSP erweitert:** `connect-src` erlaubt jetzt beide Hosts. Im Browser geprüft
+mit blockiertem ersten Host (`Network.setBlockedURLs`): die Anfrage ging an
+`api-eu.geoapify.com`, die App zeigte den 401-Pfad („Key abgelaufen") — der
+Failover greift, ohne Konsolenfehler.
+
+**Preis:** eine zweite Origin in der CSP. Bewusst: derselbe Anbieter, dieselbe
+API, nur ein anderer Edge-Standort.

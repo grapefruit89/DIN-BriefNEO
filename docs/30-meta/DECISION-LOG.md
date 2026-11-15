@@ -3659,3 +3659,44 @@ ersten Lauf, schreibt sie im `finally` zurück und **warnt**, wenn
 
 **Regel (AGENTS.md):** Messwerkzeug darf die App des Nutzers nicht verändern.
 Zustand sichern, zurückgeben, danach prüfen.
+
+---
+
+## 2026-11-15 — Seitenleiste schrumpft mit dem Fenster (war starr)
+
+Nutzer: „die seitenleiste ist starr … die wird scrollbar mega hässlich".
+
+**Gemessen (CDP, `Emulation.setDeviceMetricsOverride`, jeweils 900px hoch):**
+
+| Fensterbreite | Leiste vorher | Leiste nachher |
+|---:|---:|---:|
+| 1600 px | 300 px | 300 px |
+| 1440 px | 300 px | **288 px** |
+| 1280 px | 300 px | **256 px** |
+| 1100 px | 300 px | **240 px** |
+| 1024 px | 300 px | **240 px** |
+| 800 px | 300 px | **240 px** |
+
+Ursache war dreifach dieselbe feste Zahl: `--seitenleiste-breite: 18.75rem`
+plus `inline-size`/`min-inline-size`/`max-inline-size` in `sidebar.css` — die
+Leiste konnte per Definition nicht schrumpfen. Jetzt
+`clamp(15rem, 20vw, 18.75rem)`, `min-inline-size: 0`, und das Innenpolster
+wandert mit (`clamp(8px, 1.2vw, 16px)`).
+
+**Höhe, gleiche Messung:** Inhalt war 963–991px bei 900px Fensterhöhe. Eine
+Kompakt-Regel für enge Fenster (`max-height: 1000px`: Gap 8 → 6px, Polster
+16 → 8px) bringt **−28 bis −51px**: 963 → 935, 991 → 940. Der Fuß bleibt
+sticky erreichbar (B74).
+
+**Was bleibt:** bei 900px Fensterhöhe scrollen noch ~35–65px. Das ist keine
+CSS-Schluderei, sondern die Menge der Bedienelemente: eine echte Lösung wäre,
+Zonen einklappbar zu machen (Feature, nicht Feinschliff). `scrollbar-gutter:
+stable` verhindert, dass die Leiste beim Erscheinen des Balkens seitlich
+springt.
+
+**Druck unberührt:** 4 Referenzbriefe, 6 Seiten, **0 abweichende Pixel**.
+
+**Falle bei der Umsetzung:** die Kompakt-Regel stand zuerst **vor** der
+Basisregel `#seitenleiste`. Gleiche Spezifität, spätere Deklaration gewinnt —
+die Regel war wirkungslos (963 → 963). Erst nach dem Verschieben hinter die
+Basisregel: 963 → 935.

@@ -234,7 +234,11 @@ body {
   --radius-full: 999px;     /* Pillen */
 
   /* --- 5. LAYOUT --- */
-  --seitenleiste-breite: 18.75rem; /* 300px */
+  /* 300px bei breitem Fenster, 240px als Untergrenze. Vorher war der Wert
+     fix: bei 1024px Fenster nahm die Leiste 29 % der Breite, bei 800px 37 % -
+     und blieb starr, obwohl rechts das Blatt schrumpfte. clamp() laesst sie
+     mitwandern (gemessen 2026-11-15: 1600 -> 300, 1280 -> 256, 1024 -> 240). */
+  --seitenleiste-breite: clamp(15rem, 20vw, 18.75rem);
 }
 
 /* --- 3. DIN-MATHEMATIK (@function) --- */

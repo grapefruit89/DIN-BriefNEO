@@ -10,9 +10,12 @@ aside.seitenleiste,
   display: flex;
   flex-direction: column;
   height: 100%;
-  inline-size: var(--seitenleiste-breite);
+  /* Die Spaltenbreite kommt aus dem Grid (--seitenleiste-breite). Hier nur
+     die Obergrenze: `min-inline-size: 0` erlaubt das Schrumpfen, vorher stand
+     hier dieselbe feste Breite dreimal und machte die Leiste starr. */
+  inline-size: 100%;
   max-inline-size: var(--seitenleiste-breite);
-  min-inline-size: var(--seitenleiste-breite);
+  min-inline-size: 0;
   box-sizing: border-box;
   background: var(--bg-seitenleiste-glass);
   backdrop-filter: var(--glass-blur);
@@ -20,19 +23,40 @@ aside.seitenleiste,
   /* B74: 8px statt 12px zwischen den Bloecken; gemessen 2026-11-14 spart das
      24px bei sieben sichtbaren Kindern und 44px zwischen den elf Kindern von
      #zone-dokument. Die Optik der Bloecke selbst bleibt unveraendert. */
-  padding: var(--space-2xl);
+  /* Aussenabstand wandert mit: 16px bei breitem Fenster, 8px bei schmalem.
+     Sonst fressen 32px Polster bei 240px Leistenbreite 13 % der Flaeche. */
+  padding: clamp(var(--space-md), 1.2vw, var(--space-2xl));
   gap: var(--space-md);
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
+  /* Der schmale Balken nimmt keinen Platz weg, springt aber beim Erscheinen.
+     `stable` haelt die Spalte frei, damit die Leiste beim Scrollen nicht
+     seitlich huepft. */
+  scrollbar-gutter: stable;
   z-index: 10;
   touch-action: pan-y;           /* Erlaubt vertikales Scrollen, blockiert Pinch-Zoom-Gesten auf der Leiste */
   overscroll-behavior: contain;  /* Verhindert Scroll-Chaining zum Hauptdokument */
   flex-shrink: 0;                /* Verhindert horizontales Zusammendrücken */
   user-select: none;             /* Verhindert versehentliches Markieren von UI-Labels */
 }
+
+/* Enge Fenster: die Leiste ist 300px breit und hat ~990px Inhalt. Bei 900px
+   Fensterhoehe scrollt sie um ~90px. Hier wird nur der Weissraum kleiner
+   (Gap und Polster), nicht die Bedienelemente — gemessen 2026-11-15:
+   991 -> 943px bei 1280x900, der Fuss bleibt sticky erreichbar. */
+@media (max-height: 1000px) {
+  #seitenleiste {
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+  .seitenleiste-zone {
+    gap: var(--space-sm);
+  }
+}
+
 
 .seitenleiste-zone {
   display: flex;

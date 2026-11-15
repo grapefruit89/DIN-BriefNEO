@@ -1,6 +1,6 @@
 ---
 id: "test-dossier"
-title: "Test-Dossier: was die 347 Fälle abdecken"
+title: "Test-Dossier: was die 352 Fälle abdecken"
 status: "active"
 type: "reference"
 created: "2026-11-15"
@@ -25,7 +25,7 @@ supersedes: []
 `node tools/test-dossier.mjs --check` bricht ab, wenn dieses Verzeichnis nicht
 mehr zu `test/all.js` passt.
 
-**Zahl:** 347 Fälle in 91 Gruppen.
+**Zahl:** 352 Fälle in 92 Gruppen.
 Gezählt per Textsuche über `describe(`/`it(` am Zeilenanfang — auskommentierte
 und dynamisch erzeugte Fälle zählen **nicht** mit. Die Einzelfälle stehen im
 Lauf (`node tools/test-runner.mjs`); hier steht, **wo** sie liegen und **wie
@@ -49,6 +49,7 @@ dick** ein Bereich abgedeckt ist.
 | Adresssuche: Relevanz statt Antwort-Reihenfolge (2026-11-13) | 5 |
 | Betreff — unter Falzmarke 1 (DIN 20.9.2) | 5 |
 | Caret in nativen Feldern (Befund B12) | 5 |
+| Geschäftsangaben (Addon, § 35a GmbHG) | 5 |
 | parseDinLetterPayload — Schema-Reihenfolge | 5 |
 | Strukturvertrag liegt nicht in der Design-Schicht (Befund B15) | 5 |
 | AddressDomain: Reine PLZ- und Adressauflösung (Phase 3) | 4 |

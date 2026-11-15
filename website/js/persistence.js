@@ -27,6 +27,7 @@ import { currentISODate } from './format.js';
  * @property {'form-a' | 'form-b' | string} layout
  * @property {boolean} [marks]
  * @property {boolean} [pluginTestbrief]
+ * @property {boolean} [pluginGeschaeftsangaben] Addon „Geschäftsangaben" (§ 35a)
  * @property {string} [previewFont]
  * @property {'formal' | 'polite' | 'casual' | string} formality
  * @property {20 | 30 | number} [randU]
@@ -47,6 +48,9 @@ export const DEFAULT_SETTINGS = {
   layout: 'form-b',
   marks: true,
   pluginTestbrief: true,
+  /* Addon „Geschäftsangaben" (§ 35a GmbHG + IBAN/BIC): aus, bis der Nutzer es
+   * einschaltet. Ein Addon darf den Brief nicht von selbst veraendern. */
+  pluginGeschaeftsangaben: false,
   previewFont: 'default',
   formality: 'formal',
   randU: 20

@@ -9,7 +9,7 @@ Zaehlweise: **Vorkommen**, nicht Zeilen.
 | Datei | Zeilen | `!important` | davon Druck | `@layer` | `@scope` | `@media print`-Bloecke |
 |---|---:|---:|---:|---:|---:|---:|
 | `base.css` | 402 | 25 | 17 | 0 | 0 | 1 |
-| `sheet-multipage.css` | 612 | 61 | 36 | 1 | 2 | 2 |
+| `sheet-multipage.css` | 613 | 61 | 36 | 1 | 2 | 2 |
 | **Summe (diese zwei Dateien)** | | **86** | **53** | | | |
 
 Die anderen beiden geladenen Dateien sind nicht im Anhang:
@@ -23,7 +23,7 @@ Die anderen beiden geladenen Dateien sind nicht im Anhang:
 | Zeile | Block |
 |---:|---|
 | 111 | `@scope (din-blatt)` |
-| 607 | `@scope (din-blatt)` |
+| 608 | `@scope (din-blatt)` |
 
 ## 3. Die Bildschirm-Sperre: Regeln OHNE `@media screen`
 
@@ -140,9 +140,9 @@ Datei | Zeile | Kontext | @scope | Selektor | Deklaration
 | `sheet-multipage.css:556` | Druck | — | `#kern` | `row-gap: normal !important;` |
 | `sheet-multipage.css:557` | Druck | — | `#kern` | `background: none !important;` |
 | `sheet-multipage.css:558` | Druck | — | `#kern` | `filter: none !important;` |
-| `sheet-multipage.css:577` | Druck | — | `#text p` | `margin: 0 0 2.25mm 0 !importan` |
-| `sheet-multipage.css:581` | Druck | — | `#text p:last-child` | `margin-bottom: 0 !important;` |
-| `sheet-multipage.css:592` | Druck | — | `#unterschriftsbild-container` | `break-inside: avoid !important` |
-| `sheet-multipage.css:593` | Druck | — | `#unterschriftsbild-container` | `page-break-inside: avoid !impo` |
-| `sheet-multipage.css:598` | Druck | — | `:root:not(:has(#toggle-anlagen:checked)) din` | `display: none !important;` |
-| `sheet-multipage.css:609` | Druck | ja | `body[data-seiten="1"] :scope` | `margin: -25mm 0 0 0 !important` |
+| `sheet-multipage.css:578` | Druck | — | `#text p` | `margin: 0 0 1.5mm 0 !important` |
+| `sheet-multipage.css:582` | Druck | — | `#text p:last-child` | `margin-bottom: 0 !important;` |
+| `sheet-multipage.css:593` | Druck | — | `#unterschriftsbild-container` | `break-inside: avoid !important` |
+| `sheet-multipage.css:594` | Druck | — | `#unterschriftsbild-container` | `page-break-inside: avoid !impo` |
+| `sheet-multipage.css:599` | Druck | — | `:root:not(:has(#toggle-anlagen:checked)) din` | `display: none !important;` |
+| `sheet-multipage.css:610` | Druck | ja | `body[data-seiten="1"] :scope` | `margin: -25mm 0 0 0 !important` |

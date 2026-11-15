@@ -401,7 +401,16 @@ Offline-First und Zero-Dependency sind Gesetz (A1, A37).
 Start; sonst kostet die Idee 80–120 KB auf dem kritischen Pfad, die 99 % der
 Briefe nie brauchen.
 
-## 📚 Entscheidungen & Doku
+**Stand 2026-11-15:** die **Formprüfung** ist gebaut und liegt als Addon
+`website/addons/geschaeftsangaben/` (Schalter „Geschäftsangaben (§ 35a)" in den
+Einstellungen, Standard aus): `pruefeIban` (Mod-97), `formatiereIban`,
+`pruefeBic` (ISO 9362) und `fehlendeAngaben` (§ 35a). Getestet in
+`test/all.js` („Geschäftsangaben (Addon)").
+
+**Offen bleibt genau der Punkt, der diesen Backlog-Eintrag ausmacht:** die
+**Daten** für BLZ → BIC/Bankname (Bundesbank-CSV, extrahiert 80–120 KB) und die
+Entscheidung, ob ein solches Pflegeversprechen ins Produkt gehört. Solange sie
+fehlt, prüft das Addon die Form, nicht die Existenz der Bank.## 📚 Entscheidungen & Doku
 
 Offene Entscheidungen und Dokumentationslücken. Brauchen eine Antwort, keinen Code.
 

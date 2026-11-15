@@ -6,9 +6,9 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 
 ## Umfang
 
-- HTML-Dateien: 1, JS-Dateien: 21, CSS-Dateien: 5
-- Zeilen gesamt: HTML 473, JS 10603, CSS 3356
-- Tests: 347 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
+- HTML-Dateien: 1, JS-Dateien: 22, CSS-Dateien: 5
+- Zeilen gesamt: HTML 480, JS 10771, CSS 3369
+- Tests: 352 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
 - Antipattern-Regeln: 51 (Summe aus `tools/antipatterns/*.json`)
 - Fitness-Score: bewusst nicht hier — entsteht nur durch `node tools/build_db.js`
 
@@ -18,29 +18,29 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 |---|---:|
 | `website/addons/testbrief/testbrief.js` | 1510 |
 | `website/js/address.js` | 1383 |
-| `website/css/sidebar.css` | 1263 |
+| `website/css/sidebar.css` | 1272 |
 | `website/js/address-data.js` | 1066 |
 | `website/js/document.js` | 940 |
-| `website/js/persistence.js` | 895 |
-| `website/css/sheet-common.css` | 725 |
+| `website/js/persistence.js` | 899 |
+| `website/css/sheet-common.css` | 728 |
 | `website/js/clipboard-parser.js` | 615 |
-| `website/css/sheet-multipage.css` | 612 |
+| `website/css/sheet-multipage.css` | 613 |
 | `website/js/draft-manager.js` | 559 |
-| `website/index.html` | 473 |
+| `website/index.html` | 480 |
 | `website/js/format.js` | 450 |
 | `website/js/font-feature.js` | 416 |
 | `website/css/base.css` | 402 |
-| `website/addons/verlauf/verlauf.js` | 361 |
+| `website/js/settings.js` | 365 |
 
 ## CSS: Kennzahlen je Datei
 
 | Datei | Zeilen | `!important` | ID-Selektoren | Custom Properties | `@scope` | `@function` |
 |---|---:|---:|---:|---:|---:|---:|
 | `website/css/base.css` | 402 | 25 | 28 | 67 | 0 | 7 |
-| `website/css/sheet-common.css` | 725 | 2 | 138 | 10 | 2 | 0 |
-| `website/css/sheet-multipage.css` | 612 | 68 | 67 | 9 | 3 | 6 |
+| `website/css/sheet-common.css` | 728 | 2 | 138 | 10 | 2 | 0 |
+| `website/css/sheet-multipage.css` | 613 | 68 | 67 | 9 | 3 | 6 |
 | `website/css/sheet.css` | 354 | 26 | 22 | 0 | 3 | 3 |
-| `website/css/sidebar.css` | 1263 | 3 | 100 | 3 | 0 | 0 |
+| `website/css/sidebar.css` | 1272 | 3 | 100 | 3 | 0 | 0 |
 
 ## DOM-Zustands-Schreiber in JS
 
@@ -87,6 +87,7 @@ sind per Regex nicht sicher von lokalen Variablen zu trennen und bleiben drausse
 | `data-layout` | 1 | js/boot.js (1) |
 | `data-marks` | 1 | js/boot.js (1) |
 | `data-placeholder` | 1 | js/address.js (1) |
+| `data-plugin-geschaeftsangaben` | 1 | js/boot.js (1) |
 | `data-seeded` | 1 | js/boot-state.js (1) |
 | `data-systemschriften` | 1 | js/font-feature.js (1) |
 | `data-ueberlauf` | 1 | js/document.js (1) |
@@ -118,4 +119,4 @@ sind per Regex nicht sicher von lokalen Variablen zu trennen und bleiben drausse
 | `signature.js` | 1 |
 
 - Kanten gesamt: 46
-- Module ohne eingehende Importe (Einstiegspunkte oder tot): `boot-state.js`, `boot.js`, `main.js`, `multipage-controller.js`, `testbrief.js`, `verlauf.js`, `webmcp-bridge.js`
+- Module ohne eingehende Importe (Einstiegspunkte oder tot): `boot-state.js`, `boot.js`, `geschaeftsangaben.js`, `main.js`, `multipage-controller.js`, `testbrief.js`, `verlauf.js`, `webmcp-bridge.js`

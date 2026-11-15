@@ -10,7 +10,7 @@ zum Quelltext passt. Alle Zeilennummern sind aus den Dateien gelesen.
 |---|---|---|
 | 36 | klassisch | `js/boot.js?v=boot2` |
 | 37 | Modul (deferred) | `js/main.js?v=live6` |
-| 471 | klassisch | `js/boot-state.js?v=bs2` |
+| 478 | klassisch | `js/boot-state.js?v=bs2` |
 
 Klassische Skripte blockieren den Parser; Module laufen nach dem Parse.
 
@@ -21,21 +21,22 @@ falsch („2× JSON.parse", tatsächlich 3).
 
 ## 2. Schreibzugriffe in `boot.js`
 
-87 Zeilen · 7 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
+91 Zeilen · 8 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
 
 | Zeile | Art | Ziel | Quelle |
 |---:|---|---|---|
-| 47 | setAttribute | `data-theme` | `root.setAttribute('data-theme', theme);` |
-| 48 | setAttribute | `data-layout` | `root.setAttribute('data-layout', layout);` |
-| 49 | setAttribute | `data-marks` | `root.setAttribute('data-marks', istAn(settings.marks) ? 'true' : 'false');` |
-| 50 | setAttribute | `data-plugin-testbrief` | `root.setAttribute('data-plugin-testbrief', istAn(settings.pluginTestbrief) ? 'true' : 'fal` |
-| 55 | setAttribute | `data-plugin-multipage` | `root.setAttribute('data-plugin-multipage', 'true');` |
-| 68 | style.setProperty | `--rand-u` | `root.style.setProperty('--rand-u', `${randU}mm`);` |
-| 80 | dataset | `ready` | `if (!root.dataset.ready) root.dataset.ready = 'true';` |
+| 48 | setAttribute | `data-theme` | `root.setAttribute('data-theme', theme);` |
+| 49 | setAttribute | `data-layout` | `root.setAttribute('data-layout', layout);` |
+| 50 | setAttribute | `data-marks` | `root.setAttribute('data-marks', istAn(settings.marks) ? 'true' : 'false');` |
+| 51 | setAttribute | `data-plugin-testbrief` | `root.setAttribute('data-plugin-testbrief', istAn(settings.pluginTestbrief) ? 'true' : 'fal` |
+| 54 | setAttribute | `data-plugin-geschaeftsangaben` | `root.setAttribute('data-plugin-geschaeftsangaben', settings.pluginGeschaeftsangaben === tr` |
+| 59 | setAttribute | `data-plugin-multipage` | `root.setAttribute('data-plugin-multipage', 'true');` |
+| 72 | style.setProperty | `--rand-u` | `root.style.setProperty('--rand-u', `${randU}mm`);` |
+| 84 | dataset | `ready` | `if (!root.dataset.ready) root.dataset.ready = 'true';` |
 
 ## 2. Schreibzugriffe in `boot-state.js`
 
-187 Zeilen · 15 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
+189 Zeilen · 16 Schreibzugriffe · 1× `JSON.parse` (Aufrufstelle)
 
 | Zeile | Art | Ziel | Quelle |
 |---:|---|---|---|
@@ -46,14 +47,15 @@ falsch („2× JSON.parse", tatsächlich 3).
 | 79 | value | `—` | `schrift.value = String(settings.previewFont);` |
 | 82 | checked | `—` | `if (randU) randU.checked = settings.randU === 30;` |
 | 84 | checked | `—` | `if (testbrief) testbrief.checked = istAn(settings.pluginTestbrief);` |
-| 97 | value | `—` | `feld.value = vermerk;` |
-| 102 | value | `—` | `if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = verm` |
-| 110 | checked | `—` | `if (box) box.checked = draft[id] === true \|\| draft[id] === 'true';` |
-| 141 | value | `—` | `el.value = el.id === 'vermerke' ? wert.trim() : wert;` |
-| 146 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
-| 158 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
-| 178 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
-| 179 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
+| 86 | checked | `—` | `if (geschaeft) geschaeft.checked = settings.pluginGeschaeftsangaben === true;` |
+| 99 | value | `—` | `feld.value = vermerk;` |
+| 104 | value | `—` | `if (auswahl && [...auswahl.options].some((o) => o.value === vermerk)) auswahl.value = verm` |
+| 112 | checked | `—` | `if (box) box.checked = draft[id] === true \|\| draft[id] === 'true';` |
+| 143 | value | `—` | `el.value = el.id === 'vermerke' ? wert.trim() : wert;` |
+| 148 | replaceChildren | `—` | `el.replaceChildren(...geparst.body.childNodes);` |
+| 160 | value | `—` | `datum.value = Temporal.Now.zonedDateTimeISO('Europe/Berlin')` |
+| 180 | mark | `seeded` | `if (typeof performance !== 'undefined' && performance.mark) performance.mark('seeded');` |
+| 181 | setAttribute | `data-seeded` | `document.documentElement.setAttribute('data-seeded', 'true');` |
 
 ## 2. Schreibzugriffe in `main.js`
 

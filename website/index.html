@@ -176,7 +176,10 @@
               <input type="checkbox" switch id="toggle-anlagen">
             </div>
 
-            <div class="seitenleiste-switch-row">
+            <!-- Nur sichtbar, wenn das Addon „Geschäftsangaben" in den
+                 Einstellungen eingeschaltet ist (data-plugin-geschaeftsangaben).
+                 Ein Addon darf den Brief nicht ungefragt erweitern. -->
+            <div class="seitenleiste-switch-row" data-addon="geschaeftsangaben">
               <label for="toggle-fuss" class="seitenleiste-label">Fußzeile (§ 35a GmbHG)</label>
               <input type="checkbox" switch id="toggle-fuss">
             </div>
@@ -295,6 +298,10 @@
               <div class="seitenleiste-switch-row">
                 <label for="plugin-testbrief" class="seitenleiste-label">Testdaten-Generator</label>
                 <input type="checkbox" switch id="plugin-testbrief" checked>
+              </div>
+              <div class="seitenleiste-switch-row">
+                <label for="plugin-geschaeftsangaben" class="seitenleiste-label">Geschäftsangaben (§ 35a)</label>
+                <input type="checkbox" switch id="plugin-geschaeftsangaben">
               </div>
               <!-- Werkbank ist immer sichtbar: der Einzelseiten-Modus ist
                    stillgelegt (ADR-EINSEITEN-STILLGELEGT). -->

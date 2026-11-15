@@ -1257,6 +1257,15 @@ aside select {
   padding: 4px 6px;
 }
 
+/* --- ADDON: GESCHAEFTSANGABEN (§ 35a GmbHG) ---
+   Der Fußzeilen-Schalter wird nur angeboten, wenn das Addon in den
+   Einstellungen aktiv ist. Standard ist aus: die Anwendung verhaelt sich ohne
+   das Addon wie vorher (kein Fussblock, keine Zusatzfelder). */
+:root:not([data-plugin-geschaeftsangaben="true"]) [data-addon="geschaeftsangaben"],
+:root[data-plugin-geschaeftsangaben="false"] [data-addon="geschaeftsangaben"] {
+  display: none;
+}
+
 /* --- PLUGINS (Schalter in den Einstellungen) ---
    Elemente erscheinen nur, wenn das jeweilige Plugin aktiv ist. Die Attribute
    setzt SettingsManager.#applyPlugins() aus din_settings. */

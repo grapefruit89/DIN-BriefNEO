@@ -31,10 +31,10 @@ Spezifitaet gewinnt die spaetere Datei. `sheet.css` wird **nicht** geladen.
 | Datei | Zeilen | `!important` | davon im Druckkontext | ID-Selektoren | Custom Properties | `@layer` | `@scope` | `@function` |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | `base.css` | 402 | 25 | 17 | 22 | 67 | 0 | 0 | 6 |
-| `sheet-common.css` | 725 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
-| `sheet-multipage.css` | 612 | 61 | 38 | 56 | 9 | 1 | 2 | 6 |
+| `sheet-common.css` | 728 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
+| `sheet-multipage.css` | 613 | 61 | 38 | 56 | 9 | 1 | 2 | 6 |
 | `sheet.css` (stillgelegt) | 354 | 23 | 21 | 22 | 0 | 0 | 1 | 0 |
-| `sidebar.css` | 1263 | 3 | 0 | 94 | 3 | 0 | 0 | 0 |
+| `sidebar.css` | 1272 | 3 | 0 | 94 | 3 | 0 | 0 | 0 |
 
 Im Betrieb (ohne `sheet.css`): **90** `!important`, davon **55**
 in `@media print`-Kontexten. `@layer` kommt **1**-mal vor.
@@ -63,7 +63,7 @@ in `@media print`-Kontexten. `@layer` kommt **1**-mal vor.
 
 Block = der zuletzt gesehene Selektor (bei `@media`-Kontexten der Selektor
 davor). "print" heisst: steht in einem `@media print`-Block
-(Zeilen 455, 473, 485, 606).
+(Zeilen 455, 473, 485, 607).
 
 | Zeile | print | Selektor | Eigenschaft |
 |---:|:---:|---|---|
@@ -122,12 +122,12 @@ davor). "print" heisst: steht in einem `@media print`-Block
 | 556 | ja | `#kern` | `row-gap` |
 | 557 | ja | `#kern` | `background` |
 | 558 | ja | `#kern` | `filter` |
-| 577 | ja | `#text p` | `margin` |
-| 581 | ja | `#text p:last-child` | `margin-bottom` |
-| 592 | ja | `#unterschriftsbild-container` | `break-inside` |
-| 593 | ja | `#unterschriftsbild-container` | `page-break-inside` |
-| 598 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
-| 609 | ja | `body[data-seiten="1"] :scope` | `margin` |
+| 578 | ja | `#text p` | `margin` |
+| 582 | ja | `#text p:last-child` | `margin-bottom` |
+| 593 | ja | `#unterschriftsbild-container` | `break-inside` |
+| 594 | ja | `#unterschriftsbild-container` | `page-break-inside` |
+| 599 | ja | `:root:not(:has(#toggle-anlagen:checked)) #anlagenvermerk` | `display` |
+| 610 | ja | `body[data-seiten="1"] :scope` | `margin` |
 
 ## 5. Grenzen dieses Blatts
 

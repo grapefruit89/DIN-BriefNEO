@@ -20,6 +20,7 @@ try {
     layout: 'form-b',
     marks: true,
     pluginTestbrief: true,
+    pluginGeschaeftsangaben: false,
     randU: 20
   };
 
@@ -48,6 +49,9 @@ try {
   root.setAttribute('data-layout', layout);
   root.setAttribute('data-marks', istAn(settings.marks) ? 'true' : 'false');
   root.setAttribute('data-plugin-testbrief', istAn(settings.pluginTestbrief) ? 'true' : 'false');
+  /* Addon Geschaeftsangaben: steuert, ob die Fusszeilen-Zeile in der Leiste
+   * ueberhaupt angeboten wird (Standard: aus). */
+  root.setAttribute('data-plugin-geschaeftsangaben', settings.pluginGeschaeftsangaben === true ? 'true' : 'false');
   /* Der Einzelseiten-Modus ist stillgelegt ([[ADR-EINSEITEN-STILLGELEGT]]):
    * das Attribut bleibt fuer CSS/Tests gesetzt, ist aber immer 'true', und
    * es gibt keinen Stylesheet-Tausch mehr. `sheet.css` bleibt ungenutzt

@@ -75,6 +75,7 @@ export class SettingsManager {
     this.btnThemeToggle = document.getElementById('btn-theme-toggle');
     this.btnMarksSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('toggle-falzmarken'));
     this.pluginTestbriefSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-testbrief'));
+    this.pluginGeschaeftSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('plugin-geschaeftsangaben'));
 
     this.isReady = false;
   }
@@ -104,6 +105,7 @@ export class SettingsManager {
 
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.btnMarksSwitch), istAn(this.settings.marks));
     setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginTestbriefSwitch), istAn(this.settings.pluginTestbrief));
+    setzeSchalter(/** @type {HTMLInputElement | null} */ (this.pluginGeschaeftSwitch), this.settings.pluginGeschaeftsangaben === true);
 
     /* Unterrand 20/30mm: steuert --rand-u, das im Druck das padding-bottom
      * von #kern setzt. Nur zwei Werte — alles andere faellt auf DIN 5008
@@ -138,6 +140,10 @@ export class SettingsManager {
     const testbrief = istAn(this.settings.pluginTestbrief);
 
     document.documentElement.setAttribute('data-plugin-testbrief', String(testbrief));
+    document.documentElement.setAttribute(
+      'data-plugin-geschaeftsangaben',
+      this.settings.pluginGeschaeftsangaben === true ? 'true' : 'false',
+    );
     document.documentElement.setAttribute('data-plugin-multipage', 'true');
   }
 
@@ -337,6 +343,21 @@ export class SettingsManager {
         if (!this.isReady) return;
         this.settings.pluginTestbrief = pluginTestbrief.checked;
         this.updateSettings();
+      });
+    }
+
+    const pluginGeschaeft = this.pluginGeschaeftSwitch;
+    if (pluginGeschaeft) {
+      pluginGeschaeft.addEventListener('change', () => {
+        if (!this.isReady) return;
+        this.settings.pluginGeschaeftsangaben = pluginGeschaeft.checked;
+        this.updateSettings();
+        /* Addon erst beim Einschalten laden — der Boot-Pfad bleibt frei. */
+        if (pluginGeschaeft.checked) {
+          import('../addons/geschaeftsangaben/geschaeftsangaben.js')
+            .then((m) => m.aktiviere())
+            .catch((err) => console.error('[Geschaeftsangaben] Start fehlgeschlagen:', err));
+        }
       });
     }
 

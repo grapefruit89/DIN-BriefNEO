@@ -8,8 +8,8 @@ nicht mehr zum Quelltext passt.
 
 | Kennzahl | Wert |
 |---|---:|
-| Zeilen | 1263 |
-| Blöcke mit geschweifter Klammer (inkl. @media) | 180 |
+| Zeilen | 1272 |
+| Blöcke mit geschweifter Klammer (inkl. @media) | 181 |
 | ID-Selektoren | 94 |
 | `!important` | 3 |
 | `:has(` | 13 |
@@ -43,20 +43,20 @@ nichts mehr trafen und entfernt wurden (B14).
 | Zeile | Element | `id` | `aria-label` |
 |---:|---|---|---|
 | 90 | `<section>` | `zone-dokument` | — |
-| 213 | `<section>` | `zone-werkzeuge` | — |
-| 231 | `<section>` | `zone-setup` | „Einstellungen" |
-| 316 | `<div>` | `zone-aktionen` | „Aktionen" |
+| 216 | `<section>` | `zone-werkzeuge` | — |
+| 234 | `<section>` | `zone-setup` | „Einstellungen" |
+| 323 | `<div>` | `zone-aktionen` | „Aktionen" |
 
 ## 5. Fokussierbares in `index.html` (statisch gezählt)
 
 | Element | Anzahl |
 |---|---:|
-| `<input>` | 42 |
+| `<input>` | 43 |
 | `<button>` | 24 |
 | `<select>` | 3 |
 | `<textarea>` | 1 |
 | `<a>` | 3 |
-| **Summe** | **73** |
+| **Summe** | **74** |
 
 **Diese Zahl ist keine Tab-Reihenfolge.** Sie zählt Elemente im Quelltext,
 nicht erreichbare Ziele: `sr-only`, `hidden`, `disabled` und der jeweils

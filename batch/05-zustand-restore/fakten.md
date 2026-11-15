@@ -8,18 +8,18 @@ nicht mehr zum Quelltext passt. Alle Zeilennummern sind aus den Dateien gelesen.
 
 | Datei | Zeilen | Methoden | freie Funktionen | Rolle |
 |---|---:|---:|---:|---|
-| `boot-state.js` | 187 | 0 | 0 | Seeder vor dem ersten Paint (klassisches Skript) |
+| `boot-state.js` | 189 | 0 | 0 | Seeder vor dem ersten Paint (klassisches Skript) |
 | `draft-manager.js` | 560 | 18 | 0 | Entwurf laden, speichern, zuruecksetzen |
-| `persistence.js` | 896 | 4 | 18 | DEFAULT_SETTINGS, STORAGE_KEYS, loadJSON/saveJSON, istAn |
+| `persistence.js` | 900 | 4 | 18 | DEFAULT_SETTINGS, STORAGE_KEYS, loadJSON/saveJSON, istAn |
 | `main.js` | 344 | 0 | 7 | Boot-Reihenfolge (bootStep) und die Aufrufstellen |
 
 ### Methoden und Funktionen mit Zeile
 
-**boot-state.js** — IIFE 30–186 (klassisches Skript, kann nichts importieren)
+**boot-state.js** — IIFE 30–188 (klassisches Skript, kann nichts importieren)
 
 **draft-manager.js** — `constructor` (48), `#initEventBus` (60), `#initLifecycleFlush` (82), `flushPendingSave` (106), `#initMultiTabSync` (120), `destroy` (137), `#initShortcuts` (150), `saveDraft` (166), `loadDraft` (245), `restoreDraft` (263), `#restoreState` (272), `undo` (388), `redo` (398), `#applyHistoryState` (411), `resetDraft` (440), `scheduleAutoSave` (507), `#setSaveStatus` (522), `#updateDocumentTitle` (554)
 
-**persistence.js** — `prepare` (262), `_cleanupInjectedTags` (294), `_injectMetaTags` (306), `restore` (332), `load` (96), `save` (110), `remove` (124), `loadJSON` (140), `saveJSON` (169), `requestPersistentStorage` (182), `collectLetterIdentity` (212), `buildLetterFileName` (237), `isPrintTitleActive` (252), `stripHtmlToPlaintext` (425), `buildDinLetterPayload` (453), `parseDinLetterPayload` (512), `exportDocumentToFile` (659), `registerDraftCollector` (713), `buildDINLetterJSON` (723), `stelleAltenStandWiederHer` (741), `applyImportedData` (755), `initImportExport` (802)
+**persistence.js** — `prepare` (266), `_cleanupInjectedTags` (298), `_injectMetaTags` (310), `restore` (336), `load` (100), `save` (114), `remove` (128), `loadJSON` (144), `saveJSON` (173), `requestPersistentStorage` (186), `collectLetterIdentity` (216), `buildLetterFileName` (241), `isPrintTitleActive` (256), `stripHtmlToPlaintext` (429), `buildDinLetterPayload` (457), `parseDinLetterPayload` (516), `exportDocumentToFile` (663), `registerDraftCollector` (717), `buildDINLetterJSON` (727), `stelleAltenStandWiederHer` (745), `applyImportedData` (759), `initImportExport` (806)
 
 **main.js** — `syncPostvermerkFromSidebar` (25), `zeigeBootFehler` (52), `bootStep` (71), `kritischerWert` (96), `initApp` (106), `initTestData` (283), `setupPhoneFormatting` (327)
 
@@ -45,10 +45,10 @@ Gesucht nach `AddressIntelligence.targetLock =` in allen JavaScript-Dateien.
 
 ## 4. `DEFAULT_SETTINGS` gegen die tatsächliche Nutzung
 
-`DEFAULT_SETTINGS` enthält **7** Schlüssel:
-`theme`, `layout`, `marks`, `pluginTestbrief`, `previewFont`, `formality`, `randU`.
+`DEFAULT_SETTINGS` enthält **8** Schlüssel:
+`theme`, `layout`, `marks`, `pluginTestbrief`, `pluginGeschaeftsangaben`, `previewFont`, `formality`, `randU`.
 
-Gelesen oder geschrieben werden über `settings.<key>` **9** verschiedene Schlüssel.
+Gelesen oder geschrieben werden über `settings.<key>` **10** verschiedene Schlüssel.
 Nicht in `DEFAULT_SETTINGS`:
 
 - `signatureImage` — 3 Stelle(n): `signature.js:47`, `signature.js:226`, `signature.js:320`
@@ -63,15 +63,15 @@ Nicht in `DEFAULT_SETTINGS`:
 - `boot-state.js:51`
 - `boot-state.js:65`
 - `boot-state.js:84`
-- `boot.js:35`
-- `boot.js:39`
-- `boot.js:49`
+- `boot.js:36`
+- `boot.js:40`
 - `boot.js:50`
-- `persistence.js:63`
-- `persistence.js:76`
-- `settings.js:105`
+- `boot.js:51`
+- `persistence.js:67`
+- `persistence.js:80`
 - `settings.js:106`
-- `settings.js:138`
+- `settings.js:107`
+- `settings.js:140`
 
 ## 6. Allowlist im Restore-Pfad
 

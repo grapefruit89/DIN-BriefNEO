@@ -454,6 +454,57 @@ describe('Textformatierung — Toolbar', () => {
   });
 });
 
+describe('Geschäftsangaben (Addon, § 35a GmbHG)', () => {
+  /* Addon website/addons/geschaeftsangaben/. Standard ist AUS: ohne den
+   * Schalter wird weder geladen noch angezeigt. Die reinen Prüffunktionen
+   * laufen ohne DOM. */
+  it('IBAN: gültige Prüfsumme, falsche Ziffer, zu kurz', async () => {
+    const { pruefeIban } = await import('../website/addons/geschaeftsangaben/geschaeftsangaben.js');
+    assertEqual(pruefeIban('DE89 3704 0044 0532 0130 00').ok, true, 'Beispiel-IBAN ist gültig');
+    assertEqual(pruefeIban('DE89 3704 0044 0532 0130 01').ok, false, 'falsche letzte Ziffer');
+    assertEqual(pruefeIban('DE89').ok, false, 'zu kurz');
+    assertEqual(pruefeIban('').ok, false, 'leer');
+    assertEqual(pruefeIban('XX00 0000 0000 0000 0000 00').ok, false, 'unbekannte Prüfsumme');
+  });
+
+  it('IBAN: Formatierung in Vierergruppen', async () => {
+    const { formatiereIban } = await import('../website/addons/geschaeftsangaben/geschaeftsangaben.js');
+    assertEqual(formatiereIban('DE89370400440532013000'), 'DE89 3704 0044 0532 0130 00');
+    assertEqual(formatiereIban(''), '');
+  });
+
+  it('BIC: 8 und 11 Stellen, Muster wird geprüft', async () => {
+    const { pruefeBic } = await import('../website/addons/geschaeftsangaben/geschaeftsangaben.js');
+    assertEqual(pruefeBic('COBADEFFXXX').ok, true, '11 Stellen');
+    assertEqual(pruefeBic('COBADEFF').ok, true, '8 Stellen');
+    assertEqual(pruefeBic('COBADE').ok, false, 'zu kurz');
+    assertEqual(pruefeBic('COBADEFFX').ok, false, '9 Stellen gibt es nicht (8 oder 11)');
+    assertEqual(pruefeBic('').ok, false, 'leer');
+  });
+
+  it('§ 35a: nennt genau die fehlenden Pflichtangaben', async () => {
+    const { fehlendeAngaben, PFLICHTANGABEN } = await import('../website/addons/geschaeftsangaben/geschaeftsangaben.js');
+    const alle = Object.fromEntries(PFLICHTANGABEN.map((a) => [a.key, 'x']));
+    assertEqual(fehlendeAngaben(alle).vollstaendig, true, 'alle gesetzt');
+    const ohne = { ...alle, 'fuss-hrb': '   ' };
+    const r = fehlendeAngaben(ohne);
+    assertEqual(r.vollstaendig, false, 'eine fehlt');
+    assertEqual(r.fehlend.length, 1, 'genau eine');
+    assertEqual(r.fehlend[0].key, 'fuss-hrb', 'die richtige');
+  });
+
+  it('Addon ist standardmäßig aus und die Fußzeilen-Zeile hängt am Attribut', async () => {
+    const { DEFAULT_SETTINGS } = await import('../website/js/persistence.js');
+    assertEqual(DEFAULT_SETTINGS.pluginGeschaeftsangaben, false, 'Standard aus');
+    const css = await (await fetch('/website/css/sidebar.css')).text();
+    assert(css.includes('[data-addon="geschaeftsangaben"]'), 'Sichtbarkeitsregel vorhanden');
+    assert(css.includes('data-plugin-geschaeftsangaben'), 'haengt am Attribut');
+    const html = await (await fetch('/website/index.html')).text();
+    assert(html.includes('data-addon="geschaeftsangaben"'), 'Zeile ist markiert');
+    assert(html.includes('id="plugin-geschaeftsangaben"'), 'Schalter in den Einstellungen');
+  });
+});
+
 describe('Datum überlebt den Reload (F5, Batch 05)', () => {
   /* Befund aus dem Batch-05-Review, gemessen am 2026-11-15: der Restore setzte
    * `data-dirty` nur im Zweig für NICHT-native Felder — #datum ist ein <input>,

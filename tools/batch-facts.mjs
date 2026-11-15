@@ -845,6 +845,9 @@ function scheibe06() {
           deklaration: line.trim().slice(0, 60),
           print: ats.some((a) => a.includes('media print')),
           scope: ats.find((a) => a.startsWith('@scope')) || null,
+          /* @page-Randboxen sind eigene Regeln, keine Bildschirm-Sperre. Ohne
+           * dieses Flag zaehlte §3 sie mit (Review-Befund 2026-11-15). */
+          page: ats.some((a) => a.startsWith('@page')),
         });
       }
     });
@@ -856,7 +859,7 @@ function scheibe06() {
   /* Ungeschichtete Bildschirm-Bloecke in sheet-multipage: Regeln, die im Druck
    * mitgelten, weil sie NICHT in @media screen stehen. Das ist Sorte C. */
   const mp = scans.find((d) => d.rel.endsWith('sheet-multipage.css'));
-  const sperre = mp.s.important.filter((w) => !w.print && !w.scope && !w.selektor.startsWith('#'));
+  const sperre = mp.s.important.filter((w) => !w.print && !w.scope && !w.page && !w.selektor.startsWith('#'));
 
   const gesamt = scans.reduce((n, d) => n + d.s.important.length, 0);
   const print = scans.reduce((n, d) => n + d.s.important.filter((w) => w.print).length, 0);

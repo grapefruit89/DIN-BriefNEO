@@ -70,9 +70,28 @@ tragend.
 
 ## Der Umbau, in dieser Reihenfolge
 
-**Regel:** ungeschichtete Regeln schlagen **jede** Schicht, unabhängig von der
-Spezifität. Innerhalb einer Schicht gilt die normale Spezifität. Deshalb muss
-zuerst das Ungeschichtete verschwinden.
+**Regel — gemessen am 2026-11-15 im Zielbrowser, nicht aus dem Gedächtnis:**
+
+| Fall | Ergebnis |
+|---|---|
+| normal: ungeschichtet gegen Schicht | **ungeschichtet gewinnt** |
+| normal: Schicht `a` gegen Schicht `b` | **spätere Schicht gewinnt** (`b`) |
+| `!important`: Schicht gegen ungeschichtet | **Schicht gewinnt** |
+| `!important`: Schicht `a` gegen Schicht `b` | **frühere Schicht gewinnt** (`a`) |
+
+Also: für **normale** Deklarationen gewinnt das Ungeschichtete; für
+**`!important`** ist die Reihenfolge umgekehrt und das Ungeschichtete steht
+**unten**. (Gemessen mit `document.adoptedStyleSheets`, weil die CSP der App
+inline `<style>` blockt.) Die erste Fassung dieses Plans sagte pauschal
+„ungeschichtete Regeln schlagen jede Schicht" — das gilt nur für normale
+Deklarationen.
+
+**Konsequenz für den Umbau:** `!important` in eine Schicht zu legen **hebt**
+es an. Wer die Bildschirm-Sperre samt `!important` in `@layer screen` legt,
+macht sie damit stärker, nicht schwächer. Der saubere Weg ist deshalb:
+Sperre **normal** machen (in `@layer screen`), Druck **normal** lassen
+(ungeschichtet) — dann gewinnt der Druck durch die Schichtregel, ohne dass
+irgendwo `!important` nötig ist. Genau das war Test 1.
 
 1. **`@layer`-Reihenfolge deklarieren** — eine Zeile, ganz oben in `base.css`,
    vor jeder Regel: `@layer base, screen, druck;`
@@ -133,6 +152,20 @@ zurück.
   eingetragen. Kein dritter Anlauf ohne neue Erkenntnis.
 - **Sichtbare Änderung:** Ziel ist **0**. Jede sichtbare Änderung ist ein
   Fehler, kein Fortschritt.
+
+## Offener Prüfpunkt aus dem Review (2026-11-15)
+
+Der Reviewer nennt eine statisch erkennbare Konkurrenz, die noch **nicht**
+gemessen ist: die Druckregel für `#brief-ansicht` (`display: block
+!important`, `width: 210mm !important`) gegen die Bildschirm-Regeln für
+`data-seiten > 1` (`display: flex !important`, `width: 100% !important`).
+Beide sind `!important`, beide gelten im Druck. Nach der Messung oben gewinnt
+davon die **frühere** Regel, wenn beide in Schichten liegen — heute liegen
+beide ungeschichtet, dort entscheidet Spezifität und Reihenfolge.
+
+**Das ist der erste Punkt, der vor einem Umbau zu messen ist** (8 Zustände,
+`data-seiten` 2 und 3). Er steht bewusst hier und nicht im Auftrag, weil er
+zur Umsetzung gehört, nicht zur Bestandsaufnahme.
 
 ## Offene Fragen (nicht neu recherchieren, hier beantwortet)
 

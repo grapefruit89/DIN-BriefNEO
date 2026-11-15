@@ -9,7 +9,7 @@ Review-Scheiben — nicht der Chat.
 |---|---|---|---|---|---|
 | 01 | Architektur-Vertrag: Schichten, Verstöße, prüfbare Regeln | ✅ | ✅ | ✅ teilweise | 3 / 55 KiB |
 | 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ✅ | ✅ vollständig | 4 / 30 KiB |
-| 03 | CSS-Kaskade: `!important` und `@layer` | ✅ | ⬜ offen | – | 3 / 28 KiB |
+| 03 | CSS-Kaskade: `!important` und `@layer` | ✅ | ✅ Review #1 **ausgewertet** | ✅ **B88 + B92** | 3 / 28 KiB |
 | 04 | `sidebar.css`: Optik und Struktur trennen | ✅ **15.11.** | ⬜ offen | – | 2 / **42 KiB** |
 | 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ **15.11.** | ⬜ offen | – | 3 / **37 KiB** |
 | 06 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
@@ -19,6 +19,14 @@ vollständiger Auftrag. Ausformuliert wird erst, wenn die Scheibe dran ist
 (files.txt, generierte Fakten, Anhang ≤ 30 KiB). Jede Scheibe
 braucht 2–4 Dateien und einen Messblock; bei mehr als 30 KiB Anhang prüfen, ob
 der Schnitt zu grob ist.
+
+**Batch 03 ist abgeschlossen, nicht offen.** Das Review kam als GitHub #20 zurück
+und ist ausgewertet: **B88** (35 spiegelnde `!important` entfernt, 0 Pixel
+Unterschied) und **B92** (vier Restfälle geprüft, drei davon tragend). Der
+Ordner enthält seit dem 15.11. einen **Neuschnitt** mit dem Stand nach dieser
+Auswertung (92 statt 91) — der ist kein neuer Review-Auftrag, sondern die
+Vorlage für **B59** (`@layer`). Wer ihn verschickt, fragt nach dem Umbau, nicht
+nach dem Bestand.
 
 **Ausnahmen 04 und 05:** 42 bzw. 37 KiB. Beide Fragen brauchen die
 **vollständigen** Dateien: 05 zwei Pfade (183 + 551 Zeilen), 04 eine Datei, die

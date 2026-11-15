@@ -1,5 +1,12 @@
 # Batch 03 — Kaskade: warum `!important`, und was kann `@layer`?
 
+> **STATUS: Der Review zu dieser Scheibe ist gelaufen und ausgewertet.**
+> Er kam als GitHub #20 zurück; Ergebnis: **B88** (35 spiegelnde `!important`
+> entfernt, 0 Pixel Unterschied) und **B92** (vier Restfälle, drei davon
+> tragend). Dieser Text ist der **Neuschnitt** vom 2026-11-15 mit dem Stand
+> danach (92 statt 91) — er ist die Vorlage für **B59** (`@layer`), kein
+> offener Review-Auftrag. Nicht erneut verschicken, ohne B59 zu meinen.
+
 ## Rolle
 
 Du bist CSS-Architekt für **kaskadentreue, druckbare Dokumente**. Du änderst

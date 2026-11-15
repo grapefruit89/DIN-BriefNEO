@@ -159,6 +159,10 @@ ID-Selektor-Vorkommen** in 2.982 Zeilen, **0 `@layer`**.
 Der Sprung 91 → 92 kommt von B82: die Ausnahme für die Hinweis-Lebensdauer
 unter `prefers-reduced-motion` ist eine bewusste, begründete `!important`-Zeile.
 
+**Vorlage:** `batch/03-kaskade/prompt.md` ist der Neuschnitt nach B92 (Stand
+92). Der Review dazu ist gelaufen (GitHub #20 → B88 + B92); dieser Punkt ist
+der Umbau, nicht die Bestandsaufnahme.
+
 **Vorbedingung aus B92 (gemessen, nicht vermutet):** die 92 sind **nicht**
 pauschal ersetzbar. Von fünf geprüften Kandidaten waren **drei nicht tot**
 (`@top-left`/`@top-right` `content: none` und `#spacer { display: block }`

@@ -3551,6 +3551,19 @@ describe('SettingsManager: Drill-Down Modus-Umschaltung (Seitenleiste)', () => {
     assertEqual(einstellungen.checked, false, 'anderes Radio wird nativ abgewaehlt');
   });
 
+  it('Testbrief ist standardmäßig an — der Schalter darf nicht still auf false fallen', () => {
+    /* Nutzerregel 2026-11-15: der Testbrief-Knopf ist heilig. Am 2026-11-15 war
+     * er plötzlich weg; Ursache war NICHT der Code (HTML-Knopf, CSS-Regel und
+     * Handler waren unverändert), sondern `pluginTestbrief: false` im
+     * gespeicherten Profil. Dieser Test bewacht die Vorgabe: fehlt der Wert
+     * (frisches Profil, alter Stand), gilt AN. */
+    assertEqual(DEFAULT_SETTINGS.pluginTestbrief, true, 'DEFAULT_SETTINGS: Testbrief an');
+    assertEqual(istAn(undefined), true, 'fehlender Wert gilt als an');
+    assertEqual(istAn(null), true, 'null gilt als an');
+    assertEqual(istAn(false), false, 'nur ein ausdrueckliches false schaltet aus');
+    assertEqual(istAn('false'), false, 'String "false" schaltet aus (Handeditat)');
+  });
+
   it('setzt data-plugin-testbrief, haelt data-plugin-multipage aber fest auf true', () => {
     const sm = new SettingsManager();
     sm.isReady = true;

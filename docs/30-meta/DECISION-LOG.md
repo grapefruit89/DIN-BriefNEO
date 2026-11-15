@@ -3484,3 +3484,48 @@ falsches Grün liefern können:
    beim Verlassen (`flushPendingSave`) und überschreibt ihn. Jetzt per
    `Page.addScriptToEvaluateOnNewDocument` im **neuen** Dokument, vor
    `boot-state.js`.
+
+---
+
+## 2026-11-15 — Der Testbrief-Knopf war weg (Profil, nicht Code)
+
+**Symptom.** `#btn-testbrief` fehlte in der Seitenleiste. Nutzerregel: der
+Knopf ist **heilig**.
+
+**Befund.** Der Code war vollständig:
+
+| Stelle | Zustand |
+|---|---|
+| `website/index.html:220` | `<button id="btn-testbrief">Testbrief</button>` vorhanden |
+| `website/css/sidebar.css:1263` | `:root[data-plugin-testbrief="false"] #btn-testbrief { display: none !important; }` (durch B64 von Zeile 1281 hierher gewandert, Inhalt gleich) |
+| `website/js/main.js:284` | Handler vorhanden |
+| `website/js/settings.js:140` | `data-plugin-testbrief` wird aus `settings.pluginTestbrief` gesetzt |
+
+Die Ursache lag im **gespeicherten Profil** des Debug-Browsers:
+
+```
+din_settings = {"theme":"light","layout":"form-a","marks":true,
+                "pluginTestbrief":false, ...}
+```
+
+Bei `pluginTestbrief: false` setzt `applySettings()` das Attribut auf `false`,
+und die CSS-Regel blendet den Knopf korrekt aus — der Schalter tat genau, was
+er soll, nur stand er auf „aus".
+
+**Behoben.** `pluginTestbrief` im Profil auf `true` gesetzt, Seite neu geladen.
+Gemessen danach: `data-plugin-testbrief="true"`, `display: flex`,
+`checkVisibility: true`, Fläche **267 × 40 px**, Text „Testbrief".
+
+**Wie es dorthin kam — ehrlich:** nicht rekonstruierbar. Kein Code setzt den
+Wert von selbst (`collectDraft`/`applySettings` schreiben nur aus der
+Einstellung). Während der Messungen habe ich in `sichtbarkeit.mjs` das
+**Attribut** `data-plugin-testbrief="false"` direkt gesetzt (um die
+Plugin-Regel zu prüfen). Ob daraus über einen Settings-Save ein persistierter
+Wert wurde, ist offen — deshalb gilt ab jetzt: **Messskripte sichern den
+Zustand vorher und stellen ihn hinterher wieder her.** Kein Skript setzt
+App-Attribute, die eine Einstellung spiegeln.
+
+**Ratsche.** Neuer Test „Testbrief ist standardmäßig an": `DEFAULT_SETTINGS`
+muss `true` sagen, und ein **fehlender** Wert muss als „an" gelten
+(`istAn(undefined) === true`). Damit fällt ein stiller Wechsel der Vorgabe
+sofort auf — der Knopf kann nicht mehr durch einen Code-Default verschwinden.

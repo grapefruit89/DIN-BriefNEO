@@ -402,6 +402,16 @@ div → span, custom element → natives Element), ist ein Vorher/Nachher-Nachwe
    (Soll: 200). Vor **jedem** CDP-Lauf prüfen und in derselben Befehlszeile
    neu starten, wenn er zu ist. Kein eigener Browser, kein neues Profil, kein
    Tab schließen. Der Lauf endet nicht, solange dieses Fenster offen ist.
+   Ein Wächter (`/tmp/opencode/din-watch.sh`) startet ihn binnen ~3 s neu,
+   wenn er geschlossen wird.
+
+   **Messskripte fassen keine App-Einstellungen an.** Das Profil ist
+   persistent: wer `localStorage` oder gespiegelte Attribute
+   (`data-plugin-testbrief`, `data-marks`, `data-layout`, `data-seiten`) setzt
+   und nicht zurückstellt, verändert die App des Nutzers dauerhaft. Am
+   2026-11-15 verschwand so der Testbrief-Knopf (siehe DECISION-LOG). Vor dem
+   Eingriff sichern, danach zurückschreiben — oder einen eigenen Origin
+   benutzen.
 7. **Der Harness bildet den Nutzerpfad nach** (Seite im Bildschirmmodus laden,
    füllen, dann drucken). Weicht er ab, sind `data-seiten`, Viewport-Padding und
    `#probe`-Höhe im Output zu protokollieren — sonst misst man einen Zustand, den

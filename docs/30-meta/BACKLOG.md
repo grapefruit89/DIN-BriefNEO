@@ -137,12 +137,31 @@ dann als eigenes Experiment messen (LCP/FCP vorher/nachher), nicht als
 Voraussetzung für die Architekturarbeit.
 
 ### B59 · Kaskade über `@layer` statt `!important` · **M** · ⭐⭐
-Ist-Zustand (gemessen 2026-11-14): **153 × `!important`** und **346
-ID-Selektor-Vorkommen** in 1.000 Zeilen CSS; allein `sheet-multipage.css`
-enthält 100 `!important`. `@layer` (Chrome 99+, nativ) macht die Reihenfolge
-explizit und erlaubt, einen großen Teil davon zu streichen. Gehört zu S2 aus dem
-Batch-01-Review. Vorher: Reihenfolge der heutigen Kaskade dokumentieren, sonst
-verschiebt der Umbau ungewollt Spezifität.
+Ist-Zustand (**gemessen 2026-11-15**, Kommentare nicht mitgezählt, nur die vier
+Dateien, die `index.html` wirklich lädt — `sheet.css` ist stillgelegt und zählt
+nicht):
+
+| Datei | `!important` | Zeilen |
+|---|---:|---:|
+| `website/css/sheet-multipage.css` | 63 | 606 |
+| `website/css/base.css` | 22 | 368 |
+| `website/css/sidebar.css` | 3 | 1.282 |
+| `website/css/sheet-common.css` | 1 | 726 |
+| **Summe** | **89** | **2.982** |
+
+Aufteilung nach Kontext: **50 Druck**, **13 `@media screen`**, **26 global**.
+Dazu **295 ID-Selektor-Vorkommen** in 2.982 Zeilen.
+
+**Vorbedingung aus B92 (gemessen, nicht vermutet):** die 89 sind **nicht**
+pauschal ersetzbar. Von fünf geprüften Kandidaten waren **drei nicht tot**
+(`@top-left`/`@top-right` `content: none` und `#spacer { display: block }`
+tragen), einer ist wirkungslos (`@page :first`-Rand), einer ist tragend
+(`margin: 0 auto` + 8 Duelle — sie halten `data-seiten="2"` zusammen).
+Ein `@layer`-Umbau braucht deshalb **pro Etappe beide Messungen**: PDF-Pixel
+**und** Geometrie-Dump. Der PDF-Vergleich allein sieht `data-seiten="2"` nicht.
+Grenze: `!important` gegen **Inline-Style** (JS setzt `style=`) und der
+`*`-Kill-Switch in `@media (prefers-reduced-motion)` sind strukturell nicht
+durch `@layer` ersetzbar — dort bleibt `!important`.
 
 ### B64 · `sidebar.css`: Optik und Struktur trennen · **L** · ⭐⭐
 1241 Zeilen, **118 ID-Selektor-Vorkommen**, und darin liegen zwei Dinge

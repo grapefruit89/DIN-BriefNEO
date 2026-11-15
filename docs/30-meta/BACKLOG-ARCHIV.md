@@ -704,10 +704,22 @@ im DECISION-LOG als bewusste Nicht-Änderung.
 
 **Stichprobe (a2) bestätigt:** `#betreff` Screen Z. 286–290 (`display: block`, `font-size: 12pt`, `font-weight: 700`, `line-height: 1.4`) und Druck Z. 567–572 — dieselben vier Werte, dort mit `!important`. Gleiches Muster bei `#text` (583–590 gegen 314–326) und `#grussformel` (605–610 gegen 330–337).
 
-**Drei Einzelfälle:**
-- Z. 473/474 (`@page :first { content: none !important }`) sind vermutlich überflüssig: `@page :first` ist spezifischer als `@page`, und `@top-left` hat in Z. 447–464 gar kein `content`. Gegenprobe: entfernen, PDF Seite 1 prüfen.
-- Z. 122 (`margin: 0 auto !important`) hat in der Datei nur Z. 109 als Gegner (0,1,0 gegen 0,2,1) — dort unnötig.
-- Z. 276 (`#spacer { display: block !important }`) hat keinen Gegner; ein `<div>` ist ohnehin `block`.
+**Drei Einzelfälle — damals offen, in B92 gemessen. Verdikt steht hier, nicht am Blockende:**
+
+- Z. 473/474 (`@page :first { content: none !important }`) — *Vermutung:*
+  überflüssig. ❌ **WIDERLEGT (B92):** der `content` kommt per **JS**
+  (`website/js/multipage-controller.js`, `pageSheet.replaceSync` schreibt
+  `@page { @top-left { content: … } }` in ein Konstruktor-Stylesheet, das nach
+  allen Dokument-CSS greift). Ohne `!important` trägt Blatt 1 den Kopftext.
+- Z. 122 (`margin: 0 auto !important`) — *Vermutung:* unnötig, weil Z. 109 der
+  einzige Gegner ist. ⚠️ **TRAGEND (B92):** auf der Bildschirmseite kippt
+  `align-items: safe center` → `center` und `din-blatt` verliert 40 mm
+  Bodenabstand im Zustand `data-seiten="2"`.
+- Z. 276 (`#spacer { display: block !important }`) — *Vermutung:* ohne Gegner.
+  ❌ **WIDERLEGT (B92):** `website/css/sheet-common.css:51` setzt
+  `#spacer { display: none }`; ohne den Druck-Override bleibt der
+  Falz-Abstandshalter unsichtbar. Das Review hatte nur in `sheet-multipage.css`
+  gesucht — der Gegner steht in einer anderen Datei.
 
 **Achtung, Korrektur am Review:** die fünf `container-type: normal !important` (Z. 88, 99, 508, 516, 533) sind **nicht** tot. Sie schalten `container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in `base.css:234/237` (`@function --mm-x/--mm-y`) tatsächlich benutzt. Das Review schlug Löschen vor, „wenn kein `@container` trifft" — das Kriterium greift zu kurz.
 
@@ -767,43 +779,43 @@ Schema-Versionssprung nötig, weil `layout` nicht Teil von `_meta.schema` ist.
 
 ### B92 · Kaskade: die vier Restfälle aus dem Review · **S** · ⭐⭐
 **Herkunft:** GitHub #20. Der große Teil ist erledigt (B88: 35 spiegelnde
-`!important` entfernt, 0 Pixel Unterschied). Das hier bleibt:
+`!important` entfernt, 0 Pixel Unterschied). Das hier blieb.
 
-| Fall | Beleg | Was zu tun ist |
+✅ ERLEDIGT 2026-11-15 — **untersucht, kein Eingriff.** Die vier Fälle waren
+Hypothesen aus dem Review. **Drei davon waren falsch** — die `!important` sind
+dort tragend. Wer also im Review nachliest („vermutlich überflüssig") und
+danach löscht, baut einen Fehler ein.
+
+**Verdikt steht neben jeder Vermutung, nicht darunter** — genau diese Trennung
+war vorher die Falle:
+
+| Vermutung aus dem Review | Verdikt (gemessen) | Beleg |
 |---|---|---|
-| `@page :first { @top-left/@top-right { content: none !important } }` | Zeilen 473/474 | `@page :first` ist spezifischer als `@page`, und `@top-left` hat in der Basisregel **gar kein** `content`. Beide Zeilen entfernen, PDF Seite 1 prüfen: darf keinen „Seite 1 von N"-Text tragen. |
-| `margin: 0 auto !important` | Zeile 122 | Einziger Gegner in der Datei ist Zeile 109 (Spezifität 0,1,0 gegen 0,2,1) — dort ist das `!important` unnötig. Es erzwingt den Sonderblock am Dateiende. |
-| `#spacer { display: block !important }` | Zeile 276 | Ein `<div>` ist ohnehin `block`; in der Datei gibt es keinen Gegner. |
-| 8 Duelle `!important` gegen `!important` | Print 503/506/507 gegen 53/64–68/74–76; 514–516 gegen 83–88/93–99; 525 und 638 gegen 122 | Auflösbar, wenn Print-Block und Screen-Sperre zusammen betrachtet werden. |
+| `@page :first { @top-left content: none !important }` (Z. 473) sei überflüssig, weil `@page :first` spezifischer ist und die Basisregel gar kein `content` hat | ❌ **widerlegt, notwendig.** Der Text kommt per **JS**: `multipage-controller.js` schreibt `@page { @top-left { content: "…" } }` in ein Konstruktor-Stylesheet. Adopted Stylesheets stehen nach allen Dokument-CSS — ohne `!important` gewinnt JS, und Blatt 1 trägt den Kopftext, den es nicht tragen darf. | `website/js/multipage-controller.js`, `pageSheet.replaceSync` |
+| `@top-right content: none !important` (Z. 474) sei überflüssig | ❌ **widerlegt, notwendig.** Die Basis-`@page`-Regel setzt dort `counter(page)`/`counter(pages)`; ohne den Override blieb „Seite 1 von N" auf Blatt 1. | `website/css/sheet-multipage.css`, `@page`-Block Z. 461 |
+| `#spacer { display: block !important }` (Z. 276) sei überflüssig, „ein `<div>` ist ohnehin `block`" | ❌ **widerlegt, notwendig.** `website/css/sheet-common.css:51` setzt `#spacer { display: none }`. Im Druck muss der Falz-Abstandshalter aber Höhe belegen (`--spacer-hoehe`, 33,54 mm), sonst rutscht die Kern-Position. Das Review hatte nur *innerhalb* von `sheet-multipage.css` gesucht. | `website/css/sheet-common.css:51` |
+| `@page :first { margin: 25mm 0 var(--rand-u) 0 }` sei ein toter Spiegel | 🟡 **wirkungslos, bleibt.** Entfernt und wieder eingefügt: **0 Pixel** Unterschied. Zwei Tests bewachen die Zeile (Fix aus `9204041`) — kein Gewinn, also kein Eingriff. | PDF-Vergleich 6 Seiten; `test/all.js` „@page :first hat denselben Oberrand" |
+| `margin: 0 auto !important` (Z. 122) + 8 Duelle `!important` gegen `!important` | ⚠️ **tragend, nicht anfassen.** Entfernt man die `!important` auf der Bildschirmseite (oder kapselt sie in `@media screen`), ändert sich Zustand `data-seiten="2"` messbar: `align-items: safe center` → `center` (Sicherheitsnetz bei Überlauf weg), `din-blatt` verliert 40 mm Bodenabstand. | Geometrie-Dump, 8 Zustände (2 Formen × `data-seiten` fehlt/1/2/3), 5 Abweichungen |
+
+**Vierter Review-Befund, ebenfalls widerlegt:** die fünf
+`container-type: normal !important` (Z. 88, 99, 508, 516, 533) sind **nicht**
+tot. Sie schalten `container-type: size` aus `website/css/base.css:291` ab, und
+`cqw`/`cqh` werden in `website/css/base.css:234/237` (`@function --mm-x/--mm-y`)
+tatsächlich benutzt. Das Kriterium des Reviews („wenn kein `@container` trifft")
+greift zu kurz.
 
 **Nicht anfassen:** die 9 echten Kämpfe (anderer Wert) und die 25
 Nicht-Druck-`!important` — letztere sind das Zero-Scroll-Schloss.
 
-**Widerlegt (nicht wieder vorschlagen):** die fünf
-`container-type: normal !important` sind **nicht** tot. Sie schalten
-`container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in
-`base.css:234/237` (`@function --mm-x/--mm-y`) benutzt. Das Kriterium des
-Reviews („wenn kein `@container` trifft") greift zu kurz.
-
 **Messung:** wie bei B88 — 4 Referenzbriefe (Form A/B × kurz/lang) vor/nach,
-`pdftoppm -r 150` + Pixelvergleich, plus Sichtprüfung von Seite 1.
+`pdftoppm -r 150` + Pixelvergleich, plus Sichtprüfung von Seite 1; für den
+Bildschirm ein Geometrie-Dump über 8 Zustände.
 
-✅ ERLEDIGT 2026-11-15 — **untersucht, kein Eingriff.** Alle vier Fälle waren
-Hypothesen aus dem Review; drei sind widerlegt, einer ist beweisbar wirkungslos
-und wird von zwei Tests bewacht.
-
-| Fall | Ergebnis | Beleg |
-|---|---|---|
-| `@page :first { margin: 25mm 0 var(--rand-u) 0 }` | Spiegel der Basis-`@page`-Regel, **entfernt und wieder eingefügt**: 0 Pixel Unterschied, aber zwei Tests bewachen die Zeile (Fix aus `9204041`). Kein Gewinn, also bleibt sie. | PDF-Vergleich 6 Seiten, 0 abweichende Pixel; `test/all.js` „@page :first hat denselben Oberrand" |
-| `@top-left { content: none !important }` | **notwendig** — der Text kommt per JS: `multipage-controller.js` synchronisiert `@page { @top-left { content: … } }` in ein Konstruktor-Stylesheet | `multipage-controller.js`, `pageSheet.replaceSync` |
-| `@top-right { content: none !important }` | **notwendig** — die Basis-`@page`-Regel setzt dort `counter(page)`/`counter(pages)` | `sheet-multipage.css`, `@page`-Block |
-| `#spacer { display: block !important }` | **notwendig** — `sheet-common.css:51` setzt `#spacer { display: none }`; ohne den Druck-Override bleibt der Abstandshalter unsichtbar | `sheet-common.css:51` |
-| `margin: 0 auto !important` (Z. 122) + 8 Duelle | **tragend.** Entfernt man die `!important` auf der Bildschirmseite (oder kapselt sie in `@media screen`), ändert sich Zustand `data-seiten="2"` messbar: `align-items: safe center` → `center` (Sicherheitsnetz bei Überlauf weg), `din-blatt` verliert 40 mm Bodenabstand | Geometrie-Dump, 8 Zustände (2 Formen × `data-seiten` fehlt/1/2/3), 5 Abweichungen |
-
-**Was daraus für später folgt:** die Duelle lassen sich nur zusammen mit einem
-Bildschirm-Prüfstand für `data-seiten="2"` auflösen — der PDF-Vergleich allein
-sieht diesen Zustand nicht. Wer es angeht, braucht beide Messungen (PDF **und**
-Geometrie-Dump), sonst verschiebt er das Sicherheitsnetz unbemerkt.
+**Was daraus für B59 folgt:** das Ergebnis zählt 5 tragende, 1 wirkungslosen
+und 1 widerlegten Fall — **drei von fünf geprüften Kandidaten waren nicht
+tot.** „`@layer` statt `!important`" ist deshalb kein Durchziehen, sondern ein
+Umbau, der pro Etappe **beide** Messungen braucht (PDF **und** Geometrie-Dump).
+Der PDF-Vergleich allein sieht `data-seiten="2"` nicht.
 
 ### B82 · Toast: Auto-Dismiss in CSS statt JS-Timer · **S** · ⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/15-overengineering-review.md` (Punkt 24).

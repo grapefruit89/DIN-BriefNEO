@@ -944,3 +944,43 @@ abgedeckt und wie dick?".
 342 Fällen in „(ohne Gruppe)". Jetzt schließt eine Gruppe über ihre
 **Einrückung** — Hausformatierung von `test/all.js`, und `it(`-Blöcke tiefer
 stören nicht. Ergebnis: 0 Fälle ohne Gruppe.
+
+### B64 · `sidebar.css`: Optik und Struktur trennen · **L** · ⭐⭐
+1241 Zeilen, **118 ID-Selektor-Vorkommen**, und darin liegen zwei Dinge
+gleichzeitig: die Gestaltung der Leiste **und** der Strukturvertrag des
+Modus-Wechsels (`:has(#modus-einstellungen:checked)` auf Zonen und Gruppen).
+Stand 2026-11-14: 7 Modus-Regeln, davon 6 mit Design-Adressen.
+Ziel: der Strukturvertrag (was ist in welchem Modus sichtbar) liegt bei den
+Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
+Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
+**ohne** ihn zu lösen, sonst wird sie nicht angefasst.
+Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
+
+✅ ERLEDIGT 2026-11-15 — **der Vertrag steht jetzt bei den Strukturen.**
+
+Ausgewertet aus dem Batch-04-Review (der Reviewer hat die Zahlen nachgerechnet,
+ich habe sie gegengeprüft): von den **111** ID-Selektoren sind **18 Struktur**
+und **93 Optik** — die Trennung ist eine 18-Zeilen-Frage, kein Umbau.
+
+**Verschoben:** 3 Regeln mit 6 Selektoren aus `sidebar.css` (Zeilen 800/804/818)
+nach `base.css`, neuer Abschnitt „Modus-Vertrag der Seitenleiste".
+
+| | vorher | nachher |
+|---|---:|---:|
+| `sidebar.css` | 1.281 Zeilen | **1.263** |
+| `base.css` | 367 | **402** |
+| Modus-Regeln `sidebar.css` | 3 | **0** (2 Zeilen Verweis) |
+| Modus-Regeln `base.css` | 0 | **3** |
+
+**Gemessen:** beide Modi × 8 Elemente (`display`, `checkVisibility`, Höhe) —
+**identisch**; 6 PDF-Seiten — **0 abweichende Pixel**. Die Spezifität der
+Vertragsselektoren ist (3,1,0), die der Design-Gegner (0,1,0) — deshalb
+entscheidet die Ladereihenfolge (`base.css` vor `sidebar.css`) hier nichts.
+
+**Ratsche:** ein Test verlangt alle 6 Selektoren in `base.css`, verbietet sie in
+`sidebar.css` und verlangt den Verweis dort.
+
+**Bewusst nicht mitgenommen:** `:root[data-plugin-testbrief="false"]
+#btn-testbrief` (Zustand, nicht Modus-Struktur) und die 93 Optik-Selektoren.
+Ein Vorschlag, der die Optik-Datei weiter aufteilt, gehört in eine eigene
+Scheibe — nicht in B64.

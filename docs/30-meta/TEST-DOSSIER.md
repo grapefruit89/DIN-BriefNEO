@@ -1,6 +1,6 @@
 ---
 id: "test-dossier"
-title: "Test-Dossier: was die 342 Fälle abdecken"
+title: "Test-Dossier: was die 343 Fälle abdecken"
 status: "active"
 type: "reference"
 created: "2026-11-15"
@@ -25,7 +25,7 @@ supersedes: []
 `node tools/test-dossier.mjs --check` bricht ab, wenn dieses Verzeichnis nicht
 mehr zu `test/all.js` passt.
 
-**Zahl:** 342 Fälle in 90 Gruppen.
+**Zahl:** 343 Fälle in 90 Gruppen.
 Gezählt per Textsuche über `describe(`/`it(` am Zeilenanfang — auskommentierte
 und dynamisch erzeugte Fälle zählen **nicht** mit. Die Einzelfälle stehen im
 Lauf (`node tools/test-runner.mjs`); hier steht, **wo** sie liegen und **wie
@@ -50,6 +50,7 @@ dick** ein Bereich abgedeckt ist.
 | Betreff — unter Falzmarke 1 (DIN 20.9.2) | 5 |
 | Caret in nativen Feldern (Befund B12) | 5 |
 | parseDinLetterPayload — Schema-Reihenfolge | 5 |
+| Strukturvertrag liegt nicht in der Design-Schicht (Befund B15) | 5 |
 | AddressDomain: Reine PLZ- und Adressauflösung (Phase 3) | 4 |
 | Anlagen-Migration | 4 |
 | DraftManager: EventBus Save-Integration (Phase 4) | 4 |
@@ -59,7 +60,6 @@ dick** ein Bereich abgedeckt ist.
 | formatDatum (DIN 5008 § 11.4) | 4 |
 | Ratsche P38: contenteditable auf offenen Feldern | 4 |
 | sanitizeRichText — Kursiv | 4 |
-| Strukturvertrag liegt nicht in der Design-Schicht (Befund B15) | 4 |
 | Textformatierung — Toolbar | 4 |
 | toggleInlineFormat — Bold | 4 |
 | toggleInlineFormat — Italic | 4 |

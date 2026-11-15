@@ -30,11 +30,11 @@ Spezifitaet gewinnt die spaetere Datei. `sheet.css` wird **nicht** geladen.
 
 | Datei | Zeilen | `!important` | davon im Druckkontext | ID-Selektoren | Custom Properties | `@layer` | `@scope` | `@function` |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `base.css` | 367 | 25 | 17 | 5 | 67 | 0 | 0 | 6 |
+| `base.css` | 402 | 25 | 17 | 22 | 67 | 0 | 0 | 6 |
 | `sheet-common.css` | 725 | 1 | 0 | 123 | 10 | 0 | 1 | 0 |
 | `sheet-multipage.css` | 605 | 63 | 38 | 56 | 9 | 0 | 2 | 6 |
 | `sheet.css` (stillgelegt) | 354 | 23 | 21 | 22 | 0 | 0 | 1 | 0 |
-| `sidebar.css` | 1281 | 3 | 0 | 111 | 3 | 0 | 0 | 0 |
+| `sidebar.css` | 1263 | 3 | 0 | 94 | 3 | 0 | 0 | 0 |
 
 Im Betrieb (ohne `sheet.css`): **92** `!important`, davon **55**
 in `@media print`-Kontexten. `@layer` kommt **0**-mal vor.

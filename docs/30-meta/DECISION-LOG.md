@@ -3370,3 +3370,52 @@ harte Fallbacks (`x: 11.9`, `y: 96.0`, `scale: 0.5`, `:94`),
 `signatureImage` wird nur auf `undefined` gesetzt — es ist eine Löschmarke,
 kein Wert. **Offen** als Frage 4 im Prompt: Absicht oder Lücke? Ein frisches
 Profil und ein Alt-Import sind die zwei Fälle, die es entscheiden.
+
+---
+
+## 2026-11-15 — B64: der Modus-Vertrag zieht nach `base.css`
+
+**Ausgangslage (Batch-04-Review, nachgerechnet):** `sidebar.css` trug die
+Optik **und** den Strukturvertrag der beiden Modi. Wer die Design-Datei
+austauscht, schaltet damit den Umschalter ab. Von den 111 ID-Selektoren sind
+**18 Struktur** und **93 Optik** — die Trennung ist also nicht Geschmack,
+sondern eine 18-Zeilen-Frage.
+
+**Was verschoben wurde:** 3 Regeln mit 6 Selektoren (Zeilen 800/804/818 bzw.
+804–811 im Block) von `sidebar.css` nach `base.css`, neuer Abschnitt
+„Modus-Vertrag der Seitenleiste".
+
+| | vorher | nachher |
+|---|---:|---:|
+| `sidebar.css` | 1.281 Zeilen | **1.263** |
+| `base.css` | 367 Zeilen | **402** |
+| ID-Selektoren `sidebar.css` | 111 | **94** |
+| ID-Selektoren `base.css` | 5 | **22** |
+| Modus-Regeln in `sidebar.css` | 3 | **0** (2 Zeilen Verweis) |
+| Modus-Regeln in `base.css` | 0 | **3** |
+
+**Warum die Ladereihenfolge nichts entscheidet:** die Vertragsselektoren haben
+Spezifität **(3,1,0)** (`#seitenleiste` + `:has(#modus-einstellungen:checked)`
++ Ziel), die Gegner im Design (`.seitenleiste-setup`, `.seitenleiste-zustand`,
+`.btn`) liegen bei **(0,1,0)**. `base.css` lädt vor `sidebar.css` — bei diesem
+Abstand ist das ohne Wirkung.
+
+**Messung vorher/nachher (2026-11-15):**
+
+- **Sichtbarkeit:** beide Modi × 8 Elemente (`display`, `checkVisibility`,
+  Höhe), Plugin-Schalter auf `data-plugin-testbrief="false"`.
+  Ergebnis: **identisch**, JSON-Vergleich ohne Abweichung, Höhen gleich
+  (575/88/688/70/48/24/40/0 px).
+- **Druck:** 4 Referenzbriefe (Form A/B × kurz/lang, 6 Seiten),
+  `pdftoppm -r 150` + Pixelvergleich: **0 abweichende Pixel**, keine
+  Größenänderung.
+
+**Ratsche:** `test/all.js` verlangt alle 6 Selektoren in `base.css`, verbietet
+sie in `sidebar.css` und verlangt den Verweis dort — sonst wandert der Vertrag
+beim nächsten Umbau zurück. Zwei bestehende Tests lasen die Regeln noch aus
+`sidebar.css`; sie zeigen jetzt auf `base.css` (dieselbe Prüfung, neuer Ort).
+
+**Nicht mitgenommen:** die Plugin-Regel `:root[data-plugin-testbrief="false"]
+#btn-testbrief` (heute `sidebar.css:1281`). Sie hängt an `din_settings` und
+`SettingsManager.#applyPlugins()` — das ist Zustand, nicht Modus-Struktur.
+Bleibt, wo sie ist.

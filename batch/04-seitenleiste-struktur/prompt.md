@@ -1,5 +1,12 @@
 # Batch 04 — Seitenleiste: Struktur und Optik trennen
 
+> **STATUS: Der Review zu dieser Scheibe ist gelaufen und umgesetzt (2026-11-15).**
+> Ergebnis war Empfehlung **A**: die 3 Modus-Regeln (6 Selektoren) sind von
+> `sidebar.css` nach `base.css` gewandert, `sidebar.css` verweist. Gemessen:
+> Sichtbarkeit in beiden Modi identisch, 6 PDF-Seiten mit 0 abweichenden Pixeln.
+> Siehe **B64** im Archiv und den DECISION-LOG-Eintrag „der Modus-Vertrag zieht
+> nach base.css". Nicht erneut verschicken.
+
 ## Rolle
 
 Du bist CSS-Architekt für **eine Datei, die zwei Verträge gleichzeitig trägt**.

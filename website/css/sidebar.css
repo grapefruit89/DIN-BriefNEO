@@ -797,27 +797,9 @@ input[type="checkbox"][switch] {
   border: 0;
 }
 
-#seitenleiste:not(:has(#modus-einstellungen:checked)) #zone-setup {
-  display: none;
-}
-
-#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument,
-#seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge,
-#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group,
-/* Statuszeile auch ausblenden: sie zeigt den Brief-Zustand, und "aendern"
-   waere im Einstellungs-Modus ein Knopf ohne Ziel (gemessen 2026-11-13). */
-#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand {
-  display: none;
-}
-
-/* Kein eigenes display hier: #zone-setup traegt .seitenleiste-setup, das
-   display:flex/column schon setzt. Die Regel war doppelt (Befund B15/A1). */
-
-/* Nur #btn-reset liegt noch in #zone-aktionen; die beiden anderen Selektoren
-   trafen seit der Umsortierung nichts mehr (Befund B14). */
-#seitenleiste:has(#modus-einstellungen:checked) #zone-aktionen #btn-reset {
-  display: none;
-}
+/* Der Modus-Vertrag (was in welchem Modus sichtbar ist) stand hier. Er
+   liegt jetzt in base.css, Abschnitt "Modus-Vertrag der Seitenleiste" —
+   Struktur gehoert zu den Strukturen, nicht in die Design-Datei (B64). */
 
 .seitenleiste-footer {
   display: flex;

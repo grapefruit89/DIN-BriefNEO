@@ -10,7 +10,7 @@ Review-Scheiben — nicht der Chat.
 | 01 | Architektur-Vertrag: Schichten, Verstöße, prüfbare Regeln | ✅ | ✅ | ✅ teilweise | 3 / 55 KiB |
 | 02 | Boot-Pfad: zwei Dateien, Zeitachse, zwei Marker | ✅ | ✅ | ✅ vollständig | 4 / 30 KiB |
 | 03 | CSS-Kaskade: `!important` und `@layer` | ✅ | ✅ Review #1 **ausgewertet** | ✅ **B88 + B92** | 3 / 28 KiB |
-| 04 | `sidebar.css`: Optik und Struktur trennen | ✅ **15.11.** | ⬜ offen | – | 2 / **42 KiB** |
+| 04 | `sidebar.css`: Optik und Struktur trennen | ✅ | ✅ **ausgewertet** | ✅ **B64 umgesetzt** | 2 / **42 KiB** |
 | 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ **15.11.** | ⬜ offen | – | 3 / **37 KiB** |
 | 06 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
 
@@ -55,7 +55,7 @@ Alle Zahlen stehen mit Zeile in `batch/05-zustand-restore/fakten.md`
 | S1 `data-layout` → eine Spur | ⬜ offen (B63) | Attribut an 3 Stellen + zweite `--active-idx`-Spur |
 | S2 `@layer` statt `!important` | ⬜ offen (B59), **freigegeben 15.11.** | Ist-Zustand neu gemessen: **92** `!important`-Vorkommen (55 Druck, 37 außerhalb) und **295** ID-Referenzen in 2.982 Zeilen; 0 `@layer` |
 | S3 `sheet.css` entscheiden | ✅ entschieden (B60) | bleibt, nicht eingebunden, Statuskopf; 0 Byte Netzlast |
-| S3 `sidebar.css` trennen | ⬜ offen (B64) | 1.282 Z., 111 ID-Selektoren; Batch 04 |
+| S3 `sidebar.css` trennen | ✅ erledigt (B64) | Vertrag (3 Regeln/6 Selektoren) nach `base.css`: 1.281 → 1.263 Z., Sichtbarkeit identisch, 6 PDF-Seiten 0 Pixel. Die 93 Optik-Selektoren bleiben bewusst |
 | S4 Druck/Token/Animation | ⛔ nicht anfassen | Nutzerentscheidung |
 
 ## Was aus Batch 01 offen blieb

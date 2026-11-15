@@ -310,6 +310,41 @@ html:active-view-transition::view-transition-new(brief-viewport) {
   pointer-events: none;
 }
 
+/* --- Modus-Vertrag der Seitenleiste (B64) ---
+   WAS in welchem Modus sichtbar ist, gehoert zu den Strukturen — nicht in
+   die Design-Datei. Vorher standen diese Regeln in `sidebar.css`; ein fremdes
+   Design haette den Umschalter damit abgeschaltet. Hier ueberleben sie den
+   Austausch der Optik.
+
+   Spezifitaet (3,1,0): `#seitenleiste` + `:has(#modus-einstellungen:checked)`
+   + Ziel. Die Gegner im Design (`.seitenleiste-setup`, `.seitenleiste-zustand`,
+   `.btn`) liegen bei (0,1,0) — die Ladereihenfolge entscheidet hier nichts,
+   die Spezifitaet tut es.
+
+   Der Umschalter selbst ist `sr-only` (Abschnitt 1) und damit tastatur-
+   erreichbar, unabhaengig von jeder Design-Datei.
+
+   Hier standen frueher zwei weitere Regeln (doppeltes `display` an
+   `#zone-setup`, zwei tote Selektoren an `#btn-reset`); beide sind in B15/A1
+   und B14 entfernt, siehe DECISION-LOG. */
+#seitenleiste:not(:has(#modus-einstellungen:checked)) #zone-setup {
+  display: none;
+}
+
+#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument,
+#seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge,
+#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group,
+/* Statuszeile auch ausblenden: sie zeigt den Brief-Zustand, und "aendern"
+   waere im Einstellungs-Modus ein Knopf ohne Ziel (gemessen 2026-11-13). */
+#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand {
+  display: none;
+}
+
+/* Nur #btn-reset liegt noch in #zone-aktionen. */
+#seitenleiste:has(#modus-einstellungen:checked) #zone-aktionen #btn-reset {
+  display: none;
+}
+
 /* --- Gemeinsame Druck-Resets (Einzel- und Mehrseitenansicht) ---
    Liegen zentral in base.css, weil beide Druck-Stylesheets sie brauchten;
    die print-Dateien behalten nur ihre Geometrie. */

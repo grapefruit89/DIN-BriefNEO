@@ -4703,7 +4703,8 @@ describe('Einstellungs-Modus ist strukturell geschlossen (Befund B14)', () => {
   });
 
   it('Statuszeile ist im Einstellungs-Modus ausgeblendet', async () => {
-    const css = await (await fetch('/website/css/sidebar.css')).text();
+    /* Seit B64 steht der Modus-Vertrag in base.css (vorher sidebar.css). */
+    const css = await (await fetch('/website/css/base.css')).text();
     const ab = css.indexOf('#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument');
     assert(ab > -1, 'Ausblendregel vorhanden');
     const block = css.slice(ab, css.indexOf('}', ab));
@@ -4869,6 +4870,34 @@ describe('Strukturvertrag liegt nicht in der Design-Schicht (Befund B15)', () =>
     assert(!sidebar.includes(':is([hidden], .hidden)'), 'sidebar.css definiert .hidden nicht mehr');
   });
 
+  it('Modus-Vertrag steht in base.css, nicht in sidebar.css (B64)', async () => {
+    /* Ratsche: der Vertrag ist "was ist in welchem Modus sichtbar". Er lag in
+     * der Design-Datei, ein fremdes Design haette den Umschalter damit
+     * abgeschaltet. Belege: Batch 04 (Klassifikation) und B64.
+     * Gemessen am 2026-11-15: 3 Regeln, 6 Selektoren, Sichtbarkeit in beiden
+     * Modi identisch, 6 PDF-Seiten mit 0 abweichenden Pixeln. */
+    const [base, sidebar] = await Promise.all([
+      (await fetch('/website/css/base.css')).text(),
+      (await fetch('/website/css/sidebar.css')).text()
+    ]);
+    const VERTRAG = [
+      '#seitenleiste:not(:has(#modus-einstellungen:checked)) #zone-setup',
+      '#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument',
+      '#seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge',
+      '#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group',
+      '#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand',
+      '#seitenleiste:has(#modus-einstellungen:checked) #zone-aktionen #btn-reset'
+    ];
+    for (const sel of VERTRAG) {
+      assert(base.includes(sel), `${sel} in base.css`);
+      assert(!sidebar.includes(sel), `${sel} nicht mehr in sidebar.css`);
+    }
+    assert(
+      sidebar.includes('Modus-Vertrag'),
+      'sidebar.css verweist auf den neuen Ort (sonst sucht der naechste Leser ewig)'
+    );
+  });
+
   it('Postvermerk steht vor Brief-Stil (Schreibablauf)', async () => {
     const html = await (await fetch('/website/index.html')).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -4940,10 +4969,13 @@ describe('Ansicht ist eine Radiogruppe, kein Checkbox-Trick (Befund B14)', () =>
   });
 
   it('die Modus-CSS haengt an #modus-einstellungen:checked, nicht an der Checkbox', async () => {
-    const css = await (await fetch('/website/css/sidebar.css')).text();
-    assert(!css.includes('toggle-modus'), 'kein Rest des Checkbox-Schalters');
-    assert(css.includes(':has(#modus-einstellungen:checked)'), 'Modus ueber die Radio-Gruppe');
-    assert(css.includes('fieldset') === false || css.includes('.seitenleiste-modus'), 'Modus-Gruppe gestylt');
+    const [base, sidebar] = await Promise.all([
+      (await fetch('/website/css/base.css')).text(),
+      (await fetch('/website/css/sidebar.css')).text()
+    ]);
+    assert(!sidebar.includes('toggle-modus'), 'kein Rest des Checkbox-Schalters');
+    assert(base.includes(':has(#modus-einstellungen:checked)'), 'Modus ueber die Radio-Gruppe (base.css, B64)');
+    assert(sidebar.includes('.seitenleiste-modus'), 'Modus-Gruppe gestylt (sidebar.css)');
   });
 });
 

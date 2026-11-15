@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-25 offene Punkte. Details unterhalb, nach Art gruppiert.
+24 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -69,7 +69,6 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B57** | CSS-Druckränder: `page-margin-safety` in `print.css` evaluieren | S | ⭐⭐ |
 | **B58** | Gzip/Minify als Abschluss-Option | S | ⭐ |
 | **B59** | Kaskade über `@layer` statt `!important` | M | ⭐⭐ |
-| **B64** | `sidebar.css`: Optik und Struktur trennen | L | ⭐⭐ |
 | **B76** | PDF-Export als Addon | M | ⭐⭐ |
 | **B80** | Export als `.txt` und `.md` | S | ⭐⭐ |
 | **B81** | Multi-Tab: das Restrisiko benennen oder abschaffen | S | ⭐ |
@@ -201,17 +200,6 @@ wählen → Sperre greift? Reset → Sperre weg? Beides vorher/nachher im Browse
 **Risiko:** klein, aber nicht null — falls ein späterer Pfad `loadDraft()`
 überspringt und `targetLock` vorher gesetzt wurde, war die Zeile eine
 Versicherung. Deshalb Gegenprobe statt Annahme.
-
-### B64 · `sidebar.css`: Optik und Struktur trennen · **L** · ⭐⭐
-1241 Zeilen, **118 ID-Selektor-Vorkommen**, und darin liegen zwei Dinge
-gleichzeitig: die Gestaltung der Leiste **und** der Strukturvertrag des
-Modus-Wechsels (`:has(#modus-einstellungen:checked)` auf Zonen und Gruppen).
-Stand 2026-11-14: 7 Modus-Regeln, davon 6 mit Design-Adressen.
-Ziel: der Strukturvertrag (was ist in welchem Modus sichtbar) liegt bei den
-Strukturen (`base.css`), die Optik bleibt in `sidebar.css`.
-Der `data-nur`-Vorschlag aus Batch 01 wurde abgelehnt — diese Aufgabe ist
-**ohne** ihn zu lösen, sonst wird sie nicht angefasst.
-Gehört in Review-Batch 04 (Scheibe: `sidebar.css` + `index.html`).
 
 ### B80 · Export als `.txt` und `.md` · **S** · ⭐⭐
 **Herkunft:** `docs/90-archive/todo-2026-11/14-format-grundbausteine-review.md` (Punkt 15), am 2026-11-14 geprüft: weiterhin offen.

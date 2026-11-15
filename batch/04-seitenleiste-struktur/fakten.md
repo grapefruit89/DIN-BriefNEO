@@ -8,11 +8,11 @@ nicht mehr zum Quelltext passt.
 
 | Kennzahl | Wert |
 |---|---:|
-| Zeilen | 1281 |
-| Blöcke mit geschweifter Klammer (inkl. @media) | 183 |
-| ID-Selektoren | 111 |
+| Zeilen | 1263 |
+| Blöcke mit geschweifter Klammer (inkl. @media) | 180 |
+| ID-Selektoren | 94 |
 | `!important` | 3 |
-| `:has(` | 19 |
+| `:has(` | 13 |
 | `@media`-Blöcke | 3 |
 | verschiedene CSS-Eigenschaften | 98 |
 | selbst definierte Custom Properties | 3 |
@@ -20,9 +20,9 @@ nicht mehr zum Quelltext passt.
 
 ## 2. Die Modus-Regeln (das ist der Strukturvertrag)
 
-**3** Regeln mit **6** Selektoren tragen die
+**0** Regeln mit **0** Selektoren tragen die
 Sichtbarkeit der beiden Modi. Sie liegen alle in einem Block ab
-Zeile 800.
+Zeile —.
 
 Die Zahl aus Batch 01 („7 Modus-Regeln") ist damit **veraltet**: aus sieben
 Regeln sind drei geworden, weil vier davon seit dem Umbau vom 2026-11-13
@@ -30,9 +30,6 @@ nichts mehr trafen und entfernt wurden (B14).
 
 | Zeile | Selektoren | Deklaration |
 |---:|---|---|
-| 800 | `#seitenleiste:not(:has(#modus-einstellungen:checked)) #zone-setup` | `display: none;` |
-| 804 | `#seitenleiste:has(#modus-einstellungen:checked) #zone-dokument,`<br>`#seitenleiste:has(#modus-einstellungen:checked) #zone-werkzeuge,`<br>`#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-export-group,`<br>`#seitenleiste:has(#modus-einstellungen:checked) .seitenleiste-zustand` | `display: none;` |
-| 818 | `#seitenleiste:has(#modus-einstellungen:checked) #zone-aktionen #btn-reset` | `display: none;` |
 
 ## 3. Modusschalter in `index.html`
 

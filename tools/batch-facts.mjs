@@ -22,6 +22,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CHECK = process.argv.includes('--check');
@@ -29,7 +30,7 @@ const iScheibe = process.argv.indexOf('--scheibe');
 const SCHEIBE = iScheibe > -1 && process.argv[iScheibe + 1] ? process.argv[iScheibe + 1] : '02';
 const ZIEL = join(
   ROOT,
-  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore', '04': 'batch/04-seitenleiste-struktur', '06': 'batch/06-layer-kaskade' }[SCHEIBE] || 'batch/02-boot-pfad',
+  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore', '04': 'batch/04-seitenleiste-struktur', '06': 'batch/06-layer-kaskade', '07': 'batch/07-pdf-addon' }[SCHEIBE] || 'batch/02-boot-pfad',
   'fakten.md',
 );
 
@@ -927,6 +928,120 @@ ${scans
 `;
 }
 
+function scheibe07() {
+  /* PDF-Export: was heute gedruckt wird, wie, und was eine Bibliothek kosten
+   * wuerde. Keine Vorauswahl - die Zahlen sollen die Entscheidung tragen. */
+  const jsDateien = [];
+  const alle = [];
+  const sammle = (dir) => {
+    for (const e of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${e.name}`;
+      if (e.isDirectory()) { sammle(rel); continue; }
+      if (!/\.(js|css|html|json|txt|md|woff2)$/.test(e.name)) continue;
+      const roh = readFileSync(join(ROOT, rel));
+      alle.push({ rel, roh: roh.length, gz: gzipSync(roh, { level: 9 }).length });
+      if (e.name.endsWith('.js')) jsDateien.push(rel);
+    }
+  };
+  sammle('website');
+
+  const summe = (liste) => liste.reduce((a, b) => a + b, 0);
+  const js = alle.filter((f) => f.rel.endsWith('.js'));
+  const css = alle.filter((f) => f.rel.endsWith('.css'));
+  const rest = alle.filter((f) => !/\.(js|css)$/.test(f.rel));
+
+  /* Stellen, an denen heute gedruckt wird */
+  const printStellen = [];
+  const such = (rel, muster, ziel = printStellen) => {
+    zeilen(rel).forEach((z, i) => {
+      if (muster.test(z)) ziel.push({ rel: rel.replace('website/', ''), nr: i + 1, roh: z.trim().slice(0, 70) });
+    });
+  };
+  for (const rel of jsDateien) such(rel, /window\.print\(|beforeprint|afterprint/);
+  /* Der Titel steht im Export-Abschnitt: er ist Metadaten-Pflege, kein Druck. */
+  such('website/js/draft-manager.js', /document\.title\s*=/);
+  such('website/js/persistence.js', /document\.title\s*=/);
+
+  /* @page-Regeln */
+  const pageRegeln = [];
+  for (const f of css) {
+    zeilen(f.rel).forEach((z, i) => {
+      if (/^\s*@page/.test(z)) pageRegeln.push({ rel: f.rel.replace('website/', ''), nr: i + 1, roh: z.trim() });
+    });
+  }
+
+  /* Export-Wege, die es heute gibt */
+  const exportStellen = [];
+  such('website/js/persistence.js', /showSaveFilePicker|new Blob|createObjectURL|exportDocumentToFile/, exportStellen);
+
+  const csp = (zeilen('website/index.html').find((z) => z.includes('Content-Security-Policy')) || '')
+    .match(/content="([^"]*)"/)?.[1] || '(keine)';
+
+  return `# Fakten zum PDF-Export
+
+**Erzeugt von \`tools/batch-facts.mjs --scheibe 07\`.** Zaehlweise und Zeilen
+sind aus dem Quelltext gelesen; Groessen sind gemessen (\`gzip -9\`).
+
+## 1. Was heute gedruckt wird
+
+| Datei | Zeile | Stelle |
+|---|---:|---|
+${printStellen.map((s) => `| \`${s.rel}\` | ${s.nr} | \`${esc(s.roh)}\` |`).join('\n')}
+
+Der Druck laeuft **ausschliesslich** ueber \`window.print()\` — der
+Browser-Dialog erzeugt das PDF. Es gibt keinen eigenen PDF-Writer im Code.
+
+## 2. \`@page\`-Regeln (das Papier)
+
+| Datei | Zeile | Regel |
+|---|---:|---|
+${pageRegeln.map((p) => `| \`${p.rel}\` | ${p.nr} | \`${esc(p.roh)}\` |`).join('\n')}
+
+## 3. Export-Wege, die es heute gibt
+
+| Datei | Zeile | Stelle |
+|---|---:|---|
+${exportStellen.map((s) => `| \`${s.rel}\` | ${s.nr} | \`${esc(s.roh)}\` |`).join('\n')}
+
+## 4. Was die Auslieferung wiegt
+
+| Gruppe | Dateien | roh | gzip |
+|---|---:|---:|---:|
+| JS | ${js.length} | ${(summe(js.map((f) => f.roh)) / 1024).toFixed(0)} KB | ${(summe(js.map((f) => f.gz)) / 1024).toFixed(0)} KB |
+| CSS | ${css.length} | ${(summe(css.map((f) => f.roh)) / 1024).toFixed(0)} KB | ${(summe(css.map((f) => f.gz)) / 1024).toFixed(0)} KB |
+| Rest (HTML/JSON/Fonts) | ${rest.length} | ${(summe(rest.map((f) => f.roh)) / 1024).toFixed(0)} KB | ${(summe(rest.map((f) => f.gz)) / 1024).toFixed(0)} KB |
+| **Summe** | ${alle.length} | **${(summe(alle.map((f) => f.roh)) / 1024).toFixed(0)} KB** | **${(summe(alle.map((f) => f.gz)) / 1024).toFixed(0)} KB** |
+
+Die drei groessten Dateien:
+
+| Datei | roh | gzip |
+|---|---:|---:|
+${alle
+  .sort((a, b) => b.gz - a.gz)
+  .slice(0, 3)
+  .map((f) => `| \`${f.rel}\` | ${(f.roh / 1024).toFixed(1)} KB | ${(f.gz / 1024).toFixed(1)} KB |`)
+  .join('\n')}
+
+## 5. Content-Security-Policy (was geladen werden darf)
+
+\`\`\`
+${csp}
+\`\`\`
+
+\`script-src 'self'\` heisst: eine Bibliothek **im Repo** ist erlaubt, ein CDN
+nicht (A38).
+
+## 6. Die Fragen, die eine Bibliothek entscheiden muessten
+
+| Frage | Warum sie vor der Wahl steht |
+|---|---|
+| Muss das Layout **nachgebaut** werden? | Ja, bei jedem PDF-Writer (jsPDF, pdf-lib, pdfmake). Dann gibt es zwei Layouts — CSS und Code — und das WYSIWYG-Versprechen faellt. |
+| Reicht \`window.print()\`? | Es liefert ein echtes Text-PDF mit korrekter Typografie, aber der Nutzer waehlt im Dialog. Ein Klick weniger ist der einzige Gewinn einer Bibliothek. |
+| Sind Metadaten (Titel/Autor) das Argument? | Titel setzt der Druckpfad bereits ueber \`document.title\` (siehe \`MetadataService\`). Autor/Subject waeren nur ueber einen eigenen Writer moeglich. |
+| Was kostet das im Boot-Pfad? | 0 Byte, solange per \`import()\` erst beim Klick geladen — aber jede Bibliothek liegt danach im Repo und will gepflegt werden. |
+`;
+}
+
 const SKRIPTE = skripte();
 const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
 
@@ -936,6 +1051,7 @@ else if (SCHEIBE === '03') bloecke.push(scheibe03());
 else if (SCHEIBE === '05') bloecke.push(scheibe05());
 else if (SCHEIBE === '04') bloecke.push(scheibe04());
 else if (SCHEIBE === '06') bloecke.push(scheibe06());
+else if (SCHEIBE === '07') bloecke.push(scheibe07());
 else bloecke.push(`# Fakten zum Boot-Pfad
 
 **Erzeugt von \`tools/batch-facts.mjs\` — nicht von Hand bearbeiten.**

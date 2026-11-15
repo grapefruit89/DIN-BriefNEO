@@ -1,0 +1,7 @@
+# Batch 07 — PDF-Export als Addon
+# Der Gegenstand ist der Exportpfad: persistence.js enthaelt File-System-Access-
+# Fallback (Blob-Download), Metadaten-Service und den .dinletter-Export.
+# main.js (Druck-Knopf, window.print) und die CSS-Dateien sind NICHT im Anhang —
+# ihre Zeilen stehen in fakten.md, ihre Rolle in KONTRAKT.md.
+/home/moritz/repos/DIN-BriefNEO/website/js/persistence.js
+/home/moritz/repos/DIN-BriefNEO/batch/07-pdf-addon/fakten.md

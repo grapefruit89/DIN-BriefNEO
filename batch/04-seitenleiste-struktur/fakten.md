@@ -8,13 +8,13 @@ nicht mehr zum Quelltext passt.
 
 | Kennzahl | Wert |
 |---|---:|
-| Zeilen | 1272 |
-| Blöcke mit geschweifter Klammer (inkl. @media) | 181 |
-| ID-Selektoren | 94 |
+| Zeilen | 1309 |
+| Blöcke mit geschweifter Klammer (inkl. @media) | 187 |
+| ID-Selektoren | 96 |
 | `!important` | 3 |
 | `:has(` | 13 |
-| `@media`-Blöcke | 3 |
-| verschiedene CSS-Eigenschaften | 98 |
+| `@media`-Blöcke | 5 |
+| verschiedene CSS-Eigenschaften | 99 |
 | selbst definierte Custom Properties | 3 |
 | benutzte Custom Properties | 33 |
 

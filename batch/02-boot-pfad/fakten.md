@@ -100,9 +100,9 @@ steht", `data-ready` heisst „Booten fertig oder aufgegeben (2-s-Timer in
 | `sheet-common.css` | 662 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & [contenteditable][data-placeholder]:empty` |
 | `sheet-common.css` | 666 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,` |
 | `sheet-common.css` | 667 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {` |
-| `sidebar.css` | 631 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
-| `sidebar.css` | 632 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
-| `sidebar.css` | 712 | `base.css alle Uebergaenge bis `data-seeded`, und der Seeder setzt die Werte` |
+| `sidebar.css` | 668 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
+| `sidebar.css` | 669 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
+| `sidebar.css` | 749 | `base.css alle Uebergaenge bis `data-seeded`, und der Seeder setzt die Werte` |
 
 ### `data-ready`
 
@@ -118,11 +118,11 @@ steht", `data-ready` heisst „Booten fertig oder aufgegeben (2-s-Timer in
 | `sheet-common.css` | 662 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & [contenteditable][data-placeholder]:empty` |
 | `sheet-common.css` | 666 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & textarea[data-feldtyp]::placeholder,` |
 | `sheet-common.css` | 667 | `:root:not([data-seeded="true"]):not([data-ready="true"]) & input[data-atom]::placeholder {` |
-| `sidebar.css` | 623 | `data-ready fest (boot.js setzt es am Ende von initApp, Sicherheitsnetz nach` |
-| `sidebar.css` | 628 | `data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler` |
-| `sidebar.css` | 629 | `nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,` |
-| `sidebar.css` | 631 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
-| `sidebar.css` | 632 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
+| `sidebar.css` | 660 | `data-ready fest (boot.js setzt es am Ende von initApp, Sicherheitsnetz nach` |
+| `sidebar.css` | 665 | `data-ready haengen: das kommt erst am Ende von initApp und liesse die Regler` |
+| `sidebar.css` | 666 | `nach dem ersten Paint nachploppen. data-ready bleibt als Sicherheitsnetz,` |
+| `sidebar.css` | 668 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste-postvermerk-select,` |
+| `sidebar.css` | 669 | `:root:not([data-seeded="true"]):not([data-ready="true"]) #seitenleiste input[switch] {` |
 
 ## 4. Messung: steht der Zustand vor dem ersten Paint?
 

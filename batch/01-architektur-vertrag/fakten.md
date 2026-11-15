@@ -7,7 +7,7 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 ## Umfang
 
 - HTML-Dateien: 1, JS-Dateien: 22, CSS-Dateien: 5
-- Zeilen gesamt: HTML 480, JS 10771, CSS 3369
+- Zeilen gesamt: HTML 480, JS 10771, CSS 3410
 - Tests: 352 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
 - Antipattern-Regeln: 51 (Summe aus `tools/antipatterns/*.json`)
 - Fitness-Score: bewusst nicht hier — entsteht nur durch `node tools/build_db.js`
@@ -18,7 +18,7 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 |---|---:|
 | `website/addons/testbrief/testbrief.js` | 1510 |
 | `website/js/address.js` | 1383 |
-| `website/css/sidebar.css` | 1272 |
+| `website/css/sidebar.css` | 1309 |
 | `website/js/address-data.js` | 1066 |
 | `website/js/document.js` | 940 |
 | `website/js/persistence.js` | 899 |
@@ -29,18 +29,18 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 | `website/index.html` | 480 |
 | `website/js/format.js` | 450 |
 | `website/js/font-feature.js` | 416 |
-| `website/css/base.css` | 402 |
+| `website/css/base.css` | 406 |
 | `website/js/settings.js` | 365 |
 
 ## CSS: Kennzahlen je Datei
 
 | Datei | Zeilen | `!important` | ID-Selektoren | Custom Properties | `@scope` | `@function` |
 |---|---:|---:|---:|---:|---:|---:|
-| `website/css/base.css` | 402 | 25 | 28 | 67 | 0 | 7 |
+| `website/css/base.css` | 406 | 25 | 28 | 67 | 0 | 7 |
 | `website/css/sheet-common.css` | 728 | 2 | 138 | 10 | 2 | 0 |
 | `website/css/sheet-multipage.css` | 613 | 68 | 67 | 9 | 3 | 6 |
 | `website/css/sheet.css` | 354 | 26 | 22 | 0 | 3 | 3 |
-| `website/css/sidebar.css` | 1272 | 3 | 100 | 3 | 0 | 0 |
+| `website/css/sidebar.css` | 1309 | 3 | 102 | 3 | 0 | 0 |
 
 ## DOM-Zustands-Schreiber in JS
 

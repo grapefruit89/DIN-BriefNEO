@@ -8,7 +8,7 @@ Zaehlweise: **Vorkommen**, nicht Zeilen.
 
 | Datei | Zeilen | `!important` | davon Druck | `@layer` | `@scope` | `@media print`-Bloecke |
 |---|---:|---:|---:|---:|---:|---:|
-| `base.css` | 402 | 25 | 17 | 0 | 0 | 1 |
+| `base.css` | 406 | 25 | 17 | 0 | 0 | 1 |
 | `sheet-multipage.css` | 613 | 61 | 36 | 1 | 2 | 2 |
 | **Summe (diese zwei Dateien)** | | **86** | **53** | | | |
 
@@ -68,23 +68,23 @@ Datei | Zeile | Kontext | @scope | Selektor | Deklaration
 | `base.css:67` | global | — | `*, *::before, *::after` | `transition-delay: 0ms !importa` |
 | `base.css:68` | global | — | `*, *::before, *::after` | `scroll-behavior: auto !importa` |
 | `base.css:76` | global | — | `#hinweis-v4:popover-open` | `animation-duration: var(--hinw` |
-| `base.css:353` | Druck | — | `:root, body, din-blatt` | `color-scheme: light !important` |
-| `base.css:354` | Druck | — | `:root, body, din-blatt` | `print-color-adjust: exact !imp` |
-| `base.css:357` | Druck | — | `?` | `din-falzmarke-1, din-falzmarke` |
-| `base.css:359` | Druck | — | `?` | `din-falzmarke-1::after, din-fa` |
-| `base.css:364` | Druck | — | `:root[data-marks="false"] din-falzmarke-1,:r` | `visibility: hidden !important;` |
-| `base.css:367` | Druck | — | `?` | `#app-shell { display: block !i` |
-| `base.css:367` | Druck | — | `?` | `#app-shell { display: block !i` |
-| `base.css:367` | Druck | — | `?` | `#app-shell { display: block !i` |
-| `base.css:367` | Druck | — | `?` | `#app-shell { display: block !i` |
-| `base.css:369` | Druck | — | `?` | `.unterschriftsbild-rahmen { ou` |
-| `base.css:374` | Druck | — | `[contenteditable]:empty::before,[data-placeh` | `display: none !important;` |
-| `base.css:383` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `outline: none !important;` |
-| `base.css:384` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `box-shadow: none !important;` |
-| `base.css:385` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `background: transparent !impor` |
-| `base.css:386` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `border-radius: 0 !important;` |
-| `base.css:391` | Druck | — | `textarea[data-feldtyp]::placeholder` | `color: transparent !important;` |
-| `base.css:400` | Druck | — | `#rucksendeangabe` | `border-radius: 0 !important;` |
+| `base.css:357` | Druck | — | `:root, body, din-blatt` | `color-scheme: light !important` |
+| `base.css:358` | Druck | — | `:root, body, din-blatt` | `print-color-adjust: exact !imp` |
+| `base.css:361` | Druck | — | `?` | `din-falzmarke-1, din-falzmarke` |
+| `base.css:363` | Druck | — | `?` | `din-falzmarke-1::after, din-fa` |
+| `base.css:368` | Druck | — | `:root[data-marks="false"] din-falzmarke-1,:r` | `visibility: hidden !important;` |
+| `base.css:371` | Druck | — | `?` | `#app-shell { display: block !i` |
+| `base.css:371` | Druck | — | `?` | `#app-shell { display: block !i` |
+| `base.css:371` | Druck | — | `?` | `#app-shell { display: block !i` |
+| `base.css:371` | Druck | — | `?` | `#app-shell { display: block !i` |
+| `base.css:373` | Druck | — | `?` | `.unterschriftsbild-rahmen { ou` |
+| `base.css:378` | Druck | — | `[contenteditable]:empty::before,[data-placeh` | `display: none !important;` |
+| `base.css:387` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `outline: none !important;` |
+| `base.css:388` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `box-shadow: none !important;` |
+| `base.css:389` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `background: transparent !impor` |
+| `base.css:390` | Druck | — | `[contenteditable],:is(textarea[data-feldtyp]` | `border-radius: 0 !important;` |
+| `base.css:395` | Druck | — | `textarea[data-feldtyp]::placeholder` | `color: transparent !important;` |
+| `base.css:404` | Druck | — | `#rucksendeangabe` | `border-radius: 0 !important;` |
 | `sheet-multipage.css:72` | global | — | `body:not([data-seiten]) #viewport,body[data-` | `overflow-y: hidden !important;` |
 | `sheet-multipage.css:73` | global | — | `body:not([data-seiten]) #viewport,body[data-` | `display: flex !important;` |
 | `sheet-multipage.css:74` | global | — | `body:not([data-seiten]) #viewport,body[data-` | `justify-content: center !impor` |

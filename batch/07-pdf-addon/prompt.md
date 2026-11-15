@@ -1,34 +1,118 @@
-# Batch 07 — PDF-Export als Addon (SKIZZE, zurückgestellt)
+# Batch 07 — PDF-Export: braucht es eine Bibliothek, und wenn ja welche?
 
-> **Am 2026-11-15 von 06 auf 07 umnummeriert:** die 06 ist jetzt die
-> Layer-Kaskade (B59), weil die Frage aktuell ist und der PDF-Export auf
-> B52 (Plugin-Punkt) wartet.
+## Rolle
 
-> Noch nicht ausformuliert. Liegt absichtlich hinten: erst wenn die Struktur
-> steht und der Plugin-Punkt (B52) existiert.
+Du bist **Produkt- und Plattform-Architekt** für einen Browser-Druck-Workflow.
+Du änderst **nichts**. Du prüfst eine Frage: **was fehlt dem heutigen
+PDF-Weg wirklich — und rechtfertigt das eine Bibliothek?**
 
-## Frage
+**Wichtig:** Der Auftrag legt **keine** Bibliothek nahe. jsPDF, pdf-lib,
+pdfmake, PDFKit sind *Kandidaten unter anderen* und ausdrücklich nicht
+gesetzt. „Ist halt so" ist kein Argument; jedes Kapitel deiner Antwort muss auf
+einer Zahl, einer Zeile oder einem gemessenen Verhalten stehen.
 
-Braucht der Export eine Bibliothek, oder reicht der Browser? Und wenn eine
-Bibliothek: wie kommt sie rein, ohne den Boot-Pfad zu belasten?
+## Kontext
 
-## Was zu klären ist
+**DIN-BriefNEO** druckt DIN 5008 als A4 im Browser. Kein Framework, kein Build,
+kein Präprozessor, keine externen Assets (A38), kein Service Worker (A37).
+`website/` ist auslieferbar und muss allein auf einem Webserver starten (A45).
 
-- [ ] `window.print()` als Basisfall: Der Nutzer erhält ein echtes Text-PDF über
-  den Druckdialog. Reicht das, oder ist der Dialog das Problem?
-- [ ] Metadaten (Titel, Autor): über `window.print()` nicht setzbar — lohnt
-  dafür eine Bibliothek?
-- [ ] Kandidaten aus der Recherche: `pdf-lib` (Koordinaten, ~200 KB gzip),
-  `jsPDF`, `pdfmake` — alle bauen das Layout **nach**. Das widerspricht der
-  WYSIWYG-Grundlage des Projekts
-- [ ] Bleeding-Edge-Optionen: `showSaveFilePicker()` (Dateiname/Ziel),
-  `beforeprint`/`afterprint`, `CSS @page`-Metadaten — was davon trägt?
-- [ ] Andockpunkt: `website/addons/` mit `import()` beim Klick (Muster
-  `testbrief.js`), Registrierung nach `data-ready`
+Der Druck läuft **heute** so: Knopf → `window.print()` → der Browser-Dialog
+erzeugt das PDF. Davor räumen `beforeprint`-Hooks auf (Mehrseiten-DOM,
+Metadaten), danach stellen `afterprint`-Hooks den Zustand zurück.
 
-## Notizen
+Zahlen aus `fakten.md` (mit Zeile bzw. gemessen):
 
-- Diese Scheibe ist ein **Produkt**-Thema, kein Architektur-Thema. Sie darf die
-  Strukturarbeit nicht blockieren.
-- Der DeepSeek-Mitschnitt vom 2026-11-14 liegt unter
-  `/home/moritz/Downloads/` und ist die Grundlage der Fragen.
+| | |
+|---|---:|
+| Auslieferung gesamt | **802 KB roh / 307 KB gzip** |
+| davon JS | 404 KB / 134 KB gzip |
+| davon CSS | 109 KB / 36 KB gzip |
+| `@page`-Regeln | 2 Dateien (`sheet-multipage.css:455`, `sheet.css:310` – letztere stillgelegt) |
+| Druck-Aufrufe im Code | 1 × `window.print()`, 4 × `before/afterprint` |
+| PDF-Writer im Code | **keiner** |
+| CSP | `script-src 'self'` — Bibliothek im Repo erlaubt, CDN nicht |
+
+## Die Entscheidungsräume (alle vier ernst nehmen)
+
+**A — Browser-Dialog bleibt.** `window.print()`; der Nutzer wählt „Als PDF
+speichern". Ein Klick mehr, null Byte, Layout bleibt die Wahrheit (CSS).
+
+**B — Eigener Writer baut das Layout nach** (jsPDF, pdf-lib, pdfmake, …).
+Dann existieren **zwei Layouts**: CSS für den Schirm, Code für die Datei. Das
+ist keine Fußnote, sondern das Ende des WYSIWYG-Versprechens — jede Änderung an
+`sheet-*.css` müsste doppelt nachgezogen werden.
+
+**C — Der Browser rendert und wir liefert nur die Datei.** Geprüft werden muss,
+ob es dafür heute einen Web-Standard gibt (`showSaveFilePicker` gibt es schon
+im Repo, aber nur für JSON; ein „print to file" ohne Dialog ist **nicht**
+standardisiert). Wenn es ihn nicht gibt: sagen, mit Quelle.
+
+**D — Etwas dazwischen.** Z. B. `beforeprint` verbessern (Metadaten,
+Dateiname), damit der Dialogweg so gut wird, dass eine Bibliothek nichts mehr
+hinzufügt.
+
+Für jede Variante gilt: **Kosten in Byte, Zeilen und Wartung** und **was der
+Nutzer dadurch wirklich gewinnt**. „Bessere Qualität" ist keine Antwort, wenn
+das PDF schon Text (kein Raster) und eingebettete Schriften hat.
+
+## Aufgaben
+
+**1. Den Ist-Zustand festnageln.** Was genau liefert `window.print()` heute?
+Belege am erzeugten PDF: Text oder Raster (`pdftotext` / `pdffonts`),
+Seitenzahl, Papierformat, Metadaten (Titel/Autor). Wo setzt der Code den Titel
+(`MetadataService`, `document.title`)? Nenne die Zeilen.
+
+**2. Die Lücke benennen.** Was fehlt dem Nutzer *konkret*? Frag nicht „was wäre
+schöner", sondern: welcher Schritt kostet ihn heute Zeit — Dialog, Dateiname,
+Ablageort, Metadaten, mehrere Briefe auf einmal? Belege jeden Punkt, sonst
+streich ihn.
+
+**3. Variante B ehrlich rechnen.** Wenn ein Writer das Layout nachbaut: wie
+viele Stellen müssten synchron gehalten werden? Nenne die Maße, die aus
+`sheet-multipage.css` / den `data-*`-Attributen kommen (Betreff 107 mm,
+Faltmarken, `--rand-u`, Absatzabstand 1,5 mm …) und schätze die Zeilen, die ein
+Writer dafür bräuchte. Danach: **lohnt das?** Wenn nein, sag es mit diesen
+Zahlen.
+
+**4. Die Byte-Frage.** Was würde der kleinste sinnvolle Kandidat kosten —
+roh und gzip — und wo läge er im Verhältnis zu den heutigen 307 KB gzip? Nur
+Größenordnungen mit Quelle (Paket-Repository/Release, nicht geschätzt aus dem
+Gedächtnis). **Lazy** laden wäre Pflicht; sag, was das im Boot-Pfad bedeutet.
+
+**5. Der Andockpunkt.** Der Plugin-Punkt (B52) existiert **noch nicht**. Wie
+käme ein PDF-Addon heute rein, ohne den Boot-Pfad zu belasten? Muster:
+`website/addons/` + `import()` beim Klick. Was fehlt dafür (Registrierung,
+Einstellung, Sichtbarkeit des Knopfs)?
+
+**6. Was dir fehlt.** Welche Datei oder Messung bräuchtest du für welche
+Entscheidung?
+
+## Messmethode (mitliefern, nicht nachfragen)
+
+- PDF prüfen: `pdftotext -layout` (Text vorhanden?), `pdffonts` (Schriften
+  eingebettet?), `pdfinfo` (Format, Seiten, Metadaten).
+- Drucken: `tools/druck-pixel.mjs <ziel>` — 4 Referenzbriefe, 6 Seiten; jeder
+  Eingriff in den Druckpfad wird damit pixelweise verglichen (Toleranz 0).
+- „Ein Klick weniger" ist **keine** Messung. Wenn du es als Vorteil nennst,
+  sag, wie viele Klicks heute nötig sind (mit Beleg aus dem Code).
+
+## Form deiner Antwort
+
+- Maximal zwei Bildschirmseiten.
+- Jede Behauptung: Zahl, Zeile oder gemessenes Verhalten. Ohne Beleg:
+  **ungeprüft** markieren und die Gegenprobe nennen.
+- Am Ende: **Empfehlung A/B/C/D** mit Kosten in Byte/Zeilen, Risiko in einem
+  Satz, und dem **einen Test**, der die Entscheidung absichert.
+- Wenn deine Empfehlung „nichts bauen" ist, ist das ein vollwertiges Ergebnis.
+
+## Was du nicht tun sollst
+
+- **Keine Bibliothek voraussetzen** — auch nicht jsPDF „weil üblich".
+- Kein CDN, kein Service Worker, kein Build-Schritt, kein Framework (A37,
+  A38, A45).
+- Keine Optik- oder Geometrieänderung vorschlagen; DIN-Maße sind tabu.
+- Keine Empfehlung, die zwei Layouts nebeneinander pflegt, **ohne** die
+  doppelte Pflege ausdrücklich zu beziffern.
+- Keine Aussage über Dateien, die nicht im Anhang sind — verweise auf den
+  Kontrakt.

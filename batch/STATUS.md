@@ -13,7 +13,7 @@ Review-Scheiben — nicht der Chat.
 | 04 | `sidebar.css`: Optik und Struktur trennen | ✅ | ✅ **ausgewertet** | ✅ **B64 umgesetzt** | 2 / **42 KiB** |
 | 05 | Zustand und Restore: zwei Pfade, eine Frage | ✅ | ✅ **ausgewertet** | ✅ **F5 + Vermerk behoben** | 3 / **37 KiB** |
 | 06 | Layer-Kaskade: `@layer` in welcher Reihenfolge | ✅ **15.11.** | ⬜ offen | – | 3 / **48 KiB** |
-| 07 | PDF-Export als Addon | Skizze | – | – | zurückgestellt (Nutzerentscheidung) |
+| 07 | PDF-Export: Bibliothek oder Browser? | ✅ **15.11.** | ⬜ offen | – | 2 / **43 KiB** |
 
 **Regel:** Die Skizzen enthalten nur die Fragen und Messpunkte — kein
 vollständiger Auftrag. Ausformuliert wird erst, wenn die Scheibe dran ist
@@ -124,6 +124,7 @@ DECISION-LOG-Eintrag „Der erste Paint ist keine Zusage".
 | 04 | `node tools/batch-facts.mjs --scheibe 04` |
 | 05 | `node tools/batch-facts.mjs --scheibe 05` |
 | 06 | `node tools/batch-facts.mjs --scheibe 06` |
+| 07 | `node tools/batch-facts.mjs --scheibe 07` |
 
 Jeweils mit `--check` im Gate; `npm run docs:all` prüft Backlog-Tabelle,
 Faktenblätter und Test-Dossier zusammen.

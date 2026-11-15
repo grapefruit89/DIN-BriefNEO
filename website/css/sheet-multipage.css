@@ -49,11 +49,19 @@ din-blatt {
 
 /* Viewport-Scrolling für Mehrseiten (A43 Zero-Scroll Invariante)
    Explizit nur dann vertikales Scrollen im Viewport, wenn mehr als eine Seite beschrieben wird! */
-#viewport {
-  overflow-x: hidden !important;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
-  min-height: 0 !important;
+/* B59-Test 1: diese zwei !important waren gegen base.css:293 gerichtet, das
+   dieselben Werte setzt — und gegen den Druckblock, der `overflow: visible`
+   weiterhin mit !important setzt. Beides braucht kein !important, wenn die
+   Regel in einer Schicht liegt und der Druck ungeschichtet bleibt:
+   ungeschichtete Regeln gewinnen gegen jede Schicht, unabhaengig von der
+   Spezifitaet. Gemessen: 6 PDF-Seiten 0 Pixel, 8 Geometrie-Zustaende gleich. */
+@layer screen {
+  #viewport {
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+    min-height: 0;
+  }
 }
 
 /* Seite 1: Zentriert und ohne unnoetiges Scrollen (Zero-Scroll-Garantie) */

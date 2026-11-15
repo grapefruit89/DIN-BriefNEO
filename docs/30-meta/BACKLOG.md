@@ -156,6 +156,18 @@ unter `prefers-reduced-motion` ist eine bewusste, begründete `!important`-Zeile
 92). Der Review dazu ist gelaufen (GitHub #20 → B88 + B92); dieser Punkt ist
 der Umbau, nicht die Bestandsaufnahme.
 
+**Vorprobe 2026-11-15 (gemessen, siehe DECISION-LOG):** zwei Umbauten getestet.
+Erfolgreich: `#viewport` (Bildschirm) in `@layer screen`, 2 `!important`
+entfernt, 6 PDF-Seiten **0 Pixel**, 8 Geometrie-Zustände gleich. Gescheitert:
+`#kern` (Druck) ohne `!important` — **2.871.046 Pixel** Unterschied, sofort
+zurückgenommen; die Gegenregel ist `@scope (din-blatt) #kern` (Zeile 259), die
+auch im Druck gilt und deren Scoping-Nähe die Reihenfolge schlägt.
+
+**Damit ist die Reihenfolge klar:** erst `base.css` und die ungeschichtete
+Bildschirm-Sperre (`sheet-multipage.css:74/83/93`) in Schichten legen, dann
+können die Druck-`!important` fallen. Vorher nicht — sonst gewinnen die
+ungeschichteten Regeln.
+
 **Vorbedingung aus B92 (gemessen, nicht vermutet):** die 92 sind **nicht**
 pauschal ersetzbar. Von fünf geprüften Kandidaten waren **drei nicht tot**
 (`@top-left`/`@top-right` `content: none` und `#spacer { display: block }`

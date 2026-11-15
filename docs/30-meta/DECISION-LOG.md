@@ -3555,3 +3555,51 @@ Fläche, also DIN-Geometrie. Kein Beleg, kein Eingriff.
 (randlos/Skalierung), keine Dokumenteigenschaft. Die Zeile war der falsche
 Ort für das Problem. `sheet.css:313` (stillgelegt, nicht geladen) bleibt
 unverändert.
+
+---
+
+## 2026-11-15 — B59-Vorprobe: `@layer` löst eine von zwei Sorten, und ein Fehlversuch
+
+Zwei kleine Umbauten als Test, beide gemessen. Ergebnis vorweg: **`@layer`
+hilft gegen gleichrangige Regeln in derselben Datei, nicht gegen `@scope`.**
+Und der Fehlversuch war der lehrreiche Teil.
+
+**Test 1 — geglückt: `#viewport` (Bildschirm) in eine Schicht.**
+`sheet-multipage.css` setzte `overflow-x: hidden !important` und
+`min-height: 0 !important`, obwohl `base.css:293` dieselben Werte schon setzt.
+Beide in `@layer screen` gelegt, `!important` entfernt.
+
+| Messung | Ergebnis |
+|---|---|
+| Druck (4 Briefe, 6 Seiten, 150 dpi) | **0 abweichende Pixel** |
+| Bildschirm (2 Formen × 4 `data-seiten`-Zustände) | **0 von 8 abweichend** (Geometrie und `getComputedStyle` aller vier Blöcke) |
+
+**Test 2 — gescheitert, zurückgenommen: `#kern` (Druck) ohne `!important`.**
+Neun `!important` entfernt, in der Annahme „der Druckblock steht später in
+der Datei, gleiche Spezifität, also gewinnt er".
+
+| Messung | Ergebnis |
+|---|---|
+| Druck | **2.871.046 abweichende Pixel** (6 Seiten) |
+| Nach Rücknahme | wieder **0** |
+
+**Warum:** die Gegenregel ist `@scope (din-blatt) #kern` (Zeile 259). Sie
+liegt **nicht** in `@media print`, gilt also auch auf Papier — und ihre
+Scoping-Nähe schlägt die Reihenfolge. Die Annahme „später gewinnt" war falsch.
+Damit ist auch klar: die 9 `!important` dort sind **tragend**, nicht Spiegel.
+
+**Was das für B59 heißt.** Die 92 `!important` zerfallen nicht in „nötig" und
+„überflüssig", sondern in drei Sorten:
+
+1. **Doppelte Grundwerte** (wie Test 1) — entfernbar, 2 Stück erledigt.
+2. **Kämpfe gegen `@scope`** — `@layer` hilft nur, wenn die `@scope`-Regel in
+   eine *niedrigere* Schicht wandert und der Druck ungeschichtet bleibt.
+3. **Kämpfe gegen die ungeschichtete Bildschirm-Sperre** (Zeilen 74/83/93):
+   diese Regeln liegen **ohne** `@media screen` in der Datei und gelten im
+   Druck mit. Solange sie ungeschichtet sind, schlagen sie **jede** Schicht —
+   `@layer` kann dort erst greifen, wenn auch `base.css` geschichtet ist,
+   sonst gewinnen dessen ungeschichtete Regeln. Das ist der eigentliche Umbau
+   und der Grund, warum B59 nicht in einem Zug geht.
+
+**Neuer Messstand:** `sheet-multipage.css` 61 statt 63 `!important`
+(insgesamt 90 statt 92). Druck und Bildschirm nachgewiesen unverändert.

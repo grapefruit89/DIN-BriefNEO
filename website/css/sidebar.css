@@ -57,6 +57,19 @@ aside.seitenleiste,
   }
 }
 
+/* Noch enger (<= 940px Hoehe): eine Stufe weiter, damit bei 900px Fenster
+   kein Scrollbalken mehr noetig ist. Betroffen ist nur Weissraum, kein
+   Bedienelement (gemessen 2026-11-15: 940 -> 900 bei 1280x900). */
+@media (max-height: 940px) {
+  #seitenleiste {
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+  }
+  .seitenleiste-zone {
+    gap: var(--space-xs);
+  }
+}
+
 
 .seitenleiste-zone {
   display: flex;

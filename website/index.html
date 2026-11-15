@@ -246,6 +246,13 @@
                 🔤 Eigene Schriftart laden
               </button>
               <input type="file" id="font-uploader" accept=".woff2,.ttf,.otf" class="hidden" aria-label="Schriftart-Datei auswählen">
+              <!-- Local Font Access API (Chrome 103+): zeigt die auf dem Rechner
+                   installierten Familien in derselben Auswahlliste. Wird erst
+                   eingeblendet, wenn der Browser die API kennt — ohne sie gibt
+                   es nichts anzubieten. Berechtigung fragt der Browser. -->
+              <button type="button" id="btn-systemschriften" class="btn w-full" hidden>
+                🖥️ Systemschriften anzeigen
+              </button>
             </div>
 
             <div class="seitenleiste-field-group">

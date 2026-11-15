@@ -694,12 +694,14 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
       text-decoration: none;
     }
 
-  /* Absatzabstand 0,65 Zeilen (2,9 mm bezogen auf 4,5 mm Zeilenhoehe). Drei
-     Messpunkte vom 2026-11-12: 4,5 mm wirkte wie eine ganze Leerzeile (5,03 mm
-     Luft), 2,25 mm klebte die Absaetze zusammen (2,78 mm Luft). 0,65 lh ist
-     der in todo/07 dokumentierte DIN-Toleranzwert und liegt dazwischen. */
+  /* Absatzabstand eine halbe Zeile (2,25 mm bei 4,52 mm Zeilenraster).
+     Nutzerentscheidung 2026-11-15: 2,9 mm war zu viel, "weniger ist mehr".
+     Messhistorie (PDF, pdftotext -bbox): 4,5 mm = 5,03 mm Luft (wirkte wie
+     eine Leerzeile), 2,9 mm = 2,89 mm Luft, 2,25 mm = 2,25 mm Luft. Die halbe
+     Zeile ist der ruhigste Wert, der noch als Absatz lesbar bleibt — und sie
+     liegt auf dem Zeilenraster, statt es zu brechen. */
   #text p {
-      margin: 0 0 2.9mm 0;
+      margin: 0 0 2.25mm 0;
     }
 
   /* Der Abstand zur Grussformel kommt aus deren margin-top, nicht doppelt. */

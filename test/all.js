@@ -4382,26 +4382,28 @@ describe('Testbrief: direkter Snapshot, nur die PLZ-Erkennung ist gesperrt', () 
 
 
 describe('Absatzabstand im Fließtext', () => {
-  /* DIN 5008 (Z. 1410) laesst den Absatzabstand der Software; die Leerzeile ist
-   * nur der Notfall. Drei Messpunkte am 2026-11-12 (Zeilenhöhe 4,5mm):
+  /* DIN 5008 laesst den Absatzabstand der Software. Messpunkte (PDF,
+   * pdftotext -bbox, Zeilenraster 4,52mm):
    *   4,5mm  -> 5,03mm Luft, wirkte wie eine ganze Leerzeile
-   *   2,25mm -> 2,78mm Luft, Absaetze klebten zusammen ("unfoermig")
-   *   2,9mm  -> 10,95px (2,9mm) Luft, das ist 0,65 lh - der Toleranzwert aus
-   *             docs/90-archive/todo-2026-11/07-addon-copyfitting-plan.md. */
-  const ABSATZ = 2.9;
+   *   2,9mm  -> 2,89mm Luft (0,65 lh, Toleranzwert aus todo/07)
+   *   2,25mm -> 2,24mm Luft = genau eine halbe Zeile
+   * Nutzerentscheidung 2026-11-15: 2,9mm war zu hoch, "weniger ist mehr".
+   * Deshalb 2,25mm - und zwar in BEIDEN Dateien, sonst paginiert der Druck
+   * anders als die Vorschau. */
+  const ABSATZ = 2.25;
 
-  it('setzt in Bildschirm und Druck denselben Absatzabstand (0,65 Zeilen)', async () => {
+  it('setzt in Bildschirm und Druck denselben Absatzabstand (halbe Zeile)', async () => {
     for (const datei of ['/website/css/sheet-common.css', '/website/css/sheet-multipage.css']) {
       const css = await (await fetch(datei)).text();
       const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
       assert(block !== '', `Regel #text p in ${datei}`);
-      assert(/margin:\s*0 0 2\.9mm 0/.test(block), `2,9mm (${datei})`);
-      assert(/margin:\s*0 0 2\.25mm 0/.test(block) === false, `keine halbe Zeile mehr (${datei})`);
+      assert(/margin:\s*0 0 2\.25mm 0/.test(block), `2,25mm (${datei})`);
+      assert(/margin:\s*0 0 2\.9mm 0/.test(block) === false, `kein 2,9mm mehr (${datei})`);
     }
   });
 
-  it('bleibt unter der Zeilenhoehe (4,5mm) und ueber null', () => {
-    assert(ABSATZ > 2.25 && ABSATZ < 4.5, `Absatzabstand ${ABSATZ}mm liegt zwischen halber und ganzer Zeile`);
+  it('liegt auf dem Zeilenraster: halbe Zeile, nicht null und nicht ganz', () => {
+    assert(ABSATZ >= 2.25 && ABSATZ < 4.52, `Absatzabstand ${ABSATZ}mm liegt im Raster`);
   });
 });
 

@@ -64,6 +64,12 @@ export class FontFeature {
     this.selectFont = /** @type {HTMLSelectElement | null} */ (document.getElementById('select-schriftart'));
     this.btnFontAction = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-schrift-aktion'));
     this.fontUploader = /** @type {HTMLInputElement | null} */ (document.getElementById('font-uploader') || document.getElementById('schrift-uploader'));
+    this.btnSystemFonts = /** @type {HTMLButtonElement | null} */ (document.getElementById('btn-systemschriften'));
+
+    /** Installierte Familien aus der Local Font Access API: Name -> FontData. */
+    this.systemFonts = new Map();
+    /** @type {FontFace | null} */
+    this.activeSystemFace = null;
 
     /** @type {FontFace | null} */
     this.activeFontFace = null;
@@ -76,11 +82,117 @@ export class FontFeature {
     this.applyInitialFont();
     this.attachListeners();
     this.initFontInjection();
+    this.#initSystemFonts();
     this.isReady = true;
   }
 
+  /* --- Systemschriften (Local Font Access API) ---------------------------
+   * `queryLocalFonts()` liefert die auf dem Rechner installierten Familien.
+   * Der Browser fragt beim ersten Aufruf nach Erlaubnis; ohne Erlaubnis wirft
+   * die API `NotAllowedError`. Dann bleibt es beim Standard-Stack — der Knopf
+   * ist da, die Liste unveraendert.
+   *
+   * Die Schriften werden NICHT gespeichert: die Berechtigung gilt pro Sitzung
+   * fuer den Origin, die Liste wird bei Bedarf neu abgefragt. Ein Eintrag im
+   * `previewFont`-Feld ueberlebt deshalb keinen Reload, und das ist Absicht
+   * (sonst zeigte ein Brief auf eine Schrift, die es auf dem Zielrechner
+   * vielleicht nicht gibt). */
+  /**
+   * Die API steht nicht im lib.dom von TypeScript 5.x — deshalb der Umweg
+   * ueber `globalThis` mit Cast, statt die Typen zu erweitern.
+   * @returns {(() => Promise<any[]>) | null}
+   */
+  #queryLocalFontsApi() {
+    const api = /** @type {any} */ (globalThis).queryLocalFonts;
+    return typeof api === 'function' ? api : null;
+  }
+
+  #initSystemFonts() {
+    if (!this.btnSystemFonts) return;
+    if (!this.#queryLocalFontsApi()) return;
+    this.btnSystemFonts.hidden = false;
+    this.btnSystemFonts.addEventListener('click', () => {
+      void this.ladeSystemschriften();
+    });
+  }
+
+  async ladeSystemschriften() {
+    const btn = this.btnSystemFonts;
+    const api = this.#queryLocalFontsApi();
+    if (!api) return;
+    if (btn) btn.disabled = true;
+    try {
+      const fonts = await api();
+      this.systemFonts.clear();
+      for (const font of fonts) {
+        if (!this.systemFonts.has(font.family)) this.systemFonts.set(font.family, font);
+      }
+      this.#baueSystemOptionen();
+      notify(`${this.systemFonts.size} Systemschriften gefunden.`, 'info');
+    } catch (e) {
+      console.warn('[FontFeature] Systemschriften nicht verfügbar:', e);
+      notify('Systemschriften wurden nicht freigegeben.', 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  #baueSystemOptionen() {
+    if (!this.selectFont) return;
+    const alt = this.selectFont.querySelector('optgroup[data-systemschriften]');
+    if (alt) alt.remove();
+    const gruppe = document.createElement('optgroup');
+    gruppe.setAttribute('data-systemschriften', '');
+    gruppe.label = 'Systemschriften (lokal)';
+    for (const family of [...this.systemFonts.keys()].sort((a, b) => a.localeCompare(b, 'de'))) {
+      const option = document.createElement('option');
+      option.value = `sys:${family}`;
+      option.textContent = family;
+      gruppe.append(option);
+    }
+    this.selectFont.append(gruppe);
+  }
+
+  /**
+   * Laedt eine installierte Familie als `FontFace` und setzt sie als
+   * Briefschrift. Der Wert kommt als `sys:<Familie>` aus der Auswahlliste.
+   * @param {string} family
+   */
+  async #applySystemFont(family) {
+    const daten = this.systemFonts.get(family);
+    if (!daten) return;
+    if (this.activeSystemFace && typeof document.fonts !== 'undefined') {
+      document.fonts.delete(this.activeSystemFace);
+      this.activeSystemFace = null;
+    }
+    try {
+      const blob = await daten.blob();
+      const face = new FontFace(family, await blob.arrayBuffer());
+      await face.load();
+      document.fonts.add(face);
+      this.activeSystemFace = face;
+      document.documentElement.style.setProperty(
+        '--active-font-family',
+        `"${family}", var(--font-system-stack)`,
+      );
+    } catch (e) {
+      console.warn('[FontFeature] Systemschrift nicht ladbar:', e);
+      notify(Constants.TOASTS.FONT.FORMAT_ERROR, 'error');
+    }
+  }
+
   applyInitialFont() {
-    const activePreset = this.settings.previewFont || 'default';
+    const gespeichert = this.settings.previewFont || 'default';
+    /* Eine Systemschrift ueberlebt den Reload nicht: die Liste entsteht erst
+       auf Klick (Berechtigung). Bliebe der Wert stehen, zeigte die Auswahl
+       leer und der Brief still die Standardschrift — dann lieber gleich
+       zurueck auf `default`, sichtbar und ehrlich. */
+    const waehlbar = gespeichert in FONT_PRESETS || gespeichert === 'default';
+    const activePreset = waehlbar ? gespeichert : 'default';
+    if (!waehlbar) {
+      this.settings.previewFont = 'default';
+      this.#saveSettings();
+    }
     if (this.selectFont) {
       this.selectFont.value = activePreset;
     }
@@ -207,6 +319,15 @@ export class FontFeature {
    * @param {string} val
    */
   applyFontPreset(val) {
+    /* Systemschriften laufen an den Presets vorbei: `sys:<Familie>` wird als
+       FontFace geladen, nicht als fester Stack. */
+    if (typeof val === 'string' && val.startsWith('sys:')) {
+      const family = val.slice(4);
+      this.settings.previewFont = val;
+      void this.#applySystemFont(family);
+      this.#saveSettings();
+      return;
+    }
     const choice = val in FONT_PRESETS ? val : 'default';
     this.settings.previewFont = choice;
     if (this.selectFont) {

@@ -764,3 +764,43 @@ Import-Prüfung in `parseDinLetterPayload`, der Übernahmezweig in
 **Verträglichkeit:** alte `.json`-Dateien mit `layout.copyfit` werden weiter
 importiert — der Schlüssel wird ignoriert, nicht abgelehnt. Kein
 Schema-Versionssprung nötig, weil `layout` nicht Teil von `_meta.schema` ist.
+
+### B92 · Kaskade: die vier Restfälle aus dem Review · **S** · ⭐⭐
+**Herkunft:** GitHub #20. Der große Teil ist erledigt (B88: 35 spiegelnde
+`!important` entfernt, 0 Pixel Unterschied). Das hier bleibt:
+
+| Fall | Beleg | Was zu tun ist |
+|---|---|---|
+| `@page :first { @top-left/@top-right { content: none !important } }` | Zeilen 473/474 | `@page :first` ist spezifischer als `@page`, und `@top-left` hat in der Basisregel **gar kein** `content`. Beide Zeilen entfernen, PDF Seite 1 prüfen: darf keinen „Seite 1 von N"-Text tragen. |
+| `margin: 0 auto !important` | Zeile 122 | Einziger Gegner in der Datei ist Zeile 109 (Spezifität 0,1,0 gegen 0,2,1) — dort ist das `!important` unnötig. Es erzwingt den Sonderblock am Dateiende. |
+| `#spacer { display: block !important }` | Zeile 276 | Ein `<div>` ist ohnehin `block`; in der Datei gibt es keinen Gegner. |
+| 8 Duelle `!important` gegen `!important` | Print 503/506/507 gegen 53/64–68/74–76; 514–516 gegen 83–88/93–99; 525 und 638 gegen 122 | Auflösbar, wenn Print-Block und Screen-Sperre zusammen betrachtet werden. |
+
+**Nicht anfassen:** die 9 echten Kämpfe (anderer Wert) und die 25
+Nicht-Druck-`!important` — letztere sind das Zero-Scroll-Schloss.
+
+**Widerlegt (nicht wieder vorschlagen):** die fünf
+`container-type: normal !important` sind **nicht** tot. Sie schalten
+`container-type: size` aus `base.css:291` ab, und `cqw`/`cqh` werden in
+`base.css:234/237` (`@function --mm-x/--mm-y`) benutzt. Das Kriterium des
+Reviews („wenn kein `@container` trifft") greift zu kurz.
+
+**Messung:** wie bei B88 — 4 Referenzbriefe (Form A/B × kurz/lang) vor/nach,
+`pdftoppm -r 150` + Pixelvergleich, plus Sichtprüfung von Seite 1.
+
+✅ ERLEDIGT 2026-11-15 — **untersucht, kein Eingriff.** Alle vier Fälle waren
+Hypothesen aus dem Review; drei sind widerlegt, einer ist beweisbar wirkungslos
+und wird von zwei Tests bewacht.
+
+| Fall | Ergebnis | Beleg |
+|---|---|---|
+| `@page :first { margin: 25mm 0 var(--rand-u) 0 }` | Spiegel der Basis-`@page`-Regel, **entfernt und wieder eingefügt**: 0 Pixel Unterschied, aber zwei Tests bewachen die Zeile (Fix aus `9204041`). Kein Gewinn, also bleibt sie. | PDF-Vergleich 6 Seiten, 0 abweichende Pixel; `test/all.js` „@page :first hat denselben Oberrand" |
+| `@top-left { content: none !important }` | **notwendig** — der Text kommt per JS: `multipage-controller.js` synchronisiert `@page { @top-left { content: … } }` in ein Konstruktor-Stylesheet | `multipage-controller.js`, `pageSheet.replaceSync` |
+| `@top-right { content: none !important }` | **notwendig** — die Basis-`@page`-Regel setzt dort `counter(page)`/`counter(pages)` | `sheet-multipage.css`, `@page`-Block |
+| `#spacer { display: block !important }` | **notwendig** — `sheet-common.css:51` setzt `#spacer { display: none }`; ohne den Druck-Override bleibt der Abstandshalter unsichtbar | `sheet-common.css:51` |
+| `margin: 0 auto !important` (Z. 122) + 8 Duelle | **tragend.** Entfernt man die `!important` auf der Bildschirmseite (oder kapselt sie in `@media screen`), ändert sich Zustand `data-seiten="2"` messbar: `align-items: safe center` → `center` (Sicherheitsnetz bei Überlauf weg), `din-blatt` verliert 40 mm Bodenabstand | Geometrie-Dump, 8 Zustände (2 Formen × `data-seiten` fehlt/1/2/3), 5 Abweichungen |
+
+**Was daraus für später folgt:** die Duelle lassen sich nur zusammen mit einem
+Bildschirm-Prüfstand für `data-seiten="2"` auflösen — der PDF-Vergleich allein
+sieht diesen Zustand nicht. Wer es angeht, braucht beide Messungen (PDF **und**
+Geometrie-Dump), sonst verschiebt er das Sicherheitsnetz unbemerkt.

@@ -701,7 +701,10 @@ body:has(#unterschriftsbild-vorschau[src]:not([src=""]):not([src^="data:image/sv
      Zeile ist der ruhigste Wert, der noch als Absatz lesbar bleibt — und sie
      liegt auf dem Zeilenraster, statt es zu brechen. */
   #text p {
-      margin: 0 0 2.25mm 0;
+    /* 1,5 mm Absatzabstand, identisch mit dem Druck. Gemessen (PDF,
+       pdftotext -bbox): 2,25 mm -> 2,54 mm sichtbare Luecke, 1,5 mm ->
+       2,02 mm, 1,0 mm -> 1,49 mm. Zeilenluecke im Absatz: 0,43 mm. */
+    margin: 0 0 1.5mm 0;
     }
 
   /* Der Abstand zur Grussformel kommt aus deren margin-top, nicht doppelt. */

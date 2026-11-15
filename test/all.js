@@ -4470,20 +4470,20 @@ describe('Absatzabstand im Fließtext', () => {
    * Nutzerentscheidung 2026-11-15: 2,9mm war zu hoch, "weniger ist mehr".
    * Deshalb 2,25mm - und zwar in BEIDEN Dateien, sonst paginiert der Druck
    * anders als die Vorschau. */
-  const ABSATZ = 2.25;
+  const ABSATZ = 1.5;
 
-  it('setzt in Bildschirm und Druck denselben Absatzabstand (halbe Zeile)', async () => {
+  it('setzt in Bildschirm und Druck denselben Absatzabstand (1,5 mm)', async () => {
     for (const datei of ['/website/css/sheet-common.css', '/website/css/sheet-multipage.css']) {
       const css = await (await fetch(datei)).text();
       const block = (css.match(/#text p\s*\{([^}]*)\}/) || [])[1] ?? '';
       assert(block !== '', `Regel #text p in ${datei}`);
-      assert(/margin:\s*0 0 2\.25mm 0/.test(block), `2,25mm (${datei})`);
-      assert(/margin:\s*0 0 2\.9mm 0/.test(block) === false, `kein 2,9mm mehr (${datei})`);
+      assert(/margin:\s*0 0 1\.5mm 0/.test(block), `1,5mm (${datei})`);
+      assert(/margin:\s*0 0 2\.[0-9]+mm 0/.test(block) === false, `kein 2,x mm mehr (${datei})`);
     }
   });
 
-  it('liegt auf dem Zeilenraster: halbe Zeile, nicht null und nicht ganz', () => {
-    assert(ABSATZ >= 2.25 && ABSATZ < 4.52, `Absatzabstand ${ABSATZ}mm liegt im Raster`);
+  it('bleibt unter einer halben Zeile (4,52 mm Raster)', () => {
+    assert(ABSATZ > 0 && ABSATZ < 2.26, `Absatzabstand ${ABSATZ}mm ist kleiner als die halbe Zeile`);
   });
 });
 

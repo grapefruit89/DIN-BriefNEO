@@ -3603,3 +3603,34 @@ Damit ist auch klar: die 9 `!important` dort sind **tragend**, nicht Spiegel.
 
 **Neuer Messstand:** `sheet-multipage.css` 61 statt 63 `!important`
 (insgesamt 90 statt 92). Druck und Bildschirm nachgewiesen unverändert.
+
+---
+
+## 2026-11-15 — Absatzabstand 2,25 → 1,5 mm (gemessen, nicht geschätzt)
+
+Nutzer: „erscheint mir etwas zu groß". Also nicht nach Gefühl gedreht, sondern
+drei Werte gedruckt und die sichtbare Lücke im PDF gemessen
+(`pdftotext -bbox`, 4 Absätze à 2 Zeilen, Grundlinien-Abstand):
+
+| `margin-bottom` | sichtbare Lücke | Faktor zur Zeilenlücke (0,43 mm) |
+|---|---|---|
+| 2,25 mm | 2,54 mm | **5,9×** |
+| 1,50 mm | 2,02 mm | 4,7× |
+| 1,00 mm | 1,49 mm | 3,5× |
+
+**Entscheidung: 1,5 mm** in beiden Dateien (Schirm und Druck, sonst paginiert
+der Druck anders als die Vorschau). Die halbe Zeile (2,25 mm) wirkte im
+Vergleich wie ein eigener Block; 1,0 mm klebt bei mehrzeiligen Absätzen.
+
+**Zwei Messfallen, beide erlebt:**
+
+1. **Ohne Neuladen misst man das alte CSS.** Der erste Vergleichslauf lieferte
+   für 2,25 und 1,5 mm **identische** Werte — die Seite hatte beim letzten
+   Laden noch das alte Stylesheet. Das Messkript lädt die Seite jetzt vor
+   jedem Lauf neu (`?abstand=<zeit>`).
+2. **Zeilenlücke ≠ Absatzlücke.** Die Lücke *innerhalb* eines Absatzes beträgt
+   gemessen 0,43 mm (Glyphenkästen, nicht Zeilenraster). Ohne diesen Bezug
+   wirken 2,5 mm wie „kaum mehr als normal" — es ist das Sechsfache.
+
+Test angepasst: verlangt 1,5 mm in beiden Dateien und prüft, dass es **unter**
+einer halben Zeile bleibt (vorher: „mindestens halbe Zeile").

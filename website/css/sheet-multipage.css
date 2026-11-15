@@ -571,10 +571,11 @@ body[data-seiten]:not([data-seiten="1"]) #brief-ansicht,
 
 
   #text p {
-    /* Halbe Zeile (2,25 mm) - gleicher Wert wie auf dem Schirm, sonst
-       paginiert der Druck anders als die Vorschau (Nutzerentscheidung
-       2026-11-15, vorher 2,9 mm). */
-    margin: 0 0 2.25mm 0 !important;
+    /* 1,5 mm - gleicher Wert wie auf dem Schirm, sonst paginiert der Druck
+       anders als die Vorschau. Nutzerentscheidung 2026-11-15 nach Messung:
+       2,25 mm ergab 2,54 mm sichtbare Luecke (6x die Zeilenluecke von
+       0,43 mm) und wirkte zu gross; 1,5 mm ergibt 2,02 mm. */
+    margin: 0 0 1.5mm 0 !important;
   }
 
   #text p:last-child {

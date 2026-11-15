@@ -61,7 +61,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B29** | Geoapify Performance Tuning (Pre-Warming, Session-Debounce & LRU-Cache) | S | ⭐⭐⭐ |
 | **B30** | Geoapify Region Bias & Multi-Cluster Failover (EU/Global Endpunkte) | S | ⭐⭐ |
 | **B31** | Native Browser-APIs: LocalFonts API (Systemschriften), EyeDropper & showPicker | S | ⭐⭐ |
-| **B32** | History / Brief-Verlauf (Archiv der letzten 10 Briefe) | S | ⭐⭐⭐⭐ |
+| **B32** | Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) | S | ⭐⭐⭐⭐ |
 | **B33** | DIN-5008-Telefonnummer-Formatierer (Expliziter Button) | S | ⭐⭐⭐ |
 | **B35** | Subpixel-Falz- und Lochmarken (SVG vs. CSS-Border) | S | ⭐⭐⭐ |
 | **B36** | Schema-Datei für v3 anlegen oder Verweis endgültig streichen | N | ⭐ |
@@ -264,7 +264,7 @@ angefasst, solange irgendetwas anderes offen ist.
 
 ---
 
-### B32 · History / Brief-Verlauf (Archiv der letzten 10 Briefe) · **S** · ⭐⭐⭐⭐
+### B32 · Brief-Verlauf und zwei Adressbücher (Addon `verlauf`) · **S** · ⭐⭐⭐⭐
 **Kontext:** Re-integriert aus archivierten Entwurfsmustern. Verhindert Datenverlust bei versehentlichem Leeren oder Überschreiben des Entwurfs.
 **Ziel:** Automatisches oder semi-automatisches Archivieren von Briefständen:
 - **Datenhaltung:** Eigener LocalStorage-Key `din_history` mit maximal 10 Einträgen (FIFO-Ringspeicher).
@@ -272,6 +272,37 @@ angefasst, solange irgendetwas anderes offen ist.
 - **Metadaten pro Eintrag:** `{ id, timestamp, empfaengerName, betreff, schema_version: 2, data }`.
 - **UI:** Schlankes `<details>`-Element in der Seitenleiste („Verlauf (letzte 10)“) mit Datum, Empfänger und Betreff.
 - **Sicherheit & Integrität:** Beim Wiederherstellen (`restoreState`) wird die bestehende Allowlist-Bereinigung (`sanitizeRichText`) zwingend durchlaufen. Bei ungespeicherten Änderungen am aktuellen Entwurf erfolgt eine Sicherheitsabfrage.
+
+**Vorarbeit liegt bereit, ist aber NICHT geladen (2026-11-15):**
+`website/addons/verlauf/` — `verlauf.js` (Datenschicht, 15 Exporte, kein DOM) und
+`README.md` (Konzept, Datenmodell, Aktivierung, Quota-Rechnung, offene
+Entscheidungen). Kein `<script>`, kein `import` in `main.js` — 0 Byte, solange
+niemand es lädt.
+
+**Drei Teile, eine Ablage:**
+- **Verlauf**: 10 Briefe, gespeichert als **Export-Payload**; Wiederherstellen
+  über `parseDinLetterPayload` → `applyImportedData` (der geprüfte Import-Pfad,
+  kein zweiter Restore-Weg).
+- **Absender-Adressbuch**: Name, Straße, Ort, Telefon, Mail.
+- **Empfänger-Adressbuch**: Firma, Name, Straße, Ort.
+
+**Warum eigene Schlüssel:** `din_local_addresses` ist die *abgeleitete*
+Such-Historie, und `draft-manager.js` löscht sie beim Zurücksetzen (Privacy,
+Zeile 476–482). Ein vom Nutzer getipptes Adressbuch darf dabei nicht
+verschwinden — also `din_addressbook_sender` / `din_addressbook_recipient`.
+
+**Funktionsprobe (Browser, 2026-11-15):** dynamisch importiert auf
+`127.0.0.1:8088` — 12 Speicherungen → 10 Einträge (neuester „Brief 12",
+ältester „Brief 3"), Doppel-Speicherung → gleiche id mit neuem Zeitstempel,
+600-KB-Brief → `ok:false` und Verlauf unverändert, `historyToImport` →
+`ok:true` mit Feldern und Layout, Adressbuch-Duplikat (Groß-/Kleinschreibung)
+→ 1 Eintrag, Löschen unbekannter id → `false`. Die `localStorage`-Schlüssel
+wurden danach zurückgesetzt.
+
+**Offen bis zur Aktivierung:** wann gespeichert wird (Empfehlung: nur bei
+Druck/Export, sonst zehn Fassungen desselben Briefes), ob „Zurücksetzen" den
+Verlauf mitlöscht, und ob der Empfänger automatisch ins Buch wandert (Empfehlung:
+nur auf Klick). Die UI fehlt bewusst — dieses Addon ist die Datenschicht.
 
 ### B33 · DIN-5008-Telefonnummer-Formatierer (Expliziter Button) · **S** · ⭐⭐⭐
 **Kontext:** DIN 5008 Kap. 20.6 (funktionsbezogene Gliederung von Telefonnummern).

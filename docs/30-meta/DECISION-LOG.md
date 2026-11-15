@@ -3370,11 +3370,3 @@ harte Fallbacks (`x: 11.9`, `y: 96.0`, `scale: 0.5`, `:94`),
 `signatureImage` wird nur auf `undefined` gesetzt — es ist eine Löschmarke,
 kein Wert. **Offen** als Frage 4 im Prompt: Absicht oder Lücke? Ein frisches
 Profil und ein Alt-Import sind die zwei Fälle, die es entscheiden.
-
-**Nachtrag (gleicher Tag).** Der Satz oben („beide Änderungen wurden nicht
-angefasst und nicht mitcommittet") beschrieb den Zustand um 12:30 — er gilt
-nicht mehr. Beide Wortwechsel sind inzwischen geprüft und committet
-(`15c01ba`): `Heiz-/Nebenkosten` → `Heiz-/Wasserkosten` (das ist das Beispiel
-der DIN 5008, die Zeile zitierte vorher eine Variante davon) und
-`Nebenkostenposition` → `Kostenposition`. Sie gehörten inhaltlich ins Repo,
-nur nicht in den Batch-Commit — genau deshalb wurden sie getrennt.

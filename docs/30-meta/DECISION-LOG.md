@@ -15,7 +15,7 @@ tags:
 - architecture
 title: 'Chronologisches Entscheidungs-Log: DECISION-LOG.md'
 type: log
-updated: '2026-11-12'
+updated: '2026-11-15'
 ---
 
 # Chronologisches Entscheidungs-Log: DECISION-LOG.md
@@ -3251,3 +3251,122 @@ heißt für Screenreader „Ansicht ändern", die Zone „Daten" heißt
 In-Zwischenablage, während Speichern und Drucken in der Gruppe „Ausgabe"
 liegen. Danach hat **kein** Fokusziel mehr eine namenlose Umgebung
 (vorher 6 von 21).
+
+---
+
+## 2026-11-15 — Zählweise: 89 Zeilen waren nicht 89 Vorkommen
+
+**Der Fehler.** Im Backlog stand „**89** `!important`", gezählt mit einer
+Zeilenheuristik. Richtig sind **92**. Der Unterschied ist eine einzige Regel:
+`website/css/base.css:332` setzt vier `!important` in **einer** Zeile
+(`#app-shell { display: block !important; width: auto !important; height: auto
+!important; overflow: visible !important; }`).
+
+| Zählweise | Ergebnis | taugt für |
+|---|---:|---|
+| `grep -c` (Zeilen mit Treffer) | 89 | „in wie vielen Zeilen steht es" |
+| `grep -o \| wc -l` (Vorkommen) | **92** | „wie viele Deklarationen sind es" |
+
+Die 92 sind die richtige Zahl für die Frage „wie viele `!important` muss ein
+`@layer`-Umbau ersetzen". Aufteilung nach Kontext: **55 im Druck**
+(`@media print` + `@page`), **37 außerhalb**. Unverändert: **295**
+ID-Selektor-Vorkommen in 2.982 Zeilen, **0** `@layer`.
+
+**Der Sprung 91 → 92** ist kein Zählfehler, sondern B82: die Ausnahme für die
+Hinweis-Lebensdauer unter `prefers-reduced-motion` ist eine bewusste,
+begründete `!important`-Zeile (`base.css:76`).
+
+**Konsequenz.** In `B59`, `batch/STATUS.md` und `batch/03-kaskade/prompt.md`
+steht jetzt die Zählweise mit: *Vorkommen, nicht Zeilen — `grep -o`, nicht
+`grep -c`.* Wer nachzählt und auf 89 kommt, hat Zeilen gezählt.
+
+**Lehre.** Eine Zahl ohne ihre Zählweise ist ein Versprechen ohne Deckung. Bei
+jeder Zählung gehört in denselben Satz, **was** gezählt wurde (Zeilen,
+Vorkommen, Selektoren, Elemente) — sonst korrigiert der nächste Leser richtig
+und glaubt, der erste hätte sich vertan.
+
+---
+
+## 2026-11-15 — `Papierkorb/` war weg: 149 Dateien, Hook blockiert
+
+**Was passiert ist.** Beim Commit von Batch 05 brach der Pre-Commit-Hook ab:
+
+```
+❌ [pre-commit] FATAL: 'Papierkorb/' fehlt oder ist leer! Commit abgebrochen.
+```
+
+`git status` zeigte **149 gelöschte Dateien** unter `Papierkorb/` — nicht
+committet, aber im Arbeitsbaum weg. Der Ordner existierte nicht mehr. Dieselbe
+Invariante prüft auch `tools/build_db.js:206`, das Fitness-Gate war damit
+ebenfalls rot („Build failed: Invariante verletzt").
+
+**Was es nicht war.** Keine Aktion dieser Sitzung. Die Befehle waren:
+`batch-facts.mjs`, `batch/kontrakt.py`, `batch/merge.py`, `backlog-sync.mjs`,
+`test-dossier.mjs`, Editoren. Keiner davon löscht Verzeichnisse. Zeitgleich
+wurden zwei fremde Dateien geändert (`docs/00-foundation/din5008.md`
+„Heiz-/Nebenkosten" → „Heiz-/Wasserkosten", `docs/30-meta/PERFEKTER-PROMPT.md`
+„Nebenkostenposition" → „Kostenposition"), Zeitstempel **12:22:53** — also
+parallele Aktivität im selben Arbeitsbaum, nicht dieser Lauf. Beide Änderungen
+wurden **nicht** angefasst und **nicht** mitcommittet.
+
+**Was es ist.** Ein Verstoß gegen eine ausdrückliche Projektregel:
+`docs/30-meta/HANDOFF.md:138` — „Der Ordner `Papierkorb/` ist eine permanente,
+unantastbare Ablage. Das Löschen, Leeren oder Verschieben dieses Verzeichnisses
+ist für alle Agenten strikt verboten."
+
+**Was getan wurde.** `git restore Papierkorb` — 149 Dateien zurück, Ordner
+wieder da, Fitness wieder 100.0 %, Hook wieder grün. Kein Workaround: der Hook
+wurde **nicht** mit `--no-verify` umgangen, und die Invariante in
+`tools/build_db.js` wurde **nicht** aufgeweicht.
+
+**Lehre.** Ein rotes Gate, dessen Ursache außerhalb der eigenen Änderung liegt,
+wird **gemeldet, nicht umgangen**. Und: bei fremden Änderungen im Arbeitsbaum
+gilt erst lesen, dann fragen — `git add -A` hätte die 149 Löschungen
+mitgenommen und den Verlust festgeschrieben.
+
+---
+
+## 2026-11-15 — Batch 05 vermessen: zwei Restore-Pfade, drei Befunde
+
+Die Scheibe „Zustand und Restore" wurde vor dem Prompt vermessen, damit im
+Auftrag Zahlen stehen und keine Fragen. Alle Werte mit Zeile in
+`batch/05-zustand-restore/fakten.md` (generiert von
+`tools/batch-facts.mjs --scheibe 05`, `--check` im Gate).
+
+**1. `targetLock` wird viermal geleert, nicht zweimal.**
+
+| Stelle | Kontext |
+|---|---|
+| `website/js/draft-manager.js:274` | `#restoreState()` |
+| `website/js/draft-manager.js:470` | `resetDraft()` |
+| `website/js/main.js:128` | nach `draftManager.loadDraft()` |
+| `website/js/main.js:215` | nach `draftManager.resetDraft()` |
+
+Die zwei Zeilen in `main.js` sind redundant: `loadDraft()` (245) ruft
+`#restoreState()` (255 → 274), und wenn es früh zurückkehrt, weil **kein**
+Entwurf existiert, ist der statische Startwert ohnehin `null`
+(`website/js/address-data.js:433`). `resetDraft()` setzt ihn in seinem Rumpf
+(470) selbst. **Entscheidung:** nicht sofort löschen, sondern als **B93** in
+den Backlog — mit Gegenprobe im Browser (Entwurf laden → Empfänger wählen →
+Sperre greift; Reset → Sperre weg), weil ein späterer Pfad die Zeile als
+Versicherung benutzt haben könnte.
+
+**2. Dynamische Importe: vier, nicht „irgendwo im Boot".**
+
+| Stelle | Ziel | am Boot-Pfad? |
+|---|---|---|
+| `website/js/main.js:151` | `./multipage-controller.js` | ja, im `bootStep` „Plugins", **ohne** `await` |
+| `:288`, `:302`, `:314` | `../addons/testbrief/testbrief.js` | nein, lazy im Klick-Handler |
+
+`typeof import('./x.js').T` in einer JSDoc-Zeile zählt **nicht** — sonst
+erscheinen zwei Phantom-Importe in `draft-manager.js` (die erste Zählung hatte
+genau die).
+
+**3. `DEFAULT_SETTINGS` ist unvollständig: 7 Schlüssel, 9 werden benutzt.**
+
+Fehlend: `signatureState` (2 Stellen, `website/js/signature.js:225/321`) und
+`signatureImage` (3 Stellen, `:47/226/320`). `signatureState` hat im Lesepfad
+harte Fallbacks (`x: 11.9`, `y: 96.0`, `scale: 0.5`, `:94`),
+`signatureImage` wird nur auf `undefined` gesetzt — es ist eine Löschmarke,
+kein Wert. **Offen** als Frage 4 im Prompt: Absicht oder Lücke? Ein frisches
+Profil und ein Alt-Import sind die zwei Fälle, die es entscheiden.

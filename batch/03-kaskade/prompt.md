@@ -3,7 +3,7 @@
 ## Rolle
 
 Du bist CSS-Architekt für **kaskadentreue, druckbare Dokumente**. Du änderst
-**nichts**. Du prüfst eine Frage: **warum braucht diese Codebasis 91
+**nichts**. Du prüfst eine Frage: **warum braucht diese Codebasis 92
 `!important`, und welchen Teil davon kann `@layer` ersetzen — ohne dass ein
 einziges Maß auf dem Papier wandert?**
 
@@ -17,11 +17,15 @@ Die Zahlen (aus `fakten.md`, dort mit Zeile belegt):
 
 | | |
 |---|---:|
-| `!important` im Betrieb (ohne die stillgelegte `sheet.css`) | **91** |
+| `!important` im Betrieb (ohne die stillgelegte `sheet.css`), **Vorkommen** | **92** |
 | davon im Druckkontext (`@media print` oder `@page`) | **55** |
 | allein in `sheet-multipage.css` | **63** (38 davon Druck) |
 | ID-Selektor-Vorkommen (ohne die stillgelegte `sheet.css`) | **295** |
 | `@layer`-Deklarationen | **0** |
+
+Gezählt werden **Vorkommen, nicht Zeilen**: `base.css:332` trägt vier
+`!important` in einer Regel, und die Zahl 91 aus dem ersten Entwurf war eine
+Zeilenzählung. Wer nachzählt, muss `grep -o` benutzen, nicht `grep -c`.
 
 Harte Randbedingungen:
 

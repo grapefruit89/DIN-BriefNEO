@@ -7,7 +7,7 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 ## Umfang
 
 - HTML-Dateien: 1, JS-Dateien: 21, CSS-Dateien: 5
-- Zeilen gesamt: HTML 466, JS 10389, CSS 3311
+- Zeilen gesamt: HTML 473, JS 10582, CSS 3332
 - Tests: 342 (`it(`-Aufrufe in `test/all.js`, statisch gezaehlt)
 - Antipattern-Regeln: 51 (Summe aus `tools/antipatterns/*.json`)
 - Fitness-Score: bewusst nicht hier — entsteht nur durch `node tools/build_db.js`
@@ -17,30 +17,30 @@ nicht mehr zum Quelltext passt. Alle Zahlen sind aus den Dateien gezaehlt.
 | Datei | Zeilen |
 |---|---:|
 | `website/addons/testbrief/testbrief.js` | 1510 |
-| `website/js/address.js` | 1314 |
-| `website/css/sidebar.css` | 1270 |
+| `website/js/address.js` | 1383 |
+| `website/css/sidebar.css` | 1281 |
 | `website/js/address-data.js` | 1066 |
 | `website/js/document.js` | 932 |
 | `website/js/persistence.js` | 895 |
-| `website/css/sheet-common.css` | 723 |
+| `website/css/sheet-common.css` | 725 |
 | `website/js/clipboard-parser.js` | 615 |
 | `website/css/sheet-multipage.css` | 605 |
 | `website/js/draft-manager.js` | 550 |
-| `website/index.html` | 466 |
+| `website/index.html` | 473 |
 | `website/js/format.js` | 450 |
+| `website/js/font-feature.js` | 416 |
+| `website/css/base.css` | 367 |
 | `website/addons/verlauf/verlauf.js` | 361 |
-| `website/css/base.css` | 359 |
-| `website/css/sheet.css` | 354 |
 
 ## CSS: Kennzahlen je Datei
 
 | Datei | Zeilen | `!important` | ID-Selektoren | Custom Properties | `@scope` | `@function` |
 |---|---:|---:|---:|---:|---:|---:|
-| `website/css/base.css` | 359 | 24 | 4 | 67 | 0 | 7 |
-| `website/css/sheet-common.css` | 723 | 2 | 138 | 10 | 2 | 0 |
+| `website/css/base.css` | 367 | 25 | 5 | 67 | 0 | 7 |
+| `website/css/sheet-common.css` | 725 | 2 | 138 | 10 | 2 | 0 |
 | `website/css/sheet-multipage.css` | 605 | 67 | 67 | 9 | 3 | 6 |
 | `website/css/sheet.css` | 354 | 26 | 22 | 0 | 3 | 3 |
-| `website/css/sidebar.css` | 1270 | 3 | 120 | 3 | 0 | 0 |
+| `website/css/sidebar.css` | 1281 | 3 | 120 | 3 | 0 | 0 |
 
 ## DOM-Zustands-Schreiber in JS
 
@@ -71,6 +71,7 @@ sind per Regex nicht sicher von lokalen Variablen zu trennen und bleiben drausse
 | `status` | 2 | js/address.js (2) |
 | `type` | 2 | js/core.js (2) |
 | `wired` | 2 | js/address.js (2) |
+| `--hinweis-dauer` | 1 | js/core.js (1) |
 | `--i` | 1 | js/multipage-controller.js (1) |
 | `--sig-rot` | 1 | js/signature.js (1) |
 | `--sig-scale` | 1 | js/signature.js (1) |
@@ -87,6 +88,7 @@ sind per Regex nicht sicher von lokalen Variablen zu trennen und bleiben drausse
 | `data-marks` | 1 | js/boot.js (1) |
 | `data-placeholder` | 1 | js/address.js (1) |
 | `data-seeded` | 1 | js/boot-state.js (1) |
+| `data-systemschriften` | 1 | js/font-feature.js (1) |
 | `data-ueberlauf` | 1 | js/document.js (1) |
 | `data-ueberlauf-zeilen` | 1 | js/document.js (1) |
 | `data-voll` | 1 | js/document.js (1) |

@@ -1,0 +1,8 @@
+# Batch 05 — Zustand und Restore
+# Zwei Dateien, eine Frage: boot-state.js (Seeder, vor dem Paint) und
+# draft-manager.js (Restore, nach dem Boot). persistence.js steht NICHT im
+# Anhang (896 Zeilen, 32 KiB) - seine Kennzahlen stehen mit Zeile in
+# fakten.md, seine Rolle in KONTRAKT.md.
+/home/moritz/repos/DIN-BriefNEO/website/js/boot-state.js
+/home/moritz/repos/DIN-BriefNEO/website/js/draft-manager.js
+/home/moritz/repos/DIN-BriefNEO/batch/05-zustand-restore/fakten.md

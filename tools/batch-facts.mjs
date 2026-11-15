@@ -29,7 +29,7 @@ const iScheibe = process.argv.indexOf('--scheibe');
 const SCHEIBE = iScheibe > -1 && process.argv[iScheibe + 1] ? process.argv[iScheibe + 1] : '02';
 const ZIEL = join(
   ROOT,
-  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade' }[SCHEIBE] || 'batch/02-boot-pfad',
+  { '01': 'batch/01-architektur-vertrag', '03': 'batch/03-kaskade', '05': 'batch/05-zustand-restore' }[SCHEIBE] || 'batch/02-boot-pfad',
   'fakten.md',
 );
 
@@ -482,12 +482,179 @@ ${(mp ? mp.important : [])
 `;
 }
 
+function scheibe05() {
+  /* Zustand und Restore: die vier Dateien, die am Rueckspielen beteiligt sind. */
+  const DATEIEN05 = [
+    { rel: 'website/js/boot-state.js', rolle: 'Seeder vor dem ersten Paint (klassisches Skript)' },
+    { rel: 'website/js/draft-manager.js', rolle: 'Entwurf laden, speichern, zuruecksetzen' },
+    { rel: 'website/js/persistence.js', rolle: 'DEFAULT_SETTINGS, STORAGE_KEYS, loadJSON/saveJSON, istAn' },
+    { rel: 'website/js/main.js', rolle: 'Boot-Reihenfolge (bootStep) und die Aufrufstellen' },
+  ];
+
+  const zeilenVon = (rel) => zeilen(rel);
+
+  /* 1. Kennzahlen je Datei */
+  const kennzahlen = DATEIEN05.map((d) => {
+    const z = zeilenVon(d.rel);
+    const methoden = [];
+    z.forEach((line, i) => {
+      /* Methodenkopf, keine Aufrufzeile: `name(a, b) {` mit `{` direkt nach
+       * der Klammer. `bootStep('Plugins', () => {` faellt damit raus. */
+      const m = line.match(/^  (?:async\s+)?(#?[A-Za-z_][\w]*)\([^()]*\)\s*\{\s*$/);
+      const KEIN_METHODENNAME = new Set(['if', 'for', 'while', 'switch', 'catch', 'return', 'function']);
+      if (m && !KEIN_METHODENNAME.has(m[1])) methoden.push({ name: m[1], nr: i + 1 });
+    });
+    const funktionen = [];
+    z.forEach((line, i) => {
+      const m = line.match(/^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_][\w]*)/);
+      if (m) funktionen.push({ name: m[1], nr: i + 1 });
+    });
+    let iife = null;
+    z.forEach((line, i) => {
+      if (/^\(\(\)\s*=>\s*\{/.test(line)) iife = { von: i + 1 };
+      else if (iife && /^\}\)\(\);/.test(line)) iife.bis = i + 1;
+    });
+    return { ...d, n: z.length, methoden, funktionen, iife, z };
+  });
+
+  /* 2. targetLock: alle Setzstellen */
+  const targetLock = [];
+  for (const d of kennzahlen) {
+    d.z.forEach((line, i) => {
+      if (/AddressIntelligence\.targetLock\s*=/.test(line)) {
+        targetLock.push({ datei: d.rel.replace('website/js/', ''), nr: i + 1, roh: line.trim() });
+      }
+    });
+  }
+
+  /* 3. dynamische Importe */
+  const importe = [];
+  for (const d of kennzahlen) {
+    d.z.forEach((line, i) => {
+      /* `typeof import('./x.js').T` in einer JSDoc-Zeile ist keine Ladeanweisung. */
+      if (/typeof\s+import\(/.test(line)) return;
+      const m = line.match(/(?:await\s+)?import\(\s*['"]([^'"]+)['"]/);
+      if (m) importe.push({ datei: d.rel.replace('website/js/', ''), nr: i + 1, ziel: m[1] });
+    });
+  }
+
+  /* 4. Settings-Schluessel: DEFAULT_SETTINGS gegen tatsaechliche Nutzung */
+  const pers = kennzahlen.find((k) => k.rel.endsWith('persistence.js')).z;
+  const dStart = pers.findIndex((l) => l.includes('export const DEFAULT_SETTINGS'));
+  const dEnde = pers.findIndex((l, i) => i > dStart && /^\};/.test(l));
+  const defaultBlock = pers.slice(dStart, dEnde > dStart ? dEnde : dStart + 20).join('\n');
+  const defaults = [...defaultBlock.matchAll(/^\s{2}([A-Za-z_][\w]*):\s*[^,\n]+,?$/gm)].map((m) => m[1]);
+  const genutzt = new Map();
+  for (const datei of readdirSync(join(ROOT, 'website/js')).filter((f) => f.endsWith('.js')).sort()) {
+    const z = zeilen(`website/js/${datei}`);
+    z.forEach((line, i) => {
+      for (const m of line.matchAll(/\bsettings\.([A-Za-z_][\w]*)/g)) {
+        const key = m[1];
+        if (!genutzt.has(key)) genutzt.set(key, []);
+        genutzt.get(key).push(`${datei}:${i + 1}`);
+      }
+    });
+  }
+  const nurCode = [...genutzt.entries()].filter(([k]) => k !== 'js');
+  const fehlendInDefaults = nurCode.filter(([k]) => !defaults.includes(k));
+
+  /* 5. Boolean-Helfer */
+  const boolTreffer = [];
+  for (const datei of readdirSync(join(ROOT, 'website/js')).filter((f) => f.endsWith('.js')).sort()) {
+    zeilen(`website/js/${datei}`).forEach((line, i) => {
+      if (/\bistAn\s*\(/.test(line) || /!==\s*false/.test(line)) {
+        boolTreffer.push({ datei, nr: i + 1 });
+      }
+    });
+  }
+
+  /* 6. Allowlist im Restore */
+  const draftZ = kennzahlen.find((k) => k.rel.endsWith('draft-manager.js')).z;
+  const allowlist = [];
+  draftZ.forEach((line, i) => {
+    if (/EDITABLE_FIELD_SELECTOR/.test(line)) allowlist.push({ nr: i + 1, roh: line.trim().slice(0, 90) });
+  });
+
+  return `# Fakten zu Zustand und Restore
+
+**Erzeugt von \`tools/batch-facts.mjs --scheibe 05\` — nicht von Hand bearbeiten.**
+\`node tools/batch-facts.mjs --scheibe 05 --check\` bricht ab, wenn dieses Blatt
+nicht mehr zum Quelltext passt. Alle Zeilennummern sind aus den Dateien gelesen.
+
+## 1. Die vier Dateien
+
+| Datei | Zeilen | Methoden | freie Funktionen | Rolle |
+|---|---:|---:|---:|---|
+${kennzahlen.map((k) => `| \`${k.rel.replace('website/js/', '')}\` | ${k.n} | ${k.methoden.length} | ${k.funktionen.length} | ${k.rolle} |`).join('\n')}
+
+### Methoden und Funktionen mit Zeile
+
+${kennzahlen
+  .map((k) => {
+    const liste = [
+      ...k.methoden.map((m) => `\`${m.name}\` (${m.nr})`),
+      ...k.funktionen.map((f) => `\`${f.name}\` (${f.nr})`),
+    ];
+    const zusatz = k.iife ? `IIFE ${k.iife.von}–${k.iife.bis} (klassisches Skript, kann nichts importieren)` : '';
+    return `**${k.rel.replace('website/js/', '')}** — ${[liste.join(', '), zusatz].filter(Boolean).join(' · ') || '(keine)'}`;
+  })
+  .join('\n\n')}
+
+## 2. \`targetLock\`: alle Setzstellen
+
+Gesucht nach \`AddressIntelligence.targetLock =\` in allen JavaScript-Dateien.
+
+| Datei | Zeile | Zeile im Quelltext |
+|---|---:|---|
+${targetLock.map((t) => `| \`${t.datei}\` | ${t.nr} | \`${esc(t.roh).slice(0, 72)}\` |`).join('\n')}
+
+## 3. Dynamische Importe
+
+| Datei | Zeile | Ziel |
+|---|---:|---|
+${importe.map((i) => `| \`${i.datei}\` | ${i.nr} | \`${i.ziel}\` |`).join('\n')}
+
+## 4. \`DEFAULT_SETTINGS\` gegen die tatsächliche Nutzung
+
+\`DEFAULT_SETTINGS\` enthält **${defaults.length}** Schlüssel:
+${defaults.map((d) => `\`${d}\``).join(', ')}.
+
+Gelesen oder geschrieben werden über \`settings.<key>\` **${nurCode.length}** verschiedene Schlüssel.
+Nicht in \`DEFAULT_SETTINGS\`:
+
+${fehlendInDefaults.length === 0
+  ? '_keiner_'
+  : fehlendInDefaults
+      .map(([k, orte]) => `- \`${k}\` — ${orte.length} Stelle(n): ${orte.map((o) => `\`${o}\``).join(', ')}`)
+      .join('\n')}
+
+## 5. Schalter-Semantik (B65)
+
+\`istAn(...)\` oder \`!== false\` an **${boolTreffer.length}** Stellen:
+
+${boolTreffer.map((b) => `- \`${b.datei}:${b.nr}\``).join('\n')}
+
+## 6. Allowlist im Restore-Pfad
+
+\`EDITABLE_FIELD_SELECTOR\` wird in \`draft-manager.js\` an diesen Stellen geprüft:
+
+| Zeile | Zeile im Quelltext |
+|---:|---|
+${allowlist.map((a) => `| ${a.nr} | \`${esc(a.roh)}\` |`).join('\n')}
+
+Das ist die Allowlist, die der Seeder (\`boot-state.js\`) seit B69 ebenfalls
+benutzt — dort als lokale Kopie des Selektors, weil ein klassisches Skript
+nichts importieren kann.
+`;
+}
+
 const SKRIPTE = skripte();
 const DATEIEN = ['website/js/boot.js', 'website/js/boot-state.js', 'website/js/main.js'];
 
 const bloecke = [];
 if (SCHEIBE === '01') bloecke.push(scheibe01());
 else if (SCHEIBE === '03') bloecke.push(scheibe03());
+else if (SCHEIBE === '05') bloecke.push(scheibe05());
 else bloecke.push(`# Fakten zum Boot-Pfad
 
 **Erzeugt von \`tools/batch-facts.mjs\` — nicht von Hand bearbeiten.**

@@ -50,7 +50,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 
 ## Übersicht
 
-24 offene Punkte. Details unterhalb, nach Art gruppiert.
+25 offene Punkte. Details unterhalb, nach Art gruppiert.
 
 | Nr | Aufgabe | Aufwand | Nutzen |
 |---|---|:---:|:---:|
@@ -78,6 +78,7 @@ denselben IDs, damit Verweise (z. B. `B7`) weiter auflösen.
 | **B85** | Anschriftfeld-Geometrie: DIN Tab. B.1 oder bewusste Abweichung? | M | ⭐⭐⭐ |
 | **B87** | Text- und Adress-Parsing modernisieren (Konzept) | M | ⭐ |
 | **B91** | BIC → Bankname als Erweiterung (Addon) | M | ⭐⭐ |
+| **B93** | `targetLock` wird viermal geleert, zweimal davon umsonst | S | ⭐ |
 ## 🏗️ Architektur & Technik
 
 Schulden, Gates, Messbarkeit. Diese Punkte ändern, **wie** die App gebaut ist.
@@ -144,15 +145,21 @@ nicht):
 | Datei | `!important` | Zeilen |
 |---|---:|---:|
 | `website/css/sheet-multipage.css` | 63 | 606 |
-| `website/css/base.css` | 22 | 368 |
+| `website/css/base.css` | 25 | 368 |
 | `website/css/sidebar.css` | 3 | 1.282 |
 | `website/css/sheet-common.css` | 1 | 726 |
-| **Summe** | **89** | **2.982** |
+| **Summe** | **92** | **2.982** |
 
-Aufteilung nach Kontext: **50 Druck**, **13 `@media screen`**, **26 global**.
-Dazu **295 ID-Selektor-Vorkommen** in 2.982 Zeilen.
+**Zählweise: Vorkommen, nicht Zeilen.** `base.css:332` trägt vier auf einer
+Zeile (`#app-shell { … }`), deshalb 25 statt 22. Wer Zeilen zählt, kommt auf
+89 und rechnet falsch. Aufteilung nach Kontext: **55 im Druck**
+(`@media print` + `@page`), **37 außerhalb**. Dazu **295
+ID-Selektor-Vorkommen** in 2.982 Zeilen, **0 `@layer`**.
 
-**Vorbedingung aus B92 (gemessen, nicht vermutet):** die 89 sind **nicht**
+Der Sprung 91 → 92 kommt von B82: die Ausnahme für die Hinweis-Lebensdauer
+unter `prefers-reduced-motion` ist eine bewusste, begründete `!important`-Zeile.
+
+**Vorbedingung aus B92 (gemessen, nicht vermutet):** die 92 sind **nicht**
 pauschal ersetzbar. Von fünf geprüften Kandidaten waren **drei nicht tot**
 (`@top-left`/`@top-right` `content: none` und `#spacer { display: block }`
 tragen), einer ist wirkungslos (`@page :first`-Rand), einer ist tragend
@@ -162,6 +169,34 @@ Ein `@layer`-Umbau braucht deshalb **pro Etappe beide Messungen**: PDF-Pixel
 Grenze: `!important` gegen **Inline-Style** (JS setzt `style=`) und der
 `*`-Kill-Switch in `@media (prefers-reduced-motion)` sind strukturell nicht
 durch `@layer` ersetzbar — dort bleibt `!important`.
+
+### B93 · `targetLock` wird viermal geleert, zweimal davon umsonst · **S** · ⭐
+**Herkunft:** Batch 05, `batch/05-zustand-restore/fakten.md` §2 (gemessen
+2026-11-15).
+
+`AddressIntelligence.targetLock` wird an **vier** Stellen auf `null` gesetzt:
+
+| Stelle | Kontext |
+|---|---|
+| `website/js/draft-manager.js:274` | `#restoreState()` |
+| `website/js/draft-manager.js:470` | `resetDraft()` |
+| `website/js/main.js:128` | nach `draftManager.loadDraft()` |
+| `website/js/main.js:215` | nach `draftManager.resetDraft()` |
+
+**Befund:** die zwei Zeilen in `main.js` sind redundant.
+`loadDraft()` (245) ruft `#restoreState()` (255 → 274); kehrt es früh zurück,
+weil **kein** Entwurf existiert, ist der statische Startwert ohnehin `null`
+(`website/js/address-data.js:433`). `resetDraft()` setzt ihn in seinem Rumpf
+(470) selbst. Beide `main.js`-Zeilen tun also nichts, was nicht schon
+geschieht — sie sind ein zweiter Aufräumpfad für dieselbe Variable.
+
+**Aufgabe:** die zwei Zeilen entfernen, danach die Ratsche in `test/all.js`
+(„Zustand nach Reset") und `q`-freie Gegenprobe: Entwurf laden → Empfänger
+wählen → Sperre greift? Reset → Sperre weg? Beides vorher/nachher im Browser.
+
+**Risiko:** klein, aber nicht null — falls ein späterer Pfad `loadDraft()`
+überspringt und `targetLock` vorher gesetzt wurde, war die Zeile eine
+Versicherung. Deshalb Gegenprobe statt Annahme.
 
 ### B64 · `sidebar.css`: Optik und Struktur trennen · **L** · ⭐⭐
 1241 Zeilen, **118 ID-Selektor-Vorkommen**, und darin liegen zwei Dinge

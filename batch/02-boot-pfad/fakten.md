@@ -10,7 +10,7 @@ zum Quelltext passt. Alle Zeilennummern sind aus den Dateien gelesen.
 |---|---|---|
 | 36 | klassisch | `js/boot.js?v=boot2` |
 | 37 | Modul (deferred) | `js/main.js?v=live6` |
-| 464 | klassisch | `js/boot-state.js?v=bs2` |
+| 471 | klassisch | `js/boot-state.js?v=bs2` |
 
 Klassische Skripte blockieren den Parser; Module laufen nach dem Parse.
 
